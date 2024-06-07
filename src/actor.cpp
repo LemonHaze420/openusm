@@ -681,8 +681,7 @@ void actor::_un_mash(generic_mash_header *a3, void *a4, generic_mash_data_ptrs *
 
             v4->rebase(4u);
 
-            auto *v42 = v4->field_0;
-            v4->field_0 += v38;
+            auto *v42 = v4->get<uint8_t>(v38);
 
             global_transfer_variable_the_actor = this;
 
@@ -705,8 +704,7 @@ void actor::_un_mash(generic_mash_header *a3, void *a4, generic_mash_data_ptrs *
 
             v4->rebase(4u);
 
-            auto *v48 = v4->field_0;
-            v4->field_0 += v44;
+            auto *v48 = v4->get<uint8_t>(v44);
 
             mash_info_struct a1 {v48, v44};
 
