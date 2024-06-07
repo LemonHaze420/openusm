@@ -9,39 +9,25 @@ void anim_info::un_mash(generic_mash_header *, void *, generic_mash_data_ptrs *a
 {
     if ( (this->field_1C & 0x2000000) != 0 )
     {
-        auto v4 = 8 - ((int)a4->field_4 & 7);
-        if ( v4 < 8 )
-        {
-            a4->field_4 += v4;
-        }
+        a4->rebase_shared(8u);
 
-        auto v5 = 4 - ((int)a4->field_4 & 3);
-        if ( v5 < 4 )
-        {
-            a4->field_4 += v5;
-        }
+        a4->rebase_shared(4u);
 
-        this->field_14 = (int)a4->field_4;
-        a4->field_4 += 16;
+        this->field_14 = a4->get_from_shared<char>(16u);
     }
     else
     {
-        this->field_14 = 0;
+        this->field_14 = nullptr;
     }
 
     if ( (this->field_1C & 0x4000000) != 0 )
     {
-        auto v6 = 4 - ((int)a4->field_4 & 3);
-        if ( v6 < 4 )
-        {
-            a4->field_4 += v6;
-        }
+        a4->rebase(4u);
 
-        this->field_18 = (int)a4->field_4;
-        a4->field_4 += 0x34;
+        this->field_18 = a4->get<char>(0x34);
     }
     else
     {
-        this->field_18 = 0;
+        this->field_18 = nullptr;
     }
 }
