@@ -656,27 +656,16 @@ void entity_base::_un_mash(generic_mash_header *a1, void *a2, generic_mash_data_
 
     if constexpr (1)
     {
-        std::memcpy(&this->field_4, a3->field_4, 4);
-        a3->field_4 += 4;
+        this->field_4 = *a3->get_from_shared<uint32_t>();
+        this->field_8 = *a3->get_from_shared<uint32_t>();
 
-        std::memcpy(&this->field_8, a3->field_4, 4);
-        a3->field_4 += 4;
         if ( !this->is_conglom_member() )
         {
-            auto v6 = 16 - ((int)a3->field_0 % 16);
-            if ( v6 < 16 )
-            {
-                a3->field_0 += v6;
-            }
+            a3->rebase(16u);
 
-            auto v7 = 4 - ((int)a3->field_0 % 4);
-            if ( v7 < 4 )
-            {
-                a3->field_0 += v7;
-            }
+            a3->rebase(4u);
 
-            this->my_rel_po = (po *) a3->field_0;
-            a3->field_0 += sizeof(po);
+            this->my_rel_po = a3->get<po>();
 
             {
                 auto *header = a1;
@@ -702,23 +691,14 @@ void entity_base::_un_mash(generic_mash_header *a1, void *a2, generic_mash_data_
 
         if ( (a1->field_E & 0x880) != 0 )
         {
-            auto v9 = 8 - ((int)a3->field_0 % 8);
-            if ( v9 < 8 )
-            {
-                a3->field_0 += v9;
-            }
+            a3->rebase(8u);
 
 #ifndef TARGET_XBOX
             if ( (a1->field_E & 0x880) != 0 )
             {
-                auto v10 = 4 - ((int)a3->field_0 & 3);
-                if ( v10 < 4 )
-                {
-                    a3->field_0 += v10;
-                }
+                a3->rebase(4u);
 
-                this->my_sound_and_pfx_interface = (sound_and_pfx_interface *)a3->field_0;
-                a3->field_0 += sizeof(sound_and_pfx_interface);
+                this->my_sound_and_pfx_interface = a3->get<sound_and_pfx_interface>();
                 this->my_sound_and_pfx_interface->m_vtbl = ifc_v_table_lookup()[12];
                 this->my_sound_and_pfx_interface->un_mash(
                     a1,
@@ -735,13 +715,9 @@ void entity_base::_un_mash(generic_mash_header *a1, void *a2, generic_mash_data_
 
         if ( this->is_flagged(0x400) )
         {
-            if ( auto v11 = 4 - ((int) a3->field_4 % 4u);
-                    v11 < 4 ) {
-                a3->field_4 += v11;
-            }
+            a3->rebase_shared(4u);
 
-            auto *v12 = bit_cast<convex_box *>(a3->field_4);
-            a3->field_4 += sizeof(convex_box);
+            auto *v12 = a3->get_from_shared<convex_box>();
             auto *v13 = (box_trigger *) trigger_manager::instance->new_box_trigger(this->field_10, this);
             v13->set_box_info(*v12);
         }
