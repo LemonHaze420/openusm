@@ -15,7 +15,7 @@ void sin_strip_container::un_mash(
         void *,
         generic_mash_data_ptrs *a4)
 {
-    rebase(a4->field_0, 4u);
+    a4->rebase(4u);
 
     auto v5 = *a4->get<int>();
     this->strip_name = a4->get<char>(v5);

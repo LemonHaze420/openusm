@@ -15,7 +15,7 @@ void sin_district_container::un_mash(
         void *,
         generic_mash_data_ptrs *a4)
 {
-    rebase(a4->field_0, 4);
+    a4->rebase(4);
 
     auto v5 = *a4->get<int>();
     this->district_name = a4->get<char>(v5);

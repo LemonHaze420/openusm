@@ -36,9 +36,7 @@ void resource_directory::un_mash_start(generic_mash_header *header,
     if constexpr (1)
     {
         //sp_log("0x%08X", a4->field_0);
-        if (uint32_t v6 = 8 - ((uint32_t) a4->field_0 % 8u); v6 < 8) {
-            a4->field_0 += v6;
-        }
+        a4->rebase(8u);
 
         this->parents.custom_un_mash(header, &this->parents, a4, nullptr);
         this->resource_locations.custom_un_mash(header, &this->resource_locations, a4, nullptr);

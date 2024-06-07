@@ -32,7 +32,7 @@ void __fastcall sub_599380(
         int field_4;
     } *self = static_cast<decltype(self)>(a1);
 
-    rebase(a5->field_0, 4);
+    a5->rebase(4);
 
     int v6 = *a5->get<int>();
 
@@ -55,14 +55,17 @@ void script_var_container::un_mash(generic_mash_header *header, void *a3, generi
 
         this->script_var_block.un_mash(header, this, a4);
 
-        rebase(a4->field_0, 4);
+        a4->rebase(4);
 
-        rebase(a4->field_0, 4);
+        a4->rebase(4);
 
-        this->script_var_to_addr = (int (*)[2])a4->field_0;
-        a4->field_0 += 8 * this->field_10;
+        struct type {
+            char field_0[8];
+        };
 
-        rebase(a4->field_0, 4);
+        this->script_var_to_addr = CAST(this->script_var_to_addr, a4->get<type>(this->field_10));
+
+        a4->rebase(4);
 
         for ( auto i = 0; i < this->field_10; ++i ) {
             assert(((int)header) % 4 == 0);

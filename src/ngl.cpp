@@ -1799,10 +1799,9 @@ nglMeshFile *nglLoadMeshFile(const tlFixedString &a1)
 void nglMeshFile::un_mash_start(generic_mash_header *header,
                                 void *,
                                 generic_mash_data_ptrs *a3,
-                                void *) {
-    if (uint32_t v5 = 8 - ((uint32_t) a3->field_0 % 8); v5 < 8) {
-        a3->field_0 += v5;
-    }
+                                void *)
+{
+    a3->rebase(8u);
 
     assert(((int) header) % 4 == 0);
 }
@@ -2864,10 +2863,7 @@ void nglMorphFile::un_mash_start(generic_mash_header *header,
                                  generic_mash_data_ptrs *a3,
                                  void *)
 {
-    auto v5 = 8 - ((int) a3->field_0 % 8u);
-    if (v5 < 8) {
-        a3->field_0 += v5;
-    }
+    a3->rebase(8u);
 
     assert(((int) header) % 4 == 0);
 }

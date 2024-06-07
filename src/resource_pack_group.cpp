@@ -47,7 +47,7 @@ void resource_pack_group::un_mash(generic_mash_header *a2,
 
         this->field_8.custom_un_mash(a2, &this->field_8, a4, nullptr);
 
-        rebase(a4->field_0, 4);
+        a4->rebase(4);
 
         auto v7 = this->field_1C;
         this->field_14 = a4->get<int>(v7);

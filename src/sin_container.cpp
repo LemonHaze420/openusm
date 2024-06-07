@@ -34,7 +34,7 @@ void sin_container::un_mash(generic_mash_header *a2, void *a3, generic_mash_data
 {
     if constexpr (0)
     {
-        rebase(a4->field_0, 4u);
+        a4->rebase(4u);
 
         auto v5 = *a4->get<int>();
         this->master_script_name = a4->get<char>(v5);

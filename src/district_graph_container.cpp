@@ -22,7 +22,7 @@ void dsg_region_container::un_mash(generic_mash_header *header,
 {
     if constexpr (1)
     {
-        rebase(a4->field_0, 4u);
+        a4->rebase(4u);
 
         auto v5 = *a4->get<int>();
         this->field_0 = a4->get<char>(v5);
