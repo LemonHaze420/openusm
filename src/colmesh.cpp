@@ -60,10 +60,7 @@ void cg_mesh::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data_ptrs
 
         this->field_9 = false;
 
-        static resource_key col_mesh_name {};
-
-        std::memcpy(&col_mesh_name, a4->field_4, sizeof(resource_key));
-        a4->field_4 += sizeof(resource_key);
+        static resource_key col_mesh_name = *a4->get_from_shared<resource_key>();
 
         int size = 0;
         auto *resource = resource_manager::get_resource(col_mesh_name, &size, nullptr);
