@@ -125,7 +125,7 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
 #ifndef TARGET_XBOX
         if ( (a2->field_E & 0x40) != 0 )
         {
-            rebase(a4->field_0, 4);
+            a4->rebase(4);
 
             this->skeleton_ifc = a4->get<skeleton_interface>();
             fix_ifc_v_table((char *) this->skeleton_ifc, (eEntityMashIFCTypeEnum) 6);
@@ -167,7 +167,7 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
 #ifndef TARGET_XBOX
         if ( (a2->field_E & 4) != 0 )
         {
-            rebase(a4->field_0, 4);
+            a4->rebase(4);
 
             this->field_11C = a4->get<animation_interface>();
 
@@ -184,7 +184,7 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
 
         if ( (a2->field_E & 0x20) != 0 )
         {
-            rebase(a4->field_0, 4);
+            a4->rebase(4);
 
             this->script_data_ifc = a4->get<script_data_interface>();
 
@@ -203,7 +203,7 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
 
         if ( (a2->field_E & 0x2000) != 0 )
         {
-            rebase(a4->field_0, 4);
+            a4->rebase(4);
 
             this->field_124 = a4->get<tentacle_interface>();
 
@@ -221,7 +221,7 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
 
         if ( (a2->field_E & 0x1000) != 0 )
         {
-            rebase(a4->field_0, 4);
+            a4->rebase(4);
 
             this->my_decal_data_interface = a4->get<decal_data_interface>();
 
@@ -243,7 +243,7 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
 
         if ( (a2->field_E & 0x4000) != 0 )
         {
-            rebase(a4->field_0, 4);
+            a4->rebase(4);
 
             this->m_variant_interface = a4->get<variant_interface>();
 
@@ -291,17 +291,16 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
 
             if ( __ENT_TYPE != _ENTM_TYPE_MAX )
             {
-                rebase(a4->field_4, 4);
+                a4->rebase_shared(4);
                 
                 auto *header = a4->get_from_shared<generic_mash_header>();
                 assert(((int)header) % 4 == 0);
 
                 assert(__ENT_TYPE == header->get_class_id());
 
-                rebase(a4->field_0, sizeof(generic_mash_header));
+                a4->rebase(sizeof(generic_mash_header));
 
-                entity_base *__ENT_ptr = CAST(__ENT_ptr, a4->field_0);
-                a4->field_0 += ent_size_lookup()[header->get_class_id()];
+                entity_base *__ENT_ptr = CAST(__ENT_ptr, a4->get<char>(ent_size_lookup()[header->get_class_id()]));
 
                 {
                     eEntityMashTypeEnum v11 = (eEntityMashTypeEnum) header->get_class_id();
@@ -387,17 +386,16 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
             actor *tmp_ptr = nullptr;
             if ( __ENT_TYPE != _ENTM_TYPE_MAX )
             {
-                rebase(a4->field_4, 4);
+                a4->rebase_shared(4);
 
                 auto *header = a4->get_from_shared<generic_mash_header>();
                 assert(((int)header) % 4 == 0);
 
                 assert(__ENT_TYPE == header->get_class_id());
 
-                rebase(a4->field_0, sizeof(generic_mash_header));
+                a4->rebase(sizeof(generic_mash_header));
                 
-                auto *__ENT_ptr = (entity_base *) a4->field_0;
-                a4->field_0 += ent_size_lookup()[header->get_class_id()];
+                entity_base *__ENT_ptr = CAST(__ENT_ptr, a4->get<char>(ent_size_lookup()[header->get_class_id()]));
 
                 {
                     auto v26 = (eEntityMashTypeEnum) header->get_class_id();
@@ -432,9 +430,9 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
         if ( v59 != 0 ) {
             int v61 = *a4->get<int>();
 
-            rebase(a4->field_0, 16);
+            a4->rebase(16);
 
-            rebase(a4->field_0, 4);
+            a4->rebase(4);
 
             global_transfer_variable_the_conglom() = this;
 
