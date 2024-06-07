@@ -37,6 +37,10 @@ struct generic_mash_data_ptrs {
     uint8_t *field_0;
     uint8_t *field_4;
 
+    generic_mash_data_ptrs() = default;
+
+    generic_mash_data_ptrs(uint8_t *a1, uint8_t *a2) : field_0(a1), field_4(a2) {}
+
     template<typename T>
     T *get(uint32_t num = 1) {
         auto *res = bit_cast<T *>(this->field_0);

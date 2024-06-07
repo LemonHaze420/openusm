@@ -100,9 +100,7 @@ void *parse_generic_mash_init(generic_mash_header *&header,
         v16 = cur_ptr + struct_size;
     }
 
-    a4->field_0 = v16;
-    a4->field_4 = header->get_mash_data();
-
+    *a4 = generic_mash_data_ptrs {v16, header->get_mash_data()};
     return addr;
 }
 
