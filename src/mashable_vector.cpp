@@ -122,7 +122,8 @@ void mashable_vector<resource_location>::custom_un_mash(generic_mash_header *hea
         auto v24 = *a4->get_from_shared<uint32_t>();
 
         auto v11 = *a4->get_from_shared<uint32_t>();
-        a4->field_4 += 4;
+
+        a4->get_from_shared<int>();
 
         auto *v9 = a4->get_from_shared<uint32_t>();
 
@@ -134,8 +135,8 @@ void mashable_vector<resource_location>::custom_un_mash(generic_mash_header *hea
 
         if (v9[0] != 0)
         {
-            a4->field_0 += v24;
-            a4->field_4 += v11 - sizeof(value_t) * this->m_size;
+            a4->get<char>(v24);
+            a4->get_from_shared<char>(v11 - sizeof(value_t) * this->m_size);
         }
         else
         {
@@ -182,7 +183,7 @@ void mashable_vector<tlresource_location>::custom_un_mash(generic_mash_header *h
         auto offset = *a4->get_from_shared<uint32_t>();
         auto offset1 = *a4->get_from_shared<uint32_t>();
 
-        a4->field_4 += 4;
+        a4->get_from_shared<int>();
 
         auto *v9 = a4->get_from_shared<int>();
 
@@ -194,8 +195,8 @@ void mashable_vector<tlresource_location>::custom_un_mash(generic_mash_header *h
 
         if (v9[0] != 0)
         {
-            a4->field_0 += offset;
-            a4->field_4 += offset1 - sizeof(value_t) * this->m_size;
+            a4->get<char>(offset);
+            a4->get_from_shared<char>(offset1 - sizeof(value_t) * this->m_size);
         }
         else
         {
@@ -239,31 +240,13 @@ void mashable_vector<resource_pack_group>::custom_un_mash(generic_mash_header *h
 
         a4->rebase_shared(8u);
 
-#if 0
-        auto offset = *bit_cast<uint32_t *>(a4->field_4);
-        a4->field_4 += 4;
+        auto offset = *a4->get_from_shared<int>();
 
-        auto offset1 = *bit_cast<uint32_t *>(a4->field_4);
-        a4->field_4 += 4;
-        a4->field_4 += 4;
+        auto offset1 = *a4->get_from_shared<int>();
 
-        auto *v9 = bit_cast<int *>(a4->field_4);
-        a4->field_4 += 4;
+        a4->get_from_shared<int>();
 
-#else
-        struct {
-            uint32_t offset;
-            uint32_t offset1;
-            uint32_t empty;
-            uint32_t field_C;
-        } *ptr = CAST(ptr, a4->field_4);
-
-        auto offset = ptr->offset;
-        auto offset1 = ptr->offset1;
-        auto *v9 = &ptr->field_C;
-
-        a4->field_4 += sizeof(*ptr);
-#endif
+        auto *v9 = a4->get_from_shared<int>();
 
         a4->rebase_shared(8u);
 
@@ -271,10 +254,10 @@ void mashable_vector<resource_pack_group>::custom_un_mash(generic_mash_header *h
 
         this->m_data = a4->get_from_shared<value_t>(this->m_size);
 
-        if (v9[0]) {
-            a4->field_0 += offset;
-            a4->field_4 += offset1 - sizeof(value_t) * this->m_size;
-        } else if (this->m_size) {
+        if (v9[0] != 0) {
+            a4->get<char>(offset);
+            a4->get_from_shared<char>(offset1 - sizeof(value_t) * this->m_size);
+        } else if (this->m_size != 0) {
             for (int i = 0; i < this->m_size; ++i) {
                 assert(((int) header) % 4 == 0);
                 this->m_data[i].un_mash(header, &this->m_data[i], a4);
@@ -328,8 +311,8 @@ void mashable_vector<resource_allocation_pool>::custom_un_mash(generic_mash_head
         this->m_data = a4->get_from_shared<value_t>(this->m_size);
 
         if (v9[0]) {
-            a4->field_0 += offset;
-            a4->field_4 += offset1 - sizeof(value_t) * this->m_size;
+            a4->get<char>(offset);
+            a4->get_from_shared<char>(offset1 - sizeof(value_t) * this->m_size);
         }
         else
         {
@@ -498,31 +481,29 @@ void mashable_vector<int8_t>::custom_un_mash(generic_mash_header *, void *, gene
 template<>
 void mashable_vector<anim_info>::custom_un_mash(generic_mash_header *a2, void *, generic_mash_data_ptrs *a4, void *)
 {
+    TRACE("mashable_vector<anim_info>::custom_un_mash");
+
     if ( this->m_shared )
     {
         a4->rebase_shared(8);
 
-        auto v8 = (int)a4->field_4;
-        auto v9 = (int *)(v8 + 4);
-        auto offset = *(DWORD *)v8;
-        auto v10 = (uint8_t *)(v8 + 16);
-        a4->field_4 = (uint8_t *)(v8 + 4);
-        auto offset1 = *(DWORD *)(v8 + 4);
-        auto v12 = 8 - (((BYTE)v8 + 16) & 7);
-        a4->field_4 = v10;
-        if ( v12 < 8 )
-        {
-            a4->field_4 = &v10[v12];
-        }
+        auto offset = *a4->get_from_shared<int>();
+        auto offset1 = *a4->get_from_shared<int>();
 
-        a4->rebase_shared(4);
+        a4->get_from_shared<int>();
+
+        auto *v9 = a4->get_from_shared<int>();
+
+        a4->rebase_shared(8u);
+
+        a4->rebase_shared(4u);
 
         this->m_data = a4->get_from_shared<anim_info>(this->m_size);
 
-        if ( v9[2] )
+        if ( v9[0] != 0 )
         {
-            a4->field_0 += offset;
-            a4->field_4 += offset1 - sizeof(value_t) * this->m_size;
+            a4->get<char>(offset);
+            a4->get_from_shared<char>(offset1 - sizeof(value_t) * this->m_size);
         }
         else
         {
@@ -532,7 +513,7 @@ void mashable_vector<anim_info>::custom_un_mash(generic_mash_header *a2, void *,
             }
         }
 
-        ++v9[2];
+        ++v9[0];
 
         a4->rebase_shared(4);
     }
@@ -555,31 +536,29 @@ void mashable_vector<anim_info>::custom_un_mash(generic_mash_header *a2, void *,
 template<>
 void mashable_vector<anim_map_ptr_entry>::custom_un_mash(generic_mash_header *header, void *, generic_mash_data_ptrs *a4, void *)
 {
+    TRACE("mashable_vector<anim_map_ptr_entry>::custom_un_mash");
+
     if ( this->is_shared() )
     {
         a4->rebase_shared(8);
 
-        auto v8 = (int)a4->field_4;
-        auto offset = *(DWORD *)v8;
-        auto v9 = (int *)(v8 + 4);
-        auto v10 = (uint8_t *)(v8 + 16);
-        a4->field_4 = (uint8_t *)(v8 + 4);
-        auto offset1 = *(DWORD *)(v8 + 4);
-        auto v12 = 8 - (((BYTE)v8 + 16) & 7);
-        a4->field_4 = v10;
-        if ( v12 < 8 )
-        {
-            a4->field_4 = &v10[v12];
-        }
+        auto offset = *a4->get_from_shared<int>();
+        auto offset1 = *a4->get_from_shared<int>();
+
+        a4->get_from_shared<int>();
+
+        auto *v9 = a4->get_from_shared<int>();
+
+        a4->rebase_shared(8u);
 
         a4->rebase_shared(4);
 
         this->m_data = a4->get_from_shared<anim_map_ptr_entry>(this->m_size);
 
-        if ( v9[2] )
+        if ( v9[0] != 0 )
         {
-            a4->field_0 += offset;
-            a4->field_4 += offset1 - sizeof(value_t) * this->m_size;
+            a4->get<char>(offset);
+            a4->get_from_shared<char>(offset1 - sizeof(value_t) * this->m_size);
         }
         else
         {
@@ -590,7 +569,7 @@ void mashable_vector<anim_map_ptr_entry>::custom_un_mash(generic_mash_header *he
             }
         }
 
-        ++v9[2];
+        ++v9[0];
 
         a4->rebase_shared(4);
     }
@@ -631,7 +610,7 @@ void mashable_vector<fx_cache_ent>::custom_un_mash(
             auto offset = *a4->get_from_shared<int>();
             auto offset1 = *a4->get_from_shared<int>();
 
-            a4->field_4 += 4;
+            a4->get_from_shared<int>();
 
             auto *v9 = a4->get_from_shared<int>();
 
@@ -643,8 +622,8 @@ void mashable_vector<fx_cache_ent>::custom_un_mash(
 
             if ( v9[0] != 0 )
             {
-                a4->field_0 += offset;
-                a4->field_4 += offset1 - sizeof(value_t) * this->m_size;
+                a4->get<char>(offset);
+                a4->get_from_shared<char>(offset1 - sizeof(value_t) * this->m_size);
             }
             else
             {
@@ -735,6 +714,17 @@ void mashable_vector<sin_strip_container>::custom_un_mash(
 
 void mashable_vector_patch()
 {
+    {
+        FUNC_ADDRESS(address, &mashable_vector<anim_map_ptr_entry>::custom_un_mash);
+        REDIRECT(0x004D3C8C, address);
+    }
+
+    {
+        FUNC_ADDRESS(address, &mashable_vector<anim_info>::custom_un_mash);
+        REDIRECT(0x004D1600, address);
+        REDIRECT(0x004D16B0, address);
+    }
+
     {
         FUNC_ADDRESS(address, &mashable_vector<resource_directory *>::custom_un_mash);
         REDIRECT(0x0051F70B, address);
