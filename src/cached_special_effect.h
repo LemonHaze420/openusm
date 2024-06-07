@@ -17,8 +17,8 @@ struct cached_special_effect {
     resource_key field_0;
     resource_key field_8;
     vector3d field_10;
-    int field_1C;
-    int field_20;
+    char *field_1C;
+    char *field_20;
     sound_instance_id field_24;
     entity *field_28;
     float field_2C;

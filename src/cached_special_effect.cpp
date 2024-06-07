@@ -74,22 +74,19 @@ void cached_special_effect::un_mash(
         this->field_30 = nullptr;
         this->field_28 = nullptr;
 
-        rebase(a4->field_4, 4u);
+        a4->rebase_shared(4u);
 
         auto v5 = *a4->get_from_shared<int>();
 
-        this->field_1C = int(a4->field_4);
+        this->field_1C = a4->get_from_shared<char>(v5);
 
-        a4->field_4 += v5;
-
-        rebase(a4->field_4, 4u);
+        a4->rebase_shared(4u);
 
         auto v9 = *a4->get_from_shared<int>();
 
-        this->field_20 = int(a4->field_4);
-        a4->field_4 += v9;
+        this->field_20 = a4->get_from_shared<char>(v9);
 
-        rebase(a4->field_4, 4u);
+        a4->rebase_shared(4u);
 
         this->field_30 = a4->get_from_shared<fx_cache>();
 

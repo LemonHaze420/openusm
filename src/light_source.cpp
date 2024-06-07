@@ -149,7 +149,7 @@ void light_source::_un_mash(
 {
     entity::un_mash(header, a3, a4);
 
-    rebase(a4->field_0, 4u);
+    a4->rebase(4u);
 
     this->properties = a4->get<light_properties>();
 
