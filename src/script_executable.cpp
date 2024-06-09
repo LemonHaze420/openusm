@@ -876,8 +876,8 @@ const char *script_executable::get_system_string(unsigned int index) const {
     return this->system_string_table[index];
 }
 
-uint16_t * script_executable::lookup_sx_code_segment(unsigned int offset) {
-
+uint16_t * script_executable::lookup_sx_code_segment(unsigned int offset) const
+{
     TRACE("script_executable::lookup_sx_code_segment", std::to_string(offset).c_str());
 
     assert(sx_exe_image != nullptr && "We should have loaded the executable code from the sxl or sxb file");

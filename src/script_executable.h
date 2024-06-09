@@ -110,7 +110,7 @@ struct script_executable {
 
     const char *get_system_string(unsigned int index) const;
 
-    uint16_t * lookup_sx_code_segment(unsigned int offset);
+    uint16_t * lookup_sx_code_segment(unsigned int offset) const;
 
     //0x005A3500
     void link();
