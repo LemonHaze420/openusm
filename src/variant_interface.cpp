@@ -7,11 +7,9 @@
 
 VALIDATE_SIZE(variant_interface, 0x58);
 
-variant_interface::variant_interface(conglomerate *a2)
+variant_interface::variant_interface(conglomerate *a2) : conglomerate_interface(a2)
 {
     this->m_vtbl = 0x008835A0;
-    this->field_4 = a2;
-    this->field_8 = true;
 }
 
 variant_info *variant_interface::get_random_variant()

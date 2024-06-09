@@ -1,6 +1,7 @@
 #pragma once
 
-#include "generic_interface.h"
+#include "conglomerate_interface.h"
+
 #include "mashable_vector.h"
 #include "string_hash.h"
 
@@ -11,9 +12,7 @@ struct nglMesh;
 struct nglMorphSet;
 struct variant_speaker_id_set;
 
-struct variant_interface : generic_interface {
-    conglomerate *field_4;
-    bool field_8;
+struct variant_interface : conglomerate_interface {
     mashable_vector<variant_info> variants;
     mashable_vector<variant_speaker_id_set> field_14;
     variant_info *field_1C;
