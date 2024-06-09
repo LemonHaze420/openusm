@@ -1,15 +1,13 @@
 #pragma once
 
-#include "generic_interface.h"
+#include "conglomerate_interface.h"
+
 #include "vector3d.h"
 
 struct entity;
 
-struct tentacle_interface : generic_interface
+struct tentacle_interface : conglomerate_interface
 {
-    entity *field_4;
-    bool field_8;
-    char field_9[3];
     bool field_C;
     char field_D[3];
     vector3d field_10;

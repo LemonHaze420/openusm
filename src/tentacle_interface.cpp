@@ -1,6 +1,7 @@
 #include "tentacle_interface.h"
 
 #include "common.h"
+#include "conglom.h"
 #include "entity.h"
 #include "event.h"
 #include "event_manager.h"
@@ -33,7 +34,7 @@ void tentacle_interface::begin_zip(const vector3d &a2)
     this->field_28 = 0;
     if ( v3 == 0 )
     {
-        auto v4 = this->field_4->my_handle;
+        auto v4 = this->my_conglomerate->my_handle;
         this->field_34 = event_manager::add_callback(
              event::ANIM_ACTION,
              v4,
