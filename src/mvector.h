@@ -14,8 +14,10 @@ struct mash_info_struct;
 template<typename T>
 struct mVector : mContainer_base {
     T **m_data;
-    int field_C;
+    int m_max_size;
     bool field_10;
+
+    using value_type = T;
 
     struct iterator {
         T **_Ptr;
@@ -157,13 +159,33 @@ struct mVector : mContainer_base {
     }
 
     void custom_unmash(mash_info_struct *, void *);
+
+    void reserve(int a2);
+
+    void push_back()
+    {
+        assert(this->m_size <= this->m_max_size);
+        if ( this->m_size == this->m_max_size
+                || this->is_pointer_in_mash_image(this->m_data) )
+        {
+            this->reserve(8 * (this->m_size / 8) + 8);
+        }
+
+        this->m_data[this->m_size++] = nullptr;
+    }
+
+    void push_back(T *a2)
+    {
+        this->push_back();
+        this->m_data[this->m_size - 1] = a2;
+    }
 };
 
 template<typename T>
-struct mVectorBasic : mContainer
+struct mVectorBasic : mContainer_base
 {
     T *m_data;
-    int field_C;
+    int m_max_size;
 
     int size() const {
         return this->m_size;
@@ -176,4 +198,23 @@ struct mVectorBasic : mContainer
     void unmash(mash_info_struct *, void *);
 
     void custom_unmash(mash_info_struct *, void *);
+
+    void reserve(int a2);
+
+    void push_back()
+    {
+        assert(m_size <= m_max_size);
+
+        if ( this->m_size == this->m_max_size || this->is_pointer_in_mash_image(this->m_data) ) {
+            this->reserve(8 * (this->m_size / 8) + 8);
+        }
+
+        ++this->m_size;
+    }
+
+    void push_back(const T &a2)
+    {
+        this->push_back();
+        this->m_data[this->m_size - 1] = a2;
+    }
 };

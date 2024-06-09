@@ -1,13 +1,13 @@
 #include "mvector.h"
 
+#include "actor.h"
 #include "ai_adv_strength_test_data.h"
 #include "anim_record.h"
 #include "attach_action_trigger_enum.h"
 #include "attach_node.h"
 #include "common.h"
+#include "entity_base_vhandle.h"
 #include "layer_state_machine_shared.h"
-#include "param_block.h"
-#include "actor.h"
 #include "als_category.h"
 #include "als_filter_data.h"
 #include "als_post_kill_rule.h"
@@ -35,10 +35,11 @@
 #include "panelanimfile.h"
 #include "panelquad.h"
 #include "panelquadsection.h"
+#include "param_block.h"
 #include "sound_alias_database.h"
 #include "trace.h"
-#include "entity_base_vhandle.h"
 #include "vtbl.h"
+#include "web_interface.h"
 
 VALIDATE_SIZE(mVector<int>, 0x14);
 
@@ -989,7 +990,7 @@ void mVector<ai::param_block::param_data>::initialize(mash::allocation_scope sco
     else
     {
         this->m_data = nullptr;
-        this->field_C = 0;
+        this->m_max_size = 0;
         this->field_10 = true;
     }
 }
@@ -1024,11 +1025,11 @@ void mVector<ai::param_block::param_data>::clear()
 
         if ( !this->is_pointer_in_mash_image(this->m_data) )
         {
-            mem_dealloc(this->m_data, 4 * this->field_C);
+            mem_dealloc(this->m_data, 4 * this->m_max_size);
         }
 
         this->m_data = nullptr;
-        this->field_C = 0;
+        this->m_max_size = 0;
 
         mContainer_base::clear();
     }
@@ -1079,6 +1080,50 @@ void mVector<ai::param_block::param_data>::custom_unmash(mash_info_struct *a2, v
     }
 
     this->field_0 = (int)&a2->mash_image_ptr[0][a2->buffer_size_used[0] - (DWORD)this];
+}
+
+template<>
+void mVector<web_info_nugget>::reserve(int a2)
+{
+    if ( a2 > this->m_max_size )
+    {
+        auto *v2 = static_cast<value_type **>(mem_alloc(4 * a2));
+        if ( this->m_data != nullptr )
+        {
+            if ( this->m_size > 0 ) {
+                std::memcpy(v2, this->m_data, 4 * this->m_size);
+            }
+
+            if ( !this->is_pointer_in_mash_image(this->m_data) ) {
+                mem_dealloc(this->m_data, 4 * this->m_max_size);
+            }
+        }
+
+        this->m_data = v2;
+        this->m_max_size = a2;
+    }
+}
+
+template<>
+void mVector<web_interface>::reserve(int a2)
+{
+    if ( a2 > this->m_max_size )
+    {
+        auto *v2 = static_cast<value_type **>(mem_alloc(4 * a2));
+        if ( this->m_data != nullptr )
+        {
+            if ( this->m_size > 0 ) {
+                std::memcpy(v2, this->m_data, 4 * this->m_size);
+            }
+
+            if ( !this->is_pointer_in_mash_image(this->m_data) ) {
+                mem_dealloc(this->m_data, 4 * this->m_max_size);
+            }
+        }
+
+        this->m_data = v2;
+        this->m_max_size = a2;
+    }
 }
 
 template<>
@@ -1718,4 +1763,28 @@ void mVectorBasic<vhandle_type<actor>>::unmash(mash_info_struct *a1, void *a2)
 #endif
 
     this->custom_unmash(a1, a2);
+}
+
+template<>
+void mVectorBasic<vhandle_type<actor>>::reserve(int a2)
+{
+    if ( a2 > this->m_max_size )
+    {
+        auto *mem = operator new(4 * a2);
+        auto *v2 = new (mem) vhandle_type<actor>[a2] {};
+
+        if ( this->m_data != nullptr )
+        {
+            if ( this->m_size > 0 ) {
+                std::memcpy(v2, this->m_data, 4 * this->m_size);
+            }
+
+            if ( !this->is_pointer_in_mash_image(this->m_data) ) {
+                operator delete[](this->m_data);
+            }
+        }
+
+        this->m_data = v2;
+        this->m_max_size = a2;
+    }
 }
