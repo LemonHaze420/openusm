@@ -1,8 +1,7 @@
 #pragma once
 
-#include "generic_interface.h"
+#include "conglomerate_interface.h"
 
-struct conglomerate;
 struct entity_base;
 struct po;
 
@@ -10,13 +9,11 @@ struct po;
 struct mash_info_struct;
 #endif
 
-struct skeleton_interface : generic_interface {
-    conglomerate *field_4;
-    bool field_8;
+struct skeleton_interface : conglomerate_interface {
     po *abs_po;
     int po_count;
 
-    skeleton_interface();
+    skeleton_interface(conglomerate *a1);
 
 #ifdef TARGET_XBOX
     void unmash(mash_info_struct *a2, void *a3);

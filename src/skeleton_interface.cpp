@@ -11,9 +11,9 @@
 
 VALIDATE_SIZE(skeleton_interface, 0x14);
 
-skeleton_interface::skeleton_interface()
+skeleton_interface::skeleton_interface(conglomerate *a1) : conglomerate_interface(a1)
 {
-
+    this->m_vtbl = 0x0088344C;
 }
 
 #ifdef TARGET_XBOX
@@ -40,5 +40,5 @@ void skeleton_interface::connect_bone_abs_po(int bone_idx, entity_base *new_bone
     assert(new_bone->my_abs_po == new_bone->my_rel_po);
 
     new_bone->my_abs_po = &this->abs_po[bone_idx];
-    this->field_8 |= 0x10000000u;
+    new_bone->set_ext_flag_recursive_internal(static_cast<entity_ext_flag_t>(0x10000000u), true);
 }
