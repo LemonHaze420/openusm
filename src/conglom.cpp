@@ -517,7 +517,7 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
         if ( this->has_variant_ifc() )
         {
             auto *v82 = this->variant_ifc();
-            v82->field_28 = v82->field_4->get_mesh()->File;
+            v82->field_28 = v82->my_conglomerate->get_mesh()->File;
             auto *v83 = v82->get_random_variant();
             v82->apply_variant(v83);
         }
