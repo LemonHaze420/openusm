@@ -41,6 +41,7 @@
 #include "utility.h"
 #include "variables.h"
 #include "vtbl.h"
+#include "web_interface.h"
 
 #include <list.hpp>
 
@@ -1070,6 +1071,13 @@ void actor::create_damage_ifc()
 
     auto *mem = mem_alloc(sizeof(damage_interface));
     this->m_damage_interface = new (mem) damage_interface {this};
+}
+
+void actor::create_web_ifc()
+{
+    if ( this->field_88 == nullptr ) {
+        this->field_88 = new web_interface {this};
+    }
 }
 
 float actor::get_colgeom_radius() const

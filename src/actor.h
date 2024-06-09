@@ -41,6 +41,7 @@ struct lego_map_root_node;
 struct movement_info;
 struct nal_anim_controller;
 struct nalBaseSkeleton;
+struct web_interface;
 
 struct actor : entity {
     using base_type = vhandle_type<entity>;
@@ -64,7 +65,7 @@ struct actor : entity {
     base_ai_data *field_7C;
     interactable_interface *m_interactable_ifc;
     facial_expression_interface *m_facial_expression_interface;
-    int field_88;
+    web_interface *field_88;
     ai_player_controller *m_player_controller;
     mesh_buffers field_90;
     traffic_light_interface *m_traffic_light_interface;
@@ -164,6 +165,9 @@ struct actor : entity {
 
     //0x004E2670
     void create_damage_ifc();
+
+    //0x004D6AA0
+    void create_web_ifc();
 
     //0x004F5720
     void common_destruct();
