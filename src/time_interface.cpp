@@ -8,15 +8,17 @@
 
 VALIDATE_SIZE(time_interface, 0x34);
 
-time_interface::time_interface(entity *a2) {
+time_interface::time_interface(entity *a2)
+{
     this->m_vtbl = 0x00883850;
-    this->field_8 = 0;
+    this->field_8 = false;
     this->field_4 = a2;
-    this->field_8 = 1;
+    this->field_8 = true;
     this->field_18 = 0;
     this->field_1C = 0;
     this->field_20 = 0;
-    if (!g_generating_vtables()) {
+    if (!g_generating_vtables())
+    {
         this->field_C = 1.0;
         this->field_10 = 1.0;
         this->field_14 = 1.0;

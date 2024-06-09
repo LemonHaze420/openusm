@@ -1,15 +1,14 @@
 #pragma once
 
+#include "entity_interface.h"
+
 #include "float.hpp"
 
 #include <cstdint>
 
 struct entity;
 
-struct time_interface {
-    std::intptr_t m_vtbl;
-    entity *field_4;
-    bool field_8;
+struct time_interface : entity_interface {
     float field_C;
     float field_10;
     float field_14;
