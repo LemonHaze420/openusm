@@ -18,6 +18,7 @@ struct signaller;
 struct generic_mash_header;
 struct generic_mash_data_ptrs;
 struct entity_base_vhandle;
+struct rocket_guidance_sys;
 
 extern inline constexpr auto PHYS_IFC_MAX_PENDULUM_CONSTRAINTS = 5;
 
@@ -30,7 +31,7 @@ struct physical_interface {
 
     std::intptr_t m_vtbl;
     actor *field_4;
-    bool field_8;
+    bool dynamic;
     char empty0[3];
     uint32_t field_C;
     int field_10;
@@ -67,7 +68,7 @@ struct physical_interface {
     int field_DC;
     int field_E0;
     float field_E4;
-    int field_E8;
+    rocket_guidance_sys *field_E8;
     float field_EC;
     float field_F0;
     int field_F4;
@@ -216,6 +217,14 @@ struct physical_interface {
                                                      force_type a3,
                                                      const vector3d &a4,
                                                      int a5);
+
+    void stop_prop_physics(bool a2);
+
+    void remove_from_phys_ifc_list();
+
+    //virtual
+    void release_ifc();
+
 
     //0x004ECFF0
     //virtual

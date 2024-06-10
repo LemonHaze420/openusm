@@ -4,6 +4,7 @@
 #include "biped_system.h"
 #include "common.h"
 #include "func_wrapper.h"
+#include "guidance_sys.h"
 #include "log.h"
 #include "oldmath_po.h"
 #include "pendulum.h"
@@ -14,6 +15,7 @@
 #include "utility.h"
 #include "variables.h"
 #include "vector3d.h"
+#include "vtbl.h"
 #include "wds.h"
 
 #include <cassert>
@@ -31,9 +33,8 @@ static constexpr float MAX_ASSERT_PHYSICAL_VELOCITY = 500.f;
 physical_interface::physical_interface(actor *a2) : field_188(), field_198()
 {
     this->m_vtbl = 0x00883A44;
-    this->field_8 = 0;
     this->field_4 = a2;
-    this->field_8 = 1;
+    this->dynamic = true;
     this->field_C = 0;
     this->field_84 = {};
     this->field_88 = {};
@@ -83,7 +84,7 @@ physical_interface::physical_interface(actor *a2) : field_188(), field_198()
         this->field_EC = 0.55000001;
         this->field_15C = 0.0;
         this->field_160 = 0.0;
-        this->field_E8 = 0;
+        this->field_E8 = nullptr;
         this->field_164 = 1.0;
         this->field_168 = 1.0;
         this->field_16C = 1.0;
@@ -409,10 +410,6 @@ void physical_interface::set_allow_manage_standing(bool a2) {
     this->field_C = v3;
 }
 
-void physical_interface::stop_biped_physics(bool a2) {
-    THISCALL(0x004F2700, this, a2);
-}
-
 void physical_interface::clear_static_lists()
 {
     memset(physical_interface::rotators, 0, sizeof(physical_interface::rotators));
@@ -637,6 +634,55 @@ void physical_interface::manage_standing(bool a2)
     TRACE("physical_interface::manage_standing");
 
     THISCALL(0x004F8580, this, a2);
+}
+
+void physical_interface::stop_biped_physics(bool a2) {
+    THISCALL(0x004F2700, this, a2);
+}
+
+void physical_interface::stop_prop_physics(bool a2)
+{
+    THISCALL(0x004F10F0, this, a2);
+}
+
+void physical_interface::remove_from_phys_ifc_list()
+{
+    for ( auto it = all_phys_interfaces->begin(); it != all_phys_interfaces->end(); ++it )
+    {
+        if ((*it) == this) {
+            all_phys_interfaces->erase(it);
+        }
+    }
+
+    if ( all_phys_interfaces->empty() )
+    {
+        delete all_phys_interfaces;
+        all_phys_interfaces = nullptr;
+    }
+}
+
+void physical_interface::release_ifc()
+{
+    auto *v2 = this->field_E8;
+    if ( v2 != nullptr )
+    {
+        if ( LOBYTE(v2->field_1C) ) {
+            void (__fastcall *finalize)(void *, void *edx, bool) = CAST(finalize, get_vfunc(v2->m_vtbl, 0x0));
+            finalize(v2, nullptr, true);
+        }
+
+        this->field_E8 = nullptr;
+    }
+
+    if ( (this->field_C & 0x80000) != 0 ) {
+        this->stop_biped_physics(true);
+    }
+
+    if ( this->field_174 ) {
+        this->stop_prop_physics(true);
+    }
+
+    this->remove_from_phys_ifc_list();
 }
 
 void physical_interface_patch() {
