@@ -2057,54 +2057,30 @@ void nglProcessMorph(nglMeshFile *MeshFile, nglDirectoryEntry *a2, int base) {
             MeshFile->FirstMorph = Morph;
         }
 
-        if (Morph->field_4 != 0) {
-            auto *v6 = Morph->field_8 + 2;
-            for (auto idx = 0u; idx < Morph->field_4; ++idx) {
-                if (*v6) {
-                    *v6 += base;
-                }
-
-                auto v7 = 0u;
-                if (*(v6 - 1)) {
-                    auto *v8 = (int *) (*v6 + 12);
-                    do {
-                        auto *v9 = v8;
-                        auto v10 = 8;
-                        do {
-                            auto v11 = *(v9 - 1);
-                            if (v11) {
-                                *(v9 - 1) = base + v11;
-                            }
-
-                            if (*v9) {
-                                *v9 += base;
-                            }
-
-                            int v12 = v9[1];
-                            if (v12) {
-                                v9[1] = base + v12;
-                            }
-
-                            int v13 = v9[2];
-                            if (v13) {
-                                v9[2] = base + v13;
-                            }
-
-                            v9 += 4;
-                            --v10;
-                        } while (v10);
-                        v8 += 34;
-                        ++v7;
-                    } while (v7 < *(v6 - 1));
-                }
-
-                v6 += 3;
+        auto *Frames = Morph->Frames;
+        for (auto idx = 0u; idx < Morph->NFrames; ++idx)
+        {
+            if ( Frames->field_8 != nullptr ) {
+                Frames->field_8 = CAST(Frames->field_8, ((char *)Frames->field_8 + base));
             }
 
-            *Morph->field_8 = 2;
-        } else {
-            *Morph->field_8 = 2;
+            auto *v9 = Frames->field_8;
+            for ( int j = 0; j < Frames->field_4; ++j )
+            {
+                for ( int k = 0; k < 32; ++k )
+                {
+                    if ( v9->field_8[k] ) {
+                        v9->field_8[k] += base;
+                    }
+                }
+
+                ++v9;
+            }
+
+            ++Frames;
         }
+
+        Morph->Frames->field_0 = 2;
     } else {
         CDECL_CALL(0x00778840, MeshFile, a2, base);
     }

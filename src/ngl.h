@@ -401,8 +401,16 @@ extern void nglSetMaterialDirectory(tlResourceDirectory<nglMaterialBase, tlHashS
 
 struct nglMorphSet {
     tlHashString field_0;
-    int field_4;
-    int *field_8;
+    int NFrames;
+    struct {
+        int field_0;
+        int field_4;
+        struct {
+            int field_0;
+            int field_4;
+            int field_8[32];
+        } *field_8;
+    } *Frames;
     nglMeshFile *field_C;
     nglMorphSet *field_10;
 };
