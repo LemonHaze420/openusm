@@ -31,11 +31,19 @@ struct decal_data_interface : conglomerate_interface {
 
     void add_to_decal_ifc_list();
 
+    void remove_from_decal_ifc_list();
+
     //0x004D1CC0
     static void frame_advance_all_decal_interfaces(Float a1);
 
     //virtual
+    void release_ifc();
+
+    //virtual
     void constructor_common();
+
+    //virtual
+    void destructor_common();
 
     static inline auto & all_decal_interfaces = var<_std::vector<decal_data_interface *> *>(0x01564534);
 };
