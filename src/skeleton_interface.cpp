@@ -29,6 +29,11 @@ void skeleton_interface::unmash(mash_info_struct *a2, void *a3)
 }
 #endif
 
+void skeleton_interface::release_ifc()
+{
+    ;
+}
+
 void skeleton_interface::connect_bone_abs_po(int bone_idx, entity_base *new_bone)
 {
     TRACE("skeleton_interface::connect_bone_abs_po");
