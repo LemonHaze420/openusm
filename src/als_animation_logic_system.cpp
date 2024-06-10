@@ -15,6 +15,7 @@
 #include "trace.h"
 #include "traffic.h"
 #include "utility.h"
+#include "vtbl.h"
 #include "wds.h"
 
 namespace als {
@@ -129,6 +130,19 @@ void animation_logic_system::create_instance_data(animation_logic_system_shared 
     } else {
         THISCALL(0x004ABC60, this, system_shared);
     }
+}
+
+void animation_logic_system::delete_instance_data()
+{
+    for ( auto &the_state_machine : this->field_8 )
+    {
+        if ( the_state_machine != nullptr ) {
+            void (__fastcall *finalize)(void *, void *, bool) = CAST(finalize, get_vfunc(the_state_machine->m_vtbl, 0x60u));
+            finalize(the_state_machine, nullptr, true);
+        }
+    }
+
+    this->field_8.clear();
 }
 
 base_state_machine *animation_logic_system::get_als_layer_internal(layer_types a2)

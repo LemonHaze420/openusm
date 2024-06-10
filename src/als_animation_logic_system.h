@@ -88,6 +88,9 @@ public:
     void create_instance_data(animation_logic_system_shared *a2);
 
     //virtual
+    void delete_instance_data();
+
+    //virtual
     void reset_animation_player();
 
     //0x00498D10
