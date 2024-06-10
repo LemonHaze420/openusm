@@ -34,3 +34,8 @@ web_sound_params * sound_and_pfx_interface::get_web_sound_params(
         return nullptr;
     }
 }
+
+void sound_and_pfx_interface::release_ifc()
+{
+    pfx_interface::release_ifc();
+}

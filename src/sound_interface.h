@@ -16,7 +16,7 @@ struct sound_emitter_id
 
 struct sound_interface : entity_base_interface {
     int field_4;
-    bool field_8;
+    bool dynamic;
     sound_emitter_id field_C;
     shared_sound_interface_info *field_10;
     vector3d field_14;

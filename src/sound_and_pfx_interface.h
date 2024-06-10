@@ -17,4 +17,7 @@ struct sound_and_pfx_interface : pfx_interface {
     web_sound_params * get_web_sound_params(
         string_hash a1);
 
+    //virtual
+    void release_ifc();
+
 };
