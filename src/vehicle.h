@@ -71,6 +71,8 @@ struct vehicle : vehicle_sounds {
 
 	int get_vehicle_body_type(vhandle_type<entity> a1);
 
+    color32 get_part_color(string_hash a2);
+
 	void set_collidable(bool a2);
 
 	void set_visible(bool a2);

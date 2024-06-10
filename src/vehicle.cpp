@@ -3,6 +3,7 @@
 #include "actor.h"
 #include "base_ai_core.h"
 #include "common.h"
+#include "conglom.h"
 #include "func_wrapper.h"
 #include "wds.h"
 #include "wds_entity_manager.h"
@@ -11,7 +12,7 @@ VALIDATE_SIZE(vehicle, 0x130);
 
 VALIDATE_OFFSET(vehicle_model, refcount, 0x14);
 
-static Var<color32[]> car_colors {0x00938190};
+static auto & car_colors = var<color32[]>(0x00938190);
 
 vehicle::vehicle(vhandle_type<entity> a1)
 {
@@ -66,7 +67,7 @@ void vehicle::reset()
 		this->field_12D = 0;
 		this->field_5C = 0;
 		this->field_60 = 0;
-		this->field_64 = car_colors()[0];
+		this->field_64 = car_colors[0];
 		this->update_part_cache();
 		this->set_damage_level(0, 0);
 		this->set_damage_level(0, 1);
@@ -119,6 +120,27 @@ int vehicle::get_vehicle_body_type(vhandle_type<entity> a1)
 	} else {
 		return vehicle::cur_vehicle_type();
 	}
+}
+
+color32 vehicle::get_part_color(string_hash a2)
+{
+    auto *v3 = this->get_my_actor();
+    if ( v3->is_a_conglomerate() )
+    {
+        auto *v4 = bit_cast<conglomerate *>(v3);
+
+        auto *body_member = bit_cast<entity *>(v4->get_member(a2, true));
+        assert(body_member != nullptr && "Can't find the body member of the conglomerate");
+
+        if (body_member != nullptr)
+        {
+            auto col = body_member->get_render_color();
+            return col;
+        }
+    }
+
+    auto result = car_colors[0];
+    return result;
 }
 
 void vehicle::set_collidable(bool a2)
