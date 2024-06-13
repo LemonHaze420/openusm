@@ -2723,7 +2723,33 @@ void register_entity_lib()
 #undef BUILD_SLF_NAME
 }
 
-void script_lib_entity_patch() {
+int slc_entity_t::_find_instance(const mString &a1) const
+{
+    TRACE("slc_entity_t::find_instance");
+
+    if (a1 == "NULL") {
+        return 0;
+    }
+
+    auto *ent = (entity *) entity_handle_manager::find_entity(string_hash {a1.c_str()}, 
+            IGNORE_FLAVOR, true);
+    if ( ent == nullptr )
+    {
+        auto v5 = "entity " + a1;
+        mString v6 = v5 + " not found";
+        error(v6.c_str());
+    }
+
+    return ent->get_my_vhandle().get_goodies();
+}
+
+void script_lib_entity_patch()
+{
+    {
+        FUNC_ADDRESS(address, &slc_entity_t::_find_instance);
+        set_vfunc(0x0089A4C4, address);
+    }
+
     {
         FUNC_ADDRESS(address, &slf__entity__add_item__entity__t::operator());
         set_vfunc(0x0089AF48, address);
