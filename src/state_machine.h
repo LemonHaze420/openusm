@@ -27,7 +27,6 @@ enum internal_parameter_types {};
 
 struct state_machine {
 
-protected:
     std::intptr_t m_vtbl;
     layer_state_machine_shared *shared_portion;
     struct {
