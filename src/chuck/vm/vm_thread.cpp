@@ -206,20 +206,24 @@ void vm_thread::slf_error(const mString &a2)
     }
 }
 
+#include "script_executable.h"
+
 bool vm_thread::run()
 {
-    //TRACE("vm_thread::run");
+    TRACE("vm_thread::run");
 
     assert(PC_stack.end() >= PC_stack.begin());
 
     {
-        printf("Thread %s %s\n\tPC 0x%08X stack(0x%08X to 0x%08X) size %d\n",
+        sp_log("Thread %s %s\n\tPC 0x%08X stack(0x%08X to 0x%08X) size %d\n",
                 this->ex->get_fullname().to_string(),
                 this->inst->get_name().to_string(),
                 (uint32_t) this->PC,
                 bit_cast<uint32_t>(this->PC_stack.begin()),
                 bit_cast<uint32_t>(this->PC_stack.end()),
                 this->PC_stack.size());
+
+        sp_log("%s", this->inst->get_parent()->get_parent()->field_0.to_string());
     }
 
     if constexpr (1)
@@ -233,7 +237,7 @@ bool vm_thread::run()
         argument_t arg {};
 
         argument_t prev_arg {};
-        uint16_t v113 = 0; 
+        uint16_t saved_dsize = 0; 
         float v114 = 0.0;
         bool running = true;
         bool kill_me = false;
@@ -288,7 +292,7 @@ bool vm_thread::run()
             case OP_ARG_CLV:
             case OP_ARG_SIG:
             case OP_ARG_PSIG:
-            case 17: {
+            case OP_ARG_VAR: {
                 arg.binary = (*this->PC++) << 16;
                 arg.binary += *this->PC++;
                 break;
@@ -409,6 +413,8 @@ bool vm_thread::run()
 
                 auto val = this->dstack.pop_num();
                 if ( 0.0f == val ) {
+                    sp_log("%d", arg.word);
+                    //assert(0);
                     (uint32_t &)this->PC += arg.word;
                 }
 
@@ -493,8 +499,17 @@ bool vm_thread::run()
                     break;
                 }
                 case OP_ARG_SDR:
+                {
+                    int offset;
+                    for ( offset = 4; offset < dsize; offset += 4 ) {
+                        assert((*(int*)( dstack.get_SP() - offset )) != UNINITIALIZED_SCRIPT_PARM);
+                    }
+
+                    assert(offset == dsize && "dsize should be divisible by 4");
+
                     memcpy(arg.sdr, this->dstack.get_SP() - dsize, dsize);
                     break;
+                }
                 default:
                     assert(0);
                     break;
@@ -702,23 +717,22 @@ bool vm_thread::run()
                     break;
                 }
                 case OP_ARG_SPR: {
-                    if ( !v109 )
-                    {
-                        auto *v58 = this->dstack.get_SP() - dsize;
-                        auto *v59 = this->dstack.get_SP() + arg.word;
-
-                        memcpy(v59, v58, dsize);
+                    auto func = [this, &arg](auto dsize, int a3) {
+                        auto *SP = this->dstack.get_SP();
+                        memcpy(SP + arg.word + dsize * a3,
+                                SP - dsize,
+                                dsize);
                         this->dstack.pop(dsize);
+                    };
+
+                    if ( v109 )
+                    {
+                        v109 = false;
+                        func(saved_dsize, int(v114)); 
                     }
                     else
                     {
-                        v109 = false;
-                        memcpy(
-                            this->dstack.get_SP() + v113 * int(v114) + arg.word,
-                            this->dstack.get_SP() - v113,
-                            v113);
-
-                        this->dstack.pop(v113);
+                        func(dsize, 0); 
                     }
 
                     break;
@@ -734,30 +748,28 @@ bool vm_thread::run()
                         this->slf_error(mString {"reference to bad or uninitialized script object instance value"});
                     }
 
+                    auto func = [this, si, &arg](auto dsize, int a3) -> void {
+                        memcpy(si->get_buffer() + arg.word + dsize * a3,
+                                this->dstack.get_SP() - dsize,
+                                dsize);
+                        this->dstack.pop(dsize);
+                    };
+
                     if ( v109 )
                     {
                         v109 = false;
-                        memcpy(
-                            si->get_buffer() + arg.word + v113 * int(v114),
-                            this->dstack.get_SP() - v113,
-                            v113);
-
-                        this->dstack.pop(v113);
+                        func(saved_dsize, int(v114));
                     }
                     else
                     {
-                        memcpy(si->get_buffer() + arg.word,
-                                this->dstack.get_SP() - dsize,
-                                dsize);
-
-                        this->dstack.pop(dsize);
+                        func(dsize, 0);
                     }
 
                     break;
                 }
                 case OP_ARG_SDR: {
-                    if ( !v109 )
-                    {
+                    auto func = [this, &arg](auto dsize, int a3) -> void {
+
                         int offset;
                         for (offset = 4; offset < dsize; offset += 4) {
                             assert((*(int*)( dstack.get_SP() - offset )) != UNINITIALIZED_SCRIPT_PARM);
@@ -765,42 +777,40 @@ bool vm_thread::run()
 
                         assert(offset == dsize && "dsize should be divisible by 4");
 
-                        auto *v183 = this->dstack.get_SP();
-                        memcpy(arg.sdr, v183 - dsize, dsize);
+                        memcpy(arg.sdr + dsize * a3,
+                                this->dstack.get_SP() - dsize,
+                                dsize);
                         this->dstack.pop(dsize);
-                        break;
-                    }
+                    };
 
-                    v109 = false;
-                    int offset;
-                    for ( offset = 4; offset < v113; offset += 4 ) {
-                        assert((*(int*)( dstack.get_SP() - offset )) != UNINITIALIZED_SCRIPT_PARM);
-                    }
-
-                    assert(offset == dsize && "dsize should be divisible by 4");
-
-                    auto *v182 = this->dstack.get_SP();
-                    memcpy(arg.sdr + v113 * int(v114),
-                            v182 - v113,
-                            v113);
-                    this->dstack.pop(v113);
-                    break;
-                }
-                case 17: {
-                    if ( v109 )
+                    if ( !v109 )
                     {
-                        v109 = false;
-                        auto *v58 = this->dstack.get_SP() - v113;
-                        auto v59 = arg.sdr + v113 * int(v114);
-                        memcpy(v59, v58, v113);
-                        this->dstack.pop(v113);
+                        func(dsize, 0);
                     }
                     else
                     {
-                        auto *v64 = this->dstack.get_SP();
-                        auto *v58 = v64 - dsize;
-                        memcpy(arg.sdr, v58, dsize);
+                        v109 = false;
+                        func(saved_dsize, int(v114));
+                    }
+
+                    break;
+                }
+                case OP_ARG_VAR: {
+                    auto func = [this, &arg](auto dsize, int a3) -> void {
+                        auto *v58 = this->dstack.get_SP() - dsize;
+                        auto v59 = arg.sdr + dsize * a3;
+                        memcpy(v59, v58, dsize);
                         this->dstack.pop(dsize);
+                    };
+
+                    if ( v109 )
+                    {
+                        v109 = false;
+                        func(saved_dsize, int(v114));
+                    }
+                    else
+                    {
+                        func(dsize, 0);
                     }
 
                     break;
@@ -855,7 +865,7 @@ bool vm_thread::run()
                     break;
                 }
                 case OP_ARG_SDR:
-                case 17:
+                case OP_ARG_VAR:
                     this->dstack.push(arg.sdr, dsize);
                     break;
                 case OP_ARG_CLV:
@@ -1083,7 +1093,7 @@ bool vm_thread::run()
                 assert(argtype == OP_ARG_WORD);
 
                 v109 = true;
-                v113 = arg.word;
+                saved_dsize = arg.word;
                 v114 = this->dstack.pop_num();
                 break;
             }

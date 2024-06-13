@@ -247,11 +247,11 @@ void vm_executable::link_un_mash(const script_executable &a2)
                     *(buffer - 1) = addr & 0x0000FFFF;
                     break;
                 }
-                case 17: {
+                case OP_ARG_VAR: {
                     auto offset = *buffer++;
-                    auto v15 = *buffer++;
+                    auto is_game_var = *buffer++;
 
-                    auto addr = (v15 == 1
+                    auto addr = (is_game_var == 1
                             ? (int) script_manager::get_game_var_address(offset)
                             : (int) script_manager::get_shared_var_address(offset)
                             );
@@ -437,15 +437,29 @@ void vm_executable::read(chunk_file *file, vm_executable *x) {
     cf = file->read<chunk_flavor>();
     assert(cf == CHUNK_VM_EXECUTABLE);
 
-    auto v16 = file->read<unsigned>();
-    auto *parent = x->owner->get_parent();
-    auto *system_string = parent->get_system_string(v16);
-    mString v46 {system_string};
-    auto a3 = v46.find("(", 0);
-    mString v45 = (a3 == -1 ? v46 : v46.substr(0, a3));
+    {
+        if ( auto *parent = x->owner->get_parent();
+                parent->system_string_table_size != 0)
+        {
+            auto v16 = file->read<unsigned>();
+            auto *system_string = parent->get_system_string(v16);
+            mString v46 {system_string};
+            auto a3 = v46.find("(", 0);
+            mString v45 = (a3 == -1 ? v46 : v46.substr(0, a3));
 
-    x->name = string_hash {v45.c_str()};
-    x->fullname = string_hash {v46.c_str()};
+            x->name = string_hash {v45.c_str()};
+            x->fullname = string_hash {v46.c_str()};
+        }
+        else
+        {
+            auto fullname = file->read<mString>();
+            auto a3 = fullname.find("(", 0);
+            mString v45 = (a3 == -1 ? fullname : fullname.substr(0, a3));
+
+            x->name = string_hash {v45.c_str()};
+            x->fullname = string_hash {fullname.c_str()};
+        }
+    }
 
     cf = file->read<chunk_flavor>();
     if ( cf == chunk_flavor {"extern"} ) {
@@ -470,7 +484,8 @@ void vm_executable::read(chunk_file *file, vm_executable *x) {
     }
 
     auto v41 = -1;
-    if ( cf == chunk_flavor {"Nparms"} ) {
+    if ( cf == chunk_flavor {"Nparms"} )
+    {
         v41 = 0;
         x->debug_info->field_24 = file->read<int>();
         if ( x->debug_info->field_24 > 0 )
@@ -510,7 +525,8 @@ void vm_executable::read(chunk_file *file, vm_executable *x) {
 
     x->parms_stacksize = file->read<int>();
 
-    if ( v41 != -1 ) {
+    if ( v41 != -1 )
+    {
         if ( x->parms_stacksize == v41 )
         {
             assert(( x->flags & VM_EXECUTABLE_FLAG_STATIC ) != 0);

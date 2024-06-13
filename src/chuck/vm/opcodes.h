@@ -113,6 +113,7 @@ enum opcode_arg_t {
     OP_ARG_CLV = 11,    // class value reference (4 bytes)
     OP_ARG_SIG = 15,
     OP_ARG_PSIG = 16,
+    OP_ARG_VAR = 17
 };
 
 inline const char *opcode_arg_t_str[] = {
@@ -130,7 +131,7 @@ inline const char *opcode_arg_t_str[] = {
     "OP_ARG_CLV",
     "OP_ARG_SIG",
     "OP_ARG_PSIG",
-    "OP_ARG_UNDEFINED",
+    "OP_ARG_VAR",
     "OP_ARG_UNDEFINED",
     "OP_ARG_UNDEFINED",
     "OP_ARG_UNDEFINED",
@@ -156,5 +157,5 @@ inline constexpr uint32_t opcode_arg_t_shift[] = {
     2, //OP_ARG_CLV
     2, //OP_ARG_SIG
     2, //OP_ARG_PSIG
-    2, //17
+    2, //OP_ARG_VAR
 };
