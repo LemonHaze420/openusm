@@ -36,8 +36,6 @@ extern _std::vector<script_library_class *> *& slc_manager_class_array;
 extern std::vector<script_library_class *> *& slc_manager_class_array;
 #endif
 
-inline std::set<script_library_class *> *slc_manager_classes = nullptr;
-
 //0x005AB800
 extern void register_standard_script_libs();
 

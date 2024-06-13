@@ -13,6 +13,7 @@
 
 #include "script_lib.h"
 #include "script_lib_anim.h"
+#include "script_lib_beam.h"
 #include "script_lib_debug_menu.h"
 #include "script_lib_entity.h"
 
@@ -35,25 +36,46 @@ std::vector<script_library_class *> *&
 
 #endif
 
+bool compare_script_library_class(script_library_class *a, script_library_class *b) {
+    return (strcmp(a->name, b->name) < 0);
+}
+
+static std::set<script_library_class *, decltype(&compare_script_library_class)> *slc_manager_classes = nullptr;
+
 void register_standard_script_libs()
 {
     TRACE("register_standard_script_libs");
 
-    CDECL_CALL(0x005AB800);
+    if constexpr (0)
+    {}
+    else
+    {
+        CDECL_CALL(0x005AB800);
+    }
 }
 
 void construct_client_script_libs()
 {
     TRACE("construct_client_script_libs");
 
-    CDECL_CALL(0x0058F9C0);
+    if constexpr (0)
+    {}
+    else
+    {
+        CDECL_CALL(0x0058F9C0);
+    }
 }
 
 void destruct_client_script_libs()
 {
     TRACE("destruct_client_script_libs");
 
-    CDECL_CALL(0x0058FA50);
+    if constexpr (0)
+    {}
+    else
+    {
+        CDECL_CALL(0x0058FA50);
+    }
 }
 
 struct slf__add_civilian_info__vector3d__num__num__num__t : script_library_class::function {
@@ -8606,8 +8628,6 @@ DECLARE_SLC(pfx, "\0", 0x0089C878);
 
 DECLARE_SLC(interactable_interface, "\0", 0x0089B5A8);
 
-DECLARE_SLC(beam, entity, 0x0089AAF8);
-
 DECLARE_SLC(cut_scene, "\0", 0x0089B7A8);
 
 DECLARE_SLC(debug_menu_entry, "\0", 0x0089C6FC);
@@ -11321,7 +11341,8 @@ void chuck_register_script_libs()
         slc_anim = new (mem_alloc(sizeof(slc_anim_t))) slc_anim_t {"anim", 4};
         classes[class_idx++] = slc_anim;
 
-        CREATE_SLC(slc_beam_t);
+        slc_beam = new (mem_alloc(sizeof(slc_beam_t))) slc_beam_t {"beam", 4, "entity"};
+        classes[class_idx++] = slc_beam;
 
         slc_entity = new (mem_alloc(sizeof(slc_entity_t))) slc_entity_t {"entity", 4, "signaller"};
         classes[class_idx++] = slc_entity;
@@ -12333,7 +12354,7 @@ void slc_manager::init()
     if constexpr (1)
     {
         if (slc_manager_classes == nullptr) {
-            slc_manager_classes = new std::set<script_library_class *>{};
+            slc_manager_classes = new std::set<script_library_class *, decltype(&compare_script_library_class)>(&compare_script_library_class);
         }
 
         if (slc_manager_class_array == nullptr) {
@@ -12381,8 +12402,6 @@ void slc_manager::add(script_library_class *slc)
 
     if constexpr (1)
     {
-
-#if STANDALONE_SYSTEM
         assert(slc_manager_classes != nullptr);
         auto ret = slc_manager_classes->insert(slc);
         if ( !ret.second ) {
@@ -12391,6 +12410,7 @@ void slc_manager::add(script_library_class *slc)
             assert(0);
         }
 
+#if STANDALONE_SYSTEM
         slc_manager_class_array->push_back(slc);
 
 #else
@@ -12460,19 +12480,22 @@ script_library_class * slc_manager::get_class(int class_index)
     return slc_manager_class_array->at(class_index);
 }
 
-script_library_class *slc_manager::get(const char *a1)
+script_library_class * slc_manager::get(const char *a1)
 {
+    TRACE("slc_manager::get");
+
     assert(slc_manager_classes != nullptr);
+
+    if constexpr (1)
+    {
+        assert(!slc_manager_classes->empty());
+    }
 
     script_library_class v9{};
     v9.store_name(a1);
     auto it = slc_manager_classes->find(&v9);
     auto end = slc_manager_classes->end();
-    if ( it != end ) {
-        return (*it);
-    }
-
-    return nullptr;
+    return ( it != end ? (*it) : nullptr );
 }
 
 void slc_manager::un_mash_all_funcs()
@@ -12527,6 +12550,8 @@ void slc_manager_patch()
         REDIRECT(0x005AB8D4, slc_manager::add);
         REDIRECT(0x005AB948, slc_manager::add);
     }
+
+    script_lib_beam_patch();
 
     script_lib_entity_patch();
 
