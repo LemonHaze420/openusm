@@ -1,6 +1,7 @@
 #include "animation_interface.h"
 
 #include "common.h"
+#include "func_wrapper.h"
 #include "trace.h"
 #include "utility.h"
 
@@ -18,6 +19,11 @@ void animation_interface::_un_mash(generic_mash_header *a2, void *a3, int , gene
     this->my_conglomerate = static_cast<conglomerate *>(a3);
     this->dynamic = false;
     this->field_C.custom_un_mash(a2, &this->field_C, a5, this);
+}
+
+void animation_interface::release_ifc()
+{
+    THISCALL(0x004D3C60, this);
 }
 
 void animation_interface_patch()

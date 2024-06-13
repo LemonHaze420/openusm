@@ -14,6 +14,9 @@ struct animation_interface : conglomerate_interface
     animation_interface(conglomerate *a2);
 
     void _un_mash(generic_mash_header *a2, void *a3, int a4, generic_mash_data_ptrs *a5);
+
+    //virtual
+    void release_ifc();
 };
 
 extern void animation_interface_patch();
