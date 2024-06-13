@@ -55,6 +55,8 @@ struct cached_special_effect {
 
     //0x004D81F0
     void frame_advance(Float a2);
+
+    void release_mem();
 };
 
 extern void cached_special_effect_patch();

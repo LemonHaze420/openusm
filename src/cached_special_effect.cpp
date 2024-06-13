@@ -6,6 +6,7 @@
 #include "parse_generic_mash.h"
 #include "trace.h"
 #include "utility.h"
+#include "wds.h"
 
 VALIDATE_SIZE(cached_special_effect, 0x40u);
 
@@ -99,6 +100,37 @@ void cached_special_effect::un_mash(
     else
     {
         THISCALL(0x004D3650, this, a2, a3, a4);
+    }
+}
+
+void cached_special_effect::release_mem()
+{
+    auto *v2 = this->field_30;
+    if ( v2 != nullptr )
+    {
+        void (__fastcall *sub_4CE5D0)(void *) = CAST(sub_4CE5D0, 0x004CE5D0);
+        sub_4CE5D0(&v2->field_8);
+
+        --v2->field_0;
+        this->field_30 = nullptr;
+    }
+
+    if ( this->field_1C != nullptr && this->field_3C )
+    {
+        operator delete[](this->field_1C);
+        this->field_1C = nullptr;
+    }
+
+    if ( this->field_20 != nullptr && this->field_3D )
+    {
+        operator delete[](this->field_20);
+        this->field_20 = nullptr;
+    }
+
+    if ( this->field_28 != nullptr )
+    {
+        g_world_ptr->ent_mgr.destroy_entity(this->field_28);
+        this->field_28 = nullptr;
     }
 }
 
