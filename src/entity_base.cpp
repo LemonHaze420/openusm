@@ -745,60 +745,77 @@ void entity_base::raise_event(string_hash a2)
     event_manager::raise_event(a2, v2);
 }
 
-void entity_base::set_parent(entity_base *parent) {
-    if constexpr (1) {
-        if (parent != nullptr) {
-            auto *v3 = this->m_parent;
-            if (parent != v3) {
-                if (v3) {
-                    this->clear_parent(true);
-                } else {
-                    auto *v4 = this->m_child;
-                    for (this->field_8 |= 0x10000040u; v4; v4 = v4->field_28) {
-                        if ((v4->field_8 & 0x10000000) == 0) {
-                            v4->dirty_family(0);
-                        }
-                    }
-                }
+void entity_base::add_child(entity_base *good_kid)
+{
+    assert(good_kid != nullptr);
 
-                if ((this->field_8 & 0x40000000) == 0 && this->my_abs_po == this->my_rel_po) {
-                    po *v7 = static_cast<po *>(mem_alloc(sizeof(po)));
-                    if (v7 != nullptr) {
-                        auto &v6 = parent->get_abs_po();
-                        *v7 = this->my_rel_po->sub_4BAB00(v6);
-                    }
+    auto *v2 = good_kid;
+    v2->set_parent(this);
+}
 
-                    this->my_abs_po = v7;
-                }
+void entity_base::remove_child(entity_base *bad_kid)
+{
+    assert(bad_kid != nullptr);
 
-                auto *my_child = parent->m_child;
-                if (my_child != nullptr) {
-                    for (auto *i = my_child->field_28; i != nullptr; i = i->field_28) {
-                        my_child = i;
-                    }
+    assert(bad_kid->get_parent()->get_my_vhandle() == get_my_handle());
 
-                    my_child->field_28 = this;
-                } else {
-                    parent->m_child = this;
-                }
+    auto *v4 = bad_kid;
+    if ( v4->is_conglom_member() ) {
+        v4->clear_parent(true);
+    } else {
+        entity_set_abs_parent(v4, nullptr);
+    }
+}
 
-                this->m_parent = parent;
-                this->field_28 = nullptr;
-                if (!this->is_conglom_member()) {
-                    entity_base *conglom_root = nullptr;
-                    if (parent->is_conglom_member()) {
-                        conglom_root = parent->get_conglom_owner();
-                    } else {
-                        conglom_root = parent;
-                    }
-
-                    assert(conglom_root != nullptr);
-
-                    conglom_root->add_adopted_child(this);
-                }
-            }
-        } else {
+void entity_base::set_parent(entity_base *parent)
+{
+    if constexpr (1)
+    {
+        if (parent == nullptr)
+        {
             this->clear_parent(true);
+        }
+        else if (parent != this->m_parent)
+        {
+            if (this->m_parent != nullptr) {
+                this->clear_parent(true);
+            } else {
+                this->dirty_family(false);
+            }
+
+            if (this->manage_abs_po() && this->my_abs_po == this->my_rel_po)
+            {
+                auto *mem = mem_alloc(sizeof(po));
+                auto &v6 = parent->get_abs_po();
+                this->my_abs_po = new (mem) po {this->my_rel_po->sub_4BAB00(v6)};
+            }
+
+            auto *my_child = parent->get_first_child();
+            if (my_child != nullptr) {
+                for (auto *i = my_child->field_28; i != nullptr; i = i->field_28) {
+                    my_child = i;
+                }
+
+                my_child->field_28 = this;
+            } else {
+                parent->m_child = this;
+            }
+
+            this->m_parent = parent;
+            this->field_28 = nullptr;
+            if (!this->is_conglom_member())
+            {
+                entity_base *conglom_root = nullptr;
+                if (parent->is_conglom_member()) {
+                    conglom_root = parent->get_conglom_owner();
+                } else {
+                    conglom_root = parent;
+                }
+
+                assert(conglom_root != nullptr);
+
+                conglom_root->add_adopted_child(this);
+            }
         }
 
     } else {
@@ -842,60 +859,99 @@ void entity_base::look_at(const vector3d &a1) {
     THISCALL(0x004E09F0, this, &a1);
 }
 
-void entity_base::sub_4D3F60(entity_base *a2) {
-    THISCALL(0x004D3F60, this, a2);
+void entity_base::clear_adopted_children()
+{
+    if constexpr (0)
+    {
+        if ( this->adopted_children != nullptr )
+        {
+            for (auto &child : (*this->adopted_children))
+            {
+                auto v6 = child->get_abs_po();
+                child->clear_parent(false);
+                child->set_abs_po(v6);
+            }
+
+            void (__cdecl *sub_56F8F0)(void *a1) = CAST(sub_56F8F0, 0x0056F8F0);
+            sub_56F8F0(this->adopted_children);
+
+            this->adopted_children = nullptr;
+        }
+    }
+    else
+    {
+        THISCALL(0x004E0DD0, this);
+    }
 }
 
-void entity_base::sub_4E0DD0() {
-    THISCALL(0x004E0DD0, this);
+void entity_base::remove_adopted_child(entity_base *child_arg)
+{
+    assert(!child_arg->is_conglom_member());
+
+    if ( this->adopted_children != nullptr )
+    {
+        auto it = std::find(adopted_children->begin(), adopted_children->end(), child_arg);
+        if (it != adopted_children->end()) {
+            this->adopted_children->erase(it);
+        }
+    }
 }
 
 void entity_base::clear_parent(bool a1)
 {
-    if constexpr (0)
+    TRACE("entity_base::clear_parent");
+
+    if constexpr (1)
     {
-        if (this->m_parent != nullptr)
+        if (this->m_parent == nullptr) {
+            return;
+        }
+
+        this->dirty_family(false);
+
+        assert(m_parent->get_first_child() != nullptr);
+
+        if ( a1 && !this->is_conglom_member() )
         {
-            this->dirty_family(false);
-
-            assert(m_parent->get_first_child() != nullptr);
-
-            if ( a1 && !this->is_conglom_member() )
-            {
-                auto *v3 = this->m_parent;
-                if ( v3->is_conglom_member() ) {
-                    v3 = v3->get_conglom_owner();
-                }
-
-                if (v3) {
-                    v3->sub_4D3F60(this);
-                }
+            auto *v3 = this->m_parent;
+            if ( v3->is_conglom_member() ) {
+                v3 = v3->get_conglom_owner();
             }
 
-            auto *v4 = this->m_parent;
-            auto *v5 = v4->m_child;
-            if (v5 == this) {
-                v4->m_child = this->field_28;
-                this->m_parent = nullptr;
-                this->field_28 = nullptr;
-            } else {
-                auto *v6 = v5->field_28;
-                if (v6 != nullptr) {
-                    while (v6 != this) {
-                        v5 = v6;
-                        v6 = v6->field_28;
-                        if (v6 == nullptr) {
-                            return;
-                        }
-                    }
+            if (v3 != nullptr) {
+                v3->remove_adopted_child(this);
+            }
+        }
 
+        auto *v4 = this->m_parent;
+        auto *v5 = v4->get_first_child();
+        if (v5 == this)
+        {
+            v4->m_child = this->field_28;
+            this->m_parent = nullptr;
+            this->field_28 = nullptr;
+        }
+        else
+        {
+            auto *curr = v5->get_next_sibling();
+            while (curr != nullptr)
+            {
+                if (curr == this)
+                {
                     v5->field_28 = this->field_28;
                     this->m_parent = nullptr;
                     this->field_28 = nullptr;
+                    break;
                 }
+
+                curr = curr->get_next_sibling();
             }
+
+            //assert(curr != nullptr);
         }
-    } else {
+    }
+    else
+    {
         THISCALL(0x004D3FB0, this, a1);
     }
 }
@@ -1191,21 +1247,17 @@ void entity_set_abs_po(entity_base *ent, const po &the_po)
 
 void entity_base::common_destruct()
 {
-    if constexpr (1) {
-        this->sub_4E0DD0();
-        while (this->m_child != nullptr) {
+    TRACE("entity_base::common_destruct");
+
+    if constexpr (1)
+    {
+        this->clear_adopted_children();
+        while (this->m_child != nullptr)
+        {
             auto *my_child = this->m_child;
 
-            if (!my_child->is_conglom_member()) {
-                if (my_child->m_parent != nullptr) {
-                    auto abs_pos = my_child->get_abs_po();
-                    my_child->clear_parent(true);
-                    my_child->set_abs_po(abs_pos);
-                }
-
-            } else {
-                my_child->clear_parent(true);
-            }
+            assert(my_child->get_parent()->get_my_handle() == this->get_my_handle());
+            this->remove_child(my_child);
         }
 
         this->clear_parent(true);
@@ -1241,27 +1293,17 @@ void entity_base::common_destruct()
             }
         }
 
-        this->has_sound_and_pfx_ifc();
-        if (this->has_sound_and_pfx_ifc())
-        {
-            auto *v6 = this->my_sound_and_pfx_interface;
-            if (v6->field_8) {
-                if (v6 != nullptr) {
-                    void (__fastcall *finalize)(void *, void *, bool) = CAST(finalize, get_vfunc(v6->m_vtbl, 0x0));
-                    finalize(v6, nullptr, true);
-                }
-
-            } else {
-                void (__fastcall *func24)(void *) = CAST(func24, get_vfunc(v6->m_vtbl, 0x24));
-                func24(v6);
-            }
-
-            this->my_sound_and_pfx_interface = nullptr;
+        if (this->has_sound_and_pfx_ifc()) {
+            this->destroy_sound_and_pfx_ifc();
         }
 
         entity_handle_manager::remove_entity(this->my_handle);
 
-    } else {
+        assert("IMPORTANT: this destroyed entity was not properly removed from proximity maps. Please report to Andrei."
+                && (proximity_map_cell_reference_count == 0 && proximity_map_reference_count == 0));
+    }
+    else
+    {
         THISCALL(0x004F3550, this);
     }
 }
@@ -1392,10 +1434,6 @@ const vector3d &entity_base::get_abs_position()
     return this->my_abs_po->get_position();
 }
 
-entity_base *entity_base::get_first_child() {
-    return this->m_child;
-}
-
 po *entity_base::get_model_po() const
 {
     assert(is_conglom_member());
@@ -1511,6 +1549,26 @@ void entity_base::dirty_model_po_family()
     }
 }
 
+
+void entity_base::destroy_sound_and_pfx_ifc()
+{
+    auto *v1 = this->my_sound_and_pfx_interface;
+    if ( v1->dynamic )
+    {
+        if ( v1 != nullptr ) {
+
+            void (__fastcall *finalize)(void *, void *, bool) = CAST(finalize, get_vfunc(v1->m_vtbl, 0x0));
+            finalize(v1, nullptr, true);
+        }
+    }
+    else
+    {
+        this->my_sound_and_pfx_interface->release_ifc();
+    }
+
+    this->my_sound_and_pfx_interface = nullptr;
+}
+
 void entity_report(entity_base *a1, const mString &a2, bool a3) {
     CDECL_CALL(0x004E1490, a1, &a2, a3);
 }
@@ -1612,7 +1670,17 @@ void check_po(entity_base *e)
     }
 }
 
-void entity_base_patch() {
+void entity_base_patch()
+{
+    {
+        FUNC_ADDRESS(address, &entity_base::clear_parent);
+        SET_JUMP(0x004D3FB0, address);
+    }
+
+    {
+        FUNC_ADDRESS(address, &entity_base::common_destruct);
+        SET_JUMP(0x004F3550, address);
+    }
 
     {
         //SET_JUMP(0x004F3400, entity_base_constructor);

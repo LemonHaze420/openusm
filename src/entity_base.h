@@ -125,6 +125,10 @@ struct entity_base : entity_base_vtable {
 
     void set_flag_recursive(entity_flag_t a2, bool a3);
 
+    void set_member_hidden(bool a2) {
+        this->set_flag_recursive(static_cast<entity_flag_t>(0x80000000), a2);
+    }
+
     void set_ext_flag_recursive(entity_ext_flag_t a2, bool a3);
 
     void set_active(bool a2);
@@ -283,6 +287,10 @@ struct entity_base : entity_base_vtable {
     //0x004F36B0
     void raise_event(string_hash a2);
 
+    void add_child(entity_base *good_kid);
+
+    void remove_child(entity_base *bad_kid);
+
     //0x004E0E50
     void set_parent(entity_base *parent);
 
@@ -362,9 +370,10 @@ struct entity_base : entity_base_vtable {
     //0x004DB590
     void update_abs_po(bool a2);
 
-    void sub_4D3F60(entity_base *a2);
+    void clear_adopted_children();
 
-    void sub_4E0DD0();
+    //0x004D3F60
+    void remove_adopted_child(entity_base *a2);
 
     //0x004D3FB0
     void clear_parent(bool a1);
@@ -385,7 +394,13 @@ struct entity_base : entity_base_vtable {
     //0x0048AC00
     const vector3d &get_abs_position();
 
-    entity_base *get_first_child();
+    entity_base * get_first_child() {
+        return this->m_child;
+    }
+
+    entity_base * get_next_sibling() {
+        return this->field_28;
+    }
 
     void enter_limbo();
 
@@ -415,6 +430,8 @@ struct entity_base : entity_base_vtable {
     auto get_fade_group() const {
         return this->field_3E;
     }
+
+    void destroy_sound_and_pfx_ifc();
 };
 
 extern void entity_teleport_abs_position(entity_base *a2, const vector3d &a3, bool a4);
