@@ -534,6 +534,25 @@ void actor::create_physical_ifc() {
     this->m_physical_interface = new physical_interface(this);
 }
 
+void actor::destroy_physical_ifc()
+{
+    auto *v1 = this->m_physical_interface;
+    if ( v1->dynamic )
+    {
+        if ( v1 != nullptr ) {
+            void (__fastcall *finalize)(void *, void *edx, bool) = CAST(finalize, get_vfunc(v1->m_vtbl, 0x0));
+            finalize(v1, nullptr, true);
+        }
+    }
+    else
+    {
+        v1->release_ifc();
+    }
+
+    this->m_physical_interface = nullptr;
+}
+
+
 void actor::destroy_player_controller()
 {
     if constexpr (1)
@@ -1071,6 +1090,24 @@ void actor::create_damage_ifc()
 
     auto *mem = mem_alloc(sizeof(damage_interface));
     this->m_damage_interface = new (mem) damage_interface {this};
+}
+
+void actor::destroy_damage_ifc()
+{
+    auto *v1 = this->m_damage_interface;
+    if ( v1->dynamic )
+    {
+        if ( v1 != nullptr ) {
+            void (__fastcall *finalize)(void *, void *edx, bool) = CAST(finalize, get_vfunc(v1->m_vtbl, 0x0));
+            finalize(v1, nullptr, true);
+        }
+    }
+    else
+    {
+        this->m_damage_interface->release_ifc();
+    }
+
+    this->m_damage_interface = nullptr;
 }
 
 void actor::create_web_ifc()

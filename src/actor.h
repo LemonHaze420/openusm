@@ -166,6 +166,8 @@ struct actor : entity {
     //0x004E2670
     void create_damage_ifc();
 
+    void destroy_damage_ifc();
+
     //0x004D6AA0
     void create_web_ifc();
 
@@ -197,6 +199,8 @@ struct actor : entity {
 
     //0x004E26E0
     void create_physical_ifc();
+
+    void destroy_physical_ifc();
 
     //0x004FBD40
     //virtual
