@@ -28,24 +28,25 @@ void text_file::open(const mString &a1, int mode)
 {
     TRACE("text_file::open");
 
-    if constexpr (1) {
+    if constexpr (1)
+    {
         filespec v9 {a1};
-        if ( g_is_the_packer()
-                //|| sub_C01680(a1)
-                )
+        //if ( g_is_the_packer()
+        //       //|| sub_C01680(a1)
+        //        )
         {
             auto v8 = os_file::system_locked();
             os_file::system_locked() = false;
-            if ( mode == 1 || mode == 4 )
+            if ( mode == os_file::FILE_READ || mode == os_file::FILE_APPEND )
             {
                 auto v4 = v9.fullname();
                 io.open(v4, mode);
                 this->opened = false;
             }
-            else if ( mode == 2 )
+            else if ( mode == os_file::FILE_WRITE )
             {
                 auto v5 = v9.fullname();
-                io.open(v5, 2);
+                io.open(v5, mode);
             }
 
             if ( io.is_open() && (mode == 1 || mode == 4) ) {
