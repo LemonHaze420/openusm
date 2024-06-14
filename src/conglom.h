@@ -29,15 +29,15 @@ struct conglomerate : actor {
     light_manager *field_F8;
     _std::list<actor *> *field_FC;
     _std::list<light_source *> *field_100;
-    int field_104;
+    _std::list<void *> *field_104;
     float field_108;
     float field_10C;
     uint32_t field_110;
     als_res_data *field_114;
     skeleton_interface *skeleton_ifc;
-    animation_interface *field_11C;
-    script_data_interface *script_data_ifc;
-    tentacle_interface *field_124;
+    animation_interface *m_animation_ifc;
+    script_data_interface *m_script_data_ifc;
+    tentacle_interface *m_tentacle_interface;
     decal_data_interface *my_decal_data_interface;
     variant_interface *m_variant_interface;
 
@@ -55,6 +55,18 @@ struct conglomerate : actor {
 
     //0x004D2610
     void create_variant_ifc();
+
+    void destroy_variant_ifc();
+
+    void destroy_decal_data_ifc();
+
+    void destroy_tentacle_ifc();
+
+    void destroy_script_data_ifc();
+
+    void destroy_animation_ifc();
+
+    void destroy_skeleton_ifc();
 
 	void remove_member_lights_from_region(region *a2);
 

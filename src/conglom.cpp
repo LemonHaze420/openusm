@@ -54,14 +54,14 @@ conglomerate::conglomerate(const string_hash &a2, unsigned int a3) : actor(a2, a
 void conglomerate::init_member_data()
 {
     this->skeleton_ifc = nullptr;
-    this->field_11C = nullptr;
-    this->script_data_ifc = nullptr;
-    this->field_124 = nullptr;
+    this->m_animation_ifc = nullptr;
+    this->m_script_data_ifc = nullptr;
+    this->m_tentacle_interface = nullptr;
     this->my_decal_data_interface = nullptr;
     this->m_variant_interface = nullptr;
     this->field_FC = nullptr;
     this->field_100 = nullptr;
-    this->field_104 = 0;
+    this->field_104 = nullptr;
     this->field_108 = -1.0;
     this->field_10C = -1.0;
     this->set_flag_recursive(static_cast<entity_flag_t>(4u), true);
@@ -79,6 +79,79 @@ void conglomerate::create_variant_ifc()
 {
     auto *mem = mem_alloc(sizeof(variant_interface));
     this->m_variant_interface = new (mem) variant_interface {this};
+}
+
+void conglomerate::destroy_variant_ifc()
+{
+    auto *variant_ifc = this->m_variant_interface;
+    if ( variant_ifc->dynamic )
+    {
+        if ( variant_ifc != nullptr ) {
+            void (__fastcall *finalize)(void *, void *edx, bool) = CAST(finalize, get_vfunc(variant_ifc->m_vtbl, 0x0));
+            finalize(m_variant_interface, nullptr, true);
+        }
+    }
+    else
+    {
+        variant_ifc->release_ifc();
+    }
+
+    this->m_variant_interface = nullptr;
+}
+
+void conglomerate::destroy_script_data_ifc()
+{
+    auto *v9 = this->m_script_data_ifc;
+    if ( v9->dynamic )
+    {
+        if ( v9 != nullptr ) {
+            void (__fastcall *finalize)(void *, void *edx, bool) = CAST(finalize, get_vfunc(v9->m_vtbl, 0x0));
+            finalize(v9, nullptr, true);
+        }
+    }
+    else
+    {
+        v9->release_ifc();
+    }
+
+    this->m_script_data_ifc = nullptr;
+}
+
+void conglomerate::destroy_animation_ifc()
+{
+    auto *v8 = this->m_animation_ifc;
+    if ( v8->dynamic )
+    {
+        if ( v8 != nullptr )
+        {
+            void (__fastcall *finalize)(void *, void *edx, bool) = CAST(finalize, get_vfunc(v8->m_vtbl, 0x0));
+            finalize(v8, nullptr, true);
+        }
+    }
+    else
+    {
+        v8->release_ifc();
+    }
+
+    this->m_animation_ifc = nullptr;
+}
+
+void conglomerate::destroy_skeleton_ifc()
+{
+    auto *skeleton_ifc = this->skeleton_ifc;
+    if ( skeleton_ifc->dynamic )
+    {
+        if ( skeleton_ifc != nullptr ) {
+            void (__fastcall *finalize)(void *, void *, bool) = CAST(finalize, get_vfunc(skeleton_ifc->m_vtbl, 0x0));
+            finalize(skeleton_ifc, nullptr, true);
+        }
+    }
+    else
+    {
+        skeleton_ifc->release_ifc();
+    }
+
+    this->skeleton_ifc = nullptr;
 }
 
 void conglomerate::remove_member_lights_from_region(region *a2)
@@ -169,54 +242,54 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
         {
             a4->rebase(4);
 
-            this->field_11C = a4->get<animation_interface>();
+            this->m_animation_ifc = a4->get<animation_interface>();
 
-            fix_ifc_v_table((char *)this->field_11C, (eEntityMashIFCTypeEnum) 0);
+            fix_ifc_v_table((char *)this->m_animation_ifc, (eEntityMashIFCTypeEnum) 0);
 
-            this->field_11C->un_mash(a2, this,
-                this->field_11C,
+            this->m_animation_ifc->un_mash(a2, this,
+                this->m_animation_ifc,
                 a4);
         }
         else
         {
-            this->field_11C = nullptr;
+            this->m_animation_ifc = nullptr;
         }
 
         if ( (a2->field_E & 0x20) != 0 )
         {
             a4->rebase(4);
 
-            this->script_data_ifc = a4->get<script_data_interface>();
+            this->m_script_data_ifc = a4->get<script_data_interface>();
 
-            fix_ifc_v_table((char *)this->script_data_ifc, (eEntityMashIFCTypeEnum) 3);
+            fix_ifc_v_table((char *)this->m_script_data_ifc, (eEntityMashIFCTypeEnum) 3);
 
-            this->script_data_ifc->un_mash(
+            this->m_script_data_ifc->un_mash(
                 a2,
                 this,
-                this->script_data_ifc,
+                this->m_script_data_ifc,
                 a4);
         }
         else
         {
-            this->script_data_ifc = nullptr;
+            this->m_script_data_ifc = nullptr;
         }
 
         if ( (a2->field_E & 0x2000) != 0 )
         {
             a4->rebase(4);
 
-            this->field_124 = a4->get<tentacle_interface>();
+            this->m_tentacle_interface = a4->get<tentacle_interface>();
 
-            fix_ifc_v_table((char *) this->field_124, (eEntityMashIFCTypeEnum) 8);
-            this->field_124->un_mash(
+            fix_ifc_v_table((char *) this->m_tentacle_interface, static_cast<eEntityMashIFCTypeEnum>(8));
+            this->m_tentacle_interface->un_mash(
                 a2,
                 this,
-                this->field_124,
+                this->m_tentacle_interface,
                 a4);
         }
         else
         {
-            this->field_124 = nullptr;
+            this->m_tentacle_interface = nullptr;
         }
 
         if ( (a2->field_E & 0x1000) != 0 )
@@ -398,7 +471,7 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
                 entity_base *__ENT_ptr = CAST(__ENT_ptr, a4->get<char>(ent_size_lookup()[header->get_class_id()]));
 
                 {
-                    auto v26 = (eEntityMashTypeEnum) header->get_class_id();
+                    auto v26 = static_cast<eEntityMashTypeEnum>(header->get_class_id());
                     fix_entity_v_table((char *) __ENT_ptr, v26);
                 }
 
@@ -472,7 +545,8 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
                 auto *v74 = new (v72) light_manager {0};
 
                 auto *v75 = this->field_F8;
-                if ( v75 != v74 ) {
+                if ( v75 != v74 )
+                {
                     if ( v75 != nullptr ) {
                         auto v17 = (v75->field_0-- == 1);
                         if ( v17 ) {
@@ -528,8 +602,165 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
     }
 }
 
-void conglomerate::release_mem() {
-    THISCALL(0x004F9F10, this);
+void conglomerate::release_mem()
+{
+    if constexpr (0)
+    {
+        this->clear_adopted_children();
+        this->remove_from_regions();
+
+        auto *v3 = this->field_7C;
+        if ( v3 != nullptr ) {
+            v3->destruct_mashed_class();
+        }
+
+        this->field_7C = nullptr;
+
+        if ( this->has_damage_ifc() ) {
+            this->destroy_damage_ifc();
+        }
+
+        if ( this->has_physical_ifc() ) {
+            this->destroy_physical_ifc();
+        }
+
+        if ( this->has_sound_and_pfx_ifc() ) {
+            this->destroy_sound_and_pfx_ifc();
+        }
+
+        if ( this->has_animation_ifc() ) {
+            this->destroy_animation_ifc();
+        }
+
+        if ( this->has_script_data_ifc() ) {
+            this->destroy_script_data_ifc();
+        }
+
+        if ( this->has_tentacle_ifc() ) {
+            this->destroy_tentacle_ifc();
+        }
+
+        if ( this->has_decal_data_ifc() ) {
+            this->destroy_decal_data_ifc();
+        }
+
+        if ( this->has_variant_ifc() ) {
+            this->destroy_variant_ifc();
+        }
+
+        for ( auto &ent : this->members )
+        {
+            assert(ent->is_mashed_member());
+            ent->release_mem();
+        }
+
+        for ( auto &ent : this->skin_bones )
+        {
+            assert(ent->is_mashed_member());
+            ent->release_mem();
+        }
+
+        auto *v19 = this->field_F8;
+        if ( v19 != nullptr )
+        {
+            auto v20 = (v19->field_0-- == 1);
+            if ( v20 )
+            {
+                auto *v21 = this->field_F8;
+                if ( v21 != nullptr )
+                {
+                    v21->remove_from_list();
+                    mem_dealloc(v21, sizeof(*v21));
+                }
+            }
+        }
+
+        if ( this->has_skeleton_ifc() ) {
+            this->destroy_skeleton_ifc();
+        }
+
+        auto *v23 = this->field_FC;
+        if ( v23 != nullptr )
+        {
+            v23->clear();
+            mem_dealloc(v23, sizeof(*v23));
+        }
+
+        this->field_FC = nullptr;
+
+        auto *v27 = this->field_100;
+        if ( v27 != nullptr )
+        {
+
+            auto finalize = [](auto *self) -> void {
+                self->clear();
+            };
+
+            finalize(v27);
+            mem_dealloc(v27, sizeof(*v27));
+        }
+
+        this->field_100 = nullptr;
+
+        auto *v31 = this->field_104;
+        if ( v31 != nullptr )
+        {
+            v31->clear();
+            mem_dealloc(v31, sizeof(*v31));
+        }
+
+        this->field_104 = nullptr;
+
+        auto *v35 = this->field_114;
+        if ( v35 != nullptr )
+        {
+            v35->destruct_mashed_class();
+            this->field_114 = 0;
+        }
+
+        actor::release_mem();
+    }
+    else
+    {
+        THISCALL(0x004F9F10, this);
+    }
+}
+
+void conglomerate::destroy_decal_data_ifc()
+{
+    auto *decal_data_ifc = this->my_decal_data_interface;
+    if ( decal_data_ifc->dynamic )
+    {
+        if ( decal_data_ifc != nullptr ) {
+            void (__fastcall *finalize)(void *, void *, bool) = CAST(finalize, get_vfunc(decal_data_ifc->m_vtbl, 0x0));
+            finalize(decal_data_ifc, nullptr, true);
+        }
+    }
+    else
+    {
+        decal_data_ifc->release_ifc();
+    }
+
+    this->my_decal_data_interface = nullptr;
+}
+
+void conglomerate::destroy_tentacle_ifc()
+{
+    auto *tentacle_ifc = this->m_tentacle_interface;
+    if ( tentacle_ifc->dynamic )
+    {
+        if ( tentacle_ifc != nullptr )
+        {
+            void (__fastcall *finalize)(void *, void *, bool) = CAST(finalize, get_vfunc(tentacle_ifc->m_vtbl, 0x0));
+            finalize(tentacle_ifc, nullptr, true);
+        }
+    }
+    else
+    {
+        tentacle_ifc->release_ifc();
+    }
+
+    this->m_tentacle_interface = nullptr;
 }
 
 void conglomerate::_render(Float a2)
@@ -895,11 +1126,13 @@ void conglomerate::render_simple_shadow(Float arg0, Float arg4)
     }
 }
 
-bool sub_4C19C0(const string_hash &a1, entity_base **a2, int size, int *index) {
+bool binary_search_conglom_member_array(const string_hash &a1, entity_base **a2, int size, int *index)
+{
     bool v14 = false;
     int v13 = 0;
     auto v12 = size;
-    while (v13 < v12) {
+    while (v13 < v12)
+    {
         auto v11 = (v12 + v13) >> 1;
         auto *v4 = a2[v11];
         auto v5 = v4->get_id();
@@ -908,7 +1141,8 @@ bool sub_4C19C0(const string_hash &a1, entity_base **a2, int size, int *index) {
         } else {
             auto *v6 = a2[v11];
             auto v7 = v6->get_id();
-            if (!(a1 > v7)) {
+            if (!(a1 > v7))
+            {
                 v14 = true;
                 if (index) {
                     *index = v11;
@@ -921,8 +1155,10 @@ bool sub_4C19C0(const string_hash &a1, entity_base **a2, int size, int *index) {
         }
     }
 
-    if (!v14 && index != nullptr) {
-        if (v12 == size - 1) {
+    if (!v14 && index != nullptr)
+    {
+        if (v12 == size - 1)
+        {
             auto *v8 = a2[v12];
             auto v9 = v8->get_id();
             if (a1 > v9) {
@@ -936,25 +1172,24 @@ bool sub_4C19C0(const string_hash &a1, entity_base **a2, int size, int *index) {
     return v14;
 }
 
-entity_base *conglomerate::get_member(const string_hash &a2, bool a3) {
+entity_base * conglomerate::get_member(const string_hash &a2, bool a3)
+{
+    TRACE("conglomerate::get_member");
+
     auto members_size = this->members.size();
-    auto i = -1;
-    if (members_size != 0) {
+    if (members_size != 0)
+    {
+        auto i = -1;
         auto **data = this->members.m_data;
-        if (sub_4C19C0(a2, data, members_size, &i)) {
+        if (binary_search_conglom_member_array(a2, data, members_size, &i)) {
             return data[i];
         }
     }
 
-    if (a3) {
-        auto skin_bones_size = this->skin_bones.size();
-        auto i = -1;
-        if (skin_bones_size != 0) {
-            auto **data = this->skin_bones.m_data;
-            if (sub_4C19C0(a2, data, skin_bones_size, &i)) {
-                return data[i];
-            }
-        }
+    if (a3)
+    {
+        auto *bone = this->get_bone(a2, false);
+        return bone;
     }
 
     return nullptr;
@@ -984,23 +1219,30 @@ variant_interface *conglomerate::variant_ifc()
     return func(this);
 }
 
-entity_base *conglomerate::get_bone(const string_hash &a2, bool a3) {
-    if constexpr (1) {
+entity_base * conglomerate::get_bone(const string_hash &a2, bool a3)
+{
+    TRACE("conglomerate::get_bone");
+
+    if constexpr (1)
+    {
         auto skin_bones_size = this->skin_bones.size();
-        auto i = -1;
-        if (skin_bones_size != 0) {
+        if (skin_bones_size != 0)
+        {
+            auto i = -1;
             auto **data = this->skin_bones.m_data;
-            if (sub_4C19C0(a2, data, skin_bones_size, &i)) {
+            if (binary_search_conglom_member_array(a2, data, skin_bones_size, &i)) {
                 return data[i];
             }
         }
 
         if (a3) {
-            return this->get_member(a2, 0);
+            return this->get_member(a2, false);
         }
 
         return nullptr;
-    } else {
+    }
+    else
+    {
         return (entity_base *) THISCALL(0x004CCC90, this, &a2, a3);
     }
 }
@@ -1012,6 +1254,15 @@ light_manager *conglomerate::get_light_set() const
 
 void conglomerate_patch()
 {
+    {
+        FUNC_ADDRESS(address, &conglomerate::get_bone);
+        SET_JUMP(0x004CCC90, address);
+    }
+
+    {
+        FUNC_ADDRESS(address, &conglomerate::get_member);
+        SET_JUMP(0x004D0590, address);
+    }
 
     REDIRECT(0x004E52D4, render_drop_shadow);
 
