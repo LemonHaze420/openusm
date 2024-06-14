@@ -5,6 +5,7 @@
 
 #include "func_wrapper.h"
 #include "script_object.h"
+#include "script_var_container.h"
 #include "variables.h"
 
 chunk_flavor::chunk_flavor(const char *s)
@@ -42,6 +43,10 @@ void chunk_file::open(const mString &a1, int a3)
 
 void chunk_file::read(script_object *so) {
     script_object::read(this, so);
+}
+
+void chunk_file::read(script_var_container *a1) {
+    script_var_container::read(this, a1);
 }
 
 template<>

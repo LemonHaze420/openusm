@@ -5,6 +5,7 @@
 inline constexpr auto CHUNK_FLAVOR_SIZE = 16u;
 
 struct script_object;
+struct script_var_container;
 
 struct chunk_flavor {
     char field_0[CHUNK_FLAVOR_SIZE];
@@ -23,6 +24,8 @@ struct chunk_flavor {
         return field_0;
     }
 };
+
+inline const chunk_flavor SCRIPT_MANAGER_VAR_HEADER_CHUNK {"vhdr"};
 
 inline const chunk_flavor CHUNK_END {"chunkend"};
 
@@ -76,6 +79,8 @@ struct chunk_file : text_file {
     void close();
 
     void read(script_object *so);
+
+    void read(script_var_container *a1);
 
     template<typename T>
     T read();
