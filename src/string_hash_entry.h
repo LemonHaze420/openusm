@@ -12,7 +12,7 @@ struct string_hash_entry {
 
     string_hash_entry();
 
-    string_hash_entry(const char *a2, const string_hash *a3);
+    string_hash_entry(const char *a2, const string_hash &a3);
 
     void initialize(mash::allocation_scope, const char *a2, const string_hash *a3);
 

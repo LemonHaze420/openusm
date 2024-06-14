@@ -4,6 +4,7 @@
 #include "entity_handle_manager.h"
 #include "func_wrapper.h"
 #include "log.h"
+#include "mAvlTree.h"
 #include "return_address.h"
 #include "string_hash_dictionary.h"
 #include "trace.h"
@@ -31,15 +32,16 @@ Var<char[12]> string_hash::ghetto_string{&g_ghetto_string};
 #endif
 
 string_hash::string_hash() {
-    this->initialize(0, nullptr, 0);
+    this->initialize(mash::ALLOCATED, nullptr, 0);
 }
 
-string_hash::string_hash(const char *a1) {
-    this->initialize(0, a1, 0);
+string_hash::string_hash(const char *a1)
+{
+    this->initialize(mash::ALLOCATED, a1, 0);
 }
 
 string_hash::string_hash(int a4) {
-    this->initialize(0, nullptr, a4);
+    this->initialize(mash::ALLOCATED, nullptr, a4);
 }
 
 void string_hash::set(const char *str) {
@@ -63,9 +65,12 @@ string_hash string_hash::sub_501E80() {
     return *this;
 }
 
-void string_hash::initialize(int a2, const char *a3, int hash_code) {
-    if (a2 == 0) {
-        if (hash_code) {
+void string_hash::initialize(mash::allocation_scope a2, const char *a3, int hash_code)
+{
+    if (a2 == mash::ALLOCATED)
+    {
+        if (hash_code != 0)
+        {
             if (a3 != nullptr) {
                 this->source_hash_code = to_hash(a3);
 
@@ -73,7 +78,7 @@ void string_hash::initialize(int a2, const char *a3, int hash_code) {
             }
 
             this->source_hash_code = hash_code;
-        } else if (a3) {
+        } else if (a3 != nullptr) {
             this->set(a3);
         } else {
             this->source_hash_code = 0;
@@ -101,10 +106,6 @@ const char *string_hash::to_string() const {
     }
 }
 
-bool sub_54C220(uint32_t a1) {
-    return (bool) CDECL_CALL(0x0054C220, a1);
-}
-
 string_hash make_unique_entity_id()
 {
     TRACE("make_unique_entity_id");
@@ -120,7 +121,7 @@ string_hash make_unique_entity_id()
             int v1 = s_unique_entity_id_idx()++;
             std::snprintf(Dest, 0x20u, "%s%u", "_ENTID_", v1);
             hash = to_hash(Dest);
-        } while (sub_54C220(hash));
+        } while (string_hash_dictionary::exists(hash));
 
         string_hash result{Dest};
 

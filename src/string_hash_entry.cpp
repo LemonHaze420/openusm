@@ -13,9 +13,9 @@ string_hash_entry::string_hash_entry()
     this->initialize(mash::ALLOCATED, nullptr, nullptr);
 }
 
-string_hash_entry::string_hash_entry(const char *a2, const string_hash *a3)
+string_hash_entry::string_hash_entry(const char *a2, const string_hash &a3)
 {
-    this->initialize(mash::ALLOCATED, a2, a3);
+    this->initialize(mash::ALLOCATED, a2, &a3);
 }
 
 void string_hash_entry::initialize(mash::allocation_scope, const char *a2, const string_hash *a3)

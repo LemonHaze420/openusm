@@ -1,5 +1,6 @@
 #pragma once
 
+#include "mash.h"
 #include <variable.h>
 
 struct entity_base;
@@ -16,7 +17,7 @@ struct string_hash {
     string_hash(int a4);
 
     //0x00547A00
-    void initialize(int a2, const char *a3, int hash_code);
+    void initialize(mash::allocation_scope a2, const char *a3, int hash_code);
 
     void unmash(mash_info_struct *, void *);
 

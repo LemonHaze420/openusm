@@ -40,13 +40,15 @@ namespace string_hash_dictionary {
 
     extern bool is_loaded();
 
+    extern bool exists(uint32_t a1);
+
     //0x00531990
     extern const char *lookup_string(string_hash a1);
 
     //0x0053DD00
     extern bool register_in_tree(mAvlTree<string_hash_entry> *a1,
                                  const char *str,
-                                 const string_hash *a3);
+                                 const string_hash &a3);
 
     //0x005588B0
     extern void create_inst();

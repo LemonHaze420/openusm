@@ -9,14 +9,18 @@
 #include "mash_info_struct.h"
 #include "memory.h"
 #include "mstring.h"
+#include "osassert.h"
 #include "os_developer_options.h"
 #include "variables.h"
 
 #include <cassert>
 
-#ifndef TEST_CASE
+#if !STANDALONE_SYSTEM
 mAvlTree<string_hash_entry> *& string_hash_dictionary::entries = var<mAvlTree<string_hash_entry> *>(0x0095C7E0);
 mAvlTree<string_hash_entry> *& string_hash_dictionary::prereg_entries = var<mAvlTree<string_hash_entry> *>(0x0095C7E4);
+
+bool & string_hash_dictionary::is_setup = var<bool>(0x0095C7EC);
+
 #else
 
 static mAvlTree<string_hash_entry> *g_entries {};
@@ -24,6 +28,10 @@ mAvlTree<string_hash_entry> *& string_hash_dictionary::entries{g_entries};
 
 static mAvlTree<string_hash_entry> *g_prereg_entries {};
 mAvlTree<string_hash_entry> *& string_hash_dictionary::prereg_entries {g_prereg_entries};
+
+static bool g_is_setup {};
+bool & string_hash_dictionary::is_setup = g_is_setup;
+
 #endif
 
 char *& string_hash_dictionary::default_dictionary_filename = var<char *>(0x00921CA0);
@@ -41,8 +49,6 @@ char *& string_hash_dictionary::textfile_extension = var<char *>(0x00921CA8);
 os_file & string_hash_dictionary::_hard_log = var<os_file>(0x00960448);
 
 char *& string_hash_dictionary::hard_log_filename = var<char *>(0x00921C9C);
-
-bool & string_hash_dictionary::is_setup = var<bool>(0x0095C7EC);
 
 static constexpr int RESOURCE_VERSION_MASH_DEP = 0x13;
 
@@ -80,9 +86,7 @@ void string_hash_dictionary::create_inst()
 
             if (prereg_entries != nullptr)
             {
-                auto *v0 = prereg_entries;
-                v0->sub_5702D0();
-                operator delete(v0);
+                delete prereg_entries;
                 prereg_entries = nullptr;
             }
         }
@@ -382,7 +386,7 @@ void string_hash_dictionary::hard_log_string(const char *a1, const string_hash &
 
     if ( _hard_log.is_open() )
     {
-        string_hash_entry v5{a1, &a2};
+        string_hash_entry v5 {a1, a2};
 
         mString v2 = v5.generate_text("\r\n");
 
@@ -405,7 +409,7 @@ string_hash string_hash_dictionary::register_string(const char *str)
 
     string_hash a1;
     if (entries != nullptr) {
-        register_in_tree(entries, str, &a3);
+        register_in_tree(entries, str, a3);
         a1.source_hash_code = a3.source_hash_code;
     }
 #if 1
@@ -448,26 +452,26 @@ string_hash *string_hash_dictionary::register_string(string_hash *out, const cha
 
 bool string_hash_dictionary::register_in_tree(mAvlTree<string_hash_entry> *a1,
                                               const char *str,
-                                              const string_hash *a3) {
+                                              const string_hash &a3)
+{
     if constexpr (1)
     {
         string_hash_entry a2 {nullptr, a3};
 
         auto *v4 = a1->find(&a2);
-
         if (v4 != nullptr)
         {
             if (_strcmpi(str, v4->field_4.c_str()) != 0)
             {
                 auto *v6 = v4->field_4.c_str();
-                auto v4 = a3->source_hash_code;
-                sp_log("String hash collision (0x%08x) old=%s, new=%s", v4, v6, str);
+                auto v5 = a3.source_hash_code;
+                error("String hash collision (0x%08x) old=%s, new=%s", v5, v6, str);
             }
 
             return false;
         }
 
-        string_hash_entry *v11 = new string_hash_entry(str, a3);
+        string_hash_entry *v11 = new string_hash_entry {str, a3};
 
         auto did_insert = a1->insert(v11);
         assert(did_insert && "duplicate string_hash entry");
@@ -479,9 +483,37 @@ bool string_hash_dictionary::register_in_tree(mAvlTree<string_hash_entry> *a1,
         bool (*func)(mAvlTree<string_hash_entry> *a1,
                       const char *str,
                       const string_hash *a3) = CAST(func, 0x0053DD00);
-        return func(a1, str, a3);
+        return func(a1, str, &a3);
     }
 }
+
+bool string_hash_dictionary::exists(uint32_t a1)
+{
+    if constexpr (0)
+    {
+        string_hash a4 {static_cast<int>(a1)};
+        string_hash_entry v6 {nullptr, a4};
+
+        string_hash_entry *v5 = nullptr;
+        if ( entries != nullptr )
+        {
+            v5 = entries->find(&v6);
+        }
+        else if ( prereg_entries != nullptr )
+        {
+            v5 = prereg_entries->find(&v6);
+        }
+
+        bool v4 = (v5 != nullptr);
+        return v4;
+    }
+    else
+    {
+        bool (__cdecl *func)(uint32_t) = CAST(func, 0x0054C220);
+        return func(a1);
+    }
+}
+
 
 void string_hash_dictionary_patch()
 {
