@@ -52,7 +52,8 @@ void jump_state::apply_jets(Float a1)
     THISCALL(0x00458890, this, a1);
 }
 
-vector3d jump_state::sub_44A580(vector3d a3, vector3d a6, Float a9, Float a10) {
+vector3d jump_state::calculate_jump_vector(vector3d a3, vector3d a6, Float a9, Float a10) const
+{
     auto *v10 = this->field_30->field_28;
 
     float v16 = 0.0;
@@ -65,7 +66,7 @@ vector3d jump_state::sub_44A580(vector3d a3, vector3d a6, Float a9, Float a10) {
     return result;
 }
 
-vector3d jump_state::compute_force(vector3d a3, vector3d a4)
+vector3d jump_state::compute_force(vector3d a3, vector3d a4) const
 {
     if constexpr (1) {
         auto v5 = this->field_30->field_50;
@@ -77,12 +78,14 @@ vector3d jump_state::compute_force(vector3d a3, vector3d a4)
 
         vector3d v13 = ((a9 >= 0.0f) ? a4 : -a4);
 
-        auto result = this->sub_44A580(a3, v13, a9, a10);
+        auto result = this->calculate_jump_vector(a3, v13, a9, a10);
         return result;
     } else {
         vector3d result;
 
-        THISCALL(0x0044A640, this, &result, a3, a4);
+        void (__fastcall *func)(const void *, void *, vector3d *, vector3d a3, vector3d a4) = CAST(func, 0x0044A640);
+
+        func(this, nullptr, &result, a3, a4);
 
         return result;
     }
@@ -189,7 +192,8 @@ void jump_state::initiate_from_wall() {
     }
 }
 
-void jump_state::initiate_from_swing() {
+void jump_state::initiate_from_swing()
+{
     sp_log("jump_state::initiate_from_swing:");
 
     if constexpr (1) {
@@ -291,6 +295,22 @@ void jump_state::initiate_from_swing() {
     {
         THISCALL(0x0044ADA0, this);
     }
+}
+
+void jump_state::initiate_from_pole_swing()
+{
+    auto *v2 = this->field_30->field_28;
+    [[maybe_unused]] auto *v3 = this->field_30->field_48;
+    v2->set_velocity(ZEROVEC, false);
+
+    auto &dir = v2->get_z_facing();
+    dir.y = 0.0;
+    dir.normalize();
+
+    static constexpr auto height = 10.0f;
+    static constexpr auto distance = 15.0f;
+
+    this->field_4C = this->calculate_jump_vector(dir, YVEC, height, distance);
 }
 
 void jump_state::initiate_from_air() {
