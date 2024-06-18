@@ -16,6 +16,14 @@ player_controller_inode::player_controller_inode(from_mash_in_place_constructor 
     THISCALL(0x004813F0, this, a2);
 }
 
+float player_controller_inode::get_motion_force()
+{
+    auto *the_actor = this->get_actor();
+    auto *player_controller = the_actor->get_player_controller();
+    return player_controller->get_motion_force();
+}
+
+
 game_button player_controller_inode::_get_button(controller_inode::eControllerButton a3)
 {
     TRACE("player_controller_inode::get_button");
