@@ -269,7 +269,7 @@ void script_instance::build_parameters()
             assert(parent != nullptr);
 
             static const string_hash inst_name {"__parms_builder"};
-            auto *v6 = parent->add_instance(inst_name, nullptr, nullptr);
+            auto *v6 = parent->add_instance(inst_name, bit_cast<char *>(nullptr), nullptr);
             vm_thread t {v6, this->field_28};
             t.run();
             this->parent->remove_instance(v6);
@@ -301,7 +301,8 @@ void script_instance::build_parameters()
     }
 }
 
-int script_object::get_constructor_parmsize() {
+int script_object::get_constructor_parmsize() const
+{
     auto *func = this->get_func(0);
     auto v2 = func->get_parms_stacksize();
     if ( !func->is_static() ) {
@@ -343,6 +344,48 @@ void script_object::dump_threads_to_file(FILE *a2)
             v2.dump_threads_to_file(a2);
         }
     }
+}
+
+script_instance * script_object::add_instance(string_hash a1,
+        chunk_file *a3,
+        vm_thread **a4)
+{
+    assert(!this->is_global_object()
+            && "please don't create global object instances with this method");
+
+    script_instance *inst = new script_instance {a1, this->data_blocksize, 0};
+    assert(inst != nullptr);
+
+    this->add(inst);
+
+    auto &con = *this->get_func(0);
+    assert(con.get_name() == name);
+
+    auto *v21 = inst->add_thread(&con);
+
+    auto &data_stack = v21->get_data_stack();
+    data_stack.push(bit_cast<const char *>(&inst), 4u);
+    
+    auto parms_stacksize = con.get_parms_stacksize();
+    if ( !con.is_static() ) {
+        parms_stacksize -= 4;
+    }
+
+    if ( a3 != nullptr )
+    {
+        inst->field_28 = new vm_executable {this};
+        vm_executable::read(a3, inst->field_28);
+        
+        assert(this->parent != nullptr);
+
+        inst->field_28->link(*this->parent);
+    }
+
+    if ( a4 != nullptr ) {
+        *a4 = v21;
+    }
+
+    return inst;
 }
 
 script_instance * script_object::add_instance(string_hash a2, char *a3, vm_thread **a4)
@@ -582,7 +625,7 @@ void script_object::create_auto_instance(Float a2)
     }
 }
 
-vm_executable * script_object::get_func(int i)
+vm_executable * script_object::get_func(int i) const
 {
     assert(funcs != nullptr);
 
@@ -729,9 +772,11 @@ void script_object::read(chunk_file *file, script_object *so)
 
     if ( cf == CHUNK_GLOBAL ) {
         so->flags |= SCRIPT_OBJECT_FLAG_GLOBAL;
+        cf = file->read<chunk_flavor>();
     }
 
-    if ( cf == CHUNK_STANDARD ) {
+    if ( cf == CHUNK_STANDARD )
+    {
         cf = file->read<chunk_flavor>();
         if ( cf == CHUNK_PARENT )
         {
@@ -740,13 +785,13 @@ void script_object::read(chunk_file *file, script_object *so)
             so->debug_info->field_0 = string_hash {system_string};
             cf = file->read<chunk_flavor>();
         }
-    } else {
-        cf = file->read<chunk_flavor>();
     }
 
-    if ( cf == CHUNK_NSTATIC ) {
+    if ( cf == CHUNK_NSTATIC )
+    {
         auto i = file->read<int>();
-        while ( i ) {
+        while ( i != 0 )
+        {
             vm_symbol v38{};
             v38.read(file);
 
@@ -764,54 +809,78 @@ void script_object::read(chunk_file *file, script_object *so)
     cf = file->read<chunk_flavor>();
 
     while ( cf == CHUNK_STAT_INIT ) {
-        auto v36 = file->read<int>();
+        auto offset = file->read<int>();
         auto v35 = file->read<int>();
         auto *buffer = so->static_data.get_buffer();
-        auto *v34 = (float *) &buffer[v36];
-        if ( v35 != 0 )
-        {
-            if ( v35 == 1 )
-            {
-                auto v31 = file->read<float>();
-                *v34 = v31;
-            }
-            else if ( v35 == 2 )
-            {
-                auto v30 = file->read<int>();
-                auto *str = so->parent->get_system_string(v30);
-                auto *pso = so->parent->find_object(string_hash {str}, nullptr);
-                assert(pso);
+        auto *v34 = bit_cast<float *>(buffer + offset);
 
-                v30 = file->read<int>();
-                [[maybe_unused]] auto *v27 = pso->parent->get_system_string(v30);
-                auto v26 = 0;
-                chunk_flavor v25 {"UNREG"};
-                v25 = file->read<chunk_flavor>();
-                if ( v25 == CHUNK_PARMS )
-                {
-                    //v26 = pso->sub_6870D3(string_hash {v27}, file, nullptr);
-                }
-                else if ( v25 == CHUNK_NULL )
-                {
-                    //v26 = (string_hash *)pso->add_instance(string_hash {v27}, this, nullptr);
-                }
-                else if ( v25 == CHUNK_GAME_INIT )
-                {
-                    //v26 = (string_hash *)pso->sub_68757E(string_hash {v27}, nullptr);
-                }
-                else
-                {
-                    assert(0 && "bad sx file");
-                }
-
-                *bit_cast<DWORD *>(v34) = v26;
-            }
-        }
-        else
-        {
+        switch (v35) {
+        case 0: { //pst
             auto v33 = file->read<int>();
             auto *permanent_string = so->parent->lookup_permanent_string(v33);
             *(DWORD *)v34 = (int)permanent_string;
+            break;
+        }
+        case 1: { //float
+            auto v31 = file->read<float>();
+            *v34 = v31;
+            break;
+        }
+        case 2: {
+            script_object *pso = nullptr;
+            if (so->parent->system_string_table_size != 0)
+            {
+                auto v30 = file->read<int>();
+                auto *str = so->parent->get_system_string(v30);
+                pso = so->parent->find_object(string_hash {str}, nullptr);
+            }
+            else
+            {
+                auto v30 = file->read<mString>();
+                pso = so->parent->find_object(string_hash {v30.c_str()}, nullptr);
+            }
+
+            assert(pso != nullptr);
+
+            const char *inst_name = nullptr;
+            if (pso->parent->system_string_table_size != 0)
+            {
+                auto v30 = file->read<int>();
+                inst_name = pso->parent->get_system_string(v30);
+            }
+            else
+            {
+                static mString v30 = file->read<mString>();
+                inst_name = v30.c_str();
+            }
+
+            assert(inst_name != nullptr);
+
+            script_instance *v26 = nullptr;
+            chunk_flavor v25 {"UNREG"};
+            v25 = file->read<chunk_flavor>();
+            if ( v25 == CHUNK_PARMS )
+            {
+                v26 = pso->add_instance(string_hash {inst_name}, file, nullptr);
+            }
+            else if ( v25 == CHUNK_NULL )
+            {
+                char *s = nullptr;
+                v26 = pso->add_instance(string_hash {inst_name}, s, nullptr);
+            }
+            else if ( v25 == CHUNK_GAME_INIT )
+            {
+                v26 = pso->add_game_init_instance(string_hash {inst_name}, 0);
+            }
+            else
+            {
+                assert(0 && "bad sx file");
+            }
+
+            *bit_cast<script_instance **>(v34) = v26;
+
+            break;
+        }
         }
 
         cf = file->read<chunk_flavor>();
@@ -843,7 +912,8 @@ void script_object::read(chunk_file *file, script_object *so)
     assert(cf == CHUNK_FUNCS);
     so->total_funcs = file->read<int>();
     sp_log("so->total_funcs = %d", so->total_funcs);
-    if ( so->total_funcs > 0 ) {
+    if ( so->total_funcs > 0 )
+    {
         so->funcs = (vm_executable **)operator new(4 * so->total_funcs);
         assert(so->funcs != nullptr);
 

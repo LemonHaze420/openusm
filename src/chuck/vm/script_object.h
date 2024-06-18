@@ -110,7 +110,7 @@ public:
         return name;
     }
 
-    int get_constructor_parmsize();
+    int get_constructor_parmsize() const;
 
     //0x005A0750
     void constructor_common();
@@ -134,6 +134,11 @@ public:
     void quick_un_mash();
 
     void dump_threads_to_file(FILE *a2);
+
+    script_instance * add_instance(
+            string_hash a1,
+            chunk_file *a3,
+            vm_thread **a4);
 
     //0x005AB120
     script_instance *add_instance(string_hash a2, char *a3, vm_thread **a4);
@@ -160,7 +165,7 @@ public:
     //0x005AAEF0
     void create_auto_instance(Float arg0);
 
-    vm_executable *get_func(int);
+    vm_executable * get_func(int) const;
 
     int get_size_instances() const;
 
