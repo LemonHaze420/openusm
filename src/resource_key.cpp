@@ -178,7 +178,7 @@ void resource_key::operator=(const resource_key &a2) {
 bool resource_key::is_set() const
 {
     resource_key temp_key{};
-    temp_key.m_hash.initialize(0, nullptr, 0);
+    temp_key.m_hash.initialize(mash::ALLOCATED, nullptr, 0);
 
     return (this->m_hash != temp_key.m_hash);
 }
