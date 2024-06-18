@@ -1036,8 +1036,8 @@ bool ListNearbyEntsCommand::process_cmd(const std::vector<std::string> &a2)
     }
 
 
-    using map = std::decay_t<decltype(entity_handle_manager::the_map())>;
-    auto &the_map = entity_handle_manager::the_map();
+    using map = std::decay_t<decltype(entity_handle_manager::the_map)>;
+    auto &the_map = entity_handle_manager::the_map;
     using iterator = map::iterator;
 
     iterator v24 = the_map.begin();
