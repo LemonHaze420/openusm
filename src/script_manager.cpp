@@ -1,6 +1,8 @@
 #include "script_manager.h"
 
 #include "chuck_callbacks.h"
+#include "chunk_file.h"
+#include "filespec.h"
 #include "func_wrapper.h"
 #include "log.h"
 #include "game.h"
@@ -89,7 +91,8 @@ make_var(std::set<void (*)(script_manager_callback_reason, script_executable *, 
 
 namespace script_manager {
 
-void *get_game_var_address(const mString &a1, bool *a2, script_library_class **a3) {
+void * get_game_var_address(const mString &a1, bool *a2, script_library_class **a3)
+{
     TRACE("script_manager::get_game_var_address", a1.c_str());
 
     assert(script_manager_game_var_container != nullptr);
@@ -110,7 +113,8 @@ void *get_game_var_address(const mString &a1, bool *a2, script_library_class **a
         }
     }
 
-    if (result == nullptr && a3 == nullptr) {
+    if (result == nullptr && a3 == nullptr)
+    {
         mString v1{"unknown game/shared var "};
         v1 += a1;
 
@@ -121,7 +125,7 @@ void *get_game_var_address(const mString &a1, bool *a2, script_library_class **a
     return result;
 }
 
-char *get_game_var_address(int a1)
+char * get_game_var_address(int a1)
 {
     TRACE("script_manager::get_game_var_address");
 
@@ -129,7 +133,7 @@ char *get_game_var_address(int a1)
     return script_manager_game_var_container->get_address(a1);
 }
 
-char *get_shared_var_address(int a1)
+char * get_shared_var_address(int a1)
 {
     TRACE("script_manager::get_shared_var_address");
 
@@ -156,6 +160,53 @@ void init_game_var()
 
     if constexpr (1)
     {
+        if ( g_is_the_packer() || script_manager::using_chuck_old_fashioned() )
+        {
+
+            if ( script_manager_game_var_container == nullptr )
+            {
+                chunk_file v22 {};
+                //script_manager::destroy_game_var();
+                script_manager_game_var_container = new script_var_container {};
+                assert(script_manager_game_var_container != nullptr);
+
+                script_manager_game_var_container->flags |= 2u;
+
+                filespec spec {mString {"master"}};
+                spec.m_dir = mString {"scripts\\"};
+                spec.m_ext = ".gv";
+
+                sp_log("%s", spec.fullname().c_str());
+
+                v22.open(spec.fullname(), os_file::FILE_READ);
+                assert ( v22.is_open() );
+                {
+                    v22.read(script_manager_game_var_container);
+                    v22.close();
+                }
+            }
+
+            if ( script_manager_shared_var_container == nullptr )
+            {
+                chunk_file v22 {};
+
+                script_manager_shared_var_container = new script_var_container {};
+                assert(script_manager_shared_var_container != nullptr);
+
+                filespec spec {mString {"master"}};
+                spec.m_dir = mString {"scripts\\"};
+                spec.m_ext = ".sv";
+                v22.open(spec.fullname(), 1);
+                assert ( v22.is_open() );
+                {
+                    v22.read(script_manager_shared_var_container);
+                    v22.close();
+                }
+            }
+
+            return;
+        }
+
         if ( script_manager_game_var_container == nullptr )
         {
             resource_key a1 {string_hash {"master"}, RESOURCE_KEY_TYPE_SCRIPT_GV};
@@ -177,7 +228,8 @@ void init_game_var()
             }
         }
 
-        if ( script_manager_shared_var_container == nullptr ) {
+        if ( script_manager_shared_var_container == nullptr )
+        {
             resource_key a1 {string_hash {"master"}, RESOURCE_KEY_TYPE_SCRIPT_SV};
             auto *v1 = resource_manager::get_resource(a1, nullptr, nullptr);
             if ( v1 != nullptr ) {
@@ -287,6 +339,11 @@ script_executable_entry * load(const resource_key &a1, uint32_t a2, void *a3, co
 {
     TRACE("script_manager::load", a1.get_platform_string(g_platform).c_str());
 
+    [[maybe_unused]] bool is_city_arena = false;
+    if (a1.m_hash == string_hash {"CITY_ARENA"}) {
+        is_city_arena = true;
+    }
+
     assert(script_manager_exec_map != nullptr);
 
     if constexpr (1)
@@ -309,6 +366,7 @@ script_executable_entry * load(const resource_key &a1, uint32_t a2, void *a3, co
         {
             script_executable_entry entry {};
             if ( g_is_the_packer() || using_chuck_old_fashioned() )
+            //if (is_city_arena)
             {
                 entry.exec = new script_executable {};
             }
@@ -321,7 +379,9 @@ script_executable_entry * load(const resource_key &a1, uint32_t a2, void *a3, co
 
             entry.field_4 = 1;
             entry.field_8 = static_cast<const char *>(a3);
+
             if ( g_is_the_packer() || using_chuck_old_fashioned() )
+            //if (is_city_arena)
             {
                 entry.exec->load(a1);
             }
@@ -622,7 +682,8 @@ void run(Float a1, bool a2)
 void destroy_game_var() {
     TRACE("script_manager::destroy_game_var");
 
-    if constexpr(1) {
+    if constexpr(1)
+    {
         if ( script_manager_game_var_container != nullptr )
         {
             if ( (script_manager_game_var_container->flags & 1) == 0 )
