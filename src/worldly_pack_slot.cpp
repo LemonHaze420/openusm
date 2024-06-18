@@ -361,7 +361,7 @@ bool entity_resource_handler::_handle_resource(worldly_resource_handler::eBehavi
                 if (!v4->is_conglom_member())
                 {
                     g_world_ptr->ent_mgr.remove_entity_from_misc_lists(v4);
-                    entity_handle_manager::check_world_lists() = false;
+                    entity_handle_manager::check_world_lists = false;
                     if (v4->is_dynamic())
                     {
                         void (__fastcall *finalize)(void *, void *, bool) = CAST(finalize, get_vfunc(v4->m_vtbl, 0x0));
@@ -374,7 +374,7 @@ bool entity_resource_handler::_handle_resource(worldly_resource_handler::eBehavi
                     }
 
                     v4 = nullptr;
-                    entity_handle_manager::check_world_lists() = true;
+                    entity_handle_manager::check_world_lists = true;
                 }
             }
 
