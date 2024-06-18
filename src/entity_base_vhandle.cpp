@@ -12,8 +12,8 @@
 entity_base *entity_base_vhandle::get_volatile_ptr() const {
     auto func = [](const entity_base_vhandle *a1) -> void * {
         auto v2 = a1->field_0 & 0x3FFF;
-        if (v2 < MAX_ENTITIES && entity_handle_manager::ent_slots()[v2].my_id == a1->field_0) {
-            auto *result = entity_handle_manager::ent_slots()[v2].my_ptr;
+        if (v2 < MAX_ENTITIES && entity_handle_manager::ent_slots[v2].my_id == a1->field_0) {
+            auto *result = entity_handle_manager::ent_slots[v2].my_ptr;
 
             return result;
         }
@@ -41,8 +41,8 @@ switch_obj *vhandle_type<
 
     auto v1 = this->field_0.field_0;
     if (v1 && (v2 = v1 & 0x3FFF, v2 < 0x2800) &&
-        entity_handle_manager::ent_slots()[v2].my_id == v1) {
-        result = static_cast<switch_obj *>(entity_handle_manager::ent_slots()[v2].my_ptr);
+        entity_handle_manager::ent_slots[v2].my_id == v1) {
+        result = static_cast<switch_obj *>(entity_handle_manager::ent_slots[v2].my_ptr);
     }
 
     return result;
@@ -61,8 +61,8 @@ item *vhandle_type<
 
     auto v1 = this->field_0.field_0;
     if (v1 && (v2 = v1 & 0x3FFF, v2 < MAX_ENTITIES) &&
-        entity_handle_manager::ent_slots()[v2].my_id == v1) {
-        result = static_cast<item *>(entity_handle_manager::ent_slots()[v2].my_ptr);
+        entity_handle_manager::ent_slots[v2].my_id == v1) {
+        result = static_cast<item *>(entity_handle_manager::ent_slots[v2].my_ptr);
     } else {
         result = nullptr;
     }
