@@ -37,7 +37,7 @@ Var<int> g_disable_occlusion_culling{0x0095C7AC};
 
 Var<int> globalTextLanguage{0x0096B430};
 
-Var<HWND> g_appHwnd{0x009874C4};
+HWND & g_appHwnd = var<HWND>(0x009874C4);
 
 Var<bool> g_is_the_packer{0x009682E4};
 
@@ -67,7 +67,7 @@ Var<int> dword_922908 = {0x00922908};
 
 Var<bool> byte_922994{0x00922994};
 
-Var<IDirect3DDevice9 *> g_Direct3DDevice = (0x00971F94);
+Var<IDirect3DDevice9 *> g_Direct3DDevice {0x00971F94};
 
 Var<char> byte_965C21 = {0x00965C21};
 

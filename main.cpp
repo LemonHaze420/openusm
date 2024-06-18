@@ -276,6 +276,9 @@
 #include <cassert>
 #include <cmath>
 #include <cstdio>
+
+#define INITGUID
+
 #include <dinput.h>
 #include <direct.h>
 
@@ -283,6 +286,10 @@
 #include <windows.h>
 
 #include <dsound.h>
+
+#include <initguid.h>
+#include <dxdiag.h>
+
 
 void register_class_and_create_window(LPCSTR lpClassName,
                                       LPCSTR lpWindowName,
@@ -532,14 +539,17 @@ void parse_cmd(const char *str)
     }
 }
 
-void create_sound_ifc(HWND a1) {
-    if constexpr (1) {
-        static Var<LPDIRECTSOUND8> dword_987518 = {0x00987518};
+void create_sound_ifc(HWND a1)
+{
+    if constexpr (0)
+    {
+        static auto & dword_987518 = var<LPDIRECTSOUND8>(0x00987518);
 
-        auto &v1 = dword_987518();
-        if (dword_987518() != nullptr ||
-            (DirectSoundCreate8(&IID_IDirectSound8, &dword_987518(), nullptr),
-             (v1 = dword_987518()) != nullptr)) {
+        auto &v1 = dword_987518;
+        if (dword_987518 != nullptr ||
+            (DirectSoundCreate8(&IID_IDirectSound8, &dword_987518, nullptr),
+             (v1 = dword_987518) != nullptr))
+        {
             v1->lpVtbl->SetCooperativeLevel(v1, a1, DISCL_NONEXCLUSIVE);
         }
     } else {
@@ -550,10 +560,6 @@ void create_sound_ifc(HWND a1) {
 void sub_581780() {
     _controlfp(0x300u, 0x300u);
     _controlfp(_PC_24, _MCW_PC);
-}
-
-bool sub_81C2A0(unsigned int a1, unsigned int a2, char a3) {
-    return (bool) CDECL_CALL(0x0081C2A0, a1, a2, a3);
 }
 
 Var<bool> byte_965BF7{0x00965BF7};
@@ -1168,6 +1174,155 @@ void sub_5952D0()
     }
 }
 
+bool CheckDirectXVersionViaDxDiag(uint32_t a1, uint32_t a2, char a3)
+{
+    TRACE("CheckDirectXVersionViaDxDiag");
+
+    if constexpr (0)
+    {
+        bool bGotDirectXVersion = false;
+
+        uint32_t dwDirectXVersionMajor {};
+        uint32_t dwDirectXVersionMinor {};
+        int cDirectXVersionLetter {};
+
+        char Buffer[260] {};
+        assert(GetSystemDirectoryA(Buffer, 260u));
+
+        Buffer[259] = '\0';
+        char Dest[268] {};
+        sprintf(Dest, "%s\\ole32.dll", Buffer);
+
+        assert( GetModuleHandleA(Dest) );
+
+        auto ole32_dll = LoadLibrary(Dest);
+        assert(ole32_dll);
+
+        auto co_initialize = bit_cast<HRESULT (__stdcall *)(void *)>(GetProcAddress(ole32_dll, "CoInitialize"));
+        auto co_create_instance = bit_cast<HRESULT (__stdcall *)(const IID &, LPUNKNOWN, DWORD, const IID &, LPVOID *)>(GetProcAddress(ole32_dll, "CoCreateInstance"));
+        auto co_uninitialize =  bit_cast<void (__stdcall *)()>(GetProcAddress(ole32_dll, "CoUninitialize"));
+
+        assert(co_initialize && co_create_instance && co_uninitialize);
+
+#if 0
+        auto hr = CoInitialize(nullptr);
+#else
+        auto hr = co_initialize(nullptr);
+#endif
+
+        bool bCleanupCOM = SUCCEEDED(hr);
+        IDxDiagProvider *pDxDiagProvider = nullptr;
+
+#if 0
+        hr = CoCreateInstance(CLSID_DxDiagProvider, nullptr, CLSCTX_INPROC_SERVER, IID_IDxDiagProvider, (LPVOID *)&pDxDiagProvider);
+#else
+        hr = co_create_instance(CLSID_DxDiagProvider, nullptr, CLSCTX_INPROC_SERVER, IID_IDxDiagProvider, (LPVOID *)&pDxDiagProvider);
+#endif
+
+        if ( SUCCEEDED(hr) )
+        {
+            DXDIAG_INIT_PARAMS dxDiagInitParam;
+            ZeroMemory( &dxDiagInitParam, sizeof(DXDIAG_INIT_PARAMS) );
+            dxDiagInitParam.dwSize = sizeof(DXDIAG_INIT_PARAMS);
+            dxDiagInitParam.dwDxDiagHeaderVersion = DXDIAG_DX9_SDK_VERSION;
+            dxDiagInitParam.bAllowWHQLChecks = false;
+            dxDiagInitParam.pReserved = nullptr;
+
+            hr = IDxDiagProvider_Initialize(pDxDiagProvider, &dxDiagInitParam);
+            if ( SUCCEEDED(hr) )
+            {
+                IDxDiagContainer *pDxDiagRoot = nullptr;
+                IDxDiagContainer *pDxDiagSystemInfo = nullptr;
+
+                hr = IDxDiagProvider_GetRootContainer(pDxDiagProvider, &pDxDiagRoot);
+                if ( SUCCEEDED(hr) )
+                {
+                    hr = IDxDiagContainer_GetChildContainer(pDxDiagRoot, L"DxDiag_SystemInfo", &pDxDiagSystemInfo);
+                    if ( SUCCEEDED(hr) )
+                    {
+                        bool bSuccessGettingMajor = false;
+                        bool bSuccessGettingMinor = false;
+                        bool bSuccessGettingLetter = false;
+
+                        VARIANT var {};
+                        VariantInit(&var);
+
+                        hr = IDxDiagContainer_GetProp(pDxDiagSystemInfo, L"dwDirectXVersionMajor", &var);
+                        if ( SUCCEEDED(hr) && var.vt == VT_UI4 ) {
+                            dwDirectXVersionMajor = var.ulVal;
+                            bSuccessGettingMajor = true;
+                        }
+
+                        VariantClear(&var);
+
+                        hr = IDxDiagContainer_GetProp(pDxDiagSystemInfo, L"dwDirectXVersionMinor", &var);
+                        if ( SUCCEEDED(hr) && var.vt == VT_UI4 )
+                        {
+                            dwDirectXVersionMinor = var.ulVal;
+                            bSuccessGettingMinor = true;
+                        }
+
+                        VariantClear(&var);
+                        hr = IDxDiagContainer_GetProp(pDxDiagSystemInfo, L"szDirectXVersionLetter", &var);
+                        if ( SUCCEEDED(hr)
+                                && var.vt == VT_BSTR
+                                && SysStringLen(var.bstrVal) )
+                        {
+                            cDirectXVersionLetter = tolower(var.bstrVal[0]);
+                            bSuccessGettingLetter = true;
+                        }
+
+                        VariantClear(&var);
+                        if ( bSuccessGettingMajor && bSuccessGettingMinor && bSuccessGettingLetter ) {
+                            bGotDirectXVersion = true;
+                        }
+
+                        assert(bGotDirectXVersion);
+
+                        IDxDiagContainer_Release(pDxDiagSystemInfo);
+                    }
+
+                    IDxDiagContainer_Release(pDxDiagRoot);
+                }
+            }
+
+            IDxDiagProvider_Release(pDxDiagProvider);
+        }
+
+        if ( bCleanupCOM ) {
+#if 0
+            CoUninitialize();
+#else
+            co_uninitialize();
+#endif
+        }
+
+        auto ValidateVersion = [](auto version, auto a1) -> bool {
+            sp_log("%d %d", version, a1);
+            sp_log("%c %c", version, a1);
+            return (version >= a1);
+        };
+
+#if 1
+        return bGotDirectXVersion && (ValidateVersion(dwDirectXVersionMajor, a1)
+                && ValidateVersion(dwDirectXVersionMinor, a2)
+                && ValidateVersion(cDirectXVersionLetter, a3)
+                );
+#else
+        return (bGotDirectXVersion
+            && (dwDirectXVersionMajor > a1 || dwDirectXVersionMajor == a1)             
+            && (dwDirectXVersionMinor > a2 || dwDirectXVersionMinor == a2) && cDirectXVersionLetter >= a3);
+
+#endif
+    }
+    else
+    {
+        bool (__cdecl * func)(unsigned int a1, unsigned int a2, char a3) = CAST(func, 0x0081C2A0);
+        return func(a1, a2, a3);
+    }
+}
+
+
 int __stdcall myWinMain(HINSTANCE hInstance,
                         [[maybe_unused]] HINSTANCE hPrevInstance,
                         LPSTR lpCmdLine,
@@ -1213,7 +1368,8 @@ int __stdcall myWinMain(HINSTANCE hInstance,
         return 0;
     }
 
-    if (!sub_81C2A0(9u, 0, 99u)) {
+    if (!CheckDirectXVersionViaDxDiag(9, 0, 'c'))
+    {
         auto *v162 = get_msg(g_fileUSM(), "MSGBOX_ERROR");
         auto *v7 = get_msg(g_fileUSM(), "MSGBOX_DX9");
 
@@ -1276,17 +1432,17 @@ int __stdcall myWinMain(HINSTANCE hInstance,
                                      80,
                                      1u);
 
-    ShowWindow(g_appHwnd(), 3);
+    ShowWindow(g_appHwnd, 3);
 
     g_Windowed() = 0;
-    UpdateWindow(g_appHwnd());
-    SetWindowPos(g_appHwnd(), nullptr, 0, 0, g_cx(), g_cy(), 4u);
+    UpdateWindow(g_appHwnd);
+    SetWindowPos(g_appHwnd, nullptr, 0, 0, g_cx(), g_cy(), 4u);
 
-    create_sound_ifc(g_appHwnd());
+    create_sound_ifc(g_appHwnd);
     ShowCursor(0);
     os_developer_options::instance->set_int(mString {"ALLOW_SCREENSHOT"}, 1);
 
-    window_manager::instance()->field_4 = g_appHwnd();
+    window_manager::instance()->field_4 = g_appHwnd;
 
     parse_cmd(lpCmdLine);
 
@@ -1361,7 +1517,7 @@ int __stdcall myWinMain(HINSTANCE hInstance,
         Input::instance()->sub_81FC00(i, Type);
     }
 
-    Input::instance()->initialize(g_appHwnd());
+    Input::instance()->initialize(g_appHwnd);
 
     auto *v30 = get_msg(g_fileUSM(), "MouseWheelDown");
     auto *v31 = get_msg(g_fileUSM(), "MouseWheelUp");
@@ -1600,7 +1756,7 @@ int __stdcall myWinMain(HINSTANCE hInstance,
     nWidth() = g_cx();
     nHeight() = g_cy();
 
-    nglInit(g_appHwnd());
+    nglInit(g_appHwnd);
     nalInit(nullptr);
 
     g_cursor() = new Cursor(L"data\\ump.dat", g_cx(), g_cy());
@@ -1916,7 +2072,7 @@ void create_window(LPCSTR lpClassName,
 
     sp_log("create_window");
 
-    g_appHwnd() =
+    g_appHwnd =
         CreateWindowA(
         //CreateWindowExA(dwExStylea,
                               lpClassName,
@@ -1943,10 +2099,11 @@ void register_class_and_create_window(LPCSTR lpClassName,
                                       WNDPROC windowProc,
                                       HINSTANCE hInstance,
                                       int a9,
-                                      DWORD dwStyle) {
-    if (g_appHwnd()) {
-        DestroyWindow(g_appHwnd());
-        g_appHwnd() = nullptr;
+                                      DWORD dwStyle)
+{
+    if (g_appHwnd != nullptr) {
+        DestroyWindow(g_appHwnd);
+        g_appHwnd = nullptr;
     }
 
     register_class(lpClassName, windowProc, hInstance, a9);
@@ -2425,6 +2582,10 @@ BOOL install_redirects()
 
     REDIRECT(0x005AC52F, parse_cmd);
 
+    REDIRECT(0x005AC301, CheckDirectXVersionViaDxDiag);
+
+    REDIRECT(0x005AC4A9, register_class_and_create_window);
+
     {
         DWORD hookDirectInputAddress = (DWORD) HookDirectInput8Create;
         REDIRECT(0x008218B0, hookDirectInputAddress);
@@ -2435,6 +2596,24 @@ BOOL install_redirects()
     Timer_patch();
 
     //REDIRECT(0, sub_5952D0);
+
+    app_patch();
+
+    //standalone patches
+    if constexpr (1)
+    {
+        slc_manager_patch();
+    
+        tl_patch();
+
+        resource_manager_patch();
+
+        script_manager_patch();
+
+        slab_allocator_patch();
+
+        nfl_system_patch();
+    }
 
     if constexpr (1)
     {
@@ -2479,13 +2658,41 @@ BOOL install_redirects()
         game_patch();
     }
 
+    if constexpr (1)
+    {
+        script_executable_patch();
+
+        script_patch();
+
+        script_instance_patch();
+
+        script_access_patch();
+    }
+
+    ngl_patch();
+
     actor_patch();
 
     city_lights_patch();
 
     mashable_vector_patch();
 
+    animation_interface_patch();
+
+    entity_base_patch();
+
+    if constexpr (1)
+    {
+        vm_patch();
+
+        vm_thread_patch();
+
+        vm_executable_patch();
+    }
+
     return true;
+
+    redirect_winmain();
 
     wds_render_manager_patch();
 
@@ -2495,37 +2702,9 @@ BOOL install_redirects()
 
     tlresource_directory_patch();
 
-
     input_settings_patch();
 
     game_settings_patch();
-
-    ngl_patch();
-
-    //standalone patches
-    if constexpr (1)
-    {
-        slc_manager_patch();
-    
-        tl_patch();
-
-        resource_manager_patch();
-
-        script_manager_patch();
-
-        slab_allocator_patch();
-
-        nfl_system_patch();
-    }
-
-    if constexpr (0)
-    {
-        vm_patch();
-
-        vm_thread_patch();
-
-        vm_executable_patch();
-    }
 
     if constexpr (0)
     {
@@ -2540,6 +2719,8 @@ BOOL install_redirects()
 
     if constexpr (1)
     {
+        conglomerate_patch();
+
         sound_manager_patch();
 
         string_hash_dictionary_patch();
@@ -2596,36 +2777,17 @@ BOOL install_redirects()
 
         ngl_vertexdef_patch();
 
-        app_patch();
-
         camera_target_info_patch();
 
         spiderman_camera_patch();
 
         script_data_interface_patch();
 
-        animation_interface_patch();
-
-        conglomerate_patch();
-
-        entity_base_patch();
-
         entity_mash_patch();
 
         anim_record_patch();
 
         sound_interface_patch();
-    }
-
-    if constexpr (0)
-    {
-        script_executable_patch();
-
-        script_patch();
-
-        script_instance_patch();
-
-        script_access_patch();
     }
 
     if constexpr (1)
@@ -2923,8 +3085,6 @@ BOOL install_redirects()
         REDIRECT(0x00822500, initterm);
     }
 
-    REDIRECT(0x005AC4A9, register_class_and_create_window);
-
     os_developer_options_patch();
 
 
@@ -3051,8 +3211,6 @@ BOOL install_redirects()
 
             assert(0);
         }
-
-        //redirect_winmain();
 
 #if 0
         

@@ -10,7 +10,7 @@ struct Input;
 struct InputSettings;
 struct PolytubeCustomMaterial;
 
-inline constexpr bool STANDALONE_SYSTEM = 0;
+inline constexpr bool STANDALONE_SYSTEM = 1;
 
 extern PolytubeCustomMaterial *& webline_texture;
 
@@ -62,7 +62,7 @@ extern Var<int> g_disable_occlusion_culling;
 
 extern Var<int> globalTextLanguage;
 
-extern Var<HWND> g_appHwnd;
+extern HWND & g_appHwnd;
 
 extern Var<bool> g_is_the_packer;
 

@@ -95,7 +95,7 @@ void Cursor::sub_581C60() {
 
     this->field_104.x = (uint64_t)(this->m_cursorLoc.x * 640.0 / this->m_screenWidth);
     this->field_104.y = (uint64_t)(this->m_cursorLoc.y * 480.0 / this->m_screenHeight);
-    ScreenToClient(g_appHwnd(), &this->field_104);
+    ScreenToClient(g_appHwnd, &this->field_104);
 }
 
 void Cursor::sub_5B0D70() {
