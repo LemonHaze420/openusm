@@ -66,7 +66,7 @@ struct entity_handle_manager {
     //0x004DC300
     static entity_base *find_entity(const string_hash &arg0, entity_flavor_t a2, bool a3);
 
-    static Var<stdext::hash_map<string_hash, entity_base *>> the_map;
+    static stdext::hash_map<string_hash, entity_base *> & the_map;
 
     //0x004D0F20
     static void create_inst();
@@ -86,15 +86,15 @@ struct entity_handle_manager {
     //0x004CCFC0
     static void remove_entity(const entity_base_vhandle &ent_handle);
 
-    static Var<entity_slot *> ent_slots;
+    static entity_slot *& ent_slots;
 
-    static Var<entity_slot *> ENTS;
+    static entity_slot *& ENTS;
 
-    static Var<int> curr_idx;
+    static int & curr_idx;
 
-    static Var<bool> check_world_lists;
+    static bool & check_world_lists;
 
-    static Var<simple_queue<int, 32>> free_slot_indices;
+    static simple_queue<int, 32> & free_slot_indices;
 };
 
 //0x004DCE50
@@ -103,6 +103,6 @@ extern entity_base *find_marker(const string_hash &a1);
 //0x0050B9D0
 extern mic *find_mic(const string_hash &a1);
 
-extern Var<const char *[30]> entity_flavor_names;
+inline auto & entity_flavor_names = var<const char *[30]>(0x0091FD38);
 
 extern void entity_handle_manager_patch();
