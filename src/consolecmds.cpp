@@ -1086,7 +1086,7 @@ bool DumpThreadsCommand::process_cmd(const std::vector<std::string> &a2)
     }
     else
     {
-        g_console->addToLog(mString::null());
+        g_console->addToLog(mString::null);
         script_manager::dump_threads_to_console();
     }
     

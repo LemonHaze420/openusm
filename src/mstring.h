@@ -9,7 +9,7 @@
 
 #include <windef.h>
 
-extern Var<int> mString_count;
+extern int & mString_count;
 
 //0x00936BD0
 extern Var<const char *[4]> packfile_dir;
@@ -195,7 +195,7 @@ public:
 
     static int npos;
 
-    static inline Var<char *> null {0x0091E7C0};
+    static inline char *& null = var<char *>(0x0091E7C0);
 };
 
 //0x0064DF30

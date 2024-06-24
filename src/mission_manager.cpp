@@ -72,7 +72,7 @@ void mission_manager::force_mission(int a2, const char *a3, int a4, const char *
         }
         else
         {
-            fixedstring<8> v7 {mString::null()};
+            fixedstring<8> v7 {mString::null};
             this->field_A8 = v7;
         } 
     }
@@ -549,14 +549,14 @@ po mission_manager::get_mission_key_po() const
 {
     assert(m_script != nullptr);
 
-    return *this->m_script->field_94;
+    return (*this->m_script->field_94);
 }
 
 bool mission_manager::is_story_active() const
 {
     mString v3 {"gv_story_finished"};
-    float *game_var_address = (float *)script_manager::get_game_var_address(v3, nullptr, nullptr);
-    return *game_var_address == 0.0f;
+    float *game_var_address = bit_cast<float *>(script_manager::get_game_var_address(v3, nullptr, nullptr));
+    return equal(*game_var_address, 0.0f);
 }
 
 bool mission_manager::is_mission_active() const

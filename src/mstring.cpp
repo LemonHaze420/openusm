@@ -14,7 +14,7 @@
 
 VALIDATE_SIZE(mString, 0x10);
 
-Var<int> mString_count {0x00957CEC};
+int &mString_count = var<int>(0x00957CEC);
 
 Var<const char *[4]> packfile_ext {0x00936BF0};
 Var<const char *[4]> packfile_dir {0x00936BD0};
@@ -118,12 +118,12 @@ void mString::initialize(mash::allocation_scope scope)
     if (scope == mash::ALLOCATED)
     {
         this->set_size(0);
-        this->guts = (char *) mString::null();
+        this->guts = mString::null;
     }
 
 
     this->field_C = nullptr;
-    ++mString_count();
+    //++mString_count;
 }
 
 mString::mString(const char *a2)
@@ -140,13 +140,14 @@ mString mString::from_float(float a2) {
     return a1;
 }
 
-int mString::find(const char *str, int a3) const {
+int mString::find(const char *str, int a3) const
+{
     char *v1 = strstr(&this->guts[a3], str);
     if (v1 != nullptr) {
         return v1 - this->guts;
+    } else {
+        return mString::npos;
     }
-
-    return mString::npos;
 }
 
 mString & mString::operator+=(const char *a2)
@@ -242,17 +243,18 @@ int mString::rfind(char a2, int a3) const {
 void mString::finalize(mash::allocation_scope )
 {
     this->destroy_guts();
-    --mString_count();
+    //--mString_count;
 }
 
 mString::mString()
-    : mContainer(), guts(""),
+    : mContainer(), guts(mString::null),
       field_C(nullptr)
 {
     this->initialize(mash::ALLOCATED);
 }
 
-mString::mString([[maybe_unused]] mString::fmtd fmt, const char *Format, ...) {
+mString::mString([[maybe_unused]] mString::fmtd fmt, const char *Format, ...)
+{
     char Dest[1024];
     va_list Args;
 
@@ -433,7 +435,7 @@ bool mString::operator==(const char *a2) const {
 void mString::destroy_guts() {
     if constexpr (1) {
         auto *v2 = this->guts;
-        if (v2 != mString::null()) {
+        if (v2 != mString::null) {
             if ((int) v2 < (int) this || (int) v2 > (int) this + this->field_0) {
                 if (this->field_C == nullptr) {
                     delete[](v2);
@@ -442,7 +444,7 @@ void mString::destroy_guts() {
                 }
             }
 
-            this->guts = (char *) mString::null();
+            this->guts = mString::null;
 
             this->field_C = nullptr;
         }
@@ -576,7 +578,7 @@ void mString::update_guts(const char *from_string, int n) {
 
             this->m_size = n;
 
-            this->guts = (char *) mString::null();
+            this->guts = mString::null;
         }
     } else {
         THISCALL(0x0041F9D0, this, from_string, n);
@@ -590,8 +592,6 @@ void mString::unmash(mash_info_struct *a1, void *a2)
 
 void mString::custom_unmash(mash_info_struct *a1, void *a2)
 {
-    TRACE("mString::custom_unmash");
-
 #ifdef TARGET_XBOX
     assert(guts == (char *)mash::CUSTOM_MASH_SENTRY);
 #endif
@@ -600,7 +600,7 @@ void mString::custom_unmash(mash_info_struct *a1, void *a2)
     {
         auto size = this->size();
         if (size <= 0) {
-            this->guts = (char *) mString::null();
+            this->guts = mString::null;
         } else {
             a1->align_buffer(
 #ifdef TARGET_XBOX
