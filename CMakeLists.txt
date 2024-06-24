@@ -3,20 +3,22 @@ cmake_minimum_required(VERSION 3.12)
 include(cmake/i686-pc-mingw32.cmake)
 
 set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-static -std=gnu11 -g")
+
 set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS}
     "-fomit-frame-pointer -m32 -fno-asynchronous-unwind-tables -masm=intel -static -g")
+
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 list(APPEND flags
-    #"-Werror"
-    #"-pedantic-errors"
     "-Wall"
     "-Wextra"
-    "-Wpedantic"
+    "-pedantic"
+    "-Werror"
     "-Wcast-align"
     "-Wcast-qual"
     "-Wzero-as-null-pointer-constant"
@@ -93,11 +95,19 @@ target_compile_options(mash
 target_link_libraries(mash PUBLIC utility variables)
 
 file(GLOB SRC "./src/*.cpp" "./src/*.h")
-add_library(binkw32 SHARED main.cpp ${SRC})
+
+add_library(usm STATIC ${SRC})
+target_compile_options(usm
+    PUBLIC
+    ${flags}
+)
+
+add_library(binkw32 SHARED main.cpp)
 target_compile_options(binkw32
   PRIVATE
     ${flags}
 )
+target_link_libraries(binkw32 PUBLIC usm)
 
 add_library(memory "./src/memory.cpp" "./src/memory.h")
 target_compile_options(memory
@@ -187,6 +197,15 @@ target_include_directories(chuck INTERFACE "./src/chuck/vm/")
 target_link_libraries(chuck PUBLIC slab_allocator variables debugutil)
 
 
+add_library(mashable_vector "./src/mashable_vector.cpp")
+target_include_directories(mashable_vector PUBLIC "src/")
+target_compile_options(mashable_vector
+    PUBLIC
+    ${flags}
+)
+target_link_libraries(mashable_vector PUBLIC usm utility)
+
+
 file(GLOB_RECURSE SRC_TX "./src/tx/src/*.cpp" "./src/tx/src/*.h")
 add_library(tx ${SRC_TX})
 target_compile_options(tx
@@ -234,25 +253,25 @@ target_compile_options(ngl_dx
 
 target_include_directories(ngl_dx PUBLIC "./src/ngl/include/dx")
 target_include_directories(ngl_dx PUBLIC "./src/ngl/include/")
-target_link_libraries(ngl_dx PUBLIC psapi utility variables)
+target_link_libraries(ngl_dx PUBLIC psapi utility variables usm)
 
 file(GLOB_RECURSE SRC_NGL_SHADERS "./src/ngl/shaders/*.cpp")
 add_library(ngl_shaders ${SRC_NGL_SHADERS})
 target_compile_options(ngl_shaders
     PRIVATE
-      ${flags}
-  )
+    ${flags}
+)
 
 
 target_include_directories(ngl_shaders PUBLIC "./src/ngl/shaders")
-target_link_libraries(ngl_shaders PUBLIC ngl_dx)
+target_link_libraries(ngl_shaders PUBLIC ngl_dx usm)
 
 file(GLOB SRC_NGL "./src/ngl/src/*.cpp")
 add_library(ngl ${SRC_NGL})
 target_compile_options(ngl
     PRIVATE
-      ${flags}
-  )
+    ${flags}
+)
 target_link_libraries(ngl PUBLIC ngl_dx ngl_shaders)
 target_include_directories(ngl PUBLIC "./src/ngl/include/")
 
@@ -261,31 +280,26 @@ file(GLOB SRC_CHARANIMTYPE "./src/charanimtype/*.cpp")
 add_library(charanimtype ${SRC_CHARANIMTYPE})
 target_compile_options(charanimtype
     PRIVATE
-      ${flags}
-  )
+    ${flags}
+)
 target_link_libraries(charanimtype PUBLIC nal ngl_dx ngl_shaders)
 target_include_directories(charanimtype PUBLIC "./src/charanimtype/")
 
 
 file(GLOB_RECURSE PHYSICS_SRC "./src/physics/source/*.cpp")
-
 add_library(physics ${PHYSICS_SRC})
 target_compile_options(physics
     PRIVATE
-      ${flags}
-  )
+    ${flags}
+)
 target_include_directories(physics PUBLIC "./src/physics/include/")
 target_link_libraries(physics PUBLIC utility ngl)
 
-
-if(USE_FSTREAM)
-    target_compile_definitions(binkw32 PUBLIC USE_FSTREAM)
-endif()
-
-target_include_directories(binkw32 PUBLIC "include")
-target_include_directories(binkw32 PUBLIC "./src/nfl/src/")
+target_include_directories(usm PUBLIC "include")
+target_include_directories(usm PUBLIC "./src/nfl/src/")
 
 target_include_directories(chuck PUBLIC "include" "src")
+target_include_directories(mashable_vector INTERFACE "include" "src")
 target_include_directories(tx PUBLIC "include" "src")
 target_include_directories(ngl_dx PUBLIC "include" "src")
 
@@ -294,15 +308,15 @@ target_include_directories(test_tx PUBLIC "include" "src")
 
 target_link_libraries(ngl_dx PUBLIC d3dx9)
 
-target_link_directories(binkw32 PUBLIC ${CMAKE_FIND_ROOT_PATH}/include)
-target_link_directories(binkw32 PUBLIC ${CMAKE_FIND_ROOT_PATH}/lib)
-target_link_libraries(binkw32 PUBLIC physics)
-target_link_libraries(binkw32 PUBLIC charanimtype mash chuck nfl ngl nal nsl utility)
-target_link_libraries(binkw32 PUBLIC winmm psapi d3d9 dinput8 dxguid dsound)
+target_link_directories(usm PUBLIC ${CMAKE_FIND_ROOT_PATH}/include)
+target_link_directories(usm PUBLIC ${CMAKE_FIND_ROOT_PATH}/lib)
+target_link_libraries(usm PUBLIC physics)
+target_link_libraries(usm PUBLIC charanimtype mash chuck nfl ngl nal nsl utility)
+target_link_libraries(usm PUBLIC winmm psapi d3d9 dinput8 dxguid dsound)
 
 
 if(USE_GLM)
-    target_link_libraries(binkw32 PUBLIC glm::glm)
+    target_link_libraries(usm PUBLIC glm::glm)
 endif()
 
 option(ENABLE_TESTS "" ON)
