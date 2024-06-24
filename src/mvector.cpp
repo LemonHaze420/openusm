@@ -1664,7 +1664,7 @@ void mVectorBasic<attach_action_trigger_enum>::custom_unmash(mash_info_struct *a
     if ( this->m_data != nullptr )
 #endif
     {
-        this->m_data = CAST(this->m_data, a1->read_from_buffer(
+        this->m_data = bit_cast<value_type *>(a1->read_from_buffer(
 #ifdef TARGET_XBOX
             mash::NORMAL_BUFFER,
 #endif
@@ -1742,7 +1742,7 @@ void mVectorBasic<vhandle_type<actor>>::custom_unmash(mash_info_struct *a1, void
     if ( this->m_data != nullptr )
 #endif
     {
-        this->m_data = CAST(this->m_data, a1->read_from_buffer(
+        this->m_data = bit_cast<value_type *>(a1->read_from_buffer(
 #ifdef TARGET_XBOX
             mash::NORMAL_BUFFER,
 #endif

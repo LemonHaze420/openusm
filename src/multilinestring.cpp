@@ -21,7 +21,7 @@ void MultiLineString::Set(MultiLineString::string a2, font_index a7, Float a8, F
     TRACE("MultiLineString::Set");
 
     if constexpr (0) {
-        std::memcpy(&this->field_10, &a2, sizeof(a2));
+        this->field_10 = *bit_cast<mString *>(&a2);
         auto *v6 = &this->field_10;
 
         this->m_font_index = a7;
@@ -72,9 +72,10 @@ void MultiLineString::Set(MultiLineString::string a2, font_index a7, Float a8, F
 }
 
 bool sub_609B80(const char *a1, const char *a2, const char **a3, const char *a4, int *a5) {
-    auto v5 = strlen(a2);
+    int v5 = strlen(a2);
     auto v6 = 0;
-    if (v5 > 0) {
+    if (v5 > 0)
+    {
         auto *v7 = a1;
         do {
             auto v8 = *v7;
@@ -304,7 +305,7 @@ double MultiLineString::GetWidth(MultiLineString::string a1, Float a5, font_inde
 
             int tmp;
             uint32_t a4;
-            nglGetStringDimensions(v4, (char *) str.c_str(), (uint32_t *) &tmp, &a4, a5, a5);
+            nglGetStringDimensions(v4, bit_cast<char *>(str.c_str()), (uint32_t *) &tmp, &a4, a5, a5);
 
             if (v3 == 3 && (str == "6" || str == "7" || str == "8")) {
                 float v5 = (double) tmp;

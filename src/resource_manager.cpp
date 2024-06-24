@@ -26,6 +26,54 @@
 #include <cassert>
 #include <numeric>
 
+
+void resource_manager::delete_inst()
+{
+    TRACE("resource_manager::delete_inst");
+    if constexpr (1)
+    {
+        if (amalgapak_pack_location_table != nullptr)
+        {
+            assert(amalgapak_pack_location_count > 0);
+
+            mem_freealign(amalgapak_pack_location_table);
+            amalgapak_pack_location_table = nullptr;
+            nflCloseFile(amalgapak_id);
+        }
+
+        if (resource_buffer != nullptr) {
+            mem_freealign(resource_buffer);
+        }
+
+        resource_buffer = nullptr;
+
+        if (partitions != nullptr)
+        {
+            for (auto &part : (*partitions)) {
+                if (part != nullptr) {
+                    delete part;
+                }
+            }
+
+            if (partitions != nullptr) {
+                operator delete(partitions);
+            }
+        }
+
+        partitions = nullptr;
+        if (memory_maps_count > 0) {
+            assert(memory_maps != nullptr);
+
+            operator delete[](memory_maps);
+        }
+    }
+    else
+    {
+        CDECL_CALL(0x00547AD0);
+    }
+}
+
+
 namespace resource_manager {
 
 VALIDATE_SIZE(resource_memory_map, 0x90);
@@ -771,51 +819,6 @@ resource_pack_slot *pop_resource_context()
         return old_context;
     } else {
         return (resource_pack_slot *) CDECL_CALL(0x00537530);
-    }
-}
-
-void delete_inst() {
-    TRACE("resource_manager::delete_inst");
-    if constexpr (1)
-    {
-        if (amalgapak_pack_location_table != nullptr)
-        {
-            assert(amalgapak_pack_location_count > 0);
-
-            mem_freealign(amalgapak_pack_location_table);
-            amalgapak_pack_location_table = nullptr;
-            nflCloseFile(amalgapak_id);
-        }
-
-        if (resource_buffer != nullptr) {
-            mem_freealign(resource_buffer);
-        }
-
-        resource_buffer = nullptr;
-
-        if (partitions != nullptr)
-        {
-            for (auto &part : (*partitions)) {
-                if (part != nullptr) {
-                    delete part;
-                }
-            }
-
-            if (partitions != nullptr) {
-                operator delete(partitions);
-            }
-        }
-
-        partitions = nullptr;
-        if (memory_maps_count > 0) {
-            assert(memory_maps != nullptr);
-
-            operator delete[](memory_maps);
-        }
-    }
-    else
-    {
-        CDECL_CALL(0x00547AD0);
     }
 }
 

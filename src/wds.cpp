@@ -102,6 +102,8 @@ world_dynamics_system *& g_world_ptr = var<world_dynamics_system *>(0x0095C770);
 world_dynamics_system::world_dynamics_system()
     : field_4(), field_3E0()
 {
+    TRACE("world_dynamics_system::world_dynamics_system");
+
     if constexpr (1)
     {
         this->field_0 = new slot_pool<nal_anim_control *, uint32_t>{500};
@@ -201,7 +203,7 @@ bool region_array::contains(region *a2) const
 
 void region_array::push_back(region *a2)
 {
-    assert(count < MAX_REGIONS_IN_ARRAY);
+    assert(this->count < static_cast<int>(MAX_REGIONS_IN_ARRAY));
 
     if ( this->count >= 30 ) {
         error("Region list overflow");
@@ -362,7 +364,7 @@ void manage_standing_for_all_physical_interfaces(Float a1) {
 
 entity *world_dynamics_system::get_hero_ptr(int index)
 {
-    assert(index >= 0 && index <= MAX_GAME_PLAYERS);
+    assert(index >= 0 && static_cast<size_t>(index) <= MAX_GAME_PLAYERS);
 
     auto *result = this->field_230[index];
     return result;
@@ -549,8 +551,8 @@ bool world_dynamics_system::un_mash_scene_entities(const resource_key &a2, regio
         auto *item_vec_ptr = slot_ptr->get_item_instances();
         auto *box_trigger_instances = slot_ptr->get_box_trigger_instances();
         limited_timer_base v81, v80, v79, v78;
-        static auto dword_1568498 = 0.0;
-        static auto dword_156849C = 0.0;
+        [[maybe_unused]] static auto dword_1568498 = 0.0;
+        [[maybe_unused]] static auto dword_156849C = 0.0;
         static auto dword_15684A0 = 0.0;
         static auto dword_15684A4 {0.0};
         [[maybe_unused]] auto dword_15684A8 = 0;
@@ -733,7 +735,7 @@ bool world_dynamics_system::un_mash_scene_entities(const resource_key &a2, regio
             {
             case 3u: {
                 limited_timer_base v58{};
-                auto dword_15684AC = 0.0;
+                [[maybe_unused]] auto dword_15684AC = 0.0;
                 v58.reset();
 
                 assert(the_terrain != nullptr);
@@ -765,7 +767,7 @@ bool world_dynamics_system::un_mash_scene_entities(const resource_key &a2, regio
             }
             case 9u: {
                 limited_timer_base v60{};
-                auto dword_15684BC = 0.0;
+                [[maybe_unused]] auto dword_15684BC = 0.0;
                 v60.reset();
                 assert(the_terrain != nullptr);
 
@@ -901,7 +903,7 @@ bool world_dynamics_system::un_mash_scene_box_triggers(const resource_key &a1, r
             assert(parse_code == BOX_TRIGGERS_TAG);
             buffer_index += 4;
             limited_timer v8{};
-            auto dword_15684C0 = 0.0;
+            [[maybe_unused]] auto dword_15684C0 = 0.0;
             v8.reset();
             assert(( buffer_index % 4 ) == 0);
 
@@ -909,7 +911,7 @@ bool world_dynamics_system::un_mash_scene_box_triggers(const resource_key &a1, r
             int size;
             this->un_mash_box_triggers(parse_code, (char *)&buffer_ptr[buffer_index], box_trigger_instances, &size);
 
-            assert(size + sizeof( parse_code ) == mash_data_size);
+            assert(static_cast<int>(size + sizeof( parse_code )) == mash_data_size);
 
             dword_15684C0 = v8.elapsed();
             a4->done();
@@ -1249,7 +1251,7 @@ bool world_dynamics_system::load_scene(resource_key &a2,
             this->field_188.initialize(local_dc);
         }
 
-        assert(brew_idx >= 0 && brew_idx < scene_loads.size());
+        assert( brew_idx >= 0 && brew_idx < static_cast<int>(scene_loads.size()) );
 
         auto size = this->scene_loads.size();
         auto &last_scene = this->scene_loads[size - 1];
@@ -1265,7 +1267,7 @@ bool world_dynamics_system::load_scene(resource_key &a2,
 
 void world_dynamics_system::set_chase_cam_ptr(int index, game_camera *a3)
 {
-    assert(index >= 0 && index <= MAX_GAME_PLAYERS);
+    assert(index >= 0 && static_cast<size_t>(index) <= MAX_GAME_PLAYERS);
 
     this->field_234[index] = a3;
 }

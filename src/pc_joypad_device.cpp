@@ -230,35 +230,35 @@ int InputGetState(unsigned int dwUserIndex, InputState &pState)
         pState.field_C = v3.get_state(static_cast<InputAction>(10u)) * flt_871978;
         pState.field_D = v3.get_state(static_cast<InputAction>(11u)) * flt_871978;
 
-        if (0.0f != v3.get_state(InputAction::Pause)) {
+        if ( not_equal(0.0f, v3.get_state(InputAction::Pause)) ) {
             v20 |= 0x10u;
         }
 
-        if (0.0f != v3.get_state(InputAction::BackButton)) {
+        if ( not_equal(0.0f, v3.get_state(InputAction::BackButton)) ) {
             v20 |= 0x20u;
         }
 
-        if (0.0f != v3.get_state(static_cast<InputAction>(14u))) {
+        if ( not_equal(0.0f, v3.get_state(static_cast<InputAction>(14u))) ) {
             v20 |= 0x40u;
         }
 
-        if (0.0f != v3.get_state(InputAction::CameraCenter)) {
+        if ( not_equal(0.0f, v3.get_state(InputAction::CameraCenter)) ) {
             v20 |= 0x80u;
         }
 
-        if (0.0f != v3.get_state(static_cast<InputAction>(24u))) {
+        if ( not_equal(0.0f, v3.get_state(static_cast<InputAction>(24u))) ) {
             v20 |= 1u;
         }
 
-        if (0.0f != v3.get_state(static_cast<InputAction>(25u))) {
+        if ( not_equal(0.0f, v3.get_state(static_cast<InputAction>(25u))) ) {
             v20 |= 2u;
         }
 
-        if (0.0f != v3.get_state(static_cast<InputAction>(26u))) {
+        if ( not_equal(0.0f, v3.get_state(static_cast<InputAction>(26u))) ) {
             v20 |= 4u;
         }
 
-        if (0.0f != v3.get_state(static_cast<InputAction>(27u))) {
+        if ( not_equal(0.0f, v3.get_state(static_cast<InputAction>(27u))) ) {
             v20 |= 8u;
         }
 
@@ -362,7 +362,7 @@ float pc_joypad_device::_get_axis_state(Axis axis, InputState input_state)
 
     float v5;
     double a2a;
-    switch (axis) {
+    switch (static_cast<int>(axis)) {
     case 0: {
         if ((input_state.m_flags & 4) != 0) {
             return (-1.0f);
@@ -384,7 +384,7 @@ float pc_joypad_device::_get_axis_state(Axis axis, InputState input_state)
             result = 1.0f;
             v5 = (-1.0f);
 
-            if (a2a == v5) {
+            if (equal<float>(a2a, v5)) {
                 return 0.0f;
             }
 
@@ -397,7 +397,7 @@ float pc_joypad_device::_get_axis_state(Axis axis, InputState input_state)
 
         result = (-1.0f);
         v5 = 1.0f;
-        if (a2a == v5) {
+        if (equal<float>(a2a, v5)) {
             return 0.0f;
         }
 
@@ -414,7 +414,7 @@ float pc_joypad_device::_get_axis_state(Axis axis, InputState input_state)
             }
         }
 
-        if (a2a == v5) {
+        if (equal<float>(a2a, v5)) {
             return 0.0f;
         }
 

@@ -113,7 +113,7 @@ float keyboard_device::_get_axis_state(int axis, int a3)
     return 0.0f;
 }
 
-float keyboard_device::_get_axis_old_state(int axis, int )
+float keyboard_device::_get_axis_old_state(int , int )
 {
     return 0.0f;
 }

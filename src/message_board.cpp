@@ -18,7 +18,7 @@ void message_board::post(string a1, Float a2, color32 a3)
         auto &v10 = this->field_0;
 
         uint32_t i;
-        for (i = 0; i < v10.size() && v10.at(i).field_64 != 0.0; ++i) {
+        for (i = 0u; i < v10.size() && not_equal(v10.at(i).field_64, 0.0f); ++i) {
             ;
         }
 

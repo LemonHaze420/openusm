@@ -86,7 +86,7 @@ struct Struct_984498
 
 static auto & nfl_initParams = var<nflInitParams>(0x00949730);
 
-static auto & stru_94983C = var<const Struct_94983C>(0x0094983C);
+static auto & stru_94983C = var<Struct_94983C>(0x0094983C);
 
 static auto & nfl_filePool = var<txSlotPool>(0x009844F4);
 
@@ -475,7 +475,7 @@ void *nfsPreAllocate(uint32_t size, uint32_t align, Struct_984498 &dword_984498)
     assert(size >= 1);
     assert(align >= 1);
 
-    uint32_t v14 = size + align - 1;
+    int v14 = size + align - 1;
     if (dword_984498.field_0 != 0) {
         if (v14 > dword_984498.free) {
             sp_log("Out of %d bytes, used %d, free %d, total %d",

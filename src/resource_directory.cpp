@@ -123,7 +123,7 @@ mashable_vector<tlresource_location> *resource_directory::tlresource_type_to_vec
 
     if constexpr (1)
     {
-        switch (a2) {
+        switch (static_cast<int>(a2)) {
         case TLRESOURCE_TYPE_TEXTURE:
         case 13:
         case 14:

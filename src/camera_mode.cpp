@@ -239,7 +239,7 @@ void camera_mode_lookaround::_frame_advance(
             {
                 if ( this->slave->field_1CC )
                 {
-                    this->field_70 = vector2d {0.0, };
+                    this->field_70 = vector2d {0.0, 0.0};
                     if ( (v9 == 3 || v9 == 5 || v9 == 6 || !v4->sub_4B2980()) && !v4->sub_4B29C0() ) {
                         this->slave->field_1CC = false;
                     }

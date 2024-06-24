@@ -187,6 +187,8 @@ struct mVectorBasic : mContainer_base
     T *m_data;
     int m_max_size;
 
+    using value_type = T;
+
     int size() const {
         return this->m_size;
     }

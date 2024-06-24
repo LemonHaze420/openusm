@@ -120,7 +120,7 @@ void RenderState_t::setFogColor(uint32_t a2)
 
 void RenderState_t::sub_55DFE0(Float a2)
 {
-    if (this->field_94 != a2) {
+    if (not_equal<float>(this->field_94, a2)) {
         g_Direct3DDevice()->lpVtbl->SetRenderState(g_Direct3DDevice(), D3DRS_FOGSTART, a2);
         this->field_94 = a2;
     }
@@ -128,7 +128,7 @@ void RenderState_t::sub_55DFE0(Float a2)
 
 void RenderState_t::sub_55E010(Float a2)
 {
-    if (this->field_98 != a2)
+    if (not_equal<float>(this->field_98, a2))
     {
         g_Direct3DDevice()->lpVtbl->SetRenderState(g_Direct3DDevice(), D3DRS_FOGEND, a2);
         this->field_98 = a2;

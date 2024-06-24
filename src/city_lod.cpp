@@ -46,7 +46,7 @@ city_lod::city_lod(const char *a1) {
             box_mesh() = nglGetFirstMeshInFile(tlFixedString {"bldg_box"});
             assert(box_mesh() != nullptr);
 
-            for (auto uVar7 = 0; uVar7 < box_mesh()->NSections; ++uVar7) {
+            for (auto uVar7 = 0u; uVar7 < box_mesh()->NSections; ++uVar7) {
                 auto *Mat = box_mesh()->Sections[uVar7].Section->Material;
 
                 if ((*Mat->Name) == tlFixedString {"BoxMatTop"})

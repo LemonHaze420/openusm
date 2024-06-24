@@ -74,7 +74,7 @@ void string_hash::initialize(mash::allocation_scope a2, const char *a3, int hash
             if (a3 != nullptr) {
                 this->source_hash_code = to_hash(a3);
 
-                assert(source_hash_code == hash_code && "sanity check");
+                assert(static_cast<int>(source_hash_code) == hash_code && "sanity check");
             }
 
             this->source_hash_code = hash_code;

@@ -143,7 +143,7 @@ float sub_48C0C0(
 
 double sub_48C0C0(float a1, float a2, float a3, float a4, float a5)
 {
-    if ( a3 == a2 ) { 
+    if ( equal(a3, a2) ) { 
         return a4;
     }
 

@@ -81,7 +81,7 @@ void variant_interface::destroy_ifl_frames()
 
         }
 
-        *v1++ = 0;
+        *v1++ = nullptr;
         --v2;
     }
     while ( v2 != 0 );

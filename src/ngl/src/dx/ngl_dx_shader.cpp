@@ -257,8 +257,8 @@ void nglSetupVShaderBonesDX(int a5, nglMeshNode *MeshNode, nglMeshSection *Secti
             {
                 assert(i < MAX_BONES && "nglSetupVShaderBonesDX: too many bones ! Increase the MAX_BONES value.");
 
-                auto boneIdx = Section->BonesIdx[i];
-                auto v9 = MeshNode->sub_4199D0();
+                [[maybe_unused]] auto boneIdx = Section->BonesIdx[i];
+                [[maybe_unused]] auto v9 = MeshNode->sub_4199D0();
                 matrix4x4 arg4;
 
                 /*
@@ -282,7 +282,7 @@ void nglSetupVShaderBonesDX(int a5, nglMeshNode *MeshNode, nglMeshSection *Secti
             {
                 assert(i < MAX_BONES && "nglSetupVShaderBonesDX: too many bones ! Increase the MAX_BONES value.");
 
-                auto boneIdx = Section->BonesIdx[i];
+                [[maybe_unused]] auto boneIdx = Section->BonesIdx[i];
                 matrix4x4 arg4;
                 /*
                 v14 = (const math::VecClass__3_1 *)(v13 + LODWORD(a2[1]));
@@ -303,8 +303,7 @@ void nglSetupVShaderBonesDX(int a5, nglMeshNode *MeshNode, nglMeshSection *Secti
                 assert(i < MAX_BONES && "nglSetupVShaderBonesDX: too many bones ! Increase the MAX_BONES value.");
 
                 auto boneIdx = Section->BonesIdx[i];
-                matrix4x4 arg4 {};
-                memcpy(&arg4, &meshParams->field_8[boneIdx], sizeof(arg4));
+                matrix4x4 arg4 = meshParams->field_8[boneIdx];
 
                 
                 matrix4x3 v20 = sub_413770(arg4);

@@ -12,16 +12,16 @@ generic_anim_controller::generic_anim_controller(actor *a2,
 {
     if constexpr (0) {
         this->m_vtbl = 0x00880EE8;
-        this->field_64 = {0};
-        this->field_74 = {0};
-        this->field_84 = {0};
-        this->field_94 = {0};
-        this->field_A4 = {0};
-        this->field_B4 = {0};
-        this->field_C4 = {0};
-        this->field_D4 = {0};
-        this->field_E4 = {0};
-        this->field_F4 = {0};
+        this->field_64 = {};
+        this->field_74 = {};
+        this->field_84 = {};
+        this->field_94 = {};
+        this->field_A4 = {};
+        this->field_B4 = {};
+        this->field_C4 = {};
+        this->field_D4 = {};
+        this->field_E4 = {};
+        this->field_F4 = {};
 
         tlFixedString v7 {"AE_Base_Bone"};
         tlFixedString v8 {"camera_root"};

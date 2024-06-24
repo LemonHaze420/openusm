@@ -34,7 +34,8 @@ int nflBufferAlign(
         int v12 = ~(buffer->field_0 - 1) & v10;
         uint32_t v13 = v6 & ~(buffer->field_8 - 1);
         int v14 = ~(v11 - 1);
-        uint32_t v15 = v14 & (v8 + v6 + v11 - v13 - 1);
+
+        int v15 = v14 & (v8 + v6 + v11 - v13 - 1);
         uint32_t v16 = v14 & (v11 + a3 - 1);
         if (v15 > buffer->field_C) {
             v15 = buffer->field_C;

@@ -42,7 +42,7 @@ int nalCompSkeleton::GetComponentPoseDataOffset(uint32_t iCompIx) const
 {
     auto iPoseIx = this->ConvertCompIxToPoseIx(iCompIx);
 
-    uint32_t *pDirectory = bit_cast<uint32_t *>(this->field_78);
+    auto *pDirectory = bit_cast<int *>(this->field_78);
     assert(pDirectory != nullptr && "Cannot ask for a component pose data offset if there is no default pose data.");
 
     assert(pDirectory[0] > iPoseIx);

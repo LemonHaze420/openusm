@@ -289,7 +289,7 @@ void string_hash_dictionary::write_text(const char *a1)
 
 void string_hash_dictionary::delete_inst()
 {
-    TRACE("string_hash_dictionary::delete_inst():");
+    TRACE("string_hash_dictionary::delete_inst");
 
     is_setup = false;
     if (g_is_the_packer() || os_developer_options::instance->get_flag(mString {"LOAD_STRING_HASH_DICTIONARY"})) {
@@ -405,7 +405,7 @@ string_hash string_hash_dictionary::register_string(const char *str)
     static const char *s_debug_string = "ai_arena.dsg";
     _strcmpi(str, s_debug_string);
     auto v2 = to_hash(str);
-    string_hash a3{static_cast<int>(v2)};
+    string_hash a3 {static_cast<int>(v2)};
 
     string_hash a1;
     if (entries != nullptr) {

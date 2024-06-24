@@ -48,6 +48,10 @@ struct input_mgr : singleton {
     //0x005E0EA0
     input_mgr();
 
+    void * operator new(size_t size);
+
+    void operator delete(void *ptr, size_t size);
+
     //0x005E0870
     //virtual
     ~input_mgr();

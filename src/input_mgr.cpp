@@ -6,6 +6,7 @@
 #include "input.h"
 #include "input_device.h"
 #include "keyboard_device.h"
+#include "memory.h"
 #include "pc_input_mgr.h"
 #include "pc_joypad_device.h"
 #include "rumble_manager.h"
@@ -46,12 +47,25 @@ input_mgr::input_mgr() {
     THISCALL(0x005E0EA0, this);
 }
 
-input_mgr::~input_mgr() {
+input_mgr::~input_mgr()
+{
+    TRACE("input_mgr::~input_mgr");
+
     THISCALL(0x005E0870, this);
+}
+
+void * input_mgr::operator new(size_t size) {
+    return mem_alloc(size);
+}
+
+void input_mgr::operator delete(void *ptr, size_t size) {
+    return mem_dealloc(ptr, size);
 }
 
 void input_mgr::create_inst()
 {
+    TRACE("input_mgr::create_inst");
+
     if constexpr (1) {
         instance = new input_mgr{};
     } else {
@@ -452,7 +466,7 @@ input_device *input_mgr::get_device_from_map(device_id_t id) const
             }
 
             if (IS_JOYSTICK_DEVICE(id)) {
-                return (input_device *) *((uint32_t *) &this[0xFFFF562B] + id - 0x11);
+                return (input_device *) *(bit_cast<uint32_t *>(&this[0xFFFF562B] + id - 0x11));
             }
 
             return this->get_device_from_map(id);

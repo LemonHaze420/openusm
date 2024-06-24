@@ -1,6 +1,7 @@
 #include "ambient_audio_manager.h"
 
 #include "func_wrapper.h"
+#include "trace.h"
 
 void ambient_audio_manager::create_inst() {
     CDECL_CALL(0x0053EC10);
@@ -8,6 +9,8 @@ void ambient_audio_manager::create_inst() {
 
 void ambient_audio_manager::delete_inst()
 {
+    TRACE("ambient_audio_manager");
+
     CDECL_CALL(0x00552800);
 }
 

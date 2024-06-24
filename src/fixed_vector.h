@@ -63,10 +63,10 @@ struct fixed_vector {
     }
 
     void sub_CBF970(int index) {
-        assert(index >= 0 && index < this->m_size);
+        assert(index >= 0 && index < static_cast<int>(this->m_size));
 
         --this->m_size;
-        for (int i = index; i < this->m_size; ++i) {
+        for (uint32_t i = index; i < this->m_size; ++i) {
             this->m_data[i] = this->m_data[i + 1];
         }
     }
