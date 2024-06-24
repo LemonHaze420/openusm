@@ -25,6 +25,9 @@ namespace event_manager {
     //0x004D1F40
     extern event_type *get_event_type(string_hash a1);
 
+    //0x004C0440
+    extern string_hash register_script_event_type(const char *a2, const char **a3);
+
     //0x004E19F0
     extern event_type *register_event_type(string_hash, bool);
 

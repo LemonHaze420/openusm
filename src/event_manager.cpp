@@ -606,6 +606,19 @@ event_type *event_manager::get_event_type(string_hash a1)
     }
 }
 
+string_hash event_manager::register_script_event_type(const char *a2, const char **a3)
+{
+    auto *v3 = strrchr(a2, ':');
+    auto *v4 = ( v3 != nullptr ? v3 + 1 : a2 );
+
+    string_hash v7 {v4};
+    if ( a3 != nullptr ) {
+        *a3 = v4;
+    }
+
+    return v7;
+}
+
 event_type *event_manager::register_event_type(string_hash a1, bool a2) {
     if constexpr (1) {
         auto *v2 = event_manager::get_event_type(a1);
