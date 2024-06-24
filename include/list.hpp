@@ -1,13 +1,14 @@
 #pragma once
 
-#include <memory>
-#include <utility.hpp>
+#include <stdexcept>
 
-#include <xutility.hpp>
-
-#define _POINTER_X(T, A) typename A::template rebind<T>::other::pointer
-#define _REFERENCE_X(T, A) typename A::template rebind<T>::other::reference
+#define _POINTER_X(T, A) typename std::allocator_traits<A>::template rebind_alloc<T>::value_type *
+#define _REFERENCE_X(T, A) typename std::allocator_traits<A>::template rebind_alloc<T>::value_type &
 #define _GENERIC_BASE _Node
+
+#ifndef _THROW
+#define _THROW(err, str) throw err(str)
+#endif
 
 namespace _std {
 
@@ -16,10 +17,12 @@ namespace _std {
  * 
  */
 template<class _Ty, class _Alloc>
-struct _List_nod : public _Container_base {
+struct _List_nod
+//: public _Container_base {
+{
     struct _Node;
     friend struct _Node;
-    typedef typename _Alloc::template rebind<_GENERIC_BASE>::other::pointer _Genptr;
+    typedef typename std::allocator_traits<_Alloc>::rebind_alloc<_GENERIC_BASE>::value_type * _Genptr;
 
     struct _Node {     // list node
         _Genptr _Next; // successor node, or first element if head
@@ -30,7 +33,7 @@ struct _List_nod : public _Container_base {
     _List_nod(_Alloc _Al) : _Alnod(_Al) { // construct allocator from _Al
     }
 
-    typename _Alloc::template rebind<_Node>::other _Alnod; // allocator object for nodes
+    typename std::allocator_traits<_Alloc>::rebind_alloc<_Node> _Alnod; // allocator object for nodes
 };
 
 template<class _Ty, class _Alloc>
@@ -38,19 +41,19 @@ struct _List_ptr
     : public _List_nod<_Ty, _Alloc> { // base class for _List_val to hold allocator _Alptr
 
     typedef typename _List_nod<_Ty, _Alloc>::_Node _Node;
-    typedef typename _Alloc::template rebind<_Node>::other::pointer _Nodeptr;
+    typedef typename std::allocator_traits<_Alloc>::rebind_alloc<_Node>::value_type * _Nodeptr;
 
     _List_ptr(_Alloc _Al)
         : _List_nod<_Ty, _Alloc>(_Al), _Alptr(_Al) { // construct base, and allocator from _Al
     }
 
-    typename _Alloc::template rebind<_Nodeptr>::other _Alptr; // allocator object for pointers to nodes
+    typename std::allocator_traits<_Alloc>::rebind_alloc<_Nodeptr> _Alptr; // allocator object for pointers to nodes
 };
 
 template<class _Ty, class _Alloc>
 struct _List_val : public _List_ptr<_Ty, _Alloc> { // base class for list to hold allocator _Alval
 
-    typedef typename _Alloc::template rebind<_Ty>::other _Alty;
+    typedef typename std::allocator_traits<_Alloc>::rebind_alloc<_Ty> _Alty;
 
     _List_val(_Alloc _Al = _Alloc())
         : _List_ptr<_Ty, _Alloc>(_Al), _Alval(_Al) { // construct base, and allocator from _Al
@@ -69,7 +72,7 @@ struct list : public _List_val<_Ty, _Ax> {
     typedef typename _List_nod<_Ty, _Ax>::_Node _Node;
     typedef _POINTER_X(_Node, _Alloc) _Nodeptr;
     typedef _REFERENCE_X(_Nodeptr, _Alloc) _Nodepref;
-    typedef typename _Alloc::reference _Vref;
+    typedef typename _Alloc::value_type & _Vref;
 
     // return reference to successor pointer in node
     static _Nodepref _Nextnode(_Nodeptr _Pnode) {
@@ -90,13 +93,13 @@ struct list : public _List_val<_Ty, _Ax> {
     typedef typename _Alloc::size_type size_type;
     typedef typename _Alloc::difference_type _Dift;
     typedef _Dift difference_type;
-    typedef typename _Alloc::pointer _Tptr;
-    typedef typename _Alloc::const_pointer _Ctptr;
+    typedef typename _Alloc::value_type * _Tptr;
+    typedef const typename _Alloc::value_type * _Ctptr;
     typedef _Tptr pointer;
     typedef _Ctptr const_pointer;
-    typedef typename _Alloc::reference _Reft;
+    typedef typename _Alloc::value_type & _Reft;
     typedef _Reft reference;
-    typedef typename _Alloc::const_reference const_reference;
+    typedef const typename _Alloc::value_type & const_reference;
     typedef typename _Alloc::value_type value_type;
 
     // iterator for nonmutable list
@@ -227,6 +230,9 @@ struct list : public _List_val<_Ty, _Ax> {
         insert(begin(), _Right.begin(), _Right.end());
     }
 
+    list(const _Alloc &_Right) : _Mybase(_Right), m_head(_Buynode()), m_size(0) {
+    }
+
     // destroy the object
     ~list() {
         _Tidy();
@@ -294,7 +300,7 @@ struct list : public _List_val<_Ty, _Ax> {
     }
 
     size_type max_size() const { // return maximum possible length of sequence
-        return (this->_Alval.max_size());
+        return std::allocator_traits<std::decay_t<decltype(this->_Alval)>>::max_size(this->_Alval);
     }
 
     bool empty() const { // test if sequence is empty
@@ -327,7 +333,7 @@ struct list : public _List_val<_Ty, _Ax> {
 
     // erase element at beginning
     void pop_front() {
-        erase(begin());
+        this->erase(this->begin());
     }
 
     void push_back(const _Ty &_Val) { // insert element at end
@@ -422,17 +428,21 @@ struct list : public _List_val<_Ty, _Ax> {
     }
 
     // erase element at _Where
-    iterator erase(iterator _Where) {
+    iterator erase(iterator _Where)
+    {
         _Nodeptr _Pnode = (_Where++)._Mynode();
 
         if (_Pnode != m_head) { // not list head, safe to erase
             _Nextnode(_Prevnode(_Pnode)) = _Nextnode(_Pnode);
             _Prevnode(_Nextnode(_Pnode)) = _Prevnode(_Pnode);
-            this->_Alnod.destroy(_Pnode);
-            this->_Alnod.deallocate(_Pnode, 1);
-            --m_size;
+
+            using alloc_type = typename std::allocator_traits<std::decay_t<decltype(this->_Alnod)>>;
+            alloc_type::destroy(this->_Alnod, _Pnode);
+            alloc_type::deallocate(this->_Alnod, _Pnode, 1);
+            --this->m_size;
         }
-        return (_Where);
+
+        return _Where;
     }
 
     iterator erase(iterator _First, iterator _Last) { // erase [_First, _Last)
@@ -453,9 +463,8 @@ struct list : public _List_val<_Ty, _Ax> {
                  iterator _First,
                  iterator _Last,
                  size_type _Count,
-                 bool _Keep = false) { // splice _Right [_First, _Last) before _Where
+                 [[maybe_unused]] bool _Keep = false) { // splice _Right [_First, _Last) before _Where
 
-        _Keep;                               // unused in this branch
         if (this->_Alval == _Right._Alval) { // same allocator, just relink
 
             if (this != &_Right) { // splicing from another list, adjust counts
@@ -476,18 +485,19 @@ struct list : public _List_val<_Ty, _Ax> {
     }
 
     // free all storage
-    void _Tidy() {
+    void _Tidy()
+    {
         clear();
-        this->_Alptr.destroy(&_Nextnode(m_head));
-        this->_Alptr.destroy(&_Prevnode(m_head));
-        this->_Alnod.deallocate(m_head, 1);
+        std::allocator_traits<std::decay_t<decltype(this->_Alptr)>>::destroy(this->_Alptr, &_Nextnode(m_head));
+        std::allocator_traits<std::decay_t<decltype(this->_Alptr)>>::destroy(this->_Alptr, &_Prevnode(m_head));
+        std::allocator_traits<std::decay_t<decltype(this->_Alnod)>>::deallocate(this->_Alnod, m_head, 1);
         m_head = nullptr;
     }
 
     // alter element count, with checking
     void _Incsize(size_type _Count) {
         if (max_size() - m_size < _Count) {
-            //_THROW(length_error, "list<T> too long");
+            _THROW(std::length_error, "list<T> too long");
         }
 
         m_size += _Count;
@@ -503,8 +513,8 @@ struct list : public _List_val<_Ty, _Ax> {
 
         for (; _Pnode != m_head; _Pnode = _Pnext) { // delete an element
             _Pnext = _Nextnode(_Pnode);
-            this->_Alnod.destroy(_Pnode);
-            this->_Alnod.deallocate(_Pnode, 1);
+            std::allocator_traits<std::decay_t<decltype(this->_Alnod)>>::destroy(this->_Alnod, _Pnode);
+            std::allocator_traits<std::decay_t<decltype(this->_Alnod)>>::deallocate(this->_Alnod, _Pnode, 1);
         }
     }
 
@@ -512,9 +522,10 @@ struct list : public _List_val<_Ty, _Ax> {
     _Nodeptr _Buynode() {
         _Nodeptr _Pnode = this->_Alnod.allocate(1);
 
-        this->_Alptr.construct(&_Nextnode(_Pnode), _Pnode);
+        using alloc_type = typename std::allocator_traits<std::decay_t<decltype(this->_Alptr)>>;
+        alloc_type::construct(this->_Alptr, &_Nextnode(_Pnode), _Pnode);
 
-        this->_Alptr.construct(&_Prevnode(_Pnode), _Pnode);
+        alloc_type::construct(this->_Alptr, &_Prevnode(_Pnode), _Pnode);
 
         return (_Pnode);
     }
@@ -523,11 +534,11 @@ struct list : public _List_val<_Ty, _Ax> {
     _Nodeptr _Buynode(_Nodeptr _Next, _Nodeptr _Prev, const _Ty &_Val) {
         _Nodeptr _Pnode = this->_Alnod.allocate(1);
 
-        this->_Alptr.construct(&_Nextnode(_Pnode), _Next);
+        std::allocator_traits<std::decay_t<decltype(this->_Alptr)>>::construct(this->_Alptr, &_Nextnode(_Pnode), _Next);
 
-        this->_Alptr.construct(&_Prevnode(_Pnode), _Prev);
+        std::allocator_traits<std::decay_t<decltype(this->_Alptr)>>::construct(this->_Alptr, &_Prevnode(_Pnode), _Prev);
 
-        this->_Alval.construct(&_Myval(_Pnode), _Val);
+        std::allocator_traits<std::decay_t<decltype(this->_Alval)>>::construct(this->_Alval, &_Myval(_Pnode), _Val);
         return (_Pnode);
     }
 
