@@ -32,8 +32,8 @@ void FastListAddMesh(nglMesh *Mesh,
     {
         assert(Mesh != nullptr && "NULL mesh passed to FastListAddMesh.\n");
 
-        assert((Mesh->Flags & NGLMESH_PROCESSED) ||
-               (Mesh->Flags & NGLMESH_SCRATCH_MESH) && "Mesh missing NGLMESH_PROCESSED flag.");
+        assert(((Mesh->Flags & NGLMESH_PROCESSED) ||
+               (Mesh->Flags & NGLMESH_SCRATCH_MESH)) && "Mesh missing NGLMESH_PROCESSED flag.");
 
         assert(std::abs(AbsSquared(LocalToWorld.GetX()) - 1.0f) +
                        std::abs(AbsSquared(LocalToWorld.GetY()) - 1.0f) +
@@ -91,11 +91,9 @@ void FastListAddMesh(nglMesh *Mesh,
 #endif
         }
 
-    LABEL_11:
-
         auto *v12 = new nglMeshNode {};
         v12->field_88 = Mesh;
-        std::memcpy(&v12->field_0, &LocalToWorld, sizeof(LocalToWorld));
+        v12->field_0 = LocalToWorld;
 
         ptr_to_po a2a;
         a2a.m_rel_po = CAST(a2a.m_rel_po, &LocalToWorld);
