@@ -7,6 +7,8 @@ struct vector2d {
 
     vector2d() = default;
 
+    vector2d(float a1, float a2) : x(a1), y(a2) {}
+
     const float &operator[](int idx) const {
         return (&x)[idx];
     }
