@@ -1163,7 +1163,7 @@ void terrain::start_streaming(void (*callback)(void))
                                    j};
 
                         auto *v18 = this->field_24.add_eligible_pack(a1.c_str(),
-                                                                     eligible_pack_token{2, reg_idx},
+                                                                     eligible_pack_token {2, reg_idx},
                                                                      district_streamer);
 
                         if (eps.size() < eps.capacity()) {
@@ -1438,12 +1438,12 @@ void terrain::find_regions(const vector3d &a2, _std::vector<region *> *regions) 
 
 bool terrain::is_district_pack_slot_locked(int slot_idx) const
 {
-    auto *district_partition = resource_manager::get_partition_pointer((resource_partition_enum)6);
+    auto *district_partition = resource_manager::get_partition_pointer(static_cast<resource_partition_enum>(6));
     assert(district_partition != nullptr);
 
     auto &pack_slots = district_partition->get_pack_slots();
 
-    assert(slot_idx >= 0 && slot_idx < pack_slots.size());
+    assert( slot_idx >= 0 && slot_idx < static_cast<int>(pack_slots.size()) );
 
     auto *slot = pack_slots[slot_idx];
     return this->field_24.is_pack_slot_locked(slot);
