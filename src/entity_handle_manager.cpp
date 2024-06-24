@@ -139,18 +139,20 @@ void entity_handle_manager::register_entity(entity_base *a1)
     {
         if ( a1->field_10 != ANONYMOUS )
         {
-            const _std::pair<string_hash, entity_base *> value{a1->field_10, a1};
+            using map_t = typename std::decay_t<decltype(the_map)>;
+            using value_type = typename map_t::value_type;
+            value_type value {a1->field_10, a1};
 
-            using map = std::decay_t<decltype(the_map)>;
-            using iterator = map::iterator;
-            using pair = _std::pair<iterator, bool>;
+            using iterator = map_t::iterator;
+            using pair_t = std::pair<iterator, bool>;
 
-            VALIDATE_SIZE(value, 8);
-            VALIDATE_SIZE(pair, 8);
+            VALIDATE_SIZE(value_type, 8);
+            VALIDATE_SIZE(pair_t, 8);
 
-            pair result;
+            pair_t result;
             if constexpr (1) {
-                THISCALL(0x00509440, &the_map, &result, &value);
+                void (__fastcall *insert)(map_t *, void *edx, pair_t *, const std::decay_t<decltype(value)> *) = CAST(insert, 0x00509440);
+                insert(&the_map, nullptr, &result, &value);
             } else {
                 result = the_map.insert(value);
             }
@@ -159,11 +161,11 @@ void entity_handle_manager::register_entity(entity_base *a1)
             {
                 const char *v1 = a1->field_10.to_string();
 
-                mString v2{v1};
+                mString v2 {v1};
 
                 mString v4 = mString {"Same entity name appears twice: "} + v2;
 
-                sp_log("%s", v4.c_str());
+                error("%s", v4.c_str());
             }
         }
     }
