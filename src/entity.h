@@ -172,7 +172,9 @@ struct entity : signaller {
     void create_time_ifc();
 
     //0x004F5510
-    region *update_regions(region **a2, int a3);
+    void update_regions(region **a2, int a3);
+
+    int count_in_regions() const;
 
     //0x004CB750
     void remove_from_regions();

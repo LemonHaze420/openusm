@@ -473,7 +473,7 @@ bool entity::is_in_region(const region *r) const
             if ( ++v4 >= 2 )
             {
                 if ( this->extended_regions != nullptr ) {
-                    v2 = ( (v4 - 2) < extended_regions->size()
+                    v2 = ( (v4 - 2) < static_cast<int>(extended_regions->size())
                                     ? extended_regions->m_data[v4 - 2]
                                     : nullptr
                                     );
@@ -578,8 +578,177 @@ bool entity::is_indoors() {
     return (bool) THISCALL(0x004CB670, this);
 }
 
-region *entity::update_regions(region **a2, int a3) {
-    return (region *) THISCALL(0x004F5510, this, a2, a3);
+void entity::update_regions(region **visited_regions, int a3)
+{
+    if constexpr (1)
+    {
+        if ( (a3 != 1 || visited_regions[0] != this->regions[0] || this->regions[1] != nullptr)
+                && ( a3 != 2 || visited_regions[0] != this->regions[0] || visited_regions[1] != this->regions[1] || this->extended_regions != nullptr ) )
+        {
+            assert("regions[ 0 ] can not be NULL when regions[ 1 ] is not."
+                    && ( this->regions[ 1 ] != nullptr ? this->regions[ 0 ] != nullptr : 1 ));
+
+            assert("regions[ 0 ] and regions[ 1 ] should not be NULL while extended_regions is not." 
+                    && (this->extended_regions != nullptr ? this->regions[ 0 ] != nullptr && this->regions[ 1 ] != nullptr : 1) );
+
+            int v27 = 0;
+            int v26 = 0;
+            region *v13 = nullptr;
+            for ( auto *r = this->regions[0]; r != nullptr; r = v13 )
+            {
+                if ( !r->is_loaded() ) {
+                    ++v27;
+                }
+
+                if ( ++v26 >= 2 )
+                {
+                    region *v4 = nullptr;
+                    if ( this->extended_regions != nullptr )
+                    {
+                        region *v7 = nullptr;
+                        if ( v26 - 2 < static_cast<int>(this->extended_regions->size()) ) {
+                            v7 = this->extended_regions->m_data[v26 - 2];
+                        }
+
+                        v4 = v7;
+                    }
+
+                    v13 = v4;
+                }
+                else
+                {
+                    v13 = this->regions[v26];
+                }
+            }
+
+            auto exists_region = [](region **a1, int a2, region *a3) -> bool
+            {
+                for ( int i = a2 - 1; i >= 0; --i )
+                {
+                    if ( a1[i] == a3 ) {
+                        return true;
+                    }
+                }
+
+                return false;
+            };
+
+LABEL_10:
+            assert("regions[ 0 ] can not be NULL when regions[ 1 ] is not."
+                    && ( this->regions[ 1 ] != nullptr ? this->regions[ 0 ] != nullptr : 1 ));
+
+            assert("regions[ 0 ] and regions[ 1 ] should not be NULL while extended_regions is not."
+                    && (this->extended_regions ? this->regions[ 0 ] != nullptr && this->regions[ 1 ] != nullptr : 1) );
+
+            assert(this->extended_regions != nullptr ? this->extended_regions->size() > 0 : 1);
+
+            int v7 = 0;
+
+            region *v9 = nullptr;
+            for ( auto *r = this->regions[0]; r != nullptr; r = v9)
+            {
+                if ( !exists_region(visited_regions, a3, r) )
+                {
+                    this->remove_me_from_region(v9);
+                    goto LABEL_10;
+                }
+
+                if (++v7 >= 2) {
+                    v9 = ( this->extended_regions != nullptr
+                            ? ( (v7 - 2) < static_cast<int>(this->extended_regions->size()) ? this->extended_regions->m_data[v7 - 2] : nullptr )
+                            : nullptr );
+                } else {
+                    v9 = this->regions[v7];
+                }
+            }
+
+            for ( int j = 0; j < a3; ++j )
+            {
+                auto *r = visited_regions[j];
+                if ( !this->is_in_region(r) ) {
+                    this->add_me_to_region(r);
+                }
+            }
+
+            if ( a3 > 0 && visited_regions[0]->is_loaded() && this->regions[0] != visited_regions[0] )
+            {
+                int k;
+                for ( k = 0; k < 2 && this->regions[k] != *visited_regions; ++k ) {
+                    ;
+                }
+
+                if (k >= 2)
+                {
+                    if ( this->extended_regions != nullptr )
+                    {
+                        for ( auto m = 0u; m < this->extended_regions->size(); ++m )
+                        {
+                            if ( this->extended_regions->at(m) == visited_regions[0] ) {
+                                std::swap<region *>(this->regions[0], this->extended_regions->m_data[m]);
+                                break;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    std::swap<region *>(this->regions[0], this->regions[k]);
+                }
+            }
+
+            int loaded_count = 0;
+
+            assert(this->regions[ 0 ] == visited_regions[ 0 ]);
+
+            for ( int i = 0; i < a3; ++i )
+            {
+                if ( visited_regions[i]->is_loaded() )
+                {
+                    ++loaded_count;
+                    assert(this->is_in_region( visited_regions[ i ] ));
+                }
+            }
+
+            assert(v27 || this->count_in_regions() == loaded_count);
+        }
+    }
+    else
+    {
+        void (__fastcall *func)(void *, void *, region **, int) = CAST(func, 0x004F5510);
+        return func(this, nullptr, visited_regions, a3);
+    }
+}
+
+int entity::count_in_regions() const
+{
+    assert("regions[ 0 ] can not be NULL when regions[ 1 ] is not."
+            && ( this->regions[ 1 ] != nullptr ? this->regions[ 0 ] != nullptr : 1 ) );
+
+    assert("regions[ 0 ] and regions[ 1 ] should not be NULL while extended_regions is not."
+            && (this->extended_regions != nullptr ? this->regions[ 0 ] != nullptr && this->regions[ 1 ] != nullptr : 1) );
+
+    assert(this->extended_regions != nullptr ? this->extended_regions->size() > 0 : 1);
+
+    int v10 = 0;
+    int v11 = 0;
+    region *v8 = nullptr;
+    for ( auto *r = this->regions[0]; r != nullptr; r = v8 )
+    {
+        ++v11;
+        if ( ++v10 >= 2 )
+        {
+            v8 = ( this->extended_regions != nullptr
+                    ? ( v10 - 2 < static_cast<int>(this->extended_regions->size()) ? this->extended_regions->m_data[v10 - 2] : nullptr )
+                    : nullptr
+                 );
+        }
+        else
+        {
+            v8 = this->regions[v10];
+        }
+    }
+
+    return v11;
 }
 
 void entity::remove_from_regions()
@@ -652,25 +821,25 @@ bool entity::match_search_flags(int a2)
     if constexpr (0)
     {
         if ( (a2 & 1) == 0
-            && ((a2 & 0x20) == 0 || !this->is_flagged(0x1000))
-            && ((a2 & 0x40) == 0 || !this->is_a_switch_obj())
-            && ((a2 & 0x80u) == 0 || !(this->is_a_grenade()) )
-            && ((a2 & 0x200) == 0 || !(this->is_a_water_exit_marker()))
+            && (((a2 & 0x20) == 0) || !this->is_flagged(0x1000))
+            && (((a2 & 0x40) == 0) || !this->is_a_switch_obj())
+            && (((a2 & 0x80u) == 0) || !this->is_a_grenade())
+            && (((a2 & 0x200) == 0) || !this->is_a_water_exit_marker())
             && (!this->is_an_actor()
-            || ((a2 & 4) == 0 || !this->has_damage_ifc())
-            && ((a2 & 8) == 0 || !this->has_physical_ifc())
-            && ((a2 & 2) == 0 || this->get_ai_core() == nullptr))
+            || ( (((a2 & 4) == 0) || !this->has_damage_ifc())
+            && (((a2 & 8) == 0) || !this->has_physical_ifc())
+            && (((a2 & 2) == 0) || this->get_ai_core() == nullptr)) )
             && (!this->is_a_conglomerate()
-            || ((a2 & 0x10) == 0 || !(this->has_script_data_ifc()))
-            && ((a2 & 0x100) == 0 || !bit_cast<conglomerate *>(this)->has_variant_ifc() )) )
+            || ((((a2 & 0x10) == 0) || !this->has_script_data_ifc())
+            && (((a2 & 0x100) == 0) || !bit_cast<conglomerate *>(this)->has_variant_ifc() )) ) )
         {
             return false;
         }
 
-        return ((a2 & 0x800) == 0 || (this->is_visible())
-            && ((a2 & 0x1000) == 0 || !this->is_visible())
-            && ((a2 & 0x2000) == 0 || this->is_alive())
-            && ((a2 & 0x4000) == 0 || !this->is_alive()) );
+        return ( (((a2 & 0x800) == 0) || this->is_visible())
+            && (((a2 & 0x1000) == 0) || !this->is_visible())
+            && (((a2 & 0x2000) == 0) || this->is_alive())
+            && (((a2 & 0x4000) == 0) || !this->is_alive()) );
     }
     else
     {
@@ -712,6 +881,11 @@ int entity::find_entities(int a1)
 
 void entity_patch()
 {
+    {
+        FUNC_ADDRESS(address, &entity::update_regions);
+        //SET_JUMP(0x004F5510, address);
+    }
+
     {
         FUNC_ADDRESS(address, &entity::force_region_hack);
         SET_JUMP(0x0048B830, address);
