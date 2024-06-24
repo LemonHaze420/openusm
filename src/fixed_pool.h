@@ -33,3 +33,5 @@ struct fixed_pool {
 
 template<typename T>
 void *allocate_new_block(fixed_pool &pool);
+
+extern void fixed_pool_patch();

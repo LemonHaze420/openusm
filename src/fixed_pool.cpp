@@ -4,21 +4,28 @@
 #include "dynamic_rtree.h"
 #include "fixed_allocator_base.h"
 #include "func_wrapper.h"
+#include "trace.h"
+#include "utility.h"
 
 #include <cassert>
 
 VALIDATE_SIZE(fixed_pool, 0x24);
 
+#if 0
 static Var<fixed_allocator_base> g_fixed_allocator{0x0095BB58};
+#endif
 
 fixed_pool::fixed_pool(int a2, int a3, int a4, int a5, int a6, void *base) {
     this->field_0 = 0;
     this->init(a2, a3, a4, a5, a6, base);
 }
 
-void *sub_501DD0()
+void * sub_501DD0()
 {
-    return (void *) CDECL_CALL(0x501DD0);
+    TRACE("sub_501DD0");
+
+    static fixed_allocator_base g_fixed_allocator {4u};
+    return &g_fixed_allocator;
 }
 
 void fixed_pool::init(int size, int a3, int a4, int a5, int a6, void *base) {
@@ -138,4 +145,9 @@ void *allocate_new_block<rtree_hash_entry>(fixed_pool &pool)
 {
     assert(pool.get_entry_size() == sizeof( rtree_hash_entry ));
     return pool.allocate_new_block();
+}
+
+void fixed_pool_patch()
+{
+    SET_JUMP(0x00501DD0, sub_501DD0);
 }
