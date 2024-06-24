@@ -56,13 +56,13 @@ auto & script_manager_callbacks = var<_std::set<void (*)(script_manager_callback
     static type g_##name {}; \
     auto & name {g_##name}
 
-std::list<script_executable_entry> *g_script_manager_execs_pending_first_run {nullptr};
+_std::list<script_executable_entry> *g_script_manager_execs_pending_first_run {nullptr};
 auto & script_manager_execs_pending_first_run {g_script_manager_execs_pending_first_run};
 
-std::list<script_executable_entry> *g_script_manager_execs_pending_link_list {nullptr};
+_std::list<script_executable_entry> *g_script_manager_execs_pending_link_list {nullptr};
 auto & script_manager_execs_pending_link_list = g_script_manager_execs_pending_link_list;
 
-std::map<script_executable_entry_key, script_executable_entry> *g_script_manager_exec_map {nullptr};
+_std::map<script_executable_entry_key, script_executable_entry> *g_script_manager_exec_map {nullptr};
 auto & script_manager_exec_map = g_script_manager_exec_map;
 
 static bool g_script_manager_initialized {false};
@@ -263,9 +263,9 @@ void link()
         for ( auto &entry : (*script_manager_execs_pending_link_list) )
         {
             if ( !entry.exec->is_linked() ) {
-                script_manager::run_callbacks((script_manager_callback_reason)6, entry.exec, entry.field_8);
+                script_manager::run_callbacks(static_cast<script_manager_callback_reason>(6), entry.exec, entry.field_8);
                 entry.exec->link();
-                script_manager::run_callbacks((script_manager_callback_reason)7, entry.exec, entry.field_8);
+                script_manager::run_callbacks(static_cast<script_manager_callback_reason>(7), entry.exec, entry.field_8);
             }
 
             script_manager_execs_pending_first_run->push_back(entry);
@@ -460,7 +460,7 @@ script_executable_entry * load(const resource_key &a1, uint32_t a2, void *a3, co
     }
 }
 
-script_object *find_global_object()
+script_object * find_global_object()
 {
     TRACE("script_manager::find_global_object");
 
@@ -712,11 +712,7 @@ void destroy_game_var() {
     }
 }
 
-#if !STANDALONE_SYSTEM
 _std::map<script_executable_entry_key, script_executable_entry> *get_exec_list()
-#else
-std::map<script_executable_entry_key, script_executable_entry> *get_exec_list()
-#endif
 {
     return script_manager_exec_map;
 }
