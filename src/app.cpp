@@ -203,6 +203,8 @@ app::app()
 
 app::~app()
 {
+    TRACE("app::~app");
+
     this->m_vtbl = 0x00891634;
 
     if (this->m_game != nullptr) {
@@ -321,9 +323,10 @@ void app::tick()
             }
 
             if ( (g_game_ptr->flag.level_is_loaded && !g_game_ptr->field_165) ||
-                    g_femanager.m_fe_menu_system != nullptr
+                    (g_femanager.m_fe_menu_system != nullptr
                     && g_femanager.m_fe_menu_system->sub_60C230()
-                    && g_cut_scene_player()->is_playing()) {
+                    && g_cut_scene_player()->is_playing()) )
+            {
                 comic_panels::render();
             } else if (g_femanager.m_fe_menu_system == nullptr || !g_femanager.m_fe_menu_system->sub_60C230()) {
                 game::render_empty_list();
@@ -434,8 +437,15 @@ void app::cleanup()
     }
 }
 
+void __fastcall app_finalize(app *self)
+{
+    self->~app();
+}
+
 void app_patch()
 {
+    REDIRECT(0x005E99D3, app_finalize);
+
     if constexpr (1)
     {
         REDIRECT(0x005E10BF, unit_tests);

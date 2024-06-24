@@ -60,7 +60,7 @@ float begin_biped_physics::activate(animation_logic_system *a1)
     {
         v29 = this->field_8->get_pb_float(force_scale_param_hash);
     }
-    else if ( 0.0f != this->field_8->get_param(this->field_4, 86u) )
+    else if ( not_equal(0.0f, this->field_8->get_param(this->field_4, 86u)) )
     {
         v29 = this->field_8->get_param(this->field_4, 86u);
     }
@@ -77,16 +77,16 @@ float begin_biped_physics::activate(animation_logic_system *a1)
         a2 = this->field_8->get_pb_float(rotate_xz_ang_param_hash) * (3.1415927 / 180.0);
     }
 
-    if ( v44 != 0.0f || v45 != 0.0f )
+    if ( not_equal(v44, 0.0f) || not_equal(v45, 0.0f) )
     {
         auto *v38 = this->field_4;
         auto *v39 = this->field_8;
         auto a3 = v39->get_vector_param(v38, 83u) * v44;
-        if ( v45 != 0.0f ) {
+        if ( not_equal(v45, 0.0f) ) {
             a3.y = v45;
         }
 
-        if ( a2 != 0.0f )
+        if ( not_equal(a2, 0.0f) )
         {
             static Var<po> stru_91F8D8 {0x0091F8D8};
             po v54 = stru_91F8D8();

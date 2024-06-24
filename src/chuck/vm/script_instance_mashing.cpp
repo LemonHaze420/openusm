@@ -73,7 +73,7 @@ bool initialize_game_init_instances(const script_executable *se, string_hash a2)
         if ( v14.is_set() )
         {
             auto a4 = mission_manager::s_inst->get_mission_key_po();
-            auto *resource = (generic_mash_header *)resource_manager::get_resource(v14, nullptr, nullptr);
+            auto *resource = bit_cast<generic_mash_header *>(resource_manager::get_resource(v14, nullptr, nullptr));
             if ( resource == nullptr )
             {
                 auto *partition_pointer = resource_manager::get_partition_pointer((resource_partition_enum)6);

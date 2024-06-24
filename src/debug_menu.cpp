@@ -410,7 +410,7 @@ void debug_menu::render(int x, int y)
 
             ya += height;
             debug_menu::menu_height += height;
-            if ( arg4 > debug_menu::menu_width )
+            if ( static_cast<int>(arg4) > debug_menu::menu_width )
             {
                 debug_menu::menu_width = arg4;
             }
@@ -984,10 +984,10 @@ void debug_menu_entry::set_val(Float a1, bool a2)
             *this->m_value.p_fval = a1;
             break;
         case ValueType::BOOL:
-            this->m_value.bval = (a1 != 0.0);
+            this->m_value.bval = not_equal<float>(a1, 0.0f);
             break;
         case ValueType::POINTER_BOOL:
-            *this->m_value.p_bval = (a1 != 0.0);
+            *this->m_value.p_bval = not_equal<float>(a1, 0.0f);
             break;
         case ValueType::INT:
             this->m_value.ival = (int)a1;

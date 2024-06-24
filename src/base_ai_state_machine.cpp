@@ -227,9 +227,9 @@ void ai_state_machine::process_mode(Float a2, bool a3)
         base_state *v9;
 
         printf("this->my_curr_mode = %d\n", this->my_curr_mode);
-        switch (this->my_curr_mode) {
+        switch (static_cast<int>(this->my_curr_mode)) {
         case PRE_TEST: {
-            mashed_state *initial_state = (this->field_30.source_hash_code == string_hash{}
+            mashed_state *initial_state = (this->field_30 == string_hash {}
                                             ? this->m_state_graph->get_initial_state()
                                             : this->m_state_graph->find_state(this->field_30)
                                             );

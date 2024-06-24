@@ -311,15 +311,15 @@ bool mission_table_game_state_entry::check() const
             *this->field_0 = v4;
         }
 
-        v3 = ( *this->field_0 != v4 );
+        v3 = not_equal(*this->field_0, v4);
     }
     else if ( sub_6786F0(this, 2) )
     {
-        if ( v1 && *this->field_0 == v4 ) {
+        if ( v1 && equal(*this->field_0, v4) ) {
             *this->field_0 = 1.0f + v4;
         }
 
-        v3 = ( *this->field_0 != v4 );
+        v3 = not_equal(*this->field_0, v4);
     }
     else if ( sub_6786F0(this, 4) )
     {

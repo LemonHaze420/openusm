@@ -208,10 +208,7 @@ void animation_logic_system::frame_advance_post_logic_processing([[maybe_unused]
 
     if constexpr (0) {
         if (!this->field_7C) {
-            time_interface *time_ifc = nullptr;
-            if (this->field_6C->has_time_ifc()) {
-                time_ifc = this->field_6C->time_ifc();
-            }
+            [[maybe_unused]] time_interface *time_ifc = ( this->field_6C->has_time_ifc() ? this->field_6C->time_ifc() : nullptr );
 
             if (this->field_6C->has_physical_ifc() && this->field_18.did_do_transition()) {
                 if (!this->field_6C->physical_ifc()->is_biped_physics_running()

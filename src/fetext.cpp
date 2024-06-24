@@ -135,7 +135,7 @@ void FEText::SetPos(Float a2, Float a3) {
 
 void FEText::SetNoFlash(color32 a2) {
     this->field_4C = a2;
-    this->field_64 = this->field_64 & 0xF7 | 1;
+    this->field_64 = ((this->field_64 & 0xF7) | 1);
 }
 
 void FEText::SetScale(Float a2, Float a3)
@@ -189,7 +189,7 @@ void FEText::AdjustForJustification(float *a2, float *a3)
         nglFont *font = g_femanager.GetFont(this->field_18);
 
         uint32_t v13, v14;
-        nglGetStringDimensions(font, (char *) str, &v14, &v13, this->field_3C, this->field_40);
+        nglGetStringDimensions(font, bit_cast<char *>(str), &v14, &v13, this->field_3C, this->field_40);
         float v8 = v13;
         float v7 = v14;
 

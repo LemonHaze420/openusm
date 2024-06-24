@@ -34,7 +34,7 @@ void ai_tentacle_info::set_position(int index, const vector3d &a1)
 void ai_tentacle_info::set_code_blend(Float a2, Float a3)
 {
     auto v3 = (a2 < 1.0f);
-    auto v4 = (a2 == 1.0f);
+    auto v4 = equal<float>(a2, 1.0f);
     this->field_18 = a2;
     if ( v3 || v4 )
     {
@@ -77,7 +77,7 @@ void ai_tentacle_info::init_code_tween(Float a2)
 
             assert(tween_positions.size() == positions.size());
 
-            std::memcpy(this->tween_positions.m_data, this->positions.m_data, sizeof(vector3d) * this->tween_positions.size());
+            this->tween_positions = this->positions;
 
             this->field_2C = this->end_pos;
 

@@ -38,7 +38,7 @@ void filespec::extract(const mString &a2) {
     int v7 = a2.rfind('.', -1);
     int v9;
 
-    if ((v7 == -1) || (v9 = a2.rfind('.', v7 - 1), v9 != -1) && (v9 + 1 == v7)) {
+    if ( (v7 == -1) || ((v9 = a2.rfind('.', v7 - 1), v9 != -1) && (v9 + 1 == v7)) ) {
         m_name = a2.substr(v5, a2.size() - v5 + 1);
 
         m_ext = "";

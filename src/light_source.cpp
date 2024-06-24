@@ -26,10 +26,10 @@ light_properties::light_properties() : m_type(influence_type::POINT),
     this->cutoff_hot = 1.0e10;
     
     auto v1 = this->cutoff_range - this->near_range;
-    this->field_3C = ( v1 == 0.0f ? 1.0e10 : (1.f / v1) );
+    this->field_3C = ( equal(v1, 0.0f) ? 1.0e10 : (1.f / v1) );
 
     auto v2 = this->cutoff_hot - this->near_hot;
-    this->field_48 = ( v2 == 0.0f ? 1.0e10 : (1.f / v2) );
+    this->field_48 = ( equal(v2, 0.0f) ? 1.0e10 : (1.f / v2) );
 
     this->m_light_category = 1;
     this->m_flags = 0;

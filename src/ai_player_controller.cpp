@@ -353,7 +353,7 @@ void ai_player_controller::update_controls(Float a2, bool a3)
 {
     TRACE("ai_player_controller::update_controls");
 
-    if (a3 || this->field_3DC && is_a_controllable_mode(this->m_spidey_loco_mode))
+    if (a3 || (this->field_3DC && is_a_controllable_mode(this->m_spidey_loco_mode)) )
     {
         this->gb_jump.update(a2);
         this->gb_swing_raw.update(a2);

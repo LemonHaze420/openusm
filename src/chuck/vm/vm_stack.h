@@ -17,7 +17,7 @@ public:
     vm_stack(vm_thread *t);
 
     int capacity() const {
-        return 96 * 4;
+        return sizeof(field_0);
     }
 
     vm_thread * get_thread() {

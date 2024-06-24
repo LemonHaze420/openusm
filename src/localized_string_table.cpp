@@ -107,8 +107,8 @@ void localized_string_table::sub_60BD30() {
                 this->field_0->field_0[i] += this->field_8;
             }
 
-            auto v7 = (uint8_t *) this->field_0->field_0[i];
-            if (*v7) {
+            auto v7 = bit_cast<uint8_t *>(this->field_0->field_0[i]);
+            if (*v7 != 0) {
                 do {
                     if (*v7 == 160) {
                         *v7 = ' ';

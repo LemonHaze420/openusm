@@ -53,7 +53,7 @@ char *chuck_strcpy(char *dest, const char *src, unsigned int dest_buffer_length)
     assert(dest_buffer_length > 0);
     assert(dest_buffer_length <= RIDICULOUS_SIZE);
 
-    for (auto i = 0; i < dest_buffer_length - 1; ++i) {
+    for (auto i = 0u; i < dest_buffer_length - 1; ++i) {
         dest[i] = src[i];
         if (!src[i]) {
             break;

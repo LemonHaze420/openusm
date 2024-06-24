@@ -38,7 +38,7 @@ void script_manager_callback(script_manager_callback_reason a1, script_executabl
     case 8:
     case 10:
         if ( buffer != nullptr ) {
-            resource_manager::push_resource_context((resource_pack_slot *) buffer);
+            resource_manager::push_resource_context(bit_cast<resource_pack_slot *>(buffer));
         }
         break;
     case 9:

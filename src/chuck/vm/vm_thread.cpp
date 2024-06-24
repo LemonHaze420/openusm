@@ -228,7 +228,7 @@ bool vm_thread::run()
 
     if constexpr (1)
     {
-        auto dword_965F24 = (int)&this->PC;
+        [[maybe_unused]] auto dword_965F24 = (int)&this->PC;
         bool v109 = false;
 
         opcode_arg_t prev_argtype = OP_ARG_NULL;
@@ -370,7 +370,7 @@ bool vm_thread::run()
             };
 
             //printf("op = %d, argtype = %s\n", int(op), opcode_arg_t_str[argtype]);
-            switch ( op )
+            switch ( static_cast<int>(op) )
             {
             case OP_ADD: {
                 assert(dsize == 4);
@@ -412,7 +412,7 @@ bool vm_thread::run()
                 }
 
                 auto val = this->dstack.pop_num();
-                if ( 0.0f == val ) {
+                if ( equal(0.0f, val) ) {
                     sp_log("%d", arg.word);
                     //assert(0);
                     (uint32_t &)this->PC += arg.word;
@@ -634,7 +634,7 @@ bool vm_thread::run()
                 }
 
                 auto &v = this->dstack.top_num();
-                v = (v != 0.0f ? 0.0f : 1.0f);
+                v = (not_equal(v, 0.0f) ? 0.0f : 1.0f);
 
                 break;
             }
@@ -1004,7 +1004,7 @@ bool vm_thread::run()
                     this->slf_error(v328);
                 }
 
-                if ( this->dstack.top_num() == 0.0f ) {
+                if ( equal(this->dstack.top_num(), 0.0f) ) {
                     (uint32_t &)this->PC += arg.word;
                 }
 

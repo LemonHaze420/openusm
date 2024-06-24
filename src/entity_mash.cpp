@@ -15,26 +15,26 @@ Var<int [11]> ifc_v_table_lookup {0x0095A66C};
 
 void fix_entity_v_table(char *addr, eEntityMashTypeEnum type)
 {
-    assert(addr[0] == ((char *)&MASH_V_TABLE_VAL)[0] || addr[0] == ((char *)&ent_v_table_lookup()[type])[0]);
+    assert(addr[0] == ((const char *)&MASH_V_TABLE_VAL)[0] || addr[0] == ((char *)&ent_v_table_lookup()[type])[0]);
 
-    assert(addr[1] == ((char *)&MASH_V_TABLE_VAL)[1] || addr[1] == ((char *)&ent_v_table_lookup()[type])[1]);
+    assert(addr[1] == ((const char *)&MASH_V_TABLE_VAL)[1] || addr[1] == ((char *)&ent_v_table_lookup()[type])[1]);
 
-    assert(addr[2] == ((char *)&MASH_V_TABLE_VAL)[2] || addr[2] == ((char *)&ent_v_table_lookup()[type])[2]);
+    assert(addr[2] == ((const char *)&MASH_V_TABLE_VAL)[2] || addr[2] == ((char *)&ent_v_table_lookup()[type])[2]);
 
-    assert(addr[3] == ((char *)&MASH_V_TABLE_VAL)[3] || addr[3] == ((char *)&ent_v_table_lookup()[type])[3]);
+    assert(addr[3] == ((const char *)&MASH_V_TABLE_VAL)[3] || addr[3] == ((char *)&ent_v_table_lookup()[type])[3]);
 
     std::memcpy(addr, &ent_v_table_lookup()[type], 4);
 }
 
 void fix_ifc_v_table(char *addr, eEntityMashIFCTypeEnum ifc_type)
 {
-    assert(addr[0] == ((char *)&MASH_V_TABLE_VAL)[0] || addr[0] == ((char *)&ifc_v_table_lookup()[ifc_type])[0]);
+    assert(addr[0] == ((const char *)&MASH_V_TABLE_VAL)[0] || addr[0] == ((char *)&ifc_v_table_lookup()[ifc_type])[0]);
 
-    assert(addr[1] == ((char *)&MASH_V_TABLE_VAL)[1] || addr[1] == ((char *)&ifc_v_table_lookup()[ifc_type])[1]);
+    assert(addr[1] == ((const char *)&MASH_V_TABLE_VAL)[1] || addr[1] == ((char *)&ifc_v_table_lookup()[ifc_type])[1]);
 
-    assert(addr[2] == ((char *)&MASH_V_TABLE_VAL)[2] || addr[2] == ((char *)&ifc_v_table_lookup()[ifc_type])[2]);
+    assert(addr[2] == ((const char *)&MASH_V_TABLE_VAL)[2] || addr[2] == ((char *)&ifc_v_table_lookup()[ifc_type])[2]);
 
-    assert(addr[3] == ((char *)&MASH_V_TABLE_VAL)[3] || addr[3] == ((char *)&ifc_v_table_lookup()[ifc_type])[3]);
+    assert(addr[3] == ((const char *)&MASH_V_TABLE_VAL)[3] || addr[3] == ((char *)&ifc_v_table_lookup()[ifc_type])[3]);
 
     std::memcpy(addr, &ifc_v_table_lookup()[ifc_type], 4);
 }
@@ -47,7 +47,7 @@ bool mash_was_allocated(void *a1) {
     auto *address = static_cast<uint8_t *>(a1);
 
     auto *header = bit_cast<generic_mash_header *>(address - sizeof(generic_mash_header));
-    if (header->safety_key != header->generate_safety_key()) {
+    if (static_cast<int>(header->safety_key) != header->generate_safety_key()) {
         return true;
     }
 
@@ -63,7 +63,7 @@ void release_generic_mash(void *a1) {
 
     auto *header = bit_cast<generic_mash_header *>(address - sizeof(generic_mash_header));
 
-    assert((header->safety_key == header->generate_safety_key()) && "Safety keys do not match!");
+    assert((static_cast<int>(header->safety_key) == header->generate_safety_key()) && "Safety keys do not match!");
 
     assert(!mash_was_allocated(address) && "Mash appears to be a dynamically allocated clone...");
 

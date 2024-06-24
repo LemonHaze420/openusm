@@ -10,7 +10,7 @@ inline constexpr auto _MASH_FLAG_IN_USE = 0x80000000;
 
 struct generic_mash_header {
     uint32_t safety_key;
-    uint32_t field_4;
+    int field_4;
     int field_8;
     uint16_t class_id;
     uint16_t field_E;

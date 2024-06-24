@@ -124,7 +124,7 @@ extern void script_library_class_patch();
 #else
 #define SLF_PARMS \
   stack.pop(sizeof(parms_t)); \
-  parms_t* parms = (parms_t*)stack.get_SP()
+  [[maybe_unused]] parms_t* parms = (parms_t*)stack.get_SP()
 #endif
 
 #define SLF_RETURN \

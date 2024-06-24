@@ -312,7 +312,7 @@ void enhanced_state_patch()
     }
 
     {
-        auto address = int(&ai_enhanced_state_state_exit);
+        [[maybe_unused]] auto address = int(&ai_enhanced_state_state_exit);
         //REDIRECT(0x006D35D2, address);
         //REDIRECT(0x006D369E, address);
     }

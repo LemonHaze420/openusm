@@ -92,7 +92,7 @@ ai::state_trans_messages run_state::_frame_advance(Float a2)
             vector3d v89 = v8->get_frame_delta()->m[3];
             auto *v9 = this->get_actor();
 
-            auto v87 = orthogonal_projection_onto_plane(v89, v9->get_abs_po().m[1]);
+            [[maybe_unused]] auto v87 = orthogonal_projection_onto_plane(v89, v9->get_abs_po().m[1]);
             auto lateral_distance = v89.length();
             assert(lateral_distance >= 0.0f);
 

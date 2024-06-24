@@ -45,7 +45,7 @@ void vm_stack::push(vm_str_t a2)
     TRACE("vm_stack::push(vm_str_t)", a2);
 #endif
 
-    assert(size() + sizeof( vm_str_t ) <= capacity());
+    assert(static_cast<int>(size() + sizeof( vm_str_t )) <= capacity());
     *(vm_str_t *) this->SP = a2;
     this->move_SP(sizeof(vm_str_t));
 }
@@ -57,7 +57,7 @@ void vm_stack::push(vm_num_t a2)
     printf("%f\n", a2);
 #endif
 
-    assert(size() + sizeof( vm_num_t ) <= capacity());
+    assert(static_cast<int>(size() + sizeof( vm_num_t )) <= capacity());
     *(vm_num_t *)this->SP = a2;
     this->move_SP(sizeof(vm_num_t));
 }
@@ -69,7 +69,7 @@ void vm_stack::push(int a2)
     printf("0x%X\n", a2);
 #endif
 
-    assert(size() + sizeof( int ) <= capacity());
+    assert(static_cast<int>(size() + sizeof( int )) <= capacity());
     *(int *)this->SP = a2;
     this->move_SP(sizeof(int));
 }

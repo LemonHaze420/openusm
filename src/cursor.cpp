@@ -86,9 +86,10 @@ void Cursor::sub_5A6790() {
     this->field_138 = 0;
 }
 
-void Cursor::sub_581C60() {
+void Cursor::sub_581C60()
+{
     if (!this->field_120) {
-        this->field_114 = 1;
+        this->field_114 = true;
     }
 
     GetCursorPos(&this->m_cursorLoc);

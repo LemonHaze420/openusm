@@ -423,7 +423,7 @@ int swing_state::get_mash_sizeof() {
     return 64;
 }
 
-static const string_hash cat_id_swing{"Swing"};
+static const string_hash cat_id_swing {int(to_hash("Swing"))};
 
 VALIDATE_OFFSET(swing_inode, field_1C, 0x1C);
 VALIDATE_OFFSET(swing_inode, field_54, 0x54);
@@ -790,7 +790,7 @@ bool swing_inode::is_eligible(string_hash a2, Float a3)
                 float sweet_spot_ground_level;
 
                 this->find_best_anchor_point(abs_pos, a3a, dir, nullptr, a6, &sweet_spot_ground_level);
-                assert(sweet_spot_ground_level != -1e10f);
+                assert(not_equal(sweet_spot_ground_level, -1e10f));
 
                 if (something_to_swing_to_data.field_64) {
                     this->update_something_to_swing_to(a3);
@@ -2634,7 +2634,7 @@ void swing_inode::update_something_to_swing_to(Float a2)
         {
             static float & dword_958050 = var<float>(0x00958050);
             something_to_swing_to_data.field_4 = dword_958050;
-            if ( something_to_swing_to_data.field_8.field_0 != something_to_swing_to_data.field_34 )
+            if ( static_cast<int>(something_to_swing_to_data.field_8.field_0) != something_to_swing_to_data.field_34 )
                 something_to_swing_to_data.field_8.field_0 = something_to_swing_to_data.field_34;
 
             something_to_swing_to_data.field_C = something_to_swing_to_data.field_38;

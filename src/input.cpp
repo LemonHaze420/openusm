@@ -877,9 +877,9 @@ void Input::poll()
             if (*v44)
             {
                 std::memcpy((int *) v12 + 678, v12, 0x110u);
-                if ((*(int(__stdcall **)(int))(*(uint32_t *) v13 + 100))(v13) < 0 &&
-                        ((*(int(__stdcall **)(int))(*(uint32_t *) *v44 + 28))(*v44) < 0 ||
-                         (*(int(__stdcall **)(int))(*(uint32_t *) *v44 + 100))(*v44) < 0) ||
+                if ( ((*(int(__stdcall **)(int))(*(uint32_t *) v13 + 100))(v13) < 0 &&
+                        (*(int(__stdcall **)(int))(*(uint32_t *) *v44 + 28))(*v44) < 0) ||
+                         (*(int(__stdcall **)(int))(*(uint32_t *) *v44 + 100))(*v44) < 0 ||
                     (*(int(__stdcall **)(int, int, void *))(*(uint32_t *) *v44 +
                                                             36))(*v44, 272, v12) < 0)
                 {

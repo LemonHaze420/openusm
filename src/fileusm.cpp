@@ -14,12 +14,13 @@ VALIDATE_SIZE(FileUSM, 0x10);
 
 Var<FileUSM *> g_fileUSM{0x0096190C};
 
-void sub_81C5D0(char *a1, char *a2) {
+void sub_81C5D0(const char *a1, char *a2)
+{
     char v3;
     auto *v2 = a2;
-    if (*a2) {
+    if (a2[0] != '\0') {
         do {
-            if (*v2 == '.') {
+            if (v2[0] == '.') {
                 break;
             }
 
@@ -27,7 +28,7 @@ void sub_81C5D0(char *a1, char *a2) {
         } while (v3);
     }
 
-    auto *v4 = a1;
+    auto *v4 = bit_cast<char *>(a1);
     *v2 = '.';
     int v5 = v2 + 1 - a1;
 
@@ -36,7 +37,7 @@ void sub_81C5D0(char *a1, char *a2) {
         v6 = *v4;
         v4[v5] = *v4;
         ++v4;
-    } while (v6);
+    } while (v6 != '\0');
 }
 
 void sub_81D0B0(char *a1, char *a2, int a3) {
