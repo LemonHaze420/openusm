@@ -1,15 +1,18 @@
 #pragma once
 
 #include <functional>
+#include <iterator>
 #include <memory>
 #include <stdexcept>
 
-#include "xutility.hpp"
+#ifndef _THROW
+#define _THROW(err, str) throw err(str)
+#endif
 
-#define _POINTER_X(T, A) typename A::template rebind<T>::other::pointer
-#define _CPOINTER_X(T, A) typename A::template rebind<T>::other::const_pointer
-#define _REFERENCE_X(T, A) typename A::template rebind<T>::other::reference
-#define _CREFERENCE_X(T, A) typename A::template rebind<T>::other::const_reference
+#define _POINTER_X(T, A) typename std::allocator_traits<A>::template rebind_alloc<T>::value_type *
+#define _CPOINTER_X(T, A) const typename std::allocator_traits<A>::template rebind_alloc<T>::value_type *
+#define _REFERENCE_X(T, A) typename std::allocator_traits<A>::template rebind_alloc<T>::value_type &
+#define _CREFERENCE_X(T, A) const typename std::allocator_traits<A>::template rebind_alloc<T>::value_type &
 #define _GENERIC_BASE _Node
 
 namespace _std {
@@ -25,7 +28,7 @@ protected:
     typedef typename _Traits::allocator_type allocator_type;
     typedef typename _Traits::key_compare key_compare;
     typedef typename _Traits::value_type value_type;
-    typedef typename allocator_type::template rebind<_GENERIC_BASE>::other::pointer _Genptr;
+    typedef typename std::allocator_traits<allocator_type>::template rebind_alloc<_GENERIC_BASE>::value_type * _Genptr;
 
     struct _Node { // tree node
         _Node(_Genptr _Larg, _Genptr _Parg, _Genptr _Rarg, const value_type &_Val, char _Carg)
@@ -45,7 +48,7 @@ protected:
         : _Traits(_Parg), _Alnod(_Al) { // construct traits from _Parg and allocator from _Al
     }
 
-    typename allocator_type::template rebind<_Node>::other _Alnod; // allocator object for nodes
+    typename std::allocator_traits<allocator_type>::template rebind_alloc<_Node> _Alnod; // allocator object for nodes
 };
 
 // TEMPLATE CLASS _Tree_ptr
@@ -55,13 +58,13 @@ protected:
     typedef typename _Tree_nod<_Traits>::_Node _Node;
     typedef typename _Traits::allocator_type allocator_type;
     typedef typename _Traits::key_compare key_compare;
-    typedef typename allocator_type::template rebind<_Node>::other::pointer _Nodeptr;
+    typedef typename std::allocator_traits<allocator_type>::template rebind_alloc<_Node>::value_type * _Nodeptr;
 
     _Tree_ptr(const key_compare &_Parg, allocator_type _Al)
         : _Tree_nod<_Traits>(_Parg, _Al), _Alptr(_Al) { // construct base, and allocator from _Al
     }
 
-    typename allocator_type::template rebind<_Nodeptr>::other
+    typename std::allocator_traits<allocator_type>::template rebind_alloc<_Nodeptr>
         _Alptr; // allocator object for pointers to nodes
 };
 
@@ -151,9 +154,10 @@ public:
     friend class const_iterator;
 
     class const_iterator
-        : public _Bidit<value_type, _Dift, _Ctptr, const_reference> { // iterator for nonmutable _Tree
+        { // iterator for nonmutable _Tree
     public:
-        typedef bidirectional_iterator_tag iterator_category;
+        typedef typename std::decay_t<value_type> value_type;
+        typedef std::bidirectional_iterator_tag iterator_category;
         typedef _Dift difference_type;
         typedef _Ctptr pointer;
         typedef const_reference reference;
@@ -238,13 +242,15 @@ public:
         _Nodeptr _Ptr; // pointer to node
     };
 
+    static_assert(std::bidirectional_iterator<const_iterator>, "");
+
     // CLASS iterator
     class iterator;
     friend class iterator;
 
     class iterator : public const_iterator { // iterator for mutable _Tree
     public:
-        typedef bidirectional_iterator_tag iterator_category;
+        typedef std::bidirectional_iterator_tag iterator_category;
         typedef _Dift difference_type;
         typedef _ITptr pointer;
         typedef _IReft reference;
@@ -290,9 +296,9 @@ public:
 
     typedef std::reverse_iterator<iterator> reverse_iterator;
     typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
-    typedef pair<iterator, bool> _Pairib;
-    typedef pair<iterator, iterator> _Pairii;
-    typedef pair<const_iterator, const_iterator> _Paircc;
+    typedef std::pair<iterator, bool> _Pairib;
+    typedef std::pair<iterator, iterator> _Pairii;
+    typedef std::pair<const_iterator, const_iterator> _Paircc;
 
     explicit _Tree(const key_compare &_Parg, const allocator_type &_Al)
         : _Mybase(_Parg, _Al) { // construct empty tree
@@ -365,7 +371,7 @@ public:
     }
 
     size_type max_size() const { // return maximum possible length of sequence
-        return (this->_Alval.max_size());
+        return std::allocator_traits<std::decay_t<decltype(this->_Alval)>>::max_size(this->_Alval);
     }
 
     bool empty() const { // return true only if sequence is empty
@@ -610,11 +616,13 @@ public:
             _Color(_Fixnode) = _Black; // ensure stopping node is black
         }
 
-        this->_Alnod.destroy(_Erasednode); // destroy, free erased node
-        this->_Alnod.deallocate(_Erasednode, 1);
+        using alloc_type = typename std::allocator_traits<std::decay_t<decltype(this->_Alnod)>>;
+        alloc_type::destroy(this->_Alnod, _Erasednode); // destroy, free erased node
+        alloc_type::deallocate(this->_Alnod, _Erasednode, 1);
 
-        if (0 < _Mysize)
+        if (0 < _Mysize) {
             --_Mysize;
+        }
 
         return (_Where); // return successor iterator
     }
@@ -743,8 +751,10 @@ public:
              _Rootnode = _Pnode) { // free subtrees, then node
             _Erase(_Right(_Pnode));
             _Pnode = _Left(_Pnode);
-            this->_Alnod.destroy(_Rootnode); // destroy, free erased node
-            this->_Alnod.deallocate(_Rootnode, 1);
+            
+            using alloc_type = typename std::allocator_traits<std::decay_t<decltype(this->_Alnod)>>;
+            alloc_type::destroy(this->_Alnod, _Rootnode); // destroy, free erased node
+            alloc_type::deallocate(this->_Alnod, _Rootnode, 1);
         }
     }
 
@@ -927,11 +937,13 @@ public:
         _Nodeptr _Wherenode = this->_Alnod.allocate(1);
         int _Linkcnt = 0;
 
-        this->_Alptr.construct(&_Left(_Wherenode), nullptr);
+        using alloc_type = typename std::allocator_traits<std::decay_t<decltype(this->_Alptr)>>;
+
+        alloc_type::construct(this->_Alptr, &_Left(_Wherenode), nullptr);
         ++_Linkcnt;
-        this->_Alptr.construct(&_Parent(_Wherenode), nullptr);
+        alloc_type::construct(this->_Alptr, &_Parent(_Wherenode), nullptr);
         ++_Linkcnt;
-        this->_Alptr.construct(&_Right(_Wherenode), nullptr);
+        alloc_type::construct(this->_Alptr, &_Right(_Wherenode), nullptr);
         _Color(_Wherenode) = _Black;
         _Isnil(_Wherenode) = false;
         return (_Wherenode);
@@ -949,10 +961,13 @@ public:
 
     void _Tidy() { // free all storage
         erase(begin(), end());
-        this->_Alptr.destroy(&_Left(_Myhead));
-        this->_Alptr.destroy(&_Parent(_Myhead));
-        this->_Alptr.destroy(&_Right(_Myhead));
-        this->_Alnod.deallocate(_Myhead, 1);
+
+        using alloc_type = typename std::allocator_traits<std::decay_t<decltype(this->_Alptr)>>;
+        alloc_type::destroy(this->_Alptr, &_Left(_Myhead));
+        alloc_type::destroy(this->_Alptr, &_Parent(_Myhead));
+        alloc_type::destroy(this->_Alptr, &_Right(_Myhead));
+
+        std::allocator_traits<std::decay_t<decltype(this->_Alnod)>>::deallocate(this->_Alnod, _Myhead, 1);
         _Myhead = nullptr, _Mysize = 0;
     }
 

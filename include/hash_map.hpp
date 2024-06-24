@@ -23,13 +23,13 @@ template<class _Kty,	// key type
 	class _Alloc,	// actual allocator type (should be value allocator)
 	bool _Mfl>	// true if multiple equivalent keys are permitted
 	class _Hmap_traits
-		: public _STD _Container_base
+		//: public _STD _Container_base
 	{	// traits required to make _Hash behave like a map
 public:
 	typedef _Kty key_type;
-	typedef _STD pair<const _Kty, _Ty> value_type;
+	typedef std::pair<const _Kty, _Ty> value_type;
 	typedef _Tr key_compare;
-	typedef typename _Alloc::template rebind<value_type>::other
+	typedef typename std::allocator_traits<_Alloc>::template rebind_alloc<value_type>
 		allocator_type;
 
  #if _HAS_IMMUTABLE_SETS
@@ -52,9 +52,10 @@ public:
 		}
 
         class value_compare
-            : public std::binary_function<value_type,
-                                          value_type,
-                                          bool> { // functor for comparing two element values
+        //    : public std::binary_function<value_type,
+        //                                  value_type,
+        //                                  bool>
+        { // functor for comparing two element values
             friend class _Hmap_traits<_Kty, _Ty, _Tr, _Alloc, _Mfl>;
 
         public:
@@ -85,7 +86,7 @@ public:
 template<class _Kty,
          class _Ty,
          class _Tr = hash_compare<_Kty, std::less<_Kty>>,
-         class _Alloc = _STD allocator<_STD pair<const _Kty, _Ty>>>
+         class _Alloc = std::allocator<std::pair<const _Kty, _Ty>>>
 class hash_map
     : public _Hash<
           _Hmap_traits<_Kty, _Ty, _Tr, _Alloc, false>> { // hash table of {key, mapped} values, unique keys
@@ -162,21 +163,11 @@ public:
         }
 };
 
-template<class _Kty,
-	class _Ty,
-	class _Tr,
-	class _Alloc> inline
-	void swap( _STDEXT hash_map<_Kty, _Ty, _Tr, _Alloc>& _Left,
-		_STDEXT hash_map<_Kty, _Ty, _Tr, _Alloc>& _Right)
-	{	// swap _Left and _Right hash_maps
-	_Left.swap(_Right);
-	}
-
     // TEMPLATE CLASS hash_multimap
     template<class _Kty,
              class _Ty,
              class _Tr = hash_compare<_Kty, std::less<_Kty>>,
-             class _Alloc = _STD allocator<_STD pair<const _Kty, _Ty>>>
+             class _Alloc = std::allocator<std::pair<const _Kty, _Ty>>>
     class hash_multimap
         : public _Hash<
               _Hmap_traits<_Kty, _Ty, _Tr, _Alloc, true>> { // hash table of {key, mapped} values, non-unique keys
@@ -268,37 +259,8 @@ template<class _Kty,
     }
     };
 
-template<class _Kty,
-	class _Ty,
-	class _Tr,
-	class _Alloc> inline
-	void swap( _STDEXT hash_multimap<_Kty, _Ty, _Tr, _Alloc>& _Left,
-		_STDEXT hash_multimap<_Kty, _Ty, _Tr, _Alloc>& _Right)
-	{	// swap _Left and _Right hash_multimaps
-	_Left.swap(_Right);
-	}
 
 _STDEXT_END
-
-_STD_BEGIN
-
-	// _STDEXT hash_map implements a performant swap
-template<class _Kty, class _Ty, class _Tr, class _Alloc>
-	class _Move_operation_category<_STDEXT hash_map<_Kty, _Ty, _Tr, _Alloc> >
-	{
-	public:
-		typedef _Swap_move_tag _Move_cat;
-	};
-
-	// _STDEXT hash_multimap implements a performant swap
-template<class _Kty, class _Ty, class _Tr, class _Alloc>
-	class _Move_operation_category<_STDEXT hash_multimap<_Kty, _Ty, _Tr, _Alloc> >
-	{
-	public:
-		typedef _Swap_move_tag _Move_cat;
-	};
-
-_STD_END
 
 #ifdef  _MSC_VER
 #pragma warning(pop)
@@ -307,8 +269,3 @@ _STD_END
 
 #endif /* RC_INVOKED */
 #endif /* _HASH_MAP_ */
-
-/*
- * Copyright (c) 1992-2005 by P.J. Plauger.  ALL RIGHTS RESERVED.
- * Consult your license regarding permissions and restrictions.
- V4.05:0009 */

@@ -2380,7 +2380,7 @@ struct _Is_checked_iterator
 #define _IF_CHK_(_Iter_type, _Result_type) \
 	typename _STD _Enable_if< _STD _Is_checked_iterator< _Iter_type >::_Result, _Result_type >::_Result
 #define _IF_CHK_RET_PAIR(_Iter_type, _Result_type1, _Result_type2) \
-	typename _STD _Enable_if< _STD _Is_checked_iterator< _Iter_type >::_Result, _STD pair< _Result_type1, _Result_type2 > >::_Result
+	typename _STD _Enable_if< _STD _Is_checked_iterator< _Iter_type >::_Result, std::pair< _Result_type1, _Result_type2 > >::_Result
 #define _IF_CHK2_(_Iter1_type, _Iter2_type, _Result_type) \
 	typename _STD _Enable_if< _STD _Is_checked_iterator< _Iter1_type >::_Result && _STD _Is_checked_iterator< _Iter2_type >::_Result, _Result_type >::_Result
 
@@ -2389,7 +2389,7 @@ struct _Is_checked_iterator
 #define _IF_NOT_CHK_(_Iter_type, _Result_type) \
 	typename _STD _Enable_if< ! _STD _Is_checked_iterator< _Iter_type >::_Result, _Result_type >::_Result
 #define _IF_NOT_CHK_RET_PAIR(_Iter_type, _Result_type1, _Result_type2) \
-	typename _STD _Enable_if< ! _STD _Is_checked_iterator< _Iter_type >::_Result, _STD pair< _Result_type1, _Result_type2 > >::_Result
+	typename _STD _Enable_if< ! _STD _Is_checked_iterator< _Iter_type >::_Result, std::pair< _Result_type1, _Result_type2 > >::_Result
 #define _IF_NOT_CHK2_(_Iter1_type, _Iter2_type, _Result_type) \
 	typename _STD _Enable_if< ! _STD _Is_checked_iterator< _Iter1_type >::_Result || !_STD _Is_checked_iterator< _Iter2_type >::_Result, _Result_type >::_Result
 
@@ -2674,7 +2674,7 @@ inline
 
     // TEMPLATE FUNCTION mismatch
     template<class _InIt1, class _InIt2, class _InItCats>
-    inline _STD pair<_InIt1, _InIt2> __CLRCALL_OR_CDECL _Mismatch(
+    inline std::pair<_InIt1, _InIt2> __CLRCALL_OR_CDECL _Mismatch(
         _InIt1 _First1,
         _InIt1 _Last1,
         _InIt2 _First2,
@@ -2750,7 +2750,7 @@ _IF_NOT_CHK_RET_PAIR(_InIt2, _InIt1, _InIt2)
 
 template<class _InIt1, class _InIt2>
 inline
-	pair<_InIt1, _InIt2>
+	std::pair<_InIt1, _InIt2>
 		__CLRCALL_OR_CDECL mismatch(_InIt1 _First1, _InIt1 _Last1, _InIt2 _First2)
 	{	// return [_First1, _Last1) and [_First2, _Last2) mismatch
 	return _Mismatch(_First1, _Last1, _First2,
@@ -2762,7 +2762,7 @@ inline
 		// TEMPLATE FUNCTION mismatch WITH PRED
 template<class _InIt1, class _InIt2, class _Pr, class _InItCats>
 inline
-	pair<_InIt1, _InIt2>
+	std::pair<_InIt1, _InIt2>
 		__CLRCALL_OR_CDECL _Mismatch(_InIt1 _First1, _InIt1 _Last1, _InIt2 _First2, _Pr _Pred,
 			_InItCats, _Range_checked_iterator_tag)
 	{	// return [_First1, _Last1) and [_First2, _Last2) mismatch using _Pred
@@ -3626,15 +3626,15 @@ _IF_NOT_CHK_(_OutIt, void) __CLRCALL_OR_CDECL checked_fill_n(_OutIt _First, _Dif
 
 template<class _InIt1, class _InIt2>
 inline
-	_STD pair<_InIt1, _InIt2>
+	std::pair<_InIt1, _InIt2>
 		__CLRCALL_OR_CDECL unchecked_mismatch(_InIt1 _First1, _InIt1 _Last1, _InIt2 _First2)
 	{	// return [_First1, _Last1) and [_First2, _Last2) mismatch
 #if _SECURE_SCL
-	_STD pair<_CHECKED_BASE_TYPE(_InIt1), _InIt2> _Result =
+        std::pair<_CHECKED_BASE_TYPE(_InIt1), _InIt2> _Result =
 		_STD _Mismatch(_CHECKED_BASE(_First1), _CHECKED_BASE(_Last1), _First2,
 			_STD _Iter_random(_First1, _First2), _STD _Range_checked_iterator_tag());
 	_ASSIGN_FROM_BASE(_First1, _Result.first);
-	return (_STD pair<_InIt1, _InIt2>(_First1, _Result.second));
+	return (std::pair<_InIt1, _InIt2>(_First1, _Result.second));
 #else
 	return _STD _Mismatch(_First1, _Last1, _First2,
 		_STD _Iter_random(_First1, _First2), _STD _Range_checked_iterator_tag());
@@ -3646,21 +3646,21 @@ inline
 _IF_CHK_RET_PAIR(_InIt2, _InIt1, _InIt2)
 		__CLRCALL_OR_CDECL checked_mismatch(_InIt1 _First1, _InIt1 _Last1, _InIt2 _First2)
 	{	// return [_First1, _Last1) and [_First2, _Last2) mismatch
-	_STD pair<_CHECKED_BASE_TYPE(_InIt1), _InIt2> _Result =
+        std::pair<_CHECKED_BASE_TYPE(_InIt1), _InIt2> _Result =
 		_STD _Mismatch(_CHECKED_BASE(_First1), _CHECKED_BASE(_Last1), _First2,
 			_STD _Iter_random(_First1, _First2), _STD _Range_checked_iterator_tag());
 	_ASSIGN_FROM_BASE(_First1, _Result.first);
-	return (_STD pair<_InIt1, _InIt2>(_First1, _Result.second));
+	return (std::pair<_InIt1, _InIt2>(_First1, _Result.second));
 	}
 
 template<class _InIt1, class _InElem2, size_t _Size>
 inline
-_STD pair<_InIt1, _InElem2*>
+std::pair<_InIt1, _InElem2*>
 		__CLRCALL_OR_CDECL checked_mismatch(_InIt1 _First1, _InIt1 _Last1, _InElem2 (&_First2)[_Size])
 	{	// return [_First1, _Last1) and [_First2, _Last2) mismatch
-	_STD pair<_InIt1, _STDEXT checked_array_iterator<_InElem2*> > _Result =
+        std::pair<_InIt1, _STDEXT checked_array_iterator<_InElem2*> > _Result =
 		checked_mismatch(_First1, _Last1, _STDEXT make_checked_array_iterator(_First2, _Size));
-	return (_STD pair<_InIt1, _InElem2*>(_Result.first, _Result.second.base()));
+	return (std::pair<_InIt1, _InElem2*>(_Result.first, _Result.second.base()));
 	}
 
 template<class _InIt1, class _InIt2>
@@ -3669,24 +3669,24 @@ _SCL_CHECKED_ALGORITHM_WARN
 _IF_NOT_CHK_RET_PAIR(_InIt2, _InIt1, _InIt2)
 		__CLRCALL_OR_CDECL checked_mismatch(_InIt1 _First1, _InIt1 _Last1, _InIt2 _First2)
 	{	// return [_First1, _Last1) and [_First2, _Last2) mismatch
-	_STD pair<_CHECKED_BASE_TYPE(_InIt1), _InIt2> _Result =
+        std::pair<_CHECKED_BASE_TYPE(_InIt1), _InIt2> _Result =
 		_STD _Mismatch(_CHECKED_BASE(_First1), _CHECKED_BASE(_Last1), _First2,
 			_STD _Iter_random(_First1, _First2), _STD _Range_checked_iterator_tag());
 	_ASSIGN_FROM_BASE(_First1, _Result.first);
-	return (_STD pair<_InIt1, _InIt2>(_First1, _Result.second));
+	return (std::pair<_InIt1, _InIt2>(_First1, _Result.second));
 	}
 
 template<class _InIt1, class _InIt2, class _Pr>
 inline
-	_STD pair<_InIt1, _InIt2>
+	std::pair<_InIt1, _InIt2>
 		__CLRCALL_OR_CDECL unchecked_mismatch(_InIt1 _First1, _InIt1 _Last1, _InIt2 _First2, _Pr _Pred)
 	{	// return [_First1, _Last1) and [_First2, _Last2) mismatch
 #if _SECURE_SCL
-	_STD pair<_CHECKED_BASE_TYPE(_InIt1), _InIt2> _Result =
+        std::pair<_CHECKED_BASE_TYPE(_InIt1), _InIt2> _Result =
 		_STD _Mismatch(_CHECKED_BASE(_First1), _CHECKED_BASE(_Last1), _First2, _Pred,
 			_STD _Iter_random(_First1, _First2), _STD _Range_checked_iterator_tag());
 	_ASSIGN_FROM_BASE(_First1, _Result.first);
-	return (_STD pair<_InIt1, _InIt2>(_First1, _Result.second));
+	return (std::pair<_InIt1, _InIt2>(_First1, _Result.second));
 #else
 	return _STD _Mismatch(_First1, _Last1, _First2, _Pred,
 		_STD _Iter_random(_First1, _First2), _STD _Range_checked_iterator_tag());
@@ -3698,21 +3698,21 @@ inline
 _IF_CHK_RET_PAIR(_InIt2, _InIt1, _InIt2)
 		__CLRCALL_OR_CDECL checked_mismatch(_InIt1 _First1, _InIt1 _Last1, _InIt2 _First2, _Pr _Pred)
 	{	// return [_First1, _Last1) and [_First2, _Last2) mismatch using _Pred
-	_STD pair<_CHECKED_BASE_TYPE(_InIt1), _InIt2> _Result =
+        std::pair<_CHECKED_BASE_TYPE(_InIt1), _InIt2> _Result =
 		_STD _Mismatch(_CHECKED_BASE(_First1), _CHECKED_BASE(_Last1), _First2, _Pred,
 			_STD _Iter_random(_First1, _First2), _STD _Range_checked_iterator_tag());
 	_ASSIGN_FROM_BASE(_First1, _Result.first);
-	return (_STD pair<_InIt1, _InIt2>(_First1, _Result.second));
+	return (std::pair<_InIt1, _InIt2>(_First1, _Result.second));
 	}
 
 template<class _InIt1, class _InElem2, class _Pr, size_t _Size>
 inline
-_STD pair<_InIt1, _InElem2*>
+std::pair<_InIt1, _InElem2*>
 		__CLRCALL_OR_CDECL checked_mismatch(_InIt1 _First1, _InIt1 _Last1, _InElem2 (&_First2)[_Size], _Pr _Pred)
 	{	// return [_First1, _Last1) and [_First2, _Last2) mismatch using _Pred
-	_STD pair<_InIt1, _STDEXT checked_array_iterator<_InElem2*> > _Result =
+        std::pair<_InIt1, _STDEXT checked_array_iterator<_InElem2*> > _Result =
 		checked_mismatch(_First1, _Last1, _STDEXT make_checked_array_iterator(_First2, _Size), _Pred);
-	return (_STD pair<_InIt1, _InElem2*>(_Result.first, _Result.second.base()));
+	return (std::pair<_InIt1, _InElem2*>(_Result.first, _Result.second.base()));
 	}
 
 template<class _InIt1, class _InIt2, class _Pr>
@@ -3721,11 +3721,11 @@ _SCL_CHECKED_ALGORITHM_WARN
 _IF_NOT_CHK_RET_PAIR(_InIt2, _InIt1, _InIt2)
 		__CLRCALL_OR_CDECL checked_mismatch(_InIt1 _First1, _InIt1 _Last1, _InIt2 _First2, _Pr _Pred)
 	{	// return [_First1, _Last1) and [_First2, _Last2) mismatch using _Pred
-	_STD pair<_CHECKED_BASE_TYPE(_InIt1), _InIt2> _Result =
+        std::pair<_CHECKED_BASE_TYPE(_InIt1), _InIt2> _Result =
 		_STD _Mismatch(_CHECKED_BASE(_First1), _CHECKED_BASE(_Last1), _First2, _Pred,
 			_STD _Iter_random(_First1, _First2), _STD _Range_checked_iterator_tag());
 	_ASSIGN_FROM_BASE(_First1, _Result.first);
-	return (_STD pair<_InIt1, _InIt2>(_First1, _Result.second));
+	return (std::pair<_InIt1, _InIt2>(_First1, _Result.second));
 	}
 
 template<class _InIt1, class _InIt2>
@@ -3860,25 +3860,3 @@ _CRTIMP void __cdecl _invalid_parameter_noinfo(void);
 #endif  /* _MSC_VER */
 
 #endif /* RC_INVOKED */
-
-/*
- * Copyright (c) 1992-2005 by P.J. Plauger.  ALL RIGHTS RESERVED.
- * Consult your license regarding permissions and restrictions.
- */
-
-/*
- * This file is derived from software bearing the following
- * restrictions:
- *
- * Copyright (c) 1994
- * Hewlett-Packard Company
- *
- * Permission to use, copy, modify, distribute and sell this
- * software and its documentation for any purpose is hereby
- * granted without fee, provided that the above copyright notice
- * appear in all copies and that both that copyright notice and
- * this permission notice appear in supporting documentation.
- * Hewlett-Packard Company makes no representations about the
- * suitability of this software for any purpose. It is provided
- * "as is" without express or implied warranty.
- V4.05:0009 */

@@ -15,9 +15,9 @@ template<class _Kty,	// key type
 	{	// traits required to make _Tree behave like a map
 public:
 	typedef _Kty key_type;
-	typedef pair<const _Kty, _Ty> value_type;
+	typedef std::pair<const _Kty, _Ty> value_type;
 	typedef _Pr key_compare;
-	typedef typename _Alloc::template rebind<value_type>::other
+	typedef typename std::allocator_traits<_Alloc>::template rebind_alloc<value_type>
 		allocator_type;
 	typedef _POINTER_X(value_type, allocator_type) _ITptr;
 	typedef _REFERENCE_X(value_type, allocator_type) _IReft;
@@ -36,9 +36,10 @@ public:
 		}
 
         class value_compare
-            : public std::binary_function<value_type,
-                                          value_type,
-                                          bool> { // functor for comparing two element values
+            //: public std::binary_function<value_type,
+            //                              value_type,
+            //                              bool>
+        { // functor for comparing two element values
             friend class _Tmap_traits<_Kty, _Ty, _Pr, _Alloc, _Mfl>;
 
         public:
@@ -68,7 +69,7 @@ public:
 template<class _Kty,
          class _Ty,
          class _Pr = std::less<_Kty>,
-         class _Alloc = std::allocator<pair<const _Kty, _Ty>>>
+         class _Alloc = std::allocator<std::pair<const _Kty, _Ty>>>
 class map
     : public _Tree<
           _Tmap_traits<_Kty, _Ty, _Pr, _Alloc, false>> { // ordered red-black tree of {key, mapped} values, unique keys
@@ -153,7 +154,7 @@ template<class _Kty,
     template<class _Kty,
              class _Ty,
              class _Pr = std::less<_Kty>,
-             class _Alloc = std::allocator<pair<const _Kty, _Ty>>>
+             class _Alloc = std::allocator<std::pair<const _Kty, _Ty>>>
     class multimap
         : public _Tree<
               _Tmap_traits<_Kty, _Ty, _Pr, _Alloc, true>> { // ordered red-black tree of {key, mapped} values, non-unique keys

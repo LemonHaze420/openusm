@@ -34,7 +34,7 @@ _STD_BEGIN
 
 // TEMPLATE FUNCTION get_temporary_buffer
 template<class _Ty>
-inline pair<_Ty _FARQ *, _PDFT> get_temporary_buffer(
+inline std::pair<_Ty _FARQ *, _PDFT> get_temporary_buffer(
     _PDFT _Count) { // get raw temporary buffer of up to _Count elements
     _Ty _FARQ *_Pbuf;
 
@@ -625,7 +625,7 @@ public:
 		{	// return size of buffer
 		if (_Pbuf->_Begin == 0 && 0 < _Pbuf->_Size)
 			{	// allocate buffer on first size query
-            pair<_Pty, _PDFT> _Pair = _std::get_temporary_buffer<_Ty>(_Pbuf->_Size);
+                std::pair<_Pty, _PDFT> _Pair = _std::get_temporary_buffer<_Ty>(_Pbuf->_Size);
 
             _Pbuf->_Begin = _Pair.first;
 			_Pbuf->_Current = _Pair.first;
@@ -975,25 +975,3 @@ _STDEXT_END
 
 #endif /* RC_INVOKED */
 #endif /* _MEMORY_ */
-
-/*
- * Copyright (c) 1992-2005 by P.J. Plauger.  ALL RIGHTS RESERVED.
- * Consult your license regarding permissions and restrictions.
- */
-
-/*
- * This file is derived from software bearing the following
- * restrictions:
- *
- * Copyright (c) 1994
- * Hewlett-Packard Company
- *
- * Permission to use, copy, modify, distribute and sell this
- * software and its documentation for any purpose is hereby
- * granted without fee, provided that the above copyright notice
- * appear in all copies and that both that copyright notice and
- * this permission notice appear in supporting documentation.
- * Hewlett-Packard Company makes no representations about the
- * suitability of this software for any purpose. It is provided
- * "as is" without express or implied warranty.
- V4.05:0009 */

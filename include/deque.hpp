@@ -1,14 +1,28 @@
-// deque standard header
 #pragma once
-#ifndef _DEQUE_
-#define _DEQUE_
 
 #include "memory.hpp"
 
 #include <stdexcept>
 
-#pragma pack(push,8)
-#pragma warning(push,3)
+#ifndef _THROW
+#define _THROW(err, str) throw err(str)
+#endif
+
+#ifndef _TRY_BEGIN
+#define _TRY_BEGIN try {
+#endif
+
+#ifndef _CATCH_ALL
+#define _CATCH_ALL } catch(...) {
+#endif
+
+#ifndef _RERAISE
+#define _RERAISE throw
+#endif
+
+#ifndef _CATCH_END
+#define _CATCH_END }
+#endif
 
 namespace _std {
 
@@ -23,10 +37,10 @@ protected:
 		{	// construct allocator from _Al
 		}
 
-	typedef typename _Alloc::template rebind<_Ty>::other::pointer
+	typedef typename std::allocator_traits<_Alloc>::template rebind_alloc<_Ty>::value_type *
 		_Tptr;
 
-	typename _Alloc::template rebind<_Tptr>::other
+	typename std::allocator_traits<_Alloc>::template rebind_alloc<_Tptr>
 		_Almap;	// allocator object for maps
 	};
 
@@ -42,7 +56,7 @@ protected:
 		{	// construct allocator and base from _Al
 		}
 
-	typedef typename _Alloc::template rebind<_Ty>::other
+	typedef typename std::allocator_traits<_Alloc>::template rebind_alloc<_Ty>
 		_Alty;
 
 	_Alty _Alval;	// allocator object for stored elements
@@ -68,14 +82,14 @@ public:
     typedef typename _Alloc::size_type size_type;
     typedef typename _Alloc::difference_type _Dift;
     typedef _Dift difference_type;
-    typedef typename _Alloc::pointer _Tptr;
-    typedef typename _Alloc::const_pointer _Ctptr;
+    typedef typename std::allocator_traits<_Alloc>::value_type * _Tptr;
+    typedef const typename std::allocator_traits<_Alloc>::value_type * _Ctptr;
     typedef _Tptr pointer;
     typedef _Ctptr const_pointer;
-    typedef _POINTER_X(_Tptr, _Alloc) _Mapptr;
-    typedef typename _Alloc::reference _Reft;
+    typedef typename std::allocator_traits<_Alloc>::template rebind_alloc<_Tptr>::value_type * _Mapptr;
+    typedef typename std::allocator_traits<_Alloc>::value_type & _Reft;
     typedef _Reft reference;
-    typedef typename _Alloc::const_reference const_reference;
+    typedef const typename std::allocator_traits<_Alloc>::value_type & const_reference;
     typedef typename _Alloc::value_type value_type;
 
     // CLASS const_iterator
@@ -322,40 +336,40 @@ public:
 	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
 	deque()
-		: _Mybase(), _Map(0),
+		: _Mybase(), _Map(nullptr),
 			_Mapsize(0), _Myoff(0), _Mysize(0)
 		{	// construct empty deque
 		}
 
 	explicit deque(const _Alloc& _Al)
-		: _Mybase(_Al), _Map(0),
+		: _Mybase(_Al), _Map(nullptr),
 			_Mapsize(0), _Myoff(0), _Mysize(0)
 		{	// construct empty deque with allocator
 		}
 
 	explicit deque(size_type _Count)
-		: _Mybase(), _Map(0),
+		: _Mybase(), _Map(nullptr),
 			_Mapsize(0), _Myoff(0), _Mysize(0)
 		{	// construct from _Count * _Ty()
 		_Construct_n(_Count, _Ty());
 		}
 
 	deque(size_type _Count, const _Ty& _Val)
-		: _Mybase(), _Map(0),
+		: _Mybase(), _Map(nullptr),
 			_Mapsize(0), _Myoff(0), _Mysize(0)
 		{	// construct from _Count * _Val
 		_Construct_n(_Count, _Val);
 		}
 
 	deque(size_type _Count, const _Ty& _Val, const _Alloc& _Al)
-		: _Mybase(_Al), _Map(0),
+		: _Mybase(_Al), _Map(nullptr),
 			_Mapsize(0), _Myoff(0), _Mysize(0)
 		{	// construct from _Count * _Val with allocator
 		_Construct_n(_Count, _Val);
 		}
 
 	deque(const _Myt& _Right)
-		: _Mybase(_Right._Alval), _Map(0),
+		: _Mybase(_Right._Alval), _Map(nullptr),
 			_Mapsize(0), _Myoff(0), _Mysize(0)
 		{	// construct by copying _Right
 		_TRY_BEGIN
@@ -368,7 +382,7 @@ public:
 
 	template<class _It>
 		deque(_It _First, _It _Last)
-		: _Mybase(), _Map(0),
+		: _Mybase(), _Map(nullptr),
 			_Mapsize(0), _Myoff(0), _Mysize(0)
 		{	// construct from [_First, _Last)
 		_Construct(_First, _Last, _Iter_cat(_First));
@@ -376,7 +390,7 @@ public:
 
 	template<class _It>
 		deque(_It _First, _It _Last, const _Alloc& _Al)
-		: _Mybase(_Al), _Map(0),
+		: _Mybase(_Al), _Map(nullptr),
 			_Mapsize(0), _Myoff(0), _Mysize(0)
 		{	// construct from [_First, _Last) with allocator
 		_Construct(_First, _Last, _Iter_cat(_First));
@@ -493,9 +507,9 @@ public:
 		}
 
 	size_type max_size() const
-		{	// return maximum possible length of sequence
-		return (this->_Alval.max_size());
-		}
+    {	// return maximum possible length of sequence
+        return std::allocator_traits<std::decay_t<decltype(this->_Alval)>>::max_size(this->_Alval);
+    }
 
 	bool empty() const
 		{	// test if sequence is empty
@@ -580,33 +594,42 @@ public:
 		}
 
 	void push_back(const _Ty& _Val)
-		{	// insert element at end
-		if ((_Myoff + _Mysize) % _DEQUESIZ == 0
-			&& _Mapsize <= (_Mysize + _DEQUESIZ) / _DEQUESIZ)
-			_Growmap(1);
-		size_type _Newoff = _Myoff + _Mysize;
-		size_type _Block = _Newoff / _DEQUESIZ;
-		if (_Mapsize <= _Block)
-			_Block -= _Mapsize;
-		if (_Map[_Block] == 0)
-			_Map[_Block] = this->_Alval.allocate(_DEQUESIZ);
-		this->_Alval.construct(_Map[_Block] + _Newoff % _DEQUESIZ, _Val);
-		++_Mysize;
-		}
+    {	// insert element at end
+        if ((_Myoff + _Mysize) % _DEQUESIZ == 0
+                && _Mapsize <= (_Mysize + _DEQUESIZ) / _DEQUESIZ)
+            _Growmap(1);
+        size_type _Newoff = _Myoff + _Mysize;
+        size_type _Block = _Newoff / _DEQUESIZ;
+        if (_Mapsize <= _Block) {
+            _Block -= _Mapsize;
+        }
+
+        using alloc_type = typename std::allocator_traits<std::decay_t<decltype(this->_Alval)>>;
+
+        if (_Map[_Block] == nullptr) {
+            _Map[_Block] = alloc_type::allocate(this->_Alval, _DEQUESIZ);
+        }
+
+        alloc_type::construct(this->_Alval, _Map[_Block] + _Newoff % _DEQUESIZ, _Val);
+        ++_Mysize;
+    }
 
 	void pop_back()
-		{	// erase element at end
-		if (!empty())
-			{	// something to erase, do it
-			size_type _Newoff = _Mysize + _Myoff - 1;
-			size_type _Block = _Newoff / _DEQUESIZ;
-			if (_Mapsize <= _Block)
-				_Block -= _Mapsize;
-			this->_Alval.destroy(_Map[_Block] + _Newoff % _DEQUESIZ);
-			if (--_Mysize == 0)
-				_Myoff = 0;
-			}
-		}
+    {	// erase element at end
+        if (!empty())
+        {	// something to erase, do it
+            size_type _Newoff = _Mysize + _Myoff - 1;
+            size_type _Block = _Newoff / _DEQUESIZ;
+            if (_Mapsize <= _Block) {
+                _Block -= _Mapsize;
+            }
+
+            std::allocator_traits<std::decay_t<decltype(this->_Alval)>>::destroy(this->_Alval, _Map[_Block] + _Newoff % _DEQUESIZ);
+            if (--_Mysize == 0) {
+                _Myoff = 0;
+            }
+        }
+    }
 
 	template<class _It>
 		void assign(_It _First, _It _Last)
@@ -800,19 +823,19 @@ public:
 		}
 
 	void swap(_Myt& _Right)
-		{	// exchange contents with _Right
-		if (this->_Alval == _Right._Alval)
-			{	// same allocator, swap control information
-			std::swap(_Map, _Right._Map);
-			std::swap(_Mapsize, _Right._Mapsize);
-			std::swap(_Myoff, _Right._Myoff);
-			std::swap(_Mysize, _Right._Mysize);
-			}
-		else
-			{	// different allocator, do multiple assigns
-			_Myt _Ts = *this; *this = _Right, _Right = _Ts;
-			}
-		}
+    {	// exchange contents with _Right
+        if (this->_Alval == _Right._Alval)
+        {	// same allocator, swap control information
+            std::swap(_Map, _Right._Map);
+            std::swap(_Mapsize, _Right._Mapsize);
+            std::swap(_Myoff, _Right._Myoff);
+            std::swap(_Mysize, _Right._Mysize);
+        }
+        else
+        {	// different allocator, do multiple assigns
+            _Myt _Ts = *this; *this = _Right, _Right = _Ts;
+        }
+    }
 
 protected:
 	void _Assign_n(size_type _Count, const _Ty& _Val)
@@ -833,32 +856,33 @@ protected:
 
 		if (_Off < _Rem)
 			{	// closer to front
-			_TRY_BEGIN
-			if (_Off < _Count)
-				{	// insert longer than prefix
-				for (_Num = _Count - _Off; 0 < _Num; --_Num)
-					push_front(_Val);	// push excess values
-				for (_Num = _Off; 0 < _Num; --_Num)
-					push_front(begin()[_Count - 1]);	// push prefix
+                try {
+                    if (_Off < _Count)
+                    {	// insert longer than prefix
+                        for (_Num = _Count - _Off; 0 < _Num; --_Num)
+                            push_front(_Val);	// push excess values
+                        for (_Num = _Off; 0 < _Num; --_Num)
+                            push_front(begin()[_Count - 1]);	// push prefix
 
-				_Mid = begin() + _Count;
-				fill(_Mid, _Mid + _Off, _Val);	// fill in rest of values
-				}
-			else
-				{	// insert not longer than prefix
-				for (_Num = _Count; 0 < _Num; --_Num)
-					push_front(begin()[_Count - 1]);	// push part of prefix
+                        _Mid = begin() + _Count;
+                        fill(_Mid, _Mid + _Off, _Val);	// fill in rest of values
+                    }
+                    else
+                    {	// insert not longer than prefix
+                        for (_Num = _Count; 0 < _Num; --_Num)
+                            push_front(begin()[_Count - 1]);	// push part of prefix
 
-				_Mid = begin() + _Count;
-				_Ty _Tmp = _Val;	// in case _Val is in sequence
-				copy(_Mid + _Count, _Mid + _Off, _Mid);	// copy rest of prefix
-				fill(begin() + _Off, _Mid + _Off, _Tmp);	// fill in values
-				}
-			_CATCH_ALL
-			for (; _Oldsize < _Mysize; )
-				pop_front();	// restore old size, at least
-			_RERAISE;
-			_CATCH_END
+                        _Mid = begin() + _Count;
+                        _Ty _Tmp = _Val;	// in case _Val is in sequence
+                        copy(_Mid + _Count, _Mid + _Off, _Mid);	// copy rest of prefix
+                        fill(begin() + _Off, _Mid + _Off, _Tmp);	// fill in values
+                    }
+                }
+                catch(...) {
+                    for (; _Oldsize < _Mysize; )
+                        pop_front();	// restore old size, at least
+                    throw;
+                }
 			}
 		else
 			{		// closer to back
@@ -945,21 +969,27 @@ protected:
 		}
 
 	void _Tidy()
-		{	// free all storage
-		while (!empty())
-			pop_back();
-		for (size_type _Count = _Mapsize; 0 < _Count; )
-			{	// free storage for a block and destroy pointer
-			if (*(_Map + --_Count) != 0)
-				this->_Alval.deallocate(*(_Map + _Count), _DEQUESIZ);
-			this->_Almap.destroy(_Map + _Count);
-			}
+    {	// free all storage
+        while (!empty()) {
+            pop_back();
+        }
 
-		if (_Map)
-			this->_Almap.deallocate(_Map, _Mapsize);	// free storage for map
-		_Mapsize = 0;
-		_Map = 0;
-		}
+        for (size_type _Count = _Mapsize; 0 < _Count; )
+        {	// free storage for a block and destroy pointer
+            if (*(_Map + --_Count) != nullptr) {
+                std::allocator_traits<std::decay_t<decltype(this->_Alval)>>::deallocate(this->_Alval, *(_Map + _Count), _DEQUESIZ);
+            }
+
+            std::allocator_traits<std::decay_t<decltype(this->_Almap)>>::destroy(this->_Almap, _Map + _Count);
+        }
+
+        if (_Map) {
+            std::allocator_traits<std::decay_t<decltype(this->_Almap)>>::deallocate(this->_Almap, _Map, _Mapsize);	// free storage for map
+        }
+
+        _Mapsize = 0;
+        _Map = nullptr;
+    }
 
 	_Mapptr _Map;	// pointer to array of pointers to blocks
 	size_type _Mapsize;	// size of map array
@@ -1022,30 +1052,3 @@ inline bool operator>=(const deque<_Ty, _Alloc> &_Left,
     return (!(_Left < _Right));
 }
 } // namespace _std
-
-#pragma warning(pop)
-#pragma pack(pop)
-
-#endif /* _DEQUE_ */
-
-/*
- * Copyright (c) 1992-2002 by P.J. Plauger.  ALL RIGHTS RESERVED.
- * Consult your license regarding permissions and restrictions.
- */
-
-/*
- * This file is derived from software bearing the following
- * restrictions:
- *
- * Copyright (c) 1994
- * Hewlett-Packard Company
- *
- * Permission to use, copy, modify, distribute and sell this
- * software and its documentation for any purpose is hereby
- * granted without fee, provided that the above copyright notice
- * appear in all copies and that both that copyright notice and
- * this permission notice appear in supporting documentation.
- * Hewlett-Packard Company makes no representations about the
- * suitability of this software for any purpose. It is provided
- * "as is" without express or implied warranty.
- V3.13:0009 */

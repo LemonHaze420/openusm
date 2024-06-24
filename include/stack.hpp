@@ -1,11 +1,7 @@
-// stack standard header
 #pragma once
-#ifndef _STACK_
-#define _STACK_
+
 #include "deque.hpp"
 
-#pragma pack(push,8)
-#pragma warning(push,3)
 namespace _std {
 
 // TEMPLATE CLASS stack
@@ -111,29 +107,4 @@ template<class _Ty,
 	return (!(_Left < _Right));
 }
 } // namespace _std
-#pragma warning(pop)
-#pragma pack(pop)
 
-#endif /* _STACK_ */
-
-/*
- * Copyright (c) 1992-2002 by P.J. Plauger.  ALL RIGHTS RESERVED.
- * Consult your license regarding permissions and restrictions.
- */
-
-/*
- * This file is derived from software bearing the following
- * restrictions:
- *
- * Copyright (c) 1994
- * Hewlett-Packard Company
- *
- * Permission to use, copy, modify, distribute and sell this
- * software and its documentation for any purpose is hereby
- * granted without fee, provided that the above copyright notice
- * appear in all copies and that both that copyright notice and
- * this permission notice appear in supporting documentation.
- * Hewlett-Packard Company makes no representations about the
- * suitability of this software for any purpose. It is provided
- * "as is" without express or implied warranty.
- V3.13:0009 */

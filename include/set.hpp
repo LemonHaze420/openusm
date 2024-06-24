@@ -39,11 +39,19 @@ struct set {
 
     using ret_t = std::pair<iterator, bool>;
 
-    set() {
-        node_t * (* sub_5E3E50)() = (decltype(sub_5E3E50)) 0x005E3E50;
-        auto *v2 = sub_5E3E50();
+    set()
+    {
+        node_t *v2 = nullptr;
+        if constexpr (0)
+        {
+            node_t * (* sub_5E3E50)() = (decltype(sub_5E3E50)) 0x005E3E50;
+            v2 = sub_5E3E50();
+        } else {
+            v2 = new node_t {};
+        }
+
         this->m_head = v2;
-        v2->_Isnil = true;
+        this->m_head->_Isnil = true;
         this->m_head->_Parent = this->m_head;
         this->m_head->_Left = this->m_head;
         this->m_head->_Right = this->m_head;

@@ -134,7 +134,7 @@ public:
         min_buckets = key_compare::min_buckets,
         _Multi = _Traits::_Multi
     };
-    typedef _STD list<typename _Traits::value_type, typename _Traits::allocator_type> _Mylist;
+    typedef _std::list<typename _Traits::value_type, typename _Traits::allocator_type> _Mylist;
 
     typedef typename _Mylist::allocator_type allocator_type;
     typedef typename _Mylist::size_type size_type;
@@ -264,12 +264,12 @@ public:
 		const_reverse_iterator;
 	typedef typename _Mylist::value_type value_type;
 
-	typedef _STD vector<_Myvec_value_type,
-		typename allocator_type::template
-			rebind<_Myvec_value_type>::other> _Myvec;
-	typedef _STD pair<iterator, bool> _Pairib;
-	typedef _STD pair<iterator, iterator> _Pairii;
-	typedef _STD pair<const_iterator, const_iterator> _Paircc;
+	typedef _std::vector<_Myvec_value_type,
+		typename std::allocator_traits<allocator_type>::template
+			rebind_alloc<_Myvec_value_type>> _Myvec;
+	typedef std::pair<iterator, bool> _Pairib;
+	typedef std::pair<iterator, iterator> _Pairii;
+	typedef std::pair<const_iterator, const_iterator> _Paircc;
 
 	explicit _Hash(const key_compare& _Parg,
 		const allocator_type& _Al)
@@ -655,14 +655,14 @@ public:
             _Maxidx = _Right._Maxidx;
             _List.clear();
 
-            _TRY_BEGIN
-            _List.insert(end(), _Right._List.begin(), _Right._List.end());
-            this->comp = _Right.comp;
-            _CATCH_ALL
-            _List.clear(); // list or compare copy failed, bail out
-            fill(_Vec.begin(), _Vec.end(), end());
-            _RERAISE;
-            _CATCH_END
+            try {
+                _List.insert(end(), _Right._List.begin(), _Right._List.end());
+                this->comp = _Right.comp;
+            } catch (...) {
+                _List.clear(); // list or compare copy failed, bail out
+                fill(_Vec.begin(), _Vec.end(), end());
+                throw;
+            }
 
             iterator _Whereto = begin();
             const_iterator _Wherefrom = _Right.begin();
@@ -730,17 +730,6 @@ template<class _Ty> inline
 	}
 _STDEXT_END
 
-_STD_BEGIN
-
-	// _Hash implements a performant swap
-template <class _Traits>
-	class _Move_operation_category<_STDEXT _Hash<_Traits> >
-	{
-	public:
-		typedef _Swap_move_tag _Move_cat;
-	};
-
-_STD_END
 
 #ifdef  _MSC_VER
   #pragma warning(default: 4127)
