@@ -212,6 +212,11 @@ matrix4x4 matrix4x4::transpose() const {
 #endif
 }
 
+matrix4x4 & matrix4x4::operator=(const matrix4x3 &a1) {
+    this->sub_415650(a1);
+    return (*this);
+}
+
 matrix4x4 *matrix4x4::operator*=(Float a2) {
     this->arr[0][0] *= a2;
     this->arr[0][1] *= a2;

@@ -73,7 +73,7 @@ void user_rigid_body::set(const math::MatClass<4,3> *dictator)
     assert(dictator != nullptr);
 
     this->field_144 = 0;
-    memcpy(&this->field_0, dictator, 64u);
+    this->field_0 = *dictator;
 
     static Var<vector4d> stru_8BFAB8 {0x8BFAB8}; 
     this->field_D0 = stru_8BFAB8();

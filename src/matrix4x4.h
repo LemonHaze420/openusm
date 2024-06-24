@@ -55,6 +55,8 @@ struct matrix4x4 {
 
     matrix4x4 &operator=(const matrix4x4 &a1) = default;
 
+    matrix4x4 &operator=(const matrix4x3 &a1);
+
     auto &operator[](int idx) {
         return arr[idx];
     }
