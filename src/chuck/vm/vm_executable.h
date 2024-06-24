@@ -112,7 +112,7 @@ struct vm_executable
 
     static void read(chunk_file *file, vm_executable *x);
 
-    static inline Var<void (*)(const char *, uint32_t *)> resolve_signal_callback {0x00965F08};
+    static inline auto & resolve_signal_callback = var<void (*)(const char *, uint32_t *)>(0x00965F08);
 };
 
 extern void vm_executable_patch();

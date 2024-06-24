@@ -2,6 +2,7 @@
 
 #include "chunk_file.h"
 #include "common.h"
+#include "event_manager.h"
 #include "func_wrapper.h"
 #include "memory.h"
 #include "opcodes.h"
@@ -92,6 +93,12 @@ void vm_executable::link(const script_executable &a2)
     this->link_un_mash(a2);
 }
 
+void vm_executable_resolve_signal_callback(const char *a1, unsigned int *a2)
+{
+    auto hash = event_manager::register_script_event_type(a1, nullptr);
+    *a2 = hash.source_hash_code;
+}
+
 void vm_executable::link_un_mash(const script_executable &a2)
 {
     TRACE("vm_executable::link_un_mash", this->fullname.to_string());
@@ -141,7 +148,7 @@ void vm_executable::link_un_mash(const script_executable &a2)
 
                 printf("\n");
 
-                switch ( argtype )
+                switch ( static_cast<int>(argtype) )
                 {
                 case OP_ARG_NULL:
                     break;
@@ -237,10 +244,10 @@ void vm_executable::link_un_mash(const script_executable &a2)
                     buffer += 2;
                     mString v18 {v16};
 
-                    assert(resolve_signal_callback() != nullptr);
+                    assert(resolve_signal_callback != nullptr);
 
                     uint32_t v7;
-                    resolve_signal_callback()(v18.c_str(), &v7);
+                    resolve_signal_callback(v18.c_str(), &v7);
 
                     auto addr = v7;
                     *(buffer - 2) = addr >> 16;
@@ -563,8 +570,8 @@ void vm_executable::read(chunk_file *file, vm_executable *x) {
     x->buffer = v15->lookup_sx_code_segment(offset);
 }
 
-void vm_executable_patch() {
-
+void vm_executable_patch()
+{
     {
         FUNC_ADDRESS(address, &vm_executable::link_un_mash);
         SET_JUMP(0x0059F000, address);
