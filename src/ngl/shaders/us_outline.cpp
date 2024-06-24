@@ -385,7 +385,8 @@ void Outline_ShaderNode<USInteriorMaterial>::Render()
                     4);
 
             v17[3] = v13;
-            memset(&v17, 0, 12);
+            v17 = {};
+
             g_Direct3DDevice()->lpVtbl->SetVertexShaderConstantF(
                     g_Direct3DDevice(), 8, &v17[0], 1);
             SetPixelShader(&dword_970774());

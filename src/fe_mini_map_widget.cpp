@@ -183,7 +183,7 @@ void fe_mini_map_widget::RenderMeshes(matrix4x4 *a2, float &a4)
 
                     auto *v36 = iter.field_4->field_4;
                     if ( (v36->Flags & 0x40000) == 0 ) {
-                        v36->field_3C.m_vertexBuffer->lpVtbl->Unlock(v36->field_3C.m_vertexBuffer);
+                        IDirect3DVertexBuffer9_Unlock(v36->field_3C.getVertexBuffer());
                     }
                 }
             }

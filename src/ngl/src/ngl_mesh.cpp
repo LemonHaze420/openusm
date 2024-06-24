@@ -237,7 +237,7 @@ void nglListAddMesh(nglMesh *Mesh,
 
             nglMeshNode *meshNode = new nglMeshNode{};
             meshNode->field_88 = Mesh;
-            meshNode->field_0 = {};
+            meshNode->field_0 = matrix4x4 {};
 
             ptr_to_po v14 = {(const po *) v6, (po *) &nglCurScene()->WorldToScreen};
 

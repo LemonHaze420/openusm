@@ -39,7 +39,7 @@ void TextureInputPack::sub_5871D0() {
         auto v3 = this->field_8;
         auto v4 = this->field_C - v2 + 1;
         auto v49 = this->field_98 - this->field_94;
-        auto v48 = v4;
+        [[maybe_unused]] auto v48 = v4;
 
         int v54[4];
 
@@ -192,7 +192,7 @@ void TextureInputPack::sub_5871D0() {
                             if (v29 != 1 && v29 != 2) {
                                 auto v30 = (int) v24;
                                 auto v31 = (int) &v24[v23 - v22];
-                                auto *v24 = (char *) (v31 + this->field_3D8);
+                                [[maybe_unused]] auto *v24 = (char *) (v31 + this->field_3D8);
 
                                 switch (v29) {
                                 case 3:

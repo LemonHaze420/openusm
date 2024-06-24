@@ -66,13 +66,13 @@ void sub_CB4800(const vector3d &a1,
 
         auto v38 = v40.length2();
         auto v37 = v39.length2();
-        if (v38 != 0.0) {
+        if (not_equal<float>(v38, 0.0f)) {
             auto v17 = 0.5 * a4;
             auto a2 = sub_68FD4B(v38) * v17;
 
             v40 *= a2;
         }
-        if (v37 != 0.0) {
+        if (not_equal<float>(v37, 0.0f)) {
             auto v18 = 0.5 * a4;
             auto a2a = sub_68FD4B(v37) * v18;
 
@@ -260,8 +260,8 @@ void debug_spheres_t::clear() {
 
 void add_debug_sphere(vector3d a1, Float a4, color32 a5) {
     auto v5 = a5;
-    auto v3 = sphere{a1, a4};
-    auto v4 = debug_sphere{v3, v5};
+    sphere v3 {a1, a4};
+    debug_sphere v4 {v3, v5};
     debug_spheres.add_sphere(v4);
 }
 
@@ -299,7 +299,7 @@ void sub_CB3F80(const vector3d &a1,
         auto *v40 = iter->field_4->field_4;
 
         if ((v40->Flags & 0x40000) == 0) {
-            v40->field_3C.m_vertexBuffer->lpVtbl->Unlock(v40->field_3C.m_vertexBuffer);
+            IDirect3DVertexBuffer9_Unlock(v40->field_3C.getVertexBuffer());
         }
     }
 }
@@ -591,9 +591,9 @@ void render_billboard(const vector3d &arg0, color32 a2, float a5, const char *a4
             auto v31 = v12.length2();
             if ( v32
                 || debug_render_get_ival(OBBS)
-                || dot(v35, v33) > 0.0
+                || (dot(v35, v33) > 0.0
                 && v31 < 10000.0
-                && sub_50D220(a3a, arg0, nullptr))
+                && sub_50D220(a3a, arg0, nullptr)) )
             {
                 auto &v14 = geometry_manager::get_xform((geometry_manager::xform_t) 4);
                 auto v30 = v14 * arg0;
@@ -615,13 +615,13 @@ void render_billboard(const vector3d &arg0, color32 a2, float a5, const char *a4
 
                         v29[0] = '\0';
                         mString v25 {a1};
-                        vector2di v17 {v30[0], v30[1]};
+                        vector2di v17 {static_cast<int>(v30[0]), static_cast<int>(v30[1])};
                         render_text(v25, v17, a2, 0.0, a5);
                         v30[1] += v37;
                     }
 
                     mString v27 {a1};
-                    vector2di v18 {v30[0], v30[1]};
+                    vector2di v18 {static_cast<int>(v30[0]), static_cast<int>(v30[1])};
                     render_text(v27, v18, a2, 0.0, a5);
                 }
             }

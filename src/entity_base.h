@@ -58,9 +58,9 @@ struct entity_base : entity_base_vtable {
     _std::vector<entity_base *> *adopted_children;
     conglomerate *my_conglom_root;
     sound_and_pfx_interface *my_sound_and_pfx_interface;
-    int16_t field_3C;
+    uint16_t field_3C;
     int16_t field_3E;
-    int8_t field_40;
+    uint8_t field_40;
     int8_t field_41;
     int8_t rel_po_idx;
     int8_t proximity_map_reference_count;

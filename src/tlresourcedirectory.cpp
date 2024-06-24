@@ -22,7 +22,7 @@ nglTexture *tlResourceDirectory<nglTexture, tlFixedString>::StandardLoad(const t
     if constexpr (1) {
         auto *v19 = this;
         auto *tex = static_cast<nglTexture *>(tlMemAlloc(sizeof(nglTexture), 8, 0x1000000u));
-        memset(tex, 0, sizeof(nglTexture));
+        *tex = {};
 
         static Var<nglTexture> stru_975AC0{0x00975AC0};
 
@@ -33,7 +33,7 @@ nglTexture *tlResourceDirectory<nglTexture, tlFixedString>::StandardLoad(const t
         tex->field_8 = 1;
         tex->field_60 = str;
         auto *v4 = str.field_4;
-        auto v5 = 0;
+        [[maybe_unused]] auto v5 = 0;
 
         char Str1[256];
         strcpy(Str1, nglTexturePath());

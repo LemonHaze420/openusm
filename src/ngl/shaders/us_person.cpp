@@ -1551,7 +1551,7 @@ void USPersonNode::_Render()
                 auto size = this->m_meshSection->m_stride * 2;
 
                 void *data = nullptr;
-                this->m_meshSection->field_3C.m_vertexBuffer->lpVtbl->Lock(this->m_meshSection->field_3C.m_vertexBuffer, 0, size, &data, 0);
+                this->m_meshSection->field_3C.getVertexBuffer()->lpVtbl->Lock(this->m_meshSection->field_3C.getVertexBuffer(), 0, size, &data, 0);
 
                 struct vertexSkinDecl_t {
                     float pos[3];
@@ -1566,7 +1566,7 @@ void USPersonNode::_Render()
                 auto &bone_indices = vertexDecl[1].bone_indices;
                 sp_log("%f %f %f %f", bone_indices[0], bone_indices[1], bone_indices[2], bone_indices[3]);
 
-                this->m_meshSection->field_3C.m_vertexBuffer->lpVtbl->Unlock(this->m_meshSection->field_3C.m_vertexBuffer);
+                this->m_meshSection->field_3C.getVertexBuffer()->lpVtbl->Unlock(this->m_meshSection->field_3C.getVertexBuffer());
             }
         }
 

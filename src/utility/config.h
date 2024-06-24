@@ -100,8 +100,8 @@ constexpr
     typename std::enable_if_t<sizeof(To) == sizeof(From) && std::is_trivially_copyable_v<From> &&
                                   std::is_trivially_copyable_v<To>,
                               To>
-    // constexpr support needs compiler magic
-    bit_cast(const From &src) noexcept {
+// constexpr support needs compiler magic
+bit_cast(const From &src) noexcept {
     static_assert(
         std::is_trivially_constructible_v<To>,
         "This implementation additionally requires destination type to be trivially constructible");
@@ -111,7 +111,5 @@ constexpr
     return dst;
 }
 
-template<typename T0, typename T1>
-decltype(auto) CAST([[maybe_unused]] const T0 &var, T1 address) {
-    return bit_cast<T0>(address);
-}
+#define CAST(var, address) \
+    bit_cast<std::remove_reference_t<decltype(var)>>((address))

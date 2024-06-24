@@ -85,7 +85,7 @@ void nglVertexDef_MultipassMesh<nglVertexDef_PCUV_Base>::Iterator::Write(vector3
             vector3d field_0;
             float field_C[2];
             uint32_t field_14;
-        } *v5 = CAST(v5, int(this->field_4->field_4->field_3C.m_vertexData) + this->field_4->field_4->field_4C) + this->field_8;
+        } *v5 = CAST(v5, int(this->field_4->field_4->field_3C.getVertexData()) + this->field_4->field_4->field_4C) + this->field_8;
         v5->field_0 = a2;
         v5->field_C[0] = a4[0];
         v5->field_C[1] = a4[1];
@@ -193,7 +193,7 @@ void sub_733030(nglVertexDef_MultipassMesh<nglVertexDef_PCUV_Base>::Iterator *it
 
     VALIDATE_SIZE(VertexData, 0x18);
 
-    auto *v11 = bit_cast<VertexData*>(v7->field_3C.m_vertexData);
+    auto *v11 = bit_cast<VertexData*>(v7->field_3C.getVertexData());
 
     *(float *)&v11->field_0[v10] = a2[0];
     *(float *)&v11->field_4[v10] = a2[1];
@@ -206,7 +206,7 @@ void sub_733030(nglVertexDef_MultipassMesh<nglVertexDef_PCUV_Base>::Iterator *it
     v14 *= 3;
 
     auto *v13 = iter->field_4;
-    VertexData *v18 = CAST(v18, bit_cast<char *>(v13->field_4->field_3C.m_vertexData) + v13->field_4->field_4C);
+    VertexData *v18 = CAST(v18, v13->field_4->field_3C.getVertexData() + v13->field_4->field_4C);
 
     *(float *)&v18->field_0[8 * v14] = a3[0];
     *(float *)&v18->field_4[8 * v14] = a3[1];
@@ -219,7 +219,7 @@ void sub_733030(nglVertexDef_MultipassMesh<nglVertexDef_PCUV_Base>::Iterator *it
 
     auto *v19 = iter->field_4;
     int v20 = iter->field_8;
-    VertexData *v24 = CAST(v24, bit_cast<char *>(v19->field_4->field_3C.m_vertexData) + 0x18 * v20 + v19->field_4->field_4C);
+    VertexData *v24 = CAST(v24, v19->field_4->field_3C.getVertexData() + 0x18 * v20 + v19->field_4->field_4C);
 
     *(float *)v24->field_0 = a4[0];
     *(float *)v24->field_4 = a4[1];
@@ -231,7 +231,7 @@ void sub_733030(nglVertexDef_MultipassMesh<nglVertexDef_PCUV_Base>::Iterator *it
     ++iter->field_8;
 
     auto v25 = iter->field_8;
-    VertexData *v29 = CAST(v29, bit_cast<char *>(iter->field_4->field_4->field_3C.m_vertexData) + 0x18 * v25 + iter->field_4->field_4->field_4C);
+    VertexData *v29 = CAST(v29, iter->field_4->field_4->field_3C.getVertexData() + 0x18 * v25 + iter->field_4->field_4->field_4C);
 
     *(float *)v29->field_0 = a5[0];
     *(float *)v29->field_4 = a5[1];
@@ -274,7 +274,7 @@ void nglCreateMesh(uint32_t Flags, uint32_t num_sections, uint32_t num_bones, ma
             for ( auto v5 = 0u; v5 < num_sections; ++v5 )
             {
                 Mesh->Sections[v5].Section = static_cast<nglMeshSection *>(nglMeshAllocFn()(sizeof(nglMeshSection), 16, 0));
-                std::memset(Mesh->Sections[v5].Section, 0, sizeof(nglMeshSection));
+                Mesh->Sections[v5].Section = {};
                 Mesh->Sections[v5].field_0 = 1;
             }
 
@@ -282,7 +282,7 @@ void nglCreateMesh(uint32_t Flags, uint32_t num_sections, uint32_t num_bones, ma
             {
                 Mesh->NBones = num_bones;
                 Mesh->Bones = static_cast<math::MatClass<4, 3> *>(nglMeshAllocFn()(sizeof (*Mesh->Bones) * num_bones, 16, 0));
-                std::memcpy(Mesh->Bones, a4, sizeof (*Mesh->Bones) * num_bones);
+                Mesh->Bones = a4;
             }
 
             nglScratch() = Mesh;

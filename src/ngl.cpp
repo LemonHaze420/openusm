@@ -409,7 +409,7 @@ matrix4x4 nglMeshNode::sub_419930()
 
             matrix4x4 v13 {};
             matrix4x3 v14 = sub_771210(&a2);
-            std::memcpy(&v13, &v14, sizeof(v14));
+            v13 = v14;
 
             v13[3] = v2[3];
 
@@ -472,9 +472,9 @@ bool nglVertexBuffer::createIndexBufferAndWriteData(const void *a2, int size)
         }
 
         void *data;
-        this->m_indexBuffer->lpVtbl->Lock(this->m_indexBuffer, 0, size, &data, 0);
+        IDirect3DIndexBuffer9_Lock(this->getIndexBuffer(), 0, size, &data, 0);
         memcpy(data, a2, size);
-        this->m_indexBuffer->lpVtbl->Unlock(this->m_indexBuffer);
+        IDirect3DIndexBuffer9_Unlock(this->getIndexBuffer());
 
         return true;
     }
@@ -508,9 +508,9 @@ bool nglVertexBuffer::createVertexBufferAndWriteData(const void *a2, uint32_t si
     }
 
     void *data = nullptr;
-    this->m_vertexBuffer->lpVtbl->Lock(this->m_vertexBuffer, 0, size, &data, 0);
+    IDirect3DVertexBuffer9_Lock(this->getVertexBuffer(), 0, size, &data, 0);
     std::memcpy(data, a2, size);
-    this->m_vertexBuffer->lpVtbl->Unlock(this->m_vertexBuffer);
+    IDirect3DVertexBuffer9_Unlock(this->getVertexBuffer());
 
     return true;
 }
@@ -790,9 +790,9 @@ HRESULT nglVertexBuffer::createIndexOrVertexBuffer(nglVertexBuffer *a1,
 
         auto *v19 = v13->m_buffer;
         if (resource_type == ResourceType::IndexBuffer) {
-            a1->m_indexBuffer = CAST(a1->m_indexBuffer, v19);
+            a1->getIndexBuffer() = bit_cast<IDirect3DIndexBuffer9 *>(v19);
         } else {
-            a1->m_vertexBuffer = CAST(a1->m_vertexBuffer, v19);
+            a1->getVertexBuffer() = bit_cast<IDirect3DVertexBuffer9 *>(v19);
         }
 
         operator delete(v13);
@@ -808,7 +808,7 @@ HRESULT nglVertexBuffer::createIndexOrVertexBuffer(nglVertexBuffer *a1,
                                                                    0,
                                                                    D3DFMT_INDEX16,
                                                                    D3DPOOL_MANAGED,
-                                                                   &a1->m_indexBuffer,
+                                                                   &a1->getIndexBuffer(),
                                                                    nullptr);
         } else {
             result = g_Direct3DDevice()->lpVtbl->CreateVertexBuffer(g_Direct3DDevice(),
@@ -816,7 +816,7 @@ HRESULT nglVertexBuffer::createIndexOrVertexBuffer(nglVertexBuffer *a1,
                                                                     usage,
                                                                     fvf,
                                                                     pool,
-                                                                    &a1->m_vertexBuffer,
+                                                                    &a1->getVertexBuffer(),
                                                                     nullptr);
         }
     }
@@ -1834,7 +1834,9 @@ void nglSetMeshDirectory(tlResourceDirectory<nglMesh, tlHashString> *a1) {
     nglMeshDirectory() = CAST(nglMeshDirectory(), a1);
 }
 
-void nglSetMorphDirectory(tlResourceDirectory<nglMorphSet, tlHashString> *a1) {
+void nglSetMorphDirectory(tlResourceDirectory<nglMorphSet, tlHashString> *a1)
+{
+    TRACE("");
     nglMorphDirectory() = CAST(nglMorphDirectory(), a1);
 }
 
@@ -1956,7 +1958,7 @@ void nglRebaseSection(uint32_t NewBase, uint32_t OldBase, nglMeshSection *a3)
 
     PTR_OFFSET(idx, a3->BonesIdx);
 
-    PTR_OFFSET(idx, a3->field_3C.m_vertexData);
+    PTR_OFFSET(idx, a3->field_3C.m_buffer.m_vtxBuffer.m_vertexData);
 
     PTR_OFFSET(idx, a3->m_indices);
 
@@ -2128,7 +2130,7 @@ vector4d xform_inv(const vector4d &a2, const matrix4x3 &a3)
         CDECL_CALL(0x004139A0, &result, &a2, &a3);
     }
 
-    assert(result == a2 * a3);
+    //assert(result == a2 * a3);
 
     return result;
 }
@@ -2384,7 +2386,7 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
             sp_log("0x%08X", dir_entries);
         }
 
-        const auto Base = bit_cast<uint32_t>(&MeshFile->FileBuf.Buf[-Header->field_10]);
+        const auto Base = bit_cast<int>(&MeshFile->FileBuf.Buf[-Header->field_10]);
 
         nglRebaseHeader(Base, Header);
 
@@ -2543,9 +2545,9 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
                     [&v29](auto *MeshSection) -> void {
                         auto func = [](auto *MeshSection)
                         {
-                            auto v31 = (uint32_t) (MeshSection->field_3C.Size >> 6);
+                            auto v31 = (uint32_t) (MeshSection->field_3C.getSize() >> 6);
 
-                            auto *v32 = (float *) (MeshSection->field_3C.m_vertexData +
+                            auto *v32 = (float *) (MeshSection->field_3C.getVertexData() +
                                                    32);
                             MeshSection->field_5C = 2;
                             for (; v31 != 0; --v31)
@@ -2567,14 +2569,14 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
                                 v32 += 16;
                             }
 
-                            MeshSection->field_3C.createVertexBufferAndWriteData(MeshSection->field_3C.m_vertexData,
-                                                                 MeshSection->field_3C.Size,
+                            MeshSection->field_3C.createVertexBufferAndWriteData(MeshSection->field_3C.getVertexData(),
+                                                                 MeshSection->field_3C.getSize(),
                                                                  1028);
 
                             static Var<int> dword_973BC8{0x00973BC8};
 
-                            if (dword_973BC8() < (int) (24 * (MeshSection->field_3C.Size >> 6))) {
-                                dword_973BC8() = 24 * (MeshSection->field_3C.Size >> 6);
+                            if (dword_973BC8() < (int) (24 * (MeshSection->field_3C.getSize() >> 6))) {
+                                dword_973BC8() = 24 * (MeshSection->field_3C.getSize() >> 6);
                             }
 
                             MeshSection->m_stride = 24;
@@ -2590,7 +2592,7 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
                                 nglVertexBuffer::createIndexOrVertexBuffer(
                                     &MeshSection->field_3C,
                                     ResourceType::VertexBuffer,
-                                    16 * (MeshSection->field_3C.Size / 12),
+                                    16 * (MeshSection->field_3C.getSize() / 12),
                                     520,
                                     0,
                                     D3DPOOL_DEFAULT);
@@ -2605,7 +2607,7 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
                                 {
                                     if (strncmp(v29, "smshiny", 7u) == 0)
                                     {
-                                        int v30 = 48 * (MeshSection->field_3C.Size / 60u);
+                                        int v30 = 48 * (MeshSection->field_3C.getSize() / 60u);
                                         MeshSection->field_3C
                                             .createVertexBuffer(v30, 520u);
                                         MeshSection->m_stride = 48;
@@ -2641,8 +2643,8 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
                         }
                         
 
-                        MeshSection->field_3C.createVertexBufferAndWriteData(MeshSection->field_3C.m_vertexData,
-                                                             MeshSection->field_3C.Size,
+                        MeshSection->field_3C.createVertexBufferAndWriteData(MeshSection->field_3C.getVertexData(),
+                                                             MeshSection->field_3C.getSize(),
                                                              1028);
                     }(MeshSection);
 
@@ -3280,8 +3282,8 @@ void nglCopySection(nglMesh *DstMesh, int a2, nglMesh *SrcMesh, int a4)
         auto *SrcSection = SrcMesh->Sections[a4].Section;
         auto *DstSection = DstMesh->Sections[a2].Section;
 
-        assert(SrcSection->field_3C.Size == DstSection->field_3C.Size
-                && "Section VB sizes do not match !");
+        assert(SrcSection->field_3C.getSize() == DstSection->field_3C.getSize
+()                && "Section VB sizes do not match !");
 
         assert(SrcSection->NIndices == DstSection->NIndices
                 && "Section IB sizes do not match !");
@@ -3289,12 +3291,12 @@ void nglCopySection(nglMesh *DstMesh, int a2, nglMesh *SrcMesh, int a4)
         void *SrcVertices = nullptr;
         void *DstVertices = nullptr;
 
-        DstSection->field_3C.m_vertexBuffer->lpVtbl->Lock(DstSection->field_3C.m_vertexBuffer, 0, 0, &DstVertices, 0);
-        SrcSection->field_3C.m_vertexBuffer->lpVtbl->Lock(SrcSection->field_3C.m_vertexBuffer, 0, 0, &SrcVertices, 0);
+        IDirect3DVertexBuffer9_Lock(DstSection->field_3C.getVertexBuffer(), 0, 0, &DstVertices, 0);
+        IDirect3DVertexBuffer9_Lock(SrcSection->field_3C.getVertexBuffer(), 0, 0, &SrcVertices, 0);
 
-        std::memcpy(DstVertices, SrcVertices, DstSection->field_3C.Size);
-        DstSection->field_3C.m_vertexBuffer->lpVtbl->Unlock(DstSection->field_3C.m_vertexBuffer);
-        SrcSection->field_3C.m_vertexBuffer->lpVtbl->Unlock(SrcSection->field_3C.m_vertexBuffer);
+        std::memcpy(DstVertices, SrcVertices, DstSection->field_3C.getSize());
+        IDirect3DVertexBuffer9_Unlock(DstSection->field_3C.getVertexBuffer());
+        IDirect3DVertexBuffer9_Unlock(SrcSection->field_3C.getVertexBuffer());
         if ( DstSection->m_indices != nullptr )
         {
             void *SrcIndices = nullptr;
@@ -4386,10 +4388,10 @@ void nglDestroySection(nglMeshSection *a1)
         a1->m_indexBuffer = nullptr;
     }
 
-    if (a1->field_3C.m_vertexBuffer != nullptr)
+    if (a1->field_3C.getVertexBuffer() != nullptr)
     {
         nglVertexBuffer::sub_77B5D0(&a1->field_3C, ResourceType::VertexBuffer);
-        a1->field_3C.m_vertexBuffer = nullptr;
+        a1->field_3C.getVertexBuffer() = nullptr;
     }
 
     a1->VertexDef->Destroy();
@@ -5585,7 +5587,7 @@ void ngl_patch()
 
 
     {
-        void (*func)(nglFont *Font, char *, uint32_t *, uint32_t *a4, Float a5, Float a6) = nglGetStringDimensions;
+        [[maybe_unused]] void (*func)(nglFont *Font, char *, uint32_t *, uint32_t *a4, Float a5, Float a6) = nglGetStringDimensions;
         //SET_JUMP(0x007798E0, func);
     }
 

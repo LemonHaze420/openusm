@@ -1438,7 +1438,7 @@ po *entity_base::get_model_po() const
 {
     assert(is_conglom_member());
 
-    assert((conglomerate*)this != this->my_conglom_root);
+    assert(bit_cast<const conglomerate*>(this) != this->my_conglom_root);
 
     assert(this->rel_po_idx - 1 < this->my_conglom_root->all_model_po.size());
 

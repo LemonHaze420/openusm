@@ -66,7 +66,7 @@ bool render_projected_shadow(
                     auto *shadow = &shadow_candidates()[i];
 
                     if (shadow->field_18 == nullptr ||
-                        shadow->field_28 < v18.field_28 && shadow->field_28 < v16) {
+                        (shadow->field_28 < v18.field_28 && shadow->field_28 < v16) ) {
                         v12 = i;
                         v16 = shadow->field_28;
                     }

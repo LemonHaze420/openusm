@@ -43,7 +43,7 @@ void BeginStrip(int nVerts, unsigned int stride)
                             : nVerts + 2
                             ); 
 
-            assert((nglScratchBuffer().GetIndexCount() + IndexCount) < (nglScratchMeshWorkSize() / sizeof(uint16_t)) 
+            assert((nglScratchBuffer().GetIndexCount() + IndexCount) < static_cast<int>(nglScratchMeshWorkSize() / sizeof(uint16_t)) 
                     && "Scratch mesh index count overflow !");
 
             auto v3 = nglScratchBuffer().GetIndexCount();

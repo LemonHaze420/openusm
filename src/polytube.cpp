@@ -193,7 +193,7 @@ void polytube::check_anims(bool a2)
 {
     if ( !this->pt_anims.empty() || a2 )
     {
-        auto anim_size = this->pt_anims.size();
+        int anim_size = this->pt_anims.size();
         auto pt_size = this->get_num_control_pts();
         assert(anim_size <= pt_size);
 
@@ -205,10 +205,10 @@ void polytube::check_anims(bool a2)
 
             ++anim_size;
 
-            assert(anim_size == pt_anims.size());
+            assert(anim_size == static_cast<int>(pt_anims.size()));
         }
 
-        assert(pt_anims.size() == get_num_control_pts());
+        assert(static_cast<int>(pt_anims.size()) == get_num_control_pts());
     }
 }
 
@@ -267,7 +267,7 @@ void PolytubeCustomVertex::Iterator::Write(
 
             auto v16 = this->field_8->field_8;
             auto v17 = this->field_3C - len * this->field_44;
-            float v54 = v16 - 1;
+            [[maybe_unused]] float v54 = v16 - 1;
             float v53 = 0.0;
             auto v49 = v17;
             float v18 = (v16 - 1);
@@ -280,7 +280,7 @@ void PolytubeCustomVertex::Iterator::Write(
             this->field_C.BeginStrip(2 * v16);
             this->field_8->field_4 = 0;
 
-            auto v19 = v53;
+            [[maybe_unused]] auto v19 = v53;
             while ( this->field_8->field_4 < this->field_8->field_8 )
             {
                 vector3d v55[2] {};
@@ -314,7 +314,7 @@ void PolytubeCustomVertex::Iterator::Write(
                             float field_C[2];
                             int field_14;
                         } *v1;
-                        return bit_cast<decltype(v1)>(a1->field_4->field_4C + int(a1->field_4->field_3C.m_vertexData));
+                        return bit_cast<decltype(v1)>(a1->field_4->field_4C + int(a1->field_4->field_3C.getVertexData()));
                     };
 
                     auto *v5 = sub_681610(self->field_4) + self->field_8;

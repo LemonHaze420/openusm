@@ -73,7 +73,6 @@ void nglDxSetTexture(uint32_t a1, nglTexture *Tex, uint8_t a3, int a4)
                 for (int i = 0; i < v5->m_height; ++i)
                 {
                     auto *v14 = (uint32_t *) &v17[i * v5->field_24.Pitch];
-                    uint32_t v15 = 0;
                     if (v5->m_width)
                     {
                         auto BYTE2 = [](uint32_t &v) -> uint8_t {
@@ -81,10 +80,11 @@ void nglDxSetTexture(uint32_t a1, nglTexture *Tex, uint8_t a3, int a4)
                             return result;
                         };
 
+                        uint32_t v15 = 0;
                         do {
-                            v14[v15] = *(uint32_t *) &v16
+                            v14[v15] = (*(uint32_t *) &v16
                                             ->m_palette_entries[v5->field_30[i * v5->m_width + v15]] &
-                                    0xFF00FF00 |
+                                    0xFF00FF00) |
                                 ((uint8_t) *
                                      (uint32_t *) &v16
                                          ->m_palette_entries[v5->field_30[i * v5->m_width + v15]]

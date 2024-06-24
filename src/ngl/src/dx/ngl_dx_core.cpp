@@ -243,14 +243,14 @@ void nglListInit()
         nglCurScene() = nullptr;
         nglListBeginScene(static_cast<nglSceneParamType>(0));
         nglSceneDumpStart();
-        auto *v3 = nglScratchBuffer().field_0[0].m_vertexData;
+        auto *v3 = nglScratchBuffer().field_0[0].getVertexData();
         auto v0 = nglScratchBuffer().field_44;
         nglScratchBuffer().field_4C = nglScratchBuffer().field_0[v0];
 
         nglScratchBuffer().field_48 = (IDirect3DIndexBuffer9 *)nglScratchBuffer().field_18[v0];
-        if ( nglScratchBuffer().field_4C.m_vertexBuffer != nullptr ) {
-            nglScratchBuffer().field_4C.m_vertexBuffer->lpVtbl->Lock(nglScratchBuffer().field_4C.m_vertexBuffer, 0, 0, (void **)&v3, D3DLOCK_DISCARD);
-            nglScratchBuffer().field_4C.m_vertexData = v3;
+        if ( nglScratchBuffer().field_4C.getVertexBuffer() != nullptr ) {
+            nglScratchBuffer().field_4C.getVertexBuffer()->lpVtbl->Lock(nglScratchBuffer().field_4C.getVertexBuffer(), 0, 0, (void **)&v3, D3DLOCK_DISCARD);
+            nglScratchBuffer().field_4C.setVertexData(v3);
         }
 
         auto *v2 = nglScratchBuffer().field_48;
@@ -320,7 +320,7 @@ void sub_76DE80()
     nglPerfInfo().field_30 = query_perf_counter();
     g_renderTime() = (nglPerfInfo().field_30.QuadPart - nglPerfInfo().field_28.QuadPart) / PCFreq();
     if ( !nglFrameLock()
-        || nglFrameLockImmediate() && nglVBlankCount() - nglLastFlipVBlank() >= (unsigned int)nglFrameLock() )
+        || (nglFrameLockImmediate() && nglVBlankCount() - nglLastFlipVBlank() >= nglFrameLock()) )
     {
         nglLastFlipCycle() = nglFlipCycle();
         nglFlipCycle() = query_perf_counter().LowPart;
@@ -447,7 +447,7 @@ int __fastcall sub_781EA0(void *a1)
 void nglQueueFlip()
 {
     if ( nglFrameLock()
-        && (!nglFrameLockImmediate() || nglVBlankCount() - nglLastFlipVBlank() < (unsigned int)nglFrameLock() ) )
+        && (!nglFrameLockImmediate() || nglVBlankCount() - nglLastFlipVBlank() < nglFrameLock() ) )
     {
         nglFlipQueued() = true;
     }
@@ -600,7 +600,7 @@ void nglListSend(bool Flip)
         nglScratchBuffer().m_numVertices = 0;
         nglScratchBuffer().field_30 = 0;
 
-        nglScratchBuffer().field_4C.m_vertexBuffer->lpVtbl->Unlock(nglScratchBuffer().field_4C.m_vertexBuffer);
+        nglScratchBuffer().field_4C.getVertexBuffer()->lpVtbl->Unlock(nglScratchBuffer().field_4C.getVertexBuffer());
         nglScratchBuffer().field_48->lpVtbl->Unlock(nglScratchBuffer().field_48);
         
         nglCurScene() = nglRootScene();

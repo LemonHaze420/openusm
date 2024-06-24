@@ -133,11 +133,11 @@ HRESULT nglSetStreamSourceAndDrawPrimitive(nglMeshSection *MeshSection)
     g_MinVertexIndex() = MeshSection->field_4C / stride;
     g_Direct3DDevice()->lpVtbl->SetStreamSource(g_Direct3DDevice(),
                                                 0,
-                                                MeshSection->field_3C.m_vertexBuffer,
+                                                MeshSection->field_3C.getVertexBuffer(),
                                                 0,
                                                 stride);
 
-    dword_972964() = MeshSection->field_3C.m_vertexBuffer;
+    dword_972964() = MeshSection->field_3C.getVertexBuffer();
 
     HRESULT result;
 

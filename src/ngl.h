@@ -72,8 +72,8 @@ struct nglTexture {
     uint32_t m_format;
     D3DFORMAT m_d3d_format;
     nglTextureFileFormat field_14;
-    uint32_t m_width;
-    uint32_t m_height;
+    int m_width;
+    int m_height;
     uint32_t m_numLevel;
     D3DLOCKED_RECT field_24;
     int field_2C;
@@ -199,15 +199,40 @@ enum ResourceType {
 
 struct nglVertexBuffer 
 {
-    union {
+    struct vertex_buffer_t
+    {
+        char *m_vertexData;
+        uint32_t Size;
+        IDirect3DVertexBuffer9 *m_vertexBuffer;
+    };
+
+    union buffer_union {
         IDirect3DIndexBuffer9 *m_indexBuffer;
-        struct
-        {
-            char *m_vertexData;
-            uint32_t Size;
-            IDirect3DVertexBuffer9 *m_vertexBuffer;
-        };
+        vertex_buffer_t m_vtxBuffer;
     }; 
+
+    buffer_union m_buffer;
+
+    auto & getIndexBuffer() {
+        return m_buffer.m_indexBuffer;
+    }
+
+    char * getVertexData() {
+        return this->m_buffer.m_vtxBuffer.m_vertexData;
+    }
+
+    auto getSize() const {
+        return this->m_buffer.m_vtxBuffer.Size;
+    }
+
+    void setVertexData(char *data) {
+        this->m_buffer.m_vtxBuffer.m_vertexData = data;
+    }
+
+    auto & getVertexBuffer() {
+        return m_buffer.m_vtxBuffer.m_vertexBuffer;
+    }
+
 
     //0x007707D0
     bool createIndexBufferAndWriteData(const void *a2, int a3);

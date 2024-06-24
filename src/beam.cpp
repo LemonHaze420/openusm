@@ -57,7 +57,7 @@ void beam::_render(Float a1)
                 vector3d v45[3] {
                                 vector3d {0.0, 0.0, this->field_A8},
                                 vector3d {0.0, 0.0, this->field_78},
-                                vector3d {(0.0 - minus_result[1]) * v52, minus_result[0] * v52, 0.0}
+                                vector3d {static_cast<float>((0.0 - minus_result[1]) * v52), minus_result[0] * v52, 0.0}
                                 };
 
                 vector3d v44[4] {};
@@ -119,7 +119,7 @@ void beam::_render(Float a1)
 
                 auto *v33 = Iter.field_4->field_4;
                 if ( (v33->Flags & 0x40000) == 0 ) {
-                    v33->field_3C.m_vertexBuffer->lpVtbl->Unlock(v33->field_3C.m_vertexBuffer);
+                    IDirect3DVertexBuffer9_Unlock(v33->field_3C.getVertexBuffer());
                 }
 
                 nglMaterialBase *v36 = ( this->my_material != nullptr
@@ -141,7 +141,7 @@ void beam::_render(Float a1)
 
                 auto *v40 = Iter.field_4->field_4;
                 if ( (v40->Flags & 0x40000) == 0 ) {
-                    v40->field_3C.m_vertexBuffer->lpVtbl->Unlock(v40->field_3C.m_vertexBuffer);
+                    IDirect3DVertexBuffer9_Unlock(v40->field_3C.getVertexBuffer());
                 }
 
 
@@ -196,13 +196,13 @@ void sub_CB4800(const vector3d &a1, const vector3d &arg4, int a3, float a4, void
 
         auto sub_6BAED0 = [](float a1) { return 1.0 / std::sqrt(a1); };
 
-        if (v38 != 0.0) {
+        if (not_equal<float>(v38, 0.0f)) {
             auto v17 = 0.5 * a4;
 
             v40 *= sub_6BAED0(v38) * v17;
         }
 
-        if (v37 != 0.0) {
+        if (not_equal<float>(v37, 0.0f)) {
             auto v18 = 0.5 * a4;
             v39 *= sub_6BAED0(v37) * v18;
         }
