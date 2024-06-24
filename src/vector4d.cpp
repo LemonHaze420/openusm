@@ -260,10 +260,10 @@ vector4d operator-(const vector4d &a2) {
 
 bool vector4d::operator==(const vector4d &a2) const
 {
-    return this->x == a2.x
-            && this->y == a2.y
-            && this->z == a2.z
-            && this->w == a2.w;
+    return equal(this->x, a2.x)
+            && equal(this->y, a2.y)
+            && equal(this->z, a2.z)
+            && equal(this->w, a2.w);
 }
 
 float AbsSquared(const vector4d &a1) {

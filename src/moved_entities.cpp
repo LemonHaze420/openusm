@@ -21,7 +21,7 @@ void moved_entities::add_moved(vhandle_type<entity> e_arg) {
     
     if constexpr(1)
     {
-        static vhandle_type<entity> INVALID_VHANDLE{};
+        [[maybe_unused]] static vhandle_type<entity> INVALID_VHANDLE{};
         //assert(e_arg != INVALID_VHANDLE);
 
         auto *e = e_arg.get_volatile_ptr();

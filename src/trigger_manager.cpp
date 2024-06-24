@@ -53,11 +53,11 @@ void trigger_manager::update_trigger(trigger **a1, trigger_struct *a2, int a3)
     auto *tmp = *a1;
     assert(tmp != nullptr);
 
-    if ( tmp->is_box_trigger()
+    if ( (tmp->is_box_trigger()
         && bit_cast<box_trigger *>(tmp)->field_58.get_volatile_ptr() != nullptr
-        && bit_cast<box_trigger *>(tmp)->get_box_ent() == nullptr
-        || tmp->is_entity_trigger()
-        && bit_cast<entity_trigger *>(tmp)->get_ent() == nullptr )
+        && bit_cast<box_trigger *>(tmp)->get_box_ent() == nullptr)
+        || (tmp->is_entity_trigger()
+        && bit_cast<entity_trigger *>(tmp)->get_ent() == nullptr) )
     {
         this->remove(a1);
     }

@@ -399,7 +399,7 @@ bool collide_line_with_plane_infinite(
     }
 
     auto v11 = a3 * v7 + v13 * a4 + v14 * a5;
-    if (0.0f == v11) {
+    if (equal(0.0f, v11)) {
         return false;
     }
 

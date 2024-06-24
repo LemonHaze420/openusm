@@ -47,10 +47,10 @@ bool script_controller::is_button_pressed(int a1) const
     auto *device = input_mgr::instance->get_device_from_map(v3);
     if ( device != nullptr )
     {
-        if ( 1.0f != device->get_axis_state(22, 0) )
+        if ( not_equal(1.0f, device->get_axis_state(22, 0)) )
         {
             auto v7 = device->get_axis_id(a1);
-            if ( 1.0f == device->get_axis_delta(v7, 0) ) {
+            if ( equal(1.0f, device->get_axis_delta(v7, 0)) ) {
                 return true;
             }
         }
@@ -69,7 +69,7 @@ float script_controller::get_axis_position(int a1) const
     auto *device = input_mgr::instance->get_device_from_map_internal(v3);
     if ( device != nullptr
         && device->get_id() != -1
-        && 1.0f != device->get_axis_state(22, 0) )
+        && not_equal(1.0f, device->get_axis_state(22, 0)) )
     {
         auto v6 = device->get_axis_id(a1);
         return device->get_axis_state(v6, 0);

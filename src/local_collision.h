@@ -37,7 +37,7 @@ struct intersection_list_t {
     void *intersection_node;
     void *field_2C;
 
-    intersection_list_t();
+    intersection_list_t() = default;
 };
 
 struct query_args_t {
@@ -49,7 +49,7 @@ struct query_args_t {
     entity *field_2C;
     entity *field_30;
 
-    query_args_t();
+    query_args_t() = default;
 
     void set_entity(entity *a2);
 };

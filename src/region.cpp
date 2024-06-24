@@ -54,7 +54,7 @@ void * region::operator new(uint32_t)
         all_regions = static_cast<region *>(arch_memalign(4u, sizeof(region) * MAX_ALLOCATABLE_REGIONS));
     }
 
-    assert(number_of_allocated_regions < MAX_ALLOCATABLE_REGIONS);
+    assert(number_of_allocated_regions < static_cast<int>(MAX_ALLOCATABLE_REGIONS));
 
     return &all_regions[number_of_allocated_regions++];
 }
@@ -309,12 +309,12 @@ void region::get_region_extents(vector3d *min_extent, vector3d *max_extent) cons
 
     this->obb->get_extents(min_extent, max_extent);
 
-    assert(min_extent->x != FLT_MAX
-            && min_extent->y != FLT_MAX
-            && min_extent->z != FLT_MAX
-            && max_extent->x != -FLT_MAX
-            && max_extent->y != -FLT_MAX
-            && max_extent->z != -FLT_MAX);
+    assert(not_equal(min_extent->x, FLT_MAX)
+            && not_equal(min_extent->y, FLT_MAX)
+            && not_equal(min_extent->z, FLT_MAX)
+            && not_equal(max_extent->x, -FLT_MAX)
+            && not_equal(max_extent->y, -FLT_MAX)
+            && not_equal(max_extent->z, -FLT_MAX));
 }
 
 ai_region_paths *region::get_region_path_graph()
@@ -460,7 +460,7 @@ region *region::get_neighbor(int neighbor_index) const
 {
     assert(neighbor_index >= 0);
 
-    assert(neighbor_index < this->neighbors.size());
+    assert(static_cast<size_t>(neighbor_index) < this->neighbors.size());
 
     auto v4 = this->neighbors[neighbor_index];
     auto *the_terrain = g_world_ptr->get_the_terrain();

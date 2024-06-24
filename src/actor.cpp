@@ -88,7 +88,7 @@ void actor::common_construct()
     this->m_damage_interface = nullptr;
     this->m_physical_interface = nullptr;
     this->m_traffic_light_interface = nullptr;
-    this->field_88 = 0;
+    this->field_88 = nullptr;
     this->adv_ptrs = nullptr;
     this->anim_ctrl = nullptr;
     this->m_skeleton= nullptr;

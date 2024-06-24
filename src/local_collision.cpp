@@ -130,17 +130,6 @@ VALIDATE_SIZE(query_args_t, 0x34);
 
 VALIDATE_SIZE(intersection_list_t, 0x30);
 
-intersection_list_t::intersection_list_t()
-{
-    std::memset(this, 0, sizeof(intersection_list_t));
-}
-
-query_args_t::query_args_t()
-{
-    std::memset(this, 0, sizeof(query_args_t));
-    this->initialized_flags = 0;
-}
-
 void local_collision::query_args_t::set_entity(entity *a2)
 {
     this->field_2C = a2;
@@ -404,7 +393,7 @@ bool sub_50D220(const vector3d &a1, const vector3d &a2, entity *a3)
         &a8,
         nullptr,
         false)
-        || a3 && a3 == a8;
+        || (a3 != nullptr && a3 == a8);
 }
 
 bool local_collision::collision_pair_matches_query_constraints(

@@ -14,11 +14,14 @@ tlInstanceBank::Node *tlInstanceBank::NewNodeOfLevel(int a1) {
 VALIDATE_SIZE(tlInstanceBank, 0x14);
 VALIDATE_SIZE(tlInstanceBank::Node, 0x2C);
 
-void tlInstanceBank::Init() {
+void tlInstanceBank::Init()
+{
     if (this->field_0 == nullptr) {
         this->field_0 = this->NewNodeOfLevel(0);
 
-        memset(&this->field_0->field_0, 255, 32);
+        for (int i = 0; i < 32; ++i) {
+            bit_cast<uint8_t *>(&this->field_0->field_0)[i] = 0xFF;
+        }
 
         this->field_C = rand();
         this->field_8 = 7;

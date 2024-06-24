@@ -47,6 +47,8 @@ void sound_manager::create_inst() {
 
 void sound_manager::delete_inst()
 {
+    TRACE("sound_manager::delete_inst");
+
     CDECL_CALL(0x00543EF0);
 }
 

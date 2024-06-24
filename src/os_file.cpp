@@ -469,7 +469,7 @@ int os_file::write(const void *lpBuffer, int nNumberOfBytesToWrite) {
                 this->sub_58DF50();
             }
 
-            std::memcpy((char *) lpBuffer + this->field_2C, buffer, v3);
+            std::memcpy(bit_cast<char *>(lpBuffer) + this->field_2C, buffer, v3);
             auto v11 = this->field_1C;
             auto v12 = v3 + nNumberOfBytesToWrite;
             this->field_2C += v3;

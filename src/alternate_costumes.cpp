@@ -80,9 +80,9 @@ void alternate_costumes::sub_640510(int idx) {
 bool alternate_costumes::sub_614AC0(int a1) {
     mString v4{"gv_unlockable_costumes"};
 
-    auto *v2 = (float *) script_manager::get_game_var_address(v4, nullptr, nullptr);
+    auto *v2 = bit_cast<float *>(script_manager::get_game_var_address(v4, nullptr, nullptr));
 
-    return (v2[a1] == 1.0f);
+    return equal(v2[a1], 1.0f);
 }
 
 void alternate_costumes::onActivate() {

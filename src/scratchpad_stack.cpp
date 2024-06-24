@@ -84,6 +84,8 @@ void scratchpad_stack::initialize()
 
 void scratchpad_stack::term()
 {
+    TRACE("scratchpad_stack::term");
+
     stk().free();
     stk().segment = nullptr;
 }

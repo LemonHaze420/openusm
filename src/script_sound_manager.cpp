@@ -3,6 +3,7 @@
 #include "common.h"
 #include "func_wrapper.h"
 #include "string_hash.h"
+#include "trace.h"
 #include "variable.h"
 
 #include "common.h"
@@ -75,6 +76,8 @@ void script_sound_manager::create_inst()
 
 void script_sound_manager::delete_inst()
 {
+    TRACE("script_sound_manager::delete_inst");
+
     CDECL_CALL(0x0065F190);
 }
 

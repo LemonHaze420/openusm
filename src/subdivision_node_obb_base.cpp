@@ -314,8 +314,8 @@ bool subdivision_node_obb_base::sphere_intersection(const vector3d &center, Floa
         auto v6 = this->field_4[1];
         auto v14 = this->field_4[0];
         auto v7 = this->field_4[2];
-        auto v15 = v6;
-        auto v16 = v7;
+        [[maybe_unused]] auto v15 = v6;
+        [[maybe_unused]] auto v16 = v7;
 
         vector4d a1{};
         a1[1] = v6;
@@ -331,7 +331,7 @@ bool subdivision_node_obb_base::sphere_intersection(const vector3d &center, Floa
         a3[0] = a3[0] - a1[0];
         v15 = a3[1];
         v16 = v8;
-        auto v17 = a3[3];
+        [[maybe_unused]] auto v17 = a3[3];
         a3[1] = a3[1] - v6;
         a3[2] = v8 - a1[2];
         a3[3] = a3[3] - a1[3];

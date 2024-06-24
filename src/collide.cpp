@@ -253,7 +253,7 @@ int collide_segment_hollow_sphere(
             }
 
             result = v14;
-        } else if (a4 * a4 == local_vec1.length2()) {
+        } else if (equal<float>(a4 * a4, local_vec1.length2())) {
             *a5 = a1;
             result = 1;
         } else {

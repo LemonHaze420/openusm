@@ -15,10 +15,10 @@ actor_interface::actor_interface(actor *a2) : generic_interface()
 }
 
 void actor_interface::un_mash(
-        generic_mash_header *a2,
+        generic_mash_header *,
         void *a3,
-        void *a4,
-        generic_mash_data_ptrs *a5)
+        void *,
+        generic_mash_data_ptrs *)
 {
     this->my_actor = static_cast<actor *>(a3);
     this->dynamic = false;

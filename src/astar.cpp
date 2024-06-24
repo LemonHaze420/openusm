@@ -8,7 +8,7 @@ VALIDATE_SIZE(astar_search_record, 0x24);
 
 astar_node *pop_star_priority_queue(astar_priority_queue &a1)
 {
-    return (astar_node *) CDECL_CALL(0x0047F760, &a1);
+    return bit_cast<astar_node *>(CDECL_CALL(0x0047F760, &a1));
 }
 
 bool is_astar_priority_queue_empty(astar_priority_queue &a1)
@@ -33,7 +33,7 @@ void astar_search_record::setup(void *search_start,
         this->path_goal_to_start = a4;
         this->field_1C = false;
         this->goal_found = false;
-        assert(get_astar_node_handle( search_start ) == SLOT_POOL_INVALID_HANDLE);
+        assert(get_astar_node_handle( search_start ) == static_cast<int>(SLOT_POOL_INVALID_HANDLE));
 
         this->create_or_update_astar_node(search_start, 0, 0.0);
 
