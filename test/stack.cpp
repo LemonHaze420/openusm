@@ -1,19 +1,26 @@
 #include <gtest/gtest.h>
 
-#include <vm_stack.h>
+#include <stack.hpp>
 
-TEST(chuck, vm_stack)
+TEST(StdStack, Construct)
 {
-    vm_stack stack {nullptr};
+    _std::stack<int> stack {};
     EXPECT_EQ(stack.size(), 0);
+}
 
-    vm_num_t num {1};
-    stack.push(num);
+TEST(StdStack, Push)
+{
+    _std::stack<int> stack {};
 
-    EXPECT_EQ(stack.size(), sizeof(vm_num_t));
+    stack.push(10);
+    EXPECT_EQ(stack.size(), 1);
+}
 
-    vm_num_t num1 = stack.pop_num();
+TEST(StdStack, Pop)
+{
+    _std::stack<int> stack {};
+    stack.push(10);
 
-    EXPECT_EQ(num1, num);
+    stack.pop();
     EXPECT_EQ(stack.size(), 0);
 }
