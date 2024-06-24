@@ -4,7 +4,11 @@
 
 struct fixed_allocator_base : allocator_base
 {
-    virtual void *alloc(int size) override;
+    fixed_allocator_base(int align);
 
-    virtual void release(void *mem) override;
+    //virtual
+    void *alloc(int size) /* override */;
+
+    //virtual
+    void release(void *mem) /* override */;
 };
