@@ -31,11 +31,12 @@ ConsoleVariable::ConsoleVariable()
 
 static constexpr auto MAX_VARIABLE_NAME_LEN = 32;
 
-void ConsoleVariable::setValue(const std::string &, const std::string &) {
+void ConsoleVariable::setValue(const std::string &) {
     ;
 }
 
-void ConsoleVariable::setValue(const std::string &) {
+
+void ConsoleVariable::setValue(const std::string &, const std::string &) {
     ;
 }
 

@@ -25,7 +25,7 @@ std::stack<tokenizer *> s_exec_tok_stack{};
 
 float s_exec_tick{0};
 
-Console *g_console = nullptr;
+std::unique_ptr<Console> g_console {};
 
 static void (*kbevcb)(KeyEvent, Key_Axes, void *) = nullptr;
 
@@ -142,7 +142,7 @@ void Console::operator delete(void *ptr, size_t size)
 void Console::addToCommandLog(const char *a1) {
     this->m_command_log.push_front(mString{a1});
 
-    while (this->m_command_log.size() > this->field_234) {
+    while (static_cast<int>(this->m_command_log.size()) > this->field_234) {
 
         this->m_command_log.pop_back();
     }
@@ -627,11 +627,11 @@ void Console::handle_event(KeyEvent a2, Key_Axes a3, [[maybe_unused]] void *a4) 
         case KB_UP:
             if (this->m_visible && this->m_command_log.size()) {
                 ++this->cmdLogNumber;
-                while (this->cmdLogNumber > 0 && this->cmdLogNumber > this->m_command_log.size()) {
+                while (this->cmdLogNumber > 0 && this->cmdLogNumber > static_cast<int>(this->m_command_log.size())) {
                     --this->cmdLogNumber;
                 }
 
-                if (this->cmdLogNumber > 0 && this->cmdLogNumber <= this->m_command_log.size()) {
+                if (this->cmdLogNumber > 0 && this->cmdLogNumber <= static_cast<int>(this->m_command_log.size())) {
                     auto it = this->m_command_log.begin();
                     auto end = this->m_command_log.end();
                     for (auto j = this->cmdLogNumber - 1; j > 0; --j) {
@@ -772,14 +772,12 @@ void terrain_types_manager_create_inst()
 {
     CDECL_CALL(0x005C54B0);
 
-    g_console = new Console {};
+    g_console = std::make_unique<Console>();
 }
 
 void terrain_types_manager_delete_inst()
 {
     CDECL_CALL(0x005BA680);
-
-    delete g_console;
 }
 
 void __fastcall FEManager_Update(void *self, void *edx, Float a2)

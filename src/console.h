@@ -8,6 +8,7 @@
 #include <list>
 #include <stack>
 #include <string>
+#include <memory>
 
 struct tokenizer;
 struct color32;
@@ -94,7 +95,7 @@ extern char KB_register_event_callback(void (*a1)(KeyEvent, Key_Axes, void *), v
 
 extern void render_console_text(const mString &a1, vector2di a2, const color32 &a4);
 
-extern Console *g_console;
+extern std::unique_ptr<Console> g_console;
 
 extern std::stack<tokenizer *> s_exec_tok_stack;
 

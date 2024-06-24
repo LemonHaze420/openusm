@@ -326,6 +326,8 @@ game::game()
 
 game::~game()
 {
+    TRACE("game::~game");
+
     if constexpr (1)
     {
         if ( this->gamefile != nullptr ) {
@@ -514,14 +516,6 @@ void game::one_time_deinit_stuff()
     {
         tlFixedString a1{"vcl_car_shadow"};
         nglReleaseMeshFile(a1);
-    }
-
-    {
-        if (g_console != nullptr) {
-            mem_dealloc(g_console, sizeof(Console));
-        }
-
-        g_console = nullptr;
     }
 
     this->field_B4 = nullptr;
@@ -762,7 +756,7 @@ void game::one_time_init_stuff()
         resource_manager::add_resource_pack_modified_callback(game_packs_modified_callback);
 
         if (g_console == nullptr) {
-            g_console = new Console {};
+            g_console = std::make_unique<Console>();
         }
 
         tlFixedString a1 {"dropshadow"};
@@ -1018,7 +1012,7 @@ void sub_5C6700([[maybe_unused]] chunk_file &a1, const mString &a2)
     v4.remove_trailing(" \n\t\r");
     if ( v4.size() != 0 )
     {
-        if ( byte_96852C() || a2.find(" ", 0) == -1 && a2.find("\t", 0) == -1 )
+        if ( byte_96852C() || (a2.find(" ", 0) == -1 && a2.find("\t", 0) == -1) )
         {
             result = a2 + stru_969DE0();
         }
@@ -1042,7 +1036,7 @@ camera * get_scene_analyzer_cam()
 
 void sub_5975C0(const char *Format, bool a2, bool a3)
 {
-    if ( os_developer_options::instance->get_flag(static_cast<os_developer_options::flags_t>(128)) && OpenClipboard(0) )
+    if ( os_developer_options::instance->get_flag(static_cast<os_developer_options::flags_t>(128)) && OpenClipboard(nullptr) )
     {
         char Dest[4096] {};
         if ( a2 )
@@ -1553,38 +1547,38 @@ void game::handle_game_states(const Float &a2)
 
     if constexpr (0)
     {
-        switch (this->get_cur_state()) {
-        case game_state::LEGAL: {
+        switch (static_cast<int>(this->get_cur_state())) {
+        case static_cast<int>(game_state::LEGAL): {
             this->advance_state_legal(a2);
             break;
         }
-        case static_cast<game_state>(2):
+        case 2:
             this->go_next_state();
             break;
-        case static_cast<game_state>(3):
+        case 3:
             this->go_next_state();
             break;
-        case game_state::WAIT_LINK: {
+        case static_cast<int>(game_state::WAIT_LINK): {
             this->advance_state_wait_link(a2);
             break;
         }
-        case game_state::LOAD_LEVEL: {
+        case static_cast<int>(game_state::LOAD_LEVEL): {
             this->advance_state_load_level(a2);
             break;
         }
-        case game_state::RUNNING:
+        case static_cast<int>(game_state::RUNNING):
             this->advance_state_running(a2);
             break;
-        case game_state::PAUSED:
+        case static_cast<int>(game_state::PAUSED):
             this->advance_state_paused(a2);
             break;
-        case static_cast<game_state>(8): {
+        case 8: {
             nglBeginHiresScreenShot(hires_screenshot::params::width(),
                                     hires_screenshot::params::height());
             this->go_next_state();
             break;
         }
-        case static_cast<game_state>(9): {
+        case 9: {
             if (!nglSaveHiresScreenshot()) {
                 this->go_next_state();
             }
@@ -1592,17 +1586,17 @@ void game::handle_game_states(const Float &a2)
             this->advance_state_paused(a2);
             break;
         }
-        case static_cast<game_state>(10):
-        case static_cast<game_state>(11):
+        case 10:
+        case 11:
             this->advance_state_paused(a2);
             this->go_next_state();
             break;
-        case static_cast<game_state>(12):
-        case static_cast<game_state>(13): {
+        case 12:
+        case 13: {
             this->go_next_state();
             break;
         }
-        case static_cast<game_state>(14):
+        case 14:
             this->pop_process();
             break;
         default:
@@ -1979,8 +1973,8 @@ void game::load_this_level()
         }
 
 
-        if (v86.m[1][0] != YVEC[0] || v86.m[1][1] != YVEC[1] ||
-            v86.m[1][2] != YVEC[2])
+        if ( not_equal(v86.m[1][0], YVEC[0]) || not_equal(v86.m[1][1], YVEC[1]) ||
+            not_equal(v86.m[1][2], YVEC[2]) )
 		{
             po v77;
 
@@ -3164,10 +3158,10 @@ bool game::is_button_pressed(int a4) const
 
     if ( device != nullptr )
     {
-        if ( 1.0f != device->get_axis_state(22, 0) )
+        if ( not_equal(1.0f, device->get_axis_state(22, 0)) )
         {
             auto v7 = device->get_axis_id(a4);
-            if ( 1.0f == device->get_axis_delta(v7, 0) ) {
+            if ( equal(1.0f, device->get_axis_delta(v7, 0)) ) {
                 return true;
             }
         }

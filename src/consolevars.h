@@ -10,9 +10,9 @@ struct ConsoleVariable {
 
     virtual ~ConsoleVariable() = default;
 
-    virtual void setValue(const std::string &, const std::string &);
-
     virtual void setValue(const std::string &);
+
+    virtual void setValue(const std::string &, const std::string &);
 
     virtual std::string getValue();
 
@@ -32,6 +32,7 @@ extern std::list<ConsoleVariable *> *g_console_vars;
 struct ConsoleHeightVariable : ConsoleVariable {
     ConsoleHeightVariable();
 
+    using ConsoleVariable::setValue;
     virtual void setValue(const std::string &a2) override;
 
     virtual std::string getValue() override;
@@ -44,6 +45,7 @@ struct ConsoleHeightVariable : ConsoleVariable {
 struct HealthVariable : ConsoleVariable {
     HealthVariable();
 
+    using ConsoleVariable::setValue;
     void setValue(const std::string &arg0, const std::string &a1) override;
 
     void setValue(const std::string &arg0) override;
@@ -54,6 +56,7 @@ struct HealthVariable : ConsoleVariable {
 struct RenderFramerateVariable : ConsoleVariable {
     RenderFramerateVariable();
 
+    using ConsoleVariable::setValue;
     void setValue(const std::string &a1) override;
 
     std::string getValue() override;
@@ -66,6 +69,7 @@ struct RenderFramerateVariable : ConsoleVariable {
 struct RenderInterfaceVariable : ConsoleVariable {
     RenderInterfaceVariable();
 
+    using ConsoleVariable::setValue;
     void setValue(const std::string &a1) override;
 
     std::string getValue() override;
@@ -78,6 +82,7 @@ struct RenderInterfaceVariable : ConsoleVariable {
 struct ProjZoomVariable : ConsoleVariable {
     ProjZoomVariable();
 
+    using ConsoleVariable::setValue;
     void setValue(const std::string &a2) override;
 
     std::string getValue() override;
@@ -90,6 +95,7 @@ struct ProjZoomVariable : ConsoleVariable {
 struct DifficultyVariable : ConsoleVariable {
     DifficultyVariable();
 
+    using ConsoleVariable::setValue;
     void setValue(const std::string &a2) override;
 
     std::string getValue() override;
@@ -105,9 +111,10 @@ struct DisableOcclusionCullingVariable : ConsoleVariable {
         setName("disable_occlusion_culling");
     }
 
-    void setValue(const std::string &a2) override;
+    using ConsoleVariable::setValue;
+    virtual void setValue(const std::string &a2) override;
 
-    std::string getValue() override;
+    virtual std::string getValue() override;
 
     const char *helpText() override {
         return "1 = disable entity culling, 2 = disable terrain culling, 3 = disable both";
