@@ -58,22 +58,8 @@ void us_lighting_switch_time_of_day(int a1)
                 {
                     usl_skydomes()[i]->set_ext_flag_recursive(static_cast<entity_ext_flag_t>(0x200000), true);
 
-                    {
-                        auto *v9 = &g_world_ptr->field_23C;
-                        auto *head = v9->m_head;
-
-                        decltype(head) (__fastcall *_Buynode)(void *, void *,
-                                                decltype(head) a1,
-                                                decltype(head) a2,
-                                                entity **a3) = CAST(_Buynode, 0x006B78D0);
-                        decltype(head) v10 = _Buynode(v9, nullptr, head, head->_Prev, &v5);
-
-                        void (__fastcall *_Incsize)(void *, void *, uint32_t) = CAST(_Incsize, 0x00413D70);
-                        _Incsize(v9, nullptr, 1u);
-
-                        head->_Prev = v10;
-                        v10->_Prev->_Next = v10;
-                    }
+                    auto &v9 = g_world_ptr->field_23C;
+                    v9.push_back(v5);
 
                     auto *v11 = v5;
                     v11->set_fade_distance(1000000.0);
@@ -82,10 +68,9 @@ void us_lighting_switch_time_of_day(int a1)
                         auto *v14 = bit_cast<conglomerate *>(v5)->field_100;
                         if ( v14 != nullptr )
                         {
-                            auto size = v14->size();
-                            if ( size != 0 )
+                            if ( v14->size() != 0 )
                             {
-                                usl_suns()[i] = v14->m_head->_Next->_Myval;
+                                usl_suns()[i] = v14->front();
                             }
                         }
                     }
