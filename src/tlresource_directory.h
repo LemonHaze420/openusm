@@ -11,6 +11,16 @@ template<typename T0, typename T1>
 struct tlresource_directory : tlResourceDirectory<T0, T1> {
     resource_directory *field_4;
 
+    tlresource_directory();
+
+    void clear() {
+        this->field_4 = nullptr;
+    }
+
+    void set_resource_directory(resource_directory *dir) {
+        this->field_4 = dir;
+    }
+
     T0 *Find(const T1 &);
 
     T0 *Find(uint32_t a2);

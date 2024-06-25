@@ -12,9 +12,9 @@ struct rumble_manager;
 struct input_device;
 struct device_axis;
 
-const float AXIS_MAX  = 1.0f;
-const float AXIS_MID  = 0.0f;
-const float AXIS_MIN  = -1.0f;
+inline constexpr float AXIS_MAX  = 1.0f;
+inline constexpr float AXIS_MID  = 0.0f;
+inline constexpr float AXIS_MIN  = -1.0f;
 
 enum device_id_t {
     INVALID_DEVICE_ID = -1,
@@ -39,8 +39,7 @@ struct input_mgr : singleton {
     bool field_26;
     float (*m_state_callback)(int);
     float (*m_delta_callback)(int);
-    void *field_30[1];
-    int empty1[7];
+    void *field_30[8];
     input_device *keyboard_devices[MAX_KEYBOARD_DEVICES];
     input_device *mouse_devices[MAX_MOUSE_DEVICES];
     device_id_t field_58;

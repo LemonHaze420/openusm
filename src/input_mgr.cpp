@@ -43,15 +43,55 @@ int DEVICE_ID_TO_MOUSE_INDEX(int id) {
 }
 
 
-input_mgr::input_mgr() {
-    THISCALL(0x005E0EA0, this);
+input_mgr::input_mgr()
+{
+    if constexpr (0)
+    {
+        this->m_vtbl = 0x0089165C;
+        this->field_24 = false;
+        this->field_25 = false;
+        this->field_26 = false;
+        this->field_58 = INVALID_DEVICE_ID;
+        this->field_20 = 0;
+
+        for (int i = 0; i < 8; ++i) {
+            this->field_30[i] = nullptr;
+        }
+
+        this->keyboard_devices[0] = nullptr;
+        this->mouse_devices[0] = nullptr;
+        this->scan_devices();
+
+        this->rumble_ptr = new rumble_manager {};
+        this->field_24 = false;
+        this->field_25 = false;
+        this->field_26 = true;
+        this->m_state_callback = nullptr;
+        this->m_delta_callback = nullptr;
+    }
+    else
+    {
+        THISCALL(0x005E0EA0, this);
+    }
 }
 
 input_mgr::~input_mgr()
 {
     TRACE("input_mgr::~input_mgr");
 
-    THISCALL(0x005E0870, this);
+    if constexpr (0)
+    {
+        this->m_vtbl = 0x0089165C;
+        if ( this->rumble_ptr != nullptr ) {
+            delete rumble_ptr;
+        }
+
+        this->rumble_ptr = nullptr;
+    }
+    else
+    {
+        THISCALL(0x005E0870, this);
+    }
 }
 
 void * input_mgr::operator new(size_t size) {

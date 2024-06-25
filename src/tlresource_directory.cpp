@@ -85,6 +85,29 @@ make_var(nalAnimClass<nalAnyPose>, tlFixedString, 0x009609C4);
 
 #undef make_var
 
+#define constructor_tlresource_directory(T0, T1, vtbl) \
+    template<> \
+    tlresource_directory<T0, T1>::tlresource_directory() \
+    { \
+        this->m_vtbl = vtbl; \
+        this->field_4 = nullptr; \
+    }
+
+constructor_tlresource_directory(nglTexture, tlFixedString, 0x00889648)
+constructor_tlresource_directory(nglMeshFile, tlFixedString, 0x00889674)
+constructor_tlresource_directory(nglMesh, tlHashString, 0x008896A0)
+constructor_tlresource_directory(nglMorphSet, tlHashString, 0x008896CC)
+constructor_tlresource_directory(nglMorphFile, tlFixedString, 0x008896F8)
+constructor_tlresource_directory(nglMaterialBase, tlHashString, 0x00889724)
+constructor_tlresource_directory(nglMaterialFile, tlFixedString, 0x00889750)
+constructor_tlresource_directory(nalAnimFile, tlFixedString, 0x0088977C)
+constructor_tlresource_directory(nalAnimClass<nalAnyPose>, tlFixedString, 0x008897A8)
+constructor_tlresource_directory(nalSceneAnim, tlFixedString, 0x008897D4)
+constructor_tlresource_directory(nalBaseSkeleton, tlFixedString, 0x00889800)
+
+#undef constructor_tlresource_directory
+
+
 template<>
 int tlresource_directory<nglMesh, tlHashString>::tlres_type = 3;
 
