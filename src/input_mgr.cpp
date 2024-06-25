@@ -209,8 +209,9 @@ float input_mgr::get_control_state(int control, device_id_t a3) const
 
     if constexpr (0)
     {
-#if 0
-        auto it = this->control_map.find(a2);
+#if 1 
+        auto it = this->control_map.find(control);
+        assert(it != this->control_map.end());
 #else
 
         auto it = [this, control]() {
@@ -292,9 +293,13 @@ void input_mgr::insert_device(input_device *a2)
         auto *v2 = a2;
         auto id = a2->get_id();
 
-        input_device ** (__fastcall *insert)(void *, void *edx, const device_id_t *) = CAST(insert, 0x005E8400);
-        auto found_device = insert(&this->field_8, nullptr, &id);
-        *found_device = v2;
+        if constexpr (1) {
+            input_device ** (__fastcall *insert)(void *, void *edx, const device_id_t *) = CAST(insert, 0x005E8400);
+            auto found_device = insert(&this->device_map, nullptr, &id);
+            *found_device = v2;
+        } else {
+            this->device_map[id] = v2;
+        }
         
         if ( IS_JOYSTICK_DEVICE(v2->get_id()) ) {
             *((DWORD *)&this[0xFFFF562B] + v2->get_id() - 0x11) = (DWORD)v2;
@@ -318,14 +323,27 @@ void input_mgr::set_control_delta_monkey_callback(float (*a2)(int)) {
     this->m_delta_callback = a2;
 }
 
-input_device *input_mgr::get_device_from_map_internal(device_id_t a2) const
+input_device *input_mgr::get_device_from_map_internal(device_id_t id) const
 {
     if constexpr (0)
     {
+        for ( auto &p : this->device_map )
+        {
+            auto *d = p.second;
+            if ( d != nullptr )
+            {
+                if ( d->get_id() == id ) {
+                    return d;
+                }
+            }
+        }
+
+        return nullptr;
     }
     else
     {
-        return (input_device *) THISCALL(0x005D59B0, this, a2);
+        input_device * (__fastcall *func)(const void *, void *edx, device_id_t id) = CAST(func, 0x005D59B0);
+        return func(this, nullptr, id);
     }
 }
 
@@ -333,12 +351,12 @@ void input_mgr::poll_devices()
 {
     TRACE("input_mgr::poll_devices");
 
-    sp_log("%d", this->field_8.size());
+    sp_log("%d", this->device_map.size());
 
     if constexpr (0)
     {
 
-        for (auto &dev : this->field_8) {
+        for (auto &dev : this->device_map) {
             dev.second->poll();
         }
 
@@ -501,28 +519,22 @@ void input_mgr::clear_mapping() {
 
 void input_mgr::map_control(int a2, device_id_t a3, int a4)
 {
-    if constexpr (0)
+    TRACE("input_mgr::map_control(int, device_id_t, int)");
+
+    if constexpr (1)
     {
-        int v4 = a3;
-
-        _std::map<device_id_t, input_device *>::iterator it;
-        THISCALL(0x00569CE0, &this->field_8, &it, &a3);
-
-        if (it._Ptr != this->field_8._Myhead) {
-            auto *v6 = it._Ptr->_Myval.second;
-            if (v6 != nullptr)
+        auto *v6 = this->get_device_from_map_internal(a3);
+        if (v6 != nullptr)
+        {
+            device_axis v9;
+            v9.m_device_id = a3;
+            v9.field_8 = a4;
+            v9.field_4 = v6->get_axis_id(a4);
+            if (v9.field_4 != -1)
             {
-                device_axis v9;
-                v9.m_device_id = v4;
-                v9.field_8 = a4;
-                v9.field_4 = v6->get_axis_id(a4);
-                if (v9.field_4 != -1)
-                {
-                    this->map_control(a2, v9);
-                }
+                this->map_control(a2, v9);
             }
         }
-
     }
     else
     {
@@ -530,31 +542,32 @@ void input_mgr::map_control(int a2, device_id_t a3, int a4)
     }
 }
 
-int input_mgr::map_control(int a2, const device_axis &a3) {
+void input_mgr::map_control(int a2, const device_axis &a3)
+{
+    TRACE("input_mgr::map_control");
+
     if constexpr (1)
     {
-        _std::map<int, game_control>::iterator it;
+        auto it = this->control_map.find(a2);
+        assert(it != this->control_map.end());
 
-        THISCALL(0x005E47A0, &this->control_map, &it, &a2);
-
-        using node_t = typename _std::list<device_axis>::_Node;
-
-        auto *list = &it._Ptr->_Myval.second.mapping;
-
-        node_t *v3 = list->m_head;
-
-        auto *v5 = (node_t *) THISCALL(0x005E3A10, list, v3, v3->_Prev, a3);
-        auto result = THISCALL(0x005E3A50, list, 1u);
-        v3->_Prev = v5;
-        v5->_Prev->_Next = v5;
-        return result;
+        auto &list = it._Ptr->_Myval.second.mapping;
+        list.push_back(a3);
     } else {
-        return THISCALL(0x005D8610, this, a2, &a3);
+        void (__fastcall *func)(void *, void *edx, int a2, const device_axis *a3) = CAST(func, 0x005D8610);
+        func(this, nullptr, a2, &a3);
     }
 }
 
 void input_mgr_patch()
 {
+    {
+
+        void (input_mgr::*func)(int , device_id_t , int ) = &input_mgr::map_control;
+        FUNC_ADDRESS(address, func);
+        SET_JUMP(0x005D8660, address);
+    }
+
     {
         FUNC_ADDRESS(address, &input_mgr::poll_devices);
         REDIRECT(0x00557C17, address);

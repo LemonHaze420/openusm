@@ -29,7 +29,7 @@ inline constexpr auto MAX_KEYBOARD_DEVICES = 1;
 struct input_mgr : singleton {
     rumble_manager *rumble_ptr;
 
-    _std::map<device_id_t, input_device *> field_8;
+    _std::map<device_id_t, input_device *> device_map;
     _std::map<int, game_control> control_map;
 
     int field_20;
@@ -96,7 +96,7 @@ struct input_mgr : singleton {
     void map_control(int a2, device_id_t a3, int a4);
 
     //0x005D8610
-    int map_control(int a2, const device_axis &a3);
+    void map_control(int a2, const device_axis &a3);
 
     //0x005EB840
     static void create_inst();
