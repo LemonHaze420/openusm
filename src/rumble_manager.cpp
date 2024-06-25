@@ -3,6 +3,7 @@
 #include "common.h"
 #include "func_wrapper.h"
 #include "input_mgr.h"
+#include "memory.h"
 
 VALIDATE_SIZE(rumble_manager, 0x64);
 
@@ -39,6 +40,14 @@ rumble_manager::rumble_manager() {
     this->field_61 = 0;
     this->field_62 = 0;
     this->field_58 = 15.0;
+}
+
+void * rumble_manager::operator new(size_t size) {
+    return mem_alloc(size);
+}
+
+void rumble_manager::operator delete(void *ptr, size_t size) {
+    mem_dealloc(ptr, size);
 }
 
 void rumble_manager::stop_vibration() {
