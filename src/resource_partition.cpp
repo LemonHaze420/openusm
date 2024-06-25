@@ -30,10 +30,11 @@ resource_partition::resource_partition(resource_partition_enum a2)
 
 resource_partition::~resource_partition()
 {
+    TRACE("resource_partition::~resource_partition");
+
     if constexpr (1)
     {
         this->clear();
-        this->m_pack_slots.clear();
     }
     else
     {
@@ -137,7 +138,7 @@ void resource_partition::push_pack_slot(int memory_amount_to_reserve, void *a3)
 {
     TRACE("resource_partition::push_pack_slot");
 
-    if constexpr (0)
+    if constexpr (1)
     {
         assert(memory_amount_to_reserve > 0);
 
@@ -163,23 +164,7 @@ void resource_partition::push_pack_slot(int memory_amount_to_reserve, void *a3)
         slot->set_memory_area(starting_addr, reserve_size, a3 == nullptr);
         slot->set_partition(this);
 
-        //push_back
-        {
-            auto *pack_slots = &this->m_pack_slots;
-
-            auto size = pack_slots->size();
-            auto capacity = pack_slots->capacity();
-
-            if (size < capacity) {
-                auto *v13 = pack_slots->m_last;
-                *v13 = slot;
-                pack_slots->m_last = v13 + 1;
-            } else {
-                void (__fastcall *_Insert_n)(void *, void *, void *, int, worldly_pack_slot **) = CAST(_Insert_n, 0x0056A260);
-
-                _Insert_n(pack_slots, nullptr, pack_slots->m_last, 1, &slot);
-            }
-        }
+        this->m_pack_slots.push_back(slot);
     }
     else
     {
