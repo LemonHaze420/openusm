@@ -22,7 +22,7 @@ struct _List_nod
 {
     struct _Node;
     friend struct _Node;
-    typedef typename std::allocator_traits<_Alloc>::rebind_alloc<_GENERIC_BASE>::value_type * _Genptr;
+    typedef typename std::allocator_traits<_Alloc>::template rebind_alloc<_GENERIC_BASE>::value_type * _Genptr;
 
     struct _Node {     // list node
         _Genptr _Next; // successor node, or first element if head
@@ -33,7 +33,7 @@ struct _List_nod
     _List_nod(_Alloc _Al) : _Alnod(_Al) { // construct allocator from _Al
     }
 
-    typename std::allocator_traits<_Alloc>::rebind_alloc<_Node> _Alnod; // allocator object for nodes
+    typename std::allocator_traits<_Alloc>::template rebind_alloc<_Node> _Alnod; // allocator object for nodes
 };
 
 template<class _Ty, class _Alloc>
@@ -41,19 +41,19 @@ struct _List_ptr
     : public _List_nod<_Ty, _Alloc> { // base class for _List_val to hold allocator _Alptr
 
     typedef typename _List_nod<_Ty, _Alloc>::_Node _Node;
-    typedef typename std::allocator_traits<_Alloc>::rebind_alloc<_Node>::value_type * _Nodeptr;
+    typedef typename std::allocator_traits<_Alloc>::template rebind_alloc<_Node>::value_type * _Nodeptr;
 
     _List_ptr(_Alloc _Al)
         : _List_nod<_Ty, _Alloc>(_Al), _Alptr(_Al) { // construct base, and allocator from _Al
     }
 
-    typename std::allocator_traits<_Alloc>::rebind_alloc<_Nodeptr> _Alptr; // allocator object for pointers to nodes
+    typename std::allocator_traits<_Alloc>::template rebind_alloc<_Nodeptr> _Alptr; // allocator object for pointers to nodes
 };
 
 template<class _Ty, class _Alloc>
 struct _List_val : public _List_ptr<_Ty, _Alloc> { // base class for list to hold allocator _Alval
 
-    typedef typename std::allocator_traits<_Alloc>::rebind_alloc<_Ty> _Alty;
+    typedef typename std::allocator_traits<_Alloc>::template rebind_alloc<_Ty> _Alty;
 
     _List_val(_Alloc _Al = _Alloc())
         : _List_ptr<_Ty, _Alloc>(_Al), _Alval(_Al) { // construct base, and allocator from _Al

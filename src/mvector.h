@@ -13,9 +13,9 @@ struct mash_info_struct;
 
 template<typename T>
 struct mVector : mContainer_base {
-    T **m_data;
-    int m_max_size;
-    bool field_10;
+    T **m_data {nullptr};
+    int m_max_size {0};
+    bool field_10 {false};
 
     using value_type = T;
 

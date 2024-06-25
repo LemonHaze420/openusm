@@ -371,7 +371,7 @@ double nal_anim_controller::get_total_base_anim_time_in_sec() const
         return v2 * v3->field_0->field_10->field_38;
     } else {
         assert(0);
-        //return v2 * MEMORY[0x38];
+        return 0;
     }
 }
 

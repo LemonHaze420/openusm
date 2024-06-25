@@ -1,4 +1,3 @@
-
 #include <gtest/gtest.h>
 
 #include <mashable_vector.h>
@@ -19,7 +18,7 @@ TEST(MashableVector, UnMash)
     vec.field_7 = true;
 
     int buffer[32] {};
-    new (buffer) int[] {10, 11};
+    new (buffer) int[2] {10, 11};
 
     generic_mash_data_ptrs ptrs {bit_cast<uint8_t *>(&buffer), bit_cast<uint8_t *>(&buffer)};
 

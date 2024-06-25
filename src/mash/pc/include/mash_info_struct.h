@@ -30,7 +30,7 @@ struct mash_info_struct {
     void deductive_align_buffer();
 
     template<typename T>
-    void unmash_class(T *&a2, void *a3)
+    void unmash_class(T *&a2, [[maybe_unused]] void *a3)
 #if 0 
     ;
 #else

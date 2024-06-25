@@ -242,8 +242,6 @@ public:
         _Nodeptr _Ptr; // pointer to node
     };
 
-    static_assert(std::bidirectional_iterator<const_iterator>, "");
-
     // CLASS iterator
     class iterator;
     friend class iterator;

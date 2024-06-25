@@ -2037,7 +2037,7 @@ void create_window(LPCSTR lpClassName,
 
     int y = p_y;
     int x = dwExStyle;
-    DWORD dwExStylea = 0;
+    [[maybe_unused]] DWORD dwExStylea = 0;
     if ((uint8_t) dwStyle) {
         dwStylea = 0x80000000;
         dwExStylea = 8;
@@ -2247,7 +2247,7 @@ LABEL_11:
     initterm(&dword_91B000(), &dword_91D930());
 
     char *i;
-    char *v20;
+    [[maybe_unused]] char *v20;
     for (i = _acmdln;; ++i) {
         v20 = i;
         auto v6 = *i;
@@ -2336,7 +2336,7 @@ HRESULT __stdcall GetDeviceStateHook(IDirectInputDevice8* self, DWORD cbData, LP
 
 	HRESULT res = GetDeviceStateOriginal(self, cbData, lpvData);
 
-	printf("cbData %d %d %d\n", cbData, sizeof(DIJOYSTATE), sizeof(DIJOYSTATE2));
+	printf("cbData %d %d %d\n", int(cbData), sizeof(DIJOYSTATE), sizeof(DIJOYSTATE2));
 
 	//keyboard time babyyy
     if (cbData == 256)
@@ -2599,6 +2599,10 @@ BOOL install_redirects()
 
     app_patch();
 
+    entity_patch();
+
+    fixed_pool_patch();
+
     //standalone patches
     if constexpr (1)
     {
@@ -2652,7 +2656,7 @@ BOOL install_redirects()
         input_mgr_patch();
     }
 
-    if constexpr (1) {
+    if constexpr (0) {
         console_patch();
     } else {
         game_patch();
@@ -2688,6 +2692,19 @@ BOOL install_redirects()
         vm_thread_patch();
 
         vm_executable_patch();
+    }
+
+    if constexpr (1)
+    {
+        resource_pack_streamer_patch();
+
+        resource_partition_patch();
+
+        resource_pack_slot_patch();
+
+        resource_pack_standalone_patch();
+
+        resource_key_patch();
     }
 
     return true;
@@ -2767,8 +2784,6 @@ BOOL install_redirects()
 
         web_polytube_patch();
 
-        entity_patch();
-
         wds_token_manager_patch();
 
         beam_patch();
@@ -2809,19 +2824,6 @@ BOOL install_redirects()
         nglShader_patch();
 
         mission_manager_patch();
-    }
-
-    if constexpr (0)
-    {
-        resource_pack_streamer_patch();
-
-        resource_partition_patch();
-
-        resource_pack_slot_patch();
-
-        resource_pack_standalone_patch();
-
-        resource_key_patch();
     }
 
     if constexpr (0)
