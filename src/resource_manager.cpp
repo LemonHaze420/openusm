@@ -317,26 +317,11 @@ void load_amalgapak()
 
 void add_resource_pack_modified_callback(void (*callback)(_std::vector<resource_key> &))
 {
+    TRACE("resource_manager::add_resource_pack_modified_callback");
+
     assert(callback != nullptr);
 
-    //push_back
-    auto *v18 = resource_pack_modified_callbacks.m_last;
-    auto *a2 = callback;
-    if ( resource_pack_modified_callbacks.size() < resource_pack_modified_callbacks.capacity()
-         )
-    {
-        *resource_pack_modified_callbacks.m_last = a2;
-        resource_pack_modified_callbacks.m_last = v18 + 1;
-    }
-    else
-    {
-        void (__fastcall *_Insert_n)(void *, void *, void *, int, decltype(&callback)) = CAST(_Insert_n, 0x0056A260);
-        _Insert_n(&resource_pack_modified_callbacks,
-                nullptr,
-                resource_pack_modified_callbacks.m_last,
-                1,
-                &a2);
-    }
+    resource_pack_modified_callbacks.push_back(callback);
 }
 
 bool using_amalgapak()
@@ -679,34 +664,16 @@ resource_pack_slot *push_resource_context(resource_pack_slot *pack_slot)
 
         resource_pack_slot *v2 = get_resource_context();
 
-        //push_back
-        if (resource_context_stack.size() < resource_context_stack.capacity())
-        {
-            *resource_context_stack.m_last = pack_slot;
-            ++resource_context_stack.m_last;
-
-        }
-        else
-        {
-            if constexpr (1)
-            {
-                void (__fastcall *func)(void *, void *edx, void *, int, resource_pack_slot **) = CAST(func, 0x0056A260);
-                func(&resource_context_stack, nullptr,
-                     resource_context_stack.m_last,
-                     1,
-                     &pack_slot);
-            }
-            else
-            {
-                resource_context_stack.insert(resource_context_stack.end(), pack_slot);
-            }
-        }
+        resource_context_stack.push_back(pack_slot);
 
         set_active_resource_context(pack_slot);
 
         return v2;
-    } else {
-        return (resource_pack_slot *) CDECL_CALL(0x00542740, pack_slot);
+    }
+    else
+    {
+        resource_pack_slot * (*func)(resource_pack_slot *) = CAST(func, 0x00542740);
+        return func(pack_slot);
     }
 }
 
@@ -797,28 +764,15 @@ resource_pack_slot *pop_resource_context()
         auto *old_context = get_resource_context();
         assert(old_context != nullptr);
 
-#if 0 
-        if (!resource_context_stack.empty())
-        {
-#ifndef TEST_CASE
-            --resource_context_stack.m_last;
-#else
-            resource_context_stack.resize(resource_context_stack.size() - 1);
-#endif
-        }
-    
-#else
-        sp_log("%d", resource_context_stack.size());
         resource_context_stack.pop_back();
-        sp_log("%d", resource_context_stack.size());
-#endif
 
         auto *v0 = get_resource_context();
         set_active_resource_context(v0);
 
         return old_context;
     } else {
-        return (resource_pack_slot *) CDECL_CALL(0x00537530);
+        resource_pack_slot * (*func)() = CAST(func, 0x00537530);
+        return func();
     }
 }
 
@@ -890,7 +844,8 @@ void configure_packs_by_memory_map(int idx)
             }
         }
 
-        for (int i = partitions_size - 1; i >= pop_start_idx; --i) {
+        for (int i = partitions_size - 1; i >= pop_start_idx; --i)
+        {
             resource_buffer_used -= partitions->at(i)->partition_buffer_size;
             auto *part = partitions->back();
             assert(part != nullptr && part->get_streamer() != nullptr);
@@ -903,18 +858,11 @@ void configure_packs_by_memory_map(int idx)
             }
 
             if (part != nullptr) {
-                THISCALL(0x0053DFD0, part);
-                operator delete(part);
+                delete part;
                 part = nullptr;
             }
 
-            if (!partitions->empty()) {
-#ifndef TEST_CASE
-                --partitions->m_last;
-#else
-                partitions->resize(partitions->size() - 1);
-#endif
-            }
+            partitions->pop_back();
         }
 
         assert(static_cast<int>(partitions->size()) == pop_start_idx);
@@ -944,24 +892,7 @@ void configure_packs_by_memory_map(int idx)
                 }
             }
 
-            if constexpr (0)
-            {
-                if (partitions->size() < partitions->capacity())
-                {
-                    auto *v30 = partitions->m_last;
-                    *v30 = new_partition;
-                    partitions->m_last = v30 + 1;
-                }
-                else
-                {
-                    void (__fastcall *_Insert_n)(void *, void *edx, void *, int, resource_partition **) = CAST(_Insert_n, 0x0056A260);
-                    _Insert_n(partitions, nullptr, partitions->m_last, 1, &new_partition);
-                }
-            }
-            else
-            {
-                partitions->push_back(new_partition);
-            }
+            partitions->push_back(new_partition);
         }
 
         assert(partitions->size() == RESOURCE_PARTITION_END &&
