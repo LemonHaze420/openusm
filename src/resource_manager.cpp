@@ -13,6 +13,7 @@
 #include "nfl_system.h"
 #include "ngl.h"
 #include "nlPlatformEnum.h"
+#include "osassert.h"
 #include "os_file.h"
 #include "os_developer_options.h"
 #include "debug_menu.h"
@@ -26,6 +27,37 @@
 #include <cassert>
 #include <numeric>
 
+
+void resource_manager::create_inst()
+{
+    TRACE("resource_manager::create_inst");
+
+    if constexpr (1)
+    {
+        partitions = new _std::vector<resource_partition *> {};
+        partitions->reserve(8u);
+
+        in_use_memory_map = -1;
+        amalgapak_base_offset = -1;
+        amalgapak_id = NFL_FILE_ID_INVALID;
+        memory_maps_count = 0;
+        amalgapak_pack_location_count = 0;
+        amalgapak_pack_location_table = nullptr;
+
+        if (!g_is_the_packer()) {
+            load_amalgapak();
+        }
+
+        resource_buffer = static_cast<uint8_t *>(arch_memalign(4096u, resource_buffer_size));
+        resource_buffer_used = 0;
+        configure_packs_by_memory_map(0);
+
+    }
+    else
+    {
+        CDECL_CALL(0x0055BA30);
+    }
+}
 
 void resource_manager::delete_inst()
 {
@@ -206,8 +238,7 @@ void load_amalgapak()
 
         if (!file.is_open()) {
             auto *v1 = amalgapak_name.c_str();
-            sp_log("Could not open amalgapak file %s!", v1);
-            assert(0);
+            error("Could not open amalgapak file %s!", v1);
         }
 
         resource_amalgapak_header pack_file_header{};
@@ -286,28 +317,6 @@ void load_amalgapak()
             sp_log("Using amalgapak found on the HOST");
         } else {
             sp_log("Using amalgapak found on the CD");
-        }
-
-        if constexpr (0)
-        {
-            printf("amalgapak_base_offset = 0x%08X\n", amalgapak_base_offset);
-                            
-            std::for_each(amalgapak_pack_location_table,
-                    amalgapak_pack_location_table + amalgapak_prerequisite_count,
-                    [](auto &pack_loc) {
-                        auto &key = pack_loc.loc.field_0;
-                        {
-                            printf("%s %s 0x%08X %d\n",
-                                    key.get_platform_name(g_platform).c_str(),
-                                    pack_loc.m_name,
-                                    pack_loc.loc.m_offset,
-                                    pack_loc.loc.m_size);
-                            assert(to_hash(pack_loc.m_name) == key.m_hash.source_hash_code);
-                            //pack_loc.loc.m_offset = 0u;
-                        }
-                    });
-
-            assert(0);
         }
 
     } else {
@@ -776,40 +785,6 @@ resource_pack_slot *pop_resource_context()
     }
 }
 
-void create_inst()
-{
-    TRACE("resource_manager::create_inst");
-
-    if constexpr (1)
-    {
-        using vector_t = std::remove_pointer_t<std::decay_t<decltype(partitions)>>;
-        partitions = new vector_t {};
-
-        partitions->reserve(8u);
-
-        in_use_memory_map = -1;
-        amalgapak_base_offset = -1;
-        amalgapak_id = NFL_FILE_ID_INVALID;
-        memory_maps_count = 0;
-        amalgapak_pack_location_count = 0;
-        amalgapak_pack_location_table = nullptr;
-
-        if (!g_is_the_packer())
-        {
-            load_amalgapak();
-        }
-
-        resource_buffer = static_cast<uint8_t *>(arch_memalign(4096u, resource_buffer_size));
-        resource_buffer_used = 0;
-        configure_packs_by_memory_map(0);
-
-    }
-    else
-    {
-        CDECL_CALL(0x0055BA30);
-    }
-}
-
 void configure_packs_by_memory_map(int idx)
 {
     TRACE("resource_manager::configure_packs_by_memory_map");
@@ -846,7 +821,7 @@ void configure_packs_by_memory_map(int idx)
 
         for (int i = partitions_size - 1; i >= pop_start_idx; --i)
         {
-            resource_buffer_used -= partitions->at(i)->partition_buffer_size;
+            resource_buffer_used -= partitions->at(i)->get_buffer_size();
             auto *part = partitions->back();
             assert(part != nullptr && part->get_streamer() != nullptr);
 
@@ -875,16 +850,16 @@ void configure_packs_by_memory_map(int idx)
             auto &tmp = memory_map.field_10[i];
 
             new_partition->field_0 = tmp.field_4;
-            new_partition->partition_buffer_size = tmp.field_C *
-                tmp.field_8;
+            new_partition->set_buffer_size(tmp.field_C *
+                tmp.field_8);
 
-            assert((new_partition->partition_buffer_size + resource_buffer_used <=
+            assert((new_partition->get_buffer_size() + resource_buffer_used <=
                     resource_buffer_size) &&
                    "Verify we have room for this partition");
         
-            new_partition->partition_buffer_used = 0;
-            new_partition->field_A8 = &resource_buffer[resource_buffer_used];
-            resource_buffer_used += new_partition->partition_buffer_size;
+            new_partition->set_buffer_used(0);
+            new_partition->set_buffer(resource_buffer + resource_buffer_used);
+            resource_buffer_used += new_partition->get_buffer_size();
             if (new_partition->field_0 >= 0 && new_partition->field_0 <= 1)
             {
                 for (int j = 0; j < tmp.field_C; ++j) {

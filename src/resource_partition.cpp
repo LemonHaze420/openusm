@@ -63,7 +63,7 @@ bool resource_partition::has_room_for_slot(int a2)
         v2 = (a2 / 4096 + 1) << 12;
     }
 
-    return v2 + this->partition_buffer_used <= this->partition_buffer_size;
+    return (v2 + this->partition_buffer_used <= this->partition_buffer_size);
 }
 
 void resource_partition::clear()
@@ -88,15 +88,22 @@ void resource_partition::clear()
             }
         }
 
-        if (this->m_pack_slots.m_first != nullptr) {
-            delete this->m_pack_slots.m_first;
-        }
+        if constexpr (1)
+        {
+            if (this->m_pack_slots.m_first != nullptr) {
+                delete this->m_pack_slots.m_first;
+            }
 
-        this->m_pack_slots = {};
+            this->m_pack_slots = {};
+        }
+        else
+        {
+            this->m_pack_slots.clear();
+        }
 
         this->streamer.clear();
         this->field_0 = 0;
-        this->field_A8 = nullptr;
+        this->m_partition_buffer = nullptr;
         this->partition_buffer_used = 0;
         this->partition_buffer_size = 0;
     }
@@ -121,14 +128,7 @@ void resource_partition::pop_pack_slot()
 
         delete slot;
 
-        if (!this->m_pack_slots.empty()) {
-#ifndef TEST_CASE
-            --this->m_pack_slots.m_last;
-#else
-            this->m_pack_slots.resize(this->m_pack_slots.size() - 1);
-#endif
-        }
-
+        this->m_pack_slots.pop_back();
     } else {
         THISCALL(0x00537BB0, this);
     }
@@ -147,14 +147,14 @@ void resource_partition::push_pack_slot(int memory_amount_to_reserve, void *a3)
             reserve_size = (reserve_size / 4096 + 1) << 12;
         }
 
-        auto *starting_addr = &this->field_A8[this->partition_buffer_used];
+        auto *starting_addr = this->m_partition_buffer + this->partition_buffer_used;
         if (a3 != nullptr) {
             starting_addr = static_cast<uint8_t *>(a3);
         } else {
-            assert((partition_buffer_used + reserve_size <= partition_buffer_size) &&
+            assert((this->partition_buffer_used + reserve_size <= this->partition_buffer_size) &&
                    "Make sure we have enough room.");
 
-            starting_addr = &this->field_A8[this->partition_buffer_used];
+            starting_addr = this->m_partition_buffer + this->partition_buffer_used;
             this->partition_buffer_used += reserve_size;
         }
 
