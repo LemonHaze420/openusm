@@ -118,15 +118,6 @@ target_include_directories(memory PUBLIC "./include/")
 target_link_libraries(memory PUBLIC utility)
 
 
-add_library(slab_allocator "./src/slab_allocator.cpp" "./src/slab_allocator.h")
-target_compile_options(slab_allocator
-    PRIVATE
-      ${flags}
-  )
-target_include_directories(slab_allocator PUBLIC "./include/")
-target_link_libraries(slab_allocator PUBLIC  memory)
-
-
 file(GLOB_RECURSE NALCOMP_SRC "./src/nalcomp/*.cpp")
 add_library(nalcomp ${NALCOMP_SRC})
 target_compile_options(nalcomp
@@ -166,15 +157,6 @@ target_include_directories(nal PUBLIC "./include/" "./src/" "./src/nal/include/c
 target_link_libraries(nal PUBLIC nfl nalpanel utility)
 
 
-add_library(test_nal ${NAL_SRC})
-target_compile_options(test_nal
-    PRIVATE
-      ${flags}
-)
-target_include_directories(test_nal PUBLIC "./include/" "./src/" "./src/nal/include/common/")
-target_link_libraries(test_nal PUBLIC nfl nalpanel utility)
-
-
 target_link_libraries(nalcomp PUBLIC nal)
 
 add_library(debugutil "./src/debugutil.cpp" "./src/debugutil.h")
@@ -194,16 +176,7 @@ target_compile_options(chuck
   )
 
 target_include_directories(chuck INTERFACE "./src/chuck/vm/")
-target_link_libraries(chuck PUBLIC slab_allocator variables debugutil)
-
-
-add_library(mashable_vector "./src/mashable_vector.cpp")
-target_include_directories(mashable_vector PUBLIC "src/")
-target_compile_options(mashable_vector
-    PUBLIC
-    ${flags}
-)
-target_link_libraries(mashable_vector PUBLIC usm utility)
+target_link_libraries(chuck PUBLIC variables debugutil)
 
 
 file(GLOB_RECURSE SRC_TX "./src/tx/src/*.cpp" "./src/tx/src/*.h")
@@ -214,14 +187,6 @@ target_compile_options(tx
   )
 target_include_directories(tx INTERFACE "./src/tx/src/")
 target_link_libraries(tx PUBLIC utility)
-
-add_library(test_tx ${SRC_TX})
-target_compile_options(test_tx
-    PRIVATE
-      ${flags}
-  )
-target_include_directories(test_tx INTERFACE "./src/tx/src/")
-target_link_libraries(test_tx PUBLIC utility)
 
 
 file(GLOB_RECURSE SRC_NFL "./src/nfl/src/*.cpp" "./src/nfl/src/*.h")
@@ -234,14 +199,6 @@ target_include_directories(nfl INTERFACE "./src/nfl/src/")
 target_link_libraries(nfl PUBLIC tx)
 
 target_link_libraries(mash PUBLIC nfl)
-
-add_library(test_nfl ${SRC_NFL})
-target_compile_options(test_nfl
-    PRIVATE
-      ${flags}
-  )
-target_include_directories(test_nfl INTERFACE "./src/nfl/src/")
-target_link_libraries(test_nfl PUBLIC test_tx)
 
 
 file(GLOB_RECURSE SRC_NGL_DX "./src/ngl/src/dx/*.cpp")
@@ -299,12 +256,8 @@ target_include_directories(usm PUBLIC "include")
 target_include_directories(usm PUBLIC "./src/nfl/src/")
 
 target_include_directories(chuck PUBLIC "include" "src")
-target_include_directories(mashable_vector INTERFACE "include" "src")
 target_include_directories(tx PUBLIC "include" "src")
 target_include_directories(ngl_dx PUBLIC "include" "src")
-
-
-target_include_directories(test_tx PUBLIC "include" "src")
 
 target_link_libraries(ngl_dx PUBLIC d3dx9)
 
