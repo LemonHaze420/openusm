@@ -6,6 +6,7 @@
 #include "mission_manager.h"
 #include "mission_stack_manager.h"
 #include "open_city_neighborhoods.h"
+#include "osassert.h"
 #include "os_developer_options.h"
 #include "resource_key.h"
 #include "resource_manager.h"
@@ -12406,34 +12407,10 @@ void slc_manager::add(script_library_class *slc)
         auto ret = slc_manager_classes->insert(slc);
         if ( !ret.second ) {
             auto name = slc->get_name();
-            sp_log("slc already exists %s", name);
-            assert(0);
+            error("slc already exists %s", name);
         }
 
-#if STANDALONE_SYSTEM
         slc_manager_class_array->push_back(slc);
-
-#else
-
-        auto *v1 = slc_manager_class_array;
-        auto size = slc_manager_class_array->size();
-        if ( size < slc_manager_class_array->capacity() )
-        {
-            auto *m_last = slc_manager_class_array->m_last;
-            *m_last = slc;
-            v1->m_last = m_last + 1;
-        }
-        else
-        {
-            void (__fastcall *sub_5B4DB0)(void *, void *, script_library_class **Src, int a2, script_library_class **a3) = CAST(sub_5B4DB0, 0x005B4DB0);
-            sub_5B4DB0(
-                slc_manager_class_array,
-                nullptr,
-                slc_manager_class_array->m_last,
-                1,
-                &slc);
-        }
-#endif
     }
     else
     {
@@ -12475,7 +12452,7 @@ script_library_class * slc_manager::get_class(int class_index)
 
     assert(class_index >= 0);
 
-    assert(class_index < slc_manager_class_array->size());
+    assert( class_index < static_cast<int>(slc_manager_class_array->size()) );
 
     return slc_manager_class_array->at(class_index);
 }
@@ -12518,7 +12495,7 @@ void slc_manager::un_mash_all_funcs()
         auto total_classes = bit_cast<int *>(image)[0];
         auto *buffer = image + 4;
 
-        assert(total_classes == slc_manager_class_array->size());
+        assert(total_classes == static_cast<int>(slc_manager_class_array->size()));
         
         for ( auto &slc : (*slc_manager_class_array) ) {
             slc->total_funcs = bit_cast<int *>(buffer)[0];
