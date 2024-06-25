@@ -37,8 +37,6 @@ VALIDATE_SIZE(list_t::m_head, 4u);
 VALIDATE_SIZE(list_t::m_size, 4u);
 VALIDATE_SIZE((*(list_t::m_head)), 56u);
 
-VALIDATE_SIZE(_std::_Container_base, 1u);
-
 VALIDATE_OFFSET(list_t, m_head, 4u);
 VALIDATE_OFFSET(list_t, m_size, 8u);
 
@@ -73,13 +71,11 @@ resource_pack_streamer::resource_pack_streamer()
 
 resource_pack_streamer::~resource_pack_streamer()
 {
-    if constexpr (0)
+    TRACE("resource_pack_streamer::~resource_pack_streamer");
+
+    if constexpr (1)
     {
         this->clear();
-
-        THISCALL(0x00504B80, &this->field_6C);
-        operator delete(this->field_6C.m_head);
-        this->field_6C.m_head = nullptr;
     }
     else
     {
@@ -319,7 +315,7 @@ void resource_pack_streamer::clear() {
         this->field_88 = NFL_REQUEST_ID_INVALID;
         this->curr_file_id = NFL_FILE_ID_INVALID;
 
-        THISCALL(0x00504B80, &this->field_6C);
+        this->field_6C.clear();
     }
     else
     {
@@ -404,8 +400,10 @@ void resource_pack_streamer::frame_advance_idle([[maybe_unused]] Float a2)
 {
     TRACE("resource_pack_streamer::frame_advance_idle");
 
-    if constexpr (1) {
-        if (!this->field_6C.empty()) {
+    if constexpr (1)
+    {
+        if (!this->field_6C.empty())
+        {
             resource_pack_queue_entry &v3 = this->field_6C.front();
 
             auto *str = v3.field_0.to_string();
@@ -416,21 +414,11 @@ void resource_pack_streamer::frame_advance_idle([[maybe_unused]] Float a2)
 
             this->load_internal(str, idx, cb, a5);
 
-            if constexpr (0) {
-                this->field_6C.pop_front();
-            } else {
-                auto *m_head = this->field_6C.m_head;
-                auto *v6 = m_head->_Next;
-                if ( m_head->_Next != m_head ) {
-                    v6->_Prev->_Next = v6->_Next;
-                    v6->_Next->_Prev = v6->_Prev;
-                    CDECL_CALL(0x0082207C);
-                    //operator delete(v6);
-                    --this->field_6C.m_size;
-                }
-            }
+            this->field_6C.pop_front();
         }
-    } else {
+    }
+    else
+    {
         THISCALL(0x0054C820, this, a2);
     }
 }
@@ -456,7 +444,8 @@ void resource_pack_streamer::load(const char *a2,
 
     assert(!this->currently_streaming);
 
-    for (auto &entry : this->field_6C) {
+    for (auto &entry : this->field_6C)
+    {
         auto *str = entry.field_0.to_string();
         
         if (strcmpi(str, a2) == 0)
@@ -500,30 +489,7 @@ void resource_pack_streamer::load(const char *a2,
             v16.field_28 = *a5;
         }
 
-#ifndef TEST_CASE
-        {
-            auto iterator = this->field_6C.end();
-            auto *_Pnode = iterator._Mynode();
-
-            using list_t = _std::list<resource_pack_queue_entry>;
-
-            static_assert(std::is_same_v<decltype(_Pnode), list_t::_Nodeptr>);
-            static_assert(std::is_same_v<decltype(_Pnode->_Prev), list_t::_Nodeptr>);
-
-            list_t::_Nodeptr (__fastcall *Buynode)(void *, void *, list_t::_Nodeptr, list_t::_Nodeptr, resource_pack_queue_entry *) = CAST(Buynode, 0x00566AB0);
-
-            auto *_Newnode =
-                Buynode(&this->field_6C, nullptr, _Pnode, _Pnode->_Prev, &v16);
-
-            void (__fastcall *Incsize)(void *, void *, uint32_t) = CAST(Incsize, 0x00566AE0);
-
-            Incsize(&this->field_6C, nullptr, 1u);
-            list_t::_Prevnode(_Pnode) = _Newnode;
-            list_t::_Nextnode(list_t::_Prevnode(_Newnode)) = _Newnode;
-        }
-#else
         this->field_6C.push_back(v16);
-#endif
 
         this->frame_advance_idle(0.0);
     }
@@ -607,25 +573,20 @@ void resource_pack_streamer::frame_advance_streaming(Float a2)
     }
 }
 
-void resource_pack_streamer::unload_all() {
+void resource_pack_streamer::unload_all()
+{
     TRACE("resource_pack_streamer::unload_all");
 
-    if constexpr (0)
+    if constexpr (1)
     {
         assert(!currently_streaming);
 
-        if constexpr (1)
-        {
-            THISCALL(0x00504B80, &this->field_6C);
-        }
-        else
-        {
-            this->field_6C.clear();
-        }
+        this->field_6C.clear();
 
         assert(pack_slots != nullptr);
 
-        for (size_t i = 0; i < pack_slots->size(); ++i) {
+        for (size_t i = 0; i < pack_slots->size(); ++i)
+        {
             auto *slot = pack_slots->at(i);
             assert(slot != nullptr);
 
@@ -747,7 +708,17 @@ void resource_pack_streamer::finish_data_read()
     }
 }
 
-void resource_pack_streamer_patch() {
+void resource_pack_streamer_patch()
+{
+    {
+        FUNC_ADDRESS(address, &resource_pack_streamer::unload_all);
+        REDIRECT(0x00558A21, address);
+    }
+
+    {
+        FUNC_ADDRESS(address, &resource_pack_streamer::load);
+        SET_JUMP(0x00550F90, address);
+    }
 
     {
         FUNC_ADDRESS(address, &resource_pack_streamer::load_internal);
@@ -790,17 +761,7 @@ void resource_pack_streamer_patch() {
     }
 
     {
-        FUNC_ADDRESS(address, &resource_pack_streamer::unload_all);
-        REDIRECT(0x00558A21, address);
-    }
-
-    {
         FUNC_ADDRESS(address, &resource_pack_streamer::finish_data_read);
         REDIRECT(0x005429A2, address);
-    }
-
-    {
-        FUNC_ADDRESS(address, &resource_pack_streamer::load);
-        SET_JUMP(0x00550F90, address);
     }
 }
