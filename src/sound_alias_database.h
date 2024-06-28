@@ -3,6 +3,7 @@
 #include "string_hash.h"
 #include "mvector.h"
 
+struct from_mash_in_place_constructor;
 struct mash_info_struct;
 
 struct sound_alias
@@ -15,6 +16,8 @@ struct sound_alias
     int field_14;
     int field_18;
     int field_1C;
+
+    sound_alias(from_mash_in_place_constructor *a2);
 };
 
 struct sound_alias_database {

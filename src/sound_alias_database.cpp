@@ -10,6 +10,9 @@
 VALIDATE_SIZE(sound_alias, 0x20);
 VALIDATE_SIZE(sound_alias_database, 0x14);
 
+sound_alias::sound_alias(from_mash_in_place_constructor *a2) : field_0(a2), field_4(a2) {
+}
+
 sound_alias_database::sound_alias_database() {}
 
 void sound_alias_database::destruct_mashed_class()
