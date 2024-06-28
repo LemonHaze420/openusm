@@ -33,6 +33,19 @@ namespace als
         return data;
     }
 
+    category::category() {
+        THISCALL(0x00493150, this);
+    }
+
+    category::category(from_mash_in_place_constructor *a2) : field_4(a2)
+    {
+        this->m_vtbl = 0x00875704;
+
+        if ( this->field_C != nullptr ) {
+            mash_info_struct::construct_class(this->field_C);
+        }
+    }
+
     int category::get_mash_sizeof() const
     {
         int (__fastcall *func)(const category *) = CAST(func, get_vfunc(m_vtbl, 0x34));

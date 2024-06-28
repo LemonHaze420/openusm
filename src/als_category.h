@@ -4,6 +4,7 @@
 #include "mash_virtual_base.h"
 #include "string_hash.h"
 
+struct from_mash_in_place_constructor;
 struct mash_info_struct;
 
 namespace ai
@@ -21,6 +22,10 @@ namespace als
         string_hash field_4;
         int field_8;
         ai::param_block *field_C;
+
+        category();
+
+        category(from_mash_in_place_constructor *a2);
 
         bool is_flag_set(uint32_t a2) const
         {
