@@ -1,8 +1,10 @@
 #pragma once
 
 #include "als_meta_anim_base.h"
+#include "mash.h"
 #include "mvector.h"
 
+struct from_mash_in_place_constructor;
 struct mash_info_struct;
 struct nalAnyPose;
 
@@ -16,6 +18,10 @@ struct als_meta_anim_swing : als_meta_anim_base {
     int field_6C;
 
     als_meta_anim_swing();
+
+    als_meta_anim_swing(from_mash_in_place_constructor *);
+
+    void initialize(mash::allocation_scope a2);
 
     //virtual
     void _unmash(mash_info_struct *, void *);

@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "func_wrapper.h"
+#include "meta_anim_interact.h"
 #include "trace.h"
 #include "utility.h"
 
@@ -12,6 +13,24 @@ VALIDATE_SIZE(als_meta_anim_swing, 0x70);
 als_meta_anim_swing::als_meta_anim_swing()
 {
     THISCALL(0x004AB870, this);
+}
+
+als_meta_anim_swing::als_meta_anim_swing(from_mash_in_place_constructor *a2) : field_28(a2)
+{
+    if constexpr (0)
+    {
+        this->m_vtbl = 0x004AB8F0;
+        this->initialize(mash::FROM_MASH);
+    }
+    else
+    {
+        THISCALL(0x004AB8F0, this, a2);
+    }
+}
+
+void als_meta_anim_swing::initialize(mash::allocation_scope a2)
+{
+    THISCALL(0x004A0350, this, a2);
 }
 
 void als_meta_anim_swing::_unmash(mash_info_struct *a1, void *)
