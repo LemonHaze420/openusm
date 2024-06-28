@@ -34,6 +34,8 @@ namespace als
 
         scripted_state();
 
+        scripted_state(from_mash_in_place_constructor *a2);
+
         void _unmash(mash_info_struct *a1, void *a3);
 
         //virtual

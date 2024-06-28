@@ -2,6 +2,7 @@
 
 #include "als_basic_rule_data.h"
 #include "als_data.h"
+#include "als_filter_data.h"
 #include "als_transition_rule.h"
 #include "func_wrapper.h"
 #include "layer_state_machine_shared.h"
@@ -20,6 +21,13 @@ namespace als
     scripted_state::scripted_state()
     {
         THISCALL(0x004ACA80, this);
+    }
+
+    scripted_state::scripted_state(from_mash_in_place_constructor *a2) : field_14(a2), field_18(a2), field_28(a2), field_3C(a2)
+    {
+        if ( this->field_50 != nullptr ) {
+            mash_info_struct::construct_class(this->field_50);
+        }
     }
 
     void scripted_state::_unmash(mash_info_struct *a1, void *a3)
