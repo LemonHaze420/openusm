@@ -1,5 +1,7 @@
 #pragma once
 
+struct from_mash_in_place_constructor;
+
 struct PanelAnimKeyframe
 {
     int field_0;
@@ -9,4 +11,6 @@ struct PanelAnimKeyframe
     int field_10;
     int field_14;
     int field_18;
+
+    PanelAnimKeyframe(from_mash_in_place_constructor *) {}
 };
