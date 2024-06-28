@@ -44,6 +44,26 @@ namespace als
     VALIDATE_SIZE(meta_key_anim, 0x10);
     VALIDATE_SIZE(als_meta_linear_blend, 0x40u);
 
+    meta_key_anim::meta_key_anim(from_mash_in_place_constructor *a2) : field_0(a2)
+    {
+        this->initialize(mash::FROM_MASH);
+    }
+
+    void meta_key_anim::initialize(mash::allocation_scope a2)
+    {
+        if ( a2 == mash::ALLOCATED ) {
+            this->clear();
+        }
+    }
+
+    void meta_key_anim::clear()
+    {
+        this->field_0 = {0};
+        this->field_4 = nullptr;
+        this->field_8 = 0;
+        this->field_C = 0;
+    }
+
     void meta_key_anim::unmash(mash_info_struct *a1, void *)
     {
         TRACE("als::meta_key_anim::unmash");

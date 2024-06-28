@@ -1,9 +1,11 @@
 #pragma once
 
 #include "als_meta_anim_base.h"
+#include "mash.h"
 #include "mvector.h"
 #include "string_hash.h"
 
+struct from_mash_in_place_constructor;
 struct mash_info_struct;
 
 struct nalAnyPose;
@@ -44,6 +46,12 @@ namespace als
         nalAnimClass<nalAnyPose> *field_4;
         int field_8;
         int field_C;
+
+        meta_key_anim(from_mash_in_place_constructor *a2);
+
+        void initialize(mash::allocation_scope a2);
+
+        void clear();
 
         void unmash(mash_info_struct *a1, void *);
     };
