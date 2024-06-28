@@ -1,8 +1,9 @@
 #pragma once
 
-#include "string_hash.h"
 #include "als_basic_rule_data.h"
+#include "string_hash.h"
 
+struct from_mash_in_place_constructor;
 struct mash_info_struct;
 
 namespace als
@@ -10,8 +11,7 @@ namespace als
     struct als_data;
     struct filter_data;
 
-    struct implicit_transition_rule
-    {
+    struct implicit_transition_rule {
         als::basic_rule_data field_0;
 
         bool can_transition(als_data &a1) const;
@@ -19,10 +19,11 @@ namespace als
         void unmash(mash_info_struct *a1, void *a3);
     };
 
-    struct explicit_transition_rule
-    {
+    struct explicit_transition_rule {
         als::basic_rule_data field_0;
         string_hash field_24;
+
+        explicit_transition_rule(from_mash_in_place_constructor *a2);
 
         bool can_transition(
             als_data &a1,
@@ -46,6 +47,8 @@ namespace als
         basic_rule_data field_0;
         int field_24;
         int field_28;
+
+        incoming_transition_rule(from_mash_in_place_constructor *a2);
 
         void unmash(mash_info_struct *a1, void *a3);
     };

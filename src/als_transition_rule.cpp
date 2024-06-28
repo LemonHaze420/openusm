@@ -22,7 +22,12 @@ namespace als
     {
         TRACE("als::layer_transition_rule::can_transition");
 
-        return (bool) THISCALL(0x0049FF50, this, &a2);
+        bool (__fastcall *func)(const void *, void *edx, als_data *) = CAST(func, 0x0049FF50);
+        return func(this, nullptr, &a2);
+    }
+
+    explicit_transition_rule::explicit_transition_rule(from_mash_in_place_constructor *a2) : field_0(a2), field_24(a2)
+    {
     }
 
     bool explicit_transition_rule::can_transition(
@@ -54,6 +59,10 @@ namespace als
     void implicit_transition_rule::unmash(mash_info_struct *a1, void *a3)
     {
         this->field_0.unmash(a1, a3);
+    }
+
+    incoming_transition_rule::incoming_transition_rule(from_mash_in_place_constructor *a2) : field_0(a2)
+    {
     }
 
     void incoming_transition_rule::unmash(mash_info_struct *a1, void *a3)
