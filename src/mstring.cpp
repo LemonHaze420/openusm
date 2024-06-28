@@ -16,10 +16,23 @@ VALIDATE_SIZE(mString, 0x10);
 
 int &mString_count = var<int>(0x00957CEC);
 
+#if 0
+char *& mString::null = var<char *>(0x0091E7C0);
+#else
+char g_null[] = "";
+char * g_g_null = g_null;
+char *& mString::null = g_g_null;
+#endif
+
 Var<const char *[4]> packfile_ext {0x00936BF0};
 Var<const char *[4]> packfile_dir {0x00936BD0};
 
 int mString::npos = -1;
+
+mString::mString(from_mash_in_place_constructor *)
+{
+    this->initialize(mash::FROM_MASH);
+}
 
 mString::mString(float a1) : mString() {
     char Dest[128];
@@ -70,8 +83,7 @@ mString::~mString()
     this->finalize(mash::ALLOCATED);
 }
 
-void mString::copy(const char *a1, int a2)
-{
+void mString::copy(const char *a1, int a2) {
     this->update_guts(a1, a2);
 }
 
@@ -115,15 +127,21 @@ char mString::operator[](int i) const
 
 void mString::initialize(mash::allocation_scope scope)
 {
+    //TRACE("mString::initialize");
+
     if (scope == mash::ALLOCATED)
     {
         this->set_size(0);
         this->guts = mString::null;
     }
 
-
     this->field_C = nullptr;
     //++mString_count;
+}
+
+void mString::destruct_mashed_class()
+{
+    this->finalize(mash::FROM_MASH);
 }
 
 mString::mString(const char *a2)
@@ -285,6 +303,7 @@ mString mString::from_int(int a2) {
 }
 
 int mString::to_int() const {
+    //TRACE("mString::to_int");
     return std::atoi(this->guts);
 }
 
@@ -429,10 +448,13 @@ void mString::append(const char *from_string, int from_string_length) {
 bool mString::operator==(const char *a2) const {
     assert(guts != nullptr);
 
-    return strncmp(this->guts, a2, 65535u) == 0;
+    return strncmp(this->guts, a2, MAX_MSTRING_LENGTH) == 0;
 }
 
-void mString::destroy_guts() {
+void mString::destroy_guts()
+{
+    //TRACE("mString::destroy_guts");
+
     if constexpr (1) {
         auto *v2 = this->guts;
         if (v2 != mString::null) {
@@ -549,18 +571,22 @@ int mString::compare(const char *str) const
 bool mString::is_equal(const char *a2) const
 {
     assert(guts != nullptr);
-    return strncmp(this->guts, a2, 65535) == 0;
+    return strncmp(this->guts, a2, MAX_MSTRING_LENGTH) == 0;
 }
 
-void mString::update_guts(const char *from_string, int n) {
-    if constexpr (1) {
+void mString::update_guts(const char *from_string, int n)
+{
+    //TRACE("mString::update_guts");
+    
+    if constexpr (1)
+    {
         assert(from_string != nullptr);
 
         if (n == -1) {
             n = strlen(from_string);
         }
 
-        assert(n >= 0 && ((uint32_t) n) <= MAX_MSTRING_LENGTH - 1);
+        assert(n >= 0 && static_cast<uint32_t>(n) <= MAX_MSTRING_LENGTH - 1);
 
         if (n > static_cast<int>(m_size)) {
             this->destroy_guts();

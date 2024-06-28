@@ -19,6 +19,7 @@ extern Var<const char *[4]> packfile_ext;
 
 inline constexpr size_t MAX_MSTRING_LENGTH = 65535u;
 
+struct from_mash_in_place_constructor;
 struct mash_info_struct;
 
 struct mString : mContainer {
@@ -33,6 +34,8 @@ public:
 
     //0x00420F00
     mString();
+
+    mString(from_mash_in_place_constructor *);
 
     //0x00420F60
     mString(mString::fmtd fmt, const char *Format, ...);
@@ -82,6 +85,8 @@ public:
     }
 
     void initialize(mash::allocation_scope );
+
+    void destruct_mashed_class();
 
     //0x0041F9D0
     void update_guts(const char *from_string, int n);
@@ -195,7 +200,7 @@ public:
 
     static int npos;
 
-    static inline char *& null = var<char *>(0x0091E7C0);
+    static char *& null;
 };
 
 //0x0064DF30
