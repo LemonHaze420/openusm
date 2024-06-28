@@ -21,15 +21,6 @@ struct simple_list {
         this->initialize(mash::ALLOCATED);
     }
 
-    void *operator new(size_t size) {
-        return mem_alloc(size);
-    }
-
-    void operator delete(void *ptr, size_t size) {
-        mem_dealloc(ptr, size);
-    }
-
-
     void initialize(mash::allocation_scope scope)
     {
         if (scope == mash::ALLOCATED) {
