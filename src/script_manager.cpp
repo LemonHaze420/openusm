@@ -54,7 +54,7 @@ auto & script_manager_callbacks = var<_std::set<void (*)(script_manager_callback
 
 #define make_var(type, name) \
     static type g_##name {}; \
-    auto & name {g_##name}
+    type & name = g_##name
 
 _std::list<script_executable_entry> *g_script_manager_execs_pending_first_run {nullptr};
 auto & script_manager_execs_pending_first_run {g_script_manager_execs_pending_first_run};
@@ -63,17 +63,17 @@ _std::list<script_executable_entry> *g_script_manager_execs_pending_link_list {n
 auto & script_manager_execs_pending_link_list = g_script_manager_execs_pending_link_list;
 
 _std::map<script_executable_entry_key, script_executable_entry> *g_script_manager_exec_map {nullptr};
-auto & script_manager_exec_map = g_script_manager_exec_map;
+_std::map<script_executable_entry_key, script_executable_entry> *& script_manager_exec_map = g_script_manager_exec_map;
 
 static bool g_script_manager_initialized {false};
-auto & script_manager_initialized = g_script_manager_initialized;
+bool & script_manager_initialized = g_script_manager_initialized;
 
 static int g_script_manager_next_stuff_id {};
-auto & script_manager_next_stuff_id {g_script_manager_next_stuff_id};
+int & script_manager_next_stuff_id {g_script_manager_next_stuff_id};
 
-static std::map<int, script_executable_allocated_stuff_record> *
+static _std::map<int, script_executable_allocated_stuff_record> *
     g_script_manager_script_allocated_stuff_map {nullptr};
-auto & script_manager_script_allocated_stuff_map = g_script_manager_script_allocated_stuff_map;
+_std::map<int, script_executable_allocated_stuff_record> *& script_manager_script_allocated_stuff_map = g_script_manager_script_allocated_stuff_map;
 
 make_var(script_executable *, script_manager_master_script);
 
@@ -83,7 +83,7 @@ make_var(script_var_container *, script_manager_shared_var_container);
 
 make_var(float, script_manager_time_inc);
 
-make_var(std::set<void (*)(script_manager_callback_reason, script_executable *, const char *)> *, script_manager_callbacks);
+make_var(_std::set<void (*)(script_manager_callback_reason, script_executable *, const char *)> *, script_manager_callbacks);
 
 #undef make_var
 
@@ -977,7 +977,7 @@ int register_callback(
 
     assert(script_manager_callbacks != nullptr && "need to initialize the script_manager first!!!");
 
-    if constexpr (0)
+    if constexpr (1)
     {
         auto ret = script_manager_callbacks->insert(a2);
         assert(ret.second && "c is already registered!!!!");
