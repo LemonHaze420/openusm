@@ -41,7 +41,6 @@
 #include "tokenizer.h"
 #include "trace.h"
 #include "trigger_manager.h"
-#include "unit_tests.h"
 #include "utility.h"
 #include "window_manager.h"
 
@@ -142,7 +141,6 @@ app::app()
     TRACE("app::app");
     this->m_vtbl = 0x00891634;
 
-    unit_tests();
     mem_print_stats("after unit tests");
     g_platform = NL_PLATFORM_PC;
     if (link_system::use_link_system())
@@ -445,11 +443,6 @@ void __fastcall app_finalize(app *self)
 void app_patch()
 {
     REDIRECT(0x005E99D3, app_finalize);
-
-    if constexpr (1)
-    {
-        REDIRECT(0x005E10BF, unit_tests);
-    }
 
     REDIRECT(0x005AD2E9, app::create_inst);
 
