@@ -2,12 +2,6 @@
 
 #include "actor.h"
 #include "ai_adv_strength_test_data.h"
-#include "anim_record.h"
-#include "attach_action_trigger_enum.h"
-#include "attach_node.h"
-#include "common.h"
-#include "entity_base_vhandle.h"
-#include "layer_state_machine_shared.h"
 #include "als_category.h"
 #include "als_filter_data.h"
 #include "als_post_kill_rule.h"
@@ -18,16 +12,23 @@
 #include "als_transition_rule.h"
 #include "als_transition_group_base.h"
 #include "als_meta_anim_base.h"
+#include "anim_record.h"
+#include "attach_action_trigger_enum.h"
+#include "attach_node.h"
 #include "base_state.h"
 #include "combo_system.h"
 #include "combo_system_move.h"
 #include "combo_system_weapon.h"
-#include "mashed_state.h"
-#include "meta_anim_interact.h"
+#include "common.h"
+#include "cut_scene_segment.h"
+#include "entity_base_vhandle.h"
 #include "fetext.h"
 #include "femultilinetext.h"
 #include "func_wrapper.h"
 #include "interact_sound_entry.h"
+#include "layer_state_machine_shared.h"
+#include "mashed_state.h"
+#include "meta_anim_interact.h"
 #include "mash_virtual_base.h"
 #include "memory.h"
 #include "panelanim.h"
@@ -36,7 +37,9 @@
 #include "panelquad.h"
 #include "panelquadsection.h"
 #include "param_block.h"
+#include "path_graph.h"
 #include "sound_alias_database.h"
+#include "token_def.h"
 #include "trace.h"
 #include "vtbl.h"
 #include "web_interface.h"
@@ -1017,8 +1020,202 @@ void mVector<ai::param_block::param_data>::clear()
     {
         if ( this->field_10 )
         {
-            for ( int i = 0; i < this->m_size; ++i )
-            {
+            for ( int i = 0; i < this->m_size; ++i ) {
+                this->destroy_element(&this->m_data[i]);
+            }
+        }
+
+        if ( !this->is_pointer_in_mash_image(this->m_data) ) {
+            mem_dealloc(this->m_data, 4 * this->m_max_size);
+        }
+
+        this->m_data = nullptr;
+        this->m_max_size = 0;
+
+        mContainer_base::clear();
+    }
+    else
+    {
+        THISCALL(0x0043E400, this);
+    }
+}
+
+#if 0
+template<>
+void mVector<path_graph_node>::initialize(mash::allocation_scope scope)
+{
+    TRACE("mVector<path_graph_node>::initialize");
+
+    if ( scope )
+    {
+        assert(scope == mash::FROM_MASH);
+
+        if ( this->m_data != nullptr )
+        {
+            assert(this->m_size > 0);
+            for ( int i = 0; i < this->m_size; ++i ) {
+                new (this->m_data[i]) value_type {nullptr};
+            }
+        }
+    }
+    else
+    {
+        this->m_data = nullptr;
+        this->m_max_size = 0;
+        this->field_10 = true;
+    }
+}
+
+template<>
+void mVector<sound_alias>::initialize(mash::allocation_scope scope)
+{
+    TRACE("mVector<sound_alias>::initialize");
+
+    if ( scope )
+    {
+        assert(scope == mash::FROM_MASH);
+
+        if ( this->m_data != nullptr )
+        {
+            assert(this->m_size > 0);
+            for ( int i = 0; i < this->m_size; ++i ) {
+                new (this->m_data[i]) value_type {nullptr};
+            }
+        }
+    }
+    else
+    {
+        this->m_data = nullptr;
+        this->m_max_size = 0;
+        this->field_10 = true;
+    }
+}
+
+template<>
+void mVector<als::meta_key_anim>::initialize(mash::allocation_scope scope)
+{
+    TRACE("mVector<als::meta_key_anim>::initialize");
+
+    if ( scope )
+    {
+        assert(scope == mash::FROM_MASH);
+
+        if ( this->m_data != nullptr )
+        {
+            assert(this->m_size > 0);
+            for ( int i = 0; i < this->m_size; ++i ) {
+                new (this->m_data[i]) value_type {nullptr};
+            }
+        }
+    }
+    else
+    {
+        this->m_data = nullptr;
+        this->m_max_size = 0;
+        this->field_10 = true;
+    }
+}
+
+template<>
+void mVector<cut_scene_segment>::initialize(mash::allocation_scope scope)
+{
+    TRACE("mVector<cut_scene_segment>::initialize");
+
+    if ( scope )
+    {
+        assert(scope == mash::FROM_MASH);
+
+        if ( this->m_data != nullptr )
+        {
+            assert(this->m_size > 0);
+            for ( int i = 0; i < this->m_size; ++i ) {
+                new (this->m_data[i]) value_type {nullptr};
+            }
+        }
+    }
+    else
+    {
+        this->m_data = nullptr;
+        this->m_max_size = 0;
+        this->field_10 = true;
+    }
+}
+
+template<>
+void mVector<als::als_meta_anim_base>::initialize(
+        mash::allocation_scope scope)
+{
+
+    if ( scope )
+    {
+        assert(scope == mash::FROM_MASH);
+        if ( this->m_data != nullptr )
+        {
+            assert(this->m_size > 0);
+            for ( auto i = 0; i < this->m_size; ++i ) {
+                this->m_data[i] = (value_type *) mash_virtual_base::construct_class_helper(this->m_data[i]);
+            }
+        }
+    }
+    else
+    {
+        this->m_data = nullptr;
+        this->m_max_size = 0;
+        this->field_10 = true;
+    }
+}
+
+template<>
+void mVector<token_def>::initialize(mash::allocation_scope scope)
+{
+    TRACE("mVector<token_def>::initialize");
+
+    if ( scope )
+    {
+        assert(scope == mash::FROM_MASH);
+
+        if ( this->m_data != nullptr )
+        {
+            assert(this->m_size > 0);
+            for ( int i = 0; i < this->m_size; ++i ) {
+                new (this->m_data[i]) value_type {nullptr};
+            }
+        }
+    }
+    else
+    {
+        this->m_data = nullptr;
+        this->m_max_size = 0;
+        this->field_10 = true;
+    }
+}
+#endif
+
+template<>
+void mVector<token_def>::destroy_element(token_def **a1)
+{
+    TRACE("mVector<token_def>::destroy_element");
+
+    if ( mContainer_base::is_pointer_in_mash_image(*a1) )
+    {
+        (*a1)->destruct_mashed_class();
+    }
+    else if ( *a1 )
+    {
+        delete (*a1);
+    }
+
+    (*a1) = nullptr;
+}
+
+template<>
+void mVector<token_def>::clear()
+{
+    if constexpr (1)
+    {
+        if ( this->field_10 )
+        {
+            for ( int i = 0; i < this->m_size; ++i ) {
                 this->destroy_element(&this->m_data[i]);
             }
         }
@@ -1035,9 +1232,11 @@ void mVector<ai::param_block::param_data>::clear()
     }
     else
     {
-        THISCALL(0x0043E400, this);
+        assert(0);
     }
 }
+
+
 
 template<>
 void mVector<ai::param_block::param_data>::destruct_mashed_class()
@@ -1074,6 +1273,45 @@ void mVector<ai::param_block::param_data>::custom_unmash(mash_info_struct *a2, v
                 mash::NORMAL_BUFFER,
 #endif 
                 12, 4);
+            a1 = v6;
+            a1->unmash(a2, a3);
+        }
+    }
+
+    this->field_0 = (int)&a2->mash_image_ptr[0][a2->buffer_size_used[0] - (DWORD)this];
+}
+
+
+template<>
+void mVector<token_def>::custom_unmash(mash_info_struct *a2, void *a3)
+{
+    TRACE("mVector<token_def>::custom_unmash");
+
+#ifdef TARGET_XBOX
+    this->field_C = this->m_size;
+    if ( this->m_size <= 0 )
+    {
+        this->m_data = nullptr;
+    }
+    else
+#else
+    if ( this->m_data != nullptr )
+#endif
+    {
+        this->m_data = (value_type **) a2->read_from_buffer(
+#ifdef TARGET_XBOX
+                mash::NORMAL_BUFFER,
+#endif 
+                4 * this->m_size, 4);
+
+        for ( auto i = 0; i < this->m_size; ++i )
+        {
+            auto &a1 = this->m_data[i];
+            auto *v6 = (value_type *) a2->read_from_buffer(
+#ifdef TARGET_XBOX
+                mash::NORMAL_BUFFER,
+#endif 
+                sizeof(value_type), 4);
             a1 = v6;
             a1->unmash(a2, a3);
         }
@@ -1646,145 +1884,4 @@ void mVector<attach_node>::custom_unmash(mash_info_struct *a1, void *a3)
     }
 
     this->field_0 = (int)&a1->mash_image_ptr[0][a1->buffer_size_used[0] - (uint32_t)this];
-}
-
-template<>
-void mVectorBasic<attach_action_trigger_enum>::custom_unmash(mash_info_struct *a1, void *)
-{
-    TRACE("mVectorBasic<attach_action_trigger_enum>::custom_unmash");
-
-#ifdef TARGET_XBOX
-    this->field_C = this->m_size;
-    if ( this->m_size <= 0 )
-    {
-        this->m_data = nullptr;
-    }
-    else
-#else
-    if ( this->m_data != nullptr )
-#endif
-    {
-        this->m_data = bit_cast<value_type *>(a1->read_from_buffer(
-#ifdef TARGET_XBOX
-            mash::NORMAL_BUFFER,
-#endif
-                4 * this->m_size, 4));
-    }
-
-    this->field_0 = (int)&a1->mash_image_ptr[0][a1->buffer_size_used[0] - (DWORD) this];
-}
-
-template<>
-void mVectorBasic<attach_action_trigger_enum>::unmash(mash_info_struct *a1, void *a2)
-{
-#ifdef TARGET_XBOX
-    [](mash_info_struct *a1, mash::buffer_type a2, uint32_t &a3)
-    {
-        a3 = *bit_cast<int *>(a1->read_from_buffer(a2, 4, 4));
-    }(a1, mash::SHARED_BUFFER, m_size);
-#endif
-
-    this->custom_unmash(a1, a2);
-}
-
-template<>
-void mVectorBasic<int>::custom_unmash(mash_info_struct *a1, void *)
-{
-    TRACE("mVectorBasic<int>::custom_unmash");
-
-#ifdef TARGET_XBOX
-    this->field_C = this->m_size;
-    if ( this->m_size <= 0 )
-    {
-        this->m_data = nullptr;
-    }
-    else
-#else
-    if ( this->m_data != nullptr )
-#endif
-    {
-        this->m_data = (int *) a1->read_from_buffer(
-#ifdef TARGET_XBOX
-            mash::NORMAL_BUFFER,
-#endif
-                4 * this->m_size, 4);
-    }
-
-    this->field_0 = (int)&a1->mash_image_ptr[0][a1->buffer_size_used[0] - (DWORD) this];
-}
-
-template<>
-void mVectorBasic<int>::unmash(mash_info_struct *a1, void *a2)
-{
-#ifdef TARGET_XBOX
-    [](mash_info_struct *a1, mash::buffer_type a2, uint32_t &a3)
-    {
-        a3 = *bit_cast<int *>(a1->read_from_buffer(a2, 4, 4));
-    }(a1, mash::SHARED_BUFFER, m_size);
-#endif
-
-    this->custom_unmash(a1, a2);
-}
-
-template<>
-void mVectorBasic<vhandle_type<actor>>::custom_unmash(mash_info_struct *a1, void *)
-{
-    TRACE("mVectorBasic<int>::custom_unmash");
-
-#ifdef TARGET_XBOX
-    this->field_C = this->m_size;
-    if ( this->m_size <= 0 )
-    {
-        this->m_data = nullptr;
-    }
-    else
-#else
-    if ( this->m_data != nullptr )
-#endif
-    {
-        this->m_data = bit_cast<value_type *>(a1->read_from_buffer(
-#ifdef TARGET_XBOX
-            mash::NORMAL_BUFFER,
-#endif
-                4 * this->m_size, 4));
-    }
-
-    this->field_0 = (int)&a1->mash_image_ptr[0][a1->buffer_size_used[0] - (DWORD) this];
-}
-
-template<>
-void mVectorBasic<vhandle_type<actor>>::unmash(mash_info_struct *a1, void *a2)
-{
-#ifdef TARGET_XBOX
-    [](mash_info_struct *a1, mash::buffer_type a2, uint32_t &a3)
-    {
-        a3 = *bit_cast<int *>(a1->read_from_buffer(a2, 4, 4));
-    }(a1, mash::SHARED_BUFFER, m_size);
-#endif
-
-    this->custom_unmash(a1, a2);
-}
-
-template<>
-void mVectorBasic<vhandle_type<actor>>::reserve(int a2)
-{
-    if ( a2 > this->m_max_size )
-    {
-        auto *mem = operator new(4 * a2);
-        auto *v2 = new (mem) vhandle_type<actor>[a2] {};
-
-        if ( this->m_data != nullptr )
-        {
-            if ( this->m_size > 0 ) {
-                std::memcpy(v2, this->m_data, 4 * this->m_size);
-            }
-
-            if ( !this->is_pointer_in_mash_image(this->m_data) ) {
-                operator delete[](this->m_data);
-            }
-        }
-
-        this->m_data = v2;
-        this->m_max_size = a2;
-    }
 }

@@ -2,12 +2,15 @@
 
 #include <cstdint>
 
+#include "mash.h"
 #include "mash_virtual_base.h"
 #include "mvector.h"
+#include "mVectorBasic.h"
 #include "string_hash.h"
 
 struct combo_system_weapon;
 struct combo_system_move;
+struct from_mash_in_place_constructor;
 
 struct combo_system_chain
 {
@@ -22,6 +25,10 @@ struct combo_system_chain
         int get_mash_sizeof();
     };
 
+    combo_system_chain(from_mash_in_place_constructor *a2);
+
+    void initialize(mash::allocation_scope a2);
+
     mVector<combo_system_chain::telegraph_info> field_0;
     string_hash field_14;
     int field_18;
@@ -29,9 +36,9 @@ struct combo_system_chain
     int field_2C;
     int field_30;
     int field_34;
-    int field_38;
-    int field_3C;
-    int field_40;
+    float field_38;
+    float field_3C;
+    float field_40;
 
     //0x004814E0
     void unmash(mash_info_struct *, void *);

@@ -2,6 +2,7 @@
 
 #include "als_data.h"
 #include "als_transition_group_base.h"
+#include "mVectorBasic.h"
 #include "string_hash.h"
 
 namespace als {

@@ -3,11 +3,14 @@
 #include "actor.h"
 #include "entity_base_vhandle.h"
 #include "enum_anim_key.h"
+#include "mash.h"
 #include "mvector.h"
+#include "mVectorBasic.h"
 
 struct ai_adv_strength_test_data;
 struct mash_info_struct;
 struct anim_record;
+struct from_mash_in_place_constructor;
 struct interact_sound_entry;
 struct attach_interact_data;
 struct resource_pack_slot;
@@ -16,7 +19,12 @@ struct ai_interaction_data {
     vector3d field_0;
     float field_C[4];
     mVector<anim_record> field_1C;
-    int field_30[5];
+    bool field_30;
+    bool field_31;
+    int field_34;
+    float field_38;
+    float field_3C;
+    float field_40;
     string_hash field_44;
     string_hash field_48;
     string_hash field_4C;
@@ -27,10 +35,12 @@ struct ai_interaction_data {
     vector3d field_70;
     resource_pack_slot *field_7C;
     mVectorBasic<vhandle_type<actor>> field_80;
-    int field_90;
-    mVector<ai_adv_strength_test_data> field_94;
+    bool field_90;
+    mVector<ai_adv_strength_test_data> my_adv_str_test_list;
 
-    ai_interaction_data();
+    ai_interaction_data(from_mash_in_place_constructor *);
+
+    void initialize(mash::allocation_scope scope);
 
     //0x0069AA50
     void unregister_interactor(vhandle_type<actor> a2);

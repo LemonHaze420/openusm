@@ -3,6 +3,7 @@
 #include "actor.h"
 #include "entity_base_vhandle.h"
 #include "mvector.h"
+#include "mVectorBasic.h"
 #include "string_hash.h"
 #include "variable.h"
 

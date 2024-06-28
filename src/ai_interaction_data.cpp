@@ -1,11 +1,13 @@
 #include "ai_interaction_data.h"
 
+#include "ai_adv_strength_test_data.h"
 #include "anim_record.h"
 #include "attach_interact_data.h"
 #include "binary_search_array_cmp.h"
 #include "config.h"
 #include "func_wrapper.h"
 #include "common.h"
+#include "interact_sound_entry.h"
 #include "nal_system.h"
 #include "resource_manager.h"
 #include "trace.h"
@@ -14,7 +16,50 @@
 
 VALIDATE_SIZE(ai_interaction_data, 0xA8);
 
-ai_interaction_data::ai_interaction_data() {}
+ai_interaction_data::ai_interaction_data(from_mash_in_place_constructor *a2)
+      : field_1C(a2),
+        field_44(a2),
+        field_48(a2),
+        field_4C(a2),
+        field_50(a2),
+        field_54(a2),
+        field_6C(a2),
+        field_80(a2),
+        my_adv_str_test_list(a2)
+{
+    if ( this->field_68 != nullptr ) {
+        mash_info_struct::construct_class(this->field_68);
+    }
+
+    this->initialize(mash::FROM_MASH);
+}
+
+void ai_interaction_data::initialize(mash::allocation_scope scope)
+{
+    this->field_90 = false;
+    if ( scope )
+    {
+        assert(scope == mash::FROM_MASH);
+        this->field_7C = resource_manager::get_resource_context();
+    }
+    else
+    {
+        this->field_30 = false;
+        this->field_31 = true;
+        this->field_34 = 0;
+        this->field_38 = 0.25;
+        this->field_3C = 0.25;
+        this->field_40 = 100.0;
+        this->field_7C = nullptr;
+        this->field_6C = {0};
+        this->field_70 = ZEROVEC;
+        this->field_68 = nullptr;
+        this->field_44 = {0};
+        this->field_48 = {0};
+        this->field_4C = {0};
+        this->field_50 = {0};
+    }
+}
 
 anim_record *ai_interaction_data::does_anim_exist(enum_anim_key::key_enum a2, bool a3) {
     TRACE("ai_interaction_data::does_anim_exist");
@@ -76,7 +121,7 @@ void ai_interaction_data::unmash(mash_info_struct *a1, void *)
 
     a1->unmash_class_in_place(this->field_80, this);
 
-    a1->unmash_class_in_place(this->field_94, this);
+    a1->unmash_class_in_place(this->my_adv_str_test_list, this);
 
 #ifdef TARGET_XBOX
     {

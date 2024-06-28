@@ -3,6 +3,7 @@
 #include "als_basic_rule_data.h"
 #include "als_request_data.h"
 #include "als_transition_rule.h"
+#include "als_filter_data.h"
 #include "common.h"
 #include "func_wrapper.h"
 #include "trace.h"

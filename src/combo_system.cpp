@@ -1,4 +1,7 @@
 #include "combo_system.h"
+
+#include "combo_system_move.h"
+#include "combo_system_weapon.h"
 #include "common.h"
 #include "mash_info_struct.h"
 #include "trace.h"
@@ -7,7 +10,6 @@
 VALIDATE_SIZE(combo_system_chain, 0x44);
 VALIDATE_SIZE(combo_system_chain::telegraph_info, 0xC);
 VALIDATE_SIZE(combo_system, 0x50);
-
 
 void combo_system_chain::telegraph_info::_unmash(mash_info_struct *, void *)
 {
@@ -20,6 +22,25 @@ int combo_system_chain::telegraph_info::get_mash_sizeof()
 {
     int (__fastcall *func)(combo_system_chain::telegraph_info *) = CAST(func, get_vfunc(m_vtbl, 0x18));
     return func(this);
+}
+
+combo_system_chain::combo_system_chain(from_mash_in_place_constructor *a2) : field_0(a2), field_14(a2), field_1C(a2)
+{
+    this->initialize(mash::FROM_MASH);
+}
+
+void combo_system_chain::initialize(mash::allocation_scope a2)
+{
+    if ( a2 == mash::ALLOCATED )
+    {
+        this->field_18 = 0;
+        this->field_2C = 0;
+        this->field_30 = 0x40000000;
+        this->field_34 = 0;
+        this->field_38 = 3.4028235e38;
+        this->field_3C = 1.0;
+        this->field_40 = -1.0;
+    }
 }
 
 void combo_system_chain::unmash(mash_info_struct *a1, void *)
