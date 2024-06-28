@@ -55,14 +55,16 @@ struct line_info {
     //0x0052F120
     static void frame_advance(int a1);
 
-    static inline Var<simple_queue<line_info *, 16>> queued_collision_checks{0x009223F8};
+    static simple_queue<line_info *, 16> & queued_collision_checks;
 };
+
+inline constexpr auto MAX_RENDERABLE_LINE_INFOS = 64;
 
 #ifndef TEST_CASE
 
 extern int num_debug_line_info[2];
 
-extern std::array<line_info[64], 2> debug_line_info;
+extern std::array<line_info[MAX_RENDERABLE_LINE_INFOS], 2> debug_line_info;
 
 #endif
 

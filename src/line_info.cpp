@@ -11,6 +11,14 @@
 
 VALIDATE_SIZE(line_info, 0x5C);
 
+    
+#if 0
+simple_queue<line_info *, 16> & queued_collision_checks = var<simple_queue<line_info *, 16>>(0x009223F8);
+#else
+simple_queue<line_info *, 16> g_queued_collision_checks {};
+simple_queue<line_info *, 16> & line_info::queued_collision_checks = g_queued_collision_checks;
+#endif
+
 line_info::line_info() {
     this->hit_entity = {0};
     this->collision = false;
@@ -24,7 +32,10 @@ line_info::line_info(const vector3d &a2, const vector3d &a3) : line_info() {
     this->field_C = a3;
 }
 
-line_info::~line_info() {
+line_info::~line_info()
+{
+    TRACE("line_info::~line_info");
+
     this->release_mem();
 }
 
@@ -32,10 +43,8 @@ line_info::~line_info() {
 
 int num_debug_line_info[2]{};
 
-std::array<line_info[64], 2> debug_line_info{};
+std::array<line_info[MAX_RENDERABLE_LINE_INFOS], 2> debug_line_info{};
 #endif
-
-static constexpr auto MAX_RENDERABLE_LINE_INFOS = 64;
 
 void line_info::render(int num, bool a3) {
     assert(num >= 0);
@@ -74,7 +83,7 @@ void line_info::clear()
         this->field_3C = ZVEC;
         this->m_obb = nullptr;
         if ( this->queued_for_collision_check ) {
-            queued_collision_checks().find(this, 1);
+            queued_collision_checks.find(this, 1);
             this->queued_for_collision_check = false;
         }
     } else {
@@ -175,12 +184,13 @@ bool line_info::check_collision(const local_collision::entfilter_base &p_ent_fil
 
 bool line_info::remove_to_collision_check_queue() {
     if constexpr (1) {
-        auto result = queued_collision_checks().find(this, 1);
+        auto result = queued_collision_checks.find(this, 1);
         this->queued_for_collision_check = false;
         return result;
 
     } else {
-        return (bool) THISCALL(0x0052EE00, this);
+        bool (__fastcall *func)(void *) = CAST(func, 0x0052EE00);
+        return func(this);
     }
 }
 
@@ -188,8 +198,15 @@ bool line_info::release_mem() {
     return this->remove_to_collision_check_queue();
 }
 
-void line_info::copy(const line_info &a2) {
-    THISCALL(0x006B6E00, this, &a2);
+void line_info::copy(const line_info &a2)
+{
+    if constexpr (0)
+    {
+    }
+    else
+    {
+        THISCALL(0x006B6E00, this, &a2);
+    }
 }
 
 void line_info::frame_advance(int a1)
