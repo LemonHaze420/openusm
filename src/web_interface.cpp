@@ -31,6 +31,17 @@ web_info_nugget::web_info_nugget(mString a2, Float fade_in_time, Float a4)
     this->field_1C = false;
 }
 
+web_info_nugget::web_info_nugget(from_mash_in_place_constructor *a2) : field_18(a2)
+{
+    this->initialize(mash::FROM_MASH);
+}
+
+void web_info_nugget::initialize(mash::allocation_scope )
+{
+    this->field_1C = false;
+}
+
+
 void web_info_nugget::create_web_entity()
 {
     assert(this->my_actor != nullptr);
@@ -126,7 +137,7 @@ void web_info_nugget::frame_advance(Float a2)
     }
 }
 
-web_interface::web_interface(actor *a2)
+web_interface::web_interface(actor *a2) : field_0()
 {
     this->my_actor = a2;
     this->field_1C = 0;

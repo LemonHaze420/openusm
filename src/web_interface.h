@@ -1,12 +1,14 @@
 #pragma once
 
 #include "float.hpp"
+#include "mash.h"
 #include "mstring.h"
 #include "mvector.h"
 #include "string_hash.h"
 
 struct actor;
 struct entity;
+struct from_mash_in_place_constructor;
 
 struct web_info_nugget {
     actor *my_actor;
@@ -19,6 +21,10 @@ struct web_info_nugget {
     bool field_1C;
 
     web_info_nugget(mString a2, Float a3, Float a4);
+
+    web_info_nugget(from_mash_in_place_constructor *a2);
+
+    void initialize(mash::allocation_scope);
 
     //0x004ED7D0
     void create_web_entity();
