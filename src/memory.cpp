@@ -6,16 +6,34 @@
 #include "slab_allocator.h"
 #include "utility.h"
 #include "variable.h"
+#include "variables.h"
 
 #include <cstdio>
 #include <cstdlib>
 
-Var<bool> mem_first_malloc{0x009224F0};
+#if !STANDALONE_SYSTEM
 
-Var<bool> mem_first_memalign{0x009224F1};
-Var<bool> mem_first_allocation{0x009224E8};
+bool & mem_first_malloc = var<bool>(0x009224F0);
+bool & mem_first_memalign = var<bool>(0x009224F1);
+bool & mem_first_allocation = var<bool>(0x009224E8);
 
-static Var<int> dword_965EC0{0x00965EC0};
+int & dword_965EC0 = var<int>(0x00965EC0);
+
+#else
+
+#define make_var(type, name) \
+    static type g_##name {}; \
+    type & name = g_##name
+
+make_var(bool, mem_first_malloc);
+make_var(bool, mem_first_memalign);
+make_var(bool, mem_first_allocation);
+
+make_var(int, dword_965EC0);
+
+#undef make_var
+
+#endif
 
 int mem_set_checkpoint()
 {
@@ -48,13 +66,15 @@ void mem_dealloc(void *a1, size_t Size) {
 }
 
 //0x0058EC30
-void *arch_memalign_internal(size_t Alignment, size_t Size) {
-    if constexpr (1) {
+void *arch_memalign_internal(size_t Alignment, size_t Size)
+{
+    if constexpr (1)
+    {
         void *result = _aligned_malloc(Size, Alignment);
         void *v3 = result;
         if (result != nullptr) {
             result = v3;
-            dword_965EC0() += _msize(*(void **) (((unsigned int) result & 0xFFFFFFFC) - 4));
+            dword_965EC0 += _msize(*(void **) (((unsigned int) result & 0xFFFFFFFC) - 4));
         }
         return result;
     } else {
@@ -63,19 +83,21 @@ void *arch_memalign_internal(size_t Alignment, size_t Size) {
 }
 
 void mem_on_first_allocation() {
-    if (mem_first_allocation()) {
+    if (mem_first_allocation) {
         debug_print_va("MEMTRACK is OFF");
         mem_print_stats("very first allocation");
-        mem_first_allocation() = false;
+        mem_first_allocation = false;
     }
 }
 
-void *arch_memalign(size_t Alignment, size_t Size) {
-    if constexpr (0) {
-        if (mem_first_memalign()) {
+void *arch_memalign(size_t Alignment, size_t Size)
+{
+    if constexpr (1)
+    {
+        if (mem_first_memalign) {
             mem_on_first_allocation();
 
-            mem_first_memalign() = false;
+            mem_first_memalign = false;
         }
 
         auto *mem = arch_memalign_internal(Alignment, Size);
@@ -93,7 +115,7 @@ void *arch_memalign(size_t Alignment, size_t Size) {
 
 void mem_freealign(void *Memory) {
     if (Memory != nullptr) {
-        dword_965EC0() -= _msize(*(void **) (((unsigned int) Memory & 0xFFFFFFFC) - 4));
+        dword_965EC0 -= _msize(*(void **) (((unsigned int) Memory & 0xFFFFFFFC) - 4));
         _aligned_free(Memory);
     }
 }
@@ -103,15 +125,16 @@ void mem_print_stats(const char *a1) {
     debug_print_va("peak: %10lu   curr: %10lu   free: %10lu\n", 0ul, 0ul, 0ul);
 }
 
-void *arch_malloc(size_t Size) {
-    if (mem_first_malloc()) {
+void *arch_malloc(size_t Size)
+{
+    if (mem_first_malloc) {
         mem_on_first_allocation();
 
-        mem_first_malloc() = false;
+        mem_first_malloc = false;
     }
 
     auto *mem = malloc(Size);
-    dword_965EC0() += _msize(mem);
+    dword_965EC0 += _msize(mem);
 
     if (mem == nullptr) {
         debug_print_va("tried to allocate %d bytes", Size);
@@ -123,8 +146,21 @@ void *arch_malloc(size_t Size) {
     return mem;
 }
 
-void memory_patch() {
-    REDIRECT(0x0059F684, arch_malloc);
+int mem_get_total_alloced(int )
+{
+    return dword_965EC0;
+}
 
-    REDIRECT(0x00550E6B, arch_memalign_internal);
+void memory_patch()
+{
+    if constexpr (STANDALONE_SYSTEM)
+    {
+        SET_JUMP(0x0051CC90, mem_get_total_alloced);
+
+        SET_JUMP(0x0059F684, arch_malloc);
+
+        SET_JUMP(0x0058EC30, arch_memalign_internal);
+
+        SET_JUMP(0x0058EC80, mem_freealign);
+    }
 }
