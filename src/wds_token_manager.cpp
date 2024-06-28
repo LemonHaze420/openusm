@@ -3,6 +3,7 @@
 #include "common.h"
 #include "func_wrapper.h"
 #include "mash_info_struct.h"
+#include "osassert.h"
 #include "resource_manager.h"
 #include "script_manager.h"
 #include "terrain.h"
@@ -33,9 +34,8 @@ void wds_token_manager_region_change_callback(bool a1, region *a2)
     }
 }
 
-wds_token_manager::wds_token_manager()
+wds_token_manager::wds_token_manager() : tokens(nullptr)
 {
-    tokens = nullptr;
     editing = false;
     field_4 = false;
     field_14 = false;
@@ -43,11 +43,11 @@ wds_token_manager::wds_token_manager()
 
 void wds_token_manager::initialize(const resource_key &a2)
 {
-    TRACE("wds_token_manager::initialize", a2.get_platform_string(3).c_str());
+    TRACE("wds_token_manager::initialize");
 
     if constexpr (1)
     {
-        assert(tokens == nullptr);
+        assert(this->tokens == nullptr);
         assert(g_world_ptr != nullptr);
 
         this->field_8 = 0.0;
@@ -88,29 +88,33 @@ void wds_token_manager::initialize(const resource_key &a2)
                                                      nullptr);
 
             the_terrain->register_region_change_callback(wds_token_manager_region_change_callback);
-            region *v15 = nullptr;
-            for (int i = 0; i < this->tokens->field_0.m_size; ++i) {
+            region *reg = nullptr;
+
+
+            for (int i = 0; i < this->tokens->field_0.m_size; ++i)
+            {
+                assert(this->tokens->field_0.m_data != nullptr);
+
                 auto *def = this->tokens->field_0.m_data[i];
-                v15 = the_terrain->find_region(def->field_10, v15);
-                if (v15 == nullptr) {
-                    sp_log("Token was placed outside of world < %f, %f, %f >",
+                assert(def != nullptr);
+
+                reg = the_terrain->find_region(def->field_10, reg);
+                if (reg == nullptr) {
+                    error("Token was placed outside of world < %f, %f, %f >",
                            def->field_10[0],
                            def->field_10[1],
                            def->field_10[2]);
 
-                    assert(0);
                 }
 
-                def->field_28 = v15;
+                def->field_28 = reg;
             }
 
             this->field_4 = 0;
         } else {
             auto str = a2.m_hash.to_string();
 
-            sp_log("Could not find token resource %s", str);
-
-            assert(0);
+            warning("Could not find token resource %s", str);
         }
 
     } else {
