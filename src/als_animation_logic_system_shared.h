@@ -17,10 +17,7 @@ struct animation_logic_system_shared {
     als_meta_anim_table_shared *field_18;
 
     //0x004AC000
-    animation_logic_system_shared();
-
-    animation_logic_system_shared(
-        from_mash_in_place_constructor *a2);
+    animation_logic_system_shared(from_mash_in_place_constructor *a2);
 
     void destruct_mashed_class();
 

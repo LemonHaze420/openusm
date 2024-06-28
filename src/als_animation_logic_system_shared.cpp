@@ -13,11 +13,6 @@ namespace als {
 
     VALIDATE_SIZE(animation_logic_system_shared, 0x1C);
 
-    animation_logic_system_shared::animation_logic_system_shared()
-    {
-        THISCALL(0x004AC000, this);
-    }
-
     animation_logic_system_shared::animation_logic_system_shared(
         from_mash_in_place_constructor *a2) : field_0(a2)
     {
