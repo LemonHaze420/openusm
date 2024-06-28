@@ -21,6 +21,19 @@ const char *g_resource_key_type_ext[71] {"none", ".PCANIM", ".PCSKEL",
 
 static auto & resource_key_type_dir = var<char *[1]>(0x0091EC28);
 
+resource_key::resource_key(from_mash_in_place_constructor *a2) : m_hash(a2) {
+    this->initialize(mash::FROM_MASH);
+}
+
+void resource_key::initialize(mash::allocation_scope a2)
+{
+    if ( a2 == mash::ALLOCATED )
+    {
+        this->m_hash.source_hash_code = 0;
+        this->m_type = RESOURCE_KEY_TYPE_NONE;
+    }
+}
+
 resource_key_type resource_key::resolve_extension(const char *target_string, bool a2)
 {
     assert(target_string != nullptr);
