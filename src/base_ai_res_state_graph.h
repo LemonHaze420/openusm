@@ -1,7 +1,10 @@
 #pragma once
 
+#include "mash.h"
 #include "mvector.h"
 #include "resource_key.h"
+
+struct from_mash_in_place_constructor;
 
 namespace ai {
 struct mashed_state;
@@ -13,7 +16,10 @@ struct state_graph {
     mashed_state *field_1C;
     mVector<base_state> field_20;
 
-    state_graph();
+    //0x006DA190
+    state_graph(from_mash_in_place_constructor *);
+
+    void initialize(mash::allocation_scope scope);
 
     mashed_state * get_initial_state() const {
         return this->field_1C;

@@ -1,5 +1,6 @@
 #include "base_ai_res_state_graph.h"
 
+#include "base_state.h"
 #include "binary_search_array_deref.h"
 #include "common.h"
 #include "func_wrapper.h"
@@ -11,9 +12,27 @@ namespace ai {
 
 VALIDATE_SIZE(state_graph, 0x34);
 
-state_graph::state_graph()
+state_graph::state_graph(from_mash_in_place_constructor *a2) : field_0(a2), my_states(a2), field_20(a2)
 {
+    if constexpr (0)
+    {
+        if ( this->field_1C != nullptr ) {
+            mash_info_struct::construct_class(this->field_1C);
+        }
 
+        this->initialize(mash::FROM_MASH);
+    }
+    else
+    {
+        THISCALL(0x006DA190, this, a2);
+    }
+}
+
+void state_graph::initialize(mash::allocation_scope scope)
+{
+    if ( scope == mash::ALLOCATED ) {
+        this->field_1C = nullptr;
+    }
 }
 
 void state_graph::destruct_mashed_class()
