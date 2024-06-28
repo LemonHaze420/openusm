@@ -3,6 +3,7 @@
 #include "base_ai_core.h"
 #include "common.h"
 #include "func_wrapper.h"
+#include "weapon_instance.h"
 
 namespace ai {
 
