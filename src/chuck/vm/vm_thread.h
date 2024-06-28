@@ -2,7 +2,7 @@
 
 #include "entity_base_vhandle.h"
 #include "fixed_pool.h"
-#include "msimpletemplates_guts.h"
+#include "msimpletemplates.h"
 #include "opcodes.h"
 #include "script_library_class.h"
 #include "signaller.h"
@@ -38,7 +38,7 @@ struct vm_thread {
         SUSPENDABLE = 0x0002,
     };
 
-    simple_list<vm_thread>::vars_t simple_list_vars;
+    simple_list<vm_thread *>::vars_t simple_list_vars;
     script_instance *inst;
     const vm_executable *ex;
     vm_thread *field_14;

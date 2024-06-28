@@ -3,7 +3,7 @@
 #include "float.hpp"
 #include "quaternion.h"
 #include "mashable_vector.h"
-#include "msimpletemplates_guts.h"
+#include "msimpletemplates.h"
 #include "oldmath_po.h"
 #include "resource_key.h"
 #include "vector3d.h"
@@ -51,7 +51,7 @@ struct ai_tentacle_info {
     int field_A0;
     int field_A4;
     int field_A8;
-    simple_list<ai_tentacle_engine> engines;
+    simple_list<ai_tentacle_engine *> engines;
     int field_B8;
     int field_BC;
     int field_C0;

@@ -1,22 +1,53 @@
 #pragma once
 
+#include "mash.h"
+#include "memory.h"
 #include "trace.h"
 
+#include <cassert>
 #include <cstdint>
 
 template<typename T>
 struct simple_list {
-    T *_first_element;
-    T *_last_element;
+    static_assert(std::is_pointer_v<T>, "");
+
+    using value_type = typename std::remove_pointer_t<T>;
+
+    value_type * _first_element;
+    value_type * _last_element;
     uint32_t m_size;
 
-    simple_list() : _first_element(nullptr),
-                    _last_element(nullptr),
-                    m_size(0) {}
+    simple_list() {
+        this->initialize(mash::ALLOCATED);
+    }
+
+    void *operator new(size_t size) {
+        return mem_alloc(size);
+    }
+
+    void operator delete(void *ptr, size_t size) {
+        mem_dealloc(ptr, size);
+    }
+
+
+    void initialize(mash::allocation_scope scope)
+    {
+        if (scope == mash::ALLOCATED) {
+            this->clear();
+        }
+    }
+
+    void clear()
+    {
+        this->_first_element = nullptr;
+        this->_last_element = nullptr;
+        this->m_size = 0;
+    }
+
 
     struct vars_t {
-        T *_sl_next_element;
-        T *_sl_prev_element;
+        value_type * _sl_next_element;
+        value_type * _sl_prev_element;
         simple_list<T> *_sl_list_owner;
         
         vars_t() : _sl_next_element(nullptr),
@@ -25,25 +56,79 @@ struct simple_list {
     };
 
     struct iterator {
-        T *_Ptr {nullptr};
+        value_type *_ptr {nullptr};
 
         bool operator==(const iterator &it) const {
-            return this->_Ptr == it._Ptr;
+            return this->_ptr == it._ptr;
         }
 
         bool operator!=(const iterator &it) const {
-            return this->_Ptr != it._Ptr;
+            return this->_ptr != it._ptr;
         }
 
         void operator++() {
-            if ( this->_Ptr != nullptr ) {
-                this->_Ptr = this->_Ptr->simple_list_vars._sl_next_element;
+            if ( this->_ptr != nullptr ) {
+                this->_ptr = this->_ptr->simple_list_vars._sl_next_element;
             }
         }
 
-        T &operator*() {
-            return (*this->_Ptr);
+        value_type *& operator*() {
+            return this->_ptr;
         }
+
+        static void swap(iterator &a, iterator &b)
+        {
+            assert(a._ptr->simple_list_vars._sl_list_owner == b._ptr->simple_list_vars._sl_list_owner);
+
+            auto v2 = a._ptr->simple_list_vars._sl_list_owner;
+            if (v2->_first_element == a._ptr) {
+                v2->_first_element = b._ptr;
+            } else {
+                auto *v3 = b._ptr->simple_list_vars._sl_list_owner;
+                if (v3->_first_element == b._ptr) {
+                    v3->_first_element = a._ptr;
+                }
+            }
+
+            auto *v4 = a._ptr->simple_list_vars._sl_list_owner;
+            if (v4->_last_element == a._ptr) {
+                v4->_last_element = b._ptr;
+            } else {
+                auto *v5 = b._ptr->simple_list_vars._sl_list_owner;
+                if (v5->_last_element == b._ptr) {
+                    v5->_last_element = a._ptr;
+                }
+            }
+
+            auto *v6 = a._ptr->simple_list_vars._sl_prev_element;
+            a._ptr->simple_list_vars._sl_prev_element = b._ptr->simple_list_vars._sl_prev_element;
+            b._ptr->simple_list_vars._sl_prev_element = v6;
+            auto *v7 = a._ptr->simple_list_vars._sl_prev_element;
+            if (v7 != nullptr) {
+                v7->simple_list_vars._sl_next_element = a._ptr;
+            }
+
+            auto *v8 = b._ptr->simple_list_vars._sl_prev_element;
+            if (v8 != nullptr) {
+                v8->simple_list_vars._sl_next_element = b._ptr;
+            }
+
+            auto *v9 = a._ptr->simple_list_vars._sl_next_element;
+            a._ptr->simple_list_vars._sl_next_element = b._ptr->simple_list_vars._sl_next_element;
+            b._ptr->simple_list_vars._sl_next_element = v9;
+            auto *v10 = a._ptr->simple_list_vars._sl_next_element;
+            if (v10 != nullptr) {
+                v10->simple_list_vars._sl_prev_element = a._ptr;
+            }
+
+            auto *v11 = b._ptr->simple_list_vars._sl_next_element;
+            if (v11 != nullptr) {
+                v11->simple_list_vars._sl_prev_element = b._ptr;
+            }
+
+            std::swap(a._ptr, b._ptr);
+        }
+
 
     };
 
@@ -63,9 +148,13 @@ struct simple_list {
         return iterator {nullptr};
     }
 
-    iterator push_back(T *tmp)
+    value_type *& front() {
+        return this->_first_element;
+    }
+
+    iterator push_front(value_type *tmp)
     {
-        TRACE("simple_list::push_back");
+        TRACE("simple_list::push_front");
 
         assert(tmp != nullptr);
 
@@ -95,9 +184,9 @@ struct simple_list {
         return a2;
     }
 
-    iterator emplace_back(T *tmp)
+    iterator push_back(value_type *tmp)
     {
-        TRACE("simple_list::emplace_back");
+        TRACE("simple_list::push_back");
 
         assert(tmp != nullptr);
 
@@ -109,7 +198,7 @@ struct simple_list {
 
         if ( this->_last_element != nullptr )
         {
-            assert(_last_element->simple_list_vars._sl_next_element == nullptr);
+            assert(this->_last_element->simple_list_vars._sl_next_element == nullptr);
 
             this->_last_element->simple_list_vars._sl_next_element = tmp;
             tmp->simple_list_vars._sl_prev_element = this->_last_element;
@@ -121,18 +210,18 @@ struct simple_list {
         }
         else
         {
-            return this->push_back(tmp);
+            return this->push_front(tmp);
         }
     }
 
-    bool contains(T *iter) const {
+    bool contains(value_type *iter) const {
         return (iter != nullptr)
                 && (iter->simple_list_vars._sl_list_owner == this);
     }
 
-    T * erase(T *iter, bool a3)
+    value_type * common_erase(value_type *iter, bool a3)
     {
-        T *result = nullptr;
+        value_type *result = nullptr;
         if ( iter != nullptr )
         {
             assert(this->contains(iter));
@@ -170,20 +259,26 @@ struct simple_list {
         return result;
     }
 
-    bool common_erase(T *a2)
+    bool checked_erase(value_type *a2)
     {
         if ( !this->contains(a2) ) {
             return false;
         }
 
-        this->erase(a2, false);
+        this->common_erase(a2, false);
         return true;
     }
 
-    iterator erase(T *a3)
+    iterator erase(value_type *a3)
     {
-        auto *v3 = this->erase(a3, false);
+        auto *v3 = this->common_erase(a3, false);
         return {v3};
+    }
+
+    void pop_front()
+    {
+        auto it = this->begin();
+        this->erase(it._ptr);
     }
 
 };

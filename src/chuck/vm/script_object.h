@@ -1,10 +1,10 @@
 #pragma once
 
+#include "float.hpp"
+#include "msimpletemplates.h"
 #include "mstring.h"
 #include "string_hash.h"
 #include "so_data_block.h"
-#include "float.hpp"
-#include "msimpletemplates_guts.h"
 
 #include <list.hpp>
 #include <set.hpp>
@@ -61,7 +61,7 @@ private:
     vm_executable **funcs;
     int total_funcs;
     int field_28;
-    simple_list<script_instance> *instances;
+    simple_list<script_instance *> *instances;
     uint32_t flags;
 
 public:
@@ -195,12 +195,12 @@ enum script_instance_callback_reason_t {
 
 class script_instance {
 public:
-    simple_list<script_instance>::vars_t simple_list_vars;
+    simple_list<script_instance *>::vars_t simple_list_vars;
 
 private:
     string_hash name;
     so_data_block data;
-    simple_list<vm_thread> threads;
+    simple_list<vm_thread *> threads;
 
 public:
     vm_executable *field_28;
@@ -246,8 +246,8 @@ public:
     bool run_single_thread(vm_thread *a2, bool a3);
 
     //0x005AAE60
-    simple_list<vm_thread>::iterator delete_thread(
-        simple_list<vm_thread>::iterator a3);
+    simple_list<vm_thread *>::iterator delete_thread(
+        simple_list<vm_thread *>::iterator a3);
 
     void dump_threads_to_file(FILE *a2);
 

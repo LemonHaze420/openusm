@@ -120,6 +120,6 @@ int ai_tentacle_info::push_engine(ai_tentacle_engine *eng)
 {
     assert(eng != nullptr);
 
-    this->engines.push_back(eng);
+    this->engines.push_front(eng);
     return ( eng != nullptr ? eng->field_10 : 0 );
 }

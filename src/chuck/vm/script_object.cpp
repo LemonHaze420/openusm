@@ -36,8 +36,7 @@ void script_object::constructor_common() {
     assert(instances == nullptr);
 
     if constexpr (1) {
-        auto *mem = mem_alloc(sizeof(*this->instances));
-        this->instances = new (mem) simple_list<script_instance> {};
+        this->instances = new simple_list<script_instance *> {};
     } else {
         THISCALL(0x005A0750, this);
     }
@@ -80,15 +79,15 @@ void script_object::destructor_common()
         while ( !this->instances->empty() )
         {
             auto v5 = this->instances->begin();
-            this->instances->common_erase(v5._Ptr);
+            this->instances->checked_erase(*v5);
 
-            auto *v3 = v5._Ptr;
+            auto *v3 = (*v5);
             if ( v3 != nullptr ) {
                 delete v3;
             }
         }
 
-        mem_dealloc(this->instances, sizeof(*this->instances));
+        delete this->instances;
         this->instances = nullptr;
     }
 
@@ -110,8 +109,7 @@ void script_object::destroy()
         {
             auto &v5 = this->funcs[i];
             if ( v5 != nullptr ) {
-                v5->~vm_executable();
-                ::operator delete(v5);
+                delete v5;
             }
         }
 
@@ -132,16 +130,14 @@ void script_object::create_destructor_instances()
 		{
 			for ( auto &v2 : (*this->instances) )
 			{
-				v2.massacre_threads(nullptr, nullptr);
-				if ( v2.field_28 != nullptr )
+				v2->massacre_threads(nullptr, nullptr);
+				if ( v2->field_28 != nullptr )
 				{
-					if ( !v2.field_28->is_from_mash() )
-					{
-						v2.field_28->~vm_executable();
-						::operator delete(v2.field_28);
+					if ( !v2->field_28->is_from_mash() ) {
+						delete v2->field_28;
 					}
 
-					v2.field_28 = nullptr;
+					v2->field_28 = nullptr;
 				}
 			}
 		}
@@ -151,7 +147,7 @@ void script_object::create_destructor_instances()
 				&& this->instances != nullptr )
 		{
 			for ( auto &v3 : (*this->instances) ) {
-				this->add_thread(&v3, this->field_28);
+				this->add_thread(v3, this->field_28);
 			}
 		}
 	}
@@ -169,21 +165,20 @@ void script_object::quick_un_mash()
     }
 }
 
-simple_list<vm_thread>::iterator script_instance::delete_thread(
-        simple_list<vm_thread>::iterator a3)
+simple_list<vm_thread *>::iterator script_instance::delete_thread(
+        simple_list<vm_thread *>::iterator a3)
 {
     TRACE("script_instance::delete_thread");
 
     if constexpr (0)
     {
-        auto *condemned = &(*a3);
+        vm_thread *condemned = (*a3);
         assert(condemned != nullptr);
 
-        for ( auto &it : this->threads )
+        for ( auto &t : this->threads )
         {
-            auto *v9 = &it;
-            if ( v9 != condemned && v9->field_14 == condemned ) {
-                v9->field_14 = nullptr;
+            if ( t != condemned && t->field_14 == condemned ) {
+                t->field_14 = nullptr;
             }
         }
 
@@ -195,11 +190,10 @@ simple_list<vm_thread>::iterator script_instance::delete_thread(
         }
 
         return v8;
-
     }
     else
     {
-        using iterator_t = simple_list<vm_thread>::iterator;
+        using iterator_t = simple_list<vm_thread *>::iterator;
 
         iterator_t it {};
 
@@ -215,9 +209,9 @@ void script_instance::dump_threads_to_file(FILE *a2)
 
     for ( auto &v7 : this->threads )
     {
-        if ( !v7.is_suspended() )
+        if ( !v7->is_suspended() )
         {
-            auto *exec = v7.get_executable();
+            auto *exec = v7->get_executable();
             auto &name = exec->get_name();
             auto *v4 = name.to_string();
             auto *v3 = this->name.to_string();
@@ -236,7 +230,7 @@ void script_instance::run(bool a2)
     auto end = this->threads.end();
     while (it != end)
     {
-        auto *t = it._Ptr;
+        auto *t = (*it);
         assert(t != nullptr);
 
         if ( (a2 || !t->is_suspended()) && t->run() ) {
@@ -287,8 +281,7 @@ void script_instance::build_parameters()
                 auto *v10 = this->field_28;
                 auto *v9 = v10;
                 if ( v10 != nullptr ) {
-                    v9->~vm_executable();
-                    delete(v9);
+                    delete v9;
                 }
             }
 
@@ -317,7 +310,7 @@ void script_object::run(bool a2)
     TRACE("script_object::run");
 
     for (auto &v1 : (*this->instances) ) {
-        v1.run(a2);
+        v1->run(a2);
     }
 }
 
@@ -326,7 +319,7 @@ bool script_object::has_threads() const
     if (this->instances != nullptr)
 	{
         for (auto &v1 : (*this->instances)) {
-            if (v1.has_threads()) {
+            if (v1->has_threads()) {
                 return true;
             }
         }
@@ -341,7 +334,7 @@ void script_object::dump_threads_to_file(FILE *a2)
 
     if ( this->instances != nullptr ) {
         for ( auto &v2 : (*this->instances) ) {
-            v2.dump_threads_to_file(a2);
+            v2->dump_threads_to_file(a2);
         }
     }
 }
@@ -477,14 +470,14 @@ void script_object::remove_instance(script_instance *a2)
 	{
 		for ( auto &v7 : (*this->instances) )
 		{
-			if ( (&v7) == a2 )
+			if ( v7 == a2 )
 			{
-				auto *v2 = &v7;
+				auto *v2 = v7;
 				if ( v2 == this->global_instance ) {
 					this->global_instance = nullptr;
 				}
 
-				this->instances->common_erase({v2});
+				this->instances->erase({v2});
 
 				delete v2;
 				return;
@@ -519,7 +512,7 @@ void script_object::add(script_instance *a2)
         assert(instances != nullptr);
 
         a2->set_parent(this);
-        this->instances->emplace_back(a2);
+        this->instances->push_back(a2);
     }
     else
     {
@@ -601,12 +594,12 @@ void script_object::create_auto_instance(Float a2)
             {
                 assert(global_instance == nullptr);
 
-                this->instances->emplace_back(inst);
+                this->instances->push_back(inst);
                 this->global_instance = inst;
             }
             else
             {
-                this->instances->push_back(inst);
+                this->instances->push_front(inst);
             }
 
             auto *new_thread = inst->add_thread(&con);
@@ -953,11 +946,10 @@ script_instance::~script_instance()
 
     while ( !this->threads.empty() )
     {
-        auto *t = &(*this->threads.begin());
-        this->threads.common_erase(t);
+        auto *t = (*this->threads.begin());
+        this->threads.checked_erase(t);
 
-        t->~vm_thread();
-        vm_thread::pool().remove(t);
+        delete t;
     }
 }
 
@@ -989,7 +981,7 @@ bool script_instance::run_single_thread(vm_thread *a2, bool a3)
             auto end = this->threads.end();
             for (auto it = this->threads.begin(); it != end; ++it )
             {
-                if ( &(*it) == a2 ) {
+                if ( (*it) == a2 ) {
                     this->delete_thread(it);
                 }
             }
@@ -1056,7 +1048,7 @@ void script_instance::add_thread(void *a2, const vm_executable *a3, const char *
 
         assert(nt != nullptr);
 
-        this->threads.emplace_back(nt);
+        this->threads.push_back(nt);
 
         if ( (this->flags & 1) != 0 ) {
             nt->set_suspended(true);
@@ -1086,7 +1078,7 @@ void script_instance::recursive_massacre_threads(vm_thread *root)
     auto end = this->threads.end();
     while (it != end) 
     {
-        auto *t = &(*it);
+        auto *t = (*it);
         assert(t != nullptr);
 
         if ( t->field_14 == root )
@@ -1115,7 +1107,7 @@ void script_instance::massacre_threads(const vm_executable *a2, const vm_thread 
             auto end = this->threads.end();
             while ( it != end )
             {
-                auto *t = &(*it);
+                auto *t = (*it);
                 assert(t != nullptr);
 
                 bool v9 = false;
@@ -1144,7 +1136,7 @@ void script_instance::massacre_threads(const vm_executable *a2, const vm_thread 
             auto end = this->threads.end();
             while (it != end) 
             {
-                auto *t = &(*it);
+                auto *t = (*it);
                 assert(t != nullptr);
 
                 if ( t == a3 ) {
@@ -1169,7 +1161,7 @@ void script_instance::kill_thread(const vm_executable *a2, const vm_thread *a3)
         auto end = this->threads.end();
         while ( it != end )
         {
-            auto *t = &(*it);
+            auto *t = (*it);
             assert(t != nullptr);
 
             bool v7 = false;
@@ -1203,7 +1195,7 @@ vm_thread *script_instance::add_thread(const vm_executable *a2)
         auto *nt = new vm_thread {this, a2};
         assert(nt != nullptr);
 
-        this->threads.emplace_back(nt);
+        this->threads.push_back(nt);
 
         if ( (this->flags & 1) != 0 ) {
             nt->set_suspended(true);

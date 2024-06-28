@@ -1,12 +1,12 @@
 #pragma once
 
-#include "msimpletemplates_guts.h"
+#include "msimpletemplates.h"
 
 struct ai_tentacle_info;
 
 struct ai_tentacle_engine {
     int m_vtbl;
-    simple_list<ai_tentacle_engine>::vars_t simple_list_vars;
+    simple_list<ai_tentacle_engine *>::vars_t simple_list_vars;
     int field_10;
     ai_tentacle_info *field_14;
     int field_18;

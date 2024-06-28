@@ -2,26 +2,13 @@
 
 #include <config.h>
 
+#include "msimpletemplates.h"
+
 struct debug_menu;
 
 namespace slab_allocator {
-    struct slab_list_t;
 
     struct slab_t {
-        struct iterator {
-            slab_t *_ptr;
-
-            slab_t *operator*();
-
-            iterator operator++();
-
-            iterator operator++(int);
-
-            bool operator!=(const slab_t::iterator &a2);
-
-            bool operator==(const slab_t::iterator &a2);
-        };
-
         uint32_t begin_sentry;
         char *arena;
         uint16_t field_8;
@@ -33,7 +20,7 @@ namespace slab_allocator {
         struct {
             slab_t *_sl_next_element;
             slab_t *_sl_prev_element;
-            slab_list_t *_sl_list_owner;
+            simple_list<slab_t *> *_sl_list_owner;
         } simple_list_vars;
         uint32_t end_sentry;
 
@@ -87,6 +74,8 @@ namespace slab_allocator {
 
     constexpr auto SLAB_SIZE = 4096;
 
+    constexpr auto NUM_STATIC_SLABS = 1024;
+
     extern int allocated_object_count[44];
     extern int free_object_count[44];
 
@@ -96,61 +85,11 @@ namespace slab_allocator {
     extern int free_slab_count;
     extern int total_slab_count;
 
-    struct slab_list_t {
-        slab_t *_first_element;
-        slab_t *_last_element;
-        int _size;
-
-        slab_list_t() {
-            this->_first_element = nullptr;
-            this->_last_element = nullptr;
-            this->_size = 0;
-        }
-
-        ~slab_list_t() {
-            this->_first_element = nullptr;
-            this->_last_element = nullptr;
-            this->_size = 0;
-        }
-
-        slab_t *front() {
-            return this->_first_element;
-        }
-
-        auto begin() {
-            slab_t::iterator iter{this->_first_element};
-
-            return iter;
-        }
-
-        slab_t::iterator end() {
-            slab_t::iterator iter{};
-
-            return iter;
-        }
-
-        bool contains(slab_t *iter) {
-            return iter && iter->simple_list_vars._sl_list_owner == this;
-        }
-
-
-        //0x005B3C10
-        slab_t::iterator push_back(slab_t *tmp);
-
-        //0x005B3040
-        bool remove_slab(slab_allocator::slab_t *slab);
-
-        //0x005B30A0
-        slab_t::iterator add_slab(slab_allocator::slab_t *slab);
-    };
-
     struct slab_partial_list_t {
         int field_0;
-        slab_list_t field_4[44];
+        simple_list<slab_t *> field_4[44];
     };
 
 } // namespace slab_allocator
-
-extern void swap(slab_allocator::slab_t::iterator &a, slab_allocator::slab_t::iterator &b);
 
 extern void slab_allocator_patch();
