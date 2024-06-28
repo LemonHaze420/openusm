@@ -12,13 +12,14 @@ TEST(MashableVector, Construct)
 TEST(MashableVector, UnMash)
 {
     mashable_vector<int> vec {};
-    EXPECT_EQ(vec.size(), 0);
 
-    vec.m_size = 2;
+    constexpr auto size = 2u;
+
+    vec.m_size = size;
     vec.field_7 = true;
 
     int buffer[32] {};
-    new (buffer) int[2] {10, 11};
+    new (buffer) int[size] {10, 11};
 
     generic_mash_data_ptrs ptrs {bit_cast<uint8_t *>(&buffer), bit_cast<uint8_t *>(&buffer)};
 
