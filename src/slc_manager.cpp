@@ -31,9 +31,9 @@
 _std::vector<script_library_class *> *& slc_manager_class_array = var<_std::vector<script_library_class *> *>(0x00965EC8);
 #else
 
-static std::vector<script_library_class *> *g_slc_manager_class_array {nullptr};
-std::vector<script_library_class *> *&
-    slc_manager_class_array {g_slc_manager_class_array};
+static _std::vector<script_library_class *> *g_slc_manager_class_array {nullptr};
+_std::vector<script_library_class *> *&
+    slc_manager_class_array = g_slc_manager_class_array;
 
 #endif
 
