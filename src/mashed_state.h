@@ -3,6 +3,8 @@
 #include "mash_virtual_base.h"
 #include "param_block.h"
 
+struct from_mash_in_place_constructor;
+
 namespace ai {
 
 struct mashed_state {
@@ -12,6 +14,8 @@ struct mashed_state {
     mash::virtual_types_enum field_14;
 
     mashed_state();
+
+    mashed_state(from_mash_in_place_constructor *a2);
 
     void unmash(mash_info_struct *, void *);
 
