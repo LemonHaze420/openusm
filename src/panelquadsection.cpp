@@ -8,9 +8,9 @@
 
 VALIDATE_SIZE(PanelQuadSection, 0x7C);
 
-PanelQuadSection::PanelQuadSection()
+PanelQuadSection::PanelQuadSection(from_mash_in_place_constructor *)
 {
-
+    this->field_78 = true;
 }
 
 void PanelQuadSection::Init(vector2d *pos, vector2d *uv, color32 *a4, Float a5) {

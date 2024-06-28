@@ -5,6 +5,7 @@
 
 #include <cstdint>
 
+struct from_mash_in_place_constructor;
 struct vector2d;
 struct color32;
 
@@ -16,7 +17,7 @@ struct PanelQuadSection {
     mNglQuad field_14;
     bool field_78;
 
-    PanelQuadSection();
+    PanelQuadSection(from_mash_in_place_constructor *a2);
 
     void Init(vector2d *pos, vector2d *uv, color32 *a4, Float a5);
 };
