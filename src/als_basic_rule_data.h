@@ -1,9 +1,11 @@
 #pragma once
 
 #include "func_wrapper.h"
+#include "mash.h"
 #include "mvector.h"
 #include "string_hash.h"
 
+struct from_mash_in_place_constructor;
 struct mash_info_struct;
 
 namespace als
@@ -27,6 +29,10 @@ namespace als
             mVector<dest_weight_data> *destination_states;
             string_hash field_8;
 
+            rule_action(from_mash_in_place_constructor *a2);
+
+            void initialize(mash::allocation_scope a2);
+
             void unmash(mash_info_struct *, void *);
 
             string_hash get_dest() const;
@@ -39,12 +45,16 @@ namespace als
             mVector<als::post_kill_rule> field_0;
             mVector<als::post_layer_alter> field_14;
 
+            post_action_rule_set(from_mash_in_place_constructor *a2);
+
             void unmash(mash_info_struct *, void *);
         };
 
         mVector<filter_data> field_0;
         rule_action field_14;
         post_action_rule_set *field_20;
+
+        basic_rule_data(from_mash_in_place_constructor *a2);
 
         void unmash(mash_info_struct *a1, void *);
 

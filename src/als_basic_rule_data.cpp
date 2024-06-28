@@ -2,6 +2,8 @@
 
 #include "als_dest_weight_data.h"
 #include "als_filter_data.h"
+#include "als_post_layer_alter.h"
+#include "als_post_kill_rule.h"
 #include "als_request_data.h"
 #include "mash_info_struct.h"
 #include "common.h"
@@ -13,6 +15,13 @@ namespace als
 {
     VALIDATE_SIZE(basic_rule_data, 0x24);
     VALIDATE_SIZE(basic_rule_data::post_action_rule_set, 0x28u);
+
+    basic_rule_data::basic_rule_data(from_mash_in_place_constructor *a2) : field_0(a2), field_14(a2)
+    {
+        if (this->field_20 != nullptr) {
+            mash_info_struct::construct_class(this->field_20);
+        }
+    }
 
     void basic_rule_data::unmash(mash_info_struct *a1, void *)
     {
@@ -70,6 +79,22 @@ namespace als
     bool basic_rule_data::has_post_action() const
     {
         return this->field_20 != nullptr;
+    }
+
+    basic_rule_data::rule_action::rule_action(from_mash_in_place_constructor *a2) : field_8(a2)
+    {
+        this->initialize(mash::FROM_MASH);
+
+        if (this->destination_states != nullptr) {
+            mash_info_struct::construct_class(this->destination_states);
+        }
+    }
+
+    void basic_rule_data::rule_action::initialize(mash::allocation_scope a2)
+    {
+        if ( a2 == mash::ALLOCATED ) {
+            this->destination_states = nullptr;
+        }
     }
 
     void basic_rule_data::rule_action::unmash(mash_info_struct *a1, void *)
@@ -183,6 +208,10 @@ namespace als
         } else {
             THISCALL(0x004997D0, this, &a2);
         }
+    }
+
+    basic_rule_data::post_action_rule_set::post_action_rule_set(from_mash_in_place_constructor *a2) : field_0(a2), field_14(a2)
+    {
     }
 
     void basic_rule_data::post_action_rule_set::unmash(mash_info_struct *a1, void *)
