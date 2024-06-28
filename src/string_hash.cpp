@@ -35,6 +35,10 @@ string_hash::string_hash() {
     this->initialize(mash::ALLOCATED, nullptr, 0);
 }
 
+string_hash::string_hash(from_mash_in_place_constructor *) {
+    this->initialize(mash::FROM_MASH, nullptr, 0);
+}
+
 string_hash::string_hash(const char *a1)
 {
     this->initialize(mash::ALLOCATED, a1, 0);

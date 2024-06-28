@@ -4,6 +4,7 @@
 #include <variable.h>
 
 struct entity_base;
+struct from_mash_in_place_constructor;
 struct mic;
 struct mash_info_struct;
 
@@ -11,6 +12,8 @@ struct string_hash {
     std::uint32_t source_hash_code;
 
     string_hash();
+
+    string_hash(from_mash_in_place_constructor *);
 
     string_hash(const char *a1);
 
