@@ -3,18 +3,20 @@
 #include "ai_interaction_data.h"
 #include "base_ai_res_state_graph.h"
 #include "als_animation_logic_system_shared.h"
+#include "als_basic_rule_data.h"
+#include "als_dest_weight_data.h"
 #include "als_res_data.h"
 #include "core_ai_resource.h"
 #include "cut_scene.h"
+#include "func_wrapper.h"
 #include "gab_manager.h"
+#include "nugget.h"
+#include "panelfile.h"
 #include "path_graph.h"
-#include "token_def_list.h"
 #include "skeleton_interface.h"
 #include "sound_alias_database.h"
-#include "panelfile.h"
+#include "token_def_list.h"
 #include "trace.h"
-
-#include "func_wrapper.h"
 
 template<>
 void mash_info_struct::construct_class<mAvlTree<string_hash_entry>>(mAvlTree<string_hash_entry> *&a1)
@@ -74,6 +76,55 @@ void mash_info_struct::construct_class(path_graph *&a1)
     {
         void (__fastcall *func)(void *, int edx, void *) = CAST(func, 0x005DE080);
         func(a1, 0, nullptr);
+    }
+}
+
+template<>
+void mash_info_struct::construct_class(mVector<als::dest_weight_data> *&a1)
+{
+    if ( a1 != nullptr )
+    {
+        void (__fastcall *func)(void *, int edx, void *) = CAST(func, 0x004B1770);
+        func(a1, 0, nullptr);
+    }
+}
+
+template<>
+void mash_info_struct::construct_class(als::basic_rule_data::post_action_rule_set *&a1)
+{
+    if ( a1 != nullptr )
+    {
+        void (__fastcall *func)(void *, int edx, void *) = CAST(func, 0x004AC210);
+        func(a1, 0, nullptr);
+    }
+}
+
+template<>
+void mash_info_struct::construct_class(attach_interact_data *&a1)
+{
+    if ( a1 != nullptr )
+    {
+        void (__fastcall *func)(void *, int edx, void *) = CAST(func, 0x006B8F80);
+        func(a1, 0, nullptr);
+    }
+}
+
+template<>
+void mash_info_struct::construct_class(ai::param_block *&a1)
+{
+    if ( a1 != nullptr )
+    {
+        void (__fastcall *func)(void *, int edx, void *) = CAST(func, 0x006D9900);
+        func(a1, 0, nullptr);
+    }
+}
+
+template<>
+void mash_info_struct::construct_class(nugget *&a1)
+{
+    static_assert(std::is_base_of_v<mash_virtual_base, nugget>, "");
+    if ( a1 != nullptr ) {
+        a1 = static_cast<nugget *>(mash_virtual_base::construct_class_helper(a1));
     }
 }
 

@@ -11,9 +11,8 @@ namespace als {
     VALIDATE_SIZE(als_meta_anim_table_shared, 0x18);
 
     als_meta_anim_table_shared::als_meta_anim_table_shared(
-        from_mash_in_place_constructor *a2)
+        from_mash_in_place_constructor *a2) : field_0(a2)
     {
-        this->field_0 = {a2};
         this->initialize(mash::FROM_MASH);
     }
 
