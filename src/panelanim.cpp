@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "panelfile.h"
+#include "panelanimkeyframe.h"
 #include "trace.h"
 
 VALIDATE_SIZE(PanelAnim, 0x1C);

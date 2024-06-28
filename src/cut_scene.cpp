@@ -5,6 +5,7 @@
 
 #include "common.h"
 #include "cut_scene_segment.h"
+#include "entity_class_entry.h"
 #include "func_wrapper.h"
 #include "log.h"
 #include "resource_manager.h"

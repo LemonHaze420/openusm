@@ -1,8 +1,12 @@
 #include "state_machine_shared.h"
-#include "vtbl.h"
-#include "func_wrapper.h"
+
+#include "als_category.h"
+#include "als_state.h"
+#include "als_transition_group_base.h"
 #include "common.h"
+#include "func_wrapper.h"
 #include "trace.h"
+#include "vtbl.h"
 
 namespace als {
     VALIDATE_SIZE(state_machine_shared, 0x40);

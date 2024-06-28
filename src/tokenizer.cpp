@@ -6,6 +6,7 @@
 #include <cassert>
 #include <cctype>
 #include <cstring>
+#include <cstdint>
 
 tokenizer::tokenizer(bool a2) {
     this->field_C.clear();
