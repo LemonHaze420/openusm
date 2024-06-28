@@ -1,5 +1,7 @@
 #include "als_scripted_category.h"
 
+#include "als_filter_data.h"
+#include "als_transition_rule.h"
 #include "mash_info_struct.h"
 #include "utility.h"
 #include "trace.h"
@@ -15,6 +17,14 @@ namespace als
     scripted_category::scripted_category()
     {
         THISCALL(0x004ACBF0, this);
+    }
+
+    scripted_category::scripted_category(from_mash_in_place_constructor *a2) : category(a2), field_10(a2), field_14(a2), field_2C(a2), field_3C(a2), field_50(a2), field_64(a2)
+    {
+        this->m_vtbl = 0x0087E250;
+        if ( this->field_78 != nullptr ) {
+            mash_info_struct::construct_class(this->field_78);
+        }
     }
 
     void scripted_category::_unmash(mash_info_struct *a1, void *a3)

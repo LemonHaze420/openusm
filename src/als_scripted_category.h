@@ -5,6 +5,7 @@
 #include "mvector.h"
 #include "force_transitions.h"
 
+struct from_mash_in_place_constructor;
 struct mash_info_struct;
 
 namespace als
@@ -26,6 +27,8 @@ namespace als
         mVector<als::layer_transition_rule> *field_78;
 
         scripted_category();
+
+        scripted_category(from_mash_in_place_constructor *a2);
 
         //0x004AC850
         void _unmash(mash_info_struct *a1, void *);
