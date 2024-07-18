@@ -104,26 +104,18 @@ target_compile_options(usm
 
 add_library(binkw32 SHARED main.cpp)
 target_compile_options(binkw32
-  PRIVATE
+    PRIVATE
     ${flags}
 )
-target_link_libraries(binkw32 PUBLIC usm)
-
-add_library(memory "./src/memory.cpp" "./src/memory.h")
-target_compile_options(memory
-    PRIVATE
-      ${flags}
-  )
-target_include_directories(memory PUBLIC "./include/")
-target_link_libraries(memory PUBLIC utility)
+target_link_libraries(binkw32 PUBLIC dxerr8 usm)
 
 
 file(GLOB_RECURSE NALCOMP_SRC "./src/nalcomp/*.cpp")
 add_library(nalcomp ${NALCOMP_SRC})
 target_compile_options(nalcomp
     PRIVATE
-      ${flags}
-  )
+    ${flags}
+)
 target_include_directories(nalcomp PUBLIC "./src/nalcomp/")
 target_include_directories(nalcomp PUBLIC "./src/")
 
@@ -144,7 +136,7 @@ target_compile_options(nsl
       ${flags}
 )
 target_include_directories(nsl PUBLIC "./include/" "./src/" "./src/nsl/src/nsl/" )
-target_link_libraries(nsl PUBLIC nfl utility)
+target_link_libraries(nsl PUBLIC nfl utility variables)
 
 
 file(GLOB_RECURSE NAL_SRC "./src/nal_system.cpp" "./src/nal/source/common/*.cpp")
