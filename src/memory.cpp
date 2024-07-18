@@ -45,7 +45,10 @@ void mem_check_leaks_since_checkpoint(int, uint32_t)
   ;
 }
 
-void *mem_alloc(size_t Size) {
+void * mem_alloc(size_t Size)
+{
+    TRACE("mem_alloc");
+
     void *mem;
 
     if (slab_allocator::get_max_object_size() < Size) {
@@ -125,8 +128,10 @@ void mem_print_stats(const char *a1) {
     debug_print_va("peak: %10lu   curr: %10lu   free: %10lu\n", 0ul, 0ul, 0ul);
 }
 
-void *arch_malloc(size_t Size)
+void * arch_malloc(size_t Size)
 {
+    TRACE("arch_malloc");
+
     if (mem_first_malloc) {
         mem_on_first_allocation();
 
@@ -153,14 +158,11 @@ int mem_get_total_alloced(int )
 
 void memory_patch()
 {
-    if constexpr (STANDALONE_SYSTEM)
-    {
-        SET_JUMP(0x0051CC90, mem_get_total_alloced);
+    SET_JUMP(0x0051CC90, mem_get_total_alloced);
 
-        SET_JUMP(0x0059F684, arch_malloc);
+    SET_JUMP(0x0059F684, arch_malloc);
 
-        SET_JUMP(0x0058EC30, arch_memalign_internal);
+    SET_JUMP(0x0058EC30, arch_memalign_internal);
 
-        SET_JUMP(0x0058EC80, mem_freealign);
-    }
+    SET_JUMP(0x0058EC80, mem_freealign);
 }
