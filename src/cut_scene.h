@@ -29,7 +29,7 @@ struct cut_scene {
     cut_scene(from_mash_in_place_constructor *a2);
 
     //0x00742770
-    int destruct_mashed_class();
+    void destruct_mashed_class();
 
     //0x00742930
     void unmash(mash_info_struct *a1, void *a3);
@@ -39,8 +39,8 @@ struct cut_scene {
     static void init_stream_scene_anims();
 
     //0x0096FB90
-    static Var<resource_pack_standalone> stream_anim_pack;
+    static resource_pack_standalone & stream_anim_pack;
 
     //0x0096FB80
-    static Var<mString> scene_anim_packfile_id;
+    static mString & scene_anim_packfile_id;
 };

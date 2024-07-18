@@ -162,7 +162,7 @@ void sub_732D60(bool a1)
     if constexpr (1)
     {
         if (!resource_manager::using_amalga || a1) {
-            cut_scene::stream_anim_pack().unload();
+            cut_scene::stream_anim_pack.unload();
         }
     }
     else

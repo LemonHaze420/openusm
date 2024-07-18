@@ -17,9 +17,9 @@ VALIDATE_SIZE(cut_scene, 0x54);
 VALIDATE_OFFSET(cut_scene, segments, 0x10);
 VALIDATE_ALIGNMENT(cut_scene, 4);
 
-Var<resource_pack_standalone> cut_scene::stream_anim_pack = (0x0096FB90);
+resource_pack_standalone & cut_scene::stream_anim_pack = var<resource_pack_standalone>(0x0096FB90);
 
-Var<mString> cut_scene::scene_anim_packfile_id = (0x0096FB80);
+mString & cut_scene::scene_anim_packfile_id = var<mString>(0x0096FB80);
 
 cut_scene::cut_scene(from_mash_in_place_constructor *a2) : field_0(a2), segments(a2)
 {
@@ -38,32 +38,47 @@ cut_scene::cut_scene(from_mash_in_place_constructor *a2) : field_0(a2), segments
     }
 }
 
-void cut_scene::init_stream_scene_anims() {
-    if constexpr (1) {
-        if ((!g_is_the_packer()) &&
-            stream_anim_pack().get_nfl_file_handle() == NFL_FILE_ID_INVALID) {
-            mString v2 = mString{scene_anim_packfile_id().c_str()};
+void cut_scene::init_stream_scene_anims()
+{
+    if constexpr (1)
+    {
+        if ( !g_is_the_packer &&
+            stream_anim_pack.get_nfl_file_handle() == NFL_FILE_ID_INVALID)
+        {
+            mString v2 {scene_anim_packfile_id.c_str()};
 
             mString v3 = mString::get_standalone_filename(v2, g_platform);
 
             mString v1;
             v1 += v3;
 
-            if (cut_scene::stream_anim_pack().load(v1)) {
-                auto my_file = cut_scene::stream_anim_pack().get_nfl_file_handle();
+            if (stream_anim_pack.load(v1)) {
+                auto my_file = stream_anim_pack.get_nfl_file_handle();
                 assert(my_file != NFL_FILE_ID_INVALID);
             }
         }
-
-    } else {
+    }
+    else
+    {
         CDECL_CALL(0x00732C80);
     }
 }
 
-int cut_scene::destruct_mashed_class() {
-    return THISCALL(0x00742770, this);
+void cut_scene::destruct_mashed_class()
+{
+    if constexpr (0) {
+    } else {
+        void (__fastcall *func)(cut_scene *) = CAST(func, 0x00742770);
+        func(this);
+    }
 }
 
-void cut_scene::unmash(mash_info_struct *a1, void *a3) {
-    THISCALL(0x00742930, this, a1, a3);
+void cut_scene::unmash(mash_info_struct *a1, void *a3)
+{
+    if constexpr (0) {
+
+    } else {
+        void (__fastcall *func)(cut_scene *, void *edx, mash_info_struct *, void *a3) = CAST(func, 0x00742930);
+        func(this, nullptr, a1, a3);
+    }
 }
