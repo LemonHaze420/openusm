@@ -803,7 +803,7 @@ HRESULT nglVertexBuffer::createIndexOrVertexBuffer(nglVertexBuffer *a1,
     } else {
     LABEL_18:
         if (resource_type) {
-            result = g_Direct3DDevice()->lpVtbl->CreateIndexBuffer(g_Direct3DDevice(),
+            result = IDirect3DDevice9_CreateIndexBuffer(g_Direct3DDevice,
                                                                    size,
                                                                    0,
                                                                    D3DFMT_INDEX16,
@@ -811,7 +811,7 @@ HRESULT nglVertexBuffer::createIndexOrVertexBuffer(nglVertexBuffer *a1,
                                                                    &a1->getIndexBuffer(),
                                                                    nullptr);
         } else {
-            result = g_Direct3DDevice()->lpVtbl->CreateVertexBuffer(g_Direct3DDevice(),
+            result = IDirect3DDevice9_CreateVertexBuffer(g_Direct3DDevice,
                                                                     size,
                                                                     usage,
                                                                     fvf,
@@ -827,7 +827,7 @@ void nglVertexBuffer::sub_77B5D0(nglVertexBuffer *a1, ResourceType a2) {
     CDECL_CALL(0x0077B5D0, a1, a2);
 }
 
-using SetFVF_t = decltype(g_Direct3DDevice()->lpVtbl->SetFVF);
+using SetFVF_t = decltype(g_Direct3DDevice->lpVtbl->SetFVF);
 SetFVF_t origSetFVF;
 
 HRESULT STDMETHODCALLTYPE HookSetFVF(IDirect3DDevice9 *This,
@@ -844,7 +844,7 @@ HRESULT STDMETHODCALLTYPE HookSetFVF(IDirect3DDevice9 *This,
     return result;
 }
 
-using CreateVertexBuffer_t = decltype(g_Direct3DDevice()->lpVtbl->CreateVertexBuffer);
+using CreateVertexBuffer_t = decltype(g_Direct3DDevice->lpVtbl->CreateVertexBuffer);
 CreateVertexBuffer_t origCreateVertexBuffer;
 
 HRESULT STDMETHODCALLTYPE HookCreateVertexBuffer(IDirect3DDevice9 *This,
@@ -867,7 +867,7 @@ HRESULT STDMETHODCALLTYPE HookCreateVertexBuffer(IDirect3DDevice9 *This,
 }
 
 
-using CreateIndexBuffer_t = decltype(g_Direct3DDevice()->lpVtbl->CreateIndexBuffer);
+using CreateIndexBuffer_t = decltype(g_Direct3DDevice->lpVtbl->CreateIndexBuffer);
 
 CreateIndexBuffer_t origCreateIndexBuffer;
 
@@ -886,7 +886,7 @@ HRESULT STDMETHODCALLTYPE HookCreateIndexBuffer(IDirect3DDevice9 *This,
     return result;
 }
 
-using DrawPrimitive_t = decltype(g_Direct3DDevice()->lpVtbl->DrawPrimitive);
+using DrawPrimitive_t = decltype(g_Direct3DDevice->lpVtbl->DrawPrimitive);
 
 DrawPrimitive_t origDrawPrimitive;
 
@@ -899,7 +899,7 @@ HRESULT STDMETHODCALLTYPE HookDrawPrimitive(IDirect3DDevice9 *This,
     return origDrawPrimitive(This, PrimitiveType, StartVertex, PrimitiveCount);
 }
 
-using DrawPrimitiveUP_t = decltype(g_Direct3DDevice()->lpVtbl->DrawPrimitiveUP);
+using DrawPrimitiveUP_t = decltype(g_Direct3DDevice->lpVtbl->DrawPrimitiveUP);
 
 DrawPrimitiveUP_t origDrawPrimitiveUP;
 
@@ -913,7 +913,7 @@ HRESULT STDMETHODCALLTYPE HookDrawPrimitiveUP(IDirect3DDevice9 *This,
     return origDrawPrimitiveUP(This, primitive_type, primitive_count, data, stride);
 }
 
-using SetViewport_t = decltype(g_Direct3DDevice()->lpVtbl->SetViewport);
+using SetViewport_t = decltype(g_Direct3DDevice->lpVtbl->SetViewport);
 SetViewport_t origSetViewport;
 
 HRESULT STDMETHODCALLTYPE HookSetViewport(IDirect3DDevice9 *This, const D3DVIEWPORT9 *pViewport)
@@ -923,7 +923,7 @@ HRESULT STDMETHODCALLTYPE HookSetViewport(IDirect3DDevice9 *This, const D3DVIEWP
     return origSetViewport(This, pViewport);
 }
 
-using DrawIndexedPrimitiveUP_t = decltype(g_Direct3DDevice()->lpVtbl->DrawIndexedPrimitiveUP);
+using DrawIndexedPrimitiveUP_t = decltype(g_Direct3DDevice->lpVtbl->DrawIndexedPrimitiveUP);
 DrawIndexedPrimitiveUP_t origDrawIndexedPrimitiveUP;
 
 HRESULT STDMETHODCALLTYPE HookDrawIndexedPrimitiveUP(IDirect3DDevice9 *This,
@@ -948,7 +948,7 @@ HRESULT STDMETHODCALLTYPE HookDrawIndexedPrimitiveUP(IDirect3DDevice9 *This,
                                       stride);
 }
 
-using DrawIndexedPrimitive_t = decltype(g_Direct3DDevice()->lpVtbl->DrawIndexedPrimitive);
+using DrawIndexedPrimitive_t = decltype(g_Direct3DDevice->lpVtbl->DrawIndexedPrimitive);
 DrawIndexedPrimitive_t origDrawIndexedPrimitive;
 
 HRESULT STDMETHODCALLTYPE HookDrawIndexedPrimitive(IDirect3DDevice9 *This,
@@ -971,7 +971,7 @@ HRESULT STDMETHODCALLTYPE HookDrawIndexedPrimitive(IDirect3DDevice9 *This,
 }
 
 
-using SetVertexDeclaration_t = decltype(g_Direct3DDevice()->lpVtbl->SetVertexDeclaration);
+using SetVertexDeclaration_t = decltype(g_Direct3DDevice->lpVtbl->SetVertexDeclaration);
 
 SetVertexDeclaration_t origSetVertexDeclaration;
 
@@ -982,7 +982,7 @@ HRESULT STDMETHODCALLTYPE HookSetVertexDeclaration(IDirect3DDevice9 *This,
     return origSetVertexDeclaration(This, pDecl);
 }
 
-using SetMaterial_t = decltype(g_Direct3DDevice()->lpVtbl->SetMaterial);
+using SetMaterial_t = decltype(g_Direct3DDevice->lpVtbl->SetMaterial);
 
 SetMaterial_t origSetMaterial;
 
@@ -993,7 +993,7 @@ HRESULT STDMETHODCALLTYPE HookSetMaterial(IDirect3DDevice9 *This, const D3DMATER
     return origSetMaterial(This, material);
 }
 
-using CreateVertexShader_t = decltype(g_Direct3DDevice()->lpVtbl->CreateVertexShader);
+using CreateVertexShader_t = decltype(g_Direct3DDevice->lpVtbl->CreateVertexShader);
 
 CreateVertexShader_t origCreateVertexShader;
 
@@ -1005,7 +1005,7 @@ HRESULT STDMETHODCALLTYPE HookCreateVertexShader(IDirect3DDevice9 *This,
     return origCreateVertexShader(This, byte_code, shader);
 }
 
-using CreateTexture_t = decltype(g_Direct3DDevice()->lpVtbl->CreateTexture);
+using CreateTexture_t = decltype(g_Direct3DDevice->lpVtbl->CreateTexture);
 
 CreateTexture_t origCreateTexture;
 
@@ -1031,7 +1031,7 @@ HRESULT STDMETHODCALLTYPE HookCreateTexture(IDirect3DDevice9 *This,
                              pSharedHandle);
 }
 
-using CreateVertexDeclaration_t = decltype(g_Direct3DDevice()->lpVtbl->CreateVertexDeclaration);
+using CreateVertexDeclaration_t = decltype(g_Direct3DDevice->lpVtbl->CreateVertexDeclaration);
 
 CreateVertexDeclaration_t origCreateVertexDeclaration;
 
@@ -1047,7 +1047,7 @@ static Var<int> g_MinVertexIndex{0x009729B0};
 
 void hook_directx()
 {
-    auto vtbl = g_Direct3DDevice()->lpVtbl;
+    auto vtbl = g_Direct3DDevice->lpVtbl;
 
     auto old_perms = 0ul;
     VirtualProtect((void *) vtbl, 150u, PAGE_READWRITE, &old_perms);
@@ -1098,7 +1098,7 @@ void hook_directx()
 
 void sub_76DF00()
 {
-    g_Direct3DDevice()->lpVtbl->Present(g_Direct3DDevice(), nullptr, nullptr, nullptr, nullptr);
+    IDirect3DDevice9_Present(g_Direct3DDevice, nullptr, nullptr, nullptr, nullptr);
 
     hook_directx();
 }
@@ -1154,7 +1154,7 @@ void sub_772630()
         sub_772F70();
 
         static Var<const DWORD [1]> dword_8BB560 {0x008BB560};
-        g_Direct3DDevice()->lpVtbl->CreatePixelShader(g_Direct3DDevice(), dword_8BB560(), &dword_975790());
+        IDirect3DDevice9_CreatePixelShader(g_Direct3DDevice, dword_8BB560(), &dword_975790());
 
         {
             auto *head = g_pixelShaderList().m_head;
@@ -1332,7 +1332,7 @@ int nglPalette::sub_782A70(int a2, int a3) {
 
 void nglPalette::sub_782A40() {
     if (!g_valid_texture_format()) {
-        g_Direct3DDevice()->lpVtbl->SetPaletteEntries(g_Direct3DDevice(),
+        IDirect3DDevice9_SetPaletteEntries(g_Direct3DDevice,
                                                       this->m_palette_idx,
                                                       this->m_palette_entries);
     }
@@ -1345,8 +1345,7 @@ void nglTexture::CreateTextureOrSurface()
         auto v2 = this->m_format;
         if ((v2 & 0x2000) != 0)
         {
-            g_Direct3DDevice()
-                ->lpVtbl->CreateDepthStencilSurface(g_Direct3DDevice(),
+            IDirect3DDevice9_CreateDepthStencilSurface(g_Direct3DDevice,
                                                     this->m_width,
                                                     this->m_height,
                                                     this->m_d3d_format,
@@ -1382,8 +1381,7 @@ void nglTexture::CreateTextureOrSurface()
 
             if ((this->m_format & 0x10000000) != 0)
             {
-                g_Direct3DDevice()
-                    ->lpVtbl->CreateCubeTexture(g_Direct3DDevice(),
+                IDirect3DDevice9_CreateCubeTexture(g_Direct3DDevice,
                                                 this->m_width,
                                                 levels,
                                                 usage,
@@ -1394,7 +1392,7 @@ void nglTexture::CreateTextureOrSurface()
             }
             else
             {
-                g_Direct3DDevice()->lpVtbl->CreateTexture(g_Direct3DDevice(),
+                IDirect3DDevice9_CreateTexture(g_Direct3DDevice,
                                                           this->m_width,
                                                           this->m_height,
                                                           levels,
@@ -1478,7 +1476,7 @@ void sub_7740F0() {
     v1[1].Method = D3DDECLMETHOD_DEFAULT;
     v1[1].Usage = 0;
     v1[1].UsageIndex = 0;
-    g_Direct3DDevice()->lpVtbl->CreateVertexDeclaration(g_Direct3DDevice(), v1, &dword_97393C);
+    IDirect3DDevice9_CreateVertexDeclaration(g_Direct3DDevice, v1, &dword_97393C);
 
     D3DVERTEXELEMENT9 v24[3];
     v24[0].Stream = 0;
@@ -1499,7 +1497,7 @@ void sub_7740F0() {
     v24[2].Method = D3DDECLMETHOD_DEFAULT;
     v24[2].Usage = 0;
     v24[2].UsageIndex = 0;
-    g_Direct3DDevice()->lpVtbl->CreateVertexDeclaration(g_Direct3DDevice(), v24, &dword_973940);
+    IDirect3DDevice9_CreateVertexDeclaration(g_Direct3DDevice, v24, &dword_973940);
     v2.Stream = 0;
     v2.Offset = 0;
     v2.Type = 2;
@@ -1518,7 +1516,7 @@ void sub_7740F0() {
     v12 = 0;
     v13 = 0;
     v14 = 0;
-    g_Direct3DDevice()->lpVtbl->CreateVertexDeclaration(g_Direct3DDevice(), &v2, &dword_973944);
+    IDirect3DDevice9_CreateVertexDeclaration(g_Direct3DDevice, &v2, &dword_973944);
     v15.Stream = 0;
     v15.Offset = 0;
     v15.Type = 3;
@@ -1533,7 +1531,7 @@ void sub_7740F0() {
     v21 = 0;
     v22 = 17;
     v23 = 0;
-    g_Direct3DDevice()->lpVtbl->CreateVertexDeclaration(g_Direct3DDevice(), &v15, &dword_973948);
+    IDirect3DDevice9_CreateVertexDeclaration(g_Direct3DDevice, &v15, &dword_973948);
     v25.Stream = 0;
     v25.Offset = 0;
     v25.Type = 2;
@@ -1558,7 +1556,7 @@ void sub_7740F0() {
     v41 = 0;
     v42 = 0;
     v43 = 0;
-    g_Direct3DDevice()->lpVtbl->CreateVertexDeclaration(g_Direct3DDevice(), &v25, &dword_973950);
+    IDirect3DDevice9_CreateVertexDeclaration(g_Direct3DDevice, &v25, &dword_973950);
     v44.Stream = 0;
     v44.Offset = 0;
     v44.Type = 2;
@@ -1583,7 +1581,7 @@ void sub_7740F0() {
     v60 = 0;
     v61 = 0;
     v62 = 0;
-    g_Direct3DDevice()->lpVtbl->CreateVertexDeclaration(g_Direct3DDevice(), &v44, &dword_97394C);
+    IDirect3DDevice9_CreateVertexDeclaration(g_Direct3DDevice, &v44, &dword_97394C);
 #else
 
 #endif
@@ -1692,29 +1690,29 @@ void sub_7726B0(bool a1)
 
         if (v2 == INVALID_HANDLE_VALUE)
         {
-            EnableShader() = true;
+            EnableShader = true;
 
             float v3[4] {0.0, 0.5, 1.0, 2.0};
-            g_Direct3DDevice()->lpVtbl->SetVertexShaderConstantF(g_Direct3DDevice(), 91u, v3, 1u);
+            IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice, 91u, v3, 1u);
 
 
             v3[0] = 3.1415927;
             v3[1] = 0.5;
             v3[2] = 6.2831855;
             v3[3] = 0.15915494;
-            g_Direct3DDevice()->lpVtbl->SetVertexShaderConstantF(g_Direct3DDevice(), 92u, v3, 1u);
+            IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice, 92u, v3, 1u);
 
             v3[0] = 1.0;
             v3[1] = -0.5;
             v3[2] = 0.041666668;
             v3[3] = -0.0013888889;
-            g_Direct3DDevice()->lpVtbl->SetVertexShaderConstantF(g_Direct3DDevice(), 93u, v3, 1u);
+            IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice, 93u, v3, 1u);
 
             v3[0] = 1.0;
             v3[1] = -0.16666667;
             v3[2] = 0.0083333338;
             v3[3] = -0.0001984127;
-            g_Direct3DDevice()->lpVtbl->SetVertexShaderConstantF(g_Direct3DDevice(), 94u, v3, 1u);
+            IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice, 94u, v3, 1u);
 
             if (a1) {
                 sub_772630();
@@ -1726,7 +1724,7 @@ void sub_7726B0(bool a1)
         CloseHandle(v2);
     }
 
-    EnableShader() = false;
+    EnableShader = false;
     return;
 }
 
@@ -2582,7 +2580,7 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
                             MeshSection->m_stride = 24;
                         };
 
-                        if (!EnableShader())
+                        if ( !EnableShader )
                         {
                             sp_log("debug0");
                             if (strncmp(v29, "uslod", 5u) == 0)
@@ -2601,9 +2599,9 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
                                 return;
                             }
 
-                            if (!EnableShader())
+                            if ( !EnableShader )
                             {
-                                if (ChromeEffect())
+                                if (ChromeEffect)
                                 {
                                     if (strncmp(v29, "smshiny", 7u) == 0)
                                     {
@@ -2612,10 +2610,10 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
                                             .createVertexBuffer(v30, 520u);
                                         MeshSection->m_stride = 48;
 
-                                        static Var<int> dword_972960{0x00972960};
+                                        static int & dword_972960 = var<int>(0x00972960);
 
-                                        if (dword_972960() < v30) {
-                                            dword_972960() = v30;
+                                        if (dword_972960 < v30) {
+                                            dword_972960 = v30;
                                         }
 
                                         return;
@@ -2624,7 +2622,7 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
                                 else
                                 {
                                     sp_log("debug2");
-                                    if (!EnableShader())
+                                    if ( !EnableShader )
                                     {
                                         if (strncmp(v29, "usperson", 8u) == 0)
                                         {
@@ -3910,7 +3908,7 @@ nglTexture *nglConstructTexture(const tlFixedString &a1,
             v5 = nglLoadTextureTM2(tex, static_cast<uint8_t *>(a3));
             break;
         case 2: {
-            D3DXCreateTextureFromFileInMemory(g_Direct3DDevice(), a3, a4, &tex->DXTexture);
+            D3DXCreateTextureFromFileInMemory(g_Direct3DDevice, a3, a4, &tex->DXTexture);
 
             v5 = true;
             break;
@@ -4039,16 +4037,16 @@ void nglRenderQuad(nglQuad *a2)
 
     g_renderState().setBlending(a2->field_58, a2->field_5C, 128);
 
-    if ( EnableShader() )
+    if ( EnableShader )
     {
         nglSetVertexDeclarationAndShader(&stru_975780());
     }
     else
     {
-        g_Direct3DDevice()->lpVtbl->SetVertexDeclaration(g_Direct3DDevice(), dword_9738E0()[28]);
-        g_Direct3DDevice()->lpVtbl->SetTransform(
-            g_Direct3DDevice(),
-            (D3DTRANSFORMSTATETYPE)256,
+        IDirect3DDevice9_SetVertexDeclaration(g_Direct3DDevice, dword_9738E0()[28]);
+        IDirect3DDevice9_SetTransform(
+            g_Direct3DDevice,
+            static_cast<D3DTRANSFORMSTATETYPE>(256),
             bit_cast<const D3DMATRIX *>(&nglCurScene()->field_24C));
     }
     
@@ -4073,7 +4071,7 @@ void nglRenderQuad(nglQuad *a2)
         nglTextureAnimFrame() = nglCurScene()->IFLFrame;
         nglDxSetTexture(0, m_tex, a2->field_54, 3);
 
-        if ( EnableShader() ) {
+        if ( EnableShader ) {
             SetPixelShader(&dword_9757A0());
         } else {
             nglSetTextureStageState(0, D3DTSS_COLOROP, 4u);
@@ -4089,7 +4087,7 @@ void nglRenderQuad(nglQuad *a2)
     }
     else
     {
-        if ( EnableShader() ) {
+        if ( EnableShader ) {
             SetPixelShader(&dword_975794());
         } else {
             nglSetTextureStageState(0, D3DTSS_COLOROP, 2u);
@@ -4102,7 +4100,7 @@ void nglRenderQuad(nglQuad *a2)
         }
 
         g_renderTextureState().field_0[0] = nullptr;
-        g_Direct3DDevice()->lpVtbl->SetTexture(g_Direct3DDevice(), 0, nullptr);
+        IDirect3DDevice9_SetTexture(g_Direct3DDevice, 0, nullptr);
     }
 
     g_renderState().setFogEnable(false);
@@ -4131,8 +4129,8 @@ void nglRenderQuad(nglQuad *a2)
         ++quads;
     }
 
-    g_Direct3DDevice()->lpVtbl->DrawPrimitiveUP(g_Direct3DDevice(), D3DPT_TRIANGLESTRIP, 2, v9, 24);
-    if ( g_distance_clipping_enabled()
+    IDirect3DDevice9_DrawPrimitiveUP(g_Direct3DDevice, D3DPT_TRIANGLESTRIP, 2, v9, 24);
+    if ( g_distance_clipping_enabled
             && !sub_581C30())
     {
         g_renderState().setFogEnable(true);
@@ -4629,7 +4627,7 @@ void sub_77EB40() {
     RegCloseKey(hKey);
 }
 
-static Var<BOOL> dword_93AE80 = {0x0093AE80};
+static BOOL & dword_93AE80 = var<BOOL>(0x0093AE80);
 
 void sub_77EBD0()
 {
@@ -4644,7 +4642,7 @@ void sub_77EBD0()
 
         RegSetValueExA(hKey, "Placement", 0, 3u, (const BYTE *)&wndpl(), 0x2Cu);
 
-        RegSetValueExA(hKey, "Windowed", 0, 4u, (const BYTE *)&g_Windowed(), 4u);
+        RegSetValueExA(hKey, "Windowed", 0, 4u, (const BYTE *)&g_Windowed, 4u);
         RegCloseKey(hKey);
     }
     else
@@ -4659,19 +4657,21 @@ void ToggleFullScreen(BOOL isFullscreen)
 {
     TRACE("ToggleFullScreen");
 
-    if (!byte_971F9C() && s_d3dpresent_params().Windowed != isFullscreen) {
-        s_d3dpresent_params().Windowed = isFullscreen;
+    if (!byte_971F9C
+            && s_d3dpresent_params.Windowed != isFullscreen)
+    {
+        s_d3dpresent_params.Windowed = isFullscreen;
         Reset3DDevice();
         if (isFullscreen) {
-            SetWindowPlacement(g_hWnd(), &wndpl());
+            SetWindowPlacement(g_hWnd, &wndpl());
         } else {
             auto v2 = GetSystemMetrics(1);
             auto v1 = GetSystemMetrics(0);
 
-            SetWindowPos(g_hWnd(), nullptr, 0, 0, v1, v2, SWP_NOACTIVATE);
+            SetWindowPos(g_hWnd, nullptr, 0, 0, v1, v2, SWP_NOACTIVATE);
         }
 
-        SetWindowPos(g_hWnd(), (HWND) (-isFullscreen - 1), 0, 0, 0, 0, 3u);
+        SetWindowPos(g_hWnd, (HWND) (-isFullscreen - 1), 0, 0, 0, 0, 3u);
         ShowCursor(isFullscreen);
     }
 }
@@ -4686,7 +4686,7 @@ int __stdcall WndProcEx(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
         {
             switch (Msg) {
             case WM_NCHITTEST: {
-                if (!g_Windowed()) {
+                if (!g_Windowed) {
                     return 1;
                 }
             }
@@ -4696,19 +4696,19 @@ int __stdcall WndProcEx(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
                     break;
                 }
 
-                SendMessageA(g_hWnd(), WM_CLOSE, 0, 0);
+                SendMessageA(g_hWnd, WM_CLOSE, 0, 0);
                 return DefWindowProcA(hWnd, Msg, VK_ESCAPE, lParam);
             }
-            case WM_SYSKEYDOWN:
+            case WM_SYSKEYDOWN: {
                 if (wParam == VK_RETURN) { // Alt + Enter - switch to fullscreen or window
-                    g_Windowed() = !g_Windowed();
+                    g_Windowed = !g_Windowed;
 
-                    ToggleFullScreen(g_Windowed());
+                    ToggleFullScreen(g_Windowed);
                 }
 
                 result = DefWindowProcA(hWnd, Msg, wParam, lParam);
                 break;
-
+            }
             case WM_SYSCOMMAND:
                 if (wParam > SC_MAXIMIZE) {
                     if (wParam != SC_KEYMENU && wParam != SC_MONITORPOWER) {
@@ -4720,7 +4720,7 @@ int __stdcall WndProcEx(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
                     break;
                 }
 
-                if (!g_Windowed()) {
+                if (!g_Windowed) {
                     return 1;
                 }
 
@@ -4737,7 +4737,7 @@ int __stdcall WndProcEx(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
             {
                 switch (Msg) {
                 case WM_MOVE:
-                    if (!g_Windowed() || !g_hWnd()) {
+                    if (!g_Windowed || !g_hWnd) {
                         return DefWindowProcA(hWnd, Msg, wParam, lParam);
                     }
 
@@ -4745,42 +4745,43 @@ int __stdcall WndProcEx(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
                     sub_77EBD0();
                     return DefWindowProcA(hWnd, Msg, wParam, lParam);
                 case WM_PAINT:
-                    if (!g_Windowed() || !g_hWnd() || !byte_971F9C()) {
+                    if (!g_Windowed || !g_hWnd || !byte_971F9C) {
                         return DefWindowProcA(hWnd, Msg, wParam, lParam);
                     }
 
                     sub_76DF00();
                     return DefWindowProcA(hWnd, Msg, wParam, lParam);
-                case WM_CLOSE:
-                    g_Windowed() = dword_93AE80();
-                    ToggleFullScreen(dword_93AE80());
-                    DestroyWindow(g_hWnd());
+                case WM_CLOSE: {
+                    g_Windowed = dword_93AE80;
+                    ToggleFullScreen(dword_93AE80);
+                    DestroyWindow(g_hWnd);
                     PostQuitMessage(0);
-                    g_hWnd() = 0;
+                    g_hWnd = 0;
                     return DefWindowProcA(hWnd, Msg, wParam, lParam);
+                }
                 case WM_ACTIVATEAPP: {
                     if (wParam == 0) {
                         return DefWindowProcA(hWnd, Msg, wParam, lParam);
                     }
 
-                    byte_971F9C() = false;
-                    if (!g_hWnd() || g_Windowed()) {
+                    byte_971F9C = false;
+                    if (!g_hWnd || g_Windowed) {
                         return DefWindowProcA(hWnd, Msg, wParam, lParam);
                     }
 
-                    s_d3dpresent_params().Windowed = true;
+                    s_d3dpresent_params.Windowed = true;
 
                     ToggleFullScreen(false);
 
                     return DefWindowProcA(hWnd, Msg, wParam, lParam);
                 }
                 case WM_CANCELMODE:
-                    if (g_Windowed()) {
+                    if (g_Windowed) {
                         return DefWindowProcA(hWnd, Msg, wParam, lParam);
                     }
 
                     ShowCursor(TRUE);
-                    byte_971F9C() = true;
+                    byte_971F9C = true;
                     return DefWindowProcA(hWnd, Msg, wParam, lParam);
                 default:
                     return DefWindowProcA(hWnd, Msg, wParam, lParam);
@@ -4803,14 +4804,14 @@ void create_renderer(HWND hWnd)
 
     WNDCLASSEXA v13;
 
-    static Var<IDirect3D9 *> g_pD3D {0x00971FA4};
+    static auto & g_pD3D = var<IDirect3D9 *>(0x00971FA4);
 
-    s_d3dpresent_params() = {};
+    s_d3dpresent_params = {};
     HWND v1 = hWnd;
     if (hWnd == nullptr)
     {
         sub_77EB40();
-        dword_93AE80() = g_Windowed();
+        dword_93AE80 = g_Windowed;
         v13 = {};
         v13.cbSize = 48;
         v13.style = 0x2000;
@@ -4827,31 +4828,32 @@ void create_renderer(HWND hWnd)
                              0x10CF0000u,
                              0,
                              0,
-                             nWidth(),
-                             nHeight(),
+                             nWidth,
+                             nHeight,
                              nullptr,
                              nullptr,
                              v13.hInstance,
                              nullptr);
     }
 
-    g_hWnd() = v1;
+    g_hWnd = v1;
 
-    if (g_Windowed()) {
-        if (wndpl().length) {
+    if (g_Windowed)
+    {
+        if (wndpl().length != 0) {
             SetWindowPlacement(v1, &wndpl());
         } else {
             struct tagRECT Rect;
-            Rect.top = (GetSystemMetrics(SM_CYSCREEN) - nHeight()) / 2;
-            Rect.bottom = Rect.top + nHeight();
-            Rect.left = (GetSystemMetrics(SM_CXSCREEN) - nWidth()) / 2;
-            Rect.right = Rect.left + nWidth();
+            Rect.top = (GetSystemMetrics(SM_CYSCREEN) - nHeight) / 2;
+            Rect.bottom = Rect.top + nHeight;
+            Rect.left = (GetSystemMetrics(SM_CXSCREEN) - nWidth) / 2;
+            Rect.right = Rect.left + nWidth;
 
             WINDOWINFO v13;
             v13.cbSize = 60;
-            GetWindowInfo(g_hWnd(), &v13);
+            GetWindowInfo(g_hWnd, &v13);
             AdjustWindowRectEx(&Rect, v13.dwStyle, 0, v13.dwExStyle);
-            SetWindowPos(g_hWnd(),
+            SetWindowPos(g_hWnd,
                          nullptr,
                          Rect.left,
                          Rect.top,
@@ -4859,44 +4861,46 @@ void create_renderer(HWND hWnd)
                          Rect.bottom - Rect.top + 1,
                          0);
         }
-    } else {
+    }
+    else
+    {
         int v3 = GetSystemMetrics(SM_CYSCREEN);
         int v4 = GetSystemMetrics(SM_CXSCREEN);
-        SetWindowPos(g_hWnd(), nullptr, 0, 0, v4, v3, 0);
+        SetWindowPos(g_hWnd, nullptr, 0, 0, v4, v3, 0);
         ShowCursor(false);
     }
 
-    g_pD3D() = Direct3DCreate9(0x80000020);
+    g_pD3D = Direct3DCreate9(0x80000020);
 
     D3DDISPLAYMODE d3ddm;
-    g_pD3D()->lpVtbl->GetAdapterDisplayMode(g_pD3D(), 0, &d3ddm);
+    IDirect3D9_GetAdapterDisplayMode(g_pD3D, 0, &d3ddm);
 
     if (d3ddm.Format != D3DFMT_A8R8G8B8 && d3ddm.Format != D3DFMT_X8R8G8B8) {
         auto *v7 = get_msg(g_fileUSM(), "MSGBOX_32BIT");
-        MessageBoxA(g_hWnd(), v7, "USM.exe", 0x10u);
+        MessageBoxA(g_hWnd, v7, "USM.exe", 0x10u);
         exit(255);
     }
 
     Var<int[15]> dword_972688 = {0x00972688};
 
-    dword_972688()[0] = nWidth();
-    dword_972688()[1] = nHeight();
-    s_d3dpresent_params().BackBufferWidth = nWidth();
-    s_d3dpresent_params().BackBufferHeight = nHeight();
-    s_d3dpresent_params().Windowed = g_Windowed();
-    s_d3dpresent_params().BackBufferCount = 1;
-    s_d3dpresent_params().BackBufferFormat = D3DFMT_A8R8G8B8;
-    s_d3dpresent_params().MultiSampleType = D3DMULTISAMPLE_NONE;
-    s_d3dpresent_params().SwapEffect = D3DSWAPEFFECT_DISCARD;
-    s_d3dpresent_params().hDeviceWindow = g_hWnd();
-    s_d3dpresent_params().EnableAutoDepthStencil = true;
-    s_d3dpresent_params().AutoDepthStencilFormat = D3DFMT_D24S8;
-    s_d3dpresent_params().Flags = 0;
-    s_d3dpresent_params().PresentationInterval = 1;
-    s_d3dpresent_params().FullScreen_RefreshRateInHz = (g_Windowed() ? 0 : 60);
+    dword_972688()[0] = nWidth;
+    dword_972688()[1] = nHeight;
+    s_d3dpresent_params.BackBufferWidth = nWidth;
+    s_d3dpresent_params.BackBufferHeight = nHeight;
+    s_d3dpresent_params.Windowed = g_Windowed;
+    s_d3dpresent_params.BackBufferCount = 1;
+    s_d3dpresent_params.BackBufferFormat = D3DFMT_A8R8G8B8;
+    s_d3dpresent_params.MultiSampleType = D3DMULTISAMPLE_NONE;
+    s_d3dpresent_params.SwapEffect = D3DSWAPEFFECT_DISCARD;
+    s_d3dpresent_params.hDeviceWindow = g_hWnd;
+    s_d3dpresent_params.EnableAutoDepthStencil = true;
+    s_d3dpresent_params.AutoDepthStencilFormat = D3DFMT_D24S8;
+    s_d3dpresent_params.Flags = 0;
+    s_d3dpresent_params.PresentationInterval = 1;
+    s_d3dpresent_params.FullScreen_RefreshRateInHz = (g_Windowed ? 0 : 60);
 
 
-    g_valid_texture_format() = g_pD3D()->lpVtbl->CheckDeviceFormat(g_pD3D(),
+    g_valid_texture_format() = IDirect3D9_CheckDeviceFormat(g_pD3D,
                                                         D3DADAPTER_DEFAULT,
                                                         D3DDEVTYPE_HAL,
                                                         D3DFMT_X8R8G8B8,
@@ -4904,52 +4908,52 @@ void create_renderer(HWND hWnd)
                                                         D3DRTYPE_TEXTURE,
                                                         D3DFMT_P8) < 0;
 
-    if (g_pD3D()->lpVtbl->CheckDeviceType(g_pD3D(),
+    if (IDirect3D9_CheckDeviceType(g_pD3D,
                                           D3DADAPTER_DEFAULT,
                                           D3DDEVTYPE_HAL,
                                           D3DFMT_X8R8G8B8,
                                           D3DFMT_A8R8G8B8,
-                                          g_Windowed())) {
+                                          g_Windowed)) {
         const char *v8 = get_msg(g_fileUSM(), "MSGBOX_WARNING");
         const char *v9 = get_msg(g_fileUSM(), "MSGBOX_NOHARDWARE");
-        MessageBoxA(g_hWnd(), v9, v8, 0x30u);
-        g_pD3D()->lpVtbl->CreateDevice(g_pD3D(),
+        MessageBoxA(g_hWnd, v9, v8, 0x30u);
+        IDirect3D9_CreateDevice(g_pD3D,
                                        D3DADAPTER_DEFAULT,
                                        D3DDEVTYPE_REF,
-                                       g_hWnd(),
+                                       g_hWnd,
                                        D3DCREATE_SOFTWARE_VERTEXPROCESSING,
-                                       &s_d3dpresent_params(),
-                                       &g_Direct3DDevice());
+                                       &s_d3dpresent_params,
+                                       &g_Direct3DDevice);
     }
     else
     {
-        g_pD3D()->lpVtbl->CreateDevice(g_pD3D(),
+        IDirect3D9_CreateDevice(g_pD3D,
                                        D3DADAPTER_DEFAULT,
                                        D3DDEVTYPE_HAL,
-                                       g_hWnd(),
+                                       g_hWnd,
                                        D3DCREATE_HARDWARE_VERTEXPROCESSING | D3DCREATE_PUREDEVICE,
-                                       &s_d3dpresent_params(),
-                                       &g_Direct3DDevice());
+                                       &s_d3dpresent_params,
+                                       &g_Direct3DDevice);
 
-        if (g_Direct3DDevice() == nullptr) {
+        if (g_Direct3DDevice == nullptr) {
 
-            g_pD3D()->lpVtbl->CreateDevice(g_pD3D(),
+            IDirect3D9_CreateDevice(g_pD3D,
                                            D3DADAPTER_DEFAULT,
                                            D3DDEVTYPE_HAL,
-                                           g_hWnd(),
+                                           g_hWnd,
                                            D3DCREATE_SOFTWARE_VERTEXPROCESSING,
-                                           &s_d3dpresent_params(),
-                                           &g_Direct3DDevice());
+                                           &s_d3dpresent_params,
+                                           &g_Direct3DDevice);
 
             Var<bool> byte_971F90 = {0x00971F90};
             byte_971F90() = true;
         }
     }
 
-    g_Direct3DDevice()->lpVtbl->Clear(g_Direct3DDevice(), 0, nullptr, 7u, 0, 1.0, 0);
+    IDirect3DDevice9_Clear(g_Direct3DDevice, 0, nullptr, 7u, 0, 1.0, 0);
     sub_76DF00();
-    g_Direct3DDevice()->lpVtbl->Clear(g_Direct3DDevice(), 0, nullptr, 7u, 0, 1.0, 0);
-    g_Direct3DDevice()->lpVtbl->SetStreamSource(g_Direct3DDevice(), 0, nullptr, 0, 0);
+    IDirect3DDevice9_Clear(g_Direct3DDevice, 0, nullptr, 7u, 0, 1.0, 0);
+    IDirect3DDevice9_SetStreamSource(g_Direct3DDevice, 0, nullptr, 0, 0);
 }
 
 void nglListBeginScene(nglSceneParamType a2) {
@@ -5192,7 +5196,7 @@ void nglInit(HWND hWnd)
         create_renderer(hWnd);
         CDECL_CALL(0x00782930);
 
-        g_Direct3DDevice()->lpVtbl->GetDeviceCaps(g_Direct3DDevice(), &g_deviceCaps());
+        IDirect3DDevice9_GetDeviceCaps(g_Direct3DDevice, &g_deviceCaps());
 
         sub_7740F0();
         sub_77B740();
@@ -5219,7 +5223,7 @@ void nglInit(HWND hWnd)
         for (int i = 0; i < 132; i += 33)
         {
             if (TextureStageStates()[i + 1] != 1) {
-                g_Direct3DDevice()->lpVtbl->SetTextureStageState(g_Direct3DDevice(),
+                IDirect3DDevice9_SetTextureStageState(g_Direct3DDevice,
                                                                  v3,
                                                                  D3DTSS_COLOROP,
                                                                  1);
@@ -5227,7 +5231,7 @@ void nglInit(HWND hWnd)
             }
 
             if (TextureStageStates()[i + 4] != 1) {
-                g_Direct3DDevice()->lpVtbl->SetTextureStageState(g_Direct3DDevice(),
+                IDirect3DDevice9_SetTextureStageState(g_Direct3DDevice,
                                                                  v3,
                                                                  D3DTSS_ALPHAOP,
                                                                  1);
@@ -5235,7 +5239,7 @@ void nglInit(HWND hWnd)
             }
 
             if (TextureStageStates()[i + 24]) {
-                g_Direct3DDevice()->lpVtbl->SetTextureStageState(g_Direct3DDevice(),
+                IDirect3DDevice9_SetTextureStageState(g_Direct3DDevice,
                                                                  v3,
                                                                  D3DTSS_TEXTURETRANSFORMFLAGS,
                                                                  0);
@@ -5244,7 +5248,7 @@ void nglInit(HWND hWnd)
 
             if (v4[1] != 2)
             {
-                g_Direct3DDevice()->lpVtbl->SetSamplerState(g_Direct3DDevice(),
+                IDirect3DDevice9_SetSamplerState(g_Direct3DDevice,
                                                             v3,
                                                             D3DSAMP_MINFILTER,
                                                             D3DTEXF_LINEAR);
@@ -5252,7 +5256,7 @@ void nglInit(HWND hWnd)
             }
 
             if (*v4 != 2) {
-                g_Direct3DDevice()->lpVtbl->SetSamplerState(g_Direct3DDevice(),
+                IDirect3DDevice9_SetSamplerState(g_Direct3DDevice,
                                                             v3,
                                                             D3DSAMP_MAGFILTER,
                                                             D3DTEXF_LINEAR);
@@ -5260,7 +5264,7 @@ void nglInit(HWND hWnd)
             }
 
             if (v4[2] != 2) {
-                g_Direct3DDevice()->lpVtbl->SetSamplerState(g_Direct3DDevice(),
+                IDirect3DDevice9_SetSamplerState(g_Direct3DDevice,
                                                             v3,
                                                             D3DSAMP_MIPFILTER,
                                                             D3DTEXF_LINEAR);
@@ -5274,25 +5278,26 @@ void nglInit(HWND hWnd)
         sub_7726B0(1);
         nglTextureInit();
         tlInitListInit();
-        if (!g_Direct3DDevice()->lpVtbl->CreateQuery(g_Direct3DDevice(),
+        if (!IDirect3DDevice9_CreateQuery(g_Direct3DDevice,
                                                      D3DQUERYTYPE_OCCLUSION,
                                                      nullptr))
         {
             static Var<IDirect3DQuery9 *> dword_972660{0x00972660};
 
-            g_Direct3DDevice()->lpVtbl->CreateQuery(g_Direct3DDevice(),
+            IDirect3DDevice9_CreateQuery(g_Direct3DDevice,
                                                     D3DQUERYTYPE_OCCLUSION,
                                                     &dword_972660());
         }
 
         create_front_and_back_buffer_tex();
 
-        if (s_d3dpresent_params().BackBufferCount != static_cast<uint32_t>(-1)) {
-            for (auto v7 = 0u; v7 < s_d3dpresent_params().BackBufferCount + 1; ++v7) {
+        if (s_d3dpresent_params.BackBufferCount != static_cast<uint32_t>(-1)) {
+            for (auto v7 = 0u; v7 < s_d3dpresent_params.BackBufferCount + 1; ++v7)
+            {
                 auto *v8 = nglGetBackBufferTex();
                 SetRenderTarget(v8, nullptr, 0, 6);
-                g_Direct3DDevice()->lpVtbl->Clear(g_Direct3DDevice(), 0, nullptr, 7u, 0, 1.0, 0);
-                g_Direct3DDevice()->lpVtbl->Present(g_Direct3DDevice(),
+                IDirect3DDevice9_Clear(g_Direct3DDevice, 0, nullptr, 7u, 0, 1.0, 0);
+                IDirect3DDevice9_Present(g_Direct3DDevice,
                                                     nullptr,
                                                     nullptr,
                                                     nullptr,
@@ -5303,44 +5308,44 @@ void nglInit(HWND hWnd)
         sub_771B60();
         sub_781980(256, 256);
 
-        dword_987520() = g_Direct3DDevice();
-        if (!EnableShader())
+        dword_987520() = g_Direct3DDevice;
+        if ( !EnableShader )
         {
-            D3DXCreateTextureFromFileW(g_Direct3DDevice(),
+            D3DXCreateTextureFromFileW(g_Direct3DDevice,
                                        L"data\\packs\\celshading.dat",
                                        bit_cast<IDirect3DTexture9 **>(&celshadingTex()));
-            D3DXCreateTextureFromFileW(g_Direct3DDevice(),
+            D3DXCreateTextureFromFileW(g_Direct3DDevice,
                                        L"data\\packs\\celshadingSolid.dat",
                                        bit_cast<IDirect3DTexture9 **>(&celshadingSolidTex()));
 
-            switch (g_TOD()) {
+            switch (g_TOD) {
             case 0: {
                 const WCHAR *v9 = L"data\\packs\\water_day.dat";
-                D3DXCreateTextureFromFileW(g_Direct3DDevice(), v9, &water_texture());
+                D3DXCreateTextureFromFileW(g_Direct3DDevice, v9, &water_texture());
                 break;
             }
             case 1:
-                D3DXCreateTextureFromFileW(g_Direct3DDevice(),
+                D3DXCreateTextureFromFileW(g_Direct3DDevice,
                                            L"data\\packs\\water_night.dat",
                                            &water_texture());
                 break;
             case 2:
-                D3DXCreateTextureFromFileW(g_Direct3DDevice(),
+                D3DXCreateTextureFromFileW(g_Direct3DDevice,
                                            L"data\\packs\\water_rainy.dat",
                                            &water_texture());
                 break;
             case 3: {
                 const WCHAR *v9 = L"data\\packs\\water_sunset.dat";
-                D3DXCreateTextureFromFileW(g_Direct3DDevice(), v9, &water_texture());
+                D3DXCreateTextureFromFileW(g_Direct3DDevice, v9, &water_texture());
                 break;
             }
             default:
                 break;
             }
 
-            static Var<int> dword_9562E0{0x009562E0};
-            dword_9562E0() = g_TOD();
-            g_player_shadows_enabled() = false;
+            static int & dword_9562E0 = var<int>(0x009562E0);
+            dword_9562E0 = g_TOD;
+            g_player_shadows_enabled = false;
             sub_81E8E0(2465792);
         }
 

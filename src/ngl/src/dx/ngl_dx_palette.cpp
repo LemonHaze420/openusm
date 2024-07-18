@@ -19,7 +19,7 @@ nglPalette *nglCreatePalette([[maybe_unused]] int a1, uint32_t entries, const vo
     }
 
     if (!g_valid_texture_format()) {
-        g_Direct3DDevice()->lpVtbl->SetPaletteEntries(g_Direct3DDevice(),
+        IDirect3DDevice9_SetPaletteEntries(g_Direct3DDevice,
                                                       v3->m_palette_idx,
                                                       v3->m_palette_entries);
     }

@@ -25,7 +25,7 @@ HRESULT nglDrawIndexedPrimitive(D3DPRIMITIVETYPE PrimitiveType,
     static Var<IDirect3DIndexBuffer9 *> dword_972968{0x00972968};
 
     if (a2 != dword_972968()) {
-        g_Direct3DDevice()->lpVtbl->SetIndices(g_Direct3DDevice(), a2);
+        IDirect3DDevice9_SetIndices(g_Direct3DDevice, a2);
         dword_972968() = a2;
     }
 
@@ -50,7 +50,7 @@ HRESULT nglDrawIndexedPrimitive(D3DPRIMITIVETYPE PrimitiveType,
         primCount = 0;
         break;
     }
-    return g_Direct3DDevice()->lpVtbl->DrawIndexedPrimitive(g_Direct3DDevice(),
+    return IDirect3DDevice9_DrawIndexedPrimitive(g_Direct3DDevice,
                                                             PrimitiveType,
                                                             0,
                                                             g_MinVertexIndex(),
@@ -85,7 +85,7 @@ HRESULT nglDrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, int a2, UINT a3)
         break;
     }
 
-    return g_Direct3DDevice()->lpVtbl->DrawPrimitive(g_Direct3DDevice(),
+    return IDirect3DDevice9_DrawPrimitive(g_Direct3DDevice,
                                                      PrimitiveType,
                                                      a2 + g_MinVertexIndex(),
                                                      v3);
@@ -103,7 +103,7 @@ void nglSetStreamSourceAndDrawPrimitive(
 {
     if constexpr (0)
     {
-        g_Direct3DDevice()->lpVtbl->SetStreamSource(g_Direct3DDevice(), 0, a2, 0, stride);
+        IDirect3DDevice9_SetStreamSource(g_Direct3DDevice, 0, a2, 0, stride);
         dword_972964() = a2;
         if ( numIndices != 0 && a6 )
         {
@@ -131,7 +131,7 @@ HRESULT nglSetStreamSourceAndDrawPrimitive(nglMeshSection *MeshSection)
 {
     uint32_t stride = MeshSection->m_stride;
     g_MinVertexIndex() = MeshSection->field_4C / stride;
-    g_Direct3DDevice()->lpVtbl->SetStreamSource(g_Direct3DDevice(),
+    IDirect3DDevice9_SetStreamSource(g_Direct3DDevice,
                                                 0,
                                                 MeshSection->field_3C.getVertexBuffer(),
                                                 0,

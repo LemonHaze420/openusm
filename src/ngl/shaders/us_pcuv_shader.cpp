@@ -52,7 +52,8 @@ void PCUV_Shader::Register() {
 
         static Var<IDirect3DVertexDeclaration9 *> dword_973918{0x00973918};
 
-        if (EnableShader()) {
+        if ( EnableShader )
+        {
             if constexpr (1) {
                 auto pShader = CompileVShader("shaders/us_pcuv_VS.hlsl");
 
@@ -87,7 +88,7 @@ void PCUV_Shader::Register() {
             }
 
         } else if (dword_973918() == nullptr) {
-            g_Direct3DDevice()->lpVtbl->CreateVertexDeclaration(g_Direct3DDevice(),
+            IDirect3DDevice9_CreateVertexDeclaration(g_Direct3DDevice,
                                                                 &stru_91E1B4(),
                                                                 &dword_973918());
         }
@@ -107,19 +108,19 @@ void PCUV_ShaderNode::Render()
         g_renderState().setCullingMode(D3DCULL_NONE);
 
         g_renderState().setBlending(this->field_14->m_blend_mode, this->field_14->field_2C, 0);
-        if (EnableShader())
+        if ( EnableShader )
         {
-            g_Direct3DDevice()->lpVtbl->SetVertexShaderConstantF(g_Direct3DDevice(),
+            IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice,
                                                                  0,
                                                                  &this->field_C->field_40[0][0],
                                                                  4);
 
             nglSetVertexDeclarationAndShader(&dword_970AD0());
         } else {
-            g_Direct3DDevice()->lpVtbl->SetTransform(g_Direct3DDevice(),
-                                                     (D3DTRANSFORMSTATETYPE) 256,
+            IDirect3DDevice9_SetTransform(g_Direct3DDevice,
+                                                     static_cast<D3DTRANSFORMSTATETYPE>(256),
                                                      (const D3DMATRIX *) &this->field_C->field_0);
-            g_Direct3DDevice()->lpVtbl->SetVertexDeclaration(g_Direct3DDevice(), dword_9738E0()[14]);
+            IDirect3DDevice9_SetVertexDeclaration(g_Direct3DDevice, dword_9738E0()[14]);
         }
 
         static Var<int> dword_956D30{0x00956D30};
@@ -135,7 +136,7 @@ void PCUV_ShaderNode::Render()
         nglSetSamplerState(0, D3DSAMP_ADDRESSU, ((v2 & 0x40) | 0x20u) >> 5);
         nglSetSamplerState(0, D3DSAMP_ADDRESSV, ((v2 & 0x80) | 0x40u) >> 6);
 
-        if (EnableShader()) {
+        if ( EnableShader ) {
             SetPixelShader(&PCUV_PShader());
         } else {
             nglSetTextureStageState(0, D3DTSS_COLOROP, 4u);
@@ -148,13 +149,13 @@ void PCUV_ShaderNode::Render()
             nglSetTextureStageState(1u, D3DTSS_ALPHAOP, 1u);
         }
 
-        if (byte_95C718() && nglCurScene()->field_3BA && !sub_581C30()) {
+        if (g_distance_clipping_enabled && nglCurScene()->field_3BA && !sub_581C30()) {
             g_renderState().setFogEnable(false);
         }
 
         nglSetStreamSourceAndDrawPrimitive(this->field_10);
 
-        if (byte_95C718() && nglCurScene()->field_3BA) {
+        if (g_distance_clipping_enabled && nglCurScene()->field_3BA) {
             g_renderState().setFogEnable(true);
         }
     }

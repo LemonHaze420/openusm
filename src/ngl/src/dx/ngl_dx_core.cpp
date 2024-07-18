@@ -140,7 +140,7 @@ void nglVif1SetupScene(nglScene *a1)
         v23.Height = ScreenHeight;
         v23.MinZ = 0.0;
         v23.MaxZ = 1.0;
-        g_Direct3DDevice()->lpVtbl->SetViewport(g_Direct3DDevice(), &v23);
+        IDirect3DDevice9_SetViewport(g_Direct3DDevice, &v23);
         auto *v10 = nglCurScene();
         if ( nglCurScene()->sx1 != -1.0f 
             || nglCurScene()->sy1 != -1.0f
@@ -155,7 +155,7 @@ void nglVif1SetupScene(nglScene *a1)
 
             g_renderState().setScissorTestEnabled(true);
 
-            g_Direct3DDevice()->lpVtbl->SetScissorRect(g_Direct3DDevice(), &v22);
+            IDirect3DDevice9_SetScissorRect(g_Direct3DDevice, &v22);
         }
 
         if ( v10->ClearFlags )
@@ -169,21 +169,21 @@ void nglVif1SetupScene(nglScene *a1)
                                 v10->ClearColor.b,
                                 v10->ClearColor.a);
 
-            g_Direct3DDevice()->lpVtbl->Clear(g_Direct3DDevice(), 0, 0, v10->ClearFlags, v13, v17, v18);
+            IDirect3DDevice9_Clear(g_Direct3DDevice, 0, 0, v10->ClearFlags, v13, v17, v18);
         }
 
         g_renderState().setColourBufferWriteEnabled(v10->FBWriteMask);
 
-        auto v21 = nglIFLSpeed() * v10->field_3FC;
+        auto v21 = nglIFLSpeed * v10->field_3FC;
         nglCurScene()->IFLFrame = std::round(v21);
-        if ( !EnableShader() )
+        if ( !EnableShader )
         {
-            g_Direct3DDevice()->lpVtbl->SetTransform(
-                g_Direct3DDevice(),
+            IDirect3DDevice9_SetTransform(
+                g_Direct3DDevice,
                 D3DTS_PROJECTION,
                 bit_cast<D3DMATRIX *>(&a1->ViewToScreen));
 
-            g_Direct3DDevice()->lpVtbl->SetTransform(g_Direct3DDevice(),
+            IDirect3DDevice9_SetTransform(g_Direct3DDevice,
                     D3DTS_VIEW,
                     bit_cast<D3DMATRIX *>(&a1->WorldToView));
         }
@@ -477,35 +477,32 @@ void Reset3DDevice()
     if constexpr (0) {
         sub_782030();
         sub_77B2F0(1);
-        if ( !EnableShader() ) {
+        if ( !EnableShader ) {
             sub_81E910();
         }
 
         sub_781B60();
-        if ( g_Windowed() )
-        {
-            s_d3dpresent_params().FullScreen_RefreshRateInHz = 0;
-        }
-        else if ( s_d3dpresent_params().PresentationInterval == 1 )
-        {
-            s_d3dpresent_params().FullScreen_RefreshRateInHz = 60;
+        if ( g_Windowed ) {
+            s_d3dpresent_params.FullScreen_RefreshRateInHz = 0;
+        } else if ( s_d3dpresent_params.PresentationInterval == 1 ) {
+            s_d3dpresent_params.FullScreen_RefreshRateInHz = 60;
         }
 
         if ( g_occlusionQueryTest() ) {
             g_occlusionQueryTest()->lpVtbl->Release(g_occlusionQueryTest());
         }
 
-        g_Direct3DDevice()->lpVtbl->Reset(g_Direct3DDevice(), &s_d3dpresent_params());
-        if ( !g_Direct3DDevice()->lpVtbl->CreateQuery(g_Direct3DDevice(), D3DQUERYTYPE_OCCLUSION, nullptr) ) {
-            g_Direct3DDevice()->lpVtbl->CreateQuery(g_Direct3DDevice(), D3DQUERYTYPE_OCCLUSION, &g_occlusionQueryTest());
+        IDirect3DDevice9_Reset(g_Direct3DDevice, &s_d3dpresent_params);
+        if ( !IDirect3DDevice9_CreateQuery(g_Direct3DDevice, D3DQUERYTYPE_OCCLUSION, nullptr) ) {
+            IDirect3DDevice9_CreateQuery(g_Direct3DDevice, D3DQUERYTYPE_OCCLUSION, &g_occlusionQueryTest());
         }
 
         sub_782060();
-        if ( !EnableShader() ) {
+        if ( !EnableShader ) {
             sub_81E8E0(0x25A000);
         }
 
-        ++dword_91E1D8();
+        ++dword_91E1D8;
         sub_781B20();
         g_renderState().Clear();
         g_renderTextureState().clear();
@@ -535,18 +532,18 @@ void nglFlip(bool a1)
 
     if constexpr (1) {
         ++nglVBlankCount();
-        g_Direct3DDevice()->lpVtbl->BeginScene(g_Direct3DDevice());
+        IDirect3DDevice9_BeginScene(g_Direct3DDevice);
         sub_781EA0(nullptr);
-        g_Direct3DDevice()->lpVtbl->EndScene(g_Direct3DDevice());
+        IDirect3DDevice9_EndScene(g_Direct3DDevice);
 
         static_assert(D3DERR_DEVICELOST == (HRESULT) 0x88760868);
         static_assert(D3DERR_DEVICENOTRESET == (HRESULT) 0x88760869);
         
-        if ( !byte_971F9C()
-                && g_Direct3DDevice()->lpVtbl->Present(g_Direct3DDevice(), nullptr, nullptr, nullptr, nullptr) == D3DERR_DEVICELOST )
+        if ( !byte_971F9C
+                && IDirect3DDevice9_Present(g_Direct3DDevice, nullptr, nullptr, nullptr, nullptr) == D3DERR_DEVICELOST )
         {
             Sleep(100u);
-            if ( g_Direct3DDevice()->lpVtbl->TestCooperativeLevel(g_Direct3DDevice()) == D3DERR_DEVICENOTRESET ) {
+            if ( IDirect3DDevice9_TestCooperativeLevel(g_Direct3DDevice) == D3DERR_DEVICENOTRESET ) {
                 Reset3DDevice();
             }
         }
@@ -569,9 +566,9 @@ void nglListSend(bool Flip)
 
     if constexpr (1)
     {
-        if ( EnableShader() ) {
+        if ( EnableShader ) {
             float v10[4] {0, 0, 1, 1};
-            g_Direct3DDevice()->lpVtbl->SetVertexShaderConstantF(g_Direct3DDevice(), 90, v10, 1);
+            IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice, 90, v10, 1);
         }
 
         nglRenderDebug();
@@ -604,9 +601,9 @@ void nglListSend(bool Flip)
         nglScratchBuffer().field_48->lpVtbl->Unlock(nglScratchBuffer().field_48);
         
         nglCurScene() = nglRootScene();
-        g_Direct3DDevice()->lpVtbl->BeginScene(g_Direct3DDevice());
+        IDirect3DDevice9_BeginScene(g_Direct3DDevice);
         nglVif1RenderScene();
-        g_Direct3DDevice()->lpVtbl->EndScene(g_Direct3DDevice());
+        IDirect3DDevice9_EndScene(g_Direct3DDevice);
         sub_781A30();
 
         sub_76DE80();
@@ -616,24 +613,24 @@ void nglListSend(bool Flip)
 
         nglPerfInfo().field_70 = nglPerfInfo().field_40.QuadPart * v5;
 
-        auto v6 = dword_975308();
+        auto v6 = dword_975308;
         nglPerfInfo().m_quads_time = nglPerfInfo().m_counterQuads.QuadPart * v5;
 
         nglPerfInfo().m_fonts_time = nglPerfInfo().field_50.QuadPart * v5;
 
-        if ( dword_975314() == dword_975308() ) {
-            v6 = dword_97530C();
+        if ( dword_975314 == dword_975308 ) {
+            v6 = dword_97530C;
         }
 
-        dword_975314() = v6;
+        dword_975314 = v6;
         nglScratchMeshPos() = v6;
 
         //dword_972AB4 = 0;
         //dword_972ABC = 0;
         
-        g_Direct3DDevice()->lpVtbl->SetStreamSource(g_Direct3DDevice(), 0, nullptr, 0, 0);
-        g_Direct3DDevice()->lpVtbl->SetVertexShader(g_Direct3DDevice(), nullptr);
-        g_Direct3DDevice()->lpVtbl->SetPixelShader(g_Direct3DDevice(), nullptr);
+        IDirect3DDevice9_SetStreamSource(g_Direct3DDevice, 0, nullptr, 0, 0);
+        IDirect3DDevice9_SetVertexShader(g_Direct3DDevice, nullptr);
+        IDirect3DDevice9_SetPixelShader(g_Direct3DDevice, nullptr);
 
 #if 0
         if ( dword_971F24() != nullptr ) {
@@ -662,7 +659,7 @@ void nglListSend(bool Flip)
         //sp_log("m_render_time = %f", nglPerfInfo().m_render_time);
 
         if ( v9 < 0 ) {
-            v9 += flt_86F860();
+            v9 += flt_86F860;
         }
 
         sp_log("v9 = %f, PCFreq = %f", v9, PCFreq());

@@ -955,8 +955,6 @@ extern math::VecClass<3, 1> sub_414360(const math::VecClass<3, 1> &a2, const mat
 
 extern Var<bool> nglLoadingIFL;
 
-extern Var<bool> EnableShader;
-
 extern Var<char[256]> nglTexturePath;
 
 extern Var<uint8_t *> nglListWorkPos;
@@ -1005,7 +1003,7 @@ inline Var<nglRenderTextureState> g_renderTextureState {0x0093BD50};
 
 inline Var<IDirect3DQuery9 *> g_occlusionQueryTest {0x00972660};
 
-inline Var<D3DPRESENT_PARAMETERS> s_d3dpresent_params{0x009720D0};
+inline D3DPRESENT_PARAMETERS & s_d3dpresent_params = var<D3DPRESENT_PARAMETERS>(0x009720D0);
 
 extern void sub_782030();
 

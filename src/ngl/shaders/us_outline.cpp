@@ -73,24 +73,24 @@ void Outline_ShaderNode<USExteriorMaterial>::Render()
         g_renderState().setBlending(NGLBM_OPAQUE, 0, 0);
         if ( g_renderState().field_A8 != 7 )
         {
-            g_Direct3DDevice()->lpVtbl->SetRenderState(
-                    g_Direct3DDevice(),
+            IDirect3DDevice9_SetRenderState(
+                    g_Direct3DDevice,
                     D3DRS_COLORWRITEENABLE,
                     7);
             g_renderState().field_A8 = 7;
         }
 
         if ( g_renderState().field_7C != 4 ) {
-            g_Direct3DDevice()->lpVtbl->SetRenderState(
-                    g_Direct3DDevice(),
+            IDirect3DDevice9_SetRenderState(
+                    g_Direct3DDevice,
                     D3DRS_ZFUNC,
                     4);
             g_renderState().field_7C = (D3DCMPFUNC) 4;
         }
 
         if ( !g_renderState().field_74 ) {
-            g_Direct3DDevice()->lpVtbl->SetRenderState(
-                    g_Direct3DDevice(),
+            IDirect3DDevice9_SetRenderState(
+                    g_Direct3DDevice,
                     D3DRS_ZWRITEENABLE,
                     1);
             g_renderState().field_74 = 1;
@@ -98,8 +98,8 @@ void Outline_ShaderNode<USExteriorMaterial>::Render()
 
         if ( g_renderState().m_cullingMode != D3DCULL_CW )
         {
-            g_Direct3DDevice()->lpVtbl->SetRenderState(
-                    g_Direct3DDevice(),
+            IDirect3DDevice9_SetRenderState(
+                    g_Direct3DDevice,
                     D3DRS_CULLMODE,
                     2);
             g_renderState().m_cullingMode = D3DCULL_CW;
@@ -109,27 +109,27 @@ void Outline_ShaderNode<USExteriorMaterial>::Render()
         nglDxSetTexture(0, this->field_18, 8u, 3);
         nglSetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);
         nglSetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);
-        if ( EnableShader() )
+        if ( EnableShader )
         {
             nglSetVertexDeclarationAndShader(&stru_970760());
-            g_Direct3DDevice()->lpVtbl->SetVertexShaderConstantF(
-                    g_Direct3DDevice(),
+            IDirect3DDevice9_SetVertexShaderConstantF(
+                    g_Direct3DDevice,
                     0,
                     &this->m_meshNode->field_40[0][0],
                     4);
         }
         else
         {
-            g_Direct3DDevice()->lpVtbl->SetTransform(
-                g_Direct3DDevice(),
+            IDirect3DDevice9_SetTransform(
+                g_Direct3DDevice,
                 (D3DTRANSFORMSTATETYPE)256,
                 bit_cast<D3DMATRIX *>(&this->m_meshNode->field_0));
-            g_Direct3DDevice()->lpVtbl->SetVertexDeclaration(
-                    g_Direct3DDevice(), dword_9738E0()[9]);
+            IDirect3DDevice9_SetVertexDeclaration(
+                    g_Direct3DDevice, dword_9738E0()[9]);
         }
 
         color v18 {};
-        if ( EnableShader() )
+        if ( EnableShader )
         {
             SetPixelShader(&dword_970770());
             sub_413F80(&v18, this->field_14, &this->m_meshNode->field_8C, 9u);
@@ -137,8 +137,8 @@ void Outline_ShaderNode<USExteriorMaterial>::Render()
             v17[1] = v18.g;
             v17[2] = v18.b;
             v17[3] = v18.a;
-            g_Direct3DDevice()->lpVtbl->SetPixelShaderConstantF(
-                    g_Direct3DDevice(),
+            IDirect3DDevice9_SetPixelShaderConstantF(
+                    g_Direct3DDevice,
                     0,
                     &v17[0],
                     1);
@@ -159,8 +159,8 @@ void Outline_ShaderNode<USExteriorMaterial>::Render()
         nglSetStreamSourceAndDrawPrimitive(this->m_meshSection);
         if ( g_renderState().field_7C != v5 )
         {
-            g_Direct3DDevice()->lpVtbl->SetRenderState(
-                    g_Direct3DDevice(),
+            IDirect3DDevice9_SetRenderState(
+                    g_Direct3DDevice,
                     D3DRS_ZFUNC,
                     v5);
 
@@ -168,15 +168,15 @@ void Outline_ShaderNode<USExteriorMaterial>::Render()
         }
 
         if ( g_renderState().field_74 != v4 ) {
-            g_Direct3DDevice()->lpVtbl->SetRenderState(
-                    g_Direct3DDevice(),
+            IDirect3DDevice9_SetRenderState(
+                    g_Direct3DDevice,
                     D3DRS_ZWRITEENABLE,
                     v4);
 
             g_renderState().field_74 = v4;
         }
 
-        if ( v2->field_68 && EnableShader() )
+        if ( v2->field_68 && EnableShader )
         {
             math::VecClass<3, 1> v17 {};
             v17[0] = this->m_meshNode->field_0[3][0];
@@ -190,8 +190,8 @@ void Outline_ShaderNode<USExteriorMaterial>::Render()
 
             if ( g_renderState().field_A8 != 7 )
             {
-                g_Direct3DDevice()->lpVtbl->SetRenderState(
-                        g_Direct3DDevice(),
+                IDirect3DDevice9_SetRenderState(
+                        g_Direct3DDevice,
                         D3DRS_COLORWRITEENABLE,
                         7);
                 g_renderState().field_A8 = 7;
@@ -199,16 +199,16 @@ void Outline_ShaderNode<USExteriorMaterial>::Render()
 
             if ( g_renderState().m_cullingMode != D3DCULL_CCW )
             {
-                g_Direct3DDevice()->lpVtbl->SetRenderState(
-                        g_Direct3DDevice(),
+                IDirect3DDevice9_SetRenderState(
+                        g_Direct3DDevice,
                         D3DRS_CULLMODE,
                         3);
                 g_renderState().m_cullingMode = D3DCULL_CCW;
             }
 
             nglSetVertexDeclarationAndShader(&stru_970768());
-            g_Direct3DDevice()->lpVtbl->SetVertexShaderConstantF(
-                    g_Direct3DDevice(),
+            IDirect3DDevice9_SetVertexShaderConstantF(
+                    g_Direct3DDevice,
                     0,
                     &this->m_meshNode->field_40[0][0],
                     4);
@@ -216,8 +216,8 @@ void Outline_ShaderNode<USExteriorMaterial>::Render()
             {
                 float v17[4] {};
                 v17[3] = v13;
-                g_Direct3DDevice()->lpVtbl->SetVertexShaderConstantF(
-                        g_Direct3DDevice(), 8, v17, 1);
+                IDirect3DDevice9_SetVertexShaderConstantF(
+                        g_Direct3DDevice, 8, v17, 1);
             }
 
             SetPixelShader(&dword_970774());
@@ -228,8 +228,8 @@ void Outline_ShaderNode<USExteriorMaterial>::Render()
                 v17[1] = v15;
                 v17[2] = v16;
                 v17[3]= 1.0;
-                g_Direct3DDevice()->lpVtbl->SetPixelShaderConstantF(
-                        g_Direct3DDevice(), 0, v17, 1);
+                IDirect3DDevice9_SetPixelShaderConstantF(
+                        g_Direct3DDevice, 0, v17, 1);
             }
             nglSetStreamSourceAndDrawPrimitive(this->m_meshSection);
         }
@@ -262,8 +262,8 @@ void Outline_ShaderNode<USInteriorMaterial>::Render()
         g_renderState().setBlending(NGLBM_OPAQUE, 0, 0);
         if ( g_renderState().field_A8 != 7 )
         {
-            g_Direct3DDevice()->lpVtbl->SetRenderState(
-                    g_Direct3DDevice(),
+            IDirect3DDevice9_SetRenderState(
+                    g_Direct3DDevice,
                     D3DRS_COLORWRITEENABLE,
                     7);
             g_renderState().field_A8 = 7;
@@ -271,22 +271,22 @@ void Outline_ShaderNode<USInteriorMaterial>::Render()
 
         if ( g_renderState().field_7C != 4 )
         {
-            g_Direct3DDevice()->lpVtbl->SetRenderState(
-                    g_Direct3DDevice(), D3DRS_ZFUNC, 4);
+            IDirect3DDevice9_SetRenderState(
+                    g_Direct3DDevice, D3DRS_ZFUNC, 4);
             g_renderState().field_7C = (D3DCMPFUNC) 4;
         }
 
         if ( !g_renderState().field_74 )
         {
-            g_Direct3DDevice()->lpVtbl->SetRenderState(
-                    g_Direct3DDevice(), D3DRS_ZWRITEENABLE, 1);
+            IDirect3DDevice9_SetRenderState(
+                    g_Direct3DDevice, D3DRS_ZWRITEENABLE, 1);
             g_renderState().field_74 = 1;
         }
 
         if ( g_renderState().m_cullingMode != D3DCULL_CW )
         {
-            g_Direct3DDevice()->lpVtbl->SetRenderState(
-                    g_Direct3DDevice(), D3DRS_CULLMODE, 2);
+            IDirect3DDevice9_SetRenderState(
+                    g_Direct3DDevice, D3DRS_CULLMODE, 2);
             g_renderState().m_cullingMode = D3DCULL_CW;
         }
 
@@ -295,26 +295,26 @@ void Outline_ShaderNode<USInteriorMaterial>::Render()
         nglSetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);
         nglSetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);
 
-        if ( EnableShader() )
+        if ( EnableShader )
         {
             nglSetVertexDeclarationAndShader(&stru_970760());
-            g_Direct3DDevice()->lpVtbl->SetVertexShaderConstantF(
-                    g_Direct3DDevice(),
+            IDirect3DDevice9_SetVertexShaderConstantF(
+                    g_Direct3DDevice,
                     0,
                     &this->m_meshNode->field_40[0][0],
                     4);
         }
         else
         {
-            g_Direct3DDevice()->lpVtbl->SetTransform(
-                g_Direct3DDevice(),
-                (D3DTRANSFORMSTATETYPE)256,
+            IDirect3DDevice9_SetTransform(
+                g_Direct3DDevice,
+                static_cast<D3DTRANSFORMSTATETYPE>(256),
                 bit_cast<D3DMATRIX *>(&this->m_meshNode->field_0));
-            g_Direct3DDevice()->lpVtbl->SetVertexDeclaration(
-                    g_Direct3DDevice(), dword_9738E0()[9]);
+            IDirect3DDevice9_SetVertexDeclaration(
+                    g_Direct3DDevice, dword_9738E0()[9]);
         }
 
-        if ( EnableShader() )
+        if ( EnableShader )
         {
             SetPixelShader(&dword_970770());
             auto v6 = sub_41BA70(this->field_14, (int *)&this->m_meshNode->field_8C, 9u);
@@ -322,8 +322,8 @@ void Outline_ShaderNode<USInteriorMaterial>::Render()
             v17[1] = v6[1];
             v17[2] = v6[2];
             v17[3] = v6[3];
-            g_Direct3DDevice()->lpVtbl->SetPixelShaderConstantF(
-                    g_Direct3DDevice(), 0, &v17[0], 1);
+            IDirect3DDevice9_SetPixelShaderConstantF(
+                    g_Direct3DDevice, 0, &v17[0], 1);
         }
         else
         {
@@ -341,20 +341,20 @@ void Outline_ShaderNode<USInteriorMaterial>::Render()
         nglSetStreamSourceAndDrawPrimitive(this->m_meshSection);
         if ( g_renderState().field_7C != v5 )
         {
-            g_Direct3DDevice()->lpVtbl->SetRenderState(
-                    g_Direct3DDevice(), D3DRS_ZFUNC, v5);
+            IDirect3DDevice9_SetRenderState(
+                    g_Direct3DDevice, D3DRS_ZFUNC, v5);
             g_renderState().field_7C = v5;
         }
 
         if ( g_renderState().field_74 != v4 )
         {
-            g_Direct3DDevice()->lpVtbl->SetRenderState(
-                    g_Direct3DDevice(), D3DRS_ZWRITEENABLE, v4);
+            IDirect3DDevice9_SetRenderState(
+                    g_Direct3DDevice, D3DRS_ZWRITEENABLE, v4);
             g_renderState().field_74 = v4;
         }
 
         auto *v8 = this->field_14;
-        if ( v2->field_24 && EnableShader() )
+        if ( v2->field_24 && EnableShader )
         {
             v17[0] = this->m_meshNode->field_0[3][0];
             v17[1] = this->m_meshNode->field_0[3][1];
@@ -366,20 +366,20 @@ void Outline_ShaderNode<USInteriorMaterial>::Render()
             }
 
             if ( g_renderState().field_A8 != 7 ) {
-                g_Direct3DDevice()->lpVtbl->SetRenderState(
-                        g_Direct3DDevice(), D3DRS_COLORWRITEENABLE, 7);
+                IDirect3DDevice9_SetRenderState(
+                        g_Direct3DDevice, D3DRS_COLORWRITEENABLE, 7);
                 g_renderState().field_A8 = 7;
             }
 
             if ( g_renderState().m_cullingMode != D3DCULL_CCW ) {
-                g_Direct3DDevice()->lpVtbl->SetRenderState(
-                        g_Direct3DDevice(), D3DRS_CULLMODE, 3);
+                IDirect3DDevice9_SetRenderState(
+                        g_Direct3DDevice, D3DRS_CULLMODE, 3);
                 g_renderState().m_cullingMode = D3DCULL_CCW;
             }
 
             nglSetVertexDeclarationAndShader(&stru_970768());
-            g_Direct3DDevice()->lpVtbl->SetVertexShaderConstantF(
-                    g_Direct3DDevice(),
+            IDirect3DDevice9_SetVertexShaderConstantF(
+                    g_Direct3DDevice,
                     0,
                     &this->m_meshNode->field_40[0][0],
                     4);
@@ -387,16 +387,16 @@ void Outline_ShaderNode<USInteriorMaterial>::Render()
             v17[3] = v13;
             v17 = {};
 
-            g_Direct3DDevice()->lpVtbl->SetVertexShaderConstantF(
-                    g_Direct3DDevice(), 8, &v17[0], 1);
+            IDirect3DDevice9_SetVertexShaderConstantF(
+                    g_Direct3DDevice, 8, &v17[0], 1);
             SetPixelShader(&dword_970774());
 
             v17[0] = v14;
             v17[1] = v15;
             v17[2] = v16;
             v17[3] = 1.0;
-            g_Direct3DDevice()->lpVtbl->SetPixelShaderConstantF(
-                    g_Direct3DDevice(), 0, &v17[0], 1);
+            IDirect3DDevice9_SetPixelShaderConstantF(
+                    g_Direct3DDevice, 0, &v17[0], 1);
             nglSetStreamSourceAndDrawPrimitive(this->m_meshSection);
         }
     }

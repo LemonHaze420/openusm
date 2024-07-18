@@ -383,7 +383,7 @@ void USPersonSolidShader::Register()
 
         };
 
-        if (EnableShader())
+        if ( EnableShader )
         {
             CreateVertexDeclAndShaders(nglVS_Skin_Decl);
             CreatePixelShaders();
@@ -408,7 +408,7 @@ void USPersonSolidShader::Register()
             static Var<IDirect3DVertexDeclaration9 *> dword_973910{0x00973910};
 
             if (dword_973910() == nullptr) {
-                g_Direct3DDevice()->lpVtbl->CreateVertexDeclaration(g_Direct3DDevice(),
+                IDirect3DDevice9_CreateVertexDeclaration(g_Direct3DDevice,
                                                                     nglVS_NonSkin_Decl4,
                                                                     &dword_973910());
             }
@@ -426,7 +426,7 @@ void USPersonShader::_Register()
     {
         nglShader::Register();
 
-        if (EnableShader())
+        if ( EnableShader )
         {
             static const D3DVERTEXELEMENT9 nglVS_Skin_Decl[] = {
                 {0,  0, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0},
@@ -458,7 +458,7 @@ void USPersonShader::_Register()
 
             if (dword_9738E0()[12] == nullptr)
             {
-                g_Direct3DDevice()->lpVtbl->CreateVertexDeclaration(g_Direct3DDevice(),
+                IDirect3DDevice9_CreateVertexDeclaration(g_Direct3DDevice,
                                                                     nglVS_NonSkin_Decl,
                                                                     &dword_9738E0()[12]);
             }
@@ -694,16 +694,16 @@ void USPersonSolidNode::_Render()
     else
         v8 = *(_DWORD *) (this->field_18 + 72);
     v9 = v4->field_44;
-    v10 = g_Direct3DDevice()->lpVtbl;
+    v10 = g_Direct3DDevice->lpVtbl;
     v46 = v4->disableZDepth;
     v11 = this->field_C;
     v48 = v8 != 0;
     v51 = v9;
-    v10->SetVertexShaderConstantF(g_Direct3DDevice(), 0, (const float *) (v11 + 64), 4);
+    v10->SetVertexShaderConstantF(g_Direct3DDevice, 0, (const float *) (v11 + 64), 4);
     sub_772810(11, this->field_C, this->field_10);
     if (v9) {
         if (byte_9739A0[0] != 1) {
-            g_Direct3DDevice()->lpVtbl->SetRenderState(g_Direct3DDevice(),
+            g_Direct3DDevice->lpVtbl->SetRenderState(g_Direct3DDevice,
                                                      D3DRS_STENCILENABLE |
                                                          D3DRS_STENCILENABLE,
                                                      1);
@@ -711,21 +711,21 @@ void USPersonSolidNode::_Render()
         }
         v12 = byte_91E74E;
         if (dword_9739B4 != byte_91E74E) {
-            g_Direct3DDevice()->lpVtbl->SetRenderState(g_Direct3DDevice(),
+            g_Direct3DDevice->lpVtbl->SetRenderState(g_Direct3DDevice,
                                                      D3DRS_STENCILREF |
                                                          D3DRS_STENCILREF,
                                                      byte_91E74E);
             dword_9739B4 = v12;
         }
         if (dword_9739B0 != 1) {
-            g_Direct3DDevice()->lpVtbl->SetRenderState(g_Direct3DDevice(),
+            g_Direct3DDevice->lpVtbl->SetRenderState(g_Direct3DDevice,
                                                      D3DRS_STENCILREF |
                                                          D3DRS_STENCILENABLE,
                                                      1);
             dword_9739B0 = 1;
         }
         if (dword_9739A4 != 1) {
-            g_Direct3DDevice()->lpVtbl->SetRenderState(g_Direct3DDevice(),
+            g_Direct3DDevice->lpVtbl->SetRenderState(g_Direct3DDevice,
                                                      D3DRS_STENCILZFAIL |
                                                          D3DRS_STENCILENABLE,
                                                      1);
@@ -762,7 +762,7 @@ LABEL_34:
 
         sub_774A90(byte_9739A0, *(_DWORD *) (this->field_18 + 76), 0, 0);
         if (dword_973A4C != 2) {
-            g_Direct3DDevice()->lpVtbl->SetRenderState(g_Direct3DDevice(), D3DRS_CULLMODE, 2);
+            g_Direct3DDevice->lpVtbl->SetRenderState(g_Direct3DDevice, D3DRS_CULLMODE, 2);
             dword_973A4C = 2;
         }
 
@@ -777,7 +777,7 @@ LABEL_34:
             v59.field_C = (ai::param_block *) -1082130432;
             v16 = (const ai::state_trans_action *) sub_74B1C0((int) &out, -0.5);
             ai::state_trans_action::state_trans_action(&v59, v16);
-            g_Direct3DDevice()->lpVtbl->SetVertexShaderConstantF(g_Direct3DDevice(),
+            g_Direct3DDevice->lpVtbl->SetVertexShaderConstantF(g_Direct3DDevice,
                                                                4,
                                                                (const float *) &v58,
                                                                2);
@@ -822,7 +822,7 @@ LABEL_34:
                 *(vector4d *) v50 = *sub_412870(&out, v50, a1);
             }
 
-            g_Direct3DDevice()->lpVtbl->SetVertexShaderConstantF(g_Direct3DDevice(),
+            g_Direct3DDevice->lpVtbl->SetVertexShaderConstantF(g_Direct3DDevice,
                                                                8,
                                                                (const float *) &a3,
                                                                1);
@@ -832,11 +832,11 @@ LABEL_34:
             v28 = (vector4d *) sub_410DF0((float *) v60, a1, v56[4]);
             v29 = sub_4139A0(&v62, v28, v41);
             sub_41CF30(v29, &out);
-            g_Direct3DDevice()->lpVtbl->SetVertexShaderConstantF(g_Direct3DDevice(),
+            g_Direct3DDevice->lpVtbl->SetVertexShaderConstantF(g_Direct3DDevice,
                                                                6,
                                                                (const float *) &out,
                                                                1);
-            g_Direct3DDevice()->lpVtbl->SetVertexShaderConstantF(g_Direct3DDevice(), 7, v50, 1);
+            g_Direct3DDevice->lpVtbl->SetVertexShaderConstantF(g_Direct3DDevice, 7, v50, 1);
         }
 
         nglSetVertexDeclarationAndShader((int *) (8 * (v42 + 2 * v43) + 0x9707F4));
@@ -859,7 +859,7 @@ LABEL_34:
             a1[2] = v32;
             a1[3] = v33;
             a1[1] = a3.arr[1];
-            g_Direct3DDevice()->lpVtbl->SetPixelShaderConstantF(g_Direct3DDevice(), 2, a1, 1);
+            g_Direct3DDevice->lpVtbl->SetPixelShaderConstantF(g_Direct3DDevice, 2, a1, 1);
         }
 
         a3.arr[2] = 0.0;
@@ -870,14 +870,14 @@ LABEL_34:
         a1[3] = 1.0;
         a3.arr[1] = 0.0;
         a1[1] = 0.0;
-        g_Direct3DDevice()->lpVtbl->SetPixelShaderConstantF(g_Direct3DDevice(), 1, a1, 1);
+        g_Direct3DDevice->lpVtbl->SetPixelShaderConstantF(g_Direct3DDevice, 1, a1, 1);
         sub_771AF0(this->field_10);
     }
 
     if (v45)
     {
         if (dword_973A4C != 2) {
-            g_Direct3DDevice()->lpVtbl->SetRenderState(g_Direct3DDevice(), D3DRS_CULLMODE, 2);
+            g_Direct3DDevice->lpVtbl->SetRenderState(g_Direct3DDevice, D3DRS_CULLMODE, 2);
             dword_973A4C = 2;
         }
 
@@ -886,7 +886,7 @@ LABEL_34:
         a1[1] = 0.0;
         a1[2] = 0.0;
         a1[3] = 0.0;
-        g_Direct3DDevice()->lpVtbl->SetVertexShaderConstantF(g_Direct3DDevice(), 9, a1, 1);
+        g_Direct3DDevice->lpVtbl->SetVertexShaderConstantF(g_Direct3DDevice, 9, a1, 1);
         nglSetVertexDeclarationAndShader(&dword_9707E0);
         sub_772250(&dword_9707F0);
         v34 = v4->field_24;
@@ -895,9 +895,9 @@ LABEL_34:
         a1[1] = v34;
         a1[3] = v4->field_2C;
         a1[2] = v35;
-        g_Direct3DDevice()->lpVtbl->SetPixelShaderConstantF(g_Direct3DDevice(), 0, a1, 1);
+        g_Direct3DDevice->lpVtbl->SetPixelShaderConstantF(g_Direct3DDevice, 0, a1, 1);
         g_renderTextureState().field_0[0] = nullptr;
-        g_Direct3DDevice()->lpVtbl->SetTexture(g_Direct3DDevice(), 0, nullptr);
+        g_Direct3DDevice->lpVtbl->SetTexture(g_Direct3DDevice, 0, nullptr);
         sub_771AF0(this->field_10);
     }
 
@@ -912,7 +912,7 @@ LABEL_34:
             a1[3] = v37;
             a1[1] = 0.0;
             a1[2] = 0.0;
-            g_Direct3DDevice()->lpVtbl->SetVertexShaderConstantF(g_Direct3DDevice(), 9, a1, 1);
+            g_Direct3DDevice->lpVtbl->SetVertexShaderConstantF(g_Direct3DDevice, 9, a1, 1);
             nglSetVertexDeclarationAndShader(&dword_9707E0);
             sub_772250(&dword_9707F0);
             v38 = v4->field_8;
@@ -922,7 +922,7 @@ LABEL_34:
             a1[2] = v38;
             a1[3] = v40;
             a1[1] = v39;
-            g_Direct3DDevice()->lpVtbl->SetPixelShaderConstantF(g_Direct3DDevice(), 0, a1, 1);
+            g_Direct3DDevice->lpVtbl->SetPixelShaderConstantF(g_Direct3DDevice, 0, a1, 1);
             sub_771AF0(this->field_10);
         }
     }
@@ -935,44 +935,44 @@ LABEL_34:
             dword_95702C = 1266679806;
         }
         if (dword_973A4C != 2) {
-            g_Direct3DDevice()->lpVtbl->SetRenderState(g_Direct3DDevice(), D3DRS_CULLMODE, 2);
+            g_Direct3DDevice->lpVtbl->SetRenderState(g_Direct3DDevice, D3DRS_CULLMODE, 2);
             dword_973A4C = 2;
         }
         sub_774A90(byte_9739A0, 0, 0, 0);
         if (dword_973A48) {
-            g_Direct3DDevice()->lpVtbl->SetRenderState(g_Direct3DDevice(),
+            g_Direct3DDevice->lpVtbl->SetRenderState(g_Direct3DDevice,
                                                      D3DRS_COLORWRITEENABLE | 0x80,
                                                      0);
             dword_973A48 = 0;
         }
         if (!byte_973A14) {
-            g_Direct3DDevice()->lpVtbl->SetRenderState(g_Direct3DDevice(),
+            g_Direct3DDevice->lpVtbl->SetRenderState(g_Direct3DDevice,
                                                      D3DRS_ZWRITEENABLE,
                                                      1);
             byte_973A14 = 1;
         }
         if (dword_973A1C != 8) {
-            g_Direct3DDevice()->lpVtbl->SetRenderState(g_Direct3DDevice(), D3DRENDERSTATE_ZFUNC, 8);
+            g_Direct3DDevice->lpVtbl->SetRenderState(g_Direct3DDevice, D3DRENDERSTATE_ZFUNC, 8);
             dword_973A1C = 8;
         }
         a1[0] = 0.0;
         a1[1] = 0.0;
         a1[2] = 0.0;
         a1[3] = 0.0;
-        g_Direct3DDevice()->lpVtbl->SetVertexShaderConstantF(g_Direct3DDevice(), 9, a1, 1);
-        g_Direct3DDevice()->lpVtbl->SetVertexShaderConstantF(g_Direct3DDevice(), 10, dword_957020, 1);
+        g_Direct3DDevice->lpVtbl->SetVertexShaderConstantF(g_Direct3DDevice, 9, a1, 1);
+        g_Direct3DDevice->lpVtbl->SetVertexShaderConstantF(g_Direct3DDevice, 10, dword_957020, 1);
         nglSetVertexDeclarationAndShader(&dword_9707E8);
         sub_772250(&dword_9707F0);
         sub_771AF0(this->field_10);
         sub_401DA0(nglCurScene->field_3B4);
         if (byte_973A14) {
-            g_Direct3DDevice()->lpVtbl->SetRenderState(g_Direct3DDevice(),
+            g_Direct3DDevice->lpVtbl->SetRenderState(g_Direct3DDevice,
                                                      D3DRS_ZWRITEENABLE,
                                                      0);
             byte_973A14 = 0;
         }
         if (dword_973A1C != 4) {
-            g_Direct3DDevice()->lpVtbl->SetRenderState(g_Direct3DDevice(), D3DRENDERSTATE_ZFUNC, 4);
+            g_Direct3DDevice->lpVtbl->SetRenderState(g_Direct3DDevice, D3DRENDERSTATE_ZFUNC, 4);
             dword_973A1C = 4;
         }
     }
@@ -980,21 +980,21 @@ LABEL_34:
     if (v51) {
         result = byte_9739A0[0];
         if (byte_9739A0[0]) {
-            result = g_Direct3DDevice()->lpVtbl->SetRenderState(g_Direct3DDevice(),
+            result = g_Direct3DDevice->lpVtbl->SetRenderState(g_Direct3DDevice,
                                                               D3DRS_STENCILENABLE |
                                                                   D3DRS_STENCILENABLE,
                                                               0);
             byte_9739A0[0] = 0;
         }
         if (dword_9739AC != 8) {
-            result = g_Direct3DDevice()->lpVtbl->SetRenderState(g_Direct3DDevice(),
+            result = g_Direct3DDevice->lpVtbl->SetRenderState(g_Direct3DDevice,
                                                               D3DRS_STENCILENABLE |
                                                                   D3DRS_STENCILREF,
                                                               8);
             dword_9739AC = 8;
         }
         if (dword_9739A8 != 1) {
-            result = g_Direct3DDevice()->lpVtbl->SetRenderState(g_Direct3DDevice(),
+            result = g_Direct3DDevice->lpVtbl->SetRenderState(g_Direct3DDevice,
                                                               D3DRS_STENCILZFAIL |
                                                                   D3DRENDERSTATE_WRAPU,
                                                               1);
@@ -1155,7 +1155,7 @@ void USPersonNode::RenderWithDisableShader()
             }
         }
 
-        g_Direct3DDevice()->lpVtbl->SetVertexDeclaration(g_Direct3DDevice(), dword_9738E0()[12]);
+        IDirect3DDevice9_SetVertexDeclaration(g_Direct3DDevice, dword_9738E0()[12]);
 
         D3DMATRIX v20 {};
         memset(&v20._34, 0, 16);
@@ -1166,7 +1166,7 @@ void USPersonNode::RenderWithDisableShader()
         v20._22 = 1.0;
         v20._11 = 1.0;
 
-        g_Direct3DDevice()->lpVtbl->SetTransform(g_Direct3DDevice(), D3DTS_WORLD, &v20);
+        IDirect3DDevice9_SetTransform(g_Direct3DDevice, D3DTS_WORLD, &v20);
 
         auto *v13 = this->m_meshNode;
 
@@ -1219,12 +1219,12 @@ void USPersonNode::RenderWithDisableShader()
                 if ( v16 == v17
                     || (v16 == v18) )
                 {
-                    g_Direct3DDevice()->lpVtbl->SetTexture(g_Direct3DDevice(), 1, celshadingSolidTex());
+                    IDirect3DDevice9_SetTexture(g_Direct3DDevice, 1, celshadingSolidTex());
                     g_renderTextureState().field_0[1] = (IDirect3DTexture9 *)celshadingTex();
                 }
                 else
                 {
-                    g_Direct3DDevice()->lpVtbl->SetTexture(g_Direct3DDevice(), 1, celshadingTex());
+                    IDirect3DDevice9_SetTexture(g_Direct3DDevice, 1, celshadingTex());
                     g_renderTextureState().field_0[1] = (IDirect3DTexture9 *)celshadingSolidTex();
                 }
 
@@ -1249,8 +1249,8 @@ void USPersonNode::RenderWithDisableShader()
                 g_renderState().setBlending(NGLBM_OPAQUE, 0, 0);
                 if ( g_renderState().field_9C != 0xFF000000 )
                 {
-                    g_Direct3DDevice()->lpVtbl->SetRenderState(
-                        g_Direct3DDevice(),
+                    IDirect3DDevice9_SetRenderState(
+                        g_Direct3DDevice,
                         D3DRS_TEXTUREFACTOR,
                         0xFF000000);
                     g_renderState().field_9C = 0xFF000000;
@@ -1266,7 +1266,7 @@ void USPersonNode::RenderWithDisableShader()
                 if ( byte_95701C() )
                 {
                     g_renderTextureState().field_0[0] = nullptr;
-                    g_Direct3DDevice()->lpVtbl->SetTexture(g_Direct3DDevice(), 0, nullptr);
+                    IDirect3DDevice9_SetTexture(g_Direct3DDevice, 0, nullptr);
                 }
 
                 auto *v12 = this->m_meshSection;
@@ -1363,7 +1363,7 @@ void USPersonNode::_Render()
             return;
         }
 
-        if (!EnableShader()) {
+        if ( !EnableShader ) {
             this->RenderWithDisableShader();
             return;
         }
@@ -1394,7 +1394,7 @@ void USPersonNode::_Render()
 
         bool clearZTest = params->disableZDepth;
 
-        g_Direct3DDevice()->lpVtbl->SetVertexShaderConstantF(g_Direct3DDevice(),
+        IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice,
                                                              0,
                                                              &this->m_meshNode->field_40[0][0],
                                                              4);
@@ -1465,7 +1465,7 @@ void USPersonNode::_Render()
 
                 v53[1] *= -0.5f;
 
-                g_Direct3DDevice()->lpVtbl->SetVertexShaderConstantF(g_Direct3DDevice(),
+                IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice,
                                                                      4,
                                                                      &v53[0][0],
                                                                      2);
@@ -1492,7 +1492,7 @@ void USPersonNode::_Render()
                     a3 *= a1;
                 }
 
-                g_Direct3DDevice()->lpVtbl->SetVertexShaderConstantF(g_Direct3DDevice(),
+                IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice,
                                                                      8,
                                                                      &a2[0],
                                                                      1);
@@ -1506,12 +1506,12 @@ void USPersonNode::_Render()
                 vector4d v28 = sub_4139A0(&v27, &v39);
 
                 vector4d v53 = v28.sub_41CF30();
-                g_Direct3DDevice()->lpVtbl->SetVertexShaderConstantF(g_Direct3DDevice(),
+                IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice,
                                                                      6,
                                                                      &v53[0],
                                                                      1);
 
-                g_Direct3DDevice()->lpVtbl->SetVertexShaderConstantF(g_Direct3DDevice(),
+                IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice,
                                                                      7,
                                                                      &a3[0],
                                                                      1);
@@ -1534,7 +1534,7 @@ void USPersonNode::_Render()
             {
                 vector4d a1 = this->m_material->field_28;
 
-                g_Direct3DDevice()->lpVtbl->SetPixelShaderConstantF(g_Direct3DDevice(),
+                IDirect3DDevice9_SetPixelShaderConstantF(g_Direct3DDevice,
                                                                     2,
                                                                     &a1[0],
                                                                     1);
@@ -1542,7 +1542,7 @@ void USPersonNode::_Render()
 
             float a1[4] {0, 0, 0, 1};
 
-            g_Direct3DDevice()->lpVtbl->SetPixelShaderConstantF(g_Direct3DDevice(), 1, a1, 1);
+            IDirect3DDevice9_SetPixelShaderConstantF(g_Direct3DDevice, 1, a1, 1);
 
             //sp_log("DRAW!");
             nglSetStreamSourceAndDrawPrimitive(this->m_meshSection);
@@ -1577,15 +1577,15 @@ void USPersonNode::_Render()
             g_renderState().setBlending(NGLBM_OPAQUE, 0, 0);
 
             float a1[4] {0, 0, 0, 0};
-            g_Direct3DDevice()->lpVtbl->SetVertexShaderConstantF(g_Direct3DDevice(), 9, a1, 1);
+            IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice, 9, a1, 1);
 
             nglSetVertexDeclarationAndShader(&OutlineVShader()[0]);
             SetPixelShader(&OutlinePShader());
 
-            g_Direct3DDevice()->lpVtbl->SetPixelShaderConstantF(g_Direct3DDevice(), 0, params->field_20, 1);
+            IDirect3DDevice9_SetPixelShaderConstantF(g_Direct3DDevice, 0, params->field_20, 1);
 
             g_renderTextureState().field_0[0] = nullptr;
-            g_Direct3DDevice()->lpVtbl->SetTexture(g_Direct3DDevice(), 0, nullptr);
+            IDirect3DDevice9_SetTexture(g_Direct3DDevice, 0, nullptr);
 
             nglSetStreamSourceAndDrawPrimitive(this->m_meshSection);
         }
@@ -1600,7 +1600,7 @@ void USPersonNode::_Render()
                 auto v35 = v34 * params->field_30 * ParamStruct::OutlineThickness;
 
                 float a1[4] {0, 0, 0, v35};
-                g_Direct3DDevice()->lpVtbl->SetVertexShaderConstantF(g_Direct3DDevice(),
+                IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice,
                                                                      9,
                                                                      a1,
                                                                      1);
@@ -1608,7 +1608,7 @@ void USPersonNode::_Render()
                 nglSetVertexDeclarationAndShader(&OutlineVShader()[0]);
                 SetPixelShader(&OutlinePShader());
 
-                g_Direct3DDevice()->lpVtbl->SetPixelShaderConstantF(g_Direct3DDevice(),
+                IDirect3DDevice9_SetPixelShaderConstantF(g_Direct3DDevice,
                                                                     0,
                                                                     params->field_0,
                                                                     1);
@@ -1630,10 +1630,10 @@ void USPersonNode::_Render()
             g_renderState().setDepthBufferFunction(D3DCMP_ALWAYS);
 
             float a1[4] {0, 0, 0, 0};
-            g_Direct3DDevice()->lpVtbl->SetVertexShaderConstantF(g_Direct3DDevice(), 9, a1, 1);
+            IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice, 9, a1, 1);
 
             static float dword_957004[4] {0, 0, 0, 16777214.0};
-            g_Direct3DDevice()->lpVtbl->SetVertexShaderConstantF(g_Direct3DDevice(),
+            IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice,
                                                                  10,
                                                                  dword_957004,
                                                                  1);

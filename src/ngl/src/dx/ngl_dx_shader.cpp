@@ -59,8 +59,8 @@ void nglCreateVertexDeclarationAndShader(void *a1, const D3DVERTEXELEMENT9 *a2, 
             IDirect3DVertexDeclaration9 *field_4;
         } *v1 = static_cast<decltype(v1)>(a1);
 
-        g_Direct3DDevice()->lpVtbl->CreateVertexDeclaration(g_Direct3DDevice(), a2, &v1->field_4);
-        g_Direct3DDevice()->lpVtbl->CreateVertexShader(g_Direct3DDevice(), a3, &v1->field_0);
+        IDirect3DDevice9_CreateVertexDeclaration(g_Direct3DDevice, a2, &v1->field_4);
+        IDirect3DDevice9_CreateVertexShader(g_Direct3DDevice, a3, &v1->field_0);
 
         auto *v3 = g_vertexShaderList().m_head;
         assert(v3 != nullptr);
@@ -246,7 +246,7 @@ void nglSetupVShaderBonesDX(int a5, nglMeshNode *MeshNode, nglMeshSection *Secti
         static const float BONES_OFFSET = a5;
         float a2[4] {BONES_SCALE, BONES_OFFSET, 1.0, 1.0};
 
-        g_Direct3DDevice()->lpVtbl->SetVertexShaderConstantF(g_Direct3DDevice(), 90u, a2, 1u);
+        IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice, 90u, a2, 1u);
 
         static Var<matrix4x3[MAX_BONES]> g_boneMatrices {0x00972B20};
 
@@ -320,7 +320,7 @@ void nglSetupVShaderBonesDX(int a5, nglMeshNode *MeshNode, nglMeshSection *Secti
             }
         }
 
-        g_Direct3DDevice()->lpVtbl->SetVertexShaderConstantF(g_Direct3DDevice(), a5, &g_boneMatrices()[0][0].x, 3 * Section->NBones);
+        IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice, a5, &g_boneMatrices()[0][0].x, 3 * Section->NBones);
     }
     else
     {
@@ -331,7 +331,7 @@ void nglSetupVShaderBonesDX(int a5, nglMeshNode *MeshNode, nglMeshSection *Secti
     {
         matrix4x3 tmp [2];
 
-        g_Direct3DDevice()->lpVtbl->GetVertexShaderConstantF(g_Direct3DDevice(),
+        IDirect3DDevice9_GetVertexShaderConstantF(g_Direct3DDevice,
                                                              11,
                                                              &tmp[0][0].x,
                                                              3 * 2);
@@ -340,7 +340,7 @@ void nglSetupVShaderBonesDX(int a5, nglMeshNode *MeshNode, nglMeshSection *Secti
         sp_log("%s", tmp[1].to_string());
 
         float f[4] {};
-        g_Direct3DDevice()->lpVtbl->GetVertexShaderConstantF(g_Direct3DDevice(), 90u, f, 1u);
+        IDirect3DDevice9_GetVertexShaderConstantF(g_Direct3DDevice, 90u, f, 1u);
 
         sp_log("%f %f %f %f", f[0], f[1], f[2], f[3]);
     }
@@ -349,12 +349,12 @@ void nglSetupVShaderBonesDX(int a5, nglMeshNode *MeshNode, nglMeshSection *Secti
 void nglSetVertexDeclarationAndShader(VShader *a1) {
     TRACE("SetVertexDeclarationAndShader");
 
-    g_Direct3DDevice()->lpVtbl->SetVertexDeclaration(g_Direct3DDevice(), a1->field_4);
-    g_Direct3DDevice()->lpVtbl->SetVertexShader(g_Direct3DDevice(), a1->field_0);
+    IDirect3DDevice9_SetVertexDeclaration(g_Direct3DDevice, a1->field_4);
+    IDirect3DDevice9_SetVertexShader(g_Direct3DDevice, a1->field_0);
 }
 
 void SetPixelShader(IDirect3DPixelShader9 **a1) {
-    g_Direct3DDevice()->lpVtbl->SetPixelShader(g_Direct3DDevice(), *a1);
+    IDirect3DDevice9_SetPixelShader(g_Direct3DDevice, *a1);
 }
 
 std::vector<DWORD> CompileVShader(const char *file_name, const D3DXMACRO *defines)
@@ -447,15 +447,13 @@ void nglCreatePShader(IDirect3DPixelShader9 **a3, const char *SrcCode, ...) {
             assert(0);
         }
 
-        auto &v6 = g_Direct3DDevice()->lpVtbl;
-
         assert(pShader != nullptr);
 
         auto *v7 = static_cast<const DWORD *>(pShader->lpVtbl->GetBufferPointer(pShader));
         g_codes = v7;
 
         IDirect3DPixelShader9 *v2;
-        v6->CreatePixelShader(g_Direct3DDevice(), v7, &v2);
+        IDirect3DDevice9_CreatePixelShader(g_Direct3DDevice, v7, &v2);
 
         auto *v8 = g_pixelShaderList().m_head;
         auto *v9 = (decltype(v8)) THISCALL(0x00772C60,

@@ -25,7 +25,7 @@ void nglGenMipmaps(nglTexture *Tex)
         nglDxSetTexture(0, Tex, 2u, 3);
         nglSetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
         nglSetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
-        if ( EnableShader() )
+        if ( EnableShader )
         {
             nglSetVertexDeclarationAndShader(&stru_975788());
             SetPixelShader(&dword_9757DC());
@@ -38,11 +38,11 @@ void nglGenMipmaps(nglTexture *Tex)
             nglSetTextureStageState(0, D3DTSS_ALPHAARG1, 2u);
             nglSetTextureStageState(1u, D3DTSS_COLOROP, 1u);
             nglSetTextureStageState(1u, D3DTSS_ALPHAOP, 1u);
-            g_Direct3DDevice()->lpVtbl->SetTransform(
-                g_Direct3DDevice(),
-                (D3DTRANSFORMSTATETYPE)256,
+            IDirect3DDevice9_SetTransform(
+                g_Direct3DDevice,
+                static_cast<D3DTRANSFORMSTATETYPE>(256),
                 bit_cast<const D3DMATRIX *>(&nglCurScene()->field_24C));
-            g_Direct3DDevice()->lpVtbl->SetVertexDeclaration(g_Direct3DDevice(), dword_9738E0()[25]);
+            IDirect3DDevice9_SetVertexDeclaration(g_Direct3DDevice, dword_9738E0()[25]);
         }
 
         float v2[20] {};
@@ -70,7 +70,7 @@ void nglGenMipmaps(nglTexture *Tex)
             for ( uint32_t i = 1; i < Tex->m_numLevel; ++i)
             {
                 SetRenderTarget(Tex, nullptr, i, 6);
-                g_Direct3DDevice()->lpVtbl->DrawPrimitiveUP(g_Direct3DDevice(), D3DPT_TRIANGLESTRIP, 2, v2, 20);
+                IDirect3DDevice9_DrawPrimitiveUP(g_Direct3DDevice, D3DPT_TRIANGLESTRIP, 2, v2, 20);
             }
         }
 

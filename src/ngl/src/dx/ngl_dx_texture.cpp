@@ -11,7 +11,7 @@
 
 void sub_782AC0(int, nglPalette *a2) {
     if (!g_valid_texture_format()) {
-        g_Direct3DDevice()->lpVtbl->SetCurrentTexturePalette(g_Direct3DDevice(), a2->m_palette_idx);
+        IDirect3DDevice9_SetCurrentTexturePalette(g_Direct3DDevice, a2->m_palette_idx);
     }
 }
 
@@ -53,7 +53,7 @@ void nglDxSetTexture(uint32_t a1, nglTexture *Tex, uint8_t a3, int a4)
         v5->field_38 = nglFrame();
 
         if (g_renderTextureState().field_0[a1] != v10) {
-            g_Direct3DDevice()->lpVtbl->SetTexture(g_Direct3DDevice(),
+            IDirect3DDevice9_SetTexture(g_Direct3DDevice,
                                                    a1,
                                                    (IDirect3DBaseTexture9 *) v10);
             g_renderTextureState().field_0[a1] = v5->DXTexture;
@@ -125,7 +125,7 @@ void nglSetSamplerState(DWORD sampler, D3DSAMPLERSTATETYPE type, DWORD value)
         static Var<uint32_t[1]> dword_971FF0{0x00971FF0};
         if (dword_971FF0()[result] != value)
         {
-            result = g_Direct3DDevice()->lpVtbl->SetSamplerState(g_Direct3DDevice(),
+            result = IDirect3DDevice9_SetSamplerState(g_Direct3DDevice,
                                                                  sampler,
                                                                  type,
                                                                  value);
@@ -145,7 +145,7 @@ void nglSetTextureStageState(DWORD a1, D3DTEXTURESTAGESTATETYPE a2, DWORD a3)
     static Var<DWORD[264]> dword_972240{0x00972240};
 
     if (dword_972240()[v3] != a3) {
-        g_Direct3DDevice()->lpVtbl->SetTextureStageState(g_Direct3DDevice(), a1, a2, a3);
+        IDirect3DDevice9_SetTextureStageState(g_Direct3DDevice, a1, a2, a3);
         *v4 = a3;
     }
 }

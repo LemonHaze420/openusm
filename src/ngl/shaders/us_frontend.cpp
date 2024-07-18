@@ -80,7 +80,8 @@ void FrontEnd_Shader::Register() {
 
         static Var<D3DVERTEXELEMENT9> stru_91E2BC{0x0091E2BC};
 
-        if (EnableShader()) {
+        if ( EnableShader )
+        {
             //static Var<DWORD *> off_939B90{0x00939B90};
 
             if constexpr (1) {
@@ -121,7 +122,7 @@ void FrontEnd_Shader::Register() {
         } else {
             static Var<IDirect3DVertexDeclaration9 *> dword_973938{0x00973938};
             if (dword_973938() == nullptr)
-                g_Direct3DDevice()->lpVtbl->CreateVertexDeclaration(g_Direct3DDevice(),
+                IDirect3DDevice9_CreateVertexDeclaration(g_Direct3DDevice,
                                                                     &stru_91E2BC(),
                                                                     &dword_973938());
         }
@@ -151,18 +152,18 @@ void FrontEnd_ShaderNode::Render()
             } *Material = CAST(Material, this->field_14);
 
             g_renderState().setBlending(Material->field_2C, 0, 0);
-            if (EnableShader()) {
-                g_Direct3DDevice()->lpVtbl->SetVertexShaderConstantF(g_Direct3DDevice(),
+            if ( EnableShader ) {
+                IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice,
                                                                      0,
                                                                      &this->m_meshNode->field_40[0][0],
                                                                      4);
 
                 nglSetVertexDeclarationAndShader(&stru_970610());
             } else {
-                g_Direct3DDevice()->lpVtbl->SetTransform(g_Direct3DDevice(),
+                IDirect3DDevice9_SetTransform(g_Direct3DDevice,
                                                          (D3DTRANSFORMSTATETYPE) 256,
                                                          bit_cast<D3DMATRIX *>(&this->m_meshNode->field_0));
-                g_Direct3DDevice()->lpVtbl->SetVertexDeclaration(g_Direct3DDevice(),
+                IDirect3DDevice9_SetVertexDeclaration(g_Direct3DDevice,
                                                                  dword_9738E0()[22]);
             }
 
@@ -170,7 +171,7 @@ void FrontEnd_ShaderNode::Render()
             nglSetSamplerState(0, D3DSAMP_ADDRESSU, 2 * (Material->field_24 != 0) + 1);
             nglSetSamplerState(0, D3DSAMP_ADDRESSV, 2 * (Material->field_28 != 0) + 1);
 
-            if (EnableShader()) {
+            if ( EnableShader ) {
                 SetPixelShader(&dword_9562F4());
             } else {
                 nglSetTextureStageState(0, D3DTSS_COLOROP, 4u);

@@ -123,7 +123,7 @@ float USVariantShaderNode::GetDistanceScale() const
             return 0.0f;
         }
 
-        return std::min(std::max(v4, 1.0f), 10.0f) * g_tan_half_fov_ratio();
+        return std::clamp(v4, 1.0f, 10.0f) * g_tan_half_fov_ratio;
     }
     else
     {

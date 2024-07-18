@@ -23,7 +23,7 @@ void us_lighting_switch_time_of_day(int a1)
     {
         if ( a1 <= 3 )
         {
-            g_TOD() = a1;
+            g_TOD = a1;
             auto v1 = usl_street_tod_color()[a1][2];
             auto v2 = usl_street_tod_color()[a1][0];
 
@@ -79,7 +79,7 @@ void us_lighting_switch_time_of_day(int a1)
 
             if ( v5 != nullptr )
             {
-                v5->set_visible(i == g_TOD(), false);
+                v5->set_visible(i == g_TOD, false);
             }
         }
     }

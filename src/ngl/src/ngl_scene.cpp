@@ -413,7 +413,7 @@ void nglCalculateMatrices(bool a1)
             }
 
             nglCurScene()->field_1CC = sub_76A870(a1a);
-            if ( !EnableShader() ) {
+            if ( !EnableShader ) {
                 D3DXMatrixInverse(bit_cast<D3DXMATRIX *>(&nglCurScene()->field_24C),
                                     nullptr,
                                     bit_cast<const D3DXMATRIX *>(&nglCurScene()->WorldToScreen));
@@ -486,8 +486,8 @@ void nglSetDefaultSceneParams()
         nglSetViewport(0.0, 0.0, v3, v4);
         nglCurScene()->AspectRatio = 1.3333334;
         nglCurScene()->field_3E4 = true;
-        if ( g_distance_clipping_enabled() ) {
-            auto v1 = g_distance_clipping() * LARGE_EPSILON * (2000.0 - 100.0) + 100.0;
+        if ( g_distance_clipping_enabled ) {
+            auto v1 = g_distance_clipping * LARGE_EPSILON * (2000.0 - 100.0) + 100.0;
             if ( v1 < 100.0 ) {
                 v1 = 100.0;
             }
@@ -583,7 +583,7 @@ void nglSetupScene(nglScene *a1, nglSceneParamType a2)
             nglCurScene()->field_3FC = nglCurScene()->AnimTime;
         }
 
-        auto a2a = nglIFLSpeed() * nglCurScene()->field_3FC;
+        auto a2a = nglIFLSpeed * nglCurScene()->field_3FC;
 
         nglCurScene()->IFLFrame = static_cast<int>(a2a);
         a1->field_340 = nullptr;
