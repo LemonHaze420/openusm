@@ -134,10 +134,10 @@ void *slab_allocator::allocate(int size, slab_allocator::slab_t **a2)
         initialize();
     }
 
-    int index = 0;
-    if (size >= 4) {
-        index = ((size + 3) / 4 - 1);
-    }
+    int index = ( size >= 4
+                    ? ((size + 3) / 4 - 1)
+                    : 0
+                    );
 
     auto *slab = slab_partial_list[index].front();
     if (slab == nullptr) {
@@ -690,18 +690,15 @@ void slab_allocator::process_lists()
 
 void slab_allocator_patch()
 {
-    if constexpr (STANDALONE_SYSTEM)
-    {
-        SET_JUMP(0x0059F750, slab_allocator::allocate);
+    SET_JUMP(0x0059F750, slab_allocator::allocate);
 
-        SET_JUMP(0x0059DCA0, slab_allocator::deallocate);
+    SET_JUMP(0x0059DCA0, slab_allocator::deallocate);
 
-        SET_JUMP(0x0059F5A0, slab_allocator::initialize);
+    SET_JUMP(0x0059F5A0, slab_allocator::initialize);
 
-        SET_JUMP(0x0059DE20, slab_allocator::create_slab);
+    SET_JUMP(0x0059DE20, slab_allocator::create_slab);
 
-        SET_JUMP(0x0059AF70, slab_allocator::process_lists);
+    SET_JUMP(0x0059AF70, slab_allocator::process_lists);
 
-        SET_JUMP(0x00592D50, slab_allocator::find_slab_for_object);
-    }
+    SET_JUMP(0x00592D50, slab_allocator::find_slab_for_object);
 }
