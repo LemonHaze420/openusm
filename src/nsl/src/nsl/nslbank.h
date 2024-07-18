@@ -32,6 +32,9 @@ struct nslBank
 
 extern Var<nslBank[1]> nsl_banks;
 
+inline auto & nsl_workGuard = var<char *>(0x0097DB18);
+inline auto & nsl_workGuard1 = var<char *>(0x0097DB1C);
+
 //0x00798550
 extern void nslFreeBank(nslBankID a1);
 
@@ -39,5 +42,11 @@ extern void nslFreeBank(nslBankID a1);
 extern int nslGetBankState(nslBankID);
 
 extern void nslAramFree(unsigned int a1);
+
+extern void nslUpdate();
+
+extern float * nsl_GetMaster();
+
+extern float * nsl_GetListener();
 
 extern void nsl_patch();

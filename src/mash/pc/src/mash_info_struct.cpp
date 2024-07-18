@@ -66,7 +66,7 @@ int mash_info_struct::align_buffer(int a2)
     auto *v3 = bit_cast<uint8_t *>(~(a2 - 1) & ((uint32_t) &v2[a2 - 1]));
     if (v3 != v2)
     {
-        if (g_is_the_packer()) {
+        if (g_is_the_packer) {
             std::memset(v2, 0xA1u, v3 - v2);
         }
 

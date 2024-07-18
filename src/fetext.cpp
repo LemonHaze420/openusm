@@ -175,7 +175,7 @@ void FEText::SetX(Float a2) {
 }
 
 void FEText::SetY(Float a2) {
-    this->field_34[1] = a2 - flt_965BDC();
+    this->field_34[1] = a2 - flt_965BDC;
 }
 
 bool FEText::GetFlag(int a2) {

@@ -316,13 +316,14 @@ void FEMenu::ButtonHeldAction() {
     }
 }
 
-void sub_582A30() {
-    SetEvent(hEvent());
-    WaitForSingleObject(hObject(), 0xFFFFFFFF);
-    CloseHandle(hObject());
-    CloseHandle(hEvent());
-    hObject() = nullptr;
-    hEvent() = nullptr;
+void sub_582A30()
+{
+    SetEvent(hEvent);
+    WaitForSingleObject(hObject, 0xFFFFFFFF);
+    CloseHandle(hObject);
+    CloseHandle(hEvent);
+    hObject = nullptr;
+    hEvent = nullptr;
 }
 
 void sub_5A6D70() {

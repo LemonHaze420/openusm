@@ -105,7 +105,7 @@ light_source::light_source(const string_hash &a2, unsigned int a3) :
 {
 
     this->m_vtbl = 0x00888C10;
-    if ( !g_generating_vtables() )
+    if ( !g_generating_vtables )
     {
         this->properties = new light_properties{};
 
@@ -122,7 +122,7 @@ light_source::light_source(const light_properties &a2,
 {
     this->m_vtbl = 0x00888C10;
 
-    if ( !g_generating_vtables() )
+    if ( !g_generating_vtables )
     {
         this->properties = new light_properties(a2);
 

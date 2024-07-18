@@ -79,29 +79,29 @@ void mouselook_controller::_frame_advance(Float time_inc)
         auto *v4 = input_mgr::instance;
 
         float speed = 10.0;
-        if ( AXIS_MAX == v4->get_control_state(26, (device_id_t)-1) ) {
+        if ( AXIS_MAX == v4->get_control_state(26, INVALID_DEVICE_ID) ) {
             speed *= 10.0;
         }
 
-        if ( AXIS_MAX == v4->get_control_state(27, (device_id_t)-1) ) {
+        if ( AXIS_MAX == v4->get_control_state(27, INVALID_DEVICE_ID) ) {
             speed *= 0.2f;
         }
 
         float clamped_speed = std::clamp(speed, 5.0f, 20.0f);
 
-        auto pitch = v4->get_control_state(20, (device_id_t)-1);
-        auto yaw = v4->get_control_state(21, (device_id_t)-1);
+        auto pitch = v4->get_control_state(20, INVALID_DEVICE_ID);
+        auto yaw = v4->get_control_state(21, INVALID_DEVICE_ID);
 
-        auto control_state = v4->get_control_state(14, (device_id_t)-1);
-        auto v5 = v4->get_control_state(17, (device_id_t)-1);
+        auto control_state = v4->get_control_state(14, INVALID_DEVICE_ID);
+        auto v5 = v4->get_control_state(17, INVALID_DEVICE_ID);
 
         pitch *= std::abs(pitch);
 
         yaw *= std::abs(yaw);
     
         float lift = 0.0;
-        auto v39 = -(std::abs(control_state) * control_state * g_move_mult());
-        auto strafe = std::abs(v5) * v5 * g_strafe_mult();
+        auto v39 = -(std::abs(control_state) * control_state * g_move_mult);
+        auto strafe = std::abs(v5) * v5 * g_strafe_mult;
 
         if ( AXIS_MAX == v4->get_control_state(18, (device_id_t)-1) ) {
             lift = 1.0;
@@ -111,7 +111,7 @@ void mouselook_controller::_frame_advance(Float time_inc)
             lift -= 1.0f;
         }
 
-        if ( cam_target_locked() )
+        if ( cam_target_locked )
         {
             if ( AXIS_MAX == v4->get_control_state(22, (device_id_t)-1) ) {
                 lift -= 1.0f;
@@ -165,7 +165,7 @@ void mouselook_controller::_frame_advance(Float time_inc)
 
         if ( AXIS_MAX == v4->get_control_state(24, (device_id_t)-1) )
         {
-            if ( cam_target_locked() ) {
+            if ( cam_target_locked ) {
                 strafe = 1.0;
             }
 
@@ -174,7 +174,7 @@ void mouselook_controller::_frame_advance(Float time_inc)
 
         if ( AXIS_MAX == v4->get_control_state(25, INVALID_DEVICE_ID) )
         {
-            if ( cam_target_locked() ) {
+            if ( cam_target_locked ) {
                 strafe = -1.0;
             }
 
@@ -192,7 +192,7 @@ void mouselook_controller::_frame_advance(Float time_inc)
         if ( AXIS_MAX == v4->get_control_state(17, INVALID_DEVICE_ID) )
         {
             strafe = -1.0;
-            if ( !cam_target_locked() ) {
+            if ( !cam_target_locked ) {
                 strafe = 1.0;
             }
         }
@@ -200,7 +200,7 @@ void mouselook_controller::_frame_advance(Float time_inc)
         if ( AXIS_MAX == v4->get_control_state(16, INVALID_DEVICE_ID) )
         {
             strafe = 1.0;
-            if ( !cam_target_locked() ) {
+            if ( !cam_target_locked ) {
                 strafe = -1.0;
             }
         }
@@ -210,7 +210,7 @@ void mouselook_controller::_frame_advance(Float time_inc)
         {
             if ( lock_target_btn_pressed() )
             {
-                if ( !cam_target_locked() )
+                if ( !cam_target_locked )
                 {
                     if ( g_debug_cam_target_actor() != nullptr )
                     {
@@ -224,7 +224,7 @@ void mouselook_controller::_frame_advance(Float time_inc)
                 }
 
                 this->reset();
-                cam_target_locked() = !cam_target_locked();
+                cam_target_locked = !cam_target_locked;
             }
 
             lock_target_btn_pressed() = false;
@@ -234,7 +234,7 @@ void mouselook_controller::_frame_advance(Float time_inc)
             lock_target_btn_pressed() = true;
         }
 
-        if ( cam_target_locked() && v8 != nullptr )
+        if ( cam_target_locked && v8 != nullptr )
         {
             auto abs_pos = v8->get_abs_position();
             if ( approx_equals(cur_cam_target, ZEROVEC, 0.0099999998f) ) {

@@ -109,7 +109,7 @@ int MultiLineString::ConvertStringToButtonCode(const char *a1, const char **a2, 
     const char *v6;
     const char *v5;
 
-    switch (globalTextLanguage()) {
+    switch (globalTextLanguage) {
     case 1:
         v6 = ":";
         v5 = "9";

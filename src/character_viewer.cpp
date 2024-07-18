@@ -335,7 +335,7 @@ void character_viewer::OnActivate() {
 
         vector3d v33;
         v33[0] = v28;
-        v33[1] = flt_88E518() - v27;
+        v33[1] = flt_88E518 - v27;
         v33[2] = 10.0;
         v19->set_loc(v33);
         this->field_2D8->field_68 = 1;
@@ -364,7 +364,7 @@ void character_viewer::OnActivate() {
 
         this->sub_63FC90(this->field_298);
         this->field_2E0[0] = 0.0;
-        this->field_2F4 = g_TOD();
+        this->field_2F4 = g_TOD;
         us_lighting_switch_time_of_day(0);
         auto v25 = g_world_ptr->field_158.field_8;
         this->field_28 |= 0x80u;

@@ -135,13 +135,13 @@ camera_target_info::camera_target_info(entity *_target,
 
         if ( sqr(8.0) > (this->pos - _pos).length2() )
         {
-            this->pos = lerp(this->pos, _pos, pronto_mix());
+            this->pos = lerp(this->pos, _pos, pronto_mix);
             if ( dot(this->up, _up) > -0.99000001 )
             {
                 auto v51 = lerp(
                           this->up,
                           _up,
-                          slow_mix());
+                          slow_mix);
                 this->up = v51.normalized();
             }
 

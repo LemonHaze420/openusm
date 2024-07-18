@@ -2,6 +2,8 @@
 
 #include <config.h>
 
+#include "variable.h"
+
 struct txSlotPool {
     struct Slot
     {
@@ -17,6 +19,9 @@ struct txSlotPool {
     int m_count;
     uint32_t max_value;
 };
+
+inline auto & nsl_sourcePool = var<txSlotPool>(0x0097DAAC);
+inline auto & nsl_emitterPool = var<txSlotPool>(0x0097DADC);
 
 //0x0079F760
 extern int txSlotNew(txSlotPool *a1);

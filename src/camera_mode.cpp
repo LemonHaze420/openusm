@@ -62,7 +62,7 @@ void camera_mode_chase::pull_by_target(camera_frame &frame, const camera_target_
     }
     else
     {
-        frame.fwd = lerp(v12, frame.fwd, slow_mix());
+        frame.fwd = lerp(v12, frame.fwd, slow_mix);
         frame.fwd.normalize();
     }
 }
@@ -295,7 +295,7 @@ void camera_mode_lookaround::_frame_advance(
                 auto v29 = v7->fwd * v28;
 
                 vector3d a3a = v29 + v7->eye;
-                a3a = lerp(v84, a3a, slow_mix());
+                a3a = lerp(v84, a3a, slow_mix);
                 auto *gamefile = g_game_ptr->gamefile;
                 auto invert_camera_vert = gamefile->field_340.m_invert_camera_vert;
                 v84 = v7->eye - a3a;
@@ -463,14 +463,14 @@ void camera_mode_passive::_frame_advance(
             v15 = 0.69999999f;
         }
 
-        target.min_look_dist = lerp(target.min_look_dist, this->field_C, slow_mix());
+        target.min_look_dist = lerp(target.min_look_dist, this->field_C, slow_mix);
         this->field_C = target.min_look_dist;
 
-        target.max_look_dist = lerp(target.max_look_dist, this->field_10, slow_mix());
+        target.max_look_dist = lerp(target.max_look_dist, this->field_10, slow_mix);
         this->field_10 = target.max_look_dist;
 
-        this->field_14 = lerp(v14, this->field_14, slow_mix());
-        this->field_18 = lerp(v15, this->field_18, slow_mix());
+        this->field_14 = lerp(v14, this->field_14, slow_mix);
+        this->field_18 = lerp(v15, this->field_18, slow_mix);
 
         vector3d v19 = YVEC;
         if ( v12 )
@@ -489,7 +489,7 @@ void camera_mode_passive::_frame_advance(
             v19 = a2b * frame.up + v50 * v24;
         }
 
-        this->field_1C.sub_4B9FA0(v19, slow_mix());
+        this->field_1C.sub_4B9FA0(v19, slow_mix);
         frame.up = this->field_1C;
         if ( v47 )
         {

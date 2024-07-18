@@ -315,11 +315,11 @@ static DisableOcclusionCullingVariable g_DisableOcclusionCullingVariable {};
 
 void DisableOcclusionCullingVariable::setValue(const std::string &a2)
 {
-    g_disable_occlusion_culling() = mString {a2.c_str()}.to_int();
+    g_disable_occlusion_culling = mString {a2.c_str()}.to_int();
 }
 
 std::string DisableOcclusionCullingVariable::getValue() {
     char a1[32] {};
-    sprintf(a1, "%d", g_disable_occlusion_culling());
+    sprintf(a1, "%d", g_disable_occlusion_culling);
     return std::string {a1};
 }

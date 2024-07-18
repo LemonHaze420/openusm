@@ -185,7 +185,7 @@ void alternate_costumes::onActivate() {
 
         this->sub_640510(this->field_114);
         this->field_154 = 0.0;
-        this->field_168 = g_TOD();
+        this->field_168 = g_TOD;
         us_lighting_switch_time_of_day(0);
 
         bit_cast<uint8_t *>(&this->field_28)[0] |= 0x80u;

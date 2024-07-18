@@ -171,7 +171,7 @@ void camera_frame::rotate_to_include_target(
         v9 *= v11;
         this->constrain_pos_relative_to_plane(target_pos, v9, a11, 1.0f);
 
-        this->eye = lerp(this->eye, v8, pronto_mix());
+        this->eye = lerp(this->eye, v8, pronto_mix);
     }
 }
 

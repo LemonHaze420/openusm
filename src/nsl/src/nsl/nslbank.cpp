@@ -208,6 +208,17 @@ void nslUpdate()
     CDECL_CALL(0x0079A770);
 }
 
+static auto & nsl_groups = var<float[8]>(0x00948470);
+static auto & dword_948598 = var<float[8]>(0x00948598);
+
+float * nsl_GetMaster() {
+    return nsl_groups;
+}
+
+float * nsl_GetListener() {
+    return dword_948598;
+}
+
 void nsl_patch()
 {
     {

@@ -157,7 +157,7 @@ void entity_handle_manager::register_entity(entity_base *a1)
                 result = the_map.insert(value);
             }
 
-            if (!g_is_the_packer() && !result.second)
+            if (!g_is_the_packer && !result.second)
             {
                 const char *v1 = a1->field_10.to_string();
 

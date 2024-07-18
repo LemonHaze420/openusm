@@ -21,23 +21,23 @@ void localized_string_table::load_localizer()
     if constexpr (1)
     {
         [[maybe_unused]] auto a3 = os_developer_options::instance->get_string(os_developer_options::strings_t::SKU);
-        globalTextLanguage() = 0;
+        globalTextLanguage = 0;
 
         switch (g_settings()->sub_81D010("Settings\\Language", 0)) {
         case 1:
-            globalTextLanguage() = 1;
+            globalTextLanguage = 1;
             break;
         case 2:
-            globalTextLanguage() = 2;
+            globalTextLanguage = 2;
             break;
         case 3:
-            globalTextLanguage() = 3;
+            globalTextLanguage = 3;
             break;
         case 4:
-            globalTextLanguage() = 4;
+            globalTextLanguage = 4;
             break;
         default:
-            globalTextLanguage() = 0;
+            globalTextLanguage = 0;
             break;
         }
 
@@ -57,12 +57,12 @@ void localized_string_table::load_localizer()
                                                         "globaltext_SPANISH",
                                                         "globaltext_ITALIAN" };
 
-        const auto *textLangFileName = globalTextLangFileNames[globalTextLanguage()];
+        const auto *textLangFileName = globalTextLangFileNames[globalTextLanguage];
 
         my_streamer->load(textLangFileName, 0, nullptr, nullptr);
         my_streamer->flush(RenderLoadMeter);
 
-        mString v5{textLangFileName};
+        mString v5 {textLangFileName};
 #ifdef TARGET_XBOX
         v5.append("_XBOX");
 #else

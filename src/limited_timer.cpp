@@ -5,8 +5,9 @@
 
 #include <windows.h>
 
-limited_timer_base::limited_timer_base() {
-    if (!g_master_clock_is_up()) {
+limited_timer_base::limited_timer_base()
+{
+    if (!g_master_clock_is_up) {
         timeBeginPeriod(1u);
     }
 
