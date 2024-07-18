@@ -187,14 +187,14 @@ void script_executable::un_mash_start(generic_mash_header *a2, void *a3, generic
             return;
         }
 
-        g_is_the_packer() = true;
+        g_is_the_packer = true;
 
         script_executable se{};
         se.load(resource_key {string_hash {this->field_0.to_string()}, RESOURCE_KEY_TYPE_SCRIPT});
 
         assert(script_executable::compare(*this, se));
 
-        g_is_the_packer() = false;
+        g_is_the_packer = false;
     }
 }
 

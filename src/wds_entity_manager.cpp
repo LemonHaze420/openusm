@@ -229,7 +229,7 @@ entity * wds_entity_manager::create_and_add_entity_or_subclass(string_hash a2,
         auto v60 = (a6 & 0x20) != 0;
         [[maybe_unused]] auto v59 = (a6 & 0x20000000) == 0;
         uint32_t v65 = 1;
-        if ( !g_is_the_packer() )
+        if ( !g_is_the_packer )
         {
             auto v33 = a2;
             resource_key v58 {v33, RESOURCE_KEY_TYPE_ENTITY};

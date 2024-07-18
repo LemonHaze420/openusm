@@ -17,7 +17,7 @@ time_interface::time_interface(entity *a2)
     this->field_18 = 0;
     this->field_1C = 0;
     this->field_20 = 0;
-    if (!g_generating_vtables())
+    if (!g_generating_vtables)
     {
         this->field_C = 1.0;
         this->field_10 = 1.0;

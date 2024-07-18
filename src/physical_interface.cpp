@@ -60,7 +60,7 @@ physical_interface::physical_interface(actor *a2) : field_188(), field_198()
     this->field_185 = 0;
     this->field_186 = 0;
 
-    if (!g_generating_vtables())
+    if (!g_generating_vtables)
     {
         this->add_to_phys_ifc_list();
         this->field_174 = nullptr;

@@ -160,7 +160,7 @@ void init_game_var()
 
     if constexpr (1)
     {
-        if ( g_is_the_packer() || script_manager::using_chuck_old_fashioned() )
+        if ( g_is_the_packer || script_manager::using_chuck_old_fashioned() )
         {
 
             if ( script_manager_game_var_container == nullptr )
@@ -365,7 +365,7 @@ script_executable_entry * load(const resource_key &a1, uint32_t a2, void *a3, co
         else
         {
             script_executable_entry entry {};
-            if ( g_is_the_packer() || using_chuck_old_fashioned() )
+            if ( g_is_the_packer || using_chuck_old_fashioned() )
             //if (is_city_arena)
             {
                 entry.exec = new script_executable {};
@@ -380,7 +380,7 @@ script_executable_entry * load(const resource_key &a1, uint32_t a2, void *a3, co
             entry.field_4 = 1;
             entry.field_8 = static_cast<const char *>(a3);
 
-            if ( g_is_the_packer() || using_chuck_old_fashioned() )
+            if ( g_is_the_packer || using_chuck_old_fashioned() )
             //if (is_city_arena)
             {
                 entry.exec->load(a1);

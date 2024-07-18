@@ -22,7 +22,7 @@ int nglDebugShader::Register() {
         static Var<nglDebugShader> gnglDebugShader{0x009469B0};
 
         nglShaderBank.Insert(v2, &gnglDebugShader());
-        if (EnableShader())
+        if ( EnableShader )
         {
             static Var<int[2]> stru_976E74{0x00976E74};
             static Var<D3DVERTEXELEMENT9> stru_946940{0x00946940};

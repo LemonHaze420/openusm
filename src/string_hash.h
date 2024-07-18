@@ -85,7 +85,7 @@ inline constexpr unsigned char to_lower(unsigned char c) {
 }
 
 //0x00501BE0
-extern constexpr inline std::uint32_t to_hash(const char *str) {
+inline constexpr std::uint32_t to_hash(const char *str) {
     std::uint32_t res = 0;
 
     for (int c = *str; c != '\0'; ++str, c = *str) {
@@ -102,5 +102,12 @@ extern constexpr inline std::uint32_t to_hash(const char *str) {
 
     return res;
 }
+
+extern string_hash bip01_head;
+
+extern string_hash & bip01_l_calf;
+extern string_hash & bip01_r_calf;
+extern string_hash & bip01_pelvis;
+extern string_hash & bip01_spine;
 
 extern void string_hash_patch();

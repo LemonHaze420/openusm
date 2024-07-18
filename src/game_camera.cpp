@@ -112,7 +112,7 @@ void game_camera::frame_advance(Float t)
         }
 
         vector3d a2 = this->field_11C;
-        a2[1] += s_camera_target_radius_factor();
+        a2[1] += s_camera_target_radius_factor;
 
         vector3d a5{};
         vector3d a6{};
@@ -165,7 +165,7 @@ void game_camera::frame_advance(Float t)
                 auto v21 = (v24 - v27).length2();
                 if ( v21 > EPSILON ) {
                     v21 = std::sqrt(v21);
-                    v24.y += s_camera_target_radius_factor() - v21;
+                    v24.y += s_camera_target_radius_factor - v21;
                 }
             }
         }

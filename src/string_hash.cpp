@@ -19,9 +19,16 @@ Var<string_hash> loco_allow_web_tie_id{0x00958538};
 
 } // namespace ai
 
-string_hash ANONYMOUS{};
+string_hash ANONYMOUS {};
 
 string_hash string_hash::INVALID_STRING_HASH = {0};
+
+string_hash bip01_head {int(to_hash("BIP01 HEAD"))};
+
+string_hash & bip01_l_calf = var<string_hash>(0x0095BA1C);
+string_hash & bip01_r_calf = var<string_hash>(0x0095AB1C);
+string_hash & bip01_pelvis = var<string_hash>(0x0095AAFC);
+string_hash & bip01_spine = var<string_hash>(0x0095BA18);
 
 #ifndef TEST_CASE
 Var<char[12]> string_hash::ghetto_string = {0x0095C7D0};

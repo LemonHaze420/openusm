@@ -48,16 +48,16 @@ void set_filter_time(float a1)
         set_dvars();
     }
 
-    sluggish_mix() = pow(inverse_pow(1.0, 0.039999999), a1);
-    slow_mix() = pow(inverse_pow(0.5, 0.039999999), a1);
-    med_mix() = pow(inverse_pow(0.25, 0.039999999), a1);
-    fast_mix() = pow(inverse_pow(0.125, 0.039999999), a1);
-    pronto_mix() = pow(inverse_pow(0.0625, 0.039999999), a1);
+    sluggish_mix = pow(inverse_pow(1.0, 0.039999999), a1);
+    slow_mix = pow(inverse_pow(0.5, 0.039999999), a1);
+    med_mix = pow(inverse_pow(0.25, 0.039999999), a1);
+    fast_mix = pow(inverse_pow(0.125, 0.039999999), a1);
+    pronto_mix = pow(inverse_pow(0.0625, 0.039999999), a1);
 
-    assert(sluggish_mix() > slow_mix()
-            && slow_mix() > med_mix()
-            && med_mix() > fast_mix()
-            && fast_mix() > pronto_mix());
+    assert(sluggish_mix > slow_mix
+            && slow_mix > med_mix
+            && med_mix > fast_mix
+            && fast_mix > pronto_mix);
 }
 
 static Var<vector3d> stru_959EBC {0x00959EBC};
@@ -71,8 +71,7 @@ void constrain_normal(vector3d &normal, const vector3d &basisA, float a4, float 
     auto a3a = dot(normal, basisA);
     auto v8 = basisA * a3a;
     auto v18 = normal - v8;
-    auto v4 = std::min(a3a, a5);
-    a3a = std::max(v4, a4);
+    a3a = std::clamp(a3a, a4, a5);
     auto v9 = 1.0 - sqr(a3a);
     auto v17 = std::sqrt(v9);
     auto v16 = v18.length2();
@@ -97,8 +96,8 @@ spiderman_camera::spiderman_camera(const string_hash &a2, entity *a3) : game_cam
         //g_camera_mouse_mode() = DEBUG_CAMERA_MOUSE_MODE;
         //g_pitch_mult() =    os_developer_options::instance->get_int(mString {"DEBUG_CAMERA_PITCH_MULTIPLIER"}) * 0.1;
         g_yaw_mult =      os_developer_options::instance->get_int(mString {"DEBUG_CAMERA_YAW_MULTIPLIER"}) * 0.1;
-        g_move_mult() =     os_developer_options::instance->get_int(mString {"DEBUG_CAMERA_MOVE_MULTIPLIER"}) * 0.1;
-        g_strafe_mult() =   os_developer_options::instance->get_int(mString {"DEBUG_CAMERA_STRAFE_MULTIPLIER"}) * 0.1;
+        g_move_mult =     os_developer_options::instance->get_int(mString {"DEBUG_CAMERA_MOVE_MULTIPLIER"}) * 0.1;
+        g_strafe_mult =   os_developer_options::instance->get_int(mString {"DEBUG_CAMERA_STRAFE_MULTIPLIER"}) * 0.1;
 
         this->field_1D0.set_id(input_mgr::instance->field_58);
         this->field_1D0.set_control(static_cast<game_control_t>(102));

@@ -62,10 +62,10 @@ void string_hash_dictionary::create_inst()
     if constexpr (1)
     {
         sp_log("g_is_the_packer = %d, LOAD_STRING_HASH_DICTIONARY = %d",
-               g_is_the_packer(),
+               g_is_the_packer,
                os_developer_options::instance->get_flag(mString {"LOAD_STRING_HASH_DICTIONARY"}));
 
-        if (g_is_the_packer() ||
+        if (g_is_the_packer ||
             os_developer_options::instance->get_flag(mString {"LOAD_STRING_HASH_DICTIONARY"}))
         {
             load_dictionary(nullptr);
@@ -292,7 +292,7 @@ void string_hash_dictionary::delete_inst()
     TRACE("string_hash_dictionary::delete_inst");
 
     is_setup = false;
-    if (g_is_the_packer() || os_developer_options::instance->get_flag(mString {"LOAD_STRING_HASH_DICTIONARY"})) {
+    if (g_is_the_packer || os_developer_options::instance->get_flag(mString {"LOAD_STRING_HASH_DICTIONARY"})) {
         save_dictionary(nullptr);
     }
 

@@ -44,7 +44,7 @@ void resource_manager::create_inst()
         amalgapak_pack_location_count = 0;
         amalgapak_pack_location_table = nullptr;
 
-        if (!g_is_the_packer()) {
+        if ( !g_is_the_packer ) {
             load_amalgapak();
         }
 
@@ -999,7 +999,7 @@ uint8_t *get_resource(const resource_key &resource_id, int *mash_data_size, reso
     
     if constexpr (0)
     {
-        assert(!g_is_the_packer() && "Don't call this function while packing!");
+        assert(!g_is_the_packer && "Don't call this function while packing!");
         assert(resource_id.is_set());
         assert(get_resource_context() != nullptr && "Can't get a resource without a context!");
         assert(get_resource_context()->is_data_ready() && "Invalid resource context");

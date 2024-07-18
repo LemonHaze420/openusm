@@ -7,10 +7,10 @@
 #include "resource_manager.h"
 #include "trace.h"
 
-Var<int> s_num_terrain_types{0x00968508};
+int & s_num_terrain_types = var<int>(0x00968508);
 
 void terrain_types_manager::delete_inst() {
-    s_num_terrain_types() = 0;
+    s_num_terrain_types = 0;
 }
 
 constexpr auto MAX_OBB_TERRAIN_TYPES = 16;
@@ -25,8 +25,8 @@ void terrain_types_manager::create_inst()
 
     if constexpr (1)
     {
-        s_num_terrain_types() = 0;
-        if ( !g_is_the_packer() )
+        s_num_terrain_types = 0;
+        if ( !g_is_the_packer )
         {
             resource_key a1 {string_hash {"TERRAIN_TYPES"}, (resource_key_type)35};
             auto *ptr = (int *) resource_manager::get_resource(a1, nullptr, nullptr);
@@ -44,19 +44,19 @@ void terrain_types_manager::create_inst()
                 do
                 {
                     string_hash v9{s_terrain_types_string_table()[v2].to_string()};
-                    auto v4 = s_num_terrain_types();
+                    auto v4 = s_num_terrain_types;
                     auto v5 = 0;
-                    if ( s_num_terrain_types() <= 0 )
+                    if ( s_num_terrain_types <= 0 )
                     {
                         LABEL_7:
-                        s_terrain_types()[s_num_terrain_types()] = v9;
-                        s_num_terrain_types() = v4 + 1;
+                        s_terrain_types()[s_num_terrain_types] = v9;
+                        s_num_terrain_types = v4 + 1;
                     }
                     else
                     {
                         while ( s_terrain_types()[v5] != v9 )
                         {
-                            if ( ++v5 >= s_num_terrain_types() )
+                            if ( ++v5 >= s_num_terrain_types )
                             {
                                 goto LABEL_7;
                             }

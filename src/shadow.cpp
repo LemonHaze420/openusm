@@ -35,12 +35,13 @@ bool sub_5245F0(const vector3d &a1, Float a2) {
 bool render_projected_shadow(
     conglomerate &a1, Float a2, const vector3d &a3, const vector3d &a4, Float radius, Float fade) {
     if constexpr (1) {
-        if (os_developer_options::instance->get_flag(static_cast<os_developer_options::flags_t>(80)) || !g_player_shadows_enabled())
+        if (os_developer_options::instance->get_flag(static_cast<os_developer_options::flags_t>(80)) || !g_player_shadows_enabled)
         {
             return false;
         }
 
-        if (g_cur_shadow_target() < 2) {
+        if (g_cur_shadow_target < 2)
+        {
             assert(fade > 0 && radius > 0);
 
             vector3d v17 = a4 - a3;

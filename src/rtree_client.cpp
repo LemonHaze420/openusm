@@ -20,7 +20,7 @@ bool rtree_query_size_error_handler(const vector3d &a1, const vector3d &a2) {
         "calling code. Probably line check"
         " needs to be clamped or split into shorter line checks and distributed over multiple "
         "frames. Thank you.");
-    if (g_is_the_packer()) {
+    if (g_is_the_packer) {
         return true;
     }
 

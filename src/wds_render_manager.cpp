@@ -333,7 +333,7 @@ void wds_render_manager::render(camera &a2, int a3)
     {
         sub_520E60();
         update_camera_teleport(a2);
-        if ( g_disable_occlusion_culling() == 3 )
+        if ( g_disable_occlusion_culling == 3 )
         {
             occlusion::reset_active_occluders();
         }
@@ -376,7 +376,7 @@ void wds_render_manager::render(camera &a2, int a3)
             if ( prim_reg == nullptr )
             {
                 sp_log("no camera region!!!!");
-                if ( g_disable_occlusion_culling() != 3 ) {
+                if ( g_disable_occlusion_culling != 3 ) {
                     occlusion::term_frame();
                 }
 
@@ -418,7 +418,7 @@ void wds_render_manager::render(camera &a2, int a3)
             this->clear_colorvol_scene();
         }
 
-        if ( g_disable_occlusion_culling() != 3 ) {
+        if ( g_disable_occlusion_culling != 3 ) {
             occlusion::term_frame();
         }
 

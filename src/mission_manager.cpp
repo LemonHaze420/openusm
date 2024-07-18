@@ -264,8 +264,9 @@ void mission_manager::frame_advance(Float a2)
                 auto v8 = this->field_5C + 1;
                 this->field_5C = v8;
                 auto v9 = (double)this->field_5C;
-                if ( v8 < 0 )
-                    v9 = v9 + flt_86F860();
+                if ( v8 < 0 ) {
+                    v9 += flt_86F860;
+                }
 
                 *this->field_60 = v9;
                 this->field_64 = this->field_64 - 1.f;
@@ -289,11 +290,13 @@ void mission_manager::frame_advance(Float a2)
                 this->field_78 = (float *)script_manager::get_game_var_address(v22, nullptr, nullptr);
             }
 
-            if ( !g_game_ptr->flag.game_paused || s_freeze_game_time() )
+            if ( !g_game_ptr->flag.game_paused
+                    || s_freeze_game_time )
             {
-                auto v10 = (double)this->field_74;
-                if ( this->field_74 < 0 )
-                    v10 = v10 + flt_86F860();
+                double v10 = this->field_74;
+                if ( this->field_74 < 0 ) {
+                    v10 += flt_86F860;
+                }
 
                 auto v11 = v10 * a2 + this->field_70;
                 this->field_70 = v11;
@@ -303,7 +306,7 @@ void mission_manager::frame_advance(Float a2)
                     {
                         auto v12 = this->field_68 + 1;
                         this->field_68 = v12;
-                        if ( !(v12 % 60) )
+                        if ( (v12 % 60) == 0 )
                         {
                             event_manager::raise_event(event::TIME_MINUTE_INC, entity_base_vhandle {0});
                             if ( !(this->field_68 / 60 % 60) )
@@ -320,14 +323,13 @@ void mission_manager::frame_advance(Float a2)
                             event_manager::raise_event(event::TIME_DAY_INC, entity_base_vhandle {0});
                             *this->field_7C += 1.f;
                             auto *v14 = this->field_7C;
-                            if ( *v14 > (double)flt_87EBD4() )
+                            if ( *v14 > flt_87EBD4 )
                               *v14 = 0.0;
                         }
 
-                        auto v15 = (double)this->field_68;
-                        if ( this->field_68 < 0 )
-                        {
-                            v15 += flt_86F860();
+                        double v15 = this->field_68;
+                        if ( this->field_68 < 0 ) {
+                            v15 += flt_86F860;
                         }
 
                         *this->field_6C = v15;

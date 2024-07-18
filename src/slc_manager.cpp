@@ -11384,7 +11384,7 @@ void chuck_register_script_libs()
         CREATE_SLC(slc_critical_section_t);
         CREATE_SLC(slc_district_t);
 
-        if (!g_is_the_packer() && !script_manager::using_chuck_old_fashioned()) {
+        if (!g_is_the_packer && !script_manager::using_chuck_old_fashioned()) {
             slc_manager::un_mash_all_funcs();
         }
 
@@ -12482,7 +12482,7 @@ void slc_manager::un_mash_all_funcs()
     if constexpr (1)
     {
         assert(!script_manager::using_chuck_old_fashioned());
-        assert(!g_is_the_packer());
+        assert(!g_is_the_packer);
 
         auto a1 = create_resource_key_from_path("all_slc_functions_mac", RESOURCE_KEY_TYPE_SLF_LIST);
         sp_log("%s", a1.get_platform_string(3).c_str());

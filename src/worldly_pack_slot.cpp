@@ -255,20 +255,20 @@ bool worldly_pack_slot::_on_unload(limited_timer *a2)
         bool result;
         if (this->field_98.is_done())
         {
-            byte_975468() = false;
+            byte_975468 = false;
             return false;
         }
 
-        if (!this->field_98.is_started())
-        {
+        if (!this->field_98.is_started()) {
             this->field_98.start();
         }
 
-        for (int i = 20; i >= 0; --i) {
+        for (int i = 20; i >= 0; --i)
+        {
             auto *handler = this->m_handlers[i];
 
             if (handler->handle(worldly_resource_handler::UNLOAD, a2)) {
-                byte_975468() = true;
+                byte_975468 = true;
                 return true;
             }
         }
@@ -282,14 +282,15 @@ bool worldly_pack_slot::_on_unload(limited_timer *a2)
 
         this->clear_progress();
 
-        byte_975468() = false;
+        byte_975468 = false;
         result = false;
 
         return result;
     }
     else
     {
-        return (bool) THISCALL(0x0052AC90, this, a2);
+        bool (__fastcall *func)(worldly_pack_slot *, void *edx, limited_timer *a2) = CAST(func, 0x0052AC90);
+        return func(this, nullptr, a2);
     }
 }
 

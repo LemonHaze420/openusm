@@ -89,7 +89,7 @@ pc_joypad_device::pc_joypad_device(int in_port) : input_device()
 {
     if constexpr (0)
     {
-        auto v3 = (!g_master_clock_is_up());
+        auto v3 = (!g_master_clock_is_up);
 
         this->m_vtbl = CAST(m_vtbl, 0x0088EA80);
 

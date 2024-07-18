@@ -32,7 +32,7 @@ void main_menu_options::Update(Float a3) {
                 (*v3)->TurnOn(false);
                 ++v3;
                 --v4;
-            } while (v4);
+            } while (v4 > 0);
         }
 
         if (this->field_108 && !this->field_E4->field_2D) {
@@ -110,16 +110,16 @@ void main_menu_options::OnCross(int a2) {
         if (v3 || !this->field_10A) {
             if (v3 == 5) {
                 auto *v4 = g_cursor();
-                dword_922908() = 2;
+                dword_922908 = 2;
                 if (!g_cursor()->field_120) {
                     g_cursor()->field_114 = false;
                     v4 = g_cursor();
                 }
 
                 v4->field_120 = true;
-                byte_922994() = true;
+                byte_922994 = true;
             } else if (!this->field_E4->field_2D) {
-                static string_hash fx_accept_hash{"FE_MO_Accept"};
+                static string_hash fx_accept_hash {int(to_hash("FE_MO_Accept"))};
 
                 [[maybe_unused]] sound_instance_id v15 = sub_60B960(fx_accept_hash, 1.0, 1.0);
 
