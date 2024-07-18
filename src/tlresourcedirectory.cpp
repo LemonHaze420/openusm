@@ -81,7 +81,7 @@ nglTexture *tlResourceDirectory<nglTexture, tlFixedString>::StandardLoad(const t
                     }
 
                     STDCALL(0x007CA291,
-                            g_Direct3DDevice(),
+                            g_Direct3DDevice,
                             (uint8_t *) v18.Buf,
                             v18.Size,
                             (int *) &tex->DXTexture);

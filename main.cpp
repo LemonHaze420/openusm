@@ -236,6 +236,7 @@
 #include "tl_instance_bank.h"
 #include "tlresourcedirectory.h"
 #include "tlresource_directory.h"
+#include "token_def_list.h"
 #include "traffic.h"
 #include "traffic_path_lane.h"
 #include "trigger_manager.h"
@@ -372,10 +373,12 @@ void sub_76F320() {
 }
 
 bool sub_5A3AA0(const char *a1, char *a2) {
-    return (bool) CDECL_CALL(0x005A3AA0, a1, a2);
+
+    bool (__cdecl *func)(const char *a1, char *a2) = CAST(func, 0x005A3AA0);
+    return func(a1, a2);
 }
 
-static Var<bool> ALLOW_ERROR_POPUPS{0x00922A30};
+static bool & ALLOW_ERROR_POPUPS = var<bool>(0x00922A30);
 
 void sub_597720(LPCSTR lpText) {
     char Dest[2048];
@@ -391,7 +394,7 @@ void sub_597720(LPCSTR lpText) {
 
     sprintf(Format, "Error: \r\n%s", Dest);
     CDECL_CALL(0x005975C0, Format, 1, 1);
-    if (ALLOW_ERROR_POPUPS()) {
+    if (ALLOW_ERROR_POPUPS) {
         MessageBoxA(window_manager::instance()->field_4, lpText, "Error", 0x11010u);
     }
 
@@ -461,15 +464,17 @@ void parse_cmd(const char *str)
 {
     TRACE("parse_cmd");
 
-    if constexpr (1) {
-        char Dest[1024]{};
+    if constexpr (1)
+    {
+        char Dest[1024] {};
         strncpy(Dest, str, 1023u);
-        for (auto *i = strtok(Dest, " "); i != nullptr; i = strtok(nullptr, " ")) {
+        for (auto *i = strtok(Dest, " "); i != nullptr; i = strtok(nullptr, " "))
+        {
             if (strnicmp(i, "pack", strlen(i)) == 0 || strnicmp(i, "repack", strlen(i)) == 0) {
-                g_is_the_packer() = true;
+                g_is_the_packer = true;
             } else if (strnicmp(i, "smokelevel", strlen(i)) == 0 ||
                        strnicmp(i, "runlevel", strlen(i)) == 0) {
-                strcpy(g_scene_name(), strtok(nullptr, " "));
+                strcpy(g_scene_name, strtok(nullptr, " "));
                 if (strnicmp(i, "smokelevel", strlen(i)) == 0) {
                     os_developer_options::instance->set_flag(75, true);
                 }
@@ -534,27 +539,37 @@ void parse_cmd(const char *str)
                 }
             }
         }
-    } else {
+    }
+    else
+    {
         CDECL_CALL(0x005948B0, str);
     }
 }
+
+#include <dxerr8.h>
 
 void create_sound_ifc(HWND a1)
 {
     if constexpr (0)
     {
-        static auto & dword_987518 = var<LPDIRECTSOUND8>(0x00987518);
-
-        auto &v1 = dword_987518;
-        if (dword_987518 != nullptr ||
-            (DirectSoundCreate8(&IID_IDirectSound8, &dword_987518, nullptr),
-             (v1 = dword_987518) != nullptr))
+        HRESULT hr = -1;
+        if (g_directSound != nullptr || (hr = DirectSoundCreate8(&IID_IDirectSound8, &g_directSound, nullptr), g_directSound != nullptr))
         {
-            v1->lpVtbl->SetCooperativeLevel(v1, a1, DISCL_NONEXCLUSIVE);
+            IDirectSound8_SetCooperativeLevel(g_directSound, a1, DISCL_NONEXCLUSIVE);
         }
-    } else {
+
+        if (FAILED(hr)) {
+            char tempstr[512] {};
+            sprintf(tempstr, "DirectSound8Create error: %s - %s", DXGetErrorString8(hr), DXGetErrorDescription8(hr));
+            MessageBox (nullptr, tempstr, "Error",  MB_OK | MB_ICONINFORMATION);
+        }
+    }
+    else
+    {
         CDECL_CALL(0x0081E2D0, a1);
     }
+
+    assert(g_directSound != nullptr);
 }
 
 void sub_581780() {
@@ -562,7 +577,7 @@ void sub_581780() {
     _controlfp(_PC_24, _MCW_PC);
 }
 
-Var<bool> byte_965BF7{0x00965BF7};
+static bool & byte_965BF7 = var<bool>(0x00965BF7);
 
 void sub_5BCA60(int a1, int a2) {
     if constexpr (1) {
@@ -611,9 +626,9 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) 
                     return 0;
                 }
                 case WM_CLOSE: {
-                    if (byte_965BF7()) {
-                        byte_922994() = true;
-                        dword_922908() = 2;
+                    if (byte_965BF7) {
+                        byte_922994 = true;
+                        dword_922908 = 2;
                         g_cursor()->sub_5B0D70();
                         g_cursor()->field_120 = true;
                     }
@@ -621,17 +636,17 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) 
                     return 0;
                 }
                 case WM_ACTIVATEAPP: {
-                    if (byte_965BF9() == (wParam != 0)) {
+                    if (byte_965BF9 == (wParam != 0)) {
                         return DefWindowProcA(hWnd, Msg, wParam, lParam);
                     }
 
-                    byte_965BF9() = (wParam != 0);
+                    byte_965BF9 = (wParam != 0);
                     if (os_developer_options::instance != nullptr &&
                         os_developer_options::instance->get_flag(static_cast<os_developer_options::flags_t>(117))) {
-                        byte_965BF9() = true;
+                        byte_965BF9 = true;
                     }
 
-                    if (g_game_ptr == nullptr || !byte_965BF9()) {
+                    if (g_game_ptr == nullptr || !byte_965BF9) {
                         return DefWindowProcA(hWnd, Msg, wParam, lParam);
                     }
 
@@ -639,11 +654,11 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) 
                     return DefWindowProcA(hWnd, Msg, wParam, lParam);
                 }
                 case WM_SETCURSOR: {
-                    if (!hCursor()) {
+                    if (!hCursor) {
                         return DefWindowProcA(hWnd, Msg, wParam, lParam);
                     }
 
-                    SetCursor(hCursor());
+                    SetCursor(hCursor);
                     return 0;
                 }
                 case WM_KEYDOWN: {
@@ -895,20 +910,20 @@ void sub_5952D0()
 
     if constexpr (0)
     {
-        operator delete(dword_965C24()[0]);
-        operator delete(dword_965C24()[1]);
-        operator delete(dword_965C24()[2]);
-        operator delete(dword_965C24()[3]);
-        operator delete(dword_965C24()[4]);
-        operator delete(dword_965C24()[5]);
-        operator delete(dword_965C24()[6]);
-        operator delete(dword_965C24()[7]);
-        operator delete(dword_965C24()[8]);
-        operator delete(dword_965C24()[9]);
-        operator delete(dword_965C24()[10]);
-        operator delete(dword_965C24()[11]);
-        operator delete(dword_965C24()[12]);
-        operator delete(dword_965C24()[13]);
+        operator delete(dword_965C24[0]);
+        operator delete(dword_965C24[1]);
+        operator delete(dword_965C24[2]);
+        operator delete(dword_965C24[3]);
+        operator delete(dword_965C24[4]);
+        operator delete(dword_965C24[5]);
+        operator delete(dword_965C24[6]);
+        operator delete(dword_965C24[7]);
+        operator delete(dword_965C24[8]);
+        operator delete(dword_965C24[9]);
+        operator delete(dword_965C24[10]);
+        operator delete(dword_965C24[11]);
+        operator delete(dword_965C24[12]);
+        operator delete(dword_965C24[13]);
 
         Input::instance()->sub_821490(true);
 
@@ -1103,40 +1118,40 @@ void sub_5952D0()
 
             switch (v22) {
             case InputAction::Jump:
-                dword_965C24()[GamepadInput::Cross] = v12;
+                dword_965C24[GamepadInput::Cross] = v12;
                 break;
             case InputAction::StickToWalls:
-                dword_965C24()[GamepadInput::Circle] = v12;
+                dword_965C24[GamepadInput::Circle] = v12;
                 break;
             case InputAction::Punch:
-                dword_965C24()[GamepadInput::Square] = v12;
+                dword_965C24[GamepadInput::Square] = v12;
                 break;
             case InputAction::Kick:
-                dword_965C24()[GamepadInput::Triangle] = v12;
+                dword_965C24[GamepadInput::Triangle] = v12;
                 break;
             case InputAction::BlackButton:
-                dword_965C24()[GamepadInput::L2] = v12;
+                dword_965C24[GamepadInput::L2] = v12;
                 break;
             case InputAction::ThrowWeb:
-                dword_965C24()[GamepadInput::R2] = v12;
+                dword_965C24[GamepadInput::R2] = v12;
                 break;
             case InputAction::Pause:
-                dword_965C24()[GamepadInput::Start] = v12;
+                dword_965C24[GamepadInput::Start] = v12;
                 break;
             case InputAction::BackButton:
-                dword_965C24()[GamepadInput::Select] = v12;
+                dword_965C24[GamepadInput::Select] = v12;
                 break;
             case InputAction::CameraCenter:
-                dword_965C24()[GamepadInput::R3] = v12;
+                dword_965C24[GamepadInput::R3] = v12;
                 break;
             case InputAction::Forward:
-                dword_965C24()[GamepadInput::Forward] = v12;
+                dword_965C24[GamepadInput::Forward] = v12;
                 break;
             case InputAction::TurnLeft:
-                dword_965C24()[GamepadInput::Left] = v12;
+                dword_965C24[GamepadInput::Left] = v12;
                 break;
             case InputAction::TurnRight:
-                dword_965C24()[GamepadInput::Right] = v12;
+                dword_965C24[GamepadInput::Right] = v12;
                 break;
             default:
                 break;
@@ -1409,24 +1424,24 @@ int __stdcall myWinMain(HINSTANCE hInstance,
     g_settings()->sub_81CFA0("Settings\\Resolution", "800x600", Str, 10u);
 
     char *v11 = strtok(Str, "x");
-    g_cx() = atoi(v11);
+    g_cx = atoi(v11);
     char *v12 = strtok(nullptr, "x");
-    g_cy() = atoi(v12);
+    g_cy = atoi(v12);
 
-    flt_965BDC() = (double) g_cy() * 0.011029412 - 5.29;
+    flt_965BDC = g_cy * 0.011029412 - 5.29;
 
-    byte_95C718() = g_settings()->sub_81D050("Settings\\DistanceClipping", 0);
-    dword_95C2F8() = g_settings()->sub_81D010("Settings\\Distance", 50);
-    g_player_shadows_enabled() = g_settings()->sub_81D050("Settings\\DetailedShadows", 1);
-    g_enable_stencil_shadows() = g_player_shadows_enabled();
-    ChromeEffect() = g_settings()->sub_81D050("Settings\\ChromeEffect", 1);
+    g_distance_clipping_enabled = g_settings()->sub_81D050("Settings\\DistanceClipping", 0);
+    g_distance_clipping = g_settings()->sub_81D010("Settings\\Distance", 50);
+    g_player_shadows_enabled = g_settings()->sub_81D050("Settings\\DetailedShadows", 1);
+    g_enable_stencil_shadows = g_player_shadows_enabled;
+    ChromeEffect = g_settings()->sub_81D050("Settings\\ChromeEffect", 1);
 
     register_class_and_create_window("Render Window",
                                      "Ultimate Spider-Man",
                                      0,
                                      0,
-                                     g_cx(),
-                                     g_cy(),
+                                     g_cx,
+                                     g_cy,
                                      WindowProc,
                                      hInstance,
                                      80,
@@ -1434,9 +1449,9 @@ int __stdcall myWinMain(HINSTANCE hInstance,
 
     ShowWindow(g_appHwnd, 3);
 
-    g_Windowed() = 0;
+    g_Windowed = 0;
     UpdateWindow(g_appHwnd);
-    SetWindowPos(g_appHwnd, nullptr, 0, 0, g_cx(), g_cy(), 4u);
+    SetWindowPos(g_appHwnd, nullptr, 0, 0, g_cx, g_cy, 4u);
 
     create_sound_ifc(g_appHwnd);
     ShowCursor(0);
@@ -1452,7 +1467,7 @@ int __stdcall myWinMain(HINSTANCE hInstance,
         g_debug().field_1 &= 0xFE;
     }
 
-    if (g_is_the_packer() || !os_developer_options::instance->get_flag(mString {"SCREEN_ASSERTS"})) {
+    if (g_is_the_packer || !os_developer_options::instance->get_flag(mString {"SCREEN_ASSERTS"})) {
         g_debug().field_1 &= 0xFD;
     } else {
         g_debug().field_1 |= 2;
@@ -1487,15 +1502,15 @@ int __stdcall myWinMain(HINSTANCE hInstance,
     char v173[260];
 
     sprintf(v173, "%s\\%s\\Screenshot", "Activision", "Ultimate Spider-Man");
-    get_path(v173, "Screenshot", byte_9659B8(), 260u);
-    create_directory(byte_9659B8());
+    get_path(v173, "Screenshot", byte_9659B8, 260u);
+    create_directory(byte_9659B8);
 
     char v174[260];
     sprintf(v174, "%s\\%s\\Save", "Activision", "Ultimate Spider-Man");
 
-    static Var<char[260]> byte_965AD0 = {0x00965AD0};
-    get_path(v174, "Save", byte_965AD0(), 260u);
-    create_directory(byte_965AD0());
+    static auto & byte_965AD0 = var<char[260]>(0x00965AD0);
+    get_path(v174, "Save", byte_965AD0, 260u);
+    create_directory(byte_965AD0);
 
     Input::instance()->field_129D0 = 1;
 
@@ -1737,8 +1752,8 @@ int __stdcall myWinMain(HINSTANCE hInstance,
         SetUnhandledExceptionFilter(TopLevelExceptionFilter);
     }
 
-    ALLOW_ERROR_POPUPS() = os_developer_options::instance->get_flag(mString {"ALLOW_ERROR_POPUPS"});
-    if (!ALLOW_ERROR_POPUPS()) {
+    ALLOW_ERROR_POPUPS = os_developer_options::instance->get_flag(mString {"ALLOW_ERROR_POPUPS"});
+    if (!ALLOW_ERROR_POPUPS) {
         SetErrorMode(2u);
     }
 
@@ -1753,17 +1768,17 @@ int __stdcall myWinMain(HINSTANCE hInstance,
 
     tlSetSystemCallbacks(ngl_callbacks);
 
-    nWidth() = g_cx();
-    nHeight() = g_cy();
+    nWidth = g_cx;
+    nHeight = g_cy;
 
     nglInit(g_appHwnd);
     nalInit(nullptr);
 
-    g_cursor() = new Cursor(L"data\\ump.dat", g_cx(), g_cy());
+    g_cursor() = new Cursor {L"data\\ump.dat", g_cx, g_cy};
     set_tl_system_directories();
 
-    static Var<nglFrameLockType> g_frame_lock{0x00922920};
-    nglSetFrameLock(g_frame_lock());
+    static nglFrameLockType & g_frame_lock = var<nglFrameLockType>(0x00922920);
+    nglSetFrameLock(g_frame_lock);
 
     auto list_buffer = os_developer_options::instance->get_int(mString{"PCLISTBUFFER"});
     nglSetBufferSize(static_cast<nglBufferType>(0), list_buffer << 10, true);
@@ -1784,16 +1799,16 @@ int __stdcall myWinMain(HINSTANCE hInstance,
         cut_scene::init_stream_scene_anims();
     }
 
-    if (g_is_the_packer()) {
+    if ( g_is_the_packer ) {
         //sub_748E10();
     } else {
-        if (!g_master_clock_is_up()) {
+        if ( !g_master_clock_is_up ) {
             timeBeginPeriod(1u);
         }
 
         auto v163 = timeGetTime();
-        auto v165 = (double) os_developer_options::instance->get_int(mString{"RUN_LENGTH"});
-        auto v164 = (os_developer_options::instance->get_int(mString{"RUN_LENGTH"}) != -1);
+        float v165 = os_developer_options::instance->get_int(mString{"RUN_LENGTH"});
+        bool v164 = (os_developer_options::instance->get_int(mString{"RUN_LENGTH"}) != -1);
 
         g_timer()->sub_582180();
 
@@ -1804,8 +1819,8 @@ int __stdcall myWinMain(HINSTANCE hInstance,
             rumble_ptr->disable_vibration();
         }
 
-        if (!bExit()) {
-
+        if (!bExit)
+        {
             while (1) {
                 MSG Msg;
 
@@ -1813,7 +1828,7 @@ int __stdcall myWinMain(HINSTANCE hInstance,
 
                 while (res != 0) {
                     if (Msg.message == WM_QUIT) {
-                        bExit() = true;
+                        bExit = true;
                     }
 
                     TranslateMessage(&Msg);
@@ -1825,12 +1840,13 @@ int __stdcall myWinMain(HINSTANCE hInstance,
                     break;
                 }
 
-                if (bExit()) {
+                if (bExit) {
                     goto LABEL_94;
                 }
 
-                if (byte_965BF9()) {
-                    if (!g_master_clock_is_up()) {
+                if (byte_965BF9)
+                {
+                    if ( !g_master_clock_is_up ) {
                         timeBeginPeriod(1u);
                     }
 
@@ -1846,46 +1862,46 @@ int __stdcall myWinMain(HINSTANCE hInstance,
                     if (g_inputSettingsInGame()->field_18.get_state(InputAction::ScreenShot) <=
                         0.0)
                     {
-                        if (!byte_965BF5() && byte_965BF6()) {
-                            byte_965BF5() = true;
-                            byte_965BF6() = false;
+                        if (!byte_965BF5 && byte_965BF6) {
+                            byte_965BF5 = true;
+                            byte_965BF6 = false;
                         }
 
                     } else {
-                        byte_965BF6() = true;
+                        byte_965BF6 = true;
                     }
 
-                    if (dword_922908()) {
-                        if (dword_922908() >= 0 && !byte_965C21()) {
-                            --dword_922908();
+                    if (dword_922908) {
+                        if (dword_922908 >= 0 && !byte_965C21) {
+                            --dword_922908;
                         }
-                    } else if (!byte_965C21()) {
-                        if (byte_965BF8()) {
+                    } else if (!byte_965C21) {
+                        if (byte_965BF8) {
                             ClipCursor(nullptr);
                             break;
                         }
 
                         if (sub_5A3AA0("CONFIRMQUIT_MSG", nullptr)) {
                             ClipCursor(nullptr);
-                            bExit() = true;
-                            dword_922908() = -1;
+                            bExit = true;
+                            dword_922908 = -1;
                         } else {
                             g_cursor()->field_120 = 0;
                             if (!g_cursor()->field_120) {
                                 g_cursor()->field_114 = 1;
                             }
 
-                            dword_922908() = -1;
+                            dword_922908 = -1;
                         }
                     }
 
-                    if (bExit()) {
+                    if (bExit) {
                         goto LABEL_94;
                     }
                 }
             }
 
-            bExit() = true;
+            bExit = true;
         }
     }
 LABEL_94:
@@ -2241,10 +2257,10 @@ LABEL_11:
         amsg_exit(8);
     }
 
-    Var<_PVFV> dword_91B000{0x0091B000};
-    Var<_PVFV> dword_91D930{0x0091D930};
+    _PVFV & dword_91B000 = var<_PVFV>(0x0091B000);
+    _PVFV & dword_91D930 = var<_PVFV>(0x0091D930);
 
-    initterm(&dword_91B000(), &dword_91D930());
+    initterm(&dword_91B000, &dword_91D930);
 
     char *i;
     [[maybe_unused]] char *v20;
@@ -2580,6 +2596,8 @@ BOOL install_redirects()
         REDIRECT(0x005AC347, hook_controlfp);
     }
 
+    REDIRECT(0x005AC500, create_sound_ifc);
+
     REDIRECT(0x005AC52F, parse_cmd);
 
     REDIRECT(0x005AC301, CheckDirectXVersionViaDxDiag);
@@ -2597,12 +2615,6 @@ BOOL install_redirects()
 
     //REDIRECT(0, sub_5952D0);
 
-    app_patch();
-
-    entity_patch();
-
-    fixed_pool_patch();
-
     //standalone patches
     if constexpr (1)
     {
@@ -2618,6 +2630,20 @@ BOOL install_redirects()
 
         nfl_system_patch();
     }
+
+    memory_patch();
+
+    token_def_list_patch();
+
+    wds_token_manager_patch();
+
+    app_patch();
+
+    entity_patch();
+
+    terrain_patch();
+
+    fixed_pool_patch();
 
     if constexpr (1)
     {
@@ -2784,8 +2810,6 @@ BOOL install_redirects()
 
         web_polytube_patch();
 
-        wds_token_manager_patch();
-
         beam_patch();
 
         motion_effect_struct_patch();
@@ -2906,8 +2930,6 @@ BOOL install_redirects()
         entity_handle_manager_patch();
 
         eligible_pack_patch();
-
-        terrain_patch();
 
         chuck_callbacks_patch();
     }
@@ -3230,8 +3252,6 @@ BOOL install_redirects()
         resource_pack_header_patch();
 
         nfl_driver_patch();
-
-        memory_patch();
 
 #endif
 

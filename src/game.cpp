@@ -215,19 +215,18 @@ game::game()
             static Var<char *[2]> smoke_test_levels { 0x00921DB0 };
 
             if (os_developer_options::instance->get_flag(mString{"SMOKE_TEST_LEVEL"})) {
-                g_smoke_test() = new smoke_test(bit_cast<const char **>(&g_scene_name()), a3);
+                g_smoke_test() = new smoke_test(bit_cast<const char **>(&g_scene_name), a3);
             } else {
                 g_smoke_test() = new smoke_test(bit_cast<const char **>(&smoke_test_levels()[0]),
                                                 a3);
 
-                strcpy(g_scene_name(), smoke_test_levels()[0]);
+                strcpy(g_scene_name, smoke_test_levels()[0]);
             }
         } else if (!os_developer_options::instance->get_flag(mString{"SMOKE_TEST_LEVEL"})) {
             auto v23 = os_developer_options::instance->get_string(os_developer_options::strings_t::SCENE_NAME);
 
-            if (v23)
-            {
-                strcpy(g_scene_name(), v23->c_str());
+            if (v23) {
+                strcpy(g_scene_name, v23->c_str());
             }
         }
 
@@ -250,7 +249,7 @@ game::game()
         this->field_15F = 0;
         this->field_160 = 0;
         this->field_164 = false;
-        bExit() = false;
+        bExit = false;
         this->field_165 = false;
         this->field_166 = false;
         this->field_163 = false;
@@ -352,7 +351,7 @@ game::~game()
         subtitles_kill();
         if ( this->the_world != nullptr )
         {
-            if ( !g_is_the_packer() ) {
+            if ( !g_is_the_packer ) {
                 this->unload_current_level();
             }
 
@@ -403,7 +402,7 @@ game::~game()
         }
 
         script_manager::clear();
-        if ( !g_is_the_packer() ) {
+        if ( !g_is_the_packer ) {
             this->one_time_deinit_stuff();
         }
 
@@ -566,28 +565,29 @@ void game::render_world()
         {
             auto fov = v3->get_fov();
 
-            if (fov >= 0.0024999999f) {
-                if (dword_92255C() != g_TOD()) {
-                    ++dword_91E1D8();
-                    dword_92255C() = g_TOD();
+            if (fov >= 0.0024999999f)
+            {
+                if (dword_92255C() != g_TOD) {
+                    ++dword_91E1D8;
+                    dword_92255C() = g_TOD;
                 }
 
                 auto fpf = DEG_TO_RAD(os_developer_options::instance->get_int(mString {"CAMERA_FOV"}));
                 if (fov == fpf) {
-                    g_tan_half_fov_ratio() = 1.0f;
+                    g_tan_half_fov_ratio = 1.0f;
                 } else {
                     fpf = std::tan(fov * 0.5f) / std::tan(fpf * 0.5f);
-                    g_tan_half_fov_ratio() = fpf;
+                    g_tan_half_fov_ratio = fpf;
                 }
 
-                g_indoors() = v3->is_indoors();
+                g_indoors = v3->is_indoors();
                 nglSetClearFlags(0);
                 nglListBeginScene(static_cast<nglSceneParamType>(1));
                 sub_5935D0();
                 nglListEndScene();
                 auto *v6 = comic_panels::get_panel_params();
                 auto *v7 = v6;
-                if ((!v6 || (v6->field_0 & 0x40) != 0) && !g_indoors() && byte_922558())
+                if ((v6 == nullptr || (v6->field_0 & 0x40) != 0) && !g_indoors && byte_922558())
                 {
                     nglListBeginScene(static_cast<nglSceneParamType>(1));
                     nglCurScene()->field_408 = true;
@@ -623,16 +623,19 @@ void game::render_world()
                     v3->adjust_geometry_pipe(false);
                     auto *v13 = g_femanager.IGO->field_44;
                     auto v14 = v13->field_5C4 || v13->field_5C3;
-                    if (!g_distance_clipping_enabled() || v14) {
+                    if (!g_distance_clipping_enabled || v14)
+                    {
                         if (g_renderState().field_88) {
-                            g_Direct3DDevice()->lpVtbl->SetRenderState(g_Direct3DDevice(),
+                            IDirect3DDevice9_SetRenderState(g_Direct3DDevice,
                                                                        D3DRS_FOGENABLE,
                                                                        0);
                             g_renderState().field_88 = false;
                         }
 
-                    } else {
-                        auto v15 = g_distance_clipping() * LARGE_EPSILON * 1900.0f + 100.0f;
+                    }
+                    else
+                    {
+                        auto v15 = g_distance_clipping * LARGE_EPSILON * 1900.0f + 100.0f;
                         float a2 = v15;
                         auto v16 = v15 - 200.0f;
                         auto fov_1 = v16;
@@ -644,9 +647,9 @@ void game::render_world()
 
                         static Var<uint32_t[4]> dword_922548{0x00922548};
 
-                        g_renderState().setFogColor(dword_922548()[g_TOD()]);
+                        g_renderState().setFogColor(dword_922548()[g_TOD]);
                         if (g_renderState().field_90 != 3) {
-                            g_Direct3DDevice()->lpVtbl->SetRenderState(g_Direct3DDevice(),
+                            IDirect3DDevice9_SetRenderState(g_Direct3DDevice,
                                                                        D3DRS_FOGTABLEMODE,
                                                                        3);
                             g_renderState().field_90 = 3;
@@ -657,17 +660,17 @@ void game::render_world()
                     }
 
                     nglCalculateMatrices(0);
-                    auto v17 = g_disable_occlusion_culling();
-                    if (g_indoors()) {
+                    auto v17 = g_disable_occlusion_culling;
+                    if ( g_indoors ) {
                         auto *v18 = g_cut_scene_player();
                         if (v18->field_E1 || v18->field_E2) {
-                            g_disable_occlusion_culling() |= 3u;
+                            g_disable_occlusion_culling |= 3u;
                         }
                     }
 
                     this->the_world->field_A0.render(*v3, 0);
-                    g_disable_occlusion_culling() = v17;
-                    if ((!v7 || (v7->field_0 & 0x20) != 0) && !g_indoors()) {
+                    g_disable_occlusion_culling = v17;
+                    if ((!v7 || (v7->field_0 & 0x20) != 0) && !g_indoors) {
                         USOcean2Shader::Draw(v3->get_abs_po().m[3]);
                     }
                 }
@@ -1190,7 +1193,7 @@ void game::handle_cameras(input_mgr *a2, const Float &time_inc)
                 g_mouselook_controller()->reset();
             }
 
-            cam_target_locked() = false;
+            cam_target_locked = false;
         }
 
         if ( AXIS_MAX == a2->get_control_delta(33, INVALID_DEVICE_ID) ) {
@@ -1664,7 +1667,7 @@ void game::set_camera(int a2)
                 }
             }
 
-            cam_target_locked() = false;
+            cam_target_locked = false;
         }
         else if (a2 == CHASE_CAM)
         {
@@ -2243,7 +2246,7 @@ camera *game::get_current_view_camera(int a2)
 void game::_load_new_level(const mString &a2)
 {
     if (!a2.empty()) {
-        strcpy(g_scene_name(), a2.c_str());
+        strcpy(g_scene_name, a2.c_str());
     }
 
     this->field_15D = true;
@@ -2286,14 +2289,14 @@ void game::advance_state_load_level(Float a2)
     {
         static bool & loading_a_level = var<bool>(0x00960CB5);
 
-        this->level.name_mission_table = g_scene_name();
+        this->level.name_mission_table = g_scene_name;
         input_mgr::instance->field_26 = false;
         if (!loading_a_level)
         {
             this->level.reset_level_load_data();
             loading_a_level = true;
             this->level.look_up_level_descriptor();
-            if (!g_is_the_packer()) {
+            if ( !g_is_the_packer ) {
                 sound_manager::load_common_sound_bank(true);
             }
 
@@ -2312,7 +2315,7 @@ void game::advance_state_load_level(Float a2)
 
             int TOD = os_developer_options::instance->get_int(mString {"TIME_OF_DAY"});
             if (TOD == -1) {
-                TOD= g_TOD();
+                TOD = g_TOD;
             }
 
             us_lighting_switch_time_of_day(TOD);
@@ -2629,7 +2632,7 @@ void game::render_ui()
         {
             if ( this->flag.level_is_loaded )
             {
-                if (!EnableShader())
+                if ( !EnableShader )
                 {
                     matrix4x4 a1;
                     a1.arr[0][0] = 0.003125;
@@ -2669,7 +2672,7 @@ void game::render_ui()
         nglListBeginScene(static_cast<nglSceneParamType>(1));
         nglSetClearFlags(g_preserve_z_buffer ? 0 : 6);
         sub_769DE0(7);
-        if (!EnableShader())
+        if ( !EnableShader )
         {
             matrix4x4 v5;
             v5.arr[0][0] = 0.003125;
@@ -2721,7 +2724,8 @@ void game::render_ui()
         nglListEndScene();
         if (!spider_monkey::is_running())
         {
-            if (os_developer_options::instance->get_int(static_cast<os_developer_options::ints_t>(26)) == 1 && byte_965BF5())
+            if (os_developer_options::instance->get_int(static_cast<os_developer_options::ints_t>(26)) == 1
+                    && byte_965BF5)
             {
                 SYSTEMTIME SystemTime;
                 GetLocalTime(&SystemTime);
@@ -2729,7 +2733,7 @@ void game::render_ui()
                 char Dest[256];
                 sprintf(Dest,
                         "%s\\screenshot_%4d-%02d-%02d-%02d%02d%02d",
-                        byte_9659B8(),
+                        byte_9659B8,
                         SystemTime.wYear,
                         SystemTime.wMonth,
                         SystemTime.wDay,
@@ -2737,7 +2741,7 @@ void game::render_ui()
                         SystemTime.wMinute,
                         SystemTime.wSecond);
                 nglScreenShot(Dest);
-                byte_965BF5() = false;
+                byte_965BF5 = false;
             }
 
             auto ALLOW_SCREENSHOT = os_developer_options::instance->get_int(mString {"ALLOW_SCREENSHOT"});
@@ -3028,7 +3032,9 @@ void game::unload_current_level()
         v7->flush(game::render_empty_list, 0.02);
         this->flag.level_is_loaded = false;
         sub_65F200();
-        if (!g_is_the_packer()) {
+
+        if ( !g_is_the_packer )
+        {
             sub_79A160();
 
             for (int i = 0; i < 128; ++i) {
@@ -3047,7 +3053,7 @@ void game::unload_current_level()
             v10->field_60 = true;
         }
 
-        if (!bExit()) {
+        if (!bExit) {
             this->freeze_hero(false);
         }
 

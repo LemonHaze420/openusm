@@ -101,7 +101,7 @@ script_library_class::function *script_library_class::get_func(int index)
 
 void script_library_class::add_function(script_library_class::function *f)
 {
-    if ( g_is_the_packer() || script_manager::using_chuck_old_fashioned() ) {
+    if ( g_is_the_packer || script_manager::using_chuck_old_fashioned() ) {
 #if SLC_FUNC_LIST_FIELD 
         if ( ! this->func_list.empty() ) {
             if ( this->func_list.back() != nullptr ) {
@@ -137,7 +137,7 @@ void script_library_class::add_function(script_library_class::function *f)
 
 void script_library_class::add_functions_complete()
 {
-    if ( g_is_the_packer() || script_manager::using_chuck_old_fashioned() ) {
+    if ( g_is_the_packer || script_manager::using_chuck_old_fashioned() ) {
         assert(this->funcs == nullptr);
     }
 }

@@ -419,7 +419,7 @@ void debug_render_init()
 
     debug_material = new PCUV_ShaderMaterial{nglWhiteTex(), static_cast<nglBlendModeType>(2), 0, a4};
 
-    if (!g_is_the_packer())
+    if (!g_is_the_packer)
     {
         auto *mesh_file = nglLoadMeshFile(tlFixedString{"debugobj"});
         assert(mesh_file != nullptr);
@@ -446,7 +446,8 @@ void debug_render_init()
 
 void debug_render_done()
 {
-    if (!g_is_the_packer()) {
+    if (!g_is_the_packer)
+    {
         if (s_debug_box != nullptr) {
             nglReleaseMeshFile(tlFixedString{"debugobj"});
             s_debug_disc = nullptr;

@@ -35,7 +35,7 @@ Var<panel *> game_play_panel{0x0096F7D4};
 
 Var<fixed_vector<panel *, 48>> panels{0x0096F9F8};
 
-Var<bool> world_has_been_rendered {0x0096F7A0};
+bool & world_has_been_rendered = var<bool>(0x0096F7A0);
 
 void clear_color_rect(
         aarect<float, vector2d> &a1,
@@ -411,10 +411,7 @@ void panel_component_camera::_render(comic_panels::panel_component::render_info 
                                         *this->field_0 = this->field_4;
                                     }
                                 }
-
-
-
-                            } a1 {world_has_been_rendered(), &g_disable_occlusion_culling(), &v22};
+                            } a1 {world_has_been_rendered, &g_disable_occlusion_culling, &v22};
 
                             geometry_manager::get_xform(geometry_manager::xform_t::XFORM_VIEW_TO_PROJECTION);
 
@@ -454,7 +451,7 @@ void panel_component_camera::_render(comic_panels::panel_component::render_info 
                                 
                                 bool a6 = (this->field_48 & 0x10) == 0;
                                 bool v23 = false;
-                                stru v28 {a6, &g_player_shadows_enabled(), &v23};
+                                stru v28 {a6, &g_player_shadows_enabled, &v23};
 
                                 static Var<bool> byte_922C5D {0x00922C5D};
                                 bool v24 = false;

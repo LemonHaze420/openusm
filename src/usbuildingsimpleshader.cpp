@@ -25,15 +25,16 @@ int USBuildingSimpleShader::Register() {
         tlFixedString v2;
         GetName(this, nullptr, &v2);
 
-        static Var<USBuildingSimpleShader> gUSBuildingSimpleShader{0x0091E448};
+        static auto & gUSBuildingSimpleShader = var<USBuildingSimpleShader>(0x0091E448);
 
-        nglShaderBank.Insert(v2, &gUSBuildingSimpleShader());
+        nglShaderBank.Insert(v2, &gUSBuildingSimpleShader);
 
         static Var<IDirect3DVertexDeclaration9 *> dword_9738F8{0x009738F8};
         static Var<D3DVERTEXELEMENT9> stru_939480{0x00939480};
         static Var<int[2]> stru_970510{0x00970510};
 
-        if (EnableShader()) {
+        if ( EnableShader )
+        {
             static Var<IDirect3DPixelShader9 *> dword_970518{0x00970518};
 
             if constexpr (0) {
@@ -77,9 +78,11 @@ int USBuildingSimpleShader::Register() {
                 nglCreatePShader(&dword_970518(), text);
             }
 
-        } else {
+        }
+        else
+        {
             if (dword_9738F8() == nullptr)
-                g_Direct3DDevice()->lpVtbl->CreateVertexDeclaration(g_Direct3DDevice(),
+                IDirect3DDevice9_CreateVertexDeclaration(g_Direct3DDevice,
                                                                     &stru_939480(),
                                                                     &dword_9738F8());
         }

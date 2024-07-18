@@ -179,7 +179,7 @@ extern Var<fixed_vector<panel *, 48>> panels;
 
 inline Var<color> default_bgcol {0x009392EC};
 
-extern Var<bool> world_has_been_rendered;
+extern bool & world_has_been_rendered;
 
 } // namespace comic_panels
 

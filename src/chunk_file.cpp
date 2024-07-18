@@ -16,7 +16,7 @@ chunk_flavor::chunk_flavor(const char *s)
 
 void chunk_file::set_fp(int lDistanceToMove, os_file::filepos_t a3)
 {
-    if ( g_is_the_packer() ) {
+    if ( g_is_the_packer ) {
         this->io.set_fp(lDistanceToMove, a3);
     }
 }

@@ -1396,16 +1396,20 @@ void setup_hero_capsule(actor *act)
             capsule_alter->set_avg_radius(0.64999998);
             capsule_alter->set_mode((capsule_alter_sys::eAlterMode) 3);
 
-            auto *v4 = cngl->get_bone(bip01_l_calf(), true);
+            auto *v4 = cngl->get_bone(bip01_l_calf, true);
             capsule_alter->set_base_avg_node(0, v4, 0.5);
-            auto *v5 = cngl->get_bone(bip01_r_calf(), true);
+
+            auto *v5 = cngl->get_bone(bip01_r_calf, true);
             capsule_alter->set_base_avg_node(1, v5, 0.5);
-            auto *v6 = cngl->get_bone(bip01_pelvis(), true);
+
+            auto *v6 = cngl->get_bone(bip01_pelvis, true);
             capsule_alter->set_base_avg_node(2, v6, 1.0);
             capsule_alter->set_base_avg_node(3, nullptr, 0.0);
-            auto *v7 = cngl->get_bone(bip01_head(), true);
+
+            auto *v7 = cngl->get_bone(bip01_head, true);
             capsule_alter->set_end_avg_node(0, v7, 3.0);
-            auto *v8 = cngl->get_bone(bip01_spine(), true);
+
+            auto *v8 = cngl->get_bone(bip01_spine, true);
             capsule_alter->set_end_avg_node(1, v8, 1.0);
             capsule_alter->set_end_avg_node(2, nullptr, 0.0);
         } else {

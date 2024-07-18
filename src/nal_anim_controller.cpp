@@ -79,9 +79,9 @@ void nal_anim_controller::scene_anim_client::Render(
 {
     TRACE("nal_anim_controller::scene_anim_client::Render");
 
-    byte_959561() = true;
+    byte_959561 = true;
     this->field_4->get_matrix_data_from_pose(this->field_4->field_40);
-    byte_959561() = false;
+    byte_959561 = false;
 }
 
 nal_anim_controller::nal_anim_controller(actor *a2,
@@ -162,11 +162,11 @@ void nal_anim_controller::_frame_advance(Float a2, bool a3, bool a4)
                 static tlFixedString stru_959A24 {"green_goblin"};
 
                 if ( this->field_8->field_8 == stru_959A24 ) {
-                    byte_959561() = true;
+                    byte_959561 = true;
                 }
 
                 this->get_matrix_data_from_pose(this->field_40);
-                byte_959561() = false;
+                byte_959561 = false;
             }
         }
     } else {

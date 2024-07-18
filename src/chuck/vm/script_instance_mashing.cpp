@@ -62,7 +62,7 @@ bool initialize_game_init_instances(const script_executable *se, string_hash a2)
 {
     if constexpr (0)
     {
-        if ( g_is_the_packer() ) {
+        if ( g_is_the_packer ) {
             return true;
         }
 

@@ -27,7 +27,7 @@ Cursor::Cursor(LPCWSTR lpWideCharStr, int a3, int a4) {
 
         lpWideCharStr = L"data\\ump.dat";
 
-        if (auto result = D3DXCreateTextureFromFileExW(g_Direct3DDevice(),
+        if (auto result = D3DXCreateTextureFromFileExW(g_Direct3DDevice,
                                                        lpWideCharStr,
                                                        0,
                                                        0,

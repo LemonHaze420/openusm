@@ -25,9 +25,10 @@ void __fastcall sub_585BE0(void *self, void *, void *a2, int a3, int a4, int a5,
 }
 
 void TextureInputPack::sub_5871D0() {
-    if constexpr (0) {
-        if (g_distance_clipping_enabled()) {
-            g_Direct3DDevice()->lpVtbl->SetRenderState(g_Direct3DDevice(), D3DRS_FOGENABLE, false);
+    if constexpr (0)
+    {
+        if (g_distance_clipping_enabled) {
+            IDirect3DDevice9_SetRenderState(g_Direct3DDevice, D3DRS_FOGENABLE, false);
         }
 
         nglSetTextureStageState(0, D3DTSS_COLOROP, 2u);
@@ -242,7 +243,10 @@ void TextureInputPack::sub_5871D0() {
 
                             int v40;
                             color32 v32;
-                            if (this->field_410 == v43 && this->field_414 == v45 && byte_965C20()) {
+                            if (this->field_410 == v43
+                                    && this->field_414 == v45
+                                    && byte_965C20)
+                            {
                                 v40 = this->field_3E8;
                                 v32 = this->field_3FC;
                             } else {
@@ -282,7 +286,10 @@ void TextureInputPack::sub_5871D0() {
                         } else {
                             int v41;
                             color32 v35;
-                            if (this->field_410 == v43 && this->field_414 == v45 && byte_965C20()) {
+                            if (this->field_410 == v43
+                                    && this->field_414 == v45
+                                    && byte_965C20)
+                            {
                                 v41 = this->field_3E8;
                                 v35 = this->field_3FC;
                             } else {
@@ -326,8 +333,8 @@ void TextureInputPack::sub_5871D0() {
             v44 = v37;
         }
 
-        if (g_distance_clipping_enabled()) {
-            g_Direct3DDevice()->lpVtbl->SetRenderState(g_Direct3DDevice(), D3DRS_FOGENABLE, true);
+        if (g_distance_clipping_enabled) {
+            IDirect3DDevice9_SetRenderState(g_Direct3DDevice, D3DRS_FOGENABLE, true);
         }
 
     } else {

@@ -198,7 +198,7 @@ void FrontEndMenuSystem::GoNextState() {
                 sub_5A6D70();
                 goto LABEL_27;
             case 5: {
-                bExit() = true;
+                bExit = true;
                 goto LABEL_27;
             }
             default:

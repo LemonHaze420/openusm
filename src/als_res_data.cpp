@@ -27,7 +27,7 @@ void als_res_data::initialize(mash::allocation_scope a2)
         if (this->field_0.is_set())
         {
             uint8_t *resource = nullptr;
-            if ( !g_is_the_packer() ) {
+            if ( !g_is_the_packer ) {
                 resource = resource_manager::get_resource(this->field_0, nullptr, nullptr);
             }
 

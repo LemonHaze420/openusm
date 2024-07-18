@@ -183,22 +183,22 @@ void FEMultiLineText::sub_60A4A0(mString &a1) {
         //auto *v2 = static_cast<char *>(operator new(strlen(a1.c_str()) + 1));
         //strcpy(v2, a1.c_str());
         if (strstr(v2, "~cross")) {
-            auto *v3 = sub_609580(v2, "~cross", dword_965C24()[GamepadInput::Cross]);
+            auto *v3 = sub_609580(v2, "~cross", dword_965C24[GamepadInput::Cross]);
             v2 = v3;
         }
 
         if (strstr(v2, "~triangle")) {
-            auto *v4 = sub_609580(v2, "~triangle", dword_965C24()[GamepadInput::Triangle]);
+            auto *v4 = sub_609580(v2, "~triangle", dword_965C24[GamepadInput::Triangle]);
             v2 = v4;
         }
 
         if (strstr(v2, "~square")) {
-            auto *v5 = sub_609580(v2, "~square", dword_965C24()[GamepadInput::Square]);
+            auto *v5 = sub_609580(v2, "~square", dword_965C24[GamepadInput::Square]);
             v2 = v5;
         }
 
         if (strstr(v2, "~circle")) {
-            auto *v6 = sub_609580(v2, "~circle", dword_965C24()[GamepadInput::Circle]);
+            auto *v6 = sub_609580(v2, "~circle", dword_965C24[GamepadInput::Circle]);
             v2 = v6;
         }
 
@@ -208,17 +208,17 @@ void FEMultiLineText::sub_60A4A0(mString &a1) {
         }
 
         if (strstr(v2, "~l2")) {
-            auto *v8 = sub_609580(v2, "~l2", dword_965C24()[GamepadInput::L2]);
+            auto *v8 = sub_609580(v2, "~l2", dword_965C24[GamepadInput::L2]);
             v2 = v8;
         }
 
         if (strstr(v2, "~r2")) {
-            auto *v9 = sub_609580(v2, "~r2", dword_965C24()[GamepadInput::R2]);
+            auto *v9 = sub_609580(v2, "~r2", dword_965C24[GamepadInput::R2]);
             v2 = v9;
         }
 
         if (strstr(v2, "~r3")) {
-            auto *v10 = sub_609580(v2, "~r3", dword_965C24()[GamepadInput::R3]);
+            auto *v10 = sub_609580(v2, "~r3", dword_965C24[GamepadInput::R3]);
             v2 = v10;
         }
 
@@ -226,34 +226,34 @@ void FEMultiLineText::sub_60A4A0(mString &a1) {
             char Dest[256]{};
             sprintf(Dest,
                     "\"%s & %s\"",
-                    dword_965C24()[GamepadInput::L2],
-                    dword_965C24()[GamepadInput::R2]);
+                    dword_965C24[GamepadInput::L2],
+                    dword_965C24[GamepadInput::R2]);
             auto *v11 = sub_609580(v2, "~both_lr", Dest);
             v2 = v11;
         }
 
         if (strstr(v2, "~right")) {
-            auto *v12 = sub_609580(v2, "~r2", dword_965C24()[GamepadInput::Right]);
+            auto *v12 = sub_609580(v2, "~r2", dword_965C24[GamepadInput::Right]);
             v2 = v12;
         }
 
         if (strstr(v2, "~select")) {
-            auto *v13 = sub_609580(v2, "~select", dword_965C24()[GamepadInput::Select]);
+            auto *v13 = sub_609580(v2, "~select", dword_965C24[GamepadInput::Select]);
             v2 = v13;
         }
 
         if (strstr(v2, "~forward")) {
-            auto *v14 = sub_609580(v2, "~forward", dword_965C24()[GamepadInput::Forward]);
+            auto *v14 = sub_609580(v2, "~forward", dword_965C24[GamepadInput::Forward]);
             v2 = v14;
         }
 
         if (strstr(v2, "~left")) {
-            auto *v15 = sub_609580(v2, "~left", dword_965C24()[GamepadInput::Left]);
+            auto *v15 = sub_609580(v2, "~left", dword_965C24[GamepadInput::Left]);
             v2 = v15;
         }
 
         if (strstr(v2, "~start")) {
-            auto *v16 = sub_609580(v2, "~start", dword_965C24()[GamepadInput::Start]);
+            auto *v16 = sub_609580(v2, "~start", dword_965C24[GamepadInput::Start]);
             v2 = v16;
         }
 
