@@ -5,6 +5,7 @@
 #include "event.h"
 #include "func_wrapper.h"
 #include "memory.h"
+#include "trace.h"
 #include "vm.h"
 
 VALIDATE_SIZE(event_recipient_entry, 0x28u);
@@ -18,9 +19,46 @@ event_recipient_entry::event_recipient_entry(
     this->field_24 = 0;
 }
 
+event_recipient_entry::~event_recipient_entry()
+{
+    TRACE("event_recipient_entry::~event_recipient_entry");
+
+    this->clear();
+
+    this->field_10.clear();
+    this->field_4.clear();
+}
+
 void * event_recipient_entry::operator new(size_t size)
 {
     return mem_alloc(size);
+}
+
+void event_recipient_entry::operator delete(void *ptr, size_t size)
+{
+    mem_dealloc(ptr, size);
+}
+
+void event_recipient_entry::clear()
+{
+    TRACE("event_recipient_entry::clear");
+
+    this->field_0 = {0};
+    this->field_20 = 0;
+    this->field_24 = 0;
+    this->clear_callbacks();
+}
+
+void event_recipient_entry::clear_callbacks()
+{
+    for ( auto &cb : this->field_4 )
+    {
+        if ( cb != nullptr ) {
+            cb->_finalize(true);
+        }
+    }
+
+    this->field_4.clear();
 }
 
 int event_recipient_entry::add_callback(void (*cb)(event *, entity_base_vhandle, void *),
