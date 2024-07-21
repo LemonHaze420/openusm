@@ -39,3 +39,17 @@ void entity_class_entry::unmash(mash_info_struct *a1, void *)
 
     a1->unmash_class_in_place(this->field_74, this);
 }
+
+void entity_class_entry::destruct_mashed_class()
+{
+    this->field_0.destruct_mashed_class();
+    this->field_4.destruct_mashed_class();
+    this->field_8.destruct_mashed_class();
+    this->field_18.destruct_mashed_class();
+    this->field_1C.destruct_mashed_class();
+    this->field_20.destruct_mashed_class();
+    this->field_44.destruct_mashed_class();
+    this->field_54.destruct_mashed_class();
+    this->field_64.destruct_mashed_class();
+    this->field_74.destruct_mashed_class();
+}

@@ -31,4 +31,6 @@ struct entity_class_entry {
     void initialize(mash::allocation_scope a2);
 
     void unmash(mash_info_struct *a1, void *a3);
+
+    void destruct_mashed_class();
 };
