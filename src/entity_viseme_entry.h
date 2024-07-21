@@ -13,5 +13,9 @@ struct entity_viseme_entry {
 
     entity_viseme_entry(from_mash_in_place_constructor *);
 
+    ~entity_viseme_entry() = default;
+
     void unmash(mash_info_struct *, void *);
+
+    void destruct_mashed_class();
 };
