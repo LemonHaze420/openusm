@@ -18,6 +18,20 @@ string_hash_entry::string_hash_entry(const char *a2, const string_hash &a3)
     this->initialize(mash::ALLOCATED, a2, &a3);
 }
 
+string_hash_entry::~string_hash_entry()
+{
+    TRACE("string_hash_entry::~string_hash_entry");
+    this->finalize(mash::ALLOCATED);
+}
+
+void * string_hash_entry::operator new(size_t sz) {
+    return ::operator new(sz);
+}
+
+void string_hash_entry::operator delete(void *ptr, size_t) {
+    ::operator delete(ptr);
+}
+
 void string_hash_entry::initialize(mash::allocation_scope, const char *a2, const string_hash *a3)
 {
     if (a2 != nullptr) {
@@ -27,6 +41,15 @@ void string_hash_entry::initialize(mash::allocation_scope, const char *a2, const
     if (a3 != nullptr) {
         this->field_0 = *a3;
     }
+}
+
+void string_hash_entry::destruct_mashed_class()
+{
+    TRACE("string_hash_entry::destruct_mashed_class");
+
+    this->finalize(mash::FROM_MASH);
+    this->field_0.destruct_mashed_class();
+    this->field_4.destruct_mashed_class();
 }
 
 mString string_hash_entry::generate_text(const char *a3) const
