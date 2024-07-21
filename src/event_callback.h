@@ -11,6 +11,8 @@ struct event_callback {
 
     event_callback(void *a2, bool a3);
 
+    void _finalize(bool a2);
+
     void * operator new(size_t size);
 
     void operator delete(void *ptr, size_t size);

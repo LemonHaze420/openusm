@@ -13,6 +13,8 @@ struct event
     //0x0048ABA0
     event(string_hash a2);
 
+    void _finalize(bool a2);
+
 #define create_string_hash(name)           \
     static inline const string_hash name { \
         static_cast<int>(to_hash(#name))   \
