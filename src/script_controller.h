@@ -24,6 +24,6 @@ struct script_controller : signaller {
 
 };
 
-extern Var<script_controller *> script_pad;
+extern script_controller *& script_pad;
 
 extern void script_controller_patch();

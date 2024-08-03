@@ -116,13 +116,13 @@ VALIDATE_OFFSET(game::level_load_stuff, load_widgets_created, 0x38);
 
 static int main_flow[] = {5, 6, 14};
 
-static game_process main_process{"main", main_flow, 3};
+static game_process main_process {"main", main_flow, 3};
 
 static int start_flow[] = {1, 2, 3, 4, 14};
-static game_process start_process{"start", start_flow, 5};
+static game_process start_process {"start", start_flow, 5};
 
 static int pause_flow[] = {7, 14};
-static game_process pause_process{"pause", pause_flow, 2};
+static game_process pause_process {"pause", pause_flow, 2};
 
 game *& g_game_ptr = var<game *>(0x009682E0);
 
@@ -140,7 +140,13 @@ void sub_538D10() {
 }
 
 void construct_script_controllers() {
-    CDECL_CALL(0x0065F4E0);
+    assert(script_pad == nullptr);
+
+    if constexpr (0) {
+        script_pad = new script_controller [2];
+    } else {
+        CDECL_CALL(0x0065F4E0);
+    }
 }
 
 void destruct_script_controllers()
@@ -742,6 +748,8 @@ void game_packs_modified_callback(_std::vector<resource_key> &a1) {
     CDECL_CALL(0x0054F6D0, &a1);
 }
 
+static constexpr bool disable_console = true;
+
 void game::one_time_init_stuff()
 {
     TRACE("game::one_time_init_stuff");
@@ -758,8 +766,11 @@ void game::one_time_init_stuff()
 
         resource_manager::add_resource_pack_modified_callback(game_packs_modified_callback);
 
-        if (g_console == nullptr) {
-            g_console = std::make_unique<Console>();
+        if constexpr (disable_console)
+        {
+            if (g_console == nullptr) {
+                g_console = new Console ();
+            }
         }
 
         tlFixedString a1 {"dropshadow"};
@@ -2358,7 +2369,10 @@ void game::frame_advance_game_overlays(Float a1)
 {
     g_femanager.Update(a1);
 
-    g_console->frame_advance(a1);
+
+    if constexpr (disable_console) {
+        g_console->frame_advance(a1);
+    }
 }
 
 void game::message_board_init() {
@@ -2714,7 +2728,10 @@ void game::render_ui()
         }
 
         if constexpr (1) {
-            g_console->render();
+
+            if constexpr (disable_console) {
+                g_console->render();
+            }
 
 #ifdef ENABLE_DEBUG_MENU
             debug_menu::render_active();
@@ -2777,7 +2794,10 @@ void nglListEndScene_hook()
         }
     }
 
-    g_console->render();
+
+    if constexpr (disable_console) {
+        g_console->render();
+    }
 
     nglCurScene() = nglCurScene()->field_30C;
 }
@@ -3196,7 +3216,7 @@ void game::sub_524170()
         ++achy_breaky_int();
     }
 
-    script_pad()->update();
+    script_pad->update();
     input_mgr::instance->scan_devices();
 }
 

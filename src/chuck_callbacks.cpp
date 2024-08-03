@@ -23,8 +23,8 @@ void script_manager_callback(script_manager_callback_reason a1, script_executabl
         return;
     case 1:
         assert(g_game_ptr != nullptr);
-        event_manager::clear_script_callbacks(script_pad()[0].my_handle, a2);
-        event_manager::clear_script_callbacks(script_pad()[1].my_handle, a2);
+        event_manager::clear_script_callbacks(script_pad[0].my_handle, a2);
+        event_manager::clear_script_callbacks(script_pad[1].my_handle, a2);
         break;
     case 4:
         assert(buffer != nullptr);

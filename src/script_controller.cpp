@@ -13,7 +13,7 @@
 #include "trace.h"
 #include "utility.h"
 
-Var<script_controller *> script_pad{0x0096BB40};
+script_controller *& script_pad = var<script_controller *>(0x0096BB40);
 
 VALIDATE_SIZE(script_controller, 0x48);
 
