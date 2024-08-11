@@ -31,3 +31,8 @@ bool mContainer_base::is_pointer_in_mash_image(void *a3) const
 {
     return int(a3) >= int(this) && int(a3) <= int(this) + this->field_0;
 }
+
+void mContainer_base::destruct_mashed_class()
+{
+    this->finalize(mash::FROM_MASH);
+}

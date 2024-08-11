@@ -14,7 +14,11 @@ struct mContainer_base {
 
     void initialize(mash::allocation_scope a2);
 
+    void finalize(mash::allocation_scope) {}
+
     void clear();
 
     bool is_pointer_in_mash_image(void *a3) const;
+
+    void destruct_mashed_class();
 };
