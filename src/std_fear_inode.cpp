@@ -65,8 +65,18 @@ void std_fear_inode::initialize(mash::allocation_scope a2) {
 #endif
 }
 
-void ai::std_fear_inode::add_to_list(_std::vector<ai::std_fear_inode *> **a2) {
+void std_fear_inode::add_to_list(_std::vector<ai::std_fear_inode *> **a2) {
     THISCALL(0x006A1810, this, a2);
+}
+
+void std_fear_inode::set_cowering_enabled(bool a2)
+{
+    static const string_hash cowering_enabled_hash {int(to_hash("cowering_enabled"))};
+
+    this->my_param_block.set_pb_int(cowering_enabled_hash, a2, true);
+    if ( a2 != this->field_1D ) {
+        this->field_1D = a2;
+    }
 }
 
 } // namespace ai
