@@ -126,14 +126,43 @@ void set_god_mode(int a1)
     }
 }
 
+static auto & g_hit_list = var<_std::vector<vector3d> *>(0x0095C708);
+static auto & g_normal_list1 = var<_std::vector<vector3d> *>(0x0095C1DC);
+static auto & g_normal_list2 = var<_std::vector<vector3d> *>(0x0095C184);
+
 void colgeom_init_lists()
 {
-    CDECL_CALL(0x00544E90);
+    if constexpr (0) {
+        g_hit_list = new _std::vector<vector3d> {};
+        g_hit_list->reserve(1024u);
+
+        g_normal_list1 = new _std::vector<vector3d> {};
+        g_normal_list1->reserve(1024u);
+
+        g_normal_list2 = new _std::vector<vector3d> {};
+        g_normal_list2->reserve(1024u);
+    } else {
+        CDECL_CALL(0x00544E90);
+    }
 }
 
 void colgeom_destroy_lists()
 {
-    CDECL_CALL(0x005489A0);
+    if constexpr (0) {
+        if ( g_hit_list != nullptr ) {
+            delete g_hit_list;
+        }
+
+        if ( g_normal_list1 != nullptr ) {
+            delete g_normal_list1;
+        }
+
+        if ( g_normal_list2 != nullptr ) {
+            delete g_normal_list2;
+        }
+    } else {
+        CDECL_CALL(0x005489A0);
+    }
 }
 
 app::app()
