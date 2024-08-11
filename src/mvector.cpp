@@ -22,6 +22,7 @@
 #include "common.h"
 #include "cut_scene_segment.h"
 #include "entity_base_vhandle.h"
+#include "entity_viseme_entry.h"
 #include "fetext.h"
 #include "femultilinetext.h"
 #include "func_wrapper.h"
@@ -1884,4 +1885,62 @@ void mVector<attach_node>::custom_unmash(mash_info_struct *a1, void *a3)
     }
 
     this->field_0 = (int)&a1->mash_image_ptr[0][a1->buffer_size_used[0] - (uint32_t)this];
+}
+
+template<>
+void mVector<entity_viseme_entry>::destroy_element(entity_viseme_entry **a1)
+{
+    if ( this->is_pointer_in_mash_image(*a1) ) {
+        (*a1)->destruct_mashed_class();
+    } else if ( (*a1) != nullptr ) {
+        delete (*a1);
+    }
+
+    *a1 = nullptr;
+}
+
+template<>
+void mVector<entity_viseme_entry>::clear()
+{
+    if ( this->field_10 )
+    {
+        for ( int i = this->m_size; i > 0; --i ) {
+            this->destroy_element(&this->m_data[i]);
+        }
+    }
+
+    if ( !this->is_pointer_in_mash_image(this->m_data) ) {
+        mem_dealloc(this->m_data, 4 * this->m_max_size);
+    }
+
+    this->m_data = nullptr;
+    this->m_max_size = 0;
+    mContainer_base::clear();
+}
+
+template<>
+void mVector<entity_viseme_entry>::destruct_mashed_class()
+{
+    this->finalize(mash::FROM_MASH);
+    mContainer_base::destruct_mashed_class();
+}
+
+template<>
+void mVector<entity_viseme_entry>::custom_unmash(
+        mash_info_struct *a2,
+        void *)
+{
+    if ( this->m_data != nullptr )
+    {
+        this->m_data = (value_type **) a2->read_from_buffer(4 * this->m_size, 4);
+        for ( int i = 0; i < this->m_size; ++i )
+        {
+            auto &v5 = this->m_data[i];
+            auto *v6 = (value_type *) a2->read_from_buffer(8, 4);
+            v5 = v6;
+            v5->unmash(a2, v6);
+        }
+    }
+
+    this->field_0 = (int)&a2->mash_image_ptr[0][a2->buffer_size_used[0] - (DWORD)this];
 }
