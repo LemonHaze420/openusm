@@ -104,13 +104,13 @@ inline constexpr auto NGLP_SCALE = 0x2;
 inline constexpr auto NGLP_NO_CULLING = 0x40;
 inline constexpr auto NGLP_FORCE_LOD = 0x80;
 
-extern Var<bool> g_valid_texture_format;
+extern bool & g_valid_texture_format;
 
-extern Var<unsigned int> nglTextureAnimFrame;
+extern uint32_t & nglTextureAnimFrame;
 
-extern Var<nglTexture *> nglDefaultTex;
+extern nglTexture *& nglDefaultTex;
 
-extern Var<tlInstanceBank> nglVertexDefBank;
+extern tlInstanceBank & nglVertexDefBank;
 
 enum nglBufferType {
 };
@@ -580,7 +580,7 @@ extern Var<nglPerfomanceInfo> nglSyncPerfInfo;
 
 extern Var<int> nglFrame;
 
-extern Var<nglTexture *> nglWhiteTex;
+extern nglTexture *& nglWhiteTex;
 
 extern Var<int> nglScratchMeshPos;
 

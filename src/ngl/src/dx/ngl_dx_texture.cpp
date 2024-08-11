@@ -10,7 +10,7 @@
 #include <cassert>
 
 void sub_782AC0(int, nglPalette *a2) {
-    if (!g_valid_texture_format()) {
+    if ( !g_valid_texture_format ) {
         IDirect3DDevice9_SetCurrentTexturePalette(g_Direct3DDevice, a2->m_palette_idx);
     }
 }
@@ -30,10 +30,10 @@ void nglDxSetTexture(uint32_t a1, nglTexture *Tex, uint8_t a3, int a4)
             auto v6 = Tex->m_num_palettes;
 
             unsigned int v7;
-            if (nglTextureAnimFrame() < v6) {
-                v7 = nglTextureAnimFrame();
+            if (nglTextureAnimFrame < v6) {
+                v7 = nglTextureAnimFrame;
             } else {
-                v7 = nglTextureAnimFrame() % v6;
+                v7 = nglTextureAnimFrame % v6;
             }
 
             v5 = Tex->Frames[v7];
@@ -61,7 +61,7 @@ void nglDxSetTexture(uint32_t a1, nglTexture *Tex, uint8_t a3, int a4)
 
         if (palette != nullptr)
         {
-            if (g_valid_texture_format() && (Tex->field_34 & 8) != 0 &&
+            if (g_valid_texture_format && (Tex->field_34 & 8) != 0 &&
                 NGLTEX_GET_FORMAT(v5->m_format) == 7)
             {
                 for (auto v11 = 0u; v11 < v5->m_num_palettes; ++v11) {

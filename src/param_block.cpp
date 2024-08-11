@@ -89,6 +89,18 @@ const char *param_block::get_pb_fixedstring(string_hash a2) const {
     return curr_data->get_data_fixedstring();
 }
 
+void param_block::set_pb_int(string_hash a2, int a3, bool a4)
+{
+    if ( a4 ) {
+        this->add_param(a2, static_cast<param_types>(1), &a3, string_hash {0});
+    } else {
+        auto *data = this->param_array->common_find_data(a2);
+        if (data != nullptr) {
+            this->add_param(a2, static_cast<param_types>(1), &a3, string_hash {0});
+        }
+    }
+}
+
 void param_block::set_pb_float(string_hash a2, Float a3, bool a4)
 {
     if ( a4 )

@@ -41,13 +41,13 @@ void texture_resource_handler::handle_resource_internal(tlresource_location *loc
         auto *Tex = nglConstructTexture(tlFixedString{v4}, a3, loc->field_8, loc->get_size());
 
         if (Tex == nullptr) {
-            Tex = nglDefaultTex();
+            Tex = nglDefaultTex;
         }
 
         loc->field_8 = bit_cast<char *>(Tex);
         if (a3 == 1)
         {
-            if (Tex == nglDefaultTex()) {
+            if (Tex == nglDefaultTex) {
                 error("ERROR: multipalette texture not found: %s", loc->name.to_string());
             }
 

@@ -106,7 +106,7 @@ VALIDATE_SIZE(nglRenderTextureState, 0x60);
 
 Var<char[256]> nglMeshPath{0x00972710};
 
-Var<nglTexture *> nglWhiteTex{0x00973840};
+nglTexture *& nglWhiteTex = var<nglTexture *>(0x00973840);
 
 Var<bool> nglLoadingIFL{0x00973844};
 
@@ -114,13 +114,13 @@ Var<int> nglScratchMeshPos{0x00975310};
 
 Var<nglScratchBuffer_t> nglScratchBuffer {0x00972A18};
 
-Var<bool> g_valid_texture_format{0x00971F9D};
+bool & g_valid_texture_format = var<bool>(0x00971F9D);
 
-Var<unsigned int> nglTextureAnimFrame{0x0097383C};
+uint32_t & nglTextureAnimFrame = var<uint32_t>(0x0097383C);
 
-Var<nglTexture *> nglDefaultTex{0x00973838};
+nglTexture *& nglDefaultTex = var<nglTexture *>(0x00973838);
 
-Var<tlInstanceBank> nglVertexDefBank{0x009728A0};
+tlInstanceBank & nglVertexDefBank = var<tlInstanceBank>(0x009728A0);
 
 VALIDATE_SIZE(nglDebugStruct, 0x28);
 VALIDATE_OFFSET(nglDebugStruct, ShowPerfInfo, 0x18);
@@ -1331,7 +1331,7 @@ int nglPalette::sub_782A70(int a2, int a3) {
 }
 
 void nglPalette::sub_782A40() {
-    if (!g_valid_texture_format()) {
+    if (!g_valid_texture_format) {
         IDirect3DDevice9_SetPaletteEntries(g_Direct3DDevice,
                                                       this->m_palette_idx,
                                                       this->m_palette_entries);
@@ -1363,7 +1363,7 @@ void nglTexture::CreateTextureOrSurface()
                 pool = D3DPOOL_DEFAULT;
             }
 
-            if (NGLTEX_GET_FORMAT(v2) == 7 && g_valid_texture_format())
+            if (NGLTEX_GET_FORMAT(v2) == 7 && g_valid_texture_format)
             {
                 auto v9 = this->m_height * this->m_width;
                 this->m_d3d_format = D3DFMT_A8R8G8B8;
@@ -1592,16 +1592,16 @@ void nglInitWhiteTexture()
     TRACE("nglInitWhiteTexture");
 
     if constexpr (0) {
-        nglWhiteTex() = nglCreateTexture(513u, 1, 1, 0, 1);
-        nglDxLockTexture(nglWhiteTex(), 0);
-        nglDxSetTexel8(nglWhiteTex(), 0, 0, -1);
-        nglDxUnlockTexture(nglWhiteTex());
-        nglWhiteTex()->field_60 = tlFixedString{"nglwhite"};
-        nglWhiteTex()->field_34 |= 2u;
+        nglWhiteTex = nglCreateTexture(513u, 1, 1, 0, 1);
+        nglDxLockTexture(nglWhiteTex, 0);
+        nglDxSetTexel8(nglWhiteTex, 0, 0, -1);
+        nglDxUnlockTexture(nglWhiteTex);
+        nglWhiteTex->field_60 = tlFixedString {"nglwhite"};
+        nglWhiteTex->field_34 |= 2u;
 
         void (__fastcall *Add)(void *) = CAST(Add, get_vfunc(nglTextureDirectory()->m_vtbl, 0x10));
 
-        Add(nglWhiteTex());
+        Add(nglWhiteTex);
     } else {
         CDECL_CALL(0x007730E0);
     }
@@ -2648,7 +2648,7 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
 
                     if (auto *v39 = MeshSection->VertexDef; v39 != nullptr) {
                         tlHashString a1 = *(tlHashString *) v39->m_vtbl;
-                        auto *v40 = nglVertexDefBank().Search(a1);
+                        auto *v40 = nglVertexDefBank.Search(a1);
                         if (v40 != nullptr) {
                             MeshSection->VertexDef->field_4 = MeshSection;
 
@@ -3826,7 +3826,7 @@ bool nglLoadTextureTM2_internal(nglTexture *Tex, nglTextureInfo *TexInfo)
         }
 
         Tex->CreateTextureOrSurface();
-        if (LOBYTE(Tex->m_format) != 7 || !g_valid_texture_format()) {
+        if (LOBYTE(Tex->m_format) != 7 || !g_valid_texture_format) {
             sub_783080(Tex, (uint8_t **) &a3, (uint8_t *) TexInfo, a2a);
             TexInfo->Header.field_7B = 77;
             return true;
@@ -3953,7 +3953,7 @@ nglTexture *nglLoadTextureInPlace(const tlFixedString &a1,
             Add(nglTextureDirectory(), nullptr, tex);
             result = tex;
         } else {
-            result = nglDefaultTex();
+            result = nglDefaultTex;
         }
     }
     return result;
@@ -4068,7 +4068,7 @@ void nglRenderQuad(nglQuad *a2)
         nglSetSamplerState(0, D3DSAMP_ADDRESSU, ((a2->field_54 & 0x40) | 0x20u) >> 5);
         nglSetSamplerState(0, D3DSAMP_ADDRESSV, ((a2->field_54 & 0x80) | 0x40u) >> 6);
 
-        nglTextureAnimFrame() = nglCurScene()->IFLFrame;
+        nglTextureAnimFrame = nglCurScene()->IFLFrame;
         nglDxSetTexture(0, m_tex, a2->field_54, 3);
 
         if ( EnableShader ) {
@@ -4900,7 +4900,7 @@ void create_renderer(HWND hWnd)
     s_d3dpresent_params.FullScreen_RefreshRateInHz = (g_Windowed ? 0 : 60);
 
 
-    g_valid_texture_format() = IDirect3D9_CheckDeviceFormat(g_pD3D,
+    g_valid_texture_format = IDirect3D9_CheckDeviceFormat(g_pD3D,
                                                         D3DADAPTER_DEFAULT,
                                                         D3DDEVTYPE_HAL,
                                                         D3DFMT_X8R8G8B8,

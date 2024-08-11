@@ -149,6 +149,8 @@ struct param_block {
     //0x006CDD40
     const char *get_pb_fixedstring(string_hash a2) const;
 
+    void set_pb_int(string_hash a2, int a3, bool a4);
+
     void set_pb_float(string_hash a2, Float a3, bool a4);
 
     //0x006CDC60
