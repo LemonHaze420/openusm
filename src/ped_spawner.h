@@ -61,6 +61,10 @@ struct ped_spawner : spawnable {
 
     static void populate_lanes();
 
+    static ped_spawner * assign_non_ped_actor(vhandle_type<actor> a2, int a3);
+
+    static inline ped_spawner *& next_ped_spawner = var<ped_spawner *>(0x0096C9BC);
+
 };
 
 extern void ped_spawner_patch();

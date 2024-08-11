@@ -140,6 +140,11 @@ void ped_spawner::populate_lanes()
     CDECL_CALL(0x006D0590);
 }
 
+ped_spawner * ped_spawner::assign_non_ped_actor(vhandle_type<actor> a2, int a3)
+{
+    return (ped_spawner *) CDECL_CALL(0x006CAC50, a2, a3);
+}
+
 void ped_spawner_patch()
 {
     {
