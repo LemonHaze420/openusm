@@ -16,10 +16,6 @@ struct string_hash_entry {
 
     ~string_hash_entry();
 
-    void *operator new(size_t sz);
-
-    void operator delete(void *ptr, size_t);
-
     void initialize(mash::allocation_scope, const char *a2, const string_hash *a3);
 
     void finalize(mash::allocation_scope ) {}
