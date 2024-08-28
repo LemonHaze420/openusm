@@ -1114,14 +1114,18 @@ void Input::poll()
 }
 
 BOOL __stdcall sub_821470(const DIDEVICEINSTANCEA *a2, void *arg4) {
-    return (BOOL) STDCALL(0x00821470, a2, arg4);
+    BOOL (__stdcall *func)(const DIDEVICEINSTANCEA *a2, void *) = CAST(func, 0x00821470);
+    return func(a2, arg4);
 }
 
-static Var<int[4]> dword_8C0AAC{0x008C0AAC};
+static auto &dword_8C0AAC = var<int[4]>(0x008C0AAC);
 
-void Input::sub_821490(bool a2) {
-    if constexpr (0) {
+void Input::sub_821490(bool a2)
+{
+    if constexpr (0)
+    {
         std::memset(this->field_4EC, 0, sizeof(this->field_4EC));
+
         this->field_4F0 = 0;
         this->field_4F4 = 0;
         auto v3 = !a2;
@@ -1140,6 +1144,7 @@ void Input::sub_821490(bool a2) {
             v4->lpVtbl->SetCooperativeLevel(v4, this->m_hwnd, 22);
             v4->lpVtbl->Acquire(v4);
         }
+
         if (this->m_di_mouse == nullptr &&
             this->m_din->lpVtbl->CreateDevice(this->m_din, GUID_SysMouse, &tmp, nullptr) >= 0) {
             auto *v5 = tmp;
@@ -1223,11 +1228,11 @@ void Input::sub_821490(bool a2) {
                         v18[2] = v19[2];
                         v18[3] = v19[3];
 
-                        v19[0] = dword_8C0AAC()[0];
-                        v19[1] = dword_8C0AAC()[1];
-                        v19[2] = dword_8C0AAC()[2];
+                        v19[0] = dword_8C0AAC[0];
+                        v19[1] = dword_8C0AAC[1];
+                        v19[2] = dword_8C0AAC[2];
                         v12 = v27;
-                        v19[3] = dword_8C0AAC()[3];
+                        v19[3] = dword_8C0AAC[3];
                         *(v15 - 10) = this->field_14[(uint32_t) v16];
                         auto v20 = this->field_3C[(uint32_t) v16];
                         this->field_14[(uint32_t) v16] = 0;
@@ -1260,9 +1265,11 @@ void Input::sub_821490(bool a2) {
                 --v28;
             } while (!v3);
         }
-        this->field_9 = 0;
 
-    } else {
+        this->field_9 = false;
+    }
+    else
+    {
         THISCALL(0x00821490, this, a2);
     }
 }
