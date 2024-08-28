@@ -12,7 +12,7 @@
 
 VALIDATE_SIZE(FileUSM, 0x10);
 
-Var<FileUSM *> g_fileUSM{0x0096190C};
+FileUSM *& g_fileUSM = var<FileUSM *>(0x0096190C);
 
 void sub_81C5D0(const char *a1, char *a2)
 {

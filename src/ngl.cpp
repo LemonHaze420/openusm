@@ -4876,7 +4876,7 @@ void create_renderer(HWND hWnd)
     IDirect3D9_GetAdapterDisplayMode(g_pD3D, 0, &d3ddm);
 
     if (d3ddm.Format != D3DFMT_A8R8G8B8 && d3ddm.Format != D3DFMT_X8R8G8B8) {
-        auto *v7 = get_msg(g_fileUSM(), "MSGBOX_32BIT");
+        auto *v7 = get_msg(g_fileUSM, "MSGBOX_32BIT");
         MessageBoxA(g_hWnd, v7, "USM.exe", 0x10u);
         exit(255);
     }
@@ -4914,8 +4914,8 @@ void create_renderer(HWND hWnd)
                                           D3DFMT_X8R8G8B8,
                                           D3DFMT_A8R8G8B8,
                                           g_Windowed)) {
-        const char *v8 = get_msg(g_fileUSM(), "MSGBOX_WARNING");
-        const char *v9 = get_msg(g_fileUSM(), "MSGBOX_NOHARDWARE");
+        const char *v8 = get_msg(g_fileUSM, "MSGBOX_WARNING");
+        const char *v9 = get_msg(g_fileUSM, "MSGBOX_NOHARDWARE");
         MessageBoxA(g_hWnd, v9, v8, 0x30u);
         IDirect3D9_CreateDevice(g_pD3D,
                                        D3DADAPTER_DEFAULT,
