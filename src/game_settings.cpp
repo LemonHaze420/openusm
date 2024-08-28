@@ -143,14 +143,14 @@ void game_settings::frame_advance(Float a2)
 
 void game_settings::export_game_options()
 {
-    sound_manager::set_source_type_volume(0, Settings::GameSoundVolume(), 0.0);
-    sound_manager::set_source_type_volume(1u, Settings::GameSoundVolume(), 0.0);
-    sound_manager::set_source_type_volume(2u, Settings::MusicVolume(), 0.0);
-    sound_manager::set_source_type_volume(3u, Settings::GameSoundVolume(), 0.0);
-    sound_manager::set_source_type_volume(4u, Settings::GameSoundVolume(), 0.0);
-    sound_manager::set_source_type_volume(5u, Settings::GameSoundVolume(), 0.0);
-    sound_manager::set_source_type_volume(6u, Settings::GameSoundVolume(), 0.0);
-    sound_manager::set_source_type_volume(7u, Settings::GameSoundVolume(), 0.0);
+    sound_manager::set_source_type_volume(0, Settings::GameSoundVolume, 0.0);
+    sound_manager::set_source_type_volume(1u, Settings::GameSoundVolume, 0.0);
+    sound_manager::set_source_type_volume(2u, Settings::MusicVolume, 0.0);
+    sound_manager::set_source_type_volume(3u, Settings::GameSoundVolume, 0.0);
+    sound_manager::set_source_type_volume(4u, Settings::GameSoundVolume, 0.0);
+    sound_manager::set_source_type_volume(5u, Settings::GameSoundVolume, 0.0);
+    sound_manager::set_source_type_volume(6u, Settings::GameSoundVolume, 0.0);
+    sound_manager::set_source_type_volume(7u, Settings::GameSoundVolume, 0.0);
     auto *v2 = input_mgr::instance->rumble_ptr;
     if (this->field_340.field_31) {
         v2->enable_vibration();
