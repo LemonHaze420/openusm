@@ -12,6 +12,8 @@ VALIDATE_SIZE(Input, 0x129E8u);
 
 VALIDATE_OFFSET(Input, m_din, 0x27EC);
 
+Input *& dword_965DDC = var<Input *>(0x00965DDC);
+
 static Var<HRESULT(__stdcall *)(
     HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID *ppvOut, LPUNKNOWN punkOuter)>
     p_DirectInput8Create{0x00987944};
@@ -298,7 +300,8 @@ void Input::set_key(int index, const char *a3) {
     strcpy(this->m_keys[index], a3);
 }
 
-bool Input::initialize(HWND a2) {
+bool Input::initialize(HWND a2)
+{
     if constexpr (1) {
         if (this->m_initialized) {
             return true;
@@ -383,43 +386,43 @@ bool Input::initialize(HWND a2) {
             strcpy(this->m_keys[DIK_LEFT], "LEFT");
             strcpy(this->m_keys[DIK_DOWN], "DOWN");
             strcpy(this->m_keys[DIK_RIGHT], "RIGHT");
-            strcpy(this->m_keys[211], "DEL");
-            strcpy(this->m_keys[210], "INS");
+            strcpy(this->m_keys[DIK_DELETE], "DEL");
+            strcpy(this->m_keys[DIK_INSERT], "INS");
             strcpy(this->m_keys[DIK_END], "END");
             strcpy(this->m_keys[DIK_NEXT], "PGDWN");
-            strcpy(this->m_keys[179], "KP,");
-            strcpy(this->m_keys[83], "KP.");
+            strcpy(this->m_keys[DIK_NUMPADCOMMA], "KP,");
+            strcpy(this->m_keys[DIK_DECIMAL], "KP.");
             strcpy(this->m_keys[DIK_NUMPADENTER], "KPEnter");
             strcpy(this->m_keys[DIK_DIVIDE], "/");
             strcpy(this->m_keys[DIK_SUBTRACT], "-");
-            strcpy(this->m_keys[69], "NumL");
+            strcpy(this->m_keys[DIK_NUMLOCK], "NumL");
             strcpy(this->m_keys[DIK_ADD], "+");
-            strcpy(this->m_keys[55], "*");
-            strcpy(this->m_keys[82], "KP0");
-            strcpy(this->m_keys[79], "KP1");
-            strcpy(this->m_keys[80], "KP2");
-            strcpy(this->m_keys[81], "KP3");
-            strcpy(this->m_keys[75], "KP4");
-            strcpy(this->m_keys[76], "KP5");
-            strcpy(this->m_keys[77], "KP6");
-            strcpy(this->m_keys[71], "KP7");
-            strcpy(this->m_keys[72], "KP8");
-            strcpy(this->m_keys[73], "KP9");
-            strcpy(this->m_keys[59], "F1");
-            strcpy(this->m_keys[60], "F2");
-            strcpy(this->m_keys[61], "F3");
-            strcpy(this->m_keys[62], "F4");
-            strcpy(this->m_keys[63], "F5");
-            strcpy(this->m_keys[64], "F6");
-            strcpy(this->m_keys[65], "F7");
-            strcpy(this->m_keys[66], "F8");
-            strcpy(this->m_keys[67], "F9");
-            strcpy(this->m_keys[68], "F10");
-            strcpy(this->m_keys[87], "F11");
-            strcpy(this->m_keys[88], "F12");
-            strcpy(this->m_keys[100], "F13");
-            strcpy(this->m_keys[101], "F14");
-            strcpy(this->m_keys[102], "F15");
+            strcpy(this->m_keys[DIK_MULTIPLY], "*");
+            strcpy(this->m_keys[DIK_NUMPAD0], "KP0");
+            strcpy(this->m_keys[DIK_NUMPAD1], "KP1");
+            strcpy(this->m_keys[DIK_NUMPAD2], "KP2");
+            strcpy(this->m_keys[DIK_NUMPAD3], "KP3");
+            strcpy(this->m_keys[DIK_NUMPAD4], "KP4");
+            strcpy(this->m_keys[DIK_NUMPAD5], "KP5");
+            strcpy(this->m_keys[DIK_NUMPAD6], "KP6");
+            strcpy(this->m_keys[DIK_NUMPAD7], "KP7");
+            strcpy(this->m_keys[DIK_NUMPAD8], "KP8");
+            strcpy(this->m_keys[DIK_NUMPAD9], "KP9");
+            strcpy(this->m_keys[DIK_F1], "F1");
+            strcpy(this->m_keys[DIK_F2], "F2");
+            strcpy(this->m_keys[DIK_F3], "F3");
+            strcpy(this->m_keys[DIK_F4], "F4");
+            strcpy(this->m_keys[DIK_F5], "F5");
+            strcpy(this->m_keys[DIK_F6], "F6");
+            strcpy(this->m_keys[DIK_F7], "F7");
+            strcpy(this->m_keys[DIK_F8], "F8");
+            strcpy(this->m_keys[DIK_F9], "F9");
+            strcpy(this->m_keys[DIK_F10], "F10");
+            strcpy(this->m_keys[DIK_F11], "F11");
+            strcpy(this->m_keys[DIK_F12], "F12");
+            strcpy(this->m_keys[DIK_F13], "F13");
+            strcpy(this->m_keys[DIK_F14], "F14");
+            strcpy(this->m_keys[DIK_F15], "F15");
             this->m_initialized = true;
         }
 
@@ -1282,8 +1285,29 @@ bool Input::sub_820590(int a2) {
     return result;
 }
 
+char * Input::sub_81FD40(int a2)
+{
+    static char byte_987954[44] {};
+    uint8_t *v2 = bit_cast<uint8_t *>(this) + 16 * a2;
+    sprintf(
+            byte_987954,
+            "%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X",
+            this->field_27F0[a2][0],
+            *((uint16_t *)v2 + 5114),
+            *((uint16_t *)v2 + 5115),
+            v2[10232],
+            v2[10233],
+            v2[10234],
+            v2[10235],
+            v2[10236],
+            v2[10237],
+            v2[10238],
+            v2[10239]);
+    return byte_987954;
+}
+
 void Input::create_inst() {
-    instance() = new Input{};
+    instance = new Input{};
 }
 
 void Input_patch() {

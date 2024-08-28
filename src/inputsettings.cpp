@@ -7,11 +7,11 @@
 #include "trace.h"
 #include "utility.h"
 
-Var<InputSettings *> g_inputSettingsMenu{0x00965C0C};
-Var<InputSettings *> g_inputSettingsInGame{0x00965C10};
-Var<InputSettings *> g_inputSettings2{0x00965C14};
-Var<InputSettings *> g_inputSettings3{0x00965C18};
-Var<InputSettings *> g_inputSettings4{0x00965C1C};
+InputSettings *& g_inputSettingsMenu = var<InputSettings *>(0x00965C0C);
+InputSettings *& g_inputSettingsInGame = var<InputSettings *>(0x00965C10);
+InputSettings *& g_inputSettings2 = var<InputSettings *>(0x00965C14);
+InputSettings *& g_inputSettings3 = var<InputSettings *>(0x00965C18);
+InputSettings *& g_inputSettings4 = var<InputSettings *>(0x00965C1C);
 
 VALIDATE_SIZE(InputSettings, 0xE2Cu);
 
@@ -198,7 +198,7 @@ float InputSettings::internal_struct::get_state(InputAction a2) const
 }
 
 void sub_5828B0() {
-    auto v0 = Input::instance()->sub_820080();
+    auto v0 = Input::instance->sub_820080();
     if (v0 > 4) {
         v0 = 4;
     }
@@ -207,12 +207,12 @@ void sub_5828B0() {
     if (v0 > 0) {
         auto v2 = v0;
         do {
-            g_inputSettingsMenu()->field_18.set(InputAction::Jump, v1, (InputType) v1, 21);
-            g_inputSettingsMenu()->field_18.set(InputAction::Kick, v1, (InputType) v1, 24);
-            g_inputSettingsMenu()->field_18.set(InputAction::Forward, v1, (InputType) v1, 4);
-            g_inputSettingsMenu()->field_18.set(InputAction::Backward, v1, (InputType) v1, 3);
-            g_inputSettingsMenu()->field_18.set(InputAction::TurnLeft, v1, (InputType) v1, 2);
-            g_inputSettingsMenu()->field_18.set(InputAction::TurnRight, v1, (InputType) v1, 1);
+            g_inputSettingsMenu->field_18.set(InputAction::Jump, v1, (InputType) v1, 21);
+            g_inputSettingsMenu->field_18.set(InputAction::Kick, v1, (InputType) v1, 24);
+            g_inputSettingsMenu->field_18.set(InputAction::Forward, v1, (InputType) v1, 4);
+            g_inputSettingsMenu->field_18.set(InputAction::Backward, v1, (InputType) v1, 3);
+            g_inputSettingsMenu->field_18.set(InputAction::TurnLeft, v1, (InputType) v1, 2);
+            g_inputSettingsMenu->field_18.set(InputAction::TurnRight, v1, (InputType) v1, 1);
             ++v1;
             --v2;
         } while (v2);
@@ -221,15 +221,15 @@ void sub_5828B0() {
 
 bool sub_582630(BOOL Data)
 {
-    auto *v1 = &g_inputSettingsInGame()->field_18;
-    Settings::MouseLook() = Data;
+    auto *v1 = &g_inputSettingsInGame->field_18;
+    Settings::MouseLook = Data;
     if ( Data )
     {
         v1->set_mouse(static_cast<InputAction>(22u), 3u, InputMouse::LookLeft);
         v1->set_mouse(static_cast<InputAction>(23u), 3u, InputMouse::LookRight);
         v1->set_mouse(static_cast<InputAction>(20u), 3u, InputMouse::LookUp);
         v1->set_mouse(static_cast<InputAction>(21u), 3u, InputMouse::LookDown);
-        return g_settings()->sub_81CF80("Settings\\MouseLook", Data);
+        return g_settings->sub_81CF80("Settings\\MouseLook", Data);
     }
     else
     {
@@ -237,7 +237,7 @@ bool sub_582630(BOOL Data)
         v1->clear(23, 3);
         v1->clear(20, 3);
         v1->clear(21, 3);
-        return g_settings()->sub_81CF80("Settings\\MouseLook", 0);
+        return g_settings->sub_81CF80("Settings\\MouseLook", 0);
     }
 }
 

@@ -629,8 +629,8 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) 
                     if (byte_965BF7) {
                         byte_922994 = true;
                         dword_922908 = 2;
-                        g_cursor()->sub_5B0D70();
-                        g_cursor()->field_120 = true;
+                        g_cursor->sub_5B0D70();
+                        g_cursor->field_120 = true;
                     }
 
                     return 0;
@@ -650,7 +650,7 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) 
                         return DefWindowProcA(hWnd, Msg, wParam, lParam);
                     }
 
-                    g_timer()->sub_582180();
+                    g_timer->sub_582180();
                     return DefWindowProcA(hWnd, Msg, wParam, lParam);
                 }
                 case WM_SETCURSOR: {
@@ -662,7 +662,7 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) 
                     return 0;
                 }
                 case WM_KEYDOWN: {
-                    g_cursor()->sub_5B0D70();
+                    g_cursor->sub_5B0D70();
                     goto LABEL_5;
                 }
                 default:
@@ -925,7 +925,7 @@ void sub_5952D0()
         operator delete(dword_965C24[12]);
         operator delete(dword_965C24[13]);
 
-        Input::instance()->sub_821490(true);
+        Input::instance->sub_821490(true);
 
         struct {
             char field_0[16];
@@ -994,7 +994,7 @@ void sub_5952D0()
 
             uint32_t v0 = ( v29.field_34 
                             ? v29.field_30
-                            : g_settings()->sub_81D010(Dest, v29.field_30)
+                            : g_settings->sub_81D010(Dest, v29.field_30)
                             );
 
             const uint16_t v23 = v0;
@@ -1002,13 +1002,13 @@ void sub_5952D0()
             sprintf(Dest, "Controls\\Player%d\\%s2", 1, v29.field_0);
             uint32_t v1 = ( v29.field_3C
                             ? v29.field_38
-                            : g_settings()->sub_81D010(Dest, v29.field_38));
+                            : g_settings->sub_81D010(Dest, v29.field_38));
 
             const uint16_t v27 = v1;
 
             sprintf(Dest, "Controls\\Player%d\\%s3", 1, v29.field_0);
-            uint32_t v2 = g_settings()->sub_81D010(Dest, 0);
-            if (v2 == 0 && Input::instance()->sub_820080() > 0) {
+            uint32_t v2 = g_settings->sub_81D010(Dest, 0);
+            if (v2 == 0 && Input::instance->sub_820080() > 0) {
                 v2 = v29.field_40;
             }
 
@@ -1017,24 +1017,24 @@ void sub_5952D0()
             InputType v4 = static_cast<InputType>(HIWORD(v0));
             sp_log("%d, %d, %d", v4, v0, v23);
 
-            g_inputSettingsInGame()->field_18.set(v22, 0, v4, v23);
+            g_inputSettingsInGame->field_18.set(v22, 0, v4, v23);
 
             InputType v5 = static_cast<InputType>(HIWORD(v1));
-            g_inputSettingsInGame()->field_18.set(v22, 1u, v5, v27);
+            g_inputSettingsInGame->field_18.set(v22, 1u, v5, v27);
 
             InputType v6 = static_cast<InputType>(HIWORD(v2));
-            g_inputSettingsInGame()->field_18.set(v22, 2u, v6, v28);
+            g_inputSettingsInGame->field_18.set(v22, 2u, v6, v28);
 
             if (v22 == InputAction::Pause)
             {
-                g_inputSettingsMenu()->field_18.set(InputAction::Kick, 0, v4, v23);
-                g_inputSettingsMenu()->field_18.set(InputAction::Kick, 1u, v5, v27);
-                g_inputSettingsMenu()->field_18.set(InputAction::Kick, 2u, v6, v28);
+                g_inputSettingsMenu->field_18.set(InputAction::Kick, 0, v4, v23);
+                g_inputSettingsMenu->field_18.set(InputAction::Kick, 1u, v5, v27);
+                g_inputSettingsMenu->field_18.set(InputAction::Kick, 2u, v6, v28);
             }
 
             if (v22 == InputAction::Forward && v4 == InputType::Key && v23 != 200)
             {
-                g_inputSettingsMenu()->field_18.set_key(v22, 1u, v23);
+                g_inputSettingsMenu->field_18.set_key(v22, 1u, v23);
             }
             else
             {
@@ -1043,7 +1043,7 @@ void sub_5952D0()
                 {
                     v8 = v23;
                     if (v23 != 208) {
-                        g_inputSettingsMenu()->field_18.set_key(v22, 1u, v23);
+                        g_inputSettingsMenu->field_18.set_key(v22, 1u, v23);
                     }
 
                 } else {
@@ -1052,20 +1052,20 @@ void sub_5952D0()
 
                 if ((v22 == InputAction::TurnLeft && v4 == InputType::Key && v8 != 203) ||
                     (v22 == InputAction::TurnRight && v4 == InputType::Key && v8 != 205)) {
-                    g_inputSettingsMenu()->field_18.set_key(v22, 1u, v23);
+                    g_inputSettingsMenu->field_18.set_key(v22, 1u, v23);
                 }
             }
 
             if (v22 == InputAction::Pause)
             {
                 if (v4 == InputType::Joy && v23 != 21 && v23 != 24) {
-                    g_inputSettingsMenu()->field_18.set(InputAction::Pause, 1u, InputType::Joy, v23);
+                    g_inputSettingsMenu->field_18.set(InputAction::Pause, 1u, InputType::Joy, v23);
                 }
 
                 if (v22 == InputAction::Pause)
                 {
                     if (v5 == InputType::Joy && v23 != 21 && v27 != 24) {
-                        g_inputSettingsMenu()->field_18.set(InputAction::Pause,
+                        g_inputSettingsMenu->field_18.set(InputAction::Pause,
                                                             1u,
                                                             InputType::Joy,
                                                             v27);
@@ -1076,7 +1076,7 @@ void sub_5952D0()
                             && v23 != 21
                             && v28 != 24)
                     {
-                        g_inputSettingsMenu()->field_18.set(InputAction::Pause,
+                        g_inputSettingsMenu->field_18.set(InputAction::Pause,
                                                             1u,
                                                             InputType::Joy,
                                                             v28);
@@ -1085,12 +1085,12 @@ void sub_5952D0()
             }
 
             const char *v10;
-            auto *v9 = Input::instance()->get_string(v4, v23);
-            if (v9 != nullptr || (v9 = Input::instance()->get_string(v5, v27)) != nullptr ||
-                (v9 = Input::instance()->get_string(v6, v28)) != nullptr) {
+            auto *v9 = Input::instance->get_string(v4, v23);
+            if (v9 != nullptr || (v9 = Input::instance->get_string(v5, v27)) != nullptr ||
+                (v9 = Input::instance->get_string(v6, v28)) != nullptr) {
                 v10 = v9;
             } else {
-                v10 = get_msg(g_fileUSM(), "NONE");
+                v10 = get_msg(g_fileUSM, "NONE");
             }
 
             auto *v12 = static_cast<char *>(operator new(255u));
@@ -1159,29 +1159,30 @@ void sub_5952D0()
         }
 
         sub_5828B0();
-        g_inputSettingsMenu()->field_18.set_key(InputAction::Jump, 0, DIK_RETURN);
-        g_inputSettingsMenu()->field_18.set_key(InputAction::Kick, 0, DIK_ESCAPE);
-        g_inputSettingsMenu()->field_18.set_key(InputAction::Pause, 0, DIK_SPACE);
-        g_inputSettingsMenu()->field_18.set_key(InputAction::Forward, 0, DIK_UP);
-        g_inputSettingsMenu()->field_18.set_key(InputAction::Backward, 0, DIK_DOWN);
-        g_inputSettingsMenu()->field_18.set_key(InputAction::TurnLeft, 0, DIK_LEFT);
-        g_inputSettingsMenu()->field_18.set_key(InputAction::TurnRight, 0, DIK_RIGHT);
 
-        *g_inputSettings2() = *g_inputSettingsInGame();
-        g_inputSettings2()->field_18.find_and_clear(InputType::Mouse, 9);
-        g_inputSettings2()->field_18.find_and_clear(InputType::Mouse, 10);
+        g_inputSettingsMenu->field_18.set_key(InputAction::Jump, 0, DIK_RETURN);
+        g_inputSettingsMenu->field_18.set_key(InputAction::Kick, 0, DIK_ESCAPE);
+        g_inputSettingsMenu->field_18.set_key(InputAction::Pause, 0, DIK_SPACE);
+        g_inputSettingsMenu->field_18.set_key(InputAction::Forward, 0, DIK_UP);
+        g_inputSettingsMenu->field_18.set_key(InputAction::Backward, 0, DIK_DOWN);
+        g_inputSettingsMenu->field_18.set_key(InputAction::TurnLeft, 0, DIK_LEFT);
+        g_inputSettingsMenu->field_18.set_key(InputAction::TurnRight, 0, DIK_RIGHT);
 
-        *g_inputSettings4() = *g_inputSettingsInGame();
-        g_inputSettings4()->field_18.find_and_clear(InputType::Key);
-        g_inputSettings4()->field_18.set_key(InputAction::Jump, 3u, DIK_RETURN);
-        g_inputSettings4()->field_18.set_key(InputAction::Kick, 3u, DIK_ESCAPE);
-        g_inputSettings4()->field_18.set_key(InputAction::Pause, 3u, DIK_SPACE);
-        g_inputSettings4()->field_18.set_key(InputAction::Forward, 3u, DIK_UP);
-        g_inputSettings4()->field_18.set_key(InputAction::Backward, 3u, DIK_DOWN);
-        g_inputSettings4()->field_18.set_key(InputAction::TurnLeft, 3u, DIK_LEFT);
-        g_inputSettings4()->field_18.set_key(InputAction::TurnRight, 3u, DIK_RIGHT);
-        g_inputSettings4()->field_18.find_and_clear(InputType::Mouse, 9);
-        g_inputSettings4()->field_18.find_and_clear(InputType::Mouse, 10);
+        *g_inputSettings2 = *g_inputSettingsInGame;
+        g_inputSettings2->field_18.find_and_clear(InputType::Mouse, 9);
+        g_inputSettings2->field_18.find_and_clear(InputType::Mouse, 10);
+
+        *g_inputSettings4 = *g_inputSettingsInGame;
+        g_inputSettings4->field_18.find_and_clear(InputType::Key);
+        g_inputSettings4->field_18.set_key(InputAction::Jump, 3u, DIK_RETURN);
+        g_inputSettings4->field_18.set_key(InputAction::Kick, 3u, DIK_ESCAPE);
+        g_inputSettings4->field_18.set_key(InputAction::Pause, 3u, DIK_SPACE);
+        g_inputSettings4->field_18.set_key(InputAction::Forward, 3u, DIK_UP);
+        g_inputSettings4->field_18.set_key(InputAction::Backward, 3u, DIK_DOWN);
+        g_inputSettings4->field_18.set_key(InputAction::TurnLeft, 3u, DIK_LEFT);
+        g_inputSettings4->field_18.set_key(InputAction::TurnRight, 3u, DIK_RIGHT);
+        g_inputSettings4->field_18.find_and_clear(InputType::Mouse, 9);
+        g_inputSettings4->field_18.find_and_clear(InputType::Mouse, 10);
     } 
     else
     {
@@ -1346,10 +1347,10 @@ int __stdcall myWinMain(HINSTANCE hInstance,
         return 0;
     }
 
-    g_settings() = new Settings{"Activision", "Ultimate Spider-Man"};
+    g_settings = new Settings{"Activision", "Ultimate Spider-Man"};
 
     char v6;
-    switch (g_settings()->sub_81D010("Settings\\Language", 0)) {
+    switch (g_settings->sub_81D010("Settings\\Language", 0)) {
     case 1:
         v6 = 'f';
         break;
@@ -1370,14 +1371,14 @@ int __stdcall myWinMain(HINSTANCE hInstance,
     char Dest[100];
     sprintf(Dest, "data\\usm_lt%c.usm", v6);
 
-    g_fileUSM() = create_usm_file(Dest, nullptr);
+    g_fileUSM = create_usm_file(Dest, nullptr);
 
     static Var<CHAR[]> DirectoryName{0x0088FAF8};
     ULARGE_INTEGER TotalNumberOfFreeBytes;
     GetDiskFreeSpaceExA(DirectoryName(), nullptr, nullptr, &TotalNumberOfFreeBytes);
     if (TotalNumberOfFreeBytes.QuadPart < 0xA00000) {
-        auto *v162 = get_msg(g_fileUSM(), "MSGBOX_ERROR");
-        auto *v7 = get_msg(g_fileUSM(), "MSGBOX_SPACE");
+        auto *v162 = get_msg(g_fileUSM, "MSGBOX_ERROR");
+        auto *v7 = get_msg(g_fileUSM, "MSGBOX_SPACE");
 
         MessageBoxA(nullptr, v7, v162, 0x10u);
         return 0;
@@ -1385,8 +1386,8 @@ int __stdcall myWinMain(HINSTANCE hInstance,
 
     if (!CheckDirectXVersionViaDxDiag(9, 0, 'c'))
     {
-        auto *v162 = get_msg(g_fileUSM(), "MSGBOX_ERROR");
-        auto *v7 = get_msg(g_fileUSM(), "MSGBOX_DX9");
+        auto *v162 = get_msg(g_fileUSM, "MSGBOX_ERROR");
+        auto *v7 = get_msg(g_fileUSM, "MSGBOX_DX9");
 
         MessageBoxA(nullptr, v7, v162, 0x10u);
         return 0;
@@ -1412,7 +1413,7 @@ int __stdcall myWinMain(HINSTANCE hInstance,
 
     sub_5C9EA0();
 
-    g_timer() = new Timer{30.0, 30.0};
+    g_timer = new Timer{30.0, 30.0};
 
     sub_81C1A0();
 
@@ -1421,7 +1422,7 @@ int __stdcall myWinMain(HINSTANCE hInstance,
     Input::create_inst();
 
     char Str[12];
-    g_settings()->sub_81CFA0("Settings\\Resolution", "800x600", Str, 10u);
+    g_settings->sub_81CFA0("Settings\\Resolution", "800x600", Str, 10u);
 
     char *v11 = strtok(Str, "x");
     g_cx = atoi(v11);
@@ -1430,11 +1431,11 @@ int __stdcall myWinMain(HINSTANCE hInstance,
 
     flt_965BDC = g_cy * 0.011029412 - 5.29;
 
-    g_distance_clipping_enabled = g_settings()->sub_81D050("Settings\\DistanceClipping", 0);
-    g_distance_clipping = g_settings()->sub_81D010("Settings\\Distance", 50);
-    g_player_shadows_enabled = g_settings()->sub_81D050("Settings\\DetailedShadows", 1);
+    g_distance_clipping_enabled = g_settings->sub_81D050("Settings\\DistanceClipping", 0);
+    g_distance_clipping = g_settings->sub_81D010("Settings\\Distance", 50);
+    g_player_shadows_enabled = g_settings->sub_81D050("Settings\\DetailedShadows", 1);
     g_enable_stencil_shadows = g_player_shadows_enabled;
-    ChromeEffect = g_settings()->sub_81D050("Settings\\ChromeEffect", 1);
+    ChromeEffect = g_settings->sub_81D050("Settings\\ChromeEffect", 1);
 
     register_class_and_create_window("Render Window",
                                      "Ultimate Spider-Man",
@@ -1512,241 +1513,87 @@ int __stdcall myWinMain(HINSTANCE hInstance,
     get_path(v174, "Save", byte_965AD0, 260u);
     create_directory(byte_965AD0);
 
-    Input::instance()->field_129D0 = 1;
+    Input::instance->field_129D0 = 1;
 
-    g_inputSettingsMenu() = new InputSettings{};
-    g_inputSettingsInGame() = new InputSettings{};
-    g_inputSettings2() = new InputSettings{};
-    g_inputSettings3() = new InputSettings{};
-    g_inputSettings4() = new InputSettings{};
+    g_inputSettingsMenu = new InputSettings{};
+    g_inputSettingsInGame = new InputSettings{};
+    g_inputSettings2 = new InputSettings{};
+    g_inputSettings3 = new InputSettings{};
+    g_inputSettings4 = new InputSettings{};
 
-    g_inputSettingsInGame()->field_18.sub_821E70();
+    g_inputSettingsInGame->field_18.sub_821E70();
 
     char Source[260];
     char Type[40];
 
-    for (int i{0}; i < 10; ++i) {
+    for (int i{0}; i < 10; ++i)
+    {
         sprintf(Source, "Controls\\Gamepads\\PadID%d", i + 1);
-        g_settings()->sub_81CFA0(Source, "00000000-0000-0000-0000-000000000000", Type, 37u);
+        g_settings->sub_81CFA0(Source, "00000000-0000-0000-0000-000000000000", Type, 37u);
 
-        Input::instance()->sub_81FC00(i, Type);
+        Input::instance->sub_81FC00(i, Type);
     }
 
-    Input::instance()->initialize(g_appHwnd);
+    Input::instance->initialize(g_appHwnd);
 
-    auto *v30 = get_msg(g_fileUSM(), "MouseWheelDown");
-    auto *v31 = get_msg(g_fileUSM(), "MouseWheelUp");
-    auto *v32 = get_msg(g_fileUSM(), "MouseAxis");
-    auto *v33 = get_msg(g_fileUSM(), "MouseBtn");
-    auto *v34 = get_msg(g_fileUSM(), "MouseMiddle");
-    auto *v35 = get_msg(g_fileUSM(), "MouseRight");
-    auto *v36 = get_msg(g_fileUSM(), "MouseLeft");
+    auto *v30 = get_msg(g_fileUSM, "MouseWheelDown");
+    auto *v31 = get_msg(g_fileUSM, "MouseWheelUp");
+    auto *v32 = get_msg(g_fileUSM, "MouseAxis");
+    auto *v33 = get_msg(g_fileUSM, "MouseBtn");
+    auto *v34 = get_msg(g_fileUSM, "MouseMiddle");
+    auto *v35 = get_msg(g_fileUSM, "MouseRight");
+    auto *v36 = get_msg(g_fileUSM, "MouseLeft");
 
-    Input::instance()->set_mouse(v36, v35, v34, v33, v32, v31, v30);
+    Input::instance->set_mouse(v36, v35, v34, v33, v32, v31, v30);
 
-    auto *v38 = get_msg(g_fileUSM(), "GamepadBtn");
-    auto *v39 = get_msg(g_fileUSM(), "GamepadPoV");
-    auto *v40 = get_msg(g_fileUSM(), "GamepadAxis");
-    Input::instance()->set_gamepad(v40, v39, v38);
+    auto *v38 = get_msg(g_fileUSM, "GamepadBtn");
+    auto *v39 = get_msg(g_fileUSM, "GamepadPoV");
+    auto *v40 = get_msg(g_fileUSM, "GamepadAxis");
+    Input::instance->set_gamepad(v40, v39, v38);
 
-    auto *v42 = get_msg(g_fileUSM(), "ESC");
+    auto setKey = [](int key, const char *str) -> void {
+        auto *v42 = get_msg(g_fileUSM, str);
+        Input::instance->set_key(key, v42);
+    };
 
-    Input::instance()->set_key(1, v42);
-
-    auto *v44 = get_msg(g_fileUSM(), "BACK");
-    Input::instance()->set_key(14, v44);
-
-    auto *v46 = get_msg(g_fileUSM(), "TAB");
-    Input::instance()->set_key(15, v46);
-
-    auto *v48 = get_msg(g_fileUSM(), "ENTER");
-    Input::instance()->set_key(28, v48);
-
-    auto *v50 = get_msg(g_fileUSM(), "RCTRL");
-    Input::instance()->set_key(157, v50);
-
-    auto *v52 = get_msg(g_fileUSM(), "LCTRL");
-    Input::instance()->set_key(29, v52);
-
-    auto *v54 = get_msg(g_fileUSM(), "LSHIFT");
-    Input::instance()->set_key(42, v54);
-
-    auto *v56 = get_msg(g_fileUSM(), "RSHIFT");
-    Input::instance()->set_key(54, v56);
-
-    auto *v58 = get_msg(g_fileUSM(), "SPACE");
-    Input::instance()->set_key(57, v58);
-
-    auto *v60 = get_msg(g_fileUSM(), "CAPSL");
-    Input::instance()->set_key(58, v60);
-
-    auto *v62 = get_msg(g_fileUSM(), "SCROLL");
-    Input::instance()->set_key(70, v62);
-
-    auto *v64 = get_msg(g_fileUSM(), "LALT");
-    Input::instance()->set_key(56, v64);
-
-    auto *v66 = get_msg(g_fileUSM(), "RALT");
-    Input::instance()->set_key(184, v66);
-
-    auto *v68 = get_msg(g_fileUSM(), "PAUSE");
-    Input::instance()->set_key(197, v68);
-
-    auto *v70 = get_msg(g_fileUSM(), "HOME");
-    Input::instance()->set_key(199, v70);
-
-    auto *v72 = get_msg(g_fileUSM(), "PGUP");
-    Input::instance()->set_key(201, v72);
-
-    auto *v74 = get_msg(g_fileUSM(), "UP");
-    Input::instance()->set_key(200, v74);
-
-    auto *v76 = get_msg(g_fileUSM(), "LEFT");
-    Input::instance()->set_key(203, v76);
-
-    auto *v78 = get_msg(g_fileUSM(), "DOWN");
-    Input::instance()->set_key(208, v78);
-
-    auto *v80 = get_msg(g_fileUSM(), "RIGHT");
-    Input::instance()->set_key(205, v80);
-
-    auto *v82 = get_msg(g_fileUSM(), "DEL");
-    Input::instance()->set_key(211, v82);
-
-    auto *v84 = get_msg(g_fileUSM(), "INS");
-    Input::instance()->set_key(210, v84);
-
-    auto *v86 = get_msg(g_fileUSM(), "END");
-    Input::instance()->set_key(207, v86);
-
-    auto *v88 = get_msg(g_fileUSM(), "PGDWN");
-    Input::instance()->set_key(209, v88);
-
-    auto *v90 = get_msg(g_fileUSM(), "MENU");
-    Input::instance()->set_key(221, v90);
-
-    auto *v92 = get_msg(g_fileUSM(), "KP,");
-    Input::instance()->set_key(179, v92);
-
-    auto *v94 = get_msg(g_fileUSM(), "KP.");
-    Input::instance()->set_key(83, v94);
-
-    auto *v96 = get_msg(g_fileUSM(), "KPEnter");
-    Input::instance()->set_key(156, v96);
-
-    auto *v98 = get_msg(g_fileUSM(), "NumL");
-    Input::instance()->set_key(69, v98);
-
-    auto *v100 = get_msg(g_fileUSM(), "KP0");
-    Input::instance()->set_key(82, v100);
-
-    auto *v102 = get_msg(g_fileUSM(), "KP1");
-    Input::instance()->set_key(79, v102);
-
-    auto *v104 = get_msg(g_fileUSM(), "KP2");
-    Input::instance()->set_key(80, v104);
-
-    auto *v106 = get_msg(g_fileUSM(), "KP3");
-    Input::instance()->set_key(81, v106);
-
-    auto *v108 = get_msg(g_fileUSM(), "KP4");
-    Input::instance()->set_key(75, v108);
-
-    auto *v110 = get_msg(g_fileUSM(), "KP5");
-    Input::instance()->set_key(76, v110);
-
-    auto *v112 = get_msg(g_fileUSM(), "KP6");
-    Input::instance()->set_key(77, v112);
-
-    auto *v114 = get_msg(g_fileUSM(), "KP7");
-    Input::instance()->set_key(71, v114);
-
-    auto *v116 = get_msg(g_fileUSM(), "KP8");
-    Input::instance()->set_key(72, v116);
-
-    auto *v118 = get_msg(g_fileUSM(), "KP9");
-    Input::instance()->set_key(73, v118);
-
-    auto *v120 = get_msg(g_fileUSM(), "F1");
-    Input::instance()->set_key(59, v120);
-
-    auto *v122 = get_msg(g_fileUSM(), "F2");
-    Input::instance()->set_key(60, v122);
-
-    auto *v124 = get_msg(g_fileUSM(), "F3");
-    Input::instance()->set_key(61, v124);
-
-    auto *v126 = get_msg(g_fileUSM(), "F4");
-    Input::instance()->set_key(62, v126);
-
-    auto *v128 = get_msg(g_fileUSM(), "F5");
-    Input::instance()->set_key(63, v128);
-
-    auto *v130 = get_msg(g_fileUSM(), "F6");
-    Input::instance()->set_key(64, v130);
-
-    auto *v132 = get_msg(g_fileUSM(), "F7");
-    Input::instance()->set_key(65, v132);
-
-    auto *v134 = get_msg(g_fileUSM(), "F8");
-    Input::instance()->set_key(66, v134);
-
-    auto *v136 = get_msg(g_fileUSM(), "F9");
-    Input::instance()->set_key(67, v136);
-
-    auto *v138 = get_msg(g_fileUSM(), "F10");
-    Input::instance()->set_key(68, v138);
-
-    auto *v140 = get_msg(g_fileUSM(), "F11");
-    Input::instance()->set_key(87, v140);
-
-    auto *v142 = get_msg(g_fileUSM(), "F12");
-    Input::instance()->set_key(88, v142);
-
-    auto *v144 = get_msg(g_fileUSM(), "F13");
-    Input::instance()->set_key(100, v144);
-
-    auto *v146 = get_msg(g_fileUSM(), "F14");
-    Input::instance()->set_key(101, v146);
-
-    auto *v148 = get_msg(g_fileUSM(), "F15");
-    Input::instance()->set_key(102, v148);
+    for ( auto &key : Input::keyConstants ) {
+        setKey(key.first, key.second);
+    }
 
     sub_5952D0();
 
-    static Var<RTL_CRITICAL_SECTION> CriticalSection = {0x009618F4};
-    InitializeCriticalSection(&CriticalSection());
+    InitializeCriticalSection(&g_CriticalSection);
 
-    Input::instance()->sub_8203F0(0, g_inputSettingsMenu());
-    Input::instance()->sub_81FB90(1);
+    Input::instance->sub_8203F0(0, g_inputSettingsMenu);
+    Input::instance->sub_81FB90(1);
 
-    Settings::MouseLook() = g_settings()->sub_81D010("Settings\\MouseLook", 1) != 0;
-    if (Settings::MouseLook()) {
-        Settings::InvertCameraH() = g_settings()->sub_81D050("Settings\\InvertCameraH", 0);
+    Settings::MouseLook = g_settings->sub_81D010("Settings\\MouseLook", 1) != 0;
+    if ( Settings::MouseLook )
+    {
+        Settings::InvertCameraH = g_settings->sub_81D050("Settings\\InvertCameraH", 0);
 
-        g_inputSettingsInGame()->field_18.set_mouse(InputAction::CameraRight,
+        g_inputSettingsInGame->field_18.set_mouse(InputAction::CameraRight,
                                                     3,
                                                     InputMouse::LookRight);
-        g_inputSettingsInGame()->field_18.set_mouse(InputAction::CameraLeft,
+        g_inputSettingsInGame->field_18.set_mouse(InputAction::CameraLeft,
                                                     3,
                                                     InputMouse::LookLeft);
 
-        Settings::InvertCameraV() = g_settings()->sub_81D050("Settings\\InvertCameraV", 0);
-        g_inputSettingsInGame()->field_18.set_mouse(InputAction::CameraUp, 3, InputMouse::LookUp);
-        g_inputSettingsInGame()->field_18.set_mouse(InputAction::CameraDown,
+        Settings::InvertCameraV = g_settings->sub_81D050("Settings\\InvertCameraV", 0);
+        g_inputSettingsInGame->field_18.set_mouse(InputAction::CameraUp, 3, InputMouse::LookUp);
+        g_inputSettingsInGame->field_18.set_mouse(InputAction::CameraDown,
                                                     3,
                                                     InputMouse::LookDown);
     }
 
-    Input::instance()->m_sensitivity = g_settings()->sub_81D010("Settings\\Sensitivity", 50) *
-            0.001f +
-        0.001f;
+    Input::instance->m_sensitivity = g_settings->sub_81D010("Settings\\Sensitivity", 50) *
+            0.001f + 0.001f;
 
-    Settings::SoundMode() = g_settings()->sub_81D010("Settings\\SoundMode", 2);
-    Settings::GameSoundVolume() = g_settings()->sub_81D010("Settings\\GameSoundVolume",
+    Settings::SoundMode = g_settings->sub_81D010("Settings\\SoundMode", 2);
+    Settings::GameSoundVolume = g_settings->sub_81D010("Settings\\GameSoundVolume",
                                                                     10) *
         0.1;
-    Settings::MusicVolume() = g_settings()->sub_81D010("Settings\\MusicVolume", 10) * 0.1f;
+    Settings::MusicVolume = g_settings->sub_81D010("Settings\\MusicVolume", 10) * 0.1f;
 
     if (os_developer_options::instance->get_flag(mString {"EXCEPTION_HANDLER"})) {
         SetUnhandledExceptionFilter(TopLevelExceptionFilter);
@@ -1774,7 +1621,7 @@ int __stdcall myWinMain(HINSTANCE hInstance,
     nglInit(g_appHwnd);
     nalInit(nullptr);
 
-    g_cursor() = new Cursor {L"data\\ump.dat", g_cx, g_cy};
+    g_cursor = new Cursor {L"data\\ump.dat", g_cx, g_cy};
     set_tl_system_directories();
 
     static nglFrameLockType & g_frame_lock = var<nglFrameLockType>(0x00922920);
@@ -1810,10 +1657,10 @@ int __stdcall myWinMain(HINSTANCE hInstance,
         float v165 = os_developer_options::instance->get_int(mString{"RUN_LENGTH"});
         bool v164 = (os_developer_options::instance->get_int(mString{"RUN_LENGTH"}) != -1);
 
-        g_timer()->sub_582180();
+        g_timer->sub_582180();
 
-        g_game_ptr->gamefile->field_340.m_invert_camera_horz = Settings::InvertCameraH();
-        g_game_ptr->gamefile->field_340.m_invert_camera_vert = Settings::InvertCameraV();
+        g_game_ptr->gamefile->field_340.m_invert_camera_horz = Settings::InvertCameraH;
+        g_game_ptr->gamefile->field_340.m_invert_camera_vert = Settings::InvertCameraV;
         auto *rumble_ptr = input_mgr::instance->rumble_ptr;
         if (rumble_ptr != nullptr) {
             rumble_ptr->disable_vibration();
@@ -1859,7 +1706,7 @@ int __stdcall myWinMain(HINSTANCE hInstance,
                     DWORD v168 = timeGetTime() - v158;
                     app::instance->m_game->field_278 = v168 * 0.001f;
 
-                    if (g_inputSettingsInGame()->field_18.get_state(InputAction::ScreenShot) <=
+                    if (g_inputSettingsInGame->field_18.get_state(InputAction::ScreenShot) <=
                         0.0)
                     {
                         if (!byte_965BF5 && byte_965BF6) {
@@ -1886,9 +1733,9 @@ int __stdcall myWinMain(HINSTANCE hInstance,
                             bExit = true;
                             dword_922908 = -1;
                         } else {
-                            g_cursor()->field_120 = 0;
-                            if (!g_cursor()->field_120) {
-                                g_cursor()->field_114 = 1;
+                            g_cursor->field_120 = 0;
+                            if (!g_cursor->field_120) {
+                                g_cursor->field_114 = 1;
                             }
 
                             dword_922908 = -1;
@@ -1922,41 +1769,41 @@ LABEL_94:
 
     sub_4DDEC0();
 
-    if (g_cursor() != nullptr) {
-        auto *vtbl = bit_cast<int(*)[1]>(g_cursor()->m_vtbl);
+    if (g_cursor != nullptr) {
+        auto *vtbl = bit_cast<int(*)[1]>(g_cursor->m_vtbl);
 
         assert((*vtbl)[0] == 0x005B7BC0);
 
-        delete g_cursor();
+        delete g_cursor;
     }
 
     sub_76DF40();
     nalExit();
     sub_77B2F0(1);
 
-    if (g_timer() != nullptr) {
-        operator delete(g_timer());
+    if (g_timer != nullptr) {
+        operator delete(g_timer);
     }
 
-    free_file(g_fileUSM());
+    free_file(g_fileUSM);
 
     sub_81E300();
 
-    if (Input::instance() != nullptr) {
-        Input::instance()->sub_820C60();
-        operator delete(Input::instance());
-        Input::instance() = nullptr;
+    if (Input::instance != nullptr) {
+        Input::instance->sub_820C60();
+        operator delete(Input::instance);
+        Input::instance = nullptr;
     }
 
     sub_81E300();
     sub_81D700();
 
-    delete g_inputSettingsMenu();
-    delete g_inputSettingsInGame();
-    delete g_inputSettings2();
-    delete g_inputSettings3();
-    delete g_inputSettings4();
-    delete g_settings();
+    delete g_inputSettingsMenu;
+    delete g_inputSettingsInGame;
+    delete g_inputSettings2;
+    delete g_inputSettings3;
+    delete g_inputSettings4;
+    delete g_settings;
 
     sub_81C230();
 
@@ -2144,7 +1991,8 @@ void initterm(const _PVFV *ppfn, const _PVFV *end) {
     }
 }
 
-void start() {
+void start()
+{
     __asm("add esp, 4\n");
 
     int v22;
@@ -2699,6 +2547,12 @@ BOOL install_redirects()
         script_access_patch();
     }
 
+    string_hash_dictionary_patch();
+
+    event_manager_patch();
+
+    mAvlTree_patch();
+
     ngl_patch();
 
     actor_patch();
@@ -2765,8 +2619,6 @@ BOOL install_redirects()
         conglomerate_patch();
 
         sound_manager_patch();
-
-        string_hash_dictionary_patch();
 
         fx_cache_patch();
 
@@ -2954,8 +2806,6 @@ BOOL install_redirects()
     if constexpr (1)
     {
         interactable_interface_patch();
-
-        event_manager_patch();
 
         trigger_manager_patch();
 
@@ -3246,8 +3096,6 @@ BOOL install_redirects()
         ghetto_mash_file_header_patch();
 
         string_hash_patch();
-
-        mAvlTree_patch();
 
         resource_pack_header_patch();
 

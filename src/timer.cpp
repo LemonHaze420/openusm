@@ -10,7 +10,7 @@
 
 VALIDATE_SIZE(Timer, 0x58);
 
-Var<Timer *> g_timer{0x00965BF0};
+Timer *& g_timer = var<Timer *>(0x00965BF0);
 
 Timer::Timer(Float a2, Float a3)
 {

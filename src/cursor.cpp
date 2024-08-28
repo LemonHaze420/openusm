@@ -12,7 +12,7 @@
 
 VALIDATE_SIZE(Cursor, 0x13C);
 
-Var<Cursor *> g_cursor = {0x0096191C};
+Cursor *& g_cursor = var<Cursor *>(0x0096191C);
 
 Cursor::Cursor(LPCWSTR lpWideCharStr, int a3, int a4) {
     if constexpr (1) {
@@ -70,6 +70,11 @@ Cursor * __fastcall hookCtor(Cursor *self, void *, LPCWSTR lpWideCharStr, int a3
 
 Cursor::~Cursor() {
     THISCALL(0x005A6810, this);
+}
+
+void Cursor::Draw()
+{
+    THISCALL(0x00594DF0, this);
 }
 
 void Cursor::sub_5A67D0(int a1, int a2, int a3, int a4) {

@@ -114,10 +114,72 @@ struct Input {
 
     bool sub_820590(int a2);
 
+    char * sub_81FD40(int a2);
+
     //0x005B0D00
     static void create_inst();
 
-    static inline Var<Input *> instance{0x00987948};
+    static inline constexpr std::pair<int, const char *> keyConstants[] = {
+        {DIK_ESCAPE, "ESC"},
+        {DIK_BACK, "BACK"},
+        {DIK_TAB, "TAB"},
+        {DIK_RETURN, "ENTER"},
+        {DIK_RCONTROL, "RCTRL"},
+        {DIK_LCONTROL, "LCTRL"},
+        {DIK_LSHIFT, "LSHIFT"},
+        {DIK_RSHIFT, "RSHIFT"},
+        {DIK_SPACE, "SPACE"},
+        {DIK_CAPITAL, "CAPSL"},
+        {DIK_SCROLL, "SCROLL"},
+        {DIK_LMENU, "LALT"},
+        {DIK_RMENU, "RALT"},
+        {DIK_PAUSE, "PAUSE"},
+        {DIK_HOME, "HOME"},
+        {DIK_PRIOR, "PGUP"},
+        {DIK_UP, "UP"},
+        {DIK_LEFT, "LEFT"},
+        {DIK_DOWN, "DOWN"},
+        {DIK_RIGHT, "RIGHT"},
+        {DIK_DELETE, "DEL"},
+        {DIK_INSERT, "INS"},
+        {DIK_END, "END"},
+        {DIK_NEXT, "PGDWN"},
+        {DIK_APPS, "MENU"},
+        {DIK_NUMPADCOMMA, "KP,"},
+        {DIK_DECIMAL, "KP."},
+        {DIK_NUMPADENTER, "KPEnter"},
+        {DIK_NUMLOCK, "NumL"},
+        {DIK_NUMPAD0, "KP0"},
+        {DIK_NUMPAD1, "KP1"},
+        {DIK_NUMPAD2, "KP2"},
+        {DIK_NUMPAD3, "KP3"},
+        {DIK_NUMPAD4, "KP4"},
+        {DIK_NUMPAD5, "KP5"},
+        {DIK_NUMPAD6, "KP6"},
+        {DIK_NUMPAD7, "KP7"},
+        {DIK_NUMPAD8, "KP8"},
+        {DIK_NUMPAD9, "KP9"},
+        {DIK_F1, "F1"},
+        {DIK_F2, "F2"},
+        {DIK_F3, "F3"},
+        {DIK_F4, "F4"},
+        {DIK_F5, "F5"},
+        {DIK_F6, "F6"},
+        {DIK_F7, "F7"},
+        {DIK_F8, "F8"},
+        {DIK_F9, "F9"},
+        {DIK_F10, "F10"},
+        {DIK_F11, "F11"},
+        {DIK_F12, "F12"},
+        {DIK_F13, "F13"},
+        {DIK_F14, "F14"},
+        {DIK_F15, "F15"},
+    };
+
+
+    static inline Input *& instance = var<Input *>(0x00987948);
 };
+
+extern Input *& dword_965DDC;
 
 extern void Input_patch();

@@ -8,7 +8,7 @@
 
 VALIDATE_SIZE(Settings, 0x78);
 
-Var<Settings *> g_settings{0x00965ABC};
+Settings *& g_settings = var<Settings *>(0x00965ABC);
 
 Settings::Settings(const char *Source, const char *a3) {
     strncpy(this->field_0, Source, 39u);

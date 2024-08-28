@@ -33,6 +33,8 @@ struct Cursor {
     //0x005A6810
     ~Cursor();
 
+    void Draw();
+
     void sub_5A67D0(int a1, int a2, int a3, int a4);
 
     void sub_5A6790();
@@ -42,6 +44,6 @@ struct Cursor {
     void sub_5B0D70();
 };
 
-extern Var<Cursor *> g_cursor;
+extern Cursor *& g_cursor;
 
 extern void cursor_patch();
