@@ -234,11 +234,13 @@ void character_viewer::OnUp([[maybe_unused]] int a2) {
     }
 }
 
-void character_viewer::OnActivate() {
-    sp_log("character_viewer::OnActivate():");
+void character_viewer::OnActivate()
+{
+    TRACE("character_viewer::OnActivate");
 
-    if constexpr (0) {
-        mString v34{"unlockables_chars_costumes"};
+    if constexpr (0)
+    {
+        mString v34 {"unlockables_chars_costumes"};
 
         mission_stack_manager::s_inst->push_mission_pack_immediate(v34, v34);
         auto *v2 = resource_manager::get_best_context(RESOURCE_PARTITION_MISSION);
@@ -277,8 +279,8 @@ void character_viewer::OnActivate() {
         }
 
         {
-            auto *v6 = get_msg(g_fileUSM(), "RESUME");
-            mString v26{v6};
+            auto *v6 = get_msg(g_fileUSM, "RESUME");
+            mString v26 {v6};
         }
 
         {
@@ -352,12 +354,12 @@ void character_viewer::OnActivate() {
             func(v20, nullptr, v22);
         }
 
-        g_cursor()->sub_5A6790();
-        g_cursor()->sub_5A67D0(275, 420, 355, 445);
+        g_cursor->sub_5A6790();
+        g_cursor->sub_5A67D0(275, 420, 355, 445);
         auto v23 = 40;
         auto v24 = 7;
         do {
-            g_cursor()->sub_5A67D0(50, v23, 98, v23 + 50);
+            g_cursor->sub_5A67D0(50, v23, 98, v23 + 50);
             v23 += 54;
             --v24;
         } while (v24);

@@ -116,16 +116,16 @@ void alternate_costumes::onActivate() {
         auto *v5 = v4->field_4.c_str();
 
         {
-            mString v23{v5};
+            mString v23 {v5};
             auto str = *bit_cast<FEText::string *>(&v23);
 
             v4->text_box->SetTextNoLocalize(str);
         }
 
         {
-            auto *v6 = get_msg(g_fileUSM(), "RESUME");
+            auto *v6 = get_msg(g_fileUSM, "RESUME");
 
-            mString v23{v6};
+            mString v23 {v6};
             auto str = *bit_cast<FEText::string *>(&v23);
             v4->text_box->SetTextNoLocalize(str);
         }
@@ -191,12 +191,12 @@ void alternate_costumes::onActivate() {
         bit_cast<uint8_t *>(&this->field_28)[0] |= 0x80u;
 
         this->field_2A = -1;
-        g_cursor()->sub_5A6790();
-        g_cursor()->sub_5A67D0(275, 420, 355, 445);
+        g_cursor->sub_5A6790();
+        g_cursor->sub_5A67D0(275, 420, 355, 445);
         auto v21 = 40;
         auto v22 = 6;
         do {
-            g_cursor()->sub_5A67D0(50, v21, 98, v21 + 50);
+            g_cursor->sub_5A67D0(50, v21, 98, v21 + 50);
             v21 += 54;
             --v22;
         } while (v22);

@@ -23,7 +23,7 @@ void localized_string_table::load_localizer()
         [[maybe_unused]] auto a3 = os_developer_options::instance->get_string(os_developer_options::strings_t::SKU);
         globalTextLanguage = 0;
 
-        switch (g_settings()->sub_81D010("Settings\\Language", 0)) {
+        switch (g_settings->sub_81D010("Settings\\Language", 0)) {
         case 1:
             globalTextLanguage = 1;
             break;
@@ -83,7 +83,8 @@ void localized_string_table::load_localizer()
     }
 }
 
-void localized_string_table::sub_60BD30() {
+void localized_string_table::sub_60BD30()
+{
     this->field_0 = (internal *) ((char *) this + (unsigned int) this->field_0);
     this->field_8 += (int) this;
 
@@ -96,11 +97,14 @@ void localized_string_table::sub_60BD30() {
         assert(0);
     }
 
-    if (this->field_4 > 0) {
-        for (int i = 0; i < this->field_4; ++i) {
+    if (this->field_4 > 0)
+    {
+        for (int i = 0; i < this->field_4; ++i)
+        {
             char DstBuf[4];
             itoa(i, DstBuf, 10);
-            auto *v6 = get_msg(g_fileUSM(), DstBuf);
+
+            auto *v6 = get_msg(g_fileUSM, DstBuf);
             if (v6 != nullptr) {
                 this->field_0->field_0[i] = v6;
             } else {
