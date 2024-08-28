@@ -44,6 +44,9 @@ struct FEMenu {
     //virtual
     void Load();
 
+    //virtual
+    void Draw();
+
     /* virtual */ void Update(Float a2);
 
     /* virtual */ void OnActivate();

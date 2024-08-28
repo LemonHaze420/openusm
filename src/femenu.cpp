@@ -50,12 +50,6 @@ void FEMenu::operator delete(void *ptr, size_t size)
     mem_dealloc(ptr, size);
 }
 
-void FEMenu::Load()
-{
-    void (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x10));
-    func(this);
-}
-
 void FEMenu::AddEntry(int a2, FEText *a3, bool a4) {
     auto *mem = mem_alloc(sizeof(FEMenuEntry));
 
@@ -71,7 +65,18 @@ void FEMenu::AddEntry(int a2, global_text_enum a3) {
 void FEMenu::Init()
 {
     void (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0xC));
+    func(this);
+}
 
+void FEMenu::Load()
+{
+    void (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x10));
+    func(this);
+}
+
+void FEMenu::Draw()
+{
+    void (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x18));
     func(this);
 }
 
@@ -97,13 +102,14 @@ void FEMenu::Update(Float a2)
     }
 }
 
-void FEMenu::OnActivate() {
+void FEMenu::OnActivate()
+{
     void (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x2C));
-
     func(this);
 }
 
-void FEMenu::OnDeactivate(FEMenu *a2) {
+void FEMenu::OnDeactivate(FEMenu *a2)
+{
     void (__fastcall *func)(FEMenu *, void *, FEMenu *) = CAST(func, get_vfunc(m_vtbl, 0x30));
     func(this, nullptr, a2);
 }

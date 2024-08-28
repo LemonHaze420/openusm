@@ -1,5 +1,6 @@
 #pragma once
 
+#include "float.hpp"
 #include "font_index.h"
 
 #include <cstdint>
@@ -23,6 +24,9 @@ struct FEMenuSystem {
 
     //0x00618760
     FEMenuSystem(int a2, font_index a3);
+
+    //virtual
+    void Update(Float);
 
     //0x00629960
     //virtual

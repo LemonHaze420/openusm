@@ -71,6 +71,12 @@ void FEMenuSystem::MakeActive(int idx) {
     }
 }
 
+void FEMenuSystem::Update(Float a2)
+{
+    void (__fastcall *func)(void *, void *edx, Float) = CAST(func, get_vfunc(m_vtbl, 0x14));
+    func(this, nullptr, a2);
+}
+
 void FEMenuSystem::UpdateButtonDown()
 {
     if constexpr (1) {
