@@ -104,16 +104,17 @@ void main_menu_options::OnDown(int) {
     }
 }
 
-void main_menu_options::OnCross(int a2) {
+void main_menu_options::OnCross(int a2)
+{
     if constexpr (1) {
         auto v3 = this->field_104;
         if (v3 || !this->field_10A) {
             if (v3 == 5) {
-                auto *v4 = g_cursor();
+                auto *v4 = g_cursor;
                 dword_922908 = 2;
-                if (!g_cursor()->field_120) {
-                    g_cursor()->field_114 = false;
-                    v4 = g_cursor();
+                if (!g_cursor->field_120) {
+                    g_cursor->field_114 = false;
+                    v4 = g_cursor;
                 }
 
                 v4->field_120 = true;
