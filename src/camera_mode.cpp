@@ -248,7 +248,7 @@ void camera_mode_lookaround::_frame_advance(
             else
             {
                 vector2d v82 {this->field_10.field_10, this->field_40.field_10};
-                if ( !Settings::MouseLook() )
+                if ( !Settings::MouseLook )
                 {
                     auto v13 = v82.length2();
                     if ( v13 > sqr(1.0f) )
