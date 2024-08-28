@@ -334,8 +334,9 @@ void app::tick()
         sub_77B2F0(0);
 
         float time_inc;
-        for (time_inc = g_timer()->sub_5821D0(); equal(time_inc, 0.0f);
-             time_inc = g_timer()->sub_5821D0()) {
+        for (time_inc = g_timer->sub_5821D0(); equal(time_inc, 0.0f);
+             time_inc = g_timer->sub_5821D0())
+        {
             Sleep(0);
         }
 
