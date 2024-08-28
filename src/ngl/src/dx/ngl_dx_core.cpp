@@ -291,8 +291,8 @@ void nglSetFrameLock(nglFrameLockType a2)
         }
 
         if (v1 != dword_93AED4()) {
-            auto *v2 = g_timer();
-            if (g_timer() != nullptr) {
+            auto *v2 = g_timer;
+            if (g_timer != nullptr) {
                 operator delete(v2);
             }
 
@@ -303,9 +303,8 @@ void nglSetFrameLock(nglFrameLockType a2)
 
             v4 = 60.0 / v4;
 
-            g_timer() = new Timer{v4, v4};
-
-            g_timer()->sub_582180();
+            g_timer = new Timer {v4, v4};
+            g_timer->sub_582180();
             dword_93AED4() = v1;
         }
     } else {
