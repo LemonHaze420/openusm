@@ -82,7 +82,7 @@ float keyboard_device::_get_axis_state(int axis, int a3)
 
     sp_log("axis = %d, %d", axis, a3);
 
-    if (Input::instance() != nullptr)
+    if (Input::instance != nullptr)
     {
         static uint16_t key_codes[KB_NUM_AXES] {}; 
 
@@ -106,7 +106,7 @@ float keyboard_device::_get_axis_state(int axis, int a3)
 
 #undef register_key_code
 
-        float result = (Input::instance()->m_state_keys[key_codes[axis]] != 0);
+        float result = (Input::instance->m_state_keys[key_codes[axis]] != 0);
         return result;
     }
 
