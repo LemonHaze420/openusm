@@ -26,7 +26,7 @@ int sub_81D1C0(int a1)
     {
         auto result = 0u;
         if (!a1) {
-            uint32_t v2 = Input::instance()->field_129D0;
+            uint32_t v2 = Input::instance->field_129D0;
             if (v2) {
                 result = 1;
             }
@@ -54,7 +54,7 @@ int InputOpen(int a1, unsigned int a2) {
     if constexpr (1) {
         uint32_t result;
 
-        if (a1 || a2 >= Input::instance()->field_129D0) {
+        if (a1 || a2 >= Input::instance->field_129D0) {
             result = 0;
         } else {
             result = a2 + 1;
@@ -70,11 +70,11 @@ int InputOpen(int a1, unsigned int a2) {
 
 void InputGetCapabilities(int a1, InputCapabilities *pCapabilities) {
     if constexpr (1) {
-        if (Input::instance()->sub_820570(a1 - 1)) {
+        if (Input::instance->sub_820570(a1 - 1)) {
             pCapabilities->field_0 = XINPUT_DEVTYPE_GAMEPAD;
         }
 
-        if (Input::instance()->sub_820590(a1 - 1)) {
+        if (Input::instance->sub_820590(a1 - 1)) {
             pCapabilities->field_20 = 0xFFFF;
             pCapabilities->field_24 = 0xFFFF;
         }
@@ -183,8 +183,8 @@ int InputGetState(unsigned int dwUserIndex, InputState &pState)
 {
     if constexpr (1)
     {
-        Input::instance()->poll();
-        auto *v2 = (InputSettings *) *(&Input::instance()->m_current_connected + dwUserIndex);
+        Input::instance->poll();
+        auto *v2 = (InputSettings *) *(&Input::instance->m_current_connected + dwUserIndex);
         auto &v20 = pState.m_flags;
         *(uint32_t *) &pState.m_flags = 0;
         *(uint32_t *) &pState.m_punch = 0;
@@ -287,13 +287,13 @@ void pc_joypad_device::_poll()
                     dword_967CE4())
                 {
                     dword_967CE4() = false;
-                    Input::instance()->sub_8203F0(0, g_inputSettingsMenu());
+                    Input::instance->sub_8203F0(0, g_inputSettingsMenu);
                 }
             }
             else
             {
                 dword_967CE4() = true;
-                Input::instance()->sub_8203F0(0, g_inputSettingsInGame());
+                Input::instance->sub_8203F0(0, g_inputSettingsInGame);
             }
         }
 
