@@ -42,14 +42,6 @@ rumble_manager::rumble_manager() {
     this->field_58 = 15.0;
 }
 
-void * rumble_manager::operator new(size_t size) {
-    return mem_alloc(size);
-}
-
-void rumble_manager::operator delete(void *ptr, size_t size) {
-    mem_dealloc(ptr, size);
-}
-
 void rumble_manager::stop_vibration() {
     THISCALL(0x005BA4E0, this);
 }
