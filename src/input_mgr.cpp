@@ -79,7 +79,7 @@ input_mgr::~input_mgr()
 {
     TRACE("input_mgr::~input_mgr");
 
-    if constexpr (0)
+    if constexpr (1)
     {
         this->m_vtbl = 0x0089165C;
         if ( this->rumble_ptr != nullptr ) {
@@ -137,7 +137,7 @@ BOOL __cdecl GetDeviceChanges([[maybe_unused]] void *a1,
                               unsigned int *pdwInsertions,
                               unsigned int *pdwRemovals) {
     auto v3 = PreviousConnected;
-    auto CurrentConnected = Input::instance()->m_current_connected;
+    auto CurrentConnected = Input::instance->m_current_connected;
     *pdwInsertions = CurrentConnected & ~PreviousConnected;
     PreviousConnected = CurrentConnected;
     *pdwRemovals = v3 & ~CurrentConnected;
@@ -150,7 +150,7 @@ void input_mgr::scan_devices()
 
     if constexpr (1)
     {
-        if (Input::instance() == nullptr || Input::instance()->m_din == nullptr) {
+        if (Input::instance == nullptr || Input::instance->m_din == nullptr) {
             keyboard_device::instance->clear();
         } else {
             keyboard_device::instance->initialize(0);
