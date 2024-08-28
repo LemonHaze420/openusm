@@ -5,6 +5,10 @@
 
 #include <dsound.h>
 
+bool &byte_965950 = var<bool>(0x00965950);
+
+RTL_CRITICAL_SECTION &g_CriticalSection = var<RTL_CRITICAL_SECTION>(0x009618F4);
+
 PolytubeCustomMaterial *& webline_texture = var<PolytubeCustomMaterial *>(0x00958058);
 
 float & g_strafe_mult = var<float>(0x00921B70);

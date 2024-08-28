@@ -10,7 +10,11 @@ struct Input;
 struct InputSettings;
 struct PolytubeCustomMaterial;
 
-inline constexpr bool STANDALONE_SYSTEM = 1;
+#define STANDALONE_SYSTEM 0
+
+extern bool &byte_965950;
+
+extern RTL_CRITICAL_SECTION &g_CriticalSection;
 
 extern PolytubeCustomMaterial *& webline_texture;
 
