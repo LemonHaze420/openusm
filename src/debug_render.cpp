@@ -417,7 +417,7 @@ void debug_render_init()
 
     int a4 = 194;
 
-    debug_material = new PCUV_ShaderMaterial{nglWhiteTex(), static_cast<nglBlendModeType>(2), 0, a4};
+    debug_material = new PCUV_ShaderMaterial{nglWhiteTex, static_cast<nglBlendModeType>(2), 0, a4};
 
     if (!g_is_the_packer)
     {
@@ -436,7 +436,7 @@ void debug_render_init()
         s_debug_disc = nglGetMesh(tlFixedString{"debug_disc"}, true);
         assert(s_debug_disc != nullptr);
 
-        dword_15BCE44 = new PCUV_ShaderMaterial{nglWhiteTex(), static_cast<nglBlendModeType>(2), 0, a4};
+        dword_15BCE44 = new PCUV_ShaderMaterial {nglWhiteTex, static_cast<nglBlendModeType>(2), 0, a4};
         assert(debug_strings == nullptr);
 
         debug_strings = new fixed_vector<debug_string_t, 25>{};
