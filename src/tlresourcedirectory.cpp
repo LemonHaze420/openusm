@@ -77,7 +77,7 @@ nglTexture *tlResourceDirectory<nglTexture, tlFixedString>::StandardLoad(const t
                         tex->field_0 = tex;
                         tex->field_4 = tex;
                         tlMemFree(tex);
-                        return nglDefaultTex();
+                        return nglDefaultTex;
                     }
 
                     STDCALL(0x007CA291,
@@ -104,7 +104,7 @@ nglTexture *tlResourceDirectory<nglTexture, tlFixedString>::StandardLoad(const t
             tex->field_0 = tex;
             tex->field_4 = tex;
             tlMemFree(tex);
-            return nglDefaultTex();
+            return nglDefaultTex;
         }
 
     LABEL_19:
