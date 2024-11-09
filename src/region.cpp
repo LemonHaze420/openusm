@@ -105,8 +105,8 @@ void region::load_textures()
         tlFixedString v11 {v8};
         auto Texture = nglGetTexture(v11);
         if ( Texture != nullptr
-                && Texture != nglDefaultTex()
-                && Texture != nglWhiteTex()
+                && Texture != nglDefaultTex
+                && Texture != nglWhiteTex
                 )
         {
             auto v5 = this->get_scene_id(true);
@@ -130,8 +130,8 @@ void region::unload_textures()
             tlFixedString a1 {v5};
             auto *Texture = nglGetTexture(a1);
             if ( Texture != nullptr
-                    && Texture != nglDefaultTex()
-                    && Texture != nglWhiteTex() )
+                    && Texture != nglDefaultTex
+                    && Texture != nglWhiteTex )
             {
                 texture_array::unload_map(v3, Texture);
             }
