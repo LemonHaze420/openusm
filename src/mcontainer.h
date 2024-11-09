@@ -20,6 +20,10 @@ struct mContainer {
         m_size = 0;
     }
 
+    auto size() const {
+        return this->m_size;
+    }
+
     int field_0;
     size_t m_size;
 };
