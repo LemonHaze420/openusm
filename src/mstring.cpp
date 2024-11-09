@@ -418,7 +418,7 @@ void mString::append(const char *from_string, int from_string_length) {
 
         {
             auto v5 = this->field_C;
-            if (v5 != nullptr && v6 < v5->m_size) {
+            if (v5 != nullptr && v6 < v5->get_size()) {
                 this->set_size(v6);
                 strncat(this->guts, from_string, from_string_length);
                 this->guts[v6] = 0;
