@@ -1,157 +1,69 @@
 #include "mAvlTree.h"
 
 #include "common.h"
+#include "entity_class_entry.h"
 #include "mash_info_struct.h"
+#include "string_hash_entry.h"
 #include "utility.h"
 
 VALIDATE_SIZE(mAvlTree<string_hash_entry>, 16u);
 
 template<>
-void mAvlTree<string_hash_entry>::sub_564370(mAvlNode<string_hash_entry> **a1) {
-    auto v2 = a1;
-    auto v3 = *a1;
-    auto v4 = (*a1)->m_left;
-    auto a1a = (*a1)->m_parent;
-    v3->m_left = v4->m_right;
-    auto v5 = (*v2)->m_left;
-    if (v5) {
-        v5->m_parent = *v2;
+void mAvlTree<string_hash_entry>::singleRotateRight(mAvlNode<string_hash_entry> *&k2)
+{
+    auto k1 = k2->m_left;
+    //assert(k1->m_parent == k2);
+
+    auto parent = k2->m_parent;
+    k2->m_left = k1->m_right;
+    if (k2->m_left != nullptr) {
+        k2->m_left->m_parent = k2;
     }
 
-    auto v6 = *v2;
-    auto v7 = (*v2 == nullptr);
-    v4->m_right = *v2;
-    if (!v7) {
-        v6->m_parent = v4;
+    k1->m_right = k2;
+    if (k1->m_right != nullptr) {
+        k1->m_right->m_parent = k1;
     }
 
-    auto v8 = *v2;
-    auto *v9 = (*v2)->m_left;
-    char v10 = -1;
-    if (v9) {
-        v10 = v9->field_10;
-    }
+    k2->updateHeight(k2->m_left, k2->m_right);
+    k1->updateHeight(k1->m_left, k2);
 
-    auto *v11 = v8->m_right;
-    char v12 = -1;
-    if (v11) {
-        v12 = v11->field_10;
-    }
-
-    char v13;
-    [&]() {
-        if (v10 <= v12) {
-            if (v11) {
-                v13 = v11->field_10;
-                return;
-            }
-        } else if (v9) {
-            v13 = v9->field_10;
-            return;
-        }
-        v13 = -1;
-    }();
-
-    v8->field_10 = v13 + 1;
-    auto *v14 = v4->m_left;
-    char v15 = -1;
-    if (v14) {
-        v15 = v14->field_10;
-    }
-
-    auto v16 = (*v2)->field_10;
-    if (v15 > v16) {
-        if (v14) {
-            v4->field_10 = v14->field_10 + 1;
-            *v2 = v4;
-            v4->m_parent = a1a;
-            return;
-        }
-        v16 = -1;
-    }
-    v4->field_10 = v16 + 1;
-    *v2 = v4;
-    v4->m_parent = a1a;
+    k2 = k1;
+    k2->m_parent = parent;
 }
 
 template<>
-void mAvlTree<string_hash_entry>::sub_43BF70(mAvlNode<string_hash_entry> **a1) {
-    auto v2 = a1;
-    auto v3 = *a1;
-    auto v4 = (*a1)->m_right;
-    auto a1a = (*a1)->m_parent;
-    v3->m_right = v4->m_left;
-    auto *v5 = v4->m_left;
-    if (v5) {
-        v5->m_parent = *v2;
+void mAvlTree<string_hash_entry>::singleRotateLeft(mAvlNode<string_hash_entry> *&k2)
+{
+    auto k1 = k2->m_right;
+    auto parent = k2->m_parent;
+    k2->m_right = k1->m_left;
+    if (k1->m_left != nullptr) {
+        k1->m_left->m_parent = k2;
     }
 
-    v4->m_left = *v2;
-    if (*v2) {
-        (*v2)->m_parent = v4;
+    k1->m_left = k2;
+    if (k1->m_left != nullptr) {
+        k1->m_left = k1;
     }
 
-    auto v6 = *v2;
-    auto v7 = (*v2)->m_left;
-    char v8 = -1;
-    if (v7) {
-        v8 = v7->field_10;
-    }
+    k2->updateHeight(k2->m_left, k2->m_right);
+    k1->updateHeight(k1->m_right, k2);
 
-    auto *v9 = v6->m_right;
-    char v10 = -1;
-    if (v9) {
-        v10 = v9->field_10;
-    }
-
-    char v11;
-    [&]() {
-        if (v8 <= v10) {
-            if (v9) {
-                v11 = v9->field_10;
-                return;
-            }
-        } else if (v7) {
-            v11 = v7->field_10;
-            return;
-        }
-
-        v11 = -1;
-    }();
-
-    v6->field_10 = v11 + 1;
-    auto *v12 = v4->m_right;
-    char v13 = -1;
-    if (v12) {
-        v13 = v12->field_10;
-    }
-
-    auto v14 = (*v2)->field_10;
-    if (v13 > v14) {
-        if (v12) {
-            v4->field_10 = v12->field_10 + 1;
-            *v2 = v4;
-            v4->m_parent = a1a;
-            return;
-        }
-        v14 = -1;
-    }
-
-    v4->field_10 = v14 + 1;
-    *v2 = v4;
-    v4->m_parent = a1a;
+    k2 = k1;
+    k2->m_parent = parent;
 }
 
 template<>
-void mAvlTree<string_hash_entry>::sub_744960(mAvlNode<string_hash_entry> **a1) {
-    this->sub_564370(&(*a1)->m_right);
-    this->sub_43BF70(a1);
+void mAvlTree<string_hash_entry>::doubleRotateLeft(mAvlNode<string_hash_entry> *&a1) {
+    this->singleRotateRight(a1->m_right);
+    this->singleRotateLeft(a1);
 }
 
 template<>
-void mAvlTree<string_hash_entry>::sub_745DF0(mAvlNode<string_hash_entry> **a2) {
-    this->sub_43BF70(&(*a2)->m_left);
-    this->sub_564370(a2);
+void mAvlTree<string_hash_entry>::doubleRotateRight(mAvlNode<string_hash_entry> *&a2) {
+    this->singleRotateLeft(a2->m_left);
+    this->singleRotateRight(a2);
 }
 
 template<>
@@ -164,130 +76,163 @@ void mAvlTree<string_hash_entry>::sub_64A2B0() {
     THISCALL(0x0064A2B0, this);
 }
 
-template<>
-void mAvlTree<string_hash_entry>::sub_439AD0(mAvlNode<string_hash_entry> *a1) {
-    auto *v2 = a1->m_left;
-    char v3 = -1;
-    if (v2 != nullptr) {
-        v3 = v2->field_10;
-    }
-
-    auto *v4 = a1->m_right;
-    char v5 = -1;
-    if (v4 != nullptr) {
-        v5 = v4->field_10;
-    }
-
-    if (v3 <= v5) {
-        if (v4) {
-            a1->field_10 = v4->field_10 + 1;
-            return;
-        }
-
-    } else if (v2) {
-        a1->field_10 = v2->field_10 + 1;
-        return;
-    }
-
-    a1->field_10 = 0;
-}
-
-int sub_561350(mAvlNode<string_hash_entry> *a1, mAvlNode<string_hash_entry> *a2) {
-    int result = -1;
-
-    auto v2 = a2->m_key->field_0.source_hash_code;
-    auto v3 = a1->m_key->field_0.source_hash_code;
-    if (v3 <= v2) {
-        result = -(v3 < v2);
-    }
-
-    return result;
-}
-
 //0x0056AE30
 template<>
 int mAvlTree<string_hash_entry>::addHelper(mAvlNode<string_hash_entry> *a2,
                                            mAvlNode<string_hash_entry> *&a3,
-                                           mAvlNode<string_hash_entry> *a4) {
-    if constexpr (1) {
+                                           mAvlNode<string_hash_entry> *a4)
+{
+    if constexpr (1)
+    {
         int result;
         auto v4 = a3;
         auto &v5 = *a3;
 
-        if (a3 != nullptr) {
-            auto v8 = v5.m_key->field_0.source_hash_code;
-            auto v9 = a2;
-            auto v10 = a2->m_key->field_0.source_hash_code;
-            if (v10 > v8) {
-                auto a2b = this->addHelper(a2, v5.m_right, &v5);
-                auto v16 = *a3;
-                auto v17 = a3->m_right;
-                char a1a = -1;
-                if (v17) {
-                    a1a = v17->field_10;
-                }
-
-                char v19 = -1;
-                auto v18 = v16.m_left;
-                if (v18) {
-                    v19 = v18->field_10;
-                }
-
-                if (a1a - v19 == 2) {
-                    if (sub_561350(v9, v17) <= 0) {
-                        this->sub_744960(&v4);
-                    } else {
-                        this->sub_43BF70(&v4);
-                    }
-
-                    result = a2b;
-                } else {
-                    this->sub_439AD0(&v16);
-                    result = a2b;
-                }
-
-            } else if (v10 < v8) {
-                auto v11 = this->addHelper(a2, v5.m_left, &v5);
-                auto v12 = *a3;
-                auto a2a = v11;
-                auto *v13 = (*a3).m_left;
-                char a1 = -1;
-                if (v13) {
-                    a1 = v13->field_10;
-                }
-
-                auto *v14 = v12.m_right;
-                char v15 = -1;
-                if (v14) {
-                    v15 = v14->field_10;
-                }
-
-                if ((char) a1 - v15 == 2) {
-                    if (v9->m_key->field_0.source_hash_code >=
-                        v13->m_key->field_0.source_hash_code) {
-                        this->sub_745DF0(&v4);
-                    } else {
-                        this->sub_564370(&v4);
-                    }
-
-                    result = a2a;
-                } else {
-                    this->sub_439AD0(&v12);
-                    result = a2a;
-                }
-            } else {
-                result = 0;
-            }
-        } else {
+        if (a3 == nullptr)
+        {
             a2->m_parent = a4;
             a3 = a2;
             ++this->m_size;
-            result = 1;
+            return 1;
         }
+
+        auto v7 = compare(a2, a3);
+        if (v7 > 0)
+        {
+            result = this->addHelper(a2, v5.m_right, &v5);
+            auto a1a = this->calcHeight(a3->m_right);
+            auto v19 = this->calcHeight(a3->m_left);
+
+            if (a1a - v19 == 2)
+            {
+                if (compare(a2, a3->m_right) <= 0) {
+                    this->doubleRotateLeft(v4);
+                } else {
+                    this->singleRotateLeft(v4);
+                }
+
+            } else {
+                this->nodeHt(a3);
+            }
+        }
+        else if (v7 < 0)
+        {
+            result = this->addHelper(a2, v5.m_left, &v5);
+            auto v15 = a3->heightDiff();
+            if (v15 == 2)
+            {
+                if ( compare(a2, a3->m_left) >= 0 ) {
+                    this->doubleRotateRight(v4);
+                } else {
+                    this->singleRotateRight(v4);
+                }
+
+            } else {
+                this->nodeHt(a3);
+            }
+        }
+        else
+        {
+            result = v7;
+        }
+
         return result;
     } else {
         return THISCALL(0x0056AE30, this, a2, a3, a4);
     }
+}
+
+template<>
+void mAvlTree<string_hash_entry>::destroy_element(mAvlNode<string_hash_entry> **p_node)
+{
+    TRACE("mAvlTree<string_hash_entry>::destroy_element");
+
+    if constexpr (0)
+    {
+        if ( this->field_C )
+        {
+            if ( this->is_pointer_in_mash_image((*p_node)->m_key) ) {
+                (*p_node)->m_key->destruct_mashed_class();
+            } else if ((*p_node)->m_key != nullptr) {
+                delete ((*p_node)->m_key);
+            }
+        }
+
+        (*p_node)->m_key = nullptr;
+        if ( this->is_pointer_in_mash_image(*p_node) ) {
+            (*p_node)->destruct_mashed_class();
+        } else if ( (*p_node) != nullptr ) {
+            delete (*p_node);
+        }
+
+        (*p_node) = nullptr;
+    }
+    else
+    {
+        THISCALL(0x00567350, this, p_node);
+    }
+}
+
+template<>
+void mAvlTree<string_hash_entry>::dump(mAvlNode<string_hash_entry> *&node)
+{
+    TRACE("mAvlTree<string_hash_entry>::dump");
+
+    if constexpr (1)
+    {
+        if (node != nullptr)
+        {
+            this->dump(node->m_left);
+            this->dump(node->m_right);
+            this->destroy_element(&node);
+            --this->m_size;
+        }
+    } else {
+        THISCALL(0x0056A990, this);
+    }
+}
+
+template<>
+void mAvlTree<string_hash_entry>::finalize(mash::allocation_scope) {
+    TRACE("mAvlTree<entity_class_entry>::finalize");
+    this->dump(this->m_head);
+}
+
+template<>
+void mAvlTree<string_hash_entry>::destruct_mashed_class()
+{
+    TRACE("mAvlTree<string_hash_entry>::destruct_mashed_class");
+
+    if constexpr (1) {
+        this->finalize(mash::FROM_MASH);
+        mContainer_base::destruct_mashed_class();
+    } else {
+        THISCALL(0x0056F8B0, this);
+    }
+}
+
+template<>
+void mAvlTree<entity_class_entry>::dump(mAvlNode<entity_class_entry> *&node)
+{
+    TRACE("mAvlTree<entity_class_entry>::dump");
+
+    if constexpr (0) {
+        if (node != nullptr)
+        {
+            this->dump(node->m_left);
+            this->dump(node->m_right);
+            this->destroy_element(&node);
+            --this->m_size;
+        }
+    } else {
+        THISCALL(0x007483D0, this, &node);
+    }
+}
+
+template<>
+void mAvlTree<entity_class_entry>::finalize(mash::allocation_scope) {
+    TRACE("mAvlTree<entity_class_entry>::finalize");
+    this->dump(this->m_head);
 }
 
 template<>
@@ -299,7 +244,7 @@ void mAvlTree<string_hash_entry>::unmash(mash_info_struct *a2, [[maybe_unused]] 
         auto real_size = this->m_size;
         this->m_size = 0;
 
-        for (auto i = 0u; i < real_size; ++i)
+        for (auto i = 0; i < real_size; ++i)
         {
             mAvlNode<string_hash_entry> *v7 = nullptr;
             a2->unmash_class(v7, this);
@@ -324,7 +269,32 @@ void mAvlNode<string_hash_entry>::unmash(
     a3->unmash_class(this->m_key, this);
 }
 
-void mAvlTree_patch() {
+void __fastcall string_hash_entry__dtor(string_hash_entry *self) {
+    TRACE("string_hash_entry::~string_hash_entry");
+
+    self->field_4.~mString();
+}
+
+void __cdecl operator_delete(void *a1)
+{
+    TRACE("operator delete");
+    sp_log("0x%08X", int(a1));
+
+    CDECL_CALL(0x0082207C, a1);
+}
+
+void mAvlTree_patch()
+{
+    {
+        auto address = &string_hash_entry__dtor;
+        REDIRECT(0x00567386, address);
+    }
+
+    {
+        auto address = operator_delete;
+        REDIRECT(0x0056738C, address);
+    }
+
     {
         FUNC_ADDRESS(address, &mAvlTree<string_hash_entry>::findHelper);
         REDIRECT(0x00531A07, address);
@@ -338,5 +308,10 @@ void mAvlTree_patch() {
     {
         FUNC_ADDRESS(address, &mAvlTree<string_hash_entry>::unmash);
         REDIRECT(0x00550F44, address);
+    }
+
+    {
+        FUNC_ADDRESS(address, &mAvlTree<string_hash_entry>::destruct_mashed_class);
+        REDIRECT(0x00547A52, address);
     }
 }

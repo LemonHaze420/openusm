@@ -12,6 +12,10 @@ struct ghetto_mash_file_header {
 
     ghetto_mash_file_header(mash::allocation_scope a2, const char *a3, int a4);
 
+    ~ghetto_mash_file_header() = default;
+
+    void destruct_mashed_class() {}
+
     //0x00420620
     void initialize(mash::allocation_scope a2, const char *a3, int a4);
 

@@ -95,3 +95,47 @@ TEST(SimpleList, PopFront)
     EXPECT_TRUE(list.contains(&b));
     EXPECT_FALSE(list.contains(&a));
 }
+
+TEST(SimpleListIterator, Construct) 
+{
+    simple_list<A *> list {};
+
+    A a {};
+    list.push_back(&a);
+
+    auto it = list.begin();
+
+    EXPECT_EQ(it._ptr, &a);
+    EXPECT_EQ(it._ptr->simple_list_vars._sl_list_owner, &list);
+}
+
+TEST(SimpleListIterator, Next) 
+{
+    A a {};
+    simple_list<A *>::iterator it {&a};
+
+    ++it;
+
+    const simple_list<A *>::iterator end {nullptr};
+    EXPECT_EQ(it, end);
+}
+
+TEST(SimpleListIterator, Swap) 
+{
+    simple_list<A *> list {};
+
+    A a {};
+    list.push_back(&a);
+
+    auto iterA = list.begin();
+
+    A b {};
+    list.push_front(&b);
+
+    auto iterB = list.begin();
+
+    iterA.swap(iterA, iterB);
+
+    EXPECT_EQ(iterA._ptr, &b);
+    EXPECT_EQ(iterB._ptr, &a);
+}

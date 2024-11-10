@@ -25,7 +25,7 @@ std::stack<tokenizer *> s_exec_tok_stack{};
 
 float s_exec_tick{0};
 
-std::unique_ptr<Console> g_console {};
+Console * g_console {nullptr};
 
 static void (*kbevcb)(KeyEvent, Key_Axes, void *) = nullptr;
 
@@ -120,7 +120,7 @@ Console::Console()
 
 Console::~Console()
 {
-    sp_log("Console::~Console()");
+    TRACE("Console::~Console()");
 
     if (field_248 != nullptr) {
         void (__fastcall *finalize)(void *, void *, bool) = CAST(finalize, get_vfunc(field_248->m_vtbl, 0x8));
@@ -772,7 +772,7 @@ void terrain_types_manager_create_inst()
 {
     CDECL_CALL(0x005C54B0);
 
-    g_console = std::make_unique<Console>();
+    g_console = new Console {};
 }
 
 void terrain_types_manager_delete_inst()

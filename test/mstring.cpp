@@ -8,6 +8,16 @@ TEST(MString, Construct)
 {
     mString s {};
     EXPECT_EQ(s.size(), 0);
+    EXPECT_EQ(s.c_str(), mString::null);
+    EXPECT_EQ(s.field_C, nullptr);
+}
+
+TEST(MString, ConstructFromInt)
+{
+    mString s {1};
+    EXPECT_EQ(s.size(), 1);
+    EXPECT_NE(s.c_str(), mString::null);
+    EXPECT_NE(s.field_C, nullptr);
 }
 
 TEST(MString, Test)

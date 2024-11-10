@@ -2,8 +2,10 @@
 
 #include "func_wrapper.h"
 #include "log.h"
+#include "mash.h"
+#include "mcontainer_base.h"
 #include "memory.h"
-#include "string_hash_entry.h"
+#include "trace.h"
 
 #include <type_traits>
 
@@ -18,30 +20,63 @@ struct mAvlNode {
     mAvlNode<T> *m_left;
     mAvlNode<T> *m_right;
     mAvlNode<T> *m_parent;
-    char field_10;
+    int8_t m_height;
 
-    explicit mAvlNode(T *a2) {
-        this->field_10 = 0;
-        this->m_parent = nullptr;
-        this->m_right = nullptr;
-        this->m_left = nullptr;
+    explicit mAvlNode(T *a2)
+    {
+        this->initialize(mash::ALLOCATED);
         this->m_key = a2;
     }
 
-    void *operator new(size_t size) {
-        return mem_alloc(size);
+    ~mAvlNode() = default;
+
+    void initialize(mash::allocation_scope a2)
+    {
+        if ( a2 == mash::ALLOCATED )
+        {
+            this->m_key = nullptr;
+            this->m_height = 0;
+            this->m_parent = nullptr;
+            this->m_right = nullptr;
+            this->m_left = nullptr;
+        }
     }
 
-    void operator delete(void *ptr, size_t size) {
-        mem_dealloc(ptr, size);
+    static int8_t getHeight(mAvlNode<value_type> *node) {
+        return ( node != nullptr ? node->m_height : -1 );
+    }
+
+    void updateHeight(mAvlNode<value_type> *left, mAvlNode<value_type> *right) {
+        this->m_height = std::max(getHeight(left), getHeight(right)) + 1;
+    }
+
+    int heightDiff() const {
+        return getHeight(m_left) - getHeight(m_right);
     }
 
     void unmash(mash_info_struct *a3,
                 void *a4);
+
+    void destruct_mashed_class()
+    {
+        if ( this->m_key != nullptr )
+        {
+            this->m_key->destruct_mashed_class();
+            this->m_key = nullptr;
+        }
+    }
 };
 
 template<typename T>
-struct mAvlTree : mContainer {
+class mAvlTree : mContainer_base {
+    using value_type = T;
+    using node_type = mAvlNode<T>;
+
+    node_type *m_head;
+    bool field_C;
+
+public:
+
     struct iterator {
         mAvlNode<T> *field_0;
 
@@ -55,6 +90,14 @@ struct mAvlTree : mContainer {
             return (*this->field_0);
         }
 
+        auto & operator++() {
+            if ( this->field_0 != nullptr ) {
+                this->iterate();
+            }
+
+            return (*this);
+        }
+
         //0x00743470
         void iterate()
         {
@@ -63,7 +106,7 @@ struct mAvlTree : mContainer {
             if (v1 != nullptr) {
                 this->field_0 = v1;
                 if (v1->m_left != nullptr) {
-                    mAvlNode<string_hash_entry> *v2;
+                    mAvlNode<value_type> *v2;
                     do {
                         v2 = this->field_0->m_left;
                         this->field_0 = v2;
@@ -71,7 +114,7 @@ struct mAvlTree : mContainer {
                 }
             } else {
                 if (this->field_0->m_parent) {
-                    mAvlNode<string_hash_entry> *v3;
+                    mAvlNode<value_type> *v3;
                     do {
                         v3 = this->field_0->m_parent;
                         if (this->field_0 != v3->m_right) {
@@ -90,33 +133,51 @@ struct mAvlTree : mContainer {
         }
     };
 
-    using value_type = T;
-    using node_type = mAvlNode<T>;
-
-    node_type *m_head;
-    bool field_C;
-
-    mAvlTree() {
-        sub_420EE0();
-        this->m_head = nullptr;
-        this->m_size = 0;
-        this->field_C = true;
-    }
-
-    mAvlTree(int a1) : mContainer(a1) {}
-
-    mAvlTree(from_mash_in_place_constructor *a2) : mContainer(a2) {}
-
-    void *operator new(size_t size) {
-        return mem_alloc(size);
-    }
-
-    void operator delete(void *ptr, size_t size) {
-        mem_dealloc(ptr, size);
-    }
-
-    bool get_destruct_contents() const
+    mAvlTree()
     {
+        this->initialize(mash::ALLOCATED);
+    }
+
+    //mAvlTree(int a1) : mContainer_base(a1) {}
+
+    mAvlTree(from_mash_in_place_constructor *a2) : mContainer_base(a2) {}
+
+    ~mAvlTree()
+    {
+        this->finalize(mash::ALLOCATED);
+    }
+
+    bool from_mash() const {
+        return this->field_0 != 0;
+    }
+
+    void initialize(mash::allocation_scope a2)
+    {
+        if ( a2 == mash::ALLOCATED )
+        {
+            this->m_head = nullptr;
+            this->m_size = 0;
+
+            this->set_destruct_contents(true);
+        }
+    }
+
+    void finalize(mash::allocation_scope);
+
+    mAvlNode<value_type> *& root() {
+        return this->m_head;
+    }
+
+    auto size() const {
+        return this->m_size;
+    }
+
+    void set_destruct_contents(bool a2) {
+        assert( !this->from_mash() );
+        this->field_C = a2;
+    }
+
+    bool get_destruct_contents() const {
         return this->field_C;
     }
 
@@ -141,40 +202,35 @@ struct mAvlTree : mContainer {
             return nullptr;
         }
 
-        auto v2 = a1->m_key->field_0.source_hash_code;
+        node_type node {a2};
 
-        int v5;
-        if (v2 <= a2->field_0.source_hash_code) {
-            v5 = -(v2 < a2->field_0.source_hash_code);
-        } else {
-            v5 = 1;
-        }
-
-        int v6 = -v5;
-        if (v6 != 0) {
-            if (v6 < 0) {
+        int v6 = compare(a1, &node);
+        if (v6 != 0)
+        {
+            if (v6 <= 0) {
+                return this->findHelper(a1->m_right, a2);
+            } else {
                 return this->findHelper(a1->m_left, a2);
             }
-
-            if (v6 > 0) {
-                return this->findHelper(a1->m_right, a2);
-            }
-
-            return nullptr;
         }
 
         return a1;
     }
 
-    void sub_439AD0(mAvlNode<T> *a1);
+    void nodeHt(mAvlNode<T> *a2)
+    {
+        auto v2 = this->calcHeight(a2->m_right);
+        auto v3 = this->calcHeight(a2->m_left);
+        a2->m_height = std::max(v3, v2) + 1;
+    }
 
-    void sub_43BF70(mAvlNode<T> **a1);
+    void singleRotateLeft(mAvlNode<T> *&a1);
 
-    void sub_744960(mAvlNode<T> **a1);
+    void doubleRotateLeft(mAvlNode<T> *&a1);
 
-    void sub_564370(mAvlNode<T> **a1);
+    void singleRotateRight(mAvlNode<T> *&a1);
 
-    void sub_745DF0(mAvlNode<T> **a2);
+    void doubleRotateRight(mAvlNode<T> *&a2);
 
     int *sub_64A090(int *a2);
 
@@ -248,35 +304,30 @@ struct mAvlTree : mContainer {
         }
     }
 
-    void sub_5702D0() {
-        auto *v2 = this->m_head;
-        auto **v3 = &this->m_head;
-        if (v2 != nullptr) {
-            this->dump(v2->m_left);
-            this->dump(v2->m_right);
-            this->destroy_element(v3);
-            --this->m_size;
-        }
-    }
+    void dump(mAvlNode<value_type> *&node);
 
-    void dump(mAvlNode<string_hash_entry> *&node)
+    void destruct_mashed_class();
+
+    void destroy_element(mAvlNode<value_type> **p_node);
+
+    static int compare(const mAvlNode<value_type> *a1, const mAvlNode<value_type> *a2)
     {
-        if (node != nullptr)
-        {
-            dump(node->m_left);
-            dump(node->m_right);
-            destroy_element(&node);
-            --this->m_size;
+        if ( (*a1->m_key) > (*a2->m_key) ) {
+            return 1;
         }
+
+        if ( (*a1->m_key) < (*a2->m_key) ) {
+            return -1;
+        }
+
+        return 0;
     }
 
-    void destruct_mashed_class() {
-        dump(m_head);
+    int8_t calcHeight(mAvlNode<value_type> *a1) const
+    {
+        return ( a1 != nullptr ? a1->m_height : -1 );
     }
 
-    void destroy_element(mAvlNode<string_hash_entry> **p_node) {
-        THISCALL(0x00567350, this, p_node);
-    }
 };
 
 extern void mAvlTree_patch();

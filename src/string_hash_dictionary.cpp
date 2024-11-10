@@ -59,6 +59,7 @@ static_assert('z' == 122);
 void string_hash_dictionary::create_inst()
 {
     TRACE("string_hash_dictionary::create_inst");
+
     if constexpr (1)
     {
         sp_log("g_is_the_packer = %d, LOAD_STRING_HASH_DICTIONARY = %d",
@@ -81,7 +82,7 @@ void string_hash_dictionary::create_inst()
                 assert(prereg_entries->get_destruct_contents());
 
                 entries->insert_tree(prereg_entries);
-                prereg_entries->field_C = false;
+                prereg_entries->set_destruct_contents(false);
             }
 
             if (prereg_entries != nullptr)
@@ -103,12 +104,12 @@ void string_hash_dictionary::clear()
 {
     TRACE("string_hash_dictionary::clear");
 
-    if constexpr (0)
+    if constexpr (1)
     {
         if (mash_image_buffer != nullptr)
         {
             if (header != nullptr) {
-                //JUMPOUT(unk_547A43);
+                header->destruct_mashed_class();
             }
 
             if (entries != nullptr) {
@@ -120,12 +121,11 @@ void string_hash_dictionary::clear()
         else
         {
             if (header != nullptr) {
-                operator delete(header);
+                delete header;
             }
 
             if (entries != nullptr) {
-                entries->sub_5702D0();
-                operator delete(entries);
+                delete entries;
             }
         }
 
@@ -220,7 +220,7 @@ void string_hash_dictionary::save_dictionary(const char *a1)
 {
     TRACE("string_hash_dictionary::save_dictionary");
 
-    if constexpr (0)
+    if constexpr (1)
     {
         mString v2 = figure_out_filename(
             a1,
@@ -229,7 +229,6 @@ void string_hash_dictionary::save_dictionary(const char *a1)
 
         write_text(v2.c_str());
         mString v3 = figure_out_filename(
-
             a1,
             default_dictionary_filename,
             dictionary_extension);
@@ -244,14 +243,16 @@ void string_hash_dictionary::save_dictionary(const char *a1)
 
 void string_hash_dictionary::write_text(const char *a1)
 {
-    sp_log("string_hash_dictionary::write_text: %s", a1);
+    TRACE("string_hash_dictionary::write_text", a1);
+
     if constexpr (1)
     {
         mString v6 {a1};
-        os_file file {v6, 2u};
+        os_file file {v6, os_file::FILE_WRITE};
 
-        if (file.opened) {
-            mString v4{"hashcode\tstring\r\n"};
+        if (file.opened)
+        {
+            mString v4 {"hashcode\tstring\r\n"};
             file.write(v4.c_str(), v4.size());
 
             v4 = "----------------------------------------------------------------------------"
@@ -259,26 +260,13 @@ void string_hash_dictionary::write_text(const char *a1)
 
             file.write(v4.c_str(), v4.size());
 
-            auto *v1 = entries->m_head; // mAvlTree<string_hash_entry>::begin()
-            if (v1 != nullptr) {
-                for (auto &i = v1->m_left; i != nullptr; i = i->m_left) {
-                    v1 = i;
-                }
+#if 0
+            for ( auto &node : (*entries) )
+            {
+                mString v5 = node.m_key->generate_text("\r\n");
+                file.write(v5.c_str(), v5.size());
             }
-
-            mAvlTree<string_hash_entry>::iterator iter{v1};
-            if (v1 != nullptr) {
-                do {
-                    {
-                        mString v5 = v1->m_key->generate_text("\r\n");
-
-                        file.write(v5.c_str(), v5.size());
-                    }
-
-                    iter.iterate();
-                    v1 = iter.field_0;
-                } while (iter.field_0);
-            }
+#endif
 
             file.close();
         }
@@ -291,12 +279,19 @@ void string_hash_dictionary::delete_inst()
 {
     TRACE("string_hash_dictionary::delete_inst");
 
-    is_setup = false;
-    if (g_is_the_packer || os_developer_options::instance->get_flag(mString {"LOAD_STRING_HASH_DICTIONARY"})) {
-        save_dictionary(nullptr);
-    }
+    if constexpr (1)
+    {
+        is_setup = false;
+        if (g_is_the_packer || os_developer_options::instance->get_flag(mString {"LOAD_STRING_HASH_DICTIONARY"})) {
+            save_dictionary(nullptr);
+        }
 
-    clear();
+        clear();
+    }
+    else
+    {
+        CDECL_CALL(0x0054C1F0);
+    }
 }
 
 mString string_hash_dictionary::figure_out_filename(const char *a2,
@@ -404,8 +399,9 @@ string_hash string_hash_dictionary::register_string(const char *str)
 {
     static const char *s_debug_string = "ai_arena.dsg";
     _strcmpi(str, s_debug_string);
-    auto v2 = to_hash(str);
-    string_hash a3 {static_cast<int>(v2)};
+
+    const int v2 = to_hash(str);
+    string_hash a3 {v2};
 
     string_hash a1;
     if (entries != nullptr) {
@@ -454,6 +450,8 @@ bool string_hash_dictionary::register_in_tree(mAvlTree<string_hash_entry> *a1,
                                               const char *str,
                                               const string_hash &a3)
 {
+    TRACE("string_hash_dictionary::register_in_tree");
+
     if constexpr (1)
     {
         string_hash_entry a2 {nullptr, a3};
@@ -471,7 +469,9 @@ bool string_hash_dictionary::register_in_tree(mAvlTree<string_hash_entry> *a1,
             return false;
         }
 
-        string_hash_entry *v11 = new string_hash_entry {str, a3};
+        auto *mem = (void *) CDECL_CALL(0x00822046, sizeof(string_hash_entry));
+        sp_log("mem = 0x%08X", int(mem));
+        string_hash_entry *v11 = new (mem) string_hash_entry {str, a3};
 
         auto did_insert = a1->insert(v11);
         assert(did_insert && "duplicate string_hash entry");
@@ -517,6 +517,11 @@ bool string_hash_dictionary::exists(uint32_t a1)
 
 void string_hash_dictionary_patch()
 {
+    REDIRECT(0x0053DE68, string_hash_dictionary::register_in_tree);
+
+    return;
+    REDIRECT(0x005D9495, string_hash_dictionary::delete_inst);
+
     REDIRECT(0x005E1113, string_hash_dictionary::create_inst);
 
     REDIRECT(0x005374C8, string_hash_dictionary::lookup_string);
@@ -530,6 +535,4 @@ void string_hash_dictionary_patch()
     }
 
     //REDIRECT(0x005588CC, string_hash_dictionary::load_dictionary);
-
-    REDIRECT(0x005D9495, string_hash_dictionary::delete_inst);
 }

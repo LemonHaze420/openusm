@@ -162,6 +162,17 @@ worldly_pack_slot::~worldly_pack_slot()
     }
 }
 
+void worldly_pack_slot::_finalize(bool a2)
+{
+    TRACE("worldly_pack_slot::finalize");
+
+    this->~worldly_pack_slot();
+
+    if (a2) {
+        mem_dealloc(this, sizeof(worldly_pack_slot));
+    }
+}
+
 bool worldly_pack_slot::_on_load(limited_timer *a2)
 {
     TRACE("worldly_pack_slot::on_load", this->get_name_key().get_platform_string(g_platform).c_str());

@@ -15,6 +15,7 @@
 #include "path_graph.h"
 #include "skeleton_interface.h"
 #include "sound_alias_database.h"
+#include "string_hash_entry.h"
 #include "token_def_list.h"
 #include "trace.h"
 

@@ -57,6 +57,7 @@ mString::mString(int a2)
     : mString()
 
 {
+    assert(this->field_C == nullptr);
     char Dest[32];
 
     sprintf(Dest, "%d", a2);
@@ -65,12 +66,12 @@ mString::mString(int a2)
     this->update_guts(Dest, -1);
 }
 
-mString &mString::operator=(const char *a2) {
+mString & mString::operator=(const char *a2) {
     this->update_guts(a2, -1);
     return (*this);
 }
 
-mString &mString::operator=(const mString &a2) {
+mString & mString::operator=(const mString &a2) {
     if (this != (&a2)) {
         this->update_guts(a2.guts, a2.size());
     }
@@ -80,6 +81,7 @@ mString &mString::operator=(const mString &a2) {
 
 mString::~mString()
 {
+    //TRACE("mString::~mString");
     this->finalize(mash::ALLOCATED);
 }
 
@@ -260,6 +262,7 @@ int mString::rfind(char a2, int a3) const {
 
 void mString::finalize(mash::allocation_scope )
 {
+    //TRACE("mString::finalize");
     this->destroy_guts();
     //--mString_count;
 }
@@ -268,6 +271,7 @@ mString::mString()
     : mContainer(), guts(mString::null),
       field_C(nullptr)
 {
+    //TRACE("mString::mString()");
     this->initialize(mash::ALLOCATED);
 }
 
@@ -418,7 +422,7 @@ void mString::append(const char *from_string, int from_string_length) {
 
         {
             auto v5 = this->field_C;
-            if (v5 != nullptr && v6 < v5->m_size) {
+            if (v5 != nullptr && v6 < v5->get_size()) {
                 this->set_size(v6);
                 strncat(this->guts, from_string, from_string_length);
                 this->guts[v6] = 0;
@@ -455,7 +459,8 @@ void mString::destroy_guts()
 {
     //TRACE("mString::destroy_guts");
 
-    if constexpr (1) {
+    if constexpr (1)
+    {
         auto *v2 = this->guts;
         if (v2 != mString::null) {
             if ((int) v2 < (int) this || (int) v2 > (int) this + this->field_0) {
@@ -588,7 +593,7 @@ void mString::update_guts(const char *from_string, int n)
 
         assert(n >= 0 && static_cast<uint32_t>(n) <= MAX_MSTRING_LENGTH - 1);
 
-        if (n > static_cast<int>(m_size)) {
+        if (n > static_cast<int>(this->m_size)) {
             this->destroy_guts();
 
             this->guts = (n < 176)
@@ -627,6 +632,7 @@ void mString::custom_unmash(mash_info_struct *a1, void *a2)
         auto size = this->size();
         if (size <= 0) {
             this->guts = mString::null;
+            this->field_C = nullptr;
         } else {
             a1->align_buffer(
 #ifdef TARGET_XBOX

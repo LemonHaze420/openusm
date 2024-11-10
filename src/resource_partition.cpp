@@ -84,17 +84,20 @@ void resource_partition::clear()
             assert(delete_me->is_empty());
 
             if (delete_me != nullptr) {
-                delete_me->m_vtbl->finalize(delete_me, nullptr, true);
+                assert(int(delete_me->m_vtbl) == 0x008899D0);
+                delete_me->_finalize(true);
             }
         }
 
-        if constexpr (1)
+        if constexpr (0)
         {
-            if (this->m_pack_slots.m_first != nullptr) {
-                delete this->m_pack_slots.m_first;
+            if ( this->m_pack_slots.m_first != nullptr ) {
+                ::operator delete(this->m_pack_slots.m_first);
             }
 
-            this->m_pack_slots = {};
+            this->m_pack_slots.m_first = nullptr;
+            this->m_pack_slots.m_last = nullptr;
+            this->m_pack_slots.m_end = nullptr;
         }
         else
         {

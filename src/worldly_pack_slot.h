@@ -39,6 +39,8 @@ struct worldly_pack_slot : resource_pack_slot {
 
     void clear_progress();
 
+    void _finalize(bool a2);
+
 private:
 
     //0x0050ED20
