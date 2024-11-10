@@ -769,7 +769,7 @@ void game::one_time_init_stuff()
         if constexpr (disable_console)
         {
             if (g_console == nullptr) {
-                g_console = std::make_unique<Console>();
+                g_console = new Console();
             }
         }
 
