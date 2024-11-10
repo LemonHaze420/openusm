@@ -15,6 +15,10 @@ struct AvlTree {
     int m_size;
     bool field_8;
 
+    auto size() const {
+        return this->m_size;
+    }
+
     int addHelper(TreeNode<T> *, TreeNode<T> *&, TreeNode<T> *);
 
     void dump(TreeNode<T> *&a2, int a3);
