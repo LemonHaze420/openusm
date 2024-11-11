@@ -1021,6 +1021,9 @@ extern double sub_77E940(Float a1);
 
 extern double sub_77EA00(Float a1);
 
+//0x007722F0
+extern void releaseShaderLists();
+
 extern bool sub_581C30();
 
 extern matrix4x3 sub_771210(void *a2);

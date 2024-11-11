@@ -1128,6 +1128,23 @@ void sub_772F70()
     CDECL_CALL(0x00772F70);
 }
 
+void releaseShaderLists()
+{
+    TRACE("releaseShaderLists");
+
+    for (auto &shader : g_vertexShaderList) {
+        shader->lpVtbl->Release(shader);
+    }
+
+    g_vertexShaderList.clear();
+
+    for ( auto &shader : g_pixelShaderList) {
+        shader->lpVtbl->Release(shader);
+    }
+
+    g_pixelShaderList.clear();
+}
+
 void sub_772630()
 {
     if constexpr (0)
@@ -1157,18 +1174,18 @@ void sub_772630()
         IDirect3DDevice9_CreatePixelShader(g_Direct3DDevice, dword_8BB560(), &dword_975790());
 
         {
-            auto *head = g_pixelShaderList().m_head;
+            auto *head = g_pixelShaderList.m_head;
             decltype(head) (__fastcall *sub_772C60)(void *, void *, decltype(head) a1, decltype(head) a2, IDirect3DPixelShader9 **a3) = CAST(sub_772C60, 0x00772C60);
 
             auto *v1 = sub_772C60(
-                            &g_pixelShaderList(),
+                            &g_pixelShaderList,
                             nullptr,
-                            g_pixelShaderList().m_head,
-                            g_pixelShaderList().m_head->_Prev,
+                            g_pixelShaderList.m_head,
+                            g_pixelShaderList.m_head->_Prev,
                             &dword_975790());
 
             void (__fastcall *sub_772CE0)(void *, void *, uint32_t) = CAST(sub_772CE0, 0x00772CE0);
-            sub_772CE0(&g_pixelShaderList(), nullptr, 1u);
+            sub_772CE0(&g_pixelShaderList, nullptr, 1u);
             head->_Prev = v1;
             v1->_Prev->_Next = v1;
         }
@@ -5390,8 +5407,15 @@ void aeps_Init() {
     nglCreateDebugMeshes();
 }
 
-void sub_76DF40() {
-    CDECL_CALL(0x0076DF40);
+void sub_76DF40()
+{
+    TRACE("sub_76DF40");
+
+    sp_log("%d", EnableShader);
+    if constexpr (0) {
+    } else {
+        CDECL_CALL(0x0076DF40);
+    }
 
     nglDestroyDebugMeshes();
 }
@@ -5478,7 +5502,11 @@ void ngl_patch()
 
     }
 
+    REDIRECT(0x0076DFFB, releaseShaderLists);
+
     REDIRECT(0x0076D44F, sub_77EBD0);
+
+    REDIRECT(0x005AD5EA, sub_76DF40);
 
     //FIXME
     if constexpr (nglLoadMeshFileInternal_hook)
@@ -5733,8 +5761,6 @@ void ngl_patch()
 
     {
         //REDIRECT(0x005AD2DF, aeps_Init);
-
-        //REDIRECT(0x005AD5EA, sub_76DF40);
     }
 
     REDIRECT(0x0054B474, send_shadow_projectors);

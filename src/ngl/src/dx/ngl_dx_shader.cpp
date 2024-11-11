@@ -23,7 +23,9 @@
 
 Var<IDirect3DVertexDeclaration9 *[1]> dword_9738E0 { 0x009738E0 };
 
-Var<_std::list<void *>> g_pixelShaderList{0x00972B10};
+_std::list<IDirect3DPixelShader9 *> &g_pixelShaderList = var<_std::list<IDirect3DPixelShader9 *>>(0x00972B10);
+
+_std::list<IDirect3DVertexShader9 *> &g_vertexShaderList = var<_std::list<IDirect3DVertexShader9 *>>(0x00972AC0);
 
 //0x007CA2E8
 int __stdcall hookD3DXAssembleShader(const char *data,
@@ -52,6 +54,8 @@ int CreatePixelShader(IDirect3DPixelShader9 **a1, const DWORD *a2)
 
 void nglCreateVertexDeclarationAndShader(void *a1, const D3DVERTEXELEMENT9 *a2, const DWORD *a3)
 {
+    TRACE("nglCreateVertexDeclarationAndShader");
+
     if constexpr (1)
     {
         struct {
@@ -62,18 +66,7 @@ void nglCreateVertexDeclarationAndShader(void *a1, const D3DVERTEXELEMENT9 *a2, 
         IDirect3DDevice9_CreateVertexDeclaration(g_Direct3DDevice, a2, &v1->field_4);
         IDirect3DDevice9_CreateVertexShader(g_Direct3DDevice, a3, &v1->field_0);
 
-        auto *v3 = g_vertexShaderList().m_head;
-        assert(v3 != nullptr);
-
-        auto *v4 = (decltype(v3)) THISCALL(0x00772C60,
-                                           &g_vertexShaderList(),
-                                           g_vertexShaderList().m_head,
-                                           g_vertexShaderList().m_head->_Prev,
-                                           &v1->field_0);
-        THISCALL(0x00772CE0, &g_vertexShaderList(), 1u);
-        v3->_Prev = v4;
-        v4->_Prev->_Next = v4;
-
+        g_vertexShaderList.push_back(v1->field_0);
     }
     else
     {
@@ -411,7 +404,10 @@ const char *disassemble_shader(const DWORD *pShader) {
     return disBuf;
 }
 
-void nglCreatePShader(IDirect3DPixelShader9 **a3, const char *SrcCode, ...) {
+void nglCreatePShader(IDirect3DPixelShader9 **a3, const char *SrcCode, ...)
+{
+    TRACE("nglCreatePShader");
+
     assert(SrcCode != nullptr);
 
     static const char *NGL_PS_PRECODE = "ps.1.1\n";
@@ -419,7 +415,7 @@ void nglCreatePShader(IDirect3DPixelShader9 **a3, const char *SrcCode, ...) {
     assert((strlen(SrcCode) + strlen(NGL_PS_PRECODE) + 1 < 4096) &&
            "String overflow in nglCreatePShader.");
 
-    if constexpr (0)
+    if constexpr (1)
     {
         char Dest[4096];
 
@@ -455,15 +451,7 @@ void nglCreatePShader(IDirect3DPixelShader9 **a3, const char *SrcCode, ...) {
         IDirect3DPixelShader9 *v2;
         IDirect3DDevice9_CreatePixelShader(g_Direct3DDevice, v7, &v2);
 
-        auto *v8 = g_pixelShaderList().m_head;
-        auto *v9 = (decltype(v8)) THISCALL(0x00772C60,
-                                           &g_pixelShaderList(),
-                                           g_pixelShaderList().m_head,
-                                           g_pixelShaderList().m_head->_Prev,
-                                           a3);
-        THISCALL(0x00772CE0, &g_pixelShaderList(), 1u);
-        v8->_Prev = v9;
-        v9->_Prev->_Next = v9;
+        g_pixelShaderList.push_back(*a3);
 
         va_end(Args);
     }

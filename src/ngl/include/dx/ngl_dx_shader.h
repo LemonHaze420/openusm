@@ -29,9 +29,9 @@ inline Var<IDirect3DPixelShader9 *> dword_9757DC {0x009757DC};
 
 inline Var<IDirect3DPixelShader9 *> dword_975790 {0x00975790};
 
-extern Var<_std::list<void *>> g_pixelShaderList;
+extern _std::list<IDirect3DPixelShader9 *> &g_pixelShaderList;
 
-inline Var<_std::list<void *>> g_vertexShaderList {0x00972AC0};
+extern _std::list<IDirect3DVertexShader9 *> &g_vertexShaderList;
 
 extern void log_codes(const DWORD *code);
 
