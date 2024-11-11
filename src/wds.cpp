@@ -1280,6 +1280,8 @@ camera *world_dynamics_system::get_chase_cam_ptr(int a2) {
 
 void wds_enter_water_trigger_callback(event *, entity_base_vhandle a2, void *)
 {
+    TRACE("wds_enter_water_trigger_callback");
+
     assert(g_world_ptr != nullptr);
 
     auto *ptr = a2.get_volatile_ptr();
@@ -1289,20 +1291,11 @@ void wds_enter_water_trigger_callback(event *, entity_base_vhandle a2, void *)
 
     auto *trig = bit_cast<trigger *>(ptr);
     auto *ent = trig->get_triggered_ent();
+    assert(ent != nullptr);
 
     auto v5 = ent->my_handle.field_0;
-    auto *list = &g_world_ptr->field_254;
-    auto *m_head = list->m_head;
-    auto *Prev = m_head->_Prev;
-
-    decltype(m_head) (_fastcall *_Buynode)(void *, void *edx, decltype(m_head), decltype(m_head), uint32_t *) = CAST(_Buynode, 0x006B78D0);
-    auto *v8 = _Buynode(list, nullptr, m_head, Prev, &v5);
-
-    void (__fastcall *sub_566E00)(void *, void *edx, uint32_t) = CAST(sub_566E00, 0x00566E00);
-    sub_566E00(list, nullptr, 1u);
-
-    m_head->_Prev = v8;
-    v8->_Prev->_Next = v8;
+    auto &list = g_world_ptr->field_254;
+    list.push_back(v5);
 }
 
 void world_dynamics_system::create_water_kill_trigger()
@@ -1987,6 +1980,11 @@ int get_hero_type_helper()
 void world_dynamics_system_patch()
 {
     REDIRECT(0x005584BD, zero_xz_velocity_for_effectively_standing_physical_interfaces);
+
+    {
+        auto *address = &wds_enter_water_trigger_callback;
+        SET_JUMP(0x0053CC00, address);
+    }
 
     {
         FUNC_ADDRESS(address, &world_dynamics_system::add_anim_ctrl);
