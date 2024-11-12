@@ -313,6 +313,8 @@ math::VecClass<3, 1> sub_413E90(
 
 math::VecClass<3, 1> sub_414360(const math::VecClass<3, 1> &a2, const math::MatClass<4, 3> &a3)
 {
+    TRACE("sub_414360");
+
     vector4d a5;
     vector4d a4;
     vector4d a3a;
@@ -432,9 +434,11 @@ matrix4x4 nglMeshNode::sub_419930()
 
 matrix4x4 nglMeshNode::sub_4199D0()
 {
+    TRACE("nglMeshNode::sub_4199D0");
+
     matrix4x4 result;
 
-    if constexpr (0)
+    if constexpr (1)
     {
         if ( this->field_80 == nullptr )
         {
@@ -457,6 +461,55 @@ matrix4x4 nglMeshNode::sub_4199D0()
 void sub_781F80(nglVertexBuffer *a1, int a2, uint32_t a3)
 {
     CDECL_CALL(0x00781F80, a1, a2, a3);
+}
+
+void MatrixPair::sub_7A5070(
+        math::VecClass<3, 0> &a2,
+        math::VecClass<3, 0> &a3,
+        math::VecClass<3, 0> &a4) const
+{
+    auto func = [](matrix4x4 &a1, vector4d &a2, vector4d &a3, vector4d &a4) -> void {
+        a2 = a1[0];
+        a3 = a1[1];
+        a4 = a1[2];
+    };
+
+    vector4d a2a, a3a, a4a;
+    func(this->field_0, a2a, a3a, a4a);
+
+    a2 = a2a * (*bit_cast<matrix4x3 *>(&this->field_4));
+    a3 = a3a * (*bit_cast<matrix4x3 *>(&this->field_4));
+    a4 = a4a * (*bit_cast<matrix4x3 *>(&this->field_4));
+}
+
+void ComplexMatrixPair::sub_7709F0(vector4d &a2, vector4d &a3, vector4d &a4) const
+{
+    if constexpr (1) {
+        math::VecClass<3, 0> a2a, a3a, a4a, a5a;
+
+        this->field_0.sub_7A5070(a2a, a3a, a4a);
+        a2 = a2a * (*bit_cast<matrix4x3 *>(&this->field_4));
+        a3 = a3a * (*bit_cast<matrix4x3 *>(&this->field_4));
+        a4 = a4a * (*bit_cast<matrix4x3 *>(&this->field_4));
+    } else {
+        THISCALL(0x007709F0, this, &a2, &a3, &a4);
+    }
+}
+
+matrix4x3 sub_770F30(const ComplexMatrixPair &a2)
+{
+    matrix4x3 result;
+    if constexpr (1) {
+        vector4d v3, v4, v5;
+        a2.sub_7709F0(v3, v4, v5);
+        result[0] = v3;
+        result[1] = v4;
+        result[2] = v5;
+        return result;
+    } else {
+        CDECL_CALL(0x00770F30, &result, &a2);
+        return result;
+    }
 }
 
 bool nglVertexBuffer::createIndexBufferAndWriteData(const void *a2, int size)
@@ -2369,7 +2422,6 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
         if (strncmp(Header->Tag, "PCM ", 4u) != 0)
         {
             sp_log("Corrupted mesh file: %s%s%s.\n", nglMeshPath(), FileName.to_string(), ext);
-
             return false;
         }
 
@@ -2428,12 +2480,11 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
             PTR_OFFSET(Base, dir_entry.field_4.Material);
             PTR_OFFSET(Base, dir_entry.field_8);
 
-            auto dir_entry_type = dir_entry.field_3;
+            auto dir_entry_type = dir_entry.m_type;
             sp_log("dir_entry_type = %s", to_string(dir_entry_type));
 
             switch (dir_entry_type) {
             case TypeDirectoryEntry::MATERIAL: {
-
                 nglMaterialBase *Material = dir_entry.field_4.Material;
 
                 PTR_OFFSET(Base, Material->Name);

@@ -305,7 +305,7 @@ struct nglDirectoryEntry {
     char field_0;
     char field_1;
     char field_2;
-    TypeDirectoryEntry field_3;
+    TypeDirectoryEntry m_type;
     union {
         nglMaterialBase *Material;
         nglMesh *Mesh;
@@ -995,6 +995,25 @@ struct nglRenderTextureState
         uint32_t a4);
 };
 
+struct MatrixPair {
+    math::MatClass<4, 3> &field_0;
+    math::MatClass<4, 3> &field_4;
+
+    void sub_7A5070(
+        math::VecClass<3, 0> &a2,
+        math::VecClass<3, 0> &a3,
+        math::VecClass<3, 0> &a4) const;
+};
+
+struct ComplexMatrixPair {
+    MatrixPair &field_0;
+    matrix4x4 &field_4;
+
+    void sub_7709F0(vector4d &a2,
+            vector4d &a3,
+            vector4d &a4) const;
+};
+
 inline Var<uint32_t[4][14]> SamplerStates {0x00971FF0};
 
 inline Var<uint32_t[264]> TextureStageStates {0x00972240};
@@ -1025,6 +1044,8 @@ extern double sub_77EA00(Float a1);
 extern void releaseShaderLists();
 
 extern bool sub_581C30();
+
+extern matrix4x3 sub_770F30(const ComplexMatrixPair &a2);
 
 extern matrix4x3 sub_771210(void *a2);
 

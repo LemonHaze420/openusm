@@ -233,7 +233,11 @@ void nglSetupVShaderBonesDX(int a5, nglMeshNode *MeshNode, nglMeshSection *Secti
 {
     TRACE("nglSetupVShaderBonesDX");
 
-    if constexpr (0)
+    auto *meshParams = MeshNode->field_90;
+    //sp_log("Flags 0x%08X", meshParams->Flags);
+    assert(meshParams->Flags == 0x44);
+
+    if constexpr (1)
     {
         static constexpr auto BONES_SCALE = 3.0f;
         static const float BONES_OFFSET = a5;
@@ -241,37 +245,40 @@ void nglSetupVShaderBonesDX(int a5, nglMeshNode *MeshNode, nglMeshSection *Secti
 
         IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice, 90u, a2, 1u);
 
-        static Var<matrix4x3[MAX_BONES]> g_boneMatrices {0x00972B20};
+        static auto &g_boneMatrices = var<matrix4x3[MAX_BONES]>(0x00972B20);
+        [[maybe_unused]] auto *meshBones = MeshNode->field_88->Bones;
 
         auto *meshParams = MeshNode->field_90;
+        [[maybe_unused]] auto *paramBones = meshParams->field_8; 
         if ( (meshParams->Flags & 4) != 0 )
         {
-            for ( int i = 0; i < Section->NBones; ++i )
-            {
-                assert(i < MAX_BONES && "nglSetupVShaderBonesDX: too many bones ! Increase the MAX_BONES value.");
+            assert(static_cast<uint32_t>(Section->NBones) < MAX_BONES && "nglSetupVShaderBonesDX: too many bones ! Increase the MAX_BONES value.");
 
-                [[maybe_unused]] auto boneIdx = Section->BonesIdx[i];
-                [[maybe_unused]] auto v9 = MeshNode->sub_4199D0();
-                matrix4x4 arg4;
+            std::transform(Section->BonesIdx,
+                Section->BonesIdx + Section->NBones,
+                std::begin(g_boneMatrices),
+                [MeshNode](auto boneIdx) {
+                    auto *meshBones = MeshNode->field_88->Bones;
 
-                /*
-                struct {
-                    matrix4x3 *field_0;
-                    matrix4x3 *field_4;
-                } v29 {&meshParams->field_8[boneIdx], v9};
-                auto *v27 = (const math::VecClass__3_1 *)(v8 + LODWORD(a2[1]));
-                sub_770F30(&arg4, (matrix4x4 **)&v25);
-                sub_414360(&out, v27 + 3, a3);
-                sub_414360((math::VecClass__3_1 *)&arg4.m.arr[3], &out, v9);
-                */
+                    auto *meshParams = MeshNode->field_90;
+                    auto *paramBones = meshParams->field_8; 
 
-                matrix4x3 v10 = sub_413770(arg4);
-                std::memcpy(&g_boneMatrices()[i], &v10, sizeof(v10));
-            }
+                    auto matrixFromMeshNode = MeshNode->sub_4199D0();
+
+                    MatrixPair v6 {meshBones[boneIdx], paramBones[boneIdx]};
+                    ComplexMatrixPair v7 {v6, matrixFromMeshNode};
+
+                    matrix4x4 arg4 {};
+                    arg4.sub_771190(v7);
+
+                    matrix4x3 v10 = sub_413770(arg4);
+                    return v10;
+                }
+            );
         }
         else if ( (meshParams->Flags & 8) != 0 )
         {
-            for ( int i = 0; i < Section->NBones; ++i )
+            for ( uint32_t i = 0; i < static_cast<uint32_t>(Section->NBones); ++i )
             {
                 assert(i < MAX_BONES && "nglSetupVShaderBonesDX: too many bones ! Increase the MAX_BONES value.");
 
@@ -286,12 +293,12 @@ void nglSetupVShaderBonesDX(int a5, nglMeshNode *MeshNode, nglMeshSection *Secti
                 sub_414360((math::VecClass__3_1 *)&arg4.m.arr[3], v14 + 3, v15);
                 */
                 matrix4x3 v16 = sub_413770(arg4);
-                std::memcpy(&g_boneMatrices()[i], &v16, sizeof(v16));
+                std::memcpy(&g_boneMatrices[i], &v16, sizeof(v16));
             }
         }
-        else if ( (meshParams->Flags & 0x10) == 0 )
+        else if ( (meshParams->Flags & 0x10) != 0 )
         {
-            for ( int i = 0; i < Section->NBones; ++i )
+            for ( uint32_t i = 0; i < static_cast<uint32_t>(Section->NBones); ++i )
             {
                 assert(i < MAX_BONES && "nglSetupVShaderBonesDX: too many bones ! Increase the MAX_BONES value.");
 
@@ -300,20 +307,20 @@ void nglSetupVShaderBonesDX(int a5, nglMeshNode *MeshNode, nglMeshSection *Secti
 
                 
                 matrix4x3 v20 = sub_413770(arg4);
-                std::memcpy(&g_boneMatrices()[i], &v20, sizeof(v20));
+                std::memcpy(&g_boneMatrices[i], &v20, sizeof(v20));
             }
         }
         else
         {
-            for ( int i = 0; i < Section->NBones; ++i )
+            for ( uint32_t i = 0; i < static_cast<uint32_t>(Section->NBones); ++i )
             {
                 assert(i < MAX_BONES && "nglSetupVShaderBonesDX: too many bones ! Increase the MAX_BONES value.");
 
-                bit_cast<matrix4x4 *>(&g_boneMatrices()[i])->sub_415740(nullptr);
+                bit_cast<matrix4x4 *>(&g_boneMatrices[i])->sub_415740(nullptr);
             }
         }
 
-        IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice, a5, &g_boneMatrices()[0][0].x, 3 * Section->NBones);
+        IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice, a5, &g_boneMatrices[0][0].x, 3 * Section->NBones);
     }
     else
     {
@@ -1247,7 +1254,6 @@ int __fastcall CAssembler_Assemble(
 
     return result;
 }
-
 
 void ngl_dx_shader_patch()
 {

@@ -4,6 +4,7 @@
 #include "func_wrapper.h"
 #include "log.h"
 #include "matrix4x3.h"
+#include "ngl.h"
 #include "trace.h"
 #include "utility.h"
 #include "variable.h"
@@ -490,7 +491,7 @@ void matrix4x4::make_scale(const vector3d &v) {
 
 void matrix4x4::sub_415650(const matrix4x3 &a2)
 {
-    if constexpr (0)
+    if constexpr (1)
     {
         this->arr[0] = a2[0];
         this->arr[1] = a2[1];
@@ -539,11 +540,29 @@ vector3d sub_501B20(const matrix4x4 &a2, const vector3d &a3)
     return result;
 }
 
+matrix4x4 & matrix4x4::sub_771190(const ComplexMatrixPair &a2)
+{
+    (*this) = sub_770F30(a2);
+    auto v8 = sub_414360(
+            a2.field_0.field_0[3],
+            a2.field_0.field_4);
+    auto v7 = sub_414360(v8, a2.field_4);
+    this->arr[3][0] = v7[0];
+    this->arr[3][1] = v7[1];
+    this->arr[3][2] = v7[2];
+    this->arr[3][3] = v7[3];
+
+    return (*this);
+}
+
+
 matrix4x3 sub_413770(const matrix4x4 &a2)
 {
+    TRACE("sub_413770");
+
     matrix4x3 result;
     
-    if constexpr(0)
+    if constexpr(1)
     {
         vector4d x_axis, y_axis, z_axis, w_axis;
         a2.decompose(x_axis, y_axis, z_axis, w_axis);

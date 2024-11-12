@@ -5,6 +5,7 @@
 
 #include "matrix4x3.h"
 
+struct ComplexMatrixPair;
 struct vector3d;
 
 struct matrix4x4 {
@@ -120,6 +121,8 @@ struct matrix4x4 {
     friend vector3d operator*(const matrix4x4 &a2, const vector3d &a3);
 
     void sub_415650(const matrix4x3 &a2);
+
+    matrix4x4 & sub_771190(const ComplexMatrixPair &a2);
 
     //0x00588390
     void scale(Float a2);

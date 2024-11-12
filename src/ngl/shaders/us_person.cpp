@@ -30,7 +30,7 @@
 #include <cassert>
 #include <filesystem>
 
-Var<int> USPersonParam::ID{0x0095678C};
+Var<int> USPersonParam::ID {0x0095678C};
 
 namespace USPersonShaderSpace {
 
@@ -1776,7 +1776,10 @@ void us_person_patch()
         REDIRECT(0x0041BD15, address);
     }
 
-    REDIRECT(0x0041C5CE, nglSetupVShaderBonesDX);
+    {
+        REDIRECT(0x0041C5CE, nglSetupVShaderBonesDX);
+        REDIRECT(0x0041E5BE, nglSetupVShaderBonesDX);
+    }
 
     REDIRECT(0x0041171C, USPersonShaderSpace::CreatePixelShaders);
 
