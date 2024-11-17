@@ -107,7 +107,7 @@ double USVariantShaderNode::sub_41DEA0() const {
     vector4d v2;
     vector4d v3;
 
-    CDECL_CALL(0x00414360, &v2, &this->m_meshNode->field_88->field_20, this->m_meshNode);
+    CDECL_CALL(0x00414360, &v2, &this->m_meshNode->Mesh->SphereCenter, this->m_meshNode);
     CDECL_CALL(0x00414360, &v3, &v2, &nglCurScene()->WorldToView);
     return v3[2];
 }

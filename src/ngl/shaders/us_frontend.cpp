@@ -155,14 +155,14 @@ void FrontEnd_ShaderNode::Render()
             if ( EnableShader ) {
                 IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice,
                                                                      0,
-                                                                     &this->m_meshNode->field_40[0][0],
+                                                                     &this->m_meshNode->WorldToLocal[0][0],
                                                                      4);
 
                 nglSetVertexDeclarationAndShader(&stru_970610());
             } else {
                 IDirect3DDevice9_SetTransform(g_Direct3DDevice,
                                                          (D3DTRANSFORMSTATETYPE) 256,
-                                                         bit_cast<D3DMATRIX *>(&this->m_meshNode->field_0));
+                                                         bit_cast<D3DMATRIX *>(&this->m_meshNode->LocalToWorld));
                 IDirect3DDevice9_SetVertexDeclaration(g_Direct3DDevice,
                                                                  dword_9738E0()[22]);
             }

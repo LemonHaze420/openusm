@@ -112,14 +112,14 @@ void PCUV_ShaderNode::Render()
         {
             IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice,
                                                                  0,
-                                                                 &this->field_C->field_40[0][0],
+                                                                 &this->field_C->WorldToLocal[0][0],
                                                                  4);
 
             nglSetVertexDeclarationAndShader(&dword_970AD0());
         } else {
             IDirect3DDevice9_SetTransform(g_Direct3DDevice,
                                                      static_cast<D3DTRANSFORMSTATETYPE>(256),
-                                                     (const D3DMATRIX *) &this->field_C->field_0);
+                                                     (const D3DMATRIX *) &this->field_C->LocalToWorld);
             IDirect3DDevice9_SetVertexDeclaration(g_Direct3DDevice, dword_9738E0()[14]);
         }
 

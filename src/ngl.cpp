@@ -341,7 +341,7 @@ matrix4x4 nglMeshNode::sub_41D840()
     if constexpr (0)
     {
         matrix4x4 v2 {};
-        if ( (this->field_90->Flags & 1) != 0 )
+        if ( (this->Params->Flags & 1) != 0 )
         {
             v2 = nglCurScene()->WorldToView;
         }
@@ -350,7 +350,7 @@ matrix4x4 nglMeshNode::sub_41D840()
             struct {
                 matrix4x4 *field_0;
                 matrix4x4 *field_4;
-            } v4 {&this->field_0, &nglCurScene()->WorldToView};
+            } v4 {&this->LocalToWorld, &nglCurScene()->WorldToView};
             matrix4x4 v5;
             v5.sub_41D8A0(&v4);
             v2 = v5;
@@ -398,11 +398,11 @@ matrix4x4 nglMeshNode::sub_419930()
 
     if constexpr (0)
     {
-        auto *v3 = this->field_90;
+        auto *v3 = this->Params;
         if ( (v3->Flags & 2) != 0 )
         {
             auto v12 = sub_7A5990(v3->Scale);
-            auto v2 = this->field_0;
+            auto v2 = this->LocalToWorld;
 
             struct {
                 void *field_0;
@@ -419,7 +419,7 @@ matrix4x4 nglMeshNode::sub_419930()
         }
         else
         {
-            result = this->field_0;
+            result = this->LocalToWorld;
         }
 
         return result;
@@ -461,6 +461,18 @@ matrix4x4 nglMeshNode::sub_4199D0()
 void sub_781F80(nglVertexBuffer *a1, int a2, uint32_t a3)
 {
     CDECL_CALL(0x00781F80, a1, a2, a3);
+}
+
+matrix4x3 sub_770EB0(const MatrixPair &a1)
+{
+    math::VecClass<3, 0> a2, a3, a4;
+    a1.sub_7A5070(a2, a3, a4);
+
+    matrix4x3 result;
+    result[0] = a2;
+    result[1] = a3;
+    result[2] = a4;
+    return result;
 }
 
 void MatrixPair::sub_7A5070(
@@ -2792,10 +2804,10 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
                         Mesh->Bones[i] = sub_4150E0(Mesh->Bones[i]);
                     }
 
-                    auto v89 = Mesh->field_20[0];
-                    auto v90 = Mesh->field_20[1];
-                    auto v91 = Mesh->field_20[2];
-                    auto v93 = Mesh->field_20[3];
+                    auto v89 = Mesh->SphereCenter[0];
+                    auto v90 = Mesh->SphereCenter[1];
+                    auto v91 = Mesh->SphereCenter[2];
+                    auto v93 = Mesh->SphereCenter[3];
                     auto v73 = Mesh->SphereRadius;
 
                     vector4d v96;
@@ -2853,10 +2865,10 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
             {
                 if ((v67->Flags & NGLMESH_PROCESSED) == 0)
                 {
-                    a3a[0] = v96[0] - v67->field_20[0];
-                    a3a[1] = v96[1] - v67->field_20[1];
-                    a3a[2] = v96[2] - v67->field_20[2];
-                    a3a[3] = v96[3] - v67->field_20[3];
+                    a3a[0] = v96[0] - v67->SphereCenter[0];
+                    a3a[1] = v96[1] - v67->SphereCenter[1];
+                    a3a[2] = v96[2] - v67->SphereCenter[2];
+                    a3a[3] = v96[3] - v67->SphereCenter[3];
                     auto v76 = vector3d {a3a[0], a3a[1], a3a[2]}.length() + v67->SphereRadius;
                     if (v69 <= v76) {
                         v69 = v76;
@@ -2869,10 +2881,10 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
                 if ((Mesh->Flags & NGLMESH_PROCESSED) == 0)
                 {
                     Mesh->SphereRadius = v69;
-                    Mesh->field_20[0] = v96[0];
-                    Mesh->field_20[1] = v96[1];
-                    Mesh->field_20[2] = v96[2];
-                    Mesh->field_20[3] = v96[3];
+                    Mesh->SphereCenter[0] = v96[0];
+                    Mesh->SphereCenter[1] = v96[1];
+                    Mesh->SphereCenter[2] = v96[2];
+                    Mesh->SphereCenter[3] = v96[3];
                     Mesh->Flags |= NGLMESH_PROCESSED;
                 }
             }
@@ -3212,11 +3224,11 @@ nglMesh *nglCreateMeshClone(nglMesh *a1)
         newMesh->LODs = nullptr;
     }
 
-    newMesh->field_20 = a1->field_20;
+    newMesh->SphereCenter = a1->SphereCenter;
     newMesh->File = nullptr;
     newMesh->NextMesh = nullptr;
     newMesh->SphereRadius= a1->SphereRadius;
-    newMesh->field_3C = a1->field_3C;
+    newMesh->DataSize = a1->DataSize;
     return newMesh;
 }
 
@@ -3316,17 +3328,17 @@ void nglSetQuadUV(nglQuad *a1, Float a2, int a3, Float a4, Float a5)
     a1->field_0[3].uv.field_4 = a5;
 }
 
-int nglGetLOD(nglMesh *a1, const math::MatClass<4, 3> &a2)
+int nglGetLOD(nglMesh *Mesh, const math::MatClass<4, 3> &a2)
 {
     TRACE("nglGetLOD");
 
-    auto v5 = sub_414360(a1->field_20, a2);
+    auto v5 = sub_414360(Mesh->SphereCenter, a2);
     auto v6 = sub_414360(v5, nglCurScene()->WorldToView);
     auto v7 = v6[2];
 
-    for ( auto i = a1->NLODs - 1; i >= 0; --i )
+    for ( auto i = Mesh->NLODs - 1; i >= 0; --i )
     {
-        if ( v7 > a1->LODs[i].field_4 ) {
+        if ( v7 > Mesh->LODs[i].field_4 ) {
             return i + 1;
         }
     }
@@ -4031,11 +4043,8 @@ vector4d sub_411C10(color32 a2)
 {
     vector4d result;
     result[0] = a2.field_0[2] * 0.0039215689f;
-
     result[1] = a2.field_0[1] * 0.0039215689f;
-
     result[2] = a2.field_0[0] * 0.0039215689f;
-
     result[3] = a2.field_0[3] * 0.0039215689f;
     return result;
 }
@@ -5159,7 +5168,7 @@ void nglDumpMesh(nglMesh *Mesh, const math::MatClass<4, 3> &a2, nglMeshParams *M
 
                     for (auto i = 0; i < MeshParams->NBones; ++i)
                     {
-                        auto *v6 = MeshParams->field_8;
+                        auto *v6 = MeshParams->Bones;
                         nglHostPrintf(
                             h_sceneDump(),
                             "  BONE %d %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f\n",

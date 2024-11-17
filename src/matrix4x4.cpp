@@ -555,6 +555,27 @@ matrix4x4 & matrix4x4::sub_771190(const ComplexMatrixPair &a2)
     return (*this);
 }
 
+matrix4x4 & matrix4x4::sub_747860(const MatrixPair &a2)
+{
+    (*this) = sub_770EB0(a2);
+    this->arr[3] = sub_414360(
+            a2.field_0[3],
+            a2.field_4);
+    return (*this);
+}
+
+matrix4x4 & matrix4x4::sub_771120(const MatrixPair &a2)
+{
+    auto v3 = sub_770EB0(a2);
+    (*this) = v3;
+    auto res = sub_414360(a2.field_0[3], a2.field_4);
+    this->arr[3][0] = res[0];
+    this->arr[3][1] = res[1];
+    this->arr[3][2] = res[2];
+    this->arr[3][3] = res[3];
+    return (*this);
+}
+
 
 matrix4x3 sub_413770(const matrix4x4 &a2)
 {

@@ -1265,9 +1265,9 @@ vector3d actor::_get_visual_center()
 
                     auto *Mesh = this->get_mesh();
 
-                    this->field_AC[0] = Mesh->field_20[0];
-                    this->field_AC[1] = Mesh->field_20[1];
-                    this->field_AC[2] = Mesh->field_20[2];
+                    this->field_AC[0] = Mesh->SphereCenter[0];
+                    this->field_AC[1] = Mesh->SphereCenter[1];
+                    this->field_AC[2] = Mesh->SphereCenter[2];
 
                     assert(get_cached_visual_bounding_sphere_center()->is_valid());
 

@@ -179,7 +179,7 @@ int nglListAddMesh_GetClipResult(math::VecClass<3, 1> a1, Float radius, int a6)
 }
 
 void nglListAddMesh(nglMesh *Mesh,
-                    const math::MatClass<4, 3> &a2,
+                    const math::MatClass<4, 3> &LocalToWorld,
                     nglMeshParams *a3,
                     nglParamSet<nglShaderParamSet_Pool> *a4)
 {
@@ -210,20 +210,20 @@ void nglListAddMesh(nglMesh *Mesh,
             }
 
             if ( nglSyncDebug().DumpSceneFile ) {
-                nglDumpMesh(Mesh, a2, a3);
+                nglDumpMesh(Mesh, LocalToWorld, a3);
             }
 
             int v20 = (a3 != nullptr ? a3->Flags : 0);
 
-            auto *v5 = &a2;
+            auto *v5 = &LocalToWorld;
             auto Radius = Mesh->SphereRadius;
             float v15 = 1.0;
             if ((v20 & NGLP_SCALE) != 0) {
-                v5 = nglListAddMesh_GetScaledMatrix(a2, a3, &v15);
+                v5 = nglListAddMesh_GetScaledMatrix(LocalToWorld, a3, &v15);
                 Radius *= v15;
             }
 
-            math::VecClass<3, 1> v18 = sub_414360(Mesh->field_20, *v5);
+            math::VecClass<3, 1> v18 = sub_414360(Mesh->SphereCenter, *v5);
             if (nglCurScene()->field_3E4) {
                 nglCalculateMatrices(false);
             }
@@ -236,12 +236,12 @@ void nglListAddMesh(nglMesh *Mesh,
             auto v17 = nglListWorkPos();
 
             nglMeshNode *meshNode = new nglMeshNode{};
-            meshNode->field_88 = Mesh;
-            meshNode->field_0 = matrix4x4 {};
+            meshNode->Mesh = Mesh;
+            meshNode->LocalToWorld = matrix4x4 {};
 
             ptr_to_po v14 = {(const po *) v6, (po *) &nglCurScene()->WorldToScreen};
 
-            meshNode->field_40 = sub_507130(v14);
+            meshNode->WorldToLocal = sub_507130(v14);
             meshNode->field_84 = 0;
             meshNode->field_80 = nullptr;
             meshNode->field_94 = v15;
@@ -249,17 +249,17 @@ void nglListAddMesh(nglMesh *Mesh,
             {
                 if (v20 >= 0)
                 {
-                    meshNode->field_90 = new nglMeshParams {};
-                    std::memcpy(meshNode->field_90, a3, sizeof(nglMeshParams));
+                    meshNode->Params = new nglMeshParams {};
+                    std::memcpy(meshNode->Params, a3, sizeof(nglMeshParams));
                 } else {
-                    meshNode->field_90 = a3;
+                    meshNode->Params = a3;
                 }
 
             }
             else
             {
                 static Var<nglMeshParams> nglEmptyMeshParams{0x00972820};
-                meshNode->field_90 = &nglEmptyMeshParams();
+                meshNode->Params = &nglEmptyMeshParams();
             }
 
             if (a4 != nullptr) {
@@ -285,16 +285,15 @@ void nglListAddMesh(nglMesh *Mesh,
                             MeshSection->Material);
                 }
 
-                nglPerfInfo().m_num_polys += Mesh->field_3C;
+                nglPerfInfo().m_num_polys += Mesh->DataSize;
                 auto *v13 = Mesh->File;
                 if (v13 != nullptr) {
                     v13->field_144 = nglFrame();
                 }
             }
         }
-
     } else {
-        CDECL_CALL(0x00770360, Mesh, &a2, a3, a4);
+        CDECL_CALL(0x00770360, Mesh, &LocalToWorld, a3, a4);
     }
 }
 

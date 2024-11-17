@@ -66,7 +66,7 @@ void Outline_ShaderNode<USExteriorMaterial>::Render()
         this->sub_413AF0();
         auto v3 = this->m_meshNode->sub_4199D0();
         auto v17 = sub_414360(nglCurScene()->ViewPos, v3);
-        v17 = sub_414360(this->m_meshNode->field_88->field_20, this->m_meshNode->field_0);
+        v17 = sub_414360(this->m_meshNode->Mesh->SphereCenter, this->m_meshNode->LocalToWorld);
 
         auto v4 = g_renderState().field_74;
         auto v5 = g_renderState().field_7C;
@@ -115,7 +115,7 @@ void Outline_ShaderNode<USExteriorMaterial>::Render()
             IDirect3DDevice9_SetVertexShaderConstantF(
                     g_Direct3DDevice,
                     0,
-                    &this->m_meshNode->field_40[0][0],
+                    &this->m_meshNode->WorldToLocal[0][0],
                     4);
         }
         else
@@ -123,7 +123,7 @@ void Outline_ShaderNode<USExteriorMaterial>::Render()
             IDirect3DDevice9_SetTransform(
                 g_Direct3DDevice,
                 (D3DTRANSFORMSTATETYPE)256,
-                bit_cast<D3DMATRIX *>(&this->m_meshNode->field_0));
+                bit_cast<D3DMATRIX *>(&this->m_meshNode->LocalToWorld));
             IDirect3DDevice9_SetVertexDeclaration(
                     g_Direct3DDevice, dword_9738E0()[9]);
         }
@@ -179,10 +179,11 @@ void Outline_ShaderNode<USExteriorMaterial>::Render()
         if ( v2->field_68 && EnableShader )
         {
             math::VecClass<3, 1> v17 {};
-            v17[0] = this->m_meshNode->field_0[3][0];
-            v17[1] = this->m_meshNode->field_0[3][1];
-            v17[2] = this->m_meshNode->field_0[3][2];
-            v17[3] = this->m_meshNode->field_0[3][3];
+            
+            v17[0] = this->m_meshNode->LocalToWorld[3][0];
+            v17[1] = this->m_meshNode->LocalToWorld[3][1];
+            v17[2] = this->m_meshNode->LocalToWorld[3][2];
+            v17[3] = this->m_meshNode->LocalToWorld[3][3];
             auto v13 = calc_outline_thickness(v17);
             if ( v2->field_7C > 1.f ) {
                 v13 *= v2->field_7C;
@@ -210,7 +211,7 @@ void Outline_ShaderNode<USExteriorMaterial>::Render()
             IDirect3DDevice9_SetVertexShaderConstantF(
                     g_Direct3DDevice,
                     0,
-                    &this->m_meshNode->field_40[0][0],
+                    &this->m_meshNode->WorldToLocal[0][0],
                     4);
 
             {
@@ -256,7 +257,7 @@ void Outline_ShaderNode<USInteriorMaterial>::Render()
         this->sub_413AF0();
         auto v3 = this->m_meshNode->sub_4199D0();
         auto v17 = sub_414360(nglCurScene()->ViewPos, v3);
-        v17 = sub_414360(this->m_meshNode->field_88->field_20, this->m_meshNode->field_0);
+        v17 = sub_414360(this->m_meshNode->Mesh->SphereCenter, this->m_meshNode->LocalToWorld);
         auto v4 = g_renderState().field_74;
         auto v5 = g_renderState().field_7C;
         g_renderState().setBlending(NGLBM_OPAQUE, 0, 0);
@@ -301,7 +302,7 @@ void Outline_ShaderNode<USInteriorMaterial>::Render()
             IDirect3DDevice9_SetVertexShaderConstantF(
                     g_Direct3DDevice,
                     0,
-                    &this->m_meshNode->field_40[0][0],
+                    &this->m_meshNode->WorldToLocal[0][0],
                     4);
         }
         else
@@ -309,7 +310,7 @@ void Outline_ShaderNode<USInteriorMaterial>::Render()
             IDirect3DDevice9_SetTransform(
                 g_Direct3DDevice,
                 static_cast<D3DTRANSFORMSTATETYPE>(256),
-                bit_cast<D3DMATRIX *>(&this->m_meshNode->field_0));
+                bit_cast<D3DMATRIX *>(&this->m_meshNode->LocalToWorld));
             IDirect3DDevice9_SetVertexDeclaration(
                     g_Direct3DDevice, dword_9738E0()[9]);
         }
@@ -356,10 +357,10 @@ void Outline_ShaderNode<USInteriorMaterial>::Render()
         auto *v8 = this->field_14;
         if ( v2->field_24 && EnableShader )
         {
-            v17[0] = this->m_meshNode->field_0[3][0];
-            v17[1] = this->m_meshNode->field_0[3][1];
-            v17[2] = this->m_meshNode->field_0[3][2];
-            v17[3] = this->m_meshNode->field_0[3][3];
+            v17[0] = this->m_meshNode->LocalToWorld[3][0];
+            v17[1] = this->m_meshNode->LocalToWorld[3][1];
+            v17[2] = this->m_meshNode->LocalToWorld[3][2];
+            v17[3] = this->m_meshNode->LocalToWorld[3][3];
             auto v13 = calc_outline_thickness(*bit_cast<math::VecClass<3, 1> *>(&v17));
             if ( v8->field_38 > 1.f ) {
                 v13 *= v8->field_38;
@@ -381,7 +382,7 @@ void Outline_ShaderNode<USInteriorMaterial>::Render()
             IDirect3DDevice9_SetVertexShaderConstantF(
                     g_Direct3DDevice,
                     0,
-                    &this->m_meshNode->field_40[0][0],
+                    &this->m_meshNode->WorldToLocal[0][0],
                     4);
 
             v17[3] = v13;

@@ -6,6 +6,7 @@
 #include "matrix4x3.h"
 
 struct ComplexMatrixPair;
+struct MatrixPair;
 struct vector3d;
 
 struct matrix4x4 {
@@ -123,6 +124,10 @@ struct matrix4x4 {
     void sub_415650(const matrix4x3 &a2);
 
     matrix4x4 & sub_771190(const ComplexMatrixPair &a2);
+
+    matrix4x4 & sub_771120(const MatrixPair &a2);
+
+    matrix4x4 & sub_747860(const MatrixPair &a2);
 
     //0x00588390
     void scale(Float a2);

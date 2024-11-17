@@ -11,7 +11,7 @@ struct nglMeshFile;
 struct nglMeshParams {
     uint32_t Flags;
     int NBones;
-    math::MatClass<4, 3> *field_8;
+    math::MatClass<4, 3> *Bones;
     int field_C;
     math::VecClass<3, 1> Scale;
 
@@ -45,11 +45,11 @@ struct nglMesh {
     };
 
     Lod *LODs;
-    math::VecClass<3, 1> field_20;
+    math::VecClass<3, 1> SphereCenter;
     float SphereRadius;
     nglMeshFile *File;
     nglMesh *NextMesh;
-    int field_3C;
+    uint32_t DataSize;
 
     static tlFixedString *get_string(nglMesh *Mesh);
 };

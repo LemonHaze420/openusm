@@ -1081,8 +1081,8 @@ bool USPersonNode::GetLightInfo(USPersonNode::LightInfoStruct &lightInfo)
 
             auto *v5 = param->field_0;
 
-            vector3d v8 = sub_411750(*(vector4d *) &this->m_meshNode->field_88->field_20,
-                                     this->m_meshNode->field_0[3]);
+            vector3d v8 = sub_411750(*(vector4d *) &this->m_meshNode->Mesh->SphereCenter,
+                                     this->m_meshNode->LocalToWorld[3]);
             v5->get_colors(v8, lightInfo.field_10, lightInfo.field_20);
 
             lightInfo.m_dir = v5->get_dir(v8);
@@ -1175,7 +1175,7 @@ void USPersonNode::RenderWithDisableShader()
         v19[1] = 0.57735026;
         v19[2] = 0.81649655;
 
-        D3DXVec3TransformNormal(&v19, &v19, bit_cast<D3DXMATRIX *>(&v13->field_0));
+        D3DXVec3TransformNormal(&v19, &v19, bit_cast<D3DXMATRIX *>(&v13->LocalToWorld));
 
         void * (__cdecl *sub_7783F0)(nglMeshNode *, nglMeshSection *, float *) = CAST(sub_7783F0, 0x007783F0);
         if ( sub_7783F0(this->m_meshNode, this->m_meshSection, v19) != nullptr )
@@ -1338,8 +1338,8 @@ void USPersonNode::_Render()
 
         sp_log("blend_mode = %u", this->m_material->m_blend_mode);
 
-        sp_log("%s", this->m_meshNode->field_0.to_string());
-        sp_log("%s", this->m_meshNode->field_40.to_string());
+        sp_log("%s", this->m_meshNode->LocalToWorld.to_string());
+        sp_log("%s", this->m_meshNode->WorldToLocal.to_string());
     }
 
     if constexpr (0)
@@ -1396,7 +1396,7 @@ void USPersonNode::_Render()
 
         IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice,
                                                              0,
-                                                             &this->m_meshNode->field_40[0][0],
+                                                             &this->m_meshNode->WorldToLocal[0][0],
                                                              4);
         nglSetupVShaderBonesDX(11, this->m_meshNode, this->m_meshSection);
 

@@ -52,8 +52,8 @@ void FastListAddMesh(nglMesh *Mesh,
         if (Mesh->NLODs != 0)
         {
             math::VecClass<3, 1> v5 = ( (MeshParams->Flags & 1) != 0
-                                            ? Mesh->field_20
-                                            : sub_414360(Mesh->field_20, LocalToWorld)
+                                            ? Mesh->SphereCenter
+                                            : sub_414360(Mesh->SphereCenter, LocalToWorld)
                                         );
 
             math::VecClass<3, 1> a2a = v5;
@@ -92,14 +92,14 @@ void FastListAddMesh(nglMesh *Mesh,
         }
 
         auto *v12 = new nglMeshNode {};
-        v12->field_88 = Mesh;
-        v12->field_0 = LocalToWorld;
+        v12->Mesh = Mesh;
+        v12->LocalToWorld = LocalToWorld;
 
         ptr_to_po a2a;
         a2a.m_rel_po = CAST(a2a.m_rel_po, &LocalToWorld);
         a2a.m_abs_po = CAST(a2a.m_abs_po, &nglCurScene()->WorldToScreen);
 
-        v12->field_40 = sub_507130(a2a);
+        v12->WorldToLocal = sub_507130(a2a);
 
         v12->field_84 = 0;
         v12->field_80 = nullptr;
@@ -115,7 +115,7 @@ void FastListAddMesh(nglMesh *Mesh,
         assert(!(MeshParams->Flags & NGLP_FORCE_LOD) &&
                "Force LOD not supported by FastListAddMesh.\n");
 
-        v12->field_90 = MeshParams;
+        v12->Params = MeshParams;
 
         assert(ShaderParams != nullptr && "NULL ShaderParams in FastListAddMesh.\n");
 
@@ -132,7 +132,7 @@ void FastListAddMesh(nglMesh *Mesh,
             MeshSection->Material->m_shader->AddNode(v12, MeshSection, v15);
         }
 
-        nglPerfInfo().m_num_polys += Mesh->field_3C;
+        nglPerfInfo().m_num_polys += Mesh->DataSize;
 
         if (Mesh->File != nullptr) {
             Mesh->File->field_144 = nglFrame();

@@ -527,13 +527,13 @@ struct nglQuadNode : nglRenderNode {
 };
 
 struct nglMeshNode {
-    matrix4x4 field_0;
-    matrix4x4 field_40;
+    matrix4x4 LocalToWorld;
+    matrix4x4 WorldToLocal;
     matrix4x4 *field_80;
     int field_84;
-    nglMesh *field_88;
+    nglMesh *Mesh;
     nglParamSet<nglShaderParamSet_Pool> field_8C;
-    nglMeshParams *field_90;
+    nglMeshParams *Params;
     float field_94;
 
     void * operator new(size_t size);
@@ -1050,6 +1050,8 @@ extern matrix4x3 sub_770F30(const ComplexMatrixPair &a2);
 extern matrix4x3 sub_771210(void *a2);
 
 extern matrix4x4 sub_4150E0(const matrix4x4 &a2);
+
+extern matrix4x3 sub_770EB0(const MatrixPair &a2);
 
 extern void sub_4013C0(
         vector4d &a1,
