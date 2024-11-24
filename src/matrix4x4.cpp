@@ -126,16 +126,16 @@ void matrix4x4::sub_415A30(const void *a2)
         vector4d a4;
         vector4d a5;
 
-        ptr_to_po tmp = *bit_cast<const ptr_to_po *>(a2);
+        TransformMatrices tmp = *bit_cast<const TransformMatrices *>(a2);
 
         if constexpr (0)
         {
-            mString str0 {tmp.m_rel_po->m.to_string()};
-            mString str1 {tmp.m_abs_po->m.to_string()};
+            mString str0 {tmp.m_rel_po->to_string()};
+            mString str1 {tmp.m_abs_po->to_string()};
             sp_log("args: %s %s", str0.c_str(), str1.c_str());
         }
 
-        tmp.sub_48E900(a2a, a3, a4, a5);
+        tmp.decomposeAndProjectToScreen(a2a, a3, a4, a5);
 
         this->arr[0] = a2a;
 

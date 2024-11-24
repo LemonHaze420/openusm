@@ -10,7 +10,7 @@ struct vector3d;
 struct quaternion;
 struct vector4d;
 
-struct ptr_to_po;
+struct TransformMatrices;
 
 struct po {
     matrix4x4 m;
@@ -137,14 +137,7 @@ struct po {
 
 inline const po po_identity_matrix {1.0, 0, 0, 0, 1.0, 0, 0, 0, 1.0, 0, 0, 0};
 
-struct ptr_to_po {
-    const po *m_rel_po;
-    const po *m_abs_po;
-
-    void sub_48E900(vector4d &a2, vector4d &a3, vector4d &a4, vector4d &a5) const;
-};
-
-extern matrix4x4 sub_507130(const ptr_to_po &arg4);
+extern matrix4x4 sub_507130(const TransformMatrices &arg4);
 
 extern po sub_48F770(const po &arg4, const po &a3);
 

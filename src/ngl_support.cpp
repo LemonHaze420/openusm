@@ -91,19 +91,19 @@ void FastListAddMesh(nglMesh *Mesh,
 #endif
         }
 
-        auto *v12 = new nglMeshNode {};
-        v12->Mesh = Mesh;
-        v12->LocalToWorld = LocalToWorld;
+        auto *meshNode = new nglMeshNode {};
+        meshNode->Mesh = Mesh;
+        meshNode->LocalToWorld = LocalToWorld;
 
-        ptr_to_po a2a;
+        TransformMatrices a2a;
         a2a.m_rel_po = CAST(a2a.m_rel_po, &LocalToWorld);
         a2a.m_abs_po = CAST(a2a.m_abs_po, &nglCurScene()->WorldToScreen);
 
-        v12->WorldToLocal = sub_507130(a2a);
+        meshNode->WorldToLocal = sub_507130(a2a);
 
-        v12->field_84 = 0;
-        v12->field_80 = nullptr;
-        v12->field_94 = 1.0;
+        meshNode->field_84 = 0;
+        meshNode->field_80 = nullptr;
+        meshNode->field_94 = 1.0;
 
         assert(!(MeshParams->Flags & NGLP_SCALE) && "No scale allowed in FastListAddMesh.\n");
 
@@ -115,11 +115,11 @@ void FastListAddMesh(nglMesh *Mesh,
         assert(!(MeshParams->Flags & NGLP_FORCE_LOD) &&
                "Force LOD not supported by FastListAddMesh.\n");
 
-        v12->Params = MeshParams;
+        meshNode->Params = MeshParams;
 
         assert(ShaderParams != nullptr && "NULL ShaderParams in FastListAddMesh.\n");
 
-        v12->field_8C = *ShaderParams;
+        meshNode->field_8C = *ShaderParams;
 
         for (auto i = 0u; i < Mesh->NSections; ++i)
         {
@@ -127,9 +127,9 @@ void FastListAddMesh(nglMesh *Mesh,
 
             nglPerfInfo().m_num_verts += MeshSection->NVertices;
 
-            nglMaterialBase *v15 = sub_8EA2E0(&v12->field_8C, MeshSection->Material);
+            nglMaterialBase *v15 = sub_8EA2E0(&meshNode->field_8C, MeshSection->Material);
 
-            MeshSection->Material->m_shader->AddNode(v12, MeshSection, v15);
+            MeshSection->Material->m_shader->AddNode(meshNode, MeshSection, v15);
         }
 
         nglPerfInfo().m_num_polys += Mesh->DataSize;

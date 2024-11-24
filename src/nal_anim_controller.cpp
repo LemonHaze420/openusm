@@ -12,6 +12,7 @@
 #include "nal_instance.h"
 #include "nal_skeleton.h"
 #include "nal_system.h"
+#include "ngl.h"
 #include "oldmath_po.h"
 #include "osassert.h"
 #include "trace.h"
@@ -295,9 +296,7 @@ void nal_anim_controller::get_matrix_data_from_pose(nalAnyPose &arg0)
                 po a2_28 {};
                 this->get_curr_po_offset(a2_28);
 
-                ptr_to_po a2;
-                a2.m_abs_po = &v3->get_rel_po();
-                a2.m_rel_po = &a2_28;
+                TransformMatrices a2 {&a2_28.m, &v3->get_rel_po().m};
                 a2_28.m.sub_415A30(&a2);
                 a2_28.sub_48D840();
                 this->field_4->set_abs_po(a2_28);
@@ -333,9 +332,7 @@ void nal_anim_controller::get_matrix_data_from_pose(nalAnyPose &arg0)
                 this->get_curr_po_offset(a2_28);
                 auto *my_rel_po = &this->field_4->get_rel_po();
 
-                ptr_to_po a2;
-                a2.m_rel_po = &a2_28;
-                a2.m_abs_po = my_rel_po;
+                TransformMatrices a2 {&a2_28.m, &my_rel_po->m};
                 a2_28.m.sub_415A30(&a2);
                 a2_28.sub_48D840();
                 this->field_4->set_abs_po(a2_28);

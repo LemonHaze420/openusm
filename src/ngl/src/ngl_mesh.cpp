@@ -239,7 +239,7 @@ void nglListAddMesh(nglMesh *Mesh,
             meshNode->Mesh = Mesh;
             meshNode->LocalToWorld = matrix4x4 {};
 
-            ptr_to_po v14 = {(const po *) v6, (po *) &nglCurScene()->WorldToScreen};
+            TransformMatrices v14 {v6, &nglCurScene()->WorldToScreen};
 
             meshNode->WorldToLocal = sub_507130(v14);
             meshNode->field_84 = 0;

@@ -526,6 +526,13 @@ struct nglQuadNode : nglRenderNode {
     void Render();
 };
 
+struct TransformMatrices {
+    const matrix4x4 *m_rel_po;
+    const matrix4x4 *m_abs_po;
+
+    void decomposeAndProjectToScreen(vector4d &a2, vector4d &a3, vector4d &a4, vector4d &a5) const;
+};
+
 struct nglMeshNode {
     matrix4x4 LocalToWorld;
     matrix4x4 WorldToLocal;

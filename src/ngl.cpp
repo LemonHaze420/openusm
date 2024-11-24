@@ -333,6 +333,31 @@ void * nglMeshNode::operator new(size_t size)
     return mem;
 }
 
+void TransformMatrices::decomposeAndProjectToScreen(vector4d &a2, vector4d &a3, vector4d &a4, vector4d &a5) const
+{
+    if constexpr (1)
+    {
+        vector4d a2a, v13, v14, v15;
+        this->m_rel_po->decompose(a2a, v13, v14, v15);
+
+        a2 = xform_inv(a2a, *bit_cast<matrix4x3 *>(this->m_abs_po));
+
+        a3 = xform_inv(v13, *bit_cast<matrix4x3 *>(this->m_abs_po));
+
+        a4 = xform_inv(v14, *bit_cast<matrix4x3 *>(this->m_abs_po));
+
+        //sp_log("w_axis: %s", v15.to_string().c_str());
+
+        auto v5 = sub_414360(*bit_cast<math::VecClass<3, 1> *>(&v15), *bit_cast<const math::MatClass<4, 3> *>(this->m_abs_po));
+        a5 = *bit_cast<vector4d *>(&v5);
+
+        //sp_log("res: %s", a5.to_string().c_str());
+
+    } else {
+        THISCALL(0x0048E900, this, &a2, &a3, &a4, &a5);
+    }
+}
+
 
 matrix4x4 nglMeshNode::sub_41D840()
 {

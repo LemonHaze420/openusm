@@ -629,31 +629,6 @@ void po::set_translate(const vector3d &a2)
     this->m[3] = a2;
 }
 
-void ptr_to_po::sub_48E900(vector4d &a2, vector4d &a3, vector4d &a4, vector4d &a5) const
-{
-    if constexpr (1)
-    {
-        vector4d a2a, v13, v14, v15;
-        this->m_rel_po->m.decompose(a2a, v13, v14, v15);
-
-        a2 = xform_inv(a2a, *bit_cast<matrix4x3 *>(this->m_abs_po));
-
-        a3 = xform_inv(v13, *bit_cast<matrix4x3 *>(this->m_abs_po));
-
-        a4 = xform_inv(v14, *bit_cast<matrix4x3 *>(this->m_abs_po));
-
-        //sp_log("w_axis: %s", v15.to_string().c_str());
-
-        auto v5 = sub_414360(*bit_cast<math::VecClass<3, 1> *>(&v15), *bit_cast<const math::MatClass<4, 3> *>(this->m_abs_po));
-        a5 = *bit_cast<vector4d *>(&v5);
-
-        //sp_log("res: %s", a5.to_string().c_str());
-
-    } else {
-        THISCALL(0x0048E900, this, &a2, &a3, &a4, &a5);
-    }
-}
-
 mString po::to_string() const {
     mString result{0,
                    "%f %f %f %f\n"
@@ -705,14 +680,14 @@ po sub_48F770(const po &arg4, const po &a3)
     return res;
 }
 
-matrix4x4 sub_507130(const ptr_to_po &arg4)
+matrix4x4 sub_507130(const TransformMatrices &arg4)
 {
     matrix4x4 result;
 
     if constexpr (0)
     {
         vector4d a2, a3, a4, a5;
-        arg4.sub_48E900(a2, a3, a4, a5);
+        arg4.decomposeAndProjectToScreen(a2, a3, a4, a5);
 
         vector4d a1a, v5, v4, v3;
         sub_4013C0(a1a, v5, v4, v3, a2, a3, a4, a5);
