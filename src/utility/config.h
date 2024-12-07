@@ -2,6 +2,7 @@
 
 #include <cstddef>
 
+#include <algorithm>
 #include <cstring>
 
 #ifndef __has_feature
