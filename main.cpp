@@ -2587,6 +2587,8 @@ BOOL install_redirects()
         resource_key_patch();
     }
 
+    traffic_patch();
+
     return true;
 
     redirect_winmain();
@@ -2789,8 +2791,6 @@ BOOL install_redirects()
     if constexpr (1)
     {
         os_file_patch();
-
-        traffic_patch();
 
         traffic_path_lane_patch();
 

@@ -24,9 +24,10 @@ struct traffic_path_lane {
         return this->total_nodes;
     }
 
-    vector3d sub_5E2040();
-
     vector3d get_node(int a3) const;
+
+    //0x005E2040
+    vector3d get_directional_node() const;
 
     void sub_5CCFB0(entity *ent, int a3);
 

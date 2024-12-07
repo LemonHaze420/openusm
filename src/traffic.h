@@ -48,6 +48,18 @@ struct traffic : spawnable {
 
     void sub_6DA3B0(Float a2, Float a3, Float a4);
 
+    void set_current_lane(traffic_path_lane *a2, int a3, bool a4);
+
+    //virtual
+    //0x006D9070
+    void _do_spawn(
+            vector3d a4,
+            vector3d a2,
+            traffic_path_lane *lane,
+            int a9,
+            bool a10,
+            bool a11);
+
     static void initialize_traffic();
 
     static void terminate_traffic();

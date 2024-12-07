@@ -194,11 +194,42 @@ bool traffic::is_unanimated_car(actor *a1) {
     }
 }
 
+void traffic::_do_spawn(
+        vector3d a4,
+        vector3d a2,
+        traffic_path_lane *lane,
+        int a9,
+        bool a10,
+        bool a11)
+{
+    TRACE("traffic::do_spawn");
+    void (__fastcall *func)(traffic *, void *edx,
+            vector3d, vector3d, traffic_path_lane *, int, bool, bool) = CAST(func, 0x006D9070);
+
+    func(this, nullptr, a4, a2, lane, a9, a10, a11);
+}
+
+void traffic::set_current_lane(traffic_path_lane *a2, int a3, bool a4)
+{
+    TRACE("traffic::set_current_lane");
+    THISCALL(0x006C72D0, this, a2, a3, a4);
+}
+
 traffic *traffic::get_traffic_from_entity(vhandle_type<entity> a1) {
     return (traffic *) CDECL_CALL(0x006C3510, a1);
 }
 
 void traffic_patch()
 {
+    {
+        FUNC_ADDRESS(address, &traffic::_do_spawn);
+        //set_vfunc(0x008A5CF8, address);
+    }
+
+    {
+        FUNC_ADDRESS(address, &traffic::set_current_lane);
+        REDIRECT(0x006D9095, address);
+    }
+
     //SET_JUMP(0x006D33C0, traffic::enable_traffic);
 }

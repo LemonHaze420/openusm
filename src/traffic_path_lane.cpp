@@ -31,11 +31,6 @@ bool traffic_path_lane::lane_is_valid(const traffic_path_lane *a1)
         && a1->get_num_nodes() > 0 && a1->get_num_nodes() < 64;
 }
 
-vector3d traffic_path_lane::sub_5E2040() {
-    auto result = this->nodes[this->total_nodes - 1];
-    return result;
-}
-
 void traffic_path_lane::seed_with_pedestrians(entity &ent, int a3)
 {
     THISCALL(0x005CCFB0, this, &ent, a3);
@@ -58,6 +53,11 @@ vector3d traffic_path_lane::get_node(int a3) const
     auto v5 = this->nodes[v3];
 
     return v5;
+}
+
+vector3d traffic_path_lane::get_directional_node() const
+{
+    return this->nodes[this->total_nodes - 1];
 }
 
 void traffic_path_lane::sub_5CCFB0(entity *ent, int a3)

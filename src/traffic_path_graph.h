@@ -8,10 +8,13 @@ struct vector3d;
 
 struct traffic_path_graph {
     struct laneInfoStruct {
-        int field_0;
-        int field_4;
+        traffic_path_graph *field_0;
+        traffic_path_lane *field_4;
         int field_8;
-        int field_C;
+        char field_C;
+        char field_D;
+        bool field_E;
+        char field_F;
     };
 
     traffic_path_graph();
