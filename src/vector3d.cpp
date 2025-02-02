@@ -21,13 +21,15 @@
 
 #include <cstdio>
 
-vector3d XVEC{1.0f, 0, 0};
+vector3d XVEC {1.0f, 0, 0};
 
-vector3d YVEC{0, 1.0, 0};
+vector3d YVEC {0, 1.0, 0};
 
-vector3d ZVEC{0, 0, 1.f};
+vector3d ZVEC {0, 0, 1.f};
 
-vector3d ZEROVEC{0, 0, 0};
+vector3d ZEROVEC {0, 0, 0};
+
+vector3d FARAWAY {-100000.0, -100000.0, -100000.0};
 
 bool lexicographical_compare(const vector3d &v1, const vector3d &v2) {
     if (bit_cast<int>(v1[0]) != bit_cast<int>(v2[0])) {

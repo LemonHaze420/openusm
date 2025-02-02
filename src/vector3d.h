@@ -192,6 +192,8 @@ extern vector3d ZVEC;
 
 extern vector3d ZEROVEC;
 
+extern vector3d FARAWAY;
+
 inline constexpr vector3d IGNORE_LOC {9.9999998e10, 9.9999998e10, 9.9999998e10};
 
 extern float dot(const vector3d &a1, const vector3d &a2);
