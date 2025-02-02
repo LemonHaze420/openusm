@@ -1,10 +1,13 @@
 #include "traffic_path_lane.h"
 
+#include "common.h"
 #include "func_wrapper.h"
 #include "traffic_path.h"
 #include "trace.h"
 #include "utility.h"
 #include "vector3d.h"
+
+VALIDATE_SIZE(traffic_path_lane, 0x14);
 
 bool traffic_path_lane::is_valid(traffic_path_graph *) const
 {
@@ -12,6 +15,64 @@ bool traffic_path_lane::is_valid(traffic_path_graph *) const
 
     return traffic_path_lane::lane_is_valid(this)
           && traffic_path_road::road_is_valid(this->my_road);
+}
+
+traffic_path_intersection * traffic_path_lane::sub_5C8460()
+{
+    auto *my_road = this->my_road;
+    if ( my_road != nullptr ) {
+        return my_road->field_18;
+    } else {
+        return nullptr;
+    }
+}
+
+int traffic_path_lane::get_ai_index(vhandle_type<actor> a2)
+{
+    auto v2 = this->field_10;
+    if ( v2 < 0 ) {
+        return -1;
+    }
+
+    auto *v3 = &traffic_ai_list::ai_lists[v2];
+    if ( v3 == nullptr ) {
+        return -1;
+    }
+
+    return v3->get_ai_index(a2);
+}
+
+entity_base_vhandle traffic_path_lane::get_ai_by_index(int a3) const
+{
+    entity_base_vhandle result;
+    traffic_ai_list *v4 = nullptr;
+
+    auto v3 = this->field_10;
+    if ( v3 >= 0 && (v4 = &traffic_ai_list::ai_lists[v3]) != nullptr )
+    {
+        if ( a3 > 19 ) {
+            result.field_0 = 0;
+        } else {
+            result = v4->ais[a3].field_0;
+        }
+    }
+    else
+    {
+        result.field_0 = 0;
+    }
+
+    return result;
+}
+
+int traffic_path_lane::get_num_ais()
+{
+    traffic_ai_list *v2 = nullptr;
+    auto v1 = this->field_10;
+    if ( v1 >= 0 && (v2 = &traffic_ai_list::ai_lists[v1]) != nullptr ) {
+        return v2->num_ais;
+    } else {
+        return 0;
+    }
 }
 
 int traffic_path_lane::get_type() const
@@ -73,6 +134,34 @@ vector3d traffic_path_lane::get_node_before_point(const vector3d &a3, int *a4) {
 
     return result;
 }
+
+void traffic_path_lane::remove_ai_from_lane(vhandle_type<actor> a2)
+{
+    THISCALL(0x005C8320, this, a2);
+}
+
+void traffic_path_lane::update_lane_indexes()
+{
+    THISCALL(0x005BFEA0, this);
+}
+
+traffic_path_intersection * traffic_path_lane::get_next_intersection(int a2)
+{
+    assert(this->my_road != nullptr && this->my_road->is_an_in_lane(this));
+
+    auto *my_road = this->my_road;
+    if ( my_road == nullptr ) {
+        return nullptr;
+    }
+
+    if ( a2 > 0 ) {
+        return this->my_road->get_previous_intersection();
+    } else {
+        return this->my_road->get_next_intersection();
+    }
+
+}
+
 
 void traffic_path_lane_patch()
 {
