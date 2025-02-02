@@ -18,6 +18,12 @@ extern RTL_CRITICAL_SECTION &g_CriticalSection;
 
 extern PolytubeCustomMaterial *& webline_texture;
 
+extern float & flt_937FA4;
+
+extern float & flt_937FF0;
+
+extern float & flt_937FA8;
+
 extern float & g_strafe_mult;
 
 extern float & g_move_mult;

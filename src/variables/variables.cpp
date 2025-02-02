@@ -11,6 +11,12 @@ RTL_CRITICAL_SECTION &g_CriticalSection = var<RTL_CRITICAL_SECTION>(0x009618F4);
 
 PolytubeCustomMaterial *& webline_texture = var<PolytubeCustomMaterial *>(0x00958058);
 
+float & flt_937FA4 = var<float>(0x00937FA4);
+
+float & flt_937FF0 = var<float>(0x00937FF0);
+
+float & flt_937FA8 = var<float>(0x00937FA8);
+
 float & g_strafe_mult = var<float>(0x00921B70);
 
 float & g_move_mult = var<float>(0x00921B6C);
