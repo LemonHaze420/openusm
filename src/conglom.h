@@ -68,6 +68,8 @@ struct conglomerate : actor {
 
     void destroy_skeleton_ifc();
 
+    void add_member_lights_to_region(region *a1);
+
 	void remove_member_lights_from_region(region *a2);
 
     //0x004D0590
@@ -91,6 +93,10 @@ struct conglomerate : actor {
     //0x004F9930
     //virtual
     void _render(Float a2);
+
+    //0x004D0AA0
+    //virtual
+    void _set_render_alpha_mod(Float a2);
 
     //0x004D2670
     //virtual

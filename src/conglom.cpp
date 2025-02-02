@@ -154,6 +154,11 @@ void conglomerate::destroy_skeleton_ifc()
     this->skeleton_ifc = nullptr;
 }
 
+void conglomerate::add_member_lights_to_region(region *)
+{
+  ;
+}
+
 void conglomerate::remove_member_lights_from_region(region *a2)
 {
 	if constexpr (0) {
@@ -774,6 +779,19 @@ void conglomerate::_render(Float a2)
     else
     {
         this->debug_render();
+    }
+}
+
+void conglomerate::_set_render_alpha_mod(Float a2)
+{
+    actor::set_render_alpha_mod(a2);
+
+    for ( auto &member : this->members )
+    {
+        auto *v5 = bit_cast<entity *>(member);
+        if ( v5->is_an_entity() && v5->get_bone_idx() < 0 ) {
+            v5->set_render_alpha_mod(a2);
+        }
     }
 }
 
