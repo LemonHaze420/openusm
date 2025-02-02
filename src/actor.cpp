@@ -163,6 +163,19 @@ color32 * __fastcall actor_get_render_color(const actor *self, void *, color32 *
     return out;
 }
 
+void actor::_set_render_alpha_mod(Float a2)
+{
+    this->create_adv_ptrs();
+    if ( this->adv_ptrs->field_8 == nullptr )
+    {
+        auto *mem = mem_alloc(sizeof(advanced_entity_ptrs::render_data)); 
+        this->adv_ptrs->field_8 = new (mem) advanced_entity_ptrs::render_data {};
+    }
+
+    this->adv_ptrs->field_8->field_14 = a2;
+    this->set_visible(a2 > 0.0, false);
+}
+
 float actor::_get_render_alpha_mod() const
 {
     TRACE("actor::get_render_alpha_mod");
@@ -198,6 +211,12 @@ vector3d actor::get_render_scale() const
 			? this->adv_ptrs->field_8->m_scale
 			: vector3d {1.0, 1.0, 1.0}
 			);
+}
+
+void actor::ifl_play()
+{
+    bool (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x264));
+    func(this);
 }
 
 void actor::ifl_lock(int a2)
@@ -332,6 +351,11 @@ void actor::invalidate_frame_delta() {
 
 void actor::set_frame_delta_no_update(const po &a2, Float a3) {
     THISCALL(0x004D6B60, this, &a2, a3);
+}
+
+void actor::set_allow_tunnelling_into_next_frame(bool a2)
+{
+    THISCALL(0x004D0260, this, a2);
 }
 
 bool actor::get_allow_tunnelling_into_next_frame() {

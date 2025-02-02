@@ -111,6 +111,10 @@ struct actor : entity {
     //virtual
     color32 _get_render_color() const;
 
+    //0x004B8D30
+    //virtual
+    void _set_render_alpha_mod(Float a2);
+
     //virtual
     float _get_render_alpha_mod() const;
 
@@ -119,6 +123,9 @@ struct actor : entity {
 
 	//virtual
 	vector3d get_render_scale() const;
+
+    //virtual
+    void ifl_play();
 
     //virtual
     void ifl_lock(int a2);
@@ -152,6 +159,8 @@ struct actor : entity {
 
     //0x004D6B60
     void set_frame_delta_no_update(const po &a2, Float a3);
+
+    void set_allow_tunnelling_into_next_frame(bool a2);
 
     //0x004CC940
     bool get_allow_tunnelling_into_next_frame();
