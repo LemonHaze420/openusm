@@ -72,7 +72,8 @@ int param_block::get_parameter_data_type(string_hash a2) const
     return the_param->get_data_type();
 }
 
-const char *param_block::get_pb_fixedstring(string_hash a2) const {
+const char *param_block::get_pb_fixedstring(string_hash a2) const
+{
     auto *v2 = this->param_array;
     if (v2 == nullptr) {
         return nullptr;
@@ -87,6 +88,15 @@ const char *param_block::get_pb_fixedstring(string_hash a2) const {
     assert((curr_data->get_data_type() == PT_FIXED_STRING) && "Parameter is of the wrong type.");
 
     return curr_data->get_data_fixedstring();
+}
+
+void ai::param_block::set_pb_fixedstring(string_hash a2, const char *a3, bool a4)
+{
+    if ( a4 || this->param_array->common_find_data(a2) != nullptr )
+    {
+        string_hash v5 {0};
+        this->add_param(a2, PT_FIXED_STRING, a3, v5);
+    }
 }
 
 void param_block::set_pb_int(string_hash a2, int a3, bool a4)
@@ -374,6 +384,33 @@ float param_block::get_optional_pb_float(string_hash a2, const float &a3, bool *
     }
 
     return result;
+}
+
+const char * ai::param_block::get_optional_pb_fixedstring(
+        string_hash a2,
+        const char *a3,
+        bool *a4) const
+{
+    if ( a4 != nullptr ) {
+        *a4 = false;
+    }
+
+    if ( this->param_array == nullptr ) {
+        return a3;
+    }
+
+    auto *curr_data = this->param_array->common_find_data(a2);
+    if ( curr_data == nullptr ) {
+        return a3;
+    }
+
+    assert(curr_data->get_data_type() == PT_FIXED_STRING && "Parameter is of the wrong type.");
+
+    if ( a4 != nullptr ) {
+        *a4 = true;
+    }
+
+    return curr_data->get_data_fixedstring();
 }
 
 param_block::param_data_array::~param_data_array()

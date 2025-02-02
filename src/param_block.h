@@ -149,6 +149,9 @@ struct param_block {
     //0x006CDD40
     const char *get_pb_fixedstring(string_hash a2) const;
 
+    //0x006D6B50
+    void set_pb_fixedstring(string_hash a2, const char *a3, bool a4);
+
     void set_pb_int(string_hash a2, int a3, bool a4);
 
     void set_pb_float(string_hash a2, Float a3, bool a4);
@@ -164,6 +167,13 @@ struct param_block {
 
     //0x006CDF10
     float get_optional_pb_float(string_hash a2, const float &a3, bool *a4) const;
+
+    //0x006CDFF0
+    const char * get_optional_pb_fixedstring(
+        string_hash a2,
+        const char *a3,
+        bool *a4) const;
+
 };
 } // namespace ai
 
