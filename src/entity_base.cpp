@@ -135,7 +135,7 @@ bool entity_base::has_region_idx() const
     return this->field_3C != 0xFFFF;
 }
 
-uint16_t entity_base::get_bone_idx() const
+int16_t entity_base::get_bone_idx() const
 {
     uint16_t result = -1;
     if ( this->field_40 != 255 )

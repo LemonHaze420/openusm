@@ -80,7 +80,7 @@ struct entity_base : entity_base_vtable {
         return this->field_3C;
     }
 
-    uint16_t get_bone_idx() const;
+    int16_t get_bone_idx() const;
 
     float sub_57CB80();
 
