@@ -408,9 +408,8 @@ int vehicle::pick_model(int a1)
         }
     } else {
         [[maybe_unused]] auto result = CDECL_CALL(0x006BA100, a1);
+        return result;
     }
-
-    return VEHICLE_MODEL_TAXI;
 }
 
 void sub_6BB1E0(conglomerate *the_conglom, string_hash a2, color32 a3, bool a4, bool a5, char a6)
