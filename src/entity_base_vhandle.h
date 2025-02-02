@@ -52,12 +52,12 @@ struct vhandle_type {
         return result;
     }
 
-    bool operator==(const vhandle_type<T0> &arg) 
+    bool operator==(const vhandle_type<T0> &) 
     {
         return get_volatile_ptr() != nullptr;
     }
 
-    bool operator==(int arg) 
+    bool operator==(int ) 
     {
         return get_volatile_ptr() != nullptr;
     }
