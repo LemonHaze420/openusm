@@ -8,6 +8,8 @@
 
 VALIDATE_SIZE(ped_spawner, 0x4C);
 
+_std::vector<ped_spawner *> & ped_spawner::ped_spawner_list = var<_std::vector<ped_spawner *>>(0x0096D270);
+
 ped_spawner::ped_spawner(int a2) : spawnable(vhandle_type<entity> {0})
 {
     this->m_vtbl = 0x008A5B70;

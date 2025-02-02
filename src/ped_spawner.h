@@ -7,6 +7,8 @@
 #include "float.hpp"
 #include "vector3d.h"
 
+#include <vector.hpp>
+
 struct actor;
 struct traffic_path_lane;
 struct traffic_path_intersection;
@@ -64,6 +66,8 @@ struct ped_spawner : spawnable {
     static ped_spawner * assign_non_ped_actor(vhandle_type<actor> a2, int a3);
 
     static inline ped_spawner *& next_ped_spawner = var<ped_spawner *>(0x0096C9BC);
+
+    static _std::vector<ped_spawner *> &ped_spawner_list;
 
 };
 
