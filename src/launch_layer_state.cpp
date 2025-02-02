@@ -1,8 +1,11 @@
 #include "launch_layer_state.h"
 
+#include "common.h"
 #include "mashed_state.h"
 
 namespace ai {
+
+VALIDATE_SIZE(launch_layer_state, 0x44);
 
 launch_layer_state::launch_layer_state(from_mash_in_place_constructor *a2)
     : signal_enhanced_state(a2) {}

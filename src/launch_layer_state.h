@@ -6,6 +6,11 @@
 
 namespace ai {
 struct launch_layer_state : signal_enhanced_state {
+
+    resource_key field_34;
+    int field_3C;
+    int field_40;
+
     launch_layer_state(from_mash_in_place_constructor *a2);
 
     //virtual
