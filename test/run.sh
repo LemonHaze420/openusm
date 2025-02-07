@@ -1,5 +1,7 @@
 #!/bin/bash
 
-source ./wine.sh
+if [[ -z "$WINE" ]]; then
+    source ./wine.sh
+fi
 
 ${WINE} $1
