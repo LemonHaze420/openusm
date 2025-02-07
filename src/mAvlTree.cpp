@@ -147,7 +147,7 @@ void mAvlTree<string_hash_entry>::destroy_element(mAvlNode<string_hash_entry> **
 {
     TRACE("mAvlTree<string_hash_entry>::destroy_element");
 
-    if constexpr (0)
+    if constexpr (1)
     {
         if ( this->field_C )
         {
