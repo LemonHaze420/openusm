@@ -26,7 +26,6 @@ unit-test-job:   # This job runs in the test stage.
     WINE: "wine"
   script:
     - echo "Running unit tests..."
-    - cd ~/Documents/openusm/build
     - ctest
     - echo "Run unit tests complete"
 
