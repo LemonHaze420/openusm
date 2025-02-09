@@ -5,6 +5,9 @@ stages:          # List of stages for jobs, and their order of execution
   - test
   - deploy
 
+before_script:
+  - git submodule update --init --recursive
+
 checkout-job:
   stage: checkout
   script:
@@ -19,13 +22,20 @@ build-job:       # This job runs in the build stage, which runs first.
     - echo "Compiling the code..."
     - cmake -B build && cd build && make -j4
     - echo "Compile complete."
+  artifacts:
+    paths:
+      - build
+    expire_in: 1 hour
 
 unit-test-job:   # This job runs in the test stage.
   stage: test    # It only starts when the job in the build stage completes successfully.
+  dependencies:
+    - build_job
   variables:
     WINE: "wine"
   script:
     - echo "Running unit tests..."
+    - cd build
     - ctest
     - echo "Run unit tests complete"
 
