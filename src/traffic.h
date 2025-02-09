@@ -241,7 +241,7 @@ struct traffic : spawnable {
     static int &parked_cars;
     static int &visible_cars;
 
-    static int & last_traffic_id;;
+    static int & last_traffic_id;
 };
 
 extern void traffic_patch();
