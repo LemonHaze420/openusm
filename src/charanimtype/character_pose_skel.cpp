@@ -51,6 +51,18 @@ void nalCharPose::Blend(
     THISCALL(0x005F13B0, this, a2, a3, a4);
 }
 
+void * nalCharPose::GetNamedPoseData(CharComponentBase::Names a2)
+{
+    auto *Skeleton = (const nalCharSkeleton *) this->GetSkeleton();
+    int CompIxByName = Skeleton->GetCompIxByName(a2);
+    if ( CompIxByName != -1 ) {
+        return this->GetComponentPoseData(CompIxByName);
+    } else {
+        return nullptr;
+    }
+}
+
+
 void nalCharPose::InitializePoseDataFromSkel()
 {
     TRACE("nalCharPose::InitializePoseDataFromSkel");
@@ -60,7 +72,7 @@ void nalCharPose::InitializePoseDataFromSkel()
 
 int nalCharSkeleton::GetCompIxByName(CharComponentBase::Names a2) const
 {
-    for ( uint32_t iCompIx = 0; iCompIx < this->m_iNumComponents; ++iCompIx )
+    for ( int iCompIx = 0; iCompIx < this->m_iNumComponents; ++iCompIx )
     {
         if ( this->field_70[iCompIx].field_0 == a2 ) {
             return iCompIx;

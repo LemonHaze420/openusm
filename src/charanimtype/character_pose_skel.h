@@ -4,6 +4,7 @@
 
 #include <float.hpp>
 #include <nal_pose_comp.h>
+#include <nal_anim_comp.h>
 
 struct nalBasePose;
 
@@ -23,10 +24,16 @@ struct nalCharPose : nalComp::nalCompPose {
 
     void operator delete(void *ptr);
 
+    auto GetSkeleton() {
+        return this->field_4;
+    }
+
     void Blend(
         Float a2,
         nalCharPose *a3,
         nalCharPose *a4);
+
+    void * GetNamedPoseData(CharComponentBase::Names a2);
 
     //virtual
     void InitializePoseDataFromSkel();
@@ -53,7 +60,7 @@ struct nalCharSkeleton : nalComp::nalCompSkeleton {
 
     char * GetNamedPerSkelData(CharComponentBase::Names a2) const;
 
-    nalCharPose *GetDefaultPose() const;
+    nalCharPose * GetDefaultPose() const;
 
     nalCharPose * CreatePose() const;
 
@@ -73,9 +80,10 @@ struct nalCharSkeleton : nalComp::nalCompSkeleton {
     //virtual
     const nalComp::nalCompSkeleton ** VirtualCreatePose() const;
 
+    //0x005FCAC0
     void VirtualBlend(
         nalBasePose *a2,
-        Float arg0a,
+        Float a3,
         nalBasePose *a4,
         nalBasePose *a5);
 

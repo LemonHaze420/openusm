@@ -9,6 +9,7 @@
 using type = usm_anim_player<nalAnimClass<nalAnyPose>, 3>;
 
 VALIDATE_SIZE(type, 0x2C);
+VALIDATE_OFFSET(type::nalAnimState, field_28, 0x28);
 
 template<>
 void usm_anim_player<nalAnimClass<nalAnyPose>, 3>::PlayModifier(

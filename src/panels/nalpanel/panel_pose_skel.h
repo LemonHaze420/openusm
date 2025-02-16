@@ -1,6 +1,7 @@
 #pragma once
 
 #include <nalcomp/nal_pose_comp.h>
+#include <nalcomp/nal_anim_comp.h>
 
 namespace nalPanel {
 

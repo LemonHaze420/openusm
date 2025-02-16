@@ -1,5 +1,6 @@
 #include "anim_resource_handler.h"
 
+#include <character_anim_inst.h>
 #include "common.h"
 #include "func_wrapper.h"
 #include "nal_system.h"

@@ -34,6 +34,8 @@ struct usm_anim_player {
         usm_anim_player<T, I> *field_14;
         float field_18;
         float field_1C;
+        linear_interpolator field_20;
+        uint32_t field_28;
     };
 
     int field_0;

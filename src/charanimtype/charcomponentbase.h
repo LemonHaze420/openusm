@@ -1,6 +1,6 @@
 #pragma once
 
-#include "nal_system.h"
+#include "component.h"
 
 struct CharComponentBase : BaseComponent {
     enum Names {};

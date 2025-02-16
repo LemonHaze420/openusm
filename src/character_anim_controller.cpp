@@ -1,8 +1,15 @@
 #include "character_anim_controller.h"
 
+#include "actor.h"
+#include "anim_event.h"
 #include "charcomponentbase.h"
 #include "character_pose_skel.h"
+#include "character_anim_inst.h"
 #include "common.h"
+#include "event_manager.h"
+#include "fakerootposedesc.h"
+#include "func_wrapper.h"
+#include "nal_instance.h"
 #include "nal_skeleton.h"
 #include "trace.h"
 
@@ -11,6 +18,43 @@
 VALIDATE_SIZE(character_anim_controller, 0x70);
 
 static constexpr auto CHARACTER_ANIMTYPE_NAME = "Character";
+
+void fire_the_signal(const FakerootPoseDesc::PerAnimData::EventIterator &a1, vhandle_type<actor> a2)
+{
+    int NumArguments = a1.GetNumArguments();
+    auto NameOfBone = a1.GetNameOfBone();
+    string_hash v10 {NameOfBone};
+
+    auto NameOfSignal = a1.GetNameOfSignal();
+    string_hash v9 {NameOfSignal};
+    anim_event event_to_raise {v9, v10, NumArguments};
+
+    for ( uint32_t i = 0; i < a1.GetNumArguments(); ++i )
+    {
+        auto Argument = a1.GetArgument(i);
+        string_hash v12 {Argument};
+        event_to_raise.field_10[i] = v12;
+    }
+
+    event_manager::raise_event(&event_to_raise, a2.field_0);
+}
+
+void fire_signals(
+        const FakerootPoseDesc::PerAnimData *a1,
+        const FakerootPoseDesc::StdPoseData &a2,
+        vhandle_type<actor> a3)
+{
+    if ( a2.field_24 )
+    {
+        auto it = a1->GetStartIterator();
+        it.PositionToSignalIx(a2.field_20);
+        for ( int i = 0; i < a2.field_24; ++i )
+        {
+            fire_the_signal(it, a3);
+            ++it;
+        }
+    }
+}
 
 character_anim_controller::character_anim_controller(
         actor *a2,
@@ -82,6 +126,59 @@ void character_anim_controller::play_base_layer_anim(
         bit_cast<void *>(a3),
         a6,
         a7);
+}
+
+void character_anim_controller::gen_std_play_method::Compose(
+        usm_anim_player<nalAnimClass<nalAnyPose>,3>::nalAnimState *a2,
+        nalAnyPose &a3,
+        nalAnyPose &a4,
+        const nalAnyPose &a5)
+{
+    if constexpr (0) {
+        a2->field_0->VirtualGetPose(a2->field_18, a2->field_1C, a4.field_0, a5.field_0);
+        a3.field_0->field_0->VirtualBlend(
+                a3.field_0,
+                a2->field_20.field_0,
+                a3.field_0,
+                a4.field_0);
+
+        nalChar::nalCharPose *v6 = nullptr;
+        if ( a3.field_0 != nullptr ) {
+            v6 = (nalChar::nalCharPose *)&a3.field_0[-1];
+        }
+
+        nalChar::nalCharPose *v7 = nullptr;
+        if ( a4.field_0 != nullptr ) {
+            v7 = (nalChar::nalCharPose *)&a4.field_0[-1];
+        }
+
+        auto *NamedPoseData = (FakerootPoseDesc::StdPoseData *) v6->GetNamedPoseData(
+                static_cast<CharComponentBase::Names>(6));
+        auto *v9 = (FakerootPoseDesc::StdPoseData *) v7->GetNamedPoseData(static_cast<CharComponentBase::Names>(6));
+        NamedPoseData->field_0[0] = v9->field_0[0];
+        NamedPoseData->field_0[1] = v9->field_0[1];
+        NamedPoseData->field_0[2] = v9->field_0[2];
+        NamedPoseData->field_0[3] = v9->field_0[3];
+        NamedPoseData->field_10[0] = v9->field_10[0];
+        NamedPoseData->field_10[1] = v9->field_10[1];
+        NamedPoseData->field_10[2] = v9->field_10[2];
+        NamedPoseData->field_1C = v9->field_1C;
+        if ( this->ShouldFireSignals(a2) )
+        {
+            auto *PerAnimDataByName = (const FakerootPoseDesc::PerAnimData *) bit_cast<nalChar::nalCharAnim *>(a2->field_0->field_10)->GetPerAnimDataByName(
+                    static_cast<CharComponentBase::Names>(6));
+            fire_signals(PerAnimDataByName, *NamedPoseData, {this->field_4->field_4->my_handle.field_0});
+        }
+
+    } else {
+        THISCALL(0x0049EC30, this, a2, &a3, &a4, &a5);
+    }
+}
+
+void character_anim_controller::gen_std_play_method::Reference(
+        usm_anim_player<nalAnimClass<nalAnyPose>,3>::nalAnimState *a1)
+{
+    a1->field_28 = 0;
 }
 
 void character_anim_controller_patch()

@@ -6,7 +6,7 @@
 
 struct nalBaseSkeleton {
     std::intptr_t m_vtbl;
-    int field_4;
+    int Version;
     tlFixedString field_8;
     tlFixedString field_28;
 

@@ -4,20 +4,40 @@
 
 struct character_anim_controller : nal_anim_controller {
 
-    struct gen_base_play_method : std_play_method {
-        gen_base_play_method(character_anim_controller *a2) : field_4(a2) {
-            this->m_vtbl = 0x00880B88;
-        }
+    struct gen_std_play_method : std_play_method {
 
         nal_anim_controller *field_4;
+
+        gen_std_play_method(character_anim_controller *a2) : field_4(a2) {
+            this->m_vtbl = 0x00880B70;
+        }
+
+        //0x0049EC30
+        void Compose(
+            usm_anim_player<nalAnimClass<nalAnyPose>,3>::nalAnimState *a2,
+            nalAnyPose &a3,
+            nalAnyPose &a4,
+            const nalAnyPose &a5);
+
+        //0x00492D10
+        void Reference(
+                usm_anim_player<nalAnimClass<nalAnyPose>,3>::nalAnimState *a1);
+
+        //virtual
+        bool ShouldFireSignals(
+                usm_anim_player<nalAnimClass<nalAnyPose>,3>::nalAnimState *a1);
     };
 
-    struct gen_mod_play_method : usm_anim_player<nalAnimClass<nalAnyPose>, 3>::nalPlayMethod {
-        gen_mod_play_method(character_anim_controller *a2) : field_4(a2) {
+    struct gen_base_play_method : gen_std_play_method {
+        gen_base_play_method(character_anim_controller *a2) : gen_std_play_method(a2) {
+            this->m_vtbl = 0x00880B88;
+        }
+    };
+
+    struct gen_mod_play_method : gen_std_play_method {
+        gen_mod_play_method(character_anim_controller *a2) : gen_std_play_method(a2) {
             this->m_vtbl = 0x00880BA0;
         }
-
-        nal_anim_controller *field_4;
     };
 
     character_anim_controller::gen_base_play_method field_54;

@@ -12,6 +12,7 @@
 #include "nal_instance.h"
 #include "nal_skeleton.h"
 #include "nal_system.h"
+#include "nal_anim_comp.h"
 #include "ngl.h"
 #include "oldmath_po.h"
 #include "osassert.h"

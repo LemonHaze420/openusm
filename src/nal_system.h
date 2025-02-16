@@ -1,5 +1,6 @@
 #pragma once
 
+#include "charanimtype/charcomponentbase.h"
 #include "fixedstring.h"
 #include "float.hpp"
 #include "hashstring.h"
@@ -11,23 +12,6 @@
 #include <nalcomp/nal_pose_comp.h>
 
 #include <memory>
-
-struct BaseComponent {
-    std::intptr_t m_vtbl;
-    //virtual ~BaseComponent() = default;
-
-    //virtual
-    int GetType() { return 0; }
-
-    //virtual
-    void * ApplyPublicPerSkelDataOffset(uint32_t a1, void *a2) const;
-
-    //virtual
-    void SkelPoseProcess(uint32_t a1, void *a2, void *a3) const;
-
-    //virtual
-    void PoseDataFree(uint32_t , void *) const;
-};
 
 extern tlInstanceBank & nalTypeInstanceBank;
 
@@ -52,43 +36,6 @@ struct nalBasePose {
 };
 
 struct nalBaseSkeleton;
-
-namespace nalChar {
-struct nalCharAnim {
-    struct vtbl {
-        void *field_0;
-        void *finalize;
-        void *Process;
-        void *Release;
-
-        using CheckVersion_t = bool (nalCharAnim::*)();
-        CheckVersion_t CheckVersion;
-
-        vtbl(void *, void *, void *, void *, CheckVersion_t a4) : CheckVersion(a4) {}
-    };
-
-    std::intptr_t m_vtbl;
-    int field_4;
-    int field_8;
-    int field_C;
-    int field_10;
-    int field_14;
-    int field_18;
-    int field_1C;
-    int field_20;
-    int field_24;
-    int field_28;
-    uint32_t field_2C;
-
-    bool CheckVersion() {
-        return this->field_2C == 0x10003;
-    }
-
-    static int vtbl_ptr;
-};
-
-
-} // namespace nalChar
 
 namespace nalPanel {
 
