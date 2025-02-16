@@ -3,6 +3,8 @@
 #include "common.h"
 #include "func_wrapper.h"
 
+VALIDATE_SIZE(nalComp::nalCompInstance, 0x20u);
+
 void nalComp::nalCompInstance::VirtualGetPose(
         Float a1,
         Float a2,

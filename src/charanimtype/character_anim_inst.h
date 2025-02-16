@@ -1,12 +1,25 @@
 #pragma once
 
 #include "nal_anim_comp.h"
+#include "nal_instance.h"
 
 #include "charcomponentbase.h"
+
+struct nalBasePose;
 
 namespace nalChar {
 
 struct nalCharSkeleton;
+
+struct nalCharInstance : nalComp::nalCompInstance {
+
+    //virtual
+    void VirtualGetPose(
+        Float a1,
+        Float a2,
+        nalBasePose *a3,
+        const nalBasePose *a4);
+};
 
 struct nalCharAnim : nalComp::nalCompAnim {
     struct vtbl {

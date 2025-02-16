@@ -95,8 +95,7 @@ character_anim_controller::character_anim_controller(
                 this->field_64 = v9;
             }
 
-            if ( *v9 == v14 )
-            {
+            if ( *v9 == v14 ) {
                 this->field_68 = v9;
             }
         }
@@ -134,6 +133,8 @@ void character_anim_controller::gen_std_play_method::Compose(
         nalAnyPose &a4,
         const nalAnyPose &a5)
 {
+    TRACE("character_anim_controller::gen_std_play_method::Compose");
+
     if constexpr (0) {
         a2->field_0->VirtualGetPose(a2->field_18, a2->field_1C, a4.field_0, a5.field_0);
         a3.field_0->field_0->VirtualBlend(
@@ -163,6 +164,7 @@ void character_anim_controller::gen_std_play_method::Compose(
         NamedPoseData->field_10[1] = v9->field_10[1];
         NamedPoseData->field_10[2] = v9->field_10[2];
         NamedPoseData->field_1C = v9->field_1C;
+
         if ( this->ShouldFireSignals(a2) )
         {
             auto *PerAnimDataByName = (const FakerootPoseDesc::PerAnimData *) bit_cast<nalChar::nalCharAnim *>(a2->field_0->field_10)->GetPerAnimDataByName(

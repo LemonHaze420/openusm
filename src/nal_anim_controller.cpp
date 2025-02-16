@@ -47,12 +47,15 @@ nalAnimClass<nalAnyPose>::nalInstanceClass *nal_anim_controller::scene_anim_clie
             auto *anim_type = v7.to_string();
             auto &v8 = a2->field_8;
             auto *anim_name = v8.to_string();
-            error("Attempted to play an animation from a cutscene (anim name: \"%s\") of animtype \"%s\" on a character skeleton \"%s"
+
+            error(
+                "Attempted to play an animation from a cutscene (anim name: \"%s\") of animtype \"%s\" on a character skeleton \"%s"
             "\" of animtype \"%s\". They are not compatible. Please have this scene animation altered to use the correct character's skeleton.",
-            anim_name,
-            anim_type,
-            char_skel_name,
-            char_anim_type);
+                anim_name,
+                anim_type,
+                char_skel_name,
+                char_anim_type
+            );
         }
 
         this->field_8 = 0;

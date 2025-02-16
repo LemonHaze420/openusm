@@ -9,6 +9,9 @@ namespace nalComp {
 
 struct nalCompInstance : nalAnimClass<nalAnyPose>::nalInstanceClass {
 
+    int field_14;
+    int field_18;
+    int field_1C;
 
     //virtual
     //0x00744BA0
