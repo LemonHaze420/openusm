@@ -547,6 +547,13 @@ void event_manager::raise_event(string_hash a1, entity_base_vhandle a2)
     }
 }
 
+void event_manager::raise_event(event *event_to_raise, entity_base_vhandle a2)
+{
+    assert(event_to_raise != nullptr);
+
+    CDECL_CALL(0x004EEA20, event_to_raise, a2);
+}
+
 void event_manager::garbage_collect()
 {
     TRACE("event_manager::garbage_collect");
@@ -723,7 +730,7 @@ void event_manager_patch()
 {
     REDIRECT(0x005E1118, event_manager::create_inst);
 
-    SET_JUMP(0x004EE9F0, event_manager::raise_event);
+    //SET_JUMP(0x004EE9F0, event_manager::raise_event);
 
     SET_JUMP(0x004E19F0, event_manager::register_event_type);
 

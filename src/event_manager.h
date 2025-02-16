@@ -37,6 +37,9 @@ namespace event_manager {
     //0x004EE9F0
     extern void raise_event(string_hash a1, entity_base_vhandle a2);
 
+    //0x004EEA20
+    extern void raise_event(event *event_to_raise, entity_base_vhandle a2);
+
     //0x004E1B00
     extern void garbage_collect();
 
