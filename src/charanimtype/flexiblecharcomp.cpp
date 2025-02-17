@@ -1,0 +1,3 @@
+#include "flexiblecharcomp.h"
+
+
