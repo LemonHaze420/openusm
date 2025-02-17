@@ -10,6 +10,21 @@
 
 VALIDATE_SIZE(nalComp::nalCompSkeleton, 0x7C);
 
+void nalComp::nalCompSkeleton::VirtualCopyPose(nalBasePose *a1, const nalBasePose *a2)
+{
+    const nalComp::nalCompPose *v2 = nullptr;
+    if ( a2 != nullptr ) {
+        v2 = (const nalComp::nalCompPose *)&a2[-1];
+    }
+
+    if ( a1 != nullptr ) {
+        auto *dest = (nalComp::nalCompPose *)&a1[-1];
+        *dest = *v2;
+    } else {
+        assert(0);
+    }
+}
+
 void nalComp::nalCompSkeleton::VirtualBlend(
         nalBasePose *a1,
         Float a2,

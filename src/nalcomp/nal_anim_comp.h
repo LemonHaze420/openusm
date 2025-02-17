@@ -40,6 +40,9 @@ struct nalCompSkeleton : nalBaseSkeleton {
     }
 
     //virtual
+    void VirtualCopyPose(nalBasePose *a1, const nalBasePose *a2);
+
+    //virtual
     void VirtualBlend(
             nalBasePose *a1,
             Float a2,
