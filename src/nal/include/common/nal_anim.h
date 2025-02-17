@@ -18,7 +18,7 @@ struct nalAnyPose {
 
     nalComp::nalCompSkeleton * GetSkeleton();
 
-    void sub_822DE0(nalAnyPose &a2);
+    void operator=(const nalAnyPose &a2);
 };
 
 template<typename T>

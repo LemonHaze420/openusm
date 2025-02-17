@@ -13,11 +13,10 @@ nalComp::nalCompSkeleton * nalAnyPose::GetSkeleton()
     return this->field_0->GetSkeleton();
 }
 
-void nalAnyPose::sub_822DE0(nalAnyPose &a2)
+void nalAnyPose::operator=(const nalAnyPose &a2)
 {
     this->GetSkeleton()->VirtualCopyPose(this->field_0, a2.field_0);
 }
-
 
 template<>
 void *nalAnimClass<nalAnyPose>::VirtualCreateInstance(nalBaseSkeleton *Skel)

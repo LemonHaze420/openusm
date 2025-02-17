@@ -113,11 +113,11 @@ void usm_anim_player<nalAnimClass<nalAnyPose>, 3>::sub_4B06A0(Float a2)
 template<>
 void usm_anim_player<nalAnimClass<nalAnyPose>, 3>::sub_4B0860(nalAnyPose &pose)
 {
-    if constexpr (0) {
-
+    if constexpr (0)
+    {
         auto perf_counter = query_perf_counter();
 
-        pose.sub_822DE0(this->field_4);
+        pose = this->field_4;
 
         usm_anim_player<nalAnimClass<nalAnyPose>, 3>::nalAnimState *v2 = nullptr;
         for ( auto *i = this->field_20; i != nullptr; i = i->field_40 )
@@ -141,8 +141,9 @@ void usm_anim_player<nalAnimClass<nalAnyPose>, 3>::sub_4B0860(nalAnyPose &pose)
         }
 
         nalPlayerGetPoseTicks.QuadPart += query_perf_counter().QuadPart - perf_counter.QuadPart;
-
-    } else {
+    }
+    else
+    {
         THISCALL(0x004B0860, this, &pose);
     }
 }
@@ -199,5 +200,11 @@ void usm_anim_player_patch()
     {
         REDIRECT(0x004AFF2E, sub_4AD850);
         REDIRECT(0x004B063A, sub_4AD850);
+    }
+
+    {
+        using type = usm_anim_player<nalAnimClass<nalAnyPose>, 3>;
+        FUNC_ADDRESS(address, &type::sub_4B0860);
+        REDIRECT(0x004A6172, address);
     }
 }
