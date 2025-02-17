@@ -164,6 +164,23 @@ const nalComp::nalCompSkeleton ** nalCharSkeleton::VirtualCreatePose() const
     return nullptr;
 }
 
+void nalChar::nalCharSkeleton::VirtualCopyPose(nalBasePose *a1, const nalBasePose *a2)
+{
+    TRACE("nalChar::nalCharSkeleton::VirtualCopyPose");
+
+    const nalComp::nalCompPose *v3 = nullptr;
+    if ( a2 != nullptr ) {
+        v3 = (const nalComp::nalCompPose *)&a2[-1];
+    }
+
+    nalComp::nalCompPose *v1 = nullptr;
+    if ( a1 != nullptr ) {
+        v1 = (nalComp::nalCompPose *)&a1[-1];
+    }
+
+    (*v1) = (*v3);
+}
+
 void nalCharSkeleton::VirtualBlend(
         nalBasePose *a2,
         Float a3,
@@ -195,6 +212,11 @@ void nalChar_patch()
     {
         FUNC_ADDRESS(address, &nalChar::nalCharSkeleton::VirtualGetDefaultPose);
         set_vfunc(0x00891FAC, address);
+    }
+
+    {
+        FUNC_ADDRESS(address, &nalChar::nalCharSkeleton::VirtualCopyPose);
+        set_vfunc(0x00891FB8, address);
     }
 
     FUNC_ADDRESS(address, &nalChar::nalCharSkeleton::Process);

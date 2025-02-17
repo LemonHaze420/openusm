@@ -80,6 +80,9 @@ struct nalCharSkeleton : nalComp::nalCompSkeleton {
     //virtual
     const nalComp::nalCompSkeleton ** VirtualCreatePose() const;
 
+    //virtual
+    void VirtualCopyPose(nalBasePose *a1, const nalBasePose *a2);
+
     //0x005FCAC0
     void VirtualBlend(
         nalBasePose *a2,
