@@ -45,10 +45,51 @@ void nalCharPose::operator delete(void *ptr)
 
 void nalCharPose::Blend(
         Float a2,
-        nalCharPose *a3,
-        nalCharPose *a4)
+        const nalCharPose &src0,
+        const nalCharPose &src1)
 {
-    THISCALL(0x005F13B0, this, a2, a3, a4);
+    TRACE("nalChar::nalCharPose::Blend");
+
+    if constexpr (0)
+    {
+        if ( this->m_pTheData != nullptr ) {
+            this->InitializePoseDataFromSkel();
+        }
+
+        if ( equal<float>(a2, 1.0f) )
+        {
+            (*this) = src1;
+        }
+        else if ( equal<float>(a2, 0.0f) )
+        {
+            (*this) = src0;
+        }
+        else
+        {
+            auto *v6 = src1.GetSkeleton();
+            auto numComponents = v6->GetNumComponents();
+            auto *v11 = v6;
+            for ( int i = 0; i < numComponents; ++i )
+            {
+                if ( v6->ConvertCompIxToPoseIx(i) != -1 )
+                {
+                    auto *v8 = this->GetComponentPoseData(i);
+                    auto *v9 = (unsigned int *)src0.GetComponentPoseData(i);
+                    auto v12 = src1.GetComponentPoseData(i);
+                    v11->field_70[i].field_4->BlendPoseData(
+                            v8,
+                            v11->field_70[i].field_0,
+                            a2,
+                            v9,
+                            v12);
+                }
+            }
+        }
+    }
+    else
+    {
+        THISCALL(0x005F13B0, this, a2, &src0, &src1);
+    }
 }
 
 void * nalCharPose::GetNamedPoseData(CharComponentBase::Names a2)
@@ -67,7 +108,34 @@ void nalCharPose::InitializePoseDataFromSkel()
 {
     TRACE("nalCharPose::InitializePoseDataFromSkel");
 
-    THISCALL(0x005F1290, this);
+    if constexpr (1)
+    {
+        auto *v2 = this->field_4->field_78;
+        if ( v2 != nullptr )
+        {
+            this->AllocPoseData();
+            this->DirectCopyPoseData(v2);
+            auto numComponents = this->field_4->GetNumComponents();
+            for ( int v3 = 0; v3 < numComponents; ++v3 )
+            {
+                if ( this->field_4->ConvertCompIxToPoseIx(v3) != -1 )
+                {
+                    auto *v5 = this->GetComponentPoseData(v3);
+                    auto v6 = this->field_4->GetComponentPoseDataOffset(v3);
+                    auto *v7 = &this->field_4->field_70[v3];
+
+                    bit_cast<CharComponentBase *>(v7->field_4)->CopyPoseDataToNothing(
+                        v5,
+                        v7->field_0,
+                        &v2[v6]);
+                }
+            }
+        }
+    }
+    else
+    {
+        THISCALL(0x005F1290, this);
+    }
 }
 
 int nalCharSkeleton::GetCompIxByName(CharComponentBase::Names a2) const
@@ -187,6 +255,8 @@ void nalCharSkeleton::VirtualBlend(
         nalBasePose *a4,
         nalBasePose *a5)
 {
+    TRACE("nalCharSkeleton::VirtualBlend");
+
     nalCharPose *v5 = nullptr;
     if ( a5 != nullptr ) {
         v5 = (nalCharPose *)&a5[-1];
@@ -202,13 +272,24 @@ void nalCharSkeleton::VirtualBlend(
         v7 = (nalCharPose *)&a2[-1];
     }
 
-    v7->Blend(a3, v6, v5);
+    v7->Blend(a3, *v6, *v5);
 }
 
 } // nalChar
 
 void nalChar_patch()
 {
+    {
+        FUNC_ADDRESS(address, &nalChar::nalCharSkeleton::VirtualBlend);
+        set_vfunc(0x00891FBC, address);
+    }
+
+    {
+        FUNC_ADDRESS(address, &nalChar::nalCharPose::InitializePoseDataFromSkel);
+        set_vfunc(0x00891A5C, address);
+    }
+
+    return;
     {
         FUNC_ADDRESS(address, &nalChar::nalCharSkeleton::VirtualGetDefaultPose);
         set_vfunc(0x00891FAC, address);

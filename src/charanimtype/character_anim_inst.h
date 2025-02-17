@@ -50,3 +50,4 @@ struct nalCharAnim : nalComp::nalCompAnim {
 
 } // namespace nalChar
 
+extern void nalCharInstance_patch();

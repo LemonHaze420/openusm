@@ -24,14 +24,14 @@ struct nalCharPose : nalComp::nalCompPose {
 
     void operator delete(void *ptr);
 
-    auto GetSkeleton() {
+    auto GetSkeleton() const {
         return this->field_4;
     }
 
     void Blend(
         Float a2,
-        nalCharPose *a3,
-        nalCharPose *a4);
+        const nalCharPose &a3,
+        const nalCharPose &a4);
 
     void * GetNamedPoseData(CharComponentBase::Names a2);
 

@@ -2,6 +2,8 @@
 
 #include "character_pose_skel.h"
 #include "common.h"
+#include "trace.h"
+#include "utility.h"
 
 #include <cassert>
 
@@ -14,6 +16,8 @@ void nalChar::nalCharInstance::VirtualGetPose(
         nalBasePose *a3,
         const nalBasePose *a4)
 {
+    TRACE("nalChar::nalCharInstance::VirtualGetPose");
+
     const nalCharPose *v5 = nullptr;
     if ( a4 != nullptr ) {
         v5 = (const nalCharPose *)&a4[-1];
@@ -38,4 +42,12 @@ void * nalChar::nalCharAnim::GetPerAnimDataByName(CharComponentBase::Names a2)
     auto *CompPerAnimDataInt = (const void *) this->GetCompPerAnimDataInt(CompIxByName);
     auto *v9 = this->field_30->field_70[CompIxByName].field_4;
     return v9->ApplyPublicPerAnimDataOffset(a2, CompPerAnimDataInt);
+}
+
+void nalCharInstance_patch()
+{
+    {
+        FUNC_ADDRESS(address, &nalChar::nalCharInstance::VirtualGetPose);
+        set_vfunc(0x00891FF8, address);
+    }
 }
