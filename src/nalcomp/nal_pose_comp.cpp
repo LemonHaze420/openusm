@@ -10,6 +10,8 @@
 
 namespace nalComp {
 
+nalCompPose *&pTempStuff = var<nalCompPose *>(0x0096F7BC);
+
 void Blend(nalCompPose &a1, Float a2, const nalCompPose &src0, const nalCompPose &src1)
 {
     assert(src0.GetSkeleton() == src1.GetSkeleton()
@@ -32,9 +34,9 @@ void Blend(nalCompPose &a1, Float a2, const nalCompPose &src0, const nalCompPose
 
 nalCompPose::nalCompPose(const nalComp::nalCompSkeleton *a2)
 {
-    m_vtbl = 0x008AA1E4;
-    field_4 = a2;
-    field_8 = nullptr;
+    this->m_vtbl = 0x008AA1E4;
+    this->field_4 = a2;
+    this->m_pTheData = nullptr;
 }
 
 void * nalCompPose::GetComponentPoseData(uint32_t a2)
@@ -47,19 +49,47 @@ void * nalCompPose::GetComponentPoseData(uint32_t a2) const
     return (void *) THISCALL(0x00737840, this, a2);
 }
 
+int nalCompPose::GetPoseDataSize()
+{
+    return this->field_4->field_6C;
+}
+
+int nalCompPose::GetPoseDataAlign()
+{
+    return this->field_4->field_68;
+}
+
+void nalComp::nalCompPose::AllocPoseData()
+{
+    TRACE("nalCompPose::AllocPoseData");
+
+    assert(this->m_pTheData == nullptr
+            && "Must free old data before allocating data");
+
+    nalComp::pTempStuff = this;
+    auto v3 = this->GetPoseDataSize();
+    auto v4 = nalComp::pTempStuff->GetPoseDataAlign();
+    this->m_pTheData = tlMemAlloc(v3, v4, 0);
+}
+
+void nalComp::nalCompPose::DirectCopyPoseData(const void *a2)
+{
+    std::memcpy(this->m_pTheData, a2, this->GetPoseDataSize());
+}
+
 void nalCompPose::FreePoseData()
 {
     this->ComponentFreePoseData();
-    if ( this->field_8 != nullptr )
+    if ( this->m_pTheData != nullptr )
     {
-        tlMemFree(this->field_8);
-        this->field_8 = nullptr;
+        tlMemFree(this->m_pTheData);
+        this->m_pTheData = nullptr;
     }
 }
 
 void nalCompPose::ComponentFreePoseData()
 {
-    if ( this->field_8 != nullptr )
+    if ( this->m_pTheData != nullptr )
     {
         uint32_t NumComponents = this->field_4->GetNumComponents();
 

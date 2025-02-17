@@ -5,6 +5,7 @@
 #include "func_wrapper.h"
 #include "nal_system.h"
 #include "trace.h"
+#include "vtbl.h"
 
 #include <cassert>
 
@@ -17,17 +18,25 @@ void nalComp::nalCompSkeleton::CopyPose(nalComp::nalCompPose &a1, const nalComp:
 
 void nalComp::nalCompSkeleton::VirtualCopyPose(nalBasePose *a1, const nalBasePose *a2)
 {
-    const nalComp::nalCompPose *v2 = nullptr;
-    if ( a2 != nullptr ) {
-        v2 = (const nalComp::nalCompPose *)&a2[-1];
-    }
+    if constexpr (0)
+    {
+        const nalComp::nalCompPose *v2 = nullptr;
+        if ( a2 != nullptr ) {
+            v2 = (const nalComp::nalCompPose *)&a2[-1];
+        }
 
-    nalComp::nalCompPose *v3 = nullptr;
-    if ( a1 != nullptr ) {
-        v3 = (nalComp::nalCompPose *)&a1[-1];
-    }
+        nalComp::nalCompPose *v3 = nullptr;
+        if ( a1 != nullptr ) {
+            v3 = (nalComp::nalCompPose *)&a1[-1];
+        }
 
-    this->CopyPose(*v3, *v2);
+        this->CopyPose(*v3, *v2);
+    }
+    else
+    {
+        void * (__fastcall *func)(void *, void *, nalBasePose *a1, const nalBasePose *) = CAST(func, get_vfunc(m_vtbl, 0x30));
+        func(this, nullptr, a1, a2);
+    }
 }
 
 void nalComp::nalCompSkeleton::VirtualBlend(
@@ -173,7 +182,6 @@ void nalComp::nalCompSkeleton::UnMash(void *a2, BaseComponent **a3, unsigned int
                     break;
                 }
             }
-
 
             assert(iArrayIx != iNumComponents && "Could not find a component name/type for one of the skel's component name/types");
         }
