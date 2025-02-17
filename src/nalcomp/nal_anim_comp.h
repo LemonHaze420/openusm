@@ -39,6 +39,8 @@ struct nalCompSkeleton : nalBaseSkeleton {
         return this->m_iNumComponents;
     }
 
+    void CopyPose(nalCompPose &a1, const nalCompPose &a2);
+
     //virtual
     void VirtualCopyPose(nalBasePose *a1, const nalBasePose *a2);
 

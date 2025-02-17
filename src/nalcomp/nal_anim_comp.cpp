@@ -10,6 +10,11 @@
 
 VALIDATE_SIZE(nalComp::nalCompSkeleton, 0x7C);
 
+void nalComp::nalCompSkeleton::CopyPose(nalComp::nalCompPose &a1, const nalComp::nalCompPose &a2)
+{
+    a1 = a2;
+}
+
 void nalComp::nalCompSkeleton::VirtualCopyPose(nalBasePose *a1, const nalBasePose *a2)
 {
     const nalComp::nalCompPose *v2 = nullptr;
@@ -17,12 +22,12 @@ void nalComp::nalCompSkeleton::VirtualCopyPose(nalBasePose *a1, const nalBasePos
         v2 = (const nalComp::nalCompPose *)&a2[-1];
     }
 
+    nalComp::nalCompPose *v3 = nullptr;
     if ( a1 != nullptr ) {
-        auto *dest = (nalComp::nalCompPose *)&a1[-1];
-        *dest = *v2;
-    } else {
-        assert(0);
+        v3 = (nalComp::nalCompPose *)&a1[-1];
     }
+
+    this->CopyPose(*v3, *v2);
 }
 
 void nalComp::nalCompSkeleton::VirtualBlend(
