@@ -180,10 +180,10 @@ void nalCharSkeleton::Process()
 {
     TRACE("nalCharSkeleton::Process");
 
-    auto v1 = CharComponentManager::iCurrNumComponents();
+    auto v1 = CharComponentManager::iCurrNumComponents;
     auto **v3 = (BaseComponent **)tlMemAlloc(4 * v1, 8u, 0);
     for ( int i = 0; i < v1; ++i ) {
-        v3[i] = CharComponentManager::pCompArray()[i];
+        v3[i] = CharComponentManager::pCompArray[i];
     }
 
     this->UnMash(this, v3, v1);

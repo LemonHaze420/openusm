@@ -3,9 +3,12 @@
 #include "variable.h"
 
 struct BaseComponent;
+struct CharComponentBase;
 
 struct CharComponentManager {
-    static inline Var<int> iCurrNumComponents {0x0096A558};
+    static inline int & iCurrNumComponents = var<int>(0x0096A558);
 
-    static inline Var<BaseComponent **> pCompArray {0x0096A55C};
+    static inline BaseComponent **& pCompArray = var<BaseComponent **>(0x0096A55C);
+
+    static void RegisterComponent(CharComponentBase *a1);
 };

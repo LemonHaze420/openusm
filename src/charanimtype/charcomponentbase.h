@@ -5,9 +5,9 @@
 struct CharComponentBase : BaseComponent {
     enum Names {};
 
-    int field_4;
-    uint32_t field_8;
-    const char *field_C;
+    int m_pSubComponent;
+    uint32_t m_TheType;
+    const char *m_strTypeString;
 
     //virtual
     uint32_t GetType();

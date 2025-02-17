@@ -11,15 +11,15 @@ uint32_t CharComponentBase::GetType()
 {
     TRACE("CharComponentBase::GetType");
 
-    if ( this->field_8 == 0 ) {
-        if ( this->field_C != nullptr ) {
-            this->field_8 = to_hash(this->field_C);
+    if ( this->m_TheType == 0 ) {
+        if ( this->m_strTypeString != nullptr ) {
+            this->m_TheType = to_hash(this->m_strTypeString);
         } else {
             assert(0 && "You did not override GetType. You need to do this or set m_TheType or set m_strTypeString.");
         }
     }
 
-    return this->field_8;
+    return this->m_TheType;
 }
 
 void CharComponentBase::CopyPoseDataToNothing(void *a1, unsigned int a2, const void *a3)
