@@ -17,6 +17,8 @@ extern tlInstanceBank & nalTypeInstanceBank;
 
 extern tlInstanceBank & nalComponentInstanceBank;
 
+extern LARGE_INTEGER & nalPlayerGetPoseTicks;
+
 namespace PanelComponentMgr {
 extern int *& comp_list;
 }
@@ -33,6 +35,10 @@ struct nalPositionOrientation {
 
 struct nalBasePose {
     nalComp::nalCompSkeleton *field_0;
+
+    auto GetSkeleton() {
+        return this->field_0;
+    }
 };
 
 struct nalBaseSkeleton;

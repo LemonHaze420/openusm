@@ -26,6 +26,8 @@ tlInstanceBank & nalTypeInstanceBank = var<tlInstanceBank>(0x009770E8);
 
 tlInstanceBank & nalComponentInstanceBank = var<tlInstanceBank>(0x00977100);
 
+LARGE_INTEGER & nalPlayerGetPoseTicks = var<LARGE_INTEGER>(0x009770D8);
+
 #define make_var(T0, T1, address) \
 template<> \
 tlInstanceBankResourceDirectory<T0, T1> *& \
