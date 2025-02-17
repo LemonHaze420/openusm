@@ -3,6 +3,9 @@
 #include <cstdint>
 
 #include <fixedstring.h>
+#include <float.hpp>
+
+struct nalBasePose;
 
 struct nalBaseSkeleton {
     std::intptr_t m_vtbl;
@@ -21,6 +24,8 @@ struct nalBaseSkeleton {
     }
 
 };
+
+extern void sub_826190(nalBasePose &dst, Float a2, nalBasePose &src0, nalBasePose &src1);
 
 //0x0078DC80
 extern void *nalConstructSkeleton(void *a1);

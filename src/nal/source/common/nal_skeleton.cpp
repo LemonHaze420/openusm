@@ -6,10 +6,20 @@
 #include <trace.h>
 
 #include <nal_list.h>
+#include <nal_anim_comp.h>
 #include <nal_system.h>
 #include <tl_instance_bank.h>
 
-void *nalConstructSkeleton(void *a1)
+void sub_826190(nalBasePose &dst, Float a2, nalBasePose &src0, nalBasePose &src1)
+{
+    assert(dst.GetSkeleton() == src0.GetSkeleton() && dst.GetSkeleton() == src1.GetSkeleton()
+        && "attempting to blend incompatible skeletons");
+
+    auto *v6 = dst.GetSkeleton();
+    v6->VirtualBlend(&dst, a2, &src0, &src1);
+}
+
+void * nalConstructSkeleton(void *a1)
 {
     TRACE("nalConstructSkeleton");
 

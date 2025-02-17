@@ -150,6 +150,7 @@ target_link_libraries(nal PUBLIC nfl nalpanel utility)
 
 
 target_link_libraries(nalcomp PUBLIC nal)
+target_link_libraries(nalcomp PUBLIC usm)
 
 add_library(debugutil "./src/debugutil.cpp" "./src/debugutil.h")
 target_compile_options(debugutil

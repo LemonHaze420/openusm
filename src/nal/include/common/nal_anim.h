@@ -2,13 +2,23 @@
 
 #include "fixedstring.h"
 
+#include <float.hpp>
+
 #include <cstdint>
 
 struct nalBaseSkeleton;
 struct nalBasePose;
 
+namespace nalComp {
+struct nalCompSkeleton;
+}
+
 struct nalAnyPose {
     nalBasePose *field_0;
+
+    nalComp::nalCompSkeleton * GetSkeleton();
+
+    void sub_822DE0(nalAnyPose &a2);
 };
 
 template<typename T>
@@ -56,6 +66,5 @@ inline T *nalAnimPtrCast(nalAnimClass<nalAnyPose> *a1)
     return nullptr;
 }
 
-
-
+extern void sub_826140(nalAnyPose &a1, Float a2, nalAnyPose &a3, nalAnyPose &a4);
 

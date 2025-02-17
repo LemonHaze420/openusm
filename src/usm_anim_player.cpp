@@ -3,13 +3,84 @@
 #include "common.h"
 #include "func_wrapper.h"
 #include "nal_anim.h"
+#include <nal_anim_comp.h>
+#include <nal_instance.h>
 #include "nal_system.h"
+#include "ngl.h"
 #include "utility.h"
 
 using type = usm_anim_player<nalAnimClass<nalAnyPose>, 3>;
 
 VALIDATE_SIZE(type, 0x2C);
 VALIDATE_OFFSET(type::nalAnimState, field_28, 0x28);
+
+
+template<>
+void usm_anim_player<nalAnimClass<nalAnyPose>, 3>::nalAnimState::sub_853C80(
+        nalAnyPose &a2,
+        nalAnyPose &a3,
+        const nalAnyPose &a4)
+{
+    this->field_0->VirtualGetPose(this->field_18, this->field_1C, a3.field_0, a4.field_0);
+
+    sub_826140(a2, this->field_20.field_0, a2, a3);
+}
+
+
+template<>
+void usm_anim_player<nalAnimClass<nalAnyPose>,3>::nalPlayMethod::Compose(
+        usm_anim_player<nalAnimClass<nalAnyPose>, 3>::nalAnimState *a2,
+        nalAnyPose &a3,
+        nalAnyPose &a4,
+        const nalAnyPose &a5)
+{
+
+    a2->sub_853C80(a3, a4, a5);
+}
+
+
+template<>
+void usm_anim_player<nalAnimClass<nalAnyPose>, 3>::nalAnimState::sub_853CF0(
+        nalAnyPose &a2,
+        nalAnyPose &a3)
+{
+    auto &v3 = this->field_14->field_C;
+    if ( this->field_10 != nullptr ) {
+        this->field_10->Compose(
+                this,
+                a2,
+                a3,
+                v3);
+    } else {
+        this->sub_853C80(a2, a3, v3);
+    }
+
+    this->field_1C = this->field_18;
+}
+
+
+template<>
+void usm_anim_player<nalAnimClass<nalAnyPose>, 3>::nalAnimState::sub_854140(
+        nalAnyPose &a2,
+        nalAnyPose &a3)
+{
+    nalAnyPose *v3 = &a2;
+    if ( this->field_50 == 2 ) {
+        v3 = &this->field_14->field_C;
+    }
+
+    if ( this->field_10 != nullptr ) {
+        this->field_10->Compose(
+                this,
+                a2,
+                a3,
+                *v3);
+    } else {
+        this->sub_853C80(a2, a3, *v3);
+    }
+
+    this->field_1C = this->field_18;
+}
 
 template<>
 void usm_anim_player<nalAnimClass<nalAnyPose>, 3>::PlayModifier(
@@ -24,26 +95,66 @@ void usm_anim_player<nalAnimClass<nalAnyPose>, 3>::PlayModifier(
         bool a10,
         void *a11)
 {
-    THISCALL(0x004B0530, this, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
+    if constexpr (0) {
+    } else {
+        THISCALL(0x004B0530, this, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
+    }
 }
 
 template<>
 void usm_anim_player<nalAnimClass<nalAnyPose>, 3>::sub_4B06A0(Float a2)
 {
-    THISCALL(0x004B06A0, this, a2);
+    if constexpr (0) {
+    } else {
+        THISCALL(0x004B06A0, this, a2);
+    }
 }
 
 template<>
-void usm_anim_player<nalAnimClass<nalAnyPose>, 3>::sub_4B0860(nalAnyPose &a2)
+void usm_anim_player<nalAnimClass<nalAnyPose>, 3>::sub_4B0860(nalAnyPose &pose)
 {
-    THISCALL(0x004B0860, this, &a2);
+    if constexpr (0) {
+
+        auto perf_counter = query_perf_counter();
+
+        pose.sub_822DE0(this->field_4);
+
+        usm_anim_player<nalAnimClass<nalAnyPose>, 3>::nalAnimState *v2 = nullptr;
+        for ( auto *i = this->field_20; i != nullptr; i = i->field_40 )
+        {
+            if ( i->field_50 == 2 && i->field_20.field_0 >= 1.0 ) {
+                v2 = i;
+            }
+        }
+
+        if ( v2 == nullptr )
+        {
+            for ( auto j = this->field_10 - 1; j >= 0; --j ) {
+                this->field_14[j]->sub_853CF0(pose, this->field_8);
+            }
+
+            v2 = this->field_20;
+        }
+
+        for ( auto *k = v2; k != nullptr; k = k->field_40 ) {
+            k->sub_854140(pose, this->field_8);
+        }
+
+        nalPlayerGetPoseTicks.QuadPart += query_perf_counter().QuadPart - perf_counter.QuadPart;
+
+    } else {
+        THISCALL(0x004B0860, this, &pose);
+    }
 }
 
 template<>
 usm_anim_player<nalAnimClass<nalAnyPose>, 3>::nalAnimState *usm_anim_player<nalAnimClass<nalAnyPose>, 3>::Advance(
         Float a2)
 {
-    return (nalAnimState *) THISCALL(0x004AD7F0, this, a2);
+    if constexpr (0) {
+    } else {
+        return (nalAnimState *) THISCALL(0x004AD7F0, this, a2);
+    }
 }
 
 bool __fastcall sub_4B0020(void *self, void *, int a2, Float a3)
