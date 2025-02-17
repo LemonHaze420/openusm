@@ -11,6 +11,9 @@ struct CharComponentBase : BaseComponent {
 
     //virtual
     uint32_t GetType();
+
+    //virtual
+    void CopyPoseDataToNothing(void *a1, unsigned int a2, const void *a3);
 };
 
 extern void CharComponentBase_patch();

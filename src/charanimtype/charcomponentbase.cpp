@@ -22,6 +22,12 @@ uint32_t CharComponentBase::GetType()
     return this->field_8;
 }
 
+void CharComponentBase::CopyPoseDataToNothing(void *a1, unsigned int a2, const void *a3)
+{
+    void * (__fastcall *func)(void *, void *, void *, uint32_t, const void *) = CAST(func, get_vfunc(m_vtbl, 0x74));
+    func(this, nullptr, a1, a2, a3);
+}
+
 void CharComponentBase_patch()
 {
     FUNC_ADDRESS(address, &CharComponentBase::GetType);
