@@ -135,7 +135,8 @@ void character_anim_controller::gen_std_play_method::Compose(
 {
     TRACE("character_anim_controller::gen_std_play_method::Compose");
 
-    if constexpr (0) {
+    if constexpr (0)
+    {
         a2->field_0->VirtualGetPose(a2->field_18, a2->field_1C, a4.field_0, a5.field_0);
         a3.field_0->field_0->VirtualBlend(
                 a3.field_0,
@@ -171,8 +172,9 @@ void character_anim_controller::gen_std_play_method::Compose(
                     static_cast<CharComponentBase::Names>(6));
             fire_signals(PerAnimDataByName, *NamedPoseData, {this->field_4->field_4->my_handle.field_0});
         }
-
-    } else {
+    }
+    else
+    {
         THISCALL(0x0049EC30, this, a2, &a3, &a4, &a5);
     }
 }
@@ -183,8 +185,42 @@ void character_anim_controller::gen_std_play_method::Reference(
     a1->field_28 = 0;
 }
 
+bool character_anim_controller::gen_mod_play_method::ShouldFireSignals(
+        usm_anim_player<nalAnimClass<nalAnyPose>,3>::nalAnimState *a1)
+{
+    TRACE("gen_mod_play_method::ShouldFireSignals");
+
+    auto *v1 = a1->field_40;
+    return (v1 == nullptr || not_equal(v1->field_48, a1->field_48));
+}
+
+bool character_anim_controller::gen_base_play_method::ShouldFireSignals(
+        usm_anim_player<nalAnimClass<nalAnyPose>, 3>::nalAnimState *a2)
+{
+    TRACE("gen_base_play_method::ShouldFireSignals");
+
+    auto *v2 = a2->field_0->field_10;
+    return v2 == this->field_4->get_base_layer_anim_ptr();
+}
+
+
+
 void character_anim_controller_patch()
 {
-    FUNC_ADDRESS(address, &character_anim_controller::play_base_layer_anim);
-    SET_JUMP(0x004A6220, address);
+    {
+        FUNC_ADDRESS(address, &character_anim_controller::play_base_layer_anim);
+        SET_JUMP(0x004A6220, address);
+    }
+
+    {
+        FUNC_ADDRESS(address, &character_anim_controller::gen_std_play_method::Compose);
+        set_vfunc(0x00880B74, address);
+        set_vfunc(0x00880B8C, address);
+        set_vfunc(0x00880BA4, address);
+    }
+
+    {
+        FUNC_ADDRESS(address, &character_anim_controller::gen_base_play_method::ShouldFireSignals);
+        set_vfunc(0x00880B9C, address);
+    }
 }

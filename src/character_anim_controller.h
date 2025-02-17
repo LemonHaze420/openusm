@@ -32,12 +32,19 @@ struct character_anim_controller : nal_anim_controller {
         gen_base_play_method(character_anim_controller *a2) : gen_std_play_method(a2) {
             this->m_vtbl = 0x00880B88;
         }
+
+        //virtual
+        bool ShouldFireSignals(
+                usm_anim_player<nalAnimClass<nalAnyPose>,3>::nalAnimState *a1);
     };
 
     struct gen_mod_play_method : gen_std_play_method {
         gen_mod_play_method(character_anim_controller *a2) : gen_std_play_method(a2) {
             this->m_vtbl = 0x00880BA0;
         }
+
+        bool ShouldFireSignals(
+                usm_anim_player<nalAnimClass<nalAnyPose>,3>::nalAnimState *a1);
     };
 
     character_anim_controller::gen_base_play_method field_54;
