@@ -17,6 +17,29 @@ void * BaseComponent::ApplyPublicPerAnimDataOffset(uint32_t a1, const void *a2) 
     return func(this, nullptr, a1, a2);
 }
 
+void * BaseComponent::GetSizeOfPerInstData(
+        uint32_t a2,
+        const void *a3,
+        const void *a4,
+        const void *a5,
+        const void *a6,
+        const void *a7,
+        bool a8)
+{
+
+    void * (__fastcall *func)(
+        void *self,
+        void *,
+        uint32_t a2,
+        const void *a3,
+        const void *a4,
+        const void *a5,
+        const void *a6,
+        const void *a7,
+        bool a8) = CAST(func, get_vfunc(this->m_vtbl, 0x1C));
+    return func(this, nullptr, a2, a3, a4, a5, a6, a7, a8);
+}
+
 void BaseComponent::BlendPoseData(void *a1, uint32_t a2, Float a3,const void *a4, const void *a5)
 {
     void (__fastcall *func)(void *, void *, void *, uint32_t, Float, const void *, const void *) = CAST(func, get_vfunc(this->m_vtbl, 0x38));

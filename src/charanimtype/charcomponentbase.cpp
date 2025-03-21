@@ -22,6 +22,58 @@ uint32_t CharComponentBase::GetType()
     return this->m_TheType;
 }
 
+int CharComponentBase::DoesContributeToPose(
+        uint32_t ,
+        const void *,
+        const void *)
+{
+    assert(this->m_pSubComponent != nullptr
+            && "Must have a subcomponent in order to delegate to it.");
+
+    return this->m_pSubComponent->GetType();
+}
+
+void * CharComponentBase::GetSizeOfPerInstData(
+        uint32_t ,
+        const void *a3,
+        const void *a4,
+        const void *,
+        const void *,
+        const void *,
+        bool bIsRemapped)
+{
+    assert(this->m_pSubComponent != nullptr
+            && "Must have a subcomponent in order to delegate to it.");
+  
+    assert(!bIsRemapped && "Cannot delegate if remapped.");
+
+    return this->m_pSubComponent->ApplyPublicPerAnimDataOffset((uint32_t)a3, a4);
+}
+
+void * CharComponentBase::CalcPoseDataDirect(
+        void *a2,
+        uint32_t ,
+        Float a4,
+        Float a5,
+        const nalComp::nalCompAnim *a6,
+        const void *a7,
+        const void *a8,
+        const void *a9,
+        void *)
+{
+
+    assert(this->m_pSubComponent != nullptr && "Must have a subcomponent in order to delegate to it.");
+
+    return this->m_pSubComponent->GetSizeOfPerInstData(
+            bit_cast<uint32_t>(a2),
+            bit_cast<const void *>(a4),
+            bit_cast<const void *>(a5),
+            a6,
+            a7,
+            a8,
+            (bool)a9);
+}
+
 void CharComponentBase::CopyPoseDataToNothing(void *a1, unsigned int a2, const void *a3)
 {
     void * (__fastcall *func)(void *, void *, void *, uint32_t, const void *) = CAST(func, get_vfunc(m_vtbl, 0x74));
