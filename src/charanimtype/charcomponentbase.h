@@ -33,6 +33,26 @@ struct CharComponentBase : BaseComponent {
         bool a8);
 
     //virtual
+    void * GetAlignOfPerInstData(
+        uint32_t a2,
+        const void *a3,
+        const void *a4,
+        const void *a5,
+        const void *a6,
+        const void *a7,
+        bool a8);
+
+    void BuildPerInstData(
+        void *a2,
+        uint32_t a3,
+        const void *a4,
+        const void *a5,
+        const void *a6,
+        const void *a7,
+        const void *a8,
+        bool a9);
+
+    //virtual
     void * CalcPoseDataDirect(
         void *a2,
         uint32_t a3,

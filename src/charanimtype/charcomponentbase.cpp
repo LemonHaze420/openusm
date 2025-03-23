@@ -50,6 +50,50 @@ void * CharComponentBase::GetSizeOfPerInstData(
     return this->m_pSubComponent->ApplyPublicPerAnimDataOffset((uint32_t)a3, a4);
 }
 
+void * CharComponentBase::GetAlignOfPerInstData(
+        uint32_t ,
+        const void *a3,
+        const void *a4,
+        const void *a5,
+        const void *a6,
+        const void *,
+        bool bIsRemapped)
+{
+    assert(this->m_pSubComponent != nullptr
+            && "Must have a subcomponent in order to delegate to it.");
+
+    assert(!bIsRemapped && "Cannot delegate if remapped.");
+
+    return this->m_pSubComponent->GetTrajectoryData(
+        bit_cast<nalPositionOrientation *>(a3),
+        (uint32_t)a4,
+        a5,
+        a6);
+}
+
+void CharComponentBase::BuildPerInstData(
+        void *a2,
+        uint32_t ,
+        const void *a4,
+        const void *a5,
+        const void *a6,
+        const void *,
+        const void *,
+        bool bIsRemapped)
+{
+    assert(this->m_pSubComponent != nullptr
+            && "Must have a subcomponent in order to delegate to it.");
+
+    assert(!bIsRemapped
+            && "Cannot delegate if remapped.");
+
+    this->m_pSubComponent->BuildBoneMatrices(
+           (nalMatrix4x4 *)a2,
+           (uint32_t)a4,
+           a5,
+           a6);
+}
+
 void * CharComponentBase::CalcPoseDataDirect(
         void *a2,
         uint32_t ,
