@@ -17,6 +17,40 @@ void * BaseComponent::ApplyPublicPerAnimDataOffset(uint32_t a1, const void *a2) 
     return func(this, nullptr, a1, a2);
 }
 
+nalPositionOrientation * BaseComponent::GetTrajectoryData(
+        nalPositionOrientation *out,
+        uint32_t a2,
+        const void *a3,
+        const void *a4)
+{
+
+    nalPositionOrientation * (__fastcall *func)(
+        void *self,
+        void *edx,
+        nalPositionOrientation *out,
+        uint32_t a2,
+        const void *a3,
+        const void *a4) = CAST(func, get_vfunc(this->m_vtbl, 0x10));
+    return func(this, nullptr, out, a2, a3, a4);
+}
+
+void BaseComponent::BuildBoneMatrices(
+        nalMatrix4x4 *a1,
+        uint32_t a2,
+        const void *a3,
+        const void *a4)
+{
+    void (__fastcall *func)(
+        void *self,
+        void *edx,
+        nalMatrix4x4 *,
+        uint32_t a2,
+        const void *a3,
+        const void *a4) = CAST(func, get_vfunc(this->m_vtbl, 0x14));
+    return func(this, nullptr, a1, a2, a3, a4);
+
+}
+
 void * BaseComponent::GetSizeOfPerInstData(
         uint32_t a2,
         const void *a3,

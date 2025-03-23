@@ -4,6 +4,9 @@
 
 #include <float.hpp>
 
+struct nalPositionOrientation;
+struct nalMatrix4x4;
+
 struct BaseComponent {
     std::intptr_t m_vtbl;
     //virtual ~BaseComponent() = default;
@@ -16,6 +19,20 @@ struct BaseComponent {
 
     //virtual
     void * ApplyPublicPerAnimDataOffset(uint32_t a1, const void *) const;
+    
+    //virtual
+    nalPositionOrientation * GetTrajectoryData(
+        nalPositionOrientation *out,
+        uint32_t a2,
+        const void *a3,
+        const void *a4);
+
+    //virtual
+    void BuildBoneMatrices(
+        nalMatrix4x4 *a1,
+        uint32_t a2,
+        const void *a3,
+        const void *a4);
 
     //virtual
     void * GetSizeOfPerInstData(
