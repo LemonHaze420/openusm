@@ -5,9 +5,12 @@
 
 #include <cstdint>
 
+struct nalMatrix4x4;
+
 namespace nalGeneric {
 
 struct nalGenericSkeleton;
+struct nalGenericPose;
 
 struct nalGenericAnim {
     std::intptr_t m_vtbl;
@@ -130,6 +133,11 @@ struct nalGenericSkeleton {
     };
 
     nalGenericSkeleton();
+
+    //0x00794CF0
+    nalMatrix4x4 * GetBoneMatrices(
+        const nalGenericPose *a2,
+        nalMatrix4x4 *a3) const;
 
     //0x00793610
     void Process();

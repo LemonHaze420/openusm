@@ -19,6 +19,16 @@ nalGenericSkeleton::nalGenericSkeleton()
     vtbl_ptr() = (int) std::addressof(bit_cast<int *>(this)[0]);
 }
 
+nalMatrix4x4 * nalGenericSkeleton::GetBoneMatrices(
+        const nalGeneric::nalGenericPose *a2,
+        nalMatrix4x4 *a3) const
+{
+    if constexpr (0) {
+    } else {
+        return (nalMatrix4x4 *) THISCALL(0x00794CF0, this, a2, a3);
+    }
+}
+
 void nalGenericSkeleton::Process()
 {
     if constexpr (1) {
