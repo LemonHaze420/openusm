@@ -51,6 +51,9 @@ struct BaseComponent {
     void SkelPoseProcess(uint32_t a1, void *a2, void *a3) const;
 
     //virtual
+    void SkelPoseRelease(uint32_t a1, void *a2, void *a3) const;
+
+    //virtual
     void PoseDataFree(uint32_t , void *) const;
 };
 

@@ -87,6 +87,12 @@ void BaseComponent::SkelPoseProcess(uint32_t a1, void *a2, void *a3) const
     func(this, nullptr, a1, a2, a3);
 }
 
+void BaseComponent::SkelPoseRelease(uint32_t a1, void *a2, void *a3) const
+{
+    void (__fastcall *func)(const void *, void *, uint32_t, void *, void *) = CAST(func, get_vfunc(this->m_vtbl, 0x40));
+    func(this, nullptr, a1, a2, a3);
+}
+
 void BaseComponent::PoseDataFree(uint32_t a2, void *a3) const
 {
     void (__fastcall *func)(const void *, void *, uint32_t, void *) = CAST(func, get_vfunc(this->m_vtbl, 0x50));
