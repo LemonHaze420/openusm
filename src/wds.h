@@ -40,7 +40,7 @@ inline constexpr auto MAX_GAME_PLAYERS = 1u;
 
 struct world_dynamics_system {
     slot_pool<nal_anim_control *, uint32_t> *field_0;
-    _std::vector<animation_controller *> field_4;
+    _std::vector<animation_controller *> anim_ctrls;
     wds_ai_manager field_14;
     int field_24;
     wds_camera_manager field_28;
@@ -173,6 +173,9 @@ public:
 
     //0x00558550
     int remove_player(int player_num);
+
+    //0x00537280
+    void remove_anim_ctrl(animation_controller *a2);
 
     //0x0054A430
     void create_water_kill_trigger();

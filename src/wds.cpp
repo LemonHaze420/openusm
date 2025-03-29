@@ -1663,6 +1663,21 @@ int world_dynamics_system::remove_player(int player_num)
     return this->num_players;
 }
 
+void world_dynamics_system::remove_anim_ctrl(animation_controller *a2)
+{
+    auto curr_it = std::find(
+        this->anim_ctrls.begin(),
+        this->anim_ctrls.end,
+        a2
+    );
+
+    asssert(curr_it != this->anim_ctrls.end());
+
+    if (curr_it != this->anim_ctrls.end()) {
+        this->anim_ctrls.erase(curr_it);
+    }
+}
+
 void entity_get_max_visual_and_collision_bounding_sphere(
         entity *ent,
         vector3d *center_result,
