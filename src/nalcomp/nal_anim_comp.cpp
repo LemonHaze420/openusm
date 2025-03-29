@@ -194,7 +194,32 @@ void nalComp::nalCompSkeleton::UnMash(void *a2, BaseComponent **a3, unsigned int
 
 void nalComp::nalCompSkeleton::ReMash(void *a2)
 {
-    THISCALL(0x007379E0, this, a2);
+    TRACE("nalComp::nalCompSkeleton::ReMash");
+
+    if constexpr (0)
+    {
+        for ( auto iCompIx = 0; iCompIx < this->m_iNumComponents; ++iCompIx )
+        {
+            auto *CompDefaultPoseData = this->GetCompDefaultPoseData(iCompIx);
+            auto *CompPerSkelDataInt = this->GetCompPerSkelDataInt(iCompIx);
+
+            auto *v6 = this->field_70;
+            v6[iCompIx].field_4->SkelPoseRelease(v6[iCompIx].field_0, CompPerSkelDataInt, CompDefaultPoseData);
+
+            auto *v13 = this->field_70[iCompIx].field_4;
+            this->field_70[iCompIx].field_4 = (CharComponentBase *) v13->GetType();
+        }
+
+        if ( this->field_6C ) {
+            this->field_78 -= (int)a2;
+        }
+
+        auto v14 = (char *)(this->field_70 - (uint32_t)a2);
+        this->field_74 -= (unsigned int)a2;
+        this->field_70 = CAST(this->field_70, v14);
+    } else {
+        THISCALL(0x007379E0, this, a2);
+    }
 }
 
 int nalComp::nalCompAnim::GetCompPerAnimDataInt(int iCompIx)
@@ -221,4 +246,20 @@ int nalComp::nalCompAnim::GetCompPerAnimDataInt(int iCompIx)
             && "Bad per-anim data offset.");
 
     return (int)this->field_44 + pPerAnimDataDir[iOffsetIx + 1];
+}
+
+void nalCompAnim_patch()
+{
+    {
+        FUNC_ADDRESS(address, &nalComp::nalCompSkeleton::UnMash);
+        set_vfunc(0x00891FC8, address);
+        set_vfunc(0x008AA300, address);
+    }
+
+
+    {
+        FUNC_ADDRESS(address, &nalComp::nalCompSkeleton::ReMash);
+        set_vfunc(0x00891FCC, address);
+        set_vfunc(0x008AA304, address);
+    }
 }

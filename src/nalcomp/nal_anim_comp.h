@@ -96,3 +96,5 @@ struct nalCompAnim {
 };
 
 }
+
+extern void nalCompAnim_patch();
