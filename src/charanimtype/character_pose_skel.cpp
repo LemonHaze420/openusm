@@ -180,16 +180,20 @@ void nalCharSkeleton::Process()
 {
     TRACE("nalCharSkeleton::Process");
 
-    auto v1 = CharComponentManager::iCurrNumComponents;
-    auto **v3 = (BaseComponent **)tlMemAlloc(4 * v1, 8u, 0);
-    for ( int i = 0; i < v1; ++i ) {
-        v3[i] = CharComponentManager::pCompArray[i];
+    if constexpr (0) {
+        auto v1 = CharComponentManager::iCurrNumComponents;
+        auto **v3 = (BaseComponent **)tlMemAlloc(4 * v1, 8u, 0);
+        for ( int i = 0; i < v1; ++i ) {
+            v3[i] = CharComponentManager::pCompArray[i];
+        }
+
+        this->UnMash(this, v3, v1);
+        tlMemFree(v3);
+
+        this->m_theDefaultPose = new nalCharPose {this};
+    } else {
+        THISCALL(0x005F28C0, this);
     }
-
-    this->UnMash(this, v3, v1);
-    tlMemFree(v3);
-
-    this->m_theDefaultPose = new nalCharPose {this};
 }
 
 void nalCharSkeleton::Release()
@@ -280,6 +284,12 @@ void nalCharSkeleton::VirtualBlend(
 void nalChar_patch()
 {
     {
+        FUNC_ADDRESS(address, &nalChar::nalCharSkeleton::Process);
+        set_vfunc(0x00891F90, address);
+        //SET_JUMP(0x005F28C0, address);
+    }
+
+    {
         FUNC_ADDRESS(address, &nalChar::nalCharSkeleton::VirtualBlend);
         set_vfunc(0x00891FBC, address);
     }
@@ -299,7 +309,4 @@ void nalChar_patch()
         FUNC_ADDRESS(address, &nalChar::nalCharSkeleton::VirtualCopyPose);
         set_vfunc(0x00891FB8, address);
     }
-
-    FUNC_ADDRESS(address, &nalChar::nalCharSkeleton::Process);
-    SET_JUMP(0x005F28C0, address);
 }
