@@ -100,7 +100,7 @@ static constexpr auto REGION_MESH_VOBBS_TAG = 13;
 world_dynamics_system *& g_world_ptr = var<world_dynamics_system *>(0x0095C770);
 
 world_dynamics_system::world_dynamics_system()
-    : field_4(), field_3E0()
+    : anim_ctrls(), field_3E0()
 {
     TRACE("world_dynamics_system::world_dynamics_system");
 
@@ -108,7 +108,7 @@ world_dynamics_system::world_dynamics_system()
     {
         this->field_0 = new slot_pool<nal_anim_control *, uint32_t>{500};
 
-        this->field_4.reserve(20u);
+        this->anim_ctrls.reserve(20u);
 
         this->m_loading_from_scn_file = false;
         this->field_230[0] = nullptr;
@@ -1667,11 +1667,11 @@ void world_dynamics_system::remove_anim_ctrl(animation_controller *a2)
 {
     auto curr_it = std::find(
         this->anim_ctrls.begin(),
-        this->anim_ctrls.end,
+        this->anim_ctrls.end(),
         a2
     );
 
-    asssert(curr_it != this->anim_ctrls.end());
+    assert(curr_it != this->anim_ctrls.end());
 
     if (curr_it != this->anim_ctrls.end()) {
         this->anim_ctrls.erase(curr_it);
@@ -1957,7 +1957,7 @@ void world_dynamics_system::add_anim_ctrl(animation_controller *a2)
     TRACE("world_dynamics_system::add_anim_ctrl");
 
     if constexpr (0) {
-        this->field_4.push_back(a2);
+        this->anim_ctrls.push_back(a2);
     } else {
         THISCALL(0x00542160, this, a2);
     }
