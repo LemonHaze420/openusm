@@ -34,20 +34,26 @@ int CharComponentBase::DoesContributeToPose(
 }
 
 void * CharComponentBase::GetSizeOfPerInstData(
-        uint32_t ,
+        uint32_t a2,
         const void *a3,
         const void *a4,
-        const void *,
-        const void *,
-        const void *,
+        const void *a5,
+        const void *a6,
+        const void *a7,
         bool bIsRemapped)
 {
-    assert(this->m_pSubComponent != nullptr
-            && "Must have a subcomponent in order to delegate to it.");
-  
-    assert(!bIsRemapped && "Cannot delegate if remapped.");
+    TRACE("CharComponentBase::GetSizeOfPerInstData");
 
-    return this->m_pSubComponent->ApplyPublicPerAnimDataOffset((uint32_t)a3, a4);
+    if constexpr (0) {
+        assert(this->m_pSubComponent != nullptr
+                && "Must have a subcomponent in order to delegate to it.");
+      
+        assert(!bIsRemapped && "Cannot delegate if remapped.");
+
+        return this->m_pSubComponent->ApplyPublicPerAnimDataOffset((uint32_t)a3, a4);
+    } else {
+        return (void *) THISCALL(0x005EC4E0, this, a2, a3, a4, a5, a6, a7, bIsRemapped);
+    }
 }
 
 void * CharComponentBase::GetAlignOfPerInstData(
@@ -128,4 +134,9 @@ void CharComponentBase_patch()
 {
     FUNC_ADDRESS(address, &CharComponentBase::GetType);
     SET_JUMP(0x005EC4B0, address);
+
+    {
+        FUNC_ADDRESS(address, &CharComponentBase::GetSizeOfPerInstData);
+        set_vfunc(0x00891A84, address);
+    }
 }

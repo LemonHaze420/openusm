@@ -42,6 +42,7 @@ struct CharComponentBase : BaseComponent {
         const void *a7,
         bool a8);
 
+    //virtual
     void BuildPerInstData(
         void *a2,
         uint32_t a3,
