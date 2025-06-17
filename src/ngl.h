@@ -187,6 +187,8 @@ struct nglStringNode
 
     void * operator new(size_t size);
 
+    void operator delete(void *, size_t) {}
+
     void Render();
 };
 
@@ -521,6 +523,8 @@ struct nglQuadNode : nglRenderNode {
 
     void * operator new(size_t size);
 
+    void operator delete(void *, size_t ) {}
+
     //virtual
     //0x00783670
     void Render();
@@ -544,6 +548,8 @@ struct nglMeshNode {
     float field_94;
 
     void * operator new(size_t size);
+
+    void operator delete(void *, size_t) {}
 
     matrix4x4 sub_41D840();
 

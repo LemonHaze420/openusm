@@ -57,18 +57,18 @@ struct VecClass : vector4d {
     void sub_413530(const VecClass<Int0, Int1, T0, T1, T2> &a2, const float &a3)
     {
         auto v3 = a3;
-        this->field_0[0] += v3 * a2[0];
-        this->field_0[1] += v3 * a2[1];
-        this->field_0[2] += v3 * a2[2];
-        this->field_0[3] += v3 * a2[3];
+        this->x += v3 * a2[0];
+        this->y += v3 * a2[1];
+        this->z += v3 * a2[2];
+        this->w += v3 * a2[3];
     }
 
     void sub_411A50(const math::VecClass<3, 0> &a2, const math::VecClass<3, 0> &a3)
     {
-        this->field_0[0] += a3[1] * a2[0];
-        this->field_0[1] += a2[1] * a3[1];
-        this->field_0[2] += a2[2] * a3[1];
-        this->field_0[3] += a2[3] * a3[1];
+        this->x += a3[1] * a2[0];
+        this->y += a2[1] * a3[1];
+        this->z += a2[2] * a3[1];
+        this->w += a2[3] * a3[1];
     }
 };
 

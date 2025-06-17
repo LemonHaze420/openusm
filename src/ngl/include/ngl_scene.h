@@ -97,6 +97,8 @@ struct nglScene {
     int field_43C;
 
     void * operator new(size_t);
+
+    void operator delete(void *, size_t) {}
 };
 
 //0x0076C700

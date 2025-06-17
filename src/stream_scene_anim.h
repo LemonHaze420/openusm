@@ -39,6 +39,8 @@ struct nalStreamInstance : nalSceneAnimInstance {
 
     void * operator new(size_t size);
 
+    void operator delete(void *, size_t);
+
     void AdvanceStream();
 
     //virtual

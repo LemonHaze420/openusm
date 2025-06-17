@@ -13,6 +13,9 @@ void * nalStreamInstance::operator new(size_t size)
     return tlMemAlloc(size, 8u, 0);
 }
 
+void nalStreamInstance::operator delete(void *ptr, size_t) {
+    tlMemFree(ptr);
+}
 
 bool nalStreamInstance::IsReady() const
 {

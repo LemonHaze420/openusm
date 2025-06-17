@@ -36,7 +36,7 @@ struct nalPositionOrientation {
 struct nalBasePose {
     nalComp::nalCompSkeleton *field_0;
 
-    auto GetSkeleton() {
+    auto GetSkeleton() const {
         return this->field_0;
     }
 };
