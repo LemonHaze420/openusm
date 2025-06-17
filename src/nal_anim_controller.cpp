@@ -25,6 +25,14 @@
 #include <cassert>
 
 VALIDATE_SIZE(nal_anim_controller, 0x54);
+VALIDATE_SIZE(nal_anim_controller::scene_anim_client, 0xC);
+
+nal_anim_controller::scene_anim_client::scene_anim_client(
+        nal_anim_controller *a2)
+{
+    this->m_vtbl = 0x00880B04;
+    this->field_4 = a2;
+}
 
 nalAnimClass<nalAnyPose>::nalInstanceClass *nal_anim_controller::scene_anim_client::CreateInstance(nalAnimClass<nalAnyPose> *a2)
 {
@@ -90,15 +98,49 @@ void nal_anim_controller::scene_anim_client::Render(
 }
 
 nal_anim_controller::nal_anim_controller(actor *a2,
-                                         nalBaseSkeleton *a3,
-                                         unsigned int a4,
-                                         const als::als_meta_anim_table_shared *a5) {
-    THISCALL(0x0049BCF0, this, a2, a3, a4, a5);
+        nalBaseSkeleton *a3,
+        unsigned int a4,
+        const als::als_meta_anim_table_shared *a5) :
+    animation_controller(a2, a3, a4, a5),
+    my_player(a3),
+    field_40(a3),
+    field_44(this),
+    field_50(false)
+{
+    if constexpr (1)
+    {
+        this->m_vtbl = 0x00880D58;
+
+
+        auto *v7 = this->field_8->VirtualGetDefaultPose();
+        auto *v9 = v7->field_0->VirtualCreatePose();
+        v9->field_0->VirtualCopyPose(v9, v7);
+        this->field_40.field_0->field_0->VirtualCopyPose(
+                this->field_40.field_0,
+                v9);
+        v9->field_0->VirtualDestroyPose(v9);
+
+    } else {
+        THISCALL(0x0049BCF0, this, a2, a3, a4, a5);
+    }
+}
+
+nal_anim_controller::~nal_anim_controller()
+{
+    this->m_vtbl = 0x00880D58;
+    this->field_40.field_0->field_0->VirtualDestroyPose(
+            this->field_40.field_0);
+    this->my_player.sub_4AE210();
 }
 
 void * nal_anim_controller::operator new(size_t size)
 {
     return mem_alloc(size);
+}
+
+void nal_anim_controller::operator delete(void *ptr, size_t sz)
+{
+    mem_dealloc(ptr, sz);
 }
 
 double nal_anim_controller::_get_base_anim_speed()
@@ -155,7 +197,8 @@ void nal_anim_controller::_frame_advance(Float a2, bool a3, bool a4)
 {
     TRACE("nal_anim_controller::frame_advance");
 
-    if constexpr (1) {
+    if constexpr (1)
+    {
         if ( !traffic::is_unanimated_car(this->field_4) 
             && !this->field_4->is_flagged(0x40000000u)
             && !this->field_50 )
@@ -380,9 +423,9 @@ void *nal_anim_controller::get_base_layer_anim_ptr()
 {
     TRACE("nal_anim_controller::get_base_layer_anim_ptr");
 
-    int *v1 = *bit_cast<int **>(this->my_player.field_14);
+    auto *v1 = this->my_player.field_14[0]->field_0;
     if ( v1 != nullptr ) {
-        return (void *)v1[4];
+        return v1->field_10;
     } else {
         return nullptr;
     }

@@ -21,6 +21,8 @@ struct nal_anim_controller : animation_controller {
         nal_anim_controller *field_4;
         int field_8;
 
+        scene_anim_client(nal_anim_controller *a2);
+
         //0x00492890
         //virtual
         nalAnimClass<nalAnyPose>::nalInstanceClass *CreateInstance(nalAnimClass<nalAnyPose> *a2);
@@ -43,12 +45,9 @@ struct nal_anim_controller : animation_controller {
             void *pParameter);
     };
 
-    int field_10;
     usm_anim_player<nalAnimClass<nalAnyPose>, 3> my_player;
     nalAnyPose field_40;
-    scene_anim_client *field_44;
-    int field_48;
-    int field_4C;
+    scene_anim_client field_44;
     bool field_50;
 
     //0x0049BCF0
@@ -57,7 +56,11 @@ struct nal_anim_controller : animation_controller {
                         unsigned int a4,
                         const als::als_meta_anim_table_shared *a5);
 
+    ~nal_anim_controller();
+
     void * operator new(size_t size);
+
+    void operator delete(void *ptr, size_t size);
 
     //virtual
     void *get_base_layer_anim_ptr();
