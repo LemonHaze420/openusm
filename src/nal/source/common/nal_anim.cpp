@@ -8,6 +8,34 @@
 
 VALIDATE_SIZE(nalAnimClass<nalAnyPose>::nalInstanceClass, 0x14);
 
+template<>
+void nalAnimClass<nalAnyPose>::nalInstanceClass::finalize(
+        bool a2)
+{
+    auto v3 = this->field_10;
+    this->m_vtbl = 0x0087E688;
+    --v3->InstanceCount;
+    if ( (a2 & 1) != 0 ) {
+        tlMemFree(this);
+    }
+}
+
+nalAnyPose::nalAnyPose(nalBaseSkeleton *a2)
+{
+    this->field_0 = a2->VirtualCreatePose();
+}
+
+nalAnyPose::nalAnyPose(const nalBasePose *a2, bool a3)
+{
+    auto *skel = a2->GetSkeleton();
+    this->field_0 = skel->VirtualCreatePose();
+    if ( a3 )
+    {
+        auto *v4 = this->GetSkeleton();
+        v4->VirtualCopyPose(this->field_0, a2);
+    }
+}
+
 nalComp::nalCompSkeleton * nalAnyPose::GetSkeleton()
 {
     return this->field_0->GetSkeleton();
