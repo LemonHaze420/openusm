@@ -14,8 +14,31 @@
 #include "trace.h"
 #include "utility.h"
 #include "vtbl.h"
+#include "wds.h"
 
-VALIDATE_SIZE(animation_controller, 0x10);
+VALIDATE_SIZE(animation_controller, 0x14);
+
+animation_controller::animation_controller(
+        actor *a2,
+        nalBaseSkeleton *a3,
+        unsigned int a4,
+        const als::als_meta_anim_table_shared *a5)
+{
+    this->m_vtbl = 0x008809E8;
+
+    this->field_4 = a2;
+    this->field_8 = a3;
+    this->field_C = a5;
+    this->field_10 = a4;
+
+    g_world_ptr->add_anim_ctrl(this);
+}
+
+animation_controller::~animation_controller()
+{
+    this->m_vtbl = 0x008809E8;
+    g_world_ptr->remove_anim_ctrl(this);
+}
 
 void animation_controller::get_camera_root_abs_po(po &arg0)
 {
