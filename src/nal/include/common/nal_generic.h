@@ -3,6 +3,8 @@
 #include "hashstring.h"
 #include "variable.h"
 
+#include <float.hpp>
+
 #include <cstdint>
 
 struct nalMatrix4x4;
@@ -11,6 +13,16 @@ namespace nalGeneric {
 
 struct nalGenericSkeleton;
 struct nalGenericPose;
+
+struct nalGenericInstance {
+
+    //0x007946A0
+    void GetPose(
+        Float a2,
+        Float a3,
+        nalGeneric::nalGenericPose &a4,
+        const nalGeneric::nalGenericPose &a5);
+};
 
 struct nalGenericAnim {
     std::intptr_t m_vtbl;
@@ -157,6 +169,14 @@ struct nalGenericPose {
     int field_4;
     bool field_8;
 
+    //0x00794110
+    nalGenericPose(const nalGenericSkeleton *a3);
+
+    //0x007941F0
+    nalGenericPose(
+        const nalGeneric::nalGenericPose &a3,
+        bool a4);
+
     auto * GetSkeleton() const {
         return this->field_0;
     }
@@ -176,6 +196,10 @@ struct nalGenericPose {
 
         return bit_cast<T *>(handle->field_4->field_2C + 12 * handle->field_8 + this->field_4);
     }
+
+    static int &PoseSP;
+
+    static int &PoseStack;
 };
 
 } // nalGeneric

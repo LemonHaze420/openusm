@@ -14,6 +14,19 @@ VALIDATE_OFFSET(nalGenericSkeleton, field_64, 0x64);
 
 VALIDATE_SIZE(nalGenericPose, 0xC);
 
+int &nalGeneric::nalGenericPose::PoseSP = var<int>(0x0097DA08);
+
+int &nalGeneric::nalGenericPose::PoseStack = var<int>(0x00977204);
+
+void nalGenericInstance::GetPose(
+        Float a2,
+        Float a3,
+        nalGeneric::nalGenericPose &a4,
+        const nalGeneric::nalGenericPose &a5)
+{
+    THISCALL(0x007946A0, this, a2, a3, &a4, &a5);
+}
+
 nalGenericSkeleton::nalGenericSkeleton()
 {
     vtbl_ptr() = (int) std::addressof(bit_cast<int *>(this)[0]);
@@ -166,6 +179,111 @@ void nalGenericSkeleton::GetComponentHandle<unsigned char>(
         tlFixedString &a4)
 {
     THISCALL(0x004AEB40, this, &a2, &a3, &a4);
+}
+
+int * sub_796F90(unsigned int a1)
+{
+    return (int *) CDECL_CALL(0x00796F90, a1);
+}
+
+nalGeneric::nalGenericPose::nalGenericPose(const nalGeneric::nalGenericSkeleton *a3)
+{
+    auto v2 = a3;
+    this->field_0 = bit_cast<nalGenericSkeleton *>(a3);
+    this->field_4 = 0;
+    this->field_8 = false;
+    if ( sub_101BF70((uint32_t)this) )
+    {
+        auto v5 = ~(v2->field_94 - 1) & (nalGeneric::nalGenericPose::PoseSP + v2->field_94 - 1);
+        this->field_4 = (int)&nalGeneric::nalGenericPose::PoseStack + v5;
+        auto v6 = (v2->field_90 + v5 + 3) & 0xFFFFFFFC;
+        auto v7 = (int *)((char *)&nalGeneric::nalGenericPose::PoseStack + v6);
+        auto v8 = v6 + 4;
+        if ( v8 <= 0x2800 )
+        {
+            *v7 = nalGeneric::nalGenericPose::PoseSP;
+            nalGeneric::nalGenericPose::PoseSP = v8;
+        }
+        else
+        {
+            this->field_4 = 0;
+        }
+    }
+
+    if ( !this->field_4 )
+    {
+        this->field_4 = (int)sub_796F90(this->field_0->field_90);
+        this->field_8 = true;
+    }
+
+    auto v9 = this->field_0;
+    auto v3 = (void *)this->field_4;
+    auto v10 = v9->field_8C;
+    for ( int v4 = 0; v4 < v9->field_88; ++v4 )
+    {
+        struct {
+            char field_0[0x2C];
+            void (__fastcall *Construct)(void *, void *edx, const nalGeneric::nalComponentInfo *, void *&);
+        } *vtbl = CAST(vtbl, v10->field_20->m_vtbl);
+
+        vtbl->Construct(v10->field_20, nullptr,
+                v10,
+                v3);
+        ++v10;
+    }
+}
+
+nalGeneric::nalGenericPose::nalGenericPose(
+        const nalGeneric::nalGenericPose &a3,
+        bool a4)
+{
+    auto v4 = a3.field_0;
+    this->field_0 = a3.field_0;
+    this->field_4 = 0;
+    this->field_8 = 0;
+
+    if ( sub_101BF70((uint32_t)this) )
+    {
+        auto v6 = ~(v4->field_94 - 1) & (nalGeneric::nalGenericPose::PoseSP + v4->field_94 - 1);
+        this->field_4 = (int)&nalGeneric::nalGenericPose::PoseStack + v6;
+        auto v7 = (v4->field_90 + v6 + 3) & 0xFFFFFFFC;
+        auto v8 = (int *)((char *)&nalGeneric::nalGenericPose::PoseStack + v7);
+        auto v9 = v7 + 4;
+        if ( v9 <= 0x2800 )
+        {
+            *v8 = nalGeneric::nalGenericPose::PoseSP;
+            nalGeneric::nalGenericPose::PoseSP = v9;
+        }
+        else
+        {
+            this->field_4 = 0;
+        }
+    }
+
+    if ( !this->field_4 )
+    {
+        this->field_4 = (int) sub_796F90(this->field_0->field_90);
+        this->field_8 = true;
+    }
+
+    auto *v10 = this->field_0;
+    auto *v13 = bit_cast<void *>(this->field_4);
+    auto *v11 = v10->field_8C;
+
+    for ( int v5 = 0; v5 < v10->field_88; ++v5 )
+    {
+        struct {
+            char field_0[0x2C];
+            void (__fastcall *Construct)(void *, void *edx, const nalGeneric::nalComponentInfo *, void *&);
+        } *vtbl = CAST(vtbl, v11->field_20->m_vtbl);
+
+        vtbl->Construct(v11->field_20, nullptr, v11, v13);
+        ++v11;
+    }
+
+    if ( a4 ) {
+        (*this) = a3;
+    }
 }
 
 } // namespace nalGeneric
