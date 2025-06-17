@@ -6,16 +6,14 @@
 
 #include <cassert>
 
-namespace FakerootPoseDesc {
+VALIDATE_SIZE(FakerootPoseDesc::PerAnimData::EventIterator, 0xC);
 
-VALIDATE_SIZE(PerAnimData::EventIterator, 0xC);
-
-PerAnimData::EventIterator PerAnimData::GetStartIterator() const
+FakerootPoseDesc::PerAnimData::EventIterator FakerootPoseDesc::PerAnimData::GetStartIterator() const
 {
     return EventIterator {this};
 }
 
-PerAnimData::EventIterator::EventIterator(const FakerootPoseDesc::PerAnimData *a2)
+FakerootPoseDesc::PerAnimData::EventIterator::EventIterator(const FakerootPoseDesc::PerAnimData *a2)
 {
     this->m_pAnimData = a2;
     this->m_pLoc = CAST(this->m_pLoc, a2->numTotalSignals
@@ -26,7 +24,7 @@ PerAnimData::EventIterator::EventIterator(const FakerootPoseDesc::PerAnimData *a
     this->field_8 = false;
 }
 
-void PerAnimData::EventIterator::PositionToSignalIx(int32_t iSignalIx)
+void FakerootPoseDesc::PerAnimData::EventIterator::PositionToSignalIx(int32_t iSignalIx)
 {
     assert(this->m_pLoc != nullptr && "Attempting to use an EventIterator that is invalid.");
 
@@ -59,14 +57,14 @@ void PerAnimData::EventIterator::PositionToSignalIx(int32_t iSignalIx)
     }
 }
 
-uint32_t PerAnimData::EventIterator::GetNumArguments() const
+uint32_t FakerootPoseDesc::PerAnimData::EventIterator::GetNumArguments() const
 {
     assert(this->m_pLoc != nullptr && "Attempting to use an EventIterator that is invalid."); 
 
     return *((const uint8_t *)this->m_pLoc + 3);
 }
 
-int PerAnimData::EventIterator::GetArgument(int iArgIx) const
+int FakerootPoseDesc::PerAnimData::EventIterator::GetArgument(int iArgIx) const
 {
     assert(this->m_pLoc != nullptr && "Attempting to use an EventIterator that is invalid.");
 
@@ -77,25 +75,23 @@ int PerAnimData::EventIterator::GetArgument(int iArgIx) const
     return *(const uint32_t *)&pLoc[2 * iArgIx + 6];
 }
 
-int PerAnimData::EventIterator::GetNameOfSignal() const
+int FakerootPoseDesc::PerAnimData::EventIterator::GetNameOfSignal() const
 {
     assert(this->m_pLoc != nullptr && "Attempting to use an EventIterator that is invalid.");
 
     return *((const uint32_t *)this->m_pLoc + 1);
 }
 
-int PerAnimData::EventIterator::GetNameOfBone() const
+int FakerootPoseDesc::PerAnimData::EventIterator::GetNameOfBone() const
 {
     assert(this->m_pLoc != nullptr && "Attempting to use an EventIterator that is invalid.");
 
     return *((const uint32_t *)this->m_pLoc + 2);
 }
 
-void PerAnimData::EventIterator::operator++()
+void FakerootPoseDesc::PerAnimData::EventIterator::operator++()
 {
     assert(this->m_pLoc != nullptr && "Attempting to use an EventIterator that is invalid.");
 
     THISCALL(0x005F3E30, this);
 }
-
-} //

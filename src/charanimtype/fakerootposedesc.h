@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace FakerootPoseDesc {
+struct FakerootPoseDesc {
 
 struct PerAnimData {
     struct EventIterator {
@@ -31,7 +31,8 @@ struct PerAnimData {
         }
     };
 
-    char field_0[0x20];
+    char field_0[0x1C];
+    int field_1C;
     int numTotalSignals;
     int field_24;
     int field_28;
@@ -49,4 +50,14 @@ struct StdPoseData {
     int field_24;
 };
 
-}
+struct PerSkelData {
+    int field_0;
+    int field_4;
+    int field_8;
+    int field_C;
+    int field_10;
+    int field_14;
+    int field_18;
+};
+
+};
