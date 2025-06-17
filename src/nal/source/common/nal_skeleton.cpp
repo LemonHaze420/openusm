@@ -10,6 +10,25 @@
 #include <nal_system.h>
 #include <tl_instance_bank.h>
 
+
+nalBasePose* nalBaseSkeleton::VirtualGetDefaultPose()
+{
+    nalBasePose * (__fastcall *func)(void *) = CAST(func, get_vfunc(this->m_vtbl, 0x24));
+    return func(this);
+}
+
+nalBasePose* nalBaseSkeleton::VirtualCreatePose()
+{
+    nalBasePose * (__fastcall *func)(void *) = CAST(func, get_vfunc(this->m_vtbl, 0x28));
+    return func(this);
+}
+
+void nalBaseSkeleton::VirtualDestroyPose(nalBasePose *a2)
+{
+    void (__fastcall *func)(void *, void *edx, nalBasePose *) = CAST(func, get_vfunc(this->m_vtbl, 0x2C));
+    func(this, nullptr, a2);
+}
+
 void sub_826190(nalBasePose &dst, Float a2, nalBasePose &src0, nalBasePose &src1)
 {
     assert(dst.GetSkeleton() == src0.GetSkeleton() && dst.GetSkeleton() == src1.GetSkeleton()

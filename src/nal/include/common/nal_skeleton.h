@@ -13,6 +13,15 @@ struct nalBaseSkeleton {
     tlFixedString field_8;
     tlFixedString field_28;
 
+    //virtual
+    nalBasePose* VirtualGetDefaultPose(); // = 0;
+
+    //virtual
+    nalBasePose * VirtualCreatePose(); // = 0;
+
+    //virtual
+    void VirtualDestroyPose(nalBasePose *a2); // = 0;
+
     const tlFixedString & GetName() const
     {
         return this->field_8;
