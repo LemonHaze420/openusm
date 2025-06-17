@@ -17,7 +17,8 @@ extern void Blend(nalCompPose &a1, Float a2, const nalCompPose &src0, const nalC
 
 struct nalCompSkeleton : nalBaseSkeleton {
 
-    int field_48[7];
+    int field_48;
+    int field_4C[6];
     int m_iNumComponents;
     int field_68;
     int field_6C;
@@ -87,8 +88,12 @@ struct nalCompAnim {
     int field_3C;
     int *field_40;
     int *field_44;
+    int field_48;
 
     int GetCompPerAnimDataInt(int iCompIx);
+
+    //0x00731E00
+    int GetCompAnimTrackData(int iCompIx);
 
     auto * GetSkeleton() {
         return this->field_30;

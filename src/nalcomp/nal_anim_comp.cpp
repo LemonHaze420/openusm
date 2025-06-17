@@ -248,6 +248,29 @@ int nalComp::nalCompAnim::GetCompPerAnimDataInt(int iCompIx)
     return (int)this->field_44 + pPerAnimDataDir[iOffsetIx + 1];
 }
 
+int nalComp::nalCompAnim::GetCompAnimTrackData(int iCompIx)
+{
+    assert(iCompIx < this->GetSkeleton()->GetNumComponents() &&
+                "Asked anim for a component that doesn't exist in skeleton.");
+
+    if ( (this->field_40[iCompIx] & 1) == 0 ) {
+        return 0;
+    }
+
+    int iOffsetIx = 0;
+    for ( int i = 0; i < iCompIx; ++i )
+    {
+        if ( (this->field_40[i] & 1) != 0 ) {
+            ++iOffsetIx;
+        }
+    }
+
+    auto *pTrackDataDir = (int *)this->field_48;
+    assert(*pTrackDataDir > iOffsetIx && "Bad track data offset.");
+
+    return pTrackDataDir[iOffsetIx + 1] + this->field_48;
+}
+
 void nalCompAnim_patch()
 {
     {
