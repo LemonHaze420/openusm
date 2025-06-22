@@ -94,6 +94,8 @@ void nalCharPose::Blend(
 
 void * nalCharPose::GetNamedPoseData(CharComponentBase::Names a2)
 {
+    TRACE("nalCharPose::GetNamedPoseData");
+
     auto *Skeleton = (const nalCharSkeleton *) this->GetSkeleton();
     int CompIxByName = Skeleton->GetCompIxByName(a2);
     if ( CompIxByName != -1 ) {
@@ -283,6 +285,11 @@ void nalCharSkeleton::VirtualBlend(
 
 void nalChar_patch()
 {
+    {
+        FUNC_ADDRESS(address, &nalChar::nalCharPose::GetNamedPoseData);
+        SET_JUMP(0x005F1330, address);
+    }
+
     {
         FUNC_ADDRESS(address, &nalChar::nalCharSkeleton::Process);
         set_vfunc(0x00891F90, address);

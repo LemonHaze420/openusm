@@ -33,6 +33,8 @@ void nalChar::nalCharInstance::VirtualGetPose(
 
 void * nalChar::nalCharAnim::GetPerAnimDataByName(CharComponentBase::Names a2)
 {
+    TRACE("nalCharAnim::GetPerAnimDataByName");
+
     auto *v3 = (nalCharSkeleton *) this->GetSkeleton();
     int CompIxByName = v3->GetCompIxByName(a2);
     if ( CompIxByName == -1 ) {
@@ -49,5 +51,10 @@ void nalCharInstance_patch()
     {
         FUNC_ADDRESS(address, &nalChar::nalCharInstance::VirtualGetPose);
         set_vfunc(0x00891FF8, address);
+    }
+
+    {
+        FUNC_ADDRESS(address, &nalChar::nalCharAnim::GetPerAnimDataByName);
+        SET_JUMP(0x005F0840, address);
     }
 }
