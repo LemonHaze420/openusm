@@ -74,6 +74,38 @@ void * BaseComponent::GetSizeOfPerInstData(
     return func(this, nullptr, a2, a3, a4, a5, a6, a7, a8);
 }
 
+void BaseComponent::CalcPoseDataDirect(
+    void *a1,
+    uint32_t a2,
+    Float a3,
+    Float a4,
+    const nalComp::nalCompAnim *a5,
+    const void *a6,
+    const void *a7,
+    const void *a8,
+    void *a9)
+{
+
+    void (__fastcall *func)(void *, void *edx, void *, uint32_t, Float, Float, const nalComp::nalCompAnim *, const void *, const void *, const void *, void *) = CAST(func, get_vfunc(this->m_vtbl, 0x30));
+    func(this, nullptr, a1, a2, a3, a4, a5, a6, a7, a8, a9);
+}
+
+void BaseComponent::CalcPoseDataRemapped(
+    void *a1,
+    uint32_t a2,
+    Float a3,
+    Float a4,
+    const nalComp::nalCompAnim *a5,
+    const void *a6,
+    const void *a7,
+    const void *a8,
+    void *a9)
+{
+
+    void (__fastcall *func)(void *, void *edx, void *, uint32_t, Float, Float, const nalComp::nalCompAnim *, const void *, const void *, const void *, void *) = CAST(func, get_vfunc(this->m_vtbl, 0x34));
+    func(this, nullptr, a1, a2, a3, a4, a5, a6, a7, a8, a9);
+}
+
 void BaseComponent::BlendPoseData(void *a1, uint32_t a2, Float a3,const void *a4, const void *a5)
 {
     void (__fastcall *func)(void *, void *, void *, uint32_t, Float, const void *, const void *) = CAST(func, get_vfunc(this->m_vtbl, 0x38));

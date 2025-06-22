@@ -7,6 +7,10 @@
 struct nalPositionOrientation;
 struct nalMatrix4x4;
 
+namespace nalComp {
+    struct nalCompAnim;
+}
+
 struct BaseComponent {
     std::intptr_t m_vtbl;
     //virtual ~BaseComponent() = default;
@@ -43,6 +47,30 @@ struct BaseComponent {
         const void *a6,
         const void *a7,
         bool a8);
+
+    //virtual
+    void CalcPoseDataDirect(
+        void *a1,
+        uint32_t a2,
+        Float a3,
+        Float a4,
+        const nalComp::nalCompAnim *a5,
+        const void *a6,
+        const void *a7,
+        const void *a8,
+        void *a9);
+
+    //virtual
+    void CalcPoseDataRemapped(
+        void *a1,
+        uint32_t a2,
+        Float a3,
+        Float a4,
+        const nalComp::nalCompAnim *a5,
+        const void *a6,
+        const void *a7,
+        const void *a8,
+        void *a9);
 
     //virtual
     void BlendPoseData(void *a1, uint32_t a2, Float a3,const void *a4, const void *a5);
