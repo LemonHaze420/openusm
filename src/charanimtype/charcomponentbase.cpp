@@ -1,11 +1,15 @@
 #include "charcomponentbase.h"
 
+#include "common.h"
 #include "string_hash.h"
 #include "trace.h"
 #include "utility.h"
 #include "vtbl.h"
 
 #include <cassert>
+
+VALIDATE_SIZE(CharComponentBase, 0x14);
+
 
 uint32_t CharComponentBase::GetType()
 {
@@ -100,7 +104,7 @@ void CharComponentBase::BuildPerInstData(
            a6);
 }
 
-void * CharComponentBase::CalcPoseDataDirect(
+void * CharComponentBase::_CalcPoseDataDirect(
         void *a2,
         uint32_t ,
         Float a4,
@@ -111,6 +115,7 @@ void * CharComponentBase::CalcPoseDataDirect(
         const void *a9,
         void *)
 {
+    TRACE("CharComponentBase::CalcPoseDataDirect");
 
     assert(this->m_pSubComponent != nullptr && "Must have a subcomponent in order to delegate to it.");
 
@@ -122,6 +127,20 @@ void * CharComponentBase::CalcPoseDataDirect(
             a7,
             a8,
             (bool)a9);
+}
+
+void CharComponentBase::CalcPoseDataRemapped(
+        void *,
+        uint32_t ,
+        Float ,
+        Float ,
+        const nalComp::nalCompAnim *,
+        const void *,
+        const void *,
+        const void *,
+        void *)
+{
+    TRACE("CharComponentBase::CalcPoseDataRemapped");
 }
 
 void CharComponentBase::CopyPoseDataToNothing(void *a1, unsigned int a2, const void *a3)
@@ -138,5 +157,10 @@ void CharComponentBase_patch()
     {
         FUNC_ADDRESS(address, &CharComponentBase::GetSizeOfPerInstData);
         set_vfunc(0x00891A84, address);
+    }
+
+    {
+        FUNC_ADDRESS(address, &CharComponentBase::_CalcPoseDataDirect);
+        set_vfunc(0x00891A98, address);
     }
 }

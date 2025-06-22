@@ -12,6 +12,7 @@ struct CharComponentBase : BaseComponent {
     BaseComponent *m_pSubComponent;
     uint32_t m_TheType;
     const char *m_strTypeString;
+    int field_10;
 
     //virtual
     uint32_t GetType();
@@ -54,7 +55,7 @@ struct CharComponentBase : BaseComponent {
         bool a9);
 
     //virtual
-    void * CalcPoseDataDirect(
+    void * _CalcPoseDataDirect(
         void *a2,
         uint32_t a3,
         Float a4,
@@ -64,6 +65,18 @@ struct CharComponentBase : BaseComponent {
         const void *a8,
         const void *a9,
         void *a10);
+
+    //virtual
+    void CalcPoseDataRemapped(
+        void *a2,
+        uint32_t ,
+        Float a4,
+        Float a5,
+        const nalComp::nalCompAnim *a6,
+        const void *a7,
+        const void *a8,
+        const void *a9,
+        void *);
 
     //virtual
     void CopyPoseDataToNothing(void *a1, unsigned int a2, const void *a3);
