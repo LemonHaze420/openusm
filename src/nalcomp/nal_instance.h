@@ -7,11 +7,17 @@
 
 namespace nalComp {
 
+struct nalCompSkeleton;
+
 struct nalCompInstance : nalAnimClass<nalAnyPose>::nalInstanceClass {
 
-    int field_14;
+    void *field_14;
     int field_18;
     int field_1C;
+
+    nalCompSkeleton * GetSkeleton();
+
+    nalCompAnim * GetAnim();
 
     //virtual
     //0x00744BA0
@@ -32,3 +38,5 @@ struct nalCompInstance : nalAnimClass<nalAnyPose>::nalInstanceClass {
 };
 
 }
+
+extern void nalCompInstance_patch();
