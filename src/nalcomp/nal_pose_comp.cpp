@@ -39,6 +39,33 @@ nalCompPose::nalCompPose(const nalComp::nalCompSkeleton *a2)
     this->m_pTheData = nullptr;
 }
 
+nalComp::nalCompPose & nalComp::nalCompPose::operator=(const nalComp::nalCompPose *a2)
+{
+    auto *v2 = a2->m_pTheData;
+    if ( v2 != nullptr )
+    {
+        if ( this->m_pTheData == nullptr ) {
+            this->InitializePoseDataFromSkel();
+        }
+
+        this->CopyPoseData(v2);
+    }
+    else
+    {
+        this->FreePoseData();
+    }
+
+    return (*this);
+}
+
+void nalComp::nalCompPose::CopyPoseDataNoFree(const void *a2)
+{
+    if constexpr (0) {
+    } else {
+        THISCALL(0x00737710, this, a2);
+    }
+}
+
 void * nalCompPose::GetComponentPoseData(uint32_t a2)
 {
     return (void *) THISCALL(0x00737870, this, a2);
@@ -72,6 +99,12 @@ void nalComp::nalCompPose::AllocPoseData()
     this->m_pTheData = tlMemAlloc(v3, v4, 0);
 }
 
+void nalComp::nalCompPose::CopyPoseData(void *a2)
+{
+    this->ComponentFreePoseData();
+    this->CopyPoseDataNoFree(a2);
+}
+
 void nalComp::nalCompPose::DirectCopyPoseData(const void *a2)
 {
     std::memcpy(this->m_pTheData, a2, this->GetPoseDataSize());
@@ -84,6 +117,16 @@ void nalCompPose::FreePoseData()
     {
         tlMemFree(this->m_pTheData);
         this->m_pTheData = nullptr;
+    }
+}
+
+void nalComp::nalCompPose::InitializePoseDataFromSkel()
+{
+    auto *v2 = this->field_4->field_78;
+    if ( v2 != nullptr )
+    {
+        this->AllocPoseData();
+        this->CopyPoseDataNoFree(v2);
     }
 }
 

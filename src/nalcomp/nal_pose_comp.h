@@ -20,6 +20,10 @@ struct nalCompPose {
 
     nalCompPose(const nalCompSkeleton *);
 
+    nalCompPose & operator=(const nalComp::nalCompPose *a2);
+
+    void CopyPoseDataNoFree(const void *a2);
+
     void * GetComponentPoseData(uint32_t a2);
 
     //virtual
@@ -38,11 +42,19 @@ struct nalCompPose {
     void AllocPoseData();
 
     //virtual
+    //0x00737800
+    void CopyPoseData(void *a2);
+
+    //virtual
     //0x00731EC0
     void DirectCopyPoseData(const void *a2);
 
     //virtual
     void FreePoseData();
+
+    //virtual
+    //0x00737820
+    void InitializePoseDataFromSkel();
 
     //virtual
     void ComponentFreePoseData();
