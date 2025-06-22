@@ -5,7 +5,7 @@
 
 namespace nalChar {
     struct nalCharAnim;
-};
+}
 
 template<typename T>
 struct FakerootEntCompDecomp {
@@ -39,3 +39,5 @@ struct FakerootEntCompDecomp {
         const T *a11);
 
 };
+
+extern void FakerootEntCompDecomp_patch();

@@ -4,6 +4,8 @@
 #include "common.h"
 #include "fakerootposedesc.h"
 #include "func_wrapper.h"
+#include "trace.h"
+#include "utility.h"
 
 #include <cmath>
 
@@ -68,17 +70,19 @@ void FakerootEntCompDecomp<FakerootPoseDesc>::RetrievePoseFromInst(
 
 template<>
 void FakerootEntCompDecomp<FakerootPoseDesc>::GetPose(
-        FakerootPoseDesc::StdPoseData *a1,
-        uint32_t arg4,
-        Float a3,
+        FakerootPoseDesc::StdPoseData *a2,
+        uint32_t a3,
         Float a4,
+        Float a5,
         const nalChar::nalCharAnim *a6,
         const FakerootPoseDesc::PerSkelData *a7,
         const FakerootPoseDesc::PerAnimData *a8,
         const void *a9,
-        FakerootEntCompDecomp<FakerootPoseDesc>::PerInstData *a2,
+        FakerootEntCompDecomp<FakerootPoseDesc>::PerInstData *a10,
         const FakerootPoseDesc *a11)
 {
+    TRACE("FakerootEntCompDecomp<FakerootPoseDesc>::GetPose");
+
     if constexpr (0) {
 #if 0
         v92 = (int)a8 + a8->field_24;
@@ -366,14 +370,27 @@ void FakerootEntCompDecomp<FakerootPoseDesc>::GetPose(
             FakerootPoseDesc::GenerateSignalPoseData(a11, v13, a8, a3, a4, a6);
 #endif
     } else {
-        THISCALL(0x005FE980, this, a1, arg4,
+        THISCALL(0x005FE980,
+                this,
+                a2,
                 a3,
                 a4,
+                a5,
                 a6,
                 a7,
                 a8,
                 a9,
-                a2,
+                a10,
                 a11);
+    }
+}
+
+void FakerootEntCompDecomp_patch()
+{
+    {
+        auto func = &FakerootEntCompDecomp<FakerootPoseDesc>::GetPose;
+
+        FUNC_ADDRESS(address, func);
+        REDIRECT(0x005FE974, address);
     }
 }
