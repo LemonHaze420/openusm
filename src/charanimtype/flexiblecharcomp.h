@@ -25,6 +25,17 @@ struct FlexibleCharComp : CharComponentBase {
         const void *a8,
         const void *a9,
         void *a10);
+
+    void CalcPoseDataRemapped(
+        void *,
+        uint32_t ,
+        Float ,
+        Float ,
+        const nalComp::nalCompAnim *,
+        const void *,
+        const void *,
+        const void *,
+        void *);
 };
 
 extern void FlexibleCharComp_patch();

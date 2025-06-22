@@ -36,7 +36,7 @@ void FlexibleCharComp<FakerootPoseDesc,FakerootEntCompDecomp<FakerootPoseDesc>>:
 {
     TRACE("FlexibleCharComp<FakerootPoseDesc,FakerootEntCompDecomp<FakerootPoseDesc>>::CalcPoseDataDirect");
 
-    if constexpr (0) {
+    if constexpr (1) {
         this->field_15.GetPose(
             static_cast<FakerootPoseDesc::StdPoseData *>(a2),
             a3,
@@ -54,6 +54,22 @@ void FlexibleCharComp<FakerootPoseDesc,FakerootEntCompDecomp<FakerootPoseDesc>>:
     }
 }
 
+template<>
+void FlexibleCharComp<FakerootPoseDesc,FakerootEntCompDecomp<FakerootPoseDesc>>::CalcPoseDataRemapped(
+        void *,
+        uint32_t ,
+        Float ,
+        Float ,
+        const nalComp::nalCompAnim *,
+        const void *,
+        const void *,
+        const void *,
+        void *)
+{
+    TRACE("FlexibleCharComp<FakerootPoseDesc,FakerootEntCompDecomp<FakerootPoseDesc>>::CalcPoseDataRemapped");
+
+}
+
 FlexibleCharComp<FakerootPoseDesc,FakerootEntCompDecomp<FakerootPoseDesc>> g_FakerootStdEntComp {0x40000000, "Fakeroot Entropy Compressed"};
 
 
@@ -64,5 +80,12 @@ void FlexibleCharComp_patch()
 
         FUNC_ADDRESS(address, func);
         set_vfunc(0x008921F0, address);
+    }
+
+    {
+        auto func = &FlexibleCharComp<FakerootPoseDesc,FakerootEntCompDecomp<FakerootPoseDesc>>::CalcPoseDataRemapped;
+
+        FUNC_ADDRESS(address, func);
+        set_vfunc(0x008921F4, address);
     }
 }
