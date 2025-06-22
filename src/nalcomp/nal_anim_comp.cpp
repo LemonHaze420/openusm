@@ -119,6 +119,8 @@ char * nalComp::nalCompSkeleton::GetCompDefaultPoseData(int iCompIx) const
 
 char * nalComp::nalCompSkeleton::GetCompPerSkelDataInt(int iCompIx) const
 {
+    TRACE("nalCompSkeleton::GetCompPerSkelDataInt");
+
     assert(iCompIx < this->m_iNumComponents && "Asked for a component index that doesn't exist.");
 
     if ( !this->field_70[iCompIx].sub_671D5F(2) ) {
@@ -137,7 +139,8 @@ char * nalComp::nalCompSkeleton::GetCompPerSkelDataInt(int iCompIx) const
 
     assert(pPerSkelDir[0] > iOffsetIx && "Offset to PerSkel directory was too big.");
 
-    return &this->field_74[pPerSkelDir[iOffsetIx + 1]];
+    auto result = &this->field_74[pPerSkelDir[iOffsetIx + 1]];
+    return result;
 }
 
 bool nalComp::nalCompSkeleton::DoesComponentHavePoseTrackData(int a2) const
@@ -224,6 +227,8 @@ void nalComp::nalCompSkeleton::ReMash(void *a2)
 
 int nalComp::nalCompAnim::GetCompPerAnimDataInt(int iCompIx)
 {
+    TRACE("nalCompAnim::GetCompPerAnimDataInt");
+
     assert(iCompIx < this->GetSkeleton()->GetNumComponents()
             && "Asked anim for a component that doesn't exist in skeleton.");
 
@@ -245,11 +250,14 @@ int nalComp::nalCompAnim::GetCompPerAnimDataInt(int iCompIx)
     assert(*pPerAnimDataDir > iOffsetIx
             && "Bad per-anim data offset.");
 
-    return (int)this->field_44 + pPerAnimDataDir[iOffsetIx + 1];
+    auto result = (int)this->field_44 + pPerAnimDataDir[iOffsetIx + 1];
+    return result;
 }
 
 int nalComp::nalCompAnim::GetCompAnimTrackData(int iCompIx)
 {
+    TRACE("nalCompAnim::GetCompAnimTrackData");
+
     assert(iCompIx < this->GetSkeleton()->GetNumComponents() &&
                 "Asked anim for a component that doesn't exist in skeleton.");
 
@@ -268,7 +276,31 @@ int nalComp::nalCompAnim::GetCompAnimTrackData(int iCompIx)
     auto *pTrackDataDir = (int *)this->field_48;
     assert(*pTrackDataDir > iOffsetIx && "Bad track data offset.");
 
-    return pTrackDataDir[iOffsetIx + 1] + this->field_48;
+    auto result = pTrackDataDir[iOffsetIx + 1] + this->field_48;
+    return result;
+}
+
+nalComp::ComponentId nalComp::nalCompSkeleton::GetComponentId(int iCompIx)
+{
+    auto component = this->GetComponent(iCompIx);
+    auto type = component->GetType();
+    auto v3 = this->sub_C650E0(iCompIx);
+    ComponentId result {v3, type};
+    return result;
+}
+
+CharComponentBase * nalComp::nalCompSkeleton::GetComponent(int iCompIx)
+{
+    assert(iCompIx < this->m_iNumComponents &&
+            "Invalid CompIx. Exceeds m_iNumComponents");
+    return bit_cast<CharComponentBase *>(this->field_70[iCompIx].field_4);
+}
+
+int nalComp::nalCompSkeleton::sub_C650E0(int iCompIx)
+{
+    assert(iCompIx < m_iNumComponents &&
+            "Invalid CompIx. Exceeds m_iNumComponents");
+    return this->field_70[iCompIx].field_0;
 }
 
 void nalCompAnim_patch()
@@ -285,4 +317,24 @@ void nalCompAnim_patch()
         set_vfunc(0x00891FCC, address);
         set_vfunc(0x008AA304, address);
     }
+
+    /*
+    {
+        FUNC_ADDRESS(address, &nalComp::nalCompSkeleton::GetCompPerSkelDataInt);
+        REDIRECT(0x00734007, address);
+        REDIRECT(0x00733F66, address);
+    }
+
+    {
+        FUNC_ADDRESS(address, &nalComp::nalCompAnim::GetCompPerAnimDataInt);
+        REDIRECT(0x00733FF3, address);
+        REDIRECT(0x00733F58, address);
+    }
+
+    {
+        FUNC_ADDRESS(address, &nalComp::nalCompAnim::GetCompAnimTrackData);
+        REDIRECT(0x00733FE6, address);
+        REDIRECT(0x00733F4F, address);
+    }
+    */
 }

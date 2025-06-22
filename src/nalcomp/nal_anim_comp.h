@@ -2,11 +2,13 @@
 
 #include <nal_skeleton.h>
 
+#include "component_id.h"
 #include <float.hpp>
 
 #include <cstdint>
 
 struct BaseComponent;
+struct CharComponentBase;
 struct nalBasePose;
 
 namespace nalComp {
@@ -59,6 +61,12 @@ struct nalCompSkeleton : nalBaseSkeleton {
     char * GetCompDefaultPoseData(int iCompIx) const;
 
     char * GetCompPerSkelDataInt(int iCompIx) const;
+
+    ComponentId GetComponentId(int a3);
+
+    CharComponentBase * GetComponent(int iCompIx);
+
+    int sub_C650E0(int iCompIx);
 
     //virtual
     //0x00732000
