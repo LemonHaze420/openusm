@@ -2584,7 +2584,6 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
 #       if MOD_MESH_SUPPORT
             Mod* replacementMesh = getMod(MeshFile->FileName.m_hash, TLRESOURCE_TYPE_MESH_FILE);
 
-            // @todo *mesh replacement
             // @todo platform
             if (replacementMesh)
             {
