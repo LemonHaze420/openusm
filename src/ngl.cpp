@@ -2407,12 +2407,20 @@ bool modImportMesh(IDirect3DDevice9* dev, modGenericMesh& data, char* buf, size_
     if (!buf || size == 0) return false;
 
     Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFileFromMemory(buf, size,   aiProcess_Triangulate           |
-                                                                    aiProcess_GenSmoothNormals      |
-                                                                    aiProcess_CalcTangentSpace      |
-                                                                    aiProcess_JoinIdenticalVertices |
-                                                                    aiProcess_ImproveCacheLocality  |
-                                                                    aiProcess_ConvertToLeftHanded);
+    const aiScene* scene = nullptr;
+    unsigned int loadFlags =    aiProcess_Triangulate |
+                                aiProcess_GenSmoothNormals |
+                                aiProcess_CalcTangentSpace |
+                                aiProcess_JoinIdenticalVertices |
+                                aiProcess_ImproveCacheLocality |
+                                aiProcess_ConvertToLeftHanded;
+
+
+    std::string ext = transformToLower(data.mod->Path.extension().string());
+    if (ext != ".fbx")
+        scene = importer.ReadFileFromMemory(buf, size, loadFlags);
+    else
+        scene = importer.ReadFile(data.mod->Path.string().c_str(), loadFlags);
 
     if (!scene || !scene->HasMeshes()) return false;
 
@@ -2797,19 +2805,22 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
                             replacementMesh = dbgReplaceMesh;
 #                   endif
 #                   if MOD_MESH_SUPPORT
-                        modGenericMesh modMesh;
-                        if (replacementMesh && modImportMesh(g_Direct3DDevice(), modMesh, (char*)replacementMesh->Data.data(), replacementMesh->Data.size(), v29, idx_Section)) {
-                            nglVertexBuffer* vb = &MeshSection->field_3C;
-                            vb->createVertexBufferAndWriteData(modMesh.vertices.data(), modMesh.vertices.size() * sizeof(float), 1028);
-                            bit_cast<nglVertexBuffer*>(&MeshSection->m_indexBuffer)
-                                ->createIndexBufferAndWriteData(modMesh.indices.data(), modMesh.indices.size() * sizeof(uint16_t));
+                        if (replacementMesh) {
+                            modGenericMesh modMesh;
+                            modMesh.mod = replacementMesh;
+                            if (modImportMesh(g_Direct3DDevice(), modMesh, (char*)replacementMesh->Data.data(), replacementMesh->Data.size(), v29, idx_Section)) {
+                                nglVertexBuffer* vb = &MeshSection->field_3C;
+                                vb->createVertexBufferAndWriteData(modMesh.vertices.data(), modMesh.vertices.size() * sizeof(float), 1028);
+                                bit_cast<nglVertexBuffer*>(&MeshSection->m_indexBuffer)
+                                    ->createIndexBufferAndWriteData(modMesh.indices.data(), modMesh.indices.size() * sizeof(uint16_t));
 
-                            MeshSection->NVertices = modMesh.numVertices;
-                            MeshSection->NIndices = modMesh.numIndices;
-                            MeshSection->m_stride = modMesh.stride;
-                            MeshSection->m_primitiveType = D3DPT_TRIANGLELIST;
-                            Mesh->NSections = 1; // @todo: custom submeshes
-                            continue; // skip
+                                MeshSection->NVertices = modMesh.numVertices;
+                                MeshSection->NIndices = modMesh.numIndices;
+                                MeshSection->m_stride = modMesh.stride;
+                                MeshSection->m_primitiveType = D3DPT_TRIANGLELIST;
+                                Mesh->NSections = 1; // @todo: custom submeshes
+                                continue; // skip
+                            }
                         }
 #                   endif
 

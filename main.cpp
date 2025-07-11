@@ -5259,7 +5259,7 @@ void enumerate_mods() {
             std::string ext = transformToLower(path.extension().string());
             if (ext == ".dds" || ext == ".tga")
                 resType = TLRESOURCE_TYPE_TEXTURE;
-            else if (ext == ".obj" || ext == ".fbx")
+            else if (ext == ".obj" || ext == ".fbx" || ext == ".dae" || ext == ".gltf")
                 resType = TLRESOURCE_TYPE_MESH;
             // @todo platform
             else if (ext == ".pcmesh")  // @todo: other exts

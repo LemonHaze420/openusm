@@ -13,6 +13,7 @@ struct Mod {
 };
 
 struct modGenericMesh {
+    Mod* mod;
     std::vector<float> vertices;
     std::vector<uint16_t> indices;
     IDirect3DVertexBuffer9* vertexBuffer = nullptr;
