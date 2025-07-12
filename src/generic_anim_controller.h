@@ -5,6 +5,8 @@
 #include <nal_generic.h>
 #include <nal_system.h>
 
+#include "vector3d.h"
+
 struct actor;
 struct nalBaseSkeleton;
 
@@ -49,4 +51,18 @@ struct generic_anim_controller : nal_anim_controller {
     nalGeneric::nalGenericConstComponentHandle<float> field_F4;
 
     generic_anim_controller(actor *, nalBaseSkeleton *, unsigned int, als::als_meta_anim_table_shared *);
+
+    nalGeneric::nalGenericPose * GetPose();
+
+
+    //virtual
+    //0x0049C7B0
+    bool will_have_hint_token_scale(string_hash a2);
+
+    //virtual
+    //0x0049C7F0
+    vector3d get_hint_token_scale(string_hash a2);
+
 };
+
+extern void generic_anim_controller_patch();

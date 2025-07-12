@@ -27,6 +27,14 @@ struct nal_anim_control {
     uint32_t m_vtbl;
 };
 
+struct nalVector3 {
+    float field_0[3];
+
+    float operator[](uint32_t idx) const {
+        return this->field_0[idx];
+    }
+};
+
 struct nalMatrix4x4 {};
 
 struct nalPositionOrientation {

@@ -3,15 +3,19 @@
 #include "func_wrapper.h"
 
 #include <nal_generic.h>
+#include "trace.h"
 
 
 generic_anim_controller::generic_anim_controller(actor *a2,
-                                                nalBaseSkeleton *a3,
-                                                unsigned int a4,
-                                                als::als_meta_anim_table_shared *a5) : nal_anim_controller(a2, a3, a4, a5), field_54(this), field_5C(this)
+                        nalBaseSkeleton *a3,
+                        unsigned int a4,
+                        als::als_meta_anim_table_shared *a5) : nal_anim_controller(a2, a3, a4, a5), field_54(this), field_5C(this)
 {
-    if constexpr (0) {
+    TRACE("generic_anim_controller::generic_anim_controller");
+
+    if constexpr (1) {
         this->m_vtbl = 0x00880EE8;
+
         this->field_64 = {};
         this->field_74 = {};
         this->field_84 = {};
@@ -97,4 +101,55 @@ generic_anim_controller::generic_anim_controller(actor *a2,
     } else {
         THISCALL(0x0049C190, this);
     }
+}
+
+nalGeneric::nalGenericPose * generic_anim_controller::GetPose()
+{
+    return bit_cast<nalGeneric::nalGenericPose *>(this->field_40.field_0);
+}
+
+tlFixedString tlfs_AE_SCALE {"AE_SCALE"};
+
+bool generic_anim_controller::will_have_hint_token_scale(string_hash a2)
+{
+    auto *pose = this->GetPose();
+    auto *v2 = pose->GetSkeleton();
+    nalGeneric::nalGenericConstComponentHandle<nalVector3> v4 {};
+    v2->GetComponentHandle(v4, a2.source_hash_code, tlfs_AE_SCALE);
+    return v4.Skeleton != nullptr;
+}
+
+tlFixedString tlfs_NAL_SCALE {"NAL_SCALE"};
+
+vector3d generic_anim_controller::get_hint_token_scale(
+        string_hash a2)
+{
+    TRACE("generic_anim_controller::get_hint_token_scale");
+
+    if constexpr (0) {
+        auto *v3 = this->GetPose();
+        nalGeneric::nalGenericSkeleton *v4 = v3->GetSkeleton();
+
+        nalGeneric::nalGenericConstComponentHandle<nalVector3> v10 {};
+        v4->GetComponentHandle(
+                v10,
+                a2.source_hash_code,
+                tlfs_NAL_SCALE); 
+        if ( v10.Skeleton != nullptr )
+        {
+            nalVector3 v5 = (*v3)[v10];
+            return vector3d {v5[0], v5[1], v5[2]};
+        }
+
+        return vector3d {1.f, 1.f, 1.f};
+    } else {
+        vector3d result;
+        THISCALL(0x0049C7F0, this, &result, a2);
+        return result;
+    }
+}
+
+void generic_anim_controller_patch() {
+    FUNC_ADDRESS(address, &generic_anim_controller::get_hint_token_scale);
+    set_vfunc(0x00880F84, address);
 }

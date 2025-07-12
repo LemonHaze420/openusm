@@ -181,6 +181,15 @@ void nalGenericSkeleton::GetComponentHandle<unsigned char>(
     THISCALL(0x004AEB40, this, &a2, &a3, &a4);
 }
 
+template<>
+void nalGenericSkeleton::GetComponentHandle<nalVector3>(
+        nalGenericConstComponentHandle<nalVector3> &a2,
+        uint32_t a3,
+        tlFixedString &a4) const
+{
+    THISCALL(0x004AEF30, this, &a2, &a3, &a4);
+}
+
 int * sub_796F90(unsigned int a1)
 {
     return (int *) CDECL_CALL(0x00796F90, a1);

@@ -75,11 +75,15 @@ struct nalGenericComponentHandle {
 
 template<typename T>
 struct nalGenericConstComponentHandle {
-    nalGeneric::nalGenericSkeleton *field_0 {nullptr};
-    int field_4;
+    nalGeneric::nalGenericSkeleton *Skeleton {nullptr};
+    struct {
+        char field_0[0x2C];
+        T *field_2C;
+    } * field_4;
     int field_8;
     int field_C;
 };
+
 
 struct nalGenericSkeleton {
     std::intptr_t m_vtbl;
@@ -136,6 +140,12 @@ struct nalGenericSkeleton {
         tlFixedString &a3,
         tlFixedString &a4) const;
 
+    template<typename T>
+    void GetComponentHandle(
+        nalGenericConstComponentHandle<T> &a2,
+        uint32_t a3,
+        tlFixedString &a4) const;
+
     struct vtbl {
         void *field_0;
         void *field_4;
@@ -158,6 +168,27 @@ struct nalGenericSkeleton {
 
     bool CheckVersion() {
         return this->field_4 == 0x10200;
+    }
+
+    template<typename T>
+    T operator[](nalGeneric::nalGenericConstComponentHandle<T> &handle)
+    {
+        static T g_invalidObject {};
+
+        assert(handle.Skeleton != nullptr && "attempting to de-reference an invalid handle");
+
+        if ( handle.Skeleton == nullptr ) {
+            return g_invalidObject;
+        }
+
+        assert(handle.Skeleton == this && "handle and pose skeletons don't match");
+
+        auto *v4 = bit_cast<char *>(handle.field_4->field_2C + handle.field_8);
+        if (handle.field_C) {
+            return *bit_cast<T *>(&v4[this->field_B4]);
+        } else {
+            return *bit_cast<T *>(&v4[this->field_98]);
+        }
     }
 
     static inline Var<std::intptr_t> vtbl_ptr {0x009770E0};
@@ -195,6 +226,27 @@ struct nalGenericPose {
         assert(handle.Skeleton == GetSkeleton() && "handle and pose skeletons don't match");
 
         return bit_cast<T *>(handle->field_4->field_2C + 12 * handle->field_8 + this->field_4);
+    }
+
+    template<typename T>
+    T operator[](nalGeneric::nalGenericConstComponentHandle<T> &handle)
+    {
+        static T g_invalidObject {};
+
+        assert(handle.Skeleton != nullptr && "attempting to de-reference an invalid handle");
+
+        if ( handle.Skeleton == nullptr ) {
+            return g_invalidObject;
+        }
+
+        auto *skeleton = this->GetSkeleton();
+        assert(handle.Skeleton == skeleton && "handle and pose skeletons don't match");
+
+        if (handle.field_C) {
+            return (*skeleton)[handle];
+        }
+
+        return *bit_cast<T *>(handle.field_4->field_2C + 12 * handle.field_8 + this->field_4);
     }
 
     static int &PoseSP;
