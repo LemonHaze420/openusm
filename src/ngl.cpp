@@ -2403,8 +2403,10 @@ const char *to_string(TypeDirectoryEntry type)
 constexpr bool nglLoadMeshFileInternal_hook = 1;
 
 #ifndef TARGET_XBOX
-bool modImportMesh(IDirect3DDevice9* dev, modGenericMesh& data, char* buf, size_t size, std::string shaderName, int meshIndex = 0) {
-    if (!buf || size == 0) return false;
+// imports a mesh (by optional index) and creates buffers
+// returns number of meshes found within the mesh itself
+int modImportMesh(IDirect3DDevice9* dev, modGenericMesh& data, char* buf, size_t size, std::string shaderName, int meshIndex = 0) {
+    if (!buf || size == 0) return 0;
 
     Assimp::Importer importer;
     const aiScene* scene = nullptr;
@@ -2415,6 +2417,13 @@ bool modImportMesh(IDirect3DDevice9* dev, modGenericMesh& data, char* buf, size_
                                 aiProcess_ImproveCacheLocality |
                                 aiProcess_ConvertToLeftHanded;
 
+    data.vertices.clear();
+    data.indices.clear();
+    data.vertexBuffer = nullptr;
+    data.indexBuffer = nullptr;
+    data.stride = 0;
+    data.numIndices = 0;
+    data.numVertices = 0;
 
     std::string ext = transformToLower(data.mod->Path.extension().string());
     if (ext != ".fbx")
@@ -2422,7 +2431,7 @@ bool modImportMesh(IDirect3DDevice9* dev, modGenericMesh& data, char* buf, size_
     else
         scene = importer.ReadFile(data.mod->Path.string().c_str(), loadFlags);
 
-    if (!scene || !scene->HasMeshes()) return false;
+    if (!scene || !scene->HasMeshes()) return 0;
 
     // determine the layout of the vb
     UINT stride = 16;
@@ -2552,11 +2561,11 @@ bool modImportMesh(IDirect3DDevice9* dev, modGenericMesh& data, char* buf, size_
     UINT vertexSize = vertices.size() * sizeof(float);
     auto device = g_Direct3DDevice()->lpVtbl;
     if (FAILED(device->CreateVertexBuffer(g_Direct3DDevice(), vertexSize, 0, 0, D3DPOOL_DEFAULT, &data.vertexBuffer, nullptr)))
-        return false;
+        return 0;
 
     void* vbData;
     if (FAILED(data.vertexBuffer->lpVtbl->Lock(data.vertexBuffer, 0, vertexSize, &vbData, 0)))
-        return false;
+        return 0;
 
     memcpy(vbData, vertices.data(), vertexSize);
     data.vertexBuffer->lpVtbl->Unlock(data.vertexBuffer);
@@ -2565,11 +2574,11 @@ bool modImportMesh(IDirect3DDevice9* dev, modGenericMesh& data, char* buf, size_
     // create index buffer
     UINT indexSize = indices.size() * sizeof(uint16_t);
     if (FAILED(device->CreateIndexBuffer(g_Direct3DDevice(), indexSize, 0, D3DFMT_INDEX16, D3DPOOL_DEFAULT, &data.indexBuffer, nullptr)))
-        return false;
+        return 0;
 
     void* ibData;
     if (FAILED(data.indexBuffer->lpVtbl->Lock(data.indexBuffer, 0, indexSize, &ibData, 0)))
-        return false;
+        return 0;
 
     memcpy(ibData, indices.data(), indexSize);
     data.indexBuffer->lpVtbl->Unlock(data.indexBuffer);
@@ -2580,7 +2589,8 @@ bool modImportMesh(IDirect3DDevice9* dev, modGenericMesh& data, char* buf, size_
     data.stride = stride;
     data.numVertices = static_cast<UINT>((data.vertices.size() / (stride / sizeof(float))));
     data.numIndices = static_cast<UINT>(data.indices.size());
-    return true;
+
+    return scene->mNumMeshes;
 }
 
 bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFile, const char *ext)
@@ -2766,6 +2776,17 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
 
                 // @todo: custom submeshes
 
+                modGenericMesh modMesh;
+                auto numCustomSubmeshes = 0;
+                if (replacementMesh) {
+                    modMesh.mod = replacementMesh;
+                    numCustomSubmeshes = modImportMesh(g_Direct3DDevice(), modMesh, (char*)replacementMesh->Data.data(), replacementMesh->Data.size(), v29, 0);
+
+                    if (Mesh->NSections != numCustomSubmeshes)
+                        printf("there are %d sections in the original mesh, but we have %d.\n", Mesh->NSections, numCustomSubmeshes);
+                }
+
+
                 for (auto idx_Section = 0u; idx_Section < Mesh->NSections; ++idx_Section)
                 {
                     Mesh->Sections[idx_Section].field_0 = 1;
@@ -2805,9 +2826,8 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
                             replacementMesh = dbgReplaceMesh;
 #                   endif
 #                   if MOD_MESH_SUPPORT
-                        if (replacementMesh) {
-                            modGenericMesh modMesh;
-                            modMesh.mod = replacementMesh;
+                        if (replacementMesh && numCustomSubmeshes) 
+                        {
                             if (modImportMesh(g_Direct3DDevice(), modMesh, (char*)replacementMesh->Data.data(), replacementMesh->Data.size(), v29, idx_Section)) {
                                 nglVertexBuffer* vb = &MeshSection->field_3C;
                                 vb->createVertexBufferAndWriteData(modMesh.vertices.data(), modMesh.vertices.size() * sizeof(float), 1028);
@@ -2818,7 +2838,7 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
                                 MeshSection->NIndices = modMesh.numIndices;
                                 MeshSection->m_stride = modMesh.stride;
                                 MeshSection->m_primitiveType = D3DPT_TRIANGLELIST;
-                                Mesh->NSections = 1; // @todo: custom submeshes
+                                Mesh->NSections = idx_Section; // @todo: custom submeshes
                                 continue; // skip
                             }
                         }
