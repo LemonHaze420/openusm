@@ -2780,7 +2780,7 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
                 auto numCustomSubmeshes = 0;
                 if (replacementMesh) {
                     modMesh.mod = replacementMesh;
-                    numCustomSubmeshes = modImportMesh(g_Direct3DDevice(), modMesh, (char*)replacementMesh->Data.data(), replacementMesh->Data.size(), v29, 0);
+                    numCustomSubmeshes = modImportMesh(g_Direct3DDevice(), modMesh, (char*)replacementMesh->Data.data(), replacementMesh->Data.size(), "", 0);
 
                     if (Mesh->NSections != numCustomSubmeshes)
                         printf("there are %d sections in the original mesh, but we have %d.\n", Mesh->NSections, numCustomSubmeshes);
