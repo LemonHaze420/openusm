@@ -27,7 +27,7 @@ static void enumerate_mods() {
             int resType = 0;
             std::string ext = transformToLower(path.extension().string());
             if (ext == ".dds" || ext == ".tga")
-                resType = 1;
+                resType = 1;    // @todo
             auto hash = to_hash(path.stem().string().c_str());
             Mods[hash] = Mod{ path, resType, std::move(fileData) };
             printf(__FUNCTION__ ": found name = %s\nhash = 0x%08X\n", path.stem().string().c_str(), hash);
@@ -35,6 +35,8 @@ static void enumerate_mods() {
     }
 }
 
+
+// texture reads
 typedef bool (__cdecl *nglLoadTextureTM2_t)(char* tex, uint8_t* a2);
 nglLoadTextureTM2_t nglLoadTextureTM2;
 
@@ -47,6 +49,8 @@ bool hk_nglLoadTextureTM2(char* tex, uint8_t* a2)
     return nglLoadTextureTM2(tex, a2);
 }
 
+
+// resource reads
 typedef unsigned __int8* (__cdecl* get_resource_t)(const resource_key*, int*, resource_pack_slot**);
 get_resource_t get_resource_orig;
 
@@ -63,11 +67,37 @@ unsigned __int8* __cdecl hk_get_resource(const resource_key* resource_id, int* s
         printf(__FUNCTION__ ": found %s\n", mod->Path.string().c_str());
 
         if (size) *size = static_cast<int>(mod->Data.size());
-        //if (data) *data = nullptr; 
         return mod->Data.data();
     }
     return ret;
 }
+
+typedef unsigned __int8* (__thiscall* get_resource_dir_t)(resource_directory*,const resource_key*,int*,resource_pack_slot**);
+get_resource_dir_t get_resource_dir_orig;
+
+unsigned __int8* __fastcall hk_get_resource_dir(resource_directory* self,void* edx,const resource_key* resource_id,int* size,resource_pack_slot** slot)
+{
+    uint32_t req_hash = resource_id->m_hash;
+    uint32_t type = resource_id->m_type;
+    const char* req_ext = resource_key_type_ext[PLATFORM][type];
+    add_ext(resource_id->m_type, (char*)req_ext);
+    uint8_t* ret = get_resource_dir_orig(self, resource_id, size, slot);
+    if (!ret)
+        return ret;
+    
+    printf(__FUNCTION__ ": searching for 0x%08X%s\n", req_hash, req_ext);
+    if (Mod* mod = getModOfType(resource_id)) {
+        printf(__FUNCTION__ ": found %s\n", mod->Path.string().c_str());
+        if (size) *size = static_cast<int>(mod->Data.size());
+        return mod->Data.data();
+    }
+    return ret;
+}
+
+// ------------------------------------------------
+
+void destroy_hooks();
+
 void init_hooks()
 {
 #   if PLATFORM==PLATFORM_PC
@@ -91,6 +121,12 @@ void init_hooks()
                 ret = MH_CreateHook((void*)0x00531B30, reinterpret_cast<void*>(hk_get_resource), reinterpret_cast<void**>(&get_resource_orig));
                 if (ret == MH_OK)
                     ret = MH_EnableHook((void*)0x00531B30);
+            }
+
+            if (ret == MH_OK) {                
+                ret = MH_CreateHook((void*)0x0052AA70, reinterpret_cast<void*>(hk_get_resource_dir), reinterpret_cast<void**>(&get_resource_dir_orig));
+                if (ret == MH_OK)
+                    ret = MH_EnableHook((void*)0x0052AA70);
             }
         }
 
