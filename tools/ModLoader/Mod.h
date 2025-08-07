@@ -3,6 +3,8 @@
 #include <map>
 #include <filesystem>
 
+#include "common.h"
+
 struct Mod {
     std::filesystem::path Path;
     int Type;
@@ -111,4 +113,26 @@ constexpr inline std::uint32_t to_hash(const char* str) {
     }
 
     return res;
+}
+
+
+Mod* getModOfType(const resource_key* resource_id)
+{
+    const uint32_t hash = resource_id->m_hash;
+    const char* expected_ext = resource_key_type_ext[PLATFORM][resource_id->m_type];
+    if (!expected_ext)
+        return nullptr;
+
+    std::string expected_ext_upper = transformToUpper(std::string(expected_ext));
+    auto it = Mods.find(hash);
+    if (it != Mods.end())
+    {
+        const std::filesystem::path& path = it->second.Path;
+        std::string mod_ext = transformToUpper(path.extension().string());
+
+        if (mod_ext == expected_ext_upper)
+            return &it->second;
+    }
+
+    return nullptr;
 }
