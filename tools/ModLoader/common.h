@@ -1,5 +1,50 @@
 #pragma once
 
+
+#if !defined(_DEBUG)
+#define printf //
+#endif
+
+
+typedef int(__cdecl* cdecl_call)(...);
+
+template<class To, class From>
+constexpr
+typename std::enable_if_t<sizeof(To) == sizeof(From) && std::is_trivially_copyable_v<From>&&
+    std::is_trivially_copyable_v<To>,
+    To>
+    // constexpr support needs compiler magic
+    bit_cast(const From& src) noexcept {
+    static_assert(
+        std::is_trivially_constructible_v<To>,
+        "This implementation additionally requires destination type to be trivially constructible");
+
+    To dst;
+    std::memcpy(&dst, &src, sizeof(To));
+    return dst;
+}
+
+template<typename Func>
+void REDIRECT(std::ptrdiff_t addr, Func my_func) {
+    *bit_cast<uint8_t*>(addr) = 0xE8; //CALL
+    *bit_cast<uint32_t*>(
+        bit_cast<uint8_t*>(addr + 1)) = (bit_cast<uint32_t>(my_func)) - addr - 5;
+    //sp_log("Patched address %08X with %s", addr, #my_func);
+}
+
+template<typename Func>
+void SET_JUMP(std::ptrdiff_t addr, Func my_func) {
+    *bit_cast<uint8_t*>(addr) = 0xE9; //JUMP
+
+    *bit_cast<uint32_t*>(bit_cast<uint8_t*>(addr + 1)) = (bit_cast<uint32_t>(my_func)) - addr - 5;
+
+    *bit_cast<uint8_t*>(addr + 0x5) = 0xC3; //RET
+}
+template<typename... Args>
+decltype(auto) CDECL_CALL(int address, Args... args) {
+    return (bit_cast<cdecl_call>(address))(args...);
+}
+
 struct resource_key
 {
     uint32_t m_hash;
@@ -165,6 +210,18 @@ struct resource_directory
     int field_88;
     int type_start_idxs[70];
     int type_end_idxs[70];
+};
+
+struct script_library_class
+{
+    int m_vtbl;
+    char* name;
+    int field_8;
+    const char* field_C;
+    void** funcs;
+    int total_funcs;
+    int next_func_slot;
+    int flags;
 };
 
 
