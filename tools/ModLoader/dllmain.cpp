@@ -23,21 +23,23 @@ void init_hooks()
         MH_STATUS ret = MH_Initialize();
         if (ret == MH_OK) 
         {
+#           define HOOK(a,b,c)     (void*)a, reinterpret_cast<void*>(b), reinterpret_cast<void**>(&c)
             struct Hook {
                 void* pAddress;
                 void* pHook;
                 void** pOrig;
             } hooks[] = {
-                {(void*)0x0077A870, reinterpret_cast<void*>(hk_nglLoadTextureTM2), reinterpret_cast<void**>(&nglLoadTextureTM2)},
-                {(void*)0x00531B30, reinterpret_cast<void*>(hk_get_resource), reinterpret_cast<void**>(&get_resource_orig)},
-                {(void*)0x0052AA70, reinterpret_cast<void*>(hk_get_resource_dir), reinterpret_cast<void**>(&get_resource_dir_orig)},
+                { HOOK(0x0077A870, hk_nglLoadTextureTM2, nglLoadTextureTM2) },
+                { HOOK(0x00531B30, hk_get_resource, get_resource_orig) },
+                { HOOK(0x0052AA70, hk_get_resource_dir, get_resource_dir_orig) },
 #               if WIP_SCRIPTING
-                    {(void*)0x0058EDE0, reinterpret_cast<void*>(hk_script_func_reg), reinterpret_cast<void**>(&script_func_reg_orig)},
-                    {(void*)0x0058EE30, reinterpret_cast<void*>(hk_script_func), reinterpret_cast<void**>(&script_func_orig)},
-                    {(void*)0x0064E740, reinterpret_cast<void*>(hk_exec), reinterpret_cast<void**>(&exec_orig)},
-                    {(void*)0x005AF9F0, reinterpret_cast<void*>(hk_script_manager_run), reinterpret_cast<void**>(&script_manager_run_orig)},
-#               endif      
+                    { HOOK(0x0058EDE0, hk_script_func_reg, script_func_reg_orig) },
+                    { HOOK(0x0058EE30, hk_script_func, script_func_orig) },
+                    { HOOK(0x0064E740, hk_exec, exec_orig) },
+                    { HOOK(0x005AF9F0, hk_script_manager_run, script_manager_run_orig) },
+#               endif  
             };
+#           undef HOOK
 
             for (auto& hook : hooks) {
                 ret = MH_CreateHook(hook.pAddress, hook.pHook, hook.pOrig);
