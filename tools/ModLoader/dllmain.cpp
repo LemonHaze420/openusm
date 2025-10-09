@@ -32,6 +32,8 @@ void init_hooks()
                 { HOOK(0x0077A870, hk_nglLoadTextureTM2, nglLoadTextureTM2) },
                 { HOOK(0x00531B30, hk_get_resource, get_resource_orig) },
                 { HOOK(0x0052AA70, hk_get_resource_dir, get_resource_dir_orig) },
+                { HOOK(0x0051EC80, hk_set_active_resource_context, set_active_resource_context_orig) },
+                { HOOK(0x0079E490, hk_nflopenfile, nflopenfile_orig ) },
 #               if WIP_SCRIPTING
                     { HOOK(0x0058EDE0, hk_script_func_reg, script_func_reg_orig) },
                     { HOOK(0x0058EE30, hk_script_func, script_func_orig) },
@@ -55,7 +57,7 @@ void init_hooks()
         else
             destroy_hooks();
 #   else
-#   error "Unsupported platform"
+#       error "Unsupported platform"
 #   endif
 }
 
@@ -70,7 +72,7 @@ void destroy_hooks()
 #       endif
 
 #   else
-#   error "Unsupported platform"
+#       error "Unsupported platform"
 #   endif
 }
 

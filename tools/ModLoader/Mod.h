@@ -1,6 +1,6 @@
 #pragma once
 
-#include <map>
+#include <unordered_map>
 #include <filesystem>
 
 #include "common.h"
@@ -9,10 +9,16 @@ struct Mod {
     std::filesystem::path Path;
     int Type;
     std::vector<uint8_t> Data;
+    uint32_t Dir;
 };
 
-static std::map<uint32_t, Mod> Mods;
+static uint32_t current_pack = -1;
 
+static std::unordered_map<uint64_t, Mod> Mods;
+
+static inline uint64_t make_key(uint32_t nameHash, uint32_t dirHash) {
+    return (uint64_t(dirHash) << 32) | nameHash;
+}
 
 [[maybe_unused]] static bool hasMod(uint32_t hash) {
     return Mods.find(hash) != Mods.end();
@@ -114,25 +120,16 @@ constexpr inline std::uint32_t to_hash(const char* str) {
 
     return res;
 }
-
-
-Mod* getModOfType(const resource_key* resource_id)
+Mod* getModOfType(const resource_key* resource_id, uint32_t dirHash)
 {
-    const uint32_t hash = resource_id->m_hash;
+    const uint32_t nameHash = resource_id->m_hash;
     const char* expected_ext = resource_key_type_ext[PLATFORM][resource_id->m_type];
-    if (!expected_ext)
-        return nullptr;
+    if (!expected_ext) return nullptr;
 
-    std::string expected_ext_upper = transformToUpper(std::string(expected_ext));
-    auto it = Mods.find(hash);
-    if (it != Mods.end())
-    {
-        const std::filesystem::path& path = it->second.Path;
-        std::string mod_ext = transformToUpper(path.extension().string());
+    auto it = Mods.find(make_key(nameHash, dirHash));
+    if (it == Mods.end()) return nullptr;
 
-        if (mod_ext == expected_ext_upper)
-            return &it->second;
-    }
-
-    return nullptr;
+    return transformToUpper(it->second.Path.extension().string())
+        == transformToUpper(std::string(expected_ext))
+        ? &it->second : nullptr;
 }
