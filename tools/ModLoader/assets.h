@@ -47,12 +47,13 @@ static void enumerate_mods() {
                 resType = 1; // @todo
 
             const uint32_t nameHash = to_hash(path.stem().string().c_str());
-            Mods[make_key(nameHash, dirHash)] = Mod{
+            const uint64_t pathHash = make_key(nameHash, dirHash);
+
+            Mods[pathHash].push_back(Mod{
                 path,
                 resType,
-                std::move(fileData),
-                dirHash
-            };
+                std::move(fileData)
+            });
 
             printf(__FUNCTION__ ": dir=%s (0x%08X)\n  name=%s (0x%08X)\n",
                 dirPath.filename().string().c_str(), dirHash,
@@ -192,14 +193,11 @@ nflopenfile_t nflopenfile_orig;
 
 int hk_nflopenfile(int type, const char* str)
 {
-    printf("searching for %s\n", str);
-
     auto modPath = redirect_to_mods(str);
+    printf("searching for %s\n", modPath.string().c_str());
     if (fs::exists(modPath)) {
         printf("found %s\n", modPath.string().c_str());
         return nflopenfile_orig(type, modPath.string().c_str());
     }
-
     return nflopenfile_orig(type, str);
-    
 }
