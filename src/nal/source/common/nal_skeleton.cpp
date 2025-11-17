@@ -69,268 +69,317 @@ void *nalConstructSkeleton(void *a1)
     }
 }
 
-// let distance d = ||T - P|| and precomputed coefficients,
-//    cos0 = a0 * d + b0 / d
-//    cos1 = a1 * d + b1 / d
-//    sin_i = sqrt(1 - cos_i^2)
-void __cdecl solve_two_bone_angles(
-    matrix4x4* hinge,
-    vector3d* root,
-    vector3d* target,
-    float b0a_len,
-    float b1a_len,
-    float b0b_len,
-    float b1b_len,
-    vector3d* proj_point,
-    vector3d* bone_axis_dir,
-    float* sin0,
-    float* cos0,
-    float* sin1,
-    float* cos1)
-{
-    vector3d tmpProj;
-    ProjectPointOntoLineXform(&tmpProj, root, hinge);
-    *proj_point = tmpProj;
+namespace inverse_kinematics {
 
-    vector3d diff;
-    diff.x = target->x - proj_point->x;
-    diff.y = target->y - proj_point->y;
-    diff.z = target->z - proj_point->z;
+    // let distance d = ||T - P|| and precomputed coefficients,
+    //    cos0 = a0 * d + b0 / d
+    //    cos1 = a1 * d + b1 / d
+    //    sin_i = sqrt(1 - cos_i^2)
+    void __cdecl solve_two_bone_angles(
+        matrix4x4* hinge,
+        vector3d* root,
+        vector3d* target,
+        float b0a_len,
+        float b1a_len,
+        float b0b_len,
+        float b1b_len,
+        vector3d* proj_point,
+        vector3d* bone_axis_dir,
+        float* sin0,
+        float* cos0,
+        float* sin1,
+        float* cos1)
+    {
+        vector3d tmpProj;
+        ProjectPointOntoLineXform(&tmpProj, root, hinge);
+        *proj_point = tmpProj;
 
-    // ||T - P||
-    float bend_radius = std::sqrt(
-        diff.x * diff.x +
-        diff.y * diff.y +
-        diff.z * diff.z);
+        vector3d diff;
+        diff.x = target->x - proj_point->x;
+        diff.y = target->y - proj_point->y;
+        diff.z = target->z - proj_point->z;
 
-    float inv_radius = 1.0f / bend_radius;
+        // ||T - P||
+        float bend_radius = std::sqrt(
+            diff.x * diff.x +
+            diff.y * diff.y +
+            diff.z * diff.z);
 
-    // (T - P) / ||T - P||
-    bone_axis_dir->x = diff.x * inv_radius;
-    bone_axis_dir->y = diff.y * inv_radius;
-    bone_axis_dir->z = diff.z * inv_radius;
+        float inv_radius = 1.0f / bend_radius;
 
-    float cos0_raw = bend_radius * b0a_len + inv_radius * b0b_len;
-    float cos1_raw = bend_radius * b1a_len + inv_radius * b1b_len;
+        // (T - P) / ||T - P||
+        bone_axis_dir->x = diff.x * inv_radius;
+        bone_axis_dir->y = diff.y * inv_radius;
+        bone_axis_dir->z = diff.z * inv_radius;
 
-    // clamp -1,1
-    float c0 = cos0_raw;
-    if (c0 > 1.0f)
-        c0 = 1.0f;
-    else if (c0 < -1.0f)
-        c0 = -1.0f;
-    *cos0 = c0;
+        float cos0_raw = bend_radius * b0a_len + inv_radius * b0b_len;
+        float cos1_raw = bend_radius * b1a_len + inv_radius * b1b_len;
 
-    float c1 = cos1_raw;
-    if (c1 > 1.0f)
-        c1 = 1.0f;
-    else if (c1 < -1.0f)
-        c1 = -1.0f;
-    *cos1 = c1;
+        // clamp -1,1
+        float c0 = cos0_raw;
+        if (c0 > 1.0f)
+            c0 = 1.0f;
+        else if (c0 < -1.0f)
+            c0 = -1.0f;
+        *cos0 = c0;
 
-    // sin = sqrt(1 - cos^2)
-    *sin0 = std::sqrt(1.0f - (*cos0) * (*cos0));
-    *sin1 = std::sqrt(1.0f - (*cos1) * (*cos1));
-}
+        float c1 = cos1_raw;
+        if (c1 > 1.0f)
+            c1 = 1.0f;
+        else if (c1 < -1.0f)
+            c1 = -1.0f;
+        *cos1 = c1;
 
-void __cdecl build_chain_transforms(
-    float chain_scale,
-    float sin0,
-    float cos0,
-    float sin1,
-    float cos1,
-    vector3d* origin,
-    vector3d* bone_axis_dir,
-    vector4d* bend_dir,
-    float chain_sin0,
-    float chain_cos0,
-    matrix4x4* joint0,
-    matrix4x4* joint1)
-{
-    const vector3d bone = *bone_axis_dir;
-    const vector3d bend{
-        bend_dir->x,
-        bend_dir->y,
-        bend_dir->z
-    };
+        // sin = sqrt(1 - cos^2)
+        *sin0 = std::sqrt(1.0f - (*cos0) * (*cos0));
+        *sin1 = std::sqrt(1.0f - (*cos1) * (*cos1));
+    }
 
-    // N = normalize(bone x bend)
-    vector3d normal = vector3d::cross(bone, bend).normalized();
-    vector3d tangent = vector3d::cross(normal, bone);
+    void __cdecl build_chain_transforms(
+        float chain_scale,
+        float sin0,
+        float cos0,
+        float sin1,
+        float cos1,
+        vector3d* origin,
+        vector3d* bone_axis_dir,
+        vector4d* bend_dir,
+        float chain_sin0,
+        float chain_cos0,
+        matrix4x4* joint0,
+        matrix4x4* joint1)
+    {
+        const vector3d bone = *bone_axis_dir;
+        const vector3d bend{
+            bend_dir->x,
+            bend_dir->y,
+            bend_dir->z
+        };
 
-    // pack basis
-    vector4d axisX{ bone.x,   bone.y,   bone.z,   0.0f };
-    vector4d axisY{ tangent.x,tangent.y,tangent.z,0.0f };
-    vector4d axisZ{ normal.x, normal.y, normal.z, 0.0f };
+        // N = normalize(bone x bend)
+        vector3d normal = vector3d::cross(bone, bend).normalized();
+        vector3d tangent = vector3d::cross(normal, bone);
 
-    vector4d origin4{
-        origin->x,
-        origin->y,
-        origin->z,
-        1.0f
-    };
+        // pack basis
+        vector4d axisX{ bone.x,   bone.y,   bone.z,   0.0f };
+        vector4d axisY{ tangent.x,tangent.y,tangent.z,0.0f };
+        vector4d axisZ{ normal.x, normal.y, normal.z, 0.0f };
 
-    matrix4x4 hinge_space;
-    hinge_space.compose_from_basis(&axisX, &axisY, &axisZ, &origin4);
+        vector4d origin4{
+            origin->x,
+            origin->y,
+            origin->z,
+            1.0f
+        };
 
-    // j0
+        matrix4x4 hinge_space;
+        hinge_space.compose_from_basis(&axisX, &axisY, &axisZ, &origin4);
 
-    const float neg_chain_sin0 = -chain_sin0;
+        // j0
 
-    vector4d j0_x{ // r00
-        cos0,
-        sin0 * chain_cos0,
-        sin0 * chain_sin0,
-        0.0f
-    };
+        const float neg_chain_sin0 = -chain_sin0;
 
-    vector4d j0_y{ // r01
-        -sin0,
-        cos0 * chain_cos0,
-        cos0 * chain_sin0,
-        0.0f
-    };
+        vector4d j0_x{ // r00
+            cos0,
+            sin0 * chain_cos0,
+            sin0 * chain_sin0,
+            0.0f
+        };
 
-    vector4d j0_z{ // r02
-        0.0f,
-        neg_chain_sin0,
-        chain_cos0,
-        0.0f
-    };
+        vector4d j0_y{ // r01
+            -sin0,
+            cos0 * chain_cos0,
+            cos0 * chain_sin0,
+            0.0f
+        };
 
-    vector4d j0_pos{ 0,0,0,1 }; // r03
+        vector4d j0_z{ // r02
+            0.0f,
+            neg_chain_sin0,
+            chain_cos0,
+            0.0f
+        };
 
-    matrix4x4 joint0_local;
-    joint0_local.compose_from_basis(&j0_x, &j0_y, &j0_z, &j0_pos);
+        vector4d j0_pos{ 0,0,0,1 }; // r03
 
-    local_to_world(joint0, &joint0_local, &hinge_space);
+        matrix4x4 joint0_local;
+        joint0_local.compose_from_basis(&j0_x, &j0_y, &j0_z, &j0_pos);
 
-    // j1
+        local_to_world(joint0, &joint0_local, &hinge_space);
 
-    float off_sin0 = chain_scale * sin0;
+        // j1
 
-    vector4d j1_pos{ // r03
-        chain_scale * cos0,
-        chain_cos0 * off_sin0,
-        chain_sin0 * off_sin0,
-        1.0f
-    };
+        float off_sin0 = chain_scale * sin0;
 
-    vector4d j1_z{ // same as j0_z
-        0.0f,
-        neg_chain_sin0,
-        chain_cos0,
-        0.0f
-    };
+        vector4d j1_pos{ // r03
+            chain_scale * cos0,
+            chain_cos0 * off_sin0,
+            chain_sin0 * off_sin0,
+            1.0f
+        };
 
-    vector4d j1_y{ // r01
-        sin1,
-        cos1 * chain_cos0,
-        cos1 * chain_sin0,
-        0.0f
-    };
+        vector4d j1_z{ // same as j0_z
+            0.0f,
+            neg_chain_sin0,
+            chain_cos0,
+            0.0f
+        };
 
-    vector4d j1_x{ // r00
-        cos1,
-        -(sin1 * chain_cos0),
-        -(sin1 * chain_sin0),
-        0.0f
-    };
+        vector4d j1_y{ // r01
+            sin1,
+            cos1 * chain_cos0,
+            cos1 * chain_sin0,
+            0.0f
+        };
 
-    matrix4x4 joint1_local;
-    joint1_local.compose_from_basis(&j1_x, &j1_y, &j1_z, &j1_pos);
+        vector4d j1_x{ // r00
+            cos1,
+            -(sin1 * chain_cos0),
+            -(sin1 * chain_sin0),
+            0.0f
+        };
 
-    local_to_world(joint1, &joint1_local, &hinge_space);
-}
+        matrix4x4 joint1_local;
+        joint1_local.compose_from_basis(&j1_x, &j1_y, &j1_z, &j1_pos);
 
+        local_to_world(joint1, &joint1_local, &hinge_space);
+    }
 
-void __cdecl solve_two_bone(
-    matrix4x4* j0,
-    matrix4x4* j1,
-    matrix4x4* line_xform,
-    vector3d* root,
-    matrix4x4* effector,
-    ik_bone_chain_t* chain,
-    GetBendDirection_t GetBendDirection)
-{
-    vector3d target{effector->arr[3].x,effector->arr[3].y, effector->arr[3].z};
-    float    sin0 = 0.0f;
-    float    sin1 = 0.0f;
-    float    cos0 = 1.0f;
-    float    cos1 = 1.0f;
-    vector3d proj_point{};
-    vector3d bone_axis_dir{};
+    inline void flip_chain_basis(matrix4x4* m) {
+        vector4d r0 = m->arr[0],
+            r1 = m->arr[1],
+            r2 = m->arr[2];
 
-    solve_two_bone_angles(
-        line_xform,
-        root,
-        &target,
-        chain->b0a_len,
-        chain->b0b_len,
-        chain->b1a_len,
-        chain->b1b_len,
-        &proj_point,
-        &bone_axis_dir,
-        &sin0,
-        &cos0,
-        &sin1,
-        &cos1);
+        auto negate = [](vector4d v) {
+            v.x = -v.x;
+            v.y = -v.y;
+            v.z = -v.z;
+            v.w = -v.w;
+            return v;
+        };
 
-    vector3d tmp_bend{};
-    vector3d* bend_dir =
-        GetBendDirection(&tmp_bend,
+        r0 = negate(r0);
+        r1 = negate(r1);
+        r2 = negate(r2);
+
+        std::swap(r1, r2);
+
+        m->arr[0] = r0;
+        m->arr[1] = r1;
+        m->arr[2] = r2;
+    }
+
+    void __cdecl solve_two_bone(
+        matrix4x4* j0,
+        matrix4x4* j1,
+        matrix4x4* line_xform,
+        vector3d* root,
+        matrix4x4* effector,
+        ik_bone_chain_t* chain,
+        GetBendDirection_t GetBendDirection)
+    {
+        vector3d target{ effector->arr[3].x,effector->arr[3].y, effector->arr[3].z };
+        float    sin0 = 0.0f;
+        float    sin1 = 0.0f;
+        float    cos0 = 1.0f;
+        float    cos1 = 1.0f;
+        vector3d proj_point{};
+        vector3d bone_axis_dir{};
+
+        inverse_kinematics::solve_two_bone_angles(
             line_xform,
-            effector,
-            bone_axis_dir.x,
-            bone_axis_dir.y,
-            bone_axis_dir.z);
+            root,
+            &target,
+            chain->b0a_len,
+            chain->b0b_len,
+            chain->b1a_len,
+            chain->b1b_len,
+            &proj_point,
+            &bone_axis_dir,
+            &sin0,
+            &cos0,
+            &sin1,
+            &cos1);
 
-    vector4d bone_bend_dir{
-        bend_dir->x,
-        bend_dir->y,
-        bend_dir->z,
-        0.0f
-    };
+        vector3d tmp_bend{};
+        vector3d* bend_dir = GetBendDirection(&tmp_bend, line_xform, effector, bone_axis_dir.x, bone_axis_dir.y, bone_axis_dir.z);
+        vector4d bone_bend_dir{ bend_dir->x, bend_dir->y, bend_dir->z, 0.0f };
 
+        inverse_kinematics::build_chain_transforms(
+            chain->chain_scale,
+            sin0,
+            cos0,
+            sin1,
+            cos1,
+            &proj_point,
+            &bone_axis_dir,
+            &bone_bend_dir,
+            0.0f,   // chain_sin0
+            1.0f,   // chain_cos0
+            j0,
+            j1);
 
-    build_chain_transforms(
-        chain->chain_scale,
-        sin0,
-        cos0,
-        sin1,
-        cos1,
-        &proj_point,
-        &bone_axis_dir,
-        &bone_bend_dir,
-        0.0f,   // chain_sin0
-        1.0f,   // chain_cos0
-        j0,
-        j1);
+        flip_chain_basis(j0);
+        flip_chain_basis(j1);
+    }
 
-    auto flip_chain_basis = [](matrix4x4* m) {
-            vector4d r0 = m->arr[0],
-                     r1 = m->arr[1],
-                     r2 = m->arr[2];
+    void __cdecl solve_two_bone_with_twist(
+        matrix4x4* joint0,
+        matrix4x4* joint1,
+        matrix4x4* hinge,
+        vector3d* root,
+        matrix4x4* effector,
+        ik_bone_chain_t* chain,
+        GetBendDirection_t GetBendDirection,
+        float                   twistAngle)
+    {
+        vector3d target{ effector->arr[3].x, effector->arr[3].y, effector->arr[3].z };
 
-            auto negate = [](vector4d v) {
-                v.x = -v.x;
-                v.y = -v.y;
-                v.z = -v.z;
-                v.w = -v.w;
-                return v;
-            };
+        float    sin0 = 0.0f;
+        float    sin1 = 0.0f;
+        float    cos0 = 1.0f;
+        float    cos1 = 1.0f;
+        vector3d proj_point{};
+        vector3d axis_dir{}; // hinge space
 
-            r0 = negate(r0);
-            r1 = negate(r1);
-            r2 = negate(r2);
+        inverse_kinematics::solve_two_bone_angles(
+            hinge,
+            root,
+            &target,
+            chain->b0a_len,
+            chain->b0b_len,
+            chain->b1a_len,
+            chain->b1b_len,
+            &proj_point,
+            &axis_dir,
+            &sin0,
+            &cos0,
+            &sin1,
+            &cos1);
 
-            std::swap(r1, r2);
+        vector3d tmp{};
+        vector3d* bend_vec = GetBendDirection(&tmp, hinge, effector, axis_dir.x, axis_dir.y, axis_dir.z);
+        vector4d bend_dir{ bend_vec->x, bend_vec->y, bend_vec->z, 0.0f };
 
-            m->arr[0] = r0;
-            m->arr[1] = r1;
-            m->arr[2] = r2;
-    };
+        // apply twist
+        float chain_cos0 = std::cos(twistAngle);
+        float chain_sin0 = std::sin(twistAngle);
 
-    flip_chain_basis(j0);
-    flip_chain_basis(j1);
+        inverse_kinematics::build_chain_transforms(
+            chain->chain_scale,
+            sin0,
+            cos0,
+            sin1,
+            cos1,
+            &proj_point,
+            &axis_dir,
+            &bend_dir,
+            chain_sin0,
+            chain_cos0,
+            joint0,
+            joint1);
+
+        flip_chain_basis(joint0);
+        flip_chain_basis(joint1);
+    }
 }
