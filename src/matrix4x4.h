@@ -122,6 +122,19 @@ struct matrix4x4 {
     //0x00588390
     void scale(Float a2);
 
+    matrix4x4* compose_from_basis(vector4d* a2,
+        vector4d* a3,
+        vector4d* a4,
+        vector4d* a5)
+    {
+        matrix4x4* this_1 = this;
+        this->arr[0] = *a2;
+        this->arr[1] = *a3;
+        this->arr[2] = *a4;
+        this->arr[3] = *a5;
+        return this_1;
+    }
+
     const char *to_string() const;
 };
 
