@@ -4558,6 +4558,12 @@ BOOL install_redirects()
 
     SET_JUMP(0x0077A870, nglLoadTextureTM2);
 
+    SET_JUMP(0x5EF340, inverse_kinematics::compute_bend_plane_normal);
+    SET_JUMP(0x5EEEE0, inverse_kinematics::compute_arm_elbow_bend_direction);
+    SET_JUMP(0x797210, inverse_kinematics::build_chain_transforms);
+    SET_JUMP(0x797070, inverse_kinematics::solve_two_bone_angles);
+    SET_JUMP(0x5EEC20, inverse_kinematics::solve_two_bone);
+    SET_JUMP(0x5F16E0, inverse_kinematics::solve_two_bone_with_twist);
     return true;
 
     wds_render_manager_patch();
