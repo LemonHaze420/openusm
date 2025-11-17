@@ -5,17 +5,19 @@
 
 #include "common.h"
 
+static uint32_t current_pack = -1;
+
+constexpr uint32_t rootDir = 0xFFFFFFFF;
+
 struct Mod {
     std::filesystem::path Path;
     int Type;
     std::vector<uint8_t> Data;
 };
 
-static uint32_t current_pack = -1;
-
 static std::unordered_map<uint64_t, std::vector<Mod>> Mods;
 
-static inline uint64_t make_key(uint32_t nameHash, uint32_t dirHash) {
+static inline uint64_t make_key(uint32_t nameHash, uint32_t dirHash = rootDir) {
     return (uint64_t(dirHash) << 32) | nameHash;
 }
 
@@ -84,6 +86,16 @@ constexpr inline std::uint32_t to_hash(const char* str) {
     return res;
 }
 
+Mod* findModOfExt(uint64_t hash, const char* expected_ext) {
+
+    auto it = Mods.find(hash);
+    if (it == Mods.end()) return nullptr;
+    for (auto& mod : it->second) {
+        if (transformToUpper(mod.Path.extension().string()) == transformToUpper(std::string(expected_ext)))
+            return &mod;
+    }
+    return nullptr;
+}
 
 Mod* getModOfType(const resource_key* resource_id, uint32_t dirHash)
 {
@@ -91,12 +103,9 @@ Mod* getModOfType(const resource_key* resource_id, uint32_t dirHash)
     const char* expected_ext = resource_key_type_ext[PLATFORM][resource_id->m_type];
     if (!expected_ext) return nullptr;
 
-    auto it = Mods.find(make_key(nameHash, dirHash));
-    if (it == Mods.end()) return nullptr;
-
-    for (auto& mod : it->second) {
-        if (transformToUpper(mod.Path.extension().string()) == transformToUpper(std::string(expected_ext)))
-            return &mod;
-    }
-    return nullptr;
+    Mod * ret =  findModOfExt(make_key(nameHash, dirHash), expected_ext);
+    // fallback to root dir
+    if (!ret)
+        ret = findModOfExt(make_key(nameHash), expected_ext);
+    return ret;
 }

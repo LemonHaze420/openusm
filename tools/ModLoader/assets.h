@@ -62,7 +62,7 @@ static void enumerate_mods() {
     };
 
 
-    process_dir(modsDir, 0xFFFFFFFF);
+    process_dir(modsDir, rootDir);
 
     for (const auto& dir : fs::directory_iterator(modsDir)) {
         if (!dir.is_directory())
