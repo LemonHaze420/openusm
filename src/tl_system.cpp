@@ -309,6 +309,11 @@ void tlStackRangeInit() {
     tlStackEnd = 0;
 }
 
+bool sub_101BF70(int a1)
+{
+    return a1 >= tlStackBegin && a1 < tlStackEnd;
+}
+
 bool tlIsPow2(int a1) {
     return a1 && (a1 & (a1 - 1)) == 0;
 }

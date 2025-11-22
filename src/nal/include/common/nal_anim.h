@@ -16,6 +16,12 @@ struct nalCompSkeleton;
 struct nalAnyPose {
     nalBasePose *field_0;
 
+    nalAnyPose() = default;
+
+    nalAnyPose(nalBaseSkeleton *a2);
+
+    nalAnyPose(const nalBasePose *a2, bool a3);
+
     nalComp::nalCompSkeleton * GetSkeleton();
 
     void operator=(const nalAnyPose &a2);
@@ -30,6 +36,9 @@ struct nalAnimClass {
         float field_8;
         nalBaseSkeleton *field_C;
         nalAnimClass<nalAnyPose> *field_10;
+
+        //0x00796D50
+        void finalize(bool a2);
     };
 
     std::intptr_t m_vtbl;

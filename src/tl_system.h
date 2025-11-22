@@ -96,6 +96,8 @@ extern void tlInitListInit();
 
 extern void tlStackRangeInit();
 
+extern bool sub_101BF70(int a1);
+
 //0x0074A520
 void tlSetSystemCallbacks(const tlSystemCallbacks &a1);
 
