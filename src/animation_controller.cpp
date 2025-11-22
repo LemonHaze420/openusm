@@ -76,7 +76,7 @@ animation_controller::anim_ctrl_handle animation_controller::get_base_anim_handl
     return v3;
 }
 
-double sub_497DD0(nalComp::nalCompAnim *a1, int a2)
+float sub_497DD0(nalComp::nalCompAnim *a1, int a2)
 {
     if ( (a2 & 0x20) != 0 ) {
         return 0.0;
@@ -226,12 +226,25 @@ bool animation_controller::anim_ctrl_handle::is_anim_active() const
     return this->field_8 != nullptr && this->field_8->is_anim_active(this->field_4);
 }
 
-void *animation_controller::anim_ctrl_handle::get_anim_ptr() const
+void * animation_controller::anim_ctrl_handle::get_anim_ptr() const
 {
-    return (void *) THISCALL(0x004AD230, this);
+    if constexpr (0) {
+        if ( this->field_8 != nullptr )
+        {
+            if ( this->field_0 ) {
+                return this->field_8->get_base_layer_anim_ptr();
+            } else {
+                return this->field_8->get_anim_ptr(this->field_4);
+            }
+        }
+
+        return nullptr;
+    } else {
+        return (void *) THISCALL(0x004AD230, this);
+    }
 }
 
-double animation_controller::anim_ctrl_handle::get_anim_time_in_sec() const
+float animation_controller::anim_ctrl_handle::get_anim_time_in_sec() const
 {
     TRACE("animation_controller::anim_ctrl_handle::get_anim_time_in_sec");
 
@@ -242,7 +255,7 @@ double animation_controller::anim_ctrl_handle::get_anim_time_in_sec() const
     }
 }
 
-double animation_controller::anim_ctrl_handle::get_anim_speed() const
+float animation_controller::anim_ctrl_handle::get_anim_speed() const
 {
     TRACE("animation_controller::anim_ctrl_handle::get_anim_speed");
 
@@ -269,32 +282,44 @@ bool animation_controller::is_anim_active(Float a1) const
     }
 }
 
-double animation_controller::get_base_anim_time_in_sec() const
+float animation_controller::get_base_anim_time_in_sec() const
 {
-    double (__fastcall *func)(const void *) = CAST(func, get_vfunc(m_vtbl, 0x30));
+    float (__fastcall *func)(const void *) = CAST(func, get_vfunc(m_vtbl, 0x30));
     return func(this);
 }
 
-double animation_controller::get_anim_time_in_sec(Float a2) const
+float animation_controller::get_anim_time_in_sec(Float a2) const
 {
-    double (__fastcall *func)(const void *, void *, Float) = CAST(func, get_vfunc(m_vtbl, 0x34));
+    float (__fastcall *func)(const void *, void *, Float) = CAST(func, get_vfunc(m_vtbl, 0x34));
     return func(this, nullptr, a2);
 }
 
-double animation_controller::get_base_anim_speed()
+float animation_controller::get_base_anim_speed()
 {
     TRACE("animation_controller::get_base_anim_speed");
 
-    double (__fastcall *func)(const void *) = CAST(func, get_vfunc(m_vtbl, 0x50));
+    float (__fastcall *func)(const void *) = CAST(func, get_vfunc(m_vtbl, 0x50));
     return func(this);
 }
 
-double animation_controller::get_anim_speed(Float a2)
+float animation_controller::get_anim_speed(Float a2)
 {
-    TRACE("animation_controller::get_base_anim_speed");
+    TRACE("animation_controller::get_anim_speed");
 
-    double (__fastcall *func)(const void *, void *, Float) = CAST(func, get_vfunc(m_vtbl, 0x54));
+    float (__fastcall *func)(const void *, void *, Float) = CAST(func, get_vfunc(m_vtbl, 0x54));
     return func(this, nullptr, a2);
+}
+
+void * animation_controller::get_base_layer_anim_ptr()
+{
+    void * (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x64));
+    return func(this);
+}
+
+void * animation_controller::get_anim_ptr(Float a1)
+{
+    void * (__fastcall *func)(void *, void *edx, Float) = CAST(func, get_vfunc(m_vtbl, 0x68));
+    return func(this, nullptr, a1);
 }
 
 void animation_controller::frame_advance(Float a2, bool a3, bool a4)
@@ -362,6 +387,11 @@ void animation_controller::reset()
 {
     void (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x60));
     func(this);
+}
+
+void animation_controller::get_shake_root_rel_po(po &a3)
+{
+    a3 = po {};
 }
 
 
