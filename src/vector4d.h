@@ -126,4 +126,6 @@ extern bool sub_55F1D0(const vector4d &a1, const vector4d &a2);
 
 extern vector4d sub_55DA40(const float *a2, const vector4d *a3);
 
+extern vector4d sub_5FD0C0(Float a2, const vector4d &a3, const vector4d &a4);
+
 extern float AbsSquared(const vector4d &a1);
