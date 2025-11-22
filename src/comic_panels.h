@@ -68,7 +68,7 @@ struct panel_component {
 
 void set_default_bgcolor(const color &a1);
 
-//0x0x00736A60
+//0x00736A60
 void init();
 
 //0x0073EA70

@@ -236,7 +236,7 @@ struct actor : entity {
     //virtual
     float get_colgeom_radius() const;
 
-    //0x0x004B8FC0
+    //0x004B8FC0
     //virtual
     bool is_frame_delta_valid() const;
 

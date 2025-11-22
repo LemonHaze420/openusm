@@ -31,7 +31,7 @@ struct MultiLineString {
         int field_C;
     };
 
-    //0x0x00617BF0
+    //0x00617BF0
     static double GetWidth(string a1, Float a5, font_index a3);
 
     static int ConvertStringToButtonCode(const char *a1, const char **a2, const mString &a3);
