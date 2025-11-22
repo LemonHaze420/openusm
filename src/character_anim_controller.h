@@ -2,6 +2,8 @@
 
 #include "nal_anim_controller.h"
 
+#include "vector3d.h"
+
 struct character_anim_controller : nal_anim_controller {
 
     struct gen_std_play_method : std_play_method {
@@ -12,6 +14,7 @@ struct character_anim_controller : nal_anim_controller {
             this->m_vtbl = 0x00880B70;
         }
 
+        //virtual
         //0x0049EC30
         void Compose(
             usm_anim_player<nalAnimClass<nalAnyPose>,3>::nalAnimState *a2,
@@ -25,7 +28,7 @@ struct character_anim_controller : nal_anim_controller {
 
         //virtual
         bool ShouldFireSignals(
-                usm_anim_player<nalAnimClass<nalAnyPose>,3>::nalAnimState *a1);
+                usm_anim_player<nalAnimClass<nalAnyPose>,3>::nalAnimState *a1); // = 0;
     };
 
     struct gen_base_play_method : gen_std_play_method {
@@ -35,7 +38,7 @@ struct character_anim_controller : nal_anim_controller {
 
         //virtual
         bool ShouldFireSignals(
-                usm_anim_player<nalAnimClass<nalAnyPose>,3>::nalAnimState *a1);
+            usm_anim_player<nalAnimClass<nalAnyPose>,3>::nalAnimState *a1);
     };
 
     struct gen_mod_play_method : gen_std_play_method {
@@ -43,6 +46,7 @@ struct character_anim_controller : nal_anim_controller {
             this->m_vtbl = 0x00880BA0;
         }
 
+        //virtual
         bool ShouldFireSignals(
                 usm_anim_player<nalAnimClass<nalAnyPose>,3>::nalAnimState *a1);
     };
@@ -60,6 +64,11 @@ struct character_anim_controller : nal_anim_controller {
         unsigned int a4,
         const als::als_meta_anim_table_shared *a5);
 
+
+    void * operator new(size_t sz);
+
+    void * operator new(size_t size, void *);
+
     void play_base_layer_anim(
         nalAnimClass<nalAnyPose> *a2,
         Float a3,
@@ -67,6 +76,41 @@ struct character_anim_controller : nal_anim_controller {
         bool a5,
         bool a6,
         void *a7);
+
+
+    //virtual
+    //0x00492C20
+    float get_tentacle_width(string_hash a2);
+
+
+    //virtual
+    //0x00492CA0
+    float get_tentacle_pull_factor(string_hash a2);
+
+
+    //virtual
+    //0x004982D0
+    void get_camera_root_rel_po(po &a2);
+
+    //virtual
+    //0x00498310
+    void get_shake_root_rel_po(po &a2);
+
+    //virtual
+    //0x00492CE0
+    bool will_have_hint_token_scale(string_hash );
+
+    //virtual
+    //0x00492CF0
+    vector3d get_hint_token_scale(string_hash a2);
+
+
+    //virtual
+    //0x0049EBE0
+    void post_get_pose_in_scene_anims(
+        uint32_t &a2,
+        nalAnimClass<nalAnyPose> *a3,
+        nalAnyPose &a4);
 };
 
 extern void character_anim_controller_patch();
