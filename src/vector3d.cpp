@@ -59,7 +59,6 @@ bool vector3d::operator==(const vector3d &v) const {
     }
 }
 
-//0x00501AB0
 bool vector3d::is_valid() const {
     return x > -1.0e10 && x < 1.0e10 &&
         y > -1.0e10 &&

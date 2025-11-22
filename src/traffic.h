@@ -125,7 +125,7 @@ struct traffic : spawnable {
 
     void sub_6DACB0(entity_base_vhandle a2);
 
-    //0x006C3650
+    //0x006C36E0
     traffic * car_behind();
 
     //0x006C7400

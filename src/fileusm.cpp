@@ -187,7 +187,6 @@ char *FileUSM::sub_81C4C0(const char *a2) {
     return nullptr;
 }
 
-//0x0081C7C0
 FileUSM *create_usm_file(const char *a1, char *a2) {
     FileUSM *v3 = (FileUSM *) malloc(0x10u);
     if (v3 != nullptr) {
