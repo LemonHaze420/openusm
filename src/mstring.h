@@ -52,7 +52,6 @@ public:
     //0x00421220
     mString(const mString &a2);
 
-    //0x00420F60
     mString(int a2, const char *Format, ...);
 
     //0x0041FE30

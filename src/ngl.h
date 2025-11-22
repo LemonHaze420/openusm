@@ -804,9 +804,6 @@ extern void nglListBeginScene(nglSceneParamType a2);
 //0x0076A030
 extern void nglListEndScene();
 
-//0x0076E750
-extern void SetFrameLock(nglFrameLockType a2);
-
 //0x0077AC90
 extern void nglSetQuadTex(nglQuad *a1, nglTexture *a2);
 

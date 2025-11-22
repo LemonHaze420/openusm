@@ -13,7 +13,6 @@ struct corner_info {
     //0x006B7590
     corner_info(const corner_info &a2);
 
-    //0x0048C9D0
     void clear();
 };
 } // namespace ai

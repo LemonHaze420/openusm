@@ -46,13 +46,10 @@ struct mash_info_struct {
 
     void advance_buffer(mash::buffer_type, int);
 
-    //0x004208F0
     uint8_t *read_from_buffer(mash::buffer_type, int a2, int a3);
 
-    //0x0041F7C0
     void align_buffer(mash::buffer_type, int a2);
 
-    //0x0041F780
     void deductive_align_buffer(mash::buffer_type);
 
     template<typename T>

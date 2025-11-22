@@ -18,7 +18,6 @@ struct mesh_file_resource_handler : base_tl_resource_handler {
     bool _handle_resource(worldly_resource_handler::eBehavior behavior,
                                        tlresource_location *loc);
 
-    //0x00562EC0
     /* virtual */ bool handle(worldly_resource_handler::eBehavior a2, limited_timer *a3);
 };
 
