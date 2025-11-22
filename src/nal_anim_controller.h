@@ -63,7 +63,10 @@ struct nal_anim_controller : animation_controller {
     void operator delete(void *ptr, size_t size);
 
     //virtual
-    void *get_base_layer_anim_ptr();
+    void * get_base_layer_anim_ptr();
+
+    //virtual
+    void * get_anim_ptr(Float);
 
     void get_curr_po_offset(po &a2);
 

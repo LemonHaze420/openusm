@@ -431,6 +431,23 @@ void *nal_anim_controller::get_base_layer_anim_ptr()
     }
 }
 
+nalComp::nalCompAnim * sub_8520A0(usm_anim_player<nalAnimClass<nalAnyPose>, 3> *self, Float a2)
+{
+    auto *v3 = self->Advance(a2);
+    if ( v3 != nullptr ) {
+        return v3->field_0->GetAnim();
+    } else {
+        return nullptr;
+    }
+}
+
+void * nal_anim_controller::get_anim_ptr(Float priority)
+{
+    assert(this->my_player.IsAnimActive(priority) && "Cannot get an inactive animation.");
+
+    return sub_8520A0(&this->my_player, priority);
+}
+
 void *nal_anim_controller::std_play_method::CreateInstance(
         nalAnimClass<nalAnyPose> *a1,
         nalBaseSkeleton *a2,
