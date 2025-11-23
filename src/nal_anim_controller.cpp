@@ -366,7 +366,7 @@ void nal_anim_controller::get_matrix_data_from_pose(nalAnyPose &arg0)
             if ( this->field_50
                 || ((static_cast<nalGeneric::nalGenericAnim *>(this->get_base_layer_anim_ptr())->field_34 & 2) != 0) )
             {
-                quaternion a2_12 {v30.arr[3], v30.arr[0], v30.arr[1], v30.arr[2]};
+                quaternion a2_12 {v30.field_0[3], v30.field_0[0], v30.field_0[1], v30.field_0[2]};
                 vector3d v31 {};
                 po v32 {v31, a2_12, 1.0};
 
