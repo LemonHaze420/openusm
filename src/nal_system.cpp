@@ -13,6 +13,7 @@
 #include "tlresource_directory.h"
 #include "trace.h"
 #include "utility.h"
+#include "vector4d.h"
 #include "vtbl.h"
 
 #include <nal_list.h>
@@ -264,6 +265,127 @@ tlResourceDirectory<nalAnimClass<nalAnyPose>, tlFixedString> *nalGetAnimDirector
 void nalSetSceneAnimDirectory(tlResourceDirectory<nalSceneAnim, tlFixedString> *a1) {
     nalSceneAnimDirectory = CAST(nalSceneAnimDirectory, a1);
 }
+
+nalMatrix4x4::nalMatrix4x4(const nalPositionOrientation &a2)
+{
+    this->arr[0][3] = 0.0;
+    this->arr[1][3] = 0.0;
+    this->arr[2][3] = 0.0;
+    this->arr[3][3] = 1.0;
+
+    this->sub_5FC9C0(a2);
+
+    this->arr[3][0] = a2.field_10[0];
+    this->arr[3][1] = a2.field_10[1];
+    this->arr[3][2] = a2.field_10[2];
+}
+
+vector4d sub_5FC4A0(const vector4d &a2, const float *a3, const vector4d &a4)
+{
+    vector4d result;
+    result[0] = a2[0] * a3[2] + a4[0];
+    result[1] = a2[1] * a3[2] + a4[1];
+    result[2] = a2[2] * a3[2] + a4[2];
+    result[3] = a2[3] * a3[2] + a4[3];
+    return result;
+}
+
+vector4d sub_504170(const vector4d &a2, const float *a3, const vector4d &a4)
+{
+    vector4d result;
+    result[0] = a2[0] * a3[1] + a4[0];
+    result[1] = a2[1] * a3[1] + a4[1];
+    result[2] = a2[2] * a3[1] + a4[2];
+    result[3] = a2[3] * a3[1] + a4[3];
+    return result;
+}
+
+vector4d  sub_5E2F50(
+	const vector4d &a2,
+	const float *a3,
+	const vector4d &a4)
+{
+    vector4d result;
+    result[0] = a3[0] * a2[0] + a4[0];
+    result[1] = a3[0] * a2[1] + a4[1];
+    result[2] = a3[0] * a2[2] + a4[2];
+    result[3] = a3[0] * a2[3] + a4[3];
+    return result;
+}
+
+void sub_5FC820(const nalPositionOrientation &a1, vector4d &a2, vector4d &a3, vector4d &a4)
+{
+    vector4d v10 {};
+    v10[0] = a1.field_0[0] + a1.field_0[0];
+    v10[1] = a1.field_0[1] + a1.field_0[1];
+    v10[2] = a1.field_0[2] + a1.field_0[2];
+    auto v5 = a1.field_0[3] + a1.field_0[3];
+    v10[3] = v5;
+    auto v11 = v5 * a1.field_0[0];
+    auto v6 = v10[3] * a1.field_0[1];
+    auto v12 = v10[3] * a1.field_0[2];
+    auto v13 = v10[3] * a1.field_0[3];
+    auto v16 = -v11;
+    auto v17 = -v6;
+    auto a1a = v13 - 1.0f;
+
+    vector4d v15 {};
+    v15[0] = a1a;
+    v15[1] = -v12;
+    v15[2] = v6;
+    v15[3] = 0.0f;
+    a2 = sub_5E2F50(v10, a1.field_0, v15);
+
+    v15[0] = v12;
+    v15[1] = a1a;
+    v15[2] = v16;
+    v15[3] = 0.0f;
+    a3 = sub_504170(v10, a1.field_0, v15);
+
+    v15[0] = v17;
+    v15[1] = v11;
+    v15[2] = a1a;
+    v15[3] = 0.0f;
+    a4 = sub_5FC4A0(v10, a1.field_0, v15);
+}
+
+void nalMatrix4x4::sub_5FC9C0(const nalPositionOrientation &a2)
+{
+    if constexpr (0) {
+        vector4d v10;
+        vector4d v11;
+        vector4d v12;
+        sub_5FC820(a2, v10, v11, v12);
+
+        this->arr[0][0] = v10[0];
+        this->arr[0][1] = v10[1];
+        this->arr[0][2] = v10[2];
+        this->arr[0][3] = 0.0;
+
+        this->arr[1][0] = v11[0];
+        this->arr[1][1] = v11[1];
+        this->arr[1][2] = v11[2];
+        this->arr[1][3] = 0.0;
+
+        this->arr[2][0] = v12[0];
+        this->arr[2][1] = v12[1];
+        this->arr[2][2] = v12[2];
+        this->arr[2][3] = 0.0;
+    } else {
+        void (__fastcall *func)(void *self, void *edx, const float *a2) = CAST(func, 0x005FC9C0);
+        func(this, nullptr, &a2.field_0[0]);
+    }
+}
+
+nalPositionOrientation::nalPositionOrientation(nalVector3 a2, const float *a3)
+{
+    this->field_0[0] = a3[0];
+    this->field_0[1] = a3[1];
+    this->field_0[2] = a3[2];
+    this->field_0[3] = a3[3];
+    this->field_10 = a2;
+}
+
 
 
 void nalStreamInstance_patch()

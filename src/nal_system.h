@@ -35,10 +35,31 @@ struct nalVector3 {
     }
 };
 
-struct nalMatrix4x4 {};
+struct nalMatrix4x4 {
+    float arr[4][4];
+
+    nalMatrix4x4() = default;
+
+    nalMatrix4x4(const nalPositionOrientation &a2);
+
+    auto &operator[](int idx) {
+        return arr[idx];
+    }
+
+    const auto &operator[](int idx) const {
+        return arr[idx];
+    }
+
+    void sub_5FC9C0(const nalPositionOrientation &a2);
+};
 
 struct nalPositionOrientation {
-    float arr[4];
+    float field_0[4];
+    nalVector3 field_10;
+
+    nalPositionOrientation() = default;
+
+    nalPositionOrientation(nalVector3, const float *);
 };
 
 struct nalBasePose {
