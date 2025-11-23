@@ -231,6 +231,29 @@ int ArbitraryPOCharComp::GetSizeOfPerInstData(
     return 16 * func(static_cast<const int *>(a5), static_cast<const int *>(a3)) + 60;
 }
 
+void ArbitraryPOCharComp::DestroyPerInstData(void *a1,
+        uint32_t,
+        const void *,
+        const void *)
+{
+    TRACE("ArbitraryPOCharComp::DestroyPerInstData");
+
+    tlMemFree(*((void **)a1 + 6));
+    auto v4 = *((DWORD *)a1 + 11);
+    *((DWORD *)a1 + 4) = 0;
+    *((DWORD *)a1 + 5) = 0;
+    *((DWORD *)a1 + 6) = 0;
+    if ( v4 != 0 )
+    {
+        tlMemFree(*((void **)a1 + 14));
+        tlMemFree(*((void **)a1 + 12));
+        *((DWORD *)a1 + 14) = 0;
+        *((DWORD *)a1 + 12) = 0;
+        *((DWORD *)a1 + 13) = 0;
+        *((DWORD *)a1 + 11) = 0;
+    }
+}
+
 void ArbitraryPOCharComp::CalcPoseDataDirect(
         void *a1,
         uint32_t a2,
@@ -460,6 +483,11 @@ void ArbitraryPOCharComp_patch()
         FUNC_ADDRESS(address, &ArbitraryPOCharComp::BuildBoneMatrices);
         set_vfunc(0x008920CC, address);
 	}
+
+    {
+        FUNC_ADDRESS(address, &ArbitraryPOCharComp::DestroyPerInstData);
+        set_vfunc(0x008920E0, address);
+    }
 
     {
         FUNC_ADDRESS(address, &ArbitraryPOCharComp::CalcPoseDataDirect);
