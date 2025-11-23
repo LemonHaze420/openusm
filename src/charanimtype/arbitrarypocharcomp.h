@@ -42,6 +42,14 @@ struct ArbitraryPOCharComp : CharComponentBase {
             uint32_t a7);
 
     //virtual
+    //0x005EF480
+    nalPositionOrientation * GetTrajectoryData(
+        nalPositionOrientation *,
+        uint32_t,
+        const void *,
+        const void *);
+
+    //virtual
     //0x005F5E60
     void BuildBoneMatrices(nalMatrix4x4 *, uint32_t , void const *, void const *);
 

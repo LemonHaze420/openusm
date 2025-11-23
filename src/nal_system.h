@@ -60,6 +60,8 @@ struct nalPositionOrientation {
     nalPositionOrientation() = default;
 
     nalPositionOrientation(nalVector3, const float *);
+
+    static inline nalPositionOrientation &Identity = var<nalPositionOrientation>(0x00977180);
 };
 
 struct nalBasePose {

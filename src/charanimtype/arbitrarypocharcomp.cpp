@@ -123,6 +123,18 @@ nalMatrix4x4 sub_5FE000(const nalMatrix4x4 &arg4, const nalMatrix4x4 &arg8)
     return result;
 }
 
+nalPositionOrientation * ArbitraryPOCharComp::GetTrajectoryData(
+        nalPositionOrientation *out,
+        uint32_t,
+        const void *,
+        const void *)
+{
+    TRACE("ArbitraryPOCharComp::GetTrajectoryData");
+
+    *out = nalPositionOrientation::Identity;
+    return out;
+}
+
 void ArbitraryPOCharComp::BuildBoneMatrices(
     nalMatrix4x4 *a1,
     uint32_t a2,
@@ -402,6 +414,11 @@ uint32_t ArbitraryPOCharComp::GetPoseTypeID() const
 
 void ArbitraryPOCharComp_patch()
 {
+    {
+        FUNC_ADDRESS(address, &ArbitraryPOCharComp::GetTrajectoryData);
+        set_vfunc(0x008920C8, address);
+    }
+
 	{
         FUNC_ADDRESS(address, &ArbitraryPOCharComp::BuildBoneMatrices);
         set_vfunc(0x008920CC, address);
