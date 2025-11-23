@@ -199,6 +199,38 @@ void ArbitraryPOCharComp::BuildBoneMatrices(
     }
 }
 
+bool sub_C75AA0(const int *a1, uint32_t a2)
+{
+    return (a1[a2 >> 5] & (1 << (a2 % 32))) != 0;
+}
+
+int ArbitraryPOCharComp::GetSizeOfPerInstData(
+        uint32_t,
+        const void *,
+        const void *a3,
+        const void *,
+        const void *a5,
+        const void *,
+        bool)
+{
+    TRACE("ArbitraryPOCharComp::GetSizeOfPerInstData");
+
+    auto func = [](const int *a5, const int *a3) -> int {
+        int result = 0;
+        const int v9 = a3[1] + a3[2];
+        for ( int i = 0; i < v9; ++i )
+        {
+            if ( sub_C75AA0(a5, i) ) {
+                result += 3;
+            }
+        }
+
+        return result;
+    };
+
+    return 16 * func(static_cast<const int *>(a5), static_cast<const int *>(a3)) + 60;
+}
+
 void ArbitraryPOCharComp::CalcPoseDataDirect(
         void *a1,
         uint32_t a2,
@@ -417,6 +449,11 @@ void ArbitraryPOCharComp_patch()
     {
         FUNC_ADDRESS(address, &ArbitraryPOCharComp::GetTrajectoryData);
         set_vfunc(0x008920C8, address);
+    }
+
+    {
+        FUNC_ADDRESS(address, &ArbitraryPOCharComp::GetSizeOfPerInstData);
+        set_vfunc(0x008920D4, address);
     }
 
 	{
