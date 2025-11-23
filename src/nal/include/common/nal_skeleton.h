@@ -3,7 +3,7 @@
 struct vector3d;
 struct vector4d;
 struct matrix4x4;
-
+struct quaternion;
 
 #include <cstdint>
 
@@ -31,7 +31,7 @@ struct nalBaseSkeleton {
 extern void *nalConstructSkeleton(void *a1);
 
 namespace inverse_kinematics {
-    extern void __cdecl build_chain_transforms(
+    extern void __cdecl nalIKMap2DTo3D(
         float chain_scale,
         float sin0,
         float cos0,
@@ -45,7 +45,7 @@ namespace inverse_kinematics {
         matrix4x4* joint0,
         matrix4x4* joint1);
 
-    extern void __cdecl solve_two_bone_angles(
+    extern void __cdecl nalIKSolve2D(
         matrix4x4* hinge,
         vector3d* root,
         vector3d* target,
@@ -68,7 +68,7 @@ namespace inverse_kinematics {
         float b1b_len;
         float chain_scale;
     };
-    using GetBendDirection_t = vector3d * (__cdecl*)(
+    using get_bend_dir_t = vector3d * (__cdecl*)(
         vector3d* outTmp,
         matrix4x4* line_xform,
         matrix4x4* effector,
@@ -83,15 +83,43 @@ namespace inverse_kinematics {
         vector3d* root,
         matrix4x4* effector,
         ik_bone_chain_t* chain,
-        GetBendDirection_t GetBendDirection);
+        get_bend_dir_t get_bend_dir);
 
-    extern void __cdecl solve_two_bone_with_twist(
+    extern void __cdecl DecomposeIKSpin(
         matrix4x4* joint0,
         matrix4x4* joint1,
         matrix4x4* hinge,
         vector3d* root,
         matrix4x4* effector,
         ik_bone_chain_t* chain,
-        GetBendDirection_t GetBendDirection,
+        get_bend_dir_t get_bend_dir,
         float                   twistAngle);
+
+    extern vector4d* __cdecl compute_bend_plane_normal(
+        vector4d* out,
+        float*     /*unused*/,
+        matrix4x4* m,
+        float      axis_x,
+        float      axis_y,
+        float      axis_z);
+
+    extern vector3d* __cdecl compute_arm_elbow_bend_direction(
+        vector3d* out,
+        matrix4x4* m,
+        matrix4x4* /*ent*/,
+        float      dirX,
+        float      dirY,
+        float      dirZ);
+
+    extern vector3d* __cdecl compute_arm_elbow_bend_direction_mirrored(
+        vector3d* out,
+        matrix4x4* m,
+        matrix4x4* /*ent*/,
+        float      dirX,
+        float      dirY,
+        float      dirZ);
+
+    extern quaternion* __cdecl quat_blend(
+        quaternion* quat, quaternion* quatA, float* weightA, quaternion* quatB, vector4d* weights);
+
 }

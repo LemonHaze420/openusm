@@ -11,6 +11,7 @@
 
 
 #include <cmath>
+#include "quaternion.h"
 #include "vector3d.h"
 #include "vector4d.h"
 #include "matrix4x4.h"
@@ -75,7 +76,7 @@ namespace inverse_kinematics {
     //    cos0 = a0 * d + b0 / d
     //    cos1 = a1 * d + b1 / d
     //    sin_i = sqrt(1 - cos_i^2)
-    void __cdecl solve_two_bone_angles(
+    void __cdecl nalIKSolve2D(
         matrix4x4* hinge,
         vector3d* root,
         vector3d* target,
@@ -135,7 +136,7 @@ namespace inverse_kinematics {
         *sin1 = std::sqrt(1.0f - (*cos1) * (*cos1));
     }
 
-    void __cdecl build_chain_transforms(
+    void __cdecl nalIKMap2DTo3D(
         float chain_scale,
         float sin0,
         float cos0,
@@ -269,6 +270,119 @@ namespace inverse_kinematics {
         m->arr[2] = r2;
     }
 
+    vector4d* __cdecl compute_bend_plane_normal(
+        vector4d* out,
+        float*     /*unused*/,
+        matrix4x4* m,
+        float      axis_x,
+        float      axis_y,
+        float      axis_z)
+    {
+        vector4d *vector4d_1 = out;
+        // axis x effector Y
+        out->x = axis_y * m->arr[1].z - axis_z      * m->arr[1].y;
+        out->y = axis_z * m->arr[1].x - m->arr[1].z * axis_x;
+        out->z = axis_x * m->arr[1].y - axis_y      * m->arr[1].x;
+        return vector4d_1;
+    }
+
+    vector3d* __cdecl compute_arm_elbow_bend_direction(
+        vector3d* out,
+        matrix4x4* m,
+        matrix4x4* /*ent*/,
+        float      dirX,
+        float      dirY,
+        float      dirZ)
+    {
+        const vector3d row0{ m->arr[0].x, m->arr[0].y, m->arr[0].z };
+        const vector3d row1{ m->arr[1].x, m->arr[1].y, m->arr[1].z };
+        const vector3d row2{ m->arr[2].x, m->arr[2].y, m->arr[2].z };
+        const vector3d dir{ dirX, dirY, dirZ };
+
+        const vector3d cross = vector3d::cross(dir, row1);
+        const float    sign = dirX * row1.x + dirY * row1.y + dirZ * row1.z;
+
+        vector3d result;
+
+        if (sign < 0.0f)
+        {
+            const float a = sign + 1.0f;
+            const float b = -sign;
+            const vector3d diag{ -row0.x - row2.x,
+                                 -row0.y - row2.y,
+                                 -row0.z - row2.z };
+            result.x = cross.x * a + diag.x * b;
+            result.y = cross.y * a + diag.y * b;
+            result.z = cross.z * a + diag.z * b;
+        }
+        else
+        {
+            const float a = 1.0f - sign;
+            const float b = sign;
+            const vector3d diag{ row2.x - row0.x,
+                                 row2.y - row0.y,
+                                 row2.z - row0.z };
+            result.x = cross.x * a + diag.x * b;
+            result.y = cross.y * a + diag.y * b;
+            result.z = cross.z * a + diag.z * b;
+        }
+
+        out->x = result.x;
+        out->y = result.y;
+        out->z = result.z;
+        return out;
+    }
+
+    vector3d* __cdecl compute_arm_elbow_bend_direction_mirrored(
+        vector3d* out,
+        matrix4x4* m,
+        matrix4x4* /*ent*/,
+        float      dirX,
+        float      dirY,
+        float      dirZ)
+    {
+        const vector3d row0{ m->arr[0].x, m->arr[0].y, m->arr[0].z };
+        const vector3d row1{ m->arr[1].x, m->arr[1].y, m->arr[1].z };
+        const vector3d row2{ m->arr[2].x, m->arr[2].y, m->arr[2].z };
+        const vector3d dir{ dirX, dirY, dirZ };
+
+        // mirrored "up" axis
+        const vector3d up_m{ -row1.x, -row1.y, -row1.z };
+
+        const vector3d cross = vector3d::cross(dir, up_m);
+        const float    sign = dirX * up_m.x + dirY * up_m.y + dirZ * up_m.z;
+
+        vector3d result;
+
+        if (sign < 0.0f)
+        {
+            const float a = sign + 1.0f;
+            const float b = -sign;
+            const vector3d diag{ -row0.x - row2.x,
+                                 -row0.y - row2.y,
+                                 -row0.z - row2.z };
+            result.x = cross.x * a + diag.x * b;
+            result.y = cross.y * a + diag.y * b;
+            result.z = cross.z * a + diag.z * b;
+        }
+        else
+        {
+            const float a = 1.0f - sign;
+            const float b = sign;
+            const vector3d diag{ row2.x - row0.x,
+                                 row2.y - row0.y,
+                                 row2.z - row0.z };
+            result.x = cross.x * a + diag.x * b;
+            result.y = cross.y * a + diag.y * b;
+            result.z = cross.z * a + diag.z * b;
+        }
+
+        out->x = result.x;
+        out->y = result.y;
+        out->z = result.z;
+        return out;
+    }
+
     void __cdecl solve_two_bone(
         matrix4x4* j0,
         matrix4x4* j1,
@@ -276,7 +390,7 @@ namespace inverse_kinematics {
         vector3d* root,
         matrix4x4* effector,
         ik_bone_chain_t* chain,
-        GetBendDirection_t GetBendDirection)
+        get_bend_dir_t get_bend_dir)
     {
         vector3d target{ effector->arr[3].x,effector->arr[3].y, effector->arr[3].z };
         float    sin0 = 0.0f;
@@ -286,7 +400,7 @@ namespace inverse_kinematics {
         vector3d proj_point{};
         vector3d bone_axis_dir{};
 
-        inverse_kinematics::solve_two_bone_angles(
+        inverse_kinematics::nalIKSolve2D(
             line_xform,
             root,
             &target,
@@ -302,10 +416,10 @@ namespace inverse_kinematics {
             &cos1);
 
         vector3d tmp_bend{};
-        vector3d* bend_dir = GetBendDirection(&tmp_bend, line_xform, effector, bone_axis_dir.x, bone_axis_dir.y, bone_axis_dir.z);
+        vector3d* bend_dir = get_bend_dir(&tmp_bend, line_xform, effector, bone_axis_dir.x, bone_axis_dir.y, bone_axis_dir.z);
         vector4d bone_bend_dir{ bend_dir->x, bend_dir->y, bend_dir->z, 0.0f };
 
-        inverse_kinematics::build_chain_transforms(
+        inverse_kinematics::nalIKMap2DTo3D(
             chain->chain_scale,
             sin0,
             cos0,
@@ -323,15 +437,15 @@ namespace inverse_kinematics {
         flip_chain_basis(j1);
     }
 
-    void __cdecl solve_two_bone_with_twist(
+    void __cdecl DecomposeIKSpin(
         matrix4x4* joint0,
         matrix4x4* joint1,
         matrix4x4* hinge,
         vector3d* root,
         matrix4x4* effector,
         ik_bone_chain_t* chain,
-        GetBendDirection_t GetBendDirection,
-        float                   twistAngle)
+        get_bend_dir_t get_bend_dir,
+        float twistAngle)
     {
         vector3d target{ effector->arr[3].x, effector->arr[3].y, effector->arr[3].z };
 
@@ -342,7 +456,7 @@ namespace inverse_kinematics {
         vector3d proj_point{};
         vector3d axis_dir{}; // hinge space
 
-        inverse_kinematics::solve_two_bone_angles(
+        inverse_kinematics::nalIKSolve2D(
             hinge,
             root,
             &target,
@@ -358,14 +472,14 @@ namespace inverse_kinematics {
             &cos1);
 
         vector3d tmp{};
-        vector3d* bend_vec = GetBendDirection(&tmp, hinge, effector, axis_dir.x, axis_dir.y, axis_dir.z);
+        vector3d* bend_vec = get_bend_dir(&tmp, hinge, effector, axis_dir.x, axis_dir.y, axis_dir.z);
         vector4d bend_dir{ bend_vec->x, bend_vec->y, bend_vec->z, 0.0f };
 
         // apply twist
         float chain_cos0 = std::cos(twistAngle);
         float chain_sin0 = std::sin(twistAngle);
 
-        inverse_kinematics::build_chain_transforms(
+        inverse_kinematics::nalIKMap2DTo3D(
             chain->chain_scale,
             sin0,
             cos0,
