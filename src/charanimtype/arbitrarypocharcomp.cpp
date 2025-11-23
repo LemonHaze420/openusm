@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "func_wrapper.h"
+#include "nal_system.h"
 #include "string_hash.h"
 #include "trace.h"
 #include "utility.h"
@@ -9,6 +10,182 @@
 #include "vector4d.h"
 
 #include <cmath>
+
+nalMatrix4x4 sub_5FE000(const nalMatrix4x4 &arg4, const nalMatrix4x4 &arg8)
+{
+    nalMatrix4x4 result;
+
+    if constexpr (0)
+    {
+        vector4d x_axis;
+        x_axis[0] = arg8[0][0];
+        x_axis[1] = arg8[0][1];
+        x_axis[2] = arg8[0][2];
+        x_axis[3] = arg8[0][3];
+
+        vector4d y_axis;
+        y_axis[0] = arg8[1][0];
+        y_axis[1] = arg8[1][1];
+        y_axis[2] = arg8[1][2];
+        y_axis[3] = arg8[1][3];
+
+        vector4d z_axis;
+        z_axis[0] = arg8[2][0];
+        z_axis[1] = arg8[2][1];
+        z_axis[2] = arg8[2][2];
+        z_axis[3] = arg8[2][3];
+
+        vector4d w_axis;
+        w_axis[0] = arg8[3][0];
+        w_axis[1] = arg8[3][1];
+        w_axis[2] = arg8[3][2];
+        w_axis[3] = arg8[3][3];
+
+        vector4d a3;
+        a3[0] = arg4[0][0];
+        a3[1] = arg4[0][1];
+        a3[2] = arg4[0][2];
+        a3[3] = arg4[0][3];
+
+        vector4d a5;
+        a5[0] = arg4[1][0];
+        a5[1] = arg4[1][1];
+        a5[2] = arg4[1][2];
+        a5[3] = arg4[1][3];
+
+        vector4d a7;
+        a7[0] = arg4[2][0];
+        a7[1] = arg4[2][1];
+        a7[2] = arg4[2][2];
+        a7[3] = arg4[2][3];
+
+        vector4d arg8a;
+        arg8a[0] = arg4[3][0];
+        arg8a[1] = arg4[3][1];
+        arg8a[2] = arg4[3][2];
+        arg8a[3] = arg4[3][3];
+
+        auto v16 = sub_4126E0(
+                x_axis,
+                a3,
+                y_axis,
+                a3,
+                z_axis,
+                a3);
+
+        auto v21 = sub_4126E0(
+                x_axis,
+                a5,
+                y_axis,
+                a5,
+                z_axis,
+                a5);
+
+        auto v25 = sub_4126E0(
+                x_axis,
+                a7,
+                y_axis,
+                a7,
+                z_axis,
+                a7);
+
+        auto v29 = vector4d::sub_413E90(
+                x_axis,
+                arg8a,
+                y_axis,
+                arg8a,
+                z_axis,
+                arg8a,
+                w_axis);
+
+        nalMatrix4x4 result;
+        result[0][0] = v16[0];
+        result[0][1] = v16[1];
+        result[0][2] = v16[2];
+        result[0][3] = v16[3];
+        result[1][0] = v21[0];
+        result[1][1] = v21[1];
+        result[1][2] = v21[2];
+        result[1][3] = v21[3];
+        result[2][0] = v25[0];
+        result[2][1] = v25[1];
+        result[2][2] = v25[2];
+        result[2][3] = v25[3];
+        result[3][0] = v29[0];
+        result[3][1] = v29[1];
+        result[3][2] = v29[2];
+        result[3][3] = v29[3];
+    } else {
+        int (__cdecl *func)(nalMatrix4x4 *, const nalMatrix4x4 *, const nalMatrix4x4 *) = CAST(func, 0x005FE000);
+        func(&result, &arg4, &arg8);
+    }
+
+    return result;
+}
+
+void ArbitraryPOCharComp::BuildBoneMatrices(
+    nalMatrix4x4 *a1,
+    uint32_t a2,
+    const void *a3,
+    const void *a4)
+{
+    TRACE("ArbitraryPOCharComp::BuildBoneMatrices");
+
+    if constexpr (1)
+    {
+        auto *v5 = (const uint32_t *)a3;
+        auto v23 = *((const DWORD *)a3 + 4);
+        auto v24 = (char *)*((const DWORD *)a3 + 5);
+        auto v6 = (const char *)a4 + 16;
+        auto v7 = (const char *)a4 + 16 * *(const DWORD *)a4 + 16;
+
+        for ( uint32_t i = 0; i < *v5; ++i)
+        {
+            int16_t *v9 = (int16_t *)(v5[6] + 48 * *(DWORD *)(v5[7] + 4 * i));
+            if ( v9[18] != -1 )
+            {
+                const float *v10 = nullptr;
+                if ( v9[20] ) {
+                    v10 = (const float *)&v6[16 * (uint16_t)v9[16]];
+                } else {
+                    v10 = (const float *)(v23 + 16 * (uint16_t)v9[16]);
+                }
+
+                if ( !v9[21] ) {
+                    v7 = v24;
+                }
+
+                auto *v15 = (const nalVector3 *)&v7[sizeof(nalVector3) * (uint16_t)v9[17]];
+
+                nalPositionOrientation v26 {*v15, v10};
+
+                nalMatrix4x4 v30 {v26};
+
+                auto v18 = (int16_t)v9[18];
+                a1[v18] = v30;
+
+                int v19 = v9[19];
+                if ( v19 != -1 )
+                {
+                    auto &v20 = a1[(int16_t)v9[18]];
+                    v20 = sub_5FE000(v20, a1[v19]);
+                }
+
+                v5 = (const uint32_t *)a3;
+            }
+        }
+
+    } else {
+        void (__fastcall *func)(
+                void *self,
+                void *edx,
+                nalMatrix4x4 *a1,
+                uint32_t a2,
+                const void *a3,
+                const void *a4) = CAST(func, 0x005F5E60);
+        func(this, nullptr, a1, a2, a3, a4);
+    }
+}
 
 void ArbitraryPOCharComp::CalcPoseDataDirect(
         void *a1,
@@ -225,6 +402,11 @@ uint32_t ArbitraryPOCharComp::GetPoseTypeID() const
 
 void ArbitraryPOCharComp_patch()
 {
+	{
+        FUNC_ADDRESS(address, &ArbitraryPOCharComp::BuildBoneMatrices);
+        set_vfunc(0x008920CC, address);
+	}
+
     {
         FUNC_ADDRESS(address, &ArbitraryPOCharComp::CalcPoseDataDirect);
         set_vfunc(0x008920E8, address);

@@ -42,6 +42,10 @@ struct ArbitraryPOCharComp : CharComponentBase {
             uint32_t a7);
 
     //virtual
+    //0x005F5E60
+    void BuildBoneMatrices(nalMatrix4x4 *, uint32_t , void const *, void const *);
+
+    //virtual
     //0x005F98E0
     void CalcPoseDataDirect(
             void *a1,
