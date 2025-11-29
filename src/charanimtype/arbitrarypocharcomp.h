@@ -120,6 +120,10 @@ struct ArbitraryPOCharComp : CharComponentBase {
     void SkelPoseRelease(uint32_t a1, void *, void *a3);
 
     //virtual
+    //0x005EF7F0
+    void CopyPoseExtraData(void *a1, uint32_t a2, const void *a3);
+
+    //virtual
     //0x00439F80
     int GetDomain() const;
 

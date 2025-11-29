@@ -487,6 +487,17 @@ void ArbitraryPOCharComp::SkelPoseRelease(uint32_t, void *out, void *)
     }
 }
 
+void ArbitraryPOCharComp::CopyPoseExtraData(void *a1, uint32_t, const void *a3)
+{
+    TRACE("ArbitraryPOCharComp::CopyPoseExtraData");
+
+    std::memcpy(
+        a1,
+        a3,
+        16 * (*(const DWORD *)a3 + 1) + 12 * (*((const DWORD *)a3 + 1) - *(const DWORD *)a3)
+    );
+}
+
 int ArbitraryPOCharComp::GetDomain() const
 {
     return 5;
@@ -550,6 +561,11 @@ void ArbitraryPOCharComp_patch()
     {
         FUNC_ADDRESS(address, &ArbitraryPOCharComp::SkelPoseRelease);
         set_vfunc(0x008920F8, address);
+    }
+
+    {
+        FUNC_ADDRESS(address, &ArbitraryPOCharComp::CopyPoseExtraData);
+        set_vfunc(0x00892104, address);
     }
 }
 
