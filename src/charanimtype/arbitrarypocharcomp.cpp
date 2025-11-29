@@ -464,6 +464,29 @@ void ArbitraryPOCharComp::SkelPoseProcess(uint32_t , void *a2, void *)
 
 }
 
+void ArbitraryPOCharComp::SkelPoseRelease(uint32_t, void *out, void *)
+{
+    TRACE("ArbitraryPOCharComp::SkelPoseRelease");
+
+    *((DWORD *)out + 6) -= int(out);
+    *((DWORD *)out + 7) -= int(out);
+    auto v3 = *((DWORD *)out + 5);
+    int v4;
+    if ( v3 ) {
+        v4 = v3 - (DWORD)out;
+    } else {
+        v4 = 0;
+    }
+
+    *((DWORD *)out + 5) = v4;
+    auto v5 = *((DWORD *)out + 4);
+    if ( v5 ) {
+        *((DWORD *)out + 4) = v5 - (DWORD)out;
+    } else {
+        *((DWORD *)out + 4) = 0;
+    }
+}
+
 int ArbitraryPOCharComp::GetDomain() const
 {
     return 5;
@@ -522,6 +545,11 @@ void ArbitraryPOCharComp_patch()
                 uint32_t) = &ArbitraryPOCharComp::BlendPoseData;
         FUNC_ADDRESS(address, func);
         REDIRECT(0x005F9A49, address);
+    }
+
+    {
+        FUNC_ADDRESS(address, &ArbitraryPOCharComp::SkelPoseRelease);
+        set_vfunc(0x008920F8, address);
     }
 }
 

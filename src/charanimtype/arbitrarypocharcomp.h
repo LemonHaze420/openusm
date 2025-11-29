@@ -116,6 +116,10 @@ struct ArbitraryPOCharComp : CharComponentBase {
     void SkelPoseProcess(uint32_t a1, void *a2, void *a3);
 
     //virtual
+    //0x005EF790
+    void SkelPoseRelease(uint32_t a1, void *, void *a3);
+
+    //virtual
     //0x00439F80
     int GetDomain() const;
 
