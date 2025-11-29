@@ -71,6 +71,10 @@ struct ArbitraryPOCharComp : CharComponentBase {
     void DestroyPerInstData(void *a1, uint32_t a2, const void *a3, const void *a4);
 
     //virtual
+    //0x005EF5F0
+    bool WillMapToComponentData(uint32_t a2, uint32_t a3, uint32_t a4);
+
+    //virtual
     //0x005F98E0
     void CalcPoseDataDirect(
             void *a1,

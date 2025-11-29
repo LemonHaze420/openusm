@@ -254,6 +254,13 @@ void ArbitraryPOCharComp::DestroyPerInstData(void *a1,
     }
 }
 
+bool ArbitraryPOCharComp::WillMapToComponentData(uint32_t, uint32_t, uint32_t a4)
+{
+    TRACE("ArbitraryPOCharComp::WillMapToComponentData");
+
+    return a4 == this->GetType();
+}
+
 void ArbitraryPOCharComp::CalcPoseDataDirect(
         void *a1,
         uint32_t a2,
@@ -487,6 +494,11 @@ void ArbitraryPOCharComp_patch()
     {
         FUNC_ADDRESS(address, &ArbitraryPOCharComp::DestroyPerInstData);
         set_vfunc(0x008920E0, address);
+    }
+
+    {
+        FUNC_ADDRESS(address, &ArbitraryPOCharComp::WillMapToComponentData);
+        set_vfunc(0x008920E4, address);
     }
 
     {
