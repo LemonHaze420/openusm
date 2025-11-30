@@ -131,6 +131,10 @@ struct ArbitraryPOCharComp : CharComponentBase {
     //0x005FB910
     uint32_t GetPoseTypeID() const;
 
+    //virtual
+    //0x005EF820
+    void CopyPoseDataToNothing(void *a1, uint32_t a2, const void *a3);
+
 };
 
 extern void ArbitraryPOCharComp_patch();

@@ -508,6 +508,13 @@ uint32_t ArbitraryPOCharComp::GetPoseTypeID() const
     return to_hash("ArbitraryPO");
 }
 
+void ArbitraryPOCharComp::CopyPoseDataToNothing(void *a1, uint32_t, const void *a3)
+{
+    TRACE("ArbitraryPOCharComp::CopyPoseDataToNothing");
+
+    std::memcpy(a1, a3, 16 * (*(const DWORD *)a3 + 1) + 12 * (*((const DWORD *)a3 + 1) - *(const DWORD *)a3));
+}
+
 void ArbitraryPOCharComp_patch()
 {
     {
@@ -566,6 +573,11 @@ void ArbitraryPOCharComp_patch()
     {
         FUNC_ADDRESS(address, &ArbitraryPOCharComp::CopyPoseExtraData);
         set_vfunc(0x00892104, address);
+    }
+
+    {
+        FUNC_ADDRESS(address, &ArbitraryPOCharComp::CopyPoseDataToNothing);
+        set_vfunc(0x0089212C, address);
     }
 }
 
