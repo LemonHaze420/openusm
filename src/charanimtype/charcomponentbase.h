@@ -7,7 +7,10 @@ struct nalCompAnim;
 }
 
 struct CharComponentBase : BaseComponent {
-    enum Names {};
+    enum Names {
+        Generic     = 0,
+        ArbitraryPO = 1
+    };
 
     BaseComponent *m_pSubComponent;
     uint32_t m_TheType;

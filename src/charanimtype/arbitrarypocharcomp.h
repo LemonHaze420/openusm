@@ -2,25 +2,32 @@
 
 #include "charcomponentbase.h"
 
+#include "charcompressor.h"
+#include "fixedstring.h"
 #include "float.hpp"
 
 struct vector3d;
 
 struct ArbitraryPOCharComp : CharComponentBase {
 
-    struct PerSkelData {
-        char field_0[0x10];
-        float *field_10;
-        vector3d *field_14;
-    };
-
     struct BoneData {
-        char field_0[0x20];
+        tlFixedString field_0;
         uint16_t field_20;
         uint16_t field_22;
         int field_24;
         uint16_t field_28;
         uint16_t field_2A;
+        int field_2C;
+    };
+
+    struct PerSkelData {
+        uint32_t field_0;
+        int field_4;
+        int field_8;
+        int field_C;
+        float *field_10;
+        vector3d *field_14;
+        ArbitraryPOCharComp::BoneData *field_18;
     };
 
     struct StdPoseData {
@@ -29,6 +36,32 @@ struct ArbitraryPOCharComp : CharComponentBase {
         int field_8;
         int field_C;
         float field_10[4][1];
+    };
+
+    struct PerInstData {
+        int field_0;
+        int field_4;
+        int field_8;
+        int field_C;
+        uint8_t *field_10;
+        uint8_t *field_14;
+        int field_18;
+        CharEntropyDecoder::CharChannelDecoder field_1C;
+        int field_24;
+        uint8_t *field_28;
+        int field_2C;
+        StdPoseData *field_30;
+        int field_34;
+        int field_38;
+        int field_3C;
+        int field_40;
+        int field_44;
+        int field_48;
+        int field_4C;
+        int field_50;
+        int field_54;
+        int field_58;
+        int field_5C;
     };
 
     //0x005F6130

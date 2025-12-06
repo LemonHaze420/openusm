@@ -11,6 +11,12 @@
 
 #include <cmath>
 
+VALIDATE_SIZE(ArbitraryPOCharComp::PerSkelData, 0x1C);
+
+VALIDATE_SIZE(ArbitraryPOCharComp::BoneData, 0x30);
+
+VALIDATE_SIZE(ArbitraryPOCharComp::StdPoseData, 0x20);
+
 nalMatrix4x4 sub_5FE000(const nalMatrix4x4 &arg4, const nalMatrix4x4 &arg8)
 {
     nalMatrix4x4 result;

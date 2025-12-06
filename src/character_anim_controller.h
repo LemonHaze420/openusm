@@ -2,6 +2,7 @@
 
 #include "nal_anim_controller.h"
 
+#include "arbitrarypocharcomp.h"
 #include "vector3d.h"
 
 struct character_anim_controller : nal_anim_controller {
@@ -53,8 +54,8 @@ struct character_anim_controller : nal_anim_controller {
 
     character_anim_controller::gen_base_play_method field_54;
     character_anim_controller::gen_mod_play_method field_5C;
-    tlFixedString *field_64;
-    tlFixedString *field_68;
+    ArbitraryPOCharComp::BoneData *field_64;
+    ArbitraryPOCharComp::BoneData *field_68;
     nalBaseSkeleton *field_6C;
 
     //0x0049CA30

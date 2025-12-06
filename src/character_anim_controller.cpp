@@ -79,15 +79,7 @@ character_anim_controller::character_anim_controller(
 
     assert(new_skel->GetAnimTypeName() == tlFixedString(CHARACTER_ANIMTYPE_NAME));
 
-    struct {
-        uint32_t field_0;
-        int field_4;
-        int field_8;
-        int field_C;
-        int field_10;
-        int field_14;
-        char *field_18;
-    } *NamedPerSkelData = CAST(NamedPerSkelData, bit_cast<nalChar::nalCharSkeleton *>(new_skel)->GetNamedPerSkelData(static_cast<CharComponentBase::Names>(1)));
+    ArbitraryPOCharComp::PerSkelData *NamedPerSkelData = CAST(NamedPerSkelData, bit_cast<nalChar::nalCharSkeleton *>(new_skel)->GetNamedPerSkelData(CharComponentBase::Names::ArbitraryPO));
 
     if ( NamedPerSkelData != nullptr )
     {
@@ -95,14 +87,14 @@ character_anim_controller::character_anim_controller(
         tlFixedString v14 {"shake_root"};
         tlFixedString v13 {"camera_root"};
         
-        for ( uint32_t a5a = 0; a5a < NamedPerSkelData->field_0; ++a5a )
+        for ( uint32_t i = 0; i < NamedPerSkelData->field_0; ++i )
         {
-            auto *v9 = bit_cast<tlFixedString *>(&NamedPerSkelData->field_18[0x30 * a5a]);
-            if ( *v9 == v13 ) {
+            auto *v9 = &NamedPerSkelData->field_18[i];
+            if ( v9->field_0 == v13 ) {
                 this->field_64 = v9;
             }
 
-            if ( *v9 == v14 ) {
+            if ( v9->field_0 == v14 ) {
                 this->field_68 = v9;
             }
         }
