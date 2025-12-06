@@ -345,7 +345,8 @@ bool subdivision_node_obb_base::sphere_intersection(const vector3d &center, Floa
             a3[3] = v9[3];
         }
 
-        return sub_55F1D0(v22, a3);
+        auto v13 = radius * radius;
+        return sub_55F1D0(v22, a3, v13);
 
     } else {
         return (bool) THISCALL(0x0052C440, this, &center, radius);
