@@ -1,5 +1,6 @@
 #include "vector4d.h"
 
+#include "custom_math.h"
 #include "func_wrapper.h"
 #include "oldmath_po.h"
 #include "vector3d.h"
@@ -122,8 +123,21 @@ vector4d sub_4126E0(const vector4d &x_axis,
     return result;
 }
 
-bool sub_55F1D0(const vector4d &a1, const vector4d &a2) {
-    return (bool) CDECL_CALL(0x0055F1D0, &a1, &a2);
+bool sub_55F1D0(const vector4d &a1, const vector4d &a2, float a3)
+{
+    if constexpr (0) {
+        vector4d v6;
+        v6[0] = std::abs(a2[0]);
+        v6[1] = std::abs(a2[1]);
+        v6[2] = std::abs(a2[2]);
+        v6[3] = std::abs(a2[3]);
+
+        auto result = vector4d::min(a1, v6);
+        return a3 >= result[0];
+    } else {
+        bool (*func)(const vector4d *, const vector4d *, float) = CAST(func, 0x0055F1D0);
+        return func(&a1, &a2, a3);
+    }
 }
 
 vector4d sub_55DA40(const float *a2, const vector4d *a3) {
@@ -159,15 +173,32 @@ vector4d sub_5FC6D0(
     const vector4d &a7,
     const vector4d &a8)
 {
-    vector4d result = a8;
+    TRACE("sub_5FC6D0");
 
-    sub_411AC0(result, a2, a3);
-    sub_411A50(result, a4, a5);
+    vector4d result;
 
-    result[0] += a7[0] * a6[0];
-    result[1] += a7[0] * a6[1];
-    result[2] += a7[0] * a6[2];
-    result[3] += a7[0] * a6[3];
+    if constexpr (1)
+    {
+        result = a8;
+
+        sub_411AC0(result, a2, a3);
+        sub_411A50(result, a4, a5);
+
+        result[0] += a7[0] * a6[0];
+        result[1] += a7[0] * a6[1];
+        result[2] += a7[0] * a6[2];
+        result[3] += a7[0] * a6[3];
+    } else {
+        void (*func)(vector4d *a1,
+                const vector4d *a2,
+                const vector4d *a3,
+                const vector4d *a4,
+                const vector4d *a5,
+                const vector4d *a6,
+                const vector4d *a7,
+                const vector4d *a8) = CAST(func, 0x005FC6D0);
+        func(&result, &a2, &a3, &a4, &a5, &a6, &a7, &a8);
+    }
 
     return result;
 }
@@ -175,11 +206,20 @@ vector4d sub_5FC6D0(
 
 vector4d sub_5FC770(const vector4d &a2, const vector4d &a3, const vector4d &a4, const vector4d &a5)
 {
+    TRACE("sub_5FC770");
+
     vector4d result;
-    result[0] = a2[0] * a3[0] + a4[0] * a5[1];
-    result[1] = a2[1] * a3[0] + a4[1] * a5[1];
-    result[2] = a2[2] * a3[0] + a4[2] * a5[1];
-    result[3] = a2[3] * a3[0] + a4[3] * a5[1];
+
+    if constexpr (1) {
+        result[0] = a2[0] * a3[0] + a4[0] * a5[1];
+        result[1] = a2[1] * a3[0] + a4[1] * a5[1];
+        result[2] = a2[2] * a3[0] + a4[2] * a5[1];
+        result[3] = a2[3] * a3[0] + a4[3] * a5[1];
+    } else {
+        void (*func)(vector4d *out, const vector4d *, const vector4d *, const vector4d *, const vector4d *) = CAST(func, 0x005FC770);
+        func(&result, &a2, &a3, &a4, &a5);
+    }
+
     return result;
 }
 
@@ -197,12 +237,12 @@ vector4d sub_5FD0C0(Float a2, const vector4d &a3, const vector4d &a4)
         vector4d v17;
         if ( v5 >= 0.0f )
         {
-            v17 = vector4d {1.0f - a2, -a2, 1.0f, 0.0f};
-            v5 = -v5;
+            v17 = vector4d {1.0f - a2, a2, 1.0f, 0.0f};
         }
         else
         {
-            v17 = vector4d {1.0f - a2, a2, 1.0f, 0.0f};
+            v17 = vector4d {1.0f - a2, -a2, 1.0f, 0.0f};
+            v5 = -v5;
         }
 
         if ( v5 < 0.99999899 )
@@ -270,8 +310,7 @@ vector4d sub_5FD0C0(Float a2, const vector4d &a3, const vector4d &a4)
         result[2] = v15[2];
         result[3] = v15[3];
     } else {
-
-        void (*func)(const vector4d *, Float a2, const vector4d *, const vector4d *) = CAST(func, 0x005FD0C0);
+        void (*func)(vector4d *, Float a2, const vector4d *, const vector4d *) = CAST(func, 0x005FD0C0);
         func(&result, a2, &a3, &a4);
     }
 

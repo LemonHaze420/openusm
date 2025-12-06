@@ -122,10 +122,21 @@ struct vector4d {
                                              const vector4d &a6,
                                              const vector4d &a7);
 
-extern bool sub_55F1D0(const vector4d &a1, const vector4d &a2);
+extern bool sub_55F1D0(const vector4d &a1, const vector4d &a2, float a3);
 
 extern vector4d sub_55DA40(const float *a2, const vector4d *a3);
 
 extern vector4d sub_5FD0C0(Float a2, const vector4d &a3, const vector4d &a4);
+
+extern vector4d sub_5FC6D0(
+    const vector4d &a2,
+    const vector4d &a3,
+    const vector4d &a4,
+    const vector4d &a5,
+    const vector4d &a6,
+    const vector4d &a7,
+    const vector4d &a8);
+
+extern vector4d sub_5FC770(const vector4d &a2, const vector4d &a3, const vector4d &a4, const vector4d &a5);
 
 extern float AbsSquared(const vector4d &a1);
