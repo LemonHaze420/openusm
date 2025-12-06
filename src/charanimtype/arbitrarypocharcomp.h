@@ -42,6 +42,14 @@ struct ArbitraryPOCharComp : CharComponentBase {
             uint32_t a7);
 
     //virtual
+    //0x005EF460
+    const void * ApplyPublicPerSkelDataOffset(uint32_t a1, const void *a2);
+
+    //virtual
+    //0x005EF470
+    int ApplyPublicPerAnimDataOffset(uint32_t a1, const void *a2);
+
+    //virtual
     //0x005EF480
     nalPositionOrientation * GetTrajectoryData(
         nalPositionOrientation *,

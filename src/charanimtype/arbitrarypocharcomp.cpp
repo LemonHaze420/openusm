@@ -123,6 +123,20 @@ nalMatrix4x4 sub_5FE000(const nalMatrix4x4 &arg4, const nalMatrix4x4 &arg8)
     return result;
 }
 
+const void * ArbitraryPOCharComp::ApplyPublicPerSkelDataOffset(uint32_t, const void *a2)
+{
+    TRACE("ArbitraryPOCharComp::ApplyPublicPerSkelDataOffset");
+
+    return a2;
+}
+
+int ArbitraryPOCharComp::ApplyPublicPerAnimDataOffset(uint32_t, const void *)
+{
+    TRACE("ArbitraryPOCharComp::ApplyPublicPerAnimDataOffset");
+
+    return 0;
+}
+
 nalPositionOrientation * ArbitraryPOCharComp::GetTrajectoryData(
         nalPositionOrientation *out,
         uint32_t,
@@ -517,6 +531,18 @@ void ArbitraryPOCharComp::CopyPoseDataToNothing(void *a1, uint32_t, const void *
 
 void ArbitraryPOCharComp_patch()
 {
+    constexpr auto vtbl = 0x008920B8;
+
+    {
+        FUNC_ADDRESS(address, &ArbitraryPOCharComp::ApplyPublicPerSkelDataOffset);
+        set_vfunc(vtbl + 2 * 4, address);
+    }
+
+    {
+        FUNC_ADDRESS(address, &ArbitraryPOCharComp::ApplyPublicPerAnimDataOffset);
+        set_vfunc(vtbl + 3 * 4, address);
+    }
+
     {
         FUNC_ADDRESS(address, &ArbitraryPOCharComp::GetTrajectoryData);
         set_vfunc(0x008920C8, address);
