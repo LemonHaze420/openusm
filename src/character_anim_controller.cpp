@@ -24,8 +24,6 @@
 
 VALIDATE_SIZE(character_anim_controller, 0x70);
 
-static constexpr auto CHARACTER_ANIMTYPE_NAME = "Character";
-
 void fire_the_signal(const FakerootPoseDesc::PerAnimData::EventIterator &a1, vhandle_type<actor> a2)
 {
     int NumArguments = a1.GetNumArguments();

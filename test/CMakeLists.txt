@@ -32,6 +32,7 @@ create_test(resource_partition)
 create_test(slab_allocator)
 create_test(tlresource_directory)
 create_test(tlresource_location)
+create_test(fixedstring)
 
 function(CREATE_STD_TEST NAME_TEST)
     set(STD_NAME_TEST std_${NAME_TEST})

@@ -113,4 +113,6 @@ struct character_anim_controller : nal_anim_controller {
         nalAnyPose &a4);
 };
 
+inline constexpr auto CHARACTER_ANIMTYPE_NAME = "Character";
+
 extern void character_anim_controller_patch();

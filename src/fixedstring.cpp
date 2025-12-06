@@ -11,7 +11,7 @@
 
 VALIDATE_SIZE(fixedstring<8>, 0x20);
 
-tlFixedString::tlFixedString(const char *a1)
+tlFixedString::tlFixedString(const char *a1) : m_hash(0), field_4({})
 {
     this->m_hash = to_hash(a1);
 
