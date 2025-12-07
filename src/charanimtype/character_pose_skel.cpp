@@ -78,7 +78,7 @@ void nalCharPose::Blend(
                     auto v12 = src1.GetComponentPoseData(i);
                     v11->field_70[i].field_4->BlendPoseData(
                             v8,
-                            v11->field_70[i].field_0,
+                            v11->field_70[i].m_name,
                             a2,
                             v9,
                             v12);
@@ -128,7 +128,7 @@ void nalCharPose::InitializePoseDataFromSkel()
 
                     bit_cast<CharComponentBase *>(v7->field_4)->CopyPoseDataToNothing(
                         v5,
-                        v7->field_0,
+                        v7->m_name,
                         &v2[v6]);
                 }
             }
@@ -144,7 +144,7 @@ int nalCharSkeleton::GetCompIxByName(CharComponentBase::Names a2) const
 {
     for ( int iCompIx = 0; iCompIx < this->m_iNumComponents; ++iCompIx )
     {
-        if ( this->field_70[iCompIx].field_0 == a2 ) {
+        if ( this->field_70[iCompIx].m_name == a2 ) {
             return iCompIx;
         }
     }

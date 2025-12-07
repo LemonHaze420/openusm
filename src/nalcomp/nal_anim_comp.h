@@ -25,7 +25,7 @@ struct nalCompSkeleton : nalBaseSkeleton {
     int field_68;
     int field_6C;
     struct {
-        int field_0;
+        int m_name;
         BaseComponent *field_4;
         int field_8;
 
@@ -66,7 +66,7 @@ struct nalCompSkeleton : nalBaseSkeleton {
 
     CharComponentBase * GetComponent(int iCompIx);
 
-    int sub_C650E0(int iCompIx);
+    int GetName(int iCompIx) const;
 
     //virtual
     //0x00732000

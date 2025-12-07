@@ -167,7 +167,7 @@ void nalComp::nalCompSkeleton::UnMash(void *a2, BaseComponent **a3, unsigned int
         {
             auto *v9 = this->field_70;
             int v10 = (int) v9[iCompIx].field_4;
-            uint32_t v23 = v9[iCompIx].field_0;
+            uint32_t v23 = v9[iCompIx].m_name;
 
             uint32_t iArrayIx;
             for ( iArrayIx = 0; iArrayIx < iNumComponents; ++iArrayIx )
@@ -207,7 +207,11 @@ void nalComp::nalCompSkeleton::ReMash(void *a2)
             auto *CompPerSkelDataInt = this->GetCompPerSkelDataInt(iCompIx);
 
             auto *v6 = this->field_70;
-            v6[iCompIx].field_4->SkelPoseRelease(v6[iCompIx].field_0, CompPerSkelDataInt, CompDefaultPoseData);
+            v6[iCompIx].field_4->SkelPoseRelease(
+                v6[iCompIx].m_name,
+                CompPerSkelDataInt,
+                CompDefaultPoseData
+            );
 
             auto *v13 = this->field_70[iCompIx].field_4;
             this->field_70[iCompIx].field_4 = (CharComponentBase *) v13->GetType();
@@ -284,7 +288,7 @@ nalComp::ComponentId nalComp::nalCompSkeleton::GetComponentId(int iCompIx)
 {
     auto component = this->GetComponent(iCompIx);
     auto type = component->GetType();
-    auto v3 = this->sub_C650E0(iCompIx);
+    auto v3 = this->GetName(iCompIx);
     ComponentId result {v3, type};
     return result;
 }
@@ -296,11 +300,12 @@ CharComponentBase * nalComp::nalCompSkeleton::GetComponent(int iCompIx)
     return bit_cast<CharComponentBase *>(this->field_70[iCompIx].field_4);
 }
 
-int nalComp::nalCompSkeleton::sub_C650E0(int iCompIx)
+int nalComp::nalCompSkeleton::GetName(int iCompIx) const
 {
     assert(iCompIx < m_iNumComponents &&
             "Invalid CompIx. Exceeds m_iNumComponents");
-    return this->field_70[iCompIx].field_0;
+
+    return this->field_70[iCompIx].m_name;
 }
 
 void nalCompAnim_patch()

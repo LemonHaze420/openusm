@@ -84,7 +84,7 @@ void nalComp::nalCompInstance::GetPose(
                     auto skelDataInt = v8->GetCompPerSkelDataInt(v21);
                     auto v19 = v30->field_0;
                     auto *v9 = this->GetSkeleton();
-                    auto v20 = v9->sub_C650E0(v19);
+                    auto v20 = v9->GetName(v19);
                     auto v10 = a4->GetComponentPoseData(v30->field_0);
 
                     v29->CalcPoseDataDirect(
@@ -114,7 +114,7 @@ void nalComp::nalCompInstance::GetPose(
                     auto skelDataInt = Skeleton->GetCompPerSkelDataInt(v20);
                     auto v18 = v30->field_0;
                     auto v16 = this->GetSkeleton();
-                    auto v19 = v16->sub_C650E0(v18);
+                    auto v19 = v16->GetName(v18);
                     auto v17 = a4->GetComponentPoseData(v30->field_0);
                     v29->CalcPoseDataRemapped(
                             v17,

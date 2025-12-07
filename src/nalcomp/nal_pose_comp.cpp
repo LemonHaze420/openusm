@@ -25,7 +25,7 @@ void Blend(nalCompPose &a1, Float a2, const nalCompPose &src0, const nalCompPose
             auto *v6 = v8->field_70[a1a].field_4;
             auto v9 = src1.GetComponentPoseData(a1a);
             auto v10 = src0.GetComponentPoseData(a1a);
-            auto v7 = v8->field_70[a1a].field_0;
+            auto v7 = v8->field_70[a1a].m_name;
             auto v5 = a1.GetComponentPoseData(a1a);
             v6->BlendPoseData(v5, v7, a2, v10, v9);
         }
@@ -141,9 +141,12 @@ void nalCompPose::ComponentFreePoseData()
             if ( this->field_4->ConvertCompIxToPoseIx(v3) != -1 )
             {
                 void *v5 = this->GetComponentPoseData(v3);
-                this->field_4->field_70[v3].field_4->PoseDataFree(
-                    this->field_4->field_70[v3].field_0,
-                    v5);
+                auto &v6 = this->field_4->field_70[v3];
+
+                v6.field_4->PoseDataFree(
+                    v6.m_name,
+                    v5
+                );
             }
         }
     }
