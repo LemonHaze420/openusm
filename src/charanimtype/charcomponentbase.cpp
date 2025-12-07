@@ -10,6 +10,15 @@
 
 VALIDATE_SIZE(CharComponentBase, 0x14);
 
+CharComponentBase::CharComponentBase()
+{
+    this->m_vtbl = 0x00891A68;
+    this->m_pSubComponent = nullptr;
+    this->m_TheType = 0;
+    this->m_strTypeString = nullptr;
+    this->field_10 = 0;
+}
+
 
 uint32_t CharComponentBase::GetType()
 {

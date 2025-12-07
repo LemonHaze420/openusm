@@ -64,6 +64,8 @@ struct ArbitraryPOCharComp : CharComponentBase {
         int field_5C;
     };
 
+    ArbitraryPOCharComp();
+
     //0x005F6130
     void BlendPoseData(
             void *a1,

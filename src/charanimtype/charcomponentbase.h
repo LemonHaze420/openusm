@@ -23,6 +23,8 @@ struct CharComponentBase : BaseComponent {
     const char *m_strTypeString;
     int field_10;
 
+    CharComponentBase();
+
     //virtual
     uint32_t GetType();
     

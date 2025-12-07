@@ -1,5 +1,6 @@
 #include "arbitrarypocharcomp.h"
 
+#include "charcomponentmanager.h"
 #include "common.h"
 #include "func_wrapper.h"
 #include "nal_system.h"
@@ -127,6 +128,13 @@ nalMatrix4x4 sub_5FE000(const nalMatrix4x4 &arg4, const nalMatrix4x4 &arg8)
     }
 
     return result;
+}
+
+ArbitraryPOCharComp::ArbitraryPOCharComp()
+{
+    this->m_vtbl = 0x008920B8;
+    this->m_strTypeString = "ArbitraryPO";
+    CharComponentManager::RegisterComponent(this);
 }
 
 const void * ArbitraryPOCharComp::ApplyPublicPerSkelDataOffset(uint32_t, const void *a2)
@@ -535,6 +543,11 @@ void ArbitraryPOCharComp::CopyPoseDataToNothing(void *a1, uint32_t, const void *
     std::memcpy(a1, a3, 16 * (*(const DWORD *)a3 + 1) + 12 * (*((const DWORD *)a3 + 1) - *(const DWORD *)a3));
 }
 
+void sub_853300()
+{
+    static ArbitraryPOCharComp g_ArbitraryPOCharComp {};
+}
+
 void ArbitraryPOCharComp_patch()
 {
     constexpr auto vtbl = 0x008920B8;
@@ -610,6 +623,10 @@ void ArbitraryPOCharComp_patch()
     {
         FUNC_ADDRESS(address, &ArbitraryPOCharComp::CopyPoseDataToNothing);
         set_vfunc(0x0089212C, address);
+    }
+
+    {
+        SET_JUMP(0x00853300, sub_853300);
     }
 }
 
