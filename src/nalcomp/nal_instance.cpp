@@ -38,13 +38,6 @@ void nalComp::nalCompInstance::VirtualGetPose(
     }
 }
 
-CharComponentBase * sub_F4C430(nalComp::nalCompSkeleton *self, int iCompIx)
-{
-    assert(iCompIx < self->m_iNumComponents &&
-            "Invalid CompIx. Exceeds m_iNumComponents");
-    return bit_cast<CharComponentBase *>(self->field_70[iCompIx].field_4);
-}
-
 void nalComp::nalCompInstance::GetPose(
         Float a2,
         Float a3,
@@ -71,7 +64,7 @@ void nalComp::nalCompInstance::GetPose(
             {
                 auto v26 = v30->field_0;
                 auto *v5 = this->GetSkeleton();
-                auto *v29 = sub_F4C430(v5, v26);
+                auto *v29 = v5->GetComponent(v26);
                 if ( v30->field_10 )
                 {
                     auto v24 = v30->field_8;

@@ -76,9 +76,10 @@ void nalCharPose::Blend(
                     auto *v8 = this->GetComponentPoseData(i);
                     auto *v9 = (unsigned int *)src0.GetComponentPoseData(i);
                     auto v12 = src1.GetComponentPoseData(i);
-                    v11->field_70[i].field_4->BlendPoseData(
+                    auto &v13 = v11->field_70[i];
+                    v13.m_component->BlendPoseData(
                             v8,
-                            v11->field_70[i].m_name,
+                            v13.m_name,
                             a2,
                             v9,
                             v12);
@@ -126,10 +127,11 @@ void nalCharPose::InitializePoseDataFromSkel()
                     auto v6 = this->field_4->GetComponentPoseDataOffset(v3);
                     auto *v7 = &this->field_4->field_70[v3];
 
-                    bit_cast<CharComponentBase *>(v7->field_4)->CopyPoseDataToNothing(
+                    bit_cast<CharComponentBase *>(v7->m_component)->CopyPoseDataToNothing(
                         v5,
                         v7->m_name,
-                        &v2[v6]);
+                        &v2[v6]
+                    );
                 }
             }
         }
@@ -160,7 +162,7 @@ char * nalCharSkeleton::GetNamedPerSkelData(CharComponentBase::Names a2) const
     }
 
     auto *CompPerSkelDataInt = this->GetCompPerSkelDataInt(CompIxByName);
-    auto *v8 = this->field_70[CompIxByName].field_4;
+    auto *v8 = this->field_70[CompIxByName].m_component;
     return bit_cast<char *>(v8->ApplyPublicPerSkelDataOffset(a2, CompPerSkelDataInt));
 }
 

@@ -22,7 +22,7 @@ void Blend(nalCompPose &a1, Float a2, const nalCompPose &src0, const nalCompPose
     {
         if ( v8->DoesComponentHavePoseTrackData(a1a) )
         {
-            auto *v6 = v8->field_70[a1a].field_4;
+            auto *v6 = v8->field_70[a1a].m_component;
             auto v9 = src1.GetComponentPoseData(a1a);
             auto v10 = src0.GetComponentPoseData(a1a);
             auto v7 = v8->field_70[a1a].m_name;
@@ -143,7 +143,7 @@ void nalCompPose::ComponentFreePoseData()
                 void *v5 = this->GetComponentPoseData(v3);
                 auto &v6 = this->field_4->field_70[v3];
 
-                v6.field_4->PoseDataFree(
+                v6.m_component->PoseDataFree(
                     v6.m_name,
                     v5
                 );

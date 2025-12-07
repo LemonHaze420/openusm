@@ -42,7 +42,7 @@ void * nalChar::nalCharAnim::GetPerAnimDataByName(CharComponentBase::Names a2)
     }
 
     auto *CompPerAnimDataInt = (const void *) this->GetCompPerAnimDataInt(CompIxByName);
-    auto *v9 = this->field_30->field_70[CompIxByName].field_4;
+    auto *v9 = this->field_30->field_70[CompIxByName].m_component;
     return v9->ApplyPublicPerAnimDataOffset(a2, CompPerAnimDataInt);
 }
 
