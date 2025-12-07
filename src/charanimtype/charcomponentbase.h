@@ -8,8 +8,14 @@ struct nalCompAnim;
 
 struct CharComponentBase : BaseComponent {
     enum Names {
-        Generic     = 0,
-        ArbitraryPO = 1
+        Generic                                      = 0,
+        ArbitraryPO                                  = 1,
+        TorsoHeadOneNeckEntropyCompressed            = 2,
+        ArmsAndHandsEntropyCompressed                = 3,
+        FiveFingerTopTwoKnuckleCurlEntropyCompressed = 4,
+        LegsAndFeetIKEntropyCompressed               = 5,
+        FakerootEntropyCompressed                    = 6,
+        TentaclesCompressed                          = 7
     };
 
     BaseComponent *m_pSubComponent;

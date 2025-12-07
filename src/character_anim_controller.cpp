@@ -141,7 +141,7 @@ float character_anim_controller::get_tentacle_width(string_hash a2)
     auto *v2 = this->field_40.field_0;
     auto *v3 = ( v2 != nullptr ? ((nalChar::nalCharPose *)&v2[-1]) : nullptr );
 
-    auto *NamedPoseData = bit_cast<TentaclesPoseDesc::StdPoseData *>(v3->GetNamedPoseData(static_cast<CharComponentBase::Names>(7)));
+    auto *NamedPoseData = bit_cast<TentaclesPoseDesc::StdPoseData *>(v3->GetNamedPoseData(CharComponentBase::Names::TentaclesCompressed));
     if ( NamedPoseData != nullptr ) {
         return NamedPoseData->GetDiameterFromBone(
                 a2.source_hash_code);
@@ -157,7 +157,7 @@ float character_anim_controller::get_tentacle_pull_factor(string_hash a2)
             ? bit_cast<nalChar::nalCharPose *>(v2 - 1)
             : nullptr);
 
-    if (auto *NamedPoseData = static_cast<TentaclesPoseDesc::StdPoseData *>(v3->GetNamedPoseData(static_cast<CharComponentBase::Names>(7))); NamedPoseData != nullptr ) {
+    if (auto *NamedPoseData = static_cast<TentaclesPoseDesc::StdPoseData *>(v3->GetNamedPoseData(CharComponentBase::Names::TentaclesCompressed)); NamedPoseData != nullptr ) {
         return NamedPoseData->GetPullFromBone(a2.source_hash_code);
     } else {
         return 0.0f;
@@ -207,14 +207,14 @@ void get_po_from_bone_data(
 
 void character_anim_controller::get_camera_root_rel_po(po &a2)
 {
-    auto v2 = bit_cast<ArbitraryPOCharComp::BoneData *>(this->field_64);
+    auto *v2 = this->field_64;
     if ( v2 != nullptr )
     {
         auto *v3 = bit_cast<ArbitraryPOCharComp::PerSkelData *>(this->field_6C);
         auto *v4 = this->field_40.field_0;
         nalChar::nalCharPose *v5 = (v4 != nullptr ? bit_cast<nalChar::nalCharPose *>(v4 - 1) : nullptr);
 
-        auto *NamedPoseData = static_cast<ArbitraryPOCharComp::StdPoseData *>(v5->GetNamedPoseData(static_cast<CharComponentBase::Names>(1)));
+        auto *NamedPoseData = static_cast<ArbitraryPOCharComp::StdPoseData *>(v5->GetNamedPoseData(CharComponentBase::Names::ArbitraryPO));
         ::get_po_from_bone_data(a2, v2, v3, NamedPoseData);
 
         auto position = a2.get_position();
@@ -237,14 +237,14 @@ void character_anim_controller::get_camera_root_rel_po(po &a2)
 
 void character_anim_controller::get_shake_root_rel_po(po &a2)
 {
-    auto *v2 = bit_cast<const ArbitraryPOCharComp::BoneData *>(this->field_68);
+    auto *v2 = this->field_68;
     if ( v2 != nullptr )
     {
         auto *v3 = bit_cast<const ArbitraryPOCharComp::PerSkelData *>(this->field_6C);
         auto *v4 = this->field_40.field_0;
         nalChar::nalCharPose *v5 = (v4 != nullptr ? bit_cast<nalChar::nalCharPose *>(&v4[-1]) : nullptr);
 
-        auto *NamedPoseData = static_cast<ArbitraryPOCharComp::StdPoseData *>(v5->GetNamedPoseData(static_cast<CharComponentBase::Names>(1)));
+        auto *NamedPoseData = static_cast<ArbitraryPOCharComp::StdPoseData *>(v5->GetNamedPoseData(CharComponentBase::Names::ArbitraryPO));
         get_po_from_bone_data(a2, v2, v3, NamedPoseData);
     }
     else
@@ -270,13 +270,13 @@ void character_anim_controller::post_get_pose_in_scene_anims(
         nalAnyPose &a4)
 {
     auto *PerAnimDataByName = bit_cast<const FakerootPoseDesc::PerAnimData *>(bit_cast<nalChar::nalCharAnim *>(a3)->GetPerAnimDataByName(
-            static_cast<CharComponentBase::Names>(6)));
+            CharComponentBase::Names::FakerootEntropyCompressed));
     nalChar::nalCharPose *v6 = (a4.field_0 != nullptr
             ? bit_cast<nalChar::nalCharPose *>(a4.field_0 - 1)
             : nullptr);
 
     auto *NamedPoseData = bit_cast<const FakerootPoseDesc::StdPoseData *>(v6->GetNamedPoseData(
-            static_cast<CharComponentBase::Names>(6)));
+            CharComponentBase::Names::FakerootEntropyCompressed));
     if ( NamedPoseData != nullptr )
         fire_signals(
                 PerAnimDataByName,
@@ -312,8 +312,8 @@ void character_anim_controller::gen_std_play_method::Compose(
         }
 
         auto *NamedPoseData = (FakerootPoseDesc::StdPoseData *) v6->GetNamedPoseData(
-                static_cast<CharComponentBase::Names>(6));
-        auto *v9 = (FakerootPoseDesc::StdPoseData *) v7->GetNamedPoseData(static_cast<CharComponentBase::Names>(6));
+                CharComponentBase::Names::FakerootEntropyCompressed);
+        auto *v9 = (FakerootPoseDesc::StdPoseData *) v7->GetNamedPoseData(CharComponentBase::Names::FakerootEntropyCompressed);
         NamedPoseData->field_0[0] = v9->field_0[0];
         NamedPoseData->field_0[1] = v9->field_0[1];
         NamedPoseData->field_0[2] = v9->field_0[2];
@@ -326,7 +326,7 @@ void character_anim_controller::gen_std_play_method::Compose(
         if ( this->ShouldFireSignals(a2) )
         {
             auto *PerAnimDataByName = (const FakerootPoseDesc::PerAnimData *) bit_cast<nalChar::nalCharAnim *>(a2->field_0->field_10)->GetPerAnimDataByName(
-                    static_cast<CharComponentBase::Names>(6));
+                    CharComponentBase::Names::FakerootEntropyCompressed);
             fire_signals(PerAnimDataByName, *NamedPoseData, {this->field_4->field_4->my_handle.field_0});
         }
     }
