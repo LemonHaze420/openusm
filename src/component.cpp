@@ -5,6 +5,12 @@
 #include "vtbl.h"
 
 
+int BaseComponent::GetType()
+{
+    int (__fastcall *func)(const void *) = CAST(func, get_vfunc(this->m_vtbl, 0x4));
+    return func(this);
+}
+
 void * BaseComponent::ApplyPublicPerSkelDataOffset(uint32_t a1, void *a2) const
 {
     void * (__fastcall *func)(const void *, void *, uint32_t, void *) = CAST(func, get_vfunc(this->m_vtbl, 0x8));
@@ -72,6 +78,23 @@ void * BaseComponent::GetSizeOfPerInstData(
         const void *a7,
         bool a8) = CAST(func, get_vfunc(this->m_vtbl, 0x1C));
     return func(this, nullptr, a2, a3, a4, a5, a6, a7, a8);
+}
+
+void BaseComponent::DestroyPerInstData(
+        void *a2,
+        uint32_t a3,
+        const void *a4,
+        const void *a5)
+{
+    void (__fastcall *func)(
+            void *, void *edx,
+            void *,
+            uint32_t,
+            const void *,
+            const void *) = CAST(func, get_vfunc(this->m_vtbl, 0x28));
+
+    func(this, nullptr, a2, a3, a4, a5);
+
 }
 
 void BaseComponent::CalcPoseDataDirect(

@@ -13,10 +13,11 @@ namespace nalComp {
 
 struct BaseComponent {
     std::intptr_t m_vtbl;
+
     //virtual ~BaseComponent() = default;
 
     //virtual
-    int GetType() { return 0; }
+    int GetType();
 
     //virtual
     void * ApplyPublicPerSkelDataOffset(uint32_t a1, void *a2) const;
@@ -47,6 +48,13 @@ struct BaseComponent {
         const void *a6,
         const void *a7,
         bool a8);
+
+    //virtual
+    void DestroyPerInstData(
+        void *a2,
+        uint32_t a3,
+        const void *a4,
+        const void *a5);
 
     //virtual
     void CalcPoseDataDirect(
