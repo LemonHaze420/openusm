@@ -108,6 +108,28 @@ struct ArbitraryPOCharComp : CharComponentBase {
             const void *a6,
             bool a7);
 
+    //virtual
+    //0x005EF590
+    int GetAlignOfPerInstData(
+            uint32_t a1,
+            const void *a2,
+            const void *a3,
+            const void *a4,
+            const void *a5,
+            const void *a6,
+            bool a7);
+
+    //virtual
+    //0x005F2270
+    void BuildPerInstData(
+            void *a1,
+            uint32_t a2,
+            const void *a3,
+            const void *a4,
+            const void *a5,
+            const void *a6,
+            const void *a7,
+            bool a8);
 
     //virtual
     //0x005EF5A0
@@ -163,8 +185,25 @@ struct ArbitraryPOCharComp : CharComponentBase {
     void SkelPoseRelease(uint32_t a1, void *, void *a3);
 
     //virtual
+    void AnimProcess(
+            uint32_t,
+            void *,
+            void *,
+            const void *);
+
+    //virtual
+    void AnimRelease(
+            uint32_t,
+            void *,
+            void *,
+            const void *);
+
+    //virtual
     //0x005EF7F0
     void CopyPoseExtraData(void *a1, uint32_t a2, const void *a3);
+
+    //virtual
+    void PoseDataFree(uint32_t, void *);
 
     //virtual
     //0x00439F80

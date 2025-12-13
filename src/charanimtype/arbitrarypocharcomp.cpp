@@ -9,6 +9,7 @@
 #include "utility.h"
 #include "vector3d.h"
 #include "vector4d.h"
+#include "vtbl.h"
 
 #include <cmath>
 
@@ -133,6 +134,7 @@ nalMatrix4x4 sub_5FE000(const nalMatrix4x4 &arg4, const nalMatrix4x4 &arg8)
 ArbitraryPOCharComp::ArbitraryPOCharComp()
 {
     this->m_vtbl = 0x008920B8;
+
     this->m_strTypeString = "ArbitraryPO";
     CharComponentManager::RegisterComponent(this);
 }
@@ -257,6 +259,217 @@ int ArbitraryPOCharComp::GetSizeOfPerInstData(
     };
 
     return 16 * func(static_cast<const int *>(a5), static_cast<const int *>(a3)) + 60;
+}
+
+int ArbitraryPOCharComp::GetAlignOfPerInstData(
+        uint32_t,
+        const void *,
+        const void *,
+        const void *,
+        const void *,
+        const void *,
+        bool)
+{
+    return 4;
+}
+
+int sub_C7F000(int a1, int a2)
+{
+    return ~(a2 - 1) & (a1 + a2 - 1);
+}
+
+void ArbitraryPOCharComp::BuildPerInstData(
+        void *a1,
+        uint32_t a2,
+        const void *a3,
+        const void *a4,
+        const void *a5,
+        const void *a6,
+        const void *a7,
+        bool a8)
+{
+    TRACE("ArbitraryPOCharComp::BuildPerInstData");
+
+    if constexpr (1)
+    {
+        *(DWORD *)a1 = 0;
+        uint32_t v12 = 0;
+        for ( ; v12 < *((const DWORD *)a4 + 1); ++v12 )
+        {
+            if (sub_C75AA0(static_cast<const int *>(a6), v12)) {
+                ++*(DWORD *)a1;
+            }
+        }
+
+        for ( *((DWORD *)a1 + 1) = *(DWORD *)a1; v12 < *((const DWORD *)a4 + 1) + *((const DWORD *)a4 + 2); ++v12 )
+        {
+            if (sub_C75AA0(static_cast<const int *>(a6), v12)) {
+                ++*((DWORD *)a1 + 1);
+            }
+        }
+
+        auto v14 = sub_C7F000(*((const DWORD *)a4 + 2) + *((const DWORD *)a4 + 1), 32) >> 5;
+        struct local_t {
+            int field_0;
+            int field_4;
+            int field_8;
+            int field_C;
+            int field_10;
+            int field_14;
+            int field_18;
+            CharEntropyDecoder::CharChannelDecoder field_1C;
+            int field_24;
+            int field_28;
+            int field_2C;
+            int field_30;
+            int field_34;
+            int field_38;
+
+            local_t(const void *a2, int a3) : field_1C(a2, false), field_24(-1), field_28(a3) {}
+
+        };
+        local_t* v8 = CAST(v8, a1);
+
+        VALIDATE_SIZE(local_t, 0x3C);
+
+        if (v8 != nullptr) {
+            new (v8) local_t {a7, (int)a6 + 4 * v14};
+        }
+
+        *((DWORD *)a1 + 7) = int(a7);
+        *((BYTE *)a1 + 32) = 0;
+        *((BYTE *)a1 + 33) = -1;
+        *((WORD *)a1 + 17) = 0;
+        auto v16 = (4 * (*((DWORD *)a1 + 1) + *(DWORD *)a1 + 2 * *((DWORD *)a1 + 1)) + 15) & 0xFFFFFFF0;
+
+        v16 = 16 * *(DWORD *)a1;
+        v16 += 12 * (*((DWORD *)a1 + 1) - *(DWORD *)a1);
+        v16 = sub_C7F000(v16, 16u);
+
+        *((DWORD *)a1 + 9) = -1;
+        *((DWORD *)a1 + 3) = v16;
+        auto *v17 = tlMemAlloc(2 * v16, 16u, 0);
+        *((DWORD *)a1 + 6) = int(v17);
+        tlMemFree(v17);
+        auto *v18 = (char *)tlMemAlloc(2 * *((DWORD *)a1 + 3), 16u, 0);
+        auto *v20 = &v18[*((DWORD *)a1 + 3)];
+        *((DWORD *)a1 + 6) = int(v18);
+        *((DWORD *)a1 + 4) = int(v18);
+        auto v21 = 3 * *((DWORD *)a1 + 1);
+        *((DWORD *)a1 + 5) = int(v20);
+        *((DWORD *)a1 + 2) = v21;
+
+        if ( a4 == a3 )
+        {
+            *((DWORD *)a1 + 11) = 0;
+            *((DWORD *)a1 + 12) = 0;
+            *((DWORD *)a1 + 13) = 0;
+            *((DWORD *)a1 + 14) = 0;
+        } else {
+            *((DWORD *)a1 + 11) = 1;
+            *((DWORD *)a1 + 13) = int(a4);
+
+            auto dwSize = sub_C7F000(16 * *((const DWORD *)a4 + 1) + 16 + 12 * *((const DWORD *)a4 + 2), 16);
+            DWORD *v22 = (DWORD *)tlMemAlloc(dwSize, 16u, 0);
+            *((DWORD *)a1 + 12) = int(v22);
+            *v22 = *((const DWORD *)a4 + 1);
+            *(DWORD *)(*((DWORD *)a1 + 12) + 4) = *((const DWORD *)a4 + 1) + *((const DWORD *)a4 + 2);
+            *((DWORD *)a1 + 14) = (int)tlMemAlloc(8 * (*((const DWORD *)a3 + 1) + *((const DWORD *)a3 + 2)), 4u, 0);
+
+            int v14 = 0;
+            int v13 = *((const DWORD *)a3 + 1);
+            for ( uint32_t j = 0; j < *(const DWORD *)a3; ++j )
+            {
+                auto *v25 = bit_cast<int16_t *>(*((const DWORD *)a3 + 6) + 0x30 * j);
+                if ( v25[20] || v25[21] )
+                {
+                    uint32_t k;
+                    for ( k = 0;
+                          k < *(const DWORD *)a4 && (*bit_cast<const tlFixedString *>(*((const DWORD *)a4 + 6) + 0x30 * k) != *bit_cast<const tlFixedString *>(v25));
+                          ++k )
+                    {
+                        ;
+                    }
+
+                    if ( k == *(const DWORD *)a4 )
+                    {
+                        if ( v25[20] )
+                        {
+                            *(DWORD *)(*((DWORD *)a1 + 14) + 8 * v14++) = -1;
+                        }
+
+                        if ( v25[21] ) {
+                            *(DWORD *)(*((DWORD *)a1 + 14) + 8 * v13++) = -1;
+                        }
+                    }
+                    else
+                    {
+                        auto *v30 = (uint16_t *)(*((const DWORD *)a4 + 6) + 0x30 * k);
+                        if ( v25[20] )
+                        {
+                            if ( v30[20] )
+                            {
+                                if (sub_C75AA0(static_cast<const int *>(a6), v30[16]))
+                                {
+                                    *(DWORD *)(*((DWORD *)a1 + 14) + 8 * v14) = v30[16];
+                                    *(DWORD *)(*((DWORD *)a1 + 14) + 8 * v14 + 4) = 1;
+                                }
+                                else
+                                {
+                                    *(DWORD *)(*((DWORD *)a1 + 14) + 8 * v14) = -1;
+                                }
+
+                                ++v14;
+                            }
+                            else
+                            {
+                                *(DWORD *)(*((DWORD *)a1 + 14) + 8 * v14) = v30[16];
+                                *(DWORD *)(*((DWORD *)a1 + 14) + 8 * v14 + 4) = 0;
+                                ++v14;
+                            }
+                        }
+
+                        if ( v25[21] )
+                        {
+                            if ( v30[21] )
+                            {
+                                if (sub_C75AA0(static_cast<const int *>(a6), *((const DWORD *)a4 + 1) + v30[17]))
+                                {
+                                    *(DWORD *)(*((DWORD *)a1 + 14) + 8 * v13) = v30[17];
+                                    *(DWORD *)(*((DWORD *)a1 + 14) + 8 * v13 + 4) = 1;
+                                }
+                                else
+                                {
+                                    *(DWORD *)(*((DWORD *)a1 + 14) + 8 * v13) = -1;
+                                }
+
+                                ++v13;
+                            }
+                            else
+                            {
+                                *(DWORD *)(*((DWORD *)a1 + 14) + 8 * v13) = v30[17];
+                                *(DWORD *)(*((DWORD *)a1 + 14) + 8 * v13 + 4) = 0;
+                                ++v13;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    } else {
+        void (__fastcall *func)(
+                void *,
+                void *edx,
+                void *,
+                uint32_t,
+                const void *,
+                const void *,
+                const void *,
+                const void *,
+                const void *,
+                bool) = CAST(func, 0x005F2270);
+        func(this, nullptr, a1, a2, a3, a4, a5, a6, a7, a8);
+    }
 }
 
 void ArbitraryPOCharComp::DestroyPerInstData(void *a1,
@@ -476,6 +689,8 @@ void ArbitraryPOCharComp::BlendPoseData(
 
 void ArbitraryPOCharComp::SkelPoseProcess(uint32_t , void *a2, void *)
 {
+    TRACE("ArbitraryPOCharComp::SkelPoseProcess");
+
     *((int *)a2 + 6) += int(a2);
     *((int *)a2 + 7) += int(a2);
     auto v5 = *((int *)a2 + 5);
@@ -489,7 +704,6 @@ void ArbitraryPOCharComp::SkelPoseProcess(uint32_t , void *a2, void *)
     } else {
         *((int *)a2 + 4) = 0;
     }
-
 }
 
 void ArbitraryPOCharComp::SkelPoseRelease(uint32_t, void *out, void *)
@@ -515,6 +729,24 @@ void ArbitraryPOCharComp::SkelPoseRelease(uint32_t, void *out, void *)
     }
 }
 
+void ArbitraryPOCharComp::AnimProcess(
+        uint32_t,
+        void *,
+        void *,
+        const void *)
+{
+    ;
+}
+
+void ArbitraryPOCharComp::AnimRelease(
+        uint32_t,
+        void *,
+        void *,
+        const void *)
+{
+    ;
+}
+
 void ArbitraryPOCharComp::CopyPoseExtraData(void *a1, uint32_t, const void *a3)
 {
     TRACE("ArbitraryPOCharComp::CopyPoseExtraData");
@@ -524,6 +756,11 @@ void ArbitraryPOCharComp::CopyPoseExtraData(void *a1, uint32_t, const void *a3)
         a3,
         16 * (*(const DWORD *)a3 + 1) + 12 * (*((const DWORD *)a3 + 1) - *(const DWORD *)a3)
     );
+}
+
+void ArbitraryPOCharComp::PoseDataFree(uint32_t, void *)
+{
+    ;
 }
 
 int ArbitraryPOCharComp::GetDomain() const
@@ -550,51 +787,41 @@ void sub_853300()
 
 void ArbitraryPOCharComp_patch()
 {
-    constexpr auto vtbl = 0x008920B8;
+    static constexpr auto address_vtbl = 0x008920B8;
+
+    auto set_vfunc_local = [](std::intptr_t offset, auto func) {
+        set_vfunc(address_vtbl + offset, func_address(func));
+    };
 
     {
-        FUNC_ADDRESS(address, &ArbitraryPOCharComp::ApplyPublicPerSkelDataOffset);
-        set_vfunc(vtbl + 2 * 4, address);
+        set_vfunc_local(0x4, &ArbitraryPOCharComp::GetType);
+        set_vfunc_local(0x8, &ArbitraryPOCharComp::ApplyPublicPerSkelDataOffset);
+        set_vfunc_local(0xC, &ArbitraryPOCharComp::ApplyPublicPerAnimDataOffset);
+        set_vfunc_local(0x10, &ArbitraryPOCharComp::GetTrajectoryData);
+        set_vfunc_local(0x14, &ArbitraryPOCharComp::BuildBoneMatrices);
+        set_vfunc_local(0x18, &ArbitraryPOCharComp::DoesContributeToPose);
+        set_vfunc_local(0x1C, &ArbitraryPOCharComp::GetSizeOfPerInstData);
+        set_vfunc_local(0x20, &ArbitraryPOCharComp::GetAlignOfPerInstData);
+        set_vfunc_local(0x24, &ArbitraryPOCharComp::BuildPerInstData);
+        set_vfunc_local(0x28, &ArbitraryPOCharComp::DestroyPerInstData);
+        set_vfunc_local(0x2C, &ArbitraryPOCharComp::WillMapToComponentData);
+        set_vfunc_local(0x30, &ArbitraryPOCharComp::CalcPoseDataDirect);
     }
 
     {
-        FUNC_ADDRESS(address, &ArbitraryPOCharComp::ApplyPublicPerAnimDataOffset);
-        set_vfunc(vtbl + 3 * 4, address);
-    }
-
-    {
-        FUNC_ADDRESS(address, &ArbitraryPOCharComp::GetTrajectoryData);
-        set_vfunc(0x008920C8, address);
-    }
-
-    {
-        FUNC_ADDRESS(address, &ArbitraryPOCharComp::GetSizeOfPerInstData);
-        set_vfunc(0x008920D4, address);
-    }
-
-	{
-        FUNC_ADDRESS(address, &ArbitraryPOCharComp::BuildBoneMatrices);
-        set_vfunc(0x008920CC, address);
-	}
-
-    {
-        FUNC_ADDRESS(address, &ArbitraryPOCharComp::DestroyPerInstData);
-        set_vfunc(0x008920E0, address);
-    }
-
-    {
-        FUNC_ADDRESS(address, &ArbitraryPOCharComp::WillMapToComponentData);
-        set_vfunc(0x008920E4, address);
-    }
-
-    {
-        FUNC_ADDRESS(address, &ArbitraryPOCharComp::CalcPoseDataDirect);
-        set_vfunc(0x008920E8, address);
-    }
-
-    {
-        FUNC_ADDRESS(address, &ArbitraryPOCharComp::CalcPoseDataRemapped);
-        set_vfunc(0x008920EC, address);
+        void (ArbitraryPOCharComp::*func)(
+            void *a1,
+            uint32_t a2,
+            Float a3,
+            Float a4,
+            const nalComp::nalCompAnim *a5,
+            const void *a6,
+            uint32_t a7,
+            uint32_t a8,
+            const void *a9,
+            const void *a10,
+            void *a11) = &ArbitraryPOCharComp::CalcPoseDataRemapped;
+        set_vfunc_local(0x34, func);
     }
 
     {
@@ -603,26 +830,26 @@ void ArbitraryPOCharComp_patch()
                 uint32_t,
                 Float,
                 const void *,
-                const void *,
-                uint32_t,
-                uint32_t) = &ArbitraryPOCharComp::BlendPoseData;
-        FUNC_ADDRESS(address, func);
-        REDIRECT(0x005F9A49, address);
+                const void *) = &ArbitraryPOCharComp::BlendPoseData;
+        set_vfunc_local(0x38, func);
     }
 
     {
-        FUNC_ADDRESS(address, &ArbitraryPOCharComp::SkelPoseRelease);
-        set_vfunc(0x008920F8, address);
-    }
-
-    {
-        FUNC_ADDRESS(address, &ArbitraryPOCharComp::CopyPoseExtraData);
-        set_vfunc(0x00892104, address);
-    }
-
-    {
-        FUNC_ADDRESS(address, &ArbitraryPOCharComp::CopyPoseDataToNothing);
-        set_vfunc(0x0089212C, address);
+        set_vfunc_local(0x3C, &ArbitraryPOCharComp::SkelPoseProcess);
+        set_vfunc_local(0x40, &ArbitraryPOCharComp::SkelPoseRelease);
+        set_vfunc_local(0x44, &ArbitraryPOCharComp::AnimProcess);
+        set_vfunc_local(0x48, &ArbitraryPOCharComp::AnimRelease);
+        set_vfunc_local(0x4C, &ArbitraryPOCharComp::CopyPoseExtraData);
+        set_vfunc_local(0x50, &ArbitraryPOCharComp::PoseDataFree);
+        set_vfunc_local(0x54, &ArbitraryPOCharComp::GetDomain);
+        set_vfunc_local(0x58, &ArbitraryPOCharComp::GetPoseTypeID);
+        set_vfunc_local(0x5C, &CharComponentBase::GetRemapSizeOfPerInstData);
+        set_vfunc_local(0x60, &CharComponentBase::GetRemapAlignOfPerInstData);
+        set_vfunc_local(0x64, &CharComponentBase::BuildRemapPerInstData);
+        set_vfunc_local(0x68, &CharComponentBase::DestroyRemapPerInstData);
+        set_vfunc_local(0x6C, &CharComponentBase::CalcPoseDataRemapped);
+        set_vfunc_local(0x70, &CharComponentBase::AnimRelease);
+        set_vfunc_local(0x74, &ArbitraryPOCharComp::CopyPoseDataToNothing);
     }
 
     {
