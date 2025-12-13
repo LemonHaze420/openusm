@@ -90,6 +90,54 @@ struct CharComponentBase : BaseComponent {
         void *);
 
     //virtual
+    //0x005EC590
+    int GetRemapSizeOfPerInstData(
+            uint32_t,
+            uint32_t,
+            const CharComponentBase *,
+            const void *,
+            const void *,
+            const void *,
+            const void *,
+            const void *);
+
+    //virtual
+    //0x0037C7CC
+    int GetRemapAlignOfPerInstData(
+            uint32_t,
+            uint32_t,
+            const CharComponentBase *,
+            const void *,
+            const void *,
+            const void *,
+            const void *,
+            const void *);
+
+    //virtual
+    void BuildRemapPerInstData(
+            void *,
+            uint32_t,
+            uint32_t,
+            const CharComponentBase *,
+            const void *,
+            const void *,
+            const void *,
+            const void *,
+            const void *);
+
+    //virtual
+    void DestroyRemapPerInstData(
+        void *a2,
+        uint32_t a3,
+        uint32_t a4,
+        const CharComponentBase *a5,
+        const void *a6,
+        const void *a7);
+
+    //virtual
+    void AnimRelease(uint32_t, void *, void *);
+
+    //virtual
     void CopyPoseDataToNothing(void *a1, unsigned int a2, const void *a3);
 };
 

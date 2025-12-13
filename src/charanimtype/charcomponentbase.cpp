@@ -19,7 +19,6 @@ CharComponentBase::CharComponentBase()
     this->field_10 = 0;
 }
 
-
 uint32_t CharComponentBase::GetType()
 {
     TRACE("CharComponentBase::GetType");
@@ -151,6 +150,69 @@ void CharComponentBase::CalcPoseDataRemapped(
 {
     TRACE("CharComponentBase::CalcPoseDataRemapped");
 }
+
+int CharComponentBase::GetRemapSizeOfPerInstData(
+        uint32_t,
+        uint32_t,
+        const CharComponentBase *,
+        const void *,
+        const void *,
+        const void *,
+        const void *,
+        const void *)
+{
+    return 0;
+}
+
+int CharComponentBase::GetRemapAlignOfPerInstData(
+        uint32_t,
+        uint32_t,
+        const CharComponentBase *,
+        const void *,
+        const void *,
+        const void *,
+        const void *,
+        const void *)
+{
+    return 0;
+}
+
+void CharComponentBase::BuildRemapPerInstData(
+        void *,
+        uint32_t,
+        uint32_t,
+        const CharComponentBase *,
+        const void *,
+        const void *,
+        const void *,
+        const void *,
+        const void *)
+{
+    ;
+}
+
+void CharComponentBase::DestroyRemapPerInstData(
+    void *a2,
+    uint32_t a3,
+    uint32_t a4,
+    const CharComponentBase *a5,
+    const void *a6,
+    const void *a7)
+{
+    void * (__fastcall *func)(
+            void *, void *edx,
+            void *,
+            uint32_t,
+            uint32_t,
+            const CharComponentBase *,
+            const void *,
+            const void *) = CAST(func, get_vfunc(m_vtbl, 0x68));
+
+    func(this, nullptr, a2, a3, a4, a5, a6, a7);
+}
+
+void CharComponentBase::AnimRelease(uint32_t, void *, void *)
+{}
 
 void CharComponentBase::CopyPoseDataToNothing(void *a1, unsigned int a2, const void *a3)
 {
