@@ -1,10 +1,30 @@
 #pragma once
-
+#define MOD_DIR "mods"
+#include <map>
 
 #if !defined(_DEBUG)
 #define printf //
 #endif
 
+enum tlresource_type
+{
+    TLRESOURCE_TYPE_NONE = 0,
+    TLRESOURCE_TYPE_TEXTURE = 1,
+    TLRESOURCE_TYPE_MESH_FILE = 2,
+    TLRESOURCE_TYPE_MESH = 3,
+    TLRESOURCE_TYPE_MORPH_FILE = 4,
+    TLRESOURCE_TYPE_MORPH = 5,
+    TLRESOURCE_TYPE_MATERIAL_FILE = 6,
+    TLRESOURCE_TYPE_MATERIAL = 7,
+    TLRESOURCE_TYPE_ANIM_FILE = 8,
+    TLRESOURCE_TYPE_ANIM = 9,
+    TLRESOURCE_TYPE_SCENE_ANIM = 10,
+    TLRESOURCE_TYPE_SKELETON = 11,
+    TLRESOURCE_TYPE_Z = 12,
+    TLRESOURCE_TYPE_IFL = 13,
+    TLRESOURCE_TYPE_MPAL_TEXTURE = 14,
+    TLRESOURCE_TYPE_MPAL_SUB_TEXTURE = 15
+};
 
 typedef int(__cdecl* cdecl_call)(...);
 
@@ -212,17 +232,89 @@ struct resource_directory
     int type_end_idxs[70];
 };
 
+
+struct vm_thread
+{
+    char pad[0x20 + 0x184];
+    char* _SP;
+};
+
+
+
+struct vm_stack {
+    int field_0[96];
+    char* buffer;
+    char* SP;
+    vm_thread* my_thread;
+};
+
 struct script_library_class
 {
+    struct function {
+        enum entry_t {
+            FIRST_ENTRY,
+            RECALL_ENTRY,
+        };
+
+        struct {
+            void(__fastcall* finalize)(function*, void* edx, bool);
+            bool(__fastcall* __cl)(const function*, void* edx, vm_stack& stack, entry_t entry);
+        } *m_vtbl;
+
+#if SLC_NAME_FIELD
+        const char* m_name;
+#endif
+
+        //0x0058EE30
+        function(const char* name);
+
+        //0x0058EDE0
+        function(script_library_class* a2, const char* a3);
+
+        //0x006794B0
+        bool operator()(vm_stack& a2,
+            script_library_class::function::entry_t a3) const;
+
+        const char* get_name() const {
+#if SLC_NAME_FIELD
+            return this->m_name;
+#else
+            return "";
+#endif
+        }
+    };
+
+
     int m_vtbl;
     char* name;
     int field_8;
     const char* field_C;
-    void** funcs;
+    script_library_class::function** funcs;
     int total_funcs;
     int next_func_slot;
     int flags;
 };
+
+
+
+struct std__vector__ptr_slc {
+    int pad0;
+    script_library_class** m_first;
+    script_library_class** m_last;
+    int padC;
+};
+inline std__vector__ptr_slc* SlcVec() {
+    return reinterpret_cast<std__vector__ptr_slc*>(0x00965EC8);
+}
+inline size_t SlcCount() {
+    auto* v = SlcVec();
+    return size_t(v->m_last - v->m_first);
+}
+inline script_library_class* SlcAt(size_t i) {
+    return SlcVec()->m_first[i];
+}
+
+
 
 
 const char* file_extensions[] =
@@ -293,6 +385,29 @@ const char* file_extensions[] =
   "._PACKGROUP_",
 };
 
+std::map <tlresource_type, int> tlres_to_res_key = {
+    { TLRESOURCE_TYPE_NONE, -1 },
+    { TLRESOURCE_TYPE_TEXTURE,  6 },
+    { TLRESOURCE_TYPE_MESH_FILE, 21 },
+    { TLRESOURCE_TYPE_MESH, 21 },
+
+    { TLRESOURCE_TYPE_MORPH_FILE, 22 },
+    { TLRESOURCE_TYPE_MORPH, 5 },
+
+    { TLRESOURCE_TYPE_MATERIAL_FILE, 23 },
+    { TLRESOURCE_TYPE_MATERIAL, 7 },
+
+    { TLRESOURCE_TYPE_ANIM_FILE, 1 },
+    { TLRESOURCE_TYPE_ANIM, 1 },
+
+    { TLRESOURCE_TYPE_SCENE_ANIM, 26 },
+
+    { TLRESOURCE_TYPE_SKELETON, 2 },
+    { TLRESOURCE_TYPE_Z, 12 }, // ?
+    { TLRESOURCE_TYPE_IFL, 6 },
+    { TLRESOURCE_TYPE_MPAL_TEXTURE, 6 },
+    { TLRESOURCE_TYPE_MPAL_SUB_TEXTURE, 6 },
+};
 
 const char* resource_key_type_ext[4][70] =
 {
@@ -518,12 +633,12 @@ const char* resource_key_type_ext[4][70] =
     // PC
     {
       "none",
-      ".PCANIM",
-      ".PCSKEL",
+      /*1*/".PCANIM",           // tlres = 8, 9
+      /*2*/".PCSKEL",           // tlres = 11
       ".ALS",
       ".ENT",
       ".ENTEXT",
-      ".DDS",
+      /*6*/".DDS",              // tlres = 1
       ".DDSMP",
       ".IFL",
       ".DESC",
@@ -538,12 +653,12 @@ const char* resource_key_type_ext[4][70] =
       ".PANEL",
       ".TXT",
       ".ICN",
-      ".PCMESH",
-      ".PCMORPH",
-      ".PCMAT",
+      /*21*/".PCMESH",            // tlres = 3
+      ".PCMORPH",                   // tlres = 4
+      ".PCMAT",                     // tlres = 6
       ".COLL",
       ".PCPACK",
-      ".PCSANIM",
+      ".PCSANIM",                   // tlres = 10
       ".MSN",
       ".MARKER",
       ".HH",
@@ -568,9 +683,9 @@ const char* resource_key_type_ext[4][70] =
       ".LANG",
       ".SLF",
       ".VISEME",
-      ".PCMESHDEF",
-      ".PCMORPHDEF",
-      ".PCMATDEF",
+      ".PCMESHDEF",             // tlres = 2
+      ".PCMORPHDEF",            // tlres = 5
+      ".PCMATDEF",              // tlres = 7
       ".MUT",
       ".ASG",
       ".BAI",

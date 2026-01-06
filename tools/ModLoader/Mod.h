@@ -86,8 +86,11 @@ constexpr inline std::uint32_t to_hash(const char* str) {
     return res;
 }
 
-Mod* findModOfExt(uint64_t hash, const char* expected_ext) {
+static inline constexpr char* lookup_string(uint32_t hash) {
+    return ((char* (__cdecl*)(uint32_t))0x531990)(hash);
+}
 
+Mod* findModOfExt(uint64_t hash, const char* expected_ext) {
     auto it = Mods.find(hash);
     if (it == Mods.end()) return nullptr;
     for (auto& mod : it->second) {
@@ -97,13 +100,26 @@ Mod* findModOfExt(uint64_t hash, const char* expected_ext) {
     return nullptr;
 }
 
-Mod* getModOfType(const resource_key* resource_id, uint32_t dirHash)
+Mod* findModOfTlResType(uint64_t hash, tlresource_type type) {
+    auto it = Mods.find(hash);
+    if (it == Mods.end()) return nullptr;
+    for (auto& mod : it->second) {
+        if (mod.Type == type)
+            return &mod;
+    }
+    return nullptr;
+}
+
+Mod* getModOfResType(const resource_key* resource_id, uint32_t dirHash)
 {
     const uint32_t nameHash = resource_id->m_hash;
     const char* expected_ext = resource_key_type_ext[PLATFORM][resource_id->m_type];
     if (!expected_ext) return nullptr;
 
     Mod * ret =  findModOfExt(make_key(nameHash, dirHash), expected_ext);
+    // fallback to curr pack
+    if (!ret && current_pack != 0xFFFFFFFFu)
+        ret = findModOfExt(make_key(nameHash, current_pack), expected_ext);
     // fallback to root dir
     if (!ret)
         ret = findModOfExt(make_key(nameHash), expected_ext);

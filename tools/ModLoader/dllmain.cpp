@@ -1,4 +1,5 @@
 #include "pch.h"
+//#define WIP_SCRIPTING 1
 #include "Mod.h"
 #include "assets.h"
 #include "scripting.h"
@@ -33,7 +34,13 @@ void init_hooks()
                 { HOOK(0x00531B30, hk_get_resource, get_resource_orig) },
                 { HOOK(0x0052AA70, hk_get_resource_dir, get_resource_dir_orig) },
                 { HOOK(0x0051EC80, hk_set_active_resource_context, set_active_resource_context_orig) },
-                { HOOK(0x0079E490, hk_nflopenfile, nflopenfile_orig ) },
+                { HOOK(0x0079E490, hk_nflopenfile, nflopenfile_orig ) },                // packs etc - seems ok
+                { HOOK(0x00563090, hk_get_tlresource_loc, get_tlresource_loc_orig) },   // textures - seems ok?
+                //{ HOOK(0x0052AAE0, hk_get_tlresource, get_tlresource_orig) },         // sus
+                //{ HOOK(0x0051F350, hk_find_tlresource, find_tlresource_orig) },       // sus
+                //{ HOOK(0x006299E0, 0, 0) },           // load movie
+                //{ HOOK(0x0078D8D0, 0, 0) },           // nalLoadSceneAnim
+                //{ HOOK(0x00598AD0 , 0, 0) },           // os_read_file     = ini, amalga PACK, string_hash_dict
 #               if WIP_SCRIPTING
                     { HOOK(0x0058EDE0, hk_script_func_reg, script_func_reg_orig) },
                     { HOOK(0x0058EE30, hk_script_func, script_func_orig) },

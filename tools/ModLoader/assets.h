@@ -2,34 +2,13 @@
 
 #include <string_view>
 
+
 namespace fs = std::filesystem;
 
-#if 0
-static void enumerate_mods() {
-    fs::path modsDir = fs::current_path() / "mods";
-    if (!fs::is_directory(modsDir))
-        return;
-
-    for (const auto& entry : fs::directory_iterator(modsDir)) {
-        if (entry.is_regular_file()) {
-            const fs::path& path = entry.path();
-            std::vector<uint8_t> fileData = read_file(path);
-
-            int resType = 0;
-            std::string ext = transformToLower(path.extension().string());
-            if (ext == ".dds" || ext == ".tga")
-                resType = 1;    // @todo
-            auto hash = to_hash(path.stem().string().c_str());
-            Mods[hash] = Mod{ path, resType, std::move(fileData) };
-            printf(__FUNCTION__ ": found name = %s\nhash = 0x%08X\n", path.stem().string().c_str(), hash);
-        }
-    }
-}
-#else
 static void enumerate_mods() {
     namespace fs = std::filesystem;
 
-    const fs::path modsDir = fs::current_path() / "mods";
+    const fs::path modsDir = fs::current_path() / MOD_DIR;
     if (!fs::is_directory(modsDir))
         return;
 
@@ -45,6 +24,8 @@ static void enumerate_mods() {
             std::string ext = transformToLower(path.extension().string());
             if (ext == ".dds" || ext == ".tga")
                 resType = 1; // @todo
+            else if (ext == ".pcmesh")  // @todo: other exts
+                resType = TLRESOURCE_TYPE_MESH_FILE;
 
             const uint32_t nameHash = to_hash(path.stem().string().c_str());
             const uint64_t pathHash = make_key(nameHash, dirHash);
@@ -74,15 +55,14 @@ static void enumerate_mods() {
     }
 }
 
-
 inline fs::path redirect_to_mods(std::string_view inPath)
 {
     fs::path input(inPath);
     fs::path base = fs::current_path(); 
-    fs::path mods = base / "mods";
+    fs::path mods = base / MOD_DIR;
 
     if (!input.is_absolute()) {
-        return (fs::path("mods") / input).lexically_normal();
+        return (fs::path(MOD_DIR) / input).lexically_normal();
     }
 
     fs::path input_can, base_can;
@@ -108,7 +88,41 @@ inline fs::path redirect_to_mods(std::string_view inPath)
         return (mods / rel).lexically_normal();
     return (mods / input_can.filename()).lexically_normal();
 }
-#endif
+
+
+
+struct generic_mash_header {
+    int32_t total_size;
+    int32_t flags;
+    int32_t class_id;
+    int32_t pad;
+};
+
+typedef void(__cdecl* set_active_resource_context_t)(resource_pack_slot* pack_slot);
+set_active_resource_context_t set_active_resource_context_orig;
+
+void hk_set_active_resource_context(resource_pack_slot* pack_slot)
+{
+    set_active_resource_context_orig(pack_slot);
+    if (pack_slot)
+        current_pack = pack_slot->field_4.m_hash;
+}
+
+
+typedef int(__cdecl* nflopenfile_t)(int, const char*);
+nflopenfile_t nflopenfile_orig;
+
+int hk_nflopenfile(int type, const char* str)
+{
+    auto modPath = redirect_to_mods(str);
+    printf(__FUNCTION__": searching for %s\n", modPath.string().c_str());
+    if (fs::exists(modPath)) {
+        printf(__FUNCTION__": found %s\n", modPath.string().c_str());
+        return nflopenfile_orig(type, modPath.string().c_str());
+    }
+    return nflopenfile_orig(type, str);
+}
+
 
 // texture reads
 typedef bool(__cdecl* nglLoadTextureTM2_t)(char* tex, uint8_t* a2);
@@ -120,16 +134,15 @@ bool hk_nglLoadTextureTM2(char* tex, uint8_t* a2)
     resource_key key;
     key.m_hash = hash;
     key.m_type = 6;
-    printf(__FUNCTION__ ": searching for 0x%08X\\0x%08X%s\n", current_pack, key.m_hash, resource_key_type_ext[PLATFORM][key.m_type]);
+    //printf(__FUNCTION__ ": searching for %s\\0x%08X%s\n", current_pack != rootDir ? lookup_string(current_pack) : ".", key.m_hash, resource_key_type_ext[PLATFORM][key.m_type]);
 
-    if (auto mod = getModOfType(&key, current_pack)) {
+    if (auto mod = getModOfResType(&key, current_pack)) {
         printf(__FUNCTION__ ": found %s\n", mod->Path.string().c_str());
-        a2 = mod->Data.data();
+        a2 = reinterpret_cast<uint8_t*>(mod->Data.data());
     }
 
     return nglLoadTextureTM2(tex, a2);
 }
-
 
 // resource reads
 typedef unsigned __int8* (__cdecl* get_resource_t)(const resource_key*, int*, resource_pack_slot**);
@@ -140,20 +153,23 @@ unsigned __int8* __cdecl hk_get_resource(const resource_key* resource_id, int* s
     const char* req_ext = resource_key_type_ext[PLATFORM][resource_id->m_type];
 
     uint8_t* ret = get_resource_orig(resource_id, size, slot);
-    if (!ret)
+    if (!ret || resource_id->m_type == 3)
         return ret;
 
-    printf(__FUNCTION__ ": searching for 0x%08X\\0x%08X%s\n", current_pack, req_hash, req_ext);
-    auto mod = getModOfType(resource_id, current_pack);
+
+    auto packhash = current_pack;
+    printf(__FUNCTION__ ": searching for %s\\%s%s\n", lookup_string(packhash), lookup_string(req_hash), req_ext);
+    auto mod = getModOfResType(resource_id, packhash);
     if (mod) {
         printf(__FUNCTION__ ": found %s\n", mod->Path.string().c_str());
-
-        if (size) *size = static_cast<int>(mod->Data.size());
-        return mod->Data.data();
+        if (mod) {
+            if (size) *size = (int)mod->Data.size();
+            ret = reinterpret_cast<uint8_t*>(mod->Data.data());
+        }
+        printf("ret = 0x%08X\n", ret);
     }
     return ret;
 }
-
 typedef unsigned __int8* (__thiscall* get_resource_dir_t)(resource_directory*, const resource_key*, int*, resource_pack_slot**);
 get_resource_dir_t get_resource_dir_orig;
 
@@ -167,37 +183,80 @@ unsigned __int8* __fastcall hk_get_resource_dir(resource_directory* self, void* 
     if (!ret)
         return ret;
 
-    printf(__FUNCTION__ ": searching for 0x%08X\\0x%08X%s\n", current_pack, req_hash, req_ext);
-    if (Mod* mod = getModOfType(resource_id, current_pack)) {
-        printf(__FUNCTION__ ": found %s\n", mod->Path.string().c_str());
+    uint32_t dirHash = current_pack;
+    if (self->pack_slot)
+        dirHash = self->pack_slot->field_4.m_hash;
 
-        if (size) *size = static_cast<int>(mod->Data.size());
-        return mod->Data.data();
+    printf(__FUNCTION__ ": searching for %s\\%s%s\n", lookup_string(dirHash), lookup_string(req_hash), req_ext);
+    if (Mod* mod = getModOfResType(resource_id, dirHash)) {
+        printf(__FUNCTION__ ": found %s\n", mod->Path.string().c_str());
+        if (mod) {
+            if (size) *size = (int)mod->Data.size();
+            ret = reinterpret_cast<uint8_t*>(mod->Data.data());
+        }
+        printf("ret = 0x%08X\n", ret);
+        return ret;
     }
     return ret;
 }
 
-typedef void (__cdecl* set_active_resource_context_t)(resource_pack_slot* pack_slot);
-set_active_resource_context_t set_active_resource_context_orig;
+struct tlFixedString {
+    uint32_t hash;
+    char name[28];
+};
 
-void hk_set_active_resource_context(resource_pack_slot* pack_slot)
+typedef char* (__thiscall * get_tlresource_t)(resource_directory* self, tlFixedString* out_loc_, tlresource_type tlres_type);
+get_tlresource_t get_tlresource_orig;
+
+
+char* __fastcall hk_get_tlresource(resource_directory* self, void* edx, tlFixedString* out_loc_, tlresource_type tlres_type)
 {
-    set_active_resource_context_orig(pack_slot);
-    if (pack_slot)
-        current_pack = pack_slot->field_4.m_hash;
+    char* ret = get_tlresource_orig(self, out_loc_, tlres_type);
+
+    if (ret) {
+
+        uint32_t dirHash = rootDir;
+        if (self->pack_slot) {
+            dirHash = self->pack_slot->field_4.m_hash;
+        }
+        const char* ext = nullptr;
+        auto iter = tlres_to_res_key.find(tlres_type);
+        if (iter != tlres_to_res_key.end()) {
+            ext = resource_key_type_ext[PLATFORM][iter->second];
+
+            auto hash = out_loc_->hash;
+            char* s = lookup_string(hash);
+            printf(__FUNCTION__ ": searching for %s\\%s%s\n", lookup_string(dirHash), s ? s : std::format("0x{:08X}", hash).c_str(), ext);
+
+            if (auto mod = findModOfTlResType(make_key(out_loc_->hash, self->pack_slot->field_4.m_hash), tlres_type)) {
+                ret = reinterpret_cast<char*>(mod->Data.data());
+            }
+        }
+    }
+
+
+    return ret;
 }
 
 
-typedef int (__cdecl* nflopenfile_t)(int, const char*);
-nflopenfile_t nflopenfile_orig;
+typedef tlresource_location* (__thiscall * get_tlresource_loc_t)(resource_directory* self, unsigned __int16 idx, tlresource_type a3);
+get_tlresource_loc_t get_tlresource_loc_orig;
 
-int hk_nflopenfile(int type, const char* str)
+tlresource_location* __fastcall hk_get_tlresource_loc(resource_directory* self, void* edx, unsigned __int16 idx, tlresource_type a3)
 {
-    auto modPath = redirect_to_mods(str);
-    printf("searching for %s\n", modPath.string().c_str());
-    if (fs::exists(modPath)) {
-        printf("found %s\n", modPath.string().c_str());
-        return nflopenfile_orig(type, modPath.string().c_str());
+    tlresource_location* ret = get_tlresource_loc_orig(self, idx, a3);
+
+    auto iter = tlres_to_res_key.find(a3);
+    if (iter != tlres_to_res_key.end()) {
+        const char* ext = resource_key_type_ext[PLATFORM][iter->second];
+        uint32_t packhash = self->pack_slot->field_4.m_hash;
+        uint32_t hash = make_key(ret->name.source_hash_code, packhash);
+        char* s = lookup_string(ret->name.source_hash_code);
+        printf(__FUNCTION__ ": searching for %s\\%s%s\n", lookup_string(packhash), s ? s : std::format("0x{:08X}", ret->name.source_hash_code).c_str(), ext);
+
+        if (auto mod = findModOfTlResType(hash, a3)) {
+            ret->mesh_file = reinterpret_cast<char*>(mod->Data.data());
+        }
     }
-    return nflopenfile_orig(type, str);
+    return ret;
 }
