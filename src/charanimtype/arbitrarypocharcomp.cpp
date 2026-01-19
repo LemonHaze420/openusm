@@ -850,6 +850,8 @@ void ArbitraryPOCharComp_patch()
         set_vfunc_local(0x6C, &CharComponentBase::CalcPoseDataRemapped);
         set_vfunc_local(0x70, &CharComponentBase::AnimRelease);
         set_vfunc_local(0x74, &ArbitraryPOCharComp::CopyPoseDataToNothing);
+        set_vfunc_local(0x78, &CharComponentBase::AllocTempPoseData);
+        set_vfunc_local(0x7C, &CharComponentBase::DeleteTempPoseData);
     }
 
     {

@@ -220,6 +220,22 @@ void CharComponentBase::CopyPoseDataToNothing(void *a1, unsigned int a2, const v
     func(this, nullptr, a1, a2, a3);
 }
 
+void * CharComponentBase::AllocTempPoseData(uint32_t a1, const void *a2, const void *a3)
+{
+    if constexpr (1) {
+        void * (__fastcall *func)(void *, void *, uint32_t, const void *, const void *) = CAST(func, get_vfunc(m_vtbl, 0x78));
+        return func(this, nullptr, a1, a2, a3);
+    } else {
+        return nullptr;
+    }
+}
+
+void CharComponentBase::DeleteTempPoseData(uint32_t a1, void *a2)
+{
+      void (__fastcall *func)(void *, void *, uint32_t, void *) = CAST(func, get_vfunc(m_vtbl, 0x7C));
+      func(this, nullptr, a1, a2);
+}
+
 void CharComponentBase_patch()
 {
     FUNC_ADDRESS(address, &CharComponentBase::GetType);

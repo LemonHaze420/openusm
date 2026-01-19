@@ -139,6 +139,12 @@ struct CharComponentBase : BaseComponent {
 
     //virtual
     void CopyPoseDataToNothing(void *a1, unsigned int a2, const void *a3);
+
+    //virtual
+    void * AllocTempPoseData(uint32_t, const void *, const void *);
+
+    //virtual
+    void DeleteTempPoseData(uint32_t a1, void *a2);
 };
 
 extern void CharComponentBase_patch();
