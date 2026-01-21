@@ -9,12 +9,45 @@
 VALIDATE_SIZE(nalAnimClass<nalAnyPose>::nalInstanceClass, 0x14);
 
 template<>
+nalAnimClass<nalAnyPose>::nalInstanceClass::nalInstanceClass(
+        nalAnimClass<nalAnyPose> *a2,
+        nalBaseSkeleton *a3)
+{
+    this->m_vtbl = 0x0087E688;
+
+    float v3 = a2->field_38;
+    this->field_4 = a2->field_38;
+    float v4;
+    if ( equal(v3, 0.0f) ) {
+        v4 = 0.0f;
+    } else {
+        v4 = 1.0f / v3;
+    }
+
+    auto *Skeleton = a3;
+    this->field_8 = v4;
+    if ( a3 == nullptr ) {
+        Skeleton = CAST(Skeleton, a2->Skeleton);
+    }
+
+    this->field_C = Skeleton;
+    this->field_10 = a2;
+    ++a2->InstanceCount;
+}
+
+template<>
+nalAnimClass<nalAnyPose>::nalInstanceClass::~nalInstanceClass()
+{
+    this->m_vtbl = 0x0087E688;
+    --this->field_10->InstanceCount;
+}
+
+template<>
 void nalAnimClass<nalAnyPose>::nalInstanceClass::finalize(
         bool a2)
 {
-    auto v3 = this->field_10;
-    this->m_vtbl = 0x0087E688;
-    --v3->InstanceCount;
+    this->~nalInstanceClass();
+
     if ( (a2 & 1) != 0 ) {
         tlMemFree(this);
     }
@@ -76,3 +109,10 @@ void sub_826140(nalAnyPose &a1, Float a2, nalAnyPose &a3, nalAnyPose &a4)
     auto &v4 = *a1.field_0;
     sub_826190(v4, a2, v5, v6);
 }
+
+nalBaseInstance::nalBaseInstance(nalAnimClass<nalAnyPose> *a2, nalBaseSkeleton *a3) :
+    nalAnimClass<nalAnyPose>::nalInstanceClass(a2, a3)
+{
+    this->m_vtbl = 0x008AA28C;
+}
+

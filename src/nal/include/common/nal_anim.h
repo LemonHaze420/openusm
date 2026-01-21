@@ -35,20 +35,27 @@ struct nalAnimClass {
         float field_4;
         float field_8;
         nalBaseSkeleton *field_C;
-        nalAnimClass<nalAnyPose> *field_10;
+        nalAnimClass<T> *field_10;
+
+        nalInstanceClass(
+            nalAnimClass<T> *a2,
+            nalBaseSkeleton *a3);
+
+        //virtual
+        ~nalInstanceClass();
 
         //0x00796D50
         void finalize(bool a2);
     };
 
     std::intptr_t m_vtbl;
-    nalAnimClass<nalAnyPose> *field_4;
+    nalAnimClass<T> *field_4;
     tlFixedString field_8;
     int field_28;
     int Version;
     nalBaseSkeleton *Skeleton;
     int field_34;
-    int field_38;
+    float field_38;
     int InstanceCount;
 
     auto *GetSkeleton() {
@@ -60,6 +67,14 @@ struct nalAnimClass {
     //virtual
     void *VirtualCreateInstance(nalBaseSkeleton *Skel);
 };
+
+struct nalBaseInstance : nalAnimClass<nalAnyPose>::nalInstanceClass {
+    nalBaseInstance(
+        nalAnimClass<nalAnyPose> *a2,
+        nalBaseSkeleton *a3
+    );
+};
+
 
 extern bool Compatible(nalBaseSkeleton *a1, nalBaseSkeleton *a2);
 
