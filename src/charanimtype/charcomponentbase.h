@@ -35,7 +35,7 @@ struct CharComponentBase : BaseComponent {
         const void *a4);
 
     //virtual
-    void * GetSizeOfPerInstData(
+    int GetSizeOfPerInstData(
         uint32_t a2,
         const void *a3,
         const void *a4,
@@ -45,7 +45,7 @@ struct CharComponentBase : BaseComponent {
         bool a8);
 
     //virtual
-    void * GetAlignOfPerInstData(
+    int GetAlignOfPerInstData(
         uint32_t a2,
         const void *a3,
         const void *a4,
@@ -64,6 +64,9 @@ struct CharComponentBase : BaseComponent {
         const void *a7,
         const void *a8,
         bool a9);
+
+    //virtual
+    bool WillMapToComponentData(uint32_t, uint32_t, uint32_t);
 
     //virtual
     void * _CalcPoseDataDirect(
@@ -88,6 +91,9 @@ struct CharComponentBase : BaseComponent {
         const void *a8,
         const void *a9,
         void *);
+
+    //virtual
+    int GetDomain();
 
     //virtual
     //0x005EC590

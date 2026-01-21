@@ -45,7 +45,7 @@ int CharComponentBase::DoesContributeToPose(
     return this->m_pSubComponent->GetType();
 }
 
-void * CharComponentBase::GetSizeOfPerInstData(
+int CharComponentBase::GetSizeOfPerInstData(
         uint32_t a2,
         const void *a3,
         const void *a4,
@@ -62,13 +62,13 @@ void * CharComponentBase::GetSizeOfPerInstData(
       
         assert(!bIsRemapped && "Cannot delegate if remapped.");
 
-        return this->m_pSubComponent->ApplyPublicPerAnimDataOffset((uint32_t)a3, a4);
+        return int(this->m_pSubComponent->ApplyPublicPerAnimDataOffset((uint32_t)a3, a4));
     } else {
-        return (void *) THISCALL(0x005EC4E0, this, a2, a3, a4, a5, a6, a7, bIsRemapped);
+        return (int) THISCALL(0x005EC4E0, this, a2, a3, a4, a5, a6, a7, bIsRemapped);
     }
 }
 
-void * CharComponentBase::GetAlignOfPerInstData(
+int CharComponentBase::GetAlignOfPerInstData(
         uint32_t ,
         const void *a3,
         const void *a4,
@@ -82,11 +82,11 @@ void * CharComponentBase::GetAlignOfPerInstData(
 
     assert(!bIsRemapped && "Cannot delegate if remapped.");
 
-    return this->m_pSubComponent->GetTrajectoryData(
+    return int(this->m_pSubComponent->GetTrajectoryData(
         bit_cast<nalPositionOrientation *>(a3),
         (uint32_t)a4,
         a5,
-        a6);
+        a6));
 }
 
 void CharComponentBase::BuildPerInstData(
@@ -112,6 +112,12 @@ void CharComponentBase::BuildPerInstData(
            a6);
 }
 
+bool CharComponentBase::WillMapToComponentData(uint32_t a2, uint32_t a3, uint32_t a4)
+{
+    bool (__fastcall *func)(void *, void *edx, uint32_t, uint32_t, uint32_t) = CAST(func, get_vfunc(m_vtbl, 0x2C));
+    return func(this, nullptr, a2, a3, a4);
+}
+
 void * CharComponentBase::_CalcPoseDataDirect(
         void *a2,
         uint32_t ,
@@ -127,14 +133,14 @@ void * CharComponentBase::_CalcPoseDataDirect(
 
     assert(this->m_pSubComponent != nullptr && "Must have a subcomponent in order to delegate to it.");
 
-    return this->m_pSubComponent->GetSizeOfPerInstData(
+    return bit_cast<void *>(this->m_pSubComponent->GetSizeOfPerInstData(
             bit_cast<uint32_t>(a2),
             bit_cast<const void *>(a4),
             bit_cast<const void *>(a5),
             a6,
             a7,
             a8,
-            (bool)a9);
+            (bool)a9));
 }
 
 void CharComponentBase::CalcPoseDataRemapped(
@@ -149,6 +155,12 @@ void CharComponentBase::CalcPoseDataRemapped(
         void *)
 {
     TRACE("CharComponentBase::CalcPoseDataRemapped");
+}
+
+int CharComponentBase::GetDomain()
+{
+    int (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x54));
+    return func(this);
 }
 
 int CharComponentBase::GetRemapSizeOfPerInstData(
