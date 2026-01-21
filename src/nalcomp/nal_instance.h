@@ -7,17 +7,39 @@
 
 namespace nalComp {
 
+struct nalCompAnim;
 struct nalCompSkeleton;
 
-struct nalCompInstance : nalAnimClass<nalAnyPose>::nalInstanceClass {
+struct nalCompInstance : nalBaseInstance {
 
-    void *field_14;
+    struct Internal {
+        int field_0;
+        int field_4;
+        int field_8;
+        void *field_C;
+        bool field_10;
+        bool field_11;
+        char field_12;
+        char field_13;
+    };
+
+    Internal *field_14;
     int field_18;
-    int field_1C;
+    void *field_1C;
+
+    nalCompInstance(
+        nalCompAnim *a2,
+        nalCompSkeleton *a3);
+
+    //0x00733D00
+    void ConstructInstance();
 
     nalCompSkeleton * GetSkeleton();
 
     nalCompAnim * GetAnim();
+
+    //virtual
+    ~nalCompInstance();
 
     //virtual
     //0x00744BA0
@@ -27,6 +49,21 @@ struct nalCompInstance : nalAnimClass<nalAnyPose>::nalInstanceClass {
             nalBasePose *a3,
             const nalBasePose *a4);
 
+    //virtual
+    //0x00736F70
+    void BuildDirectMapping();
+
+    //virtual
+    //0x0073E1A0
+    void BuildSkelRemapping();
+
+    //virtual
+    //0x0073E1A0
+    void BuildEmptyPoseArray();
+
+    //virtual
+    //0x00737130
+    void BuildPerInstData();
 
     //0x00733EA0
     void GetPose(
