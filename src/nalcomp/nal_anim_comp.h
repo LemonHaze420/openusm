@@ -64,6 +64,8 @@ struct nalCompSkeleton : nalBaseSkeleton {
 
     ComponentId GetComponentId(int a3);
 
+    int GetCompIxFromName(nalComp::ComponentId a2) const;
+
     CharComponentBase * GetComponent(int iCompIx);
 
     CharComponentBase * GetComponent(int iCompIx) const;
@@ -100,14 +102,16 @@ struct nalCompAnim {
     int *field_44;
     int field_48;
 
-    int GetCompPerAnimDataInt(int iCompIx);
+    void * GetCompPerAnimDataInt(int iCompIx);
 
     //0x00731E00
-    int GetCompAnimTrackData(int iCompIx);
+    void * GetCompAnimTrackData(int iCompIx);
 
     auto * GetSkeleton() {
         return this->field_30;
     }
+
+    bool DoesComponentAddToPose(int32_t iCompIx);
 };
 
 }

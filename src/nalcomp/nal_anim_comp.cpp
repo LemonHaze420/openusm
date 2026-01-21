@@ -229,7 +229,7 @@ void nalComp::nalCompSkeleton::ReMash(void *a2)
     }
 }
 
-int nalComp::nalCompAnim::GetCompPerAnimDataInt(int iCompIx)
+void * nalComp::nalCompAnim::GetCompPerAnimDataInt(int iCompIx)
 {
     TRACE("nalCompAnim::GetCompPerAnimDataInt");
 
@@ -238,7 +238,7 @@ int nalComp::nalCompAnim::GetCompPerAnimDataInt(int iCompIx)
 
     auto *v2 = this->field_40;
     if ( (v2[iCompIx] & 2) == 0 ) {
-        return 0;
+        return nullptr;
     }
 
     int iOffsetIx = 0;
@@ -254,11 +254,11 @@ int nalComp::nalCompAnim::GetCompPerAnimDataInt(int iCompIx)
     assert(*pPerAnimDataDir > iOffsetIx
             && "Bad per-anim data offset.");
 
-    auto result = (int)this->field_44 + pPerAnimDataDir[iOffsetIx + 1];
+    auto *result = (char *)this->field_44 + pPerAnimDataDir[iOffsetIx + 1];
     return result;
 }
 
-int nalComp::nalCompAnim::GetCompAnimTrackData(int iCompIx)
+void * nalComp::nalCompAnim::GetCompAnimTrackData(int iCompIx)
 {
     TRACE("nalCompAnim::GetCompAnimTrackData");
 
@@ -266,7 +266,7 @@ int nalComp::nalCompAnim::GetCompAnimTrackData(int iCompIx)
                 "Asked anim for a component that doesn't exist in skeleton.");
 
     if ( (this->field_40[iCompIx] & 1) == 0 ) {
-        return 0;
+        return nullptr;
     }
 
     int iOffsetIx = 0;
@@ -280,8 +280,35 @@ int nalComp::nalCompAnim::GetCompAnimTrackData(int iCompIx)
     auto *pTrackDataDir = (int *)this->field_48;
     assert(*pTrackDataDir > iOffsetIx && "Bad track data offset.");
 
-    auto result = pTrackDataDir[iOffsetIx + 1] + this->field_48;
+    auto *result = bit_cast<void *>(pTrackDataDir[iOffsetIx + 1] + this->field_48);
     return result;
+}
+
+bool nalComp::nalCompAnim::DoesComponentAddToPose(int32_t iCompIx)
+{
+    TRACE("nalCompAnim::DoesComponentAddToPose");
+
+    assert(iCompIx < this->GetSkeleton()->GetNumComponents() && "Asked anim for a component that doesn't exist in skeleton.");
+
+    if ( (this->field_40[iCompIx] & 1) != 0 ) {
+        return true;
+    }
+
+    if ( (this->field_40[iCompIx] & 2) == 0 ) {
+        return false;
+    }
+
+    auto *v4 = this->GetSkeleton();
+    auto *v10 = v4->GetComponent(iCompIx);
+    auto CompPerAnimDataInt = this->GetCompPerAnimDataInt(iCompIx);
+    auto v5 = this->GetSkeleton();
+    auto CompPerSkelDataInt = v5->GetCompPerSkelDataInt(iCompIx);
+    auto v6 = this->GetSkeleton();
+    auto v7 = v6->GetName(iCompIx);
+    return v10->DoesContributeToPose(
+            v7,
+            CompPerSkelDataInt,
+            CompPerAnimDataInt);
 }
 
 nalComp::ComponentId nalComp::nalCompSkeleton::GetComponentId(int iCompIx)
@@ -291,6 +318,23 @@ nalComp::ComponentId nalComp::nalCompSkeleton::GetComponentId(int iCompIx)
     auto v3 = this->GetName(iCompIx);
     ComponentId result {v3, type};
     return result;
+}
+
+int nalComp::nalCompSkeleton::GetCompIxFromName(nalComp::ComponentId a2) const
+{
+    if ( !this->m_iNumComponents ) {
+        return -1;
+    }
+
+    for ( int i = 0; i < this->m_iNumComponents; ++i )
+    {
+        auto &v5 = this->field_70[i];
+        if ( v5.m_component->GetType() == int(a2.field_4) && a2.field_0 == v5.m_name ) {
+            return i;
+        }
+    }
+
+    return -1;
 }
 
 CharComponentBase * nalComp::nalCompSkeleton::GetComponent(int iCompIx)
