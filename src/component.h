@@ -40,7 +40,7 @@ struct BaseComponent {
         const void *a4);
 
     //virtual
-    void * GetSizeOfPerInstData(
+    int GetSizeOfPerInstData(
         uint32_t a2,
         const void *a3,
         const void *a4,

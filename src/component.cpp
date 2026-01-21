@@ -57,7 +57,7 @@ void BaseComponent::BuildBoneMatrices(
 
 }
 
-void * BaseComponent::GetSizeOfPerInstData(
+int BaseComponent::GetSizeOfPerInstData(
         uint32_t a2,
         const void *a3,
         const void *a4,
@@ -67,7 +67,7 @@ void * BaseComponent::GetSizeOfPerInstData(
         bool a8)
 {
 
-    void * (__fastcall *func)(
+    int (__fastcall *func)(
         void *self,
         void *,
         uint32_t a2,
