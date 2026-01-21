@@ -11,16 +11,6 @@ namespace nalChar {
 
 struct nalCharSkeleton;
 
-struct nalCharInstance : nalComp::nalCompInstance {
-
-    //virtual
-    void VirtualGetPose(
-        Float a1,
-        Float a2,
-        nalBasePose *a3,
-        const nalBasePose *a4);
-};
-
 struct nalCharAnim : nalComp::nalCompAnim {
     struct vtbl {
         void *field_0;
@@ -45,6 +35,30 @@ struct nalCharAnim : nalComp::nalCompAnim {
     void * GetPerAnimDataByName(CharComponentBase::Names a2);
 
     static int vtbl_ptr;
+};
+
+struct nalCharInstance : nalComp::nalCompInstance {
+
+    void finalize(bool);
+
+    nalCharInstance(
+        nalCharAnim *a2,
+        nalCharSkeleton *a3);
+
+    //virtual
+    //0x005F1060
+    ~nalCharInstance();
+
+    //virtual
+    void VirtualGetPose(
+        Float a1,
+        Float a2,
+        nalBasePose *a3,
+        const nalBasePose *a4);
+
+    //virtual
+    //0x005F08A0
+    void BuildPerInstData();
 };
 
 
