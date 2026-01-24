@@ -13,15 +13,25 @@ void nalChar::nalCharInstance::finalize(bool a2)
 {
     this->~nalCharInstance();
     if ( (a2 & 1) != 0 ) {
-        tlMemFree(this);
+        delete(this);
     }
+}
+
+void * nalChar::nalCharInstance::operator new(size_t size)
+{
+    return tlMemAlloc(size, 8u, 0);
+}
+
+void nalChar::nalCharInstance::operator delete(void *ptr)
+{
+    tlMemFree(ptr);
 }
 
 nalChar::nalCharInstance::nalCharInstance(
         nalChar::nalCharAnim *a2,
         nalChar::nalCharSkeleton *a3) : nalCompInstance(a2, a3)
 {
-    this->m_vtbl = 0x00C83F50;
+    this->m_vtbl = 0x00891FF4;
     this->ConstructInstance();
 }
 
@@ -305,6 +315,20 @@ void nalChar::nalCharInstance::BuildPerInstData()
     delete[](v77);
 }
 
+nalChar::nalCharInstance * nalChar::nalCharAnim::CreateInstance(nalChar::nalCharSkeleton *a2)
+{
+    auto *result = new nalCharInstance(this, a2);
+    return result;
+}
+
+nalComp::nalCompInstance * nalChar::nalCharAnim::VirtualCreateInstance(
+        nalBaseSkeleton *a1)
+{
+    TRACE("nalCharAnim::VirtualCreateInstance");
+
+    return this->CreateInstance(bit_cast<nalCharSkeleton *>(a1));
+}
+
 void * nalChar::nalCharAnim::GetPerAnimDataByName(CharComponentBase::Names a2)
 {
     TRACE("nalCharAnim::GetPerAnimDataByName");
@@ -323,8 +347,17 @@ void * nalChar::nalCharAnim::GetPerAnimDataByName(CharComponentBase::Names a2)
 void nalCharInstance_patch()
 {
     {
-        FUNC_ADDRESS(address, &nalChar::nalCharInstance::VirtualGetPose);
-        set_vfunc(0x00891FF8, address);
+        auto constexpr address_vtbl = 0x00891FF4;
+
+        set_vfunc(address_vtbl + 0x4, func_address(&nalChar::nalCharInstance::VirtualGetPose));
+        set_vfunc(address_vtbl + 0x8, func_address(&nalComp::nalCompInstance::_BuildDirectMapping));
+
+        set_vfunc(address_vtbl + 0x10, func_address(&nalComp::nalCompInstance::_BuildEmptyPoseArray));
+    }
+
+    {
+        FUNC_ADDRESS(address, &nalChar::nalCharAnim::VirtualCreateInstance);
+        set_vfunc(0x00891FE0, address);
     }
 
     {

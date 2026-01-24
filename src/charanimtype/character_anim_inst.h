@@ -10,8 +10,13 @@ struct nalBasePose;
 namespace nalChar {
 
 struct nalCharSkeleton;
+struct nalCharInstance;
 
 struct nalCharAnim : nalComp::nalCompAnim {
+
+    //0x005FB5B0
+    nalChar::nalCharInstance * CreateInstance(nalCharSkeleton *a1);
+
     struct vtbl {
         void *field_0;
         void *finalize;
@@ -24,9 +29,14 @@ struct nalCharAnim : nalComp::nalCompAnim {
         vtbl(void *, void *, void *, void *, CheckVersion_t a4) : CheckVersion(a4) {}
     };
 
+    //virtual
     bool CheckVersion() {
         return this->field_2C == 0x10003;
     }
+
+    //virtual
+    //0x005FB5A0
+    nalComp::nalCompInstance * VirtualCreateInstance(nalBaseSkeleton *a1);
 
     auto * GetSkeleton() {
         return this->field_30;
@@ -40,6 +50,10 @@ struct nalCharAnim : nalComp::nalCompAnim {
 struct nalCharInstance : nalComp::nalCompInstance {
 
     void finalize(bool);
+
+    void * operator new(size_t size);
+
+    void operator delete(void *ptr);
 
     nalCharInstance(
         nalCharAnim *a2,
