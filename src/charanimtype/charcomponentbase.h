@@ -29,6 +29,7 @@ struct CharComponentBase : BaseComponent {
     uint32_t GetType();
     
     //virtual
+    //0x005EC5D0
     int DoesContributeToPose(
         uint32_t a2,
         const void *a3,

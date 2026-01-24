@@ -304,6 +304,10 @@ void nalChar_patch()
     }
 
     {
+        set_vfunc(0x00891FC4, func_address(&nalComp::nalCompSkeleton::_DoesComponentHavePoseTrackData));
+    }
+
+    {
         FUNC_ADDRESS(address, &nalChar::nalCharPose::InitializePoseDataFromSkel);
         set_vfunc(0x00891A5C, address);
     }

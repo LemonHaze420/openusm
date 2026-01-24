@@ -39,6 +39,8 @@ int CharComponentBase::DoesContributeToPose(
         const void *,
         const void *)
 {
+    TRACE("CharComponentBase::DoesContributeToPose");
+
     assert(this->m_pSubComponent != nullptr
             && "Must have a subcomponent in order to delegate to it.");
 
@@ -250,12 +252,16 @@ void CharComponentBase::DeleteTempPoseData(uint32_t a1, void *a2)
 
 void CharComponentBase_patch()
 {
-    FUNC_ADDRESS(address, &CharComponentBase::GetType);
-    SET_JUMP(0x005EC4B0, address);
+    {
+        FUNC_ADDRESS(address, &CharComponentBase::GetType);
+        SET_JUMP(0x005EC4B0, address);
+    }
 
     {
-        FUNC_ADDRESS(address, &CharComponentBase::GetSizeOfPerInstData);
-        set_vfunc(0x00891A84, address);
+        auto constexpr address_vtbl = 0x00891A68;
+
+        set_vfunc(address_vtbl + 0x18, func_address(&CharComponentBase::DoesContributeToPose));
+        set_vfunc(address_vtbl + 0x1C, func_address(&CharComponentBase::GetSizeOfPerInstData));
     }
 
     {
