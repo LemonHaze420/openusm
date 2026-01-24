@@ -82,7 +82,7 @@ template<typename T>
 inline T *nalAnimPtrCast(nalAnimClass<nalAnyPose> *a1)
 {
     if ( a1 != nullptr
-        && a1->m_vtbl == T::vtbl_ptr() )
+        && a1->m_vtbl == T::vtbl_ptr )
     {
         return bit_cast<T *>(a1);
     }

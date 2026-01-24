@@ -29,17 +29,26 @@ namespace als
         return func(this);
     }
 
+    float als_meta_anim_base::get_anim_duration() const
+    {
+        float (__fastcall *func)(const void *) = CAST(func, get_vfunc(m_vtbl, 0x24));
+        return func(this);
+    }
+
     nalBaseSkeleton *als_meta_anim_base::get_skeleton()
     {
         nalBaseSkeleton * (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x28));
         return func(this);
     }
 
-    float als_meta_anim_base::get_anim_duration() const
+    void * als_meta_anim_base::create_anim_inst(
+            nalBaseSkeleton *a1,
+            nalAnimClass<nalAnyPose> *a2,
+            als::animation_logic_system *a3,
+            als::state_machine *a4)
     {
-        sp_log("0x%08X", m_vtbl);
-        float (__fastcall *func)(const void *) = CAST(func, get_vfunc(m_vtbl, 0x24));
-        return func(this);
+        void * (__fastcall *func)(void *, void *edx, nalBaseSkeleton *, nalAnimClass<nalAnyPose> *, als::animation_logic_system *, als::state_machine *) = CAST(func, get_vfunc(m_vtbl, 0x2C));
+        return func(this, nullptr, a1, a2, a3, a4);
     }
 
     int als_meta_anim_base::get_mash_sizeof() const

@@ -53,7 +53,7 @@ void als_nal_meta_anim::create(als_meta_anim_base *a2) {
     }
 }
 
-void *als_nal_meta_anim::create_anim_inst(
+void * als_nal_meta_anim::create_anim_inst(
         nalBaseSkeleton *a2,
         animation_logic_system *a3,
         state_machine *a4)
@@ -62,19 +62,27 @@ void *als_nal_meta_anim::create_anim_inst(
 
     sp_log("0x%08X", this->field_40->m_vtbl);
 
-    struct {
-        char field_0[0x2C];
-        void * (__fastcall *func)(void *, void *,
-                nalBaseSkeleton *,
-                als_nal_meta_anim *,
-                animation_logic_system *,
-                state_machine *);
-    } *vtbl = CAST(vtbl, this->field_40->m_vtbl);
-    return vtbl->func(this->field_40, nullptr,
-           a2,
-           this,
-           a3,
-           a4);
+    if constexpr (1) {
+        return this->field_40->create_anim_inst(
+                a2,
+                this,
+                a3,
+                a4);
+    } else {
+        struct {
+            char field_0[0x2C];
+            void * (__fastcall *func)(void *, void *,
+                    nalBaseSkeleton *,
+                    als_nal_meta_anim *,
+                    animation_logic_system *,
+                    state_machine *);
+        } *vtbl = CAST(vtbl, this->field_40->m_vtbl);
+        return vtbl->func(this->field_40, nullptr,
+               a2,
+               this,
+               a3,
+               a4);
+    }
 }
 
 

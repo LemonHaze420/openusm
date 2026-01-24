@@ -1,6 +1,7 @@
 #pragma once
 
 #include "mash_virtual_base.h"
+#include "nal_anim.h"
 #include "fixedstring.h"
 
 struct from_mash_in_place_constructor;
@@ -8,6 +9,9 @@ struct nalBaseSkeleton;
 
 namespace als
 {
+    struct animation_logic_system;
+    struct state_machine;
+
     struct als_meta_anim_base : mash_virtual_base
     {
         int field_4;
@@ -32,10 +36,17 @@ namespace als
         bool is_anim_trajectory_relative() const;
 
         //virtual
+        float get_anim_duration() const;
+
+        //virtual
         nalBaseSkeleton *get_skeleton();
 
         //virtual
-        float get_anim_duration() const;
+        void * create_anim_inst(
+                nalBaseSkeleton *a1,
+                nalAnimClass<nalAnyPose> *a2,
+                als::animation_logic_system *a3,
+                als::state_machine *a4);
 
         //virtual
         int get_mash_sizeof() const;

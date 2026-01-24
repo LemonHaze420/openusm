@@ -448,15 +448,15 @@ void * nal_anim_controller::get_anim_ptr(Float priority)
     return sub_8520A0(&this->my_player, priority);
 }
 
-void *nal_anim_controller::std_play_method::CreateInstance(
+void * nal_anim_controller::std_play_method::CreateInstance(
         nalAnimClass<nalAnyPose> *a1,
         nalBaseSkeleton *a2,
         void *pParameter)
 {
     TRACE("nal_anim_controller::std_play_method::CreateInstance");
 
-    if constexpr (0) {
-        if ( nalAnimPtrCast<als::als_nal_meta_anim>(a1) != nullptr ) {
+    if constexpr (1) {
+        if ( nalAnimPtrCast<als::als_nal_meta_anim>(a1) == nullptr ) {
             return a1->VirtualCreateInstance(a2);
         }
 
@@ -476,27 +476,19 @@ void *nal_anim_controller::std_play_method::CreateInstance(
 
         auto *v8 = nalAnimPtrCast<als::als_nal_meta_anim>(a1);
 
-        void * (__fastcall *func)(void *, void *,
-                    nalBaseSkeleton *,
-                    als::als_nal_meta_anim *,
-                    als::animation_logic_system *,
-                    als::state_machine *) = CAST(func, get_vfunc(v8->field_40->m_vtbl, 0x2C));
-        return func(v8->field_40, nullptr,
-                    a2,
-                    v8,
-                    my_als,
-                    als_layer_internal);
-
-        /*
         return v8->create_anim_inst(
                                    a2,
                                    my_als,
                                    als_layer_internal);
-        */
     } else {
-        return (void *) THISCALL(0x004A6050, this, a1, a2, pParameter);
+        void * (__fastcall *func)(
+                void *,
+                void *edx,
+                nalAnimClass<nalAnyPose> *,
+                nalBaseSkeleton *,
+                void *) = CAST(func, 0x004A6050);
+        return func(this, nullptr, a1, a2, pParameter);
     }
-
 }
 
 void nal_anim_controller_patch()
