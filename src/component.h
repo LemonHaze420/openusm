@@ -50,6 +50,27 @@ struct BaseComponent {
         bool a8);
 
     //virtual
+    int GetAlignOfPerInstData(
+        uint32_t a2,
+        const void *a3,
+        const void *a4,
+        const void *a5,
+        const void *a6,
+        const void *a7,
+        bool bIsRemapped);
+
+    //virtual
+    void BuildPerInstData(
+        void *a2,
+        uint32_t ,
+        const void *a4,
+        const void *a5,
+        const void *a6,
+        const void *,
+        const void *,
+        bool bIsRemapped);
+
+    //virtual
     void DestroyPerInstData(
         void *a2,
         uint32_t a3,

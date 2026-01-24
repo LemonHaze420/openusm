@@ -66,7 +66,6 @@ int BaseComponent::GetSizeOfPerInstData(
         const void *a7,
         bool a8)
 {
-
     int (__fastcall *func)(
         void *self,
         void *,
@@ -78,6 +77,52 @@ int BaseComponent::GetSizeOfPerInstData(
         const void *a7,
         bool a8) = CAST(func, get_vfunc(this->m_vtbl, 0x1C));
     return func(this, nullptr, a2, a3, a4, a5, a6, a7, a8);
+}
+
+int BaseComponent::GetAlignOfPerInstData(
+        uint32_t a2,
+        const void *a3,
+        const void *a4,
+        const void *a5,
+        const void *a6,
+        const void *a7,
+        bool bIsRemapped)
+{
+    int (__fastcall *func)(
+        void *,
+        void *edx,
+        uint32_t,
+        const void *,
+        const void *,
+        const void *,
+        const void *,
+        const void *,
+        bool) = CAST(func, get_vfunc(this->m_vtbl, 0x20));
+    return func(this, nullptr, a2, a3, a4, a5, a6, a7, bIsRemapped);
+}
+
+void BaseComponent::BuildPerInstData(
+        void *a2,
+        uint32_t a3,
+        const void *a4,
+        const void *a5,
+        const void *a6,
+        const void *a7,
+        const void *a8,
+        bool bIsRemapped)
+{
+    void (__fastcall *func)(
+        void *,
+        void *edx,
+        void *,
+        uint32_t,
+        const void *,
+        const void *,
+        const void *,
+        const void *,
+        const void *,
+        bool) = CAST(func, get_vfunc(this->m_vtbl, 0x24));
+    func(this, nullptr, a2, a3, a4, a5, a6, a7, a8, bIsRemapped);
 }
 
 void BaseComponent::DestroyPerInstData(

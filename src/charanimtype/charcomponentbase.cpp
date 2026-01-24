@@ -47,7 +47,7 @@ int CharComponentBase::DoesContributeToPose(
     return this->m_pSubComponent->GetType();
 }
 
-int CharComponentBase::GetSizeOfPerInstData(
+int CharComponentBase::_GetSizeOfPerInstData(
         uint32_t a2,
         const void *a3,
         const void *a4,
@@ -66,32 +66,49 @@ int CharComponentBase::GetSizeOfPerInstData(
 
         return int(this->m_pSubComponent->ApplyPublicPerAnimDataOffset((uint32_t)a3, a4));
     } else {
-        return (int) THISCALL(0x005EC4E0, this, a2, a3, a4, a5, a6, a7, bIsRemapped);
+        int (__fastcall *func)(void *, void *edx, uint32_t, const void *, const void *, const void *, const void *, const void *, bool) = CAST(func, 0x005EC4E0);
+        return func(this, nullptr, a2, a3, a4, a5, a6, a7, bIsRemapped);
     }
 }
 
-int CharComponentBase::GetAlignOfPerInstData(
-        uint32_t ,
+int CharComponentBase::_GetAlignOfPerInstData(
+        uint32_t a2,
         const void *a3,
         const void *a4,
         const void *a5,
         const void *a6,
-        const void *,
+        const void *a7,
         bool bIsRemapped)
 {
-    assert(this->m_pSubComponent != nullptr
-            && "Must have a subcomponent in order to delegate to it.");
+    TRACE("CharComponentBase::GetAlignOfPerInstData");
 
-    assert(!bIsRemapped && "Cannot delegate if remapped.");
+    if constexpr (0) {
+        assert(this->m_pSubComponent != nullptr
+                && "Must have a subcomponent in order to delegate to it.");
 
-    return int(this->m_pSubComponent->GetTrajectoryData(
-        bit_cast<nalPositionOrientation *>(a3),
-        (uint32_t)a4,
-        a5,
-        a6));
+        assert(!bIsRemapped && "Cannot delegate if remapped.");
+
+        return int(this->m_pSubComponent->GetTrajectoryData(
+            bit_cast<nalPositionOrientation *>(a3),
+            (uint32_t)a4,
+            a5,
+            a6));
+    } else {
+        int (__fastcall *func)(
+            void *,
+            void *edx,
+            uint32_t,
+            const void *,
+            const void *,
+            const void *,
+            const void *,
+            const void *,
+            bool) = CAST(func, 0x005EC510);
+        return func(this, nullptr, a2, a3, a4, a5, a6, a7, bIsRemapped);
+    }
 }
 
-void CharComponentBase::BuildPerInstData(
+void CharComponentBase::_BuildPerInstData(
         void *a2,
         uint32_t ,
         const void *a4,
@@ -101,6 +118,8 @@ void CharComponentBase::BuildPerInstData(
         const void *,
         bool bIsRemapped)
 {
+    TRACE("CharComponentBase::BuildPerInstData");
+
     assert(this->m_pSubComponent != nullptr
             && "Must have a subcomponent in order to delegate to it.");
 
@@ -261,7 +280,7 @@ void CharComponentBase_patch()
         auto constexpr address_vtbl = 0x00891A68;
 
         set_vfunc(address_vtbl + 0x18, func_address(&CharComponentBase::DoesContributeToPose));
-        set_vfunc(address_vtbl + 0x1C, func_address(&CharComponentBase::GetSizeOfPerInstData));
+        set_vfunc(address_vtbl + 0x1C, func_address(&CharComponentBase::_GetSizeOfPerInstData));
     }
 
     {

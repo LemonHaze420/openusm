@@ -36,7 +36,8 @@ struct CharComponentBase : BaseComponent {
         const void *a4);
 
     //virtual
-    int GetSizeOfPerInstData(
+    //0x005EC4E0 
+    int _GetSizeOfPerInstData(
         uint32_t a2,
         const void *a3,
         const void *a4,
@@ -46,7 +47,8 @@ struct CharComponentBase : BaseComponent {
         bool a8);
 
     //virtual
-    int GetAlignOfPerInstData(
+    //0x005EC510
+    int _GetAlignOfPerInstData(
         uint32_t a2,
         const void *a3,
         const void *a4,
@@ -56,7 +58,8 @@ struct CharComponentBase : BaseComponent {
         bool a8);
 
     //virtual
-    void BuildPerInstData(
+    //0x005EC540
+    void _BuildPerInstData(
         void *a2,
         uint32_t a3,
         const void *a4,

@@ -55,6 +55,8 @@ struct nalCompInstance : nalBaseInstance {
     //0x00736F70
     void BuildDirectMapping();
 
+    void _BuildSkelRemapping();
+
     //virtual
     //0x0073E1A0
     void BuildSkelRemapping();
@@ -64,6 +66,8 @@ struct nalCompInstance : nalBaseInstance {
     //virtual
     //0x0073E1A0
     void BuildEmptyPoseArray();
+
+    void _BuildPerInstData();
 
     //virtual
     //0x00737130

@@ -72,7 +72,7 @@ struct nalCharInstance : nalComp::nalCompInstance {
 
     //virtual
     //0x005F08A0
-    void BuildPerInstData();
+    void _BuildPerInstData();
 };
 
 

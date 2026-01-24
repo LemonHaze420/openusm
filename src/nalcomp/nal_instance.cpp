@@ -159,7 +159,7 @@ void nalComp::nalCompInstance::BuildDirectMapping()
     func(this);
 }
 
-void nalComp::nalCompInstance::BuildSkelRemapping()
+void nalComp::nalCompInstance::_BuildSkelRemapping()
 {
     TRACE("nalComp::nalCompInstance::BuildSkelRemapping");
 
@@ -269,6 +269,12 @@ void nalComp::nalCompInstance::BuildSkelRemapping()
     }
 }
 
+void nalComp::nalCompInstance::BuildSkelRemapping()
+{
+    void (__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0xC));
+    func(this);
+}
+
 void nalComp::nalCompInstance::_BuildEmptyPoseArray()
 {
     TRACE("nalCompInstance::BuildEmptyPoseArray");
@@ -289,7 +295,7 @@ void nalComp::nalCompInstance::BuildEmptyPoseArray()
     func(this);
 }
 
-void nalComp::nalCompInstance::BuildPerInstData()
+void nalComp::nalCompInstance::_BuildPerInstData()
 {
     TRACE("nalCompInstance::BuildPerInstData");
 
@@ -420,6 +426,12 @@ void nalComp::nalCompInstance::BuildPerInstData()
     }
 }
 
+void nalComp::nalCompInstance::BuildPerInstData()
+{
+    void (__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x14));
+    func(this);
+}
+
 
 void nalComp::nalCompInstance::GetPose(
         Float a2,
@@ -528,7 +540,7 @@ void nalCompInstance_patch()
     {
         set_vfunc_local(0x4, &nalComp::nalCompInstance::VirtualGetPose);
         set_vfunc_local(0x8, &nalComp::nalCompInstance::_BuildDirectMapping);
-        set_vfunc_local(0xC, &nalComp::nalCompInstance::BuildSkelRemapping);
+        set_vfunc_local(0xC, &nalComp::nalCompInstance::_BuildSkelRemapping);
         //set_vfunc_local(0x10, &nalComp::nalCompInstance::BuildEmptyPoseArray);
         set_vfunc_local(0x14, &nalComp::nalCompInstance::BuildPerInstData);
     }
