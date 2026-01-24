@@ -33,6 +33,12 @@ struct usm_anim_player {
         int m_vtbl;
 
         //virtual
+        void Invoke(usm_anim_player<T, I> *a1);
+
+        //virtual
+        void Release();
+
+        //virtual
         void Reference();
     };
 

@@ -284,11 +284,26 @@ bool usm_anim_player<nalAnimClass<nalAnyPose>, 3>::nalAnimState::sub_4B0020(
 }
 
 template<>
+void usm_anim_player<nalAnimClass<nalAnyPose>, 3>::nalAnimCallback::Invoke(usm_anim_player<nalAnimClass<nalAnyPose>, 3> *a1)
+{
+    void (__fastcall *func)(void *, void *edx, void *) = CAST(func, get_vfunc(m_vtbl, 0x0));
+    func(this, nullptr, a1);
+}
+
+template<>
 void usm_anim_player<nalAnimClass<nalAnyPose>, 3>::nalAnimCallback::Reference()
 {
     void (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x4));
     func(this);
 }
+
+template<>
+void usm_anim_player<nalAnimClass<nalAnyPose>, 3>::nalAnimCallback::Release()
+{
+    void (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x8));
+    func(this);
+}
+
 
 template<>
 void usm_anim_player<nalAnimClass<nalAnyPose>, 3>::nalAnimState::sub_4AD850(
@@ -378,8 +393,8 @@ void usm_anim_player<nalAnimClass<nalAnyPose>, 3>::sub_4B06A0(Float a2)
         sp_log("0x%08X", this->field_20->field_C->m_vtbl);
     }
 
-    if constexpr (0) {
-#if 0
+    if constexpr (0)
+    {
         auto perf_counter = query_perf_counter();
         auto v4 = &this->field_20;
         ++this->field_28;
@@ -393,6 +408,7 @@ void usm_anim_player<nalAnimClass<nalAnyPose>, 3>::sub_4B06A0(Float a2)
                 {
                     if ( *v4 != v5 )
                     {
+                        usm_anim_player<nalAnimClass<nalAnyPose>, 3>::nalAnimState *v7 = nullptr;
                         do
                         {
                             auto v6 = *v4;
@@ -402,9 +418,9 @@ void usm_anim_player<nalAnimClass<nalAnyPose>, 3>::sub_4B06A0(Float a2)
                         while ( v7 != v5 );
                     }
                     *v4 = v5->field_40;
-                    auto v8 = v5->field_C;
-                    if ( v8 ) {
-                        (*(void (__thiscall **)(void *))(*(_DWORD *)v8 + 8))(v8);
+                    auto *v8 = v5->field_C;
+                    if ( v8 != nullptr ) {
+                        v8->Release();
                     }
 
                     auto v9 = v5->field_10;
@@ -413,7 +429,7 @@ void usm_anim_player<nalAnimClass<nalAnyPose>, 3>::sub_4B06A0(Float a2)
                     }
 
                     if ( v5->field_0 != nullptr ) {
-                        v5->field_0->base.m_vtbl->field_0(v5->field_0, 1);
+                        v5->field_0->finalize(true);
                     }
 
                     v5->field_40 = this->field_24;
@@ -435,17 +451,17 @@ void usm_anim_player<nalAnimClass<nalAnyPose>, 3>::sub_4B06A0(Float a2)
                 auto *v11 = this->field_14[v10];
                 auto *v12 = v11->field_10;
                 if ( v12 != nullptr ) {
-                    v12->m_vtbl->Advance(v12, v11, a2);
+                    v12->Advance(v11, a2);
                 } else {
-                    v11->field_18 = v11->field_0->base.field_8 * v11->field_4 * a2 + v11->field_18;
+                    v11->field_18 = v11->field_0->field_8 * v11->field_4 * a2 + v11->field_18;
                 }
 
                 auto *v13 = v11->field_C;
                 if ( v13 != nullptr && v11->field_18 >= v11->field_8 )
                 {
-                    v11->field_C = 0;
-                    (**(void (__thiscall ***)(void *, usm_anim_player__nalAnimClass__nalAnyPose__3 *))v13)(v13, this);
-                    (*(void (__thiscall **)(void *))(*(_DWORD *)v13 + 8))(v13);
+                    v11->field_C = nullptr;
+                    v13->Invoke(this);
+                    v13->Release();
                 }
 
                 auto v14 = v11->field_20.update(a2);
@@ -486,7 +502,7 @@ LABEL_32:
                 auto v19 = *v18;
                 auto *v20 = (*v18)->field_C;
                 if ( v20 != nullptr ) {
-                    (*(void (**)(void))(*(_DWORD *)v20 + 8))();
+                    v20->Release();
                 }
 
                 auto *v21 = v19->field_10;
@@ -506,7 +522,6 @@ LABEL_32:
 
         this->field_10 = a2a;
         qword_9770D0.QuadPart += query_perf_counter().QuadPart - v22.QuadPart;
-#endif
     } else {
         THISCALL(0x004B06A0, this, a2);
     }
