@@ -49,6 +49,8 @@ struct nalCompInstance : nalBaseInstance {
             nalBasePose *a3,
             const nalBasePose *a4);
 
+    void _BuildDirectMapping();
+
     //virtual
     //0x00736F70
     void BuildDirectMapping();
@@ -56,6 +58,8 @@ struct nalCompInstance : nalBaseInstance {
     //virtual
     //0x0073E1A0
     void BuildSkelRemapping();
+
+    void _BuildEmptyPoseArray();
 
     //virtual
     //0x0073E1A0

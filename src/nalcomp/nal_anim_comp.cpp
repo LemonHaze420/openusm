@@ -63,31 +63,29 @@ void nalComp::nalCompSkeleton::VirtualBlend(
     nalComp::Blend(*v6, a2, *v7, *v8);
 }
 
-int nalComp::nalCompSkeleton::ConvertCompIxToPoseIx(uint32_t a2) const
+int nalComp::nalCompSkeleton::ConvertCompIxToPoseIx(uint32_t iCompIx) const
 {
-    auto *v2 = this->field_70;
-    if ( (v2[a2].field_8 & 1) != 0 ) {
+    assert(int(iCompIx) < m_iNumComponents && "Asked for a component index that doesn't exist.");
+
+    if ( this->field_70[iCompIx].sub_671D5F(0) ) {
         return -1;
     }
 
-    uint32_t NumComponents = this->m_iNumComponents;
-    int result = -1;
-    auto *v6 = (char *)&v2->field_8;
-
-    for ( uint32_t v5 {0}; v5 < NumComponents; ++v5 )
+    int iPoseIx = -1;
+    for ( uint32_t i {0}; i < uint32_t(this->m_iNumComponents); ++i )
     {
-        if ( (*v6 & 1) == 0 ) {
-            ++result;
+        if ( !this->field_70[i].sub_671D5F(0) ) {
+            ++iPoseIx;
         }
 
-        if ( v5 == a2 ) {
+        if ( i == iCompIx ) {
             break;
         }
-
-        v6 += 12;
     }
 
-    return result;
+    assert(iPoseIx != -1 && "A skeleton has pose data, but no component takes responsibility for this.");
+
+    return iPoseIx;
 }
 
 int nalComp::nalCompSkeleton::GetComponentPoseDataOffset(uint32_t iCompIx) const
@@ -143,9 +141,17 @@ char * nalComp::nalCompSkeleton::GetCompPerSkelDataInt(int iCompIx) const
     return result;
 }
 
+bool nalComp::nalCompSkeleton::_DoesComponentHavePoseTrackData(int a2) const
+{
+    TRACE("nalCompSkeleton::DoesComponentHavePoseTrackData");
+
+    return this->ConvertCompIxToPoseIx(a2) != -1;
+}
+
 bool nalComp::nalCompSkeleton::DoesComponentHavePoseTrackData(int a2) const
 {
-  return this->ConvertCompIxToPoseIx(a2) != -1;
+    bool (__fastcall *func)(const void *, void *edx, int) = CAST(func, get_vfunc(m_vtbl, 0x3C));
+    return func(this, nullptr, a2);
 }
 
 void nalComp::nalCompSkeleton::UnMash(void *a2, BaseComponent **a3, unsigned int iNumComponents)
@@ -236,8 +242,7 @@ void * nalComp::nalCompAnim::GetCompPerAnimDataInt(int iCompIx)
     assert(iCompIx < this->GetSkeleton()->GetNumComponents()
             && "Asked anim for a component that doesn't exist in skeleton.");
 
-    auto *v2 = this->field_40;
-    if ( (v2[iCompIx] & 2) == 0 ) {
+    if ( (this->field_40[iCompIx] & 2) == 0 ) {
         return nullptr;
     }
 
@@ -298,14 +303,14 @@ bool nalComp::nalCompAnim::DoesComponentAddToPose(int32_t iCompIx)
         return false;
     }
 
-    auto *v4 = this->GetSkeleton();
-    auto *v10 = v4->GetComponent(iCompIx);
+    auto *skeleton = this->GetSkeleton();
+    auto *component = skeleton->GetComponent(iCompIx);
     auto CompPerAnimDataInt = this->GetCompPerAnimDataInt(iCompIx);
-    auto v5 = this->GetSkeleton();
-    auto CompPerSkelDataInt = v5->GetCompPerSkelDataInt(iCompIx);
-    auto v6 = this->GetSkeleton();
-    auto v7 = v6->GetName(iCompIx);
-    return v10->DoesContributeToPose(
+    auto CompPerSkelDataInt = skeleton->GetCompPerSkelDataInt(iCompIx);
+
+    auto v7 = skeleton->GetName(iCompIx);
+
+    return component->DoesContributeToPose(
             v7,
             CompPerSkelDataInt,
             CompPerAnimDataInt);
@@ -363,6 +368,10 @@ int nalComp::nalCompSkeleton::GetName(int iCompIx) const
 
 void nalCompAnim_patch()
 {
+    {
+        set_vfunc(0x00732000, func_address(&nalComp::nalCompSkeleton::_DoesComponentHavePoseTrackData));
+    }
+
     {
         FUNC_ADDRESS(address, &nalComp::nalCompSkeleton::UnMash);
         set_vfunc(0x00891FC8, address);

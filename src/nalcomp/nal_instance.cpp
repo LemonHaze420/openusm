@@ -5,6 +5,7 @@
 #include "nal_anim_comp.h"
 #include "trace.h"
 #include "utility.h"
+#include "vtbl.h"
 
 #include <vector.hpp>
 
@@ -113,18 +114,17 @@ void nalComp::nalCompInstance::VirtualGetPose(
     }
 }
 
-void nalComp::nalCompInstance::BuildDirectMapping()
+void nalComp::nalCompInstance::_BuildDirectMapping()
 {
-    TRACE("nalComp::nalCompInstance::BuildDirectMapping");
+    TRACE("nalCompInstance::BuildDirectMapping");
 
-    if constexpr (0) {
+    if constexpr (1) {
         auto *Skeleton = this->GetSkeleton();
         auto NumComponents = Skeleton->GetNumComponents();
         this->field_18 = 0;
         for ( int i = 0; i < NumComponents; ++i )
         {
-            auto *v4 = this->GetSkeleton();
-            if ( v4->DoesComponentHavePoseTrackData(i) ) {
+            if ( Skeleton->DoesComponentHavePoseTrackData(i) ) {
                 ++this->field_18;
             }
         }
@@ -133,12 +133,10 @@ void nalComp::nalCompInstance::BuildDirectMapping()
         int v7 = 0;
         for ( int iCompIx = 0; iCompIx < NumComponents; ++iCompIx )
         {
-            auto *v5 = this->GetSkeleton();
-            if ( v5->DoesComponentHavePoseTrackData(iCompIx) )
+            if ( Skeleton->DoesComponentHavePoseTrackData(iCompIx) )
             {
                 this->field_14[v7].field_8 = iCompIx;
-                auto *v2 = this->GetSkeleton();
-                this->field_14[v7].field_4 = v2->ConvertCompIxToPoseIx(iCompIx);
+                this->field_14[v7].field_4 = Skeleton->ConvertCompIxToPoseIx(iCompIx);
                 this->field_14[v7].field_0 = iCompIx;
                 this->field_14[v7].field_10 = 1;
 
@@ -153,6 +151,12 @@ void nalComp::nalCompInstance::BuildDirectMapping()
         void (__fastcall * func)(void *) = CAST(func, 0x00736F70);
         func(this);
     }
+}
+
+void nalComp::nalCompInstance::BuildDirectMapping()
+{
+    void (__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x8));
+    func(this);
 }
 
 void nalComp::nalCompInstance::BuildSkelRemapping()
@@ -265,8 +269,10 @@ void nalComp::nalCompInstance::BuildSkelRemapping()
     }
 }
 
-void nalComp::nalCompInstance::BuildEmptyPoseArray()
+void nalComp::nalCompInstance::_BuildEmptyPoseArray()
 {
+    TRACE("nalCompInstance::BuildEmptyPoseArray");
+
     _std::vector<int> v4 {};
     for ( int i = 0; i < this->field_18; ++i )
     {
@@ -275,6 +281,12 @@ void nalComp::nalCompInstance::BuildEmptyPoseArray()
         if ( !Anim->DoesComponentAddToPose(v2) )
             v4.push_back(this->field_14[i].field_4);
     }
+}
+
+void nalComp::nalCompInstance::BuildEmptyPoseArray()
+{
+    void (__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x10));
+    func(this);
 }
 
 void nalComp::nalCompInstance::BuildPerInstData()
@@ -515,9 +527,13 @@ void nalCompInstance_patch()
 
     {
         set_vfunc_local(0x4, &nalComp::nalCompInstance::VirtualGetPose);
-        set_vfunc_local(0x8, &nalComp::nalCompInstance::BuildDirectMapping);
+        set_vfunc_local(0x8, &nalComp::nalCompInstance::_BuildDirectMapping);
         set_vfunc_local(0xC, &nalComp::nalCompInstance::BuildSkelRemapping);
-        set_vfunc_local(0x10, &nalComp::nalCompInstance::BuildEmptyPoseArray);
+        //set_vfunc_local(0x10, &nalComp::nalCompInstance::BuildEmptyPoseArray);
         set_vfunc_local(0x14, &nalComp::nalCompInstance::BuildPerInstData);
+    }
+
+    {
+        SET_JUMP(0x0073E1A0, func_address(&nalComp::nalCompInstance::_BuildEmptyPoseArray));
     }
 }

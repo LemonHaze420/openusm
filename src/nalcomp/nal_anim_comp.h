@@ -72,6 +72,8 @@ struct nalCompSkeleton : nalBaseSkeleton {
 
     int GetName(int iCompIx) const;
 
+    bool _DoesComponentHavePoseTrackData(int a2) const;
+
     //virtual
     //0x00732000
     bool DoesComponentHavePoseTrackData(int a2) const;
