@@ -11,7 +11,7 @@
 Var<int[28]> ent_v_table_lookup{0x0095A5F0};
 Var<int[28]> ent_size_lookup{0x0095A2A0};
 
-Var<int [11]> ifc_v_table_lookup {0x0095A66C};
+std::array<int, 11> &ifc_v_table_lookup = var<std::array<int, 11>>(0x0095A66C);
 
 void fix_entity_v_table(char *addr, eEntityMashTypeEnum type)
 {
@@ -28,15 +28,15 @@ void fix_entity_v_table(char *addr, eEntityMashTypeEnum type)
 
 void fix_ifc_v_table(char *addr, eEntityMashIFCTypeEnum ifc_type)
 {
-    assert(addr[0] == ((const char *)&MASH_V_TABLE_VAL)[0] || addr[0] == ((char *)&ifc_v_table_lookup()[ifc_type])[0]);
+    assert(addr[0] == ((const char *)&MASH_V_TABLE_VAL)[0] || addr[0] == ((char *)&ifc_v_table_lookup[ifc_type])[0]);
 
-    assert(addr[1] == ((const char *)&MASH_V_TABLE_VAL)[1] || addr[1] == ((char *)&ifc_v_table_lookup()[ifc_type])[1]);
+    assert(addr[1] == ((const char *)&MASH_V_TABLE_VAL)[1] || addr[1] == ((char *)&ifc_v_table_lookup[ifc_type])[1]);
 
-    assert(addr[2] == ((const char *)&MASH_V_TABLE_VAL)[2] || addr[2] == ((char *)&ifc_v_table_lookup()[ifc_type])[2]);
+    assert(addr[2] == ((const char *)&MASH_V_TABLE_VAL)[2] || addr[2] == ((char *)&ifc_v_table_lookup[ifc_type])[2]);
 
-    assert(addr[3] == ((const char *)&MASH_V_TABLE_VAL)[3] || addr[3] == ((char *)&ifc_v_table_lookup()[ifc_type])[3]);
+    assert(addr[3] == ((const char *)&MASH_V_TABLE_VAL)[3] || addr[3] == ((char *)&ifc_v_table_lookup[ifc_type])[3]);
 
-    std::memcpy(addr, &ifc_v_table_lookup()[ifc_type], 4);
+    std::memcpy(addr, &ifc_v_table_lookup[ifc_type], 4);
 }
 
 void construct_v_table_lookup() {

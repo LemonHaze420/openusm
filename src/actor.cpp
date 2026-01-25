@@ -91,7 +91,7 @@ void actor::common_construct()
     this->field_88 = nullptr;
     this->adv_ptrs = nullptr;
     this->anim_ctrl = nullptr;
-    this->m_skeleton= nullptr;
+    this->m_skeleton = nullptr;
     this->field_A4 = 0;
     this->m_resource_context = nullptr;
     this->field_A8[0] = 0;
@@ -773,7 +773,7 @@ void actor::_un_mash(generic_mash_header *a3, void *a4, generic_mash_data_ptrs *
                 v4->rebase_shared(4u);
 
                 this->m_facial_expression_interface = v4->get<facial_expression_interface>();
-                this->m_facial_expression_interface->m_vtbl = ifc_v_table_lookup()[4];
+                this->m_facial_expression_interface->m_vtbl = ifc_v_table_lookup[4];
                 this->m_facial_expression_interface->un_mash(
                     a3,
                     this,
@@ -858,18 +858,16 @@ void actor::_un_mash(generic_mash_header *a3, void *a4, generic_mash_data_ptrs *
         {
             if ( (v70 & 0x10) != 0 )
             {
-                v71 = 4 - (v69 & 3);
-                if ( v71 < 4 )
-                    v4->field_0 = (unsigned __int8 *)(v71 + v69);
+				a5->rebase(4u);
 
-                this->my_physical_interface = (physical_interface *)v4->field_0;
-                v4->field_0 += 432;
-                this->my_physical_interface->m_vtbl = (physical_interface__vtbl *)ifc_v_table_lookup[2];
-                ((void (__stdcall *)(generic_mash_header *, actor *, physical_interface *, generic_mash_data_ptrs *))this->my_physical_interface->m_vtbl->field_1C)(
-                a3,
-                this,
-                this->m_physical_interface,
-                v4);
+                this->m_physical_interface = a5->get<physical_interface>();
+
+                this->m_physical_interface->m_vtbl = ifc_v_table_lookup[2];
+                this->m_physical_interface->un_mash(
+					a3,
+					this,
+					this->m_physical_interface,
+					v4);
             }
             else
             {

@@ -27,7 +27,7 @@ extern void entity_mash_patch();
 extern Var<int[28]> ent_v_table_lookup;
 extern Var<int[28]> ent_size_lookup;
 
-extern Var<int [11]> ifc_v_table_lookup;
+extern std::array<int, 11> &ifc_v_table_lookup;
 
 enum eEntityMashTypeEnum
 {};

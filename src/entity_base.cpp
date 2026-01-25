@@ -699,7 +699,7 @@ void entity_base::_un_mash(generic_mash_header *a1, void *a2, generic_mash_data_
                 a3->rebase(4u);
 
                 this->my_sound_and_pfx_interface = a3->get<sound_and_pfx_interface>();
-                this->my_sound_and_pfx_interface->m_vtbl = ifc_v_table_lookup()[12];
+                this->my_sound_and_pfx_interface->m_vtbl = ifc_v_table_lookup[12];
                 this->my_sound_and_pfx_interface->un_mash(
                     a1,
                     this,
