@@ -21,7 +21,19 @@ nalChar::nalCharInstance::nalCharInstance(
         nalChar::nalCharAnim *a2,
         nalChar::nalCharSkeleton *a3) : nalCompInstance(a2, a3)
 {
-    this->m_vtbl = 0x00891FF4;
+    if constexpr (1) {
+        static vtbl g_vtbl = {
+            func_address(&finalize),
+            func_address(&_VirtualGetPose),
+            func_address(&_BuildDirectMapping),
+            func_address(&_BuildSkelRemapping),
+            func_address(&_BuildEmptyPoseArray),
+            func_address(&_BuildPerInstData),
+        };
+        this->m_vtbl = CAST(m_vtbl, &g_vtbl);
+    } else {
+        this->m_vtbl = 0x00891FF4;
+    }
     this->ConstructInstance();
 }
 
@@ -84,7 +96,7 @@ nalChar::nalCharInstance::~nalCharInstance()
     this->field_18 = 0;
 }
 
-void nalChar::nalCharInstance::VirtualGetPose(
+void nalChar::nalCharInstance::_VirtualGetPose(
         Float a1,
         Float a2,
         nalBasePose *a3,
@@ -342,16 +354,6 @@ void * nalChar::nalCharAnim::GetPerAnimDataByName(CharComponentBase::Names a2)
 
 void nalCharInstance_patch()
 {
-    {
-        auto constexpr address_vtbl = 0x00891FF4;
-
-        set_vfunc(address_vtbl + 0x4, func_address(&nalChar::nalCharInstance::VirtualGetPose));
-        set_vfunc(address_vtbl + 0x8, func_address(&nalComp::nalCompInstance::_BuildDirectMapping));
-        set_vfunc(address_vtbl + 0xC, func_address(&nalComp::nalCompInstance::_BuildSkelRemapping));
-        set_vfunc(address_vtbl + 0x10, func_address(&nalComp::nalCompInstance::_BuildEmptyPoseArray));
-        set_vfunc(address_vtbl + 0x10, func_address(&nalChar::nalCharInstance::_BuildPerInstData));
-    }
-
     {
         FUNC_ADDRESS(address, &nalChar::nalCharAnim::VirtualCreateInstance);
         set_vfunc(0x00891FE0, address);

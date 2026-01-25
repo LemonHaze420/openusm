@@ -51,6 +51,14 @@ struct nalCharInstance : nalComp::nalCompInstance {
 
     void finalize(bool);
 
+    struct vtbl {
+        void *finalize;
+        void *VirtualGetPose;
+        void *BuildDirectMapping;
+        void *BuildSkelRemapping;
+        void *BuildEmptyPoseArray;
+        void *BuildPerInstData;
+    };
 
     nalCharInstance(
         nalCharAnim *a2,
@@ -61,7 +69,7 @@ struct nalCharInstance : nalComp::nalCompInstance {
     ~nalCharInstance();
 
     //virtual
-    void VirtualGetPose(
+    void _VirtualGetPose(
         Float a1,
         Float a2,
         nalBasePose *a3,
