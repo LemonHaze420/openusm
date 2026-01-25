@@ -457,7 +457,7 @@ void * nal_anim_controller::std_play_method::CreateInstance(
 
     if constexpr (1) {
         if ( nalAnimPtrCast<als::als_nal_meta_anim>(a1) == nullptr ) {
-            return a1->VirtualCreateInstance(a2);
+            return a1->CreateInstance(a2);
         }
 
         assert(pParameter != nullptr && "Must have a non-null parameter for meta anim playing.");

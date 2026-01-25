@@ -15,7 +15,19 @@ nalComp::nalCompInstance::nalCompInstance(
         nalComp::nalCompAnim *a2,
         nalComp::nalCompSkeleton *a3) : nalBaseInstance(bit_cast<nalAnimClass<nalAnyPose> *>(a2), a3)
 {
-    this->m_vtbl = 0x008AA370;
+    if constexpr (1) {
+        static vtbl g_vtbl = {
+            func_address(&finalize),
+            func_address(&_VirtualGetPose),
+            func_address(&_BuildDirectMapping),
+            func_address(&_BuildSkelRemapping),
+            func_address(&_BuildEmptyPoseArray),
+            func_address(&_BuildPerInstData),
+        };
+        this->m_vtbl = CAST(m_vtbl, &g_vtbl);
+    } else {
+        this->m_vtbl = 0x008AA370;
+    }
     this->field_14 = nullptr;
     this->field_18 = 0;
     this->field_1C = nullptr;
@@ -94,7 +106,7 @@ nalComp::nalCompAnim * nalComp::nalCompInstance::GetAnim()
     return bit_cast<nalCompAnim *>(this->field_10);
 }
 
-void nalComp::nalCompInstance::VirtualGetPose(
+void nalComp::nalCompInstance::_VirtualGetPose(
         Float a1,
         Float a2,
         nalBasePose *a3,
@@ -529,20 +541,6 @@ void nalCompInstance_patch()
         auto address = func_address(&nalComp::nalCompInstance::ConstructInstance);
         REDIRECT(0x005FB604, address);
         REDIRECT(0x00744E34, address);
-    }
-
-    static auto constexpr address_vtbl = 0x008AA370;
-
-    auto set_vfunc_local = [](std::intptr_t offset, auto func) {
-        set_vfunc(address_vtbl + offset, func_address(func));
-    };
-
-    {
-        set_vfunc_local(0x4, &nalComp::nalCompInstance::VirtualGetPose);
-        set_vfunc_local(0x8, &nalComp::nalCompInstance::_BuildDirectMapping);
-        set_vfunc_local(0xC, &nalComp::nalCompInstance::_BuildSkelRemapping);
-        //set_vfunc_local(0x10, &nalComp::nalCompInstance::BuildEmptyPoseArray);
-        set_vfunc_local(0x14, &nalComp::nalCompInstance::BuildPerInstData);
     }
 
     {

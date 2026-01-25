@@ -12,6 +12,15 @@ struct nalCompSkeleton;
 
 struct nalCompInstance : nalBaseInstance {
 
+    struct vtbl {
+        void *finalize;
+        void *VirtualGetPose;
+        void *BuildDirectMapping;
+        void *BuildSkelRemapping;
+        void *BuildEmptyPoseArray;
+        void *BuildPerInstData;
+    };
+
     struct Internal {
         int field_0;
         int field_4;
@@ -43,7 +52,7 @@ struct nalCompInstance : nalBaseInstance {
 
     //virtual
     //0x00744BA0
-    void VirtualGetPose(
+    void _VirtualGetPose(
             Float a1,
             Float a2,
             nalBasePose *a3,
