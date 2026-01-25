@@ -17,16 +17,6 @@ void nalChar::nalCharInstance::finalize(bool a2)
     }
 }
 
-void * nalChar::nalCharInstance::operator new(size_t size)
-{
-    return tlMemAlloc(size, 8u, 0);
-}
-
-void nalChar::nalCharInstance::operator delete(void *ptr)
-{
-    tlMemFree(ptr);
-}
-
 nalChar::nalCharInstance::nalCharInstance(
         nalChar::nalCharAnim *a2,
         nalChar::nalCharSkeleton *a3) : nalCompInstance(a2, a3)

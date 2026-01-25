@@ -41,6 +41,10 @@ struct nalAnimClass {
             nalAnimClass<T> *a2,
             nalBaseSkeleton *a3);
 
+        void * operator new(size_t size);
+
+        void operator delete(void *ptr);
+
         //virtual
         ~nalInstanceClass();
 

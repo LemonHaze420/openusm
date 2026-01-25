@@ -36,6 +36,18 @@ nalAnimClass<nalAnyPose>::nalInstanceClass::nalInstanceClass(
 }
 
 template<>
+void * nalAnimClass<nalAnyPose>::nalInstanceClass::operator new(size_t size)
+{
+    return tlMemAlloc(size, 8u, 0);
+}
+
+template<>
+void nalAnimClass<nalAnyPose>::nalInstanceClass::operator delete(void *ptr)
+{
+    tlMemFree(ptr);
+}
+
+template<>
 nalAnimClass<nalAnyPose>::nalInstanceClass::~nalInstanceClass()
 {
     this->m_vtbl = 0x0087E688;
@@ -49,7 +61,7 @@ void nalAnimClass<nalAnyPose>::nalInstanceClass::finalize(
     this->~nalInstanceClass();
 
     if ( (a2 & 1) != 0 ) {
-        tlMemFree(this);
+        delete(this);
     }
 }
 

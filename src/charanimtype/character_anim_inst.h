@@ -51,9 +51,6 @@ struct nalCharInstance : nalComp::nalCompInstance {
 
     void finalize(bool);
 
-    void * operator new(size_t size);
-
-    void operator delete(void *ptr);
 
     nalCharInstance(
         nalCharAnim *a2,
