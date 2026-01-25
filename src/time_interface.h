@@ -29,7 +29,7 @@ struct time_interface : entity_interface {
     //0x004D9870
     void add_to_time_ifc_list();
 
-    bool is_combat_dilated();
+    bool is_combat_dilated() const;
 
     double sub_4ADE50();
 };
