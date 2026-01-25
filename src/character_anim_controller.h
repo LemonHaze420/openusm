@@ -70,14 +70,15 @@ struct character_anim_controller : nal_anim_controller {
 
     void * operator new(size_t size, void *);
 
-    void play_base_layer_anim(
+    //virtual
+    //0x004A6220
+    void _play_base_layer_anim(
         nalAnimClass<nalAnyPose> *a2,
         Float a3,
         Float a4,
         bool a5,
         bool a6,
         void *a7);
-
 
     //virtual
     //0x00492C20

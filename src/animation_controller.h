@@ -72,7 +72,7 @@ struct animation_controller {
             bool a7,
             als::layer_types);
 
-    anim_ctrl_handle *_play_base_layer_anim(
+    anim_ctrl_handle *_play_base_layer_anim_patch(
         anim_ctrl_handle *,
         const string_hash &a3,
         Float a4,
@@ -95,7 +95,7 @@ struct animation_controller {
         Float a4,
         bool a5,
         bool a6,
-        void *a7);
+        void *a7) /* = 0 */;
 
     //virtual
     void kill_domain(uint32_t, Float) /* = 0 */;

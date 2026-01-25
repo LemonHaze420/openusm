@@ -111,7 +111,7 @@ void * character_anim_controller::operator new(size_t , void *ptr)
     return ptr;
 }
 
-void character_anim_controller::play_base_layer_anim(
+void character_anim_controller::_play_base_layer_anim(
         nalAnimClass<nalAnyPose> *anim_ptr,
         Float a3,
         Float a4,
@@ -386,8 +386,8 @@ void character_anim_controller_patch()
     REDIRECT(0x004CC50D, &character_anim_controller__ctor);
 
     {
-        FUNC_ADDRESS(address, &character_anim_controller::play_base_layer_anim);
-        SET_JUMP(0x004A6220, address);
+        FUNC_ADDRESS(address, &character_anim_controller::_play_base_layer_anim);
+        set_vfunc(0x00880F98, address);
     }
 
     {

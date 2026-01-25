@@ -39,6 +39,7 @@
 #include "anim_resource_handler.h"
 #include "anim_record.h"
 #include "app.h"
+#include "arbitrarypocharcomp.h"
 #include "base_ai_core.h"
 #include "base_ai_res_state_graph.h"
 #include "base_ai_resource_handler.h"
@@ -51,6 +52,7 @@
 #include "camera_mode.h"
 #include "camera_target_info.h"
 #include "character_anim_controller.h"
+#include "character_anim_inst.h"
 #include "character_pose_skel.h"
 #include "character_viewer.h"
 #include "charcomponentbase.h"
@@ -83,6 +85,7 @@
 #include "entity_handle_manager.h"
 #include "entity_mash.h"
 #include "event_manager.h"
+#include "fakerootentcompdecomp.h"
 #include "fe_dialog_text.h"
 #include "fe_mini_map_widget.h"
 #include "fe_mission_text.h"
@@ -93,6 +96,7 @@
 #include "fe_menu_nav_bar.h"
 #include "filespec.h"
 #include "fileusm.h"
+#include "flexiblecharcomp.h"
 #include "frontendmenusystem.h"
 #include "func_wrapper.h"
 #include "fx_cache.h"
@@ -102,6 +106,8 @@
 #include "game_data_meat.h"
 #include "game_settings.h"
 #include "gamepadinput.h"
+#include "genericcharcomp.h"
+#include "generic_anim_controller.h"
 #include "geometry_manager.h"
 #include "ghetto_mash_file_header.h"
 #include "glass_house_manager.h"
@@ -2461,6 +2467,59 @@ BOOL install_redirects()
 
     Timer_patch();
 
+    traffic_patch();
+
+    vehicle_patch();
+
+    usm_anim_player_patch();
+
+    animation_controller_patch();
+
+    character_anim_controller_patch();
+
+    nal_anim_controller_patch();
+
+    generic_anim_controller_patch();
+
+    nalCharInstance_patch();
+
+    nalChar_patch();
+
+    nalCompInstance_patch();
+
+    CharComponentBase_patch();
+
+    GenericCharComp_patch();
+
+    nalCompAnim_patch();
+
+    actor_patch();
+
+    ArbitraryPOCharComp_patch();
+
+    FlexibleCharComp_patch();
+
+    FakerootEntCompDecomp_patch();
+
+    if constexpr (1)
+    {
+        worldly_pack_slot_patch();
+
+        nsl_patch();
+
+        wds_script_manager_patch();
+
+        world_dynamics_system_patch();
+
+        entity_handle_manager_patch();
+
+        eligible_pack_patch();
+
+        chuck_callbacks_patch();
+    }
+
+    return true;
+
     //REDIRECT(0, sub_5952D0);
 
     //standalone patches
@@ -2523,8 +2582,6 @@ BOOL install_redirects()
 
         script_controller_patch();
 
-        nal_anim_controller_patch();
-
         geometry_manager_patch();
 
         input_mgr_patch();
@@ -2555,8 +2612,6 @@ BOOL install_redirects()
 
     ngl_patch();
 
-    actor_patch();
-
     city_lights_patch();
 
     mashable_vector_patch();
@@ -2586,8 +2641,6 @@ BOOL install_redirects()
 
         resource_key_patch();
     }
-
-    traffic_patch();
 
     return true;
 
@@ -2645,8 +2698,6 @@ BOOL install_redirects()
         matrix4x4_patch();
 
         ai_interaction_data_patch();
-
-        animation_controller_patch();
 
         collision_capsule_patch();
 
@@ -2773,23 +2824,6 @@ BOOL install_redirects()
 
     if constexpr (1)
     {
-        worldly_pack_slot_patch();
-
-        nsl_patch();
-
-        wds_script_manager_patch();
-
-        world_dynamics_system_patch();
-
-        entity_handle_manager_patch();
-
-        eligible_pack_patch();
-
-        chuck_callbacks_patch();
-    }
-
-    if constexpr (1)
-    {
         os_file_patch();
 
         traffic_path_lane_patch();
@@ -2827,10 +2861,6 @@ BOOL install_redirects()
 
     if constexpr (1)
     {
-        character_anim_controller_patch();
-
-        usm_anim_player_patch();
-
         anim_handle_patch();
 
         plr_loco_crawl_state_patch();
@@ -2852,10 +2882,6 @@ BOOL install_redirects()
         hero_base_state_patch();
         
         enhanced_state_patch();
-
-        CharComponentBase_patch();
-        
-        nalChar_patch();
 
         ped_spawner_patch();
     }

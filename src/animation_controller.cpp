@@ -101,7 +101,7 @@ float sub_497DD0(nalComp::nalCompAnim *a1, int a2)
 
 }
 
-animation_controller::anim_ctrl_handle *animation_controller::_play_base_layer_anim(
+animation_controller::anim_ctrl_handle * animation_controller::_play_base_layer_anim_patch(
         animation_controller::anim_ctrl_handle *out,
         const string_hash &a3,
         Float a4,
@@ -400,13 +400,7 @@ void animation_controller_patch() {
     REDIRECT(0x0049B9B5, get_anim_by_hash);
 
     {
-        animation_controller::anim_ctrl_handle * (animation_controller::*func)(
-            animation_controller::anim_ctrl_handle *,
-            const string_hash &a3,
-            Float a4,
-            uint32_t a5,
-            bool a6) = &animation_controller::_play_base_layer_anim;
-        FUNC_ADDRESS(address, func);
+        FUNC_ADDRESS(address, &animation_controller::_play_base_layer_anim_patch);
         REDIRECT(0x004A652D, address);
     }
 
