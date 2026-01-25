@@ -100,6 +100,9 @@ public:
     //0x00537170
     void advance_entity_animations(Float a3);
 
+    //0x0050D2B0
+    bool is_entity_eligible_for_anim_advance(actor *a1);
+
     //0x00558370
     void frame_advance(Float a2);
 

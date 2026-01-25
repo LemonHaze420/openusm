@@ -10,7 +10,7 @@ namespace scratchpad_stack {
 Var<stack_allocator> stk {0x0095C724};
 }
 
-Var<bool> tlScratchpadLocked{0x00970D60};
+bool &tlScratchpadLocked = var<bool>(0x00970D60);
 
 void scratchpad_stack::save_state(stack_allocator *a1)
 {
@@ -24,7 +24,7 @@ void scratchpad_stack::restore_state(const stack_allocator &a1)
     TRACE("scratchpad_stack::restore_state");
 
     stk() = a1;
-    if (stk().get_total_allocated_bytes() == 0 && tlScratchpadLocked()) {
+    if (stk().get_total_allocated_bytes() == 0 && tlScratchpadLocked) {
         unlock();
     }
 }
@@ -35,15 +35,15 @@ int scratchpad_stack::get_total_allocated_bytes()
 }
 
 void scratchpad_stack::lock() {
-    assert(!tlScratchpadLocked() && "Scratchpad is already locked!");
+    assert(!tlScratchpadLocked && "Scratchpad is already locked!");
 
-    tlScratchpadLocked() = true;
+    tlScratchpadLocked = true;
 }
 
 void scratchpad_stack::unlock() {
-    assert(tlScratchpadLocked() && "Scratchpad is already unlocked!");
+    assert(tlScratchpadLocked && "Scratchpad is already unlocked!");
 
-    tlScratchpadLocked() = false;
+    tlScratchpadLocked = false;
 }
 
 void scratchpad_stack::reset() {

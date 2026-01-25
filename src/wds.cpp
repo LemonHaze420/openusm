@@ -3,6 +3,7 @@
 #include "aeps.h"
 #include "ai_path.h"
 #include "ai_player_controller.h"
+#include "als_animation_logic_system_interface.h"
 #include "base_ai_core.h"
 #include "beam.h"
 #include "box_trigger.h"
@@ -245,15 +246,94 @@ int world_dynamics_system::add_generator(force_generator *generator) {
     return THISCALL(0x005421B0, this, generator);
 }
 
-void world_dynamics_system::advance_entity_animations(Float a3) {
+void world_dynamics_system::advance_entity_animations(Float a3)
+{
     TRACE("world_dynamics_system::advance_entity_animations");
 
     if constexpr (0)
-    {}
+    {
+        als::animation_logic_system_interface::frame_advance_pre_controller_all_alses(a3);
+
+        for (auto *v6 : this->anim_ctrls)
+        {
+            if ( v6 != nullptr )
+            {
+                auto v15 = v6->field_4->get_my_vhandle().field_0;
+                moved_entities::add_moved(vhandle_type<entity>{v15});
+                if ( !v6->field_4->is_in_limbo() )
+                {
+                    auto v9 = v6->field_4;
+                    auto v8 = this->is_entity_eligible_for_anim_advance(v9);
+
+                    conglomerate *v19 = nullptr;
+                    auto *v5 = v6->field_4;
+                    if ( v5->is_a_conglomerate() ) {
+                        v19 = bit_cast<conglomerate *>(v6->field_4);
+                    }
+
+                    if ( v19 == nullptr || bit_cast<conglomerate *>(v19)->get_my_als() == nullptr )
+                    {
+                        float v13;
+                        if ( v6->field_4->has_time_ifc() )
+                        {
+                            auto *v11 = v6->field_4->time_ifc();
+                            v13 = v11->sub_4ADE50();
+                        }
+                        else
+                        {
+                            v13 = g_world_ptr->field_158.field_0;
+                        }
+
+                        auto v14 = v13 * a3;
+                        v6->frame_advance(
+                            v14,
+                            v8,
+                            0
+                        );
+                    }
+                }
+            }
+        }
+
+        als::animation_logic_system_interface::frame_advance_controller_all_als(a3);
+        als::animation_logic_system_interface::frame_advance_post_controller_all_alses(a3);
+
+        if constexpr (0) {
+            fixed_vector<animation_controller *, 200> v22 {};
+
+            for ( int i = 0; i < v22.size() ; ++i )
+            {
+                auto *v17 = v22.at(i);
+                auto *v10 = v17->field_4;
+                float v14;
+
+                if ( v10->has_time_ifc() )
+                {
+                    auto v12 = v10->time_ifc();
+                    v14 = v12->sub_4ADE50();
+                }
+                else
+                {
+                    v14 = g_world_ptr->field_158.field_0;
+                }
+
+                v17->offscreen_frame_advance(a3 * v14);
+            }
+        }
+
+        assert(!tlScratchpadLocked);
+    }
     else
     {
-        THISCALL(0x00537170, this, a3);
+        void (__fastcall *func)(void *, void *edx, Float) = CAST(func, 0x00537170);
+        func(this, nullptr, a3);
     }
+}
+
+bool world_dynamics_system::is_entity_eligible_for_anim_advance(actor *a1)
+{
+    bool (__fastcall *func)(void *, void *edx, actor *) = CAST(func, 0x0050D2B0);
+    return func(this, nullptr, a1);
 }
 
 void zero_xz_velocity_for_effectively_standing_physical_interfaces()

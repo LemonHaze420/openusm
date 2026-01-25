@@ -34,6 +34,6 @@ extern void term();
 
 extern bool sub_512730(void *a1);
 
-extern Var<bool> tlScratchpadLocked;
+extern bool &tlScratchpadLocked;
 
 extern void scratchpad_stack_patch();
