@@ -6,6 +6,7 @@
 #include "utility.h"
 
 namespace als {
+
 void animation_logic_system_interface::frame_advance_pre_controller_all_alses(Float a1)
 {
     TRACE("als::animation_logic_system_interface::frame_advance_pre_controller_all_alses");
@@ -83,6 +84,19 @@ void animation_logic_system_interface::frame_advance_pre_controller_all_alses(Fl
         CDECL_CALL(0x0049ED90, a1);
     }
 }
+
+void animation_logic_system_interface::frame_advance_controller_all_als(Float a1)
+{
+    void (*func)(Float) = CAST(func, 0x0049EED0);
+    func(a1);
+}
+
+void animation_logic_system_interface::frame_advance_post_controller_all_alses(Float a1)
+{
+    void (*func)(Float) = CAST(func, 0x0049EF00);
+    func(a1);
+}
+
 
 void animation_logic_system_interface::force_update(Float a2)
 {
