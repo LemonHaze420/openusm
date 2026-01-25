@@ -77,6 +77,13 @@ struct nalBaseInstance : nalAnimClass<nalAnyPose>::nalInstanceClass {
         nalAnimClass<nalAnyPose> *a2,
         nalBaseSkeleton *a3
     );
+
+    //virtual
+    void VirtualGetPose(
+            Float a1,
+            Float a2,
+            nalBasePose *a3,
+            const nalBasePose *a4);
 };
 
 

@@ -128,3 +128,17 @@ nalBaseInstance::nalBaseInstance(nalAnimClass<nalAnyPose> *a2, nalBaseSkeleton *
     this->m_vtbl = 0x008AA28C;
 }
 
+void nalBaseInstance::VirtualGetPose(
+        Float a1,
+        Float a2,
+        nalBasePose *a3,
+        const nalBasePose *a4)
+{
+    void (__fastcall *func)(void *, void *edx,
+            Float,
+            Float,
+            nalBasePose *,
+            const nalBasePose *) = CAST(func, get_vfunc(m_vtbl, 0x4));
+    func(this, nullptr, a1, a2, a3, a4);
+}
+
