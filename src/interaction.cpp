@@ -25,6 +25,18 @@ void interaction::set_enabled(bool a2) {
     }
 }
 
+void interaction::unmash(mash_info_struct *a1, void *)
+{
+    a1->unmash_class_in_place(this->field_4, this);
+    a1->unmash_class_in_place(this->field_18, this);
+    a1->unmash_class_in_place(this->field_2C, this);
+}
+
 int interaction::get_virtual_type_enum() {
     return 547;
+}
+
+int interaction::get_mash_sizeof() const
+{
+    return 0x48;
 }
