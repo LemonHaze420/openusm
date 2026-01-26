@@ -104,6 +104,8 @@ struct actor : entity {
 
     bool has_traffic_light_ifc();
 
+    void init_traffic_light_interface();
+
     traffic_light_interface *traffic_light_ifc();
 
     bool has_skeleton_ifc() const;

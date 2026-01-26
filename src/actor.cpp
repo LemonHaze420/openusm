@@ -986,6 +986,13 @@ void actor::_un_mash(generic_mash_header *a3, void *a4, generic_mash_data_ptrs *
     }
 }
 
+void actor::init_traffic_light_interface()
+{
+    assert(m_traffic_light_interface == nullptr);
+
+    this->m_traffic_light_interface = new traffic_light_interface {this};
+}
+
 void actor::create_player_controller(int a2) {
     assert(this->m_player_controller == nullptr);
 
