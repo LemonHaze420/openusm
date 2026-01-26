@@ -1,15 +1,17 @@
 #include "mash_info_struct.h"
 
 #include "ai_interaction_data.h"
-#include "base_ai_res_state_graph.h"
 #include "als_animation_logic_system_shared.h"
 #include "als_basic_rule_data.h"
 #include "als_dest_weight_data.h"
 #include "als_res_data.h"
+#include "base_ai_res_state_graph.h"
+#include "base_ai_data.h"
 #include "core_ai_resource.h"
 #include "cut_scene.h"
 #include "func_wrapper.h"
 #include "gab_manager.h"
+#include "interactable_interface.h"
 #include "nugget.h"
 #include "panelfile.h"
 #include "path_graph.h"
@@ -218,5 +220,25 @@ void mash_info_struct::construct_class(skeleton_interface *&a1)
         };
 
         func(a1, 1, 0);
+    }
+}
+
+template<>
+void mash_info_struct::construct_class(interactable_interface *&a1)
+{
+    if ( a1 != nullptr )
+    {
+        from_mash_in_place_constructor *v1 = nullptr;
+        *a1 = interactable_interface {v1};
+    }
+}
+
+template<>
+void mash_info_struct::construct_class(base_ai_data *&a1)
+{
+    if ( a1 != nullptr )
+    {
+        from_mash_in_place_constructor *v1 = nullptr;
+        *a1 = base_ai_data {v1};
     }
 }
