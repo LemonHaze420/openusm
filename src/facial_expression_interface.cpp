@@ -33,6 +33,11 @@ facial_expression_interface::facial_expression_interface(actor *a1) : actor_inte
     }
 }
 
+bool facial_expression_interface::is_dynamic() const
+{
+    return this->dynamic;
+}
+
 void facial_expression_interface::add_to_facial_expression_ifc_list() {
     THISCALL(0x006CFE50, this);
 }
