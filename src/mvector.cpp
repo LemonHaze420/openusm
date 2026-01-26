@@ -27,6 +27,7 @@
 #include "femultilinetext.h"
 #include "func_wrapper.h"
 #include "interact_sound_entry.h"
+#include "interaction.h"
 #include "layer_state_machine_shared.h"
 #include "mashed_state.h"
 #include "meta_anim_interact.h"
@@ -42,6 +43,7 @@
 #include "sound_alias_database.h"
 #include "token_def.h"
 #include "trace.h"
+#include "trigger_region.h"
 #include "vtbl.h"
 #include "web_interface.h"
 
@@ -552,6 +554,66 @@ void mVector<als::layer_state_machine_shared>::custom_unmash(mash_info_struct *a
                     mash::NORMAL_BUFFER,
 #endif 
                     v7 - sizeof(als::layer_state_machine_shared));
+            }
+
+            v5->unmash(a2, nullptr);
+        }
+    }
+
+    this->field_0 = (int)&a2->mash_image_ptr[0][a2->buffer_size_used[0] - (uint32_t)this];
+}
+
+template<>
+void mVector<interaction>::custom_unmash(mash_info_struct *a2, [[maybe_unused]] void *a3)
+{
+    TRACE("mVector<interaction>::custom_unmash");
+
+#ifdef TARGET_XBOX
+    this->field_C = this->m_size;
+    if (this->m_size <= 0)
+    {
+        this->m_data = nullptr;
+    }
+    else
+#else
+    if ( this->m_data != nullptr )
+#endif
+
+    {
+        this->m_data = (interaction **) a2->read_from_buffer(
+#ifdef TARGET_XBOX
+            mash::NORMAL_BUFFER,
+#endif
+                4 * this->m_size, 4);
+        for ( auto i = 0; i < this->m_size; ++i )
+        {
+
+            auto &v5 = this->m_data[i];
+
+            {
+                auto *v6 = a2->read_from_buffer(
+#ifdef TARGET_XBOX
+                    mash::NORMAL_BUFFER,
+#endif
+                    sizeof(als::layer_state_machine_shared), 0);
+
+                v5 = (interaction *)v6;
+                mash_virtual_base::fixup_vtable(v6);
+
+                {
+                    struct {
+                        int m_vtbl;
+                    } *tmp = CAST(tmp, v6);
+
+                    assert(tmp->m_vtbl == 0x0087E3A4);
+                }
+
+                auto v7 = v5->get_mash_sizeof();
+                a2->advance_buffer(
+#ifdef TARGET_XBOX
+                    mash::NORMAL_BUFFER,
+#endif
+                    v7 - sizeof(interaction));
             }
 
             v5->unmash(a2, nullptr);
@@ -1939,6 +2001,33 @@ void mVector<entity_viseme_entry>::custom_unmash(
             auto *v6 = (value_type *) a2->read_from_buffer(8, 4);
             v5 = v6;
             v5->unmash(a2, v6);
+        }
+    }
+
+    this->field_0 = (int)&a2->mash_image_ptr[0][a2->buffer_size_used[0] - (DWORD)this];
+}
+
+template<>
+void mVector<trigger_region>::custom_unmash(mash_info_struct *a2, void *)
+{
+    if ( this->m_data != nullptr )
+    {
+        this->m_data = (trigger_region **) a2->read_from_buffer(4 * this->m_size, 4);
+        for ( int i = 0; i < this->m_size; ++i )
+        {
+            auto &v5 = this->m_data[i];
+            auto *v6 = a2->read_from_buffer(sizeof(trigger_region), 0);
+            v5 = (trigger_region *)v6;
+			mash_virtual_base::fixup_vtable(v6);
+
+			auto v7 = v5->get_mash_sizeof();
+            a2->advance_buffer(
+#ifdef TARGET_XBOX
+                mash::NORMAL_BUFFER,
+#endif
+                v7 - sizeof(trigger_region));
+
+            v5->unmash(a2, nullptr);
         }
     }
 
