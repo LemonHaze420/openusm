@@ -74,6 +74,11 @@ void interactable_interface::sub_4DAE90(actor *a2)
     this->update_registrations();
 }
 
+void interactable_interface::unmash(mash_info_struct *a2, void *)
+{
+    a2->unmash_class_in_place(this->field_4, this);
+}
+
 void interactable_interface_patch() {
 
     SET_JUMP(0x004DAFB0, interactable_interface::add_interface_to_list);
