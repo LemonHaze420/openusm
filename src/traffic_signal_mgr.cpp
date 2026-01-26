@@ -18,3 +18,9 @@ void traffic_signal_mgr::frame_advance(Float a1) {
 void traffic_signal_mgr::switch_to_next_state() {
     CDECL_CALL(0x005528D0);
 }
+
+void traffic_signal_mgr::add_traffic_light(entity *a1, bool a2)
+{
+    void (*func)(entity *, bool) = CAST(func, 0x0054E140);
+    func(a1, a2);
+}

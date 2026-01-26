@@ -3,6 +3,8 @@
 #include "float.hpp"
 #include "variable.h"
 
+struct entity;
+
 struct traffic_signal_mgr {
     traffic_signal_mgr();
 
@@ -10,6 +12,9 @@ struct traffic_signal_mgr {
 
     //0x005528D0
     static void switch_to_next_state();
+
+    //0x0054E140
+    static void add_traffic_light(entity *a1, bool a2);
 
     struct state_timer_t {
         float field_0;
