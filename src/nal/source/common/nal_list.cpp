@@ -11,6 +11,8 @@
 #include <panel_anim_inst.h>
 #include <ped_skel_pose.h>
 #include <ped_anim_inst.h>
+#include <camera_skel_pose.h>
+#include <camera_anim_inst.h>
 
 #include <nal_system.h>
 
@@ -114,13 +116,29 @@ void sub_8531A0()
     };
 }
 
+void sub_853260()
+{
+    [[maybe_unused]] static nalInitListAnimType InitListAnimType_nalCamAnim {
+            "Camera",
+            nalCam::nalCamAnim::vtbl_ptr,
+            nalCam::nalCamSkeleton::vtbl_ptr
+    };
+}
+
 void nalInitList_patch()
 {
-    SET_JUMP(0x008530C0, sub_8530C0);
+    //static variables
+    {
+        SET_JUMP(0x008530C0, sub_8530C0);
 
-    SET_JUMP(0x0085E010, sub_85E010);
+        SET_JUMP(0x0085E010, sub_85E010);
 
-    SET_JUMP(0x00864790, sub_864790);
+        SET_JUMP(0x00864790, sub_864790);
+
+        SET_JUMP(0x008531A0, sub_8531A0);
+
+        SET_JUMP(0x00853260, sub_853260);
+    }
 
     REDIRECT(0x00783E28, nalInitListInit);
 }

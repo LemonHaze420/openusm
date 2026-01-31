@@ -74,38 +74,6 @@ struct nalBasePose {
 
 struct nalBaseSkeleton;
 
-namespace nalCam {
-
-struct nalCamAnim {
-    struct vtbl {
-        void *field_0;
-        void *finalize;
-        void *Process;
-        void *Release;
-
-        using CheckVersion_t = bool (nalCamAnim::*)();
-        CheckVersion_t CheckVersion;
-    };
-
-    static int vtbl_ptr;
-};
-
-struct nalCamSkeleton {
-    struct vtbl {
-        void *field_0;
-        void *finalize;
-        void *Process;
-        void *Release;
-
-        using CheckVersion_t = bool (nalCamSkeleton::*)();
-        CheckVersion_t CheckVersion;
-    };
-
-    static int vtbl_ptr;
-};
-
-} // namespace nalCam
-
 struct nalAnimFile {
     uint32_t field_0;
     uint32_t field_4;
