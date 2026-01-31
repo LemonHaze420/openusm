@@ -67,6 +67,10 @@ public:
     //virtual
     ~resource_pack_slot();
 
+    void * operator new(std::size_t sz);
+
+    void operator delete(void *ptr, std::size_t sz);
+
     resource_partition * get_partition() {
         return field_88;
     }

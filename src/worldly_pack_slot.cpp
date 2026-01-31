@@ -47,8 +47,7 @@ worldly_pack_slot::worldly_pack_slot()
 
             auto replace_vfunc = [](auto &vfunc, auto func)
             {
-                FUNC_ADDRESS(address, func);
-                vfunc = CAST(vfunc, address);
+                vfunc = CAST(vfunc, func_address(func));
             };
 
             replace_vfunc(this->m_vtbl->on_load, &worldly_pack_slot::_on_load);
@@ -60,69 +59,47 @@ worldly_pack_slot::worldly_pack_slot()
             replace_vfunc(this->m_vtbl->clear_pack, &worldly_pack_slot::_clear_pack);
         }
 
-        auto *mem = mem_alloc(sizeof(skeleton_resource_handler));
-        this->m_handlers[0] = new (mem) skeleton_resource_handler{this};
+        this->m_handlers[0] = new skeleton_resource_handler{this};
 
-        mem = mem_alloc(sizeof(anim_resource_handler));
-        this->m_handlers[1] = new (mem) anim_resource_handler{this};
+        this->m_handlers[1] = new anim_resource_handler{this};
 
-        mem = mem_alloc(sizeof(scene_anim_resource_handler));
-        this->m_handlers[2] = new (mem) scene_anim_resource_handler{this};
+        this->m_handlers[2] = new scene_anim_resource_handler{this};
 
-        mem = mem_alloc(sizeof(als_resource_handler));
-        this->m_handlers[3] = new (mem) als_resource_handler{this};
+        this->m_handlers[3] = new als_resource_handler{this};
 
-        mem = mem_alloc(sizeof(base_ai_resource_handler));
-        this->m_handlers[4] = new (mem) base_ai_resource_handler{this};
+        this->m_handlers[4] = new base_ai_resource_handler{this};
 
-        mem = mem_alloc(sizeof(ai_state_graph_resource_handler));
-        this->m_handlers[5] = new (mem) ai_state_graph_resource_handler{this};
+        this->m_handlers[5] = new ai_state_graph_resource_handler{this};
 
-        mem = mem_alloc(sizeof(texture_resource_handler));
-        this->m_handlers[6] = new (mem) texture_resource_handler{this};
+        this->m_handlers[6] = new texture_resource_handler{this};
 
-        mem = mem_alloc(sizeof(mesh_file_resource_handler));
-        this->m_handlers[7] = new (mem) mesh_file_resource_handler{this};
+        this->m_handlers[7] = new mesh_file_resource_handler{this};
 
-        mem = mem_alloc(sizeof(box_trigger_resource_handler));
-        this->m_handlers[8] = (base_tl_resource_handler *) new (mem)
-            box_trigger_resource_handler{this};
+        this->m_handlers[8] = new box_trigger_resource_handler{this};
 
-        mem = mem_alloc(sizeof(item_resource_handler));
-        this->m_handlers[9] = (base_tl_resource_handler *) new (mem) item_resource_handler{this};
+        this->m_handlers[9] = new item_resource_handler{this};
 
-        mem = mem_alloc(sizeof(entity_resource_handler));
-        this->m_handlers[10] = (base_tl_resource_handler *) new (mem) entity_resource_handler{this};
+        this->m_handlers[10] = new entity_resource_handler{this};
 
-        mem = mem_alloc(sizeof(morph_file_resource_handler));
-        this->m_handlers[11] = new (mem) morph_file_resource_handler{this};
+        this->m_handlers[11] = new morph_file_resource_handler{this};
 
-        mem = mem_alloc(sizeof(material_file_resource_handler));
-        this->m_handlers[12] = new (mem) material_file_resource_handler{this};
+        this->m_handlers[12] = new material_file_resource_handler{this};
 
-        mem = mem_alloc(sizeof(path_resource_handler));
-        this->m_handlers[13] = new (mem) path_resource_handler{this};
+        this->m_handlers[13] = new path_resource_handler{this};
 
-        mem = mem_alloc(sizeof(patrol_def_resource_handler));
-        this->m_handlers[14] = new (mem) patrol_def_resource_handler{this};
+        this->m_handlers[14] = new patrol_def_resource_handler{this};
 
-        mem = mem_alloc(sizeof(panel_resource_handler));
-        this->m_handlers[15] = new (mem) panel_resource_handler{this};
+        this->m_handlers[15] = new panel_resource_handler{this};
 
-        mem = mem_alloc(sizeof(cut_scene_resource_handler));
-        this->m_handlers[16] = new (mem) cut_scene_resource_handler{this};
+        this->m_handlers[16] = new cut_scene_resource_handler{this};
 
-        mem = mem_alloc(sizeof(ai_interact_resource_handler));
-        this->m_handlers[17] = new (mem) ai_interact_resource_handler{this};
+        this->m_handlers[17] = new ai_interact_resource_handler{this};
 
-        mem = mem_alloc(sizeof(gab_database_resource_handler));
-        this->m_handlers[18] = new (mem) gab_database_resource_handler{this};
+        this->m_handlers[18] = new gab_database_resource_handler{this};
 
-        mem = mem_alloc(sizeof(glass_house_resource_handler));
-        this->m_handlers[19] = new (mem) glass_house_resource_handler{this};
+        this->m_handlers[19] = new glass_house_resource_handler{this};
 
-        mem = mem_alloc(sizeof(sound_alias_database_resource_handler));
-        this->m_handlers[20] = new (mem) sound_alias_database_resource_handler{this};
+        this->m_handlers[20] = new sound_alias_database_resource_handler{this};
 
         this->_clear_slot();
     } else {

@@ -3,6 +3,7 @@
 #include "common.h"
 #include "func_wrapper.h"
 #include "limited_timer.h"
+#include "memory.h"
 #include "os_developer_options.h"
 #include "debugutil.h"
 #include "utility.h"
@@ -34,8 +35,7 @@ resource_pack_slot::resource_pack_slot()
 
             auto replace_vfunc = [](auto &vfunc, auto func)
             {
-                FUNC_ADDRESS(address, func);
-                vfunc = CAST(vfunc, address);
+                vfunc = CAST(vfunc, func_address(func));
             };
 
             replace_vfunc(this->m_vtbl->on_load, &resource_pack_slot::on_load);
@@ -61,6 +61,14 @@ resource_pack_slot::~resource_pack_slot()
     } else {
         THISCALL(0x00531CF0, this);
     }
+}
+
+void * resource_pack_slot::operator new(std::size_t sz) {
+    return mem_alloc(sz);
+}
+
+void resource_pack_slot::operator delete(void *ptr, std::size_t sz) {
+    mem_dealloc(ptr, sz);
 }
 
 void resource_pack_slot::notify_load_cancelled()

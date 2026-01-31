@@ -161,8 +161,7 @@ void resource_partition::push_pack_slot(int memory_amount_to_reserve, void *a3)
             this->partition_buffer_used += reserve_size;
         }
 
-        auto *mem = mem_alloc(sizeof(worldly_pack_slot));
-        auto *slot = new (mem) worldly_pack_slot{};
+        auto *slot = new worldly_pack_slot {};
 
         slot->set_memory_area(starting_addr, reserve_size, a3 == nullptr);
         slot->set_partition(this);
