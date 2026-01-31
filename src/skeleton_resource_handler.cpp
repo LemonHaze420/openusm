@@ -32,17 +32,17 @@ bool skeleton_resource_handler::_handle_resource(worldly_resource_handler::eBeha
                                                 tlresource_location *a3)
 {
 
-    TRACE("skeleton_resource_handler::handle_resource", a3->name.to_string(), int(a3->m_type));
+    TRACE("skeleton_resource_handler::handle_resource", int(a2), a3->get_name().to_string(), int(static_cast<uint8_t>(a3->get_type())));
 
     if constexpr (0)
     {
         if (a2 == UNLOAD)
         {
-            nalGeneric::nalGenericSkeleton *skel = CAST(skel, a3->field_8);
-
+            nalBaseSkeleton *skel = CAST(skel, a3->get_data());
             skel->Release();
         } else {
-            a3->field_8 = static_cast<char *>(nalConstructSkeleton(a3->field_8));
+            auto *new_skel = static_cast<char *>(nalConstructSkeleton(a3->get_data()));
+            a3->set_data(new_skel);
         }
 
         ++this->field_C;

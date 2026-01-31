@@ -205,7 +205,7 @@ void resource_directory::constructor_common(resource_pack_slot *a2, uint8_t *a3,
             {
                 for (int i = 0; i < this->texture_locations.size(); ++i)
                 {
-                    this->texture_locations.m_data[i].field_8 += this->base;
+                    this->texture_locations.m_data[i].add_base(this->base);
                 }
             }
 
@@ -214,63 +214,63 @@ void resource_directory::constructor_common(resource_pack_slot *a2, uint8_t *a3,
                 for (int i = 0; i < this->mesh_file_locations.size(); ++i)
                 {
                     auto &mesh_file_loc = this->mesh_file_locations.m_data[i];
-                    mesh_file_loc.field_8 += this->base;
+                    mesh_file_loc.add_base(this->base);
                 }
             }
 
             if (this->mesh_locations.size())
             {
                 for (int i = 0; i < this->mesh_locations.size(); ++i) {
-                    this->mesh_locations.m_data[i].field_8 += this->base;
+                    this->mesh_locations.m_data[i].add_base(this->base);
                 }
             }
 
             if (this->morph_file_locations.size()) {
                 for (int i = 0; i < this->morph_file_locations.size(); ++i) {
-                    this->morph_file_locations.m_data[i].field_8 += this->base;
+                    this->morph_file_locations.m_data[i].add_base(this->base);
                 }
             }
 
             if (this->morph_locations.size()) {
                 for (int i = 0; i < this->morph_locations.size(); ++i) {
-                    this->morph_locations.m_data[i].field_8 += this->base;
+                    this->morph_locations.m_data[i].add_base(this->base);
                 }
             }
 
             if (this->material_file_locations.size()) {
                 for (int i = 0; i < this->material_file_locations.size(); ++i) {
-                    this->material_file_locations.m_data[i].field_8 += this->base;
+                    this->material_file_locations.m_data[i].add_base(this->base);
                 }
             }
 
             if (this->material_locations.size()) {
                 for (int i = 0; i < this->material_locations.size(); ++i) {
-                    this->material_locations.m_data[i].field_8 += this->base;
+                    this->material_locations.m_data[i].add_base(this->base);
                 }
             }
 
             if (this->anim_file_locations.size()) {
                 for (int i = 0; i < this->anim_file_locations.size(); ++i) {
-                    this->anim_file_locations.m_data[i].field_8 += this->base;
+                    this->anim_file_locations.m_data[i].add_base(this->base);
                 }
             }
 
             if (this->anim_locations.size()) {
                 for (int i = 0; i < this->anim_locations.size(); ++i) {
-                    this->anim_locations.m_data[i].field_8 += this->base;
+                    this->anim_locations.m_data[i].add_base(this->base);
                 }
             }
 
             if (this->scene_anim_locations.size()) {
                 for (int i = 0; i < this->scene_anim_locations.size(); ++i) {
-                    this->scene_anim_locations.m_data[i].field_8 += this->base;
+                    this->scene_anim_locations.m_data[i].add_base(this->base);
                 }
             }
 
             if (this->skeleton_locations.size() != 0)
             {
                 for (int i = 0; i < this->skeleton_locations.size(); ++i) {
-                    this->skeleton_locations.m_data[i].field_8 += this->base;
+                    this->skeleton_locations.m_data[i].add_base(this->base);
                 }
             }
         }
@@ -466,77 +466,77 @@ void resource_directory::debug_print() const {
     for ( i = 0; i < this->texture_locations.size(); ++i )
     {
         auto &v7 = this->texture_locations.at(i);
-        auto *v8 = v7.name.to_string();
+        auto *v8 = v7.get_name().to_string();
         debug_print_va("  tlresource texture %s", v8);
     }
 
     for ( i = 0; i < this->mesh_file_locations.size(); ++i )
     {
         auto &v10 = this->mesh_file_locations.at(i);
-        auto *v11 = v10.name.to_string();
+        auto *v11 = v10.get_name().to_string();
         debug_print_va("  tlresource mesh file %s", v11);
     }
 
     for ( i = 0; i < this->mesh_locations.size(); ++i )
     {
         auto &v13 = this->mesh_locations.at(i);
-        auto *v14 = v13.name.to_string();
+        auto *v14 = v13.get_name().to_string();
         debug_print_va("  tlresource mesh %s", v14);
     }
 
     for ( i = 0; i < this->morph_file_locations.size(); ++i )
     {
         auto &v16 = this->morph_file_locations.at(i);
-        auto *v17 = v16.name.to_string();
+        auto *v17 = v16.get_name().to_string();
         debug_print_va("  tlresource morph file %s", v17);
     }
 
     for ( i = 0; i < this->morph_locations.size(); ++i )
     {
         auto &v19 = this->morph_locations.at(i);
-        auto *v20 = v19.name.to_string();
+        auto *v20 = v19.get_name().to_string();
         debug_print_va("  tlresource morph %s", v20);
     }
 
     for ( i = 0; i < this->material_file_locations.size(); ++i )
     {
         auto &v22 = this->material_file_locations.at(i);
-        auto *v23 = v22.name.to_string();
+        auto *v23 = v22.get_name().to_string();
         debug_print_va("  tlresource material file %s", v23);
     }
 
     for ( i = 0; i < this->material_locations.size(); ++i )
     {
         auto &v25 = this->material_locations.at(i);
-        auto *v26 = v25.name.to_string();
+        auto *v26 = v25.get_name().to_string();
         debug_print_va("  tlresource material %s", v26);
     }
 
     for ( i = 0; i < this->anim_file_locations.size(); ++i )
     {
         auto &v28 = this->anim_file_locations.at(i);
-        auto *v29 = v28.name.to_string();
+        auto *v29 = v28.get_name().to_string();
         debug_print_va("  tlresource anim file %s", v29);
     }
 
     for ( i = 0; i < this->anim_locations.size(); ++i )
     {
         auto &v31 = this->anim_locations.at(i);
-        auto *v32 = v31.name.to_string();
+        auto *v32 = v31.get_name().to_string();
         debug_print_va("  tlresource anim %s", v32);
     }
 
     for ( auto i = 0; i < this->scene_anim_locations.size(); ++i )
     {
         auto &v34 = this->scene_anim_locations.at(i);
-        auto *v35 = v34.name.to_string();
+        auto *v35 = v34.get_name().to_string();
         debug_print_va("  tlresource scene anim %s", v35);
     }
 
     for ( auto i = 0; i < this->skeleton_locations.size(); ++i )
     {
         auto &v37 = this->skeleton_locations.at(i);
-        auto *v38 = v37.name.to_string();
+        auto *v38 = v37.get_name().to_string();
         debug_print_va("  tlresource skeleton %s", v38);
     }
 }
@@ -651,7 +651,7 @@ char *resource_directory::get_tlresource(tlresource_location *loc, resource_pack
 
     assert(loc >= &(vec->at(0)) && loc <= &(vec->at(vec->size() - 1)));
 
-    auto *v6 = loc->field_8;
+    auto *v6 = loc->get_data();
     if (a3 != nullptr)
     {
         *a3 = this->pack_slot;
@@ -923,8 +923,8 @@ char *resource_directory::add_tlresource(tlFixedString *arg0,
             v20 &= 0xFFFFFFFE;
         }
 
-        assert(loc->name == key && "Didn't find what we were looking for");
-        loc->field_8 = data;
+        assert(loc->get_name() == key && "Didn't find what we were looking for");
+        loc->set_data(data);
         if constexpr (1) {
             auto v14 = this->pack_slot->get_name_key().m_hash;
 

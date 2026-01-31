@@ -33,10 +33,10 @@ bool scene_anim_resource_handler::_handle_resource(worldly_resource_handler::eBe
 
     if constexpr (1)
     {
-        auto *scene_anim = (nalSceneAnim *) loc->field_8;
+        auto *scene_anim = (nalSceneAnim *) loc->get_data();
         assert(scene_anim != nullptr && "Scene anim didn't load.");
 
-        if (scene_anim->field_10.m_hash != loc->name.source_hash_code) {
+        if (scene_anim->field_10.m_hash != loc->get_name().source_hash_code) {
             auto *v4 = scene_anim->field_10.to_string();
             sp_log("Scene animation name mismatch with %s", v4);
             assert(0);

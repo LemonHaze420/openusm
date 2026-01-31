@@ -1390,7 +1390,7 @@ void actor::get_animations(actor *a1, std::list<nalAnimClass<nalAnyPose> *> &a2)
         for (auto idx = 0; idx < tlresource_count; ++idx)
         {
             auto *tlres_loc = res_dir.get_tlresource_location(idx, TLRESOURCE_TYPE_ANIM_FILE);
-            auto *animFile = (nalAnimFile *) tlres_loc->field_8;
+            auto *animFile = (nalAnimFile *) tlres_loc->get_data();
             if ( animFile->field_0 == 0x10101 )
             {
                 for ( auto *anim = bit_cast<nalAnimClass<nalAnyPose> *>(animFile->field_34);

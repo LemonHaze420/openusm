@@ -23,7 +23,7 @@ morph_file_resource_handler::morph_file_resource_handler(worldly_pack_slot *a2)
 bool morph_file_resource_handler::_handle_resource(worldly_resource_handler::eBehavior behavior,
                                                   tlresource_location *tlres_loc)
 {
-    TRACE("morph_file_resource_handler::handle_resource", tlres_loc->name.to_string());
+    TRACE("morph_file_resource_handler::handle_resource", tlres_loc->get_name().to_string());
 
     if constexpr (1)
     {
@@ -32,8 +32,8 @@ bool morph_file_resource_handler::_handle_resource(worldly_resource_handler::eBe
                    RESOURCE_KEY_TYPE_MORPH_FILE_STRUCT));
 
         if (behavior == UNLOAD) {
-            if (tlres_loc->field_8 != nullptr &&
-                !nglCanReleaseMorphFile((nglMorphFile *) tlres_loc->field_8)) {
+            if (tlres_loc->get_data() != nullptr &&
+                !nglCanReleaseMorphFile((nglMorphFile *) tlres_loc->get_data())) {
                 return true;
             }
 
@@ -59,17 +59,17 @@ bool morph_file_resource_handler::_handle_resource(worldly_resource_handler::eBe
                                                          nullptr);
             assert(!alloced_mem && "This should NOT allocate anything!");
 
-            morphFile->field_124 = tlres_loc->field_8;
-            auto *v7 = tlres_loc->name.to_string();
+            morphFile->field_124 = tlres_loc->get_data();
+            auto *v7 = tlres_loc->get_name().to_string();
             tlFixedString v20{v7};
 
             if (nglLoadMeshFileInternal(v20, bit_cast<nglMeshFile *>(morphFile), ".pcmorph")) {
-                tlres_loc->field_8 = (char *) morphFile;
+                tlres_loc->set_data((char *) morphFile);
 
             } else {
-                auto *v10 = tlres_loc->name.to_string();
+                auto *v10 = tlres_loc->get_name().to_string();
                 sp_log("Invalid morph file %s", v10);
-                tlres_loc->field_8 = nullptr;
+                tlres_loc->set_data(nullptr);
             }
         }
 

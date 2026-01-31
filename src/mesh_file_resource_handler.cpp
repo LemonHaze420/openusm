@@ -35,8 +35,8 @@ mesh_file_resource_handler::mesh_file_resource_handler(worldly_pack_slot *a2)
 bool mesh_file_resource_handler::_handle_resource(worldly_resource_handler::eBehavior behavior,
                                                  tlresource_location *loc)
 {
-    TRACE("mesh_file_resource_handler::handle_resource", loc->name.to_string());
-    sp_log("0x%08X", loc->field_8);
+    TRACE("mesh_file_resource_handler::handle_resource", loc->get_name().to_string());
+    sp_log("0x%08X", loc->get_data());
 
     if constexpr (0)
     {
@@ -46,12 +46,12 @@ bool mesh_file_resource_handler::_handle_resource(worldly_resource_handler::eBeh
 
         if (behavior == UNLOAD)
         {
-            if (loc->field_8 != nullptr &&
-                !nglCanReleaseMeshFile(bit_cast<nglMeshFile *>(loc->field_8))) {
+            if (loc->get_data() != nullptr &&
+                !nglCanReleaseMeshFile(bit_cast<nglMeshFile *>(loc->get_data()))) {
                 return true;
             }
 
-            nglMeshFile *MeshFile = CAST(MeshFile, loc->field_8);
+            nglMeshFile *MeshFile = CAST(MeshFile, loc->get_data());
             if (MeshFile != nullptr) {
                 auto *Mesh = MeshFile->FirstMesh;
                 if (Mesh != nullptr) {
@@ -117,19 +117,19 @@ bool mesh_file_resource_handler::_handle_resource(worldly_resource_handler::eBeh
             assert(!alloced_mem && "This should NOT allocate anything!");
 
             auto *v5 = loc;
-            meshFile->FileBuf.Buf = loc->field_8;
+            meshFile->FileBuf.Buf = loc->get_data();
 
-            auto *v7 = loc->name.to_string();
+            auto *v7 = loc->get_name().to_string();
             tlFixedString v20{v7};
 
             if (!nglLoadMeshFileInternal(v20, meshFile, ".pcmesh"))
             {
-                auto *v10 = v5->name.to_string();
+                auto *v10 = v5->get_name().to_string();
                 sp_log("Invalid mesh file %s", v10);
                 assert(0);
             }
 
-            v5->field_8 = CAST(v5->field_8, meshFile);
+            v5->set_data((char *)meshFile);
         }
 
         ++this->field_C;

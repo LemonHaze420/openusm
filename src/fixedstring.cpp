@@ -87,10 +87,10 @@ tlFixedString *tlFixedString::operator=(const tlFixedString &a1) {
 int compare_tlFixedString_tlresource_location(uint32_t &a1, tlresource_location &a2)
 {
     int result;
-    if (a2.name.source_hash_code == a1) {
+    if (a2.get_name().source_hash_code == a1) {
         result = 0;
     } else {
-        result = (a2.name.source_hash_code < a1 ? 1 : -1);
+        result = (a2.get_name().source_hash_code < a1 ? 1 : -1);
     }
 
     return result;

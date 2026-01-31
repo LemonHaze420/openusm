@@ -972,7 +972,7 @@ bool PlayAnimCommand::process_cmd(const std::vector<std::string> &a2)
 
                 const auto idx = 0;
                 auto *tlres_loc = res_dir.get_tlresource_location(idx, TLRESOURCE_TYPE_ANIM_FILE);
-                nalAnimFile *anim_file = CAST(anim_file, tlres_loc->field_8);
+                nalAnimFile *anim_file = CAST(anim_file, tlres_loc->get_data());
                 assert(anim_file->field_0 == 0x10101);
 
                 nalAnimClass<nalAnyPose> *found_anim = nullptr;

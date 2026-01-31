@@ -33,7 +33,7 @@ bool anim_resource_handler::_handle_resource(worldly_resource_handler::eBehavior
 
     if constexpr (0)
     {
-        auto *anim_file = (nalAnimFile *) a3->field_8;
+        auto *anim_file = (nalAnimFile *) a3->get_data();
         assert(anim_file != nullptr && "Could not load the animation file.");
 
         if (behavior == UNLOAD) {

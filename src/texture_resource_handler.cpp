@@ -30,25 +30,25 @@ bool texture_resource_handler::_handle(worldly_resource_handler::eBehavior a2, l
 void texture_resource_handler::handle_resource_internal(tlresource_location *loc,
                                                         nglTextureFileFormat a3)
 {
-    TRACE("texture_resource_handler::handle_resource_internal", loc->name.to_string());
+    TRACE("texture_resource_handler::handle_resource_internal", loc->get_name().to_string());
 
     if constexpr (1)
     {
         assert(loc != nullptr);
 
-        auto *v4 = loc->name.to_string();
+        auto *v4 = loc->get_name().to_string();
 
-        auto *Tex = nglConstructTexture(tlFixedString{v4}, a3, loc->field_8, loc->get_size());
+        auto *Tex = nglConstructTexture(tlFixedString{v4}, a3, loc->get_data(), loc->get_size());
 
         if (Tex == nullptr) {
             Tex = nglDefaultTex;
         }
 
-        loc->field_8 = bit_cast<char *>(Tex);
+        loc->set_data(bit_cast<char *>(Tex));
         if (a3 == 1)
         {
             if (Tex == nglDefaultTex) {
-                error("ERROR: multipalette texture not found: %s", loc->name.to_string());
+                error("ERROR: multipalette texture not found: %s", loc->get_name().to_string());
             }
 
             for (auto i = 0u; i < Tex->m_num_palettes; ++i)
@@ -69,7 +69,7 @@ void texture_resource_handler::handle_resource_internal(tlresource_location *loc
                     error("ERROR: multipalette sub-texture not found: %s", v7);
                 }
 
-                found_tlres_loc->field_8 = bit_cast<char *>(&Tex->Frames[i]);
+                found_tlres_loc->set_data(bit_cast<char *>(&Tex->Frames[i]));
             }
         }
 
@@ -99,18 +99,14 @@ void texture_resource_handler::_pre_handle_resources(worldly_resource_handler::e
                        //&& loc->get_size() >= 4
                 );
 
-                auto func = [](tlresource_location *loc, int a2) -> void {
-                    loc->m_type = a2 + (loc->m_type & 0xFFFFFF00);
-                };
-
-                char *v4 = CAST(v4, loc->field_8);
+                char *v4 = loc->get_data();
                 if (v4[0] == 'D' && v4[1] == 'D' && v4[2] == 'S' && v4[3] == 'M') {
-                    func(loc, 14);
+                    loc->sub_672BDD(14);
                 } else if (v4[0] != 'D' || v4[1] != 'D' || v4[2] != 'S') {
                     if (v4[0] == 'D' && v4[1] == 'S' && v4[2] == 'M') {
-                        func(loc, 15);
+                        loc->sub_672BDD(15);
                     } else {
-                        func(loc, 13);
+                        loc->sub_672BDD(13);
                     }
                 }
 
@@ -135,7 +131,7 @@ bool texture_resource_handler::_handle_resource(worldly_resource_handler::eBehav
         {
             if (tlres_loc->get_type() != 15)
             {
-                auto *tex = bit_cast<nglTexture *>(tlres_loc->field_8);
+                auto *tex = bit_cast<nglTexture *>(tlres_loc->get_data());
                 if (tex != nullptr)
                 {
                     if ((tex->field_34 & 2) == 0)
