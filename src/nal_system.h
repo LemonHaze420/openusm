@@ -217,4 +217,6 @@ extern tlResourceDirectory<nalAnimClass<nalAnyPose>, tlFixedString> *nalGetAnimD
 
 extern void nalSetSceneAnimDirectory(tlResourceDirectory<nalSceneAnim, tlFixedString> *a1);
 
+extern char (& nalSkeletonPath)[255];
+
 extern void nalStreamInstance_patch();

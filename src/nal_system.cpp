@@ -87,7 +87,7 @@ static auto & dword_970D64 = var<void *>(0x00970D64);
 
 static auto & nalAnimPath = var<char[1]>(0x00976FC8);
 
-static auto & nalSkeletonPath = var<char[1]>(0x00976EC8);
+char (& nalSkeletonPath)[255] = var<char[255]>(0x00976EC8);
 
 static nalHeap & nalDefaultHeap = var<nalHeap>(0x00946A84);
 

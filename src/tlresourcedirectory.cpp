@@ -252,6 +252,35 @@ nglMeshFile *tlResourceDirectory<nglMeshFile, tlFixedString>::Load(const tlFixed
     return this->StandardLoad(a1);
 }
 
+template<>
+nalBaseSkeleton * tlResourceDirectory<nalBaseSkeleton, tlFixedString>::StandardLoad(
+        const tlFixedString &a2)
+{
+    if constexpr (0) {
+        tlFileBuf v6 {};
+        char Dest[256] {};
+        _snprintf(Dest, 256u, "%s%s.%s", nalSkeletonPath, a2.field_4, "pcskel");
+        if ( !tlReadFile(Dest, &v6, 4u, 0) ) {
+            return nullptr;
+        }
+
+        auto *skeleton = static_cast<nalGeneric::nalGenericSkeleton *>(nalConstructSkeleton(v6.Buf));
+
+        skeleton->field_50 = v6;
+        this->Add(skeleton);
+        return skeleton;
+    } else {
+        nalBaseSkeleton * (__fastcall * func)(void *, void *edx, const tlFixedString *) = CAST(func, 0x0078DD20);
+        return func(this, nullptr, &a2);
+    }
+}
+
+template<>
+nalBaseSkeleton * tlResourceDirectory<nalBaseSkeleton, tlFixedString>::Load(const tlFixedString &a2)
+{
+    return this->StandardLoad(a2);
+}
+
 void tlResourceDirectory_patch() {
 
     {
