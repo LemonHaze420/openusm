@@ -22,7 +22,7 @@
 
 VALIDATE_SIZE(resource_pack_slot, 0x94);
 
-Var<resource_pack_slot *> resource_pack_slot::current_alloc_slot{0x0095C820};
+resource_pack_slot * & resource_pack_slot::current_alloc_slot = var<resource_pack_slot *>(0x0095C820);
 
 resource_pack_slot::resource_pack_slot()
 {
@@ -344,13 +344,13 @@ void resource_pack_slot::frame_advance([[maybe_unused]] Float a2, limited_timer 
 
 void *resource_pack_slot::slot_allocate(unsigned int a1, unsigned int a2)
 {
-    assert(current_alloc_slot() != nullptr);
+    assert(current_alloc_slot != nullptr);
 
-    auto res_dir = resource_pack_slot::current_alloc_slot()->pack_directory.get_resource_directory();
+    auto res_dir = resource_pack_slot::current_alloc_slot->pack_directory.get_resource_directory();
 
     auto *p = res_dir->allocate_from_pool(a1, a2);
-    assert(p > current_alloc_slot()->header_mem_addr);
-    assert(p < current_alloc_slot()->header_mem_addr + current_alloc_slot()->slot_size);
+    assert(p > current_alloc_slot->header_mem_addr);
+    assert(p < current_alloc_slot->header_mem_addr + current_alloc_slot->slot_size);
 
     return p;
 }

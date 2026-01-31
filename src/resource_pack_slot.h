@@ -153,7 +153,7 @@ public:
     //0x0052A980
     static void *slot_allocate(unsigned int a1, unsigned int a2);
 
-    static Var<resource_pack_slot *> current_alloc_slot;
+    static resource_pack_slot * & current_alloc_slot;
 
     //0x0050E1B0
     //virtual
