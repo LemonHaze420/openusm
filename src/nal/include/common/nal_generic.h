@@ -43,7 +43,7 @@ struct nalGenericAnim {
 
     struct vtbl {};
 
-    static int vtbl_ptr;
+    static int & vtbl_ptr;
 };
 
 struct nalComponentInfo {
@@ -185,8 +185,7 @@ struct nalGenericSkeleton : nalBaseSkeleton {
         }
     }
 
-    static inline Var<std::intptr_t> vtbl_ptr {0x009770E0};
-
+    static int & vtbl_ptr;
 };
 
 struct nalGenericPose {

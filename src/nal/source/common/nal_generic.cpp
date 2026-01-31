@@ -14,9 +14,13 @@ VALIDATE_OFFSET(nalGenericSkeleton, field_64, 0x64);
 
 VALIDATE_SIZE(nalGenericPose, 0xC);
 
-int &nalGeneric::nalGenericPose::PoseSP = var<int>(0x0097DA08);
+int & nalGenericPose::PoseSP = var<int>(0x0097DA08);
 
-int &nalGeneric::nalGenericPose::PoseStack = var<int>(0x00977204);
+int & nalGenericPose::PoseStack = var<int>(0x00977204);
+
+int & nalGenericAnim::vtbl_ptr = var<int>(0x00977120);
+
+int & nalGenericSkeleton::vtbl_ptr = var<int>(0x009770E0);
 
 void nalGenericInstance::GetPose(
         Float a2,
@@ -29,7 +33,6 @@ void nalGenericInstance::GetPose(
 
 nalGenericSkeleton::nalGenericSkeleton()
 {
-    vtbl_ptr() = (int) std::addressof(bit_cast<int *>(this)[0]);
 }
 
 nalMatrix4x4 * nalGenericSkeleton::GetBoneMatrices(

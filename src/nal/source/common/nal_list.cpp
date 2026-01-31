@@ -94,12 +94,23 @@ void sub_85E010()
     };
 }
 
+void sub_864790()
+{
+    [[maybe_unused]] static nalInitListAnimType InitListAnimType_nalGenericAnim {
+            "generic",
+            nalGeneric::nalGenericAnim::vtbl_ptr,
+            nalGeneric::nalGenericSkeleton::vtbl_ptr
+    };
+}
+
 
 void nalInitList_patch()
 {
     SET_JUMP(0x008530C0, sub_8530C0);
 
     SET_JUMP(0x0085E010, sub_85E010);
+
+    SET_JUMP(0x00864790, sub_864790);
 
     REDIRECT(0x00783E28, nalInitListInit);
 }
