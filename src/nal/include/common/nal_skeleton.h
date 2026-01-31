@@ -22,6 +22,8 @@ struct nalBaseSkeleton {
 
     /* virtual */ void Process(); // = 0;
 
+    /* virtual */ void Release(); // = 0;
+
     /* virtual */ bool CheckVersion() const; // = 0;
 
     //virtual

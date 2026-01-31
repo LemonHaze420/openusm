@@ -19,6 +19,12 @@ void nalBaseSkeleton::Process()
     func(this);
 }
 
+void nalBaseSkeleton::Release()
+{
+    void (__fastcall *func)(void *) = CAST(func, get_vfunc(this->m_vtbl, 0xC));
+    func(this);
+}
+
 bool nalBaseSkeleton::CheckVersion() const
 {
     bool (__fastcall *func)(const void *) = CAST(func, get_vfunc(this->m_vtbl, 0x10));
