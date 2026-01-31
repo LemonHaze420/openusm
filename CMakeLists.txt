@@ -110,6 +110,16 @@ target_compile_options(binkw32
 target_link_libraries(binkw32 PUBLIC dxerr8 usm)
 
 
+file(GLOB_RECURSE BASE_SRC "./src/base/source/*.cpp")
+add_library(base ${BASE_SRC})
+target_compile_options(base
+    PRIVATE
+    ${flags}
+)
+target_include_directories(base PUBLIC "./src/base/include/")
+target_include_directories(base PUBLIC "src" "include")
+target_link_libraries(base PUBLIC utility nal)
+
 file(GLOB_RECURSE NALCOMP_SRC "./src/nalcomp/*.cpp")
 add_library(nalcomp ${NALCOMP_SRC})
 target_compile_options(nalcomp
@@ -146,8 +156,10 @@ target_compile_options(nal
       ${flags}
 )
 target_include_directories(nal PUBLIC "./include/" "./src/" "./src/nal/include/common/")
-target_link_libraries(nal PUBLIC nfl nalpanel utility)
+target_link_libraries(nal PUBLIC nfl nalpanel utility base)
 
+
+target_link_libraries(nsl PUBLIC nal)
 
 target_link_libraries(nalcomp PUBLIC nal)
 target_link_libraries(nalcomp PUBLIC usm)
@@ -243,10 +255,11 @@ target_compile_options(physics
     ${flags}
 )
 target_include_directories(physics PUBLIC "./src/physics/include/")
-target_link_libraries(physics PUBLIC utility ngl)
+target_link_libraries(physics PUBLIC nal utility)
 
 target_include_directories(usm PUBLIC "include")
 target_include_directories(usm PUBLIC "./src/nfl/src/")
+target_include_directories(usm PUBLIC "./src/nal/include/common/")
 
 target_include_directories(chuck PUBLIC "include" "src")
 target_include_directories(tx PUBLIC "include" "src")

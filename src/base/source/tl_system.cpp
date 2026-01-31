@@ -461,6 +461,20 @@ nalBaseSkeleton *tlInstanceBankResourceDirectory<nalBaseSkeleton, tlFixedString>
     return (nalBaseSkeleton *) THISCALL(0x0078A1B0, this, &a1);
 }
 
+template<>
+void * tlInstanceBankResourceDirectory<nalBaseSkeleton, tlFixedString>::Add(
+                        nalBaseSkeleton *a1)
+{
+    TRACE("tlInstanceBankResourceDirectory<nalBaseSkeleton, tlFixedString>::Add");
+
+    if constexpr (0) {
+    } else {
+        void * (__fastcall *func)(void *, void *edx, nalBaseSkeleton *) = CAST(func, 0x0078A230);
+        return func(this, nullptr, a1);
+    }
+}
+
+
 //0x00773030
 template<>
 int tlResourceDirectory<nglTexture, tlFixedString>::StandardRelease(nglTexture *tex,
@@ -888,6 +902,12 @@ void tl_patch() {
         set_vfunc(0x008B81E0, address);
     }
 
+    {
+        auto func = &tlInstanceBankResourceDirectory<nalBaseSkeleton, tlFixedString>::Add;
+
+        FUNC_ADDRESS(address, func);
+        set_vfunc(0x008BDDA4, address);
+    }
 
     return;
 
