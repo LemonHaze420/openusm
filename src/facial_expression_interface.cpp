@@ -2,6 +2,8 @@
 
 #include "common.h"
 #include "func_wrapper.h"
+#include "parse_generic_mash.h"
+#include "trace.h"
 
 VALIDATE_SIZE(facial_expression_interface, 0x7C);
 
@@ -60,4 +62,9 @@ void facial_expression_interface::un_mash(generic_mash_header *,
 const char * facial_expression_interface::get_ifc_type_str() const
 {
     return "facial_expression";
+}
+
+void facial_expression_interface_patch()
+{
+    REDIRECT(0x004FC217, func_address(&facial_expression_interface::un_mash));
 }

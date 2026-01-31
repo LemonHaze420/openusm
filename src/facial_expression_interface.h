@@ -48,3 +48,5 @@ struct facial_expression_interface : actor_interface {
     static inline Var<_std::vector<facial_expression_interface> *> all_facial_expression_interfaces{
         0x0096C9AC};
 };
+
+extern void facial_expression_interface_patch();
