@@ -2,7 +2,6 @@
 
 #include "common.h"
 
-#include <nal_list.h>
 #include <nal_system.h>
 
 namespace nalPanel {
@@ -10,17 +9,7 @@ VALIDATE_SIZE(nalPanelSkeleton, 0x84);
 
 VALIDATE_SIZE(nalPanelPose, 0x10);
 
-static nalPanelSkeleton::vtbl g_skel_vtbl{nullptr,
-                                          nullptr,
-                                          &nalPanelSkeleton::Process,
-                                          nullptr,
-                                          &nalPanelSkeleton::CheckVersion};
-
-int nalPanelSkeleton::vtbl_ptr{(int) &g_skel_vtbl};
-
-static nalInitListAnimType InitListAnimType_nalPanelAnim{"Panel",
-                                                         nalPanel::nalPanelAnim::vtbl_ptr,
-                                                         nalPanel::nalPanelSkeleton::vtbl_ptr};
+int & nalPanelSkeleton::vtbl_ptr = var<int>(0x0096FC74);
 
 nalPanelPose::nalPanelPose(const nalPanelSkeleton *a2) : nalCompPose(a2) {
     field_C = 0;

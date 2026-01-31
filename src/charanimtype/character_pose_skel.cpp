@@ -12,6 +12,8 @@ namespace nalChar {
 VALIDATE_SIZE(nalCharSkeleton, 0x84);
 VALIDATE_SIZE(nalCharPose, 0x10);
 
+int & nalCharSkeleton::vtbl_ptr = var<int>(0x0096AB90);
+
 nalCharPose::nalCharPose(
     const nalChar::nalCharSkeleton *a2) : nalCompPose(a2)
 {

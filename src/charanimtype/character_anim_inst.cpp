@@ -9,6 +9,10 @@
 
 VALIDATE_SIZE(nalChar::nalCharInstance, 0x20u);
 
+namespace nalChar {
+    int & nalCharAnim::vtbl_ptr = var<int>(0x0096A84C);
+}
+
 void nalChar::nalCharInstance::finalize(bool a2)
 {
     this->~nalCharInstance();

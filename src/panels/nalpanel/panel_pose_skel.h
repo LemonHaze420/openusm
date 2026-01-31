@@ -29,6 +29,6 @@ struct nalPanelSkeleton : nalComp::nalCompSkeleton {
         return this->Version == 0x300;
     }
 
-    static int vtbl_ptr;
+    static int & vtbl_ptr;
 };
 } // namespace nalPanel

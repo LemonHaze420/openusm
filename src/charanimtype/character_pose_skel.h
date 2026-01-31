@@ -90,7 +90,7 @@ struct nalCharSkeleton : nalComp::nalCompSkeleton {
         nalBasePose *a4,
         nalBasePose *a5);
 
-    static int vtbl_ptr;
+    static int & vtbl_ptr;
 };
 
 } // nalChar

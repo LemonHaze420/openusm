@@ -44,7 +44,7 @@ struct nalCharAnim : nalComp::nalCompAnim {
 
     void * GetPerAnimDataByName(CharComponentBase::Names a2);
 
-    static int vtbl_ptr;
+    static int &vtbl_ptr;
 };
 
 struct nalCharInstance : nalComp::nalCompInstance {
