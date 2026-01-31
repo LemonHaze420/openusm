@@ -1,6 +1,7 @@
 #pragma once
 
 #include "hashstring.h"
+#include "nal_skeleton.h"
 #include "variable.h"
 
 #include <float.hpp>
@@ -85,16 +86,9 @@ struct nalGenericConstComponentHandle {
 };
 
 
-struct nalGenericSkeleton {
-    std::intptr_t m_vtbl;
-    uint32_t field_4;
-    int field_8[8];
-
-    tlHashString field_28;
-    int field_2C[9];
-    int field_50;
-    int field_54[4];
-
+struct nalGenericSkeleton : nalBaseSkeleton {
+    int field_5C;
+    int field_60;
     int field_64;
     int field_68;
     int field_6C;
@@ -167,7 +161,7 @@ struct nalGenericSkeleton {
     void Release();
 
     bool CheckVersion() {
-        return this->field_4 == 0x10200;
+        return this->Version == 0x10200;
     }
 
     template<typename T>

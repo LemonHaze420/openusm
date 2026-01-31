@@ -65,8 +65,8 @@ struct nalCompPose {
 };
 
 struct nalCompSkeleton : nalBaseSkeleton {
-    int field_48;
-    int field_4C[6];
+    int field_5C;
+    int field_60;
     int m_iNumComponents;
     int field_68;
     int field_6C;

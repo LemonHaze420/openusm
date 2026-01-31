@@ -4,6 +4,10 @@
 
 #include <fixedstring.h>
 #include <float.hpp>
+#include <hashstring.h>
+
+#include <tl_system.h>
+
 
 struct nalBasePose;
 
@@ -12,6 +16,13 @@ struct nalBaseSkeleton {
     int Version;
     tlFixedString field_8;
     tlFixedString field_28;
+    int field_48;
+    int field_4C;
+    tlFileBuf field_50;
+
+    /* virtual */ void Process(); // = 0;
+
+    /* virtual */ bool CheckVersion() const; // = 0;
 
     //virtual
     nalBasePose* VirtualGetDefaultPose(); // = 0;

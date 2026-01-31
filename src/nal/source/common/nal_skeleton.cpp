@@ -1,5 +1,6 @@
 #include <nal_skeleton.h>
 
+#include <common.h>
 #include <func_wrapper.h>
 #include <vtbl.h>
 
@@ -10,6 +11,19 @@
 #include <nal_system.h>
 #include <tl_instance_bank.h>
 
+VALIDATE_SIZE(nalBaseSkeleton, 0x5C);
+
+void nalBaseSkeleton::Process()
+{
+    void (__fastcall *func)(void *) = CAST(func, get_vfunc(this->m_vtbl, 0x8));
+    func(this);
+}
+
+bool nalBaseSkeleton::CheckVersion() const
+{
+    bool (__fastcall *func)(const void *) = CAST(func, get_vfunc(this->m_vtbl, 0x10));
+    return func(this);
+}
 
 nalBasePose* nalBaseSkeleton::VirtualGetDefaultPose()
 {
@@ -29,6 +43,7 @@ void nalBaseSkeleton::VirtualDestroyPose(nalBasePose *a2)
     func(this, nullptr, a2);
 }
 
+
 void sub_826190(nalBasePose &dst, Float a2, nalBasePose &src0, nalBasePose &src1)
 {
     assert(dst.GetSkeleton() == src0.GetSkeleton() && dst.GetSkeleton() == src1.GetSkeleton()
@@ -44,24 +59,17 @@ void * nalConstructSkeleton(void *a1)
 
     if constexpr (0)
     {
-        struct {
-            std::intptr_t m_vtbl;
-            int Version;
-            tlFixedString field_8;
-            tlHashString field_28;
-            int field_48;
-            int field_4C;
-            int field_50;
+        nalBaseSkeleton *skel = static_cast<decltype(skel)>(a1);
 
-        } *skel = static_cast<decltype(skel)>(a1);
+        const auto &str = skel->GetAnimTypeName();
 
 #ifdef TARGET_XBOX
-        tlFixedString str = *bit_cast<tlFixedString *>(&skel->field_28);
+        tlFixedString animTypeName = str;
 #else
-        const tlHashString &str = skel->field_28;
+        const tlHashString &animTypeName = *bit_cast<tlHashString *>(&str);
 #endif
 
-        auto *instance = nalTypeInstanceBank.Search(str);
+        auto *instance = nalTypeInstanceBank.Search(animTypeName);
         assert(instance != nullptr && "unable to find skeleton type in type instance bank");
 
         auto *v1 = static_cast<nalInitListAnimType *>(instance->field_20);
@@ -71,7 +79,7 @@ void * nalConstructSkeleton(void *a1)
         sp_log("0x%08X", vtbl);
 
         bool (__fastcall *CheckVersion)(void *) = CAST(CheckVersion, get_vfunc(skel->m_vtbl, 0x10));
-        if ( !CheckVersion(a1) )
+        if ( !skel->CheckVersion() )
         {
 #ifdef TARGET_XBOX
             auto v3 = skel->Version;
@@ -82,9 +90,9 @@ void * nalConstructSkeleton(void *a1)
         }
 
         void (__fastcall *Process)(void *) = CAST(Process, get_vfunc(skel->m_vtbl, 0x8));
-        Process(a1);
+        skel->Process();
 
-        skel->field_50 = 0;
+        skel->field_50.Buf = nullptr;
         return a1;
 
     } else {
