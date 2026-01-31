@@ -120,6 +120,18 @@ target_include_directories(base PUBLIC "./src/base/include/")
 target_include_directories(base PUBLIC "src" "include")
 target_link_libraries(base PUBLIC utility nal)
 
+
+file(GLOB_RECURSE PEDANIMTYPE_SRC "./src/pedanimtype/*.cpp")
+add_library(pedanimtype ${PEDANIMTYPE_SRC})
+target_compile_options(pedanimtype
+    PRIVATE
+    ${flags}
+)
+target_include_directories(pedanimtype PUBLIC "./src/pedanimtype/")
+target_include_directories(pedanimtype PUBLIC "./src/")
+target_link_libraries(pedanimtype PUBLIC utility)
+
+
 file(GLOB_RECURSE NALCOMP_SRC "./src/nalcomp/*.cpp")
 add_library(nalcomp ${NALCOMP_SRC})
 target_compile_options(nalcomp
@@ -156,7 +168,7 @@ target_compile_options(nal
       ${flags}
 )
 target_include_directories(nal PUBLIC "./include/" "./src/" "./src/nal/include/common/")
-target_link_libraries(nal PUBLIC nfl nalpanel utility base)
+target_link_libraries(nal PUBLIC nfl nalpanel pedanimtype utility base)
 
 
 target_link_libraries(nsl PUBLIC nal)

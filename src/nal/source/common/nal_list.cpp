@@ -9,6 +9,8 @@
 #include <character_pose_skel.h>
 #include <panel_pose_skel.h>
 #include <panel_anim_inst.h>
+#include <ped_skel_pose.h>
+#include <ped_anim_inst.h>
 
 #include <nal_system.h>
 
@@ -103,6 +105,14 @@ void sub_864790()
     };
 }
 
+void sub_8531A0()
+{
+    [[maybe_unused]] static nalInitListAnimType InitListAnimType_nalPedAnim {
+            "Ped",
+            nalPed::nalPedAnim::vtbl_ptr,
+            nalPed::nalPedSkeleton::vtbl_ptr
+    };
+}
 
 void nalInitList_patch()
 {
