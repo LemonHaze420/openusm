@@ -11,6 +11,9 @@ struct resource_directory;
 //0x0074A5C0
 extern void *tlMemAlloc(uint32_t Size, uint32_t Alignment, uint32_t Flags);
 
+//0x0074A600
+extern void tlMemFree(void *Ptr);
+
 template<typename T0, typename T1>
 struct tlInstanceBankResourceDirectory : tlResourceDirectory<T0, T1> {
     struct Node {
@@ -65,7 +68,23 @@ struct tlInstanceBankResourceDirectory : tlResourceDirectory<T0, T1> {
 
     SkipListIterator *Enumerate();
 
-    T0 *Find(const T1 &);
+    //virtual
+    T0 * _Find(const T1 &);
+
+    void finalize(bool a2) {
+        this->~tlInstanceBankResourceDirectory();
+        if (a2) {
+            delete(this);
+        }
+    }
+
+    void * operator new(std::size_t sz) {
+        return tlMemAlloc(sz, 8u, 0x1000000u);
+    }
+
+    void operator delete(void *ptr) {
+        tlMemFree(ptr);
+    }
 };
 
 struct tlFileBuf {
@@ -103,9 +122,6 @@ void tlSetSystemCallbacks(const tlSystemCallbacks &a1);
 
 //0x0074A6C0
 void tlReleaseFile(tlFileBuf *File);
-
-//0x0074A600
-void tlMemFree(void *Ptr);
 
 //0x0074A710
 bool tlReadFile(const char *FileName, tlFileBuf *File, unsigned int Align, unsigned int Flags);

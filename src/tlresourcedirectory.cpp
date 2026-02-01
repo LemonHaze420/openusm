@@ -166,7 +166,7 @@ nglFont *tlResourceDirectory<nglFont, tlFixedString>::StandardLoad(const tlFixed
 }
 
 template<>
-nglTexture *tlResourceDirectory<nglTexture, tlFixedString>::Find(unsigned int) {
+nglTexture *tlResourceDirectory<nglTexture, tlFixedString>::_Find(unsigned int) {
     return nullptr;
 }
 

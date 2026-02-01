@@ -35,6 +35,10 @@ auto & tlHostPrefix = var<char[256]>(0x00970D88);
 
 tlInstanceBank & nglShaderBank = var<tlInstanceBank>(0x00972840);
 
+#ifndef STANDALONE_SYSTEM
+#error "Not defined macro STANDALONE_SYSTEM"
+#endif
+
 #if !STANDALONE_SYSTEM
 
 int & tlMemAllocCounter = var<int>(0x00970D58);
@@ -284,7 +288,7 @@ nglFont *tlInstanceBankResourceDirectory<nglFont, tlFixedString>::Impl::Find(
 }
 
 template<>
-nglFont *tlInstanceBankResourceDirectory<nglFont, tlFixedString>::Find(const tlFixedString &a1) {
+nglFont *tlInstanceBankResourceDirectory<nglFont, tlFixedString>::_Find(const tlFixedString &a1) {
     if constexpr (0) {
         return this->field_4.Find(a1);
 
@@ -490,7 +494,7 @@ void set_tl_system_directories()
 
 //0x0078A1B0
 template<>
-nalBaseSkeleton *tlInstanceBankResourceDirectory<nalBaseSkeleton, tlFixedString>::Find(
+nalBaseSkeleton *tlInstanceBankResourceDirectory<nalBaseSkeleton, tlFixedString>::_Find(
     const tlFixedString &a1) {
     return (nalBaseSkeleton *) THISCALL(0x0078A1B0, this, &a1);
 }
@@ -559,7 +563,7 @@ int tlResourceDirectory<nglTexture, tlFixedString>::Release(nglTexture *a1, int 
 
 //0x00773B90
 template<>
-nglTexture *tlInstanceBankResourceDirectory<nglTexture, tlFixedString>::Find(
+nglTexture *tlInstanceBankResourceDirectory<nglTexture, tlFixedString>::_Find(
     const tlFixedString &a1) {
     if constexpr (0) {
         return this->Find(a1);
@@ -830,7 +834,7 @@ nglMeshFile *tlInstanceBankResourceDirectory<nglMeshFile, tlFixedString>::Impl::
 }
 
 template<>
-nglMeshFile *tlInstanceBankResourceDirectory<nglMeshFile, tlFixedString>::Find(
+nglMeshFile *tlInstanceBankResourceDirectory<nglMeshFile, tlFixedString>::_Find(
     const tlFixedString &a2) {
     if constexpr (1) {
         return this->field_4.Find(a2);
@@ -879,12 +883,40 @@ nglMesh *tlInstanceBankResourceDirectory<nglMesh, tlHashString>::Impl::Find(cons
 }
 
 template<>
-nglMesh *tlInstanceBankResourceDirectory<nglMesh, tlHashString>::Find(const tlHashString &a2) {
+nglMesh *tlInstanceBankResourceDirectory<nglMesh, tlHashString>::_Find(const tlHashString &a2) {
     if constexpr (1) {
         return this->field_4.Find(a2);
     } else {
         return (nglMesh *) THISCALL(0x00770C30, this, &a2);
     }
+}
+
+template<>
+tlInstanceBankResourceDirectory<nglTexture, tlFixedString>::tlInstanceBankResourceDirectory()
+{
+#if !STANDALONE_SYSTEM
+    m_vtbl = 0x008B8D14;
+#else
+    nglTexture * (tlResourceDirectory<nglTexture, tlFixedString>::*Find1)(unsigned int) = &tlResourceDirectory<nglTexture, tlFixedString>::_Find;
+    static void * g_vtbl[] = {
+        func_address(&finalize),
+        func_address(&DirectoryName),
+        func_address(Find1),
+        func_address(&_Find),
+        func_address(&Add),
+        func_address(&Del),
+        func_address(&Enumerate),
+        func_address(&ReleaseAll),
+        func_address(&Load),
+        func_address(&Load),
+        func_address(&Release)
+    };
+    m_vtbl = CAST(m_vtbl, &g_vtbl);
+#endif
+
+    field_4.field_0 = rand();
+    field_4.field_4 = 7;
+    field_4.field_8 = nullptr;
 }
 
 struct tlInitList {
@@ -930,7 +962,7 @@ void tl_patch() {
     }
 
     {
-        auto func = &tlInstanceBankResourceDirectory<nglMesh, tlHashString>::Find;
+        auto func = &tlInstanceBankResourceDirectory<nglMesh, tlHashString>::_Find;
 
         FUNC_ADDRESS(address, func);
         set_vfunc(0x008B81E0, address);
@@ -946,7 +978,7 @@ void tl_patch() {
     return;
 
     {
-        auto func = &tlInstanceBankResourceDirectory<nglTexture, tlFixedString>::Find;
+        auto func = &tlInstanceBankResourceDirectory<nglTexture, tlFixedString>::_Find;
 
         FUNC_ADDRESS(address, func);
         //set_vfunc(0x008B8D20, address);
@@ -960,7 +992,7 @@ void tl_patch() {
     }
 
     {
-        auto func = &tlInstanceBankResourceDirectory<nglMeshFile, tlFixedString>::Find;
+        auto func = &tlInstanceBankResourceDirectory<nglMeshFile, tlFixedString>::_Find;
 
         FUNC_ADDRESS(address, func);
         set_vfunc(0x008B818C, address);
