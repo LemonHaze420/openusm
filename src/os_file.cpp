@@ -17,13 +17,13 @@
 
 VALIDATE_OFFSET(os_file, field_1C, 0x1C);
 
-Var<bool> os_file::system_locked = {0x00965E68};
+bool & os_file::system_locked = var<bool>(0x00965E68);
 
-Var<bool> byte_965E69 = (0x00965E69);
+bool & byte_965E69 = var<bool>(0x00965E69);
 
-Var<LPVOID[10]> g_lpBuffer{0x00965E6C};
+auto & g_lpBuffer = var<LPVOID[10]>(0x00965E6C);
 
-Var<bool[10]> byte_965E94{0x00965E94};
+auto & byte_965E94 = var<bool[10]>(0x00965E94);
 
 static constexpr auto max_size = 0x200000;
 
@@ -42,21 +42,21 @@ decltype(auto) get_file_pathname(HANDLE hFile) {
 }
 
 void sub_58DE20() {
-    byte_965E69() = 1;
+    byte_965E69 = true;
 
     for (int i{0}; i < 10; ++i) {
-        g_lpBuffer()[i] = malloc(max_size);
-        byte_965E94()[i] = 0;
+        g_lpBuffer[i] = malloc(max_size);
+        byte_965E94[i] = 0;
     }
 }
 
 void sub_58DE60() {
-    byte_965E69() = false;
+    byte_965E69 = false;
 
     for (int i{0}; i < 10; ++i) {
-        free(g_lpBuffer()[i]);
-        g_lpBuffer()[i] = nullptr;
-        byte_965E94()[i] = 0;
+        free(g_lpBuffer[i]);
+        g_lpBuffer[i] = nullptr;
+        byte_965E94[i] = false;
     }
 }
 
@@ -70,41 +70,44 @@ void copy_str(char *Dest, const char *Source, size_t Count) {
     Dest[Count - 1] = '\0';
 }
 
-#ifndef TEST_CASE
-Var<bool> byte_9363E8 = (0x009363E8);
-Var<bool> byte_9363E0 = (0x009363E0);
+#if !STANDALONE_SYSTEM
+bool & byte_9363E8 = var<bool>(0x009363E8);
+bool & byte_9363E0 = var<bool>(0x009363E0);
 
-Var<char[284]> byte_967BE0 = (0x00967BE0);
-Var<char[260]> byte_967D08 = (0x00967D08);
+char (& byte_967BE0)[284] = var<char[284]>(0x00967BE0);
+char (& byte_967D08)[260] = var<char[260]>(0x00967D08);
 #else
 
-static bool g_byte_9363E8{};
-Var<bool> byte_9363E8{&g_byte_9363E8};
+#define make_var(type, name) \
+    static type g_##name {}; \
+    type& name {g_##name}
 
-static bool g_byte_9363E0{};
-Var<bool> byte_9363E0{&g_byte_9363E0};
+make_var(bool, byte_9363E8);
 
-static char g_byte_967BE0[284]{};
-Var<char[284]> byte_967BE0{&g_byte_967BE0};
+make_var(bool, byte_9363E0);
 
-static char g_byte_967D08[260]{};
-Var<char[260]> byte_967D08{&g_byte_967D08};
+static char g_byte_967BE0[284] {};
+char (& byte_967BE0)[284] = g_byte_967BE0;
+
+static char g_byte_967D08[260] {};
+char (& byte_967D08)[260] = g_byte_967D08;
 
 #endif
 
-char *sub_598D40() {
-    if (byte_9363E8()) {
-        if (byte_9363E0()) {
-            getcwd(byte_967BE0(), 260u);
-            add_str(byte_967BE0(), "\\", 260u);
-            byte_9363E0() = false;
+char *sub_598D40()
+{
+    if (byte_9363E8) {
+        if (byte_9363E0) {
+            getcwd(byte_967BE0, 260u);
+            add_str(byte_967BE0, "\\", 260u);
+            byte_9363E0 = false;
         }
 
-        copy_str(byte_967D08(), byte_967BE0(), 260u);
-        add_str(byte_967D08(), "data\\", 260u);
-        byte_9363E8() = false;
+        copy_str(byte_967D08, byte_967BE0, 260u);
+        add_str(byte_967D08, "data\\", 260u);
+        byte_9363E8 = false;
     }
-    return byte_967D08();
+    return byte_967D08;
 }
 
 os_file::os_file()
@@ -126,7 +129,7 @@ os_file::os_file()
     this->io = INVALID_HANDLE_VALUE;
 
     this->m_offset = 0xFFFFFFFF;
-    this->field_24 = byte_965E69();
+    this->field_24 = byte_965E69;
 }
 
 os_file::os_file(const mString &a2, int dwShareMode) : m_path() {
@@ -139,7 +142,7 @@ os_file::os_file(const mString &a2, int dwShareMode) : m_path() {
     this->field_1C = 0;
     this->field_2C = 0;
     this->field_30 = 0;
-    this->field_24 = byte_965E69();
+    this->field_24 = byte_965E69;
     this->open(a2, dwShareMode);
 }
 
@@ -150,7 +153,7 @@ os_file::~os_file() {
 }
 
 void os_file::sub_58DEF0() {
-    void *v5 = g_lpBuffer()[this->m_offset];
+    void *v5 = g_lpBuffer[this->m_offset];
 
     uint32_t v7 = max_size;
 
@@ -164,7 +167,7 @@ void os_file::sub_58DEF0() {
 }
 
 size_t os_file::sub_58DF50() {
-    LPCVOID v3 = g_lpBuffer()[this->m_offset];
+    LPCVOID v3 = g_lpBuffer[this->m_offset];
 
     auto NumberOfBytesWritten = 0ul;
     WriteFile(this->io, v3, this->field_2C, &NumberOfBytesWritten, nullptr);
@@ -178,11 +181,11 @@ void os_file::close() {
     assert(opened);
 
     if (this->field_24) {
-        if (!(this->flags & 1) && g_lpBuffer()[this->m_offset] && this->field_2C) {
+        if (!(this->flags & 1) && g_lpBuffer[this->m_offset] && this->field_2C) {
             this->sub_58DF50();
         }
 
-        byte_965E94()[this->m_offset] = 0;
+        byte_965E94[this->m_offset] = 0;
     }
 
     CloseHandle(this->io);
@@ -227,7 +230,10 @@ void os_file::set_fp(uint32_t pos, os_file::filepos_t base) {
     }
 }
 
-int os_file::read(LPVOID data, int bytes) {
+int os_file::read(LPVOID data, int bytes)
+{
+    TRACE("os_file::read");
+
     if constexpr (1) {
         int v3 = bytes;
         if (bytes == 0) {
@@ -266,7 +272,7 @@ int os_file::read(LPVOID data, int bytes) {
 
         if (this->field_24) {
             if (this->m_fileSize > 0 && v3 > 0) {
-                data = g_lpBuffer()[this->m_offset];
+                data = g_lpBuffer[this->m_offset];
                 if (v3 + this->field_1C > this->field_2C + this->field_30) {
                     auto v13 = this->field_2C - this->field_1C;
                     auto v14 = (this->field_30 + v13 == 0);
@@ -319,14 +325,14 @@ int os_file::get_size() {
     return result;
 }
 
-static Var<cdecl_call> dword_965EA0{0x00965EA0};
+static cdecl_call & dword_965EA0 = var<cdecl_call>(0x00965EA0);
 
 void os_file::open(const mString &path, int shareMode) {
     TRACE("os_file::open", path.c_str());
 
     if constexpr (1) {
 
-        if (os_file::system_locked() &&
+        if (os_file::system_locked &&
             !os_developer_options::instance->get_flag(mString {"MOVE_EDITOR"})) {
             mString a1 = path + ": os_file system is locked; no file access allowed";
         }
@@ -400,7 +406,7 @@ void os_file::open(const mString &path, int shareMode) {
                 uint32_t v13 = 0;
 
                 [&]() {
-                    while (byte_965E94()[v13]) {
+                    while (byte_965E94[v13]) {
                         if (++v13 >= 10) {
                             return;
                         }
@@ -409,7 +415,7 @@ void os_file::open(const mString &path, int shareMode) {
                     this->m_offset = v13;
                 }();
 
-                byte_965E94()[v13] = 1;
+                byte_965E94[v13] = 1;
             }
 
             this->opened = true;
@@ -431,9 +437,9 @@ void os_file::open(const mString &path, int shareMode) {
             this->field_15 = (this->field_1C >= this->m_fileSize);
         }
 
-        if (dword_965EA0() != nullptr && this->flags == 2) {
+        if (dword_965EA0 != nullptr && this->flags == 2) {
             if (this->opened) {
-                dword_965EA0()(this);
+                dword_965EA0(this);
             }
         }
     } else {
@@ -464,7 +470,7 @@ int os_file::write(const void *lpBuffer, int nNumberOfBytesToWrite) {
 
         if (this->field_24) {
             auto v10 = v3 + this->field_2C;
-            lpBuffer = g_lpBuffer()[this->m_offset];
+            lpBuffer = g_lpBuffer[this->m_offset];
             if (v10 > this->field_30) {
                 this->sub_58DF50();
             }

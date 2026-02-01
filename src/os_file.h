@@ -70,7 +70,7 @@ struct os_file {
     //0x00598A60
     void close();
 
-    static Var<bool> system_locked;
+    static bool & system_locked;
 };
 
 //0x00519F40

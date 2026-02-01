@@ -35,8 +35,8 @@ void text_file::open(const mString &a1, int mode)
         //       //|| sub_C01680(a1)
         //        )
         {
-            auto v8 = os_file::system_locked();
-            os_file::system_locked() = false;
+            auto v8 = os_file::system_locked;
+            os_file::system_locked = false;
             if ( mode == os_file::FILE_READ || mode == os_file::FILE_APPEND )
             {
                 auto v4 = v9.fullname();
@@ -55,7 +55,7 @@ void text_file::open(const mString &a1, int mode)
 
 
             if ( v8 ) {
-                os_file::system_locked() = true;
+                os_file::system_locked = true;
             }
         }
 
