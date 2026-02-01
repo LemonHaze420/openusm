@@ -603,7 +603,7 @@ struct nglDebugStruct {
 
 
 
-extern Var<nglDebugStruct> nglDebug;
+extern nglDebugStruct & nglDebug;
 extern Var<nglDebugStruct> nglSyncDebug;
 
 extern Var<nglPerfomanceInfo> nglPerfInfo;

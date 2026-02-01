@@ -228,18 +228,18 @@ void nglListInit()
         nglListWorkPos() = CAST(nglListWorkPos(), nglListWork());
         nglDefaultLightContext() = nglCreateLightContext();
         if ( nglSyncDebug().DumpFrameLog ) {
-            nglDebug().DumpFrameLog = 0;
+            nglDebug.DumpFrameLog = 0;
         }
 
         if ( nglSyncDebug().DumpSceneFile ) {
-            nglDebug().DumpSceneFile = 0;
+            nglDebug.DumpSceneFile = 0;
         }
 
         if ( nglSyncDebug().DumpTextures ) {
-            nglDebug().DumpTextures = 0;
+            nglDebug.DumpTextures = 0;
         }
 
-        nglSyncDebug() = nglDebug();
+        nglSyncDebug() = nglDebug;
         nglCurScene() = nullptr;
         nglListBeginScene(static_cast<nglSceneParamType>(0));
         nglSceneDumpStart();
@@ -388,9 +388,9 @@ void nglRenderPerfInfo()
                 nglSyncPerfInfo().field_C,
                 nglSyncPerfInfo().field_10,
                 nglSyncPerfInfo().field_14,
-                nglDebug().field_8,
-                nglDebug().field_C,
-                nglDebug().field_10,
+                nglDebug.field_8,
+                nglDebug.field_C,
+                nglDebug.field_10,
                 v0);
     } else {
         sprintf(Dest,
@@ -668,9 +668,9 @@ void nglListSend(bool Flip)
         sp_log("nglPerfInfo.m_fps == %f", nglPerfInfo().m_fps);
 
         nglPerfInfo().field_60 = nglPerfInfo().field_5C * 0.001f;
-        if ( nglDebug().ScreenShot ) {
+        if ( nglDebug.ScreenShot ) {
             nglScreenShot(nullptr);
-            nglDebug().ScreenShot = 0;
+            nglDebug.ScreenShot = 0;
         }
 
         nglSyncPerfInfo() = nglPerfInfo();

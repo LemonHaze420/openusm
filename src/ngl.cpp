@@ -123,7 +123,6 @@ tlInstanceBank & nglVertexDefBank = var<tlInstanceBank>(0x009728A0);
 VALIDATE_SIZE(nglDebugStruct, 0x28);
 VALIDATE_OFFSET(nglDebugStruct, ShowPerfInfo, 0x18);
 
-Var<nglDebugStruct> nglDebug{0x00975830};
 Var<nglDebugStruct> nglSyncDebug{0x009758E0};
 
 Var<nglPerfomanceInfo> nglPerfInfo{0x00975858};
@@ -159,6 +158,7 @@ nglTexture *& nglDefaultTex = var<nglTexture *>(0x00973838);
 auto & nglDefaultTexData = var<char[6]>(0x0093B140);
 
 char (& nglTexturePath)[265] = var<char[256]>(0x00973738);
+nglDebugStruct & nglDebug = var<nglDebugStruct>(0x00975830);
 
 #else
 
@@ -202,6 +202,11 @@ char (& nglTexturePath)[256] = []() -> auto & {
     return g_nglTexturePath;
 }();
 
+nglDebugStruct & nglDebug = []() -> auto & {
+    static nglDebugStruct g_nglDebug {};
+    return g_nglDebug;
+}();
+
 #endif
 
 Var<tlInstanceBankResourceDirectory<nglMaterialFile, tlFixedString> *> nglMaterialFileDirectory{
@@ -242,63 +247,63 @@ int __stdcall hookD3DXAssembleShader(const char *data,
 uint8_t *nglGetDebugFlagPtr(const char *Flag)
 {
     if ( strcmpi(Flag, "ShowPerfInfo") == 0 ) {
-        return &nglDebug().ShowPerfInfo;
+        return &nglDebug.ShowPerfInfo;
     }
 
     if ( strcmpi(Flag, "ShowPerfBar") == 0 ) {
-        return &nglDebug().ShowPerfBar;
+        return &nglDebug.ShowPerfBar;
     }
 
     if ( strcmpi(Flag, "ScreenShot") == 0 ) {
-        return &nglDebug().ScreenShot;
+        return &nglDebug.ScreenShot;
     }
 
     if ( strcmpi(Flag, "DisableQuads") == 0 ) {
-        return &nglDebug().DisableQuads;
+        return &nglDebug.DisableQuads;
     }
 
     if ( strcmpi(Flag, "DisableVSync") == 0 ) {
-        return &nglDebug().DisableVSync;
+        return &nglDebug.DisableVSync;
     }
 
     if ( strcmpi(Flag, "DisableScratch") == 0 ) {
-        return &nglDebug().DisableScratch;
+        return &nglDebug.DisableScratch;
     }
 
     if ( strcmpi(Flag, "DebugPrints") == 0 ) {
-        return &nglDebug().DebugPrints;
+        return &nglDebug.DebugPrints;
     }
 
     if ( strcmpi(Flag, "DumpFrameLog") == 0 ) {
-        return &nglDebug().DumpFrameLog;
+        return &nglDebug.DumpFrameLog;
     }
 
     if ( strcmpi(Flag, "DumpSceneFile") == 0 ) {
-        return &nglDebug().DumpSceneFile;
+        return &nglDebug.DumpSceneFile;
     }
 
     if ( strcmpi(Flag, "DumpTextures") == 0 ) {
-        return &nglDebug().DumpTextures;
+        return &nglDebug.DumpTextures;
     }
 
     if ( strcmpi(Flag, "DrawLightSpheres") == 0 ) {
-        return &nglDebug().DrawLightSpheres;
+        return &nglDebug.DrawLightSpheres;
     }
 
     if ( strcmpi(Flag, "DrawMeshSpheres") == 0 ) {
-        return &nglDebug().DrawMeshSpheres;
+        return &nglDebug.DrawMeshSpheres;
     }
 
     if ( strcmpi(Flag, "DisableDuplicateMaterialWarning") == 0 ) {
-        return &nglDebug().DisableDuplicateMaterialWarning;
+        return &nglDebug.DisableDuplicateMaterialWarning;
     }
 
     if ( strcmpi(Flag, "DisableMissingTextureWarning") == 0 ) {
-        return &nglDebug().DisableMissingTextureWarning;
+        return &nglDebug.DisableMissingTextureWarning;
     }
 
     if ( strcmpi(Flag, "RenderSingleNode") == 0 ) {
-        return &nglDebug().RenderSingleNode;
+        return &nglDebug.RenderSingleNode;
     }
 
     return nullptr;
@@ -324,7 +329,7 @@ void nglSetDebugFlag(const char *Flag, uint8_t Set)
         *Ptr = Set;
     }
 
-    nglSyncDebug() = nglDebug();
+    nglSyncDebug() = nglDebug;
 }
 
 void nglDestroyTexture(nglTexture *a1) {
@@ -1512,8 +1517,10 @@ void nglTexture::CreateTextureOrSurface()
                                                     TRUE,
                                                     (IDirect3DSurface9 **) &this->DXSurfaces,
                                                     nullptr);
-            ++nglDebug().field_10;
+
+            ++nglDebug.field_10;
         } else {
+
             int usage = 0;
             D3DPOOL pool = D3DPOOL_MANAGED;
             if ((v2 & 0x1000) != 0) {
@@ -1561,9 +1568,8 @@ void nglTexture::CreateTextureOrSurface()
                                                           nullptr);
             }
 
-            ++nglDebug().field_C;
+            ++nglDebug.field_C;
         }
-
     }
     else
     {
@@ -1587,7 +1593,7 @@ void nglTexture::sub_774F20()
                         ->GetSurfaceLevel(this->DXTexture,
                                           i,
                                           (IDirect3DSurface9 **) &this->DXSurfaces[i]);
-                    ++nglDebug().field_8;
+                    ++nglDebug.field_8;
                 }
 
             }
@@ -1603,7 +1609,7 @@ void nglTexture::sub_774F20()
                         this->DXTexture->lpVtbl->GetSurfaceLevel(this->DXTexture,
                                                                  j,
                                                                  (IDirect3DSurface9 **) k);
-                        ++nglDebug().field_8;
+                        ++nglDebug.field_8;
                     }
                 }
             }
@@ -3665,7 +3671,7 @@ void sub_783080(nglTexture *Tex, uint8_t **a2, uint8_t *a3, int a4) {
                     auto v18 = v24[v15];
                     for (auto i = v18; v17 < Tex->m_numLevel; v18 = i, ++v17) {
                         v14->lpVtbl->GetSurfaceLevel(v14, v18, (IDirect3DSurface9 **) v17);
-                        ++nglDebug().field_8;
+                        ++nglDebug.field_8;
 
                         v20->lpVtbl->GetDesc(v20, &a1);
                         v14->lpVtbl->LockRect(v14,
@@ -3678,7 +3684,7 @@ void sub_783080(nglTexture *Tex, uint8_t **a2, uint8_t *a3, int a4) {
                         *a2 += v19;
                         v14->lpVtbl->UnlockRect(v14, i);
                         v20->lpVtbl->Release(v20);
-                        --nglDebug().field_8;
+                        --nglDebug.field_8;
 
                         v16 = a2;
                     }
@@ -3691,7 +3697,7 @@ void sub_783080(nglTexture *Tex, uint8_t **a2, uint8_t *a3, int a4) {
             if (Tex->m_numLevel) {
                 while (1) {
                     v6->lpVtbl->GetSurfaceLevel(v6, lvl, &v20);
-                    ++nglDebug().field_8;
+                    ++nglDebug.field_8;
 
                     D3DSURFACE_DESC a1;
                     v20->lpVtbl->GetDesc(v20, &a1);
@@ -3727,7 +3733,7 @@ void sub_783080(nglTexture *Tex, uint8_t **a2, uint8_t *a3, int a4) {
                 LABEL_15:
                     v6->lpVtbl->UnlockRect(v6, lvl);
                     v20->lpVtbl->Release(v20);
-                    --nglDebug().field_8;
+                    --nglDebug.field_8;
 
                     i = ++lvl;
                     if (lvl >= Tex->m_numLevel) {
@@ -5185,11 +5191,11 @@ void nglSetClearFlags(unsigned int a1)
 void nglDebugInit() {
     TRACE("nglDebugInit");
 
-    nglDebug() = {};
-    nglSyncDebug() = nglDebug();
+    nglDebug = {};
+    nglSyncDebug() = nglDebug;
     nglPerfInfo() = {};
     nglSyncPerfInfo() = {};
-    nglDebug().field_4 = 65280;
+    nglDebug.field_4 = 65280;
 }
 
 //0x00783A90
