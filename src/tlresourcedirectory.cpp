@@ -36,7 +36,7 @@ nglTexture *tlResourceDirectory<nglTexture, tlFixedString>::StandardLoad(const t
         [[maybe_unused]] auto v5 = 0;
 
         char Str1[256];
-        strcpy(Str1, nglTexturePath());
+        strcpy(Str1, nglTexturePath);
 
         auto v7 = strlen(v4) + 1;
         auto *v8 = (char *) &v19 + 3;
@@ -138,7 +138,7 @@ nglFont *tlResourceDirectory<nglFont, tlFixedString>::StandardLoad(const tlFixed
     if constexpr (0)
     {
         char Dest[256];
-        _snprintf(Dest, 256u, "%s%s%s", nglTexturePath(), a1.to_string(), ".fdf");
+        _snprintf(Dest, 256u, "%s%s%s", nglTexturePath, a1.to_string(), ".fdf");
 
         tlFileBuf fileBuf;
         if (!tlReadFile(Dest, &fileBuf, 4u, 0)) {

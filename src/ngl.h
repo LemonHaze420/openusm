@@ -974,7 +974,7 @@ extern math::VecClass<3, 1> sub_414360(const math::VecClass<3, 1> &a2, const mat
 
 extern Var<bool> nglLoadingIFL;
 
-extern Var<char[256]> nglTexturePath;
+extern char (& nglTexturePath)[256];
 
 extern Var<uint8_t *> nglListWorkPos;
 

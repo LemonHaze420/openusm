@@ -137,8 +137,6 @@ Var<int> nglFrame{0x00972904};
 
 Var<nglMesh *> nglScratch{0x00973B14};
 
-Var<char[256]> nglTexturePath{0x00973738};
-
 Var<char[1024]> nglFontBuffer{0x00974E08};
 
 Var<tlInstanceBankResourceDirectory<nglFont, tlFixedString> *> nglFontDirectory{0x00974E00};
@@ -153,6 +151,8 @@ auto & nglMeshDirectory = var<tlInstanceBankResourceDirectory<nglMesh, tlHashStr
 auto & nglMorphDirectory = var<tlInstanceBankResourceDirectory<nglMorphSet, tlHashString> *>(0x00972818);
 
 auto & nglMorphFileDirectory = var<tlInstanceBankResourceDirectory<nglMorphFile, tlFixedString> *>(0x00974DB0);
+
+char (& nglTexturePath)[265] = var<char[256]>(0x00973738);
 
 #else
 
@@ -170,6 +170,11 @@ auto & nglMorphDirectory = g_nglMorphDirectory;
 
 static tlInstanceBankResourceDirectory<nglMorphFile, tlFixedString> * g_nglMorphFileDirectory {};
 auto & nglMorphFileDirectory = g_nglMorphFileDirectory;
+
+char (& nglTexturePath)[256] = []() -> auto & {
+    static char g_nglTexturePath[256];
+    return g_nglTexturePath;
+}();
 
 #endif
 
@@ -1873,8 +1878,8 @@ void nglGetProjectionParams(float *a1, float *nearz, float *farz)
 }
 
 void nglSetTexturePath(const char *a1) {
-    std::strncpy(nglTexturePath(), a1, 256u);
-    nglTexturePath()[255] = '\0';
+    std::strncpy(nglTexturePath, a1, 256u);
+    nglTexturePath[255] = '\0';
 }
 
 nglFont *nglLoadFont(const tlFixedString &a1) {
