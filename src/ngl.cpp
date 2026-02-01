@@ -118,8 +118,6 @@ bool & g_valid_texture_format = var<bool>(0x00971F9D);
 
 uint32_t & nglTextureAnimFrame = var<uint32_t>(0x0097383C);
 
-nglTexture *& nglDefaultTex = var<nglTexture *>(0x00973838);
-
 tlInstanceBank & nglVertexDefBank = var<tlInstanceBank>(0x009728A0);
 
 VALIDATE_SIZE(nglDebugStruct, 0x28);
@@ -156,6 +154,8 @@ auto & nglMorphFileDirectory = var<tlInstanceBankResourceDirectory<nglMorphFile,
 
 nglTexture & stru_975AC0 = var<nglTexture>(0x00975AC0);
 
+nglTexture *& nglDefaultTex = var<nglTexture *>(0x00973838);
+
 auto & nglDefaultTexData = var<char[6]>(0x0093B140);
 
 char (& nglTexturePath)[265] = var<char[256]>(0x00973738);
@@ -185,6 +185,11 @@ auto & nglMorphFileDirectory = g_nglMorphFileDirectory;
 nglTexture & stru_975AC0 = []() -> auto & {
     static nglTexture g_stru_975AC0;
     return g_stru_975AC0;
+}();
+
+nglTexture *& nglDefaultTex = []() -> auto & {
+    static nglTexture *g_nglDefaultTex {};
+    return g_nglDefaultTex;
 }();
 
 auto & nglDefaultTexData = []() -> auto & {
@@ -1829,7 +1834,6 @@ void nglTextureInit()
 
         tlFixedString v4 {"ngldefault"};
 
-        sp_log("debug!!");
         nglDefaultTex = nglLoadTextureInPlace(v4, static_cast<nglTextureFileFormat>(0), nglDefaultTexData, 2872u);
 
         nglDefaultTex->field_34 |= 2u;
