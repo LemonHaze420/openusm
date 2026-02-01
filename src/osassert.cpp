@@ -12,7 +12,7 @@ void warning(const char *arg0, ...)
 {
     va_list va;
     va_start(va, arg0);
-    if ( (g_debug().field_0 & debug_struct_t::OUTPUT_WARNING) != 0 )
+    if ( (g_debug.field_0 & debug_struct_t::OUTPUT_WARNING) != 0 )
     {
         va_list v2;
         va_copy(v2, va);
@@ -37,6 +37,6 @@ void error(const char *arg0, ...)
 
     char a1[2048];
     vsnprintf(a1, 2048, arg0, va);
-    g_debug().field_1 |= 1u;
+    g_debug.field_1 |= 1u;
     assert(a1);
 }

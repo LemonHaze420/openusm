@@ -202,14 +202,14 @@ game::game()
 
         geometry_manager::set_field_of_view(fov);
 
-        g_debug().field_0 |= 0x80u;
+        g_debug.field_0 |= 0x80u;
         if (os_developer_options::instance->get_flag(mString{"OUTPUT_WARNING_DISABLE"})) {
-            g_debug().field_0 &= 0x7Fu;
+            g_debug.field_0 &= 0x7Fu;
         }
 
-        g_debug().field_1 |= 4u;
+        g_debug.field_1 |= 4u;
         if (os_developer_options::instance->get_flag(mString{"OUTPUT_ASSERT_DISABLE"})) {
-            g_debug().field_1 &= 0xFBu;
+            g_debug.field_1 &= 0xFBu;
         }
 
         if (os_developer_options::instance->get_flag(mString{"SMOKE_TEST"})) {
