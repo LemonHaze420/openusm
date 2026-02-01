@@ -98,7 +98,44 @@ int & dword_922908 = var<int>(0x00922908);
 
 bool & byte_922994 = var<bool>(0x00922994);
 
+#if !STANDALONE_SYSTEM
 IDirect3DDevice9 *& g_Direct3DDevice = var<IDirect3DDevice9 *>(0x00971F94);
+
+int & nWidth = var<int>(0x0093AE84);
+
+int & nHeight = var<int>(0x0093AE88);
+
+int & g_Windowed = var<int>(0x00946530);
+
+HWND & g_hWnd = var<HWND>(0x00971F98);
+
+#else
+IDirect3DDevice9 *& g_Direct3DDevice = []() -> auto & {
+    static IDirect3DDevice9 * g_Direct3DDevice1 {};
+    return g_Direct3DDevice1;
+}();
+
+int & nWidth = []() -> auto & {
+    static int g_nWidth {640};
+    return g_nWidth;
+}();
+
+int & nHeight = []() -> auto & {
+    static int g_nHeight {480};
+    return g_nHeight;
+}();
+
+int & g_Windowed = []() -> auto & {
+    static int g_Windowed1 {1};
+    return g_Windowed1;
+}();
+
+HWND & g_hWnd = []() -> auto & {
+    static HWND g_hWnd1 {};
+    return g_hWnd1;
+}();
+
+#endif
 
 char & byte_965C21 = var<char>(0x00965C21);
 
@@ -123,16 +160,9 @@ bool & byte_975468 = var<bool>(0x00975468);
 
 char (&byte_9659B8)[260] = var<char[260]>(0x009659B8);
 
-int & nWidth = var<int>(0x0093AE84);
-int & nHeight = var<int>(0x0093AE88);
-
-HWND & g_hWnd = var<HWND>(0x00971F98);
-
 float & flt_965BDC = var<float>(0x00965BDC);
 
 bool & ChromeEffect = var<bool>(0x0091E1D4);
-
-int & g_Windowed = var<int>(0x00946530);
 
 float & flt_88E518 = var<float>(0x0088E518);
 
