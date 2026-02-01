@@ -360,19 +360,19 @@ void sub_76F320() {
             void (__fastcall *field_1C)(void *, void *, int, int, int);
         };
 
-        auto address = get_vtbl(nglMeshFileDirectory());
+        auto address = get_vtbl(nglGetMeshFileDirectory());
 
         if (bit_cast<std::ptrdiff_t>(address) != 0x008B8180) {
             sp_log("Invalid address of vtable = 0x%08X", address);
 
-            set_vtbl(nglMeshFileDirectory(), 0x008B8180);
+            set_vtbl(nglGetMeshFileDirectory(), 0x008B8180);
 
-            address = get_vtbl(nglMeshFileDirectory());
+            address = get_vtbl(nglGetMeshFileDirectory());
         }
 
         Vtbl *vtbl = CAST(vtbl, address);
 
-        vtbl->field_1C(nglMeshFileDirectory(), nullptr, 1, 1, 1); // 0x008B8180 -> sub_560770
+        vtbl->field_1C(nglGetMeshFileDirectory(), nullptr, 1, 1, 1); // 0x008B8180 -> sub_560770
     } else {
         CDECL_CALL(0x0076F320);
     }

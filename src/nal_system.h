@@ -140,7 +140,13 @@ extern bool nalLoadAnimFileInternal(nalAnimFile *anim_file);
 
 extern void nalSetSkeletonDirectory(tlResourceDirectory<nalBaseSkeleton, tlFixedString> *a1);
 
+//0x0050EAB0
+extern tlInstanceBankResourceDirectory<nalBaseSkeleton, tlFixedString> * nalGetSkeletonDirectory();
+
 extern void nalSetAnimFileDirectory(tlResourceDirectory<nalAnimFile, tlFixedString> *a1);
+
+//0x0050EA50
+extern tlInstanceBankResourceDirectory<nalAnimFile, tlFixedString> * nalGetAnimFileDirectory();
 
 struct nalAnyPose;
 
@@ -149,9 +155,13 @@ struct nalAnimClass;
 
 extern void nalSetAnimDirectory(tlResourceDirectory<nalAnimClass<nalAnyPose>, tlFixedString> *a1);
 
-extern tlResourceDirectory<nalAnimClass<nalAnyPose>, tlFixedString> *nalGetAnimDirectory();
+//0x0050EA70
+extern tlInstanceBankResourceDirectory<nalAnimClass<nalAnyPose>, tlFixedString> * nalGetAnimDirectory();
 
 extern void nalSetSceneAnimDirectory(tlResourceDirectory<nalSceneAnim, tlFixedString> *a1);
+
+//0x0050EA90
+extern tlInstanceBankResourceDirectory<nalSceneAnim, tlFixedString> * nalGetSceneAnimDirectory();
 
 extern char (& nalSkeletonPath)[255];
 

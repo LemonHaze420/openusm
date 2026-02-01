@@ -29,21 +29,6 @@ tlInstanceBank & nalComponentInstanceBank = var<tlInstanceBank>(0x00977100);
 
 LARGE_INTEGER & nalPlayerGetPoseTicks = var<LARGE_INTEGER>(0x009770D8);
 
-#define make_var(T0, T1, address) \
-template<> \
-tlInstanceBankResourceDirectory<T0, T1> *& \
-    tlresource_directory<T0, T1>::system_dir = var<tlInstanceBankResourceDirectory<T0, T1> *>(address)
-
-make_var(nalAnimFile, tlFixedString, 0x009609F4);
-
-make_var(nalBaseSkeleton, tlFixedString, 0x009609E8);
-
-make_var(nalAnimClass<nalAnyPose>, tlFixedString, 0x009609F0);
-
-make_var(nalSceneAnim, tlFixedString, 0x009609EC);
-
-#undef make_var
-
 tlInstanceBankResourceDirectory<nalBaseSkeleton, tlFixedString> *& nalSkeletonDirectory =
     var<tlInstanceBankResourceDirectory<nalBaseSkeleton, tlFixedString> *>(0x00977178);
 
@@ -249,21 +234,37 @@ void nalSetSkeletonDirectory(tlResourceDirectory<nalBaseSkeleton, tlFixedString>
     nalSkeletonDirectory = CAST(nalSkeletonDirectory, a1);
 }
 
+tlInstanceBankResourceDirectory<nalBaseSkeleton, tlFixedString> * nalGetSkeletonDirectory()
+{
+    return nalSkeletonDirectory;
+}
+
 void nalSetAnimFileDirectory(tlResourceDirectory<nalAnimFile, tlFixedString> *a1) {
     nalAnimFileDirectory = CAST(nalAnimFileDirectory, a1);
 }
+
+tlInstanceBankResourceDirectory<nalAnimFile, tlFixedString> * nalGetAnimFileDirectory()
+{
+    return nalAnimFileDirectory;
+}
+
 
 void nalSetAnimDirectory(tlResourceDirectory<nalAnimClass<nalAnyPose>, tlFixedString> *a1) {
     nalAnimDirectory = CAST(nalAnimDirectory, a1);
 }
 
-tlResourceDirectory<nalAnimClass<nalAnyPose>, tlFixedString> *nalGetAnimDirectory()
+tlInstanceBankResourceDirectory<nalAnimClass<nalAnyPose>, tlFixedString> * nalGetAnimDirectory()
 {
     return nalAnimDirectory;
 }
 
 void nalSetSceneAnimDirectory(tlResourceDirectory<nalSceneAnim, tlFixedString> *a1) {
     nalSceneAnimDirectory = CAST(nalSceneAnimDirectory, a1);
+}
+
+tlInstanceBankResourceDirectory<nalSceneAnim, tlFixedString> * nalGetSceneAnimDirectory()
+{
+    return nalSceneAnimDirectory;
 }
 
 nalMatrix4x4::nalMatrix4x4(const nalPositionOrientation &a2)

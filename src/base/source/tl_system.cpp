@@ -12,6 +12,7 @@
 #include "resource_directory.h"
 #include "tl_instance_bank.h"
 #include "tlresourcedirectory.h"
+#include "tlresource_directory.h"
 #include "trace.h"
 #include "utility.h"
 #include "variable.h"
@@ -450,8 +451,30 @@ void tlGetSystemCallbacks(tlSystemCallbacks *a1) {
     a1->MemFree = tlCurSystemCallbacks.MemFree;
 }
 
-void set_tl_system_directories() {
-    CDECL_CALL(0x0050EAD0);
+void set_tl_system_directories()
+{
+    if constexpr (1) {
+        tlresource_directory<nglTexture,tlFixedString>::system_dir = nglGetTextureDirectory();
+        tlresource_directory<nglMeshFile,tlFixedString>::system_dir = nglGetMeshFileDirectory();
+        tlresource_directory<nglMesh,tlHashString>::system_dir = nglGetMeshDirectory();
+        tlresource_directory<nglMorphFile,tlFixedString>::system_dir = nglGetMorphFileDirectory();
+        tlresource_directory<nglMorphSet,tlHashString>::system_dir = nglGetMorphDirectory();
+        tlresource_directory<nalAnimFile,tlFixedString>::system_dir = nalGetAnimFileDirectory();
+        tlresource_directory<nalAnimClass<nalAnyPose>,tlFixedString>::system_dir = nalGetAnimDirectory();
+        tlresource_directory<nalBaseSkeleton,tlFixedString>::system_dir = nalGetSkeletonDirectory();
+        tlresource_directory<nalSceneAnim,tlFixedString>::system_dir = nalGetSceneAnimDirectory();
+        tlresource_directory<nglTexture,tlFixedString>::default_tlres = nglDefaultTex;
+        tlresource_directory<nglMeshFile,tlFixedString>::default_tlres = nullptr;
+        tlresource_directory<nglMesh,tlHashString>::default_tlres = nullptr;
+        tlresource_directory<nglMorphSet,tlHashString>::default_tlres = nullptr;
+        tlresource_directory<nglMorphFile,tlFixedString>::default_tlres = nullptr;
+        tlresource_directory<nalAnimFile,tlFixedString>::default_tlres = nullptr;
+        tlresource_directory<nalAnimClass<nalAnyPose>,tlFixedString>::default_tlres = nullptr;
+        tlresource_directory<nalSceneAnim,tlFixedString>::default_tlres = nullptr;
+        tlresource_directory<nalBaseSkeleton,tlFixedString>::default_tlres = nullptr;
+    } else {
+        CDECL_CALL(0x0050EAD0);
+    }
 }
 
 //0x0078A1B0

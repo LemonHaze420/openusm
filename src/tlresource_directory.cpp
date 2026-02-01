@@ -16,27 +16,43 @@
 
 #include <cassert>
 
-#ifndef TEST_CASE
+#if !STANDALONE_SYSTEM
 
-#define make_var(T0, T1, address) \
-template<> \
-tlInstanceBankResourceDirectory<T0, T1> *& \
-    tlresource_directory<T0, T1>::system_dir = \
-    var<tlInstanceBankResourceDirectory<T0, T1> *>(address)
+#define make_system_dir(T0, T1, address)                        \
+    template<>                                                  \
+    tlInstanceBankResourceDirectory<T0, T1> *&                  \
+        tlresource_directory<T0, T1>::system_dir =              \
+        var<tlInstanceBankResourceDirectory<T0, T1> *>(address)
 
-make_var(nglTexture, tlFixedString, 0x00960A10);
+make_system_dir(nglTexture, tlFixedString, 0x00960A10);
+make_system_dir(nglMesh, tlHashString, 0x00960A08);
+make_system_dir(nglMeshFile, tlFixedString, 0x00960A0C);
+make_system_dir(nglMorphFile, tlFixedString, 0x00960A04);
+make_system_dir(nglMorphSet, tlHashString, 0x00960A00);
+make_system_dir(nalAnimClass<nalAnyPose>, tlFixedString, 0x009609F0);
+make_system_dir(nalAnimFile, tlFixedString, 0x009609F4);
+make_system_dir(nglMaterialBase, tlHashString, 0x009609F8);
+make_system_dir(nglMaterialFile, tlFixedString, 0x009609FC);
+make_system_dir(nalBaseSkeleton, tlFixedString, 0x009609E8);
+make_system_dir(nalSceneAnim, tlFixedString, 0x009609EC);
 
-make_var(nglMesh, tlHashString, 0x00960A08);
+#undef make_system_dir
 
-make_var(nglMeshFile, tlFixedString, 0x00960A0C);
+#define make_default_tlres(T0, T1, address)                                 \
+    template<>                                                              \
+    T0 *& tlresource_directory<T0, T1>::default_tlres = var<T0 *>(address)
 
-make_var(nglMorphSet, tlHashString, 0x00960A00);
+make_default_tlres(nglMesh, tlHashString, 0x009609DC);
+make_default_tlres(nalBaseSkeleton, tlFixedString, 0x009609BC);
+make_default_tlres(nglMeshFile, tlFixedString, 0x009609E0);
+make_default_tlres(nglTexture, tlFixedString, 0x009609E4);
+make_default_tlres(nalSceneAnim, tlFixedString, 0x009609C0);
+make_default_tlres(nalAnimClass<nalAnyPose>, tlFixedString, 0x009609C4);
+make_default_tlres(nalAnimFile, tlFixedString, 0x009609C8);
+make_default_tlres(nglMorphFile, tlFixedString, 0x009609D4);
+make_default_tlres(nglMorphSet, tlHashString, 0x009609D8);
 
-make_var(nglMaterialFile, tlFixedString, 0x009609FC);
-
-make_var(nglMaterialBase, tlHashString, 0x009609F8);
-
-#undef make_var
+#undef make_default_tlres
 
 #else
 
@@ -47,43 +63,48 @@ static auto & make_system_dir()
     return g_system_dir;
 }
 
-#define make_var(T0, T1) \
-template<> \
-tlInstanceBankResourceDirectory<T0, T1> *& \
-    tlresource_directory<T0, T1>::system_dir { \
-        make_system_dir<T0, T1>()}
+#define make_system_dir(T0, T1)                                       \
+template<>                                                            \
+tlInstanceBankResourceDirectory<T0, T1> *&                            \
+    tlresource_directory<T0, T1>::system_dir = []() -> auto & {       \
+        static tlInstanceBankResourceDirectory<T0, T1> *g_system_dir; \
+        return g_system_dir;                                          \
+    }()
 
-make_var(nglTexture, tlFixedString);
+make_system_dir(nglTexture, tlFixedString);
+make_system_dir(nglMesh, tlHashString);
+make_system_dir(nglMeshFile, tlFixedString);
+make_system_dir(nglMorphSet, tlHashString);
+make_system_dir(nglMorphFile, tlFixedString);
+make_system_dir(nglMaterialFile, tlFixedString);
+make_system_dir(nglMaterialBase, tlHashString);
+make_system_dir(nalAnimClass<nalAnyPose>, tlFixedString);
+make_system_dir(nalAnimFile, tlFixedString);
+make_system_dir(nalBaseSkeleton, tlFixedString);
+make_system_dir(nalSceneAnim, tlFixedString);
 
-make_var(nglMesh, tlHashString);
+#undef make_system_dir
 
-make_var(nglMeshFile, tlFixedString);
+#define make_default_tlres(T0, T1)                                       \
+    template<>                                                           \
+    T0 *& tlresource_directory<T0, T1>::default_tlres = []() -> T0 *& {  \
+        static T0 *g_default_tlres {};                                   \
+        return g_default_tlres;                                          \
+    }()
 
-make_var(nglMorphSet, tlHashString);
+make_default_tlres(nglMesh, tlHashString);
+make_default_tlres(nalBaseSkeleton, tlFixedString);
+make_default_tlres(nglMeshFile, tlFixedString);
+make_default_tlres(nglTexture, tlFixedString);
+make_default_tlres(nalSceneAnim, tlFixedString);
+make_default_tlres(nalAnimClass<nalAnyPose>, tlFixedString);
+make_default_tlres(nalAnimFile, tlFixedString);
+make_default_tlres(nglMorphFile, tlFixedString);
+make_default_tlres(nglMorphSet, tlHashString);
 
-make_var(nglMaterialFile, tlFixedString);
-
-make_var(nglMaterialBase, tlHashString);
-
-#undef make_var
+#undef make_default_tlres
 
 #endif
-
-#define make_var(T0, T1, address) \
-template<> \
-T0 *& tlresource_directory<T0, T1>::default_tlres = var<T0 *>(address)
-
-make_var(nglMesh, tlHashString, 0x009609DC);
-
-make_var(nalBaseSkeleton, tlFixedString, 0x009609BC);
-
-make_var(nglMeshFile, tlFixedString, 0x009609E0);
-
-make_var(nglTexture, tlFixedString, 0x009609E4);
-
-make_var(nalAnimClass<nalAnyPose>, tlFixedString, 0x009609C4);
-
-#undef make_var
 
 #define constructor_tlresource_directory(T0, T1, vtbl) \
     template<> \

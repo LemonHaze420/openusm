@@ -414,11 +414,20 @@ extern nglTexture *nglGetTexture(const tlFixedString &a1);
 //0x007730B0
 extern void nglSetTextureDirectory(tlResourceDirectory<nglTexture, tlFixedString> *a1);
 
+//0x007730C0
+extern tlInstanceBankResourceDirectory<nglTexture, tlFixedString> * nglGetTextureDirectory();
+
 //0x0076EF60
 extern void nglSetMeshFileDirectory(tlResourceDirectory<nglMeshFile, tlFixedString> *a1);
 
+//0x0076EF70
+extern tlInstanceBankResourceDirectory<nglMeshFile, tlFixedString> * nglGetMeshFileDirectory();
+
 //0x0076EF80
 extern void nglSetMeshDirectory(tlResourceDirectory<nglMesh, tlHashString> *a1);
+
+//0x0076EF90
+extern tlInstanceBankResourceDirectory<nglMesh, tlHashString> * nglGetMeshDirectory();
 
 struct nglMaterialFile;
 
@@ -444,6 +453,12 @@ struct nglMorphSet {
 
 //0x0076EFA0
 extern void nglSetMorphDirectory(tlResourceDirectory<nglMorphSet, tlHashString> *a1);
+
+//0x0076EFB0
+extern tlInstanceBankResourceDirectory<nglMorphSet, tlHashString> * nglGetMorphDirectory();
+
+//0x00778500
+extern tlInstanceBankResourceDirectory<nglMorphFile, tlFixedString> * nglGetMorphFileDirectory();
 
 extern vector4d sub_411750(const vector4d &a2, const vector4d &a3);
 
@@ -870,13 +885,7 @@ inline Var<HANDLE> h_sceneDump {0x00976E20};
 //0x0077BC90
 extern nglTexture *nglCreateTexture(uint32_t Format, int Width, int Height, int a4, bool a5);
 
-extern Var<tlInstanceBankResourceDirectory<nglMeshFile, tlFixedString> *> nglMeshFileDirectory;
-
 extern Var<tlInstanceBankResourceDirectory<nglFont, tlFixedString> *> nglFontDirectory;
-
-extern Var<tlInstanceBankResourceDirectory<nglMesh, tlHashString> *> nglMeshDirectory;
-
-extern Var<tlInstanceBankResourceDirectory<nglMorphSet, tlHashString> *> nglMorphDirectory;
 
 extern Var<tlInstanceBankResourceDirectory<nglMaterialFile, tlFixedString> *>
     nglMaterialFileDirectory;
