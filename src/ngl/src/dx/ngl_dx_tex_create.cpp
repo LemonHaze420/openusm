@@ -75,9 +75,9 @@ nglTexture *nglCreateTexture(uint32_t Format, int Width, int Height, int a4, boo
 
             char Dest[128];
             sprintf(Dest, "created texture %d", v11);
-            tex->field_4 = stru_975AC0().field_4;
-            tex->field_0 = &stru_975AC0();
-            stru_975AC0().field_4 = tex;
+            tex->field_4 = stru_975AC0.field_4;
+            tex->field_0 = &stru_975AC0;
+            stru_975AC0.field_4 = tex;
             tex->field_4->field_0 = tex;
 
             auto v7 = 2 * a5;

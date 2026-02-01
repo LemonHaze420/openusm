@@ -144,6 +144,8 @@ Var<tlInstanceBankResourceDirectory<nglFont, tlFixedString> *> nglFontDirectory{
 #if !STANDALONE_SYSTEM
 auto & nglTextureDirectory = var<tlInstanceBankResourceDirectory<nglTexture, tlFixedString> *>(0x00973730);
 
+auto & nglPaletteFileDirectory = var<tlInstanceBankResourceDirectory<nglPaletteFile, tlFixedString> *>(0x00976C80);
+
 auto & nglMeshFileDirectory = var<tlInstanceBankResourceDirectory<nglMeshFile, tlFixedString> *>(0x00972814);
 
 auto & nglMeshDirectory = var<tlInstanceBankResourceDirectory<nglMesh, tlHashString> *>(0x00972810);
@@ -152,12 +154,21 @@ auto & nglMorphDirectory = var<tlInstanceBankResourceDirectory<nglMorphSet, tlHa
 
 auto & nglMorphFileDirectory = var<tlInstanceBankResourceDirectory<nglMorphFile, tlFixedString> *>(0x00974DB0);
 
+nglTexture & stru_975AC0 = var<nglTexture>(0x00975AC0);
+
+auto & nglDefaultTexData = var<char[6]>(0x0093B140);
+
 char (& nglTexturePath)[265] = var<char[256]>(0x00973738);
 
 #else
 
 static tlInstanceBankResourceDirectory<nglTexture, tlFixedString> * g_nglTextureDirectory {};
 auto & nglTextureDirectory = g_nglTextureDirectory;
+
+auto & nglPaletteFileDirectory = []() -> auto & {
+    static tlInstanceBankResourceDirectory<nglPaletteFile, tlFixedString> * g_nglPaletteFileDirectory;
+    return g_nglPaletteFileDirectory;
+}();
 
 static tlInstanceBankResourceDirectory<nglMeshFile, tlFixedString> * g_nglMeshFileDirectory {};
 auto & nglMeshFileDirectory = g_nglMeshFileDirectory;
@@ -170,6 +181,16 @@ auto & nglMorphDirectory = g_nglMorphDirectory;
 
 static tlInstanceBankResourceDirectory<nglMorphFile, tlFixedString> * g_nglMorphFileDirectory {};
 auto & nglMorphFileDirectory = g_nglMorphFileDirectory;
+
+nglTexture & stru_975AC0 = []() -> auto & {
+    static nglTexture g_stru_975AC0;
+    return g_stru_975AC0;
+}();
+
+auto & nglDefaultTexData = []() -> auto & {
+    static char g_nglDefaultTexData[2872u];
+    return g_nglDefaultTexData;
+}();
 
 char (& nglTexturePath)[256] = []() -> auto & {
     static char g_nglTexturePath[256];
@@ -186,8 +207,6 @@ Var<tlInstanceBankResourceDirectory<nglMaterialBase, tlHashString> *> nglMateria
 
 static Var<nglTexture *> nglFrontBufferTex{0x009754D0};
 static Var<nglTexture *> nglBackBufferTex{0x009754D4};
-
-Var<nglTexture> stru_975AC0{0x00975AC0};
 
 Var<nglMesh *> nglDebugMesh_Sphere{0x00975998};
 
@@ -1797,9 +1816,24 @@ void nglTextureInit()
 {
     TRACE("nglTextureInit");
 
-    if constexpr (0)
+    if constexpr (1)
     {
+        nglTexturePath[0] = 0;
 
+        nglTextureDirectory = new tlInstanceBankResourceDirectory<nglTexture, tlFixedString> {};
+
+        nglPaletteFileDirectory = new tlInstanceBankResourceDirectory<nglPaletteFile, tlFixedString> {};
+
+        stru_975AC0.field_4 = &stru_975AC0;
+        stru_975AC0.field_0 = &stru_975AC0;
+
+        tlFixedString v4 {"ngldefault"};
+
+        sp_log("debug!!");
+        nglDefaultTex = nglLoadTextureInPlace(v4, static_cast<nglTextureFileFormat>(0), nglDefaultTexData, 2872u);
+
+        nglDefaultTex->field_34 |= 2u;
+        nglInitWhiteTexture();
     }
     else
     {
@@ -4049,9 +4083,9 @@ nglTexture *nglConstructTexture(const tlFixedString &a1,
         auto *tex = static_cast<nglTexture *>(tlMemAlloc(sizeof(nglTexture), 8, 0x1000000u));
         *tex = {};
 
-        tex->field_4 = stru_975AC0().field_4;
-        tex->field_0 = &stru_975AC0();
-        stru_975AC0().field_4 = tex;
+        tex->field_4 = stru_975AC0.field_4;
+        tex->field_0 = &stru_975AC0;
+        stru_975AC0.field_4 = tex;
         tex->field_4->field_0 = tex;
         tex->field_8 = 1;
         tex->field_60 = a1;

@@ -99,6 +99,9 @@ struct nglTexture {
     void sub_774F20();
 };
 
+struct nglPaletteFile {
+};
+
 inline constexpr auto NGLP_SCALE = 0x2;
 
 inline constexpr auto NGLP_NO_CULLING = 0x40;
@@ -875,7 +878,7 @@ inline constexpr auto NGLTEX_CUBE = 0x10000000u;
 //0x0077A3C0
 extern void nglSaveTexture(nglTexture *Tex, const char *a2);
 
-extern Var<nglTexture> stru_975AC0;
+extern nglTexture & stru_975AC0;
 
 extern Var<int[1024]> dword_975BE8;
 extern Var<int> dword_975BE0;
@@ -941,6 +944,8 @@ extern void nglRotateQuad(nglQuad *a2, Float a3, Float a4, Float a5);
 
 //0x0076E3E0
 extern void nglInit(HWND hWnd);
+
+extern void nglTextureInit();
 
 extern void sub_769DE0(int a1);
 

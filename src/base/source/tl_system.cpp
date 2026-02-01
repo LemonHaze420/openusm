@@ -16,6 +16,7 @@
 #include "trace.h"
 #include "utility.h"
 #include "variable.h"
+#include "variables.h"
 #include "vtbl.h"
 
 #include <cassert>
@@ -121,6 +122,16 @@ tlInstanceBankResourceDirectory<nalBaseSkeleton, tlFixedString>::tlInstanceBankR
     field_4.field_4 = 7;
     field_4.field_8 = nullptr;
 }
+
+template<>
+tlInstanceBankResourceDirectory<nglPaletteFile, tlFixedString>::tlInstanceBankResourceDirectory() {
+    m_vtbl = 0x008B8D68;
+
+    field_4.field_0 = rand();
+    field_4.field_4 = 7;
+    field_4.field_8 = nullptr;
+}
+
 
 template<>
 void tlInstanceBankResourceDirectory<nglTexture, tlFixedString>::Impl::Init() {
