@@ -6,6 +6,7 @@
 #include "osassert.h"
 #include "trace.h"
 #include "variable.h"
+#include "variables.h"
 
 
 static Var<D3DFORMAT[50]> d3d_format_array{0x0093C008};
@@ -69,9 +70,16 @@ nglTexture *nglCreateTexture(uint32_t Format, int Width, int Height, int a4, boo
         {
             *tex = {};
 
-            static Var<int> g_id_tex{0x00975530};
+#if !STANDALONE_SYSTEM
+            static int & g_id_tex = var<int>(0x00975530);
+#else
+            static int & g_id_tex = []() -> auto & {
+                static int g_id_tex1;
+                return g_id_tex1;
+            }();
+#endif
 
-            auto v11 = g_id_tex()++;
+            auto v11 = g_id_tex++;
 
             char Dest[128];
             sprintf(Dest, "created texture %d", v11);

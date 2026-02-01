@@ -91,21 +91,16 @@ void nalInit(nalHeap *a1) {
 
         nalAnimPath[0] = 0;
         nalSkeletonPath[0] = 0;
-        auto *mem = tlMemAlloc(20, 8, 0x2000000u);
 
-        nalAnimFileDirectory = new (mem)
+        nalAnimFileDirectory = new
             tlInstanceBankResourceDirectory<nalAnimFile, tlFixedString>{};
 
-        mem = tlMemAlloc(0x14, 8, 0x2000000u);
-        nalAnimDirectory = new (mem)
+        nalAnimDirectory = new
             tlInstanceBankResourceDirectory<nalAnimClass<nalAnyPose>, tlFixedString>{};
 
-        mem = tlMemAlloc(0x14, 8, 0x2000000u);
-        nalSceneAnimDirectory = new (mem)
-            tlInstanceBankResourceDirectory<nalSceneAnim, tlFixedString>{};
+        nalSceneAnimDirectory = new tlInstanceBankResourceDirectory<nalSceneAnim, tlFixedString>{};
 
-        mem = tlMemAlloc(0x14, 8, 0x2000000u);
-        nalSkeletonDirectory = new (mem)
+        nalSkeletonDirectory = new
             tlInstanceBankResourceDirectory<nalBaseSkeleton, tlFixedString>{};
 
         nalTypeInstanceBank.Init();
