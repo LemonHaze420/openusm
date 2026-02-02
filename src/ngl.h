@@ -96,7 +96,8 @@ struct nglTexture {
     //0x00775000
     void CreateTextureOrSurface();
 
-    void sub_774F20();
+    //0x00774F20
+    void SetupTextureLevels();
 };
 
 struct nglPaletteFile {
@@ -889,11 +890,6 @@ inline Var<HANDLE> h_sceneDump {0x00976E20};
 extern nglTexture *nglCreateTexture(uint32_t Format, int Width, int Height, int a4, bool a5);
 
 extern Var<tlInstanceBankResourceDirectory<nglFont, tlFixedString> *> nglFontDirectory;
-
-extern Var<tlInstanceBankResourceDirectory<nglMaterialFile, tlFixedString> *>
-    nglMaterialFileDirectory;
-
-extern Var<tlInstanceBankResourceDirectory<nglMaterialBase, tlHashString> *> nglMaterialDirectory;
 
 extern void ngl_releasefile_callback(tlFileBuf *);
 

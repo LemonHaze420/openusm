@@ -8,8 +8,16 @@
 #include "variable.h"
 #include "variables.h"
 
-
-static Var<D3DFORMAT[50]> d3d_format_array{0x0093C008};
+#if !STANDALONE_SYSTEM
+static auto & d3d_format_array = var<D3DFORMAT[50]>(0x0093C008);
+#else
+static auto & d3d_format_array = []() -> auto & {
+    static int g_d3d_format_array[50] = {
+        0, 21, 26, 25, 22, 23, 0, 41, 844715353, 50, 28, 51, 80, 75, 83, 71, 0, 0, 1065353216, 1065353216, 1065353216, 1065353216, 1078530011, 1078530011, 1078530011, 0, 1262485504, 0, 0, 0, 1262485504, 1262485504, 1262485504, 1262485504, 1065353216, 1065353216, 1065353216, 1065353216, 1078530011, 1078530011, 1078530011, 0, 1262485504, 0, 0, 0, 1262485504, 1262485504, 1262485504, 1262485504
+    };
+    return g_d3d_format_array;
+}();
+#endif
 
 D3DFORMAT nglGetSwizzleTexFormat(unsigned int Format)
 {
@@ -24,13 +32,13 @@ D3DFORMAT nglGetSwizzleTexFormat(unsigned int Format)
     }
     else
     {
-        return d3d_format_array()[NGLTEX_GET_FORMAT(Format)];
+        return static_cast<D3DFORMAT>(d3d_format_array[NGLTEX_GET_FORMAT(Format)]);
     }
 }
 
 D3DFORMAT nglGetLinearTexFormat(uint32_t Format)
 {
-    if constexpr(0)
+    if constexpr (0)
     {
         static D3DFORMAT Lookup[10];
         assert(NGLTEX_GET_FORMAT(Format) < sizeof(Lookup) &&
@@ -42,7 +50,7 @@ D3DFORMAT nglGetLinearTexFormat(uint32_t Format)
     }
     else
     {
-        return d3d_format_array()[NGLTEX_GET_FORMAT(Format)];
+        return static_cast<D3DFORMAT>(d3d_format_array[NGLTEX_GET_FORMAT(Format)]);
     }
 }
 
@@ -123,7 +131,7 @@ nglTexture *nglCreateTexture(uint32_t Format, int Width, int Height, int a4, boo
 
             tex->CreateTextureOrSurface();
             tex->field_34 = (v7 | tex->field_34) & 0xFFFFFFFD;
-            tex->sub_774F20();
+            tex->SetupTextureLevels();
 
             if ((v8 & 0x1000u) != 0 && (v8 & 0x4000) != 0)
             {

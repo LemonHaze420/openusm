@@ -29,6 +29,8 @@ tlInstanceBank & nalComponentInstanceBank = var<tlInstanceBank>(0x00977100);
 
 LARGE_INTEGER & nalPlayerGetPoseTicks = var<LARGE_INTEGER>(0x009770D8);
 
+#if !STANDALONE_SYSTEM
+
 tlInstanceBankResourceDirectory<nalBaseSkeleton, tlFixedString> *& nalSkeletonDirectory =
     var<tlInstanceBankResourceDirectory<nalBaseSkeleton, tlFixedString> *>(0x00977178);
 
@@ -37,6 +39,30 @@ tlInstanceBankResourceDirectory<nalAnimFile, tlFixedString> *& nalAnimFileDirect
 tlInstanceBankResourceDirectory<nalAnimClass<nalAnyPose>, tlFixedString> *& nalAnimDirectory = var<tlInstanceBankResourceDirectory<nalAnimClass<nalAnyPose>, tlFixedString> *>(0x00977170);
 
 tlInstanceBankResourceDirectory<nalSceneAnim, tlFixedString> *& nalSceneAnimDirectory = var<tlInstanceBankResourceDirectory<nalSceneAnim, tlFixedString> *>(0x00977168);
+
+#else
+
+tlInstanceBankResourceDirectory<nalBaseSkeleton, tlFixedString> *& nalSkeletonDirectory = []() -> auto & {
+    static tlInstanceBankResourceDirectory<nalBaseSkeleton, tlFixedString> * g_nalSkeletonDirectory {};
+    return g_nalSkeletonDirectory;
+}();
+
+tlInstanceBankResourceDirectory<nalAnimFile, tlFixedString> *& nalAnimFileDirectory = []() -> auto & {
+    static tlInstanceBankResourceDirectory<nalAnimFile, tlFixedString> * g_nalAnimFileDirectory {};
+    return g_nalAnimFileDirectory;
+}();
+
+tlInstanceBankResourceDirectory<nalAnimClass<nalAnyPose>, tlFixedString> *& nalAnimDirectory = []() -> auto & {
+    static tlInstanceBankResourceDirectory<nalAnimClass<nalAnyPose>, tlFixedString> * g_nalAnimDirectory {};
+    return g_nalAnimDirectory;
+}();
+
+tlInstanceBankResourceDirectory<nalSceneAnim, tlFixedString> *& nalSceneAnimDirectory = []() -> auto & {
+    static tlInstanceBankResourceDirectory<nalSceneAnim, tlFixedString> * g_nalSceneAnimDirectory {};
+    return g_nalSceneAnimDirectory;
+}();
+
+#endif
 
 int *& PanelComponentMgr::comp_list = var<int *>(0x0096F7DC);
 

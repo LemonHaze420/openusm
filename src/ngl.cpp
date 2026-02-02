@@ -106,8 +106,6 @@ VALIDATE_SIZE(nglRenderTextureState, 0x60);
 
 Var<char[256]> nglMeshPath{0x00972710};
 
-nglTexture *& nglWhiteTex = var<nglTexture *>(0x00973840);
-
 Var<bool> nglLoadingIFL{0x00973844};
 
 Var<int> nglScratchMeshPos{0x00975310};
@@ -161,6 +159,14 @@ char (& nglTexturePath)[256] = var<char[256]>(0x00973738);
 
 nglDebugStruct & nglDebug = var<nglDebugStruct>(0x00975830);
 
+nglTexture *& nglWhiteTex = var<nglTexture *>(0x00973840);
+
+auto & nglMaterialFileDirectory =
+    var<tlInstanceBankResourceDirectory<nglMaterialFile, tlFixedString> *>(0x0095C304);
+
+auto & nglMaterialDirectory =
+    var<tlInstanceBankResourceDirectory<nglMaterialBase, tlHashString> *>(0x0095C1A0);
+
 #else
 
 static tlInstanceBankResourceDirectory<nglTexture, tlFixedString> * g_nglTextureDirectory {};
@@ -210,13 +216,22 @@ nglDebugStruct & nglDebug = []() -> auto & {
     return g_nglDebug;
 }();
 
+nglTexture *& nglWhiteTex = []() -> auto & {
+    static nglTexture *g_nglWhiteTex {};
+    return g_nglWhiteTex;
+}();
+
+auto & nglMaterialFileDirectory = []() -> auto & {
+    static tlInstanceBankResourceDirectory<nglMaterialFile, tlFixedString> * g_nglMaterialFileDirectory {};
+    return g_nglMaterialFileDirectory;
+}();
+
+auto & nglMaterialDirectory = []() -> auto & {
+    static tlInstanceBankResourceDirectory<nglMaterialBase, tlHashString> * g_nglMaterialDirectory {};
+    return g_nglMaterialDirectory;
+}();
+
 #endif
-
-Var<tlInstanceBankResourceDirectory<nglMaterialFile, tlFixedString> *> nglMaterialFileDirectory{
-    0x0095C304};
-
-Var<tlInstanceBankResourceDirectory<nglMaterialBase, tlHashString> *> nglMaterialDirectory{
-    0x0095C1A0};
 
 static Var<nglTexture *> nglFrontBufferTex{0x009754D0};
 static Var<nglTexture *> nglBackBufferTex{0x009754D4};
@@ -1580,8 +1595,10 @@ void nglTexture::CreateTextureOrSurface()
     }
 }
 
-void nglTexture::sub_774F20()
+void nglTexture::SetupTextureLevels()
 {
+    TRACE("nglTexture::SetupTextureLevels");
+
     if constexpr (1)
     {
         if ((this->m_format & 0x2000) == 0)
@@ -1758,7 +1775,7 @@ void nglInitWhiteTexture()
 {
     TRACE("nglInitWhiteTexture");
 
-    if constexpr (0) {
+    if constexpr (1) {
         nglWhiteTex = nglCreateTexture(513u, 1, 1, 0, 1);
         nglDxLockTexture(nglWhiteTex, 0);
         nglDxSetTexel8(nglWhiteTex, 0, 0, -1);
@@ -1927,7 +1944,8 @@ void nglSetTexturePath(const char *a1) {
     nglTexturePath[255] = '\0';
 }
 
-nglFont *nglLoadFont(const tlFixedString &a1) {
+nglFont * nglLoadFont(const tlFixedString &a1)
+{
     if constexpr (1) {
         //sp_log("find = 0x%08X, sub_779FC0 = 0x%08X", find, load);
 
@@ -2042,11 +2060,11 @@ tlInstanceBankResourceDirectory<nglMorphFile, tlFixedString> * nglGetMorphFileDi
 }
 
 void nglSetMaterialFileDirectory(tlResourceDirectory<nglMaterialFile, tlFixedString> *a1) {
-    nglMaterialFileDirectory() = CAST(nglMaterialFileDirectory(), a1);
+    nglMaterialFileDirectory = CAST(nglMaterialFileDirectory, a1);
 }
 
 void nglSetMaterialDirectory(tlResourceDirectory<nglMaterialBase, tlHashString> *a1) {
-    nglMaterialDirectory() = CAST(nglMaterialDirectory(), a1);
+    nglMaterialDirectory = CAST(nglMaterialDirectory, a1);
 }
 
 bool nglMaterialBase::IsSwitchable() {
@@ -3645,8 +3663,9 @@ bool nglCanReleaseTexture(nglTexture *tex)
     return v1->field_38 + 1 < nglFrame();
 }
 
-void sub_783080(nglTexture *Tex, uint8_t **a2, uint8_t *a3, int a4) {
-    if constexpr (0) {
+void sub_783080(nglTexture *Tex, uint8_t **a2, uint8_t *a3, int a4)
+{
+    if constexpr (1) {
         IDirect3DSurface9 *v20;
 
         D3DLOCKED_RECT rect;
@@ -4049,7 +4068,7 @@ bool nglLoadTextureTM2(nglTexture *tex, uint8_t *a2)
     if constexpr (1) {
         bool result = false;
         if ( nglLoadTextureTM2_internal(tex, bit_cast<nglTextureInfo *>(a2)) ) {
-            tex->sub_774F20();
+            tex->SetupTextureLevels();
             tex->field_38 = -1;
             result = true;
         } else {
