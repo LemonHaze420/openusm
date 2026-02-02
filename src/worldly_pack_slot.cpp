@@ -43,7 +43,12 @@ worldly_pack_slot::worldly_pack_slot()
     if constexpr (1)
     {
         {
+#if !STANDALONE_SYSTEM
             this->m_vtbl = CAST(m_vtbl, 0x008899D0);
+#else
+            static std::decay_t<decltype(*m_vtbl)> g_vtbl {};
+            this->m_vtbl = &g_vtbl;
+#endif
 
             auto replace_vfunc = [](auto &vfunc, auto func)
             {

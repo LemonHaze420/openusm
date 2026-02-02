@@ -10,9 +10,9 @@
 #include "nfl_system.h"
 #include "osassert.h"
 #include "tl_system.h"
-#include "tlresource_directory.h"
 #include "trace.h"
 #include "utility.h"
+#include "variables.h"
 #include "vector4d.h"
 #include "vtbl.h"
 
@@ -28,6 +28,10 @@ tlInstanceBank & nalTypeInstanceBank = var<tlInstanceBank>(0x009770E8);
 tlInstanceBank & nalComponentInstanceBank = var<tlInstanceBank>(0x00977100);
 
 LARGE_INTEGER & nalPlayerGetPoseTicks = var<LARGE_INTEGER>(0x009770D8);
+
+#ifndef STANDALONE_SYSTEM
+#error "Not defined macro STANDALONE_SYSTEM"
+#endif
 
 #if !STANDALONE_SYSTEM
 
@@ -260,7 +264,10 @@ tlInstanceBankResourceDirectory<nalBaseSkeleton, tlFixedString> * nalGetSkeleton
     return nalSkeletonDirectory;
 }
 
-void nalSetAnimFileDirectory(tlResourceDirectory<nalAnimFile, tlFixedString> *a1) {
+void nalSetAnimFileDirectory(tlResourceDirectory<nalAnimFile, tlFixedString> *a1)
+{
+    TRACE("nalSetAnimFileDirectory");
+
     nalAnimFileDirectory = CAST(nalAnimFileDirectory, a1);
 }
 

@@ -17,6 +17,7 @@
 
 VALIDATE_OFFSET(os_file, field_1C, 0x1C);
 
+#if !STANDALONE_SYSTEM
 bool & os_file::system_locked = var<bool>(0x00965E68);
 
 bool & byte_965E69 = var<bool>(0x00965E69);
@@ -24,6 +25,22 @@ bool & byte_965E69 = var<bool>(0x00965E69);
 auto & g_lpBuffer = var<LPVOID[10]>(0x00965E6C);
 
 auto & byte_965E94 = var<bool[10]>(0x00965E94);
+
+#else
+
+static bool g_system_locked {};
+bool & os_file::system_locked = g_system_locked;
+
+static bool g_byte_965E69 {};
+bool & byte_965E69 = g_byte_965E69;
+
+static LPVOID g_lpBuffer1[10] {};
+LPVOID (& g_lpBuffer)[10] = g_lpBuffer1;
+
+static bool g_byte_965E94[10] {};
+bool (& byte_965E94)[10] = g_byte_965E94;
+
+#endif
 
 static constexpr auto max_size = 0x200000;
 
@@ -78,13 +95,11 @@ char (& byte_967BE0)[284] = var<char[284]>(0x00967BE0);
 char (& byte_967D08)[260] = var<char[260]>(0x00967D08);
 #else
 
-#define make_var(type, name) \
-    static type g_##name {}; \
-    type& name {g_##name}
+static bool g_byte_9363E8 = true;
+bool & byte_9363E8 = g_byte_9363E8;
 
-make_var(bool, byte_9363E8);
-
-make_var(bool, byte_9363E0);
+static bool g_byte_9363E0 = true;
+bool & byte_9363E0 = g_byte_9363E0;
 
 static char g_byte_967BE0[284] {};
 char (& byte_967BE0)[284] = g_byte_967BE0;
@@ -443,7 +458,8 @@ void os_file::open(const mString &path, int shareMode) {
             }
         }
     } else {
-        THISCALL(0x0059B740, this, &path, shareMode);
+        void (__fastcall *func)(void *, void *edx, const mString *path, int shareMode) = CAST(func, 0x0059B740);
+        func(this, nullptr, &path, shareMode);
     }
 }
 

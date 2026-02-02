@@ -56,19 +56,12 @@ make_default_tlres(nglMorphSet, tlHashString, 0x009609D8);
 
 #else
 
-template<typename T0, typename T1>
-static auto & make_system_dir()
-{
-    static tlInstanceBankResourceDirectory<T0, T1> *g_system_dir;
-    return g_system_dir;
-}
-
-#define make_system_dir(T0, T1)                                       \
-template<>                                                            \
-tlInstanceBankResourceDirectory<T0, T1> *&                            \
-    tlresource_directory<T0, T1>::system_dir = []() -> auto & {       \
-        static tlInstanceBankResourceDirectory<T0, T1> *g_system_dir; \
-        return g_system_dir;                                          \
+#define make_system_dir(T0, T1)                                          \
+template<>                                                               \
+tlInstanceBankResourceDirectory<T0, T1> *&                               \
+    tlresource_directory<T0, T1>::system_dir = []() -> auto & {          \
+        static tlInstanceBankResourceDirectory<T0, T1> *g_system_dir {}; \
+        return g_system_dir;                                             \
     }()
 
 make_system_dir(nglTexture, tlFixedString);

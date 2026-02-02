@@ -112,13 +112,12 @@ VALIDATE_SIZE(resource_memory_map, 0x90);
 
 VALIDATE_SIZE((*partitions), 16u);
 
-_std::vector<resource_partition *> *& partitions = var<_std::vector<resource_partition *> *>(0x0095C7F0);
-
 _std::vector<resource_pack_slot *> & resource_context_stack = var<_std::vector<resource_pack_slot *>>(0x0096015C);
 
-mString & amalgapak_name = var<mString>(0x0095CAD4);
-
 #if !STANDALONE_SYSTEM 
+_std::vector<resource_partition *> *& partitions = var<_std::vector<resource_partition *> *>(0x0095C7F0);
+
+mString & amalgapak_name = var<mString>(0x0095CAD4);
 
 int & amalgapak_base_offset = var<int>(0x00921CB4);
 
@@ -154,6 +153,8 @@ resource_key *& amalgapak_prerequisite_table = var<resource_key *>(0x0095C300);
     static type g_##name {}; \
     type& name {g_##name}
 
+make_var(_std::vector<resource_partition *> *, partitions);
+
 make_var(int, amalgapak_base_offset);
 
 make_var(nflFileID, amalgapak_id);
@@ -182,7 +183,7 @@ make_var(int, amalgapak_prerequisite_count);
 
 make_var(resource_key *, amalgapak_prerequisite_table);
 
-//make_var(mString, amalgapak_name);
+make_var(mString, amalgapak_name);
 
 #undef make_var
 #endif
@@ -724,7 +725,7 @@ void set_active_resource_context(resource_pack_slot *a1)
 {
     TRACE("resource_manager::set_active_resource_context");
 
-    if constexpr (0)
+    if constexpr (1)
     {
         if (a1 != nullptr && a1->is_data_ready())
         {
