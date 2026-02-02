@@ -57,6 +57,11 @@ if(CHECK_STRUCT_SIZES)
     add_compile_definitions(CHECK_STRUCT_SIZES)
 endif()
 
+option(SETUP_STANDALONE_SYSTEM "" OFF)
+if(SETUP_STANDALONE_SYSTEM)
+    add_compile_definitions(SETUP_STANDALONE_SYSTEM)
+endif()
+
 add_compile_definitions(CINTERFACE)
 
 if(USE_GLM)

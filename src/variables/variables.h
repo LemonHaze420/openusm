@@ -10,7 +10,11 @@ struct Input;
 struct InputSettings;
 struct PolytubeCustomMaterial;
 
+#ifdef SETUP_STANDALONE_SYSTEM
+#define STANDALONE_SYSTEM 1
+#else
 #define STANDALONE_SYSTEM 0
+#endif
 
 extern bool &byte_965950;
 
