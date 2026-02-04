@@ -14,20 +14,20 @@ namespace string_hash_dictionary {
     extern mAvlTree<string_hash_entry> *& entries;
     extern mAvlTree<string_hash_entry> *& prereg_entries;
 
-    extern char *& default_dictionary_filename;
-    extern char *& dictionary_extension;
+    extern const char *& default_dictionary_filename;
+    extern const char *& dictionary_extension;
 
-    extern char *& file_header_identifier_string;
+    extern const char *& file_header_identifier_string;
 
     extern ghetto_mash_file_header *& header;
 
     extern uint8_t *& mash_image_buffer;
 
-    extern char *& textfile_extension;
+    extern const char *& textfile_extension;
+
+    extern const char *& hard_log_filename;
 
     extern os_file & _hard_log;
-
-    extern char *& hard_log_filename;
 
     extern bool & is_setup;
 

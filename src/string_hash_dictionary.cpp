@@ -21,6 +21,22 @@ mAvlTree<string_hash_entry> *& string_hash_dictionary::prereg_entries = var<mAvl
 
 bool & string_hash_dictionary::is_setup = var<bool>(0x0095C7EC);
 
+const char *& string_hash_dictionary::dictionary_extension = var<const char *>(0x00921CA4);
+
+const char *& string_hash_dictionary::default_dictionary_filename = var<const char *>(0x00921CA0);
+
+const char *& string_hash_dictionary::file_header_identifier_string = var<const char *>(0x00921CAC);
+
+ghetto_mash_file_header *& string_hash_dictionary::header = var<ghetto_mash_file_header *>(0x0095C7DC);
+
+const char *& string_hash_dictionary::textfile_extension = var<const char *>(0x00921CA8);
+
+const char *& string_hash_dictionary::hard_log_filename = var<const char *>(0x00921C9C);
+
+uint8_t *& string_hash_dictionary::mash_image_buffer = var<uint8_t *>(0x0095C7E8);
+
+os_file & string_hash_dictionary::_hard_log = var<os_file>(0x00960448);
+
 #else
 
 static mAvlTree<string_hash_entry> *g_entries {};
@@ -32,23 +48,47 @@ mAvlTree<string_hash_entry> *& string_hash_dictionary::prereg_entries {g_prereg_
 static bool g_is_setup {};
 bool & string_hash_dictionary::is_setup = g_is_setup;
 
+const char *& string_hash_dictionary::dictionary_extension = []() -> auto & {
+    static const char * g_dictionary_extension = ".bin";
+    return g_dictionary_extension;
+}();
+
+const char *& string_hash_dictionary::default_dictionary_filename = []() -> auto & {
+    static const char * g_default_dictionary_filename = "string_hash_dictionary";
+    return g_default_dictionary_filename;
+}();
+
+const char *& string_hash_dictionary::file_header_identifier_string = []() -> auto & {
+    static const char * g_file_header_identifier_string = "shd";
+    return g_file_header_identifier_string;
+}();
+
+ghetto_mash_file_header *& string_hash_dictionary::header = []() -> auto & {
+    static ghetto_mash_file_header * g_header {};
+    return g_header;
+}();
+
+const char *& string_hash_dictionary::textfile_extension = []() -> auto & {
+    static const char * g_textfile_extension = ".txt";
+    return g_textfile_extension;
+}();
+
+const char *& string_hash_dictionary::hard_log_filename = []() -> auto & {
+    static const char * g_hard_log_filename = "dynamic_string_log";
+    return g_hard_log_filename;
+}();
+
+uint8_t *& string_hash_dictionary::mash_image_buffer = []() -> auto & {
+    static uint8_t * g_mash_image_buffer {};
+    return g_mash_image_buffer;
+}();
+
+os_file & string_hash_dictionary::_hard_log = []() -> auto & {
+    static os_file g_hard_log {};
+    return g_hard_log;
+}();
+
 #endif
-
-char *& string_hash_dictionary::default_dictionary_filename = var<char *>(0x00921CA0);
-
-char *& string_hash_dictionary::dictionary_extension = var<char *>(0x00921CA4);
-
-char *& string_hash_dictionary::file_header_identifier_string = var<char *>(0x00921CAC);
-
-ghetto_mash_file_header *& string_hash_dictionary::header = var<ghetto_mash_file_header *>(0x0095C7DC);
-
-uint8_t *& string_hash_dictionary::mash_image_buffer = var<uint8_t *>(0x0095C7E8);
-
-char *& string_hash_dictionary::textfile_extension = var<char *>(0x00921CA8);
-
-os_file & string_hash_dictionary::_hard_log = var<os_file>(0x00960448);
-
-char *& string_hash_dictionary::hard_log_filename = var<char *>(0x00921C9C);
 
 static constexpr int RESOURCE_VERSION_MASH_DEP = 0x13;
 
@@ -314,7 +354,8 @@ mString string_hash_dictionary::figure_out_filename(const char *a2,
 void string_hash_dictionary::load_dictionary(const char *a1)
 {
     TRACE("string_hash_dictionary::load_dictionary");
-    mString v1 = string_hash_dictionary::figure_out_filename(
+
+    mString v1 = figure_out_filename(
         a1,
         default_dictionary_filename,
         dictionary_extension);
@@ -402,7 +443,8 @@ string_hash string_hash_dictionary::register_string(const char *str)
     _strcmpi(str, s_debug_string);
 
     const int v2 = to_hash(str);
-    string_hash a3 {v2};
+    string_hash a3 {};
+    a3.source_hash_code = v2;
 
     string_hash a1;
     if (entries != nullptr) {
