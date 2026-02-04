@@ -108,6 +108,6 @@ using string_names_t = const char *[14];
 extern string_names_t & string_names;
 
 using flag_defaults_t = BOOL[150];
-inline flag_defaults_t & flag_defaults = var<flag_defaults_t>(0x00936678);
+extern flag_defaults_t & flag_defaults;
 
 extern void os_developer_options_patch();
