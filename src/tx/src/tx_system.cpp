@@ -4,6 +4,7 @@
 #include "func_wrapper.h"
 #include "log.h"
 #include "variable.h"
+#include <variables.h>
 #include "trace.h"
 
 //#include "nfl_system.h"
@@ -186,17 +187,19 @@ int txSlotIndex(txSlotPool *a1, int a2) {
     return result;
 }
 
-#ifndef TEST_CASE
-static Var<int> dword_984538{0x00984538};
+#if !STANDALONE_SYSTEM
+static int & dword_984538 = var<int>(0x00984538);
 #else
 
-static int g_dword_984538{};
-static Var<int> dword_984538{&g_dword_984538};
+static int & dword_984538 = []() -> auto & {
+    static int g_dword_984538 {};
+    return g_dword_984538;
+}();
 #endif
 
 int txTime() {
     auto result = static_cast<uint64_t>(1000ll * clock()) / 1000ull;
 
-    dword_984538() = result;
+    dword_984538 = result;
     return static_cast<int>(result);
 }
