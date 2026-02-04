@@ -1469,15 +1469,15 @@ int __stdcall myWinMain(HINSTANCE hInstance,
     parse_cmd(lpCmdLine);
 
     if (os_developer_options::instance->get_flag(mString {"HALT_ON_ASSERTS"})) {
-        g_debug().field_1 |= 1;
+        g_debug.field_1 |= 1;
     } else {
-        g_debug().field_1 &= 0xFE;
+        g_debug.field_1 &= 0xFE;
     }
 
     if (g_is_the_packer || !os_developer_options::instance->get_flag(mString {"SCREEN_ASSERTS"})) {
-        g_debug().field_1 &= 0xFD;
+        g_debug.field_1 &= 0xFD;
     } else {
-        g_debug().field_1 |= 2;
+        g_debug.field_1 |= 2;
     }
 
     nflInitParams a1;
