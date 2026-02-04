@@ -30,12 +30,17 @@ string_hash & bip01_r_calf = var<string_hash>(0x0095AB1C);
 string_hash & bip01_pelvis = var<string_hash>(0x0095AAFC);
 string_hash & bip01_spine = var<string_hash>(0x0095BA18);
 
-#ifndef TEST_CASE
-Var<char[12]> string_hash::ghetto_string = {0x0095C7D0};
+#if !STANDALONE_SYSTEM
+
+char (& string_hash::ghetto_string)[12]= var<char[12]>(0x0095C7D0);
+
 #else
 
-static char g_ghetto_string[12]{};
-Var<char[12]> string_hash::ghetto_string{&g_ghetto_string};
+char (& string_hash::ghetto_string)[12] = []() -> auto & {
+    static char g_ghetto_string[12] {};
+    return g_ghetto_string;
+}();
+
 #endif
 
 string_hash::string_hash() {
@@ -110,8 +115,8 @@ const char *string_hash::to_string() const {
             }
         }
 
-        sprintf(string_hash::ghetto_string(), "0x%08x", this->source_hash_code);
-        return string_hash::ghetto_string();
+        sprintf(string_hash::ghetto_string, "0x%08x", this->source_hash_code);
+        return string_hash::ghetto_string;
     } else {
         return (char *) THISCALL(0x005374B0, this);
     }

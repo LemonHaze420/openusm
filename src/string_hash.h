@@ -48,7 +48,7 @@ struct string_hash {
         return static_cast<size_t>(this->source_hash_code);
     }
 
-    static Var<char[12]> ghetto_string;
+    static char (& ghetto_string)[12];
 
     static string_hash INVALID_STRING_HASH;
 
