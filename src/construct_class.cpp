@@ -24,15 +24,25 @@
 template<>
 void mash_info_struct::construct_class<mAvlTree<string_hash_entry>>(mAvlTree<string_hash_entry> *&a1)
 {
-    auto *v1 = a1;
-    if ( a1 != nullptr )
-    {
-        THISCALL(0x00420EF0, v1, nullptr);
-        a1 = v1;
-    }
-    else
-    {
-        a1 = nullptr;
+    TRACE("mash_info_struct::construct_class<mAvlTree<string_hash_entry>>");
+
+    if constexpr (1) {
+        if ( a1 != nullptr )
+        {
+            from_mash_in_place_constructor *v1 = nullptr;
+            a1 = new (a1) mAvlTree<string_hash_entry> {v1};
+        }
+    } else {
+        auto *v1 = a1;
+        if ( a1 != nullptr )
+        {
+            THISCALL(0x00420EF0, v1, nullptr);
+            a1 = v1;
+        }
+        else
+        {
+            a1 = nullptr;
+        }
     }
 }
 
