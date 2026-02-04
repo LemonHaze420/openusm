@@ -928,7 +928,7 @@ resource_partition *get_partition_pointer(resource_partition_enum which_type)
 
 nflFileID open_pack(const char *name) {
     TRACE("resource_manager::open_pack", name);
-    const char *ext = packfile_ext()[g_platform];
+    const char *ext = packfile_ext[g_platform];
 
     //sp_log("open pack %s%s", name, ext);
     if constexpr (1)
@@ -938,7 +938,7 @@ nflFileID open_pack(const char *name) {
 
         mString v11{"data\\"};
 
-        const char *dir = packfile_dir()[g_platform];
+        const char *dir = packfile_dir[g_platform];
 
         mString a1 = v11 + dir;
 

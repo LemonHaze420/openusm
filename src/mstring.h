@@ -12,10 +12,10 @@
 extern int & mString_count;
 
 //0x00936BD0
-extern Var<const char *[4]> packfile_dir;
+extern const char * (& packfile_dir)[4];
 
 //0x00936BF0
-extern Var<const char *[4]> packfile_ext;
+extern const char * (& packfile_ext)[4];
 
 inline constexpr size_t MAX_MSTRING_LENGTH = 65535u;
 

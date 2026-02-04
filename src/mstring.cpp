@@ -7,6 +7,7 @@
 #include "common.h"
 #include "mash.h"
 #include "trace.h"
+#include "variables.h"
 
 #include <cassert>
 #include <stdio.h>
@@ -24,8 +25,38 @@ char * g_g_null = g_null;
 char *& mString::null = g_g_null;
 #endif
 
-Var<const char *[4]> packfile_ext {0x00936BF0};
-Var<const char *[4]> packfile_dir {0x00936BD0};
+#ifndef STANDALONE_SYSTEM
+#error "Not defined macro STANDALONE_SYSTEM"
+#endif
+
+#if !STANDALONE_SYSTEM
+
+const char * (& packfile_ext)[4] = var<const char *[4]>(0x00936BF0);
+const char * (& packfile_dir)[4] = var<const char *[4]>(0x00936BD0);
+
+#else
+
+const char * (& packfile_ext)[4] = []() -> auto & {
+    static const char * g_packfile_ext[4] {
+        ".PS2PACK",
+        ".XBPACK",
+        ".GCPACK",
+        ".PCPACK"
+    };
+    return g_packfile_ext;
+}();
+
+const char * (& packfile_dir)[4] = []() -> auto & {
+    static const char * g_packfile_dir[4] {
+        "packs\\ps2\\",
+        "packs\\xbox\\",
+        "packs\\gc\\",
+        "packs\\pc\\"
+    };
+    return g_packfile_dir;
+}();
+
+#endif
 
 int mString::npos = -1;
 

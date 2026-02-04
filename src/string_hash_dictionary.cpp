@@ -300,7 +300,8 @@ mString string_hash_dictionary::figure_out_filename(const char *a2,
     mString v6{a2};
 
     if (a2 == nullptr) {
-        mString v4 {0, "%s%s", packfile_dir()[g_platform], dict_filename};
+
+        mString v4 {0, "%s%s", packfile_dir[g_platform], dict_filename};
 
         v6 = v4;
     }
