@@ -8,6 +8,7 @@
 #include "tx_system.h"
 #include "utility.h"
 #include "variable.h"
+#include "variables.h"
 
 #include <cassert>
 
@@ -121,12 +122,22 @@ static Struct_984498 & dword_984498 = var<Struct_984498>(0x00984498);
 #else
 
 #define make_var(type, name) \
-    static type g_##name {}; \
-    type & name {g_##name}
+    type & name = []() -> auto & {  \
+        static type g_##name {};    \
+        return g_##name;            \
+    }()
 
 
-static nflInitParams g_nfl_initParams {0x40, 0x10, 0x100, 3, 0};
-static nflInitParams & nfl_initParams {g_nfl_initParams};
+static nflInitParams & nfl_initParams = []() -> auto & {
+    static nflInitParams g_nfl_initParams {};
+    g_nfl_initParams.field_0[0] = 0x40;
+    g_nfl_initParams.field_0[1] = 0x10;
+    g_nfl_initParams.field_0[2] = 0x100;
+    g_nfl_initParams.field_0[3] = 3;
+    g_nfl_initParams.field_0[4] = 0;
+
+    return g_nfl_initParams;
+}();
 
 make_var(Struct_94983C, stru_94983C);
 
