@@ -208,7 +208,7 @@ target_compile_options(tx
       ${flags}
   )
 target_include_directories(tx INTERFACE "./src/tx/src/")
-target_link_libraries(tx PUBLIC utility)
+target_link_libraries(tx PUBLIC utility variables)
 
 
 file(GLOB_RECURSE SRC_NFL "./src/nfl/src/*.cpp" "./src/nfl/src/*.h")
@@ -218,7 +218,7 @@ target_compile_options(nfl
       ${flags}
   )
 target_include_directories(nfl INTERFACE "./src/nfl/src/")
-target_link_libraries(nfl PUBLIC tx)
+target_link_libraries(nfl PUBLIC tx variables)
 
 target_link_libraries(mash PUBLIC nfl)
 
@@ -308,9 +308,11 @@ if(ENABLE_TESTS)
 
 endif()
 
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../Ultimate Spider-Man/")
-    add_custom_command(TARGET binkw32 POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/build/binkw32.dll" "${CMAKE_CURRENT_SOURCE_DIR}/../Ultimate Spider-Man/binkw32.dll"
-        COMMAND_EXPAND_LISTS
-        )
+if(NOT SETUP_STANDALONE_SYSTEM)
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../Ultimate Spider-Man/")
+        add_custom_command(TARGET binkw32 POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/build/binkw32.dll" "${CMAKE_CURRENT_SOURCE_DIR}/../Ultimate Spider-Man/binkw32.dll"
+            COMMAND_EXPAND_LISTS
+            )
+    endif()
 endif()
