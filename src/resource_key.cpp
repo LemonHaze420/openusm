@@ -8,6 +8,7 @@
 #include "trace.h"
 #include "utility.h"
 #include "variable.h"
+#include "variables.h"
 
 #include <cassert>
 #include <cstring>
@@ -17,9 +18,50 @@
 const char *g_resource_key_type_ext[71] {"none", ".PCANIM", ".PCSKEL",
                                         ".ALS", ".ENT", ".ENTEXT", ".DDS", ".DDSMP", ".IFL", ".DESC",
                                         ".ENS", ".SPL", ".AB", ".QP", ".TRIG", ".PCSX", ".INST", ".FDF", ".PANEL", ".TXT", ".ICN", ".PCMESH", ".PCMORPH", ".PCMAT", ".COLL", ".PCPACK", ".PCSANIM", ".MSN", ".MARKER", ".HH", ".WAV", ".WBK", ".M2V", ".M2V", ".PFX", ".CSV", ".CLE", ".LIT", ".GRD", ".GLS", ".LOD", ".SIN", ".GV", ".SV", ".TOKENS", ".DSG", ".PATH", ".PTRL", ".LANG", ".SLF", ".VISEME", ".PCMESHDEF", ".PCMORPHDEF", ".PCMATDEF", ".MUT", ".FX_CACHE", ".ASG", ".BAI", ".CUT", ".INTERACT", ".CSV", ".CSV", "._ENTID_", "._ANIMID_", "._REGIONID_", "._AI_GENERIC_ID_", "._RADIOMSG", "._GOAL_", "._IFC_ATTRIBUTE_", "._SIGNAL_", "._PACKSTATE_"};
-#endif
+#else
+
+#if !STANDALONE_SYSTEM
+
+resource_key_type_ext_t & resource_key_type_ext = var<resource_key_type_ext_t>(0x0091E7C8);
+resource_key_type_str_t & resource_key_type_str = var<resource_key_type_str_t>(0x0091F088);
 
 static auto & resource_key_type_dir = var<char *[1]>(0x0091EC28);
+
+#else
+
+resource_key_type_ext_t & resource_key_type_ext = []() -> auto & {
+    static resource_key_type_ext_t resource_key_type_ext {
+            {
+                "none", ".PS2ANIM", ".PS2SKEL", ".ALS", ".ENT", ".ENTEXT", ".TM2", ".TM2MP", ".IFL", ".DESC", ".ENS", ".SPL", ".AB", ".QP", ".TRIG", ".PS2SX", ".INST", ".FDF", ".PANEL", ".TXT", ".ICN", ".PS2MESH", ".PS2MORPH", ".PS2MAT", ".COLL", ".PS2PACK", ".PS2SANIM", ".MSN", ".MARKER", ".HH", ".WAV", ".WBK", ".IPU", ".PSS", ".PFX", ".CSV", ".CLE", ".LIT", ".GRD", ".GLS", ".LOD", ".SIN", ".GV", ".SV", ".TOKENS", ".DSG", ".PATH", ".PTRL", ".LANG", ".SLF", ".VISEME", ".PS2MESHDEF", ".PS2MORPHDEF", ".PS2MATDEF", ".MUT", ".ASG", ".BAI", ".CUT", ".INTERACT", ".CSV", ".CSV", "._ENTID_", "._ANIMID_", "._REGIONID_", "._AI_GENERIC_ID_", "._RADIOMSG_", "._GOAL_", "._IFC_ATTRIBUTE_", "._SIGNAL_", "._PACKGROUP_"
+            },
+            {
+                "none", ".XBANIM", ".XBSKEL", ".ALS", ".ENT", ".ENTEXT", ".DDS", ".DDSMP", ".IFL", ".DESC", ".ENS", ".SPL", ".AB", ".QP", ".TRIG", ".XBSX", ".INST", ".FDF", ".PANEL", ".TXT", ".ICN", ".XBMESH", ".XBMORPH", ".XBMAT", ".COLL", ".XBPACK", ".XBSANIM", ".MSN", ".MARKER", ".HH", ".WAV", ".WBK", ".XMV", ".XMV", ".PFX", ".CSV", ".CLE", ".LIT", ".GRD", ".GLS", ".LOD", ".SIN", ".GV", ".SV", ".TOKENS", ".DSG", ".PATH", ".PTRL", ".LANG", ".SLF", ".VISEME", ".XBMESHDEF", ".XBMORPHDEF", ".XBMATDEF", ".MUT", ".ASG", ".BAI", ".CUT", ".INTERACT", ".CSV", ".CSV", "._ENTID_", "._ANIMID_", "._REGIONID_", "._AI_GENERIC_ID_", "._RADIOMSG_", "._GOAL_", "._IFC_ATTRIBUTE_", "._SIGNAL_", "._PACKGROUP_"},
+            {
+                "none", ".GCANIM", ".GCSKEL", ".ALS", ".ENT", ".ENTEXT", ".GCT", ".GCTMP", ".IFL", ".DESC", ".ENS", ".SPL", ".AB", ".QP", ".TRIG", ".GCSX", ".INST", ".FDF", ".PANEL", ".TXT", ".TPL", ".GCMESH", ".GCMORPH", ".GCMAT", ".COLB", ".GCPACK", ".GCSANIM", ".MSN", ".MARKER", ".HH", ".WAV", ".WBK", ".H4M", ".H4M", ".PFX", ".CSV", ".CLE", ".LIT", ".GRD", ".GLS", ".LOD", ".SIN", ".GV", ".SV", ".TOKENS", ".DSG", ".PATH", ".PTRL", ".LANG", ".SLF", ".VISEME", ".GCMESHDEF", ".GCMORPHDEF", ".GCMATDEF", ".MUT", ".ASG", ".BAI", ".CUT", ".INTERACT", ".CSV", ".CSV", "._ENTID_", "._ANIMID_", "._REGIONID_", "._AI_GENERIC_ID_", "._RADIOMSG_", "._GOAL_", "._IFC_ATTRIBUTE_", "._SIGNAL_", "._PACKGROUP_"
+            },
+            {
+                "none", ".PCANIM", ".PCSKEL", ".ALS", ".ENT", ".ENTEXT", ".DDS", ".DDSMP", ".IFL", ".DESC", ".ENS", ".SPL", ".AB", ".QP", ".TRIG", ".PCSX", ".INST", ".FDF", ".PANEL", ".TXT", ".ICN", ".PCMESH", ".PCMORPH", ".PCMAT", ".COLL", ".PCPACK", ".PCSANIM", ".MSN", ".MARKER", ".HH", ".WAV", ".WBK", ".M2V", ".M2V", ".PFX", ".CSV", ".CLE", ".LIT", ".GRD", ".GLS", ".LOD", ".SIN", ".GV", ".SV", ".TOKENS", ".DSG", ".PATH", ".PTRL", ".LANG", ".SLF", ".VISEME", ".PCMESHDEF", ".PCMORPHDEF", ".PCMATDEF", ".MUT", ".ASG", ".BAI", ".CUT", ".INTERACT", ".CSV", ".CSV", "._ENTID_", "._ANIMID_", "._REGIONID_", "._AI_GENERIC_ID_", "._RADIOMSG_", "._GOAL_", "._IFC_ATTRIBUTE_", "._SIGNAL_", "._PACKGROUP_"
+            }
+    };
+
+    return resource_key_type_ext;
+}();
+
+resource_key_type_str_t & resource_key_type_str = []() -> auto & {
+    static resource_key_type_str_t g_resource_key_type_str {
+        "unknown", "animation", "nal_skeleton", "als_file", "entity", "external_ent", "texture", "mpal_texture", "ifl", "descriptor", "scn_entity", "scn_ai_spline_path", "scn_audio_box", "scn_quad_path", "scn_box_trigger", "script", "script_inst", "ngl_font", "panel", "textfile", "icon", "mesh", "morph", "material", "collision_mesh", "packfile", "scene_animation", "mission_table", "marker_file", "script_header_file", "sound", "sound_bank", "movie", "moviewithsound", "pfx", "terrain_types", "color_sets", "light", "gradient", "glass_house", "lod", "sin", "script_gv", "script_sv", "token_list", "district_graph", "path", "patrol_def", "language", "slf_list", "viseme_stream", "mesh_file_struct", "morph_file_struct", "material_file_struct", "mash_unit_test", "ai_state_graph", "base_ai", "cut_scene", "ai_interaction", "gab_database", "sound_alias_database", "entity_id", "anim_id", "region_id", "ai_generic_id", "radio_msg", "goal", "ifc_attribute", "signal", "packgroup"
+    };
+    return g_resource_key_type_str;
+}();
+
+static auto & resource_key_type_dir = []() -> auto & {
+    static const char * g_resource_key_type_dir[1] {};
+    return g_resource_key_type_dir;
+}();
+
+#endif
+
+#endif
 
 resource_key::resource_key(from_mash_in_place_constructor *a2) : m_hash(a2) {
     this->initialize(mash::FROM_MASH);
