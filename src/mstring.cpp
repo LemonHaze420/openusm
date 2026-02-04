@@ -613,7 +613,7 @@ bool mString::is_equal(const char *a2) const
 void mString::update_guts(const char *from_string, int n)
 {
     //TRACE("mString::update_guts");
-    
+
     if constexpr (1)
     {
         assert(from_string != nullptr);
@@ -668,19 +668,19 @@ void mString::custom_unmash(mash_info_struct *a1, void *a2)
             a1->align_buffer(
 #ifdef TARGET_XBOX
                 mash::NORMAL_BUFFER,
-#endif 
+#endif
                     1);
 
             this->guts = (char *) a1->read_from_buffer(
 #ifdef TARGET_XBOX
                 mash::NORMAL_BUFFER,
-#endif 
+#endif
                 this->m_size + 1, 1);
 ;
             a1->align_buffer(
 #ifdef TARGET_XBOX
                 mash::NORMAL_BUFFER,
-#endif 
+#endif
                     4);
         }
 
@@ -692,6 +692,4 @@ void mString::custom_unmash(mash_info_struct *a1, void *a2)
     {
         THISCALL(0x004209F0, this, a1, a2);
     }
-
-    sp_log("%d %s", this->m_size, this->c_str());
 }

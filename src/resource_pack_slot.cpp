@@ -182,7 +182,7 @@ void resource_pack_slot::notify_load_started(const resource_key &a2,
 {
     TRACE("resource_pack_slot::notify_load_started");
 
-    if constexpr (0)
+    if constexpr (1)
     {
         assert(m_slot_state == SLOT_STATE_EMPTY);
 

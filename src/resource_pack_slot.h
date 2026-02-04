@@ -110,6 +110,10 @@ public:
         return slot_size;
     }
 
+    auto get_pack_size() const {
+        return pack_size;
+    }
+
     bool is_data_ready() const
     {
         return (this->m_slot_state == SLOT_STATE_LOADING

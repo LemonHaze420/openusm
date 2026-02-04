@@ -213,7 +213,7 @@ bool string_hash_dictionary::read(const char *a1)
             v10.read(mash_image_buffer, size);
 
             v5.unmash_class(header, nullptr
-#ifdef TARGET_XBOX 
+#ifdef TARGET_XBOX
                     , mash::NORMAL_BUFFER
 #endif
                     );
@@ -227,7 +227,7 @@ bool string_hash_dictionary::read(const char *a1)
                 v5.unmash_class(entries, nullptr
 #ifdef TARGET_XBOX
                     , mash::NORMAL_BUFFER
-#endif 
+#endif
                         );
 
                 v5.construct_class(entries);
@@ -336,8 +336,11 @@ void string_hash_dictionary::delete_inst()
 
 mString string_hash_dictionary::figure_out_filename(const char *a2,
                                                     const char *dict_filename,
-                                                    const char *dict_ext) {
-    mString v6{a2};
+                                                    const char *dict_ext)
+{
+    TRACE("string_hash_dictionary::figure_out_filename");
+
+    mString v6 {a2};
 
     if (a2 == nullptr) {
 
@@ -355,19 +358,25 @@ void string_hash_dictionary::load_dictionary(const char *a1)
 {
     TRACE("string_hash_dictionary::load_dictionary");
 
-    mString v1 = figure_out_filename(
-        a1,
-        default_dictionary_filename,
-        dictionary_extension);
+    if constexpr (1) {
+        mString v1 = figure_out_filename(
+            a1,
+            default_dictionary_filename,
+            dictionary_extension);
 
-    if (!read(v1.c_str())) {
-        create_new_dictionary();
+        if (!read(v1.c_str())) {
+            create_new_dictionary();
+        }
+    } else {
+        void (*func)(const char *) = CAST(func, 0x00556000);
+        func(a1);
     }
 }
 
 void string_hash_dictionary::create_new_dictionary()
 {
     TRACE("string_hash_dictionary::create_new_dictionary");
+
     if constexpr (1)
     {
         assert(header == nullptr && "dictionary already loaded");
@@ -512,9 +521,7 @@ bool string_hash_dictionary::register_in_tree(mAvlTree<string_hash_entry> *a1,
             return false;
         }
 
-        auto *mem = (void *) CDECL_CALL(0x00822046, sizeof(string_hash_entry));
-        sp_log("mem = 0x%08X", int(mem));
-        string_hash_entry *v11 = new (mem) string_hash_entry {str, a3};
+        string_hash_entry *v11 = new string_hash_entry {str, a3};
 
         auto did_insert = a1->insert(v11);
         assert(did_insert && "duplicate string_hash entry");
@@ -560,12 +567,19 @@ bool string_hash_dictionary::exists(uint32_t a1)
 
 void string_hash_dictionary_patch()
 {
-    REDIRECT(0x0053DE68, string_hash_dictionary::register_in_tree);
+    REDIRECT(0x005E1113, string_hash_dictionary::create_inst);
 
     return;
-    REDIRECT(0x005D9495, string_hash_dictionary::delete_inst);
 
-    REDIRECT(0x005E1113, string_hash_dictionary::create_inst);
+    REDIRECT(0x00556041, string_hash_dictionary::read);
+
+    REDIRECT(0x005588CC, string_hash_dictionary::load_dictionary);
+
+    REDIRECT(0x0055604D, string_hash_dictionary::create_new_dictionary);
+
+    REDIRECT(0x0053DE68, string_hash_dictionary::register_in_tree);
+
+    REDIRECT(0x005D9495, string_hash_dictionary::delete_inst);
 
     REDIRECT(0x005374C8, string_hash_dictionary::lookup_string);
 
@@ -576,6 +590,4 @@ void string_hash_dictionary_patch()
         //REDIRECT(0x0054F1BE, address);
         //REDIRECT(0x0054F3B8, address);
     }
-
-    //REDIRECT(0x005588CC, string_hash_dictionary::load_dictionary);
 }
