@@ -8,6 +8,7 @@
 #include "return_address.h"
 #include "utility.h"
 #include "variable.h"
+#include "variables.h"
 
 #include <cstring>
 #include <iomanip>
@@ -136,12 +137,17 @@ void nfdIoComplete(nflDriver *driver, uint32_t dwNumberOfBytesTransfered, int a3
     }
 }
 
-#ifndef TEST_CASE
-static Var<nflDriver *> dword_984550{0x00984550};
+#if !STANDALONE_SYSTEM
+
+static nflDriver *& dword_984550 = var<nflDriver *>(0x00984550);
+
 #else
 
-static nflDriver *g_dword_984550{};
-static Var<nflDriver *> dword_984550{&g_dword_984550};
+static nflDriver *& dword_984550 = []() -> auto & {
+    static nflDriver * g_dword_984550 {};
+    return g_dword_984550;
+}();
+
 #endif
 
 void __stdcall nfd_win32_IoCompletionRoutine(DWORD dwErrorCode,
@@ -149,7 +155,7 @@ void __stdcall nfd_win32_IoCompletionRoutine(DWORD dwErrorCode,
                                  [[maybe_unused]] LPOVERLAPPED lpOverlapped) {
     //sp_log("numberOfBytesTransfered = %u", numberOfBytesTransfered);
 
-    nfdIoComplete(dword_984550(), numberOfBytesTransfered, dwErrorCode);
+    nfdIoComplete(dword_984550, numberOfBytesTransfered, dwErrorCode);
 }
 
 int sub_7A00C0() {
@@ -175,29 +181,49 @@ BOOL nfd_win32_IoExecute(
     nflDriver *a1, HANDLE *a2, nflRequestType requestType, uint32_t a4, LPVOID lpBuffer, uint32_t nNumberOfBytes)
 {
     TRACE("nfd_wind32_IoExecute");
+
     assert(requestType == NFL_REQUEST_TYPE_READ
             || requestType == NFL_REQUEST_TYPE_WRITE);
 
     if constexpr (1)
     {
-        Var<_OVERLAPPED> Overlapped = (0x0098453C);
+#if !STANDALONE_SYSTEM
+        auto & Overlapped = var<_OVERLAPPED>(0x0098453C);
 
-        Var<BOOL(__stdcall *)(HANDLE, LPCVOID, DWORD, LPOVERLAPPED, LPOVERLAPPED_COMPLETION_ROUTINE)> g_WriteFileEx = (0x009551A8);
-        Var<BOOL(__stdcall *)(HANDLE, LPVOID, DWORD, LPOVERLAPPED, LPOVERLAPPED_COMPLETION_ROUTINE)> g_ReadFileEx = (0x009551A0);
+        auto & g_WriteFileEx = var<BOOL(__stdcall *)(HANDLE, LPCVOID, DWORD, LPOVERLAPPED, LPOVERLAPPED_COMPLETION_ROUTINE)>(0x009551A8);
+        auto & g_ReadFileEx = var<BOOL(__stdcall *)(HANDLE, LPVOID, DWORD, LPOVERLAPPED, LPOVERLAPPED_COMPLETION_ROUTINE)>(0x009551A0);
+
+#else
+
+        _OVERLAPPED & Overlapped = []() -> auto & {
+            static _OVERLAPPED g_Overlapped {};
+            return g_Overlapped;
+        }();
+
+        auto & g_WriteFileEx = []() -> auto & {
+            static BOOL (__stdcall *g_WriteFileEx1)(HANDLE, LPCVOID, DWORD, LPOVERLAPPED, LPOVERLAPPED_COMPLETION_ROUTINE);
+            return g_WriteFileEx1;
+        }();
+
+        auto & g_ReadFileEx = []() -> auto & {
+            static BOOL (__stdcall *g_ReadFileEx1)(HANDLE, LPVOID, DWORD, LPOVERLAPPED, LPOVERLAPPED_COMPLETION_ROUTINE);
+            return g_ReadFileEx1;
+        }();
+#endif
 
 
-        dword_984550() = a1;
-        Overlapped().Offset = a4;
-        Overlapped().OffsetHigh = 0;
+        dword_984550 = a1;
+        Overlapped.Offset = a4;
+        Overlapped.OffsetHigh = 0;
 
         if (requestType == NFL_REQUEST_TYPE_WRITE) {
             return (
-                g_WriteFileEx()(*a2, lpBuffer, nNumberOfBytes, &Overlapped(), nfd_win32_IoCompletionRoutine) ==
+                g_WriteFileEx(*a2, lpBuffer, nNumberOfBytes, &Overlapped, nfd_win32_IoCompletionRoutine) ==
                 0);
         }
 
         BOOL result =
-            (g_ReadFileEx()(*a2, lpBuffer, nNumberOfBytes, &Overlapped(), nfd_win32_IoCompletionRoutine) == 0);
+            g_ReadFileEx(*a2, lpBuffer, nNumberOfBytes, &Overlapped, nfd_win32_IoCompletionRoutine) == 0;
 
         return result;
     } else {
