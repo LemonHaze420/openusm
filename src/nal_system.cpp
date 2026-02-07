@@ -23,11 +23,17 @@
 
 VALIDATE_OFFSET(nalGeneric::nalGenericSkeleton, field_50, 0x50);
 
-tlInstanceBank & nalTypeInstanceBank = var<tlInstanceBank>(0x009770E8);
+struct nalHeap {
+    std::intptr_t m_vtbl;
+    uint32_t field_4;
+    int field_8;
+};
 
-tlInstanceBank & nalComponentInstanceBank = var<tlInstanceBank>(0x00977100);
-
-LARGE_INTEGER & nalPlayerGetPoseTicks = var<LARGE_INTEGER>(0x009770D8);
+struct nalAnimCache {
+    nalHeap *field_0;
+    int field_4;
+    int field_8;
+};
 
 #ifndef STANDALONE_SYSTEM
 #error "Not defined macro STANDALONE_SYSTEM"
@@ -43,6 +49,24 @@ tlInstanceBankResourceDirectory<nalAnimFile, tlFixedString> *& nalAnimFileDirect
 tlInstanceBankResourceDirectory<nalAnimClass<nalAnyPose>, tlFixedString> *& nalAnimDirectory = var<tlInstanceBankResourceDirectory<nalAnimClass<nalAnyPose>, tlFixedString> *>(0x00977170);
 
 tlInstanceBankResourceDirectory<nalSceneAnim, tlFixedString> *& nalSceneAnimDirectory = var<tlInstanceBankResourceDirectory<nalSceneAnim, tlFixedString> *>(0x00977168);
+
+static auto & dword_970D64 = var<void *>(0x00970D64);
+
+static auto & nalAnimPath = var<char[255]>(0x00976FC8);
+
+char (& nalSkeletonPath)[255] = var<char[255]>(0x00976EC8);
+
+static nalHeap & nalDefaultHeap = var<nalHeap>(0x00946A84);
+
+static nalAnimCache & nalAnimationCache = var<nalAnimCache>(0x00977114);
+
+static nalHeap *& nalAnimationHeap = var<nalHeap *>(0x00976EC0);
+
+tlInstanceBank & nalTypeInstanceBank = var<tlInstanceBank>(0x009770E8);
+
+tlInstanceBank & nalComponentInstanceBank = var<tlInstanceBank>(0x00977100);
+
+LARGE_INTEGER & nalPlayerGetPoseTicks = var<LARGE_INTEGER>(0x009770D8);
 
 #else
 
@@ -66,6 +90,51 @@ tlInstanceBankResourceDirectory<nalSceneAnim, tlFixedString> *& nalSceneAnimDire
     return g_nalSceneAnimDirectory;
 }();
 
+static auto & dword_970D64 = []() -> auto & {
+    static void * g_dword_970D64 {};
+    return g_dword_970D64;
+}();
+
+static auto & nalAnimPath = []() -> auto & {
+    static char g_nalAnimPath[255] {};
+    return g_nalAnimPath;
+}();
+
+char (& nalSkeletonPath)[255] = []() -> auto & {
+    static char g_nalSkeletonPath[255] {};
+    return g_nalSkeletonPath;
+}();
+
+static nalHeap & nalDefaultHeap = []() -> auto & {
+    static nalHeap g_nalDefaultHeap {};
+    return g_nalDefaultHeap;
+}();
+
+static nalAnimCache & nalAnimationCache = []() -> auto & {
+    static nalAnimCache g_nalAnimationCache {};
+    return g_nalAnimationCache;
+}();
+
+static nalHeap *& nalAnimationHeap = []() -> auto & {
+    static nalHeap * g_nalAnimationHeap {};
+    return g_nalAnimationHeap;
+}();
+
+tlInstanceBank & nalTypeInstanceBank = []() -> auto & {
+    static tlInstanceBank g_nalTypeInstanceBank {};
+    return g_nalTypeInstanceBank;
+}();
+
+tlInstanceBank & nalComponentInstanceBank = []() -> auto & {
+    static tlInstanceBank g_nalComponentInstanceBank {};
+    return g_nalComponentInstanceBank;
+}();
+
+LARGE_INTEGER & nalPlayerGetPoseTicks = []() -> auto & {
+    static LARGE_INTEGER g_nalPlayerGetPoseTicks {};
+    return g_nalPlayerGetPoseTicks;
+}();
+
 #endif
 
 int *& PanelComponentMgr::comp_list = var<int *>(0x0096F7DC);
@@ -85,30 +154,6 @@ nalBaseSkeleton *nalGetSkeleton(const tlFixedString &a1) {
 
     return Find(nalSkeletonDirectory, nullptr, &a1);
 }
-
-struct nalHeap {
-    std::intptr_t m_vtbl;
-    uint32_t field_4;
-    int field_8;
-};
-
-struct nalAnimCache {
-    nalHeap *field_0;
-    int field_4;
-    int field_8;
-};
-
-static auto & dword_970D64 = var<void *>(0x00970D64);
-
-static auto & nalAnimPath = var<char[1]>(0x00976FC8);
-
-char (& nalSkeletonPath)[255] = var<char[255]>(0x00976EC8);
-
-static nalHeap & nalDefaultHeap = var<nalHeap>(0x00946A84);
-
-static nalAnimCache & nalAnimationCache = var<nalAnimCache>(0x00977114);
-
-static nalHeap *& nalAnimationHeap = var<nalHeap *>(0x00976EC0);
 
 void nalInit(nalHeap *a1) {
     TRACE("nalInit");
