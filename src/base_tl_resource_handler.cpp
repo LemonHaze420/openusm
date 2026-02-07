@@ -11,20 +11,29 @@
 #include "trace.h"
 #include "utility.h"
 #include "worldly_pack_slot.h"
+#include "variables.h"
 #include "vtbl.h"
 
 #include <vtbl.h>
 
 VALIDATE_SIZE(base_tl_resource_handler, 0x14);
 
-#ifndef TEST_CASE
-Var<limited_timer *> dword_95C824 = (0x0095C824);
+#if !STANDALONE_SYSTEM
+limited_timer * & dword_95C824 = var<limited_timer *>(0x0095C824);
+
 #else
 
-static limited_timer *g_dword_95C824{};
-Var<limited_timer *> dword_95C824{&g_dword_95C824};
+limited_timer * & dword_95C824 = []() -> auto & {
+    static limited_timer * g_dword_95C824 {};
+    return g_dword_95C824;
+}();
 
 #endif
+
+void base_tl_resource_handler::_pre_handle_resources(worldly_resource_handler::eBehavior )
+{
+    return;
+}
 
 void base_tl_resource_handler::pre_handle_resources(worldly_resource_handler::eBehavior behavior)
 {
@@ -69,11 +78,11 @@ bool base_tl_resource_handler::_handle(worldly_resource_handler::eBehavior a2, l
             auto *loc = res_dir.get_tlresource_location(this->field_C, this->field_10);
             assert(loc != nullptr);
 
-            dword_95C824() = a3;
+            dword_95C824 = a3;
 
             bool v9 = this->handle_resource(a2, loc);
 
-            dword_95C824() = nullptr;
+            dword_95C824 = nullptr;
             if ((v9) || (a3 != nullptr && a3->elapsed() >= a3->field_4)) {
                 return true;
             }

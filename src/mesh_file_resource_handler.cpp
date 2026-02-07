@@ -56,7 +56,7 @@ bool mesh_file_resource_handler::_handle_resource(worldly_resource_handler::eBeh
                 auto *Mesh = MeshFile->FirstMesh;
                 if (Mesh != nullptr) {
                 LABEL_10:
-                    auto *v12 = dword_95C824();
+                    auto *v12 = dword_95C824;
                     while (1) {
                         if (Mesh->NSections != 0 && (Mesh->Sections->field_0 & 4) == 0) {
                             for (auto i = 0u; i < Mesh->NSections; ++i) {
@@ -64,7 +64,7 @@ bool mesh_file_resource_handler::_handle_resource(worldly_resource_handler::eBeh
                             }
 
                             Mesh->Sections->field_0 |= 4u;
-                            v12 = dword_95C824();
+                            v12 = dword_95C824;
                         }
 
                         Mesh = Mesh->NextMesh;

@@ -17,9 +17,11 @@ struct base_tl_resource_handler : worldly_resource_handler {
     //0x00562EC0
     /* virtual */ bool _handle(worldly_resource_handler::eBehavior a2, limited_timer *a3);
 
+    void _pre_handle_resources(worldly_resource_handler::eBehavior);
+
     /* virtual */ void pre_handle_resources(worldly_resource_handler::eBehavior);
 
     /* virtual */ bool handle_resource(worldly_resource_handler::eBehavior, tlresource_location *);
 };
 
-extern Var<limited_timer *> dword_95C824;
+extern limited_timer * & dword_95C824;
