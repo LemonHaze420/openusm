@@ -22,4 +22,10 @@ extern BOOL sub_7A00A0(HANDLE *a1);
 
 extern int sub_7A00C0();
 
+//0x0081E130
+extern void initializeFileHandlers(int *);
+
+//0x0081D700
+extern void releaseFileHandlers();
+
 extern void nfl_driver_patch();

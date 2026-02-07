@@ -1423,7 +1423,7 @@ int __stdcall myWinMain(HINSTANCE hInstance,
 
     sub_81C1A0();
 
-    sub_81E130(nullptr);
+    initializeFileHandlers(nullptr);
 
     Input::create_inst();
 
@@ -1802,7 +1802,7 @@ LABEL_94:
     }
 
     sub_81E300();
-    sub_81D700();
+    releaseFileHandlers();
 
     delete g_inputSettingsMenu;
     delete g_inputSettingsInGame;
