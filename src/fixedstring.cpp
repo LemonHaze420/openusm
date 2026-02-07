@@ -19,7 +19,7 @@ tlFixedString::tlFixedString(const char *a1) : m_hash(0), field_4({})
     strlwr(this->field_4);
 }
 
-int tlFixedString::compare(const tlFixedString &a2) {
+int tlFixedString::compare(const tlFixedString &a2) const {
     for (auto i = 0; i < 8; ++i) {
         auto func = [](const void *self) -> const uint32_t * {
             //

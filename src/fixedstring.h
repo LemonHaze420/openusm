@@ -67,9 +67,13 @@ struct tlFixedString {
         return field_4;
     }
 
+    const char * c_str() const {
+        return field_4;
+    }
+
     tlFixedString *operator=(const tlFixedString &a1);
 
-    int compare(const tlFixedString &a2);
+    int compare(const tlFixedString &a2) const;
 
     bool operator==(const tlFixedString &a2) const;
 
