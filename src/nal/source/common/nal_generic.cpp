@@ -4,6 +4,8 @@
 #include "common.h"
 #include "nal_system.h"
 #include "tl_instance_bank.h"
+#include "trace.h"
+#include "variables.h"
 #include "vtbl.h"
 
 namespace nalGeneric {
@@ -14,6 +16,8 @@ VALIDATE_OFFSET(nalGenericSkeleton, field_64, 0x64);
 
 VALIDATE_SIZE(nalGenericPose, 0xC);
 
+#if !STANDALONE_SYSTEM
+
 int & nalGenericPose::PoseSP = var<int>(0x0097DA08);
 
 int & nalGenericPose::PoseStack = var<int>(0x00977204);
@@ -21,6 +25,30 @@ int & nalGenericPose::PoseStack = var<int>(0x00977204);
 int & nalGenericAnim::vtbl_ptr = var<int>(0x00977120);
 
 int & nalGenericSkeleton::vtbl_ptr = var<int>(0x009770E0);
+
+#else
+
+int & nalGenericPose::PoseSP = []() -> auto & {
+    static int g_PoseSP {};
+    return g_PoseSP;
+}();
+
+int & nalGenericPose::PoseStack = []() -> auto & {
+    static int g_PoseStack {};
+    return g_PoseStack;
+}();
+
+int & nalGenericAnim::vtbl_ptr = []() -> auto & {
+    static int g_vtbl_ptr {};
+    return g_vtbl_ptr;
+}();
+
+int & nalGenericSkeleton::vtbl_ptr = []() -> auto & {
+    static nalGenericSkeleton skel {};
+    return skel.m_vtbl;
+}();
+
+#endif
 
 void nalGenericInstance::GetPose(
         Float a2,
@@ -33,6 +61,17 @@ void nalGenericInstance::GetPose(
 
 nalGenericSkeleton::nalGenericSkeleton()
 {
+    if constexpr (1) {
+        static void * g_vtbl[] {
+            nullptr,
+            nullptr,
+            func_address(&_Process),
+            func_address(&_Release),
+            func_address(&_CheckVersion)
+        };
+
+        m_vtbl = CAST(m_vtbl, &g_vtbl);
+    }
 }
 
 nalMatrix4x4 * nalGenericSkeleton::GetBoneMatrices(
@@ -45,89 +84,73 @@ nalMatrix4x4 * nalGenericSkeleton::GetBoneMatrices(
     }
 }
 
-void nalGenericSkeleton::Process()
+void nalGenericSkeleton::_Process()
 {
-    if constexpr (1) {
-        auto v2 = this->field_64;
-        auto v3 = this->field_6C;
-        this->field_68 = (int) &this->field_E0;
-        auto *v4 = (char *) &this->field_E0 + v2;
-        auto v5 = 48 * this->field_74;
-        this->field_70 = (int) v4;
-        auto v6 = (uint32_t) &v4[v3 + 3] & 0xFFFFFFFC;
-        this->field_78 = v6;
-        auto v7 = v5 + v6 + 3;
-        auto v8 = 5 * this->field_7C;
-        auto v9 = this->field_94;
-        v7 &= 0xFFFFFFFC;
-        this->field_84 = v7;
-        auto v10 = (v7 + 8 * v8 + 3) & 0xFFFFFFFC;
-        auto v11 = v10 + 48 * this->field_88;
-        this->field_8C = CAST(field_8C, v10);
-        auto v12 = v11 + v9 - 1;
-        auto v13 = this->field_9C;
-        auto v14 = ~(v9 - 1) & v12;
-        auto v15 = (this->field_90 + v14 + 3) & 0xFFFFFFFC;
-        this->field_A0 = v15;
-        auto v16 = v13 + v15 + 3;
-        auto v17 = this->field_B0;
-        v16 &= 0xFFFFFFFC;
-        auto v18 = (char *) (v16 + 0x30 * this->field_A4);
-        this->field_A8 = CAST(field_A8, v16);
-        auto v19 = (int) &v18[v17 - 1];
-        auto v20 = this->field_B8;
-        auto v21 = ~(v17 - 1) & v19;
-        auto v22 = this->field_AC;
-        this->field_B4 = v21;
-        auto v23 = v22 + v21 + 3;
-        auto v24 = this->field_C4;
-        v23 &= 0xFFFFFFFC;
-        this->field_BC = v23;
-        this->field_98 = v14;
-        this->field_C8 = ~(v24 - 1) & (v23 + v20 + v24 - 1);
-        this->field_CC = (int) this;
-        this->field_D0 = v14;
+    TRACE("nalGenericSkeleton::Process");
 
-        //sp_log("%s", this->field_8C[0].field_0.c_str());
+    if constexpr (1) {
+
+        auto func = [](int a1, int a2) -> int {
+              return ~(a2 - 1) & (a1 + a2 - 1);
+        };
+
+        this->field_68 = func((int)&this->field_E0, 1);
+        this->field_70 = func(this->field_64 + this->field_68, 1);
+        this->field_78 = func(this->field_6C + this->field_70, 4);
+        this->field_84 = func(this->field_78 + 48 * this->field_74, 4);
+
+        this->field_8C = CAST(field_8C, func(this->field_84 + 40 * this->field_7C, 4));
+
+        this->field_98 = func((int)&this->field_8C[this->field_88], this->field_94);
+
+        this->field_A0 = func(this->field_90 + this->field_98, 4);
+
+        this->field_A8 = CAST(field_A8, func(this->field_9C + this->field_A0, 4));
+
+        this->field_B4 = func(int(this->field_A8 + 48 * this->field_A4), this->field_B0);
+
+        this->field_BC = func(this->field_AC + this->field_B4, 4);
+
+        this->field_C8 = func(this->field_B8 + this->field_BC, this->field_C4);
+
+        this->field_CC.field_0 = this;
+        this->field_CC.field_4 = this->field_98;
 
         for (int i = 0; i < this->field_88; ++i) {
+            auto *inst = nalComponentInstanceBank.Search(this->field_8C[i].field_0);
+            assert(inst != nullptr && "could not find an instance of the encoding type of a pose component");
             this->field_8C[i].field_20 = static_cast<decltype(this->field_8C[i].field_20)>(
-                nalComponentInstanceBank.Search(this->field_8C[i].field_0)->field_20);
+                inst->field_20);
         }
 
         for (int i = 0; i < this->field_A4; ++i) {
-            this->field_A8[i].field_20 = static_cast<decltype(this->field_A8[i].field_20)>(
-                nalComponentInstanceBank.Search(this->field_A8[i].field_0)->field_20);
+            auto *inst = nalComponentInstanceBank.Search(this->field_A8[i].field_0);
+            assert(inst != nullptr && "could not find an instance of the encoding type of a const component");
+
+            this->field_A8[i].field_20 = static_cast<decltype(this->field_A8[i].field_20)>(inst->field_20);
         }
 
         auto v29 = this->field_A0;
 
         auto *v30 = this->field_8C;
-        auto v38 = this->field_98;
+        auto v38 = (void *)this->field_98;
+        auto v37 = (void *)v29;
 
-        auto v37 = v29;
-        if (this->field_88 > 0) {
-            for (int i = 0; i < this->field_88; ++i) {
-                void (__fastcall *Process)(void *, void *, void *, void *, void *) = CAST(Process, get_vfunc(v30->field_20->m_vtbl, 0x10));
-                Process(v30->field_20, nullptr, v30, &v38, &v37);
+        for (int i = 0; i < this->field_88; ++i) {
+            v30->field_20->Process(v30, v38, v37);
 
-                ++v30;
-            }
+            ++v30;
         }
 
         auto v34 = this->field_BC;
         auto *v35 = this->field_A8;
-        v38 = this->field_B4;
+        v38 = (void *)this->field_B4;
 
-        v37 = v34;
-        if (this->field_A4 > 0) {
-            for (int i = 0; i < this->field_A4; ++i) {
-                void (__fastcall *Process)(void *, void *, void *, void *, void *) = CAST(Process, get_vfunc(v35->field_20->m_vtbl, 0x10));
+        v37 = (void *)v34;
+        for (int i = 0; i < this->field_A4; ++i) {
+            v35->field_20->Process(v35, v38, v37);
 
-                Process(v35->field_20, nullptr, v35, &v38, &v37);
-
-                ++v35;
-            }
+            ++v35;
         }
 
     } else {
@@ -135,7 +158,7 @@ void nalGenericSkeleton::Process()
     }
 }
 
-void nalGenericSkeleton::Release() {
+void nalGenericSkeleton::_Release() {
     ;
 }
 
@@ -196,6 +219,10 @@ void nalGenericSkeleton::GetComponentHandle<nalVector3>(
 int * sub_796F90(unsigned int a1)
 {
     return (int *) CDECL_CALL(0x00796F90, a1);
+}
+
+nalGenericPose::nalGenericPose() {
+    this->field_8 = false;
 }
 
 nalGeneric::nalGenericPose::nalGenericPose(const nalGeneric::nalGenericSkeleton *a3)
@@ -300,3 +327,6 @@ nalGeneric::nalGenericPose::nalGenericPose(
 
 } // namespace nalGeneric
 
+void nalGeneric_patch()
+{
+}
