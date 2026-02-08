@@ -139,7 +139,7 @@ LARGE_INTEGER & nalPlayerGetPoseTicks = []() -> auto & {
 
 int *& PanelComponentMgr::comp_list = var<int *>(0x0096F7DC);
 
-int *nalComponentU8Base::GetType() {
+int *nalComponentU8Base::_GetType() {
     return &TypeID;
 }
 
@@ -153,6 +153,12 @@ nalBaseSkeleton *nalGetSkeleton(const tlFixedString &a1) {
     nalBaseSkeleton * (__fastcall *Find)(void *, void *, const tlFixedString *) = CAST(Find, get_vfunc(nalSkeletonDirectory->m_vtbl, 0xC));
 
     return Find(nalSkeletonDirectory, nullptr, &a1);
+}
+
+void nalComponentBase::Process(const nalGeneric::nalComponentInfo *a1, void *& a2, void *& a3)
+{
+    void (__fastcall *func)(void *, void *edx, const nalGeneric::nalComponentInfo *, void **, void **) = CAST(func, get_vfunc(m_vtbl, 0x10));
+    func(this, nullptr, a1, &a2, &a3);
 }
 
 void nalInit(nalHeap *a1) {
@@ -232,9 +238,7 @@ bool nalLoadAnimFileInternal(nalAnimFile *anim_file)
 
         for (auto i = 0; i < anim_file->num_skeletons; ++i)
         {
-            nalBaseSkeleton * (__fastcall *Find)(void *, void *, const tlFixedString *) = CAST(Find, get_vfunc(nalSkeletonDirectory->m_vtbl, 0xC));
-
-            skeletons[i] = Find(nalSkeletonDirectory, nullptr, &v1[i]);
+            skeletons[i] = nalSkeletonDirectory->Find(v1[i]);
             if (skeletons[i] == nullptr)
             {
                 auto v8 = anim_file->field_10.to_string();
@@ -296,7 +300,8 @@ bool nalLoadAnimFileInternal(nalAnimFile *anim_file)
         anim_file->field_4 |= 8u;
         return true;
     } else {
-        return (bool) CDECL_CALL(0x0078D540, anim_file);
+        bool (*func)(nalAnimFile *) = CAST(func, 0x0078D540);
+        return func(anim_file);
     }
 }
 
@@ -477,7 +482,7 @@ void nalStreamInstance_patch()
     }
 
     {
-        FUNC_ADDRESS(address, &nalComponentU8Base::GetType);
+        FUNC_ADDRESS(address, &nalComponentU8Base::_GetType);
         SET_JUMP(0x004AE4C0, address);
     }
 

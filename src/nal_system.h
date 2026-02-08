@@ -92,21 +92,26 @@ struct nalBaseSkeleton;
 //0x0078DC60
 extern nalBaseSkeleton *nalGetSkeleton(const tlFixedString &a1);
 
-struct nalComponentU8Base {
-    int *GetType();
+struct nalComponentBase {
+    int m_vtbl;
 
-    static inline int TypeID{0};
+    //virtual
+    void Process(const nalGeneric::nalComponentInfo *a1, void *& a2, void *& a3); // = 0;
+
 };
 
-struct nalComponentStringBase {
+struct nalComponentU8Base : nalComponentBase {
+
+    /* virtual */ int * _GetType();
+
+    static inline int TypeID {0};
+};
+
+struct nalComponentStringBase : nalComponentBase {
     char *GetType();
 
     static inline char & TypeID = var<char>(0x00959560);
 };
-
-struct spideySignalData {};
-
-struct spideySignal {};
 
 struct nalComponentInitList;
 
