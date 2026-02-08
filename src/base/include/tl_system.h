@@ -35,7 +35,7 @@ struct tlInstanceBankResourceDirectory : tlResourceDirectory<T0, T1> {
 
         void Init();
 
-        T0 *Find(const T1 &);
+        T0 * Find(const T1 &);
 
         void *Add(T0 *a1);
 
@@ -50,10 +50,25 @@ struct tlInstanceBankResourceDirectory : tlResourceDirectory<T0, T1> {
         Impl *field_4;
         Node *field_8;
 
+        SkipListIterator(Impl *a2) : field_4(a2) {
+            this->m_vtbl = 0x008BDDC0;
+        }
+
+        //virtual
+        void finalize(bool a2) {
+            this->~SkipListIterator();
+            if (a2) {
+                tlMemFree(this);
+            }
+        }
+
+        //virtual
         void reset();
 
+        //virtual
         bool operator()();
 
+        //virtual
         T0 *operator*();
 
         void operator++();
@@ -63,19 +78,26 @@ struct tlInstanceBankResourceDirectory : tlResourceDirectory<T0, T1> {
 
     tlInstanceBankResourceDirectory();
 
-    void *Add(T0 *a1);
-    bool Del(T0 *a1);
-
-    SkipListIterator *Enumerate();
-
     //virtual
-    T0 * _Find(const T1 &);
-
     void finalize(bool a2) {
         this->~tlInstanceBankResourceDirectory();
         if (a2) {
             delete(this);
         }
+    }
+
+    //virtual
+    void * Add(T0 *a1);
+
+    //virtual
+    bool _Del(T0 *a1);
+
+    //virtual
+    SkipListIterator * _Enumerate();
+
+    //virtual
+    T0 * _Find(const T1 &a1) {
+        return this->field_4.Find(a1);
     }
 
     void * operator new(std::size_t sz) {
