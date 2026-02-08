@@ -166,7 +166,12 @@ nglFont *tlResourceDirectory<nglFont, tlFixedString>::StandardLoad(const tlFixed
 }
 
 template<>
-nglTexture *tlResourceDirectory<nglTexture, tlFixedString>::_Find(unsigned int) {
+nglTexture * tlResourceDirectory<nglTexture, tlFixedString>::_Find(unsigned int) {
+    return nullptr;
+}
+
+template<>
+nalBaseSkeleton * tlResourceDirectory<nalBaseSkeleton, tlFixedString>::_Find(unsigned int) {
     return nullptr;
 }
 
@@ -273,6 +278,26 @@ nalBaseSkeleton * tlResourceDirectory<nalBaseSkeleton, tlFixedString>::StandardL
         nalBaseSkeleton * (__fastcall * func)(void *, void *edx, const tlFixedString *) = CAST(func, 0x0078DD20);
         return func(this, nullptr, &a2);
     }
+}
+
+template<>
+int tlResourceDirectory<nalBaseSkeleton, tlFixedString>::StandardRelease(nalBaseSkeleton *a2, int a3, bool) {
+    if ( a2 == nullptr ) {
+        return 0;
+    }
+
+    if ( !a3 && --a2->field_48 > 0) {
+        return a2->field_48;
+    }
+
+    this->Del(a2);
+    a2->Release();
+
+    if ( a2->field_50.Buf != nullptr ) {
+        tlReleaseFile(&a2->field_50);
+    }
+
+    return 0;
 }
 
 template<>
