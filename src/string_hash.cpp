@@ -9,6 +9,7 @@
 #include "string_hash_dictionary.h"
 #include "trace.h"
 #include "utility.h"
+#include "variables.h"
 
 #include <stdio.h>
 
@@ -29,6 +30,11 @@ string_hash & bip01_l_calf = var<string_hash>(0x0095BA1C);
 string_hash & bip01_r_calf = var<string_hash>(0x0095AB1C);
 string_hash & bip01_pelvis = var<string_hash>(0x0095AAFC);
 string_hash & bip01_spine = var<string_hash>(0x0095BA18);
+
+
+#ifndef STANDALONE_SYSTEM
+#error "Not defined macro STANDALONE_SYSTEM"
+#endif
 
 #if !STANDALONE_SYSTEM
 
