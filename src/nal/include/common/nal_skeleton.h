@@ -45,6 +45,11 @@ struct nalBaseSkeleton {
         return this->field_28;
     }
 
+    static tlFixedString * get_string(nalBaseSkeleton *a1)
+    {
+        return bit_cast<tlFixedString *>(&a1->GetName());
+    }
+
 };
 
 extern void sub_826190(nalBasePose &dst, Float a2, nalBasePose &src0, nalBasePose &src1);

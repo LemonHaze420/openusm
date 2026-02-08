@@ -63,7 +63,7 @@ void * nalConstructSkeleton(void *a1)
 {
     TRACE("nalConstructSkeleton");
 
-    if constexpr (0)
+    if constexpr (1)
     {
         nalBaseSkeleton *skel = static_cast<decltype(skel)>(a1);
 
