@@ -9,6 +9,8 @@ struct worldly_pack_slot;
 struct skeleton_resource_handler : base_tl_resource_handler {
     skeleton_resource_handler(worldly_pack_slot *a1);
 
+    void finalize(bool);
+
     //virtual
     bool _handle(worldly_resource_handler::eBehavior a2, limited_timer *a3);
 
