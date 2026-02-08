@@ -11,14 +11,50 @@
 #include <panel_anim_inst.h>
 #include <ped_skel_pose.h>
 #include <ped_anim_inst.h>
+#include <spidey_signal.h>
 #include <camera_skel_pose.h>
 #include <camera_anim_inst.h>
+#include <variables.h>
 
 #include <nal_system.h>
 
 VALIDATE_SIZE(nalInitListAnimType, 0x30);
 
+#if !STANDALONE_SYSTEM
+
 void * & nalInitList::head = var<void *>(0x00977154);
+
+#else
+
+void * & nalInitList::head = []() -> auto & {
+    static void * g_head {};
+    return g_head;
+}();
+
+static nalComponentInitList InitListComponent_spideySignal {
+    "Spidey_Signal",
+    &Component_spideySignal
+};
+
+static nalInitListAnimType InitListAnimType_nalCharAnim {
+    "Character",
+    nalChar::nalCharAnim::vtbl_ptr,
+    nalChar::nalCharSkeleton::vtbl_ptr
+};
+
+static nalInitListAnimType InitListAnimType_nalPanelAnim {
+    "Panel",
+    nalPanel::nalPanelAnim::vtbl_ptr,
+    nalPanel::nalPanelSkeleton::vtbl_ptr
+};
+
+static nalInitListAnimType InitListAnimType_nalGenericAnim {
+    "generic",
+    nalGeneric::nalGenericAnim::vtbl_ptr,
+    nalGeneric::nalGenericSkeleton::vtbl_ptr
+};
+
+#endif
 
 nalInitList::nalInitList() {
     this->field_4 = head;
@@ -52,15 +88,21 @@ tlInstanceBank::Node *nalInitListAnimType::_Register() {
 nalComponentInitList::nalComponentInitList(const char *str, void *a3)
     : nalInitList(), field_8(str), field_C(a3)
 {
-    static vtbl g_vtbl = {
-        func_address(&_Register)
-    };
+    if constexpr (1) {
+        static vtbl g_vtbl = {
+            func_address(&_Register)
+        };
 
-    this->m_vtbl = CAST(m_vtbl, &g_vtbl);
+        this->m_vtbl = CAST(m_vtbl, &g_vtbl);
+    } else {
+        this->m_vtbl = 0x00880958;
+    }
 }
 
-tlInstanceBank::Node *nalComponentInitList::_Register() {
-    tlFixedString v3{this->field_8};
+tlInstanceBank::Node * nalComponentInitList::_Register() {
+    TRACE("nalComponentInitList::_Register");
+
+    tlFixedString v3 {this->field_8};
 
     //sp_log("%d %s", v3.m_hash, v3.to_string());
 
