@@ -12,20 +12,16 @@ struct nalPanelPose : nalComp::nalCompPose {
 };
 
 struct nalPanelSkeleton : nalComp::nalCompSkeleton {
-    struct vtbl {
-        void *field_0;
-        void *finalize;
-        void (nalPanelSkeleton::*Process)();
-        void *Release;
-        bool (nalPanelSkeleton::*CheckVersion)();
-    };
 
     int field_7C;
-    nalPanelPose *field_80;
+    nalPanelPose *m_theDefaultPose;
 
-    void Process();
+    nalPanelSkeleton();
 
-    bool CheckVersion() {
+    //virtual
+    void _Process();
+
+    bool _CheckVersion() const {
         return this->Version == 0x300;
     }
 

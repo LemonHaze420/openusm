@@ -3,19 +3,54 @@
 #include "common.h"
 
 #include <nal_system.h>
+#include <trace.h>
+#include <variables.h>
 
 namespace nalPanel {
 VALIDATE_SIZE(nalPanelSkeleton, 0x84);
 
 VALIDATE_SIZE(nalPanelPose, 0x10);
 
+#if !STANDALONE_SYSTEM
+
 int & nalPanelSkeleton::vtbl_ptr = var<int>(0x0096FC74);
+
+#else
+
+int & nalPanelSkeleton::vtbl_ptr = []() -> auto & {
+    static nalPanelSkeleton skel {};
+    return skel.m_vtbl;
+}();
+
+#endif
 
 nalPanelPose::nalPanelPose(const nalPanelSkeleton *a2) : nalCompPose(a2) {
     field_C = 0;
 }
 
-void nalPanelSkeleton::Process() {
+nalPanelSkeleton::nalPanelSkeleton()
+{
+    if constexpr (1) {
+        static void * g_vtbl[] {
+            nullptr,
+            nullptr,
+            func_address(&_Process),
+            nullptr,
+            func_address(&_CheckVersion)
+        };
+
+        m_vtbl = CAST(m_vtbl, &g_vtbl);
+    } else {
+        this->m_vtbl = 0x0142B7F8;
+    }
+
+    this->m_theDefaultPose = nullptr;
+    this->Version = 0x300;
+}
+
+void nalPanelSkeleton::_Process() {
+    TRACE("nalPanelSkeleton::Process");
+
     auto *v1 = PanelComponentMgr::comp_list;
     int num;
     for (num = 0; v1 != nullptr; ++num) {
@@ -44,6 +79,6 @@ void nalPanelSkeleton::Process() {
     tlMemFree(j);
     auto *mem = tlMemAlloc(sizeof(nalPanel::nalPanelPose), 8, 0);
 
-    this->field_80 = new (mem) nalPanel::nalPanelPose{this};
+    this->m_theDefaultPose = new (mem) nalPanel::nalPanelPose{this};
 }
 } // namespace nalPanel
