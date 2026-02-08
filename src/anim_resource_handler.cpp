@@ -14,9 +14,30 @@ VALIDATE_SIZE(anim_resource_handler, 0x14);
 
 anim_resource_handler::anim_resource_handler(worldly_pack_slot *a2)
 {
-    this->m_vtbl = 0x008889D8;
+    if constexpr (1) {
+        static void * g_vtbl[] = {
+            func_address(&finalize),
+            func_address(&_handle),
+            func_address(&_pre_handle_resources),
+            func_address(&_handle_resource),
+        };
+
+        this->m_vtbl = CAST(m_vtbl, &g_vtbl);
+
+    } else {
+        this->m_vtbl = 0x008889D8;
+    }
+
     this->my_slot = a2;
     this->field_10 = TLRESOURCE_TYPE_ANIM_FILE;
+}
+
+void anim_resource_handler::finalize(bool a2)
+{
+    this->~anim_resource_handler();
+    if (a2) {
+        delete(this);
+    }
 }
 
 bool anim_resource_handler::_handle(worldly_resource_handler::eBehavior a2, limited_timer *a3)
@@ -31,7 +52,7 @@ bool anim_resource_handler::_handle_resource(worldly_resource_handler::eBehavior
 {
     TRACE("anim_resource_handler::handle_resource");
 
-    if constexpr (0)
+    if constexpr (1)
     {
         auto *anim_file = (nalAnimFile *) a3->get_data();
         assert(anim_file != nullptr && "Could not load the animation file.");
@@ -69,12 +90,13 @@ bool anim_resource_handler::_handle_resource(worldly_resource_handler::eBehavior
 void anim_resource_handler_patch()
 {
     {
+        FUNC_ADDRESS(address, &anim_resource_handler::_handle_resource);
+        set_vfunc(0x008889E4, address);
+    }
+
+    {
         FUNC_ADDRESS(address, &anim_resource_handler::_handle);
         set_vfunc(0x008889DC, address);
     }
 
-    {
-        FUNC_ADDRESS(address, &anim_resource_handler::_handle_resource);
-        set_vfunc(0x008889E4, address);
-    }
 }
