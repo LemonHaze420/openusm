@@ -19,7 +19,7 @@ CharComponentBase::CharComponentBase()
     this->field_10 = 0;
 }
 
-uint32_t CharComponentBase::GetType()
+uint32_t CharComponentBase::_GetType()
 {
     TRACE("CharComponentBase::GetType");
 

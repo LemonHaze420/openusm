@@ -28,10 +28,17 @@ struct nalCompPose {
 
     void CopyPoseDataNoFree(const void *a2);
 
+    void * _GetComponentPoseData(uint32_t a2);
+
+    //virtual
     void * GetComponentPoseData(uint32_t a2);
+
+    void * _GetComponentPoseData(uint32_t a2) const;
 
     //virtual
     void * GetComponentPoseData(uint32_t a2) const;
+
+    int _GetPoseDataSize();
 
     //virtual
     //0x00734420
@@ -124,6 +131,9 @@ struct nalCompSkeleton : nalBaseSkeleton {
     //0x00732000
     bool DoesComponentHavePoseTrackData(int a2) const;
 
+    void _UnMash(void *a2, BaseComponent **a3, unsigned int iNumComponents);
+
+    //virtual
     void UnMash(void *a2, BaseComponent **a3, unsigned int iNumComponents);
 
     void ReMash(void *a2);

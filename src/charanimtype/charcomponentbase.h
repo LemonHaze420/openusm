@@ -26,7 +26,7 @@ struct CharComponentBase : BaseComponent {
     CharComponentBase();
 
     //virtual
-    uint32_t GetType();
+    uint32_t _GetType();
     
     //virtual
     //0x005EC5D0

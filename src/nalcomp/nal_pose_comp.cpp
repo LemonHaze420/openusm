@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "trace.h"
+#include <variables.h>
 #include <vtbl.h>
 
 #include <nal_anim_comp.h>
@@ -11,7 +12,14 @@
 VALIDATE_SIZE(nalComp::nalCompSkeleton, 0x7C);
 
 namespace nalComp {
+#if !STANDALONE_SYSTEM
     nalCompPose *&pTempStuff = var<nalComp::nalCompPose *>(0x0096F7BC);
+#else
+    nalCompPose *&pTempStuff = []() -> auto & {
+        static nalCompPose * g_pTempStuff {};
+        return g_pTempStuff;
+    }();
+#endif
 }
 
 void nalComp::nalCompSkeleton::CopyPose(nalComp::nalCompPose &a1, const nalComp::nalCompPose &a2)
@@ -68,6 +76,8 @@ void nalComp::nalCompSkeleton::VirtualBlend(
 
 int nalComp::nalCompSkeleton::ConvertCompIxToPoseIx(uint32_t iCompIx) const
 {
+    TRACE("nalCompSkeleton::ConvertCompIxToPoseIx");
+
     assert(int(iCompIx) < m_iNumComponents && "Asked for a component index that doesn't exist.");
 
     if ( this->field_70[iCompIx].sub_671D5F(0) ) {
@@ -93,6 +103,8 @@ int nalComp::nalCompSkeleton::ConvertCompIxToPoseIx(uint32_t iCompIx) const
 
 int nalComp::nalCompSkeleton::GetComponentPoseDataOffset(uint32_t iCompIx) const
 {
+    TRACE("nalCompSkeleton::GetComponentPoseDataOffset");
+
     auto iPoseIx = this->ConvertCompIxToPoseIx(iCompIx);
 
     auto *pDirectory = bit_cast<int *>(this->field_78);
@@ -105,6 +117,8 @@ int nalComp::nalCompSkeleton::GetComponentPoseDataOffset(uint32_t iCompIx) const
 
 char * nalComp::nalCompSkeleton::GetCompDefaultPoseData(int iCompIx) const
 {
+    TRACE("nalCompSkeleton::GetCompDefaultPoseData");
+
     assert(iCompIx < this->m_iNumComponents && "Asked for a component index that doesn't exist.");
 
     int iPoseIx = this->ConvertCompIxToPoseIx(iCompIx);
@@ -157,11 +171,11 @@ bool nalComp::nalCompSkeleton::DoesComponentHavePoseTrackData(int a2) const
     return func(this, nullptr, a2);
 }
 
-void nalComp::nalCompSkeleton::UnMash(void *a2, BaseComponent **a3, unsigned int iNumComponents)
+void nalComp::nalCompSkeleton::_UnMash(void *a2, BaseComponent **a3, unsigned int iNumComponents)
 {
     TRACE("nalCompSkeleton::UnMash");
 
-    if constexpr (0)
+    if constexpr (1)
     {
         this->field_70 = CAST(field_70, int(this->field_70) + int(a2));
         this->field_74 += int(a2);
@@ -169,10 +183,10 @@ void nalComp::nalCompSkeleton::UnMash(void *a2, BaseComponent **a3, unsigned int
         if (this->field_6C != 0) {
             this->field_78 += int(a2);
         } else {
-            this->field_78 = 0;
+            this->field_78 = nullptr;
         }
 
-        for (auto iCompIx = 0u; iCompIx < this->m_iNumComponents; ++iCompIx)
+        for (auto iCompIx = 0; iCompIx < this->m_iNumComponents; ++iCompIx)
         {
             auto *v9 = this->field_70;
             int v10 = (int) v9[iCompIx].m_component;
@@ -181,7 +195,7 @@ void nalComp::nalCompSkeleton::UnMash(void *a2, BaseComponent **a3, unsigned int
             uint32_t iArrayIx;
             for ( iArrayIx = 0; iArrayIx < iNumComponents; ++iArrayIx )
             {
-                if ( a3[iArrayIx]->GetType() == v10 )
+                if ( a3[iArrayIx]->GetType() == uint32_t(v10) )
                 {
                     this->field_70[iCompIx].m_component = CAST(this->field_70[iCompIx].m_component, a3[iArrayIx]);
                     auto *CompDefaultPoseData = this->GetCompDefaultPoseData(iCompIx);
@@ -203,6 +217,13 @@ void nalComp::nalCompSkeleton::UnMash(void *a2, BaseComponent **a3, unsigned int
         THISCALL(0x007378A0, this, a2, a3, iNumComponents);
     }
 }
+
+void nalComp::nalCompSkeleton::UnMash(void *a2, BaseComponent **a3, unsigned int iNumComponents)
+{
+    void (__fastcall *func)(const void *, void *edx, void *, BaseComponent **, unsigned int) = CAST(func, get_vfunc(m_vtbl, 0x40));
+    func(this, nullptr, a2, a3, iNumComponents);
+}
+
 
 void nalComp::nalCompSkeleton::ReMash(void *a2)
 {
@@ -256,7 +277,7 @@ int nalComp::nalCompSkeleton::GetCompIxFromName(nalComp::ComponentId a2) const
     for ( int i = 0; i < this->m_iNumComponents; ++i )
     {
         auto &v5 = this->field_70[i];
-        if ( v5.m_component->GetType() == int(a2.field_4) && a2.field_0 == v5.m_name ) {
+        if ( v5.m_component->GetType() == a2.field_4 && a2.field_0 == v5.m_name ) {
             return i;
         }
     }
@@ -341,19 +362,61 @@ void nalComp::nalCompPose::CopyPoseDataNoFree(const void *a2)
     }
 }
 
-void * nalComp::nalCompPose::GetComponentPoseData(uint32_t a2)
+void * nalComp::nalCompPose::_GetComponentPoseData(uint32_t a2)
 {
-    return (void *) THISCALL(0x00737870, this, a2);
+    TRACE("nalCompPose::GetComponentPoseData");
+
+    if constexpr (1) {
+        if ( this->m_pTheData == nullptr ) {
+            return nullptr;
+        }
+
+        auto *data = static_cast<char *>(this->m_pTheData);
+        auto *v4 = this->field_4;
+        return data + v4->GetComponentPoseDataOffset(a2);
+    } else {
+        void * (__fastcall *func)(void *, void *edx, uint32_t) = CAST(func, 0x00737870);
+        return func(this, nullptr, a2);
+    }
 }
 
-void * nalComp::nalCompPose::GetComponentPoseData(uint32_t a2) const
+void * nalComp::nalCompPose::GetComponentPoseData(uint32_t a2) {
+    void * (__fastcall *func)(void *, void *edx, uint32_t) = CAST(func, get_vfunc(m_vtbl, 0x0));
+    return func(this, nullptr, a2);
+}
+
+void * nalComp::nalCompPose::_GetComponentPoseData(uint32_t a2) const
 {
-    return (void *) THISCALL(0x00737840, this, a2);
+    TRACE("nalCompPose::GetComponentPoseData");
+
+    if constexpr (1) {
+        if ( this->m_pTheData == nullptr ) {
+            return nullptr;
+        }
+
+        auto *data = static_cast<char *>(this->m_pTheData);
+        auto *v4 = this->field_4;
+        return data + v4->GetComponentPoseDataOffset(a2);
+    } else {
+        void * (__fastcall *func)(const void *, void *edx, uint32_t) = CAST(func, 0x00737840);
+        return func(this, nullptr, a2);
+    }
+}
+
+void * nalComp::nalCompPose::GetComponentPoseData(uint32_t a2) const {
+    void * (__fastcall *func)(const void *, void *edx, uint32_t) = CAST(func, get_vfunc(m_vtbl, 0x4));
+    return func(this, nullptr, a2);
+}
+
+int nalComp::nalCompPose::_GetPoseDataSize()
+{
+    return this->field_4->field_6C;
 }
 
 int nalComp::nalCompPose::GetPoseDataSize()
 {
-    return this->field_4->field_6C;
+    int (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x8));
+    return func(this);
 }
 
 int nalComp::nalCompPose::GetPoseDataAlign()
@@ -434,7 +497,7 @@ void nalCompSkeleton_patch()
     }
 
     {
-        FUNC_ADDRESS(address, &nalComp::nalCompSkeleton::UnMash);
+        FUNC_ADDRESS(address, &nalComp::nalCompSkeleton::_UnMash);
         set_vfunc(0x00891FC8, address);
         set_vfunc(0x008AA300, address);
     }
