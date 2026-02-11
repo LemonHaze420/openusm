@@ -17,7 +17,7 @@ struct BaseComponent {
     //virtual ~BaseComponent() = default;
 
     //virtual
-    int GetType();
+    uint32_t GetType();
 
     //virtual
     void * ApplyPublicPerSkelDataOffset(uint32_t a1, void *a2) const;
@@ -103,6 +103,11 @@ struct BaseComponent {
 
     //virtual
     void BlendPoseData(void *a1, uint32_t a2, Float a3,const void *a4, const void *a5);
+
+    void _SkelPoseProcess(uint32_t, void *, void *) const
+    {
+        ;
+    }
 
     //virtual
     void SkelPoseProcess(uint32_t a1, void *a2, void *a3) const;

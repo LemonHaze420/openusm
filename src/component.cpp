@@ -5,9 +5,9 @@
 #include "vtbl.h"
 
 
-int BaseComponent::GetType()
+uint32_t BaseComponent::GetType()
 {
-    int (__fastcall *func)(const void *) = CAST(func, get_vfunc(this->m_vtbl, 0x4));
+    uint32_t (__fastcall *func)(const void *) = CAST(func, get_vfunc(this->m_vtbl, 0x4));
     return func(this);
 }
 
