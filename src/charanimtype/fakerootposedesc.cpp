@@ -6,7 +6,18 @@
 
 #include <cassert>
 
+VALIDATE_SIZE(FakerootPoseDesc::StdPoseData, 0x30u);
+
 VALIDATE_SIZE(FakerootPoseDesc::PerAnimData::EventIterator, 0xC);
+
+
+void FakerootPoseDesc::CopyPoseDataToNothing(
+        FakerootPoseDesc::StdPoseData *a1,
+        uint32_t,
+        const FakerootPoseDesc::StdPoseData *a3)
+{
+    std::memcpy(a1, a3, sizeof(StdPoseData));
+}
 
 FakerootPoseDesc::PerAnimData::EventIterator FakerootPoseDesc::PerAnimData::GetStartIterator() const
 {

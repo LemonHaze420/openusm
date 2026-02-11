@@ -48,6 +48,8 @@ struct StdPoseData {
     float field_1C;
     int field_20;
     int field_24;
+    int field_28;
+    int field_2C;
 };
 
 struct PerSkelData {
@@ -59,5 +61,12 @@ struct PerSkelData {
     int field_14;
     int field_18;
 };
+
+void SkelPoseProcess(uint32_t, PerSkelData *, StdPoseData *) {}
+
+void CopyPoseDataToNothing(
+        FakerootPoseDesc::StdPoseData *a1,
+        uint32_t,
+        const FakerootPoseDesc::StdPoseData *a3);
 
 };

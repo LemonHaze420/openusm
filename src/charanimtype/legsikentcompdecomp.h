@@ -1,5 +1,5 @@
 #pragma once
 
 template<typename T>
-struct TorsoHeadEntCompDecomp {
+struct LegsIKEntCompDecomp {
 };

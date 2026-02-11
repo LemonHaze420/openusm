@@ -3,6 +3,8 @@
 #include "common.h"
 #include "string_hash.h"
 
+VALIDATE_SIZE(TentaclesPoseDesc::StdPoseData, 0x3Cu);
+
 constexpr auto strUpLeftTent = to_hash("UpLeftTent_1");
 constexpr auto strUpRightTent = to_hash("UpRightTent_1");
 constexpr auto strLowLeftTent = to_hash("LowLeftTent_1");
@@ -25,6 +27,14 @@ int sub_5F0220(uint32_t a1)
         default:
             return -1;
     }
+}
+
+void TentaclesPoseDesc::CopyPoseDataToNothing(
+        TentaclesPoseDesc::StdPoseData *a1,
+        uint32_t,
+        const TentaclesPoseDesc::StdPoseData *a3)
+{
+    std::memcpy(a1, a3, sizeof(StdPoseData));
 }
 
 float TentaclesPoseDesc::StdPoseData::GetDiameterFromBone(
