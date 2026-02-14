@@ -101,7 +101,7 @@ nglTexture *nglCreateTexture(uint32_t Format, int Width, int Height, int a4, boo
             tex->field_34 = (v7 | tex->field_34) & 0xFFFFFFFD;
             tex->field_8 = 1;
 
-            tex->field_60 = tlFixedString {Dest};
+            tex->FileName = tlFixedString {Dest};
             tex->m_numLevel = NMipmaps;
             tex->m_width = Width;
             tex->m_height = Height;

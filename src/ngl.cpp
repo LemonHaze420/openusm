@@ -82,7 +82,7 @@ VALIDATE_SIZE(nglStringNode, 0x2C);
 
 VALIDATE_SIZE(nglTexture, 0x80);
 VALIDATE_SIZE(nglPalette, 0xC);
-VALIDATE_OFFSET(nglTexture, field_60, 0x60);
+VALIDATE_OFFSET(nglTexture, FileName, 0x60);
 
 VALIDATE_SIZE(nglMeshFile, 0x148);
 VALIDATE_OFFSET(nglMeshFile, FileBuf, 0x124);
@@ -1780,7 +1780,7 @@ void nglInitWhiteTexture()
         nglDxLockTexture(nglWhiteTex, 0);
         nglDxSetTexel8(nglWhiteTex, 0, 0, -1);
         nglDxUnlockTexture(nglWhiteTex);
-        nglWhiteTex->field_60 = tlFixedString {"nglwhite"};
+        nglWhiteTex->FileName = tlFixedString {"nglwhite"};
         nglWhiteTex->field_34 |= 2u;
 
         nglTextureDirectory->Add(nglWhiteTex);
@@ -3835,13 +3835,13 @@ bool nglLoadTextureTM2_internal(nglTexture *Tex, nglTextureInfo *TexInfo)
         auto v3 = TexInfo->m_extension == 0x4D534444;
 
         if (TexInfo->m_extension != 0x20534444 && TexInfo->m_extension != 0x4D534444) {
-            auto *v2 = Tex->field_60.to_string();
+            auto *v2 = Tex->FileName.to_string();
             sp_log("NGL: %s does not seem to be a DDS or DDSMP file !\n", v2);
             return false;
         }
 
         if (TexInfo->Header.Version != 124) {
-            auto *v4 = Tex->field_60.to_string();
+            auto *v4 = Tex->FileName.to_string();
             sp_log("NGL: %s invalid DDS header !\n", v4);
 
             return false;
@@ -3851,7 +3851,7 @@ bool nglLoadTextureTM2_internal(nglTexture *Tex, nglTextureInfo *TexInfo)
         {
             Tex->m_format |= 0x10000000u;
             if (TexInfo->Header.field_6C != 0xFE00) {
-                auto *v5 = Tex->field_60.to_string();
+                auto *v5 = Tex->FileName.to_string();
                 sp_log("NGL: %s is not a valid cubemap (must have exactly 6 faces) !\n", v5);
 
                 return false;
@@ -3865,7 +3865,7 @@ bool nglLoadTextureTM2_internal(nglTexture *Tex, nglTextureInfo *TexInfo)
         {
             auto v6 = *(uint16_t *) v5;
             if (v6 == 0) {
-                auto *v6 = Tex->field_60.to_string();
+                auto *v6 = Tex->FileName.to_string();
                 sp_log("NGL: %s doesn't contain any palettes !\n", v6);
             }
 
@@ -3882,7 +3882,7 @@ bool nglLoadTextureTM2_internal(nglTexture *Tex, nglTextureInfo *TexInfo)
                     nglTexture *v9 = CAST(v9, &Tex->Frames[v29 / 4]);
                     *v9 = {};
                     v9->m_format = 17;
-                    v9->field_60 = *bit_cast<tlFixedString *>((uint32_t *) v8 - 2);
+                    v9->FileName = *bit_cast<tlFixedString *>((uint32_t *) v8 - 2);
 
                     nglTexture **v10 = CAST(v10, v28);
 
@@ -4072,7 +4072,7 @@ bool nglLoadTextureTM2(nglTexture *tex, uint8_t *a2)
             tex->field_38 = -1;
             result = true;
         } else {
-            auto *v2 = tex->field_60.to_string();
+            auto *v2 = tex->FileName.to_string();
             sp_log("NGL: \"%s\" cannot be loaded properly (unsupported format ?) !\n", v2);
         }
 
@@ -4117,7 +4117,7 @@ nglTexture *nglConstructTexture(const tlFixedString &a1,
         stru_975AC0.field_4 = tex;
         tex->field_4->field_0 = tex;
         tex->field_8 = 1;
-        tex->field_60 = a1;
+        tex->FileName = a1;
         tex->field_14 = a2;
 
         bool v5 = false;
@@ -4762,10 +4762,10 @@ void create_front_and_back_buffer_tex() {
     } *v1 = bit_cast<decltype(v1)>(0x00972688);
 
     nglFrontBufferTex() = nglCreateTexture(4609u, v1->m_width, v1->m_height, 0, 1);
-    nglFrontBufferTex()->field_60 = tlFixedString{"nglFrontBuffer"};
+    nglFrontBufferTex()->FileName = tlFixedString{"nglFrontBuffer"};
     nglTextureDirectory->Add(nglFrontBufferTex());
     nglBackBufferTex() = nglCreateTexture(20993u, v1->m_width, v1->m_height, 0, 1);
-    nglBackBufferTex()->field_60 = tlFixedString{"nglBackBuffer"};
+    nglBackBufferTex()->FileName = tlFixedString{"nglBackBuffer"};
     nglBackBufferTex()->field_34 |= 4u;
     nglTextureDirectory->Add(nglBackBufferTex());
 }
@@ -5249,7 +5249,7 @@ void nglDumpQuad(nglQuad *Quad)
 
     const char *v2 = "[none]";
     if (v1 != nullptr) {
-        v2 = v1->field_60.field_4;
+        v2 = v1->FileName.field_4;
     }
 
     nglHostPrintf(h_sceneDump(), "  TEXTURE %s\n", v2);

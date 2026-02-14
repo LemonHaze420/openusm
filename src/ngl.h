@@ -91,13 +91,18 @@ struct nglTexture {
     int field_54;
     uint32_t m_num_palettes;
     nglTexture **Frames;
-    tlFixedString field_60;
+    tlFixedString FileName;
 
     //0x00775000
     void CreateTextureOrSurface();
 
     //0x00774F20
     void SetupTextureLevels();
+
+	static tlFixedString * get_string(nglTexture *a1)
+	{
+		return &a1->FileName;
+	}
 };
 
 struct nglPaletteFile {

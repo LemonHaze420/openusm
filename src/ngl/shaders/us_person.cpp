@@ -1333,8 +1333,8 @@ void USPersonNode::_Render()
         auto *file = this->m_material->File;
         sp_log("material = %s, mesh_file = %s", this->m_material->Name->to_string(), file->FileName.to_string());
 
-        sp_log("tex0 = %s", this->field_1C->field_60.to_string());
-        sp_log("tex1 = %s", this->field_20->field_60.to_string());
+        sp_log("tex0 = %s", this->field_1C->FileName.to_string());
+        sp_log("tex1 = %s", this->field_20->FileName.to_string());
 
         sp_log("blend_mode = %u", this->m_material->m_blend_mode);
 

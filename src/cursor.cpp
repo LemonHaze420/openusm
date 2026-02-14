@@ -18,7 +18,7 @@ Cursor::Cursor(LPCWSTR lpWideCharStr, int a3, int a4) {
     if constexpr (1) {
         this->m_vtbl = 0x0088F4F8;
         nglTexture *v5 = &this->field_7C;
-        v5->field_60 = {};
+        v5->FileName = {};
 
         this->field_130 = nullptr;
         this->field_134 = 0;

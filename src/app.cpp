@@ -88,12 +88,12 @@ void init_shadow_targets()
     {
         s.field_44 = nglCreateTexture(4609, 128, 128, 0, 1);
         v1 = tlFixedString{"blurred shadow texture"};
-        s.field_44->field_60 = v1;
+        s.field_44->FileName = v1;
     }
 
     g_shadow_target_unblurred = nglCreateTexture(4609u, 256, 256, 0, 1);
 
-    g_shadow_target_unblurred->field_60 = tlFixedString {"unblurred shadow"};
+    g_shadow_target_unblurred->FileName = tlFixedString {"unblurred shadow"};
 }
 
 void set_god_mode(int a1)

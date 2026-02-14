@@ -571,48 +571,6 @@ void * tlInstanceBankResourceDirectory<nalBaseSkeleton, tlFixedString>::Add(nalB
 }
 
 
-//0x00773030
-template<>
-int tlResourceDirectory<nglTexture, tlFixedString>::StandardRelease(nglTexture *tex,
-                                                                    int a3,
-                                                                    bool a4) {
-    if constexpr (1) {
-        if (tex == nullptr) {
-            return 0;
-        }
-
-        auto v5 = (tex->field_34 >> 1) & 1;
-        if (!a4 && v5) {
-            return 1;
-        }
-
-        if (a3)
-        {
-            if (a3 == 1 && tex->m_format != NGLTEX_ANIMATED) {
-                return tex->field_8;
-            }
-
-        } else {
-            auto result = tex->field_8 - 1;
-            auto v6 = tex->field_8 == 1;
-            tex->field_8 = result;
-            if (result >= 0 && !v6) {
-                return result;
-            }
-        }
-
-        if (tex->field_60.field_4[0]) {
-            void (__fastcall *Del)(void *, void *, nglTexture *) = CAST(Del, get_vfunc(this->m_vtbl, 0x14));
-            Del(this, nullptr, tex);
-        }
-
-        nglDestroyTexture(tex);
-        return -(v5 != 0);
-    } else {
-        return THISCALL(0x00773030, this, tex, a3, a4);
-    }
-}
-
 //0x005606D0
 template<>
 int tlResourceDirectory<nglTexture, tlFixedString>::Release(nglTexture *a1, int a2, bool a3) {

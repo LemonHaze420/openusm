@@ -53,7 +53,7 @@ void texture_resource_handler::handle_resource_internal(tlresource_location *loc
 
             for (auto i = 0u; i < Tex->m_num_palettes; ++i)
             {
-                auto &v19 = Tex->Frames[i]->field_60;
+                auto &v19 = Tex->Frames[i]->FileName;
 
                 tlresource_location *found_tlres_loc = nullptr;
 
