@@ -2896,7 +2896,7 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
                 nglMorphSet *new_morph = CAST(new_morph, dir_entry.field_4);
                 nglProcessMorph(MeshFile, &dir_entry, Base);
                 if (prevMorph != nullptr) {
-                    prevMorph->field_10 = new_morph;
+                    prevMorph->NextMorph = new_morph;
                 }
 
                 prevMorph = new_morph;

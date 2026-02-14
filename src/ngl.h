@@ -457,7 +457,7 @@ struct nglMorphSet {
         } *field_8;
     } *Frames;
     nglMeshFile *field_C;
-    nglMorphSet *field_10;
+    nglMorphSet *NextMorph;
 };
 
 //0x0076EFA0
