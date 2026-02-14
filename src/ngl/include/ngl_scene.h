@@ -55,7 +55,7 @@ struct nglScene {
     nglTexture *field_334;
     nglTexture *field_338;
     int field_33C;
-    nglRenderNode *field_340;
+    nglRenderNode *OpaqueNodes;
     nglRenderNode *TransNodes;
     int OpaqueListCount;
     int TransListCount;
@@ -108,10 +108,9 @@ extern void nglSetDefaultSceneParams();
 
 extern void nglSceneDumpStart();
 
-extern Var<nglScene *> nglCurScene;
 extern Var<nglScene *> nglRootScene;
 
-extern Var<nglScene *> nglCurScene;
+extern nglScene *& nglCurScene;
 
 extern Var<nglScene *> g_shadow_scene;
 

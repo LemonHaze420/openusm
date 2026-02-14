@@ -72,7 +72,7 @@ void set_xform(xform_t xformtype, const matrix4x4 &a2)
             xforms()[XFORM_WORLD_TO_SCREEN] = xforms()[XFORM_EFFECTIVE_WORLD_TO_VIEW] * xforms()[XFORM_VIEW_TO_SCREEN];
 
             xforms()[XFORM_WORLD_TO_PROJECTION] = xforms()[XFORM_EFFECTIVE_WORLD_TO_VIEW] * xforms()[XFORM_VIEW_TO_PROJECTION];
-            if (nglCurScene() != nullptr) {
+            if (nglCurScene != nullptr) {
                 math::MatClass<4, 3> v8 = xforms()[XFORM_EFFECTIVE_WORLD_TO_VIEW];
                 nglSetWorldToViewMatrix(v8);
             }

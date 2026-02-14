@@ -326,8 +326,8 @@ void fe_mini_map_widget::Draw()
                 this->PrepareRegions();
                 nglListBeginScene(static_cast<nglSceneParamType>(0));
                 nglSetClearFlags(1u);
-                nglCurScene()->field_3BA = true;
-                nglCurScene()->m_farz = 10000.0;
+                nglCurScene->field_3BA = true;
+                nglCurScene->m_farz = 10000.0;
 
                 float local_vec0[4], local_vec1[4];
 

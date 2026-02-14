@@ -23,7 +23,15 @@ VALIDATE_SIZE(nglScene, 0x440u);
 VALIDATE_OFFSET(nglScene, field_1CC, 0x1CC);
 VALIDATE_OFFSET(nglScene, field_24C, 0x24C);
 
-Var<nglScene *> nglCurScene{0x00971F00};
+#if !STANDALONE_SYSTEM
+nglScene *& nglCurScene = var<nglScene *>(0x00971F00);
+#else
+nglScene *& nglCurScene = []() -> auto & {
+    static nglScene * g_nglCurScene {};
+    return g_nglCurScene;
+}();
+#endif
+
 Var<nglScene *> nglRootScene{0x00971F04};
 
 Var<nglScene *> g_shadow_scene{0x00965960};
@@ -45,10 +53,10 @@ void nglSetPerspectiveMatrix(Float a1, Float nearz, Float farz)
 {
     assert(nearz > 0.0f && farz > nearz && "Invalid projection parameters.");
 
-    nglCurScene()->field_33C = 1;
-    nglCurScene()->HFov = a1;
-    nglCurScene()->m_nearz = nearz;
-    nglCurScene()->m_farz = farz;
+    nglCurScene->field_33C = 1;
+    nglCurScene->HFov = a1;
+    nglCurScene->m_nearz = nearz;
+    nglCurScene->m_farz = farz;
 
     nglCalculateMatrices(true);
 }
@@ -166,10 +174,10 @@ vector4d sub_76CBD0(const matrix4x4 &a2, Float a3, Float a4, Float a5, Float a6)
 void nglSetOrthoMatrix(Float nearz, Float farz) {
     assert(farz > nearz && "Invalid projection parameters.");
 
-    nglCurScene()->field_33C = 0;
-    nglCurScene()->HFov = 0.0;
-    nglCurScene()->m_nearz = nearz;
-    nglCurScene()->m_farz = farz;
+    nglCurScene->field_33C = 0;
+    nglCurScene->HFov = 0.0;
+    nglCurScene->m_nearz = nearz;
+    nglCurScene->m_farz = farz;
 
     nglCalculateMatrices(true);
 }
@@ -178,7 +186,7 @@ matrix4x4 nglGetMatrix(nglMatrixType a2)
 {
     if constexpr (0)
     {
-        auto *v2 = nglCurScene();
+        auto *v2 = nglCurScene;
         if ( v2->field_3E4 )
         {
             nglCalculateMatrices(0);
@@ -223,55 +231,55 @@ void nglCalculateMatrices(bool a1)
     {
         if ( a1 )
         {
-            nglCurScene()->field_3E4 = true;
+            nglCurScene->field_3E4 = true;
         }
-        else if ( nglCurScene()->field_3E4 )
+        else if ( nglCurScene->field_3E4 )
         {
-            nglCurScene()->field_3E4 = false;
+            nglCurScene->field_3E4 = false;
 
-            assert((!nglCurScene()->OpaqueListCount && !nglCurScene()->TransListCount)
+            assert((!nglCurScene->OpaqueListCount && !nglCurScene->TransListCount)
                     && "Illegal projection change after nodes have been added to the scene.");
 
-            assert((nglCurScene()->sx2 - nglCurScene()->sx1 > 0 && nglCurScene()->sy2 - nglCurScene()->sy1 > 0) && "Degenerate scissor!");
+            assert((nglCurScene->sx2 - nglCurScene->sx1 > 0 && nglCurScene->sy2 - nglCurScene->sy1 > 0) && "Degenerate scissor!");
 
-            assert((nglCurScene()->vx2 - nglCurScene()->vx1 > 0 && nglCurScene()->vy2 - nglCurScene()->vy1 > 0) && "Degenerate viewport!");
+            assert((nglCurScene->vx2 - nglCurScene->vx1 > 0 && nglCurScene->vy2 - nglCurScene->vy1 > 0) && "Degenerate viewport!");
 
             vector4d v43[NGLCLIP_MAX] {};
 
-            auto vx1 = nglCurScene()->vx1;
-            auto vy1 = nglCurScene()->vy1;
-            auto vx2 = nglCurScene()->vx2;
-            auto vy2 = nglCurScene()->vy2;
+            auto vx1 = nglCurScene->vx1;
+            auto vy1 = nglCurScene->vy1;
+            auto vx2 = nglCurScene->vx2;
+            auto vy2 = nglCurScene->vy2;
             auto v108 = 1.0 / (vx2 - vx1);
             auto v107 = (0.0 - (vx1 + vx2)) * v108;
             v108 = v108 + v108;
-            auto v106 = (nglCurScene()->sx1 * v108) + v107;
-            auto v105 = (nglCurScene()->sx2 * v108) + v107;
+            auto v106 = (nglCurScene->sx1 * v108) + v107;
+            auto v105 = (nglCurScene->sx2 * v108) + v107;
             auto v104 = 1.0 / (vy2 - vy1);
             auto v103 = (0.0 - (vy1 + vy2)) * v104;
             v104 = v104 + v104;
-            auto v102 = (nglCurScene()->sy1 * v104) + v103;
-            auto v101 = (nglCurScene()->sy2 * v104) + v103;
-            nglCurScene()->field_384[0] = v106;
-            nglCurScene()->field_384[2] = v105;
-            nglCurScene()->field_384[1] = v102;
-            nglCurScene()->field_384[3] = v101;
+            auto v102 = (nglCurScene->sy1 * v104) + v103;
+            auto v101 = (nglCurScene->sy2 * v104) + v103;
+            nglCurScene->field_384[0] = v106;
+            nglCurScene->field_384[2] = v105;
+            nglCurScene->field_384[1] = v102;
+            nglCurScene->field_384[3] = v101;
 
-            if ( nglCurScene()->field_33C == 1 )
+            if ( nglCurScene->field_33C == 1 )
             {
-                float v45 = nglCurScene()->HFov * (0.5f * PI / 180);
+                float v45 = nglCurScene->HFov * (0.5f * PI / 180);
                 float v46;
                 sub_64A650(&v46, &v45);
-                v45 = v46 * nglCurScene()->AspectRatio;
-                auto v7 = std::abs(nglCurScene()->field_384[2]);
-                auto v8 = std::abs(nglCurScene()->field_384[0]);
+                v45 = v46 * nglCurScene->AspectRatio;
+                auto v7 = std::abs(nglCurScene->field_384[2]);
+                auto v8 = std::abs(nglCurScene->field_384[0]);
                 float v36 = v8;
                 if ( v8 <= v7 ) {
                     v36 = v7;
                 }
 
-                auto v9 = std::abs(nglCurScene()->field_384[3]);
-                auto v10 = std::abs(nglCurScene()->field_384[1]);
+                auto v9 = std::abs(nglCurScene->field_384[3]);
+                auto v10 = std::abs(nglCurScene->field_384[1]);
                 float a4 = v10;
                 if ( v10 > v9 ) {
                     v9 = a4;
@@ -279,12 +287,12 @@ void nglCalculateMatrices(bool a1)
 
                 float v11 = v36 * v45;
                 float v12 = v46 * v9;
-                nglCurScene()->field_394 = v11;
-                nglCurScene()->field_398 = v12;
-                auto v50 = nglCurScene()->vx2 + nglCurScene()->vx1;
+                nglCurScene->field_394 = v11;
+                nglCurScene->field_398 = v12;
+                auto v50 = nglCurScene->vx2 + nglCurScene->vx1;
                 auto v13 = v50 * 0.5f;
-                auto m_nearz = nglCurScene()->m_nearz;
-                auto m_farz = nglCurScene()->m_farz;
+                auto m_nearz = nglCurScene->m_nearz;
+                auto m_farz = nglCurScene->m_farz;
                 vx1 = (vx1 - v13) * v36 + v13;
                 vx2 = (vx2 - v13) * v36 + v13;
 
@@ -295,16 +303,16 @@ void nglCalculateMatrices(bool a1)
                 auto a3 = 1.0f / v12;
                 auto a2 = 1.0f / v11;
 
-                nglCurScene()->field_C = Perspective(a2, a3, m_nearz, m_farz);
+                nglCurScene->field_C = Perspective(a2, a3, m_nearz, m_farz);
 
                 v43[4][0] = 0.0;
                 v43[4][1] = 0.0;
                 v43[4][2] = 1.0;
-                v43[4][3] = nglCurScene()->m_nearz;
+                v43[4][3] = nglCurScene->m_nearz;
                 auto v18 = v45 * v106;
                 v43[5][1] = 0.0;
                 v43[5][0] = 0.0;
-                v43[5][3] = -nglCurScene()->m_farz;
+                v43[5][3] = -nglCurScene->m_farz;
                 v43[5][2] = -1.0;
                 v43[0][1] = 0.0;
                 auto v19 = 1.0f / std::sqrt(v18 * v18 + 1.0f);
@@ -336,47 +344,47 @@ void nglCalculateMatrices(bool a1)
             }
             else
             {
-                auto a2 = 1.0f / nglCurScene()->AspectRatio;
-                nglCurScene()->field_C = Ortho(a2, 1.0, nglCurScene()->m_nearz, nglCurScene()->m_farz);
+                auto a2 = 1.0f / nglCurScene->AspectRatio;
+                nglCurScene->field_C = Ortho(a2, 1.0, nglCurScene->m_nearz, nglCurScene->m_farz);
 
                 v43[4][0] = 0.0;
                 v43[4][1] = 0.0;
                 v43[4][2] = 1.0;
-                v43[4][3] = nglCurScene()->m_nearz;
+                v43[4][3] = nglCurScene->m_nearz;
 
                 v43[5][0] = 0.0;
                 v43[5][1] = 0.0;
                 v43[5][2] = -1.0;
-                v43[5][3] = -nglCurScene()->m_farz;
+                v43[5][3] = -nglCurScene->m_farz;
 
                 v43[0][0] = 1.0;
                 v43[0][1] = 0.0;
                 v43[0][2] = 0.0;
-                v43[0][3] = nglCurScene()->field_384[0] * nglCurScene()->AspectRatio;
+                v43[0][3] = nglCurScene->field_384[0] * nglCurScene->AspectRatio;
 
                 v43[1][0] = -1.0;
                 v43[1][1] = 0.0;
                 v43[1][2] = 0.0;
-                v43[1][3] = -nglCurScene()->field_384[2] * nglCurScene()->AspectRatio;
+                v43[1][3] = -nglCurScene->field_384[2] * nglCurScene->AspectRatio;
 
                 v43[2][0] = 0.0;
                 v43[2][1] = -1.0;
                 v43[2][2] = 0.0;
-                v43[2][3] = nglCurScene()->field_384[1];
+                v43[2][3] = nglCurScene->field_384[1];
 
                 v43[3][0] = 0.0;
                 v43[3][1] = 1.0;
                 v43[3][2] = 0.0;
-                v43[3][3] = -nglCurScene()->field_384[3];
+                v43[3][3] = -nglCurScene->field_384[3];
             }
 
-            nglCurScene()->field_4C = Viewport(
+            nglCurScene->field_4C = Viewport(
                                         vx1,
                                         vy1,
                                         vx2,
                                         vy2);
 
-            nglCurScene()->field_8C = sub_77CB90();
+            nglCurScene->field_8C = sub_77CB90();
 
             {
 
@@ -389,41 +397,41 @@ void nglCalculateMatrices(bool a1)
                     void *field_0;
                     void *field_4;
                 } v36 {
-                    &nglCurScene()->field_C,
-                    &nglCurScene()->field_4C
+                    &nglCurScene->field_C,
+                    &nglCurScene->field_4C
                 };
                 v47.field_0 = &v36;
-                v47.field_4 = &nglCurScene()->field_8C;
-                nglCurScene()->ViewToScreen.sub_76CF20(&v47);
+                v47.field_4 = &nglCurScene->field_8C;
+                nglCurScene->ViewToScreen.sub_76CF20(&v47);
             }
             
-            auto a1a = sub_4150E0(nglCurScene()->WorldToView);
-            nglCurScene()->ViewToWorld = a1a;
+            auto a1a = sub_4150E0(nglCurScene->WorldToView);
+            nglCurScene->ViewToWorld = a1a;
 
             {
                 struct {
                     void *field_0;
                     void *field_4;
                 } v40 {
-                    &nglCurScene()->WorldToView,
-                    &nglCurScene()->ViewToScreen
+                    &nglCurScene->WorldToView,
+                    &nglCurScene->ViewToScreen
                 };
                 
-                nglCurScene()->WorldToScreen.sub_415A30(&v40);
+                nglCurScene->WorldToScreen.sub_415A30(&v40);
             }
 
-            nglCurScene()->field_1CC = sub_76A870(a1a);
+            nglCurScene->field_1CC = sub_76A870(a1a);
             if ( !EnableShader ) {
-                D3DXMatrixInverse(bit_cast<D3DXMATRIX *>(&nglCurScene()->field_24C),
+                D3DXMatrixInverse(bit_cast<D3DXMATRIX *>(&nglCurScene->field_24C),
                                     nullptr,
-                                    bit_cast<const D3DXMATRIX *>(&nglCurScene()->WorldToScreen));
+                                    bit_cast<const D3DXMATRIX *>(&nglCurScene->WorldToScreen));
             }
 
             for ( auto i = 0; i < 6; ++i )
             {
                 matrix4x4 v67;
-                v67.sub_76CA50(nglCurScene()->ViewToWorld);
-                nglCurScene()->ClipPlanes[i] = sub_76CBD0(
+                v67.sub_76CA50(nglCurScene->ViewToWorld);
+                nglCurScene->ClipPlanes[i] = sub_76CBD0(
                                             v67,
                                             v43[i][0],
                                             v43[i][1],
@@ -431,13 +439,13 @@ void nglCalculateMatrices(bool a1)
                                             v43[i][3]);
             }
 
-            nglCurScene()->ViewPos = nglCurScene()->ViewToWorld[3];
-            nglCurScene()->ViewDir = nglCurScene()->ViewToWorld[2];
+            nglCurScene->ViewPos = nglCurScene->ViewToWorld[3];
+            nglCurScene->ViewDir = nglCurScene->ViewToWorld[2];
 
             {
                 auto tmp = sub_76A760(a1a);
-                matrix4x4 *v40[2] {&tmp, &nglCurScene()->field_8C};
-                nglCurScene()->field_20C.sub_76CE70(&v40);
+                matrix4x4 *v40[2] {&tmp, &nglCurScene->field_8C};
+                nglCurScene->field_20C.sub_76CE70(&v40);
             }
         }
     }
@@ -451,27 +459,27 @@ void nglCalculateMatrices(bool a1)
 void nglSetSceneCallBack(nglSceneCallbackType a1, void (*Fn)(unsigned int *&, void *), void *a3) {
     if (a1) {
         if (a1 == 1) {
-            nglCurScene()->field_324 = Fn;
-            nglCurScene()->field_328 = a3;
+            nglCurScene->field_324 = Fn;
+            nglCurScene->field_328 = a3;
         } else if (a1 == 2) {
-            nglCurScene()->field_32C = Fn;
-            nglCurScene()->field_330 = a3;
+            nglCurScene->field_32C = Fn;
+            nglCurScene->field_330 = a3;
         }
 
     } else {
-        nglCurScene()->field_31C = Fn;
-        nglCurScene()->field_320 = a3;
+        nglCurScene->field_31C = Fn;
+        nglCurScene->field_320 = a3;
     }
 }
 
 void nglSetClearStencil(uint32_t a1)
 {
-    nglCurScene()->ClearStencil = a1;
+    nglCurScene->ClearStencil = a1;
 }
 
 void nglSetLightContext(nglLightContext *a1)
 {
-    nglCurScene()->field_350 = a1;
+    nglCurScene->field_350 = a1;
 }
 
 void nglSetDefaultSceneParams()
@@ -484,8 +492,8 @@ void nglSetDefaultSceneParams()
         float v4 = nglGetScreenHeight() - 1;
         float v3 = nglGetScreenWidth() - 1;
         nglSetViewport(0.0, 0.0, v3, v4);
-        nglCurScene()->AspectRatio = 1.3333334;
-        nglCurScene()->field_3E4 = true;
+        nglCurScene->AspectRatio = 1.3333334;
+        nglCurScene->field_3E4 = true;
         if ( g_distance_clipping_enabled ) {
             auto v1 = g_distance_clipping * LARGE_EPSILON * (2000.0 - 100.0) + 100.0;
             if ( v1 < 100.0 ) {
@@ -503,21 +511,21 @@ void nglSetDefaultSceneParams()
         
         static Var<vector4d> stru_8B7964 {0x008B7964};
         a2[3] = stru_8B7964();
-        nglCurScene()->WorldToView = sub_4150E0(a2);
-        nglCurScene()->field_3E4 = true;
-        nglCurScene()->ClearFlags = 6u;
-        nglCurScene()->ClearColor = color {0.0, 0.0, 0.0, 0.0};
+        nglCurScene->WorldToView = sub_4150E0(a2);
+        nglCurScene->field_3E4 = true;
+        nglCurScene->ClearFlags = 6u;
+        nglCurScene->ClearColor = color {0.0, 0.0, 0.0, 0.0};
 
-        nglCurScene()->ClearZ = 1.0;
+        nglCurScene->ClearZ = 1.0;
         nglSetClearStencil(0);
-        nglCurScene()->FBWriteMask = 15u;
-        nglCurScene()->ZWriteEnable = true;
-        nglCurScene()->ZTestEnable = true;
-        nglCurScene()->field_3DC = false;
-        nglCurScene()->field_3E0 = 0;
-        nglCurScene()->AnimTime = 0.0;
+        nglCurScene->FBWriteMask = 15u;
+        nglCurScene->ZWriteEnable = true;
+        nglCurScene->ZTestEnable = true;
+        nglCurScene->field_3DC = false;
+        nglCurScene->field_3E0 = 0;
+        nglCurScene->AnimTime = 0.0;
         nglSetLightContext(nglDefaultLightContext());
-        nglCurScene()->field_408 = 0;
+        nglCurScene->field_408 = 0;
         nglCalculateMatrices(1);
     } else {
         CDECL_CALL(0x0076C400);
@@ -529,8 +537,8 @@ void nglSetupScene(nglScene *a1, nglSceneParamType a2)
     TRACE("nglSetupScene", std::to_string(uint32_t(a2)).c_str());
 
     if constexpr (0) {
-        nglScene *v2 = nglCurScene();
-        nglCurScene() = a1;
+        nglScene *v2 = nglCurScene;
+        nglCurScene = a1;
 
         switch (a2) {
         case 0: {
@@ -575,18 +583,18 @@ void nglSetupScene(nglScene *a1, nglSceneParamType a2)
         a1->field_328 = nullptr;
         a1->field_32C = nullptr;
         a1->field_330 = nullptr;
-        if (equal(nglCurScene()->AnimTime, 0.0f)) {
+        if (equal(nglCurScene->AnimTime, 0.0f)) {
             float v7 = (nglIsFBPAL() ? 20.0f : 16.666666f);
 
-            nglCurScene()->field_3FC = static_cast<float>(nglFrameVBlankCount()) * v7 * 0.001f;
+            nglCurScene->field_3FC = static_cast<float>(nglFrameVBlankCount()) * v7 * 0.001f;
         } else {
-            nglCurScene()->field_3FC = nglCurScene()->AnimTime;
+            nglCurScene->field_3FC = nglCurScene->AnimTime;
         }
 
-        auto a2a = nglIFLSpeed * nglCurScene()->field_3FC;
+        auto a2a = nglIFLSpeed * nglCurScene->field_3FC;
 
-        nglCurScene()->IFLFrame = static_cast<int>(a2a);
-        a1->field_340 = nullptr;
+        nglCurScene->IFLFrame = static_cast<int>(a2a);
+        a1->OpaqueNodes = nullptr;
         a1->TransNodes = nullptr;
         a1->OpaqueListCount = 0;
         a1->TransListCount = 0;

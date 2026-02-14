@@ -112,7 +112,7 @@ nglMesh *nglListAddMesh_GetLOD(nglMesh *Mesh,
         nglMesh *result;
         if ((a2 & 0x80u) == 0)
         {
-            math::VecClass<3, 1> v10 = sub_414360(a4, {nglCurScene()->WorldToView});
+            math::VecClass<3, 1> v10 = sub_414360(a4, {nglCurScene->WorldToView});
             auto v7 = Mesh->NLODs - 1;
             if (v7 < 0) {
             LABEL_11:
@@ -153,7 +153,7 @@ nglMesh *nglListAddMesh_GetLOD(nglMesh *Mesh,
 bool nglIsSphereVisible(math::VecClass<3, 1> a1, Float radius)
 {
     for (auto i = 0u; i < NGLCLIP_MAX; ++i) {
-        auto &v = nglCurScene()->ClipPlanes[i];
+        auto &v = nglCurScene->ClipPlanes[i];
 
         if ( a1[0] * v[0] + a1[1] * v[1] + a1[2] * v[2] - v[3] + radius < 0.0f ) {
             return false;
@@ -224,7 +224,7 @@ void nglListAddMesh(nglMesh *Mesh,
             }
 
             math::VecClass<3, 1> v18 = sub_414360(Mesh->SphereCenter, *v5);
-            if (nglCurScene()->field_3E4) {
+            if (nglCurScene->field_3E4) {
                 nglCalculateMatrices(false);
             }
 
@@ -239,7 +239,7 @@ void nglListAddMesh(nglMesh *Mesh,
             meshNode->Mesh = Mesh;
             meshNode->LocalToWorld = matrix4x4 {};
 
-            TransformMatrices v14 {v6, &nglCurScene()->WorldToScreen};
+            TransformMatrices v14 {v6, &nglCurScene->WorldToScreen};
 
             meshNode->WorldToLocal = sub_507130(v14);
             meshNode->field_84 = 0;

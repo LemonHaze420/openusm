@@ -149,13 +149,13 @@ void PCUV_ShaderNode::Render()
             nglSetTextureStageState(1u, D3DTSS_ALPHAOP, 1u);
         }
 
-        if (g_distance_clipping_enabled && nglCurScene()->field_3BA && !sub_581C30()) {
+        if (g_distance_clipping_enabled && nglCurScene->field_3BA && !sub_581C30()) {
             g_renderState().setFogEnable(false);
         }
 
         nglSetStreamSourceAndDrawPrimitive(this->field_10);
 
-        if (g_distance_clipping_enabled && nglCurScene()->field_3BA) {
+        if (g_distance_clipping_enabled && nglCurScene->field_3BA) {
             g_renderState().setFogEnable(true);
         }
     }

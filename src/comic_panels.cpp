@@ -140,16 +140,16 @@ panel_params_t *get_panel_params()
 {
     if constexpr (0)
     {
-        if ( nglCurScene() == nullptr ) {
+        if ( nglCurScene == nullptr ) {
             return nullptr;
         }
 
-        if ( !nglCurScene()->field_404.IsSetParam<SMPanelParams>() ) {
+        if ( !nglCurScene->field_404.IsSetParam<SMPanelParams>() ) {
             return nullptr;
         }
 
         SMPanelParams v1 {};
-        return nglCurScene()->field_404.GetOrDefault<SMPanelParams>(v1)->field_0;
+        return nglCurScene->field_404.GetOrDefault<SMPanelParams>(v1)->field_0;
     }
     else
     {
@@ -308,7 +308,7 @@ void panel_component_camera::set_scene_params(panel_component::render_info &a2)
 {
     if constexpr (0)
     {
-        if ( nglCurScene() != nullptr )
+        if ( nglCurScene != nullptr )
         {
             auto *v2 = &a2;
             if ( a2.field_40.field_4 != game_play_panel() || a2.field_143 || a2.field_13C->field_4C != nullptr )

@@ -1641,7 +1641,7 @@ void USPersonNode::_Render()
             SetPixelShader(&OutlinePShader());
 
             nglSetStreamSourceAndDrawPrimitive(this->m_meshSection);
-            g_renderState().setColourBufferWriteEnabled(nglCurScene()->FBWriteMask);
+            g_renderState().setColourBufferWriteEnabled(nglCurScene->FBWriteMask);
 
             g_renderState().setDepthBufferWriteEnabled(false);
 

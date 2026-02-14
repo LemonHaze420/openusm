@@ -65,7 +65,7 @@ void Outline_ShaderNode<USExteriorMaterial>::Render()
         auto v16 = v2->field_6C[2];
         this->sub_413AF0();
         auto v3 = this->m_meshNode->sub_4199D0();
-        auto v17 = sub_414360(nglCurScene()->ViewPos, v3);
+        auto v17 = sub_414360(nglCurScene->ViewPos, v3);
         v17 = sub_414360(this->m_meshNode->Mesh->SphereCenter, this->m_meshNode->LocalToWorld);
 
         auto v4 = g_renderState().field_74;
@@ -256,7 +256,7 @@ void Outline_ShaderNode<USInteriorMaterial>::Render()
         auto v16 = v2->field_28[2];
         this->sub_413AF0();
         auto v3 = this->m_meshNode->sub_4199D0();
-        auto v17 = sub_414360(nglCurScene()->ViewPos, v3);
+        auto v17 = sub_414360(nglCurScene->ViewPos, v3);
         v17 = sub_414360(this->m_meshNode->Mesh->SphereCenter, this->m_meshNode->LocalToWorld);
         auto v4 = g_renderState().field_74;
         auto v5 = g_renderState().field_7C;

@@ -41,8 +41,8 @@ void nglGenMipmaps(nglTexture *Tex)
             IDirect3DDevice9_SetTransform(
                 g_Direct3DDevice,
                 static_cast<D3DTRANSFORMSTATETYPE>(256),
-                bit_cast<const D3DMATRIX *>(&nglCurScene()->field_24C));
             IDirect3DDevice9_SetVertexDeclaration(g_Direct3DDevice, dword_9738E0()[25]);
+                bit_cast<const D3DMATRIX *>(&nglCurScene->field_24C));
         }
 
         float v2[20] {};

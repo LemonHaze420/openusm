@@ -428,7 +428,7 @@ void FrontEndMenuSystem::GoNextState()
             break;
         }
         case 2: {
-            if (nglCurScene() != nullptr) {
+            if (nglCurScene != nullptr) {
                 --this->field_30;
             } else {
                 if (!movie_manager::load_and_play_movie("mlogonosound", "Marvel_Logo", false) &&

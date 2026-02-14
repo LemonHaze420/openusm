@@ -64,7 +64,7 @@ void nglVif1SetupScene(nglScene *a1)
 
     if constexpr (0)
     {
-        if ( nglCurScene()->AnimTime == 0.0f )
+        if ( nglCurScene->AnimTime == 0.0f )
         {
             float v1 = ( nglIsFBPAL() ? 20.0 : 16.666666);
 
@@ -73,11 +73,11 @@ void nglVif1SetupScene(nglScene *a1)
                 v2 += 4.2949673e9;
             }
 
-            nglCurScene()->field_3FC = v2 * v1 * 0.001f;
+            nglCurScene->field_3FC = v2 * v1 * 0.001f;
         }
         else
         {
-            nglCurScene()->field_3FC = nglCurScene()->AnimTime;
+            nglCurScene->field_3FC = nglCurScene->AnimTime;
         }
 
         if ( a1->ZWriteEnable || a1->ZTestEnable )
@@ -115,8 +115,8 @@ void nglVif1SetupScene(nglScene *a1)
             g_renderState().setDepthBuffer(D3DZB_FALSE);
         }
 
-        auto v4 = nglCurScene()->field_334;
-        SetRenderTarget(v4, nglCurScene()->field_338, 0, nglCurScene()->field_8);
+        auto v4 = nglCurScene->field_334;
+        SetRenderTarget(v4, nglCurScene->field_338, 0, nglCurScene->field_8);
 
         float ScreenWidth = v4->m_width;
         if ( v4->m_width < 0 ) {
@@ -128,10 +128,10 @@ void nglVif1SetupScene(nglScene *a1)
             ScreenHeight += 4.2949673e9;
         }
 
-        uint32_t v7 = ((nglCurScene()->sx1 + 1.0f ) * 0.5f * ScreenWidth + 0.5f);
-        uint32_t v8 = ((nglCurScene()->sy1 + 1.0f ) * 0.5f * ScreenHeight + 0.5f);
-        uint32_t v20 = ((nglCurScene()->sx2 + 1.0f) * 0.5f * ScreenWidth + 0.5f);
-        uint32_t v9 = ((nglCurScene()->sy2 + 1.0f) * 0.5f * ScreenHeight + 0.5f);
+        uint32_t v7 = ((nglCurScene->sx1 + 1.0f ) * 0.5f * ScreenWidth + 0.5f);
+        uint32_t v8 = ((nglCurScene->sy1 + 1.0f ) * 0.5f * ScreenHeight + 0.5f);
+        uint32_t v20 = ((nglCurScene->sx2 + 1.0f) * 0.5f * ScreenWidth + 0.5f);
+        uint32_t v9 = ((nglCurScene->sy2 + 1.0f) * 0.5f * ScreenHeight + 0.5f);
 
         D3DVIEWPORT9 v23;
         v23.X = 0;
@@ -141,11 +141,11 @@ void nglVif1SetupScene(nglScene *a1)
         v23.MinZ = 0.0;
         v23.MaxZ = 1.0;
         IDirect3DDevice9_SetViewport(g_Direct3DDevice, &v23);
-        auto *v10 = nglCurScene();
-        if ( nglCurScene()->sx1 != -1.0f 
-            || nglCurScene()->sy1 != -1.0f
-            || nglCurScene()->sx2 != 1.0f 
-            || nglCurScene()->sy2 != 1.0f )
+        auto *v10 = nglCurScene;
+        if ( nglCurScene->sx1 != -1.0f 
+            || nglCurScene->sy1 != -1.0f
+            || nglCurScene->sx2 != 1.0f 
+            || nglCurScene->sy2 != 1.0f )
         {
             RECT v22;
             v22.right = v20;
@@ -175,7 +175,7 @@ void nglVif1SetupScene(nglScene *a1)
         g_renderState().setColourBufferWriteEnabled(v10->FBWriteMask);
 
         auto v21 = nglIFLSpeed * v10->field_3FC;
-        nglCurScene()->IFLFrame = std::round(v21);
+        nglCurScene->IFLFrame = std::round(v21);
         if ( !EnableShader )
         {
             IDirect3DDevice9_SetTransform(
@@ -240,7 +240,7 @@ void nglListInit()
         }
 
         nglSyncDebug() = nglDebug;
-        nglCurScene() = nullptr;
+        nglCurScene = nullptr;
         nglListBeginScene(static_cast<nglSceneParamType>(0));
         nglSceneDumpStart();
         auto *v3 = nglScratchBuffer().field_0[0].getVertexData();
@@ -574,7 +574,7 @@ void nglListSend(bool Flip)
 
         sub_76DE60();
 #if 0
-        if (nglCurScene() != nglRootScene()) {
+        if (nglCurScene != nglRootScene()) {
             error("nglListSend called while one or more scenes were still active (need to call nglListEndScene).\n");
         }
 #endif
@@ -599,7 +599,7 @@ void nglListSend(bool Flip)
         nglScratchBuffer().field_4C.getVertexBuffer()->lpVtbl->Unlock(nglScratchBuffer().field_4C.getVertexBuffer());
         nglScratchBuffer().field_48->lpVtbl->Unlock(nglScratchBuffer().field_48);
         
-        nglCurScene() = nglRootScene();
+        nglCurScene = nglRootScene();
         IDirect3DDevice9_BeginScene(g_Direct3DDevice);
         nglVif1RenderScene();
         IDirect3DDevice9_EndScene(g_Direct3DDevice);
@@ -689,7 +689,7 @@ void nglListSend(bool Flip)
         }
 #endif
 
-        nglCurScene() = nullptr;
+        nglCurScene = nullptr;
     } else {
         CDECL_CALL(0x0076EA10, Flip);
     }

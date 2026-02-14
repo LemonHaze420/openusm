@@ -552,7 +552,7 @@ static Var<bool> byte_921D79{0x00921D79};
 
 void sub_5935D0() {
     if (g_shadow_scene() == nullptr) {
-        g_shadow_scene() = nglCurScene();
+        g_shadow_scene() = nglCurScene;
     }
 }
 
@@ -596,7 +596,7 @@ void game::render_world()
                 if ((v6 == nullptr || (v6->field_0 & 0x40) != 0) && !g_indoors && byte_922558())
                 {
                     nglListBeginScene(static_cast<nglSceneParamType>(1));
-                    nglCurScene()->field_408 = true;
+                    nglCurScene->field_408 = true;
                     nglSetSceneCallBack(static_cast<nglSceneCallbackType>(0), UploadLightConsts, nullptr);
                     nglSetSceneCallBack(static_cast<nglSceneCallbackType>(2), sub_510770, nullptr);
                     v3->adjust_geometry_pipe(false);
@@ -2799,7 +2799,7 @@ void nglListEndScene_hook()
         g_console->render();
     }
 
-    nglCurScene() = nglCurScene()->field_30C;
+    nglCurScene = nglCurScene->field_30C;
 }
 
 void game::advance_state_running(Float a2)

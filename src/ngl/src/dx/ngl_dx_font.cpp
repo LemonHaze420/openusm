@@ -77,7 +77,7 @@ void nglStringNode::Render()
                     IDirect3DDevice9_SetTransform(
                         g_Direct3DDevice,
                         static_cast<D3DTRANSFORMSTATETYPE>(256),
-                        bit_cast<D3DMATRIX *>(&nglCurScene()->field_24C));
+                        bit_cast<D3DMATRIX *>(&nglCurScene->field_24C));
                 }
 
                 if ( EnableShader ) {
