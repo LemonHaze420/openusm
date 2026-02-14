@@ -202,9 +202,9 @@ nglMeshFile *tlResourceDirectory<nglMeshFile, tlFixedString>::StandardLoad(const
     if constexpr (0)
     {
         char Dest[256] {};
-        _snprintf(Dest, 256u, "%s%s%s", nglMeshPath(), a1.to_string(), ".pcmesh");
+        _snprintf(Dest, 256u, "%s%s%s", nglMeshPath, a1.to_string(), ".pcmesh");
         auto *MeshFile = static_cast<nglMeshFile *>(tlMemAlloc(sizeof(nglMeshFile), 8, 0x1000000u));
-        strcpy(MeshFile->FilePath, nglMeshPath());
+        strcpy(MeshFile->FilePath, nglMeshPath);
         MeshFile->FileName = a1;
         MeshFile->field_120 = 1;
         MeshFile->field_130 = false;
@@ -237,7 +237,7 @@ nglMeshFile *tlResourceDirectory<nglMeshFile, tlFixedString>::StandardLoad(const
 
         } else {
             auto *v3 = a1.to_string();
-            sp_log("Unable to open %s%s%s.\n", nglMeshPath(), v3, ".pcmesh");
+            sp_log("Unable to open %s%s%s.\n", nglMeshPath, v3, ".pcmesh");
 
             tlMemFree(MeshFile);
             result = nullptr;

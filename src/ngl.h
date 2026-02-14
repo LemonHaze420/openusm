@@ -368,7 +368,7 @@ struct nglMorphFile {
     void un_mash_start(generic_mash_header *header, void *, generic_mash_data_ptrs *a3, void *);
 };
 
-extern Var<char[256]> nglMeshPath;
+extern char (& nglMeshPath)[256];
 
 struct nglMorphSet;
 

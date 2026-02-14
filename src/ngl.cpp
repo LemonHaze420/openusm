@@ -104,8 +104,6 @@ VALIDATE_SIZE(nglLightContext, 0x70);
 
 VALIDATE_SIZE(nglRenderTextureState, 0x60);
 
-Var<char[256]> nglMeshPath{0x00972710};
-
 Var<bool> nglLoadingIFL{0x00973844};
 
 Var<int> nglScratchMeshPos{0x00975310};
@@ -166,6 +164,8 @@ auto & nglMaterialFileDirectory =
 
 auto & nglMaterialDirectory =
     var<tlInstanceBankResourceDirectory<nglMaterialBase, tlHashString> *>(0x0095C1A0);
+
+char (& nglMeshPath)[256] = var<char[256]>(0x00972710);
 
 #else
 
@@ -229,6 +229,11 @@ auto & nglMaterialFileDirectory = []() -> auto & {
 auto & nglMaterialDirectory = []() -> auto & {
     static tlInstanceBankResourceDirectory<nglMaterialBase, tlHashString> * g_nglMaterialDirectory {};
     return g_nglMaterialDirectory;
+}();
+
+char (& nglMeshPath)[256] = []() -> auto & {
+    static char g_nglMeshPath[256] {};
+    return g_nglMeshPath;
 }();
 
 #endif
@@ -2267,7 +2272,7 @@ void nglProcessMorph(nglMeshFile *MeshFile, nglDirectoryEntry *a2, int base) {
                 "Duplicate morph %s found in %s%s.pcmorph.  Originally contained in "
                 "%s%s.pcmorph.\n",
                 v3,
-                nglMeshPath(),
+                nglMeshPath,
                 v5,
                 v6,
                 v7);
@@ -2572,7 +2577,7 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
         MeshFile->field_144 = -1;
         if (strncmp(Header->Tag, "PCM ", 4u) != 0)
         {
-            sp_log("Corrupted mesh file: %s%s%s.\n", nglMeshPath(), FileName.to_string(), ext);
+            sp_log("Corrupted mesh file: %s%s%s.\n", nglMeshPath, FileName.to_string(), ext);
             return false;
         }
 
@@ -2582,7 +2587,7 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
         {
             auto *v6 = FileName.to_string();
             sp_log("Unsupported mesh file version: %s%s%s (version %x, current version is %x).\n",
-                   nglMeshPath(),
+                   nglMeshPath,
                    v6,
                    ext,
                    Header->Version,
@@ -2594,7 +2599,7 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
         if (Header->NDirectoryEntries == 0)
         {
             auto *v7 = FileName.to_string();
-            sp_log("Mesh file hasn't any directory entries: %s%s%s.\n", nglMeshPath(), v7, ext);
+            sp_log("Mesh file hasn't any directory entries: %s%s%s.\n", nglMeshPath, v7, ext);
 
             return false;
         }
@@ -2902,7 +2907,7 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
                 sp_log(
                     "nglLoadMeshFile: file \"%s%s%s\" has an unknown directory entry ( %u ), "
                     "skipping.\n",
-                    nglMeshPath(),
+                    nglMeshPath,
                     v14,
                     ext,
                     uint32_t(dir_entry_type));
