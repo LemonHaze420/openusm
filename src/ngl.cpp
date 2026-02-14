@@ -167,6 +167,9 @@ auto & nglMaterialDirectory =
 
 char (& nglMeshPath)[256] = var<char[256]>(0x00972710);
 
+int (& dword_975BE8)[1024] = var<int[1024]>(0x00975BE8);
+int & dword_975BE0 = var<int>(0x00975BE0);
+
 #else
 
 static tlInstanceBankResourceDirectory<nglTexture, tlFixedString> * g_nglTextureDirectory {};
@@ -234,6 +237,16 @@ auto & nglMaterialDirectory = []() -> auto & {
 char (& nglMeshPath)[256] = []() -> auto & {
     static char g_nglMeshPath[256] {};
     return g_nglMeshPath;
+}();
+
+int (& dword_975BE8)[1024] = []() -> auto & {
+    static int g_dword_975BE8[1024] {};
+    return g_dword_975BE8;
+}();
+
+int & dword_975BE0 = []() -> auto & {
+    static int g_dword_975BE0 {};
+    return g_dword_975BE0;
 }();
 
 #endif
@@ -1797,9 +1810,6 @@ void nglInitWhiteTexture()
 void nglReleaseSection(nglMeshSection *a1) {
     CDECL_CALL(0x0077C490, a1);
 }
-
-Var<int[1024]> dword_975BE8{0x00975BE8};
-Var<int> dword_975BE0{0x00975BE0};
 
 uint8_t NGLTEX_GET_FORMAT(uint32_t format) {
     return (format & 0x000000FF);

@@ -13,7 +13,7 @@ nglPalette *nglCreatePalette([[maybe_unused]] int a1, uint32_t entries, const vo
 
     v3->m_palette_entries = static_cast<PALETTEENTRY *>(
         tlMemAlloc(sizeof(PALETTEENTRY) * entries, 8, 0x1000000));
-    v3->m_palette_idx = dword_975BE8()[dword_975BE0()--];
+    v3->m_palette_idx = dword_975BE8[dword_975BE0--];
 
     if ( a3 != nullptr ) {
         std::memcpy(v3->m_palette_entries, a3, 4 * ((4 * entries) >> 2));

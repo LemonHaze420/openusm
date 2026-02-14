@@ -886,8 +886,8 @@ extern void nglSaveTexture(nglTexture *Tex, const char *a2);
 
 extern nglTexture & stru_975AC0;
 
-extern Var<int[1024]> dword_975BE8;
-extern Var<int> dword_975BE0;
+extern int (& dword_975BE8)[1024];
+extern int & dword_975BE0;
 
 inline Var<HANDLE> h_sceneDump {0x00976E20};
 
