@@ -109,6 +109,8 @@ int & g_Windowed = var<int>(0x00946530);
 
 HWND & g_hWnd = var<HWND>(0x00971F98);
 
+bool & EnableShader = var<bool>(0x00972AB0);
+
 #else
 IDirect3DDevice9 *& g_Direct3DDevice = []() -> auto & {
     static IDirect3DDevice9 * g_Direct3DDevice1 {};
@@ -135,6 +137,10 @@ HWND & g_hWnd = []() -> auto & {
     return g_hWnd1;
 }();
 
+bool & EnableShader = []() -> auto & {
+    static bool g_EnableShader {false};
+    return g_EnableShader;
+}();
 #endif
 
 char & byte_965C21 = var<char>(0x00965C21);
@@ -171,5 +177,3 @@ float & flt_88E51C = var<float>(0x0088E51C);
 IDirectSound8 *& g_directSound = var<IDirectSound8 *>(0x00987518);
 
 bool & cam_target_locked = var<bool>(0x0095C754);
-
-bool & EnableShader = var<bool>(0x00972AB0);
