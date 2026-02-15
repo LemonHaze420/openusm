@@ -8,7 +8,31 @@
 
 GenericCharComp::GenericCharComp()
 {
-    this->m_vtbl = 0x00892140;
+    if constexpr (1) {
+        static void * g_vtbl[] {
+            nullptr,
+            func_address(&_GetType),
+            nullptr,
+            nullptr,
+            nullptr,
+            nullptr,
+            nullptr,
+            nullptr,
+            nullptr,
+            nullptr,
+            nullptr,
+            nullptr,
+            nullptr,
+            nullptr,
+            nullptr,
+            func_address(&_SkelPoseProcess)
+        };
+
+        this->m_vtbl = CAST(m_vtbl, &g_vtbl);
+    } else {
+        this->m_vtbl = 0x00892140;
+    }
+
     this->m_strTypeString = "Generic";
     CharComponentManager::RegisterComponent(this);
 }
