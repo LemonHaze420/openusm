@@ -13,11 +13,32 @@ VALIDATE_SIZE(box_trigger_resource_handler, 0x10u);
 
 box_trigger_resource_handler::box_trigger_resource_handler(worldly_pack_slot *a2)
 {
-    this->m_vtbl = 0x00888A48;
+    if constexpr (1) {
+        static void * g_vtbl[] = {
+            func_address(&finalize),
+            func_address(&_handle),
+            func_address(&_get_num_resources),
+            func_address(&_handle_resource),
+        };
+
+        this->m_vtbl = CAST(m_vtbl, &g_vtbl);
+    } else {
+        this->m_vtbl = 0x00888A48;
+    }
+
     this->my_slot = a2;
 }
 
-int box_trigger_resource_handler::get_num_resources() {
+
+void box_trigger_resource_handler::finalize(bool a2)
+{
+    this->~box_trigger_resource_handler();
+    if (a2) {
+        delete(this);
+    }
+}
+
+int box_trigger_resource_handler::_get_num_resources() {
     return this->my_slot->box_trigger_instances->size();
 }
 
