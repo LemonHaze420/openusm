@@ -27,10 +27,10 @@ struct CharComponentBase : BaseComponent {
 
     //virtual
     uint32_t _GetType();
-    
+
     //virtual
     //0x005EC5D0
-    int DoesContributeToPose(
+    int _DoesContributeToPose(
         uint32_t a2,
         const void *a3,
         const void *a4);
@@ -70,9 +70,6 @@ struct CharComponentBase : BaseComponent {
         bool a9);
 
     //virtual
-    bool WillMapToComponentData(uint32_t, uint32_t, uint32_t);
-
-    //virtual
     void * _CalcPoseDataDirect(
         void *a2,
         uint32_t a3,
@@ -85,23 +82,43 @@ struct CharComponentBase : BaseComponent {
         void *a10);
 
     //virtual
-    void CalcPoseDataRemapped(
-        void *a2,
+    void _CalcPoseDataRemapped(
+        void *,
         uint32_t ,
-        Float a4,
-        Float a5,
-        const nalComp::nalCompAnim *a6,
-        const void *a7,
-        const void *a8,
-        const void *a9,
-        void *);
+        Float ,
+        Float ,
+        const nalComp::nalCompAnim *,
+        const void *,
+        const void *,
+        const void *,
+        void *) {}
 
     //virtual
     int GetDomain();
 
+    int _GetRemapSizeOfPerInstData(
+            uint32_t a1,
+            uint32_t a2,
+            const CharComponentBase *a3,
+            const void *a4,
+            const void *a5,
+            const void *a6,
+            const void *a7,
+            const void *a8);
+
     //virtual
     //0x005EC590
     int GetRemapSizeOfPerInstData(
+            uint32_t,
+            uint32_t,
+            const CharComponentBase *,
+            const void *,
+            const void *,
+            const void *,
+            const void *,
+            const void *);
+
+    int _GetRemapAlignOfPerInstData(
             uint32_t,
             uint32_t,
             const CharComponentBase *,
@@ -123,6 +140,17 @@ struct CharComponentBase : BaseComponent {
             const void *,
             const void *);
 
+    void _BuildRemapPerInstData(
+            void *,
+            uint32_t,
+            uint32_t,
+            const CharComponentBase *,
+            const void *,
+            const void *,
+            const void *,
+            const void *,
+            const void *) {}
+
     //virtual
     void BuildRemapPerInstData(
             void *,
@@ -135,6 +163,14 @@ struct CharComponentBase : BaseComponent {
             const void *,
             const void *);
 
+    void _DestroyRemapPerInstData(
+        void *,
+        uint32_t ,
+        uint32_t ,
+        const CharComponentBase *,
+        const void *,
+        const void *) {}
+
     //virtual
     void DestroyRemapPerInstData(
         void *a2,
@@ -145,13 +181,19 @@ struct CharComponentBase : BaseComponent {
         const void *a7);
 
     //virtual
-    void AnimRelease(uint32_t, void *, void *);
+    void _AnimRelease(uint32_t, void *, void *);
+
+    void _CopyPoseDataToNothing(void *, unsigned int , const void *) {}
 
     //virtual
     void CopyPoseDataToNothing(void *a1, unsigned int a2, const void *a3);
 
+    void * _AllocTempPoseData(uint32_t, const void *, const void *);
+
     //virtual
     void * AllocTempPoseData(uint32_t, const void *, const void *);
+
+    void _DeleteTempPoseData(uint32_t , void *) {}
 
     //virtual
     void DeleteTempPoseData(uint32_t a1, void *a2);
