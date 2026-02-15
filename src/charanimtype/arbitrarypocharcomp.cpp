@@ -133,7 +133,46 @@ nalMatrix4x4 sub_5FE000(const nalMatrix4x4 &arg4, const nalMatrix4x4 &arg8)
 
 ArbitraryPOCharComp::ArbitraryPOCharComp()
 {
-    this->m_vtbl = 0x008920B8;
+    TRACE("ArbitraryPOCharComp()");
+
+    if constexpr (1) {
+        static void * g_vtbl[] {
+            nullptr,
+            func_address(&_GetType),
+            nullptr,
+            nullptr,
+            nullptr,
+            nullptr,
+            nullptr,
+            nullptr,
+            nullptr,
+            nullptr,
+            nullptr,
+            nullptr,
+            nullptr,
+            nullptr,
+            nullptr,
+            func_address(&_SkelPoseProcess),
+            nullptr,
+            nullptr,
+            nullptr,
+            nullptr,
+            nullptr,
+            nullptr,
+            nullptr,
+            nullptr,
+            nullptr,
+            nullptr,
+            nullptr,
+            nullptr,
+            nullptr,
+            func_address(&_CopyPoseDataToNothing)
+        };
+
+        this->m_vtbl = CAST(m_vtbl, &g_vtbl);
+    } else {
+        this->m_vtbl = 0x008920B8;
+    }
 
     this->m_strTypeString = "ArbitraryPO";
     CharComponentManager::RegisterComponent(this);
@@ -773,7 +812,7 @@ uint32_t ArbitraryPOCharComp::GetPoseTypeID() const
     return to_hash("ArbitraryPO");
 }
 
-void ArbitraryPOCharComp::CopyPoseDataToNothing(void *a1, uint32_t, const void *a3)
+void ArbitraryPOCharComp::_CopyPoseDataToNothing(void *a1, uint32_t, const void *a3)
 {
     TRACE("ArbitraryPOCharComp::CopyPoseDataToNothing");
 

@@ -215,7 +215,7 @@ struct ArbitraryPOCharComp : CharComponentBase {
 
     //virtual
     //0x005EF820
-    void CopyPoseDataToNothing(void *a1, uint32_t a2, const void *a3);
+    void _CopyPoseDataToNothing(void *a1, uint32_t a2, const void *a3);
 
 };
 
