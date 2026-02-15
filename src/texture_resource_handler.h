@@ -10,6 +10,9 @@ struct texture_resource_handler : base_tl_resource_handler {
 
     texture_resource_handler(worldly_pack_slot *a2);
 
+    //virtual
+    void finalize(bool a2);
+
     void handle_resource_internal(tlresource_location *loc, nglTextureFileFormat a3);
 
     //virtual
