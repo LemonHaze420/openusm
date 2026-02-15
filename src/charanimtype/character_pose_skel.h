@@ -43,18 +43,7 @@ struct nalCharSkeleton : nalComp::nalCompSkeleton {
     int field_7C;
     nalCharPose *m_theDefaultPose;
 
-    struct vtbl {
-        void *Dummy;
-        void *finalize;
-
-        using Process_t = void (nalCharSkeleton::*)();
-        Process_t Process;
-
-        void *Release;
-
-        using CheckVersion_t = bool (nalCharSkeleton::*)();
-        CheckVersion_t CheckVersion;
-    };
+    nalCharSkeleton();
 
     int GetCompIxByName(CharComponentBase::Names a2) const;
 
@@ -65,12 +54,12 @@ struct nalCharSkeleton : nalComp::nalCompSkeleton {
     nalCharPose * CreatePose() const;
 
     //virtual
-    void Process();
+    void _Process();
 
     //virtual
     void Release();
 
-    bool CheckVersion() {
+    bool _CheckVersion() const {
         return this->Version == 0x10003;
     }
 

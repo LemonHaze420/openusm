@@ -6,18 +6,41 @@
 #include "nal_system.h"
 #include "tl_system.h"
 #include "trace.h"
+#include "variables.h"
 
 namespace nalChar {
 
 VALIDATE_SIZE(nalCharSkeleton, 0x84);
 VALIDATE_SIZE(nalCharPose, 0x10);
 
+#ifndef STANDALONE_SYSTEM
+#error "Not define macro STANDALONE_SYSTEM"
+#endif
+
+#if !STANDALONE_SYSTEM
+
 int & nalCharSkeleton::vtbl_ptr = var<int>(0x0096AB90);
+
+#endif
 
 nalCharPose::nalCharPose(
     const nalChar::nalCharSkeleton *a2) : nalCompPose(a2)
 {
-    this->m_vtbl = 0x00891A3C;
+    if constexpr (1) {
+        void * (nalCompPose::*GetComponentPoseData0)(uint32_t) = &nalCompPose::_GetComponentPoseData;
+        void * (nalCompPose::*GetComponentPoseData1)(uint32_t) const = &nalCompPose::_GetComponentPoseData;
+
+        static void * g_vtbl[] {
+            func_address(GetComponentPoseData0),
+            func_address(GetComponentPoseData1),
+            func_address(&_GetPoseDataSize)
+        };
+
+        m_vtbl = CAST(m_vtbl, &g_vtbl);
+    }  else {
+        this->m_vtbl = 0x00891A3C;
+    }
+
     this->field_C = 0;
     this->InitializePoseDataFromSkel();
 }
@@ -144,6 +167,32 @@ void nalCharPose::InitializePoseDataFromSkel()
     }
 }
 
+nalCharSkeleton::nalCharSkeleton()
+{
+    static void * g_vtbl[] {
+        nullptr,
+        nullptr,
+        func_address(&_Process),
+        nullptr,
+        func_address(&_CheckVersion),
+        nullptr,
+        nullptr,
+        nullptr,
+        nullptr,
+        nullptr,
+        nullptr,
+        nullptr,
+        nullptr,
+        nullptr,
+        nullptr,
+        nullptr,
+        func_address(&_UnMash)
+    };
+    this->m_vtbl = CAST(m_vtbl, &g_vtbl);
+    this->m_theDefaultPose = nullptr;
+    this->Version = 0x10003;
+}
+
 int nalCharSkeleton::GetCompIxByName(CharComponentBase::Names a2) const
 {
     for ( int iCompIx = 0; iCompIx < this->m_iNumComponents; ++iCompIx )
@@ -182,11 +231,11 @@ nalCharPose * nalCharSkeleton::CreatePose() const
     return v3;
 }
 
-void nalCharSkeleton::Process()
+void nalCharSkeleton::_Process()
 {
     TRACE("nalCharSkeleton::Process");
 
-    if constexpr (0) {
+    if constexpr (1) {
         auto v1 = CharComponentManager::iCurrNumComponents;
         auto **v3 = (BaseComponent **)tlMemAlloc(4 * v1, 8u, 0);
         for ( int i = 0; i < v1; ++i ) {
@@ -295,7 +344,7 @@ void nalChar_patch()
     }
 
     {
-        FUNC_ADDRESS(address, &nalChar::nalCharSkeleton::Process);
+        FUNC_ADDRESS(address, &nalChar::nalCharSkeleton::_Process);
         set_vfunc(0x00891F90, address);
         //SET_JUMP(0x005F28C0, address);
     }
