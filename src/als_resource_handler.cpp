@@ -15,9 +15,29 @@ VALIDATE_SIZE(als_resource_handler, 0x14);
 
 als_resource_handler::als_resource_handler(worldly_pack_slot *a2)
 {
-    this->m_vtbl = 0x008889F8;
+    if constexpr (1) {
+        static void * g_vtbl[] = {
+            func_address(&finalize),
+            func_address(&_handle),
+            func_address(&_pre_handle_resources),
+            func_address(&_handle_resource),
+        };
+
+        this->m_vtbl = CAST(m_vtbl, &g_vtbl);
+    } else  {
+        this->m_vtbl = 0x008889F8;
+    }
+
     this->my_slot = a2;
     this->field_10 = RESOURCE_KEY_TYPE_ALS_FILE;
+}
+
+void als_resource_handler::finalize(bool a2)
+{
+    this->~als_resource_handler();
+    if (a2) {
+        delete(this);
+    }
 }
 
 bool als_resource_handler::_handle(worldly_resource_handler::eBehavior a2,
