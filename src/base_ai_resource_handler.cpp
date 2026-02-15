@@ -13,9 +13,29 @@ VALIDATE_SIZE(base_ai_resource_handler, 0x14);
 
 base_ai_resource_handler::base_ai_resource_handler(worldly_pack_slot *a2)
 {
-    this->m_vtbl = 0x00888A08;
+    if constexpr (1) {
+        static void * g_vtbl[] = {
+            func_address(&finalize),
+            func_address(&_handle),
+            func_address(&_pre_handle_resources),
+            func_address(&_handle_resource),
+        };
+
+        this->m_vtbl = CAST(m_vtbl, &g_vtbl);
+    } else {
+        this->m_vtbl = 0x00888A08;
+    }
+
     this->my_slot = a2;
     this->field_10 = RESOURCE_KEY_TYPE_BASE_AI;
+}
+
+void base_ai_resource_handler::finalize(bool a2)
+{
+    this->~base_ai_resource_handler();
+    if (a2) {
+        delete(this);
+    }
 }
 
 bool base_ai_resource_handler::_handle(worldly_resource_handler::eBehavior a2, limited_timer *a3)
