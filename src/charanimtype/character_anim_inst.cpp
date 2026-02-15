@@ -4,13 +4,21 @@
 #include "common.h"
 #include "trace.h"
 #include "utility.h"
+#include "variables.h"
 
 #include <cassert>
 
 VALIDATE_SIZE(nalChar::nalCharInstance, 0x20u);
 
 namespace nalChar {
+#if !STANDALONE_SYSTEM
     int & nalCharAnim::vtbl_ptr = var<int>(0x0096A84C);
+#else
+    int & nalCharAnim::vtbl_ptr = []() -> auto & {
+        static nalCharAnim g_anim {};
+        return g_anim.m_vtbl;
+    }();
+#endif
 }
 
 void nalChar::nalCharInstance::finalize(bool a2)
@@ -325,6 +333,10 @@ void nalChar::nalCharInstance::_BuildPerInstData()
         void (__fastcall *func)(void *) = CAST(func, 0x005F08A0);
         func(this);
     }
+}
+
+nalChar::nalCharAnim::nalCharAnim() {
+    this->m_vtbl = 0x00891FD0;
 }
 
 nalChar::nalCharInstance * nalChar::nalCharAnim::CreateInstance(nalChar::nalCharSkeleton *a2)

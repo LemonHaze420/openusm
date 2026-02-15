@@ -14,20 +14,10 @@ struct nalCharInstance;
 
 struct nalCharAnim : nalComp::nalCompAnim {
 
+    nalCharAnim();
+
     //0x005FB5B0
     nalChar::nalCharInstance * CreateInstance(nalCharSkeleton *a1);
-
-    struct vtbl {
-        void *field_0;
-        void *finalize;
-        void *Process;
-        void *Release;
-
-        using CheckVersion_t = bool (nalCharAnim::*)();
-        CheckVersion_t CheckVersion;
-
-        vtbl(void *, void *, void *, void *, CheckVersion_t a4) : CheckVersion(a4) {}
-    };
 
     //virtual
     bool CheckVersion() {
