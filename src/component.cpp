@@ -57,6 +57,18 @@ void BaseComponent::BuildBoneMatrices(
 
 }
 
+int BaseComponent::DoesContributeToPose(
+        uint32_t a2,
+        const void *a3,
+        const void *a4)
+{
+    int (__fastcall *func)(void *, void *edx,
+            uint32_t,
+            const void *,
+            const void *) = CAST(func, get_vfunc(m_vtbl, 0x18));
+    return func(this, nullptr, a2, a3, a4);
+}
+
 int BaseComponent::GetSizeOfPerInstData(
         uint32_t a2,
         const void *a3,
@@ -141,6 +153,16 @@ void BaseComponent::DestroyPerInstData(
     func(this, nullptr, a2, a3, a4, a5);
 
 }
+
+bool BaseComponent::WillMapToComponentData(uint32_t a2, uint32_t a3, uint32_t a4)
+{
+    bool (__fastcall *func)(void *, void *edx,
+            uint32_t,
+            uint32_t,
+            uint32_t) = CAST(func, get_vfunc(m_vtbl, 0x2C));
+    return func(this, nullptr, a2, a3, a4);
+}
+
 
 void BaseComponent::CalcPoseDataDirect(
     void *a1,

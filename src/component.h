@@ -40,6 +40,12 @@ struct BaseComponent {
         const void *a4);
 
     //virtual
+    int DoesContributeToPose(
+        uint32_t a2,
+        const void *a3,
+        const void *a4);
+
+    //virtual
     int GetSizeOfPerInstData(
         uint32_t a2,
         const void *a3,
@@ -76,6 +82,9 @@ struct BaseComponent {
         uint32_t a3,
         const void *a4,
         const void *a5);
+
+    //virtual
+    bool WillMapToComponentData(uint32_t a2, uint32_t a3, uint32_t a4);
 
     //virtual
     void CalcPoseDataDirect(
