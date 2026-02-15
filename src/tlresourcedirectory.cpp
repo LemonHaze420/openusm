@@ -24,11 +24,9 @@ nglTexture *tlResourceDirectory<nglTexture, tlFixedString>::StandardLoad(const t
         auto *tex = static_cast<nglTexture *>(tlMemAlloc(sizeof(nglTexture), 8, 0x1000000u));
         *tex = {};
 
-        static Var<nglTexture> stru_975AC0{0x00975AC0};
-
-        tex->field_4 = stru_975AC0().field_4;
-        tex->field_0 = &stru_975AC0();
-        stru_975AC0().field_4 = tex;
+        tex->field_4 = stru_975AC0.field_4;
+        tex->field_0 = &stru_975AC0;
+        stru_975AC0.field_4 = tex;
         tex->field_4->field_0 = tex;
         tex->field_8 = 1;
         tex->FileName = str;
