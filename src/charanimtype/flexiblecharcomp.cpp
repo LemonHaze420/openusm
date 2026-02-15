@@ -1,26 +1,12 @@
 #include "flexiblecharcomp.h"
 
-#include "charcomponentmanager.h"
 #include "common.h"
 #include "fakerootentcompdecomp.h"
 #include "fakerootposedesc.h"
 #include "func_wrapper.h"
-#include "string_hash.h"
 #include "trace.h"
 #include "utility.h"
-
-
-template<>
-FlexibleCharComp<FakerootPoseDesc,FakerootEntCompDecomp<FakerootPoseDesc>>::FlexibleCharComp(
-        int a2,
-        const char *a1)
-{
-    this->m_vtbl = 0x008921C0;
-    this->m_strTypeString = a1;
-    this->m_TheType = to_hash(a1);
-    this->field_10 = a2;
-    CharComponentManager::RegisterComponent(this);
-}
+#include "variables.h"
 
 template<>
 void FlexibleCharComp<FakerootPoseDesc,FakerootEntCompDecomp<FakerootPoseDesc>>::CalcPoseDataDirect(
@@ -69,9 +55,6 @@ void FlexibleCharComp<FakerootPoseDesc,FakerootEntCompDecomp<FakerootPoseDesc>>:
     TRACE("FlexibleCharComp<FakerootPoseDesc,FakerootEntCompDecomp<FakerootPoseDesc>>::CalcPoseDataRemapped");
 
 }
-
-FlexibleCharComp<FakerootPoseDesc,FakerootEntCompDecomp<FakerootPoseDesc>> g_FakerootStdEntComp {0x40000000, "Fakeroot Entropy Compressed"};
-
 
 void FlexibleCharComp_patch()
 {

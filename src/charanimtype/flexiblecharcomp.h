@@ -2,6 +2,10 @@
 
 #include "charcomponentbase.h"
 
+#include "charcomponentmanager.h"
+#include "string_hash.h"
+#include "utility.h"
+
 template<typename T0, typename T1>
 struct FlexibleCharComp : CharComponentBase {
 
@@ -12,7 +16,51 @@ struct FlexibleCharComp : CharComponentBase {
 
     FlexibleCharComp(
         int a2,
-        const char *a1);
+        const char *a1)
+    {
+        if constexpr (1) {
+            static void * g_vtbl[] {
+                nullptr,
+                func_address(&_GetType),
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                func_address(&_SkelPoseProcess),
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                func_address(&_CopyPoseDataToNothing)
+            };
+            this->m_vtbl = CAST(m_vtbl, &g_vtbl);
+        } else {
+            this->m_vtbl = 0x008921C0;
+        }
+
+        this->m_strTypeString = a1;
+        this->m_TheType = to_hash(a1);
+        this->field_10 = a2;
+        CharComponentManager::RegisterComponent(this);
+    }
 
     //0x005FE940
     void CalcPoseDataDirect(
@@ -36,6 +84,31 @@ struct FlexibleCharComp : CharComponentBase {
         const void *,
         const void *,
         void *);
+
+    //virtual
+    void _SkelPoseProcess(uint32_t a1, void *a2, void *a3) {
+        this->field_14.SkelPoseProcess(
+            a1,
+            static_cast<T0::PerSkelData *>(a2),
+            static_cast<T0::StdPoseData *>(a3)
+        );
+    }
+
+    //virtual
+    void _CopyPoseDataToNothing(
+            void *a1,
+            unsigned int a2,
+            const void *a3)
+    {
+        this->field_14.CopyPoseDataToNothing(
+                static_cast<T0::StdPoseData *>(a1),
+                a2,
+                static_cast<const T0::StdPoseData *>(a3));
+    }
+
+
+    //virtual
+    int GetDomain() const;
 };
 
 extern void FlexibleCharComp_patch();
