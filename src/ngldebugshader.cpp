@@ -15,7 +15,7 @@ int nglDebugShader::Register() {
     sp_log("nglDebugShader::Register:");
 
     if constexpr (0) {
-        this->field_8 = nglShader::NextID()++;
+        this->field_8 = nglShader::NextID++;
 
         tlFixedString v2 = this->GetName();
 

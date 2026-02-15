@@ -15,7 +15,14 @@ VALIDATE_SIZE(nglShader, 0xC);
 
 VALIDATE_SIZE(nglShaderNode, 0x14);
 
-Var<int> nglShader::NextID{0x00972910};
+#if !STANDALONE_SYSTEM
+int & nglShader::NextID = var<int>(0x00972910);
+#else
+int & nglShader::NextID = []() -> auto & {
+    static int g_NextID {};
+    return g_NextID;
+}();
+#endif
 
 nglShader::nglShader()
 {
@@ -24,7 +31,9 @@ nglShader::nglShader()
 
 void nglShader::Register()
 {
-    this->field_8 = nglShader::NextID()++;
+    TRACE("nglShader::Register");
+
+    this->field_8 = nglShader::NextID++;
     auto v4 = this->field_8;
 
     tlFixedString v1 = this->GetName();

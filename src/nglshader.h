@@ -45,7 +45,7 @@ struct nglShader {
 
     /* virtual */ bool IsSwitchable();
 
-    static Var<int> NextID;
+    static int & NextID;
 };
 
 struct nglShaderNode : nglRenderNode {

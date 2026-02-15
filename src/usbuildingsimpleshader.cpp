@@ -18,7 +18,7 @@ int USBuildingSimpleShader::Register() {
     sp_log("USBuildingSimpleShader::Register:");
 
     if constexpr (1) {
-        this->field_8 = nglShader::NextID()++;
+        this->field_8 = nglShader::NextID++;
 
         void (__fastcall *GetName)(void *, void *, tlFixedString *) = CAST(GetName, get_vfunc(this->m_vtbl, 0x4));
 
