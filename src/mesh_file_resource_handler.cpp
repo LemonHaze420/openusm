@@ -27,9 +27,29 @@ VALIDATE_SIZE(mesh_file_resource_handler, 0x14);
 
 mesh_file_resource_handler::mesh_file_resource_handler(worldly_pack_slot *a2)
 {
-    this->m_vtbl = 0x00888A38;
+    if constexpr (1) {
+        static void * g_vtbl[] = {
+            func_address(&finalize),
+            func_address(&_handle),
+            func_address(&_pre_handle_resources),
+            func_address(&_handle_resource),
+        };
+
+        this->m_vtbl = CAST(m_vtbl, &g_vtbl);
+    } else {
+        this->m_vtbl = 0x00888A38;
+    }
+
     this->my_slot = a2;
     this->field_10 = TLRESOURCE_TYPE_MESH_FILE;
+}
+
+void mesh_file_resource_handler::finalize(bool a2)
+{
+    this->~mesh_file_resource_handler();
+    if (a2) {
+        delete(this);
+    }
 }
 
 bool mesh_file_resource_handler::_handle_resource(worldly_resource_handler::eBehavior behavior,

@@ -13,6 +13,9 @@ struct resource_pack_slot;
 struct mesh_file_resource_handler : base_tl_resource_handler {
     mesh_file_resource_handler(worldly_pack_slot *a2);
 
+    //virtual
+    void finalize(bool);
+
     //0x0056BD00
     //virtual
     bool _handle_resource(worldly_resource_handler::eBehavior behavior,
