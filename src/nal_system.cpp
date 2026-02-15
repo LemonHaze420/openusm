@@ -9,6 +9,7 @@
 #include "nal_component.h"
 #include "nfl_system.h"
 #include "osassert.h"
+#include "scene_anim.h"
 #include "tl_system.h"
 #include "trace.h"
 #include "utility.h"
@@ -52,7 +53,7 @@ tlInstanceBankResourceDirectory<nalSceneAnim, tlFixedString> *& nalSceneAnimDire
 
 static auto & dword_970D64 = var<void *>(0x00970D64);
 
-static auto & nalAnimPath = var<char[255]>(0x00976FC8);
+char (& nalAnimPath)[255] = var<char[255]>(0x00976FC8);
 
 char (& nalSkeletonPath)[255] = var<char[255]>(0x00976EC8);
 
@@ -95,7 +96,7 @@ static auto & dword_970D64 = []() -> auto & {
     return g_dword_970D64;
 }();
 
-static auto & nalAnimPath = []() -> auto & {
+char (& nalAnimPath)[255] = []() -> auto & {
     static char g_nalAnimPath[255] {};
     return g_nalAnimPath;
 }();
@@ -137,7 +138,20 @@ LARGE_INTEGER & nalPlayerGetPoseTicks = []() -> auto & {
 
 #endif
 
-int *& PanelComponentMgr::comp_list = var<int *>(0x0096F7DC);
+int * nalComponentFloat1Base::_GetType()
+{
+    return &TypeID;
+}
+
+int * nalComponentFloat3Base::_GetType()
+{
+    return &TypeID;
+}
+
+int * nalComponentQuatBase::_GetType()
+{
+    return &TypeID;
+}
 
 int *nalComponentU8Base::_GetType() {
     return &TypeID;

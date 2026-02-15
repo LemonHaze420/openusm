@@ -4,6 +4,7 @@
 #include "fixedstring.h"
 #include "float.hpp"
 #include "hashstring.h"
+#include "nal_anim.h"
 #include "nfl_system.h"
 #include "tl_system.h"
 #include "variable.h"
@@ -18,10 +19,6 @@ extern tlInstanceBank & nalTypeInstanceBank;
 extern tlInstanceBank & nalComponentInstanceBank;
 
 extern LARGE_INTEGER & nalPlayerGetPoseTicks;
-
-namespace PanelComponentMgr {
-extern int *& comp_list;
-}
 
 struct nal_anim_control {
     uint32_t m_vtbl;
@@ -81,10 +78,15 @@ struct nalAnimFile {
     int num_skeletons;
     tlFixedString field_10;
     int field_30;
-    char *field_34;
-    int field_38[3];
+    nalAnimClass<nalAnyPose> *field_34;
+    tlFileBuf field_38;
     int field_44;
     tlFixedString field_48;
+
+    static tlFixedString * get_string(nalAnimFile *a1)
+    {
+        return &a1->field_10;
+    }
 };
 
 struct nalBaseSkeleton;
@@ -98,6 +100,37 @@ struct nalComponentBase {
     //virtual
     void Process(const nalGeneric::nalComponentInfo *a1, void *& a2, void *& a3); // = 0;
 
+};
+
+struct nalComponentPOBase : nalComponentBase {
+
+    /* virtual */
+    int * _GetType() {
+        return &TypeID;
+    }
+
+    static inline int TypeID {0};
+};
+
+struct nalComponentFloat1Base : nalComponentBase {
+
+    /* virtual */ int * _GetType();
+
+    static inline int TypeID {0};
+};
+
+struct nalComponentFloat3Base : nalComponentBase {
+
+    /* virtual */ int * _GetType();
+
+    static inline int TypeID {0};
+};
+
+struct nalComponentQuatBase : nalComponentBase {
+
+    /* virtual */ int * _GetType();
+
+    static inline int TypeID {0};
 };
 
 struct nalComponentU8Base : nalComponentBase {
@@ -169,5 +202,7 @@ extern void nalSetSceneAnimDirectory(tlResourceDirectory<nalSceneAnim, tlFixedSt
 extern tlInstanceBankResourceDirectory<nalSceneAnim, tlFixedString> * nalGetSceneAnimDirectory();
 
 extern char (& nalSkeletonPath)[255];
+
+extern char (& nalAnimPath)[255];
 
 extern void nalStreamInstance_patch();
