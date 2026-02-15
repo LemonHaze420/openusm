@@ -33,6 +33,16 @@ IDirect3DVertexDeclaration9 * (& dword_9738E0)[1] = []() -> auto & {
     static IDirect3DVertexDeclaration9 * g_dword_9738E0[1] {};
     return g_dword_9738E0;
 }();
+
+_std::list<IDirect3DPixelShader9 *> & g_pixelShaderList = []() -> auto & {
+    static _std::list<IDirect3DPixelShader9 *> g_pixelShaderList1 {};
+    return g_pixelShaderList1;
+}();
+
+_std::list<IDirect3DVertexShader9 *> &g_vertexShaderList = []() -> auto & {
+    static _std::list<IDirect3DVertexShader9 *> g_vertexShaderList1 {};
+    return g_vertexShaderList1;
+}();
 #endif
 
 //0x007CA2E8
