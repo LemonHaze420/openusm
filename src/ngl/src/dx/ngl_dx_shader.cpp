@@ -21,11 +21,19 @@
 
 #include <d3dx9shader.h>
 
-Var<IDirect3DVertexDeclaration9 *[1]> dword_9738E0 { 0x009738E0 };
+#if !STANDALONE_SYSTEM
+IDirect3DVertexDeclaration9 * (& dword_9738E0)[1] = var<IDirect3DVertexDeclaration9 *[1]>( 0x009738E0);
 
 _std::list<IDirect3DPixelShader9 *> &g_pixelShaderList = var<_std::list<IDirect3DPixelShader9 *>>(0x00972B10);
 
 _std::list<IDirect3DVertexShader9 *> &g_vertexShaderList = var<_std::list<IDirect3DVertexShader9 *>>(0x00972AC0);
+#else
+
+IDirect3DVertexDeclaration9 * (& dword_9738E0)[1] = []() -> auto & {
+    static IDirect3DVertexDeclaration9 * g_dword_9738E0[1] {};
+    return g_dword_9738E0;
+}();
+#endif
 
 //0x007CA2E8
 int __stdcall hookD3DXAssembleShader(const char *data,

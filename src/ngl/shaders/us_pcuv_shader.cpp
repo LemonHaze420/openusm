@@ -120,7 +120,7 @@ void PCUV_ShaderNode::Render()
             IDirect3DDevice9_SetTransform(g_Direct3DDevice,
                                                      static_cast<D3DTRANSFORMSTATETYPE>(256),
                                                      (const D3DMATRIX *) &this->field_C->LocalToWorld);
-            IDirect3DDevice9_SetVertexDeclaration(g_Direct3DDevice, dword_9738E0()[14]);
+            IDirect3DDevice9_SetVertexDeclaration(g_Direct3DDevice, dword_9738E0[14]);
         }
 
         static Var<int> dword_956D30{0x00956D30};

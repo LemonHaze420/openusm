@@ -125,7 +125,7 @@ void Outline_ShaderNode<USExteriorMaterial>::Render()
                 (D3DTRANSFORMSTATETYPE)256,
                 bit_cast<D3DMATRIX *>(&this->m_meshNode->LocalToWorld));
             IDirect3DDevice9_SetVertexDeclaration(
-                    g_Direct3DDevice, dword_9738E0()[9]);
+                    g_Direct3DDevice, dword_9738E0[9]);
         }
 
         color v18 {};
@@ -312,7 +312,7 @@ void Outline_ShaderNode<USInteriorMaterial>::Render()
                 static_cast<D3DTRANSFORMSTATETYPE>(256),
                 bit_cast<D3DMATRIX *>(&this->m_meshNode->LocalToWorld));
             IDirect3DDevice9_SetVertexDeclaration(
-                    g_Direct3DDevice, dword_9738E0()[9]);
+                    g_Direct3DDevice, dword_9738E0[9]);
         }
 
         if ( EnableShader )

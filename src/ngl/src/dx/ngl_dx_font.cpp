@@ -73,7 +73,7 @@ void nglStringNode::Render()
                     nglSetVertexDeclarationAndShader(&stru_975780());
                 } else {
                     IDirect3DDevice9_SetVertexDeclaration(
-                            g_Direct3DDevice, dword_9738E0()[28]);
+                            g_Direct3DDevice, dword_9738E0[28]);
                     IDirect3DDevice9_SetTransform(
                         g_Direct3DDevice,
                         static_cast<D3DTRANSFORMSTATETYPE>(256),

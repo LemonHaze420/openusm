@@ -456,11 +456,11 @@ void USPersonShader::_Register()
                 D3DDECL_END()
             };
 
-            if (dword_9738E0()[12] == nullptr)
+            if (dword_9738E0[12] == nullptr)
             {
                 IDirect3DDevice9_CreateVertexDeclaration(g_Direct3DDevice,
                                                                     nglVS_NonSkin_Decl,
-                                                                    &dword_9738E0()[12]);
+                                                                    &dword_9738E0[12]);
             }
 
         }
@@ -1155,7 +1155,7 @@ void USPersonNode::RenderWithDisableShader()
             }
         }
 
-        IDirect3DDevice9_SetVertexDeclaration(g_Direct3DDevice, dword_9738E0()[12]);
+        IDirect3DDevice9_SetVertexDeclaration(g_Direct3DDevice, dword_9738E0[12]);
 
         D3DMATRIX v20 {};
         memset(&v20._34, 0, 16);

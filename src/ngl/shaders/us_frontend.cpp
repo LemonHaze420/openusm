@@ -22,7 +22,29 @@
 
 VALIDATE_SIZE(FrontEnd_ShaderNode, 0x18);
 
-FrontEnd_Shader::FrontEnd_Shader() {}
+#if !STANDALONE_SYSTEM
+FrontEnd_Shader & gFrontEnd_Shader = var<FrontEnd_Shader>(0x0091E650);
+
+static VShader & stru_970610 = var<VShader>(0x00970610);
+
+#else
+
+static VShader & stru_970610 = []() -> auto & {
+    static VShader g_stru_970610 {};
+    return g_stru_970610;
+}();
+#endif
+
+FrontEnd_Shader::FrontEnd_Shader()
+{
+    TRACE("FrontEnd_Shader::FrontEnd_Shader");
+
+    if constexpr (1) {
+    } else {
+        this->m_vtbl = 0x008714E8;
+    }
+}
+
 
 void FrontEnd_Shader::_BindMaterial(nglMaterialBase *Material)
 {
@@ -68,8 +90,6 @@ void FrontEnd_Shader::_RebaseMaterial([[maybe_unused]] nglMaterialBase *a1, [[ma
 #endif
 }
 
-static Var<VShader> stru_970610{0x00970610};
-
 static Var<IDirect3DPixelShader9 *> dword_9562F4{0x009562F4};
 
 void FrontEnd_Shader::Register() {
@@ -78,7 +98,14 @@ void FrontEnd_Shader::Register() {
     if constexpr (1) {
         nglShader::Register();
 
-        static Var<D3DVERTEXELEMENT9> stru_91E2BC{0x0091E2BC};
+#if !STANDALONE_SYSTEM
+        static D3DVERTEXELEMENT9 & stru_91E2BC = var<D3DVERTEXELEMENT9>(0x0091E2BC);
+#else
+        static D3DVERTEXELEMENT9 & stru_91E2BC = []() -> auto & {
+            static D3DVERTEXELEMENT9 g_stru_91E2BC {0, 0, 2, 0, 0, 0};
+            return g_stru_91E2BC;
+        }();
+#endif
 
         if ( EnableShader )
         {
@@ -87,7 +114,7 @@ void FrontEnd_Shader::Register() {
             if constexpr (1) {
                 auto pShader = CompileVShader("shaders/us_frontend_VS.hlsl");
 
-                nglCreateVertexDeclarationAndShader(&stru_970610(), &stru_91E2BC(), pShader.data());
+                nglCreateVertexDeclarationAndShader(&stru_970610, &stru_91E2BC, pShader.data());
             } else {
                 static const char *text =
                     "dcl_position v0\n"
@@ -102,7 +129,7 @@ void FrontEnd_Shader::Register() {
                     "mov oD1, c91.x\n"
                     "mov oFog, c91.z\n";
 
-                nglCreateVShader(&stru_91E2BC(), &stru_970610(), 0, text);
+                nglCreateVShader(&stru_91E2BC, &stru_970610, 0, text);
             }
 
             static Var<char[1]> asc_870AD8{0x00870AD8};
@@ -121,10 +148,11 @@ void FrontEnd_Shader::Register() {
 
         } else {
             static Var<IDirect3DVertexDeclaration9 *> dword_973938{0x00973938};
-            if (dword_973938() == nullptr)
+            if (dword_973938() == nullptr) {
                 IDirect3DDevice9_CreateVertexDeclaration(g_Direct3DDevice,
-                                                                    &stru_91E2BC(),
+                                                                    &stru_91E2BC,
                                                                     &dword_973938());
+            }
         }
 
     } else {
@@ -158,13 +186,13 @@ void FrontEnd_ShaderNode::Render()
                                                                      &this->m_meshNode->WorldToLocal[0][0],
                                                                      4);
 
-                nglSetVertexDeclarationAndShader(&stru_970610());
+                nglSetVertexDeclarationAndShader(&stru_970610);
             } else {
                 IDirect3DDevice9_SetTransform(g_Direct3DDevice,
                                                          (D3DTRANSFORMSTATETYPE) 256,
                                                          bit_cast<D3DMATRIX *>(&this->m_meshNode->LocalToWorld));
                 IDirect3DDevice9_SetVertexDeclaration(g_Direct3DDevice,
-                                                                 dword_9738E0()[22]);
+                                                                 dword_9738E0[22]);
             }
 
             nglDxSetTexture(0, Material->field_20, 2u, 3);

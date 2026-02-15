@@ -23,7 +23,7 @@ inline Var<VShader> stru_975788 {0x00975788};
 
 inline Var<VShader> stru_9757A4 {0x009757A4};
 
-extern Var<IDirect3DVertexDeclaration9 *[1]> dword_9738E0;
+extern IDirect3DVertexDeclaration9 * (& dword_9738E0)[1];
 
 inline Var<IDirect3DPixelShader9 *> dword_9757DC {0x009757DC};
 
