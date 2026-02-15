@@ -377,8 +377,8 @@ void render_debug_hemisphere(const vector3d &a2, float scale, color32 a4)
     nglListAddMesh(s_debug_hemisphere, v13, &meshParams, &paramSet);
 }
 
-tlFixedString *nglMesh::get_string(nglMesh *Mesh) {
-    return Mesh->Name;
+tlHashString *nglMesh::get_string(nglMesh *Mesh) {
+    return bit_cast<tlHashString *>(&Mesh->Name);
 }
 
 void nglMesh_patch()

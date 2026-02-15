@@ -51,7 +51,7 @@ struct nglMesh {
     nglMesh *NextMesh;
     uint32_t DataSize;
 
-    static tlFixedString *get_string(nglMesh *Mesh);
+    static tlHashString * get_string(nglMesh *Mesh);
 };
 
 //0x0076F420
