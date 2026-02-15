@@ -178,21 +178,21 @@ ArbitraryPOCharComp::ArbitraryPOCharComp()
     CharComponentManager::RegisterComponent(this);
 }
 
-const void * ArbitraryPOCharComp::ApplyPublicPerSkelDataOffset(uint32_t, const void *a2)
+const void * ArbitraryPOCharComp::_ApplyPublicPerSkelDataOffset(uint32_t, const void *a2)
 {
     TRACE("ArbitraryPOCharComp::ApplyPublicPerSkelDataOffset");
 
     return a2;
 }
 
-int ArbitraryPOCharComp::ApplyPublicPerAnimDataOffset(uint32_t, const void *)
+int ArbitraryPOCharComp::_ApplyPublicPerAnimDataOffset(uint32_t, const void *)
 {
     TRACE("ArbitraryPOCharComp::ApplyPublicPerAnimDataOffset");
 
     return 0;
 }
 
-nalPositionOrientation * ArbitraryPOCharComp::GetTrajectoryData(
+nalPositionOrientation * ArbitraryPOCharComp::_GetTrajectoryData(
         nalPositionOrientation *out,
         uint32_t,
         const void *,
@@ -204,7 +204,7 @@ nalPositionOrientation * ArbitraryPOCharComp::GetTrajectoryData(
     return out;
 }
 
-void ArbitraryPOCharComp::BuildBoneMatrices(
+void ArbitraryPOCharComp::_BuildBoneMatrices(
     nalMatrix4x4 *a1,
     uint32_t a2,
     const void *a3,
@@ -273,7 +273,7 @@ bool sub_C75AA0(const int *a1, uint32_t a2)
     return (a1[a2 >> 5] & (1 << (a2 % 32))) != 0;
 }
 
-int ArbitraryPOCharComp::GetSizeOfPerInstData(
+int ArbitraryPOCharComp::_GetSizeOfPerInstData(
         uint32_t,
         const void *,
         const void *a3,
@@ -300,7 +300,7 @@ int ArbitraryPOCharComp::GetSizeOfPerInstData(
     return 16 * func(static_cast<const int *>(a5), static_cast<const int *>(a3)) + 60;
 }
 
-int ArbitraryPOCharComp::GetAlignOfPerInstData(
+int ArbitraryPOCharComp::_GetAlignOfPerInstData(
         uint32_t,
         const void *,
         const void *,
@@ -317,7 +317,7 @@ int sub_C7F000(int a1, int a2)
     return ~(a2 - 1) & (a1 + a2 - 1);
 }
 
-void ArbitraryPOCharComp::BuildPerInstData(
+void ArbitraryPOCharComp::_BuildPerInstData(
         void *a1,
         uint32_t a2,
         const void *a3,
@@ -511,7 +511,7 @@ void ArbitraryPOCharComp::BuildPerInstData(
     }
 }
 
-void ArbitraryPOCharComp::DestroyPerInstData(void *a1,
+void ArbitraryPOCharComp::_DestroyPerInstData(void *a1,
         uint32_t,
         const void *,
         const void *)
@@ -534,14 +534,14 @@ void ArbitraryPOCharComp::DestroyPerInstData(void *a1,
     }
 }
 
-bool ArbitraryPOCharComp::WillMapToComponentData(uint32_t, uint32_t, uint32_t a4)
+bool ArbitraryPOCharComp::_WillMapToComponentData(uint32_t, uint32_t, uint32_t a4)
 {
     TRACE("ArbitraryPOCharComp::WillMapToComponentData");
 
     return a4 == this->GetType();
 }
 
-void ArbitraryPOCharComp::CalcPoseDataDirect(
+void ArbitraryPOCharComp::_CalcPoseDataDirect(
         void *a1,
         uint32_t a2,
         Float a3,
@@ -627,7 +627,7 @@ void ArbitraryPOCharComp::CalcPoseDataDirect(
     }
 }
 
-void ArbitraryPOCharComp::CalcPoseDataRemapped(
+void ArbitraryPOCharComp::_CalcPoseDataRemapped(
         void *a1,
         uint32_t a2,
         Float a3,
@@ -708,7 +708,7 @@ void ArbitraryPOCharComp::BlendPoseData(
     }
 }
 
-void ArbitraryPOCharComp::BlendPoseData(
+void ArbitraryPOCharComp::_BlendPoseData(
         void *a1,
         uint32_t a2,
         Float a3,
@@ -726,7 +726,7 @@ void ArbitraryPOCharComp::BlendPoseData(
     );
 }
 
-void ArbitraryPOCharComp::SkelPoseProcess(uint32_t , void *a2, void *)
+void ArbitraryPOCharComp::_SkelPoseProcess(uint32_t , void *a2, void *)
 {
     TRACE("ArbitraryPOCharComp::SkelPoseProcess");
 
@@ -745,7 +745,7 @@ void ArbitraryPOCharComp::SkelPoseProcess(uint32_t , void *a2, void *)
     }
 }
 
-void ArbitraryPOCharComp::SkelPoseRelease(uint32_t, void *out, void *)
+void ArbitraryPOCharComp::_SkelPoseRelease(uint32_t, void *out, void *)
 {
     TRACE("ArbitraryPOCharComp::SkelPoseRelease");
 
@@ -768,7 +768,7 @@ void ArbitraryPOCharComp::SkelPoseRelease(uint32_t, void *out, void *)
     }
 }
 
-void ArbitraryPOCharComp::AnimProcess(
+void ArbitraryPOCharComp::_AnimProcess(
         uint32_t,
         void *,
         void *,
@@ -777,7 +777,7 @@ void ArbitraryPOCharComp::AnimProcess(
     ;
 }
 
-void ArbitraryPOCharComp::AnimRelease(
+void ArbitraryPOCharComp::_AnimRelease(
         uint32_t,
         void *,
         void *,
@@ -786,7 +786,7 @@ void ArbitraryPOCharComp::AnimRelease(
     ;
 }
 
-void ArbitraryPOCharComp::CopyPoseExtraData(void *a1, uint32_t, const void *a3)
+void ArbitraryPOCharComp::_CopyPoseExtraData(void *a1, uint32_t, const void *a3)
 {
     TRACE("ArbitraryPOCharComp::CopyPoseExtraData");
 
@@ -797,17 +797,17 @@ void ArbitraryPOCharComp::CopyPoseExtraData(void *a1, uint32_t, const void *a3)
     );
 }
 
-void ArbitraryPOCharComp::PoseDataFree(uint32_t, void *)
+void ArbitraryPOCharComp::_PoseDataFree(uint32_t, void *)
 {
     ;
 }
 
-int ArbitraryPOCharComp::GetDomain() const
+int ArbitraryPOCharComp::_GetDomain() const
 {
     return 5;
 }
 
-uint32_t ArbitraryPOCharComp::GetPoseTypeID() const
+uint32_t ArbitraryPOCharComp::_GetPoseTypeID() const
 {
     return to_hash("ArbitraryPO");
 }
@@ -833,18 +833,20 @@ void ArbitraryPOCharComp_patch()
     };
 
     {
-        set_vfunc_local(0x4, &ArbitraryPOCharComp::GetType);
-        set_vfunc_local(0x8, &ArbitraryPOCharComp::ApplyPublicPerSkelDataOffset);
-        set_vfunc_local(0xC, &ArbitraryPOCharComp::ApplyPublicPerAnimDataOffset);
-        set_vfunc_local(0x10, &ArbitraryPOCharComp::GetTrajectoryData);
-        set_vfunc_local(0x14, &ArbitraryPOCharComp::BuildBoneMatrices);
-        set_vfunc_local(0x18, &ArbitraryPOCharComp::DoesContributeToPose);
-        set_vfunc_local(0x1C, &ArbitraryPOCharComp::GetSizeOfPerInstData);
-        set_vfunc_local(0x20, &ArbitraryPOCharComp::GetAlignOfPerInstData);
-        set_vfunc_local(0x24, &ArbitraryPOCharComp::BuildPerInstData);
-        set_vfunc_local(0x28, &ArbitraryPOCharComp::DestroyPerInstData);
-        set_vfunc_local(0x2C, &ArbitraryPOCharComp::WillMapToComponentData);
-        set_vfunc_local(0x30, &ArbitraryPOCharComp::CalcPoseDataDirect);
+        set_vfunc_local(0x4, &ArbitraryPOCharComp::_GetType);
+        set_vfunc_local(0x8, &ArbitraryPOCharComp::_ApplyPublicPerSkelDataOffset);
+        set_vfunc_local(0xC, &ArbitraryPOCharComp::_ApplyPublicPerAnimDataOffset);
+        set_vfunc_local(0x10, &ArbitraryPOCharComp::_GetTrajectoryData);
+        set_vfunc_local(0x14, &ArbitraryPOCharComp::_BuildBoneMatrices);
+        set_vfunc_local(0x18, &ArbitraryPOCharComp::_DoesContributeToPose);
+
+        set_vfunc_local(0x1C, &ArbitraryPOCharComp::_GetSizeOfPerInstData);
+        set_vfunc_local(0x20, &ArbitraryPOCharComp::_GetAlignOfPerInstData);
+
+        set_vfunc_local(0x24, &ArbitraryPOCharComp::_BuildPerInstData);
+        set_vfunc_local(0x28, &ArbitraryPOCharComp::_DestroyPerInstData);
+        set_vfunc_local(0x2C, &ArbitraryPOCharComp::_WillMapToComponentData);
+        set_vfunc_local(0x30, &ArbitraryPOCharComp::_CalcPoseDataDirect);
     }
 
     {
@@ -859,7 +861,7 @@ void ArbitraryPOCharComp_patch()
             uint32_t a8,
             const void *a9,
             const void *a10,
-            void *a11) = &ArbitraryPOCharComp::CalcPoseDataRemapped;
+            void *a11) = &ArbitraryPOCharComp::_CalcPoseDataRemapped;
         set_vfunc_local(0x34, func);
     }
 
@@ -869,28 +871,28 @@ void ArbitraryPOCharComp_patch()
                 uint32_t,
                 Float,
                 const void *,
-                const void *) = &ArbitraryPOCharComp::BlendPoseData;
+                const void *) = &ArbitraryPOCharComp::_BlendPoseData;
         set_vfunc_local(0x38, func);
     }
 
     {
-        set_vfunc_local(0x3C, &ArbitraryPOCharComp::SkelPoseProcess);
-        set_vfunc_local(0x40, &ArbitraryPOCharComp::SkelPoseRelease);
-        set_vfunc_local(0x44, &ArbitraryPOCharComp::AnimProcess);
-        set_vfunc_local(0x48, &ArbitraryPOCharComp::AnimRelease);
-        set_vfunc_local(0x4C, &ArbitraryPOCharComp::CopyPoseExtraData);
-        set_vfunc_local(0x50, &ArbitraryPOCharComp::PoseDataFree);
-        set_vfunc_local(0x54, &ArbitraryPOCharComp::GetDomain);
-        set_vfunc_local(0x58, &ArbitraryPOCharComp::GetPoseTypeID);
-        set_vfunc_local(0x5C, &CharComponentBase::GetRemapSizeOfPerInstData);
-        set_vfunc_local(0x60, &CharComponentBase::GetRemapAlignOfPerInstData);
-        set_vfunc_local(0x64, &CharComponentBase::BuildRemapPerInstData);
-        set_vfunc_local(0x68, &CharComponentBase::DestroyRemapPerInstData);
-        set_vfunc_local(0x6C, &CharComponentBase::CalcPoseDataRemapped);
-        set_vfunc_local(0x70, &CharComponentBase::AnimRelease);
-        set_vfunc_local(0x74, &ArbitraryPOCharComp::CopyPoseDataToNothing);
-        set_vfunc_local(0x78, &CharComponentBase::AllocTempPoseData);
-        set_vfunc_local(0x7C, &CharComponentBase::DeleteTempPoseData);
+        set_vfunc_local(0x3C, &ArbitraryPOCharComp::_SkelPoseProcess);
+        set_vfunc_local(0x40, &ArbitraryPOCharComp::_SkelPoseRelease);
+        set_vfunc_local(0x44, &ArbitraryPOCharComp::_AnimProcess);
+        set_vfunc_local(0x48, &ArbitraryPOCharComp::_AnimRelease);
+        set_vfunc_local(0x4C, &ArbitraryPOCharComp::_CopyPoseExtraData);
+        set_vfunc_local(0x50, &ArbitraryPOCharComp::_PoseDataFree);
+        set_vfunc_local(0x54, &ArbitraryPOCharComp::_GetDomain);
+        set_vfunc_local(0x58, &ArbitraryPOCharComp::_GetPoseTypeID);
+        set_vfunc_local(0x5C, &CharComponentBase::_GetRemapSizeOfPerInstData);
+        set_vfunc_local(0x60, &CharComponentBase::_GetRemapAlignOfPerInstData);
+        set_vfunc_local(0x64, &CharComponentBase::_BuildRemapPerInstData);
+        set_vfunc_local(0x68, &CharComponentBase::_DestroyRemapPerInstData);
+        set_vfunc_local(0x6C, &CharComponentBase::_CalcPoseDataRemapped);
+        set_vfunc_local(0x70, &CharComponentBase::_AnimRelease);
+        set_vfunc_local(0x74, &ArbitraryPOCharComp::_CopyPoseDataToNothing);
+        set_vfunc_local(0x78, &CharComponentBase::_AllocTempPoseData);
+        set_vfunc_local(0x7C, &CharComponentBase::_DeleteTempPoseData);
     }
 
     {
