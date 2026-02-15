@@ -68,8 +68,19 @@ struct nalAnimClass {
 
     void * CreateInstance(nalBaseSkeleton *skeleton);
 
+    void _Release() {
+    }
+
+    //virtual
+    void Release();
+
     //virtual
     void *VirtualCreateInstance(nalBaseSkeleton *Skel);
+
+    static tlFixedString * get_string(nalAnimClass<T> *a1)
+    {
+        return &a1->field_8;
+    }
 };
 
 struct nalBaseInstance : nalAnimClass<nalAnyPose>::nalInstanceClass {

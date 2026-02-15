@@ -92,6 +92,12 @@ void nalAnyPose::operator=(const nalAnyPose &a2)
 }
 
 template<>
+void nalAnimClass<nalAnyPose>::Release() {
+    void (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x8));
+    func(this);
+}
+
+template<>
 void *nalAnimClass<nalAnyPose>::VirtualCreateInstance(nalBaseSkeleton *Skel)
 {
     void * (__fastcall *func)(void *, void *, nalBaseSkeleton *) = CAST(func, get_vfunc(m_vtbl, 0x10));
