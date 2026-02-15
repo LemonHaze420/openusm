@@ -56,6 +56,11 @@ bool base_engine_resource_handler::_handle(worldly_resource_handler::eBehavior a
     }
 }
 
+void base_engine_resource_handler::_pre_handle_resources(worldly_resource_handler::eBehavior)
+{
+    ;
+}
+
 void base_engine_resource_handler::pre_handle_resources(worldly_resource_handler::eBehavior behavior)
 {
     void (__fastcall *func)(void *, int,
