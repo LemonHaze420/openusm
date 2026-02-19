@@ -3837,23 +3837,27 @@ struct nglTextureInfo {
     char field_80[4];
     char field_84[4];
     char field_88[4];
+    int field_8C;
+    int field_90;
 };
 
 bool nglLoadTextureTM2_internal(nglTexture *Tex, nglTextureInfo *TexInfo)
 {
-    TRACE("nglLoadTextureTM2_internal");
+    TRACE("nglLoadTextureTM2_internal", Tex->FileName.c_str());
 
     if constexpr (1)
     {
         assert(Tex != nullptr && "Cannot load a NULL texture !");
 
-        auto v3 = TexInfo->m_extension == 0x4D534444;
+        auto is_dds_format = TexInfo->m_extension == 0x4D534444;
 
         if (TexInfo->m_extension != 0x20534444 && TexInfo->m_extension != 0x4D534444) {
             auto *v2 = Tex->FileName.to_string();
             sp_log("NGL: %s does not seem to be a DDS or DDSMP file !\n", v2);
             return false;
         }
+
+        auto & header = TexInfo->Header;
 
         if (TexInfo->Header.Version != 124) {
             auto *v4 = Tex->FileName.to_string();
@@ -3873,27 +3877,24 @@ bool nglLoadTextureTM2_internal(nglTexture *Tex, nglTextureInfo *TexInfo)
             }
         }
 
-        auto *v5 = TexInfo->field_80;
-        char *a3 = TexInfo->field_80;
+        char *bufferData = TexInfo->field_80;
         uint16_t num_palettes = 0;
-        if (v3)
+        if (is_dds_format)
         {
-            auto v6 = *(uint16_t *) v5;
-            if (v6 == 0) {
+            num_palettes = bit_cast<uint16_t *>(bufferData)[0];
+            if (num_palettes == 0) {
                 auto *v6 = Tex->FileName.to_string();
                 sp_log("NGL: %s doesn't contain any palettes !\n", v6);
             }
 
-            num_palettes = *(uint16_t *) v5;
-
-            a3 = &TexInfo->field_88[32 * v6 + 128 - ((32 * (BYTE) v6 - 120) & 0x7F)];
+            bufferData = &TexInfo->field_88[32 * num_palettes + sizeof(nglTexture) - ((32 * (BYTE) num_palettes - 120) & 0x7F)];
             Tex->Frames = static_cast<nglTexture **>(tlMemAlloc(num_palettes << 7, 8, 0x1000000u));
             int v28 = 0;
-            if (num_palettes)
+            if (num_palettes != 0)
             {
                 auto v29 = 0u;
-                auto *v8 = TexInfo + 0x90;
-                for (auto *i = TexInfo + 0x90; v28 < num_palettes; v8 = i, ++v28) {
+                int *v8 = &TexInfo->field_90;
+                for (char *i = bit_cast<char *>(&TexInfo->field_90); v28 < num_palettes; v8 = bit_cast<int *>(i), ++v28) {
                     nglTexture *v9 = CAST(v9, &Tex->Frames[v29 / 4]);
                     *v9 = {};
                     v9->m_format = 17;
@@ -3904,28 +3905,25 @@ bool nglLoadTextureTM2_internal(nglTexture *Tex, nglTextureInfo *TexInfo)
                     v9->m_num_palettes = (int) Tex;
                     v9->Frames = v10;
                     v9->field_34 |= 8u;
-                    v9->field_48 = nglCreatePalette(0, 0x100u, a3);
+                    v9->field_48 = nglCreatePalette(0, 0x100u, bufferData);
 
                     nglTextureDirectory->Add(v9);
-                    v5 = a3 + 1024;
 
-                    a3 += 1024;
+                    bufferData += 1024;
 
                     v29 += 128;
                     i += 32;
                 }
-
-            } else {
-                v5 = a3;
             }
+
         } else {
             Tex->m_num_palettes = 0;
             Tex->Frames = nullptr;
         }
 
-        Tex->m_width = TexInfo->Header.Width;
-        Tex->m_height = TexInfo->Header.Height;
-        Tex->m_numLevel = TexInfo->Header.field_18;
+        Tex->m_width = header.Width;
+        Tex->m_height = header.Height;
+        Tex->m_numLevel = header.field_18;
 
         Tex->m_d3d_format = D3DFMT_UNKNOWN;
 
@@ -3938,8 +3936,8 @@ bool nglLoadTextureTM2_internal(nglTexture *Tex, nglTextureInfo *TexInfo)
             return (v1 * ((header.field_1C & a3) != 0)) | (a2 & (~v1));
         };
 
-        Tex->field_34 = func(TexInfo->Header, Tex->field_34, 1u);
-        Tex->field_34 = func(TexInfo->Header, Tex->field_34, 2u);
+        Tex->field_34 = func(header, Tex->field_34, 1u);
+        Tex->field_34 = func(header, Tex->field_34, 2u);
 
         if (!tlIsPow2(Tex->m_width) || !tlIsPow2(Tex->m_height)) {
             sp_log("Loaded textures (DDS) must have power of 2 dimensions !\n");
@@ -3949,130 +3947,115 @@ bool nglLoadTextureTM2_internal(nglTexture *Tex, nglTextureInfo *TexInfo)
             Tex->m_numLevel = 1;
         }
 
-        int v20 = ((0x800000 & TexInfo->Header.field_4) != 0 ? TexInfo->Header.field_14 : 0);
+        int v20 = ((0x800000 & header.field_4) != 0
+                ? header.field_14
+                : 0
+                );
 
         int a2a = 0;
-        if (v20) {
-        LABEL_32:
-            auto v22 = TexInfo->Header.field_4C;
-            if (v22 == 65 && TexInfo->Header.field_54 == 32 &&
-                TexInfo->Header.field_64 == 0xFF000000) {
-                Tex->m_d3d_format = D3DFMT_A8R8G8B8;
-                Tex->m_format |= 1;
-                goto LABEL_56;
-            }
+        if (v20 != 0 || header.field_50 != D3DFMT_DXT1) {
+            if (v20 != 0 || header.field_50 != D3DFMT_DXT2) {
+                if (v20 != 0 || header.field_50 != D3DFMT_DXT3) {
+                    if (v20 != 0 || header.field_50 != D3DFMT_DXT4) {
+                        if (v20 != 0 || header.field_50 != D3DFMT_DXT5) {
 
-            if (v22 == 64 && TexInfo->Header.field_54 == 16 && TexInfo->Header.field_5C == 0x7E0) {
-                Tex->m_d3d_format = D3DFMT_R5G6B5;
-                Tex->m_format |= 5;
-                goto LABEL_56;
-            }
+                            if (header.field_4C == 65 && header.field_54 == 32 && header.field_64 == 0xFF000000) {
+                                Tex->m_d3d_format = D3DFMT_A8R8G8B8;
+                                Tex->m_format |= 1;
+                            } else if (header.field_4C == 64 && header.field_54 == 16 && header.field_5C == 0x7E0) {
+                                Tex->m_d3d_format = D3DFMT_R5G6B5;
+                                Tex->m_format |= 5;
+                            } else if (header.field_4C == 65 && header.field_54 == 16 && header.field_64 == 0x8000) {
+                                Tex->m_d3d_format = D3DFMT_A1R5G5B5;
+                                Tex->m_format |= 3;
+                            } else if (header.field_4C == 65 && header.field_54 == 16 && header.field_64 == 0xF000) {
+                                Tex->m_d3d_format = D3DFMT_A4R4G4B4;
+                                Tex->m_format |= 2;
+                            } else {
+                                if (header.field_54 != 8) {
+                                    return false;
+                                }
 
-            if (v22 != 65) {
-                goto LABEL_47;
-            }
+                                switch (header.field_4C) {
+                                    case 0x20000:
+                                        Tex->m_d3d_format = D3DFMT_L8;
+                                        Tex->m_format |= 9;
+                                        break;
+                                    case 2:
+                                        Tex->m_d3d_format = D3DFMT_A8R8G8B8;
+                                        a2a = 10;
+                                        Tex->m_format |= 0xA;
+                                        break;
+                                    case 0x20001:
+                                        Tex->m_d3d_format = D3DFMT_A8R8G8B8;
+                                        a2a = 11;
+                                        Tex->m_format |= 0xB;
+                                        break;
+                                    default:
+                                        Tex->m_format |= 7;
+                                        Tex->m_d3d_format = D3DFMT_P8;
+                                        if (!is_dds_format) {
+                                            Tex->field_48 = nglCreatePalette(0, 256u, bufferData);
+                                            bufferData += 1024;
+                                        }
+                                        break;
+                                }
+                            }
 
-            if (TexInfo->Header.field_54 == 16 && TexInfo->Header.field_64 == 0x8000) {
-                Tex->m_d3d_format = D3DFMT_A1R5G5B5;
-                Tex->m_format |= 3;
-                goto LABEL_56;
-            }
+                        } else {
+                            Tex->m_d3d_format = D3DFMT_DXT5;
+                            Tex->m_format |= 1;
+                        }
 
-            if (TexInfo->Header.field_54 == 16 && TexInfo->Header.field_64 == 0xF000) {
-                Tex->m_d3d_format = D3DFMT_A4R4G4B4;
-                Tex->m_format |= 2;
-            } else {
-            LABEL_47:
-                if (TexInfo->Header.field_54 != 8) {
-                    return false;
-                }
-
-                switch (v22) {
-                case 0x20000:
-                    Tex->m_d3d_format = D3DFMT_L8;
-                    Tex->m_format |= 9;
-                    break;
-                case 2:
-                    Tex->m_d3d_format = D3DFMT_A8R8G8B8;
-                    a2a = 10;
-                    Tex->m_format |= 0xA;
-                    break;
-                case 0x20001:
-                    Tex->m_d3d_format = D3DFMT_A8R8G8B8;
-                    a2a = 11;
-                    Tex->m_format |= 0xB;
-                    break;
-                default:
-                    Tex->m_format |= 7;
-                    Tex->m_d3d_format = D3DFMT_P8;
-                    if (!v3) {
-                        Tex->field_48 = nglCreatePalette(0, 256u, v5);
-                        a3 += 1024;
+                    } else {
+                        Tex->m_d3d_format = D3DFMT_DXT4;
+                        Tex->m_format |= 1;
                     }
-                    break;
+
+                } else {
+                    Tex->m_d3d_format = D3DFMT_DXT3;
+                    Tex->m_format |= 1;
                 }
-            }
 
-        LABEL_56:
-            if (!v20) {
-                goto LABEL_57;
-            }
-
-            return false;
-        }
-
-        if (auto v21 = TexInfo->Header.field_50; v21 != D3DFMT_DXT1) {
-            switch (v21) {
-            case 0x32545844:
+            } else {
                 Tex->m_d3d_format = D3DFMT_DXT2;
                 Tex->m_format |= 1;
-                goto LABEL_57;
-            case 0x33545844:
-                Tex->m_d3d_format = D3DFMT_DXT3;
-                Tex->m_format |= 1;
-                goto LABEL_57;
-            case 0x34545844:
-                Tex->m_d3d_format = D3DFMT_DXT4;
-                Tex->m_format |= 1;
-                goto LABEL_57;
-            case 0x35545844:
-                Tex->m_d3d_format = D3DFMT_DXT5;
-                Tex->m_format |= 1;
-                goto LABEL_57;
-            default:
-                break;
             }
 
-            goto LABEL_32;
+        } else {
+            Tex->m_d3d_format = D3DFMT_DXT1;
+            Tex->m_format |= 1;
         }
 
-        Tex->m_d3d_format = D3DFMT_DXT1;
-        Tex->m_format |= 1;
-
-    LABEL_57:
+        if (v20 != 0) {
+            return false;
+        }
 
         if ((Tex->m_format & 0x10000000) != 0) {
             Tex->CreateTextureOrSurface();
 
-            sub_783080(Tex, (uint8_t **) &a3, (uint8_t *) TexInfo, a2a);
-            TexInfo->Header.field_7B = 77;
+            sub_783080(Tex, (uint8_t **) &bufferData, (uint8_t *) TexInfo, a2a);
+            header.field_7B = 77;
             return true;
         }
 
         Tex->CreateTextureOrSurface();
         if (LOBYTE(Tex->m_format) != 7 || !g_valid_texture_format) {
-            sub_783080(Tex, (uint8_t **) &a3, (uint8_t *) TexInfo, a2a);
-            TexInfo->Header.field_7B = 77;
+            sub_783080(Tex, (uint8_t **) &bufferData, (uint8_t *) TexInfo, a2a);
+            header.field_7B = 77;
             return true;
         }
 
         auto v25 = Tex->m_width * Tex->m_height;
         Tex->field_34 |= 8u;
-        std::memcpy(Tex->field_30, a3, v25);
-        TexInfo->Header.field_7B = 77;
+        std::memcpy(Tex->field_30, bufferData, v25);
+        header.field_7B = 77;
         return true;
     } else {
-        return (bool) CDECL_CALL(0x0077A420, Tex, TexInfo);
+        bool (*func)(nglTexture *, nglTextureInfo *) = CAST(func, 0x0077A420);
+
+        auto result = func(Tex, TexInfo);
+        return result;
     }
 }
 
