@@ -40,6 +40,7 @@
 #include "panelquadsection.h"
 #include "param_block.h"
 #include "path_graph.h"
+#include "patrol_def.h"
 #include "sound_alias_database.h"
 #include "token_def.h"
 #include "trace.h"
@@ -1981,6 +1982,49 @@ void mVector<entity_viseme_entry>::clear()
 }
 
 template<>
+void mVector<patrol_def>::destroy_element(patrol_def **a1)
+{
+    TRACE("mVector<patrol_def>::destroy_element");
+
+    if ( mContainer_base::is_pointer_in_mash_image(*a1) )
+    {
+        (*a1)->destruct_mashed_class();
+    }
+    else if ( *a1 )
+    {
+        delete (*a1);
+    }
+
+    (*a1) = nullptr;
+}
+
+template<>
+void mVector<patrol_def>::clear()
+{
+    if ( this->field_10 )
+    {
+        for ( int i = this->m_size; i > 0; --i ) {
+            this->destroy_element(&this->m_data[i]);
+        }
+    }
+
+    if ( !this->is_pointer_in_mash_image(this->m_data) ) {
+        mem_dealloc(this->m_data, 4 * this->m_max_size);
+    }
+
+    this->m_data = nullptr;
+    this->m_max_size = 0;
+    mContainer_base::clear();
+}
+
+template<>
+void mVector<patrol_def>::destruct_mashed_class()
+{
+    this->finalize(mash::FROM_MASH);
+    mContainer_base::destruct_mashed_class();
+}
+
+template<>
 void mVector<entity_viseme_entry>::destruct_mashed_class()
 {
     this->finalize(mash::FROM_MASH);
@@ -2028,6 +2072,25 @@ void mVector<trigger_region>::custom_unmash(mash_info_struct *a2, void *)
                 v7 - sizeof(trigger_region));
 
             v5->unmash(a2, nullptr);
+        }
+    }
+
+    this->field_0 = (int)&a2->mash_image_ptr[0][a2->buffer_size_used[0] - (DWORD)this];
+}
+
+template<>
+void mVector<patrol_def>::custom_unmash(mash_info_struct *a2, void *)
+{
+    if ( this->m_data != nullptr )
+    {
+        this->m_data = (patrol_def **) a2->read_from_buffer(4 * this->m_size, 4);
+        for ( int i = 0; i < this->m_size; ++i )
+        {
+            auto &v5 = this->m_data[i];
+            auto *v6 = (value_type *) a2->read_from_buffer(sizeof(value_type), 0);
+
+            v5 = v6;
+            v5->unmash(a2, v6);
         }
     }
 

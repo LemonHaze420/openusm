@@ -18,9 +18,15 @@ struct patrol_def {
 
     patrol_def(from_mash_in_place_constructor *a2);
 
+    void finalize(mash::allocation_scope);
+
+    void destruct_mashed_class();
+
     void initialize(mash::allocation_scope a2);
 
     void clear();
+
+    void unmash(mash_info_struct *a1, void *);
 
     string_hash get_id_hash() const {
         return this->field_0;

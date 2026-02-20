@@ -15,6 +15,7 @@
 #include "nugget.h"
 #include "panelfile.h"
 #include "path_graph.h"
+#include "patrol_def_set.h"
 #include "skeleton_interface.h"
 #include "sound_alias_database.h"
 #include "string_hash_entry.h"
@@ -250,5 +251,15 @@ void mash_info_struct::construct_class(base_ai_data *&a1)
     {
         from_mash_in_place_constructor *v1 = nullptr;
         *a1 = base_ai_data {v1};
+    }
+}
+
+template<>
+void mash_info_struct::construct_class(patrol_def_set *&a1)
+{
+    if ( a1 != nullptr )
+    {
+        from_mash_in_place_constructor *a2 = nullptr;
+        a1 = new (a1) patrol_def_set {a2};
     }
 }
