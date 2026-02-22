@@ -2691,7 +2691,7 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
                                 v8,
                                 v26,
                                 v27);
-                            Material->m_shader = &gEmptyShader();
+                            Material->m_shader = &gEmptyShader;
                         }
 
                     } else {
@@ -2699,7 +2699,7 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
                         auto *v9 = a2.c_str();
                         sp_log("NGL: Unable to find shader %s, used by material %s.\n", v9, v28);
 
-                        Material->m_shader = &gEmptyShader();
+                        Material->m_shader = &gEmptyShader;
                     }
                 }
 
@@ -2758,7 +2758,7 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
                             "shader %s\n.",
                             MeshSection->field_50,
                             v12);
-                        MeshSection->Material->m_shader = &gEmptyShader();
+                        MeshSection->Material->m_shader = &gEmptyShader;
                     }
 
                     auto *v27 = MeshSection->m_indices;
