@@ -17,12 +17,25 @@
 #include "func_wrapper.h"
 #include "trace.h"
 #include "utility.h"
+#include "worldly_pack_slot.h"
 
 VALIDATE_SIZE(panel_resource_handler, 0x14);
 
 panel_resource_handler::panel_resource_handler(worldly_pack_slot *a2)
 {
-    this->m_vtbl = 0x00888AC4;
+    if constexpr (1) {
+        static void * g_vtbl[] = {
+            func_address(&finalize),
+            func_address(&_handle),
+            func_address(&_pre_handle_resources),
+            func_address(&_handle_resource),
+        };
+
+        this->m_vtbl = CAST(m_vtbl, &g_vtbl);
+    } else {
+        this->m_vtbl = 0x00888AC4;
+    }
+
     this->my_slot = a2;
     this->field_10 = RESOURCE_KEY_TYPE_PANEL;
 }
@@ -40,9 +53,9 @@ bool panel_resource_handler::_handle_resource(worldly_resource_handler::eBehavio
 {
     TRACE("panel_resource_handler::handle_resource");
 
-    if constexpr (0)
-    {
 
+    if constexpr (1)
+    {
         const char * bosses[] = {
                                     "HG_BOSS_SPIDERMAN",
                                     "HG_BOSS_VENOM",
@@ -83,6 +96,10 @@ bool panel_resource_handler::_handle_resource(worldly_resource_handler::eBehavio
                                 "CHASE_METER_QUESTION"
                              };
 
+        auto &dir = this->my_slot->get_resource_directory();
+        auto *resource = dir.get_resource(a3, nullptr);
+        assert(resource != nullptr);
+
         if (behavior == worldly_resource_handler::UNLOAD)
         {
             if (g_femanager.IGO != nullptr)
@@ -96,7 +113,7 @@ bool panel_resource_handler::_handle_resource(worldly_resource_handler::eBehavio
                     }
                 }
 
-                for (uint32_t i {i}; i < std::size(third_party); ++i )
+                for (uint32_t i {0}; i < std::size(third_party); ++i )
                 {
                     if (a3->field_0.m_hash == third_party[i])
                     {
@@ -178,6 +195,7 @@ bool panel_resource_handler::_handle_resource(worldly_resource_handler::eBehavio
         else
         {
             if (a3->field_0.m_hash == string_hash{"HG_HERO_PETER"}) {
+
                 g_femanager.IGO->hero_health->Init(5, "HG_HERO_PETER", 0);
                 ++this->field_C;
                 return false;
@@ -206,7 +224,7 @@ bool panel_resource_handler::_handle_resource(worldly_resource_handler::eBehavio
                     return false;
                 }
 
-                for (uint32_t i {i}; i < std::size(third_party); ++i )
+                for (uint32_t i {0}; i < std::size(third_party); ++i )
                 {
                     if (a3->field_0.m_hash == third_party[i])
                     {
