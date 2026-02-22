@@ -42,7 +42,7 @@ int box_trigger_resource_handler::_get_num_resources() {
     return this->my_slot->box_trigger_instances->size();
 }
 
-bool box_trigger_resource_handler::_handle(worldly_resource_handler::eBehavior behavior, int , limited_timer *a5)
+bool box_trigger_resource_handler::_handle(worldly_resource_handler::eBehavior behavior, limited_timer *a5)
 {
     TRACE("box_trigger_resource_handler::handle");
 
@@ -86,7 +86,7 @@ void box_trigger_resource_handler_patch()
 {
     {
         FUNC_ADDRESS(address, &box_trigger_resource_handler::_handle);
-        //set_vfunc(0x00888A4C, address);
+        set_vfunc(0x00888A4C, address);
     }
 
     {
