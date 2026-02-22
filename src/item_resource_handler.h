@@ -17,7 +17,7 @@ struct item_resource_handler : base_entity_resource_handler {
     /* virtual */ int _get_num_resources() /* override */;
 
     //virtual
-    bool _handle(worldly_resource_handler::eBehavior behavior, int a4, limited_timer *a5);
+    bool _handle(worldly_resource_handler::eBehavior behavior, limited_timer *a5);
 
     //0x0056BF00
     /* virtual */ bool _handle_resource(eBehavior behavior) /* override */;

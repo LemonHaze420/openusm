@@ -43,7 +43,7 @@ int item_resource_handler::_get_num_resources() {
     return this->my_slot->item_instances->size();
 }
 
-bool item_resource_handler::_handle(worldly_resource_handler::eBehavior behavior, int , limited_timer *a5)
+bool item_resource_handler::_handle(worldly_resource_handler::eBehavior behavior, limited_timer *a5)
 {
     TRACE("item_resource_handler::handle");
 
@@ -104,7 +104,7 @@ void item_resource_handler_patch()
 {
     {
         FUNC_ADDRESS(address, &item_resource_handler::_handle);
-        //set_vfunc(0x00888A60, address);
+        set_vfunc(0x00888A60, address);
     }
 
     {
