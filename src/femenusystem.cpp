@@ -4,6 +4,7 @@
 #include "femenu.h"
 #include "func_wrapper.h"
 #include "input_mgr.h"
+#include "memory.h"
 #include "trace.h"
 #include "utility.h"
 #include "vtbl.h"
@@ -37,6 +38,14 @@ FEMenuSystem::FEMenuSystem(int a2, font_index a3)
     } else {
         THISCALL(0x00618760, this, a2, a3);
     }
+}
+
+void * FEMenuSystem::operator new(std::size_t sz) {
+    return mem_alloc(sz);
+}
+
+void FEMenuSystem::operator delete(void *ptr, std::size_t sz) {
+    mem_dealloc(ptr, sz);
 }
 
 void FEMenuSystem::MakeActive(int idx) {
