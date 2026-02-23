@@ -3,6 +3,7 @@
 #include "fixedstring.h"
 
 #include <float.hpp>
+#include <vtbl.h>
 
 #include <cstdint>
 
@@ -68,11 +69,28 @@ struct nalAnimClass {
 
     void * CreateInstance(nalBaseSkeleton *skeleton);
 
-    void _Release() {
+    void _Process() {}
+
+    //virtual
+    void Process() {
+        void (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x4));
+        func(this);
     }
+
+    void _Release() {}
 
     //virtual
     void Release();
+
+    //virtual
+    bool _CheckVersion() const {
+        return false;
+    }
+
+    bool CheckVersion() const {
+        bool (__fastcall *func)(const void *) = CAST(func, get_vfunc(m_vtbl, 0xC));
+        return func(this);
+    }
 
     //virtual
     void *VirtualCreateInstance(nalBaseSkeleton *Skel);
