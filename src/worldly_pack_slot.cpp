@@ -319,8 +319,28 @@ VALIDATE_SIZE(entity_resource_handler, 0x10);
 
 entity_resource_handler::entity_resource_handler(worldly_pack_slot *a2)
 {
-    this->m_vtbl = 0x00888A70;
+    if constexpr (1) {
+        static void * g_vtbl[] = {
+            func_address(&finalize),
+            func_address(&_handle),
+            func_address(&_get_num_resources),
+            func_address(&_handle_resource),
+            func_address(&_post_handle_resources),
+        };
+
+        this->m_vtbl = CAST(m_vtbl, &g_vtbl);
+    } else {
+        this->m_vtbl = 0x00888A70;
+    }
+
     this->my_slot = a2;
+}
+
+bool entity_resource_handler::_handle(worldly_resource_handler::eBehavior behavior, limited_timer *a5)
+{
+    TRACE("entity_resource_handler::handle");
+
+    return base_entity_resource_handler::_handle(behavior, a5);
 }
 
 int entity_resource_handler::_get_num_resources()
