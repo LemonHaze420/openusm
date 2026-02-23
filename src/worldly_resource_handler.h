@@ -24,6 +24,8 @@ struct worldly_resource_handler
 
     void operator delete(void *ptr, std::size_t sz);
 
+    void finalize(bool a2);
+
     /* virtual */ ~worldly_resource_handler() = default;
 
     /* virtual */ bool handle(eBehavior behavior, limited_timer *a5) /* = 0 */;
