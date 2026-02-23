@@ -7,13 +7,7 @@ struct PanelAnimFile;
 struct combo_words {
     PanelFile *field_0;
     PanelAnimFile *field_4;
-    FEText *field_8[1];
-    FEText *field_C;
-    FEText *field_10;
-    FEText *field_14;
-    FEText *field_18;
-    FEText *field_1C;
-    FEText *field_20;
+    FEText *field_8[7];
     int field_24;
     float field_28;
 
@@ -23,3 +17,5 @@ struct combo_words {
 
     void DeInit();
 };
+
+extern void combo_words_patch();
