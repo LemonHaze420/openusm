@@ -58,7 +58,7 @@ int CharComponentBase::_GetSizeOfPerInstData(
 {
     TRACE("CharComponentBase::GetSizeOfPerInstData");
 
-    if constexpr (0) {
+    if constexpr (1) {
         assert(this->m_pSubComponent != nullptr
                 && "Must have a subcomponent in order to delegate to it.");
       

@@ -15,7 +15,7 @@ bool base_entity_resource_handler::_handle(worldly_resource_handler::eBehavior b
 {
     TRACE("base_entity_resource_handler::handle");
 
-    if constexpr (0)
+    if constexpr (1)
     {
         if (this->field_4.is_done() || behavior == LOAD) {
             return false;

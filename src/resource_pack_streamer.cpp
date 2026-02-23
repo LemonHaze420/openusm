@@ -504,7 +504,8 @@ void resource_pack_streamer::load(const char *a2,
 void resource_pack_streamer::frame_advance(Float a2, limited_timer *a3)
 {
     TRACE("resource_pack_streamer::frame_advance");
-    if constexpr (0)
+
+    if constexpr (1)
     {
         if (this->active) {
             if (this->currently_streaming) {
