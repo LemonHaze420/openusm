@@ -147,11 +147,10 @@ void FrontEnd_Shader::Register() {
             }
 
         } else {
-            static Var<IDirect3DVertexDeclaration9 *> dword_973938{0x00973938};
-            if (dword_973938() == nullptr) {
+            if (dword_9738E0[22] == nullptr) {
                 IDirect3DDevice9_CreateVertexDeclaration(g_Direct3DDevice,
                                                                     &stru_91E2BC,
-                                                                    &dword_973938());
+                                                                    &dword_9738E0[22]);
             }
         }
 
