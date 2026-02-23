@@ -305,6 +305,13 @@ void FrontEndMenuSystem::MakeActive(int a2) {
     this->UpdateButtonDown();
 }
 
+void FrontEndMenuSystem::_LoadAll()
+{
+    TRACE("FrontEndMenuSystem::LoadAll");
+
+    this->field_7C = PanelFile::UnmashPanelFile("main_menu", static_cast<panel_layer>(7));
+}
+
 void FrontEndMenuSystem::RenderLoadMeter(bool a1)
 {
     if constexpr (1) {
@@ -505,7 +512,15 @@ void FrontEndMenuSystem::sub_6342D0() {
     THISCALL(0x006342D0, this);
 }
 
-void FrontEndMenuSystem_patch() {
+void FrontEndMenuSystem_patch()
+{
+    {
+        FUNC_ADDRESS(address, &FrontEndMenuSystem::_LoadAll);
+        set_vfunc(0x0089A2B0, address);
+    }
+
+    return;
+
     FUNC_ADDRESS(address, &FrontEndMenuSystem::MakeActive);
     set_vfunc(0x0089A27C, address);
 

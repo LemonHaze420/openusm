@@ -51,6 +51,10 @@ struct FrontEndMenuSystem : FEMenuSystem {
     //0x0060C1E0
     /* virtual */ void MakeActive(int a2);
 
+    //0x006431B0
+    //virtual
+    void _LoadAll();
+
     void BringUpDialogBox(int a2, FrontEndMenuSystem::fe_state a3, FrontEndMenuSystem::fe_state a4);
 
     void sub_60C290();
