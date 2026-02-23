@@ -350,7 +350,9 @@ bool resource_directory::find_resource(const resource_key &a2,
                                        resource_directory **out_dir,
                                        resource_location **out_loc)
 {
-    TRACE("resource_directory::find_resource", a2.get_platform_string(g_platform).c_str());
+    TRACE("resource_directory::find_resource");
+    sp_log("%s", a2.get_platform_string(g_platform).c_str());
+
     if constexpr (1)
     {
         assert(out_dir != nullptr && out_loc != nullptr);
@@ -366,7 +368,6 @@ bool resource_directory::find_resource(const resource_key &a2,
         assert(begin_idx >= 0 && end_idx <= this->resource_locations.size());
 
         auto *v14 = this->resource_locations.m_data;
-
         auto index = 0;
         if (binary_search_array_cmp<const resource_key, resource_location>(
                 &a2,
@@ -420,6 +421,7 @@ bool resource_directory::find_resource(const resource_key &a2,
                         auto v25 = this->pack_slot->get_name_key().m_hash;
 
                         auto v23 = a2.get_platform_string(g_platform);
+
                         auto *v21 = v28.to_string();
                         auto *v19 = v25.to_string();
                         auto *v13 = v23.c_str();
@@ -711,7 +713,7 @@ bool resource_directory::find_tlresource(uint32_t a1,
 {
     TRACE("resource_directory::find_tlresource", std::to_string(a1).c_str());
 
-    if constexpr (0)
+    if constexpr (1)
     {
         assert(tlres_type >= TLRESOURCE_TYPE_NONE && tlres_type < TLRESOURCE_TYPE_Z);
 
