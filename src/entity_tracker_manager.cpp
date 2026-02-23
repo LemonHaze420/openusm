@@ -1,6 +1,15 @@
 #include "entity_tracker_manager.h"
 
+#include "common.h"
 #include "entity_tracker.h"
+
+VALIDATE_SIZE(entity_tracker_manager, 0x50u);
+
+entity_tracker_manager::entity_tracker_manager() : tracker_slot_pool(128)
+{
+    this->field_48 = {};
+    this->field_4C = false;
+}
 
 entity_tracker *entity_tracker_manager::id_to_ptr(uint32_t a2) {
     slot_pool<entity_tracker*, unsigned int>::slot_t *v2;
