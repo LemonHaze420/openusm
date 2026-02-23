@@ -946,6 +946,9 @@ extern void nglRotateQuad(nglQuad *a2, Float a3, Float a4, Float a5);
 //0x0076E3E0
 extern void nglInit(HWND hWnd);
 
+//0x0076F420
+extern void nglMeshInit();
+
 extern void nglTextureInit();
 
 extern void sub_769DE0(int a1);

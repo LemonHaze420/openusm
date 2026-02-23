@@ -22,13 +22,6 @@ VALIDATE_SIZE(nglMeshParams, 0x20);
 
 VALIDATE_SIZE(nglMesh, 0x40);
 
-void nglMeshInit()
-{
-    TRACE("nglMeshInit");
-
-    CDECL_CALL(0x0076F420);
-}
-
 vector4d sub_76EE90(const vector4d &a2, const vector4d &a3)
 {
     auto v7 = a3[2];

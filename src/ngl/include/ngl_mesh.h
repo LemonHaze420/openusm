@@ -54,9 +54,6 @@ struct nglMesh {
     static tlHashString * get_string(nglMesh *Mesh);
 };
 
-//0x0076F420
-extern void nglMeshInit();
-
 //0x00770230
 extern math::MatClass<4, 3> *nglListAddMesh_GetScaledMatrix(const math::MatClass<4, 3> &a1,
                                                             nglMeshParams *a2,

@@ -114,8 +114,6 @@ bool & g_valid_texture_format = var<bool>(0x00971F9D);
 
 uint32_t & nglTextureAnimFrame = var<uint32_t>(0x0097383C);
 
-tlInstanceBank & nglVertexDefBank = var<tlInstanceBank>(0x009728A0);
-
 VALIDATE_SIZE(nglDebugStruct, 0x28);
 VALIDATE_OFFSET(nglDebugStruct, ShowPerfInfo, 0x18);
 
@@ -166,6 +164,8 @@ auto & nglMaterialDirectory =
     var<tlInstanceBankResourceDirectory<nglMaterialBase, tlHashString> *>(0x0095C1A0);
 
 char (& nglMeshPath)[256] = var<char[256]>(0x00972710);
+
+tlInstanceBank & nglVertexDefBank = var<tlInstanceBank>(0x009728A0);
 
 int (& dword_975BE8)[1024] = var<int[1024]>(0x00975BE8);
 int & dword_975BE0 = var<int>(0x00975BE0);
@@ -237,6 +237,11 @@ auto & nglMaterialDirectory = []() -> auto & {
 char (& nglMeshPath)[256] = []() -> auto & {
     static char g_nglMeshPath[256] {};
     return g_nglMeshPath;
+}();
+
+tlInstanceBank & nglVertexDefBank = []() -> auto & {
+    static tlInstanceBank g_nglVertexDefBank {};
+    return g_nglVertexDefBank;
 }();
 
 int (& dword_975BE8)[1024] = []() -> auto & {
@@ -5576,6 +5581,32 @@ void nglInit(HWND hWnd)
     else
     {
         CDECL_CALL(0x0076E3E0, hWnd);
+    }
+}
+
+void nglMorphInit() {
+    nglMorphFileDirectory = new tlInstanceBankResourceDirectory<nglMorphFile, tlFixedString> {};
+}
+
+void nglMeshInit()
+{
+    TRACE("nglMeshInit");
+
+    if constexpr (1) {
+        nglMeshPath[0] = 0;
+
+        nglMeshFileDirectory = new tlInstanceBankResourceDirectory<nglMeshFile, tlFixedString> {};
+
+        nglMeshDirectory = new tlInstanceBankResourceDirectory<nglMesh, tlHashString> {};
+
+        nglMorphDirectory = new tlInstanceBankResourceDirectory<nglMorphSet, tlHashString> {};
+
+        nglVertexDefBank.Init();
+        nglShaderBank.Init();
+
+        nglMorphInit();
+    } else {
+        CDECL_CALL(0x0076F420);
     }
 }
 
