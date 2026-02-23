@@ -14,9 +14,9 @@
 #include "tlresourcedirectory.h"
 #include "tlresource_directory.h"
 #include "trace.h"
+#include "us_frontend.h"
 #include "utility.h"
 #include "variable.h"
-#include "variables.h"
 #include "vtbl.h"
 
 #include <cassert>
@@ -30,8 +30,6 @@ VALIDATE_SIZE(tldir_t::Impl, 0x10);
 VALIDATE_SIZE(tldir_t::Node, 0x8);
 
 auto & tlHostPrefix = var<char[256]>(0x00970D88);
-
-tlInstanceBank & nglShaderBank = var<tlInstanceBank>(0x00972840);
 
 #ifndef STANDALONE_SYSTEM
 #error "Not defined macro STANDALONE_SYSTEM"
@@ -47,6 +45,8 @@ static int & tlStackBegin = var<int>(0x00970E88);
 static int & tlStackEnd = var<int>(0x00970E8C);
 
 int & tlScratchPadRefCount = var<int>(0x00970D5C);
+
+tlInstanceBank & nglShaderBank = var<tlInstanceBank>(0x00972840);
 
 #else
 
@@ -75,193 +75,21 @@ int & tlScratchPadRefCount = []() -> auto & {
     return g_tlScratchPadRefCount;
 }();
 
+tlInstanceBank & nglShaderBank = []() -> auto & {
+    static tlInstanceBank g_nglShaderBank {};
+    return g_nglShaderBank;
+}();
+
+FrontEnd_Shader & gFrontEnd_Shader = []() -> auto & {
+    static FrontEnd_Shader g_shader {};
+    return g_shader;
+}();
+
+tlInitListFunction InitList_Init_nglVertexDef_FrontEnd_builder {
+    &Init_nglVertexDef_FrontEnd_builder
+};
+
 #endif
-
-template<>
-void *tlInstanceBankResourceDirectory<nglFont, tlFixedString>::Add(nglFont *p_font) {
-    return (int *) THISCALL(0x00773F60, this, p_font);
-}
-
-template<>
-int tlInstanceBankResourceDirectory<nglTexture, tlFixedString>::Impl::sub_770B80() {
-    auto v2 = 0;
-
-    int v3;
-    do {
-        v3 = this->field_0 & 3;
-        if (v3 == 0) {
-            ++v2;
-        }
-
-        this->field_0 >>= 2;
-        if (this->field_4-- == 1) {
-            this->field_0 = rand();
-            this->field_4 = 7;
-        }
-
-    } while (v3 == 0);
-
-    auto result = 15;
-    if (v2 <= 15) {
-        result = v2;
-    }
-
-    return result;
-}
-
-template<>
-tlInstanceBankResourceDirectory<nalAnimFile, tlFixedString>::tlInstanceBankResourceDirectory() {
-
-#if !STANDALONE_SYSTEM
-    m_vtbl = 0x008BDC98;
-#else
-    static void * g_vtbl [] {
-        func_address(&finalize),
-    };
-
-    m_vtbl = CAST(m_vtbl, &g_vtbl);
-#endif
-
-    field_4.field_0 = rand();
-    field_4.field_4 = 7;
-    field_4.field_8 = nullptr;
-}
-
-template<>
-tlInstanceBankResourceDirectory<nalAnimClass<nalAnyPose>,
-                                tlFixedString>::tlInstanceBankResourceDirectory() {
-    m_vtbl = 0x008BDCEC;
-
-    field_4.field_0 = rand();
-    field_4.field_4 = 7;
-    field_4.field_8 = nullptr;
-}
-
-template<>
-tlInstanceBankResourceDirectory<nalSceneAnim, tlFixedString>::tlInstanceBankResourceDirectory() {
-    m_vtbl = 0x008BDD40;
-
-    field_4.field_0 = rand();
-    field_4.field_4 = 7;
-    field_4.field_8 = nullptr;
-}
-
-template<>
-tlInstanceBankResourceDirectory<nglPaletteFile, tlFixedString>::tlInstanceBankResourceDirectory() {
-    m_vtbl = 0x008B8D68;
-
-    field_4.field_0 = rand();
-    field_4.field_4 = 7;
-    field_4.field_8 = nullptr;
-}
-
-
-template<>
-void tlInstanceBankResourceDirectory<nglTexture, tlFixedString>::Impl::Init() {
-    this->m_size = 0;
-    this->field_8 = this->NewNodeOfLevel(15);
-
-    for (auto i = 0; i < 16; ++i) {
-        this->field_8->field_4[i] = nullptr;
-    }
-}
-
-//0x00773CE0
-template<>
-void *tlInstanceBankResourceDirectory<nglTexture, tlFixedString>::Add(nglTexture *tex)
-{
-    TRACE("tlInstanceBankResourceDirectory<nglTexture, tlFixedString>::Add");
-
-    if constexpr (1) {
-        auto *v2 = &this->field_4;
-        auto v3 = v2;
-        auto v20 = v2;
-        if (v2->field_8 == nullptr) {
-            v2->Init();
-        }
-
-        auto v4 = v3->field_8;
-        auto v21 = v3->m_size;
-        auto *str0 = &tex->field_60;
-        auto v22 = v4;
-
-        Node *v23[16]{};
-
-        Node *v7 = nullptr;
-        do {
-            v7 = v4->field_4[v21];
-            if (v7 != nullptr) {
-                do {
-                    auto i = 0;
-                    auto *v9 = &tex->field_60;
-                    while ((*(&str0->m_hash + i)) == (*(&v7->field_0->field_60.m_hash + i))) {
-                        ++i;
-                        ++v9;
-                        if (i >= 8) {
-                            goto LABEL_11;
-                        }
-                    }
-
-                    if ((*(&str0->m_hash + i) < *(&v7->field_0->field_60.m_hash + i) ? 1 : -1) >=
-                        0) {
-                        break;
-                    }
-
-                    v22 = v7;
-                    v7 = v7->field_4[v21];
-                } while (v7);
-            LABEL_11:
-
-                v3 = v20;
-            }
-
-            v4 = v22;
-            v23[v21--] = v22;
-
-        } while (v21 >= 0);
-
-        if (v7 != nullptr) {
-            auto func = [](const tlFixedString &a1, const tlFixedString &a2) -> bool {
-                for (int i = 0; i < 8; ++i) {
-                    if (*(&a1.m_hash + i) != *(&a2.m_hash + i)) {
-                        return false;
-                    }
-                }
-
-                return true;
-            };
-
-            auto *v10 = v7->field_0;
-            if (func(v10->field_60, *str0)) {
-                return v10;
-            }
-        }
-
-        auto v14 = v3->sub_770B80();
-        auto v15 = v3->m_size;
-        if (v14 > v15) {
-            auto *v16 = v3->field_8;
-            v14 = v15 + 1;
-            v3->m_size = v15 + 1;
-            v23[v15 + 1] = v16;
-        }
-
-        printf("v14 = %d\n", v14);
-        auto *v17 = static_cast<Node *>(tlMemAlloc(4 * v14 + 8, 8, 0x1000000u));
-        v17->field_0 = tex;
-        auto *v18 = &v17->field_4[v14];
-        do {
-            auto *v19 = v23[v14];
-            *v18 = v19->field_4[v14];
-            v19->field_4[v14--] = v17;
-            --v18;
-        } while (v14 >= 0);
-
-        return nullptr;
-    } else {
-        return (void *) THISCALL(0x00773CE0, this, tex);
-    }
-}
 
 template<>
 nglFont *tlInstanceBankResourceDirectory<nglFont, tlFixedString>::Impl::Find(
@@ -304,16 +132,6 @@ nglFont *tlInstanceBankResourceDirectory<nglFont, tlFixedString>::Impl::Find(
     }
 
     return nullptr;
-}
-
-template<>
-nglFont *tlInstanceBankResourceDirectory<nglFont, tlFixedString>::_Find(const tlFixedString &a1) {
-    if constexpr (0) {
-        return this->field_4.Find(a1);
-
-    } else {
-        return (nglFont *) THISCALL(0x00773E20, this, &a1);
-    }
 }
 
 void tlReleaseFile(tlFileBuf *File)
@@ -508,155 +326,6 @@ void set_tl_system_directories()
     }
 }
 
-template<>
-nalBaseSkeleton *
-tlInstanceBankResourceDirectory<nalBaseSkeleton, tlFixedString>::Impl::Find(const tlFixedString &a2)
-{
-    TRACE("tlInstanceBankResourceDirectory<nalBaseSkeleton, tlFixedString>::Find");
-
-    if ( this->field_8 == nullptr ) {
-        return nullptr;
-    }
-
-    auto *v7 = this->field_8;
-    int size = this->m_size;
-
-    Node *v6;
-    do
-    {
-        while ( 1 )
-        {
-            v6 = v7->field_4[size];
-            if ( v6 == nullptr ) {
-                break;
-            }
-
-            auto *v3 = v6->GetString();
-            auto v5 = v3->compare(a2);
-            if ( v5 == 0 ) {
-                return v6->field_0;
-            }
-
-            if ( v5 > 0 ) {
-                break;
-            }
-
-            v7 = v6;
-        }
-
-        --size;
-    }
-    while ( size >= 0 );
-
-    if ( v6 != nullptr ) {
-        auto v4 = *v6->GetString();
-        if (v4 == a2) {
-            return v6->field_0;
-        }
-    }
-
-    return nullptr;
-}
-
-template<>
-void * tlInstanceBankResourceDirectory<nalBaseSkeleton, tlFixedString>::Add(nalBaseSkeleton *a1)
-{
-    TRACE("tlInstanceBankResourceDirectory<nalBaseSkeleton, tlFixedString>::Add");
-
-    if constexpr (0) {
-    } else {
-        void * (__fastcall *func)(void *, void *edx, nalBaseSkeleton *) = CAST(func, 0x0078A230);
-        return func(this, nullptr, a1);
-    }
-}
-
-
-//0x005606D0
-template<>
-int tlResourceDirectory<nglTexture, tlFixedString>::Release(nglTexture *a1, int a2, bool a3) {
-    return this->StandardRelease(a1, a2, a3);
-}
-
-//0x00773B90
-template<>
-nglTexture *tlInstanceBankResourceDirectory<nglTexture, tlFixedString>::_Find(
-    const tlFixedString &a1) {
-    if constexpr (0) {
-        return this->Find(a1);
-
-    } else {
-        return (nglTexture *) THISCALL(0x00773B90, this, &a1);
-    }
-}
-
-//0x00773C60
-template<>
-bool tlInstanceBankResourceDirectory<nglTexture, tlFixedString>::_Del(nglTexture *tex) {
-    auto result = (bool) THISCALL(0x00773C60, this, tex);
-
-    return result;
-}
-
-template<>
-bool tlInstanceBankResourceDirectory<nalBaseSkeleton, tlFixedString>::_Del(nalBaseSkeleton *skel) {
-    if constexpr (0) {
-    } else {
-        auto result = (bool) THISCALL(0x0078A1C0, this, skel);
-
-        return result;
-    }
-}
-
-template<>
-bool tlInstanceBankResourceDirectory<nglMesh, tlHashString>::_Del(nglMesh *a2) {
-    return (bool) THISCALL(0x00770850, this, a2);
-}
-
-//0x00773C70
-template<>
-tlInstanceBankResourceDirectory<nglTexture, tlFixedString>::SkipListIterator *
-tlInstanceBankResourceDirectory<nglTexture, tlFixedString>::_Enumerate() {
-    if constexpr (1) {
-        auto *iter = static_cast<SkipListIterator *>(tlMemAlloc(0xC, 8, 0x1000000u));
-        if (iter == nullptr) {
-            return nullptr;
-        }
-
-        iter->m_vtbl = 0x008B8D40;
-        iter->field_4 = &this->field_4;
-        auto *v3 = this->field_4.field_8;
-        if (v3 != nullptr) {
-            iter->field_8 = v3->field_4[0];
-        } else {
-            iter->field_8 = nullptr;
-        }
-
-        return iter;
-    } else {
-        return (tlInstanceBankResourceDirectory<nglTexture, tlFixedString>::SkipListIterator *)
-            THISCALL(0x00773C70, this);
-    }
-}
-
-template<>
-tlInstanceBankResourceDirectory<nalBaseSkeleton, tlFixedString>::SkipListIterator * tlInstanceBankResourceDirectory<nalBaseSkeleton,tlFixedString>::_Enumerate()
-{
-    if constexpr (1) {
-        auto *mem = tlMemAlloc(
-                sizeof(SkipListIterator),
-                8u,
-                0x2000000u);
-
-        auto *result = new (mem) SkipListIterator {&this->field_4};
-
-        return result;
-    } else {
-        SkipListIterator * (__fastcall *func)(void *) = CAST(func, 0x00773C70);
-
-        return func(this);
-    }
-}
-
 //0x0078A160
 template<>
 void tlInstanceBankResourceDirectory<nglTexture, tlFixedString>::SkipListIterator::reset() {
@@ -695,310 +364,26 @@ void tlInstanceBankResourceDirectory<nglTexture, tlFixedString>::SkipListIterato
     }
 }
 
-//0x00560770
-template<>
-void tlResourceDirectory<nglTexture, tlFixedString>::ReleaseAll(bool a2, bool a3, int a4) {
+void tlInitList::Register() {
+    void (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x0));
+    func(this);
+}
+
+tlInitListFunction::tlInitListFunction(void (*cb)()) : field_8(cb) {
     if constexpr (1) {
-        //sp_log("ReleaseAll: %d", a4);
-
-        struct {
-            int field_0[1];
-            char * (__fastcall *DirectoryName)(void *);
-            int field_8[4];
-
-            tlInstanceBankResourceDirectory<nglTexture, tlFixedString>::SkipListIterator * (
-                __fastcall *Enumerate)(void *);
-            int field_1[3];
-            int(__fastcall *Release)(void *, void *, nglTexture *, int, bool);
-        } *vtbl = CAST(vtbl, this->m_vtbl);
-
-        auto *iter = vtbl->Enumerate(this);
-        for (int i = 1; i <= a4; ++i) {
-            iter->reset();
-            while ((*iter)()) {
-                auto *v7 = *(*iter);
-                auto v8 = vtbl->Release(this, nullptr, v7, i, a3);
-                if (v8 > 0) {
-                    ++(*iter);
-                } else {
-                    iter->reset();
-                }
-
-                if (!v8 && a2) {
-                    vtbl->DirectoryName(this);
-                }
-            }
-        }
-
-        if (iter != nullptr) {
-            iter->~SkipListIterator();
-        }
+        static void * g_vtbl[] {
+            func_address(&_Register)
+        };
+        this->m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {
-        THISCALL(0x00560770, this, a2, a3, a4);
+        this->m_vtbl = 0x0086F85C;
     }
 }
 
-template<>
-void tlInstanceBankResourceDirectory<nglMeshFile, tlFixedString>::Impl::Init() {
-    this->m_size = 0;
-    this->field_8 = this->NewNodeOfLevel(15);
-    for (int i = 0; i < 16; ++i) {
-        this->field_8->field_4[i] = nullptr;
-    }
-}
-
-template<>
-int tlInstanceBankResourceDirectory<nglMeshFile, tlFixedString>::Impl::sub_770B80() {
-    auto v2 = 0;
-
-    int v3;
-    do {
-        v3 = this->field_0 & 3;
-        if (v3 == 0) {
-            ++v2;
-        }
-
-        this->field_0 >>= 2;
-        if (this->field_4-- == 1) {
-            this->field_0 = rand();
-            this->field_4 = 7;
-        }
-
-    } while (!v3);
-
-    auto result = 15;
-    if (v2 <= 15) {
-        result = v2;
-    }
-
-    return result;
-}
-
-template<>
-void *tlInstanceBankResourceDirectory<nglMeshFile, tlFixedString>::Impl::Add(nglMeshFile *meshFile) {
-    if (this->field_8 == nullptr) {
-        this->Init();
-    }
-
-    Node *v11[16]{};
-
-    auto *a1a = nglMeshFile::get_string(meshFile);
-    auto v9 = this->field_8;
-    auto v12 = this->m_size;
-
-    Node *v7 = nullptr;
-    for (; v12 >= 0; --v12) {
-        while (1) {
-            v7 = v9->field_4[v12];
-            if (v7 == nullptr) {
-                break;
-            }
-
-            auto *v2 = nglMeshFile::get_string(v7->field_0);
-            if (v2->compare(*a1a) >= 0) {
-                break;
-            }
-
-            v9 = v7;
-        }
-
-        v11[v12] = v9;
-    }
-
-    if (v7 != nullptr) {
-        auto *v3 = nglMeshFile::get_string(v7->field_0);
-        if (*v3 == *a1a) {
-            return v7->field_0;
-        }
-    }
-
-    v12 = this->sub_770B80();
-    if (v12 > this->m_size) {
-        v12 = ++this->m_size;
-        v11[v12] = this->field_8;
-    }
-
-    Node *v8 = this->NewNodeOfLevel(v12);
-    v8->field_0 = meshFile;
-    do {
-        auto *v10 = v11[v12];
-        v8->field_4[v12] = v10->field_4[v12];
-        v10->field_4[v12--] = v8;
-    } while (v12 >= 0);
-    return nullptr;
-}
-
-template<>
-void *tlInstanceBankResourceDirectory<nglMeshFile, tlFixedString>::Add(nglMeshFile *Mesh) {
-    return this->field_4.Add(Mesh);
-}
-
-template<>
-nglMeshFile *tlInstanceBankResourceDirectory<nglMeshFile, tlFixedString>::Impl::Find(
-    const tlFixedString &a2) {
-    if (this->field_8 == nullptr) {
-        return nullptr;
-    }
-
-    auto *iter = this->field_8;
-    int size = this->m_size;
-
-    Node *v6;
-    do {
-        while (1) {
-            v6 = iter->field_4[size];
-            if (v6 == nullptr) {
-                break;
-            }
-
-            tlFixedString *v3 = v6->GetString();
-
-            auto v5 = v3->compare(a2);
-            if (v5 == 0) {
-                return v6->field_0;
-            }
-
-            if (v5 > 0) {
-                break;
-            }
-
-            iter = v6;
-        }
-
-        --size;
-    } while (size >= 0);
-
-    if (v6 != nullptr) {
-        tlFixedString *v4 = nglMeshFile::get_string(v6->field_0);
-        if (v4->compare(a2)) {
-            return v6->field_0;
-        }
-    }
-
-    return nullptr;
-}
-
-template<>
-nglMeshFile *tlInstanceBankResourceDirectory<nglMeshFile, tlFixedString>::_Find(
-    const tlFixedString &a2) {
-    if constexpr (1) {
-        return this->field_4.Find(a2);
-
-    } else {
-        return (nglMeshFile *) THISCALL(0x00778CE0, this, &a2);
-    }
-}
-
-template<>
-nglMesh *tlInstanceBankResourceDirectory<nglMesh, tlHashString>::Impl::Find(const tlHashString &a2) {
-    if (this->field_8 == nullptr) {
-        return nullptr;
-    }
-
-    Node *v7 = this->field_8;
-    Node *v6 = nullptr;
-    for (auto i = this->m_size; i >= 0; --i)
-    {
-        v6 = v7->field_4[i];
-        if (v6 == nullptr) {
-            break;
-        }
-
-        auto *v3 = nglMesh::get_string(v6->field_0);
-        auto v5 = v3->compare(*bit_cast<tlFixedString *>(&a2));
-        if (v5 == 0) {
-            return v6->field_0;
-        }
-
-        if (v5 > 0) {
-            break;
-        }
-
-        v7 = v6;
-    }
-
-    if (v6 != nullptr) {
-        const auto v4 = *nglMesh::get_string(v6->field_0);
-        if (v4 == *bit_cast<tlFixedString *>(a2)) {
-            return v6->field_0;
-        }
-    }
-
-    return nullptr;
-}
-
-template<>
-nglMesh *tlInstanceBankResourceDirectory<nglMesh, tlHashString>::_Find(const tlHashString &a2) {
-    if constexpr (1) {
-        return this->field_4.Find(a2);
-    } else {
-        return (nglMesh *) THISCALL(0x00770C30, this, &a2);
-    }
-}
-
-template<>
-tlInstanceBankResourceDirectory<nglTexture, tlFixedString>::tlInstanceBankResourceDirectory()
+void tlInitListFunction::_Register()
 {
-#if !STANDALONE_SYSTEM
-    m_vtbl = 0x008B8D14;
-#else
-    nglTexture * (tlResourceDirectory<nglTexture, tlFixedString>::*Find1)(unsigned int) = &tlResourceDirectory<nglTexture, tlFixedString>::_Find;
-    static void * g_vtbl[] = {
-        func_address(&finalize),
-        func_address(&DirectoryName),
-        func_address(Find1),
-        func_address(&_Find),
-        func_address(&Add),
-        func_address(&Del),
-        func_address(&Enumerate),
-        func_address(&ReleaseAll),
-        func_address(&Load),
-        func_address(&Load),
-        func_address(&Release)
-    };
-    m_vtbl = CAST(m_vtbl, &g_vtbl);
-#endif
-
-    field_4.field_0 = rand();
-    field_4.field_4 = 7;
-    field_4.field_8 = nullptr;
+    this->field_8();
 }
-
-template<>
-tlInstanceBankResourceDirectory<nalBaseSkeleton, tlFixedString>::tlInstanceBankResourceDirectory() {
-
-#if !STANDALONE_SYSTEM
-    m_vtbl = 0x008BDD94;
-#else
-
-    nalBaseSkeleton * (tlResourceDirectory<nalBaseSkeleton, tlFixedString>::*Find1)(unsigned int) = &tlResourceDirectory<nalBaseSkeleton, tlFixedString>::_Find;
-
-    static void * g_vtbl[] {
-        func_address(finalize),
-        func_address(DirectoryName),
-        func_address(Find1),
-        func_address(&_Find),
-        func_address(&Add),
-        func_address(&_Del),
-        func_address(&_Enumerate),
-        func_address(&ReleaseAll),
-        func_address(&Load),
-        func_address(&Load),
-        func_address(&_Release)
-    };
-
-    m_vtbl = CAST(m_vtbl, &g_vtbl);
-#endif
-
-    field_4.field_0 = rand();
-    field_4.field_4 = 7;
-    field_4.field_8 = nullptr;
-}
-
-
-struct tlInitList {
-    static inline auto & head = var<void *>(0x00970D4C);
-};
 
 void tlInitListInit()
 {
@@ -1006,12 +391,13 @@ void tlInitListInit()
 
     if constexpr (1)
     {
-        for (auto *shader = static_cast<nglShader *>(tlInitList::head);
-                shader != nullptr;
-                shader = shader->field_4) {
-            void (__fastcall *Register)(void *) = CAST(Register, get_vfunc(shader->m_vtbl, 0x0));
-            Register(shader);
+        for (auto *item = tlInitList::head;
+                item != nullptr;
+                item = item->field_4)
+        {
+            item->Register();
         }
+
     } else {
         CDECL_CALL(0x00749FD0);
     }
