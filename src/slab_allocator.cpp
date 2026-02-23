@@ -51,26 +51,28 @@ int full_slab_count[MAX_COUNT]{};
 int free_slab_count{};
 int total_slab_count{};
 
-#if 0
+#if !STANDALONE_SYSTEM
 
-static bool & initialized = var<bool>(0x00965F33);
+bool & initialized = var<bool>(0x00965F33);
 
-static bool & g_dump_slab_info = var<bool>(0x00965F40);
+bool & g_dump_slab_info = var<bool>(0x00965F40);
 
-static char *& static_slab_arena = var<char *>(0x00965F34);
+char *& static_slab_arena = var<char *>(0x00965F34);
 
-static slab_t *& static_slab_headers = var<slab_t *>(0x00965F38);
+slab_t *& static_slab_headers = var<slab_t *>(0x00965F38);
 
-static simple_list<slab_t *> *& slab_partial_list = var<simple_list<slab_t *> *>(0x00965984);
+simple_list<slab_t *> *& slab_partial_list = var<simple_list<slab_t *> *>(0x00965984);
 
-static simple_list<slab_t *> *& slab_full_list = var<simple_list<slab_t *> *>(0x00965980);
+simple_list<slab_t *> *& slab_full_list = var<simple_list<slab_t *> *>(0x00965980);
 
-static simple_list<slab_t *> *& slab_free_list = var<simple_list<slab_t *> *>(0x0096597C);
+simple_list<slab_t *> *& slab_free_list = var<simple_list<slab_t *> *>(0x0096597C);
 #else
 
-#define make_var(type, name) \
-    static type g_##name {}; \
-    type & name = g_##name
+#define make_var(type, name)        \
+    type & name = []() -> auto & {  \
+        static type g_##name {};    \
+        return g_##name;            \
+    }()
 
 make_var(bool, initialized);
 
