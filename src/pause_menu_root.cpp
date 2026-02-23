@@ -191,7 +191,7 @@ void pause_menu_root::update_switching_heroes() {
         }
 
         auto *v4 = g_femanager.IGO->hero_health;
-        if (v4->field_0[v3] != nullptr)
+        if (v4->panels[v3] != nullptr)
         {
             v4->field_30 = g_world_ptr->get_hero_ptr(0)->my_handle.field_0;
             v4->field_38 = v3;

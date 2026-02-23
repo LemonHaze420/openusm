@@ -4,12 +4,12 @@ struct PanelQuad;
 struct PanelFile;
 
 struct fe_health_widget {
-    PanelFile *field_0[5];
+    PanelFile *panels[5];
     int field_14[7];
     int field_30;
-    int field_34;
+    int number_of_types;
     int field_38;
-    int field_3C;
+    bool field_3C;
     PanelQuad *field_40;
     PanelQuad *field_44;
     PanelQuad *field_48;
@@ -19,7 +19,7 @@ struct fe_health_widget {
     bool field_55;
     bool field_56;
 
-    fe_health_widget();
+    fe_health_widget(int a1);
 
     //0x0061A3F0
     void SetShown(bool a2);
@@ -34,3 +34,5 @@ struct fe_health_widget {
 
     void DeInit(int a2);
 };
+
+extern void fe_health_widget_patch();
