@@ -10,7 +10,15 @@
 
 VALIDATE_SIZE(Timer, 0x58);
 
+#if !STANDALONE_SYSTEM
 Timer *& g_timer = var<Timer *>(0x00965BF0);
+#else
+
+Timer *& g_timer = []() -> auto & {
+    static Timer g_timer1 {};
+    return g_timer1;
+}();
+#endif
 
 Timer::Timer(Float a2, Float a3)
 {
