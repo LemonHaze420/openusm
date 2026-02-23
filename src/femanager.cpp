@@ -40,8 +40,7 @@ void FEManager::InitIGO()
 
     if constexpr (0)
     {
-        auto *mem = mem_alloc(sizeof(PauseMenuSystem));
-        this->m_pause_menu_system = new (mem) PauseMenuSystem{static_cast<font_index>(1)};
+        this->m_pause_menu_system = new PauseMenuSystem{static_cast<font_index>(1)};
 
         this->IGO = new IGOFrontEnd{};
         this->IGO->Init();
@@ -174,13 +173,16 @@ PanelQuad *FEManager::GetDefaultPQ() {
     return (PanelQuad *) THISCALL(0x00638180, this);
 }
 
-void FEManager::LoadFrontEnd() {
-    if constexpr (1) {
+void FEManager::LoadFrontEnd()
+{
+    TRACE("FEManager::LoadFrontEnd");
+
+    if constexpr (0)
+    {
         auto v2 = resource_manager::get_best_context(RESOURCE_PARTITION_MISSION);
         auto *__old_context = resource_manager::push_resource_context(v2);
 
-        auto *mem = mem_alloc(sizeof(FrontEndMenuSystem));
-        this->m_fe_menu_system = new (mem) FrontEndMenuSystem{};
+        this->m_fe_menu_system = new FrontEndMenuSystem{};
         resource_manager::pop_resource_context();
 
         assert(resource_manager::get_resource_context() == __old_context);
@@ -221,7 +223,14 @@ void RenderLoadMeter()
     }
 }
 
-void FEManager_patch() {
+void FEManager_patch()
+{
+    {
+        FUNC_ADDRESS(address, &FEManager::LoadFrontEnd);
+        REDIRECT(0x0051D2F0, address);
+        REDIRECT(0x00648FD4, address);
+    }
+
     {
         FUNC_ADDRESS(address, &FEManager::LoadFonts);
         REDIRECT(0x00552E61, address);
