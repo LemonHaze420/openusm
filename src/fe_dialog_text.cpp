@@ -26,7 +26,8 @@ void fe_dialog_text::set_text(string a1) {
     THISCALL(0x0060D960, this, a1);
 }
 
-void fe_dialog_text::_Load() {
+void fe_dialog_text::_Load()
+{
     TRACE("fe_dialog_text::Load");
 
     if constexpr (0)
@@ -63,9 +64,7 @@ void fe_dialog_text::_Load() {
         this->field_8C = v2->GetTextPointer("tb_text_link_center_BLANK");
 
         {
-            mString v69 {""};
-            FEText::string text;
-            std::memcpy(&text, &v69, sizeof(v69));
+            mString text {""};
 
             this->field_78->SetTextNoLocalize(text);
 
