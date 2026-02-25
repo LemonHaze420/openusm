@@ -166,13 +166,19 @@ target_include_directories(nsl PUBLIC "./include/" "./src/" "./src/nsl/src/nsl/"
 target_link_libraries(nsl PUBLIC nfl utility variables)
 
 
-file(GLOB_RECURSE NAL_SRC "./src/nal_system.cpp" "./src/nal/source/common/*.cpp")
+file(GLOB_RECURSE NAL_SRC "./src/nal_system.cpp"
+    "./src/nal/source/common/*.cpp"
+    "./src/nal/samples/spiderman/*.cpp"
+)
 add_library(nal ${NAL_SRC})
 target_compile_options(nal
     PRIVATE
       ${flags}
 )
-target_include_directories(nal PUBLIC "./include/" "./src/" "./src/nal/include/common/")
+target_include_directories(nal PUBLIC "./include/" "./src/"
+    "src/nal/include/common/"
+    "src/nal/samples/spiderman/"
+)
 target_link_libraries(nal PUBLIC nfl nalpanel pedanimtype utility base)
 
 
@@ -272,7 +278,7 @@ target_compile_options(physics
     ${flags}
 )
 target_include_directories(physics PUBLIC "./src/physics/include/")
-target_link_libraries(physics PUBLIC nal utility)
+target_link_libraries(physics PUBLIC base nal utility)
 
 target_include_directories(usm PUBLIC "include")
 target_include_directories(usm PUBLIC "./src/nfl/src/")
