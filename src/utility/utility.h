@@ -5,6 +5,7 @@
 
 #include <cassert>
 #include <cstdint>
+#include <cxxabi.h>
 
 template<typename Func>
 void set_vfunc(std::size_t address, Func func) {
@@ -36,3 +37,21 @@ void *func_address(Func func) {
 }
 
 #define FUNC_ADDRESS(address, func) [[maybe_unused]] void *address = func_address(func)
+
+template <typename T>
+std::string get_type_name() {
+    const char* mangledName = typeid(T).name();
+
+    int status = 0;
+    char* demangledName = abi::__cxa_demangle(mangledName, nullptr, nullptr, &status);
+
+    std::string result;
+    if (status == 0) {
+        result = demangledName;
+    } else {
+        result = mangledName;
+    }
+
+    std::free(demangledName);
+    return result;
+}
