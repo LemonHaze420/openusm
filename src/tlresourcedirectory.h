@@ -49,8 +49,9 @@ struct tlResourceDirectory {
         return "Unnamed";
     }
 
-
-    T0 * _Find(unsigned int a2);
+    T0 * _Find(unsigned int) {
+        return nullptr;
+    }
 
     //virtual
     T0 * Find(unsigned int a2) {
@@ -81,8 +82,7 @@ struct tlResourceDirectory {
         return func(this);
     }
 
-    //virtual
-    void ReleaseAll(bool a2, bool a3, int a4)
+    void _ReleaseAll(bool a2, bool a3, int a4)
     {
         auto *iter = this->Enumerate();
         for ( int i = 1; i <= a4; ++i )
@@ -112,7 +112,17 @@ struct tlResourceDirectory {
         }
     }
 
-    /* virtual */ T0 *Load(const T1 &);
+    //virtual
+    void ReleaseAll(bool a2, bool a3, int a4)
+    {
+        void (__fastcall *func)(void *, void *edx, bool, bool, int) = CAST(func, get_vfunc(this->m_vtbl, 0x1C));
+        return func(this, nullptr, a2, a3, a4);
+    }
+
+    //virtual
+    T0 * Load(const T1 &a2) {
+        return StandardLoad(a2);
+    }
 
     int _Release(T0 *a2, int a3, bool a4) {
         return this->StandardRelease(a2, a3, a4);
