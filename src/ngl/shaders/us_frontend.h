@@ -1,13 +1,15 @@
 #pragma once
 
-#include "nglshader.h"
+#include "us_shaderbase.h"
+
+#include "fixedstring.h"
 
 #include <cstdint>
 
 struct nglTexture;
 struct nglMaterialBase;
 
-struct FrontEnd_Shader : nglShader {
+struct FrontEnd_Shader : USShaderBase {
     FrontEnd_Shader();
 
     //0x00403AD0
@@ -28,7 +30,12 @@ struct FrontEnd_Shader : nglShader {
 };
 
 struct FrontEnd_ShaderNode : nglShaderNode {
-    int *field_14;
+    nglMaterialBase *field_14;
+
+    FrontEnd_ShaderNode(
+        nglMeshNode *a2,
+        nglMeshSection *a3,
+        nglMaterialBase *a4);
 
     //0x00406E50
     //virtual

@@ -159,6 +159,15 @@ void FrontEnd_Shader::Register() {
     }
 }
 
+FrontEnd_ShaderNode::FrontEnd_ShaderNode(
+        nglMeshNode *a2,
+        nglMeshSection *a3,
+        nglMaterialBase *a4) : nglShaderNode(a2, a3)
+{
+    this->m_vtbl = 0x00871C04;
+    this->field_14 = a4;
+}
+
 void FrontEnd_ShaderNode::Render()
 {
     if constexpr (0) {

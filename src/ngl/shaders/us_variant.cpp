@@ -12,7 +12,7 @@
 
 VALIDATE_SIZE(USVariantShaderNode, 0x18);
 
-USVariantShaderNode::USVariantShaderNode(nglMeshNode *a2, nglMeshSection *a3)
+USVariantShaderNode::USVariantShaderNode(nglMeshNode *a2, nglMeshSection *a3) : nglShaderNode(a2, a3)
 {
     if constexpr (1)
     {
