@@ -2,6 +2,7 @@
 
 #include "nglrendernode.h"
 
+#include <tl_system.h>
 #include <variable.h>
 
 #include <cstdint>
@@ -17,14 +18,13 @@ struct nglParamSet;
 
 struct nglShaderParamSet_Pool;
 
-struct nglShader {
-    std::intptr_t m_vtbl;
-    nglShader *field_4;
+struct nglShader : tlInitList {
     int field_8;
 
     nglShader();
 
-    void Register();
+    //virtual
+    void _Register();
 
     /* virtual */ tlFixedString GetName();
 
@@ -37,9 +37,15 @@ struct nglShader {
 
     /* virtual */ void RebaseMaterial(nglMaterialBase *mat, unsigned int a2);
 
+    bool _CheckMaterialVersion(nglMaterialBase *mat);
+
     /* virtual */ bool CheckMaterialVersion(nglMaterialBase *mat);
 
+    bool _CheckVertexDefVersion(nglMeshSection *Section);
+
     /* virtual */ bool CheckVertexDefVersion(nglMeshSection *Section);
+
+    void _BindSection(nglMeshSection *);
 
     /* virtual */ void BindSection(nglMeshSection *Section);
 
@@ -52,10 +58,14 @@ struct nglShaderNode : nglRenderNode {
     nglMeshNode *m_meshNode;
     nglMeshSection *m_meshSection;
 
+    nglShaderNode(nglMeshNode *a2, nglMeshSection *a3);
+
     void sub_413AF0();
 
     void Render();
 };
+
+extern void sub_417C10(nglShaderNode *a1);
 
 extern color *sub_413F80(color *a1, nglMaterialBase *a2, nglParamSet<nglShaderParamSet_Pool> *a3, uint32_t a4);
 

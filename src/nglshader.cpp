@@ -3,8 +3,11 @@
 #include "common.h"
 #include "fixedstring.h"
 #include "log.h"
+#include "ngl.h"
 #include "ngl_params.h"
+#include "ngl_scene.h"
 #include "trace.h"
+#include "variables.h"
 #include "vector4d.h"
 #include "vtbl.h"
 
@@ -29,7 +32,7 @@ nglShader::nglShader()
 
 }
 
-void nglShader::Register()
+void nglShader::_Register()
 {
     TRACE("nglShader::Register");
 
@@ -85,24 +88,31 @@ void nglShader::RebaseMaterial(nglMaterialBase *Material, unsigned int a2) {
     func(this, nullptr, Material, a2);
 }
 
-bool nglShader::CheckMaterialVersion(nglMaterialBase *mat) {
-    if constexpr (1) {
-        bool (__fastcall *func)(nglShader *, void *, nglMaterialBase *) = CAST(func, get_vfunc(m_vtbl, 0x18));
+bool nglShader::_CheckMaterialVersion(nglMaterialBase *)
+{
+    return true;
+}
 
-        return func(this, nullptr, mat);
-    } else {
-        return true;
-    }
+bool nglShader::CheckMaterialVersion(nglMaterialBase *mat) {
+    bool (__fastcall *func)(nglShader *, void *, nglMaterialBase *) = CAST(func, get_vfunc(m_vtbl, 0x18));
+
+    return func(this, nullptr, mat);
+}
+
+bool nglShader::_CheckVertexDefVersion(nglMeshSection *) {
+    TRACE("nglShader::_CheckVertexDefVersion");
+
+    return true;
 }
 
 bool nglShader::CheckVertexDefVersion(nglMeshSection *Section) {
-    if constexpr (1) {
-        bool (__fastcall *func)(void *, void *, nglMeshSection *) = CAST(func, get_vfunc(m_vtbl, 0x1C));
+    bool (__fastcall *func)(void *, void *, nglMeshSection *) = CAST(func, get_vfunc(m_vtbl, 0x1C));
 
-        return func(this, nullptr, Section);
-    } else {
-        return true;
-    }
+    return func(this, nullptr, Section);
+}
+
+void nglShader::_BindSection(nglMeshSection *) {
+    TRACE("nglShader::_BindSection");
 }
 
 void nglShader::BindSection(nglMeshSection *Section) {
@@ -117,6 +127,12 @@ bool nglShader::IsSwitchable() {
     return func(this);
 }
 
+nglShaderNode::nglShaderNode(nglMeshNode *a2, nglMeshSection *a3)
+{
+    this->m_meshNode = a2;
+    this->m_meshSection = a3;
+}
+
 void nglShaderNode::Render()
 {
     void (__fastcall *func)(void *) = CAST(func, get_vfunc(this->m_vtbl, 0x0));
@@ -125,6 +141,16 @@ void nglShaderNode::Render()
 
 void nglShaderNode::sub_413AF0() {
     THISCALL(0x00413AF0, this);
+}
+
+void sub_417C10(nglShaderNode *a1)
+{
+	auto v1 = sub_414360(a1->m_meshSection->SphereCenter, a1->m_meshNode->LocalToWorld);
+	auto v2 = sub_414360(v1, nglCurScene->WorldToView);
+	*(float *)&a1->m_tex = v2[2] + a1->m_meshSection->SphereRadius;
+	a1->m_next_node = nglCurScene->TransNodes;
+	nglCurScene->TransNodes = a1;
+	++nglCurScene->TransListCount;
 }
 
 void sub_413850(nglMaterialBase *a1, nglParamSet<nglShaderParamSet_Pool> *a2, color *a3)
@@ -147,4 +173,6 @@ void nglShader_patch()
     REDIRECT(0x00413F93, sub_413850);
     REDIRECT(0x00418C84, sub_413850);
     REDIRECT(0x00419F34, sub_413850);
+
+    set_vfunc(0x00871504, func_address(&nglShader::_CheckVertexDefVersion));
 }
