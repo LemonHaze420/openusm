@@ -1,47 +1,23 @@
-
-stages:          # List of stages for jobs, and their order of execution
-  - checkout
+stages:
   - build
-  - test
-  - deploy
 
-before_script:
-  - git submodule update --init --recursive
-
-checkout-job:
-  stage: checkout
-  script:
-    - echo "Checkout origin/main"
-    - cd ~/Documents/openusm
-    - pwd
-    - git pull
-
-build-job:       # This job runs in the build stage, which runs first.
+build-job:
   stage: build
+  image: openusm:latest
+  tags:
+    - docker
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+    GIT_DEPTH: 1
+    GIT_STRATEGY: fetch
   script:
     - echo "Compiling the code..."
-    - cmake -B build && cd build && make -j4
-    - echo "Compile complete."
-  artifacts:
-    paths:
-      - build
-    expire_in: 1 hour
-
-unit-test-job:   # This job runs in the test stage.
-  stage: test    # It only starts when the job in the build stage completes successfully.
-  dependencies:
-    - build-job
-  variables:
-    WINE: "wine"
-  script:
-    - echo "Running unit tests..."
+    - pwd
+    - apt-get update
+    - apt-get install -y --no-install-recommends git ca-certificates cmake make mingw-w64
+    - rm -rf /var/cache/apt
+    - update-alternatives --set i686-w64-mingw32-g++ /usr/bin/i686-w64-mingw32-g++-posix
+    - cmake -B build
     - cd build
-    - ctest
-    - echo "Run unit tests complete"
-
-deploy-job:      # This job runs in the deploy stage.
-  stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
-  environment: production
-  script:
-    - echo "Deploying application..."
-    - echo "Application successfully deployed."
+    - make -j4
+    - echo "Compile complete."
