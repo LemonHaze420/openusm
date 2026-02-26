@@ -1092,6 +1092,10 @@ extern void sub_57F3C0();
 
 extern void sub_81E8E0(int a1);
 
+extern bool sub_782B90(const void *a1, nglPaletteFile *a2);
+
+extern void sub_7829F0(nglPalette *a1);
+
 extern double sub_77E820(Float a1);
 
 extern double sub_77E940(Float a1);

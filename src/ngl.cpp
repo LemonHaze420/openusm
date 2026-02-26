@@ -5657,6 +5657,45 @@ void sub_81E910()
     CDECL_CALL(0x0081E910);
 }
 
+void nglPlatLoadPalette(nglPaletteFileHeader *a1, nglPalette **a2, uint8_t *a3)
+{
+    *a2 = nglCreatePalette(0, a1->field_C, a3);
+}
+
+bool sub_782B90(const void *, nglPaletteFile *a2)
+{
+    auto *Buf = (nglPaletteFileHeader *)a2->field_128.Buf;
+    a2->field_134 = CAST(a2->field_134, Buf);
+    a2->field_138 = (uint8_t *)&Buf->field_10;
+    if ( strncmp((const char *)Buf, "DDSP", 4u) || Buf->field_4 != 1 ) {
+        return false;
+    }
+
+    auto *v4 = (nglPalette **)tlMemAlloc(4 * Buf->field_8, 8u, 0x1000000u);
+    auto v5 = (int)a2->field_138 & 0x3F;
+    a2->field_13C = v4;
+    if ( v5 ) {
+        v5 = 64 - v5;
+    }
+
+    for ( auto i = 0; i < Buf->field_8; ++i ) {
+        nglPlatLoadPalette(Buf, &a2->field_13C[i], &a2->field_138[i * Buf->field_A + v5]);
+    }
+
+    return true;
+}
+
+void sub_7829F0(nglPalette *a1)
+{
+    if ( a1 != nullptr )
+    {
+        dword_975BE8[++dword_975BE0] = a1->m_palette_idx;
+        tlMemFree(a1->m_palette_entries);
+        a1->m_palette_entries = nullptr;
+        tlMemFree(a1);
+    }
+}
+
 void nglRenderTextureState::setSamplerState(
         int stage,
         uint8_t a3,
