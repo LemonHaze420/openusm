@@ -99,13 +99,35 @@ struct nglTexture {
     //0x00774F20
     void SetupTextureLevels();
 
-	static tlFixedString * get_string(nglTexture *a1)
-	{
-		return &a1->FileName;
-	}
+    static tlFixedString * get_string(nglTexture *a1)
+    {
+        return &a1->FileName;
+    }
+};
+
+struct nglPaletteFileHeader {
+    int field_0;
+    int field_4;
+    uint16_t field_8;
+    uint16_t field_A;
+    uint16_t field_C;
+    int field_10;
 };
 
 struct nglPaletteFile {
+    tlFixedString field_0;
+    char field_20[256];
+    bool field_120;
+    int field_124;
+    tlFileBuf field_128;
+    uint16_t *field_134;
+    uint8_t *field_138;
+    nglPalette **field_13C;
+
+    static tlFixedString * get_string(nglPaletteFile *a1)
+    {
+        return &a1->field_0;
+    }
 };
 
 inline constexpr auto NGLP_SCALE = 0x2;
@@ -356,8 +378,8 @@ struct nglPerfomanceInfo {
 };
 
 struct nglMorphFile {
-    char field_0[4];
-    int field_4[72];
+    tlFixedString field_0;
+    int field_20[65];
 
     char *field_124;
     int field_128[7];
@@ -366,6 +388,10 @@ struct nglMorphFile {
 
     //0x00402090
     void un_mash_start(generic_mash_header *header, void *, generic_mash_data_ptrs *a3, void *);
+
+    static tlFixedString * get_string(nglMorphFile *a1) {
+        return &a1->field_0;
+    }
 };
 
 extern char (& nglMeshPath)[256];
@@ -458,6 +484,10 @@ struct nglMorphSet {
     } *Frames;
     nglMeshFile *field_C;
     nglMorphSet *NextMorph;
+
+    static tlHashString * get_string(nglMorphSet *a1) {
+        return &a1->field_0;
+    }
 };
 
 //0x0076EFA0
