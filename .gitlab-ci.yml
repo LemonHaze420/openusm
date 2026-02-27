@@ -3,7 +3,7 @@ stages:
 
 build-job:
   stage: build
-  image: openusm:latest
+  image: openusm:alpine
   tags:
     - docker
   variables:
@@ -13,10 +13,6 @@ build-job:
   script:
     - echo "Compiling the code..."
     - pwd
-    - apt-get update
-    - apt-get install -y --no-install-recommends git ca-certificates cmake make mingw-w64
-    - rm -rf /var/cache/apt
-    - update-alternatives --set i686-w64-mingw32-g++ /usr/bin/i686-w64-mingw32-g++-posix
     - cmake -B build
     - cd build
     - make -j4
