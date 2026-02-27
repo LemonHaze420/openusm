@@ -16,4 +16,8 @@ build-job:
     - cmake -B build
     - cd build
     - make -j4
+    - cd ..
+    - cmake -B standalone_build -DSETUP_STANDALONE_SYSTEM=ON
+    - cd standalone_build
+    - make -j4
     - echo "Compile complete."
