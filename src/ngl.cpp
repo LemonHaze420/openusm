@@ -2839,11 +2839,8 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
 
                         if ( !EnableShader )
                         {
-                            sp_log("debug0");
                             if (strncmp(v29, "uslod", 5u) == 0)
                             {
-                                sp_log("debug1");
-
                                 nglVertexBuffer::createIndexOrVertexBuffer(
                                     &MeshSection->field_3C,
                                     ResourceType::VertexBuffer,
@@ -2878,7 +2875,6 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
                                 }
                                 else
                                 {
-                                    sp_log("debug2");
                                     if ( !EnableShader )
                                     {
                                         if (strncmp(v29, "usperson", 8u) == 0)
