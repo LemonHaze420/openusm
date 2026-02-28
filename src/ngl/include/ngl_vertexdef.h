@@ -47,6 +47,9 @@ struct nglVertexDef_PCUV_Base {
     };
 };
 
+struct nglVertexDef_FrontEnd_Base {
+};
+
 struct nglMaterialBase;
 
 template<typename T>
