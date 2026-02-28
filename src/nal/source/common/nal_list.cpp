@@ -7,6 +7,7 @@
 
 #include <character_anim_inst.h>
 #include <character_pose_skel.h>
+#include <nal_generic_component.h>
 #include <panel_pose_skel.h>
 #include <panel_anim_inst.h>
 #include <ped_skel_pose.h>
@@ -31,10 +32,23 @@ void * & nalInitList::head = []() -> auto & {
     return g_head;
 }();
 
-static nalComponentInitList InitListComponent_spideySignal {
-    "Spidey_Signal",
-    &Component_spideySignal
-};
+#define make_class(Type, Str)                               \
+    static nalComponentInitList InitListComponent_##Type {  \
+        Str,                                                \
+        &Component_##Type                                   \
+    }
+
+make_class(spideySignal, "Spidey_Signal");
+make_class(nalComponentRLE8Int1, "NAL_RLE8Int1");
+
+#undef make_class
+
+namespace nalChar {
+    int & nalCharSkeleton::vtbl_ptr = []() -> auto & {
+        static nalCharSkeleton skel {};
+        return skel.m_vtbl;
+    }();
+}
 
 static nalInitListAnimType InitListAnimType_nalCharAnim {
     "Character",
@@ -53,6 +67,36 @@ static nalInitListAnimType InitListAnimType_nalGenericAnim {
     nalGeneric::nalGenericAnim::vtbl_ptr,
     nalGeneric::nalGenericSkeleton::vtbl_ptr
 };
+
+static nalInitListAnimType InitListAnimType_nalCamAnim {
+        "Camera",
+        nalCam::nalCamAnim::vtbl_ptr,
+        nalCam::nalCamSkeleton::vtbl_ptr
+};
+
+#define make_class(Type, Base, Str) \
+    struct Type : Base {            \
+    };                              \
+    struct Type##Data {             \
+    };                              \
+                                    \
+    static nalComponent<Base, Type##Data, Type> Component_##Type {}; \
+                                                                     \
+    static nalComponentInitList InitListComponent_##Type {           \
+        Str,                                                         \
+        &Component_##Type                                            \
+    }
+
+make_class(nalComponentEntropyQuat, nalComponentQuatBase, "NAL_EntropyQuaternion");
+
+make_class(nalComponentEntropyFloat1, nalComponentFloat1Base, "NAL_EntropyFloat1");
+make_class(nalComponentEntropyFloat3, nalComponentFloat3Base, "NAL_EntropyFloat3");
+
+make_class(nalComponentPO, nalComponentPOBase, "NAL_PositionOrientation");
+make_class(nalComponentEntropyPO, nalComponentPOBase, "NAL_EntropyPositionOrientation");
+make_class(nalComponentEntropyTrajectoryPO, nalComponentPOBase, "NAL_EntropyTrajectoryPositionOrientation");
+
+#undef make_class
 
 #endif
 
@@ -124,47 +168,57 @@ void nalInitListInit()
 
 void sub_8530C0()
 {
+#if !STANDALONE_SYSTEM
     [[maybe_unused]] static nalInitListAnimType InitListAnimType_nalCharAnim {
             "Character",
             nalChar::nalCharAnim::vtbl_ptr,
             nalChar::nalCharSkeleton::vtbl_ptr
     };
+#endif
 }
 
 void sub_85E010()
 {
+#if !STANDALONE_SYSTEM
     [[maybe_unused]] static nalInitListAnimType InitListAnimType_nalPanelAnim {
             "Panel",
             nalPanel::nalPanelAnim::vtbl_ptr,
             nalPanel::nalPanelSkeleton::vtbl_ptr
     };
+#endif
 }
 
 void sub_864790()
 {
+#if !STANDALONE_SYSTEM
     [[maybe_unused]] static nalInitListAnimType InitListAnimType_nalGenericAnim {
             "generic",
             nalGeneric::nalGenericAnim::vtbl_ptr,
             nalGeneric::nalGenericSkeleton::vtbl_ptr
     };
+#endif
 }
 
 void sub_8531A0()
 {
+#if !STANDALONE_SYSTEM
     [[maybe_unused]] static nalInitListAnimType InitListAnimType_nalPedAnim {
             "Ped",
             nalPed::nalPedAnim::vtbl_ptr,
             nalPed::nalPedSkeleton::vtbl_ptr
     };
+#endif
 }
 
 void sub_853260()
 {
+#if !STANDALONE_SYSTEM
     [[maybe_unused]] static nalInitListAnimType InitListAnimType_nalCamAnim {
             "Camera",
             nalCam::nalCamAnim::vtbl_ptr,
             nalCam::nalCamSkeleton::vtbl_ptr
     };
+#endif
 }
 
 void nalInitList_patch()
