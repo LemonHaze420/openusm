@@ -1145,6 +1145,8 @@ inline float stru_946840[2] {1.0f, 1.0f};
 extern nglVertexDef_MultipassMesh<nglVertexDef_PCUV_Base> *sub_507920(
     nglMaterialBase *a1, int a2, int a3, int a4, const void *a5, int a6, bool a7);
 
+extern void Init_nglVertexDef_FrontEnd_builder();
+
 template<typename T>
 auto PTR_OFFSET(uint32_t Base, T &Ptr) -> void
 {

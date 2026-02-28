@@ -5616,6 +5616,17 @@ nglVertexDef_MultipassMesh<nglVertexDef_PCUV_Base> *sub_507920(
     return (nglVertexDef_MultipassMesh<nglVertexDef_PCUV_Base> *) CDECL_CALL(0x00507920, a1, a2, a3, a4, a5, a6, a7);
 }
 
+void Process_nglVertexDef_FrontEnd(void *a1)
+{
+    new (a1) nglVertexDef_MultipassMesh<nglVertexDef_FrontEnd_Base> {};
+}
+
+void Init_nglVertexDef_FrontEnd_builder()
+{
+    tlFixedString v1 {"US_FrontEnd"};
+    nglVertexDefBank.Insert(v1, bit_cast<void *>(&Process_nglVertexDef_FrontEnd));
+}
+
 
 bool sub_578420(unsigned int a1)
 {
