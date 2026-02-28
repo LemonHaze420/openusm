@@ -918,11 +918,30 @@ HRESULT nglVertexBuffer::createIndexOrVertexBuffer(nglVertexBuffer *a1,
         int m_size;
     };
 
-    static Var<Struct_77B1C0 *[42]> dword_9753C0 { 0x009753C0 };
+#if !STANDALONE_SYSTEM
+    static Struct_77B1C0 * (& dword_9753C0)[42] = var<Struct_77B1C0 *[42]>(0x009753C0);
 
-    static Var<Struct_77B1C0 *[42]> dword_975318 { 0x00975318 };
+    static Struct_77B1C0 * (& dword_975318)[42] = var<Struct_77B1C0 *[42]>(0x00975318);
 
-    auto **v11 = dword_975318() + end_idx;
+    static int (& dword_975474)[2] = var<int[2]>(0x00975474);
+#else
+    static Struct_77B1C0 * (& dword_9753C0)[42] = []() -> auto & {
+        static Struct_77B1C0 * g_dword_9753C0[42] {};
+        return g_dword_9753C0;
+    }();
+
+    static Struct_77B1C0 * (& dword_975318)[42] = []() -> auto & {
+        static Struct_77B1C0 * g_dword_975318[42] {};
+        return g_dword_975318;
+    }();
+
+    static int (& dword_975474)[2] = []() -> auto & {
+        static int g_dword_975474[2] {};
+        return g_dword_975474;
+    }();
+#endif
+
+    auto **v11 = dword_975318 + end_idx;
 
     auto *v10 = *v11;
     if (v10 != nullptr) {
@@ -963,16 +982,16 @@ HRESULT nglVertexBuffer::createIndexOrVertexBuffer(nglVertexBuffer *a1,
             } else {
                 v13->field_C->field_10 = nullptr;
 
-                dword_9753C0()[start_idx + num] = v13->field_C;
+                dword_9753C0[start_idx + num] = v13->field_C;
             }
         } else if (v13->field_10 != nullptr) {
             v13->field_10->field_C = nullptr;
 
-            dword_975318()[start_idx + num] = v13->field_10;
+            dword_975318[start_idx + num] = v13->field_10;
         } else {
             auto v18 = start_idx + num;
-            dword_975318()[v18] = nullptr;
-            dword_9753C0()[v18] = nullptr;
+            dword_975318[v18] = nullptr;
+            dword_9753C0[v18] = nullptr;
         }
 
         auto *v19 = v13->m_buffer;
@@ -984,8 +1003,7 @@ HRESULT nglVertexBuffer::createIndexOrVertexBuffer(nglVertexBuffer *a1,
 
         operator delete(v13);
 
-        static Var<int[2]> dword_975474{0x00975474};
-        --dword_975474()[resource_type];
+        --dword_975474[resource_type];
         result = 0;
     } else {
     LABEL_18:
