@@ -401,9 +401,9 @@ void game_settings::save(int slot_num)
         int v7[3];
         auto *v5 = GetSystemDate(v7);
 
-        *((int *) &v1.field_0) = v5[0];
-        *((int *) &v1.field_4) = v5[1];
-        *((int *) &v1.field_8) = v5[2];
+        *bit_cast<int *>(&v1.field_0) = v5[0];
+        *bit_cast<int *>(&v1.field_4) = v5[1];
+        *bit_cast<int *>(&v1.field_8) = v5[2];
         v1.field_10 = this->field_4B4;
         this->m_game_data_valid[slot_num] = true;
         this->soft_save(0);

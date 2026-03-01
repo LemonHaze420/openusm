@@ -13,7 +13,19 @@ VALIDATE_SIZE(cut_scene_resource_handler, 0x14);
 
 cut_scene_resource_handler::cut_scene_resource_handler(worldly_pack_slot *a2)
 {
-    this->m_vtbl = 0x00888AD4;
+    if constexpr (1) {
+        static void * g_vtbl[] = {
+            func_address(&finalize),
+            func_address(&_handle),
+            func_address(&_pre_handle_resources),
+            func_address(&_handle_resource),
+        };
+
+        this->m_vtbl = CAST(m_vtbl, &g_vtbl);
+    } else {
+        this->m_vtbl = 0x00888AD4;
+    }
+
     this->my_slot = a2;
     this->field_10 = RESOURCE_KEY_TYPE_CUT_SCENE;
 }
