@@ -23,7 +23,8 @@ struct sound_alias
 struct sound_alias_database {
 
     mVector<sound_alias> field_0;
-    sound_alias_database();
+
+    sound_alias_database(from_mash_in_place_constructor *a2);
 
     void destruct_mashed_class();
 

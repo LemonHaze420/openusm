@@ -27,7 +27,7 @@ sound_alias_database *& s_sound_alias_database = []() -> auto & {
 sound_alias::sound_alias(from_mash_in_place_constructor *a2) : field_0(a2), field_4(a2) {
 }
 
-sound_alias_database::sound_alias_database() {}
+sound_alias_database::sound_alias_database(from_mash_in_place_constructor *a2) : field_0(a2) {}
 
 void sound_alias_database::destruct_mashed_class()
 {
