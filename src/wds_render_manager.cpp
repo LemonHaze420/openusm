@@ -39,7 +39,7 @@
 #include "renderoptimizations.h"
 #include "sector2d.h"
 #include "shadow.h"
-#include "subdivision_node_obb_base.h"
+#include "subdivision_obb.h"
 #include "trace.h"
 #include "terrain.h"
 #include "us_colorvol.h"

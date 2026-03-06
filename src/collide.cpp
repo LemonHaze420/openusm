@@ -12,7 +12,7 @@
 #include "mesh_triangle_intersection_record.h"
 #include "ngl_math.h"
 #include "oldmath_po.h"
-#include "subdivision_node_obb_base.h"
+#include "subdivision_obb.h"
 #include "trace.h"
 #include "vector3d.h"
 

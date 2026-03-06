@@ -42,7 +42,7 @@
 #include "spider_monkey.h"
 #include "stack_allocator.h"
 #include "subdivision_static_region_list.h"
-#include "subdivision_node_obb_base.h"
+#include "subdivision_obb.h"
 #include "subdivision_visitor.h"
 #include "texture_to_frame_map.h"
 #include "trace.h"
@@ -854,7 +854,7 @@ void terrain::find_ideal_terrain_packs(_std::vector<ideal_pack_info> *ideal_pack
 float sub_53A7A0(const vector3d &a1, region *a2)
 {
     auto *obb = a2->obb;
-    vector3d v8 {obb->field_4[0], obb->field_4[1], obb->field_4[2]};
+    vector3d v8 {obb->center[0], obb->center[1], obb->center[2]};
 
     vector3d v9, v10;
     if ( !obb->line_segment_intersection(a1, v8, &v9, &v10, nullptr, false) ) {

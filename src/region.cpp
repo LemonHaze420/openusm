@@ -11,7 +11,7 @@
 #include "memory.h"
 #include "ngl.h"
 #include "region_mash_info.h"
-#include "subdivision_node_obb_base.h"
+#include "subdivision_obb.h"
 #include "terrain.h"
 #include "texture_array.h"
 #include "texture_to_frame_map.h"

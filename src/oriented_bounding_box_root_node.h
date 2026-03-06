@@ -1,6 +1,5 @@
 #pragma once
 
-#include "subdivision_node_obb_base.h"
 #include "color32.h"
 #include "float.hpp"
 

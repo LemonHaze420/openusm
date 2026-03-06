@@ -10,7 +10,7 @@
 #include "line_segment.h"
 #include "loaded_regions_cache.h"
 #include "oldmath_po.h"
-#include "subdivision_node_obb_base.h"
+#include "subdivision_obb.h"
 #include "trace.h"
 #include "utility.h"
 #include "vtbl.h"

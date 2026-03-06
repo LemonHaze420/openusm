@@ -6,7 +6,7 @@
 #include "region.h"
 #include "scratchpad_stack.h"
 #include "stack_allocator.h"
-#include "subdivision_node_obb_base.h"
+#include "subdivision_obb.h"
 #include "trace.h"
 #include "utility.h"
 #include "variables.h"

@@ -16,7 +16,7 @@
 #include "region.h"
 #include "scratchpad_stack.h"
 #include "stack_allocator.h"
-#include "subdivision_node_obb_base.h"
+#include "subdivision_obb.h"
 #include "sweet_cone.h"
 #include "utility.h"
 #include "vector3d.h"

@@ -10,7 +10,7 @@
 #include "func_wrapper.h"
 #include "physical_interface.h"
 #include "region.h"
-#include "subdivision_node_obb_base.h"
+#include "subdivision_obb.h"
 #include "terrain.h"
 #include "trace.h"
 #include "utility.h"

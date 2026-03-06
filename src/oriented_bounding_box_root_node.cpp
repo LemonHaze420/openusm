@@ -6,8 +6,7 @@
 #include "game.h"
 #include "subdivision.h"
 #include "subdivision_visitor.h"
-#include "subdivision_node_obb_base.h"
-#include "subdivision_node.h"
+#include "subdivision_obb.h"
 #include "camera.h"
 #include "trace.h"
 #include "vtbl.h"
@@ -29,9 +28,9 @@ struct visitor_t : subdivision_visitor
 
     int visit(subdivision_node *a1)
     {
-        if ( subdivision_node_obb_base::visit_key() != bit_cast<subdivision_node_obb_base *>(a1)->field_10 )
+        if ( subdivision_node_obb_base::visit_key() != bit_cast<subdivision_node_obb_base *>(a1)->visited )
         {
-            bit_cast<subdivision_node_obb_base *>(this)->field_10 = subdivision_node_obb_base::visit_key();
+            bit_cast<subdivision_node_obb_base *>(this)->visited = subdivision_node_obb_base::visit_key();
             this->field_4.push_back(a1);
         }
 

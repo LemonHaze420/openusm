@@ -1,8 +1,11 @@
 #include "subdivision_node.h"
 
+#include "common.h"
 #include "float.hpp"
 #include "subdivision_visitor.h"
 #include "vector3d.h"
+
+VALIDATE_SIZE(subdivision_node, 0x1);
 
 struct undefined_subdivision_methods {
     std::intptr_t m_vtbl = 0x00889470;

@@ -33,7 +33,7 @@
 #include "plr_loco_crawl_transition_state.h"
 #include "put_down_state.h"
 #include "trace.h"
-#include "subdivision_node_obb_base.h"
+#include "subdivision_obb.h"
 #include "terrain.h"
 #include "throw_state.h"
 #include "utility.h"
