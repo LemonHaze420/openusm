@@ -11,6 +11,7 @@
 #include "cut_scene.h"
 #include "func_wrapper.h"
 #include "gab_manager.h"
+#include "glass_house.h"
 #include "interactable_interface.h"
 #include "nugget.h"
 #include "panelfile.h"
@@ -266,5 +267,15 @@ void mash_info_struct::construct_class(patrol_def_set *&a1)
     {
         from_mash_in_place_constructor *a2 = nullptr;
         a1 = new (a1) patrol_def_set {a2};
+    }
+}
+
+template<>
+void mash_info_struct::construct_class(glass_house *&a1)
+{
+    if ( a1 != nullptr )
+    {
+        from_mash_in_place_constructor *v1 = nullptr;
+        a1 = new (a1) glass_house {v1};
     }
 }
