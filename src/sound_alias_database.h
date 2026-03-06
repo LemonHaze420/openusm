@@ -34,6 +34,6 @@ struct sound_alias_database {
     int *get_sound_alias(string_hash a2);
 };
 
-inline Var<sound_alias_database *> s_sound_alias_database {0x0095C854};
+extern sound_alias_database *& s_sound_alias_database;
 
 extern void sound_alias_database_patch();

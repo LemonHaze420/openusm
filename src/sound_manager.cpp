@@ -6,12 +6,9 @@
 #include "sound_bank_slot.h"
 #include "trace.h"
 #include "utility.h"
-#include "variable.h"
 #include "variables.h"
 
 static constexpr int SM_MAX_SOURCE_TYPES = 8;
-
-static Var<bool> s_sound_manager_initialized{0x0095C829};
 
 struct sound_volume {
     float field_0;
@@ -20,16 +17,34 @@ struct sound_volume {
 
 VALIDATE_SIZE(sound_volume, 0x20);
 
-static Var<sound_volume[8]> s_volumes_by_type{0x0095C9A8};
+#if !STANDALONE_SYSTEM
+
+static bool & s_sound_manager_initialized = var<bool>(0x0095C829);
+
+static sound_volume (& s_volumes_by_type)[8] = var<sound_volume[8]>(0x0095C9A8);
+
+#else
+
+static bool & s_sound_manager_initialized = []() -> auto & {
+    static bool s_sound_manager_initialized1 {};
+    return s_sound_manager_initialized1;
+}();
+
+static sound_volume (& s_volumes_by_type)[8] = []() -> auto & {
+    static sound_volume s_volumes_by_type1[8] {};
+    return s_volumes_by_type1;
+}();
+
+#endif
 
 sound_alias_database *sound_manager::get_sound_alias_database()
 {
-    return s_sound_alias_database();
+    return s_sound_alias_database;
 }
 
 void sound_manager::set_sound_alias_database(sound_alias_database *a1)
 {
-    s_sound_alias_database() = a1;
+    s_sound_alias_database = a1;
 }
 
 bool sound_manager::is_mission_sound_bank_ready() {
@@ -89,10 +104,10 @@ void sound_manager::unload_hero_sound_bank()
 }
 
 float sound_manager::get_source_type_volume(unsigned int source_type) {
-    assert(s_sound_manager_initialized());
+    assert(s_sound_manager_initialized);
     assert(source_type < SM_MAX_SOURCE_TYPES);
 
-    return s_volumes_by_type()[source_type].field_0;
+    return s_volumes_by_type[source_type].field_0;
 }
 
 void sound_manager::set_source_type_volume(unsigned int source_type, Float a2, Float a3)

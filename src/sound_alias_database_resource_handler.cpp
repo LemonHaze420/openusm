@@ -17,7 +17,19 @@ VALIDATE_SIZE(sound_alias_database_resource_handler, 0x14);
 
 sound_alias_database_resource_handler::sound_alias_database_resource_handler(worldly_pack_slot *a2)
 {
-    this->m_vtbl = 0x00888B14;
+    if constexpr (1) {
+        static void * g_vtbl[] = {
+            func_address(&finalize),
+            func_address(&_handle),
+            func_address(&_pre_handle_resources),
+            func_address(&_handle_resource),
+        };
+
+        this->m_vtbl = CAST(m_vtbl, &g_vtbl);
+    } else {
+        this->m_vtbl = 0x00888B14;
+    }
+
     this->my_slot = a2;
     this->field_10 = RESOURCE_KEY_TYPE_SOUND_ALIAS_DATABASE;
 }
@@ -45,7 +57,7 @@ bool sound_alias_database_resource_handler::_handle_resource(worldly_resource_ha
 
         sound_alias_database *the_sound_alias_database =
             CAST(the_sound_alias_database, resource);
-        
+
         if (a2 == UNLOAD)
         {
             assert(the_sound_alias_database == sound_manager::get_sound_alias_database());
@@ -67,7 +79,7 @@ bool sound_alias_database_resource_handler::_handle_resource(worldly_resource_ha
             v7.unmash_class(new_resource, nullptr
 #ifdef TARGET_XBOX
                 , mash::NORMAL_BUFFER
-#endif 
+#endif
                     );
             mash_info_struct::construct_class(new_resource);
 

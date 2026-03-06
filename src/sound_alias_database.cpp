@@ -4,11 +4,25 @@
 #include "utility.h"
 #include "common.h"
 #include "mash_info_struct.h"
+#include "variables.h"
 
 #include <cassert>
 
 VALIDATE_SIZE(sound_alias, 0x20);
 VALIDATE_SIZE(sound_alias_database, 0x14);
+
+#if !STANDALONE_SYSTEM
+
+sound_alias_database *& s_sound_alias_database = var<sound_alias_database *>(0x0095C854);
+
+#else
+
+sound_alias_database *& s_sound_alias_database = []() -> auto & {
+    static sound_alias_database * s_sound_alias_database1 {};
+    return s_sound_alias_database1;
+}();
+
+#endif
 
 sound_alias::sound_alias(from_mash_in_place_constructor *a2) : field_0(a2), field_4(a2) {
 }
