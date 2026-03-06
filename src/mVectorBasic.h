@@ -32,6 +32,8 @@ struct mVectorBasic : mContainer_base
         return this->m_data[i];
     }
 
+    void destruct_mashed_class();
+
     void unmash(mash_info_struct *, void *);
 
     void custom_unmash(mash_info_struct *, void *);
