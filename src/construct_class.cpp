@@ -157,8 +157,13 @@ void mash_info_struct::construct_class(gab_database *&a1)
 {
     if ( a1 != nullptr )
     {
-        void (__fastcall *func)(void *, int edx, void *) = CAST(func, 0x005E0E80);
-        func(a1, 0, nullptr);
+        if constexpr (1) {
+            from_mash_in_place_constructor *v1 = nullptr;
+            a1 = new (a1) gab_database {v1};
+        } else {
+            void (__fastcall *func)(void *, int edx, void *) = CAST(func, 0x005E0E80);
+            func(a1, 0, nullptr);
+        }
     }
 }
 

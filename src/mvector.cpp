@@ -26,6 +26,7 @@
 #include "fetext.h"
 #include "femultilinetext.h"
 #include "func_wrapper.h"
+#include "gab_manager.h"
 #include "interact_sound_entry.h"
 #include "interaction.h"
 #include "layer_state_machine_shared.h"
@@ -2095,4 +2096,55 @@ void mVector<patrol_def>::custom_unmash(mash_info_struct *a2, void *)
     }
 
     this->field_0 = (int)&a2->mash_image_ptr[0][a2->buffer_size_used[0] - (DWORD)this];
+}
+
+template<>
+void mVector<gab_archetype>::custom_unmash(
+        mash_info_struct *a2,
+        void *a3)
+{
+    TRACE("mVector<gab_archetype>::custom_unmash");
+
+    if ( this->m_data != nullptr )
+    {
+        this->m_data = (value_type **) a2->read_from_buffer(4 * this->m_size, 4);
+        for ( int i = 0; i < this->m_size; ++i )
+        {
+            a2->unmash_class(this->m_data[i], a3
+#ifdef TARGET_XBOX
+                , mash::NORMAL_BUFFER
+#endif
+                );
+        }
+    }
+
+    this->field_0 = (int)&a2->mash_image_ptr[0][a2->buffer_size_used[0] - (DWORD)this];
+}
+
+template<>
+void mVector<gab_expression>::custom_unmash(
+        mash_info_struct *a2,
+        void *a3)
+{
+    TRACE("mVector<gab_expression>::custom_unmash");
+
+    if constexpr (1) {
+        if ( this->m_data != nullptr )
+        {
+            this->m_data = (value_type **) a2->read_from_buffer(4 * this->m_size, 4);
+            for ( int i = 0; i < this->m_size; ++i )
+            {
+                a2->unmash_class(this->m_data[i], a3
+#ifdef TARGET_XBOX
+                        , mash::NORMAL_BUFFER
+#endif
+                        );
+            }
+        }
+
+        this->field_0 = (int)&a2->mash_image_ptr[0][a2->buffer_size_used[0] - (DWORD)this];
+    } else {
+        void (__fastcall *func)(void *, void *edx, mash_info_struct *, void *) = CAST(func, 0x005E7000);
+        func(this, nullptr, a2, a3);
+    }
 }

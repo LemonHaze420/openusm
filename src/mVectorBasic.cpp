@@ -16,6 +16,7 @@
 #include "combo_system_move.h"
 #include "combo_system_weapon.h"
 #include "func_wrapper.h"
+#include "gab_manager.h"
 #include "mash_virtual_base.h"
 #include "memory.h"
 #include "param_block.h"
@@ -164,3 +165,44 @@ void mVectorBasic<vhandle_type<actor>>::reserve(int a2)
         this->m_max_size = a2;
     }
 }
+
+template<>
+void mVectorBasic<gab_source>::custom_unmash(mash_info_struct *a1, void *)
+{
+    TRACE("mVectorBasic<gab_source>::custom_unmash");
+
+#ifdef TARGET_XBOX
+    this->field_C = this->m_size;
+    if ( this->m_size <= 0 )
+    {
+        this->m_data = nullptr;
+    }
+    else
+#else
+    if ( this->m_data != nullptr )
+#endif
+    {
+        this->m_data = bit_cast<value_type *>(a1->read_from_buffer(
+#ifdef TARGET_XBOX
+            mash::NORMAL_BUFFER,
+#endif
+            8 * this->m_size, 4));
+    }
+
+    this->field_0 = (int)&a1->mash_image_ptr[0][a1->buffer_size_used[0] - (DWORD) this];
+}
+
+
+template<>
+void mVectorBasic<gab_source>::unmash(mash_info_struct *a1, void *a2)
+{
+#ifdef TARGET_XBOX
+    [](mash_info_struct *a1, mash::buffer_type a2, uint32_t &a3)
+    {
+        a3 = *bit_cast<int *>(a1->read_from_buffer(a2, 4, 4));
+    }(a1, mash::SHARED_BUFFER, m_size);
+#endif
+
+    this->custom_unmash(a1, a2);
+}
+
