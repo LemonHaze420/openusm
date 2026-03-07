@@ -269,8 +269,8 @@ bool nalLoadAnimFileInternal(nalAnimFile *anim_file)
 
         nalAnimClass<nalAnyPose> *anim_class = nullptr;
         if (anim_file->field_34 != nullptr) {
-            anim_file->field_34 += (unsigned int) anim_file;
-            anim_class = CAST(anim_class, anim_file->field_34);
+            anim_file->field_34 = CAST(anim_file->field_34, bit_cast<char *>(anim_file->field_34) + (unsigned int) anim_file);
+            anim_class = anim_file->field_34;
         }
 
         while (anim_class != nullptr)
