@@ -108,11 +108,10 @@ void pause_menu_status::_Load() {
         this->field_E0->SetPos(v34, v30);
         int v27 = this->field_A4[1]->GetX();
         int v26 = this->field_A4[1]->GetY();
-        auto *v14 = mem_alloc(sizeof(FEText));
 
         float a5 = v26 - 45.f;
         float a4 = v27;
-        auto *v15 = new (v14) FEText {
+        auto *v15 = new FEText {
                 static_cast<font_index>(1),
                 static_cast<global_text_enum>(292),
                 a4,

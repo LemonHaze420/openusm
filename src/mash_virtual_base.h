@@ -21,6 +21,10 @@ struct mash_virtual_base {
 
     mash_virtual_base();
 
+    void * operator new(size_t sz);
+
+    void operator delete(void *ptr, size_t sz);
+
     void destruct_mashed_class();
 
     void unmash(mash_info_struct *, void *);

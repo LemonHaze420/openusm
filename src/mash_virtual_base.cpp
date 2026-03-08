@@ -25,6 +25,14 @@ mash_virtual_base::mash_virtual_base()
 
 }
 
+void * mash_virtual_base::operator new(size_t sz) {
+    return mem_alloc(sz);
+}
+
+void mash_virtual_base::operator delete(void *ptr, size_t sz) {
+    mem_dealloc(ptr, sz);
+}
+
 void *mash_virtual_base::create_subclass_by_enum(mash::virtual_types_enum a1)
 {
     TRACE("mash_virtual_base::create_subclass_by_enum");
