@@ -213,6 +213,26 @@ void spline::add_control_pt(const vector3d &a1)
     this->field_3E = true;
 }
 
+void spline::clear()
+{
+    this->control_pts.clear();
+    this->curve_pts.clear();
+    this->need_rebuild = true;
+}
+
+void spline::reserve_control_pts(int a2)
+{
+    this->clear();
+    this->control_pts.reserve(a2);
+}
+
+void spline::set_force_start(bool a2)
+{
+    auto v2 = this->field_3C != a2;
+    this->need_rebuild = v2;
+    this->field_3C = a2;
+}
+
 void spline_patch()
 {
     {

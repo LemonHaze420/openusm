@@ -49,6 +49,13 @@ struct spline {
 
     void add_control_pt(const vector3d &a1);
 
+    void clear();
+
+    //0x0048FCE0
+    void reserve_control_pts(int a2);
+
+    void set_force_start(bool a2);
+
     inline uint32_t get_num_control_pts() {
         return control_pts.size();
     }

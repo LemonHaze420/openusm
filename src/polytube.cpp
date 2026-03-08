@@ -234,6 +234,16 @@ void polytube::create_tentacle_info()
     THISCALL(0x005A2930, this);
 }
 
+void polytube::reserve_control_pts(int num)
+{
+    this->the_spline.reserve_control_pts(num);
+}
+
+void polytube::set_force_start(bool a1)
+{
+    this->the_spline.set_force_start(a1);
+}
+
 void PolytubeCustomVertex::Iterator::Write(
         const vector3d &a2,
         const vector3d &a3)

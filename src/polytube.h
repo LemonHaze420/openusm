@@ -138,6 +138,10 @@ struct polytube : entity {
 
     void create_tentacle_info();
 
+    void reserve_control_pts(int num);
+
+    void set_force_start(bool a1);
+
     //0x005A5B10
     //virtual
     void _render(Float a2);

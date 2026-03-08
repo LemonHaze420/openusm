@@ -973,25 +973,9 @@ void swing_inode::init_swingers()
 
             v7->force_regions(this->get_actor());
 
-            v7->the_spline.need_rebuild = !v7->the_spline.field_3C;
-            v7->the_spline.field_3C = true;
-            auto *p_the_spline = &v7->the_spline;
-            if ( v7->the_spline.control_pts.m_first )
-                operator delete(v7->the_spline.control_pts.m_first);
+            v7->set_force_start(true);
 
-            p_the_spline->control_pts.m_first = 0;
-            p_the_spline->control_pts.m_last = 0;
-            p_the_spline->control_pts.m_end = 0;
-
-            if ( p_the_spline->curve_pts.m_first )
-                operator delete(p_the_spline->curve_pts.m_first);
-
-            p_the_spline->curve_pts.m_first = 0;
-            p_the_spline->curve_pts.m_last = 0;
-            p_the_spline->curve_pts.m_end = 0;
-
-            p_the_spline->need_rebuild = true;
-            p_the_spline->control_pts.reserve(4u);
+            v7->reserve_control_pts(4);
 
             for (int j = 0; j < 4; ++j ) {
                 v7->add_control_pt(ZEROVEC);
@@ -1045,25 +1029,10 @@ void swing_inode::init_swingers()
             }
 
             auto *v18 = swingers[i].field_94;
-            v18->the_spline.need_rebuild = !v18->the_spline.field_3C;
-            v18->the_spline.field_3C = true;
 
-            auto *v20 = &v18->the_spline;
-            if ( v18->the_spline.control_pts.m_first )
-                operator delete(v18->the_spline.control_pts.m_first);
+            v18->set_force_start(true);
 
-            v20->control_pts.m_first = 0;
-            v20->control_pts.m_last = 0;
-            v20->control_pts.m_end = 0;
-            if ( v20->curve_pts.m_first )
-                operator delete(v20->curve_pts.m_first);
-
-            v20->curve_pts.m_first = 0;
-            v20->curve_pts.m_last = 0;
-            v20->curve_pts.m_end = 0;
-            v20->need_rebuild = true;
-
-            v20->control_pts.reserve(10u);
+            v18->reserve_control_pts(10);
 
             for ( int k = 0; k < 10; ++k ) {
                 v18->add_control_pt(ZEROVEC);
