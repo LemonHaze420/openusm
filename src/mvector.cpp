@@ -46,6 +46,7 @@
 #include "token_def.h"
 #include "trace.h"
 #include "trigger_region.h"
+#include "variables.h"
 #include "vtbl.h"
 #include "web_interface.h"
 
@@ -522,7 +523,7 @@ void mVector<als::layer_state_machine_shared>::custom_unmash(mash_info_struct *a
 #endif
 
     {
-        this->m_data = (als::layer_state_machine_shared **) a2->read_from_buffer(
+        this->m_data = (value_type **) a2->read_from_buffer(
 #ifdef TARGET_XBOX
             mash::NORMAL_BUFFER,
 #endif 
@@ -542,6 +543,7 @@ void mVector<als::layer_state_machine_shared>::custom_unmash(mash_info_struct *a
                 v5 = (als::layer_state_machine_shared *)v6;
                 mash_virtual_base::fixup_vtable(v6);
 
+#if !STANDALONE_SYSTEM
                 {
                     struct {
                         int m_vtbl;
@@ -549,6 +551,7 @@ void mVector<als::layer_state_machine_shared>::custom_unmash(mash_info_struct *a
 
                     assert(tmp->m_vtbl == 0x0087E3A4);
                 }
+#endif
 
                 auto v7 = v5->get_mash_sizeof();
                 a2->advance_buffer(
@@ -659,13 +662,16 @@ void mVector<als::state>::custom_unmash(mash_info_struct *a2, [[maybe_unused]] v
 
             mash_virtual_base::fixup_vtable(v5);
 
+#if !STANDALONE_SYSTEM
             assert(v5->m_vtbl == 0x0087E1D8 || v5->m_vtbl == 0x0087E214);
+#endif
+
             auto v7 = v5->get_mash_sizeof();
             a2->advance_buffer(
 #ifdef TARGET_XBOX
                     mash::NORMAL_BUFFER,
 #endif 
-                    v7 - 0x14);
+                    v7 - sizeof(value_type));
 
             v5->unmash(a2, nullptr);
         }
@@ -979,7 +985,10 @@ void mVector<als::category>::custom_unmash(mash_info_struct *a2, [[maybe_unused]
                     sizeof(als::category), 0);
             v5 = (als::category *)v6;
             mash_virtual_base::fixup_vtable(v5);
+
+#if !STANDALONE_SYSTEM
             assert(v5->m_vtbl == 0x0087E250);
+#endif
 
             auto v7 = v5->get_mash_sizeof();
             a2->advance_buffer(
@@ -1324,7 +1333,7 @@ void mVector<ai::param_block::param_data>::custom_unmash(mash_info_struct *a2, v
     if ( this->m_data != nullptr )
 #endif
     {
-        this->m_data = (ai::param_block::param_data **) a2->read_from_buffer(
+        this->m_data = (value_type **) a2->read_from_buffer(
 #ifdef TARGET_XBOX
                 mash::NORMAL_BUFFER,
 #endif 
@@ -1333,11 +1342,11 @@ void mVector<ai::param_block::param_data>::custom_unmash(mash_info_struct *a2, v
         for ( auto i = 0; i < this->m_size; ++i )
         {
             auto &a1 = this->m_data[i];
-            auto *v6 = (ai::param_block::param_data *) a2->read_from_buffer(
+            auto *v6 = (value_type *) a2->read_from_buffer(
 #ifdef TARGET_XBOX
                 mash::NORMAL_BUFFER,
 #endif 
-                12, 4);
+                sizeof(value_type), 4);
             a1 = v6;
             a1->unmash(a2, a3);
         }
