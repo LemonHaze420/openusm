@@ -275,8 +275,8 @@ bool nalLoadAnimFileInternal(nalAnimFile *anim_file)
 
         while (anim_class != nullptr)
         {
-            if (anim_class->field_4) {
-                anim_class->field_4 += (unsigned int) anim_class;
+            if (anim_class->field_4 != nullptr) {
+                anim_class->field_4 = CAST(anim_class->field_4, int(anim_class->field_4) + (unsigned int) anim_class);
             }
 
             auto *v7 = skeletons[anim_class->field_28];
@@ -289,9 +289,7 @@ bool nalLoadAnimFileInternal(nalAnimFile *anim_file)
             auto vtbl = static_cast<nalInitListAnimType *>(instance->field_20)->anim_vtbl_ptr;
             anim_class->m_vtbl = vtbl;
 
-            bool (__fastcall *CheckVersion)(void *) = CAST(CheckVersion, get_vfunc(anim_class->m_vtbl, 0xC));
-
-            if (!CheckVersion(anim_class)) {
+            if (!anim_class->CheckVersion()) {
                 auto *v3 = &anim_class->field_8;
                 auto *v9 = v3->to_string();
                 auto v4 = anim_class->Version;
@@ -300,14 +298,14 @@ bool nalLoadAnimFileInternal(nalAnimFile *anim_file)
 
             anim_class->InstanceCount = 0;
 
-            void (__fastcall *Process)(void *) = CAST(Process, get_vfunc(anim_class->m_vtbl, 0x4));
-            Process(anim_class);
+            anim_class->Process();
 
-            bool (__fastcall *Add)(void *, void *, nalAnimClass<nalAnyPose> *) = CAST(Add, get_vfunc(nalAnimDirectory->m_vtbl, 0x10));
-            if (Add(nalAnimDirectory, nullptr, anim_class)) {
+            if (nalAnimDirectory->Add(anim_class)) {
                 auto *v6 = anim_class->field_8.to_string();
                 sp_log("Duplicate anim %s found.\n", v6);
             }
+
+            anim_class = anim_class->field_4;
         }
 
         tlMemFree(skeletons);
