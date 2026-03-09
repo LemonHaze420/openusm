@@ -107,12 +107,14 @@ target_compile_options(usm
     ${flags}
 )
 
-add_library(binkw32 SHARED main.cpp)
-target_compile_options(binkw32
-    PRIVATE
-    ${flags}
-)
-target_link_libraries(binkw32 PUBLIC dxerr8 usm)
+if(NOT SETUP_STANDALONE_SYSTEM)
+    add_library(binkw32 SHARED main.cpp)
+    target_compile_options(binkw32
+        PRIVATE
+        ${flags}
+    )
+    target_link_libraries(binkw32 PUBLIC dxerr8 usm)
+endif()
 
 
 file(GLOB_RECURSE BASE_SRC "./src/base/source/*.cpp")
