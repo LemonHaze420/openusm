@@ -294,7 +294,7 @@ void character_anim_controller::gen_std_play_method::Compose(
 
     if constexpr (0)
     {
-        a2->field_0->VirtualGetPose(a2->field_18, a2->field_1C, a4.field_0, a5.field_0);
+        a2->field_0->VirtualGetPose(a2->field_18, a2->field_1C, *a4.field_0, *a5.field_0);
         a3.field_0->field_0->VirtualBlend(
                 a3.field_0,
                 a2->field_20.field_0,

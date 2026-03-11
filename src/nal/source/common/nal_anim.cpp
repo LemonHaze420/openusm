@@ -66,6 +66,41 @@ void nalAnimClass<nalAnyPose>::nalInstanceClass::finalize(
     }
 }
 
+template<>
+void nalAnimClass<nalAnyPose>::nalInstanceClass::VirtualGetPose(
+        Float a1,
+        Float a2,
+        nalBasePose &a3,
+        const nalBasePose &a4)
+{
+    void (__fastcall *func)(void *, void *edx,
+            Float,
+            Float,
+            nalBasePose *,
+            const nalBasePose *) = CAST(func, get_vfunc(m_vtbl, 0x4));
+    func(this, nullptr, a1, a2, &a3, &a4);
+}
+
+
+template<>
+void nalAnimClass<nalAnyPose>::nalInstanceClass::GetPose(
+        Float a2,
+        Float a3,
+        nalAnyPose &pose,
+        const nalAnyPose &defaultPose)
+{
+    assert(this->GetSkeleton() == pose.GetSkeleton() && this->GetSkeleton() == defaultPose.GetSkeleton() &&
+        "pose skeleton types do not match");
+
+    auto v9 = defaultPose.field_0;
+    auto v7 = pose.field_0;
+    this->VirtualGetPose(
+            a2,
+            a3,
+            *v7,
+            *v9);
+}
+
 nalAnyPose::nalAnyPose(nalBaseSkeleton *a2)
 {
     this->field_0 = a2->VirtualCreatePose();
@@ -144,19 +179,5 @@ nalBaseInstance::nalBaseInstance(nalAnimClass<nalAnyPose> *a2, nalBaseSkeleton *
     nalAnimClass<nalAnyPose>::nalInstanceClass(a2, a3)
 {
     this->m_vtbl = 0x008AA28C;
-}
-
-void nalBaseInstance::VirtualGetPose(
-        Float a1,
-        Float a2,
-        nalBasePose *a3,
-        const nalBasePose *a4)
-{
-    void (__fastcall *func)(void *, void *edx,
-            Float,
-            Float,
-            nalBasePose *,
-            const nalBasePose *) = CAST(func, get_vfunc(m_vtbl, 0x4));
-    func(this, nullptr, a1, a2, a3, a4);
 }
 

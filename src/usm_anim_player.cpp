@@ -50,7 +50,7 @@ void usm_anim_player<nalAnimClass<nalAnyPose>, 3>::nalAnimState::sub_853C80(
         nalAnyPose &a3,
         const nalAnyPose &a4)
 {
-    this->field_0->VirtualGetPose(this->field_18, this->field_1C, a3.field_0, a4.field_0);
+    this->field_0->VirtualGetPose(this->field_18, this->field_1C, *a3.field_0, *a4.field_0);
 
     sub_826140(a2, this->field_20.field_0, a2, a3);
 }

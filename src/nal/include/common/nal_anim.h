@@ -44,6 +44,16 @@ struct nalAnimClass {
 
         void operator delete(void *ptr);
 
+        const nalBaseSkeleton * GetSkeleton() const {
+            return this->field_C;
+        }
+
+        void GetPose(
+                Float a2,
+                Float a3,
+                nalAnyPose &pose,
+                const nalAnyPose &defaultPose);
+
         //virtual
         ~nalInstanceClass();
 
@@ -108,13 +118,6 @@ struct nalBaseInstance : nalAnimClass<nalAnyPose>::nalInstanceClass {
         nalAnimClass<nalAnyPose> *a2,
         nalBaseSkeleton *a3
     );
-
-    //virtual
-    void VirtualGetPose(
-            Float a1,
-            Float a2,
-            nalBasePose *a3,
-            const nalBasePose *a4);
 };
 
 
