@@ -30,10 +30,13 @@ struct nalBaseSkeleton {
     nalBasePose* VirtualGetDefaultPose(); // = 0;
 
     //virtual
-    nalBasePose * VirtualCreatePose(); // = 0;
+    nalBasePose * VirtualCreatePose() const; // = 0;
 
     //virtual
     void VirtualDestroyPose(nalBasePose *a2); // = 0;
+
+    //virtual
+    void VirtualCopyPose(nalBasePose &a2, const nalBasePose &a3) const;
 
     const tlFixedString & GetName() const
     {
