@@ -10,10 +10,6 @@
 struct nalBaseSkeleton;
 struct nalBasePose;
 
-namespace nalComp {
-struct nalCompSkeleton;
-}
-
 struct nalAnyPose {
     nalBasePose *field_0;
 
@@ -21,9 +17,11 @@ struct nalAnyPose {
 
     nalAnyPose(nalBaseSkeleton *a2);
 
-    nalAnyPose(const nalBasePose *a2, bool a3);
+    nalAnyPose(const nalBasePose &a2, bool a3);
 
-    nalComp::nalCompSkeleton * GetSkeleton();
+    nalAnyPose(const nalAnyPose &a2, bool a3);
+
+    const nalBaseSkeleton * GetSkeleton() const;
 
     void operator=(const nalAnyPose &a2);
 };
@@ -51,6 +49,10 @@ struct nalAnimClass {
 
         //0x00796D50
         void finalize(bool a2);
+
+        //virtual
+        void VirtualGetPose(Float t, Float t_prev, nalBasePose &pose, const nalBasePose &defaultPose); // = 0;
+
     };
 
     std::intptr_t m_vtbl;
@@ -67,7 +69,7 @@ struct nalAnimClass {
         return this->Skeleton;
     }
 
-    void * CreateInstance(nalBaseSkeleton *skeleton);
+    nalInstanceClass * CreateInstance(nalBaseSkeleton *skeleton);
 
     void _Process() {}
 
@@ -93,7 +95,7 @@ struct nalAnimClass {
     }
 
     //virtual
-    void *VirtualCreateInstance(nalBaseSkeleton *Skel);
+    nalInstanceClass * VirtualCreateInstance(nalBaseSkeleton *Skel);
 
     static tlFixedString * get_string(nalAnimClass<T> *a1)
     {
@@ -128,6 +130,16 @@ inline T *nalAnimPtrCast(nalAnimClass<nalAnyPose> *a1)
     }
 
     return nullptr;
+}
+
+template<typename nalInstance>
+inline void GetPose(nalInstance *inst,
+        Float t,
+        Float t_prev,
+        typename nalInstance::nalPose &pose,
+        const typename nalInstance::nalPose &defaultPose)
+{
+    inst->GetPose(t, t_prev, pose, defaultPose);
 }
 
 extern void sub_826140(nalAnyPose &a1, Float a2, nalAnyPose &a3, nalAnyPose &a4);

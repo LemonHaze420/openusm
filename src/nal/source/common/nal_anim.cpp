@@ -4,7 +4,6 @@
 #include "nal_anim_comp.h"
 #include "nal_skeleton.h"
 #include "nal_system.h"
-#include "vtbl.h"
 
 VALIDATE_SIZE(nalAnimClass<nalAnyPose>::nalInstanceClass, 0x14);
 
@@ -51,7 +50,9 @@ template<>
 nalAnimClass<nalAnyPose>::nalInstanceClass::~nalInstanceClass()
 {
     this->m_vtbl = 0x0087E688;
-    --this->field_10->InstanceCount;
+    if (this->field_10 != nullptr) {
+        --this->field_10->InstanceCount;
+    }
 }
 
 template<>
@@ -70,25 +71,36 @@ nalAnyPose::nalAnyPose(nalBaseSkeleton *a2)
     this->field_0 = a2->VirtualCreatePose();
 }
 
-nalAnyPose::nalAnyPose(const nalBasePose *a2, bool a3)
+nalAnyPose::nalAnyPose(const nalBasePose &a2, bool a3)
 {
-    auto *skel = a2->GetSkeleton();
+    auto *skel = a2.GetSkeleton();
     this->field_0 = skel->VirtualCreatePose();
     if ( a3 )
     {
         auto *v4 = this->GetSkeleton();
-        v4->VirtualCopyPose(this->field_0, a2);
+        v4->VirtualCopyPose(*this->field_0, a2);
     }
 }
 
-nalComp::nalCompSkeleton * nalAnyPose::GetSkeleton()
+nalAnyPose::nalAnyPose(const nalAnyPose &a2, bool a3)
+{
+    auto *skel = a2.GetSkeleton();
+    this->field_0 = skel->VirtualCreatePose();
+    if ( a3 )
+    {
+        auto *v4 = this->GetSkeleton();
+        v4->VirtualCopyPose(*this->field_0, *a2.field_0);
+    }
+}
+
+const nalBaseSkeleton * nalAnyPose::GetSkeleton() const
 {
     return this->field_0->GetSkeleton();
 }
 
 void nalAnyPose::operator=(const nalAnyPose &a2)
 {
-    this->GetSkeleton()->VirtualCopyPose(this->field_0, a2.field_0);
+    this->GetSkeleton()->VirtualCopyPose(*this->field_0, *a2.field_0);
 }
 
 template<>
@@ -98,14 +110,14 @@ void nalAnimClass<nalAnyPose>::Release() {
 }
 
 template<>
-void *nalAnimClass<nalAnyPose>::VirtualCreateInstance(nalBaseSkeleton *Skel)
+nalAnimClass<nalAnyPose>::nalInstanceClass * nalAnimClass<nalAnyPose>::VirtualCreateInstance(nalBaseSkeleton *Skel)
 {
-    void * (__fastcall *func)(void *, void *, nalBaseSkeleton *) = CAST(func, get_vfunc(m_vtbl, 0x10));
+    nalInstanceClass * (__fastcall *func)(void *, void *, nalBaseSkeleton *) = CAST(func, get_vfunc(m_vtbl, 0x10));
     return func(this, nullptr, Skel);
 }
 
 template<>
-void * nalAnimClass<nalAnyPose>::CreateInstance(nalBaseSkeleton *skeleton)
+nalAnimClass<nalAnyPose>::nalInstanceClass * nalAnimClass<nalAnyPose>::CreateInstance(nalBaseSkeleton *skeleton)
 {
     if ( skeleton != nullptr )
     {
