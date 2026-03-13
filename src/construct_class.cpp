@@ -7,6 +7,7 @@
 #include "als_res_data.h"
 #include "base_ai_res_state_graph.h"
 #include "base_ai_data.h"
+#include "combo_system.h"
 #include "core_ai_resource.h"
 #include "cut_scene.h"
 #include "func_wrapper.h"
@@ -282,5 +283,14 @@ void mash_info_struct::construct_class(glass_house *&a1)
     {
         from_mash_in_place_constructor *v1 = nullptr;
         a1 = new (a1) glass_house {v1};
+    }
+}
+
+template<>
+void mash_info_struct::construct_class(combo_system *& a1)
+{
+    if ( a1 != nullptr )
+    {
+        a1 = new (a1) combo_system {nullptr};
     }
 }
