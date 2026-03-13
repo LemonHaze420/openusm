@@ -53,28 +53,34 @@ void mash_virtual_base::destruct_mashed_class() {
     ;
 }
 
-void mash_virtual_base::unmash(mash_info_struct *a2, void *a3) {
-    if constexpr (1)
-    {
-        void (__fastcall *func)(void *, int, mash_info_struct *, void *) = CAST(func, get_vfunc(m_vtbl, 0x4));
-        func(this, 0, a2, a3);
-    }
-    else
-    {
-        ;
-    }
+void mash_virtual_base::_unmash(mash_info_struct *, void *) {}
+
+void mash_virtual_base::unmash(mash_info_struct *a2, void *a3)
+{
+    void (__fastcall *func)(void *, int, mash_info_struct *, void *) = CAST(func, get_vfunc(m_vtbl, 0x4));
+    func(this, 0, a2, a3);
+}
+
+uint32_t mash_virtual_base::_get_virtual_type_enum() const {
+    return 573;
 }
 
 uint32_t mash_virtual_base::get_virtual_type_enum() const {
-    return 573;
+    uint32_t (__fastcall *func)(const void *) = CAST(func, get_vfunc(m_vtbl, 0xC));
+    return func(this);
 }
 
 bool mash_virtual_base::is_subclass_of(mash::virtual_types_enum) const {
     return false;
 }
 
-bool mash_virtual_base::is_or_is_subclass_of(mash::virtual_types_enum a2) const {
+bool mash_virtual_base::_is_or_is_subclass_of(mash::virtual_types_enum a2) const {
     return this->get_virtual_type_enum() == a2 || this->is_subclass_of(a2);
+}
+
+bool mash_virtual_base::is_or_is_subclass_of(mash::virtual_types_enum a2) const {
+    bool (__fastcall *func)(const void *, void *edx, mash::virtual_types_enum) = CAST(func, get_vfunc(m_vtbl, 0x14));
+    return func(this, nullptr, a2);
 }
 
 void mash_virtual_base::generate_vtable()

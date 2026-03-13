@@ -27,16 +27,25 @@ struct mash_virtual_base {
 
     void destruct_mashed_class();
 
+    void _unmash(mash_info_struct *, void *);
+
+    //virtual
     void unmash(mash_info_struct *, void *);
 
     ~mash_virtual_base() = default;
 
     //0x0041F840
+    uint32_t _get_virtual_type_enum() const;
+
+    //virtual
     uint32_t get_virtual_type_enum() const;
 
     bool is_subclass_of(mash::virtual_types_enum) const;
 
     //0x0041F850
+    bool _is_or_is_subclass_of(mash::virtual_types_enum a2) const;
+
+    //virtual
     bool is_or_is_subclass_of(mash::virtual_types_enum a2) const;
 
     //0x00432B60
