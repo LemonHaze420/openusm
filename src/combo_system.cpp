@@ -54,6 +54,8 @@ void combo_system_chain::unmash(mash_info_struct *a1, void *)
 
 combo_system::combo_system() {}
 
+combo_system::combo_system(from_mash_in_place_constructor *a2) : field_0(a2), field_14(a2), field_28(a2), field_3C(a2) {}
+
 combo_system_weapon *combo_system::get_weapon(int idx) {
     return this->field_28.m_data[(uint16_t) idx];
 }
@@ -66,7 +68,7 @@ void combo_system::unmash(mash_info_struct *a1, void *a3)
 {
     TRACE("combo_system::unmash");
 
-    if constexpr (0)
+    if constexpr (1)
     {
         a1->unmash_class_in_place(this->field_0, this);
 

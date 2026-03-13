@@ -52,6 +52,9 @@ struct combo_system {
 
     combo_system();
 
+    //0x004896B0
+    combo_system(from_mash_in_place_constructor *a2);
+
     //0x00489720
     void unmash(mash_info_struct *a1, void *a3);
 
