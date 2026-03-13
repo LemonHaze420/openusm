@@ -135,8 +135,13 @@ void mash_info_struct::construct_class(ai::param_block *&a1)
 {
     if ( a1 != nullptr )
     {
-        void (__fastcall *func)(void *, int edx, void *) = CAST(func, 0x006D9900);
-        func(a1, 0, nullptr);
+        if constexpr (1) {
+            from_mash_in_place_constructor *v1 = nullptr;
+            a1 = new (a1) ai::param_block {v1};
+        } else {
+            void (__fastcall *func)(void *, int edx, void *) = CAST(func, 0x006D9900);
+            func(a1, 0, nullptr);
+        }
     }
 }
 
@@ -283,6 +288,15 @@ void mash_info_struct::construct_class(glass_house *&a1)
     {
         from_mash_in_place_constructor *v1 = nullptr;
         a1 = new (a1) glass_house {v1};
+    }
+}
+
+template<>
+void mash_info_struct::construct_class(ai::param_block::param_data_array *& a1)
+{
+    if ( a1 != nullptr )
+    {
+        a1 = new (a1) ai::param_block::param_data_array {nullptr};
     }
 }
 

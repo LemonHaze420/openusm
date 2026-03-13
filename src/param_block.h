@@ -11,6 +11,7 @@
 #include <variant>
 
 struct entity_base_vhandle;
+struct from_mash_in_place_constructor;
 
 namespace ai {
 
@@ -34,6 +35,8 @@ struct param_block {
     public:
 
         param_data();
+
+        param_data(from_mash_in_place_constructor *a2);
 
         ~param_data();
 
@@ -90,15 +93,19 @@ struct param_block {
 
     struct param_data_array {
         mVector<param_block::param_data> field_0;
-        int field_14;
+        param_block::param_data *field_14;
+
+        param_data_array(from_mash_in_place_constructor *);
 
         ~param_data_array();
+
+        void initialize(mash::allocation_scope);
 
         void destruct_mashed_class();
 
         void finalize(mash::allocation_scope )
         {
-            this->field_14 = 0;
+            this->field_14 = nullptr;
         }
 
         //0x006CD450
@@ -109,10 +116,12 @@ struct param_block {
 
     int field_0;
     param_data_array *param_array;
-    char field_8;
+    bool field_8;
     char pad[3];
 
     param_block();
+
+    param_block(from_mash_in_place_constructor *a2);
 
     ~param_block();
 

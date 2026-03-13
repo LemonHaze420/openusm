@@ -1050,29 +1050,6 @@ void mVector<als::transition_group_base>::custom_unmash(mash_info_struct *a2, vo
 }
 
 template<>
-void mVector<ai::param_block::param_data>::initialize(mash::allocation_scope scope)
-{
-    if ( scope )
-    {
-        assert(scope == mash::FROM_MASH);
-
-        if ( this->m_data != nullptr )
-        {
-            assert(m_size > 0);
-            for ( int i = 0; i < this->m_size; ++i ) {
-                new (this->m_data[i]) ai::param_block::param_data {};
-            }
-        }
-    }
-    else
-    {
-        this->m_data = nullptr;
-        this->m_max_size = 0;
-        this->field_10 = true;
-    }
-}
-
-template<>
 void mVector<ai::param_block::param_data>::destroy_element(ai::param_block::param_data **a2)
 {
     if ( bit_cast<mContainer_base *>(this)->is_pointer_in_mash_image(*a2) )

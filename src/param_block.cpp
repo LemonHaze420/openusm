@@ -16,7 +16,21 @@ namespace ai {
 VALIDATE_SIZE(param_block, 0xC);
 VALIDATE_SIZE(param_block::param_data_array, 0x18);
 
+VALIDATE_SIZE(param_block::param_data, 0xC);
+
 param_block::param_block() {}
+
+param_block::param_block(from_mash_in_place_constructor *)
+{
+    TRACE("param_block::param_block");
+
+    if ( this->param_array != nullptr ) {
+        mash_info_struct::construct_class(this->param_array);
+    }
+
+    this->field_0 = 0;
+    this->field_8 = false;
+}
 
 void param_block::unmash(mash_info_struct *a1, void *a3)
 {
@@ -90,7 +104,7 @@ const char *param_block::get_pb_fixedstring(string_hash a2) const
     return curr_data->get_data_fixedstring();
 }
 
-void ai::param_block::set_pb_fixedstring(string_hash a2, const char *a3, bool a4)
+void param_block::set_pb_fixedstring(string_hash a2, const char *a3, bool a4)
 {
     if ( a4 || this->param_array->common_find_data(a2) != nullptr )
     {
@@ -161,9 +175,14 @@ void param_block::param_data::finalize(mash::allocation_scope a2)
 }
 
 param_block::param_data::param_data() {
-    this->m_name.initialize(mash::FROM_MASH, nullptr, 0);
+    this->initialize(mash::ALLOCATED);
+}
+
+param_block::param_data::param_data(from_mash_in_place_constructor *a2) : m_name(a2)
+{
     this->initialize(mash::FROM_MASH);
 }
+
 
 param_block::param_data::~param_data() {
     this->finalize(mash::ALLOCATED);
@@ -413,15 +432,27 @@ const char * ai::param_block::get_optional_pb_fixedstring(
     return curr_data->get_data_fixedstring();
 }
 
+param_block::param_data_array::param_data_array(from_mash_in_place_constructor *a2) : field_0(a2) {
+    this->initialize(mash::FROM_MASH);
+}
+
 param_block::param_data_array::~param_data_array()
 {
-    this->field_14 = 0;
+    this->field_14 = nullptr;
     this->field_0.clear();
+}
+
+void param_block::param_data_array::initialize(
+        mash::allocation_scope)
+{
+    this->field_14 = nullptr;
 }
 
 void param_block::param_data_array::unmash(mash_info_struct *a1, void *)
 {
-    a1->unmash_class_in_place(this->field_0, this); 
+    TRACE("param_block::param_data_array::unmash");
+
+    a1->unmash_class_in_place(this->field_0, this);
 }
 
 void param_block::param_data_array::destruct_mashed_class()
@@ -489,18 +520,20 @@ void param_block::destruct_mashed_class()
 
 void param_block::param_data::custom_unmash(mash_info_struct *a2, void *a3)
 {
-    if constexpr (0)
+    TRACE("param_block::param_data::custom_unmash");
+
+    if constexpr (1)
     {
         switch ( this->get_data_type() )
         {
         case PT_FIXED_STRING:
-            this->m_union.str = (char *) a2->read_from_buffer(0x20u, 4);
+            this->m_union.str = (char *) a2->read_from_buffer(sizeof(char[32]), 4);
             break;
         case PT_VECTOR_3D:
             this->m_union.vec3 = (vector3d *) a2->read_from_buffer(sizeof(vector3d), 4);
             break;
         case PT_FLOAT_VARIANCE:
-            this->m_union.float_variance = (variance_variable<float> *) a2->read_from_buffer(8, 4);
+            this->m_union.float_variance = (variance_variable<float> *) a2->read_from_buffer(sizeof(variance_variable<float>), 4);
             break;
         case PT_ENTITY:
         case PT_POINTER:
