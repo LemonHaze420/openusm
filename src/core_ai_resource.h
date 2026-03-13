@@ -24,6 +24,8 @@ struct core_ai_resource {
     //0x006D9A10
     core_ai_resource(from_mash_in_place_constructor *a2);
 
+    void initialize(mash::allocation_scope scope);
+
     //0x006D71F0
     void unmash(mash_info_struct *info_struct, void *a3);
 

@@ -4,6 +4,7 @@
 #include "common.h"
 #include "func_wrapper.h"
 #include "resource_key.h"
+#include "resource_manager.h"
 #include "trace.h"
 #include "utility.h"
 
@@ -14,8 +15,38 @@ namespace ai {
 VALIDATE_SIZE(core_ai_resource, 0x48);
 VALIDATE_OFFSET(core_ai_resource, my_locomotion_graphs, 0x28);
 
-core_ai_resource::core_ai_resource(from_mash_in_place_constructor *a2) {
-    THISCALL(0x006D9A10, this, a2);
+core_ai_resource::core_ai_resource(from_mash_in_place_constructor *a2)
+    : field_0(a2), my_base_graphs(a2), my_locomotion_graphs(a2)
+{
+    TRACE("core_ai_resource::core_ai_resource");
+
+    if constexpr (1) {
+        if (this->field_10 != nullptr) {
+            mash_info_struct::construct_class(this->field_10);
+        }
+
+        this->initialize(mash::FROM_MASH);
+    } else {
+        THISCALL(0x006D9A10, this, a2);
+    }
+}
+
+void core_ai_resource::initialize(mash::allocation_scope scope)
+{
+    if ( scope )
+    {
+        assert(scope == mash::FROM_MASH);
+
+        this->field_3C = resource_manager::get_resource_context();
+    }
+    else
+    {
+        this->field_3C = nullptr;
+        this->field_40 = 0;
+        this->field_C = 0;
+        this->field_10 = nullptr;
+        this->field_44 = false;
+    }
 }
 
 int core_ai_resource::destruct_mashed_class() {
@@ -26,7 +57,7 @@ void core_ai_resource::unmash(mash_info_struct *a1, void *a3)
 {
     TRACE("ai::core_ai_resource::unmash");
 
-    if constexpr (0)
+    if constexpr (1)
     {
         a1->unmash_class_in_place(this->field_0, this);
         a1->unmash_class_in_place(this->my_base_graphs, this);
