@@ -4,6 +4,9 @@
 
 #include "utility.h"
 
+struct from_mash_in_place_constructor;
+struct mash_info_struct;
+
 template<int ndwords = 2>
 struct fixedstring {
 
@@ -56,8 +59,12 @@ struct tlFixedString {
 
     tlFixedString(const tlFixedString &) = default;
 
+    tlFixedString(from_mash_in_place_constructor *) {}
+
     //0x004018D0
     tlFixedString(const char *a1);
+
+    void unmash(mash_info_struct *, void *);
 
     auto GetHash() const {
         return this->m_hash;

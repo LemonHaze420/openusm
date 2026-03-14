@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "func_wrapper.h"
+#include "mash_info_struct.h"
 #include "string_hash.h"
 #include "trace.h"
 #include "vtbl.h"
@@ -11,10 +12,26 @@ namespace als
 {
     VALIDATE_SIZE(als_meta_anim_base, 0x28);
 
+    als_meta_anim_base::als_meta_anim_base() {
+        if constexpr (0) {
+        } else {
+            this->m_vtbl = 0x00875458;
+        }
+    }
+
+    als_meta_anim_base::als_meta_anim_base(from_mash_in_place_constructor *a2) : field_8(a2) {
+        this->m_vtbl = 0x00875458;
+    }
+
+    const tlFixedString &als_meta_anim_base::_get_anim_name() const
+    {
+        return this->field_8;
+    }
+
     const tlFixedString &als_meta_anim_base::get_anim_name() const
     {
-        sp_log("%s %s", this->field_8.to_string(), string_hash {int(this->field_8.m_hash)}.to_string());
-        return this->field_8;
+        const tlFixedString & (__fastcall *func)(const void *) = CAST(func, get_vfunc(m_vtbl, 0x18));
+        return func(this);
     }
 
     bool als_meta_anim_base::is_anim_looping() const
@@ -57,10 +74,13 @@ namespace als
         return func(this);
     }
 
-    void als_meta_anim_base::_unmash(mash_info_struct *, void *)
+    void als_meta_anim_base::_unmash(mash_info_struct *a2, void *a3)
     {
         TRACE("als::als_meta_anim_base::unmash");
-        ;
+
+        mash_virtual_base::_unmash(a2, a3);
+
+        a2->unmash_class_in_place(this->field_8, this);
     }
 }
 

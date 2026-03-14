@@ -17,16 +17,16 @@ namespace als
         int field_4;
         tlFixedString field_8;
 
-        als_meta_anim_base() {
-            this->m_vtbl = 0x00875458;
-        }
+        als_meta_anim_base();
 
-        als_meta_anim_base(from_mash_in_place_constructor *)
-        {}
+        als_meta_anim_base(from_mash_in_place_constructor *);
 
         //virtual
         void _unmash(mash_info_struct *a1, void *a3);
 
+        const tlFixedString & _get_anim_name() const;
+
+        //virtual
         const tlFixedString & get_anim_name() const;
 
         //virtual
