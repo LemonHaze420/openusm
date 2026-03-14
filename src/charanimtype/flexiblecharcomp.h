@@ -37,8 +37,8 @@ struct FlexibleCharComp : CharComponentBase {
                 nullptr,
                 func_address(&_SkelPoseProcess),
                 nullptr,
-                nullptr,
-                nullptr,
+                func_address(&_AnimProcess),
+                func_address(&_AnimRelease),
                 nullptr,
                 nullptr,
                 nullptr,
@@ -93,6 +93,20 @@ struct FlexibleCharComp : CharComponentBase {
             static_cast<T0::StdPoseData *>(a3)
         );
     }
+
+    //virtual
+    void _AnimProcess(
+            uint32_t,
+            void *,
+            void *,
+            const void *) {}
+
+    //virtual
+    void _AnimRelease(
+            uint32_t,
+            void *,
+            void *,
+            const void *) {}
 
     //virtual
     void _CopyPoseDataToNothing(
