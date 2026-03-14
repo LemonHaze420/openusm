@@ -15,6 +15,7 @@
 #include "gab_manager.h"
 #include "glass_house.h"
 #include "interactable_interface.h"
+#include "mashed_state.h"
 #include "nugget.h"
 #include "panelfile.h"
 #include "path_graph.h"
@@ -174,8 +175,21 @@ void mash_info_struct::construct_class(ai::state_graph *&a1)
 {
     if ( a1 != nullptr )
     {
-        void (__fastcall *func)(void *, int edx, void *) = CAST(func, 0x006DA190);
-        func(a1, 0, nullptr);
+        if constexpr (1) {
+            a1 = new (a1) ai::state_graph {nullptr};
+        } else {
+            void (__fastcall *func)(void *, int edx, void *) = CAST(func, 0x006DA190);
+            func(a1, 0, nullptr);
+        }
+    }
+}
+
+template<>
+void mash_info_struct::construct_class(ai::mashed_state *&a1)
+{
+    if ( a1 != nullptr )
+    {
+        a1 = new (a1) ai::mashed_state {nullptr};
     }
 }
 

@@ -14,7 +14,7 @@ VALIDATE_SIZE(state_graph, 0x34);
 
 state_graph::state_graph(from_mash_in_place_constructor *a2) : field_0(a2), my_states(a2), field_20(a2)
 {
-    if constexpr (0)
+    if constexpr (1)
     {
         if ( this->field_1C != nullptr ) {
             mash_info_struct::construct_class(this->field_1C);
