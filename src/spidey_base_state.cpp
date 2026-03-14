@@ -31,7 +31,16 @@ VALIDATE_SIZE(spidey_base_state, 0x1C);
 
 spidey_base_state::spidey_base_state()
 {
-    THISCALL(0x00438E80, this);
+    if constexpr (1) {
+        this->m_vtbl = CAST(m_vtbl, &g_vtbl);
+    } else {
+        THISCALL(0x00438E80, this);
+    }
+}
+
+void spidey_base_state::_unmash(mash_info_struct *a1, void *a2)
+{
+    hero_base_state::_unmash(a1, a2);
 }
 
 string_hash spidey_base_state::get_desired_state_id(Float a3) const
