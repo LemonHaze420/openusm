@@ -14,6 +14,8 @@ namespace als
     struct implicit_transition_rule {
         als::basic_rule_data field_0;
 
+        implicit_transition_rule(from_mash_in_place_constructor *);
+
         bool can_transition(als_data &a1) const;
 
         void unmash(mash_info_struct *a1, void *a3);
@@ -37,6 +39,8 @@ namespace als
         int field_4;
         basic_rule_data::rule_action field_8;
         int field_14;
+
+        layer_transition_rule(from_mash_in_place_constructor *);
 
         void unmash(mash_info_struct *, void *);
 

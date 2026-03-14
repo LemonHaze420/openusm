@@ -5,6 +5,7 @@
 #include "als_basic_rule_data.h"
 #include "als_dest_weight_data.h"
 #include "als_res_data.h"
+#include "als_transition_rule.h"
 #include "base_ai_res_state_graph.h"
 #include "base_ai_data.h"
 #include "combo_system.h"
@@ -107,6 +108,12 @@ void mash_info_struct::construct_class(mVector<als::dest_weight_data> *&a1)
     {
         void (__fastcall *func)(void *, int edx, void *) = CAST(func, 0x004B1770);
         func(a1, 0, nullptr);
+template<>
+void mash_info_struct::construct_class(mVector<als::layer_transition_rule> *&a1)
+{
+    if ( a1 != nullptr )
+    {
+        a1 = new (a1) mVector<als::layer_transition_rule> {};
     }
 }
 
