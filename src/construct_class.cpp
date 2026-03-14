@@ -106,8 +106,16 @@ void mash_info_struct::construct_class(mVector<als::dest_weight_data> *&a1)
 {
     if ( a1 != nullptr )
     {
-        void (__fastcall *func)(void *, int edx, void *) = CAST(func, 0x004B1770);
-        func(a1, 0, nullptr);
+        if constexpr (1) {
+            from_mash_in_place_constructor *v1 = nullptr;
+            a1 = new (a1) mVector<als::dest_weight_data> {v1};
+        } else {
+            void (__fastcall *func)(void *, int edx, void *) = CAST(func, 0x004B1770);
+            func(a1, 0, nullptr);
+        }
+    }
+}
+
 template<>
 void mash_info_struct::construct_class(mVector<als::layer_transition_rule> *&a1)
 {
