@@ -1838,7 +1838,10 @@ uint8_t NGLTEX_GET_FORMAT(uint32_t format) {
     return (format & 0x000000FF);
 }
 
-int sub_782FE0(const D3DSURFACE_DESC &desc, const D3DLOCKED_RECT &rect) {
+int GetTextureSizeFromDesc(const D3DSURFACE_DESC &desc, const D3DLOCKED_RECT &rect)
+{
+    TRACE("GetTextureSizeFromDesc");
+
     auto format = desc.Format;
 
     int result = 0;
@@ -1854,18 +1857,18 @@ int sub_782FE0(const D3DSURFACE_DESC &desc, const D3DLOCKED_RECT &rect) {
 
     } else if (format != D3DFMT_DXT1) {
         switch (format) {
-        case D3DFMT_R8G8B8:
-        case D3DFMT_A8R8G8B8:
-        case D3DFMT_R5G6B5:
-        case D3DFMT_A1R5G5B5:
-        case D3DFMT_A4R4G4B4:
-        case D3DFMT_A8:
-        case D3DFMT_L8: {
-            result = rect.Pitch * desc.Height;
-            break;
-        }
-        default:
-            return result;
+            case D3DFMT_R8G8B8:
+            case D3DFMT_A8R8G8B8:
+            case D3DFMT_R5G6B5:
+            case D3DFMT_A1R5G5B5:
+            case D3DFMT_A4R4G4B4:
+            case D3DFMT_A8:
+            case D3DFMT_L8: {
+                result = rect.Pitch * desc.Height;
+                break;
+            }
+            default:
+                return result;
         }
 
         return result;
@@ -3697,43 +3700,39 @@ bool nglCanReleaseTexture(nglTexture *tex)
     return v1->field_38 + 1 < nglFrame();
 }
 
-void sub_783080(nglTexture *Tex, uint8_t **a2, uint8_t *a3, int a4)
+void CopyDataToTexture(nglTexture *Tex, uint8_t **a2, uint8_t *a3, int a4)
 {
-    if constexpr (1) {
-        IDirect3DSurface9 *v20;
-
-        D3DLOCKED_RECT rect;
-        D3DSURFACE_DESC a1;
-
+    if constexpr (1)
+    {
         if ((Tex->m_format & 0x10000000) != 0) {
             auto *v14 = Tex->DXTexture;
 
-            int v24[6];
-            v24[0] = 0;
-            v24[1] = 1;
-            v24[2] = 2;
-            v24[3] = 3;
-            v24[4] = 4;
-            v24[5] = 5;
+            int v24[6] {0, 1, 2, 3, 4, 5};
 
-            for (auto v15 = 0u; v15 < 6; ++v15) {
+            for (auto v15 = 0u; v15 < 6; ++v15)
+            {
                 auto **v16 = a2;
                 *a2 += (*a2 - a3) & 0x7F;
 
                 auto v17 = 0u;
-                if (Tex->m_numLevel) {
+                if (Tex->m_numLevel != 0) {
                     auto v18 = v24[v15];
                     for (auto i = v18; v17 < Tex->m_numLevel; v18 = i, ++v17) {
-                        v14->lpVtbl->GetSurfaceLevel(v14, v18, (IDirect3DSurface9 **) v17);
+
+                        IDirect3DSurface9 *v20;
+                        v14->lpVtbl->GetSurfaceLevel(v14, v18, &v20);
                         ++nglDebug.field_8;
 
+                        D3DSURFACE_DESC a1;
                         v20->lpVtbl->GetDesc(v20, &a1);
+
+                        D3DLOCKED_RECT rect;
                         v14->lpVtbl->LockRect(v14,
                                               v18,
                                               (D3DLOCKED_RECT *) v17,
                                               (const RECT *) &rect,
                                               0);
-                        auto v19 = sub_782FE0(a1, rect);
+                        auto v19 = GetTextureSizeFromDesc(a1, rect);
                         std::memcpy(rect.pBits, *v16, v19);
                         *a2 += v19;
                         v14->lpVtbl->UnlockRect(v14, i);
@@ -3746,28 +3745,24 @@ void sub_783080(nglTexture *Tex, uint8_t **a2, uint8_t *a3, int a4)
             }
         } else {
             auto *v6 = Tex->DXTexture;
-            auto lvl = 0u;
-            int i = 0;
-            if (Tex->m_numLevel) {
-                while (1) {
-                    v6->lpVtbl->GetSurfaceLevel(v6, lvl, &v20);
-                    ++nglDebug.field_8;
+            for (auto lvl = 0u; lvl < Tex->m_numLevel; ++lvl) {
+                IDirect3DSurface9 *v20;
+                v6->lpVtbl->GetSurfaceLevel(v6, lvl, &v20);
+                ++nglDebug.field_8;
 
-                    D3DSURFACE_DESC a1;
-                    v20->lpVtbl->GetDesc(v20, &a1);
-                    v6->lpVtbl->LockRect(v6, lvl, &rect, nullptr, 0);
-                    if (!a4) {
-                        break;
-                    }
+                D3DSURFACE_DESC a1;
+                v20->lpVtbl->GetDesc(v20, &a1);
 
+                D3DLOCKED_RECT rect;
+                v6->lpVtbl->LockRect(v6, lvl, &rect, nullptr, 0);
+
+                if (a4 != 0) {
                     if (a4 == 10) {
                         auto *v8 = (int *) rect.pBits;
                         for (auto j = (a1.Height * rect.Pitch) >> 2; j != 0; ++*a2) {
                             *v8++ = (**a2 << 24) | 0xFFFFFF;
                             --j;
                         }
-
-                        goto LABEL_15;
                     }
 
                     if (a4 == 11) {
@@ -3779,31 +3774,17 @@ void sub_783080(nglTexture *Tex, uint8_t **a2, uint8_t *a3, int a4)
                                 --v11;
                                 ++*a2;
                             } while (v11);
-
-                            goto LABEL_14;
                         }
                     }
-
-                LABEL_15:
-                    v6->lpVtbl->UnlockRect(v6, lvl);
-                    v20->lpVtbl->Release(v20);
-                    --nglDebug.field_8;
-
-                    i = ++lvl;
-                    if (lvl >= Tex->m_numLevel) {
-                        return;
-                    }
-                }
-
-                {
-                    auto v12 = sub_782FE0(a1, rect);
+                } else {
+                    auto v12 = GetTextureSizeFromDesc(a1, rect);
                     std::memcpy(rect.pBits, *a2, v12);
-                    lvl = i;
                     *a2 += v12;
                 }
-            LABEL_14:
 
-                goto LABEL_15;
+                v6->lpVtbl->UnlockRect(v6, lvl);
+                v20->lpVtbl->Release(v20);
+                --nglDebug.field_8;
             }
         }
 
@@ -4053,14 +4034,14 @@ bool nglLoadTextureTM2_internal(nglTexture *Tex, nglTextureInfo *TexInfo)
         if ((Tex->m_format & 0x10000000) != 0) {
             Tex->CreateTextureOrSurface();
 
-            sub_783080(Tex, (uint8_t **) &bufferData, (uint8_t *) TexInfo, a2a);
+            CopyDataToTexture(Tex, (uint8_t **) &bufferData, (uint8_t *) TexInfo, a2a);
             header.field_7B = 77;
             return true;
         }
 
         Tex->CreateTextureOrSurface();
         if (LOBYTE(Tex->m_format) != 7 || !g_valid_texture_format) {
-            sub_783080(Tex, (uint8_t **) &bufferData, (uint8_t *) TexInfo, a2a);
+            CopyDataToTexture(Tex, (uint8_t **) &bufferData, (uint8_t *) TexInfo, a2a);
             header.field_7B = 77;
             return true;
         }
@@ -5416,7 +5397,7 @@ void nglInit(HWND hWnd)
 {
     TRACE("nglInit");
 
-    if constexpr (0)
+    if constexpr (1)
     {
         _controlfp(0x300u, 0x300u);
         _controlfp(0x20000u, 0x30000u);
@@ -5998,9 +5979,9 @@ void ngl_patch()
 
     REDIRECT(0x00771B3C, sub_7719D0);
 
-    REDIRECT(0x0077A809, sub_783080);
+    REDIRECT(0x0077A809, CopyDataToTexture);
 
-    REDIRECT(0x00783177, sub_782FE0);
+    REDIRECT(0x00783177, GetTextureSizeFromDesc);
 
     {
         REDIRECT(0x0041EA44, sub_772270);

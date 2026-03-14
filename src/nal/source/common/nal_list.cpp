@@ -48,6 +48,11 @@ namespace nalChar {
         static nalCharSkeleton skel {};
         return skel.m_vtbl;
     }();
+
+    int & nalCharAnim::vtbl_ptr = []() -> auto & {
+        static nalCharAnim g_anim {};
+        return g_anim.m_vtbl;
+    }();
 }
 
 static nalInitListAnimType InitListAnimType_nalCharAnim {

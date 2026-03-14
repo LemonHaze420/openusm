@@ -15,11 +15,6 @@ static constexpr auto NAL_CHAR_VERSION = 0x10003;
 namespace nalChar {
 #if !STANDALONE_SYSTEM
     int & nalCharAnim::vtbl_ptr = var<int>(0x0096A84C);
-#else
-    int & nalCharAnim::vtbl_ptr = []() -> auto & {
-        static nalCharAnim g_anim {};
-        return g_anim.m_vtbl;
-    }();
 #endif
 }
 
