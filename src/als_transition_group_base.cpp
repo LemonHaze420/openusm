@@ -9,6 +9,9 @@ namespace als
 {
     VALIDATE_SIZE(transition_group_base, 0x4);
 
+    transition_group_base::transition_group_base() {
+    }
+
     void transition_group_base::_unmash(mash_info_struct *, void *)
     {
         ;

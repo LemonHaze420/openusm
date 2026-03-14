@@ -7,6 +7,8 @@ namespace als
 {
     struct transition_group_base : mash_virtual_base
     {
+        transition_group_base();
+
         //virtual
         void _unmash(mash_info_struct *, void *);
 

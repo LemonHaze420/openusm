@@ -20,11 +20,35 @@ namespace als
 
     scripted_state::scripted_state()
     {
-        THISCALL(0x004ACA80, this);
+        if constexpr (1) {
+            static void * g_vtbl[] = {
+                nullptr,
+                func_address(&_unmash),
+                nullptr,
+                func_address(&_get_virtual_type_enum),
+                nullptr,
+                func_address(&_is_or_is_subclass_of),
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                func_address(&_get_mash_sizeof)
+            };
+
+            this->m_vtbl = CAST(m_vtbl, &g_vtbl);
+        } else {
+            THISCALL(0x004ACA80, this);
+        }
     }
 
-    scripted_state::scripted_state(from_mash_in_place_constructor *a2) : field_14(a2), field_18(a2), field_28(a2), field_3C(a2)
+    scripted_state::scripted_state(from_mash_in_place_constructor *a2) : state(a2), field_14(a2), field_18(a2), field_28(a2), field_3C(a2)
     {
+        this->m_vtbl = 0x0087E1D8;
+
         if ( this->field_50 != nullptr ) {
             mash_info_struct::construct_class(this->field_50);
         }
@@ -39,10 +63,10 @@ namespace als
         a1->unmash_class_in_place(this->field_14, this);
 
         a1->unmash_class_in_place(this->field_18, this);
-        a1->unmash_class_in_place(this->field_28, this);
-        a1->unmash_class_in_place(this->field_3C, this);
 
-        sp_log("%s %d", this->get_nal_anim_name().to_string(), this->field_18.size());
+        a1->unmash_class_in_place(this->field_28, this);
+
+        a1->unmash_class_in_place(this->field_3C, this);
 
 #ifdef TARGET_XBOX
         {
@@ -62,6 +86,10 @@ namespace als
         }
     }
 
+    int scripted_state::_get_virtual_type_enum() const {
+        return 532;
+    }
+
     bool test_all_trans_groups(
         request_data &a1,
         const mVectorBasic<int> &a2,
@@ -72,8 +100,6 @@ namespace als
         TRACE("als::test_all_trans_groups");
 
         if constexpr (1) {
-            sp_log("%d", a2.size());
-
             auto begin = a2.m_data;
             auto end = begin + a2.size();
             auto it = std::find_if(begin, end, [&](int v6)
@@ -113,8 +139,6 @@ namespace als
             });
         }
 
-        sp_log("%s", this->get_nal_anim_name().to_string());
-     
         if constexpr (0) {
             request_data data {};
             als_data a2 {a4, a5};
@@ -182,6 +206,11 @@ namespace als
         }
     }
 
+    int scripted_state::_get_mash_sizeof() const
+    {
+        return sizeof(scripted_state);
+    }
+
     string_hash scripted_state::get_nal_anim_name() const
     {
         sp_log("0x%08X", m_vtbl);
@@ -190,7 +219,33 @@ namespace als
 
     base_layer_scripted_state::base_layer_scripted_state()
     {
-        THISCALL(0x00444000, this);
+        if constexpr (1) {
+            static void * g_vtbl[] = {
+                nullptr,
+                func_address(&_unmash),
+                nullptr,
+                func_address(&_get_virtual_type_enum),
+                nullptr,
+                func_address(&_is_or_is_subclass_of),
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                func_address(&_get_mash_sizeof)
+            };
+
+            this->m_vtbl = CAST(m_vtbl, &g_vtbl);
+        } else {
+            THISCALL(0x00444000, this);
+        }
+    }
+
+    base_layer_scripted_state::base_layer_scripted_state(from_mash_in_place_constructor *a2) : scripted_state(a2) {
+        this->m_vtbl = 0x0087E214;
     }
 
     void base_layer_scripted_state::_unmash(mash_info_struct *a1, void *a3)
@@ -198,6 +253,15 @@ namespace als
         TRACE("base_layer_scripted_state::unmash");
 
         scripted_state::_unmash(a1, a3);
+    }
+
+    int base_layer_scripted_state::_get_virtual_type_enum() const {
+        return 530;
+    }
+
+    int base_layer_scripted_state::_get_mash_sizeof() const
+    {
+        return sizeof(base_layer_scripted_state);
     }
 
 }

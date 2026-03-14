@@ -36,7 +36,11 @@ namespace als
 
         scripted_state(from_mash_in_place_constructor *a2);
 
+        //virtual
         void _unmash(mash_info_struct *a1, void *a3);
+
+        //virtual
+        int _get_virtual_type_enum() const;
 
         //virtual
         int get_filter(
@@ -56,6 +60,9 @@ namespace als
             state_machine *a2,
             transition_post_handle a4);
 
+        //virtual
+        int _get_mash_sizeof() const;
+
         string_hash get_nal_anim_name() const;
     };
 
@@ -65,7 +72,16 @@ namespace als
 
         base_layer_scripted_state();
 
+        base_layer_scripted_state(from_mash_in_place_constructor *a2);
+
+        //virtual
         void _unmash(mash_info_struct *a1, void *a3);
+
+        //virtual
+        int _get_virtual_type_enum() const;
+
+        //virtual
+        int _get_mash_sizeof() const;
     };
 }
 
