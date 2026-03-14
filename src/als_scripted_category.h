@@ -34,9 +34,15 @@ namespace als
         void _unmash(mash_info_struct *a1, void *);
 
         //virtual
+        int _get_virtual_type_enum() const;
+
+        //virtual
         request_data do_implicit_trans(
             animation_logic_system *a4,
             state_machine *a5);
+
+        //virtual
+        int _get_mash_sizeof() const;
     };
 }
 

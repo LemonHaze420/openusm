@@ -16,12 +16,36 @@ namespace als
 
     scripted_category::scripted_category()
     {
-        THISCALL(0x004ACBF0, this);
+        if constexpr (1) {
+            static void * g_vtbl[] = {
+                nullptr,
+                func_address(&_unmash),
+                nullptr,
+                func_address(&_get_virtual_type_enum),
+                nullptr,
+                func_address(&_is_or_is_subclass_of),
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                nullptr,
+                func_address(&_get_mash_sizeof)
+            };
+
+            this->m_vtbl = CAST(m_vtbl, &g_vtbl);
+        } else {
+            THISCALL(0x004ACBF0, this);
+        }
     }
 
     scripted_category::scripted_category(from_mash_in_place_constructor *a2) : category(a2), field_10(a2), field_14(a2), field_2C(a2), field_3C(a2), field_50(a2), field_64(a2)
     {
+        TRACE("als::scripted_category::scripted_category");
+
         this->m_vtbl = 0x0087E250;
+
         if ( this->field_78 != nullptr ) {
             mash_info_struct::construct_class(this->field_78);
         }
@@ -68,6 +92,10 @@ namespace als
         }
     }
 
+    int scripted_category::_get_virtual_type_enum() const {
+        return 531;
+    }
+
     request_data scripted_category::do_implicit_trans(
         animation_logic_system *a4,
         state_machine *a5)
@@ -77,6 +105,10 @@ namespace als
         request_data data;
         THISCALL(0x004A7300, this, &data, a4, a5);
         return data;
+    }
+
+    int scripted_category::_get_mash_sizeof() const {
+        return sizeof(scripted_category);
     }
 }
 
