@@ -12,7 +12,7 @@ mashed_state::mashed_state() {
     THISCALL(0x006DD080, this);
 }
 
-mashed_state::mashed_state(from_mash_in_place_constructor *a2) : field_0(), field_C(a2) {}
+mashed_state::mashed_state(from_mash_in_place_constructor *a2) : field_0(a2), field_C(a2) {}
 
 void mashed_state::unmash(mash_info_struct *a1, void *)
 {
