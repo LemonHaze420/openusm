@@ -7,10 +7,11 @@
 
 #include "common.h"
 #include "ngl.h"
+#include "ngl_scene.h"
 #include "ngl_vertexdef.h"
 #include "tl_system.h"
-#include "variables.h"
 #include "trace.h"
+#include "variables.h"
 #include "vtbl.h"
 
 #include <ngl_dx_state.h>
@@ -27,24 +28,89 @@ FrontEnd_Shader & gFrontEnd_Shader = var<FrontEnd_Shader>(0x0091E650);
 
 static VShader & stru_970610 = var<VShader>(0x00970610);
 
+static IDirect3DPixelShader9 *& dword_9562F4 = var<IDirect3DPixelShader9 *>(0x009562F4);
+
 #else
 
 static VShader & stru_970610 = []() -> auto & {
     static VShader g_stru_970610 {};
     return g_stru_970610;
 }();
+
+static IDirect3DPixelShader9 *& dword_9562F4 = []() -> auto & {
+    static IDirect3DPixelShader9 * g_dword_9562F4 {};
+    return g_dword_9562F4;
+}();
+
 #endif
+
+void __fastcall FrontEnd_Shader_GetName(FrontEnd_Shader *self, void *, tlFixedString *out) {
+    *out = self->_GetName();
+}
 
 FrontEnd_Shader::FrontEnd_Shader()
 {
     TRACE("FrontEnd_Shader::FrontEnd_Shader");
 
     if constexpr (1) {
+        static void * g_vtbl[] {
+            func_address(&_Register),
+            (void *)FrontEnd_Shader_GetName,
+            func_address(&_AddNode),
+            func_address(&_BindMaterial),
+            func_address(&_ReleaseMaterial),
+            func_address(&_RebaseMaterial),
+            func_address(&_CheckMaterialVersion),
+            func_address(&_CheckVertexDefVersion),
+            func_address(&_BindSection),
+            func_address(&_IsSwitchable),
+        };
+        this->m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {
         this->m_vtbl = 0x008714E8;
     }
 }
 
+tlFixedString FrontEnd_Shader::_GetName() const
+{
+    return tlFixedString {"US_FrontEnd"};
+}
+
+void sub_415DE0(FrontEnd_ShaderNode *a1)
+{
+    if ( int(a1->field_14->field_28[1]) <= 1 )
+    {
+        a1->m_tex = (nglTexture *)(*(int *)&a1->field_14->File->FileName.field_4[4] << 24);
+        a1->m_next_node = nglCurScene->OpaqueNodes;
+        nglCurScene->OpaqueNodes = a1;
+        ++nglCurScene->OpaqueListCount;
+    }
+    else
+    {
+        sub_417C10(a1);
+    }
+}
+
+void FrontEnd_Shader::_AddNode(
+        nglMeshNode *a1,
+        nglMeshSection *a2,
+        nglMaterialBase *a3)
+{
+    auto *mem = nglListAlloc(0x18, 16);
+    FrontEnd_ShaderNode *v4 = nullptr;
+    if (mem != nullptr) {
+        nglMaterialBase *v5;
+        if ( a3 != nullptr ) {
+            v5 = (nglMaterialBase *)((char *)a3 - 4);
+        } else {
+            v5 = nullptr;
+        }
+
+        v4 = new (mem) FrontEnd_ShaderNode { a1, a2, v5};
+    }
+
+	sub_415DE0(v4);
+}
 
 void FrontEnd_Shader::_BindMaterial(nglMaterialBase *Material)
 {
@@ -70,7 +136,7 @@ void FrontEnd_Shader::_BindMaterial(nglMaterialBase *Material)
 #endif
 }
 
-void FrontEnd_Shader::ReleaseMaterial(nglMaterialBase *a1) {
+void FrontEnd_Shader::_ReleaseMaterial(nglMaterialBase *a1) {
     nglTexture **v2 = nullptr;
 
     if (a1 != nullptr) {
@@ -86,17 +152,28 @@ void FrontEnd_Shader::_RebaseMaterial([[maybe_unused]] nglMaterialBase *a1, [[ma
     TRACE("FrontEnd_Shader::RebaseMaterial");
 
 #ifndef TARGET_XBOX
-    THISCALL(0x00410550, this, a1, a2);
+    if constexpr (1) {
+        nglMaterialBase *mat = nullptr;
+        if ( a1 ) {
+            mat = (nglMaterialBase *)((char *)a1 - 4);
+        }
+
+        auto *v4 = mat->field_1C;
+        if ( v4 != nullptr )
+            mat->field_1C = (nglTexture *)((char *)v4 + a2);
+
+    } else {
+        THISCALL(0x00410550, this, a1, a2);
+    }
 #endif
 }
 
-static Var<IDirect3DPixelShader9 *> dword_9562F4{0x009562F4};
-
-void FrontEnd_Shader::Register() {
-    sp_log("FrontEnd_Shader::Register:");
+void FrontEnd_Shader::_Register()
+{
+    TRACE("FrontEnd_Shader::Register:");
 
     if constexpr (1) {
-        nglShader::Register();
+        nglShader::_Register();
 
 #if !STANDALONE_SYSTEM
         static D3DVERTEXELEMENT9 & stru_91E2BC = var<D3DVERTEXELEMENT9>(0x0091E2BC);
@@ -139,11 +216,11 @@ void FrontEnd_Shader::Register() {
                     "tex t0\n"
                     "mul r0, t0, v0\n";
 
-                nglCreatePShader(&dword_9562F4(), text);
+                nglCreatePShader(&dword_9562F4, text);
             } else {
                 auto pShader = CompilePShader("shaders/us_frontend_PS.hlsl");
 
-                CreatePixelShader(&dword_9562F4(), pShader.data());
+                CreatePixelShader(&dword_9562F4, pShader.data());
             }
 
         } else {
@@ -208,7 +285,7 @@ void FrontEnd_ShaderNode::Render()
             nglSetSamplerState(0, D3DSAMP_ADDRESSV, 2 * (Material->field_28 != 0) + 1);
 
             if ( EnableShader ) {
-                SetPixelShader(&dword_9562F4());
+                SetPixelShader(&dword_9562F4);
             } else {
                 nglSetTextureStageState(0, D3DTSS_COLOROP, 4u);
                 nglSetTextureStageState(0, D3DTSS_COLORARG1, 2u);
