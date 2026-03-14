@@ -7,6 +7,7 @@
 #include "string_hash.h"
 #include "trace.h"
 #include "utility.h"
+#include "variables.h"
 #include "vector3d.h"
 #include "vector4d.h"
 #include "vtbl.h"
@@ -135,7 +136,11 @@ ArbitraryPOCharComp::ArbitraryPOCharComp()
 {
     TRACE("ArbitraryPOCharComp()");
 
+#if STANDALONE_SYSTEM
     if constexpr (1) {
+#else
+    if constexpr (0) {
+#endif
         static void * g_vtbl[] {
             nullptr,
             func_address(&_GetType),
