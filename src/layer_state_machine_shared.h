@@ -20,11 +20,18 @@ namespace als
         //virtual
         void _unmash(mash_info_struct *a1, void *a3);
 
+        //0x004931E0
+        //virtual
+        int _get_virtual_type_enum() const;
+
         //virtual
         layer_types _get_layer_id() const;
 
         //virtual
-        void set_layer_id(layer_types a2);
+        int _get_mash_sizeof() const;
+
+        //virtual
+        void _set_layer_id(layer_types a2);
     };
 }
 
