@@ -9,6 +9,14 @@ namespace ai
 
     std_puppet_trans_state::std_puppet_trans_state()
     {
-        THISCALL(0x00438C80, this);
+        if constexpr (1) {
+            this->m_vtbl = CAST(m_vtbl, &g_vtbl);
+        } else {
+            THISCALL(0x00438C80, this);
+        }
+    }
+
+    void std_puppet_trans_state::_unmash(mash_info_struct *a1, void *a2) {
+        base_state::_unmash(a1, a2);
     }
 }
