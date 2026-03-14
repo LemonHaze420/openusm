@@ -329,15 +329,15 @@ void animation_controller::frame_advance(Float a2, bool a3, bool a4)
     func(this, nullptr, a2, a3, a4);
 }
 
-//TODO
-void *get_anim_by_hash(
+void * get_anim_by_hash(
         const string_hash &a1,
         const als::als_meta_anim_table_shared *a2,
         actor *a3)
 {
     TRACE("get_anim_by_hash", a1.to_string());
 
-    if constexpr (0) {
+    if constexpr (1)
+    {
         if ( a2 != nullptr ) {
             auto *v9 = a3;
             string_hash v8 = a1;
@@ -347,16 +347,8 @@ void *get_anim_by_hash(
             }
         }
 
-        struct {
-            char field_0[0x8];
-            void * (__fastcall *Find)(void *, void *, uint32_t);
-        } * vtbl = CAST(vtbl, nalGetAnimDirectory()->m_vtbl);
-
         auto v5 = a1.source_hash_code;
-        auto *v15 = vtbl->Find(
-                          nalGetAnimDirectory(),
-                          nullptr,
-                          v5);
+        auto *v15 = nalGetAnimDirectory()->Find(v5);
         if ( v15 == nullptr )
         {
             auto *partition_pointer = resource_manager::get_partition_pointer(RESOURCE_PARTITION_MISSION);
@@ -367,9 +359,7 @@ void *get_anim_by_hash(
                 {
                     auto *__old_context = resource_manager::get_and_push_resource_context(RESOURCE_PARTITION_MISSION);
                     auto v7 = a1.source_hash_code;
-                    v15 = vtbl->Find(nalGetAnimDirectory(),
-                                    nullptr,
-                                    v7);
+                    v15 = nalGetAnimDirectory()->Find(v7);
                     resource_manager::pop_resource_context();
 
                     assert(resource_manager::get_resource_context() == __old_context);
