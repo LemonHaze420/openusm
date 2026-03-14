@@ -34,15 +34,28 @@ namespace als
     }
 
     category::category() {
-        THISCALL(0x00493150, this);
+        if constexpr (1) {
+            this->initialize(mash::ALLOCATED);
+        } else {
+            THISCALL(0x00493150, this);
+        }
     }
 
     category::category(from_mash_in_place_constructor *a2) : field_4(a2)
     {
+        TRACE("als::category::category");
+
         this->m_vtbl = 0x00875704;
 
         if ( this->field_C != nullptr ) {
             mash_info_struct::construct_class(this->field_C);
+        }
+    }
+
+    void category::initialize(mash::allocation_scope a2)
+    {
+        if ( a2 != mash::FROM_MASH ) {
+            this->field_C = nullptr;
         }
     }
 

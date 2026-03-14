@@ -27,6 +27,8 @@ namespace als
 
         category(from_mash_in_place_constructor *a2);
 
+        void initialize(mash::allocation_scope a2);
+
         bool is_flag_set(uint32_t a2) const
         {
             return ((1 << a2) & static_cast<uint16_t>(this->field_8)) != 0;
