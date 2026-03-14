@@ -66,15 +66,14 @@ struct FEText : PanelAnimObject {
         char *guts;
         int field_C;
 
-        string() = default;
-
-        string(const mString &a1)
-        {
+        string(const mString &a1) {
             std::memcpy(this, &a1, sizeof(mString));
         }
     };
 
     /* virtual */ void Update(Float a2);
+
+    void _SetText(global_text_enum a2);
 
     //0x00617760
     /* virtual */ void SetText(global_text_enum a2);
@@ -96,6 +95,8 @@ struct FEText : PanelAnimObject {
     //0x0043C370
     //virtual
     bool GetFlag(int a2);
+
+    void _SetTextNoLocalize(string a1);
 
     //0x0043C410
     /* virtual */ void SetTextNoLocalize(string a1);

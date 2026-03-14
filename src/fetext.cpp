@@ -107,26 +107,31 @@ mString FEText::GetName() {
 }
 
 void FEText::Update(Float a2) {
-    sp_log("0x%08X", m_vtbl);
-
     void (__fastcall *func)(FEText *, void *, Float) = CAST(func, get_vfunc(m_vtbl, 0x18));
     func(this, nullptr, a2);
 }
 
-void FEText::SetText(global_text_enum a2)
+void FEText::_SetText(global_text_enum a2)
 {
-    if constexpr (0)
-    {
-        void (__fastcall *func)(FEText *, void *, global_text_enum) = CAST(func, get_vfunc(m_vtbl, 0x88));
-        func(this, nullptr, a2);
-    }
-    else
+    TRACE("FEText::SetText");
+
+    if constexpr(0)
     {
         auto *table = g_game_ptr->field_7C;
         mString v3 {table->lookup_localized_string(a2)};
         this->SetTextNoLocalize(*bit_cast<FEText::string *>(&v3));
+    } else {
+        void (__fastcall *func)(FEText *, void *, global_text_enum) = CAST(func, 0x00617760);
+        func(this, nullptr, a2);
     }
 }
+
+void FEText::SetText(global_text_enum a2)
+{
+    void (__fastcall *func)(FEText *, void *, global_text_enum) = CAST(func, get_vfunc(m_vtbl, 0x88));
+    func(this, nullptr, a2);
+}
+
 
 void FEText::SetPos(Float a2, Float a3) {
     void (__fastcall *func)(FEText *, void *, Float, Float) = CAST(func, get_vfunc(m_vtbl, 0x90));
@@ -157,17 +162,32 @@ void FEText::SetScale(Float a2) {
     this->field_40 = a2;
 }
 
-void FEText::SetTextNoLocalize(string a1) {
+struct string {
+    int field_0;
+    int m_size;
+    char *guts;
+    void *field_C;
+};
+
+void FEText::_SetTextNoLocalize(string a1) {
     TRACE("FEText::SetTextNoLocalize");
+
+    mString *v1 = CAST(v1, &a1);
 
     if constexpr (0)
     {
-        this->field_C = *(decltype(field_C) *)&a1;
+        this->field_1C = *v1;
     }
     else
     {
-        THISCALL(0x0043C410, this, a1);
+        void (__fastcall *func)(FEText *, void *, string) = CAST(func, 0x0043C410);
+        func(this, nullptr, a1);
     }
+}
+
+void FEText::SetTextNoLocalize(string a1) {
+    void (__fastcall *func)(FEText *, void *, string) = CAST(func, get_vfunc(m_vtbl, 0x8C));
+    func(this, nullptr, a1);
 }
 
 void FEText::SetX(Float a2) {
