@@ -179,10 +179,4 @@ struct animation_controller {
     vector3d get_hint_token_scale(string_hash);
 };
 
-//0x0049B910
-extern void *get_anim_by_hash(
-        const string_hash &a1,
-        const als::als_meta_anim_table_shared *a2,
-        actor *a3);
-
 extern void animation_controller_patch();

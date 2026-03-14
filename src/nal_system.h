@@ -205,4 +205,17 @@ extern char (& nalSkeletonPath)[255];
 
 extern char (& nalAnimPath)[255];
 
+struct actor;
+struct string_hash;
+
+namespace als {
+    struct als_meta_anim_table_shared;
+}
+
+//0x0049B910
+extern void * get_anim_by_hash(
+        const string_hash &a1,
+        const als::als_meta_anim_table_shared *a2,
+        actor *a3);
+
 extern void nalStreamInstance_patch();
