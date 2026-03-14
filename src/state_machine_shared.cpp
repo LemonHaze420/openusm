@@ -13,7 +13,28 @@ namespace als {
 
     state_machine_shared::state_machine_shared()
     {
-        THISCALL(0x00444790, this);
+        if constexpr (1) {
+            static void * g_vtbl[] = {
+                nullptr,
+                func_address(&_unmash),
+                nullptr,
+                func_address(&_get_virtual_type_enum),
+                nullptr,
+                func_address(&_is_or_is_subclass_of),
+                nullptr,
+                func_address(&_get_mash_sizeof),
+                nullptr
+            };
+
+            this->m_vtbl = CAST(m_vtbl, &g_vtbl);
+        } else {
+            THISCALL(0x00444790, this);
+        }
+    }
+
+
+    state_machine_shared::state_machine_shared(from_mash_in_place_constructor * a2) : state_list(a2), category_list(a2), trans_group_list(a2)
+    {
     }
 
     void state_machine_shared::destruct_mashed_class()
@@ -29,6 +50,15 @@ namespace als {
         a2->unmash_class_in_place(this->state_list, this);
         a2->unmash_class_in_place(this->category_list, this);
         a2->unmash_class_in_place(this->trans_group_list, this);
+    }
+
+    int state_machine_shared::_get_virtual_type_enum() const {
+        return 484;
+    }
+
+    int state_machine_shared::_get_mash_sizeof() const
+    {
+        return sizeof(state_machine_shared);
     }
 
     int state_machine_shared::get_mash_sizeof() const
