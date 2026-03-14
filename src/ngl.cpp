@@ -104,13 +104,9 @@ VALIDATE_SIZE(nglLightContext, 0x70);
 
 VALIDATE_SIZE(nglRenderTextureState, 0x60);
 
-Var<bool> nglLoadingIFL{0x00973844};
-
 Var<int> nglScratchMeshPos{0x00975310};
 
 Var<nglScratchBuffer_t> nglScratchBuffer {0x00972A18};
-
-bool & g_valid_texture_format = var<bool>(0x00971F9D);
 
 uint32_t & nglTextureAnimFrame = var<uint32_t>(0x0097383C);
 
@@ -169,6 +165,10 @@ tlInstanceBank & nglVertexDefBank = var<tlInstanceBank>(0x009728A0);
 
 int (& dword_975BE8)[1024] = var<int[1024]>(0x00975BE8);
 int & dword_975BE0 = var<int>(0x00975BE0);
+
+bool & g_valid_texture_format = var<bool>(0x00971F9D);
+
+bool & nglLoadingIFL = var<bool>(0x00973844);
 
 #else
 
@@ -252,6 +252,16 @@ int (& dword_975BE8)[1024] = []() -> auto & {
 int & dword_975BE0 = []() -> auto & {
     static int g_dword_975BE0 {};
     return g_dword_975BE0;
+}();
+
+bool & g_valid_texture_format = []() -> auto & {
+    static bool g_valid_texture_format1 {};
+    return g_valid_texture_format1;
+}();
+
+bool & nglLoadingIFL = []() -> auto & {
+    static bool g_nglLoadingIFL {};
+    return g_nglLoadingIFL;
 }();
 
 #endif
@@ -3622,7 +3632,7 @@ void nglReleaseTexture(nglTexture *Tex) {
     CDECL_CALL(0x00773380, Tex);
 }
 
-nglTexture *nglLoadTexture(const tlFixedString &a1)
+nglTexture * nglLoadTexture(const tlFixedString &a1)
 {
     TRACE("nglLoadTexture", a1.to_string());
 
@@ -3630,28 +3640,17 @@ nglTexture *nglLoadTexture(const tlFixedString &a1)
 
     if constexpr (1)
     {
-        struct Vtbl {
-            char field_0[0xC];
-            nglTexture * (__fastcall *Find)(void *, int edx, const tlFixedString *);
-            int field_10[5];
-            nglTexture * (__fastcall *Load)(void *, int edx, const tlFixedString *);
-        };
-
-        auto *vtbl = bit_cast<Vtbl *>(nglTextureDirectory->m_vtbl);
-
-        auto Find = vtbl->Find;
-
-        //sp_log("0x%08X", bit_cast<std::intptr_t>(Find));
-
-        nglTexture *tex = Find(nglTextureDirectory, 0, &a1);
+        nglTexture *tex = nglTextureDirectory->Find(a1);
         if (tex == nullptr) {
-            return vtbl->Load(nglTextureDirectory, 0, &a1);
+            return nglTextureDirectory->Load(a1);
         }
 
         ++tex->field_8;
         return tex;
     } else {
-        return (nglTexture *) CDECL_CALL(0x00773290, &a1);
+
+        nglTexture * (*func)(const tlFixedString *a1) = CAST(func, 0x00773290);
+        return func(&a1);
     }
 }
 
@@ -4081,8 +4080,151 @@ bool nglLoadTextureTM2(nglTexture *tex, uint8_t *a2)
     }
 }
 
-bool nglLoadTextureIFL(nglTexture *tex, uint8_t *a2, int a3) {
-    return (bool) CDECL_CALL(0x007733A0, tex, a2, a3);
+
+struct TextureParserIFL {
+    char *field_0;
+    char *field_4;
+    int field_8;
+
+    TextureParserIFL(uint8_t *a2, int a3) : field_0(bit_cast<char *>(a2)), field_4(bit_cast<char *>(a2)), field_8(a3) {}
+
+    void operator++()
+    {
+        while ( !this->hasCapacity() && this->field_0[0] != '\n' ) {
+            ++this->field_0;
+        }
+
+        ++this->field_0;
+    }
+
+    bool hasCapacity() const {
+        return this->field_0 - this->field_4 >= this->field_8;
+    }
+
+    int extractWord(char *Dest, int a3)
+    {
+        if constexpr (1)
+        {
+            if ( this->field_0 - this->field_4 < this->field_8 )
+            {
+                char *v4 = nullptr;
+                do
+                {
+                    if ( !isspace(this->field_0[0]) ) {
+                        break;
+                    }
+
+                    if ( this->field_0[0] == '\n' ) {
+                        break;
+                    }
+
+                    v4 = this->field_0 + 1;
+                    this->field_0 = v4;
+                }
+                while ( v4 - this->field_4 < this->field_8 );
+            }
+
+            auto v5 = this->field_0;
+            if ( this->field_0 - this->field_4 < this->field_8 )
+            {
+                char *v6 = nullptr;
+                do
+                {
+                    if ( isspace(this->field_0[0]) ) {
+                        break;
+                    }
+
+                    v6 = this->field_0 + 1;
+                    this->field_0 = v6;
+                }
+                while ( v6 - this->field_4 < this->field_8 );
+            }
+
+            auto v7 = this->field_0 - v5;
+            if ( v7 >= a3 - 1 ) {
+                v7 = a3 - 1;
+            }
+
+            strncpy(Dest, v5, v7);
+            Dest[v7] = 0;
+            return v7;
+        } else {
+            int (*func)(void *, void *edx, char *, int) = CAST(func, 0x00773960);
+            return func(this, nullptr, Dest, a3);
+        }
+    }
+
+};
+
+bool nglLoadTextureIFL(nglTexture *tex, uint8_t *a2, int a3)
+{
+    if constexpr (1)
+    {
+        nglTexture *Textures[1024] {};
+        int NTextures = 0;
+        tlFixedString v14 {};
+
+        if ( nglLoadingIFL ) {
+            sp_log("NGL: Recursive IFL detected.  You cannot include an IFL file in another IFL file.\n");
+            return false;
+        }
+
+        nglLoadingIFL = true;
+
+        char Str[32] {};
+        char Dest[32] {};
+
+        TextureParserIFL v13 {a2, a3};
+
+        while (!v13.hasCapacity())
+        {
+            if ( v13.extractWord(Str, 31) )
+            {
+                auto *v5 = strchr(Str, '.');
+                if ( v5 != nullptr ) {
+                    v5[0] = 0;
+                }
+
+                v14 = tlFixedString(Str);
+                int v6 = 1;
+                if ( v13.extractWord(Dest, 32) )
+                {
+                    auto v7 = atoi(Dest);
+                    v6 = v7 <= 0 ? 0 : v7;
+                }
+
+                if ( v6 + NTextures > 1024 ) {
+                    auto *v5 = tex->FileName.to_string();
+                    sp_log("Exceeded max number of textures in IFL file %s (%d).\n", v5, 1024);
+                    break;
+                }
+
+                auto *Tex = nglLoadTexture(v14);
+                for (int i = 0; i < v6; ++i) {
+                    Textures[NTextures] = Tex;
+                    ++NTextures;
+                }
+            }
+
+            ++v13;
+        }
+
+        if ( NTextures != 0 )
+        {
+            tex->m_format = 16;
+            tex->m_num_palettes = NTextures;
+            tex->Frames = static_cast<nglTexture **>(tlMemAlloc(4 * NTextures, 8u, 0x1000000u));
+            std::memcpy(tex->Frames, Textures, 4 * ((unsigned int)(4 * NTextures) >> 2));
+            tex->m_width = (*tex->Frames)->m_width;
+            tex->m_height = (*tex->Frames)->m_height;
+        }
+
+        nglLoadingIFL = false;
+        return NTextures != 0;
+    } else {
+        bool (*func)(nglTexture *tex, uint8_t *a2, int a3) = CAST(func, 0x007733A0);
+        return func(tex, a2, a3);
+    }
 }
 
 const char *GETFOURCC(uint32_t format) {

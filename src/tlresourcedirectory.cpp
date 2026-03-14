@@ -56,7 +56,7 @@ nglTexture *tlResourceDirectory<nglTexture, tlFixedString>::StandardLoad(const t
         bool v12;
 
         tlFileBuf v18;
-        if (nglLoadingIFL() || !tlReadFile(Str1, &v18, 4u, 0)) {
+        if (nglLoadingIFL || !tlReadFile(Str1, &v18, 4u, 0)) {
             char aDds[] = ".dds";
             *(uint32_t *) v10 = *(uint32_t *) aDds;
             v10[4] = aDds[4];

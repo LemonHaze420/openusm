@@ -1011,7 +1011,7 @@ extern const char *GETFOURCC(uint32_t format);
 
 extern math::VecClass<3, 1> sub_414360(const math::VecClass<3, 1> &a2, const math::MatClass<4, 3> &a3);
 
-extern Var<bool> nglLoadingIFL;
+extern bool & nglLoadingIFL;
 
 extern char (& nglTexturePath)[256];
 
