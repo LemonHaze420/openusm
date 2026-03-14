@@ -34,7 +34,9 @@ struct nalAnimClass {
         float field_4;
         float field_8;
         nalBaseSkeleton *field_C;
-        nalAnimClass<T> *field_10;
+        nalAnimClass<T> *field_10 {nullptr};
+
+        using nalPose = T;
 
         nalInstanceClass(
             nalAnimClass<T> *a2,

@@ -1416,6 +1416,28 @@ void mVector<web_interface>::reserve(int a2)
 }
 
 template<>
+void mVector<als::meta_key_anim>::reserve(int a2)
+{
+    if ( a2 > this->m_max_size )
+    {
+        auto *v2 = static_cast<value_type **>(mem_alloc(4 * a2));
+        if ( this->m_data != nullptr )
+        {
+            if ( this->m_size > 0 ) {
+                std::memcpy(v2, this->m_data, 4 * this->m_size);
+            }
+
+            if ( !this->is_pointer_in_mash_image(this->m_data) ) {
+                mem_dealloc(this->m_data, 4 * this->m_max_size);
+            }
+        }
+
+        this->m_data = v2;
+        this->m_max_size = a2;
+    }
+}
+
+template<>
 void mVector<als::implicit_transition_rule>::custom_unmash(mash_info_struct *a2, void *)
 {
 #ifdef TARGET_XBOX
