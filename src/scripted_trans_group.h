@@ -27,8 +27,16 @@ namespace als {
 
         scripted_trans_group();
 
+        scripted_trans_group(from_mash_in_place_constructor *a1);
+
         //virtual
         void _unmash(mash_info_struct *a1, void *);
+
+        //virtual
+        int _get_virtual_type_enum() const;
+
+        //virtual
+        int _get_mash_sizeof() const;
 
         bool check_transition(
             request_data &a2,
