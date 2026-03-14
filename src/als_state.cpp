@@ -11,8 +11,20 @@ namespace als {
 
     VALIDATE_SIZE(state, 0x14);
 
-    state::state()
+    state::state() : field_10(nullptr)
     {
+        if constexpr (1) {
+        } else {
+            this->m_vtbl = 0x008756C8;
+        }
+    }
+
+    state::state(from_mash_in_place_constructor *a2) : m_state_id(a2), m_cat_id(a2) {
+        this->m_vtbl = 0x008756C8;
+
+        if ( this->field_10 != nullptr ) {
+            this->field_10 = new (this->field_10) ai::param_block {nullptr};
+        }
     }
 
     void state::_unmash(mash_info_struct *a2, void *a3)
@@ -69,15 +81,15 @@ namespace als {
         return result;
     }
 
+    int state::_get_mash_sizeof() const
+    {
+        return sizeof(state);
+    }
+
     int state::get_mash_sizeof() const
     {
-        if constexpr (1)
-        {
-            int (__fastcall *func)(const state *) = CAST(func, get_vfunc(m_vtbl, 0x38));
-            return func(this);
-        }
-
-        return 0x14;
+        int (__fastcall *func)(const state *) = CAST(func, get_vfunc(m_vtbl, 0x38));
+        return func(this);
     }
 
 } // namespace als

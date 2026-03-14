@@ -6,6 +6,7 @@
 #include "mash_virtual_base.h"
 #include "string_hash.h"
 
+struct from_mash_in_place_constructor;
 struct mash_info_struct;
 
 namespace ai
@@ -29,6 +30,8 @@ struct state : mash_virtual_base {
 
     state();
 
+    state(from_mash_in_place_constructor *a2);
+
     string_hash get_state_id() const {
         return m_state_id;
     }
@@ -50,6 +53,8 @@ struct state : mash_virtual_base {
 
     //virtual
     string_hash get_nal_anim_name() const;
+
+    int _get_mash_sizeof() const;
 
     //virtual
     int get_mash_sizeof() const;
