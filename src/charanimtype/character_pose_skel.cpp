@@ -131,6 +131,10 @@ void * nalCharPose::GetNamedPoseData(CharComponentBase::Names a2)
     }
 }
 
+char * nalChar::nalCharSkeleton::GetCompPerSkelDataInt(int a2) const
+{
+    return nalComp::nalCompSkeleton::GetCompPerSkelDataInt(a2);
+}
 
 void nalCharPose::InitializePoseDataFromSkel()
 {

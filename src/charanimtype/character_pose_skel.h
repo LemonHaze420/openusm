@@ -49,6 +49,8 @@ struct nalCharSkeleton : nalComp::nalCompSkeleton {
 
     char * GetNamedPerSkelData(CharComponentBase::Names a2) const;
 
+    char * GetCompPerSkelDataInt(int a2) const;
+
     nalCharPose * GetDefaultPose() const;
 
     nalCharPose * CreatePose() const;
