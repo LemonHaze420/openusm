@@ -345,7 +345,7 @@ void fe_mini_map_widget::Draw()
                 char v9 = 0;
                 matrix4x4 v19;
                 v19.sub_415740(&v9);
-                v19.arr[3] = stru_892F80;
+                v19.w = stru_892F80;
 
                 nglSetWorldToViewMatrix({v19});
                 nglSetZTestEnable(false);

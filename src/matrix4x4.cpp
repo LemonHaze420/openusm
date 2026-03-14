@@ -42,7 +42,7 @@ matrix4x4::matrix4x4(float a2,
     arr[0] = {a2, a3, a4, a5};
     arr[1] = {a6, a7, a8, a9};
     arr[2] = {a10, a11, a12, a13};
-    arr[3] = {a14, a15, a16, a17};
+    this->w = {a14, a15, a16, a17};
 }
 
 matrix4x4::matrix4x4(const vector3d &a2,
@@ -65,10 +65,10 @@ matrix4x4::matrix4x4(const vector3d &a2,
     this->arr[2][2] = a4[2];
     this->arr[2][3] = 0.0;
 
-    this->arr[3][0] = a5[0];
-    this->arr[3][1] = a5[1];
-    this->arr[3][2] = a5[2];
-    this->arr[3][3] = 1.0;
+    this->w[0] = a5[0];
+    this->w[1] = a5[1];
+    this->w[2] = a5[2];
+    this->w[3] = 1.0;
 }
 
 matrix4x4::matrix4x4(const matrix4x4 &a1)
@@ -76,7 +76,7 @@ matrix4x4::matrix4x4(const matrix4x4 &a1)
     this->arr[0] = a1[0];
     this->arr[1] = a1[1];
     this->arr[2] = a1[2];
-    this->arr[3] = a1[3];
+    this->w = a1.w;
 }
 
 matrix4x4 matrix4x4::Cof()
@@ -110,7 +110,7 @@ void matrix4x4::decompose(vector4d &a2, vector4d &a3, vector4d &a4, vector4d &a5
     a2 = this->arr[0];
     a3 = this->arr[1];
     a4 = this->arr[2];
-    a5 = this->arr[3];
+    a5 = this->w;
 }
 
 #include "oldmath_po.h"
@@ -143,7 +143,7 @@ void matrix4x4::sub_415A30(const void *a2)
 
         this->arr[2] = a4;
 
-        this->arr[3] = a5;
+        this->w = a5;
 
     } else {
         THISCALL(0x00415A30, this, &a2);
@@ -196,11 +196,19 @@ matrix4x4 matrix4x4::transpose() const {
 
     matrix4x4 result{};
 
-    for (auto i = 0u; i < 4u; ++i) {
-        for (auto j = 0u; j < 4u; ++j) {
+    for (auto i = 0u; i < 3u; ++i) {
+        for (auto j = 0u; j < 3u; ++j) {
             result[i][j] = this->arr[j][i];
         }
+
+        result[i][3] = this->w[i];
     }
+
+    for (auto j = 0u; j < 3u; ++j) {
+        result.w[j] = this->arr[j][3];
+    }
+
+    result.w[3] = this->w[3];
 
     return result;
 #else
@@ -496,7 +504,7 @@ void matrix4x4::sub_415650(const matrix4x3 &a2)
         this->arr[0] = a2[0];
         this->arr[1] = a2[1];
         this->arr[2] = a2[2];
-        this->arr[3] = {0.0, 0.0, 0.0, 1.0};
+        this->w = {0.0, 0.0, 0.0, 1.0};
     }
     else
     {
@@ -547,10 +555,10 @@ matrix4x4 & matrix4x4::sub_771190(const ComplexMatrixPair &a2)
             a2.field_0.field_0[3],
             a2.field_0.field_4);
     auto v7 = sub_414360(v8, a2.field_4);
-    this->arr[3][0] = v7[0];
-    this->arr[3][1] = v7[1];
-    this->arr[3][2] = v7[2];
-    this->arr[3][3] = v7[3];
+    this->w[0] = v7[0];
+    this->w[1] = v7[1];
+    this->w[2] = v7[2];
+    this->w[3] = v7[3];
 
     return (*this);
 }
@@ -558,7 +566,7 @@ matrix4x4 & matrix4x4::sub_771190(const ComplexMatrixPair &a2)
 matrix4x4 & matrix4x4::sub_747860(const MatrixPair &a2)
 {
     (*this) = sub_770EB0(a2);
-    this->arr[3] = sub_414360(
+    this->w = sub_414360(
             a2.field_0[3],
             a2.field_4);
     return (*this);
@@ -569,10 +577,10 @@ matrix4x4 & matrix4x4::sub_771120(const MatrixPair &a2)
     auto v3 = sub_770EB0(a2);
     (*this) = v3;
     auto res = sub_414360(a2.field_0[3], a2.field_4);
-    this->arr[3][0] = res[0];
-    this->arr[3][1] = res[1];
-    this->arr[3][2] = res[2];
-    this->arr[3][3] = res[3];
+    this->w[0] = res[0];
+    this->w[1] = res[1];
+    this->w[2] = res[2];
+    this->w[3] = res[3];
     return (*this);
 }
 

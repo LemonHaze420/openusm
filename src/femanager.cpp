@@ -92,7 +92,7 @@ void FEManager::Draw() {
             matrix4x4 v5;
             v5.make_scale(v3);
 
-            v5.arr[3] = vector4d{-1.0, 1.0, 0.0, 1.0};
+            v5.w = vector4d{-1.0, 1.0, 0.0, 1.0};
 
             nglSetWorldToViewMatrix({v5});
             auto *v2 = this->m_pause_menu_system;
