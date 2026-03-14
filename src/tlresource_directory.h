@@ -105,7 +105,9 @@ struct tlresource_directory : tlResourceDirectory<T0, T1> {
     }
 
     //virtual
-    void _Add(T0 *) {}
+    bool _Add(T0 *) {
+        return false;
+    }
 
     static tlInstanceBankResourceDirectory<T0, T1> *& system_dir;
 

@@ -112,7 +112,7 @@ VALIDATE_SIZE(resource_memory_map, 0x90);
 
 VALIDATE_SIZE((*partitions), 16u);
 
-#if !STANDALONE_SYSTEM 
+#if !STANDALONE_SYSTEM
 _std::vector<resource_partition *> *& partitions = var<_std::vector<resource_partition *> *>(0x0095C7F0);
 
 mString & amalgapak_name = var<mString>(0x0095CAD4);
@@ -202,7 +202,7 @@ make_var(_std::vector<resource_pack_slot *>, resource_context_stack);
 #else
     mString v1{a2[arg4]};
 #endif
-    
+
     mString v2{"packs\\amalga"};
 
     mString res = v2 + v1;
@@ -734,6 +734,7 @@ void set_active_resource_context(resource_pack_slot *a1)
         if (a1 != nullptr && a1->is_data_ready())
         {
             auto &pack_dir = a1->get_resource_pack_directory();
+
             nglSetTextureDirectory(&pack_dir.field_4);
             nglSetMeshFileDirectory(&pack_dir.field_C);
             nglSetMeshDirectory(&pack_dir.field_14);
@@ -861,7 +862,7 @@ void configure_packs_by_memory_map(int idx)
             assert((new_partition->get_buffer_size() + resource_buffer_used <=
                     resource_buffer_size) &&
                    "Verify we have room for this partition");
-        
+
             new_partition->set_buffer_used(0);
             new_partition->set_buffer(resource_buffer + resource_buffer_used);
             resource_buffer_used += new_partition->get_buffer_size();

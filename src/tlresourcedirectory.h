@@ -64,8 +64,8 @@ struct tlResourceDirectory {
         return func(this, nullptr, &a2);
     }
 
-    /* virtual */ int Add(T0 *a2) { // = 0;
-        int (__fastcall *func)(void *, void *edx, T0 *) = CAST(func, get_vfunc(this->m_vtbl, 0x10));
+    /* virtual */ bool Add(T0 *a2) { // = 0;
+        bool (__fastcall *func)(void *, void *edx, T0 *) = CAST(func, get_vfunc(this->m_vtbl, 0x10));
         return func(this, nullptr, a2);
     }
 

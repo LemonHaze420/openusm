@@ -118,60 +118,6 @@ make_tlres_type(nalBaseSkeleton, tlFixedString, TLRESOURCE_TYPE_SKELETON);
 
 #undef make_tlres_type
 
-template<>
-void tlresource_directory<nglMesh, tlHashString>::_Add([[maybe_unused]] nglMesh *Mesh)
-{
-    TRACE("tlresource_directory<nglMesh, tlHashString>::Add");
-    ;
-}
-
-
-//0x005691B0
-template<>
-nglTexture *tlresource_directory<nglTexture, tlFixedString>::_Find(const tlFixedString &a1) 
-{
-    TRACE("tlresource_directory<nglTexture, tlFixedString>::Find(const tlFixedString &)", a1.to_string());
-
-    if constexpr (0)
-    {
-        nglTexture *v5 = nullptr;
-        if ( this->field_4 != nullptr )
-        {
-            v5 = (nglTexture *) this->field_4->get_tlresource(a1, TLRESOURCE_TYPE_TEXTURE);
-        }
-
-        if ( v5 == nullptr && system_dir != nullptr )
-        {
-            auto SHOW_RESOURCE_SPAM = os_developer_options::instance->get_flag(mString {"SHOW_RESOURCE_SPAM"});
-            v5 = system_dir->Find(a1);
-            if ( v5 != nullptr )
-            {
-                if ( SHOW_RESOURCE_SPAM )
-                {
-                    auto *v2 = a1.to_string();
-                    debug_print_va("found tlresource %s in system directory", v2);
-                }
-            }
-            else if ( SHOW_RESOURCE_SPAM )
-            {
-                auto *v3 = a1.to_string();
-                debug_print_va("didn't find tlresource %s in system directory", v3);
-            }
-        }
-
-        if ( v5 == nullptr ) {
-            v5 = default_tlres;
-        }
-
-        return v5;
-    }
-    else
-    {
-        nglTexture * (__fastcall *func)(void *, void *edx, const tlFixedString *a1) = CAST(func, 0x005691B0);
-        return func(this, nullptr, &a1);
-    }
-}
-
 #define constructor_tlresource_directory(T0, T1, vtbl)      \
     template<>                                              \
     tlresource_directory<T0, T1>::tlresource_directory()    \
@@ -227,7 +173,7 @@ void tlresource_directory_patch()
     }
 
     {
-        void (tlresource_directory<nglMesh, tlHashString>::*func)(nglMesh *) = tlresource_directory<nglMesh, tlHashString>::_Add;
+        bool (tlresource_directory<nglMesh, tlHashString>::*func)(nglMesh *) = tlresource_directory<nglMesh, tlHashString>::_Add;
         FUNC_ADDRESS(address, func);
         set_vfunc(0x008896B0, address);
     }

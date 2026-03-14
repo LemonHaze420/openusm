@@ -20,10 +20,7 @@ int USBuildingSimpleShader::Register() {
     if constexpr (1) {
         this->field_8 = nglShader::NextID++;
 
-        void (__fastcall *GetName)(void *, void *, tlFixedString *) = CAST(GetName, get_vfunc(this->m_vtbl, 0x4));
-
-        tlFixedString v2;
-        GetName(this, nullptr, &v2);
+        tlFixedString v2 = this->GetName();
 
         static auto & gUSBuildingSimpleShader = var<USBuildingSimpleShader>(0x0091E448);
 
