@@ -9,6 +9,92 @@
 
 #include <cassert>
 
+void * nalComp::nalCompAnim::_GetPerAnimDataFromComponentIx(int a2)
+{
+    if ( a2 == -1 ) {
+        return nullptr;
+    }
+
+    auto CompPerAnimDataInt = this->GetCompPerAnimDataInt(a2);
+    auto *Skeleton = this->GetSkeleton();
+    auto *v6 = Skeleton->GetComponent(a2);
+    auto *v4 = this->GetSkeleton();
+    auto v5 = v4->GetName(a2);
+    return v6->ApplyPublicPerAnimDataOffset(v5, CompPerAnimDataInt);
+}
+
+int nalComp::nalCompAnim::_GetPerAnimUserDataInt()
+{
+    return (int)this->field_44 + this->field_44[*this->field_44];
+}
+
+void nalComp::nalCompAnim::_UnMash(void *a2)
+{
+    TRACE("nalCompAnim::UnMash");
+
+    this->field_40 = (int *)((char *)this->field_40 + (unsigned int)a2);
+    this->field_44 = (int *)((char *)this->field_44 + (unsigned int)a2);
+    this->field_48 += (int)a2;
+
+    auto *Skeleton = this->GetSkeleton();
+
+    auto NumComponents = Skeleton->GetNumComponents();
+    for ( int i = 0; i < NumComponents; ++i )
+    {
+        auto CompPerAnimDataInt = this->GetCompPerAnimDataInt(i);
+        auto CompAnimTrackData = this->GetCompAnimTrackData(i);
+
+        if ( CompPerAnimDataInt != nullptr || CompAnimTrackData != nullptr )
+        {
+            auto *v3 = this->GetSkeleton();
+            auto *v8 = v3->GetComponent(i);
+            auto *CompPerSkelDataInt = v3->GetCompPerSkelDataInt(i);
+            auto v6 = v3->GetName(i);
+
+            v8->AnimProcess(
+                v6,
+                CompPerAnimDataInt,
+                CompAnimTrackData,
+                CompPerSkelDataInt);
+        }
+    }
+}
+
+void nalComp::nalCompAnim::UnMash(void *a2) {
+    void (__fastcall *func)(void *, void *edx, void *) = CAST(func, get_vfunc(m_vtbl, 0x1C));
+    func(this, nullptr, a2);
+}
+
+void nalComp::nalCompAnim::_ReMash(void *a2)
+{
+    auto *Skeleton = this->GetSkeleton();
+    auto NumComponents = Skeleton->GetNumComponents();
+    for ( int a1 = 0; a1 < NumComponents; ++a1 )
+    {
+        auto CompPerAnimDataInt = this->GetCompPerAnimDataInt(a1);
+        auto CompAnimTrackData = this->GetCompAnimTrackData(a1);
+        if ( CompPerAnimDataInt != nullptr || CompAnimTrackData != nullptr )
+        {
+            auto *v3 = this->GetSkeleton();
+            auto *v8 = v3->GetComponent(a1);
+            auto v4 = this->GetSkeleton();
+            auto *CompPerSkelDataInt = v4->GetCompPerSkelDataInt(a1);
+            auto v5 = this->GetSkeleton();
+            auto v6 = v5->GetName(a1);
+            v8->AnimRelease(v6, CompPerAnimDataInt, CompAnimTrackData, CompPerSkelDataInt);
+        }
+    }
+
+    this->field_40 = (int *)((char *)a2 - (char *)this->field_40);
+    this->field_44 = (int *)((char *)a2 - (char *)this->field_44);
+    this->field_48 = (int)a2 - this->field_48;
+}
+
+void nalComp::nalCompAnim::ReMash(void *a2) {
+    void (__fastcall *func)(void *, void *edx, void *) = CAST(func, get_vfunc(m_vtbl, 0x20));
+    func(this, nullptr, a2);
+}
+
 void * nalComp::nalCompAnim::GetCompPerAnimDataInt(int iCompIx)
 {
     TRACE("nalCompAnim::GetCompPerAnimDataInt");
@@ -57,7 +143,7 @@ void * nalComp::nalCompAnim::GetCompAnimTrackData(int iCompIx)
     }
 
     auto *pTrackDataDir = (int *)this->field_48;
-    assert(*pTrackDataDir > iOffsetIx && "Bad track data offset.");
+    assert(pTrackDataDir[0] > iOffsetIx && "Bad track data offset.");
 
     auto *result = bit_cast<void *>(pTrackDataDir[iOffsetIx + 1] + this->field_48);
     return result;
@@ -92,6 +178,11 @@ bool nalComp::nalCompAnim::DoesComponentAddToPose(int32_t iCompIx)
 
 void nalCompAnim_patch()
 {
+    {
+        FUNC_ADDRESS(address, &nalComp::nalCompAnim::_UnMash);
+        set_vfunc(0x00891FEC, address);
+    }
+
     /*
     {
         FUNC_ADDRESS(address, &nalComp::nalCompAnim::GetCompPerAnimDataInt);

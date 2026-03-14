@@ -125,6 +125,14 @@ struct BaseComponent {
     void SkelPoseRelease(uint32_t a1, void *a2, void *a3) const;
 
     //virtual
+    void AnimProcess(uint32_t a1, void *a2, void *a3, const void *a4) const;
+
+    void _AnimRelease(uint32_t , void *, void *, const void *) const {}
+
+    //virtual
+    void AnimRelease(uint32_t a1, void *a2, void *a3, const void *a4) const;
+
+    //virtual
     void PoseDataFree(uint32_t , void *) const;
 };
 

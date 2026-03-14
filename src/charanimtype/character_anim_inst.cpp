@@ -10,6 +10,8 @@
 
 VALIDATE_SIZE(nalChar::nalCharInstance, 0x20u);
 
+static constexpr auto NAL_CHAR_VERSION = 0x10003;
+
 namespace nalChar {
 #if !STANDALONE_SYSTEM
     int & nalCharAnim::vtbl_ptr = var<int>(0x0096A84C);
@@ -336,7 +338,44 @@ void nalChar::nalCharInstance::_BuildPerInstData()
 }
 
 nalChar::nalCharAnim::nalCharAnim() {
-    this->m_vtbl = 0x00891FD0;
+    if constexpr (1) {
+        static void * g_vtbl[] {
+            nullptr,
+            func_address(&_Process),
+            func_address(&_Release),
+            func_address(&_CheckVersion),
+            func_address(&_VirtualCreateInstance),
+            func_address(&_GetPerAnimDataFromComponentIx),
+            func_address(&_GetPerAnimUserDataInt),
+            func_address(&_UnMash),
+            func_address(&_ReMash),
+        };
+
+        this->m_vtbl = CAST(m_vtbl, &g_vtbl);
+    } else {
+        this->m_vtbl = 0x00891FD0;
+    }
+}
+
+void nalChar::nalCharAnim::_Process()
+{
+    TRACE("nalCharAnim::Process");
+
+    assert(Version == NAL_CHAR_VERSION &&
+            "Panel animation version mismatch, must be reconverted");
+
+    this->UnMash(this);
+}
+
+void nalChar::nalCharAnim::_Release()
+{
+    this->ReMash(this);
+}
+
+bool nalChar::nalCharAnim::_CheckVersion() const {
+    TRACE("nalCharAnim::CheckVersion");
+
+    return this->Version == NAL_CHAR_VERSION;
 }
 
 nalChar::nalCharInstance * nalChar::nalCharAnim::CreateInstance(nalChar::nalCharSkeleton *a2)
@@ -345,7 +384,7 @@ nalChar::nalCharInstance * nalChar::nalCharAnim::CreateInstance(nalChar::nalChar
     return result;
 }
 
-nalComp::nalCompInstance * nalChar::nalCharAnim::VirtualCreateInstance(
+nalComp::nalCompInstance * nalChar::nalCharAnim::_VirtualCreateInstance(
         nalBaseSkeleton *a1)
 {
     TRACE("nalCharAnim::VirtualCreateInstance");
@@ -371,7 +410,7 @@ void * nalChar::nalCharAnim::GetPerAnimDataByName(CharComponentBase::Names a2)
 void nalCharInstance_patch()
 {
     {
-        FUNC_ADDRESS(address, &nalChar::nalCharAnim::VirtualCreateInstance);
+        FUNC_ADDRESS(address, &nalChar::nalCharAnim::_VirtualCreateInstance);
         set_vfunc(0x00891FE0, address);
     }
 

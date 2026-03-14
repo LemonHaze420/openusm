@@ -22,7 +22,7 @@ struct nalCompAnim {
     int field_20;
     int field_24;
     int field_28;
-    uint32_t field_2C;
+    uint32_t Version;
     nalCompSkeleton *field_30;
     int field_34;
     float field_38;
@@ -30,6 +30,26 @@ struct nalCompAnim {
     int *field_40;
     int *field_44;
     int field_48;
+
+    //0x00734300
+    //virtual
+    void * _GetPerAnimDataFromComponentIx(int a2);
+
+    //0x00731DF0
+    //virtual
+    int _GetPerAnimUserDataInt();
+
+    void _UnMash(void *a2);
+
+    //0x00734060
+    //virtual
+    void UnMash(void *a2);
+
+    void _ReMash(void *a2);
+
+    //0x007341B0
+    //virtual
+    void ReMash(void *a2);
 
     void * GetCompPerAnimDataInt(int iCompIx);
 
@@ -41,6 +61,7 @@ struct nalCompAnim {
     }
 
     bool DoesComponentAddToPose(int32_t iCompIx);
+
 };
 
 }

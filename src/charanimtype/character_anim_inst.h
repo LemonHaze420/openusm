@@ -19,14 +19,20 @@ struct nalCharAnim : nalComp::nalCompAnim {
     //0x005FB5B0
     nalChar::nalCharInstance * CreateInstance(nalCharSkeleton *a1);
 
+    //0x005EC3C0
     //virtual
-    bool CheckVersion() {
-        return this->field_2C == 0x10003;
-    }
+    void _Process();
+
+    //0x005EC3D0
+    //virtual
+    void _Release();
 
     //virtual
+    bool _CheckVersion() const;
+
     //0x005FB5A0
-    nalComp::nalCompInstance * VirtualCreateInstance(nalBaseSkeleton *a1);
+    //virtual
+    nalComp::nalCompInstance * _VirtualCreateInstance(nalBaseSkeleton *a1);
 
     auto * GetSkeleton() {
         return this->field_30;
