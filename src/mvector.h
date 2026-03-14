@@ -136,10 +136,6 @@ struct mVector : mContainer_base {
                     }
                 }
             }
-            else
-            {
-                assert(0);
-            }
         }
         else
         {
