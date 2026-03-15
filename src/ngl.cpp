@@ -2363,7 +2363,7 @@ matrix4x3 transposed(const matrix4x3 &a2)
     TRACE("matrix4x3::transpose");
     matrix4x3 result{};
 
-    if constexpr (0)
+    if constexpr (1)
     {
         result = a2.transposed();
     }
@@ -2386,7 +2386,7 @@ vector4d xform_inv(const vector4d &a2, const matrix4x3 &a3)
 {
     vector4d result;
 
-    if constexpr (0)
+    if constexpr (1)
     {
         vector4d x = a3[0];
         vector4d y = a3[1];
@@ -2411,7 +2411,7 @@ matrix4x4 sub_4150E0(const matrix4x4 &a2)
 
     sp_log("%s", a2.to_string());
 
-    if constexpr (0)
+    if constexpr (1)
     {
         struct transform3d {
             matrix4x3 basis;
