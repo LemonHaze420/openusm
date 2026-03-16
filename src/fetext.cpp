@@ -286,6 +286,7 @@ void FEText_patch() {
         FUNC_ADDRESS(address, &FEText::_get_mash_sizeof);
         set_vfunc(0x0087A02C, address);
     }
+    return;
 
     {
         FUNC_ADDRESS(address, &FEText::SetTextNoLocalize);
@@ -294,7 +295,6 @@ void FEText_patch() {
     }
 
 
-    return;
 
     if constexpr (0) {
         {

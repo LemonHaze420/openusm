@@ -30,7 +30,7 @@ VALIDATE_OFFSET(IGOFrontEnd, field_44, 0x44);
 
 IGOFrontEnd::IGOFrontEnd()
 {
-    if constexpr (0) {
+    if constexpr (1) {
         auto *mem = mem_alloc(sizeof(fe_timer_widget));
         this->field_0 = new (mem) fe_timer_widget {};
 
@@ -123,10 +123,46 @@ void IGOFrontEnd::Draw()
     }
 }
 
-void IGOFrontEnd::Init() {
+void IGOFrontEnd::Init()
+{
     TRACE("IGOFrontEnd::Init");
 
-    THISCALL(0x00647DE0, this);
+    if constexpr (0)
+    {
+#if 0
+        if ( this->field_4 != nullptr )
+        {
+            this->field_4->Init();
+            this->field_4->SetShown(true);
+        }
+
+        if ( this->field_0 != nullptr ) {
+            this->field_0->Init();
+        }
+
+        if ( this->field_14 != nullptr ) {
+            this->field_14->Init();
+        }
+
+        if ( this->field_20 != nullptr ) {
+            this->field_20->Init();
+        }
+
+        if ( this->field_24 != nullptr ) {
+            this->field_24->init();
+        }
+
+        if ( this->field_28 != nullptr ) {
+            this->field_28->init();
+        }
+
+        if ( this->field_2C != nullptr ) {
+            this->field_2C->init()
+        }
+#endif
+    } else {
+        THISCALL(0x00647DE0, this);
+    }
 }
 
 void IGOFrontEnd::Update(Float a2) {
