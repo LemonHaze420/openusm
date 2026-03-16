@@ -84,6 +84,12 @@ struct FEText : PanelAnimObject {
     //virtual
     void SetNoFlash(color32 a2);
 
+    //0x00609A10
+    void _SetNoColor();
+
+    //virtual
+    void SetNoColor();
+
     //0x0043C240
     //virtual
     void SetScale(Float a2, Float a3);
@@ -105,7 +111,11 @@ struct FEText : PanelAnimObject {
 
     /* virtual */ void SetY(Float a2);
 
-    /* virtual */ mString GetName();
+    //0043D890
+    mString _GetName() const;
+
+    //virtual
+    mString GetName() const;
 
     /* virtual */ void AdjustForJustification(float *a2, float *a3);
 

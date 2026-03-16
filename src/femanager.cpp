@@ -38,7 +38,7 @@ void FEManager::InitIGO()
 {
     TRACE("FEManager::InitGO");
 
-    if constexpr (0)
+    if constexpr (1)
     {
         this->m_pause_menu_system = new PauseMenuSystem{static_cast<font_index>(1)};
 

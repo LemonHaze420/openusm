@@ -102,8 +102,17 @@ void FEText::Draw() {
     }
 }
 
-mString FEText::GetName() {
+mString FEText::_GetName() const {
     return this->field_50;
+}
+
+mString FEText::GetName() const
+{
+    void (__fastcall *func)(const void *, void *edx, mString *out) = CAST(func, get_vfunc(m_vtbl, 0xB0));
+
+    mString v1 {};
+    func(this, nullptr, &v1);
+    return v1;
 }
 
 void FEText::Update(Float a2) {
@@ -141,6 +150,18 @@ void FEText::SetPos(Float a2, Float a3) {
 void FEText::SetNoFlash(color32 a2) {
     this->field_4C = a2;
     this->field_64 = ((this->field_64 & 0xF7) | 1);
+}
+
+void FEText::_SetNoColor()
+{
+    this->field_64 &= 0xF6u;
+}
+
+
+void FEText::SetNoColor()
+{
+    void (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0xAC));
+    func(this);
 }
 
 void FEText::SetScale(Float a2, Float a3)
