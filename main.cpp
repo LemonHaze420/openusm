@@ -87,13 +87,14 @@
 #include "event_manager.h"
 #include "fakerootentcompdecomp.h"
 #include "fe_dialog_text.h"
+#include "fe_menu_nav_bar.h"
 #include "fe_mini_map_widget.h"
 #include "fe_mission_text.h"
+#include "fe_timer_widget.h"
 #include "fefloatingtext.h"
 #include "femanager.h"
 #include "femenuentry.h"
 #include "femultilinetext.h"
-#include "fe_menu_nav_bar.h"
 #include "filespec.h"
 #include "fileusm.h"
 #include "flexiblecharcomp.h"
@@ -2501,6 +2502,12 @@ BOOL install_redirects()
 
     FakerootEntCompDecomp_patch();
 
+    fe_timer_widget_patch();
+
+    FEText_patch();
+
+    PanelFile_patch();
+
     if constexpr (1)
     {
         worldly_pack_slot_patch();
@@ -2810,10 +2817,6 @@ BOOL install_redirects()
         fe_dialog_text_patch();
 
         PanelQuad_patch();
-
-        FEText_patch();
-
-        PanelFile_patch();
 
         localized_string_table_patch();
 
