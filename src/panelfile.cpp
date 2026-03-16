@@ -59,7 +59,7 @@ PanelFile *PanelFile::UnmashPanelFile(const char *a1, panel_layer a2)
         v10.unmash_class(v6, nullptr
 #ifdef TARGET_XBOX
             , mash::NORMAL_BUFFER
-#endif 
+#endif
                 );
         v6->PostUnmashFixup(a2);
         mash_info_struct::construct_class(v6);
@@ -80,23 +80,17 @@ PanelAnimFile *PanelFile::GetAnimationPointer(int a1)
     return this->field_28.at(a1);
 }
 
-FEText *PanelFile::GetTextPointer(const char *a2) {
+FEText * PanelFile::GetTextPointer(const char *a2)
+{
     TRACE("PanelFile::GetTextPointer", a2);
-    for (uint16_t i = 0; i < this->ptext.size(); ++i) {
-        auto *v5 = this->ptext.m_data[i];
 
-        struct Vtbl {
-            int field_0[44];
-            mString *(__fastcall *GetName)(void *, int edx, const mString *);
-        };
+    for (uint16_t i = 0; i < this->ptext.size(); ++i)
+    {
+        auto *v5 = this->ptext.at(i);
 
-        Vtbl *vtbl = CAST(vtbl, v5->m_vtbl);
-
-        mString v8;
-        auto v6 = (strcmp(vtbl->GetName(v5, 0, &v8)->c_str(), a2) == 0);
-        if (v6)
-        {
-            return this->ptext.m_data[i];
+        auto v6 = (strcmp(v5->GetName().c_str(), a2) == 0);
+        if (v6) {
+            return v5;
         }
     }
 
