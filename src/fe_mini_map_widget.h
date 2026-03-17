@@ -13,7 +13,8 @@ struct PanelFile;
 struct matrix4x4;
 
 struct fe_mini_map_widget {
-    std::intptr_t m_vtbl{0x00895A00};
+    std::intptr_t m_vtbl;
+
     PCUV_ShaderMaterial field_4[12];
     vector3d field_244[12];
     vector3d field_2D4[12];
@@ -52,16 +53,29 @@ struct fe_mini_map_widget {
     void UpdatePOIs(matrix4x4 *a2, Float a3, Float a4, Float a5, Float a6, Float a7);
 
     //0x006432F0
+    void _Init();
+
     //virtual
     void Init();
 
     //0x00641990
+    void _Draw();
+
     //virtual
     void Draw();
 
     //0x00641810
+    void _Update(Float a2);
+
     //virtual
     void Update(Float a2);
+
+    static inline void * g_vtbl[] {
+        nullptr,
+        func_address(&_Init),
+        func_address(&_Draw),
+        func_address(&_Update),
+    };
 };
 
 extern void fe_mini_map_widget_patch();

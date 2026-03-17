@@ -18,6 +18,7 @@
 #include "terrain.h"
 #include "trace.h"
 #include "utility.h"
+#include "variables.h"
 #include "vtbl.h"
 #include "wds.h"
 
@@ -27,8 +28,54 @@ VALIDATE_SIZE(fe_mini_map_widget, 0x3B8u);
 
 fe_mini_map_widget::fe_mini_map_widget()
 {
-    if constexpr (0)
+    if constexpr (1)
     {
+#if STANDALONE_SYSTEM
+        if constexpr (1)
+#else
+        if constexpr (0)
+#endif
+        {
+            this->m_vtbl = CAST(m_vtbl, &g_vtbl);
+        } else {
+            this->m_vtbl = 0x00895A00;
+        }
+
+        this->field_3B0 = 0;
+        this->mini_map_icons = nullptr;
+        this->map_icon_others = nullptr;
+        this->map_icon_spidey = nullptr;
+        this->minimap_ring = nullptr;
+        this->mini_map_frame = nullptr;
+        this->map_frame_black = nullptr;
+        this->map_frame_white = nullptr;
+        this->map_frame_white_stub = nullptr;
+        this->compass_base = nullptr;
+        this->compass_arrow = nullptr;
+        this->map_frame_map_placeholder = nullptr;
+
+        for ( int i = 0; i < 12; ++i )
+        {
+            this->field_4[i].m_blend_mode = NGLBM_BLEND;
+            this->field_4[i].field_28 = 194;
+            this->field_4[i].m_texture = nullptr;
+        }
+
+        this->field_3AC = 3.4028235e38;
+
+        int *v4 = static_cast<int *>(operator new(0x68u));
+        if ( v4 != nullptr )
+        {
+            v4[12] = 0;
+            v4[25] = 0;
+        }
+        else
+        {
+            v4 = nullptr;
+        }
+
+        this->field_3A4 = v4;
+        this->field_3A8 = true;
     }
     else
     {
@@ -49,7 +96,7 @@ fe_mini_map_widget::~fe_mini_map_widget()
     }
 }
 
-void fe_mini_map_widget::Init()
+void fe_mini_map_widget::_Init()
 {
     TRACE("fe_mini_map_widget::Init");
 
@@ -81,6 +128,12 @@ void fe_mini_map_widget::Init()
     } else {
         THISCALL(0x006432F0, this);
     }
+}
+
+void fe_mini_map_widget::Init()
+{
+    void (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x4));
+    func(this);
 }
 
 void fe_mini_map_widget::PrepareRegions()
@@ -302,7 +355,7 @@ void fe_mini_map_widget::UpdatePOIs(matrix4x4 *a2,
     }
 }
 
-void fe_mini_map_widget::Draw()
+void fe_mini_map_widget::_Draw()
 {
     auto *v2 = this->field_3A0;
     auto v3 = v2 && v2->field_2D;
@@ -374,15 +427,31 @@ void fe_mini_map_widget::Draw()
     }
 }
 
+void fe_mini_map_widget::Draw()
+{
+    void (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x8));
+    func(this);
+}
+
+void fe_mini_map_widget::_Update(Float a2)
+{
+    if constexpr (0) {
+    } else {
+        THISCALL(0x00641810, this, a2);
+    }
+}
+
+
 void fe_mini_map_widget::Update(Float a2)
 {
-    THISCALL(0x00641810, this, a2);
+    void (__fastcall *func)(void *, void *edx, Float) = CAST(func, get_vfunc(m_vtbl, 0xC));
+    func(this, nullptr, a2);
 }
 
 void fe_mini_map_widget_patch()
 {
     {
-        FUNC_ADDRESS(address, &fe_mini_map_widget::Init);
+        FUNC_ADDRESS(address, &fe_mini_map_widget::_Init);
         set_vfunc(0x00895A04, address);
     }
 
@@ -401,7 +470,7 @@ void fe_mini_map_widget_patch()
     return;
 
     {
-        FUNC_ADDRESS(address, &fe_mini_map_widget::Draw);
+        FUNC_ADDRESS(address, &fe_mini_map_widget::_Draw);
         set_vfunc(0x00895A08, address);
     }
 }
