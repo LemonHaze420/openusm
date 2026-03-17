@@ -32,6 +32,12 @@ void PanelQuadSection::Init(vector2d *pos, vector2d *uv, color32 *a4, Float a5) 
     }
 }
 
+color32 PanelQuadSection::GetColor(int a3) const
+{
+    color32 result = this->field_14.field_0[a3].m_color;
+    return result;
+}
+
 void PanelQuadSection_patch() {
     FUNC_ADDRESS(address, &PanelQuadSection::Init);
     REDIRECT(0x0062E416, address);

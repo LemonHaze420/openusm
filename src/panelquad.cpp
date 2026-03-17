@@ -152,6 +152,20 @@ void PanelQuad::SetColor(color32 a2) {
     func(this, nullptr, a2);
 }
 
+color32 PanelQuad::_GetColor() const
+{
+    auto *v1 = this->pqs.at(0);
+    return v1->GetColor(0);
+}
+
+color32 PanelQuad::GetColor() const
+{
+    color32 v1;
+    void (__fastcall *func)(const void *, void *, color32 *) = CAST(func, get_vfunc(m_vtbl, 0xBC));
+    func(this, nullptr, &v1);
+    return v1;
+}
+
 void PanelQuad::SetPos(float *a2, float *a3)
 {
     void (__fastcall *func)(void *, void *, float *, float *) = CAST(func, get_vfunc(m_vtbl, 0x94));

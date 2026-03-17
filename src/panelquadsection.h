@@ -20,6 +20,9 @@ struct PanelQuadSection {
     PanelQuadSection(from_mash_in_place_constructor *a2);
 
     void Init(vector2d *pos, vector2d *uv, color32 *a4, Float a5);
+
+    //0x00608CB0
+    color32 GetColor(int a3) const;
 };
 
 extern void PanelQuadSection_patch();

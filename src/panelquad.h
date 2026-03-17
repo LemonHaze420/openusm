@@ -87,6 +87,12 @@ struct PanelQuad : PanelAnimObject {
     //0x0062E130
     //virtual
     void CopyFrom(const PanelQuad *a2);
+
+    //0x0043F7D0
+    color32 _GetColor() const;
+
+    //virtual
+    color32 GetColor() const;
 };
 
 extern void PanelQuad_patch();
