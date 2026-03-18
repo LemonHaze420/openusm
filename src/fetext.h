@@ -60,6 +60,12 @@ struct FEText : PanelAnimObject {
     //virtual
     void Draw();
 
+    //0x0043C1E0
+    void _TurnOn(bool a2);
+
+    //virtual
+    void TurnOn(bool a2);
+
     struct string {
         int field_0;
         int m_size;
@@ -124,6 +130,9 @@ struct FEText : PanelAnimObject {
     /* virtual */ float GetX();
 
     /* virtual */ float GetY();
+
+    //virtual
+    void SetNumLines(int a2);
 };
 
 extern void FEText_patch();

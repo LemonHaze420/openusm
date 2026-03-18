@@ -102,6 +102,18 @@ void FEText::Draw() {
     }
 }
 
+void FEText::_TurnOn(bool a2)
+{
+    this->SetShown(a2);
+}
+
+void FEText::TurnOn(bool a2)
+{
+    void (__fastcall *func)(void *, void *edx, bool) = CAST(func, get_vfunc(m_vtbl, 0x64));
+    func(this, nullptr, a2);
+
+}
+
 mString FEText::_GetName() const {
     return this->field_50;
 }
@@ -276,7 +288,13 @@ float FEText::GetY() {
     return func(this);
 }
 
-void FEText_patch() {
+void FEText::SetNumLines(int a2)
+{
+    void (__fastcall *func)(void *, void *edx, int) = CAST(func, get_vfunc(m_vtbl, 0x144));
+
+    return func(this, nullptr, a2);
+}
+
     {
         FUNC_ADDRESS(address, &FEText::_unmash);
         SET_JUMP(0x0062E540, address);
