@@ -295,6 +295,8 @@ void FEText::SetNumLines(int a2)
     return func(this, nullptr, a2);
 }
 
+void FEText_patch()
+{
     {
         FUNC_ADDRESS(address, &FEText::_unmash);
         SET_JUMP(0x0062E540, address);
