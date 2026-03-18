@@ -23,6 +23,8 @@ struct PanelQuadSection {
 
     //0x00608CB0
     color32 GetColor(int a3) const;
+
+    void sub_608EF0(float *a2, float *a3);
 };
 
 extern void PanelQuadSection_patch();

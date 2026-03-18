@@ -113,6 +113,11 @@ void PanelQuad::sub_616710(Float a2, Float a3) {
     THISCALL(0x00616710, this, a2, a3);
 }
 
+void PanelQuad::sub_616690(float *a2, float *a3)
+{
+    this->pqs.at(0)->sub_608EF0(a2, a3);
+}
+
 void PanelQuad::SetTexture(nglTexture *a2) {
     THISCALL(0x00616290, this, a2);
 }
@@ -150,6 +155,18 @@ void PanelQuad::Rotate(Float a2, Float a3, Float a4, bool a5)
 void PanelQuad::SetColor(color32 a2) {
     void (__fastcall *func)(void *, void *, color32) = CAST(func, get_vfunc(m_vtbl, 0x7C));
     func(this, nullptr, a2);
+}
+
+void PanelQuad::_GetCenterPos(float &a2, float &a3) const
+{
+    a2 = this->field_14[0];
+    a3 = this->field_14[1];
+}
+
+void PanelQuad::GetCenterPos(float &a2, float &a3) const
+{
+    void (__fastcall *func)(const void *, void *, float *, float *) = CAST(func, get_vfunc(m_vtbl, 0xA8));
+    func(this, nullptr, &a2, &a3);
 }
 
 color32 PanelQuad::_GetColor() const

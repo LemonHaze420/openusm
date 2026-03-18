@@ -45,6 +45,8 @@ struct PanelQuad : PanelAnimObject {
 
     void sub_616710(Float a2, Float a3);
 
+    void sub_616690(float *a2, float *a3);
+
     //0x00616290
     void SetTexture(nglTexture *a2);
 
@@ -87,6 +89,12 @@ struct PanelQuad : PanelAnimObject {
     //0x0062E130
     //virtual
     void CopyFrom(const PanelQuad *a2);
+
+    //0x0043F750
+    void _GetCenterPos(float &a2, float &a3) const;
+
+    //virtual
+    void GetCenterPos(float &a2, float &a3) const;
 
     //0x0043F7D0
     color32 _GetColor() const;
