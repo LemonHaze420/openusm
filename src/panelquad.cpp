@@ -122,6 +122,29 @@ void PanelQuad::SetTexture(nglTexture *a2) {
     THISCALL(0x00616290, this, a2);
 }
 
+void PanelQuad::_SetZvalueAbs(Float a2)
+{
+    this->field_8 = a2;
+
+    auto *v3 = this->pmesh;
+    if ( v3 != nullptr )
+    {
+        v3->field_44 = a2;
+        v3->field_0[3][2] = a2;
+    }
+
+    for ( int i = 0; i < this->pqs.size(); ++i ) {
+        auto *q = &this->pqs.at(i)->field_14;
+        nglSetQuadZ(bit_cast<nglQuad *>(q), a2);
+    }
+}
+
+void PanelQuad::SetZvalueAbs(Float a2)
+{
+    void (__fastcall *func)(void *, void *, Float) = CAST(func, get_vfunc(m_vtbl, 0x38));
+    func(this, nullptr, a2);
+}
+
 void PanelQuad::Draw()
 {
     TRACE("PanelQuad::Draw");

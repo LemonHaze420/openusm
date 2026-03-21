@@ -58,6 +58,12 @@ struct PanelQuad : PanelAnimObject {
 
     /* virtual */ int _get_mash_sizeof();
 
+    //0x00616620
+    void _SetZvalueAbs(Float a2);
+
+    //virtual
+    void SetZvalueAbs(Float a2);
+
     /* virtual */ void Draw();
 
     /* virtual */ void TurnOn(bool a2);
