@@ -443,10 +443,10 @@ void app::cleanup()
 
         string_hash_dictionary::delete_inst();
 
-        if ( pc_input_mgr::instance() != nullptr )
+        if ( pc_input_mgr::instance != nullptr )
         {
-            delete pc_input_mgr::instance();
-            pc_input_mgr::instance() = nullptr;
+            delete pc_input_mgr::instance;
+            pc_input_mgr::instance = nullptr;
         }
 
         if ( trigger_manager::instance != nullptr )

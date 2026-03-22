@@ -143,11 +143,11 @@ game *& g_game_ptr = []() -> auto & {
 
 
 void sub_538D10() {
-    scratchpad_stack::stk().alignment = 16;
+    scratchpad_stack::stk.alignment = 16;
 
-    scratchpad_stack::stk().segment = static_cast<char *>(arch_memalign(16u, 16384u));
-    scratchpad_stack::stk().current = scratchpad_stack::stk().segment;
-    scratchpad_stack::stk().segment_size_bytes = 16384;
+    scratchpad_stack::stk.segment = static_cast<char *>(arch_memalign(16u, 16384u));
+    scratchpad_stack::stk.current = scratchpad_stack::stk.segment;
+    scratchpad_stack::stk.segment_size_bytes = 16384;
 }
 
 void construct_script_controllers() {

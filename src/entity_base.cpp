@@ -1051,13 +1051,13 @@ void entity_base::update_abs_po(bool a2) {
         entity_base **ents = nullptr;
 
         if constexpr (0) {
-            ents = CAST(ents, scratchpad_stack::stk().current);
-            if (scratchpad_stack::stk().current == scratchpad_stack::stk().segment) {
+            ents = CAST(ents, scratchpad_stack::stk.current);
+            if (scratchpad_stack::stk.current == scratchpad_stack::stk.segment) {
                 scratchpad_stack::lock();
             }
 
-            scratchpad_stack::stk().current += (scratchpad_stack::stk().alignment + n_bytes - 1) &
-                ~(scratchpad_stack::stk().alignment - 1);
+            scratchpad_stack::stk.current += (scratchpad_stack::stk.alignment + n_bytes - 1) &
+                ~(scratchpad_stack::stk.alignment - 1);
         } else {
             static entity_base *entities[n_bytes / 4]{};
             ents = entities;
@@ -1127,9 +1127,9 @@ void entity_base::update_abs_po(bool a2) {
         }
 
         if constexpr (0) {
-            scratchpad_stack::stk().current -= (scratchpad_stack::stk().alignment + n_bytes - 1) &
-                ~(scratchpad_stack::stk().alignment - 1);
-            if (scratchpad_stack::stk().current == scratchpad_stack::stk().segment) {
+            scratchpad_stack::stk.current -= (scratchpad_stack::stk.alignment + n_bytes - 1) &
+                ~(scratchpad_stack::stk.alignment - 1);
+            if (scratchpad_stack::stk.current == scratchpad_stack::stk.segment) {
                 scratchpad_stack::unlock();
             }
         }

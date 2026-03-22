@@ -1,12 +1,10 @@
 #pragma once
 
-#include "variable.h"
-
 struct stack_allocator;
 
 namespace scratchpad_stack {
 
-extern Var<stack_allocator> stk;
+extern stack_allocator & stk;
 
 //0x00512760
 extern void save_state(stack_allocator *a1);
