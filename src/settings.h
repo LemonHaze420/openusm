@@ -20,6 +20,8 @@ struct Settings {
 
     bool sub_81CC80(const char *Source, DWORD dwType, BYTE *lpData, DWORD cbData);
 
+    bool sub_81CC00(const char *Source, char *Dest, int a3, char *a4, int a5);
+
     bool sub_81D050(const char *a2, bool a3);
 
     static inline float &GameSoundVolume = var<float>(0x00965958);

@@ -15,8 +15,10 @@ Settings::Settings(const char *Source, const char *a3) {
     strncpy(&this->field_0[40], a3, 79u);
 }
 
-int Settings::sub_81D010(const char *Source, int default_value) {
-    if constexpr (1) {
+int Settings::sub_81D010(const char *Source, int default_value)
+{
+    if constexpr (1)
+    {
         int result;
 
         DWORD Data;
@@ -41,8 +43,119 @@ int Settings::sub_81D010(const char *Source, int default_value) {
 bool Settings::sub_81CDC0(const char *Source,
                           OUT OPTIONAL LPDWORD lpType,
                           OUT OPTIONAL LPBYTE lpData,
-                          IN OUT OPTIONAL LPDWORD lpcbData) {
-    return (bool) THISCALL(0x0081CDC0, this, Source, lpType, lpData, lpcbData);
+                          IN OUT OPTIONAL LPDWORD lpcbData)
+{
+    if constexpr (1)
+    {
+        char Dest[260] {};
+        char v15[260] {};
+        CHAR ValueName[260] {};
+
+        char v13[4] {};
+
+        constexpr int16_t word_883D78 {'\\'};
+
+        auto result = this->sub_81CC00(Source, v15, 260, ValueName, 260);
+        if ( result )
+        {
+            sprintf(Dest, "Software\\%s\\%s", this->field_0, &this->field_0[40]);
+            if ( v15[0] )
+            {
+                char *v7 = &v13[3];
+
+                while (*++v7) {
+                    ;
+                }
+
+                *bit_cast<int16_t *>(v7) = word_883D78;
+                auto v9 = strlen(v15) + 1;
+                auto *v10 = &v13[3];
+
+                while ( *++v10 ) {
+                    ;
+                }
+
+                std::memcpy(v10, v15, v9);
+            }
+
+            HKEY phkResult {};
+            bool v12 = false;
+            if ( RegOpenKeyA(HKEY_CURRENT_USER, Dest, &phkResult) == ERROR_SUCCESS ) {
+                if ( RegQueryValueExA(phkResult, ValueName, nullptr, lpType, lpData, lpcbData) == ERROR_SUCCESS ) {
+                    v12 = true;
+                }
+
+                RegCloseKey(phkResult);
+            }
+
+            if ( !v12 )
+            {
+                if ( RegOpenKeyA(HKEY_LOCAL_MACHINE, Dest, &phkResult) == ERROR_SUCCESS )
+                {
+                    if ( RegQueryValueExA(phkResult, ValueName, nullptr, lpType, lpData, lpcbData) == ERROR_SUCCESS ) {
+                        v12 = true;
+                    }
+
+                    RegCloseKey(phkResult);
+                }
+            }
+
+            return v12;
+        }
+        return result;
+    } else {
+        bool (__fastcall *func)(void *, void *edx,
+                          const char *,
+                          OUT OPTIONAL LPDWORD,
+                          OUT OPTIONAL LPBYTE,
+                          IN OUT OPTIONAL LPDWORD) = CAST(func, 0x0081CDC0);
+        return func(this, nullptr, Source, lpType, lpData, lpcbData);
+    }
+}
+
+bool Settings::sub_81CC00(const char *Source, char *Dest, int a3, char *a4, int a5)
+{
+    int v6 = -1;
+    if ( Source == nullptr ) {
+        return false;
+    }
+
+    auto v7 = *Source;
+    int i;
+    for ( i = 0; v7; ++i )
+    {
+        if ( v7 == '\\' ) {
+            v6 = i;
+        }
+
+        v7 = Source[i + 1];
+    }
+
+    auto v9 = i - v6 - 1;
+    if ( !v9 || a5 <= v9 ) {
+        return false;
+    }
+
+    Dest[0] = 0;
+    if ( v6 != -1 && a3 > v6 )
+    {
+        strncpy(Dest, Source, v6);
+        Dest[v6] = 0;
+    }
+
+    auto *v10 = bit_cast<char *>(&Source[v6 + 1]);
+    int v11 = a4 - v10;
+    char v12;
+
+    do
+    {
+        v12 = v10[0];
+        v10[v11] = v10[0];
+        ++v10;
+    }
+    while ( v12 );
+
+    return true;
 }
 
 void Settings::sub_81CFA0(const char *a1, const char *a2, char *Type, DWORD cbData) {
