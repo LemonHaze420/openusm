@@ -12,12 +12,27 @@
 #include "pausemenusystem.h"
 #include "trace.h"
 #include "utility.h"
-
-script_controller *& script_pad = var<script_controller *>(0x0096BB40);
+#include "variables.h"
 
 VALIDATE_SIZE(script_controller, 0x48);
 
-script_controller::script_controller() : signaller(false) {}
+#if !STANDALONE_SYSTEM
+
+script_controller *& script_pad = var<script_controller *>(0x0096BB40);
+
+#else
+
+script_controller *& script_pad = []() -> auto & {
+    static script_controller * g_script_pad {};
+    return g_script_pad;
+}();
+
+#endif
+
+
+script_controller::script_controller() : signaller(false) {
+    this-m_vtbl = 0x0089BD50;
+}
 
 void script_controller::update()
 {

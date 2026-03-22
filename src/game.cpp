@@ -150,10 +150,11 @@ void sub_538D10() {
     scratchpad_stack::stk.segment_size_bytes = 16384;
 }
 
-void construct_script_controllers() {
+void construct_script_controllers()
+{
     assert(script_pad == nullptr);
 
-    if constexpr (0) {
+    if constexpr (1) {
         script_pad = new script_controller [2];
     } else {
         CDECL_CALL(0x0065F4E0);
