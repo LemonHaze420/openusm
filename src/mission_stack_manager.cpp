@@ -11,13 +11,25 @@
 #include "sound_manager.h"
 #include "trace.h"
 #include "terrain.h"
+#include "variables.h"
 #include "wds.h"
 
 #include "common.h"
 
 VALIDATE_SIZE(mission_stack_manager, 12u);
 
+#if !STANDALONE_SYSTEM
+
 mission_stack_manager *& mission_stack_manager::s_inst = var<mission_stack_manager *>(0x0096851C);
+
+#else
+
+mission_stack_manager *& mission_stack_manager::s_inst = []() -> auto & {
+    static mission_stack_manager *s_inst1 {};
+    return s_inst1;
+}();
+
+#endif
 
 mission_stack_manager::mission_stack_manager() {
     s_inst = this;
