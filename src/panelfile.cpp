@@ -14,9 +14,23 @@
 #include "trace.h"
 #include "utility.h"
 #include "log.h"
+#include "variables.h"
 
 VALIDATE_SIZE(PanelFile, 0x3C);
 VALIDATE_OFFSET(PanelFile, field_28, 0x28);
+
+#if !STANDALONE_SYSTEM
+
+nglMeshFile *& PanelFile::g_curmeshfile = var<nglMeshFile *>(0x0096B444);
+
+#else
+
+nglMeshFile *& PanelFile::g_curmeshfile = []() -> auto & {
+    static nglMeshFile * g_curmeshfile1 {};
+    return g_curmeshfile1;
+}();
+
+#endif
 
 void PanelFile::Draw() {
     THISCALL(0x00616A60, this);
