@@ -3,12 +3,24 @@
 #include "common.h"
 #include "func_wrapper.h"
 #include "utility.h"
+#include "variables.h"
 
 #include "cstring"
 
 VALIDATE_SIZE(Settings, 0x78);
 
+#if !STANDALONE_SYSTEM
+
 Settings *& g_settings = var<Settings *>(0x00965ABC);
+
+#else
+
+Settings *& g_settings = []() -> auto & {
+    static Settings * g_settings1 {};
+    return g_settings1;
+}();
+
+#endif
 
 Settings::Settings(const char *Source, const char *a3) {
     strncpy(this->field_0, Source, 39u);
