@@ -67,8 +67,6 @@ int & g_distance_clipping = var<int>(0x0095C2F8);
 
 int & g_disable_occlusion_culling = var<int>(0x0095C7AC);
 
-int & globalTextLanguage = var<int>(0x0096B430);
-
 HWND & g_appHwnd = var<HWND>(0x009874C4);
 
 bool & g_is_the_packer = var<bool>(0x009682E4);
@@ -111,7 +109,10 @@ HWND & g_hWnd = var<HWND>(0x00971F98);
 
 bool & EnableShader = var<bool>(0x00972AB0);
 
+int & globalTextLanguage = var<int>(0x0096B430);
+
 #else
+
 IDirect3DDevice9 *& g_Direct3DDevice = []() -> auto & {
     static IDirect3DDevice9 * g_Direct3DDevice1 {};
     return g_Direct3DDevice1;
@@ -141,6 +142,12 @@ bool & EnableShader = []() -> auto & {
     static bool g_EnableShader {false};
     return g_EnableShader;
 }();
+
+int & globalTextLanguage = []() -> auto & {
+    static int g_globalTextLanguage {};
+    return g_globalTextLanguage;
+}();
+
 #endif
 
 char & byte_965C21 = var<char>(0x00965C21);
