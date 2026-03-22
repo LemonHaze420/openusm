@@ -335,8 +335,22 @@ void resource_directory::add_parent(resource_directory *new_dir)
 }
 
 int compare_resource_key_resource_location_just_hash(const resource_key &a1, resource_location &a2) {
-    //sp_log("%s", a2->field_0.get_platform_string(g_platform).c_str());
-    return CDECL_CALL(0x0055F7E0, &a1, &a2);
+    if constexpr (1) {
+        auto v1 = a2.field_0.m_hash;
+        if (a1.m_hash > v1) {
+            return 1;
+        }
+
+        if (a1.m_hash < v1) {
+            return -1;
+        }
+
+        return 0;
+
+    } else {
+        int (*func)(const resource_key *, resource_location *) = CAST(func, 0x0055F7E0);
+        return func(&a1, &a2);
+    }
 }
 
 int resource_directory::get_type_start_idxs(resource_key_type type) {
