@@ -22,6 +22,17 @@ PanelQuad::PanelQuad(from_mash_in_place_constructor *a2) {
     THISCALL(0x00637F00, this, a2);
 }
 
+PanelQuad::PanelQuad(const char *a2) : field_3C(a2)
+{
+    this->m_vtbl = 0x0087B990;
+
+    this->field_34 = 0.0;
+    this->field_14[0] = 0.0;
+    this->pmesh = nullptr;
+    this->field_38 = 1.0;
+    this->field_14[1] = 0.0;
+}
+
 PanelQuad * __fastcall PanelQuad_constructor(PanelQuad *self, int, from_mash_in_place_constructor *a2)
 {
     TRACE("PanelQuad::PanelQuad");
@@ -158,6 +169,12 @@ void PanelQuad::TurnOn(bool a2) {
     func(this, nullptr, a2);
 }
 
+void PanelQuad::Scale(Float a1, bool a2)
+{
+    void (__fastcall *func)(void *, void *, Float, bool) = CAST(func, get_vfunc(m_vtbl, 0x6C));
+    func(this, nullptr, a1, a2);
+}
+
 void PanelQuad::Rotate(Float a2, Float a3, Float a4, bool a5)
 {
     TRACE("PanelQuad::Rotate");
@@ -177,6 +194,11 @@ void PanelQuad::Rotate(Float a2, Float a3, Float a4, bool a5)
 
 void PanelQuad::SetColor(color32 a2) {
     void (__fastcall *func)(void *, void *, color32) = CAST(func, get_vfunc(m_vtbl, 0x7C));
+    func(this, nullptr, a2);
+}
+
+void PanelQuad::SetAlpha(Float a2) {
+    void (__fastcall *func)(void *, void *, Float) = CAST(func, get_vfunc(m_vtbl, 0x84));
     func(this, nullptr, a2);
 }
 

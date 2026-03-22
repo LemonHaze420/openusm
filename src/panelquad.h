@@ -30,6 +30,9 @@ struct PanelQuad : PanelAnimObject {
     //0x00637F00
     PanelQuad(from_mash_in_place_constructor *a2);
 
+    //0x00638060
+    PanelQuad(const char *a2);
+
     //0x0043F7F0
     ~PanelQuad();
 
@@ -69,9 +72,15 @@ struct PanelQuad : PanelAnimObject {
     /* virtual */ void TurnOn(bool a2);
 
     //virtual
+    void Scale(Float a1, bool a2);
+
+    //virtual
     void Rotate(Float a2, Float a3, Float a4, bool a5);
 
     /* virtual */ void SetColor(color32 a2);
+
+    //virtual
+    void SetAlpha(Float a2);
 
     //0x006284D0
     //virtual 
