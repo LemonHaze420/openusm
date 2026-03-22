@@ -29,6 +29,10 @@ VALIDATE_OFFSET(map::_Mybase, _Mysize, 0x8);
 
 VALIDATE_SIZE(*map::_Mybase::_Myhead, 0x18);
 
+#if !STANDALONE_SYSTEM
+
+simple_queue<int, 32> & entity_handle_manager::free_slot_indices = var<simple_queue<int, 32>>(0x0091FFC0);
+
 entity_slot *& entity_handle_manager::ent_slots = var<entity_slot *>(0x0095A0D0);
 
 entity_slot *& entity_handle_manager::ENTS = var<entity_slot *>(0x0095A6F4);
@@ -37,9 +41,41 @@ int & entity_handle_manager::curr_idx = var<int>(0x0095BBD8);
 
 bool & entity_handle_manager::check_world_lists = var<bool>(0x0091FE64);
 
-simple_queue<int, 32> & entity_handle_manager::free_slot_indices = var<simple_queue<int, 32>>(0x0091FFC0);
-
 stdext::hash_map<string_hash, entity_base *> & entity_handle_manager::the_map = var<stdext::hash_map<string_hash, entity_base *>>(0x0095B79C);
+
+#else
+
+simple_queue<int, 32> & entity_handle_manager::free_slot_indices = []() -> auto & {
+    static simple_queue<int, 32> g_free_slot_indices {};
+    return g_free_slot_indices;
+}();
+
+entity_slot *& entity_handle_manager::ent_slots = []() -> auto & {
+    static entity_slot * g_ent_slots {};
+    return g_ent_slots;
+}();
+
+entity_slot *& entity_handle_manager::ENTS = []() -> auto & {
+    static entity_slot * g_ENTS {};
+    return g_ENTS;
+}();
+
+int & entity_handle_manager::curr_idx = []() -> auto & {
+    static int g_curr_idx {};
+    return g_curr_idx;
+}();
+
+bool & entity_handle_manager::check_world_lists = []() -> auto & {
+    static bool g_check_world_lists {true};
+    return g_check_world_lists;
+}();
+
+stdext::hash_map<string_hash, entity_base *> & entity_handle_manager::the_map = []() -> auto & {
+    static stdext::hash_map<string_hash, entity_base *> g_the_map {};
+    return g_the_map;
+}();
+
+#endif
 
 VALIDATE_SIZE(entity_handle_manager::the_map, 40);
 
@@ -284,7 +320,7 @@ void entity_handle_manager::delete_inst()
 
 void sub_4CCEA0()
 {
-    if constexpr (0)
+    if constexpr (1)
     {
         while (entity_handle_manager::free_slot_indices.get_unused_capacity() != 0)
         {
