@@ -4,12 +4,30 @@
 #include "func_wrapper.h"
 #include "input.h"
 #include "pc_joypad_device.h"
+#include "trace.h"
 #include "variables.h"
+
 #include <windows.h>
 
 VALIDATE_SIZE(pc_input_mgr, 0x14u);
 
-pc_input_mgr::pc_input_mgr() {
+#if !STANDALONE_SYSTEM
+
+pc_input_mgr *& pc_input_mgr::instance = var<pc_input_mgr *>(0x00967BB0);
+
+#else
+
+pc_input_mgr *& pc_input_mgr::instance = []() -> auto & {
+    static pc_input_mgr * g_instance {};
+    return g_instance;
+}();
+
+#endif
+
+pc_input_mgr::pc_input_mgr()
+{
+    TRACE("pc_input_mgr::pc_input_mgr");
+
     if constexpr (1) {
         this->m_vtbl = 0x0088EA7C;
 
@@ -25,7 +43,7 @@ pc_input_mgr::pc_input_mgr() {
 
 void pc_input_mgr::create_inst() {
     if constexpr (1) {
-        pc_input_mgr::instance() = new pc_input_mgr{};
+        instance = new pc_input_mgr{};
     } else {
         CDECL_CALL(0x005E2C30);
     }

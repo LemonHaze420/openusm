@@ -196,8 +196,16 @@ game::game()
 
     if constexpr (1)
     {
+#if !STANDALONE_SYSTEM
         static auto & setup_inputs_p = var<void (*)(game *)>(0x0095C8FC);
-        setup_inputs_p = game__setup_inputs;;
+#else
+        static auto & setup_inputs_p = []() -> auto & {
+            static void (*func)(game *);
+            return func;
+        }();
+#endif
+
+        setup_inputs_p = game__setup_inputs;
     }
 
     if constexpr (1)

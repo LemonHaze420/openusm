@@ -87,11 +87,26 @@ void InputGetCapabilities(int a1, InputCapabilities *pCapabilities) {
 
 pc_joypad_device::pc_joypad_device(int in_port) : input_device()
 {
-    if constexpr (0)
+    TRACE("pc_joypad_device::pc_joypad_device");
+
+    if constexpr (1)
     {
         auto v3 = (!g_master_clock_is_up);
 
-        this->m_vtbl = CAST(m_vtbl, 0x0088EA80);
+#if STANDALONE_SYSTEM
+        if constexpr (1)
+#else
+        if constexpr (0)
+#endif
+        {
+            static vtbl_t vtbl {
+                .get_id = bit_cast<decltype(vtbl_t::get_id)>(func_address(&_get_id)),
+                .is_connected = bit_cast<decltype(vtbl_t::is_connected)>(func_address(&_is_connected))
+            };
+            this->m_vtbl = &vtbl;
+        } else {
+            this->m_vtbl = CAST(m_vtbl, 0x0088EA80);
+        }
 
         if (v3) {
             timeBeginPeriod(1u);
@@ -352,6 +367,11 @@ double sub_58E7F0(int a1) {
     }
 
     return result;
+}
+
+int pc_joypad_device::_get_id()
+{
+    return this->field_4;
 }
 
 float pc_joypad_device::_get_axis_state(Axis axis, InputState input_state)

@@ -3,6 +3,7 @@
 #include "common.h"
 #include "func_wrapper.h"
 #include "log.h"
+#include "trace.h"
 #include "utility.h"
 #include "variables.h"
 
@@ -14,13 +15,40 @@ VALIDATE_OFFSET(Input, m_din, 0x27EC);
 
 Input *& dword_965DDC = var<Input *>(0x00965DDC);
 
-static Var<HRESULT(__stdcall *)(
-    HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID *ppvOut, LPUNKNOWN punkOuter)>
-    p_DirectInput8Create{0x00987944};
+using p_DirectInput8Create_type = HRESULT(__stdcall *)(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID *ppvOut, LPUNKNOWN punkOuter);
+
+#if !STANDALONE_SYSTEM
+
+Input *& Input::instance = var<Input *>(0x00987948);
+
+static p_DirectInput8Create_type & p_DirectInput8Create = var<p_DirectInput8Create_type>(0x00987944);
+
+#else
+
+Input *& Input::instance = []() -> auto & {
+    static Input * g_instance {};
+    return g_instance;
+}();
+
+static p_DirectInput8Create_type & p_DirectInput8Create = []() -> auto & {
+    static p_DirectInput8Create_type p_DirectInput8Create1 {};
+    return p_DirectInput8Create1;
+}();
+
+#endif
 
 Input::Input()
 {
-    static Var<bool> din_intialized{0x00987950};
+    TRACE("Input::Input");
+
+#if !STANDALONE_SYSTEM
+    static bool & din_intialized = var<bool>(0x00987950);
+#else
+    static bool & din_intialized = []() -> auto & {
+        static bool g_din_intialized {};
+        return g_din_intialized;
+    }();
+#endif
 
     this->field_0 = false;
     this->field_4 = 0;
@@ -28,7 +56,8 @@ Input::Input()
     this->m_initialized = false;
     this->m_sensitivity = 0.0099999998f;
     this->field_129D0 = 4;
-    if (!din_intialized()) {
+    if (!din_intialized)
+    {
         char Buffer[260]{};
 
         if (GetSystemDirectoryA(Buffer, 260u)) {
@@ -37,19 +66,26 @@ Input::Input()
             char Dest[268]{};
             std::sprintf(Dest, "%s\\dinput8.dll", Buffer);
 
-            static Var<HMODULE> dinput8_dll{0x0098794C};
+#if !STANDALONE_SYSTEM
+            static HMODULE & dinput8_dll = var<HMODULE>(0x0098794C);
+#else
+            static HMODULE & dinput8_dll = []() -> auto & {
+                static HMODULE g_dinput8_dll {};
+                return g_dinput8_dll;
+            }();
+#endif
 
             auto v3 = LoadLibraryA(Dest);
-            dinput8_dll() = v3;
+            dinput8_dll = v3;
 
-            p_DirectInput8Create() = nullptr;
+            p_DirectInput8Create = nullptr;
             if (v3) {
-                p_DirectInput8Create() = CAST(p_DirectInput8Create(),
+                p_DirectInput8Create = CAST(p_DirectInput8Create,
                                               GetProcAddress(v3, "DirectInput8Create"));
             }
         }
 
-        din_intialized() = true;
+        din_intialized = true;
     }
 
     this->m_di_keyboard = nullptr;
@@ -313,14 +349,14 @@ bool Input::initialize(HWND a2)
 
         if (this->m_din == nullptr)
         {
-            if (p_DirectInput8Create() == nullptr) {
+            if (p_DirectInput8Create == nullptr) {
                 return false;
             }
 
             this->m_hwnd = a2;
             auto hModule = GetModuleHandleA(nullptr);
 
-            p_DirectInput8Create()(hModule,
+            p_DirectInput8Create(hModule,
                                    DIRECTINPUT_VERSION,
                                    IID_IDirectInput8,
                                    (LPVOID *) &this->m_din,
@@ -1122,7 +1158,7 @@ static auto &dword_8C0AAC = var<int[4]>(0x008C0AAC);
 
 void Input::sub_821490(bool a2)
 {
-    if constexpr (0)
+    if constexpr (1)
     {
         std::memset(this->field_4EC, 0, sizeof(this->field_4EC));
 

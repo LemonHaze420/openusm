@@ -6,7 +6,7 @@
 
 struct input_device {
 
-    struct {
+    struct vtbl_t {
         int field_0;
         int get_name;
         device_id_t (__fastcall *get_id)(const input_device *);
@@ -24,8 +24,9 @@ struct input_device {
         void (__fastcall *vibrate_0)(input_device *, void *edx, Float );
         void (__fastcall *stop_vibration)(input_device *);
         bool (__fastcall *is_vibrator_present)(const input_device *);
+    };
 
-    } * m_vtbl;
+    vtbl_t * m_vtbl;
 
     int field_4;
 

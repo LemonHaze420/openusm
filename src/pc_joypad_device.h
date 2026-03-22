@@ -57,6 +57,10 @@ struct pc_joypad_device : input_device {
     //0x005991E0
     pc_joypad_device(int in_port);
 
+    //0x0058E450
+    //virtual
+    int _get_id();
+
     //0x0058E560
     /* virtual */ float _get_axis_state(Axis a2, int a3);
 

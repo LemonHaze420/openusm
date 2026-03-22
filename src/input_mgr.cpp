@@ -17,8 +17,6 @@
 
 #include <cassert>
 
-bool & pc_inserted_devices = var<bool>(0x00965EBD);
-
 VALIDATE_SIZE(input_mgr, 0x5Cu);
 
 VALIDATE_SIZE(input_mgr::control_map, 12);
@@ -27,11 +25,25 @@ VALIDATE_SIZE(input_mgr::control_map, 12);
 
 input_mgr *& input_mgr::instance = var<input_mgr *>(0x009685DC);
 
+bool & pc_inserted_devices = var<bool>(0x00965EBD);
+
+static uint32_t & PreviousConnected = var<uint32_t>(0x009874F4);
+
 #else
 
 input_mgr *& input_mgr::instance = []() -> auto & {
     static input_mgr * g_instance {};
     return g_instance;
+}();
+
+bool & pc_inserted_devices = []() -> auto & {
+    static bool g_pc_inserted_devices {};
+    return g_pc_inserted_devices;
+}();
+
+static uint32_t & PreviousConnected = []() -> auto & {
+    static uint32_t g_PreviousConnected {};
+    return g_PreviousConnected;
 }();
 
 #endif
@@ -59,9 +71,10 @@ int DEVICE_ID_TO_MOUSE_INDEX(int id) {
 
 input_mgr::input_mgr()
 {
-    if constexpr (0)
+    if constexpr (1)
     {
         this->m_vtbl = 0x0089165C;
+
         this->field_24 = false;
         this->field_25 = false;
         this->field_26 = false;
@@ -145,8 +158,6 @@ void input_mgr::register_control(const game_control &control)
     }
 }
 
-static uint32_t & PreviousConnected = var<uint32_t>(0x009874F4);
-
 BOOL __cdecl GetDeviceChanges([[maybe_unused]] void *a1,
                               unsigned int *pdwInsertions,
                               unsigned int *pdwRemovals) {
@@ -173,14 +184,14 @@ void input_mgr::scan_devices()
 
     }
 
-    if constexpr (0)
+    if constexpr (1)
     {
         if (!pc_inserted_devices)
         {
             pc_inserted_devices = true;
             for (auto i = 0u; i < 4u; ++i) {
-                if (pc_input_mgr::instance()->pad[i]) {
-                    this->insert_device(pc_input_mgr::instance()->pad[i]);
+                if (pc_input_mgr::instance->pad[i]) {
+                    this->insert_device(pc_input_mgr::instance->pad[i]);
                 }
             }
         }
@@ -190,24 +201,24 @@ void input_mgr::scan_devices()
         GetDeviceChanges(nullptr, &dwInsertions, &dwRemovals);
         for (auto j = 0u; j < 4u; ++j)
         {
-            pc_input_mgr::instance()->pad[j]->field_8C = pc_input_mgr::instance()->pad[j]->field_88;
+            pc_input_mgr::instance->pad[j]->field_8C = pc_input_mgr::instance->pad[j]->field_88;
             if (((1 << j) & dwInsertions) != 0)
             {
-                pc_input_mgr::instance()->pad[j]->field_88 = 0;
-                auto *v4 = pc_input_mgr::instance();
+                pc_input_mgr::instance->pad[j]->field_88 = 0;
+                auto *v4 = pc_input_mgr::instance;
                 v4->pad[j]->field_70 = InputOpen(0, j);
-                InputGetCapabilities(pc_input_mgr::instance()->pad[j]->field_70,
-                                     &pc_input_mgr::instance()->pad[j]->field_48);
-                pc_input_mgr::instance()->pad[j]->field_4 = j + 1000000;
-                pc_input_mgr::instance()->pad[j]->poll();
+                InputGetCapabilities(pc_input_mgr::instance->pad[j]->field_70,
+                                     &pc_input_mgr::instance->pad[j]->field_48);
+                pc_input_mgr::instance->pad[j]->field_4 = j + 1000000;
+                pc_input_mgr::instance->pad[j]->poll();
             }
         }
 
         if (this->field_58 == -1 || this->field_26)
         {
-            for (auto v5 = 0; v5 < 4u; ++v5)
+            for (auto v5 = 0u; v5 < 4u; ++v5)
             {
-                if (pc_input_mgr::instance()->pad[v5]->is_connected())
+                if (pc_input_mgr::instance->pad[v5]->is_connected())
                 {
                     this->field_58 = static_cast<device_id_t>(v5 + 1000000);
                     if (g_game_ptr != nullptr) {
@@ -342,19 +353,19 @@ void input_mgr::insert_device(input_device *a2)
 
     sp_log("0x%X", a2->get_id());
 
-    if constexpr(0)
+    if constexpr (1)
     {
         auto *v2 = a2;
         auto id = a2->get_id();
 
-        if constexpr (1) {
+        if constexpr (0) {
             input_device ** (__fastcall *insert)(void *, void *edx, const device_id_t *) = CAST(insert, 0x005E8400);
             auto found_device = insert(&this->device_map, nullptr, &id);
             *found_device = v2;
         } else {
             this->device_map[id] = v2;
         }
-        
+
         if ( IS_JOYSTICK_DEVICE(v2->get_id()) ) {
             *((DWORD *)&this[0xFFFF562B] + v2->get_id() - 0x11) = (DWORD)v2;
         } else if ( IS_KEYBOARD_DEVICE(v2->get_id()) ) {

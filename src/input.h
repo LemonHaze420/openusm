@@ -176,8 +176,7 @@ struct Input {
         {DIK_F15, "F15"},
     };
 
-
-    static inline Input *& instance = var<Input *>(0x00987948);
+    static Input *& instance;
 };
 
 extern Input *& dword_965DDC;
