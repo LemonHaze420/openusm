@@ -12,6 +12,7 @@
 #include "rumble_manager.h"
 #include "trace.h"
 #include "utility.h"
+#include "variables.h"
 #include "vtbl.h"
 
 #include <cassert>
@@ -21,6 +22,19 @@ bool & pc_inserted_devices = var<bool>(0x00965EBD);
 VALIDATE_SIZE(input_mgr, 0x5Cu);
 
 VALIDATE_SIZE(input_mgr::control_map, 12);
+
+#if !STANDALONE_SYSTEM
+
+input_mgr *& input_mgr::instance = var<input_mgr *>(0x009685DC);
+
+#else
+
+input_mgr *& input_mgr::instance = []() -> auto & {
+    static input_mgr * g_instance {};
+    return g_instance;
+}();
+
+#endif
 
 bool IS_JOYSTICK_DEVICE(int id) {
     return id >= 0xF4240 && id <= 0xF4247;

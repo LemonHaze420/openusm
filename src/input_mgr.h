@@ -101,7 +101,7 @@ struct input_mgr : singleton {
     static void create_inst();
 
     //0x009685DC
-    static inline input_mgr *& instance = var<input_mgr *>(0x009685DC);
+    static input_mgr *& instance;
 };
 
 extern bool & pc_inserted_devices;

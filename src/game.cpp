@@ -124,11 +124,22 @@ static game_process start_process {"start", start_flow, 5};
 static int pause_flow[] = {7, 14};
 static game_process pause_process {"pause", pause_flow, 2};
 
-game *& g_game_ptr = var<game *>(0x009682E0);
-
 static int & g_debug_mem_dump_frame = var<int>(0x00921DCC);
 
 static auto & off_921DAC = var<char *[1]>(0x00921DAC);
+
+#if !STANDALONE_SYSTEM
+
+game *& g_game_ptr = var<game *>(0x009682E0);
+
+#else
+
+game *& g_game_ptr = []() -> auto & {
+    static game *g_game_ptr1 {};
+    return g_game_ptr1;
+}();
+
+#endif
 
 
 void sub_538D10() {
