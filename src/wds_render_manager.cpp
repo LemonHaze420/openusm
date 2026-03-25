@@ -399,7 +399,7 @@ void wds_render_manager::render(camera &a2, int a3)
             aeps::FrameSetupRenderAndThenRender();
             if ( panel_params == nullptr || (panel_params->field_0 & 0x20) != 0 )
             {
-                motion_effect_struct::render_all_motion_fx(a2, geometry_manager::world_space_frustum());
+                motion_effect_struct::render_all_motion_fx(a2, geometry_manager::world_space_frustum);
                 update_spidey_interface();
                 ++entity::visit_key;
             }

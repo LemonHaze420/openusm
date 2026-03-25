@@ -79,28 +79,28 @@ namespace geometry_manager {
     //0x0053A930
     extern void rebuild_view_frame();
 
-    inline Var<hull> view_frustum{0x0095FBE8};
+    extern hull & view_frustum;
 
-    inline Var<hull> world_space_frustum{0x0095FEA0};
+    extern hull & world_space_frustum;
 
-    inline Var<fixed_vector<vector3d, 5>> frustum_verts{0x0095FFC0};
+    extern fixed_vector<vector3d, 5> & frustum_verts;
 
-    inline Var<float> PROJ_ASPECT{0x00921E20};
+    extern float & PROJ_ASPECT;
 
-    extern Var<float> PROJ_FIELD_OF_VIEW;
+    extern float & PROJ_FIELD_OF_VIEW;
 
-    extern Var<float> PROJ_ZOOM;
-    extern Var<float> PROJ_FAR_PLANE_D;
+    extern float & PROJ_ZOOM;
+    extern float & PROJ_FAR_PLANE_D;
 
-    extern Var<bool> scene_analyzer_enabled;
-    extern Var<bool> auto_rebuild_view_frame;
-    extern Var<bool> view_frame_dirty;
+    extern bool & scene_analyzer_enabled;
+    extern bool & auto_rebuild_view_frame;
+    extern bool & view_frame_dirty;
 
-    extern Var<matrix4x4[NUM_XFORMS]> xforms;
+    extern matrix4x4 (& xforms)[NUM_XFORMS];
 
-    inline Var<aarect<float, vector2d>> viewport_rect{0x00960918};
+    extern aarect<float, vector2d> & viewport_rect;
 
-    inline Var<aarect<float, vector2d>> scissor_rect{0x0095FF14};
+    extern aarect<float, vector2d> & scissor_rect;
 
     //0x00544E70
     extern void create_inst();

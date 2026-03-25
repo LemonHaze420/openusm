@@ -29,7 +29,7 @@ void send_shadow_projectors()
 }
 
 bool sub_5245F0(const vector3d &a1, Float a2) {
-    return geometry_manager::world_space_frustum().sub_5CC030(a1[0], a1[1], a1[2], a2);
+    return geometry_manager::world_space_frustum.sub_5CC030(a1[0], a1[1], a1[2], a2);
 }
 
 bool render_projected_shadow(
