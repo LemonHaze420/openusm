@@ -99,10 +99,10 @@ pc_joypad_device::pc_joypad_device(int in_port) : input_device()
         if constexpr (0)
 #endif
         {
-            static vtbl_t vtbl {
-                .get_id = bit_cast<decltype(vtbl_t::get_id)>(func_address(&_get_id)),
-                .is_connected = bit_cast<decltype(vtbl_t::is_connected)>(func_address(&_is_connected))
-            };
+            static vtbl_t vtbl {};
+            vtbl.get_id = bit_cast<decltype(vtbl_t::get_id)>(func_address(&_get_id));
+            vtbl.is_connected = bit_cast<decltype(vtbl_t::is_connected)>(func_address(&_is_connected));
+
             this->m_vtbl = &vtbl;
         } else {
             this->m_vtbl = CAST(m_vtbl, 0x0088EA80);
