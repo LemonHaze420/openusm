@@ -31,7 +31,7 @@ script_controller *& script_pad = []() -> auto & {
 
 
 script_controller::script_controller() : signaller(false) {
-    this-m_vtbl = 0x0089BD50;
+    this->m_vtbl = 0x0089BD50;
 }
 
 void script_controller::update()
