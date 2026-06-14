@@ -9,7 +9,7 @@
 
 VALIDATE_SIZE(nslBank, 0x34);
 
-Var<nslBank[1]> nsl_banks {0x00946FD0};
+nslBank (& nsl_banks)[1] = var<nslBank[1]>(0x00946FD0);
 
 nslBank * nslGetBank(nslBankID a1);
 
@@ -104,7 +104,7 @@ nslBank *nslGetBank(nslBankID a1)
     const auto idx = HIWORD(a1) % 32u;
     //sp_log("idx = %d", idx);
 
-    return (a1 == nsl_banks()[idx].field_0 ? &nsl_banks()[idx] : nullptr);
+    return (a1 == nsl_banks[idx].field_0 ? &nsl_banks[idx] : nullptr);
 }
 
 int nslGetBankState(nslBankID a2)
@@ -139,7 +139,7 @@ void nslUpdateBanks()
 
         for (auto i = 0; i < 32; ++i)
         {
-            auto *nsl_bank = &nsl_banks()[i];
+            auto *nsl_bank = &nsl_banks[i];
             auto v4 = nsl_bank->field_4;
             if ( v4 != 0 && v4 != 3 )
             {
@@ -186,7 +186,7 @@ void nslUpdateBanks()
 
         if ( find_idx != -1 && nsl_bankLoad().field_0 == 0 )
         {
-            auto *v7 = &nsl_banks()[find_idx];
+            auto *v7 = &nsl_banks[find_idx];
             auto v11 = v7->field_10;
             auto v9 = v7->field_C;
             auto v8 = v7->field_8;

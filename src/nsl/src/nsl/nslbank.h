@@ -30,7 +30,7 @@ struct nslBank
 
 };
 
-extern Var<nslBank[1]> nsl_banks;
+extern nslBank (& nsl_banks)[1];
 
 inline auto & nsl_workGuard = var<char *>(0x0097DB18);
 inline auto & nsl_workGuard1 = var<char *>(0x0097DB1C);
