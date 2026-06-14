@@ -3078,7 +3078,7 @@ void game::unload_current_level()
             sub_79A160();
 
             for (int i = 0; i < 128; ++i) {
-                s_sound_instance_slots()[i].field_50 = 0;
+                s_sound_instance_slots[i].field_50 = 0;
             }
         }
 

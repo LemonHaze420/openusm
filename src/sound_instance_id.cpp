@@ -6,7 +6,7 @@
 
 VALIDATE_SIZE(sound_instance_slot, 0x54);
 
-Var<sound_instance_slot *> s_sound_instance_slots{0x0095C830};
+sound_instance_slot *& s_sound_instance_slots = var<sound_instance_slot *>(0x0095C830);
 
 void sound_instance::stop() {
     THISCALL(0x0053E6F0, this);
