@@ -68,6 +68,15 @@ if (TARGET_XBOX)
     add_compile_definitions(TARGET_XBOX)
 endif()
 
+option(OPENUSM_XBPACK_MODE "Use xbpack at runtime" OFF)
+if (OPENUSM_XBPACK_MODE)
+    add_compile_definitions(OPENUSM_XBPACK_MODE)
+endif()
+
+if (TARGET_XBOX AND OPENUSM_XBPACK_MODE)
+    message(FATAL_ERROR "TARGET_XBOX and OPENUSM_XBPACK_MODE are mutually exclusive")
+endif()
+
 add_library(utility src/utility/trace.cpp)
 target_include_directories(utility PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/utility>)
@@ -77,7 +86,7 @@ target_include_directories(variables PUBLIC "src/variables")
 target_link_libraries(variables PUBLIC utility)
 
 
-if (TARGET_XBOX)
+if (TARGET_XBOX OR OPENUSM_XBPACK_MODE)
     add_library(mash src/mash/xbox/src/mash_info_struct.cpp)
     target_include_directories(mash PUBLIC "src/mash/xbox/include/")
 else()
