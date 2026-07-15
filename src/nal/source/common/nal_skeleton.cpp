@@ -496,4 +496,40 @@ namespace inverse_kinematics {
         flip_chain_basis(joint0);
         flip_chain_basis(joint1);
     }
+
+
+    quaternion* __cdecl quat_blend(
+        quaternion* quat,
+        quaternion* quatA,
+        float* weightA,
+        quaternion* quatB,
+        vector4d* weights)
+    {
+        const float a = *weightA;
+        const float b = weights->y;
+
+        const float x = a * quatA->arr[0] + b * quatB->arr[0];
+        const float y = a * quatA->arr[1] + b * quatB->arr[1];
+        const float z = a * quatA->arr[2] + b * quatB->arr[2];
+        const float w = a * quatA->arr[3] + b * quatB->arr[3];
+
+        quat->arr[0] = x;
+        quat->arr[1] = y;
+        quat->arr[2] = z;
+        quat->arr[3] = w;
+
+        return quat;
+    }
+
+    int CalcIKTrackDataSize(int mask)
+    {
+        int num_tracks = 0;
+
+        if (mask & 1) num_tracks += 3;
+        if (mask & 2) num_tracks += 3;
+        if (mask & 4) num_tracks += 7;
+        if (mask & 8) num_tracks += 7;
+
+        return num_tracks;
+    }
 }

@@ -4461,6 +4461,9 @@ bool __fastcall slf__create_debug_menu_entry(script_library_class::function* fun
     return 1;
 }
 
+
+#include "nal_skeleton.h"
+
 // ---------------------------------------------------------------------------------------------------
 
 BOOL install_redirects()
@@ -4567,6 +4570,10 @@ BOOL install_redirects()
     SET_JUMP(0x797070, inverse_kinematics::nalIKSolve2D);
     SET_JUMP(0x5EEC20, inverse_kinematics::solve_two_bone);
     SET_JUMP(0x5F16E0, inverse_kinematics::DecomposeIKSpin);
+    // need renaming^
+
+    //SET_JUMP(0x5FD6D0, inverse_kinematics::LegsIK_BuildPerInstData);
+    SET_JUMP(0x5FC770, inverse_kinematics::quat_blend);
 
     localized_string_table_patch();
 
