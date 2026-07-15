@@ -261,6 +261,7 @@
 #include "web_polytube.h"
 #include "window_manager.h"
 #include "worldly_pack_slot.h"
+#include "xbpack.h"
 
 #include "input.h"
 
@@ -4566,6 +4567,14 @@ BOOL install_redirects()
     SET_JUMP(0x797070, inverse_kinematics::nalIKSolve2D);
     SET_JUMP(0x5EEC20, inverse_kinematics::solve_two_bone);
     SET_JUMP(0x5F16E0, inverse_kinematics::DecomposeIKSpin);
+
+    localized_string_table_patch();
+
+    if (!install_xbpack_support()) {
+        return false;
+    }
+
+
     return true;
 
     wds_render_manager_patch();

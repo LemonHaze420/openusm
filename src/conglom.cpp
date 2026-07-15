@@ -19,7 +19,7 @@
 #include "light_manager.h"
 #include "ngl.h"
 
-#ifdef TARGET_XBOX
+#if defined(TARGET_XBOX) || defined(OPENUSM_XBPACK_MODE)
 #include "mashable_interface.h"
 #endif
 
@@ -41,6 +41,9 @@
 #include "vector2di.h"
 #include "vtbl.h"
 
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
 #include <cmath>
 
 VALIDATE_SIZE(conglomerate, 0x130);
@@ -109,6 +112,351 @@ als::animation_logic_system *conglomerate::get_my_als()
 
 constexpr auto _ENTM_TYPE_MAX = 28u;
 
+#ifdef OPENUSM_XBPACK_MODE
+namespace
+{
+struct xb_ifc_t
+{
+    uint8_t *image;
+    uint32_t size;
+};
+
+struct pc_tentacle_hash_entry
+{
+    uint32_t hash;
+    uint32_t aux;
+};
+
+struct pc_tentacle_record
+{
+    uint32_t field_0;
+    uint32_t field_4;
+    uint32_t field_8;
+    float radius;
+    char texture[0x20];
+    uint32_t source_hash;
+    uint32_t source_hash_aux;
+    entity_base *resolved_entity;
+    mashable_vector<pc_tentacle_hash_entry> control_hashes;
+    mashable_vector<entity_base *> control_entities;
+};
+
+static_assert(sizeof(pc_tentacle_record) == 0x4C);
+static_assert(offsetof(pc_tentacle_record, texture) == 0x10);
+static_assert(offsetof(pc_tentacle_record, source_hash) == 0x30);
+static_assert(offsetof(pc_tentacle_record, control_hashes) == 0x3C);
+static_assert(offsetof(pc_tentacle_record, control_entities) == 0x44);
+
+bool read_ifc(
+    generic_mash_data_ptrs *data,
+    xb_ifc_t &ifc)
+{
+    ifc = {};
+    const auto exists = *data->get<uint32_t>();
+    if ( exists == 0 )
+        return false;
+
+    rebase(data->field_0, 4);
+    ifc.size = *data->get<uint32_t>();
+    rebase(data->field_0, 16);
+    rebase(data->field_0, 4);
+    ifc.image = data->field_0;
+    data->field_0 += ifc.size;
+    return true;
+}
+
+bool take_bytes(
+    uint8_t *&cursor,
+    uint8_t *limit,
+    size_t byte_count,
+    size_t alignment,
+    uint8_t *&result)
+{
+    if ( alignment == 0 || (alignment & (alignment - 1)) != 0 )
+        return false;
+
+    const auto value = reinterpret_cast<uintptr_t>(cursor);
+    const auto end = reinterpret_cast<uintptr_t>(limit);
+    if ( value > UINTPTR_MAX - (alignment - 1) )
+        return false;
+
+    const auto aligned = (value + alignment - 1) & ~(alignment - 1);
+    if ( aligned > end || byte_count > end - aligned )
+        return false;
+
+    result = reinterpret_cast<uint8_t *>(aligned);
+    cursor = result + byte_count;
+    return true;
+}
+
+bool take_array(
+    uint8_t *&cursor,
+    uint8_t *limit,
+    uint32_t count,
+    size_t element_size,
+    size_t alignment,
+    uint8_t *&result)
+{
+    const auto byte_count = static_cast<uint64_t>(count) * element_size;
+    if ( byte_count > UINT32_MAX )
+        return false;
+
+    return take_bytes(
+        cursor,
+        limit,
+        static_cast<size_t>(byte_count),
+        alignment,
+        result);
+}
+
+uint32_t read_u32(const uint8_t *source)
+{
+    uint32_t value;
+    std::memcpy(&value, source, sizeof(value));
+    return value;
+}
+
+bool take_u32(uint8_t *&cursor, uint8_t *limit, uint32_t &value)
+{
+    uint8_t *source = nullptr;
+    if ( !take_bytes(cursor, limit, sizeof(value), 4, source) )
+        return false;
+
+    value = read_u32(source);
+    return true;
+}
+
+bool read_tentacle_records(
+    const xb_ifc_t &ifc,
+    pc_tentacle_record *records,
+    uint16_t &record_count)
+{
+    constexpr uint32_t XB_TENTACLE_VTABLE_HASH = 0x170BCC20;
+    constexpr size_t XB_TENTACLE_RECORDS_OFFSET = 0x50;
+    constexpr size_t XB_TENTACLE_RECORD_SIZE = 0x4C;
+
+    if ( ifc.image == nullptr || ifc.size < XB_TENTACLE_RECORDS_OFFSET )
+        return false;
+
+    const auto image_address = reinterpret_cast<uintptr_t>(ifc.image);
+    if ( ifc.size > UINTPTR_MAX - image_address )
+        return false;
+
+    auto *image_end = ifc.image + ifc.size;
+    if ( read_u32(ifc.image) != 0x6D617368
+        || read_u32(ifc.image + 0x10) != XB_TENTACLE_VTABLE_HASH )
+        return false;
+
+    const auto shared_offset = read_u32(ifc.image + 8);
+    if ( shared_offset < XB_TENTACLE_RECORDS_OFFSET || shared_offset > ifc.size )
+        return false;
+
+    auto *normal_cursor = ifc.image + XB_TENTACLE_RECORDS_OFFSET;
+    auto *shared_cursor = ifc.image + shared_offset;
+    auto *const normal_limit = shared_cursor;
+    auto *const shared_limit = image_end;
+
+    uint32_t count = 0;
+    if ( !take_u32(shared_cursor, shared_limit, count)
+        || count > UINT16_MAX )
+        return false;
+
+    record_count = static_cast<uint16_t>(count);
+
+    uint8_t *record_ptrs = nullptr;
+    if ( !take_array(
+            normal_cursor,
+            normal_limit,
+            count,
+            sizeof(uint32_t),
+            4,
+            record_ptrs) )
+        return false;
+    (void) record_ptrs;
+
+    for ( uint32_t i = 0; i < count; ++i )
+    {
+        uint8_t *xb_record = nullptr;
+        if ( !take_bytes(
+                normal_cursor,
+                normal_limit,
+                XB_TENTACLE_RECORD_SIZE,
+                4,
+                xb_record) )
+            return false;
+
+        int32_t texture_length;
+        std::memcpy(
+            &texture_length,
+            xb_record + 0x10,
+            sizeof(texture_length));
+        if ( texture_length >= static_cast<int32_t>(sizeof(pc_tentacle_record::texture)) )
+            return false;
+
+        uint8_t *texture = nullptr;
+        if ( texture_length > 0 )
+        {
+            if ( !take_bytes(
+                    normal_cursor,
+                    normal_limit,
+                    static_cast<size_t>(texture_length) + 1,
+                    1,
+                    texture)
+                || texture[texture_length] != '\0' )
+                return false;
+        }
+
+        uint32_t hash_count = 0;
+        uint32_t entity_count = 0;
+        uint8_t *hashes = nullptr;
+        uint8_t *entities = nullptr;
+        if ( !take_u32(shared_cursor, shared_limit, hash_count)
+            || hash_count > UINT16_MAX
+            || !take_array(
+                normal_cursor,
+                normal_limit,
+                hash_count,
+                sizeof(pc_tentacle_hash_entry),
+                4,
+                hashes)
+            || !take_u32(shared_cursor, shared_limit, entity_count)
+            || entity_count != hash_count
+            || !take_array(
+                normal_cursor,
+                normal_limit,
+                entity_count,
+                sizeof(entity_base *),
+                4,
+                entities) )
+            return false;
+
+        if ( records != nullptr )
+        {
+            auto &record = records[i];
+            std::memcpy(&record, xb_record, 0x10);
+            if ( texture != nullptr )
+                std::memcpy(record.texture, texture, texture_length + 1);
+            std::memcpy(&record.source_hash, xb_record + 0x1C, 8);
+            record.resolved_entity = nullptr;
+            record.control_hashes = {
+                reinterpret_cast<pc_tentacle_hash_entry *>(hashes),
+                static_cast<uint16_t>(hash_count),
+                false,
+                true};
+            record.control_entities = {
+                reinterpret_cast<entity_base **>(entities),
+                static_cast<uint16_t>(entity_count),
+                false,
+                true};
+        }
+    }
+
+    return true;
+}
+
+tentacle_interface *tentacle_error(const char *reason)
+{
+    sp_log("Invalid xb tentacle interface: %s", reason);
+    assert(0 && "Invalid xb tentacle interface");
+    return nullptr;
+}
+
+tentacle_interface *unmash_tentacle_ifc(
+    generic_mash_data_ptrs *data,
+    conglomerate *owner)
+{
+    xb_ifc_t source;
+    if ( !read_ifc(data, source) )
+        return nullptr;
+
+    uint16_t record_count = 0;
+    if ( !read_tentacle_records(source, nullptr, record_count) )
+        return tentacle_error("layout validation failed");
+
+    const auto records_size =
+        static_cast<size_t>(record_count) * sizeof(pc_tentacle_record);
+    auto *records = record_count == 0
+        ? nullptr
+        : static_cast<pc_tentacle_record *>(mem_alloc(records_size));
+    if ( record_count != 0 && records == nullptr )
+        return tentacle_error("record allocation failed");
+    if ( records != nullptr )
+        std::memset(records, 0, records_size);
+
+    uint16_t parsed_count = 0;
+    if ( !read_tentacle_records(
+            source,
+            records,
+            parsed_count)
+        || parsed_count != record_count )
+    {
+        if ( records != nullptr )
+            mem_dealloc(records, records_size);
+        return tentacle_error("record conversion failed");
+    }
+
+    auto *polytubes = record_count == 0
+        ? nullptr
+        : mem_alloc(static_cast<size_t>(record_count) * sizeof(void *));
+    if ( record_count != 0 && polytubes == nullptr )
+    {
+        mem_dealloc(records, records_size);
+        return tentacle_error("runtime allocation failed");
+    }
+    if ( polytubes != nullptr )
+        std::memset(
+            polytubes,
+            0,
+            static_cast<size_t>(record_count) * sizeof(void *));
+
+    auto *ifc = static_cast<tentacle_interface *>(
+        mem_alloc(sizeof(tentacle_interface)));
+    if ( ifc == nullptr )
+    {
+        if ( polytubes != nullptr )
+            mem_dealloc(
+                polytubes,
+                static_cast<size_t>(record_count) * sizeof(void *));
+        if ( records != nullptr )
+            mem_dealloc(records, records_size);
+        return tentacle_error("interface allocation failed");
+    }
+    std::memset(ifc, 0, sizeof(*ifc));
+    ifc->m_vtbl = ifc_v_table_lookup()[8];
+    ifc->field_4 = owner;
+
+    const mashable_vector<pc_tentacle_record> record_vector {
+        records,
+        record_count,
+        false,
+        true};
+    std::memcpy(&ifc->field_1C, &record_vector, sizeof(record_vector));
+    ifc->field_24 = static_cast<int>(
+        reinterpret_cast<uintptr_t>(polytubes));
+    ifc->field_28 = 3;
+    ifc->field_34 = 0;
+
+    sp_log(
+        "Converted xb tentacle interface with %u records",
+        static_cast<unsigned int>(record_count));
+    return ifc;
+}
+
+static bool skip_ifc(
+    generic_mash_data_ptrs *data,
+    const char *name)
+{
+    xb_ifc_t ifc;
+    if ( !read_ifc(data, ifc) )
+        return false;
+
+    sp_log("Unsupported non-null xb %s mashable interface", name);
+    assert(0 && "Unsupported non-null xb conglomerate interface");
+    return true;
+}
+}
+#endif
+
 void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data_ptrs *a4)
 {
     TRACE("conglomerate::un_mash", this->field_10.to_string());
@@ -122,7 +470,7 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
         }
 
 
-#ifndef TARGET_XBOX
+#if !defined(TARGET_XBOX) && !defined(OPENUSM_XBPACK_MODE)
         if ( (a2->field_E & 0x40) != 0 )
         {
             rebase(a4->field_0, 4);
@@ -164,7 +512,42 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
         skeleton_ifc = tmp_skeleton_ifc.get_interface();
 #endif
 
-#ifndef TARGET_XBOX
+#ifdef OPENUSM_XBPACK_MODE
+        mashable_interface<skeleton_interface> tmp_skeleton_ifc;
+        tmp_skeleton_ifc.custom_un_mash(a2, &tmp_skeleton_ifc, a4);
+        skeleton_ifc = tmp_skeleton_ifc.get_interface();
+        if ( skeleton_ifc != nullptr )
+            skeleton_ifc->field_4 = this;
+
+        field_11C = nullptr;
+        script_data_ifc = nullptr;
+        field_124 = nullptr;
+        m_variant_interface = nullptr;
+        skip_ifc(a4, "script_data_interface");
+        field_124 = unmash_tentacle_ifc(a4, this);
+        skip_ifc(a4, "variant_interface");
+
+        if ( (a2->field_E & 0x1000) != 0 )
+        {
+            rebase(a4->field_0, 4);
+            my_decal_data_interface = a4->get<decal_data_interface>();
+            fix_ifc_v_table(
+                reinterpret_cast<char *>(my_decal_data_interface),
+                static_cast<eEntityMashIFCTypeEnum>(9));
+            my_decal_data_interface->un_mash(
+                a2,
+                this,
+                my_decal_data_interface,
+                a4);
+            assert(!my_decal_data_interface->is_dynamic());
+        }
+        else
+        {
+            my_decal_data_interface = nullptr;
+        }
+#endif
+
+#if !defined(TARGET_XBOX) && !defined(OPENUSM_XBPACK_MODE)
         if ( (a2->field_E & 4) != 0 )
         {
             rebase(a4->field_0, 4);
@@ -1055,4 +1438,12 @@ void conglomerate_patch()
         FUNC_ADDRESS(address, &conglomerate::get_colgeom_center);
         //set_vfunc(0x00884928, address);
     }
+}
+
+void conglomerate_xbpack_patch()
+{
+#ifdef OPENUSM_XBPACK_MODE
+    FUNC_ADDRESS(address, &conglomerate::_un_mash);
+    set_vfunc(0x00884834, address);
+#endif
 }

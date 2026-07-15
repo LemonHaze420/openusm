@@ -43,27 +43,35 @@ bool ai_interact_resource_handler::_handle_resource(worldly_resource_handler::eB
         ai_interaction_data *new_interact = CAST(new_interact, resource);
         assert(new_interact != nullptr);
 
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
         mash_info_struct info_struct {mash::UNMASH_MODE, resource, a3->m_size, true};
 #else
         mash_info_struct info_struct {resource, a3->m_size};
 #endif
 
         info_struct.unmash_class(new_interact, nullptr
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
             , mash::NORMAL_BUFFER
 #endif
                 );
 
         mash_info_struct::construct_class(new_interact);
 
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
         a3->m_offset += info_struct.get_header_size();
 #endif
     }
     
     ++this->field_C;
     return false;
+}
+
+void ai_interact_resource_handler_xbpack_patch()
+{
+#ifdef OPENUSM_XBPACK_MODE
+    FUNC_ADDRESS(address, &ai_interact_resource_handler::_handle_resource);
+    set_vfunc(0x00888AF0, address);
+#endif
 }
 
 void ai_interact_resource_handler_patch()

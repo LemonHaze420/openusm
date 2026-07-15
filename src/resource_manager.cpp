@@ -23,10 +23,137 @@
 #include "variables.h"
 #include "worldly_pack_slot.h"
 
+#include <algorithm>
 #include <cassert>
+#include <cstring>
+#include <new>
 #include <numeric>
+#include <vector>
 
 namespace resource_manager {
+
+extern int &amalgapak_pack_location_count;
+extern resource_pack_location *&amalgapak_pack_location_table;
+
+namespace
+{
+constexpr auto XBOX_RESOURCE_KEY_TYPE_COUNT = 71;
+constexpr auto XBOX_AMALGAPAK_LOCATION_SIZE = 0x28u;
+
+struct xbox_amalgapak_location {
+    resource_location loc;
+    int field_10;
+    int field_14;
+    int field_18;
+    int field_1C;
+    int prerequisite_offset;
+    int prerequisite_count;
+};
+
+VALIDATE_SIZE(xbox_amalgapak_location, XBOX_AMALGAPAK_LOCATION_SIZE);
+
+resource_key_type convert_key_type(resource_key_type type)
+{
+    const auto raw_type = static_cast<int>(type);
+    assert(raw_type >= 0 && raw_type < XBOX_RESOURCE_KEY_TYPE_COUNT);
+
+    if (raw_type <= 54) {
+        return static_cast<resource_key_type>(raw_type);
+    }
+
+    return static_cast<resource_key_type>(raw_type - 1);
+}
+
+void convert_key(resource_key &key)
+{
+    key.m_type = convert_key_type(key.m_type);
+}
+
+bool has_full_location_table(os_file &file, const resource_amalgapak_header &header)
+{
+    if (header.location_table_size <= 0
+        || header.location_table_size % sizeof(resource_pack_location) != 0)
+        return false;
+
+    std::vector<uint8_t> table(header.location_table_size);
+    file.set_fp(header.field_1C, os_file::FP_BEGIN);
+    if (file.read(table.data(), header.location_table_size) != header.location_table_size)
+        return false;
+
+    for (size_t offset = 0; offset < table.size(); offset += sizeof(resource_pack_location)) {
+        const auto *entry = table.data() + offset;
+        uint32_t hash = 0;
+        std::memcpy(&hash, entry, sizeof(hash));
+
+        const auto *name = reinterpret_cast<const char *>(
+            entry + offsetof(resource_pack_location, m_name));
+        const auto *name_end = static_cast<const char *>(
+            std::memchr(name, 0, sizeof(resource_pack_location::m_name)));
+        if (name_end == nullptr || name_end == name || to_hash(name) != hash)
+            return false;
+    }
+
+    return true;
+}
+
+void load_pack_location_table(os_file &file, const resource_amalgapak_header &pack_file_header)
+{
+    file.set_fp(pack_file_header.field_1C, os_file::FP_BEGIN);
+
+    const auto full_table = g_platform == NL_PLATFORM_XBOX
+        && has_full_location_table(file, pack_file_header);
+    file.set_fp(pack_file_header.field_1C, os_file::FP_BEGIN);
+
+    if (g_platform == NL_PLATFORM_XBOX && !full_table) {
+        assert(pack_file_header.location_table_size % XBOX_AMALGAPAK_LOCATION_SIZE == 0);
+
+        amalgapak_pack_location_count =
+            pack_file_header.location_table_size / XBOX_AMALGAPAK_LOCATION_SIZE;
+
+        std::vector<xbox_amalgapak_location> raw_locations(amalgapak_pack_location_count);
+        auto how_many_did_we_get =
+            file.read(raw_locations.data(), pack_file_header.location_table_size);
+        assert(how_many_did_we_get == pack_file_header.location_table_size);
+
+        amalgapak_pack_location_table = static_cast<resource_pack_location *>(arch_memalign(
+            16u, amalgapak_pack_location_count * sizeof(resource_pack_location)));
+        assert(amalgapak_pack_location_table != nullptr);
+
+        for (int i = 0; i < amalgapak_pack_location_count; ++i) {
+            const auto &src = raw_locations[i];
+            auto &dst = amalgapak_pack_location_table[i];
+
+            ::new (static_cast<void *>(&dst)) resource_pack_location();
+            dst.loc = src.loc;
+            convert_key(dst.loc.field_0);
+            dst.field_10 = src.field_10;
+            dst.field_14 = src.field_14;
+            dst.field_18 = src.field_18;
+            dst.field_1C = src.field_1C;
+            dst.prerequisite_offset = src.prerequisite_offset;
+            dst.prerequisite_count = src.prerequisite_count;
+        }
+
+        return;
+    }
+
+    amalgapak_pack_location_count =
+        pack_file_header.location_table_size / sizeof(resource_pack_location);
+
+    amalgapak_pack_location_table =
+        static_cast<resource_pack_location *>(arch_memalign(16u, pack_file_header.location_table_size));
+    assert(amalgapak_pack_location_table != nullptr);
+
+    auto how_many_did_we_get =
+        file.read(amalgapak_pack_location_table, pack_file_header.location_table_size);
+    assert(how_many_did_we_get == pack_file_header.location_table_size);
+
+    if (g_platform == NL_PLATFORM_XBOX) {
+        for (int i = 0; i < amalgapak_pack_location_count; ++i)
+            convert_key(amalgapak_pack_location_table[i].loc.field_0);
+    }
+}
+}
 
 VALIDATE_SIZE(resource_memory_map, 0x90);
 
@@ -179,17 +306,7 @@ void load_amalgapak()
         amalgapak_base_offset = pack_file_header.field_18;
         using_amalga = (pack_file_header.field_18 != 0);
         amalgapak_signature = pack_file_header.field_14;
-        amalgapak_pack_location_count = pack_file_header.location_table_size /
-            sizeof(resource_pack_location);
-
-        amalgapak_pack_location_table = static_cast<resource_pack_location *>(
-            arch_memalign(16u, pack_file_header.location_table_size));
-        assert(amalgapak_pack_location_table != nullptr);
-
-        file.set_fp(pack_file_header.field_1C, os_file::FP_BEGIN);
-        auto how_many_did_we_get = file.read(amalgapak_pack_location_table,
-                                             pack_file_header.location_table_size);
-        assert(how_many_did_we_get == pack_file_header.location_table_size);
+        load_pack_location_table(file, pack_file_header);
 
         amalgapak_prerequisite_count = static_cast<uint32_t>(
                                              pack_file_header.prerequisite_table_size) >>
@@ -200,9 +317,15 @@ void load_amalgapak()
         assert(amalgapak_prerequisite_table != nullptr);
 
         file.set_fp(pack_file_header.field_2C, os_file::FP_BEGIN);
-        how_many_did_we_get = file.read(amalgapak_prerequisite_table,
-                                        pack_file_header.prerequisite_table_size);
+        auto how_many_did_we_get = file.read(amalgapak_prerequisite_table,
+                                             pack_file_header.prerequisite_table_size);
         assert(how_many_did_we_get == pack_file_header.prerequisite_table_size);
+
+        if (g_platform == NL_PLATFORM_XBOX) {
+            for (int i = 0; i < amalgapak_prerequisite_count; ++i) {
+                convert_key(amalgapak_prerequisite_table[i]);
+            }
+        }
 
         resource_buffer_size = pack_file_header.field_34;
         assert(pack_file_header.memory_map_table_size % sizeof(resource_memory_map) == 0);
@@ -529,7 +652,7 @@ void frame_advance(Float a2)
         amalga_refresh_timer = 0.0;
     }
 
-    if constexpr (0)
+    if constexpr (1)
     {
         static auto & dword_960CB0 = var<int>(0x00960CB0);
 
@@ -570,7 +693,7 @@ bool get_pack_file_stats(const resource_key &a1, resource_pack_location *a2, mSt
 {
     TRACE("resource_manager::get_pack_file_stats", a1.get_platform_string(g_platform).c_str());
 
-    if constexpr (0)
+    if constexpr (1)
     {
         assert(amalgapak_pack_location_table != nullptr);
 
@@ -598,7 +721,25 @@ bool get_pack_file_stats(const resource_key &a1, resource_pack_location *a2, mSt
                 &i,
                 compare_resource_key_resource_pack_location))
         {
-            return false;
+            for (int j = 0; j < amalgapak_pack_location_count; ++j) {
+                if (amalgapak_pack_location_table[j].loc.field_0.m_hash == a1.m_hash) {
+                    // sp_log("Pack lookup hash fallback: hash=0x%08X requested_type=%d table_type=%d index=%d",
+                    //        a1.m_hash.source_hash_code, a1.m_type,
+                    //        amalgapak_pack_location_table[j].loc.field_0.m_type, j);
+                    i = j;
+                    break;
+                }
+            }
+
+            if (i < 0 || i >= amalgapak_pack_location_count ||
+                amalgapak_pack_location_table[i].loc.field_0.m_hash != a1.m_hash) {
+                sp_log("Pack lookup failed: hash=0x%08X type=%d platform=%d count=%d",
+                       a1.m_hash.source_hash_code,
+                       a1.m_type,
+                       g_platform,
+                       amalgapak_pack_location_count);
+                return false;
+            }
         }
 
 
@@ -1088,18 +1229,51 @@ uint8_t *get_resource(const resource_key &resource_id, int *mash_data_size, reso
 {
     TRACE("resource_manager::get_resource", resource_id.get_platform_string(g_platform).c_str());
     
-    if constexpr (0)
+    if constexpr (1)
     {
         assert(!g_is_the_packer() && "Don't call this function while packing!");
         assert(resource_id.is_set());
-        assert(get_resource_context() != nullptr && "Can't get a resource without a context!");
-        assert(get_resource_context()->is_data_ready() && "Invalid resource context");
 
-        auto *result = get_resource_context()->get_resource(resource_id, mash_data_size, a3);
+        auto *context = get_resource_context();
+        if (context != nullptr && context->is_data_ready()) {
+            auto *result = context->get_resource(resource_id, mash_data_size, a3);
+            if (result != nullptr) {
+                return result;
+            }
+        }
 
-        //sp_log("resource_manager::get_resource:");
+        if (partitions != nullptr) {
+            for (auto *partition : *partitions) {
+                if (partition == nullptr) {
+                    continue;
+                }
 
-        return result;
+                for (auto *slot : partition->get_pack_slots()) {
+                    if (slot == nullptr || !slot->is_data_ready() || slot == context) {
+                        continue;
+                    }
+
+                    auto *result = slot->get_resource(resource_id, mash_data_size, a3);
+                    if (result != nullptr) {
+                        // sp_log("resource_manager::get_resource fallback hit: %s",
+                        //        resource_id.get_platform_string(g_platform).c_str());
+                        return result;
+                    }
+                }
+            }
+        }
+
+        if (mash_data_size != nullptr) {
+            *mash_data_size = 0;
+        }
+
+        if (a3 != nullptr) {
+            *a3 = nullptr;
+        }
+
+        // sp_log("resource_manager::get_resource miss: %s",
+        //        resource_id.get_platform_string(g_platform).c_str());
+        return nullptr;
     }
     else
     {
@@ -1116,7 +1290,7 @@ void resource_manager_patch()
 
     SET_JUMP(0x00537530, resource_manager::pop_resource_context);
 
-    //REDIRECT(0x00594836, resource_manager::get_resource);
+    SET_JUMP(0x00531B30, resource_manager::get_resource);
 
     {
         resource_pack_slot * (* func)(resource_pack_slot *) = &resource_manager::get_best_context;
@@ -1144,4 +1318,13 @@ void resource_manager_patch()
     {
         REDIRECT(0x0055A371, resource_manager::configure_packs_by_memory_map);
     }
+}
+
+void resource_manager_xbpack_patch()
+{
+#ifdef OPENUSM_XBPACK_MODE
+    SET_JUMP(0x00537650, resource_manager::load_amalgapak);
+    SET_JUMP(0x0052A820, resource_manager::get_pack_file_stats);
+    SET_JUMP(0x0055DEA0, compare_resource_key_resource_pack_location);
+#endif
 }

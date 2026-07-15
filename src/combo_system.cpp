@@ -45,7 +45,7 @@ void combo_system::unmash(mash_info_struct *a1, void *a3)
 {
     TRACE("combo_system::unmash");
 
-    if constexpr (0)
+    if constexpr (OPENUSM_XBOX_MASH_FORMAT)
     {
         a1->unmash_class_in_place(this->field_0, this);
 

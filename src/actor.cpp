@@ -1,5 +1,9 @@
 #include "actor.h"
 
+#ifdef OPENUSM_XBPACK_MODE
+#include "actor_xbpack.h"
+#endif
+
 #include "advanced_entity_ptrs.h"
 #include "ai_player_controller.h"
 #include "als_animation_logic_system.h"
@@ -943,6 +947,9 @@ void actor::_un_mash(generic_mash_header *a3, void *a4, generic_mash_data_ptrs *
 #endif
     } else {
         THISCALL(0x004FBD40, this, a3, a4, a5);
+#ifdef OPENUSM_XBPACK_MODE
+        actor_xbpack_finish(a5);
+#endif
     }
 }
 

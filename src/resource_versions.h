@@ -20,3 +20,10 @@ struct resource_versions {
     //0x0050E530
     [[nodiscard]] mString to_string() const;
 };
+
+inline constexpr resource_versions XBOX_V14_RESOURCE_VERSIONS {
+    14, 590, 302, 588, 278
+};
+
+resource_versions expected_resource_versions(_nlPlatformEnum platform);
+bool supports_xbox_version(const resource_versions &versions);

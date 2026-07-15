@@ -11,6 +11,7 @@
 #include "resource_directory.h"
 #include "resource_pack_header.h"
 #include "mission_table_container.h"
+#include "variables.h"
 
 #include <cassert>
 #include <cstring>
@@ -154,9 +155,11 @@ bool parse_generic_object_mash(resource_directory *&arg0,
     generic_mash_data_ptrs a4;
 
     auto *header = static_cast<generic_mash_header *>(a1);
+    const uint32_t directory_object_size =
+        (g_platform == NL_PLATFORM_XBOX) ? 0x2C4u : sizeof(resource_directory);
 
     auto *dir = static_cast<resource_directory *>(parse_generic_mash_init(
-        header, a1, &allocated_mem, &a4, sizeof(resource_directory), a6, a7, static_cast<uint32_t>(a8), a9, a10));
+        header, a1, &allocated_mem, &a4, directory_object_size, a6, a7, static_cast<uint32_t>(a8), a9, a10));
 
     generic_mash_header *v10 = static_cast<generic_mash_header *>(a1);
     arg0 = dir;

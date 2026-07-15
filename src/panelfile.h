@@ -40,3 +40,4 @@ struct PanelFile {
 };
 
 extern void PanelFile_patch();
+extern void PanelFile_xbpack_patch();

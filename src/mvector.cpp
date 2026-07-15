@@ -24,6 +24,7 @@
 #include "combo_system_weapon.h"
 #include "mashed_state.h"
 #include "meta_anim_interact.h"
+#include "fefloatingtext.h"
 #include "fetext.h"
 #include "femultilinetext.h"
 #include "func_wrapper.h"
@@ -41,6 +42,80 @@
 #include "vtbl.h"
 
 VALIDATE_SIZE(mVector<int>, 0x14);
+
+#if defined(OPENUSM_XBPACK_MODE) && !defined(TARGET_XBOX)
+namespace
+{
+constexpr int PC_OPERATOR_NEW = 0x00822046;
+constexpr int PC_MEM_ALLOC = 0x0043A100;
+
+struct xbox_combo_system_move
+{
+    uint8_t through_results_keys[0x14];
+    uint32_t string_size;
+    uint32_t string_guts;
+    uint32_t string_allocator;
+    uint8_t results_tail[0x5C];
+    uint8_t requirements_and_move_tail[0x48];
+};
+
+static_assert(sizeof(xbox_combo_system_move) == 0xC4);
+static_assert(offsetof(xbox_combo_system_move, string_size) == 0x14);
+static_assert(offsetof(xbox_combo_system_move, results_tail) == 0x20);
+static_assert(offsetof(xbox_combo_system_move, requirements_and_move_tail) == 0x7C);
+
+void *allocate_from_pc_heap(size_t size)
+{
+    return reinterpret_cast<void *>(CDECL_CALL(PC_OPERATOR_NEW, size));
+}
+
+void *allocate_from_pc_allocator(size_t size)
+{
+    return reinterpret_cast<void *>(CDECL_CALL(PC_MEM_ALLOC, size));
+}
+
+combo_system_move *expand_combo_move(const xbox_combo_system_move &source)
+{
+    auto *storage = allocate_from_pc_heap(sizeof(combo_system_move));
+    assert(storage != nullptr);
+
+    auto *result = new (storage) combo_system_move {};
+    auto *bytes = reinterpret_cast<uint8_t *>(result);
+
+    std::memcpy(bytes, source.through_results_keys, sizeof(source.through_results_keys));
+    *reinterpret_cast<uint32_t *>(bytes + 0x14) = 0;
+    std::memcpy(bytes + 0x18, &source.string_size, 0x0C);
+    std::memcpy(bytes + 0x24, source.results_tail, sizeof(source.results_tail));
+    std::memcpy(bytes + 0x80,
+                source.requirements_and_move_tail,
+                sizeof(source.requirements_and_move_tail));
+
+    return result;
+}
+
+void detach_combo_move_string_from_mash(combo_system_move &move)
+{
+    auto &string = move.field_4.field_10;
+    string.field_0 = 0;
+
+    if (string.empty())
+    {
+        return;
+    }
+
+    assert(string.guts != nullptr);
+    assert(string.size() <= static_cast<int>(MAX_MSTRING_LENGTH));
+
+    const auto allocation_size = static_cast<size_t>(string.size()) + 1;
+    auto *copy = static_cast<char *>(allocate_from_pc_heap(allocation_size));
+    assert(copy != nullptr);
+    std::memcpy(copy, string.guts, allocation_size);
+
+    string.guts = copy;
+    string.field_C = nullptr;
+}
+}
+#endif
 
 template<>
 void mVector<sound_alias>::destruct_mashed_class()
@@ -71,7 +146,7 @@ template<>
 void mVector<PanelAnim>::custom_unmash(mash_info_struct *a1, [[maybe_unused]] void *a3)
 {
     TRACE("mVector<PanelAnim>::custom_unmash");
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
     this->field_C = this->m_size;
     if ( this->m_size <= 0 )
     {
@@ -83,7 +158,7 @@ void mVector<PanelAnim>::custom_unmash(mash_info_struct *a1, [[maybe_unused]] vo
 #endif
     {
         this->m_data = (PanelAnim **) a1->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
             mash::NORMAL_BUFFER,
 #endif
                 4 * this->m_size, 4);
@@ -91,7 +166,7 @@ void mVector<PanelAnim>::custom_unmash(mash_info_struct *a1, [[maybe_unused]] vo
         {
             auto &a1a = this->m_data[i];
             auto *v6 = bit_cast<PanelAnim *>(a1->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                 mash::NORMAL_BUFFER,
 #endif
                 sizeof(PanelAnim), 4));
@@ -109,7 +184,7 @@ void mVector<PanelAnimKeyframe>::custom_unmash(mash_info_struct *a2, [[maybe_unu
 {
     TRACE("mVector<PanelAnimKeyframe>::custom_unmash");
 
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
     this->field_C = this->m_size;
     if ( this->m_size <= 0 )
     {
@@ -121,7 +196,7 @@ void mVector<PanelAnimKeyframe>::custom_unmash(mash_info_struct *a2, [[maybe_unu
 #endif
     {
         this->m_data = (PanelAnimKeyframe **) a2->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
             mash::NORMAL_BUFFER,
 #endif 
             4 * this->m_size, 4);
@@ -130,7 +205,7 @@ void mVector<PanelAnimKeyframe>::custom_unmash(mash_info_struct *a2, [[maybe_unu
         {
             auto &v5 = this->m_data[i];
             v5 = (PanelAnimKeyframe *) a2->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                 mash::NORMAL_BUFFER,
 #endif 
                     sizeof(PanelAnimKeyframe), 4);
@@ -143,7 +218,7 @@ void mVector<PanelAnimKeyframe>::custom_unmash(mash_info_struct *a2, [[maybe_unu
 template<>
 void mVector<PanelAnimFile>::custom_unmash(mash_info_struct *a2, [[maybe_unused]] void *a3)
 {
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
     this->field_C = this->m_size;
     if ( this->m_size <= 0 )
     {
@@ -155,7 +230,7 @@ void mVector<PanelAnimFile>::custom_unmash(mash_info_struct *a2, [[maybe_unused]
 #endif
     {
         this->m_data = (PanelAnimFile **) a2->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
             mash::NORMAL_BUFFER,
 #endif 
                 4 * this->m_size, 4);
@@ -163,7 +238,7 @@ void mVector<PanelAnimFile>::custom_unmash(mash_info_struct *a2, [[maybe_unused]
         {
             auto &a1 = this->m_data[i];
             auto *v6 = a2->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
             mash::NORMAL_BUFFER,
 #endif 
                     sizeof(PanelAnimFile), 4);
@@ -180,7 +255,7 @@ void mVector<PanelQuadSection>::custom_unmash(mash_info_struct *a2, [[maybe_unus
 {
     TRACE("mVector<PanelQuadSection>::custom_unmash", std::to_string(this->m_size).c_str());
 
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
     this->field_C = this->m_size;
     if ( this->m_size <= 0 )
     {
@@ -192,7 +267,7 @@ void mVector<PanelQuadSection>::custom_unmash(mash_info_struct *a2, [[maybe_unus
 #endif
     {
         this->m_data = (PanelQuadSection **) a2->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                 mash::NORMAL_BUFFER,
 #endif 
                 4 * this->m_size, 4);
@@ -200,7 +275,7 @@ void mVector<PanelQuadSection>::custom_unmash(mash_info_struct *a2, [[maybe_unus
         {
             auto &v5 = this->m_data[i];
             auto *v6 = (PanelQuadSection *) a2->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                 mash::NORMAL_BUFFER,
 #endif 
                     sizeof(PanelQuadSection), 4);
@@ -218,7 +293,7 @@ void mVector<FEText>::custom_unmash(mash_info_struct *a2, [[maybe_unused]] void 
 {
     TRACE("mVector<FEText>::custom_unmash");
 
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
 
     this->field_C = this->m_size;
     if ( this->m_size <= 0 )
@@ -267,7 +342,7 @@ void mVector<FEText>::custom_unmash(mash_info_struct *a2, [[maybe_unused]] void 
                 VALIDATE_SIZE(fetext, mash_size);
                 VALIDATE_OFFSET(fetext, field_4C, 0x4C);
 
-                v5 = static_cast<FEText *>(malloc(sizeof(FEText))); 
+                v5 = static_cast<FEText *>(calloc(1, sizeof(FEText)));
 
                 {
                     std::memcpy(v5, v6, sizeof(v6->field_0));
@@ -281,13 +356,34 @@ void mVector<FEText>::custom_unmash(mash_info_struct *a2, [[maybe_unused]] void 
 
                 {
                     //sp_log("0x%08X", tmp->m_vtbl);
-                    assert(v5->m_vtbl == 0x00879FE0 || v5->m_vtbl == 0x0087AE58);
+                    assert(v5->m_vtbl == 0x00879FE0 ||
+                           v5->m_vtbl == 0x0087A0F0 ||
+                           v5->m_vtbl == 0x0087AE58);
                 }
 
                 const auto v7 = v5->get_mash_sizeof();
                 //sp_log("mash_size = 0x%X", v7);
 
-                if (v7 == 0x98)
+                if (v7 == 0x7C)
+                {
+                    struct floatingtext
+                    {
+                        fetext base {};
+                        char field_60[0x1C];
+                    } *text = CAST(text, v6);
+
+                    VALIDATE_SIZE(floatingtext, 0x7C);
+
+                    auto *tmp = calloc(1, sizeof(FEFloatingText));
+                    std::memcpy(tmp, v5, sizeof(FEText));
+                    std::memcpy(bit_cast<char *>(tmp) + sizeof(FEText),
+                                text->field_60,
+                                sizeof(text->field_60));
+
+                    free(v5);
+                    v5 = static_cast<FEText *>(tmp);
+                }
+                else if (v7 == 0x98)
                 {
                     struct multilinetext
                     {
@@ -297,7 +393,7 @@ void mVector<FEText>::custom_unmash(mash_info_struct *a2, [[maybe_unused]] void 
 
                     VALIDATE_SIZE(multilinetext, 0x98);
 
-                    auto *tmp = malloc(sizeof(FEMultiLineText));
+                    auto *tmp = calloc(1, sizeof(FEMultiLineText));
                     std::memcpy(tmp, v5, sizeof(FEText));
                     std::memcpy(bit_cast<char *>(tmp) + sizeof(FEText), text->field_60, sizeof(text->field_60));
 
@@ -359,7 +455,7 @@ void mVector<PanelQuad>::custom_unmash(mash_info_struct *a2, [[maybe_unused]] vo
 {
     TRACE("mVector<PanelQuad>::custom_unmash", std::to_string(this->m_size).c_str());
 
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
     this->field_C = this->m_size;
     if ( this->m_size <= 0 )
     {
@@ -389,7 +485,7 @@ void mVector<PanelQuad>::custom_unmash(mash_info_struct *a2, [[maybe_unused]] vo
                         } field_3C;
                     } *v6 = CAST(v6, a2->read_from_buffer(mash::NORMAL_BUFFER, mash_size, 0));
 
-                    v5 = static_cast<PanelQuad *>(malloc(sizeof(PanelQuad)));
+                    v5 = static_cast<PanelQuad *>(calloc(1, sizeof(PanelQuad)));
 
                     {
                         //sp_log("0x%08X", v6->field_3C.guts);
@@ -461,7 +557,7 @@ void mVector<sound_alias>::custom_unmash(mash_info_struct *a2, [[maybe_unused]] 
 {
     TRACE("mVector<sound_alias>::custom_unmash");
 
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
     this->field_C = this->m_size;
     if ( this->m_size <= 0 )
     {
@@ -473,7 +569,7 @@ void mVector<sound_alias>::custom_unmash(mash_info_struct *a2, [[maybe_unused]] 
 #endif
     {
         this->m_data = (sound_alias **) a2->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
             mash::NORMAL_BUFFER,
 #endif
             4 * this->m_size, 4);
@@ -482,7 +578,7 @@ void mVector<sound_alias>::custom_unmash(mash_info_struct *a2, [[maybe_unused]] 
         {
             auto &a2a = this->m_data[i];
             auto *v6 = (sound_alias *) a2->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                 mash::NORMAL_BUFFER,
 #endif 
                 sizeof(sound_alias), 4);
@@ -501,7 +597,7 @@ void mVector<als::layer_state_machine_shared>::custom_unmash(mash_info_struct *a
 {
     TRACE("mVector<als::layer_state_machine_shared>::custom_unmash");
 
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
     this->field_C = this->m_size;
     if (this->m_size <= 0)
     {
@@ -514,7 +610,7 @@ void mVector<als::layer_state_machine_shared>::custom_unmash(mash_info_struct *a
 
     {
         this->m_data = (als::layer_state_machine_shared **) a2->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
             mash::NORMAL_BUFFER,
 #endif 
                 4 * this->m_size, 4);
@@ -525,7 +621,7 @@ void mVector<als::layer_state_machine_shared>::custom_unmash(mash_info_struct *a
 
             {
                 auto *v6 = a2->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                     mash::NORMAL_BUFFER,
 #endif
                     sizeof(als::layer_state_machine_shared), 0);
@@ -543,7 +639,7 @@ void mVector<als::layer_state_machine_shared>::custom_unmash(mash_info_struct *a
 
                 auto v7 = v5->get_mash_sizeof();
                 a2->advance_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                     mash::NORMAL_BUFFER,
 #endif 
                     v7 - sizeof(als::layer_state_machine_shared));
@@ -561,7 +657,7 @@ void mVector<als::state>::custom_unmash(mash_info_struct *a2, [[maybe_unused]] v
 {
     TRACE("mVector<als::state>::custom_unmash");
 
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
     this->field_C = this->m_size;
     if (this->m_size <= 0)
     {
@@ -573,7 +669,7 @@ void mVector<als::state>::custom_unmash(mash_info_struct *a2, [[maybe_unused]] v
 #endif
     {
         this->m_data = (als::state **) a2->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                 mash::NORMAL_BUFFER,
 #endif 
                 4 * this->m_size, 4);
@@ -582,7 +678,7 @@ void mVector<als::state>::custom_unmash(mash_info_struct *a2, [[maybe_unused]] v
         {
             auto &v5 = this->m_data[i];
             auto *v6 = a2->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                 mash::NORMAL_BUFFER,
 #endif 
                 sizeof(als::state), 0);
@@ -593,7 +689,7 @@ void mVector<als::state>::custom_unmash(mash_info_struct *a2, [[maybe_unused]] v
             assert(v5->m_vtbl == 0x0087E1D8 || v5->m_vtbl == 0x0087E214);
             auto v7 = v5->get_mash_sizeof();
             a2->advance_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                     mash::NORMAL_BUFFER,
 #endif 
                     v7 - 0x14);
@@ -610,7 +706,7 @@ void mVector<als::als_meta_anim_base>::custom_unmash(mash_info_struct *a2, void 
 {
     TRACE("mVector<als::als_meta_anim_base>::custom_unmash");
 
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
     this->field_C = this->m_size;
     if (this->m_size <= 0)
     {
@@ -622,14 +718,14 @@ void mVector<als::als_meta_anim_base>::custom_unmash(mash_info_struct *a2, void 
 #endif
     {
         this->m_data = (als::als_meta_anim_base **) a2->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
             mash::NORMAL_BUFFER,
 #endif
             4 * this->m_size, 4);
         for ( auto i = 0; i < this->m_size; ++i )
         {
             a2->unmash_class(this->m_data[i], a3
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                 , mash::NORMAL_BUFFER
 #endif
                     );
@@ -642,20 +738,41 @@ void mVector<als::als_meta_anim_base>::custom_unmash(mash_info_struct *a2, void 
 template<>
 void mVector<combo_system_move>::custom_unmash(mash_info_struct *a2, void *a3)
 {
+#if OPENUSM_XBOX_MASH_FORMAT
+    this->field_C = this->m_size;
+    if (this->m_size <= 0)
+    {
+        this->m_data = nullptr;
+    }
+    else
+#else
     if ( this->m_data != nullptr )
+#endif
     {
         this->m_data = (combo_system_move **) a2->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
             mash::NORMAL_BUFFER, 
 #endif
                 4 * this->m_size, 4);
         for ( auto i = 0; i < this->m_size; ++i )
         {
+#if defined(OPENUSM_XBPACK_MODE) && !defined(TARGET_XBOX)
+            const auto *source = bit_cast<const xbox_combo_system_move *>(
+                a2->read_from_buffer(mash::NORMAL_BUFFER, sizeof(xbox_combo_system_move), 0));
+
+            auto *move = expand_combo_move(*source);
+            this->m_data[i] = move;
+
+            mash_virtual_base::fixup_vtable(move);
+            move->unmash(a2, a3);
+            detach_combo_move_string_from_mash(*move);
+#else
             a2->unmash_class(this->m_data[i], a3
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                 , mash::NORMAL_BUFFER
 #endif
                     );
+#endif
         }
     }
 
@@ -665,17 +782,26 @@ void mVector<combo_system_move>::custom_unmash(mash_info_struct *a2, void *a3)
 template<>
 void mVector<combo_system_chain>::custom_unmash(mash_info_struct *a1, void *a3)
 {
+#if OPENUSM_XBOX_MASH_FORMAT
+    this->field_C = this->m_size;
+    if (this->m_size <= 0)
+    {
+        this->m_data = nullptr;
+    }
+    else
+#else
     if ( this->m_data != nullptr )
+#endif
     {
         this->m_data = (combo_system_chain **) a1->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
             mash::NORMAL_BUFFER,
 #endif
                 4 * this->m_size, 4);
         for ( auto i = 0; i < this->m_size; ++i )
         {
             a1->unmash_class(this->m_data[i], a3
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                 , mash::NORMAL_BUFFER
 #endif
                     );
@@ -690,7 +816,7 @@ void mVector<combo_system_chain::telegraph_info>::custom_unmash(mash_info_struct
 {
     TRACE("mVector<combo_system_chain::telegraph_info>::custom_unmash");
 
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
     this->field_C = this->m_size;
     if (this->m_size <= 0)
     {
@@ -702,14 +828,14 @@ void mVector<combo_system_chain::telegraph_info>::custom_unmash(mash_info_struct
 #endif
     {
         this->m_data = (combo_system_chain::telegraph_info **) a2->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
             mash::NORMAL_BUFFER,
 #endif
                 4 * this->m_size, 4);
         for ( auto i = 0; i < this->m_size; ++i )
         {
             a2->unmash_class(this->m_data[i], a3
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                 , mash::NORMAL_BUFFER
 #endif
                     );
@@ -722,17 +848,26 @@ void mVector<combo_system_chain::telegraph_info>::custom_unmash(mash_info_struct
 template<>
 void mVector<combo_system_move::link_info>::custom_unmash(mash_info_struct *a2, void *a3)
 {
+#if OPENUSM_XBOX_MASH_FORMAT
+    this->field_C = this->m_size;
+    if (this->m_size <= 0)
+    {
+        this->m_data = nullptr;
+    }
+    else
+#else
     if ( this->m_data != nullptr )
+#endif
     {
         this->m_data = (combo_system_move::link_info **) a2->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
             mash::NORMAL_BUFFER,
 #endif
                 4 * this->m_size, 4);
         for ( auto i = 0; i < this->m_size; ++i )
         {
             a2->unmash_class(this->m_data[i], a3
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                 , mash::NORMAL_BUFFER
 #endif
                     );
@@ -747,7 +882,7 @@ void mVector<combo_system_weapon>::custom_unmash(mash_info_struct *a1, void *a3)
 {
     TRACE("mVector<combo_system_weapon>::custom_unmash");
 
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
     this->field_C = this->m_size;
     if (this->m_size <= 0)
     {
@@ -759,14 +894,14 @@ void mVector<combo_system_weapon>::custom_unmash(mash_info_struct *a1, void *a3)
 #endif
     {
         this->m_data = (combo_system_weapon **) a1->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
             mash::NORMAL_BUFFER,
 #endif
                 4 * this->m_size, 4);
         for ( auto i = 0; i < this->m_size; ++i )
         {
             a1->unmash_class(this->m_data[i], a3
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                 , mash::NORMAL_BUFFER
 #endif
                     );
@@ -781,7 +916,7 @@ void mVector<string_hash>::custom_unmash(mash_info_struct *a2, void *a3)
 {
     TRACE("mVector<string_hash>::custom_unmash");
 
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
     this->field_C = this->m_size;
     if (this->m_size <= 0)
     {
@@ -793,14 +928,14 @@ void mVector<string_hash>::custom_unmash(mash_info_struct *a2, void *a3)
 #endif
     {
         this->m_data = (string_hash **) a2->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
             mash::NORMAL_BUFFER,
 #endif
                 4 * this->m_size, 4);
         for ( auto i = 0; i < this->m_size; ++i )
         {
             a2->unmash_class(this->m_data[i], a3
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                 , mash::NORMAL_BUFFER
 #endif
                     );
@@ -815,7 +950,7 @@ void mVector<resource_key>::custom_unmash(mash_info_struct *a2, void *a3)
 {
     TRACE("mVector<resource_key>::custom_unmash");
 
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
     this->field_C = this->m_size;
     if (this->m_size <= 0)
     {
@@ -826,17 +961,34 @@ void mVector<resource_key>::custom_unmash(mash_info_struct *a2, void *a3)
     if ( this->m_data != nullptr )
 #endif
     {
+#if defined(OPENUSM_XBPACK_MODE) && !defined(TARGET_XBOX)
+        static_assert(sizeof(resource_key) == 0x8);
+
+        auto *records = reinterpret_cast<resource_key *>(a2->read_from_buffer(
+            mash::NORMAL_BUFFER, sizeof(resource_key) * this->m_size, 4));
+        auto **pointer_table = static_cast<resource_key **>(
+            allocate_from_pc_allocator(sizeof(resource_key *) * this->m_size));
+        assert(pointer_table != nullptr);
+
+        for (auto i = 0; i < this->m_size; ++i)
+        {
+            pointer_table[i] = &records[i];
+        }
+
+        this->m_data = pointer_table;
+#else
         this->m_data = (resource_key **) a2->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
             mash::NORMAL_BUFFER,
 #endif
                 4 * this->m_size, 4);
 
-#ifndef TARGET_XBOX
+#if !OPENUSM_XBOX_MASH_FORMAT
         for ( auto i = 0; i < this->m_size; ++i )
         {
             a2->unmash_class(this->m_data[i], a3);
         }
+#endif
 #endif
     }
 
@@ -848,7 +1000,7 @@ void mVector<als::meta_key_anim>::custom_unmash(mash_info_struct *a1, void *a3)
 {
     TRACE("mVector<als::meta_key_anim>::custom_unmash");
 
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
     this->field_C = this->m_size;
     if (this->m_size <= 0)
     {
@@ -860,14 +1012,14 @@ void mVector<als::meta_key_anim>::custom_unmash(mash_info_struct *a1, void *a3)
 #endif
     {
         this->m_data = (als::meta_key_anim **) a1->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
             mash::NORMAL_BUFFER,
 #endif
                 4 * this->m_size, 4);
         for ( auto i = 0; i < this->m_size; ++i )
         {
             a1->unmash_class(this->m_data[i], a3 
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                 , mash::NORMAL_BUFFER
 #endif
                     );
@@ -884,7 +1036,7 @@ void mVector<als::category>::custom_unmash(mash_info_struct *a2, [[maybe_unused]
 {
     TRACE("mVector<als::category>::custom_unmash");
 
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
     this->field_C = this->m_size;
     if (this->m_size <= 0)
     {
@@ -896,7 +1048,7 @@ void mVector<als::category>::custom_unmash(mash_info_struct *a2, [[maybe_unused]
 #endif
     {
         this->m_data = (als::category **) a2->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                     mash::NORMAL_BUFFER,
 #endif 
                 4 * this->m_size, 4);
@@ -904,7 +1056,7 @@ void mVector<als::category>::custom_unmash(mash_info_struct *a2, [[maybe_unused]
         {
             auto &v5 = this->m_data[i];
             auto *v6 = a2->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                     mash::NORMAL_BUFFER,
 #endif 
                     sizeof(als::category), 0);
@@ -914,7 +1066,7 @@ void mVector<als::category>::custom_unmash(mash_info_struct *a2, [[maybe_unused]
 
             auto v7 = v5->get_mash_sizeof();
             a2->advance_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                     mash::NORMAL_BUFFER,
 #endif 
                     v7 - sizeof(als::category));
@@ -929,7 +1081,7 @@ template<>
 void mVector<als::transition_group_base>::custom_unmash(mash_info_struct *a2, void *)
 {
     TRACE("mVector<als::transition_group_base>::custom_unmash");
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
     this->field_C = this->m_size;
     if (this->m_size <= 0)
     {
@@ -941,7 +1093,7 @@ void mVector<als::transition_group_base>::custom_unmash(mash_info_struct *a2, vo
 #endif
     {
         this->m_data = (als::transition_group_base **) a2->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                 mash::NORMAL_BUFFER,
 #endif 
                 4 * this->m_size, 4);
@@ -949,7 +1101,7 @@ void mVector<als::transition_group_base>::custom_unmash(mash_info_struct *a2, vo
         {
             auto &v5 = this->m_data[i];
             auto *v6 = a2->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                 mash::NORMAL_BUFFER,
 #endif 
                     4, 0);
@@ -958,7 +1110,7 @@ void mVector<als::transition_group_base>::custom_unmash(mash_info_struct *a2, vo
 
             auto v7 = v5->get_mash_sizeof();
             a2->advance_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                 mash::NORMAL_BUFFER,
 #endif 
                     v7 - 4);
@@ -1048,7 +1200,7 @@ void mVector<ai::param_block::param_data>::destruct_mashed_class()
 template<>
 void mVector<ai::param_block::param_data>::custom_unmash(mash_info_struct *a2, void *a3)
 {
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
     this->field_C = this->m_size;
     if ( this->m_size <= 0 )
     {
@@ -1060,7 +1212,7 @@ void mVector<ai::param_block::param_data>::custom_unmash(mash_info_struct *a2, v
 #endif
     {
         this->m_data = (ai::param_block::param_data **) a2->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                 mash::NORMAL_BUFFER,
 #endif 
                 4 * this->m_size, 4);
@@ -1069,7 +1221,7 @@ void mVector<ai::param_block::param_data>::custom_unmash(mash_info_struct *a2, v
         {
             auto &a1 = this->m_data[i];
             auto *v6 = (ai::param_block::param_data *) a2->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                 mash::NORMAL_BUFFER,
 #endif 
                 12, 4);
@@ -1084,7 +1236,7 @@ void mVector<ai::param_block::param_data>::custom_unmash(mash_info_struct *a2, v
 template<>
 void mVector<als::implicit_transition_rule>::custom_unmash(mash_info_struct *a2, void *)
 {
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
     this->field_C = this->m_size;
     if ( this->m_size <= 0 )
     {
@@ -1096,7 +1248,7 @@ void mVector<als::implicit_transition_rule>::custom_unmash(mash_info_struct *a2,
 #endif
     {
         this->m_data = (als::implicit_transition_rule **) a2->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                 mash::NORMAL_BUFFER,
 #endif
                 4 * this->m_size, 4);
@@ -1104,7 +1256,7 @@ void mVector<als::implicit_transition_rule>::custom_unmash(mash_info_struct *a2,
         {
             auto &v5 = this->m_data[i];
             auto *v6 = (als::implicit_transition_rule *) a2->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                 mash::NORMAL_BUFFER,
 #endif
                     0x24, 4);
@@ -1120,7 +1272,7 @@ template<>
 void mVector<als::layer_transition_rule>::custom_unmash(mash_info_struct *a1, void *a3)
 {
 
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
     this->field_C = this->m_size;
     if ( this->m_size <= 0 )
     {
@@ -1132,14 +1284,14 @@ void mVector<als::layer_transition_rule>::custom_unmash(mash_info_struct *a1, vo
 #endif
     {
         this->m_data = (als::layer_transition_rule **) a1->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
             mash::NORMAL_BUFFER,
 #endif
             4 * this->m_size, 4);
         for ( auto i = 0; i < this->m_size; ++i )
         {
             a1->unmash_class(this->m_data[i], a3
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                 , mash::NORMAL_BUFFER
 #endif
                     );
@@ -1152,7 +1304,7 @@ void mVector<als::layer_transition_rule>::custom_unmash(mash_info_struct *a1, vo
 template<>
 void mVector<als::dest_weight_data>::custom_unmash(mash_info_struct *a1, void *)
 {
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
     this->field_C = this->m_size;
     if ( this->m_size <= 0 )
     {
@@ -1164,7 +1316,7 @@ void mVector<als::dest_weight_data>::custom_unmash(mash_info_struct *a1, void *)
 #endif
     {
         this->m_data = (als::dest_weight_data **) a1->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                 mash::NORMAL_BUFFER,
 #endif
                 4 * this->m_size, 4);
@@ -1172,7 +1324,7 @@ void mVector<als::dest_weight_data>::custom_unmash(mash_info_struct *a1, void *)
         {
             auto &v5 = this->m_data[i];
             auto *v6 = (als::dest_weight_data *) a1->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                 mash::NORMAL_BUFFER,
 #endif
                 8, 4);
@@ -1187,7 +1339,7 @@ void mVector<als::dest_weight_data>::custom_unmash(mash_info_struct *a1, void *)
 template<>
 void mVector<als::explicit_transition_rule>::custom_unmash(mash_info_struct *a1, void *)
 {
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
     this->field_C = this->m_size;
     if ( this->m_size <= 0 )
     {
@@ -1199,7 +1351,7 @@ void mVector<als::explicit_transition_rule>::custom_unmash(mash_info_struct *a1,
 #endif
     {
         this->m_data = (als::explicit_transition_rule **) a1->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
             mash::NORMAL_BUFFER,
 #endif
                 4 * this->m_size, 4);
@@ -1207,7 +1359,7 @@ void mVector<als::explicit_transition_rule>::custom_unmash(mash_info_struct *a1,
         {
             auto &a1a = this->m_data[i];
             auto *v6 = (als::explicit_transition_rule *) a1->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                 mash::NORMAL_BUFFER,
 #endif
                     40, 4);
@@ -1223,7 +1375,7 @@ void mVector<als::explicit_transition_rule>::custom_unmash(mash_info_struct *a1,
 template<>
 void mVector<als::alter_conditions>::custom_unmash(mash_info_struct *a1, void *a3)
 {
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
     this->field_C = this->m_size;
     if ( this->m_size <= 0 )
     {
@@ -1235,7 +1387,7 @@ void mVector<als::alter_conditions>::custom_unmash(mash_info_struct *a1, void *a
 #endif
     {
         this->m_data = (als::alter_conditions **) a1->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
             mash::NORMAL_BUFFER,
 #endif
             4 * this->m_size, 4);
@@ -1243,7 +1395,7 @@ void mVector<als::alter_conditions>::custom_unmash(mash_info_struct *a1, void *a
         for ( auto i = 0; i < this->m_size; ++i )
         {
             a1->unmash_class(this->m_data[i], a3
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                 , mash::NORMAL_BUFFER
 #endif
                     );
@@ -1256,7 +1408,7 @@ void mVector<als::alter_conditions>::custom_unmash(mash_info_struct *a1, void *a
 template<>
 void mVector<als::incoming_transition_rule>::custom_unmash(mash_info_struct *a1, void *)
 {
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
     this->field_C = this->m_size;
     if ( this->m_size <= 0 )
     {
@@ -1268,7 +1420,7 @@ void mVector<als::incoming_transition_rule>::custom_unmash(mash_info_struct *a1,
 #endif
     {
         this->m_data = (als::incoming_transition_rule **) a1->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                 mash::NORMAL_BUFFER,
 #endif
                 4 * this->m_size, 4);
@@ -1276,7 +1428,7 @@ void mVector<als::incoming_transition_rule>::custom_unmash(mash_info_struct *a1,
         {
             auto &v5 = this->m_data[i];
             auto *v6 = (als::incoming_transition_rule *) a1->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                 mash::NORMAL_BUFFER,
 #endif
                     44, 4);
@@ -1291,7 +1443,7 @@ void mVector<als::incoming_transition_rule>::custom_unmash(mash_info_struct *a1,
 template<>
 void mVector<als::post_kill_rule>::custom_unmash(mash_info_struct *a2, void *a3)
 {
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
     this->field_C = this->m_size;
     if ( this->m_size <= 0 )
     {
@@ -1303,14 +1455,14 @@ void mVector<als::post_kill_rule>::custom_unmash(mash_info_struct *a2, void *a3)
 #endif
     {
         this->m_data = (als::post_kill_rule **) a2->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
             mash::NORMAL_BUFFER,
 #endif
                 4 * this->m_size, 4);
         for ( auto i = 0; i < this->m_size; ++i )
         {
             a2->unmash_class(this->m_data[i], a3
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                 , mash::NORMAL_BUFFER
 #endif
                     );
@@ -1323,7 +1475,7 @@ void mVector<als::post_kill_rule>::custom_unmash(mash_info_struct *a2, void *a3)
 template<>
 void mVector<als::post_layer_alter>::custom_unmash(mash_info_struct *a1, void *a3)
 {
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
     this->field_C = this->m_size;
     if ( this->m_size <= 0 )
     {
@@ -1335,14 +1487,14 @@ void mVector<als::post_layer_alter>::custom_unmash(mash_info_struct *a1, void *a
 #endif
     {
         this->m_data = (als::post_layer_alter **) a1->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
             mash::NORMAL_BUFFER,
 #endif
                 4 * this->m_size, 4);
         for ( auto i = 0; i < this->m_size; ++i )
         {
             a1->unmash_class(this->m_data[i], a3
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                 , mash::NORMAL_BUFFER
 #endif
                     );
@@ -1355,7 +1507,7 @@ void mVector<als::post_layer_alter>::custom_unmash(mash_info_struct *a1, void *a
 template<>
 void mVector<als::filter_data>::custom_unmash(mash_info_struct *a2, void *)
 {
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
     this->field_C = this->m_size;
     if ( this->m_size <= 0 )
     {
@@ -1367,14 +1519,14 @@ void mVector<als::filter_data>::custom_unmash(mash_info_struct *a2, void *)
 #endif
     {
         this->m_data = (als::filter_data **) a2->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
             mash::NORMAL_BUFFER,
 #endif
                 4 * this->m_size, 4);
         for ( auto i = 0; i < this->m_size; ++i )
         {
             a2->unmash_class(this->m_data[i], this
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                 , mash::NORMAL_BUFFER
 #endif
                     );
@@ -1389,7 +1541,7 @@ void mVector<ai::mashed_state>::custom_unmash(mash_info_struct *a1, void *a3)
 {
     TRACE("mVector<ai::mashed_state>::custom_unmash");
 
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
     this->field_C = this->m_size;
     if ( this->m_size <= 0 )
     {
@@ -1401,14 +1553,14 @@ void mVector<ai::mashed_state>::custom_unmash(mash_info_struct *a1, void *a3)
 #endif
     {
         this->m_data = (ai::mashed_state **) a1->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
             mash::NORMAL_BUFFER,
 #endif
                 4 * this->m_size, 4);
         for ( auto i = 0; i < this->m_size; ++i )
         {
             a1->unmash_class(this->m_data[i], a3
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                 , mash::NORMAL_BUFFER
 #endif
                     );
@@ -1423,7 +1575,7 @@ void mVector<ai::base_state>::custom_unmash(mash_info_struct *a2, void *a3)
 {
     TRACE("mVector<ai::base_state>::custom_unmash");
 
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
     this->field_C = this->m_size;
     if ( this->m_size <= 0 )
     {
@@ -1435,14 +1587,14 @@ void mVector<ai::base_state>::custom_unmash(mash_info_struct *a2, void *a3)
 #endif
     {
         this->m_data = (ai::base_state **) a2->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
             mash::NORMAL_BUFFER,
 #endif
                 4 * this->m_size, 4);
         for ( auto i = 0; i < this->m_size; ++i )
         {
             a2->unmash_class(this->m_data[i], a3
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                 , mash::NORMAL_BUFFER
 #endif
                     );
@@ -1457,7 +1609,7 @@ void mVector<anim_record>::custom_unmash(mash_info_struct *a2, void *a3)
 {
     TRACE("mVector<anim_record>::custom_unmash");
 
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
     this->field_C = this->m_size;
     if ( this->m_size <= 0 )
     {
@@ -1469,14 +1621,14 @@ void mVector<anim_record>::custom_unmash(mash_info_struct *a2, void *a3)
 #endif
     {
         this->m_data = (anim_record **) a2->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
             mash::NORMAL_BUFFER,
 #endif
                 4 * this->m_size, 4);
         for ( auto i = 0; i < this->m_size; ++i )
         {
             a2->unmash_class(this->m_data[i], a3
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                 , mash::NORMAL_BUFFER
 #endif
                     );
@@ -1491,7 +1643,7 @@ void mVector<interact_sound_entry>::custom_unmash(mash_info_struct *a1, void *a3
 {
     TRACE("mVector<interact_sound_entry>::custom_unmash");
 
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
     this->field_C = this->m_size;
     if ( this->m_size <= 0 )
     {
@@ -1503,14 +1655,14 @@ void mVector<interact_sound_entry>::custom_unmash(mash_info_struct *a1, void *a3
 #endif
     {
         this->m_data = (interact_sound_entry **) a1->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
             mash::NORMAL_BUFFER,
 #endif
                 4 * this->m_size, 4);
         for ( auto i = 0; i < this->m_size; ++i )
         {
             a1->unmash_class(this->m_data[i], a3
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                 , mash::NORMAL_BUFFER
 #endif
                 );
@@ -1525,7 +1677,7 @@ void mVector<ai_adv_strength_test_data>::custom_unmash(mash_info_struct *a2, voi
 {
     TRACE("mVector<ai_adv_strength_test_data>::custom_unmash");
 
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
     this->field_C = this->m_size;
     if ( this->m_size <= 0 )
     {
@@ -1537,14 +1689,14 @@ void mVector<ai_adv_strength_test_data>::custom_unmash(mash_info_struct *a2, voi
 #endif
     {
         this->m_data = (ai_adv_strength_test_data **) a2->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
             mash::NORMAL_BUFFER,
 #endif
                 4 * this->m_size, 4);
         for ( auto i = 0; i < this->m_size; ++i )
         {
             a2->unmash_class(this->m_data[i], a3
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                 , mash::NORMAL_BUFFER
 #endif
                     );
@@ -1559,7 +1711,7 @@ void mVector<attach_node>::custom_unmash(mash_info_struct *a1, void *a3)
 {
     TRACE("mVector<attach_node>::unmash");
 
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
     this->field_C = this->m_size;
     if ( this->m_size <= 0 )
     {
@@ -1571,13 +1723,13 @@ void mVector<attach_node>::custom_unmash(mash_info_struct *a1, void *a3)
 #endif
     {
         this->m_data = (attach_node **) a1->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
             mash::NORMAL_BUFFER,
 #endif
                 4 * this->m_size, 4);
         for ( auto i = 0; i < this->m_size; ++i )
         {
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
             auto &a1a = this->m_data[i];
             struct {
                 char field_0[0x10];
@@ -1608,7 +1760,7 @@ void mVectorBasic<attach_action_trigger_enum>::custom_unmash(mash_info_struct *a
 {
     TRACE("mVectorBasic<attach_action_trigger_enum>::custom_unmash");
 
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
     this->field_C = this->m_size;
     if ( this->m_size <= 0 )
     {
@@ -1620,7 +1772,7 @@ void mVectorBasic<attach_action_trigger_enum>::custom_unmash(mash_info_struct *a
 #endif
     {
         this->m_data = CAST(this->m_data, a1->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
             mash::NORMAL_BUFFER,
 #endif
                 4 * this->m_size, 4));
@@ -1632,7 +1784,7 @@ void mVectorBasic<attach_action_trigger_enum>::custom_unmash(mash_info_struct *a
 template<>
 void mVectorBasic<attach_action_trigger_enum>::unmash(mash_info_struct *a1, void *a2)
 {
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
     [](mash_info_struct *a1, mash::buffer_type a2, uint32_t &a3)
     {
         a3 = *bit_cast<int *>(a1->read_from_buffer(a2, 4, 4));
@@ -1647,7 +1799,7 @@ void mVectorBasic<int>::custom_unmash(mash_info_struct *a1, void *)
 {
     TRACE("mVectorBasic<int>::custom_unmash");
 
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
     this->field_C = this->m_size;
     if ( this->m_size <= 0 )
     {
@@ -1659,7 +1811,7 @@ void mVectorBasic<int>::custom_unmash(mash_info_struct *a1, void *)
 #endif
     {
         this->m_data = (int *) a1->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
             mash::NORMAL_BUFFER,
 #endif
                 4 * this->m_size, 4);
@@ -1671,7 +1823,7 @@ void mVectorBasic<int>::custom_unmash(mash_info_struct *a1, void *)
 template<>
 void mVectorBasic<int>::unmash(mash_info_struct *a1, void *a2)
 {
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
     [](mash_info_struct *a1, mash::buffer_type a2, uint32_t &a3)
     {
         a3 = *bit_cast<int *>(a1->read_from_buffer(a2, 4, 4));
@@ -1686,7 +1838,7 @@ void mVectorBasic<vhandle_type<actor>>::custom_unmash(mash_info_struct *a1, void
 {
     TRACE("mVectorBasic<int>::custom_unmash");
 
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
     this->field_C = this->m_size;
     if ( this->m_size <= 0 )
     {
@@ -1698,7 +1850,7 @@ void mVectorBasic<vhandle_type<actor>>::custom_unmash(mash_info_struct *a1, void
 #endif
     {
         this->m_data = CAST(this->m_data, a1->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
             mash::NORMAL_BUFFER,
 #endif
                 4 * this->m_size, 4));
@@ -1710,7 +1862,7 @@ void mVectorBasic<vhandle_type<actor>>::custom_unmash(mash_info_struct *a1, void
 template<>
 void mVectorBasic<vhandle_type<actor>>::unmash(mash_info_struct *a1, void *a2)
 {
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
     [](mash_info_struct *a1, mash::buffer_type a2, uint32_t &a3)
     {
         a3 = *bit_cast<int *>(a1->read_from_buffer(a2, 4, 4));

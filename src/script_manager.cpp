@@ -937,12 +937,19 @@ int register_callback(
 
 void *parse_generic_mash_init_hook(generic_mash_header *&header, void *a2, bool *allocated_mem, generic_mash_data_ptrs *a4, unsigned int struct_size, unsigned int *virtual_table_lookup, unsigned int *size_table_lookup, unsigned int num_table_entries, unsigned int base_class_size, void *a10)
 {
-#ifdef TARGET_XBOX
+#if defined(TARGET_XBOX) || defined(OPENUSM_XBPACK_MODE)
     struct_size = 0x60;
 #endif
 
     return parse_generic_mash_init(header, a2, allocated_mem, a4, struct_size, virtual_table_lookup,
             size_table_lookup, num_table_entries, base_class_size, a10);
+}
+
+void script_manager_xbpack_patch()
+{
+#ifdef OPENUSM_XBPACK_MODE
+    REDIRECT(0x005B0834, parse_generic_mash_init_hook);
+#endif
 }
 
 void script_manager_patch()

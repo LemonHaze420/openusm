@@ -116,3 +116,4 @@ namespace script_manager {
 }
 
 extern void script_manager_patch();
+extern void script_manager_xbpack_patch();

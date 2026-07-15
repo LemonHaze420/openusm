@@ -26,6 +26,8 @@ struct slc_manager {
 
     //0x0059EC00
     static void un_mash_all_funcs();
+
+    static bool using_xbox_v14();
 };
 
 #if !STANDALONE_SYSTEM

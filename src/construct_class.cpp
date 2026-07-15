@@ -161,6 +161,7 @@ void mash_info_struct::construct_class(skeleton_interface *&a1)
     if ( a1 != nullptr )
     {
         auto func = [](skeleton_interface *self, int a2, int a3) {
+            self->m_vtbl = 0x0088344C;
             self->field_4 = CAST(self->field_4, a3);
             self->field_8 = ( a2 == 1 );
         };

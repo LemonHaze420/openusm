@@ -13,6 +13,7 @@
 #include "igozoomoutmap.h"
 #include "log.h"
 #include "mash_info_struct.h"
+#include "mash_config.h"
 #include "matrix4x3.h"
 #include "memory.h"
 #include "ngl_dx_core.h"
@@ -2593,7 +2594,13 @@ int modImportMesh(IDirect3DDevice9* dev, modGenericMesh& data, char* buf, size_t
     return scene->mNumMeshes;
 }
 
-bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFile, const char *ext)
+/*
+name = VENOM
+hash = 0x08909065
+*/
+static bool nglLoadMeshFileInternalPC(const tlFixedString &FileName,
+                                      nglMeshFile *MeshFile,
+                                      const char *ext)
 {
     TRACE("nglLoadMeshFileInternal", FileName.to_string());
 
@@ -3132,6 +3139,20 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
     return true;
 
 }
+
+bool nglLoadMeshFileInternal(const tlFixedString &FileName,
+                             nglMeshFile *MeshFile,
+                             const char *ext)
+{
+#ifdef OPENUSM_XBPACK_MODE
+    if (MeshFile != nullptr && MeshFile->FileBuf.Buf != nullptr &&
+        std::memcmp(MeshFile->FileBuf.Buf, "XBXM", 4) == 0) {
+        return nglLoadMeshFileInternalXbox(FileName, MeshFile, ext);
+    }
+#endif
+
+    return nglLoadMeshFileInternalPC(FileName, MeshFile, ext);
+}
 #endif
 
 bool nglCanReleaseMeshFile(nglMeshFile *a1) {
@@ -3483,7 +3504,7 @@ void mNglQuad::custom_unmash(mash_info_struct *a2, void *a3)
     TRACE("mNglQuad::custom_unmash");
     mString *v5 = nullptr;
 
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
     struct {
         int m_size;
         char *guts;
@@ -3964,12 +3985,12 @@ bool nglLoadTextureTM2_internal(nglTexture *Tex, nglTextureInfo *TexInfo)
             if (num_palettes)
             {
                 auto v29 = 0u;
-                auto *v8 = TexInfo + 0x90;
-                for (auto *i = TexInfo + 0x90; v28 < num_palettes; v8 = i, ++v28) {
+                auto *palette_name = reinterpret_cast<uint8_t *>(TexInfo) + 0x88;
+                for (; v28 < num_palettes; ++v28) {
                     nglTexture *v9 = CAST(v9, &Tex->Frames[v29 / 4]);
-                    *v9 = {};
+                    std::memcpy(v9, Tex, sizeof(*v9));
                     v9->m_format = 17;
-                    v9->field_60 = *bit_cast<tlFixedString *>((uint32_t *) v8 - 2);
+                    v9->field_60 = *reinterpret_cast<tlFixedString *>(palette_name);
 
                     nglTexture **v10 = CAST(v10, v28);
 
@@ -3985,7 +4006,7 @@ bool nglLoadTextureTM2_internal(nglTexture *Tex, nglTextureInfo *TexInfo)
                     a3 += 1024;
 
                     v29 += 128;
-                    i += 32;
+                    palette_name += sizeof(tlFixedString);
                 }
 
             } else {
@@ -4921,6 +4942,10 @@ bool ngl_readfile_callback(const char *FileName, tlFileBuf *File, unsigned int a
         File->Size = size;
 
         if (v4) {
+            sp_log("ngl_readfile_callback miss: file=%s key_hash=0x%08X key_type=%d",
+                   FileName,
+                   key.m_hash.source_hash_code,
+                   key.get_type());
             return false;
         }
 
@@ -6068,3 +6093,15 @@ void ngl_patch()
     us_pcuv_patch();
 #endif
 }
+
+#ifdef OPENUSM_XBPACK_MODE
+void ngl_xbpack_patch()
+{
+    REDIRECT(0x0056BDAA, nglLoadMeshFileInternal);
+    REDIRECT(0x0056C126, nglLoadMeshFileInternal);
+    REDIRECT(0x0056C244, nglLoadMeshFileInternal);
+    REDIRECT(0x0076FF90, nglLoadMeshFileInternal);
+    REDIRECT(0x007700D9, nglLoadMeshFileInternal);
+    REDIRECT(0x00778649, nglLoadMeshFileInternal);
+}
+#endif

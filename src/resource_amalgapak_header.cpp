@@ -30,11 +30,12 @@ void resource_amalgapak_header::clear() {
 }
 
 bool resource_amalgapak_header::verify([[maybe_unused]] const mString &a2) {
-    static constexpr resource_versions v20 = {RESOURCE_PACK_VERSION,
-                                              RESOURCE_ENTITY_MASH_VERSION,
-                                              RESOURCE_NONENTITY_MASH_VERSION,
-                                              RESOURCE_AUTO_MASH_VERSION,
-                                              RESOURCE_RAW_MASH_VERSION};
+    if (g_platform == NL_PLATFORM_XBOX &&
+        supports_xbox_version(this->field_0)) {
+        return true;
+    }
+
+    const resource_versions v20 = expected_resource_versions(g_platform);
 
     bool v29 = false, v28 = false;
 

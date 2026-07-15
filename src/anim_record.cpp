@@ -5,6 +5,7 @@
 #include "func_wrapper.h"
 #include "utility.h"
 #include "vtbl.h"
+#include "mash_config.h"
 
 anim_record::anim_record()
 {
@@ -17,7 +18,7 @@ void anim_record::_unmash(mash_info_struct *a2, void *)
     if ( this->my_key != nullptr )
     {
         a2->unmash_class(this->my_key, this
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
             , mash::NORMAL_BUFFER
 #endif
                 );

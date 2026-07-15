@@ -1,5 +1,6 @@
 #include "resource_directory.h"
 
+#include "base_engine_resource_handler.h"
 #include "binary_search_array_cmp.h"
 #include "common.h"
 #include "debugutil.h"
@@ -17,6 +18,9 @@
 #include "return_address.h"
 #include "utility.h"
 
+#include <array>
+#include <unordered_map>
+
 #ifdef TARGET_XBOX
 VALIDATE_SIZE(resource_directory, 0x2C4);
 #else
@@ -24,6 +28,87 @@ VALIDATE_SIZE(resource_directory, 0x2BC);
 #endif
 
 VALIDATE_OFFSET(resource_directory, pack_slot, 0x78);
+
+namespace
+{
+    constexpr auto XBOX_RESOURCE_KEY_TYPE_COUNT = 71;
+    constexpr auto XBOX_TYPE_START_IDXS_OFFSET = 0x8C;
+    constexpr auto XBOX_TYPE_COUNTS_OFFSET = 0x1A8;
+    constexpr auto PC_RESOURCE_KEY_TYPE_COUNT = static_cast<size_t>(RESOURCE_KEY_TYPE_Z);
+
+    struct resource_type_tables {
+        std::array<int, PC_RESOURCE_KEY_TYPE_COUNT> starts {};
+        std::array<int, PC_RESOURCE_KEY_TYPE_COUNT> counts {};
+    };
+
+    std::unordered_map<const resource_directory *, resource_type_tables> g_xbox_type_tables;
+
+    int xb_to_pc(int type)
+    {
+        assert(type >= 0 && type < XBOX_RESOURCE_KEY_TYPE_COUNT);
+
+        if (type <= 54) {
+            return type;
+        }
+
+        return type - 1;
+    }
+
+    void convert_directory(resource_directory *directory)
+    {
+        assert(directory != nullptr);
+
+        const auto *base = reinterpret_cast<const uint8_t *>(directory);
+        const auto *raw_starts = reinterpret_cast<const int *>(base + XBOX_TYPE_START_IDXS_OFFSET);
+        const auto *raw_counts = reinterpret_cast<const int *>(base + XBOX_TYPE_COUNTS_OFFSET);
+
+        resource_type_tables tables {};
+        for (int raw_type = 0; raw_type < XBOX_RESOURCE_KEY_TYPE_COUNT; ++raw_type) {
+            const auto pc_type = xb_to_pc(raw_type);
+            assert(pc_type >= 0 && pc_type < RESOURCE_KEY_TYPE_Z);
+
+            const auto raw_count = raw_counts[raw_type];
+            if (raw_count == 0) {
+                continue;
+            }
+
+            if (tables.counts[pc_type] == 0) {
+                tables.starts[pc_type] = raw_starts[raw_type];
+            } else {
+                assert(tables.starts[pc_type] + tables.counts[pc_type] ==
+                       raw_starts[raw_type]);
+            }
+            tables.counts[pc_type] += raw_count;
+        }
+
+        for (int i = 0; i < directory->resource_locations.size(); ++i) {
+            auto &location = directory->resource_locations.at(i);
+            const auto raw_type = static_cast<int>(location.field_0.m_type);
+            location.field_0.m_type = static_cast<resource_key_type>(xb_to_pc(raw_type));
+        }
+
+        g_xbox_type_tables[directory] = tables;
+
+        for (size_t type = 0; type < PC_RESOURCE_KEY_TYPE_COUNT; ++type) {
+            directory->type_start_idxs[type] = tables.starts[type];
+            directory->type_end_idxs[type] = tables.counts[type];
+        }
+    }
+
+    const resource_type_tables *type_tables_for(const resource_directory *directory)
+    {
+        auto it = g_xbox_type_tables.find(directory);
+        if (it == g_xbox_type_tables.end()) {
+            auto *dir = const_cast<resource_directory *>(directory);
+            sp_log("converting resource directory 0x%08X", dir);
+            convert_directory(dir);
+            it = g_xbox_type_tables.find(directory);
+        }
+
+        assert(it != g_xbox_type_tables.end());
+        return &it->second;
+    }
+}
 
 void resource_directory::un_mash_start(generic_mash_header *header,
                                        [[maybe_unused]] void *a3,
@@ -61,6 +146,10 @@ void resource_directory::un_mash_start(generic_mash_header *header,
 
         this->field_68.custom_un_mash(header, &this->field_68, a4, nullptr);
         this->field_70.custom_un_mash(header, &this->field_70, a4, nullptr);
+
+        if (g_platform == NL_PLATFORM_XBOX) {
+            convert_directory(this);
+        }
 
         for (int i = 0; i < texture_locations.size(); ++i) {
             assert(texture_locations.at(i).get_type() == TLRESOURCE_TYPE_TEXTURE);
@@ -113,6 +202,15 @@ void resource_directory::un_mash_start(generic_mash_header *header,
 
 int resource_directory::get_resource_count(resource_key_type type) {
     assert(type > RESOURCE_KEY_TYPE_NONE && type < RESOURCE_KEY_TYPE_Z);
+
+    if (g_platform == NL_PLATFORM_XBOX) {
+        const auto *tables = type_tables_for(this);
+        if (tables == nullptr) {
+            return 0;
+        }
+
+        return tables->counts[type];
+    }
 
     return this->type_end_idxs[type];
 }
@@ -343,6 +441,15 @@ int compare_resource_key_resource_location_just_hash(const resource_key &a1, res
 int resource_directory::get_type_start_idxs(resource_key_type type) {
     assert(type > RESOURCE_KEY_TYPE_NONE && type < RESOURCE_KEY_TYPE_Z);
 
+    if (g_platform == NL_PLATFORM_XBOX) {
+        const auto *tables = type_tables_for(this);
+        if (tables == nullptr) {
+            return 0;
+        }
+
+        return tables->starts[type];
+    }
+
     return this->type_start_idxs[type];
 }
 
@@ -362,8 +469,8 @@ bool resource_directory::find_resource(const resource_key &a2,
         *out_dir = nullptr;
         *out_loc = nullptr;
         auto type = a2.get_type();
-        auto begin_idx = this->type_start_idxs[type];
-        auto end_idx = begin_idx + this->type_end_idxs[type];
+        auto begin_idx = this->get_type_start_idxs(type);
+        auto end_idx = begin_idx + this->get_resource_count(type);
         assert(begin_idx >= 0 && end_idx <= this->resource_locations.size());
 
         auto *v14 = this->resource_locations.m_data;
@@ -577,7 +684,7 @@ uint8_t *resource_directory::get_resource(const resource_key &resource_id,
 {
     TRACE("resource_directory::get_resource");
 
-    if constexpr (0)
+    if constexpr (1)
     {
         assert(resource_id.is_set());
         assert(resource_id.get_type() != RESOURCE_KEY_TYPE_NONE);
@@ -1023,4 +1130,42 @@ void resource_directory_patch()
     }
 
     REDIRECT(0x0053E204, parse_generic_mash_init);
+}
+
+void resource_directory_xbpack_patch()
+{
+#ifdef OPENUSM_XBPACK_MODE
+    constexpr uint32_t XBOX_DIRECTORY_OBJECT_SIZE = 0x2C4u;
+
+    {
+        FUNC_ADDRESS(address, &base_engine_resource_handler::_handle);
+        SET_JUMP(0x00562DF0, address);
+    }
+
+    auto *directory_object_size = reinterpret_cast<uint32_t *>(0x0053E1E5);
+    assert(*directory_object_size == sizeof(resource_directory) ||
+           *directory_object_size == XBOX_DIRECTORY_OBJECT_SIZE);
+    *directory_object_size = XBOX_DIRECTORY_OBJECT_SIZE;
+
+    {
+        FUNC_ADDRESS(address, &resource_directory::un_mash_start);
+        REDIRECT(0x0053E21C, address);
+    }
+
+    using parse_directory_fn = bool (*)(resource_directory *&,
+                                        void *,
+                                        void *,
+                                        uint32_t *,
+                                        uint32_t *,
+                                        uint32_t,
+                                        uint32_t,
+                                        void *);
+    parse_directory_fn parse_directory = &parse_generic_object_mash<resource_directory>;
+    SET_JUMP(0x00563F40, parse_directory);
+
+    {
+        FUNC_ADDRESS(address, &resource_directory::find_resource);
+        SET_JUMP(0x0051F550, address);
+    }
+#endif
 }

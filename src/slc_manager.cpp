@@ -35,6 +35,41 @@ std::vector<script_library_class *> *&
 
 #endif
 
+namespace {
+
+bool g_using_xbox_v14 = false;
+
+constexpr int xbox_v14_function_counts[] = {
+        452, 0, 0, 16, 11, 7, 22, 287, 2, 18, 8, 5, 8, 4, 3,
+        22, 11, 2, 4, 3, 8, 5, 0, 64, 13, 2, 22, 8, 5, 6, 4, 3,
+        13, 4, 12, 14, 2, 11, 9, 5, 5, 1, 17,
+};
+
+bool has_v14_layout(const char *image)
+{
+    constexpr auto class_count =
+            sizeof(xbox_v14_function_counts) /
+            sizeof(xbox_v14_function_counts[0]);
+
+    if (bit_cast<const int *>(image)[0] != class_count) {
+        return false;
+    }
+
+    auto *cursor = image + sizeof(int);
+    for (auto expected_count : xbox_v14_function_counts) {
+        const auto actual_count = bit_cast<const int *>(cursor)[0];
+        if (actual_count != expected_count) {
+            return false;
+        }
+
+        cursor += sizeof(int) + sizeof(std::uint32_t) * actual_count;
+    }
+
+    return true;
+}
+
+} // namespace
+
 void register_standard_script_libs()
 {
     TRACE("register_standard_script_libs");
@@ -948,6 +983,33 @@ slf__create_cut_scene__str__t::slf__create_cut_scene__str__t(const char *a3) : f
     FUNC_ADDRESS(address, &slf__create_cut_scene__str__t::operator());
     m_vtbl->__cl = CAST(m_vtbl->__cl, address);
 }
+
+struct slf__create_cut_scene__string_hash__t : script_library_class::function {
+    explicit slf__create_cut_scene__string_hash__t(const char *name) : function(name)
+    {
+        auto local_vtbl = CAST(m_vtbl, mem_alloc(sizeof(*m_vtbl)));
+        *local_vtbl = *m_vtbl;
+        FUNC_ADDRESS(address, &slf__create_cut_scene__string_hash__t::operator());
+        local_vtbl->__cl = CAST(local_vtbl->__cl, address);
+        m_vtbl = local_vtbl;
+    }
+
+    struct parms_t {
+        string_hash value;
+    };
+
+    bool operator()(vm_stack &stack, entry_t entry) const
+    {
+        SLF_PARMS;
+
+        const auto *name = parms->value.to_string();
+        stack.push(name);
+
+        bool (__fastcall *func)(const void *, void *, vm_stack *, entry_t) =
+                CAST(func, 0x00670AF0);
+        return func(this, nullptr, &stack, entry);
+    }
+};
 
 struct slf__create_debug_menu_entry__str__t : script_library_class::function {
     slf__create_debug_menu_entry__str__t(const char *a3);
@@ -5850,6 +5912,28 @@ slf__set_mission_text_debug__str__t::slf__set_mission_text_debug__str__t(const c
     FUNC_ADDRESS(address, &slf__set_mission_text_debug__str__t::operator());
     m_vtbl->__cl = CAST(m_vtbl->__cl, address);
 }
+
+struct slf__set_pack_state__str__t : script_library_class::function {
+    explicit slf__set_pack_state__str__t(const char *name) : function(name)
+    {
+        auto local_vtbl = CAST(m_vtbl, mem_alloc(sizeof(*m_vtbl)));
+        *local_vtbl = *m_vtbl;
+        FUNC_ADDRESS(address, &slf__set_pack_state__str__t::operator());
+        local_vtbl->__cl = CAST(local_vtbl->__cl, address);
+        m_vtbl = local_vtbl;
+    }
+
+    struct parms_t {
+        vm_str_t state;
+    };
+
+    bool operator()(vm_stack &stack, entry_t) const
+    {
+        SLF_PARMS;
+        (void)parms;
+        return true;
+    }
+};
 
 struct slf__set_parking_density__num__t : script_library_class::function {
     slf__set_parking_density__num__t(const char *a3);
@@ -11309,7 +11393,7 @@ void chuck_register_script_libs()
 
     if constexpr (1)
     {
-        std::vector<script_library_class *> classes(39u);
+        std::vector<script_library_class *> classes(40u);
         auto class_idx = 0u;
 
 #define CREATE_SLC(TYPE) \
@@ -11415,7 +11499,9 @@ void chuck_register_script_libs()
             CREATE_GLOBAL_SLF(bring_up_medal_award_box__num, "bring_up_medal_award_box(num)");
             CREATE_GLOBAL_SLF(bring_up_race_announcer, "bring_up_race_announcer()");
             CREATE_GLOBAL_SLF(calc_launch_vector__vector3d__vector3d__num__entity, "calc_launch_vector(vector3d,vector3d,num,entity)");
-            CREATE_GLOBAL_SLF(can_load_pack__str, "can_load_pack(str)");
+            if (!slc_manager::using_xbox_v14()) {
+                CREATE_GLOBAL_SLF(can_load_pack__str, "can_load_pack(str)");
+            }
             CREATE_GLOBAL_SLF(chase_cam, "chase_cam()");
             CREATE_GLOBAL_SLF(clear_all_grenades, "clear_all_grenades()");
             CREATE_GLOBAL_SLF(clear_civilians_within_radius__vector3d__num, "clear_civilians_within_radius(vector3d,num)");
@@ -11433,6 +11519,9 @@ void chuck_register_script_libs()
             CREATE_GLOBAL_SLF(create_beam, "create_beam()");
             CREATE_GLOBAL_SLF(create_credits, "create_credits()");
             CREATE_GLOBAL_SLF(create_cut_scene__str, "create_cut_scene(str)");
+            if (slc_manager::using_xbox_v14()) {
+                CREATE_GLOBAL_SLF(create_cut_scene__string_hash, "create_cut_scene(string_hash)");
+            }
             CREATE_GLOBAL_SLF(create_debug_menu_entry__str, "create_debug_menu_entry(str)");
             CREATE_GLOBAL_SLF(create_debug_menu_entry__str__str, "create_debug_menu_entry(str,str)");
             CREATE_GLOBAL_SLF(create_decal__str__vector3d__num__vector3d, "create_decal(str,vector3d,num,vector3d)");
@@ -11591,9 +11680,13 @@ void chuck_register_script_libs()
             CREATE_GLOBAL_SLF(get_missions_nums_by_index__district__str__num__num_list, "get_missions_nums_by_index(district,str,num,num_list)");
             CREATE_GLOBAL_SLF(get_missions_patrol_waypoint_by_index__district__str__num, "get_missions_patrol_waypoint_by_index(district,str,num)");
             CREATE_GLOBAL_SLF(get_neighborhood_name__num, "get_neighborhood_name(num)");
-            CREATE_GLOBAL_SLF(get_num_free_slots__str, "get_num_free_slots(str)");
+            if (!slc_manager::using_xbox_v14()) {
+                CREATE_GLOBAL_SLF(get_num_free_slots__str, "get_num_free_slots(str)");
+            }
             CREATE_GLOBAL_SLF(get_num_mission_transform_marker, "get_num_mission_transform_marker()");
-            CREATE_GLOBAL_SLF(get_pack_group__str, "get_pack_group(str)");
+            if (!slc_manager::using_xbox_v14()) {
+                CREATE_GLOBAL_SLF(get_pack_group__str, "get_pack_group(str)");
+            }
             CREATE_GLOBAL_SLF(get_pack_size__str, "get_pack_size(str)");
             CREATE_GLOBAL_SLF(get_patrol_difficulty__str, "get_patrol_difficulty(str)");
             CREATE_GLOBAL_SLF(get_patrol_node_position_by_index__str__num, "get_patrol_node_position_by_index(str,num)");
@@ -11617,7 +11710,9 @@ void chuck_register_script_libs()
             CREATE_GLOBAL_SLF(hide_controller_gauge, "hide_controller_gauge()");
             CREATE_GLOBAL_SLF(initialize_encounter_object, "initialize_encounter_object()");
             CREATE_GLOBAL_SLF(initialize_encounter_objects, "initialize_encounter_objects()");
-            CREATE_GLOBAL_SLF(insert_pack__str, "insert_pack(str)");
+            if (!slc_manager::using_xbox_v14()) {
+                CREATE_GLOBAL_SLF(insert_pack__str, "insert_pack(str)");
+            }
             CREATE_GLOBAL_SLF(invoke_pause_menu_unlockables, "invoke_pause_menu_unlockables()");
             CREATE_GLOBAL_SLF(is_ai_enabled, "is_ai_enabled()");
             CREATE_GLOBAL_SLF(is_cut_scene_playing, "is_cut_scene_playing()");
@@ -11629,8 +11724,10 @@ void chuck_register_script_libs()
             CREATE_GLOBAL_SLF(is_marky_cam_enabled, "is_marky_cam_enabled()");
             CREATE_GLOBAL_SLF(is_mission_active, "is_mission_active()");
             CREATE_GLOBAL_SLF(is_mission_loading, "is_mission_loading()");
-            CREATE_GLOBAL_SLF(is_pack_available__str, "is_pack_available(str)");
-            CREATE_GLOBAL_SLF(is_pack_loaded__str, "is_pack_loaded(str)");
+            if (!slc_manager::using_xbox_v14()) {
+                CREATE_GLOBAL_SLF(is_pack_available__str, "is_pack_available(str)");
+                CREATE_GLOBAL_SLF(is_pack_loaded__str, "is_pack_loaded(str)");
+            }
             CREATE_GLOBAL_SLF(is_pack_pushed__str, "is_pack_pushed(str)");
             CREATE_GLOBAL_SLF(is_path_graph_inside_glass_house__str, "is_path_graph_inside_glass_house(str)");
             CREATE_GLOBAL_SLF(is_patrol_active, "is_patrol_active()");
@@ -11666,7 +11763,9 @@ void chuck_register_script_libs()
             CREATE_GLOBAL_SLF(remove_civilian_info_entity__entity__num, "remove_civilian_info_entity(entity,num)");
             CREATE_GLOBAL_SLF(remove_glass_house__str, "remove_glass_house(str)");
             CREATE_GLOBAL_SLF(remove_item_entity_from_world__entity, "remove_item_entity_from_world(entity)");
-            CREATE_GLOBAL_SLF(remove_pack__str, "remove_pack(str)");
+            if (!slc_manager::using_xbox_v14()) {
+                CREATE_GLOBAL_SLF(remove_pack__str, "remove_pack(str)");
+            }
             CREATE_GLOBAL_SLF(remove_traffic_model__num, "remove_traffic_model(num)");
             CREATE_GLOBAL_SLF(reset_externed_alses, "reset_externed_alses()");
             CREATE_GLOBAL_SLF(set_all_anchors_activated__num, "set_all_anchors_activated(num)");
@@ -11693,6 +11792,9 @@ void chuck_register_script_libs()
             CREATE_GLOBAL_SLF(set_mission_text__num, "set_mission_text(num,...)");
             CREATE_GLOBAL_SLF(set_mission_text_box_flavor__num, "set_mission_text_box_flavor(num)");
             CREATE_GLOBAL_SLF(set_mission_text_debug__str, "set_mission_text_debug(str)");
+            if (slc_manager::using_xbox_v14()) {
+                CREATE_GLOBAL_SLF(set_pack_state__str, "set_pack_state(str)");
+            }
             CREATE_GLOBAL_SLF(set_parking_density__num, "set_parking_density(num)");
             CREATE_GLOBAL_SLF(set_pedestrian_density__num, "set_pedestrian_density(num)");
             CREATE_GLOBAL_SLF(set_render_opt_num__str__num, "set_render_opt_num(str,num)");
@@ -12344,7 +12446,7 @@ void slc_manager::init()
         register_standard_script_libs();
         chuck_register_script_libs();
 
-        if constexpr (1)
+        if constexpr (0)
         {
             printf("[");
 
@@ -12490,6 +12592,11 @@ void slc_manager::un_mash_all_funcs()
         auto *image = bit_cast<char *>(resource_manager::get_resource(a1, nullptr, nullptr));
         assert(image != nullptr);
 
+        g_using_xbox_v14 = has_v14_layout(image);
+        if (g_using_xbox_v14) {
+            sp_log("Using Xbox v14 layout");
+        }
+
         assert(slc_manager_class_array != nullptr);
 
         auto total_classes = bit_cast<int *>(image)[0];
@@ -12513,6 +12620,11 @@ void slc_manager::un_mash_all_funcs()
     {
         CDECL_CALL(0x0059EC00);
     }
+}
+
+bool slc_manager::using_xbox_v14()
+{
+    return g_using_xbox_v14;
 }
 
 void slc_manager_patch()

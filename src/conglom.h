@@ -114,3 +114,4 @@ struct conglomerate : actor {
 inline Var<actor *> global_transfer_variable_the_conglom {0x00959570};
 
 extern void conglomerate_patch();
+extern void conglomerate_xbpack_patch();

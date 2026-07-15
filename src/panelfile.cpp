@@ -2,10 +2,13 @@
 
 #include "common.h"
 #include "femanager.h"
+#include "fefloatingtext.h"
+#include "femultilinetext.h"
 #include "fixedstring.h"
 #include "func_wrapper.h"
 #include "ngl.h"
 #include "mash_info_struct.h"
+#include "mash_config.h"
 #include "unlockables_menu.h"
 #include "pausemenusystem.h"
 #include "resource_manager.h"
@@ -13,6 +16,7 @@
 #include "resource_directory.h"
 #include "trace.h"
 #include "utility.h"
+#include "vtbl.h"
 #include "log.h"
 
 VALIDATE_SIZE(PanelFile, 0x3C);
@@ -49,7 +53,7 @@ PanelFile *PanelFile::UnmashPanelFile(const char *a1, panel_layer a2)
         assert(the_panel_image != nullptr);
         sp_log("0x%08X", the_panel_image);
 
-#ifndef TARGET_XBOX
+#if !OPENUSM_XBOX_MASH_FORMAT
         mash_info_struct v10 {the_panel_image, mash_data_size};
 #else
         mash_info_struct v10 {mash::UNMASH_MODE, the_panel_image, mash_data_size, true};
@@ -57,7 +61,7 @@ PanelFile *PanelFile::UnmashPanelFile(const char *a1, panel_layer a2)
 
         PanelFile *v6 = nullptr;
         v10.unmash_class(v6, nullptr
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
             , mash::NORMAL_BUFFER
 #endif 
                 );
@@ -217,8 +221,58 @@ void PanelFile_patch()
 
     return;
     {
-        FUNC_ADDRESS(address, &mash_info_struct::unmash_class<PanelFile>);
+        using unmash_panel_file_fn = void (mash_info_struct::*)(PanelFile *&, void *);
+        auto fn = static_cast<unmash_panel_file_fn>(
+            &mash_info_struct::unmash_class<PanelFile>);
+        FUNC_ADDRESS(address, fn);
         REDIRECT(0x0064309E, address);
     }
 
+}
+
+void PanelFile_xbpack_patch()
+{
+#if OPENUSM_XBOX_MASH_FORMAT
+    SET_JUMP(0x00643000, PanelFile::UnmashPanelFile);
+
+    {
+        FUNC_ADDRESS(address, &PanelQuad::_unmash);
+        set_vfunc(0x0087B994, address);
+    }
+
+    {
+        FUNC_ADDRESS(address, &PanelQuad::_get_mash_sizeof);
+        set_vfunc(0x0087B9DC, address);
+    }
+
+    {
+        FUNC_ADDRESS(address, &FEText::_unmash);
+        set_vfunc(0x00879FE4, address);
+    }
+
+    {
+        FUNC_ADDRESS(address, &FEText::_get_mash_sizeof);
+        set_vfunc(0x0087A02C, address);
+    }
+
+    {
+        FUNC_ADDRESS(address, &FEFloatingText::_unmash);
+        set_vfunc(0x0087A0F4, address);
+    }
+
+    {
+        FUNC_ADDRESS(address, &FEFloatingText::_get_mash_sizeof);
+        set_vfunc(0x0087A13C, address);
+    }
+
+    {
+        FUNC_ADDRESS(address, &FEMultiLineText::_unmash);
+        set_vfunc(0x0087AE5C, address);
+    }
+
+    {
+        FUNC_ADDRESS(address, &FEMultiLineText::_get_mash_sizeof);
+        set_vfunc(0x0087AEA4, address);
+    }
+#endif
 }

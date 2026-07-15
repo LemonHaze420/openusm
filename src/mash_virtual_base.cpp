@@ -8,6 +8,7 @@
 #include "als_transition_group_base.h"
 #include "layer_state_machine_shared.h"
 #include "log.h"
+#include "mash_config.h"
 #include "memory.h"
 #include "meta_anim_interact.h"
 #include "panelquad.h"
@@ -19,6 +20,159 @@
 #include "trace.h"
 #include "utility.h"
 #include "vtbl.h"
+
+#include <cassert>
+
+#if defined(OPENUSM_XBPACK_MODE) && !defined(TARGET_XBOX)
+#include <cstddef>
+#include <cstdio>
+#include <windows.h>
+#endif
+
+#if defined(OPENUSM_XBPACK_MODE) && !defined(TARGET_XBOX)
+namespace {
+
+struct xbox_type_mapping
+{
+    uint32_t xbox_type;
+    uint32_t pc_type;
+};
+
+template<size_t Size>
+bool translate_type(uint32_t xbox_type,
+                    const xbox_type_mapping (&mappings)[Size],
+                    uint32_t &pc_type)
+{
+    for (const auto &mapping : mappings) {
+        if (mapping.xbox_type == xbox_type) {
+            pc_type = mapping.pc_type;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+constexpr xbox_type_mapping XBOX_V14_FACTORY_TYPES[] {
+    {to_hash("run_state"), 0x13D},
+    {to_hash("jump_state"), 0x12F},
+    {to_hash("hit_react_state"), 0x171},
+    {to_hash("plr_loco_crawl_state"), 0x0B5},
+    {to_hash("debug_state"), 0x118},
+    {to_hash("aimed_throw_state"), 0x140},
+    {to_hash("plr_loco_crawl_transition_state"), 0x0B6},
+    {to_hash("interaction_state"), 0x12B},
+    {to_hash("put_down_state"), 0x12E},
+    {to_hash("pick_up_state"), 0x12D},
+    {to_hash("subdued_state"), 0x174},
+    {to_hash("web_zip_state"), 0x147},
+    {to_hash("venom_grapple_thrown_state"), 0x1B7},
+    {to_hash("spidey_combat_state"), 0x116},
+    {to_hash("venom_combat_state"), 0x117},
+};
+static_assert(sizeof(XBOX_V14_FACTORY_TYPES) / sizeof(XBOX_V14_FACTORY_TYPES[0]) == 15);
+
+bool translate_factory_type(uint32_t xbox_type, uint32_t &pc_type)
+{
+    constexpr uint32_t MAX_PC_FACTORY_TYPE = 0x229;
+    if (xbox_type <= MAX_PC_FACTORY_TYPE) {
+        pc_type = xbox_type;
+        return true;
+    }
+
+    return translate_type(xbox_type, XBOX_V14_FACTORY_TYPES, pc_type);
+}
+
+void report_unsupported_type(const char *category, uint32_t xbox_type)
+{
+    char message[160];
+    std::snprintf(message,
+                  sizeof(message),
+                  "XBPACK unsupported %s hash 0x%08X\n",
+                  category,
+                  xbox_type);
+    OutputDebugStringA(message);
+    DebugBreak();
+}
+
+extern "C" __attribute__((noinline, used)) void *__cdecl xbpack_create_subclass(
+    uint32_t xbox_type)
+{
+    uint32_t pc_type = 0;
+    if (!translate_factory_type(xbox_type, pc_type)) {
+        report_unsupported_type("factory", xbox_type);
+        return nullptr;
+    }
+
+    return mash_virtual_base::create_subclass_by_enum(
+        static_cast<mash::virtual_types_enum>(pc_type));
+}
+
+constexpr xbox_type_mapping XBOX_V14_MOCOMP_TYPES[] {
+    {to_hash("als::null_mocomp"), 0x202},
+    {to_hash("als::use_anim_only"), 0x20D},
+    {to_hash("als::use_anim_only_with_invis"), 0x20E},
+    {to_hash("als::simple_orientation"), 0x20A},
+    {to_hash("als::simple_orient_with_playback_speed"), 0x208},
+    {to_hash("als::simple_orient_with_speed_adjust"), 0x209},
+    {to_hash("als::simple_orientation_ped"), 0x20B},
+    {to_hash("als::strafe_mocomp"), 0x20C},
+    {to_hash("als::orientated_react"), 0x204},
+    {to_hash("als::crawl_orient"), 0x1F6},
+    {to_hash("als::crawl_zip_mocomp"), 0x1F8},
+    {to_hash("als::crawl_corner_mocomp"), 0x1F4},
+    {to_hash("als::crawl_land_mocomp"), 0x1F5},
+    {to_hash("als::crawl_corner_int90_mocomp"), 0x1F3},
+    {to_hash("als::set_orient_mocomp"), 0x207},
+    {to_hash("als::pole_swing_mocomp"), 0x205},
+    {to_hash("als::bounce_mocomp"), 0x1EE},
+    {to_hash("als::y_facing_fixup"), 0x211},
+    {to_hash("als::fall_mocomp"), 0x1FB},
+    {to_hash("als::jump_mocomp"), 0x1FE},
+    {to_hash("als::feed_mocomp"), 0x201},
+    {to_hash("als::webzip_mocomp"), 0x210},
+    {to_hash("als::orient_adaptive_blend_xz"), 0x203},
+    {to_hash("als::direct_mocomp"), 0x1F9},
+    {to_hash("als::flight_mocomp"), 0x1FC},
+    {to_hash("als::electro_flight_mocomp"), 0x1FA},
+    {to_hash("als::beetle_flight_mocomp"), 0x1EC},
+    {to_hash("als::chopper_flight_mocomp"), 0x1EF},
+    {to_hash("als::johnny_storm_flight_mocomp"), 0x1FD},
+    {to_hash("als::move_and_face"), 0x1FF},
+    {to_hash("als::move_and_face_no_anim_movement"), 0x200},
+    {to_hash("als::combat_move_and_face"), 0x1F0},
+    {to_hash("als::combat_move_and_ignore_face"), 0x1F1},
+    {to_hash("als::action_move_and_face"), 0x1EB},
+    {to_hash("als::constant_move_and_face"), 0x1F2},
+    {to_hash("als::begin_biped_physics"), 0x1ED},
+    {to_hash("als::velocity_orientation"), 0x20F},
+    {to_hash("als::crawl_transition"), 0x1F7},
+    {to_hash("als::relative_orientation"), 0x206},
+};
+static_assert(sizeof(XBOX_V14_MOCOMP_TYPES) / sizeof(XBOX_V14_MOCOMP_TYPES[0]) == 39);
+
+bool translate_mocomp_type(uint32_t xbox_type, uint32_t &pc_type)
+{
+    return translate_type(xbox_type, XBOX_V14_MOCOMP_TYPES, pc_type);
+}
+
+extern "C" __attribute__((noinline, used)) void *__cdecl xbpack_create_mocomp_in_place(
+    uint32_t xbox_type,
+    mash_virtual_base *storage,
+    int max_size)
+{
+    uint32_t pc_type = 0;
+    if (!translate_mocomp_type(xbox_type, pc_type)) {
+        report_unsupported_type("mocomp", xbox_type);
+        return nullptr;
+    }
+
+    return mash_virtual_base::create_subclass_by_enum_in_place(
+        static_cast<mash::virtual_types_enum>(pc_type), storage, max_size);
+}
+
+} // namespace
+#endif
 
 mash_virtual_base::mash_virtual_base()
 {
@@ -191,27 +345,189 @@ void mash_virtual_base::fixup_vtable(void *a1)
 {
     TRACE("mash_virtual_base::fixup_vtable");
 
-#ifdef TARGET_XBOX
+#if defined(OPENUSM_XBPACK_MODE) && !defined(TARGET_XBOX)
+    const auto hash = static_cast<uint32_t *>(a1)[0];
+    uint32_t pc_vtable = 0;
+
+    switch (hash) {
+    case to_hash("PanelQuad"):
+        pc_vtable = 0x0087B990;
+        break;
+    case to_hash("FEFloatingText"):
+        pc_vtable = 0x0087A0F0;
+        break;
+    case to_hash("FEMultiLineText"):
+        pc_vtable = 0x0087AE58;
+        break;
+    case to_hash("FEText"):
+        pc_vtable = 0x00879FE0;
+        break;
+    case to_hash("als::state_machine_shared"):
+        pc_vtable = 0x0087B8F8;
+        break;
+    case to_hash("als::layer_state_machine_shared"):
+        pc_vtable = 0x0087E3A4;
+        break;
+    case to_hash("als::scripted_state"):
+        pc_vtable = 0x0087E1D8;
+        break;
+    case to_hash("als::base_layer_scripted_state"):
+        pc_vtable = 0x0087E214;
+        break;
+    case to_hash("als::scripted_category"):
+        pc_vtable = 0x0087E250;
+        break;
+    case to_hash("als::scripted_trans_group"):
+        pc_vtable = 0x0087E1B8;
+        break;
+    case to_hash("als::meta_anim_interact"):
+        pc_vtable = 0x00875560;
+        break;
+    case to_hash("als::meta_anim_strength_test"):
+        pc_vtable = 0x0087559C;
+        break;
+    case to_hash("als::als_meta_linear_blend"):
+        pc_vtable = 0x0087B954;
+        break;
+    case to_hash("als::als_meta_anim_swing"):
+        pc_vtable = 0x0087B918;
+        break;
+    case to_hash("spidey_base_state"):
+        pc_vtable = 0x00877534;
+        break;
+    case to_hash("venom_base_state"):
+        pc_vtable = 0x00877570;
+        break;
+    case to_hash("std_puppet_trans_state"):
+        pc_vtable = 0x008771E0;
+        break;
+    case to_hash("anim_key"):
+        pc_vtable = 0x008738E8;
+        break;
+    case to_hash("anim_record"):
+        pc_vtable = 0x00873928;
+        break;
+    case to_hash("als_inode"):
+        pc_vtable = 0x0087CEC0;
+        break;
+    case to_hash("hero_inode"):
+        pc_vtable = 0x0087DAA4;
+        break;
+    case to_hash("std_puppet_inode"):
+        pc_vtable = 0x0087DB04;
+        break;
+    case to_hash("player_combat_target_inode"):
+        pc_vtable = 0x0087C4B0;
+        break;
+    case to_hash("venom_combat_target_inode"):
+        pc_vtable = 0x0087C550;
+        break;
+    case to_hash("glass_house_inode"):
+        pc_vtable = 0x0087DC44;
+        break;
+    case to_hash("web_zip_inode"):
+        pc_vtable = 0x0087DB64;
+        break;
+    case to_hash("swing_inode"):
+        pc_vtable = 0x0087DB34;
+        break;
+    case to_hash("pole_swing_inode"):
+        pc_vtable = 0x0087DAD4;
+        break;
+    case to_hash("player_combat_inode"):
+        pc_vtable = 0x0087BD00;
+        break;
+    case to_hash("spidey_combat_inode"):
+        pc_vtable = 0x0087D700;
+        break;
+    case to_hash("combat_inode"):
+        pc_vtable = 0x0087BBD0;
+        break;
+    case to_hash("combat_inode::incoming_move"):
+        pc_vtable = 0x0087A1FC;
+        break;
+    case to_hash("std_default_trans_inode"):
+        pc_vtable = 0x0087CC7C;
+        break;
+    case to_hash("interaction_inode"):
+        pc_vtable = 0x0087CE10;
+        break;
+    case to_hash("interaction"):
+        pc_vtable = 0x0087B8D8;
+        break;
+    case to_hash("voice_box_inode"):
+        pc_vtable = 0x0087DDD8;
+        break;
+    case to_hash("physics_inode"):
+        pc_vtable = 0x0087DC74;
+        break;
+    case to_hash("strength_test_inode"):
+        pc_vtable = 0x0087CE40;
+        break;
+    case to_hash("player_controller_inode"):
+        pc_vtable = 0x0087D370;
+        break;
+    case to_hash("controller_inode"):
+        pc_vtable = 0x0087D310;
+        break;
+    case to_hash("track_field_inode"):
+        pc_vtable = 0x0087DD68;
+        break;
+    case to_hash("damage_inode"):
+        pc_vtable = 0x0087BB9C;
+        break;
+    case to_hash("ai_action_processor_inode"):
+        pc_vtable = 0x0087BB6C;
+        break;
+    case to_hash("prop_physics_inode"):
+        pc_vtable = 0x0087DCA4;
+        break;
+    case to_hash("combo_system_move"):
+        pc_vtable = 0x0087B8BC;
+        break;
+    case to_hash("combo_system_move::results"):
+        pc_vtable = 0x00879FC0;
+        break;
+    case to_hash("combo_system_move::dialation_info"):
+        pc_vtable = 0x00873734;
+        break;
+    case to_hash("combo_system_move::requirements"):
+        pc_vtable = 0x0087B8A0;
+        break;
+    case to_hash("combo_system_move::trigger_info"):
+        pc_vtable = 0x00873750;
+        break;
+    case to_hash("combo_system_move::target_info"):
+        pc_vtable = 0x0087376C;
+        break;
+    case to_hash("combo_system_move::range_info"):
+        pc_vtable = 0x00873788;
+        break;
+    case to_hash("combo_system_move::link_info"):
+        pc_vtable = 0x008737A4;
+        break;
+    default:
+        sp_log("Unsupported Xbox mash vtable hash 0x%08X", hash);
+        assert(0 && "Unsupported Xbox mash vtable hash");
+        return;
+    }
+
+    static_cast<uint32_t *>(a1)[0] = pc_vtable;
+
+#elif defined(TARGET_XBOX)
     const auto hash = static_cast<uint32_t *>(a1)[0];
 
     sp_log("0x%08X", hash);
 
-    struct {
-        int m_vtbl;
-    } *tmp = bit_cast<decltype(tmp)>(map_vtable.at(hash));
     static_cast<uint32_t *>(a1)[0] = map_vtable.at(hash)->m_vtbl;
 
 #else
 
     const auto idx = static_cast<uint32_t *>(a1)[0];
-
-    struct {
-        int m_vtbl;
-    } *tmp = static_cast<decltype(tmp)>(a1);
-    tmp->m_vtbl = bit_cast<uint32_t>(vtable()[idx]);
+    static_cast<uint32_t *>(a1)[0] = bit_cast<uint32_t>(vtable()[idx]);
 #endif
 
-    sp_log("0x%08X", tmp->m_vtbl);
+    sp_log("0x%08X", static_cast<uint32_t *>(a1)[0]);
 }
 
 void mash_virtual_base_patch() {
@@ -224,3 +540,19 @@ void mash_virtual_base_patch() {
 
 
 }
+
+#if defined(OPENUSM_XBPACK_MODE) && !defined(TARGET_XBOX)
+void mash_virtual_base_xbpack_patch()
+{
+    SET_JUMP(0x0041F820, mash_virtual_base::fixup_vtable);
+    REDIRECT(0x00498F5B, xbpack_create_mocomp_in_place);
+
+    REDIRECT(0x005BF5A6, xbpack_create_subclass);
+    REDIRECT(0x005D328C, xbpack_create_subclass);
+    REDIRECT(0x00687FF8, xbpack_create_subclass);
+    REDIRECT(0x0069BC15, xbpack_create_subclass);
+    REDIRECT(0x006A15E4, xbpack_create_subclass);
+    REDIRECT(0x006C4C80, xbpack_create_subclass);
+    REDIRECT(0x006C8780, xbpack_create_subclass);
+}
+#endif

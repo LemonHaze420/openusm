@@ -3,6 +3,9 @@
 #include "common.h"
 
 #include "actor.h"
+#ifdef OPENUSM_XBPACK_MODE
+#include "actor_xbpack.h"
+#endif
 #include "box_trigger.h"
 #include "conglom.h"
 #include "convex_box.h"
@@ -963,6 +966,9 @@ void entity_base::un_mash_start(generic_mash_header *a2,
     this->my_handle = entity_handle_manager::add_entity(this);
 
     this->un_mash(a2, a3, a4);
+#ifdef OPENUSM_XBPACK_MODE
+    actor_xbpack_finish(a4);
+#endif
     if (!this->is_conglom_member()) {
         entity_handle_manager::register_entity(this);
     }

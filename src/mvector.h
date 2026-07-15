@@ -6,6 +6,7 @@
 #include "mcontainer.h"
 #include "mcontainer_base.h"
 #include "mash.h"
+#include "mash_config.h"
 #include "mash_info_struct.h"
 
 struct from_mash_in_place_constructor;
@@ -146,7 +147,7 @@ struct mVector : mContainer_base {
 
     void unmash(mash_info_struct *a2, void *a3)
     {
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
         [](mash_info_struct *a1, mash::buffer_type a2, int &a3)
         {
             a3 = * bit_cast<int *>(a1->read_from_buffer(a2, 4, 4));

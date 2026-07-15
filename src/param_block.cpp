@@ -1,4 +1,5 @@
 #include "param_block.h"
+#include "mash_config.h"
 
 #include "common.h"
 #include "func_wrapper.h"
@@ -24,7 +25,7 @@ void param_block::unmash(mash_info_struct *a1, void *a3)
 
     if constexpr (1)
     {
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
         {
             uint8_t class_mashed = -1;
             class_mashed = *a1->read_from_buffer(mash::SHARED_BUFFER, 1, 1);
@@ -35,7 +36,7 @@ void param_block::unmash(mash_info_struct *a1, void *a3)
         if ( this->param_array != nullptr )
         {
             a1->unmash_class(this->param_array, a3
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                     , mash::NORMAL_BUFFER
 #endif
                     );
@@ -440,7 +441,7 @@ void param_block::destruct_mashed_class()
 
 void param_block::param_data::custom_unmash(mash_info_struct *a2, void *a3)
 {
-    if constexpr (0)
+    if constexpr (OPENUSM_XBOX_MASH_FORMAT)
     {
         switch ( this->get_data_type() )
         {

@@ -11,6 +11,7 @@
 #include "nfl_system.h"
 #include "osassert.h"
 #include "os_developer_options.h"
+#include "os_file.h"
 #include "parse_generic_mash.h"
 #include "resource_directory.h"
 #include "resource_manager.h"
@@ -30,6 +31,31 @@
 #include <string>
 
 using list_t = _std::list<resource_pack_queue_entry>;
+
+namespace
+{
+bool get_standalone_pack_size(const char *name, int *out_size)
+{
+    assert(name != nullptr);
+    assert(out_size != nullptr);
+
+    if (g_platform != NL_PLATFORM_XBOX) {
+        return false;
+    }
+
+    filespec file_spec {mString {packfile_dir()[g_platform]}, mString {name}, mString {packfile_ext()[g_platform]}};
+    mString path = file_spec.fullname();
+    os_file file {path, os_file::FILE_READ};
+    if (!file.is_open()) {
+        sp_log("Xbox standalone fallback not found for %s at %s", name, path.c_str());
+        return false;
+    }
+
+    *out_size = file.get_size();
+    sp_log("Xbox standalone fallback found %s at %s size=0x%08X", name, path.c_str(), *out_size);
+    return true;
+}
+}
 
 #ifndef TEST_CASE
 VALIDATE_SIZE(list_t, 12u);
@@ -131,17 +157,45 @@ void resource_pack_streamer::load_internal(const char *a2,
         assert(curr_slot != nullptr && curr_slot->is_empty());
 
         resource_pack_location pack_location{};
+        bool use_standalone_pack = false;
+        nflFileID standalone_file_id = NFL_FILE_ID_INVALID;
 
         if (!resource_manager::get_pack_file_stats(this->field_8, &pack_location, nullptr, nullptr)) {
             auto *str = this->field_8.m_hash.to_string();
-            sp_log("Packfile %s not found in amalgapak.  Perhaps you need to repack it?", str);
-            assert(0);
+            sp_log("Packfile %s not found in amalgapak (name=%s hash=0x%08X type=%d platform=%d).",
+                   str,
+                   a2,
+                   this->field_8.m_hash.source_hash_code,
+                   this->field_8.m_type,
+                   g_platform);
+
+            int standalone_size = 0;
+            if (get_standalone_pack_size(a2, &standalone_size)) {
+                standalone_file_id = resource_manager::open_pack(a2);
+                if (standalone_file_id != NFL_FILE_ID_INVALID) {
+                    pack_location.clear();
+                    pack_location.loc.field_0 = this->field_8;
+                    pack_location.loc.m_offset = 0;
+                    pack_location.loc.m_size = standalone_size;
+                    pack_location.field_2C = -1;
+                    use_standalone_pack = true;
+                }
+            }
+
+            if (!use_standalone_pack) {
+                sp_log("Packfile %s could not be loaded from the amalgapak or standalone Xbox pack path. "
+                       "Perhaps you need to repack it?",
+                       str);
+                assert(0);
+            }
         }
 
         this->curr_loc = pack_location;
         this->field_78 = nullptr;
 
-        auto v12 = (resource_manager::using_amalgapak()
+        auto v12 = use_standalone_pack
+                ? standalone_file_id
+                : (resource_manager::using_amalgapak()
                 ? resource_manager::amalgapak_id
                 : resource_manager::open_pack(a2));
 
@@ -180,8 +234,24 @@ void resource_pack_streamer::load_internal(const char *a2,
         params.field_C = NFL_REQUEST_TYPE_READ;
         params.field_18 = this->curr_slot->get_header_mem_addr();
 
-        assert(pack_location.field_28 == 0);
-        params.dataSize = pack_location.loc.m_size - pack_location.field_28;
+        auto data_size_adjust = pack_location.field_28;
+        if (data_size_adjust != 0) {
+            sp_log("Pack location field_28 is nonzero: name=%s hash=0x%08X field_28=0x%08X "
+                   "offset=0x%08X size=0x%08X platform=%d",
+                   a2,
+                   this->field_8.m_hash.source_hash_code,
+                   pack_location.field_28,
+                   pack_location.loc.m_offset,
+                   pack_location.loc.m_size,
+                   g_platform);
+            if (g_platform == NL_PLATFORM_XBOX) {
+                data_size_adjust = 0;
+            } else {
+                assert(pack_location.field_28 == 0);
+            }
+        }
+
+        params.dataSize = pack_location.loc.m_size - data_size_adjust;
 
         assert((params.dataSize % 2048) == 0);
 
@@ -424,8 +494,7 @@ void resource_pack_streamer::frame_advance_idle([[maybe_unused]] Float a2)
                 if ( m_head->_Next != m_head ) {
                     v6->_Prev->_Next = v6->_Next;
                     v6->_Next->_Prev = v6->_Prev;
-                    CDECL_CALL(0x0082207C);
-                    //operator delete(v6);
+                    CDECL_CALL(0x0082207C, v6);
                     --this->field_6C.m_size;
                 }
             }
@@ -692,7 +761,14 @@ void resource_pack_streamer::finish_data_read()
         auto *header =
             bit_cast<generic_mash_header *>(this->curr_slot->get_header_mem_addr() +
                                                pack_file_header->directory_offset);
-        assert(header == CAST(header, bit_cast<char *>(pack_file_header) + 0x30));
+        if (header != CAST(header, bit_cast<char *>(pack_file_header) + 0x30)) {
+            sp_log("Pack directory offset is 0x%08X for platform %d",
+                   pack_file_header->directory_offset,
+                   g_platform);
+            if (g_platform != NL_PLATFORM_XBOX) {
+                assert(header == CAST(header, bit_cast<char *>(pack_file_header) + 0x30));
+            }
+        }
 
         resource_directory *directory = nullptr;
         auto alloced_mem =
@@ -736,7 +812,7 @@ void resource_pack_streamer::finish_data_read()
 
         this->curr_slot->set_resource_directory(directory);
 
-        if (!resource_manager::using_amalga) {
+        if (!resource_manager::using_amalga || this->curr_loc.field_2C == -1) {
             nflCloseFile(this->curr_file_id);
         }
 

@@ -7,6 +7,7 @@
 #include "entity_handle_manager.h"
 #include "memory.h"
 #include "osassert.h"
+#include "slc_manager.h"
 #include "trace.h"
 #include "utility.h"
 #include "vm_stack.h"
@@ -1587,6 +1588,36 @@ struct slf__entity__remove_vehicle_from_traffic_system__t : script_library_class
     bool operator()(vm_stack &, script_library_class::function::entry_t) const { return true;}
 };
 
+struct slf__entity__render_name__num__t : script_library_class::function {
+    slf__entity__render_name__num__t(script_library_class *slc, const char *name) :
+            function(slc, name)
+    {
+        m_vtbl = CAST(m_vtbl, 0x0089B47C);
+        auto local_vtbl = CAST(m_vtbl, mem_alloc(sizeof(*m_vtbl)));
+        *local_vtbl = *m_vtbl;
+        FUNC_ADDRESS(address, &slf__entity__render_name__num__t::operator());
+        local_vtbl->__cl = CAST(local_vtbl->__cl, address);
+        m_vtbl = local_vtbl;
+    }
+
+    struct parms_t {
+        entity_base_vhandle me;
+        vm_num_t enabled;
+    };
+
+    bool operator()(vm_stack &stack, entry_t) const
+    {
+        SLF_PARMS;
+
+        auto *entity = parms->me.get_volatile_ptr();
+        if (entity != nullptr && parms->enabled != 0.0f) {
+            (void)entity->get_id().to_string();
+        }
+
+        return true;
+    }
+};
+
 struct slf__entity__reset_ai__t : script_library_class::function {
     slf__entity__reset_ai__t (script_library_class *slc, const char *a3) : function(slc, a3)  {
         m_vtbl = (decltype(m_vtbl))0x0089B06C;
@@ -2614,6 +2645,9 @@ void register_entity_lib()
     CREATE_SLF(entity, remove_exclusive_interactor__string_hash__interactable_interface, "remove_exclusive_interactor(string_hash,interactable_interface)");
     CREATE_SLF(entity, remove_selectable_target__entity, "remove_selectable_target(entity)");
     CREATE_SLF(entity, remove_vehicle_from_traffic_system, "remove_vehicle_from_traffic_system()");
+    if (slc_manager::using_xbox_v14()) {
+        CREATE_SLF(entity, render_name__num, "render_name(num)");
+    }
     CREATE_SLF(entity, reset_ai, "reset_ai()");
     CREATE_SLF(entity, restart, "restart()");
     CREATE_SLF(entity, seriously_kill, "seriously_kill()");

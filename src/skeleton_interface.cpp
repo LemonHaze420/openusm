@@ -5,7 +5,7 @@
 #include "oldmath_po.h"
 #include "trace.h"
 
-#ifdef TARGET_XBOX
+#if defined(TARGET_XBOX) || defined(OPENUSM_XBPACK_MODE)
 #include "mash_info_struct.h"
 #endif
 
@@ -16,7 +16,7 @@ skeleton_interface::skeleton_interface()
 
 }
 
-#ifdef TARGET_XBOX
+#if defined(TARGET_XBOX) || defined(OPENUSM_XBPACK_MODE)
 void skeleton_interface::unmash(mash_info_struct *a2, void *a3)
 {
     assert("abs_po == (po *)mash::CUSTOM_MASH_SENTRY");

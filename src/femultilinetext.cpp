@@ -6,6 +6,7 @@
 #include "game.h"
 #include "gamepadinput.h"
 #include "localized_string_table.h"
+#include "mash_config.h"
 #include "multilinestring.h"
 #include "trace.h"
 #include "utility.h"
@@ -49,7 +50,7 @@ void FEMultiLineText::_unmash(mash_info_struct *a1, void *a3)
 
 int FEMultiLineText::_get_mash_sizeof()
 {
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
     return 0x98;
 #else
     return 0xA0;

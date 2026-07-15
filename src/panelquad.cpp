@@ -4,6 +4,7 @@
 #include "from_mash_in_place_constructor.h"
 #include "func_wrapper.h"
 #include "mash_info_struct.h"
+#include "mash_config.h"
 #include "ngl.h"
 #include "ngl_mesh.h"
 #include "panelquadsection.h"
@@ -47,7 +48,7 @@ void PanelQuad::_unmash(mash_info_struct *a1, void *a3)
 
         a1->unmash_class_in_place(this->field_3C, this);
 
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
         uint8_t class_mashed = -1;
         [](mash_info_struct *a1, mash::buffer_type buffer, uint8_t &a3)
         {
@@ -60,7 +61,7 @@ void PanelQuad::_unmash(mash_info_struct *a1, void *a3)
         {
             this->pmesh =
                 (PanelMeshSection *) a1->read_from_buffer(
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
                     mash::NORMAL_BUFFER,
 #endif 
                         sizeof(PanelMeshSection), 16);
@@ -75,7 +76,7 @@ void PanelQuad::_unmash(mash_info_struct *a1, void *a3)
 
 int PanelQuad::_get_mash_sizeof()
 {
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
     return 0x48;
 #else
     return 0x4C;

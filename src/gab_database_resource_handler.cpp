@@ -37,15 +37,15 @@ bool gab_database_resource_handler::_handle_resource(worldly_resource_handler::e
         the_gab_database->destruct_mashed_class();
     } else {
 
-#ifndef TARGET_XBOX
-        mash_info_struct info_struct{resource, a3->m_size};
-#else
+#if OPENUSM_XBOX_MASH_FORMAT
         mash_info_struct info_struct {mash::UNMASH_MODE, resource, a3->m_size, true};
+#else
+        mash_info_struct info_struct{resource, a3->m_size};
 #endif
 
         gab_database *the_gab_database = nullptr;
         info_struct.unmash_class(the_gab_database, nullptr
-#ifdef TARGET_XBOX
+#if OPENUSM_XBOX_MASH_FORMAT
             , mash::NORMAL_BUFFER
 #endif 
                 );

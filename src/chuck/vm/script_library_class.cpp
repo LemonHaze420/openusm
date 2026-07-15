@@ -139,6 +139,9 @@ void script_library_class::add_functions_complete()
 {
     if ( g_is_the_packer() || script_manager::using_chuck_old_fashioned() ) {
         assert(this->funcs == nullptr);
+    } else {
+        assert(this->next_func_slot == this->total_funcs &&
+               "script library registration count does not match the mashed table");
     }
 }
 
