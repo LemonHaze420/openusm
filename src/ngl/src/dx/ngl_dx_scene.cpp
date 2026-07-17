@@ -10,6 +10,8 @@
 #include <utility.h>
 #include <vtbl.h>
 
+nglRenderNode* g_CurrentRenderNode = nullptr;
+
 namespace nglRenderList {
 
 struct nglRenderTextureNode {
@@ -60,9 +62,11 @@ void nglOpaqueCompare<nglRenderNode>(nglRenderNode *node, int count, int a3)
         static Var<nglRenderNode *> nglPrevNode{0x00971F18};
 
         for ( auto *v9 = node; v9 != nullptr; v9 = v9->m_next_node ) {
+            g_CurrentRenderNode = v9;
             v9->Render();
 
             nglPrevNode() = v9;
+            g_CurrentRenderNode = nullptr;
         }
     }
     else

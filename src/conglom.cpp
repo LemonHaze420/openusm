@@ -519,6 +519,7 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
         if ( skeleton_ifc != nullptr )
             skeleton_ifc->field_4 = this;
 
+        // no anim_interface...
         field_11C = nullptr;
         script_data_ifc = nullptr;
         field_124 = nullptr;

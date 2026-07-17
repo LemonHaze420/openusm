@@ -1,5 +1,8 @@
 #pragma once
 
+struct nglRenderNode;
+extern nglRenderNode* g_CurrentRenderNode;
+
 namespace nglRenderList {
 
 template<typename T>
