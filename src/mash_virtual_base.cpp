@@ -72,8 +72,80 @@ constexpr xbox_type_mapping XBOX_V14_FACTORY_TYPES[] {
 };
 static_assert(sizeof(XBOX_V14_FACTORY_TYPES) / sizeof(XBOX_V14_FACTORY_TYPES[0]) == 15);
 
+#ifdef OPENUSM_XBPACK_V10
+struct v10_type_mapping
+{
+    uint32_t xbox_type;
+    uint32_t pc_type;
+    uint32_t pc_vtable;
+};
+
+constexpr v10_type_mapping V10_TYPES[] {
+    {0x13D, 0x14D, 0x0087CEC0},
+    {0x170, 0x180, 0x0087DAA4},
+    {0x12E, 0x13E, 0x0087DB34},
+    {0x12B, 0x13B, 0x0087DB04},
+    {0x151, 0x161, 0x0087C4B0},
+    {0x16F, 0x17F, 0x0087DC44},
+    {0x136, 0x146, 0x0087DB64},
+    {0x120, 0x130, 0x0087DAD4},
+    {0x0E8, 0x0F8, 0x0087D700},
+    {0x163, 0x173, 0x0087CC7C},
+    {0x08D, 0x094, 0x0087CE10},
+    {0x094, 0x09D, 0x0087CF38},
+    {0x096, 0x09F, 0x0087CF80},
+    {0x1B4, 0x1C8, 0x0087DDD8},
+    {0x181, 0x192, 0x0087DC74},
+    {0x08F, 0x098, 0x0087CE40},
+    {0x093, 0x09C, 0x0087CFB4},
+    {0x095, 0x09E, 0x0087CFF0},
+    {0x10D, 0x11D, 0x0087DA74},
+    {0x167, 0x177, 0x0087CA18},
+    {0x156, 0x166, 0x0087D370},
+    {0x193, 0x1A4, 0x0087DD68},
+    {0x187, 0x198, 0x0087DD04},
+    {0x195, 0x1A6, 0x0087DDA8},
+    {0x148, 0x157, 0x0087BB9C},
+    {0x142, 0x152, 0x0087BFDC},
+    {0x145, 0x155, 0x0087C018},
+    {0x155, 0x165, 0x0087D3D0},
+    {0x00B, 0x00B, 0x0087BB6C},
+    {0x147, 0x158, 0x0087A1FC},
+};
+
+bool translate_v10_factory_type(uint32_t xbox_type, uint32_t &pc_type)
+{
+    for (const auto &mapping : V10_TYPES) {
+        if (mapping.xbox_type == xbox_type) {
+            pc_type = mapping.pc_type;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool translate_v10_vtable(uint32_t xbox_type, uint32_t &pc_vtable)
+{
+    for (const auto &mapping : V10_TYPES) {
+        if (mapping.xbox_type == xbox_type) {
+            pc_vtable = mapping.pc_vtable;
+            return true;
+        }
+    }
+
+    return false;
+}
+#endif
+
 bool translate_factory_type(uint32_t xbox_type, uint32_t &pc_type)
 {
+#ifdef OPENUSM_XBPACK_V10
+    if (translate_v10_factory_type(xbox_type, pc_type)) {
+        return true;
+    }
+#endif
+
     constexpr uint32_t MAX_PC_FACTORY_TYPE = 0x229;
     if (xbox_type <= MAX_PC_FACTORY_TYPE) {
         pc_type = xbox_type;
@@ -153,7 +225,21 @@ static_assert(sizeof(XBOX_V14_MOCOMP_TYPES) / sizeof(XBOX_V14_MOCOMP_TYPES[0]) =
 
 bool translate_mocomp_type(uint32_t xbox_type, uint32_t &pc_type)
 {
+#ifdef OPENUSM_XBPACK_V10
+    if (xbox_type >= 0x1D5 && xbox_type <= 0x1E8) {
+        pc_type = xbox_type + 0x15;
+        return true;
+    }
+
+    if (xbox_type >= 0x1E9 && xbox_type <= 0x1FB) {
+        pc_type = xbox_type + 0x16;
+        return true;
+    }
+
+    return false;
+#else
     return translate_type(xbox_type, XBOX_V14_MOCOMP_TYPES, pc_type);
+#endif
 }
 
 extern "C" __attribute__((noinline, used)) void *__cdecl xbpack_create_mocomp_in_place(
@@ -349,6 +435,100 @@ void mash_virtual_base::fixup_vtable(void *a1)
     const auto hash = static_cast<uint32_t *>(a1)[0];
     uint32_t pc_vtable = 0;
 
+#ifdef OPENUSM_XBPACK_V10
+    if (translate_v10_vtable(hash, pc_vtable)) {
+        static_cast<uint32_t *>(a1)[0] = pc_vtable;
+        return;
+    }
+
+    switch (hash) {
+    case 0x57:
+        pc_vtable = 0x0087B8BC;
+        break;
+    case 0x58:
+        pc_vtable = 0x00873734;
+        break;
+    case 0x59:
+        pc_vtable = 0x008737A4;
+        break;
+    case 0x5A:
+        pc_vtable = 0x00873788;
+        break;
+    case 0x5B:
+        pc_vtable = 0x0087B8A0;
+        break;
+    case 0x5C:
+        pc_vtable = 0x00879FC0;
+        break;
+    case 0x5D:
+        pc_vtable = 0x0087376C;
+        break;
+    case 0x5E:
+        pc_vtable = 0x00873750;
+        break;
+    case 0x87:
+        pc_vtable = 0x008738E8;
+        break;
+    case 0x88:
+        pc_vtable = 0x00873928;
+        break;
+    case 0x89:
+        pc_vtable = 0x00873948;
+        break;
+    case 0x8A:
+        pc_vtable = 0x00873908;
+        break;
+    case 0x8B:
+        pc_vtable = 0x00875560;
+        break;
+    case 0x8C:
+        pc_vtable = 0x0087559C;
+        break;
+    case 0x1CF:
+        pc_vtable = 0x0087E3A4;
+        break;
+    case 0x1D0:
+        pc_vtable = 0x0087B8F8;
+        break;
+    case 0x1D3:
+        pc_vtable = 0x0087B918;
+        break;
+    case 0x1D4:
+        pc_vtable = 0x0087B954;
+        break;
+    case 0x1FC:
+        pc_vtable = 0x0087E214;
+        break;
+    case 0x1FD:
+        pc_vtable = 0x0087E250;
+        break;
+    case 0x1FE:
+        pc_vtable = 0x0087E1D8;
+        break;
+    case 0x1FF:
+        pc_vtable = 0x0087E1B8;
+        break;
+    case 0x207:
+        pc_vtable = 0x0087B990;
+        break;
+    case 0x208:
+        pc_vtable = 0x0087A0F0;
+        break;
+    case 0x209:
+        pc_vtable = 0x0087AE58;
+        break;
+    case 0x20A:
+        pc_vtable = 0x00879FE0;
+        break;
+    default:
+        if (hash > 0x23D || vtable()[hash] == nullptr) {
+            report_unsupported_type("vtable", hash);
+            return;
+        }
+        pc_vtable = bit_cast<uint32_t>(vtable()[hash]);
+        break;
+    }
+#else
     switch (hash) {
     case to_hash("PanelQuad"):
         pc_vtable = 0x0087B990;
@@ -511,6 +691,7 @@ void mash_virtual_base::fixup_vtable(void *a1)
         assert(0 && "Unsupported Xbox mash vtable hash");
         return;
     }
+#endif
 
     static_cast<uint32_t *>(a1)[0] = pc_vtable;
 
@@ -545,8 +726,10 @@ void mash_virtual_base_patch() {
 void mash_virtual_base_xbpack_patch()
 {
     SET_JUMP(0x0041F820, mash_virtual_base::fixup_vtable);
+
     REDIRECT(0x00498F5B, xbpack_create_mocomp_in_place);
 
+#ifndef OPENUSM_XBPACK_V10
     REDIRECT(0x005BF5A6, xbpack_create_subclass);
     REDIRECT(0x005D328C, xbpack_create_subclass);
     REDIRECT(0x00687FF8, xbpack_create_subclass);
@@ -554,5 +737,6 @@ void mash_virtual_base_xbpack_patch()
     REDIRECT(0x006A15E4, xbpack_create_subclass);
     REDIRECT(0x006C4C80, xbpack_create_subclass);
     REDIRECT(0x006C8780, xbpack_create_subclass);
+#endif
 }
 #endif

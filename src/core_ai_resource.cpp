@@ -27,6 +27,299 @@ uint32_t read_u32(const uint8_t *data)
     return value;
 }
 
+#ifdef OPENUSM_XBPACK_V10
+
+struct pc_mash_info
+{
+    uint8_t *image;
+    int used;
+    int size;
+    int field_C;
+};
+
+static_assert(sizeof(pc_mash_info) == 0x10);
+
+enum class node_layout
+{
+    info,
+    hero,
+    swing,
+    target,
+    web_zip,
+    combat,
+    interaction,
+    loco,
+    std_fear,
+    pedestrian,
+    cpu_controller,
+    avoidance,
+};
+
+struct xb_node
+{
+    uint32_t type;
+    uint32_t id;
+    uint16_t xbox_size;
+    uint16_t pc_size;
+    node_layout layout;
+};
+
+constexpr xb_node V10_NODES[] {
+    {0x13D, 0x0001AB00, 0x028, 0x02C, node_layout::info},
+    {0x170, 0x003AC42E, 0x210, 0x24C, node_layout::hero},
+    {0x12E, 0x08641048, 0x088, 0x094, node_layout::swing},
+    {0x12B, 0x15897C0C, 0x018, 0x020, node_layout::info},
+    {0x151, 0x1754B0DC, 0x068, 0x094, node_layout::target},
+    {0x16F, 0x1B17CB5D, 0x030, 0x034, node_layout::info},
+    {0x136, 0x1CF15FD1, 0x128, 0x0E0, node_layout::web_zip},
+    {0x120, 0x371268F7, 0x028, 0x02C, node_layout::info},
+    {0x095, 0x5D0C49A4, 0x2F8, 0x328, node_layout::combat},
+    {0x096, 0x76DDDD6F, 0x0A8, 0x0D8, node_layout::pedestrian},
+    {0x0E8, 0x5D0C49A4, 0x320, 0x350, node_layout::combat},
+    {0x163, 0x94B51E64, 0x01C, 0x034, node_layout::info},
+    {0x08D, 0x9EE13B40, 0x044, 0x04C, node_layout::interaction},
+    {0x093, 0x4C90D9E0, 0x054, 0x064, node_layout::loco},
+    {0x094, 0xFAD58E58, 0x038, 0x054, node_layout::avoidance},
+    {0x10D, 0x6D4B8BFF, 0x020, 0x024, node_layout::info},
+    {0x167, 0x74556656, 0x02C, 0x07C, node_layout::std_fear},
+    {0x1B4, 0xA2D277FE, 0x040, 0x044, node_layout::info},
+    {0x181, 0xA8E18643, 0x01C, 0x020, node_layout::info},
+    {0x08F, 0xC8553C6E, 0x04C, 0x050, node_layout::info},
+    {0x156, 0xCC62C392, 0x0E8, 0x0EC, node_layout::info},
+    {0x193, 0xCCF57218, 0x038, 0x03C, node_layout::info},
+    {0x187, 0x085DE71B, 0x028, 0x02C, node_layout::info},
+    {0x195, 0xF264967F, 0x0C8, 0x0CC, node_layout::info},
+    {0x148, 0xD552BA6D, 0x020, 0x024, node_layout::info},
+    {0x142, 0xD970BD20, 0x054, 0x064, node_layout::loco},
+    {0x145, 0xF6E3EBA5, 0x01C, 0x020, node_layout::info},
+    {0x155, 0xCC62C392, 0x0FC, 0x108, node_layout::cpu_controller},
+    {0x00B, 0xD664A286, 0x01C, 0x020, node_layout::info},
+};
+
+void expand_info(const uint8_t *source, size_t xbox_size, uint8_t *destination)
+{
+    std::memcpy(destination, source, 0x0C);
+    std::memcpy(destination + 0x10, source + 0x0C, xbox_size - 0x0C);
+}
+
+void expand_hero(const uint8_t *source, uint8_t *destination)
+{
+    std::memcpy(destination, source, 0x0C);
+    std::memcpy(destination + 0x10, source + 0x0C, 0x44);
+    std::memcpy(destination + 0x88, source + 0x50, 0x1C0);
+}
+
+void expand_v10_swing(const uint8_t *source, uint8_t *destination)
+{
+    expand_info(source, 0x18, destination);
+    destination[0x1C] = source[0x18];
+    std::memcpy(destination + 0x20, source + 0x20, 4);
+    destination[0x24] = source[0x19];
+    std::memcpy(destination + 0x28, source + 0x1C, 4);
+    std::memcpy(destination + 0x30, source + 0x24, 0x14);
+    destination[0x44] = source[0x38];
+    std::memcpy(destination + 0x48, source + 0x3C, 0x0C);
+    destination[0x54] = source[0x48];
+    std::memcpy(destination + 0x58, source + 0x4C, 0x3C);
+}
+
+void expand_target(const uint8_t *source, uint8_t *destination)
+{
+    std::memcpy(destination, source, 0x0C);
+    std::memcpy(destination + 0x10, source + 0x0C, 0x14);
+    std::memcpy(destination + 0x28, source + 0x20, 0x24);
+    std::memcpy(destination + 0x4C, source + 0x48, 0x0C);
+    std::memcpy(destination + 0x84, source + 0x54, 4);
+    std::memcpy(destination + 0x88, source + 0x5C, 0x0C);
+}
+
+void expand_v10_web_zip(const uint8_t *source, uint8_t *destination)
+{
+    std::memcpy(destination, source, 0x0C);
+    std::memcpy(destination + 0x10, source + 0x0C, 0x94);
+    std::memcpy(destination + 0xA4, source + 0xA0, 0x30);
+    std::memcpy(destination + 0xD8, source + 0x120, 8);
+}
+
+void expand_v10_combat(const uint8_t *source,
+                       size_t xbox_size,
+                       uint8_t *destination)
+{
+    std::memcpy(destination, source, 0x0C);
+    std::memcpy(destination + 0x10, source + 0x0C, 0x50);
+    std::memcpy(destination + 0x70, source + 0x5C, 0x40);
+    destination[0xB0] = source[0x9C];
+    destination[0xB4] = source[0xA0];
+    destination[0xD0] = source[0xA1];
+    std::memcpy(destination + 0xD4, source + 0xA4, 4);
+    std::memcpy(destination + 0xD8, source + 0xA8, xbox_size - 0xA8);
+}
+
+void expand_interaction(const uint8_t *source, uint8_t *destination)
+{
+    std::memcpy(destination, source, 0x0C);
+    std::memcpy(destination + 0x10, source + 0x0C, 0x2C);
+    std::memcpy(destination + 0x40, source + 0x38, 0x0C);
+}
+
+void expand_loco(const uint8_t *source, uint8_t *destination)
+{
+    constexpr uint32_t unset_float = 0xBF800000;
+
+    std::memcpy(destination, source, 0x0C);
+    std::memcpy(destination + 0x10, source + 0x0C, 0x14);
+    std::memcpy(destination + 0x24, &unset_float, sizeof(unset_float));
+    std::memcpy(destination + 0x28, source + 0x20, 0x14);
+    std::memcpy(destination + 0x3C, &unset_float, sizeof(unset_float));
+    std::memcpy(destination + 0x40, source + 0x34, 0x14);
+
+    std::memcpy(destination + 0x54, source + 0x48, 5);
+    std::memcpy(destination + 0x5A, source + 0x4D, 3);
+    std::memcpy(destination + 0x5E, source + 0x50, 2);
+}
+
+void expand_std_fear(const uint8_t *source, uint8_t *destination)
+{
+    expand_info(source, 0x18, destination);
+    std::memcpy(destination + 0x78, source + 0x28, 2);
+}
+
+void expand_pedestrian(const uint8_t *source, uint8_t *destination)
+{
+    expand_info(source, 0x18, destination);
+    std::memcpy(destination + 0xD0, source + 0xA4, 2);
+}
+
+void expand_cpu_controller(const uint8_t *source, uint8_t *destination)
+{
+    expand_info(source, 0x18, destination);
+    std::memcpy(destination + 0xEC, source + 0xE8, 4);
+    std::memcpy(destination + 0xF8, source + 0xEC, 8);
+    destination[0x104] = source[0xF8];
+}
+
+void expand_avoidance(const uint8_t *source, uint8_t *destination)
+{
+    expand_info(source, 0x18, destination);
+}
+
+const xb_node *find_v10_node(const uint8_t *source)
+{
+    const auto type = read_u32(source);
+    const auto id = read_u32(source + 4);
+
+    for (const auto &node : V10_NODES) {
+        if (node.type == type && node.id == id) {
+            return &node;
+        }
+    }
+
+    return nullptr;
+}
+
+void expand_node(const xb_node &node,
+                 const uint8_t *source,
+                 uint8_t *destination)
+{
+    switch (node.layout) {
+    case node_layout::info:
+        expand_info(source, node.xbox_size, destination);
+        break;
+    case node_layout::hero:
+        expand_hero(source, destination);
+        break;
+    case node_layout::swing:
+        expand_v10_swing(source, destination);
+        break;
+    case node_layout::target:
+        expand_target(source, destination);
+        break;
+    case node_layout::web_zip:
+        expand_v10_web_zip(source, destination);
+        break;
+    case node_layout::combat:
+        expand_v10_combat(source, node.xbox_size, destination);
+        break;
+    case node_layout::interaction:
+        expand_interaction(source, destination);
+        break;
+    case node_layout::loco:
+        expand_loco(source, destination);
+        break;
+    case node_layout::std_fear:
+        expand_std_fear(source, destination);
+        break;
+    case node_layout::pedestrian:
+        expand_pedestrian(source, destination);
+        break;
+    case node_layout::cpu_controller:
+        expand_cpu_controller(source, destination);
+        break;
+    case node_layout::avoidance:
+        expand_avoidance(source, destination);
+        break;
+    }
+}
+
+bool convert_v10_nodes(std::vector<uint8_t> &data)
+{
+    struct node_ref
+    {
+        size_t offset;
+        const xb_node *node;
+    };
+
+    std::vector<node_ref> nodes;
+    for (size_t offset = 0; offset + 8 <= data.size(); offset += 4)
+    {
+        const auto *node = find_v10_node(data.data() + offset);
+        if (node == nullptr || offset + node->xbox_size > data.size()) {
+            continue;
+        }
+
+        if (!nodes.empty()) {
+            const auto &previous = nodes.back();
+            if (offset < previous.offset + previous.node->xbox_size) {
+                continue;
+            }
+        }
+
+        nodes.push_back({offset, node});
+        offset += node->xbox_size - 4;
+    }
+
+    if (nodes.empty()) {
+        return false;
+    }
+
+    std::vector<uint8_t> converted;
+    converted.reserve(data.size() + nodes.size() * 0x40);
+
+    size_t source_offset = 0;
+    for (const auto &entry : nodes)
+    {
+        converted.insert(converted.end(),
+                         data.begin() + source_offset,
+                         data.begin() + entry.offset);
+
+        const auto destination_offset = converted.size();
+        converted.resize(destination_offset + entry.node->pc_size, 0);
+        expand_node(*entry.node,
+                    data.data() + entry.offset,
+                    converted.data() + destination_offset);
+
+        source_offset = entry.offset + entry.node->xbox_size;
+    }
+
+    converted.insert(converted.end(),
+                     data.begin() + source_offset,
+                     data.end());
+    data.swap(converted);
+    return true;
+}
+
+#else
+
 bool convert_web_zip_inode(std::vector<uint8_t> &data)
 {
     constexpr auto xbox_hash = to_hash("web_zip_inode");
@@ -157,6 +450,7 @@ void expand_combat_state(const uint8_t *source, uint8_t *destination)
     std::memcpy(pc_state + 0x20, xbox_state + 0x1C, 0x18);
     pc_state[0x38] = xbox_state[0x3D];
     std::memset(pc_state + 0x39, 0, 3);
+
     std::memcpy(destination + 0xD4, source + 0xCC, 4);
 }
 
@@ -290,6 +584,8 @@ bool convert_spidey_combat_inode(std::vector<uint8_t> &data)
     return converted;
 }
 
+#endif
+
 void convert_core_ai_data(core_ai_resource &resource)
 {
     auto *source = reinterpret_cast<const uint8_t *>(resource.field_C);
@@ -298,6 +594,11 @@ void convert_core_ai_data(core_ai_resource &resource)
     }
 
     std::vector<uint8_t> converted_data(source, source + resource.field_40);
+#ifdef OPENUSM_XBPACK_V10
+    if (!convert_v10_nodes(converted_data)) {
+        return;
+    }
+#else
     bool converted = convert_web_zip_inode(converted_data);
     converted = convert_swing_inode(converted_data) || converted;
     converted = convert_player_combat_inode(converted_data) || converted;
@@ -305,6 +606,7 @@ void convert_core_ai_data(core_ai_resource &resource)
     if (!converted) {
         return;
     }
+#endif
 
     auto storage = std::make_unique<uint8_t[]>(converted_data.size());
     std::memcpy(storage.get(), converted_data.data(), converted_data.size());
@@ -333,6 +635,39 @@ void core_ai_resource::unmash(mash_info_struct *a1, [[maybe_unused]] void *a3)
     TRACE("ai::core_ai_resource::unmash");
 
 #if OPENUSM_XBOX_MASH_FORMAT
+#if defined(OPENUSM_XBPACK_V10) && !defined(TARGET_XBOX)
+    auto *pc_mash = reinterpret_cast<pc_mash_info *>(a1);
+    mash_info_struct mash_ctx {pc_mash->image, pc_mash->size};
+    mash_ctx.buffer_size_used[mash::NORMAL_BUFFER] = pc_mash->used;
+    a1 = &mash_ctx;
+
+    a1->unmash_class_in_place(this->field_0, this);
+    a1->unmash_class_in_place(this->my_base_graphs, this);
+    a1->unmash_class_in_place(this->my_locomotion_graphs, this);
+
+    if (this->field_10 != nullptr)
+    {
+        this->field_10 = bit_cast<combo_system *>(a1->read_from_buffer(
+            mash::NORMAL_BUFFER, sizeof(combo_system), 4));
+        a1->unmash_class_in_place(this->field_10->field_0, this->field_10);
+        a1->unmash_class_in_place(this->field_10->field_14, this->field_10);
+        a1->unmash_class_in_place(this->field_10->field_28, this->field_10);
+        a1->unmash_class_in_place(this->field_10->field_3C, this->field_10);
+    }
+
+    a1->align_buffer(mash::NORMAL_BUFFER, 4);
+    this->field_40 = *reinterpret_cast<int *>(
+        a1->read_from_buffer(mash::NORMAL_BUFFER, 4, 4));
+    a1->align_buffer(mash::NORMAL_BUFFER, 16);
+    this->field_C = reinterpret_cast<intptr_t>(
+        &a1->mash_image_ptr[mash::NORMAL_BUFFER]
+                           [a1->buffer_size_used[mash::NORMAL_BUFFER]]);
+    a1->advance_buffer(mash::NORMAL_BUFFER, this->field_40);
+    a1->read_from_buffer(mash::NORMAL_BUFFER, 4, 4);
+
+    pc_mash->used = a1->buffer_size_used[mash::NORMAL_BUFFER];
+    convert_core_ai_data(*this);
+#else
     a1->unmash_class_in_place(this->field_0, this);
     a1->unmash_class_in_place(this->my_base_graphs, this);
     a1->unmash_class_in_place(this->my_locomotion_graphs, this);
@@ -367,6 +702,7 @@ void core_ai_resource::unmash(mash_info_struct *a1, [[maybe_unused]] void *a3)
 
 #if defined(OPENUSM_XBPACK_MODE) && !defined(TARGET_XBOX)
     convert_core_ai_data(*this);
+#endif
 #endif
 #else
     THISCALL(0x006D71F0, this, a1, a3);

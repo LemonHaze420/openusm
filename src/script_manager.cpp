@@ -110,6 +110,18 @@ void *get_game_var_address(const mString &a1, bool *a2, script_library_class **a
         }
     }
 
+#ifdef OPENUSM_XBPACK_V10
+    if (result == nullptr && a1 == "g_game_paused") {
+        static int game_paused = 0;
+        return &game_paused;
+    }
+
+    if (result == nullptr && a1 == "gv_message_log_next") {
+        static float message_log_next = 0.0f;
+        return &message_log_next;
+    }
+#endif
+
     if (result == nullptr && a3 == nullptr) {
         mString v1{"unknown game/shared var "};
         v1 += a1;
@@ -949,6 +961,14 @@ void script_manager_xbpack_patch()
 {
 #ifdef OPENUSM_XBPACK_MODE
     REDIRECT(0x005B0834, parse_generic_mash_init_hook);
+#ifdef OPENUSM_XBPACK_V10
+    FUNC_ADDRESS(address, &script_executable::un_mash);
+    REDIRECT(0x005B0850, address);
+
+    void * (*get_game_var)(const mString &, bool *, script_library_class **) =
+        &script_manager::get_game_var_address;
+    SET_JUMP(0x005A09B0, get_game_var);
+#endif
 #endif
 }
 

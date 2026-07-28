@@ -147,7 +147,7 @@ struct mVector : mContainer_base {
 
     void unmash(mash_info_struct *a2, void *a3)
     {
-#if OPENUSM_XBOX_MASH_FORMAT
+#if OPENUSM_XBOX_MASH_FORMAT && !defined(OPENUSM_XBPACK_V10)
         [](mash_info_struct *a1, mash::buffer_type a2, int &a3)
         {
             a3 = * bit_cast<int *>(a1->read_from_buffer(a2, 4, 4));

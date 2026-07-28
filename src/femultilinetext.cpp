@@ -50,7 +50,7 @@ void FEMultiLineText::_unmash(mash_info_struct *a1, void *a3)
 
 int FEMultiLineText::_get_mash_sizeof()
 {
-#if OPENUSM_XBOX_MASH_FORMAT
+#if OPENUSM_XBOX_MASH_FORMAT && !defined(OPENUSM_XBPACK_V10)
     return 0x98;
 #else
     return 0xA0;

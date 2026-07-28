@@ -35,7 +35,7 @@ void scripted_trans_group::_unmash(mash_info_struct *a1, void *)
 
     a1->unmash_class_in_place(this->field_28, this);
 
-#if OPENUSM_XBOX_MASH_FORMAT
+#if OPENUSM_XBOX_MASH_FORMAT && !defined(OPENUSM_XBPACK_V10)
     {
     uint8_t class_mashed = -1;
     class_mashed = *a1->read_from_buffer(mash::SHARED_BUFFER, 1, 1);

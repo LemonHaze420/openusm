@@ -48,7 +48,7 @@ void PanelQuad::_unmash(mash_info_struct *a1, void *a3)
 
         a1->unmash_class_in_place(this->field_3C, this);
 
-#if OPENUSM_XBOX_MASH_FORMAT
+#if OPENUSM_XBOX_MASH_FORMAT && !defined(OPENUSM_XBPACK_V10)
         uint8_t class_mashed = -1;
         [](mash_info_struct *a1, mash::buffer_type buffer, uint8_t &a3)
         {
@@ -76,7 +76,7 @@ void PanelQuad::_unmash(mash_info_struct *a1, void *a3)
 
 int PanelQuad::_get_mash_sizeof()
 {
-#if OPENUSM_XBOX_MASH_FORMAT
+#if OPENUSM_XBOX_MASH_FORMAT && !defined(OPENUSM_XBPACK_V10)
     return 0x48;
 #else
     return 0x4C;

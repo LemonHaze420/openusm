@@ -3504,7 +3504,7 @@ void mNglQuad::custom_unmash(mash_info_struct *a2, void *a3)
     TRACE("mNglQuad::custom_unmash");
     mString *v5 = nullptr;
 
-#if OPENUSM_XBOX_MASH_FORMAT
+#if OPENUSM_XBOX_MASH_FORMAT && !defined(OPENUSM_XBPACK_V10)
     struct {
         int m_size;
         char *guts;

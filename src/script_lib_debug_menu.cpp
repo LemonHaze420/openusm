@@ -51,6 +51,43 @@ void construct_debug_menu_lib()
     }
 }
 
+slf__create_debug_menu_entry__str__t::slf__create_debug_menu_entry__str__t(const char *a3) : function(a3)
+{
+    m_vtbl = CAST(m_vtbl, 0x0089C704);
+    FUNC_ADDRESS(address, &slf__create_debug_menu_entry__str__t::operator());
+    m_vtbl->__cl = CAST(m_vtbl->__cl, address);
+}
+
+bool slf__create_debug_menu_entry__str__t::operator()(vm_stack &stack, [[maybe_unused]]script_library_class::function::entry_t entry) const
+{
+    TRACE("slf__create_debug_menu_entry__str__t::operator()");
+
+#ifdef OPENUSM_XBPACK_V10
+    SLF_PARMS;
+
+    init_script_debug_menu();
+    assert(script_menu != nullptr);
+
+    mString label {parms->str0};
+    auto *result = new debug_menu_entry {label};
+
+    auto *thread = stack.get_thread();
+    auto *script = thread->get_executable()->get_owner()->get_parent();
+    mString source {};
+    script->add_allocated_stuff(
+            vm_debug_menu_entry_garbage_collection_id,
+            int(result),
+            source);
+    script_menu->add_entry(result);
+
+    SLF_RETURN;
+    SLF_DONE;
+#else
+    bool (__fastcall *func)(const void *, void *, vm_stack *, entry_t) = CAST(func, 0x0067C1E0);
+    return func(this, nullptr, &stack, entry);
+#endif
+}
+
 slf__create_debug_menu_entry__str__str__t::slf__create_debug_menu_entry__str__str__t(const char *a3) : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089C70C);

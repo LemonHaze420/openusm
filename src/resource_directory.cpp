@@ -17,8 +17,15 @@
 #include "resource_partition.h"
 #include "return_address.h"
 #include "utility.h"
+#include "xbpack.h"
+
+#ifdef OPENUSM_XBPACK_V10
+#include "resource_manager.h"
+#include "resource_pack_location.h"
+#endif
 
 #include <array>
+#include <cstddef>
 #include <unordered_map>
 
 #ifdef TARGET_XBOX
@@ -31,9 +38,6 @@ VALIDATE_OFFSET(resource_directory, pack_slot, 0x78);
 
 namespace
 {
-    constexpr auto XBOX_RESOURCE_KEY_TYPE_COUNT = 71;
-    constexpr auto XBOX_TYPE_START_IDXS_OFFSET = 0x8C;
-    constexpr auto XBOX_TYPE_COUNTS_OFFSET = 0x1A8;
     constexpr auto PC_RESOURCE_KEY_TYPE_COUNT = static_cast<size_t>(RESOURCE_KEY_TYPE_Z);
 
     struct resource_type_tables {
@@ -45,13 +49,8 @@ namespace
 
     int xb_to_pc(int type)
     {
-        assert(type >= 0 && type < XBOX_RESOURCE_KEY_TYPE_COUNT);
-
-        if (type <= 54) {
-            return type;
-        }
-
-        return type - 1;
+        assert(type >= 0 && type < xbpack::type_count);
+        return xbpack::pc_type(type);
     }
 
     void convert_directory(resource_directory *directory)
@@ -59,11 +58,11 @@ namespace
         assert(directory != nullptr);
 
         const auto *base = reinterpret_cast<const uint8_t *>(directory);
-        const auto *raw_starts = reinterpret_cast<const int *>(base + XBOX_TYPE_START_IDXS_OFFSET);
-        const auto *raw_counts = reinterpret_cast<const int *>(base + XBOX_TYPE_COUNTS_OFFSET);
+        const auto *raw_starts = reinterpret_cast<const int *>(base + xbpack::starts_offset);
+        const auto *raw_counts = reinterpret_cast<const int *>(base + xbpack::counts_offset);
 
         resource_type_tables tables {};
-        for (int raw_type = 0; raw_type < XBOX_RESOURCE_KEY_TYPE_COUNT; ++raw_type) {
+        for (int raw_type = 0; raw_type < xbpack::type_count; ++raw_type) {
             const auto pc_type = xb_to_pc(raw_type);
             assert(pc_type >= 0 && pc_type < RESOURCE_KEY_TYPE_Z);
 
@@ -89,9 +88,17 @@ namespace
 
         g_xbox_type_tables[directory] = tables;
 
+        constexpr auto count_capacity =
+            (xbpack::directory_size - offsetof(resource_directory, type_end_idxs)) /
+            sizeof(int);
+        constexpr auto inline_count = count_capacity < PC_RESOURCE_KEY_TYPE_COUNT
+            ? count_capacity
+            : PC_RESOURCE_KEY_TYPE_COUNT;
+
         for (size_t type = 0; type < PC_RESOURCE_KEY_TYPE_COUNT; ++type) {
             directory->type_start_idxs[type] = tables.starts[type];
-            directory->type_end_idxs[type] = tables.counts[type];
+            if (type < inline_count)
+                directory->type_end_idxs[type] = tables.counts[type];
         }
     }
 
@@ -108,6 +115,33 @@ namespace
         assert(it != g_xbox_type_tables.end());
         return &it->second;
     }
+
+#ifdef OPENUSM_XBPACK_V10
+    resource_directory *resolve_parent(resource_directory *directory, int index)
+    {
+        assert(directory != nullptr);
+        assert(index >= 0 && index < directory->parents.size());
+
+        auto *&parent = directory->parents.m_data[index];
+        if (parent != nullptr || g_platform != NL_PLATFORM_XBOX
+            || directory->pack_slot == nullptr) {
+            return parent;
+        }
+
+        resource_pack_location location;
+        if (!resource_manager::get_pack_file_stats(
+                directory->pack_slot->get_name_key(), &location, nullptr, nullptr)
+            || index >= location.prerequisite_count) {
+            return nullptr;
+        }
+
+        const auto prerequisite = index + location.prerequisite_offset;
+        auto *parent_key = resource_manager::get_prerequisiste(prerequisite);
+        assert(parent_key != nullptr);
+        parent = resource_manager::get_resource_directory(*parent_key);
+        return parent;
+    }
+#endif
 }
 
 void resource_directory::un_mash_start(generic_mash_header *header,
@@ -510,6 +544,9 @@ bool resource_directory::find_resource(const resource_key &a2,
                 for (auto i = 0u; i < this->parents.size(); ++i)
                 {
                     auto *the_parent = this->parents.at(i);
+#ifdef OPENUSM_XBPACK_V10
+                    the_parent = resolve_parent(this, i);
+#endif
                     if (the_parent == nullptr) {
                         break;
                     }
@@ -518,7 +555,14 @@ bool resource_directory::find_resource(const resource_key &a2,
 
                     if (the_parent->pack_slot->get_partition()->get_type() == RESOURCE_PARTITION_STRIP) {
                         assert(the_parent->parents.size() == 1);
+#ifdef OPENUSM_XBPACK_V10
+                        the_parent = resolve_parent(the_parent, 0);
+#else
                         the_parent = the_parent->parents.at(0);
+#endif
+                        if (the_parent == nullptr) {
+                            break;
+                        }
                     }
 
                     if ( this->pack_slot != nullptr
@@ -927,8 +971,12 @@ bool resource_directory::find_tlresource(uint32_t a1,
         }
         else
         {
-            for (auto &the_parent : this->parents)
+            for (int i = 0; i < this->parents.size(); ++i)
             {
+                auto *the_parent = this->parents.at(i);
+#ifdef OPENUSM_XBPACK_V10
+                the_parent = resolve_parent(this, i);
+#endif
                 if (the_parent == nullptr) {
                     break;
                 }
@@ -939,7 +987,14 @@ bool resource_directory::find_tlresource(uint32_t a1,
                 {
                     assert(the_parent->parents.size() == 1);
 
+#ifdef OPENUSM_XBPACK_V10
+                    the_parent = resolve_parent(the_parent, 0);
+#else
                     the_parent = the_parent->parents.at(0);
+#endif
+                    if (the_parent == nullptr) {
+                        break;
+                    }
                 }
 
                 if (SHOW_RESOURCE_SPAM)
@@ -1135,8 +1190,6 @@ void resource_directory_patch()
 void resource_directory_xbpack_patch()
 {
 #ifdef OPENUSM_XBPACK_MODE
-    constexpr uint32_t XBOX_DIRECTORY_OBJECT_SIZE = 0x2C4u;
-
     {
         FUNC_ADDRESS(address, &base_engine_resource_handler::_handle);
         SET_JUMP(0x00562DF0, address);
@@ -1144,8 +1197,8 @@ void resource_directory_xbpack_patch()
 
     auto *directory_object_size = reinterpret_cast<uint32_t *>(0x0053E1E5);
     assert(*directory_object_size == sizeof(resource_directory) ||
-           *directory_object_size == XBOX_DIRECTORY_OBJECT_SIZE);
-    *directory_object_size = XBOX_DIRECTORY_OBJECT_SIZE;
+           *directory_object_size == xbpack::directory_size);
+    *directory_object_size = xbpack::directory_size;
 
     {
         FUNC_ADDRESS(address, &resource_directory::un_mash_start);

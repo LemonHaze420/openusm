@@ -13,7 +13,18 @@ namespace als {
     als_meta_anim_table_shared::als_meta_anim_table_shared(
         from_mash_in_place_constructor *a2)
     {
+#ifdef OPENUSM_XBPACK_V10
         this->field_0 = {a2};
+        for (auto i = 0; i < this->field_0.size(); ++i) {
+            auto *&anim = this->field_0.m_data[i];
+            if (anim != nullptr) {
+                anim = static_cast<als_meta_anim_base *>(
+                    mash_virtual_base::construct_class_helper(anim));
+            }
+        }
+#else
+        this->field_0 = {a2};
+#endif
         this->initialize(mash::FROM_MASH);
     }
 

@@ -4,6 +4,8 @@
 
 #include "actor.h"
 #include "base_ai_data.h"
+#include "collision_capsule.h"
+#include "colmesh.h"
 #include "entity.h"
 #include "entity_base.h"
 #include "func_wrapper.h"
@@ -36,6 +38,17 @@ constexpr size_t MAX_ACTOR_MASH_SIZE = 1024u * 1024u;
 constexpr size_t XB_MASH_HEADER_SIZE = 0x10u;
 constexpr uint32_t XB_RESOURCE_KEY_TYPE_COUNT = 71u;
 constexpr size_t XB_SOUND_INTERFACE_SIZE = 0x28u;
+#ifdef OPENUSM_XBPACK_V10
+constexpr size_t XB_V10_SOUND_INTERFACE_SIZE = 0x3Cu;
+constexpr size_t XB_V10_PFX_SIZE = 0x8Cu;
+constexpr size_t XB_V10_PFX_VECTOR_OFFSET = 0x78u;
+constexpr size_t PC_PFX_SIZE = 0x98u;
+constexpr size_t PC_PFX_VECTOR_OFFSET = 0x80u;
+constexpr size_t PFX_VECTOR_MASH_SIZE = 0x1Cu;
+constexpr size_t XB_V10_ACTOR_SIZE = 0xBCu;
+constexpr auto XB_V10_SCRIPT_TYPE = static_cast<resource_key_type>(14);
+constexpr auto XB_V10_BASE_AI_TYPE = static_cast<resource_key_type>(54);
+#endif
 constexpr size_t XB_TIME_INTERFACE_SIZE = 0x34u;
 constexpr size_t XB_PHYSICAL_SIZE = 0x1A8u;
 constexpr size_t PC_PHYSICAL_SIZE = 0x1B0u;
@@ -51,6 +64,13 @@ uint32_t read_u32(const void *source)
     uint32_t value = 0;
     std::memcpy(&value, source, sizeof(value));
     return value;
+}
+
+uint8_t *align_ptr(uint8_t *value, size_t alignment)
+{
+    const auto address = reinterpret_cast<uintptr_t>(value);
+    return reinterpret_cast<uint8_t *>(
+        (address + alignment - 1u) & ~(alignment - 1u));
 }
 
 void write_u32(void *destination, uint32_t value)
@@ -476,6 +496,7 @@ bool write_damage_interface(
     return normal_writer.valid() && shared_writer.valid();
 }
 
+#ifndef OPENUSM_XBPACK_V10
 bool convert_entity_prefix(
     entity_base *self,
     generic_mash_header *header,
@@ -536,6 +557,45 @@ bool convert_entity_prefix(
     data->field_0 = input.current();
     return true;
 }
+#endif
+
+#ifdef OPENUSM_XBPACK_V10
+bool unmash_v10_sound(
+    entity_base *self,
+    generic_mash_header *header,
+    generic_mash_data_ptrs *data)
+{
+    if ((header->field_E & 0x880u) == 0u) {
+        return true;
+    }
+
+    read_cursor input(data->field_0, MAX_ACTOR_MASH_SIZE);
+    input.align(8u);
+    input.align(4u);
+    if (input.take(XB_V10_SOUND_INTERFACE_SIZE) == nullptr) {
+        return xbpack_err("truncated v10 sound interface");
+    }
+
+    auto *pc_sound = reinterpret_cast<sound_and_pfx_interface *>(
+        THISCALL(0x004E0970, self));
+    if (pc_sound == nullptr) {
+        return xbpack_err("unable to allocate PC sound interface");
+    }
+
+    data->field_0 = input.current();
+    THISCALL(0x004DE130, pc_sound, header, self, pc_sound, data);
+    return true;
+}
+
+uint8_t *pfx_data(uint8_t *cursor)
+{
+    auto *result = align_ptr(cursor, 16u);
+    if ((result - cursor) & 8u) {
+        result += 0x50u;
+    }
+    return result;
+}
+#endif
 
 bool convert_actor_mash(generic_mash_header *header, generic_mash_data_ptrs *data)
 {
@@ -686,14 +746,189 @@ extern "C" __attribute__((noinline, used)) void __fastcall actor_xbpack_entity_p
         return;
     }
 
+#ifdef OPENUSM_XBPACK_V10
+    if (data->field_0 == reinterpret_cast<uint8_t *>(self) + sizeof(actor)) {
+        data->field_0 -= sizeof(uint32_t);
+    }
+#endif
+
     const auto xb_ifc_flags = header->field_E;
     header->field_E = static_cast<uint16_t>(xb_ifc_flags & ~0x880u);
     THISCALL(0x004CB2F0, self, header, context, data);
     header->field_E = xb_ifc_flags;
 
+#ifdef OPENUSM_XBPACK_V10
+    unmash_v10_sound(self, header, data);
+#else
     convert_entity_prefix(self, header, data);
+#endif
 }
 
+#ifdef OPENUSM_XBPACK_V10
+extern "C" __attribute__((noinline, used)) void *__cdecl load_v10_pfx(
+    uint8_t **normal,
+    uint8_t **shared,
+    uint32_t size,
+    void *owner)
+{
+    if (g_platform != NL_PLATFORM_XBOX ||
+        normal == nullptr || *normal == nullptr ||
+        shared == nullptr || *shared == nullptr) {
+        return reinterpret_cast<void *>(
+            CDECL_CALL(0x004F03B0, normal, shared, size, owner));
+    }
+
+    auto *xb_cursor = *normal;
+    auto *xb_pfx = pfx_data(xb_cursor);
+    const auto count = read_u32(xb_pfx + XB_V10_PFX_VECTOR_OFFSET + 4u);
+    const auto has_items = read_u32(xb_pfx + XB_V10_PFX_VECTOR_OFFSET + 8u) != 0u;
+
+    size_t nested_size = 0u;
+    if (has_items) {
+        if (count > MAX_ACTOR_MASH_SIZE / PFX_VECTOR_MASH_SIZE) {
+            xbpack_err("v10 pfx vector exceeds conversion size limit");
+            return nullptr;
+        }
+        nested_size = static_cast<size_t>(count) * PFX_VECTOR_MASH_SIZE;
+    }
+
+    size_t allocation_size = 0x80u + PC_PFX_SIZE;
+    if (!checked_add(allocation_size, nested_size)) {
+        xbpack_err("v10 pfx exceeds conversion size limit");
+        return nullptr;
+    }
+
+    auto *storage = static_cast<uint8_t *>(arch_memalign(16u, allocation_size));
+    if (storage == nullptr) {
+        xbpack_err("unable to allocate converted v10 pfx");
+        return nullptr;
+    }
+    std::memset(storage, 0, allocation_size);
+
+    const bool shifted = ((align_ptr(xb_cursor, 16u) - xb_cursor) & 8u) != 0u;
+    auto *pc_cursor = storage + (shifted ? 8u : 0u);
+    auto *pc_pfx = pfx_data(pc_cursor);
+    std::memcpy(pc_pfx, xb_pfx, XB_V10_PFX_VECTOR_OFFSET);
+    std::memcpy(pc_pfx + PC_PFX_VECTOR_OFFSET,
+                xb_pfx + XB_V10_PFX_VECTOR_OFFSET,
+                XB_V10_PFX_SIZE - XB_V10_PFX_VECTOR_OFFSET);
+    write_u32(pc_pfx + 0x94u, 1u);
+    if (nested_size != 0u) {
+        std::memcpy(pc_pfx + PC_PFX_SIZE,
+                    xb_pfx + XB_V10_PFX_SIZE,
+                    nested_size);
+    }
+
+    auto *result = reinterpret_cast<void *>(
+        CDECL_CALL(0x004F03B0, &pc_cursor, shared, size, owner));
+    *normal = align_ptr(xb_pfx + XB_V10_PFX_SIZE + nested_size, 16u);
+    return result;
+}
+
+extern "C" __attribute__((noinline, used)) void __fastcall unmash_v10_advanced(
+    void *self,
+    int,
+    generic_mash_header *header,
+    actor *owner,
+    void *context,
+    generic_mash_data_ptrs *data)
+{
+    if (g_platform != NL_PLATFORM_XBOX || data == nullptr || data->field_4 == nullptr) {
+        THISCALL(0x004CFCE0, self, header, owner, context, data);
+        return;
+    }
+
+    auto *script_key = reinterpret_cast<resource_key *>(data->field_4);
+    const auto raw_type = script_key->m_type;
+    if (raw_type != RESOURCE_KEY_TYPE_NONE && raw_type != XB_V10_SCRIPT_TYPE) {
+        xbpack_err("unexpected v10 advanced-entity script type");
+        return;
+    }
+
+    if (raw_type == XB_V10_SCRIPT_TYPE) {
+        script_key->m_type = RESOURCE_KEY_TYPE_SCRIPT;
+    }
+    THISCALL(0x004CFCE0, self, header, owner, context, data);
+    script_key->m_type = raw_type;
+}
+
+extern "C" __attribute__((noinline, used)) base_ai_data *__cdecl construct_v10_base_ai(
+    base_ai_data **value)
+{
+    if (g_platform != NL_PLATFORM_XBOX ||
+        value == nullptr || *value == nullptr) {
+        return reinterpret_cast<base_ai_data *>(
+            CDECL_CALL(0x005037D0, value));
+    }
+
+    auto &type = (*value)->field_0.m_type;
+    if (type != XB_V10_BASE_AI_TYPE) {
+        xbpack_err("unexpected v10 base-ai resource type");
+        return nullptr;
+    }
+
+    type = RESOURCE_KEY_TYPE_BASE_AI;
+    return reinterpret_cast<base_ai_data *>(
+        CDECL_CALL(0x005037D0, value));
+}
+
+extern "C" __attribute__((noinline, used)) void __cdecl set_v10_actor_context(
+    actor *self,
+    resource_pack_slot *context)
+{
+    auto *colgeom = self->colgeom;
+    if (g_platform == NL_PLATFORM_XBOX &&
+        reinterpret_cast<uint8_t *>(colgeom) ==
+            reinterpret_cast<uint8_t *>(self) + XB_V10_ACTOR_SIZE) {
+        collision_geometry *instance = nullptr;
+        if (colgeom->m_vtbl == collision_capsule_v_table) {
+            instance = reinterpret_cast<collision_capsule *>(colgeom)->make_instance(self);
+        } else if (colgeom->m_vtbl == collision_mesh_v_table()) {
+            instance = reinterpret_cast<cg_mesh *>(colgeom)->make_instance(self);
+        }
+
+        if (instance == nullptr) {
+            xbpack_err("unable to move v10 actor collision geometry");
+            return;
+        }
+        instance->m_vtbl = colgeom->m_vtbl;
+        self->colgeom = instance;
+    }
+
+    self->m_resource_context = context;
+}
+
+extern "C" __attribute__((naked, used)) void actor_v10_context_hook()
+{
+    __asm__ volatile(
+        "push eax\n\t"
+        "push ecx\n\t"
+        "push edx\n\t"
+        "push eax\n\t"
+        "push ebx\n\t"
+        "call _set_v10_actor_context\n\t"
+        "add esp, 8\n\t"
+        "pop edx\n\t"
+        "pop ecx\n\t"
+        "pop eax\n\t"
+        "test ecx, ecx\n\t"
+        "push 0x004FC4DA\n\t"
+        "ret\n\t");
+}
+
+extern "C" __attribute__((naked, used)) void actor_v10_finish_hook()
+{
+    __asm__ volatile(
+        "pop edi\n\t"
+        "pop esi\n\t"
+        "pop ebp\n\t"
+        "pop ebx\n\t"
+        "add esp, 0x2C\n\t"
+        "ret 0x0C\n\t");
+}
+#endif
+
+#ifndef OPENUSM_XBPACK_V10
 extern "C" __attribute__((noinline, used)) void __cdecl actor_xbpack_prepare_impl(
     actor *self,
     generic_mash_data_ptrs *data,
@@ -718,6 +953,7 @@ extern "C" __attribute__((naked)) void actor_xbpack_prepare_hook()
         "add esp, 12\n\t"
         "ret\n\t");
 }
+#endif
 
 void actor_xbpack_finish(generic_mash_data_ptrs *data)
 {
@@ -776,11 +1012,22 @@ extern "C" __attribute__((naked, used)) void actor_xbpack_finish_hook()
 void actor_xbpack_patch()
 {
     REDIRECT(0x004FBD6D, actor_xbpack_entity_prefix_impl);
-    REDIRECT(0x004FC022, actor_xbpack_prepare_hook);
 
+#ifdef OPENUSM_XBPACK_V10
+    REDIRECT(0x004F05F3, load_v10_pfx);
+    REDIRECT(0x004F0E47, load_v10_pfx);
+    REDIRECT(0x004F78AB, load_v10_pfx);
+    REDIRECT(0x004F78D3, load_v10_pfx);
+    REDIRECT(0x004FBDE8, unmash_v10_advanced);
+    REDIRECT(0x004FC0F2, construct_v10_base_ai);
+    SET_JUMP(0x004FC4D4, actor_v10_context_hook);
+    SET_JUMP(0x004FC548, actor_v10_finish_hook);
+#else
+    REDIRECT(0x004FC022, actor_xbpack_prepare_hook);
     // actor::un_mash 
     SET_JUMP(0x004FC616, actor_xbpack_finish_hook);
     SET_JUMP(0x004FC66A, actor_xbpack_finish_hook);
+#endif
 }
 
 #endif

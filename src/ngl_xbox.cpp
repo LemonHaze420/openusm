@@ -1498,10 +1498,29 @@ bool nglLoadMeshFileInternalXbox(const tlFixedString &FileName,
             }
         }
 
+#ifdef OPENUSM_XBPACK_V10
+        const int lod_count = mesh->NLODs;
+        int resolved_lods = 0;
+        for (int lod = 0; lod < lod_count; ++lod) {
+            const uint32_t lod_hash = bit_cast<uint32_t>(mesh->LODs[lod].field_0);
+            auto *lod_mesh = find_mesh(mesh_file, lod_hash);
+            if (lod_mesh == nullptr) {
+                continue;
+            }
+
+            if (resolved_lods != lod) {
+                mesh->LODs[resolved_lods] = mesh->LODs[lod];
+            }
+            mesh->LODs[resolved_lods].field_0 = lod_mesh;
+            ++resolved_lods;
+        }
+        mesh->NLODs = resolved_lods;
+#else
         for (int lod = 0; lod < mesh->NLODs; ++lod) {
             const uint32_t lod_hash = bit_cast<uint32_t>(mesh->LODs[lod].field_0);
             mesh->LODs[lod].field_0 = find_mesh(mesh_file, lod_hash);
         }
+#endif
     }
 
     header->old_base = buffer;

@@ -16,12 +16,16 @@
 #include "os_file.h"
 #include "os_developer_options.h"
 #include "debug_menu.h"
+#ifdef OPENUSM_XBPACK_V10
+#include "exe_allocator.h"
+#endif
 #include "resource_amalgapak_header.h"
 #include "resource_directory.h"
 #include "return_address.h"
 #include "utility.h"
 #include "variables.h"
 #include "worldly_pack_slot.h"
+#include "xbpack.h"
 
 #include <algorithm>
 #include <cassert>
@@ -37,17 +41,23 @@ extern resource_pack_location *&amalgapak_pack_location_table;
 
 namespace
 {
-constexpr auto XBOX_RESOURCE_KEY_TYPE_COUNT = 71;
 constexpr auto XBOX_AMALGAPAK_LOCATION_SIZE = 0x28u;
 
 struct xbox_amalgapak_location {
     resource_location loc;
     int field_10;
     int field_14;
+#ifdef OPENUSM_XBPACK_V10
+    int prerequisite_offset;
+    int prerequisite_count;
+    int field_18;
+    int field_1C;
+#else
     int field_18;
     int field_1C;
     int prerequisite_offset;
     int prerequisite_count;
+#endif
 };
 
 VALIDATE_SIZE(xbox_amalgapak_location, XBOX_AMALGAPAK_LOCATION_SIZE);
@@ -55,13 +65,8 @@ VALIDATE_SIZE(xbox_amalgapak_location, XBOX_AMALGAPAK_LOCATION_SIZE);
 resource_key_type convert_key_type(resource_key_type type)
 {
     const auto raw_type = static_cast<int>(type);
-    assert(raw_type >= 0 && raw_type < XBOX_RESOURCE_KEY_TYPE_COUNT);
-
-    if (raw_type <= 54) {
-        return static_cast<resource_key_type>(raw_type);
-    }
-
-    return static_cast<resource_key_type>(raw_type - 1);
+    assert(raw_type >= 0 && raw_type < xbpack::type_count);
+    return static_cast<resource_key_type>(xbpack::pc_type(raw_type));
 }
 
 void convert_key(resource_key &key)
@@ -332,7 +337,14 @@ void load_amalgapak()
 
         memory_maps_count = pack_file_header.memory_map_table_size / sizeof(resource_memory_map);
 
+#ifdef OPENUSM_XBPACK_V10
+        exe_allocator<resource_memory_map> allocator;
+        memory_maps = allocator.allocate(memory_maps_count);
+        for (int i = 0; i < memory_maps_count; ++i)
+            allocator.construct(&memory_maps[i]);
+#else
         memory_maps = new resource_memory_map[memory_maps_count];
+#endif
         file.set_fp(pack_file_header.field_24, os_file::FP_BEGIN);
         how_many_did_we_get = file.read(memory_maps, pack_file_header.memory_map_table_size);
         assert(how_many_did_we_get == pack_file_header.memory_map_table_size);
@@ -1324,7 +1336,9 @@ void resource_manager_xbpack_patch()
 {
 #ifdef OPENUSM_XBPACK_MODE
     SET_JUMP(0x00537650, resource_manager::load_amalgapak);
+
     SET_JUMP(0x0052A820, resource_manager::get_pack_file_stats);
+
     SET_JUMP(0x0055DEA0, compare_resource_key_resource_pack_location);
 #endif
 }

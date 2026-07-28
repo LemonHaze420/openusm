@@ -18,10 +18,12 @@
 #include "als_transition_rule.h"
 #include "als_transition_group_base.h"
 #include "als_meta_anim_base.h"
+#include "als_meta_anim_swing.h"
 #include "base_state.h"
 #include "combo_system.h"
 #include "combo_system_move.h"
 #include "combo_system_weapon.h"
+#include "enhanced_state.h"
 #include "mashed_state.h"
 #include "meta_anim_interact.h"
 #include "fefloatingtext.h"
@@ -49,20 +51,173 @@ namespace
 constexpr int PC_OPERATOR_NEW = 0x00822046;
 constexpr int PC_MEM_ALLOC = 0x0043A100;
 
+#ifdef OPENUSM_XBPACK_V10
+constexpr uint32_t XBOX_V10_PED_DEFAULT_TRANS_STATE = 0x9F;
+constexpr uint32_t XBOX_V10_PED_HIT_REACT_STATE = 0xA1;
+constexpr uint32_t XBOX_V10_PED_SUBDUED_STATE = 0xA4;
+constexpr uint32_t XBOX_V10_PED_IDLE_STATE = 0xA6;
+constexpr uint32_t XBOX_V10_PLAY_DODGE_ANIM_STATE = 0xA7;
+constexpr uint32_t XBOX_V10_PLR_LOCO_CRAWL_STATE = 0xAA;
+constexpr uint32_t XBOX_V10_PLR_LOCO_CRAWL_TRANS_STATE = 0xAB;
+constexpr uint32_t XBOX_V10_ATTACH_STATE = 0xF1;
+constexpr uint32_t XBOX_V10_SPIDEY_COMBAT_STATE = 0x106;
+constexpr uint32_t XBOX_V10_DEBUG_STATE = 0x108;
+constexpr uint32_t XBOX_V10_STATE_115 = 0x115;
+constexpr uint32_t XBOX_V10_HOSTAGE_VICTIM_STATE = 0x116;
+constexpr uint32_t XBOX_V10_INTERACTION_STATE = 0x11B;
+constexpr uint32_t XBOX_V10_PICK_UP_STATE = 0x11D;
+constexpr uint32_t XBOX_V10_PUT_DOWN_STATE = 0x11E;
+constexpr uint32_t XBOX_V10_JUMP_STATE = 0x11F;
+constexpr uint32_t XBOX_V10_POLE_SWING_STATE = 0x121;
+constexpr uint32_t XBOX_V10_STD_PUPPET_TRANS_STATE = 0x12C;
+constexpr uint32_t XBOX_V10_RUN_STATE = 0x12D;
+constexpr uint32_t XBOX_V10_SWING_STATE = 0x12F;
+constexpr uint32_t XBOX_V10_SPIDEY_BASE_STATE = 0x134;
+constexpr uint32_t XBOX_V10_WEB_ZIP_STATE = 0x137;
+constexpr uint32_t XBOX_V10_LAUNCH_LAYER_STATE = 0x13A;
+constexpr uint32_t XBOX_V10_HIT_REACT_STATE = 0x161;
+constexpr uint32_t XBOX_V10_SUBDUED_STATE = 0x164;
+constexpr uint32_t XBOX_V10_TRAFFIC_BASE_STATE = 0x194;
+constexpr uint32_t XBOX_V10_META_ANIM_SWING = 0x1D3;
+constexpr uint32_t PC_PED_DEFAULT_TRANS_STATE = 0xA9;
+constexpr uint32_t PC_PED_HIT_REACT_STATE = 0xAB;
+constexpr uint32_t PC_PED_SUBDUED_STATE = 0xAE;
+constexpr uint32_t PC_PED_IDLE_STATE = 0xB1;
+constexpr uint32_t PC_PLAY_DODGE_ANIM_STATE = 0xB2;
+constexpr uint32_t PC_PLR_LOCO_CRAWL_STATE = 0xB5;
+constexpr uint32_t PC_PLR_LOCO_CRAWL_TRANS_STATE = 0xB6;
+constexpr uint32_t PC_ATTACH_STATE = 0x101;
+constexpr uint32_t PC_SPIDEY_COMBAT_STATE = 0x116;
+constexpr uint32_t PC_DEBUG_STATE = 0x118;
+constexpr uint32_t PC_STATE_125 = 0x125;
+constexpr uint32_t PC_HOSTAGE_VICTIM_STATE = 0x126;
+constexpr uint32_t PC_INTERACTION_STATE = 0x12B;
+constexpr uint32_t PC_PICK_UP_STATE = 0x12D;
+constexpr uint32_t PC_PUT_DOWN_STATE = 0x12E;
+constexpr uint32_t PC_JUMP_STATE = 0x12F;
+constexpr uint32_t PC_POLE_SWING_STATE = 0x131;
+constexpr uint32_t PC_STD_PUPPET_TRANS_STATE = 0x13C;
+constexpr uint32_t PC_RUN_STATE = 0x13D;
+constexpr uint32_t PC_SWING_STATE = 0x13F;
+constexpr uint32_t PC_SPIDEY_BASE_STATE = 0x144;
+constexpr uint32_t PC_WEB_ZIP_STATE = 0x147;
+constexpr uint32_t PC_LAUNCH_LAYER_STATE = 0x14A;
+constexpr uint32_t PC_HIT_REACT_STATE = 0x171;
+constexpr uint32_t PC_SUBDUED_STATE = 0x174;
+constexpr uint32_t PC_TRAFFIC_BASE_STATE = 0x1A5;
+constexpr std::intptr_t PC_PED_DEFAULT_TRANS_STATE_VTABLE = 0x00875B50;
+constexpr std::intptr_t PC_STATE_125_VTABLE = 0x00877000;
+constexpr std::intptr_t PC_STD_PUPPET_TRANS_STATE_VTABLE = 0x008771E0;
+constexpr std::intptr_t PC_SPIDEY_BASE_STATE_VTABLE = 0x00877534;
+constexpr std::intptr_t PC_META_ANIM_SWING_VTABLE = 0x0087B918;
+
+struct xbox_v10_state
+{
+    uint32_t type;
+    uint8_t base[0x10];
+    float field_14;
+    uint32_t field_18;
+    ai::state_trans_messages field_1C;
+    bool field_20;
+    uint8_t padding[3];
+};
+
+static_assert(sizeof(xbox_v10_state) == 0x24);
+
+struct xbox_v10_meta_anim_swing
+{
+    uint32_t type;
+    uint8_t fields[0x38];
+    uint32_t padding;
+};
+
+static_assert(sizeof(xbox_v10_meta_anim_swing) == 0x40);
+static_assert(offsetof(xbox_v10_meta_anim_swing, padding) == 0x3C);
+
+uint32_t pc_state_type(uint32_t type)
+{
+    switch (type)
+    {
+    case XBOX_V10_PED_DEFAULT_TRANS_STATE:
+        return PC_PED_DEFAULT_TRANS_STATE;
+    case XBOX_V10_PED_HIT_REACT_STATE:
+        return PC_PED_HIT_REACT_STATE;
+    case XBOX_V10_PED_SUBDUED_STATE:
+        return PC_PED_SUBDUED_STATE;
+    case XBOX_V10_PED_IDLE_STATE:
+        return PC_PED_IDLE_STATE;
+    case XBOX_V10_PLAY_DODGE_ANIM_STATE:
+        return PC_PLAY_DODGE_ANIM_STATE;
+    case XBOX_V10_PLR_LOCO_CRAWL_STATE:
+        return PC_PLR_LOCO_CRAWL_STATE;
+    case XBOX_V10_PLR_LOCO_CRAWL_TRANS_STATE:
+        return PC_PLR_LOCO_CRAWL_TRANS_STATE;
+    case XBOX_V10_ATTACH_STATE:
+        return PC_ATTACH_STATE;
+    case XBOX_V10_SPIDEY_COMBAT_STATE:
+        return PC_SPIDEY_COMBAT_STATE;
+    case XBOX_V10_DEBUG_STATE:
+        return PC_DEBUG_STATE;
+    case XBOX_V10_STATE_115:
+        return PC_STATE_125;
+    case XBOX_V10_HOSTAGE_VICTIM_STATE:
+        return PC_HOSTAGE_VICTIM_STATE;
+    case XBOX_V10_INTERACTION_STATE:
+        return PC_INTERACTION_STATE;
+    case XBOX_V10_PICK_UP_STATE:
+        return PC_PICK_UP_STATE;
+    case XBOX_V10_PUT_DOWN_STATE:
+        return PC_PUT_DOWN_STATE;
+    case XBOX_V10_JUMP_STATE:
+        return PC_JUMP_STATE;
+    case XBOX_V10_POLE_SWING_STATE:
+        return PC_POLE_SWING_STATE;
+    case XBOX_V10_STD_PUPPET_TRANS_STATE:
+        return PC_STD_PUPPET_TRANS_STATE;
+    case XBOX_V10_RUN_STATE:
+        return PC_RUN_STATE;
+    case XBOX_V10_SWING_STATE:
+        return PC_SWING_STATE;
+    case XBOX_V10_SPIDEY_BASE_STATE:
+        return PC_SPIDEY_BASE_STATE;
+    case XBOX_V10_WEB_ZIP_STATE:
+        return PC_WEB_ZIP_STATE;
+    case XBOX_V10_LAUNCH_LAYER_STATE:
+        return PC_LAUNCH_LAYER_STATE;
+    case XBOX_V10_HIT_REACT_STATE:
+        return PC_HIT_REACT_STATE;
+    case XBOX_V10_SUBDUED_STATE:
+        return PC_SUBDUED_STATE;
+    case XBOX_V10_TRAFFIC_BASE_STATE:
+        return PC_TRAFFIC_BASE_STATE;
+    default:
+        return type;
+    }
+}
+#endif
+
 struct xbox_combo_system_move
 {
+#ifdef OPENUSM_XBPACK_V10
+    uint8_t data[0xC8];
+#else
     uint8_t through_results_keys[0x14];
     uint32_t string_size;
     uint32_t string_guts;
     uint32_t string_allocator;
     uint8_t results_tail[0x5C];
     uint8_t requirements_and_move_tail[0x48];
+#endif
 };
 
+#ifdef OPENUSM_XBPACK_V10
+static_assert(sizeof(xbox_combo_system_move) == 0xC8);
+#else
 static_assert(sizeof(xbox_combo_system_move) == 0xC4);
 static_assert(offsetof(xbox_combo_system_move, string_size) == 0x14);
 static_assert(offsetof(xbox_combo_system_move, results_tail) == 0x20);
 static_assert(offsetof(xbox_combo_system_move, requirements_and_move_tail) == 0x7C);
+#endif
 
 void *allocate_from_pc_heap(size_t size)
 {
@@ -74,12 +229,71 @@ void *allocate_from_pc_allocator(size_t size)
     return reinterpret_cast<void *>(CDECL_CALL(PC_MEM_ALLOC, size));
 }
 
+#ifdef OPENUSM_XBPACK_V10
+als::als_meta_anim_base *expand_v10_meta_anim_swing(
+    const xbox_v10_meta_anim_swing &source)
+{
+    auto *result = static_cast<als::als_meta_anim_swing *>(
+        allocate_from_pc_heap(sizeof(als::als_meta_anim_swing)));
+    assert(result != nullptr);
+    std::memset(result, 0, sizeof(*result));
+    std::memcpy(result, &source, offsetof(xbox_v10_meta_anim_swing, padding));
+    result->m_vtbl = PC_META_ANIM_SWING_VTABLE;
+    return result;
+}
+
+template<typename T>
+T *expand_v10_state_base(const xbox_v10_state &source, std::intptr_t vtable)
+{
+    auto *result = static_cast<T *>(allocate_from_pc_allocator(sizeof(T)));
+    assert(result != nullptr);
+    std::memset(result, 0, sizeof(T));
+
+    result->m_vtbl = vtable;
+    std::memcpy(reinterpret_cast<uint8_t *>(result) + 4,
+                source.base,
+                sizeof(source.base));
+    result->field_14 = nullptr;
+    result->field_18 = nullptr;
+    return result;
+}
+
+ai::base_state *expand_v10_state(const xbox_v10_state &source)
+{
+    switch (source.type)
+    {
+    case XBOX_V10_PED_DEFAULT_TRANS_STATE:
+        return expand_v10_state_base<ai::base_state>(
+            source, PC_PED_DEFAULT_TRANS_STATE_VTABLE);
+
+    case XBOX_V10_STATE_115:
+        return expand_v10_state_base<ai::base_state>(
+            source, PC_STATE_125_VTABLE);
+
+    case XBOX_V10_STD_PUPPET_TRANS_STATE:
+        return expand_v10_state_base<ai::base_state>(
+            source, PC_STD_PUPPET_TRANS_STATE_VTABLE);
+
+    case XBOX_V10_SPIDEY_BASE_STATE:
+        return expand_v10_state_base<ai::base_state>(
+            source, PC_SPIDEY_BASE_STATE_VTABLE);
+
+    default:
+        assert(false && "Unsupported v10 ai::base_state type");
+        return nullptr;
+    }
+}
+#endif
+
 combo_system_move *expand_combo_move(const xbox_combo_system_move &source)
 {
     auto *storage = allocate_from_pc_heap(sizeof(combo_system_move));
     assert(storage != nullptr);
 
     auto *result = new (storage) combo_system_move {};
+#ifdef OPENUSM_XBPACK_V10
+    std::memcpy(result, source.data, sizeof(source.data));
+#else
     auto *bytes = reinterpret_cast<uint8_t *>(result);
 
     std::memcpy(bytes, source.through_results_keys, sizeof(source.through_results_keys));
@@ -89,9 +303,52 @@ combo_system_move *expand_combo_move(const xbox_combo_system_move &source)
     std::memcpy(bytes + 0x80,
                 source.requirements_and_move_tail,
                 sizeof(source.requirements_and_move_tail));
+#endif
 
     return result;
 }
+
+#ifdef OPENUSM_XBPACK_V10
+void detach_combo_move_links_from_mash(combo_system_move &move)
+{
+    auto &links = move.field_80.field_30;
+    if (links.m_size <= 0)
+    {
+        links.m_data = nullptr;
+        links.field_C = 0;
+        links.field_0 = 0;
+        return;
+    }
+
+    assert(links.m_data != nullptr);
+
+    auto **copies = static_cast<combo_system_move::link_info **>(
+        allocate_from_pc_allocator(
+            sizeof(combo_system_move::link_info *) * links.m_size));
+    assert(copies != nullptr);
+
+    for (int i = 0; i < links.m_size; ++i)
+    {
+        auto *source = links.m_data[i];
+        if (source == nullptr)
+        {
+            copies[i] = nullptr;
+            continue;
+        }
+
+        auto *copy = static_cast<combo_system_move::link_info *>(
+            allocate_from_pc_heap(sizeof(combo_system_move::link_info)));
+        assert(copy != nullptr);
+        std::memcpy(copy, source, sizeof(*copy));
+        copies[i] = copy;
+    }
+
+    links.m_data = copies;
+    links.field_C = links.m_size;
+    links.field_10 = true;
+    links.field_0 = 0;
+}
+#endif
 
 void detach_combo_move_string_from_mash(combo_system_move &move)
 {
@@ -293,7 +550,7 @@ void mVector<FEText>::custom_unmash(mash_info_struct *a2, [[maybe_unused]] void 
 {
     TRACE("mVector<FEText>::custom_unmash");
 
-#if OPENUSM_XBOX_MASH_FORMAT
+#if OPENUSM_XBOX_MASH_FORMAT && !defined(OPENUSM_XBPACK_V10)
 
     this->field_C = this->m_size;
     if ( this->m_size <= 0 )
@@ -455,7 +712,7 @@ void mVector<PanelQuad>::custom_unmash(mash_info_struct *a2, [[maybe_unused]] vo
 {
     TRACE("mVector<PanelQuad>::custom_unmash", std::to_string(this->m_size).c_str());
 
-#if OPENUSM_XBOX_MASH_FORMAT
+#if OPENUSM_XBOX_MASH_FORMAT && !defined(OPENUSM_XBPACK_V10)
     this->field_C = this->m_size;
     if ( this->m_size <= 0 )
     {
@@ -724,11 +981,36 @@ void mVector<als::als_meta_anim_base>::custom_unmash(mash_info_struct *a2, void 
             4 * this->m_size, 4);
         for ( auto i = 0; i < this->m_size; ++i )
         {
+#ifdef OPENUSM_XBPACK_V10
+            auto *source = bit_cast<xbox_v10_meta_anim_swing *>(
+                a2->read_from_buffer(mash::NORMAL_BUFFER,
+                                     sizeof(als::als_meta_anim_base),
+                                     0));
+
+            if (source->type == XBOX_V10_META_ANIM_SWING)
+            {
+                a2->advance_buffer(
+                    mash::NORMAL_BUFFER,
+                    sizeof(xbox_v10_meta_anim_swing) - sizeof(als::als_meta_anim_base));
+                this->m_data[i] = expand_v10_meta_anim_swing(*source);
+                this->m_data[i]->unmash(a2, nullptr);
+            }
+            else
+            {
+                auto *anim = bit_cast<als::als_meta_anim_base *>(source);
+                this->m_data[i] = anim;
+                mash_virtual_base::fixup_vtable(anim);
+                a2->advance_buffer(mash::NORMAL_BUFFER,
+                                   anim->get_mash_sizeof() - sizeof(*anim));
+                anim->unmash(a2, nullptr);
+            }
+#else
             a2->unmash_class(this->m_data[i], a3
 #if OPENUSM_XBOX_MASH_FORMAT
                 , mash::NORMAL_BUFFER
 #endif
                     );
+#endif
         }
     }
 
@@ -765,6 +1047,9 @@ void mVector<combo_system_move>::custom_unmash(mash_info_struct *a2, void *a3)
 
             mash_virtual_base::fixup_vtable(move);
             move->unmash(a2, a3);
+#ifdef OPENUSM_XBPACK_V10
+            detach_combo_move_links_from_mash(*move);
+#endif
             detach_combo_move_string_from_mash(*move);
 #else
             a2->unmash_class(this->m_data[i], a3
@@ -964,6 +1249,10 @@ void mVector<resource_key>::custom_unmash(mash_info_struct *a2, void *a3)
 #if defined(OPENUSM_XBPACK_MODE) && !defined(TARGET_XBOX)
         static_assert(sizeof(resource_key) == 0x8);
 
+#ifdef OPENUSM_XBPACK_V10
+        a2->read_from_buffer(
+            mash::NORMAL_BUFFER, sizeof(resource_key *) * this->m_size, 4);
+#endif
         auto *records = reinterpret_cast<resource_key *>(a2->read_from_buffer(
             mash::NORMAL_BUFFER, sizeof(resource_key) * this->m_size, 4));
         auto **pointer_table = static_cast<resource_key **>(
@@ -1564,6 +1853,11 @@ void mVector<ai::mashed_state>::custom_unmash(mash_info_struct *a1, void *a3)
                 , mash::NORMAL_BUFFER
 #endif
                     );
+#ifdef OPENUSM_XBPACK_V10
+            auto &type = this->m_data[i]->field_14;
+            type = static_cast<mash::virtual_types_enum>(
+                pc_state_type(static_cast<uint32_t>(type)));
+#endif
         }
     }
 
@@ -1571,7 +1865,8 @@ void mVector<ai::mashed_state>::custom_unmash(mash_info_struct *a1, void *a3)
 }
 
 template<>
-void mVector<ai::base_state>::custom_unmash(mash_info_struct *a2, void *a3)
+void mVector<ai::base_state>::custom_unmash(mash_info_struct *a2,
+                                            [[maybe_unused]] void *a3)
 {
     TRACE("mVector<ai::base_state>::custom_unmash");
 
@@ -1593,11 +1888,18 @@ void mVector<ai::base_state>::custom_unmash(mash_info_struct *a2, void *a3)
                 4 * this->m_size, 4);
         for ( auto i = 0; i < this->m_size; ++i )
         {
+#ifdef OPENUSM_XBPACK_V10
+            const auto *source = bit_cast<const xbox_v10_state *>(
+                a2->read_from_buffer(
+                    mash::NORMAL_BUFFER, sizeof(xbox_v10_state), 0));
+            this->m_data[i] = expand_v10_state(*source);
+#else
             a2->unmash_class(this->m_data[i], a3
 #if OPENUSM_XBOX_MASH_FORMAT
                 , mash::NORMAL_BUFFER
 #endif
                     );
+#endif
         }
     }
 
@@ -1784,7 +2086,7 @@ void mVectorBasic<attach_action_trigger_enum>::custom_unmash(mash_info_struct *a
 template<>
 void mVectorBasic<attach_action_trigger_enum>::unmash(mash_info_struct *a1, void *a2)
 {
-#if OPENUSM_XBOX_MASH_FORMAT
+#if OPENUSM_XBOX_MASH_FORMAT && !defined(OPENUSM_XBPACK_V10)
     [](mash_info_struct *a1, mash::buffer_type a2, uint32_t &a3)
     {
         a3 = *bit_cast<int *>(a1->read_from_buffer(a2, 4, 4));
@@ -1823,7 +2125,7 @@ void mVectorBasic<int>::custom_unmash(mash_info_struct *a1, void *)
 template<>
 void mVectorBasic<int>::unmash(mash_info_struct *a1, void *a2)
 {
-#if OPENUSM_XBOX_MASH_FORMAT
+#if OPENUSM_XBOX_MASH_FORMAT && !defined(OPENUSM_XBPACK_V10)
     [](mash_info_struct *a1, mash::buffer_type a2, uint32_t &a3)
     {
         a3 = *bit_cast<int *>(a1->read_from_buffer(a2, 4, 4));
@@ -1862,7 +2164,7 @@ void mVectorBasic<vhandle_type<actor>>::custom_unmash(mash_info_struct *a1, void
 template<>
 void mVectorBasic<vhandle_type<actor>>::unmash(mash_info_struct *a1, void *a2)
 {
-#if OPENUSM_XBOX_MASH_FORMAT
+#if OPENUSM_XBOX_MASH_FORMAT && !defined(OPENUSM_XBPACK_V10)
     [](mash_info_struct *a1, mash::buffer_type a2, uint32_t &a3)
     {
         a3 = *bit_cast<int *>(a1->read_from_buffer(a2, 4, 4));

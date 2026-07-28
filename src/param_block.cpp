@@ -25,7 +25,7 @@ void param_block::unmash(mash_info_struct *a1, void *a3)
 
     if constexpr (1)
     {
-#if OPENUSM_XBOX_MASH_FORMAT
+#if OPENUSM_XBOX_MASH_FORMAT && !defined(OPENUSM_XBPACK_V10)
         {
             uint8_t class_mashed = -1;
             class_mashed = *a1->read_from_buffer(mash::SHARED_BUFFER, 1, 1);

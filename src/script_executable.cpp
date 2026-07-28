@@ -219,7 +219,11 @@ void script_executable::info_t::un_mash(
         rebase(a5->field_0, 4u);
 
         this->field_8 = bit_cast<vm_executable *>(a5->field_0);
+#ifdef OPENUSM_XBPACK_V10
+        a5->field_0 += sizeof(vm_executable) + sizeof(uint32_t);
+#else
         a5->field_0 += sizeof(vm_executable);
+#endif
 
         assert(((int)header) % 4 == 0);
 
@@ -239,13 +243,18 @@ void script_executable::un_mash(generic_mash_header *header, void *a3, generic_m
         }
         else 
         {
+#ifndef OPENUSM_XBPACK_V10
             assert(script_object_dummy_list == nullptr);
-            
+#endif
+
             rebase(a4->field_0, 4u);
 
+#ifndef OPENUSM_XBPACK_V10
             static auto *start_debug = a4->field_0;
+#endif
 
             [this, &a4]() {
+#ifndef OPENUSM_XBPACK_V10
                 if constexpr (1)
                 {
                     filespec v98 {mString {this->field_0.to_string()}};
@@ -265,6 +274,7 @@ void script_executable::un_mash(generic_mash_header *header, void *a3, generic_m
                         return;
                     }
                 }
+#endif
 
                 this->sx_exe_image = CAST(this->sx_exe_image, a4->field_0);
             }();
@@ -273,12 +283,17 @@ void script_executable::un_mash(generic_mash_header *header, void *a3, generic_m
 
             rebase(a4->field_0, 4u);
 
+#ifndef OPENUSM_XBPACK_V10
             sp_log("0x%08X", sx_exe_image_size);
             sp_log("offset = 0x%08X", a4->field_0 - start_debug);
+#endif
 
             this->script_objects = a4->get<script_object *>(this->total_script_objects);
 
+#ifndef OPENUSM_XBPACK_V10
             sp_log("offset = 0x%08X", a4->field_0 - start_debug);
+#endif
+
             for ( auto i = 0; i < this->total_script_objects; ++i )
             {
                 rebase(a4->field_0, 8u);

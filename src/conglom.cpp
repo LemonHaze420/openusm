@@ -110,7 +110,11 @@ als::animation_logic_system *conglomerate::get_my_als()
     return nullptr;
 }
 
+#ifdef OPENUSM_XBPACK_V10
+constexpr auto _ENTM_TYPE_MAX = 29u;
+#else
 constexpr auto _ENTM_TYPE_MAX = 28u;
+#endif
 
 #ifdef OPENUSM_XBPACK_MODE
 namespace
@@ -460,7 +464,7 @@ static bool skip_ifc(
 void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data_ptrs *a4)
 {
     TRACE("conglomerate::un_mash", this->field_10.to_string());
-    
+
     if constexpr (1)
     {
         this->field_110 = *a4->get_from_shared<int>();
@@ -470,7 +474,7 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
         }
 
 
-#if !defined(TARGET_XBOX) && !defined(OPENUSM_XBPACK_MODE)
+#if !defined(TARGET_XBOX) && (!defined(OPENUSM_XBPACK_MODE) || defined(OPENUSM_XBPACK_V10))
         if ( (a2->field_E & 0x40) != 0 )
         {
             rebase(a4->field_0, 4);
@@ -512,7 +516,7 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
         skeleton_ifc = tmp_skeleton_ifc.get_interface();
 #endif
 
-#ifdef OPENUSM_XBPACK_MODE
+#if defined(OPENUSM_XBPACK_MODE) && !defined(OPENUSM_XBPACK_V10)
         mashable_interface<skeleton_interface> tmp_skeleton_ifc;
         tmp_skeleton_ifc.custom_un_mash(a2, &tmp_skeleton_ifc, a4);
         skeleton_ifc = tmp_skeleton_ifc.get_interface();
@@ -548,7 +552,7 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
         }
 #endif
 
-#if !defined(TARGET_XBOX) && !defined(OPENUSM_XBPACK_MODE)
+#if !defined(TARGET_XBOX) && (!defined(OPENUSM_XBPACK_MODE) || defined(OPENUSM_XBPACK_V10))
         if ( (a2->field_E & 4) != 0 )
         {
             rebase(a4->field_0, 4);
@@ -682,13 +686,15 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
 
                 assert(__ENT_TYPE == header->get_class_id());
 
+                const auto ent_type = pc_entity_mash_type(__ENT_TYPE);
+
                 rebase(a4->field_0, sizeof(generic_mash_header));
 
                 entity_base *__ENT_ptr = CAST(__ENT_ptr, a4->field_0);
-                a4->field_0 += ent_size_lookup()[header->get_class_id()];
+                a4->field_0 += ent_size_lookup()[ent_type];
 
                 {
-                    eEntityMashTypeEnum v11 = (eEntityMashTypeEnum) header->get_class_id();
+                    eEntityMashTypeEnum v11 = (eEntityMashTypeEnum) ent_type;
                     fix_entity_v_table((char *)__ENT_ptr, v11);
                 }
 
@@ -721,7 +727,7 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
                         if ( this->field_FC == nullptr )
                         {
                             auto *v31 = mem_alloc(sizeof(*this->field_FC));
-                            this->field_FC = new (v31) _std::list<actor *> {};
+                            this->field_FC = new (v31) actor_list_t {};
                         }
 
                         this->field_FC->push_back(tmp_ptr);
@@ -745,7 +751,7 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
             if ( tmp_ptr->is_a_light_source() ) {
                 if ( this->field_100 == nullptr ) {
                     auto *v39 = mem_alloc(sizeof(*this->field_100));
-                    this->field_100 = new (v39) _std::list<light_source *> {};
+                    this->field_100 = new (v39) light_list_t {};
                 }
 
                 this->field_100->push_back(bit_cast<light_source *>(tmp_ptr));
@@ -778,13 +784,15 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
 
                 assert(__ENT_TYPE == header->get_class_id());
 
+                const auto ent_type = pc_entity_mash_type(__ENT_TYPE);
+
                 rebase(a4->field_0, sizeof(generic_mash_header));
                 
                 auto *__ENT_ptr = (entity_base *) a4->field_0;
-                a4->field_0 += ent_size_lookup()[header->get_class_id()];
+                a4->field_0 += ent_size_lookup()[ent_type];
 
                 {
-                    auto v26 = (eEntityMashTypeEnum) header->get_class_id();
+                    auto v26 = (eEntityMashTypeEnum) ent_type;
                     fix_entity_v_table((char *) __ENT_ptr, v26);
                 }
 

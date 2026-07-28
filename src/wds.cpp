@@ -871,6 +871,32 @@ bool world_dynamics_system::un_mash_scene_entities(const resource_key &a2, regio
     }
     else
     {
+#ifdef OPENUSM_XBPACK_V10
+        if (brew.field_0.is_done()) {
+            return false;
+        }
+
+        if (!brew.field_0.is_started()) {
+            brew.field_0.start();
+            brew.field_8 = slot_ptr;
+            brew.field_C = 0;
+            brew.field_10 = nullptr;
+            brew.buffer_index = 0;
+            brew.field_1C = 0;
+            if (!resource_manager::get_resource_if_exists(
+                    a2, reg, &brew.field_10, brew.field_8, &brew.field_C)) {
+                brew.field_0.done();
+                return false;
+            }
+
+            brew.parse_code = *reinterpret_cast<int *>(brew.field_10);
+            assert(brew.parse_code == ENTITIES_TAG);
+            brew.field_3C = *reinterpret_cast<int *>(brew.field_10 + 4);
+            brew.field_24 = *reinterpret_cast<int *>(brew.field_10 + 8);
+            brew.buffer_index = 12;
+        }
+#endif
+
         bool (__fastcall *func)(void *, void *, const resource_key *, region *, worldly_pack_slot *, bool , scene_entity_brew *) = CAST(func, 0x0055A680);
         return func(this, nullptr, &a2, reg, slot_ptr, a5, &brew);
     }
@@ -2073,4 +2099,15 @@ void world_dynamics_system_patch()
         REDIRECT(0x0047DB5F, address);
     }
 
+}
+
+void wds_xbpack_patch()
+{
+#ifdef OPENUSM_XBPACK_V10
+    *bit_cast<uint8_t *>(0x0055AD66) = 13u;
+    *bit_cast<uint8_t *>(0x00558793) = 0x3Cu;
+
+    FUNC_ADDRESS(address, &world_dynamics_system::un_mash_scene_entities);
+    REDIRECT(0x0055B268, address);
+#endif
 }

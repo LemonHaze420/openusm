@@ -521,6 +521,99 @@ namespace inverse_kinematics {
         return quat;
     }
 
+#ifdef OPENUSM_XBPACK_V10
+    namespace
+    {
+    struct legs_ik_skel_v10
+    {
+        vector3d offsets[8];
+        float left_chain[6];
+        float right_chain[6];
+        uint32_t bone_indices[8];
+        uint32_t parent_index;
+        uint32_t padding[3];
+    };
+
+    struct legs_ik_pose_v10
+    {
+        quaternion foot_quats[2];
+        quaternion foot_targets[2];
+        vector3d foot_positions[2];
+        float knee_spin[2];
+    };
+
+    static_assert(sizeof(legs_ik_skel_v10) == 0xC0);
+    static_assert(sizeof(legs_ik_pose_v10) == 0x60);
+
+    void make_legs_ik_matrix(
+        matrix4x4 &matrix, const quaternion &rotation, const vector3d &position)
+    {
+        rotation.to_matrix(matrix);
+        matrix.w = vector4d {position, 1.0f};
+    }
+    }
+
+    int __stdcall LegsIK_BuildBoneMatrices_v10(
+        matrix4x4 *matrices, int, void *skel_data, void *pose_data)
+    {
+        auto *skel = static_cast<legs_ik_skel_v10 *>(skel_data);
+        auto *pose = static_cast<legs_ik_pose_v10 *>(pose_data);
+
+        for (int i = 0; i < 2; ++i) {
+            make_legs_ik_matrix(
+                matrices[skel->bone_indices[i + 2]],
+                pose->foot_targets[i],
+                pose->foot_positions[i]);
+        }
+
+        const matrix4x4 &parent = matrices[skel->parent_index];
+        matrix4x4 parent_rotation = parent;
+        parent_rotation.w = vector4d {0.0f, 0.0f, 0.0f, 1.0f};
+
+        auto *chain = reinterpret_cast<ik_bone_chain_t *>(skel->left_chain);
+        auto heuristic = reinterpret_cast<get_bend_dir_t>(&compute_bend_plane_normal);
+
+        DecomposeIKSpin(
+            &matrices[skel->bone_indices[4]],
+            &matrices[skel->bone_indices[5]],
+            &parent_rotation,
+            &skel->offsets[4],
+            &matrices[skel->bone_indices[2]],
+            chain,
+            heuristic,
+            pose->knee_spin[0]);
+
+        DecomposeIKSpin(
+            &matrices[skel->bone_indices[6]],
+            &matrices[skel->bone_indices[7]],
+            &parent_rotation,
+            &skel->offsets[6],
+            &matrices[skel->bone_indices[3]],
+            chain,
+            heuristic,
+            pose->knee_spin[1]);
+
+        for (int i = 2; i < 8; ++i) {
+            auto &matrix = matrices[skel->bone_indices[i]];
+            matrix.w.x += parent.w.x;
+            matrix.w.y += parent.w.y;
+            matrix.w.z += parent.w.z;
+            matrix.w.w = 1.0f;
+        }
+
+        for (int i = 0; i < 2; ++i) {
+            auto &matrix = matrices[skel->bone_indices[i]];
+            make_legs_ik_matrix(matrix, pose->foot_quats[i], skel->offsets[i]);
+            local_to_world(
+                &matrix,
+                &matrix,
+                &matrices[skel->bone_indices[i + 2]]);
+        }
+
+        return 0;
+    }
+#endif
+
     int CalcIKTrackDataSize(int mask)
     {
         int num_tracks = 0;

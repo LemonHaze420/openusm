@@ -20,7 +20,7 @@ void FEFloatingText::_unmash(mash_info_struct *a1, void *)
 
 int FEFloatingText::_get_mash_sizeof()
 {
-#if OPENUSM_XBOX_MASH_FORMAT
+#if OPENUSM_XBOX_MASH_FORMAT && !defined(OPENUSM_XBPACK_V10)
     return 0x7C;
 #else
     return 0x84;
