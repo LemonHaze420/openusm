@@ -155,16 +155,27 @@ bool translate_factory_type(uint32_t xbox_type, uint32_t &pc_type)
     return translate_type(xbox_type, XBOX_V14_FACTORY_TYPES, pc_type);
 }
 
-void report_unsupported_type(const char *category, uint32_t xbox_type)
+void report_unsupported_type(const char *category,
+                             uint32_t hash,
+                             const void *object = nullptr,
+                             const void *caller = nullptr)
 {
-    char message[160];
+    char message[224];
     std::snprintf(message,
                   sizeof(message),
-                  "XBPACK unsupported %s hash 0x%08X\n",
+                  "XBPACK unsupported %s hash 0x%08X object=%p caller=%p\n",
                   category,
-                  xbox_type);
+                  hash,
+                  object,
+                  caller);
+
+#if defined(_DEBUG)
     OutputDebugStringA(message);
     DebugBreak();
+#else
+    MessageBox(NULL, message, "openusm", MB_OK);
+#endif
+    std::abort();
 }
 
 extern "C" __attribute__((noinline, used)) void *__cdecl xbpack_create_subclass(
@@ -522,7 +533,8 @@ void mash_virtual_base::fixup_vtable(void *a1)
         break;
     default:
         if (hash > 0x23D || vtable()[hash] == nullptr) {
-            report_unsupported_type("vtable", hash);
+            report_unsupported_type(
+                "vtable", hash, a1, __builtin_return_address(0));
             return;
         }
         pc_vtable = bit_cast<uint32_t>(vtable()[hash]);
