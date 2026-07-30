@@ -3,9 +3,20 @@ cmake_minimum_required(VERSION 3.12)
 include(ExternalProject)
 include(cmake/i686-pc-mingw32.cmake)
 
-set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-static -std=gnu11 -g")
-set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS}
-    "-fomit-frame-pointer -m32 -fno-asynchronous-unwind-tables -masm=intel -static -g")
+option(OPENUSM_DEBUG_SYMBOLS "Build debug" OFF)
+
+if(OPENUSM_DEBUG_SYMBOLS)
+    set(OPENUSM_DEBUG_FLAG "-g")
+else()
+    set(OPENUSM_DEBUG_FLAG "-g0")
+endif()
+
+set(CMAKE_C_FLAGS_DEBUG "${OPENUSM_DEBUG_FLAG}" CACHE STRING "Flags used by the C compiler during Debug builds." FORCE)
+set(CMAKE_CXX_FLAGS_DEBUG "${OPENUSM_DEBUG_FLAG}" CACHE STRING "Flags used by the CXX compiler during Debug builds." FORCE)
+
+string(APPEND CMAKE_C_FLAGS " -static -std=gnu11 ${OPENUSM_DEBUG_FLAG}")
+string(APPEND CMAKE_CXX_FLAGS
+    " -fomit-frame-pointer -m32 -fno-asynchronous-unwind-tables -masm=intel -static ${OPENUSM_DEBUG_FLAG}")
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
@@ -112,6 +123,9 @@ target_link_libraries(mash PUBLIC utility variables)
 
 file(GLOB SRC "./src/*.cpp" "./src/*.h")
 add_library(binkw32 SHARED main.cpp ${SRC})
+if(NOT OPENUSM_DEBUG_SYMBOLS)
+    set_property(TARGET binkw32 APPEND_STRING PROPERTY LINK_FLAGS " -s")
+endif()
 target_compile_options(binkw32
   PRIVATE
     ${flags}
@@ -174,7 +188,7 @@ target_include_directories(nal PUBLIC "./include/" "./src/" "./src/nal/include/c
 target_link_libraries(nal PUBLIC nfl nalpanel utility)
 
 
-add_library(test_nal ${NAL_SRC})
+add_library(test_nal EXCLUDE_FROM_ALL ${NAL_SRC})
 target_compile_options(test_nal
     PRIVATE
       ${flags}
@@ -206,7 +220,7 @@ target_compile_options(tx
 target_include_directories(tx INTERFACE "./src/tx/src/")
 target_link_libraries(tx PUBLIC utility)
 
-add_library(test_tx ${SRC_TX})
+add_library(test_tx EXCLUDE_FROM_ALL ${SRC_TX})
 target_compile_options(test_tx
     PRIVATE
       ${flags}
@@ -226,7 +240,7 @@ target_link_libraries(nfl PUBLIC tx)
 
 target_link_libraries(mash PUBLIC nfl)
 
-add_library(test_nfl ${SRC_NFL})
+add_library(test_nfl EXCLUDE_FROM_ALL ${SRC_NFL})
 target_compile_options(test_nfl
     PRIVATE
       ${flags}
