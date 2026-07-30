@@ -2840,6 +2840,10 @@ void remove_debug_menu_entry(debug_menu_entry* entry) {
 
         debug_menu* cur = *all_menus[i];
 
+        if (cur == nullptr || cur->entries == nullptr || cur->used_slots <= 0) {
+            continue;
+        }
+
         DWORD start = (DWORD)cur->entries;
         DWORD end = start + cur->used_slots * sizeof(debug_menu_entry);
 
@@ -2847,7 +2851,14 @@ void remove_debug_menu_entry(debug_menu_entry* entry) {
 
             int index = (to_be - start) / sizeof(debug_menu_entry);
 
-            memcpy(&cur->entries[index], &cur->entries[index + 1], cur->used_slots - (index + 1));
+            const int remaining = cur->used_slots - index - 1;
+            if (remaining > 0) {
+                memmove(
+                    &cur->entries[index],
+                    &cur->entries[index + 1],
+                    remaining * sizeof(debug_menu_entry));
+            }
+
             memset(&cur->entries[cur->used_slots - 1], 0, sizeof(debug_menu_entry));
             cur->used_slots--;
             return;
