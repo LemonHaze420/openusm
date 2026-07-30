@@ -361,7 +361,23 @@ HRESULT tga_hook(IDirect3DDevice9* dev, unsigned __int8* a2, unsigned int a3, ID
 
 bool __cdecl readFile(const char* FileName, tlFileBuf* File, size_t Alignment, unsigned int Flags)
 {
-    return (bool)CDECL_CALL(0x0074A710, FileName, File, Alignment, Flags);
+    if (File != nullptr) {
+        File->Buf = nullptr;
+        File->Size = 0;
+        File->UserData = 0;
+    }
+
+    if (ngl_readfile_callback(FileName, File, Alignment, Flags)) {
+        return true;
+    }
+
+    const bool result = (bool) CDECL_CALL(0x0074A710, FileName, File, Alignment, Flags);
+    if (result && (File == nullptr || File->Buf == nullptr)) {
+        sp_log("readFile couldn't read %s", FileName);
+        return false;
+    }
+
+    return result;
 }
 
 BOOL install_patches()
