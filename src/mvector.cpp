@@ -60,6 +60,9 @@ constexpr uint32_t XBOX_V10_PLAY_DODGE_ANIM_STATE = 0xA7;
 constexpr uint32_t XBOX_V10_PLR_LOCO_CRAWL_STATE = 0xAA;
 constexpr uint32_t XBOX_V10_PLR_LOCO_CRAWL_TRANS_STATE = 0xAB;
 constexpr uint32_t XBOX_V10_ATTACH_STATE = 0xF1;
+constexpr uint32_t XBOX_V10_PARKER_COMBAT_STATE = 0x103;
+constexpr uint32_t XBOX_V10_PLAYER_COMBAT_STATE = 0x104;
+constexpr uint32_t XBOX_V10_PREPARE_COMBO_STATE = 0x105;
 constexpr uint32_t XBOX_V10_SPIDEY_COMBAT_STATE = 0x106;
 constexpr uint32_t XBOX_V10_VENOM_COMBAT_STATE = 0x107;
 constexpr uint32_t XBOX_V10_DEBUG_STATE = 0x108;
@@ -89,6 +92,9 @@ constexpr uint32_t PC_PLAY_DODGE_ANIM_STATE = 0xB2;
 constexpr uint32_t PC_PLR_LOCO_CRAWL_STATE = 0xB5;
 constexpr uint32_t PC_PLR_LOCO_CRAWL_TRANS_STATE = 0xB6;
 constexpr uint32_t PC_ATTACH_STATE = 0x101;
+constexpr uint32_t PC_PARKER_COMBAT_STATE = 0x113;
+constexpr uint32_t PC_PLAYER_COMBAT_STATE = 0x114;
+constexpr uint32_t PC_PREPARE_COMBO_STATE = 0x115;
 constexpr uint32_t PC_SPIDEY_COMBAT_STATE = 0x116;
 constexpr uint32_t PC_VENOM_COMBAT_STATE = 0x117;
 constexpr uint32_t PC_DEBUG_STATE = 0x118;
@@ -159,6 +165,12 @@ uint32_t pc_state_type(uint32_t type)
         return PC_PLR_LOCO_CRAWL_TRANS_STATE;
     case XBOX_V10_ATTACH_STATE:
         return PC_ATTACH_STATE;
+    case XBOX_V10_PARKER_COMBAT_STATE:
+        return PC_PARKER_COMBAT_STATE;
+    case XBOX_V10_PLAYER_COMBAT_STATE:
+        return PC_PLAYER_COMBAT_STATE;
+    case XBOX_V10_PREPARE_COMBO_STATE:
+        return PC_PREPARE_COMBO_STATE;
     case XBOX_V10_SPIDEY_COMBAT_STATE:
         return PC_SPIDEY_COMBAT_STATE;
     case XBOX_V10_VENOM_COMBAT_STATE:
