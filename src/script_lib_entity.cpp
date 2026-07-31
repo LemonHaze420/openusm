@@ -2547,12 +2547,16 @@ void register_entity_lib()
     CREATE_SLF(entity, get_current_animation_name, "get_current_animation_name()");
     CREATE_SLF(entity, get_damage_force, "get_damage_force()");
     CREATE_SLF(entity, get_debug_name, "get_debug_name()");
-    CREATE_SLF(entity, get_detonate_position, "get_detonate_position()");
+    if constexpr (!xbpack::v10) {
+        CREATE_SLF(entity, get_detonate_position, "get_detonate_position()");
+    }
     CREATE_SLF(entity, get_district, "get_district()");
     CREATE_SLF(entity, get_facing, "get_facing()");
     CREATE_SLF(entity, get_fade_timer, "get_fade_timer()");
     CREATE_SLF(entity, get_first_child, "get_first_child()");
-    CREATE_SLF(entity, get_hash_name, "get_hash_name()");
+    if constexpr (!xbpack::v10) {
+        CREATE_SLF(entity, get_hash_name, "get_hash_name()");
+    }
     CREATE_SLF(entity, get_hidey_pos__vector3d__num, "get_hidey_pos(vector3d,num)");
     CREATE_SLF(entity, get_ifc_num__str, "get_ifc_num(str)");
     CREATE_SLF(entity, get_ifc_str__str, "get_ifc_str(str)");
@@ -2571,6 +2575,9 @@ void register_entity_lib()
     CREATE_SLF(entity, get_last_attacker, "get_last_attacker()");
     CREATE_SLF(entity, get_last_item_used, "get_last_item_used()");
     CREATE_SLF(entity, get_member__str, "get_member(str)");
+    if constexpr (xbpack::v10) {
+        CREATE_SLF(entity, get_debug_name, "get_name()");
+    }
     CREATE_SLF(entity, get_next_sibling, "get_next_sibling()");
     CREATE_SLF(entity, get_num_items, "get_num_items()");
     CREATE_SLF(entity, get_parent, "get_parent()");
@@ -2587,9 +2594,7 @@ void register_entity_lib()
     CREATE_SLF(entity, get_x_facing, "get_x_facing()");
     CREATE_SLF(entity, get_y_facing, "get_y_facing()");
     CREATE_SLF(entity, get_z_facing, "get_z_facing()");
-    if constexpr (!xbpack::v10) {
-        CREATE_SLF(entity, has_carry_slave, "has_carry_slave()");
-    }
+    CREATE_SLF(entity, has_carry_slave, "has_carry_slave()");
     CREATE_SLF(entity, has_member__str, "has_member(str)");
     CREATE_SLF(entity, has_script_data_interface, "has_script_data_interface()");
     CREATE_SLF(entity, hates__entity, "hates(entity)");
@@ -2674,11 +2679,11 @@ void register_entity_lib()
     CREATE_SLF(entity, set_anchor_activated__num, "set_anchor_activated(num)");
     CREATE_SLF(entity, set_car_combat_info__num__num__num__num__num__num__num__num, "set_car_combat_info(num,num,num,num,num,num,num,num)");
     CREATE_SLF(entity, set_crawlable__num, "set_crawlable(num)");
-    if constexpr (!xbpack::v10) {
-        CREATE_SLF(entity, set_default_variant, "set_default_variant()");
-    }
+    CREATE_SLF(entity, set_default_variant, "set_default_variant()");
     CREATE_SLF(entity, set_distance_clip__num, "set_distance_clip(num)");
-    CREATE_SLF(entity, set_entity_blur__num, "set_entity_blur(num)");
+    if constexpr (!xbpack::v10) {
+        CREATE_SLF(entity, set_entity_blur__num, "set_entity_blur(num)");
+    }
     CREATE_SLF(entity, set_facing__vector3d__vector3d, "set_facing(vector3d,vector3d)");
     CREATE_SLF(entity, set_fade_timer__num, "set_fade_timer(num)");
     CREATE_SLF(entity, set_hires_shadow__num, "set_hires_shadow(num)");

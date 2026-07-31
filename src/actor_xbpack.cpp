@@ -583,7 +583,9 @@ bool unmash_v10_sound(
     }
 
     data->field_0 = input.current();
+    THISCALL(0x004D5560, pc_sound);
     THISCALL(0x004DE130, pc_sound, header, self, pc_sound, data);
+    pc_sound->field_8 = true;
     return true;
 }
 

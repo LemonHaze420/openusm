@@ -151,6 +151,16 @@ static_assert(offsetof(pc_tentacle_record, source_hash) == 0x30);
 static_assert(offsetof(pc_tentacle_record, control_hashes) == 0x3C);
 static_assert(offsetof(pc_tentacle_record, control_entities) == 0x44);
 
+#ifdef OPENUSM_XBPACK_V10
+struct xb_v10_tentacle_record
+{
+    pc_tentacle_record record;
+    uint32_t field_4C;
+};
+
+static_assert(sizeof(xb_v10_tentacle_record) == 0x50);
+#endif
+
 bool read_ifc(
     generic_mash_data_ptrs *data,
     xb_ifc_t &ifc)
@@ -364,6 +374,117 @@ tentacle_interface *tentacle_error(const char *reason)
     assert(0 && "Invalid xb tentacle interface");
     return nullptr;
 }
+
+#ifdef OPENUSM_XBPACK_V10
+tentacle_interface *unmash_v10_tentacle_ifc(
+    generic_mash_header *header,
+    generic_mash_data_ptrs *data,
+    tentacle_interface *ifc,
+    conglomerate *owner)
+{
+    auto *xb_records =
+        reinterpret_cast<mashable_vector<xb_v10_tentacle_record> *>(
+            &ifc->field_1C);
+    const auto count = xb_records->m_size;
+    const auto records_size =
+        static_cast<size_t>(count) * sizeof(xb_v10_tentacle_record);
+    xb_v10_tentacle_record *source = nullptr;
+
+    const auto unmash_records = [&]()
+    {
+        for ( uint16_t i = 0; i < count; ++i )
+        {
+            auto &record = source[i].record;
+            const auto *hashes = data->get<uint32_t>(2);
+            record.source_hash = hashes[0];
+            record.source_hash_aux = hashes[1];
+
+            THISCALL(
+                0x004C56B0,
+                &record.control_hashes,
+                header,
+                &record.control_hashes,
+                data,
+                nullptr);
+            THISCALL(
+                0x004C6120,
+                &record.control_entities,
+                header,
+                &record.control_entities,
+                data,
+                nullptr);
+        }
+    };
+
+    if ( xb_records->m_shared )
+    {
+        rebase(data->field_4, 4);
+        auto *meta = reinterpret_cast<uint32_t *>(data->field_4);
+        const auto normal_advance = meta[0];
+        const auto shared_advance = meta[1];
+        data->field_4 += 12;
+
+        rebase(data->field_4, 4);
+        source = reinterpret_cast<xb_v10_tentacle_record *>(data->field_4);
+        data->field_4 += records_size;
+
+        if ( meta[2] != 0 )
+        {
+            if ( shared_advance < records_size )
+                return tentacle_error("invalid v10 shared record span");
+
+            data->field_0 += normal_advance;
+            data->field_4 += shared_advance - records_size;
+        }
+        else
+        {
+            unmash_records();
+        }
+
+        ++meta[2];
+        rebase(data->field_4, 4);
+    }
+    else
+    {
+        rebase(data->field_0, 4);
+        source = reinterpret_cast<xb_v10_tentacle_record *>(data->field_0);
+        data->field_0 += records_size;
+        unmash_records();
+        rebase(data->field_0, 4);
+    }
+
+    const auto pc_records_size =
+        static_cast<size_t>(count) * sizeof(pc_tentacle_record);
+    auto *records = count == 0
+        ? nullptr
+        : static_cast<pc_tentacle_record *>(mem_alloc(pc_records_size));
+    if ( count != 0 && records == nullptr )
+        return tentacle_error("v10 record allocation failed");
+
+    for ( uint16_t i = 0; i < count; ++i )
+        std::memcpy(&records[i], &source[i].record, sizeof(records[i]));
+
+    const mashable_vector<pc_tentacle_record> record_vector {
+        records,
+        count,
+        false,
+        true};
+    std::memcpy(&ifc->field_1C, &record_vector, sizeof(record_vector));
+
+    rebase(data->field_0, 4);
+    auto *polytubes = data->get<void *>(count);
+    if ( count != 0 )
+        std::memset(polytubes, 0, static_cast<size_t>(count) * sizeof(void *));
+
+    ifc->field_4 = owner;
+    ifc->field_8 = false;
+    ifc->field_24 = static_cast<int>(
+        reinterpret_cast<uintptr_t>(polytubes));
+    ifc->field_28 = 3;
+    ifc->field_34 = 0;
+    return ifc;
+}
+#endif
 
 tentacle_interface *unmash_tentacle_ifc(
     generic_mash_data_ptrs *data,
@@ -596,11 +717,19 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
             this->field_124 = a4->get<tentacle_interface>();
 
             fix_ifc_v_table((char *) this->field_124, (eEntityMashIFCTypeEnum) 8);
+#ifdef OPENUSM_XBPACK_V10
+            this->field_124 = unmash_v10_tentacle_ifc(
+                a2,
+                a4,
+                this->field_124,
+                this);
+#else
             this->field_124->un_mash(
                 a2,
                 this,
                 this->field_124,
                 a4);
+#endif
         }
         else
         {

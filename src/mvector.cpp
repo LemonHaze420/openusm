@@ -61,6 +61,7 @@ constexpr uint32_t XBOX_V10_PLR_LOCO_CRAWL_STATE = 0xAA;
 constexpr uint32_t XBOX_V10_PLR_LOCO_CRAWL_TRANS_STATE = 0xAB;
 constexpr uint32_t XBOX_V10_ATTACH_STATE = 0xF1;
 constexpr uint32_t XBOX_V10_SPIDEY_COMBAT_STATE = 0x106;
+constexpr uint32_t XBOX_V10_VENOM_COMBAT_STATE = 0x107;
 constexpr uint32_t XBOX_V10_DEBUG_STATE = 0x108;
 constexpr uint32_t XBOX_V10_STATE_115 = 0x115;
 constexpr uint32_t XBOX_V10_HOSTAGE_VICTIM_STATE = 0x116;
@@ -73,6 +74,7 @@ constexpr uint32_t XBOX_V10_STD_PUPPET_TRANS_STATE = 0x12C;
 constexpr uint32_t XBOX_V10_RUN_STATE = 0x12D;
 constexpr uint32_t XBOX_V10_SWING_STATE = 0x12F;
 constexpr uint32_t XBOX_V10_SPIDEY_BASE_STATE = 0x134;
+constexpr uint32_t XBOX_V10_VENOM_BASE_STATE = 0x135;
 constexpr uint32_t XBOX_V10_WEB_ZIP_STATE = 0x137;
 constexpr uint32_t XBOX_V10_LAUNCH_LAYER_STATE = 0x13A;
 constexpr uint32_t XBOX_V10_HIT_REACT_STATE = 0x161;
@@ -88,6 +90,7 @@ constexpr uint32_t PC_PLR_LOCO_CRAWL_STATE = 0xB5;
 constexpr uint32_t PC_PLR_LOCO_CRAWL_TRANS_STATE = 0xB6;
 constexpr uint32_t PC_ATTACH_STATE = 0x101;
 constexpr uint32_t PC_SPIDEY_COMBAT_STATE = 0x116;
+constexpr uint32_t PC_VENOM_COMBAT_STATE = 0x117;
 constexpr uint32_t PC_DEBUG_STATE = 0x118;
 constexpr uint32_t PC_STATE_125 = 0x125;
 constexpr uint32_t PC_HOSTAGE_VICTIM_STATE = 0x126;
@@ -100,6 +103,7 @@ constexpr uint32_t PC_STD_PUPPET_TRANS_STATE = 0x13C;
 constexpr uint32_t PC_RUN_STATE = 0x13D;
 constexpr uint32_t PC_SWING_STATE = 0x13F;
 constexpr uint32_t PC_SPIDEY_BASE_STATE = 0x144;
+constexpr uint32_t PC_VENOM_BASE_STATE = 0x145;
 constexpr uint32_t PC_WEB_ZIP_STATE = 0x147;
 constexpr uint32_t PC_LAUNCH_LAYER_STATE = 0x14A;
 constexpr uint32_t PC_HIT_REACT_STATE = 0x171;
@@ -109,6 +113,7 @@ constexpr std::intptr_t PC_PED_DEFAULT_TRANS_STATE_VTABLE = 0x00875B50;
 constexpr std::intptr_t PC_STATE_125_VTABLE = 0x00877000;
 constexpr std::intptr_t PC_STD_PUPPET_TRANS_STATE_VTABLE = 0x008771E0;
 constexpr std::intptr_t PC_SPIDEY_BASE_STATE_VTABLE = 0x00877534;
+constexpr std::intptr_t PC_VENOM_BASE_STATE_VTABLE = 0x00877570;
 constexpr std::intptr_t PC_META_ANIM_SWING_VTABLE = 0x0087B918;
 
 struct xbox_v10_state
@@ -156,6 +161,8 @@ uint32_t pc_state_type(uint32_t type)
         return PC_ATTACH_STATE;
     case XBOX_V10_SPIDEY_COMBAT_STATE:
         return PC_SPIDEY_COMBAT_STATE;
+    case XBOX_V10_VENOM_COMBAT_STATE:
+        return PC_VENOM_COMBAT_STATE;
     case XBOX_V10_DEBUG_STATE:
         return PC_DEBUG_STATE;
     case XBOX_V10_STATE_115:
@@ -180,6 +187,8 @@ uint32_t pc_state_type(uint32_t type)
         return PC_SWING_STATE;
     case XBOX_V10_SPIDEY_BASE_STATE:
         return PC_SPIDEY_BASE_STATE;
+    case XBOX_V10_VENOM_BASE_STATE:
+        return PC_VENOM_BASE_STATE;
     case XBOX_V10_WEB_ZIP_STATE:
         return PC_WEB_ZIP_STATE;
     case XBOX_V10_LAUNCH_LAYER_STATE:
@@ -242,6 +251,33 @@ als::als_meta_anim_base *expand_v10_meta_anim_swing(
     return result;
 }
 
+void detach_v10_meta_anim_swing(als::als_meta_anim_swing &anim)
+{
+    auto &keys = anim.field_28;
+    if (keys.m_size <= 0)
+    {
+        keys.m_data = nullptr;
+        keys.field_C = 0;
+        keys.field_10 = false;
+        keys.field_0 = 0;
+        return;
+    }
+
+    assert(keys.m_data != nullptr);
+
+    auto **data = static_cast<als::meta_key_anim **>(
+        allocate_from_pc_allocator(
+            sizeof(als::meta_key_anim *) * keys.m_size));
+    assert(data != nullptr);
+    std::memcpy(data, keys.m_data,
+                sizeof(als::meta_key_anim *) * keys.m_size);
+
+    keys.m_data = data;
+    keys.field_C = keys.m_size;
+    keys.field_10 = false;
+    keys.field_0 = 0;
+}
+
 template<typename T>
 T *expand_v10_state_base(const xbox_v10_state &source, std::intptr_t vtable)
 {
@@ -277,6 +313,10 @@ ai::base_state *expand_v10_state(const xbox_v10_state &source)
     case XBOX_V10_SPIDEY_BASE_STATE:
         return expand_v10_state_base<ai::base_state>(
             source, PC_SPIDEY_BASE_STATE_VTABLE);
+
+    case XBOX_V10_VENOM_BASE_STATE:
+        return expand_v10_state_base<ai::base_state>(
+            source, PC_VENOM_BASE_STATE_VTABLE);
 
     default:
         assert(false && "Unsupported v10 ai::base_state type");
@@ -994,6 +1034,8 @@ void mVector<als::als_meta_anim_base>::custom_unmash(mash_info_struct *a2, void 
                     sizeof(xbox_v10_meta_anim_swing) - sizeof(als::als_meta_anim_base));
                 this->m_data[i] = expand_v10_meta_anim_swing(*source);
                 this->m_data[i]->unmash(a2, nullptr);
+                detach_v10_meta_anim_swing(
+                    *static_cast<als::als_meta_anim_swing *>(this->m_data[i]));
             }
             else
             {

@@ -122,9 +122,13 @@ void wds_entity_manager::destroy_entity(entity *e) {
 
         if (v4) {
             if ((e->field_8 & 0x80000000) == 0) {
-                e->release_mem();
+                void (__fastcall *release_mem)(entity *, void *) =
+                    CAST(release_mem, get_vfunc(e->m_vtbl, 0x10));
+                release_mem(e, nullptr);
             } else {
-                e->~entity();
+                void (__fastcall *finalize)(entity *, void *, bool) =
+                    CAST(finalize, get_vfunc(e->m_vtbl, 0x0));
+                finalize(e, nullptr, true);
             }
         }
     } else {

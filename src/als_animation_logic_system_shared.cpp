@@ -1,6 +1,8 @@
 #include "als_animation_logic_system_shared.h"
 
 #include "als_meta_anim_table_shared.h"
+#include "als_nal_meta_anim.h"
+#include "exe_allocator.h"
 #include "func_wrapper.h"
 #include "layer_state_machine_shared.h"
 #include "mash_info_struct.h"
@@ -48,7 +50,9 @@ namespace als {
             auto *v3 = this->field_18;
             if ( v3 != nullptr )
             {
-                operator delete[](v3->field_14);
+                exe_allocator<als_nal_meta_anim> {}.deallocate(
+                    v3->field_14,
+                    v3->field_0.size());
                 v3->field_14 = nullptr;
 
                 v3->field_0.destruct_mashed_class();
