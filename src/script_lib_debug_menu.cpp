@@ -10,21 +10,21 @@
 #include "vm_executable.h"
 #include "vm_thread.h"
 
-static debug_menu *script_menu = nullptr;
+extern debug_menu *script_menu;
 
-static debug_menu *progression_menu = nullptr;
+extern debug_menu *progression_menu;
 
 int vm_debug_menu_entry_garbage_collection_id = -1;
 
 void init_script_debug_menu()
 {
-    if ( script_menu == nullptr )
-    {
-        script_menu = new debug_menu {"Script", (DWORD)debug_menu::sort_mode_t::undefined};
-
-        progression_menu = new debug_menu {"Progression", (DWORD)debug_menu::sort_mode_t::undefined};
-
+    if (script_menu == nullptr) {
+        script_menu = create_menu("Script");
         debug_menu::root_menu->add_entry(script_menu);
+    }
+
+    if (progression_menu == nullptr) {
+        progression_menu = create_menu("Progression");
         debug_menu::root_menu->add_entry(progression_menu);
     }
 }
