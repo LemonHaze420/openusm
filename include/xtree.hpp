@@ -933,7 +933,7 @@ public:
 
     _Nodeptr _Buynode() { // allocate a head/nil node
         _Nodeptr _Wherenode = this->_Alnod.allocate(1);
-        int _Linkcnt = 0;
+        [[maybe_unused]] int _Linkcnt = 0;
 
         using alloc_type = typename std::allocator_traits<std::decay_t<decltype(this->_Alptr)>>;
 

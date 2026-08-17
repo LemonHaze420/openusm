@@ -633,8 +633,8 @@ bool world_dynamics_system::un_mash_scene_entities(const resource_key &a2, regio
         limited_timer_base v81, v80, v79, v78;
         [[maybe_unused]] static auto dword_1568498 = 0.0;
         [[maybe_unused]] static auto dword_156849C = 0.0;
-        static auto dword_15684A0 = 0.0;
-        static auto dword_15684A4 {0.0};
+        [[maybe_unused]] static auto dword_15684A0 = 0.0;
+        [[maybe_unused]] static auto dword_15684A4 {0.0};
         [[maybe_unused]] auto dword_15684A8 = 0;
 
         auto sub_68D9F1 = [](limited_timer_base &a1) -> double {

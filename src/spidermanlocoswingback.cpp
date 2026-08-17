@@ -10,7 +10,8 @@ namespace ai {
 VALIDATE_SIZE(SpidermanLocoSwingBack, 0x10);
 
 SpidermanLocoSwingBack::SpidermanLocoSwingBack() {
-    THISCALL(0x0045D2C0, this);
+    void (__fastcall *func)(SpidermanLocoSwingBack *) = CAST(func, 0x0045D2C0);
+    func(this);
 }
 
 SpidermanLocoSwingBack::~SpidermanLocoSwingBack() {

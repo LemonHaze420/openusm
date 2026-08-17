@@ -20,6 +20,7 @@ rumble_struct::rumble_struct() {
     this->field_1D = 1;
     this->field_20 = 0;
 #else
-    THISCALL(0x005BA400, this);
+    void (__fastcall *func)(rumble_struct *) = CAST(func, 0x005BA400);
+    func(this);
 #endif
 }

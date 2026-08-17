@@ -36,7 +36,8 @@ mission_manager::mission_manager()
     {}
     else
     {
-        THISCALL(0x005DA010, this);
+        void (__fastcall *func)(mission_manager *) = CAST(func, 0x005DA010);
+        func(this);
     }
 }
 

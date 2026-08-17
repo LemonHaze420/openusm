@@ -8,7 +8,8 @@
 VALIDATE_SIZE(motion_effect_struct, 0x30u);
 
 motion_effect_struct::motion_effect_struct(entity_base_vhandle a2, const mString &a3) {
-    THISCALL(0x004DC560, this, a2, &a3);
+    void (__fastcall *func)(motion_effect_struct *, void *edx, entity_base_vhandle a2, const mString *a3) = CAST(func, 0x004DC560);
+    func(this, nullptr, a2, &a3);
 }
 
 motion_effect_struct::~motion_effect_struct() {

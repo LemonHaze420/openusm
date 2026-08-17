@@ -18,7 +18,10 @@ FEMenuEntry::FEMenuEntry(FEMenu *a1, FEText *a2, bool a3) {
 }
 
 FEMenuEntry::FEMenuEntry(global_text_enum a3, FEMenu *arg4, bool a11, font_index a2, int a6) {
-    THISCALL(0x00629650, this, a3, arg4, a11, a2, a6);
+    void (__fastcall *func)(FEMenuEntry *, void *edx, global_text_enum a3, FEMenu *arg4, bool a11, font_index a2, int a6) = CAST(func, 0x00629650);
+
+    func(this, nullptr, a3, arg4, a11, a2, a6);
+
 }
 
 void FEMenuEntry::Update(Float a2) {

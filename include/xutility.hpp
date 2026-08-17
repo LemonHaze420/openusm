@@ -3837,22 +3837,6 @@ typedef unsigned short wchar_t;
 
  #endif	/* _CRTIMP */
 
-#ifdef _DEBUG 
-
-#if !defined(_NATIVE_WCHAR_T_DEFINED) && defined(_M_CEE_PURE)
-extern "C++"
-#else
-extern "C"
-#endif
-_CRTIMP void __cdecl _invalid_parameter(const wchar_t *, const wchar_t *, const wchar_t *, unsigned int, uintptr_t);
-
-#else /* _DEBUG */
-
-extern "C"
-_CRTIMP void __cdecl _invalid_parameter_noinfo(void);
-
-#endif /* def _DEBUG */
-
 
 #ifdef  _MSC_VER
 #pragma warning(pop)

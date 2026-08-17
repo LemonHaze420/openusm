@@ -359,7 +359,7 @@ script_instance * script_object::add_instance(string_hash a1,
     auto &data_stack = v21->get_data_stack();
     data_stack.push(bit_cast<const char *>(&inst), 4u);
     
-    auto parms_stacksize = con.get_parms_stacksize();
+    [[maybe_unused]] auto parms_stacksize = con.get_parms_stacksize();
     if ( !con.is_static() ) {
         parms_stacksize -= 4;
     }
@@ -651,7 +651,7 @@ int script_object::find_func(string_hash a2) const
             if ( function_cache()[idx].field_0 == this 
                 && function_cache()[idx].field_4 == a2 )
             {
-                static int dword_1597B60 {0};
+                [[maybe_unused]] static int dword_1597B60 {0};
                 ++dword_1597B60;
                 function_cache()[idx].field_C = usage_counter()++;
                 auto v4 = function_cache()[idx].field_8;
@@ -675,7 +675,7 @@ int script_object::find_func(string_hash a2) const
         lru_index = idx;
         LABEL_12:
 
-        static int dword_1597B64 {0};
+        [[maybe_unused]] static int dword_1597B64 {0};
         ++dword_1597B64;
         for ( auto i = 0; i < this->total_funcs; ++i ) {
             auto &v9 = this->funcs[i];

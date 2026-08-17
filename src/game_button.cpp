@@ -28,7 +28,8 @@ game_button::game_button()
     }
     else
     {
-        THISCALL(0x0048D9A0, this);
+        void (__fastcall *func)(game_button *) = CAST(func, 0x0048D9A0);
+        func(this);
     }
 }
 

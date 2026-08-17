@@ -9,6 +9,8 @@
 #include <map>
 #endif
 
+#include <cstdint>
+
 struct mString;
 struct script_var_container;
 struct script_library_class;
