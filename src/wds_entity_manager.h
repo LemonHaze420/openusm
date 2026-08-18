@@ -117,3 +117,7 @@ struct wds_entity_manager {
 };
 
 extern void wds_entity_manager_patch();
+
+#ifdef OPENUSM_XBPACK_MODE
+void __fastcall xbpack_destroy_all_entities(wds_entity_manager *self, void *);
+#endif

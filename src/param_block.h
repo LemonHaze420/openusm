@@ -253,3 +253,6 @@ struct param_block {
 } // namespace ai
 
 extern void param_block_patch();
+#ifdef OPENUSM_XBPACK_V10
+extern void param_block_v10_patch();
+#endif

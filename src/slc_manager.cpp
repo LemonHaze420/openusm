@@ -1361,25 +1361,6 @@ slf__create_polytube__str__t::slf__create_polytube__str__t(const char *a3) : fun
     m_vtbl->__cl = CAST(m_vtbl->__cl, address);
 }
 
-struct slf__create_progression_menu_entry__str__str__t : script_library_class::function {
-    slf__create_progression_menu_entry__str__str__t(const char *a3);
-
-    bool operator()(vm_stack &stack, [[maybe_unused]]script_library_class::function::entry_t entry) const
-    {
-        TRACE("slf__create_progression_menu_entry__str__str__t::operator()");
-
-        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00678210);
-        return func(this, nullptr, &stack, entry);
-    }
-};
-
-slf__create_progression_menu_entry__str__str__t::slf__create_progression_menu_entry__str__str__t(const char *a3) : function(a3)
-{
-    m_vtbl = CAST(m_vtbl, 0x0089C714);
-    FUNC_ADDRESS(address, &slf__create_progression_menu_entry__str__str__t::operator());
-    m_vtbl->__cl = CAST(m_vtbl->__cl, address);
-}
-
 struct slf__create_sound_inst__t : script_library_class::function {
     slf__create_sound_inst__t(const char *a3);
 
@@ -12554,6 +12535,10 @@ void slc_manager::init()
         if (slc_manager_class_array == nullptr) {
             using array_t = std::decay_t<decltype(*slc_manager_class_array)>;
             slc_manager_class_array = new array_t {};
+#ifdef OPENUSM_XBPACK_V10
+            slc_manager_class_array->reserve(
+                sizeof(xbox_v10_function_counts) / sizeof(*xbox_v10_function_counts));
+#endif
         }
 
         register_standard_script_libs();
@@ -12597,14 +12582,16 @@ void slc_manager::add(script_library_class *slc)
     if constexpr (1)
     {
 
-#if STANDALONE_SYSTEM
+#if STANDALONE_SYSTEM || defined(OPENUSM_XBPACK_V10)
         assert(slc_manager_classes != nullptr);
+#if STANDALONE_SYSTEM
         auto ret = slc_manager_classes->insert(slc);
         if ( !ret.second ) {
             auto name = slc->get_name();
             sp_log("slc already exists %s", name);
             assert(0);
         }
+#endif
 
         slc_manager_class_array->push_back(slc);
 
@@ -12647,7 +12634,11 @@ void slc_manager::kill()
         {
             for ( auto &slc : (*slc_manager_class_array) ) {
                 if ( slc != nullptr ) {
+#ifdef OPENUSM_XBPACK_V10
+                    mem_dealloc(slc, sizeof(*slc));
+#else
                     delete slc;
+#endif
                 }
             }
 

@@ -41,15 +41,11 @@ FEMenuSystem::FEMenuSystem(int a2, font_index a3)
 
 void FEMenuSystem::MakeActive(int idx) {
     if constexpr (1) {
-        auto idx = this->m_index;
-        if (idx != -1) {
-            FEMenu *v4 = this->field_4[idx];
+        auto old_idx = this->m_index;
+        if (old_idx != -1) {
+            FEMenu *v4 = idx < 0 ? nullptr : this->field_4[idx];
 
-            if (idx < 0) {
-                v4 = nullptr;
-            }
-
-            auto *v5 = this->field_4[idx];
+            auto *v5 = this->field_4[old_idx];
             v5->OnDeactivate(v4);
         }
 

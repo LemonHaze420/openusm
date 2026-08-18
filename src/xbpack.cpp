@@ -16,6 +16,7 @@
 #include "log.h"
 #include "mash_virtual_base.h"
 #include "ngl.h"
+#include "param_block.h"
 #include "panelfile.h"
 #include "panelmeshsection.h"
 #include "parse_generic_mash.h"
@@ -26,6 +27,7 @@
 #include "script_lib_debug_menu.h"
 #include "slc_manager.h"
 #include "sound_alias_database_resource_handler.h"
+#include "terrain.h"
 #include "utility.h"
 #include "variables.h"
 #include "wds.h"
@@ -133,6 +135,7 @@ bool install_xbpack_support()
     PanelFile_xbpack_patch();
     slc_manager_patch();
     script_manager_xbpack_patch();
+    terrain_xbpack_patch();
     wds_xbpack_patch();
 
     if constexpr (xbpack::v10) {
@@ -157,6 +160,7 @@ bool install_xbpack_support()
         cg_mesh_patch();
         combo_system_patch();
         core_ai_resource_patch();
+        param_block_v10_patch();
     }
 
     als_resource_handler_xbpack_patch();

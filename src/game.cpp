@@ -3565,11 +3565,6 @@ void game_patch()
 
 
         {
-            FUNC_ADDRESS(address, &game::level_load_stuff::destroy_loading_widgets);
-            REDIRECT(0x0055D43C, address);
-        }
-
-        {
             REDIRECT(0x0052B5A6, render_text);
             REDIRECT(0x00514DA8, render_text);
             REDIRECT(0x00514E4B, render_text);
@@ -3580,4 +3575,13 @@ void game_patch()
             REDIRECT(0x0057EB54, address);
         }
     }
+
 }
+
+#ifdef OPENUSM_XBPACK_V10
+void game_v10_patch()
+{
+    FUNC_ADDRESS(address, &game::level_load_stuff::destroy_loading_widgets);
+    REDIRECT(0x0055D43C, address);
+}
+#endif

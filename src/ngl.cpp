@@ -3559,6 +3559,16 @@ void nglSetQuadTex(nglQuad *a1, nglTexture *a2) {
     a1->m_tex = a2;
 }
 
+#ifdef OPENUSM_XBPACK_MODE
+static void set_movie_quad_tex(nglQuad *quad, nglTexture *tex)
+{
+    auto *dx_tex = tex->DXTexture;
+    std::memset(tex, 0, sizeof(*tex));
+    tex->DXTexture = dx_tex;
+    quad->m_tex = tex;
+}
+#endif
+
 void nglSetQuadBlend(nglQuad *a1, nglBlendModeType a2, unsigned a3) {
     a1->field_58 = a2;
     a1->field_5C = a3;
@@ -6097,6 +6107,8 @@ void ngl_patch()
 #ifdef OPENUSM_XBPACK_MODE
 void ngl_xbpack_patch()
 {
+    REDIRECT(0x00629B4B, set_movie_quad_tex);
+
     REDIRECT(0x0056BDAA, nglLoadMeshFileInternal);
     REDIRECT(0x0056C126, nglLoadMeshFileInternal);
     REDIRECT(0x0056C244, nglLoadMeshFileInternal);

@@ -259,6 +259,11 @@ int param_block::get_pb_int(string_hash a2) {
     }
 
     param_data *v4 = v2->common_find_data(a2);
+#ifdef OPENUSM_XBPACK_V10
+    if (v4 == nullptr && a2.source_hash_code == 0x05B2427F) {
+        return 0;
+    }
+#endif
     if (v4 == nullptr) {
         const char *v7 = a2.to_string();
         sp_log("Could not find the parameter %s.", v7);
@@ -501,3 +506,11 @@ void param_block_patch() {
         REDIRECT(0x00694D48, address);
     }
 }
+
+#ifdef OPENUSM_XBPACK_V10
+void param_block_v10_patch()
+{
+    FUNC_ADDRESS(address, &ai::param_block::get_pb_int);
+    SET_JUMP(0x006CDCA0, address);
+}
+#endif

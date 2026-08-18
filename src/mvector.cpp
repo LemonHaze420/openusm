@@ -42,6 +42,7 @@
 #include "trace.h"
 #include "entity_base_vhandle.h"
 #include "vtbl.h"
+#include "xbpack.h"
 
 VALIDATE_SIZE(mVector<int>, 0x14);
 
@@ -52,6 +53,9 @@ constexpr int PC_OPERATOR_NEW = 0x00822046;
 constexpr int PC_MEM_ALLOC = 0x0043A100;
 
 #ifdef OPENUSM_XBPACK_V10
+constexpr uint32_t XBOX_V10_FLEE_QUAD_PATH_STATE = 0x97;
+constexpr uint32_t XBOX_V10_FLEE_TRAFFIC_PATH_STATE = 0x98;
+constexpr uint32_t XBOX_V10_STATE_09C = 0x9C;
 constexpr uint32_t XBOX_V10_PED_DEFAULT_TRANS_STATE = 0x9F;
 constexpr uint32_t XBOX_V10_PED_HIT_REACT_STATE = 0xA1;
 constexpr uint32_t XBOX_V10_PED_SUBDUED_STATE = 0xA4;
@@ -80,10 +84,16 @@ constexpr uint32_t XBOX_V10_SPIDEY_BASE_STATE = 0x134;
 constexpr uint32_t XBOX_V10_VENOM_BASE_STATE = 0x135;
 constexpr uint32_t XBOX_V10_WEB_ZIP_STATE = 0x137;
 constexpr uint32_t XBOX_V10_LAUNCH_LAYER_STATE = 0x13A;
+constexpr uint32_t XBOX_V10_BIPED_IDLE_STATE = 0x141;
+constexpr uint32_t XBOX_V10_GENERIC_TARGET_HERO_STATE = 0x150;
 constexpr uint32_t XBOX_V10_HIT_REACT_STATE = 0x161;
+constexpr uint32_t XBOX_V10_STD_DEFAULT_STATE_SET_BASE = 0x162;
 constexpr uint32_t XBOX_V10_SUBDUED_STATE = 0x164;
 constexpr uint32_t XBOX_V10_TRAFFIC_BASE_STATE = 0x194;
 constexpr uint32_t XBOX_V10_META_ANIM_SWING = 0x1D3;
+constexpr uint32_t PC_FLEE_QUAD_PATH_STATE = 0xA1;
+constexpr uint32_t PC_FLEE_TRAFFIC_PATH_STATE = 0xA2;
+constexpr uint32_t PC_STATE_0A6 = 0xA6;
 constexpr uint32_t PC_PED_DEFAULT_TRANS_STATE = 0xA9;
 constexpr uint32_t PC_PED_HIT_REACT_STATE = 0xAB;
 constexpr uint32_t PC_PED_SUBDUED_STATE = 0xAE;
@@ -112,10 +122,14 @@ constexpr uint32_t PC_SPIDEY_BASE_STATE = 0x144;
 constexpr uint32_t PC_VENOM_BASE_STATE = 0x145;
 constexpr uint32_t PC_WEB_ZIP_STATE = 0x147;
 constexpr uint32_t PC_LAUNCH_LAYER_STATE = 0x14A;
+constexpr uint32_t PC_BIPED_IDLE_STATE = 0x151;
+constexpr uint32_t PC_GENERIC_TARGET_HERO_STATE = 0x160;
 constexpr uint32_t PC_HIT_REACT_STATE = 0x171;
+constexpr uint32_t PC_STD_DEFAULT_STATE_SET_BASE = 0x172;
 constexpr uint32_t PC_SUBDUED_STATE = 0x174;
 constexpr uint32_t PC_TRAFFIC_BASE_STATE = 0x1A5;
 constexpr std::intptr_t PC_PED_DEFAULT_TRANS_STATE_VTABLE = 0x00875B50;
+constexpr std::intptr_t PC_STD_DEFAULT_STATE_SET_BASE_VTABLE = 0x008750B8;
 constexpr std::intptr_t PC_STATE_125_VTABLE = 0x00877000;
 constexpr std::intptr_t PC_STD_PUPPET_TRANS_STATE_VTABLE = 0x008771E0;
 constexpr std::intptr_t PC_SPIDEY_BASE_STATE_VTABLE = 0x00877534;
@@ -145,10 +159,16 @@ struct xbox_v10_meta_anim_swing
 static_assert(sizeof(xbox_v10_meta_anim_swing) == 0x40);
 static_assert(offsetof(xbox_v10_meta_anim_swing, padding) == 0x3C);
 
-uint32_t pc_state_type(uint32_t type)
+uint32_t translate_v10_state_type(uint32_t type)
 {
     switch (type)
     {
+    case XBOX_V10_FLEE_QUAD_PATH_STATE:
+        return PC_FLEE_QUAD_PATH_STATE;
+    case XBOX_V10_FLEE_TRAFFIC_PATH_STATE:
+        return PC_FLEE_TRAFFIC_PATH_STATE;
+    case XBOX_V10_STATE_09C:
+        return PC_STATE_0A6;
     case XBOX_V10_PED_DEFAULT_TRANS_STATE:
         return PC_PED_DEFAULT_TRANS_STATE;
     case XBOX_V10_PED_HIT_REACT_STATE:
@@ -205,8 +225,14 @@ uint32_t pc_state_type(uint32_t type)
         return PC_WEB_ZIP_STATE;
     case XBOX_V10_LAUNCH_LAYER_STATE:
         return PC_LAUNCH_LAYER_STATE;
+    case XBOX_V10_BIPED_IDLE_STATE:
+        return PC_BIPED_IDLE_STATE;
+    case XBOX_V10_GENERIC_TARGET_HERO_STATE:
+        return PC_GENERIC_TARGET_HERO_STATE;
     case XBOX_V10_HIT_REACT_STATE:
         return PC_HIT_REACT_STATE;
+    case XBOX_V10_STD_DEFAULT_STATE_SET_BASE:
+        return PC_STD_DEFAULT_STATE_SET_BASE;
     case XBOX_V10_SUBDUED_STATE:
         return PC_SUBDUED_STATE;
     case XBOX_V10_TRAFFIC_BASE_STATE:
@@ -330,6 +356,10 @@ ai::base_state *expand_v10_state(const xbox_v10_state &source)
         return expand_v10_state_base<ai::base_state>(
             source, PC_VENOM_BASE_STATE_VTABLE);
 
+    case XBOX_V10_STD_DEFAULT_STATE_SET_BASE:
+        return expand_v10_state_base<ai::base_state>(
+            source, PC_STD_DEFAULT_STATE_SET_BASE_VTABLE);
+
     default:
         assert(false && "Unsupported v10 ai::base_state type");
         return nullptr;
@@ -423,6 +453,13 @@ void detach_combo_move_string_from_mash(combo_system_move &move)
     string.guts = copy;
     string.field_C = nullptr;
 }
+}
+#endif
+
+#ifdef OPENUSM_XBPACK_V10
+uint32_t xbpack::pc_state_type(uint32_t type)
+{
+    return translate_v10_state_type(type);
 }
 #endif
 
@@ -1910,7 +1947,7 @@ void mVector<ai::mashed_state>::custom_unmash(mash_info_struct *a1, void *a3)
 #ifdef OPENUSM_XBPACK_V10
             auto &type = this->m_data[i]->field_14;
             type = static_cast<mash::virtual_types_enum>(
-                pc_state_type(static_cast<uint32_t>(type)));
+                xbpack::pc_state_type(static_cast<uint32_t>(type)));
 #endif
         }
     }

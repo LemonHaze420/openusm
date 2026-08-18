@@ -2679,11 +2679,11 @@ void register_entity_lib()
     CREATE_SLF(entity, set_anchor_activated__num, "set_anchor_activated(num)");
     CREATE_SLF(entity, set_car_combat_info__num__num__num__num__num__num__num__num, "set_car_combat_info(num,num,num,num,num,num,num,num)");
     CREATE_SLF(entity, set_crawlable__num, "set_crawlable(num)");
-    CREATE_SLF(entity, set_default_variant, "set_default_variant()");
-    CREATE_SLF(entity, set_distance_clip__num, "set_distance_clip(num)");
     if constexpr (!xbpack::v10) {
-        CREATE_SLF(entity, set_entity_blur__num, "set_entity_blur(num)");
+        CREATE_SLF(entity, set_default_variant, "set_default_variant()");
     }
+    CREATE_SLF(entity, set_distance_clip__num, "set_distance_clip(num)");
+    CREATE_SLF(entity, set_entity_blur__num, "set_entity_blur(num)");
     CREATE_SLF(entity, set_facing__vector3d__vector3d, "set_facing(vector3d,vector3d)");
     CREATE_SLF(entity, set_fade_timer__num, "set_fade_timer(num)");
     CREATE_SLF(entity, set_hires_shadow__num, "set_hires_shadow(num)");

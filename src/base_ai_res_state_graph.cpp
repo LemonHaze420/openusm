@@ -6,6 +6,7 @@
 #include "mashed_state.h"
 #include "trace.h"
 #include "utility.h"
+#include "xbpack.h"
 
 namespace ai {
 
@@ -26,6 +27,15 @@ void state_graph::unmash(mash_info_struct *a1, void *)
     TRACE("ai::state_graph::unmash");
 
     a1->unmash_class_in_place(this->field_0, this);
+
+#ifdef OPENUSM_XBPACK_MODE
+    if (this->field_0.m_type != RESOURCE_KEY_TYPE_AI_STATE_GRAPH) {
+        this->field_0.m_type = static_cast<resource_key_type>(
+            xbpack::pc_type(static_cast<int>(this->field_0.m_type)));
+    }
+    assert(this->field_0.m_type == RESOURCE_KEY_TYPE_AI_STATE_GRAPH);
+#endif
+
     a1->unmash_class_in_place(this->my_states, this);
     a1->unmash_class_in_place(this->field_20, this);
 
@@ -44,6 +54,22 @@ void state_graph::unmash(mash_info_struct *a1, void *)
             , mash::NORMAL_BUFFER
 #endif
                 );
+
+#ifdef OPENUSM_XBPACK_V10
+        bool converted_with_states = false;
+        for (auto *state : this->my_states) {
+            if (state == this->field_1C) {
+                converted_with_states = true;
+                break;
+            }
+        }
+
+        if (!converted_with_states) {
+            auto &type = this->field_1C->field_14;
+            type = static_cast<mash::virtual_types_enum>(
+                xbpack::pc_state_type(static_cast<uint32_t>(type)));
+        }
+#endif
     }
 }
 

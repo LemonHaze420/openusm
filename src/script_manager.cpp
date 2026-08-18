@@ -120,6 +120,16 @@ void *get_game_var_address(const mString &a1, bool *a2, script_library_class **a
         static float message_log_next = 0.0f;
         return &message_log_next;
     }
+
+    if (result == nullptr && a1 == "gv_message_log_title") {
+        static float message_log_title[128] {};
+        return message_log_title;
+    }
+
+    if (result == nullptr && a1 == "gv_message_log_body") {
+        static float message_log_body[128] {};
+        return message_log_body;
+    }
 #endif
 
     if (result == nullptr && a3 == nullptr) {

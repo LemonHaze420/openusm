@@ -1,6 +1,7 @@
 #include "script_lib_debug_menu.h"
 
 #include "debug_menu.h"
+#include "func_wrapper.h"
 #include "mstring.h"
 #include "script_executable.h"
 #include "script_manager.h"
@@ -47,7 +48,13 @@ void vm_debug_menu_entry_garbage_collection_callback(script_executable *,
 void construct_debug_menu_lib()
 {
     if ( vm_debug_menu_entry_garbage_collection_id == -1 ) {
+#ifdef OPENUSM_XBPACK_V10
+        vm_debug_menu_entry_garbage_collection_id = CDECL_CALL(
+            0x005AFE40,
+            vm_debug_menu_entry_garbage_collection_callback);
+#else
         vm_debug_menu_entry_garbage_collection_id = script_manager::register_allocated_stuff_callback(vm_debug_menu_entry_garbage_collection_callback);
+#endif
     }
 }
 
@@ -74,10 +81,12 @@ bool slf__create_debug_menu_entry__str__t::operator()(vm_stack &stack, [[maybe_u
     auto *thread = stack.get_thread();
     auto *script = thread->get_executable()->get_owner()->get_parent();
     mString source {};
-    script->add_allocated_stuff(
-            vm_debug_menu_entry_garbage_collection_id,
-            int(result),
-            source);
+    THISCALL(
+        0x005A34B0,
+        script,
+        vm_debug_menu_entry_garbage_collection_id,
+        int(result),
+        &source);
     script_menu->add_entry(result);
 
     SLF_RETURN;
@@ -120,7 +129,11 @@ bool slf__create_debug_menu_entry__str__str__t::operator()(vm_stack &stack, [[ma
         auto *so = v6->get_owner();
         auto *v8 = so->get_parent();
 
+#ifdef OPENUSM_XBPACK_V10
+        THISCALL(0x005A34B0, v8, v10, v11, &v16);
+#else
         v8->add_allocated_stuff(v10, v11, v16);
+#endif
         script_menu->add_entry(result);
 
         SLF_RETURN;
@@ -131,6 +144,31 @@ bool slf__create_debug_menu_entry__str__str__t::operator()(vm_stack &stack, [[ma
         bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00678210);
         return func(this, nullptr, &stack, entry);
     }
+}
+
+slf__create_progression_menu_entry__str__str__t::slf__create_progression_menu_entry__str__str__t(const char *a3) : function(a3)
+{
+    m_vtbl = CAST(m_vtbl, 0x0089C714);
+    FUNC_ADDRESS(address, &slf__create_progression_menu_entry__str__str__t::operator());
+    m_vtbl->__cl = CAST(m_vtbl->__cl, address);
+}
+
+bool slf__create_progression_menu_entry__str__str__t::operator()(vm_stack &stack, [[maybe_unused]]script_library_class::function::entry_t entry) const
+{
+    TRACE("slf__create_progression_menu_entry__str__str__t::operator()");
+
+    SLF_PARMS;
+
+    init_script_debug_menu();
+    assert(progression_menu != nullptr);
+
+    debug_menu_entry menu_entry {parms->str0};
+    menu_entry.set_script_handler(stack.get_thread()->get_instance(), mString {parms->str1});
+    progression_menu->add_entry(&menu_entry);
+
+    int result = 0;
+    SLF_RETURN;
+    SLF_DONE;
 }
 
 void script_lib_debug_menu_patch()

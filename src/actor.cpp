@@ -21,6 +21,7 @@
 #include "custom_math.h"
 #include "damage_interface.h"
 #include "entity_mash.h"
+#include "exe_allocator.h"
 #include "facial_expression_interface.h"
 #include "func_wrapper.h"
 #include "generic_anim_controller.h"
@@ -956,7 +957,8 @@ void actor::_un_mash(generic_mash_header *a3, void *a4, generic_mash_data_ptrs *
 void actor::create_player_controller(int a2) {
     assert(this->m_player_controller == nullptr);
 
-    this->m_player_controller = new ai_player_controller{this};
+    auto *mem = exe_allocator<ai_player_controller> {}.allocate(1);
+    this->m_player_controller = new (mem) ai_player_controller{this};
 
     this->m_player_controller->set_player_num(a2);
 }

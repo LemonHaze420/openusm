@@ -107,6 +107,17 @@ void wds_entity_manager::destroy_all_entities_and_items() {
     THISCALL(0x005D9060, this);
 }
 
+#ifdef OPENUSM_XBPACK_MODE
+void __fastcall xbpack_destroy_all_entities(wds_entity_manager *self, void *)
+{
+    while (g_world_ptr != nullptr && g_world_ptr->num_players > 0) {
+        g_world_ptr->remove_player(g_world_ptr->num_players - 1);
+    }
+
+    self->destroy_all_entities_and_items();
+}
+#endif
+
 void wds_entity_manager::destroy_entity(entity *e) {
     assert(e != nullptr);
 

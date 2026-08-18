@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 namespace xbpack
 {
 #ifdef OPENUSM_XBPACK_V10
@@ -12,6 +14,10 @@ inline constexpr bool v10 = false;
 inline constexpr unsigned type_count = 71;
 inline constexpr unsigned counts_offset = 0x1A8;
 inline constexpr unsigned directory_size = 0x2C4;
+#endif
+
+#ifdef OPENUSM_XBPACK_V10
+uint32_t pc_state_type(uint32_t type);
 #endif
 
 inline constexpr unsigned starts_offset = 0x8C;

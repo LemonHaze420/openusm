@@ -379,5 +379,9 @@ extern void game_packs_modified_callback(_std::vector<resource_key> &a1);
 
 extern void game_patch();
 
+#ifdef OPENUSM_XBPACK_V10
+extern void game_v10_patch();
+#endif
+
 
 

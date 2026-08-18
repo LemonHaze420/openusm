@@ -548,7 +548,9 @@ namespace inverse_kinematics {
     void make_legs_ik_matrix(
         matrix4x4 &matrix, const quaternion &rotation, const vector3d &position)
     {
-        rotation.to_matrix(matrix);
+        const quaternion pc_rotation {
+            rotation.arr[3], rotation.arr[0], rotation.arr[1], rotation.arr[2]};
+        pc_rotation.to_matrix(matrix);
         matrix.w = vector4d {position, 1.0f};
     }
     }
