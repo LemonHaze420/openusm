@@ -53,6 +53,7 @@ constexpr int PC_OPERATOR_NEW = 0x00822046;
 constexpr int PC_MEM_ALLOC = 0x0043A100;
 
 #ifdef OPENUSM_XBPACK_V10
+constexpr uint32_t XBOX_V10_STATE_064 = 0x64;
 constexpr uint32_t XBOX_V10_FLEE_QUAD_PATH_STATE = 0x97;
 constexpr uint32_t XBOX_V10_FLEE_TRAFFIC_PATH_STATE = 0x98;
 constexpr uint32_t XBOX_V10_STATE_09C = 0x9C;
@@ -64,6 +65,7 @@ constexpr uint32_t XBOX_V10_PLAY_DODGE_ANIM_STATE = 0xA7;
 constexpr uint32_t XBOX_V10_PLR_LOCO_CRAWL_STATE = 0xAA;
 constexpr uint32_t XBOX_V10_PLR_LOCO_CRAWL_TRANS_STATE = 0xAB;
 constexpr uint32_t XBOX_V10_ATTACH_STATE = 0xF1;
+constexpr uint32_t XBOX_V10_STATE_0F9 = 0xF9;
 constexpr uint32_t XBOX_V10_PARKER_COMBAT_STATE = 0x103;
 constexpr uint32_t XBOX_V10_PLAYER_COMBAT_STATE = 0x104;
 constexpr uint32_t XBOX_V10_PREPARE_COMBO_STATE = 0x105;
@@ -76,21 +78,29 @@ constexpr uint32_t XBOX_V10_INTERACTION_STATE = 0x11B;
 constexpr uint32_t XBOX_V10_PICK_UP_STATE = 0x11D;
 constexpr uint32_t XBOX_V10_PUT_DOWN_STATE = 0x11E;
 constexpr uint32_t XBOX_V10_JUMP_STATE = 0x11F;
+constexpr uint32_t XBOX_V10_THROW_STATE = 0x120;
 constexpr uint32_t XBOX_V10_POLE_SWING_STATE = 0x121;
 constexpr uint32_t XBOX_V10_STD_PUPPET_TRANS_STATE = 0x12C;
 constexpr uint32_t XBOX_V10_RUN_STATE = 0x12D;
 constexpr uint32_t XBOX_V10_SWING_STATE = 0x12F;
+constexpr uint32_t XBOX_V10_AIMED_THROW_STATE = 0x130;
 constexpr uint32_t XBOX_V10_SPIDEY_BASE_STATE = 0x134;
 constexpr uint32_t XBOX_V10_VENOM_BASE_STATE = 0x135;
 constexpr uint32_t XBOX_V10_WEB_ZIP_STATE = 0x137;
 constexpr uint32_t XBOX_V10_LAUNCH_LAYER_STATE = 0x13A;
 constexpr uint32_t XBOX_V10_BIPED_IDLE_STATE = 0x141;
+constexpr uint32_t XBOX_V10_NONPATHED_GOTO_STATE = 0x143;
+constexpr uint32_t XBOX_V10_PATHED_GOTO_STATE = 0x144;
 constexpr uint32_t XBOX_V10_GENERIC_TARGET_HERO_STATE = 0x150;
 constexpr uint32_t XBOX_V10_HIT_REACT_STATE = 0x161;
 constexpr uint32_t XBOX_V10_STD_DEFAULT_STATE_SET_BASE = 0x162;
 constexpr uint32_t XBOX_V10_SUBDUED_STATE = 0x164;
+constexpr uint32_t XBOX_V10_STD_FEAR_TRANS_STATE = 0x168;
 constexpr uint32_t XBOX_V10_TRAFFIC_BASE_STATE = 0x194;
+constexpr uint32_t XBOX_V10_UNIVERSAL_SOLDIER_NONCOMBAT_IDLE_STATE = 0x19B;
+constexpr uint32_t XBOX_V10_UNIVERSAL_SOLDIER_TRANS_STATE = 0x19C;
 constexpr uint32_t XBOX_V10_META_ANIM_SWING = 0x1D3;
+constexpr uint32_t PC_STATE_06C = 0x6C;
 constexpr uint32_t PC_FLEE_QUAD_PATH_STATE = 0xA1;
 constexpr uint32_t PC_FLEE_TRAFFIC_PATH_STATE = 0xA2;
 constexpr uint32_t PC_STATE_0A6 = 0xA6;
@@ -102,6 +112,7 @@ constexpr uint32_t PC_PLAY_DODGE_ANIM_STATE = 0xB2;
 constexpr uint32_t PC_PLR_LOCO_CRAWL_STATE = 0xB5;
 constexpr uint32_t PC_PLR_LOCO_CRAWL_TRANS_STATE = 0xB6;
 constexpr uint32_t PC_ATTACH_STATE = 0x101;
+constexpr uint32_t PC_STATE_109 = 0x109;
 constexpr uint32_t PC_PARKER_COMBAT_STATE = 0x113;
 constexpr uint32_t PC_PLAYER_COMBAT_STATE = 0x114;
 constexpr uint32_t PC_PREPARE_COMBO_STATE = 0x115;
@@ -114,26 +125,36 @@ constexpr uint32_t PC_INTERACTION_STATE = 0x12B;
 constexpr uint32_t PC_PICK_UP_STATE = 0x12D;
 constexpr uint32_t PC_PUT_DOWN_STATE = 0x12E;
 constexpr uint32_t PC_JUMP_STATE = 0x12F;
+constexpr uint32_t PC_THROW_STATE = 0x142;
 constexpr uint32_t PC_POLE_SWING_STATE = 0x131;
 constexpr uint32_t PC_STD_PUPPET_TRANS_STATE = 0x13C;
 constexpr uint32_t PC_RUN_STATE = 0x13D;
 constexpr uint32_t PC_SWING_STATE = 0x13F;
+constexpr uint32_t PC_AIMED_THROW_STATE = 0x140;
 constexpr uint32_t PC_SPIDEY_BASE_STATE = 0x144;
 constexpr uint32_t PC_VENOM_BASE_STATE = 0x145;
 constexpr uint32_t PC_WEB_ZIP_STATE = 0x147;
 constexpr uint32_t PC_LAUNCH_LAYER_STATE = 0x14A;
 constexpr uint32_t PC_BIPED_IDLE_STATE = 0x151;
+constexpr uint32_t PC_NONPATHED_GOTO_STATE = 0x153;
+constexpr uint32_t PC_PATHED_GOTO_STATE = 0x154;
 constexpr uint32_t PC_GENERIC_TARGET_HERO_STATE = 0x160;
 constexpr uint32_t PC_HIT_REACT_STATE = 0x171;
 constexpr uint32_t PC_STD_DEFAULT_STATE_SET_BASE = 0x172;
 constexpr uint32_t PC_SUBDUED_STATE = 0x174;
+constexpr uint32_t PC_STD_FEAR_TRANS_STATE = 0x178;
 constexpr uint32_t PC_TRAFFIC_BASE_STATE = 0x1A5;
+constexpr uint32_t PC_UNIVERSAL_SOLDIER_NONCOMBAT_IDLE_STATE = 0x1AC;
+constexpr uint32_t PC_UNIVERSAL_SOLDIER_TRANS_STATE = 0x1AD;
+constexpr std::intptr_t PC_STATE_06C_VTABLE = 0x008751C8;
 constexpr std::intptr_t PC_PED_DEFAULT_TRANS_STATE_VTABLE = 0x00875B50;
 constexpr std::intptr_t PC_STD_DEFAULT_STATE_SET_BASE_VTABLE = 0x008750B8;
 constexpr std::intptr_t PC_STATE_125_VTABLE = 0x00877000;
 constexpr std::intptr_t PC_STD_PUPPET_TRANS_STATE_VTABLE = 0x008771E0;
 constexpr std::intptr_t PC_SPIDEY_BASE_STATE_VTABLE = 0x00877534;
 constexpr std::intptr_t PC_VENOM_BASE_STATE_VTABLE = 0x00877570;
+constexpr std::intptr_t PC_STD_FEAR_TRANS_STATE_VTABLE = 0x00874D18;
+constexpr std::intptr_t PC_UNIVERSAL_SOLDIER_TRANS_STATE_VTABLE = 0x00877AA8;
 constexpr std::intptr_t PC_META_ANIM_SWING_VTABLE = 0x0087B918;
 
 struct xbox_v10_state
@@ -159,10 +180,45 @@ struct xbox_v10_meta_anim_swing
 static_assert(sizeof(xbox_v10_meta_anim_swing) == 0x40);
 static_assert(offsetof(xbox_v10_meta_anim_swing, padding) == 0x3C);
 
+constexpr uint16_t V10_STATE_TYPES[][2] = {
+    {0x02D, 0x02E}, {0x033, 0x035}, {0x054, 0x05B}, {0x055, 0x05C},
+    {0x062, 0x06A}, {0x063, 0x06B}, {0x065, 0x06D}, {0x066, 0x06E},
+    {0x067, 0x06F}, {0x068, 0x070}, {0x069, 0x071}, {0x06A, 0x072},
+    {0x06C, 0x074}, {0x06E, 0x076}, {0x06F, 0x077}, {0x071, 0x079},
+    {0x072, 0x07A}, {0x074, 0x07C}, {0x075, 0x07D}, {0x076, 0x07E},
+    {0x077, 0x07F}, {0x079, 0x081}, {0x07A, 0x082}, {0x07C, 0x084},
+    {0x07D, 0x085}, {0x07E, 0x086}, {0x07F, 0x087}, {0x080, 0x088},
+    {0x081, 0x089}, {0x082, 0x08A}, {0x083, 0x08C}, {0x084, 0x08E},
+    {0x085, 0x08B}, {0x086, 0x08F}, {0x090, 0x099}, {0x092, 0x09B},
+    {0x09A, 0x0A4},
+    {0x0AC, 0x0B7}, {0x0AE, 0x0B9}, {0x0AF, 0x0BA}, {0x0B0, 0x0BB},
+    {0x0B2, 0x0BD}, {0x0B3, 0x0C0}, {0x0B4, 0x0C1}, {0x0B5, 0x0C2},
+    {0x0B6, 0x0C3}, {0x0B7, 0x0C4}, {0x0B8, 0x0C5}, {0x0BB, 0x0C8},
+    {0x0C0, 0x0CD}, {0x0C1, 0x0CE}, {0x0C3, 0x0D0}, {0x0C4, 0x0D1},
+    {0x0C6, 0x0D3}, {0x0C8, 0x0D5}, {0x0C9, 0x0D6}, {0x0EB, 0x0FB},
+    {0x0EC, 0x0FC}, {0x0ED, 0x0FD}, {0x0EE, 0x0FE}, {0x0EF, 0x0FF},
+    {0x0F0, 0x100}, {0x0F3, 0x103}, {0x0F4, 0x104}, {0x0F5, 0x105},
+    {0x0F6, 0x106}, {0x0F8, 0x108}, {0x0FB, 0x10B}, {0x0FC, 0x10C},
+    {0x0FD, 0x10D}, {0x0FE, 0x10E}, {0x100, 0x110}, {0x101, 0x111},
+    {0x102, 0x112}, {0x10B, 0x11B}, {0x112, 0x122}, {0x113, 0x123},
+    {0x114, 0x124}, {0x11A, 0x12A}, {0x122, 0x132}, {0x123, 0x133},
+    {0x124, 0x134}, {0x125, 0x135}, {0x127, 0x137}, {0x129, 0x139},
+    {0x132, 0x142}, {0x138, 0x148}, {0x139, 0x149}, {0x13F, 0x14F},
+    {0x158, 0x168}, {0x15A, 0x16A}, {0x15B, 0x16B}, {0x15F, 0x16F},
+    {0x160, 0x170}, {0x165, 0x175}, {0x166, 0x176}, {0x169, 0x179},
+    {0x16A, 0x17A}, {0x16C, 0x17C}, {0x16E, 0x17E}, {0x17B, 0x18B},
+    {0x17E, 0x18E}, {0x17F, 0x190}, {0x180, 0x191}, {0x183, 0x194},
+    {0x184, 0x195}, {0x186, 0x197}, {0x188, 0x199}, {0x199, 0x1AA},
+    {0x19A, 0x1AB}, {0x1A0, 0x1B2}, {0x1A4, 0x1B6}, {0x1A5, 0x1B7},
+    {0x1A7, 0x1B9}, {0x1AA, 0x1BC}, {0x201, 0x217},
+};
+
 uint32_t translate_v10_state_type(uint32_t type)
 {
     switch (type)
     {
+    case XBOX_V10_STATE_064:
+        return PC_STATE_06C;
     case XBOX_V10_FLEE_QUAD_PATH_STATE:
         return PC_FLEE_QUAD_PATH_STATE;
     case XBOX_V10_FLEE_TRAFFIC_PATH_STATE:
@@ -185,6 +241,8 @@ uint32_t translate_v10_state_type(uint32_t type)
         return PC_PLR_LOCO_CRAWL_TRANS_STATE;
     case XBOX_V10_ATTACH_STATE:
         return PC_ATTACH_STATE;
+    case XBOX_V10_STATE_0F9:
+        return PC_STATE_109;
     case XBOX_V10_PARKER_COMBAT_STATE:
         return PC_PARKER_COMBAT_STATE;
     case XBOX_V10_PLAYER_COMBAT_STATE:
@@ -209,6 +267,8 @@ uint32_t translate_v10_state_type(uint32_t type)
         return PC_PUT_DOWN_STATE;
     case XBOX_V10_JUMP_STATE:
         return PC_JUMP_STATE;
+    case XBOX_V10_THROW_STATE:
+        return PC_THROW_STATE;
     case XBOX_V10_POLE_SWING_STATE:
         return PC_POLE_SWING_STATE;
     case XBOX_V10_STD_PUPPET_TRANS_STATE:
@@ -217,6 +277,8 @@ uint32_t translate_v10_state_type(uint32_t type)
         return PC_RUN_STATE;
     case XBOX_V10_SWING_STATE:
         return PC_SWING_STATE;
+    case XBOX_V10_AIMED_THROW_STATE:
+        return PC_AIMED_THROW_STATE;
     case XBOX_V10_SPIDEY_BASE_STATE:
         return PC_SPIDEY_BASE_STATE;
     case XBOX_V10_VENOM_BASE_STATE:
@@ -227,6 +289,10 @@ uint32_t translate_v10_state_type(uint32_t type)
         return PC_LAUNCH_LAYER_STATE;
     case XBOX_V10_BIPED_IDLE_STATE:
         return PC_BIPED_IDLE_STATE;
+    case XBOX_V10_NONPATHED_GOTO_STATE:
+        return PC_NONPATHED_GOTO_STATE;
+    case XBOX_V10_PATHED_GOTO_STATE:
+        return PC_PATHED_GOTO_STATE;
     case XBOX_V10_GENERIC_TARGET_HERO_STATE:
         return PC_GENERIC_TARGET_HERO_STATE;
     case XBOX_V10_HIT_REACT_STATE:
@@ -235,11 +301,25 @@ uint32_t translate_v10_state_type(uint32_t type)
         return PC_STD_DEFAULT_STATE_SET_BASE;
     case XBOX_V10_SUBDUED_STATE:
         return PC_SUBDUED_STATE;
+    case XBOX_V10_STD_FEAR_TRANS_STATE:
+        return PC_STD_FEAR_TRANS_STATE;
     case XBOX_V10_TRAFFIC_BASE_STATE:
         return PC_TRAFFIC_BASE_STATE;
+    case XBOX_V10_UNIVERSAL_SOLDIER_NONCOMBAT_IDLE_STATE:
+        return PC_UNIVERSAL_SOLDIER_NONCOMBAT_IDLE_STATE;
+    case XBOX_V10_UNIVERSAL_SOLDIER_TRANS_STATE:
+        return PC_UNIVERSAL_SOLDIER_TRANS_STATE;
     default:
-        return type;
+        break;
     }
+
+    for (const auto &mapping : V10_STATE_TYPES)
+    {
+        if (mapping[0] == type)
+            return mapping[1];
+    }
+
+    return type;
 }
 #endif
 
@@ -256,6 +336,15 @@ struct xbox_combo_system_move
     uint8_t requirements_and_move_tail[0x48];
 #endif
 };
+
+struct xbox_attach_node
+{
+    uint8_t field_0[0x10];
+    uint32_t field_10[3];
+    uint32_t field_1C[2];
+};
+
+static_assert(sizeof(xbox_attach_node) == 0x24);
 
 #ifdef OPENUSM_XBPACK_V10
 static_assert(sizeof(xbox_combo_system_move) == 0xC8);
@@ -336,6 +425,10 @@ ai::base_state *expand_v10_state(const xbox_v10_state &source)
 {
     switch (source.type)
     {
+    case XBOX_V10_STATE_064:
+        return expand_v10_state_base<ai::base_state>(
+            source, PC_STATE_06C_VTABLE);
+
     case XBOX_V10_PED_DEFAULT_TRANS_STATE:
         return expand_v10_state_base<ai::base_state>(
             source, PC_PED_DEFAULT_TRANS_STATE_VTABLE);
@@ -359,6 +452,14 @@ ai::base_state *expand_v10_state(const xbox_v10_state &source)
     case XBOX_V10_STD_DEFAULT_STATE_SET_BASE:
         return expand_v10_state_base<ai::base_state>(
             source, PC_STD_DEFAULT_STATE_SET_BASE_VTABLE);
+
+    case XBOX_V10_STD_FEAR_TRANS_STATE:
+        return expand_v10_state_base<ai::base_state>(
+            source, PC_STD_FEAR_TRANS_STATE_VTABLE);
+
+    case XBOX_V10_UNIVERSAL_SOLDIER_TRANS_STATE:
+        return expand_v10_state_base<ai::base_state>(
+            source, PC_UNIVERSAL_SOLDIER_TRANS_STATE_VTABLE);
 
     default:
         assert(false && "Unsupported v10 ai::base_state type");
@@ -2124,19 +2225,26 @@ void mVector<attach_node>::custom_unmash(mash_info_struct *a1, void *a3)
         {
 #if OPENUSM_XBOX_MASH_FORMAT
             auto &a1a = this->m_data[i];
-            struct {
-                char field_0[0x10];
-                struct {
-                    int field_0[3];
-                } field_10;
-                int field_1C[2];
-            } *temp = CAST(temp, a1->read_from_buffer(mash::NORMAL_BUFFER, 0x24, 4));
+            auto *temp = bit_cast<xbox_attach_node *>(
+                a1->read_from_buffer(mash::NORMAL_BUFFER,
+                                     sizeof(xbox_attach_node), 4));
 
-            {
-                std::memcpy(&a1a->field_0, temp->field_0, sizeof(temp->field_0));
-                std::memcpy(&a1a->field_10.m_size, &temp->field_10, sizeof(temp->field_10));
-                std::memcpy(&a1a->field_20, temp->field_1C, sizeof(temp->field_1C));
-            }
+            a1a = static_cast<attach_node *>(
+                allocate_from_pc_allocator(sizeof(attach_node)));
+            assert(a1a != nullptr);
+            std::memset(a1a, 0, sizeof(*a1a));
+
+            std::memcpy(&a1a->field_0, temp->field_0, sizeof(temp->field_0));
+#ifdef OPENUSM_XBPACK_V10
+            std::memcpy(&a1a->field_10.field_0, temp->field_10,
+                        sizeof(temp->field_10));
+#else
+            std::memcpy(&a1a->field_10.m_size, temp->field_10,
+                        sizeof(temp->field_10));
+#endif
+            a1a->field_10.field_C = nullptr;
+            std::memcpy(&a1a->field_20, temp->field_1C,
+                        sizeof(temp->field_1C));
 
             a1a->unmash(a1, a3);
 #else
@@ -2164,6 +2272,9 @@ void mVectorBasic<attach_action_trigger_enum>::custom_unmash(mash_info_struct *a
     if ( this->m_data != nullptr )
 #endif
     {
+#ifdef OPENUSM_XBPACK_V10
+        a1->read_from_buffer(mash::NORMAL_BUFFER, 4, 4);
+#endif
         this->m_data = CAST(this->m_data, a1->read_from_buffer(
 #if OPENUSM_XBOX_MASH_FORMAT
             mash::NORMAL_BUFFER,

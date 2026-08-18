@@ -69,7 +69,9 @@ enum class node_layout
     cpu_controller,
     ped_avoidance,
     avoidance,
+    universal_soldier,
     venom,
+    std_web_zip,
 };
 
 struct xb_node
@@ -82,6 +84,14 @@ struct xb_node
 };
 
 constexpr xb_node V10_NODES[] {
+    {0x02E, 0x76BB3C7A, 0x058, 0x05C, node_layout::info},
+    {0x05F, 0xC1B02807, 0x044, 0x048, node_layout::info},
+    {0x060, 0x4312463B, 0x02C, 0x030, node_layout::info},
+    {0x061, 0x5D0C49A4, 0x2F8, 0x330, node_layout::combat},
+    {0x06B, 0x62030D0E, 0x0A4, 0x0A8, node_layout::info},
+    {0x06D, 0xA5C90574, 0x044, 0x048, node_layout::info},
+    {0x073, 0xBFF2ADD4, 0x03C, 0x040, node_layout::info},
+    {0x078, 0x5D0C49A4, 0x2FC, 0x32C, node_layout::combat},
     {0x13D, 0x0001AB00, 0x028, 0x02C, node_layout::info},
     {0x13E, 0x0001AB00, 0x02C, 0x030, node_layout::info},
     {0x140, 0xFAD58E58, 0x030, 0x048, node_layout::avoidance},
@@ -89,14 +99,18 @@ constexpr xb_node V10_NODES[] {
     {0x12E, 0x08641048, 0x088, 0x094, node_layout::swing},
     {0x12B, 0x15897C0C, 0x018, 0x020, node_layout::info},
     {0x14E, 0x1754B0DC, 0x05C, 0x088, node_layout::combat_target},
+    {0x14F, 0x1754B0DC, 0x05C, 0x088, node_layout::combat_target},
     {0x151, 0x1754B0DC, 0x068, 0x094, node_layout::target},
     {0x154, 0x1754B0DC, 0x068, 0x094, node_layout::target},
     {0x16F, 0x1B17CB5D, 0x030, 0x034, node_layout::glass_house},
     {0x136, 0x1CF15FD1, 0x128, 0x0E0, node_layout::web_zip},
     {0x120, 0x371268F7, 0x028, 0x02C, node_layout::info},
     {0x095, 0x5D0C49A4, 0x2F8, 0x328, node_layout::combat},
+    {0x146, 0x5D0C49A4, 0x2F8, 0x328, node_layout::combat},
     {0x096, 0x76DDDD6F, 0x0A8, 0x0D8, node_layout::pedestrian},
+    {0x0F2, 0x7CED570D, 0x038, 0x03C, node_layout::info},
     {0x0E8, 0x5D0C49A4, 0x320, 0x350, node_layout::combat},
+    {0x0EA, 0x399785D1, 0x01C, 0x020, node_layout::info},
     {0x163, 0x94B51E64, 0x01C, 0x034, node_layout::info},
     {0x08D, 0x9EE13B40, 0x044, 0x04C, node_layout::interaction},
     {0x093, 0x4C90D9E0, 0x054, 0x064, node_layout::loco},
@@ -105,21 +119,28 @@ constexpr xb_node V10_NODES[] {
     {0x167, 0x74556656, 0x02C, 0x07C, node_layout::std_fear},
     {0x1B4, 0xA2D277FE, 0x040, 0x044, node_layout::info},
     {0x181, 0xA8E18643, 0x01C, 0x020, node_layout::info},
-    {0x182, 0xDA1774E3, 0x02C, 0x038, node_layout::info},
+    {0x182, 0xDA1774E3, 0x02C, 0x030, node_layout::info},
+    {0x185, 0x8AB41E64, 0x01C, 0x020, node_layout::info},
+    {0x189, 0x1CF0A9AA, 0x034, 0x038, node_layout::info},
     {0x08F, 0xC8553C6E, 0x04C, 0x050, node_layout::info},
     {0x156, 0xCC62C392, 0x0E8, 0x0EC, node_layout::info},
+    {0x157, 0x9317E156, 0x034, 0x03C, node_layout::info},
     {0x193, 0xCCF57218, 0x038, 0x03C, node_layout::info},
     {0x187, 0x085DE71B, 0x028, 0x02C, node_layout::info},
     {0x195, 0xF264967F, 0x0C8, 0x0CC, node_layout::info},
+    {0x19D, 0xA1F4712A, 0x068, 0x078, node_layout::universal_soldier},
     {0x1A1, 0x5D0C49A4, 0x2FC, 0x32C, node_layout::combat},
     {0x1A6, 0x08909065, 0x0A8, 0x0BC, node_layout::venom},
     {0x172, 0x8345223D, 0x048, 0x050, node_layout::info},
+    {0x17C, 0x973950CC, 0x028, 0x02C, node_layout::info},
     {0x148, 0xD552BA6D, 0x020, 0x024, node_layout::info},
     {0x149, 0x5D0C49A4, 0x328, 0x358, node_layout::combat},
+    {0x14A, 0x5D0C49A4, 0x30C, 0x33C, node_layout::combat},
     {0x142, 0xD970BD20, 0x054, 0x064, node_layout::loco},
     {0x145, 0xF6E3EBA5, 0x01C, 0x020, node_layout::info},
     {0x155, 0xCC62C392, 0x0FC, 0x108, node_layout::cpu_controller},
     {0x00B, 0xD664A286, 0x01C, 0x020, node_layout::info},
+    {0x16D, 0x0C1057FA, 0x070, 0x080, node_layout::std_web_zip},
 };
 
 void expand_info(const uint8_t *source, size_t xbox_size, uint8_t *destination)
@@ -252,6 +273,15 @@ void expand_avoidance(const uint8_t *source, uint8_t *destination)
     std::memcpy(destination + 0x24, source + 0x1C, 0x14);
 }
 
+void expand_universal_soldier(const uint8_t *source, uint8_t *destination)
+{
+    std::memcpy(destination, source, 0x0C);
+    std::memcpy(destination + 0x10, source + 0x0C, 0x0C);
+    std::memcpy(destination + 0x20, source + 0x18, 0x44);
+    std::memcpy(destination + 0x68, source + 0x5C, 8);
+    std::memcpy(destination + 0x74, source + 0x64, 4);
+}
+
 void expand_venom(const uint8_t *source, uint8_t *destination)
 {
     std::memcpy(destination, source, 0x0C);
@@ -259,6 +289,12 @@ void expand_venom(const uint8_t *source, uint8_t *destination)
     std::memcpy(destination + 0x28, source + 0x20, 8);
     std::memcpy(destination + 0x34, source + 0x28, 0x70);
     std::memcpy(destination + 0xA8, source + 0x98, 0x10);
+}
+
+void expand_std_web_zip(const uint8_t *source, uint8_t *destination)
+{
+    expand_loco(source, destination);
+    std::memcpy(destination + 0x64, source + 0x54, 0x1C);
 }
 
 const xb_node *find_v10_node(const uint8_t *source)
@@ -325,8 +361,14 @@ void expand_node(const xb_node &node,
     case node_layout::avoidance:
         expand_avoidance(source, destination);
         break;
+    case node_layout::universal_soldier:
+        expand_universal_soldier(source, destination);
+        break;
     case node_layout::venom:
         expand_venom(source, destination);
+        break;
+    case node_layout::std_web_zip:
+        expand_std_web_zip(source, destination);
         break;
     }
 }

@@ -719,7 +719,11 @@ tlFixedString *make_runtime_fixed_string(uint32_t hash)
     }
 
     result->m_hash = hash;
-    std::snprintf(result->field_4, sizeof(result->field_4), "0x%08x", hash);
+    if (hash == 0) {
+        std::memset(result->field_4, 0, sizeof(result->field_4));
+    } else {
+        std::snprintf(result->field_4, sizeof(result->field_4), "0x%08x", hash);
+    }
     return result;
 }
 
@@ -729,8 +733,8 @@ bool fixup_texture_name(nglMaterialBase *material, uint32_t offset)
     uint32_t hash = 0;
     std::memcpy(&hash, field, sizeof(hash));
 
-    auto *texture_name = hash != 0 ? make_runtime_fixed_string(hash) : nullptr;
-    if (hash != 0 && texture_name == nullptr) {
+    auto *texture_name = make_runtime_fixed_string(hash);
+    if (texture_name == nullptr) {
         return false;
     }
 
@@ -1465,6 +1469,12 @@ bool nglLoadMeshFileInternalXbox(const tlFixedString &FileName,
 
         case TypeDirectoryEntry::MORPH: {
             auto *morph = bit_cast<nglMorphSet *>(entry.object);
+            auto *name = make_runtime_fixed_string(morph->field_0.field_0);
+            if (name == nullptr) {
+                return false;
+            }
+            morph->field_0.field_0 =
+                bit_cast<uint32_t>(name) - bit_cast<uint32_t>(header);
             if (mesh_file->FirstMorph == nullptr) {
                 mesh_file->FirstMorph = morph;
             }

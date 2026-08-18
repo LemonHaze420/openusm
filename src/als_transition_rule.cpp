@@ -59,6 +59,10 @@ namespace als
     void incoming_transition_rule::unmash(mash_info_struct *a1, void *a3)
     {
         this->field_0.unmash(a1, a3);
+
+#ifdef OPENUSM_XBPACK_V10
+        this->field_28 = static_cast<uint8_t>(this->field_28);
+#endif
     }
 
 }

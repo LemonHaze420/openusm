@@ -9,6 +9,7 @@
 #include "utility.h"
 #include "wds.h"
 #include "worldly_pack_slot.h"
+#include "xbpack.h"
 
 VALIDATE_SIZE(path_resource_handler, 0x14);
 
@@ -56,6 +57,14 @@ bool path_resource_handler::_handle_resource(worldly_resource_handler::eBehavior
                 , mash::NORMAL_BUFFER
 #endif 
                     );
+
+#if defined(OPENUSM_XBPACK_MODE) && !defined(TARGET_XBOX)
+            if (pg->id.m_type != RESOURCE_KEY_TYPE_PATH) {
+                pg->id.m_type = static_cast<resource_key_type>(
+                    xbpack::pc_type(static_cast<int>(pg->id.m_type)));
+            }
+            assert(pg->id.m_type == RESOURCE_KEY_TYPE_PATH);
+#endif
 
             mash_info_struct::construct_class(pg);
 

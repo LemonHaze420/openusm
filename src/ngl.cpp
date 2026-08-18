@@ -23,6 +23,7 @@
 #include "ngl_font.h"
 #include "ngl_lighting.h"
 #include "ngl_mesh.h"
+#include "ngl_morph.h"
 #include "ngl_params.h"
 #include "ngl_scene.h"
 #include "ngl_support.h"
@@ -6105,6 +6106,53 @@ void ngl_patch()
 }
 
 #ifdef OPENUSM_XBPACK_MODE
+namespace
+{
+uint32_t xbox_morph_section_count(const nglMorphFrame *morph)
+{
+    if (morph == nullptr || morph->field_4 == nullptr) {
+        return 0;
+    }
+
+    return *(reinterpret_cast<const uint32_t *>(morph->field_4) + 1);
+}
+
+int __fastcall xbox_morph_component_mask(
+    nglMorphFrame *morph,
+    int,
+    uint32_t section)
+{
+    if (g_platform == NL_PLATFORM_XBOX &&
+        section >= xbox_morph_section_count(morph)) {
+        return 0;
+    }
+
+    return THISCALL(0x00503A30, morph, section);
+}
+
+nglMeshSection *__fastcall apply_xbox_morph(
+    nglMorphFrame *morph,
+    int,
+    nglMeshSection *mesh_section,
+    uint32_t section,
+    Float weight,
+    uint32_t components)
+{
+    if (g_platform == NL_PLATFORM_XBOX &&
+        section >= xbox_morph_section_count(morph)) {
+        return mesh_section;
+    }
+
+    return reinterpret_cast<nglMeshSection *>(
+        THISCALL(0x00778950,
+                 morph,
+                 mesh_section,
+                 section,
+                 weight,
+                 components));
+}
+}
+
 void ngl_xbpack_patch()
 {
     REDIRECT(0x00629B4B, set_movie_quad_tex);
@@ -6115,5 +6163,8 @@ void ngl_xbpack_patch()
     REDIRECT(0x0076FF90, nglLoadMeshFileInternal);
     REDIRECT(0x007700D9, nglLoadMeshFileInternal);
     REDIRECT(0x00778649, nglLoadMeshFileInternal);
+
+    set_vfunc(0x00883364, apply_xbox_morph);
+    set_vfunc(0x00883368, xbox_morph_component_mask);
 }
 #endif

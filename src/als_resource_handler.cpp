@@ -144,4 +144,7 @@ void als_resource_handler_xbpack_patch()
 
     FUNC_ADDRESS(anim_record_unmash, &anim_record::_unmash);
     set_vfunc(0x0087392C, anim_record_unmash);
+
+    FUNC_ADDRESS(attach_anim_record_unmash, &attach_anim_record::_unmash);
+    set_vfunc(0x008739B0, attach_anim_record_unmash);
 }

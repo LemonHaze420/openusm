@@ -26,6 +26,24 @@ uint16_t pc_entity_mash_type(uint16_t type)
     return type;
 }
 
+uint32_t entity_mash_size(uint16_t type)
+{
+#ifdef OPENUSM_XBPACK_V10
+    static constexpr uint16_t v10_sizes[] = {
+        0x44,  0x48,  0x68,  0xBC,  0xE8,  0x12C, 0xCC,  0x1A0,
+        0xFC,  0x110, 0x328, 0x148, 0x340, 0x274, 0x6C,  0x158,
+        0x68,  0x68,  0x68,  0x70,  0x68,  0x84,  0xBC,  0x6C,
+        0x150, 0xDC,  0xD8,  0xC4,  0x78,
+    };
+
+    assert(type < sizeof(v10_sizes) / sizeof(v10_sizes[0]));
+    return v10_sizes[type];
+#else
+    assert(type < 28);
+    return ent_size_lookup()[type];
+#endif
+}
+
 void fix_entity_v_table(char *addr, eEntityMashTypeEnum type)
 {
 #ifdef OPENUSM_XBPACK_MODE

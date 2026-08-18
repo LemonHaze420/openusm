@@ -121,6 +121,11 @@ mashed_state *state_graph::find_state(string_hash a2) const
 
 void state_graph_patch() {
     {
+        FUNC_ADDRESS(address, &ai::state_graph::unmash);
+        SET_JUMP(0x006DA070, address);
+    }
+
+    {
         FUNC_ADDRESS(address, &ai::state_graph::find_state);
         SET_JUMP(0x006D8480, address);
     }

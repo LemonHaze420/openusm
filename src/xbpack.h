@@ -18,6 +18,19 @@ inline constexpr unsigned directory_size = 0x2C4;
 
 #ifdef OPENUSM_XBPACK_V10
 uint32_t pc_state_type(uint32_t type);
+
+constexpr uint32_t pc_als_param(uint32_t type)
+{
+    if (type == 67 || type == 68)
+        return type + 2;
+    if (type < 88 || type > 123)
+        return type;
+    if (type == 91)
+        return 123;
+    if (type < 102)
+        return type + 3;
+    return type + 6;
+}
 #endif
 
 inline constexpr unsigned starts_offset = 0x8C;

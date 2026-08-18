@@ -4561,6 +4561,16 @@ BOOL install_redirects()
         game_patch();
     }
 
+#ifdef OPENUSM_XBPACK_V10
+    game_v10_patch();
+    fe_mission_text_v10_patch();
+#endif
+
+#ifdef OPENUSM_XBPACK_MODE
+    REDIRECT(0x00557EC1, xbpack_destroy_all_entities);
+    REDIRECT(0x0051D2F0, xbpack_load_frontend);
+#endif
+
 
     // @todo: windowed
     REDIRECT(0x005AC4A9, register_class_and_create_window);
@@ -4608,6 +4618,10 @@ BOOL install_redirects()
         return false;
     }
 
+#ifdef OPENUSM_XBPACK_MODE
+    path_resource_handler_patch();
+    state_graph_patch();
+#endif
 
     return true;
 

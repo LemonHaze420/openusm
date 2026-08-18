@@ -9,11 +9,19 @@
 #include "state_machine.h"
 #include "trace.h"
 #include "utility.h"
+#include "xbpack.h"
 
 namespace als
 {
     VALIDATE_SIZE(basic_rule_data, 0x24);
     VALIDATE_SIZE(basic_rule_data::post_action_rule_set, 0x28u);
+
+    void filter_data::unmash(mash_info_struct *, void *)
+    {
+#ifdef OPENUSM_XBPACK_V10
+        this->field_0 = xbpack::pc_als_param(this->field_0);
+#endif
+    }
 
     void basic_rule_data::unmash(mash_info_struct *a1, void *)
     {

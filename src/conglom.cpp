@@ -820,7 +820,7 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
                 rebase(a4->field_0, sizeof(generic_mash_header));
 
                 entity_base *__ENT_ptr = CAST(__ENT_ptr, a4->field_0);
-                a4->field_0 += ent_size_lookup()[ent_type];
+                a4->field_0 += entity_mash_size(__ENT_TYPE);
 
                 {
                     eEntityMashTypeEnum v11 = (eEntityMashTypeEnum) ent_type;
@@ -918,7 +918,7 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
                 rebase(a4->field_0, sizeof(generic_mash_header));
                 
                 auto *__ENT_ptr = (entity_base *) a4->field_0;
-                a4->field_0 += ent_size_lookup()[ent_type];
+                a4->field_0 += entity_mash_size(__ENT_TYPE);
 
                 {
                     auto v26 = (eEntityMashTypeEnum) ent_type;
