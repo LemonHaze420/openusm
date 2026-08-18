@@ -1543,7 +1543,7 @@ void world_dynamics_system::deactivate_corner_web_splats()
         if (!v5.field_7)
         {
             if (v5.m_data != nullptr) {
-                operator delete[](v5.m_data);
+                CDECL_CALL(0x0082209A, v5.m_data);
             }
         }
 
@@ -1651,7 +1651,7 @@ void world_dynamics_system::deactivate_web_splats()
         if (!v5->field_7)
         {
             if (v5->m_data != nullptr) {
-                operator delete[](v5->m_data);
+                CDECL_CALL(0x0082209A, v5->m_data);
             }
         }
 
