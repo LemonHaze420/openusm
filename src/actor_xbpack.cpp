@@ -4,6 +4,7 @@
 
 #include "actor.h"
 #include "base_ai_data.h"
+#include "cached_special_effect.h"
 #include "collision_capsule.h"
 #include "colmesh.h"
 #include "entity.h"
@@ -16,6 +17,7 @@
 #include "resource_key.h"
 #include "sound_and_pfx_interface.h"
 #include "time_interface.h"
+#include "thrown_item.h"
 #include "utility.h"
 #include "variables.h"
 
@@ -46,6 +48,8 @@ constexpr size_t PC_PFX_SIZE = 0x98u;
 constexpr size_t PC_PFX_VECTOR_OFFSET = 0x80u;
 constexpr size_t PFX_VECTOR_MASH_SIZE = 0x1Cu;
 constexpr size_t XB_V10_ACTOR_SIZE = 0xBCu;
+constexpr size_t XB_V10_THROWN_ITEM_SIZE = 0x340u;
+constexpr uint16_t XB_V10_THROWN_ITEM_TYPE = 12u;
 constexpr auto XB_V10_SCRIPT_TYPE = static_cast<resource_key_type>(14);
 constexpr auto XB_V10_BASE_AI_TYPE = static_cast<resource_key_type>(54);
 #endif
@@ -748,12 +752,6 @@ extern "C" __attribute__((noinline, used)) void __fastcall actor_xbpack_entity_p
         return;
     }
 
-#ifdef OPENUSM_XBPACK_V10
-    if (data->field_0 == reinterpret_cast<uint8_t *>(self) + sizeof(actor)) {
-        data->field_0 -= sizeof(uint32_t);
-    }
-#endif
-
     const auto xb_ifc_flags = header->field_E;
     header->field_E = static_cast<uint16_t>(xb_ifc_flags & ~0x880u);
     THISCALL(0x004CB2F0, self, header, context, data);
@@ -865,13 +863,91 @@ extern "C" __attribute__((noinline, used)) base_ai_data *__cdecl construct_v10_b
 
     auto &type = (*value)->field_0.m_type;
     if (type != XB_V10_BASE_AI_TYPE) {
-        xbpack_err("unexpected v10 base-ai resource type");
+        char reason[160];
+        std::snprintf(reason,
+                      sizeof(reason),
+                      "unexpected v10 base-ai resource type=%u hash=0x%08X object=%p caller=%p",
+                      static_cast<unsigned>(type),
+                      (*value)->field_0.m_hash.source_hash_code,
+                      static_cast<void *>(*value),
+                      __builtin_return_address(0));
+        xbpack_err(reason);
         return nullptr;
     }
 
     type = RESOURCE_KEY_TYPE_BASE_AI;
     return reinterpret_cast<base_ai_data *>(
         CDECL_CALL(0x005037D0, value));
+}
+
+extern "C" __attribute__((noinline, used)) void __fastcall unmash_v10_base_ai(
+    base_ai_data *self,
+    int,
+    void *info,
+    void *context)
+{
+    uint32_t before[6] {};
+    std::memcpy(before, self, sizeof(before));
+
+    THISCALL(0x006D7370, self, info, context);
+
+    if (self->field_0.m_type != XB_V10_BASE_AI_TYPE) {
+        uint32_t after[6] {};
+        std::memcpy(after, self, sizeof(after));
+        const auto *pc_info = static_cast<const uint32_t *>(info);
+        char message[320];
+        std::snprintf(
+            message,
+            sizeof(message),
+            "XBPACK v10 base-ai unmash changed object=%p "
+            "before=%08X,%08X,%08X,%08X,%08X,%08X "
+            "after=%08X,%08X,%08X,%08X,%08X,%08X "
+            "info=%08X,%08X,%08X,%08X\n",
+            static_cast<void *>(self),
+            before[0], before[1], before[2], before[3], before[4], before[5],
+            after[0], after[1], after[2], after[3], after[4], after[5],
+            pc_info[0], pc_info[1], pc_info[2], pc_info[3]);
+        xbpack_err(message);
+    }
+}
+
+extern "C" __attribute__((noinline, used)) void __fastcall init_v10_gun_effect(
+    cached_special_effect *self,
+    int,
+    generic_mash_header *header,
+    void *context,
+    generic_mash_data_ptrs *data)
+{
+    if (g_platform != NL_PLATFORM_XBOX) {
+        THISCALL(0x004D3650, self, header, context, data);
+        return;
+    }
+
+    THISCALL(0x005020D0, self);
+}
+
+extern "C" __attribute__((noinline, used)) int __fastcall unmash_v10_thrown_item(
+    thrown_item *self,
+    int,
+    generic_mash_header *header,
+    void *context,
+    generic_mash_data_ptrs *data)
+{
+    if (g_platform == NL_PLATFORM_XBOX &&
+        header != nullptr &&
+        header->is_flagged(0x40000000u) &&
+        header->class_id == XB_V10_THROWN_ITEM_TYPE) {
+        auto *bytes = reinterpret_cast<uint8_t *>(self);
+
+        std::memmove(bytes + 0x300u, bytes + 0x2F0u,
+                     XB_V10_THROWN_ITEM_SIZE - 0x2F0u);
+        std::memmove(bytes + 0xC0u, bytes + 0xBCu,
+                     0x2F0u - 0xBCu);
+        std::memset(bytes + 0xBCu, 0, sizeof(uint32_t));
+        std::memset(bytes + 0x2F4u, 0, 3u * sizeof(uint32_t));
+    }
+
+    return THISCALL(0x00549E80, self, header, context, data);
 }
 
 extern "C" __attribute__((noinline, used)) void __cdecl set_v10_actor_context(
@@ -930,7 +1006,6 @@ extern "C" __attribute__((naked, used)) void actor_v10_finish_hook()
 }
 #endif
 
-#ifndef OPENUSM_XBPACK_V10
 extern "C" __attribute__((noinline, used)) void __cdecl actor_xbpack_prepare_impl(
     actor *self,
     generic_mash_data_ptrs *data,
@@ -939,7 +1014,13 @@ extern "C" __attribute__((noinline, used)) void __cdecl actor_xbpack_prepare_imp
     THISCALL(0x00502C70, self);
 
     if (g_platform == NL_PLATFORM_XBOX) {
+#ifdef OPENUSM_XBPACK_V10
+        if (read_u32(data->field_0) != MASH_SYNC_TEST_VAL5) {
+            data->field_0 -= sizeof(uint32_t);
+        }
+#else
         convert_actor_mash(header, data);
+#endif
     }
 }
 
@@ -955,7 +1036,6 @@ extern "C" __attribute__((naked)) void actor_xbpack_prepare_hook()
         "add esp, 12\n\t"
         "ret\n\t");
 }
-#endif
 
 void actor_xbpack_finish(generic_mash_data_ptrs *data)
 {
@@ -1013,15 +1093,20 @@ extern "C" __attribute__((naked, used)) void actor_xbpack_finish_hook()
 
 void actor_xbpack_patch()
 {
+    REDIRECT(0x004F0E37, actor_xbpack_entity_prefix_impl);
     REDIRECT(0x004FBD6D, actor_xbpack_entity_prefix_impl);
 
 #ifdef OPENUSM_XBPACK_V10
+    REDIRECT(0x004FC022, actor_xbpack_prepare_hook);
     REDIRECT(0x004F05F3, load_v10_pfx);
     REDIRECT(0x004F0E47, load_v10_pfx);
     REDIRECT(0x004F78AB, load_v10_pfx);
     REDIRECT(0x004F78D3, load_v10_pfx);
     REDIRECT(0x004FBDE8, unmash_v10_advanced);
+    REDIRECT(0x004FC0EC, unmash_v10_base_ai);
     REDIRECT(0x004FC0F2, construct_v10_base_ai);
+    REDIRECT(0x004FF8C4, init_v10_gun_effect);
+    set_vfunc(0x008892C4, unmash_v10_thrown_item);
     SET_JUMP(0x004FC4D4, actor_v10_context_hook);
     SET_JUMP(0x004FC548, actor_v10_finish_hook);
 #else
