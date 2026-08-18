@@ -405,7 +405,7 @@ BOOL install_patches()
     SET_JUMP(0x0076E050, nglListInit);
 
     SET_JUMP(0x0076EA10, nglListSend);
-    
+
     
     // mod loading
     {
@@ -2454,6 +2454,17 @@ void menu_go_up() {
 }
 
 void menu_input_handler(int keyboard, int SCROLL_SPEED) {
+    if (current_menu == nullptr) {
+        return;
+    }
+
+    if (current_menu->entries == nullptr || current_menu->used_slots == 0) {
+        if (is_menu_key_pressed(MENU_BACK, keyboard)) {
+            current_menu->go_back();
+        }
+        return;
+    }
+
     if (is_menu_key_clicked(MENU_DOWN, keyboard)) {
 
         int key_val = get_menu_key_value(MENU_DOWN, keyboard);
@@ -2479,11 +2490,11 @@ void menu_input_handler(int keyboard, int SCROLL_SPEED) {
         auto* entry = &current_menu->entries[current_menu->window_start + current_menu->cur_index];
         assert(entry != nullptr);
         entry->on_select(1.0);
-
-        //current_menu->handler(entry, ENTER);
+        return;
     }
     else if (is_menu_key_pressed(MENU_BACK, keyboard)) {
         current_menu->go_back();
+        return;
     }
     else if (is_menu_key_pressed(MENU_LEFT, keyboard) || is_menu_key_pressed(MENU_RIGHT, keyboard)) {
 
@@ -3677,6 +3688,12 @@ void debug_nglListEndScene_hook() {
 
 void close_debug() {
     debug_enabled = 0;
+
+    auto *pause_menu = g_femanager.m_pause_menu_system;
+    if (pause_menu != nullptr && pause_menu->m_index >= 0) {
+        pause_menu->MakeActive(-1);
+    }
+
     g_game_ptr->unpause();
 }
 
@@ -3744,14 +3761,15 @@ void populate_missions_menu(debug_menu* missions_menu)
         for (int i = -1; i < v58; ++i)
         {
             fixedstring<32> v53{};
-            int v52;
+            int district_id;
             mission_table_container* table = nullptr;
+            auto* target_menu = head_menu;
             if (i == -1)
             {
                 table = v2->m_global_table_container;
                 fixedstring<32> a1{ "global" };
                 v53 = a1;
-                v52 = 0;
+                district_id = 0;
             }
             else
             {
@@ -3760,13 +3778,14 @@ void populate_missions_menu(debug_menu* missions_menu)
                 auto& v6 = reg->get_name();
                 v53 = v6.to_string();
 
-                auto v52 = reg->get_district_id();
+                district_id = reg->get_district_id();
 
                 auto* v25 = create_menu(v53.to_string(), nullptr, 10);
 
                 debug_menu_entry v26{ v25 };
 
                 add_debug_menu_entry(head_menu, &v26);
+                target_menu = v25;
             }
 
             _std::vector<mission_table_container::script_info> script_infos;
@@ -3787,7 +3806,7 @@ void populate_missions_menu(debug_menu* missions_menu)
                 {
                     mission_t mission{};
                     mission.field_0 = info.field_0;
-                    mission.field_10 = v52;
+                    mission.field_10 = district_id;
                     mission.field_14 = info.field_8;
 
                     mission.field_C = info.field_4->get_script_data_name();
@@ -3819,7 +3838,7 @@ void populate_missions_menu(debug_menu* missions_menu)
                     v27.data1 = (void*)v50;
 
                     v27.set_game_flags_handler(mission_select_handler);
-                    add_debug_menu_entry(head_menu, &v27);
+                    add_debug_menu_entry(target_menu, &v27);
                 }
             }
         }
@@ -3869,8 +3888,6 @@ struct level_descriptor_v2_t
     int field_8C;
 };
 
-#include "game_process.h"
-
 level_descriptor_t* get_level_descriptors(int* arg0)
 {
     auto* game_partition = resource_manager::get_partition_pointer(resource_partition_enum(0));
@@ -3895,9 +3912,6 @@ level_descriptor_t* get_level_descriptors(int* arg0)
 
     return v11;
 }
-
-static int main_flow[] = { 5, 6, 14 };
-game_process mainflow_proc{ "main", main_flow, 3 };
 
 void level_select_handler(debug_menu_entry* entry)
 {
@@ -3925,69 +3939,38 @@ void level_select_handler(debug_menu_entry* entry)
     // close_debug();
 
     if (desc != nullptr) {
-        // printf("v15 = %s\n", v15.c_str());
-        //g_game_ptr->field_163 = true;
-          void(__fastcall * poppr)(void) = bit_cast<decltype(poppr)>(0x00545B00);
-        app* a = var<app*>(0x009685D4);
-        // printf("game state = %d\n", (int)a->instance->m_game->get_cur_state());
-        // int main_flow[] = { 5, 6, 14 };
-        // game_process main_proc{ "main", main_flow, 3 };
-        // a->instance->m_game->push_process(main_proc);
+        char exe_path[MAX_PATH] {};
+        if (GetModuleFileNameA(nullptr, exe_path, sizeof(exe_path)) == 0) {
+            return;
+        }
 
-        // THISCALL(0x00514C70, a->m_game, &v15, -1);
+        const auto hero = g_game_ptr->gamefile->field_340.m_hero_name.to_string();
+        char command_line[1024] {};
+        snprintf(command_line,
+                 sizeof(command_line),
+                 "\"%s\" -sSOUND_LIST=%s -sHERO_NAME=%s",
+                 exe_path,
+                 v15.c_str(),
+                 hero);
 
-
-        //loading_a_level = false;                        // mark this before the others
-        //strcpy((char*)g_scene_name(), "shader_arena");         // copy the new one
-        //a->m_game->level.name_mission_table = mString{ "shader_arena" };        // <-- might not be necessary due to game_load_advance_state or whatever doing this
-        //a->m_game->flag.level_is_loaded = 0;            // locks us out..
-        // poppr();                                        // pop the current proc from stack
-        // g_game_ptr->unpause();                          // unpause
-        close_debug();                                  // hide just incase?
-
-        auto pGame = app::instance->m_game;
-        printf("current state = 0x%08X\n", pGame->get_cur_state());
-
-#if 1
-        auto loadLevel = [&](game* g, const char* level_name) -> void {
-#           if !defined(TARGET_XBOX) && !defined(TARGET_PS2)
-
-#               if 0
-
-                    static bool& loading_a_level = var<bool>(0x00960CB5);
-                    strcpy((char*)g_scene_name(), level_name);
-                    loading_a_level = false;
-                    g->flag.level_is_loaded = false;
-                    g->level.load_completed = false;
-                    g->process_stack.m_last->reset_index();
-
-#               else
-                    os_developer_options::instance->set_string(mString{ "SCENE_NAME" }, mString{ level_name });
-                    void* p_new_game = malloc(0x2C4u);
-                    if(p_new_game) {
-                        game* new_game = (game*)THISCALL(0x00557610, p_new_game);
-                        if (new_game) {
-                            app::instance->m_game = new_game;
-                            g_game_ptr = new_game;
-                        }
-                    }
-#               endif
-
-#           else
-                // ...
-#           endif
-        };
-        loadLevel(app::instance->m_game, "city_arena");
-
-
-
-        //game->process_stack.clear();
-        //game->push_process(mainflow_proc);
-        //printf("current state = 0x%08X\n", game->get_cur_state());
-#endif
-
+        STARTUPINFOA startup_info {};
+        startup_info.cb = sizeof(startup_info);
+        PROCESS_INFORMATION process_info {};
+        if (CreateProcessA(exe_path,
+                           command_line,
+                           nullptr,
+                           nullptr,
+                           FALSE,
+                           0,
+                           nullptr,
+                           nullptr,
+                           &startup_info,
+                           &process_info)) {
+            CloseHandle(process_info.hThread);
+            CloseHandle(process_info.hProcess);
+            ExitProcess(0);
+        }
     }
-    
 }
 
 
@@ -4063,7 +4046,17 @@ void hero_toggle_handler(debug_menu_entry* entry)
 {
     printf("hero_toggle_handler\n");
     assert(entry->get_id() < NUM_HEROES);
-    hero_selected = entry->get_id();
+
+    if (hero_status != hero_status_e::UNDEFINED) {
+        return;
+    }
+
+    const auto selected = entry->get_id();
+    if (g_game_ptr->gamefile->field_340.m_hero_name == fixedstring<8>{hero_list[selected]}) {
+        return;
+    }
+
+    hero_selected = selected;
     hero_status = hero_status_e::REMOVE_PLAYER;
 }
 
@@ -4398,34 +4391,6 @@ void sub_65BB36(script_library_class::function* func, vm_stack* stack, char* a3,
     }
 }
 
-uint8_t __fastcall slf__create_progression_menu_entry(script_library_class::function* func, void*, vm_stack* stack, void* unk) {
-
-    stack->pop(8);
-
-    auto* stack_ptr = bit_cast<char*>(stack->SP);
-    sub_65BB36(func, stack, stack_ptr, 2);
-
-    char** strs = (char**)stack->SP;
-
-    printf("Entry: %s -> %s\n", strs[0], strs[1]);
-
-    string_hash strhash{ strs[1] };
-
-    script_instance* instance = stack->my_thread->inst;
-
-    debug_menu_entry entry{ strs[0] };
-    entry.set_script_handler(instance, { strs[1] });
-
-    progression_menu->add_entry(&entry);
-
-    int push = 0;
-    auto sz = sizeof(push);
-    memcpy((void*)stack->SP, &push, sz);
-    stack->SP += sz;
-    return true;
-}
-
-
 bool __fastcall slf__create_debug_menu_entry(script_library_class::function* func, void*, vm_stack* stack, void* unk)
 {
     stack->pop(4);
@@ -4589,8 +4554,6 @@ BOOL install_redirects()
         auto writeDWORD = [](int address, DWORD newValue, [[maybe_unused]] const char* reason) -> void {
             *((DWORD*)address) = newValue;
         };
-        writeDWORD(0x0089C710, (DWORD)slf__create_progression_menu_entry, "Hooking first ocurrence of create_progession_menu_entry");
-        writeDWORD(0x0089C718, (DWORD)slf__create_progression_menu_entry, "Hooking second  ocurrence of create_progession_menu_entry");
         writeDWORD(0x0089AF70, (DWORD)slf__create_debug_menu_entry, "Hooking first ocurrence of create_debug_menu_entry");
         writeDWORD(0x0089C708, (DWORD)slf__create_debug_menu_entry, "Hooking second  ocurrence of create_debug_menu_entry");
         writeDWORD(0x0089C720, (DWORD)slf__destroy_debug_menu_entry__debug_menu_entry, "Hooking destroy_debug_menu_entry");
