@@ -5,6 +5,8 @@ stages:
 check-format-job:
   stage: style
   image: silkeh/clang:latest
+  tags:
+    - docker
   variables:
     GIT_DEPTH: 1
   script:
