@@ -5,7 +5,6 @@ stages:
 check-format-job:
   stage: style
   image: silkeh/clang:latest
-  allow_failure: true
   variables:
     GIT_DEPTH: 1
   script:
