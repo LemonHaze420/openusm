@@ -381,16 +381,7 @@ void nalComp::nalCompInstance::GetPose(Float a2, Float a3, nalComp::nalCompPose 
     if constexpr (1) {
         *a4 = *a5;
         for (int i = 0; i < this->field_18; ++i) {
-            struct {
-                int field_0;
-                int field_4;
-                int field_8;
-                void *field_C;
-                char field_10;
-                char field_11;
-                char field_12;
-                char field_13;
-            } *v30 = CAST(v30, ((char *)this->field_14 + 0x14 * i));
+            auto *v30 = &this->field_14[i];
             if (v30->field_8 != -1 && v30->field_11) {
                 auto v26 = v30->field_0;
                 auto *v5 = this->GetSkeleton();

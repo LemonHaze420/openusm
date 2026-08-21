@@ -11,6 +11,7 @@ namespace nalChar {
 
 struct nalCharSkeleton;
 struct nalCharInstance;
+struct nalCharPose;
 
 struct nalCharAnim : nalComp::nalCompAnim {
     nalCharAnim();
@@ -67,6 +68,11 @@ struct nalCharInstance : nalComp::nalCompInstance {
     //virtual
     //0x005F08A0
     void _BuildPerInstData();
+
+    //0x005F0E10
+    void GetPose(Float a2, Float a3, nalChar::nalCharPose *a4, const nalChar::nalCharPose *a5);
+
+    nalCharSkeleton *GetSkeleton();
 };
 
 
