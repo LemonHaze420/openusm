@@ -276,7 +276,7 @@ void nalComp::nalCompInstance::_BuildSkelRemapping()
 
         this->BuildEmptyPoseArray();
     } else {
-        void (__fastcall * func)(void *) = CAST(func, 0x0073E1A0);
+        void (__fastcall * func)(void *) = CAST(func, 0x0073EB50);
         func(this);
     }
 }
