@@ -29,11 +29,13 @@ struct wds_entity_manager {
     //0x005DF4C0
     wds_entity_manager();
 
-    inline auto *get_entities() {
+    inline auto *get_entities()
+    {
         return &this->entities;
     }
 
-    inline auto *get_items() {
+    inline auto *get_items()
+    {
         return &this->items;
     }
 
@@ -41,10 +43,7 @@ struct wds_entity_manager {
 
     bool is_item_valid(item *a2);
 
-    entity *acquire_entity(
-        string_hash a2,
-        string_hash a3,
-        uint32_t a6);
+    entity *acquire_entity(string_hash a2, string_hash a3, uint32_t a6);
 
     //0x005E0D40
     entity *acquire_entity(string_hash a1, uint32_t a2);
@@ -88,18 +87,11 @@ struct wds_entity_manager {
     int add_ent_to_lists(_std::vector<entity *> *a2, _std::vector<item *> *a3, entity *ent);
 
     //0x005E0A10
-    entity *create_and_add_entity_or_subclass(string_hash a2,
-                                          string_hash a3,
-                                          const po &a4,
-                                          const mString &a5,
-                                          uint32_t a6,
-                                          const _std::list<region *> *a7);
+    entity *create_and_add_entity_or_subclass(string_hash a2, string_hash a3, const po &a4, const mString &a5,
+                                              uint32_t a6, const _std::list<region *> *a7);
 
     //0x005C2D80
-    box_trigger *create_and_add_box_trigger(
-            string_hash a1,
-            const vector3d &a3,
-            const convex_box &a4);
+    box_trigger *create_and_add_box_trigger(string_hash a1, const vector3d &a3, const convex_box &a4);
 
     //0x005D92D0
     void process_time_limited_entities(Float a2);

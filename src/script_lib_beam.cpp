@@ -14,17 +14,15 @@ int slc_beam_t::_find_instance(const mString &a1) const
         return 0;
     }
 
-    auto *ent = (entity *) entity_handle_manager::find_entity(string_hash {a1.c_str()}, IGNORE_FLAVOR, true);
-    if (ent == nullptr)
-    {
+    auto *ent = (entity *)entity_handle_manager::find_entity(string_hash{a1.c_str()}, IGNORE_FLAVOR, true);
+    if (ent == nullptr) {
         auto a2a = "beam " + a1;
         auto v8 = a2a + " not found\n";
         auto *v5 = v8.c_str();
         error(v5);
     }
 
-    if ( ent->get_flavor() != entity_flavor_t::BEAM )
-    {
+    if (ent->get_flavor() != entity_flavor_t::BEAM) {
         auto a2b = "entity " + a1;
         auto v9 = a2b + " is not a beam\n";
         auto *v6 = v9.c_str();

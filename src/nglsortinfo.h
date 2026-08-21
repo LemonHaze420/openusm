@@ -5,8 +5,8 @@
 struct nglTexture;
 
 enum nglSortType {
-     NGLSORT_OPAQUE = 0,
-     NGLSORT_TRANSLUCENT = 1,
+    NGLSORT_OPAQUE = 0,
+    NGLSORT_TRANSLUCENT = 1,
 };
 
 struct nglSortInfo {

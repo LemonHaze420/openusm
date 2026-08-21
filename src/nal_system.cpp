@@ -42,140 +42,149 @@ struct nalAnimCache {
 
 #if !STANDALONE_SYSTEM
 
-tlInstanceBankResourceDirectory<nalBaseSkeleton, tlFixedString> *& nalSkeletonDirectory =
+tlInstanceBankResourceDirectory<nalBaseSkeleton, tlFixedString> *&nalSkeletonDirectory =
     var<tlInstanceBankResourceDirectory<nalBaseSkeleton, tlFixedString> *>(0x00977178);
 
-tlInstanceBankResourceDirectory<nalAnimFile, tlFixedString> *& nalAnimFileDirectory = var<tlInstanceBankResourceDirectory<nalAnimFile, tlFixedString> *>(0x0097716C);
+tlInstanceBankResourceDirectory<nalAnimFile, tlFixedString> *&nalAnimFileDirectory =
+    var<tlInstanceBankResourceDirectory<nalAnimFile, tlFixedString> *>(0x0097716C);
 
-tlInstanceBankResourceDirectory<nalAnimClass<nalAnyPose>, tlFixedString> *& nalAnimDirectory = var<tlInstanceBankResourceDirectory<nalAnimClass<nalAnyPose>, tlFixedString> *>(0x00977170);
+tlInstanceBankResourceDirectory<nalAnimClass<nalAnyPose>, tlFixedString> *&nalAnimDirectory =
+    var<tlInstanceBankResourceDirectory<nalAnimClass<nalAnyPose>, tlFixedString> *>(0x00977170);
 
-tlInstanceBankResourceDirectory<nalSceneAnim, tlFixedString> *& nalSceneAnimDirectory = var<tlInstanceBankResourceDirectory<nalSceneAnim, tlFixedString> *>(0x00977168);
+tlInstanceBankResourceDirectory<nalSceneAnim, tlFixedString> *&nalSceneAnimDirectory =
+    var<tlInstanceBankResourceDirectory<nalSceneAnim, tlFixedString> *>(0x00977168);
 
-static auto & dword_970D64 = var<void *>(0x00970D64);
+static auto &dword_970D64 = var<void *>(0x00970D64);
 
-char (& nalAnimPath)[255] = var<char[255]>(0x00976FC8);
+char (&nalAnimPath)[255] = var<char[255]>(0x00976FC8);
 
-char (& nalSkeletonPath)[255] = var<char[255]>(0x00976EC8);
+char (&nalSkeletonPath)[255] = var<char[255]>(0x00976EC8);
 
-static nalHeap & nalDefaultHeap = var<nalHeap>(0x00946A84);
+static nalHeap &nalDefaultHeap = var<nalHeap>(0x00946A84);
 
-static nalAnimCache & nalAnimationCache = var<nalAnimCache>(0x00977114);
+static nalAnimCache &nalAnimationCache = var<nalAnimCache>(0x00977114);
 
-static nalHeap *& nalAnimationHeap = var<nalHeap *>(0x00976EC0);
+static nalHeap *&nalAnimationHeap = var<nalHeap *>(0x00976EC0);
 
-tlInstanceBank & nalTypeInstanceBank = var<tlInstanceBank>(0x009770E8);
+tlInstanceBank &nalTypeInstanceBank = var<tlInstanceBank>(0x009770E8);
 
-tlInstanceBank & nalComponentInstanceBank = var<tlInstanceBank>(0x00977100);
+tlInstanceBank &nalComponentInstanceBank = var<tlInstanceBank>(0x00977100);
 
-LARGE_INTEGER & nalPlayerGetPoseTicks = var<LARGE_INTEGER>(0x009770D8);
+LARGE_INTEGER &nalPlayerGetPoseTicks = var<LARGE_INTEGER>(0x009770D8);
 
 #else
 
-tlInstanceBankResourceDirectory<nalBaseSkeleton, tlFixedString> *& nalSkeletonDirectory = []() -> auto & {
-    static tlInstanceBankResourceDirectory<nalBaseSkeleton, tlFixedString> * g_nalSkeletonDirectory {};
+tlInstanceBankResourceDirectory<nalBaseSkeleton, tlFixedString> *&nalSkeletonDirectory = []() -> auto & {
+    static tlInstanceBankResourceDirectory<nalBaseSkeleton, tlFixedString> *g_nalSkeletonDirectory{};
     return g_nalSkeletonDirectory;
 }();
 
-tlInstanceBankResourceDirectory<nalAnimFile, tlFixedString> *& nalAnimFileDirectory = []() -> auto & {
-    static tlInstanceBankResourceDirectory<nalAnimFile, tlFixedString> * g_nalAnimFileDirectory {};
+tlInstanceBankResourceDirectory<nalAnimFile, tlFixedString> *&nalAnimFileDirectory = []() -> auto & {
+    static tlInstanceBankResourceDirectory<nalAnimFile, tlFixedString> *g_nalAnimFileDirectory{};
     return g_nalAnimFileDirectory;
 }();
 
-tlInstanceBankResourceDirectory<nalAnimClass<nalAnyPose>, tlFixedString> *& nalAnimDirectory = []() -> auto & {
-    static tlInstanceBankResourceDirectory<nalAnimClass<nalAnyPose>, tlFixedString> * g_nalAnimDirectory {};
+tlInstanceBankResourceDirectory<nalAnimClass<nalAnyPose>, tlFixedString> *&nalAnimDirectory = []() -> auto & {
+    static tlInstanceBankResourceDirectory<nalAnimClass<nalAnyPose>, tlFixedString> *g_nalAnimDirectory{};
     return g_nalAnimDirectory;
 }();
 
-tlInstanceBankResourceDirectory<nalSceneAnim, tlFixedString> *& nalSceneAnimDirectory = []() -> auto & {
-    static tlInstanceBankResourceDirectory<nalSceneAnim, tlFixedString> * g_nalSceneAnimDirectory {};
+tlInstanceBankResourceDirectory<nalSceneAnim, tlFixedString> *&nalSceneAnimDirectory = []() -> auto & {
+    static tlInstanceBankResourceDirectory<nalSceneAnim, tlFixedString> *g_nalSceneAnimDirectory{};
     return g_nalSceneAnimDirectory;
 }();
 
-static auto & dword_970D64 = []() -> auto & {
-    static void * g_dword_970D64 {};
+static auto &dword_970D64 = []() -> auto & {
+    static void *g_dword_970D64{};
     return g_dword_970D64;
 }();
 
-char (& nalAnimPath)[255] = []() -> auto & {
-    static char g_nalAnimPath[255] {};
+char (&nalAnimPath)[255] = []() -> auto & {
+    static char g_nalAnimPath[255]{};
     return g_nalAnimPath;
 }();
 
-char (& nalSkeletonPath)[255] = []() -> auto & {
-    static char g_nalSkeletonPath[255] {};
+char (&nalSkeletonPath)[255] = []() -> auto & {
+    static char g_nalSkeletonPath[255]{};
     return g_nalSkeletonPath;
 }();
 
-static nalHeap & nalDefaultHeap = []() -> auto & {
-    static nalHeap g_nalDefaultHeap {};
+static nalHeap &nalDefaultHeap = []() -> auto & {
+    static nalHeap g_nalDefaultHeap{};
     return g_nalDefaultHeap;
 }();
 
-static nalAnimCache & nalAnimationCache = []() -> auto & {
-    static nalAnimCache g_nalAnimationCache {};
+static nalAnimCache &nalAnimationCache = []() -> auto & {
+    static nalAnimCache g_nalAnimationCache{};
     return g_nalAnimationCache;
 }();
 
-static nalHeap *& nalAnimationHeap = []() -> auto & {
-    static nalHeap * g_nalAnimationHeap {};
+static nalHeap *&nalAnimationHeap = []() -> auto & {
+    static nalHeap *g_nalAnimationHeap{};
     return g_nalAnimationHeap;
 }();
 
-tlInstanceBank & nalTypeInstanceBank = []() -> auto & {
-    static tlInstanceBank g_nalTypeInstanceBank {};
+tlInstanceBank &nalTypeInstanceBank = []() -> auto & {
+    static tlInstanceBank g_nalTypeInstanceBank{};
     return g_nalTypeInstanceBank;
 }();
 
-tlInstanceBank & nalComponentInstanceBank = []() -> auto & {
-    static tlInstanceBank g_nalComponentInstanceBank {};
+tlInstanceBank &nalComponentInstanceBank = []() -> auto & {
+    static tlInstanceBank g_nalComponentInstanceBank{};
     return g_nalComponentInstanceBank;
 }();
 
-LARGE_INTEGER & nalPlayerGetPoseTicks = []() -> auto & {
-    static LARGE_INTEGER g_nalPlayerGetPoseTicks {};
+LARGE_INTEGER &nalPlayerGetPoseTicks = []() -> auto & {
+    static LARGE_INTEGER g_nalPlayerGetPoseTicks{};
     return g_nalPlayerGetPoseTicks;
 }();
 
 #endif
 
-int * nalComponentFloat1Base::_GetType()
+int *nalComponentFloat1Base::_GetType()
 {
     return &TypeID;
 }
 
-int * nalComponentFloat3Base::_GetType()
+int *nalComponentFloat3Base::_GetType()
 {
     return &TypeID;
 }
 
-int * nalComponentQuatBase::_GetType()
+int *nalComponentQuatBase::_GetType()
 {
     return &TypeID;
 }
 
-int *nalComponentU8Base::_GetType() {
+int *nalComponentU8Base::_GetType()
+{
     return &TypeID;
 }
 
-char *nalComponentStringBase::GetType() {
+char *nalComponentStringBase::GetType()
+{
     sp_log("%d", TypeID);
 
     return &TypeID;
 }
 
-nalBaseSkeleton *nalGetSkeleton(const tlFixedString &a1) {
-    nalBaseSkeleton * (__fastcall *Find)(void *, void *, const tlFixedString *) = CAST(Find, get_vfunc(nalSkeletonDirectory->m_vtbl, 0xC));
+nalBaseSkeleton *nalGetSkeleton(const tlFixedString &a1)
+{
+    nalBaseSkeleton *(__fastcall * Find)(void *, void *, const tlFixedString *) =
+        CAST(Find, get_vfunc(nalSkeletonDirectory->m_vtbl, 0xC));
 
     return Find(nalSkeletonDirectory, nullptr, &a1);
 }
 
-void nalComponentBase::Process(const nalGeneric::nalComponentInfo *a1, void *& a2, void *& a3)
+void nalComponentBase::Process(const nalGeneric::nalComponentInfo *a1, void *&a2, void *&a3)
 {
-    void (__fastcall *func)(void *, void *edx, const nalGeneric::nalComponentInfo *, void **, void **) = CAST(func, get_vfunc(m_vtbl, 0x10));
+    void(__fastcall * func)(void *, void *edx, const nalGeneric::nalComponentInfo *, void **, void **) =
+        CAST(func, get_vfunc(m_vtbl, 0x10));
     func(this, nullptr, a1, &a2, &a3);
 }
 
-void nalInit(nalHeap *a1) {
+void nalInit(nalHeap *a1)
+{
     TRACE("nalInit");
 
     if constexpr (1) {
@@ -187,16 +196,13 @@ void nalInit(nalHeap *a1) {
         nalAnimPath[0] = 0;
         nalSkeletonPath[0] = 0;
 
-        nalAnimFileDirectory = new
-            tlInstanceBankResourceDirectory<nalAnimFile, tlFixedString>{};
+        nalAnimFileDirectory = new tlInstanceBankResourceDirectory<nalAnimFile, tlFixedString>{};
 
-        nalAnimDirectory = new
-            tlInstanceBankResourceDirectory<nalAnimClass<nalAnyPose>, tlFixedString>{};
+        nalAnimDirectory = new tlInstanceBankResourceDirectory<nalAnimClass<nalAnyPose>, tlFixedString>{};
 
         nalSceneAnimDirectory = new tlInstanceBankResourceDirectory<nalSceneAnim, tlFixedString>{};
 
-        nalSkeletonDirectory = new
-            tlInstanceBankResourceDirectory<nalBaseSkeleton, tlFixedString>{};
+        nalSkeletonDirectory = new tlInstanceBankResourceDirectory<nalBaseSkeleton, tlFixedString>{};
 
         nalTypeInstanceBank.Init();
         nalComponentInstanceBank.Init();
@@ -219,49 +225,42 @@ void nalInit(nalHeap *a1) {
     }
 }
 
-void nalExit() {
+void nalExit()
+{
     CDECL_CALL(0x00783C60);
 }
 
-void nalReleaseSceneAnimInternal(nalSceneAnim *a1) {
+void nalReleaseSceneAnimInternal(nalSceneAnim *a1)
+{
     CDECL_CALL(0x0078D9B0, a1);
 }
 
-bool nalLoadSceneAnimInternal(nalSceneAnim *a1) {
-    return (bool) CDECL_CALL(0x0078D8D0, a1);
+bool nalLoadSceneAnimInternal(nalSceneAnim *a1)
+{
+    return (bool)CDECL_CALL(0x0078D8D0, a1);
 }
 
 bool nalLoadAnimFileInternal(nalAnimFile *anim_file)
 {
-    TRACE("nalLoadAnimFileInternal", anim_file->field_10.to_string(), 
-            anim_file->field_48.to_string());
+    TRACE("nalLoadAnimFileInternal", anim_file->field_10.to_string(), anim_file->field_48.to_string());
 
-    if (anim_file->field_0 != 0x10101)
-    {
-        error("Unsupported anim file version %x, current version is %x.\n",
-              anim_file->field_0,
-              0x10101);
+    if (anim_file->field_0 != 0x10101) {
+        error("Unsupported anim file version %x, current version is %x.\n", anim_file->field_0, 0x10101);
     }
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         auto *v1 = &anim_file->field_48;
-        auto **skeletons = static_cast<nalBaseSkeleton **>(tlMemAlloc(4 * anim_file->num_skeletons,
-                                                           8,
-                                                           0x2000000u));
+        auto **skeletons = static_cast<nalBaseSkeleton **>(tlMemAlloc(4 * anim_file->num_skeletons, 8, 0x2000000u));
 
-        for (auto i = 0; i < anim_file->num_skeletons; ++i)
-        {
+        for (auto i = 0; i < anim_file->num_skeletons; ++i) {
             skeletons[i] = nalSkeletonDirectory->Find(v1[i]);
-            if (skeletons[i] == nullptr)
-            {
+            if (skeletons[i] == nullptr) {
                 auto v8 = anim_file->field_10.to_string();
                 auto v3 = v1[i].to_string();
-                error(
-                    "The skeleton resource file %s was not found while loading animfile %s. "
-                    "Perhaps something is wrong with the packer?\n",
-                    v3,
-                    v8);
+                error("The skeleton resource file %s was not found while loading animfile %s. "
+                      "Perhaps something is wrong with the packer?\n",
+                      v3,
+                      v8);
 
                 assert(0);
             }
@@ -269,14 +268,14 @@ bool nalLoadAnimFileInternal(nalAnimFile *anim_file)
 
         nalAnimClass<nalAnyPose> *anim_class = nullptr;
         if (anim_file->field_34 != nullptr) {
-            anim_file->field_34 = CAST(anim_file->field_34, bit_cast<char *>(anim_file->field_34) + (unsigned int) anim_file);
+            anim_file->field_34 =
+                CAST(anim_file->field_34, bit_cast<char *>(anim_file->field_34) + (unsigned int)anim_file);
             anim_class = anim_file->field_34;
         }
 
-        while (anim_class != nullptr)
-        {
+        while (anim_class != nullptr) {
             if (anim_class->field_4 != nullptr) {
-                anim_class->field_4 = CAST(anim_class->field_4, int(anim_class->field_4) + (unsigned int) anim_class);
+                anim_class->field_4 = CAST(anim_class->field_4, int(anim_class->field_4) + (unsigned int)anim_class);
             }
 
             auto *v7 = skeletons[anim_class->field_28];
@@ -317,11 +316,12 @@ bool nalLoadAnimFileInternal(nalAnimFile *anim_file)
     }
 }
 
-void nalSetSkeletonDirectory(tlResourceDirectory<nalBaseSkeleton, tlFixedString> *a1) {
+void nalSetSkeletonDirectory(tlResourceDirectory<nalBaseSkeleton, tlFixedString> *a1)
+{
     nalSkeletonDirectory = CAST(nalSkeletonDirectory, a1);
 }
 
-tlInstanceBankResourceDirectory<nalBaseSkeleton, tlFixedString> * nalGetSkeletonDirectory()
+tlInstanceBankResourceDirectory<nalBaseSkeleton, tlFixedString> *nalGetSkeletonDirectory()
 {
     return nalSkeletonDirectory;
 }
@@ -333,26 +333,28 @@ void nalSetAnimFileDirectory(tlResourceDirectory<nalAnimFile, tlFixedString> *a1
     nalAnimFileDirectory = CAST(nalAnimFileDirectory, a1);
 }
 
-tlInstanceBankResourceDirectory<nalAnimFile, tlFixedString> * nalGetAnimFileDirectory()
+tlInstanceBankResourceDirectory<nalAnimFile, tlFixedString> *nalGetAnimFileDirectory()
 {
     return nalAnimFileDirectory;
 }
 
 
-void nalSetAnimDirectory(tlResourceDirectory<nalAnimClass<nalAnyPose>, tlFixedString> *a1) {
+void nalSetAnimDirectory(tlResourceDirectory<nalAnimClass<nalAnyPose>, tlFixedString> *a1)
+{
     nalAnimDirectory = CAST(nalAnimDirectory, a1);
 }
 
-tlInstanceBankResourceDirectory<nalAnimClass<nalAnyPose>, tlFixedString> * nalGetAnimDirectory()
+tlInstanceBankResourceDirectory<nalAnimClass<nalAnyPose>, tlFixedString> *nalGetAnimDirectory()
 {
     return nalAnimDirectory;
 }
 
-void nalSetSceneAnimDirectory(tlResourceDirectory<nalSceneAnim, tlFixedString> *a1) {
+void nalSetSceneAnimDirectory(tlResourceDirectory<nalSceneAnim, tlFixedString> *a1)
+{
     nalSceneAnimDirectory = CAST(nalSceneAnimDirectory, a1);
 }
 
-tlInstanceBankResourceDirectory<nalSceneAnim, tlFixedString> * nalGetSceneAnimDirectory()
+tlInstanceBankResourceDirectory<nalSceneAnim, tlFixedString> *nalGetSceneAnimDirectory()
 {
     return nalSceneAnimDirectory;
 }
@@ -391,10 +393,7 @@ vector4d sub_504170(const vector4d &a2, const float *a3, const vector4d &a4)
     return result;
 }
 
-vector4d  sub_5E2F50(
-	const vector4d &a2,
-	const float *a3,
-	const vector4d &a4)
+vector4d sub_5E2F50(const vector4d &a2, const float *a3, const vector4d &a4)
 {
     vector4d result;
     result[0] = a3[0] * a2[0] + a4[0];
@@ -406,7 +405,7 @@ vector4d  sub_5E2F50(
 
 void sub_5FC820(const nalPositionOrientation &a1, vector4d &a2, vector4d &a3, vector4d &a4)
 {
-    vector4d v10 {};
+    vector4d v10{};
     v10[0] = a1.field_0[0] + a1.field_0[0];
     v10[1] = a1.field_0[1] + a1.field_0[1];
     v10[2] = a1.field_0[2] + a1.field_0[2];
@@ -420,7 +419,7 @@ void sub_5FC820(const nalPositionOrientation &a1, vector4d &a2, vector4d &a3, ve
     auto v17 = -v6;
     auto a1a = v13 - 1.0f;
 
-    vector4d v15 {};
+    vector4d v15{};
     v15[0] = a1a;
     v15[1] = -v12;
     v15[2] = v6;
@@ -463,7 +462,7 @@ void nalMatrix4x4::sub_5FC9C0(const nalPositionOrientation &a2)
         this->arr[2][2] = v12[2];
         this->arr[2][3] = 0.0;
     } else {
-        void (__fastcall *func)(void *self, void *edx, const float *a2) = CAST(func, 0x005FC9C0);
+        void(__fastcall * func)(void *self, void *edx, const float *a2) = CAST(func, 0x005FC9C0);
         func(this, nullptr, &a2.field_0[0]);
     }
 }
@@ -478,10 +477,8 @@ nalPositionOrientation::nalPositionOrientation(nalVector3 a2, const float *a3)
 }
 
 
-
 void nalStreamInstance_patch()
 {
-
     REDIRECT(0x005AD21F, nalInit);
 
     REDIRECT(0x0055F8F4, nalConstructSkeleton);

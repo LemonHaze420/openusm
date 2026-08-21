@@ -64,7 +64,8 @@ struct RenderState_t {
     int field_D0;
     int field_D4;
 
-    bool operator<(const RenderState_t &a1) const {
+    bool operator<(const RenderState_t &a1) const
+    {
         auto *ptr0 = bit_cast<uint32_t *>(&this->m_stencilCheckEnabled);
         auto *ptr1 = bit_cast<uint32_t *>(&a1.m_stencilCheckEnabled);
 
@@ -86,7 +87,8 @@ struct RenderState_t {
         return result;
     }
 
-    bool operator==(const RenderState_t &a1) const {
+    bool operator==(const RenderState_t &a1) const
+    {
         auto *ptr0 = bit_cast<uint32_t *>(&this->m_stencilCheckEnabled);
         auto *ptr1 = bit_cast<uint32_t *>(&a1.m_stencilCheckEnabled);
 

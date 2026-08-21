@@ -65,6 +65,6 @@ struct FEManager {
 //0x006299B0
 extern void RenderLoadMeter();
 
-extern FEManager & g_femanager;
+extern FEManager &g_femanager;
 
 extern void FEManager_patch();

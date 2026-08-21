@@ -37,8 +37,7 @@ struct web_info_nugget {
 };
 
 struct web_interface {
-    enum eWebInterfaceFlags {
-    };
+    enum eWebInterfaceFlags {};
 
     mVector<web_info_nugget> field_0;
     actor *my_actor;
@@ -47,11 +46,12 @@ struct web_interface {
 
     web_interface(actor *a2);
 
-    void * operator new(size_t size);
+    void *operator new(size_t size);
 
     void operator delete(void *ptr, size_t size);
 
-    bool is_flagged(web_interface::eWebInterfaceFlags a2) const {
+    bool is_flagged(web_interface::eWebInterfaceFlags a2) const
+    {
         return (a2 & this->field_1C) != 0;
     }
 
@@ -69,7 +69,7 @@ struct web_interface {
     //0x004F2AC0
     static void frame_advance_all_web_interfaces(Float a1);
 
-    static inline auto & m_all_web_interfaces = var<mVector<web_interface>>(0x0095B9B4);
+    static inline auto &m_all_web_interfaces = var<mVector<web_interface>>(0x0095B9B4);
 };
 
 extern void web_interface_patch();

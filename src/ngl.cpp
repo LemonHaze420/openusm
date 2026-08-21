@@ -106,9 +106,9 @@ VALIDATE_SIZE(nglRenderTextureState, 0x60);
 
 Var<int> nglScratchMeshPos{0x00975310};
 
-Var<nglScratchBuffer_t> nglScratchBuffer {0x00972A18};
+Var<nglScratchBuffer_t> nglScratchBuffer{0x00972A18};
 
-uint32_t & nglTextureAnimFrame = var<uint32_t>(0x0097383C);
+uint32_t &nglTextureAnimFrame = var<uint32_t>(0x0097383C);
 
 VALIDATE_SIZE(nglDebugStruct, 0x28);
 VALIDATE_OFFSET(nglDebugStruct, ShowPerfInfo, 0x18);
@@ -129,138 +129,294 @@ Var<char[1024]> nglFontBuffer{0x00974E08};
 Var<tlInstanceBankResourceDirectory<nglFont, tlFixedString> *> nglFontDirectory{0x00974E00};
 
 #if !STANDALONE_SYSTEM
-auto & nglTextureDirectory = var<tlInstanceBankResourceDirectory<nglTexture, tlFixedString> *>(0x00973730);
+auto &nglTextureDirectory = var<tlInstanceBankResourceDirectory<nglTexture, tlFixedString> *>(0x00973730);
 
-auto & nglPaletteFileDirectory = var<tlInstanceBankResourceDirectory<nglPaletteFile, tlFixedString> *>(0x00976C80);
+auto &nglPaletteFileDirectory = var<tlInstanceBankResourceDirectory<nglPaletteFile, tlFixedString> *>(0x00976C80);
 
-auto & nglMeshFileDirectory = var<tlInstanceBankResourceDirectory<nglMeshFile, tlFixedString> *>(0x00972814);
+auto &nglMeshFileDirectory = var<tlInstanceBankResourceDirectory<nglMeshFile, tlFixedString> *>(0x00972814);
 
-auto & nglMeshDirectory = var<tlInstanceBankResourceDirectory<nglMesh, tlHashString> *>(0x00972810);
+auto &nglMeshDirectory = var<tlInstanceBankResourceDirectory<nglMesh, tlHashString> *>(0x00972810);
 
-auto & nglMorphDirectory = var<tlInstanceBankResourceDirectory<nglMorphSet, tlHashString> *>(0x00972818);
+auto &nglMorphDirectory = var<tlInstanceBankResourceDirectory<nglMorphSet, tlHashString> *>(0x00972818);
 
-auto & nglMorphFileDirectory = var<tlInstanceBankResourceDirectory<nglMorphFile, tlFixedString> *>(0x00974DB0);
+auto &nglMorphFileDirectory = var<tlInstanceBankResourceDirectory<nglMorphFile, tlFixedString> *>(0x00974DB0);
 
-nglTexture & stru_975AC0 = var<nglTexture>(0x00975AC0);
+nglTexture &stru_975AC0 = var<nglTexture>(0x00975AC0);
 
-nglTexture *& nglDefaultTex = var<nglTexture *>(0x00973838);
+nglTexture *&nglDefaultTex = var<nglTexture *>(0x00973838);
 
-auto & nglDefaultTexData = var<char[2872]>(0x0093B140);
+auto &nglDefaultTexData = var<char[2872]>(0x0093B140);
 
-char (& nglTexturePath)[256] = var<char[256]>(0x00973738);
+char (&nglTexturePath)[256] = var<char[256]>(0x00973738);
 
-nglDebugStruct & nglDebug = var<nglDebugStruct>(0x00975830);
+nglDebugStruct &nglDebug = var<nglDebugStruct>(0x00975830);
 
-nglTexture *& nglWhiteTex = var<nglTexture *>(0x00973840);
+nglTexture *&nglWhiteTex = var<nglTexture *>(0x00973840);
 
-auto & nglMaterialFileDirectory =
-    var<tlInstanceBankResourceDirectory<nglMaterialFile, tlFixedString> *>(0x0095C304);
+auto &nglMaterialFileDirectory = var<tlInstanceBankResourceDirectory<nglMaterialFile, tlFixedString> *>(0x0095C304);
 
-auto & nglMaterialDirectory =
-    var<tlInstanceBankResourceDirectory<nglMaterialBase, tlHashString> *>(0x0095C1A0);
+auto &nglMaterialDirectory = var<tlInstanceBankResourceDirectory<nglMaterialBase, tlHashString> *>(0x0095C1A0);
 
-char (& nglMeshPath)[256] = var<char[256]>(0x00972710);
+char (&nglMeshPath)[256] = var<char[256]>(0x00972710);
 
-tlInstanceBank & nglVertexDefBank = var<tlInstanceBank>(0x009728A0);
+tlInstanceBank &nglVertexDefBank = var<tlInstanceBank>(0x009728A0);
 
-int (& dword_975BE8)[1024] = var<int[1024]>(0x00975BE8);
-int & dword_975BE0 = var<int>(0x00975BE0);
+int (&dword_975BE8)[1024] = var<int[1024]>(0x00975BE8);
+int &dword_975BE0 = var<int>(0x00975BE0);
 
-bool & g_valid_texture_format = var<bool>(0x00971F9D);
+bool &g_valid_texture_format = var<bool>(0x00971F9D);
 
-bool & nglLoadingIFL = var<bool>(0x00973844);
+bool &nglLoadingIFL = var<bool>(0x00973844);
 
 #else
 
-static tlInstanceBankResourceDirectory<nglTexture, tlFixedString> * g_nglTextureDirectory {};
-auto & nglTextureDirectory = g_nglTextureDirectory;
+static tlInstanceBankResourceDirectory<nglTexture, tlFixedString> *g_nglTextureDirectory{};
+auto &nglTextureDirectory = g_nglTextureDirectory;
 
-auto & nglPaletteFileDirectory = []() -> auto & {
-    static tlInstanceBankResourceDirectory<nglPaletteFile, tlFixedString> * g_nglPaletteFileDirectory;
+auto &nglPaletteFileDirectory = []() -> auto & {
+    static tlInstanceBankResourceDirectory<nglPaletteFile, tlFixedString> *g_nglPaletteFileDirectory;
     return g_nglPaletteFileDirectory;
 }();
 
-static tlInstanceBankResourceDirectory<nglMeshFile, tlFixedString> * g_nglMeshFileDirectory {};
-auto & nglMeshFileDirectory = g_nglMeshFileDirectory;
+static tlInstanceBankResourceDirectory<nglMeshFile, tlFixedString> *g_nglMeshFileDirectory{};
+auto &nglMeshFileDirectory = g_nglMeshFileDirectory;
 
-static tlInstanceBankResourceDirectory<nglMesh, tlHashString> * g_nglMeshDirectory {};
-auto & nglMeshDirectory = g_nglMeshDirectory;
+static tlInstanceBankResourceDirectory<nglMesh, tlHashString> *g_nglMeshDirectory{};
+auto &nglMeshDirectory = g_nglMeshDirectory;
 
-static tlInstanceBankResourceDirectory<nglMorphSet, tlHashString> * g_nglMorphDirectory {};
-auto & nglMorphDirectory = g_nglMorphDirectory;
+static tlInstanceBankResourceDirectory<nglMorphSet, tlHashString> *g_nglMorphDirectory{};
+auto &nglMorphDirectory = g_nglMorphDirectory;
 
-static tlInstanceBankResourceDirectory<nglMorphFile, tlFixedString> * g_nglMorphFileDirectory {};
-auto & nglMorphFileDirectory = g_nglMorphFileDirectory;
+static tlInstanceBankResourceDirectory<nglMorphFile, tlFixedString> *g_nglMorphFileDirectory{};
+auto &nglMorphFileDirectory = g_nglMorphFileDirectory;
 
-nglTexture & stru_975AC0 = []() -> auto & {
+nglTexture &stru_975AC0 = []() -> auto & {
     static nglTexture g_stru_975AC0;
     return g_stru_975AC0;
 }();
 
-nglTexture *& nglDefaultTex = []() -> auto & {
-    static nglTexture *g_nglDefaultTex {};
+nglTexture *&nglDefaultTex = []() -> auto & {
+    static nglTexture *g_nglDefaultTex{};
     return g_nglDefaultTex;
 }();
 
-auto & nglDefaultTexData = []() -> auto & {
+auto &nglDefaultTexData = []() -> auto & {
     static uint8_t g_nglDefaultTexData[2872u] = {
-		0x44, 0x44, 0x53, 0x20, 0x7C, 0x0, 0x0, 0x0, 0x7, 0x10, 0xA, 0x0, 0x40, 0x0, 0x0, 0x0, 0x40, 0x0, 0x0, 0x0, 0x0, 0x8, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x7, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x20, 0x0, 0x0, 0x0, 0x4, 0x0, 0x0, 0x0, 0x44, 0x58, 0x54, 0x31, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x8, 0x10, 0x40, 0x0, 0x0, 0x0, 0x0, 0x0, 0x44, 0x44, 0x53, 0x58, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xC0, 0x7, 0xDE, 0x7, 0x2, 0x9, 0x25, 0x95, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0x0, 0xC1, 0xF, 0x15, 0x25, 0x9, 0x2, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xC0, 0x7, 0xDE, 0x7, 0x2, 0x9, 0x25, 0x95, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0x8, 0xA1, 0xF, 0x95, 0x25, 0x9, 0x2, 0x20, 0x0, 0x1F, 0x0, 0x55, 0x55, 0x55, 0x55, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF8, 0x1F, 0x48, 0x80, 0x80, 0x80, 0x80, 0x20, 0x0, 0x1F, 0x0, 0x55, 0x55, 0x55, 0x55, 0x20, 0x0, 0x1F, 0x0, 0x55, 0x55, 0x55, 0x55, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF8, 0x1F, 0x48, 0x80, 0x80, 0x80, 0x80, 0x20, 0x0, 0x1F, 0x0, 0x55, 0x55, 0x55, 0x55, 0x20, 0x0, 0x1F, 0x0, 0x55, 0x55, 0x55, 0x55, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0xC0, 0x7, 0xDE, 0x7, 0x2, 0x9, 0x25, 0x95, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xC1, 0x7, 0x1F, 0x20, 0x40, 0x60, 0x58, 0x56, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF8, 0x1F, 0x48, 0x80, 0x80, 0x80, 0x80, 0x20, 0x0, 0x1F, 0x0, 0x55, 0x55, 0x55, 0x55, 0x20, 0x0, 0x1F, 0x0, 0x55, 0x55, 0x55, 0x55, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xC0, 0x7, 0xDE, 0x7, 0x2, 0x9, 0x25, 0x95, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0x8, 0xA1, 0xF, 0x95, 0x25, 0x9, 0x2, 0x9C, 0xB8, 0x1F, 0x0, 0xD5, 0xD5, 0xD5, 0xD5, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF8, 0x1F, 0x48, 0x80, 0x80, 0x80, 0x80, 0x20, 0x0, 0x1F, 0x0, 0x55, 0x55, 0x55, 0x55, 0x20, 0x0, 0x1F, 0x0, 0x55, 0x55, 0x55, 0x55, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0x20, 0xF0, 0x40, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x20, 0xF0, 0x40, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x20, 0xF0, 0x40, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x40, 0xF8, 0x4B, 0xA0, 0xC0, 0xC0, 0xC0, 0xC0, 0x20, 0x0, 0x1F, 0x0, 0x55, 0x55, 0x55, 0x55, 0x9C, 0xB8, 0x1F, 0x0, 0xD5, 0xD5, 0xD5, 0xD5, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF8, 0x1F, 0x48, 0x80, 0x80, 0x80, 0x80, 0x20, 0x0, 0x1F, 0x0, 0x55, 0x55, 0x55, 0x55, 0x20, 0x0, 0x1F, 0x0, 0x55, 0x55, 0x55, 0x55, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0x20, 0xF0, 0x40, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x20, 0xF0, 0x40, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x20, 0xF0, 0x40, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x40, 0xF8, 0x4B, 0xA0, 0xC0, 0xC0, 0xC0, 0xC0, 0x20, 0x0, 0x1F, 0x0, 0x55, 0x55, 0x55, 0x55, 0x9C, 0xB8, 0x1F, 0x0, 0xD5, 0xD5, 0xD5, 0xD5, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF8, 0x1F, 0x48, 0x80, 0x80, 0x80, 0x80, 0x20, 0x0, 0x1F, 0x0, 0x55, 0x55, 0x55, 0x55, 0x20, 0x0, 0x1F, 0x0, 0x55, 0x55, 0x55, 0x55, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0x20, 0xF0, 0x40, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x20, 0xF0, 0x40, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x20, 0xF0, 0x40, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x40, 0xF8, 0x4B, 0xA0, 0xC0, 0xC0, 0xC0, 0xC0, 0x20, 0x0, 0x1F, 0x0, 0x55, 0x55, 0x55, 0x55, 0x9C, 0xB8, 0x1F, 0x0, 0xD5, 0xD5, 0xD5, 0xD5, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF8, 0x1F, 0x48, 0x80, 0x80, 0x80, 0x80, 0x20, 0x0, 0x1F, 0x0, 0x55, 0x55, 0x55, 0x55, 0x20, 0x0, 0x1F, 0x0, 0x55, 0x55, 0x55, 0x55, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0x20, 0xF0, 0x40, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x20, 0xF0, 0x40, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x20, 0xF0, 0x40, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x40, 0xF8, 0x4B, 0xA0, 0xC0, 0xC0, 0xC0, 0xC0, 0x20, 0x0, 0x1F, 0x0, 0x55, 0x55, 0x55, 0x55, 0x9C, 0xB8, 0x1F, 0x0, 0xD5, 0xD5, 0xD5, 0xD5, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF8, 0x1F, 0x48, 0x80, 0x80, 0x80, 0x80, 0x20, 0x0, 0x1F, 0x0, 0x55, 0x55, 0x55, 0x55, 0x20, 0x0, 0x1F, 0x0, 0x55, 0x55, 0x55, 0x55, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xFF, 0xDF, 0x7, 0x95, 0x25, 0x9, 0x2, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xC1, 0xF7, 0x1F, 0x0, 0x56, 0x58, 0x60, 0x80, 0x9C, 0xB8, 0x1F, 0x0, 0xD5, 0xD5, 0xD5, 0xD5, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF8, 0x1F, 0x48, 0x80, 0x80, 0x80, 0x80, 0x20, 0x0, 0x1F, 0x0, 0x55, 0x55, 0x55, 0x55, 0x20, 0x0, 0x1F, 0x0, 0x55, 0x55, 0x55, 0x55, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0xC4, 0xFE, 0xDE, 0x7, 0x95, 0x25, 0x9, 0x2, 0xE0, 0xFF, 0x1B, 0xF9, 0x0, 0x0, 0x0, 0xAA, 0xE0, 0xFF, 0x1B, 0xF9, 0x0, 0x0, 0x0, 0xAA, 0xE0, 0xFF, 0x1B, 0xF9, 0x0, 0x0, 0x0, 0xAA, 0xE0, 0xFF, 0x1B, 0xF9, 0x0, 0x0, 0x0, 0xAA, 0xE0, 0xFF, 0x1B, 0xF9, 0x0, 0x0, 0x0, 0xAA, 0xE0, 0xFF, 0x1B, 0xF9, 0x0, 0x0, 0x0, 0xAA, 0xE1, 0xFF, 0x1F, 0x30, 0x56, 0x58, 0x60, 0xEA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF8, 0x1F, 0x48, 0x80, 0x80, 0x80, 0x80, 0x20, 0x0, 0x1F, 0x0, 0x55, 0x55, 0x55, 0x55, 0x20, 0x0, 0x1F, 0x0, 0x55, 0x55, 0x55, 0x55, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF8, 0x1F, 0x48, 0x80, 0x80, 0x80, 0x80, 0x20, 0x0, 0x1F, 0x0, 0x55, 0x55, 0x55, 0x55, 0x20, 0x0, 0x1F, 0x0, 0x55, 0x55, 0x55, 0x55, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xB0, 0xF3, 0x3F, 0xF8, 0x55, 0x55, 0x55, 0xAA, 0xB0, 0xF3, 0x3F, 0xF8, 0x55, 0x55, 0x55, 0xAA, 0xB0, 0xF3, 0x3F, 0xF8, 0x55, 0x55, 0x55, 0xAA, 0xB0, 0xF3, 0x3F, 0xF8, 0x55, 0x55, 0x55, 0xAA, 0xB0, 0xF3, 0x3F, 0xF8, 0x55, 0x55, 0x55, 0xAA, 0xB0, 0xF3, 0x3F, 0xF8, 0x55, 0x55, 0x55, 0xAA, 0xB0, 0xF3, 0x3F, 0xF8, 0x55, 0x55, 0x55, 0xAA, 0xB0, 0xF3, 0x3F, 0xF8, 0x55, 0x55, 0x55, 0xAA, 0xB0, 0xF3, 0x3F, 0xF8, 0x55, 0x55, 0x55, 0xAA, 0xB0, 0xF3, 0x3F, 0xF8, 0x55, 0x55, 0x55, 0xAA, 0xB0, 0xF3, 0x3F, 0xF8, 0x55, 0x55, 0x55, 0xAA, 0xD4, 0xFA, 0x1F, 0xE8, 0x55, 0x55, 0x55, 0xAA, 0x20, 0x0, 0x1F, 0x0, 0x55, 0x55, 0x55, 0x55, 0x20, 0x0, 0x1F, 0x0, 0x55, 0x55, 0x55, 0x55, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xFF, 0xDF, 0x7, 0x95, 0x25, 0x9, 0x2, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xC1, 0xF7, 0x1F, 0x0, 0x56, 0x58, 0x60, 0x80, 0x20, 0x0, 0x1F, 0x0, 0x55, 0x55, 0x55, 0x55, 0xE0, 0xFF, 0xDF, 0x7, 0x95, 0x25, 0x9, 0x2, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xC1, 0xF7, 0x1F, 0x0, 0x56, 0x58, 0x60, 0x80, 0xC0, 0x7, 0xDF, 0x7, 0x2, 0x9, 0x25, 0x95, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0x0, 0xA1, 0xF, 0x95, 0x25, 0x9, 0x2, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x3F, 0xF8, 0x1F, 0xC8, 0xC0, 0xC0, 0xC0, 0xC0, 0x20, 0x0, 0x1F, 0x0, 0x55, 0x55, 0x55, 0x55, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0xC0, 0x7, 0xDF, 0x7, 0x2, 0x9, 0x25, 0x95, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF, 0xC0, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0xA1, 0xF, 0x1F, 0x10, 0x80, 0x60, 0x58, 0x56, 0x3F, 0xF8, 0x1F, 0xC8, 0xC0, 0xC0, 0xC0, 0xC0, 0x20, 0x0, 0x1F, 0x0, 0x55, 0x55, 0x55, 0x55, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0x20, 0xF0, 0x40, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x20, 0xF8, 0x46, 0xC8, 0xC0, 0xC0, 0xC0, 0xC0, 0x1F, 0x0, 0x3E, 0x40, 0x80, 0x80, 0x80, 0x80, 0x3F, 0xF8, 0x1F, 0xC8, 0xC0, 0xC0, 0xC0, 0xC0, 0x20, 0x0, 0x1F, 0x0, 0x55, 0x55, 0x55, 0x55, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0x20, 0xF0, 0x40, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x20, 0xF8, 0x46, 0xC8, 0xC0, 0xC0, 0xC0, 0xC0, 0x1F, 0x0, 0x3E, 0x40, 0x80, 0x80, 0x80, 0x80, 0x3F, 0xF8, 0x1F, 0xC8, 0xC0, 0xC0, 0xC0, 0xC0, 0x20, 0x0, 0x1F, 0x0, 0x55, 0x55, 0x55, 0x55, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x43, 0xF7, 0xDF, 0x7, 0x95, 0x25, 0x9, 0x2, 0xE0, 0xFF, 0x6D, 0xFC, 0x0, 0x0, 0x0, 0xAA, 0xE0, 0xFF, 0x6D, 0xFC, 0x0, 0x0, 0x0, 0xAA, 0x3E, 0x10, 0x62, 0xFF, 0x2, 0x9, 0x25, 0x95, 0x3F, 0xF8, 0x1F, 0xC8, 0xC0, 0xC0, 0xC0, 0xC0, 0x20, 0x0, 0x1F, 0x0, 0x55, 0x55, 0x55, 0x55, 0xFF, 0xF, 0xDF, 0x7, 0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0xF8, 0xF3, 0xF2, 0x0, 0x0, 0x0, 0xAA, 0x1F, 0xF8, 0xF3, 0xF2, 0x0, 0x0, 0x0, 0xAA, 0x1F, 0xF8, 0xF3, 0xF2, 0x0, 0x0, 0x0, 0xAA, 0x1F, 0xF8, 0xF3, 0xF2, 0x0, 0x0, 0x0, 0xAA, 0x1F, 0xF8, 0xF3, 0xF2, 0x0, 0x0, 0x0, 0xAA, 0x1F, 0xF0, 0xF7, 0xF1, 0x0, 0x0, 0x0, 0xAA, 0x20, 0x0, 0x1F, 0x0, 0x55, 0x55, 0x55, 0x55, 0xE1, 0xF7, 0xDF, 0x7, 0x95, 0x25, 0x9, 0x2, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0x3F, 0x8, 0xE0, 0xFF, 0x2, 0x9, 0x25, 0x95, 0xCF, 0x7, 0x1F, 0xF8, 0x0, 0x0, 0x50, 0x50, 0xC0, 0x7, 0x1F, 0xF8, 0x0, 0x0, 0x55, 0x55, 0xC0, 0x7, 0x1F, 0xF8, 0x0, 0x0, 0x55, 0x55, 0xC0, 0x7, 0x1F, 0x68, 0x80, 0x60, 0x55, 0x55, 0xDF, 0x7, 0x1F, 0xF8, 0x50, 0x50, 0x50, 0x50, 0xCF, 0x7, 0x20, 0xF8, 0x0, 0x0, 0x50, 0x50, 0xC1, 0x7, 0x32, 0x68, 0x80, 0x60, 0x55, 0x55, 0x1F, 0x0, 0x1F, 0xF0, 0x5, 0x5, 0x5, 0x5, 0xDF, 0x7, 0x1F, 0xF8, 0x50, 0x50, 0x50, 0x50, 0xB0, 0x87, 0x40, 0xF8, 0x50, 0x50, 0x0, 0x0, 0x32, 0x68, 0x83, 0xF7, 0x0, 0x0, 0x25, 0x95, 0x1F, 0x0, 0x1F, 0xF0, 0x5, 0x5, 0x5, 0x5, 0xCF, 0x87, 0x5E, 0xF8, 0x50, 0x50, 0x0, 0x0, 0x5E, 0xF8, 0xE0, 0xFF, 0x0, 0x0, 0x55, 0x55, 0x5E, 0xF8, 0xE0, 0xFF, 0x0, 0x0, 0x55, 0x55, 0x3E, 0x68, 0xE0, 0xF7, 0x0, 0x0, 0x25, 0x95, 0xCF, 0x7, 0x3A, 0xF8, 0x0, 0x54, 0x4, 0x44, 0xC1, 0x7, 0x1C, 0x88, 0x80, 0x55, 0x58, 0x55, 0xD0, 0x87, 0x59, 0xF8, 0x44, 0x4, 0x54, 0x0, 0x3C, 0x88, 0xC1, 0xEF, 0x0, 0x9, 0x0, 0x95, 0xEF, 0x85, 0xB9, 0x80, 0xE8, 0x72, 0x72, 0xE8, 0x99, 0x78, 0x30, 0x76, 0xBB, 0x7B, 0x27, 0x72, 0x96, 0x92, 0x10, 0x6E, 0x32, 0x8C, 0x63, 0x98
-    };
+        0x44, 0x44, 0x53, 0x20, 0x7C, 0x0,  0x0,  0x0,  0x7,  0x10, 0xA,  0x0,  0x40, 0x0,  0x0,  0x0,  0x40, 0x0,
+        0x0,  0x0,  0x0,  0x8,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x7,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,
+        0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,
+        0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,
+        0x0,  0x0,  0x0,  0x0,  0x20, 0x0,  0x0,  0x0,  0x4,  0x0,  0x0,  0x0,  0x44, 0x58, 0x54, 0x31, 0x0,  0x0,
+        0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,
+        0x8,  0x10, 0x40, 0x0,  0x0,  0x0,  0x0,  0x0,  0x44, 0x44, 0x53, 0x58, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+        0xFF, 0xFF, 0xC0, 0x7,  0xDE, 0x7,  0x2,  0x9,  0x25, 0x95, 0xE0, 0xF,  0xC0, 0x7,  0xFF, 0xFF, 0xFF, 0xFF,
+        0xE0, 0xF,  0xC0, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF,  0xC0, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF,
+        0xC0, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF,  0xC0, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF,  0xC0, 0x7,
+        0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF,  0xC0, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF,  0xC0, 0x7,  0xFF, 0xFF,
+        0xFF, 0xFF, 0xE0, 0xF,  0xC0, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF,  0xC0, 0x7,  0xFF, 0xFF, 0xFF, 0xFF,
+        0xE0, 0xF,  0xC0, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF,  0xC0, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF,
+        0xC0, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF,  0xC0, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0x0,  0xC1, 0xF,
+        0x15, 0x25, 0x9,  0x2,  0xFF, 0xF,  0xDF, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0xC0, 0x7,  0xDE, 0x7,  0x2,  0x9,
+        0x25, 0x95, 0xE0, 0xF,  0xC0, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF,  0xC0, 0x7,  0xFF, 0xFF, 0xFF, 0xFF,
+        0xE0, 0xF,  0xC0, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF,  0xC0, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF,
+        0xC0, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF,  0xC0, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF,  0xC0, 0x7,
+        0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF,  0xC0, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF,  0xC0, 0x7,  0xFF, 0xFF,
+        0xFF, 0xFF, 0xE0, 0xF,  0xC0, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF,  0xC0, 0x7,  0xFF, 0xFF, 0xFF, 0xFF,
+        0xE0, 0xF,  0xC0, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0x8,  0xA1, 0xF,  0x95, 0x25, 0x9,  0x2,  0x20, 0x0,
+        0x1F, 0x0,  0x55, 0x55, 0x55, 0x55, 0xFF, 0xF,  0xDF, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xF,  0xDF, 0x7,
+        0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA,
+        0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA,
+        0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0,
+        0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8,
+        0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA,
+        0xAA, 0xAA, 0x1F, 0xF8, 0x1F, 0x48, 0x80, 0x80, 0x80, 0x80, 0x20, 0x0,  0x1F, 0x0,  0x55, 0x55, 0x55, 0x55,
+        0x20, 0x0,  0x1F, 0x0,  0x55, 0x55, 0x55, 0x55, 0xFF, 0xF,  0xDF, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xF,
+        0xDF, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8,
+        0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA,
+        0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA,
+        0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0,
+        0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8,
+        0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF8, 0x1F, 0x48, 0x80, 0x80, 0x80, 0x80, 0x20, 0x0,  0x1F, 0x0,  0x55, 0x55,
+        0x55, 0x55, 0x20, 0x0,  0x1F, 0x0,  0x55, 0x55, 0x55, 0x55, 0xFF, 0xF,  0xDF, 0x7,  0xFF, 0xFF, 0xFF, 0xFF,
+        0xFF, 0xF,  0xDF, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0,
+        0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0xC0, 0x7,  0xDE, 0x7,  0x2,  0x9,  0x25, 0x95, 0xE0, 0xF,  0xC0, 0x7,
+        0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF,  0xC0, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF,  0xC0, 0x7,  0xFF, 0xFF,
+        0xFF, 0xFF, 0xE0, 0xF,  0xC0, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF,  0xC0, 0x7,  0xFF, 0xFF, 0xFF, 0xFF,
+        0xE0, 0xF,  0xC0, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0xC1, 0x7,  0x1F, 0x20, 0x40, 0x60, 0x58, 0x56, 0x1F, 0xF0,
+        0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF8, 0x1F, 0x48, 0x80, 0x80, 0x80, 0x80, 0x20, 0x0,  0x1F, 0x0,
+        0x55, 0x55, 0x55, 0x55, 0x20, 0x0,  0x1F, 0x0,  0x55, 0x55, 0x55, 0x55, 0xFF, 0xF,  0xDF, 0x7,  0xFF, 0xFF,
+        0xFF, 0xFF, 0xFF, 0xF,  0xDF, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA,
+        0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0xFF, 0xF,  0xDF, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0xC0, 0x7,
+        0xDE, 0x7,  0x2,  0x9,  0x25, 0x95, 0xE0, 0xF,  0xC0, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF,  0xC0, 0x7,
+        0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF,  0xC0, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF,  0xC0, 0x7,  0xFF, 0xFF,
+        0xFF, 0xFF, 0x1F, 0x8,  0xA1, 0xF,  0x95, 0x25, 0x9,  0x2,  0x9C, 0xB8, 0x1F, 0x0,  0xD5, 0xD5, 0xD5, 0xD5,
+        0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF8, 0x1F, 0x48, 0x80, 0x80, 0x80, 0x80, 0x20, 0x0,
+        0x1F, 0x0,  0x55, 0x55, 0x55, 0x55, 0x20, 0x0,  0x1F, 0x0,  0x55, 0x55, 0x55, 0x55, 0xFF, 0xF,  0xDF, 0x7,
+        0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xF,  0xDF, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA,
+        0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0xFF, 0xF,  0xDF, 0x7,  0xFF, 0xFF, 0xFF, 0xFF,
+        0xFF, 0xF,  0xDF, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0x20, 0xF0, 0x40, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x20, 0xF0,
+        0x40, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x20, 0xF0, 0x40, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x40, 0xF8, 0x4B, 0xA0,
+        0xC0, 0xC0, 0xC0, 0xC0, 0x20, 0x0,  0x1F, 0x0,  0x55, 0x55, 0x55, 0x55, 0x9C, 0xB8, 0x1F, 0x0,  0xD5, 0xD5,
+        0xD5, 0xD5, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF8, 0x1F, 0x48, 0x80, 0x80, 0x80, 0x80,
+        0x20, 0x0,  0x1F, 0x0,  0x55, 0x55, 0x55, 0x55, 0x20, 0x0,  0x1F, 0x0,  0x55, 0x55, 0x55, 0x55, 0xFF, 0xF,
+        0xDF, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xF,  0xDF, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0xF0, 0x3F, 0xF8,
+        0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0xFF, 0xF,  0xDF, 0x7,  0xFF, 0xFF,
+        0xFF, 0xFF, 0xFF, 0xF,  0xDF, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0x20, 0xF0, 0x40, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA,
+        0x20, 0xF0, 0x40, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x20, 0xF0, 0x40, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x40, 0xF8,
+        0x4B, 0xA0, 0xC0, 0xC0, 0xC0, 0xC0, 0x20, 0x0,  0x1F, 0x0,  0x55, 0x55, 0x55, 0x55, 0x9C, 0xB8, 0x1F, 0x0,
+        0xD5, 0xD5, 0xD5, 0xD5, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF8, 0x1F, 0x48, 0x80, 0x80,
+        0x80, 0x80, 0x20, 0x0,  0x1F, 0x0,  0x55, 0x55, 0x55, 0x55, 0x20, 0x0,  0x1F, 0x0,  0x55, 0x55, 0x55, 0x55,
+        0xFF, 0xF,  0xDF, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xF,  0xDF, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0xF0,
+        0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0xFF, 0xF,  0xDF, 0x7,
+        0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xF,  0xDF, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0x20, 0xF0, 0x40, 0xF8, 0xAA, 0xAA,
+        0xAA, 0xAA, 0x20, 0xF0, 0x40, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x20, 0xF0, 0x40, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA,
+        0x40, 0xF8, 0x4B, 0xA0, 0xC0, 0xC0, 0xC0, 0xC0, 0x20, 0x0,  0x1F, 0x0,  0x55, 0x55, 0x55, 0x55, 0x9C, 0xB8,
+        0x1F, 0x0,  0xD5, 0xD5, 0xD5, 0xD5, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF8, 0x1F, 0x48,
+        0x80, 0x80, 0x80, 0x80, 0x20, 0x0,  0x1F, 0x0,  0x55, 0x55, 0x55, 0x55, 0x20, 0x0,  0x1F, 0x0,  0x55, 0x55,
+        0x55, 0x55, 0xFF, 0xF,  0xDF, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xF,  0xDF, 0x7,  0xFF, 0xFF, 0xFF, 0xFF,
+        0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0xFF, 0xF,
+        0xDF, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xF,  0xDF, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0x20, 0xF0, 0x40, 0xF8,
+        0xAA, 0xAA, 0xAA, 0xAA, 0x20, 0xF0, 0x40, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x20, 0xF0, 0x40, 0xF8, 0xAA, 0xAA,
+        0xAA, 0xAA, 0x40, 0xF8, 0x4B, 0xA0, 0xC0, 0xC0, 0xC0, 0xC0, 0x20, 0x0,  0x1F, 0x0,  0x55, 0x55, 0x55, 0x55,
+        0x9C, 0xB8, 0x1F, 0x0,  0xD5, 0xD5, 0xD5, 0xD5, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF8,
+        0x1F, 0x48, 0x80, 0x80, 0x80, 0x80, 0x20, 0x0,  0x1F, 0x0,  0x55, 0x55, 0x55, 0x55, 0x20, 0x0,  0x1F, 0x0,
+        0x55, 0x55, 0x55, 0x55, 0xFF, 0xF,  0xDF, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xF,  0xDF, 0x7,  0xFF, 0xFF,
+        0xFF, 0xFF, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA,
+        0xFF, 0xF,  0xDF, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xFF, 0xDF, 0x7,  0x95, 0x25, 0x9,  0x2,  0xE0, 0xFF,
+        0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF,
+        0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xC1, 0xF7, 0x1F, 0x0,  0x56, 0x58,
+        0x60, 0x80, 0x9C, 0xB8, 0x1F, 0x0,  0xD5, 0xD5, 0xD5, 0xD5, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA,
+        0x1F, 0xF8, 0x1F, 0x48, 0x80, 0x80, 0x80, 0x80, 0x20, 0x0,  0x1F, 0x0,  0x55, 0x55, 0x55, 0x55, 0x20, 0x0,
+        0x1F, 0x0,  0x55, 0x55, 0x55, 0x55, 0xFF, 0xF,  0xDF, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xF,  0xDF, 0x7,
+        0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA,
+        0xAA, 0xAA, 0xC4, 0xFE, 0xDE, 0x7,  0x95, 0x25, 0x9,  0x2,  0xE0, 0xFF, 0x1B, 0xF9, 0x0,  0x0,  0x0,  0xAA,
+        0xE0, 0xFF, 0x1B, 0xF9, 0x0,  0x0,  0x0,  0xAA, 0xE0, 0xFF, 0x1B, 0xF9, 0x0,  0x0,  0x0,  0xAA, 0xE0, 0xFF,
+        0x1B, 0xF9, 0x0,  0x0,  0x0,  0xAA, 0xE0, 0xFF, 0x1B, 0xF9, 0x0,  0x0,  0x0,  0xAA, 0xE0, 0xFF, 0x1B, 0xF9,
+        0x0,  0x0,  0x0,  0xAA, 0xE1, 0xFF, 0x1F, 0x30, 0x56, 0x58, 0x60, 0xEA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA,
+        0xAA, 0xAA, 0x1F, 0xF8, 0x1F, 0x48, 0x80, 0x80, 0x80, 0x80, 0x20, 0x0,  0x1F, 0x0,  0x55, 0x55, 0x55, 0x55,
+        0x20, 0x0,  0x1F, 0x0,  0x55, 0x55, 0x55, 0x55, 0xFF, 0xF,  0xDF, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xF,
+        0xDF, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8,
+        0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA,
+        0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA,
+        0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0,
+        0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8,
+        0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF8, 0x1F, 0x48, 0x80, 0x80, 0x80, 0x80, 0x20, 0x0,  0x1F, 0x0,  0x55, 0x55,
+        0x55, 0x55, 0x20, 0x0,  0x1F, 0x0,  0x55, 0x55, 0x55, 0x55, 0xFF, 0xF,  0xDF, 0x7,  0xFF, 0xFF, 0xFF, 0xFF,
+        0xFF, 0xF,  0xDF, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0xB0, 0xF3, 0x3F, 0xF8, 0x55, 0x55, 0x55, 0xAA, 0xB0, 0xF3,
+        0x3F, 0xF8, 0x55, 0x55, 0x55, 0xAA, 0xB0, 0xF3, 0x3F, 0xF8, 0x55, 0x55, 0x55, 0xAA, 0xB0, 0xF3, 0x3F, 0xF8,
+        0x55, 0x55, 0x55, 0xAA, 0xB0, 0xF3, 0x3F, 0xF8, 0x55, 0x55, 0x55, 0xAA, 0xB0, 0xF3, 0x3F, 0xF8, 0x55, 0x55,
+        0x55, 0xAA, 0xB0, 0xF3, 0x3F, 0xF8, 0x55, 0x55, 0x55, 0xAA, 0xB0, 0xF3, 0x3F, 0xF8, 0x55, 0x55, 0x55, 0xAA,
+        0xB0, 0xF3, 0x3F, 0xF8, 0x55, 0x55, 0x55, 0xAA, 0xB0, 0xF3, 0x3F, 0xF8, 0x55, 0x55, 0x55, 0xAA, 0xB0, 0xF3,
+        0x3F, 0xF8, 0x55, 0x55, 0x55, 0xAA, 0xD4, 0xFA, 0x1F, 0xE8, 0x55, 0x55, 0x55, 0xAA, 0x20, 0x0,  0x1F, 0x0,
+        0x55, 0x55, 0x55, 0x55, 0x20, 0x0,  0x1F, 0x0,  0x55, 0x55, 0x55, 0x55, 0xFF, 0xF,  0xDF, 0x7,  0xFF, 0xFF,
+        0xFF, 0xFF, 0xE0, 0xFF, 0xDF, 0x7,  0x95, 0x25, 0x9,  0x2,  0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA,
+        0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF,
+        0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF,
+        0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA,
+        0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA,
+        0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xC1, 0xF7,
+        0x1F, 0x0,  0x56, 0x58, 0x60, 0x80, 0x20, 0x0,  0x1F, 0x0,  0x55, 0x55, 0x55, 0x55, 0xE0, 0xFF, 0xDF, 0x7,
+        0x95, 0x25, 0x9,  0x2,  0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA,
+        0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA,
+        0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF,
+        0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF,
+        0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA,
+        0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA,
+        0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xC1, 0xF7, 0x1F, 0x0,  0x56, 0x58, 0x60, 0x80, 0xC0, 0x7,
+        0xDF, 0x7,  0x2,  0x9,  0x25, 0x95, 0xE0, 0xF,  0xC0, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF,  0xC0, 0x7,
+        0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF,  0xC0, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF,  0xC0, 0x7,  0xFF, 0xFF,
+        0xFF, 0xFF, 0xE0, 0xF,  0xC0, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF,  0xC0, 0x7,  0xFF, 0xFF, 0xFF, 0xFF,
+        0x1F, 0x0,  0xA1, 0xF,  0x95, 0x25, 0x9,  0x2,  0xFF, 0xF,  0xDF, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0xF0,
+        0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8,
+        0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA,
+        0xAA, 0xAA, 0x3F, 0xF8, 0x1F, 0xC8, 0xC0, 0xC0, 0xC0, 0xC0, 0x20, 0x0,  0x1F, 0x0,  0x55, 0x55, 0x55, 0x55,
+        0xFF, 0xF,  0xDF, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0xC0, 0x7,
+        0xDF, 0x7,  0x2,  0x9,  0x25, 0x95, 0xE0, 0xF,  0xC0, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0xE0, 0xF,  0xC0, 0x7,
+        0xFF, 0xFF, 0xFF, 0xFF, 0xA1, 0xF,  0x1F, 0x10, 0x80, 0x60, 0x58, 0x56, 0x3F, 0xF8, 0x1F, 0xC8, 0xC0, 0xC0,
+        0xC0, 0xC0, 0x20, 0x0,  0x1F, 0x0,  0x55, 0x55, 0x55, 0x55, 0xFF, 0xF,  0xDF, 0x7,  0xFF, 0xFF, 0xFF, 0xFF,
+        0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0xFF, 0xF,  0xDF, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0x20, 0xF0,
+        0x40, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x20, 0xF8, 0x46, 0xC8, 0xC0, 0xC0, 0xC0, 0xC0, 0x1F, 0x0,  0x3E, 0x40,
+        0x80, 0x80, 0x80, 0x80, 0x3F, 0xF8, 0x1F, 0xC8, 0xC0, 0xC0, 0xC0, 0xC0, 0x20, 0x0,  0x1F, 0x0,  0x55, 0x55,
+        0x55, 0x55, 0xFF, 0xF,  0xDF, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA,
+        0xFF, 0xF,  0xDF, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0x20, 0xF0, 0x40, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x20, 0xF8,
+        0x46, 0xC8, 0xC0, 0xC0, 0xC0, 0xC0, 0x1F, 0x0,  0x3E, 0x40, 0x80, 0x80, 0x80, 0x80, 0x3F, 0xF8, 0x1F, 0xC8,
+        0xC0, 0xC0, 0xC0, 0xC0, 0x20, 0x0,  0x1F, 0x0,  0x55, 0x55, 0x55, 0x55, 0xFF, 0xF,  0xDF, 0x7,  0xFF, 0xFF,
+        0xFF, 0xFF, 0x1F, 0xF0, 0x3F, 0xF8, 0xAA, 0xAA, 0xAA, 0xAA, 0x43, 0xF7, 0xDF, 0x7,  0x95, 0x25, 0x9,  0x2,
+        0xE0, 0xFF, 0x6D, 0xFC, 0x0,  0x0,  0x0,  0xAA, 0xE0, 0xFF, 0x6D, 0xFC, 0x0,  0x0,  0x0,  0xAA, 0x3E, 0x10,
+        0x62, 0xFF, 0x2,  0x9,  0x25, 0x95, 0x3F, 0xF8, 0x1F, 0xC8, 0xC0, 0xC0, 0xC0, 0xC0, 0x20, 0x0,  0x1F, 0x0,
+        0x55, 0x55, 0x55, 0x55, 0xFF, 0xF,  0xDF, 0x7,  0xFF, 0xFF, 0xFF, 0xFF, 0x1F, 0xF8, 0xF3, 0xF2, 0x0,  0x0,
+        0x0,  0xAA, 0x1F, 0xF8, 0xF3, 0xF2, 0x0,  0x0,  0x0,  0xAA, 0x1F, 0xF8, 0xF3, 0xF2, 0x0,  0x0,  0x0,  0xAA,
+        0x1F, 0xF8, 0xF3, 0xF2, 0x0,  0x0,  0x0,  0xAA, 0x1F, 0xF8, 0xF3, 0xF2, 0x0,  0x0,  0x0,  0xAA, 0x1F, 0xF0,
+        0xF7, 0xF1, 0x0,  0x0,  0x0,  0xAA, 0x20, 0x0,  0x1F, 0x0,  0x55, 0x55, 0x55, 0x55, 0xE1, 0xF7, 0xDF, 0x7,
+        0x95, 0x25, 0x9,  0x2,  0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA,
+        0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA,
+        0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0xE0, 0xFF, 0xC0, 0xFF, 0xAA, 0xAA, 0xAA, 0xAA, 0x3F, 0x8,
+        0xE0, 0xFF, 0x2,  0x9,  0x25, 0x95, 0xCF, 0x7,  0x1F, 0xF8, 0x0,  0x0,  0x50, 0x50, 0xC0, 0x7,  0x1F, 0xF8,
+        0x0,  0x0,  0x55, 0x55, 0xC0, 0x7,  0x1F, 0xF8, 0x0,  0x0,  0x55, 0x55, 0xC0, 0x7,  0x1F, 0x68, 0x80, 0x60,
+        0x55, 0x55, 0xDF, 0x7,  0x1F, 0xF8, 0x50, 0x50, 0x50, 0x50, 0xCF, 0x7,  0x20, 0xF8, 0x0,  0x0,  0x50, 0x50,
+        0xC1, 0x7,  0x32, 0x68, 0x80, 0x60, 0x55, 0x55, 0x1F, 0x0,  0x1F, 0xF0, 0x5,  0x5,  0x5,  0x5,  0xDF, 0x7,
+        0x1F, 0xF8, 0x50, 0x50, 0x50, 0x50, 0xB0, 0x87, 0x40, 0xF8, 0x50, 0x50, 0x0,  0x0,  0x32, 0x68, 0x83, 0xF7,
+        0x0,  0x0,  0x25, 0x95, 0x1F, 0x0,  0x1F, 0xF0, 0x5,  0x5,  0x5,  0x5,  0xCF, 0x87, 0x5E, 0xF8, 0x50, 0x50,
+        0x0,  0x0,  0x5E, 0xF8, 0xE0, 0xFF, 0x0,  0x0,  0x55, 0x55, 0x5E, 0xF8, 0xE0, 0xFF, 0x0,  0x0,  0x55, 0x55,
+        0x3E, 0x68, 0xE0, 0xF7, 0x0,  0x0,  0x25, 0x95, 0xCF, 0x7,  0x3A, 0xF8, 0x0,  0x54, 0x4,  0x44, 0xC1, 0x7,
+        0x1C, 0x88, 0x80, 0x55, 0x58, 0x55, 0xD0, 0x87, 0x59, 0xF8, 0x44, 0x4,  0x54, 0x0,  0x3C, 0x88, 0xC1, 0xEF,
+        0x0,  0x9,  0x0,  0x95, 0xEF, 0x85, 0xB9, 0x80, 0xE8, 0x72, 0x72, 0xE8, 0x99, 0x78, 0x30, 0x76, 0xBB, 0x7B,
+        0x27, 0x72, 0x96, 0x92, 0x10, 0x6E, 0x32, 0x8C, 0x63, 0x98};
     return g_nglDefaultTexData;
 }();
 
-char (& nglTexturePath)[256] = []() -> auto & {
+char (&nglTexturePath)[256] = []() -> auto & {
     static char g_nglTexturePath[256];
     return g_nglTexturePath;
 }();
 
-nglDebugStruct & nglDebug = []() -> auto & {
-    static nglDebugStruct g_nglDebug {};
+nglDebugStruct &nglDebug = []() -> auto & {
+    static nglDebugStruct g_nglDebug{};
     return g_nglDebug;
 }();
 
-nglTexture *& nglWhiteTex = []() -> auto & {
-    static nglTexture *g_nglWhiteTex {};
+nglTexture *&nglWhiteTex = []() -> auto & {
+    static nglTexture *g_nglWhiteTex{};
     return g_nglWhiteTex;
 }();
 
-auto & nglMaterialFileDirectory = []() -> auto & {
-    static tlInstanceBankResourceDirectory<nglMaterialFile, tlFixedString> * g_nglMaterialFileDirectory {};
+auto &nglMaterialFileDirectory = []() -> auto & {
+    static tlInstanceBankResourceDirectory<nglMaterialFile, tlFixedString> *g_nglMaterialFileDirectory{};
     return g_nglMaterialFileDirectory;
 }();
 
-auto & nglMaterialDirectory = []() -> auto & {
-    static tlInstanceBankResourceDirectory<nglMaterialBase, tlHashString> * g_nglMaterialDirectory {};
+auto &nglMaterialDirectory = []() -> auto & {
+    static tlInstanceBankResourceDirectory<nglMaterialBase, tlHashString> *g_nglMaterialDirectory{};
     return g_nglMaterialDirectory;
 }();
 
-char (& nglMeshPath)[256] = []() -> auto & {
-    static char g_nglMeshPath[256] {};
+char (&nglMeshPath)[256] = []() -> auto & {
+    static char g_nglMeshPath[256]{};
     return g_nglMeshPath;
 }();
 
-tlInstanceBank & nglVertexDefBank = []() -> auto & {
-    static tlInstanceBank g_nglVertexDefBank {};
+tlInstanceBank &nglVertexDefBank = []() -> auto & {
+    static tlInstanceBank g_nglVertexDefBank{};
     return g_nglVertexDefBank;
 }();
 
-int (& dword_975BE8)[1024] = []() -> auto & {
-    static int g_dword_975BE8[1024] {};
+int (&dword_975BE8)[1024] = []() -> auto & {
+    static int g_dword_975BE8[1024]{};
     return g_dword_975BE8;
 }();
 
-int & dword_975BE0 = []() -> auto & {
-    static int g_dword_975BE0 {};
+int &dword_975BE0 = []() -> auto & {
+    static int g_dword_975BE0{};
     return g_dword_975BE0;
 }();
 
-bool & g_valid_texture_format = []() -> auto & {
-    static bool g_valid_texture_format1 {};
+bool &g_valid_texture_format = []() -> auto & {
+    static bool g_valid_texture_format1{};
     return g_valid_texture_format1;
 }();
 
-bool & nglLoadingIFL = []() -> auto & {
-    static bool g_nglLoadingIFL {};
+bool &nglLoadingIFL = []() -> auto & {
+    static bool g_nglLoadingIFL{};
     return g_nglLoadingIFL;
 }();
 
@@ -287,73 +443,68 @@ struct Renderer {
 
 static Var<Renderer> struct_972688{0x00972688};
 
-int __stdcall hookD3DXAssembleShader(const char *data,
-                                     UINT data_len,
-                                     const D3DXMACRO *defines,
-                                     ID3DXInclude *include,
-                                     DWORD flags,
-                                     ID3DXBuffer **shader,
-                                     ID3DXBuffer **error_messages);
+int __stdcall hookD3DXAssembleShader(const char *data, UINT data_len, const D3DXMACRO *defines, ID3DXInclude *include,
+                                     DWORD flags, ID3DXBuffer **shader, ID3DXBuffer **error_messages);
 
 uint8_t *nglGetDebugFlagPtr(const char *Flag)
 {
-    if ( strcmpi(Flag, "ShowPerfInfo") == 0 ) {
+    if (strcmpi(Flag, "ShowPerfInfo") == 0) {
         return &nglDebug.ShowPerfInfo;
     }
 
-    if ( strcmpi(Flag, "ShowPerfBar") == 0 ) {
+    if (strcmpi(Flag, "ShowPerfBar") == 0) {
         return &nglDebug.ShowPerfBar;
     }
 
-    if ( strcmpi(Flag, "ScreenShot") == 0 ) {
+    if (strcmpi(Flag, "ScreenShot") == 0) {
         return &nglDebug.ScreenShot;
     }
 
-    if ( strcmpi(Flag, "DisableQuads") == 0 ) {
+    if (strcmpi(Flag, "DisableQuads") == 0) {
         return &nglDebug.DisableQuads;
     }
 
-    if ( strcmpi(Flag, "DisableVSync") == 0 ) {
+    if (strcmpi(Flag, "DisableVSync") == 0) {
         return &nglDebug.DisableVSync;
     }
 
-    if ( strcmpi(Flag, "DisableScratch") == 0 ) {
+    if (strcmpi(Flag, "DisableScratch") == 0) {
         return &nglDebug.DisableScratch;
     }
 
-    if ( strcmpi(Flag, "DebugPrints") == 0 ) {
+    if (strcmpi(Flag, "DebugPrints") == 0) {
         return &nglDebug.DebugPrints;
     }
 
-    if ( strcmpi(Flag, "DumpFrameLog") == 0 ) {
+    if (strcmpi(Flag, "DumpFrameLog") == 0) {
         return &nglDebug.DumpFrameLog;
     }
 
-    if ( strcmpi(Flag, "DumpSceneFile") == 0 ) {
+    if (strcmpi(Flag, "DumpSceneFile") == 0) {
         return &nglDebug.DumpSceneFile;
     }
 
-    if ( strcmpi(Flag, "DumpTextures") == 0 ) {
+    if (strcmpi(Flag, "DumpTextures") == 0) {
         return &nglDebug.DumpTextures;
     }
 
-    if ( strcmpi(Flag, "DrawLightSpheres") == 0 ) {
+    if (strcmpi(Flag, "DrawLightSpheres") == 0) {
         return &nglDebug.DrawLightSpheres;
     }
 
-    if ( strcmpi(Flag, "DrawMeshSpheres") == 0 ) {
+    if (strcmpi(Flag, "DrawMeshSpheres") == 0) {
         return &nglDebug.DrawMeshSpheres;
     }
 
-    if ( strcmpi(Flag, "DisableDuplicateMaterialWarning") == 0 ) {
+    if (strcmpi(Flag, "DisableDuplicateMaterialWarning") == 0) {
         return &nglDebug.DisableDuplicateMaterialWarning;
     }
 
-    if ( strcmpi(Flag, "DisableMissingTextureWarning") == 0 ) {
+    if (strcmpi(Flag, "DisableMissingTextureWarning") == 0) {
         return &nglDebug.DisableMissingTextureWarning;
     }
 
-    if ( strcmpi(Flag, "RenderSingleNode") == 0 ) {
+    if (strcmpi(Flag, "RenderSingleNode") == 0) {
         return &nglDebug.RenderSingleNode;
     }
 
@@ -365,29 +516,30 @@ uint8_t nglGetDebugFlag(const char *Flag)
     auto *Ptr = nglGetDebugFlagPtr(Flag);
 
     uint8_t result = 0;
-    if ( Ptr != nullptr ) {
+    if (Ptr != nullptr) {
         result = *Ptr;
     }
 
     return result;
-
 }
 
 void nglSetDebugFlag(const char *Flag, uint8_t Set)
 {
     auto *Ptr = nglGetDebugFlagPtr(Flag);
-    if ( Ptr != nullptr ) {
+    if (Ptr != nullptr) {
         *Ptr = Set;
     }
 
     nglSyncDebug() = nglDebug;
 }
 
-void nglDestroyTexture(nglTexture *a1) {
+void nglDestroyTexture(nglTexture *a1)
+{
     CDECL_CALL(0x0077BB20, a1);
 }
 
-nglMesh *nglGetFirstMeshInFile(const tlFixedString &a1) {
+nglMesh *nglGetFirstMeshInFile(const tlFixedString &a1)
+{
     if constexpr (0) {
         auto *v1 = nglMeshFileDirectory->Find(a1);
         if (v1 != nullptr) {
@@ -397,23 +549,17 @@ nglMesh *nglGetFirstMeshInFile(const tlFixedString &a1) {
         return nullptr;
 
     } else {
-        return (nglMesh *) CDECL_CALL(0x0076F050, &a1);
+        return (nglMesh *)CDECL_CALL(0x0076F050, &a1);
     }
 }
 
-math::VecClass<3, 1> sub_413E90(
-        const vector4d &x_axis,
-        const vector4d &arg8,
-        const vector4d &y_axis,
-        const vector4d &a3,
-        const vector4d &z_axis,
-        const vector4d &a7,
-        const vector4d &a8)
+math::VecClass<3, 1> sub_413E90(const vector4d &x_axis, const vector4d &arg8, const vector4d &y_axis,
+                                const vector4d &a3, const vector4d &z_axis, const vector4d &a7, const vector4d &a8)
 {
     vector4d v14 = a8;
     v14.sub_413530(x_axis, arg8);
     v14.sub_411A50(y_axis, a3);
-    
+
     math::VecClass<3, 1> result = v14 + z_axis * a7.z;
     return result;
 }
@@ -434,7 +580,7 @@ math::VecClass<3, 1> sub_414360(const math::VecClass<3, 1> &a2, const math::MatC
 }
 
 
-void * nglMeshNode::operator new(size_t size)
+void *nglMeshNode::operator new(size_t size)
 {
     auto *mem = nglListAlloc(size, 64);
     return mem;
@@ -442,8 +588,7 @@ void * nglMeshNode::operator new(size_t size)
 
 void TransformMatrices::decomposeAndProjectToScreen(vector4d &a2, vector4d &a3, vector4d &a4, vector4d &a5) const
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         vector4d a2a, v13, v14, v15;
         this->m_rel_po->decompose(a2a, v13, v14, v15);
 
@@ -455,7 +600,8 @@ void TransformMatrices::decomposeAndProjectToScreen(vector4d &a2, vector4d &a3, 
 
         //sp_log("w_axis: %s", v15.to_string().c_str());
 
-        auto v5 = sub_414360(*bit_cast<math::VecClass<3, 1> *>(&v15), *bit_cast<const math::MatClass<4, 3> *>(this->m_abs_po));
+        auto v5 = sub_414360(*bit_cast<math::VecClass<3, 1> *>(&v15),
+                             *bit_cast<const math::MatClass<4, 3> *>(this->m_abs_po));
         a5 = *bit_cast<vector4d *>(&v5);
 
         //sp_log("res: %s", a5.to_string().c_str());
@@ -470,28 +616,22 @@ matrix4x4 nglMeshNode::sub_41D840()
 {
     matrix4x4 result;
 
-    if constexpr (0)
-    {
-        matrix4x4 v2 {};
-        if ( (this->Params->Flags & 1) != 0 )
-        {
+    if constexpr (0) {
+        matrix4x4 v2{};
+        if ((this->Params->Flags & 1) != 0) {
             v2 = nglCurScene->WorldToView;
-        }
-        else
-        {
+        } else {
             struct {
                 matrix4x4 *field_0;
                 matrix4x4 *field_4;
-            } v4 {&this->LocalToWorld, &nglCurScene->WorldToView};
+            } v4{&this->LocalToWorld, &nglCurScene->WorldToView};
             matrix4x4 v5;
             v5.sub_41D8A0(&v4);
             v2 = v5;
         }
 
         return v2;
-    }
-    else
-    {
+    } else {
         THISCALL(0x0041D840, this, &result);
     }
 
@@ -500,7 +640,7 @@ matrix4x4 nglMeshNode::sub_41D840()
 
 vector4d sub_7A5990(const vector4d &a2)
 {
-    vector4d v3 {};
+    vector4d v3{};
     v3[0] = 1.0 / a2[0];
     v3[1] = 1.0 / a2[1];
     v3[2] = 1.0 / a2[2];
@@ -528,36 +668,30 @@ matrix4x4 nglMeshNode::sub_419930()
 {
     matrix4x4 result;
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         auto *v3 = this->Params;
-        if ( (v3->Flags & 2) != 0 )
-        {
+        if ((v3->Flags & 2) != 0) {
             auto v12 = sub_7A5990(v3->Scale);
             auto v2 = this->LocalToWorld;
 
             struct {
                 void *field_0;
                 void *field_4;
-            } a2 {&v12, &v2};
+            } a2{&v12, &v2};
 
-            matrix4x4 v13 {};
+            matrix4x4 v13{};
             matrix4x3 v14 = sub_771210(&a2);
             v13 = v14;
 
             v13[3] = v2[3];
 
             result = v13;
-        }
-        else
-        {
+        } else {
             result = this->LocalToWorld;
         }
 
         return result;
-    }
-    else
-    {
+    } else {
         THISCALL(0x00419930, this, &result);
     }
 
@@ -570,20 +704,16 @@ matrix4x4 nglMeshNode::sub_4199D0()
 
     matrix4x4 result;
 
-    if constexpr (1)
-    {
-        if ( this->field_80 == nullptr )
-        {
+    if constexpr (1) {
+        if (this->field_80 == nullptr) {
             auto *mem = nglListAlloc(64, 64);
-            this->field_80 = new (mem) matrix4x4 {};
+            this->field_80 = new (mem) matrix4x4{};
             auto v4 = this->sub_419930();
             *this->field_80 = sub_4150E0(v4);
         }
 
         result = *this->field_80;
-    }
-    else
-    {
+    } else {
         THISCALL(0x004199D0, this, &result);
     }
 
@@ -607,10 +737,7 @@ matrix4x3 sub_770EB0(const MatrixPair &a1)
     return result;
 }
 
-void MatrixPair::sub_7A5070(
-        math::VecClass<3, 0> &a2,
-        math::VecClass<3, 0> &a3,
-        math::VecClass<3, 0> &a4) const
+void MatrixPair::sub_7A5070(math::VecClass<3, 0> &a2, math::VecClass<3, 0> &a3, math::VecClass<3, 0> &a4) const
 {
     auto func = [](matrix4x4 &a1, vector4d &a2, vector4d &a3, vector4d &a4) -> void {
         a2 = a1[0];
@@ -662,8 +789,7 @@ bool nglVertexBuffer::createIndexBufferAndWriteData(const void *a2, int size)
 
     bool result = false;
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         if (createIndexOrVertexBuffer(this, ResourceType::IndexBuffer, size, 0, 0, D3DPOOL_DEFAULT)) {
             return false;
         }
@@ -674,10 +800,8 @@ bool nglVertexBuffer::createIndexBufferAndWriteData(const void *a2, int size)
         IDirect3DIndexBuffer9_Unlock(this->getIndexBuffer());
 
         return true;
-    }
-    else
-    {
-        bool (__fastcall *func)(void *, void *, const void *, int) = CAST(func, 0x007707D0);
+    } else {
+        bool(__fastcall * func)(void *, void *, const void *, int) = CAST(func, 0x007707D0);
         result = func(this, nullptr, a2, size);
     }
 
@@ -688,19 +812,13 @@ bool nglVertexBuffer::createVertexBufferAndWriteData(const void *a2, uint32_t si
 {
     TRACE("nglVertexBuffer::createVertexBufferAndWriteData");
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         auto *buf = static_cast<const float *>(a2);
 
         sp_log("%f %f", buf[0], buf[1]);
     }
 
-    if (createIndexOrVertexBuffer(this,
-                                  ResourceType::VertexBuffer,
-                                  size,
-                                  0,
-                                  0,
-                                  D3DPOOL_MANAGED)) {
+    if (createIndexOrVertexBuffer(this, ResourceType::VertexBuffer, size, 0, 0, D3DPOOL_MANAGED)) {
         return false;
     }
 
@@ -712,25 +830,22 @@ bool nglVertexBuffer::createVertexBufferAndWriteData(const void *a2, uint32_t si
     return true;
 }
 
-void nglDebugMesh_BuildBox(nglVertexDef_MultipassMesh<nglVertexDef_Debug_Base>::Iterator &a1,
-                           math::VecClass<3, 0> a2,
-                           math::VecClass<3, 0> a3) {
+void nglDebugMesh_BuildBox(nglVertexDef_MultipassMesh<nglVertexDef_Debug_Base>::Iterator &a1, math::VecClass<3, 0> a2,
+                           math::VecClass<3, 0> a3)
+{
     CDECL_CALL(0x0077F0C0, &a1, a2, a3);
 }
 
-void nglMeshSetSphere(math::VecClass<3, 1> a1, Float a2) {
+void nglMeshSetSphere(math::VecClass<3, 1> a1, Float a2)
+{
     CDECL_CALL(0x00775650, a1, a2);
 }
 
 bool nglVertexBuffer::createVertexBuffer(int size, uint32_t flags)
 {
     TRACE("nglVertexBuffer::createVertexBuffer");
-    return createIndexOrVertexBuffer(this,
-                                     ResourceType::VertexBuffer,
-                                     size,
-                                     flags,
-                                     0,
-                                     (D3DPOOL) (~(uint8_t) (flags >> 9) & 1)) == 0;
+    return createIndexOrVertexBuffer(
+               this, ResourceType::VertexBuffer, size, flags, 0, (D3DPOOL)(~(uint8_t)(flags >> 9) & 1)) == 0;
 }
 
 void nglSetScissor(Float a1, Float a2, Float a3, Float a4)
@@ -743,13 +858,10 @@ void nglSetScissor(Float a1, Float a2, Float a3, Float a4)
 
         float ScreenWidth;
         float ScreenHeight;
-        if ( (nglCurScene->field_334->field_34 & 4) != 0 )
-        {
+        if ((nglCurScene->field_334->field_34 & 4) != 0) {
             ScreenWidth = nglGetScreenWidth();
             ScreenHeight = nglGetScreenHeight();
-        }
-        else
-        {
+        } else {
             ScreenHeight = 480.0;
             ScreenWidth = 640.0;
         }
@@ -780,29 +892,26 @@ void nglSetViewport(Float a1, Float a2, Float a3, Float a4)
     if constexpr (1) {
         float ScreenWidth;
         float ScreenHeight;
-        if ( (nglCurScene->field_334->field_34 & 4) != 0 )
-        {
+        if ((nglCurScene->field_334->field_34 & 4) != 0) {
             ScreenWidth = nglGetScreenWidth();
             ScreenHeight = nglGetScreenHeight();
-        }
-        else
-        {
+        } else {
             auto *tex = nglCurScene->field_334;
             int width = tex->m_width;
             ScreenWidth = width;
-            if ( width < 0 ) {
+            if (width < 0) {
                 ScreenWidth += 4.2949673e9;
             }
 
             int height = tex->m_height;
             ScreenHeight = height;
-            if ( height < 0 ) {
+            if (height < 0) {
                 ScreenHeight += 4.2949673e9;
             }
         }
 
         auto v9 = 1.0f / ScreenWidth;
-        auto a1a = a1 * v9 + a1 * v9 - 1.0f ;
+        auto a1a = a1 * v9 + a1 * v9 - 1.0f;
         auto v10 = a3 + 1.0f;
         auto a3a = v10 * v9 + v10 * v9 - 1.0f;
         auto v11 = 1.0f / ScreenHeight;
@@ -856,43 +965,33 @@ void nglProjectPoint(math::VecClass<3, 1> &a1, math::VecClass<3, 1> a2)
     a1 = nglProjectPoint(a2);
 }
 
-nglParamSet<nglSceneParamSet_Pool> * nglGetSceneParams()
+nglParamSet<nglSceneParamSet_Pool> *nglGetSceneParams()
 {
     return &nglCurScene->field_404;
 }
 
 void nglListAddNode(nglRenderNode *node)
 {
-    if constexpr (0)
-    {
-        nglSortInfo v2 {};
+    if constexpr (0) {
+        nglSortInfo v2{};
         node->GetSortInfo(v2);
         node->m_tex = v2.Tex;
-        if ( v2.Type == NGLSORT_TRANSLUCENT )
-        {
+        if (v2.Type == NGLSORT_TRANSLUCENT) {
             node->m_next_node = nglCurScene->TransNodes;
             nglCurScene->TransNodes = node;
             ++nglCurScene->TransListCount;
-        }
-        else
-        {
+        } else {
             node->m_next_node = nglCurScene->OpaqueNodes;
             nglCurScene->OpaqueNodes = node;
             ++nglCurScene->OpaqueListCount;
         }
-    }
-    else
-    {
+    } else {
         CDECL_CALL(0x0040FF00, node);
     }
 }
 
-HRESULT nglVertexBuffer::createIndexOrVertexBuffer(nglVertexBuffer *a1,
-                                                            ResourceType resource_type,
-                                                            int32_t size,
-                                                            uint32_t usage,
-                                                            uint32_t fvf,
-                                                            D3DPOOL pool)
+HRESULT nglVertexBuffer::createIndexOrVertexBuffer(nglVertexBuffer *a1, ResourceType resource_type, int32_t size,
+                                                   uint32_t usage, uint32_t fvf, D3DPOOL pool)
 {
     TRACE("nglVertexBuffer::createIndexOrVertexBuffer");
 
@@ -929,24 +1028,24 @@ HRESULT nglVertexBuffer::createIndexOrVertexBuffer(nglVertexBuffer *a1,
     };
 
 #if !STANDALONE_SYSTEM
-    static Struct_77B1C0 * (& dword_9753C0)[42] = var<Struct_77B1C0 *[42]>(0x009753C0);
+    static Struct_77B1C0 *(&dword_9753C0)[42] = var<Struct_77B1C0 *[42]>(0x009753C0);
 
-    static Struct_77B1C0 * (& dword_975318)[42] = var<Struct_77B1C0 *[42]>(0x00975318);
+    static Struct_77B1C0 *(&dword_975318)[42] = var<Struct_77B1C0 *[42]>(0x00975318);
 
-    static int (& dword_975474)[2] = var<int[2]>(0x00975474);
+    static int (&dword_975474)[2] = var<int[2]>(0x00975474);
 #else
-    static Struct_77B1C0 * (& dword_9753C0)[42] = []() -> auto & {
-        static Struct_77B1C0 * g_dword_9753C0[42] {};
+    static Struct_77B1C0 *(&dword_9753C0)[42] = []() -> auto & {
+        static Struct_77B1C0 *g_dword_9753C0[42]{};
         return g_dword_9753C0;
     }();
 
-    static Struct_77B1C0 * (& dword_975318)[42] = []() -> auto & {
-        static Struct_77B1C0 * g_dword_975318[42] {};
+    static Struct_77B1C0 *(&dword_975318)[42] = []() -> auto & {
+        static Struct_77B1C0 *g_dword_975318[42]{};
         return g_dword_975318;
     }();
 
-    static int (& dword_975474)[2] = []() -> auto & {
-        static int g_dword_975474[2] {};
+    static int (&dword_975474)[2] = []() -> auto & {
+        static int g_dword_975474[2]{};
         return g_dword_975474;
     }();
 #endif
@@ -1018,36 +1117,26 @@ HRESULT nglVertexBuffer::createIndexOrVertexBuffer(nglVertexBuffer *a1,
     } else {
     LABEL_18:
         if (resource_type) {
-            result = IDirect3DDevice9_CreateIndexBuffer(g_Direct3DDevice,
-                                                                   size,
-                                                                   0,
-                                                                   D3DFMT_INDEX16,
-                                                                   D3DPOOL_MANAGED,
-                                                                   &a1->getIndexBuffer(),
-                                                                   nullptr);
+            result = IDirect3DDevice9_CreateIndexBuffer(
+                g_Direct3DDevice, size, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED, &a1->getIndexBuffer(), nullptr);
         } else {
-            result = IDirect3DDevice9_CreateVertexBuffer(g_Direct3DDevice,
-                                                                    size,
-                                                                    usage,
-                                                                    fvf,
-                                                                    pool,
-                                                                    &a1->getVertexBuffer(),
-                                                                    nullptr);
+            result = IDirect3DDevice9_CreateVertexBuffer(
+                g_Direct3DDevice, size, usage, fvf, pool, &a1->getVertexBuffer(), nullptr);
         }
     }
     return result;
 }
 
-void nglVertexBuffer::sub_77B5D0(nglVertexBuffer *a1, ResourceType a2) {
+void nglVertexBuffer::sub_77B5D0(nglVertexBuffer *a1, ResourceType a2)
+{
     CDECL_CALL(0x0077B5D0, a1, a2);
 }
 
 using SetFVF_t = decltype(g_Direct3DDevice->lpVtbl->SetFVF);
 SetFVF_t origSetFVF;
 
-HRESULT STDMETHODCALLTYPE HookSetFVF(IDirect3DDevice9 *This,
-                                                 DWORD FVF
-                                                 ) {
+HRESULT STDMETHODCALLTYPE HookSetFVF(IDirect3DDevice9 *This, DWORD FVF)
+{
     TRACE("HookSetFVF");
 
     if (FVF != 0) {
@@ -1062,13 +1151,10 @@ HRESULT STDMETHODCALLTYPE HookSetFVF(IDirect3DDevice9 *This,
 using CreateVertexBuffer_t = decltype(g_Direct3DDevice->lpVtbl->CreateVertexBuffer);
 CreateVertexBuffer_t origCreateVertexBuffer;
 
-HRESULT STDMETHODCALLTYPE HookCreateVertexBuffer(IDirect3DDevice9 *This,
-                                                 UINT Length,
-                                                 DWORD Usage,
-                                                 DWORD FVF,
-                                                 D3DPOOL Pool,
-                                                 IDirect3DVertexBuffer9 **ppVertexBuffer,
-                                                 HANDLE *pSharedHandle) {
+HRESULT STDMETHODCALLTYPE HookCreateVertexBuffer(IDirect3DDevice9 *This, UINT Length, DWORD Usage, DWORD FVF,
+                                                 D3DPOOL Pool, IDirect3DVertexBuffer9 **ppVertexBuffer,
+                                                 HANDLE *pSharedHandle)
+{
     TRACE("HookCreateVertexBuffer");
 
     if (FVF != 0) {
@@ -1086,13 +1172,10 @@ using CreateIndexBuffer_t = decltype(g_Direct3DDevice->lpVtbl->CreateIndexBuffer
 
 CreateIndexBuffer_t origCreateIndexBuffer;
 
-HRESULT STDMETHODCALLTYPE HookCreateIndexBuffer(IDirect3DDevice9 *This,
-                                                 UINT Length,
-                                                 DWORD Usage,
-                                                 D3DFORMAT Format,
-                                                 D3DPOOL Pool,
-                                                 IDirect3DIndexBuffer9 **ppIndexBuffer,
-                                                 HANDLE *pSharedHandle) {
+HRESULT STDMETHODCALLTYPE HookCreateIndexBuffer(IDirect3DDevice9 *This, UINT Length, DWORD Usage, D3DFORMAT Format,
+                                                D3DPOOL Pool, IDirect3DIndexBuffer9 **ppIndexBuffer,
+                                                HANDLE *pSharedHandle)
+{
     TRACE("HookCreateIndexBuffer");
 
     auto result = origCreateIndexBuffer(This, Length, Usage, Format, Pool, ppIndexBuffer, pSharedHandle);
@@ -1105,10 +1188,9 @@ using DrawPrimitive_t = decltype(g_Direct3DDevice->lpVtbl->DrawPrimitive);
 
 DrawPrimitive_t origDrawPrimitive;
 
-HRESULT STDMETHODCALLTYPE HookDrawPrimitive(IDirect3DDevice9 *This,
-                                            D3DPRIMITIVETYPE PrimitiveType,
-                                            UINT StartVertex,
-                                            UINT PrimitiveCount) {
+HRESULT STDMETHODCALLTYPE HookDrawPrimitive(IDirect3DDevice9 *This, D3DPRIMITIVETYPE PrimitiveType, UINT StartVertex,
+                                            UINT PrimitiveCount)
+{
     //sp_log("HookDrawPrimitive: return to 0x%08X", getReturnAddress());
 
     return origDrawPrimitive(This, PrimitiveType, StartVertex, PrimitiveCount);
@@ -1118,11 +1200,9 @@ using DrawPrimitiveUP_t = decltype(g_Direct3DDevice->lpVtbl->DrawPrimitiveUP);
 
 DrawPrimitiveUP_t origDrawPrimitiveUP;
 
-HRESULT STDMETHODCALLTYPE HookDrawPrimitiveUP(IDirect3DDevice9 *This,
-                                              D3DPRIMITIVETYPE primitive_type,
-                                              UINT primitive_count,
-                                              const void *data,
-                                              UINT stride) {
+HRESULT STDMETHODCALLTYPE HookDrawPrimitiveUP(IDirect3DDevice9 *This, D3DPRIMITIVETYPE primitive_type,
+                                              UINT primitive_count, const void *data, UINT stride)
+{
     //sp_log("HookDrawPrimitiveUP: return to 0x%08X", getReturnAddress());
 
     return origDrawPrimitiveUP(This, primitive_type, primitive_count, data, stride);
@@ -1141,48 +1221,28 @@ HRESULT STDMETHODCALLTYPE HookSetViewport(IDirect3DDevice9 *This, const D3DVIEWP
 using DrawIndexedPrimitiveUP_t = decltype(g_Direct3DDevice->lpVtbl->DrawIndexedPrimitiveUP);
 DrawIndexedPrimitiveUP_t origDrawIndexedPrimitiveUP;
 
-HRESULT STDMETHODCALLTYPE HookDrawIndexedPrimitiveUP(IDirect3DDevice9 *This,
-                                                     D3DPRIMITIVETYPE primitive_type,
-                                                     UINT min_vertex_idx,
-                                                     UINT vertex_count,
-                                                     UINT primitive_count,
-                                                     const void *index_data,
-                                                     D3DFORMAT index_format,
-                                                     const void *data,
-                                                     UINT stride) {
+HRESULT STDMETHODCALLTYPE HookDrawIndexedPrimitiveUP(IDirect3DDevice9 *This, D3DPRIMITIVETYPE primitive_type,
+                                                     UINT min_vertex_idx, UINT vertex_count, UINT primitive_count,
+                                                     const void *index_data, D3DFORMAT index_format, const void *data,
+                                                     UINT stride)
+{
     sp_log("HookDrawIndexedPrimitiveUP: return to 0x%08X", getReturnAddress());
 
-    return origDrawIndexedPrimitiveUP(This,
-                                      primitive_type,
-                                      min_vertex_idx,
-                                      vertex_count,
-                                      primitive_count,
-                                      index_data,
-                                      index_format,
-                                      data,
-                                      stride);
+    return origDrawIndexedPrimitiveUP(
+        This, primitive_type, min_vertex_idx, vertex_count, primitive_count, index_data, index_format, data, stride);
 }
 
 using DrawIndexedPrimitive_t = decltype(g_Direct3DDevice->lpVtbl->DrawIndexedPrimitive);
 DrawIndexedPrimitive_t origDrawIndexedPrimitive;
 
-HRESULT STDMETHODCALLTYPE HookDrawIndexedPrimitive(IDirect3DDevice9 *This,
-                                                     D3DPRIMITIVETYPE primitive_type,
-                                                     int BaseVertexIndex,
-                                                     uint32_t MinVertexIndex,
-                                                     uint32_t NumVertices,
-                                                     uint32_t startIndex,
-                                                     uint32_t primCount)
+HRESULT STDMETHODCALLTYPE HookDrawIndexedPrimitive(IDirect3DDevice9 *This, D3DPRIMITIVETYPE primitive_type,
+                                                   int BaseVertexIndex, uint32_t MinVertexIndex, uint32_t NumVertices,
+                                                   uint32_t startIndex, uint32_t primCount)
 {
     TRACE("HookDrawIndexedPrimitive");
 
-    return origDrawIndexedPrimitive(This,
-                                     primitive_type,
-                                     BaseVertexIndex,
-                                     MinVertexIndex,
-                                     NumVertices,
-                                     startIndex,
-                                     primCount);
+    return origDrawIndexedPrimitive(
+        This, primitive_type, BaseVertexIndex, MinVertexIndex, NumVertices, startIndex, primCount);
 }
 
 
@@ -1190,8 +1250,8 @@ using SetVertexDeclaration_t = decltype(g_Direct3DDevice->lpVtbl->SetVertexDecla
 
 SetVertexDeclaration_t origSetVertexDeclaration;
 
-HRESULT STDMETHODCALLTYPE HookSetVertexDeclaration(IDirect3DDevice9 *This,
-                                                   IDirect3DVertexDeclaration9 *pDecl) {
+HRESULT STDMETHODCALLTYPE HookSetVertexDeclaration(IDirect3DDevice9 *This, IDirect3DVertexDeclaration9 *pDecl)
+{
     //sp_log("HookSetVertexDeclaration: return to 0x%08X", getReturnAddress());
 
     return origSetVertexDeclaration(This, pDecl);
@@ -1212,9 +1272,9 @@ using CreateVertexShader_t = decltype(g_Direct3DDevice->lpVtbl->CreateVertexShad
 
 CreateVertexShader_t origCreateVertexShader;
 
-HRESULT STDMETHODCALLTYPE HookCreateVertexShader(IDirect3DDevice9 *This,
-                                                 const DWORD *byte_code,
-                                                 IDirect3DVertexShader9 **shader) {
+HRESULT STDMETHODCALLTYPE HookCreateVertexShader(IDirect3DDevice9 *This, const DWORD *byte_code,
+                                                 IDirect3DVertexShader9 **shader)
+{
     //sp_log("HookCreateVertexShader: return to 0x%08X", getReturnAddress());
 
     return origCreateVertexShader(This, byte_code, shader);
@@ -1224,35 +1284,22 @@ using CreateTexture_t = decltype(g_Direct3DDevice->lpVtbl->CreateTexture);
 
 CreateTexture_t origCreateTexture;
 
-HRESULT STDMETHODCALLTYPE HookCreateTexture(IDirect3DDevice9 *This,
-                                            UINT Width,
-                                            UINT Height,
-                                            UINT Levels,
-                                            DWORD Usage,
-                                            D3DFORMAT Format,
-                                            D3DPOOL Pool,
-                                            IDirect3DTexture9 **ppTexture,
-                                            HANDLE *pSharedHandle) {
+HRESULT STDMETHODCALLTYPE HookCreateTexture(IDirect3DDevice9 *This, UINT Width, UINT Height, UINT Levels, DWORD Usage,
+                                            D3DFORMAT Format, D3DPOOL Pool, IDirect3DTexture9 **ppTexture,
+                                            HANDLE *pSharedHandle)
+{
     //sp_log("HookCreateTexture: return to 0x%08X", getReturnAddress());
 
-    return origCreateTexture(This,
-                             Width,
-                             Height,
-                             Levels,
-                             Usage,
-                             Format,
-                             Pool,
-                             ppTexture,
-                             pSharedHandle);
+    return origCreateTexture(This, Width, Height, Levels, Usage, Format, Pool, ppTexture, pSharedHandle);
 }
 
 using CreateVertexDeclaration_t = decltype(g_Direct3DDevice->lpVtbl->CreateVertexDeclaration);
 
 CreateVertexDeclaration_t origCreateVertexDeclaration;
 
-HRESULT STDMETHODCALLTYPE HookCreateVertexDeclaration(IDirect3DDevice9 *This,
-                                                      const D3DVERTEXELEMENT9 *elements,
-                                                      IDirect3DVertexDeclaration9 **declaration) {
+HRESULT STDMETHODCALLTYPE HookCreateVertexDeclaration(IDirect3DDevice9 *This, const D3DVERTEXELEMENT9 *elements,
+                                                      IDirect3DVertexDeclaration9 **declaration)
+{
     //sp_log("HookCreateVertexDeclaration: return to 0x%08X", getReturnAddress());
 
     return origCreateVertexDeclaration(This, elements, declaration);
@@ -1265,7 +1312,7 @@ void hook_directx()
     auto vtbl = g_Direct3DDevice->lpVtbl;
 
     auto old_perms = 0ul;
-    VirtualProtect((void *) vtbl, 150u, PAGE_READWRITE, &old_perms);
+    VirtualProtect((void *)vtbl, 150u, PAGE_READWRITE, &old_perms);
 
     origSetViewport = vtbl->SetViewport;
     vtbl->SetViewport = &HookSetViewport;
@@ -1308,7 +1355,7 @@ void hook_directx()
     vtbl->CreateVertexDeclaration = &HookCreateVertexDeclaration;
 #endif
 
-    VirtualProtect((void *) vtbl, 150u, old_perms, &old_perms);
+    VirtualProtect((void *)vtbl, 150u, old_perms, &old_perms);
 }
 
 void sub_76DF00()
@@ -1353,7 +1400,7 @@ void releaseShaderLists()
 
     g_vertexShaderList.clear();
 
-    for ( auto &shader : g_pixelShaderList) {
+    for (auto &shader : g_pixelShaderList) {
         shader->lpVtbl->Release(shader);
     }
 
@@ -1362,51 +1409,49 @@ void releaseShaderLists()
 
 void sub_772630()
 {
-    if constexpr (0)
-    {
-        static Var<D3DVERTEXELEMENT9> stru_93B0E0 {0x0093B0E0};
-        static Var<D3DVERTEXELEMENT9> stru_93B0C8 {0x0093B0C8};
-        static Var<D3DVERTEXELEMENT9> stru_93B098 {0x0093B098};
+    if constexpr (0) {
+        static Var<D3DVERTEXELEMENT9> stru_93B0E0{0x0093B0E0};
+        static Var<D3DVERTEXELEMENT9> stru_93B0C8{0x0093B0C8};
+        static Var<D3DVERTEXELEMENT9> stru_93B098{0x0093B098};
 
-        static Var<DWORD [1]> dword_8BAF18 {0x008BAF18};
-        static Var<DWORD [1]> dword_8BAFD0 {0x008BAFD0};
-        static Var<DWORD [1]> dword_8BAF80 {0x008BAF80};
-        static Var<DWORD [1]> dword_8BB030 {0x008BB030};
+        static Var<DWORD[1]> dword_8BAF18{0x008BAF18};
+        static Var<DWORD[1]> dword_8BAFD0{0x008BAFD0};
+        static Var<DWORD[1]> dword_8BAF80{0x008BAF80};
+        static Var<DWORD[1]> dword_8BB030{0x008BB030};
 
         nglCreateVertexDeclarationAndShader(&stru_975780(), &stru_93B0E0(), dword_8BAF18());
         nglCreateVertexDeclarationAndShader(&stru_9757A4(), &stru_93B0C8(), dword_8BAFD0());
         nglCreateVertexDeclarationAndShader(&stru_975788(), &stru_93B0C8(), dword_8BAF80());
         nglCreateVertexDeclarationAndShader(&stru_975798(), &stru_93B098(), dword_8BB030());
 
-        static Var<D3DVERTEXELEMENT9> stru_93B080 {0x0093B080};
+        static Var<D3DVERTEXELEMENT9> stru_93B080{0x0093B080};
         sub_772D50(&stru_93B080());
         sub_772E30();
         sub_772E80();
         sub_772ED0();
         sub_772F70();
 
-        static Var<const DWORD [1]> dword_8BB560 {0x008BB560};
+        static Var<const DWORD[1]> dword_8BB560{0x008BB560};
         IDirect3DDevice9_CreatePixelShader(g_Direct3DDevice, dword_8BB560(), &dword_975790());
 
         {
             auto *head = g_pixelShaderList.m_head;
-            decltype(head) (__fastcall *sub_772C60)(void *, void *, decltype(head) a1, decltype(head) a2, IDirect3DPixelShader9 **a3) = CAST(sub_772C60, 0x00772C60);
+            decltype(head)(__fastcall * sub_772C60)(
+                void *, void *, decltype(head) a1, decltype(head) a2, IDirect3DPixelShader9 **a3) =
+                CAST(sub_772C60, 0x00772C60);
 
-            auto *v1 = sub_772C60(
-                            &g_pixelShaderList,
-                            nullptr,
-                            g_pixelShaderList.m_head,
-                            g_pixelShaderList.m_head->_Prev,
-                            &dword_975790());
+            auto *v1 = sub_772C60(&g_pixelShaderList,
+                                  nullptr,
+                                  g_pixelShaderList.m_head,
+                                  g_pixelShaderList.m_head->_Prev,
+                                  &dword_975790());
 
-            void (__fastcall *sub_772CE0)(void *, void *, uint32_t) = CAST(sub_772CE0, 0x00772CE0);
+            void(__fastcall * sub_772CE0)(void *, void *, uint32_t) = CAST(sub_772CE0, 0x00772CE0);
             sub_772CE0(&g_pixelShaderList, nullptr, 1u);
             head->_Prev = v1;
             v1->_Prev->_Next = v1;
         }
-    }
-    else
-    {
+    } else {
         CDECL_CALL(0x00772630);
     }
 }
@@ -1425,35 +1470,35 @@ static Var<int> TotalTilesCount{0x00971F34};
 static Var<float *> xx1{0x00971EFC}, yy1{0x00971EF0}, xx2{0x00971EF8}, yy2{0x00971EF4};
 
 static Var<bool> ScreenshotInProgress{0x00971F44};
-} // namespace nglHiresScreenShot
+}  // namespace nglHiresScreenShot
 
-int nglGetScreenWidth() {
+int nglGetScreenWidth()
+{
     return 640;
 }
 
-int nglGetScreenHeight() {
+int nglGetScreenHeight()
+{
     return 480;
 }
 
-void nglBeginHiresScreenShot(int width, int height) {
+void nglBeginHiresScreenShot(int width, int height)
+{
     nglHiresScreenShot::ScreenshotInProgress() = true;
     nglHiresScreenShot::CurTilesCount() = 0;
     auto screenWidth = nglGetScreenWidth();
     auto screenHeight = nglGetScreenHeight();
     nglHiresScreenShot::NColumns() = screenWidth * (width / screenWidth) / screenWidth;
     nglHiresScreenShot::NRows() = screenHeight * (height / screenHeight) / screenHeight;
-    nglHiresScreenShot::TotalTilesCount() = nglHiresScreenShot::NColumns() *
-        nglHiresScreenShot::NRows();
+    nglHiresScreenShot::TotalTilesCount() = nglHiresScreenShot::NColumns() * nglHiresScreenShot::NRows();
     nglHiresScreenShot::xx1() = static_cast<float *>(
-        tlMemAlloc(4 * nglHiresScreenShot::NColumns() * nglHiresScreenShot::NRows(),
-                   8u,
-                   0x1000000u));
-    nglHiresScreenShot::yy1() = static_cast<float *>(
-        tlMemAlloc(4 * nglHiresScreenShot::TotalTilesCount(), 8u, 0x1000000u));
-    nglHiresScreenShot::xx2() = static_cast<float *>(
-        tlMemAlloc(4 * nglHiresScreenShot::TotalTilesCount(), 8u, 0x1000000u));
-    nglHiresScreenShot::yy2() = static_cast<float *>(
-        tlMemAlloc(4 * nglHiresScreenShot::TotalTilesCount(), 8u, 0x1000000u));
+        tlMemAlloc(4 * nglHiresScreenShot::NColumns() * nglHiresScreenShot::NRows(), 8u, 0x1000000u));
+    nglHiresScreenShot::yy1() =
+        static_cast<float *>(tlMemAlloc(4 * nglHiresScreenShot::TotalTilesCount(), 8u, 0x1000000u));
+    nglHiresScreenShot::xx2() =
+        static_cast<float *>(tlMemAlloc(4 * nglHiresScreenShot::TotalTilesCount(), 8u, 0x1000000u));
+    nglHiresScreenShot::yy2() =
+        static_cast<float *>(tlMemAlloc(4 * nglHiresScreenShot::TotalTilesCount(), 8u, 0x1000000u));
 
     int i = 0;
     if (nglHiresScreenShot::NRows()) {
@@ -1463,15 +1508,14 @@ void nglBeginHiresScreenShot(int width, int height) {
             if (nglHiresScreenShot::NColumns()) {
                 uint32_t v8 = 1;
                 do {
-                    nglHiresScreenShot::xx1()[v7 + i * nglHiresScreenShot::NColumns()] = -(
-                        double) v8;
-                    nglHiresScreenShot::yy1()[v7 + i * nglHiresScreenShot::NColumns()] = -(double) k;
+                    nglHiresScreenShot::xx1()[v7 + i * nglHiresScreenShot::NColumns()] = -(double)v8;
+                    nglHiresScreenShot::yy1()[v7 + i * nglHiresScreenShot::NColumns()] = -(double)k;
                     nglHiresScreenShot::xx2()[v7 + i * nglHiresScreenShot::NColumns()] =
-                        (double) (2 * (nglHiresScreenShot::NColumns() - v7) - 1);
+                        (double)(2 * (nglHiresScreenShot::NColumns() - v7) - 1);
                     ++v7;
                     v8 += 2;
                     nglHiresScreenShot::yy2()[v7 + i * nglHiresScreenShot::NColumns()] =
-                        (double) (2 * (nglHiresScreenShot::NRows() - i) - 1);
+                        (double)(2 * (nglHiresScreenShot::NRows() - i) - 1);
 
                 } while (v7 < nglHiresScreenShot::NColumns());
             }
@@ -1482,12 +1526,14 @@ void nglBeginHiresScreenShot(int width, int height) {
     }
 }
 
-void nglSetAspectRatio(Float a1) {
+void nglSetAspectRatio(Float a1)
+{
     nglCurScene->AspectRatio = a1;
     nglCalculateMatrices(true);
 }
 
-bool nglSaveHiresScreenshot() {
+bool nglSaveHiresScreenshot()
+{
     char Dest[64];
 
     sprintf(Dest,
@@ -1495,8 +1541,8 @@ bool nglSaveHiresScreenshot() {
             nglHiresScreenShot::ShotCount(),
             nglHiresScreenShot::NColumns(),
             nglHiresScreenShot::NRows(),
-            nglHiresScreenShot::CurTilesCount() / (unsigned int) nglHiresScreenShot::NColumns(),
-            nglHiresScreenShot::CurTilesCount() % (unsigned int) nglHiresScreenShot::NColumns());
+            nglHiresScreenShot::CurTilesCount() / (unsigned int)nglHiresScreenShot::NColumns(),
+            nglHiresScreenShot::CurTilesCount() % (unsigned int)nglHiresScreenShot::NColumns());
     nglScreenShot(Dest);
     if (++nglHiresScreenShot::CurTilesCount() != nglHiresScreenShot::TotalTilesCount()) {
         return true;
@@ -1510,7 +1556,8 @@ bool nglSaveHiresScreenshot() {
     return false;
 }
 
-void nglScreenShot(const char *a1) {
+void nglScreenShot(const char *a1)
+{
     static int ScreenCount = 0;
 
     nglTexture *tex = nglGetFrontBufferTex();
@@ -1525,7 +1572,8 @@ void nglScreenShot(const char *a1) {
     }
 }
 
-void *ngl_memalloc_callback(unsigned int size, unsigned int align, unsigned int a3) {
+void *ngl_memalloc_callback(unsigned int size, unsigned int align, unsigned int a3)
+{
     void *result;
 
     if (damage_morphs::intercepting_allocations()) {
@@ -1543,7 +1591,8 @@ void *ngl_memalloc_callback(unsigned int size, unsigned int align, unsigned int 
     return result;
 }
 
-void ngl_memfree_callback(void *Memory) {
+void ngl_memfree_callback(void *Memory)
+{
     if (Memory != nullptr) {
         if (damage_morphs::intercepting_allocations()) {
             damage_morphs::memfree(Memory);
@@ -1558,38 +1607,35 @@ void ngl_memfree_callback(void *Memory) {
     }
 }
 
-int nglPalette::sub_782A70(int a2, int a3) {
+int nglPalette::sub_782A70(int a2, int a3)
+{
     return THISCALL(0x00782A70, this, a2, a3);
 }
 
-void nglPalette::sub_782A40() {
+void nglPalette::sub_782A40()
+{
     if (!g_valid_texture_format) {
-        IDirect3DDevice9_SetPaletteEntries(g_Direct3DDevice,
-                                                      this->m_palette_idx,
-                                                      this->m_palette_entries);
+        IDirect3DDevice9_SetPaletteEntries(g_Direct3DDevice, this->m_palette_idx, this->m_palette_entries);
     }
 }
 
 void nglTexture::CreateTextureOrSurface()
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         auto v2 = this->m_format;
-        if ((v2 & 0x2000) != 0)
-        {
+        if ((v2 & 0x2000) != 0) {
             IDirect3DDevice9_CreateDepthStencilSurface(g_Direct3DDevice,
-                                                    this->m_width,
-                                                    this->m_height,
-                                                    this->m_d3d_format,
-                                                    D3DMULTISAMPLE_NONE,
-                                                    0,
-                                                    TRUE,
-                                                    (IDirect3DSurface9 **) &this->DXSurfaces,
-                                                    nullptr);
+                                                       this->m_width,
+                                                       this->m_height,
+                                                       this->m_d3d_format,
+                                                       D3DMULTISAMPLE_NONE,
+                                                       0,
+                                                       TRUE,
+                                                       (IDirect3DSurface9 **)&this->DXSurfaces,
+                                                       nullptr);
 
             ++nglDebug.field_10;
         } else {
-
             int usage = 0;
             D3DPOOL pool = D3DPOOL_MANAGED;
             if ((v2 & 0x1000) != 0) {
@@ -1597,8 +1643,7 @@ void nglTexture::CreateTextureOrSurface()
                 pool = D3DPOOL_DEFAULT;
             }
 
-            if (NGLTEX_GET_FORMAT(v2) == 7 && g_valid_texture_format)
-            {
+            if (NGLTEX_GET_FORMAT(v2) == 7 && g_valid_texture_format) {
                 auto v9 = this->m_height * this->m_width;
                 this->m_d3d_format = D3DFMT_A8R8G8B8;
                 this->m_numLevel = 1;
@@ -1613,35 +1658,30 @@ void nglTexture::CreateTextureOrSurface()
 
             auto levels = this->m_numLevel;
 
-            if ((this->m_format & 0x10000000) != 0)
-            {
+            if ((this->m_format & 0x10000000) != 0) {
                 IDirect3DDevice9_CreateCubeTexture(g_Direct3DDevice,
-                                                this->m_width,
-                                                levels,
-                                                usage,
-                                                format,
-                                                pool,
-                                                (IDirect3DCubeTexture9 **) &this->DXTexture,
-                                                nullptr);
-            }
-            else
-            {
+                                                   this->m_width,
+                                                   levels,
+                                                   usage,
+                                                   format,
+                                                   pool,
+                                                   (IDirect3DCubeTexture9 **)&this->DXTexture,
+                                                   nullptr);
+            } else {
                 IDirect3DDevice9_CreateTexture(g_Direct3DDevice,
-                                                          this->m_width,
-                                                          this->m_height,
-                                                          levels,
-                                                          usage,
-                                                          format,
-                                                          pool,
-                                                          &this->DXTexture,
-                                                          nullptr);
+                                               this->m_width,
+                                               this->m_height,
+                                               levels,
+                                               usage,
+                                               format,
+                                               pool,
+                                               &this->DXTexture,
+                                               nullptr);
             }
 
             ++nglDebug.field_C;
         }
-    }
-    else
-    {
+    } else {
         THISCALL(0x00775000, this);
     }
 }
@@ -1650,36 +1690,25 @@ void nglTexture::SetupTextureLevels()
 {
     TRACE("nglTexture::SetupTextureLevels");
 
-    if constexpr (1)
-    {
-        if ((this->m_format & 0x2000) == 0)
-        {
+    if constexpr (1) {
+        if ((this->m_format & 0x2000) == 0) {
             this->m_numLevel = this->DXTexture->lpVtbl->GetLevelCount(this->DXTexture);
-            if ((this->m_format & 0x10000000) == 0)
-            {
-                this->DXSurfaces = static_cast<decltype(this->DXSurfaces)>(
-                    tlMemAlloc(4 * this->m_numLevel, 8, 0x1000000u));
+            if ((this->m_format & 0x10000000) == 0) {
+                this->DXSurfaces =
+                    static_cast<decltype(this->DXSurfaces)>(tlMemAlloc(4 * this->m_numLevel, 8, 0x1000000u));
                 for (auto i = 0u; i < this->m_numLevel; ++i) {
-                    this->DXTexture->lpVtbl
-                        ->GetSurfaceLevel(this->DXTexture,
-                                          i,
-                                          (IDirect3DSurface9 **) &this->DXSurfaces[i]);
+                    this->DXTexture->lpVtbl->GetSurfaceLevel(
+                        this->DXTexture, i, (IDirect3DSurface9 **)&this->DXSurfaces[i]);
                     ++nglDebug.field_8;
                 }
 
-            }
-            else
-            {
-                this->DXSurfaces = static_cast<decltype(this->DXSurfaces)>(
-                    tlMemAlloc(0x18, 8, 0x1000000u));
-                for (auto j = 0; j < 6; ++j)
-                {
-                    this->DXSurfaces[j] = static_cast<IDirect3DSurface9 *>(
-                        tlMemAlloc(4 * this->m_numLevel, 8, 0x1000000u));
+            } else {
+                this->DXSurfaces = static_cast<decltype(this->DXSurfaces)>(tlMemAlloc(0x18, 8, 0x1000000u));
+                for (auto j = 0; j < 6; ++j) {
+                    this->DXSurfaces[j] =
+                        static_cast<IDirect3DSurface9 *>(tlMemAlloc(4 * this->m_numLevel, 8, 0x1000000u));
                     for (auto k = 0u; k < this->m_numLevel; ++k) {
-                        this->DXTexture->lpVtbl->GetSurfaceLevel(this->DXTexture,
-                                                                 j,
-                                                                 (IDirect3DSurface9 **) k);
+                        this->DXTexture->lpVtbl->GetSurfaceLevel(this->DXTexture, j, (IDirect3DSurface9 **)k);
                         ++nglDebug.field_8;
                     }
                 }
@@ -1692,11 +1721,13 @@ void nglTexture::SetupTextureLevels()
 }
 
 
-void sub_77B740() {
+void sub_77B740()
+{
     CDECL_CALL(0x0077B740);
 }
 
-void sub_7740F0() {
+void sub_7740F0()
+{
 #if 0
     D3DVERTEXELEMENT9 v1[2];
     v1[0].Stream = 0;
@@ -1831,7 +1862,7 @@ void nglInitWhiteTexture()
         nglDxLockTexture(nglWhiteTex, 0);
         nglDxSetTexel8(nglWhiteTex, 0, 0, -1);
         nglDxUnlockTexture(nglWhiteTex);
-        nglWhiteTex->FileName = tlFixedString {"nglwhite"};
+        nglWhiteTex->FileName = tlFixedString{"nglwhite"};
         nglWhiteTex->field_34 |= 2u;
 
         nglTextureDirectory->Add(nglWhiteTex);
@@ -1840,11 +1871,13 @@ void nglInitWhiteTexture()
     }
 }
 
-void nglReleaseSection(nglMeshSection *a1) {
+void nglReleaseSection(nglMeshSection *a1)
+{
     CDECL_CALL(0x0077C490, a1);
 }
 
-uint8_t NGLTEX_GET_FORMAT(uint32_t format) {
+uint8_t NGLTEX_GET_FORMAT(uint32_t format)
+{
     return (format & 0x000000FF);
 }
 
@@ -1867,18 +1900,18 @@ int GetTextureSizeFromDesc(const D3DSURFACE_DESC &desc, const D3DLOCKED_RECT &re
 
     } else if (format != D3DFMT_DXT1) {
         switch (format) {
-            case D3DFMT_R8G8B8:
-            case D3DFMT_A8R8G8B8:
-            case D3DFMT_R5G6B5:
-            case D3DFMT_A1R5G5B5:
-            case D3DFMT_A4R4G4B4:
-            case D3DFMT_A8:
-            case D3DFMT_L8: {
-                result = rect.Pitch * desc.Height;
-                break;
-            }
-            default:
-                return result;
+        case D3DFMT_R8G8B8:
+        case D3DFMT_A8R8G8B8:
+        case D3DFMT_R5G6B5:
+        case D3DFMT_A1R5G5B5:
+        case D3DFMT_A4R4G4B4:
+        case D3DFMT_A8:
+        case D3DFMT_L8: {
+            result = rect.Pitch * desc.Height;
+            break;
+        }
+        default:
+            return result;
         }
 
         return result;
@@ -1896,31 +1929,28 @@ void nglTextureInit()
 {
     TRACE("nglTextureInit");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         nglTexturePath[0] = 0;
 
-        nglTextureDirectory = new tlInstanceBankResourceDirectory<nglTexture, tlFixedString> {};
+        nglTextureDirectory = new tlInstanceBankResourceDirectory<nglTexture, tlFixedString>{};
 
-        nglPaletteFileDirectory = new tlInstanceBankResourceDirectory<nglPaletteFile, tlFixedString> {};
+        nglPaletteFileDirectory = new tlInstanceBankResourceDirectory<nglPaletteFile, tlFixedString>{};
 
         stru_975AC0.field_4 = &stru_975AC0;
         stru_975AC0.field_0 = &stru_975AC0;
 
-        tlFixedString v4 {"ngldefault"};
+        tlFixedString v4{"ngldefault"};
 
         nglDefaultTex = nglLoadTextureInPlace(v4, static_cast<nglTextureFileFormat>(0), nglDefaultTexData, 2872u);
 
         nglDefaultTex->field_34 |= 2u;
         nglInitWhiteTexture();
-    }
-    else
-    {
+    } else {
         CDECL_CALL(0x00773830);
     }
 }
 
-static Var<D3DCAPS9> g_deviceCaps {0x00972108};
+static Var<D3DCAPS9> g_deviceCaps{0x00972108};
 
 
 void sub_7726B0(bool a1)
@@ -1931,15 +1961,13 @@ void sub_7726B0(bool a1)
     static_assert(offsetof(D3DCAPS9, PixelShaderVersion) == 0xCC, "");
 
     if ((0x100 < (g_deviceCaps().VertexShaderVersion & 0xFFFF)) &&
-        (0x100 < (g_deviceCaps().PixelShaderVersion & 0xFFFF)) && !byte_971F90())
-    {
+        (0x100 < (g_deviceCaps().PixelShaderVersion & 0xFFFF)) && !byte_971F90()) {
         HANDLE v2 = CreateFileA("data\\ForceNoShader", GENERIC_READ, 0, nullptr, 3u, 0, nullptr);
 
-        if (v2 == INVALID_HANDLE_VALUE)
-        {
+        if (v2 == INVALID_HANDLE_VALUE) {
             EnableShader = true;
 
-            float v3[4] {0.0, 0.5, 1.0, 2.0};
+            float v3[4]{0.0, 0.5, 1.0, 2.0};
             IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice, 91u, v3, 1u);
 
 
@@ -1990,12 +2018,13 @@ void nglGetProjectionParams(float *a1, float *nearz, float *farz)
     }
 }
 
-void nglSetTexturePath(const char *a1) {
+void nglSetTexturePath(const char *a1)
+{
     std::strncpy(nglTexturePath, a1, 256u);
     nglTexturePath[255] = '\0';
 }
 
-nglFont * nglLoadFont(const tlFixedString &a1)
+nglFont *nglLoadFont(const tlFixedString &a1)
 {
     if constexpr (1) {
         //sp_log("find = 0x%08X, sub_779FC0 = 0x%08X", find, load);
@@ -2008,7 +2037,7 @@ nglFont * nglLoadFont(const tlFixedString &a1)
         ++font->field_20;
         return font;
     } else {
-        return (nglFont *) CDECL_CALL(0x007792B0, &a1);
+        return (nglFont *)CDECL_CALL(0x007792B0, &a1);
     }
 }
 
@@ -2016,9 +2045,8 @@ nglMeshFile *nglLoadMeshFile(const tlFixedString &a1)
 {
     TRACE("nglLoadMeshFile", a1.to_string());
 
-    if constexpr (1)
-    {
-        nglMeshFile * (__fastcall *Find)(void *, void *, const tlFixedString *) =
+    if constexpr (1) {
+        nglMeshFile *(__fastcall * Find)(void *, void *, const tlFixedString *) =
             CAST(Find, get_vfunc(nglMeshFileDirectory->m_vtbl, 0xC));
 
         nglMeshFile *MeshFile = Find(nglMeshFileDirectory, nullptr, &a1);
@@ -2026,7 +2054,7 @@ nglMeshFile *nglLoadMeshFile(const tlFixedString &a1)
         sp_log("%s", MeshFile != nullptr ? "mesh file is found" : "mesh file is not found");
 
         if (MeshFile == nullptr) {
-            nglMeshFile *(__fastcall *Load)(void *, void *, const tlFixedString *) =
+            nglMeshFile *(__fastcall * Load)(void *, void *, const tlFixedString *) =
                 CAST(Load, get_vfunc(nglMeshFileDirectory->m_vtbl, 0x24));
 
             sp_log("0x%08X", Load);
@@ -2038,21 +2066,19 @@ nglMeshFile *nglLoadMeshFile(const tlFixedString &a1)
         return MeshFile;
 
     } else {
-        return (nglMeshFile *) CDECL_CALL(0x0076F140, &a1);
+        return (nglMeshFile *)CDECL_CALL(0x0076F140, &a1);
     }
 }
 
-void nglMeshFile::un_mash_start(generic_mash_header *header,
-                                void *,
-                                generic_mash_data_ptrs *a3,
-                                void *)
+void nglMeshFile::un_mash_start(generic_mash_header *header, void *, generic_mash_data_ptrs *a3, void *)
 {
     a3->rebase(8u);
 
-    assert(((int) header) % 4 == 0);
+    assert(((int)header) % 4 == 0);
 }
 
-tlFixedString *nglMeshFile::get_string(nglMeshFile *a1) {
+tlFixedString *nglMeshFile::get_string(nglMeshFile *a1)
+{
     return &a1->FileName;
 }
 
@@ -2063,7 +2089,7 @@ void nglSetTextureDirectory(tlResourceDirectory<nglTexture, tlFixedString> *a1)
     TRACE("nglSetTextureDirectory");
 
     sp_log("0x%08X", a1->m_vtbl);
-    sp_log("0x%08x", tlresource_directory<nglTexture,tlFixedString>::system_dir->m_vtbl);
+    sp_log("0x%08x", tlresource_directory<nglTexture, tlFixedString>::system_dir->m_vtbl);
 
     if constexpr (1) {
         nglTextureDirectory = CAST(nglTextureDirectory, a1);
@@ -2077,20 +2103,22 @@ tlInstanceBankResourceDirectory<nglTexture, tlFixedString> *nglGetTextureDirecto
     return nglTextureDirectory;
 }
 
-void nglSetMeshFileDirectory(tlResourceDirectory<nglMeshFile, tlFixedString> *a1) {
+void nglSetMeshFileDirectory(tlResourceDirectory<nglMeshFile, tlFixedString> *a1)
+{
     nglMeshFileDirectory = CAST(nglMeshFileDirectory, a1);
 }
 
-tlInstanceBankResourceDirectory<nglMeshFile, tlFixedString> * nglGetMeshFileDirectory()
+tlInstanceBankResourceDirectory<nglMeshFile, tlFixedString> *nglGetMeshFileDirectory()
 {
     return nglMeshFileDirectory;
 }
 
-void nglSetMeshDirectory(tlResourceDirectory<nglMesh, tlHashString> *a1) {
+void nglSetMeshDirectory(tlResourceDirectory<nglMesh, tlHashString> *a1)
+{
     nglMeshDirectory = CAST(nglMeshDirectory, a1);
 }
 
-tlInstanceBankResourceDirectory<nglMesh, tlHashString> * nglGetMeshDirectory()
+tlInstanceBankResourceDirectory<nglMesh, tlHashString> *nglGetMeshDirectory()
 {
     return nglMeshDirectory;
 }
@@ -2100,38 +2128,39 @@ void nglSetMorphDirectory(tlResourceDirectory<nglMorphSet, tlHashString> *a1)
     nglMorphDirectory = CAST(nglMorphDirectory, a1);
 }
 
-tlInstanceBankResourceDirectory<nglMorphSet, tlHashString> * nglGetMorphDirectory()
+tlInstanceBankResourceDirectory<nglMorphSet, tlHashString> *nglGetMorphDirectory()
 {
     return nglMorphDirectory;
 }
 
-tlInstanceBankResourceDirectory<nglMorphFile, tlFixedString> * nglGetMorphFileDirectory()
+tlInstanceBankResourceDirectory<nglMorphFile, tlFixedString> *nglGetMorphFileDirectory()
 {
     return nglMorphFileDirectory;
 }
 
-void nglSetMaterialFileDirectory(tlResourceDirectory<nglMaterialFile, tlFixedString> *a1) {
+void nglSetMaterialFileDirectory(tlResourceDirectory<nglMaterialFile, tlFixedString> *a1)
+{
     nglMaterialFileDirectory = CAST(nglMaterialFileDirectory, a1);
 }
 
-void nglSetMaterialDirectory(tlResourceDirectory<nglMaterialBase, tlHashString> *a1) {
+void nglSetMaterialDirectory(tlResourceDirectory<nglMaterialBase, tlHashString> *a1)
+{
     nglMaterialDirectory = CAST(nglMaterialDirectory, a1);
 }
 
-bool nglMaterialBase::IsSwitchable() {
+bool nglMaterialBase::IsSwitchable()
+{
     return this->m_shader->IsSwitchable();
 }
 
 #ifndef TARGET_XBOX
 nglMaterialBase *nglGetMaterialInFile(const tlFixedString &a1, nglMeshFile *MeshFile)
 {
-    TRACE("nglGetMaterialInFile", tlHashString {a1.GetHash()}.c_str(), a1.to_string());
+    TRACE("nglGetMaterialInFile", tlHashString{a1.GetHash()}.c_str(), a1.to_string());
 
     nglMaterialBase *result = nullptr;
-    if constexpr (1)
-    {
-        for (result = MeshFile->FirstMaterial; result != nullptr; result = result->NextMaterial)
-        {
+    if constexpr (1) {
+        for (result = MeshFile->FirstMaterial; result != nullptr; result = result->NextMaterial) {
             if (*result->Name == a1) {
                 return result;
             }
@@ -2140,10 +2169,8 @@ nglMaterialBase *nglGetMaterialInFile(const tlFixedString &a1, nglMeshFile *Mesh
         assert(0);
 
         return nullptr;
-    }
-    else
-    {
-        nglMaterialBase * (*func)(const tlFixedString *, nglMeshFile *) = CAST(func, 0x0076F0F0);
+    } else {
+        nglMaterialBase *(*func)(const tlFixedString *, nglMeshFile *) = CAST(func, 0x0076F0F0);
         result = func(&a1, MeshFile);
     }
 
@@ -2152,39 +2179,38 @@ nglMaterialBase *nglGetMaterialInFile(const tlFixedString &a1, nglMeshFile *Mesh
 
 #endif
 
-namespace xbox
-{
-    struct nglMeshSection {
-        int field_0;
-        nglMaterialBase *Material;
+namespace xbox {
+struct nglMeshSection {
+    int field_0;
+    nglMaterialBase *Material;
+    int field_8;
+    uint16_t *BonesIdx;
+    float SphereCenter[4];
+    float SphereRadius;
+    uint32_t Flags;
+    int m_primitiveType;
+    uint32_t NIndices;
+    struct {
+        void *field_0;
+    } field_30;
+    int field_34;
+    int field_38;
+    int field_3C;
+    int NVertices;
+    struct {
+        void *field_0;
+        int Size;
         int field_8;
-        uint16_t *BonesIdx;
-        float SphereCenter[4];
-        float SphereRadius;
-        uint32_t Flags;
-        int m_primitiveType;
-        uint32_t NIndices;
-        struct {
-            void *field_0;
-        } field_30;
-        int field_34;
-        int field_38;
-        int field_3C;
-        int NVertices;
-        struct {
-            void *field_0;
-            int Size;
-            int field_8;
-        } VertexBuffer;
-        int m_stride;
-        int field_54;
-        int field_58;
-        nglVertexDef *VertexDef;
-    };
+    } VertexBuffer;
+    int m_stride;
+    int field_54;
+    int field_58;
+    nglVertexDef *VertexDef;
+};
 
-    VALIDATE_OFFSET(nglMeshSection, field_30, 0x30);
-    VALIDATE_SIZE(nglMeshSection, 0x60);
-}
+VALIDATE_OFFSET(nglMeshSection, field_30, 0x30);
+VALIDATE_SIZE(nglMeshSection, 0x60);
+}  // namespace xbox
 
 void nglRebaseSection(uint32_t NewBase, uint32_t OldBase, nglMeshSection *a3)
 {
@@ -2196,21 +2222,19 @@ void nglRebaseSection(uint32_t NewBase, uint32_t OldBase, nglMeshSection *a3)
     PTR_OFFSET(idx, Section->BonesIdx);
 
     PTR_OFFSET(idx, Section->VertexBuffer.field_0);
-  
-    PTR_OFFSET(idx, Section->field_30.field_0 );
+
+    PTR_OFFSET(idx, Section->field_30.field_0);
 
     PTR_OFFSET(idx, Section->field_38);
 
     PTR_OFFSET(idx, Section->Material);
-    
+
     PTR_OFFSET(idx, Section->VertexDef);
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         int (*arr)[sizeof(nglMeshSection) / 4] = CAST(arr, Section);
         int i = 0;
-        for (auto &v : *arr)
-        {
+        for (auto &v : *arr) {
             sp_log("0x%08X %d", (i++) * 4, v);
         }
 
@@ -2237,8 +2261,7 @@ void nglRebaseSection(uint32_t NewBase, uint32_t OldBase, nglMeshSection *a3)
     PTR_OFFSET(idx, a3->VertexDef);
 
     auto *v9 = a3->VertexDef;
-    if (v9 != nullptr)
-    {
+    if (v9 != nullptr) {
         PTR_OFFSET(idx, v9->m_vtbl);
     }
 #endif
@@ -2248,8 +2271,7 @@ void nglRebaseMesh(uint32_t NewBase, uint32_t OldBase, nglMesh *pMesh)
 {
     TRACE("nglRebaseMesh");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         int idx = NewBase - OldBase;
 
         PTR_OFFSET(idx, pMesh->Bones);
@@ -2266,23 +2288,20 @@ void nglRebaseMesh(uint32_t NewBase, uint32_t OldBase, nglMesh *pMesh)
         }
 #endif
 
-        for (auto j = 0u; j < pMesh->NSections; ++j)
-        {
-            if (pMesh->Sections[j].Section != nullptr)
-            {
+        for (auto j = 0u; j < pMesh->NSections; ++j) {
+            if (pMesh->Sections[j].Section != nullptr) {
                 PTR_OFFSET(idx, pMesh->Sections[j].Section);
             }
 
             nglRebaseSection(NewBase, OldBase, pMesh->Sections[j].Section);
         }
-    }
-    else
-    {
+    } else {
         CDECL_CALL(0x0076F340, NewBase, OldBase, pMesh);
     }
 }
 
-void nglProcessMorph(nglMeshFile *MeshFile, nglDirectoryEntry *a2, int base) {
+void nglProcessMorph(nglMeshFile *MeshFile, nglDirectoryEntry *a2, int base)
+{
     if constexpr (0) {
         struct {
             int m_extension;
@@ -2304,7 +2323,8 @@ void nglProcessMorph(nglMeshFile *MeshFile, nglDirectoryEntry *a2, int base) {
             tmp->field_10 = base;
         }
 
-        nglMorphSet * (__fastcall *Add)(void *, void *, nglMorphSet *) = CAST(Add, get_vfunc(nglMorphDirectory->m_vtbl, 0x10));
+        nglMorphSet *(__fastcall * Add)(void *, void *, nglMorphSet *) =
+            CAST(Add, get_vfunc(nglMorphDirectory->m_vtbl, 0x10));
 
         nglMorphSet *Morph = CAST(Morph, tmp);
 
@@ -2314,14 +2334,13 @@ void nglProcessMorph(nglMeshFile *MeshFile, nglDirectoryEntry *a2, int base) {
             auto *v6 = duplicate_morph->field_C->FilePath;
             auto *v5 = MeshFile->FileName.to_string();
             auto *v3 = Morph->field_0.c_str();
-            sp_log(
-                "Duplicate morph %s found in %s%s.pcmorph.  Originally contained in "
-                "%s%s.pcmorph.\n",
-                v3,
-                nglMeshPath,
-                v5,
-                v6,
-                v7);
+            sp_log("Duplicate morph %s found in %s%s.pcmorph.  Originally contained in "
+                   "%s%s.pcmorph.\n",
+                   v3,
+                   nglMeshPath,
+                   v5,
+                   v6,
+                   v7);
         }
 
         Morph->field_C = MeshFile;
@@ -2330,18 +2349,15 @@ void nglProcessMorph(nglMeshFile *MeshFile, nglDirectoryEntry *a2, int base) {
         }
 
         auto *Frames = Morph->Frames;
-        for (auto idx = 0u; idx < Morph->NFrames; ++idx)
-        {
-            if ( Frames->field_8 != nullptr ) {
+        for (auto idx = 0u; idx < Morph->NFrames; ++idx) {
+            if (Frames->field_8 != nullptr) {
                 Frames->field_8 = CAST(Frames->field_8, ((char *)Frames->field_8 + base));
             }
 
             auto *v9 = Frames->field_8;
-            for ( int j = 0; j < Frames->field_4; ++j )
-            {
-                for ( int k = 0; k < 32; ++k )
-                {
-                    if ( v9->field_8[k] ) {
+            for (int j = 0; j < Frames->field_4; ++j) {
+                for (int k = 0; k < 32; ++k) {
+                    if (v9->field_8[k]) {
                         v9->field_8[k] += base;
                     }
                 }
@@ -2363,12 +2379,9 @@ matrix4x3 transposed(const matrix4x3 &a2)
     TRACE("matrix4x3::transpose");
     matrix4x3 result{};
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         result = a2.transposed();
-    }
-    else
-    {
+    } else {
         CDECL_CALL(0x004135B0, &result, &a2);
     }
 
@@ -2386,17 +2399,14 @@ vector4d xform_inv(const vector4d &a2, const matrix4x3 &a3)
 {
     vector4d result;
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         vector4d x = a3[0];
         vector4d y = a3[1];
         vector4d z = a3[2];
 
         result = sub_4126E0(x, a2, y, a2, z, a2);
         return result;
-    }
-    else
-    {
+    } else {
         CDECL_CALL(0x004139A0, &result, &a2, &a3);
     }
 
@@ -2411,8 +2421,7 @@ matrix4x4 sub_4150E0(const matrix4x4 &a2)
 
     sp_log("%s", a2.to_string());
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         struct transform3d {
             matrix4x3 basis;
             vector4d origin;
@@ -2425,9 +2434,7 @@ matrix4x4 sub_4150E0(const matrix4x4 &a2)
 
         matrix4x4 result = *bit_cast<matrix4x4 *>(&v1);
         return result;
-    }
-    else
-    {
+    } else {
         matrix4x4 result;
 
         CDECL_CALL(0x004150E0, &result, &a2);
@@ -2483,15 +2490,8 @@ vector4d sub_401270(const vector4d &a2, const vector4d &a3)
     }
 }
 
-void sub_4013C0(
-        vector4d &a1,
-        vector4d &a2,
-        vector4d &a3,
-        vector4d &a4,
-        const vector4d &x,
-        const vector4d &y,
-        const vector4d &z,
-        const vector4d &w)
+void sub_4013C0(vector4d &a1, vector4d &a2, vector4d &a3, vector4d &a4, const vector4d &x, const vector4d &y,
+                const vector4d &z, const vector4d &w)
 {
     a1 = x;
 
@@ -2511,7 +2511,8 @@ void sub_4013C0(
     a4[3] = w[3];
 }
 
-vector4d sub_4012F0(const vector4d &a2, const vector4d &a3) {
+vector4d sub_4012F0(const vector4d &a2, const vector4d &a3)
+{
     if constexpr (1) {
         float w;
         if (a2[3] <= a3[3]) {
@@ -2570,38 +2571,36 @@ vector4d sub_411750(const vector4d &a2, const vector4d &a3)
     }
 }
 
-struct nglMeshFileHeader
-{
-	char Tag[4];                 // 'PCM '
-	uint32_t Version;
-	uint32_t NDirectoryEntries;
-	nglDirectoryEntry *DirectoryEntries;  // Shared vertex buffer for skinned meshes.
+struct nglMeshFileHeader {
+    char Tag[4];  // 'PCM '
+    uint32_t Version;
+    uint32_t NDirectoryEntries;
+    nglDirectoryEntry *DirectoryEntries;  // Shared vertex buffer for skinned meshes.
     int field_10;
 };
 
 
 void nglRebaseHeader(uint32_t Base, nglMeshFileHeader *&pHeader)
 {
-	PTR_OFFSET(Base, pHeader->DirectoryEntries);
+    PTR_OFFSET(Base, pHeader->DirectoryEntries);
 }
 
 const char *to_string(TypeDirectoryEntry type)
 {
-    static std::string g_str {};
-    switch(type)
-    {
-        case TypeDirectoryEntry::MATERIAL:
-            g_str = std::string {"TypeDirectoryEntry::MATERIAL"};
-            break;
-        case TypeDirectoryEntry::MESH:
-            g_str = std::string {"TypeDirectoryEntry::MESH"};
-            break;
-        case TypeDirectoryEntry::MORPH:
-            g_str = std::string {"TypeDirectoryEntry::MORPH"};
-            break;
-        default:
-            g_str = "";
-            break;
+    static std::string g_str{};
+    switch (type) {
+    case TypeDirectoryEntry::MATERIAL:
+        g_str = std::string{"TypeDirectoryEntry::MATERIAL"};
+        break;
+    case TypeDirectoryEntry::MESH:
+        g_str = std::string{"TypeDirectoryEntry::MESH"};
+        break;
+    case TypeDirectoryEntry::MORPH:
+        g_str = std::string{"TypeDirectoryEntry::MORPH"};
+        break;
+    default:
+        g_str = "";
+        break;
     }
 
     return g_str.c_str();
@@ -2615,22 +2614,19 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
 {
     TRACE("nglLoadMeshFileInternal", FileName.to_string());
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         nglMeshFileHeader *Header = CAST(Header, MeshFile->FileBuf.Buf);
 
-        MeshFile->field_134 = (int) Header;
+        MeshFile->field_134 = (int)Header;
         MeshFile->field_144 = -1;
-        if (strncmp(Header->Tag, "PCM ", 4u) != 0)
-        {
+        if (strncmp(Header->Tag, "PCM ", 4u) != 0) {
             sp_log("Corrupted mesh file: %s%s%s.\n", nglMeshPath, FileName.to_string(), ext);
             return false;
         }
 
         constexpr auto version = 0x601;
 
-        if (Header->Version != version)
-        {
+        if (Header->Version != version) {
             auto *v6 = FileName.to_string();
             sp_log("Unsupported mesh file version: %s%s%s (version %x, current version is %x).\n",
                    nglMeshPath,
@@ -2642,8 +2638,7 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
             return false;
         }
 
-        if (Header->NDirectoryEntries == 0)
-        {
+        if (Header->NDirectoryEntries == 0) {
             auto *v7 = FileName.to_string();
             sp_log("Mesh file hasn't any directory entries: %s%s%s.\n", nglMeshPath, v7, ext);
 
@@ -2676,9 +2671,7 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
         auto *dir_entries = Header->DirectoryEntries;
         sp_log("0x%08X", dir_entries);
 
-        std::for_each(dir_entries, dir_entries + num_dir_entries,
-                [&](auto &dir_entry)
-        {
+        std::for_each(dir_entries, dir_entries + num_dir_entries, [&](auto &dir_entry) {
             PTR_OFFSET(Base, dir_entry.field_4.Material);
             PTR_OFFSET(Base, dir_entry.field_8);
 
@@ -2704,15 +2697,13 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
                 }
 
                 LastMaterial = Material;
-                if (Header->field_10 == 0)
-                {
+                if (Header->field_10 == 0) {
                     auto *v17 = bit_cast<tlFixedString *>(Material->m_shader);
                     tlHashString a2 = v17->m_hash;
                     sp_log("0x%08X", v17->m_hash);
 
                     auto *v18 = nglShaderBank.Search(a2);
-                    if (v18 != nullptr)
-                    {
+                    if (v18 != nullptr) {
                         auto *shader = static_cast<nglShader *>(v18->field_20);
 
                         if (shader->CheckMaterialVersion(Material)) {
@@ -2721,12 +2712,11 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
                             auto *v27 = a2.c_str();
                             auto v26 = Material->Version;
                             auto *v8 = Material->Name->to_string();
-                            sp_log(
-                                "Material %s binary version (%d) is not compatible with shader "
-                                "%s.\n",
-                                v8,
-                                v26,
-                                v27);
+                            sp_log("Material %s binary version (%d) is not compatible with shader "
+                                   "%s.\n",
+                                   v8,
+                                   v26,
+                                   v27);
                             Material->m_shader = &gEmptyShader;
                         }
 
@@ -2741,7 +2731,7 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
 
                 Material->m_shader->RebaseMaterial(Material, Base);
 
-                if (0 ) //v17->m_hash == 0xFC097C8A)
+                if (0)  //v17->m_hash == 0xFC097C8A)
                 {
                     struct {
                         char field_0[0x60];
@@ -2755,11 +2745,11 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
 
             } break;
             case TypeDirectoryEntry::MESH: {
-
                 nglMesh *Mesh = dir_entry.field_4.Mesh;
                 PTR_OFFSET(Base, Mesh->Name);
 
-                void (__fastcall *Add)(void *, void *edx, nglMesh *) = CAST(Add, get_vfunc(nglMeshDirectory->m_vtbl, 0x10));
+                void(__fastcall * Add)(void *, void *edx, nglMesh *) =
+                    CAST(Add, get_vfunc(nglMeshDirectory->m_vtbl, 0x10));
                 Add(nglMeshDirectory, nullptr, Mesh);
 
                 Mesh->File = MeshFile;
@@ -2776,24 +2766,21 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
                     nglRebaseMesh(Base, 0, Mesh);
                 }
 
-                for (auto idx_Section = 0u; idx_Section < Mesh->NSections; ++idx_Section)
-                {
+                for (auto idx_Section = 0u; idx_Section < Mesh->NSections; ++idx_Section) {
                     Mesh->Sections[idx_Section].field_0 = 1;
 
                     nglMeshSection *MeshSection = Mesh->Sections[idx_Section].Section;
                     PTR_OFFSET(Base, MeshSection->MaterialName);
 
                     MeshSection->Material = nglGetMaterialInFile(*MeshSection->MaterialName, MeshFile);
-                    if (!MeshSection->Material->m_shader->CheckVertexDefVersion(MeshSection))
-                    {
+                    if (!MeshSection->Material->m_shader->CheckVertexDefVersion(MeshSection)) {
                         tlFixedString v111 = MeshSection->Material->m_shader->GetName();
 
                         auto *v12 = v111.to_string();
-                        sp_log(
-                            "Section VertexDef Binary version (%d) is incompatible with "
-                            "shader %s\n.",
-                            MeshSection->field_50,
-                            v12);
+                        sp_log("Section VertexDef Binary version (%d) is incompatible with "
+                               "shader %s\n.",
+                               MeshSection->field_50,
+                               v12);
                         MeshSection->Material->m_shader = &gEmptyShader;
                     }
 
@@ -2811,15 +2798,12 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
                     auto *v29 = v112.to_string();
 
                     [&v29](auto *MeshSection) -> void {
-                        auto func = [](auto *MeshSection)
-                        {
-                            auto v31 = (uint32_t) (MeshSection->field_3C.getSize() >> 6);
+                        auto func = [](auto *MeshSection) {
+                            auto v31 = (uint32_t)(MeshSection->field_3C.getSize() >> 6);
 
-                            auto *v32 = (float *) (MeshSection->field_3C.getVertexData() +
-                                                   32);
+                            auto *v32 = (float *)(MeshSection->field_3C.getVertexData() + 32);
                             MeshSection->field_5C = 2;
-                            for (; v31 != 0; --v31)
-                            {
+                            for (; v31 != 0; --v31) {
                                 if (equal(v32[7], 0.0f)) {
                                     if (not_equal(v32[6], 0.0f) && MeshSection->field_5C < 3u) {
                                         MeshSection->field_5C = 3;
@@ -2828,56 +2812,48 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
                                     MeshSection->field_5C = 4;
                                 }
 
-                                *(uint32_t *) v32 = v32[0];
+                                *(uint32_t *)v32 = v32[0];
 
-                                *((uint32_t *) v32 + 1) = v32[1];
+                                *((uint32_t *)v32 + 1) = v32[1];
 
-                                *((uint32_t *) v32 + 2) = v32[2];
-                                *((uint32_t *) v32 + 3) = v32[3];
+                                *((uint32_t *)v32 + 2) = v32[2];
+                                *((uint32_t *)v32 + 3) = v32[3];
                                 v32 += 16;
                             }
 
-                            MeshSection->field_3C.createVertexBufferAndWriteData(MeshSection->field_3C.getVertexData(),
-                                                                 MeshSection->field_3C.getSize(),
-                                                                 1028);
+                            MeshSection->field_3C.createVertexBufferAndWriteData(
+                                MeshSection->field_3C.getVertexData(), MeshSection->field_3C.getSize(), 1028);
 
                             static Var<int> dword_973BC8{0x00973BC8};
 
-                            if (dword_973BC8() < (int) (24 * (MeshSection->field_3C.getSize() >> 6))) {
+                            if (dword_973BC8() < (int)(24 * (MeshSection->field_3C.getSize() >> 6))) {
                                 dword_973BC8() = 24 * (MeshSection->field_3C.getSize() >> 6);
                             }
 
                             MeshSection->m_stride = 24;
                         };
 
-                        if ( !EnableShader )
-                        {
-                            if (strncmp(v29, "uslod", 5u) == 0)
-                            {
-                                nglVertexBuffer::createIndexOrVertexBuffer(
-                                    &MeshSection->field_3C,
-                                    ResourceType::VertexBuffer,
-                                    16 * (MeshSection->field_3C.getSize() / 12),
-                                    520,
-                                    0,
-                                    D3DPOOL_DEFAULT);
+                        if (!EnableShader) {
+                            if (strncmp(v29, "uslod", 5u) == 0) {
+                                nglVertexBuffer::createIndexOrVertexBuffer(&MeshSection->field_3C,
+                                                                           ResourceType::VertexBuffer,
+                                                                           16 * (MeshSection->field_3C.getSize() / 12),
+                                                                           520,
+                                                                           0,
+                                                                           D3DPOOL_DEFAULT);
                                 MeshSection->m_stride = 16;
                                 MeshSection->field_5C = 0;
                                 return;
                             }
 
-                            if ( !EnableShader )
-                            {
-                                if (ChromeEffect)
-                                {
-                                    if (strncmp(v29, "smshiny", 7u) == 0)
-                                    {
+                            if (!EnableShader) {
+                                if (ChromeEffect) {
+                                    if (strncmp(v29, "smshiny", 7u) == 0) {
                                         int v30 = 48 * (MeshSection->field_3C.getSize() / 60u);
-                                        MeshSection->field_3C
-                                            .createVertexBuffer(v30, 520u);
+                                        MeshSection->field_3C.createVertexBuffer(v30, 520u);
                                         MeshSection->m_stride = 48;
 
-                                        static int & dword_972960 = var<int>(0x00972960);
+                                        static int &dword_972960 = var<int>(0x00972960);
 
                                         if (dword_972960 < v30) {
                                             dword_972960 = v30;
@@ -2885,13 +2861,9 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
 
                                         return;
                                     }
-                                }
-                                else
-                                {
-                                    if ( !EnableShader )
-                                    {
-                                        if (strncmp(v29, "usperson", 8u) == 0)
-                                        {
+                                } else {
+                                    if (!EnableShader) {
+                                        if (strncmp(v29, "usperson", 8u) == 0) {
                                             func(MeshSection);
                                             return;
                                         }
@@ -2900,20 +2872,18 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
                             }
                         }
 
-                        if (strncmp(v29, "us_character", 12u) == 0)
-                        {
+                        if (strncmp(v29, "us_character", 12u) == 0) {
                             func(MeshSection);
                             return;
                         }
-                        
 
-                        MeshSection->field_3C.createVertexBufferAndWriteData(MeshSection->field_3C.getVertexData(),
-                                                             MeshSection->field_3C.getSize(),
-                                                             1028);
+
+                        MeshSection->field_3C.createVertexBufferAndWriteData(
+                            MeshSection->field_3C.getVertexData(), MeshSection->field_3C.getSize(), 1028);
                     }(MeshSection);
 
                     if (auto *v39 = MeshSection->VertexDef; v39 != nullptr) {
-                        tlHashString a1 = *(tlHashString *) v39->m_vtbl;
+                        tlHashString a1 = *(tlHashString *)v39->m_vtbl;
                         auto *v40 = nglVertexDefBank.Search(a1);
                         if (v40 != nullptr) {
                             MeshSection->VertexDef->field_4 = MeshSection;
@@ -2925,8 +2895,7 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
                         }
                     }
 
-                    if (auto *v41 = MeshSection->Material; v41 != nullptr)
-                    {
+                    if (auto *v41 = MeshSection->Material; v41 != nullptr) {
                         if (auto *v42 = v41->m_shader; v42 != nullptr) {
                             v42->BindSection(MeshSection);
                         }
@@ -2946,13 +2915,12 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
             default: {
                 auto *v14 = FileName.to_string();
 
-                sp_log(
-                    "nglLoadMeshFile: file \"%s%s%s\" has an unknown directory entry ( %u ), "
-                    "skipping.\n",
-                    nglMeshPath,
-                    v14,
-                    ext,
-                    uint32_t(dir_entry_type));
+                sp_log("nglLoadMeshFile: file \"%s%s%s\" has an unknown directory entry ( %u ), "
+                       "skipping.\n",
+                       nglMeshPath,
+                       v14,
+                       ext,
+                       uint32_t(dir_entry_type));
 
                 break;
             }
@@ -2980,12 +2948,9 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
 
         bool v46 = false;
 
-        for (auto *Mesh = MeshFile->FirstMesh; Mesh != nullptr; Mesh = Mesh->NextMesh)
-        {
-            if ((Mesh->Flags & NGLMESH_PROCESSED) == 0)
-            {
-                if (Mesh->NBones != 0)
-                {
+        for (auto *Mesh = MeshFile->FirstMesh; Mesh != nullptr; Mesh = Mesh->NextMesh) {
+            if ((Mesh->Flags & NGLMESH_PROCESSED) == 0) {
+                if (Mesh->NBones != 0) {
                     for (int i = 0; i < Mesh->NBones; ++i) {
                         Mesh->Bones[i] = sub_4150E0(Mesh->Bones[i]);
                     }
@@ -3013,18 +2978,14 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
                     v103 = sub_4012F0(v110, v103);
 
                     v46 = true;
-                }
-                else
-                {
+                } else {
                     Mesh->Flags |= NGLMESH_PROCESSED;
                 }
 
                 auto *Lods = Mesh->LODs;
-                for (int i = 0; i < Mesh->NLODs; ++i)
-                {
-                    Mesh->LODs[i].field_0 = nglGetMeshInFile(*bit_cast<const tlFixedString *>(
-                                                                 Lods[i].field_0),
-                                                             MeshFile);
+                for (int i = 0; i < Mesh->NLODs; ++i) {
+                    Mesh->LODs[i].field_0 =
+                        nglGetMeshInFile(*bit_cast<const tlFixedString *>(Lods[i].field_0), MeshFile);
                     Lods = Mesh->LODs;
                     if (Lods[i].field_0 == nullptr) {
                         --i;
@@ -3034,8 +2995,7 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
             }
         }
 
-        if (v46)
-        {
+        if (v46) {
             auto v60 = sub_411750(a3a, v103);
 
             vector4d v96;
@@ -3045,27 +3005,23 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
             v96[3] = v60[3] * 0.5f;
 
             auto v69 = 0.0f;
-    
+
             auto *v67 = MeshFile->FirstMesh;
-            for (; v67 != nullptr; v67 = v67->NextMesh)
-            {
-                if ((v67->Flags & NGLMESH_PROCESSED) == 0)
-                {
+            for (; v67 != nullptr; v67 = v67->NextMesh) {
+                if ((v67->Flags & NGLMESH_PROCESSED) == 0) {
                     a3a[0] = v96[0] - v67->SphereCenter[0];
                     a3a[1] = v96[1] - v67->SphereCenter[1];
                     a3a[2] = v96[2] - v67->SphereCenter[2];
                     a3a[3] = v96[3] - v67->SphereCenter[3];
-                    auto v76 = vector3d {a3a[0], a3a[1], a3a[2]}.length() + v67->SphereRadius;
+                    auto v76 = vector3d{a3a[0], a3a[1], a3a[2]}.length() + v67->SphereRadius;
                     if (v69 <= v76) {
                         v69 = v76;
                     }
                 }
             }
 
-            for (auto *Mesh = v67; Mesh != nullptr; Mesh = Mesh->NextMesh)
-            {
-                if ((Mesh->Flags & NGLMESH_PROCESSED) == 0)
-                {
+            for (auto *Mesh = v67; Mesh != nullptr; Mesh = Mesh->NextMesh) {
+                if ((Mesh->Flags & NGLMESH_PROCESSED) == 0) {
                     Mesh->SphereRadius = v69;
                     Mesh->SphereCenter[0] = v96[0];
                     Mesh->SphereCenter[1] = v96[1];
@@ -3076,18 +3032,15 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
             }
         }
 
-        if constexpr (0)
-        {
-            if (std::string {"ultimate_spiderman"} == FileName.to_string()) {
+        if constexpr (0) {
+            if (std::string{"ultimate_spiderman"} == FileName.to_string()) {
                 assert(0);
             }
         }
 
-        Header->field_10 = (int) MeshFile->FileBuf.Buf;
+        Header->field_10 = (int)MeshFile->FileBuf.Buf;
         return true;
-    }
-    else
-    {
+    } else {
         bool (*func)(const tlFixedString *, nglMeshFile *, const char *) = CAST(func, 0x0076F500);
         auto result = func(&FileName, MeshFile, ext);
 
@@ -3096,21 +3049,20 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
 }
 #endif
 
-bool nglCanReleaseMeshFile(nglMeshFile *a1) {
+bool nglCanReleaseMeshFile(nglMeshFile *a1)
+{
     return a1->field_144 + 1 < nglFrame();
 }
 
-void nglMorphFile::un_mash_start(generic_mash_header *header,
-                                 void *,
-                                 generic_mash_data_ptrs *a3,
-                                 void *)
+void nglMorphFile::un_mash_start(generic_mash_header *header, void *, generic_mash_data_ptrs *a3, void *)
 {
     a3->rebase(8u);
 
-    assert(((int) header) % 4 == 0);
+    assert(((int)header) % 4 == 0);
 }
 
-bool nglCanReleaseMorphFile(nglMorphFile *a1) {
+bool nglCanReleaseMorphFile(nglMorphFile *a1)
+{
     static Var<int> nglFrame{0x00972904};
 
     return a1->field_144 + 1 < nglFrame();
@@ -3120,10 +3072,8 @@ nglMesh *nglGetMeshInFile(const tlFixedString &a1, nglMeshFile *a2)
 {
     TRACE("nglGetMeshInFile", a1.to_string());
 
-    if constexpr (1)
-    {
-        for (auto *result = a2->FirstMesh; result != nullptr; result = result->NextMesh)
-        {
+    if constexpr (1) {
+        for (auto *result = a2->FirstMesh; result != nullptr; result = result->NextMesh) {
             auto *name = result->Name;
             sp_log("%s", name->to_string());
             if (*result->Name == a1) {
@@ -3133,7 +3083,7 @@ nglMesh *nglGetMeshInFile(const tlFixedString &a1, nglMeshFile *a2)
 
         return nglGetMesh(a1, true);
     } else {
-        return (nglMesh *) CDECL_CALL(0x0076F0A0, &a1, a2);
+        return (nglMesh *)CDECL_CALL(0x0076F0A0, &a1, a2);
     }
 }
 
@@ -3159,7 +3109,7 @@ nglTexture *nglGetTexture(const tlFixedString &a1)
 
     sp_log("0x%08x", nglTextureDirectory->m_vtbl);
 
-    nglTexture * (__fastcall *Find)(void *, void *, uint32_t) = CAST(Find, get_vfunc(nglTextureDirectory->m_vtbl, 0x8));
+    nglTexture *(__fastcall * Find)(void *, void *, uint32_t) = CAST(Find, get_vfunc(nglTextureDirectory->m_vtbl, 0x8));
     return Find(nglTextureDirectory, nullptr, a1.m_hash);
 }
 
@@ -3167,23 +3117,17 @@ static constexpr auto NGLFONT_TOKEN_COLOR = '\1';
 static constexpr auto NGLFONT_TOKEN_SCALE = '\2';
 static constexpr auto NGLFONT_TOKEN_SCALEXY = '\3';
 
-uint32_t RGBA2ARGB(uint32_t c) {
+uint32_t RGBA2ARGB(uint32_t c)
+{
     return (((c >> 8) & 0xFFFFFF) | ((c & 0xFF) << 24));
 }
 
 //TODO
-void nglGetStringDimensions(
-    nglFont *Font,
-    char *Text,
-    uint32_t *Width,
-    uint32_t *Height,
-    Float a5,
-    Float a6)
+void nglGetStringDimensions(nglFont *Font, char *Text, uint32_t *Width, uint32_t *Height, Float a5, Float a6)
 {
     TRACE("nglGetStringDimensions", Text);
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         float CurMaxScaleY = a6;
         auto *TextPtr = Text;
         char v7 = '\0';
@@ -3195,25 +3139,23 @@ void nglGetStringDimensions(
             case NGLFONT_TOKEN_COLOR:
                 if constexpr (0) {
                     Text = TextPtr + 1;
-                    strtoul(TextPtr + 1, (char **) &Text, 16);
+                    strtoul(TextPtr + 1, (char **)&Text, 16);
                     TextPtr = ++Text;
                 } else {
-                    static auto sub_FDBBE0 = [](char *&Text, uint32_t &color)
-                    {
-                        assert( *Text != '[' && "Invalid character found in Token.  Should be '['.\n" );
+                    static auto sub_FDBBE0 = [](char *&Text, uint32_t &color) {
+                        assert(*Text != '[' && "Invalid character found in Token.  Should be '['.\n");
 
                         color = strtoul(Text + 1, &Text, 16u);
                         ++Text;
-                        assert( *Text != ']' && "Invalid character found in Token.  Should be ']'.\n" );
+                        assert(*Text != ']' && "Invalid character found in Token.  Should be ']'.\n");
 
                         ++Text;
                     };
 
                     uint32_t v18;
-                    [](char *&a1, uint32_t &c)
-                    {
-                          sub_FDBBE0(a1, c);
-                          c = RGBA2ARGB(c);
+                    [](char *&a1, uint32_t &c) {
+                        sub_FDBBE0(a1, c);
+                        c = RGBA2ARGB(c);
                     }(TextPtr, v18);
                 }
                 break;
@@ -3221,27 +3163,26 @@ void nglGetStringDimensions(
 
                 if constexpr (0) {
                     Text = TextPtr + 1;
-                    a5 = strtod(TextPtr + 1, (char **) &Text);
+                    a5 = strtod(TextPtr + 1, (char **)&Text);
                     a6 = a5;
                     TextPtr = ++Text;
                     if (CurMaxScaleY < a5) {
                         CurMaxScaleY = a5;
                     }
                 } else {
-                    static auto sub_FDBD50 = [](char *&Text, float &a2)
-                    {
-                        assert(*Text == '[' && "Invalid character found in Token.  Should be '['.\n" );
+                    static auto sub_FDBD50 = [](char *&Text, float &a2) {
+                        assert(*Text == '[' && "Invalid character found in Token.  Should be '['.\n");
 
                         a2 = strtod(Text + 1, &Text);
                         ++Text;
 
-                        assert(*Text == ']' && "Invalid character found in Token.  Should be ']'.\n" );
+                        assert(*Text == ']' && "Invalid character found in Token.  Should be ']'.\n");
                         ++Text;
                     };
                     [](char *&Text, float &ScaleX, float &ScaleY, float &CurMaxScaleY) {
                         sub_FDBD50(Text, ScaleX);
                         ScaleY = ScaleX;
-                        if ( ScaleY > CurMaxScaleY ) {
+                        if (ScaleY > CurMaxScaleY) {
                             CurMaxScaleY = ScaleY;
                         }
                     }(TextPtr, a5.value, a6.value, CurMaxScaleY);
@@ -3251,32 +3192,30 @@ void nglGetStringDimensions(
             case NGLFONT_TOKEN_SCALEXY: {
                 if constexpr (0) {
                     Text = TextPtr + 1;
-                    a5 = strtod(TextPtr + 1, (char **) &Text);
+                    a5 = strtod(TextPtr + 1, (char **)&Text);
                     ++Text;
-                    a6 = strtod(Text, (char **) &Text);
+                    a6 = strtod(Text, (char **)&Text);
                     TextPtr = ++Text;
                     if (CurMaxScaleY < a6) {
                         CurMaxScaleY = a6;
                     }
                 } else {
-                    static auto sub_FDBEA0 = [](char *&Text, float &ScaleX, float &ScaleY)
-                    {
-                        assert( *Text != '[' && "Invalid character found in Token.  Should be '['.\n" );
+                    static auto sub_FDBEA0 = [](char *&Text, float &ScaleX, float &ScaleY) {
+                        assert(*Text != '[' && "Invalid character found in Token.  Should be '['.\n");
                         ScaleX = strtod(Text + 1, &Text);
                         ++Text;
 
-                        assert( *Text != ',' && "Invalid character found in Token.  Should be ','.\n" );
+                        assert(*Text != ',' && "Invalid character found in Token.  Should be ','.\n");
                         ScaleY = strtod(Text + 1, &Text);
                         ++Text;
 
-                        assert( *Text != ']' && "Invalid character found in Token.  Should be ']'.\n" );
+                        assert(*Text != ']' && "Invalid character found in Token.  Should be ']'.\n");
                         ++Text;
                     };
 
-                    [](char *&Text, float &ScaleX, float &ScaleY, float &CurMaxScaleY)
-                    {
+                    [](char *&Text, float &ScaleX, float &ScaleY, float &CurMaxScaleY) {
                         sub_FDBEA0(Text, ScaleX, ScaleY);
-                        if ( ScaleY > CurMaxScaleY ) {
+                        if (ScaleY > CurMaxScaleY) {
                             CurMaxScaleY = ScaleY;
                         }
                     }(TextPtr, a5.value, a6.value, CurMaxScaleY);
@@ -3284,10 +3223,7 @@ void nglGetStringDimensions(
             } break;
             case '\t': {
                 int CellWidth = Font->GlyphInfo[' ' - Font->Header.FirstGlyph].CellWidth;
-                double v22 = (CellWidth < 0
-                                ? CellWidth + 4.2949673e9
-                                : CellWidth
-                                );
+                double v22 = (CellWidth < 0 ? CellWidth + 4.2949673e9 : CellWidth);
 
                 v7 = ' ';
                 fWidth += v22 * a5 * 4.0f;
@@ -3321,14 +3257,14 @@ void nglGetStringDimensions(
                     fWidth += (v19 + v18 - v13[v17].CellWidth) * a5;
                 }
 
-                if ( fWidth > CurMaxWidth ) {
+                if (fWidth > CurMaxWidth) {
                     CurMaxWidth = fWidth;
                 }
 
                 fWidth = 0.0;
                 v7 = '\0';
                 fHeight += Font->Header.CellHeight * CurMaxScaleY;
-                CurMaxScaleY= a6;
+                CurMaxScaleY = a6;
                 break;
             };
             default: {
@@ -3338,7 +3274,6 @@ void nglGetStringDimensions(
                 break;
             }
             }
-
         }
 
         if (v7) {
@@ -3361,10 +3296,9 @@ void nglGetStringDimensions(
     }
 }
 
-void nglGetStringDimensions(
-    nglFont *Font, unsigned int *arg4, unsigned int *a3, const char *Format, ...)
+void nglGetStringDimensions(nglFont *Font, unsigned int *arg4, unsigned int *a3, const char *Format, ...)
 {
-    static Var<char[1024]> nglFontBuffer {0x00974E08};
+    static Var<char[1024]> nglFontBuffer{0x00974E08};
     va_list va;
 
     va_start(va, Format);
@@ -3379,11 +3313,10 @@ nglMesh *nglCreateMeshClone(nglMesh *a1)
     }
 
     auto *mem = static_cast<nglMesh *>(tlMemAlloc(0x40, 8, 0x1000000u));
-    auto *newMesh = new (mem) nglMesh {};
+    auto *newMesh = new (mem) nglMesh{};
     newMesh->Flags = a1->Flags;
     newMesh->NSections = a1->NSections;
-    newMesh->Sections = static_cast<decltype(newMesh->Sections)>(
-        tlMemAlloc(8 * newMesh->NSections, 8, 0x1000000u));
+    newMesh->Sections = static_cast<decltype(newMesh->Sections)>(tlMemAlloc(8 * newMesh->NSections, 8, 0x1000000u));
 
     if (newMesh->NSections != 0) {
         for (auto i = 0u; i < newMesh->NSections; ++i) {
@@ -3394,8 +3327,7 @@ nglMesh *nglCreateMeshClone(nglMesh *a1)
 
     newMesh->NBones = a1->NBones;
     if (newMesh->NBones != 0) {
-        newMesh->Bones = static_cast<decltype(newMesh->Bones)>(
-            tlMemAlloc(newMesh->NBones << 6, 64, 0x1000000u));
+        newMesh->Bones = static_cast<decltype(newMesh->Bones)>(tlMemAlloc(newMesh->NBones << 6, 64, 0x1000000u));
         std::copy(a1->Bones, a1->Bones + (newMesh->NBones << 6), newMesh->Bones);
     } else {
         newMesh->Bones = nullptr;
@@ -3403,8 +3335,7 @@ nglMesh *nglCreateMeshClone(nglMesh *a1)
 
     newMesh->NLODs = a1->NLODs;
     if (newMesh->NLODs) {
-        newMesh->LODs = static_cast<decltype(newMesh->LODs)>(
-            tlMemAlloc(8 * newMesh->NLODs, 8, 0x1000000u));
+        newMesh->LODs = static_cast<decltype(newMesh->LODs)>(tlMemAlloc(8 * newMesh->NLODs, 8, 0x1000000u));
         memcpy(newMesh->LODs, a1->LODs, 8 * newMesh->NLODs);
     } else {
         newMesh->LODs = nullptr;
@@ -3413,12 +3344,13 @@ nglMesh *nglCreateMeshClone(nglMesh *a1)
     newMesh->SphereCenter = a1->SphereCenter;
     newMesh->File = nullptr;
     newMesh->NextMesh = nullptr;
-    newMesh->SphereRadius= a1->SphereRadius;
+    newMesh->SphereRadius = a1->SphereRadius;
     newMesh->DataSize = a1->DataSize;
     return newMesh;
 }
 
-void nglMakeSectionUnique(nglMesh *a1, int a2) {
+void nglMakeSectionUnique(nglMesh *a1, int a2)
+{
     auto *v2 = a1->Sections;
     char v3 = v2[a2].field_0;
     auto *v4 = &v2[a2];
@@ -3428,8 +3360,9 @@ void nglMakeSectionUnique(nglMesh *a1, int a2) {
     }
 }
 
-nglMeshSection *nglCreateSectionCopy(nglMeshSection *a1) {
-    return (nglMeshSection *) CDECL_CALL(0x00771F90, a1);
+nglMeshSection *nglCreateSectionCopy(nglMeshSection *a1)
+{
+    return (nglMeshSection *)CDECL_CALL(0x00771F90, a1);
 }
 
 void mNglQuad::unmash(mash_info_struct *a2, void *a3)
@@ -3466,9 +3399,8 @@ void mNglQuad::custom_unmash(mash_info_struct *a2, void *a3)
     a2->unmash_class(v5, a3);
 #endif
 
-    if ( v5->m_size > 0 )
-    {
-        tlFixedString a1 {v5->c_str()};
+    if (v5->m_size > 0) {
+        tlFixedString a1{v5->c_str()};
         this->m_tex = nglGetTexture(a1);
     }
 }
@@ -3493,11 +3425,13 @@ void nglSetQuadColor(nglQuad *a1, unsigned int a2)
     a1->field_0[3].m_color = a2;
 }
 
-void nglSetQuadTex(nglQuad *a1, nglTexture *a2) {
+void nglSetQuadTex(nglQuad *a1, nglTexture *a2)
+{
     a1->m_tex = a2;
 }
 
-void nglSetQuadBlend(nglQuad *a1, nglBlendModeType a2, unsigned a3) {
+void nglSetQuadBlend(nglQuad *a1, nglBlendModeType a2, unsigned a3)
+{
     a1->field_58 = a2;
     a1->field_5C = a3;
 }
@@ -3522,9 +3456,8 @@ int nglGetLOD(nglMesh *Mesh, const math::MatClass<4, 3> &a2)
     auto v6 = sub_414360(v5, nglCurScene->WorldToView);
     auto v7 = v6[2];
 
-    for ( auto i = Mesh->NLODs - 1; i >= 0; --i )
-    {
-        if ( v7 > Mesh->LODs[i].field_4 ) {
+    for (auto i = Mesh->NLODs - 1; i >= 0; --i) {
+        if (v7 > Mesh->LODs[i].field_4) {
             return i + 1;
         }
     }
@@ -3533,7 +3466,8 @@ int nglGetLOD(nglMesh *Mesh, const math::MatClass<4, 3> &a2)
     return 0;
 }
 
-nglTexture *nglGetFrontBufferTex() {
+nglTexture *nglGetFrontBufferTex()
+{
     return nglFrontBufferTex();
 }
 
@@ -3541,16 +3475,13 @@ void nglCopySection(nglMesh *DstMesh, int a2, nglMesh *SrcMesh, int a4)
 {
     TRACE("nglCopySection");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         auto *SrcSection = SrcMesh->Sections[a4].Section;
         auto *DstSection = DstMesh->Sections[a2].Section;
 
-        assert(SrcSection->field_3C.getSize() == DstSection->field_3C.getSize
-()                && "Section VB sizes do not match !");
+        assert(SrcSection->field_3C.getSize() == DstSection->field_3C.getSize() && "Section VB sizes do not match !");
 
-        assert(SrcSection->NIndices == DstSection->NIndices
-                && "Section IB sizes do not match !");
+        assert(SrcSection->NIndices == DstSection->NIndices && "Section IB sizes do not match !");
 
         void *SrcVertices = nullptr;
         void *DstVertices = nullptr;
@@ -3561,29 +3492,26 @@ void nglCopySection(nglMesh *DstMesh, int a2, nglMesh *SrcMesh, int a4)
         std::memcpy(DstVertices, SrcVertices, DstSection->field_3C.getSize());
         IDirect3DVertexBuffer9_Unlock(DstSection->field_3C.getVertexBuffer());
         IDirect3DVertexBuffer9_Unlock(SrcSection->field_3C.getVertexBuffer());
-        if ( DstSection->m_indices != nullptr )
-        {
+        if (DstSection->m_indices != nullptr) {
             void *SrcIndices = nullptr;
             void *DstIndices = nullptr;
 
             DstSection->m_indexBuffer->lpVtbl->Lock(DstSection->m_indexBuffer, 0, 0, &DstIndices, 0);
             SrcSection->m_indexBuffer->lpVtbl->Lock(SrcSection->m_indexBuffer, 0, 0, &SrcIndices, 0);
 
-            assert(SrcIndices != nullptr && DstIndices != nullptr
-                    && "About to access NULL pointer.");
+            assert(SrcIndices != nullptr && DstIndices != nullptr && "About to access NULL pointer.");
 
             std::memcpy(DstIndices, SrcIndices, 2 * DstSection->NIndices);
             DstSection->m_indexBuffer->lpVtbl->Unlock(DstSection->m_indexBuffer);
             SrcSection->m_indexBuffer->lpVtbl->Unlock(SrcSection->m_indexBuffer);
         }
-    }
-    else
-    {
+    } else {
         CDECL_CALL(0x00771E40, DstMesh, a2, SrcMesh, a4);
     }
 }
 
-void nglCopyMesh(nglMesh *a1, nglMesh *a2) {
+void nglCopyMesh(nglMesh *a1, nglMesh *a2)
+{
     for (uint32_t i = 0; i < a1->NSections; ++i) {
         if ((a1->Sections[i].field_0 & 1) != 0) {
             nglCopySection(a1, i, a2, i);
@@ -3591,15 +3519,18 @@ void nglCopyMesh(nglMesh *a1, nglMesh *a2) {
     }
 }
 
-int nglReleaseMeshFile(const tlFixedString &a1) {
-    return (int) CDECL_CALL(0x0076F2D0, &a1);
+int nglReleaseMeshFile(const tlFixedString &a1)
+{
+    return (int)CDECL_CALL(0x0076F2D0, &a1);
 }
 
-void nglReleaseAllMeshFiles() {
+void nglReleaseAllMeshFiles()
+{
     CDECL_CALL(0x0076F300);
 }
 
-nglMesh *nglGetNextMeshInFile(nglMesh *a1) {
+nglMesh *nglGetNextMeshInFile(nglMesh *a1)
+{
     nglMesh *result = nullptr;
     if (a1 != nullptr) {
         result = a1->NextMesh;
@@ -3608,38 +3539,41 @@ nglMesh *nglGetNextMeshInFile(nglMesh *a1) {
     return result;
 }
 
-void *nglMeshScratchAlloc(int Size, int Alignment, int) {
-    auto *result = (void *) (~(Alignment - 1) & (nglScratchMeshPos() + Alignment - 1));
-    nglScratchMeshPos() = (int) result + Size;
+void *nglMeshScratchAlloc(int Size, int Alignment, int)
+{
+    auto *result = (void *)(~(Alignment - 1) & (nglScratchMeshPos() + Alignment - 1));
+    nglScratchMeshPos() = (int)result + Size;
     return result;
 }
 
-void *nglMeshMemAlloc(int Size, int Alignment, int a3) {
+void *nglMeshMemAlloc(int Size, int Alignment, int a3)
+{
     return tlMemAlloc(Size, Alignment, a3);
 }
 
-void nglReleaseAllTextures() {
-    auto *vtbl = bit_cast<int(*)[1]>(nglTextureDirectory->m_vtbl);
+void nglReleaseAllTextures()
+{
+    auto *vtbl = bit_cast<int (*)[1]>(nglTextureDirectory->m_vtbl);
 
     assert((*vtbl)[0] == 0x00560770);
 
     THISCALL(0x00560770, nglTextureDirectory, 1, 0, 2);
 }
 
-void nglReleaseTexture(nglTexture *Tex) {
+void nglReleaseTexture(nglTexture *Tex)
+{
     TRACE("nglReleaseTexture");
 
     CDECL_CALL(0x00773380, Tex);
 }
 
-nglTexture * nglLoadTexture(const tlFixedString &a1)
+nglTexture *nglLoadTexture(const tlFixedString &a1)
 {
     TRACE("nglLoadTexture", a1.to_string());
 
     assert(a1.GetHash() != 0);
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         nglTexture *tex = nglTextureDirectory->Find(a1);
         if (tex == nullptr) {
             return nglTextureDirectory->Load(a1);
@@ -3648,23 +3582,23 @@ nglTexture * nglLoadTexture(const tlFixedString &a1)
         ++tex->field_8;
         return tex;
     } else {
-
-        nglTexture * (*func)(const tlFixedString *a1) = CAST(func, 0x00773290);
+        nglTexture *(*func)(const tlFixedString *a1) = CAST(func, 0x00773290);
         return func(&a1);
     }
 }
 
 nglTexture *nglLoadTexture(const tlHashString &a1)
 {
-    TRACE("nglLoadTexture", string_hash {int(a1.GetHash())}.to_string());
+    TRACE("nglLoadTexture", string_hash{int(a1.GetHash())}.to_string());
 
     auto v1 = a1.GetHash();
 
-    nglTexture * (__fastcall *Find)(void *, void *, uint32_t) = CAST(Find, get_vfunc(nglTextureDirectory->m_vtbl, 0x8));
+    nglTexture *(__fastcall * Find)(void *, void *, uint32_t) = CAST(Find, get_vfunc(nglTextureDirectory->m_vtbl, 0x8));
 
     auto *tex = Find(nglTextureDirectory, nullptr, v1);
     if (tex == nullptr) {
-        nglTexture * (__fastcall *Load)(void *, void *, const tlHashString *) = CAST(Load, get_vfunc(nglTextureDirectory->m_vtbl, 0x20));
+        nglTexture *(__fastcall * Load)(void *, void *, const tlHashString *) =
+            CAST(Load, get_vfunc(nglTextureDirectory->m_vtbl, 0x20));
         return Load(nglTextureDirectory, nullptr, &a1);
     }
 
@@ -3675,7 +3609,7 @@ nglTexture *nglLoadTexture(const tlHashString &a1)
 nglFont *create_and_parse_fdf(const tlFixedString &a1, char *a2)
 {
     auto *mem = tlMemAlloc(sizeof(nglFont), 8u, 0x1000000u);
-    auto *font = new (mem) nglFont {};
+    auto *font = new (mem) nglFont{};
     font->field_20 = 1;
     font->field_40 = 2;
     font->m_blend_mode = NGLBM_BLEND;
@@ -3691,7 +3625,7 @@ bool nglCanReleaseTexture(nglTexture *tex)
 
     auto *v1 = tex;
     if (tex->m_format == 17) {
-        v1 = (nglTexture *) tex->m_num_palettes;
+        v1 = (nglTexture *)tex->m_num_palettes;
     }
 
     static Var<int> nglFrame{0x00972904};
@@ -3701,15 +3635,13 @@ bool nglCanReleaseTexture(nglTexture *tex)
 
 void CopyDataToTexture(nglTexture *Tex, uint8_t **a2, uint8_t *a3, int a4)
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         if ((Tex->m_format & 0x10000000) != 0) {
             auto *v14 = Tex->DXTexture;
 
-            int v24[6] {0, 1, 2, 3, 4, 5};
+            int v24[6]{0, 1, 2, 3, 4, 5};
 
-            for (auto v15 = 0u; v15 < 6; ++v15)
-            {
+            for (auto v15 = 0u; v15 < 6; ++v15) {
                 auto **v16 = a2;
                 *a2 += (*a2 - a3) & 0x7F;
 
@@ -3717,7 +3649,6 @@ void CopyDataToTexture(nglTexture *Tex, uint8_t **a2, uint8_t *a3, int a4)
                 if (Tex->m_numLevel != 0) {
                     auto v18 = v24[v15];
                     for (auto i = v18; v17 < Tex->m_numLevel; v18 = i, ++v17) {
-
                         IDirect3DSurface9 *v20;
                         v14->lpVtbl->GetSurfaceLevel(v14, v18, &v20);
                         ++nglDebug.field_8;
@@ -3726,11 +3657,7 @@ void CopyDataToTexture(nglTexture *Tex, uint8_t **a2, uint8_t *a3, int a4)
                         v20->lpVtbl->GetDesc(v20, &a1);
 
                         D3DLOCKED_RECT rect;
-                        v14->lpVtbl->LockRect(v14,
-                                              v18,
-                                              (D3DLOCKED_RECT *) v17,
-                                              (const RECT *) &rect,
-                                              0);
+                        v14->lpVtbl->LockRect(v14, v18, (D3DLOCKED_RECT *)v17, (const RECT *)&rect, 0);
                         auto v19 = GetTextureSizeFromDesc(a1, rect);
                         std::memcpy(rect.pBits, *v16, v19);
                         *a2 += v19;
@@ -3757,7 +3684,7 @@ void CopyDataToTexture(nglTexture *Tex, uint8_t **a2, uint8_t *a3, int a4)
 
                 if (a4 != 0) {
                     if (a4 == 10) {
-                        auto *v8 = (int *) rect.pBits;
+                        auto *v8 = (int *)rect.pBits;
                         for (auto j = (a1.Height * rect.Pitch) >> 2; j != 0; ++*a2) {
                             *v8++ = (**a2 << 24) | 0xFFFFFF;
                             --j;
@@ -3765,7 +3692,7 @@ void CopyDataToTexture(nglTexture *Tex, uint8_t **a2, uint8_t *a3, int a4)
                     }
 
                     if (a4 == 11) {
-                        auto *v10 = (int *) rect.pBits;
+                        auto *v10 = (int *)rect.pBits;
                         if ((a1.Height * rect.Pitch) >> 2) {
                             auto v11 = (a1.Height * rect.Pitch) >> 2;
                             do {
@@ -3844,8 +3771,7 @@ bool nglLoadTextureTM2_internal(nglTexture *Tex, nglTextureInfo *TexInfo)
 {
     TRACE("nglLoadTextureTM2_internal", Tex->FileName.c_str());
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         assert(Tex != nullptr && "Cannot load a NULL texture !");
 
         auto is_dds_format = TexInfo->m_extension == 0x4D534444;
@@ -3856,7 +3782,7 @@ bool nglLoadTextureTM2_internal(nglTexture *Tex, nglTextureInfo *TexInfo)
             return false;
         }
 
-        auto & header = TexInfo->Header;
+        auto &header = TexInfo->Header;
 
         if (TexInfo->Header.Version != 124) {
             auto *v4 = Tex->FileName.to_string();
@@ -3865,8 +3791,7 @@ bool nglLoadTextureTM2_internal(nglTexture *Tex, nglTextureInfo *TexInfo)
             return false;
         }
 
-        if ((TexInfo->Header.field_6C & 0xFE00) != 0)
-        {
+        if ((TexInfo->Header.field_6C & 0xFE00) != 0) {
             Tex->m_format |= 0x10000000u;
             if (TexInfo->Header.field_6C != 0xFE00) {
                 auto *v5 = Tex->FileName.to_string();
@@ -3878,30 +3803,30 @@ bool nglLoadTextureTM2_internal(nglTexture *Tex, nglTextureInfo *TexInfo)
 
         char *bufferData = TexInfo->field_80;
         uint16_t num_palettes = 0;
-        if (is_dds_format)
-        {
+        if (is_dds_format) {
             num_palettes = bit_cast<uint16_t *>(bufferData)[0];
             if (num_palettes == 0) {
                 auto *v6 = Tex->FileName.to_string();
                 sp_log("NGL: %s doesn't contain any palettes !\n", v6);
             }
 
-            bufferData = &TexInfo->field_88[32 * num_palettes + sizeof(nglTexture) - ((32 * (BYTE) num_palettes - 120) & 0x7F)];
+            bufferData =
+                &TexInfo->field_88[32 * num_palettes + sizeof(nglTexture) - ((32 * (BYTE)num_palettes - 120) & 0x7F)];
             Tex->Frames = static_cast<nglTexture **>(tlMemAlloc(num_palettes << 7, 8, 0x1000000u));
             int v28 = 0;
-            if (num_palettes != 0)
-            {
+            if (num_palettes != 0) {
                 auto v29 = 0u;
                 int *v8 = &TexInfo->field_90;
-                for (char *i = bit_cast<char *>(&TexInfo->field_90); v28 < num_palettes; v8 = bit_cast<int *>(i), ++v28) {
+                for (char *i = bit_cast<char *>(&TexInfo->field_90); v28 < num_palettes;
+                     v8 = bit_cast<int *>(i), ++v28) {
                     nglTexture *v9 = CAST(v9, &Tex->Frames[v29 / 4]);
                     *v9 = {};
                     v9->m_format = 17;
-                    v9->FileName = *bit_cast<tlFixedString *>((uint32_t *) v8 - 2);
+                    v9->FileName = *bit_cast<tlFixedString *>((uint32_t *)v8 - 2);
 
                     nglTexture **v10 = CAST(v10, v28);
 
-                    v9->m_num_palettes = (int) Tex;
+                    v9->m_num_palettes = (int)Tex;
                     v9->Frames = v10;
                     v9->field_34 |= 8u;
                     v9->field_48 = nglCreatePalette(0, 0x100u, bufferData);
@@ -3946,10 +3871,7 @@ bool nglLoadTextureTM2_internal(nglTexture *Tex, nglTextureInfo *TexInfo)
             Tex->m_numLevel = 1;
         }
 
-        int v20 = ((0x800000 & header.field_4) != 0
-                ? header.field_14
-                : 0
-                );
+        int v20 = ((0x800000 & header.field_4) != 0 ? header.field_14 : 0);
 
         int a2a = 0;
         if (v20 != 0 || header.field_50 != D3DFMT_DXT1) {
@@ -3957,7 +3879,6 @@ bool nglLoadTextureTM2_internal(nglTexture *Tex, nglTextureInfo *TexInfo)
                 if (v20 != 0 || header.field_50 != D3DFMT_DXT3) {
                     if (v20 != 0 || header.field_50 != D3DFMT_DXT4) {
                         if (v20 != 0 || header.field_50 != D3DFMT_DXT5) {
-
                             if (header.field_4C == 65 && header.field_54 == 32 && header.field_64 == 0xFF000000) {
                                 Tex->m_d3d_format = D3DFMT_A8R8G8B8;
                                 Tex->m_format |= 1;
@@ -3976,28 +3897,28 @@ bool nglLoadTextureTM2_internal(nglTexture *Tex, nglTextureInfo *TexInfo)
                                 }
 
                                 switch (header.field_4C) {
-                                    case 0x20000:
-                                        Tex->m_d3d_format = D3DFMT_L8;
-                                        Tex->m_format |= 9;
-                                        break;
-                                    case 2:
-                                        Tex->m_d3d_format = D3DFMT_A8R8G8B8;
-                                        a2a = 10;
-                                        Tex->m_format |= 0xA;
-                                        break;
-                                    case 0x20001:
-                                        Tex->m_d3d_format = D3DFMT_A8R8G8B8;
-                                        a2a = 11;
-                                        Tex->m_format |= 0xB;
-                                        break;
-                                    default:
-                                        Tex->m_format |= 7;
-                                        Tex->m_d3d_format = D3DFMT_P8;
-                                        if (!is_dds_format) {
-                                            Tex->field_48 = nglCreatePalette(0, 256u, bufferData);
-                                            bufferData += 1024;
-                                        }
-                                        break;
+                                case 0x20000:
+                                    Tex->m_d3d_format = D3DFMT_L8;
+                                    Tex->m_format |= 9;
+                                    break;
+                                case 2:
+                                    Tex->m_d3d_format = D3DFMT_A8R8G8B8;
+                                    a2a = 10;
+                                    Tex->m_format |= 0xA;
+                                    break;
+                                case 0x20001:
+                                    Tex->m_d3d_format = D3DFMT_A8R8G8B8;
+                                    a2a = 11;
+                                    Tex->m_format |= 0xB;
+                                    break;
+                                default:
+                                    Tex->m_format |= 7;
+                                    Tex->m_d3d_format = D3DFMT_P8;
+                                    if (!is_dds_format) {
+                                        Tex->field_48 = nglCreatePalette(0, 256u, bufferData);
+                                        bufferData += 1024;
+                                    }
+                                    break;
                                 }
                             }
 
@@ -4033,14 +3954,14 @@ bool nglLoadTextureTM2_internal(nglTexture *Tex, nglTextureInfo *TexInfo)
         if ((Tex->m_format & 0x10000000) != 0) {
             Tex->CreateTextureOrSurface();
 
-            CopyDataToTexture(Tex, (uint8_t **) &bufferData, (uint8_t *) TexInfo, a2a);
+            CopyDataToTexture(Tex, (uint8_t **)&bufferData, (uint8_t *)TexInfo, a2a);
             header.field_7B = 77;
             return true;
         }
 
         Tex->CreateTextureOrSurface();
         if (LOBYTE(Tex->m_format) != 7 || !g_valid_texture_format) {
-            CopyDataToTexture(Tex, (uint8_t **) &bufferData, (uint8_t *) TexInfo, a2a);
+            CopyDataToTexture(Tex, (uint8_t **)&bufferData, (uint8_t *)TexInfo, a2a);
             header.field_7B = 77;
             return true;
         }
@@ -4064,7 +3985,7 @@ bool nglLoadTextureTM2(nglTexture *tex, uint8_t *a2)
 
     if constexpr (1) {
         bool result = false;
-        if ( nglLoadTextureTM2_internal(tex, bit_cast<nglTextureInfo *>(a2)) ) {
+        if (nglLoadTextureTM2_internal(tex, bit_cast<nglTextureInfo *>(a2))) {
             tex->SetupTextureLevels();
             tex->field_38 = -1;
             result = true;
@@ -4076,7 +3997,7 @@ bool nglLoadTextureTM2(nglTexture *tex, uint8_t *a2)
         return result;
 
     } else {
-        return (bool) CDECL_CALL(0x0077A870, tex, a2);
+        return (bool)CDECL_CALL(0x0077A870, tex, a2);
     }
 }
 
@@ -4090,58 +4011,52 @@ struct TextureParserIFL {
 
     void operator++()
     {
-        while ( !this->hasCapacity() && this->field_0[0] != '\n' ) {
+        while (!this->hasCapacity() && this->field_0[0] != '\n') {
             ++this->field_0;
         }
 
         ++this->field_0;
     }
 
-    bool hasCapacity() const {
+    bool hasCapacity() const
+    {
         return this->field_0 - this->field_4 >= this->field_8;
     }
 
     int extractWord(char *Dest, int a3)
     {
-        if constexpr (1)
-        {
-            if ( this->field_0 - this->field_4 < this->field_8 )
-            {
+        if constexpr (1) {
+            if (this->field_0 - this->field_4 < this->field_8) {
                 char *v4 = nullptr;
-                do
-                {
-                    if ( !isspace(this->field_0[0]) ) {
+                do {
+                    if (!isspace(this->field_0[0])) {
                         break;
                     }
 
-                    if ( this->field_0[0] == '\n' ) {
+                    if (this->field_0[0] == '\n') {
                         break;
                     }
 
                     v4 = this->field_0 + 1;
                     this->field_0 = v4;
-                }
-                while ( v4 - this->field_4 < this->field_8 );
+                } while (v4 - this->field_4 < this->field_8);
             }
 
             auto v5 = this->field_0;
-            if ( this->field_0 - this->field_4 < this->field_8 )
-            {
+            if (this->field_0 - this->field_4 < this->field_8) {
                 char *v6 = nullptr;
-                do
-                {
-                    if ( isspace(this->field_0[0]) ) {
+                do {
+                    if (isspace(this->field_0[0])) {
                         break;
                     }
 
                     v6 = this->field_0 + 1;
                     this->field_0 = v6;
-                }
-                while ( v6 - this->field_4 < this->field_8 );
+                } while (v6 - this->field_4 < this->field_8);
             }
 
             auto v7 = this->field_0 - v5;
-            if ( v7 >= a3 - 1 ) {
+            if (v7 >= a3 - 1) {
                 v7 = a3 - 1;
             }
 
@@ -4153,47 +4068,42 @@ struct TextureParserIFL {
             return func(this, nullptr, Dest, a3);
         }
     }
-
 };
 
 bool nglLoadTextureIFL(nglTexture *tex, uint8_t *a2, int a3)
 {
-    if constexpr (1)
-    {
-        nglTexture *Textures[1024] {};
+    if constexpr (1) {
+        nglTexture *Textures[1024]{};
         int NTextures = 0;
-        tlFixedString v14 {};
+        tlFixedString v14{};
 
-        if ( nglLoadingIFL ) {
+        if (nglLoadingIFL) {
             sp_log("NGL: Recursive IFL detected.  You cannot include an IFL file in another IFL file.\n");
             return false;
         }
 
         nglLoadingIFL = true;
 
-        char Str[32] {};
-        char Dest[32] {};
+        char Str[32]{};
+        char Dest[32]{};
 
-        TextureParserIFL v13 {a2, a3};
+        TextureParserIFL v13{a2, a3};
 
-        while (!v13.hasCapacity())
-        {
-            if ( v13.extractWord(Str, 31) )
-            {
+        while (!v13.hasCapacity()) {
+            if (v13.extractWord(Str, 31)) {
                 auto *v5 = strchr(Str, '.');
-                if ( v5 != nullptr ) {
+                if (v5 != nullptr) {
                     v5[0] = 0;
                 }
 
                 v14 = tlFixedString(Str);
                 int v6 = 1;
-                if ( v13.extractWord(Dest, 32) )
-                {
+                if (v13.extractWord(Dest, 32)) {
                     auto v7 = atoi(Dest);
                     v6 = v7 <= 0 ? 0 : v7;
                 }
 
-                if ( v6 + NTextures > 1024 ) {
+                if (v6 + NTextures > 1024) {
                     auto *v5 = tex->FileName.to_string();
                     sp_log("Exceeded max number of textures in IFL file %s (%d).\n", v5, 1024);
                     break;
@@ -4209,8 +4119,7 @@ bool nglLoadTextureIFL(nglTexture *tex, uint8_t *a2, int a3)
             ++v13;
         }
 
-        if ( NTextures != 0 )
-        {
+        if (NTextures != 0) {
             tex->m_format = 16;
             tex->m_num_palettes = NTextures;
             tex->Frames = static_cast<nglTexture **>(tlMemAlloc(4 * NTextures, 8u, 0x1000000u));
@@ -4227,7 +4136,8 @@ bool nglLoadTextureIFL(nglTexture *tex, uint8_t *a2, int a3)
     }
 }
 
-const char *GETFOURCC(uint32_t format) {
+const char *GETFOURCC(uint32_t format)
+{
     static char result[5]{};
 
     auto *p_8 = bit_cast<uint8_t *>(&format);
@@ -4240,12 +4150,8 @@ const char *GETFOURCC(uint32_t format) {
     return result;
 }
 
-nglTexture *nglConstructTexture(const tlFixedString &a1,
-                                nglTextureFileFormat a2,
-                                void *a3,
-                                unsigned int a4)
+nglTexture *nglConstructTexture(const tlFixedString &a1, nglTextureFileFormat a2, void *a3, unsigned int a4)
 {
-
     TRACE("nglConstructTexture", a1.to_string());
 
     if constexpr (1) {
@@ -4292,14 +4198,11 @@ nglTexture *nglConstructTexture(const tlFixedString &a1,
 
         return nullptr;
     } else {
-        return (nglTexture *) CDECL_CALL(0x0077AB30, &a1, a2, a3, a4);
+        return (nglTexture *)CDECL_CALL(0x0077AB30, &a1, a2, a3, a4);
     }
 }
 
-nglTexture *nglLoadTextureInPlace(const tlFixedString &a1,
-                                  nglTextureFileFormat a2,
-                                  void *a3,
-                                  int a4)
+nglTexture *nglLoadTextureInPlace(const tlFixedString &a1, nglTextureFileFormat a2, void *a3, int a4)
 {
     nglTexture *result = nglTextureDirectory->Find(a1.m_hash);
     if (result != nullptr) {
@@ -4307,7 +4210,8 @@ nglTexture *nglLoadTextureInPlace(const tlFixedString &a1,
     } else {
         auto *tex = nglConstructTexture(a1, a2, a3, a4);
         if (tex != nullptr) {
-            void (__fastcall *Add)(void *, void *, nglTexture *) = CAST(Add, get_vfunc(nglTextureDirectory->m_vtbl, 0x10));
+            void(__fastcall * Add)(void *, void *, nglTexture *) =
+                CAST(Add, get_vfunc(nglTextureDirectory->m_vtbl, 0x10));
             Add(nglTextureDirectory, nullptr, tex);
             result = tex;
         } else {
@@ -4329,14 +4233,13 @@ vector4d sub_411C10(color32 a2)
 
 void nglDebugAddSphere(const math::MatClass<4, 3> &a1, math::VecClass<3, 1> a2, uint32_t a3)
 {
-    if constexpr (1)
-    {
-        nglParamSet<nglShaderParamSet_Pool> a4 {static_cast<nglParamSet<nglShaderParamSet_Pool>::nglParamSetType>(1)};
+    if constexpr (1) {
+        nglParamSet<nglShaderParamSet_Pool> a4{static_cast<nglParamSet<nglShaderParamSet_Pool>::nglParamSetType>(1)};
 
         auto *mem = nglListAlloc(sizeof(vector4d), 16);
-        auto *tmp = new (mem) vector4d {sub_411C10(*bit_cast<color32 *>(&a3))};
+        auto *tmp = new (mem) vector4d{sub_411C10(*bit_cast<color32 *>(&a3))};
 
-        nglTintParam v5 {tmp};
+        nglTintParam v5{tmp};
 
         a4.SetParam(v5);
 
@@ -4352,11 +4255,8 @@ void nglDebugAddSphere(const math::MatClass<4, 3> &a1, math::VecClass<3, 1> a2, 
 
 void nglSetBufferSize(nglBufferType a1, uint32_t a2, bool a3)
 {
-    if constexpr (0)
-    {
-    }
-    else
-    {
+    if constexpr (0) {
+    } else {
         CDECL_CALL(0x0077B610, a1, a2, a3);
     }
 }
@@ -4365,16 +4265,14 @@ nglMesh *nglCloseMesh()
 {
     TRACE("nglCloseMesh");
 
-    if constexpr (0)
-    {
-    }
-    else
-    {
-        return (nglMesh *) CDECL_CALL(0x00772130);
+    if constexpr (0) {
+    } else {
+        return (nglMesh *)CDECL_CALL(0x00772130);
     }
 }
 
-void nglListAddCustomNode(void (*a1)(unsigned int *&, void *), void *a2, const nglSortInfo *a3) {
+void nglListAddCustomNode(void (*a1)(unsigned int *&, void *), void *a2, const nglSortInfo *a3)
+{
     CDECL_CALL(0x0076C3A0, a1, a2, a3);
 }
 
@@ -4392,21 +4290,16 @@ void nglRenderQuad(nglQuad *a2)
 
     g_renderState().setBlending(a2->field_58, a2->field_5C, 128);
 
-    if ( EnableShader )
-    {
+    if (EnableShader) {
         nglSetVertexDeclarationAndShader(&stru_975780());
-    }
-    else
-    {
+    } else {
         IDirect3DDevice9_SetVertexDeclaration(g_Direct3DDevice, dword_9738E0[28]);
-        IDirect3DDevice9_SetTransform(
-            g_Direct3DDevice,
-            static_cast<D3DTRANSFORMSTATETYPE>(256),
-            bit_cast<const D3DMATRIX *>(&nglCurScene->field_24C));
+        IDirect3DDevice9_SetTransform(g_Direct3DDevice,
+                                      static_cast<D3DTRANSFORMSTATETYPE>(256),
+                                      bit_cast<const D3DMATRIX *>(&nglCurScene->field_24C));
     }
-    
-    if ( struct_972688().field_30 && (nglCurScene->field_334->field_34 & 4) != 0 )
-    {
+
+    if (struct_972688().field_30 && (nglCurScene->field_334->field_34 & 4) != 0) {
         a2->field_0[0].pos.x *= struct_972688().field_34;
         a2->field_0[0].pos.y *= struct_972688().field_38;
         a2->field_0[1].pos.x *= struct_972688().field_34;
@@ -4418,15 +4311,14 @@ void nglRenderQuad(nglQuad *a2)
     }
 
     auto m_tex = a2->m_tex;
-    if ( m_tex != nullptr )
-    {
+    if (m_tex != nullptr) {
         nglSetSamplerState(0, D3DSAMP_ADDRESSU, ((a2->field_54 & 0x40) | 0x20u) >> 5);
         nglSetSamplerState(0, D3DSAMP_ADDRESSV, ((a2->field_54 & 0x80) | 0x40u) >> 6);
 
         nglTextureAnimFrame = nglCurScene->IFLFrame;
         nglDxSetTexture(0, m_tex, a2->field_54, 3);
 
-        if ( EnableShader ) {
+        if (EnableShader) {
             SetPixelShader(&dword_9757A0());
         } else {
             nglSetTextureStageState(0, D3DTSS_COLOROP, 4u);
@@ -4439,10 +4331,8 @@ void nglRenderQuad(nglQuad *a2)
             nglSetTextureStageState(1u, D3DTSS_ALPHAOP, 1u);
             g_renderState().setLighting(0);
         }
-    }
-    else
-    {
-        if ( EnableShader ) {
+    } else {
+        if (EnableShader) {
             SetPixelShader(&dword_975794());
         } else {
             nglSetTextureStageState(0, D3DTSS_COLOROP, 2u);
@@ -4470,11 +4360,10 @@ void nglRenderQuad(nglQuad *a2)
         struct {
             float x, y;
         } uv;
-    } v9[4] {};
+    } v9[4]{};
 
     auto *quads = &a2->field_0[0];
-    for ( auto &v2 : v9 )
-    {
+    for (auto &v2 : v9) {
         v2.pos.x = sub_77E940(quads->pos.x);
         v2.pos.y = sub_77EA00(quads->pos.y);
         v2.field_8 = v8;
@@ -4485,9 +4374,7 @@ void nglRenderQuad(nglQuad *a2)
     }
 
     IDirect3DDevice9_DrawPrimitiveUP(g_Direct3DDevice, D3DPT_TRIANGLESTRIP, 2, v9, 24);
-    if ( g_distance_clipping_enabled
-            && !sub_581C30())
-    {
+    if (g_distance_clipping_enabled && !sub_581C30()) {
         g_renderState().setFogEnable(true);
     }
 
@@ -4496,7 +4383,7 @@ void nglRenderQuad(nglQuad *a2)
     nglPerfInfo().m_counterQuads.QuadPart += query_perf_counter().QuadPart - perf_counter.QuadPart;
 }
 
-void * nglQuadNode::operator new(size_t size)
+void *nglQuadNode::operator new(size_t size)
 {
     auto *mem = nglListAlloc(size, 16);
     return mem;
@@ -4506,17 +4393,15 @@ void nglQuadNode::Render()
 {
     TRACE("nglQuadNode::Render");
 
-    if ( !nglSyncDebug().DisableQuads ) {
+    if (!nglSyncDebug().DisableQuads) {
         nglRenderQuad(&this->field_C);
     }
 }
 
 void nglListAddQuad(nglQuad *Quad)
 {
-    if constexpr (1)
-    {
-        if (Quad != nullptr)
-        {
+    if constexpr (1) {
+        if (Quad != nullptr) {
             auto *v1 = new nglQuadNode{};
 
             if (nglCurScene->field_3E4) {
@@ -4524,42 +4409,36 @@ void nglListAddQuad(nglQuad *Quad)
             }
 
             std::memcpy(&v1->field_C, Quad, sizeof(v1->field_C));
-            if (((1 << Quad->field_58) & 3) != 0)
-            {
+            if (((1 << Quad->field_58) & 3) != 0) {
                 v1->m_tex = Quad->m_tex;
                 v1->m_next_node = nglCurScene->OpaqueNodes;
                 nglCurScene->OpaqueNodes = v1;
                 ++nglCurScene->OpaqueListCount;
-            }
-            else
-            {
+            } else {
                 v1->m_tex = Quad->field_50.tex;
                 v1->m_next_node = nglCurScene->TransNodes;
                 nglCurScene->TransNodes = v1;
                 ++nglCurScene->TransListCount;
             }
 
-            if (0) //(nglSyncDebug().DumpMesh)
+            if (0)  //(nglSyncDebug().DumpMesh)
             {
                 nglDumpQuad(Quad);
             }
-        }
-        else
-        {
+        } else {
             error("NULL mesh passed to nglListAddMesh !\n");
         }
-    }
-    else
-    {
+    } else {
         CDECL_CALL(0x0077AFE0, Quad);
     }
 }
 
-nglStringNode::nglStringNode() {
+nglStringNode::nglStringNode()
+{
     m_vtbl = 0x0088EBB4;
 }
 
-void * nglStringNode::operator new(size_t size)
+void *nglStringNode::operator new(size_t size)
 {
     auto *mem = nglListAlloc(size, 16);
     return mem;
@@ -4567,15 +4446,12 @@ void * nglStringNode::operator new(size_t size)
 
 void sub_754640(void *a1)
 {
-    if constexpr (0)
-    {
+    if constexpr (0) {
         auto *node = static_cast<nglRenderNode *>(a1);
         node->m_next_node = nglCurScene->TransNodes;
         nglCurScene->TransNodes = node;
         ++nglCurScene->TransListCount;
-    }
-    else
-    {
+    } else {
         CDECL_CALL(0x00754640, a1);
     }
 }
@@ -4595,11 +4471,11 @@ double sub_77EA00(Float a1)
 double sub_77E820(Float a1)
 {
     auto m_nearz = a1;
-    if ( a1 < nglCurScene->m_nearz ) {
+    if (a1 < nglCurScene->m_nearz) {
         m_nearz = nglCurScene->m_nearz;
     }
 
-    if ( m_nearz > nglCurScene->m_farz ) {
+    if (m_nearz > nglCurScene->m_farz) {
         m_nearz = nglCurScene->m_farz;
     }
 
@@ -4608,11 +4484,11 @@ double sub_77E820(Float a1)
     auto v4 = v3 + nglCurScene->ViewToScreen[3][2];
     auto v6 = v5 + nglCurScene->ViewToScreen[3][3];
     auto result = v4 / v6;
-    if ( result < 0.0 ) {
+    if (result < 0.0) {
         return 0.0;
     }
 
-    if ( result > 1.0f ) {
+    if (result > 1.0f) {
         return 1.0f;
     }
 
@@ -4625,26 +4501,18 @@ bool sub_581C30()
     return v0->field_5C4 || v0->field_5C3;
 }
 
-void nglListAddString(nglFont *font,
-                      const char *a2,
-                      Float a3,
-                      Float a4,
-                      Float z_value,
-                      uint32_t color,
-                      Float a7,
+void nglListAddString(nglFont *font, const char *a2, Float a3, Float a4, Float z_value, uint32_t color, Float a7,
                       Float a8)
 {
     //sp_log("%s %f %f", a2, float{a3}, float{a4});
     //sp_log("%f", float{z_value});
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         if (nglCurScene->field_3E4) {
             nglCalculateMatrices(false);
         }
 
-        if (a2 != nullptr && a2[0] != '\0' && font != nullptr && font->field_24 != nullptr)
-        {
+        if (a2 != nullptr && a2[0] != '\0' && font != nullptr && font->field_24 != nullptr) {
             auto *v8 = new nglStringNode{};
 
             auto v9 = strlen(a2) + 1;
@@ -4689,11 +4557,11 @@ nglMesh *nglGetMesh(const tlFixedString &Name, bool Warn)
 {
     TRACE("nglGetMesh", Name.to_string());
 
-    if constexpr (0)
-    {
-        tlHashString v2 {Name.m_hash};
+    if constexpr (0) {
+        tlHashString v2{Name.m_hash};
 
-        nglMesh * (__fastcall *Find)(void *, void *, const tlHashString *) = CAST(Find, get_vfunc(nglMeshDirectory->m_vtbl, 0xC));
+        nglMesh *(__fastcall * Find)(void *, void *, const tlHashString *) =
+            CAST(Find, get_vfunc(nglMeshDirectory->m_vtbl, 0xC));
         auto *Mesh = Find(nglMeshDirectory, nullptr, &v2);
 
         if (Mesh == nullptr && Warn) {
@@ -4703,12 +4571,13 @@ nglMesh *nglGetMesh(const tlFixedString &Name, bool Warn)
         return Mesh;
 
     } else {
-        return (nglMesh *) CDECL_CALL(0x0076EFF0, &Name, Warn);
+        return (nglMesh *)CDECL_CALL(0x0076EFF0, &Name, Warn);
     }
 }
 
-nglMesh *nglGetMesh(uint32_t a1, bool a2) {
-    nglMesh * (__fastcall *Find)(void *, void *, uint32_t) = CAST(Find, get_vfunc(nglMeshDirectory->m_vtbl, 0x8));
+nglMesh *nglGetMesh(uint32_t a1, bool a2)
+{
+    nglMesh *(__fastcall * Find)(void *, void *, uint32_t) = CAST(Find, get_vfunc(nglMeshDirectory->m_vtbl, 0x8));
 
     auto *Mesh = Find(nglMeshDirectory, nullptr, a1);
 
@@ -4721,11 +4590,10 @@ nglMesh *nglGetMesh(uint32_t a1, bool a2) {
 
 nglMesh *nglGetMesh(const tlHashString &a1, bool a2)
 {
-    nglMesh * (__fastcall *Find)(void *, int, const tlHashString *) =
+    nglMesh *(__fastcall * Find)(void *, int, const tlHashString *) =
         CAST(Find, get_vfunc(nglMeshDirectory->m_vtbl, 0xC));
     auto *v4 = Find(nglMeshDirectory, 0, &a1);
-    if ( v4 == nullptr && a2 )
-    {
+    if (v4 == nullptr && a2) {
         auto *v2 = a1.c_str();
         sp_log("nglGetMesh: Unable to find mesh %s.\n", v2);
     }
@@ -4735,21 +4603,18 @@ nglMesh *nglGetMesh(const tlHashString &a1, bool a2)
 
 void nglDestroySection(nglMeshSection *a1)
 {
-    if (a1->m_indexBuffer != nullptr)
-    {
-        nglVertexBuffer::sub_77B5D0((nglVertexBuffer *) &a1->m_indexBuffer, ResourceType::IndexBuffer);
+    if (a1->m_indexBuffer != nullptr) {
+        nglVertexBuffer::sub_77B5D0((nglVertexBuffer *)&a1->m_indexBuffer, ResourceType::IndexBuffer);
         a1->m_indexBuffer = nullptr;
     }
 
-    if (a1->field_3C.getVertexBuffer() != nullptr)
-    {
+    if (a1->field_3C.getVertexBuffer() != nullptr) {
         nglVertexBuffer::sub_77B5D0(&a1->field_3C, ResourceType::VertexBuffer);
         a1->field_3C.getVertexBuffer() = nullptr;
     }
 
     a1->VertexDef->Destroy();
-    if (a1->NBones != 0)
-    {
+    if (a1->NBones != 0) {
         tlMemFree(a1->BonesIdx);
         a1->BonesIdx = nullptr;
     }
@@ -4757,7 +4622,8 @@ void nglDestroySection(nglMeshSection *a1)
     tlMemFree(a1);
 }
 
-void nglDestroyMesh(nglMesh *Mesh) {
+void nglDestroyMesh(nglMesh *Mesh)
+{
     if constexpr (1) {
         if (Mesh != nullptr) {
             if (Mesh->NBones) {
@@ -4817,7 +4683,8 @@ void nglSetQuadZ(nglQuad *a1, Float a2)
     a1->field_50.f = a2;
 }
 
-void nglSetQuadMapFlags(nglQuad *a1, unsigned int a2) {
+void nglSetQuadMapFlags(nglQuad *a1, unsigned int a2)
+{
     a1->field_54 = a2;
 }
 
@@ -4842,8 +4709,7 @@ void nglInitQuad(nglQuad *a1)
 
 void nglRotateQuad(nglQuad *a2, Float a3, Float a4, Float a5)
 {
-    for ( int i = 0; i < 4; ++i )
-    {
+    for (int i = 0; i < 4; ++i) {
         auto &v8 = a2->field_0[i];
         auto v7 = v8.pos.x - a3;
         auto v6 = v8.pos.y - a4;
@@ -4854,11 +4720,13 @@ void nglRotateQuad(nglQuad *a2, Float a3, Float a4, Float a5)
     }
 }
 
-void sub_781980(int width, int height) {
+void sub_781980(int width, int height)
+{
     CDECL_CALL(0x00781980, width, height);
 }
 
-void sub_771B60() {
+void sub_771B60()
+{
     if constexpr (0) {
 #if 0
         void *v6 = nullptr;
@@ -4895,7 +4763,8 @@ void sub_771B60() {
     }
 }
 
-void create_front_and_back_buffer_tex() {
+void create_front_and_back_buffer_tex()
+{
     struct {
         int m_width;
         int m_height;
@@ -4910,15 +4779,18 @@ void create_front_and_back_buffer_tex() {
     nglTextureDirectory->Add(nglBackBufferTex());
 }
 
-void nglReleaseFont(nglFont *font) {
+void nglReleaseFont(nglFont *font)
+{
     CDECL_CALL(0x007793E0, font);
 }
 
-void sub_77B2F0(bool a1) {
+void sub_77B2F0(bool a1)
+{
     CDECL_CALL(0x0077B2F0, a1);
 }
 
-void ngl_releasefile_callback(tlFileBuf *) {
+void ngl_releasefile_callback(tlFileBuf *)
+{
     ;
 }
 
@@ -4926,16 +4798,15 @@ bool ngl_readfile_callback(const char *FileName, tlFileBuf *File, unsigned int a
 {
     TRACE("ngl_readfile_callback", FileName);
 
-    if constexpr (1)
-    {
-        mString v10 {FileName};
+    if constexpr (1) {
+        mString v10{FileName};
 
-        filespec v11 {v10};
+        filespec v11{v10};
 
         File->Buf = nullptr;
         File->Size = 0;
         v11.m_ext.to_lower();
-        mString v9 {v11.m_name};
+        mString v9{v11.m_name};
 
         if (v11.m_ext == ".tga") {
             v9 += ".DDS";
@@ -4946,7 +4817,7 @@ bool ngl_readfile_callback(const char *FileName, tlFileBuf *File, unsigned int a
         resource_key key = create_resource_key_from_path(v9.c_str(), RESOURCE_KEY_TYPE_NONE);
         int size = 0;
         if (key.get_type() != RESOURCE_KEY_TYPE_NONE) {
-            File->Buf = (char *) resource_manager::get_resource(key, &size, nullptr);
+            File->Buf = (char *)resource_manager::get_resource(key, &size, nullptr);
         }
 
         bool v4 = (File->Buf == nullptr);
@@ -4957,16 +4828,15 @@ bool ngl_readfile_callback(const char *FileName, tlFileBuf *File, unsigned int a
         }
 
         return true;
-    }
-    else
-    {
-        return (bool) CDECL_CALL(0x00594740, FileName, File, a3, a4);
+    } else {
+        return (bool)CDECL_CALL(0x00594740, FileName, File, a3, a4);
     }
 }
 
 static Var<WINDOWPLACEMENT> wndpl = {0x00975710};
 
-void sub_77EB40() {
+void sub_77EB40()
+{
     HKEY phkResult;
     HKEY hKey;
     DWORD cbData;
@@ -4975,19 +4845,18 @@ void sub_77EB40() {
     RegOpenKeyExA(HKEY_CURRENT_USER, "Software", 0, 0xF003Fu, &phkResult);
     RegCreateKeyExA(phkResult, "NGL", 0, nullptr, 0, 0xF003Fu, nullptr, &hKey, nullptr);
     RegCloseKey(phkResult);
-    if (RegQueryValueExA(hKey, "Placement", nullptr, &Type, (LPBYTE) &wndpl(), &cbData)) {
+    if (RegQueryValueExA(hKey, "Placement", nullptr, &Type, (LPBYTE)&wndpl(), &cbData)) {
         wndpl().length = 0;
     }
 
     RegCloseKey(hKey);
 }
 
-static BOOL & dword_93AE80 = var<BOOL>(0x0093AE80);
+static BOOL &dword_93AE80 = var<BOOL>(0x0093AE80);
 
 void sub_77EBD0()
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         HKEY phkResult;
         RegOpenKeyExA(HKEY_CURRENT_USER, "Software", 0, 0xF003Fu, &phkResult);
 
@@ -4999,9 +4868,7 @@ void sub_77EBD0()
 
         RegSetValueExA(hKey, "Windowed", 0, 4u, (const BYTE *)&g_Windowed, 4u);
         RegCloseKey(hKey);
-    }
-    else
-    {
+    } else {
         CDECL_CALL(0x0077EBD0);
     }
 
@@ -5012,9 +4879,7 @@ void ToggleFullScreen(BOOL isFullscreen)
 {
     TRACE("ToggleFullScreen");
 
-    if (!byte_971F9C
-            && s_d3dpresent_params.Windowed != isFullscreen)
-    {
+    if (!byte_971F9C && s_d3dpresent_params.Windowed != isFullscreen) {
         s_d3dpresent_params.Windowed = isFullscreen;
         Reset3DDevice();
         if (isFullscreen) {
@@ -5026,19 +4891,19 @@ void ToggleFullScreen(BOOL isFullscreen)
             SetWindowPos(g_hWnd, nullptr, 0, 0, v1, v2, SWP_NOACTIVATE);
         }
 
-        SetWindowPos(g_hWnd, (HWND) (-isFullscreen - 1), 0, 0, 0, 0, 3u);
+        SetWindowPos(g_hWnd, (HWND)(-isFullscreen - 1), 0, 0, 0, 0, 3u);
         ShowCursor(isFullscreen);
     }
 }
 
-int __stdcall WndProcEx(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
+int __stdcall WndProcEx(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
+{
     //sp_log("%s", g_Windowed() ? "TRUE" : "FALSE");
 
     if constexpr (0) {
         int result;
 
-        if (Msg > WM_GETMINMAXINFO)
-        {
+        if (Msg > WM_GETMINMAXINFO) {
             switch (Msg) {
             case WM_NCHITTEST: {
                 if (!g_Windowed) {
@@ -5055,7 +4920,7 @@ int __stdcall WndProcEx(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
                 return DefWindowProcA(hWnd, Msg, VK_ESCAPE, lParam);
             }
             case WM_SYSKEYDOWN: {
-                if (wParam == VK_RETURN) { // Alt + Enter - switch to fullscreen or window
+                if (wParam == VK_RETURN) {  // Alt + Enter - switch to fullscreen or window
                     g_Windowed = !g_Windowed;
 
                     ToggleFullScreen(g_Windowed);
@@ -5085,11 +4950,8 @@ int __stdcall WndProcEx(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
                 result = DefWindowProcA(hWnd, Msg, wParam, lParam);
                 break;
             }
-        }
-        else
-        {
-            if (Msg != WM_GETMINMAXINFO)
-            {
+        } else {
+            if (Msg != WM_GETMINMAXINFO) {
                 switch (Msg) {
                 case WM_MOVE:
                     if (!g_Windowed || !g_hWnd) {
@@ -5141,7 +5003,7 @@ int __stdcall WndProcEx(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
                 default:
                     return DefWindowProcA(hWnd, Msg, wParam, lParam);
                 }
-            } else { // WM_GETMINMAXINFO
+            } else {  // WM_GETMINMAXINFO
                 bit_cast<MINMAXINFO *>(lParam)->ptMinTrackSize.x = 100;
                 bit_cast<MINMAXINFO *>(lParam)->ptMinTrackSize.y = 100;
                 result = DefWindowProcA(hWnd, WM_GETMINMAXINFO, wParam, lParam);
@@ -5159,12 +5021,11 @@ void create_renderer(HWND hWnd)
 
     WNDCLASSEXA v13;
 
-    static auto & g_pD3D = var<IDirect3D9 *>(0x00971FA4);
+    static auto &g_pD3D = var<IDirect3D9 *>(0x00971FA4);
 
     s_d3dpresent_params = {};
     HWND v1 = hWnd;
-    if (hWnd == nullptr)
-    {
+    if (hWnd == nullptr) {
         sub_77EB40();
         dword_93AE80 = g_Windowed;
         v13 = {};
@@ -5177,24 +5038,13 @@ void create_renderer(HWND hWnd)
         v13.lpszClassName = "NGL";
         RegisterClassExA(&v13);
 
-        v1 = CreateWindowExA(0,
-                             "NGL",
-                             "NGL",
-                             0x10CF0000u,
-                             0,
-                             0,
-                             nWidth,
-                             nHeight,
-                             nullptr,
-                             nullptr,
-                             v13.hInstance,
-                             nullptr);
+        v1 = CreateWindowExA(
+            0, "NGL", "NGL", 0x10CF0000u, 0, 0, nWidth, nHeight, nullptr, nullptr, v13.hInstance, nullptr);
     }
 
     g_hWnd = v1;
 
-    if (g_Windowed)
-    {
+    if (g_Windowed) {
         if (wndpl().length != 0) {
             SetWindowPlacement(v1, &wndpl());
         } else {
@@ -5208,17 +5058,10 @@ void create_renderer(HWND hWnd)
             v13.cbSize = 60;
             GetWindowInfo(g_hWnd, &v13);
             AdjustWindowRectEx(&Rect, v13.dwStyle, 0, v13.dwExStyle);
-            SetWindowPos(g_hWnd,
-                         nullptr,
-                         Rect.left,
-                         Rect.top,
-                         Rect.right - Rect.left + 1,
-                         Rect.bottom - Rect.top + 1,
-                         0);
+            SetWindowPos(
+                g_hWnd, nullptr, Rect.left, Rect.top, Rect.right - Rect.left + 1, Rect.bottom - Rect.top + 1, 0);
         }
-    }
-    else
-    {
+    } else {
         int v3 = GetSystemMetrics(SM_CYSCREEN);
         int v4 = GetSystemMetrics(SM_CXSCREEN);
         SetWindowPos(g_hWnd, nullptr, 0, 0, v4, v3, 0);
@@ -5255,50 +5098,39 @@ void create_renderer(HWND hWnd)
     s_d3dpresent_params.FullScreen_RefreshRateInHz = (g_Windowed ? 0 : 60);
 
 
-    g_valid_texture_format = IDirect3D9_CheckDeviceFormat(g_pD3D,
-                                                        D3DADAPTER_DEFAULT,
-                                                        D3DDEVTYPE_HAL,
-                                                        D3DFMT_X8R8G8B8,
-                                                        0,
-                                                        D3DRTYPE_TEXTURE,
-                                                        D3DFMT_P8) < 0;
+    g_valid_texture_format =
+        IDirect3D9_CheckDeviceFormat(
+            g_pD3D, D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, D3DFMT_X8R8G8B8, 0, D3DRTYPE_TEXTURE, D3DFMT_P8) < 0;
 
-    if (IDirect3D9_CheckDeviceType(g_pD3D,
-                                          D3DADAPTER_DEFAULT,
-                                          D3DDEVTYPE_HAL,
-                                          D3DFMT_X8R8G8B8,
-                                          D3DFMT_A8R8G8B8,
-                                          g_Windowed)) {
+    if (IDirect3D9_CheckDeviceType(
+            g_pD3D, D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, D3DFMT_X8R8G8B8, D3DFMT_A8R8G8B8, g_Windowed)) {
         const char *v8 = get_msg(g_fileUSM, "MSGBOX_WARNING");
         const char *v9 = get_msg(g_fileUSM, "MSGBOX_NOHARDWARE");
         MessageBoxA(g_hWnd, v9, v8, 0x30u);
         IDirect3D9_CreateDevice(g_pD3D,
-                                       D3DADAPTER_DEFAULT,
-                                       D3DDEVTYPE_REF,
-                                       g_hWnd,
-                                       D3DCREATE_SOFTWARE_VERTEXPROCESSING,
-                                       &s_d3dpresent_params,
-                                       &g_Direct3DDevice);
-    }
-    else
-    {
+                                D3DADAPTER_DEFAULT,
+                                D3DDEVTYPE_REF,
+                                g_hWnd,
+                                D3DCREATE_SOFTWARE_VERTEXPROCESSING,
+                                &s_d3dpresent_params,
+                                &g_Direct3DDevice);
+    } else {
         IDirect3D9_CreateDevice(g_pD3D,
-                                       D3DADAPTER_DEFAULT,
-                                       D3DDEVTYPE_HAL,
-                                       g_hWnd,
-                                       D3DCREATE_HARDWARE_VERTEXPROCESSING | D3DCREATE_PUREDEVICE,
-                                       &s_d3dpresent_params,
-                                       &g_Direct3DDevice);
+                                D3DADAPTER_DEFAULT,
+                                D3DDEVTYPE_HAL,
+                                g_hWnd,
+                                D3DCREATE_HARDWARE_VERTEXPROCESSING | D3DCREATE_PUREDEVICE,
+                                &s_d3dpresent_params,
+                                &g_Direct3DDevice);
 
         if (g_Direct3DDevice == nullptr) {
-
             IDirect3D9_CreateDevice(g_pD3D,
-                                           D3DADAPTER_DEFAULT,
-                                           D3DDEVTYPE_HAL,
-                                           g_hWnd,
-                                           D3DCREATE_SOFTWARE_VERTEXPROCESSING,
-                                           &s_d3dpresent_params,
-                                           &g_Direct3DDevice);
+                                    D3DADAPTER_DEFAULT,
+                                    D3DDEVTYPE_HAL,
+                                    g_hWnd,
+                                    D3DCREATE_SOFTWARE_VERTEXPROCESSING,
+                                    &s_d3dpresent_params,
+                                    &g_Direct3DDevice);
 
             Var<bool> byte_971F90 = {0x00971F90};
             byte_971F90() = true;
@@ -5311,11 +5143,12 @@ void create_renderer(HWND hWnd)
     IDirect3DDevice9_SetStreamSource(g_Direct3DDevice, 0, nullptr, 0, 0);
 }
 
-void nglListBeginScene(nglSceneParamType a2) {
+void nglListBeginScene(nglSceneParamType a2)
+{
     TRACE("nglListBeginScene");
 
     if constexpr (1) {
-        auto *v2 = new nglScene {};
+        auto *v2 = new nglScene{};
 
         if (nglCurScene != nullptr) {
             auto *v3 = nglCurScene->field_318;
@@ -5346,7 +5179,8 @@ void nglSetClearFlags(unsigned int a1)
     nglCurScene->ClearFlags = a1;
 }
 
-void nglDebugInit() {
+void nglDebugInit()
+{
     TRACE("nglDebugInit");
 
     nglDebug = {};
@@ -5412,20 +5246,15 @@ void nglDumpQuad(nglQuad *Quad)
 
 void nglDumpMesh(nglMesh *Mesh, const math::MatClass<4, 3> &a2, nglMeshParams *MeshParams)
 {
-    if constexpr (1)
-    {
-        if ((Mesh->Flags & NGLMESH_SCRATCH_MESH) == 0)
-        {
+    if constexpr (1) {
+        if ((Mesh->Flags & NGLMESH_SCRATCH_MESH) == 0) {
             nglHostPrintf(h_sceneDump(), "\n");
-            nglHostPrintf(h_sceneDump(),
-                          "MESHFILE %s  // Path: %s\n",
-                          Mesh->File->FileName.to_string(),
-                          Mesh->File->FilePath);
+            nglHostPrintf(
+                h_sceneDump(), "MESHFILE %s  // Path: %s\n", Mesh->File->FileName.to_string(), Mesh->File->FilePath);
             nglHostPrintf(h_sceneDump(), "\n");
             nglHostPrintf(h_sceneDump(), "MODEL %s\n", Mesh->Name->to_string());
 
-            if (MeshParams != nullptr && (MeshParams->Flags & NGLP_SCALE) != 0)
-            {
+            if (MeshParams != nullptr && (MeshParams->Flags & NGLP_SCALE) != 0) {
                 nglHostPrintf(h_sceneDump(),
                               "  SCALE %f %f %f\n",
                               MeshParams->Scale[0],
@@ -5438,35 +5267,31 @@ void nglDumpMesh(nglMesh *Mesh, const math::MatClass<4, 3> &a2, nglMeshParams *M
             nglHostPrintf(h_sceneDump(), "  ROW3 %f %f %f %f\n", a2[2][0], a2[2][1], a2[2][2], 0.0f);
             nglHostPrintf(h_sceneDump(), "  ROW4 %f %f %f %f\n", a2[3][0], a2[3][1], a2[3][2], 1.f);
 
-            if (MeshParams != nullptr)
-            {
-                if ((MeshParams->Flags & 0x3C) != 0)
-                {
+            if (MeshParams != nullptr) {
+                if ((MeshParams->Flags & 0x3C) != 0) {
                     nglHostPrintf(h_sceneDump(), "  NBONES %d\n", MeshParams->NBones);
 
-                    for (auto i = 0; i < MeshParams->NBones; ++i)
-                    {
+                    for (auto i = 0; i < MeshParams->NBones; ++i) {
                         auto *v6 = MeshParams->Bones;
-                        nglHostPrintf(
-                            h_sceneDump(),
-                            "  BONE %d %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f\n",
-                            i,
-                            v6[i][0][0],
-                            v6[i][0][1],
-                            v6[i][0][2],
-                            0.0f,
-                            v6[i][1][0],
-                            v6[i][1][1],
-                            v6[i][1][2],
-                            0.0f,
-                            v6[i][2][0],
-                            v6[i][2][1],
-                            v6[i][2][2],
-                            0.0f,
-                            v6[i][3][0],
-                            v6[i][3][1],
-                            v6[i][3][2],
-                            1.f);
+                        nglHostPrintf(h_sceneDump(),
+                                      "  BONE %d %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f\n",
+                                      i,
+                                      v6[i][0][0],
+                                      v6[i][0][1],
+                                      v6[i][0][2],
+                                      0.0f,
+                                      v6[i][1][0],
+                                      v6[i][1][1],
+                                      v6[i][1][2],
+                                      0.0f,
+                                      v6[i][2][0],
+                                      v6[i][2][1],
+                                      v6[i][2][2],
+                                      0.0f,
+                                      v6[i][3][0],
+                                      v6[i][3][1],
+                                      v6[i][3][2],
+                                      1.f);
                     }
                 }
             }
@@ -5474,23 +5299,23 @@ void nglDumpMesh(nglMesh *Mesh, const math::MatClass<4, 3> &a2, nglMeshParams *M
             nglHostPrintf(h_sceneDump(), "ENDMODEL\n");
         }
 
-    }
-    else
-    {
+    } else {
         CDECL_CALL(0x007825A0, Mesh, &a2, MeshParams);
     }
 }
 
 void nglSetClearColor(Float a1, Float a2, Float a3, Float a4)
 {
-    nglCurScene->ClearColor = color {a1, a2, a3, a4};
+    nglCurScene->ClearColor = color{a1, a2, a3, a4};
 }
 
-void nglListEndScene() {
+void nglListEndScene()
+{
     nglCurScene = nglCurScene->field_30C;
 }
 
-void nglDestroyDebugMeshes() {
+void nglDestroyDebugMeshes()
+{
 #if 0
     nglDestroyMesh(nglDebugMesh_SolidBox);
     nglDestroyMesh(nglDebugMesh_WireframeBox);
@@ -5507,11 +5332,13 @@ void nglSetRenderTarget(nglTexture *a1)
     nglCurScene->field_8 = 6;
 }
 
-nglTexture *nglGetBackBufferTex() {
+nglTexture *nglGetBackBufferTex()
+{
     return nglBackBufferTex();
 }
 
-void nglCreateDebugMeshes() {
+void nglCreateDebugMeshes()
+{
     CDECL_CALL(0x00780260);
 }
 
@@ -5522,13 +5349,8 @@ static Var<int> dword_987534{0x00987534};
 
 void sub_81E8E0(int Length)
 {
-    dword_987520()->lpVtbl->CreateVertexBuffer(dword_987520(),
-                                               Length,
-                                               D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY,
-                                               0,
-                                               D3DPOOL_DEFAULT,
-                                               &dword_987524(),
-                                               nullptr);
+    dword_987520()->lpVtbl->CreateVertexBuffer(
+        dword_987520(), Length, D3DUSAGE_DYNAMIC | D3DUSAGE_WRITEONLY, 0, D3DPOOL_DEFAULT, &dword_987524(), nullptr);
     dword_987534() = Length;
 }
 
@@ -5539,8 +5361,7 @@ void nglInit(HWND hWnd)
 {
     TRACE("nglInit");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         _controlfp(0x300u, 0x300u);
         _controlfp(0x20000u, 0x30000u);
         if (!struct_972688().field_B) {
@@ -5555,13 +5376,13 @@ void nglInit(HWND hWnd)
 
         sub_7740F0();
         sub_77B740();
-        auto v1 = (double) struct_972688().m_width;
+        auto v1 = (double)struct_972688().m_width;
         if (struct_972688().m_width < 0) {
             v1 = v1 + 4.2949673e9;
         }
 
         struct_972688().field_34 = v1 * 0.0015625;
-        auto v2 = (double) struct_972688().m_height;
+        auto v2 = (double)struct_972688().m_height;
         if (struct_972688().m_height < 0) {
             v2 = v2 + 4.2949673e9;
         }
@@ -5575,54 +5396,34 @@ void nglInit(HWND hWnd)
         int v3 = 0;
 
         auto *v4 = &SamplerStates()[0][5];
-        for (int i = 0; i < 132; i += 33)
-        {
+        for (int i = 0; i < 132; i += 33) {
             if (TextureStageStates()[i + 1] != 1) {
-                IDirect3DDevice9_SetTextureStageState(g_Direct3DDevice,
-                                                                 v3,
-                                                                 D3DTSS_COLOROP,
-                                                                 1);
+                IDirect3DDevice9_SetTextureStageState(g_Direct3DDevice, v3, D3DTSS_COLOROP, 1);
                 TextureStageStates()[i + 1] = 1;
             }
 
             if (TextureStageStates()[i + 4] != 1) {
-                IDirect3DDevice9_SetTextureStageState(g_Direct3DDevice,
-                                                                 v3,
-                                                                 D3DTSS_ALPHAOP,
-                                                                 1);
+                IDirect3DDevice9_SetTextureStageState(g_Direct3DDevice, v3, D3DTSS_ALPHAOP, 1);
                 TextureStageStates()[i + 4] = 1;
             }
 
             if (TextureStageStates()[i + 24]) {
-                IDirect3DDevice9_SetTextureStageState(g_Direct3DDevice,
-                                                                 v3,
-                                                                 D3DTSS_TEXTURETRANSFORMFLAGS,
-                                                                 0);
+                IDirect3DDevice9_SetTextureStageState(g_Direct3DDevice, v3, D3DTSS_TEXTURETRANSFORMFLAGS, 0);
                 TextureStageStates()[i + 24] = 0;
             }
 
-            if (v4[1] != 2)
-            {
-                IDirect3DDevice9_SetSamplerState(g_Direct3DDevice,
-                                                            v3,
-                                                            D3DSAMP_MINFILTER,
-                                                            D3DTEXF_LINEAR);
+            if (v4[1] != 2) {
+                IDirect3DDevice9_SetSamplerState(g_Direct3DDevice, v3, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
                 v4[1] = 2;
             }
 
             if (*v4 != 2) {
-                IDirect3DDevice9_SetSamplerState(g_Direct3DDevice,
-                                                            v3,
-                                                            D3DSAMP_MAGFILTER,
-                                                            D3DTEXF_LINEAR);
+                IDirect3DDevice9_SetSamplerState(g_Direct3DDevice, v3, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
                 *v4 = 2;
             }
 
             if (v4[2] != 2) {
-                IDirect3DDevice9_SetSamplerState(g_Direct3DDevice,
-                                                            v3,
-                                                            D3DSAMP_MIPFILTER,
-                                                            D3DTEXF_LINEAR);
+                IDirect3DDevice9_SetSamplerState(g_Direct3DDevice, v3, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
                 v4[2] = 2;
             }
 
@@ -5633,30 +5434,20 @@ void nglInit(HWND hWnd)
         sub_7726B0(1);
         nglTextureInit();
         tlInitListInit();
-        if (!IDirect3DDevice9_CreateQuery(g_Direct3DDevice,
-                                                     D3DQUERYTYPE_OCCLUSION,
-                                                     nullptr))
-        {
+        if (!IDirect3DDevice9_CreateQuery(g_Direct3DDevice, D3DQUERYTYPE_OCCLUSION, nullptr)) {
             static Var<IDirect3DQuery9 *> dword_972660{0x00972660};
 
-            IDirect3DDevice9_CreateQuery(g_Direct3DDevice,
-                                                    D3DQUERYTYPE_OCCLUSION,
-                                                    &dword_972660());
+            IDirect3DDevice9_CreateQuery(g_Direct3DDevice, D3DQUERYTYPE_OCCLUSION, &dword_972660());
         }
 
         create_front_and_back_buffer_tex();
 
         if (s_d3dpresent_params.BackBufferCount != static_cast<uint32_t>(-1)) {
-            for (auto v7 = 0u; v7 < s_d3dpresent_params.BackBufferCount + 1; ++v7)
-            {
+            for (auto v7 = 0u; v7 < s_d3dpresent_params.BackBufferCount + 1; ++v7) {
                 auto *v8 = nglGetBackBufferTex();
                 SetRenderTarget(v8, nullptr, 0, 6);
                 IDirect3DDevice9_Clear(g_Direct3DDevice, 0, nullptr, 7u, 0, 1.0, 0);
-                IDirect3DDevice9_Present(g_Direct3DDevice,
-                                                    nullptr,
-                                                    nullptr,
-                                                    nullptr,
-                                                    nullptr);
+                IDirect3DDevice9_Present(g_Direct3DDevice, nullptr, nullptr, nullptr, nullptr);
             }
         }
 
@@ -5664,11 +5455,9 @@ void nglInit(HWND hWnd)
         sub_781980(256, 256);
 
         dword_987520() = g_Direct3DDevice;
-        if ( !EnableShader )
-        {
-            D3DXCreateTextureFromFileW(g_Direct3DDevice,
-                                       L"data\\packs\\celshading.dat",
-                                       bit_cast<IDirect3DTexture9 **>(&celshadingTex()));
+        if (!EnableShader) {
+            D3DXCreateTextureFromFileW(
+                g_Direct3DDevice, L"data\\packs\\celshading.dat", bit_cast<IDirect3DTexture9 **>(&celshadingTex()));
             D3DXCreateTextureFromFileW(g_Direct3DDevice,
                                        L"data\\packs\\celshadingSolid.dat",
                                        bit_cast<IDirect3DTexture9 **>(&celshadingSolidTex()));
@@ -5680,14 +5469,10 @@ void nglInit(HWND hWnd)
                 break;
             }
             case 1:
-                D3DXCreateTextureFromFileW(g_Direct3DDevice,
-                                           L"data\\packs\\water_night.dat",
-                                           &water_texture());
+                D3DXCreateTextureFromFileW(g_Direct3DDevice, L"data\\packs\\water_night.dat", &water_texture());
                 break;
             case 2:
-                D3DXCreateTextureFromFileW(g_Direct3DDevice,
-                                           L"data\\packs\\water_rainy.dat",
-                                           &water_texture());
+                D3DXCreateTextureFromFileW(g_Direct3DDevice, L"data\\packs\\water_rainy.dat", &water_texture());
                 break;
             case 3: {
                 const WCHAR *v9 = L"data\\packs\\water_sunset.dat";
@@ -5698,31 +5483,26 @@ void nglInit(HWND hWnd)
                 break;
             }
 
-            static int & dword_9562E0 = var<int>(0x009562E0);
+            static int &dword_9562E0 = var<int>(0x009562E0);
             dword_9562E0 = g_TOD;
             g_player_shadows_enabled = false;
             sub_81E8E0(2465792);
         }
 
         static Var<nglVertexBuffer> dword_956558{0x00956558};
-        nglVertexBuffer::createIndexOrVertexBuffer(&dword_956558(),
-                                                            ResourceType::VertexBuffer,
-                                                            819200,
-                                                            520,
-                                                            0,
-                                                            D3DPOOL_DEFAULT);
+        nglVertexBuffer::createIndexOrVertexBuffer(
+            &dword_956558(), ResourceType::VertexBuffer, 819200, 520, 0, D3DPOOL_DEFAULT);
         memset(SamplerStates(), 255u, sizeof(SamplerStates()));
         memset(TextureStageStates(), 255u, sizeof(TextureStageStates()));
 
-    }
-    else
-    {
+    } else {
         CDECL_CALL(0x0076E3E0, hWnd);
     }
 }
 
-void nglMorphInit() {
-    nglMorphFileDirectory = new tlInstanceBankResourceDirectory<nglMorphFile, tlFixedString> {};
+void nglMorphInit()
+{
+    nglMorphFileDirectory = new tlInstanceBankResourceDirectory<nglMorphFile, tlFixedString>{};
 }
 
 void nglMeshInit()
@@ -5732,11 +5512,11 @@ void nglMeshInit()
     if constexpr (1) {
         nglMeshPath[0] = 0;
 
-        nglMeshFileDirectory = new tlInstanceBankResourceDirectory<nglMeshFile, tlFixedString> {};
+        nglMeshFileDirectory = new tlInstanceBankResourceDirectory<nglMeshFile, tlFixedString>{};
 
-        nglMeshDirectory = new tlInstanceBankResourceDirectory<nglMesh, tlHashString> {};
+        nglMeshDirectory = new tlInstanceBankResourceDirectory<nglMesh, tlHashString>{};
 
-        nglMorphDirectory = new tlInstanceBankResourceDirectory<nglMorphSet, tlHashString> {};
+        nglMorphDirectory = new tlInstanceBankResourceDirectory<nglMorphSet, tlHashString>{};
 
         nglVertexDefBank.Init();
         nglShaderBank.Init();
@@ -5747,20 +5527,20 @@ void nglMeshInit()
     }
 }
 
-nglVertexDef_MultipassMesh<nglVertexDef_PCUV_Base> *sub_507920(
-    nglMaterialBase *a1, int a2, int a3, int a4, const void *a5, int a6, bool a7)
+nglVertexDef_MultipassMesh<nglVertexDef_PCUV_Base> *sub_507920(nglMaterialBase *a1, int a2, int a3, int a4,
+                                                               const void *a5, int a6, bool a7)
 {
-    return (nglVertexDef_MultipassMesh<nglVertexDef_PCUV_Base> *) CDECL_CALL(0x00507920, a1, a2, a3, a4, a5, a6, a7);
+    return (nglVertexDef_MultipassMesh<nglVertexDef_PCUV_Base> *)CDECL_CALL(0x00507920, a1, a2, a3, a4, a5, a6, a7);
 }
 
 void Process_nglVertexDef_FrontEnd(void *a1)
 {
-    new (a1) nglVertexDef_MultipassMesh<nglVertexDef_FrontEnd_Base> {};
+    new (a1) nglVertexDef_MultipassMesh<nglVertexDef_FrontEnd_Base>{};
 }
 
 void Init_nglVertexDef_FrontEnd_builder()
 {
-    tlFixedString v1 {"US_FrontEnd"};
+    tlFixedString v1{"US_FrontEnd"};
     nglVertexDefBank.Insert(v1, bit_cast<void *>(&Process_nglVertexDef_FrontEnd));
 }
 
@@ -5776,7 +5556,8 @@ void sub_57F3C0()
     CDECL_CALL(0x0057F3C0);
 }
 
-void aeps_Init() {
+void aeps_Init()
+{
     CDECL_CALL(0x004DDDC0);
 
     nglCreateDebugMeshes();
@@ -5815,18 +5596,18 @@ bool sub_782B90(const void *, nglPaletteFile *a2)
     auto *Buf = (nglPaletteFileHeader *)a2->field_128.Buf;
     a2->field_134 = CAST(a2->field_134, Buf);
     a2->field_138 = (uint8_t *)&Buf->field_10;
-    if ( strncmp((const char *)Buf, "DDSP", 4u) || Buf->field_4 != 1 ) {
+    if (strncmp((const char *)Buf, "DDSP", 4u) || Buf->field_4 != 1) {
         return false;
     }
 
     auto *v4 = (nglPalette **)tlMemAlloc(4 * Buf->field_8, 8u, 0x1000000u);
     auto v5 = (int)a2->field_138 & 0x3F;
     a2->field_13C = v4;
-    if ( v5 ) {
+    if (v5) {
         v5 = 64 - v5;
     }
 
-    for ( auto i = 0; i < Buf->field_8; ++i ) {
+    for (auto i = 0; i < Buf->field_8; ++i) {
         nglPlatLoadPalette(Buf, &a2->field_13C[i], &a2->field_138[i * Buf->field_A + v5]);
     }
 
@@ -5835,8 +5616,7 @@ bool sub_782B90(const void *, nglPaletteFile *a2)
 
 void sub_7829F0(nglPalette *a1)
 {
-    if ( a1 != nullptr )
-    {
+    if (a1 != nullptr) {
         dword_975BE8[++dword_975BE0] = a1->m_palette_idx;
         tlMemFree(a1->m_palette_entries);
         a1->m_palette_entries = nullptr;
@@ -5844,37 +5624,25 @@ void sub_7829F0(nglPalette *a1)
     }
 }
 
-void nglRenderTextureState::setSamplerState(
-        int stage,
-        uint8_t a3,
-        uint32_t a4)
+void nglRenderTextureState::setSamplerState(int stage, uint8_t a3, uint32_t a4)
 {
-    if constexpr (0)
-    {
-        if ( (a3 & 2) != 0 )
-        {
-            if ( this->field_20[0][stage] == 2 )
-            {
+    if constexpr (0) {
+        if ((a3 & 2) != 0) {
+            if (this->field_20[0][stage] == 2) {
                 nglSetSamplerState(stage, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
                 nglSetSamplerState(stage, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
                 nglSetSamplerState(stage, D3DSAMP_MIPFILTER, D3DTEXF_POINT);
                 this->field_20[0][stage] = 2;
             }
-        }
-        else if ( (a3 & 4) != 0 )
-        {
-            if ( this->field_20[0][stage] == 4 )
-            {
+        } else if ((a3 & 4) != 0) {
+            if (this->field_20[0][stage] == 4) {
                 nglSetSamplerState(stage, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
                 nglSetSamplerState(stage, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
                 nglSetSamplerState(stage, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
                 this->field_20[0][stage] = 4;
             }
-        }
-        else if ((a3 & 8) != 0)
-        {
-            if ( this->field_20[0][stage] != 8 )
-            {
+        } else if ((a3 & 8) != 0) {
+            if (this->field_20[0][stage] != 8) {
                 nglSetSamplerState(stage, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
                 nglSetSamplerState(stage, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
                 nglSetSamplerState(stage, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
@@ -5882,22 +5650,18 @@ void nglRenderTextureState::setSamplerState(
             }
 
             auto MaxAnisotropy = a4;
-            if ( a4 > g_deviceCaps().MaxAnisotropy ) {
+            if (a4 > g_deviceCaps().MaxAnisotropy) {
                 MaxAnisotropy = g_deviceCaps().MaxAnisotropy;
             }
 
             nglSetSamplerState(stage, D3DSAMP_MAXANISOTROPY, MaxAnisotropy);
-        }
-        else if ( this->field_20[0][stage] != 1 )
-        {
+        } else if (this->field_20[0][stage] != 1) {
             nglSetSamplerState(stage, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
             nglSetSamplerState(stage, D3DSAMP_MINFILTER, D3DTEXF_POINT);
             nglSetSamplerState(stage, D3DSAMP_MIPFILTER, D3DTEXF_POINT);
             this->field_20[0][stage] = 1;
         }
-    }
-    else
-    {
+    } else {
         THISCALL(0x00401E00, this, stage, a3, a4);
     }
 }
@@ -5913,7 +5677,6 @@ void ngl_patch()
     {
         HRESULT (*func)(nglMeshSection *) = &nglSetStreamSourceAndDrawPrimitive;
         SET_JUMP(0x00771AF0, func);
-
     }
 
     REDIRECT(0x0076DFFB, releaseShaderLists);
@@ -5923,8 +5686,7 @@ void ngl_patch()
     REDIRECT(0x005AD5EA, sub_76DF40);
 
     //FIXME
-    if constexpr (nglLoadMeshFileInternal_hook)
-    {
+    if constexpr (nglLoadMeshFileInternal_hook) {
         REDIRECT(0x0056BDAA, nglLoadMeshFileInternal);
         REDIRECT(0x0056C126, nglLoadMeshFileInternal);
         REDIRECT(0x0056C244, nglLoadMeshFileInternal);
@@ -5988,11 +5750,11 @@ void ngl_patch()
     SET_JUMP(0x0076C970, nglListBeginScene);
 
     SET_JUMP(0x0076B6D0, nglSetViewport);
-    
+
     ngl_lighting_patch();
 
     {
-        nglTexture * (* func)(const tlFixedString &) = &nglGetTexture;
+        nglTexture *(*func)(const tlFixedString &) = &nglGetTexture;
         SET_JUMP(0x00773230, func);
     }
 
@@ -6034,7 +5796,8 @@ void ngl_patch()
 
 
     {
-        [[maybe_unused]] void (*func)(nglFont *Font, char *, uint32_t *, uint32_t *a4, Float a5, Float a6) = nglGetStringDimensions;
+        [[maybe_unused]] void (*func)(nglFont *Font, char *, uint32_t *, uint32_t *a4, Float a5, Float a6) =
+            nglGetStringDimensions;
         //SET_JUMP(0x007798E0, func);
     }
 
@@ -6043,7 +5806,7 @@ void ngl_patch()
     }
 
     {
-        nglMesh * (*func)(const tlFixedString &, nglMeshFile *) = &nglGetMeshInFile;
+        nglMesh *(*func)(const tlFixedString &, nglMeshFile *) = &nglGetMeshInFile;
         REDIRECT(0x00637F8B, func);
         REDIRECT(0x0076FD55, func);
     }

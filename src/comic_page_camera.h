@@ -11,10 +11,10 @@ namespace comic_panels {
 
 struct page_camera {
     struct {
-        void * (__fastcall *CreateInstance)(void *, void *, nalAnimClass<nalAnyPose> *);
+        void *(__fastcall *CreateInstance)(void *, void *, nalAnimClass<nalAnyPose> *);
         int field_4;
-        void (__fastcall *Render)(void *, void *, nalAnimClass<nalAnyPose>::nalInstanceClass *, Float);
-    } * m_vtbl;
+        void(__fastcall *Render)(void *, void *, nalAnimClass<nalAnyPose>::nalInstanceClass *, Float);
+    } *m_vtbl;
     struct {
         int field_0;
         nalGeneric::nalGenericPose field_4;
@@ -43,12 +43,13 @@ struct page_camera {
     bool field_EE;
     char field_EF;
 
-    auto get_transform() const {
+    auto get_transform() const
+    {
         return field_4C;
     }
 
     //virtual
-    void * CreateInstance(nalAnimClass<nalAnyPose> *a2);
+    void *CreateInstance(nalAnimClass<nalAnyPose> *a2);
 
     //virtual
     void Render(nalAnimClass<nalAnyPose>::nalInstanceClass *a1, Float a2);
@@ -56,4 +57,4 @@ struct page_camera {
 
 extern Var<page_camera *> cur_page_camera;
 
-}
+}  // namespace comic_panels

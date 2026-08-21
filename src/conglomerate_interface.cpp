@@ -14,7 +14,7 @@ conglomerate_interface::conglomerate_interface(conglomerate *a2) : generic_inter
     this->dynamic = true;
 }
 
-const char * conglomerate_interface::get_ifc_type_str() const
+const char *conglomerate_interface::get_ifc_type_str() const
 {
     return "conglomerate";
 }

@@ -38,6 +38,6 @@ struct core_ai_resource {
     bool does_locomotion_graph_exist(resource_key the_graph) const;
 };
 
-} // namespace ai
+}  // namespace ai
 
 extern void core_ai_resource_patch();

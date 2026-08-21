@@ -14,19 +14,20 @@ anim_record::anim_record()
 void anim_record::_unmash(mash_info_struct *a2, void *)
 {
     a2->unmash_class_in_place(this->field_8, this);
-    if ( this->my_key != nullptr )
-    {
-        a2->unmash_class(this->my_key, this
+    if (this->my_key != nullptr) {
+        a2->unmash_class(this->my_key,
+                         this
 #ifdef TARGET_XBOX
-            , mash::NORMAL_BUFFER
+                         ,
+                         mash::NORMAL_BUFFER
 #endif
-                );
+        );
     }
 }
 
 int anim_record::get_mash_sizeof()
 {
-    int (__fastcall *func)(anim_record *) = CAST(func, get_vfunc(m_vtbl, 0x1C));
+    int(__fastcall * func)(anim_record *) = CAST(func, get_vfunc(m_vtbl, 0x1C));
     return func(this);
 }
 

@@ -17,13 +17,11 @@ struct event_recipient_entry {
     int field_20;
     int field_24;
 
-    event_recipient_entry(
-        entity_base_vhandle a2,
-        bool a3);
+    event_recipient_entry(entity_base_vhandle a2, bool a3);
 
     ~event_recipient_entry();
 
-    void * operator new(size_t size);
+    void *operator new(size_t size);
 
     void operator delete(void *ptr, size_t size);
 
@@ -42,5 +40,4 @@ struct event_recipient_entry {
     void remove_callback(unsigned int a2);
 
     void clear_script_callbacks(script_executable *a2);
-
 };

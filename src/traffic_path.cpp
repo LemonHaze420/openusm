@@ -2,18 +2,17 @@
 
 #include "common.h"
 
-traffic_ai_list (& traffic_ai_list::ai_lists)[1] = var<traffic_ai_list[1]>(0x00968690);
+traffic_ai_list (&traffic_ai_list::ai_lists)[1] = var<traffic_ai_list[1]>(0x00968690);
 
-bool traffic_path_intersection::has_stopsign(bool )
+bool traffic_path_intersection::has_stopsign(bool)
 {
     return false;
 }
 
 bool traffic_path_road::is_an_in_lane(const traffic_path_lane *a2) const
 {
-    for ( auto i = 0u;  i < this->total_in_lanes; ++i )
-    {
-        if ( this->in_lanes[i] == a2 ) {
+    for (auto i = 0u; i < this->total_in_lanes; ++i) {
+        if (this->in_lanes[i] == a2) {
             return true;
         }
     }
@@ -30,14 +29,11 @@ int traffic_ai_list::get_ai_index(vhandle_type<actor> me)
 {
     assert(me != INVALID_VHANDLE);
 
-    for ( int i = 0; i < this->num_ais; ++i )
-    {
-        if ( this->ais[i] == me )
-        {
+    for (int i = 0; i < this->num_ais; ++i) {
+        if (this->ais[i] == me) {
             assert(this->ais[i].get_volatile_ptr()->is_an_actor());
             return i;
         }
-
     }
 
     return -1;

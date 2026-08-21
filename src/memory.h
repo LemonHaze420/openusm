@@ -26,8 +26,8 @@ extern void *mem_alloc(size_t Size);
 
 extern void mem_dealloc(void *a1, size_t Size);
 
-extern bool & mem_first_malloc;
-extern bool & mem_first_memalign;
-extern bool & mem_first_allocation;
+extern bool &mem_first_malloc;
+extern bool &mem_first_memalign;
+extern bool &mem_first_allocation;
 
-extern int & mem_total_allocated;
+extern int &mem_total_allocated;

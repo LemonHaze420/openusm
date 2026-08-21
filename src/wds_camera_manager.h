@@ -29,7 +29,8 @@ struct wds_camera_manager {
     //0x0053DB80
     wds_camera_manager();
 
-    bool is_marky_cam_enabled() const {
+    bool is_marky_cam_enabled() const
+    {
         return this->field_48;
     }
 

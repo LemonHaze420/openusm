@@ -12,9 +12,9 @@ struct rumble_manager;
 struct input_device;
 struct device_axis;
 
-inline constexpr float AXIS_MAX  = 1.0f;
-inline constexpr float AXIS_MID  = 0.0f;
-inline constexpr float AXIS_MIN  = -1.0f;
+inline constexpr float AXIS_MAX = 1.0f;
+inline constexpr float AXIS_MID = 0.0f;
+inline constexpr float AXIS_MIN = -1.0f;
 
 enum device_id_t {
     INVALID_DEVICE_ID = -1,
@@ -47,7 +47,7 @@ struct input_mgr : singleton {
     //0x005E0EA0
     input_mgr();
 
-    void * operator new(size_t size);
+    void *operator new(size_t size);
 
     void operator delete(void *ptr, size_t size);
 
@@ -101,9 +101,9 @@ struct input_mgr : singleton {
     static void create_inst();
 
     //0x009685DC
-    static input_mgr *& instance;
+    static input_mgr *&instance;
 };
 
-extern bool & pc_inserted_devices;
+extern bool &pc_inserted_devices;
 
 extern void input_mgr_patch();

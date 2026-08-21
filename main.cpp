@@ -299,27 +299,21 @@
 #include <dxdiag.h>
 
 
-void register_class_and_create_window(LPCSTR lpClassName,
-                                      LPCSTR lpWindowName,
-                                      int X,
-                                      int Y,
-                                      int a5,
-                                      int a6,
-                                      WNDPROC a7,
-                                      HINSTANCE hInstance,
-                                      int a9,
-                                      DWORD dwStyle);
+void register_class_and_create_window(LPCSTR lpClassName, LPCSTR lpWindowName, int X, int Y, int a5, int a6, WNDPROC a7,
+                                      HINSTANCE hInstance, int a9, DWORD dwStyle);
 
 #define TEXT_START 0x00401000
 #define TEXT_END 0x00988000
 
 DWORD old_perms = 0;
-BOOL set_text_to_writable() {
-    return VirtualProtect((void *) TEXT_START, TEXT_END - TEXT_START, PAGE_READWRITE, &old_perms);
+BOOL set_text_to_writable()
+{
+    return VirtualProtect((void *)TEXT_START, TEXT_END - TEXT_START, PAGE_READWRITE, &old_perms);
 }
 
-BOOL restore_text_perms() {
-    return VirtualProtect((void*)(TEXT_START), TEXT_END - TEXT_START, old_perms, &old_perms);
+BOOL restore_text_perms()
+{
+    return VirtualProtect((void *)(TEXT_START), TEXT_END - TEXT_START, old_perms, &old_perms);
 }
 
 BOOL install_patches()
@@ -333,32 +327,34 @@ BOOL install_patches()
 
 static constexpr uint32_t NOP = 0x90;
 
-void set_nop(ptrdiff_t address, size_t num_bytes) {
+void set_nop(ptrdiff_t address, size_t num_bytes)
+{
     for (size_t i = 0u; i < num_bytes; ++i) {
         *bit_cast<uint8_t *>(static_cast<size_t>(address) + i) = NOP;
     }
 }
 
-#define REDIRECT_WITH_NOP(addr, my_func)                                          \
-    {                                                                             \
-        *(uint8_t *) addr = 0xE8;                                                 \
-        *(uint32_t *) ((uint8_t *) (addr + 1)) = ((uint32_t) my_func) - addr - 5; \
-        *(uint8_t *) (addr + 5) = NOP;                                            \
-        sp_log("Patched function sub_%08X with %s", addr, #my_func);              \
+#define REDIRECT_WITH_NOP(addr, my_func)                                       \
+    {                                                                          \
+        *(uint8_t *)addr = 0xE8;                                               \
+        *(uint32_t *)((uint8_t *)(addr + 1)) = ((uint32_t)my_func) - addr - 5; \
+        *(uint8_t *)(addr + 5) = NOP;                                          \
+        sp_log("Patched function sub_%08X with %s", addr, #my_func);           \
     }
 
-#define MOVE(addr, my_func)                                            \
-    {                                                                  \
-        *bit_cast<uint8_t *>(addr) = 0xB9;                             \
-        *(uint32_t *) ((uint8_t *) (addr + 1)) = ((uint32_t) my_func); \
-        *bit_cast<uint8_t *>(addr + 5) = NOP;                          \
+#define MOVE(addr, my_func)                                         \
+    {                                                               \
+        *bit_cast<uint8_t *>(addr) = 0xB9;                          \
+        *(uint32_t *)((uint8_t *)(addr + 1)) = ((uint32_t)my_func); \
+        *bit_cast<uint8_t *>(addr + 5) = NOP;                       \
     }
 
-void sub_76F320() {
+void sub_76F320()
+{
     if constexpr (1) {
         struct Vtbl {
             int empty[7];
-            void (__fastcall *field_1C)(void *, void *, int, int, int);
+            void(__fastcall *field_1C)(void *, void *, int, int, int);
         };
 
         auto address = get_vtbl(nglGetMeshFileDirectory());
@@ -373,21 +369,22 @@ void sub_76F320() {
 
         Vtbl *vtbl = CAST(vtbl, address);
 
-        vtbl->field_1C(nglGetMeshFileDirectory(), nullptr, 1, 1, 1); // 0x008B8180 -> sub_560770
+        vtbl->field_1C(nglGetMeshFileDirectory(), nullptr, 1, 1, 1);  // 0x008B8180 -> sub_560770
     } else {
         CDECL_CALL(0x0076F320);
     }
 }
 
-bool sub_5A3AA0(const char *a1, char *a2) {
-
-    bool (__cdecl *func)(const char *a1, char *a2) = CAST(func, 0x005A3AA0);
+bool sub_5A3AA0(const char *a1, char *a2)
+{
+    bool(__cdecl * func)(const char *a1, char *a2) = CAST(func, 0x005A3AA0);
     return func(a1, a2);
 }
 
-static bool & ALLOW_ERROR_POPUPS = var<bool>(0x00922A30);
+static bool &ALLOW_ERROR_POPUPS = var<bool>(0x00922A30);
 
-void sub_597720(LPCSTR lpText) {
+void sub_597720(LPCSTR lpText)
+{
     char Dest[2048];
     char Format[2056];
 
@@ -410,27 +407,33 @@ void sub_597720(LPCSTR lpText) {
     exit(-1);
 }
 
-LONG __stdcall TopLevelExceptionFilter(EXCEPTION_POINTERS *pExceptionInfo) {
-    return (LONG) STDCALL(0x00597830, pExceptionInfo);
+LONG __stdcall TopLevelExceptionFilter(EXCEPTION_POINTERS *pExceptionInfo)
+{
+    return (LONG)STDCALL(0x00597830, pExceptionInfo);
 }
 
-void sub_81E130(int *a1) {
+void sub_81E130(int *a1)
+{
     CDECL_CALL(0x0081E130, a1);
 }
 
-void sub_81C1A0() {
+void sub_81C1A0()
+{
     CDECL_CALL(0x0081C1A0);
 }
 
-void init_assert_handler() {
+void init_assert_handler()
+{
     CDECL_CALL(0x005BC9B0);
 }
 
-void sub_5C9EA0() {
+void sub_5C9EA0()
+{
     CDECL_CALL(0x005C9EA0);
 }
 
-void create_directory(const char *str) {
+void create_directory(const char *str)
+{
     if constexpr (1) {
         char Dest[260];
 
@@ -455,7 +458,8 @@ void create_directory(const char *str) {
 }
 
 //0x005B2240
-void replace_if_find(char *begin, char *end, const char &a3, const char &a4) {
+void replace_if_find(char *begin, char *end, const char &a3, const char &a4)
+{
     if constexpr (0) {
         for (auto *i = begin; i != end; ++i) {
             if (*i == a3) {
@@ -471,16 +475,13 @@ void parse_cmd(const char *str)
 {
     TRACE("parse_cmd");
 
-    if constexpr (1)
-    {
-        char Dest[1024] {};
+    if constexpr (1) {
+        char Dest[1024]{};
         strncpy(Dest, str, 1023u);
-        for (auto *i = strtok(Dest, " "); i != nullptr; i = strtok(nullptr, " "))
-        {
+        for (auto *i = strtok(Dest, " "); i != nullptr; i = strtok(nullptr, " ")) {
             if (strnicmp(i, "pack", strlen(i)) == 0 || strnicmp(i, "repack", strlen(i)) == 0) {
                 g_is_the_packer = true;
-            } else if (strnicmp(i, "smokelevel", strlen(i)) == 0 ||
-                       strnicmp(i, "runlevel", strlen(i)) == 0) {
+            } else if (strnicmp(i, "smokelevel", strlen(i)) == 0 || strnicmp(i, "runlevel", strlen(i)) == 0) {
                 strcpy(g_scene_name, strtok(nullptr, " "));
                 if (strnicmp(i, "smokelevel", strlen(i)) == 0) {
                     os_developer_options::instance->set_flag(75, true);
@@ -546,9 +547,7 @@ void parse_cmd(const char *str)
                 }
             }
         }
-    }
-    else
-    {
+    } else {
         CDECL_CALL(0x005948B0, str);
     }
 }
@@ -557,36 +556,35 @@ void parse_cmd(const char *str)
 
 void create_sound_ifc(HWND a1)
 {
-    if constexpr (0)
-    {
+    if constexpr (0) {
         HRESULT hr = -1;
-        if (g_directSound != nullptr || (hr = DirectSoundCreate8(&IID_IDirectSound8, &g_directSound, nullptr), g_directSound != nullptr))
-        {
+        if (g_directSound != nullptr ||
+            (hr = DirectSoundCreate8(&IID_IDirectSound8, &g_directSound, nullptr), g_directSound != nullptr)) {
             IDirectSound8_SetCooperativeLevel(g_directSound, a1, DISCL_NONEXCLUSIVE);
         }
 
         if (FAILED(hr)) {
-            char tempstr[512] {};
+            char tempstr[512]{};
             sprintf(tempstr, "DirectSound8Create error: %s - %s", DXGetErrorString8(hr), DXGetErrorDescription8(hr));
-            MessageBox (nullptr, tempstr, "Error",  MB_OK | MB_ICONINFORMATION);
+            MessageBox(nullptr, tempstr, "Error", MB_OK | MB_ICONINFORMATION);
         }
-    }
-    else
-    {
+    } else {
         CDECL_CALL(0x0081E2D0, a1);
     }
 
     assert(g_directSound != nullptr);
 }
 
-void sub_581780() {
+void sub_581780()
+{
     _controlfp(0x300u, 0x300u);
     _controlfp(_PC_24, _MCW_PC);
 }
 
-static bool & byte_965BF7 = var<bool>(0x00965BF7);
+static bool &byte_965BF7 = var<bool>(0x00965BF7);
 
-void sub_5BCA60(int a1, int a2) {
+void sub_5BCA60(int a1, int a2)
+{
     if constexpr (1) {
         static Var<int (*)(int, int, int)> dword_9680A0{0x009680A0};
 
@@ -602,7 +600,8 @@ void sub_5BCA60(int a1, int a2) {
     }
 }
 
-void sub_5BCA80(int a1) {
+void sub_5BCA80(int a1)
+{
     if constexpr (1) {
         static Var<cdecl_call> dword_9680A4{0x009680A4};
 
@@ -620,7 +619,8 @@ void sub_5BCA80(int a1) {
 
 static Var<char[]> byte_88CC68 = {0x0088CC68};
 
-LRESULT __stdcall WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) {
+LRESULT __stdcall WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
+{
     if constexpr (1) {
         LRESULT result;
 
@@ -681,8 +681,7 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) 
 
             sub_5BCA60(0, byte_88CC68()[static_cast<uint16_t>(wParam)]);
 
-            if (g_femanager.m_pause_menu_system != nullptr && g_femanager.m_pause_menu_system->m_index != -1)
-            {
+            if (g_femanager.m_pause_menu_system != nullptr && g_femanager.m_pause_menu_system->m_index != -1) {
             LABEL_24:
 
                 auto *pause_menu_system = g_femanager.m_pause_menu_system;
@@ -696,10 +695,8 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) 
                 return DefWindowProcA(hWnd, Msg, wParam, lParam);
             }
 
-            if (g_femanager.m_fe_menu_system != nullptr && g_femanager.m_fe_menu_system->m_index != -1)
-            {
-                if (g_femanager.m_pause_menu_system->m_index == -1)
-                {
+            if (g_femanager.m_fe_menu_system != nullptr && g_femanager.m_fe_menu_system->m_index != -1) {
+                if (g_femanager.m_pause_menu_system->m_index == -1) {
                     auto *frontend_menu_system = g_femanager.m_fe_menu_system;
 
                     auto *vtbl = bit_cast<fastcall_call(*)[10]>(frontend_menu_system->m_vtbl);
@@ -727,10 +724,8 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) 
                     goto LABEL_43;
                 }
 
-                if (g_femanager.m_fe_menu_system != nullptr && g_femanager.m_fe_menu_system->m_index != -1)
-                {
-                    if (g_femanager.m_pause_menu_system->m_index == -1)
-                    {
+                if (g_femanager.m_fe_menu_system != nullptr && g_femanager.m_fe_menu_system->m_index != -1) {
+                    if (g_femanager.m_pause_menu_system->m_index == -1) {
                         auto *frontend_menu_system = g_femanager.m_fe_menu_system;
 
                         auto *vtbl = bit_cast<fastcall_call(*)[10]>(frontend_menu_system->m_vtbl);
@@ -783,11 +778,11 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) 
             break;
         case WM_SYSKEYDOWN:
         LABEL_5:
-            sub_5BCA60(1, byte_88CC68()[(uint16_t) wParam]);
+            sub_5BCA60(1, byte_88CC68()[(uint16_t)wParam]);
             result = DefWindowProcA(hWnd, Msg, wParam, lParam);
             break;
         case WM_SYSKEYUP:
-            sub_5BCA60(0, byte_88CC68()[(uint16_t) wParam]);
+            sub_5BCA60(0, byte_88CC68()[(uint16_t)wParam]);
             result = DefWindowProcA(hWnd, Msg, wParam, lParam);
             break;
         case WM_SYSCHAR:
@@ -801,28 +796,33 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam) 
         }
         return result;
     } else {
-        return (LRESULT) STDCALL(0x005941A0, hWnd, Msg, wParam, lParam);
+        return (LRESULT)STDCALL(0x005941A0, hWnd, Msg, wParam, lParam);
     }
 }
 
-void sub_79DFF0() {
+void sub_79DFF0()
+{
     CDECL_CALL(0x0079DFF0);
 }
 
-void sub_81C230() {
+void sub_81C230()
+{
     CDECL_CALL(0x0081C230);
 }
 
-void sub_81D700() {
+void sub_81D700()
+{
     CDECL_CALL(0x0081D700);
 }
 
-void sub_81E300() {
+void sub_81E300()
+{
     CDECL_CALL(0x0081E300);
 }
 
 //0x0081C5A0
-void free_file(FileUSM *file) {
+void free_file(FileUSM *file)
+{
     if (file != nullptr) {
         free(file->field_0);
         free(file->field_4);
@@ -830,16 +830,19 @@ void free_file(FileUSM *file) {
     }
 }
 
-void sub_4DDEC0() {
+void sub_4DDEC0()
+{
     CDECL_CALL(0x004DDEC0);
 }
 
-void bink_set_sound_system() {
+void bink_set_sound_system()
+{
     CDECL_CALL(0x0060BBA0);
     //BinkSetSoundSystem(BinkOpenDirectSound, pUnkOuter());
 }
 
-bool get_path(const char *a1, const char *a2, char *out, unsigned int str_len) {
+bool get_path(const char *a1, const char *a2, char *out, unsigned int str_len)
+{
     if constexpr (1) {
         char Buffer[260]{};
 
@@ -855,11 +858,9 @@ bool get_path(const char *a1, const char *a2, char *out, unsigned int str_len) {
             auto hModule = LoadLibraryA(Dest);
 
             if (hModule != nullptr) {
-                auto *SHGetFolderPathA =
-                    bit_cast<HRESULT(__stdcall *)(HWND, int, HANDLE, DWORD, LPSTR)>(
-                        GetProcAddress(hModule, "SHGetFolderPathA"));
-                if (SHGetFolderPathA != nullptr &&
-                    SHGetFolderPathA(nullptr, 5, nullptr, 0, v12) >= 0) {
+                auto *SHGetFolderPathA = bit_cast<HRESULT(__stdcall *)(HWND, int, HANDLE, DWORD, LPSTR)>(
+                    GetProcAddress(hModule, "SHGetFolderPathA"));
+                if (SHGetFolderPathA != nullptr && SHGetFolderPathA(nullptr, 5, nullptr, 0, v12) >= 0) {
                     sprintf(v8, "%s\\%s", v12, a1);
                     if (strlen(v8) >= str_len) {
                         return false;
@@ -882,11 +883,12 @@ bool get_path(const char *a1, const char *a2, char *out, unsigned int str_len) {
 
         return true;
     } else {
-        return (bool) CDECL_CALL(0x0081BE00, a1, a2, out, str_len);
+        return (bool)CDECL_CALL(0x0081BE00, a1, a2, out, str_len);
     }
 }
 
-bool sub_586FA0(unsigned char a1) {
+bool sub_586FA0(unsigned char a1)
+{
     bool result;
 
     switch (a1) {
@@ -915,8 +917,7 @@ void sub_5952D0()
 {
     TRACE("sub_5952D0");
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         operator delete(dword_965C24[0]);
         operator delete(dword_965C24[1]);
         operator delete(dword_965C24[2]);
@@ -948,50 +949,46 @@ void sub_5952D0()
         VALIDATE_SIZE(v29, 0x48);
 
         static constexpr decltype(v29) input_value[18] = {
-            {"Forward",      {0, 0, 0, 0, 0, 0, 0, 0},  65553, false, 65736, false, 196612, 0},
-            {"Backward",     {0, 0, 0, 0, 0, 0, 0, 0},  65567, false, 65744, false, 196611, 0},
-            {"TurnLeft",     {0, 0, 0, 0, 0, 0, 0, 0},  65566, false, 65739, false, 196610, 0},
-            {"TurnRight",    {0, 0, 0, 0, 0, 0, 0, 0},  65568, false, 65741, false, 196609, 0},
-            {"Jump",         {0, 0, 0, 0, 0, 0, 0, 0}, 0x10000 + DIK_SPACE, false, 65535, false, 196629, 0},
-            {"StickToWalls", {0, 0, 0, 0, 0, 0, 0, 0},  65569, false, 65578, false, 196630, 0},
-            {"Punch",        {0, 0, 0, 0, 0, 0, 0, 0}, 0x10000 + DIK_Q, false, 65565, false, 196631, 0},
-            {"Kick",         {0, 0, 0, 0, 0, 0, 0, 0}, 0x10000 + DIK_E, false, 65592, false, 196632, 0},
-            {"ThrowWeb",     {0, 0, 0, 0, 0, 0, 0, 0}, 131082, false, 65582, false,  65535, 0},
-            {"BlackButton",  {0, 0, 0, 0, 0, 0, 0, 0}, 131081, false, 65583, false,  65535, 0},
-            {"CameraUp",     {0, 0, 0, 0, 0, 0, 0, 0},  65608, false, 65737, false,  65535, 0},
-            {"CameraDown",   {0, 0, 0, 0, 0, 0, 0, 0},  65616, false, 65745, false,  65535, 0},
-            {"CameraLeft",   {0, 0, 0, 0, 0, 0, 0, 0},  65611, false, 65535, false,  65535, 0},
-            {"CameraRight",  {0, 0, 0, 0, 0, 0, 0, 0},  65613, false, 65535, false,  65535, 0},
-            {"CameraCenter", {0, 0, 0, 0, 0, 0, 0, 0}, 0x10000 + 48, false, 65535, false,  65535, 0},
-            {"Pause",        {0, 0, 0, 0, 0, 0, 0, 0},  65537, true,  65535, false,  65535, 0},
-            {"BackButton",   {0, 0, 0, 0, 0, 0, 0, 0},  65586, false, 65535, false,  65535, 0},
-            {"ScreenShot",   {0, 0, 0, 0, 0, 0, 0, 0},  65623, false, 65535, false,  65535, 0}
-        };
+            {"Forward", {0, 0, 0, 0, 0, 0, 0, 0}, 65553, false, 65736, false, 196612, 0},
+            {"Backward", {0, 0, 0, 0, 0, 0, 0, 0}, 65567, false, 65744, false, 196611, 0},
+            {"TurnLeft", {0, 0, 0, 0, 0, 0, 0, 0}, 65566, false, 65739, false, 196610, 0},
+            {"TurnRight", {0, 0, 0, 0, 0, 0, 0, 0}, 65568, false, 65741, false, 196609, 0},
+            {"Jump", {0, 0, 0, 0, 0, 0, 0, 0}, 0x10000 + DIK_SPACE, false, 65535, false, 196629, 0},
+            {"StickToWalls", {0, 0, 0, 0, 0, 0, 0, 0}, 65569, false, 65578, false, 196630, 0},
+            {"Punch", {0, 0, 0, 0, 0, 0, 0, 0}, 0x10000 + DIK_Q, false, 65565, false, 196631, 0},
+            {"Kick", {0, 0, 0, 0, 0, 0, 0, 0}, 0x10000 + DIK_E, false, 65592, false, 196632, 0},
+            {"ThrowWeb", {0, 0, 0, 0, 0, 0, 0, 0}, 131082, false, 65582, false, 65535, 0},
+            {"BlackButton", {0, 0, 0, 0, 0, 0, 0, 0}, 131081, false, 65583, false, 65535, 0},
+            {"CameraUp", {0, 0, 0, 0, 0, 0, 0, 0}, 65608, false, 65737, false, 65535, 0},
+            {"CameraDown", {0, 0, 0, 0, 0, 0, 0, 0}, 65616, false, 65745, false, 65535, 0},
+            {"CameraLeft", {0, 0, 0, 0, 0, 0, 0, 0}, 65611, false, 65535, false, 65535, 0},
+            {"CameraRight", {0, 0, 0, 0, 0, 0, 0, 0}, 65613, false, 65535, false, 65535, 0},
+            {"CameraCenter", {0, 0, 0, 0, 0, 0, 0, 0}, 0x10000 + 48, false, 65535, false, 65535, 0},
+            {"Pause", {0, 0, 0, 0, 0, 0, 0, 0}, 65537, true, 65535, false, 65535, 0},
+            {"BackButton", {0, 0, 0, 0, 0, 0, 0, 0}, 65586, false, 65535, false, 65535, 0},
+            {"ScreenShot", {0, 0, 0, 0, 0, 0, 0, 0}, 65623, false, 65535, false, 65535, 0}};
 
         //0x00922940
-        static constexpr InputAction input_actions[18] = {
-                       InputAction::Forward,
-                       InputAction::Backward,
-                       InputAction::TurnLeft,
-                       InputAction::TurnRight,
-                       InputAction::Jump,
-                       InputAction::StickToWalls,
-                       InputAction::Punch,
-                       InputAction::Kick,
-                       InputAction::ThrowWeb,
-                       InputAction::BlackButton,
-                       InputAction::CameraUp,
-                       InputAction::CameraDown,
-                       InputAction::CameraLeft,
-                       InputAction::CameraRight,
-                       InputAction::CameraCenter,
-                       InputAction::Pause,
-                       InputAction::BackButton,
-                       InputAction::ScreenShot
-        };
+        static constexpr InputAction input_actions[18] = {InputAction::Forward,
+                                                          InputAction::Backward,
+                                                          InputAction::TurnLeft,
+                                                          InputAction::TurnRight,
+                                                          InputAction::Jump,
+                                                          InputAction::StickToWalls,
+                                                          InputAction::Punch,
+                                                          InputAction::Kick,
+                                                          InputAction::ThrowWeb,
+                                                          InputAction::BlackButton,
+                                                          InputAction::CameraUp,
+                                                          InputAction::CameraDown,
+                                                          InputAction::CameraLeft,
+                                                          InputAction::CameraRight,
+                                                          InputAction::CameraCenter,
+                                                          InputAction::Pause,
+                                                          InputAction::BackButton,
+                                                          InputAction::ScreenShot};
 
-        for (auto i = 0u; i < std::size(input_actions); ++i)
-        {
+        for (auto i = 0u; i < std::size(input_actions); ++i) {
             auto &v22 = input_actions[i];
 
             v29 = input_value[i];
@@ -999,17 +996,12 @@ void sub_5952D0()
             char Dest[264];
             sprintf(Dest, "Controls\\Player%d\\%s1", 1, v29.field_0);
 
-            uint32_t v0 = ( v29.field_34 
-                            ? v29.field_30
-                            : g_settings->sub_81D010(Dest, v29.field_30)
-                            );
+            uint32_t v0 = (v29.field_34 ? v29.field_30 : g_settings->sub_81D010(Dest, v29.field_30));
 
             const uint16_t v23 = v0;
 
             sprintf(Dest, "Controls\\Player%d\\%s2", 1, v29.field_0);
-            uint32_t v1 = ( v29.field_3C
-                            ? v29.field_38
-                            : g_settings->sub_81D010(Dest, v29.field_38));
+            uint32_t v1 = (v29.field_3C ? v29.field_38 : g_settings->sub_81D010(Dest, v29.field_38));
 
             const uint16_t v27 = v1;
 
@@ -1032,22 +1024,17 @@ void sub_5952D0()
             InputType v6 = static_cast<InputType>(HIWORD(v2));
             g_inputSettingsInGame->field_18.set(v22, 2u, v6, v28);
 
-            if (v22 == InputAction::Pause)
-            {
+            if (v22 == InputAction::Pause) {
                 g_inputSettingsMenu->field_18.set(InputAction::Kick, 0, v4, v23);
                 g_inputSettingsMenu->field_18.set(InputAction::Kick, 1u, v5, v27);
                 g_inputSettingsMenu->field_18.set(InputAction::Kick, 2u, v6, v28);
             }
 
-            if (v22 == InputAction::Forward && v4 == InputType::Key && v23 != 200)
-            {
+            if (v22 == InputAction::Forward && v4 == InputType::Key && v23 != 200) {
                 g_inputSettingsMenu->field_18.set_key(v22, 1u, v23);
-            }
-            else
-            {
+            } else {
                 uint16_t v8;
-                if (v22 == InputAction::Backward && v4 == InputType::Key)
-                {
+                if (v22 == InputAction::Backward && v4 == InputType::Key) {
                     v8 = v23;
                     if (v23 != 208) {
                         g_inputSettingsMenu->field_18.set_key(v22, 1u, v23);
@@ -1063,30 +1050,18 @@ void sub_5952D0()
                 }
             }
 
-            if (v22 == InputAction::Pause)
-            {
+            if (v22 == InputAction::Pause) {
                 if (v4 == InputType::Joy && v23 != 21 && v23 != 24) {
                     g_inputSettingsMenu->field_18.set(InputAction::Pause, 1u, InputType::Joy, v23);
                 }
 
-                if (v22 == InputAction::Pause)
-                {
+                if (v22 == InputAction::Pause) {
                     if (v5 == InputType::Joy && v23 != 21 && v27 != 24) {
-                        g_inputSettingsMenu->field_18.set(InputAction::Pause,
-                                                            1u,
-                                                            InputType::Joy,
-                                                            v27);
+                        g_inputSettingsMenu->field_18.set(InputAction::Pause, 1u, InputType::Joy, v27);
                     }
 
-                    if (v22 == InputAction::Pause
-                            && v6 == InputType::Joy
-                            && v23 != 21
-                            && v28 != 24)
-                    {
-                        g_inputSettingsMenu->field_18.set(InputAction::Pause,
-                                                            1u,
-                                                            InputType::Joy,
-                                                            v28);
+                    if (v22 == InputAction::Pause && v6 == InputType::Joy && v23 != 21 && v28 != 24) {
+                        g_inputSettingsMenu->field_18.set(InputAction::Pause, 1u, InputType::Joy, v28);
                     }
                 }
             }
@@ -1112,12 +1087,9 @@ void sub_5952D0()
 
                 v12[1] = v13;
 
-            }
-            else if (strlen(v12) == 3)
-            {
+            } else if (strlen(v12) == 3) {
                 unsigned char v14 = v12[1];
-                if (v14 > '`' && v14 < '{')
-                {
+                if (v14 > '`' && v14 < '{') {
                     auto v13 = toupper(v14);
                     v12[1] = v13;
                 }
@@ -1190,9 +1162,7 @@ void sub_5952D0()
         g_inputSettings4->field_18.set_key(InputAction::TurnRight, 3u, DIK_RIGHT);
         g_inputSettings4->field_18.find_and_clear(InputType::Mouse, 9);
         g_inputSettings4->field_18.find_and_clear(InputType::Mouse, 10);
-    } 
-    else
-    {
+    } else {
         CDECL_CALL(0x005952D0);
     }
 }
@@ -1201,29 +1171,29 @@ bool CheckDirectXVersionViaDxDiag(uint32_t a1, uint32_t a2, char a3)
 {
     TRACE("CheckDirectXVersionViaDxDiag");
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         bool bGotDirectXVersion = false;
 
-        uint32_t dwDirectXVersionMajor {};
-        uint32_t dwDirectXVersionMinor {};
-        int cDirectXVersionLetter {};
+        uint32_t dwDirectXVersionMajor{};
+        uint32_t dwDirectXVersionMinor{};
+        int cDirectXVersionLetter{};
 
-        char Buffer[260] {};
+        char Buffer[260]{};
         assert(GetSystemDirectoryA(Buffer, 260u));
 
         Buffer[259] = '\0';
-        char Dest[268] {};
+        char Dest[268]{};
         sprintf(Dest, "%s\\ole32.dll", Buffer);
 
-        assert( GetModuleHandleA(Dest) );
+        assert(GetModuleHandleA(Dest));
 
         auto ole32_dll = LoadLibrary(Dest);
         assert(ole32_dll);
 
-        auto co_initialize = bit_cast<HRESULT (__stdcall *)(void *)>(GetProcAddress(ole32_dll, "CoInitialize"));
-        auto co_create_instance = bit_cast<HRESULT (__stdcall *)(const IID &, LPUNKNOWN, DWORD, const IID &, LPVOID *)>(GetProcAddress(ole32_dll, "CoCreateInstance"));
-        auto co_uninitialize =  bit_cast<void (__stdcall *)()>(GetProcAddress(ole32_dll, "CoUninitialize"));
+        auto co_initialize = bit_cast<HRESULT(__stdcall *)(void *)>(GetProcAddress(ole32_dll, "CoInitialize"));
+        auto co_create_instance = bit_cast<HRESULT(__stdcall *)(const IID &, LPUNKNOWN, DWORD, const IID &, LPVOID *)>(
+            GetProcAddress(ole32_dll, "CoCreateInstance"));
+        auto co_uninitialize = bit_cast<void(__stdcall *)()>(GetProcAddress(ole32_dll, "CoUninitialize"));
 
         assert(co_initialize && co_create_instance && co_uninitialize);
 
@@ -1239,39 +1209,36 @@ bool CheckDirectXVersionViaDxDiag(uint32_t a1, uint32_t a2, char a3)
 #if 0
         hr = CoCreateInstance(CLSID_DxDiagProvider, nullptr, CLSCTX_INPROC_SERVER, IID_IDxDiagProvider, (LPVOID *)&pDxDiagProvider);
 #else
-        hr = co_create_instance(CLSID_DxDiagProvider, nullptr, CLSCTX_INPROC_SERVER, IID_IDxDiagProvider, (LPVOID *)&pDxDiagProvider);
+        hr = co_create_instance(
+            CLSID_DxDiagProvider, nullptr, CLSCTX_INPROC_SERVER, IID_IDxDiagProvider, (LPVOID *)&pDxDiagProvider);
 #endif
 
-        if ( SUCCEEDED(hr) )
-        {
+        if (SUCCEEDED(hr)) {
             DXDIAG_INIT_PARAMS dxDiagInitParam;
-            ZeroMemory( &dxDiagInitParam, sizeof(DXDIAG_INIT_PARAMS) );
+            ZeroMemory(&dxDiagInitParam, sizeof(DXDIAG_INIT_PARAMS));
             dxDiagInitParam.dwSize = sizeof(DXDIAG_INIT_PARAMS);
             dxDiagInitParam.dwDxDiagHeaderVersion = DXDIAG_DX9_SDK_VERSION;
             dxDiagInitParam.bAllowWHQLChecks = false;
             dxDiagInitParam.pReserved = nullptr;
 
             hr = IDxDiagProvider_Initialize(pDxDiagProvider, &dxDiagInitParam);
-            if ( SUCCEEDED(hr) )
-            {
+            if (SUCCEEDED(hr)) {
                 IDxDiagContainer *pDxDiagRoot = nullptr;
                 IDxDiagContainer *pDxDiagSystemInfo = nullptr;
 
                 hr = IDxDiagProvider_GetRootContainer(pDxDiagProvider, &pDxDiagRoot);
-                if ( SUCCEEDED(hr) )
-                {
+                if (SUCCEEDED(hr)) {
                     hr = IDxDiagContainer_GetChildContainer(pDxDiagRoot, L"DxDiag_SystemInfo", &pDxDiagSystemInfo);
-                    if ( SUCCEEDED(hr) )
-                    {
+                    if (SUCCEEDED(hr)) {
                         bool bSuccessGettingMajor = false;
                         bool bSuccessGettingMinor = false;
                         bool bSuccessGettingLetter = false;
 
-                        VARIANT var {};
+                        VARIANT var{};
                         VariantInit(&var);
 
                         hr = IDxDiagContainer_GetProp(pDxDiagSystemInfo, L"dwDirectXVersionMajor", &var);
-                        if ( SUCCEEDED(hr) && var.vt == VT_UI4 ) {
+                        if (SUCCEEDED(hr) && var.vt == VT_UI4) {
                             dwDirectXVersionMajor = var.ulVal;
                             bSuccessGettingMajor = true;
                         }
@@ -1279,24 +1246,20 @@ bool CheckDirectXVersionViaDxDiag(uint32_t a1, uint32_t a2, char a3)
                         VariantClear(&var);
 
                         hr = IDxDiagContainer_GetProp(pDxDiagSystemInfo, L"dwDirectXVersionMinor", &var);
-                        if ( SUCCEEDED(hr) && var.vt == VT_UI4 )
-                        {
+                        if (SUCCEEDED(hr) && var.vt == VT_UI4) {
                             dwDirectXVersionMinor = var.ulVal;
                             bSuccessGettingMinor = true;
                         }
 
                         VariantClear(&var);
                         hr = IDxDiagContainer_GetProp(pDxDiagSystemInfo, L"szDirectXVersionLetter", &var);
-                        if ( SUCCEEDED(hr)
-                                && var.vt == VT_BSTR
-                                && SysStringLen(var.bstrVal) )
-                        {
+                        if (SUCCEEDED(hr) && var.vt == VT_BSTR && SysStringLen(var.bstrVal)) {
                             cDirectXVersionLetter = tolower(var.bstrVal[0]);
                             bSuccessGettingLetter = true;
                         }
 
                         VariantClear(&var);
-                        if ( bSuccessGettingMajor && bSuccessGettingMinor && bSuccessGettingLetter ) {
+                        if (bSuccessGettingMajor && bSuccessGettingMinor && bSuccessGettingLetter) {
                             bGotDirectXVersion = true;
                         }
 
@@ -1312,7 +1275,7 @@ bool CheckDirectXVersionViaDxDiag(uint32_t a1, uint32_t a2, char a3)
             IDxDiagProvider_Release(pDxDiagProvider);
         }
 
-        if ( bCleanupCOM ) {
+        if (bCleanupCOM) {
 #if 0
             CoUninitialize();
 #else
@@ -1327,29 +1290,24 @@ bool CheckDirectXVersionViaDxDiag(uint32_t a1, uint32_t a2, char a3)
         };
 
 #if 1
-        return bGotDirectXVersion && (ValidateVersion(dwDirectXVersionMajor, a1)
-                && ValidateVersion(dwDirectXVersionMinor, a2)
-                && ValidateVersion(cDirectXVersionLetter, a3)
-                );
+        return bGotDirectXVersion &&
+               (ValidateVersion(dwDirectXVersionMajor, a1) && ValidateVersion(dwDirectXVersionMinor, a2) &&
+                ValidateVersion(cDirectXVersionLetter, a3));
 #else
-        return (bGotDirectXVersion
-            && (dwDirectXVersionMajor > a1 || dwDirectXVersionMajor == a1)             
-            && (dwDirectXVersionMinor > a2 || dwDirectXVersionMinor == a2) && cDirectXVersionLetter >= a3);
+        return (bGotDirectXVersion && (dwDirectXVersionMajor > a1 || dwDirectXVersionMajor == a1) &&
+                (dwDirectXVersionMinor > a2 || dwDirectXVersionMinor == a2) && cDirectXVersionLetter >= a3);
 
 #endif
-    }
-    else
-    {
-        bool (__cdecl * func)(unsigned int a1, unsigned int a2, char a3) = CAST(func, 0x0081C2A0);
+    } else {
+        bool(__cdecl * func)(unsigned int a1, unsigned int a2, char a3) = CAST(func, 0x0081C2A0);
         return func(a1, a2, a3);
     }
 }
 
 
-int __stdcall myWinMain(HINSTANCE hInstance,
-                        [[maybe_unused]] HINSTANCE hPrevInstance,
-                        LPSTR lpCmdLine,
-                        [[maybe_unused]] int nShowCmd) {
+int __stdcall myWinMain(HINSTANCE hInstance, [[maybe_unused]] HINSTANCE hPrevInstance, LPSTR lpCmdLine,
+                        [[maybe_unused]] int nShowCmd)
+{
     if (!CreateMutexA(nullptr, true, "USM") || GetLastError() == ERROR_ALREADY_EXISTS) {
         return 0;
     }
@@ -1391,8 +1349,7 @@ int __stdcall myWinMain(HINSTANCE hInstance,
         return 0;
     }
 
-    if (!CheckDirectXVersionViaDxDiag(9, 0, 'c'))
-    {
+    if (!CheckDirectXVersionViaDxDiag(9, 0, 'c')) {
         auto *v162 = get_msg(g_fileUSM, "MSGBOX_ERROR");
         auto *v7 = get_msg(g_fileUSM, "MSGBOX_DX9");
 
@@ -1411,7 +1368,7 @@ int __stdcall myWinMain(HINSTANCE hInstance,
 #endif
 
     static Var<int> dword_965BFC = {0x00965BFC};
-    dword_965BFC() = (int) hInstance;
+    dword_965BFC() = (int)hInstance;
 
     create_window_handle();
 
@@ -1444,16 +1401,8 @@ int __stdcall myWinMain(HINSTANCE hInstance,
     g_enable_stencil_shadows = g_player_shadows_enabled;
     ChromeEffect = g_settings->sub_81D050("Settings\\ChromeEffect", 1);
 
-    register_class_and_create_window("Render Window",
-                                     "Ultimate Spider-Man",
-                                     0,
-                                     0,
-                                     g_cx,
-                                     g_cy,
-                                     WindowProc,
-                                     hInstance,
-                                     80,
-                                     1u);
+    register_class_and_create_window(
+        "Render Window", "Ultimate Spider-Man", 0, 0, g_cx, g_cy, WindowProc, hInstance, 80, 1u);
 
     ShowWindow(g_appHwnd, 3);
 
@@ -1463,19 +1412,19 @@ int __stdcall myWinMain(HINSTANCE hInstance,
 
     create_sound_ifc(g_appHwnd);
     ShowCursor(0);
-    os_developer_options::instance->set_int(mString {"ALLOW_SCREENSHOT"}, 1);
+    os_developer_options::instance->set_int(mString{"ALLOW_SCREENSHOT"}, 1);
 
     window_manager::instance()->field_4 = g_appHwnd;
 
     parse_cmd(lpCmdLine);
 
-    if (os_developer_options::instance->get_flag(mString {"HALT_ON_ASSERTS"})) {
+    if (os_developer_options::instance->get_flag(mString{"HALT_ON_ASSERTS"})) {
         g_debug.field_1 |= 1;
     } else {
         g_debug.field_1 &= 0xFE;
     }
 
-    if (g_is_the_packer || !os_developer_options::instance->get_flag(mString {"SCREEN_ASSERTS"})) {
+    if (g_is_the_packer || !os_developer_options::instance->get_flag(mString{"SCREEN_ASSERTS"})) {
         g_debug.field_1 &= 0xFD;
     } else {
         g_debug.field_1 |= 2;
@@ -1499,7 +1448,7 @@ int __stdcall myWinMain(HINSTANCE hInstance,
 
     nflStart(dword_965C00());
 
-    int v17 = os_developer_options::instance->get_int(mString {"RANDOM_SEED"});
+    int v17 = os_developer_options::instance->get_int(mString{"RANDOM_SEED"});
     if (v17) {
         srand(v17);
     } else {
@@ -1516,7 +1465,7 @@ int __stdcall myWinMain(HINSTANCE hInstance,
     char v174[260];
     sprintf(v174, "%s\\%s\\Save", "Activision", "Ultimate Spider-Man");
 
-    static auto & byte_965AD0 = var<char[260]>(0x00965AD0);
+    static auto &byte_965AD0 = var<char[260]>(0x00965AD0);
     get_path(v174, "Save", byte_965AD0, 260u);
     create_directory(byte_965AD0);
 
@@ -1533,8 +1482,7 @@ int __stdcall myWinMain(HINSTANCE hInstance,
     char Source[260];
     char Type[40];
 
-    for (int i{0}; i < 10; ++i)
-    {
+    for (int i{0}; i < 10; ++i) {
         sprintf(Source, "Controls\\Gamepads\\PadID%d", i + 1);
         g_settings->sub_81CFA0(Source, "00000000-0000-0000-0000-000000000000", Type, 37u);
 
@@ -1563,7 +1511,7 @@ int __stdcall myWinMain(HINSTANCE hInstance,
         Input::instance->set_key(key, v42);
     };
 
-    for ( auto &key : Input::keyConstants ) {
+    for (auto &key : Input::keyConstants) {
         setKey(key.first, key.second);
     }
 
@@ -1575,48 +1523,34 @@ int __stdcall myWinMain(HINSTANCE hInstance,
     Input::instance->sub_81FB90(1);
 
     Settings::MouseLook = g_settings->sub_81D010("Settings\\MouseLook", 1) != 0;
-    if ( Settings::MouseLook )
-    {
+    if (Settings::MouseLook) {
         Settings::InvertCameraH = g_settings->sub_81D050("Settings\\InvertCameraH", 0);
 
-        g_inputSettingsInGame->field_18.set_mouse(InputAction::CameraRight,
-                                                    3,
-                                                    InputMouse::LookRight);
-        g_inputSettingsInGame->field_18.set_mouse(InputAction::CameraLeft,
-                                                    3,
-                                                    InputMouse::LookLeft);
+        g_inputSettingsInGame->field_18.set_mouse(InputAction::CameraRight, 3, InputMouse::LookRight);
+        g_inputSettingsInGame->field_18.set_mouse(InputAction::CameraLeft, 3, InputMouse::LookLeft);
 
         Settings::InvertCameraV = g_settings->sub_81D050("Settings\\InvertCameraV", 0);
         g_inputSettingsInGame->field_18.set_mouse(InputAction::CameraUp, 3, InputMouse::LookUp);
-        g_inputSettingsInGame->field_18.set_mouse(InputAction::CameraDown,
-                                                    3,
-                                                    InputMouse::LookDown);
+        g_inputSettingsInGame->field_18.set_mouse(InputAction::CameraDown, 3, InputMouse::LookDown);
     }
 
-    Input::instance->m_sensitivity = g_settings->sub_81D010("Settings\\Sensitivity", 50) *
-            0.001f + 0.001f;
+    Input::instance->m_sensitivity = g_settings->sub_81D010("Settings\\Sensitivity", 50) * 0.001f + 0.001f;
 
     Settings::SoundMode = g_settings->sub_81D010("Settings\\SoundMode", 2);
-    Settings::GameSoundVolume = g_settings->sub_81D010("Settings\\GameSoundVolume",
-                                                                    10) *
-        0.1;
+    Settings::GameSoundVolume = g_settings->sub_81D010("Settings\\GameSoundVolume", 10) * 0.1;
     Settings::MusicVolume = g_settings->sub_81D010("Settings\\MusicVolume", 10) * 0.1f;
 
-    if (os_developer_options::instance->get_flag(mString {"EXCEPTION_HANDLER"})) {
+    if (os_developer_options::instance->get_flag(mString{"EXCEPTION_HANDLER"})) {
         SetUnhandledExceptionFilter(TopLevelExceptionFilter);
     }
 
-    ALLOW_ERROR_POPUPS = os_developer_options::instance->get_flag(mString {"ALLOW_ERROR_POPUPS"});
+    ALLOW_ERROR_POPUPS = os_developer_options::instance->get_flag(mString{"ALLOW_ERROR_POPUPS"});
     if (!ALLOW_ERROR_POPUPS) {
         SetErrorMode(2u);
     }
 
-    static tlSystemCallbacks ngl_callbacks{ngl_readfile_callback,
-                                           ngl_releasefile_callback,
-                                           0,
-                                           0,
-                                           ngl_memalloc_callback,
-                                           ngl_memfree_callback
+    static tlSystemCallbacks ngl_callbacks{
+        ngl_readfile_callback, ngl_releasefile_callback, 0, 0, ngl_memalloc_callback, ngl_memfree_callback
 
     };
 
@@ -1628,10 +1562,10 @@ int __stdcall myWinMain(HINSTANCE hInstance,
     nglInit(g_appHwnd);
     nalInit(nullptr);
 
-    g_cursor = new Cursor {L"data\\ump.dat", g_cx, g_cy};
+    g_cursor = new Cursor{L"data\\ump.dat", g_cx, g_cy};
     set_tl_system_directories();
 
-    static nglFrameLockType & g_frame_lock = var<nglFrameLockType>(0x00922920);
+    static nglFrameLockType &g_frame_lock = var<nglFrameLockType>(0x00922920);
     nglSetFrameLock(g_frame_lock);
 
     auto list_buffer = os_developer_options::instance->get_int(mString{"PCLISTBUFFER"});
@@ -1653,10 +1587,10 @@ int __stdcall myWinMain(HINSTANCE hInstance,
         cut_scene::init_stream_scene_anims();
     }
 
-    if ( g_is_the_packer ) {
+    if (g_is_the_packer) {
         //sub_748E10();
     } else {
-        if ( !g_master_clock_is_up ) {
+        if (!g_master_clock_is_up) {
             timeBeginPeriod(1u);
         }
 
@@ -1673,8 +1607,7 @@ int __stdcall myWinMain(HINSTANCE hInstance,
             rumble_ptr->disable_vibration();
         }
 
-        if (!bExit)
-        {
+        if (!bExit) {
             while (1) {
                 MSG Msg;
 
@@ -1698,24 +1631,21 @@ int __stdcall myWinMain(HINSTANCE hInstance,
                     goto LABEL_94;
                 }
 
-                if (byte_965BF9)
-                {
-                    if ( !g_master_clock_is_up ) {
+                if (byte_965BF9) {
+                    if (!g_master_clock_is_up) {
                         timeBeginPeriod(1u);
                     }
 
                     DWORD v158 = timeGetTime();
                     DWORD v159 = timeGetTime();
-                    auto v160 = (double) (v159 - v163);
+                    auto v160 = (double)(v159 - v163);
                     v163 = v159;
                     v165 = v165 - v160 * 0.001;
                     app::instance->tick();
                     DWORD v168 = timeGetTime() - v158;
                     app::instance->m_game->field_278 = v168 * 0.001f;
 
-                    if (g_inputSettingsInGame->field_18.get_state(InputAction::ScreenShot) <=
-                        0.0)
-                    {
+                    if (g_inputSettingsInGame->field_18.get_state(InputAction::ScreenShot) <= 0.0) {
                         if (!byte_965BF5 && byte_965BF6) {
                             byte_965BF5 = true;
                             byte_965BF6 = false;
@@ -1761,7 +1691,7 @@ int __stdcall myWinMain(HINSTANCE hInstance,
 LABEL_94:
 
     if (app::instance != nullptr) {
-        auto *vtbl = bit_cast<int(*)[1]>(app::instance->m_vtbl);
+        auto *vtbl = bit_cast<int (*)[1]>(app::instance->m_vtbl);
 
         assert((*vtbl)[0] == 0x005E99D0);
 
@@ -1777,7 +1707,7 @@ LABEL_94:
     sub_4DDEC0();
 
     if (g_cursor != nullptr) {
-        auto *vtbl = bit_cast<int(*)[1]>(g_cursor->m_vtbl);
+        auto *vtbl = bit_cast<int (*)[1]>(g_cursor->m_vtbl);
 
         assert((*vtbl)[0] == 0x005B7BC0);
 
@@ -1833,17 +1763,15 @@ LABEL_94:
     return 0;
 }
 
-void redirect_winmain() {
+void redirect_winmain()
+{
     REDIRECT(0x00822556, myWinMain);
 }
 
-HANDLE __stdcall HookCreateFileA(LPCSTR lpFileName,
-                                 DWORD dwDesiredAccess,
-                                 DWORD dwShareMode,
-                                 LPSECURITY_ATTRIBUTES lpSecurityAttributes,
-                                 DWORD dwCreationDisposition,
-                                 DWORD dwFlagsAndAttributes,
-                                 HANDLE hTemplateFile) {
+HANDLE __stdcall HookCreateFileA(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode,
+                                 LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition,
+                                 DWORD dwFlagsAndAttributes, HANDLE hTemplateFile)
+{
     //sp_log("HookCreateFileA %s, return_address = 0x%08X", lpFileName, getReturnAddress);
 
     return CreateFileA(lpFileName,
@@ -1855,18 +1783,17 @@ HANDLE __stdcall HookCreateFileA(LPCSTR lpFileName,
                        hTemplateFile);
 }
 
-BOOL __stdcall HookReadFile(HANDLE hFile,
-                            LPVOID lpBuffer,
-                            DWORD nNumberOfBytesToRead,
-                            LPDWORD lpNumberOfBytesRead,
-                            LPOVERLAPPED lpOverlapped) {
+BOOL __stdcall HookReadFile(HANDLE hFile, LPVOID lpBuffer, DWORD nNumberOfBytesToRead, LPDWORD lpNumberOfBytesRead,
+                            LPOVERLAPPED lpOverlapped)
+{
     //sp_log("HookReadFile 0x%08X, return_address = 0x%08X", hFile, getReturnAddress);
 
     return ReadFile(hFile, lpBuffer, nNumberOfBytesToRead, lpNumberOfBytesRead, lpOverlapped);
 }
 
 //0x0081BFB0
-void register_class(LPCSTR lpClassName, WNDPROC windowProc, HINSTANCE hInstance, int a4) {
+void register_class(LPCSTR lpClassName, WNDPROC windowProc, HINSTANCE hInstance, int a4)
+{
     static ATOM g_wndClass{};
 
     if (g_wndClass) {
@@ -1893,14 +1820,9 @@ void register_class(LPCSTR lpClassName, WNDPROC windowProc, HINSTANCE hInstance,
 }
 
 //0x0081C030
-void create_window(LPCSTR lpClassName,
-                   LPCSTR lpWindowName,
-                   HINSTANCE hInstance,
-                   DWORD dwExStyle,
-                   int p_y,
-                   int a6,
-                   int a7,
-                   DWORD dwStyle) {
+void create_window(LPCSTR lpClassName, LPCSTR lpWindowName, HINSTANCE hInstance, DWORD dwExStyle, int p_y, int a6,
+                   int a7, DWORD dwStyle)
+{
     int w;
     int h;
     DWORD dwStylea;
@@ -1908,7 +1830,7 @@ void create_window(LPCSTR lpClassName,
     int y = p_y;
     int x = dwExStyle;
     [[maybe_unused]] DWORD dwExStylea = 0;
-    if ((uint8_t) dwStyle) {
+    if ((uint8_t)dwStyle) {
         dwStylea = 0x80000000;
         dwExStylea = 8;
         x = 0;
@@ -1942,34 +1864,24 @@ void create_window(LPCSTR lpClassName,
 
     sp_log("create_window");
 
-    g_appHwnd =
-        CreateWindowA(
+    g_appHwnd = CreateWindowA(
         //CreateWindowExA(dwExStylea,
-                              lpClassName,
-                              lpWindowName,
-                              dwStylea,
-                              x,
-                              y,
-                              w,
-                              h,
-                              nullptr,
-                              nullptr,
-                              hInstance,
-                              nullptr);
-
+        lpClassName,
+        lpWindowName,
+        dwStylea,
+        x,
+        y,
+        w,
+        h,
+        nullptr,
+        nullptr,
+        hInstance,
+        nullptr);
 }
 
 //0x0081C140
-void register_class_and_create_window(LPCSTR lpClassName,
-                                      LPCSTR lpWindowName,
-                                      int X,
-                                      int Y,
-                                      int a5,
-                                      int a6,
-                                      WNDPROC windowProc,
-                                      HINSTANCE hInstance,
-                                      int a9,
-                                      DWORD dwStyle)
+void register_class_and_create_window(LPCSTR lpClassName, LPCSTR lpWindowName, int X, int Y, int a5, int a6,
+                                      WNDPROC windowProc, HINSTANCE hInstance, int a9, DWORD dwStyle)
 {
     if (g_appHwnd != nullptr) {
         DestroyWindow(g_appHwnd);
@@ -1980,11 +1892,13 @@ void register_class_and_create_window(LPCSTR lpClassName,
     create_window(lpClassName, lpWindowName, hInstance, X, Y, a5, a6, dwStyle);
 }
 
-unsigned int hook_controlfp(unsigned int, unsigned int) {
+unsigned int hook_controlfp(unsigned int, unsigned int)
+{
     return {};
 }
 
-void initterm(const _PVFV *ppfn, const _PVFV *end) {
+void initterm(const _PVFV *ppfn, const _PVFV *end)
+{
     if constexpr (1) {
         do {
             if (auto pfn = *++ppfn) {
@@ -2063,7 +1977,7 @@ LABEL_11:
 
     _fmode = dword_987BD8();
 
-    Var<int *(*) (void)> _p__commode{0x0086F240};
+    Var<int *(*)(void)> _p__commode{0x0086F240};
     *_p__commode()() = dword_987BD4();
 
     Var<DWORD> adjust_fdiv{0x0086F2BC};
@@ -2077,10 +1991,12 @@ LABEL_11:
     if (!dword_956284()) {
         Var<int (*)(DWORD)> _setusermatherr{0x0086F238};
 
-        _setusermatherr()((DWORD) sub_822858);
+        _setusermatherr()((DWORD)sub_822858);
     }
 
-    auto _setdefaultprecision = []() -> unsigned int { return _controlfp(0x10000u, 0x30000u); };
+    auto _setdefaultprecision = []() -> unsigned int {
+        return _controlfp(0x10000u, 0x30000u);
+    };
 
     _setdefaultprecision();
 
@@ -2088,7 +2004,9 @@ LABEL_11:
     Var<_PVFV> dword_91D938{0x0091D938};
     initterm(&dword_91D934(), &dword_91D938());
 
-    auto sub_8227FC = []() -> void { CDECL_CALL(0x008227FC); };
+    auto sub_8227FC = []() -> void {
+        CDECL_CALL(0x008227FC);
+    };
 
     atexit(sub_8227FC);
 
@@ -2112,8 +2030,8 @@ LABEL_11:
         amsg_exit(8);
     }
 
-    _PVFV & dword_91B000 = var<_PVFV>(0x0091B000);
-    _PVFV & dword_91D930 = var<_PVFV>(0x0091D930);
+    _PVFV &dword_91B000 = var<_PVFV>(0x0091B000);
+    _PVFV &dword_91D930 = var<_PVFV>(0x0091D930);
 
     initterm(&dword_91B000, &dword_91D930);
 
@@ -2122,7 +2040,7 @@ LABEL_11:
     for (i = _acmdln;; ++i) {
         v20 = i;
         auto v6 = *i;
-        if ((uint8_t) *i <= ' ' && (!v6 || !v21)) {
+        if ((uint8_t)*i <= ' ' && (!v6 || !v21)) {
             break;
         }
 
@@ -2162,81 +2080,79 @@ LABEL_11:
     //ms_exc.registration.TryLevel = -1;
 }
 
-static void *HookVTableFunction(void *pVTable, void *fnHookFunc, int nOffset) {
-    intptr_t ptrVtable = *((intptr_t *) pVTable); // Pointer to our chosen vtable
-    intptr_t ptrFunction = ptrVtable +
+static void *HookVTableFunction(void *pVTable, void *fnHookFunc, int nOffset)
+{
+    intptr_t ptrVtable = *((intptr_t *)pVTable);  // Pointer to our chosen vtable
+    intptr_t ptrFunction =
+        ptrVtable +
         sizeof(intptr_t) *
-            nOffset; // The offset to the function (remember it's a zero indexed array with a size of four bytes)
-    intptr_t ptrOriginal = *((intptr_t *) ptrFunction); // Save original address
+            nOffset;  // The offset to the function (remember it's a zero indexed array with a size of four bytes)
+    intptr_t ptrOriginal = *((intptr_t *)ptrFunction);  // Save original address
 
     // Edit the memory protection so we can modify it
     MEMORY_BASIC_INFORMATION mbi;
-    VirtualQuery((LPCVOID) ptrFunction, &mbi, sizeof(mbi));
+    VirtualQuery((LPCVOID)ptrFunction, &mbi, sizeof(mbi));
     VirtualProtect(mbi.BaseAddress, mbi.RegionSize, PAGE_EXECUTE_READWRITE, &mbi.Protect);
 
     // Overwrite the old function with our new one
-    *((intptr_t *) ptrFunction) = (intptr_t) fnHookFunc;
+    *((intptr_t *)ptrFunction) = (intptr_t)fnHookFunc;
 
     // Restore the protection
     VirtualProtect(mbi.BaseAddress, mbi.RegionSize, mbi.Protect, &mbi.Protect);
 
     // Return the original function address incase we want to call it
-    return (void *) ptrOriginal;
+    return (void *)ptrOriginal;
 }
 
 uint32_t keys[256];
 
-void GetDeviceStateHandleKeyboardInput(LPVOID lpvData) {
-	BYTE* keysCurrent = (BYTE *) lpvData;
+void GetDeviceStateHandleKeyboardInput(LPVOID lpvData)
+{
+    BYTE *keysCurrent = (BYTE *)lpvData;
 
-	for (auto i = 0u; i < 256u; ++i) {
-
-		if (keysCurrent[i] != 0) {
-			++keys[i];
-		} else {
-			keys[i] = 0;
-		}
-	}
+    for (auto i = 0u; i < 256u; ++i) {
+        if (keysCurrent[i] != 0) {
+            ++keys[i];
+        } else {
+            keys[i] = 0;
+        }
+    }
 }
 
 
-typedef int (__stdcall* GetDeviceState_ptr)(IDirectInputDevice8*, DWORD, LPVOID);
+typedef int(__stdcall *GetDeviceState_ptr)(IDirectInputDevice8 *, DWORD, LPVOID);
 GetDeviceState_ptr GetDeviceStateOriginal = nullptr;
 
-HRESULT __stdcall GetDeviceStateHook(IDirectInputDevice8* self, DWORD cbData, LPVOID lpvData) {
+HRESULT __stdcall GetDeviceStateHook(IDirectInputDevice8 *self, DWORD cbData, LPVOID lpvData)
+{
+    HRESULT res = GetDeviceStateOriginal(self, cbData, lpvData);
 
-	HRESULT res = GetDeviceStateOriginal(self, cbData, lpvData);
+    printf("cbData %d %d %d\n", int(cbData), sizeof(DIJOYSTATE), sizeof(DIJOYSTATE2));
 
-	printf("cbData %d %d %d\n", int(cbData), sizeof(DIJOYSTATE), sizeof(DIJOYSTATE2));
-
-	//keyboard time babyyy
-    if (cbData == 256)
-    {
+    //keyboard time babyyy
+    if (cbData == 256) {
         GetDeviceStateHandleKeyboardInput(lpvData);
     }
 
     auto g_state = []() -> game_state {
-        if (g_game_ptr != nullptr)
-        {
+        if (g_game_ptr != nullptr) {
             return g_game_ptr->get_cur_state();
         }
 
         return static_cast<game_state>(0);
     }();
 
-    if (g_state != game_state::RUNNING && g_console == nullptr)
-    {
+    if (g_state != game_state::RUNNING && g_console == nullptr) {
         return res;
     }
 
     static constexpr struct {
         int key;
         char sym;
-    } char_keys[] = {{DIK_A, 'a'}, {DIK_B, 'b'}, {DIK_C, 'c'}, {DIK_D, 'd'}, {DIK_E, 'e'}, {DIK_F, 'f'},
-                     {DIK_G, 'g'}, {DIK_H, 'h'}, {DIK_I, 'i'}, {DIK_J, 'j'}, {DIK_K, 'k'}, {DIK_L, 'l'},
-                     {DIK_M, 'm'}, {DIK_N, 'n'}, {DIK_O, 'o'}, {DIK_P, 'p'}, {DIK_Q, 'q'}, {DIK_R, 'r'},
-                     {DIK_S, 's'}, {DIK_T, 't'}, {DIK_U, 'u'}, {DIK_V, 'v'}, {DIK_W, 'w'}, {DIK_X, 'x'},
-                     {DIK_Y, 'y'}, {DIK_Z, 'z'}};
+    } char_keys[] = {{DIK_A, 'a'}, {DIK_B, 'b'}, {DIK_C, 'c'}, {DIK_D, 'd'}, {DIK_E, 'e'}, {DIK_F, 'f'}, {DIK_G, 'g'},
+                     {DIK_H, 'h'}, {DIK_I, 'i'}, {DIK_J, 'j'}, {DIK_K, 'k'}, {DIK_L, 'l'}, {DIK_M, 'm'}, {DIK_N, 'n'},
+                     {DIK_O, 'o'}, {DIK_P, 'p'}, {DIK_Q, 'q'}, {DIK_R, 'r'}, {DIK_S, 's'}, {DIK_T, 't'}, {DIK_U, 'u'},
+                     {DIK_V, 'v'}, {DIK_W, 'w'}, {DIK_X, 'x'}, {DIK_Y, 'y'}, {DIK_Z, 'z'}};
 
     static constexpr struct {
         int key;
@@ -2254,7 +2170,8 @@ HRESULT __stdcall GetDeviceStateHook(IDirectInputDevice8* self, DWORD cbData, LP
 
     auto key_is_pressed = [](int i) -> bool {
         auto res = (keys[i] == 2);
-        if (res) keys[i] = 0;
+        if (res)
+            keys[i] = 0;
 
         return res;
     };
@@ -2289,13 +2206,10 @@ HRESULT __stdcall GetDeviceStateHook(IDirectInputDevice8* self, DWORD cbData, LP
         return res;
     }
 
-    if (g_console->isVisible())
-    {
-        if (key_is_pressed(DIK_TAB))
-        {
+    if (g_console->isVisible()) {
+        if (key_is_pressed(DIK_TAB)) {
             _kbevcb(KeyEvent::Press, KB_TAB);
-        }
-        else if (key_is_pressed(DIK_RETURN)) {
+        } else if (key_is_pressed(DIK_RETURN)) {
             _kbevcb(KeyEvent::Press, KB_RETURN);
         } else if (key_is_pressed(DIK_HOME)) {
             _kbevcb(KeyEvent::Press, KB_HOME);
@@ -2309,135 +2223,124 @@ HRESULT __stdcall GetDeviceStateHook(IDirectInputDevice8* self, DWORD cbData, LP
             _kbevcb(KeyEvent::Press, KB_UP);
         } else if (key_is_pressed(DIK_DOWN)) {
             _kbevcb(KeyEvent::Press, KB_DOWN);
-        }
-        else if(key_is_pressed(DIK_BACKSPACE))
-        {
+        } else if (key_is_pressed(DIK_BACKSPACE)) {
             _kbevcb(KeyEvent::Press, KB_BACKSPACE);
-        }
-        else if (key_is_pressed(DIK_MINUS)) {
+        } else if (key_is_pressed(DIK_MINUS)) {
             _kbchcb('_');
         } else if (key_is_pressed(DIK_SPACE)) {
             _kbchcb(' ');
-        }
-        else if (char ch = char_key_is_pressed(); ch != 0)
-        {
+        } else if (char ch = char_key_is_pressed(); ch != 0) {
             if (GetKeyState(VK_SHIFT) & 0x8000) {
                 _kbchcb(toupper(ch));
             } else {
                 _kbchcb(ch);
             }
-        }
-        else if (char ch = num_key_is_pressed(); ch != 0)
-        {
-            if ((GetKeyState(VK_SHIFT) & 0x8000))
-            {
-                if (ch == '9')
-                {
+        } else if (char ch = num_key_is_pressed(); ch != 0) {
+            if ((GetKeyState(VK_SHIFT) & 0x8000)) {
+                if (ch == '9') {
                     _kbchcb('(');
-                }
-                else if (ch == '0')
-                {
+                } else if (ch == '0') {
                     _kbchcb(')');
                 }
-            }
-            else
-            {
+            } else {
                 _kbchcb(ch);
             }
-
         }
     }
 
-	if (g_console->isVisible()) {
+    if (g_console->isVisible()) {
         memset(lpvData, 0, cbData);
-	}
+    }
 
-	//printf("Device State called %08X %d\n", this, cbData);
+    //printf("Device State called %08X %d\n", this, cbData);
 
-	return res;
+    return res;
 }
 
-typedef HRESULT(__stdcall* GetDeviceData_ptr)(IDirectInputDevice8*, DWORD, LPDIDEVICEOBJECTDATA, LPDWORD, DWORD);
+typedef HRESULT(__stdcall *GetDeviceData_ptr)(IDirectInputDevice8 *, DWORD, LPDIDEVICEOBJECTDATA, LPDWORD, DWORD);
 GetDeviceData_ptr GetDeviceDataOriginal = nullptr;
 
-HRESULT __stdcall GetDeviceDataHook(IDirectInputDevice8* self, DWORD cbObjectData, LPDIDEVICEOBJECTDATA rgdod, LPDWORD pdwInOut, DWORD dwFlags) {
+HRESULT __stdcall GetDeviceDataHook(IDirectInputDevice8 *self, DWORD cbObjectData, LPDIDEVICEOBJECTDATA rgdod,
+                                    LPDWORD pdwInOut, DWORD dwFlags)
+{
+    HRESULT res = GetDeviceDataOriginal(self, cbObjectData, rgdod, pdwInOut, dwFlags);
 
-	HRESULT res = GetDeviceDataOriginal(self, cbObjectData, rgdod, pdwInOut, dwFlags);
+    printf("data\n");
+    if (res == DI_OK) {
+        printf("All gud\n");
+        for (auto i = 0u; i < *pdwInOut; ++i) {
+            if (LOBYTE(rgdod[i].dwData) > 0) {
+                if (rgdod[i].dwOfs == DIK_ESCAPE) {
+                    printf("Pressed escaped\n");
+                    __debugbreak();
+                }
+            }
+        }
+    }
+    //printf("Device Data called %08X\n", this);
 
-	printf("data\n");
-	if (res == DI_OK) {
-
-		printf("All gud\n");
-		for (auto i = 0u; i < *pdwInOut; ++i) {
-
-			if (LOBYTE(rgdod[i].dwData) > 0) {
-
-				if (rgdod[i].dwOfs == DIK_ESCAPE) {
-
-					printf("Pressed escaped\n");
-					__debugbreak();
-				}
-			}
-		}
-	}
-	//printf("Device Data called %08X\n", this);
-
-	return res;
+    return res;
 }
 
-typedef HRESULT(__stdcall* IDirectInput8CreateDevice_ptr)(IDirectInput8W*, const GUID*, LPDIRECTINPUTDEVICE8W*, LPUNKNOWN);
+typedef HRESULT(__stdcall *IDirectInput8CreateDevice_ptr)(IDirectInput8W *, const GUID *, LPDIRECTINPUTDEVICE8W *,
+                                                          LPUNKNOWN);
 IDirectInput8CreateDevice_ptr createDeviceOriginal = nullptr;
 
-HRESULT  __stdcall IDirectInput8CreateDeviceHook(IDirectInput8W* self, const GUID* guid, LPDIRECTINPUTDEVICE8W* device, LPUNKNOWN unk) {
+HRESULT __stdcall IDirectInput8CreateDeviceHook(IDirectInput8W *self, const GUID *guid, LPDIRECTINPUTDEVICE8W *device,
+                                                LPUNKNOWN unk)
+{
+    //printf("CreateDevice %d %d %d %d %d %d %d\n", *guid, GUID_SysMouse, GUID_SysKeyboard, GUID_SysKeyboardEm, GUID_SysKeyboardEm2, GUID_SysMouseEm, GUID_SysMouseEm2);
+    sp_log("Guid = {%08lX-%04hX-%04hX-%02hhX%02hhX-%02hhX%02hhX%02hhX%02hhX%02hhX%02hhX}\n",
+           guid->Data1,
+           guid->Data2,
+           guid->Data3,
+           guid->Data4[0],
+           guid->Data4[1],
+           guid->Data4[2],
+           guid->Data4[3],
+           guid->Data4[4],
+           guid->Data4[5],
+           guid->Data4[6],
+           guid->Data4[7]);
 
-	//printf("CreateDevice %d %d %d %d %d %d %d\n", *guid, GUID_SysMouse, GUID_SysKeyboard, GUID_SysKeyboardEm, GUID_SysKeyboardEm2, GUID_SysMouseEm, GUID_SysMouseEm2);
-	sp_log("Guid = {%08lX-%04hX-%04hX-%02hhX%02hhX-%02hhX%02hhX%02hhX%02hhX%02hhX%02hhX}\n",
-		guid->Data1, guid->Data2, guid->Data3,
-		guid->Data4[0], guid->Data4[1], guid->Data4[2], guid->Data4[3],
-		guid->Data4[4], guid->Data4[5], guid->Data4[6], guid->Data4[7]);
+    HRESULT res = createDeviceOriginal(self, guid, device, unk);
 
-	HRESULT res = createDeviceOriginal(self, guid, device, unk);
+    if (IsEqualGUID(GUID_SysMouse, *guid))
+        return res;  // ignore mouse
 
-	if (IsEqualGUID(GUID_SysMouse, *guid))
-		return res; // ignore mouse
-
-	if (IsEqualGUID(GUID_SysKeyboard, *guid))
-    {
-		sp_log("Found the keyboard");
-    }
-	else
-    {
-		sp_log("Hooking something different...maybe a controller");
+    if (IsEqualGUID(GUID_SysKeyboard, *guid)) {
+        sp_log("Found the keyboard");
+    } else {
+        sp_log("Hooking something different...maybe a controller");
     }
 
     if (GetDeviceStateOriginal == nullptr) {
-        GetDeviceStateOriginal = (GetDeviceState_ptr)
-            HookVTableFunction((void *) *device, (void *) GetDeviceStateHook, 9);
+        GetDeviceStateOriginal = (GetDeviceState_ptr)HookVTableFunction((void *)*device, (void *)GetDeviceStateHook, 9);
     }
 
     if (GetDeviceDataOriginal == nullptr) {
-        GetDeviceDataOriginal = (GetDeviceData_ptr) HookVTableFunction((void *) *device,
-                                                                       (void *) GetDeviceDataHook,
-                                                                       10);
+        GetDeviceDataOriginal = (GetDeviceData_ptr)HookVTableFunction((void *)*device, (void *)GetDeviceDataHook, 10);
     }
 
-	return res;
+    return res;
 }
 
-typedef HRESULT(__stdcall* DirectInput8Create_ptr)(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID* ppvOut, LPUNKNOWN punkOuter);
-HRESULT __stdcall HookDirectInput8Create(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID* ppvOut, LPUNKNOWN punkOuter)
+typedef HRESULT(__stdcall *DirectInput8Create_ptr)(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID *ppvOut,
+                                                   LPUNKNOWN punkOuter);
+HRESULT __stdcall HookDirectInput8Create(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID *ppvOut,
+                                         LPUNKNOWN punkOuter)
 {
-	DirectInput8Create_ptr caller = (decltype(caller)) *(void**)0x00987944;
-	HRESULT res = caller(hinst, dwVersion, riidltf, ppvOut, punkOuter);
+    DirectInput8Create_ptr caller = (decltype(caller))*(void **)0x00987944;
+    HRESULT res = caller(hinst, dwVersion, riidltf, ppvOut, punkOuter);
 
-	IDirectInput8* iDir = (IDirectInput8 *) (*ppvOut);
+    IDirectInput8 *iDir = (IDirectInput8 *)(*ppvOut);
 
     if (createDeviceOriginal == nullptr) {
-        createDeviceOriginal = (IDirectInput8CreateDevice_ptr)
-            HookVTableFunction((void *) iDir, (void *) IDirectInput8CreateDeviceHook, 3);
+        createDeviceOriginal =
+            (IDirectInput8CreateDevice_ptr)HookVTableFunction((void *)iDir, (void *)IDirectInput8CreateDeviceHook, 3);
     }
 
-	return res;
+    return res;
 }
 
 BOOL install_redirects()
@@ -2460,7 +2363,7 @@ BOOL install_redirects()
     REDIRECT(0x005AC4A9, register_class_and_create_window);
 
     {
-        DWORD hookDirectInputAddress = (DWORD) HookDirectInput8Create;
+        DWORD hookDirectInputAddress = (DWORD)HookDirectInput8Create;
         REDIRECT(0x008218B0, hookDirectInputAddress);
         set_nop(0x008218B5, 1);
         sp_log("Patching the DirectInput8Create call\n");
@@ -2508,8 +2411,7 @@ BOOL install_redirects()
 
     PanelFile_patch();
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         worldly_pack_slot_patch();
 
         nsl_patch();
@@ -2530,10 +2432,9 @@ BOOL install_redirects()
     //REDIRECT(0, sub_5952D0);
 
     //standalone patches
-    if constexpr (1)
-    {
+    if constexpr (1) {
         slc_manager_patch();
-    
+
         tl_patch();
 
         resource_manager_patch();
@@ -2559,8 +2460,7 @@ BOOL install_redirects()
 
     fixed_pool_patch();
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         moved_entities_patch();
 
         pc_joypad_device_patch();
@@ -2600,8 +2500,7 @@ BOOL install_redirects()
         game_patch();
     }
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         script_executable_patch();
 
         script_patch();
@@ -2627,8 +2526,7 @@ BOOL install_redirects()
 
     entity_base_patch();
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         vm_patch();
 
         vm_thread_patch();
@@ -2636,8 +2534,7 @@ BOOL install_redirects()
         vm_executable_patch();
     }
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         resource_pack_streamer_patch();
 
         resource_partition_patch();
@@ -2665,8 +2562,7 @@ BOOL install_redirects()
 
     game_settings_patch();
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         us_decal_patch();
 
         us_lod_patch();
@@ -2676,8 +2572,7 @@ BOOL install_redirects()
         us_simpleshader_patch();
     }
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         conglomerate_patch();
 
         sound_manager_patch();
@@ -2701,7 +2596,7 @@ BOOL install_redirects()
         game_camera_patch();
 
         region_patch();
-        
+
         matrix4x4_patch();
 
         ai_interaction_data_patch();
@@ -2741,8 +2636,7 @@ BOOL install_redirects()
         sound_interface_patch();
     }
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         combo_system_patch();
 
         combo_system_move_patch();
@@ -2762,10 +2656,9 @@ BOOL install_redirects()
         mission_manager_patch();
     }
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         tlResourceDirectory_patch();
-        
+
         PanelMeshSection_patch();
 
         fe_mini_map_widget_patch();
@@ -2781,8 +2674,7 @@ BOOL install_redirects()
         menu_nav_bar_patch();
     }
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         pause_menu_message_log_patch();
 
         pause_menu_save_load_display_patch();
@@ -2800,8 +2692,7 @@ BOOL install_redirects()
         unlockables_menu_patch();
     }
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         PauseMenuSystem_patch();
 
         cg_mesh_patch();
@@ -2825,8 +2716,7 @@ BOOL install_redirects()
         mash_info_struct_patch();
     }
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         os_file_patch();
 
         traffic_path_lane_patch();
@@ -2840,8 +2730,7 @@ BOOL install_redirects()
 
     animation_logic_system_patch();
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         interactable_interface_patch();
 
         trigger_manager_patch();
@@ -2849,8 +2738,7 @@ BOOL install_redirects()
         variant_interface_patch();
     }
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         nalStreamInstance_patch();
 
         script_memtrack_patch();
@@ -2862,8 +2750,7 @@ BOOL install_redirects()
         cut_scene_player_patch();
     }
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         anim_handle_patch();
 
         plr_loco_crawl_state_patch();
@@ -2875,7 +2762,7 @@ BOOL install_redirects()
         ai_state_machine_patch();
 
         line_info_patch();
-        
+
         local_collision_patch();
 
         hierarchical_entity_proximity_map_patch();
@@ -2883,15 +2770,14 @@ BOOL install_redirects()
         spidey_base_state_patch();
 
         hero_base_state_patch();
-        
+
         enhanced_state_patch();
 
         ped_spawner_patch();
     }
 
     //resource handler patches
-    if constexpr (0)
-    {
+    if constexpr (0) {
         ai_interact_resource_handler_patch();
 
         cut_scene_resource_handler_patch();
@@ -2934,8 +2820,7 @@ BOOL install_redirects()
     }
 
     //als
-    if constexpr (0)
-    {
+    if constexpr (0) {
         als_meta_anim_base_patch();
 
         als_meta_anim_swing_patch();
@@ -2967,7 +2852,7 @@ BOOL install_redirects()
         als_layer_state_machine_shared_patch();
 
         als_basic_rule_data_patch();
-        
+
         als_res_data_patch();
 
         als_mocomp_patch();
@@ -2997,7 +2882,6 @@ BOOL install_redirects()
 
 
     if constexpr (0) {
-
         anchor_query_visitor_patch();
 
 
@@ -3040,8 +2924,7 @@ BOOL install_redirects()
 #define ORIGINAL_DLL 0
 #if ORIGINAL_DLL
     {
-        if constexpr (0)
-        {
+        if constexpr (0) {
             if constexpr (0) {
                 //EnableLog l{};
 
@@ -3203,19 +3086,20 @@ BOOL install_redirects()
 #endif
     }
 
-#endif //ORIGINAL_DLL
+#endif  //ORIGINAL_DLL
 
     sp_log("Redirects have been installed\n");
 
     return TRUE;
 }
 
-BOOL install_hooks() {
-    return set_text_to_writable() && install_redirects() && install_patches() &&
-        restore_text_perms();
+BOOL install_hooks()
+{
+    return set_text_to_writable() && install_redirects() && install_patches() && restore_text_perms();
 }
 
-BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, [[maybe_unused]] LPVOID lpvReserved) {
+BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, [[maybe_unused]] LPVOID lpvReserved)
+{
     //printf("DLLMain %lu 0x%08X\n", fdwReason, (int) lpvReserved);
 
     if (fdwReason == DLL_PROCESS_ATTACH) {

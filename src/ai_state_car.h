@@ -10,7 +10,6 @@
 namespace ai {
 
 struct drive_car_state : launch_layer_state {
-
     //0x0046C6D0
     //virtual
     state_trans_action _check_transition(Float a3);
@@ -33,11 +32,12 @@ struct ai_car_inode : info_node {
     drive_car_state *field_34;
     float field_38;
 
-    bool inside_car() const {
+    bool inside_car() const
+    {
         return this->field_1C;
     }
 
-    entity * get_selected_car();
+    entity *get_selected_car();
 
     bool search_finished() const;
 
@@ -50,9 +50,9 @@ struct ai_car_inode : info_node {
     //0x0045EBE0
     void set_inside_car(bool inside);
 
-    static inline const string_hash default_id {int(to_hash("AI_CAR_INODE"))};
+    static inline const string_hash default_id{int(to_hash("AI_CAR_INODE"))};
 
     static int &cars_occupied;
 };
 
-}
+}  // namespace ai

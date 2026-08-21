@@ -36,13 +36,11 @@ struct collision_capsule : collision_geometry {
     /* virtual */ int get_type() /* override */;
 
     //0x00524DE0
-    /* virtual */ void un_mash(generic_mash_header *a1,
-                               void *a2,
-                               generic_mash_data_ptrs *a3) /* override */;
+    /* virtual */ void un_mash(generic_mash_header *a1, void *a2, generic_mash_data_ptrs *a3) /* override */;
 
     /* virtual */ void render(const po &a1);
 };
 
-extern std::intptr_t & collision_capsule_v_table;
+extern std::intptr_t &collision_capsule_v_table;
 
 extern void collision_capsule_patch();

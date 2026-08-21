@@ -16,7 +16,8 @@ struct ConsoleVariable {
 
     virtual std::string getValue();
 
-    virtual const char *helpText() {
+    virtual const char *helpText()
+    {
         return "No help available.";
     }
 
@@ -37,7 +38,8 @@ struct ConsoleHeightVariable : ConsoleVariable {
 
     virtual std::string getValue() override;
 
-    virtual const char *helpText() override {
+    virtual const char *helpText() override
+    {
         return "Height of the console in pixels";
     }
 };
@@ -61,7 +63,8 @@ struct RenderFramerateVariable : ConsoleVariable {
 
     std::string getValue() override;
 
-    const char *helpText() override {
+    const char *helpText() override
+    {
         return "Render frames per second";
     }
 };
@@ -74,7 +77,8 @@ struct RenderInterfaceVariable : ConsoleVariable {
 
     std::string getValue() override;
 
-    const char *helpText() override {
+    const char *helpText() override
+    {
         return "Render in-game user interface";
     }
 };
@@ -87,7 +91,8 @@ struct ProjZoomVariable : ConsoleVariable {
 
     std::string getValue() override;
 
-    const char *helpText() override {
+    const char *helpText() override
+    {
         return "FOV factor";
     }
 };
@@ -100,14 +105,15 @@ struct DifficultyVariable : ConsoleVariable {
 
     std::string getValue() override;
 
-    const char *helpText() override {
+    const char *helpText() override
+    {
         return "Difficulty level (0=bleep, 1=ez, 2=norm, 3=hero, 4=super hero)";
     }
 };
 
 struct DisableOcclusionCullingVariable : ConsoleVariable {
-
-    DisableOcclusionCullingVariable() {
+    DisableOcclusionCullingVariable()
+    {
         setName("disable_occlusion_culling");
     }
 
@@ -116,7 +122,8 @@ struct DisableOcclusionCullingVariable : ConsoleVariable {
 
     virtual std::string getValue() override;
 
-    const char *helpText() override {
+    const char *helpText() override
+    {
         return "1 = disable entity culling, 2 = disable terrain culling, 3 = disable both";
     }
 };

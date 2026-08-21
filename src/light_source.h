@@ -16,8 +16,7 @@ enum class influence_type {
     DIRECTIONAL = 2,
 };
 
-struct light_properties
-{
+struct light_properties {
     influence_type m_type;
     color m_color;
     color m_amb_color;
@@ -40,16 +39,14 @@ struct light_properties
     //0x005602C0
     light_properties(const light_properties &) = default;
 
-    influence_type get_type() const {
+    influence_type get_type() const
+    {
         return this->m_type;
     }
 
 
     //0x00515C70
-    void un_mash(
-        generic_mash_header *a2,
-        void *a3,
-        generic_mash_data_ptrs *a4);
+    void un_mash(generic_mash_header *a2, void *a3, generic_mash_data_ptrs *a4);
 
     void set_light_category_from_light_source_name(const mString &a2);
 
@@ -58,24 +55,18 @@ struct light_properties
     static constexpr auto default_contrast = 3.0f;
 };
 
-struct light_source : entity
-{
+struct light_source : entity {
     light_properties *properties;
 
     light_source(const string_hash &a2, unsigned int a3);
 
-    light_source(const light_properties &a2,
-                        entity *a3,
-                        const string_hash &a4);
+    light_source(const light_properties &a2, entity *a3, const string_hash &a4);
 
     light_properties *get_properties();
 
     //virtual
     //0x00515E20
-    void _un_mash(
-        generic_mash_header *a2,
-        void *a3,
-        generic_mash_data_ptrs *a4);
+    void _un_mash(generic_mash_header *a2, void *a3, generic_mash_data_ptrs *a4);
 
     //0x00515D50
     [[nodiscard]] vector3d get_dir(const vector3d &a3);
@@ -91,8 +82,7 @@ struct light_source : entity
     float get_influence_point(const vector3d &a2);
 };
 
-struct USLightParam
-{
+struct USLightParam {
     light_source *field_0;
 
     static inline Var<int> ID{0x009566C4};

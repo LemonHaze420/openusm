@@ -13,7 +13,6 @@ struct anim_key : enum_anim_key {
 };
 #else
 struct anim_key : mash_virtual_base {
-
     anim_key();
 
     int get_compare_value(const anim_key *a2);
@@ -37,4 +36,3 @@ struct enum_anim_key : anim_key {
 
     enum_anim_key(key_enum);
 };
-

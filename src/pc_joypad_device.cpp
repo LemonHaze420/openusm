@@ -22,8 +22,7 @@ VALIDATE_SIZE(InputCapabilities, 0x28);
 
 int sub_81D1C0(int a1)
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         auto result = 0u;
         if (!a1) {
             uint32_t v2 = Input::instance->field_129D0;
@@ -50,7 +49,8 @@ int sub_81D1C0(int a1)
     }
 }
 
-int InputOpen(int a1, unsigned int a2) {
+int InputOpen(int a1, unsigned int a2)
+{
     if constexpr (1) {
         uint32_t result;
 
@@ -68,7 +68,8 @@ int InputOpen(int a1, unsigned int a2) {
 
 #include <xinput.h>
 
-void InputGetCapabilities(int a1, InputCapabilities *pCapabilities) {
+void InputGetCapabilities(int a1, InputCapabilities *pCapabilities)
+{
     if constexpr (1) {
         if (Input::instance->sub_820570(a1 - 1)) {
             pCapabilities->field_0 = XINPUT_DEVTYPE_GAMEPAD;
@@ -89,8 +90,7 @@ pc_joypad_device::pc_joypad_device(int in_port) : input_device()
 {
     TRACE("pc_joypad_device::pc_joypad_device");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         auto v3 = (!g_master_clock_is_up);
 
 #if STANDALONE_SYSTEM
@@ -99,7 +99,7 @@ pc_joypad_device::pc_joypad_device(int in_port) : input_device()
         if constexpr (0)
 #endif
         {
-            static vtbl_t vtbl {};
+            static vtbl_t vtbl{};
             vtbl.get_id = bit_cast<decltype(vtbl_t::get_id)>(func_address(&_get_id));
             vtbl.is_connected = bit_cast<decltype(vtbl_t::is_connected)>(func_address(&_is_connected));
 
@@ -184,7 +184,8 @@ float pc_joypad_device::_get_axis_delta(Axis a2, [[maybe_unused]] int a3)
     return a2a - this->_get_axis_state(a2, axis_state);
 }
 
-bool pc_joypad_device::_is_connected() {
+bool pc_joypad_device::_is_connected()
+{
     return this->field_88 == 0;
 }
 
@@ -196,14 +197,13 @@ void pc_joypad_device::_clear_state()
 
 int InputGetState(unsigned int dwUserIndex, InputState &pState)
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         Input::instance->poll();
-        auto *v2 = (InputSettings *) *(&Input::instance->m_current_connected + dwUserIndex);
+        auto *v2 = (InputSettings *)*(&Input::instance->m_current_connected + dwUserIndex);
         auto &v20 = pState.m_flags;
-        *(uint32_t *) &pState.m_flags = 0;
-        *(uint32_t *) &pState.m_punch = 0;
-        *(uint32_t *) &pState.field_C = 0;
+        *(uint32_t *)&pState.m_flags = 0;
+        *(uint32_t *)&pState.m_punch = 0;
+        *(uint32_t *)&pState.field_C = 0;
 
         pState.field_10 = 0;
         pState.field_14 = 0;
@@ -245,83 +245,73 @@ int InputGetState(unsigned int dwUserIndex, InputState &pState)
         pState.field_C = v3.get_state(static_cast<InputAction>(10u)) * flt_871978;
         pState.field_D = v3.get_state(static_cast<InputAction>(11u)) * flt_871978;
 
-        if ( not_equal(0.0f, v3.get_state(InputAction::Pause)) ) {
+        if (not_equal(0.0f, v3.get_state(InputAction::Pause))) {
             v20 |= 0x10u;
         }
 
-        if ( not_equal(0.0f, v3.get_state(InputAction::BackButton)) ) {
+        if (not_equal(0.0f, v3.get_state(InputAction::BackButton))) {
             v20 |= 0x20u;
         }
 
-        if ( not_equal(0.0f, v3.get_state(static_cast<InputAction>(14u))) ) {
+        if (not_equal(0.0f, v3.get_state(static_cast<InputAction>(14u)))) {
             v20 |= 0x40u;
         }
 
-        if ( not_equal(0.0f, v3.get_state(InputAction::CameraCenter)) ) {
+        if (not_equal(0.0f, v3.get_state(InputAction::CameraCenter))) {
             v20 |= 0x80u;
         }
 
-        if ( not_equal(0.0f, v3.get_state(static_cast<InputAction>(24u))) ) {
+        if (not_equal(0.0f, v3.get_state(static_cast<InputAction>(24u)))) {
             v20 |= 1u;
         }
 
-        if ( not_equal(0.0f, v3.get_state(static_cast<InputAction>(25u))) ) {
+        if (not_equal(0.0f, v3.get_state(static_cast<InputAction>(25u)))) {
             v20 |= 2u;
         }
 
-        if ( not_equal(0.0f, v3.get_state(static_cast<InputAction>(26u))) ) {
+        if (not_equal(0.0f, v3.get_state(static_cast<InputAction>(26u)))) {
             v20 |= 4u;
         }
 
-        if ( not_equal(0.0f, v3.get_state(static_cast<InputAction>(27u))) ) {
+        if (not_equal(0.0f, v3.get_state(static_cast<InputAction>(27u)))) {
             v20 |= 8u;
         }
 
         return 0;
-    }
-    else
-    {
+    } else {
         return CDECL_CALL(0x0081D240, dwUserIndex, pState);
     }
 }
 
 void pc_joypad_device::_poll()
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         static Var<bool> dword_967CE4{0x00967CE4};
 
-        if (this->field_70 == 1)
-        {
+        if (this->field_70 == 1) {
             if ((g_femanager.m_pause_menu_system != nullptr && g_femanager.m_pause_menu_system->m_index != -1) ||
                 (g_femanager.m_fe_menu_system != nullptr && g_femanager.m_fe_menu_system->m_index != -1) ||
-                dword_967CE4())
-            {
+                dword_967CE4()) {
                 if (((g_femanager.m_pause_menu_system != nullptr && g_femanager.m_pause_menu_system->m_index != -1) ||
                      (g_femanager.m_fe_menu_system != nullptr && g_femanager.m_fe_menu_system->m_index != -1)) &&
-                    dword_967CE4())
-                {
+                    dword_967CE4()) {
                     dword_967CE4() = false;
                     Input::instance->sub_8203F0(0, g_inputSettingsMenu);
                 }
-            }
-            else
-            {
+            } else {
                 dword_967CE4() = true;
                 Input::instance->sub_8203F0(0, g_inputSettingsInGame);
             }
         }
 
-        if (this->field_70 && !this->field_88)
-        {
+        if (this->field_70 && !this->field_88) {
             if (this->field_8C) {
                 this->_clear_state();
             }
 
             this->m_axis_old_state = this->m_axis_state;
             auto v2 = InputGetState(this->field_70, this->m_axis_state);
-            if (v2 != 0)
-            {
+            if (v2 != 0) {
                 assert(0);
 
                 this->field_98 = 0;
@@ -350,13 +340,14 @@ void pc_joypad_device::_poll()
     }
 }
 
-double sub_58E7F0(int a1) {
+double sub_58E7F0(int a1)
+{
     float result = 0.0f;
     float v3 = a1;
     auto a1a = v3;
     if (v3 > 7000.0f || a1a < -7000.0f) {
         if (a1 <= 0) {
-            result = -(((double) -a1 - 7000.0f) * 0.000038809329f);
+            result = -(((double)-a1 - 7000.0f) * 0.000038809329f);
         } else {
             result = (a1a - 7000.0f) * 0.000038809329f;
         }
@@ -399,8 +390,7 @@ float pc_joypad_device::_get_axis_state(Axis axis, InputState input_state)
     }
     case 2: {
         a2a = sub_58E7F0(input_state.field_10);
-        if ((input_state.m_flags & 8) != 0)
-        {
+        if ((input_state.m_flags & 8) != 0) {
             result = 1.0f;
             v5 = (-1.0f);
 
@@ -454,7 +444,7 @@ float pc_joypad_device::_get_axis_state(Axis axis, InputState input_state)
         result = -sub_58E7F0(input_state.field_1C);
         return result;
     }
-    case 9: { // CameraCenter
+    case 9: {  // CameraCenter
         auto result = ((input_state.m_flags & 0x80u) != 0);
 
         return result;
@@ -487,7 +477,7 @@ float pc_joypad_device::_get_axis_state(Axis axis, InputState input_state)
         return result;
     }
     case 19: {
-        float result = (input_state.m_throw_web > 30u );
+        float result = (input_state.m_throw_web > 30u);
         return result;
     }
     case 20: {
@@ -514,19 +504,14 @@ void pc_joypad_device_patch()
     }
 
     {
-
         float (pc_joypad_device::*func)(pc_joypad_device::Axis, int) = &pc_joypad_device::_get_axis_state;
         FUNC_ADDRESS(address, func);
         set_vfunc(0x0088EA94, address);
     }
 
     {
-
         float (pc_joypad_device::*func)(pc_joypad_device::Axis, InputState) = &pc_joypad_device::_get_axis_state;
         FUNC_ADDRESS(address, func);
         set_vfunc(0x0088EAC4, address);
     }
-
 }
-
-

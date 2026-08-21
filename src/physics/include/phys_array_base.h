@@ -1,7 +1,4 @@
 #pragma once
 
-template<typename T>
-struct phys_array
-{
-
-};
+template <typename T>
+struct phys_array {};

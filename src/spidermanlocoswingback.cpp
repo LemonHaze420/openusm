@@ -9,19 +9,18 @@ namespace ai {
 
 VALIDATE_SIZE(SpidermanLocoSwingBack, 0x10);
 
-SpidermanLocoSwingBack::SpidermanLocoSwingBack() {
-    void (__fastcall *func)(SpidermanLocoSwingBack *) = CAST(func, 0x0045D2C0);
+SpidermanLocoSwingBack::SpidermanLocoSwingBack()
+{
+    void(__fastcall * func)(SpidermanLocoSwingBack *) = CAST(func, 0x0045D2C0);
     func(this);
 }
 
-SpidermanLocoSwingBack::~SpidermanLocoSwingBack() {
+SpidermanLocoSwingBack::~SpidermanLocoSwingBack()
+{
     THISCALL(0x00438EC0, this);
 }
 
-void SpidermanLocoSwingBack::init(
-        polytube *web,
-        actor *own,
-        entity_base *a4)
+void SpidermanLocoSwingBack::init(polytube *web, actor *own, entity_base *a4)
 {
     assert(web != nullptr && "No web passed to swingback");
 
@@ -31,12 +30,10 @@ void SpidermanLocoSwingBack::init(
 
     assert(this->web_dangler != nullptr);
 
-    if constexpr (0)
-    {}
-    else
-    {
+    if constexpr (0) {
+    } else {
         THISCALL(0x00481650, this, web, own, a4);
     }
 }
 
-} // namespace ai
+}  // namespace ai

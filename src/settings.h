@@ -37,6 +37,6 @@ struct Settings {
     static inline bool &MouseLook = var<bool>(0x00965BF4);
 };
 
-extern Settings *& g_settings;
+extern Settings *&g_settings;
 
 extern void settings_patch();

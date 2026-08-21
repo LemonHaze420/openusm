@@ -11,8 +11,8 @@ slf__angle_between__vector3d__vector3d__t::slf__angle_between__vector3d__vector3
 }
 
 
-bool slf__angle_between__vector3d__vector3d__t::operator()(vm_stack &stack,
-                                                           script_library_class::function::entry_t) {
+bool slf__angle_between__vector3d__vector3d__t::operator()(vm_stack &stack, script_library_class::function::entry_t)
+{
     SLF_PARMS;
 
     auto *v4 = parms;
@@ -21,4 +21,3 @@ bool slf__angle_between__vector3d__vector3d__t::operator()(vm_stack &stack,
     SLF_RETURN;
     SLF_DONE;
 }
-

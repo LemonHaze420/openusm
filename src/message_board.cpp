@@ -13,8 +13,7 @@ void message_board::post(string a1, Float a2, color32 a3)
 {
     TRACE("message_board::post");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         auto &v10 = this->field_0;
 
         uint32_t i;
@@ -34,9 +33,7 @@ void message_board::post(string a1, Float a2, color32 a3)
             v10.at(i) = v1;
         }
 
-    }
-    else
-    {
+    } else {
         THISCALL(0x00515EB0, this, a1, a2, a3);
     }
 }
@@ -45,12 +42,10 @@ void message_board::frame_advance(float a2)
 {
     TRACE("message_board::frame_advance");
 
-    for ( uint32_t i = 0; i < this->field_0.size(); ++i )
-    {
+    for (uint32_t i = 0; i < this->field_0.size(); ++i) {
         auto &v3 = this->field_0[i].field_64;
         v3 = v3 - a2;
-        if ( this->field_0[i].field_64 < 0.0 )
-        {
+        if (this->field_0[i].field_64 < 0.0) {
             this->field_0[i].field_64 = 0.0;
         }
     }
@@ -60,13 +55,10 @@ void message_board::render()
 {
     TRACE("message_board::render");
     auto &v15 = this->field_0;
-    if constexpr (1)
-    {
+    if constexpr (1) {
         int a3 = 390;
-        for (auto i = 0u; i < v15.size(); ++i)
-        {
-            if (v15.at(i).field_64 > 0.0)
-            {
+        for (auto i = 0u; i < v15.size(); ++i) {
+            if (v15.at(i).field_64 > 0.0) {
                 auto v12 = v15.at(i).field_68;
 
                 auto v1 = v15.at(i).field_64 + 0.25;
@@ -76,11 +68,11 @@ void message_board::render()
                 v12.set_alpha(v2);
                 float v10 = 0.75;
 
-                mString v9 {v15.at(i).field_0};
+                mString v9{v15.at(i).field_0};
 
                 auto v6 = v10;
                 auto v5 = v12;
-                vector2di v4 {32, a3};
+                vector2di v4{32, a3};
                 render_text(v9, v4, v5, 1.0, v6);
             }
 

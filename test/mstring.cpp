@@ -6,7 +6,7 @@
 
 TEST(MString, Construct)
 {
-    mString s {};
+    mString s{};
     EXPECT_EQ(s.size(), 0);
     EXPECT_EQ(s.c_str(), mString::null);
     EXPECT_EQ(s.field_C, nullptr);
@@ -14,7 +14,7 @@ TEST(MString, Construct)
 
 TEST(MString, ConstructFromInt)
 {
-    mString s {1};
+    mString s{1};
     EXPECT_EQ(s.size(), 1);
     EXPECT_NE(s.c_str(), mString::null);
     EXPECT_NE(s.field_C, nullptr);
@@ -22,8 +22,7 @@ TEST(MString, ConstructFromInt)
 
 TEST(MString, Test)
 {
-    for (int i = 0; i < 10; ++i)
-    {
+    for (int i = 0; i < 10; ++i) {
         EXPECT_EQ(mString(1).to_int(), 1);
 
         EXPECT_TRUE(approx_equals(mString(1.0f).to_float(), 1.0f, EPSILON));
@@ -118,22 +117,22 @@ TEST(MString, Test)
         auto s3 = s2;
         EXPECT_EQ(s3, test_strings[i]);
 
-        mString s4 {0, "%s%s", test_strings[i], ""};
+        mString s4{0, "%s%s", test_strings[i], ""};
         EXPECT_EQ(s4, test_strings[i]);
 
-        mString s41 {0, "%s%s", "", test_strings[i]};
+        mString s41{0, "%s%s", "", test_strings[i]};
         EXPECT_EQ(s41, test_strings[i]);
 
-        mString s5 {0.1f};
+        mString s5{0.1f};
         EXPECT_TRUE(approx_equals(atof(s5.c_str()), 0.1f, EPSILON));
 
-        mString s6 {123123};
+        mString s6{123123};
         EXPECT_EQ(s6, "123123");
 
         mString s7{-123123};
         EXPECT_EQ(s7, "-123123");
 
-        mString s8 {};
+        mString s8{};
         s8.copy(s4);
 
         EXPECT_EQ(s8, test_strings[i]);
@@ -143,8 +142,7 @@ TEST(MString, Test)
 
         EXPECT_EQ(s8, test_strings[i]);
 
-        if (std::strlen(test_strings[i]) < 512)
-        {
+        if (std::strlen(test_strings[i]) < 512) {
             s8.copy(test_strings[i], -1);
             s8.append(test_strings[i], -1);
 
@@ -153,8 +151,7 @@ TEST(MString, Test)
             EXPECT_EQ(s8, buf);
         }
 
-        if (std::strlen(test_strings[i]) < 1023)
-        {
+        if (std::strlen(test_strings[i]) < 1023) {
             s8.copy(test_strings[i], -1);
             s8.append('a');
 

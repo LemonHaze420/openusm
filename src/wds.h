@@ -116,43 +116,30 @@ public:
     bool un_mash_scene_box_triggers(const resource_key &a1, region *a2, worldly_pack_slot *a3, timed_progress *a4);
 
     //0x0054A1C0
-    bool un_mash_box_triggers(
-        int parse_code,
-        char *a3,
-        _std::vector<box_trigger *> *box_trigger_vec_ptr,
-        int *a5);
+    bool un_mash_box_triggers(int parse_code, char *a3, _std::vector<box_trigger *> *box_trigger_vec_ptr, int *a5);
 
     //0x0052FC90
-    bool un_mash_scene_spline_paths(const resource_key &a2,
-                                    region *a3,
-                                    worldly_pack_slot *a4,
+    bool un_mash_scene_spline_paths(const resource_key &a2, region *a3, worldly_pack_slot *a4,
                                     scene_spline_path_brew &brew);
 
     //0x0053CB50
-    bool un_mash_scene_audio_boxes(const resource_key &key_id,
-                                   region *reg,
-                                   worldly_pack_slot *slot_ptr,
+    bool un_mash_scene_audio_boxes(const resource_key &key_id, region *reg, worldly_pack_slot *slot_ptr,
                                    timed_progress &a4);
 
     //0x0053CAC0
-    bool un_mash_scene_quad_paths(const resource_key &key_id,
-                                  region *reg,
-                                  worldly_pack_slot *slot_ptr,
+    bool un_mash_scene_quad_paths(const resource_key &key_id, region *reg, worldly_pack_slot *slot_ptr,
                                   timed_progress &a4);
 
     //0x0055B160
-    bool load_scene(resource_key &a2,
-                    bool a3,
-                    const char *a4,
-                    region *a5,
-                    worldly_pack_slot *a6,
-                    limited_timer *a7);
+    bool load_scene(resource_key &a2, bool a3, const char *a4, region *a5, worldly_pack_slot *a6, limited_timer *a7);
 
-    auto *get_the_terrain() {
+    auto *get_the_terrain()
+    {
         return this->the_terrain;
     }
 
-    int get_num_players() {
+    int get_num_players()
+    {
         return this->num_players;
     }
 
@@ -227,14 +214,14 @@ struct region_array {
     region *m_data[MAX_REGIONS_IN_ARRAY];
     int count;
 
-    auto &operator[](int idx) {
+    auto &operator[](int idx)
+    {
         return m_data[idx];
     }
 
     bool contains(region *a2) const;
 
     void push_back(region *a2);
-
 };
 
 extern void build_region_list_radius(region_array *arr, region *reg, const vector3d &a3, Float a4, bool a5);
@@ -251,6 +238,6 @@ extern void manage_standing_for_all_physical_interfaces(Float a1);
 //0x004D00E0
 extern void cleanup_actor_scene_anim_state_hash();
 
-extern world_dynamics_system *& g_world_ptr;
+extern world_dynamics_system *&g_world_ptr;
 
 extern void world_dynamics_system_patch();

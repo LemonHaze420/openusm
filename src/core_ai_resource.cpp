@@ -33,14 +33,11 @@ core_ai_resource::core_ai_resource(from_mash_in_place_constructor *a2)
 
 void core_ai_resource::initialize(mash::allocation_scope scope)
 {
-    if ( scope )
-    {
+    if (scope) {
         assert(scope == mash::FROM_MASH);
 
         this->field_3C = resource_manager::get_resource_context();
-    }
-    else
-    {
+    } else {
         this->field_3C = nullptr;
         this->field_40 = 0;
         this->field_C = 0;
@@ -49,7 +46,8 @@ void core_ai_resource::initialize(mash::allocation_scope scope)
     }
 }
 
-int core_ai_resource::destruct_mashed_class() {
+int core_ai_resource::destruct_mashed_class()
+{
     return THISCALL(0x006D71A0, this);
 }
 
@@ -57,8 +55,7 @@ void core_ai_resource::unmash(mash_info_struct *a1, void *a3)
 {
     TRACE("ai::core_ai_resource::unmash");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         a1->unmash_class_in_place(this->field_0, this);
         a1->unmash_class_in_place(this->my_base_graphs, this);
         a1->unmash_class_in_place(this->my_locomotion_graphs, this);
@@ -71,45 +68,46 @@ void core_ai_resource::unmash(mash_info_struct *a1, void *a3)
         }
 #endif
 
-        if ( this->field_10 != nullptr )
-        {
-            a1->unmash_class(this->field_10, this
+        if (this->field_10 != nullptr) {
+            a1->unmash_class(this->field_10,
+                             this
 #ifdef TARGET_XBOX
-                , mash::NORMAL_BUFFER
+                             ,
+                             mash::NORMAL_BUFFER
 #endif
-                    );
+            );
         }
 
         a1->align_buffer(
 #ifdef TARGET_XBOX
             mash::NORMAL_BUFFER,
 #endif
-                4);
-        this->field_40 = *(int*) a1->read_from_buffer(
+            4);
+        this->field_40 = *(int *)a1->read_from_buffer(
 #ifdef TARGET_XBOX
             mash::NORMAL_BUFFER,
 #endif
-                4, 4);
+            4,
+            4);
         a1->align_buffer(
 #ifdef TARGET_XBOX
-                mash::NORMAL_BUFFER,
+            mash::NORMAL_BUFFER,
 #endif
-                16);
+            16);
         auto v6 = this->field_40;
         this->field_C = (int)&a1->mash_image_ptr[0][a1->buffer_size_used[0]];
         a1->advance_buffer(
 #ifdef TARGET_XBOX
             mash::NORMAL_BUFFER,
 #endif
-                v6);
+            v6);
         a1->read_from_buffer(
 #ifdef TARGET_XBOX
             mash::NORMAL_BUFFER,
 #endif
-                4, 4);
-    }
-    else
-    {
+            4,
+            4);
+    } else {
         THISCALL(0x006D71F0, this, a1, a3);
     }
 }
@@ -118,8 +116,7 @@ bool core_ai_resource::does_base_graph_exist(resource_key the_graph) const
 {
     assert(the_graph.get_type() == RESOURCE_KEY_TYPE_AI_STATE_GRAPH);
 
-    for (auto &curr : this->my_base_graphs)
-    {
+    for (auto &curr : this->my_base_graphs) {
         assert(curr->get_type() == RESOURCE_KEY_TYPE_AI_STATE_GRAPH);
 
         if (*curr == the_graph) {
@@ -134,8 +131,7 @@ bool core_ai_resource::does_locomotion_graph_exist(resource_key the_graph) const
 {
     assert(the_graph.get_type() == RESOURCE_KEY_TYPE_AI_STATE_GRAPH);
 
-    for (auto &curr : this->my_locomotion_graphs)
-    {
+    for (auto &curr : this->my_locomotion_graphs) {
         assert(curr->get_type() != RESOURCE_KEY_TYPE_AI_STATE_GRAPH);
 
         if (*curr == the_graph) {
@@ -146,7 +142,7 @@ bool core_ai_resource::does_locomotion_graph_exist(resource_key the_graph) const
     return false;
 }
 
-} // namespace ai
+}  // namespace ai
 
 void core_ai_resource_patch()
 {

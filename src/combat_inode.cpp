@@ -16,8 +16,8 @@ combat_inode::incoming_move::incoming_move()
     this->m_vtbl = 0x0087A1FC;
 }
 
-combat_inode::incoming_move::incoming_move(const ai::combat_inode::incoming_move &a2)
-    : field_14(a2.field_14) {
+combat_inode::incoming_move::incoming_move(const ai::combat_inode::incoming_move &a2) : field_14(a2.field_14)
+{
     this->m_vtbl = 0x0087A1FC;
     this->field_4 = a2.field_4;
     this->field_8 = a2.field_8;
@@ -26,27 +26,28 @@ combat_inode::incoming_move::incoming_move(const ai::combat_inode::incoming_move
     this->field_90 = a2.field_90;
 }
 
-combat_inode::combat_inode()
+combat_inode::combat_inode() {}
+
+combo_system_move *combat_inode::get_cur_move()
 {
-
+    return (combo_system_move *)THISCALL(0x00454410, this);
 }
 
-combo_system_move *combat_inode::get_cur_move() {
-    return (combo_system_move *) THISCALL(0x00454410, this);
+bool combat_inode::needs_hit_react(Float a2)
+{
+    return (bool)THISCALL(0x004545E0, this, a2);
 }
 
-bool combat_inode::needs_hit_react(Float a2) {
-    return (bool) THISCALL(0x004545E0, this, a2);
-}
-
-bool combat_inode::has_next_move() {
+bool combat_inode::has_next_move()
+{
     //return this->field_44 != -1;
 
-    return (bool) THISCALL(0x00444F50, this);
+    return (bool)THISCALL(0x00444F50, this);
 }
 
-void combat_inode::left_air() {
+void combat_inode::left_air()
+{
     this->field_68 = 0;
 }
 
-} // namespace ai
+}  // namespace ai

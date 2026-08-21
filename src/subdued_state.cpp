@@ -2,9 +2,6 @@
 
 namespace ai {
 
-subdued_state::subdued_state()
-{
+subdued_state::subdued_state() {}
 
-}
-
-} // namespace ai
+}  // namespace ai

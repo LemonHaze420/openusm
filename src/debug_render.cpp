@@ -37,13 +37,12 @@ VALIDATE_SIZE(debug_lines_t, 0x2808);
 debug_lines_t debug_lines{};
 
 debug_line::debug_line(const vector3d &a2, const vector3d &a3, color32 a4, Float a5)
-    : field_0(a2), field_C(a3), field_18(a4), field_1C(a5 * 1.0) {}
+    : field_0(a2), field_C(a3), field_18(a4), field_1C(a5 * 1.0)
+{}
 
-void sub_CB4800(const vector3d &a1,
-                const vector3d &arg4,
-                int a3,
-                float a4,
-                nglVertexDef_MultipassMesh<nglVertexDef_PCUV_Base>::Iterator *a6) {
+void sub_CB4800(const vector3d &a1, const vector3d &arg4, int a3, float a4,
+                nglVertexDef_MultipassMesh<nglVertexDef_PCUV_Base>::Iterator *a6)
+{
     auto v44 = arg4 - a1;
 
     auto a3a = v44.length2();
@@ -62,7 +61,9 @@ void sub_CB4800(const vector3d &a1,
         auto v40 = camera_pos - a1;
         auto v39 = camera_pos - arg4;
 
-        auto sub_68FD4B = [](float a1) -> double { return 1.0 / std::sqrt(a1); };
+        auto sub_68FD4B = [](float a1) -> double {
+            return 1.0 / std::sqrt(a1);
+        };
 
         auto v38 = v40.length2();
         auto v37 = v39.length2();
@@ -82,7 +83,9 @@ void sub_CB4800(const vector3d &a1,
         v40 += a1;
         v39 += arg4;
 
-        auto sub_67C462 = [](float a1) -> double { return 1.0 - 0.75 / ((0.25 * 0.25) * a1 + 1.0); };
+        auto sub_67C462 = [](float a1) -> double {
+            return 1.0 - 0.75 / ((0.25 * 0.25) * a1 + 1.0);
+        };
 
         auto v36 = sub_67C462(v38);
         auto v35 = sub_67C462(v37);
@@ -92,8 +95,7 @@ void sub_CB4800(const vector3d &a1,
         auto v34 = v6 - camera_pos;
         auto v33 = vector3d::cross(v34, v42);
 
-        if (v33.length2() >= 9.9999997e-10 || geometry_manager::is_scene_analyzer_enabled())
-        {
+        if (v33.length2() >= 9.9999997e-10 || geometry_manager::is_scene_analyzer_enabled()) {
             auto sub_665974 = [&sub_68FD4B](vector3d &self, float a2) -> void {
                 auto v4 = self.length2();
                 if (v4 > (0.0000099999997 * 0.0000099999997)) {
@@ -130,24 +132,28 @@ void sub_CB4800(const vector3d &a1,
     }
 }
 
-void debug_line::render(nglVertexDef_MultipassMesh<nglVertexDef_PCUV_Base>::Iterator *a2) {
+void debug_line::render(nglVertexDef_MultipassMesh<nglVertexDef_PCUV_Base>::Iterator *a2)
+{
     auto v3 = this->field_1C;
     auto v2 = color32::to_int(this->field_18);
     sub_CB4800(this->field_0, this->field_C, v2, v3, a2);
 }
 
-void add_debug_line(vector3d a1, vector3d a2, color32 a7, Float a8) {
+void add_debug_line(vector3d a1, vector3d a2, color32 a7, Float a8)
+{
     auto v4 = debug_line{a1, a2, a7, a8};
     debug_lines.add_line(v4);
 }
 
-void render_debug_lines() {
+void render_debug_lines()
+{
     if (debug_lines.m_size) {
         debug_lines.render();
     }
 }
 
-void clear_debug_lines() {
+void clear_debug_lines()
+{
     debug_lines.clear();
 }
 
@@ -155,8 +161,7 @@ nglVertexDef_MultipassMesh<nglVertexDef_PCUV_Base>::Iterator sub_CBFF50(int a3)
 {
     sub_578420(1u);
     nglMaterialBase *material = nullptr;
-    if ( debug_material != nullptr )
-    {
+    if (debug_material != nullptr) {
         material = (nglMaterialBase *)&debug_material->field_4;
     }
 
@@ -170,8 +175,7 @@ void debug_lines_t::render()
     nglVertexDef_MultipassMesh<nglVertexDef_PCUV_Base>::Iterator iter{};
 
     int a2 = this->m_size;
-    while (a2 > 20)
-    {
+    while (a2 > 20) {
         a2 -= 20;
 
         nglVertexDef_MultipassMesh<nglVertexDef_PCUV_Base>::Iterator a1 = sub_CBFF50(20);
@@ -199,11 +203,13 @@ void debug_lines_t::render()
     }
 }
 
-void debug_lines_t::clear() {
+void debug_lines_t::clear()
+{
     this->m_size = 0;
 }
 
-void debug_lines_t::add_line(const debug_line &a2) {
+void debug_lines_t::add_line(const debug_line &a2)
+{
     if (this->m_size >= 320) {
         for (int i = 1; i < 320; ++i) {
             this->field_0[i - 1] = this->field_0[i];
@@ -230,8 +236,7 @@ void debug_sphere::render()
 
 void debug_spheres_t::add_sphere(const debug_sphere &a2)
 {
-    if (this->m_size >= 512)
-    {
+    if (this->m_size >= 512) {
         for (int i = 1; i < 512; ++i) {
             this->field_0[i - 1] = this->field_0[i];
         }
@@ -254,14 +259,16 @@ void debug_spheres_t::render()
     }
 }
 
-void debug_spheres_t::clear() {
+void debug_spheres_t::clear()
+{
     this->m_size = 0;
 }
 
-void add_debug_sphere(vector3d a1, Float a4, color32 a5) {
+void add_debug_sphere(vector3d a1, Float a4, color32 a5)
+{
     auto v5 = a5;
-    sphere v3 {a1, a4};
-    debug_sphere v4 {v3, v5};
+    sphere v3{a1, a4};
+    debug_sphere v4{v3, v5};
     debug_spheres.add_sphere(v4);
 }
 
@@ -270,29 +277,23 @@ void render_debug_spheres()
     debug_spheres.render();
 }
 
-void sub_CB3F80(const vector3d &a1,
-                const vector3d &a2,
-                const vector3d &a3,
-                const vector3d &a4,
-                int a5,
-                void *a6)
+void sub_CB3F80(const vector3d &a1, const vector3d &a2, const vector3d &a3, const vector3d &a4, int a5, void *a6)
 {
-
     auto *iter = static_cast<nglVertexDef_MultipassMesh<nglVertexDef_PCUV_Base>::Iterator *>(a6);
 
 
     iter->BeginStrip(4);
 
-    iter->Write(a1, a5, vector2d {0.0, 0.0});
+    iter->Write(a1, a5, vector2d{0.0, 0.0});
     ++iter->field_8;
 
-    iter->Write(a2, a5, vector2d {0.0, 0.0});
+    iter->Write(a2, a5, vector2d{0.0, 0.0});
     ++iter->field_8;
 
-    iter->Write(a4, a5, vector2d {0.0, 0.0});
+    iter->Write(a4, a5, vector2d{0.0, 0.0});
     ++iter->field_8;
 
-    iter->Write(a3, a5, vector2d {0.0, 0.0});
+    iter->Write(a3, a5, vector2d{0.0, 0.0});
     ++iter->field_8;
 
     {
@@ -304,7 +305,7 @@ void sub_CB3F80(const vector3d &a1,
     }
 }
 
-void render_beam(const vector3d &a1, const vector3d &a2, color32 a3, Float a4, bool )
+void render_beam(const vector3d &a1, const vector3d &a2, color32 a3, Float a4, bool)
 {
     TRACE("render_beam");
 
@@ -325,13 +326,12 @@ void render_beam(const vector3d &a1, const vector3d &a2, color32 a3, Float a4, b
     }
 }
 
-void render_quad(const vector3d &pt1, const vector3d &pt2, const vector3d &pt3, const vector3d &pt4, color32 col, [[maybe_unused]] bool double_sided)
+void render_quad(const vector3d &pt1, const vector3d &pt2, const vector3d &pt3, const vector3d &pt4, color32 col,
+                 [[maybe_unused]] bool double_sided)
 {
-    if ( sub_578420(1u) )
-    {
+    if (sub_578420(1u)) {
         nglMaterialBase *a1a = nullptr;
-        if ( debug_material != nullptr )
-        {
+        if (debug_material != nullptr) {
             a1a = (nglMaterialBase *)&debug_material->field_4;
         }
 
@@ -349,7 +349,8 @@ Var<int[51]> max_values{0x009227E8};
 
 Var<int[34]> debug_render_items = {0x00960D30};
 
-int debug_render_get_ival(debug_render_items_e item) {
+int debug_render_get_ival(debug_render_items_e item)
+{
     assert(item < DEBUG_RENDER_ITEMS_COUNT);
 
     return debug_render_items()[item];
@@ -358,23 +359,20 @@ int debug_render_get_ival(debug_render_items_e item) {
 void debug_render_set_ival(debug_render_items_e a1, int a2)
 {
     auto max = a2;
-    if ( a2 > debug_render_get_max(a1) )
-    {
+    if (a2 > debug_render_get_max(a1)) {
         max = debug_render_get_max(a1);
     }
 
     auto min = debug_render_get_min(a1);
-    if ( max >= min )
-    {
+    if (max >= min) {
         debug_render_items()[a1] = max;
-    }
-    else
-    {
+    } else {
         debug_render_items()[a1] = min;
     }
 }
 
-bool debug_render_get_bval(debug_render_items_e item) {
+bool debug_render_get_bval(debug_render_items_e item)
+{
     assert(item < DEBUG_RENDER_ITEMS_COUNT);
 
     return debug_render_items()[item] != 0;
@@ -409,7 +407,7 @@ void debug_render_init()
     TRACE("debug_render_init");
 
     if constexpr (1) {
-        static Var<std::array<int, 51>> initial_values {0x00922718};
+        static Var<std::array<int, 51>> initial_values{0x00922718};
         std::memcpy(debug_render_items(), &initial_values(), sizeof(debug_render_items()));
     } else {
         CDECL_CALL(0x005784F0);
@@ -419,8 +417,7 @@ void debug_render_init()
 
     debug_material = new PCUV_ShaderMaterial{nglWhiteTex, static_cast<nglBlendModeType>(2), 0, a4};
 
-    if (!g_is_the_packer)
-    {
+    if (!g_is_the_packer) {
         auto *mesh_file = nglLoadMeshFile(tlFixedString{"debugobj"});
         assert(mesh_file != nullptr);
 
@@ -436,7 +433,7 @@ void debug_render_init()
         s_debug_disc = nglGetMesh(tlFixedString{"debug_disc"}, true);
         assert(s_debug_disc != nullptr);
 
-        dword_15BCE44 = new PCUV_ShaderMaterial {nglWhiteTex, static_cast<nglBlendModeType>(2), 0, a4};
+        dword_15BCE44 = new PCUV_ShaderMaterial{nglWhiteTex, static_cast<nglBlendModeType>(2), 0, a4};
         assert(debug_strings == nullptr);
 
         debug_strings = new fixed_vector<debug_string_t, 25>{};
@@ -446,8 +443,7 @@ void debug_render_init()
 
 void debug_render_done()
 {
-    if (!g_is_the_packer)
-    {
+    if (!g_is_the_packer) {
         if (s_debug_box != nullptr) {
             nglReleaseMeshFile(tlFixedString{"debugobj"});
             s_debug_disc = nullptr;
@@ -457,7 +453,7 @@ void debug_render_done()
         }
 
         if (debug_material != nullptr) {
-            void (__fastcall *finalize)(void *, void *, bool) = CAST(finalize, get_vfunc(debug_material->m_vtbl, 0x0));
+            void(__fastcall * finalize)(void *, void *, bool) = CAST(finalize, get_vfunc(debug_material->m_vtbl, 0x0));
 
             finalize(debug_material, nullptr, true);
         }
@@ -468,7 +464,7 @@ void debug_render_done()
 
 void render_debug_capsule(const vector3d &a2, const vector3d &a3, Float a4, color32 a5)
 {
-    if ( a4 < 0.0049999999 ) {
+    if (a4 < 0.0049999999) {
         a4 = 0.0049999999;
     }
 
@@ -481,31 +477,28 @@ void render_debug_capsule(const vector3d &a2, const vector3d &a3, Float a4, colo
     v36 = v5;
     float v34 = a4;
     auto v33 = v36.length();
-    if ( v33 < 0.0049999999 ) {
+    if (v33 < 0.0049999999) {
         render_debug_hemisphere(a2, a4, a5);
     }
 
     v36.normalize();
     auto v22 = std::abs(v36.z);
-    if ( v22 <= std::abs(v36.x) )
-    {
+    if (v22 <= std::abs(v36.x)) {
         v37 = vector3d::cross(v36, ZVEC);
         v37.normalize();
 
         v35 = vector3d::cross(v37, v36);
-    }
-    else
-    {
+    } else {
         v35 = vector3d::cross(XVEC, v36);
         v35.normalize();
 
         v37 = vector3d::cross(v36, v35);
     }
 
-    matrix4x4 v32 {v37, v36, v35, v39};
+    matrix4x4 v32{v37, v36, v35, v39};
 
-    nglMeshParams v31 {};
-    nglParamSet<nglShaderParamSet_Pool> v30 {static_cast<nglParamSet<nglShaderParamSet_Pool>::nglParamSetType>(1)};
+    nglMeshParams v31{};
+    nglParamSet<nglShaderParamSet_Pool> v30{static_cast<nglParamSet<nglShaderParamSet_Pool>::nglParamSetType>(1)};
 
     v31.Flags |= 2u;
     v31.Scale[0] = v34;
@@ -538,7 +531,7 @@ void render_debug_box(const vector3d &a2, const vector3d &a3, color32 a4)
 
     vector3d v15 = (a3 - a2) * 0.5;
 
-    matrix4x4 v14 {XVEC, YVEC, ZVEC, v16};
+    matrix4x4 v14{XVEC, YVEC, ZVEC, v16};
 
     nglMeshParams v13{};
 
@@ -568,8 +561,7 @@ static color32 stru_1589F90[] = {color32{0, 255, 0, 128},
 
 void render_billboard(const vector3d &arg0, color32 a2, float a5, const char *a4)
 {
-    if ( os_developer_options::instance->get_flag(mString {"SHOW_DEBUG_TEXT"}) )
-    {
+    if (os_developer_options::instance->get_flag(mString{"SHOW_DEBUG_TEXT"})) {
         auto *Font = g_femanager.GetFont(static_cast<font_index>(0));
 
         uint32_t v39, v38;
@@ -584,45 +576,37 @@ void render_billboard(const vector3d &arg0, color32 a2, float a5, const char *a4
         auto &v11 = v7->get_abs_position();
         vector3d a3a = v11;
         auto v33 = arg0 - a3a;
-        if ( v33 != ZEROVEC )
-        {
+        if (v33 != ZEROVEC) {
             v33.normalize();
             bool v32 = false;
             auto v12 = arg0 - a3a;
             auto v31 = v12.length2();
-            if ( v32
-                || debug_render_get_ival(OBBS)
-                || (dot(v35, v33) > 0.0
-                && v31 < 10000.0
-                && sub_50D220(a3a, arg0, nullptr)) )
-            {
-                auto &v14 = geometry_manager::get_xform((geometry_manager::xform_t) 4);
+            if (v32 || debug_render_get_ival(OBBS) ||
+                (dot(v35, v33) > 0.0 && v31 < 10000.0 && sub_50D220(a3a, arg0, nullptr))) {
+                auto &v14 = geometry_manager::get_xform((geometry_manager::xform_t)4);
                 auto v30 = v14 * arg0;
-                if ( v30[2] > 0.0 )
-                {
+                if (v30[2] > 0.0) {
                     auto &v15 = geometry_manager::get_xform((geometry_manager::xform_t)5);
                     auto v16 = sub_501B20(v15, v30);
                     v30 = v16;
 
                     char *v29 = nullptr;
                     auto *a1 = a4;
-                    for (;; a1 = v29 + 1 )
-                    {
+                    for (;; a1 = v29 + 1) {
                         v29 = strchr(a1, 10);
-                        if ( v29 == nullptr )
-                        {
+                        if (v29 == nullptr) {
                             break;
                         }
 
                         v29[0] = '\0';
-                        mString v25 {a1};
-                        vector2di v17 {static_cast<int>(v30[0]), static_cast<int>(v30[1])};
+                        mString v25{a1};
+                        vector2di v17{static_cast<int>(v30[0]), static_cast<int>(v30[1])};
                         render_text(v25, v17, a2, 0.0, a5);
                         v30[1] += v37;
                     }
 
-                    mString v27 {a1};
-                    vector2di v18 {static_cast<int>(v30[0]), static_cast<int>(v30[1])};
+                    mString v27{a1};
+                    vector2di v18{static_cast<int>(v30[0]), static_cast<int>(v30[1])};
                     render_text(v27, v18, a2, 0.0, a5);
                 }
             }
@@ -635,14 +619,14 @@ void print_3d_text(const vector3d &arg0, color32 arg4, float a3, const char *a2,
     va_list va;
     va_start(va, a2);
 
-    char a1[2048] {};
+    char a1[2048]{};
     vsprintf(a1, a2, va);
     render_billboard(arg0, arg4, a3, a1);
 }
 
 void print_3d_text(const vector3d &arg0, color32 arg4, const char *a2, ...)
 {
-    char a1[2048] {};
+    char a1[2048]{};
     va_list va;
 
     va_start(va, a2);
@@ -653,17 +637,15 @@ void print_3d_text(const vector3d &arg0, color32 arg4, const char *a2, ...)
 void debug_render_line_info(line_info *a1, [[maybe_unused]] char a2, int a3)
 {
     for (int i = 0; i <= a3; ++i) {
-        color32 blue {255, 0, 0, 128};
+        color32 blue{255, 0, 0, 128};
         render_debug_hemisphere(a1[i].field_0, 0.1, blue);
 
-        color32 red {0, 0, 255, 128};
+        color32 red{0, 0, 255, 128};
         render_debug_hemisphere(a1[i].field_C, 0.1, red);
 
         render_beam(a1[i].field_0, a1[i].field_C, stru_1589F90[i % 8], 0.050000001, false);
 
-        if (a1[i].field_0 != ZEROVEC ||
-            a1[i].field_C != ZEROVEC)
-        {
+        if (a1[i].field_0 != ZEROVEC || a1[i].field_C != ZEROVEC) {
             auto v11 = i;
             auto v8 = stru_1589F90[i % 8];
             auto v5 = a1[i].field_0 + a1[i].field_C;
@@ -671,20 +653,20 @@ void debug_render_line_info(line_info *a1, [[maybe_unused]] char a2, int a3)
             print_3d_text(v6, v8, "%c%d", a2, v11);
         }
 
-        if ( a1[i].collision ) {
-            const color32 black {255, 255, 255, 128};
+        if (a1[i].collision) {
+            const color32 black{255, 255, 255, 128};
             render_debug_hemisphere(a1[i].hit_pos, 0.1, black);
-            const color32 white {0, 0, 0, 128};
+            const color32 white{0, 0, 0, 128};
             auto v9 = a1[i].hit_pos + a1[i].hit_norm;
             render_beam(a1[i].hit_pos, v9, white, 0.050000001, false);
         }
     }
 }
 
-void debug_render_line_info() {
+void debug_render_line_info()
+{
     //sp_log("%d", num_debug_line_info[1]);
 
     debug_render_line_info(debug_line_info[1], 'c', num_debug_line_info[1]);
     debug_render_line_info(debug_line_info[0], 's', num_debug_line_info[0]);
 }
-

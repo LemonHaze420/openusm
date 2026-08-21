@@ -25,16 +25,14 @@ float *__fastcall sub_5FC520(float *self, void *, const float *a2)
     return result;
 }
 
-template<>
+template <>
 void FakerootEntCompDecomp<FakerootPoseDesc>::RetrievePoseFromInst(
-        FakerootPoseDesc::StdPoseData &a1,
-        FakerootEntCompDecomp<FakerootPoseDesc>::PerInstData *a2,
-        const FakerootPoseDesc::PerAnimData *a3)
+    FakerootPoseDesc::StdPoseData &a1, FakerootEntCompDecomp<FakerootPoseDesc>::PerInstData *a2,
+    const FakerootPoseDesc::PerAnimData *a3)
 {
     if constexpr (0) {
         int v4 = 0;
-        if ( (a3->field_1C & 1) != 0 )
-        {
+        if ((a3->field_1C & 1) != 0) {
             auto v5 = a2->field_90.field_0[1][0];
             auto v6 = a2->field_90.field_0[2][0];
             auto v12 = a2->field_90.field_0[0][0];
@@ -60,7 +58,7 @@ void FakerootEntCompDecomp<FakerootPoseDesc>::RetrievePoseFromInst(
             v4 = 6;
         }
 
-        if ( (a3->field_1C & 2) != 0 ) {
+        if ((a3->field_1C & 2) != 0) {
             a1.field_1C = a2->field_90.field_0[v4][0];
         }
     } else {
@@ -68,18 +66,13 @@ void FakerootEntCompDecomp<FakerootPoseDesc>::RetrievePoseFromInst(
     }
 }
 
-template<>
-void FakerootEntCompDecomp<FakerootPoseDesc>::GetPose(
-        FakerootPoseDesc::StdPoseData *a2,
-        uint32_t a3,
-        Float a4,
-        Float a5,
-        const nalChar::nalCharAnim *a6,
-        const FakerootPoseDesc::PerSkelData *a7,
-        const FakerootPoseDesc::PerAnimData *a8,
-        const void *a9,
-        FakerootEntCompDecomp<FakerootPoseDesc>::PerInstData *a10,
-        const FakerootPoseDesc *a11)
+template <>
+void FakerootEntCompDecomp<FakerootPoseDesc>::GetPose(FakerootPoseDesc::StdPoseData *a2, uint32_t a3, Float a4,
+                                                      Float a5, const nalChar::nalCharAnim *a6,
+                                                      const FakerootPoseDesc::PerSkelData *a7,
+                                                      const FakerootPoseDesc::PerAnimData *a8, const void *a9,
+                                                      FakerootEntCompDecomp<FakerootPoseDesc>::PerInstData *a10,
+                                                      const FakerootPoseDesc *a11)
 {
     TRACE("FakerootEntCompDecomp<FakerootPoseDesc>::GetPose");
 
@@ -370,18 +363,7 @@ void FakerootEntCompDecomp<FakerootPoseDesc>::GetPose(
             FakerootPoseDesc::GenerateSignalPoseData(a11, v13, a8, a3, a4, a6);
 #endif
     } else {
-        THISCALL(0x005FE980,
-                this,
-                a2,
-                a3,
-                a4,
-                a5,
-                a6,
-                a7,
-                a8,
-                a9,
-                a10,
-                a11);
+        THISCALL(0x005FE980, this, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
     }
 }
 

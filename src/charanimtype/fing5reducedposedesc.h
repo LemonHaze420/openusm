@@ -1,4 +1,3 @@
 #pragma once
 
-struct Fing5ReducedPoseDesc {
-};
+struct Fing5ReducedPoseDesc {};

@@ -16,8 +16,7 @@ entity_class_entry::entity_class_entry()
 
 void entity_class_entry::initialize(mash::allocation_scope scope)
 {
-    if ( scope == mash::ALLOCATED )
-    {
+    if (scope == mash::ALLOCATED) {
         this->field_18 = {0};
         this->field_24 = false;
         this->field_25 = false;

@@ -31,6 +31,6 @@ struct run_state : enhanced_state {
 
     static inline const string_hash default_id{to_hash("RUN")};
 };
-} // namespace ai
+}  // namespace ai
 
 extern void run_state_patch();

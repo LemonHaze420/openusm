@@ -4,6 +4,6 @@
 
 TEST(StdDeque, Construct)
 {
-    _std::deque<int> d {};
+    _std::deque<int> d{};
     EXPECT_EQ(d.size(), 0);
 }

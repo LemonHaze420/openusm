@@ -4,5 +4,5 @@
 #include "variable.h"
 
 namespace nalPed {
-    int & nalPedAnim::vtbl_ptr = var<int>(0x0096AA60);
+int &nalPedAnim::vtbl_ptr = var<int>(0x0096AA60);
 }

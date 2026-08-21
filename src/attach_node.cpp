@@ -13,7 +13,7 @@ attach_node::attach_node(from_mash_in_place_constructor *a2) : field_0(a2), fiel
 
 void attach_node::initialize(mash::allocation_scope a2)
 {
-    if ( a2 == mash::ALLOCATED ) {
+    if (a2 == mash::ALLOCATED) {
         this->field_24 = -1;
     }
 }

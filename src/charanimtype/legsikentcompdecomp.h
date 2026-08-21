@@ -1,5 +1,4 @@
 #pragma once
 
-template<typename T>
-struct LegsIKEntCompDecomp {
-};
+template <typename T>
+struct LegsIKEntCompDecomp {};

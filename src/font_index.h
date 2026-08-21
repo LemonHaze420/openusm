@@ -1,4 +1,3 @@
 #pragma once
 
-enum font_index {
-};
+enum font_index {};

@@ -19,7 +19,7 @@ struct player_controller_inode : controller_inode {
     [[nodiscard]] game_button _get_button(controller_inode::eControllerButton a3);
 };
 
-} // namespace ai
+}  // namespace ai
 
 
 extern void player_controller_inode_patch();

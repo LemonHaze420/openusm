@@ -12,8 +12,7 @@ struct combo_system_weapon;
 struct combo_system_move;
 struct from_mash_in_place_constructor;
 
-struct combo_system_chain
-{
+struct combo_system_chain {
     struct telegraph_info : mash_virtual_base {
         int field_4;
         int field_8;

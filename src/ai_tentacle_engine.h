@@ -13,5 +13,5 @@ struct ai_tentacle_engine {
 
     ai_tentacle_engine(ai_tentacle_info *a2);
 
-    static int & id_counter;
+    static int &id_counter;
 };

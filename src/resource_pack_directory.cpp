@@ -7,12 +7,9 @@ VALIDATE_SIZE(resource_pack_directory, 0x5C);
 
 resource_pack_directory::resource_pack_directory()
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         this->field_0 = nullptr;
-    }
-    else
-    {
+    } else {
         THISCALL(0x0052A9A0, this);
     }
 }

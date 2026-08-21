@@ -25,7 +25,8 @@ VALIDATE_OFFSET(subdivision_node_large_obb, x_length, 0x3C);
 
 subdivision_node_obb_base::subdivision_node_obb_base() {}
 
-void subdivision_node_obb_base::init(uint16_t flags_arg) {
+void subdivision_node_obb_base::init(uint16_t flags_arg)
+{
     this->flags = flags_arg;
     memset(this->terrain_type_info, 0, 3);
     this->center = ZEROVEC;
@@ -34,8 +35,7 @@ void subdivision_node_obb_base::init(uint16_t flags_arg) {
 
 bool subdivision_node_obb_base::point_inside_or_on(const vector3d &a2) const
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         vector4d v15, v24, a4, a6;
 
         auto v3 = this->unpack_xform(v15, v24, a4, a6);
@@ -66,8 +66,7 @@ bool subdivision_node_obb_base::point_inside_or_on(const vector3d &a2) const
         a3[2] = v6 - v20[2];
         a3[3] = a3[3] - v20[3];
 
-        if (v3)
-        {
+        if (v3) {
             auto v7 = sub_4126E0(v24, a3, a4, a3, a6, a3);
             auto v8 = v7[1];
             a3[0] = v7[0];
@@ -81,7 +80,7 @@ bool subdivision_node_obb_base::point_inside_or_on(const vector3d &a2) const
         return v15[0] >= std::abs(a3[0]) && v15[1] >= std::abs(a3[1]) && v15[2] >= std::abs(a3[2]);
 
     } else {
-        return (bool) THISCALL(0x0052BD30, this, &a2);
+        return (bool)THISCALL(0x0052BD30, this, &a2);
     }
 }
 
@@ -98,11 +97,13 @@ void subdivision_node_obb_base::get_vertices(vector3d *out) const
     THISCALL(0x00513100, this, out);
 }
 
-float *subdivision_node_obb_base::sub_564D50(float *a2) {
-    return (float *) THISCALL(0x00564D50, this, a2);
+float *subdivision_node_obb_base::sub_564D50(float *a2)
+{
+    return (float *)THISCALL(0x00564D50, this, a2);
 }
 
-float subdivision_node_obb_base::sub_52CA80() {
+float subdivision_node_obb_base::sub_52CA80()
+{
     float v2[4];
 
     this->sub_564D50(v2);
@@ -111,8 +112,7 @@ float subdivision_node_obb_base::sub_52CA80() {
 
 bool subdivision_node_obb_base::unpack_xform(vector4d &a2, vector4d &a3, vector4d &a4, vector4d &a5) const
 {
-    if constexpr (0)
-    {
+    if constexpr (0) {
         bool result;
 
         vector4d v43;
@@ -124,8 +124,8 @@ bool subdivision_node_obb_base::unpack_xform(vector4d &a2, vector4d &a3, vector4
             auto *self = bit_cast<subdivision_node_aabb *>(this);
             int v20 = self->m_size.y;
             int v44 = self->m_size.x;
-            v43[2] = (float) self->m_size.z;
-            auto v26 = (double) v44 * flt_888B98;
+            v43[2] = (float)self->m_size.z;
+            auto v26 = (double)v44 * flt_888B98;
             a2[0] = v26;
 
             auto v21 = v43[2];
@@ -149,9 +149,9 @@ bool subdivision_node_obb_base::unpack_xform(vector4d &a2, vector4d &a3, vector4
 
             constexpr auto flt_87E694 = 0.000030517578f;
 
-            auto v6 = (double) self->x_axis.x;
-            auto v7 = (double) self->y_axis.x;
-            v43[2] = (float) self->z_axis.x;
+            auto v6 = (double)self->x_axis.x;
+            auto v7 = (double)self->y_axis.x;
+            v43[2] = (float)self->z_axis.x;
 
             a3[0] = v6 * flt_87E694;
 
@@ -162,9 +162,9 @@ bool subdivision_node_obb_base::unpack_xform(vector4d &a2, vector4d &a3, vector4
             a3[2] = v8 * flt_87E694;
             auto v40 = v9 * flt_87E694;
             a3[3] = v40;
-            auto v10 = (double) self->x_axis.y;
-            auto v11 = (double) self->y_axis.y;
-            v43[2] = (float) self->z_axis.y;
+            auto v10 = (double)self->x_axis.y;
+            auto v11 = (double)self->y_axis.y;
+            v43[2] = (float)self->z_axis.y;
 
             a4[0] = v10 * flt_87E694;
             auto v31 = v11 * flt_87E694;
@@ -176,22 +176,22 @@ bool subdivision_node_obb_base::unpack_xform(vector4d &a2, vector4d &a3, vector4
             auto v41 = v13 * flt_87E694;
             a4[3] = v41;
             auto v14 = self->x_axis.z;
-            auto v15 = (double) self->y_axis.z;
-            v43[2] = (float) self->z_axis.z;
+            auto v15 = (double)self->y_axis.z;
+            v43[2] = (float)self->z_axis.z;
 
             vector4d v25;
             v25[0] = v15 * flt_87E694;
-            v25[1] = (double) v14 * flt_87E694;
+            v25[1] = (double)v14 * flt_87E694;
             v25[2] = v43[2] * flt_87E694;
             v25[3] = v43[3] * flt_87E694;
 
             a5 = v25;
             auto v16 = self->y_length;
-            auto v17 = (double) self->x_length;
-            v43[2] = (float) self->z_length;
+            auto v17 = (double)self->x_length;
+            v43[2] = (float)self->z_length;
             v25[0] = v17 * flt_888B98;
             a2[0] = v25[0];
-            v25[1] = (double) v16 * flt_888B98;
+            v25[1] = (double)v16 * flt_888B98;
             auto v18 = v43[2];
             a2[1] = v25[1];
             v25[2] = v18 * flt_888B98;
@@ -233,16 +233,16 @@ bool subdivision_node_obb_base::unpack_xform(vector4d &a2, vector4d &a3, vector4
         return result;
 
     } else {
-        return (bool) THISCALL(0x00564E80, this, &a2, &a3, &a4, &a5);
+        return (bool)THISCALL(0x00564E80, this, &a2, &a3, &a4, &a5);
     }
 }
 
-bool sub_562450(const vector4d &a1, const vector4d &a2, const vector4d &a3) {
-    return (bool) CDECL_CALL(0x00562450, &a1, &a2, &a3);
+bool sub_562450(const vector4d &a1, const vector4d &a2, const vector4d &a3)
+{
+    return (bool)CDECL_CALL(0x00562450, &a1, &a2, &a3);
 }
 
-bool subdivision_node_obb_base::line_segment_intersection(const vector3d &arg0,
-                                                          const vector3d &arg4)
+bool subdivision_node_obb_base::line_segment_intersection(const vector3d &arg0, const vector3d &arg4)
 {
     if constexpr (1) {
         if ((this->flags & 0x101) != 0) {
@@ -318,23 +318,20 @@ bool subdivision_node_obb_base::line_segment_intersection(const vector3d &arg0,
     }
 }
 
-bool subdivision_node_obb_base::line_segment_intersection(
-        const vector3d &a1,
-        const vector3d &a2,
-        vector3d *a3,
-        vector3d *a4,
-        float *a5,
-        bool a6)
+bool subdivision_node_obb_base::line_segment_intersection(const vector3d &a1, const vector3d &a2, vector3d *a3,
+                                                          vector3d *a4, float *a5, bool a6)
 {
     return THISCALL(0x00538D60, this, a1, a2, a3, a4, a5, a6);
 }
 
-bool subdivision_node_obb_base::sphere_intersection(
-    const vector3d &arg0, Float arg4, vector3d *arg8, vector3d *argC, float *arg10) {
-    return (bool) THISCALL(0x0052C180, this, &arg0, arg4, arg8, argC, arg10);
+bool subdivision_node_obb_base::sphere_intersection(const vector3d &arg0, Float arg4, vector3d *arg8, vector3d *argC,
+                                                    float *arg10)
+{
+    return (bool)THISCALL(0x0052C180, this, &arg0, arg4, arg8, argC, arg10);
 }
 
-bool subdivision_node_obb_base::sphere_intersection(const vector3d &center, Float radius) {
+bool subdivision_node_obb_base::sphere_intersection(const vector3d &center, Float radius)
+{
     if constexpr (0) {
         if ((this->flags & 0x101) != 0) {
             return false;
@@ -366,8 +363,7 @@ bool subdivision_node_obb_base::sphere_intersection(const vector3d &center, Floa
         a3[1] = a3[1] - v6;
         a3[2] = v8 - a1[2];
         a3[3] = a3[3] - a1[3];
-        if (v5)
-        {
+        if (v5) {
             auto v9 = sub_4126E0(a2, a3, a4, a3, a6, a3);
 
             a3[0] = v9[0];
@@ -380,14 +376,13 @@ bool subdivision_node_obb_base::sphere_intersection(const vector3d &center, Floa
         return sub_55F1D0(v22, a3, v13);
 
     } else {
-        return (bool) THISCALL(0x0052C440, this, &center, radius);
+        return (bool)THISCALL(0x0052C440, this, &center, radius);
     }
 }
 
-bool subdivision_node_obb_base::find_closest_point_on_visible_faces(
-    const vector3d &sweet_spot,
-    const vector3d &ent_pos,
-    fixed_vector<obb_closest_point_entry_t, 3> *results) {
+bool subdivision_node_obb_base::find_closest_point_on_visible_faces(const vector3d &sweet_spot, const vector3d &ent_pos,
+                                                                    fixed_vector<obb_closest_point_entry_t, 3> *results)
+{
     assert(results != nullptr);
     assert(results->size() == 0);
 
@@ -694,16 +689,15 @@ bool subdivision_node_obb_base::find_closest_point_on_visible_faces(
 
 #endif
 
-    }
-    else
-    {
+    } else {
         return THISCALL(0x005391F0, this, &sweet_spot, &ent_pos, results);
     }
 }
 
-bool subdivision_node_obb_base::is_obb_node() const {
-    return this->get_type() == 4 || this->get_type() == 5 || this->get_type() == 6 ||
-        this->get_type() == 7 || this->get_type() == 8;
+bool subdivision_node_obb_base::is_obb_node() const
+{
+    return this->get_type() == 4 || this->get_type() == 5 || this->get_type() == 6 || this->get_type() == 7 ||
+           this->get_type() == 8;
 }
 
 void subdivision_node_obb_base::unpack_axii(vector3d *axii) const
@@ -711,25 +705,24 @@ void subdivision_node_obb_base::unpack_axii(vector3d *axii) const
     THISCALL(0x00512980, this, axii);
 }
 
-subdivision_node_obb::subdivision_node_obb() {
-    set_type( OBB_LEAF_NODE );
+subdivision_node_obb::subdivision_node_obb()
+{
+    set_type(OBB_LEAF_NODE);
 }
 
-subdivision_node_aabb::subdivision_node_aabb() {
+subdivision_node_aabb::subdivision_node_aabb()
+{
     this->set_type(AABB_LEAF_NODE);
 }
 
 void check_for_degeneracies(subdivision_node_obb_base *obb)
 {
-    vector3d a1[3] {};
+    vector3d a1[3]{};
     obb->unpack_axii(a1);
 
-    for ( int i = 0; i < 3; ++i )
-    {
-        if ( dot(a1[i], a1[i]) <= 0.00019999999 )
-        {
-            auto func = [](subdivision_node_obb_base *self) -> vector3d
-            {
+    for (int i = 0; i < 3; ++i) {
+        if (dot(a1[i], a1[i]) <= 0.00019999999) {
+            auto func = [](subdivision_node_obb_base *self) -> vector3d {
                 return self->center;
             };
 
@@ -737,21 +730,18 @@ void check_for_degeneracies(subdivision_node_obb_base *obb)
             auto v2 = func(obb)[1];
             auto v1 = func(obb)[0];
             error("Data error: degenerate (thin) obb found at (%.2f, %.2f, %.2f).\n"
-                "Please correct the obb in the MAX file corresponding to these coordinates.\n"
-                "(This error can be ignored more or less safely)",
-                v1,
-                v2,
-                v3);
+                  "Please correct the obb in the MAX file corresponding to these coordinates.\n"
+                  "(This error can be ignored more or less safely)",
+                  v1,
+                  v2,
+                  v3);
         }
     }
 }
 
 
-bool subdivision_node_large_aabb::init(
-        uint16_t a2,
-        uint32_t terrain_type_info_arg,
-        const vector3d &a4,
-        const vector3d &a5)
+bool subdivision_node_large_aabb::init(uint16_t a2, uint32_t terrain_type_info_arg, const vector3d &a4,
+                                       const vector3d &a5)
 {
     subdivision_node_obb_base::init(a2);
 
@@ -759,7 +749,7 @@ bool subdivision_node_large_aabb::init(
     this->center = a4;
     this->m_size = a5;
 
-    assert(!( terrain_type_info_arg & 0xFF000000 ));
+    assert(!(terrain_type_info_arg & 0xFF000000));
 
     std::memcpy(this->terrain_type_info, &terrain_type_info_arg, 3);
 
@@ -768,13 +758,8 @@ bool subdivision_node_large_aabb::init(
     return true;
 }
 
-bool subdivision_node_large_obb::init(
-        uint16_t a2,
-        uint32_t terrain_type_info_arg,
-        const vector3d &a4,
-        const vector3d &a5,
-        const vector3d &a6,
-        const vector3d &a7)
+bool subdivision_node_large_obb::init(uint16_t a2, uint32_t terrain_type_info_arg, const vector3d &a4,
+                                      const vector3d &a5, const vector3d &a6, const vector3d &a7)
 {
     subdivision_node_obb_base::init(a2);
 
@@ -795,7 +780,7 @@ bool subdivision_node_large_obb::init(
 
     this->z_axis /= this->z_length;
 
-    assert(!( terrain_type_info_arg & 0xFF000000 ));
+    assert(!(terrain_type_info_arg & 0xFF000000));
 
     std::memcpy(this->terrain_type_info, &terrain_type_info_arg, 3);
 

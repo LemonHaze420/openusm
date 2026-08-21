@@ -13,14 +13,15 @@ VALIDATE_SIZE(user_rigid_body, 0x1B4);
 
 rigid_body::rigid_body() {}
 
-void rigid_body::sub_5B2D50(const phys_vector3d &a2) {
+void rigid_body::sub_5B2D50(const phys_vector3d &a2)
+{
     if constexpr (0) {
         math::VecClass<3, 0> v5;
         v5[0] = a2[0];
         v5[1] = a2[1];
         v5[2] = a2[2];
 
-        auto *v3 = (math::VecClass<3, 0> *) this->field_110;
+        auto *v3 = (math::VecClass<3, 0> *)this->field_110;
 
         math::VecClass<3, 0> v6;
         v6[0] = v5[0];
@@ -41,7 +42,8 @@ void rigid_body::sub_5B2D50(const phys_vector3d &a2) {
     }
 }
 
-void rigid_body::sub_502600(const vector3d &a2) {
+void rigid_body::sub_502600(const vector3d &a2)
+{
     auto &v2 = this->field_D0;
     v2[0] = a2[0];
     v2[1] = a2[1];
@@ -49,7 +51,8 @@ void rigid_body::sub_502600(const vector3d &a2) {
     v2[3] = 0.0f;
 }
 
-void rigid_body::sub_502640(const vector3d &a2) {
+void rigid_body::sub_502640(const vector3d &a2)
+{
     auto &v2 = this->field_110;
 
     v2[0] = a2[0];
@@ -58,7 +61,8 @@ void rigid_body::sub_502640(const vector3d &a2) {
     v2[3] = 0.0f;
 }
 
-vector3d rigid_body::sub_503B80() {
+vector3d rigid_body::sub_503B80()
+{
     auto &v2 = this->field_110;
 
     vector3d result;
@@ -68,14 +72,14 @@ vector3d rigid_body::sub_503B80() {
     return result;
 }
 
-void user_rigid_body::set(const math::MatClass<4,3> *dictator)
+void user_rigid_body::set(const math::MatClass<4, 3> *dictator)
 {
     assert(dictator != nullptr);
 
     this->field_144 = 0;
     this->field_0 = *dictator;
 
-    static Var<vector4d> stru_8BFAB8 {0x8BFAB8}; 
+    static Var<vector4d> stru_8BFAB8{0x8BFAB8};
     this->field_D0 = stru_8BFAB8();
     this->field_E0 = stru_8BFAB8();
     this->field_13C = 1.0;
@@ -86,7 +90,8 @@ void user_rigid_body::set(const math::MatClass<4,3> *dictator)
     this->field_144 |= 0x20;
 }
 
-void rigid_body_patch() {
+void rigid_body_patch()
+{
     FUNC_ADDRESS(address, &rigid_body::sub_5B2D50);
     REDIRECT(0x007A09DD, address);
 }

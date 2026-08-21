@@ -20,6 +20,6 @@ void begin_entity_creation(const mString &a1);
 void frame_advance();
 
 void create_debug_menu(debug_menu *arg0);
-}
+}  // namespace script_memtrack
 
 extern void script_memtrack_patch();

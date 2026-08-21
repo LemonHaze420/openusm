@@ -15,19 +15,19 @@ struct VShader {
     IDirect3DVertexDeclaration9 *field_4;
 };
 
-inline Var<VShader> stru_975780 {0x00975780};
+inline Var<VShader> stru_975780{0x00975780};
 
-inline Var<VShader> stru_975798 {0x00975798};
+inline Var<VShader> stru_975798{0x00975798};
 
-inline Var<VShader> stru_975788 {0x00975788};
+inline Var<VShader> stru_975788{0x00975788};
 
-inline Var<VShader> stru_9757A4 {0x009757A4};
+inline Var<VShader> stru_9757A4{0x009757A4};
 
-extern IDirect3DVertexDeclaration9 * (& dword_9738E0)[29];
+extern IDirect3DVertexDeclaration9 *(&dword_9738E0)[29];
 
-inline Var<IDirect3DPixelShader9 *> dword_9757DC {0x009757DC};
+inline Var<IDirect3DPixelShader9 *> dword_9757DC{0x009757DC};
 
-inline Var<IDirect3DPixelShader9 *> dword_975790 {0x00975790};
+inline Var<IDirect3DPixelShader9 *> dword_975790{0x00975790};
 
 extern _std::list<IDirect3DPixelShader9 *> &g_pixelShaderList;
 
@@ -42,8 +42,7 @@ extern void nglSetVertexDeclarationAndShader(VShader *a1);
 extern void SetPixelShader(IDirect3DPixelShader9 **a1);
 
 //0x00772550
-extern void nglCreateVShader(
-    const D3DVERTEXELEMENT9 *a2, void *a1, [[maybe_unused]] BOOL a3, const char *SrcCode, ...);
+extern void nglCreateVShader(const D3DVERTEXELEMENT9 *a2, void *a1, [[maybe_unused]] BOOL a3, const char *SrcCode, ...);
 
 extern void nglCreatePShader(IDirect3DPixelShader9 **a3, const char *SrcCode, ...);
 

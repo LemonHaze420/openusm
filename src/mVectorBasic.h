@@ -11,9 +11,8 @@
 struct from_mash_in_place_constructor;
 struct mash_info_struct;
 
-template<typename T>
-struct mVectorBasic : mContainer_base
-{
+template <typename T>
+struct mVectorBasic : mContainer_base {
     T *m_data;
     int m_max_size;
 
@@ -21,14 +20,15 @@ struct mVectorBasic : mContainer_base
 
     mVectorBasic() : mContainer_base() {}
 
-    mVectorBasic(from_mash_in_place_constructor *a2) : mContainer_base(a2) {
-    }
+    mVectorBasic(from_mash_in_place_constructor *a2) : mContainer_base(a2) {}
 
-    int size() const {
+    int size() const
+    {
         return this->m_size;
     }
 
-    auto &at(int i) {
+    auto &at(int i)
+    {
         return this->m_data[i];
     }
 
@@ -44,7 +44,7 @@ struct mVectorBasic : mContainer_base
     {
         assert(m_size <= m_max_size);
 
-        if ( this->m_size == this->m_max_size || this->is_pointer_in_mash_image(this->m_data) ) {
+        if (this->m_size == this->m_max_size || this->is_pointer_in_mash_image(this->m_data)) {
             this->reserve(8 * (this->m_size / 8) + 8);
         }
 

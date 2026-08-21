@@ -47,7 +47,7 @@ struct fe_track_and_field {
     //virtual
     void Draw();
 
-    static inline void * g_vtbl[] {
+    static inline void *g_vtbl[]{
         func_address(&_Init),
         func_address(&_Update),
         func_address(&_Draw),

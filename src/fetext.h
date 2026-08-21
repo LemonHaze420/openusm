@@ -14,7 +14,6 @@
 struct FETextFlashInfo;
 
 struct FEText : PanelAnimObject {
-
     FETextFlashInfo *flash_info;
     font_index field_18;
 
@@ -36,15 +35,7 @@ struct FEText : PanelAnimObject {
     FEText();
 
     //0x00617500
-    FEText(font_index a2,
-           global_text_enum a3,
-           Float a4,
-           Float a5,
-           int a6,
-           panel_layer a7,
-           Float a8,
-           int a9,
-           int a10,
+    FEText(font_index a2, global_text_enum a3, Float a4, Float a5, int a6, panel_layer a7, Float a8, int a9, int a10,
            color32 a11);
 
     bool CheckIfNotTooLong(int);
@@ -72,7 +63,8 @@ struct FEText : PanelAnimObject {
         char *guts;
         int field_C;
 
-        string(const mString &a1) {
+        string(const mString &a1)
+        {
             std::memcpy(this, &a1, sizeof(mString));
         }
     };

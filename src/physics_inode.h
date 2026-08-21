@@ -88,13 +88,10 @@ struct physics_inode : info_node {
     void set_gravity(bool a2);
 
     //virtual
-    void apply_force_increment(const vector3d &a2,
-                               physical_interface::force_type a3,
-                               const vector3d &a4,
-                               int a5);
+    void apply_force_increment(const vector3d &a2, physical_interface::force_type a3, const vector3d &a4, int a5);
 
     static const inline string_hash default_id{static_cast<int>(to_hash("physics"))};
 };
-} // namespace ai
+}  // namespace ai
 
 extern void physics_inode_patch();

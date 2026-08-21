@@ -51,8 +51,8 @@ extern Var<eStatus> mLastError;
 //0x007B1FF0
 extern int SaveGame(const Container &a1);
 
-inline Var<eOperation> mCurrentOperation {0x0098481C};
+inline Var<eOperation> mCurrentOperation{0x0098481C};
 
-inline Var<Container> mGameSave {0x00984828};
+inline Var<Container> mGameSave{0x00984828};
 
-} // namespace MemoryUnitManager
+}  // namespace MemoryUnitManager

@@ -1,7 +1,6 @@
 #pragma once
 
-struct allocator_base
-{
+struct allocator_base {
     int m_vtbl;
     int m_alignment;
 

@@ -29,10 +29,7 @@ struct district_graph_container {
     //0x00556640
     void setup_terrain(terrain *the_terrain);
 
-    void un_mash_start(generic_mash_header *a2,
-                                       void *a3,
-                                       generic_mash_data_ptrs *a4,
-                                       void *a5);
+    void un_mash_start(generic_mash_header *a2, void *a3, generic_mash_data_ptrs *a4, void *a5);
 
     void un_mash(generic_mash_header *a2, void *a3, generic_mash_data_ptrs *a4);
 };

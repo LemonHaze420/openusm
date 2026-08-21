@@ -31,12 +31,8 @@ struct web_zip_state : enhanced_state {
 
     //0x0045D340
     //virtual
-    void activate(
-        ai_state_machine *a2,
-        const mashed_state *a3,
-        const mashed_state *a4,
-        string_hash a5,
-        base_state::activate_flag_e a6);
+    void activate(ai_state_machine *a2, const mashed_state *a3, const mashed_state *a4, string_hash a5,
+                  base_state::activate_flag_e a6);
 
     //0x0044C6E0
     //virtual
@@ -100,6 +96,6 @@ struct web_zip_inode : info_node {
     int deactivate();
 };
 
-} // namespace ai
+}  // namespace ai
 
 extern void web_zip_state_patch();

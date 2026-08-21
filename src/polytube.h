@@ -46,9 +46,7 @@ struct PolytubeCustomVertex {
         float field_44;
         float field_48;
 
-        void Write(const vector3d &a2,
-                    const vector3d &a3);
-
+        void Write(const vector3d &a2, const vector3d &a3);
     };
 };
 

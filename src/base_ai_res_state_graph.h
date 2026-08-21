@@ -21,7 +21,8 @@ struct state_graph {
 
     void initialize(mash::allocation_scope scope);
 
-    mashed_state * get_initial_state() const {
+    mashed_state *get_initial_state() const
+    {
         return this->field_1C;
     }
 
@@ -31,7 +32,8 @@ struct state_graph {
 
     unsigned int get_size_memory_block() const;
 
-    resource_key get_name() const {
+    resource_key get_name() const
+    {
         return this->field_0;
     }
 
@@ -39,6 +41,6 @@ struct state_graph {
     mashed_state *find_state(string_hash a2) const;
 };
 
-} // namespace ai
+}  // namespace ai
 
 extern void state_graph_patch();

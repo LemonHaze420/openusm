@@ -5,8 +5,7 @@
 #include "mstring.h"
 #include "vector3d.h"
 
-struct script_data_interface : conglomerate_interface
-{
+struct script_data_interface : conglomerate_interface {
     char field_C[0x28u];
 
     mString field_34;

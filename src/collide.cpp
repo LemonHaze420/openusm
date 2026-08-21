@@ -19,44 +19,32 @@
 #include <cassert>
 #include <cmath>
 
-bool find_sphere_intersection(const vector3d &a1,
-                              Float a2,
-                              const local_collision::entfilter_base &a3,
-                              const local_collision::obbfilter_base &a4,
-                              vector3d *a5,
-                              vector3d *a6,
-                              entity **a7,
+bool find_sphere_intersection(const vector3d &a1, Float a2, const local_collision::entfilter_base &a3,
+                              const local_collision::obbfilter_base &a4, vector3d *a5, vector3d *a6, entity **a7,
                               subdivision_node_obb_base **a8)
 {
     TRACE("find_sphere_intersection");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         local_collision::intersection_list_t best_isect{};
 
-        local_collision::query_args_t v15 {};
+        local_collision::query_args_t v15{};
 
         auto *v8 = local_collision::query_sphere(a1, a2, a3, a4, v15);
-        bool result =
-            local_collision::get_closest_sphere_intersection(v8, a1, a2, a5, a6, &best_isect);
+        bool result = local_collision::get_closest_sphere_intersection(v8, a1, a2, a5, a6, &best_isect);
 
         local_collision::primitive_list_t *v12 = nullptr;
-        for (auto *it = v8; it != nullptr; it = v12)
-        {
+        for (auto *it = v8; it != nullptr; it = v12) {
             v12 = it->field_0;
             local_collision::primitive_list_t::pool.remove(it);
         }
 
-        if (result && best_isect.is_ent)
-        {
+        if (result && best_isect.is_ent) {
             if (a7 != nullptr) {
                 *a7 = static_cast<entity *>(best_isect.intersection_node);
             }
-        }
-        else if (result)
-        {
-            assert(static_cast<subdivision_node_obb_base *>(best_isect.intersection_node)
-                       ->is_obb_node());
+        } else if (result) {
+            assert(static_cast<subdivision_node_obb_base *>(best_isect.intersection_node)->is_obb_node());
 
             if (a8 != nullptr) {
                 *a8 = static_cast<subdivision_node_obb_base *>(best_isect.intersection_node);
@@ -64,46 +52,39 @@ bool find_sphere_intersection(const vector3d &a1,
         }
 
         return result;
-    }
-    else
-    {
+    } else {
         bool (*func)(const vector3d *a1,
-                              Float a2,
-                              const local_collision::entfilter_base *a3,
-                              const local_collision::obbfilter_base *a4,
-                              vector3d *,
-                              vector3d *,
-                              entity **,
-                              subdivision_node_obb_base **) = CAST(func, 0x005B9F30);
+                     Float a2,
+                     const local_collision::entfilter_base *a3,
+                     const local_collision::obbfilter_base *a4,
+                     vector3d *,
+                     vector3d *,
+                     entity **,
+                     subdivision_node_obb_base **) = CAST(func, 0x005B9F30);
         return func(&a1, a2, &a3, &a4, a5, a6, a7, a8);
     }
 }
 
-bool best_sphere_obb_tree_intersection(math::VecClass<3, 0> const &a1,
-                                       const cg_mesh *a2,
-                                       const collision_obb_t &a3,
-                                       math::VecClass<3, 0> &a4,
-                                       float &a5) {
+bool best_sphere_obb_tree_intersection(math::VecClass<3, 0> const &a1, const cg_mesh *a2, const collision_obb_t &a3,
+                                       math::VecClass<3, 0> &a4, float &a5)
+{
     if constexpr (0) {
     } else {
-        return (bool) CDECL_CALL(0x005CA780, &a1, a2, &a3, &a4, &a5);
+        return (bool)CDECL_CALL(0x005CA780, &a1, a2, &a3, &a4, &a5);
     }
 }
 
-bool collide_sphere_mesh(
-    const vector3d &a1, Float a2, const cg_mesh *mesh, vector3d *hit_loc, vector3d *hit_norm) {
+bool collide_sphere_mesh(const vector3d &a1, Float a2, const cg_mesh *mesh, vector3d *hit_loc, vector3d *hit_norm)
+{
     if constexpr (0) {
     } else {
         return CDECL_CALL(0x005CB2D0, &a1, a2, mesh, hit_loc, hit_norm);
     }
 }
 
-bool collide_sphere_geometry(const vector3d &a2,
-                             Float a3,
-                             collision_geometry *cg,
-                             const po &a4,
-                             vector3d *impact_pos,
-                             vector3d *impact_normal) {
+bool collide_sphere_geometry(const vector3d &a2, Float a3, collision_geometry *cg, const po &a4, vector3d *impact_pos,
+                             vector3d *impact_normal)
+{
     if (cg->get_type() == collision_geometry::CAPSULE) {
         auto a2a = bit_cast<collision_capsule *>(cg)->get_abs_capsule(a4);
 
@@ -134,8 +115,8 @@ bool collide_sphere_geometry(const vector3d &a2,
     return false;
 }
 
-bool collide_sphere_entity(
-    const vector3d &a1, Float a2, const entity *ent, vector3d *a4, vector3d *a5, po *a6) {
+bool collide_sphere_entity(const vector3d &a1, Float a2, const entity *ent, vector3d *a4, vector3d *a5, po *a6)
+{
     auto *cg = ent->get_colgeom();
 
     assert(ent->is_an_actor());
@@ -162,8 +143,9 @@ bool collide_sphere_entity(
     return collide_sphere_geometry(a1, a2, cg, *v17, a4, a5);
 }
 
-bool collide_segment_solid_sphere(
-    const vector3d &a1, const vector3d &a2, const vector3d &a3, Float radius, vector3d *hit_loc) {
+bool collide_segment_solid_sphere(const vector3d &a1, const vector3d &a2, const vector3d &a3, Float radius,
+                                  vector3d *hit_loc)
+{
     if constexpr (1) {
         auto local_vec0 = a2 - a1;
         auto local_vec1 = a1 - a3;
@@ -213,12 +195,12 @@ bool collide_segment_solid_sphere(
 
         return true;
     } else {
-        return (bool) CDECL_CALL(0x005B9430, &a1, &a2, &a3, radius, hit_loc);
+        return (bool)CDECL_CALL(0x005B9430, &a1, &a2, &a3, radius, hit_loc);
     }
 }
 
-int collide_segment_hollow_sphere(
-    const vector3d &a1, const vector3d &a2, const vector3d &a3, Float a4, vector3d *a5) {
+int collide_segment_hollow_sphere(const vector3d &a1, const vector3d &a2, const vector3d &a3, Float a4, vector3d *a5)
+{
     if constexpr (1) {
         auto local_vec0 = a2 - a1;
         auto local_vec1 = a1 - a3;
@@ -242,7 +224,6 @@ int collide_segment_hollow_sphere(
                 static constexpr float flt_8912D8 = 1.0001;
 
                 if (v30 >= flt_87E6EC && v30 <= flt_8912D8) {
-
                     a5[v14++] = local_vec0 * v30 + a1;
                 }
 
@@ -284,22 +265,19 @@ float dist_point_segment_sq_opt(const vector3d &a1, const vector3d &a2, const ve
     return v6 * v6 + v10 * v10 + v9 * v9;
 }
 
-bool collide_segment_capsule(const vector3d &a1,
-                             const vector3d &a2,
-                             const vector3d &a3,
-                             const vector3d &a4,
-                             Float a5,
-                             vector3d *hit_point,
-                             vector3d *hit_normal) {
+bool collide_segment_capsule(const vector3d &a1, const vector3d &a2, const vector3d &a3, const vector3d &a4, Float a5,
+                             vector3d *hit_point, vector3d *hit_normal)
+{
     if constexpr (0) {
         assert(hit_point != nullptr && hit_normal != nullptr);
 
     } else {
-        return (bool) CDECL_CALL(0x005C4A20, &a1, &a2, &a3, &a4, a5, hit_point, hit_normal);
+        return (bool)CDECL_CALL(0x005C4A20, &a1, &a2, &a3, &a4, a5, hit_point, hit_normal);
     }
 }
 
-vector3d sub_580BB0(float *self, const uint16_t *a3) {
+vector3d sub_580BB0(float *self, const uint16_t *a3)
+{
     auto *v3 = &self[3 * a3[0] + 1];
     auto v4 = self[3 * a3[2] + 1] - *v3;
     auto v5 = self[3 * a3[2] + 2] - self[3 * a3[0] + 2];
@@ -317,11 +295,10 @@ vector3d sub_580BB0(float *self, const uint16_t *a3) {
     return v12;
 }
 
-bool get_closest_intersection_from_list(const vector3d &a3,
-                                        const cg_mesh *mesh,
-                                        mesh_triangle_intersection_record_t *a2,
-                                        vector3d *closest_point,
-                                        vector3d *closest_normal) {
+bool get_closest_intersection_from_list(const vector3d &a3, const cg_mesh *mesh,
+                                        mesh_triangle_intersection_record_t *a2, vector3d *closest_point,
+                                        vector3d *closest_normal)
+{
     mesh_triangle_intersection_record_t *v5 = nullptr;
     float v19 = 3.4028235e38;
     if (a2 == nullptr) {
@@ -354,15 +331,12 @@ bool get_closest_intersection_from_list(const vector3d &a3,
     auto *v13 = &v11->field_10[v10];
 
     vector3d v20 = sub_580BB0(
-        (float *) ((char *) &v13->field_0[0x4000 * v12] + v13->field_36),
+        (float *)((char *)&v13->field_0[0x4000 * v12] + v13->field_36),
 
         (unsigned __int16
-             *) ((char *) &v13->field_0
-                     [0x4000 * v12 + 1 +
-                          3 *
-                              *(unsigned __int16 *) ((char *) &v13->field_0[0x4000 * v12] +
-                                                     v13->field_36)] +
-                 6 * v5->field_C + v13->field_36));
+             *)((char *)&v13->field_0[0x4000 * v12 + 1 +
+                                      3 * *(unsigned __int16 *)((char *)&v13->field_0[0x4000 * v12] + v13->field_36)] +
+                6 * v5->field_C + v13->field_36));
 
     *closest_normal = v20;
 
@@ -376,19 +350,15 @@ bool get_closest_intersection_from_list(const vector3d &a3,
     return true;
 }
 
-void line_segment_obb_tree_intersection(const vector3d &a1,
-                                        const vector3d &a2,
-                                        const cg_mesh *a3,
-                                        const collision_obb_t *a4,
-                                        mesh_triangle_intersection_record_t **a5) {
+void line_segment_obb_tree_intersection(const vector3d &a1, const vector3d &a2, const cg_mesh *a3,
+                                        const collision_obb_t *a4, mesh_triangle_intersection_record_t **a5)
+{
     CDECL_CALL(0x005CA5D0, &a1, &a2, a3, a4, a5);
 }
 
-bool collide_segment_mesh(const vector3d &a3,
-                          const vector3d &a2,
-                          cg_mesh *mesh,
-                          vector3d *closest_point,
-                          vector3d *closest_normal) {
+bool collide_segment_mesh(const vector3d &a3, const vector3d &a2, cg_mesh *mesh, vector3d *closest_point,
+                          vector3d *closest_normal)
+{
     assert(mesh != nullptr);
 
     auto *v11 = mesh->data->field_10;
@@ -403,25 +373,15 @@ bool collide_segment_mesh(const vector3d &a3,
     return result;
 }
 
-bool collide_segment_geometry(const vector3d &a2,
-                              const vector3d &a3,
-                              collision_geometry *cg,
-                              const po &a5,
-                              vector3d *impact_pos,
-                              vector3d *impact_normal)
+bool collide_segment_geometry(const vector3d &a2, const vector3d &a3, collision_geometry *cg, const po &a5,
+                              vector3d *impact_pos, vector3d *impact_normal)
 {
     assert(impact_pos != nullptr && impact_normal != nullptr);
 
     bool result;
     if (cg->get_type() == collision_geometry::CAPSULE) {
         auto v11 = bit_cast<collision_capsule *>(cg)->get_abs_capsule(a5);
-        result = collide_segment_capsule(a2,
-                                         a3,
-                                         v11.base,
-                                         v11.end,
-                                         v11.radius,
-                                         impact_pos,
-                                         impact_normal);
+        result = collide_segment_capsule(a2, a3, v11.base, v11.end, v11.radius, impact_pos, impact_normal);
     } else if (cg->get_type() == collision_geometry::MESH) {
         auto v12 = *a5.inverse();
         auto local_p0 = v12.slow_xform(a2);
@@ -432,11 +392,7 @@ bool collide_segment_geometry(const vector3d &a2,
 
         assert(local_p1.is_valid());
 
-        result = collide_segment_mesh(local_p0,
-                                      local_p1,
-                                      bit_cast<cg_mesh *>(cg),
-                                      impact_pos,
-                                      impact_normal);
+        result = collide_segment_mesh(local_p0, local_p1, bit_cast<cg_mesh *>(cg), impact_pos, impact_normal);
         auto v7 = result;
         if (result) {
             assert(impact_pos->is_valid() && "collide_segment_geometry failed");
@@ -461,12 +417,9 @@ bool collide_segment_geometry(const vector3d &a2,
     return result;
 }
 
-bool collide_segment_entity(const vector3d &a2,
-                            const vector3d &a3,
-                            const entity *a4,
-                            const po &a5,
-                            vector3d *a6,
-                            vector3d *a7) {
+bool collide_segment_entity(const vector3d &a2, const vector3d &a3, const entity *a4, const po &a5, vector3d *a6,
+                            vector3d *a7)
+{
     if constexpr (1) {
         auto *v6 = a4->get_colgeom();
         auto a4a = a4->get_colgeom_radius();
@@ -484,13 +437,9 @@ bool collide_segment_entity(const vector3d &a2,
     }
 }
 
-bool collide_segment_entity_or_sphere(const vector3d &a2,
-                                      const vector3d &a3,
-                                      const entity *a4,
-                                      const po &a5,
-                                      vector3d *a6,
-                                      vector3d *a7,
-                                      Float a8) {
+bool collide_segment_entity_or_sphere(const vector3d &a2, const vector3d &a3, const entity *a4, const po &a5,
+                                      vector3d *a6, vector3d *a7, Float a8)
+{
     if (a4->colgeom != nullptr) {
         return collide_segment_entity(a2, a3, a4, a5, a6, a7);
     }
@@ -508,94 +457,64 @@ bool collide_segment_entity_or_sphere(const vector3d &a2,
     return true;
 }
 
-bool collide_capsule_capsule(const vector3d &a1, const vector3d &a2, Float radius1,
-        const vector3d &a4, const vector3d &a5,
-        Float radius2,
-        vector3d &cp1,
-        vector3d &cp2,
-        vector3d &normal)
+bool collide_capsule_capsule(const vector3d &a1, const vector3d &a2, Float radius1, const vector3d &a4,
+                             const vector3d &a5, Float radius2, vector3d &cp1, vector3d &cp2, vector3d &normal)
 {
     assert(radius1 > EPSILON && radius2 > EPSILON);
 
-    return (bool) CDECL_CALL(0x005C47A0, &a1, &a2, radius1, &a4, &a5, radius2, &cp1, &cp2, &normal);
+    return (bool)CDECL_CALL(0x005C47A0, &a1, &a2, radius1, &a4, &a5, radius2, &cp1, &cp2, &normal);
 }
 
-void collide_unit_test() {
+void collide_unit_test()
+{
     sp_log("collide test\n");
     sp_log("testing collide_segment_solid_sphere\n");
 
     vector3d hit_loc;
-    auto result = collide_segment_solid_sphere(vector3d{0.0, 0.0, 0.0},
-                                               vector3d{0.0, 2.0, 0.0},
-                                               vector3d{0.0, 2.0, 0.0},
-                                               1.0,
-                                               &hit_loc);
+    auto result = collide_segment_solid_sphere(
+        vector3d{0.0, 0.0, 0.0}, vector3d{0.0, 2.0, 0.0}, vector3d{0.0, 2.0, 0.0}, 1.0, &hit_loc);
     assert(result);
     assert(hit_loc == vector3d(0.0f, 1.0f, 0.0f));
 
-    result = collide_segment_solid_sphere(vector3d{0.0, 0.0, 0.0},
-                                          vector3d{1.0, 0.0, 0.0},
-                                          vector3d{-1.0, 0.0, 0.0},
-                                          1.0,
-                                          &hit_loc);
+    result = collide_segment_solid_sphere(
+        vector3d{0.0, 0.0, 0.0}, vector3d{1.0, 0.0, 0.0}, vector3d{-1.0, 0.0, 0.0}, 1.0, &hit_loc);
 
     assert(result);
     assert(hit_loc == vector3d(0.0f, 0.0f, 0.0f));
 
-    result = collide_segment_solid_sphere(vector3d(0.0, 0.0, 0.0),
-                                          vector3d(1.0, 0.0, 0.0),
-                                          vector3d(0.0, 0.0, 0.0),
-                                          0.0,
-                                          &hit_loc);
+    result = collide_segment_solid_sphere(
+        vector3d(0.0, 0.0, 0.0), vector3d(1.0, 0.0, 0.0), vector3d(0.0, 0.0, 0.0), 0.0, &hit_loc);
 
     assert(result);
     assert(hit_loc == vector3d(0.0f, 0.0f, 0.0f));
 
-    result = collide_segment_solid_sphere(vector3d(0.0, 0.0, 0.0),
-                                          vector3d(-1.0, 0.0, 0.0),
-                                          vector3d(-2.0, 0.0, 0.0),
-                                          1.0,
-                                          &hit_loc);
+    result = collide_segment_solid_sphere(
+        vector3d(0.0, 0.0, 0.0), vector3d(-1.0, 0.0, 0.0), vector3d(-2.0, 0.0, 0.0), 1.0, &hit_loc);
     assert(result);
     assert(hit_loc == vector3d(-1.0f, 0.0f, 0.0f));
 
-    result = collide_segment_solid_sphere(vector3d(-1.0, 1.0, 0.0),
-                                          vector3d(1.0, 1.0, 0.0),
-                                          vector3d(1.0, 1.0, 0.0),
-                                          1.0,
-                                          &hit_loc);
+    result = collide_segment_solid_sphere(
+        vector3d(-1.0, 1.0, 0.0), vector3d(1.0, 1.0, 0.0), vector3d(1.0, 1.0, 0.0), 1.0, &hit_loc);
     assert(result);
     assert(hit_loc == vector3d(0.0f, 1.0f, 0.0f));
 
-    result = collide_segment_solid_sphere(vector3d(-2.0, 0.0, 0.0),
-                                          vector3d(2.0, 0.0, 0.0),
-                                          vector3d(0.0, 0.0, 0.0),
-                                          1.0,
-                                          &hit_loc);
+    result = collide_segment_solid_sphere(
+        vector3d(-2.0, 0.0, 0.0), vector3d(2.0, 0.0, 0.0), vector3d(0.0, 0.0, 0.0), 1.0, &hit_loc);
     assert(result);
 
     assert((hit_loc == vector3d(-1.0f, 0.0f, 0.0f)) || (hit_loc == vector3d(1.0f, 0.0f, 0.0f)));
 
-    result = collide_segment_solid_sphere(vector3d{-2.0, 2.0, 0.0},
-                                          vector3d{2.0, 2.0, 0.0},
-                                          vector3d{0.0, 0.0, 0.0},
-                                          1.0,
-                                          &hit_loc);
+    result = collide_segment_solid_sphere(
+        vector3d{-2.0, 2.0, 0.0}, vector3d{2.0, 2.0, 0.0}, vector3d{0.0, 0.0, 0.0}, 1.0, &hit_loc);
     //assert(!result);
 
-    result = collide_segment_solid_sphere(vector3d(-2.0, 0.0, 0.0),
-                                          vector3d(-2.0, 0.0, 0.0),
-                                          vector3d(0.0, 0.0, 0.0),
-                                          4.0,
-                                          &hit_loc);
+    result = collide_segment_solid_sphere(
+        vector3d(-2.0, 0.0, 0.0), vector3d(-2.0, 0.0, 0.0), vector3d(0.0, 0.0, 0.0), 4.0, &hit_loc);
     assert(result);
     assert(hit_loc == vector3d(-2.0f, 0.0f, 0.0f));
 
-    result = collide_segment_solid_sphere(vector3d(0.0, 0.0, 0.0),
-                                          vector3d(1.0, 0.0, 0.0),
-                                          vector3d(0.0, 0.0, 0.0),
-                                          2.0,
-                                          &hit_loc);
+    result = collide_segment_solid_sphere(
+        vector3d(0.0, 0.0, 0.0), vector3d(1.0, 0.0, 0.0), vector3d(0.0, 0.0, 0.0), 2.0, &hit_loc);
     assert(result);
 
     assert((hit_loc == vector3d(0.0f, 0.0f, 0.0f)) || (hit_loc == vector3d(1.0f, 0.0f, 0.0f)));
@@ -603,102 +522,66 @@ void collide_unit_test() {
     sp_log("testing collide_segment_hollow_sphere\n");
 
     vector3d hit_locs[2];
-    auto num_hits = collide_segment_hollow_sphere(vector3d(0.0, 0.0, 0.0),
-                                                  vector3d(0.0, 2.0, 0.0),
-                                                  vector3d(0.0, 2.0, 0.0),
-                                                  1.0,
-                                                  hit_locs);
+    auto num_hits = collide_segment_hollow_sphere(
+        vector3d(0.0, 0.0, 0.0), vector3d(0.0, 2.0, 0.0), vector3d(0.0, 2.0, 0.0), 1.0, hit_locs);
 
     assert(num_hits == 1);
     assert(hit_locs[0] == vector3d(0.0f, 1.0f, 0.0f));
 
-    num_hits = collide_segment_hollow_sphere(vector3d(0.0, 0.0, 0.0),
-                                             vector3d(1.0, 0.0, 0.0),
-                                             vector3d(-1.0, 0.0, 0.0),
-                                             1.0,
-                                             hit_locs);
+    num_hits = collide_segment_hollow_sphere(
+        vector3d(0.0, 0.0, 0.0), vector3d(1.0, 0.0, 0.0), vector3d(-1.0, 0.0, 0.0), 1.0, hit_locs);
     assert(num_hits == 1);
     assert(hit_locs[0] == vector3d(0.0f, 0.0f, 0.0f));
 
-    num_hits = collide_segment_hollow_sphere(vector3d(0.0, 0.0, 0.0),
-                                             vector3d(1.0, 0.0, 0.0),
-                                             vector3d(0.0, 0.0, 0.0),
-                                             0.0,
-                                             hit_locs);
+    num_hits = collide_segment_hollow_sphere(
+        vector3d(0.0, 0.0, 0.0), vector3d(1.0, 0.0, 0.0), vector3d(0.0, 0.0, 0.0), 0.0, hit_locs);
     assert(num_hits == 1);
     assert(hit_locs[0] == vector3d(0.0f, 0.0f, 0.0f));
 
-    num_hits = collide_segment_hollow_sphere(vector3d(0.0, 0.0, 0.0),
-                                             vector3d(-1.0, 0.0, 0.0),
-                                             vector3d(-2.0, 0.0, 0.0),
-                                             1.0,
-                                             hit_locs);
+    num_hits = collide_segment_hollow_sphere(
+        vector3d(0.0, 0.0, 0.0), vector3d(-1.0, 0.0, 0.0), vector3d(-2.0, 0.0, 0.0), 1.0, hit_locs);
     assert(num_hits == 1);
     assert(hit_locs[0] == vector3d(-1.0f, 0.0f, 0.0f));
 
-    num_hits = collide_segment_hollow_sphere(vector3d(-1.0, 1.0, 0.0),
-                                             vector3d(1.0, 1.0, 0.0),
-                                             vector3d(1.0, 1.0, 0.0),
-                                             1.0,
-                                             hit_locs);
+    num_hits = collide_segment_hollow_sphere(
+        vector3d(-1.0, 1.0, 0.0), vector3d(1.0, 1.0, 0.0), vector3d(1.0, 1.0, 0.0), 1.0, hit_locs);
     assert(num_hits == 1);
     assert(hit_locs[0] == vector3d(0.0f, 1.0f, 0.0f));
 
-    num_hits = collide_segment_hollow_sphere(vector3d(-2.0, 0.0, 0.0),
-                                             vector3d(2.0, 0.0, 0.0),
-                                             vector3d(0.0, 0.0, 0.0),
-                                             1.0,
-                                             hit_locs);
+    num_hits = collide_segment_hollow_sphere(
+        vector3d(-2.0, 0.0, 0.0), vector3d(2.0, 0.0, 0.0), vector3d(0.0, 0.0, 0.0), 1.0, hit_locs);
 
     assert(num_hits == 2);
     assert(hit_locs[0] == vector3d(-1.0f, 0.0f, 0.0f));
     assert(hit_locs[1] == vector3d(1.0f, 0.0f, 0.0f));
 
-    num_hits = collide_segment_hollow_sphere(vector3d(-2.0, 0.0, 0.0),
-                                             vector3d(2.0, 0.0, 0.0),
-                                             vector3d(0.0, 1.0, 0.0),
-                                             1.0,
-                                             hit_locs);
+    num_hits = collide_segment_hollow_sphere(
+        vector3d(-2.0, 0.0, 0.0), vector3d(2.0, 0.0, 0.0), vector3d(0.0, 1.0, 0.0), 1.0, hit_locs);
     assert(num_hits == 1);
     assert(hit_locs[0] == vector3d(0.0f, 0.0f, 0.0f));
 
-    num_hits = collide_segment_hollow_sphere(vector3d(-2.0, 2.0, 0.0),
-                                             vector3d(2.0, 2.0, 0.0),
-                                             vector3d(0.0, 0.0, 0.0),
-                                             1.0,
-                                             hit_locs);
+    num_hits = collide_segment_hollow_sphere(
+        vector3d(-2.0, 2.0, 0.0), vector3d(2.0, 2.0, 0.0), vector3d(0.0, 0.0, 0.0), 1.0, hit_locs);
     assert(num_hits == 0);
 
-    num_hits = collide_segment_hollow_sphere(vector3d(-2.0, 0.0, 0.0),
-                                             vector3d(-2.0, 0.0, 0.0),
-                                             vector3d(0.0, 0.0, 0.0),
-                                             4.0,
-                                             hit_locs);
+    num_hits = collide_segment_hollow_sphere(
+        vector3d(-2.0, 0.0, 0.0), vector3d(-2.0, 0.0, 0.0), vector3d(0.0, 0.0, 0.0), 4.0, hit_locs);
     assert(num_hits == 0);
 
-    num_hits = collide_segment_hollow_sphere(vector3d(-2.0, 0.0, 0.0),
-                                             vector3d(-2.0, 0.0, 0.0),
-                                             vector3d(0.0, 0.0, 0.0),
-                                             2.0,
-                                             hit_locs);
+    num_hits = collide_segment_hollow_sphere(
+        vector3d(-2.0, 0.0, 0.0), vector3d(-2.0, 0.0, 0.0), vector3d(0.0, 0.0, 0.0), 2.0, hit_locs);
     assert(num_hits == 1);
     assert(hit_locs[0] == vector3d(-2.0f, 0.0f, 0.0f));
 
-    num_hits = collide_segment_hollow_sphere(vector3d(-2.0, 0.0, 0.0),
-                                             vector3d(-2.0, 0.0, 0.0),
-                                             vector3d(0.0, 0.0, 0.0),
-                                             1.0,
-                                             hit_locs);
+    num_hits = collide_segment_hollow_sphere(
+        vector3d(-2.0, 0.0, 0.0), vector3d(-2.0, 0.0, 0.0), vector3d(0.0, 0.0, 0.0), 1.0, hit_locs);
     assert(num_hits == 0);
-    num_hits = collide_segment_hollow_sphere(vector3d(0.0, 0.0, 0.0),
-                                             vector3d(1.0, 0.0, 0.0),
-                                             vector3d(0.0, 0.0, 0.0),
-                                             2.0,
-                                             hit_locs);
+    num_hits = collide_segment_hollow_sphere(
+        vector3d(0.0, 0.0, 0.0), vector3d(1.0, 0.0, 0.0), vector3d(0.0, 0.0, 0.0), 2.0, hit_locs);
     assert(num_hits == 0);
 }
 
 bool closest_point_segment(const vector3d &a1, const vector3d &a2, const vector3d &a3, vector3d &a4)
 {
-    return (bool) CDECL_CALL(0x005B99F0, &a1, &a2, &a3, &a4);
+    return (bool)CDECL_CALL(0x005B99F0, &a1, &a2, &a3, &a4);
 }

@@ -30,10 +30,7 @@ struct mission_stack_manager {
     void insert_mission_pack(resource_pack_group *a2, const mString &a3, int a4);
 
     //0x005D7FE0
-    void push_mission_pack(const mString &a2,
-                           const mString &a3,
-                           int district_slot_override_idx,
-                           bool a5);
+    void push_mission_pack(const mString &a2, const mString &a3, int district_slot_override_idx, bool a5);
 
     //0x005D5800
     void pop_mission_pack(const mString &a2, const mString &a3);
@@ -54,19 +51,15 @@ struct mission_stack_manager {
     void push_mission_pack_immediate(const mString &a1, const mString &a2);
 
     //0x005D56E0
-    bool nonstatic_mission_stack_callback(resource_pack_slot::callback_enum a2,
-                                          resource_pack_streamer *a3,
-                                          resource_pack_slot *a4,
-                                          limited_timer *a5);
+    bool nonstatic_mission_stack_callback(resource_pack_slot::callback_enum a2, resource_pack_streamer *a3,
+                                          resource_pack_slot *a4, limited_timer *a5);
 
     //0x005D1FC0
     static void unmap_directory_parent(resource_pack_slot *a1);
 
     //0x005D7FC0
-    static bool mission_stack_callback(resource_pack_slot::callback_enum a1,
-                                       resource_pack_streamer *a2,
-                                       resource_pack_slot *a3,
-                                       limited_timer *a5);
+    static bool mission_stack_callback(resource_pack_slot::callback_enum a1, resource_pack_streamer *a2,
+                                       resource_pack_slot *a3, limited_timer *a5);
 
     //0x005BB620
     void start_streaming();
@@ -74,7 +67,7 @@ struct mission_stack_manager {
     static mission_stack_manager *get_instance();
 
     //0x0096851C
-    static mission_stack_manager *& s_inst;
+    static mission_stack_manager *&s_inst;
 };
 
 extern void mission_stack_manager_patch();

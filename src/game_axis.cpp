@@ -38,10 +38,8 @@ void game_axis::update(Float a2)
 
     sp_log("%d, %d", this->field_4, this->field_0);
 
-    if constexpr (0)
-    {}
-    else
-    {
+    if constexpr (0) {
+    } else {
         THISCALL(0x0051D900, this, a2);
     }
 }

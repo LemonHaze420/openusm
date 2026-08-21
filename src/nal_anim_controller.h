@@ -15,7 +15,6 @@ struct als_meta_anim_table_shared;
 }
 
 struct nal_anim_controller : animation_controller {
-
     struct scene_anim_client {
         int m_vtbl;
         nal_anim_controller *field_4;
@@ -29,20 +28,14 @@ struct nal_anim_controller : animation_controller {
 
         //0x0049C090
         //virtual
-        int Advance(
-            nalAnimClass<nalAnyPose>::nalInstanceClass *a2, Float a3, Float a4, Float a5, Float a6);
+        int Advance(nalAnimClass<nalAnyPose>::nalInstanceClass *a2, Float a3, Float a4, Float a5, Float a6);
 
         //virtual
-        void Render(
-            nalAnimClass<nalAnyPose>::nalInstanceClass *a2,
-            Float a3);
+        void Render(nalAnimClass<nalAnyPose>::nalInstanceClass *a2, Float a3);
     };
 
     struct std_play_method : usm_anim_player<nalAnimClass<nalAnyPose>, 3>::nalPlayMethod {
-        void *CreateInstance(
-            nalAnimClass<nalAnyPose> *a1,
-            nalBaseSkeleton *a2,
-            void *pParameter);
+        void *CreateInstance(nalAnimClass<nalAnyPose> *a1, nalBaseSkeleton *a2, void *pParameter);
     };
 
     usm_anim_player<nalAnimClass<nalAnyPose>, 3> my_player;
@@ -51,22 +44,19 @@ struct nal_anim_controller : animation_controller {
     bool field_50;
 
     //0x0049BCF0
-    nal_anim_controller(actor *a2,
-                        nalBaseSkeleton *a3,
-                        unsigned int a4,
-                        const als::als_meta_anim_table_shared *a5);
+    nal_anim_controller(actor *a2, nalBaseSkeleton *a3, unsigned int a4, const als::als_meta_anim_table_shared *a5);
 
     ~nal_anim_controller();
 
-    void * operator new(size_t size);
+    void *operator new(size_t size);
 
     void operator delete(void *ptr, size_t size);
 
     //virtual
-    void * get_base_layer_anim_ptr();
+    void *get_base_layer_anim_ptr();
 
     //virtual
-    void * get_anim_ptr(Float);
+    void *get_anim_ptr(Float);
 
     void get_curr_po_offset(po &a2);
 
@@ -92,7 +82,7 @@ struct nal_anim_controller : animation_controller {
     void _set_base_anim_time_in_sec(Float a2);
 
     //virtual
-    double _get_anim_speed(Float );
+    double _get_anim_speed(Float);
 
     //virtual
     void _set_base_anim_speed(Float speed);

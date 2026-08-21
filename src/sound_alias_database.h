@@ -6,8 +6,7 @@
 struct from_mash_in_place_constructor;
 struct mash_info_struct;
 
-struct sound_alias
-{
+struct sound_alias {
     string_hash field_0;
     string_hash field_4;
     int field_8;
@@ -21,7 +20,6 @@ struct sound_alias
 };
 
 struct sound_alias_database {
-
     mVector<sound_alias> field_0;
 
     sound_alias_database(from_mash_in_place_constructor *a2);
@@ -35,6 +33,6 @@ struct sound_alias_database {
     int *get_sound_alias(string_hash a2);
 };
 
-extern sound_alias_database *& s_sound_alias_database;
+extern sound_alias_database *&s_sound_alias_database;
 
 extern void sound_alias_database_patch();

@@ -13,8 +13,7 @@ struct anim_resource_handler : base_tl_resource_handler {
 
     //0x0055F930
     //BUG?
-    /* virtual */ bool _handle_resource(worldly_resource_handler::eBehavior a2,
-                                       tlresource_location *a3) /* override */;
+    /* virtual */ bool _handle_resource(worldly_resource_handler::eBehavior a2, tlresource_location *a3) /* override */;
 };
 
 extern void anim_resource_handler_patch();

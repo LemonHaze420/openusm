@@ -2,8 +2,7 @@
 
 #include "allocator_base.h"
 
-struct fixed_allocator_base : allocator_base
-{
+struct fixed_allocator_base : allocator_base {
     fixed_allocator_base(int align);
 
     //virtual

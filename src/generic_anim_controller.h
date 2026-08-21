@@ -15,12 +15,12 @@ struct als_meta_anim_table_shared;
 }
 
 struct generic_anim_controller : nal_anim_controller {
-
     struct gen_base_play_method {
         std::intptr_t m_vtbl;
         generic_anim_controller *field_4;
 
-        gen_base_play_method(generic_anim_controller *a2) {
+        gen_base_play_method(generic_anim_controller *a2)
+        {
             this->m_vtbl = 0x00880B40;
             this->field_4 = a2;
         }
@@ -30,7 +30,8 @@ struct generic_anim_controller : nal_anim_controller {
         std::intptr_t m_vtbl;
         generic_anim_controller *field_4;
 
-        gen_mod_play_method(generic_anim_controller *a2) {
+        gen_mod_play_method(generic_anim_controller *a2)
+        {
             this->m_vtbl = 0x00880B58;
             this->field_4 = a2;
         }
@@ -52,7 +53,7 @@ struct generic_anim_controller : nal_anim_controller {
 
     generic_anim_controller(actor *, nalBaseSkeleton *, unsigned int, als::als_meta_anim_table_shared *);
 
-    nalGeneric::nalGenericPose * GetPose();
+    nalGeneric::nalGenericPose *GetPose();
 
 
     //virtual
@@ -62,7 +63,6 @@ struct generic_anim_controller : nal_anim_controller {
     //virtual
     //0x0049C7F0
     vector3d get_hint_token_scale(string_hash a2);
-
 };
 
 extern void generic_anim_controller_patch();

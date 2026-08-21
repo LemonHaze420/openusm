@@ -44,7 +44,7 @@ void combo_system_move::dialation_info::_unmash(mash_info_struct *a2, void *a3)
 
 int combo_system_move::dialation_info::get_mash_sizeof() const
 {
-    int (__fastcall *func)(const void *) = CAST(func, get_vfunc(m_vtbl, 0x18));
+    int(__fastcall * func)(const void *) = CAST(func, get_vfunc(m_vtbl, 0x18));
     return func(this);
 }
 
@@ -66,7 +66,7 @@ void combo_system_move::link_info::_unmash(mash_info_struct *a1, void *)
 
 int combo_system_move::link_info::get_mash_sizeof() const
 {
-    int (__fastcall *func)(const void *) = CAST(func, get_vfunc(m_vtbl, 0x18));
+    int(__fastcall * func)(const void *) = CAST(func, get_vfunc(m_vtbl, 0x18));
     return func(this);
 }
 
@@ -83,7 +83,8 @@ combo_system_move::results::results()
     this->initialize(false);
 }
 
-combo_system_move::results::results(const results &a2) {
+combo_system_move::results::results(const results &a2)
+{
     THISCALL(0x0048CBB0, this, &a2);
 }
 
@@ -97,8 +98,7 @@ combo_system_move::results::~results()
 
 void combo_system_move::results::initialize(bool a2)
 {
-    if ( !a2 )
-    {
+    if (!a2) {
         this->field_30 = 0;
         this->field_34 = 0;
         this->field_10 = {""};
@@ -114,8 +114,7 @@ void combo_system_move::results::_unmash(mash_info_struct *a1, void *a3)
 {
     TRACE("combo_system_move::results::unmash");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         a1->unmash_class_in_place(this->field_4, this);
         a1->unmash_class_in_place(this->field_8, this);
         a1->unmash_class_in_place(this->field_C, this);
@@ -124,16 +123,14 @@ void combo_system_move::results::_unmash(mash_info_struct *a1, void *a3)
         a1->unmash_class_in_place(this->field_40, this);
 
         a1->unmash_class_in_place(this->field_54, this);
-    }
-    else
-    {
+    } else {
         THISCALL(0x00471B30, this, a1, a3);
     }
 }
 
 int combo_system_move::results::get_mash_sizeof() const
 {
-    int (__fastcall *func)(const void *) = CAST(func, get_vfunc(m_vtbl, 0x18));
+    int(__fastcall * func)(const void *) = CAST(func, get_vfunc(m_vtbl, 0x18));
     return func(this);
 }
 
@@ -150,7 +147,7 @@ combo_system_move::requirements::requirements()
 
 void combo_system_move::requirements::initialize(bool a2)
 {
-    if ( !a2 ) {
+    if (!a2) {
         this->field_44 = nullptr;
     }
 }
@@ -159,8 +156,7 @@ void combo_system_move::requirements::_unmash(mash_info_struct *a1, void *a3)
 {
     TRACE("combo_system_move::requirements::unmash");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         a1->unmash_class_in_place(this->field_4, this);
 
         a1->unmash_class_in_place(this->field_10, this);
@@ -168,16 +164,14 @@ void combo_system_move::requirements::_unmash(mash_info_struct *a1, void *a3)
         a1->unmash_class_in_place(this->field_1C, this);
 
         a1->unmash_class_in_place(this->field_30, this);
-    }
-    else
-    {
+    } else {
         THISCALL(0x00481470, this, a1, a3);
     }
 }
 
 int combo_system_move::requirements::get_mash_sizeof() const
 {
-    int (__fastcall *func)(const void *) = CAST(func, get_vfunc(m_vtbl, 0x18));
+    int(__fastcall * func)(const void *) = CAST(func, get_vfunc(m_vtbl, 0x18));
     return func(this);
 }
 
@@ -186,7 +180,7 @@ void combo_system_move::_unmash(mash_info_struct *a2, void *)
     TRACE("combo_system_move::unmash");
 
     mash_virtual_base::fixup_vtable(&this->field_4);
-    this->field_4.unmash(a2,this);
+    this->field_4.unmash(a2, this);
 
     mash_virtual_base::fixup_vtable(&this->field_80);
     this->field_80.unmash(a2, this);
@@ -199,7 +193,7 @@ int combo_system_move::_get_mash_sizeof() const
 
 int combo_system_move::get_mash_sizeof() const
 {
-    int (__fastcall *func)(const void *) = CAST(func, get_vfunc(m_vtbl, 0x18));
+    int(__fastcall * func)(const void *) = CAST(func, get_vfunc(m_vtbl, 0x18));
     return func(this);
 }
 
@@ -224,12 +218,14 @@ void combo_system_move::trigger_info::initialize(bool a2)
     }
 }
 
-void combo_system_move::trigger_info::_unmash(mash_info_struct *a2, void *a3) {
+void combo_system_move::trigger_info::_unmash(mash_info_struct *a2, void *a3)
+{
     mash_virtual_base::_unmash(a2, a3);
 }
 
-int combo_system_move::trigger_info::get_mash_sizeof() const {
-    int (__fastcall *func)(const void *) = CAST(func, get_vfunc(m_vtbl, 0x18));
+int combo_system_move::trigger_info::get_mash_sizeof() const
+{
+    int(__fastcall * func)(const void *) = CAST(func, get_vfunc(m_vtbl, 0x18));
     return func(this);
 }
 
@@ -252,12 +248,14 @@ void combo_system_move::target_info::initialize(bool a2)
     }
 }
 
-void combo_system_move::target_info::_unmash(mash_info_struct *a2, void *a3) {
+void combo_system_move::target_info::_unmash(mash_info_struct *a2, void *a3)
+{
     mash_virtual_base::_unmash(a2, a3);
 }
 
-int combo_system_move::target_info::get_mash_sizeof() const {
-    int (__fastcall *func)(const void *) = CAST(func, get_vfunc(m_vtbl, 0x18));
+int combo_system_move::target_info::get_mash_sizeof() const
+{
+    int(__fastcall * func)(const void *) = CAST(func, get_vfunc(m_vtbl, 0x18));
     return func(this);
 }
 
@@ -282,12 +280,14 @@ void combo_system_move::range_info::initialize(bool a2)
     }
 }
 
-void combo_system_move::range_info::_unmash(mash_info_struct *a2, void *a3) {
+void combo_system_move::range_info::_unmash(mash_info_struct *a2, void *a3)
+{
     mash_virtual_base::_unmash(a2, a3);
 }
 
-int combo_system_move::range_info::get_mash_sizeof() const {
-    int (__fastcall *func)(const void *) = CAST(func, get_vfunc(m_vtbl, 0x18));
+int combo_system_move::range_info::get_mash_sizeof() const
+{
+    int(__fastcall * func)(const void *) = CAST(func, get_vfunc(m_vtbl, 0x18));
     return func(this);
 }
 

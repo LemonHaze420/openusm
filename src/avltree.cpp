@@ -9,16 +9,17 @@
 VALIDATE_SIZE(TreeNode<region_lookup_entry>, 0x14);
 
 //0x00569E60
-template<>
-int AvlTree<region_lookup_entry>::addHelper(TreeNode<region_lookup_entry> *a2,
-                                            TreeNode<region_lookup_entry> *&a3,
-                                            TreeNode<region_lookup_entry> *a4) {
+template <>
+int AvlTree<region_lookup_entry>::addHelper(TreeNode<region_lookup_entry> *a2, TreeNode<region_lookup_entry> *&a3,
+                                            TreeNode<region_lookup_entry> *a4)
+{
     return THISCALL(0x00569E60, this, a2, &a3, a4);
 }
 
 //0x00566EA0
-template<>
-void AvlTree<region_lookup_entry>::dump(TreeNode<region_lookup_entry> *&a2, int a3) {
+template <>
+void AvlTree<region_lookup_entry>::dump(TreeNode<region_lookup_entry> *&a2, int a3)
+{
     if (a2 != nullptr) {
         this->dump(a2->field_0, a3);
         this->dump(a2->field_4, a3);

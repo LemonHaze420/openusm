@@ -12,8 +12,7 @@ struct traffic_path_road;
 struct traffic_path_intersection;
 
 struct traffic_path_lane {
-    enum eLaneType {
-    };
+    enum eLaneType {};
 
     vector3d *nodes;
     traffic_path_road *my_road;
@@ -34,17 +33,18 @@ struct traffic_path_lane {
     //0x005BFEA0
     void update_lane_indexes();
 
-    traffic_path_intersection * get_next_intersection(int a2);
+    traffic_path_intersection *get_next_intersection(int a2);
 
     int get_type() const;
 
-    int get_num_nodes() const {
+    int get_num_nodes() const
+    {
         return this->total_nodes;
     }
 
     int get_num_ais();
 
-    traffic_path_intersection * sub_5C8460();
+    traffic_path_intersection *sub_5C8460();
 
     vector3d get_node(int a3) const;
 

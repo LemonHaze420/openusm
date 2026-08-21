@@ -13,30 +13,27 @@
 #include <cassert>
 
 namespace event_manager {
-int & garbage_index = var<int>(0x0095A6DC);
+int &garbage_index = var<int>(0x0095A6DC);
 
-_std::vector<event_type *> & event_types = var<_std::vector<event_type *>>(0x0095BA48);
-}
+_std::vector<event_type *> &event_types = var<_std::vector<event_type *>>(0x0095BA48);
+}  // namespace event_manager
 
 void event_manager::clear()
 {
-    if constexpr (0)
-    {}
-    else
-    {
+    if constexpr (0) {
+    } else {
         CDECL_CALL(0x004EE7A0);
     }
 }
 
 bool event_manager::callback_exists(int id)
 {
-    if ( id == 0 ) {
+    if (id == 0) {
         return false;
     }
 
-    for ( auto &v1 : event_types  )
-    {
-        if (v1->callback_exists(id) )  {
+    for (auto &v1 : event_types) {
+        if (v1->callback_exists(id)) {
             return true;
         }
     }
@@ -44,15 +41,15 @@ bool event_manager::callback_exists(int id)
     return false;
 }
 
-void event_manager::delete_inst() {
+void event_manager::delete_inst()
+{
     clear();
 }
 
 void event_manager::create_inst()
 {
     TRACE("event_manager::create_inst");
-    if constexpr (0)
-    {
+    if constexpr (0) {
         clear();
 
         register_event_type(event::ANIM_ACTION, true);
@@ -520,19 +517,19 @@ void event_manager::create_inst()
         register_event_type(event::PREVIEW_TRANS_FLEE_NEAR_3_MSG, true);
 
         register_event_type(event::PREVIEW_TRANS_FLEE_FAR_MSG, true);
-    }
-    else
-    {
+    } else {
         CDECL_CALL(0x004F3BE0);
     }
 }
 
-int sub_4D1F40(char a1) {
+int sub_4D1F40(char a1)
+{
     return CDECL_CALL(0x004D1F40, a1);
 }
 
-bool event_manager::does_script_have_callbacks(const script_executable *a1) {
-    return (bool) CDECL_CALL(0x004D2000, a1);
+bool event_manager::does_script_have_callbacks(const script_executable *a1)
+{
+    return (bool)CDECL_CALL(0x004D2000, a1);
 }
 
 void event_manager::raise_event(string_hash a1, entity_base_vhandle a2)
@@ -558,71 +555,55 @@ void event_manager::garbage_collect()
 {
     TRACE("event_manager::garbage_collect");
 
-    if constexpr (1)
-    {
-        if ( event_types.empty()
-            || garbage_index >= int(event_types.size()) )
-        {
+    if constexpr (1) {
+        if (event_types.empty() || garbage_index >= int(event_types.size())) {
             garbage_index = 0;
-        }
-        else
-        {
+        } else {
             auto it = event_types.begin() + garbage_index;
             auto *v1 = (*it);
-            if ( v1->garbage_collect() )
-            {
-                if ( v1 != nullptr ) {
+            if (v1->garbage_collect()) {
+                if (v1 != nullptr) {
                     delete v1;
                 }
 
                 event_types.erase(it);
-            }
-            else
-            {
+            } else {
                 ++garbage_index;
             }
         }
-    }
-    else
-    {
+    } else {
         CDECL_CALL(0x004E1B00);
     }
 }
 
 event_type *event_manager::get_event_type(string_hash a1)
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         auto index = -1;
 
         auto size = event_types.size();
 
         event_type *result = nullptr;
 
-        if (binary_search_array_cmp<string_hash, event_type *>(&a1,
-                                                            &event_types.front(),
-                                                            0,
-                                                            size,
-                                                            &index,
-                                                            compare_deref<string_hash, event_type *>))
-        {
+        if (binary_search_array_cmp<string_hash, event_type *>(
+                &a1, &event_types.front(), 0, size, &index, compare_deref<string_hash, event_type *>)) {
             result = event_types.at(index);
         }
 
         return result;
 
     } else {
-        return (event_type *) CDECL_CALL(0x004D1F40, a1);
+        return (event_type *)CDECL_CALL(0x004D1F40, a1);
     }
 }
 
 string_hash event_manager::register_script_event_type(const char *a2, const char **a3)
 {
     auto *v3 = strrchr(a2, ':');
-    auto *v4 = ( v3 != nullptr ? v3 + 1 : a2 );
+    auto *v4 = (v3 != nullptr ? v3 + 1 : a2);
 
-    string_hash v7 {v4};
-    if ( a3 != nullptr ) {
+    string_hash v7{v4};
+    if (a3 != nullptr) {
         *a3 = v4;
     }
 
@@ -633,11 +614,9 @@ event_type *event_manager::register_event_type(string_hash a1, bool a2)
 {
     TRACE("event_manager::register_event_type");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         auto *v2 = event_manager::get_event_type(a1);
-        if (v2 != nullptr)
-        {
+        if (v2 != nullptr) {
             if (!v2->field_28 && a2) {
                 auto str = a1.to_string();
 
@@ -645,15 +624,12 @@ event_type *event_manager::register_event_type(string_hash a1, bool a2)
                        str,
                        a1.source_hash_code);
             }
-        }
-        else
-        {
-            event_type *the_type = new event_type {a1, a2};
+        } else {
+            event_type *the_type = new event_type{a1, a2};
 
-            assert(the_type != nullptr &&
-                   "Need to increase the fixed pool on events (increase MAX_EVENT_TYPES)!!!");
+            assert(the_type != nullptr && "Need to increase the fixed pool on events (increase MAX_EVENT_TYPES)!!!");
 
-            void (__fastcall *push_back)(void *, void *, void *) = CAST(push_back, 0x005E7330);
+            void(__fastcall * push_back)(void *, void *, void *) = CAST(push_back, 0x005E7330);
 
             int (*compare)(const void *, const void *) = CAST(compare, 0x005034D0);
 
@@ -665,48 +641,38 @@ event_type *event_manager::register_event_type(string_hash a1, bool a2)
 
         return v2;
     } else {
-        return (event_type *) CDECL_CALL(0x004E19F0, a1, a2);
+        return (event_type *)CDECL_CALL(0x004E19F0, a1, a2);
     }
 }
 
 void event_manager::clear_script_callbacks(entity_base_vhandle a1, script_executable *a2)
 {
-    if constexpr (0)
-    {
-        for ( auto &v2 : event_types ) {
+    if constexpr (0) {
+        for (auto &v2 : event_types) {
             v2->clear_script_callbacks(a1, a2);
         }
-    }
-    else
-    {
+    } else {
         CDECL_CALL(0x004D4380, a1, a2);
     }
 }
 
-event_recipient_entry * event_manager::create_event_recipient(string_hash arg0, entity_base_vhandle a2)
+event_recipient_entry *event_manager::create_event_recipient(string_hash arg0, entity_base_vhandle a2)
 {
     auto *v2 = event_manager::register_event_type(arg0, 0);
-    if ( v2 != nullptr ) {
+    if (v2 != nullptr) {
         return v2->create_recipient_entry(a2);
     } else {
         return nullptr;
     }
 }
 
-int event_manager::add_callback(
-        string_hash a1,
-        entity_base_vhandle a2,
-        void (*cb)(event *, entity_base_vhandle, void *),
-        void *a4,
-        bool a5)
+int event_manager::add_callback(string_hash a1, entity_base_vhandle a2,
+                                void (*cb)(event *, entity_base_vhandle, void *), void *a4, bool a5)
 {
     auto *entry = create_event_recipient(a1, a2);
-    if (entry != nullptr)
-    {
+    if (entry != nullptr) {
         return entry->add_callback(cb, a4, a5);
-    }
-    else
-    {
+    } else {
         assert(0 && "this might be indicative of an error-condition.");
         return 0;
     }
@@ -715,11 +681,10 @@ int event_manager::add_callback(
 void event_manager::remove_callback(unsigned int a1, string_hash a2, entity_base_vhandle a3)
 {
     auto *v4 = get_event_type(a2);
-    if ( v4 != nullptr )
-    {
+    if (v4 != nullptr) {
         v4->remove_default_callback(a1);
         auto *v5 = v4->find_recipient_entry(a3);
-        if ( v5 != nullptr ) {
+        if (v5 != nullptr) {
             v5->remove_callback(a1);
         }
     }
@@ -736,4 +701,3 @@ void event_manager_patch()
 
     REDIRECT(0x005D707A, event_manager::garbage_collect);
 }
-

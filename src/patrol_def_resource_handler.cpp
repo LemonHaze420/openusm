@@ -13,7 +13,7 @@ VALIDATE_SIZE(patrol_def_resource_handler, 0x14);
 patrol_def_resource_handler::patrol_def_resource_handler(worldly_pack_slot *a2)
 {
     if constexpr (1) {
-        static void * g_vtbl[] = {
+        static void *g_vtbl[] = {
             func_address(&finalize),
             func_address(&_handle),
             func_address(&_pre_handle_resources),
@@ -36,19 +36,16 @@ bool patrol_def_resource_handler::_handle(worldly_resource_handler::eBehavior a2
     return base_engine_resource_handler::_handle(a2, a3);
 }
 
-bool patrol_def_resource_handler::_handle_resource(worldly_resource_handler::eBehavior behavior,
-                                                  resource_location *loc)
+bool patrol_def_resource_handler::_handle_resource(worldly_resource_handler::eBehavior behavior, resource_location *loc)
 {
     TRACE("patrol_def_resource_handler::handle_resource");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         auto &dir = this->my_slot->get_resource_directory();
         auto *resource = dir.get_resource(loc, nullptr);
         assert(resource != nullptr);
 
-        if ( behavior == worldly_resource_handler::UNLOAD )
-        {
+        if (behavior == worldly_resource_handler::UNLOAD) {
             assert(g_world_ptr != nullptr);
 
             auto *the_set = bit_cast<patrol_def_set *>(resource);
@@ -56,24 +53,22 @@ bool patrol_def_resource_handler::_handle_resource(worldly_resource_handler::eBe
 
             g_world_ptr->field_178.remove_patrol_defs_from_set(the_set);
             the_set->destruct_mashed_class();
-        }
-        else
-        {
-
+        } else {
 #ifdef TARGET_XBOX
-            mash_info_struct v5 {2, resource, loc->m_size, 1};
+            mash_info_struct v5{2, resource, loc->m_size, 1};
 #else
-            mash_info_struct v5 {resource, loc->m_size};
+            mash_info_struct v5{resource, loc->m_size};
 #endif
 
             patrol_def_set *v6 = nullptr;
 
             v5.unmash_class(v6,
-                    nullptr
+                            nullptr
 #ifdef TARGET_XBOX
-                    , mash::NORMAL_BUFFER
+                            ,
+                            mash::NORMAL_BUFFER
 #endif
-                    );
+            );
 
             mash_info_struct::construct_class(v6);
 
@@ -89,7 +84,8 @@ bool patrol_def_resource_handler::_handle_resource(worldly_resource_handler::eBe
         ++this->field_C;
         return false;
     } else {
-        bool (__fastcall *func)(void *, void *edx, worldly_resource_handler::eBehavior, resource_location *) = CAST(func, 0x00568BD0);
+        bool(__fastcall * func)(void *, void *edx, worldly_resource_handler::eBehavior, resource_location *) =
+            CAST(func, 0x00568BD0);
         return func(this, nullptr, behavior, loc);
     }
 }

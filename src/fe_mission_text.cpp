@@ -54,30 +54,29 @@ void fe_mission_text::Init()
     this->field_A8->TurnOn(true);
 
     {
-        FEText::string v22 {{}};
+        FEText::string v22{{}};
         this->field_A8->SetTextNoLocalize(v22);
     }
 
-    this->field_A8->SetNoFlash(color32 {0xC8, 0xC8, 0xC8, 0xFF});
+    this->field_A8->SetNoFlash(color32{0xC8, 0xC8, 0xC8, 0xFF});
 
-    this->field_14 = new PanelQuad {};
+    this->field_14 = new PanelQuad{};
     this->field_14->CopyFrom(this->field_A0);
 
-    D3DXCreateTextureFromFileExW(
-            g_Direct3DDevice,
-            L"data\\packs\\back_panel.dat",
-            0,
-            0,
-            1,
-            0,
-            D3DFMT_A8R8G8B8,
-            D3DPOOL_MANAGED,
-            3,
-            3,
-            0,
-            nullptr,
-            nullptr,
-            (IDirect3DTexture9 **)&this->field_18);
+    D3DXCreateTextureFromFileExW(g_Direct3DDevice,
+                                 L"data\\packs\\back_panel.dat",
+                                 0,
+                                 0,
+                                 1,
+                                 0,
+                                 D3DFMT_A8R8G8B8,
+                                 D3DPOOL_MANAGED,
+                                 3,
+                                 3,
+                                 0,
+                                 nullptr,
+                                 nullptr,
+                                 (IDirect3DTexture9 **)&this->field_18);
 
     this->field_1C.DXTexture = (IDirect3DTexture9 *)this->field_18;
     this->field_14->SetTexture(&this->field_1C);
@@ -88,17 +87,20 @@ void fe_mission_text::Init()
     this->field_B6 = false;
 }
 
-void fe_mission_text::set_flavor(int a2) {
+void fe_mission_text::set_flavor(int a2)
+{
     this->field_B0 = a2;
 }
 
-void fe_mission_text::set_text(string a2) {
+void fe_mission_text::set_text(string a2)
+{
     sp_log("fe_mission_text::set_text: %s", a2.data);
 
     THISCALL(0x0060D440, this, a2);
 }
 
-void fe_mission_text::SetShown(bool a2) {
+void fe_mission_text::SetShown(bool a2)
+{
     sp_log("fe_mission_text::SetShown: %d", a2);
 
     THISCALL(0x0061AA00, this, a2);

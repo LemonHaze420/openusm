@@ -17,13 +17,8 @@ struct nalGenericSkeleton;
 struct nalGenericPose;
 
 struct nalGenericInstance {
-
     //0x007946A0
-    void GetPose(
-        Float a2,
-        Float a3,
-        nalGeneric::nalGenericPose &a4,
-        const nalGeneric::nalGenericPose &a5);
+    void GetPose(Float a2, Float a3, nalGeneric::nalGenericPose &a4, const nalGeneric::nalGenericPose &a5);
 };
 
 struct nalGenericAnim {
@@ -44,42 +39,41 @@ struct nalGenericAnim {
 
     struct vtbl {};
 
-    static int & vtbl_ptr;
+    static int &vtbl_ptr;
 };
 
 struct nalComponentInfo {
     tlHashString field_0;
     char field_4[0x1C];
-    nalComponentBase * field_20;
+    nalComponentBase *field_20;
     int field_24;
     int field_28;
     int field_2C;
 };
 
-template<uint32_t I>
+template <uint32_t I>
 struct MorphSliderPoseTemplate {
-    int field_0 {0xFF};
+    int field_0{0xFF};
     int field_4;
     int field_8;
     int field_C;
 };
 
-template<typename T>
+template <typename T>
 struct nalGenericComponentHandle {
-    nalGeneric::nalGenericSkeleton *Skeleton {nullptr};
+    nalGeneric::nalGenericSkeleton *Skeleton{nullptr};
     int field_4;
     int field_8;
     int field_C;
-
 };
 
-template<typename T>
+template <typename T>
 struct nalGenericConstComponentHandle {
-    nalGeneric::nalGenericSkeleton *Skeleton {nullptr};
+    nalGeneric::nalGenericSkeleton *Skeleton{nullptr};
     struct {
         char field_0[0x2C];
         T *field_2C;
-    } * field_4;
+    } *field_4;
     int field_8;
     int field_C;
 };
@@ -95,22 +89,21 @@ struct nalGenericPose {
     nalGenericPose(const nalGenericSkeleton *a3);
 
     //0x007941F0
-    nalGenericPose(
-        const nalGeneric::nalGenericPose &a3,
-        bool a4);
+    nalGenericPose(const nalGeneric::nalGenericPose &a3, bool a4);
 
-    auto * GetSkeleton() const {
+    auto *GetSkeleton() const
+    {
         return this->field_0;
     }
 
-    template<typename T>
-    T * operator[](nalGeneric::nalGenericComponentHandle<T> &handle)
+    template <typename T>
+    T *operator[](nalGeneric::nalGenericComponentHandle<T> &handle)
     {
-        static T g_invalidObject {};
+        static T g_invalidObject{};
 
         assert(handle.Skeleton != nullptr && "attempting to de-reference an invalid handle");
 
-        if ( handle->Skeleton == nullptr ) {
+        if (handle->Skeleton == nullptr) {
             return &g_invalidObject;
         }
 
@@ -119,14 +112,14 @@ struct nalGenericPose {
         return bit_cast<T *>(handle->field_4->field_2C + 12 * handle->field_8 + this->field_4);
     }
 
-    template<typename T>
+    template <typename T>
     T operator[](nalGeneric::nalGenericConstComponentHandle<T> &handle)
     {
-        static T g_invalidObject {};
+        static T g_invalidObject{};
 
         assert(handle.Skeleton != nullptr && "attempting to de-reference an invalid handle");
 
-        if ( handle.Skeleton == nullptr ) {
+        if (handle.Skeleton == nullptr) {
             return g_invalidObject;
         }
 
@@ -179,30 +172,19 @@ struct nalGenericSkeleton : nalBaseSkeleton {
     int field_DC;
     int field_E0;
 
-    template<typename T>
-    void GetComponentHandle(
-        nalGenericComponentHandle<T> &a2,
-        tlFixedString &a3,
-        tlFixedString &a4);
+    template <typename T>
+    void GetComponentHandle(nalGenericComponentHandle<T> &a2, tlFixedString &a3, tlFixedString &a4);
 
-    template<typename T>
-    void GetComponentHandle(
-        nalGenericConstComponentHandle<T> &a2,
-        tlFixedString &a3,
-        tlFixedString &a4) const;
+    template <typename T>
+    void GetComponentHandle(nalGenericConstComponentHandle<T> &a2, tlFixedString &a3, tlFixedString &a4) const;
 
-    template<typename T>
-    void GetComponentHandle(
-        nalGenericConstComponentHandle<T> &a2,
-        uint32_t a3,
-        tlFixedString &a4) const;
+    template <typename T>
+    void GetComponentHandle(nalGenericConstComponentHandle<T> &a2, uint32_t a3, tlFixedString &a4) const;
 
     nalGenericSkeleton();
 
     //0x00794CF0
-    nalMatrix4x4 * GetBoneMatrices(
-        const nalGenericPose *a2,
-        nalMatrix4x4 *a3) const;
+    nalMatrix4x4 *GetBoneMatrices(const nalGenericPose *a2, nalMatrix4x4 *a3) const;
 
     //virtual
     //0x00793610
@@ -210,18 +192,19 @@ struct nalGenericSkeleton : nalBaseSkeleton {
 
     void _Release();
 
-    bool _CheckVersion() const {
+    bool _CheckVersion() const
+    {
         return this->Version == 0x10200;
     }
 
-    template<typename T>
+    template <typename T>
     T operator[](nalGeneric::nalGenericConstComponentHandle<T> &handle)
     {
-        static T g_invalidObject {};
+        static T g_invalidObject{};
 
         assert(handle.Skeleton != nullptr && "attempting to de-reference an invalid handle");
 
-        if ( handle.Skeleton == nullptr ) {
+        if (handle.Skeleton == nullptr) {
             return g_invalidObject;
         }
 
@@ -235,9 +218,9 @@ struct nalGenericSkeleton : nalBaseSkeleton {
         }
     }
 
-    static int & vtbl_ptr;
+    static int &vtbl_ptr;
 };
 
-} // nalGeneric
+}  // namespace nalGeneric
 
 extern void nalGeneric_patch();

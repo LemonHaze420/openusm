@@ -4,30 +4,29 @@
 
 namespace nalCam {
 
-    struct nalCamSkeleton;
+struct nalCamSkeleton;
 
-    struct nalCamPose {
-        nalCamSkeleton *field_0;
-        char field_4[0x2C];
-    };
+struct nalCamPose {
+    nalCamSkeleton *field_0;
+    char field_4[0x2C];
+};
 
-    struct nalCamSkeleton : nalBaseSkeleton {
-        int field_5C;
-        nalCamPose field_60;
+struct nalCamSkeleton : nalBaseSkeleton {
+    int field_5C;
+    nalCamPose field_60;
 
-        nalCamSkeleton();
+    nalCamSkeleton();
 
-        //virtual
-        void _Process();
+    //virtual
+    void _Process();
 
-        //virtual
-        void _Release();
+    //virtual
+    void _Release();
 
-        //virtual
-        bool _CheckVersion();
+    //virtual
+    bool _CheckVersion();
 
-        static int & vtbl_ptr;
-    };
+    static int &vtbl_ptr;
+};
 
-} // namespace nalCam
-
+}  // namespace nalCam

@@ -24,8 +24,7 @@ nalMatrix4x4 sub_5FE000(const nalMatrix4x4 &arg4, const nalMatrix4x4 &arg8)
 {
     nalMatrix4x4 result;
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         vector4d x_axis;
         x_axis[0] = arg8[0][0];
         x_axis[1] = arg8[0][1];
@@ -74,38 +73,13 @@ nalMatrix4x4 sub_5FE000(const nalMatrix4x4 &arg4, const nalMatrix4x4 &arg8)
         arg8a[2] = arg4[3][2];
         arg8a[3] = arg4[3][3];
 
-        auto v16 = sub_4126E0(
-                x_axis,
-                a3,
-                y_axis,
-                a3,
-                z_axis,
-                a3);
+        auto v16 = sub_4126E0(x_axis, a3, y_axis, a3, z_axis, a3);
 
-        auto v21 = sub_4126E0(
-                x_axis,
-                a5,
-                y_axis,
-                a5,
-                z_axis,
-                a5);
+        auto v21 = sub_4126E0(x_axis, a5, y_axis, a5, z_axis, a5);
 
-        auto v25 = sub_4126E0(
-                x_axis,
-                a7,
-                y_axis,
-                a7,
-                z_axis,
-                a7);
+        auto v25 = sub_4126E0(x_axis, a7, y_axis, a7, z_axis, a7);
 
-        auto v29 = vector4d::sub_413E90(
-                x_axis,
-                arg8a,
-                y_axis,
-                arg8a,
-                z_axis,
-                arg8a,
-                w_axis);
+        auto v29 = vector4d::sub_413E90(x_axis, arg8a, y_axis, arg8a, z_axis, arg8a, w_axis);
 
         nalMatrix4x4 result;
         result[0][0] = v16[0];
@@ -125,7 +99,7 @@ nalMatrix4x4 sub_5FE000(const nalMatrix4x4 &arg4, const nalMatrix4x4 &arg8)
         result[3][2] = v29[2];
         result[3][3] = v29[3];
     } else {
-        int (__cdecl *func)(nalMatrix4x4 *, const nalMatrix4x4 *, const nalMatrix4x4 *) = CAST(func, 0x005FE000);
+        int(__cdecl * func)(nalMatrix4x4 *, const nalMatrix4x4 *, const nalMatrix4x4 *) = CAST(func, 0x005FE000);
         func(&result, &arg4, &arg8);
     }
 
@@ -141,38 +115,36 @@ ArbitraryPOCharComp::ArbitraryPOCharComp()
 #else
     if constexpr (0) {
 #endif
-        static void * g_vtbl[] {
-            nullptr,
-            func_address(&_GetType),
-            nullptr,
-            nullptr,
-            nullptr,
-            nullptr,
-            nullptr,
-            nullptr,
-            nullptr,
-            nullptr,
-            nullptr,
-            nullptr,
-            nullptr,
-            nullptr,
-            nullptr,
-            func_address(&_SkelPoseProcess),
-            func_address(&_AnimProcess),
-            func_address(&_AnimProcess),
-            nullptr,
-            nullptr,
-            nullptr,
-            nullptr,
-            nullptr,
-            nullptr,
-            nullptr,
-            nullptr,
-            nullptr,
-            nullptr,
-            nullptr,
-            func_address(&_CopyPoseDataToNothing)
-        };
+        static void *g_vtbl[]{nullptr,
+                              func_address(&_GetType),
+                              nullptr,
+                              nullptr,
+                              nullptr,
+                              nullptr,
+                              nullptr,
+                              nullptr,
+                              nullptr,
+                              nullptr,
+                              nullptr,
+                              nullptr,
+                              nullptr,
+                              nullptr,
+                              nullptr,
+                              func_address(&_SkelPoseProcess),
+                              func_address(&_AnimProcess),
+                              func_address(&_AnimProcess),
+                              nullptr,
+                              nullptr,
+                              nullptr,
+                              nullptr,
+                              nullptr,
+                              nullptr,
+                              nullptr,
+                              nullptr,
+                              nullptr,
+                              nullptr,
+                              nullptr,
+                              func_address(&_CopyPoseDataToNothing)};
 
         this->m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {
@@ -183,7 +155,7 @@ ArbitraryPOCharComp::ArbitraryPOCharComp()
     CharComponentManager::RegisterComponent(this);
 }
 
-const void * ArbitraryPOCharComp::_ApplyPublicPerSkelDataOffset(uint32_t, const void *a2)
+const void *ArbitraryPOCharComp::_ApplyPublicPerSkelDataOffset(uint32_t, const void *a2)
 {
     TRACE("ArbitraryPOCharComp::ApplyPublicPerSkelDataOffset");
 
@@ -197,11 +169,8 @@ int ArbitraryPOCharComp::_ApplyPublicPerAnimDataOffset(uint32_t, const void *)
     return 0;
 }
 
-nalPositionOrientation * ArbitraryPOCharComp::_GetTrajectoryData(
-        nalPositionOrientation *out,
-        uint32_t,
-        const void *,
-        const void *)
+nalPositionOrientation *ArbitraryPOCharComp::_GetTrajectoryData(nalPositionOrientation *out, uint32_t, const void *,
+                                                                const void *)
 {
     TRACE("ArbitraryPOCharComp::GetTrajectoryData");
 
@@ -209,50 +178,42 @@ nalPositionOrientation * ArbitraryPOCharComp::_GetTrajectoryData(
     return out;
 }
 
-void ArbitraryPOCharComp::_BuildBoneMatrices(
-    nalMatrix4x4 *a1,
-    uint32_t a2,
-    const void *a3,
-    const void *a4)
+void ArbitraryPOCharComp::_BuildBoneMatrices(nalMatrix4x4 *a1, uint32_t a2, const void *a3, const void *a4)
 {
     TRACE("ArbitraryPOCharComp::BuildBoneMatrices");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         auto *v5 = (const uint32_t *)a3;
         auto v23 = *((const DWORD *)a3 + 4);
         auto v24 = (char *)*((const DWORD *)a3 + 5);
         auto v6 = (const char *)a4 + 16;
         auto v7 = (const char *)a4 + 16 * *(const DWORD *)a4 + 16;
 
-        for ( uint32_t i = 0; i < *v5; ++i)
-        {
+        for (uint32_t i = 0; i < *v5; ++i) {
             int16_t *v9 = (int16_t *)(v5[6] + 48 * *(DWORD *)(v5[7] + 4 * i));
-            if ( v9[18] != -1 )
-            {
+            if (v9[18] != -1) {
                 const float *v10 = nullptr;
-                if ( v9[20] ) {
+                if (v9[20]) {
                     v10 = (const float *)&v6[16 * (uint16_t)v9[16]];
                 } else {
                     v10 = (const float *)(v23 + 16 * (uint16_t)v9[16]);
                 }
 
-                if ( !v9[21] ) {
+                if (!v9[21]) {
                     v7 = v24;
                 }
 
                 auto *v15 = (const nalVector3 *)&v7[sizeof(nalVector3) * (uint16_t)v9[17]];
 
-                nalPositionOrientation v26 {*v15, v10};
+                nalPositionOrientation v26{*v15, v10};
 
-                nalMatrix4x4 v30 {v26};
+                nalMatrix4x4 v30{v26};
 
                 auto v18 = (int16_t)v9[18];
                 a1[v18] = v30;
 
                 int v19 = v9[19];
-                if ( v19 != -1 )
-                {
+                if (v19 != -1) {
                     auto &v20 = a1[(int16_t)v9[18]];
                     v20 = sub_5FE000(v20, a1[v19]);
                 }
@@ -262,13 +223,8 @@ void ArbitraryPOCharComp::_BuildBoneMatrices(
         }
 
     } else {
-        void (__fastcall *func)(
-                void *self,
-                void *edx,
-                nalMatrix4x4 *a1,
-                uint32_t a2,
-                const void *a3,
-                const void *a4) = CAST(func, 0x005F5E60);
+        void(__fastcall * func)(void *self, void *edx, nalMatrix4x4 *a1, uint32_t a2, const void *a3, const void *a4) =
+            CAST(func, 0x005F5E60);
         func(this, nullptr, a1, a2, a3, a4);
     }
 }
@@ -278,23 +234,16 @@ bool sub_C75AA0(const int *a1, uint32_t a2)
     return (a1[a2 >> 5] & (1 << (a2 % 32))) != 0;
 }
 
-int ArbitraryPOCharComp::_GetSizeOfPerInstData(
-        uint32_t,
-        const void *,
-        const void *a3,
-        const void *,
-        const void *a5,
-        const void *,
-        bool)
+int ArbitraryPOCharComp::_GetSizeOfPerInstData(uint32_t, const void *, const void *a3, const void *, const void *a5,
+                                               const void *, bool)
 {
     TRACE("ArbitraryPOCharComp::GetSizeOfPerInstData");
 
     auto func = [](const int *a5, const int *a3) -> int {
         int result = 0;
         const int v9 = a3[1] + a3[2];
-        for ( int i = 0; i < v9; ++i )
-        {
-            if ( sub_C75AA0(a5, i) ) {
+        for (int i = 0; i < v9; ++i) {
+            if (sub_C75AA0(a5, i)) {
                 result += 3;
             }
         }
@@ -305,14 +254,8 @@ int ArbitraryPOCharComp::_GetSizeOfPerInstData(
     return 16 * func(static_cast<const int *>(a5), static_cast<const int *>(a3)) + 60;
 }
 
-int ArbitraryPOCharComp::_GetAlignOfPerInstData(
-        uint32_t,
-        const void *,
-        const void *,
-        const void *,
-        const void *,
-        const void *,
-        bool)
+int ArbitraryPOCharComp::_GetAlignOfPerInstData(uint32_t, const void *, const void *, const void *, const void *,
+                                                const void *, bool)
 {
     return 4;
 }
@@ -322,31 +265,21 @@ int sub_C7F000(int a1, int a2)
     return ~(a2 - 1) & (a1 + a2 - 1);
 }
 
-void ArbitraryPOCharComp::_BuildPerInstData(
-        void *a1,
-        uint32_t a2,
-        const void *a3,
-        const void *a4,
-        const void *a5,
-        const void *a6,
-        const void *a7,
-        bool a8)
+void ArbitraryPOCharComp::_BuildPerInstData(void *a1, uint32_t a2, const void *a3, const void *a4, const void *a5,
+                                            const void *a6, const void *a7, bool a8)
 {
     TRACE("ArbitraryPOCharComp::BuildPerInstData");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         *(DWORD *)a1 = 0;
         uint32_t v12 = 0;
-        for ( ; v12 < *((const DWORD *)a4 + 1); ++v12 )
-        {
+        for (; v12 < *((const DWORD *)a4 + 1); ++v12) {
             if (sub_C75AA0(static_cast<const int *>(a6), v12)) {
                 ++*(DWORD *)a1;
             }
         }
 
-        for ( *((DWORD *)a1 + 1) = *(DWORD *)a1; v12 < *((const DWORD *)a4 + 1) + *((const DWORD *)a4 + 2); ++v12 )
-        {
+        for (*((DWORD *)a1 + 1) = *(DWORD *)a1; v12 < *((const DWORD *)a4 + 1) + *((const DWORD *)a4 + 2); ++v12) {
             if (sub_C75AA0(static_cast<const int *>(a6), v12)) {
                 ++*((DWORD *)a1 + 1);
             }
@@ -370,14 +303,13 @@ void ArbitraryPOCharComp::_BuildPerInstData(
             int field_38;
 
             local_t(const void *a2, int a3) : field_1C(a2, false), field_24(-1), field_28(a3) {}
-
         };
-        local_t* v8 = CAST(v8, a1);
+        local_t *v8 = CAST(v8, a1);
 
         VALIDATE_SIZE(local_t, 0x3C);
 
         if (v8 != nullptr) {
-            new (v8) local_t {a7, (int)a6 + 4 * v14};
+            new (v8) local_t{a7, (int)a6 + 4 * v14};
         }
 
         *((DWORD *)a1 + 7) = int(a7);
@@ -403,8 +335,7 @@ void ArbitraryPOCharComp::_BuildPerInstData(
         *((DWORD *)a1 + 5) = int(v20);
         *((DWORD *)a1 + 2) = v21;
 
-        if ( a4 == a3 )
-        {
+        if (a4 == a3) {
             *((DWORD *)a1 + 11) = 0;
             *((DWORD *)a1 + 12) = 0;
             *((DWORD *)a1 + 13) = 0;
@@ -422,75 +353,55 @@ void ArbitraryPOCharComp::_BuildPerInstData(
 
             int v14 = 0;
             int v13 = *((const DWORD *)a3 + 1);
-            for ( uint32_t j = 0; j < *(const DWORD *)a3; ++j )
-            {
+            for (uint32_t j = 0; j < *(const DWORD *)a3; ++j) {
                 auto *v25 = bit_cast<int16_t *>(*((const DWORD *)a3 + 6) + 0x30 * j);
-                if ( v25[20] || v25[21] )
-                {
+                if (v25[20] || v25[21]) {
                     uint32_t k;
-                    for ( k = 0;
-                          k < *(const DWORD *)a4 && (*bit_cast<const tlFixedString *>(*((const DWORD *)a4 + 6) + 0x30 * k) != *bit_cast<const tlFixedString *>(v25));
-                          ++k )
-                    {
+                    for (k = 0; k < *(const DWORD *)a4 &&
+                                (*bit_cast<const tlFixedString *>(*((const DWORD *)a4 + 6) + 0x30 * k) !=
+                                 *bit_cast<const tlFixedString *>(v25));
+                         ++k) {
                         ;
                     }
 
-                    if ( k == *(const DWORD *)a4 )
-                    {
-                        if ( v25[20] )
-                        {
+                    if (k == *(const DWORD *)a4) {
+                        if (v25[20]) {
                             *(DWORD *)(*((DWORD *)a1 + 14) + 8 * v14++) = -1;
                         }
 
-                        if ( v25[21] ) {
+                        if (v25[21]) {
                             *(DWORD *)(*((DWORD *)a1 + 14) + 8 * v13++) = -1;
                         }
-                    }
-                    else
-                    {
+                    } else {
                         auto *v30 = (uint16_t *)(*((const DWORD *)a4 + 6) + 0x30 * k);
-                        if ( v25[20] )
-                        {
-                            if ( v30[20] )
-                            {
-                                if (sub_C75AA0(static_cast<const int *>(a6), v30[16]))
-                                {
+                        if (v25[20]) {
+                            if (v30[20]) {
+                                if (sub_C75AA0(static_cast<const int *>(a6), v30[16])) {
                                     *(DWORD *)(*((DWORD *)a1 + 14) + 8 * v14) = v30[16];
                                     *(DWORD *)(*((DWORD *)a1 + 14) + 8 * v14 + 4) = 1;
-                                }
-                                else
-                                {
+                                } else {
                                     *(DWORD *)(*((DWORD *)a1 + 14) + 8 * v14) = -1;
                                 }
 
                                 ++v14;
-                            }
-                            else
-                            {
+                            } else {
                                 *(DWORD *)(*((DWORD *)a1 + 14) + 8 * v14) = v30[16];
                                 *(DWORD *)(*((DWORD *)a1 + 14) + 8 * v14 + 4) = 0;
                                 ++v14;
                             }
                         }
 
-                        if ( v25[21] )
-                        {
-                            if ( v30[21] )
-                            {
-                                if (sub_C75AA0(static_cast<const int *>(a6), *((const DWORD *)a4 + 1) + v30[17]))
-                                {
+                        if (v25[21]) {
+                            if (v30[21]) {
+                                if (sub_C75AA0(static_cast<const int *>(a6), *((const DWORD *)a4 + 1) + v30[17])) {
                                     *(DWORD *)(*((DWORD *)a1 + 14) + 8 * v13) = v30[17];
                                     *(DWORD *)(*((DWORD *)a1 + 14) + 8 * v13 + 4) = 1;
-                                }
-                                else
-                                {
+                                } else {
                                     *(DWORD *)(*((DWORD *)a1 + 14) + 8 * v13) = -1;
                                 }
 
                                 ++v13;
-                            }
-                            else
-                            {
+                            } else {
                                 *(DWORD *)(*((DWORD *)a1 + 14) + 8 * v13) = v30[17];
                                 *(DWORD *)(*((DWORD *)a1 + 14) + 8 * v13 + 4) = 0;
                                 ++v13;
@@ -501,25 +412,21 @@ void ArbitraryPOCharComp::_BuildPerInstData(
             }
         }
     } else {
-        void (__fastcall *func)(
-                void *,
-                void *edx,
-                void *,
-                uint32_t,
-                const void *,
-                const void *,
-                const void *,
-                const void *,
-                const void *,
-                bool) = CAST(func, 0x005F2270);
+        void(__fastcall * func)(void *,
+                                void *edx,
+                                void *,
+                                uint32_t,
+                                const void *,
+                                const void *,
+                                const void *,
+                                const void *,
+                                const void *,
+                                bool) = CAST(func, 0x005F2270);
         func(this, nullptr, a1, a2, a3, a4, a5, a6, a7, a8);
     }
 }
 
-void ArbitraryPOCharComp::_DestroyPerInstData(void *a1,
-        uint32_t,
-        const void *,
-        const void *)
+void ArbitraryPOCharComp::_DestroyPerInstData(void *a1, uint32_t, const void *, const void *)
 {
     TRACE("ArbitraryPOCharComp::DestroyPerInstData");
 
@@ -528,8 +435,7 @@ void ArbitraryPOCharComp::_DestroyPerInstData(void *a1,
     *((DWORD *)a1 + 4) = 0;
     *((DWORD *)a1 + 5) = 0;
     *((DWORD *)a1 + 6) = 0;
-    if ( v4 != 0 )
-    {
+    if (v4 != 0) {
         tlMemFree(*((void **)a1 + 14));
         tlMemFree(*((void **)a1 + 12));
         *((DWORD *)a1 + 14) = 0;
@@ -546,21 +452,20 @@ bool ArbitraryPOCharComp::_WillMapToComponentData(uint32_t, uint32_t, uint32_t a
     return a4 == this->GetType();
 }
 
-void ArbitraryPOCharComp::_CalcPoseDataDirect(
-        void *a1,
-        uint32_t a2,
-        Float a3,
-        Float a4,
-        const nalComp::nalCompAnim *a5,
-        const void *a6,
-        const void *a7,
-        const void *a8,
-        void *a9)
+void ArbitraryPOCharComp::_CalcPoseDataDirect(void *a1, uint32_t a2, Float a3, Float a4, const nalComp::nalCompAnim *a5,
+                                              const void *a6, const void *a7, const void *a8, void *a9)
 {
     TRACE("ArbitraryPOCharComp::CalcPoseDataDirect");
 
     sp_log("a2 = %u, a3 = %f, a4 = %f, a5 = 0x%08X, a6 = 0x%08X, a7 = 0x%08X, a8 = 0x%08X, a9 = 0x%08X",
-            a2, a3, a4, int(a5), int(a6), int(a7), int(a8), int(a9));
+           a2,
+           a3,
+           a4,
+           int(a5),
+           int(a6),
+           int(a7),
+           int(a8),
+           int(a9));
 
     if constexpr (0) {
 #if 0
@@ -632,69 +537,38 @@ void ArbitraryPOCharComp::_CalcPoseDataDirect(
     }
 }
 
-void ArbitraryPOCharComp::_CalcPoseDataRemapped(
-        void *a1,
-        uint32_t a2,
-        Float a3,
-        Float a4,
-        const nalComp::nalCompAnim *a5,
-        const void *a6,
-        uint32_t a7,
-        uint32_t a8,
-        const void *a9,
-        const void *a10,
-        void *a11)
+void ArbitraryPOCharComp::_CalcPoseDataRemapped(void *a1, uint32_t a2, Float a3, Float a4,
+                                                const nalComp::nalCompAnim *a5, const void *a6, uint32_t a7,
+                                                uint32_t a8, const void *a9, const void *a10, void *a11)
 {
     TRACE("ArbitraryPOCharComp::CalcPoseDataRemapped");
 
     if constexpr (0) {
-        this->CalcPoseDataDirect(
-                a1,
-                a2,
-                a3,
-                a4,
-                a5,
-                a6,
-                a9,
-                a10,
-                a11);
+        this->CalcPoseDataDirect(a1, a2, a3, a4, a5, a6, a9, a10, a11);
     } else {
         THISCALL(0x005EF710, this, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
     }
 }
 
-void ArbitraryPOCharComp::BlendPoseData(
-        void *a1,
-        uint32_t a2,
-        Float a3,
-        const void *a4,
-        const void *a5,
-        uint32_t a6,
-        uint32_t a7)
+void ArbitraryPOCharComp::BlendPoseData(void *a1, uint32_t a2, Float a3, const void *a4, const void *a5, uint32_t a6,
+                                        uint32_t a7)
 {
     TRACE("ArbitraryPOCharComp::BlendPoseData");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         uint32_t i = 0;
-        for (; i < a6; ++i)
-        {
-            auto v13 = sub_5FD0C0(
-                a3,
-                *static_cast<const vector4d *>(a4),
-                *static_cast<const vector4d *>(a5)
-            );
+        for (; i < a6; ++i) {
+            auto v13 = sub_5FD0C0(a3, *static_cast<const vector4d *>(a4), *static_cast<const vector4d *>(a5));
 
             vector3d *v14 = static_cast<vector3d *>(a1);
             *v14 = v13;
 
             a1 = static_cast<char *>(a1) + 16;
-            a4 = static_cast<const char *>(a4) +16;
-            a5 = static_cast<const char *>(a5) +16;
+            a4 = static_cast<const char *>(a4) + 16;
+            a5 = static_cast<const char *>(a5) + 16;
         }
 
-        for ( ; i < a7; ++i )
-        {
+        for (; i < a7; ++i) {
             vector3d *v16 = static_cast<vector3d *>(a1);
             const vector3d *v4 = static_cast<const vector3d *>(a4);
             const vector3d *v5 = static_cast<const vector3d *>(a5);
@@ -713,37 +587,30 @@ void ArbitraryPOCharComp::BlendPoseData(
     }
 }
 
-void ArbitraryPOCharComp::_BlendPoseData(
-        void *a1,
-        uint32_t a2,
-        Float a3,
-        const void *a4,
-        const void *a5)
+void ArbitraryPOCharComp::_BlendPoseData(void *a1, uint32_t a2, Float a3, const void *a4, const void *a5)
 {
-    this->BlendPoseData(
-        static_cast<char *>(a1) + 16,
-        a2,
-        a3,
-        static_cast<const char *>(a4) + 16,
-        static_cast<const char *>(a5) + 16,
-        static_cast<const uint32_t *>(a4)[0],
-        static_cast<const uint32_t *>(a4)[1]
-    );
+    this->BlendPoseData(static_cast<char *>(a1) + 16,
+                        a2,
+                        a3,
+                        static_cast<const char *>(a4) + 16,
+                        static_cast<const char *>(a5) + 16,
+                        static_cast<const uint32_t *>(a4)[0],
+                        static_cast<const uint32_t *>(a4)[1]);
 }
 
-void ArbitraryPOCharComp::_SkelPoseProcess(uint32_t , void *a2, void *)
+void ArbitraryPOCharComp::_SkelPoseProcess(uint32_t, void *a2, void *)
 {
     TRACE("ArbitraryPOCharComp::SkelPoseProcess");
 
     *((int *)a2 + 6) += int(a2);
     *((int *)a2 + 7) += int(a2);
     auto v5 = *((int *)a2 + 5);
-    char *v6 = ( v5 != 0 ) ? ((char *)a2 + v5) : nullptr;
+    char *v6 = (v5 != 0) ? ((char *)a2 + v5) : nullptr;
 
     *((int *)a2 + 5) = int(v6);
     auto v7 = *((int *)a2 + 4);
 
-    if ( v7 != 0 ) {
+    if (v7 != 0) {
         *((int *)a2 + 4) = int((char *)a2 + v7);
     } else {
         *((int *)a2 + 4) = 0;
@@ -758,7 +625,7 @@ void ArbitraryPOCharComp::_SkelPoseRelease(uint32_t, void *out, void *)
     *((DWORD *)out + 7) -= int(out);
     auto v3 = *((DWORD *)out + 5);
     int v4;
-    if ( v3 ) {
+    if (v3) {
         v4 = v3 - (DWORD)out;
     } else {
         v4 = 0;
@@ -766,27 +633,19 @@ void ArbitraryPOCharComp::_SkelPoseRelease(uint32_t, void *out, void *)
 
     *((DWORD *)out + 5) = v4;
     auto v5 = *((DWORD *)out + 4);
-    if ( v5 ) {
+    if (v5) {
         *((DWORD *)out + 4) = v5 - (DWORD)out;
     } else {
         *((DWORD *)out + 4) = 0;
     }
 }
 
-void ArbitraryPOCharComp::_AnimProcess(
-        uint32_t,
-        void *,
-        void *,
-        const void *)
+void ArbitraryPOCharComp::_AnimProcess(uint32_t, void *, void *, const void *)
 {
     ;
 }
 
-void ArbitraryPOCharComp::_AnimRelease(
-        uint32_t,
-        void *,
-        void *,
-        const void *)
+void ArbitraryPOCharComp::_AnimRelease(uint32_t, void *, void *, const void *)
 {
     ;
 }
@@ -795,11 +654,7 @@ void ArbitraryPOCharComp::_CopyPoseExtraData(void *a1, uint32_t, const void *a3)
 {
     TRACE("ArbitraryPOCharComp::CopyPoseExtraData");
 
-    std::memcpy(
-        a1,
-        a3,
-        16 * (*(const DWORD *)a3 + 1) + 12 * (*((const DWORD *)a3 + 1) - *(const DWORD *)a3)
-    );
+    std::memcpy(a1, a3, 16 * (*(const DWORD *)a3 + 1) + 12 * (*((const DWORD *)a3 + 1) - *(const DWORD *)a3));
 }
 
 void ArbitraryPOCharComp::_PoseDataFree(uint32_t, void *)
@@ -826,7 +681,7 @@ void ArbitraryPOCharComp::_CopyPoseDataToNothing(void *a1, uint32_t, const void 
 
 void sub_853300()
 {
-    static ArbitraryPOCharComp g_ArbitraryPOCharComp {};
+    static ArbitraryPOCharComp g_ArbitraryPOCharComp{};
 }
 
 void ArbitraryPOCharComp_patch()
@@ -855,28 +710,23 @@ void ArbitraryPOCharComp_patch()
     }
 
     {
-        void (ArbitraryPOCharComp::*func)(
-            void *a1,
-            uint32_t a2,
-            Float a3,
-            Float a4,
-            const nalComp::nalCompAnim *a5,
-            const void *a6,
-            uint32_t a7,
-            uint32_t a8,
-            const void *a9,
-            const void *a10,
-            void *a11) = &ArbitraryPOCharComp::_CalcPoseDataRemapped;
+        void (ArbitraryPOCharComp::*func)(void *a1,
+                                          uint32_t a2,
+                                          Float a3,
+                                          Float a4,
+                                          const nalComp::nalCompAnim *a5,
+                                          const void *a6,
+                                          uint32_t a7,
+                                          uint32_t a8,
+                                          const void *a9,
+                                          const void *a10,
+                                          void *a11) = &ArbitraryPOCharComp::_CalcPoseDataRemapped;
         set_vfunc_local(0x34, func);
     }
 
     {
-        void (ArbitraryPOCharComp::*func)(
-                void *,
-                uint32_t,
-                Float,
-                const void *,
-                const void *) = &ArbitraryPOCharComp::_BlendPoseData;
+        void (ArbitraryPOCharComp::*func)(void *, uint32_t, Float, const void *, const void *) =
+            &ArbitraryPOCharComp::_BlendPoseData;
         set_vfunc_local(0x38, func);
     }
 
@@ -904,4 +754,3 @@ void ArbitraryPOCharComp_patch()
         SET_JUMP(0x00853300, sub_853300);
     }
 }
-

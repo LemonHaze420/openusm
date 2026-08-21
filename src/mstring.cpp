@@ -21,8 +21,8 @@ int &mString_count = var<int>(0x00957CEC);
 char *& mString::null = var<char *>(0x0091E7C0);
 #else
 char g_null[] = "";
-char * g_g_null = g_null;
-char *& mString::null = g_g_null;
+char *g_g_null = g_null;
+char *&mString::null = g_g_null;
 #endif
 
 #ifndef STANDALONE_SYSTEM
@@ -31,28 +31,18 @@ char *& mString::null = g_g_null;
 
 #if !STANDALONE_SYSTEM
 
-const char * (& packfile_ext)[4] = var<const char *[4]>(0x00936BF0);
-const char * (& packfile_dir)[4] = var<const char *[4]>(0x00936BD0);
+const char *(&packfile_ext)[4] = var<const char *[4]>(0x00936BF0);
+const char *(&packfile_dir)[4] = var<const char *[4]>(0x00936BD0);
 
 #else
 
-const char * (& packfile_ext)[4] = []() -> auto & {
-    static const char * g_packfile_ext[4] {
-        ".PS2PACK",
-        ".XBPACK",
-        ".GCPACK",
-        ".PCPACK"
-    };
+const char *(&packfile_ext)[4] = []() -> auto & {
+    static const char *g_packfile_ext[4]{".PS2PACK", ".XBPACK", ".GCPACK", ".PCPACK"};
     return g_packfile_ext;
 }();
 
-const char * (& packfile_dir)[4] = []() -> auto & {
-    static const char * g_packfile_dir[4] {
-        "packs\\ps2\\",
-        "packs\\xbox\\",
-        "packs\\gc\\",
-        "packs\\pc\\"
-    };
+const char *(&packfile_dir)[4] = []() -> auto & {
+    static const char *g_packfile_dir[4]{"packs\\ps2\\", "packs\\xbox\\", "packs\\gc\\", "packs\\pc\\"};
     return g_packfile_dir;
 }();
 
@@ -65,15 +55,15 @@ mString::mString(from_mash_in_place_constructor *)
     this->initialize(mash::FROM_MASH);
 }
 
-mString::mString(float a1) : mString() {
+mString::mString(float a1) : mString()
+{
     char Dest[128];
     sprintf(Dest, "%0.3f", float{a1});
 
     this->update_guts(Dest, -1);
 }
 
-mString::mString([[maybe_unused]] int a2, const char *Format, ...)
-    : mString()
+mString::mString([[maybe_unused]] int a2, const char *Format, ...) : mString()
 {
     char Dest[1024];
     va_list Args;
@@ -84,8 +74,7 @@ mString::mString([[maybe_unused]] int a2, const char *Format, ...)
     this->update_guts(Dest, -1);
 }
 
-mString::mString(int a2)
-    : mString()
+mString::mString(int a2) : mString()
 
 {
     assert(this->field_C == nullptr);
@@ -97,12 +86,14 @@ mString::mString(int a2)
     this->update_guts(Dest, -1);
 }
 
-mString & mString::operator=(const char *a2) {
+mString &mString::operator=(const char *a2)
+{
     this->update_guts(a2, -1);
     return (*this);
 }
 
-mString & mString::operator=(const mString &a2) {
+mString &mString::operator=(const mString &a2)
+{
     if (this != (&a2)) {
         this->update_guts(a2.guts, a2.size());
     }
@@ -116,7 +107,8 @@ mString::~mString()
     this->finalize(mash::ALLOCATED);
 }
 
-void mString::copy(const char *a1, int a2) {
+void mString::copy(const char *a1, int a2)
+{
     this->update_guts(a1, a2);
 }
 
@@ -127,7 +119,7 @@ void mString::copy(const mString &a2)
     this->update_guts(v2, len);
 }
 
-mString & mString::to_lower()
+mString &mString::to_lower()
 {
     assert(this->guts != nullptr);
 
@@ -135,7 +127,7 @@ mString & mString::to_lower()
     return (*this);
 }
 
-mString & mString::to_upper()
+mString &mString::to_upper()
 {
     assert(this->guts != nullptr);
 
@@ -151,7 +143,7 @@ char mString::at(int i) const
 char mString::operator[](int i) const
 {
     assert(guts != nullptr);
-    assert(i <= (int) m_size);
+    assert(i <= (int)m_size);
 
     assert(i >= 0);
 
@@ -162,8 +154,7 @@ void mString::initialize(mash::allocation_scope scope)
 {
     //TRACE("mString::initialize");
 
-    if (scope == mash::ALLOCATED)
-    {
+    if (scope == mash::ALLOCATED) {
         this->set_size(0);
         this->guts = mString::null;
     }
@@ -177,15 +168,15 @@ void mString::destruct_mashed_class()
     this->finalize(mash::FROM_MASH);
 }
 
-mString::mString(const char *a2)
-    : mString()
+mString::mString(const char *a2) : mString()
 {
     if (a2 != nullptr) {
         this->update_guts(a2, -1);
     }
 }
 
-mString mString::from_float(float a2) {
+mString mString::from_float(float a2)
+{
     mString a1{a2};
 
     return a1;
@@ -201,7 +192,7 @@ int mString::find(const char *str, int a3) const
     }
 }
 
-mString & mString::operator+=(const char *a2)
+mString &mString::operator+=(const char *a2)
 {
     this->append(a2, -1);
     return (*this);
@@ -209,13 +200,14 @@ mString & mString::operator+=(const char *a2)
 
 mString mString::substr(int Start, int Count) const
 {
-    mString v7 {};
+    mString v7{};
     v7.append(&this->guts[Start], Count);
 
     return v7;
 }
 
-int mString::find(mString::pos_t a2, char a3) const {
+int mString::find(mString::pos_t a2, char a3) const
+{
     char *v3 = this->guts;
     char v4 = v3[a2];
     char *v5 = &v3[a2];
@@ -249,7 +241,8 @@ mString mString::slice(int start, int end)
     return result;
 }
 
-int mString::rfind(const char *str) const {
+int mString::rfind(const char *str) const
+{
     assert(guts && str);
     int v5 = std::strlen(str);
     for (auto i = this->size() - v5; i >= 0; --i) {
@@ -266,7 +259,8 @@ int mString::rfind(const char *str) const {
     return -1;
 }
 
-int mString::rfind(char a2, int a3) const {
+int mString::rfind(char a2, int a3) const
+{
     if (!this->size()) {
         return -1;
     }
@@ -291,16 +285,14 @@ int mString::rfind(char a2, int a3) const {
     return -1;
 }
 
-void mString::finalize(mash::allocation_scope )
+void mString::finalize(mash::allocation_scope)
 {
     //TRACE("mString::finalize");
     this->destroy_guts();
     //--mString_count;
 }
 
-mString::mString()
-    : mContainer(), guts(mString::null),
-      field_C(nullptr)
+mString::mString() : mContainer(), guts(mString::null), field_C(nullptr)
 {
     //TRACE("mString::mString()");
     this->initialize(mash::ALLOCATED);
@@ -320,8 +312,7 @@ mString::mString([[maybe_unused]] mString::fmtd fmt, const char *Format, ...)
     this->update_guts(Dest, -1);
 }
 
-mString::mString(const mString &a2)
-    : mString()
+mString::mString(const mString &a2) : mString()
 
 {
     if constexpr (1) {
@@ -331,22 +322,25 @@ mString::mString(const mString &a2)
     }
 }
 
-mString mString::from_int(int a2) {
+mString mString::from_int(int a2)
+{
     mString str = mString{a2};
 
     return str;
 }
 
-int mString::to_int() const {
+int mString::to_int() const
+{
     //TRACE("mString::to_int");
     return std::atoi(this->guts);
 }
 
-double mString::to_float() const {
+double mString::to_float() const
+{
     return std::atof(this->guts);
 }
 
-static const char * mString_strchr(const char *a1, int a2)
+static const char *mString_strchr(const char *a1, int a2)
 {
     if (a1 == nullptr) {
         return nullptr;
@@ -366,7 +360,8 @@ static const char * mString_strchr(const char *a1, int a2)
     return result;
 }
 
-mString & mString::remove_leading(const char *a1) {
+mString &mString::remove_leading(const char *a1)
+{
     int start;
     for (start = 0; start < this->size() && mString_strchr(a1, this->guts[start]) != nullptr; ++start) {
         ;
@@ -379,7 +374,8 @@ mString & mString::remove_leading(const char *a1) {
     return (*this);
 }
 
-mString & mString::remove_trailing(const char *a2) {
+mString &mString::remove_trailing(const char *a2)
+{
     int end;
     for (end = this->size(); end > 0 && mString_strchr(a2, this->guts[end - 1]) != nullptr; --end) {
         ;
@@ -391,7 +387,7 @@ mString & mString::remove_trailing(const char *a2) {
     return (*this);
 }
 
-mString & mString::remove_surrounding_whitespace()
+mString &mString::remove_surrounding_whitespace()
 {
     this->remove_leading(" \n\t\r");
     this->remove_trailing(" \n\t\r");
@@ -399,55 +395,64 @@ mString & mString::remove_surrounding_whitespace()
     return (*this);
 }
 
-bool operator==(const mString &a1, const mString &a2) {
+bool operator==(const mString &a1, const mString &a2)
+{
     auto *v2 = a2.c_str();
     return (a1 == v2);
 }
 
-bool operator!=(const mString &a1, const mString &a2) {
+bool operator!=(const mString &a1, const mString &a2)
+{
     return !(a1 == a2);
 }
 
-bool operator<(const mString &a1, const mString &a2) {
+bool operator<(const mString &a1, const mString &a2)
+{
     auto *v2 = a2.c_str();
     return a1.compare(v2) == 1;
 }
 
-bool operator>(const mString &a1, const mString &a2) {
+bool operator>(const mString &a1, const mString &a2)
+{
     auto *v2 = a2.c_str();
 
     return a1.compare(v2) == -1;
 }
 
-const char *mString::c_str() const {
+const char *mString::c_str() const
+{
     return guts;
 }
 
-char *mString::data() {
+char *mString::data()
+{
     return guts;
 }
 
-void *dialog_box_formatting(mString *out_string, mString a2, int a3, int a4) {
+void *dialog_box_formatting(mString *out_string, mString a2, int a3, int a4)
+{
     //sp_log("dialog_box_formatting: %s", a2.guts);
 
-    return (void *) CDECL_CALL(0x0064DF30, out_string, a2, a3, a4);
+    return (void *)CDECL_CALL(0x0064DF30, out_string, a2, a3, a4);
 }
 
-void mString::append(char a3) {
+void mString::append(char a3)
+{
     char a1[2];
     a1[0] = a3;
     a1[1] = 0;
     this->append(a1, -1);
 }
 
-void mString::append(const char *from_string, int from_string_length) {
+void mString::append(const char *from_string, int from_string_length)
+{
     if (from_string_length == -1) {
         from_string_length = strlen(from_string);
     }
 
     if (from_string_length) {
         assert(from_string_length > 0);
-        assert(((uint32_t) from_string_length) < MAX_MSTRING_LENGTH);
+        assert(((uint32_t)from_string_length) < MAX_MSTRING_LENGTH);
 
         size_t v6 = from_string_length + this->size();
 
@@ -480,7 +485,8 @@ void mString::append(const char *from_string, int from_string_length) {
     }
 }
 
-bool mString::operator==(const char *a2) const {
+bool mString::operator==(const char *a2) const
+{
     assert(guts != nullptr);
 
     return strncmp(this->guts, a2, MAX_MSTRING_LENGTH) == 0;
@@ -490,13 +496,12 @@ void mString::destroy_guts()
 {
     //TRACE("mString::destroy_guts");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         auto *v2 = this->guts;
         if (v2 != mString::null) {
-            if ((int) v2 < (int) this || (int) v2 > (int) this + this->field_0) {
+            if ((int)v2 < (int)this || (int)v2 > (int)this + this->field_0) {
                 if (this->field_C == nullptr) {
-                    delete[](v2);
+                    delete[] (v2);
                 } else {
                     slab_allocator::deallocate(v2, this->field_C);
                 }
@@ -514,7 +519,7 @@ void mString::destroy_guts()
 
 mString operator+(const char *a2, const mString &a3)
 {
-    mString v5 {a2};
+    mString v5{a2};
     v5 += a3;
 
     return v5;
@@ -528,7 +533,8 @@ mString operator+(const mString &a1, const char *a2)
     return v6;
 }
 
-mString mString::get_standalone_filename(const mString &arg4, _nlPlatformEnum a3) {
+mString mString::get_standalone_filename(const mString &arg4, _nlPlatformEnum a3)
+{
     const char *vec[] = {".PAK", "_XB.PAK", "_GC.PAK", "_PC.PAK"};
 
     mString v9 = mString{vec[a3]};
@@ -541,7 +547,7 @@ mString mString::get_standalone_filename(const mString &arg4, _nlPlatformEnum a3
     return res;
 }
 
-mString & mString::operator+=(const mString &a2)
+mString &mString::operator+=(const mString &a2)
 {
     this->append(a2.c_str(), -1);
     return (*this);
@@ -584,8 +590,7 @@ int mString::compare(const char *str) const
     auto *v3 = this->guts;
 
     uint32_t i;
-    for (i = 0; i < this->m_size; ++i)
-    {
+    for (i = 0; i < this->m_size; ++i) {
         if (str[i] == '\0') {
             return -1;
         }
@@ -614,8 +619,7 @@ void mString::update_guts(const char *from_string, int n)
 {
     //TRACE("mString::update_guts");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         assert(from_string != nullptr);
 
         if (n == -1) {
@@ -627,9 +631,8 @@ void mString::update_guts(const char *from_string, int n)
         if (n > static_cast<int>(this->m_size)) {
             this->destroy_guts();
 
-            this->guts = (n < 176)
-                ? (static_cast<char *>(slab_allocator::allocate(n + 1, &this->field_C)))
-                : (new char[n + 1]);
+            this->guts =
+                (n < 176) ? (static_cast<char *>(slab_allocator::allocate(n + 1, &this->field_C))) : (new char[n + 1]);
         }
 
         if (n > 0) {
@@ -658,8 +661,7 @@ void mString::custom_unmash(mash_info_struct *a1, void *a2)
     assert(guts == (char *)mash::CUSTOM_MASH_SENTRY);
 #endif
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         auto size = this->size();
         if (size <= 0) {
             this->guts = mString::null;
@@ -669,27 +671,26 @@ void mString::custom_unmash(mash_info_struct *a1, void *a2)
 #ifdef TARGET_XBOX
                 mash::NORMAL_BUFFER,
 #endif
-                    1);
+                1);
 
-            this->guts = (char *) a1->read_from_buffer(
+            this->guts = (char *)a1->read_from_buffer(
 #ifdef TARGET_XBOX
                 mash::NORMAL_BUFFER,
 #endif
-                this->m_size + 1, 1);
-;
+                this->m_size + 1,
+                1);
+            ;
             a1->align_buffer(
 #ifdef TARGET_XBOX
                 mash::NORMAL_BUFFER,
 #endif
-                    4);
+                4);
         }
 
 #ifndef TARGET_XBOX
-        this->field_0 = (int) &a1->mash_image_ptr[a1->buffer_size_used[0] - (uint32_t)this];
+        this->field_0 = (int)&a1->mash_image_ptr[a1->buffer_size_used[0] - (uint32_t)this];
 #endif
-    }
-    else
-    {
+    } else {
         THISCALL(0x004209F0, this, a1, a2);
     }
 }

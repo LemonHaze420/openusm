@@ -38,8 +38,7 @@ struct line_info {
     void clear();
 
     //0x0052EE20
-    bool check_collision(const local_collision::entfilter_base &a2,
-                         const local_collision::obbfilter_base &a3,
+    bool check_collision(const local_collision::entfilter_base &a2, const local_collision::obbfilter_base &a3,
                          line_info_local_query *a4);
 
     //0x006B6E00
@@ -55,7 +54,7 @@ struct line_info {
     //0x0052F120
     static void frame_advance(int a1);
 
-    static simple_queue<line_info *, 16> & queued_collision_checks;
+    static simple_queue<line_info *, 16> &queued_collision_checks;
 };
 
 inline constexpr auto MAX_RENDERABLE_LINE_INFOS = 64;

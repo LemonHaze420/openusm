@@ -21,7 +21,6 @@ struct path_graph_node {
 };
 
 struct path_graph_edge {
-
     int field_0;
     int field_4;
     float field_8;

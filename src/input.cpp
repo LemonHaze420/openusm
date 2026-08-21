@@ -13,25 +13,26 @@ VALIDATE_SIZE(Input, 0x129E8u);
 
 VALIDATE_OFFSET(Input, m_din, 0x27EC);
 
-Input *& dword_965DDC = var<Input *>(0x00965DDC);
+Input *&dword_965DDC = var<Input *>(0x00965DDC);
 
-using p_DirectInput8Create_type = HRESULT(__stdcall *)(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID *ppvOut, LPUNKNOWN punkOuter);
+using p_DirectInput8Create_type = HRESULT(__stdcall *)(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID *ppvOut,
+                                                       LPUNKNOWN punkOuter);
 
 #if !STANDALONE_SYSTEM
 
-Input *& Input::instance = var<Input *>(0x00987948);
+Input *&Input::instance = var<Input *>(0x00987948);
 
-static p_DirectInput8Create_type & p_DirectInput8Create = var<p_DirectInput8Create_type>(0x00987944);
+static p_DirectInput8Create_type &p_DirectInput8Create = var<p_DirectInput8Create_type>(0x00987944);
 
 #else
 
-Input *& Input::instance = []() -> auto & {
-    static Input * g_instance {};
+Input *&Input::instance = []() -> auto & {
+    static Input *g_instance{};
     return g_instance;
 }();
 
-static p_DirectInput8Create_type & p_DirectInput8Create = []() -> auto & {
-    static p_DirectInput8Create_type p_DirectInput8Create1 {};
+static p_DirectInput8Create_type &p_DirectInput8Create = []() -> auto & {
+    static p_DirectInput8Create_type p_DirectInput8Create1{};
     return p_DirectInput8Create1;
 }();
 
@@ -42,10 +43,10 @@ Input::Input()
     TRACE("Input::Input");
 
 #if !STANDALONE_SYSTEM
-    static bool & din_intialized = var<bool>(0x00987950);
+    static bool &din_intialized = var<bool>(0x00987950);
 #else
-    static bool & din_intialized = []() -> auto & {
-        static bool g_din_intialized {};
+    static bool &din_intialized = []() -> auto & {
+        static bool g_din_intialized{};
         return g_din_intialized;
     }();
 #endif
@@ -56,8 +57,7 @@ Input::Input()
     this->m_initialized = false;
     this->m_sensitivity = 0.0099999998f;
     this->field_129D0 = 4;
-    if (!din_intialized)
-    {
+    if (!din_intialized) {
         char Buffer[260]{};
 
         if (GetSystemDirectoryA(Buffer, 260u)) {
@@ -67,10 +67,10 @@ Input::Input()
             std::sprintf(Dest, "%s\\dinput8.dll", Buffer);
 
 #if !STANDALONE_SYSTEM
-            static HMODULE & dinput8_dll = var<HMODULE>(0x0098794C);
+            static HMODULE &dinput8_dll = var<HMODULE>(0x0098794C);
 #else
-            static HMODULE & dinput8_dll = []() -> auto & {
-                static HMODULE g_dinput8_dll {};
+            static HMODULE &dinput8_dll = []() -> auto & {
+                static HMODULE g_dinput8_dll{};
                 return g_dinput8_dll;
             }();
 #endif
@@ -80,8 +80,7 @@ Input::Input()
 
             p_DirectInput8Create = nullptr;
             if (v3) {
-                p_DirectInput8Create = CAST(p_DirectInput8Create,
-                                              GetProcAddress(v3, "DirectInput8Create"));
+                p_DirectInput8Create = CAST(p_DirectInput8Create, GetProcAddress(v3, "DirectInput8Create"));
             }
         }
 
@@ -116,17 +115,14 @@ Input::Input()
     this->m_current_connected = 0;
 }
 
-Input::~Input() {
+Input::~Input()
+{
     THISCALL(0x0081FDD0, this);
 }
 
-void Input::set_mouse(const char *mouseLeft,
-                      const char *mouseRight,
-                      const char *mouseMiddle,
-                      const char *mouseBtn,
-                      const char *mouseAxis,
-                      const char *mouseWheelUp,
-                      const char *mouseWheelDown) {
+void Input::set_mouse(const char *mouseLeft, const char *mouseRight, const char *mouseMiddle, const char *mouseBtn,
+                      const char *mouseAxis, const char *mouseWheelUp, const char *mouseWheelDown)
+{
     strcpy(this->m_mouseLeft, mouseLeft);
     strcpy(this->m_mouseRight, mouseRight);
     strcpy(this->m_mouseMiddle, mouseMiddle);
@@ -136,7 +132,8 @@ void Input::set_mouse(const char *mouseLeft,
     strcpy(this->m_mouseWheelDown, mouseWheelDown);
 }
 
-void Input::set_gamepad(const char *gamepadAxis, const char *gamepadPoV, const char *gamepadBtn) {
+void Input::set_gamepad(const char *gamepadAxis, const char *gamepadPoV, const char *gamepadBtn)
+{
     strcpy(this->m_gamepadAxis, gamepadAxis);
     strcpy(this->m_gamepadPoV, gamepadPoV);
     strcpy(this->m_gamepadBtn, gamepadBtn);
@@ -144,8 +141,7 @@ void Input::set_gamepad(const char *gamepadAxis, const char *gamepadPoV, const c
 
 const char *Input::get_string(InputType input_type, unsigned int Dest)
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         if (Dest == 0xFFFFFFFF || Dest == 0xFFFF) {
             return nullptr;
         }
@@ -162,8 +158,7 @@ const char *Input::get_string(InputType input_type, unsigned int Dest)
             return byte_987AC0;
         }
 
-        if (input_type == InputType::Mouse)
-        {
+        if (input_type == InputType::Mouse) {
             static char byte_987A70[80]{};
             std::memset(byte_987A70, 0, sizeof(byte_987A70));
             switch (Dest) {
@@ -233,7 +228,7 @@ const char *Input::get_string(InputType input_type, unsigned int Dest)
         if (Dest >= 21 && Dest <= 49) {
             static char byte_987A20[80]{};
             std::memset(byte_987A20, 0, sizeof(byte_987A20));
-            sprintf((char *) &Dest, "%d", Dest - 20);
+            sprintf((char *)&Dest, "%d", Dest - 20);
             sprintf(byte_987A20, this->m_gamepadBtn, &Dest);
             return byte_987A20;
         }
@@ -282,7 +277,7 @@ const char *Input::get_string(InputType input_type, unsigned int Dest)
 
         auto v8 = Dest - 1;
         char tmp[8];
-        if ((((BYTE) Dest - 1) & 1) != 0) {
+        if ((((BYTE)Dest - 1) & 1) != 0) {
             sprintf(tmp, "%d-", (v8 >> 1) + 1);
         } else {
             sprintf(tmp, "%d+", (v8 >> 1) + 1);
@@ -292,13 +287,14 @@ const char *Input::get_string(InputType input_type, unsigned int Dest)
         return byte_9879D0;
 
     } else {
-        auto *result = (char *) THISCALL(0x00820890, this, input_type, Dest);
+        auto *result = (char *)THISCALL(0x00820890, this, input_type, Dest);
 
         return result;
     }
 }
 
-void Input::sub_8203F0(int a2, InputSettings *a3) {
+void Input::sub_8203F0(int a2, InputSettings *a3)
+{
     if constexpr (1) {
         if (this->field_129D8[a2] != a3) {
             this->field_129D8[a2] = a3;
@@ -324,15 +320,18 @@ void Input::sub_8203F0(int a2, InputSettings *a3) {
     }
 }
 
-void Input::sub_81FC00(int a2, const char *a3) {
+void Input::sub_81FC00(int a2, const char *a3)
+{
     THISCALL(0x0081FC00, this, a2, a3);
 }
 
-void Input::sub_81FB90(bool a2) {
+void Input::sub_81FB90(bool a2)
+{
     this->field_0 = a2;
 }
 
-void Input::set_key(int index, const char *a3) {
+void Input::set_key(int index, const char *a3)
+{
     strcpy(this->m_keys[index], a3);
 }
 
@@ -347,8 +346,7 @@ bool Input::initialize(HWND a2)
             return false;
         }
 
-        if (this->m_din == nullptr)
-        {
+        if (this->m_din == nullptr) {
             if (p_DirectInput8Create == nullptr) {
                 return false;
             }
@@ -356,19 +354,14 @@ bool Input::initialize(HWND a2)
             this->m_hwnd = a2;
             auto hModule = GetModuleHandleA(nullptr);
 
-            p_DirectInput8Create(hModule,
-                                   DIRECTINPUT_VERSION,
-                                   IID_IDirectInput8,
-                                   (LPVOID *) &this->m_din,
-                                   nullptr);
+            p_DirectInput8Create(hModule, DIRECTINPUT_VERSION, IID_IDirectInput8, (LPVOID *)&this->m_din, nullptr);
             this->sub_821490(false);
             BYTE KeyState[256]{};
             GetKeyboardState(KeyState);
 
             BYTE v11;
-            int v6 = (char *) this - (char *) &v11 + 10404;
-            for (uint32_t ScanCode = 0; ScanCode < 256; ++ScanCode)
-            {
+            int v6 = (char *)this - (char *)&v11 + 10404;
+            for (uint32_t ScanCode = 0; ScanCode < 256; ++ScanCode) {
                 const uint32_t VirtualKeyCode = MapVirtualKeyA(ScanCode, MAPVK_VSC_TO_VK);
                 const uint32_t CharCode = MapVirtualKeyA(VirtualKeyCode, MAPVK_VK_TO_CHAR);
                 BYTE v11 = CharCode;
@@ -463,10 +456,8 @@ bool Input::initialize(HWND a2)
         }
 
         return true;
-    }
-    else
-    {
-        bool result = (bool) THISCALL(0x00821800, this, a2);
+    } else {
+        bool result = (bool)THISCALL(0x00821800, this, a2);
 
         return result;
     }
@@ -633,7 +624,8 @@ int Input::sub_8200C0(const DIJOYSTATE2 *a1, int a2)
     return result;
 }
 
-int Input::sub_820080() {
+int Input::sub_820080()
+{
     auto result = 0;
     for (auto *i = this->field_14; (*i) != 0; ++i) {
         if (++result >= 10) {
@@ -670,19 +662,15 @@ float Input::get_joy_state(int a2, int a3)
 
 float Input::get_mouse_state(InputMouse a2, int mode)
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         auto *input_settings = this->field_129D8[mode];
         auto rotation_axis_y = this->m_mouse_state.lY * this->m_sensitivity;
         auto rotation_axis_x = this->m_mouse_state.lX * this->m_sensitivity;
-        if (input_settings != nullptr && input_settings->field_3)
-        {
-            rotation_axis_x = (rotation_axis_x * input_settings->field_14 +
-                               input_settings->field_C) *
-                input_settings->field_4;
-            rotation_axis_y = (rotation_axis_y * input_settings->field_14 +
-                               input_settings->field_10) *
-                input_settings->field_4;
+        if (input_settings != nullptr && input_settings->field_3) {
+            rotation_axis_x =
+                (rotation_axis_x * input_settings->field_14 + input_settings->field_C) * input_settings->field_4;
+            rotation_axis_y =
+                (rotation_axis_y * input_settings->field_14 + input_settings->field_10) * input_settings->field_4;
 
             if (rotation_axis_x >= input_settings->field_8) {
                 rotation_axis_x = input_settings->field_8;
@@ -781,10 +769,8 @@ float Input::get_mouse_state(InputMouse a2, int mode)
         }
 
         return 0.0f;
-    }
-    else
-    {
-        float (__fastcall *func)(void *, void *, int, int) = CAST(func, 0x0081FE60);
+    } else {
+        float(__fastcall * func)(void *, void *, int, int) = CAST(func, 0x0081FE60);
 
         return func(this, nullptr, static_cast<int>(a2), mode);
     }
@@ -792,14 +778,11 @@ float Input::get_mouse_state(InputMouse a2, int mode)
 
 void Input::sub_8204C0(InputSettings::internal_struct *a2, int mode)
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         float state = 0.0f;
 
-        for (auto i = 0u; i < a2->m_size; ++i)
-        {
-            for (auto v6 = 0u; v6 < 6u; ++v6)
-            {
+        for (auto i = 0u; i < a2->m_size; ++i) {
+            for (auto v6 = 0u; v6 < 6u; ++v6) {
                 auto action_index = i;
 
                 auto &v5 = a2->field_4[action_index][v6];
@@ -807,8 +790,7 @@ void Input::sub_8204C0(InputSettings::internal_struct *a2, int mode)
                 auto v7 = v5.m_input_type;
 
                 auto value = v5.m_value;
-                if (v7 != 0)
-                {
+                if (v7 != 0) {
                     switch (v7) {
                     case InputType::Key: {
                         state = (this->m_state_keys[value] != 0);
@@ -840,9 +822,7 @@ void Input::sub_8204C0(InputSettings::internal_struct *a2, int mode)
                 }
             }
         }
-    }
-    else
-    {
+    } else {
         THISCALL(0x008204C0, this, a2, mode);
     }
 }
@@ -851,8 +831,7 @@ bool key_pressed = false;
 
 void Input::poll()
 {
-    if constexpr (0)
-    {
+    if constexpr (0) {
         auto *v2 = this->m_di_keyboard;
         auto *diKeys = this->m_state_keys;
         std::memcpy(this->m_old_state_keys, this->m_state_keys, sizeof(this->m_old_state_keys));
@@ -910,29 +889,22 @@ void Input::poll()
         auto *v12 = &this->field_4F8[0];
         auto *v44 = this->field_14;
 
-        for (auto v47 = 0u; v47 < 10u; ++v47)
-        {
+        for (auto v47 = 0u; v47 < 10u; ++v47) {
             auto v13 = *v44;
-            if (*v44)
-            {
-                std::memcpy((int *) v12 + 678, v12, 0x110u);
-                if ( ((*(int(__stdcall **)(int))(*(uint32_t *) v13 + 100))(v13) < 0 &&
-                        (*(int(__stdcall **)(int))(*(uint32_t *) *v44 + 28))(*v44) < 0) ||
-                         (*(int(__stdcall **)(int))(*(uint32_t *) *v44 + 100))(*v44) < 0 ||
-                    (*(int(__stdcall **)(int, int, void *))(*(uint32_t *) *v44 +
-                                                            36))(*v44, 272, v12) < 0)
-                {
+            if (*v44) {
+                std::memcpy((int *)v12 + 678, v12, 0x110u);
+                if (((*(int(__stdcall **)(int))(*(uint32_t *)v13 + 100))(v13) < 0 &&
+                     (*(int(__stdcall **)(int))(*(uint32_t *)*v44 + 28))(*v44) < 0) ||
+                    (*(int(__stdcall **)(int))(*(uint32_t *)*v44 + 100))(*v44) < 0 ||
+                    (*(int(__stdcall **)(int, int, void *))(*(uint32_t *)*v44 + 36))(*v44, 272, v12) < 0) {
                     std::memset(v12, 0, sizeof(DIJOYSTATE2));
                     v12->rgdwPOV[0] = 0xFFFF;
                     v12->rgdwPOV[1] = 0xFFFF;
                     v12->rgdwPOV[2] = 0xFFFF;
                     v12->rgdwPOV[3] = 0xFFFF;
-                }
-                else
-                {
+                } else {
                     auto v19 = this->field_4;
-                    if (v19 > 0)
-                    {
+                    if (v19 > 0) {
                         if (v12->lX > -v19 && v12->lX < v19) {
                             v12->lX = 0;
                         }
@@ -971,14 +943,12 @@ void Input::poll()
             ++v44;
         }
 
-        if (this->field_8)
-        {
+        if (this->field_8) {
             auto *v16 = this->field_24EC;
             bool v17 = false;
             int v18 = 256;
             do {
-                if (*v16)
-                {
+                if (*v16) {
                     if (v16[256] == *v16) {
                         v16[256] = 0;
                         v17 = true;
@@ -1036,8 +1006,7 @@ void Input::poll()
 
             bool v11;
             do {
-                if (*v29)
-                {
+                if (*v29) {
                     if (*(v30 - 1365) == *v30 && *v30) {
                         *(v30 - 1365) = 0;
                         v17 = 1;
@@ -1113,12 +1082,12 @@ void Input::poll()
                     } while (v39);
 
                     for (auto i = 0; i < 30; ++i) {
-                        auto v41 = *((BYTE *) v30 + i + 48);
-                        if (*((BYTE *) v30 + i - 5412) == v41 && v41) {
-                            *((BYTE *) v30 + i - 5412) = 0;
+                        auto v41 = *((BYTE *)v30 + i + 48);
+                        if (*((BYTE *)v30 + i - 5412) == v41 && v41) {
+                            *((BYTE *)v30 + i - 5412) = 0;
                             v17 = 1;
                         } else {
-                            *((BYTE *) v30 + i + 48) = 0;
+                            *((BYTE *)v30 + i + 48) = 0;
                         }
                     }
                 }
@@ -1136,21 +1105,19 @@ void Input::poll()
         }
 
         auto **v43 = &this->field_129D8[0];
-        for (auto i = 0u; i < this->field_129D0; ++i)
-        {
+        for (auto i = 0u; i < this->field_129D0; ++i) {
             if (v43[i] != nullptr) {
                 this->sub_8204C0(&v43[i]->field_18, i);
             }
         }
-    }
-    else
-    {
+    } else {
         THISCALL(0x00820C70, this);
     }
 }
 
-BOOL __stdcall sub_821470(const DIDEVICEINSTANCEA *a2, void *arg4) {
-    BOOL (__stdcall *func)(const DIDEVICEINSTANCEA *a2, void *) = CAST(func, 0x00821470);
+BOOL __stdcall sub_821470(const DIDEVICEINSTANCEA *a2, void *arg4)
+{
+    BOOL(__stdcall * func)(const DIDEVICEINSTANCEA *a2, void *) = CAST(func, 0x00821470);
     return func(a2, arg4);
 }
 
@@ -1158,8 +1125,7 @@ static auto &dword_8C0AAC = var<int[4]>(0x008C0AAC);
 
 void Input::sub_821490(bool a2)
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         std::memset(this->field_4EC, 0, sizeof(this->field_4EC));
 
         this->field_4F0 = 0;
@@ -1199,16 +1165,16 @@ void Input::sub_821490(bool a2)
             if (!this->field_4EC[v6] && *(v7 - 10)) {
                 memset(field_4F8, 0, sizeof(this->field_F98));
                 memset(v8, 0, sizeof(this->field_F98));
-                (*(void(__stdcall **)(uint32_t))(*(uint32_t *) *(v7 - 10) + 8))(*(v7 - 10));
+                (*(void(__stdcall **)(uint32_t))(*(uint32_t *)*(v7 - 10) + 8))(*(v7 - 10));
                 auto v9 = *v7;
                 v3 = *v7 == 0;
                 *(v7 - 10) = 0;
                 if (!v3) {
-                    (*(void(__stdcall **)(int))(*(uint32_t *) v9 + 8))(v9);
+                    (*(void(__stdcall **)(int))(*(uint32_t *)v9 + 8))(v9);
                 }
 
-                auto v10 = (uint32_t *) a2;
-                *(uint32_t *) (a2 - 4) = 0;
+                auto v10 = (uint32_t *)a2;
+                *(uint32_t *)(a2 - 4) = 0;
                 *v10 = 0;
                 v6 = v24;
                 *v7 = 0;
@@ -1230,9 +1196,9 @@ void Input::sub_821490(bool a2)
 
         if (i < 10) {
             auto *v25 = &this->field_8C[2 * i + 1];
-            auto *v23 = (char *) &this->field_8C[25 * i + 20];
+            auto *v23 = (char *)&this->field_8C[25 * i + 20];
             auto *v12 = &this->field_F98[i].lX;
-            auto v29 = -1259 - (uint32_t) this;
+            auto v29 = -1259 - (uint32_t)this;
             auto *v13 = this->field_27F0[i];
             auto *v14 = &this->field_4EC[i];
             auto *v26 = v14;
@@ -1243,22 +1209,22 @@ void Input::sub_821490(bool a2)
             do {
                 if (!*v14) {
                     auto *v16 = &v14[v29];
-                    if ((int) &v14[v29] < 10) {
-                        while (!v16[(uint32_t) this + 1260]) {
-                            if ((int) ++v16 >= 10) {
+                    if ((int)&v14[v29] < 10) {
+                        while (!v16[(uint32_t)this + 1260]) {
+                            if ((int)++v16 >= 10) {
                                 goto LABEL_27;
                             }
                         }
 
                         *v14 = 1;
-                        v16[(uint32_t) this + 1260] = 0;
+                        v16[(uint32_t)this + 1260] = 0;
                         memset(v12 - 680, 0, sizeof(DIJOYSTATE2));
                         memset(v12, 0, sizeof(DIJOYSTATE2));
-                        auto *v17 = (char *) &this->field_8C[25 * (uint32_t) v16 + 20];
+                        auto *v17 = (char *)&this->field_8C[25 * (uint32_t)v16 + 20];
                         strcpy(v23, v17);
                         memset(v17, 0, 0x64u);
                         auto *v18 = v13;
-                        auto *v19 = (int *) (&this->field_0 + 16 * (uint32_t) (v16 + 639));
+                        auto *v19 = (int *)(&this->field_0 + 16 * (uint32_t)(v16 + 639));
                         v18[0] = v19[0];
                         v18[1] = v19[1];
                         v18[2] = v19[2];
@@ -1269,21 +1235,21 @@ void Input::sub_821490(bool a2)
                         v19[2] = dword_8C0AAC[2];
                         v12 = v27;
                         v19[3] = dword_8C0AAC[3];
-                        *(v15 - 10) = this->field_14[(uint32_t) v16];
-                        auto v20 = this->field_3C[(uint32_t) v16];
-                        this->field_14[(uint32_t) v16] = 0;
+                        *(v15 - 10) = this->field_14[(uint32_t)v16];
+                        auto v20 = this->field_3C[(uint32_t)v16];
+                        this->field_14[(uint32_t)v16] = 0;
                         *v15 = v20;
-                        auto v21 = this->field_64[(uint32_t) v16];
-                        this->field_3C[(uint32_t) v16] = 0;
+                        auto v21 = this->field_64[(uint32_t)v16];
+                        this->field_3C[(uint32_t)v16] = 0;
                         v15[10] = v21;
-                        auto v22 = this->field_8C[2 * (uint32_t) v16];
-                        this->field_64[(uint32_t) v16] = 0;
+                        auto v22 = this->field_8C[2 * (uint32_t)v16];
+                        this->field_64[(uint32_t)v16] = 0;
                         *(v25 - 1) = v22;
-                        *v25 = this->field_8C[2 * (uint32_t) v16 + 1];
+                        *v25 = this->field_8C[2 * (uint32_t)v16 + 1];
 
                         v14 = v26;
-                        this->field_8C[2 * (uint32_t) v16] = 0;
-                        this->field_8C[2 * (uint32_t) v16 + 1] = 0;
+                        this->field_8C[2 * (uint32_t)v16] = 0;
+                        this->field_8C[2 * (uint32_t)v16 + 1] = 0;
                     }
                 }
 
@@ -1303,22 +1269,23 @@ void Input::sub_821490(bool a2)
         }
 
         this->field_9 = false;
-    }
-    else
-    {
+    } else {
         THISCALL(0x00821490, this, a2);
     }
 }
 
-void Input::sub_820C60() {
+void Input::sub_820C60()
+{
     THISCALL(0x00820C60, this);
 }
 
-DIJOYSTATE2 *Input::sub_820570(int a2) {
+DIJOYSTATE2 *Input::sub_820570(int a2)
+{
     return &this->field_4F8[a2];
 }
 
-bool Input::sub_820590(int a2) {
+bool Input::sub_820590(int a2)
+{
     bool result = false;
 
     if (this->field_14[a2]) {
@@ -1328,12 +1295,11 @@ bool Input::sub_820590(int a2) {
     return result;
 }
 
-char * Input::sub_81FD40(int a2)
+char *Input::sub_81FD40(int a2)
 {
-    static char byte_987954[44] {};
+    static char byte_987954[44]{};
     uint8_t *v2 = bit_cast<uint8_t *>(this) + 16 * a2;
-    sprintf(
-            byte_987954,
+    sprintf(byte_987954,
             "%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X",
             this->field_27F0[a2][0],
             *((uint16_t *)v2 + 5114),
@@ -1349,11 +1315,13 @@ char * Input::sub_81FD40(int a2)
     return byte_987954;
 }
 
-void Input::create_inst() {
+void Input::create_inst()
+{
     instance = new Input{};
 }
 
-void Input_patch() {
+void Input_patch()
+{
     FUNC_ADDRESS(address, &Input::get_string);
     REDIRECT(0x00587472, address);
     REDIRECT(0x0059565F, address);

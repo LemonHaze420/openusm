@@ -18,15 +18,12 @@ struct pole_swing_state : enhanced_state {
 
     //0x0046BD90
     //virtual
-    void activate(ai_state_machine *a2,
-                  const mashed_state *a3,
-                  const mashed_state *a4,
-                  const param_block *a5,
+    void activate(ai_state_machine *a2, const mashed_state *a3, const mashed_state *a4, const param_block *a5,
                   base_state::activate_flag_e a6);
 
     static const inline string_hash default_id{to_hash("POLE_SWING")};
 };
 
-} // namespace ai
+}  // namespace ai
 
 extern void pole_swing_state_patch();

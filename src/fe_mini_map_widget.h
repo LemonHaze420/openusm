@@ -70,7 +70,7 @@ struct fe_mini_map_widget {
     //virtual
     void Update(Float a2);
 
-    static inline void * g_vtbl[] {
+    static inline void *g_vtbl[]{
         nullptr,
         func_address(&_Init),
         func_address(&_Draw),

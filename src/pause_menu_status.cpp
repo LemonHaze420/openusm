@@ -15,20 +15,21 @@
 
 VALIDATE_SIZE(pause_menu_status, 0x130);
 
-pause_menu_status::pause_menu_status(FEMenuSystem *a2, int a3, int a4)
-    : FEMenu(a2, 0, a3, a4, 0, 0) {
+pause_menu_status::pause_menu_status(FEMenuSystem *a2, int a3, int a4) : FEMenu(a2, 0, a3, a4, 0, 0)
+{
     THISCALL(0x0060FF30, this, a2, a3, a4);
 }
 
-void pause_menu_status::OnTriangle(int a2) {
+void pause_menu_status::OnTriangle(int a2)
+{
     THISCALL(0x0061D3F0, this, a2);
 }
 
-void pause_menu_status::_Load() {
+void pause_menu_status::_Load()
+{
     TRACE("pause_menu_status::Load");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         auto *v2 = this->field_E8;
         this->field_12C = 0;
         this->field_12D = 0;
@@ -78,13 +79,13 @@ void pause_menu_status::_Load() {
         this->field_A4[12] = v3->GetTextPointer("pm_status_text_right_05_BLANK");
         this->field_A4[13] = v3->GetTextPointer("pm_status_text_right_06_BLANK");
 
-        auto *v5 = new PanelQuad {};
+        auto *v5 = new PanelQuad{};
         auto *v6 = this->field_2C[21];
         this->field_DC = v5;
         v5->CopyFrom(v6);
 
-        float v34[4] {};
-        float v30[4] {};
+        float v34[4]{};
+        float v30[4]{};
         this->field_DC->GetPos(v34, v30);
 
         v30[0] = v30[0] - 50.f;
@@ -94,7 +95,7 @@ void pause_menu_status::_Load() {
 
         this->field_DC->SetPos(v34, v30);
 
-        auto *v10 = new PanelQuad {};
+        auto *v10 = new PanelQuad{};
         auto *v11 = this->field_2C[22];
         this->field_E0 = v10;
         v10->CopyFrom(v11);
@@ -111,17 +112,16 @@ void pause_menu_status::_Load() {
 
         float a5 = v26 - 45.f;
         float a4 = v27;
-        auto *v15 = new FEText {
-                static_cast<font_index>(1),
-                static_cast<global_text_enum>(292),
-                a4,
-                a5,
-                5,
-                static_cast<panel_layer>(1),
-                1.0,
-                16,
-                0,
-                color32 {0xFFC8C8C8}};
+        auto *v15 = new FEText{static_cast<font_index>(1),
+                               static_cast<global_text_enum>(292),
+                               a4,
+                               a5,
+                               5,
+                               static_cast<panel_layer>(1),
+                               1.0,
+                               16,
+                               0,
+                               color32{0xFFC8C8C8}};
 
         auto *v16 = this->field_90[4];
         this->field_E4 = v15;
@@ -139,9 +139,7 @@ void pause_menu_status::_Load() {
         this->field_128 = 0;
         this->field_11C = v29 - v23;
         this->update_selected();
-    }
-    else
-    {
+    } else {
         THISCALL(0x0063B890, this);
     }
 }
@@ -151,35 +149,26 @@ mString *pause_menu_status::get_element_desc(mString *out, int a3)
     TRACE("pause_menu_status::get_element_desc");
 
     mString *result;
-    if constexpr (0)
-    {
+    if constexpr (0) {
         auto v3 = this->field_EC;
-        if ( v3 != 0 )
-        {
+        if (v3 != 0) {
             auto v4 = v3 - 1;
-            if ( v4 != 0 )
-            {
-                if ( v4 == 1 )
+            if (v4 != 0) {
+                if (v4 == 1)
                     *out = this->field_F8->get_element_desc(a3);
                 else
                     *out = this->field_F0->field_0;
 
                 result = out;
-            }
-            else
-            {
+            } else {
                 *out = this->field_F4->field_160[a3];
                 result = out;
             }
-        }
-        else
-        {
+        } else {
             *out = this->field_F0->field_140[a3];
             result = out;
         }
-    }
-    else
-    {
+    } else {
         THISCALL(0x00610290, this, out, a3);
         result = out;
     }
@@ -187,7 +176,8 @@ mString *pause_menu_status::get_element_desc(mString *out, int a3)
     return result;
 }
 
-void pause_menu_status::update_selected() {
+void pause_menu_status::update_selected()
+{
     TRACE("pause_menu_status::update_selected");
 
     THISCALL(0x0061CC30, this);

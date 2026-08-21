@@ -169,7 +169,7 @@ extern void shrink_capsule_for_slanted_surfaces(actor *act);
 
 extern void extend_capsule_for_jump(actor *act);
 
-} // namespace ai
+}  // namespace ai
 
 
 //0x0068A9D0

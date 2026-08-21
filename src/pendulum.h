@@ -25,7 +25,8 @@ struct pendulum : entity_base_vhandle {
 
     bool has_a_moving_anchor() const;
 
-    float get_constraint() const {
+    float get_constraint() const
+    {
         return this->m_constraint;
     }
 
@@ -37,7 +38,7 @@ struct pendulum : entity_base_vhandle {
     void set_attach_limb(int l);
 
     //0x004DF780
-    [[nodiscard]] const vector3d & get_pivot_abs_pos();
+    [[nodiscard]] const vector3d &get_pivot_abs_pos();
 
     //0x004DF9A0
     void create_biped_constraint(physical_interface *a2);

@@ -16,9 +16,7 @@ struct box_trigger;
 struct worldly_resource_handler;
 struct sound_alias_database_resource;
 
-enum eWorldlyResourceType {
-    MAX_WORLDLY_RESOURCE_TYPES = 21
-};
+enum eWorldlyResourceType { MAX_WORLDLY_RESOURCE_TYPES = 21 };
 
 struct worldly_pack_slot : resource_pack_slot {
     progress field_94;
@@ -46,7 +44,6 @@ struct worldly_pack_slot : resource_pack_slot {
     void _finalize(bool a2);
 
 private:
-
     //0x0050ED20
     //virtual
     bool _on_load(limited_timer *a2) /*override*/;
@@ -64,7 +61,6 @@ private:
     void _clear_pack() /*override*/;
 
 public:
-
     //0x005382F0
     _std::vector<box_trigger *> *get_box_trigger_instances();
 };

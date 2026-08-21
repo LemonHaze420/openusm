@@ -9,7 +9,7 @@ struct vector3d;
 struct line_marker_base;
 struct entity_base;
 
-template<typename T, uint32_t Num>
+template <typename T, uint32_t Num>
 struct fixed_vector {
     static constexpr auto N = Num;
 
@@ -19,50 +19,61 @@ struct fixed_vector {
     struct iterator {
         T *m_ptr;
 
-        T & operator*() {
+        T &operator*()
+        {
             return (*m_ptr);
         }
 
-        bool operator==(const iterator &it) const {
+        bool operator==(const iterator &it) const
+        {
             return (this->m_ptr == it.m_ptr);
         }
 
-        bool operator!=(const iterator &it) const {
+        bool operator!=(const iterator &it) const
+        {
             return (this->m_ptr != it.m_ptr);
         }
 
-        void operator++() {
+        void operator++()
+        {
             ++this->m_ptr;
         }
     };
 
-    auto begin() {
-        return iterator {&m_data[0]};
+    auto begin()
+    {
+        return iterator{&m_data[0]};
     }
 
-    auto begin() const {
-        return iterator {&m_data[0]};
+    auto begin() const
+    {
+        return iterator{&m_data[0]};
     }
 
-    auto end() {
-        return iterator {&m_data[this->m_size]};
+    auto end()
+    {
+        return iterator{&m_data[this->m_size]};
     }
 
-    auto end() const {
-        return iterator {&m_data[this->m_size]};
+    auto end() const
+    {
+        return iterator{&m_data[this->m_size]};
     }
 
-    auto size() {
+    auto size()
+    {
         return m_size;
     }
 
-    auto &at(uint32_t index) {
+    auto &at(uint32_t index)
+    {
         assert(index < m_size);
 
         return this->m_data[index];
     }
 
-    void sub_CBF970(int index) {
+    void sub_CBF970(int index)
+    {
         assert(index >= 0 && index < static_cast<int>(this->m_size));
 
         --this->m_size;
@@ -71,7 +82,8 @@ struct fixed_vector {
         }
     }
 
-    void push_back(const T &a1) {
+    void push_back(const T &a1)
+    {
         assert(this->m_size < Num);
 
         this->m_data[this->m_size++] = a1;

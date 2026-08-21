@@ -8,7 +8,8 @@
 #include <cstring>
 #include <cstdint>
 
-tokenizer::tokenizer(bool a2) {
+tokenizer::tokenizer(bool a2)
+{
     this->field_C.clear();
     this->field_8 = a2;
     this->field_4 = 0;
@@ -19,11 +20,13 @@ tokenizer::tokenizer(bool a2) {
     this->field_1C = this->field_C.begin();
 }
 
-tokenizer::~tokenizer() {
+tokenizer::~tokenizer()
+{
     clear();
 }
 
-char *tokenizer::get_token() {
+char *tokenizer::get_token()
+{
     //sp_log("tokenizer::get_token: start");
 
     if (this->field_0 == nullptr) {
@@ -41,9 +44,10 @@ char *tokenizer::get_token() {
     return v4;
 }
 
-void tokenizer::clear() {
+void tokenizer::clear()
+{
     if (!this->field_8 && this->field_0) {
-        delete[](this->field_0);
+        delete[] (this->field_0);
     }
 
     this->field_0 = nullptr;
@@ -54,13 +58,15 @@ void tokenizer::clear() {
     this->field_1C = this->field_C.begin();
 }
 
-void tokenizer::setup_current_iterator() {
+void tokenizer::setup_current_iterator()
+{
     if (this->field_0 != nullptr) {
         this->field_1C = this->field_C.begin();
     }
 }
 
-int tokenizer::parse(char *a2, const char *a3) {
+int tokenizer::parse(char *a2, const char *a3)
+{
     if (this->field_0 != nullptr) {
         this->clear();
     }
@@ -116,7 +122,8 @@ int tokenizer::parse(char *a2, const char *a3) {
     return this->field_C.size();
 }
 
-void tokenizer_unit_test() {
+void tokenizer_unit_test()
+{
     char a2[24];
     strcpy(a2, "Your mom loves death.");
     sp_log("Testing tokenizer");

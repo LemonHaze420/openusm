@@ -18,19 +18,20 @@ VALIDATE_SIZE(script_controller, 0x48);
 
 #if !STANDALONE_SYSTEM
 
-script_controller *& script_pad = var<script_controller *>(0x0096BB40);
+script_controller *&script_pad = var<script_controller *>(0x0096BB40);
 
 #else
 
-script_controller *& script_pad = []() -> auto & {
-    static script_controller * g_script_pad {};
+script_controller *&script_pad = []() -> auto & {
+    static script_controller *g_script_pad{};
     return g_script_pad;
 }();
 
 #endif
 
 
-script_controller::script_controller() : signaller(false) {
+script_controller::script_controller() : signaller(false)
+{
     this->m_vtbl = 0x0089BD50;
 }
 
@@ -43,10 +44,8 @@ void script_controller::update()
         sp_log("0x%X", v1);
     }
 
-    if constexpr (0)
-    {}
-    else
-    {
+    if constexpr (0) {
+    } else {
         THISCALL(0x0065F8A0, this);
     }
 }
@@ -54,18 +53,16 @@ void script_controller::update()
 bool script_controller::is_button_pressed(int a1) const
 {
     auto v3 = input_mgr::instance->field_58;
-    if ( v3 == -1 ) {
+    if (v3 == -1) {
         return false;
     }
 
     bool result = false;
     auto *device = input_mgr::instance->get_device_from_map(v3);
-    if ( device != nullptr )
-    {
-        if ( not_equal(1.0f, device->get_axis_state(22, 0)) )
-        {
+    if (device != nullptr) {
+        if (not_equal(1.0f, device->get_axis_state(22, 0))) {
             auto v7 = device->get_axis_id(a1);
-            if ( equal(1.0f, device->get_axis_delta(v7, 0)) ) {
+            if (equal(1.0f, device->get_axis_delta(v7, 0))) {
                 return true;
             }
         }
@@ -77,15 +74,12 @@ bool script_controller::is_button_pressed(int a1) const
 float script_controller::get_axis_position(int a1) const
 {
     auto v3 = input_mgr::instance->field_58;
-    if ( v3 == -1 ) {
+    if (v3 == -1) {
         return 0.0f;
     }
-    
+
     auto *device = input_mgr::instance->get_device_from_map_internal(v3);
-    if ( device != nullptr
-        && device->get_id() != -1
-        && not_equal(1.0f, device->get_axis_state(22, 0)) )
-    {
+    if (device != nullptr && device->get_id() != -1 && not_equal(1.0f, device->get_axis_state(22, 0))) {
         auto v6 = device->get_axis_id(a1);
         return device->get_axis_state(v6, 0);
     }

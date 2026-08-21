@@ -19,10 +19,7 @@ struct anchor_query_visitor : subdivision_visitor {
     bool field_20;
     occupancy_voxels_t *field_24;
 
-    anchor_query_visitor(quick_anchor_container_t *a2,
-                         const vector3d &a1,
-                         const vector3d &a4,
-                         bool a5,
+    anchor_query_visitor(quick_anchor_container_t *a2, const vector3d &a1, const vector3d &a4, bool a5,
                          occupancy_voxels_t *a6);
 
     //0x004901E0

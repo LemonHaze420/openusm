@@ -58,11 +58,11 @@ struct damage_morphs {
     //0x004D97C0
     static bool unregister_mesh_copy(int a1);
 
-    static int & allocations_intercept_reference_count;
+    static int &allocations_intercept_reference_count;
 
-    static damage_morph_memory_pool & write_combine_pool;
+    static damage_morph_memory_pool &write_combine_pool;
 
-    static damage_morph_memory_pool & normal_pool;
+    static damage_morph_memory_pool &normal_pool;
 
-    static balanced_tree & registration_tree;
+    static balanced_tree &registration_tree;
 };

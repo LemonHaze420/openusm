@@ -12,7 +12,7 @@
 keyboard_device::keyboard_device()
 {
     using vtbl_t = std::decay_t<decltype(*m_vtbl)>;
-    Var<vtbl_t> tmp {0x0088EA80};
+    Var<vtbl_t> tmp{0x0088EA80};
     static vtbl_t vtbl = tmp();
 
     this->m_vtbl = &vtbl;
@@ -47,16 +47,15 @@ keyboard_device::keyboard_device()
         FUNC_ADDRESS(address, &keyboard_device::_is_connected);
         this->m_vtbl->is_connected = CAST(this->m_vtbl->is_connected, address);
     }
-
 }
 
-static keyboard_device g_device {};
+static keyboard_device g_device{};
 
-keyboard_device * keyboard_device::instance = &g_device;
+keyboard_device *keyboard_device::instance = &g_device;
 
 mString keyboard_device::get_name() const
 {
-    mString a1 {"USB Keyboard"};
+    mString a1{"USB Keyboard"};
     return a1;
 }
 
@@ -82,11 +81,10 @@ float keyboard_device::_get_axis_state(int axis, int a3)
 
     sp_log("axis = %d, %d", axis, a3);
 
-    if (Input::instance != nullptr)
-    {
-        static uint16_t key_codes[KB_NUM_AXES] {}; 
+    if (Input::instance != nullptr) {
+        static uint16_t key_codes[KB_NUM_AXES]{};
 
-#define register_key_code(key)  key_codes[KB_##key] = DIK_##key
+#define register_key_code(key) key_codes[KB_##key] = DIK_##key
 
         register_key_code(I);
         register_key_code(K);
@@ -113,7 +111,7 @@ float keyboard_device::_get_axis_state(int axis, int a3)
     return 0.0f;
 }
 
-float keyboard_device::_get_axis_old_state(int , int )
+float keyboard_device::_get_axis_old_state(int, int)
 {
     return 0.0f;
 }
@@ -129,10 +127,12 @@ void keyboard_device::_poll()
     ;
 }
 
-bool keyboard_device::_is_connected() const {
+bool keyboard_device::_is_connected() const
+{
     return this->field_4 != INVALID_DEVICE_ID;
 }
 
-bool keyboard_device::_is_vibrator_present() const {
+bool keyboard_device::_is_vibrator_present() const
+{
     return false;
 }

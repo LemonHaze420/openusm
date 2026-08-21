@@ -8,11 +8,13 @@
 
 VALIDATE_SIZE(city_lights, 0x24);
 
-void city_lights::load_from_file(const mString &a2) {
+void city_lights::load_from_file(const mString &a2)
+{
     THISCALL(0x0051B5C0, this, &a2);
 }
 
-void city_lights::update(Float a1, nglMatrix &a2, nglMatrix &a3) {
+void city_lights::update(Float a1, nglMatrix &a2, nglMatrix &a3)
+{
     THISCALL(0x00527EB0, this, a1, &a2, &a3);
 }
 
@@ -25,8 +27,7 @@ void city_lights::un_mash(generic_mash_header *a2, void *a3, generic_mash_data_p
 {
     TRACE("city_lights::un_mash");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         a4->rebase_shared(16u);
 
         a4->rebase_shared(4u);
@@ -38,9 +39,7 @@ void city_lights::un_mash(generic_mash_header *a2, void *a3, generic_mash_data_p
         a4->rebase_shared(4u);
 
         this->field_8 = a4->get_from_shared<char>(768);
-    }
-    else
-    {
+    } else {
         THISCALL(0x0051B520, this, a2, a3, a4);
     }
 }

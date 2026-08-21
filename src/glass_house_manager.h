@@ -18,9 +18,9 @@ struct glass_house_manager {
 
     static void remove_glass_house(string_hash a2);
 
-    static bool & enabled;
+    static bool &enabled;
 
-    static _std::vector<glass_house *> (& glass_houses)[3];
+    static _std::vector<glass_house *> (&glass_houses)[3];
 };
 
 extern void glass_house_manager_patch();

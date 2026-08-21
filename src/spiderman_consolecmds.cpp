@@ -6,7 +6,7 @@
 #include "trace.h"
 #include "wds.h"
 
-static AmbientLightCommand g_AmbientLightCommand {};
+static AmbientLightCommand g_AmbientLightCommand{};
 
 AmbientLightCommand::AmbientLightCommand()
 {
@@ -20,8 +20,7 @@ bool AmbientLightCommand::process_cmd(const std::vector<std::string> &a2)
     auto *mgr = hero_ptr->get_light_set();
     assert(mgr != nullptr);
 
-    if ( a2.size() != 1 && a2.size() != 3 )
-    {
+    if (a2.size() != 1 && a2.size() != 3) {
         assert(0 && "This command is no supported until we figure out what to do with that damn lites structure");
         g_console->addToLog("Ambient light:");
     }
@@ -38,19 +37,16 @@ SetTimeOfDayCommand::SetTimeOfDayCommand()
 
 bool SetTimeOfDayCommand::process_cmd(const std::vector<std::string> &a2)
 {
-    if ( a2.size() == 1 )
-    {
+    if (a2.size() == 1) {
         auto &v2 = a2.at(0);
         auto *v6 = v2.c_str();
         auto v5 = v6[0] - '0';
-        if ( v5 > 3 || v6[1] ) {
+        if (v5 > 3 || v6[1]) {
             assert("Time of day out of range!");
         }
 
         us_lighting_switch_time_of_day(v5);
-    }
-    else
-    {
+    } else {
         auto *v3 = this->helpText();
         g_console->addToLog(v3);
     }
@@ -67,7 +63,7 @@ bool SetTimeOfDayCommand::process_cmd(const std::vector<std::string> &a2)
 #include "nglrendernode.h"
 #include "us_person.h"
 
-static SetBlendModeCommand g_SetBlendModeCommand {};
+static SetBlendModeCommand g_SetBlendModeCommand{};
 
 SetBlendModeCommand::SetBlendModeCommand()
 {
@@ -77,30 +73,25 @@ SetBlendModeCommand::SetBlendModeCommand()
 bool SetBlendModeCommand::process_cmd(const std::vector<std::string> &a2)
 {
     TRACE("SetBlendModeCommand::process_cmd");
-    if ( a2.size() == 1 )
-    {
+    if (a2.size() == 1) {
         auto &v2 = a2.at(0);
         auto *v6 = v2.c_str();
         int mode = v6[0] - '0';
 
-        if (mode < 0 || mode > 8)
-        {
+        if (mode < 0 || mode > 8) {
             return true;
         }
 
         auto *hero = g_world_ptr->get_hero_ptr(0);
         auto *mesh = hero->get_mesh();
 
-        for ( auto i = 0u; i < mesh->NSections; ++i )
-        {
+        for (auto i = 0u; i < mesh->NSections; ++i) {
             auto *MeshSection = mesh->Sections[i].Section;
 
             auto *Material = MeshSection->Material;
             Material->m_blend_mode = static_cast<nglBlendModeType>(mode);
         }
-    }
-    else
-    {
+    } else {
         auto *v3 = this->helpText();
         g_console->addToLog(v3);
     }
@@ -108,7 +99,7 @@ bool SetBlendModeCommand::process_cmd(const std::vector<std::string> &a2)
     return true;
 }
 
-static SetMaterialFeaturesCommand g_SetMaterialFeaturesCommand {};
+static SetMaterialFeaturesCommand g_SetMaterialFeaturesCommand{};
 
 SetMaterialFeaturesCommand::SetMaterialFeaturesCommand()
 {
@@ -118,8 +109,7 @@ SetMaterialFeaturesCommand::SetMaterialFeaturesCommand()
 bool SetMaterialFeaturesCommand::process_cmd(const std::vector<std::string> &a2)
 {
     TRACE("SetMaterialFeaturesCommand::process_cmd");
-    if ( a2.size() == 1 )
-    {
+    if (a2.size() == 1) {
         auto &v2 = a2.at(0);
         auto *v6 = v2.c_str();
         int mode = v6[0] - '0';
@@ -128,12 +118,10 @@ bool SetMaterialFeaturesCommand::process_cmd(const std::vector<std::string> &a2)
             return true;
         }
 
-        if (mode == 4)
-        {
+        if (mode == 4) {
             auto *hero = g_world_ptr->get_hero_ptr(0);
             auto *mesh = hero->get_mesh();
-            for ( auto i = 0u; i < mesh->NSections; ++i )
-            {
+            for (auto i = 0u; i < mesh->NSections; ++i) {
                 auto *MeshSection = mesh->Sections[i].Section;
 
                 auto *Material = MeshSection->Material;
@@ -143,26 +131,22 @@ bool SetMaterialFeaturesCommand::process_cmd(const std::vector<std::string> &a2)
 
             auto *v5 = g_game_ptr->mb;
             constexpr float v9 = 2.0;
-            color32 v10 {255, 255, 255, 255};
-            mString v1 {"Changed lightParam"};
+            color32 v10{255, 255, 255, 255};
+            mString v1{"Changed lightParam"};
             auto v8 = *bit_cast<message_board::string *>(&v1);
             v5->post(v8, v9, v10);
             return true;
         }
 
-        std::tuple<int, int, const char *> arr[4] =
-        {
-            {0, 0, "Disabled Ink and Highlight features!"},
-            {0, 1, "Enabled Ink and disabled Highlight feature!"},
-            {1, 0, "Disabled Ink and enabled Highlight feature!"},
-            {1, 1, "Enabled Ink and Highlight features!"}
-        };
+        std::tuple<int, int, const char *> arr[4] = {{0, 0, "Disabled Ink and Highlight features!"},
+                                                     {0, 1, "Enabled Ink and disabled Highlight feature!"},
+                                                     {1, 0, "Disabled Ink and enabled Highlight feature!"},
+                                                     {1, 1, "Enabled Ink and Highlight features!"}};
 
         auto *hero = g_world_ptr->get_hero_ptr(0);
         auto *mesh = hero->get_mesh();
 
-        for ( auto i = 0u; i < mesh->NSections; ++i )
-        {
+        for (auto i = 0u; i < mesh->NSections; ++i) {
             auto *MeshSection = mesh->Sections[i].Section;
 
             auto *Material = MeshSection->Material;
@@ -172,13 +156,11 @@ bool SetMaterialFeaturesCommand::process_cmd(const std::vector<std::string> &a2)
 
         auto *v5 = g_game_ptr->mb;
         constexpr float v9 = 2.0;
-        color32 v10 {255, 255, 255, 255};
-        mString v1 {std::get<2>(arr[mode])};
+        color32 v10{255, 255, 255, 255};
+        mString v1{std::get<2>(arr[mode])};
         auto v8 = *bit_cast<message_board::string *>(&v1);
         v5->post(v8, v9, v10);
-    }
-    else
-    {
+    } else {
         auto *v3 = this->helpText();
         g_console->addToLog(v3);
     }
@@ -186,7 +168,7 @@ bool SetMaterialFeaturesCommand::process_cmd(const std::vector<std::string> &a2)
     return true;
 }
 
-static SetCameraCommand g_SetCameraCommand {};
+static SetCameraCommand g_SetCameraCommand{};
 
 SetCameraCommand::SetCameraCommand()
 {
@@ -196,50 +178,38 @@ SetCameraCommand::SetCameraCommand()
 bool SetCameraCommand::process_cmd(const std::vector<std::string> &a2)
 {
     TRACE("SetBlendModeCommand::process_cmd");
-    if ( a2.size() == 1 )
-    {
+    if (a2.size() == 1) {
         auto &v2 = a2.at(0);
         auto *v6 = v2.c_str();
         int mode = v6[0] - '0';
 
-        if (mode < 0 || mode > 2)
-        {
+        if (mode < 0 || mode > 2) {
             return true;
         }
 
         auto v16 = mode;
-        
-        if ( v16 )
-        {
-            if ( v16 == 1 )
-            {
-                if ( geometry_manager::is_scene_analyzer_enabled() )
-                {
+
+        if (v16) {
+            if (v16 == 1) {
+                if (geometry_manager::is_scene_analyzer_enabled()) {
                     geometry_manager::enable_scene_analyzer(false);
                 }
 
                 g_game_ptr->enable_user_camera(true);
 
-            }
-            else if ( v16 == 2 )
-            {
+            } else if (v16 == 2) {
                 g_game_ptr->enable_user_camera(false);
                 geometry_manager::enable_scene_analyzer(true);
             }
-        }
-        else
-        {
-            if ( geometry_manager::is_scene_analyzer_enabled() )
-            {
+        } else {
+            if (geometry_manager::is_scene_analyzer_enabled()) {
                 geometry_manager::enable_scene_analyzer(false);
             }
 
             g_game_ptr->enable_user_camera(false);
         }
 
-    }
-    else
-    {
+    } else {
         auto *v3 = this->helpText();
         g_console->addToLog(v3);
     }

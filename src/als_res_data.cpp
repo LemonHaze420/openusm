@@ -13,43 +13,32 @@
 
 VALIDATE_SIZE(als_res_data, 0x10);
 
-als_res_data::als_res_data()
-{
-
-}
+als_res_data::als_res_data() {}
 
 void als_res_data::initialize(mash::allocation_scope a2)
 {
     TRACE("als_res_data::initialize");
 
-    if ( a2 == mash::FROM_MASH )
-    {
-        if (this->field_0.is_set())
-        {
+    if (a2 == mash::FROM_MASH) {
+        if (this->field_0.is_set()) {
             uint8_t *resource = nullptr;
-            if ( !g_is_the_packer ) {
+            if (!g_is_the_packer) {
                 resource = resource_manager::get_resource(this->field_0, nullptr, nullptr);
             }
 
             auto *als_shared = bit_cast<als::animation_logic_system_shared *>(resource);
-            if (als_shared != nullptr)
-            {
+            if (als_shared != nullptr) {
                 auto *mem = mem_alloc(sizeof(als::animation_logic_system));
-                this->field_8 = new (mem) als::animation_logic_system{ global_transfer_variable_the_conglom()};
+                this->field_8 = new (mem) als::animation_logic_system{global_transfer_variable_the_conglom()};
                 this->field_8->create_instance_data(als_shared);
-            }
-            else
-            {
+            } else {
                 assert(0 && "I asked for an ALS resource, but I don't have one at runtime.");
                 this->field_8 = nullptr;
             }
-        }
-        else
-        {
+        } else {
             assert(0 && "Why is an ALS being created if nobody asked for one?");
             this->field_8 = nullptr;
         }
-
     }
 }
 
@@ -62,16 +51,14 @@ void als_res_data::unmash(mash_info_struct *a2, void *)
 
 void als_res_data::sub_4AB7F0(int a2)
 {
-    if ( a2 == 1 )
-    {
+    if (a2 == 1) {
         auto *v3 = this->field_8;
-        if ( v3 != nullptr ) {
+        if (v3 != nullptr) {
             v3->delete_instance_data();
         }
 
         auto *v4 = this->field_8;
-        if ( v4 != nullptr )
-        {
+        if (v4 != nullptr) {
             this->field_8->~animation_logic_system();
             operator delete(v4);
         }

@@ -23,11 +23,9 @@ struct rocket_guidance_sys;
 extern inline constexpr auto PHYS_IFC_MAX_PENDULUM_CONSTRAINTS = 5;
 
 struct physical_interface {
-    enum biped_physics_body_types {
-    };
+    enum biped_physics_body_types {};
 
-    enum force_type {
-    };
+    enum force_type {};
 
     std::intptr_t m_vtbl;
     actor *field_4;
@@ -115,11 +113,13 @@ struct physical_interface {
 
     pendulum *get_pendulum(int num);
 
-    bool is_flag(uint32_t a2) const {
+    bool is_flag(uint32_t a2) const
+    {
         return (a2 & this->field_C) != 0;
     }
 
-    actor * get_actor() {
+    actor *get_actor()
+    {
         return this->field_4;
     }
 
@@ -158,7 +158,7 @@ struct physical_interface {
 
     //0x004CA0D0
     vector3d get_velocity() const;
- 
+
     //0x004D19E0
     void set_pendulum(int a2, pendulum *a3);
 
@@ -175,9 +175,7 @@ struct physical_interface {
     void suspend(bool a2);
 
     //0x004BDCB0
-    static vector3d calculate_perfect_force_vector(const vector3d &start,
-                                                   const vector3d &target,
-                                                   Float max_y,
+    static vector3d calculate_perfect_force_vector(const vector3d &start, const vector3d &target, Float max_y,
                                                    Float gravity_multiplier);
 
     //0x004BD9E0
@@ -207,16 +205,10 @@ struct physical_interface {
     //0x004DF4A0
     void un_mash(generic_mash_header *a2, void *a3, void *a4, generic_mash_data_ptrs *a5);
 
-    vector3d apply_positional_constraints(
-        Float a3,
-        const vector3d &a4,
-        bool a5);
+    vector3d apply_positional_constraints(Float a3, const vector3d &a4, bool a5);
 
     //0x004C9430
-    void apply_force_increment_in_biped_physics_mode(const vector3d &a2,
-                                                     force_type a3,
-                                                     const vector3d &a4,
-                                                     int a5);
+    void apply_force_increment_in_biped_physics_mode(const vector3d &a2, force_type a3, const vector3d &a4, int a5);
 
     void stop_prop_physics(bool a2);
 
@@ -234,20 +226,17 @@ struct physical_interface {
     static void frame_advance_all_phys_interfaces(Float a1);
 
     //0x004C9E60
-    static vector3d calculate_force_vector_2(const vector3d *a2,
-                                             const vector3d *a3,
-                                             Float a4,
-                                             Float a5);
+    static vector3d calculate_force_vector_2(const vector3d *a2, const vector3d *a3, Float a4, Float a5);
 
     //0x004BDEB0
     static void clear_static_lists();
 
-    static inline auto & all_phys_interfaces = var<_std::vector<physical_interface *> *>(0x0095A6B0);
+    static inline auto &all_phys_interfaces = var<_std::vector<physical_interface *> *>(0x0095A6B0);
 
-    static std::reference_wrapper<int[512]> rotators ;
-    static int & rotators_num;
+    static std::reference_wrapper<int[512]> rotators;
+    static int &rotators_num;
 };
 
-static inline float & g_gravity = var<float>(0x00921E3C);
+static inline float &g_gravity = var<float>(0x00921E3C);
 
 extern void physical_interface_patch();

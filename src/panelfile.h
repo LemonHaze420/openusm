@@ -36,7 +36,7 @@ struct PanelFile {
     //0x00643000
     static PanelFile *UnmashPanelFile(const char *a1, panel_layer a2);
 
-    static nglMeshFile *& g_curmeshfile;
+    static nglMeshFile *&g_curmeshfile;
 };
 
 extern void PanelFile_patch();

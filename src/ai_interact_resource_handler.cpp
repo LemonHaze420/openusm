@@ -11,10 +11,10 @@
 
 VALIDATE_SIZE(ai_interact_resource_handler, 0x14);
 
-ai_interact_resource_handler::ai_interact_resource_handler(worldly_pack_slot *a2) 
+ai_interact_resource_handler::ai_interact_resource_handler(worldly_pack_slot *a2)
 {
     if constexpr (1) {
-        static void * g_vtbl[] = {
+        static void *g_vtbl[] = {
             func_address(&finalize),
             func_address(&_handle),
             func_address(&_pre_handle_resources),
@@ -37,35 +37,33 @@ bool ai_interact_resource_handler::_handle(worldly_resource_handler::eBehavior a
     return base_engine_resource_handler::_handle(a2, a3);
 }
 
-bool ai_interact_resource_handler::_handle_resource(worldly_resource_handler::eBehavior a2,
-        resource_location *a3)
+bool ai_interact_resource_handler::_handle_resource(worldly_resource_handler::eBehavior a2, resource_location *a3)
 {
     TRACE("ai_interact_resource_handler::handle_resource");
 
     auto &v3 = this->my_slot->get_resource_directory();
     auto *resource = v3.get_resource(a3, nullptr);
     assert(resource != nullptr);
-    
-    if ( a2 == UNLOAD)
-    {
+
+    if (a2 == UNLOAD) {
         bit_cast<ai_interaction_data *>(resource)->destruct_mashed_class();
-    }
-    else
-    {
+    } else {
         ai_interaction_data *new_interact = CAST(new_interact, resource);
         assert(new_interact != nullptr);
 
 #ifdef TARGET_XBOX
-        mash_info_struct info_struct {mash::UNMASH_MODE, resource, a3->m_size, true};
+        mash_info_struct info_struct{mash::UNMASH_MODE, resource, a3->m_size, true};
 #else
-        mash_info_struct info_struct {resource, a3->m_size};
+        mash_info_struct info_struct{resource, a3->m_size};
 #endif
 
-        info_struct.unmash_class(new_interact, nullptr
+        info_struct.unmash_class(new_interact,
+                                 nullptr
 #ifdef TARGET_XBOX
-            , mash::NORMAL_BUFFER
+                                 ,
+                                 mash::NORMAL_BUFFER
 #endif
-                );
+        );
 
         mash_info_struct::construct_class(new_interact);
 
@@ -73,7 +71,7 @@ bool ai_interact_resource_handler::_handle_resource(worldly_resource_handler::eB
         a3->m_offset += info_struct.get_header_size();
 #endif
     }
-    
+
     ++this->field_C;
     return false;
 }

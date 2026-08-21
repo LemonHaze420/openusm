@@ -13,7 +13,7 @@ struct event_callback {
 
     void _finalize(bool a2);
 
-    void * operator new(size_t size);
+    void *operator new(size_t size);
 
     void operator delete(void *ptr, size_t size);
 

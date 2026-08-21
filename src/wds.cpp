@@ -98,15 +98,13 @@ static constexpr auto SPLINE_PATHS_TAG = 7;
 static constexpr auto AUDIO_BOXES_TAG = 8;
 static constexpr auto REGION_MESH_VOBBS_TAG = 13;
 
-world_dynamics_system *& g_world_ptr = var<world_dynamics_system *>(0x0095C770);
+world_dynamics_system *&g_world_ptr = var<world_dynamics_system *>(0x0095C770);
 
-world_dynamics_system::world_dynamics_system()
-    : anim_ctrls(), field_3E0()
+world_dynamics_system::world_dynamics_system() : anim_ctrls(), field_3E0()
 {
     TRACE("world_dynamics_system::world_dynamics_system");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         this->field_0 = new slot_pool<nal_anim_control *, uint32_t>{500};
 
         this->anim_ctrls.reserve(20u);
@@ -121,25 +119,20 @@ world_dynamics_system::world_dynamics_system()
         mash_virtual_base::generate_vtable();
         physical_interface::clear_static_lists();
         this->field_3F0 = true;
-    }
-    else
-    {
+    } else {
         THISCALL(0x005554D0, this);
     }
 }
 
 world_dynamics_system::~world_dynamics_system()
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         this->field_23C.clear();
         debug_render_done();
 
-        for ( auto &gen : this->field_260 )
-        {
-            if ( gen != nullptr )
-            {
-                void (__fastcall *finalize)(void *, void *, int) = CAST(finalize, get_vfunc(gen->m_vtbl, 0x0));
+        for (auto &gen : this->field_260) {
+            if (gen != nullptr) {
+                void(__fastcall * finalize)(void *, void *, int) = CAST(finalize, get_vfunc(gen->m_vtbl, 0x0));
                 finalize(gen, nullptr, 1);
             }
         }
@@ -148,8 +141,7 @@ world_dynamics_system::~world_dynamics_system()
 
         this->field_230[0] = nullptr;
 
-        if ( this->the_terrain != nullptr )
-        {
+        if (this->the_terrain != nullptr) {
             this->the_terrain->~terrain();
             operator delete(this->the_terrain);
         }
@@ -178,10 +170,9 @@ void world_dynamics_system::malor_point(const vector3d &xyz, int a3, bool a4)
     if constexpr (0) {
         auto *hero_ptr = this->get_hero_ptr(a3);
         entity_teleport_abs_position(hero_ptr, xyz, a4);
-        if ( this->the_terrain != nullptr )
-        {
+        if (this->the_terrain != nullptr) {
             auto *reg = this->the_terrain->find_region(xyz, nullptr);
-            if ( reg != nullptr ) {
+            if (reg != nullptr) {
                 hero_ptr->update_regions(&reg, 1);
             }
         }
@@ -192,9 +183,8 @@ void world_dynamics_system::malor_point(const vector3d &xyz, int a3, bool a4)
 
 bool region_array::contains(region *a2) const
 {
-    for ( int i = 0; i < this->count; ++i )
-    {
-        if ( this->m_data[i] == a2 ) {
+    for (int i = 0; i < this->count; ++i) {
+        if (this->m_data[i] == a2) {
             return true;
         }
     }
@@ -206,7 +196,7 @@ void region_array::push_back(region *a2)
 {
     assert(this->count < static_cast<int>(MAX_REGIONS_IN_ARRAY));
 
-    if ( this->count >= 30 ) {
+    if (this->count >= 30) {
         error("Region list overflow");
     } else {
         this->m_data[this->count++] = a2;
@@ -215,22 +205,19 @@ void region_array::push_back(region *a2)
 
 void build_region_list_radius(region_array *arr, region *reg, const vector3d &a3, Float a4, bool a5)
 {
-    if ( reg != nullptr && arr != nullptr && !arr->contains(reg) )
-    {
-        if ( !a5 || reg->is_loaded() ) {
+    if (reg != nullptr && arr != nullptr && !arr->contains(reg)) {
+        if (!a5 || reg->is_loaded()) {
             arr->push_back(reg);
         }
 
-        for ( auto i = 0; i < reg->get_num_neighbors(); ++i )
-        {
+        for (auto i = 0; i < reg->get_num_neighbors(); ++i) {
             auto *neighbor = reg->get_neighbor(i);
-            if ( !a5 || neighbor->is_loaded() )
-            {
+            if (!a5 || neighbor->is_loaded()) {
                 assert(neighbor != nullptr);
 
                 auto *aabb_ptr = neighbor->obb;
                 assert(aabb_ptr != nullptr);
-                if ( aabb_ptr->sphere_intersection(a3, a4) ) {
+                if (aabb_ptr->sphere_intersection(a3, a4)) {
                     build_region_list_radius(arr, neighbor, a3, a4, a5);
                 }
             }
@@ -238,11 +225,13 @@ void build_region_list_radius(region_array *arr, region *reg, const vector3d &a3
     }
 }
 
-void cleanup_actor_scene_anim_state_hash() {
+void cleanup_actor_scene_anim_state_hash()
+{
     CDECL_CALL(0x004D00E0);
 }
 
-int world_dynamics_system::add_generator(force_generator *generator) {
+int world_dynamics_system::add_generator(force_generator *generator)
+{
     return THISCALL(0x005421B0, this, generator);
 }
 
@@ -250,46 +239,34 @@ void world_dynamics_system::advance_entity_animations(Float a3)
 {
     TRACE("world_dynamics_system::advance_entity_animations");
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         als::animation_logic_system_interface::frame_advance_pre_controller_all_alses(a3);
 
-        for (auto *v6 : this->anim_ctrls)
-        {
-            if ( v6 != nullptr )
-            {
+        for (auto *v6 : this->anim_ctrls) {
+            if (v6 != nullptr) {
                 auto v15 = v6->field_4->get_my_vhandle().field_0;
                 moved_entities::add_moved(vhandle_type<entity>{v15});
-                if ( !v6->field_4->is_in_limbo() )
-                {
+                if (!v6->field_4->is_in_limbo()) {
                     auto v9 = v6->field_4;
                     auto v8 = this->is_entity_eligible_for_anim_advance(v9);
 
                     conglomerate *v19 = nullptr;
                     auto *v5 = v6->field_4;
-                    if ( v5->is_a_conglomerate() ) {
+                    if (v5->is_a_conglomerate()) {
                         v19 = bit_cast<conglomerate *>(v6->field_4);
                     }
 
-                    if ( v19 == nullptr || bit_cast<conglomerate *>(v19)->get_my_als() == nullptr )
-                    {
+                    if (v19 == nullptr || bit_cast<conglomerate *>(v19)->get_my_als() == nullptr) {
                         float v13;
-                        if ( v6->field_4->has_time_ifc() )
-                        {
+                        if (v6->field_4->has_time_ifc()) {
                             auto *v11 = v6->field_4->time_ifc();
                             v13 = v11->sub_4ADE50();
-                        }
-                        else
-                        {
+                        } else {
                             v13 = g_world_ptr->field_158.field_0;
                         }
 
                         auto v14 = v13 * a3;
-                        v6->frame_advance(
-                            v14,
-                            v8,
-                            0
-                        );
+                        v6->frame_advance(v14, v8, 0);
                     }
                 }
             }
@@ -299,21 +276,17 @@ void world_dynamics_system::advance_entity_animations(Float a3)
         als::animation_logic_system_interface::frame_advance_post_controller_all_alses(a3);
 
         if constexpr (0) {
-            fixed_vector<animation_controller *, 200> v22 {};
+            fixed_vector<animation_controller *, 200> v22{};
 
-            for ( int i = 0; i < v22.size() ; ++i )
-            {
+            for (int i = 0; i < v22.size(); ++i) {
                 auto *v17 = v22.at(i);
                 auto *v10 = v17->field_4;
                 float v14;
 
-                if ( v10->has_time_ifc() )
-                {
+                if (v10->has_time_ifc()) {
                     auto v12 = v10->time_ifc();
                     v14 = v12->sub_4ADE50();
-                }
-                else
-                {
+                } else {
                     v14 = g_world_ptr->field_158.field_0;
                 }
 
@@ -322,17 +295,15 @@ void world_dynamics_system::advance_entity_animations(Float a3)
         }
 
         assert(!tlScratchpadLocked);
-    }
-    else
-    {
-        void (__fastcall *func)(void *, void *edx, Float) = CAST(func, 0x00537170);
+    } else {
+        void(__fastcall * func)(void *, void *edx, Float) = CAST(func, 0x00537170);
         func(this, nullptr, a3);
     }
 }
 
 bool world_dynamics_system::is_entity_eligible_for_anim_advance(actor *a1)
 {
-    bool (__fastcall *func)(void *, void *edx, actor *) = CAST(func, 0x0050D2B0);
+    bool(__fastcall * func)(void *, void *edx, actor *) = CAST(func, 0x0050D2B0);
     return func(this, nullptr, a1);
 }
 
@@ -340,24 +311,17 @@ void zero_xz_velocity_for_effectively_standing_physical_interfaces()
 {
     TRACE("zero_xz_velocity_for_effectively_standing_physical_interfaces");
 
-    if constexpr (1)
-    {
-        if ( physical_interface::all_phys_interfaces == nullptr || physical_interface::all_phys_interfaces->empty() )
-        {
+    if constexpr (1) {
+        if (physical_interface::all_phys_interfaces == nullptr || physical_interface::all_phys_interfaces->empty()) {
             return;
         }
 
-        for ( auto &v3 : (*physical_interface::all_phys_interfaces) )
-        {
+        for (auto &v3 : (*physical_interface::all_phys_interfaces)) {
             auto act = v3->get_actor();
-            if ( !act->playing_scene_anim() && !act->is_in_limbo() )
-            {
-                if ( v3->is_effectively_standing() )
-                {
-                    if ( !v3->is_biped_physics_running() )
-                    {
-                        if ( !v3->is_prop_physics_running() )
-                        {
+            if (!act->playing_scene_anim() && !act->is_in_limbo()) {
+                if (v3->is_effectively_standing()) {
+                    if (!v3->is_biped_physics_running()) {
+                        if (!v3->is_prop_physics_running()) {
                             vector3d vel = v3->get_velocity();
 
                             vel[2] = 0.0;
@@ -369,9 +333,7 @@ void zero_xz_velocity_for_effectively_standing_physical_interfaces()
                 }
             }
         }
-    }
-    else
-    {
+    } else {
         CDECL_CALL(0x004D1A30);
     }
 }
@@ -392,7 +354,8 @@ int sub_A4B0D0()
     return 0;
 }
 
-void collide_all_moved_entities(Float a1) {
+void collide_all_moved_entities(Float a1)
+{
     TRACE("collide_all_moved_entities");
 
     if constexpr (0) {
@@ -413,7 +376,7 @@ void collide_all_moved_entities(Float a1) {
             ++v4;
         }
 
-        assert( v10.size() == v4 );
+        assert(v10.size() == v4);
 
         if (trajectories != nullptr) {
             resolve_rotations(trajectories, v4);
@@ -436,7 +399,8 @@ void collide_all_moved_entities(Float a1) {
     }
 }
 
-void manage_standing_for_all_physical_interfaces(Float a1) {
+void manage_standing_for_all_physical_interfaces(Float a1)
+{
     TRACE("manage_standing_for_all_physical_interfaces");
 
     CDECL_CALL(0x004F28B0, a1);
@@ -454,8 +418,7 @@ void world_dynamics_system::frame_advance(Float a2)
 {
     TRACE("world_dynamics_system::frame_advance");
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         this->field_158.frame_advance(a2);
         this->field_28.frame_advance(a2);
         this->field_A0.frame_advance(a2);
@@ -484,8 +447,7 @@ void world_dynamics_system::frame_advance(Float a2)
         this->field_1B0.frame_advance(a2);
         this->field_1F0.frame_advance(a2);
 
-        for (auto &generator : this->field_260)
-        {
+        for (auto &generator : this->field_260) {
             if (generator->is_active()) {
                 generator->frame_advance(a2);
             }
@@ -537,10 +499,9 @@ void world_dynamics_system::entity_sinks(vhandle_type<entity> a2)
 void world_dynamics_system::sub_54A3B0()
 {
     if constexpr (0) {
-        for ( auto &v1 : this->field_254 )
-        {
-            vhandle_type<entity> v4 {v1};
-            if ( this->is_entity_in_water(v4) ) {
+        for (auto &v1 : this->field_254) {
+            vhandle_type<entity> v4{v1};
+            if (this->is_entity_in_water(v4)) {
                 this->entity_sinks(v4);
             }
         }
@@ -551,16 +512,17 @@ void world_dynamics_system::sub_54A3B0()
     }
 }
 
-void world_dynamics_system::sub_530460(const vector3d &a2, int visited_regions, bool a4) {
+void world_dynamics_system::sub_530460(const vector3d &a2, int visited_regions, bool a4)
+{
     THISCALL(0x00530460, this, &a2, visited_regions, a4);
 }
 
-bool world_dynamics_system::un_mash_scene_entities(const resource_key &a2, region *reg, worldly_pack_slot *slot_ptr, bool a5, scene_entity_brew &brew)
+bool world_dynamics_system::un_mash_scene_entities(const resource_key &a2, region *reg, worldly_pack_slot *slot_ptr,
+                                                   bool a5, scene_entity_brew &brew)
 {
     TRACE("world_dynamics_system::un_mash_scene_entities");
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         if (brew.field_0.is_done()) {
             return false;
         }
@@ -584,7 +546,7 @@ bool world_dynamics_system::un_mash_scene_entities(const resource_key &a2, regio
             brew.buffer_index += sizeof(int);
 
             brew.buffer_index = (brew.buffer_index + 15) & 0xFFFFFFF0;
-            if ( v91 ) {
+            if (v91) {
                 reg->field_38 = v91;
                 reg->vobbs_for_region_meshes = (int *)&brew.field_10[brew.buffer_index];
                 brew.buffer_index += 0x30 * v91;
@@ -608,13 +570,13 @@ bool world_dynamics_system::un_mash_scene_entities(const resource_key &a2, regio
         auto parse_code = brew.parse_code;
         auto v85 = brew.field_24;
         g_femanager.RenderLoadMeter(false);
-        if ( reg != nullptr ) {
+        if (reg != nullptr) {
             reg->field_60 = brew.field_3C;
         }
 
         auto sub_692686 = [](int &a1, int a2) -> void {
             auto v2 = a1 % a2;
-            if ( a2 - v2 < a2 ) {
+            if (a2 - v2 < a2) {
                 a1 += a2 - v2;
             }
         };
@@ -634,7 +596,7 @@ bool world_dynamics_system::un_mash_scene_entities(const resource_key &a2, regio
         [[maybe_unused]] static auto dword_1568498 = 0.0;
         [[maybe_unused]] static auto dword_156849C = 0.0;
         [[maybe_unused]] static auto dword_15684A0 = 0.0;
-        [[maybe_unused]] static auto dword_15684A4 {0.0};
+        [[maybe_unused]] static auto dword_15684A4{0.0};
         [[maybe_unused]] auto dword_15684A8 = 0;
 
         auto sub_68D9F1 = [](limited_timer_base &a1) -> double {
@@ -648,13 +610,11 @@ bool world_dynamics_system::un_mash_scene_entities(const resource_key &a2, regio
         };
 
         v81.reset();
-        std::list<region *> list_regions {};
-        for ( ; v87 < v85; ++v87 )
-        {
+        std::list<region *> list_regions{};
+        for (; v87 < v85; ++v87) {
             assert((buffer_index % 4) == 0);
 
-            if ( !brew.field_28.is_started() )
-            {
+            if (!brew.field_28.is_started()) {
                 brew.field_28.start();
                 brew.field_2C = *(int *)&buffer_ptr[buffer_index];
                 buffer_index += sizeof(int);
@@ -665,8 +625,7 @@ bool world_dynamics_system::un_mash_scene_entities(const resource_key &a2, regio
             auto v75 = brew.field_2C;
             auto v74 = brew.field_30;
             auto *a6 = (void *)brew.field_34;
-            while ( v74 < v75 )
-            {
+            while (v74 < v75) {
                 list_regions.clear();
                 assert((buffer_index % 4) == 0);
 
@@ -675,7 +634,8 @@ bool world_dynamics_system::un_mash_scene_entities(const resource_key &a2, regio
 
                 sub_692686(buffer_index, 16);
                 v80.reset();
-                auto *tmp_e = parse_entity_mash(ent_vec_ptr, item_vec_ptr, &buffer_ptr[buffer_index], nullptr, a6, true);
+                auto *tmp_e =
+                    parse_entity_mash(ent_vec_ptr, item_vec_ptr, &buffer_ptr[buffer_index], nullptr, a6, true);
                 assert(tmp_e->is_an_entity());
                 auto *ent_ptr = bit_cast<entity *>(tmp_e);
                 if (reg != nullptr) {
@@ -685,16 +645,13 @@ bool world_dynamics_system::un_mash_scene_entities(const resource_key &a2, regio
                 if (ent_ptr->is_renderable()) {
                     ent_ptr->set_timer(0u);
                     ent_ptr->on_fade_distance_changed(ent_ptr->field_8 & 0xF);
-                    if ( a5 && ((ent_ptr->field_8 & 0xF) == 15) )
-                    {
+                    if (a5 && ((ent_ptr->field_8 & 0xF) == 15)) {
                         ent_ptr->field_8 |= 0x200000u;
                         auto id = ent_ptr->get_id();
                         auto *v15 = id.to_string();
                         sp_log("found far away entity %s", v15);
                         this->field_23C.push_back(ent_ptr);
-                    }
-                    else
-                    {
+                    } else {
                         ent_ptr->field_8 &= 0x200000u;
                     }
                 }
@@ -715,30 +672,21 @@ bool world_dynamics_system::un_mash_scene_entities(const resource_key &a2, regio
 
                 auto *strings = bit_cast<fixedstring<8> *>(buffer_ptr + buffer_index);
 
-                std::for_each(strings, strings + v68, [this,
-                                                            ent_ptr,
-                                                            &list_regions](auto &v66) {
-
+                std::for_each(strings, strings + v68, [this, ent_ptr, &list_regions](auto &v66) {
                     auto *v18 = v66.to_string();
-                    auto *found_region = this->the_terrain->find_region(string_hash {v18});
-                    if ( found_region != nullptr)
-                    {
+                    auto *found_region = this->the_terrain->find_region(string_hash{v18});
+                    if (found_region != nullptr) {
                         list_regions.push_back(found_region);
-                    }
-                    else
-                    {
+                    } else {
                         const char *str = nullptr;
-                        if ( ent_ptr != nullptr )
-                        {
+                        if (ent_ptr != nullptr) {
                             auto id = ent_ptr->get_id();
                             str = id.to_string();
-                        }
-                        else
-                        {
+                        } else {
                             str = "<NULL>";
                         }
 
-                        mString v33 {"force_region: unknown region "};
+                        mString v33{"force_region: unknown region "};
                         auto v32 = v33 + v66.to_string();
                         auto v30 = v32 + " for entity ";
                         auto v28 = v30 + str;
@@ -759,16 +707,12 @@ bool world_dynamics_system::un_mash_scene_entities(const resource_key &a2, regio
                     //sp_log("adding entities to lists = %f sec", dword_15684A4);
 
                     check_po(ent_ptr);
-                    if ( reg != nullptr )
-                    {
-                        if ( ent_ptr->is_a_light_source() )
-                        {
+                    if (reg != nullptr) {
+                        if (ent_ptr->is_a_light_source()) {
                             bit_cast<light_source *>(ent_ptr)->force_region_hack(reg);
                             auto *v22 = bit_cast<light_source *>(ent_ptr);
                             reg->add(v22);
-                        }
-                        else if (reg->collision_proximity_map != nullptr)
-                        {
+                        } else if (reg->collision_proximity_map != nullptr) {
                             bit_cast<entity *>(ent_ptr)->force_region_hack(reg);
                             auto *v22 = bit_cast<entity *>(ent_ptr);
                             reg->add(v22);
@@ -777,8 +721,7 @@ bool world_dynamics_system::un_mash_scene_entities(const resource_key &a2, regio
                 }
 
                 dword_15684A0 += sub_68D9F1(v79);
-                if ( sub_6A3981(brew) )
-                {
+                if (sub_6A3981(brew)) {
                     brew.field_8 = slot_ptr;
                     brew.field_C = v90;
                     brew.field_10 = CAST(brew.field_10, buffer_ptr);
@@ -787,7 +730,7 @@ bool world_dynamics_system::un_mash_scene_entities(const resource_key &a2, regio
                     brew.parse_code = parse_code;
                     brew.field_24 = v85;
                     brew.field_2C = v75;
-                    brew.field_34 = (int) a6;
+                    brew.field_34 = (int)a6;
                     brew.field_30 = v74 + 1;
                     return true;
                 }
@@ -801,26 +744,22 @@ bool world_dynamics_system::un_mash_scene_entities(const resource_key &a2, regio
         dword_1568498 = sub_68D9F1(v81);
         //sp_log("dword_1568498 = %f seconds", dword_1568498);
 
-        if (!brew.field_0.is_done() && !brew.field_38.is_started())
-        {
+        if (!brew.field_0.is_done() && !brew.field_38.is_started()) {
             brew.field_38.start();
             parse_code = *(int *)&buffer_ptr[buffer_index];
             buffer_index += sizeof(parse_code);
         }
 
-        while ( !brew.field_38.is_done() && parse_code != 18 )
-        {
+        while (!brew.field_38.is_done() && parse_code != 18) {
             sp_log("parse_code = %d", parse_code);
-            switch ( parse_code )
-            {
+            switch (parse_code) {
             case 3u: {
                 limited_timer_base v58{};
                 [[maybe_unused]] auto dword_15684AC = 0.0;
                 v58.reset();
 
                 assert(the_terrain != nullptr);
-                if ( reg == nullptr )
-                {
+                if (reg == nullptr) {
                     auto &a3 = a2.m_hash;
                     auto *v24 = a3.to_string();
                     sp_log("Unknown region %s.  Make sure your sin file is correct.", v24);
@@ -837,11 +776,7 @@ bool world_dynamics_system::un_mash_scene_entities(const resource_key &a2, regio
                 assert((buffer_index % 4) == 0);
 
                 int a4;
-                this->un_mash_box_triggers(
-                    parse_code,
-                    &buffer_ptr[buffer_index],
-                    box_trigger_instances,
-                    &a4);
+                this->un_mash_box_triggers(parse_code, &buffer_ptr[buffer_index], box_trigger_instances, &a4);
                 buffer_index += a4;
                 break;
             }
@@ -851,8 +786,7 @@ bool world_dynamics_system::un_mash_scene_entities(const resource_key &a2, regio
                 v60.reset();
                 assert(the_terrain != nullptr);
 
-                if ( reg == nullptr )
-                {
+                if (reg == nullptr) {
                     auto &a3 = a2.m_hash;
                     auto *v23 = a3.to_string();
                     sp_log("Unknown region %s.  Make sure your sin file is correct.", v23);
@@ -879,7 +813,7 @@ bool world_dynamics_system::un_mash_scene_entities(const resource_key &a2, regio
                 buffer_index += sizeof(int);
 
                 auto *v55 = &buffer_ptr[buffer_index];
-                if ( reg != nullptr ) {
+                if (reg != nullptr) {
                     reg->field_3C = (int)v55;
                 }
 
@@ -891,20 +825,19 @@ bool world_dynamics_system::un_mash_scene_entities(const resource_key &a2, regio
                 int fade_groups_count = *(int *)&buffer_ptr[buffer_index];
                 assert(fade_groups_count >= 0 && fade_groups_count < 255);
 
-                if ( reg != nullptr ) {
+                if (reg != nullptr) {
                     reg->m_fade_groups_count = fade_groups_count;
                 }
-                
+
                 buffer_index += sizeof(int);
-                if ( fade_groups_count > 0 )
-                {
-                    if ( reg != nullptr ) {
+                if (fade_groups_count > 0) {
+                    if (reg != nullptr) {
                         reg->field_44 = (int)&buffer_ptr[buffer_index];
                     }
 
                     buffer_index += 4 * fade_groups_count;
                     buffer_index = (buffer_index + 15) & 0xFFFFFFF0;
-                    if ( reg != nullptr ) {
+                    if (reg != nullptr) {
                         reg->field_48 = (int)&buffer_ptr[buffer_index];
                     }
 
@@ -917,7 +850,7 @@ bool world_dynamics_system::un_mash_scene_entities(const resource_key &a2, regio
                 buffer_index += sizeof(int);
 
                 auto *v52 = &buffer_ptr[buffer_index];
-                if ( reg != nullptr ) {
+                if (reg != nullptr) {
                     reg->field_3C = (int)v52;
                 }
 
@@ -934,8 +867,7 @@ bool world_dynamics_system::un_mash_scene_entities(const resource_key &a2, regio
 
             parse_code = *(int *)&buffer_ptr[buffer_index];
             buffer_index += sizeof(parse_code);
-            if ( sub_6A3981(brew) )
-            {
+            if (sub_6A3981(brew)) {
                 brew.field_8 = slot_ptr;
                 brew.field_C = v90;
                 brew.field_10 = CAST(brew.field_10, buffer_ptr);
@@ -950,19 +882,21 @@ bool world_dynamics_system::un_mash_scene_entities(const resource_key &a2, regio
         brew.field_38.done();
         brew.field_0.done();
         return false;
-    }
-    else
-    {
-        bool (__fastcall *func)(void *, void *, const resource_key *, region *, worldly_pack_slot *, bool , scene_entity_brew *) = CAST(func, 0x0055A680);
+    } else {
+        bool(__fastcall *
+             func)(void *, void *, const resource_key *, region *, worldly_pack_slot *, bool, scene_entity_brew *) =
+            CAST(func, 0x0055A680);
         return func(this, nullptr, &a2, reg, slot_ptr, a5, &brew);
     }
 }
 
-bool world_dynamics_system::un_mash_scene_box_triggers(const resource_key &a1, region *reg, worldly_pack_slot *slot_ptr, timed_progress *a4) {
+bool world_dynamics_system::un_mash_scene_box_triggers(const resource_key &a1, region *reg, worldly_pack_slot *slot_ptr,
+                                                       timed_progress *a4)
+{
     TRACE("world_dynamics_system::un_mash_scene_box_triggers");
 
     if constexpr (1) {
-        if ( a4->is_done() ) {
+        if (a4->is_done()) {
             return false;
         }
 
@@ -970,35 +904,32 @@ bool world_dynamics_system::un_mash_scene_box_triggers(const resource_key &a1, r
         int mash_data_size = 0;
         uint8_t *buffer_ptr = nullptr;
         int buffer_index = 0;
-        if ( !resource_manager::get_resource_if_exists(a1, reg, &buffer_ptr, slot_ptr, &mash_data_size)
-            || (g_femanager.RenderLoadMeter(false),
-                parse_code = *(uint32_t *)&buffer_ptr[buffer_index],
-                parse_code == 18) )
-        {
+        if (!resource_manager::get_resource_if_exists(a1, reg, &buffer_ptr, slot_ptr, &mash_data_size) ||
+            (g_femanager.RenderLoadMeter(false),
+             parse_code = *(uint32_t *)&buffer_ptr[buffer_index],
+             parse_code == 18)) {
             a4->done();
             return false;
-        }
-        else
-        {
+        } else {
             assert(parse_code == BOX_TRIGGERS_TAG);
             buffer_index += 4;
             limited_timer v8{};
             [[maybe_unused]] auto dword_15684C0 = 0.0;
             v8.reset();
-            assert(( buffer_index % 4 ) == 0);
+            assert((buffer_index % 4) == 0);
 
             auto *box_trigger_instances = slot_ptr->get_box_trigger_instances();
             int size;
             this->un_mash_box_triggers(parse_code, (char *)&buffer_ptr[buffer_index], box_trigger_instances, &size);
 
-            assert(static_cast<int>(size + sizeof( parse_code )) == mash_data_size);
+            assert(static_cast<int>(size + sizeof(parse_code)) == mash_data_size);
 
             dword_15684C0 = v8.elapsed();
             a4->done();
             return false;
         }
     } else {
-        return (bool) THISCALL(0x005507F0, this, &a1, reg, slot_ptr, a4);
+        return (bool)THISCALL(0x005507F0, this, &a1, reg, slot_ptr, a4);
     }
 }
 
@@ -1020,11 +951,9 @@ void world_dynamics_system::register_water_exclusion_trigger(box_trigger *trig)
     }
 }
 
-bool world_dynamics_system::un_mash_box_triggers(
-        int parse_code,
-        char *a3,
-        _std::vector<box_trigger *> *box_trigger_vec_ptr,
-        int *a5) {
+bool world_dynamics_system::un_mash_box_triggers(int parse_code, char *a3,
+                                                 _std::vector<box_trigger *> *box_trigger_vec_ptr, int *a5)
+{
     TRACE("world_dynamics_system::un_mash_box_triggers");
 
     if constexpr (0) {
@@ -1033,16 +962,16 @@ bool world_dynamics_system::un_mash_box_triggers(
         int buffer_index = 0;
         int v19 = *(int *)a3;
         buffer_index = 4;
-        for ( auto i = 0u; i < v19; ++i ) {
+        for (auto i = 0u; i < v19; ++i) {
             assert((buffer_index % 4) == 0);
 
             auto *v18 = (fixedstring<8> *)&a3[buffer_index];
             buffer_index += sizeof(*v18);
             assert((buffer_index % 4) == 0);
 
-            auto *v17 = (int *) &a3[buffer_index];
+            auto *v17 = (int *)&a3[buffer_index];
             buffer_index += sizeof(*v17);
-            assert((buffer_index % 4 ) == 0);
+            assert((buffer_index % 4) == 0);
 
             auto *v16 = (convex_box *)&a3[buffer_index];
             buffer_index += sizeof(*v16);
@@ -1054,13 +983,13 @@ bool world_dynamics_system::un_mash_box_triggers(
             auto &v10 = *v16;
             auto &v9 = *a2;
             auto *v5 = v18->to_string();
-            string_hash v8 {v5};
+            string_hash v8{v5};
             auto *v14 = g_world_ptr->ent_mgr.create_and_add_box_trigger(v8, v9, v10);
-            if ( v14 != nullptr ) {
+            if (v14 != nullptr) {
                 assert(box_trigger_vec_ptr != nullptr);
 
                 box_trigger_vec_ptr->push_back(v14);
-                if ( (*v17 & 1) != 0 ) {
+                if ((*v17 & 1) != 0) {
                     this->register_water_exclusion_trigger(v14);
                 }
             }
@@ -1069,14 +998,13 @@ bool world_dynamics_system::un_mash_box_triggers(
         *a5 = buffer_index;
         return true;
     } else {
-        return (bool) THISCALL(0x0054A1C0, this, parse_code, a3, box_trigger_vec_ptr, a5);
+        return (bool)THISCALL(0x0054A1C0, this, parse_code, a3, box_trigger_vec_ptr, a5);
     }
 }
 
-bool world_dynamics_system::un_mash_scene_audio_boxes(const resource_key &key_id,
-                                                      region *reg,
-                                                      worldly_pack_slot *slot_ptr,
-                                                      timed_progress &a4) {
+bool world_dynamics_system::un_mash_scene_audio_boxes(const resource_key &key_id, region *reg,
+                                                      worldly_pack_slot *slot_ptr, timed_progress &a4)
+{
     TRACE("world_dynamics_system::un_mash_scene_audio_boxes");
 
     if constexpr (1) {
@@ -1090,13 +1018,9 @@ bool world_dynamics_system::un_mash_scene_audio_boxes(const resource_key &key_id
 
         int parse_code;
 
-        if (!resource_manager::get_resource_if_exists(key_id,
-                                                      reg,
-                                                      &buffer_ptr,
-                                                      slot_ptr,
-                                                      &mash_data_size) ||
+        if (!resource_manager::get_resource_if_exists(key_id, reg, &buffer_ptr, slot_ptr, &mash_data_size) ||
             (g_femanager.RenderLoadMeter(false),
-             parse_code = *(uint32_t *) &buffer_ptr[buffer_index],
+             parse_code = *(uint32_t *)&buffer_ptr[buffer_index],
              parse_code == 18)) {
         } else {
             assert(parse_code == AUDIO_BOXES_TAG);
@@ -1113,7 +1037,7 @@ bool world_dynamics_system::un_mash_scene_audio_boxes(const resource_key &key_id
             }
 
             int v9;
-            this->the_terrain->un_mash_audio_boxes((char *) &buffer_ptr[buffer_index], &v9, reg);
+            this->the_terrain->un_mash_audio_boxes((char *)&buffer_ptr[buffer_index], &v9, reg);
             buffer_index += v9;
         }
 
@@ -1122,14 +1046,13 @@ bool world_dynamics_system::un_mash_scene_audio_boxes(const resource_key &key_id
         return false;
 
     } else {
-        return (bool) THISCALL(0x0053CB50, this, &key_id, reg, slot_ptr, &a4);
+        return (bool)THISCALL(0x0053CB50, this, &key_id, reg, slot_ptr, &a4);
     }
 }
 
-bool world_dynamics_system::un_mash_scene_spline_paths(const resource_key &a2,
-                                                       region *reg,
-                                                       worldly_pack_slot *slot_ptr,
-                                                       scene_spline_path_brew &brew) {
+bool world_dynamics_system::un_mash_scene_spline_paths(const resource_key &a2, region *reg, worldly_pack_slot *slot_ptr,
+                                                       scene_spline_path_brew &brew)
+{
     TRACE("world_dynamics_system::un_mash_scene_spline_paths");
 
     if constexpr (1) {
@@ -1143,13 +1066,8 @@ bool world_dynamics_system::un_mash_scene_spline_paths(const resource_key &a2,
             brew.field_C = 0;
             brew.field_10 = nullptr;
             brew.field_14 = 0;
-            if (!resource_manager::get_resource_if_exists(a2,
-                                                          reg,
-                                                          &brew.field_10,
-                                                          brew.field_8,
-                                                          &brew.field_C) ||
-                (brew.parse_code = *(uint32_t *) &brew.field_10[brew.field_14],
-                 brew.parse_code == 18)) {
+            if (!resource_manager::get_resource_if_exists(a2, reg, &brew.field_10, brew.field_8, &brew.field_C) ||
+                (brew.parse_code = *(uint32_t *)&brew.field_10[brew.field_14], brew.parse_code == 18)) {
                 brew.field_0.done();
                 return false;
             }
@@ -1175,10 +1093,7 @@ bool world_dynamics_system::un_mash_scene_spline_paths(const resource_key &a2,
         assert(the_terrain != nullptr);
 
         int v17;
-        if (this->the_terrain->un_mash_traffic_paths((char *) &buffer_ptr[buffer_index],
-                                                     &v17,
-                                                     reg,
-                                                     brew.field_1C)) {
+        if (this->the_terrain->un_mash_traffic_paths((char *)&buffer_ptr[buffer_index], &v17, reg, brew.field_1C)) {
             brew.field_10 = buffer_ptr;
             brew.field_8 = slot_ptr;
             brew.parse_code = v16;
@@ -1194,7 +1109,9 @@ bool world_dynamics_system::un_mash_scene_spline_paths(const resource_key &a2,
         return false;
 
     } else {
-        bool (__fastcall *func)(void *, int, const resource_key *a2,
+        bool(__fastcall * func)(void *,
+                                int,
+                                const resource_key *a2,
                                 region *reg,
                                 worldly_pack_slot *slot_ptr,
                                 scene_spline_path_brew *brew) = CAST(func, 0x0052FC90);
@@ -1202,10 +1119,9 @@ bool world_dynamics_system::un_mash_scene_spline_paths(const resource_key &a2,
     }
 }
 
-bool world_dynamics_system::un_mash_scene_quad_paths(const resource_key &key_id,
-                                                     region *reg,
-                                                     worldly_pack_slot *slot_ptr,
-                                                     timed_progress &a4) {
+bool world_dynamics_system::un_mash_scene_quad_paths(const resource_key &key_id, region *reg,
+                                                     worldly_pack_slot *slot_ptr, timed_progress &a4)
+{
     TRACE("world_dynamics_system::un_mash_scene_quad_paths");
     if constexpr (1) {
         if (a4.is_done()) {
@@ -1218,14 +1134,10 @@ bool world_dynamics_system::un_mash_scene_quad_paths(const resource_key &key_id,
 
         int parse_code;
 
-        if (!resource_manager::get_resource_if_exists(key_id,
-                                                      reg,
-                                                      &buffer_ptr,
-                                                      slot_ptr,
-                                                      &mash_data_size) ||
+        if (!resource_manager::get_resource_if_exists(key_id, reg, &buffer_ptr, slot_ptr, &mash_data_size) ||
             (reg->flags |= 0x800,
              g_femanager.RenderLoadMeter(false),
-             parse_code = *(uint32_t *) &buffer_ptr[buffer_index],
+             parse_code = *(uint32_t *)&buffer_ptr[buffer_index],
              parse_code == 18)) {
             a4.done();
             return false;
@@ -1246,7 +1158,7 @@ bool world_dynamics_system::un_mash_scene_quad_paths(const resource_key &key_id,
             }
 
             int v9;
-            this->the_terrain->un_mash_region_paths((char *) &buffer_ptr[buffer_index], &v9, reg);
+            this->the_terrain->un_mash_region_paths((char *)&buffer_ptr[buffer_index], &v9, reg);
             buffer_index += v9;
         }
 
@@ -1255,16 +1167,13 @@ bool world_dynamics_system::un_mash_scene_quad_paths(const resource_key &key_id,
         return false;
 
     } else {
-        return (bool) THISCALL(0x0053CAC0, this, &key_id, reg, slot_ptr, &a4);
+        return (bool)THISCALL(0x0053CAC0, this, &key_id, reg, slot_ptr, &a4);
     }
 }
 
-bool world_dynamics_system::load_scene(resource_key &a2,
-                                       bool a3,
-                                       const char *a4,
-                                       region *reg,
-                                       worldly_pack_slot *slot_ptr,
-                                       limited_timer *a7) {
+bool world_dynamics_system::load_scene(resource_key &a2, bool a3, const char *a4, region *reg,
+                                       worldly_pack_slot *slot_ptr, limited_timer *a7)
+{
     TRACE("world_dynamics_system::load_scene");
 
     if (a4 != nullptr) {
@@ -1275,7 +1184,7 @@ bool world_dynamics_system::load_scene(resource_key &a2,
         scene_brew *found_brew = nullptr;
         int brew_idx = 0;
         for (auto i = 0u; i < this->scene_loads.size(); ++i) {
-            auto &v = this->scene_loads[i]; 
+            auto &v = this->scene_loads[i];
             if (v.field_8 == a2) {
                 found_brew = &v;
                 brew_idx = i;
@@ -1284,7 +1193,7 @@ bool world_dynamics_system::load_scene(resource_key &a2,
         }
 
         if (found_brew == nullptr) {
-            scene_brew new_brew {a2, a7};
+            scene_brew new_brew{a2, a7};
             this->scene_loads.push_back(new_brew);
 
             found_brew = &this->scene_loads.back();
@@ -1331,7 +1240,7 @@ bool world_dynamics_system::load_scene(resource_key &a2,
             this->field_188.initialize(local_dc);
         }
 
-        assert( brew_idx >= 0 && brew_idx < static_cast<int>(scene_loads.size()) );
+        assert(brew_idx >= 0 && brew_idx < static_cast<int>(scene_loads.size()));
 
         auto size = this->scene_loads.size();
         auto &last_scene = this->scene_loads[size - 1];
@@ -1352,7 +1261,8 @@ void world_dynamics_system::set_chase_cam_ptr(int index, game_camera *a3)
     this->field_234[index] = a3;
 }
 
-camera *world_dynamics_system::get_chase_cam_ptr(int a2) {
+camera *world_dynamics_system::get_chase_cam_ptr(int a2)
+{
     auto v1 = this->field_234[a2];
 
     return bit_cast<camera *>(v1);
@@ -1382,13 +1292,12 @@ void world_dynamics_system::create_water_kill_trigger()
 {
     TRACE("world_dynamics_system::create_water_kill_trigger");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         convex_box a3{};
-        
+
         static constexpr auto stru_921BB4 = -3.0f;
 
-        vector3d a2[8] {};
+        vector3d a2[8]{};
         a2[0][0] = -9999.0;
         a2[0][1] = -80.0;
         a2[0][2] = 9999.0;
@@ -1422,7 +1331,7 @@ void world_dynamics_system::create_water_kill_trigger()
         a2[7][2] = -9999.0;
         a3.set_box_coords(a2);
 
-        string_hash water_id {int(to_hash("WATER_TRIGGER"))};
+        string_hash water_id{int(to_hash("WATER_TRIGGER"))};
         auto *trig = this->ent_mgr.create_and_add_box_trigger(water_id, ZEROVEC, a3);
         assert(trig != nullptr);
 
@@ -1431,9 +1340,7 @@ void world_dynamics_system::create_water_kill_trigger()
         trig->set_sees_dead_people(true);
 
         trig->add_callback(event::ENTER, wds_enter_water_trigger_callback, nullptr, false);
-    }
-    else
-    {
+    } else {
         THISCALL(0x0054A430, this);
     }
 }
@@ -1442,24 +1349,20 @@ int world_dynamics_system::add_player(const mString &a2)
 {
     TRACE("world_dynamics_system::add_player");
 
-    if constexpr (1)
-    {
-        if ( this->num_players < 1 )
-        {
-            if ( this->num_players == 0 )
-            {
+    if constexpr (1) {
+        if (this->num_players < 1) {
+            if (this->num_players == 0) {
                 auto *v3 = a2.c_str();
                 g_game_ptr->load_hero_packfile(v3, false);
             }
 
             auto *marker = this->field_230[0];
-            if ( marker == nullptr ) {
-                marker = (entity *) find_marker(string_hash {"HERO_START"});
+            if (marker == nullptr) {
+                marker = (entity *)find_marker(string_hash{"HERO_START"});
             }
 
             auto v82 = marker->get_abs_po();
-            switch ( this->num_players )
-            {
+            switch (this->num_players) {
             case 0u:
                 break;
             case 1u: {
@@ -1493,10 +1396,9 @@ int world_dynamics_system::add_player(const mString &a2)
             }
 
             auto &y_facing = v82.get_y_facing();
-            if ( y_facing != YVEC )
-            {
+            if (y_facing != YVEC) {
                 auto v81 = v82.get_z_facing();
-                if ( v81.y <= 0.99000001 ) {
+                if (v81.y <= 0.99000001) {
                     v81.y = 0.0;
                 } else {
                     v81 = ZVEC;
@@ -1505,56 +1407,47 @@ int world_dynamics_system::add_player(const mString &a2)
                 v81.normalize();
                 auto v80 = vector3d::cross(YVEC, v81);
                 auto &v20 = v82.get_position();
-                void (__fastcall *sub_48AA30)(void *, void *, const vector3d *, const vector3d *, const vector3d *, const vector3d *) = CAST(sub_48AA30, 0x0048AA30);
+                void(__fastcall * sub_48AA30)(
+                    void *, void *, const vector3d *, const vector3d *, const vector3d *, const vector3d *) =
+                    CAST(sub_48AA30, 0x0048AA30);
 
                 po v45;
                 sub_48AA30(&v45, nullptr, &v80, &YVEC, &v81, &v20);
                 v82 = v45;
 
-                void (__fastcall *sub_48D840)(void *) = CAST(sub_48D840, 0x0048D840);
+                void(__fastcall * sub_48D840)(void *) = CAST(sub_48D840, 0x0048D840);
                 sub_48D840(&v82);
             }
 
-            mString v79 = ( this->num_players >= 1
-                            ? "HERO" + mString {this->num_players}
-                            : mString {"HERO"}
-                            );
+            mString v79 = (this->num_players >= 1 ? "HERO" + mString{this->num_players} : mString{"HERO"});
 
             auto *__old_context = resource_manager::get_and_push_resource_context(RESOURCE_PARTITION_HERO);
-            mString v62 {};
+            mString v62{};
             auto *v23 = v79.c_str();
 
-            string_hash v36 {v23};
-            string_hash v35 {a2.c_str()};
-            this->field_230[this->num_players] = g_world_ptr->ent_mgr.create_and_add_entity_or_subclass(
-               v35,
-               v36,
-               v82,
-               v62,
-               1,
-               nullptr);
+            string_hash v36{v23};
+            string_hash v35{a2.c_str()};
+            this->field_230[this->num_players] =
+                g_world_ptr->ent_mgr.create_and_add_entity_or_subclass(v35, v36, v82, v62, 1, nullptr);
             auto *v27 = this->field_230[this->num_players];
             auto v40 = v27->get_rel_position() + YVEC;
             auto *v29 = this->field_230[this->num_players];
             v29->set_abs_position(v40);
             resource_manager::pop_resource_context();
-            
+
             assert(resource_manager::get_resource_context() == __old_context);
 
-            mString v76 = ( this->num_players >= 1
-                            ? "CHASE_CAM" + mString {this->num_players}
-                            : mString {"CHASE_CAM"}
-                            );
+            mString v76 = (this->num_players >= 1 ? "CHASE_CAM" + mString{this->num_players} : mString{"CHASE_CAM"});
 
-            string_hash v43 {v76.c_str()};
+            string_hash v43{v76.c_str()};
             auto *v31 = this->field_230[this->num_players];
 
-            this->field_234[this->num_players] = new spiderman_camera {v43, v31};
+            this->field_234[this->num_players] = new spiderman_camera{v43, v31};
 
             auto *v73 = this->field_234[this->num_players];
             g_world_ptr->ent_mgr.add_camera(nullptr, v73);
 
-            if ( this->num_players == 0 ) {
+            if (this->num_players == 0) {
                 g_spiderman_camera_ptr() = CAST(g_spiderman_camera_ptr(), this->field_234[0]);
             }
 
@@ -1568,9 +1461,7 @@ int world_dynamics_system::add_player(const mString &a2)
         }
 
         return this->num_players;
-    }
-    else
-    {
+    } else {
         return THISCALL(0x0055B400, this, &a2);
     }
 }
@@ -1578,8 +1469,7 @@ int world_dynamics_system::add_player(const mString &a2)
 void world_dynamics_system::deactivate_corner_web_splats()
 {
     resource_key &v2 = this->field_1F0.field_8;
-    if ( v2.is_set() )
-    {
+    if (v2.is_set()) {
         v2 = {};
 
         this->field_1F0.field_10[0] = 0.0;
@@ -1589,8 +1479,7 @@ void world_dynamics_system::deactivate_corner_web_splats()
 
         fx_cache *v3 = this->field_1F0.field_30;
         auto &v5 = v3->field_8;
-        if (!v5.field_7)
-        {
+        if (!v5.field_7) {
             if (v5.m_data != nullptr) {
                 operator delete[](v5.m_data);
             }
@@ -1601,17 +1490,15 @@ void world_dynamics_system::deactivate_corner_web_splats()
     }
 }
 
-terrain *world_dynamics_system::create_terrain(const mString &a2) {
+terrain *world_dynamics_system::create_terrain(const mString &a2)
+{
     TRACE("world_dynamics_system::create_terrain");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         this->the_terrain = new terrain{a2};
         return this->the_terrain;
-    }
-    else
-    {
-        return (terrain *) THISCALL(0x0055B100, this, &a2);
+    } else {
+        return (terrain *)THISCALL(0x0055B100, this, &a2);
     }
 }
 
@@ -1623,7 +1510,7 @@ void world_dynamics_system::activate_corner_web_splats()
 
     auto *__old_context = resource_manager::push_resource_context(act->get_resource_context());
 
-    resource_key a2 {string_hash {"websplat_crnr"}, RESOURCE_KEY_TYPE_ENTITY};
+    resource_key a2{string_hash{"websplat_crnr"}, RESOURCE_KEY_TYPE_ENTITY};
 
     this->field_1F0.field_8 = a2;
 
@@ -1640,25 +1527,23 @@ void world_dynamics_system::activate_corner_web_splats()
 
 entity *world_dynamics_system::get_hero_or_marky_cam_ptr()
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         auto *result = this->get_hero_ptr(0);
         if (result == nullptr) {
-            result = (entity *) this->field_28.field_44;
+            result = (entity *)this->field_28.field_44;
         }
 
         return result;
     } else {
-        return (entity *) THISCALL(0x0050D310, this);
+        return (entity *)THISCALL(0x0050D310, this);
     }
 }
 
 void world_dynamics_system::activate_web_splats()
 {
     TRACE("world_dynamics_system::activate_web_splats");
-    
-    if constexpr (0)
-    {
+
+    if constexpr (0) {
         auto *act = bit_cast<actor *>(this->get_hero_ptr(0));
 
         auto *__old_context = resource_manager::push_resource_context(act->get_resource_context());
@@ -1686,8 +1571,7 @@ void world_dynamics_system::activate_web_splats()
 void world_dynamics_system::deactivate_web_splats()
 {
     resource_key &v2 = this->field_1B0.field_8;
-    if ( v2.is_set() )
-    {
+    if (v2.is_set()) {
         v2 = {};
 
         this->field_1B0.field_10[0] = 0.0;
@@ -1697,8 +1581,7 @@ void world_dynamics_system::deactivate_web_splats()
         this->field_1B0.field_38 = 0;
         fx_cache *v3 = this->field_1B0.field_30;
         auto *v5 = &v3->field_8;
-        if (!v5->field_7)
-        {
+        if (!v5->field_7) {
             if (v5->m_data != nullptr) {
                 operator delete[](v5->m_data);
             }
@@ -1709,7 +1592,8 @@ void world_dynamics_system::deactivate_web_splats()
     }
 }
 
-bool world_dynamics_system::is_loading_from_scn_file() {
+bool world_dynamics_system::is_loading_from_scn_file()
+{
     return this->m_loading_from_scn_file;
 }
 
@@ -1729,8 +1613,7 @@ int world_dynamics_system::remove_player(int player_num)
     bit_cast<actor *>(this->field_230[this->num_players])->destroy_player_controller();
     g_world_ptr->ent_mgr.destroy_entity(this->field_230[this->num_players]);
     this->field_230[this->num_players] = nullptr;
-    if (this->num_players == 0)
-    {
+    if (this->num_players == 0) {
         g_game_ptr->unload_hero_packfile();
         this->field_234[0] = CAST(this->field_234[0], this->field_28.field_44);
         g_spiderman_camera_ptr() = nullptr;
@@ -1745,11 +1628,7 @@ int world_dynamics_system::remove_player(int player_num)
 
 void world_dynamics_system::remove_anim_ctrl(animation_controller *a2)
 {
-    auto curr_it = std::find(
-        this->anim_ctrls.begin(),
-        this->anim_ctrls.end(),
-        a2
-    );
+    auto curr_it = std::find(this->anim_ctrls.begin(), this->anim_ctrls.end(), a2);
 
     assert(curr_it != this->anim_ctrls.end());
 
@@ -1758,21 +1637,15 @@ void world_dynamics_system::remove_anim_ctrl(animation_controller *a2)
     }
 }
 
-void entity_get_max_visual_and_collision_bounding_sphere(
-        entity *ent,
-        vector3d *center_result,
-        float *radius_result)
+void entity_get_max_visual_and_collision_bounding_sphere(entity *ent, vector3d *center_result, float *radius_result)
 {
     auto visual_center = ent->get_visual_center();
     auto visual_radius = ent->get_visual_radius();
-    if ( ent->is_an_actor() && ent->colgeom != nullptr )
-    {
+    if (ent->is_an_actor() && ent->colgeom != nullptr) {
         auto colgeom_center = ent->get_colgeom_center();
         auto colgeom_radius = ent->get_colgeom_radius();
         merge_spheres(visual_center, visual_radius, colgeom_center, colgeom_radius, *center_result, *radius_result);
-    }
-    else
-    {
+    } else {
         *center_result = visual_center;
         *radius_result = visual_radius;
     }
@@ -1782,34 +1655,32 @@ void world_dynamics_system::update_ai_and_visibility_proximity_maps_for_moved_en
 {
     TRACE("world_dynamics_system::update_ai_and_visibility_proximity_maps_for_moved_entities");
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         update_limbo_list_if_needed();
 
         static constexpr auto n_bytes = 2400u;
-        auto entity_pointers = (entity **) scratchpad_stack::alloc(n_bytes);
+        auto entity_pointers = (entity **)scratchpad_stack::alloc(n_bytes);
         int num_entity_pointers = 0;
 
-        for (int v6 = 0; v6 < moved_entities::moved_count; ++v6)
-        {
+        for (int v6 = 0; v6 < moved_entities::moved_count; ++v6) {
             auto *v7 = &moved_entities::moved_list[v6];
             auto *ent = v7->get_volatile_ptr();
-            if ( ent != nullptr )
-            {
+            if (ent != nullptr) {
                 assert(!(ent->is_a_conglomerate() && ((conglomerate *)ent)->is_cloned_conglomerate()));
 
-                assert("regions_[ 0 ] can not be NULL when regions_[ 1 ] is not. "
-                        && ( ent->regions[ 1 ] ? ent->regions[ 0 ] != nullptr : 1 ) );
+                assert("regions_[ 0 ] can not be NULL when regions_[ 1 ] is not. " &&
+                       (ent->regions[1] ? ent->regions[0] != nullptr : 1));
 
-                assert("regions_[ 0 ] and regions_[ 1 ] should not be NULL while extended_regions_ is not."
-                        && ent->extended_regions != nullptr ? ent->regions[ 0 ] && ent->regions[ 1 ] : 1);
+                assert("regions_[ 0 ] and regions_[ 1 ] should not be NULL while extended_regions_ is not." &&
+                               ent->extended_regions != nullptr
+                           ? ent->regions[0] && ent->regions[1]
+                           : 1);
 
                 assert(ent->extended_regions != nullptr ? ent->extended_regions->size() > 0 : 1);
 
                 auto &abs_po = ent->get_abs_po();
-                if ( !abs_po.is_valid(true, false) )
-                {
-                    mString a2a {"Message: "};
+                if (!abs_po.is_valid(true, false)) {
+                    mString a2a{"Message: "};
                     auto v23 = a2a + "Entity Assert";
                     auto v22 = v23 + "\n";
                     auto v21 = v22 + "File: ";
@@ -1829,8 +1700,7 @@ void world_dynamics_system::update_ai_and_visibility_proximity_maps_for_moved_en
 
         assert(num_entity_pointers + 2 < moved_entities::MAX_MOVED);
 
-        if ( num_entity_pointers > 0 )
-        {
+        if (num_entity_pointers > 0) {
             entity_pointers[num_entity_pointers] = entity_pointers[num_entity_pointers - 1];
             entity_pointers[num_entity_pointers + 1] = entity_pointers[num_entity_pointers - 1];
             auto *mem_for_visitor = scratchpad_stack::alloc(0x44);
@@ -1840,45 +1710,43 @@ void world_dynamics_system::update_ai_and_visibility_proximity_maps_for_moved_en
             };
             VALIDATE_SIZE(vec4_t, 0x10);
 
-            vec4_t *vec4_pointers = CAST(vec4_pointers, scratchpad_stack::alloc(sizeof(vec4_t) * (num_entity_pointers + 1)));
+            vec4_t *vec4_pointers =
+                CAST(vec4_pointers, scratchpad_stack::alloc(sizeof(vec4_t) * (num_entity_pointers + 1)));
 
-            for (int k = 0; k < num_entity_pointers; ++k) 
-            {
+            for (int k = 0; k < num_entity_pointers; ++k) {
                 auto *v1 = &vec4_pointers[k].field_0;
                 auto *v2 = &vec4_pointers[k].field_C;
                 entity_get_max_visual_and_collision_bounding_sphere(entity_pointers[k], v1, v2);
             }
 
-            for (int m = 0; m < num_entity_pointers; ++m) 
-            {
+            for (int m = 0; m < num_entity_pointers; ++m) {
                 auto *ent = entity_pointers[m];
                 region *reg = nullptr;
-                if ( ent->has_region_idx() ) {
-                    assert(ent->has_region_idx() && ( ent->get_region_idx() < the_terrain->get_num_regions() ));
+                if (ent->has_region_idx()) {
+                    assert(ent->has_region_idx() && (ent->get_region_idx() < the_terrain->get_num_regions()));
 
                     auto reg_idx = ent->get_region_idx();
                     reg = this->the_terrain->get_region(reg_idx);
                     assert(reg != nullptr);
                 }
 
-                auto *visitor = new (mem_for_visitor) region_intersect_visitor {reg};
+                auto *visitor = new (mem_for_visitor) region_intersect_visitor{reg};
 
-                fixed_vector<region *, 15> a2a {};
+                fixed_vector<region *, 15> a2a{};
                 auto *v60 = &vec4_pointers[m];
                 loaded_regions_cache::get_regions_intersecting_sphere(v60->field_0, v60->field_C, &a2a);
-                for (int n = 0; n < a2a.size(); ++n)
-                {
+                for (int n = 0; n < a2a.size(); ++n) {
                     auto *v25 = a2a.m_data[n];
                     [](region_intersect_visitor *self, region *r) -> int {
                         assert(r != nullptr);
 
-                        for ( auto i = 0; i < self->field_4; ++i ) {
-                            if ( r == self->field_8[i] ) {
+                        for (auto i = 0; i < self->field_4; ++i) {
+                            if (r == self->field_8[i]) {
                                 return 0;
                             }
                         }
 
-                        if ( self->field_4 < 15 ) {
+                        if (self->field_4 < 15) {
                             self->field_8[self->field_4++] = r;
                         }
 
@@ -1886,22 +1754,19 @@ void world_dynamics_system::update_ai_and_visibility_proximity_maps_for_moved_en
                     }(visitor, v25);
                 }
 
-                if ( visitor->field_4 != 0 ) {
+                if (visitor->field_4 != 0) {
                     ent->update_regions(visitor->field_8, visitor->field_4);
-                } else if ( ent->regions[0] != nullptr ) {
+                } else if (ent->regions[0] != nullptr) {
                     ent->remove_from_regions();
                 }
             }
 
-            for (auto v29 = 0; v29 < num_entity_pointers; ++v29)
-            {
+            for (auto v29 = 0; v29 < num_entity_pointers; ++v29) {
                 auto *v30 = &vec4_pointers[v29];
                 auto *v31 = entity_pointers[v29];
                 bool v51 = false;
-                if ( auto *primary_region = v31->get_primary_region();
-                        primary_region != nullptr )
-                {
-                    if ( !primary_region->is_interior() ) {
+                if (auto *primary_region = v31->get_primary_region(); primary_region != nullptr) {
+                    if (!primary_region->is_interior()) {
                         if (limbo_area::sphere_intersects_unsafe_area(v30->field_0, v30->field_C)) {
                             v51 = true;
                         }
@@ -1927,9 +1792,7 @@ void world_dynamics_system::update_ai_and_visibility_proximity_maps_for_moved_en
         }
 
         scratchpad_stack::pop(entity_pointers, n_bytes);
-    }
-    else
-    {
+    } else {
         THISCALL(0x00530100, this, a1);
     }
 }
@@ -1938,26 +1801,22 @@ void world_dynamics_system::update_collision_proximity_maps_for_moved_entities(F
 {
     TRACE("world_dynamics_system::update_collision_proximity_maps_for_moved_entities");
 
-    if constexpr (0)
-    {
-        for (int i = 0; i < moved_entities::moved_count; ++i)
-        {
+    if constexpr (0) {
+        for (int i = 0; i < moved_entities::moved_count; ++i) {
             auto *ent = moved_entities::moved_list[i].get_volatile_ptr();
-            if ( ent != nullptr )
-            {
-                assert("regions[ 0 ] can not be NULL when regions[ 1 ] is not."
-                        && ( ent->regions[ 1 ] ? ent->regions[ 0 ] != nullptr : 1 ));
+            if (ent != nullptr) {
+                assert("regions[ 0 ] can not be NULL when regions[ 1 ] is not." &&
+                       (ent->regions[1] ? ent->regions[0] != nullptr : 1));
 
-                assert("regions[ 0 ] and regions[ 1 ] should not be NULL while extended_regions is not."
-                        && ent->extended_regions ? ent->regions[ 0 ] && ent->regions[ 1 ] : 1);
+                assert("regions[ 0 ] and regions[ 1 ] should not be NULL while extended_regions is not." &&
+                               ent->extended_regions
+                           ? ent->regions[0] && ent->regions[1]
+                           : 1);
 
-                assert(ent->extended_regions != nullptr
-                        ? ent->extended_regions->size() > 0
-                        : 1);
-                if ( ent->possibly_collide() )
-                {
+                assert(ent->extended_regions != nullptr ? ent->extended_regions->size() > 0 : 1);
+                if (ent->possibly_collide()) {
                     auto *v2 = ent->regions[0]->collision_proximity_map;
-                    if ( v2 != nullptr ) {
+                    if (v2 != nullptr) {
                         v2->update_entity(ent);
                     }
                 }
@@ -1965,9 +1824,7 @@ void world_dynamics_system::update_collision_proximity_maps_for_moved_entities(F
         }
 
         collision_dynamic_rtree().sort();
-    }
-    else
-    {
+    } else {
         THISCALL(0x0054A610, this, a1);
     }
 }
@@ -1976,50 +1833,39 @@ void world_dynamics_system::update_light_proximity_maps_for_moved_entities(Float
 {
     TRACE("world_dynamics_system::update_light_proximity_maps_for_moved_entities");
 
-    if constexpr (0)
-    {
-        for (int i = 0; i < moved_entities::moved_count; ++i)
-        {
+    if constexpr (0) {
+        for (int i = 0; i < moved_entities::moved_count; ++i) {
             auto *ent = moved_entities::moved_list[i].get_volatile_ptr();
-            if ( ent != nullptr )
-            {
-                if ( ent->is_a_conglomerate() )
-                {
+            if (ent != nullptr) {
+                if (ent->is_a_conglomerate()) {
                     auto *the_conglom = bit_cast<conglomerate *>(ent);
                     auto *list = the_conglom->field_100;
-                    if ( list != nullptr && list->size() > 0
-                            && (the_conglom->field_110 & 0x4000) == 0 )
-                    {
-                        assert("regions[ 0 ] can not be NULL when regions[ 1 ] is not. "
-                                && ( ent->regions[ 1 ] ? ent->regions[ 0 ] != nullptr : 1 ));
+                    if (list != nullptr && list->size() > 0 && (the_conglom->field_110 & 0x4000) == 0) {
+                        assert("regions[ 0 ] can not be NULL when regions[ 1 ] is not. " &&
+                               (ent->regions[1] ? ent->regions[0] != nullptr : 1));
 
-                        assert("regions[ 0 ] and regions[ 1 ] should not be NULL while extended_regions is not."
-                                && ent->extended_regions ? ent->regions[ 0 ] && ent->regions[ 1 ] : 1);
+                        assert("regions[ 0 ] and regions[ 1 ] should not be NULL while extended_regions is not." &&
+                                       ent->extended_regions
+                                   ? ent->regions[0] && ent->regions[1]
+                                   : 1);
 
                         assert(ent->extended_regions ? ent->extended_regions->size() > 0 : 1);
 
                         int v14 = 0;
                         region *v9 = nullptr;
-                        for (auto *v6 = ent->regions[0]; v6 != nullptr; v6 = v9)
-                        {
-                            for (auto v8 : (*the_conglom->field_100))
-                            {
+                        for (auto *v6 = ent->regions[0]; v6 != nullptr; v6 = v9) {
+                            for (auto v8 : (*the_conglom->field_100)) {
                                 v6->light_proximity_map->update_entity(v8);
                             }
 
-                            if (++v14 >= 2)
-                            {
+                            if (++v14 >= 2) {
                                 v9 = nullptr;
-                                if (ent->extended_regions != nullptr)
-                                {
+                                if (ent->extended_regions != nullptr) {
                                     int v2 = v14 - 2;
-                                    v9 = ( v2 < ent->extended_regions->size()
-                                             ? ent->extended_regions->m_data[v2]
-                                             : nullptr );
+                                    v9 = (v2 < ent->extended_regions->size() ? ent->extended_regions->m_data[v2]
+                                                                             : nullptr);
                                 }
-                            }
-                            else
-                            {
+                            } else {
                                 v9 = ent->regions[v14];
                             }
                         }
@@ -2047,14 +1893,13 @@ void world_dynamics_system::add_anim_ctrl(animation_controller *a2)
         auto e = v6->field_4->get_my_vhandle();
 
         assert(e.get_volatile_ptr() != nullptr);
-
     }
 }
 
 nal_anim_control *world_dynamics_system::get_anim_ctrl(uint32_t a1)
 {
     auto **slot_contents_ptr = this->field_0->get_slot_contents_ptr(a1);
-    if ( slot_contents_ptr != nullptr ) {
+    if (slot_contents_ptr != nullptr) {
         return *slot_contents_ptr;
     }
 
@@ -2063,7 +1908,7 @@ nal_anim_control *world_dynamics_system::get_anim_ctrl(uint32_t a1)
 
 int get_hero_type_helper()
 {
-    auto *hero_ptr = (actor *) g_world_ptr->get_hero_ptr(0);
+    auto *hero_ptr = (actor *)g_world_ptr->get_hero_ptr(0);
     if (hero_ptr != nullptr) {
         return hero_ptr->m_player_controller->m_hero_type;
     }
@@ -2135,8 +1980,7 @@ void world_dynamics_system_patch()
         REDIRECT(0x0055B2CC, address);
     }
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         FUNC_ADDRESS(address, &world_dynamics_system::add_player);
         REDIRECT(0x0055CCA3, address);
         REDIRECT(0x005C5889, address);
@@ -2167,5 +2011,4 @@ void world_dynamics_system_patch()
 
         REDIRECT(0x0047DB5F, address);
     }
-
 }

@@ -4,13 +4,11 @@
 
 #include "nal_system.h"
 
-struct spideySignalData {
-};
+struct spideySignalData {};
 
 
 struct spideySignal : nalComponent<nalComponentU8Base, spideySignalData, spideySignal> {
-
     spideySignal();
 };
 
-extern spideySignal & Component_spideySignal;
+extern spideySignal &Component_spideySignal;

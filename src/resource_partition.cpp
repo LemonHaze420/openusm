@@ -15,15 +15,12 @@ VALIDATE_SIZE(resource_partition, 0xB4u);
 
 resource_partition::resource_partition(resource_partition_enum a2)
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         this->field_4 = a2;
         this->clear();
 
         this->streamer.init(this, &this->m_pack_slots);
-    }
-    else
-    {
+    } else {
         THISCALL(0x005427C0, this, a2);
     }
 }
@@ -32,27 +29,26 @@ resource_partition::~resource_partition()
 {
     TRACE("resource_partition::~resource_partition");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         this->clear();
-    }
-    else
-    {
+    } else {
         THISCALL(0x0053DFD0, this);
     }
-
 }
 
-void * resource_partition::operator new(size_t size) {
+void *resource_partition::operator new(size_t size)
+{
     return mem_alloc(size);
 }
 
-void resource_partition::operator delete(void *ptr, size_t size) {
+void resource_partition::operator delete(void *ptr, size_t size)
+{
     mem_dealloc(ptr, size);
 }
 
 
-void resource_partition::frame_advance(Float a1, limited_timer *a2) {
+void resource_partition::frame_advance(Float a1, limited_timer *a2)
+{
     this->streamer.frame_advance({a1}, a2);
 }
 
@@ -72,10 +68,8 @@ void resource_partition::clear()
 
     assert(streamer.is_idle());
 
-    if constexpr (1)
-    {
-        for (uint32_t i = 0; i < this->m_pack_slots.size(); ++i)
-        {
+    if constexpr (1) {
+        for (uint32_t i = 0; i < this->m_pack_slots.size(); ++i) {
             auto *slot = this->m_pack_slots[i];
 
             worldly_pack_slot *delete_me = CAST(delete_me, slot);
@@ -89,18 +83,15 @@ void resource_partition::clear()
             }
         }
 
-        if constexpr (0)
-        {
-            if ( this->m_pack_slots.m_first != nullptr ) {
+        if constexpr (0) {
+            if (this->m_pack_slots.m_first != nullptr) {
                 ::operator delete(this->m_pack_slots.m_first);
             }
 
             this->m_pack_slots.m_first = nullptr;
             this->m_pack_slots.m_last = nullptr;
             this->m_pack_slots.m_end = nullptr;
-        }
-        else
-        {
+        } else {
             this->m_pack_slots.clear();
         }
 
@@ -109,17 +100,14 @@ void resource_partition::clear()
         this->m_partition_buffer = nullptr;
         this->partition_buffer_used = 0;
         this->partition_buffer_size = 0;
-    }
-    else
-    {
+    } else {
         THISCALL(0x00537B30, this);
     }
 }
 
 void resource_partition::pop_pack_slot()
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         assert(m_pack_slots.size() > 0);
 
         assert(m_pack_slots.back() != nullptr && m_pack_slots.back()->is_empty());
@@ -141,8 +129,7 @@ void resource_partition::push_pack_slot(int memory_amount_to_reserve, void *a3)
 {
     TRACE("resource_partition::push_pack_slot");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         assert(memory_amount_to_reserve > 0);
 
         auto reserve_size = memory_amount_to_reserve;
@@ -161,15 +148,13 @@ void resource_partition::push_pack_slot(int memory_amount_to_reserve, void *a3)
             this->partition_buffer_used += reserve_size;
         }
 
-        auto *slot = new worldly_pack_slot {};
+        auto *slot = new worldly_pack_slot{};
 
         slot->set_memory_area(starting_addr, reserve_size, a3 == nullptr);
         slot->set_partition(this);
 
         this->m_pack_slots.push_back(slot);
-    }
-    else
-    {
+    } else {
         THISCALL(0x00542840, this, memory_amount_to_reserve, a3);
     }
 }

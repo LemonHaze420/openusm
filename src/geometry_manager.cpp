@@ -26,103 +26,103 @@ namespace geometry_manager {
 
 #if !STANDALONE_SYSTEM
 
-hull & view_frustum = var<hull>(0x0095FBE8);
+hull &view_frustum = var<hull>(0x0095FBE8);
 
-hull & world_space_frustum = var<hull>(0x0095FEA0);
+hull &world_space_frustum = var<hull>(0x0095FEA0);
 
-fixed_vector<vector3d, 5> & frustum_verts = var<fixed_vector<vector3d, 5>>(0x0095FFC0);
+fixed_vector<vector3d, 5> &frustum_verts = var<fixed_vector<vector3d, 5>>(0x0095FFC0);
 
-float & PROJ_ASPECT = var<float>(0x00921E20);
+float &PROJ_ASPECT = var<float>(0x00921E20);
 
-float & PROJ_FIELD_OF_VIEW = var<float>(0x0095FC5C);
+float &PROJ_FIELD_OF_VIEW = var<float>(0x0095FC5C);
 
-float & PROJ_ZOOM = var<float>(0x00921E24);
+float &PROJ_ZOOM = var<float>(0x00921E24);
 
-float & PROJ_FAR_PLANE_D = var<float>(0x00921E2C);
+float &PROJ_FAR_PLANE_D = var<float>(0x00921E2C);
 
-bool & scene_analyzer_enabled = var<bool>(0x0095C1E8);
+bool &scene_analyzer_enabled = var<bool>(0x0095C1E8);
 
-bool & auto_rebuild_view_frame = var<bool>(0x0095C1E9);
+bool &auto_rebuild_view_frame = var<bool>(0x0095C1E9);
 
-bool & view_frame_dirty = var<bool>(0x0095C1EA);
+bool &view_frame_dirty = var<bool>(0x0095C1EA);
 
-matrix4x4 (& xforms)[NUM_XFORMS] = var<matrix4x4[NUM_XFORMS]>(0x0095FC60);
+matrix4x4 (&xforms)[NUM_XFORMS] = var<matrix4x4[NUM_XFORMS]>(0x0095FC60);
 
-float & FAR_CLIP_PLANE = var<float>(0x00921E30);
+float &FAR_CLIP_PLANE = var<float>(0x00921E30);
 
-aarect<float, vector2d> & viewport_rect = var<aarect<float, vector2d>>(0x00960918);
+aarect<float, vector2d> &viewport_rect = var<aarect<float, vector2d>>(0x00960918);
 
-aarect<float, vector2d> & scissor_rect = var<aarect<float, vector2d>>(0x0095FF14);
+aarect<float, vector2d> &scissor_rect = var<aarect<float, vector2d>>(0x0095FF14);
 
 #else
 
-hull & view_frustum = []() -> auto & {
-    static hull result {};
+hull &view_frustum = []() -> auto & {
+    static hull result{};
     return result;
 }();
 
-hull & world_space_frustum = []() -> auto & {
-    static hull result {};
+hull &world_space_frustum = []() -> auto & {
+    static hull result{};
     return result;
 }();
 
-fixed_vector<vector3d, 5> & frustum_verts = []() -> auto & {
-    static fixed_vector<vector3d, 5> result {};
+fixed_vector<vector3d, 5> &frustum_verts = []() -> auto & {
+    static fixed_vector<vector3d, 5> result{};
     return result;
 }();
 
-float & PROJ_ASPECT = []() -> auto & {
-    static float result {1.0f};
+float &PROJ_ASPECT = []() -> auto & {
+    static float result{1.0f};
     return result;
 }();
 
-float & PROJ_FIELD_OF_VIEW = []() -> auto & {
-    static float result {};
+float &PROJ_FIELD_OF_VIEW = []() -> auto & {
+    static float result{};
     return result;
 }();
 
-float & PROJ_ZOOM = []() -> auto & {
-    static float result {1.0f};
+float &PROJ_ZOOM = []() -> auto & {
+    static float result{1.0f};
     return result;
 }();
 
-float & PROJ_FAR_PLANE_D = []() -> auto & {
-    static float result {10000.0f};
+float &PROJ_FAR_PLANE_D = []() -> auto & {
+    static float result{10000.0f};
     return result;
 }();
 
-bool & scene_analyzer_enabled = []() -> auto & {
-    static bool result {false};
+bool &scene_analyzer_enabled = []() -> auto & {
+    static bool result{false};
     return result;
 }();
 
-bool & auto_rebuild_view_frame = []() -> auto & {
-    static bool result {false};
+bool &auto_rebuild_view_frame = []() -> auto & {
+    static bool result{false};
     return result;
 }();
 
-bool & view_frame_dirty = []() -> auto & {
-    static bool result {false};
+bool &view_frame_dirty = []() -> auto & {
+    static bool result{false};
     return result;
 }();
 
-matrix4x4 (& xforms)[NUM_XFORMS] = []() -> auto & {
-    static matrix4x4 result[NUM_XFORMS] {};
+matrix4x4 (&xforms)[NUM_XFORMS] = []() -> auto & {
+    static matrix4x4 result[NUM_XFORMS]{};
     return result;
 }();
 
-float & FAR_CLIP_PLANE = []() -> auto & {
-    static float result {10000.0f};
+float &FAR_CLIP_PLANE = []() -> auto & {
+    static float result{10000.0f};
     return result;
 }();
 
-aarect<float, vector2d> & viewport_rect = []() -> auto & {
-    static aarect<float, vector2d> result {};
+aarect<float, vector2d> &viewport_rect = []() -> auto & {
+    static aarect<float, vector2d> result{};
     return result;
 }();
 
-aarect<float, vector2d> & scissor_rect = []() -> auto & {
-    static aarect<float, vector2d> result {};
+aarect<float, vector2d> &scissor_rect = []() -> auto & {
+    static aarect<float, vector2d> result{};
     return result;
 }();
 
@@ -130,16 +130,12 @@ aarect<float, vector2d> & scissor_rect = []() -> auto & {
 
 void set_xform(xform_t xformtype, const matrix4x4 &a2)
 {
-    assert(xformtype != XFORM_WORLD_TO_SCREEN
-            && xformtype != XFORM_VIEW_TO_SCREEN
-            && xformtype != XFORM_EFFECTIVE_WORLD_TO_VIEW
-            && xformtype != XFORM_WORLD_TO_PROJECTION
-            && xformtype != XFORM_VIEW_TO_WORLD);
+    assert(xformtype != XFORM_WORLD_TO_SCREEN && xformtype != XFORM_VIEW_TO_SCREEN &&
+           xformtype != XFORM_EFFECTIVE_WORLD_TO_VIEW && xformtype != XFORM_WORLD_TO_PROJECTION &&
+           xformtype != XFORM_VIEW_TO_WORLD);
 
-    if constexpr (1)
-    {
-        if (xformtype == XFORM_WORLD_TO_VIEW)
-        {
+    if constexpr (1) {
+        if (xformtype == XFORM_WORLD_TO_VIEW) {
             xforms[XFORM_EFFECTIVE_WORLD_TO_VIEW] = (scene_analyzer_enabled ? xforms[8] : a2);
 
             po v13{a2};
@@ -152,43 +148,43 @@ void set_xform(xform_t xformtype, const matrix4x4 &a2)
         }
 
         xforms[xformtype] = a2;
-        if (xformtype == XFORM_WORLD_TO_VIEW
-            || xformtype == XFORM_VIEW_TO_PROJECTION
-            || xformtype == XFORM_PROJECTION_TO_SCREEN)
-        {
+        if (xformtype == XFORM_WORLD_TO_VIEW || xformtype == XFORM_VIEW_TO_PROJECTION ||
+            xformtype == XFORM_PROJECTION_TO_SCREEN) {
             if (xformtype == XFORM_VIEW_TO_PROJECTION || xformtype == XFORM_PROJECTION_TO_SCREEN) {
                 xforms[XFORM_VIEW_TO_SCREEN] = xforms[XFORM_VIEW_TO_PROJECTION] * xforms[XFORM_PROJECTION_TO_SCREEN];
             }
 
             xforms[XFORM_WORLD_TO_SCREEN] = xforms[XFORM_EFFECTIVE_WORLD_TO_VIEW] * xforms[XFORM_VIEW_TO_SCREEN];
 
-            xforms[XFORM_WORLD_TO_PROJECTION] = xforms[XFORM_EFFECTIVE_WORLD_TO_VIEW] * xforms[XFORM_VIEW_TO_PROJECTION];
+            xforms[XFORM_WORLD_TO_PROJECTION] =
+                xforms[XFORM_EFFECTIVE_WORLD_TO_VIEW] * xforms[XFORM_VIEW_TO_PROJECTION];
             if (nglCurScene != nullptr) {
                 math::MatClass<4, 3> v8 = xforms[XFORM_EFFECTIVE_WORLD_TO_VIEW];
                 nglSetWorldToViewMatrix(v8);
             }
         }
 
-    }
-    else
-    {
+    } else {
         CDECL_CALL(0x00515750, xformtype, &a2);
     }
 }
 
-matrix4x4 &get_xform(xform_t a1) {
+matrix4x4 &get_xform(xform_t a1)
+{
     return xforms[a1];
 }
 
-} // namespace geometry_manager
+}  // namespace geometry_manager
 
-void sub_515320() {
+void sub_515320()
+{
     for (uint8_t i = 0; i < 9; ++i) {
         geometry_manager::xforms[i] = identity_matrix;
     }
 }
 
-void geometry_manager::set_aspect_ratio(Float a1) {
+void geometry_manager::set_aspect_ratio(Float a1)
+{
     if (not_equal(PROJ_ASPECT, a1.value)) {
         PROJ_ASPECT = a1;
 
@@ -200,7 +196,8 @@ void geometry_manager::set_aspect_ratio(Float a1) {
     }
 }
 
-bool geometry_manager::is_scene_analyzer_enabled() {
+bool geometry_manager::is_scene_analyzer_enabled()
+{
     return scene_analyzer_enabled;
 }
 
@@ -209,7 +206,8 @@ void geometry_manager::enable_scene_analyzer(bool a1)
     scene_analyzer_enabled = a1;
 }
 
-void geometry_manager::reset() {
+void geometry_manager::reset()
+{
     scissor_rect.field_0[0][0] = -1.0;
     scissor_rect.field_0[0][1] = -1.0;
     scissor_rect.field_0[1][0] = 1.0;
@@ -226,7 +224,8 @@ void geometry_manager::reset() {
     rebuild_view_frame();
 }
 
-void geometry_manager::compute_view_frustum_in_world_space() {
+void geometry_manager::compute_view_frustum_in_world_space()
+{
     po v11 = xforms[1];
 
     world_space_frustum.field_0.m_size = 0;
@@ -252,7 +251,8 @@ void geometry_manager::compute_view_frustum_in_world_space() {
     }
 }
 
-void geometry_manager::compute_view_frustum_verts_in_world_space() {
+void geometry_manager::compute_view_frustum_verts_in_world_space()
+{
     auto a1 = PROJ_FIELD_OF_VIEW * 0.5f;
 
     float a2, a3;
@@ -307,10 +307,8 @@ void geometry_manager::set_viewport(const aarect<float, vector2d> &a1)
     }
 }
 
-void geometry_manager::set_look_at(matrix4x4 *a1,
-                                   const vector3d &eye,
-                                   const vector3d &center,
-                                   const vector3d &up) {
+void geometry_manager::set_look_at(matrix4x4 *a1, const vector3d &eye, const vector3d &center, const vector3d &up)
+{
 #ifndef USE_GLM
     if constexpr (1) {
         vector3d f = center - eye;
@@ -369,8 +367,7 @@ void geometry_manager::set_look_at(matrix4x4 *a1,
     }
 #else
 
-    glm::vec3 a = *bit_cast<glm::vec3 *>(&eye), b = *bit_cast<glm::vec3 *>(&center),
-              c = *bit_cast<glm::vec3 *>(&up);
+    glm::vec3 a = *bit_cast<glm::vec3 *>(&eye), b = *bit_cast<glm::vec3 *>(&center), c = *bit_cast<glm::vec3 *>(&up);
     auto result = glm::lookAtLH(a, b, c);
 
     *a1 = *bit_cast<matrix4x4 *>(&result);
@@ -390,14 +387,11 @@ void geometry_manager::set_auto_rebuild_view_frame(bool a1)
 
 void geometry_manager::set_view(const vector3d &a1, const vector3d &a2, const vector3d &a3)
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         matrix4x4 v1;
         set_look_at(&v1, a1, a2, a3);
         set_xform(XFORM_WORLD_TO_VIEW, v1);
-    }
-    else
-    {
+    } else {
         CDECL_CALL(0x00524930, &a1, &a2, &a3);
     }
 }
@@ -406,8 +400,7 @@ void geometry_manager::set_scissor(const aarect<float, vector2d> &a1)
 {
     TRACE("geometry_manager::set_scissor");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         scissor_rect = a1;
         if (auto_rebuild_view_frame) {
             rebuild_view_frame();
@@ -415,14 +408,13 @@ void geometry_manager::set_scissor(const aarect<float, vector2d> &a1)
             view_frame_dirty = true;
         }
 
-    }
-    else
-    {
+    } else {
         CDECL_CALL(0x00540170, &a1);
     }
 }
 
-void geometry_manager::create_inst() {
+void geometry_manager::create_inst()
+{
     scene_analyzer_enabled = false;
     auto_rebuild_view_frame = true;
     view_frame_dirty = true;
@@ -430,15 +422,18 @@ void geometry_manager::create_inst() {
     reset();
 }
 
-float geometry_manager::get_aspect_ratio() {
+float geometry_manager::get_aspect_ratio()
+{
     return PROJ_ASPECT;
 }
 
-float geometry_manager::get_field_of_view() {
+float geometry_manager::get_field_of_view()
+{
     return PROJ_FIELD_OF_VIEW;
 }
 
-void geometry_manager::set_far_plane(Float far_plane) {
+void geometry_manager::set_far_plane(Float far_plane)
+{
     if (not_equal(PROJ_FAR_PLANE_D, float{far_plane})) {
         PROJ_FAR_PLANE_D = far_plane;
 
@@ -450,7 +445,8 @@ void geometry_manager::set_far_plane(Float far_plane) {
     }
 }
 
-void geometry_manager::set_field_of_view(Float fov) {
+void geometry_manager::set_field_of_view(Float fov)
+{
     if (not_equal(PROJ_FIELD_OF_VIEW, float{fov})) {
         PROJ_FIELD_OF_VIEW = fov;
 
@@ -462,7 +458,8 @@ void geometry_manager::set_field_of_view(Float fov) {
     }
 }
 
-void geometry_manager::set_zoom(Float zoom) {
+void geometry_manager::set_zoom(Float zoom)
+{
     if (not_equal(PROJ_ZOOM, float{zoom})) {
         PROJ_ZOOM = zoom;
 
@@ -474,11 +471,13 @@ void geometry_manager::set_zoom(Float zoom) {
     }
 }
 
-float geometry_manager::get_zoom() {
+float geometry_manager::get_zoom()
+{
     return PROJ_ZOOM;
 }
 
-void geometry_manager::rebuild_view_frame() {
+void geometry_manager::rebuild_view_frame()
+{
     CDECL_CALL(0x0053A930);
 }
 

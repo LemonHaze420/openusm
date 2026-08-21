@@ -37,7 +37,8 @@ struct ai_tentacle_info {
         int field_0;
         uint16_t m_size;
 
-        auto size() const {
+        auto size() const
+        {
             return m_size;
         }
     } field_58;
@@ -63,15 +64,18 @@ struct ai_tentacle_info {
 
     po get_end_po() const;
 
-    const vector3d & get_end_position() const {
+    const vector3d &get_end_position() const
+    {
         return this->end_pos;
     }
 
-    void set_end_position(const vector3d &a2) {
+    void set_end_position(const vector3d &a2)
+    {
         this->end_pos = a2;
     }
 
-    auto get_num_positions() const {
+    auto get_num_positions() const
+    {
         return this->positions.size();
     }
 
@@ -83,11 +87,7 @@ struct ai_tentacle_info {
 
     void init_positions(bool a2);
 
-    vector3d correct_tentacle_pos(
-        line_info &a3,
-        bool &a4,
-        vector3d &a5,
-        vector3d &a6);
+    vector3d correct_tentacle_pos(line_info &a3, bool &a4, vector3d &a5, vector3d &a6);
 
     int push_engine(ai_tentacle_engine *eng);
 };

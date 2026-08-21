@@ -13,8 +13,7 @@ void script_manager_callback(script_manager_callback_reason a1, script_executabl
 {
     TRACE("script_manager_callback", std::to_string(int(a1)).c_str());
 
-    switch ( a1 )
-    {
+    switch (a1) {
     case 0:
     case 2:
     case 3:
@@ -37,7 +36,7 @@ void script_manager_callback(script_manager_callback_reason a1, script_executabl
         break;
     case 8:
     case 10:
-        if ( buffer != nullptr ) {
+        if (buffer != nullptr) {
             resource_manager::push_resource_context(bit_cast<resource_pack_slot *>(buffer));
         }
         break;
@@ -63,4 +62,3 @@ void chuck_callbacks_patch()
 {
     SET_JUMP(0x00660760, script_manager_callback);
 }
-

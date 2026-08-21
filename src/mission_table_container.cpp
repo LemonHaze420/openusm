@@ -19,13 +19,10 @@ bool mission_table_container::append_script_info(_std::vector<mission_table_cont
     assert(info != nullptr);
 
     bool v9 = false;
-    for ( auto &v6 : this->field_38 )
-    {
-        if ( v6.applies_to_current_hero() )
-        {
+    for (auto &v6 : this->field_38) {
+        if (v6.applies_to_current_hero()) {
             auto v5 = v6.instances.size();
-            for ( auto i = 0u; i < v5; ++i )
-            {
+            for (auto i = 0u; i < v5; ++i) {
                 script_info v3;
                 v3.field_0 = v6.field_18;
                 v3.field_4 = &v6.instances.at(i);
@@ -39,29 +36,23 @@ bool mission_table_container::append_script_info(_std::vector<mission_table_cont
     return v9;
 }
 
-bool mission_table_container::append_nums(
-        const char *a2,
-        int a3,
-        _std::vector<float> *nums) const
+bool mission_table_container::append_nums(const char *a2, int a3, _std::vector<float> *nums) const
 {
     assert(nums != nullptr);
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         bool result = false;
-        for ( auto &v6 : this->field_38 )
-        {
+        for (auto &v6 : this->field_38) {
             auto *v4 = v6.field_18;
-            if ( !strcmpi(v4, a2) && v6.append_nums(a3, nums) ) {
+            if (!strcmpi(v4, a2) && v6.append_nums(a3, nums)) {
                 result = true;
             }
         }
 
         return result;
-    }
-    else
-    {
-        bool (__fastcall *func)(const void *, void *edx, const char *, int, _std::vector<float> *) = CAST(func, 0x005DAA90);
+    } else {
+        bool(__fastcall * func)(const void *, void *edx, const char *, int, _std::vector<float> *) =
+            CAST(func, 0x005DAA90);
         return func(this, nullptr, a2, a3, nums);
     }
 }
@@ -71,10 +62,10 @@ void mission_table_container::un_mash(generic_mash_header *a2, void *a3, void *a
     THISCALL(0x005C6010, this, a2, a3, a4, a5);
 }
 
-mission_condition_instance * mission_condition::find_best_instance(
-        mission_manager_script_data *data) const
+mission_condition_instance *mission_condition::find_best_instance(mission_manager_script_data *data) const
 {
-    mission_condition_instance * (__fastcall *func)(const void *, void *edx, mission_manager_script_data *) = CAST(func, 0x005DD780);
+    mission_condition_instance *(__fastcall * func)(const void *, void *edx, mission_manager_script_data *) =
+        CAST(func, 0x005DD780);
     return func(this, nullptr, data);
 }
 
@@ -84,7 +75,7 @@ bool mission_condition::get_key_po(int instance, po *p) const
 
     assert(instance >= 0);
 
-    if ( instance >= this->instances.size() ) {
+    if (instance >= this->instances.size()) {
         return false;
     }
 
@@ -94,28 +85,21 @@ bool mission_condition::get_key_po(int instance, po *p) const
 
 bool mission_condition::applies_to_current_hero() const
 {
-    assert(g_world_ptr->get_hero_ptr( 0 ) != nullptr);
+    assert(g_world_ptr->get_hero_ptr(0) != nullptr);
 
-    assert(bit_cast<actor*>(g_world_ptr->get_hero_ptr( 0 ))->get_player_controller() != nullptr);
+    assert(bit_cast<actor *>(g_world_ptr->get_hero_ptr(0))->get_player_controller() != nullptr);
 
-    auto *v8 = bit_cast<actor*>(g_world_ptr->get_hero_ptr( 0 ))->get_player_controller();
+    auto *v8 = bit_cast<actor *>(g_world_ptr->get_hero_ptr(0))->get_player_controller();
     auto v15 = v8->m_hero_type;
-    if ( v15 == 1 )
-    {
-        if ( this->is_flag_set(0x8000) )
-        {
+    if (v15 == 1) {
+        if (this->is_flag_set(0x8000)) {
             return true;
         }
-    }
-    else if ( v15 == 2 )
-    {
-        if ( this->is_flag_set(0x4000) )
-        {
+    } else if (v15 == 2) {
+        if (this->is_flag_set(0x4000)) {
             return true;
         }
-    }
-    else if ( v15 == 3 && this->is_flag_set(0x10000) )
-    {
+    } else if (v15 == 3 && this->is_flag_set(0x10000)) {
         return true;
     }
 
@@ -126,17 +110,16 @@ bool mission_condition::check_condition(mission_manager_script_data *data) const
 {
     assert(data != nullptr);
 
-    if ( !this->applies_to_current_hero() ) {
+    if (!this->applies_to_current_hero()) {
         return false;
     }
 
-    data->uses_script_stack = ( this->is_flag_set(0x1000) || this->is_flag_set(0x2000) );
+    data->uses_script_stack = (this->is_flag_set(0x1000) || this->is_flag_set(0x2000));
 
     bool v11 = false;
     auto *v4 = mission_manager::s_inst;
-    if ( v4->field_80 )
-    {
-        if ( _strcmpi(this->field_18, v4->field_88.to_string()) != 0 ) {
+    if (v4->field_80) {
+        if (_strcmpi(this->field_18, v4->field_88.to_string()) != 0) {
             return false;
         }
 
@@ -144,39 +127,31 @@ bool mission_condition::check_condition(mission_manager_script_data *data) const
     }
 
     auto v12 = this->field_28;
-    if ( (v12 & 0x800) != 0 )
-    {
+    if ((v12 & 0x800) != 0) {
         auto v13 = v4->sub_5C5BD0();
-        if ( v13 != 0 )
-        {
-            if ( v13 == 1 )
-            {
-                if ( !this->is_flag_set(0x200) && !v11 ) {
+        if (v13 != 0) {
+            if (v13 == 1) {
+                if (!this->is_flag_set(0x200) && !v11) {
                     return false;
                 }
-            }
-            else if ( v13 == 2 )
-            {
-                if ( !this->is_flag_set(0x400) && !v11 ) {
+            } else if (v13 == 2) {
+                if (!this->is_flag_set(0x400) && !v11) {
                     return false;
                 }
-            }
-            else
-            {
+            } else {
                 assert(0 && "unknown time of day!!!");
             }
         }
     }
 
-    for ( auto &entry : this->field_10 )
-    {
-        if ( !entry.check() ) {
+    for (auto &entry : this->field_10) {
+        if (!entry.check()) {
             return false;
         }
     }
 
     auto *best_instance = this->find_best_instance(data);
-    if ( best_instance == nullptr ) {
+    if (best_instance == nullptr) {
         return false;
     }
 
@@ -185,21 +160,17 @@ bool mission_condition::check_condition(mission_manager_script_data *data) const
     data->field_10 = this->field_20;
     data->field_C8 = this->field_2C;
     data->field_D8 = this->field_30;
-    data->field_B0 = ( (this->field_28 & 0x2000) != 0
-                        ? best_instance->get_patrol_num()
-                        : -1
-                    );
+    data->field_B0 = ((this->field_28 & 0x2000) != 0 ? best_instance->get_patrol_num() : -1);
     return true;
 }
 
-bool mission_condition::append_nums(int instance,
-                        _std::vector<float> *nums) const
+bool mission_condition::append_nums(int instance, _std::vector<float> *nums) const
 {
     assert(nums != nullptr);
 
     assert(instance >= 0);
 
-    if ( instance >= this->instances.size() ) {
+    if (instance >= this->instances.size()) {
         return false;
     }
 
@@ -207,15 +178,13 @@ bool mission_condition::append_nums(int instance,
     return v4.append_nums(this, nums);
 }
 
-bool mission_condition_instance::get_key_po(
-        const mission_condition *,
-        po *p) const
+bool mission_condition_instance::get_key_po(const mission_condition *, po *p) const
 {
     assert(this->sentinel == 0x31415926 && "corruption!");
 
     assert(p != nullptr);
 
-    if ( !this->is_flag_set(1) ) {
+    if (!this->is_flag_set(1)) {
         return false;
     }
 
@@ -225,9 +194,8 @@ bool mission_condition_instance::get_key_po(
 
 bool mission_condition_instance::check_game_state() const
 {
-    for ( auto &entry : this->field_58 )
-    {
-        if ( !entry.check() ) {
+    for (auto &entry : this->field_58) {
+        if (!entry.check()) {
             return false;
         }
     }
@@ -237,7 +205,7 @@ bool mission_condition_instance::check_game_state() const
 
 const char *mission_condition_instance::get_script_data_name() const
 {
-    if ( !this->is_flag_set(8) ) {
+    if (!this->is_flag_set(8)) {
         return nullptr;
     }
 
@@ -246,9 +214,7 @@ const char *mission_condition_instance::get_script_data_name() const
     return this->script_data_name;
 }
 
-bool mission_condition_instance::append_nums(
-        const mission_condition *,
-        _std::vector<float> *num_list) const
+bool mission_condition_instance::append_nums(const mission_condition *, _std::vector<float> *num_list) const
 {
     assert(this->sentinel == 0x31415926 && "corruption!");
 
@@ -257,17 +223,12 @@ bool mission_condition_instance::append_nums(
     const auto v4 = this->num_nums;
     auto begin = this->nums;
     auto end = this->nums + v4;
-    std::for_each( begin, end, [&](const float v)
-    {
-        num_list->push_back(v);
-    });
+    std::for_each(begin, end, [&](const float v) { num_list->push_back(v); });
 
     return v4 > 0;
 }
 
-bool mission_condition_instance::append_strings(
-        const mission_condition *,
-        _std::vector<mString> *str_list) const
+bool mission_condition_instance::append_strings(const mission_condition *, _std::vector<mString> *str_list) const
 {
     assert(this->sentinel == 0x31415926 && "corruption!");
 
@@ -276,10 +237,7 @@ bool mission_condition_instance::append_strings(
     auto v4 = this->num_strings;
     auto begin = this->strings;
     auto end = begin + v4;
-    std::for_each(begin, end, [&](const auto &v)
-    {
-        str_list->push_back(v);
-    });
+    std::for_each(begin, end, [&](const auto &v) { str_list->push_back(v); });
 
     //std::copy(begin, end, std::back_inserter(*str_list));
 
@@ -288,8 +246,7 @@ bool mission_condition_instance::append_strings(
 
 bool mission_table_game_state_entry::check() const
 {
-    auto sub_6786F0 = [](const mission_table_game_state_entry *self, uint32_t a2) -> bool
-    {
+    auto sub_6786F0 = [](const mission_table_game_state_entry *self, uint32_t a2) -> bool {
         return (a2 & self->field_8) != 0;
     };
 
@@ -297,71 +254,57 @@ bool mission_table_game_state_entry::check() const
     auto v2 = this->field_8;
     bool v3 = false;
     float v4;
-    if ( (v2 & 0x80u) != 0 ) {
+    if ((v2 & 0x80u) != 0) {
         v4 = *this->field_4.p;
-    } else if ( (v2 & 0x100) != 0 ) {
+    } else if ((v2 & 0x100) != 0) {
         v4 = *this->field_4.p;
     } else {
         v4 = this->field_4.f;
     }
 
-    if ( sub_6786F0(this, 1) )
-    {
-        if ( v1 ) {
+    if (sub_6786F0(this, 1)) {
+        if (v1) {
             *this->field_0 = v4;
         }
 
         v3 = not_equal(*this->field_0, v4);
-    }
-    else if ( sub_6786F0(this, 2) )
-    {
-        if ( v1 && equal(*this->field_0, v4) ) {
+    } else if (sub_6786F0(this, 2)) {
+        if (v1 && equal(*this->field_0, v4)) {
             *this->field_0 = 1.0f + v4;
         }
 
         v3 = not_equal(*this->field_0, v4);
-    }
-    else if ( sub_6786F0(this, 4) )
-    {
-        if ( v1 && v4 >= *this->field_0 ) {
+    } else if (sub_6786F0(this, 4)) {
+        if (v1 && v4 >= *this->field_0) {
             *this->field_0 = 1.0f + v4;
         }
 
-        v3 = ( *this->field_0 > v4 );
-    }
-    else if ( sub_6786F0(this, 8) )
-    {
-        if ( v1 && v4 <= *this->field_0 ) {
+        v3 = (*this->field_0 > v4);
+    } else if (sub_6786F0(this, 8)) {
+        if (v1 && v4 <= *this->field_0) {
             *this->field_0 = v4 - 1.0;
         }
 
-        v3 = ( *this->field_0 < v4 );
-    }
-    else if ( sub_6786F0(this, 0x10) )
-    {
-        if ( v1 && v4 > *this->field_0 ) {
+        v3 = (*this->field_0 < v4);
+    } else if (sub_6786F0(this, 0x10)) {
+        if (v1 && v4 > *this->field_0) {
             *this->field_0 = v4;
         }
 
-        v3 = ( *this->field_0 >= v4 );
-    }
-    else if ( !sub_6786F0(this, 0x20) )
-    {
-        if ( v1 && v4 < *this->field_0 ) {
+        v3 = (*this->field_0 >= v4);
+    } else if (!sub_6786F0(this, 0x20)) {
+        if (v1 && v4 < *this->field_0) {
             *this->field_0 = v4;
         }
 
-        v3 = ( *this->field_0 <= v4 );
-    }
-    else
-    {
+        v3 = (*this->field_0 <= v4);
+    } else {
         assert(0 && "unknown game state operator");
     }
 
-    if ( v1 )
-    {
+    if (v1) {
         auto v5 = mission_manager::s_inst->field_60;
-        if ( this->field_0 == v5 ) {
+        if (this->field_0 == v5) {
             mission_manager::s_inst->field_5C = *v5;
         }
     }

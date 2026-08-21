@@ -26,10 +26,11 @@
 
 VALIDATE_SIZE(mVectorBasic<int>, 0x10);
 
-template<>
-void mVectorBasic<subdivision_node_large_obb>::destruct_mashed_class() {
-    if ( !this->is_pointer_in_mash_image(this->m_data) ) {
-      operator delete[](this->m_data);
+template <>
+void mVectorBasic<subdivision_node_large_obb>::destruct_mashed_class()
+{
+    if (!this->is_pointer_in_mash_image(this->m_data)) {
+        operator delete[](this->m_data);
     }
 
     this->m_data = nullptr;
@@ -38,38 +39,36 @@ void mVectorBasic<subdivision_node_large_obb>::destruct_mashed_class() {
     mContainer_base::destruct_mashed_class();
 }
 
-template<>
+template <>
 void mVectorBasic<attach_action_trigger_enum>::custom_unmash(mash_info_struct *a1, void *)
 {
     TRACE("mVectorBasic<attach_action_trigger_enum>::custom_unmash");
 
 #ifdef TARGET_XBOX
     this->field_C = this->m_size;
-    if ( this->m_size <= 0 )
-    {
+    if (this->m_size <= 0) {
         this->m_data = nullptr;
-    }
-    else
+    } else
 #else
-    if ( this->m_data != nullptr )
+    if (this->m_data != nullptr)
 #endif
     {
         this->m_data = bit_cast<value_type *>(a1->read_from_buffer(
 #ifdef TARGET_XBOX
             mash::NORMAL_BUFFER,
 #endif
-                4 * this->m_size, 4));
+            4 * this->m_size,
+            4));
     }
 
-    this->field_0 = (int)&a1->mash_image_ptr[0][a1->buffer_size_used[0] - (DWORD) this];
+    this->field_0 = (int)&a1->mash_image_ptr[0][a1->buffer_size_used[0] - (DWORD)this];
 }
 
-template<>
+template <>
 void mVectorBasic<attach_action_trigger_enum>::unmash(mash_info_struct *a1, void *a2)
 {
 #ifdef TARGET_XBOX
-    [](mash_info_struct *a1, mash::buffer_type a2, uint32_t &a3)
-    {
+    [](mash_info_struct *a1, mash::buffer_type a2, uint32_t &a3) {
         a3 = *bit_cast<int *>(a1->read_from_buffer(a2, 4, 4));
     }(a1, mash::SHARED_BUFFER, m_size);
 #endif
@@ -77,38 +76,36 @@ void mVectorBasic<attach_action_trigger_enum>::unmash(mash_info_struct *a1, void
     this->custom_unmash(a1, a2);
 }
 
-template<>
+template <>
 void mVectorBasic<int>::custom_unmash(mash_info_struct *a1, void *)
 {
     TRACE("mVectorBasic<int>::custom_unmash");
 
 #ifdef TARGET_XBOX
     this->field_C = this->m_size;
-    if ( this->m_size <= 0 )
-    {
+    if (this->m_size <= 0) {
         this->m_data = nullptr;
-    }
-    else
+    } else
 #else
-    if ( this->m_data != nullptr )
+    if (this->m_data != nullptr)
 #endif
     {
-        this->m_data = (int *) a1->read_from_buffer(
+        this->m_data = (int *)a1->read_from_buffer(
 #ifdef TARGET_XBOX
             mash::NORMAL_BUFFER,
 #endif
-                4 * this->m_size, 4);
+            4 * this->m_size,
+            4);
     }
 
-    this->field_0 = (int)&a1->mash_image_ptr[0][a1->buffer_size_used[0] - (DWORD) this];
+    this->field_0 = (int)&a1->mash_image_ptr[0][a1->buffer_size_used[0] - (DWORD)this];
 }
 
-template<>
+template <>
 void mVectorBasic<int>::unmash(mash_info_struct *a1, void *a2)
 {
 #ifdef TARGET_XBOX
-    [](mash_info_struct *a1, mash::buffer_type a2, uint32_t &a3)
-    {
+    [](mash_info_struct *a1, mash::buffer_type a2, uint32_t &a3) {
         a3 = *bit_cast<int *>(a1->read_from_buffer(a2, 4, 4));
     }(a1, mash::SHARED_BUFFER, m_size);
 #endif
@@ -116,38 +113,36 @@ void mVectorBasic<int>::unmash(mash_info_struct *a1, void *a2)
     this->custom_unmash(a1, a2);
 }
 
-template<>
+template <>
 void mVectorBasic<vhandle_type<actor>>::custom_unmash(mash_info_struct *a1, void *)
 {
     TRACE("mVectorBasic<int>::custom_unmash");
 
 #ifdef TARGET_XBOX
     this->field_C = this->m_size;
-    if ( this->m_size <= 0 )
-    {
+    if (this->m_size <= 0) {
         this->m_data = nullptr;
-    }
-    else
+    } else
 #else
-    if ( this->m_data != nullptr )
+    if (this->m_data != nullptr)
 #endif
     {
         this->m_data = bit_cast<value_type *>(a1->read_from_buffer(
 #ifdef TARGET_XBOX
             mash::NORMAL_BUFFER,
 #endif
-                4 * this->m_size, 4));
+            4 * this->m_size,
+            4));
     }
 
-    this->field_0 = (int)&a1->mash_image_ptr[0][a1->buffer_size_used[0] - (DWORD) this];
+    this->field_0 = (int)&a1->mash_image_ptr[0][a1->buffer_size_used[0] - (DWORD)this];
 }
 
-template<>
+template <>
 void mVectorBasic<vhandle_type<actor>>::unmash(mash_info_struct *a1, void *a2)
 {
 #ifdef TARGET_XBOX
-    [](mash_info_struct *a1, mash::buffer_type a2, uint32_t &a3)
-    {
+    [](mash_info_struct *a1, mash::buffer_type a2, uint32_t &a3) {
         a3 = *bit_cast<int *>(a1->read_from_buffer(a2, 4, 4));
     }(a1, mash::SHARED_BUFFER, m_size);
 #endif
@@ -155,21 +150,20 @@ void mVectorBasic<vhandle_type<actor>>::unmash(mash_info_struct *a1, void *a2)
     this->custom_unmash(a1, a2);
 }
 
-template<>
+template <>
 void mVectorBasic<vhandle_type<actor>>::reserve(int a2)
 {
-    if ( a2 > this->m_max_size )
-    {
+    if (a2 > this->m_max_size) {
         auto *mem = operator new(4 * a2);
-        auto *v2 = new (mem) vhandle_type<actor>[a2] {};
+        auto *v2 = new (mem) vhandle_type<actor>[a2] {
+        };
 
-        if ( this->m_data != nullptr )
-        {
-            if ( this->m_size > 0 ) {
+        if (this->m_data != nullptr) {
+            if (this->m_size > 0) {
                 std::memcpy(v2, this->m_data, 4 * this->m_size);
             }
 
-            if ( !this->is_pointer_in_mash_image(this->m_data) ) {
+            if (!this->is_pointer_in_mash_image(this->m_data)) {
                 operator delete[](this->m_data);
             }
         }
@@ -179,39 +173,37 @@ void mVectorBasic<vhandle_type<actor>>::reserve(int a2)
     }
 }
 
-template<>
+template <>
 void mVectorBasic<gab_source>::custom_unmash(mash_info_struct *a1, void *)
 {
     TRACE("mVectorBasic<gab_source>::custom_unmash");
 
 #ifdef TARGET_XBOX
     this->field_C = this->m_size;
-    if ( this->m_size <= 0 )
-    {
+    if (this->m_size <= 0) {
         this->m_data = nullptr;
-    }
-    else
+    } else
 #else
-    if ( this->m_data != nullptr )
+    if (this->m_data != nullptr)
 #endif
     {
         this->m_data = bit_cast<value_type *>(a1->read_from_buffer(
 #ifdef TARGET_XBOX
             mash::NORMAL_BUFFER,
 #endif
-            8 * this->m_size, 4));
+            8 * this->m_size,
+            4));
     }
 
-    this->field_0 = (int)&a1->mash_image_ptr[0][a1->buffer_size_used[0] - (DWORD) this];
+    this->field_0 = (int)&a1->mash_image_ptr[0][a1->buffer_size_used[0] - (DWORD)this];
 }
 
 
-template<>
+template <>
 void mVectorBasic<gab_source>::unmash(mash_info_struct *a1, void *a2)
 {
 #ifdef TARGET_XBOX
-    [](mash_info_struct *a1, mash::buffer_type a2, uint32_t &a3)
-    {
+    [](mash_info_struct *a1, mash::buffer_type a2, uint32_t &a3) {
         a3 = *bit_cast<int *>(a1->read_from_buffer(a2, 4, 4));
     }(a1, mash::SHARED_BUFFER, m_size);
 #endif
@@ -219,39 +211,37 @@ void mVectorBasic<gab_source>::unmash(mash_info_struct *a1, void *a2)
     this->custom_unmash(a1, a2);
 }
 
-template<>
+template <>
 void mVectorBasic<subdivision_node_large_obb>::custom_unmash(mash_info_struct *a1, void *)
 {
     TRACE("mVectorBasic<glass_house>::custom_unmash");
 
 #ifdef TARGET_XBOX
     this->field_C = this->m_size;
-    if ( this->m_size <= 0 )
-    {
+    if (this->m_size <= 0) {
         this->m_data = nullptr;
-    }
-    else
+    } else
 #else
-    if ( this->m_data != nullptr )
+    if (this->m_data != nullptr)
 #endif
     {
         this->m_data = bit_cast<value_type *>(a1->read_from_buffer(
 #ifdef TARGET_XBOX
             mash::NORMAL_BUFFER,
 #endif
-            sizeof(value_type) * this->m_size, 4));
+            sizeof(value_type) * this->m_size,
+            4));
     }
 
-    this->field_0 = (int)&a1->mash_image_ptr[0][a1->buffer_size_used[0] - (DWORD) this];
+    this->field_0 = (int)&a1->mash_image_ptr[0][a1->buffer_size_used[0] - (DWORD)this];
 }
 
 
-template<>
+template <>
 void mVectorBasic<subdivision_node_large_obb>::unmash(mash_info_struct *a1, void *a2)
 {
 #ifdef TARGET_XBOX
-    [](mash_info_struct *a1, mash::buffer_type a2, uint32_t &a3)
-    {
+    [](mash_info_struct *a1, mash::buffer_type a2, uint32_t &a3) {
         a3 = *bit_cast<int *>(a1->read_from_buffer(a2, 4, 4));
     }(a1, mash::SHARED_BUFFER, m_size);
 #endif

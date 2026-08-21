@@ -3,8 +3,7 @@
 struct from_mash_in_place_constructor;
 struct mash_info_struct;
 
-struct ai_adv_strength_test_data
-{
+struct ai_adv_strength_test_data {
     int field_0;
     int field_4;
     int field_8;

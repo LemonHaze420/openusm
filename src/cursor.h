@@ -44,6 +44,6 @@ struct Cursor {
     void sub_5B0D70();
 };
 
-extern Cursor *& g_cursor;
+extern Cursor *&g_cursor;
 
 extern void cursor_patch();

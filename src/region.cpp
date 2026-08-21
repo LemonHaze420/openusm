@@ -26,7 +26,7 @@ VALIDATE_SIZE(region, 0x134u);
 VALIDATE_OFFSET(region, field_C4, 0xC4);
 VALIDATE_OFFSET(region, field_108, 0x108);
 
-static fixed_pool & lego_bitvector_pool = var<fixed_pool>(0x009222D4);
+static fixed_pool &lego_bitvector_pool = var<fixed_pool>(0x009222D4);
 
 static constexpr auto REGION_UNINITIALIZED_STRIP_ID = -1;
 
@@ -34,21 +34,21 @@ static constexpr auto MAX_ALLOCATABLE_REGIONS = 256u;
 
 region::region(const mString &a2)
 {
-	if constexpr (0) {
-		this->visited = region::visit_key;
-		this->field_58 = region::visit_key1;
+    if constexpr (0) {
+        this->visited = region::visit_key;
+        this->field_58 = region::visit_key1;
 
-		this->mash_info = new region_mash_info {};
+        this->mash_info = new region_mash_info{};
 
-		fixedstring<8> v1 {a2.c_str()};
-		this->mash_info->field_0 = v1.to_string();
-		this->constructor_common();
-	} else {
-		THISCALL(0x0053B4B0, this, &a2);
-	}
+        fixedstring<8> v1{a2.c_str()};
+        this->mash_info->field_0 = v1.to_string();
+        this->constructor_common();
+    } else {
+        THISCALL(0x0053B4B0, this, &a2);
+    }
 }
 
-void * region::operator new(uint32_t)
+void *region::operator new(uint32_t)
 {
     if (all_regions == nullptr) {
         all_regions = static_cast<region *>(arch_memalign(4u, sizeof(region) * MAX_ALLOCATABLE_REGIONS));
@@ -67,7 +67,7 @@ void region::constructor_common()
     this->vobbs_for_region_meshes = nullptr;
     this->field_38 = 0;
     this->field_3C = 0;
-    this->m_fade_groups_count= 0;
+    this->m_fade_groups_count = 0;
     this->field_44 = 0;
     this->field_48 = 0;
     this->meshes = nullptr;
@@ -98,17 +98,12 @@ void region::load_textures()
 {
     assert((flags & TEXTURES_LOADED) == 0);
 
-    for ( auto i = 0; i < this->m_total_frame_maps; ++i )
-    {
+    for (auto i = 0; i < this->m_total_frame_maps; ++i) {
         auto &v3 = this->texture_to_frame_maps[i];
         auto *v8 = v3->get_ifl_name().c_str();
-        tlFixedString v11 {v8};
+        tlFixedString v11{v8};
         auto Texture = nglGetTexture(v11);
-        if ( Texture != nullptr
-                && Texture != nglDefaultTex
-                && Texture != nglWhiteTex
-                )
-        {
+        if (Texture != nullptr && Texture != nglDefaultTex && Texture != nglWhiteTex) {
             auto v5 = this->get_scene_id(true);
 
             auto v6 = v5.c_str();
@@ -121,18 +116,13 @@ void region::load_textures()
 
 void region::unload_textures()
 {
-    if ( (this->flags & TEXTURES_LOADED) != 0 )
-    {
-        for ( int i = 0; i < this->m_total_frame_maps; ++i )
-        {
+    if ((this->flags & TEXTURES_LOADED) != 0) {
+        for (int i = 0; i < this->m_total_frame_maps; ++i) {
             auto &v3 = this->texture_to_frame_maps[i];
             auto *v5 = v3->get_ifl_name().c_str();
-            tlFixedString a1 {v5};
+            tlFixedString a1{v5};
             auto *Texture = nglGetTexture(a1);
-            if ( Texture != nullptr
-                    && Texture != nglDefaultTex
-                    && Texture != nglWhiteTex )
-            {
+            if (Texture != nullptr && Texture != nglDefaultTex && Texture != nglWhiteTex) {
                 texture_array::unload_map(v3, Texture);
             }
         }
@@ -140,12 +130,14 @@ void region::unload_textures()
     }
 }
 
-region::region_astar_search_record::region_astar_search_record() {
+region::region_astar_search_record::region_astar_search_record()
+{
     this->m_vtbl = 0x0087F0EC;
     this->field_24 = {};
 }
 
-void region::region_astar_search_record::setup(void *search_start, void *search_end) {
+void region::region_astar_search_record::setup(void *search_start, void *search_end)
+{
     if constexpr (1) {
         auto *_search_start = static_cast<region *>(search_start);
         auto *_search_end = static_cast<region *>(search_end);
@@ -169,7 +161,8 @@ void region::region_astar_search_record::setup(void *search_start, void *search_
     }
 }
 
-float region::get_ground_level() const {
+float region::get_ground_level() const
+{
     if (this->obb != nullptr) {
         return this->field_BC;
     }
@@ -191,7 +184,8 @@ void region::set_strip_id(int a2)
     this->strip_id = a2;
 }
 
-void region::set_ambient(uint8_t a2, uint8_t a3, uint8_t a4) {
+void region::set_ambient(uint8_t a2, uint8_t a3, uint8_t a4)
+{
     assert(mash_info != nullptr);
 
     this->mash_info->field_20 = color{a2 / 255.f, a3 / 255.f, a4 / 255.f, 1.0};
@@ -199,87 +193,82 @@ void region::set_ambient(uint8_t a2, uint8_t a3, uint8_t a4) {
 
 void region::remove(entity *a3)
 {
-	if constexpr (0) {
-		assert(this->region_entities != nullptr);
+    if constexpr (0) {
+        assert(this->region_entities != nullptr);
 
-		auto *v2 = a3;
-		if ( auto *v5 = bit_cast<light_source *>(a3);
-				a3->is_a_light_source() )
-		{
-			this->remove(v5);
-		}
-		else
-		{
-			this->ai_proximity_map->remove_entity(v2);
-			this->visibility_map->remove_entity(v2);
-			this->parking_proximity_map->remove_entity(v2);
-			if ( auto *v3 = bit_cast<conglomerate *>(v2);
-					v2->is_a_conglomerate() )
-			{
-				v3->remove_member_lights_from_region(this);
-			}
+        auto *v2 = a3;
+        if (auto *v5 = bit_cast<light_source *>(a3); a3->is_a_light_source()) {
+            this->remove(v5);
+        } else {
+            this->ai_proximity_map->remove_entity(v2);
+            this->visibility_map->remove_entity(v2);
+            this->parking_proximity_map->remove_entity(v2);
+            if (auto *v3 = bit_cast<conglomerate *>(v2); v2->is_a_conglomerate()) {
+                v3->remove_member_lights_from_region(this);
+            }
 
-			_std::list<entity *>::iterator ei;
-			void (__fastcall *sub_506790)(void *, void *, _std::list<entity *>::iterator *out, entity **) = CAST(sub_506790, 0x00506790);
-			sub_506790(this->region_entities, nullptr,
-							&ei, &a3);
+            _std::list<entity *>::iterator ei;
+            void(__fastcall * sub_506790)(void *, void *, _std::list<entity *>::iterator *out, entity **) =
+                CAST(sub_506790, 0x00506790);
+            sub_506790(this->region_entities, nullptr, &ei, &a3);
 
-			//assert(ei != this->region_entities->end());
+            //assert(ei != this->region_entities->end());
 
-			void (__fastcall *sub_56CAA0)(void *, void *, _std::list<entity *>::iterator *, _std::list<entity *>::iterator) = CAST(sub_56CAA0, 0x0056CAA0);
-			sub_56CAA0(this->region_entities, nullptr, nullptr, ei);
-		}
-	} else {
-		THISCALL(0x00545700, this, a3);
-	}
+            void(__fastcall *
+                 sub_56CAA0)(void *, void *, _std::list<entity *>::iterator *, _std::list<entity *>::iterator) =
+                CAST(sub_56CAA0, 0x0056CAA0);
+            sub_56CAA0(this->region_entities, nullptr, nullptr, ei);
+        }
+    } else {
+        THISCALL(0x00545700, this, a3);
+    }
 }
 
 void region::remove(light_source *a2)
 {
-	assert(a2 != nullptr);
+    assert(a2 != nullptr);
 
-	assert(this->lights != nullptr);
+    assert(this->lights != nullptr);
 
-	this->light_proximity_map->remove_entity(a2);
-	auto begin = this->lights->begin();
-	auto end = this->lights->end();
+    this->light_proximity_map->remove_entity(a2);
+    auto begin = this->lights->begin();
+    auto end = this->lights->end();
 
-	auto it = [](_std::vector<light_source *>::iterator it,
-        _std::vector<light_source *>::iterator end,
-		light_source *a4) -> _std::vector<light_source *>::iterator
-	{
-		for ( ; it != end; ++it )
-		{
-			if ( (*it) == a4 ) {
-				break;
-			}
-		}
+    auto it = [](_std::vector<light_source *>::iterator it,
+                 _std::vector<light_source *>::iterator end,
+                 light_source *a4) -> _std::vector<light_source *>::iterator {
+        for (; it != end; ++it) {
+            if ((*it) == a4) {
+                break;
+            }
+        }
 
-		return it;
-	}(begin, end, a2);
+        return it;
+    }(begin, end, a2);
 
-	std::for_each(it, end, [](light_source *&light) {
-		light = nullptr;
-	});
-
+    std::for_each(it, end, [](light_source *&light) { light = nullptr; });
 }
 
-bool region::has_quad_paths() const {
+bool region::has_quad_paths() const
+{
     return (this->flags & 0x800) != 0;
 }
 
-bool region::is_interior() const {
+bool region::is_interior() const
+{
     uint32_t v6 = this->flags;
 
     return ((v6 & 0x100) != 0) && ((v6 & 0x40000) != 0);
 }
 
-bool region::already_visited() const {
+bool region::already_visited() const
+{
     return visit_key == this->visited;
 }
 
 
-traffic_path_graph *region::get_traffic_path_graph() {
+traffic_path_graph *region::get_traffic_path_graph()
+{
     auto *result = g_world_ptr->the_terrain->traffic_ptr;
     if (result == nullptr) {
         result = this->field_100;
@@ -297,7 +286,8 @@ int region::get_district_id() const
     return this->district_id;
 }
 
-bool region::is_loaded() const {
+bool region::is_loaded() const
+{
     return (this->flags & 0x10) != 0;
 }
 
@@ -309,12 +299,9 @@ void region::get_region_extents(vector3d *min_extent, vector3d *max_extent) cons
 
     this->obb->get_extents(min_extent, max_extent);
 
-    assert(not_equal(min_extent->x, FLT_MAX)
-            && not_equal(min_extent->y, FLT_MAX)
-            && not_equal(min_extent->z, FLT_MAX)
-            && not_equal(max_extent->x, -FLT_MAX)
-            && not_equal(max_extent->y, -FLT_MAX)
-            && not_equal(max_extent->z, -FLT_MAX));
+    assert(not_equal(min_extent->x, FLT_MAX) && not_equal(min_extent->y, FLT_MAX) &&
+           not_equal(min_extent->z, FLT_MAX) && not_equal(max_extent->x, -FLT_MAX) &&
+           not_equal(max_extent->y, -FLT_MAX) && not_equal(max_extent->z, -FLT_MAX));
 }
 
 ai_region_paths *region::get_region_path_graph()
@@ -326,7 +313,8 @@ ai_region_paths *region::get_region_path_graph()
     return nullptr;
 }
 
-void region::sub_5452D0() {
+void region::sub_5452D0()
+{
     if (0) {
 #if 0
         auto *v2 = mem_alloc(0x10);
@@ -362,31 +350,28 @@ void region::sub_5452D0() {
     }
 }
 
-bool region::is_inside_or_on(const vector3d &a2) const { 
+bool region::is_inside_or_on(const vector3d &a2) const
+{
     return this->obb->point_inside_or_on(a2);
 }
 
 void region::create_proximity_maps()
 {
-    if constexpr (0)
-    {}
-    else
-    {
+    if constexpr (0) {
+    } else {
         THISCALL(0x00544F60, this);
     }
 }
 
 const mString &region::get_scene_id(bool a2) const
 {
-	TRACE("region::get_scene_id");
+    TRACE("region::get_scene_id");
 
-	return (a2 && this->field_C4 > 0
-				? this->field_88
-				: this->field_78
-			);
+    return (a2 && this->field_C4 > 0 ? this->field_88 : this->field_78);
 }
 
-void region::set_district_variant(int a2) {
+void region::set_district_variant(int a2)
+{
     auto *v3 = this->field_78.c_str();
     this->field_C4 = a2;
     mString a1{0, "%s_v%d", v3, a2};
@@ -394,7 +379,8 @@ void region::set_district_variant(int a2) {
     this->field_88 = a1;
 }
 
-fixedstring<8> &region::get_name() {
+fixedstring<8> &region::get_name()
+{
     return this->mash_info->field_0;
 }
 
@@ -409,9 +395,8 @@ void region::un_mash_lego_map(char *a2, int *a3)
         this->bitvector_of_legos_rendered_last_frame = new (mem) fixed_bitvector<uint, 2048>{};
 
         assert(bitvector_of_legos_rendered_last_frame != nullptr);
-        auto sub_663403 = [](auto *self) -> void
-        {
-            for ( auto i = 0u; i < 65u; ++i ) {
+        auto sub_663403 = [](auto *self) -> void {
+            for (auto i = 0u; i < 65u; ++i) {
                 self->field_4[i] = -1;
             }
         };
@@ -439,16 +424,16 @@ void region::add(light_source *l)
 
 int region::get_district_variant() const
 {
-	auto *v1 = this->get_scene_id(false).c_str();
-	string_hash v2 {v1};
+    auto *v1 = this->get_scene_id(false).c_str();
+    string_hash v2{v1};
 
-	auto *the_terrain = g_world_ptr->the_terrain;
-	auto *pack_switch_info = the_terrain->field_24.get_pack_switch_info(v2);
-	if ( pack_switch_info != nullptr ) {
-		return pack_switch_info->field_8;
-	} else {
-		return this->field_C4;
-	}
+    auto *the_terrain = g_world_ptr->the_terrain;
+    auto *pack_switch_info = the_terrain->field_24.get_pack_switch_info(v2);
+    if (pack_switch_info != nullptr) {
+        return pack_switch_info->field_8;
+    } else {
+        return this->field_C4;
+    }
 }
 
 int region::get_num_neighbors() const

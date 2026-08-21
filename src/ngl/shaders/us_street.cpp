@@ -9,7 +9,8 @@
 
 #include <d3d9.h>
 
-void sub_411390() {
+void sub_411390()
+{
     static Var<IDirect3DPixelShader9 *> dword_970920{0x00970920};
     static Var<const DWORD *> off_939E58{0x00939E58};
 
@@ -26,12 +27,11 @@ void sub_411390() {
     nglCreatePShader(&(&dword_970920())[0], text);
 
     if constexpr (0) {
-        static const char text[] =
-            "tex t0\n"
-            "tex t1\n"
-            "mul r0.xyz, t0, v0\n"
-            "mul r0.xyz, r0, t1.w\n"
-            "+mul r0.w, t0.w, v0.w\n";
+        static const char text[] = "tex t0\n"
+                                   "tex t1\n"
+                                   "mul r0.xyz, t0, v0\n"
+                                   "mul r0.xyz, r0, t1.w\n"
+                                   "+mul r0.w, t0.w, v0.w\n";
 
         nglCreatePShader(&(&dword_970920())[1], text);
     } else {
@@ -59,6 +59,7 @@ void sub_411390() {
     }
 }
 
-void us_street_patch() {
+void us_street_patch()
+{
     REDIRECT(0x00411339, sub_411390);
 }

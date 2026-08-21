@@ -29,19 +29,19 @@
 
 VALIDATE_SIZE(wds_entity_manager, 0x2C);
 
-wds_entity_manager::wds_entity_manager() {
+wds_entity_manager::wds_entity_manager()
+{
     THISCALL(0x005DF4C0, this);
 }
 
-template<typename T>
-typename multi_vector<T>::iterator multi_vector_find(typename multi_vector<T>::iterator &begin, typename multi_vector<T>::iterator &end, T &a4)
+template <typename T>
+typename multi_vector<T>::iterator multi_vector_find(typename multi_vector<T>::iterator &begin,
+                                                     typename multi_vector<T>::iterator &end, T &a4)
 {
     auto it = begin;
-    while ( it != end )
-    {
+    while (it != end) {
         auto v4 = *it.field_8;
-        if ( v4 == a4 )
-        {
+        if (v4 == a4) {
             return it;
         }
 
@@ -73,12 +73,9 @@ bool wds_entity_manager::is_item_valid(item *a2)
     return v11 != this->items.end();
 }
 
-entity *wds_entity_manager::acquire_entity(
-        string_hash a2,
-        string_hash a3,
-        uint32_t a6)
+entity *wds_entity_manager::acquire_entity(string_hash a2, string_hash a3, uint32_t a6)
 {
-    mString v6 {};
+    mString v6{};
     auto *v5 = this->create_and_add_entity_or_subclass(a2, a3, {identity_matrix}, v6, a6, nullptr);
     return v5;
 }
@@ -88,26 +85,29 @@ entity *wds_entity_manager::acquire_entity(string_hash a1, uint32_t a2)
     TRACE("wds_entity_manager::acquire_entity");
 
     if constexpr (1) {
-        mString a5 {};
+        mString a5{};
         auto v6 = make_unique_entity_id();
         auto *v4 = this->create_and_add_entity_or_subclass(a1, v6, identity_matrix, a5, a2, nullptr);
         return v4;
     } else {
-        return (entity *) THISCALL(0x005E0D40, this, a1, a2);
+        return (entity *)THISCALL(0x005E0D40, this, a1, a2);
     }
 }
 
-void wds_entity_manager::add_dynamic_instanced_entity(entity *a2) {
+void wds_entity_manager::add_dynamic_instanced_entity(entity *a2)
+{
     TRACE("wds_entity_manager::add_dynamic_instanced_entity");
 
     THISCALL(0x005E0760, this, a2);
 }
 
-void wds_entity_manager::destroy_all_entities_and_items() {
+void wds_entity_manager::destroy_all_entities_and_items()
+{
     THISCALL(0x005D9060, this);
 }
 
-void wds_entity_manager::destroy_entity(entity *e) {
+void wds_entity_manager::destroy_entity(entity *e)
+{
     assert(e != nullptr);
 
     if constexpr (1) {
@@ -115,7 +115,7 @@ void wds_entity_manager::destroy_entity(entity *e) {
 
         auto v3 = e->get_flavor() - 9;
         if (v3 && v3 == 2) {
-            v4 = this->remove_item((item *) e);
+            v4 = this->remove_item((item *)e);
         } else {
             v4 = this->remove_entity(e);
         }
@@ -132,42 +132,45 @@ void wds_entity_manager::destroy_entity(entity *e) {
     }
 }
 
-bool wds_entity_manager::remove_item(item *a2) {
-    return (bool) THISCALL(0x005D5410, this, a2);
+bool wds_entity_manager::remove_item(item *a2)
+{
+    return (bool)THISCALL(0x005D5410, this, a2);
 }
 
-bool wds_entity_manager::remove_entity(entity *a2) {
-    return (bool) THISCALL(0x005D5350, this, a2);
+bool wds_entity_manager::remove_entity(entity *a2)
+{
+    return (bool)THISCALL(0x005D5350, this, a2);
 }
 
-void wds_entity_manager::release_entity(entity *e) {
+void wds_entity_manager::release_entity(entity *e)
+{
     this->destroy_entity(e);
 }
 
-void wds_entity_manager::remove_entity_from_misc_lists(entity *e) {
+void wds_entity_manager::remove_entity_from_misc_lists(entity *e)
+{
     assert(e != nullptr);
 }
 
-void wds_entity_manager::make_time_limited(entity *a1, Float a2) {
+void wds_entity_manager::make_time_limited(entity *a1, Float a2)
+{
     THISCALL(0x005DBBC0, this, a1, a2);
 }
 
-item *wds_entity_manager::add_item(_std::vector<item *> *a2, item *a3) {
+item *wds_entity_manager::add_item(_std::vector<item *> *a2, item *a3)
+{
     TRACE("wds_entity_manager::add_item");
 
-    return (item *) THISCALL(0x005DF7D0, this, a2, a3);
+    return (item *)THISCALL(0x005DF7D0, this, a2, a3);
 }
 
-int wds_entity_manager::add_ent_to_lists(_std::vector<entity *> *a2,
-                                         _std::vector<item *> *a3,
-                                         entity *ent)
+int wds_entity_manager::add_ent_to_lists(_std::vector<entity *> *a2, _std::vector<item *> *a3, entity *ent)
 {
     TRACE("wds_entity_manager::add_ent_to_lists");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         auto result = 0;
-        switch ((entity_flavor_t) ent->get_flavor()) {
+        switch ((entity_flavor_t)ent->get_flavor()) {
         case ACTOR:
         case ENTITY:
         case MARKER:
@@ -189,7 +192,7 @@ int wds_entity_manager::add_ent_to_lists(_std::vector<entity *> *a2,
             break;
         }
         case ENTITY_ITEM: {
-            result = (int) this->add_item(a3, (item *) ent);
+            result = (int)this->add_item(a3, (item *)ent);
             break;
         }
         default:
@@ -203,21 +206,18 @@ int wds_entity_manager::add_ent_to_lists(_std::vector<entity *> *a2,
     }
 }
 
-entity_base *wds_entity_manager::get_entity(string_hash a1) {
+entity_base *wds_entity_manager::get_entity(string_hash a1)
+{
     return entity_handle_manager::find_entity(a1, entity_flavor_t::IGNORE_FLAVOR, true);
 }
 
-entity * wds_entity_manager::create_and_add_entity_or_subclass(string_hash a2,
-                                                          string_hash a3,
-                                                          const po &a4,
-                                                          const mString &a5,
-                                                          uint32_t a6,
-                                                          const _std::list<region *> *regions)
+entity *wds_entity_manager::create_and_add_entity_or_subclass(string_hash a2, string_hash a3, const po &a4,
+                                                              const mString &a5, uint32_t a6,
+                                                              const _std::list<region *> *regions)
 {
     TRACE("wds_entity_manager::create_and_add_entity_or_subclass");
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         entity *v71 = nullptr;
 
         auto v68 = a4;
@@ -229,16 +229,14 @@ entity * wds_entity_manager::create_and_add_entity_or_subclass(string_hash a2,
         auto v60 = (a6 & 0x20) != 0;
         [[maybe_unused]] auto v59 = (a6 & 0x20000000) == 0;
         uint32_t v65 = 1;
-        if ( !g_is_the_packer )
-        {
+        if (!g_is_the_packer) {
             auto v33 = a2;
-            resource_key v58 {v33, RESOURCE_KEY_TYPE_ENTITY};
+            resource_key v58{v33, RESOURCE_KEY_TYPE_ENTITY};
 
             int v57;
             worldly_pack_slot *slot_ptr;
             auto *v51 = resource_manager::get_resource(v58, &v57, bit_cast<resource_pack_slot **>(&slot_ptr));
-            if ( v51 != nullptr )
-            {
+            if (v51 != nullptr) {
                 assert(slot_ptr != nullptr);
 
                 auto *ent_vec_ptr = slot_ptr->get_entity_instances();
@@ -255,21 +253,18 @@ entity * wds_entity_manager::create_and_add_entity_or_subclass(string_hash a2,
 
                 assert(tmp_e->is_an_entity());
                 v71 = bit_cast<entity *>(tmp_e);
-                if ( v71 == nullptr )
-                {
+                if (v71 == nullptr) {
                     auto *v11 = v58.m_hash.to_string();
                     error("parse_entity_mash error on entity '%s.ent'", v11);
                 }
 
                 this->add_ent_to_lists(ent_vec_ptr, item_vec_ptr, v71);
-            }
-            else
-            {
+            } else {
                 auto *v12 = a2.to_string();
                 warning("Entity '%s.ent' not found in any loaded packfiles!", v12);
                 auto *partition_pointer = resource_manager::get_partition_pointer(RESOURCE_PARTITION_MISSION);
                 debug_print_va("Mission stack contains:");
-                if ( partition_pointer != nullptr ) {
+                if (partition_pointer != nullptr) {
                     //sub_65ED68(partition_pointer);
                 }
             }
@@ -277,45 +272,32 @@ entity * wds_entity_manager::create_and_add_entity_or_subclass(string_hash a2,
 
         bool v13 = (v71 != nullptr);
         uint32_t v70 = 0;
-        if ( v13 )
-        {
-            auto v38 = ( (v66 && !v65)
-                        || (v70 & 0x2000) != 0
-                        || v71->is_flagged(0x2000)
-                        );
+        if (v13) {
+            auto v38 = ((v66 && !v65) || (v70 & 0x2000) != 0 || v71->is_flagged(0x2000));
             v71->set_flag_recursive(static_cast<entity_flag_t>(0x2000), v38);
 
-            v38 = !v65
-                || (v70 & 0x40) != 0
-                || v71->is_flagged(0x40);
+            v38 = !v65 || (v70 & 0x40) != 0 || v71->is_flagged(0x40);
             v71->set_flag_recursive(static_cast<entity_flag_t>(0x40), v38);
 
-            v38 = v62
-                || (v70 & 0x80) != 0
-                || v71->is_flagged(0x80);
+            v38 = v62 || (v70 & 0x80) != 0 || v71->is_flagged(0x80);
             v71->set_flag_recursive(static_cast<entity_flag_t>(0x80), v38);
 
             v38 = !v64 || (v70 & 0x200) != 0;
             v71->set_flag_recursive(static_cast<entity_flag_t>(0x200), v38);
 
             auto *tmp_e = v71;
-            if ( tmp_e->is_an_actor() )
-            {
+            if (tmp_e->is_an_actor()) {
                 auto *v26 = bit_cast<actor *>(v71);
                 v26->process_extra_scene_flags(a6);
             }
 
             v71->set_abs_po(v68);
-            if ( regions != nullptr )
-            {
-                for ( auto &reg : (*regions))
-                {
+            if (regions != nullptr) {
+                for (auto &reg : (*regions)) {
                     auto *tmp_e = v71;
                     tmp_e->force_region(reg);
                 }
-            }
-            else if ( !v60 )
-            {
+            } else if (!v60) {
                 auto *tmp_e = v71;
                 auto *the_terrain = g_world_ptr->get_the_terrain();
                 tmp_e->compute_sector(the_terrain, g_world_ptr->is_loading_from_scn_file(), nullptr);
@@ -323,54 +305,51 @@ entity * wds_entity_manager::create_and_add_entity_or_subclass(string_hash a2,
         }
 
         return v71;
-    }
-    else
-    {
-        entity * (__fastcall *func)(void *, void *edx,
-                  string_hash,
-                  string_hash,
-                  const po *,
-                  const mString *,
-                  uint32_t ,
-                  const _std::list<region *> *) = CAST(func, 0x005E0A10);
+    } else {
+        entity *(__fastcall * func)(void *,
+                                    void *edx,
+                                    string_hash,
+                                    string_hash,
+                                    const po *,
+                                    const mString *,
+                                    uint32_t,
+                                    const _std::list<region *> *) = CAST(func, 0x005E0A10);
         return func(this, nullptr, a2, a3, &a4, &a5, a6, regions);
     }
 }
 
-box_trigger *wds_entity_manager::create_and_add_box_trigger(
-        string_hash a1,
-        const vector3d &a3,
-        const convex_box &a4)
+box_trigger *wds_entity_manager::create_and_add_box_trigger(string_hash a1, const vector3d &a3, const convex_box &a4)
 {
     TRACE("wds_entity_manager::create_and_add_box_trigger");
 
     if constexpr (1) {
-        auto *new_trigger = (box_trigger *) trigger_manager::instance->new_box_trigger(a1, a3);
+        auto *new_trigger = (box_trigger *)trigger_manager::instance->new_box_trigger(a1, a3);
         new_trigger->set_box_info(a4);
         return new_trigger;
     } else {
-        return (box_trigger *) THISCALL(0x005C2D80, this, a1, &a3, &a4);
+        return (box_trigger *)THISCALL(0x005C2D80, this, a1, &a3, &a4);
     }
 }
 
-entity *wds_entity_manager::add_to_entities(_std::vector<entity *> *vec, entity *a3) {
+entity *wds_entity_manager::add_to_entities(_std::vector<entity *> *vec, entity *a3)
+{
     TRACE("wds_entity_manager::add_to_entities");
 
-    return (entity *) THISCALL(0x005DFAB0, this, vec, a3);
+    return (entity *)THISCALL(0x005DFAB0, this, vec, a3);
 }
 
-int wds_entity_manager::add_entity_internal(_std::vector<entity *> *vec, entity *ent) {
+int wds_entity_manager::add_entity_internal(_std::vector<entity *> *vec, entity *ent)
+{
     TRACE("wds_entity_manager::add_entity_internal");
 
     if constexpr (1) {
         this->add_to_entities(vec, ent);
 
-        if constexpr (0)
-        {
+        if constexpr (0) {
             FUNC_ADDRESS(address, &entity_base::get_entity_size);
             FUNC_ADDRESS(address1, &entity_base::is_alive);
 
-            sp_log("0x%08X 0x%08X", (int) address, (int) address1);
+            sp_log("0x%08X 0x%08X", (int)address, (int)address1);
             sp_log("0x%08X", ent->m_vtbl);
         }
 
@@ -398,7 +377,8 @@ int wds_entity_manager::add_entity_internal(_std::vector<entity *> *vec, entity 
     }
 }
 
-void wds_entity_manager::add_camera(_std::vector<entity *> *vec, camera *a2) {
+void wds_entity_manager::add_camera(_std::vector<entity *> *vec, camera *a2)
+{
     TRACE("wds_entity_manager::add_camera");
 
     this->add_entity_internal(vec, a2);
@@ -409,7 +389,8 @@ void wds_entity_manager::add_mic(_std::vector<entity *> *a1, mic *a2)
     this->add_entity_internal(a1, a2);
 }
 
-void wds_entity_manager::process_time_limited_entities(Float a2) {
+void wds_entity_manager::process_time_limited_entities(Float a2)
+{
     TRACE("wds_entity_manager::process_time_limited_entities");
 
     THISCALL(0x005D92D0, this, a2);
@@ -417,7 +398,8 @@ void wds_entity_manager::process_time_limited_entities(Float a2) {
 
 void wds_entity_manager::check_water(Float) {}
 
-void wds_entity_manager::frame_advance(Float a2) {
+void wds_entity_manager::frame_advance(Float a2)
+{
     TRACE("wds_entity_manager::frame_advance");
 
     this->process_time_limited_entities(a2);
@@ -440,8 +422,7 @@ void wds_entity_manager_patch()
 
     if constexpr (0) {
         {
-
-            entity * (wds_entity_manager::*func)(string_hash, uint32_t) = &wds_entity_manager::acquire_entity;
+            entity *(wds_entity_manager::*func)(string_hash, uint32_t) = &wds_entity_manager::acquire_entity;
             FUNC_ADDRESS(address, func);
             REDIRECT(0x00635795, address);
         }
@@ -450,6 +431,5 @@ void wds_entity_manager_patch()
             FUNC_ADDRESS(address, &wds_entity_manager::add_camera);
             REDIRECT(0x0055B94E, address);
         }
-
     }
 }

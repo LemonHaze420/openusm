@@ -32,9 +32,8 @@ struct vm_thread {
         char *field_4;
     };
 
-    enum flags_t
-    {
-        SUSPENDED   = 0x0001,
+    enum flags_t {
+        SUSPENDED = 0x0001,
         SUSPENDABLE = 0x0002,
     };
 
@@ -68,25 +67,29 @@ public:
     //0x005A55E0
     ~vm_thread();
 
-    void * operator new(size_t size);
+    void *operator new(size_t size);
 
     void operator delete(void *);
 
-    const vm_executable * get_running_executable() const;
+    const vm_executable *get_running_executable() const;
 
-    script_instance *get_instance() {
+    script_instance *get_instance()
+    {
         return inst;
     }
 
-    const vm_executable *get_executable() const {
+    const vm_executable *get_executable() const
+    {
         return this->ex;
     }
 
-    auto &get_data_stack() {
+    auto &get_data_stack()
+    {
         return this->dstack;
     }
 
-    bool is_flagged(flags_t f) const {
+    bool is_flagged(flags_t f) const
+    {
         return (f & this->flags) != 0;
     }
 
@@ -94,8 +97,9 @@ public:
 
     void set_suspended(bool a2);
 
-    bool is_suspended() const {
-        return this->is_flagged( SUSPENDED );
+    bool is_suspended() const
+    {
+        return this->is_flagged(SUSPENDED);
     }
 
     //0x005996C0
@@ -133,24 +137,25 @@ public:
     //0x0058F7E0
     bool call_script_library_function(const vm_thread::argument_t &a2, const uint16_t *a3);
 
-    static void register_callbacks(
-            void (*a1)(vm_thread *, string_hash, vhandle_type<signaller>, vm_executable *, char *, bool),
-            void (*a2)(vm_thread *, string_hash, vhandle_type<signaller>),
-            void (*a3)(vm_thread *, string_hash),
-            int  (*a4)(uint32_t, uint32_t),
-            void (*a5)(vm_thread *, string_hash));
+    static void register_callbacks(void (*a1)(vm_thread *, string_hash, vhandle_type<signaller>, vm_executable *,
+                                              char *, bool),
+                                   void (*a2)(vm_thread *, string_hash, vhandle_type<signaller>),
+                                   void (*a3)(vm_thread *, string_hash), int (*a4)(uint32_t, uint32_t),
+                                   void (*a5)(vm_thread *, string_hash));
 
-    static inline auto & string_registers = var<char[64][256]>(0x00961940);
+    static inline auto &string_registers = var<char[64][256]>(0x00961940);
 
     static Var<fixed_pool> pool;
 
-    static inline auto & add_signal_callback_callback = var<void (*)(vm_thread *, string_hash, vhandle_type<signaller>, vm_executable *, char *, bool)>(0x00965F10);
+    static inline auto &add_signal_callback_callback =
+        var<void (*)(vm_thread *, string_hash, vhandle_type<signaller>, vm_executable *, char *, bool)>(0x00965F10);
 
-    static inline auto & raise_signal_callback = var<void (*)(vm_thread *, string_hash, vhandle_type<signaller>)>(0x00965F14);
+    static inline auto &raise_signal_callback =
+        var<void (*)(vm_thread *, string_hash, vhandle_type<signaller>)>(0x00965F14);
 
-    static inline auto & raise_all_signal_callback = var<void (*)(vm_thread *, string_hash)>(0x00965F18);
+    static inline auto &raise_all_signal_callback = var<void (*)(vm_thread *, string_hash)>(0x00965F18);
 
-    static inline Var<int> id_counter {0x00965F0C};
+    static inline Var<int> id_counter{0x00965F0C};
 };
 
 extern void vm_thread_patch();

@@ -9,11 +9,9 @@ struct game_button;
 namespace ai {
 
 struct controller_inode : info_node {
-    enum eControllerButton {
-    };
+    enum eControllerButton {};
 
-    enum eControllerAxis {
-    };
+    enum eControllerAxis {};
 
     controller_inode();
 
@@ -23,11 +21,10 @@ struct controller_inode : info_node {
 
     [[nodiscard]] /* virtual */ vector3d get_axis(controller_inode::eControllerAxis a3) /* = 0 */;
 
-    [[nodiscard]] /* virtual */ game_button get_button(
-        controller_inode::eControllerButton a3) /* = 0 */;
+    [[nodiscard]] /* virtual */ game_button get_button(controller_inode::eControllerButton a3) /* = 0 */;
 
     [[nodiscard]] /* virtual */ vector2d get_axis_2d(controller_inode::eControllerAxis a3) /* = 0 */;
 
     static const inline string_hash default_id{static_cast<int>(to_hash("controller_inode"))};
 };
-} // namespace ai
+}  // namespace ai

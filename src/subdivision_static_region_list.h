@@ -46,26 +46,19 @@ struct static_region_list_methods {
 
     //0x00513EF0
     //virtual
-    int traverse_sphere(const subdivision_node &a2,
-                        const vector3d &arg4,
-                        float a4,
-                        subdivision_visitor &a3);
+    int traverse_sphere(const subdivision_node &a2, const vector3d &arg4, float a4, subdivision_visitor &a3);
 
     //0x00523900
     //virtual
-    int traverse_line_segment(const subdivision_node &a2,
-                              const vector3d &,
-                              const vector3d &,
+    int traverse_line_segment(const subdivision_node &a2, const vector3d &, const vector3d &,
                               subdivision_visitor &visitor);
 
     //0x00513E50
-    int traverse_using_test(const traverse_test &a1,
-                            const subdivision_node &a2,
-                            subdivision_visitor &a3);
+    int traverse_using_test(const traverse_test &a1, const subdivision_node &a2, subdivision_visitor &a3);
 
     static inline Var<int *> scratchpad{0x0095C8B8};
 
-    static inline Var<region_mirror_data *> mirror {0x0095C8BC};
+    static inline Var<region_mirror_data *> mirror{0x0095C8BC};
 };
 
 struct subdivision_node_builder {
@@ -76,12 +69,9 @@ struct subdivision_node_builder {
 };
 
 struct static_region_list_builder : subdivision_node_builder {
-
     static_region_list_builder();
 
-    void build_mirror(
-            stack_allocator &a1,
-            _std::vector<proximity_map_construction_leaf> &arg4);
+    void build_mirror(stack_allocator &a1, _std::vector<proximity_map_construction_leaf> &arg4);
 };
 
 extern void static_region_list_methods_patch();

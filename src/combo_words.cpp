@@ -37,13 +37,14 @@ void combo_words::Init()
     }
 }
 
-void combo_words::DeInit() {
-    if (this->field_0 != nullptr)
-    {
+void combo_words::DeInit()
+{
+    if (this->field_0 != nullptr) {
         this->field_0 = nullptr;
     }
 }
 
-void combo_words_patch() {
+void combo_words_patch()
+{
     REDIRECT(0x00571DED, func_address(&combo_words::Init));
 }

@@ -9,8 +9,7 @@
 
 struct shared_sound_interface_info;
 
-struct sound_emitter_id
-{
+struct sound_emitter_id {
     int field_0;
 };
 

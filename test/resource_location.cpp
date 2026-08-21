@@ -4,6 +4,6 @@
 
 TEST(ResourceLocation, Construct)
 {
-    resource_location loc {};
+    resource_location loc{};
     EXPECT_EQ(loc.m_size, 0);
 }

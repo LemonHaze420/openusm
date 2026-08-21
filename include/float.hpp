@@ -5,7 +5,8 @@ struct Float {
 
     constexpr Float(float p) : value(p) {}
 
-    constexpr operator float() const {
+    constexpr operator float() const
+    {
         return value;
     }
 };

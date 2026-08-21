@@ -11,5 +11,5 @@ struct conglomerate_interface : generic_interface {
     conglomerate_interface(conglomerate *a2);
 
     //virtual
-    const char * get_ifc_type_str() const;
+    const char *get_ifc_type_str() const;
 };

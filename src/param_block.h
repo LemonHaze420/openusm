@@ -16,7 +16,6 @@ struct from_mash_in_place_constructor;
 namespace ai {
 
 struct param_block {
-
     struct param_data {
     private:
         union U {
@@ -33,7 +32,6 @@ struct param_block {
         string_hash m_name;
 
     public:
-
         param_data();
 
         param_data(from_mash_in_place_constructor *a2);
@@ -44,11 +42,12 @@ struct param_block {
 
         void initialize(mash::allocation_scope a2);
 
-        void finalize(mash::allocation_scope );
+        void finalize(mash::allocation_scope);
 
         void destruct_mashed_class();
 
-        string_hash get_name() const {
+        string_hash get_name() const
+        {
             return m_name;
         }
 
@@ -63,15 +62,16 @@ struct param_block {
         //0x006BD200
         string_hash get_data_hash() const;
 
-        const char * get_data_fixedstring() const;
+        const char *get_data_fixedstring() const;
 
-        vector3d * get_data_vector3d() const;
+        vector3d *get_data_vector3d() const;
 
-        variance_variable<float> * get_data_float_variance() const;
+        variance_variable<float> *get_data_float_variance() const;
 
-        void * get_data_pointer() const;
+        void *get_data_pointer() const;
 
-        int get_data_type() const {
+        int get_data_type() const
+        {
             return this->my_type;
         }
 
@@ -103,7 +103,7 @@ struct param_block {
 
         void destruct_mashed_class();
 
-        void finalize(mash::allocation_scope )
+        void finalize(mash::allocation_scope)
         {
             this->field_14 = nullptr;
         }
@@ -131,11 +131,7 @@ struct param_block {
     void unmash(mash_info_struct *a1, void *a3);
 
     //0x006D6710
-    void add_param(
-        string_hash a2,
-        param_types a3,
-        const void *a4,
-        string_hash a5);
+    void add_param(string_hash a2, param_types a3, const void *a4, string_hash a5);
 
     //0x006CE130
     bool does_parameter_exist(string_hash a2) const;
@@ -178,12 +174,8 @@ struct param_block {
     float get_optional_pb_float(string_hash a2, const float &a3, bool *a4) const;
 
     //0x006CDFF0
-    const char * get_optional_pb_fixedstring(
-        string_hash a2,
-        const char *a3,
-        bool *a4) const;
-
+    const char *get_optional_pb_fixedstring(string_hash a2, const char *a3, bool *a4) const;
 };
-} // namespace ai
+}  // namespace ai
 
 extern void param_block_patch();

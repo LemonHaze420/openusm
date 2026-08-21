@@ -15,7 +15,7 @@ VALIDATE_SIZE(scene_anim_resource_handler, 0x14);
 scene_anim_resource_handler::scene_anim_resource_handler(worldly_pack_slot *a2)
 {
     if constexpr (1) {
-        static void * g_vtbl[] = {
+        static void *g_vtbl[] = {
             func_address(&finalize),
             func_address(&_handle),
             func_address(&_pre_handle_resources),
@@ -35,7 +35,7 @@ void scene_anim_resource_handler::finalize(bool a2)
 {
     this->~scene_anim_resource_handler();
     if (a2) {
-        delete(this);
+        delete (this);
     }
 }
 
@@ -46,14 +46,12 @@ bool scene_anim_resource_handler::_handle(worldly_resource_handler::eBehavior a2
     return base_tl_resource_handler::_handle(a2, a3);
 }
 
-bool scene_anim_resource_handler::_handle_resource(worldly_resource_handler::eBehavior a2,
-                                                  tlresource_location *loc)
+bool scene_anim_resource_handler::_handle_resource(worldly_resource_handler::eBehavior a2, tlresource_location *loc)
 {
     TRACE("scene_anim_resource_handler::handle_resource");
 
-    if constexpr (1)
-    {
-        auto *scene_anim = (nalSceneAnim *) loc->get_data();
+    if constexpr (1) {
+        auto *scene_anim = (nalSceneAnim *)loc->get_data();
         assert(scene_anim != nullptr && "Scene anim didn't load.");
 
         if (scene_anim->field_10.m_hash != loc->get_name().source_hash_code) {
@@ -72,10 +70,8 @@ bool scene_anim_resource_handler::_handle_resource(worldly_resource_handler::eBe
 
         ++this->field_C;
         return false;
-    }
-    else
-    {
-        return (bool) THISCALL(0x0055F990, this, a2, loc);
+    } else {
+        return (bool)THISCALL(0x0055F990, this, a2, loc);
     }
 }
 

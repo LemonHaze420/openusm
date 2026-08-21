@@ -28,7 +28,7 @@ struct universal_soldier_MCP {
 
     universal_soldier_MCP();
 
-    static inline Var<_std::list<universal_soldier_attack_token *> *> global_tokens {0x0096BE64};
+    static inline Var<_std::list<universal_soldier_attack_token *> *> global_tokens{0x0096BE64};
 };
 
-}
+}  // namespace ai

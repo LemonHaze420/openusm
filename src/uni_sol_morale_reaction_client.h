@@ -24,7 +24,6 @@ struct uni_sol_morale_reaction_client {
     param_block field_24;
 
     //0x006AD790
-    uni_sol_morale_reaction_client(universal_soldier_inode *a2,
-                                   universal_soldier_ability_server *a3);
+    uni_sol_morale_reaction_client(universal_soldier_inode *a2, universal_soldier_ability_server *a3);
 };
-} // namespace ai
+}  // namespace ai

@@ -4,7 +4,6 @@
 
 namespace als {
 
-struct orient_adaptive_blend_xz : motion_compensator {
-};
+struct orient_adaptive_blend_xz : motion_compensator {};
 
-}
+}  // namespace als

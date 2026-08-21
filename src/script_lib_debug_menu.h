@@ -12,7 +12,7 @@ struct slf__create_debug_menu_entry__str__str__t : script_library_class::functio
         vm_str_t str1;
     };
 
-    bool operator()(vm_stack &stack, [[maybe_unused]]script_library_class::function::entry_t entry) const;
+    bool operator()(vm_stack &stack, [[maybe_unused]] script_library_class::function::entry_t entry) const;
 };
 
 extern void script_lib_debug_menu_patch();

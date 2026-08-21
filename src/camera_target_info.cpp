@@ -26,30 +26,25 @@ static const float flt_87EA34 = 0.75;
 static const float flt_8820A0 = 0.66000003;
 static const float flt_87EEDC = 0.69999999;
 
-float & g_camera_min_dist = var<float>(0x00881AB4);
+float &g_camera_min_dist = var<float>(0x00881AB4);
 
-float & g_camera_max_dist = var<float>(0x00881AB8);
+float &g_camera_max_dist = var<float>(0x00881AB8);
 
-float & g_camera_supermax_dist = var<float>(0x00881ABC);
+float &g_camera_supermax_dist = var<float>(0x00881ABC);
 
-camera_target_info::camera_target_info(entity *_target,
-                                       Float a3,
-                                       const vector3d &_pos,
-                                       const vector3d &_up)
+camera_target_info::camera_target_info(entity *_target, Float a3, const vector3d &_pos, const vector3d &_up)
 {
     TRACE("camera_target_info::camera_target_info");
 
     assert(_target != nullptr);
     assert(_target->is_a_conglomerate());
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         this->field_54 = bit_cast<actor *>(_target);
         auto v69 = this->field_54->get_abs_po();
         this->field_C = this->field_54->get_visual_center();
         auto *v8 = this->field_54->anim_ctrl;
-        if ( v8 != nullptr )
-        {
+        if (v8 != nullptr) {
             this->field_C = v69.inverse_xform(this->field_C);
 
             v8->get_camera_root_abs_po(v69);
@@ -68,39 +63,31 @@ camera_target_info::camera_target_info(entity *_target,
 
         int hero_type = [](auto *v19) -> int {
             auto v20 = v19->m_player_controller;
-            return ( v20 != nullptr
-                        ? v20->m_hero_type
-                        : 0
-                    );
+            return (v20 != nullptr ? v20->m_hero_type : 0);
         }(this->field_54);
 
-        switch (hero_type)
-        {
-            case 1:
-                this->radius = 0.75;
-                break;
-            case 2:
-                this->radius = 1.15;
-                break;
-            case 3:
-                this->radius = 0.75;
-                break;
-            default: {
-                auto v24 = this->field_54->get_visual_radius() * flt_881AC0;
-                if ( v24 >= flt_87EA34 )
-                {
-                    if ( v24 > flt_882098 )
-                    {
-                        v24 = flt_882098;
-                    }
+        switch (hero_type) {
+        case 1:
+            this->radius = 0.75;
+            break;
+        case 2:
+            this->radius = 1.15;
+            break;
+        case 3:
+            this->radius = 0.75;
+            break;
+        default: {
+            auto v24 = this->field_54->get_visual_radius() * flt_881AC0;
+            if (v24 >= flt_87EA34) {
+                if (v24 > flt_882098) {
+                    v24 = flt_882098;
+                }
 
-                    this->radius = v24;
-                }
-                else
-                {
-                    this->radius = flt_87EA34;
-                }
+                this->radius = v24;
+            } else {
+                this->radius = flt_87EA34;
             }
+        }
         }
 
         this->min_look_dist = (this->radius * flt_8820A0 + flt_881AC0) * g_camera_min_dist;
@@ -109,23 +96,18 @@ camera_target_info::camera_target_info(entity *_target,
 
         auto v66 = this->pos;
 
-        if ( this->get_loco_mode() == 8 )
-        {
+        if (this->get_loco_mode() == 8) {
             this->up = YVEC;
             auto *v33 = this->field_54;
-            if ( v33->m_player_controller != nullptr )
-            {
+            if (v33->m_player_controller != nullptr) {
                 auto v64 = v33->m_player_controller->get_poleswing_anchor();
-                if ( v64.is_valid() )
-                {
+                if (v64.is_valid()) {
                     auto v61 = v64.get_origin();
                     auto v34 = v64.get_target();
                     closest_point_segment(this->pos, v34, v61, this->pos);
                 }
             }
-        }
-        else
-        {
+        } else {
             auto v35 = this->radius * 0.69999999;
             this->pos += this->up * v35;
         }
@@ -133,51 +115,37 @@ camera_target_info::camera_target_info(entity *_target,
         this->field_C += this->pos - v66;
         this->field_24 = ZEROVEC;
 
-        if ( sqr(8.0) > (this->pos - _pos).length2() )
-        {
+        if (sqr(8.0) > (this->pos - _pos).length2()) {
             this->pos = lerp(this->pos, _pos, pronto_mix);
-            if ( dot(this->up, _up) > -0.99000001 )
-            {
-                auto v51 = lerp(
-                          this->up,
-                          _up,
-                          slow_mix);
+            if (dot(this->up, _up) > -0.99000001) {
+                auto v51 = lerp(this->up, _up, slow_mix);
                 this->up = v51.normalized();
             }
 
-            if ( a3 != 0.0f )
-            {
+            if (a3 != 0.0f) {
                 auto v63 = 1.f / a3;
                 this->field_24 = (this->pos - _pos) * v63;
             }
         }
 
-        if ( this->field_54->get_ai_core() != nullptr )
-        {
+        if (this->field_54->get_ai_core() != nullptr) {
             auto v62 = ai::combat_target_inode::team_hash();
             auto *v56 = this->field_54;
             auto *v58 = v56->get_ai_core();
             auto v59 = v58->field_50.get_pb_hash(v62);
             this->field_58 = ai::team::manager::get_team_enum_by_hash(v59);
-        }
-        else
-        {
+        } else {
             this->field_58 = 0;
         }
-    }
-    else
-    {
+    } else {
         THISCALL(0x004B3DC0, this, _target, a3, &_pos, &_up);
     }
 }
 
-void * __fastcall camera_target_info_constructor(void *self, int,
-                                       entity *target,
-                                       Float a3,
-                                       const vector3d &a4,
-                                       const vector3d &a5)
+void *__fastcall camera_target_info_constructor(void *self, int, entity *target, Float a3, const vector3d &a4,
+                                                const vector3d &a5)
 {
-    return new (self) camera_target_info {target, a3, a4, a5};
+    return new (self) camera_target_info{target, a3, a4, a5};
 }
 
 int camera_target_info::get_loco_mode() const
@@ -185,13 +153,11 @@ int camera_target_info::get_loco_mode() const
     TRACE("camera_target_info::get_loco_mode");
 
     auto *v1 = this->field_54->m_player_controller;
-    if (v1 != nullptr)
-    {
+    if (v1 != nullptr) {
         return 1;
     }
 
-    if ( auto result = v1->get_spidey_loco_mode(); result >= 0)
-    {
+    if (auto result = v1->get_spidey_loco_mode(); result >= 0) {
         return result;
     }
 
@@ -202,15 +168,14 @@ float camera_target_info::sub_4B42E0() const
 {
     auto *v2 = this->field_54;
     auto radius = this->radius;
-    if ( v2->has_physical_ifc() )
-    {
+    if (v2->has_physical_ifc()) {
         auto *v4 = this->field_54->physical_ifc();
         radius = v4->get_floor_offset();
     }
 
     float v8 = 0.1f;
     float result = v8;
-    if ( radius >= 0.1f ) {
+    if (radius >= 0.1f) {
         result = radius;
     }
 
@@ -231,12 +196,12 @@ bool camera_target_info::sub_4B29C0() const
 eHeroLocoMode camera_target_info::get_prev_loco_mode() const
 {
     auto *the_controller = this->field_54->m_player_controller;
-    if ( the_controller == nullptr ) {
+    if (the_controller == nullptr) {
         return static_cast<eHeroLocoMode>(1);
     }
 
     int result = the_controller->get_prev_spidey_loco_mode();
-    if ( result < 0 ) {
+    if (result < 0) {
         return static_cast<eHeroLocoMode>(1);
     }
 

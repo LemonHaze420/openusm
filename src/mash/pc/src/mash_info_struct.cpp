@@ -11,14 +11,16 @@
 
 VALIDATE_SIZE(mash_info_struct, 0x10);
 
-mash_info_struct::mash_info_struct(uint8_t *a1, int size) {
+mash_info_struct::mash_info_struct(uint8_t *a1, int size)
+{
     this->mash_image_ptr[0] = a1;
     this->buffer_size_used[0] = 0;
     this->m_size = size;
     this->field_C = 0;
 }
 
-void mash_info_struct::advance_buffer(int how_many_bytes) {
+void mash_info_struct::advance_buffer(int how_many_bytes)
+{
 #if 0
     //this->mode == 1 && this->state != 1
     assert(mode != mash::MASH_MODE || state == INITIALIZED);
@@ -36,12 +38,9 @@ uint8_t *mash_info_struct::read_from_buffer(int size, int align)
 {
     //TRACE("mash_info_struct::read_from_buffer");
 
-    if (align != 0)
-    {
+    if (align != 0) {
         this->align_buffer(align);
-    }
-    else
-    {
+    } else {
         this->deductive_align_buffer();
     }
 
@@ -63,9 +62,8 @@ int mash_info_struct::align_buffer(int a2)
     assert(buffer_ptr != nullptr);
 
     auto *v2 = &buffer_ptr[this->buffer_size_used[buffer]];
-    auto *v3 = bit_cast<uint8_t *>(~(a2 - 1) & ((uint32_t) &v2[a2 - 1]));
-    if (v3 != v2)
-    {
+    auto *v3 = bit_cast<uint8_t *>(~(a2 - 1) & ((uint32_t)&v2[a2 - 1]));
+    if (v3 != v2) {
         if (g_is_the_packer) {
             std::memset(v2, 0xA1u, v3 - v2);
         }
@@ -76,7 +74,8 @@ int mash_info_struct::align_buffer(int a2)
     return v3 - v2;
 }
 
-void mash_info_struct::deductive_align_buffer() {
+void mash_info_struct::deductive_align_buffer()
+{
     static constexpr auto buffer = 0;
     assert(mash_image_ptr[buffer] != nullptr);
 
@@ -95,7 +94,8 @@ void mash_info_struct::deductive_align_buffer() {
     this->buffer_size_used[buffer] = new_used;
 }
 
-void mash_info_struct_patch() {
+void mash_info_struct_patch()
+{
     {
         FUNC_ADDRESS(address, &mash_info_struct::read_from_buffer);
         SET_JUMP(0x004208F0, address);

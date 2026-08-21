@@ -14,4 +14,3 @@ extern void create_entity_animation_menu(debug_menu *parent);
 extern void create_game_flags_menu(debug_menu *parent);
 
 extern void game_flags_handler(debug_menu_entry *a1);
-

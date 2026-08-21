@@ -15,7 +15,8 @@ namespace ai {
 
 VALIDATE_SIZE(enhanced_state, 0x30);
 
-enhanced_state::enhanced_state() {
+enhanced_state::enhanced_state()
+{
     this->field_C = nullptr;
     this->my_mashed_state = nullptr;
     this->field_18 = nullptr;
@@ -23,14 +24,16 @@ enhanced_state::enhanced_state() {
     this->field_28 = false;
 }
 
-ai::enhanced_state::enhanced_state(from_mash_in_place_constructor *) {
+ai::enhanced_state::enhanced_state(from_mash_in_place_constructor *)
+{
     this->field_C = nullptr;
     this->my_mashed_state = nullptr;
     this->field_18 = nullptr;
     this->field_14 = nullptr;
 }
 
-float enhanced_state::get_timeout_timer() {
+float enhanced_state::get_timeout_timer()
+{
     return this->field_24;
 }
 
@@ -42,33 +45,24 @@ bool enhanced_state::can_handle_message(state_trans_messages the_msg, bool a3) c
 
     assert(the_msg < TRANS_TOTAL_MSGS);
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         bool result = false;
         const auto &pb = this->my_mashed_state->field_0;
-        if ( pb.does_parameter_exist(to_state_hashes()[the_msg]) )
-        {
+        if (pb.does_parameter_exist(to_state_hashes()[the_msg])) {
             auto pb_hash = pb.get_pb_hash(to_state_hashes()[the_msg]);
             result = this->get_machine()->can_switch_to_state(pb_hash);
-        }
-        else
-        {
-            if ( a3
-                && pb.does_parameter_exist(to_state_always_hash) )
-            {
+        } else {
+            if (a3 && pb.does_parameter_exist(to_state_always_hash)) {
                 auto v11 = pb.get_pb_hash(to_state_always_hash);
                 result = this->get_machine()->can_switch_to_state(v11);
-            }
-            else
-            {
+            } else {
                 auto v13 = exit_layer_hashes()[the_msg];
-                if ( pb.does_parameter_exist(v13) ) {
+                if (pb.does_parameter_exist(v13)) {
                     return true;
                 }
 
-                if (a3)
-                {
-                    if ( pb.does_parameter_exist(exit_layer_always_hash) ) {
+                if (a3) {
+                    if (pb.does_parameter_exist(exit_layer_always_hash)) {
                         return false;
                     }
                 }
@@ -76,19 +70,15 @@ bool enhanced_state::can_handle_message(state_trans_messages the_msg, bool a3) c
         }
 
         return result;
-    }
-    else
-    {
-        bool (__fastcall *func)(const void *, void *edx, state_trans_messages, bool) = CAST(func, 0x006CE3D0);
+    } else {
+        bool(__fastcall * func)(const void *, void *edx, state_trans_messages, bool) = CAST(func, 0x006CE3D0);
         return func(this, nullptr, the_msg, a3);
     }
 }
 
-void enhanced_state::activate(ai_state_machine *a2,
-                              const mashed_state *a3,
-                              const mashed_state *a4,
-                              const param_block *a5,
-                              base_state::activate_flag_e a6) {
+void enhanced_state::activate(ai_state_machine *a2, const mashed_state *a3, const mashed_state *a4,
+                              const param_block *a5, base_state::activate_flag_e a6)
+{
     if constexpr (0) {
         base_state::activate(a2, a3, a4, a5, a6);
 
@@ -99,8 +89,7 @@ void enhanced_state::activate(ai_state_machine *a2,
         this->field_24 = -1.0;
         this->field_2C = static_cast<state_trans_actions>(3);
 
-        assert(!is_default_transition_state() &&
-               "transition state should inherit from base_state to save CPU cycle");
+        assert(!is_default_transition_state() && "transition state should inherit from base_state to save CPU cycle");
 
         if (!is_default_transition_state()) {
             bool v10;
@@ -115,9 +104,10 @@ void enhanced_state::activate(ai_state_machine *a2,
             }
 
             this->field_28 = p_block->does_parameter_exist(to_state_hashes()[3]) ||
-                p_block->does_parameter_exist(exit_layer_hashes()[3]);
+                             p_block->does_parameter_exist(exit_layer_hashes()[3]);
 
-            this->field_2C = static_cast<state_trans_actions>(p_block->get_optional_pb_int(process_default_trans_hash, 3, &v10));
+            this->field_2C =
+                static_cast<state_trans_actions>(p_block->get_optional_pb_int(process_default_trans_hash, 3, &v10));
         }
 
     } else {
@@ -129,16 +119,13 @@ state_trans_action enhanced_state::check_transition(Float a3)
 {
     TRACE("ai::enhanced_state::check_transition");
 
-    if ( !this->is_default_transition_state() )
-    {
-        if (this->field_28 && this->field_4 == 2)
-        {
+    if (!this->is_default_transition_state()) {
+        if (this->field_28 && this->field_4 == 2) {
             state_trans_action trans_action = this->process_message(a3, static_cast<state_trans_messages>(3));
             return trans_action;
         }
 
-        if (this->field_20 != TRANS_TOTAL_MSGS)
-        {
+        if (this->field_20 != TRANS_TOTAL_MSGS) {
             assert(get_timeout_timer() >= 0.0f);
 
             if (this->field_1C > this->get_timeout_timer()) {
@@ -159,15 +146,14 @@ state_trans_action enhanced_state::process_message(Float a3, state_trans_message
 
     state_trans_action result;
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         auto default_return_code = this->get_default_return_code();
 
         if (this->is_default_transition_state()) {
             result = default_return_code;
         } else if (a4 != 0) {
             auto &pb = this->my_mashed_state->field_0;
-            if ( pb.does_parameter_exist(to_state_always_hash) ) {
+            if (pb.does_parameter_exist(to_state_always_hash)) {
                 string_hash v11{default_return_code.the_message};
 
                 result = this->state_exit(to_state_always_hash, v11, a4, default_return_code);
@@ -179,10 +165,7 @@ state_trans_action enhanced_state::process_message(Float a3, state_trans_message
                 if (v8) {
                     result = this->exit_layer(exit_layer_always_hash, a4, default_return_code);
                 } else {
-                    result = this->state_exit(to_state_hashes()[a4],
-                                              exit_layer_hashes()[a4],
-                                              a4,
-                                              default_return_code);
+                    result = this->state_exit(to_state_hashes()[a4], exit_layer_hashes()[a4], a4, default_return_code);
                 }
             }
         } else {
@@ -190,12 +173,9 @@ state_trans_action enhanced_state::process_message(Float a3, state_trans_message
         }
 
     } else {
-        void (__fastcall *func)(
-            const enhanced_state *,
-            void *,
-            state_trans_action *out,
-            Float a3,
-            state_trans_messages a5) = CAST(func, get_vfunc(m_vtbl, 0x30));
+        void(__fastcall *
+             func)(const enhanced_state *, void *, state_trans_action *out, Float a3, state_trans_messages a5) =
+            CAST(func, get_vfunc(m_vtbl, 0x30));
 
         func(this, nullptr, &result, a3, a4);
     }
@@ -207,40 +187,36 @@ state_trans_action enhanced_state::get_default_return_code() const
 {
     TRACE("ai::enhanced_state::get_default_return_code");
 
-    state_trans_action result {this->field_2C, {}, TRANS_TOTAL_MSGS, nullptr};
+    state_trans_action result{this->field_2C, {}, TRANS_TOTAL_MSGS, nullptr};
 
     return result;
 }
 
-state_trans_action enhanced_state::process_exit_message([[maybe_unused]] Float a3,
-                        state_trans_messages the_msg) const
+state_trans_action enhanced_state::process_exit_message([[maybe_unused]] Float a3, state_trans_messages the_msg) const
 {
     assert(the_msg == TRANS_MACHINE_EXIT_REQUEST_MSG);
 
-    state_trans_action action {state_trans_actions::MACHINE_EXIT, string_hash {0}, TRANS_SUCCESS_MSG, nullptr};
+    state_trans_action action{state_trans_actions::MACHINE_EXIT, string_hash{0}, TRANS_SUCCESS_MSG, nullptr};
     return action;
 }
 
-ai::state_trans_messages enhanced_state::frame_advance([[maybe_unused]] Float dt) {
+ai::state_trans_messages enhanced_state::frame_advance([[maybe_unused]] Float dt)
+{
     assert(!is_default_transition_state());
 
     this->field_1C += dt;
     return TRANS_TOTAL_MSGS;
 }
 
-state_trans_action enhanced_state::state_exit(string_hash a3,
-                                              string_hash a4,
-                                              state_trans_messages a5,
+state_trans_action enhanced_state::state_exit(string_hash a3, string_hash a4, state_trans_messages a5,
                                               state_trans_action a6) const
 {
     TRACE("ai::enhanced_state::state_exit");
 
-    if constexpr (0)
-    {}
-    else
-    {
-
-        void * (__fastcall *func)(const enhanced_state *, void *edx,
+    if constexpr (0) {
+    } else {
+        void *(__fastcall * func)(const enhanced_state *,
+                                  void *edx,
                                   state_trans_action *,
                                   string_hash a3,
                                   string_hash a4,
@@ -254,16 +230,12 @@ state_trans_action enhanced_state::state_exit(string_hash a3,
     }
 }
 
-state_trans_action enhanced_state::exit_layer(string_hash a3,
-                                              state_trans_messages a4,
-                                              state_trans_action a5) const
+state_trans_action enhanced_state::exit_layer(string_hash a3, state_trans_messages a4, state_trans_action a5) const
 {
     TRACE("ai::enhanced_state::exit_layer");
 
-    if constexpr (0)
-    {}
-    else
-    {
+    if constexpr (0) {
+    } else {
         ai::state_trans_action result;
         THISCALL(0x006CE2F0, this, &result, a3, a4, a5);
 
@@ -271,23 +243,20 @@ state_trans_action enhanced_state::exit_layer(string_hash a3,
     }
 }
 
-} // namespace ai
+}  // namespace ai
 
 
-ai::state_trans_action * __fastcall ai_enhanced_state_check_transition(ai::enhanced_state *self, void *,
-        ai::state_trans_action *out,
-        Float a3)
+ai::state_trans_action *__fastcall ai_enhanced_state_check_transition(ai::enhanced_state *self, void *,
+                                                                      ai::state_trans_action *out, Float a3)
 {
     *out = self->check_transition(a3);
     return out;
 }
 
-ai::state_trans_action * __fastcall ai_enhanced_state_state_exit(ai::enhanced_state *self, void *,
-          ai::state_trans_action *out,
-          string_hash a3,
-          string_hash a4,
-          ai::state_trans_messages a5,
-          ai::state_trans_action a6)
+ai::state_trans_action *__fastcall ai_enhanced_state_state_exit(ai::enhanced_state *self, void *,
+                                                                ai::state_trans_action *out, string_hash a3,
+                                                                string_hash a4, ai::state_trans_messages a5,
+                                                                ai::state_trans_action a6)
 {
     *out = self->state_exit(a3, a4, a5, a6);
     return out;

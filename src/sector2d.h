@@ -23,7 +23,8 @@ struct sector2d {
 
     sector2d(const vector3d &a2, const vector3d &a3, Float a4);
 
-    auto get_fov() {
+    auto get_fov()
+    {
         return this->fov;
     }
 };

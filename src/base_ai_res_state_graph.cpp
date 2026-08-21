@@ -14,23 +14,20 @@ VALIDATE_SIZE(state_graph, 0x34);
 
 state_graph::state_graph(from_mash_in_place_constructor *a2) : field_0(a2), my_states(a2), field_20(a2)
 {
-    if constexpr (1)
-    {
-        if ( this->field_1C != nullptr ) {
+    if constexpr (1) {
+        if (this->field_1C != nullptr) {
             mash_info_struct::construct_class(this->field_1C);
         }
 
         this->initialize(mash::FROM_MASH);
-    }
-    else
-    {
+    } else {
         THISCALL(0x006DA190, this, a2);
     }
 }
 
 void state_graph::initialize(mash::allocation_scope scope)
 {
-    if ( scope == mash::ALLOCATED ) {
+    if (scope == mash::ALLOCATED) {
         this->field_1C = nullptr;
     }
 }
@@ -56,17 +53,19 @@ void state_graph::unmash(mash_info_struct *a1, void *)
     }
 #endif
 
-    if ( this->field_1C != nullptr )
-    {
-        a1->unmash_class(this->field_1C, this
+    if (this->field_1C != nullptr) {
+        a1->unmash_class(this->field_1C,
+                         this
 #ifdef TARGET_XBOX
-            , mash::NORMAL_BUFFER
+                         ,
+                         mash::NORMAL_BUFFER
 #endif
-                );
+        );
     }
 }
 
-void sub_86B3C0() {
+void sub_86B3C0()
+{
     CDECL_CALL(0x0086B3C0);
 }
 
@@ -74,8 +73,7 @@ unsigned int state_graph::get_size_memory_block() const
 {
     int size = this->my_states.size();
     auto result = 0;
-    for ( int i = 0; i < size; ++i )
-    {
+    for (int i = 0; i < size; ++i) {
         if (result < 24) {
             result = 24;
         }
@@ -88,8 +86,7 @@ mashed_state *state_graph::find_state(string_hash a2) const
 {
     TRACE("ai::state_graph::find_state", a2.to_string());
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         static mashed_state searcher{};
 
         searcher.field_C = a2;
@@ -107,12 +104,13 @@ mashed_state *state_graph::find_state(string_hash a2) const
         return result;
 
     } else {
-        return (mashed_state *) THISCALL(0x006D8480, this, a2);
+        return (mashed_state *)THISCALL(0x006D8480, this, a2);
     }
 }
-} // namespace ai
+}  // namespace ai
 
-void state_graph_patch() {
+void state_graph_patch()
+{
     {
         FUNC_ADDRESS(address, &ai::state_graph::find_state);
         SET_JUMP(0x006D8480, address);

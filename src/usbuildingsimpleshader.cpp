@@ -14,7 +14,8 @@
 
 USBuildingSimpleShader::USBuildingSimpleShader() {}
 
-int USBuildingSimpleShader::Register() {
+int USBuildingSimpleShader::Register()
+{
     sp_log("USBuildingSimpleShader::Register:");
 
     if constexpr (1) {
@@ -22,7 +23,7 @@ int USBuildingSimpleShader::Register() {
 
         tlFixedString v2 = this->GetName();
 
-        static auto & gUSBuildingSimpleShader = var<USBuildingSimpleShader>(0x0091E448);
+        static auto &gUSBuildingSimpleShader = var<USBuildingSimpleShader>(0x0091E448);
 
         nglShaderBank.Insert(v2, &gUSBuildingSimpleShader);
 
@@ -30,8 +31,7 @@ int USBuildingSimpleShader::Register() {
         static Var<D3DVERTEXELEMENT9> stru_939480{0x00939480};
         static Var<int[2]> stru_970510{0x00970510};
 
-        if ( EnableShader )
-        {
+        if (EnableShader) {
             static Var<IDirect3DPixelShader9 *> dword_970518{0x00970518};
 
             if constexpr (0) {
@@ -39,20 +39,19 @@ int USBuildingSimpleShader::Register() {
 
                 nglCreateVertexDeclarationAndShader(&stru_970510(), &stru_939480(), off_939AA0());
             } else {
-                const char *text =
-                    "dcl_position v0\n"
-                    "dcl_texcoord v1\n"
-                    "dcl_color v2\n"
-                    "dp4 oPos.x, v0, c11\n"
-                    "dp4 oPos.y, v0, c12\n"
-                    "dp4 oPos.z, v0, c13\n"
-                    "dp4 oPos.w, v0, c14\n"
-                    "mov oT0.xy, v1\n"
-                    "dp4 r0.y, v0, c1\n"
-                    "add r2.y, r0.y, c9.y\n"
-                    "mul oT2.xy, r2.y, c9.x\n"
-                    "mul oD0.xyz, v2.x, c8\n"
-                    "mov oD0.w, c8\n";
+                const char *text = "dcl_position v0\n"
+                                   "dcl_texcoord v1\n"
+                                   "dcl_color v2\n"
+                                   "dp4 oPos.x, v0, c11\n"
+                                   "dp4 oPos.y, v0, c12\n"
+                                   "dp4 oPos.z, v0, c13\n"
+                                   "dp4 oPos.w, v0, c14\n"
+                                   "mov oT0.xy, v1\n"
+                                   "dp4 r0.y, v0, c1\n"
+                                   "add r2.y, r0.y, c9.y\n"
+                                   "mul oT2.xy, r2.y, c9.x\n"
+                                   "mul oD0.xyz, v2.x, c8\n"
+                                   "mov oD0.w, c8\n";
 
                 nglCreateVShader(&stru_939480(), &stru_970510(), 0, text);
             }
@@ -75,13 +74,9 @@ int USBuildingSimpleShader::Register() {
                 nglCreatePShader(&dword_970518(), text);
             }
 
-        }
-        else
-        {
+        } else {
             if (dword_9738F8() == nullptr)
-                IDirect3DDevice9_CreateVertexDeclaration(g_Direct3DDevice,
-                                                                    &stru_939480(),
-                                                                    &dword_9738F8());
+                IDirect3DDevice9_CreateVertexDeclaration(g_Direct3DDevice, &stru_939480(), &dword_9738F8());
         }
 
         return 0;

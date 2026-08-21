@@ -7,8 +7,7 @@
 #include <vector.hpp>
 
 struct spline {
-    enum eSplineType {
-    };
+    enum eSplineType {};
 
     _std::vector<vector3d> control_pts;
     _std::vector<float> control_pts_pct;
@@ -56,7 +55,8 @@ struct spline {
 
     void set_force_start(bool a2);
 
-    inline uint32_t get_num_control_pts() {
+    inline uint32_t get_num_control_pts()
+    {
         return control_pts.size();
     }
 };

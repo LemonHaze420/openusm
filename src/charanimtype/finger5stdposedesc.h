@@ -1,4 +1,3 @@
 #pragma once
 
-struct Finger5StdPoseDesc {
-};
+struct Finger5StdPoseDesc {};

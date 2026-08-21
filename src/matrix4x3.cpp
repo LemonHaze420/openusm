@@ -6,10 +6,8 @@
 
 bool matrix4x3::operator==(const matrix4x3 &m)
 {
-    return (approx_equals(this->arr[0], m[0], LARGE_EPSILON)
-            && approx_equals(this->arr[1], m[1], LARGE_EPSILON)
-            && approx_equals(this->arr[2], m[2], LARGE_EPSILON)
-            );
+    return (approx_equals(this->arr[0], m[0], LARGE_EPSILON) && approx_equals(this->arr[1], m[1], LARGE_EPSILON) &&
+            approx_equals(this->arr[2], m[2], LARGE_EPSILON));
 }
 
 matrix4x3 matrix4x3::transposed() const
@@ -43,18 +41,14 @@ vector4d operator*(const vector4d &a2, const matrix4x3 &a3)
     return x_axis * a2.x + y_axis * a2.y + z_axis * a2.z;
 }
 
-const char * matrix4x3::to_string() const
+const char *matrix4x3::to_string() const
 {
-    static char str[150] {};
+    static char str[150]{};
 
     std::memset(str, 0, sizeof(str));
 
-    sprintf(str,
-            "mat4x3{%s, %s, %s}",
-            arr[0].to_string().c_str(),
-            arr[1].to_string().c_str(),
-            arr[2].to_string().c_str());
+    sprintf(
+        str, "mat4x3{%s, %s, %s}", arr[0].to_string().c_str(), arr[1].to_string().c_str(), arr[2].to_string().c_str());
 
     return str;
 }
-

@@ -6,18 +6,17 @@
 
 namespace math {
 
-template<uint32_t>
+template <uint32_t>
 struct VecUnit {};
 
-template<bool>
+template <bool>
 struct Rep_Std {};
 
-template<int Int0, int Int1, typename T0 = void, typename T1 = void, typename T2 = Rep_Std<false>>
+template <int Int0, int Int1, typename T0 = void, typename T1 = void, typename T2 = Rep_Std<false>>
 struct VecClass : vector4d {
     VecClass() = default;
 
-    VecClass(const vector4d &v) : vector4d{v}
-    {}
+    VecClass(const vector4d &v) : vector4d{v} {}
 
     VecClass(float x, float y, float z)
     {
@@ -26,12 +25,10 @@ struct VecClass : vector4d {
         this->z = z;
     }
 
-    VecClass(float x, float y, float z, float w) : vector4d{x, y, z, w}
-    {
-    }
+    VecClass(float x, float y, float z, float w) : vector4d{x, y, z, w} {}
 
-    friend VecClass operator+(const VecClass<Int0, Int1, T0, T1, T2> &a2,
-                              const VecClass<Int0, Int1, T0, T1, T2> &a3) {
+    friend VecClass operator+(const VecClass<Int0, Int1, T0, T1, T2> &a2, const VecClass<Int0, Int1, T0, T1, T2> &a3)
+    {
         VecClass<Int0, Int1, T0, T1, T2> v4;
 
         v4[0] = a2[0] + a3[0];
@@ -72,75 +69,71 @@ struct VecClass : vector4d {
     }
 };
 
-inline const VecClass<3, 1> Float4_0001 {0, 0, 0, 1};
+inline const VecClass<3, 1> Float4_0001{0, 0, 0, 1};
 
-template<typename T, bool>
+template <typename T, bool>
 struct MatKind_Tran {};
 
-template<typename T>
+template <typename T>
 struct MatKind_Rot {};
 
 struct MatKind_Rot_Full {};
 
-template<int,
-         int,
-         typename T0 = MatKind_Tran<MatKind_Rot<MatKind_Rot_Full>, false>,
-         typename T1 = Rep_Std<false>>
+template <int, int, typename T0 = MatKind_Tran<MatKind_Rot<MatKind_Rot_Full>, false>, typename T1 = Rep_Std<false>>
 struct MatClass : matrix4x4 {
     MatClass() = default;
 
     MatClass(const matrix4x4 &p) : matrix4x4(p) {}
 
-    MatClass(const vector3d &a2, const vector3d &a3, const vector3d &a4, const vector3d &a5) {
+    MatClass(const vector3d &a2, const vector3d &a3, const vector3d &a4, const vector3d &a5)
+    {
         arr[0] = {a2, 0.0f};
         arr[1] = {a3, 0.0f};
         arr[2] = {a4, 0.0f};
         arr[3] = {a5, 1.0f};
     }
 
-    vector4d GetX() const {
+    vector4d GetX() const
+    {
         return this->arr[0];
     }
 
-    vector4d GetY() const {
+    vector4d GetY() const
+    {
         return this->arr[1];
     }
 
-    vector4d GetZ() const {
+    vector4d GetZ() const
+    {
         return this->arr[2];
     }
 
-    void sub_4134B0(
-            VecClass<3, 0> &a2,
-            VecClass<3, 0> &a3,
-            VecClass<3, 0> &a4,
-            VecClass<3, 0> &a5) const
+    void sub_4134B0(VecClass<3, 0> &a2, VecClass<3, 0> &a3, VecClass<3, 0> &a4, VecClass<3, 0> &a5) const
     {
         a2 = {this->arr[0]};
         a3 = {this->arr[1]};
         a4 = {this->arr[2]};
         a5 = {this->arr[3]};
     }
-
 };
 
-template<uint32_t I>
+template <uint32_t I>
 struct _Float4BaseMasked {
     float field_0;
 
     _Float4BaseMasked(float f) : field_0(f) {}
 
 
-    operator float() const {
+    operator float() const
+    {
         return field_0;
     }
 };
 
-} // namespace math
+}  // namespace math
 
-template<int Int0, int Int1, typename T0, typename T1, typename T2>
+template <int Int0, int Int1, typename T0, typename T1, typename T2>
 inline math::_Float4BaseMasked<1> Abs(math::VecClass<Int0, Int1, T0, T1, T2> &a1)
 {
-    return std::sqrt( (a1[0] * a1[0]) + (a1[1] * a1[1])
-            + (a1[2] * a1[2]));
+    return std::sqrt((a1[0] * a1[0]) + (a1[1] * a1[1]) + (a1[2] * a1[2]));
 }

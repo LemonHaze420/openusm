@@ -10,7 +10,8 @@
 
 VALIDATE_SIZE(menu_nav_bar, 0x2Cu);
 
-menu_nav_bar::menu_nav_bar() : field_4() {
+menu_nav_bar::menu_nav_bar() : field_4()
+{
     this->text_box = nullptr;
     this->background_a = nullptr;
     this->field_1C = nullptr;
@@ -26,22 +27,16 @@ void menu_nav_bar::Load()
     THISCALL(0x00612080, this);
 }
 
-void menu_nav_bar::AddButtons(menu_nav_bar::button_type a2,
-                              menu_nav_bar::button_type a3,
-                              global_text_enum a4)
+void menu_nav_bar::AddButtons(menu_nav_bar::button_type a2, menu_nav_bar::button_type a3, global_text_enum a4)
 {
     TRACE("menu_nav_bar::AddButtons");
 
-    if constexpr (1)
-    {
-        if ( this->field_28 )
-        {
-            mString v5 {g_game_ptr->field_7C->lookup_localized_string(a4)};
+    if constexpr (1) {
+        if (this->field_28) {
+            mString v5{g_game_ptr->field_7C->lookup_localized_string(a4)};
             this->field_4 += v5 + "  ";
-        }
-        else
-        {
-            mString v8 {g_game_ptr->field_7C->lookup_localized_string(a4)};
+        } else {
+            mString v8{g_game_ptr->field_7C->lookup_localized_string(a4)};
             this->field_4 += v8 + "    ";
         }
     } else {
@@ -53,9 +48,8 @@ void menu_nav_bar::Reformat()
 {
     TRACE("menu_nav_bar::Reformat");
 
-    if constexpr (1)
-    {
-        FEText::string v3 {this->field_4};
+    if constexpr (1) {
+        FEText::string v3{this->field_4};
         this->text_box->SetTextNoLocalize(v3);
     } else {
         THISCALL(0x006122B0, this);
@@ -64,7 +58,7 @@ void menu_nav_bar::Reformat()
 
 void menu_nav_bar::Reset()
 {
-    static const char str[3] {0, 0, 0};
+    static const char str[3]{0, 0, 0};
     this->field_4 = {str};
 
     this->field_28 = false;

@@ -11,19 +11,18 @@ struct mString;
 struct resource_key;
 
 struct game_settings {
-
     static inline constexpr auto NUM_SOFT_SAVE_BUFFERS = 2;
 
     std::intptr_t m_vtbl;
     MemoryUnitManager::Container field_4;
-    game_data_essentials field_28C[3] {};
+    game_data_essentials field_28C[3]{};
     game_data_meat field_340;
-    char *field_494[NUM_SOFT_SAVE_BUFFERS] {};
-    char *field_49C[3] {};
+    char *field_494[NUM_SOFT_SAVE_BUFFERS]{};
+    char *field_49C[3]{};
     char field_4A8[12];
     int field_4B4;
     int field_4B8;
-    bool m_game_data_valid[3] {};
+    bool m_game_data_valid[3]{};
     bool field_4BF;
     bool field_4C0;
     bool field_4C1;

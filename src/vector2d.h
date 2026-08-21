@@ -9,11 +9,13 @@ struct vector2d {
 
     vector2d(float a1, float a2) : x(a1), y(a2) {}
 
-    const float &operator[](int idx) const {
+    const float &operator[](int idx) const
+    {
         return (&x)[idx];
     }
 
-    float &operator[](int idx) {
+    float &operator[](int idx)
+    {
         return (&x)[idx];
     }
 
@@ -23,9 +25,9 @@ struct vector2d {
 
     vector2d operator*(float a1) const;
 
-    vector2d & operator*=(float a2);
+    vector2d &operator*=(float a2);
 
-    vector2d & operator/=(float a2);
+    vector2d &operator/=(float a2);
 
     const char *to_string() const;
 

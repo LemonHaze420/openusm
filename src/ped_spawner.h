@@ -35,13 +35,7 @@ struct ped_spawner : spawnable {
     actor *create_ped_actor();
 
     //virtual
-    void do_spawn(
-        vector3d a2,
-        vector3d a3,
-        traffic_path_lane *a8,
-        int a9,
-        int a10,
-        int a11);
+    void do_spawn(vector3d a2, vector3d a3, traffic_path_lane *a8, int a9, int a10, int a11);
 
     //virtual
     actor *get_my_actor();
@@ -63,12 +57,11 @@ struct ped_spawner : spawnable {
 
     static void populate_lanes();
 
-    static ped_spawner * assign_non_ped_actor(vhandle_type<actor> a2, int a3);
+    static ped_spawner *assign_non_ped_actor(vhandle_type<actor> a2, int a3);
 
-    static inline ped_spawner *& next_ped_spawner = var<ped_spawner *>(0x0096C9BC);
+    static inline ped_spawner *&next_ped_spawner = var<ped_spawner *>(0x0096C9BC);
 
     static _std::vector<ped_spawner *> &ped_spawner_list;
-
 };
 
 extern void ped_spawner_patch();

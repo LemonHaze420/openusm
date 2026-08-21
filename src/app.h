@@ -22,7 +22,8 @@ struct app : singleton {
         int field_28;
 
         //0x005B85D0
-        internal() : field_0() {
+        internal() : field_0()
+        {
             this->field_1C = 640;
             this->field_20 = 480;
             this->field_24 = 1.3333334;
@@ -59,7 +60,7 @@ struct app : singleton {
     //0x005D9430
     static void cleanup();
 
-    static app *& instance;
+    static app *&instance;
 
     //0x005E99D0 + 0x005DBC10
     //virtual

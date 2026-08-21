@@ -21,7 +21,8 @@ struct mashed_state {
 
     string_hash get_name() const;
 
-    bool is_flag_set(uint8_t a2) const {
+    bool is_flag_set(uint8_t a2) const
+    {
         return (this->field_10 & (1 << a2)) != 0;
     }
 
@@ -32,4 +33,4 @@ struct mashed_state {
     static inline constexpr auto IS_INTERRUPT_STATE = 0;
 };
 
-} // namespace ai
+}  // namespace ai

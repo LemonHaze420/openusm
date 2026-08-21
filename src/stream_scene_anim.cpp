@@ -8,12 +8,13 @@
 VALIDATE_SIZE(nalStreamInstance, 0x7Cu);
 VALIDATE_OFFSET(nalStreamInstance, m_callback, 0x20);
 
-void * nalStreamInstance::operator new(size_t size)
+void *nalStreamInstance::operator new(size_t size)
 {
     return tlMemAlloc(size, 8u, 0);
 }
 
-void nalStreamInstance::operator delete(void *ptr, size_t) {
+void nalStreamInstance::operator delete(void *ptr, size_t)
+{
     tlMemFree(ptr);
 }
 
@@ -24,38 +25,38 @@ bool nalStreamInstance::IsReady() const
     return this->field_1C == 5;
 }
 
-nalStreamInstance::~nalStreamInstance() {
+nalStreamInstance::~nalStreamInstance()
+{
     THISCALL(0x004AD4C0, this);
 }
 
-void nalStreamInstance::AdvanceStream() {
+void nalStreamInstance::AdvanceStream()
+{
     THISCALL(0x00492EF0, this);
 
     //sp_log("nalStreamInstance::AdvanceStream(): %d", v2);
 }
 
-bool nalStreamInstance::Advance(Float dt) {
+bool nalStreamInstance::Advance(Float dt)
+{
 #if 1
     sp_log("%d", this->field_1C);
 #endif
 
-    bool result = (bool) THISCALL(0x00498580, this, dt);
+    bool result = (bool)THISCALL(0x00498580, this, dt);
 
     //sp_log("nalStreamInstance::Advance(): post %d", this->field_1C);
 
     return result;
 }
 
-nalStreamInstance *create_stream_instance(uint32_t a1,
-                                          uint32_t a2,
-                                          uint32_t a3,
-                                          [[maybe_unused]] int a4,
-                                          nalClientSceneAnim *(*p_cb)(const tlFixedString &, void *),
-                                          void *a6) {
+nalStreamInstance *create_stream_instance(uint32_t a1, uint32_t a2, uint32_t a3, [[maybe_unused]] int a4,
+                                          nalClientSceneAnim *(*p_cb)(const tlFixedString &, void *), void *a6)
+{
     TRACE("create_stream_instance()");
 
     if constexpr (1) {
-        nalStreamInstance *result = new nalStreamInstance {}; 
+        nalStreamInstance *result = new nalStreamInstance{};
 
         result->m_callback = p_cb;
         result->field_24 = a6;
@@ -76,7 +77,6 @@ nalStreamInstance *create_stream_instance(uint32_t a1,
 
         return result;
     } else {
-        return (nalStreamInstance *) CDECL_CALL(0x00492E70, a1, a2, a3, a4, p_cb, a6);
+        return (nalStreamInstance *)CDECL_CALL(0x00492E70, a1, a2, a3, a4, p_cb, a6);
     }
 }
-

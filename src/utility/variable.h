@@ -5,7 +5,7 @@
 #include <cassert>
 #include <cstdio>
 
-template<typename T>
+template <typename T>
 struct Var {
     using value_type = T;
     using pointer_type = T *;
@@ -18,30 +18,34 @@ struct Var {
     Var(Var &&) = delete;
     Var &operator=(Var &&) = delete;
 
-    Var(ptrdiff_t &&address) : pointer(bit_cast<T *>(address)) {
-    }
+    Var(ptrdiff_t &&address) : pointer(bit_cast<T *>(address)) {}
 
     T *pointer;
 
-    inline T &operator()() {
+    inline T &operator()()
+    {
         return (*pointer);
     }
 
-    inline T &operator*() {
+    inline T &operator*()
+    {
         return (*pointer);
     }
 
-    inline const T &operator()() const {
+    inline const T &operator()() const
+    {
         return (*pointer);
     }
 
-    inline const T &operator*() const {
+    inline const T &operator*() const
+    {
         return (*pointer);
     }
 };
 
 
-template<typename T>
-inline auto & var(ptrdiff_t &&address) {
+template <typename T>
+inline auto &var(ptrdiff_t &&address)
+{
     return *bit_cast<T *>(address);
 }

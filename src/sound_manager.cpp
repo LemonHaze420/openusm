@@ -19,19 +19,19 @@ VALIDATE_SIZE(sound_volume, 0x20);
 
 #if !STANDALONE_SYSTEM
 
-static bool & s_sound_manager_initialized = var<bool>(0x0095C829);
+static bool &s_sound_manager_initialized = var<bool>(0x0095C829);
 
-static sound_volume (& s_volumes_by_type)[8] = var<sound_volume[8]>(0x0095C9A8);
+static sound_volume (&s_volumes_by_type)[8] = var<sound_volume[8]>(0x0095C9A8);
 
 #else
 
-static bool & s_sound_manager_initialized = []() -> auto & {
-    static bool s_sound_manager_initialized1 {};
+static bool &s_sound_manager_initialized = []() -> auto & {
+    static bool s_sound_manager_initialized1{};
     return s_sound_manager_initialized1;
 }();
 
-static sound_volume (& s_volumes_by_type)[8] = []() -> auto & {
-    static sound_volume s_volumes_by_type1[8] {};
+static sound_volume (&s_volumes_by_type)[8] = []() -> auto & {
+    static sound_volume s_volumes_by_type1[8]{};
     return s_volumes_by_type1;
 }();
 
@@ -47,7 +47,8 @@ void sound_manager::set_sound_alias_database(sound_alias_database *a1)
     s_sound_alias_database = a1;
 }
 
-bool sound_manager::is_mission_sound_bank_ready() {
+bool sound_manager::is_mission_sound_bank_ready()
+{
     return s_sound_bank_slots()[11].m_state != 1;
 }
 
@@ -103,7 +104,8 @@ void sound_manager::unload_hero_sound_bank()
     s_sound_bank_slots()[SB_TYPE_HERO].unload();
 }
 
-float sound_manager::get_source_type_volume(unsigned int source_type) {
+float sound_manager::get_source_type_volume(unsigned int source_type)
+{
     assert(s_sound_manager_initialized);
     assert(source_type < SM_MAX_SOURCE_TYPES);
 
@@ -130,15 +132,14 @@ int sound_manager::fade_sounds_by_type(uint32_t a1, Float a2, Float a3, bool a4)
 {
     if constexpr (0) {
     } else {
-        int (__cdecl *func)(uint32_t a1, Float a2, Float a3, bool a4) = CAST(func, 0x0050FA50);
+        int(__cdecl * func)(uint32_t a1, Float a2, Float a3, bool a4) = CAST(func, 0x0050FA50);
         return func(a1, a2, a3, a4);
     }
 }
 
-char * sub_50F010()
+char *sub_50F010()
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         int curr_char = strlen(g_scene_name) - 1;
         if (curr_char > 0) {
             while (g_scene_name[curr_char] != '\\') {
@@ -155,7 +156,7 @@ char * sub_50F010()
 
         return &g_scene_name[curr_char];
     } else {
-        char * (__cdecl *func)() = CAST(func, 0x0050F010);
+        char *(__cdecl * func)() = CAST(func, 0x0050F010);
         return func();
     }
 }

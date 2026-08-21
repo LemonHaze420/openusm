@@ -18,6 +18,5 @@ struct base_engine_resource_handler : worldly_resource_handler {
 
     /* virtual */ void pre_handle_resources(worldly_resource_handler::eBehavior);
 
-    /* virtual */ bool handle_resource(worldly_resource_handler::eBehavior a2,
-                                       resource_location *a3) /* = 0 */;
+    /* virtual */ bool handle_resource(worldly_resource_handler::eBehavior a2, resource_location *a3) /* = 0 */;
 };

@@ -7,7 +7,7 @@ struct traffic_light_interface : actor_interface {
 
     traffic_light_interface(actor *a2);
 
-    void * operator new(std::size_t sz);
+    void *operator new(std::size_t sz);
 
     void operator delete(void *ptr, std::size_t sz);
 };

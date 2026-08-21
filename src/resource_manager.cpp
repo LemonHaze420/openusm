@@ -32,9 +32,8 @@ void resource_manager::create_inst()
 {
     TRACE("resource_manager::create_inst");
 
-    if constexpr (1)
-    {
-        partitions = new _std::vector<resource_partition *> {};
+    if constexpr (1) {
+        partitions = new _std::vector<resource_partition *>{};
         partitions->reserve(8u);
 
         in_use_memory_map = -1;
@@ -44,7 +43,7 @@ void resource_manager::create_inst()
         amalgapak_pack_location_count = 0;
         amalgapak_pack_location_table = nullptr;
 
-        if ( !g_is_the_packer ) {
+        if (!g_is_the_packer) {
             load_amalgapak();
         }
 
@@ -52,9 +51,7 @@ void resource_manager::create_inst()
         resource_buffer_used = 0;
         configure_packs_by_memory_map(0);
 
-    }
-    else
-    {
+    } else {
         CDECL_CALL(0x0055BA30);
     }
 }
@@ -62,10 +59,8 @@ void resource_manager::create_inst()
 void resource_manager::delete_inst()
 {
     TRACE("resource_manager::delete_inst");
-    if constexpr (1)
-    {
-        if (amalgapak_pack_location_table != nullptr)
-        {
+    if constexpr (1) {
+        if (amalgapak_pack_location_table != nullptr) {
             assert(amalgapak_pack_location_count > 0);
 
             mem_freealign(amalgapak_pack_location_table);
@@ -79,8 +74,7 @@ void resource_manager::delete_inst()
 
         resource_buffer = nullptr;
 
-        if (partitions != nullptr)
-        {
+        if (partitions != nullptr) {
             for (auto &part : (*partitions)) {
                 if (part != nullptr) {
                     delete part;
@@ -98,9 +92,7 @@ void resource_manager::delete_inst()
 
             operator delete[](memory_maps);
         }
-    }
-    else
-    {
+    } else {
         CDECL_CALL(0x00547AD0);
     }
 }
@@ -113,46 +105,46 @@ VALIDATE_SIZE(resource_memory_map, 0x90);
 VALIDATE_SIZE((*partitions), 16u);
 
 #if !STANDALONE_SYSTEM
-_std::vector<resource_partition *> *& partitions = var<_std::vector<resource_partition *> *>(0x0095C7F0);
+_std::vector<resource_partition *> *&partitions = var<_std::vector<resource_partition *> *>(0x0095C7F0);
 
-mString & amalgapak_name = var<mString>(0x0095CAD4);
+mString &amalgapak_name = var<mString>(0x0095CAD4);
 
-int & amalgapak_base_offset = var<int>(0x00921CB4);
+int &amalgapak_base_offset = var<int>(0x00921CB4);
 
-nflFileID & amalgapak_id = var<nflFileID>(0x00921CB8);
+nflFileID &amalgapak_id = var<nflFileID>(0x00921CB8);
 
-int & resource_buffer_used = var<int>(0x0095C180);
+int &resource_buffer_used = var<int>(0x0095C180);
 
-int & memory_maps_count = var<int>(0x0095C7F4);
+int &memory_maps_count = var<int>(0x0095C7F4);
 
-int & resource_buffer_size = var<int>(0x0095C1C8);
+int &resource_buffer_size = var<int>(0x0095C1C8);
 
-int & in_use_memory_map = var<int>(0x00921CB0);
+int &in_use_memory_map = var<int>(0x00921CB0);
 
-uint8_t *& resource_buffer = var<uint8_t *>(0x0095C738);
+uint8_t *&resource_buffer = var<uint8_t *>(0x0095C738);
 
-bool & using_amalga = var<bool>(0x0095C800);
+bool &using_amalga = var<bool>(0x0095C800);
 
-int & amalgapak_signature = var<int>(0x0095C804);
+int &amalgapak_signature = var<int>(0x0095C804);
 
-resource_memory_map *& memory_maps = var<resource_memory_map *>(0x0095C2F0);
+resource_memory_map *&memory_maps = var<resource_memory_map *>(0x0095C2F0);
 
-int & amalgapak_pack_location_count = var<int>(0x0095C7FC);
+int &amalgapak_pack_location_count = var<int>(0x0095C7FC);
 
-resource_pack_location *& amalgapak_pack_location_table = var<resource_pack_location *>(0x0095C7F8);
+resource_pack_location *&amalgapak_pack_location_table = var<resource_pack_location *>(0x0095C7F8);
 
-int & amalgapak_prerequisite_count = var<int>(0x0095C174);
+int &amalgapak_prerequisite_count = var<int>(0x0095C174);
 
-resource_key *& amalgapak_prerequisite_table = var<resource_key *>(0x0095C300);
+resource_key *&amalgapak_prerequisite_table = var<resource_key *>(0x0095C300);
 
-_std::vector<resource_pack_slot *> & resource_context_stack = var<_std::vector<resource_pack_slot *>>(0x0096015C);
+_std::vector<resource_pack_slot *> &resource_context_stack = var<_std::vector<resource_pack_slot *>>(0x0096015C);
 
 #else
 
-#define make_var(type, name)       \
-    type & name = []() -> auto & {  \
-        static type g_##name {};   \
-        return g_##name;           \
+#define make_var(type, name)      \
+    type &name = []() -> auto & { \
+        static type g_##name{};   \
+        return g_##name;          \
     }()
 
 make_var(_std::vector<resource_partition *> *, partitions);
@@ -228,15 +220,14 @@ void load_amalgapak()
 {
     TRACE("resource_manager::load_amalgapak");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         os_file file;
 
         {
             amalgapak_name = get_amalgapak_filename(g_platform);
             sp_log("Loading amalgapak...");
 
-            mString a1 {amalgapak_name.c_str()};
+            mString a1{amalgapak_name.c_str()};
 
             file.open(a1, os_file::FILE_READ);
         }
@@ -250,42 +241,36 @@ void load_amalgapak()
         file.read(&pack_file_header, sizeof(resource_amalgapak_header));
 
         {
-            mString a1 {amalgapak_name.c_str()};
+            mString a1{amalgapak_name.c_str()};
 
             pack_file_header.verify(a1);
         }
 
-        if constexpr (0)
-        {
+        if constexpr (0) {
             pack_file_header.field_18 = 0;
         }
 
         amalgapak_base_offset = pack_file_header.field_18;
         using_amalga = (pack_file_header.field_18 != 0);
         amalgapak_signature = pack_file_header.field_14;
-        amalgapak_pack_location_count = pack_file_header.location_table_size /
-            sizeof(resource_pack_location);
+        amalgapak_pack_location_count = pack_file_header.location_table_size / sizeof(resource_pack_location);
 
-        amalgapak_pack_location_table = static_cast<resource_pack_location *>(
-            arch_memalign(16u, pack_file_header.location_table_size));
+        amalgapak_pack_location_table =
+            static_cast<resource_pack_location *>(arch_memalign(16u, pack_file_header.location_table_size));
         assert(amalgapak_pack_location_table != nullptr);
 
         file.set_fp(pack_file_header.field_1C, os_file::FP_BEGIN);
-        auto how_many_did_we_get = file.read(amalgapak_pack_location_table,
-                                             pack_file_header.location_table_size);
+        auto how_many_did_we_get = file.read(amalgapak_pack_location_table, pack_file_header.location_table_size);
         assert(how_many_did_we_get == pack_file_header.location_table_size);
 
-        amalgapak_prerequisite_count = static_cast<uint32_t>(
-                                             pack_file_header.prerequisite_table_size) >>
-            3;
+        amalgapak_prerequisite_count = static_cast<uint32_t>(pack_file_header.prerequisite_table_size) >> 3;
 
-        amalgapak_prerequisite_table = static_cast<resource_key *>(
-            arch_memalign(8u, pack_file_header.prerequisite_table_size));
+        amalgapak_prerequisite_table =
+            static_cast<resource_key *>(arch_memalign(8u, pack_file_header.prerequisite_table_size));
         assert(amalgapak_prerequisite_table != nullptr);
 
         file.set_fp(pack_file_header.field_2C, os_file::FP_BEGIN);
-        how_many_did_we_get = file.read(amalgapak_prerequisite_table,
-                                        pack_file_header.prerequisite_table_size);
+        how_many_did_we_get = file.read(amalgapak_prerequisite_table, pack_file_header.prerequisite_table_size);
         assert(how_many_did_we_get == pack_file_header.prerequisite_table_size);
 
         resource_buffer_size = pack_file_header.field_34;
@@ -300,18 +285,15 @@ void load_amalgapak()
 
         file.close();
 
-        if (using_amalgapak())
-        {
+        if (using_amalgapak()) {
             amalgapak_id = nflOpenFile({1}, amalgapak_name.c_str());
 
-            if (amalgapak_id == NFL_FILE_ID_INVALID)
-            {
+            if (amalgapak_id == NFL_FILE_ID_INVALID) {
                 amalgapak_id = nflOpenFile({2}, amalgapak_name.c_str());
 
-                if (amalgapak_id == NFL_FILE_ID_INVALID)
-                {
-                    mString v12 {amalgapak_name.c_str()};
-                    mString v13 {"data\\"};
+                if (amalgapak_id == NFL_FILE_ID_INVALID) {
+                    mString v12{amalgapak_name.c_str()};
+                    mString v13{"data\\"};
 
                     mString a1 = v13 + v12;
 
@@ -345,76 +327,58 @@ bool using_amalgapak()
 
 bool is_idle()
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         assert(partitions != nullptr);
 
-        for ( auto &partition : (*partitions) )
-        {
+        for (auto &partition : (*partitions)) {
             assert(partition != nullptr);
-            if ( !partition->get_streamer()->is_idle() )
-            {
+            if (!partition->get_streamer()->is_idle()) {
                 return false;
             }
         }
 
         return true;
-    }
-    else
-    {
-        return (bool) CDECL_CALL(0x00537AC0);
+    } else {
+        return (bool)CDECL_CALL(0x00537AC0);
     }
 }
 
 bool can_reload_amalgapak()
 {
-    if constexpr (1)
-    {
-        if ( using_amalgapak() )
-        {
+    if constexpr (1) {
+        if (using_amalgapak()) {
             return false;
         }
 
-        if ( !is_idle() )
-        {
+        if (!is_idle()) {
             return false;
         }
 
         bool result = false;
         os_file v11{};
         auto *v1 = amalgapak_name.c_str();
-        mString v4 {v1};
+        mString v4{v1};
         v11.open(v4, os_file::FILE_READ);
-        if ( v11.is_open() )
-        {
+        if (v11.is_open()) {
             resource_amalgapak_header data{};
             v11.read(&data, sizeof(data));
             auto *v2 = amalgapak_name.c_str();
             auto a2 = mString{v2};
             data.verify(a2);
-            if ( data.field_18 != 0 )
-            {
+            if (data.field_18 != 0) {
                 result = false;
-            }
-            else if ( data.field_14 == amalgapak_signature )
-            {
+            } else if (data.field_14 == amalgapak_signature) {
                 result = false;
-            }
-            else
-            {
+            } else {
                 result = true;
             }
-        }
-        else
-        {
+        } else {
             result = false;
         }
 
         return result;
-    }
-    else
-    {
-        return (bool) CDECL_CALL(0x0053DE90);
+    } else {
+        return (bool)CDECL_CALL(0x0053DE90);
     }
 }
 
@@ -422,8 +386,7 @@ void reload_amalgapak()
 {
     TRACE("resource_manager::reload_amalgapak");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         assert(!using_amalgapak());
 
         assert(amalgapak_pack_location_table != nullptr);
@@ -435,7 +398,7 @@ void reload_amalgapak()
         mem_freealign(amalgapak_prerequisite_table);
         mem_freealign(amalgapak_pack_location_table);
 
-        delete[](memory_maps);
+        delete[] (memory_maps);
         amalgapak_prerequisite_table = nullptr;
         amalgapak_pack_location_table = nullptr;
         memory_maps = nullptr;
@@ -443,21 +406,16 @@ void reload_amalgapak()
         load_amalgapak();
 
         _std::vector<resource_key> v3;
-        for ( auto i = 0; i < amalgapak_pack_location_count; ++i )
-        {
-            if ( amalgapak_pack_location_table[i].field_2C != 0 )
-            {
+        for (auto i = 0; i < amalgapak_pack_location_count; ++i) {
+            if (amalgapak_pack_location_table[i].field_2C != 0) {
                 v3.push_back(amalgapak_pack_location_table[i].loc.field_0);
             }
         }
 
-        for ( auto &cb : resource_pack_modified_callbacks )
-        {
+        for (auto &cb : resource_pack_modified_callbacks) {
             (*cb)(v3);
         }
-    }
-    else
-    {
+    } else {
         CDECL_CALL(0x0054C2E0);
     }
 }
@@ -467,8 +425,7 @@ resource_pack_slot *get_best_context(resource_pack_slot *slot)
 {
     TRACE("resource_manager::get_best_context");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         assert(slot != nullptr);
         assert(slot->is_data_ready());
         assert(partitions != nullptr);
@@ -477,13 +434,11 @@ resource_pack_slot *get_best_context(resource_pack_slot *slot)
 
         const auto &vec = (*partitions);
         sp_log("%d", vec.size());
-        for (const auto &my_partition : vec)
-        {
+        for (const auto &my_partition : vec) {
             assert(my_partition != nullptr);
 
             auto &pack_slots = my_partition->get_pack_slots();
-            for (uint32_t i = 0; i < pack_slots.size(); ++i)
-            {
+            for (uint32_t i = 0; i < pack_slots.size(); ++i) {
                 if (pack_slots[i] == slot) {
                     the_partition = my_partition;
                     sp_log("%d", i);
@@ -504,10 +459,8 @@ resource_pack_slot *get_best_context(resource_pack_slot *slot)
         //sp_log("0x%08X", result->pack_directory.field_4.m_vtbl);
 
         return result;
-    }
-    else
-    {
-        return (resource_pack_slot *) CDECL_CALL(0x005375A0, slot);
+    } else {
+        return (resource_pack_slot *)CDECL_CALL(0x005375A0, slot);
     }
 }
 
@@ -522,13 +475,11 @@ bool get_pack_location(int a1, resource_pack_location *a2)
     assert(amalgapak_pack_location_table != nullptr);
     assert(amalgapak_base_offset != -1);
 
-    if ( a1 < 0 || a1 >= amalgapak_pack_location_count )
-    {
+    if (a1 < 0 || a1 >= amalgapak_pack_location_count) {
         return false;
     }
 
-    if ( a2 != nullptr )
-    {
+    if (a2 != nullptr) {
         *a2 = amalgapak_pack_location_table[a1];
         a2->loc.m_offset += amalgapak_base_offset;
     }
@@ -538,8 +489,7 @@ bool get_pack_location(int a1, resource_pack_location *a2)
 
 resource_pack_slot *get_best_context(resource_partition_enum a1)
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         assert(partitions != nullptr);
 
         resource_partition *the_partition = partitions->at(a1);
@@ -555,37 +505,31 @@ resource_pack_slot *get_best_context(resource_partition_enum a1)
 
         return best_slot;
     } else {
-        return (resource_pack_slot *) CDECL_CALL(0x00537610, a1);
+        return (resource_pack_slot *)CDECL_CALL(0x00537610, a1);
     }
 }
 
 void frame_advance(Float a2)
 {
-    auto v8 =
-        os_developer_options::instance->get_int(mString {"AMALGA_REFRESH_INTERVAL"});
+    auto v8 = os_developer_options::instance->get_int(mString{"AMALGA_REFRESH_INTERVAL"});
 
-    static float amalga_refresh_timer {0};
+    static float amalga_refresh_timer{0};
     amalga_refresh_timer += a2;
-    if ( v8 > 0 && amalga_refresh_timer > v8 )
-    {
-        if ( can_reload_amalgapak() )
-        {
+    if (v8 > 0 && amalga_refresh_timer > v8) {
+        if (can_reload_amalgapak()) {
             reload_amalgapak();
         }
 
         amalga_refresh_timer = 0.0;
     }
 
-    if constexpr (0)
-    {
-        static auto & dword_960CB0 = var<int>(0x00960CB0);
+    if constexpr (0) {
+        static auto &dword_960CB0 = var<int>(0x00960CB0);
 
-        if (dword_960CB0 == 0)
-        {
+        if (dword_960CB0 == 0) {
             limited_timer timer{0.02};
 
-            if (g_game_ptr != nullptr && g_game_ptr->field_165)
-            {
+            if (g_game_ptr != nullptr && g_game_ptr->field_165) {
                 limited_timer v4{0.5};
 
                 timer = v4;
@@ -596,15 +540,12 @@ void frame_advance(Float a2)
             assert(partitions != nullptr);
 
             for (auto *partition : (*partitions)) {
-
                 assert(partition != nullptr);
 
                 partition->frame_advance(a2, &timer);
             }
         }
-    }
-    else
-    {
+    } else {
         CDECL_CALL(0x00558D20, a2);
     }
 
@@ -617,8 +558,7 @@ bool get_pack_file_stats(const resource_key &a1, resource_pack_location *a2, mSt
 {
     TRACE("resource_manager::get_pack_file_stats", a1.get_platform_string(g_platform).c_str());
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         assert(amalgapak_pack_location_table != nullptr);
 
         if (a3 != nullptr) {
@@ -629,10 +569,8 @@ bool get_pack_file_stats(const resource_key &a1, resource_pack_location *a2, mSt
 
         {
             auto is_sorted = std::is_sorted(amalgapak_pack_location_table,
-                    amalgapak_pack_location_table + amalgapak_pack_location_count,
-                    [](auto &a1, auto &a2) {
-                        return a1.loc.field_0 <= a2.loc.field_0;
-                    });
+                                            amalgapak_pack_location_table + amalgapak_pack_location_count,
+                                            [](auto &a1, auto &a2) { return a1.loc.field_0 <= a2.loc.field_0; });
             assert(is_sorted);
         }
 
@@ -643,8 +581,7 @@ bool get_pack_file_stats(const resource_key &a1, resource_pack_location *a2, mSt
                 0,
                 amalgapak_pack_location_count,
                 &i,
-                compare_resource_key_resource_pack_location))
-        {
+                compare_resource_key_resource_pack_location)) {
             return false;
         }
 
@@ -660,7 +597,7 @@ bool get_pack_file_stats(const resource_key &a1, resource_pack_location *a2, mSt
 
         return true;
     } else {
-        auto result = (bool) CDECL_CALL(0x0052A820, &a1, a2, a3, a4);
+        auto result = (bool)CDECL_CALL(0x0052A820, &a1, a2, a3, a4);
         sp_log("%s", result ? "true" : "false");
         return result;
     }
@@ -672,8 +609,7 @@ resource_pack_slot *push_resource_context(resource_pack_slot *pack_slot)
 
     sp_log("%s", pack_slot->get_name_key().get_platform_string(3).c_str());
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         assert(pack_slot != nullptr);
 
         resource_pack_slot *v2 = get_resource_context();
@@ -683,18 +619,15 @@ resource_pack_slot *push_resource_context(resource_pack_slot *pack_slot)
         set_active_resource_context(pack_slot);
 
         return v2;
-    }
-    else
-    {
-        resource_pack_slot * (*func)(resource_pack_slot *) = CAST(func, 0x00542740);
+    } else {
+        resource_pack_slot *(*func)(resource_pack_slot *) = CAST(func, 0x00542740);
         return func(pack_slot);
     }
 }
 
 resource_directory *get_resource_directory(const resource_key &a1)
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         assert(partitions != nullptr);
 
         for (size_t i = 0; i < partitions->size(); ++i) {
@@ -710,8 +643,7 @@ resource_directory *get_resource_directory(const resource_key &a1)
             for (auto &pack_slot : (*pack_slots)) {
                 assert(pack_slot != nullptr);
 
-                if (pack_slot->is_data_ready())
-                {
+                if (pack_slot->is_data_ready()) {
                     if (pack_slot->get_name_key() == a1) {
                         return &pack_slot->get_resource_directory();
                     }
@@ -721,7 +653,7 @@ resource_directory *get_resource_directory(const resource_key &a1)
 
         return nullptr;
     } else {
-        return (resource_directory *) CDECL_CALL(0x00537A10, &a1);
+        return (resource_directory *)CDECL_CALL(0x00537A10, &a1);
     }
 }
 
@@ -729,10 +661,8 @@ void set_active_resource_context(resource_pack_slot *a1)
 {
     TRACE("resource_manager::set_active_resource_context");
 
-    if constexpr (1)
-    {
-        if (a1 != nullptr && a1->is_data_ready())
-        {
+    if constexpr (1) {
+        if (a1 != nullptr && a1->is_data_ready()) {
             auto &pack_dir = a1->get_resource_pack_directory();
 
             nglSetTextureDirectory(&pack_dir.field_4);
@@ -745,24 +675,17 @@ void set_active_resource_context(resource_pack_slot *a1)
             nalSetAnimFileDirectory(&pack_dir.field_3C);
             nalSetAnimDirectory(&pack_dir.field_44);
             nalSetSceneAnimDirectory(&pack_dir.field_4C);
-        }
-        else
-        {
+        } else {
             nglSetTextureDirectory(tlresource_directory<nglTexture, tlFixedString>::system_dir);
             nglSetMeshFileDirectory(tlresource_directory<nglMeshFile, tlFixedString>::system_dir);
             nglSetMeshDirectory(tlresource_directory<nglMesh, tlHashString>::system_dir);
             nglSetMorphDirectory(tlresource_directory<nglMorphSet, tlHashString>::system_dir);
-            nglSetMaterialFileDirectory(
-                tlresource_directory<nglMaterialFile, tlFixedString>::system_dir);
-            nglSetMaterialDirectory(
-                tlresource_directory<nglMaterialBase, tlHashString>::system_dir);
+            nglSetMaterialFileDirectory(tlresource_directory<nglMaterialFile, tlFixedString>::system_dir);
+            nglSetMaterialDirectory(tlresource_directory<nglMaterialBase, tlHashString>::system_dir);
             nalSetAnimFileDirectory(tlresource_directory<nalAnimFile, tlFixedString>::system_dir);
-            nalSetSkeletonDirectory(
-                tlresource_directory<nalBaseSkeleton, tlFixedString>::system_dir);
-            nalSetAnimDirectory(
-                tlresource_directory<nalAnimClass<nalAnyPose>, tlFixedString>::system_dir);
-            nalSetSceneAnimDirectory(
-                tlresource_directory<nalSceneAnim, tlFixedString>::system_dir);
+            nalSetSkeletonDirectory(tlresource_directory<nalBaseSkeleton, tlFixedString>::system_dir);
+            nalSetAnimDirectory(tlresource_directory<nalAnimClass<nalAnyPose>, tlFixedString>::system_dir);
+            nalSetSceneAnimDirectory(tlresource_directory<nalSceneAnim, tlFixedString>::system_dir);
         }
 
     } else {
@@ -774,8 +697,7 @@ resource_pack_slot *pop_resource_context()
 {
     TRACE("resource_manager::pop_resource_context");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         auto *old_context = get_resource_context();
         assert(old_context != nullptr);
 
@@ -786,7 +708,7 @@ resource_pack_slot *pop_resource_context()
 
         return old_context;
     } else {
-        resource_pack_slot * (*func)() = CAST(func, 0x00537530);
+        resource_pack_slot *(*func)() = CAST(func, 0x00537530);
         return func();
     }
 }
@@ -806,17 +728,15 @@ void configure_packs_by_memory_map(int idx)
         sp_log("resource_buffer_used = %d", resource_buffer_used);
     }
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         const auto v14 = in_use_memory_map;
         int pop_start_idx = 0;
 
         const auto partitions_size = partitions->size();
         for (auto i = 0u; i < partitions_size; ++i) {
             auto func = [](const auto *self, const auto *a2) -> bool {
-                return (self->field_0 == a2->field_0 && self->field_4 == a2->field_4
-                        && self->field_8 == a2->field_8
-                        && self->field_C == a2->field_C);
+                return (self->field_0 == a2->field_0 && self->field_4 == a2->field_4 && self->field_8 == a2->field_8 &&
+                        self->field_C == a2->field_C);
             };
 
             if (memory_maps[idx].field_10[i].field_4 == 1 &&
@@ -825,8 +745,7 @@ void configure_packs_by_memory_map(int idx)
             }
         }
 
-        for (int i = partitions_size - 1; i >= pop_start_idx; --i)
-        {
+        for (int i = partitions_size - 1; i >= pop_start_idx; --i) {
             resource_buffer_used -= partitions->at(i)->get_buffer_size();
             auto *part = partitions->back();
             assert(part != nullptr && part->get_streamer() != nullptr);
@@ -848,26 +767,22 @@ void configure_packs_by_memory_map(int idx)
 
         assert(static_cast<int>(partitions->size()) == pop_start_idx);
 
-        for (uint32_t i = pop_start_idx; i < RESOURCE_PARTITION_END; ++i)
-        {
-            auto *new_partition = new resource_partition {static_cast<resource_partition_enum>(i)};
+        for (uint32_t i = pop_start_idx; i < RESOURCE_PARTITION_END; ++i) {
+            auto *new_partition = new resource_partition{static_cast<resource_partition_enum>(i)};
 
             auto &memory_map = memory_maps[idx];
             auto &tmp = memory_map.field_10[i];
 
             new_partition->field_0 = tmp.field_4;
-            new_partition->set_buffer_size(tmp.field_C *
-                tmp.field_8);
+            new_partition->set_buffer_size(tmp.field_C * tmp.field_8);
 
-            assert((new_partition->get_buffer_size() + resource_buffer_used <=
-                    resource_buffer_size) &&
+            assert((new_partition->get_buffer_size() + resource_buffer_used <= resource_buffer_size) &&
                    "Verify we have room for this partition");
 
             new_partition->set_buffer_used(0);
             new_partition->set_buffer(resource_buffer + resource_buffer_used);
             resource_buffer_used += new_partition->get_buffer_size();
-            if (new_partition->field_0 >= 0 && new_partition->field_0 <= 1)
-            {
+            if (new_partition->field_0 >= 0 && new_partition->field_0 <= 1) {
                 for (int j = 0; j < tmp.field_C; ++j) {
                     new_partition->push_pack_slot(tmp.field_8, nullptr);
                 }
@@ -882,20 +797,15 @@ void configure_packs_by_memory_map(int idx)
         {
             auto begin = std::begin(memory_maps[idx].field_10);
             auto end = begin + RESOURCE_PARTITION_END;
-            auto v7 = std::accumulate(begin, end, 0, [](auto prev_result, auto &v) {
-                return v.field_C * v.field_8 + prev_result;
-            });
+            auto v7 = std::accumulate(
+                begin, end, 0, [](auto prev_result, auto &v) { return v.field_C * v.field_8 + prev_result; });
 
-            sp_log("Resource manager now using a memory map of size %d MB (%d KB)",
-               v7 / 1024 / 1024,
-               v7 / 1024);
+            sp_log("Resource manager now using a memory map of size %d MB (%d KB)", v7 / 1024 / 1024, v7 / 1024);
         }
 
         in_use_memory_map = idx;
         set_active_resource_context(nullptr);
-    }
-    else
-    {
+    } else {
         CDECL_CALL(0x00558930, idx);
     }
 
@@ -931,13 +841,13 @@ resource_partition *get_partition_pointer(resource_partition_enum which_type)
     return partitions->at(which_type);
 }
 
-nflFileID open_pack(const char *name) {
+nflFileID open_pack(const char *name)
+{
     TRACE("resource_manager::open_pack", name);
     const char *ext = packfile_ext[g_platform];
 
     //sp_log("open pack %s%s", name, ext);
-    if constexpr (1)
-    {
+    if constexpr (1) {
         mString v9{ext};
         mString v8{name};
 
@@ -947,7 +857,7 @@ nflFileID open_pack(const char *name) {
 
         mString a1 = v11 + dir;
 
-        filespec fileSpec {a1, v8, v9};
+        filespec fileSpec{a1, v8, v9};
 
         mString v12 = fileSpec.fullname();
 
@@ -980,11 +890,8 @@ resource_pack_slot *get_resource_context()
     return result;
 }
 
-bool get_resource_if_exists(const resource_key &resource_id,
-                            [[maybe_unused]] void *a2,
-                            uint8_t **a3,
-                            worldly_pack_slot *slot_ptr,
-                            int *mash_data_size)
+bool get_resource_if_exists(const resource_key &resource_id, [[maybe_unused]] void *a2, uint8_t **a3,
+                            worldly_pack_slot *slot_ptr, int *mash_data_size)
 {
     TRACE("resource_manager::get_resource_if_exists");
 
@@ -1002,9 +909,8 @@ bool get_resource_if_exists(const resource_key &resource_id,
 uint8_t *get_resource(const resource_key &resource_id, int *mash_data_size, resource_pack_slot **a3)
 {
     TRACE("resource_manager::get_resource", resource_id.get_platform_string(g_platform).c_str());
-    
-    if constexpr (0)
-    {
+
+    if constexpr (0) {
         assert(!g_is_the_packer && "Don't call this function while packing!");
         assert(resource_id.is_set());
         assert(get_resource_context() != nullptr && "Can't get a resource without a context!");
@@ -1015,15 +921,13 @@ uint8_t *get_resource(const resource_key &resource_id, int *mash_data_size, reso
         //sp_log("resource_manager::get_resource:");
 
         return result;
-    }
-    else
-    {
-        uint8_t * (* func)(const resource_key *, int *, resource_pack_slot **) = CAST(func, 0x00531B30);
+    } else {
+        uint8_t *(*func)(const resource_key *, int *, resource_pack_slot **) = CAST(func, 0x00531B30);
         return func(&resource_id, mash_data_size, a3);
     }
 }
 
-} // namespace resource_manager
+}  // namespace resource_manager
 
 void resource_manager_patch()
 {
@@ -1034,7 +938,7 @@ void resource_manager_patch()
     //REDIRECT(0x00594836, resource_manager::get_resource);
 
     {
-        resource_pack_slot * (* func)(resource_pack_slot *) = &resource_manager::get_best_context;
+        resource_pack_slot *(*func)(resource_pack_slot *) = &resource_manager::get_best_context;
         REDIRECT(0x00542A04, func);
     }
 

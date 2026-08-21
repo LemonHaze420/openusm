@@ -16,11 +16,7 @@ struct fx_cache_ent {
 
     fx_cache_ent();
 
-    void un_mash(
-        generic_mash_header *a2,
-        cached_special_effect *a3,
-        void *a4,
-        generic_mash_data_ptrs *a5);
+    void un_mash(generic_mash_header *a2, cached_special_effect *a3, void *a4, generic_mash_data_ptrs *a5);
 };
 
 struct fx_cache {
@@ -38,11 +34,7 @@ struct fx_cache {
     //0x004D4FB0
     void frame_advance(Float a3);
 
-    void un_mash(
-        generic_mash_header *a2,
-        cached_special_effect *a3,
-        void *a4,
-        generic_mash_data_ptrs *a5);
+    void un_mash(generic_mash_header *a2, cached_special_effect *a3, void *a4, generic_mash_data_ptrs *a5);
 };
 
 extern void fx_cache_patch();

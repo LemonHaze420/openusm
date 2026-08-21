@@ -11,9 +11,8 @@
 
 VALIDATE_SIZE(nalComp::nalCompInstance, 0x20u);
 
-nalComp::nalCompInstance::nalCompInstance(
-        nalComp::nalCompAnim *a2,
-        nalComp::nalCompSkeleton *a3) : nalBaseInstance(bit_cast<nalAnimClass<nalAnyPose> *>(a2), a3)
+nalComp::nalCompInstance::nalCompInstance(nalComp::nalCompAnim *a2, nalComp::nalCompSkeleton *a3)
+    : nalBaseInstance(bit_cast<nalAnimClass<nalAnyPose> *>(a2), a3)
 {
     if constexpr (1) {
         static vtbl g_vtbl = {
@@ -39,7 +38,7 @@ void nalComp::nalCompInstance::ConstructInstance()
 
     auto *Anim = this->GetAnim();
     auto *Skeleton = Anim->GetSkeleton();
-    if ( Skeleton == this->GetSkeleton() ) {
+    if (Skeleton == this->GetSkeleton()) {
         this->BuildDirectMapping();
     } else {
         this->BuildSkelRemapping();
@@ -55,36 +54,21 @@ nalComp::nalCompInstance::~nalCompInstance()
     auto *v2 = this->GetAnim();
     auto *SkeletonFromInstance = this->GetSkeleton();
 
-    for (int i = 0; i < this->field_18; ++i)
-    {
+    for (int i = 0; i < this->field_18; ++i) {
         auto *v5 = &this->field_14[i];
-        if ( v5->field_8 != -1 && v5->field_11 )
-        {
+        if (v5->field_8 != -1 && v5->field_11) {
             auto *component = SkeletonFromInstance->GetComponent(v5->field_0);
-            if ( v5->field_10 )
-            {
+            if (v5->field_10) {
                 auto *CompPerAnimDataInt = v2->GetCompPerAnimDataInt(v5->field_8);
                 auto *CompPerSkelDataInt = SkeletonFromInstance->GetCompPerSkelDataInt(v5->field_0);
                 auto Name = SkeletonFromInstance->GetName(v5->field_0);
-                component->DestroyPerInstData(
-                    v5->field_C,
-                    Name,
-                    CompPerSkelDataInt,
-                    CompPerAnimDataInt
-                );
-            }
-            else
-            {
+                component->DestroyPerInstData(v5->field_C, Name, CompPerSkelDataInt, CompPerAnimDataInt);
+            } else {
                 auto *Skeleton = v2->GetSkeleton();
                 auto v23 = Skeleton->GetComponentId(v5->field_8);
                 auto *v14 = v2->GetCompPerAnimDataInt(v5->field_8);
                 auto *v12 = SkeletonFromInstance->GetCompPerSkelDataInt(v5->field_0);
-                component->DestroyPerInstData(
-                    v5->field_C,
-                    v23.field_0,
-                    v12,
-                    v14
-                );
+                component->DestroyPerInstData(v5->field_C, v23.field_0, v12, v14);
             }
         }
     }
@@ -96,30 +80,26 @@ nalComp::nalCompInstance::~nalCompInstance()
     this->field_1C = nullptr;
 }
 
-nalComp::nalCompSkeleton * nalComp::nalCompInstance::GetSkeleton()
+nalComp::nalCompSkeleton *nalComp::nalCompInstance::GetSkeleton()
 {
     return bit_cast<nalCompSkeleton *>(this->field_C);
 }
 
-nalComp::nalCompAnim * nalComp::nalCompInstance::GetAnim()
+nalComp::nalCompAnim *nalComp::nalCompInstance::GetAnim()
 {
     return bit_cast<nalCompAnim *>(this->field_10);
 }
 
-void nalComp::nalCompInstance::_VirtualGetPose(
-        Float a1,
-        Float a2,
-        nalBasePose *a3,
-        const nalBasePose *a4)
+void nalComp::nalCompInstance::_VirtualGetPose(Float a1, Float a2, nalBasePose *a3, const nalBasePose *a4)
 {
     TRACE("nalComp::nalCompInstance::VirtualGetPose");
 
     const nalComp::nalCompPose *v5 = nullptr;
-    if ( a4 != nullptr ) {
+    if (a4 != nullptr) {
         v5 = (const nalComp::nalCompPose *)&a4[-1];
     }
 
-    if ( a3 != nullptr ) {
+    if (a3 != nullptr) {
         this->GetPose(a1, a2, (nalComp::nalCompPose *)&a3[-1], v5);
     } else {
         this->GetPose(a1, a2, nullptr, v5);
@@ -134,19 +114,16 @@ void nalComp::nalCompInstance::_BuildDirectMapping()
         auto *Skeleton = this->GetSkeleton();
         auto NumComponents = Skeleton->GetNumComponents();
         this->field_18 = 0;
-        for ( int i = 0; i < NumComponents; ++i )
-        {
-            if ( Skeleton->DoesComponentHavePoseTrackData(i) ) {
+        for (int i = 0; i < NumComponents; ++i) {
+            if (Skeleton->DoesComponentHavePoseTrackData(i)) {
                 ++this->field_18;
             }
         }
 
         this->field_14 = CAST(this->field_14, tlMemAlloc(20 * this->field_18, 8, 0));
         int v7 = 0;
-        for ( int iCompIx = 0; iCompIx < NumComponents; ++iCompIx )
-        {
-            if ( Skeleton->DoesComponentHavePoseTrackData(iCompIx) )
-            {
+        for (int iCompIx = 0; iCompIx < NumComponents; ++iCompIx) {
+            if (Skeleton->DoesComponentHavePoseTrackData(iCompIx)) {
                 this->field_14[v7].field_8 = iCompIx;
                 this->field_14[v7].field_4 = Skeleton->ConvertCompIxToPoseIx(iCompIx);
                 this->field_14[v7].field_0 = iCompIx;
@@ -160,14 +137,14 @@ void nalComp::nalCompInstance::_BuildDirectMapping()
 
         this->BuildEmptyPoseArray();
     } else {
-        void (__fastcall * func)(void *) = CAST(func, 0x00736F70);
+        void(__fastcall * func)(void *) = CAST(func, 0x00736F70);
         func(this);
     }
 }
 
 void nalComp::nalCompInstance::BuildDirectMapping()
 {
-    void (__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x8));
+    void(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x8));
     func(this);
 }
 
@@ -176,13 +153,11 @@ void nalComp::nalCompInstance::_BuildSkelRemapping()
     TRACE("nalComp::nalCompInstance::BuildSkelRemapping");
 
     if constexpr (0) {
-        _std::vector<nalComp::nalCompInstance::Internal> v81 {};
+        _std::vector<nalComp::nalCompInstance::Internal> v81{};
         auto numComponents = this->GetSkeleton()->GetNumComponents();
 
-        for ( int i = 0; i < numComponents; ++i )
-        {
-            if ( this->GetSkeleton()->DoesComponentHavePoseTrackData(i) )
-            {
+        for (int i = 0; i < numComponents; ++i) {
+            if (this->GetSkeleton()->DoesComponentHavePoseTrackData(i)) {
                 auto *Skeleton = this->GetSkeleton();
 
                 Internal v78;
@@ -196,17 +171,15 @@ void nalComp::nalCompInstance::_BuildSkelRemapping()
             }
         }
 
-        _std::vector<int> v78 {};
+        _std::vector<int> v78{};
 
         auto *v66 = this->GetAnim()->GetSkeleton();
-        for ( int i = 0; i < v81.size(); ++i )
-        {
+        for (int i = 0; i < v81.size(); ++i) {
             auto &v9 = v81[i];
             auto *v5 = this->GetSkeleton();
             auto v12 = v5->GetComponentId(v9.field_0);
             auto v14 = v66->GetCompIxFromName(v12);
-            if ( v14 != -1 )
-            {
+            if (v14 != -1) {
                 v9.field_10 = true;
                 v9.field_8 = v14;
 
@@ -215,32 +188,27 @@ void nalComp::nalCompInstance::_BuildSkelRemapping()
             }
         }
 
-        for ( int j = 0; j < v81.size(); ++j )
-        {
+        for (int j = 0; j < v81.size(); ++j) {
             auto &item = v81[j];
             auto *v73 = this->GetSkeleton()->GetComponent(item.field_0);
-            if ( !item.field_10 )
-            {
-                for ( int m = 0; m < v66->GetNumComponents(); ++m )
-                {
+            if (!item.field_10) {
+                for (int m = 0; m < v66->GetNumComponents(); ++m) {
                     if (this->GetAnim()->DoesComponentAddToPose(m)) {
                         int n;
-                        for ( n = 0; n < v78.size(); ++n )
-                        {
-                            if ( m == v78[n] ) {
+                        for (n = 0; n < v78.size(); ++n) {
+                            if (m == v78[n]) {
                                 break;
                             }
                         }
 
-                        if ( n < v78.size() )
+                        if (n < v78.size())
                             break;
 
                         auto v54 = v66->GetComponent(m)->GetType();
                         auto v51 = v66->GetName(m);
 
                         auto v52 = this->GetSkeleton()->GetName(item.field_0);
-                        if ( v73->WillMapToComponentData(v52, v51, v54) )
-                        {
+                        if (v73->WillMapToComponentData(v52, v51, v54)) {
                             v78.push_back(m);
 
                             item.field_8 = m;
@@ -251,15 +219,11 @@ void nalComp::nalCompInstance::_BuildSkelRemapping()
             }
         }
 
-        for ( auto it = v81.begin(); it != v81.end(); )
-        {
-            if ( it->field_8 == -1 )
-            {
+        for (auto it = v81.begin(); it != v81.end();) {
+            if (it->field_8 == -1) {
                 ++it;
                 //v81->(iter.m_ptr);
-            }
-            else
-            {
+            } else {
                 ++it;
             }
         }
@@ -267,8 +231,7 @@ void nalComp::nalCompInstance::_BuildSkelRemapping()
         this->field_18 = v81.size();
         this->field_14 = static_cast<nalComp::nalCompInstance::Internal *>(tlMemAlloc(20 * this->field_18, 8u, 0));
 
-        for ( int v63 = 0; v63 < this->field_18; ++v63 )
-        {
+        for (int v63 = 0; v63 < this->field_18; ++v63) {
             auto &v7 = v81[v63];
             auto &v65 = this->field_14[v63];
             std::memcpy(&v7, &v65, sizeof(nalComp::nalCompInstance::Internal));
@@ -276,14 +239,14 @@ void nalComp::nalCompInstance::_BuildSkelRemapping()
 
         this->BuildEmptyPoseArray();
     } else {
-        void (__fastcall * func)(void *) = CAST(func, 0x0073EB50);
+        void(__fastcall * func)(void *) = CAST(func, 0x0073EB50);
         func(this);
     }
 }
 
 void nalComp::nalCompInstance::BuildSkelRemapping()
 {
-    void (__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0xC));
+    void(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0xC));
     func(this);
 }
 
@@ -291,19 +254,18 @@ void nalComp::nalCompInstance::_BuildEmptyPoseArray()
 {
     TRACE("nalCompInstance::BuildEmptyPoseArray");
 
-    _std::vector<int> v4 {};
-    for ( int i = 0; i < this->field_18; ++i )
-    {
+    _std::vector<int> v4{};
+    for (int i = 0; i < this->field_18; ++i) {
         auto v2 = this->field_14[i].field_8;
         auto *Anim = this->GetAnim();
-        if ( !Anim->DoesComponentAddToPose(v2) )
+        if (!Anim->DoesComponentAddToPose(v2))
             v4.push_back(this->field_14[i].field_4);
     }
 }
 
 void nalComp::nalCompInstance::BuildEmptyPoseArray()
 {
-    void (__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x10));
+    void(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x10));
     func(this);
 }
 
@@ -317,11 +279,9 @@ void nalComp::nalCompInstance::_BuildPerInstData()
         int *v56 = new int[this->field_18];
         auto *Skeleton = this->GetSkeleton();
         auto *Anim = this->GetAnim();
-        for ( int i = 0; i < this->field_18; ++i )
-        {
+        for (int i = 0; i < this->field_18; ++i) {
             auto *v52 = &this->field_14[i];
-            if ( v52->field_11 )
-            {
+            if (v52->field_11) {
                 auto *Component_0 = Skeleton->GetComponent(v52->field_0);
                 auto v41 = !v52->field_10;
                 auto CompAnimTrackData = Anim->GetCompAnimTrackData(v52->field_8);
@@ -333,13 +293,7 @@ void nalComp::nalCompInstance::_BuildPerInstData()
                 auto v19 = Skeleton->GetCompPerSkelDataInt(v52->field_0);
                 auto Name = Skeleton->GetName(v52->field_0);
                 int v51 = Component_0->GetSizeOfPerInstData(
-                        Name,
-                        v19,
-                        CompPerSkelDataInt,
-                        CompDefaultPoseData,
-                        CompPerAnimDataInt,
-                        CompAnimTrackData,
-                        v41);
+                    Name, v19, CompPerSkelDataInt, CompDefaultPoseData, CompPerAnimDataInt, CompAnimTrackData, v41);
                 auto v46 = Skeleton->GetComponent(v52->field_0);
 
                 auto v42 = !v52->field_10;
@@ -351,50 +305,33 @@ void nalComp::nalCompInstance::_BuildPerInstData()
                 auto v26 = v5->GetCompPerSkelDataInt(v25);
                 auto v20 = Skeleton->GetCompPerSkelDataInt(v52->field_0);
                 auto v6 = Skeleton->GetName(v52->field_0);
-                int v50 = int(v46->GetAlignOfPerInstData(
-                        v6,
-                        v20,
-                        v26,
-                        v30,
-                        v34,
-                        v38,
-                        v42));
-                if ( !dwSize && v51 ) {
+                int v50 = int(v46->GetAlignOfPerInstData(v6, v20, v26, v30, v34, v38, v42));
+                if (!dwSize && v51) {
                     a2 = v50;
                 }
 
-                if ( v51 )
-                {
-                    auto func = [](int a1, int a2) -> int
-                    {
-                          return ~(a2 - 1) & (a1 + a2 - 1);
+                if (v51) {
+                    auto func = [](int a1, int a2) -> int {
+                        return ~(a2 - 1) & (a1 + a2 - 1);
                     };
 
                     auto v7 = func(dwSize, v50);
                     v56[i] = v7;
                     dwSize = v51 + v7;
-                }
-                else
-                {
+                } else {
                     v56[i] = -1;
                 }
-            }
-            else
-            {
+            } else {
                 v56[i] = -1;
             }
         }
 
         this->field_1C = CAST(this->field_1C, tlMemAlloc(dwSize, a2, 0));
         auto *v49 = (char *)this->field_1C;
-        for ( int j = 0; j < this->field_18; ++j )
-        {
-            if ( v56[j] == -1 )
-            {
+        for (int j = 0; j < this->field_18; ++j) {
+            if (v56[j] == -1) {
                 this->field_14[j].field_C = nullptr;
-            }
-            else
-            {
+            } else {
                 this->field_14[j].field_C = &v49[v56[j]];
                 auto v43 = this->field_14[j].field_0;
                 auto v8 = this->GetSkeleton();
@@ -419,44 +356,31 @@ void nalComp::nalCompInstance::_BuildPerInstData()
                 auto v17 = this->field_14[j].field_0;
                 auto *v16 = this->GetSkeleton();
                 auto v18 = v16->GetName(v17);
-                v47->BuildPerInstData(
-                    this->field_14[j].field_C,
-                    v18,
-                    v22,
-                    v28,
-                    v32,
-                    v36,
-                    v40,
-                    v44);
+                v47->BuildPerInstData(this->field_14[j].field_C, v18, v22, v28, v32, v36, v40, v44);
             }
         }
 
-        delete[](v56);
+        delete[] (v56);
     } else {
-        void (__fastcall * func)(void *) = CAST(func, 0x00737130);
+        void(__fastcall * func)(void *) = CAST(func, 0x00737130);
         func(this);
     }
 }
 
 void nalComp::nalCompInstance::BuildPerInstData()
 {
-    void (__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x14));
+    void(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x14));
     func(this);
 }
 
 
-void nalComp::nalCompInstance::GetPose(
-        Float a2,
-        Float a3,
-        nalComp::nalCompPose *a4,
-        const nalComp::nalCompPose *a5)
+void nalComp::nalCompInstance::GetPose(Float a2, Float a3, nalComp::nalCompPose *a4, const nalComp::nalCompPose *a5)
 {
     TRACE("nalComp::nalCompInstance::GetPose");
 
     if constexpr (1) {
         *a4 = *a5;
-        for ( int i = 0; i < this->field_18; ++i )
-        {
+        for (int i = 0; i < this->field_18; ++i) {
             struct {
                 int field_0;
                 int field_4;
@@ -467,13 +391,11 @@ void nalComp::nalCompInstance::GetPose(
                 char field_12;
                 char field_13;
             } *v30 = CAST(v30, ((char *)this->field_14 + 0x14 * i));
-            if ( v30->field_8 != -1 && v30->field_11 )
-            {
+            if (v30->field_8 != -1 && v30->field_11) {
                 auto v26 = v30->field_0;
                 auto *v5 = this->GetSkeleton();
                 auto *v29 = v5->GetComponent(v26);
-                if ( v30->field_10 )
-                {
+                if (v30->field_10) {
                     auto v24 = v30->field_8;
                     auto *v7 = this->GetAnim();
                     auto animTrackData = v7->GetCompAnimTrackData(v24);
@@ -487,20 +409,16 @@ void nalComp::nalCompInstance::GetPose(
                     auto v20 = v9->GetName(v19);
                     auto v10 = a4->GetComponentPoseData(v30->field_0);
 
-                    v29->CalcPoseDataDirect(
-                            v10,
-                            v20,
-                            a2,
-                            a3,
-                            v7,
-                            skelDataInt,
-                            bit_cast<void *>(animDataInt),
-                            bit_cast<void *>(animTrackData),
-                            v30->field_C
-                    );
-                }
-                else
-                {
+                    v29->CalcPoseDataDirect(v10,
+                                            v20,
+                                            a2,
+                                            a3,
+                                            v7,
+                                            skelDataInt,
+                                            bit_cast<void *>(animDataInt),
+                                            bit_cast<void *>(animTrackData),
+                                            v30->field_C);
+                } else {
                     auto v27 = v30->field_8;
                     auto anim = this->GetAnim();
                     auto *v12 = anim->GetSkeleton();
@@ -516,17 +434,15 @@ void nalComp::nalCompInstance::GetPose(
                     auto v16 = this->GetSkeleton();
                     auto v19 = v16->GetName(v18);
                     auto v17 = a4->GetComponentPoseData(v30->field_0);
-                    v29->CalcPoseDataRemapped(
-                            v17,
-                            v19,
-                            a2,
-                            a3,
-                            anim,
-                            skelDataInt,
-                            bit_cast<void *>(animDataInt),
-                            bit_cast<void *>(animTrackData),
-                            v30->field_C
-                    );
+                    v29->CalcPoseDataRemapped(v17,
+                                              v19,
+                                              a2,
+                                              a3,
+                                              anim,
+                                              skelDataInt,
+                                              bit_cast<void *>(animDataInt),
+                                              bit_cast<void *>(animTrackData),
+                                              v30->field_C);
                 }
             }
         }

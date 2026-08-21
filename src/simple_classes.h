@@ -3,9 +3,8 @@
 #include <cstdint>
 #include <cassert>
 
-template<typename T, int Num>
+template <typename T, int Num>
 struct simple_queue {
-
     static inline auto constexpr size = Num;
 
     T field_0[Num];
@@ -27,9 +26,8 @@ struct simple_queue {
     short push_back(const int &a2)
     {
         assert(this->m_count < size);
-        
-        if ( ++this->field_6 >= 32 )
-        {
+
+        if (++this->field_6 >= 32) {
             this->field_6 = 0;
         }
 
@@ -37,7 +35,8 @@ struct simple_queue {
         return ++this->m_count;
     }
 
-    int find(const T &a2, int16_t a3) {
+    int find(const T &a2, int16_t a3)
+    {
         auto v4 = this->m_count;
         int result = this->field_4;
         if (v4 > 0) {
@@ -97,7 +96,7 @@ struct simple_queue {
 
         assert(m_count > 0);
 
-        if ( ++this->field_4 >= 32 )
+        if (++this->field_4 >= 32)
             this->field_4 = 0;
 
         --this->m_count;

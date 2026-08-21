@@ -20,8 +20,7 @@ struct std_default_trans_inode : info_node {
 
     void set_enabled(bool a2);
 
-    static const inline string_hash default_id{
-        static_cast<int>(to_hash("std_default_trans_inode"))};
+    static const inline string_hash default_id{static_cast<int>(to_hash("std_default_trans_inode"))};
 };
 
-} // namespace ai
+}  // namespace ai

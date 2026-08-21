@@ -26,4 +26,4 @@ struct sound_instance_id {
 
 [[nodiscard]] extern sound_instance_id sub_60B960(string_hash a2, Float a3, Float a4);
 
-extern sound_instance_slot *& s_sound_instance_slots;
+extern sound_instance_slot *&s_sound_instance_slots;

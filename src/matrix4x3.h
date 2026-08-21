@@ -9,11 +9,13 @@ struct matrix4x3 {
 
     matrix4x3() = default;
 
-    auto &operator[](int idx) {
+    auto &operator[](int idx)
+    {
         return arr[idx];
     }
 
-    const auto &operator[](int idx) const {
+    const auto &operator[](int idx) const
+    {
         return arr[idx];
     }
 

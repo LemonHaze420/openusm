@@ -1,4 +1,3 @@
 #pragma once
 
-struct Fing5CurlEntCompDecomp {
-};
+struct Fing5CurlEntCompDecomp {};

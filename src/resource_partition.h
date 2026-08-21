@@ -37,35 +37,42 @@ public:
     //0x0053DFD0
     ~resource_partition();
 
-    void * operator new(size_t size);
+    void *operator new(size_t size);
 
     void operator delete(void *ptr, size_t size);
 
-    auto get_type() const {
+    auto get_type() const
+    {
         return field_4;
     }
 
-    void set_buffer(uint8_t *buffer) {
+    void set_buffer(uint8_t *buffer)
+    {
         this->m_partition_buffer = buffer;
     }
 
-    uint8_t * get_buffer() {
+    uint8_t *get_buffer()
+    {
         return this->m_partition_buffer;
     }
 
-    void set_buffer_used(int used) {
+    void set_buffer_used(int used)
+    {
         this->partition_buffer_used = used;
     }
 
-    auto get_buffer_used() const {
+    auto get_buffer_used() const
+    {
         return this->partition_buffer_used;
     }
 
-    void set_buffer_size(int size) {
+    void set_buffer_size(int size)
+    {
         this->partition_buffer_size = size;
     }
 
-    auto get_buffer_size() const {
+    auto get_buffer_size() const
+    {
         return this->partition_buffer_size;
     }
 
@@ -84,11 +91,13 @@ public:
     //0x00537BB0
     void pop_pack_slot();
 
-    resource_pack_streamer *get_streamer() {
+    resource_pack_streamer *get_streamer()
+    {
         return (&streamer);
     }
 
-    auto &get_pack_slots() {
+    auto &get_pack_slots()
+    {
         return this->m_pack_slots;
     }
 };

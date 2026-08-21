@@ -13,9 +13,9 @@ struct nugget_wait_state : enhanced_state {
 
     state_trans_messages frame_advance(Float a2);
 
-    static inline string_hash wait_anim_hash {to_hash("wait_anim")};
+    static inline string_hash wait_anim_hash{to_hash("wait_anim")};
 
-    static inline string_hash looping_wait_anim_hash {to_hash("looping_wait_anim")};
+    static inline string_hash looping_wait_anim_hash{to_hash("looping_wait_anim")};
 };
 
-}
+}  // namespace ai

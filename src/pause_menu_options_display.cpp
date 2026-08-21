@@ -7,8 +7,8 @@
 
 VALIDATE_SIZE(pause_menu_options_display, 0x1A4u);
 
-pause_menu_options_display::pause_menu_options_display(FEMenuSystem *a2, int a3, int a4)
-    : FEMenu(a2, 0, a3, a4, 8, 0) {
+pause_menu_options_display::pause_menu_options_display(FEMenuSystem *a2, int a3, int a4) : FEMenu(a2, 0, a3, a4, 8, 0)
+{
     THISCALL(0x0061D970, this, a2, a3, a4);
 }
 

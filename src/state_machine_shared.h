@@ -16,7 +16,7 @@ struct transition_group_base;
 struct state_machine_shared : mash_virtual_base {
     state_machine_shared();
 
-    state_machine_shared(from_mash_in_place_constructor * a2);
+    state_machine_shared(from_mash_in_place_constructor *a2);
 
     mVector<state> state_list;
     mVector<category> category_list;
@@ -36,6 +36,6 @@ struct state_machine_shared : mash_virtual_base {
     //virtual
     int get_mash_sizeof() const;
 };
-} // namespace als
+}  // namespace als
 
 extern void als_state_machine_shared_patch();

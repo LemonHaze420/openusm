@@ -49,9 +49,7 @@ struct fe_mission_text {
     //0x0061AA00
     void SetShown(bool a2);
 
-    static inline void * g_vtbl[] {
-        nullptr
-    };
+    static inline void *g_vtbl[]{nullptr};
 };
 
 extern void fe_mission_text_patch();

@@ -1,5 +1,4 @@
 #pragma once
 
-template<typename T>
-struct ArmIKEntCompDecomp {
-};
+template <typename T>
+struct ArmIKEntCompDecomp {};

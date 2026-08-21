@@ -6,8 +6,7 @@
 struct from_mash_in_place_constructor;
 struct mash_info_struct;
 
-struct interact_sound_entry
-{
+struct interact_sound_entry {
     string_hash field_0;
     int field_4;
     int field_8;

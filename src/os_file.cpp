@@ -18,47 +18,49 @@
 VALIDATE_OFFSET(os_file, field_1C, 0x1C);
 
 #if !STANDALONE_SYSTEM
-bool & os_file::system_locked = var<bool>(0x00965E68);
+bool &os_file::system_locked = var<bool>(0x00965E68);
 
-bool & byte_965E69 = var<bool>(0x00965E69);
+bool &byte_965E69 = var<bool>(0x00965E69);
 
-auto & g_lpBuffer = var<LPVOID[10]>(0x00965E6C);
+auto &g_lpBuffer = var<LPVOID[10]>(0x00965E6C);
 
-auto & byte_965E94 = var<bool[10]>(0x00965E94);
+auto &byte_965E94 = var<bool[10]>(0x00965E94);
 
 #else
 
-static bool g_system_locked {};
-bool & os_file::system_locked = g_system_locked;
+static bool g_system_locked{};
+bool &os_file::system_locked = g_system_locked;
 
-static bool g_byte_965E69 {};
-bool & byte_965E69 = g_byte_965E69;
+static bool g_byte_965E69{};
+bool &byte_965E69 = g_byte_965E69;
 
-static LPVOID g_lpBuffer1[10] {};
-LPVOID (& g_lpBuffer)[10] = g_lpBuffer1;
+static LPVOID g_lpBuffer1[10]{};
+LPVOID (&g_lpBuffer)[10] = g_lpBuffer1;
 
-static bool g_byte_965E94[10] {};
-bool (& byte_965E94)[10] = g_byte_965E94;
+static bool g_byte_965E94[10]{};
+bool (&byte_965E94)[10] = g_byte_965E94;
 
 #endif
 
 static constexpr auto max_size = 0x200000;
 
-decltype(auto) get_file_pathname(HANDLE hFile) {
+decltype(auto) get_file_pathname(HANDLE hFile)
+{
     std::unique_ptr<char[]> buffer = std::make_unique<char[]>(MAX_PATH);
 
-    auto result = GetFinalPathNameByHandle(hFile, // handle to file
+    auto result = GetFinalPathNameByHandle(hFile,  // handle to file
                                            //buffer.data(),
-                                           buffer.get(), // buffer that receives the resolved path
-                                           MAX_PATH,     // max buffer size
-                                           VOLUME_NAME_DOS); // path with normal volume label
+                                           buffer.get(),      // buffer that receives the resolved path
+                                           MAX_PATH,          // max buffer size
+                                           VOLUME_NAME_DOS);  // path with normal volume label
 
     assert(result > 0 && result <= MAX_PATH);
 
     return buffer;
 }
 
-void sub_58DE20() {
+void sub_58DE20()
+{
     byte_965E69 = true;
 
     for (int i{0}; i < 10; ++i) {
@@ -67,7 +69,8 @@ void sub_58DE20() {
     }
 }
 
-void sub_58DE60() {
+void sub_58DE60()
+{
     byte_965E69 = false;
 
     for (int i{0}; i < 10; ++i) {
@@ -77,35 +80,37 @@ void sub_58DE60() {
     }
 }
 
-void add_str(char *Dest, const char *Source, size_t a3) {
+void add_str(char *Dest, const char *Source, size_t a3)
+{
     strncat(Dest, Source, a3 - strlen(Dest));
     Dest[a3 - 1] = '\0';
 }
 
-void copy_str(char *Dest, const char *Source, size_t Count) {
+void copy_str(char *Dest, const char *Source, size_t Count)
+{
     strncpy(Dest, Source, Count);
     Dest[Count - 1] = '\0';
 }
 
 #if !STANDALONE_SYSTEM
-bool & byte_9363E8 = var<bool>(0x009363E8);
-bool & byte_9363E0 = var<bool>(0x009363E0);
+bool &byte_9363E8 = var<bool>(0x009363E8);
+bool &byte_9363E0 = var<bool>(0x009363E0);
 
-char (& byte_967BE0)[284] = var<char[284]>(0x00967BE0);
-char (& byte_967D08)[260] = var<char[260]>(0x00967D08);
+char (&byte_967BE0)[284] = var<char[284]>(0x00967BE0);
+char (&byte_967D08)[260] = var<char[260]>(0x00967D08);
 #else
 
 static bool g_byte_9363E8 = true;
-bool & byte_9363E8 = g_byte_9363E8;
+bool &byte_9363E8 = g_byte_9363E8;
 
 static bool g_byte_9363E0 = true;
-bool & byte_9363E0 = g_byte_9363E0;
+bool &byte_9363E0 = g_byte_9363E0;
 
-static char g_byte_967BE0[284] {};
-char (& byte_967BE0)[284] = g_byte_967BE0;
+static char g_byte_967BE0[284]{};
+char (&byte_967BE0)[284] = g_byte_967BE0;
 
-static char g_byte_967D08[260] {};
-char (& byte_967D08)[260] = g_byte_967D08;
+static char g_byte_967D08[260]{};
+char (&byte_967D08)[260] = g_byte_967D08;
 
 #endif
 
@@ -130,7 +135,6 @@ os_file::os_file()
     : m_path()
 #endif
 {
-
 #ifndef _STDEX_NATIVE_CPP11_SUPPORT
     this->field_0 = mString();
 #endif
@@ -147,7 +151,8 @@ os_file::os_file()
     this->field_24 = byte_965E69;
 }
 
-os_file::os_file(const mString &a2, int dwShareMode) : m_path() {
+os_file::os_file(const mString &a2, int dwShareMode) : m_path()
+{
     this->io = INVALID_HANDLE_VALUE;
 
     this->m_offset = 0xFFFFFFFF;
@@ -161,13 +166,15 @@ os_file::os_file(const mString &a2, int dwShareMode) : m_path() {
     this->open(a2, dwShareMode);
 }
 
-os_file::~os_file() {
+os_file::~os_file()
+{
     if (this->opened) {
         this->close();
     }
 }
 
-void os_file::sub_58DEF0() {
+void os_file::sub_58DEF0()
+{
     void *v5 = g_lpBuffer[this->m_offset];
 
     uint32_t v7 = max_size;
@@ -181,7 +188,8 @@ void os_file::sub_58DEF0() {
     this->field_30 = numberOfBytesRead;
 }
 
-size_t os_file::sub_58DF50() {
+size_t os_file::sub_58DF50()
+{
     LPCVOID v3 = g_lpBuffer[this->m_offset];
 
     auto NumberOfBytesWritten = 0ul;
@@ -191,7 +199,8 @@ size_t os_file::sub_58DF50() {
     return NumberOfBytesWritten;
 }
 
-void os_file::close() {
+void os_file::close()
+{
     assert(io != INVALID_HANDLE_VALUE);
     assert(opened);
 
@@ -216,7 +225,8 @@ void os_file::close() {
     this->m_offset = 0xFFFFFFFF;
 }
 
-void os_file::set_fp(uint32_t pos, os_file::filepos_t base) {
+void os_file::set_fp(uint32_t pos, os_file::filepos_t base)
+{
     if (this->field_24 && this->flags & 6 && this->field_2C) {
         this->sub_58DF50();
     }
@@ -332,7 +342,8 @@ int os_file::read(LPVOID data, int bytes)
     }
 }
 
-int os_file::get_size() {
+int os_file::get_size()
+{
     int result = -1;
     if (this->opened) {
         result = this->m_fileSize;
@@ -340,15 +351,14 @@ int os_file::get_size() {
     return result;
 }
 
-static cdecl_call & dword_965EA0 = var<cdecl_call>(0x00965EA0);
+static cdecl_call &dword_965EA0 = var<cdecl_call>(0x00965EA0);
 
-void os_file::open(const mString &path, int shareMode) {
+void os_file::open(const mString &path, int shareMode)
+{
     TRACE("os_file::open", path.c_str());
 
     if constexpr (1) {
-
-        if (os_file::system_locked &&
-            !os_developer_options::instance->get_flag(mString {"MOVE_EDITOR"})) {
+        if (os_file::system_locked && !os_developer_options::instance->get_flag(mString{"MOVE_EDITOR"})) {
             mString a1 = path + ": os_file system is locked; no file access allowed";
         }
 
@@ -458,12 +468,13 @@ void os_file::open(const mString &path, int shareMode) {
             }
         }
     } else {
-        void (__fastcall *func)(void *, void *edx, const mString *path, int shareMode) = CAST(func, 0x0059B740);
+        void(__fastcall * func)(void *, void *edx, const mString *path, int shareMode) = CAST(func, 0x0059B740);
         func(this, nullptr, &path, shareMode);
     }
 }
 
-int os_file::write(const void *lpBuffer, int nNumberOfBytesToWrite) {
+int os_file::write(const void *lpBuffer, int nNumberOfBytesToWrite)
+{
     if constexpr (1) {
         auto v3 = nNumberOfBytesToWrite;
 
@@ -474,7 +485,7 @@ int os_file::write(const void *lpBuffer, int nNumberOfBytesToWrite) {
         auto *buffer = static_cast<const char *>(lpBuffer);
         nNumberOfBytesToWrite = 0;
         if (v3 > max_size) {
-            auto v7 = ((unsigned int) (v3 - (max_size + 1)) >> 21) + 1;
+            auto v7 = ((unsigned int)(v3 - (max_size + 1)) >> 21) + 1;
             v3 -= max_size * v7;
             do {
                 auto v8 = this->write(buffer, max_size);
@@ -503,7 +514,7 @@ int os_file::write(const void *lpBuffer, int nNumberOfBytesToWrite) {
             WriteFile(v13, buffer, v3, &numberOfBytesWritten, nullptr);
             auto v14 = this->field_1C;
             nNumberOfBytesToWrite += numberOfBytesWritten;
-            this->field_1C = (int) lpBuffer + v14;
+            this->field_1C = (int)lpBuffer + v14;
         }
 
         auto v15 = this->field_1C;
@@ -515,11 +526,12 @@ int os_file::write(const void *lpBuffer, int nNumberOfBytesToWrite) {
 
         return nNumberOfBytesToWrite;
     } else {
-        return (int) THISCALL(0x00598C30, lpBuffer, nNumberOfBytesToWrite);
+        return (int)THISCALL(0x00598C30, lpBuffer, nNumberOfBytesToWrite);
     }
 }
 
-void os_file_patch() {
+void os_file_patch()
+{
     {
         FUNC_ADDRESS(address, &os_file::write);
         REDIRECT(0x0052A72B, address);

@@ -18,18 +18,20 @@ VALIDATE_SIZE(als_inode, 0x2C);
 
 als_inode::als_inode() {}
 
-als::state_machine *als_inode::get_als_layer(als::layer_types a2) {
+als::state_machine *als_inode::get_als_layer(als::layer_types a2)
+{
     if constexpr (1) {
         assert(get_system() != nullptr);
 
         return this->get_system()->get_als_layer(a2);
     } else {
-        return (als::state_machine *) THISCALL(0x00689BA0, this, a2);
+        return (als::state_machine *)THISCALL(0x00689BA0, this, a2);
     }
 }
 
-string_hash als_inode::get_state_id(als::layer_types a3) {
-    auto *the_layer= this->get_als_layer(a3);
+string_hash als_inode::get_state_id(als::layer_types a3)
+{
+    auto *the_layer = this->get_als_layer(a3);
     return the_layer->get_state_id();
 }
 
@@ -39,7 +41,8 @@ bool als_inode::is_layer_interruptable(als::layer_types a1)
     return als_layer->is_interruptable();
 }
 
-string_hash als_inode::get_category_id(als::layer_types a3) {
+string_hash als_inode::get_category_id(als::layer_types a3)
+{
     auto *v3 = this->get_als_layer(a3);
 
     string_hash id = v3->get_category_id();
@@ -52,8 +55,8 @@ void als_inode::set_desired_params(als::param_list &a2, als::layer_types a3)
     the_layer->set_desired_params(a2);
 }
 
-void als_inode::request_category_transition(
-    string_hash a2, als::layer_types a3, bool a4, bool a5, bool a6) {
+void als_inode::request_category_transition(string_hash a2, als::layer_types a3, bool a4, bool a5, bool a6)
+{
     if constexpr (1) {
         als::state_machine *v7 = nullptr;
 
@@ -67,19 +70,20 @@ void als_inode::request_category_transition(
     }
 }
 
-void als_inode::activate(ai_core *a2) {
+void als_inode::activate(ai_core *a2)
+{
     THISCALL(0x00693770, this, a2);
 }
 
-void als_inode::set_known_combat_signal_time_and_category(Float a2, string_hash a3) {
+void als_inode::set_known_combat_signal_time_and_category(Float a2, string_hash a3)
+{
     this->field_24 = a2;
     this->field_28 = a3;
 }
 
 float als_inode::get_eta_of_combat_signal(als::layer_types a2)
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         string_hash v16 = event::ATTACK;
         auto *v3 = this->field_1C;
 
@@ -105,10 +109,8 @@ float als_inode::get_eta_of_combat_signal(als::layer_types a2)
             this->set_known_combat_signal_time_and_category(tmp, category_id);
         }
         return a2a;
-    }
-    else
-    {
-        float (__fastcall *func)(void *, void *edx, als::layer_types a2) = CAST(func, 0x00689C20);
+    } else {
+        float(__fastcall * func)(void *, void *edx, als::layer_types a2) = CAST(func, 0x00689C20);
         return func(this, nullptr, a2);
     }
 }
@@ -125,21 +127,17 @@ bool als_inode::anim_finished(string_hash a2, als::layer_types a3)
 
     if constexpr (0) {
         auto *the_layer = this->field_1C->get_als_layer(a3);
-        if ( the_layer->is_cat_our_prev_cat(a2) ) {
+        if (the_layer->is_cat_our_prev_cat(a2)) {
             return true;
         }
 
-        if ( the_layer->get_category_id() == a2 )
-        {
+        if (the_layer->get_category_id() == a2) {
             return std::abs(the_layer->get_time_to_end_of_anim()) < EPSILON;
-        }
-        else
-        {
+        } else {
             return !the_layer->is_requesting_category(a2);
         }
     } else {
-
-        bool (__fastcall *func)(void *, void *, string_hash, als::layer_types) = CAST(func, 0x00689E10);
+        bool(__fastcall * func)(void *, void *, string_hash, als::layer_types) = CAST(func, 0x00689E10);
         auto result = func(this, nullptr, a2, a3);
         sp_log("result = %d", result);
 
@@ -147,9 +145,10 @@ bool als_inode::anim_finished(string_hash a2, als::layer_types a3)
     }
 }
 
-} // namespace ai
+}  // namespace ai
 
-void als_inode_patch() {
+void als_inode_patch()
+{
     {
         FUNC_ADDRESS(address, &ai::als_inode::get_eta_of_combat_signal);
         //set_vfunc(0x0087CEF8, address);

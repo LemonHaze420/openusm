@@ -8,12 +8,11 @@
 
 VALIDATE_SIZE(wds_patrol_def_manager, 0x10u);
 
-patrol_def * wds_patrol_def_manager::get_patrol_def(const string_hash &a2) const
+patrol_def *wds_patrol_def_manager::get_patrol_def(const string_hash &a2) const
 {
-    for ( auto &def : this->field_0 )
-    {
+    for (auto &def : this->field_0) {
         auto v4 = def->get_id_hash();
-        if ( v4 == a2 ) {
+        if (v4 == a2) {
             return def;
         }
     }
@@ -21,25 +20,21 @@ patrol_def * wds_patrol_def_manager::get_patrol_def(const string_hash &a2) const
     return nullptr;
 }
 
-void wds_patrol_def_manager::add_patrol_defs_from_set(
-        patrol_def_set *the_set)
+void wds_patrol_def_manager::add_patrol_defs_from_set(patrol_def_set *the_set)
 {
-    for ( int i = 0; i < the_set->field_0.size(); ++i )
-    {
+    for (int i = 0; i < the_set->field_0.size(); ++i) {
         auto *def = the_set->field_0.at(i);
         assert(def != nullptr);
 
-        assert(this->get_patrol_def( def->get_id_hash() ) == nullptr && "patrol def name collision");
+        assert(this->get_patrol_def(def->get_id_hash()) == nullptr && "patrol def name collision");
 
         this->field_0.push_back(def);
     }
 }
 
-void wds_patrol_def_manager::remove_patrol_defs_from_set(
-        patrol_def_set *the_set)
+void wds_patrol_def_manager::remove_patrol_defs_from_set(patrol_def_set *the_set)
 {
-    for ( int i = 0; i < the_set->field_0.size(); ++i )
-    {
+    for (int i = 0; i < the_set->field_0.size(); ++i) {
         auto *def = the_set->field_0.at(i);
         assert(def != nullptr);
 

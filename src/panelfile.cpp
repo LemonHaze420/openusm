@@ -21,18 +21,19 @@ VALIDATE_OFFSET(PanelFile, field_28, 0x28);
 
 #if !STANDALONE_SYSTEM
 
-nglMeshFile *& PanelFile::g_curmeshfile = var<nglMeshFile *>(0x0096B444);
+nglMeshFile *&PanelFile::g_curmeshfile = var<nglMeshFile *>(0x0096B444);
 
 #else
 
-nglMeshFile *& PanelFile::g_curmeshfile = []() -> auto & {
-    static nglMeshFile * g_curmeshfile1 {};
+nglMeshFile *&PanelFile::g_curmeshfile = []() -> auto & {
+    static nglMeshFile *g_curmeshfile1{};
     return g_curmeshfile1;
 }();
 
 #endif
 
-void PanelFile::Draw() {
+void PanelFile::Draw()
+{
     THISCALL(0x00616A60, this);
 }
 
@@ -49,14 +50,13 @@ PanelFile *PanelFile::UnmashPanelFile(const char *a1, panel_layer a2)
 {
     TRACE("PanelFile::UnmashPanelFile", a1);
 
-    if constexpr (UnmashPanelFile_hook)
-    {
+    if constexpr (UnmashPanelFile_hook) {
         assert(g_curmeshfile == nullptr);
 
-        tlFixedString v11 {a1};
+        tlFixedString v11{a1};
         g_curmeshfile = nglLoadMeshFile(v11);
 
-        resource_key resource_id {string_hash {a1}, RESOURCE_KEY_TYPE_PANEL};
+        resource_key resource_id{string_hash{a1}, RESOURCE_KEY_TYPE_PANEL};
 
         int mash_data_size;
         auto *the_panel_image = resource_manager::get_resource(resource_id, &mash_data_size, nullptr);
@@ -64,29 +64,28 @@ PanelFile *PanelFile::UnmashPanelFile(const char *a1, panel_layer a2)
         sp_log("0x%08X", the_panel_image);
 
 #ifndef TARGET_XBOX
-        mash_info_struct v10 {the_panel_image, mash_data_size};
+        mash_info_struct v10{the_panel_image, mash_data_size};
 #else
-        mash_info_struct v10 {mash::UNMASH_MODE, the_panel_image, mash_data_size, true};
+        mash_info_struct v10{mash::UNMASH_MODE, the_panel_image, mash_data_size, true};
 #endif
 
         PanelFile *v6 = nullptr;
-        v10.unmash_class(v6, nullptr
+        v10.unmash_class(v6,
+                         nullptr
 #ifdef TARGET_XBOX
-            , mash::NORMAL_BUFFER
+                         ,
+                         mash::NORMAL_BUFFER
 #endif
-                );
+        );
         v6->PostUnmashFixup(a2);
         mash_info_struct::construct_class(v6);
 
         g_curmeshfile = nullptr;
 
         return v6;
+    } else {
+        return (PanelFile *)CDECL_CALL(0x00643000, a1, a2);
     }
-    else
-    {
-        return (PanelFile *) CDECL_CALL(0x00643000, a1, a2);
-    }
-
 }
 
 PanelAnimFile *PanelFile::GetAnimationPointer(int a1)
@@ -94,12 +93,11 @@ PanelAnimFile *PanelFile::GetAnimationPointer(int a1)
     return this->field_28.at(a1);
 }
 
-FEText * PanelFile::GetTextPointer(const char *a2)
+FEText *PanelFile::GetTextPointer(const char *a2)
 {
     TRACE("PanelFile::GetTextPointer", a2);
 
-    for (uint16_t i = 0; i < this->ptext.size(); ++i)
-    {
+    for (uint16_t i = 0; i < this->ptext.size(); ++i) {
         auto *v5 = this->ptext.at(i);
 
         auto v6 = (strcmp(v5->GetName().c_str(), a2) == 0);
@@ -114,18 +112,17 @@ FEText * PanelFile::GetTextPointer(const char *a2)
     return nullptr;
 }
 
-PanelQuad *PanelFile::GetPQ(const char *a2) {
+PanelQuad *PanelFile::GetPQ(const char *a2)
+{
     TRACE("PanelFile::GetPQ", a2);
     auto v3 = this->pquads.m_data;
 
     sp_log("size = %d", this->pquads.size());
-    for (uint16_t i = 0; i < this->pquads.size(); ++i)
-    {
+    for (uint16_t i = 0; i < this->pquads.size(); ++i) {
         auto &pquad = v3[i];
         //sp_log("%d %s", i, pquad->field_3C.c_str());
 
-        if (strcmp(pquad->field_3C.c_str(), a2) == 0)
-        {
+        if (strcmp(pquad->field_3C.c_str(), a2) == 0) {
             return pquad;
         }
     }
@@ -137,10 +134,8 @@ PanelQuad *PanelFile::GetPQ(const char *a2) {
 
 void PanelFile::Update(Float a2)
 {
-    if constexpr (1)
-    {
-        for (uint16_t i = 0; i < this->pquads.m_size; ++i)
-        {
+    if constexpr (1) {
+        for (uint16_t i = 0; i < this->pquads.m_size; ++i) {
             auto *v4 = this->pquads.m_data[i];
             v4->Update(a2);
         }
@@ -155,38 +150,31 @@ void PanelFile::Update(Float a2)
 
 void PanelFile::PostUnmashFixup(panel_layer a3)
 {
-    if constexpr (1)
-    {
-        for ( auto i = 0; i < this->pquads.m_size; ++i )
-        {
+    if constexpr (1) {
+        for (auto i = 0; i < this->pquads.m_size; ++i) {
             auto *v4 = this->pquads.m_data[i];
             auto v10 = v4->GetZvalue();
             v4->SetZvalue(v10, a3);
         }
 
-        for ( auto j = 0; j < this->ptext.m_size; ++j )
-        {
+        for (auto j = 0; j < this->ptext.m_size; ++j) {
             auto *v7 = this->ptext.m_data[j];
             auto v11 = v7->GetZvalue();
             v7->SetZvalue(v11, a3);
         }
 
-        for ( auto k = 0; k < this->field_28.size(); ++k )
-        {
+        for (auto k = 0; k < this->field_28.size(); ++k) {
             auto *v1 = this->field_28.m_data[k];
             v1->PostUnmashFixup(this);
         }
-    }
-    else
-    {
+    } else {
         THISCALL(0x00628960, this, a3);
     }
 }
 
 void PanelFile_patch()
 {
-    if constexpr (UnmashPanelFile_hook)
-    {
+    if constexpr (UnmashPanelFile_hook) {
         SET_JUMP(0x000643000, PanelFile::UnmashPanelFile);
     }
 
@@ -200,14 +188,12 @@ void PanelFile_patch()
         SET_JUMP(0x00616B40, address);
     }
 
-    if constexpr(1)
-    {
+    if constexpr (1) {
         FUNC_ADDRESS(address, &PanelFile::PostUnmashFixup);
         REDIRECT(0x006430AE, address);
     }
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         FUNC_ADDRESS(address, &mVector<PanelQuad>::custom_unmash);
         REDIRECT(0x0064D153, address);
     }
@@ -217,8 +203,7 @@ void PanelFile_patch()
         REDIRECT(0x0064D168, address);
     }
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         FUNC_ADDRESS(address, &mVector<PanelAnimFile>::custom_unmash);
         REDIRECT(0x0064D17D, address);
     }
@@ -228,5 +213,4 @@ void PanelFile_patch()
         FUNC_ADDRESS(address, &mash_info_struct::unmash_class<PanelFile>);
         REDIRECT(0x0064309E, address);
     }
-
 }

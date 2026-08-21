@@ -11,8 +11,7 @@ struct ai_core;
 struct debug_menu_entry;
 struct script_instance;
 
-struct debug_menu
-{
+struct debug_menu {
     enum class sort_mode_t {
         undefined = 0,
         ascending = 1,
@@ -32,7 +31,7 @@ struct debug_menu
 
     ~debug_menu();
 
-    void * operator new(size_t size);
+    void *operator new(size_t size);
 
     void operator delete(void *);
 
@@ -79,7 +78,7 @@ struct debug_menu
     static inline int menu_width = 0;
 
     static inline bool has_focus = false;
-    
+
     static inline bool physics_state_on_exit = true;
 
     static inline bool had_menu_this_frame = false;
@@ -97,8 +96,7 @@ struct debug_menu
     static fixed_pool pool;
 };
 
-enum class ValueType : uint16_t
-{
+enum class ValueType : uint16_t {
     UNDEFINED = 0,
     FLOAT = 1,
     POINTER_FLOAT = 2,
@@ -121,8 +119,8 @@ struct debug_menu_entry {
     } m_value;
     void (*m_game_flags_handler)(debug_menu_entry *);
     mString (*render_callback)(debug_menu_entry *);
-    void (__cdecl *field_C)(debug_menu_entry *, void *);
-    void (__cdecl *frame_advance_callback)(debug_menu_entry *);
+    void(__cdecl *field_C)(debug_menu_entry *, void *);
+    void(__cdecl *frame_advance_callback)(debug_menu_entry *);
     script_instance *field_14;
     int field_18;
     unsigned short m_id;
@@ -145,7 +143,7 @@ struct debug_menu_entry {
 
     ~debug_menu_entry();
 
-    void * operator new(size_t );
+    void *operator new(size_t);
 
     void operator delete(void *) {}
 
@@ -182,7 +180,7 @@ struct debug_menu_entry {
 
     bool set_script_handler(script_instance *inst, const mString &a3);
 
-    void set_render_cb(mString (*a2)(debug_menu_entry *) );
+    void set_render_cb(mString (*a2)(debug_menu_entry *));
 
     void set_game_flags_handler(void (*a2)(debug_menu_entry *));
 
@@ -190,7 +188,8 @@ struct debug_menu_entry {
 
     bool is_value_initialized() const;
 
-    void set_value_initialized(bool a2) {
+    void set_value_initialized(bool a2)
+    {
         m_value_initialized = a2;
     }
 
@@ -226,7 +225,7 @@ struct debug_menu_entry {
 
     int get_ival();
 
-    const mString & get_name() const;
+    const mString &get_name() const;
 
     void on_select(float a2);
 
@@ -237,13 +236,13 @@ struct debug_menu_entry {
 
 extern mString entry_render_callback_default(debug_menu_entry *a2);
 
-extern auto create_menu(const mString &str, debug_menu::sort_mode_t sort_mode) -> debug_menu*;
+extern auto create_menu(const mString &str, debug_menu::sort_mode_t sort_mode) -> debug_menu *;
 
-extern auto create_menu(const char *str, debug_menu::sort_mode_t sort_mode) -> debug_menu*;
+extern auto create_menu(const char *str, debug_menu::sort_mode_t sort_mode) -> debug_menu *;
 
-extern auto create_menu_entry(const mString &str) -> debug_menu_entry*;
+extern auto create_menu_entry(const mString &str) -> debug_menu_entry *;
 
-extern auto create_menu_entry(debug_menu *menu) -> debug_menu_entry*;
+extern auto create_menu_entry(debug_menu *menu) -> debug_menu_entry *;
 
 extern void _populate_missions();
 

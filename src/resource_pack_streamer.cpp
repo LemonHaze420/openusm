@@ -56,36 +56,27 @@ resource_pack_queue_entry::resource_pack_queue_entry() : field_0(), field_28() {
 
 resource_pack_streamer::resource_pack_streamer()
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         this->currently_streaming = false;
         this->active = true;
         this->clear();
-    }
-    else
-    {
+    } else {
         THISCALL(0x0053E040, this);
     }
-
 }
 
 resource_pack_streamer::~resource_pack_streamer()
 {
     TRACE("resource_pack_streamer::~resource_pack_streamer");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         this->clear();
-    }
-    else
-    {
+    } else {
         THISCALL(0x00537C00, this);
     }
 }
 
-void resource_pack_streamer::init(
-        resource_partition *a2,
-        _std::vector<resource_pack_slot *> *slots)
+void resource_pack_streamer::init(resource_partition *a2, _std::vector<resource_pack_slot *> *slots)
 {
     assert(!currently_streaming);
 
@@ -101,24 +92,20 @@ void resource_pack_streamer::init(
 
 resource_directory *g_resource_directory = nullptr;
 
-void resource_pack_streamer::load_internal(const char *a2,
-                                           int which_slot_idx,
-                                           bool (*cb)(resource_pack_slot::callback_enum,
-                                                      resource_pack_streamer *,
-                                                      resource_pack_slot *,
-                                                      limited_timer *),
+void resource_pack_streamer::load_internal(const char *a2, int which_slot_idx,
+                                           bool (*cb)(resource_pack_slot::callback_enum, resource_pack_streamer *,
+                                                      resource_pack_slot *, limited_timer *),
                                            const resource_pack_token &token)
 {
     TRACE("resource_pack_streamer::load_internal", a2);
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         assert(!currently_streaming);
 
-        this->field_8 = resource_key {string_hash {a2}, RESOURCE_KEY_TYPE_PACK};
+        this->field_8 = resource_key{string_hash{a2}, RESOURCE_KEY_TYPE_PACK};
 
         assert(pack_slots != nullptr);
-        assert(which_slot_idx >= 0 && ((uint32_t) which_slot_idx) < pack_slots->size());
+        assert(which_slot_idx >= 0 && ((uint32_t)which_slot_idx) < pack_slots->size());
 
         this->m_slot_index = which_slot_idx;
         this->field_7C = 0.0;
@@ -137,17 +124,14 @@ void resource_pack_streamer::load_internal(const char *a2,
         this->curr_loc = pack_location;
         this->field_78 = nullptr;
 
-        auto v12 = (resource_manager::using_amalgapak()
-                ? resource_manager::amalgapak_id
-                : resource_manager::open_pack(a2));
+        auto v12 =
+            (resource_manager::using_amalgapak() ? resource_manager::amalgapak_id : resource_manager::open_pack(a2));
 
         this->curr_file_id = v12;
 
         nflRequestParams params{};
-        
-        if (auto *slot = this->curr_slot;
-                pack_location.loc.m_size > slot->get_slot_size())
-        {
+
+        if (auto *slot = this->curr_slot; pack_location.loc.m_size > slot->get_slot_size()) {
             int size = pack_location.loc.m_size;
 
             int budget = slot->get_slot_size();
@@ -155,11 +139,7 @@ void resource_pack_streamer::load_internal(const char *a2,
             int v13 = size - budget;
 
             auto *v10 = this->field_8.m_hash.to_string();
-            sp_log("%s's memory is over-budget by %d bytes (budget is %u size is %u)",
-                   v10,
-                   v13,
-                   budget,
-                   size);
+            sp_log("%s's memory is over-budget by %d bytes (budget is %u size is %u)", v10, v13, budget, size);
         }
 
         params.field_18 = nullptr;
@@ -192,8 +172,7 @@ void resource_pack_streamer::load_internal(const char *a2,
         this->curr_slot->notify_load_started(this->field_8, this->m_data_size, cb, token);
         this->currently_streaming = true;
 
-        if (os_developer_options::instance->get_flag(mString {"SHOW_STREAMER_SPAM"}))
-        {
+        if (os_developer_options::instance->get_flag(mString{"SHOW_STREAMER_SPAM"})) {
             auto *str = this->field_8.m_hash.to_string();
 
             debug_print_va("Streamer load start %s", str);
@@ -207,10 +186,8 @@ void resource_pack_streamer::unload(resource_pack_slot *s)
 {
     assert(pack_slots != nullptr);
 
-    for ( uint32_t i {0}; i < this->pack_slots->size(); ++i )
-    {
-        if ( this->pack_slots->at(i) == s )
-        {
+    for (uint32_t i{0}; i < this->pack_slots->size(); ++i) {
+        if (this->pack_slots->at(i) == s) {
             this->unload(i);
             return;
         }
@@ -222,7 +199,7 @@ void resource_pack_streamer::unload(resource_pack_slot *s)
 void resource_pack_streamer::unload(int which_slot_idx)
 {
     assert(pack_slots != nullptr);
-    assert(which_slot_idx >= 0 && ((uint32_t) which_slot_idx) < pack_slots->size());
+    assert(which_slot_idx >= 0 && ((uint32_t)which_slot_idx) < pack_slots->size());
 
     auto *which_slot = pack_slots->at(which_slot_idx);
     assert(which_slot != nullptr);
@@ -241,21 +218,18 @@ bool resource_pack_streamer::can_cancel_load(int a2) const
 
 void resource_pack_streamer::cancel_load(int which_slot_idx)
 {
-    assert(can_cancel_load( which_slot_idx ));
-    if ( this->curr_stream_request_id != NFL_REQUEST_ID_INVALID)
-    {
+    assert(can_cancel_load(which_slot_idx));
+    if (this->curr_stream_request_id != NFL_REQUEST_ID_INVALID) {
         nflCancelRequest(this->curr_stream_request_id);
         this->curr_stream_request_id = NFL_REQUEST_ID_INVALID;
     }
 
-    if ( this->field_88 != NFL_REQUEST_ID_INVALID )
-    {
+    if (this->field_88 != NFL_REQUEST_ID_INVALID) {
         nflCancelRequest(this->field_88);
         this->field_88 = NFL_REQUEST_ID_INVALID;
     }
 
-    if ( !resource_manager::using_amalgapak() )
-    {
+    if (!resource_manager::using_amalgapak()) {
         nflCloseFile(this->curr_file_id);
         this->curr_file_id = NFL_FILE_ID_INVALID;
     }
@@ -271,20 +245,16 @@ void resource_pack_streamer::cancel_load(int which_slot_idx)
     this->curr_slot = nullptr;
 }
 
-void resource_pack_streamer::stream_request_callback(nflRequestState a1,
-                                                     nflRequestID a2,
+void resource_pack_streamer::stream_request_callback(nflRequestState a1, nflRequestID a2,
                                                      resource_pack_streamer *which_streamer)
 {
     TRACE("resource_pack_streamer::stream_request_callback");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         assert(which_streamer != nullptr);
 
-        if (a1 == NFS_REQUEST_STATE_WAITING
-                && which_streamer->currently_streaming
-                && a2 == which_streamer->curr_stream_request_id)
-        {
+        if (a1 == NFS_REQUEST_STATE_WAITING && which_streamer->currently_streaming &&
+            a2 == which_streamer->curr_stream_request_id) {
             nflRequestID v3 = which_streamer->field_88;
 
             which_streamer->curr_stream_request_id = NFL_REQUEST_ID_INVALID;
@@ -296,13 +266,11 @@ void resource_pack_streamer::stream_request_callback(nflRequestState a1,
     } else {
         CDECL_CALL(0x00542970, a1, a2, which_streamer);
     }
-
 }
 
-void resource_pack_streamer::clear() {
-
-    if constexpr (1)
-    {
+void resource_pack_streamer::clear()
+{
+    if constexpr (1) {
         assert(!currently_streaming && "Attempting to clear a streamer while it is still actively streaming");
         this->currently_streaming = false;
 
@@ -316,12 +284,9 @@ void resource_pack_streamer::clear() {
         this->curr_file_id = NFL_FILE_ID_INVALID;
 
         this->field_6C.clear();
-    }
-    else
-    {
+    } else {
         THISCALL(0x00531B70, this);
     }
-
 }
 
 bool resource_pack_streamer::all_slots_idle() const
@@ -331,9 +296,8 @@ bool resource_pack_streamer::all_slots_idle() const
     }
 
     auto &slots = (*this->pack_slots);
-    for (auto &slot : slots)
-    {
-        if ( !(slot->is_empty() || slot->is_pack_ready()) ) {
+    for (auto &slot : slots) {
+        if (!(slot->is_empty() || slot->is_pack_ready())) {
             return false;
         }
     }
@@ -341,7 +305,8 @@ bool resource_pack_streamer::all_slots_idle() const
     return true;
 }
 
-bool resource_pack_streamer::is_idle() const {
+bool resource_pack_streamer::is_idle() const
+{
     return this->is_disk_idle() && this->all_slots_idle();
 }
 
@@ -350,23 +315,21 @@ bool resource_pack_streamer::is_disk_idle() const
     return !this->currently_streaming && this->field_6C.empty();
 }
 
-void resource_pack_streamer::flush(void (*a2)(void)) {
+void resource_pack_streamer::flush(void (*a2)(void))
+{
     this->flush(a2, Float{0.02f});
 }
 
-void resource_pack_streamer::flush(void (*a2)(void), Float a3) {
+void resource_pack_streamer::flush(void (*a2)(void), Float a3)
+{
     TRACE("resource_pack_streamer::flush");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         assert(this->active);
 
         limited_timer timer{a3};
 
-        while (this->currently_streaming
-                || !this->field_6C.empty()
-                || !this->all_slots_idle())
-        {
+        while (this->currently_streaming || !this->field_6C.empty() || !this->all_slots_idle()) {
             if (a2 != nullptr) {
                 a2();
             }
@@ -377,19 +340,16 @@ void resource_pack_streamer::flush(void (*a2)(void), Float a3) {
             this->frame_advance({0.0}, &timer);
 
 #ifdef TARGET_XBOX
-    if (g_resource_directory != nullptr)
-    {
-        auto *tlres = g_resource_directory->get_tlresource(to_hash("mini_map_frame"), TLRESOURCE_TYPE_MESH_FILE);
-        sp_log("0x%08X", tlres);
-        assert(tlres != nullptr);
-    }
+            if (g_resource_directory != nullptr) {
+                auto *tlres =
+                    g_resource_directory->get_tlresource(to_hash("mini_map_frame"), TLRESOURCE_TYPE_MESH_FILE);
+                sp_log("0x%08X", tlres);
+                assert(tlres != nullptr);
+            }
 #endif
-
         }
 
-    }
-    else
-    {
+    } else {
         THISCALL(0x00551200, this, a2, a3);
     }
 }
@@ -400,10 +360,8 @@ void resource_pack_streamer::frame_advance_idle([[maybe_unused]] Float a2)
 {
     TRACE("resource_pack_streamer::frame_advance_idle");
 
-    if constexpr (1)
-    {
-        if (!this->field_6C.empty())
-        {
+    if constexpr (1) {
+        if (!this->field_6C.empty()) {
             resource_pack_queue_entry &v3 = this->field_6C.front();
 
             auto *str = v3.field_0.to_string();
@@ -416,25 +374,20 @@ void resource_pack_streamer::frame_advance_idle([[maybe_unused]] Float a2)
 
             this->field_6C.pop_front();
         }
-    }
-    else
-    {
+    } else {
         THISCALL(0x0054C820, this, a2);
     }
 }
 
-void resource_pack_streamer::load(const char *a2,
-                                  int which_slot_idx,
-                                  bool (*cb)(resource_pack_slot::callback_enum,
-                                             resource_pack_streamer *,
-                                             resource_pack_slot *,
-                                             limited_timer *),
+void resource_pack_streamer::load(const char *a2, int which_slot_idx,
+                                  bool (*cb)(resource_pack_slot::callback_enum, resource_pack_streamer *,
+                                             resource_pack_slot *, limited_timer *),
                                   const resource_pack_token *a5)
 {
     TRACE("resource_pack_streamer::load", a2);
 
     assert(this->pack_slots != nullptr);
-    assert(which_slot_idx >= 0 && ((uint32_t) which_slot_idx) < this->pack_slots->size());
+    assert(which_slot_idx >= 0 && ((uint32_t)which_slot_idx) < this->pack_slots->size());
 
     auto *which_slot = this->pack_slots->at(which_slot_idx);
 
@@ -444,24 +397,20 @@ void resource_pack_streamer::load(const char *a2,
 
     assert(!this->currently_streaming);
 
-    for (auto &entry : this->field_6C)
-    {
+    for (auto &entry : this->field_6C) {
         auto *str = entry.field_0.to_string();
-        
-        if (strcmpi(str, a2) == 0)
-        {
+
+        if (strcmpi(str, a2) == 0) {
             error("Tried to queue %s for load twice.", a2);
         }
-        
-        if (entry.field_20 == which_slot_idx)
-        {
+
+        if (entry.field_20 == which_slot_idx) {
             error("Tried to queue %s for load in a slot that is already queued for load.", a2);
         }
     }
 
-    if constexpr (1)
-    {
-        string_hash v2 {a2};
+    if constexpr (1) {
+        string_hash v2{a2};
 
         auto &v7 = (*this->pack_slots);
         for (size_t i = 0; i < v7.size(); ++i) {
@@ -492,12 +441,9 @@ void resource_pack_streamer::load(const char *a2,
         this->field_6C.push_back(v16);
 
         this->frame_advance_idle(0.0);
-    }
-    else
-    {
+    } else {
         THISCALL(0x00550F90, this, a2, which_slot_idx, cb, a5);
     }
-
 }
 
 //FIXME
@@ -505,8 +451,7 @@ void resource_pack_streamer::frame_advance(Float a2, limited_timer *a3)
 {
     TRACE("resource_pack_streamer::frame_advance");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         if (this->active) {
             if (this->currently_streaming) {
                 this->frame_advance_streaming(a2);
@@ -514,18 +459,15 @@ void resource_pack_streamer::frame_advance(Float a2, limited_timer *a3)
                 this->frame_advance_idle(a2);
             }
 
-            if (this->pack_slots != nullptr)
-            {
+            if (this->pack_slots != nullptr) {
                 auto &pack_slots = (*this->pack_slots);
 
                 std::vector<resource_pack_slot *> v15{};
 
-                if (!pack_slots.empty())
-                {
+                if (!pack_slots.empty()) {
                     v15.reserve(pack_slots.size());
 
-                    for (auto &slot : pack_slots)
-                    {
+                    for (auto &slot : pack_slots) {
                         slot->frame_advance(a2, a3);
                         if (slot->is_pack_unloading() && slot->is_empty()) {
                             v15.push_back(slot);
@@ -534,7 +476,7 @@ void resource_pack_streamer::frame_advance(Float a2, limited_timer *a3)
                 }
 
                 for (auto &slot : v15) {
-                    auto client_done = slot->try_callback((resource_pack_slot::callback_enum) 6, nullptr);
+                    auto client_done = slot->try_callback((resource_pack_slot::callback_enum)6, nullptr);
                     assert(client_done);
                 }
             }
@@ -548,16 +490,14 @@ void resource_pack_streamer::frame_advance_streaming(Float a2)
 {
     TRACE("resource_pack_streamer::frame_advance_streaming");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         this->field_7C += a2;
         assert(this->curr_slot != nullptr);
 
-        if (this->curr_stream_request_id == NFL_REQUEST_ID_INVALID &&
-            this->field_88 == NFL_REQUEST_ID_INVALID) {
+        if (this->curr_stream_request_id == NFL_REQUEST_ID_INVALID && this->field_88 == NFL_REQUEST_ID_INVALID) {
             this->curr_slot->notify_load_finished();
 
-            if (os_developer_options::instance->get_flag(mString {"SHOW_RESOURCE_SPAM"})) {
+            if (os_developer_options::instance->get_flag(mString{"SHOW_RESOURCE_SPAM"})) {
                 auto &res_dir = this->curr_slot->get_resource_directory();
                 res_dir.debug_print();
             }
@@ -578,16 +518,14 @@ void resource_pack_streamer::unload_all()
 {
     TRACE("resource_pack_streamer::unload_all");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         assert(!currently_streaming);
 
         this->field_6C.clear();
 
         assert(pack_slots != nullptr);
 
-        for (size_t i = 0; i < pack_slots->size(); ++i)
-        {
+        for (size_t i = 0; i < pack_slots->size(); ++i) {
             auto *slot = pack_slots->at(i);
             assert(slot != nullptr);
 
@@ -602,7 +540,8 @@ void resource_pack_streamer::unload_all()
     }
 }
 
-void resource_pack_streamer::set_active(bool a2) {
+void resource_pack_streamer::set_active(bool a2)
+{
     assert(!currently_streaming);
 
     this->active = a2;
@@ -612,10 +551,9 @@ void resource_pack_streamer::unload_internal(int which_slot_idx)
 {
     TRACE("resource_pack_streamer::unload_internal", std::to_string(which_slot_idx).c_str());
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         assert(pack_slots != nullptr);
-        assert(which_slot_idx >= 0 && ((uint32_t) which_slot_idx) < pack_slots->size());
+        assert(which_slot_idx >= 0 && ((uint32_t)which_slot_idx) < pack_slots->size());
 
         resource_pack_slot *which_slot = pack_slots->at(which_slot_idx);
         assert(which_slot != nullptr);
@@ -623,8 +561,7 @@ void resource_pack_streamer::unload_internal(int which_slot_idx)
 
         which_slot->notify_unload_started();
 
-        if (os_developer_options::instance->get_flag(mString {"SHOW_STREAMER_SPAM"}))
-        {
+        if (os_developer_options::instance->get_flag(mString{"SHOW_STREAMER_SPAM"})) {
             auto *str = which_slot->get_name_key().m_hash.to_string();
 
             debug_print_va("Streamer unload start %s", str);
@@ -637,11 +574,9 @@ void resource_pack_streamer::unload_internal(int which_slot_idx)
 
 void resource_pack_streamer::finish_data_read()
 {
-    TRACE("resource_pack_streamer::finish_data_read",
-                this->field_8.get_platform_string(g_platform).c_str());
+    TRACE("resource_pack_streamer::finish_data_read", this->field_8.get_platform_string(g_platform).c_str());
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         assert(this->curr_slot != nullptr);
 
         auto *pack_file_header = bit_cast<resource_pack_header *>(this->curr_slot->get_header_mem_addr());
@@ -651,29 +586,25 @@ void resource_pack_streamer::finish_data_read()
 
         pack_file_header->verify(this->field_8);
 
-        auto *header =
-            bit_cast<generic_mash_header *>(this->curr_slot->get_header_mem_addr() +
-                                               pack_file_header->directory_offset);
+        auto *header = bit_cast<generic_mash_header *>(this->curr_slot->get_header_mem_addr() +
+                                                       pack_file_header->directory_offset);
         assert(header == CAST(header, bit_cast<char *>(pack_file_header) + 0x30));
 
         resource_directory *directory = nullptr;
-        auto alloced_mem =
-            parse_generic_object_mash(directory, header, nullptr, nullptr, nullptr, 0, 0, nullptr);
+        auto alloced_mem = parse_generic_object_mash(directory, header, nullptr, nullptr, nullptr, 0, 0, nullptr);
         assert(!alloced_mem && "This should NOT allocate anything!");
 
-        for (const auto &i : directory->type_start_idxs)
-        {
+        for (const auto &i : directory->type_start_idxs) {
             assert(i >= 0 && i <= directory->resource_locations.size());
         }
 
         auto *header_mem_addr = this->curr_slot->get_header_mem_addr();
 
-        directory
-            ->constructor_common(this->curr_slot,
-                                 &header_mem_addr[pack_file_header->res_dir_mash_size],
-                                 this->field_78,
-                                 pack_file_header->field_20 - pack_file_header->res_dir_mash_size,
-                                 pack_file_header->field_24);
+        directory->constructor_common(this->curr_slot,
+                                      &header_mem_addr[pack_file_header->res_dir_mash_size],
+                                      this->field_78,
+                                      pack_file_header->field_20 - pack_file_header->res_dir_mash_size,
+                                      pack_file_header->field_24);
 
         assert(directory->parents.size() >= curr_loc.prerequisite_count);
 
@@ -684,8 +615,7 @@ void resource_pack_streamer::finish_data_read()
                 auto *parent_name = resource_manager::get_prerequisiste(prereq_idx);
                 assert(parent_name != nullptr);
 
-                directory->parents.m_data[i] = resource_manager::get_resource_directory(
-                    *parent_name);
+                directory->parents.m_data[i] = resource_manager::get_resource_directory(*parent_name);
                 if (directory->parents.m_data[i] == nullptr) {
                     auto str1 = parent_name->m_hash.to_string();
 
@@ -702,9 +632,7 @@ void resource_pack_streamer::finish_data_read()
             nflCloseFile(this->curr_file_id);
         }
 
-    }
-    else
-    {
+    } else {
         THISCALL(0x0053E1A0, this);
     }
 }
@@ -754,8 +682,7 @@ void resource_pack_streamer_patch()
     return;
 
     {
-        void (resource_pack_streamer::*flush)(void (*a2)(void),
-                                              Float) = &resource_pack_streamer::flush;
+        void (resource_pack_streamer::*flush)(void (*a2)(void), Float) = &resource_pack_streamer::flush;
 
         FUNC_ADDRESS(address, flush);
         SET_JUMP(0x00551200, address);

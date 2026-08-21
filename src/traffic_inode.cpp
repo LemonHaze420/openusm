@@ -7,4 +7,4 @@ namespace ai {
 VALIDATE_SIZE(traffic_inode, 0xCC);
 
 traffic_inode::traffic_inode() {}
-} // namespace ai
+}  // namespace ai

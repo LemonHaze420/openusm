@@ -12,7 +12,6 @@ struct nalPanelPose : nalComp::nalCompPose {
 };
 
 struct nalPanelSkeleton : nalComp::nalCompSkeleton {
-
     int field_7C;
     nalPanelPose *m_theDefaultPose;
 
@@ -21,10 +20,11 @@ struct nalPanelSkeleton : nalComp::nalCompSkeleton {
     //virtual
     void _Process();
 
-    bool _CheckVersion() const {
+    bool _CheckVersion() const
+    {
         return this->Version == 0x300;
     }
 
-    static int & vtbl_ptr;
+    static int &vtbl_ptr;
 };
-} // namespace nalPanel
+}  // namespace nalPanel

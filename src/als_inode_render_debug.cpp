@@ -9,7 +9,8 @@ namespace ai {
 
 VALIDATE_SIZE(als_inode_render_debug, 0x114u);
 
-als_inode_render_debug::als_inode_render_debug(als_inode *a2, conglomerate *a3) {
+als_inode_render_debug::als_inode_render_debug(als_inode *a2, conglomerate *a3)
+{
     THISCALL(0x00693720, this, a2, a3);
 }
-} // namespace ai
+}  // namespace ai

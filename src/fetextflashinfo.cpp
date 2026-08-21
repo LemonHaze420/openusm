@@ -4,14 +4,16 @@
 
 VALIDATE_SIZE(FETextFlashInfo, 0x10);
 
-FETextFlashInfo::FETextFlashInfo(color32 a3, float a4) {
+FETextFlashInfo::FETextFlashInfo(color32 a3, float a4)
+{
     this->field_0 = a3;
     this->field_C = a4;
     this->field_4 = 0;
     this->field_8 = 0.0;
 }
 
-color32 FETextFlashInfo::GetColor(color32 a3) {
+color32 FETextFlashInfo::GetColor(color32 a3)
+{
     auto v3 = this->field_8 + 0.5f;
 
     color32 result;

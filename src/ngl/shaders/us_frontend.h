@@ -20,12 +20,9 @@ struct FrontEnd_Shader : USShaderBase {
     //virtual
     tlFixedString _GetName() const;
 
-	//0x00415EE0
-	//virtual
-    void _AddNode(
-        nglMeshNode *a1,
-        nglMeshSection *a2,
-        nglMaterialBase *a3);
+    //0x00415EE0
+    //virtual
+    void _AddNode(nglMeshNode *a1, nglMeshSection *a2, nglMaterialBase *a3);
 
     //0x004100C0
     //virtual
@@ -40,15 +37,12 @@ struct FrontEnd_Shader : USShaderBase {
     void _RebaseMaterial(nglMaterialBase *, uint32_t);
 };
 
-extern FrontEnd_Shader & gFrontEnd_Shader;
+extern FrontEnd_Shader &gFrontEnd_Shader;
 
 struct FrontEnd_ShaderNode : nglShaderNode {
     nglMaterialBase *field_14;
 
-    FrontEnd_ShaderNode(
-        nglMeshNode *a2,
-        nglMeshSection *a3,
-        nglMaterialBase *a4);
+    FrontEnd_ShaderNode(nglMeshNode *a2, nglMeshSection *a3, nglMaterialBase *a4);
 
     //0x00406E50
     //virtual

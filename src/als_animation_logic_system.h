@@ -18,7 +18,6 @@ struct animation_logic_system_shared;
 struct motion_compensator;
 
 struct animation_logic_system : animation_logic_system_interface {
-
 private:
     animation_logic_system_shared *als_shared;
     _std::vector<als::state_machine *> field_8;
@@ -33,14 +32,14 @@ private:
     bool field_7F;
 
 public:
-
     //0x004ABB80
     animation_logic_system(actor *a1);
 
     //0x004933C0
-    als_meta_anim_table_shared * get_meta_anim_table();
+    als_meta_anim_table_shared *get_meta_anim_table();
 
-    actor * get_actor() {
+    actor *get_actor()
+    {
         return field_6C;
     }
 
@@ -53,9 +52,7 @@ public:
 
     base_state_machine *get_als_layer_internal(layer_types a2);
 
-    void transition_layer(
-        layer_types a2,
-        string_hash a3);
+    void transition_layer(layer_types a2, string_hash a3);
 
     //0x004A6400
     void frame_advance_play_new_animations(Float a2);
@@ -119,6 +116,6 @@ public:
     static inline const string_hash anim_start_frame_hash{static_cast<int32_t>(to_hash("anim_start_frame"))};
 };
 
-} // namespace als
+}  // namespace als
 
 extern void animation_logic_system_patch();

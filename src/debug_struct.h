@@ -13,4 +13,4 @@ struct debug_struct_t {
     static inline constexpr auto OUTPUT_ERROR = 4u;
 };
 
-extern debug_struct_t & g_debug;
+extern debug_struct_t &g_debug;

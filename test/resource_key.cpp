@@ -4,6 +4,6 @@
 
 TEST(ResourceKey, Construct)
 {
-    resource_key key {};
+    resource_key key{};
     assert(key.get_type() == RESOURCE_KEY_TYPE_NONE);
 }

@@ -90,11 +90,8 @@ struct swing_state : enhanced_state {
 
     //0x0047DA60
     //virtual
-    void _activate(ai_state_machine *a2,
-                  const mashed_state *arg4,
-                  const mashed_state *a4,
-                  const param_block *a5,
-                  base_state::activate_flag_e a6);
+    void _activate(ai_state_machine *a2, const mashed_state *arg4, const mashed_state *a4, const param_block *a5,
+                   base_state::activate_flag_e a6);
 
     //0x0044BB00
     //virtual
@@ -164,14 +161,10 @@ struct swing_inode : info_node {
     vector3d get_desired_up_facing() const;
 
     //0x0044C280
-    float compute_ground_level_at_sweet_spot_position(const vector3d &a1,
-                                                      Float a2,
-                                                      const region *reg);
+    float compute_ground_level_at_sweet_spot_position(const vector3d &a1, Float a2, const region *reg);
 
     //0x0046AB90
-    void compute_dynamic_sweet_spot_params(float *result_angle,
-                                           float *result_length,
-                                           float *result_ground_level,
+    void compute_dynamic_sweet_spot_params(float *result_angle, float *result_length, float *result_ground_level,
                                            vector3d *result_direction);
 
     //0x004783B0
@@ -187,20 +180,11 @@ struct swing_inode : info_node {
     void update_something_to_swing_to(Float a2);
 
     //0x00488060
-    void find_best_anchor_point(const vector3d &a1,
-                                const vector3d &a2,
-                                const vector3d &a3,
-                                const entity_base *a4,
-                                Float length,
-                                float *sweet_spot_ground_level);
+    void find_best_anchor_point(const vector3d &a1, const vector3d &a2, const vector3d &a3, const entity_base *a4,
+                                Float length, float *sweet_spot_ground_level);
 
     //0x0044C100
-    void propose_something_to_swing_to(vector3d a1,
-                                       entity_base *a4,
-                                       vector3d a5,
-                                       vector3d normal,
-                                       Float a11,
-                                       Float a12,
+    void propose_something_to_swing_to(vector3d a1, entity_base *a4, vector3d a5, vector3d normal, Float a11, Float a12,
                                        vector3d visual_point);
 
     //0x004875F0
@@ -213,8 +197,7 @@ struct swing_inode : info_node {
     void check_for_collision();
 
     //0x0046B180
-    static void do_web_splat(vector3d target_point,
-                             vector3d target_normal,
+    static void do_web_splat(vector3d target_point, vector3d target_normal,
                              const local_collision::entfilter_base &entfilter_arg);
 
     //0x00488040
@@ -230,7 +213,7 @@ struct swing_inode : info_node {
     static const inline string_hash default_id{to_hash("SWING")};
 };
 
-} // namespace ai
+}  // namespace ai
 
 struct something_to_swing_to_data_t {
     float field_0;

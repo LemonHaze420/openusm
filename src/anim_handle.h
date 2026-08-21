@@ -2,7 +2,7 @@
 
 #include "cstdint"
 
-struct nal_anim_control; 
+struct nal_anim_control;
 
 struct anim_handle_t {
     uint32_t field_0;

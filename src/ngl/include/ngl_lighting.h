@@ -22,15 +22,14 @@ struct nglPointLightInfo {
 };
 
 struct nglLightNode {
-    nglLightNode *Next[NGL_MAX_LIGHTS] {};
+    nglLightNode *Next[NGL_MAX_LIGHTS]{};
     int field_20;
     uint32_t LightCat;
     nglLightType Type;
     void *Data;
 };
 
-struct nglLightContext
-{
+struct nglLightContext {
     nglLightNode Head;
     nglLightNode ProjectorHead;
     vector4d Ambient;
@@ -41,8 +40,7 @@ extern Var<nglLightContext *> nglDefaultLightContext;
 
 extern Var<nglLightContext *> nglCurLightContext;
 
-extern void nglListAddDirLight(uint32_t a2,
-        math::VecClass<3, 0, void, math::VecUnit<1>, math::Rep_Std<false> > a3,
-        math::VecClass<4, -1, void, void, math::Rep_Std<false> > a4);
+extern void nglListAddDirLight(uint32_t a2, math::VecClass<3, 0, void, math::VecUnit<1>, math::Rep_Std<false>> a3,
+                               math::VecClass<4, -1, void, void, math::Rep_Std<false>> a4);
 
 extern void ngl_lighting_patch();

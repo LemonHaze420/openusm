@@ -5,7 +5,7 @@
 
 TEST(StringHash, Construct)
 {
-    string_hash hash {};
+    string_hash hash{};
     EXPECT_EQ(0, hash.source_hash_code);
 }
 
@@ -19,7 +19,7 @@ TEST(StringHash, ConstructWithString)
 
     string_hash_dictionary::create_inst();
 
-    string_hash hash {"ultimate_spiderman"};
+    string_hash hash{"ultimate_spiderman"};
     EXPECT_TRUE(hash.source_hash_code != 0);
 }
 

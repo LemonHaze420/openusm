@@ -12,5 +12,5 @@ struct motion_control_system {
 
     motion_control_system();
 
-    void * operator new(size_t size);
+    void *operator new(size_t size);
 };

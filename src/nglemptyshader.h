@@ -25,8 +25,7 @@ struct nglEmptyShader : nglShader {
     void _ReleaseMaterial(nglMaterialBase *) {}
 
     //virtual
-    void _RebaseMaterial(nglMaterialBase *, unsigned int ) {}
-
+    void _RebaseMaterial(nglMaterialBase *, unsigned int) {}
 };
 
-extern nglEmptyShader & gEmptyShader;
+extern nglEmptyShader &gEmptyShader;

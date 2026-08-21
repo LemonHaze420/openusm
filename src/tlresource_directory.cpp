@@ -15,10 +15,9 @@
 
 #if !STANDALONE_SYSTEM
 
-#define make_system_dir(T0, T1, address)                        \
-    template<>                                                  \
-    tlInstanceBankResourceDirectory<T0, T1> *&                  \
-        tlresource_directory<T0, T1>::system_dir =              \
+#define make_system_dir(T0, T1, address)                                                 \
+    template <>                                                                          \
+    tlInstanceBankResourceDirectory<T0, T1> *&tlresource_directory<T0, T1>::system_dir = \
         var<tlInstanceBankResourceDirectory<T0, T1> *>(address)
 
 make_system_dir(nglTexture, tlFixedString, 0x00960A10);
@@ -35,9 +34,9 @@ make_system_dir(nalSceneAnim, tlFixedString, 0x009609EC);
 
 #undef make_system_dir
 
-#define make_default_tlres(T0, T1, address)                                 \
-    template<>                                                              \
-    T0 *& tlresource_directory<T0, T1>::default_tlres = var<T0 *>(address)
+#define make_default_tlres(T0, T1, address) \
+    template <>                             \
+    T0 *&tlresource_directory<T0, T1>::default_tlres = var<T0 *>(address)
 
 make_default_tlres(nglMesh, tlHashString, 0x009609DC);
 make_default_tlres(nalBaseSkeleton, tlFixedString, 0x009609BC);
@@ -55,12 +54,11 @@ make_default_tlres(nglMaterialBase, tlHashString, 0x009609CC);
 
 #else
 
-#define make_system_dir(T0, T1)                                          \
-template<>                                                               \
-tlInstanceBankResourceDirectory<T0, T1> *&                               \
-    tlresource_directory<T0, T1>::system_dir = []() -> auto & {          \
-        static tlInstanceBankResourceDirectory<T0, T1> *g_system_dir {}; \
-        return g_system_dir;                                             \
+#define make_system_dir(T0, T1)                                                                           \
+    template <>                                                                                           \
+    tlInstanceBankResourceDirectory<T0, T1> *&tlresource_directory<T0, T1>::system_dir = []() -> auto & { \
+        static tlInstanceBankResourceDirectory<T0, T1> *g_system_dir{};                                   \
+        return g_system_dir;                                                                              \
     }()
 
 make_system_dir(nglTexture, tlFixedString);
@@ -77,11 +75,11 @@ make_system_dir(nalSceneAnim, tlFixedString);
 
 #undef make_system_dir
 
-#define make_default_tlres(T0, T1)                                       \
-    template<>                                                           \
-    T0 *& tlresource_directory<T0, T1>::default_tlres = []() -> T0 *& {  \
-        static T0 *g_default_tlres {};                                   \
-        return g_default_tlres;                                          \
+#define make_default_tlres(T0, T1)                                     \
+    template <>                                                        \
+    T0 *&tlresource_directory<T0, T1>::default_tlres = []() -> T0 *& { \
+        static T0 *g_default_tlres{};                                  \
+        return g_default_tlres;                                        \
     }()
 
 make_default_tlres(nglMesh, tlHashString);
@@ -100,8 +98,8 @@ make_default_tlres(nglMaterialBase, tlHashString);
 
 #endif
 
-#define make_tlres_type(T0, T1, type)                               \
-    template<>                                                      \
+#define make_tlres_type(T0, T1, type) \
+    template <>                       \
     tlresource_type tlresource_directory<T0, T1>::tlres_type = type
 
 make_tlres_type(nglTexture, tlFixedString, TLRESOURCE_TYPE_TEXTURE);
@@ -118,86 +116,91 @@ make_tlres_type(nalBaseSkeleton, tlFixedString, TLRESOURCE_TYPE_SKELETON);
 
 #undef make_tlres_type
 
-#define constructor_tlresource_directory(T0, T1, vtbl)      \
-    template<>                                              \
-    tlresource_directory<T0, T1>::tlresource_directory()    \
-    {                                                       \
-        T0 * (tlresource_directory<T0, T1>::*Find)(unsigned int) = &_Find;  \
-                                                                            \
-        T0 * (tlresource_directory<T0, T1>::*Find1)(const T1 &) = &_Find;   \
-                                                            \
-        if constexpr (1) {                                  \
-            static void * g_vtbl[] {                        \
-                func_address(&finalize),                    \
-                func_address(&DirectoryName),                \
-                func_address(Find),                          \
-                func_address(Find1),                         \
-                func_address(&_Add) \
-            };                                              \
-                                                            \
-            this->m_vtbl = CAST(vtbl, &g_vtbl);             \
-        } else {                                            \
-            this->m_vtbl = vtbl;                            \
-        }                                                   \
-                                                            \
-        this->field_4 = nullptr;                            \
+#define constructor_tlresource_directory(T0, T1, vtbl)                    \
+    template <>                                                           \
+    tlresource_directory<T0, T1>::tlresource_directory()                  \
+    {                                                                     \
+        T0 *(tlresource_directory<T0, T1>::*Find)(unsigned int) = &_Find; \
+                                                                          \
+        T0 *(tlresource_directory<T0, T1>::*Find1)(const T1 &) = &_Find;  \
+                                                                          \
+        if constexpr (1) {                                                \
+            static void *g_vtbl[]{func_address(&finalize),                \
+                                  func_address(&DirectoryName),           \
+                                  func_address(Find),                     \
+                                  func_address(Find1),                    \
+                                  func_address(&_Add)};                   \
+                                                                          \
+            this->m_vtbl = CAST(vtbl, &g_vtbl);                           \
+        } else {                                                          \
+            this->m_vtbl = vtbl;                                          \
+        }                                                                 \
+                                                                          \
+        this->field_4 = nullptr;                                          \
     }
 
 constructor_tlresource_directory(nglTexture, tlFixedString, 0x00889648)
-constructor_tlresource_directory(nglMeshFile, tlFixedString, 0x00889674)
-constructor_tlresource_directory(nglMesh, tlHashString, 0x008896A0)
-constructor_tlresource_directory(nglMorphSet, tlHashString, 0x008896CC)
-constructor_tlresource_directory(nglMorphFile, tlFixedString, 0x008896F8)
-constructor_tlresource_directory(nglMaterialBase, tlHashString, 0x00889724)
-constructor_tlresource_directory(nglMaterialFile, tlFixedString, 0x00889750)
-constructor_tlresource_directory(nalAnimFile, tlFixedString, 0x0088977C)
-constructor_tlresource_directory(nalAnimClass<nalAnyPose>, tlFixedString, 0x008897A8)
-constructor_tlresource_directory(nalSceneAnim, tlFixedString, 0x008897D4)
-constructor_tlresource_directory(nalBaseSkeleton, tlFixedString, 0x00889800)
+    constructor_tlresource_directory(nglMeshFile, tlFixedString, 0x00889674)
+        constructor_tlresource_directory(nglMesh, tlHashString, 0x008896A0)
+            constructor_tlresource_directory(nglMorphSet, tlHashString, 0x008896CC)
+                constructor_tlresource_directory(nglMorphFile, tlFixedString, 0x008896F8)
+                    constructor_tlresource_directory(nglMaterialBase, tlHashString, 0x00889724)
+                        constructor_tlresource_directory(nglMaterialFile, tlFixedString, 0x00889750)
+                            constructor_tlresource_directory(nalAnimFile, tlFixedString, 0x0088977C)
+                                constructor_tlresource_directory(nalAnimClass<nalAnyPose>, tlFixedString, 0x008897A8)
+                                    constructor_tlresource_directory(nalSceneAnim, tlFixedString, 0x008897D4)
+                                        constructor_tlresource_directory(nalBaseSkeleton, tlFixedString, 0x00889800)
 
 #undef constructor_tlresource_directory
 
 
-void tlresource_directory_patch()
+                                            void tlresource_directory_patch()
 {
     {
-        nglMeshFile * (tlresource_directory<nglMeshFile, tlFixedString>::*func)(const tlFixedString &) = tlresource_directory<nglMeshFile, tlFixedString>::_Find;
+        nglMeshFile *(tlresource_directory<nglMeshFile, tlFixedString>::*func)(const tlFixedString &) =
+            tlresource_directory<nglMeshFile, tlFixedString>::_Find;
         FUNC_ADDRESS(address, func);
         set_vfunc(0x00889680, address);
     }
 
     {
-        nglMesh * (tlresource_directory<nglMesh, tlHashString>::*func)(const tlHashString &) = tlresource_directory<nglMesh, tlHashString>::_Find;
+        nglMesh *(tlresource_directory<nglMesh, tlHashString>::*func)(const tlHashString &) =
+            tlresource_directory<nglMesh, tlHashString>::_Find;
         FUNC_ADDRESS(address, func);
         set_vfunc(0x008896AC, address);
     }
 
     {
-        bool (tlresource_directory<nglMesh, tlHashString>::*func)(nglMesh *) = tlresource_directory<nglMesh, tlHashString>::_Add;
+        bool (tlresource_directory<nglMesh, tlHashString>::*func)(nglMesh *) =
+            tlresource_directory<nglMesh, tlHashString>::_Add;
         FUNC_ADDRESS(address, func);
         set_vfunc(0x008896B0, address);
     }
 
     {
-        nglTexture * (tlresource_directory<nglTexture, tlFixedString>::*func)(uint32_t ) = tlresource_directory<nglTexture, tlFixedString>::_Find;
+        nglTexture *(tlresource_directory<nglTexture, tlFixedString>::*func)(uint32_t) =
+            tlresource_directory<nglTexture, tlFixedString>::_Find;
         FUNC_ADDRESS(address, func);
         set_vfunc(0x00889650, address);
     }
 
     {
-        nalAnimClass<nalAnyPose> * (tlresource_directory<nalAnimClass<nalAnyPose>,tlFixedString>::*func)(uint32_t ) = tlresource_directory<nalAnimClass<nalAnyPose>,tlFixedString>::_Find;
+        nalAnimClass<nalAnyPose> *(tlresource_directory<nalAnimClass<nalAnyPose>, tlFixedString>::*func)(uint32_t) =
+            tlresource_directory<nalAnimClass<nalAnyPose>, tlFixedString>::_Find;
         FUNC_ADDRESS(address, func);
         set_vfunc(0x008897B0, address);
     }
 
     {
-        nglTexture * (tlresource_directory<nglTexture, tlFixedString>::*func)(const tlFixedString &) = tlresource_directory<nglTexture, tlFixedString>::_Find;
+        nglTexture *(tlresource_directory<nglTexture, tlFixedString>::*func)(const tlFixedString &) =
+            tlresource_directory<nglTexture, tlFixedString>::_Find;
         FUNC_ADDRESS(address, func);
         set_vfunc(0x00889654, address);
     }
 
     {
-        nalBaseSkeleton * (tlresource_directory<nalBaseSkeleton, tlFixedString>::*func)(const tlFixedString &) = tlresource_directory<nalBaseSkeleton, tlFixedString>::_Find;
+        nalBaseSkeleton *(tlresource_directory<nalBaseSkeleton, tlFixedString>::*func)(const tlFixedString &) =
+            tlresource_directory<nalBaseSkeleton, tlFixedString>::_Find;
         FUNC_ADDRESS(address, func);
         set_vfunc(0x0088980C, address);
     }

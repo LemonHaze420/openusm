@@ -23,6 +23,6 @@ struct animation_logic_system_shared {
 
     void unmash(mash_info_struct *a1, void *a3);
 };
-} // namespace als
+}  // namespace als
 
 extern void animation_logic_system_shared_patch();

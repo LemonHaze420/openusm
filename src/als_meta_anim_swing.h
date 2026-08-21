@@ -19,7 +19,6 @@ struct meta_key_anim;
 
 struct als_meta_anim_swing : als_meta_anim_base {
     struct nalInstance : nalAnimClass<nalAnyPose>::nalInstanceClass {
-
         animation_logic_system *field_14;
         state_machine *field_18;
         als_meta_anim_swing *field_1C;
@@ -27,10 +26,7 @@ struct als_meta_anim_swing : als_meta_anim_base {
         int field_24;
         sampling_window field_28;
 
-        nalInstance(als_meta_anim_swing *a2,
-                nalBaseSkeleton *a3,
-                animation_logic_system *a4,
-                state_machine *a5);
+        nalInstance(als_meta_anim_swing *a2, nalBaseSkeleton *a3, animation_logic_system *a4, state_machine *a5);
     };
 
     mVector<meta_key_anim> field_28;
@@ -44,7 +40,7 @@ struct als_meta_anim_swing : als_meta_anim_base {
     //0x004A0350
     void initialize(mash::allocation_scope a2);
 
-    nalAnimClass<nalAnyPose> * get_anim_proxy() const;
+    nalAnimClass<nalAnyPose> *get_anim_proxy() const;
 
     //virtual
     void _unmash(mash_info_struct *, void *);
@@ -62,19 +58,16 @@ struct als_meta_anim_swing : als_meta_anim_base {
     float _get_anim_duration() const;
 
     //virtual
-    nalBaseSkeleton * _get_skeleton();
+    nalBaseSkeleton *_get_skeleton();
 
     //virtual
-    als_meta_anim_swing::nalInstance * _create_anim_inst(
-            nalBaseSkeleton *a2,
-            nalAnimClass<nalAnyPose> *a3,
-            als::animation_logic_system *a4,
-            als::state_machine *a5);
+    als_meta_anim_swing::nalInstance *_create_anim_inst(nalBaseSkeleton *a2, nalAnimClass<nalAnyPose> *a3,
+                                                        als::animation_logic_system *a4, als::state_machine *a5);
 
     //virtual
     int _get_mash_sizeof() const;
 
-    static inline void * g_vtbl[] = {
+    static inline void *g_vtbl[] = {
         nullptr,
         func_address(&_unmash),
         nullptr,
@@ -91,9 +84,8 @@ struct als_meta_anim_swing : als_meta_anim_base {
         nullptr,
         func_address(&_get_mash_sizeof),
     };
-
 };
 
-}
+}  // namespace als
 
 extern void als_meta_anim_swing_patch();

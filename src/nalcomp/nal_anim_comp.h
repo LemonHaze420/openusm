@@ -33,7 +33,7 @@ struct nalCompAnim {
 
     //0x00734300
     //virtual
-    void * _GetPerAnimDataFromComponentIx(int a2);
+    void *_GetPerAnimDataFromComponentIx(int a2);
 
     //0x00731DF0
     //virtual
@@ -51,19 +51,19 @@ struct nalCompAnim {
     //virtual
     void ReMash(void *a2);
 
-    void * GetCompPerAnimDataInt(int iCompIx);
+    void *GetCompPerAnimDataInt(int iCompIx);
 
     //0x00731E00
-    void * GetCompAnimTrackData(int iCompIx);
+    void *GetCompAnimTrackData(int iCompIx);
 
-    auto * GetSkeleton() {
+    auto *GetSkeleton()
+    {
         return this->field_30;
     }
 
     bool DoesComponentAddToPose(int32_t iCompIx);
-
 };
 
-}
+}  // namespace nalComp
 
 extern void nalCompAnim_patch();

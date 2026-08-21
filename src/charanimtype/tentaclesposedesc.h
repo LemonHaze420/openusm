@@ -17,15 +17,11 @@ struct TentaclesPoseDesc {
 
         //0x
         float GetPullFromBone(uint32_t a2) const;
-
     };
 
     struct PerSkelData {};
 
     void SkelPoseProcess(uint32_t, PerSkelData *, StdPoseData *) {}
 
-    void CopyPoseDataToNothing(
-        TentaclesPoseDesc::StdPoseData *a1,
-        uint32_t,
-        const TentaclesPoseDesc::StdPoseData *a3);
+    void CopyPoseDataToNothing(TentaclesPoseDesc::StdPoseData *a1, uint32_t, const TentaclesPoseDesc::StdPoseData *a3);
 };

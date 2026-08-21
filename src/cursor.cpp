@@ -12,9 +12,10 @@
 
 VALIDATE_SIZE(Cursor, 0x13C);
 
-Cursor *& g_cursor = var<Cursor *>(0x0096191C);
+Cursor *&g_cursor = var<Cursor *>(0x0096191C);
 
-Cursor::Cursor(LPCWSTR lpWideCharStr, int a3, int a4) {
+Cursor::Cursor(LPCWSTR lpWideCharStr, int a3, int a4)
+{
     if constexpr (1) {
         this->m_vtbl = 0x0088F4F8;
         nglTexture *v5 = &this->field_7C;
@@ -56,19 +57,21 @@ Cursor::Cursor(LPCWSTR lpWideCharStr, int a3, int a4) {
         this->field_14 = nullptr;
         this->field_114 = 0;
         this->field_120 = 0;
-        this->field_124 = 640.0 / (double) a3;
-        this->field_128 = 480.0 / (double) a4;
+        this->field_124 = 640.0 / (double)a3;
+        this->field_128 = 480.0 / (double)a4;
     } else {
         THISCALL(0x005A6670, this, lpWideCharStr, a3, a4);
     }
 }
 
-Cursor * __fastcall hookCtor(Cursor *self, void *, LPCWSTR lpWideCharStr, int a3, int a4) {
+Cursor *__fastcall hookCtor(Cursor *self, void *, LPCWSTR lpWideCharStr, int a3, int a4)
+{
     new (self) Cursor{lpWideCharStr, a3, a4};
     return self;
 }
 
-Cursor::~Cursor() {
+Cursor::~Cursor()
+{
     THISCALL(0x005A6810, this);
 }
 
@@ -77,11 +80,13 @@ void Cursor::Draw()
     THISCALL(0x00594DF0, this);
 }
 
-void Cursor::sub_5A67D0(int a1, int a2, int a3, int a4) {
+void Cursor::sub_5A67D0(int a1, int a2, int a3, int a4)
+{
     THISCALL(0x005A67D0, this, a1, a2, a3, a4);
 }
 
-void Cursor::sub_5A6790() {
+void Cursor::sub_5A6790()
+{
     if (this->field_130 != nullptr) {
         operator delete(this->field_130);
     }
@@ -104,12 +109,14 @@ void Cursor::sub_581C60()
     ScreenToClient(g_appHwnd, &this->field_104);
 }
 
-void Cursor::sub_5B0D70() {
+void Cursor::sub_5B0D70()
+{
     if (!this->field_120) {
         this->field_114 = false;
     }
 }
 
-void cursor_patch() {
+void cursor_patch()
+{
     REDIRECT(0x005AD24A, hookCtor);
 }

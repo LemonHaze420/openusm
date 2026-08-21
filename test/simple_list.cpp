@@ -3,23 +3,23 @@
 #include <msimpletemplates.h>
 
 struct A {
-    simple_list<A *>::vars_t simple_list_vars {};
+    simple_list<A *>::vars_t simple_list_vars{};
 };
 
 TEST(SimpleList, Construct)
 {
-    simple_list<A *> list {};
+    simple_list<A *> list{};
     EXPECT_EQ(list.size(), 0);
 }
 
 TEST(SimpleList, PushBack)
 {
-    simple_list<A *> list {};
+    simple_list<A *> list{};
 
-    A a {};
+    A a{};
     list.push_back(&a);
 
-    A b {};
+    A b{};
     list.push_back(&b);
 
     EXPECT_EQ(list.size(), 2);
@@ -33,12 +33,12 @@ TEST(SimpleList, PushBack)
 
 TEST(SimpleList, PushFront)
 {
-    simple_list<A *> list {};
+    simple_list<A *> list{};
 
-    A a {};
+    A a{};
     list.push_front(&a);
 
-    A b {};
+    A b{};
     list.push_front(&b);
 
     EXPECT_EQ(list.size(), 2);
@@ -52,14 +52,14 @@ TEST(SimpleList, PushFront)
 
 TEST(SimpleList, Erase)
 {
-    simple_list<A *> list {};
+    simple_list<A *> list{};
 
     auto begin = list.begin();
 
-    A a {};
+    A a{};
     list.push_back(&a);
 
-    A b {};
+    A b{};
     list.push_back(&b);
 
     EXPECT_EQ(list.erase(&b), begin);
@@ -69,9 +69,9 @@ TEST(SimpleList, Erase)
 
 TEST(SimpleList, CheckedErase)
 {
-    simple_list<A *> list {};
+    simple_list<A *> list{};
 
-    A a {};
+    A a{};
 
     EXPECT_FALSE(list.checked_erase(&a));
 
@@ -82,12 +82,12 @@ TEST(SimpleList, CheckedErase)
 
 TEST(SimpleList, PopFront)
 {
-    simple_list<A *> list {};
+    simple_list<A *> list{};
 
-    A a {};
+    A a{};
     list.push_back(&a);
 
-    A b {};
+    A b{};
     list.push_back(&b);
 
     list.pop_front();
@@ -96,11 +96,11 @@ TEST(SimpleList, PopFront)
     EXPECT_FALSE(list.contains(&a));
 }
 
-TEST(SimpleListIterator, Construct) 
+TEST(SimpleListIterator, Construct)
 {
-    simple_list<A *> list {};
+    simple_list<A *> list{};
 
-    A a {};
+    A a{};
     list.push_back(&a);
 
     auto it = list.begin();
@@ -109,27 +109,27 @@ TEST(SimpleListIterator, Construct)
     EXPECT_EQ(it._ptr->simple_list_vars._sl_list_owner, &list);
 }
 
-TEST(SimpleListIterator, Next) 
+TEST(SimpleListIterator, Next)
 {
-    A a {};
-    simple_list<A *>::iterator it {&a};
+    A a{};
+    simple_list<A *>::iterator it{&a};
 
     ++it;
 
-    const simple_list<A *>::iterator end {nullptr};
+    const simple_list<A *>::iterator end{nullptr};
     EXPECT_EQ(it, end);
 }
 
-TEST(SimpleListIterator, Swap) 
+TEST(SimpleListIterator, Swap)
 {
-    simple_list<A *> list {};
+    simple_list<A *> list{};
 
-    A a {};
+    A a{};
     list.push_back(&a);
 
     auto iterA = list.begin();
 
-    A b {};
+    A b{};
     list.push_front(&b);
 
     auto iterB = list.begin();

@@ -163,7 +163,8 @@ struct game {
         this->m_user_camera_enabled = a2;
     }
 
-    bool is_user_camera_enabled() const {
+    bool is_user_camera_enabled() const
+    {
         return m_user_camera_enabled;
     }
 
@@ -346,13 +347,13 @@ public:
     static void render_empty_list();
 
     //0x0095C8F8
-    static inline auto & setup_input_registrations_p = var<int (*)(game *)>(0x0095C8F8);
+    static inline auto &setup_input_registrations_p = var<int (*)(game *)>(0x0095C8F8);
 
     //0x0095C8FC
-    static inline void (* setup_inputs_p)(game *) = game__setup_inputs;
+    static inline void (*setup_inputs_p)(game *) = game__setup_inputs;
 };
 
-extern game *& g_game_ptr;
+extern game *&g_game_ptr;
 
 //0x00581B40
 extern void system_idle();

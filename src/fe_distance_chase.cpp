@@ -5,12 +5,10 @@
 
 VALIDATE_SIZE(fe_distance_chase, 0x70);
 
-fe_distance_chase::fe_distance_chase()
+fe_distance_chase::fe_distance_chase() {}
+
+void fe_distance_chase::Init(int type_id, const char *a3)
 {
-
-}
-
-void fe_distance_chase::Init(int type_id, const char *a3) {
     this->panels[type_id] = PanelFile::UnmashPanelFile(a3, static_cast<panel_layer>(7));
     this->field_1C = this->panels[type_id]->GetPQ("dm_spider_icon");
 
@@ -28,7 +26,8 @@ void fe_distance_chase::Init(int type_id, const char *a3) {
     this->field_28 = type_id;
 }
 
-void fe_distance_chase::DeInit(int a2) {
+void fe_distance_chase::DeInit(int a2)
+{
     this->panels[a2] = nullptr;
     if (a2 == this->field_28) {
         this->field_6C = 0;

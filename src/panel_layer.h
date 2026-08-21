@@ -1,4 +1,3 @@
 #pragma once
 
-enum panel_layer {
-};
+enum panel_layer {};

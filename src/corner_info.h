@@ -15,4 +15,4 @@ struct corner_info {
 
     void clear();
 };
-} // namespace ai
+}  // namespace ai

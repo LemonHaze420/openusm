@@ -67,14 +67,9 @@ struct ai_state_machine {
     //0x0069BAA0
     void external_request_exit();
 
-    state_trans_action process_msg_on_interrupt(
-        Float a3,
-        state_trans_messages a4,
-        const ai::state_trans_action &a5);
+    state_trans_action process_msg_on_interrupt(Float a3, state_trans_messages a4, const ai::state_trans_action &a5);
 
-    bool has_default_transition(
-                        mash::virtual_types_enum a2,
-                        bool a3) const;
+    bool has_default_transition(mash::virtual_types_enum a2, bool a3) const;
 
     //0x00688100
     bool has_state(string_hash a2) const;
@@ -97,15 +92,18 @@ struct ai_state_machine {
     //0x006A1530
     void add_as_child(ai_state_machine *a2);
 
-    auto * get_prev_mashed_state() const {
+    auto *get_prev_mashed_state() const
+    {
         return this->field_14;
     }
 
-    auto * get_curr_state() const {
+    auto *get_curr_state() const
+    {
         return this->my_curr_state;
     }
 
-    inline auto get_core() {
+    inline auto get_core()
+    {
         return this->my_core;
     }
 
@@ -113,6 +111,6 @@ struct ai_state_machine {
 
     static inline Var<string_hash> initial_state_id_hash{0x0096C460};
 };
-} // namespace ai
+}  // namespace ai
 
 extern void ai_state_machine_patch();

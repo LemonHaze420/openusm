@@ -13,12 +13,12 @@ VALIDATE_SIZE(pc_input_mgr, 0x14u);
 
 #if !STANDALONE_SYSTEM
 
-pc_input_mgr *& pc_input_mgr::instance = var<pc_input_mgr *>(0x00967BB0);
+pc_input_mgr *&pc_input_mgr::instance = var<pc_input_mgr *>(0x00967BB0);
 
 #else
 
-pc_input_mgr *& pc_input_mgr::instance = []() -> auto & {
-    static pc_input_mgr * g_instance {};
+pc_input_mgr *&pc_input_mgr::instance = []() -> auto & {
+    static pc_input_mgr *g_instance{};
     return g_instance;
 }();
 
@@ -41,7 +41,8 @@ pc_input_mgr::pc_input_mgr()
     }
 }
 
-void pc_input_mgr::create_inst() {
+void pc_input_mgr::create_inst()
+{
     if constexpr (1) {
         instance = new pc_input_mgr{};
     } else {

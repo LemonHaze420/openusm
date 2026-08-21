@@ -11,4 +11,4 @@ struct hit_react_state {
     static const inline string_hash default_id{to_hash("hit_react")};
 };
 
-} // namespace ai
+}  // namespace ai

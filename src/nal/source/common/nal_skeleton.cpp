@@ -15,62 +15,62 @@ VALIDATE_SIZE(nalBaseSkeleton, 0x5C);
 
 void nalBaseSkeleton::Process()
 {
-    void (__fastcall *func)(void *) = CAST(func, get_vfunc(this->m_vtbl, 0x8));
+    void(__fastcall * func)(void *) = CAST(func, get_vfunc(this->m_vtbl, 0x8));
     func(this);
 }
 
 void nalBaseSkeleton::Release()
 {
-    void (__fastcall *func)(void *) = CAST(func, get_vfunc(this->m_vtbl, 0xC));
+    void(__fastcall * func)(void *) = CAST(func, get_vfunc(this->m_vtbl, 0xC));
     func(this);
 }
 
 bool nalBaseSkeleton::CheckVersion() const
 {
-    bool (__fastcall *func)(const void *) = CAST(func, get_vfunc(this->m_vtbl, 0x10));
+    bool(__fastcall * func)(const void *) = CAST(func, get_vfunc(this->m_vtbl, 0x10));
     return func(this);
 }
 
-nalBasePose* nalBaseSkeleton::VirtualGetDefaultPose()
+nalBasePose *nalBaseSkeleton::VirtualGetDefaultPose()
 {
-    nalBasePose * (__fastcall *func)(void *) = CAST(func, get_vfunc(this->m_vtbl, 0x24));
+    nalBasePose *(__fastcall * func)(void *) = CAST(func, get_vfunc(this->m_vtbl, 0x24));
     return func(this);
 }
 
-nalBasePose* nalBaseSkeleton::VirtualCreatePose() const
+nalBasePose *nalBaseSkeleton::VirtualCreatePose() const
 {
-    nalBasePose * (__fastcall *func)(const void *) = CAST(func, get_vfunc(this->m_vtbl, 0x28));
+    nalBasePose *(__fastcall * func)(const void *) = CAST(func, get_vfunc(this->m_vtbl, 0x28));
     return func(this);
 }
 
 void nalBaseSkeleton::VirtualDestroyPose(nalBasePose *a2)
 {
-    void (__fastcall *func)(void *, void *edx, nalBasePose *) = CAST(func, get_vfunc(this->m_vtbl, 0x2C));
+    void(__fastcall * func)(void *, void *edx, nalBasePose *) = CAST(func, get_vfunc(this->m_vtbl, 0x2C));
     func(this, nullptr, a2);
 }
 
 void nalBaseSkeleton::VirtualCopyPose(nalBasePose &a2, const nalBasePose &a3) const
 {
-    void (__fastcall *func)(const void *, void *edx, nalBasePose *, const nalBasePose *) = CAST(func, get_vfunc(this->m_vtbl, 0x30));
+    void(__fastcall * func)(const void *, void *edx, nalBasePose *, const nalBasePose *) =
+        CAST(func, get_vfunc(this->m_vtbl, 0x30));
     func(this, nullptr, &a2, &a3);
 }
 
 
 void sub_826190(nalBasePose &dst, Float a2, nalBasePose &src0, nalBasePose &src1)
 {
-    assert(dst.GetSkeleton() == src0.GetSkeleton() && dst.GetSkeleton() == src1.GetSkeleton()
-        && "attempting to blend incompatible skeletons");
+    assert(dst.GetSkeleton() == src0.GetSkeleton() && dst.GetSkeleton() == src1.GetSkeleton() &&
+           "attempting to blend incompatible skeletons");
 
     auto *v6 = dst.GetSkeleton();
     v6->VirtualBlend(&dst, a2, &src0, &src1);
 }
 
-void * nalConstructSkeleton(void *a1)
+void *nalConstructSkeleton(void *a1)
 {
     TRACE("nalConstructSkeleton");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         nalBaseSkeleton *skel = static_cast<decltype(skel)>(a1);
 
         const auto &str = skel->GetAnimTypeName();
@@ -90,8 +90,7 @@ void * nalConstructSkeleton(void *a1)
         skel->m_vtbl = vtbl;
         sp_log("0x%08X", vtbl);
 
-        if ( !skel->CheckVersion() )
-        {
+        if (!skel->CheckVersion()) {
 #ifdef TARGET_XBOX
             auto v3 = skel->Version;
             auto *v5 = skel->field_8.to_string();
@@ -106,6 +105,6 @@ void * nalConstructSkeleton(void *a1)
         return a1;
 
     } else {
-        return (void *) CDECL_CALL(0x0078DC80, a1);
+        return (void *)CDECL_CALL(0x0078DC80, a1);
     }
 }

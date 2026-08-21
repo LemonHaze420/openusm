@@ -18,7 +18,7 @@ struct string_hash_entry {
 
     void initialize(mash::allocation_scope, const char *a2, const string_hash *a3);
 
-    void finalize(mash::allocation_scope ) {}
+    void finalize(mash::allocation_scope) {}
 
     void destruct_mashed_class();
 
@@ -28,11 +28,13 @@ struct string_hash_entry {
 
     void custom_unmash(mash_info_struct *a2, void *a3);
 
-    bool operator>(const string_hash_entry &a2) const {
+    bool operator>(const string_hash_entry &a2) const
+    {
         return this->field_0 > a2.field_0;
     }
 
-    bool operator<(const string_hash_entry &a2) const {
+    bool operator<(const string_hash_entry &a2) const
+    {
         return this->field_0 < a2.field_0;
     }
 };

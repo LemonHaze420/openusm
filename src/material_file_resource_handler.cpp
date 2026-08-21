@@ -14,7 +14,7 @@ VALIDATE_SIZE(material_file_resource_handler, 0x14);
 material_file_resource_handler::material_file_resource_handler(worldly_pack_slot *a2)
 {
     if constexpr (1) {
-        static void * g_vtbl[] = {
+        static void *g_vtbl[] = {
             func_address(&finalize),
             func_address(&_handle),
             func_address(&_pre_handle_resources),
@@ -38,13 +38,12 @@ bool material_file_resource_handler::_handle(worldly_resource_handler::eBehavior
 }
 
 bool material_file_resource_handler::_handle_resource(worldly_resource_handler::eBehavior behavior,
-                                                     tlresource_location *a3)
+                                                      tlresource_location *a3)
 {
     TRACE("material_file_resource_handler::handle_resource", a3->get_name().to_string());
 
     assert(my_slot->get_resource_directory().get_tlresource_count(TLRESOURCE_TYPE_MATERIAL_FILE) ==
-           my_slot->get_resource_directory().get_resource_count(
-               RESOURCE_KEY_TYPE_MATERIAL_FILE_STRUCT));
+           my_slot->get_resource_directory().get_resource_count(RESOURCE_KEY_TYPE_MATERIAL_FILE_STRUCT));
 
     if (behavior == worldly_resource_handler::UNLOAD) {
         auto *MeshFile = bit_cast<nglMeshFile *>(a3->get_data());
@@ -65,8 +64,7 @@ bool material_file_resource_handler::_handle_resource(worldly_resource_handler::
         assert(struct_mash != nullptr);
 
         nglMeshFile *v4{nullptr};
-        auto alloced_mem =
-            parse_generic_object_mash(v4, struct_mash, nullptr, nullptr, nullptr, 0, 0, nullptr);
+        auto alloced_mem = parse_generic_object_mash(v4, struct_mash, nullptr, nullptr, nullptr, 0, 0, nullptr);
         assert(!alloced_mem && "This should NOT allocate anything!");
 
         v4->FileBuf.Buf = a3->get_data();
@@ -76,7 +74,7 @@ bool material_file_resource_handler::_handle_resource(worldly_resource_handler::
             assert(0);
         }
 
-        a3->set_data((char *) v4);
+        a3->set_data((char *)v4);
     }
 
     ++this->field_C;

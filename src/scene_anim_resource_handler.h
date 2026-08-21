@@ -12,7 +12,7 @@ struct scene_anim_resource_handler : base_tl_resource_handler {
 
     //0x0055F990
     /* virtual */ bool _handle_resource(worldly_resource_handler::eBehavior a2,
-                                       tlresource_location *loc) /* override */;
+                                        tlresource_location *loc) /* override */;
 };
 
 extern void scene_anim_resource_handler_patch();

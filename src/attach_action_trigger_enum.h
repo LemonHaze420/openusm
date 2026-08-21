@@ -1,4 +1,3 @@
 #pragma once
 
-enum attach_action_trigger_enum
-{};
+enum attach_action_trigger_enum {};

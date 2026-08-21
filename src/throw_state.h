@@ -11,4 +11,4 @@ struct throw_state {
     static const inline string_hash default_id{to_hash("THROW")};
 };
 
-} // namespace ai
+}  // namespace ai

@@ -7,8 +7,7 @@
 struct generic_mash_header;
 struct generic_mash_data_ptrs;
 
-enum tlresource_type
-{
+enum tlresource_type {
     TLRESOURCE_TYPE_NONE = 0,
     TLRESOURCE_TYPE_TEXTURE = 1,
     TLRESOURCE_TYPE_MESH_FILE = 2,
@@ -32,7 +31,7 @@ class tlresource_location {
 public:
     uint32_t get_size();
 
-    char * get_data();
+    char *get_data();
 
     void set_data(char *a2);
 

@@ -13,11 +13,10 @@ struct nalCharSkeleton;
 struct nalCharInstance;
 
 struct nalCharAnim : nalComp::nalCompAnim {
-
     nalCharAnim();
 
     //0x005FB5B0
-    nalChar::nalCharInstance * CreateInstance(nalCharSkeleton *a1);
+    nalChar::nalCharInstance *CreateInstance(nalCharSkeleton *a1);
 
     //0x005EC3C0
     //virtual
@@ -32,19 +31,19 @@ struct nalCharAnim : nalComp::nalCompAnim {
 
     //0x005FB5A0
     //virtual
-    nalComp::nalCompInstance * _VirtualCreateInstance(nalBaseSkeleton *a1);
+    nalComp::nalCompInstance *_VirtualCreateInstance(nalBaseSkeleton *a1);
 
-    auto * GetSkeleton() {
+    auto *GetSkeleton()
+    {
         return this->field_30;
     }
 
-    void * GetPerAnimDataByName(CharComponentBase::Names a2);
+    void *GetPerAnimDataByName(CharComponentBase::Names a2);
 
     static int &vtbl_ptr;
 };
 
 struct nalCharInstance : nalComp::nalCompInstance {
-
     void finalize(bool);
 
     struct vtbl {
@@ -56,20 +55,14 @@ struct nalCharInstance : nalComp::nalCompInstance {
         void *BuildPerInstData;
     };
 
-    nalCharInstance(
-        nalCharAnim *a2,
-        nalCharSkeleton *a3);
+    nalCharInstance(nalCharAnim *a2, nalCharSkeleton *a3);
 
     //virtual
     //0x005F1060
     ~nalCharInstance();
 
     //virtual
-    void _VirtualGetPose(
-        Float a1,
-        Float a2,
-        nalBasePose *a3,
-        const nalBasePose *a4);
+    void _VirtualGetPose(Float a1, Float a2, nalBasePose *a3, const nalBasePose *a4);
 
     //virtual
     //0x005F08A0
@@ -77,6 +70,6 @@ struct nalCharInstance : nalComp::nalCompInstance {
 };
 
 
-} // namespace nalChar
+}  // namespace nalChar
 
 extern void nalCharInstance_patch();

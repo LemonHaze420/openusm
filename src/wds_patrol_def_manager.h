@@ -11,7 +11,7 @@ struct wds_patrol_def_manager {
 
     wds_patrol_def_manager() = default;
 
-    patrol_def * get_patrol_def(const string_hash &a2) const;
+    patrol_def *get_patrol_def(const string_hash &a2) const;
 
     void add_patrol_defs_from_set(patrol_def_set *a2);
 

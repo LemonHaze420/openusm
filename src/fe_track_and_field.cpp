@@ -73,19 +73,17 @@ void fe_track_and_field::_Init()
 
 void fe_track_and_field::Init()
 {
-    void (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x0));
+    void(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x0));
     func(this);
 }
 
 void fe_track_and_field::_Update(Float a2)
 {
-    if ( this->field_4 != nullptr && this->field_4C )
-    {
-        if ( this->field_48 > 0.0f )
-        {
+    if (this->field_4 != nullptr && this->field_4C) {
+        if (this->field_48 > 0.0f) {
             auto v3 = this->field_48 - a2;
             this->field_48 = v3;
-            if ( v3 < 0.0f ) {
+            if (v3 < 0.0f) {
                 this->field_48 = 0.0;
             }
         }
@@ -100,16 +98,14 @@ void fe_track_and_field::_Update(Float a2)
 
 void fe_track_and_field::Update(Float a2)
 {
-    void (__fastcall *func)(void *, void *edx, Float) = CAST(func, get_vfunc(m_vtbl, 0x4));
+    void(__fastcall * func)(void *, void *edx, Float) = CAST(func, get_vfunc(m_vtbl, 0x4));
     func(this, nullptr, a2);
 }
 
 void fe_track_and_field::_Draw()
 {
-    if ( this->field_4 != nullptr && this->field_4C && this->field_48 <= 0.0f )
-    {
-        for ( int i = 0; i < 14; ++i )
-        {
+    if (this->field_4 != nullptr && this->field_4C && this->field_48 <= 0.0f) {
+        for (int i = 0; i < 14; ++i) {
             auto *v2 = this->field_8[i];
             v2->Draw();
         }
@@ -121,7 +117,7 @@ void fe_track_and_field::_Draw()
 
 void fe_track_and_field::Draw()
 {
-    void (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x8));
+    void(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x8));
     func(this);
 }
 

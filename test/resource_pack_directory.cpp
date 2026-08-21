@@ -4,6 +4,6 @@
 
 TEST(ResourcePackDirectory, Construct)
 {
-    resource_pack_directory dir {};
+    resource_pack_directory dir{};
     EXPECT_EQ(dir.field_0, nullptr);
 }

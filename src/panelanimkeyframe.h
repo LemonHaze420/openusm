@@ -2,8 +2,7 @@
 
 struct from_mash_in_place_constructor;
 
-struct PanelAnimKeyframe
-{
+struct PanelAnimKeyframe {
     int field_0;
     int field_4;
     int field_8;

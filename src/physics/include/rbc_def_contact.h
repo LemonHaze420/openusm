@@ -7,8 +7,7 @@ struct rigid_body;
 struct phys_vector3d;
 struct physics_system;
 
-struct contact_point_info
-{
+struct contact_point_info {
     int field_0;
     int field_4;
     int field_8;
@@ -33,8 +32,7 @@ struct contact_point_info
     pulse_sum_cache field_54[3];
 };
 
-struct rigid_body_constraint_contact
-{
+struct rigid_body_constraint_contact {
     rigid_body *b1;
     rigid_body *b2;
     int field_8;
@@ -59,15 +57,8 @@ struct rigid_body_constraint_contact
     }
 
     //0x007A7360
-    void add_point(rigid_body *,
-            rigid_body *,
-            phys_vector3d const &,
-            phys_vector3d const &,
-            phys_vector3d const &,
-            Float fric_coef,
-            Float bounce_coef,
-            Float,
-            bool);
+    void add_point(rigid_body *, rigid_body *, phys_vector3d const &, phys_vector3d const &, phys_vector3d const &,
+                   Float fric_coef, Float bounce_coef, Float, bool);
 
     void setup_constraint(physics_system *a2, Float a3);
 };

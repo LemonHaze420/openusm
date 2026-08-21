@@ -15,7 +15,7 @@ struct pole_swing_inode : info_node {
     //0x0045D190
     bool can_go_to(string_hash arg0);
 
-    static inline Var<string_hash> default_id {0x009584AC};
+    static inline Var<string_hash> default_id{0x009584AC};
 };
 
-} // namespace ai
+}  // namespace ai

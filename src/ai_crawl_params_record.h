@@ -18,8 +18,7 @@ struct crawl_params_record {
     vector3d field_1C;
     float field_28;
 
-    void update_crawl_transition_als_params(
-        ai::als_inode *a2);
+    void update_crawl_transition_als_params(ai::als_inode *a2);
 };
 
-}
+}  // namespace ai

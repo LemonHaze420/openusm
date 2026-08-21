@@ -7,8 +7,7 @@
 
 VALIDATE_SIZE(attach_interact_data, 0x14);
 
-attach_interact_data::attach_interact_data(from_mash_in_place_constructor *a2) : field_0(a2)
-{}
+attach_interact_data::attach_interact_data(from_mash_in_place_constructor *a2) : field_0(a2) {}
 
 void attach_interact_data::unmash(mash_info_struct *a1, void *)
 {

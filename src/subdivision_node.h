@@ -4,7 +4,7 @@
 
 using subdivision_node_type_t = uint8_t;
 
-#pragma pack (push, 1)
+#pragma pack(push, 1)
 struct subdivision_node {
     enum type_t {
         UNDEFINED_NODE,
@@ -26,17 +26,19 @@ struct subdivision_node {
         VISITED_FLAG = 0x80,
     };
 
-    type_t get_type() const {
+    type_t get_type() const
+    {
         return type_t(m_type & ~VISITED_FLAG);
     }
 
-    void set_type(type_t type) {
+    void set_type(type_t type)
+    {
         m_type = static_cast<subdivision_node_type_t>(type);
     }
 
-    static inline auto & methods = var<void *[13]>(0x00960980);
+    static inline auto &methods = var<void *[13]>(0x00960980);
 
 private:
     subdivision_node_type_t m_type;
 };
-#pragma pack (pop)
+#pragma pack(pop)

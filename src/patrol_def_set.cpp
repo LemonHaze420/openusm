@@ -9,10 +9,8 @@ VALIDATE_SIZE(patrol_def_set, 0x14u);
 
 patrol_def_set::patrol_def_set(from_mash_in_place_constructor *a2)
 {
-    if constexpr (0)
-    {}
-    else
-    {
+    if constexpr (0) {
+    } else {
         THISCALL(0x005DD180, this, a2);
     }
 }
@@ -27,4 +25,3 @@ void patrol_def_set::destruct_mashed_class()
     this->field_0.clear();
     this->field_0.destruct_mashed_class();
 }
-

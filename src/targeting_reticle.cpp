@@ -16,8 +16,7 @@ targeting_reticle::targeting_reticle()
 
 void targeting_reticle::init()
 {
-    if ( this->field_8 == nullptr )
-    {
+    if (this->field_8 == nullptr) {
         this->field_8 = PanelFile::UnmashPanelFile("targeting_reticle", static_cast<panel_layer>(7));
         this->field_C = this->field_8->GetPQ("TR_arrow_top_left");
         this->field_10 = this->field_8->GetPQ("TR_arrow_top_right");

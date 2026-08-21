@@ -13,16 +13,11 @@ enum control_id_t {
     PLANE_BOUNDS_MOD = 48,
 };
 
-enum axis_id_t {
-};
+enum axis_id_t {};
 
 using device_axis_list_t = typename _std::list<device_axis>;
 
-enum control_t
-{
-    CT_BOOLEAN,
-    CT_RATIONAL
-};
+enum control_t { CT_BOOLEAN, CT_RATIONAL };
 
 struct game_control {
     control_id_t name;

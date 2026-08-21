@@ -64,7 +64,7 @@ struct std_fear_inode : info_node {
 
     static inline Var<_std::vector<std_fear_inode *> *> cowering_fear_inodes{0x0096BE34};
 
-    static inline const string_hash default_id {int(to_hash("std_fear_inode"))};
+    static inline const string_hash default_id{int(to_hash("std_fear_inode"))};
 };
 
-} // namespace ai
+}  // namespace ai

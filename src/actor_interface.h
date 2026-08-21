@@ -13,9 +13,5 @@ struct actor_interface : generic_interface {
     actor_interface(actor *a2);
 
     //virtual
-    void un_mash(
-        generic_mash_header *a2,
-        void *a3,
-        void *a4,
-        generic_mash_data_ptrs *a5);
+    void un_mash(generic_mash_header *a2, void *a3, void *a4, generic_mash_data_ptrs *a5);
 };

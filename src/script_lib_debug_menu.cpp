@@ -18,23 +18,20 @@ static int vm_debug_menu_entry_garbage_collection_id = -1;
 
 void init_script_debug_menu()
 {
-    if ( script_menu == nullptr )
-    {
-        script_menu = new debug_menu {"Script", debug_menu::sort_mode_t::undefined};
+    if (script_menu == nullptr) {
+        script_menu = new debug_menu{"Script", debug_menu::sort_mode_t::undefined};
 
-        progression_menu = new debug_menu {"Progression", debug_menu::sort_mode_t::undefined};
+        progression_menu = new debug_menu{"Progression", debug_menu::sort_mode_t::undefined};
 
         debug_menu::root_menu->add_entry(script_menu);
         debug_menu::root_menu->add_entry(progression_menu);
     }
 }
 
-void vm_debug_menu_entry_garbage_collection_callback(script_executable *,
-                                                    _std::list<uint32_t> &a2,
-                                                    _std::list<mString> &)
+void vm_debug_menu_entry_garbage_collection_callback(script_executable *, _std::list<uint32_t> &a2,
+                                                     _std::list<mString> &)
 {
-    for ( auto &v2 : a2 )
-    {
+    for (auto &v2 : a2) {
         assert(script_menu != nullptr);
 
         auto *entry = bit_cast<debug_menu_entry *>(v2);
@@ -44,8 +41,9 @@ void vm_debug_menu_entry_garbage_collection_callback(script_executable *,
 
 void construct_debug_menu_lib()
 {
-    if ( vm_debug_menu_entry_garbage_collection_id == -1 ) {
-        vm_debug_menu_entry_garbage_collection_id = script_manager::register_allocated_stuff_callback(vm_debug_menu_entry_garbage_collection_callback);
+    if (vm_debug_menu_entry_garbage_collection_id == -1) {
+        vm_debug_menu_entry_garbage_collection_id =
+            script_manager::register_allocated_stuff_callback(vm_debug_menu_entry_garbage_collection_callback);
     }
 }
 
@@ -56,25 +54,25 @@ slf__create_debug_menu_entry__str__str__t::slf__create_debug_menu_entry__str__st
     m_vtbl->__cl = CAST(m_vtbl->__cl, address);
 }
 
-bool slf__create_debug_menu_entry__str__str__t::operator()(vm_stack &stack, [[maybe_unused]]script_library_class::function::entry_t entry) const
+bool slf__create_debug_menu_entry__str__str__t::operator()(
+    vm_stack &stack, [[maybe_unused]] script_library_class::function::entry_t entry) const
 {
     TRACE("slf__create_debug_menu_entry__str__str__t::operator()");
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         SLF_PARMS;
 
         init_script_debug_menu();
         assert(script_menu != nullptr);
 
-        mString v14 {parms->str0};
-        auto *result = new debug_menu_entry {v14};
+        mString v14{parms->str0};
+        auto *result = new debug_menu_entry{v14};
 
-        mString v15 {parms->str1};
+        mString v15{parms->str1};
         auto *nt = stack.get_thread();
         auto *v4 = nt->get_instance();
         result->set_script_handler(v4, v15);
-        mString v16 {};
+        mString v16{};
         uint32_t v11 = int(result);
         auto v10 = vm_debug_menu_entry_garbage_collection_id;
         auto *v6 = nt->get_executable();
@@ -85,10 +83,8 @@ bool slf__create_debug_menu_entry__str__str__t::operator()(vm_stack &stack, [[ma
 
         SLF_RETURN;
         SLF_DONE;
-    }
-    else
-    {
-        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00678210);
+    } else {
+        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00678210);
         return func(this, nullptr, &stack, entry);
     }
 }

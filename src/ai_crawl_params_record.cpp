@@ -10,12 +10,11 @@ namespace ai {
 
 VALIDATE_SIZE(crawl_params_record, 0x2C);
 
-void crawl_params_record::update_crawl_transition_als_params(
-        ai::als_inode *a2)
+void crawl_params_record::update_crawl_transition_als_params(ai::als_inode *a2)
 {
     TRACE("crawl_params_record::update_crawl_transition_als_params");
 
-    als::param_list v10 {};
+    als::param_list v10{};
     auto v3 = !this->field_4;
 
     als::param v5;
@@ -46,8 +45,8 @@ void crawl_params_record::update_crawl_transition_als_params(
     v9.field_0 = 51;
     v10.add_param(v9);
 
-    auto *v4 = a2->field_1C->get_als_layer((als::layer_types) 0);
+    auto *v4 = a2->field_1C->get_als_layer((als::layer_types)0);
     v4->set_desired_params(v10);
 }
 
-}
+}  // namespace ai

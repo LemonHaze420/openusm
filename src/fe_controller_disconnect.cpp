@@ -11,17 +11,16 @@
 #include "panelquad.h"
 #include "pausemenusystem.h"
 
-bool fe_controller_disconnect::update() {
-    return (bool) CDECL_CALL(0x00629E60);
+bool fe_controller_disconnect::update()
+{
+    return (bool)CDECL_CALL(0x00629E60);
 }
 
 void fe_controller_disconnect::draw()
 {
-    if constexpr (1)
-    {
-        if (back_ground_quad() == nullptr)
-        {
-            back_ground_quad() = new PanelQuad {};
+    if constexpr (1) {
+        if (back_ground_quad() == nullptr) {
+            back_ground_quad() = new PanelQuad{};
 
             auto *v2 = g_femanager.m_pause_menu_system->field_2C;
 
@@ -30,7 +29,8 @@ void fe_controller_disconnect::draw()
             auto a3 = fe_controller_disconnect::back_ground_quad()->GetCenterX();
             auto a4 = fe_controller_disconnect::back_ground_quad()->GetCenterY();
 
-            text_box() = new FEMultiLineText{static_cast<font_index>(1), a3, a4, 0, static_cast<panel_layer>(2), 1.0, 0, 0, {0}};
+            text_box() =
+                new FEMultiLineText{static_cast<font_index>(1), a3, a4, 0, static_cast<panel_layer>(2), 1.0, 0, 0, {0}};
 
             text_box()->SetNumLines(10);
         }
@@ -54,9 +54,7 @@ void fe_controller_disconnect::draw()
                 int v14 = (v12 * 0.89999998f);
 
                 mString v13{Dest};
-                text_box()->SetTextBoxNoLocalize(*bit_cast<FEMultiLineText::string *>(&v13),
-                                                 v14,
-                                                 v15);
+                text_box()->SetTextBoxNoLocalize(*bit_cast<FEMultiLineText::string *>(&v13), v14, v15);
             }
 
             back_ground_quad()->Draw();
@@ -68,6 +66,7 @@ void fe_controller_disconnect::draw()
     }
 }
 
-bool fe_controller_disconnect::get_currently_plugged_in() {
+bool fe_controller_disconnect::get_currently_plugged_in()
+{
     return currently_plugged_in();
 }

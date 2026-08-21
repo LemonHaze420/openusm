@@ -7,13 +7,11 @@ namespace ai {
 
 VALIDATE_SIZE(glass_house_inode, 0x34);
 
-glass_house_inode::glass_house_inode()
+glass_house_inode::glass_house_inode() {}
+
+void glass_house_inode::show_glass_house_message()
 {
-
-}
-
-void glass_house_inode::show_glass_house_message() {
     THISCALL(0x00455F00, this);
 }
 
-} // namespace ai
+}  // namespace ai

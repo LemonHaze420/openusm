@@ -7,8 +7,7 @@
 struct limited_timer;
 struct worldly_pack_slot;
 
-struct scene_entity_brew
-{
+struct scene_entity_brew {
     progress field_0;
     limited_timer *field_4;
     worldly_pack_slot *field_8;

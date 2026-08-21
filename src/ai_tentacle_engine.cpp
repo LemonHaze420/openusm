@@ -8,7 +8,7 @@ ai_tentacle_engine::ai_tentacle_engine(ai_tentacle_info *a2)
 {
     this->m_vtbl = 0x0087E9F0;
     this->field_10 = ++id_counter;
-    if ( this->field_10 == 0 ) {
+    if (this->field_10 == 0) {
         this->field_10 = ++id_counter;
     }
 

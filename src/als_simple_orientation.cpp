@@ -14,7 +14,7 @@ void simple_orientation::post_anim_action(Float a2)
     THISCALL(0x004A13B0, this, a2);
 }
 
-}
+}  // namespace als
 
 void als_simple_orientation_patch()
 {

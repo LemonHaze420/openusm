@@ -19,7 +19,7 @@ struct traffic_route;
 namespace ai {
 struct ai_car_inode;
 struct traffic_inode;
-}
+}  // namespace ai
 
 struct traffic : spawnable {
     int field_8;
@@ -92,20 +92,24 @@ struct traffic : spawnable {
 
     ~traffic();
 
-    traffic_path_lane * get_current_lane() {
+    traffic_path_lane *get_current_lane()
+    {
         return field_140;
     }
 
-    bool is_ai_potential_car() const {
+    bool is_ai_potential_car() const
+    {
         return this->ai_potential_car_counter > 0;
     }
 
-    bool more_dests() const {
+    bool more_dests() const
+    {
         return !this->field_1EC.empty();
     }
 
     //0x006C3900
-    bool is_fully_pulled_over() const {
+    bool is_fully_pulled_over() const
+    {
         return this->field_1EC.size() < 3;
     }
 
@@ -126,7 +130,7 @@ struct traffic : spawnable {
     void sub_6DACB0(entity_base_vhandle a2);
 
     //0x006C36E0
-    traffic * car_behind();
+    traffic *car_behind();
 
     //0x006C7400
     bool start_lane(traffic_path_lane *a2, bool a3);
@@ -146,7 +150,7 @@ struct traffic : spawnable {
     void set_current_lane(traffic_path_lane *a2, int a3, bool a4);
 
     //0x006C3650
-    traffic * car_ahead();
+    traffic *car_ahead();
 
     //0x006BCF60
     void set_ai_controller(ai::ai_car_inode *a2);
@@ -159,12 +163,7 @@ struct traffic : spawnable {
 
     //virtual
     //0x006D9070
-    void _do_spawn(
-            vector3d a4,
-            vector3d a2,
-            traffic_path_lane *lane,
-            bool a10,
-            bool a11);
+    void _do_spawn(vector3d a4, vector3d a2, traffic_path_lane *lane, bool a10, bool a11);
 
     //virtual
     //0x006D9740
@@ -200,10 +199,10 @@ struct traffic : spawnable {
     static void create_new_traffic(int a1);
 
     //0x006BC150
-    static parking_marker * find_open_parking_marker();
+    static parking_marker *find_open_parking_marker();
 
     //0x006CB1A0
-    static traffic * get_traffic_from_entity_slow(vhandle_type<entity> a1);
+    static traffic *get_traffic_from_entity_slow(vhandle_type<entity> a1);
 
     static void set_traffic_model_usage(int a1, Float a2);
 
@@ -211,19 +210,19 @@ struct traffic : spawnable {
 
     static void advance_traffic(Float a1);
 
-    static bool & traffic_enabled;
+    static bool &traffic_enabled;
 
-    static bool & traffic_initialized;
+    static bool &traffic_initialized;
 
-    static float & traffic_density;
+    static float &traffic_density;
 
-    static float & parking_density;
+    static float &parking_density;
 
-    static int & lane_changes_this_frame;
-    static int & spawned_this_frame;
-    static int & unspawned_this_frame;
+    static int &lane_changes_this_frame;
+    static int &spawned_this_frame;
+    static int &unspawned_this_frame;
 
-    static _std::vector<traffic *> & traffic_list;
+    static _std::vector<traffic *> &traffic_list;
 
     static std::array<int, 5> &old_drivers;
 
@@ -235,13 +234,13 @@ struct traffic : spawnable {
 
     static traffic *&emergency_car;
 
-    static _std::vector<traffic *> *& ai_occupied_cars;
+    static _std::vector<traffic *> *&ai_occupied_cars;
 
     static int &living_cars;
     static int &parked_cars;
     static int &visible_cars;
 
-    static int & last_traffic_id;
+    static int &last_traffic_id;
 };
 
 extern void traffic_patch();

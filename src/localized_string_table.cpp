@@ -18,8 +18,7 @@ void localized_string_table::load_localizer()
 {
     TRACE("localized_string_table::load_localizer");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         [[maybe_unused]] auto a3 = os_developer_options::instance->get_string(os_developer_options::strings_t::SKU);
         globalTextLanguage = 0;
 
@@ -51,18 +50,15 @@ void localized_string_table::load_localizer()
         auto *my_streamer = my_partition->get_streamer();
         assert(my_streamer != nullptr);
 
-        static const char *globalTextLangFileNames[] { "globaltext_ENGLISH",
-                                                        "globaltext_FRENCH",
-                                                        "globaltext_GERMAN",
-                                                        "globaltext_SPANISH",
-                                                        "globaltext_ITALIAN" };
+        static const char *globalTextLangFileNames[]{
+            "globaltext_ENGLISH", "globaltext_FRENCH", "globaltext_GERMAN", "globaltext_SPANISH", "globaltext_ITALIAN"};
 
         const auto *textLangFileName = globalTextLangFileNames[globalTextLanguage];
 
         my_streamer->load(textLangFileName, 0, nullptr, nullptr);
         my_streamer->flush(RenderLoadMeter);
 
-        mString v5 {textLangFileName};
+        mString v5{textLangFileName};
 #ifdef TARGET_XBOX
         v5.append("_XBOX");
 #else
@@ -76,31 +72,26 @@ void localized_string_table::load_localizer()
 
         string_localizer->sub_60BD30();
         g_game_ptr->field_7C = string_localizer;
-    }
-    else
-    {
+    } else {
         CDECL_CALL(0x0062EF10);
     }
 }
 
 void localized_string_table::sub_60BD30()
 {
-    this->field_0 = (internal *) ((char *) this + (unsigned int) this->field_0);
-    this->field_8 += (int) this;
+    this->field_0 = (internal *)((char *)this + (unsigned int)this->field_0);
+    this->field_8 += (int)this;
 
     if (this->field_4 != this->scripttext_number + 478) {
-        sp_log(
-            "localized strings table does not have the correct number of entries (%d) it has (%d) "
-            "instead.",
-            this->scripttext_number + 478,
-            this->field_4);
+        sp_log("localized strings table does not have the correct number of entries (%d) it has (%d) "
+               "instead.",
+               this->scripttext_number + 478,
+               this->field_4);
         assert(0);
     }
 
-    if (this->field_4 > 0)
-    {
-        for (int i = 0; i < this->field_4; ++i)
-        {
+    if (this->field_4 > 0) {
+        for (int i = 0; i < this->field_4; ++i) {
             char DstBuf[4];
             itoa(i, DstBuf, 10);
 
@@ -123,7 +114,8 @@ void localized_string_table::sub_60BD30()
     }
 }
 
-const char *localized_string_table::lookup_scripttext_string(int num) {
+const char *localized_string_table::lookup_scripttext_string(int num)
+{
     assert(num >= 0);
     assert(num < this->scripttext_number);
 
@@ -146,8 +138,8 @@ const char *localized_string_table::lookup_localized_string(global_text_enum num
     return result;
 }
 
-void localized_string_table_patch() {
-
+void localized_string_table_patch()
+{
     SET_JUMP(0x0062EF10, localized_string_table::load_localizer);
     return;
 

@@ -7,8 +7,7 @@
 struct conglomerate;
 struct anim_map_ptr_entry;
 
-struct animation_interface : conglomerate_interface
-{
+struct animation_interface : conglomerate_interface {
     mashable_vector<anim_map_ptr_entry> field_C;
 
     animation_interface(conglomerate *a2);

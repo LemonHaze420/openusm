@@ -10,7 +10,8 @@
 
 VALIDATE_SIZE(resource_pack_header, 0x2Cu);
 
-resource_pack_header::resource_pack_header() : field_0() {
+resource_pack_header::resource_pack_header() : field_0()
+{
     this->field_14 = 0;
     this->directory_offset = 0;
     this->res_dir_mash_size = 0;
@@ -19,7 +20,8 @@ resource_pack_header::resource_pack_header() : field_0() {
     this->field_28 = 0;
 }
 
-void resource_pack_header::clear() {
+void resource_pack_header::clear()
+{
     this->field_0 = {};
 
     this->field_14 = 0;
@@ -32,8 +34,7 @@ void resource_pack_header::clear() {
 
 bool resource_pack_header::verify(resource_key a2) const
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         //sp_log("0x%08X %d", a2.field_0, a2.m_type);
 
         static constexpr resource_versions v20 = {RESOURCE_PACK_VERSION,
@@ -91,10 +92,9 @@ bool resource_pack_header::verify(resource_key a2) const
                 auto v14 = a2.m_hash.sub_501E80();
                 auto v5 = v14.to_string();
 
-                sp_log(
-                    "Error. The pack file %s has sync testing ON, but this executable has sync "
-                    "testing OFF.",
-                    v5);
+                sp_log("Error. The pack file %s has sync testing ON, but this executable has sync "
+                       "testing OFF.",
+                       v5);
             }
         }
 
@@ -104,11 +104,12 @@ bool resource_pack_header::verify(resource_key a2) const
 
         return true;
     } else {
-        return (bool) THISCALL(0x00537DA0, this, a2);
+        return (bool)THISCALL(0x00537DA0, this, a2);
     }
 }
 
-void resource_pack_header_patch() {
+void resource_pack_header_patch()
+{
     {
         FUNC_ADDRESS(address, &resource_pack_header::verify);
         REDIRECT(0x0053E1D2, address);

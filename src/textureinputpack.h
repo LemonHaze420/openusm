@@ -17,7 +17,7 @@ struct TexturePackBase {
 
     struct {
         std::intptr_t m_vtbl;
-    } * field_1C;
+    } *field_1C;
     int field_20[19];
 };
 

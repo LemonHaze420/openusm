@@ -12,7 +12,7 @@ animation_interface::animation_interface(conglomerate *a2) : conglomerate_interf
     this->m_vtbl = 0x00883CE4;
 }
 
-void animation_interface::_un_mash(generic_mash_header *a2, void *a3, int , generic_mash_data_ptrs *a5)
+void animation_interface::_un_mash(generic_mash_header *a2, void *a3, int, generic_mash_data_ptrs *a5)
 {
     TRACE("animation_interface::un_mash");
 

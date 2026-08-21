@@ -27,7 +27,8 @@ namespace ai {
 
 VALIDATE_SIZE(run_state, 0x5C);
 
-run_state::run_state(from_mash_in_place_constructor *a2) {
+run_state::run_state(from_mash_in_place_constructor *a2)
+{
     THISCALL(0x00449BD0, this, a2);
 }
 
@@ -35,8 +36,7 @@ string_hash fence_hop_grind_angle_cosine_id{to_hash("fence_hop_grind_angle_cosin
 
 bool run_state::check_for_fence_hop(Float a2, vector3d *a3)
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         auto *act = this->get_actor();
 
         vector3d abs_pos = act->get_abs_position();
@@ -50,25 +50,21 @@ bool run_state::check_for_fence_hop(Float a2, vector3d *a3)
 
         line_info v21{abs_pos, v20};
 
-        if (v21.check_collision(*local_collision::entfilter_entity_no_capsules,
-                                *local_collision::obbfilter_lineseg_test,
-                                nullptr)) {
+        if (v21.check_collision(
+                *local_collision::entfilter_entity_no_capsules, *local_collision::obbfilter_lineseg_test, nullptr)) {
             act->cancel_animated_movement(v21.hit_norm, 0.0f);
         }
 
         return false;
 
-    }
-    else
-    {
-        return (bool) THISCALL(0x004696B0, this, a2, a3);
+    } else {
+        return (bool)THISCALL(0x004696B0, this, a2, a3);
     }
 }
 
 ai::state_trans_messages run_state::_frame_advance(Float a2)
 {
-    if constexpr (0)
-    {
+    if constexpr (0) {
         vector3d v92;
         vector3d move_dir;
         vector3d norm_stick_dir;
@@ -105,7 +101,7 @@ ai::state_trans_messages run_state::_frame_advance(Float a2)
 
         this->get_actor()->m_player_controller->set_spidey_loco_mode(static_cast<eHeroLocoMode>(1));
 
-        if ( !v83->is_layer_interruptable(static_cast<als::layer_types>(0)) ) {
+        if (!v83->is_layer_interruptable(static_cast<als::layer_types>(0))) {
             return TRANS_TOTAL_MSGS;
         }
 
@@ -207,7 +203,7 @@ ai::state_trans_messages run_state::_frame_advance(Float a2)
                 vhandle_type<actor> v53 = v6->quick_targeting();
                 auto *v54 = v53.get_volatile_ptr();
 
-                auto *v56 = (float *) &v54->get_abs_po();
+                auto *v56 = (float *)&v54->get_abs_po();
                 auto v57 = v87[2] - this->field_30[2];
                 auto &v58 = this->field_30;
                 v56 += 12;
@@ -289,18 +285,12 @@ ai::state_trans_messages run_state::_frame_advance(Float a2)
 
             v92 = cam_ptr->get_abs_po().m[2];
 
-            if (Input::instance->field_129D8[0]->field_18.get_state(InputAction::Forward) >
-                    0.80000001f &&
-                Input::instance->field_129D8[0]->field_18.get_state(InputAction::Backward) <
-                    0.80000001f &&
-                Input::instance->field_129D8[0]->field_18.get_state(InputAction::TurnRight) <
-                    0.80000001f)
-            {
+            if (Input::instance->field_129D8[0]->field_18.get_state(InputAction::Forward) > 0.80000001f &&
+                Input::instance->field_129D8[0]->field_18.get_state(InputAction::Backward) < 0.80000001f &&
+                Input::instance->field_129D8[0]->field_18.get_state(InputAction::TurnRight) < 0.80000001f) {
                 p_list.add_param(27u, v92);
                 v51 = &v92;
-            }
-            else
-            {
+            } else {
                 p_list.add_param(27u, move_dir);
                 v51 = &norm_stick_dir;
             }
@@ -318,7 +308,7 @@ ai::state_trans_messages run_state::_frame_advance(Float a2)
     }
 }
 
-} // namespace ai
+}  // namespace ai
 
 void run_state_patch()
 {

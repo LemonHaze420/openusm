@@ -58,14 +58,10 @@ struct ai_interaction_data {
     void unmash(mash_info_struct *a1, void *);
 
     //0x0068DDF0
-    string_hash get_anim_hash_name(
-        const anim_record *a2,
-        bool a3);
+    string_hash get_anim_hash_name(const anim_record *a2, bool a3);
 
     //0x0069D6A0
-    void *get_anim_ptr(
-        const anim_key *the_anim_key,
-        bool a3);
+    void *get_anim_ptr(const anim_key *the_anim_key, bool a3);
 };
 
 extern void ai_interaction_data_patch();

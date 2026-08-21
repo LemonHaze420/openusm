@@ -18,25 +18,26 @@ struct nalCompPose {
     void *m_pTheData;
     int field_C;
 
-    auto GetSkeleton() const {
+    auto GetSkeleton() const
+    {
         return this->field_4;
     }
 
     nalCompPose(const nalCompSkeleton *);
 
-    nalCompPose & operator=(const nalComp::nalCompPose *a2);
+    nalCompPose &operator=(const nalComp::nalCompPose *a2);
 
     void CopyPoseDataNoFree(const void *a2);
 
-    void * _GetComponentPoseData(uint32_t a2);
+    void *_GetComponentPoseData(uint32_t a2);
 
     //virtual
-    void * GetComponentPoseData(uint32_t a2);
+    void *GetComponentPoseData(uint32_t a2);
 
-    void * _GetComponentPoseData(uint32_t a2) const;
+    void *_GetComponentPoseData(uint32_t a2) const;
 
     //virtual
-    void * GetComponentPoseData(uint32_t a2) const;
+    void *GetComponentPoseData(uint32_t a2) const;
 
     int _GetPoseDataSize();
 
@@ -91,7 +92,8 @@ struct nalCompSkeleton : nalBaseSkeleton {
     char *field_74;
     char *field_78;
 
-    auto GetNumComponents() const {
+    auto GetNumComponents() const
+    {
         return this->m_iNumComponents;
     }
 
@@ -101,27 +103,23 @@ struct nalCompSkeleton : nalBaseSkeleton {
     void VirtualCopyPose(nalBasePose *a1, const nalBasePose *a2);
 
     //virtual
-    void VirtualBlend(
-            nalBasePose *a1,
-            Float a2,
-            const nalBasePose *a3,
-            const nalBasePose *a4);
+    void VirtualBlend(nalBasePose *a1, Float a2, const nalBasePose *a3, const nalBasePose *a4);
 
     int ConvertCompIxToPoseIx(uint32_t a2) const;
 
     int GetComponentPoseDataOffset(uint32_t a2) const;
 
-    char * GetCompDefaultPoseData(int iCompIx) const;
+    char *GetCompDefaultPoseData(int iCompIx) const;
 
-    char * GetCompPerSkelDataInt(int iCompIx) const;
+    char *GetCompPerSkelDataInt(int iCompIx) const;
 
     ComponentId GetComponentId(int a3);
 
     int GetCompIxFromName(nalComp::ComponentId a2) const;
 
-    CharComponentBase * GetComponent(int iCompIx);
+    CharComponentBase *GetComponent(int iCompIx);
 
-    CharComponentBase * GetComponent(int iCompIx) const;
+    CharComponentBase *GetComponent(int iCompIx) const;
 
     int GetName(int iCompIx) const;
 
@@ -143,5 +141,4 @@ extern void Blend(nalCompPose &a1, Float a2, const nalCompPose &src0, const nalC
 
 extern nalComp::nalCompPose *&pTempStuff;
 
-} // namespace nalComp
-
+}  // namespace nalComp

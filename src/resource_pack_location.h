@@ -2,8 +2,7 @@
 
 #include "resource_location.h"
 
-struct resource_pack_location
-{
+struct resource_pack_location {
     resource_location loc;
 
     int field_10;

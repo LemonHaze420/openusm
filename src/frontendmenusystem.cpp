@@ -30,7 +30,8 @@ VALIDATE_SIZE(FrontEndMenuSystem, 0x80);
 
 static bool &already_drew_this_frame = var<bool>(0x0096B44A);
 
-FrontEndMenuSystem::FrontEndMenuSystem() : FEMenuSystem(7, static_cast<font_index>(1)) {
+FrontEndMenuSystem::FrontEndMenuSystem() : FEMenuSystem(7, static_cast<font_index>(1))
+{
     if constexpr (1) {
         this->field_50 = 0;
         this->field_51 = 0;
@@ -38,21 +39,20 @@ FrontEndMenuSystem::FrontEndMenuSystem() : FEMenuSystem(7, static_cast<font_inde
 
         static Var<bool> first_time_through{0x00937B78};
 
-        if (first_time_through())
-        {
-            this->field_4[this->m_count++] = new main_menu_legal {this, 320, 240};
+        if (first_time_through()) {
+            this->field_4[this->m_count++] = new main_menu_legal{this, 320, 240};
 
-            this->field_4[this->m_count++] = new main_menu_start {this, 320, 240};
+            this->field_4[this->m_count++] = new main_menu_start{this, 320, 240};
 
-            this->field_4[this->m_count++] = new main_menu_memcard_check {this, 320, 240};
+            this->field_4[this->m_count++] = new main_menu_memcard_check{this, 320, 240};
 
-            this->field_4[this->m_count++] = new main_menu_options {this, 320, 240};
+            this->field_4[this->m_count++] = new main_menu_options{this, 320, 240};
 
-            this->field_4[this->m_count++] = new main_menu_load {this, 320, 240};
+            this->field_4[this->m_count++] = new main_menu_load{this, 320, 240};
 
-            this->field_4[this->m_count++] = new main_menu_keyboard {this, 320, 240};
+            this->field_4[this->m_count++] = new main_menu_keyboard{this, 320, 240};
 
-            this->field_4[this->m_count++] = new main_menu_credits {this, 320, 240};
+            this->field_4[this->m_count++] = new main_menu_credits{this, 320, 240};
 
             first_time_through() = false;
             this->field_50 = false;
@@ -102,16 +102,19 @@ FrontEndMenuSystem::FrontEndMenuSystem() : FEMenuSystem(7, static_cast<font_inde
     }
 }
 
-void FrontEndMenuSystem::sub_60C240() {
+void FrontEndMenuSystem::sub_60C240()
+{
     THISCALL(0x0060C240, this);
 }
 
-bool FrontEndMenuSystem::WaitForMemCheck() {
-    return this->field_30 != 10 &&
-        !os_developer_options::instance->os_developer_options::get_flag(static_cast<os_developer_options::flags_t>(66));
+bool FrontEndMenuSystem::WaitForMemCheck()
+{
+    return this->field_30 != 10 && !os_developer_options::instance->os_developer_options::get_flag(
+                                       static_cast<os_developer_options::flags_t>(66));
 }
 
-bool FrontEndMenuSystem::sub_60C230() {
+bool FrontEndMenuSystem::sub_60C230()
+{
     return this->field_30 != 10;
 }
 
@@ -122,19 +125,16 @@ bool sub_5A6880(const char *a1, void *a2)
 
 void sub_582960(bool a1)
 {
-    if ( a1 )
-    {
+    if (a1) {
         dword_965DDC->sub_821490(TRUE);
 
-        static char byte_965C68[10][37] {};
+        static char byte_965C68[10][37]{};
         static_assert(std::size(byte_965C68[0]) == 37, "");
         static_assert(std::size(byte_965C68) == 10, "");
 
         int v1 = 0;
-        for ( auto &v2 : byte_965C68 )
-        {
-            if ( strcmp(v2, dword_965DDC->sub_81FD40(v1)) != 0 )
-            {
+        for (auto &v2 : byte_965C68) {
+            if (strcmp(v2, dword_965DDC->sub_81FD40(v1)) != 0) {
                 EnterCriticalSection(&g_CriticalSection);
                 byte_965950 = true;
                 LeaveCriticalSection(&g_CriticalSection);
@@ -142,11 +142,9 @@ void sub_582960(bool a1)
             ++v1;
         }
 
-        if ( byte_965950 )
-        {
+        if (byte_965950) {
             int v3 = 0;
-            for ( auto &v4 : byte_965C68 )
-            {
+            for (auto &v4 : byte_965C68) {
                 strcpy(v4, dword_965DDC->sub_81FD40(v3));
                 ++v3;
             }
@@ -156,9 +154,8 @@ void sub_582960(bool a1)
 
 void __stdcall StartAddress([[maybe_unused]] LPVOID lpThreadParameter)
 {
-    for ( auto i = WaitForSingleObject(hEvent, 0x3E8u); i != 0; i = WaitForSingleObject(hEvent, 0x3E8u) )
-    {
-        if ( i == 258 ) {
+    for (auto i = WaitForSingleObject(hEvent, 0x3E8u); i != 0; i = WaitForSingleObject(hEvent, 0x3E8u)) {
+        if (i == 258) {
             sub_582960(1);
         }
     }
@@ -168,11 +165,9 @@ void __stdcall StartAddress([[maybe_unused]] LPVOID lpThreadParameter)
 
 void sub_582AD0()
 {
-    if ( hObject == nullptr )
-    {
-        if ( dword_965DDC == nullptr )
-        {
-            dword_965DDC = new Input {};
+    if (hObject == nullptr) {
+        if (dword_965DDC == nullptr) {
+            dword_965DDC = new Input{};
             dword_965DDC->initialize(g_appHwnd);
         }
 
@@ -187,14 +182,12 @@ void sub_582AD0()
 
 void sub_582BB0()
 {
-    if constexpr (0)
-    {
+    if constexpr (0) {
         EnterCriticalSection(&g_CriticalSection);
         auto v0 = byte_965950;
         byte_965950 = false;
         LeaveCriticalSection(&g_CriticalSection);
-        if ( v0 )
-        {
+        if (v0) {
             SetEvent(hEvent);
             WaitForSingleObject(hObject, 0xFFFFFFFF);
             CloseHandle(hObject);
@@ -206,44 +199,37 @@ void sub_582BB0()
             sub_5828B0();
             sub_582AD0();
         }
-    }
-    else
-    {
+    } else {
         CDECL_CALL(0x00582BB0);
     }
 }
 
 void FrontEndMenuSystem::sub_619030(bool a2)
 {
-    if constexpr (0)
-    {
+    if constexpr (0) {
         sub_582BB0();
-        if ( !g_game_ptr->field_165 && !g_game_ptr->field_166 )
-        {
-            if ( already_drew_this_frame )
-            {
-                if ( g_game_ptr->level.load_completed && !g_game_ptr->gamefile->field_4C1 ) {
+        if (!g_game_ptr->field_165 && !g_game_ptr->field_166) {
+            if (already_drew_this_frame) {
+                if (g_game_ptr->level.load_completed && !g_game_ptr->gamefile->field_4C1) {
                     return;
                 }
 
                 input_mgr::instance->poll_devices();
                 float time_Inc = 0.f;
-                for ( time_Inc = g_timer->sub_5821D0(); time_Inc == 0.0f; time_Inc = g_timer->sub_5821D0() ) {
+                for (time_Inc = g_timer->sub_5821D0(); time_Inc == 0.0f; time_Inc = g_timer->sub_5821D0()) {
                     Sleep(0);
                 }
 
-                if ( time_Inc > 0.f ) {
+                if (time_Inc > 0.f) {
                     this->Update(time_Inc);
                 }
             }
 
-            if ( !a2 )
-            {
+            if (!a2) {
                 nglListInit();
                 nglSetClearFlags(7u);
-                if ( !EnableShader )
-                {
-                    math::MatClass<4, 3> a1 {};
+                if (!EnableShader) {
+                    math::MatClass<4, 3> a1{};
                     a1[0][0] = 0.003125;
                     memset(&a1[0][1], 0, 16);
                     a1[1][1] = 0.004166666;
@@ -264,20 +250,19 @@ void FrontEndMenuSystem::sub_619030(bool a2)
             auto *v3 = this->field_4[this->m_index];
             v3->Draw();
             g_cursor->Draw();
-            if ( !a2 ) {
+            if (!a2) {
                 nglListSend(1);
             }
 
             already_drew_this_frame = true;
         }
-    }
-    else
-    {
+    } else {
         THISCALL(0x00619030, this, a2);
     }
 }
 
-void FrontEndMenuSystem::MakeActive(int a2) {
+void FrontEndMenuSystem::MakeActive(int a2)
+{
     auto idx = this->m_index;
     this->field_34 = idx;
     if (idx != -1) {
@@ -330,8 +315,7 @@ void FrontEndMenuSystem::GoNextState()
     }
 
     int v3;
-    while (2)
-    {
+    while (2) {
         auto v2 = this->field_30;
         switch (v2) {
         case 5:
@@ -391,18 +375,15 @@ void FrontEndMenuSystem::GoNextState()
             break;
         }
         case 11:
-            this->field_30 = (bit_cast<main_menu_memcard_check *>(this->field_4[2])->field_100
-                        ? this->field_58
-                        : this->field_54
-                        );
+            this->field_30 =
+                (bit_cast<main_menu_memcard_check *>(this->field_4[2])->field_100 ? this->field_58 : this->field_54);
 
-            if (this->field_5C.size() > 0)
-            {
+            if (this->field_5C.size() > 0) {
                 int v5;
-                this->field_54 = *(uint32_t *) *this->field_5C.sub_64A090(&v5);
+                this->field_54 = *(uint32_t *)*this->field_5C.sub_64A090(&v5);
 
                 int v6;
-                this->field_58 = *(uint32_t *) *this->field_6C.sub_64A090(&v6);
+                this->field_58 = *(uint32_t *)*this->field_6C.sub_64A090(&v6);
                 this->field_5C.sub_64A2B0();
                 this->field_6C.sub_64A2B0();
             }
@@ -439,12 +420,8 @@ void FrontEndMenuSystem::GoNextState()
                 --this->field_30;
             } else {
                 if (!movie_manager::load_and_play_movie("mlogonosound", "Marvel_Logo", false) &&
-                    !movie_manager::load_and_play_movie("ATVI spin logo 640 none",
-                                                        "Activision",
-                                                        false) &&
-                    !movie_manager::load_and_play_movie("Treyarch_USM_logo",
-                                                        "TREYARCH_LOGO",
-                                                        false)) {
+                    !movie_manager::load_and_play_movie("ATVI spin logo 640 none", "Activision", false) &&
+                    !movie_manager::load_and_play_movie("Treyarch_USM_logo", "TREYARCH_LOGO", false)) {
                     movie_manager::load_and_play_movie("beenox_short", nullptr, false);
                 }
 
@@ -498,17 +475,18 @@ void FrontEndMenuSystem::GoNextState()
     }
 }
 
-void FrontEndMenuSystem::BringUpDialogBox(int a2,
-                                          FrontEndMenuSystem::fe_state a3,
-                                          FrontEndMenuSystem::fe_state a4) {
+void FrontEndMenuSystem::BringUpDialogBox(int a2, FrontEndMenuSystem::fe_state a3, FrontEndMenuSystem::fe_state a4)
+{
     THISCALL(0x00634300, this, a2, a3, a4);
 }
 
-void FrontEndMenuSystem::sub_60C290() {
+void FrontEndMenuSystem::sub_60C290()
+{
     THISCALL(0x0060C290, this);
 }
 
-void FrontEndMenuSystem::sub_6342D0() {
+void FrontEndMenuSystem::sub_6342D0()
+{
     THISCALL(0x006342D0, this);
 }
 

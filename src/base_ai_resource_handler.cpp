@@ -14,7 +14,7 @@ VALIDATE_SIZE(base_ai_resource_handler, 0x14);
 base_ai_resource_handler::base_ai_resource_handler(worldly_pack_slot *a2)
 {
     if constexpr (1) {
-        static void * g_vtbl[] = {
+        static void *g_vtbl[] = {
             func_address(&finalize),
             func_address(&_handle),
             func_address(&_pre_handle_resources),
@@ -34,7 +34,7 @@ void base_ai_resource_handler::finalize(bool a2)
 {
     this->~base_ai_resource_handler();
     if (a2) {
-        delete(this);
+        delete (this);
     }
 }
 
@@ -49,37 +49,34 @@ bool base_ai_resource_handler::_handle(worldly_resource_handler::eBehavior a2, l
     return base_engine_resource_handler::_handle(a2, a3);
 }
 
-bool base_ai_resource_handler::_handle_resource(worldly_resource_handler::eBehavior behavior,
-                                               resource_location *a3)
+bool base_ai_resource_handler::_handle_resource(worldly_resource_handler::eBehavior behavior, resource_location *a3)
 {
     TRACE("base_ai_resource_handler::handle_resource", a3->field_0.get_platform_string(g_platform).c_str());
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         auto &res_dir = this->my_slot->get_resource_directory();
         auto *resource = res_dir.get_resource(a3, nullptr);
         assert(resource != nullptr);
 
-        if ( behavior == UNLOAD )
-        {
+        if (behavior == UNLOAD) {
             bit_cast<ai::core_ai_resource *>(resource)->destruct_mashed_class();
-        }
-        else
-        {
+        } else {
             auto *new_ai_resource = bit_cast<ai::core_ai_resource *>(resource);
             assert(new_ai_resource != nullptr);
 
 #ifndef TARGET_XBOX
-            mash_info_struct info_struct {resource, a3->m_size};
+            mash_info_struct info_struct{resource, a3->m_size};
 #else
-            mash_info_struct info_struct {mash::UNMASH_MODE, resource, a3->m_size, true};
+            mash_info_struct info_struct{mash::UNMASH_MODE, resource, a3->m_size, true};
 #endif
 
-            info_struct.unmash_class(new_ai_resource, nullptr
+            info_struct.unmash_class(new_ai_resource,
+                                     nullptr
 #ifdef TARGET_XBOX
-                , mash::NORMAL_BUFFER
-#endif 
-                    );
+                                     ,
+                                     mash::NORMAL_BUFFER
+#endif
+            );
             mash_info_struct::construct_class(new_ai_resource);
 
 #ifdef TARGET_XBOX
@@ -89,12 +86,10 @@ bool base_ai_resource_handler::_handle_resource(worldly_resource_handler::eBehav
 
         ++this->field_C;
         return false;
-    }
-    else
-    {
-        bool (__fastcall *func)(void *, void *, worldly_resource_handler::eBehavior ,
-                                               resource_location *) = CAST(func, 0x00568A10);
-        return func(this, nullptr, behavior, a3); 
+    } else {
+        bool(__fastcall * func)(void *, void *, worldly_resource_handler::eBehavior, resource_location *) =
+            CAST(func, 0x00568A10);
+        return func(this, nullptr, behavior, a3);
     }
 }
 

@@ -26,20 +26,16 @@
 VALIDATE_OFFSET(FEManager, IGO, 0x18u);
 VALIDATE_OFFSET(FEManager, field_2A, 0x2A);
 
-FEManager & g_femanager = var<FEManager>(0x00937B00);
+FEManager &g_femanager = var<FEManager>(0x00937B00);
 
-const char *FEManager::font_name_array[5] = {"nglSysFont",
-                                             "i_upupandaway",
-                                             "badaboom",
-                                             "i_button_icons",
-                                             "damnnoisykids"};
+const char *FEManager::font_name_array[5] = {
+    "nglSysFont", "i_upupandaway", "badaboom", "i_button_icons", "damnnoisykids"};
 
 void FEManager::InitIGO()
 {
     TRACE("FEManager::InitGO");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         this->m_pause_menu_system = new PauseMenuSystem{static_cast<font_index>(1)};
 
         this->IGO = new IGOFrontEnd{};
@@ -51,19 +47,18 @@ void FEManager::InitIGO()
 
 void FEManager::LoadFont(font_index a2)
 {
-    tlFixedString a1 {font_name_array[a2]};
+    tlFixedString a1{font_name_array[a2]};
     nglLoadTexture(a1);
     a1 = {font_name_array[a2]};
     this->field_4[a2] = nglLoadFont(a1);
 }
 
-void FEManager::LoadFonts() {
+void FEManager::LoadFonts()
+{
     TRACE("FEManager::LoadFonts");
 
-    if constexpr (0)
-    {
-        if (!this->field_2A)
-        {
+    if constexpr (0) {
+        if (!this->field_2A) {
             for (auto i = 0u; i < 5u; ++i) {
                 this->LoadFont(static_cast<font_index>(i));
             }
@@ -75,11 +70,11 @@ void FEManager::LoadFonts() {
     }
 }
 
-void FEManager::Draw() {
+void FEManager::Draw()
+{
     if constexpr (1) {
         fe_controller_disconnect::draw();
-        if (os_developer_options::instance->get_flag(static_cast<os_developer_options::flags_t>(144)))
-        {
+        if (os_developer_options::instance->get_flag(static_cast<os_developer_options::flags_t>(144))) {
             nglListBeginScene(static_cast<nglSceneParamType>(1));
             nglSetClearFlags(0);
             nglSetOrthoMatrix(0.0, 1000.0);
@@ -102,7 +97,7 @@ void FEManager::Draw() {
             } else {
                 auto *vtbl = bit_cast<fastcall_call(*)[9]>(v2->m_vtbl);
 
-                void (__fastcall *func)(void *) = CAST(func, (*vtbl)[8]);
+                void(__fastcall * func)(void *) = CAST(func, (*vtbl)[8]);
                 func(v2);
                 //v6->Draw(this->field_1C);
             }
@@ -116,8 +111,7 @@ void FEManager::Draw() {
 
 void FEManager::Update(Float a2)
 {
-    if constexpr (1)
-	{
+    if constexpr (1) {
         if (fe_controller_disconnect::update()) {
             auto *v3 = this->m_pause_menu_system;
             if (v3->m_index < 0) {
@@ -125,7 +119,7 @@ void FEManager::Update(Float a2)
             } else {
                 auto *vtbl = bit_cast<fastcall_call(*)[6]>(v3->m_vtbl);
 
-                void (__fastcall *Update)(void *, void *, Float) = CAST(Update, (*vtbl)[5]);
+                void(__fastcall * Update)(void *, void *, Float) = CAST(Update, (*vtbl)[5]);
 
                 //sp_log("FEManager::Update(): 0x%08X", func);
 
@@ -146,11 +140,13 @@ void FEManager::Update(Float a2)
     }
 }
 
-void FEManager::ReleaseFrontEnd() {
+void FEManager::ReleaseFrontEnd()
+{
     THISCALL(0x0060B920, this);
 }
 
-void FEManager::ReleaseFont(font_index idx) {
+void FEManager::ReleaseFont(font_index idx)
+{
     auto **fonts = this->field_4;
     auto &font = fonts[idx];
 
@@ -159,7 +155,8 @@ void FEManager::ReleaseFont(font_index idx) {
     }
 }
 
-nglFont *FEManager::GetFont(font_index idx) {
+nglFont *FEManager::GetFont(font_index idx)
+{
     if (idx != 5 && idx != 6) {
         return this->field_4[idx];
     }
@@ -169,16 +166,16 @@ nglFont *FEManager::GetFont(font_index idx) {
     return nullptr;
 }
 
-PanelQuad *FEManager::GetDefaultPQ() {
-    return (PanelQuad *) THISCALL(0x00638180, this);
+PanelQuad *FEManager::GetDefaultPQ()
+{
+    return (PanelQuad *)THISCALL(0x00638180, this);
 }
 
 void FEManager::LoadFrontEnd()
 {
     TRACE("FEManager::LoadFrontEnd");
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         auto v2 = resource_manager::get_best_context(RESOURCE_PARTITION_MISSION);
         auto *__old_context = resource_manager::push_resource_context(v2);
 
@@ -191,7 +188,8 @@ void FEManager::LoadFrontEnd()
     }
 }
 
-void FEManager::RenderLoadMeter(bool a2) {
+void FEManager::RenderLoadMeter(bool a2)
+{
     if (this->m_fe_menu_system != nullptr) {
         this->m_fe_menu_system->RenderLoadMeter(a2);
     }
@@ -211,8 +209,7 @@ void FEManager::ReleaseFonts()
 
 void RenderLoadMeter()
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         auto *system = g_femanager.m_fe_menu_system;
 
         if (system != nullptr) {

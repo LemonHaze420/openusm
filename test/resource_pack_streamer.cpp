@@ -13,4 +13,3 @@ TEST(ResourcePartition, Construct)
     EXPECT_EQ(streamer.get_pack_slots(), nullptr);
 #endif
 }
-

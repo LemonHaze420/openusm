@@ -12,7 +12,8 @@ namespace ai {
 
 VALIDATE_SIZE(player_controller_inode, 0xEC);
 
-player_controller_inode::player_controller_inode(from_mash_in_place_constructor *a2) {
+player_controller_inode::player_controller_inode(from_mash_in_place_constructor *a2)
+{
     THISCALL(0x004813F0, this, a2);
 }
 
@@ -29,8 +30,7 @@ game_button player_controller_inode::_get_button(controller_inode::eControllerBu
     TRACE("player_controller_inode::get_button");
     sp_log("%d", int(a3));
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         auto v3 = this->field_C->get_player_controller();
         switch (a3) {
         case 0:
@@ -68,29 +68,27 @@ game_button player_controller_inode::_get_button(controller_inode::eControllerBu
 
             return {};
         }
-    }
-    else
-    {
+    } else {
         game_button result;
-        game_button * (__fastcall *func)(void *, void *, game_button *, ai::controller_inode::eControllerButton) = CAST(func, 0x00467E10);
+        game_button *(__fastcall * func)(void *, void *, game_button *, ai::controller_inode::eControllerButton) =
+            CAST(func, 0x00467E10);
         func(this, nullptr, &result, a3);
 
         return result;
     }
 }
 
-} // namespace ai
+}  // namespace ai
 
 
-void * __fastcall player_controller_inode__get_button(ai::player_controller_inode *self,
-        void *,
-        game_button *out,
-        ai::controller_inode::eControllerButton a3)
+void *__fastcall player_controller_inode__get_button(ai::player_controller_inode *self, void *, game_button *out,
+                                                     ai::controller_inode::eControllerButton a3)
 {
     TRACE("player_controller_inode::get_button");
     sp_log("%d", int(a3));
 
-    game_button * (__fastcall *func)(void *, void *, game_button *, ai::controller_inode::eControllerButton) = CAST(func, 0x00467E10);
+    game_button *(__fastcall * func)(void *, void *, game_button *, ai::controller_inode::eControllerButton) =
+        CAST(func, 0x00467E10);
     func(self, nullptr, out, a3);
 
     return out;

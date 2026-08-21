@@ -1,10 +1,12 @@
 #include "quad_path_cell_astar_search_record.h"
 
-quad_path_cell_astar_search_record::quad_path_cell_astar_search_record() {
+quad_path_cell_astar_search_record::quad_path_cell_astar_search_record()
+{
     this->m_vtbl = 0x0087F114;
 }
 
-void quad_path_cell_astar_search_record::setup(void *a2, void *a3) {
+void quad_path_cell_astar_search_record::setup(void *a2, void *a3)
+{
     this->field_4 = a3;
     this->m_node_pool = &astar_search_record::default_node_pool();
 

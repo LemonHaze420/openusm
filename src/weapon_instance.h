@@ -18,4 +18,4 @@ struct weapon_instance {
     void initialize(mash::allocation_scope a2, const combo_system_weapon *a3, actor *a4);
 };
 
-} // namespace ai
+}  // namespace ai

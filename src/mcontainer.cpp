@@ -1,5 +1,6 @@
 #include "mcontainer.h"
 
-mContainer::mContainer() {
+mContainer::mContainer()
+{
     initialize(0);
 }

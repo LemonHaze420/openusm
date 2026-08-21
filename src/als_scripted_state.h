@@ -6,83 +6,70 @@
 
 struct mash_info_struct;
 
-namespace als
-{
-    struct dest_weight_data
-    {
-        string_hash field_0;
-        int field_4;
-    };
+namespace als {
+struct dest_weight_data {
+    string_hash field_0;
+    int field_4;
+};
 
-    struct implicit_transition_rule;
+struct implicit_transition_rule;
 
-    struct explicit_transition_rule;
+struct explicit_transition_rule;
 
-    struct layer_transition_rule;
+struct layer_transition_rule;
 
-    struct request_data;
-    struct animation_logic_system;
-    struct state_machine;
+struct request_data;
+struct animation_logic_system;
+struct state_machine;
 
-    struct scripted_state : state
-    {
-        string_hash field_14;
-        mVectorBasic<int> field_18;
-        mVector<als::implicit_transition_rule> field_28;
-        mVector<als::explicit_transition_rule> field_3C;
-        mVector<als::layer_transition_rule> *field_50;
+struct scripted_state : state {
+    string_hash field_14;
+    mVectorBasic<int> field_18;
+    mVector<als::implicit_transition_rule> field_28;
+    mVector<als::explicit_transition_rule> field_3C;
+    mVector<als::layer_transition_rule> *field_50;
 
-        scripted_state();
+    scripted_state();
 
-        scripted_state(from_mash_in_place_constructor *a2);
+    scripted_state(from_mash_in_place_constructor *a2);
 
-        //virtual
-        void _unmash(mash_info_struct *a1, void *a3);
+    //virtual
+    void _unmash(mash_info_struct *a1, void *a3);
 
-        //virtual
-        int _get_virtual_type_enum() const;
+    //virtual
+    int _get_virtual_type_enum() const;
 
-        //virtual
-        int get_filter(
-            int out,
-            animation_logic_system *a2,
-            state_machine *a3,
-            int a4);
+    //virtual
+    int get_filter(int out, animation_logic_system *a2, state_machine *a3, int a4);
 
-        //virtual
-        request_data do_implicit_trans(
-            animation_logic_system *a4,
-            state_machine *a5);
+    //virtual
+    request_data do_implicit_trans(animation_logic_system *a4, state_machine *a5);
 
-        //virtual
-        void do_post_trans(
-            animation_logic_system *a1,
-            state_machine *a2,
-            transition_post_handle a4);
+    //virtual
+    void do_post_trans(animation_logic_system *a1, state_machine *a2, transition_post_handle a4);
 
-        //virtual
-        int _get_mash_sizeof() const;
+    //virtual
+    int _get_mash_sizeof() const;
 
-        string_hash get_nal_anim_name() const;
-    };
+    string_hash get_nal_anim_name() const;
+};
 
-    struct base_layer_scripted_state : scripted_state
-    {
-        int field_54;
+struct base_layer_scripted_state : scripted_state {
+    int field_54;
 
-        base_layer_scripted_state();
+    base_layer_scripted_state();
 
-        base_layer_scripted_state(from_mash_in_place_constructor *a2);
+    base_layer_scripted_state(from_mash_in_place_constructor *a2);
 
-        //virtual
-        void _unmash(mash_info_struct *a1, void *a3);
+    //virtual
+    void _unmash(mash_info_struct *a1, void *a3);
 
-        //virtual
-        int _get_virtual_type_enum() const;
+    //virtual
+    int _get_virtual_type_enum() const;
 
-        //virtual
-        int _get_mash_sizeof() const;
-    };
-}
+    //virtual
+    int _get_mash_sizeof() const;
+};
+}  // namespace als
 
 extern void als_scripted_state_patch();

@@ -19,4 +19,4 @@ struct glass_house_inode : info_node {
     void show_glass_house_message();
 };
 
-} // namespace ai
+}  // namespace ai

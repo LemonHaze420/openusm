@@ -6,14 +6,14 @@
 
 namespace script_sound_manager {
 
-    //0x0065F0A0
-    extern void create_inst();
+//0x0065F0A0
+extern void create_inst();
 
-    extern void delete_inst();
+extern void delete_inst();
 
-    //0x0065F240
-    extern void frame_advance(Float a1);
-}
+//0x0065F240
+extern void frame_advance(Float a1);
+}  // namespace script_sound_manager
 
 struct script_sound_instance_slot {
     sound_instance_id field_0;

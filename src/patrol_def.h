@@ -28,7 +28,8 @@ struct patrol_def {
 
     void unmash(mash_info_struct *a1, void *);
 
-    string_hash get_id_hash() const {
+    string_hash get_id_hash() const
+    {
         return this->field_0;
     }
 };

@@ -5,10 +5,7 @@
 
 VALIDATE_SIZE(vehicle_sounds, 0x50);
 
-vehicle_sounds::vehicle_sounds()
-{
-
-}
+vehicle_sounds::vehicle_sounds() {}
 
 void vehicle_sounds::manage_engine_sounds(Float a2, bool a3)
 {

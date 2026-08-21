@@ -78,21 +78,18 @@ void conglomerate::create_parentage_tree()
 void conglomerate::create_variant_ifc()
 {
     auto *mem = mem_alloc(sizeof(variant_interface));
-    this->m_variant_interface = new (mem) variant_interface {this};
+    this->m_variant_interface = new (mem) variant_interface{this};
 }
 
 void conglomerate::destroy_variant_ifc()
 {
     auto *variant_ifc = this->m_variant_interface;
-    if ( variant_ifc->dynamic )
-    {
-        if ( variant_ifc != nullptr ) {
-            void (__fastcall *finalize)(void *, void *edx, bool) = CAST(finalize, get_vfunc(variant_ifc->m_vtbl, 0x0));
+    if (variant_ifc->dynamic) {
+        if (variant_ifc != nullptr) {
+            void(__fastcall * finalize)(void *, void *edx, bool) = CAST(finalize, get_vfunc(variant_ifc->m_vtbl, 0x0));
             finalize(m_variant_interface, nullptr, true);
         }
-    }
-    else
-    {
+    } else {
         variant_ifc->release_ifc();
     }
 
@@ -102,15 +99,12 @@ void conglomerate::destroy_variant_ifc()
 void conglomerate::destroy_script_data_ifc()
 {
     auto *v9 = this->m_script_data_ifc;
-    if ( v9->dynamic )
-    {
-        if ( v9 != nullptr ) {
-            void (__fastcall *finalize)(void *, void *edx, bool) = CAST(finalize, get_vfunc(v9->m_vtbl, 0x0));
+    if (v9->dynamic) {
+        if (v9 != nullptr) {
+            void(__fastcall * finalize)(void *, void *edx, bool) = CAST(finalize, get_vfunc(v9->m_vtbl, 0x0));
             finalize(v9, nullptr, true);
         }
-    }
-    else
-    {
+    } else {
         v9->release_ifc();
     }
 
@@ -120,16 +114,12 @@ void conglomerate::destroy_script_data_ifc()
 void conglomerate::destroy_animation_ifc()
 {
     auto *v8 = this->m_animation_ifc;
-    if ( v8->dynamic )
-    {
-        if ( v8 != nullptr )
-        {
-            void (__fastcall *finalize)(void *, void *edx, bool) = CAST(finalize, get_vfunc(v8->m_vtbl, 0x0));
+    if (v8->dynamic) {
+        if (v8 != nullptr) {
+            void(__fastcall * finalize)(void *, void *edx, bool) = CAST(finalize, get_vfunc(v8->m_vtbl, 0x0));
             finalize(v8, nullptr, true);
         }
-    }
-    else
-    {
+    } else {
         v8->release_ifc();
     }
 
@@ -139,15 +129,12 @@ void conglomerate::destroy_animation_ifc()
 void conglomerate::destroy_skeleton_ifc()
 {
     auto *skeleton_ifc = this->skeleton_ifc;
-    if ( skeleton_ifc->dynamic )
-    {
-        if ( skeleton_ifc != nullptr ) {
-            void (__fastcall *finalize)(void *, void *, bool) = CAST(finalize, get_vfunc(skeleton_ifc->m_vtbl, 0x0));
+    if (skeleton_ifc->dynamic) {
+        if (skeleton_ifc != nullptr) {
+            void(__fastcall * finalize)(void *, void *, bool) = CAST(finalize, get_vfunc(skeleton_ifc->m_vtbl, 0x0));
             finalize(skeleton_ifc, nullptr, true);
         }
-    }
-    else
-    {
+    } else {
         skeleton_ifc->release_ifc();
     }
 
@@ -156,18 +143,18 @@ void conglomerate::destroy_skeleton_ifc()
 
 void conglomerate::add_member_lights_to_region(region *)
 {
-  ;
+    ;
 }
 
 void conglomerate::remove_member_lights_from_region(region *a2)
 {
-	if constexpr (0) {
-		for ( auto &v1 : (*this->field_100) ) {
-			a2->remove(v1);
-		}
-	} else {
-		THISCALL(0x004D27A0, this, a2);
-	}
+    if constexpr (0) {
+        for (auto &v1 : (*this->field_100)) {
+            a2->remove(v1);
+        }
+    } else {
+        THISCALL(0x004D27A0, this, a2);
+    }
 }
 
 void conglomerate::sub_4D0E00()
@@ -178,7 +165,7 @@ void conglomerate::sub_4D0E00()
 als::animation_logic_system *conglomerate::get_my_als()
 {
     auto *v1 = this->field_114;
-    if ( v1 != nullptr ) {
+    if (v1 != nullptr) {
         return v1->field_8;
     }
 
@@ -190,32 +177,23 @@ constexpr auto _ENTM_TYPE_MAX = 28u;
 void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data_ptrs *a4)
 {
     TRACE("conglomerate::un_mash", this->field_10.to_string());
-    
-    if constexpr (1)
-    {
+
+    if constexpr (1) {
         this->field_110 = *a4->get_from_shared<int>();
-        if ( this != (conglomerate *)-248 )
-        {
+        if (this != (conglomerate *)-248) {
             this->field_F8 = nullptr;
         }
 
 
 #ifndef TARGET_XBOX
-        if ( (a2->field_E & 0x40) != 0 )
-        {
+        if ((a2->field_E & 0x40) != 0) {
             a4->rebase(4);
 
             this->skeleton_ifc = a4->get<skeleton_interface>();
-            fix_ifc_v_table((char *) this->skeleton_ifc, (eEntityMashIFCTypeEnum) 6);
+            fix_ifc_v_table((char *)this->skeleton_ifc, (eEntityMashIFCTypeEnum)6);
 
-            this->skeleton_ifc->un_mash(
-                a2,
-                this,
-                this->skeleton_ifc,
-                a4);
-        }
-        else
-        {
+            this->skeleton_ifc->un_mash(a2, this, this->skeleton_ifc, a4);
+        } else {
             this->skeleton_ifc = nullptr;
         }
 #endif
@@ -233,8 +211,7 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
         mashable_interface<skeleton_interface> tmp_skeleton_ifc;
         tmp_skeleton_ifc.custom_un_mash(a2, &tmp_skeleton_ifc, a4);
 
-        if ( tmp_skeleton_ifc.exists() )
-        {
+        if (tmp_skeleton_ifc.exists()) {
             auto *skel_ifc = tmp_skeleton_ifc.get_interface();
             skel_ifc->field_4 = this;
         }
@@ -243,98 +220,65 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
 #endif
 
 #ifndef TARGET_XBOX
-        if ( (a2->field_E & 4) != 0 )
-        {
+        if ((a2->field_E & 4) != 0) {
             a4->rebase(4);
 
             this->m_animation_ifc = a4->get<animation_interface>();
 
-            fix_ifc_v_table((char *)this->m_animation_ifc, (eEntityMashIFCTypeEnum) 0);
+            fix_ifc_v_table((char *)this->m_animation_ifc, (eEntityMashIFCTypeEnum)0);
 
-            this->m_animation_ifc->un_mash(a2, this,
-                this->m_animation_ifc,
-                a4);
-        }
-        else
-        {
+            this->m_animation_ifc->un_mash(a2, this, this->m_animation_ifc, a4);
+        } else {
             this->m_animation_ifc = nullptr;
         }
 
-        if ( (a2->field_E & 0x20) != 0 )
-        {
+        if ((a2->field_E & 0x20) != 0) {
             a4->rebase(4);
 
             this->m_script_data_ifc = a4->get<script_data_interface>();
 
-            fix_ifc_v_table((char *)this->m_script_data_ifc, (eEntityMashIFCTypeEnum) 3);
+            fix_ifc_v_table((char *)this->m_script_data_ifc, (eEntityMashIFCTypeEnum)3);
 
-            this->m_script_data_ifc->un_mash(
-                a2,
-                this,
-                this->m_script_data_ifc,
-                a4);
-        }
-        else
-        {
+            this->m_script_data_ifc->un_mash(a2, this, this->m_script_data_ifc, a4);
+        } else {
             this->m_script_data_ifc = nullptr;
         }
 
-        if ( (a2->field_E & 0x2000) != 0 )
-        {
+        if ((a2->field_E & 0x2000) != 0) {
             a4->rebase(4);
 
             this->m_tentacle_interface = a4->get<tentacle_interface>();
 
-            fix_ifc_v_table((char *) this->m_tentacle_interface, static_cast<eEntityMashIFCTypeEnum>(8));
-            this->m_tentacle_interface->un_mash(
-                a2,
-                this,
-                this->m_tentacle_interface,
-                a4);
-        }
-        else
-        {
+            fix_ifc_v_table((char *)this->m_tentacle_interface, static_cast<eEntityMashIFCTypeEnum>(8));
+            this->m_tentacle_interface->un_mash(a2, this, this->m_tentacle_interface, a4);
+        } else {
             this->m_tentacle_interface = nullptr;
         }
 
-        if ( (a2->field_E & 0x1000) != 0 )
-        {
+        if ((a2->field_E & 0x1000) != 0) {
             a4->rebase(4);
 
             this->my_decal_data_interface = a4->get<decal_data_interface>();
 
-            fix_ifc_v_table((char *) this->my_decal_data_interface, (eEntityMashIFCTypeEnum) 9);
-            this->my_decal_data_interface->un_mash(
-                a2,
-                this,
-                this->my_decal_data_interface,
-                a4);
+            fix_ifc_v_table((char *)this->my_decal_data_interface, (eEntityMashIFCTypeEnum)9);
+            this->my_decal_data_interface->un_mash(a2, this, this->my_decal_data_interface, a4);
 
             assert(!my_decal_data_interface->is_dynamic());
-        }
-        else
-        {
+        } else {
             this->my_decal_data_interface = nullptr;
         }
 
         assert(((int)a2) % 4 == 0);
 
-        if ( (a2->field_E & 0x4000) != 0 )
-        {
+        if ((a2->field_E & 0x4000) != 0) {
             a4->rebase(4);
 
             this->m_variant_interface = a4->get<variant_interface>();
 
-            fix_ifc_v_table((char *) this->m_variant_interface, static_cast<eEntityMashIFCTypeEnum>(10));
+            fix_ifc_v_table((char *)this->m_variant_interface, static_cast<eEntityMashIFCTypeEnum>(10));
 
-            this->m_variant_interface->un_mash(
-                a2,
-                this,
-                this->m_variant_interface,
-                a4);
-        }
-        else
-        {
+            this->m_variant_interface->un_mash(a2, this, this->m_variant_interface, a4);
+        } else {
             this->m_variant_interface = nullptr;
         }
 #endif
@@ -359,18 +303,16 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
         this->my_conglom_root = this;
 
         sp_log("members.size() = %d", this->members.size());
-        for (auto &member : this->members)
-        {
+        for (auto &member : this->members) {
             uint16_t __ENT_TYPE = *a4->get_from_shared<uint16_t>();
 
             assert(__ENT_TYPE <= _ENTM_TYPE_MAX);
 
             actor *tmp_ptr = nullptr;
 
-            if ( __ENT_TYPE != _ENTM_TYPE_MAX )
-            {
+            if (__ENT_TYPE != _ENTM_TYPE_MAX) {
                 a4->rebase_shared(4);
-                
+
                 auto *header = a4->get_from_shared<generic_mash_header>();
                 assert(((int)header) % 4 == 0);
 
@@ -381,7 +323,7 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
                 entity_base *__ENT_ptr = CAST(__ENT_ptr, a4->get<char>(ent_size_lookup()[header->get_class_id()]));
 
                 {
-                    eEntityMashTypeEnum v11 = (eEntityMashTypeEnum) header->get_class_id();
+                    eEntityMashTypeEnum v11 = (eEntityMashTypeEnum)header->get_class_id();
                     fix_entity_v_table((char *)__ENT_ptr, v11);
                 }
 
@@ -403,31 +345,26 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
             assert(!tmp_ptr->manage_abs_po());
 
             tmp_ptr->my_abs_po = v87++;
-            if ( tmp_ptr->is_an_actor() )
-            {
-                if ( tmp_ptr->get_colgeom() != nullptr )
-                {
+            if (tmp_ptr->is_an_actor()) {
+                if (tmp_ptr->get_colgeom() != nullptr) {
                     this->field_110 |= 4u;
                     this->set_flag_recursive(static_cast<entity_flag_t>(2), true);
-                    if ( tmp_ptr->possibly_collide() )
-                    {
-                        if ( this->field_FC == nullptr )
-                        {
+                    if (tmp_ptr->possibly_collide()) {
+                        if (this->field_FC == nullptr) {
                             auto *v31 = mem_alloc(sizeof(*this->field_FC));
-                            this->field_FC = new (v31) _std::list<actor *> {};
+                            this->field_FC = new (v31) _std::list<actor *>{};
                         }
 
                         this->field_FC->push_back(tmp_ptr);
                     }
                 }
 
-                if ( tmp_ptr->get_ai_core() )
-                {
+                if (tmp_ptr->get_ai_core()) {
                     this->field_110 |= 8u;
                     this->set_flag_recursive(static_cast<entity_flag_t>(1), true);
                 }
 
-                if ( this->is_material_switching() ) {
+                if (this->is_material_switching()) {
                     for (auto i = 0; i < 4; ++i) {
                         auto v20 = this->field_90.field_C[i];
                         tmp_ptr->field_90.field_C[i] = v20;
@@ -435,10 +372,10 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
                 }
             }
 
-            if ( tmp_ptr->is_a_light_source() ) {
-                if ( this->field_100 == nullptr ) {
+            if (tmp_ptr->is_a_light_source()) {
+                if (this->field_100 == nullptr) {
                     auto *v39 = mem_alloc(sizeof(*this->field_100));
-                    this->field_100 = new (v39) _std::list<light_source *> {};
+                    this->field_100 = new (v39) _std::list<light_source *>{};
                 }
 
                 this->field_100->push_back(bit_cast<light_source *>(tmp_ptr));
@@ -455,15 +392,13 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
         assert(skin_bones.empty() || tmp_skeleton_ifc.exists());
 #endif
 
-        for (auto &bone : this->skin_bones)
-        {
+        for (auto &bone : this->skin_bones) {
             uint16_t __ENT_TYPE = *a4->get_from_shared<uint16_t>();
 
             assert(__ENT_TYPE <= _ENTM_TYPE_MAX);
 
             actor *tmp_ptr = nullptr;
-            if ( __ENT_TYPE != _ENTM_TYPE_MAX )
-            {
+            if (__ENT_TYPE != _ENTM_TYPE_MAX) {
                 a4->rebase_shared(4);
 
                 auto *header = a4->get_from_shared<generic_mash_header>();
@@ -472,12 +407,12 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
                 assert(__ENT_TYPE == header->get_class_id());
 
                 a4->rebase(sizeof(generic_mash_header));
-                
+
                 entity_base *__ENT_ptr = CAST(__ENT_ptr, a4->get<char>(ent_size_lookup()[header->get_class_id()]));
 
                 {
                     auto v26 = static_cast<eEntityMashTypeEnum>(header->get_class_id());
-                    fix_entity_v_table((char *) __ENT_ptr, v26);
+                    fix_entity_v_table((char *)__ENT_ptr, v26);
                 }
 
                 assert(__ENT_ptr->rel_po_idx != 0xFF);
@@ -491,7 +426,7 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
                 __ENT_ptr->field_8 |= 0x10u;
                 __ENT_ptr->field_3E = 0;
 
-                tmp_ptr = (actor *) __ENT_ptr;
+                tmp_ptr = (actor *)__ENT_ptr;
             }
 
             {
@@ -505,7 +440,7 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
         }
 
         int v59 = *a4->get<int>();
-        if ( v59 != 0 ) {
+        if (v59 != 0) {
             int v61 = *a4->get<int>();
 
             a4->rebase(16);
@@ -517,47 +452,42 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
             auto *v65 = a4->get<uint8_t>(v61);
 
 #ifdef TARGET_XBOX
-            mash_info_struct v92 {mash::UNMASH_MODE, v65, v61, true};
+            mash_info_struct v92{mash::UNMASH_MODE, v65, v61, true};
 #else
-            mash_info_struct v92 {v65, v61};
+            mash_info_struct v92{v65, v61};
 #endif
 
-            this->field_114 = (als_res_data *) v92.read_from_buffer(
+            this->field_114 = (als_res_data *)v92.read_from_buffer(
 #ifdef TARGET_XBOX
                 mash::NORMAL_BUFFER,
 #endif
-                    sizeof(als_res_data), 8);
+                sizeof(als_res_data),
+                8);
             this->field_114->unmash(&v92, nullptr);
             mash_info_struct::construct_class(this->field_114);
         }
 
         actor::_un_mash(a2, a3, a4);
 
-        if ( this->has_skeleton_ifc() ) {
+        if (this->has_skeleton_ifc()) {
             this->ifl_lock(0);
         }
 
-        nglMesh **v70 = ( this->field_90.field_5 <= 1u
-                            ? this->field_90.field_0
-                            : (nglMesh **)this->field_90.field_0[this->field_90.field_4]
-                        );
+        nglMesh **v70 = (this->field_90.field_5 <= 1u ? this->field_90.field_0
+                                                      : (nglMesh **)this->field_90.field_0[this->field_90.field_4]);
 
-        if ( v70 != nullptr )
-        {
-            if ( v70[4] != nullptr )
-            {
+        if (v70 != nullptr) {
+            if (v70[4] != nullptr) {
                 auto *v72 = mem_alloc(sizeof(light_manager));
-                auto *v74 = new (v72) light_manager {0};
+                auto *v74 = new (v72) light_manager{0};
 
                 auto *v75 = this->field_F8;
-                if ( v75 != v74 )
-                {
-                    if ( v75 != nullptr ) {
+                if (v75 != v74) {
+                    if (v75 != nullptr) {
                         auto v17 = (v75->field_0-- == 1);
-                        if ( v17 ) {
+                        if (v17) {
                             auto *v76 = this->field_F8;
-                            if ( v76 != nullptr )
-                            {
+                            if (v76 != nullptr) {
                                 this->field_F8->remove_from_list();
                                 mem_dealloc(v76, sizeof(*v76));
                             }
@@ -566,7 +496,7 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
 
                     this->field_F8 = v74;
 
-                    if ( v74 != nullptr ) {
+                    if (v74 != nullptr) {
                         ++v74->field_0;
                     }
                 }
@@ -582,111 +512,99 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
 
         this->field_108 = -1.0;
         this->field_10C = -1.0;
-        if ( this->field_7C != nullptr )
-        {
+        if (this->field_7C != nullptr) {
             this->field_7C->post_entity_mash();
         }
 
-        if ( this->has_tentacle_ifc() )
-        {
+        if (this->has_tentacle_ifc()) {
             auto *v81 = this->tentacle_ifc();
             v81->initialize_polytubes();
         }
 
-        if ( this->has_variant_ifc() )
-        {
+        if (this->has_variant_ifc()) {
             auto *v82 = this->variant_ifc();
             v82->field_28 = v82->my_conglomerate->get_mesh()->File;
             auto *v83 = v82->get_random_variant();
             v82->apply_variant(v83);
         }
-    }
-    else
-    {
+    } else {
         THISCALL(0x004FC830, this, a2, a3, a4);
     }
 }
 
 void conglomerate::release_mem()
 {
-    if constexpr (0)
-    {
+    if constexpr (0) {
         this->clear_adopted_children();
         this->remove_from_regions();
 
         auto *v3 = this->field_7C;
-        if ( v3 != nullptr ) {
+        if (v3 != nullptr) {
             v3->destruct_mashed_class();
         }
 
         this->field_7C = nullptr;
 
-        if ( this->has_damage_ifc() ) {
+        if (this->has_damage_ifc()) {
             this->destroy_damage_ifc();
         }
 
-        if ( this->has_physical_ifc() ) {
+        if (this->has_physical_ifc()) {
             this->destroy_physical_ifc();
         }
 
-        if ( this->has_sound_and_pfx_ifc() ) {
+        if (this->has_sound_and_pfx_ifc()) {
             this->destroy_sound_and_pfx_ifc();
         }
 
-        if ( this->has_animation_ifc() ) {
+        if (this->has_animation_ifc()) {
             this->destroy_animation_ifc();
         }
 
-        if ( this->has_script_data_ifc() ) {
+        if (this->has_script_data_ifc()) {
             this->destroy_script_data_ifc();
         }
 
-        if ( this->has_tentacle_ifc() ) {
+        if (this->has_tentacle_ifc()) {
             this->destroy_tentacle_ifc();
         }
 
-        if ( this->has_decal_data_ifc() ) {
+        if (this->has_decal_data_ifc()) {
             this->destroy_decal_data_ifc();
         }
 
-        if ( this->has_variant_ifc() ) {
+        if (this->has_variant_ifc()) {
             this->destroy_variant_ifc();
         }
 
-        for ( auto &ent : this->members )
-        {
+        for (auto &ent : this->members) {
             assert(ent->is_mashed_member());
             ent->release_mem();
         }
 
-        for ( auto &ent : this->skin_bones )
-        {
+        for (auto &ent : this->skin_bones) {
             assert(ent->is_mashed_member());
             ent->release_mem();
         }
 
         auto *v19 = this->field_F8;
-        if ( v19 != nullptr )
-        {
+        if (v19 != nullptr) {
             auto v20 = (v19->field_0-- == 1);
-            if ( v20 )
-            {
+            if (v20) {
                 auto *v21 = this->field_F8;
-                if ( v21 != nullptr )
-                {
+                if (v21 != nullptr) {
                     v21->remove_from_list();
                     mem_dealloc(v21, sizeof(*v21));
                 }
             }
         }
 
-        if ( this->has_skeleton_ifc() ) {
+        if (this->has_skeleton_ifc()) {
             this->destroy_skeleton_ifc();
         }
 
         auto *v23 = this->field_FC;
-        if ( v23 != nullptr )
-        {
+        if (v23 != nullptr) {
             v23->clear();
             mem_dealloc(v23, sizeof(*v23));
         }
@@ -694,9 +612,7 @@ void conglomerate::release_mem()
         this->field_FC = nullptr;
 
         auto *v27 = this->field_100;
-        if ( v27 != nullptr )
-        {
-
+        if (v27 != nullptr) {
             auto finalize = [](auto *self) -> void {
                 self->clear();
             };
@@ -708,8 +624,7 @@ void conglomerate::release_mem()
         this->field_100 = nullptr;
 
         auto *v31 = this->field_104;
-        if ( v31 != nullptr )
-        {
+        if (v31 != nullptr) {
             v31->clear();
             mem_dealloc(v31, sizeof(*v31));
         }
@@ -717,16 +632,13 @@ void conglomerate::release_mem()
         this->field_104 = nullptr;
 
         auto *v35 = this->field_114;
-        if ( v35 != nullptr )
-        {
+        if (v35 != nullptr) {
             v35->destruct_mashed_class();
             this->field_114 = 0;
         }
 
         actor::release_mem();
-    }
-    else
-    {
+    } else {
         THISCALL(0x004F9F10, this);
     }
 }
@@ -734,15 +646,12 @@ void conglomerate::release_mem()
 void conglomerate::destroy_decal_data_ifc()
 {
     auto *decal_data_ifc = this->my_decal_data_interface;
-    if ( decal_data_ifc->dynamic )
-    {
-        if ( decal_data_ifc != nullptr ) {
-            void (__fastcall *finalize)(void *, void *, bool) = CAST(finalize, get_vfunc(decal_data_ifc->m_vtbl, 0x0));
+    if (decal_data_ifc->dynamic) {
+        if (decal_data_ifc != nullptr) {
+            void(__fastcall * finalize)(void *, void *, bool) = CAST(finalize, get_vfunc(decal_data_ifc->m_vtbl, 0x0));
             finalize(decal_data_ifc, nullptr, true);
         }
-    }
-    else
-    {
+    } else {
         decal_data_ifc->release_ifc();
     }
 
@@ -752,16 +661,12 @@ void conglomerate::destroy_decal_data_ifc()
 void conglomerate::destroy_tentacle_ifc()
 {
     auto *tentacle_ifc = this->m_tentacle_interface;
-    if ( tentacle_ifc->dynamic )
-    {
-        if ( tentacle_ifc != nullptr )
-        {
-            void (__fastcall *finalize)(void *, void *, bool) = CAST(finalize, get_vfunc(tentacle_ifc->m_vtbl, 0x0));
+    if (tentacle_ifc->dynamic) {
+        if (tentacle_ifc != nullptr) {
+            void(__fastcall * finalize)(void *, void *, bool) = CAST(finalize, get_vfunc(tentacle_ifc->m_vtbl, 0x0));
             finalize(tentacle_ifc, nullptr, true);
         }
-    }
-    else
-    {
+    } else {
         tentacle_ifc->release_ifc();
     }
 
@@ -772,12 +677,9 @@ void conglomerate::_render(Float a2)
 {
     TRACE("conglomerate::render");
 
-    if (debug_render_get_ival(SKELETONS) <= 0)
-    {
+    if (debug_render_get_ival(SKELETONS) <= 0) {
         THISCALL(0x004F9930, this, a2);
-    }
-    else
-    {
+    } else {
         this->debug_render();
     }
 }
@@ -786,10 +688,9 @@ void conglomerate::_set_render_alpha_mod(Float a2)
 {
     actor::set_render_alpha_mod(a2);
 
-    for ( auto &member : this->members )
-    {
+    for (auto &member : this->members) {
         auto *v5 = bit_cast<entity *>(member);
-        if ( v5->is_an_entity() && v5->get_bone_idx() < 0 ) {
+        if (v5->is_an_entity() && v5->get_bone_idx() < 0) {
             v5->set_render_alpha_mod(a2);
         }
     }
@@ -798,7 +699,7 @@ void conglomerate::_set_render_alpha_mod(Float a2)
 void conglomerate::debug_render()
 {
     TRACE("conglomerate::debug_render");
-    
+
     if (g_camera_link() == nullptr) {
         return;
     }
@@ -806,71 +707,61 @@ void conglomerate::debug_render()
     auto &v1 = this->get_abs_po();
     auto v139 = this->get_abs_position() + v1.get_z_facing() + YVEC;
     [[maybe_unused]] auto v5 = this->get_abs_position() + YVEC;
-    render_beam(v5, v139, color32 {33, 134, 216, 128}, 0.1, false);
+    render_beam(v5, v139, color32{33, 134, 216, 128}, 0.1, false);
 
     auto &v6 = this->get_abs_po();
     auto v9 = this->get_abs_position() + v6.get_z_facing() + YVEC;
-    render_debug_hemisphere(v9, 0.12, color32 {242, 124, 6, 128});
+    render_debug_hemisphere(v9, 0.12, color32{242, 124, 6, 128});
 
     auto v12 = g_camera_link()->get_abs_position() - this->get_abs_position();
     auto v189 = v12.length2();
     auto v176 = this->get_visual_radius();
     auto v245 = (sqr(v176) > v189 && debug_render_get_ival(SKELETONS) == 1);
-    if ( v245 )
-    {
+    if (v245) {
         auto v13 = this->get_id();
         auto *v177 = v13.to_string();
-        color32 v141 {255, 0, 0, 255};
+        color32 v141{255, 0, 0, 255};
         auto &v14 = this->get_abs_position();
         print_3d_text(v14, v141, 0.5, "%s", v177);
     }
 
-    for ( auto i = 0; i < this->members.size(); ++i )
-    {
+    for (auto i = 0; i < this->members.size(); ++i) {
         auto &member = this->members.at(i);
-        if ( this->field_E8.at(i) < 0
-            || this->field_E8.at(i) >= this->skin_bones.size() + this->members.size() )
-        {
-            color32 v165 {33, 134, 216, 128};
+        if (this->field_E8.at(i) < 0 || this->field_E8.at(i) >= this->skin_bones.size() + this->members.size()) {
+            color32 v165{33, 134, 216, 128};
             auto &v143 = this->get_abs_position();
             auto &v29 = member->get_abs_position();
             render_beam(v29, v143, v165, 0.02, 0);
-        }
-        else
-        {
+        } else {
             entity_base *v21;
             auto v18 = this->field_E8.at(i);
-            if ( v18 >= this->members.size() )
-            {
+            if (v18 >= this->members.size()) {
                 auto v22 = this->field_E8.at(i);
                 auto v23 = this->members.size();
                 v21 = this->skin_bones.at(v22 - v23);
-            }
-            else
-            {
+            } else {
                 auto v19 = this->field_E8.at(i);
                 v21 = this->members.at(v19);
             }
 
             auto &a2 = v21->get_abs_position();
-            color32 v164 {33, 134, 216, 128};
+            color32 v164{33, 134, 216, 128};
             auto &v26 = member->get_abs_position();
             render_beam(v26, a2, v164, 0.02, 0);
         }
 
-        color32 v178 {242, 124, 6, 128};
+        color32 v178{242, 124, 6, 128};
         auto &v32 = member->get_abs_position();
         render_debug_hemisphere(v32, 0.02, v178);
 
-        if ( v245 )
-        {
+        if (v245) {
             auto v35 = member->get_id();
             auto *v179 = v35.to_string();
-            color32 v144 {255, 0, 0, 255};
+            color32 v144{255, 0, 0, 255};
             auto &v38 = member->get_abs_position();
             print_3d_text(v38, v144, 0.5, "%s", v179);
 
-            color32 v166 {255, 0, 0, 128};
+            color32 v166{255, 0, 0, 128};
             auto &v41 = member->get_rel_po();
             auto &v42 = v41.get_x_facing();
             auto v145 = v42 * 0.050000001;
@@ -878,7 +769,7 @@ void conglomerate::debug_render()
             auto v146 = v45 + v145;
             render_beam(v45, v146, v166, 0.0099999998, 0);
 
-            color32 v167 {0, 255, 0, 128};
+            color32 v167{0, 255, 0, 128};
             auto &v51 = member->get_rel_po();
             auto &v52 = v51.get_y_facing();
             auto v147 = v52 * 0.050000001;
@@ -886,7 +777,7 @@ void conglomerate::debug_render()
             auto v148 = v55 + v147;
             render_beam(v55, v148, v167, 0.0099999998, 0);
 
-            color32 v168 {0, 0, 255, 128};
+            color32 v168{0, 0, 255, 128};
             auto &v61 = member->get_rel_po();
             auto &v62 = v61.get_z_facing();
             auto v149 = v62 * 0.050000001;
@@ -897,30 +788,22 @@ void conglomerate::debug_render()
         }
     }
 
-    for ( auto i = 0; i < this->skin_bones.size(); ++i )
-    {
+    for (auto i = 0; i < this->skin_bones.size(); ++i) {
         {
-            color32 v170 {33, 134, 216, 128};
-            if ( this->field_F0.at(i) < 0
-                || (this->field_F0.at(i) >= this->skin_bones.size() + this->members.size()) )
-            {
+            color32 v170{33, 134, 216, 128};
+            if (this->field_F0.at(i) < 0 || (this->field_F0.at(i) >= this->skin_bones.size() + this->members.size())) {
                 auto &v152 = this->get_abs_position();
                 auto &v82 = this->skin_bones.at(i);
                 auto &v83 = v82->get_abs_position();
                 render_beam(v83, v152, v170, 0.02, false);
-            }
-            else
-            {
+            } else {
                 entity_base *v75 = nullptr;
                 auto v72 = this->field_F0.at(i);
-                if ( v72 >= this->members.size() )
-                {
+                if (v72 >= this->members.size()) {
                     auto v76 = this->field_F0.at(i);
                     auto v77 = this->members.size();
                     v75 = this->skin_bones.at(v76 - v77);
-                }
-                else
-                {
+                } else {
                     auto v73 = this->field_F0.at(i);
                     v75 = this->members.at(v73);
                 }
@@ -932,23 +815,22 @@ void conglomerate::debug_render()
             }
         }
 
-        color32 v180 {242, 124, 6, 128};
+        color32 v180{242, 124, 6, 128};
         auto &v85 = this->skin_bones.at(i);
         auto &v86 = v85->get_abs_position();
         render_debug_hemisphere(v86, 0.02, v180);
 
-        if ( v245 )
-        {
+        if (v245) {
             auto &v88 = this->skin_bones.at(i);
             auto v89 = v88->get_id();
             auto *v181 = v89.to_string();
-            color32 v153 {255, 0, 0, 255};
+            color32 v153{255, 0, 0, 255};
 
             auto &v91 = this->skin_bones.at(i);
             auto &v92 = v91->get_abs_position();
             print_3d_text(v92, v153, 0.5, "%s", v181);
 
-            color32 v171 {255, 0, 0, 128};
+            color32 v171{255, 0, 0, 128};
             auto &v94 = this->skin_bones.at(i);
             auto &v95 = v94->get_abs_po();
             auto v154 = v95.get_x_facing() * 0.050000001;
@@ -960,7 +842,7 @@ void conglomerate::debug_render()
             auto &v102 = v101->get_abs_position();
             render_beam(v102, v155, v171, 0.0099999998, false);
 
-            color32 v172 {0, 255, 0, 128};
+            color32 v172{0, 255, 0, 128};
             auto &v104 = this->skin_bones.at(i);
             auto &v105 = v104->get_abs_po();
             auto &v106 = v105.get_y_facing();
@@ -974,7 +856,7 @@ void conglomerate::debug_render()
             auto &v112 = v111->get_abs_position();
             render_beam(v112, v157, v172, 0.0099999998, false);
 
-            color32 v173 {0, 0, 255, 128};
+            color32 v173{0, 0, 255, 128};
             auto &v114 = this->skin_bones.at(i);
             auto &v115 = v114->get_abs_po();
             auto &v116 = v115.get_z_facing();
@@ -990,51 +872,46 @@ void conglomerate::debug_render()
         }
     }
 
-    if ( debug_render_get_ival(SKELETONS) == 2 )
-    {
-        static string_hash stru_1564240 {"CAMERA_ROOT"};
+    if (debug_render_get_ival(SKELETONS) == 2) {
+        static string_hash stru_1564240{"CAMERA_ROOT"};
 
         auto *v123 = this->get_member(stru_1564240, true);
-        if ( v123 != nullptr )
-        {
+        if (v123 != nullptr) {
             auto *v244 = this->get_member(stru_1564240, true);
-            color32 v182 {0, 255, 0, 255};
+            color32 v182{0, 255, 0, 255};
             auto &v125 = v244->get_abs_position();
             render_debug_hemisphere(v125, 0.1, v182);
             auto v126 = v244->get_id();
             auto *v183 = v126.to_string();
-            
-            color32 v160 {255, 0, 0, 255};
+
+            color32 v160{255, 0, 0, 255};
             auto &v127 = v244->get_abs_position();
             print_3d_text(v127, v160, 0.5, "%s", v183);
         }
     }
 
-    if ( debug_render_get_ival(SKELETONS) == 3 )
-    {
-        static string_hash stru_1564218 {"BIP01 PROP"};
+    if (debug_render_get_ival(SKELETONS) == 3) {
+        static string_hash stru_1564218{"BIP01 PROP"};
 
         auto *v128 = this->get_member(stru_1564218, true);
 
-        if ( v128 != nullptr )
-        {
+        if (v128 != nullptr) {
             auto *v243 = this->get_member(stru_1564218, true);
-            color32 v184 {0, 255, 0, 255};
+            color32 v184{0, 255, 0, 255};
             auto &v130 = v243->get_abs_position();
             render_debug_hemisphere(v130, 0.1, v184);
 
             auto v131 = v243->get_id();
             auto *v185 = v131.to_string();
-            color32 v161 {255, 0, 0, 255};
+            color32 v161{255, 0, 0, 255};
             auto &v132 = v243->get_abs_position();
             print_3d_text(v132, v161, 0.5, "%s", v185);
         }
 
-        static string_hash stru_156410C {"BIP01 PROP2"};
+        static string_hash stru_156410C{"BIP01 PROP2"};
 
         auto *v133 = this->get_member(stru_156410C, true);
-        if ( v133 != nullptr )
-        {
+        if (v133 != nullptr) {
             auto *v242 = this->get_member(stru_156410C, true);
             auto v186 = color32(0, 255, 0, 255);
             auto &v135 = v242->get_abs_position();
@@ -1049,11 +926,11 @@ void conglomerate::debug_render()
     }
 }
 
-float conglomerate::get_colgeom_radius() {
+float conglomerate::get_colgeom_radius()
+{
     if constexpr (1) {
         if ((this->field_110 & 2) != 0) {
-            float v1 = ((this->colgeom != nullptr) ? this->colgeom->get_bounding_sphere_radius()
-                                                   : 0.0f);
+            float v1 = ((this->colgeom != nullptr) ? this->colgeom->get_bounding_sphere_radius() : 0.0f);
 
             auto *v4 = this->field_FC;
             this->field_10C = v1;
@@ -1087,7 +964,8 @@ float conglomerate::get_colgeom_radius() {
     }
 }
 
-vector3d conglomerate::get_colgeom_center() {
+vector3d conglomerate::get_colgeom_center()
+{
     if (this->colgeom != nullptr) {
         auto &v3 = this->get_abs_po();
         auto v4 = this->colgeom->get_local_space_bounding_sphere_center();
@@ -1101,8 +979,7 @@ vector3d conglomerate::get_colgeom_center() {
 
 void conglomerate::radius_changed(bool a2)
 {
-    if (a2)
-    {
+    if (a2) {
         this->field_110 |= 3u;
         actor::radius_changed(a2);
     }
@@ -1112,7 +989,7 @@ bool render_drop_shadow(math::MatClass<4, 3> &a1, Float a2, Float a3, bool a4)
 {
     TRACE("render_drop_shadow");
 
-    return (bool) CDECL_CALL(0x0059F910, &a1, a2, a3, a4);
+    return (bool)CDECL_CALL(0x0059F910, &a1, a2, a3, a4);
 }
 
 bool conglomerate::render_complex_shadow(Float camera_distance)
@@ -1121,25 +998,19 @@ bool conglomerate::render_complex_shadow(Float camera_distance)
 
     assert(camera_distance <= 50.0f);
 
-    if constexpr (0)
-    {}
-    else
-    {
-        bool (__fastcall *func)(void *, void *edx, Float camera_distance) = CAST(func, 0x004E5300);
+    if constexpr (0) {
+    } else {
+        bool(__fastcall * func)(void *, void *edx, Float camera_distance) = CAST(func, 0x004E5300);
         return func(this, nullptr, camera_distance);
     }
 }
 
 void conglomerate::render_simple_shadow(Float arg0, Float arg4)
 {
-    assert(this->is_flagged(EFLAG_MISC_CAST_SHADOW)
-            && this->is_flagged(EFLAG_GRAPHICS_VISIBLE));
+    assert(this->is_flagged(EFLAG_MISC_CAST_SHADOW) && this->is_flagged(EFLAG_GRAPHICS_VISIBLE));
 
-    if constexpr (0)
-    {
-    }
-    else
-    {
+    if constexpr (0) {
+    } else {
         THISCALL(0x004E4D80, this, arg0, arg4);
     }
 }
@@ -1149,8 +1020,7 @@ bool binary_search_conglom_member_array(const string_hash &a1, entity_base **a2,
     bool v14 = false;
     int v13 = 0;
     auto v12 = size;
-    while (v13 < v12)
-    {
+    while (v13 < v12) {
         auto v11 = (v12 + v13) >> 1;
         auto *v4 = a2[v11];
         auto v5 = v4->get_id();
@@ -1159,8 +1029,7 @@ bool binary_search_conglom_member_array(const string_hash &a1, entity_base **a2,
         } else {
             auto *v6 = a2[v11];
             auto v7 = v6->get_id();
-            if (!(a1 > v7))
-            {
+            if (!(a1 > v7)) {
                 v14 = true;
                 if (index) {
                     *index = v11;
@@ -1173,10 +1042,8 @@ bool binary_search_conglom_member_array(const string_hash &a1, entity_base **a2,
         }
     }
 
-    if (!v14 && index != nullptr)
-    {
-        if (v12 == size - 1)
-        {
+    if (!v14 && index != nullptr) {
+        if (v12 == size - 1) {
             auto *v8 = a2[v12];
             auto v9 = v8->get_id();
             if (a1 > v9) {
@@ -1190,13 +1057,12 @@ bool binary_search_conglom_member_array(const string_hash &a1, entity_base **a2,
     return v14;
 }
 
-entity_base * conglomerate::get_member(const string_hash &a2, bool a3)
+entity_base *conglomerate::get_member(const string_hash &a2, bool a3)
 {
     TRACE("conglomerate::get_member");
 
     auto members_size = this->members.size();
-    if (members_size != 0)
-    {
+    if (members_size != 0) {
         auto i = -1;
         auto **data = this->members.m_data;
         if (binary_search_conglom_member_array(a2, data, members_size, &i)) {
@@ -1204,8 +1070,7 @@ entity_base * conglomerate::get_member(const string_hash &a2, bool a3)
         }
     }
 
-    if (a3)
-    {
+    if (a3) {
         auto *bone = this->get_bone(a2, false);
         return bone;
     }
@@ -1215,37 +1080,35 @@ entity_base * conglomerate::get_member(const string_hash &a2, bool a3)
 
 bool conglomerate::has_tentacle_ifc()
 {
-    bool (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x294));
+    bool(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x294));
     return func(this);
 }
 
 tentacle_interface *conglomerate::tentacle_ifc()
 {
-    tentacle_interface * (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x298));
+    tentacle_interface *(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x298));
     return func(this);
 }
 
 bool conglomerate::has_variant_ifc()
 {
-    bool (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x29C));
+    bool(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x29C));
     return func(this);
 }
 
 variant_interface *conglomerate::variant_ifc()
 {
-    variant_interface* (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x2A0));
+    variant_interface *(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x2A0));
     return func(this);
 }
 
-entity_base * conglomerate::get_bone(const string_hash &a2, bool a3)
+entity_base *conglomerate::get_bone(const string_hash &a2, bool a3)
 {
     TRACE("conglomerate::get_bone");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         auto skin_bones_size = this->skin_bones.size();
-        if (skin_bones_size != 0)
-        {
+        if (skin_bones_size != 0) {
             auto i = -1;
             auto **data = this->skin_bones.m_data;
             if (binary_search_conglom_member_array(a2, data, skin_bones_size, &i)) {
@@ -1258,10 +1121,8 @@ entity_base * conglomerate::get_bone(const string_hash &a2, bool a3)
         }
 
         return nullptr;
-    }
-    else
-    {
-        return (entity_base *) THISCALL(0x004CCC90, this, &a2, a3);
+    } else {
+        return (entity_base *)THISCALL(0x004CCC90, this, &a2, a3);
     }
 }
 

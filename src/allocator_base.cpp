@@ -5,7 +5,8 @@
 
 VALIDATE_SIZE(allocator_base, 0x8);
 
-allocator_base::allocator_base(int align) {
+allocator_base::allocator_base(int align)
+{
     this->m_alignment = align;
 }
 

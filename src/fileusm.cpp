@@ -12,7 +12,7 @@
 
 VALIDATE_SIZE(FileUSM, 0x10);
 
-FileUSM *& g_fileUSM = var<FileUSM *>(0x0096190C);
+FileUSM *&g_fileUSM = var<FileUSM *>(0x0096190C);
 
 void sub_81C5D0(const char *a1, char *a2)
 {
@@ -40,7 +40,8 @@ void sub_81C5D0(const char *a1, char *a2)
     } while (v6 != '\0');
 }
 
-void sub_81D0B0(char *a1, char *a2, int a3) {
+void sub_81D0B0(char *a1, char *a2, int a3)
+{
     char *v3 = a1;
     if (a1 != nullptr) {
         if (a2 != nullptr) {
@@ -64,7 +65,8 @@ void sub_81D0B0(char *a1, char *a2, int a3) {
     }
 }
 
-char *get_msg(FileUSM *a1, const char *a2) {
+char *get_msg(FileUSM *a1, const char *a2)
+{
     char *result = nullptr;
     if constexpr (1) {
         if (a1 != nullptr) {
@@ -73,7 +75,7 @@ char *get_msg(FileUSM *a1, const char *a2) {
             //sp_log("get_msg() = %s", result);
         }
     } else {
-        result = (char *) CDECL_CALL(0x0081C580, a1, a2);
+        result = (char *)CDECL_CALL(0x0081C580, a1, a2);
     }
 
     //sp_log("%s %s", result, a2);
@@ -81,7 +83,8 @@ char *get_msg(FileUSM *a1, const char *a2) {
     return result;
 }
 
-FileUSM::FileUSM(const char *a2, char *a3) {
+FileUSM::FileUSM(const char *a2, char *a3)
+{
     this->field_0 = nullptr;
     this->field_4 = nullptr;
     this->field_8 = 0;
@@ -161,7 +164,8 @@ FileUSM::FileUSM(const char *a2, char *a3) {
     }
 }
 
-char *FileUSM::sub_81C4C0(const char *a2) {
+char *FileUSM::sub_81C4C0(const char *a2)
+{
     int str_len = strlen(a2);
     auto *new_string = static_cast<char *>(malloc(str_len + 2));
     //strcpy_s(new_string, str_len, a2);
@@ -170,8 +174,7 @@ char *FileUSM::sub_81C4C0(const char *a2) {
     new_string[str_len] = '=';
     new_string[str_len + 1] = '\0';
 
-    if (this->field_0 != nullptr && this->field_4 != nullptr && this->field_8 > 0 &&
-        this->field_C > 0) {
+    if (this->field_0 != nullptr && this->field_4 != nullptr && this->field_8 > 0 && this->field_C > 0) {
         for (int i = 0; i < this->field_C; ++i) {
             if (strncmp(this->field_4[i], new_string, str_len + 1) == 0) {
                 free(new_string);
@@ -187,8 +190,9 @@ char *FileUSM::sub_81C4C0(const char *a2) {
     return nullptr;
 }
 
-FileUSM *create_usm_file(const char *a1, char *a2) {
-    FileUSM *v3 = (FileUSM *) malloc(0x10u);
+FileUSM *create_usm_file(const char *a1, char *a2)
+{
+    FileUSM *v3 = (FileUSM *)malloc(0x10u);
     if (v3 != nullptr) {
         *v3 = FileUSM{a1, a2};
     } else {
@@ -205,6 +209,7 @@ FileUSM *create_usm_file(const char *a1, char *a2) {
     return nullptr;
 }
 
-void FileUSM_patch() {
+void FileUSM_patch()
+{
     REDIRECT(0x005AC8A9, get_msg);
 }

@@ -11,7 +11,7 @@ struct debug_variable_t {
 
     void add_value(const mString &a1);
 
-    mString & get_value() const;
+    mString &get_value() const;
 
     operator float() const;
 };

@@ -16,7 +16,7 @@ mContainer_base::mContainer_base(from_mash_in_place_constructor *)
 
 void mContainer_base::initialize(mash::allocation_scope a2)
 {
-    if ( a2 == mash::ALLOCATED ) {
+    if (a2 == mash::ALLOCATED) {
         this->clear();
     }
 }

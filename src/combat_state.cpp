@@ -11,15 +11,18 @@
 
 VALIDATE_SIZE(combat_state, 0x130);
 
-combat_state::combat_state(from_mash_in_place_constructor *a2) {
+combat_state::combat_state(from_mash_in_place_constructor *a2)
+{
     THISCALL(0x00471EC0, this, a2);
 }
 
-void web_start_call_back(event *a1, entity_base_vhandle a2, void *a3) {
+void web_start_call_back(event *a1, entity_base_vhandle a2, void *a3)
+{
     CDECL_CALL(0x004474B0, a1, a2, a3);
 }
 
-bool combat_state::find_web_hang_spot() {
+bool combat_state::find_web_hang_spot()
+{
     sp_log("combat_state::find_web_hang_spot:");
     if constexpr (1) {
         auto *act = this->get_actor();
@@ -36,19 +39,20 @@ bool combat_state::find_web_hang_spot() {
         this->field_38 = v9.normalized();
         return true;
     } else {
-        return (bool) THISCALL(0x00487500, this);
+        return (bool)THISCALL(0x00487500, this);
     }
 }
 
-anchor_storage_class ai_find_best_pole(
-    entity *arg4, const vector3d &arg8, Float a3, Float a5, Float a6, Float a7) {
+anchor_storage_class ai_find_best_pole(entity *arg4, const vector3d &arg8, Float a3, Float a5, Float a6, Float a7)
+{
     anchor_storage_class result;
     CDECL_CALL(0x00486EE0, &result, arg4, &arg8, a3, a5, a6, a7);
 
     return result;
 }
 
-void combat_state_patch() {
+void combat_state_patch()
+{
     {
         FUNC_ADDRESS(address, &combat_state::find_web_hang_spot);
         set_vfunc(0x0087B090 + 0x54, address);

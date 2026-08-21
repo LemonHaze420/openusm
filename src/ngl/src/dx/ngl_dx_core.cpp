@@ -15,7 +15,7 @@
 #include <psapi.h>
 #include <windows.h>
 
-static Var<const float> PCFreq {0x0093A294};
+static Var<const float> PCFreq{0x0093A294};
 
 static Var<nglFrameLockType> nglFrameLock = {0x0093AED0};
 
@@ -33,18 +33,16 @@ static Var<int> nglFlipCycle{0x00972674};
 
 static Var<BOOL> nglFlipQueued = {0x00972668};
 
-static Var<char *> nglListWork {0x00971F08};
+static Var<char *> nglListWork{0x00971F08};
 
-static Var<int> dword_93AED4 {0x0093AED4};
+static Var<int> dword_93AED4{0x0093AED4};
 
 void nglVif1RenderScene()
 {
     TRACE("nglVif1RenderScene");
 
-    if constexpr (0)
-    {}
-    else
-    {
+    if constexpr (0) {
+    } else {
         CDECL_CALL(0x0077D060);
     }
 }
@@ -62,42 +60,31 @@ void nglVif1SetupScene(nglScene *a1)
 {
     TRACE("nglVif1SetupScene");
 
-    if constexpr (0)
-    {
-        if ( nglCurScene->AnimTime == 0.0f )
-        {
-            float v1 = ( nglIsFBPAL() ? 20.0 : 16.666666);
+    if constexpr (0) {
+        if (nglCurScene->AnimTime == 0.0f) {
+            float v1 = (nglIsFBPAL() ? 20.0 : 16.666666);
 
             float v2 = nglFrameVBlankCount();
-            if ( nglFrameVBlankCount() < 0 ) {
+            if (nglFrameVBlankCount() < 0) {
                 v2 += 4.2949673e9;
             }
 
             nglCurScene->field_3FC = v2 * v1 * 0.001f;
-        }
-        else
-        {
+        } else {
             nglCurScene->field_3FC = nglCurScene->AnimTime;
         }
 
-        if ( a1->ZWriteEnable || a1->ZTestEnable )
-        {
+        if (a1->ZWriteEnable || a1->ZTestEnable) {
             g_renderState().setDepthBuffer(D3DZB_TRUE);
 
-            if ( a1->ZTestEnable )
-            {
+            if (a1->ZTestEnable) {
                 g_renderState().setDepthBufferFunction(D3DCMP_LESSEQUAL);
-            }
-            else
-            {
+            } else {
                 auto stencilCheckEnabled = g_renderState().m_stencilCheckEnabled;
 
-                if ( stencilCheckEnabled )
-                {
+                if (stencilCheckEnabled) {
                     g_renderState().setStencilCheckEnabled(false);
-                }
-                else
-                {
+                } else {
                     g_renderState().setStencilCheckEnabled(true);
 
                     g_renderState().setStencilBufferTestFunction(D3DCMP_ALWAYS);
@@ -109,9 +96,7 @@ void nglVif1SetupScene(nglScene *a1)
 
                 g_renderState().setDepthBufferFunction(D3DCMP_ALWAYS);
             }
-        }
-        else
-        {
+        } else {
             g_renderState().setDepthBuffer(D3DZB_FALSE);
         }
 
@@ -119,17 +104,17 @@ void nglVif1SetupScene(nglScene *a1)
         SetRenderTarget(v4, nglCurScene->field_338, 0, nglCurScene->field_8);
 
         float ScreenWidth = v4->m_width;
-        if ( v4->m_width < 0 ) {
+        if (v4->m_width < 0) {
             ScreenWidth += 4.2949673e9;
         }
 
         float ScreenHeight = v4->m_height;
-        if ( v4->m_height < 0 ) {
+        if (v4->m_height < 0) {
             ScreenHeight += 4.2949673e9;
         }
 
-        uint32_t v7 = ((nglCurScene->sx1 + 1.0f ) * 0.5f * ScreenWidth + 0.5f);
-        uint32_t v8 = ((nglCurScene->sy1 + 1.0f ) * 0.5f * ScreenHeight + 0.5f);
+        uint32_t v7 = ((nglCurScene->sx1 + 1.0f) * 0.5f * ScreenWidth + 0.5f);
+        uint32_t v8 = ((nglCurScene->sy1 + 1.0f) * 0.5f * ScreenHeight + 0.5f);
         uint32_t v20 = ((nglCurScene->sx2 + 1.0f) * 0.5f * ScreenWidth + 0.5f);
         uint32_t v9 = ((nglCurScene->sy2 + 1.0f) * 0.5f * ScreenHeight + 0.5f);
 
@@ -142,11 +127,8 @@ void nglVif1SetupScene(nglScene *a1)
         v23.MaxZ = 1.0;
         IDirect3DDevice9_SetViewport(g_Direct3DDevice, &v23);
         auto *v10 = nglCurScene;
-        if ( nglCurScene->sx1 != -1.0f 
-            || nglCurScene->sy1 != -1.0f
-            || nglCurScene->sx2 != 1.0f 
-            || nglCurScene->sy2 != 1.0f )
-        {
+        if (nglCurScene->sx1 != -1.0f || nglCurScene->sy1 != -1.0f || nglCurScene->sx2 != 1.0f ||
+            nglCurScene->sy2 != 1.0f) {
             RECT v22;
             v22.right = v20;
             v22.left = v7;
@@ -158,16 +140,12 @@ void nglVif1SetupScene(nglScene *a1)
             IDirect3DDevice9_SetScissorRect(g_Direct3DDevice, &v22);
         }
 
-        if ( v10->ClearFlags )
-        {
+        if (v10->ClearFlags) {
             g_renderState().setColourBufferWriteEnabled(15u);
 
             auto v18 = v10->ClearStencil;
             auto v17 = v10->ClearZ;
-            auto v13 = sub_413A50(v10->ClearColor.r,
-                                v10->ClearColor.g,
-                                v10->ClearColor.b,
-                                v10->ClearColor.a);
+            auto v13 = sub_413A50(v10->ClearColor.r, v10->ClearColor.g, v10->ClearColor.b, v10->ClearColor.a);
 
             IDirect3DDevice9_Clear(g_Direct3DDevice, 0, 0, v10->ClearFlags, v13, v17, v18);
         }
@@ -176,20 +154,12 @@ void nglVif1SetupScene(nglScene *a1)
 
         auto v21 = nglIFLSpeed * v10->field_3FC;
         nglCurScene->IFLFrame = std::round(v21);
-        if ( !EnableShader )
-        {
-            IDirect3DDevice9_SetTransform(
-                g_Direct3DDevice,
-                D3DTS_PROJECTION,
-                bit_cast<D3DMATRIX *>(&a1->ViewToScreen));
+        if (!EnableShader) {
+            IDirect3DDevice9_SetTransform(g_Direct3DDevice, D3DTS_PROJECTION, bit_cast<D3DMATRIX *>(&a1->ViewToScreen));
 
-            IDirect3DDevice9_SetTransform(g_Direct3DDevice,
-                    D3DTS_VIEW,
-                    bit_cast<D3DMATRIX *>(&a1->WorldToView));
+            IDirect3DDevice9_SetTransform(g_Direct3DDevice, D3DTS_VIEW, bit_cast<D3DMATRIX *>(&a1->WorldToView));
         }
-    }
-    else
-    {
+    } else {
         CDECL_CALL(0x0077CBB0, a1);
     }
 }
@@ -214,28 +184,27 @@ void sub_76DE60()
 
 nglLightContext *nglCreateLightContext()
 {
-    return (nglLightContext *) CDECL_CALL(0x00775EC0);
+    return (nglLightContext *)CDECL_CALL(0x00775EC0);
 }
 
 void nglListInit()
 {
     TRACE("nglListInit");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         nglFrameVBlankCount() = nglVBlankCount();
         nglPerfInfo().field_38 = query_perf_counter();
         nglListWorkPos() = CAST(nglListWorkPos(), nglListWork());
         nglDefaultLightContext() = nglCreateLightContext();
-        if ( nglSyncDebug().DumpFrameLog ) {
+        if (nglSyncDebug().DumpFrameLog) {
             nglDebug.DumpFrameLog = 0;
         }
 
-        if ( nglSyncDebug().DumpSceneFile ) {
+        if (nglSyncDebug().DumpSceneFile) {
             nglDebug.DumpSceneFile = 0;
         }
 
-        if ( nglSyncDebug().DumpTextures ) {
+        if (nglSyncDebug().DumpTextures) {
             nglDebug.DumpTextures = 0;
         }
 
@@ -248,13 +217,14 @@ void nglListInit()
         nglScratchBuffer().field_4C = nglScratchBuffer().field_0[v0];
 
         nglScratchBuffer().field_48 = (IDirect3DIndexBuffer9 *)nglScratchBuffer().field_18[v0];
-        if ( nglScratchBuffer().field_4C.getVertexBuffer() != nullptr ) {
-            nglScratchBuffer().field_4C.getVertexBuffer()->lpVtbl->Lock(nglScratchBuffer().field_4C.getVertexBuffer(), 0, 0, (void **)&v3, D3DLOCK_DISCARD);
+        if (nglScratchBuffer().field_4C.getVertexBuffer() != nullptr) {
+            nglScratchBuffer().field_4C.getVertexBuffer()->lpVtbl->Lock(
+                nglScratchBuffer().field_4C.getVertexBuffer(), 0, 0, (void **)&v3, D3DLOCK_DISCARD);
             nglScratchBuffer().field_4C.setVertexData(v3);
         }
 
         auto *v2 = nglScratchBuffer().field_48;
-        if ( v2 != nullptr ) {
+        if (v2 != nullptr) {
             int16_t *v3 = nullptr;
             v2->lpVtbl->Lock(v2, 0, 0, (void **)&v3, 0);
             nglScratchBuffer().field_20 = v3;
@@ -303,7 +273,7 @@ void nglSetFrameLock(nglFrameLockType a2)
 
             v4 = 60.0 / v4;
 
-            g_timer = new Timer {v4, v4};
+            g_timer = new Timer{v4, v4};
             g_timer->sub_582180();
             dword_93AED4() = v1;
         }
@@ -312,22 +282,18 @@ void nglSetFrameLock(nglFrameLockType a2)
     }
 }
 
-static Var<float> g_renderTime {0x00972664};
+static Var<float> g_renderTime{0x00972664};
 
 void sub_76DE80()
 {
     nglPerfInfo().field_30 = query_perf_counter();
     g_renderTime() = (nglPerfInfo().field_30.QuadPart - nglPerfInfo().field_28.QuadPart) / PCFreq();
-    if ( !nglFrameLock()
-        || (nglFrameLockImmediate() && nglVBlankCount() - nglLastFlipVBlank() >= nglFrameLock()) )
-    {
+    if (!nglFrameLock() || (nglFrameLockImmediate() && nglVBlankCount() - nglLastFlipVBlank() >= nglFrameLock())) {
         nglLastFlipCycle() = nglFlipCycle();
         nglFlipCycle() = query_perf_counter().LowPart;
         nglLastFlipVBlank() = nglVBlankCount();
         nglFlipQueued() = false;
-    }
-    else
-    {
+    } else {
         nglFlipQueued() = true;
     }
 }
@@ -393,10 +359,7 @@ void nglRenderPerfInfo()
                 nglDebug.field_10,
                 v0);
     } else {
-        sprintf(Dest,
-                "%.2f FPS\n%.2fms\n",
-                nglSyncPerfInfo().m_fps,
-                nglSyncPerfInfo().m_render_time);
+        sprintf(Dest, "%.2f FPS\n%.2fms\n", nglSyncPerfInfo().m_fps, nglSyncPerfInfo().m_render_time);
     }
 
     uint32_t a3;
@@ -420,11 +383,11 @@ void nglRenderPerfInfo()
 
 void nglRenderDebug()
 {
-    if ( nglSyncDebug().ShowPerfInfo ) {
+    if (nglSyncDebug().ShowPerfInfo) {
         nglRenderPerfInfo();
     }
 
-    if ( nglSyncDebug().ShowPerfBar ) {
+    if (nglSyncDebug().ShowPerfBar) {
         nglRenderPerfBar();
     }
 }
@@ -439,19 +402,15 @@ void sub_76DD70()
 
 int __fastcall sub_781EA0(void *a1)
 {
-    int (__fastcall *func)(void *) = CAST(func, 0x00781EA0);
+    int(__fastcall * func)(void *) = CAST(func, 0x00781EA0);
     return func(a1);
 }
 
 void nglQueueFlip()
 {
-    if ( nglFrameLock()
-        && (!nglFrameLockImmediate() || nglVBlankCount() - nglLastFlipVBlank() < nglFrameLock() ) )
-    {
+    if (nglFrameLock() && (!nglFrameLockImmediate() || nglVBlankCount() - nglLastFlipVBlank() < nglFrameLock())) {
         nglFlipQueued() = true;
-    }
-    else
-    {
+    } else {
         sub_76DD70();
     }
 }
@@ -476,28 +435,28 @@ void Reset3DDevice()
     if constexpr (0) {
         sub_782030();
         sub_77B2F0(1);
-        if ( !EnableShader ) {
+        if (!EnableShader) {
             sub_81E910();
         }
 
         sub_781B60();
-        if ( g_Windowed ) {
+        if (g_Windowed) {
             s_d3dpresent_params.FullScreen_RefreshRateInHz = 0;
-        } else if ( s_d3dpresent_params.PresentationInterval == 1 ) {
+        } else if (s_d3dpresent_params.PresentationInterval == 1) {
             s_d3dpresent_params.FullScreen_RefreshRateInHz = 60;
         }
 
-        if ( g_occlusionQueryTest() ) {
+        if (g_occlusionQueryTest()) {
             g_occlusionQueryTest()->lpVtbl->Release(g_occlusionQueryTest());
         }
 
         IDirect3DDevice9_Reset(g_Direct3DDevice, &s_d3dpresent_params);
-        if ( !IDirect3DDevice9_CreateQuery(g_Direct3DDevice, D3DQUERYTYPE_OCCLUSION, nullptr) ) {
+        if (!IDirect3DDevice9_CreateQuery(g_Direct3DDevice, D3DQUERYTYPE_OCCLUSION, nullptr)) {
             IDirect3DDevice9_CreateQuery(g_Direct3DDevice, D3DQUERYTYPE_OCCLUSION, &g_occlusionQueryTest());
         }
 
         sub_782060();
-        if ( !EnableShader ) {
+        if (!EnableShader) {
             sub_81E8E0(0x25A000);
         }
 
@@ -519,7 +478,7 @@ void PumpMessages()
 
     struct tagMSG Msg;
 
-    while ( PeekMessageA(&Msg, nullptr, 0, 0, PM_REMOVE) ) {
+    while (PeekMessageA(&Msg, nullptr, 0, 0, PM_REMOVE)) {
         TranslateMessage(&Msg);
         DispatchMessageA(&Msg);
     }
@@ -535,21 +494,20 @@ void nglFlip(bool a1)
         sub_781EA0(nullptr);
         IDirect3DDevice9_EndScene(g_Direct3DDevice);
 
-        static_assert(D3DERR_DEVICELOST == (HRESULT) 0x88760868);
-        static_assert(D3DERR_DEVICENOTRESET == (HRESULT) 0x88760869);
-        
-        if ( !byte_971F9C
-                && IDirect3DDevice9_Present(g_Direct3DDevice, nullptr, nullptr, nullptr, nullptr) == D3DERR_DEVICELOST )
-        {
+        static_assert(D3DERR_DEVICELOST == (HRESULT)0x88760868);
+        static_assert(D3DERR_DEVICENOTRESET == (HRESULT)0x88760869);
+
+        if (!byte_971F9C &&
+            IDirect3DDevice9_Present(g_Direct3DDevice, nullptr, nullptr, nullptr, nullptr) == D3DERR_DEVICELOST) {
             Sleep(100u);
-            if ( IDirect3DDevice9_TestCooperativeLevel(g_Direct3DDevice) == D3DERR_DEVICENOTRESET ) {
+            if (IDirect3DDevice9_TestCooperativeLevel(g_Direct3DDevice) == D3DERR_DEVICENOTRESET) {
                 Reset3DDevice();
             }
         }
 
         PumpMessages();
         ++nglFrame();
-        if ( a1 ) {                                             
+        if (a1) {
             nglQueueFlip();
         }
     } else {
@@ -563,10 +521,9 @@ void nglListSend(bool Flip)
 {
     TRACE("nglListSend");
 
-    if constexpr (1)
-    {
-        if ( EnableShader ) {
-            float v10[4] {0, 0, 1, 1};
+    if constexpr (1) {
+        if (EnableShader) {
+            float v10[4]{0, 0, 1, 1};
             IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice, 90, v10, 1);
         }
 
@@ -598,7 +555,7 @@ void nglListSend(bool Flip)
 
         nglScratchBuffer().field_4C.getVertexBuffer()->lpVtbl->Unlock(nglScratchBuffer().field_4C.getVertexBuffer());
         nglScratchBuffer().field_48->lpVtbl->Unlock(nglScratchBuffer().field_48);
-        
+
         nglCurScene = nglRootScene();
         IDirect3DDevice9_BeginScene(g_Direct3DDevice);
         nglVif1RenderScene();
@@ -617,7 +574,7 @@ void nglListSend(bool Flip)
 
         nglPerfInfo().m_fonts_time = nglPerfInfo().field_50.QuadPart * v5;
 
-        if ( dword_975314 == dword_975308 ) {
+        if (dword_975314 == dword_975308) {
             v6 = dword_97530C;
         }
 
@@ -626,7 +583,7 @@ void nglListSend(bool Flip)
 
         //dword_972AB4 = 0;
         //dword_972ABC = 0;
-        
+
         IDirect3DDevice9_SetStreamSource(g_Direct3DDevice, 0, nullptr, 0, 0);
         IDirect3DDevice9_SetVertexShader(g_Direct3DDevice, nullptr);
         IDirect3DDevice9_SetPixelShader(g_Direct3DDevice, nullptr);
@@ -640,7 +597,7 @@ void nglListSend(bool Flip)
         float v8 = []() -> double {
             return query_perf_counter().QuadPart - nglPerfInfo().field_20.QuadPart;
         }();
-        
+
         nglPerfInfo().m_cpu_time = v8 / PCFreq();
 
 #if 0
@@ -648,7 +605,7 @@ void nglListSend(bool Flip)
             dword_971F1C()(dword_971F20());
 #endif
 
-        if ( Flip ) {
+        if (Flip) {
             nglFlip(0);
         }
 
@@ -657,7 +614,7 @@ void nglListSend(bool Flip)
         nglPerfInfo().m_render_time = g_renderTime();
         //sp_log("m_render_time = %f", nglPerfInfo().m_render_time);
 
-        if ( v9 < 0 ) {
+        if (v9 < 0) {
             v9 += flt_86F860;
         }
 
@@ -668,7 +625,7 @@ void nglListSend(bool Flip)
         sp_log("nglPerfInfo.m_fps == %f", nglPerfInfo().m_fps);
 
         nglPerfInfo().field_60 = nglPerfInfo().field_5C * 0.001f;
-        if ( nglDebug.ScreenShot ) {
+        if (nglDebug.ScreenShot) {
             nglScreenShot(nullptr);
             nglDebug.ScreenShot = 0;
         }
@@ -694,4 +651,3 @@ void nglListSend(bool Flip)
         CDECL_CALL(0x0076EA10, Flip);
     }
 }
-

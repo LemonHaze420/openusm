@@ -12,7 +12,8 @@ struct message_board {
         float field_64;
         color32 field_68;
 
-        internal() {
+        internal()
+        {
             field_68 = {};
         }
     };

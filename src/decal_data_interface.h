@@ -45,5 +45,5 @@ struct decal_data_interface : conglomerate_interface {
     //virtual
     void destructor_common();
 
-    static inline auto & all_decal_interfaces = var<_std::vector<decal_data_interface *> *>(0x01564534);
+    static inline auto &all_decal_interfaces = var<_std::vector<decal_data_interface *> *>(0x01564534);
 };

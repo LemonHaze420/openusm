@@ -7,15 +7,12 @@
 struct traffic_path_lane;
 
 struct traffic_path_intersection {
-
     enum eDirection {};
 
     bool has_stopsign(bool a1);
-
 };
 
 struct traffic_path_road {
-
     traffic_path_lane **in_lanes;
     uint32_t total_in_lanes;
     traffic_path_lane **out_lanes;
@@ -25,12 +22,12 @@ struct traffic_path_road {
     traffic_path_intersection *field_18;
     traffic_path_intersection *field_1C;
 
-    traffic_path_intersection * get_previous_intersection()
+    traffic_path_intersection *get_previous_intersection()
     {
         return this->field_1C;
     }
 
-    traffic_path_intersection * get_next_intersection()
+    traffic_path_intersection *get_next_intersection()
     {
         return this->field_18;
     }
@@ -42,7 +39,6 @@ struct traffic_path_road {
 };
 
 struct traffic_ai_list {
-
     uint16_t num_ais;
     uint16_t field_2;
     vhandle_type<actor> ais[20];

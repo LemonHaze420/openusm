@@ -9,7 +9,7 @@
 
 #if !STANDALONE_SYSTEM
 namespace scratchpad_stack {
-stack_allocator & stk = var<stack_allocator>(0x0095C724);
+stack_allocator &stk = var<stack_allocator>(0x0095C724);
 }
 
 bool &tlScratchpadLocked = var<bool>(0x00970D60);
@@ -17,14 +17,14 @@ bool &tlScratchpadLocked = var<bool>(0x00970D60);
 #else
 
 namespace scratchpad_stack {
-stack_allocator & stk = []() -> auto & {
-    static stack_allocator g_stk {};
+stack_allocator &stk = []() -> auto & {
+    static stack_allocator g_stk{};
     return g_stk;
 }();
-}
+}  // namespace scratchpad_stack
 
 bool &tlScratchpadLocked = []() -> auto & {
-    static bool tlScratchpadLocked {};
+    static bool tlScratchpadLocked{};
     return tlScratchpadLocked;
 }();
 
@@ -52,23 +52,27 @@ int scratchpad_stack::get_total_allocated_bytes()
     return stk.get_total_allocated_bytes();
 }
 
-void scratchpad_stack::lock() {
+void scratchpad_stack::lock()
+{
     assert(!tlScratchpadLocked && "Scratchpad is already locked!");
 
     tlScratchpadLocked = true;
 }
 
-void scratchpad_stack::unlock() {
+void scratchpad_stack::unlock()
+{
     assert(tlScratchpadLocked && "Scratchpad is already unlocked!");
 
     tlScratchpadLocked = false;
 }
 
-void scratchpad_stack::reset() {
+void scratchpad_stack::reset()
+{
     return scratchpad_stack::stk.reset();
 }
 
-void scratchpad_stack::pop(void *a1, int n_bytes) {
+void scratchpad_stack::pop(void *a1, int n_bytes)
+{
     stk.pop(a1, n_bytes);
     if (get_total_allocated_bytes() == 0) {
         unlock();
@@ -108,9 +112,10 @@ void scratchpad_stack::term()
     stk.segment = nullptr;
 }
 
-bool sub_512730(void *a1) {
+bool sub_512730(void *a1)
+{
     return a1 >= scratchpad_stack::stk.segment &&
-        a1 < &scratchpad_stack::stk.segment[scratchpad_stack::stk.segment_size_bytes];
+           a1 < &scratchpad_stack::stk.segment[scratchpad_stack::stk.segment_size_bytes];
 }
 
 void scratchpad_stack_patch()

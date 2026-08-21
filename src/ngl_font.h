@@ -51,14 +51,7 @@ struct nglFont {
 
     nglGlyphInfo *GetGlyphInfo(unsigned char Character);
 
-    void sub_77E2F0(
-        uint8_t a2,
-        float *a3,
-        float *a4,
-        float *a5,
-        float *a6,
-        Float a7,
-        Float a8);
+    void sub_77E2F0(uint8_t a2, float *a3, float *a4, float *a5, float *a6, Float a7, Float a8);
 };
 
 extern Var<nglFont *> nglSysFont;

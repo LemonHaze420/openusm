@@ -36,29 +36,19 @@ struct swing_anchor_finder {
     void set_max_pull_length(Float length);
 
     //0x00464590
-    bool accept_swing_point(const quick_anchor_info &info,
-                            const sweet_cone_t &sweet_cone,
-                            const Float &a4,
-                            Float a5,
-                            float *arg10,
-                            local_collision::primitive_list_t **a7,
+    bool accept_swing_point(const quick_anchor_info &info, const sweet_cone_t &sweet_cone, const Float &a4, Float a5,
+                            float *arg10, local_collision::primitive_list_t **a7,
                             local_collision::primitive_list_t ***a8) const;
 
     //0x00486280
-    bool find_best_offset_anchor(entity *self,
-                                 const vector3d &a3,
-                                 const vector3d &a4,
+    bool find_best_offset_anchor(entity *self, const vector3d &a3, const vector3d &a4,
                                  find_best_anchor_result_t *result) const;
 
     //0x00487D20
     bool find_best_anchor(entity *a1, const vector3d &a2, find_best_anchor_result_t *a3) const;
 
     //0x004647D0
-    void find_sweet_spot(
-        entity *ent,
-        const vector3d &a5,
-        const vector3d &a6,
-        vector3d *sweet_spot) const;
+    void find_sweet_spot(entity *ent, const vector3d &a5, const vector3d &a6, vector3d *sweet_spot) const;
 
     static void remove_all_anchors();
 };
@@ -78,22 +68,16 @@ struct occupancy_voxels_t {
 
     bool is_occupied_if_not_occupy(const vector4d &a2);
 
-    void map_vector3d(
-        const vector4d &a2, int &minx, int &miny, int &minz, int &maxx, int &maxy, int &maxz);
+    void map_vector3d(const vector4d &a2, int &minx, int &miny, int &minz, int &maxx, int &maxy, int &maxz);
 };
 
 struct quick_anchor_container_t {
     fixed_vector<quick_anchor_info, 100> field_0;
 
-    void add_anchor(occupancy_voxels_t *grid,
-                    const vector3d &a3,
-                    const vector3d &a4,
-                    const vector3d &a5,
-                    Float a6,
-                    entity *a7,
-                    conglomerate_clone *a8);
+    void add_anchor(occupancy_voxels_t *grid, const vector3d &a3, const vector3d &a4, const vector3d &a5, Float a6,
+                    entity *a7, conglomerate_clone *a8);
 };
 
-inline Var<bool> g_anchor_finding_enabled {0x0091F4D0};
+inline Var<bool> g_anchor_finding_enabled{0x0091F4D0};
 
 extern void swing_anchor_finder_patch();

@@ -21,11 +21,10 @@ void skeleton_interface::unmash(mash_info_struct *a2, void *a3)
 {
     assert("abs_po == (po *)mash::CUSTOM_MASH_SENTRY");
 
-    if ( this->po_count <= 0 )
+    if (this->po_count <= 0)
         this->abs_po = nullptr;
     else
-        this->abs_po = (po *)a2->read_from_buffer(mash::NORMAL_BUFFER,
-                this->po_count << 6, 16);
+        this->abs_po = (po *)a2->read_from_buffer(mash::NORMAL_BUFFER, this->po_count << 6, 16);
 }
 #endif
 

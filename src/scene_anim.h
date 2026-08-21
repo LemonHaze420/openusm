@@ -22,13 +22,13 @@ struct nalSceneAnim {
     int field_4C;
     tlFixedString field_50;
 
-    static tlFixedString * get_string(nalSceneAnim *a1)
+    static tlFixedString *get_string(nalSceneAnim *a1)
     {
         return &a1->field_10;
     }
 };
 
-template<typename>
+template <typename>
 struct nalAnimClass;
 
 struct nalSceneAnimInstance {

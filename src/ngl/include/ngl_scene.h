@@ -15,13 +15,13 @@ struct nglRenderNode;
 enum nglSceneCallbackType {};
 
 enum {
-    NGLCLIP_NEAR   = 0,
-    NGLCLIP_FAR    = 1,
-    NGLCLIP_LEFT   = 2,
-    NGLCLIP_RIGHT  = 3,
-    NGLCLIP_TOP    = 4,
+    NGLCLIP_NEAR = 0,
+    NGLCLIP_FAR = 1,
+    NGLCLIP_LEFT = 2,
+    NGLCLIP_RIGHT = 3,
+    NGLCLIP_TOP = 4,
     NGLCLIP_BOTTOM = 5,
-    NGLCLIP_MAX    = 6
+    NGLCLIP_MAX = 6
 };
 
 
@@ -96,7 +96,7 @@ struct nglScene {
     int empty2[12];
     int field_43C;
 
-    void * operator new(size_t);
+    void *operator new(size_t);
 
     void operator delete(void *, size_t) {}
 };
@@ -110,7 +110,7 @@ extern void nglSceneDumpStart();
 
 extern Var<nglScene *> nglRootScene;
 
-extern nglScene *& nglCurScene;
+extern nglScene *&nglCurScene;
 
 extern Var<nglScene *> g_shadow_scene;
 
@@ -119,6 +119,4 @@ extern bool nglIsFBPAL();
 //0x0076B820
 extern void nglSetPerspectiveMatrix(Float a1, Float nearz, Float farz);
 
-extern void nglSetSceneCallBack(nglSceneCallbackType a1,
-                                void (*Fn)(unsigned int *&, void *),
-                                void *a3);
+extern void nglSetSceneCallBack(nglSceneCallbackType a1, void (*Fn)(unsigned int *&, void *), void *a3);

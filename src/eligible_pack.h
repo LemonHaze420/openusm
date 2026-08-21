@@ -30,23 +30,25 @@ struct eligible_pack {
     //0x0056BAB0
     //~eligible_pack();
 
-	void set_packfile_name(const char *a2);
+    void set_packfile_name(const char *a2);
 
-	eligible_pack_token &get_token()
-	{
-		return this->field_48;
-	}
+    eligible_pack_token &get_token()
+    {
+        return this->field_48;
+    }
 
-    float get_priority() const {
+    float get_priority() const
+    {
         return this->field_6C;
     }
 
-	string_hash get_name_hash()
-	{
-		return this->field_40;
-	}
+    string_hash get_name_hash()
+    {
+        return this->field_40;
+    }
 
-    bool is_flagged(uint32_t a2) const {
+    bool is_flagged(uint32_t a2) const
+    {
         return (a2 & this->field_70) != 0;
     }
 

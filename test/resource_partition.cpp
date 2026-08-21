@@ -4,7 +4,7 @@
 
 TEST(ResourcePartition, Construct)
 {
-    resource_partition part {RESOURCE_PARTITION_HERO};
+    resource_partition part{RESOURCE_PARTITION_HERO};
 #if 0
     EXPECT_EQ(part.get_type(), RESOURCE_PARTITION_HERO);
     EXPECT_EQ(part.get_buffer_used(), 0);

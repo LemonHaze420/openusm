@@ -13,7 +13,7 @@ struct nglMeshSection;
 struct nglMaterialBase;
 struct tlFixedString;
 
-template<typename>
+template <typename>
 struct nglParamSet;
 
 struct nglShaderParamSet_Pool;
@@ -51,7 +51,7 @@ struct nglShader : tlInitList {
 
     /* virtual */ bool IsSwitchable();
 
-    static int & NextID;
+    static int &NextID;
 };
 
 struct nglShaderNode : nglRenderNode {

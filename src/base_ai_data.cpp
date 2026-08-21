@@ -9,11 +9,12 @@ VALIDATE_OFFSET(base_ai_data, field_14, 0x14);
 
 base_ai_data::base_ai_data(from_mash_in_place_constructor *a2)
 {
-    void (__fastcall *func)(void *, void *edx, from_mash_in_place_constructor *) = CAST(func, 0x006D9AF0);
+    void(__fastcall * func)(void *, void *edx, from_mash_in_place_constructor *) = CAST(func, 0x006D9AF0);
     func(this, nullptr, a2);
 }
 
-void base_ai_data::post_entity_mash() {
+void base_ai_data::post_entity_mash()
+{
     this->field_14->post_entity_mash();
 }
 

@@ -14,56 +14,49 @@ constexpr auto strTongueTent = to_hash("Tongue_1");
 int sub_5F0220(uint32_t a1)
 {
     switch (a1) {
-        case strUpLeftTent:
-            return 0;
-        case strUpRightTent:
-            return 3;
-        case strLowLeftTent:
-            return 6;
-        case strLowRightTent:
-            return 9;
-        case strTongueTent:
-            return 12;
-        default:
-            return -1;
+    case strUpLeftTent:
+        return 0;
+    case strUpRightTent:
+        return 3;
+    case strLowLeftTent:
+        return 6;
+    case strLowRightTent:
+        return 9;
+    case strTongueTent:
+        return 12;
+    default:
+        return -1;
     }
 }
 
-void TentaclesPoseDesc::CopyPoseDataToNothing(
-        TentaclesPoseDesc::StdPoseData *a1,
-        uint32_t,
-        const TentaclesPoseDesc::StdPoseData *a3)
+void TentaclesPoseDesc::CopyPoseDataToNothing(TentaclesPoseDesc::StdPoseData *a1, uint32_t,
+                                              const TentaclesPoseDesc::StdPoseData *a3)
 {
     std::memcpy(a1, a3, sizeof(StdPoseData));
 }
 
-float TentaclesPoseDesc::StdPoseData::GetDiameterFromBone(
-        uint32_t a2) const
+float TentaclesPoseDesc::StdPoseData::GetDiameterFromBone(uint32_t a2) const
 {
     auto v3 = sub_5F0220(a2);
-    if ( v3 == -1 ) {
+    if (v3 == -1) {
         return 0.0f;
     } else {
         return this->field_0[v3];
     }
 }
 
-float TentaclesPoseDesc::StdPoseData::GetActivityFromBone(
-        uint32_t a2) const
+float TentaclesPoseDesc::StdPoseData::GetActivityFromBone(uint32_t a2) const
 {
     auto v3 = sub_5F0220(a2);
-    if ( v3 == -1 ) {
+    if (v3 == -1) {
         return 0.0f;
     } else {
         return this->field_4[v3];
     }
 }
 
-float TentaclesPoseDesc::StdPoseData::GetPullFromBone(
-        uint32_t a2) const
+float TentaclesPoseDesc::StdPoseData::GetPullFromBone(uint32_t a2) const
 {
     auto v3 = sub_5F0220(a2);
-    return (v3 == -1
-            ? 0.0f
-            : this->field_8[v3]);
+    return (v3 == -1 ? 0.0f : this->field_8[v3]);
 }

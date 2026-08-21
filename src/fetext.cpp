@@ -19,30 +19,20 @@ FEText::FEText()
     THISCALL(0x00617360, this);
 }
 
-FEText::FEText(font_index a2,
-               global_text_enum a3,
-               Float a4,
-               Float a5,
-               int a6,
-               panel_layer a7,
-               Float a8,
-               int a9,
-               int a10,
-               color32 a11) {
+FEText::FEText(font_index a2, global_text_enum a3, Float a4, Float a5, int a6, panel_layer a7, Float a8, int a9,
+               int a10, color32 a11)
+{
     THISCALL(0x00617500, this, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
 }
 
 void FEText::_unmash(mash_info_struct *a1, void *a3)
 {
     TRACE("FEText::unmash");
-    if constexpr (1)
-    {
+    if constexpr (1) {
         a1->unmash_class_in_place(this->field_1C, this);
         a1->unmash_class_in_place(this->field_50, this);
-    }
-    else
-    {
-        void (__fastcall *func)(void *, void *, mash_info_struct *, void *) = CAST(func, get_vfunc(m_vtbl, 0x4));
+    } else {
+        void(__fastcall * func)(void *, void *, mash_info_struct *, void *) = CAST(func, get_vfunc(m_vtbl, 0x4));
         func(this, nullptr, a1, a3);
     }
 }
@@ -56,11 +46,11 @@ int FEText::_get_mash_sizeof()
 #endif
 }
 
-void FEText::Draw() {
+void FEText::Draw()
+{
     //sp_log("Draw:");
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         if (this->IsShown() && !(this->field_1C == mString{""})) {
             auto color = this->field_4C;
             if ((this->field_64 & 8) != 0) {
@@ -68,7 +58,7 @@ void FEText::Draw() {
             }
 
             auto alpha = color.get_alpha();
-            uint8_t v2 = (uint64_t) ((double) alpha * this->field_4);
+            uint8_t v2 = (uint64_t)((double)alpha * this->field_4);
 
             color.set_alpha(v2);
             if ((this->field_64 & 1) == 0) {
@@ -82,7 +72,8 @@ void FEText::Draw() {
             auto a3 = this->field_34[0];
 
             {
-                void (__fastcall *field_108)(FEText *, void *, void *, void *) = CAST(field_108, get_vfunc(this->m_vtbl, 0x108));
+                void(__fastcall * field_108)(FEText *, void *, void *, void *) =
+                    CAST(field_108, get_vfunc(this->m_vtbl, 0x108));
                 field_108(this, nullptr, &a3, &a4);
             }
 
@@ -109,26 +100,27 @@ void FEText::_TurnOn(bool a2)
 
 void FEText::TurnOn(bool a2)
 {
-    void (__fastcall *func)(void *, void *edx, bool) = CAST(func, get_vfunc(m_vtbl, 0x64));
+    void(__fastcall * func)(void *, void *edx, bool) = CAST(func, get_vfunc(m_vtbl, 0x64));
     func(this, nullptr, a2);
-
 }
 
-mString FEText::_GetName() const {
+mString FEText::_GetName() const
+{
     return this->field_50;
 }
 
 mString FEText::GetName() const
 {
-    void (__fastcall *func)(const void *, void *edx, mString *out) = CAST(func, get_vfunc(m_vtbl, 0xB0));
+    void(__fastcall * func)(const void *, void *edx, mString *out) = CAST(func, get_vfunc(m_vtbl, 0xB0));
 
-    mString v1 {};
+    mString v1{};
     func(this, nullptr, &v1);
     return v1;
 }
 
-void FEText::Update(Float a2) {
-    void (__fastcall *func)(FEText *, void *, Float) = CAST(func, get_vfunc(m_vtbl, 0x18));
+void FEText::Update(Float a2)
+{
+    void(__fastcall * func)(FEText *, void *, Float) = CAST(func, get_vfunc(m_vtbl, 0x18));
     func(this, nullptr, a2);
 }
 
@@ -136,30 +128,31 @@ void FEText::_SetText(global_text_enum a2)
 {
     TRACE("FEText::SetText");
 
-    if constexpr(0)
-    {
+    if constexpr (0) {
         auto *table = g_game_ptr->field_7C;
-        mString v3 {table->lookup_localized_string(a2)};
+        mString v3{table->lookup_localized_string(a2)};
         this->SetTextNoLocalize(*bit_cast<FEText::string *>(&v3));
     } else {
-        void (__fastcall *func)(FEText *, void *, global_text_enum) = CAST(func, 0x00617760);
+        void(__fastcall * func)(FEText *, void *, global_text_enum) = CAST(func, 0x00617760);
         func(this, nullptr, a2);
     }
 }
 
 void FEText::SetText(global_text_enum a2)
 {
-    void (__fastcall *func)(FEText *, void *, global_text_enum) = CAST(func, get_vfunc(m_vtbl, 0x88));
+    void(__fastcall * func)(FEText *, void *, global_text_enum) = CAST(func, get_vfunc(m_vtbl, 0x88));
     func(this, nullptr, a2);
 }
 
 
-void FEText::SetPos(Float a2, Float a3) {
-    void (__fastcall *func)(FEText *, void *, Float, Float) = CAST(func, get_vfunc(m_vtbl, 0x90));
+void FEText::SetPos(Float a2, Float a3)
+{
+    void(__fastcall * func)(FEText *, void *, Float, Float) = CAST(func, get_vfunc(m_vtbl, 0x90));
     func(this, nullptr, a2, a3);
 }
 
-void FEText::SetNoFlash(color32 a2) {
+void FEText::SetNoFlash(color32 a2)
+{
     this->field_4C = a2;
     this->field_64 = ((this->field_64 & 0xF7) | 1);
 }
@@ -172,25 +165,23 @@ void FEText::_SetNoColor()
 
 void FEText::SetNoColor()
 {
-    void (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0xAC));
+    void(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0xAC));
     func(this);
 }
 
 void FEText::SetScale(Float a2, Float a3)
 {
-    if constexpr (1)
-    {
-        float (__fastcall *func)(FEText *, void *, Float, Float) = CAST(func, get_vfunc(m_vtbl, 0x78));
+    if constexpr (1) {
+        float(__fastcall * func)(FEText *, void *, Float, Float) = CAST(func, get_vfunc(m_vtbl, 0x78));
         func(this, nullptr, a2, a3);
-    }
-    else
-    {
+    } else {
         this->field_3C = a2;
         this->field_40 = a3;
     }
 }
 
-void FEText::SetScale(Float a2) {
+void FEText::SetScale(Float a2)
+{
     this->field_3C = a2;
     this->field_40 = a2;
 }
@@ -202,36 +193,38 @@ struct string {
     void *field_C;
 };
 
-void FEText::_SetTextNoLocalize(string a1) {
+void FEText::_SetTextNoLocalize(string a1)
+{
     TRACE("FEText::SetTextNoLocalize");
 
     mString *v1 = CAST(v1, &a1);
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         this->field_1C = *v1;
-    }
-    else
-    {
-        void (__fastcall *func)(FEText *, void *, string) = CAST(func, 0x0043C410);
+    } else {
+        void(__fastcall * func)(FEText *, void *, string) = CAST(func, 0x0043C410);
         func(this, nullptr, a1);
     }
 }
 
-void FEText::SetTextNoLocalize(string a1) {
-    void (__fastcall *func)(FEText *, void *, string) = CAST(func, get_vfunc(m_vtbl, 0x8C));
+void FEText::SetTextNoLocalize(string a1)
+{
+    void(__fastcall * func)(FEText *, void *, string) = CAST(func, get_vfunc(m_vtbl, 0x8C));
     func(this, nullptr, a1);
 }
 
-void FEText::SetX(Float a2) {
+void FEText::SetX(Float a2)
+{
     this->field_34[0] = a2;
 }
 
-void FEText::SetY(Float a2) {
+void FEText::SetY(Float a2)
+{
     this->field_34[1] = a2 - flt_965BDC;
 }
 
-bool FEText::GetFlag(int a2) {
+bool FEText::GetFlag(int a2)
+{
     return (this->field_64 & a2) != 0;
 }
 
@@ -264,7 +257,8 @@ void FEText::AdjustForJustification(float *a2, float *a3)
     }
 }
 
-void FEText::SetFlash(color32 a2, color32 a3, Float a4) {
+void FEText::SetFlash(color32 a2, color32 a3, Float a4)
+{
     this->field_4C = a2;
     auto *v5 = this->flash_info;
     this->field_64 |= 9u;
@@ -276,21 +270,23 @@ void FEText::SetFlash(color32 a2, color32 a3, Float a4) {
     }
 }
 
-float FEText::GetX() {
-    float (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0xD4));
+float FEText::GetX()
+{
+    float(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0xD4));
 
     return func(this);
 }
 
-float FEText::GetY() {
-    float (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0xD8));
+float FEText::GetY()
+{
+    float(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0xD8));
 
     return func(this);
 }
 
 void FEText::SetNumLines(int a2)
 {
-    void (__fastcall *func)(void *, void *edx, int) = CAST(func, get_vfunc(m_vtbl, 0x144));
+    void(__fastcall * func)(void *, void *edx, int) = CAST(func, get_vfunc(m_vtbl, 0x144));
 
     return func(this, nullptr, a2);
 }
@@ -315,7 +311,6 @@ void FEText_patch()
     }
 
 
-
     if constexpr (0) {
         {
             FUNC_ADDRESS(address, &FEText::Update);
@@ -326,8 +321,7 @@ void FEText_patch()
             FUNC_ADDRESS(address, &FEText::Draw);
             set_vfunc(0x0087A034, address);
 
-            void (*p_func)(nglFont *, const char *,
-                    Float, Float, Float, uint32_t, Float, Float) = &nglListAddString;
+            void (*p_func)(nglFont *, const char *, Float, Float, Float, uint32_t, Float, Float) = &nglListAddString;
             REDIRECT(0x00617745, p_func);
         }
 

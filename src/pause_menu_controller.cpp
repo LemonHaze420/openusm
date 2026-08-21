@@ -12,20 +12,23 @@
 
 VALIDATE_SIZE(pause_menu_controller, 0x218u);
 
-pause_menu_controller::pause_menu_controller(FEMenuSystem *a2, int a3, int a4)
-    : FEMenu(a2, 0, a3, a4, 8, 0) {
+pause_menu_controller::pause_menu_controller(FEMenuSystem *a2, int a3, int a4) : FEMenu(a2, 0, a3, a4, 8, 0)
+{
     THISCALL(0x00610AD0, this, a2, a3, a4);
 }
 
-void pause_menu_controller::load_ps2_spider(PanelFile *a2) {
+void pause_menu_controller::load_ps2_spider(PanelFile *a2)
+{
     THISCALL(0x0063C710, this, a2);
 }
 
-void pause_menu_controller::load_ps2_venom(PanelFile *a2) {
+void pause_menu_controller::load_ps2_venom(PanelFile *a2)
+{
     THISCALL(0x0063CC50, this, a2);
 }
 
-void pause_menu_controller::_Load() {
+void pause_menu_controller::_Load()
+{
     TRACE("pause_menu_controller::_Load");
 
     auto *v2 = this->field_214->field_2C;
@@ -66,23 +69,24 @@ void pause_menu_controller::_Load() {
 
 static Var<int> dword_960E14{0x00960E14};
 
-void sub_579030() {
+void sub_579030()
+{
     dword_960E14() = 0;
 }
 
-void pause_menu_controller::OnActivate() {
+void pause_menu_controller::OnActivate()
+{
     auto *v2 = this->field_214->field_30;
     v2->field_4 = {};
     v2->field_28 = 0;
     v2->AddButtons(menu_nav_bar::button_type{2}, menu_nav_bar::button_type{17}, static_cast<global_text_enum>(8));
-    v2->AddButtons(menu_nav_bar::button_type{15},
-                   menu_nav_bar::button_type{17},
-                   static_cast<global_text_enum>(3));
+    v2->AddButtons(menu_nav_bar::button_type{15}, menu_nav_bar::button_type{17}, static_cast<global_text_enum>(3));
     v2->Reformat();
     sub_579030();
 }
 
-void pause_menu_controller_patch() {
+void pause_menu_controller_patch()
+{
     {
         FUNC_ADDRESS(address, &pause_menu_controller::_Load);
         set_vfunc(0x00894210, address);

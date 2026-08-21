@@ -14,7 +14,8 @@ struct text_file {
     //0x005BC240
     text_file();
 
-    auto get_name() const {
+    auto get_name() const
+    {
         return field_34;
     }
 

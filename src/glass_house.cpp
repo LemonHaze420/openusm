@@ -10,15 +10,13 @@
 
 VALIDATE_SIZE(glass_house, 0x14);
 
-glass_house::glass_house(from_mash_in_place_constructor *a2) : field_0(a2), obbs(a2) {
-}
+glass_house::glass_house(from_mash_in_place_constructor *a2) : field_0(a2), obbs(a2) {}
 
 void glass_house::render()
 {
     TRACE("glass_house::render");
 
-    for (auto i = 0; i < obbs.size(); ++i)
-    {
+    for (auto i = 0; i < obbs.size(); ++i) {
         auto &v7 = obbs.at(i);
 
         vector3d a1[8]{};
@@ -62,10 +60,10 @@ void glass_house::destruct_mashed_class()
     this->obbs.destruct_mashed_class();
 }
 
-void glass_house::unmash(mash_info_struct *a1, void *) {
+void glass_house::unmash(mash_info_struct *a1, void *)
+{
     TRACE("glass_house::unmash");
 
     a1->unmash_class_in_place(this->field_0, nullptr);
     a1->unmash_class_in_place(this->obbs, nullptr);
 }
-

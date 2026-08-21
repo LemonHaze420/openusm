@@ -7,7 +7,8 @@
 
 VALIDATE_SIZE(lookat_target_controller, 0x24u);
 
-lookat_target_controller::lookat_target_controller(entity_base *a2) {
+lookat_target_controller::lookat_target_controller(entity_base *a2)
+{
     this->field_4 = true;
     this->field_5 = false;
     this->field_8 = a2;
@@ -26,8 +27,7 @@ void lookat_target_controller::_frame_advance(Float)
 {
     TRACE("lookat_target_controller::frame_advance");
 
-    if (this->field_4)
-    {
+    if (this->field_4) {
         auto v3 = this->field_18;
         auto v4 = this->field_1C.m_heading;
 
@@ -49,7 +49,8 @@ void lookat_target_controller::_frame_advance(Float)
     }
 }
 
-bool lookat_target_controller::_is_mouselook_controller() const {
+bool lookat_target_controller::_is_mouselook_controller() const
+{
     return false;
 }
 

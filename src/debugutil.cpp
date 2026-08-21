@@ -7,7 +7,8 @@
 #include <stdarg.h>
 #include <string.h>
 
-void debug_print_va(const char *fmtp, ...) {
+void debug_print_va(const char *fmtp, ...)
+{
     va_list va;
     va_start(va, fmtp);
 

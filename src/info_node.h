@@ -26,11 +26,13 @@ struct info_node : mash_virtual_base {
 
     void initialize(mash::allocation_scope a2);
 
-    actor * get_actor() const {
+    actor *get_actor() const
+    {
         return this->field_C;
     }
 
-    ai_core * get_core() {
+    ai_core *get_core()
+    {
         return this->field_8;
     }
 
@@ -54,4 +56,4 @@ struct info_node : mash_virtual_base {
     void reset();
 };
 
-} // namespace ai
+}  // namespace ai

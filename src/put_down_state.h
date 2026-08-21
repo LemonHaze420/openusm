@@ -11,4 +11,4 @@ struct put_down_state {
     static const inline string_hash default_id{static_cast<int>(to_hash("put_down"))};
 };
 
-} // namespace ai
+}  // namespace ai

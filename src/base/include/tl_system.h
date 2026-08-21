@@ -15,13 +15,14 @@ extern void *tlMemAlloc(uint32_t Size, uint32_t Alignment, uint32_t Flags);
 //0x0074A600
 extern void tlMemFree(void *Ptr);
 
-template<typename T0, typename T1>
+template <typename T0, typename T1>
 struct tlInstanceBankResourceDirectory : tlResourceDirectory<T0, T1> {
     struct Node {
         T0 *field_0;
         Node *field_4[1];
 
-        T1 *GetString() {
+        T1 *GetString()
+        {
             return T0::get_string(this->field_0);
         }
     };
@@ -32,7 +33,8 @@ struct tlInstanceBankResourceDirectory : tlResourceDirectory<T0, T1> {
         Node *field_8;
         int m_size;
 
-        Impl() {
+        Impl()
+        {
             this->field_0 = rand();
             this->field_4 = 7;
             this->field_8 = nullptr;
@@ -74,9 +76,9 @@ struct tlInstanceBankResourceDirectory : tlResourceDirectory<T0, T1> {
             }
         }
 
-        T0 * Find(const T1 &a2)
+        T0 *Find(const T1 &a2)
         {
-            if ( this->field_8 == nullptr ) {
+            if (this->field_8 == nullptr) {
                 return nullptr;
             }
 
@@ -84,22 +86,20 @@ struct tlInstanceBankResourceDirectory : tlResourceDirectory<T0, T1> {
             int size = this->m_size;
 
             Node *v6;
-            do
-            {
-                while ( 1 )
-                {
+            do {
+                while (1) {
                     v6 = v7->field_4[size];
-                    if ( v6 == nullptr ) {
+                    if (v6 == nullptr) {
                         break;
                     }
 
                     auto *v3 = v6->GetString();
                     auto v5 = v3->compare(a2);
-                    if ( v5 == 0 ) {
+                    if (v5 == 0) {
                         return v6->field_0;
                     }
 
-                    if ( v5 > 0 ) {
+                    if (v5 > 0) {
                         break;
                     }
 
@@ -107,10 +107,9 @@ struct tlInstanceBankResourceDirectory : tlResourceDirectory<T0, T1> {
                 }
 
                 --size;
-            }
-            while ( size >= 0 );
+            } while (size >= 0);
 
-            if ( v6 != nullptr ) {
+            if (v6 != nullptr) {
                 auto v4 = *v6->GetString();
                 if (v4 == a2) {
                     return v6->field_0;
@@ -120,7 +119,7 @@ struct tlInstanceBankResourceDirectory : tlResourceDirectory<T0, T1> {
             return nullptr;
         }
 
-        void * Add(T0 *a1)
+        void *Add(T0 *a1)
         {
             if (this->field_8 == nullptr) {
                 this->Init();
@@ -176,7 +175,7 @@ struct tlInstanceBankResourceDirectory : tlResourceDirectory<T0, T1> {
 
         bool Del(T0 *a2)
         {
-            if ( this->field_8 == nullptr ) {
+            if (this->field_8 == nullptr) {
                 return false;
             }
 
@@ -186,20 +185,18 @@ struct tlInstanceBankResourceDirectory : tlResourceDirectory<T0, T1> {
             auto i = size;
 
             Node *a1;
-            Node *v8[16] {};
+            Node *v8[16]{};
 
-            do
-            {
-                while ( 1 )
-                {
+            do {
+                while (1) {
                     a1 = v6->field_4[i];
-                    if ( a1 == nullptr ) {
+                    if (a1 == nullptr) {
                         break;
                     }
 
                     auto v4 = string;
                     auto v3 = T0::get_string(a1->field_0);
-                    if ( v3->compare(*v4) >= 0 ) {
+                    if (v3->compare(*v4) >= 0) {
                         break;
                     }
 
@@ -207,17 +204,15 @@ struct tlInstanceBankResourceDirectory : tlResourceDirectory<T0, T1> {
                 }
 
                 v8[i--] = v6;
-            }
-            while ( i >= 0 );
+            } while (i >= 0);
 
-            if ( !a1 || (T0 *)a1->field_0 != a2 ) {
+            if (!a1 || (T0 *)a1->field_0 != a2) {
                 return false;
             }
 
-            for ( i = 0; i <= size; ++i )
-            {
+            for (i = 0; i <= size; ++i) {
                 auto *v7 = v8[i];
-                if ( v7->field_4[i] != a1 ) {
+                if (v7->field_4[i] != a1) {
                     break;
                 }
 
@@ -225,7 +220,7 @@ struct tlInstanceBankResourceDirectory : tlResourceDirectory<T0, T1> {
             }
 
             tlMemFree(a1);
-            while ( !this->field_8->field_4[size] && size > 0 ) {
+            while (!this->field_8->field_4[size] && size > 0) {
                 --size;
             }
 
@@ -233,7 +228,8 @@ struct tlInstanceBankResourceDirectory : tlResourceDirectory<T0, T1> {
             return 1;
         }
 
-        Node *NewNodeOfLevel(int count) {
+        Node *NewNodeOfLevel(int count)
+        {
             return static_cast<Node *>(tlMemAlloc(4 * count + sizeof(Node), 8, 0x1000000u));
         }
     };
@@ -245,12 +241,14 @@ struct tlInstanceBankResourceDirectory : tlResourceDirectory<T0, T1> {
         Impl *field_4;
         Node *field_8;
 
-        SkipListIterator(Impl *a2) : field_4(a2) {
+        SkipListIterator(Impl *a2) : field_4(a2)
+        {
             this->m_vtbl = 0x008BDDC0;
         }
 
         //virtual
-        void finalize(bool a2) {
+        void finalize(bool a2)
+        {
             this->~SkipListIterator();
             if (a2) {
                 tlMemFree(this);
@@ -273,63 +271,65 @@ struct tlInstanceBankResourceDirectory : tlResourceDirectory<T0, T1> {
 
     tlInstanceBankResourceDirectory()
     {
-        T0 * (tlResourceDirectory<T0, T1>::*Find1)(unsigned int) = &tlResourceDirectory<T0, T1>::_Find;
-        static void * g_vtbl[] = {
-            func_address(&finalize),
-            func_address(&base_type::DirectoryName),
-            func_address(Find1),
-            func_address(&_Find),
-            func_address(&_Add),
-            func_address(&_Del),
-            func_address(&_Enumerate),
-            func_address(&base_type::_ReleaseAll),
-            func_address(&base_type::Load),
-            func_address(&base_type::Load),
-            func_address(&base_type::_Release)
-        };
+        T0 *(tlResourceDirectory<T0, T1>::*Find1)(unsigned int) = &tlResourceDirectory<T0, T1>::_Find;
+        static void *g_vtbl[] = {func_address(&finalize),
+                                 func_address(&base_type::DirectoryName),
+                                 func_address(Find1),
+                                 func_address(&_Find),
+                                 func_address(&_Add),
+                                 func_address(&_Del),
+                                 func_address(&_Enumerate),
+                                 func_address(&base_type::_ReleaseAll),
+                                 func_address(&base_type::Load),
+                                 func_address(&base_type::Load),
+                                 func_address(&base_type::_Release)};
 
         this->m_vtbl = CAST(this->m_vtbl, &g_vtbl);
     }
 
     //virtual
-    void finalize(bool a2) {
+    void finalize(bool a2)
+    {
         this->~tlInstanceBankResourceDirectory();
         if (a2) {
-            delete(this);
+            delete (this);
         }
     }
 
     //virtual
-    void * _Add(T0 *a1) {
+    void *_Add(T0 *a1)
+    {
         return this->field_4.Add(a1);
     }
 
     //virtual
-    bool _Del(T0 *a1) {
+    bool _Del(T0 *a1)
+    {
         return this->field_4.Del(a1);
     }
 
     //virtual
-    SkipListIterator * _Enumerate() {
-        auto *mem = tlMemAlloc(
-                sizeof(SkipListIterator),
-                8u,
-                0x2000000u);
+    SkipListIterator *_Enumerate()
+    {
+        auto *mem = tlMemAlloc(sizeof(SkipListIterator), 8u, 0x2000000u);
 
-        auto *result = new (mem) SkipListIterator {&this->field_4};
+        auto *result = new (mem) SkipListIterator{&this->field_4};
         return result;
     }
 
     //virtual
-    T0 * _Find(const T1 &a1) {
+    T0 *_Find(const T1 &a1)
+    {
         return this->field_4.Find(a1);
     }
 
-    void * operator new(std::size_t sz) {
+    void *operator new(std::size_t sz)
+    {
         return tlMemAlloc(sz, 8u, 0x1000000u);
     }
 
-    void operator delete(void *ptr) {
+    void operator delete(void *ptr)
+    {
         tlMemFree(ptr);
     }
 };
@@ -353,17 +353,18 @@ struct tlInitList {
     std::intptr_t m_vtbl;
     tlInitList *field_4;
 
-    tlInitList() {
+    tlInitList()
+    {
         this->field_4 = head;
         head = this;
     }
 
-    /* virtual */ void Register(); // = 0;
+    /* virtual */ void Register();  // = 0;
 
 #if !STANDALONE_SYSTEM
-    static inline auto & head = var<tlInitList *>(0x00970D4C);
+    static inline auto &head = var<tlInitList *>(0x00970D4C);
 #else
-    static inline tlInitList * head = nullptr;
+    static inline tlInitList *head = nullptr;
 #endif
 };
 
@@ -374,16 +375,16 @@ struct tlInitListFunction : tlInitList {
     tlInitListFunction(void (*cb)());
 
     //virtual
-    void _Register(); // override;
+    void _Register();  // override;
 };
 
 struct tlInstanceBank;
 
-extern tlInstanceBank & nglShaderBank;
+extern tlInstanceBank &nglShaderBank;
 
-extern int & tlScratchPadRefCount;
+extern int &tlScratchPadRefCount;
 
-extern tlSystemCallbacks & tlCurSystemCallbacks;
+extern tlSystemCallbacks &tlCurSystemCallbacks;
 
 //0x00749FD0
 extern void tlInitListInit();

@@ -4,7 +4,8 @@
 
 race_announcer::race_announcer() {}
 
-void race_announcer::Init() {
+void race_announcer::Init()
+{
     if (this->field_0 == nullptr) {
         this->field_0 = PanelFile::UnmashPanelFile("race_announcer", static_cast<panel_layer>(7));
 
@@ -24,8 +25,7 @@ void race_announcer::Init() {
         this->field_4 = *this->field_0->field_28.m_data;
     }
 
-    if (this->field_0 != nullptr)
-    {
+    if (this->field_0 != nullptr) {
         this->field_8->TurnOn(false);
         auto **v2 = &this->field_C;
         auto v3 = 3;
@@ -38,7 +38,8 @@ void race_announcer::Init() {
     }
 }
 
-void race_announcer::DeInit() {
+void race_announcer::DeInit()
+{
     if (this->field_0 != nullptr) {
         this->field_0 = nullptr;
     }

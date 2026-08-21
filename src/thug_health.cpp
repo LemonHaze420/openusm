@@ -14,7 +14,7 @@ thug_health::thug_health()
 
     this->field_4 = nullptr;
 
-    for ( int i = 0; i < 30; ++i ) {
+    for (int i = 0; i < 30; ++i) {
         this->field_1C[i].field_0 = false;
     }
 }
@@ -23,8 +23,7 @@ void thug_health::init()
 {
     TRACE("thug_health::init");
 
-    if ( this->field_4 == nullptr )
-    {
+    if (this->field_4 == nullptr) {
         this->field_4 = PanelFile::UnmashPanelFile("healthbar_thug", static_cast<panel_layer>(7));
 
         this->field_8 = this->field_4->GetPQ("thug_health_green");

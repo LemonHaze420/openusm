@@ -4,8 +4,7 @@
 
 #include <cstdint>
 
-struct event
-{
+struct event {
     std::intptr_t m_vtbl;
     string_hash field_4;
     int field_8;
@@ -15,9 +14,10 @@ struct event
 
     void _finalize(bool a2);
 
-#define create_string_hash(name)           \
-    static inline const string_hash name { \
-        static_cast<int>(to_hash(#name))   \
+#define create_string_hash(name)         \
+    static inline const string_hash name \
+    {                                    \
+        static_cast<int>(to_hash(#name)) \
     }
 
     create_string_hash(ANIM_ACTION);

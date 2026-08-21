@@ -1,7 +1,6 @@
 #pragma once
 
-template<typename T>
+template <typename T>
 struct QuatsEntCompDecomp {
-    struct StdPoseData {
-    };
+    struct StdPoseData {};
 };

@@ -16,11 +16,12 @@ struct nalPanelAnim {
     std::intptr_t m_vtbl;
     uint32_t field_4;
 
-    bool CheckVersion() {
+    bool CheckVersion()
+    {
         return this->field_4 == 0x300;
     }
 
-    static int & vtbl_ptr;
+    static int &vtbl_ptr;
 };
 
-} // namespace nalPanel
+}  // namespace nalPanel

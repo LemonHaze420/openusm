@@ -12,71 +12,54 @@ void animation_logic_system_interface::frame_advance_pre_controller_all_alses(Fl
     TRACE("als::animation_logic_system_interface::frame_advance_pre_controller_all_alses");
 
     if constexpr (0) {
-        for ( auto &v : the_als_list())
-        {
+        for (auto &v : the_als_list()) {
             v.field_4 = v.field_0->frame_advance_should_do_frame_advance(a1);
         }
 
-        for ( auto &v : the_als_list())
-        {
-            if ( v.field_4 )
-            {
+        for (auto &v : the_als_list()) {
+            if (v.field_4) {
                 v.field_0->frame_advance_main_als_advance(a1);
             }
         }
 
-        for ( auto &v : the_als_list())
-        {
-            if ( v.field_4 )
-            {
+        for (auto &v : the_als_list()) {
+            if (v.field_4) {
                 v.field_0->frame_advance_post_request_processing(a1);
             }
         }
 
-        for ( auto &v: the_als_list())
-        {
-            if ( v.field_4 )
-            {
+        for (auto &v : the_als_list()) {
+            if (v.field_4) {
                 v.field_0->frame_advance_on_layer_trans(a1);
             }
         }
 
-        for ( auto &v : the_als_list() )
-        {
-            if ( v.field_4 )
-            {
+        for (auto &v : the_als_list()) {
+            if (v.field_4) {
                 v.field_0->frame_advance_post_logic_processing(a1);
             }
         }
 
-        for ( auto &v : the_als_list() )
-        {
-            if ( v.field_4 )
-            {
+        for (auto &v : the_als_list()) {
+            if (v.field_4) {
                 v.field_0->frame_advance_play_new_animations(a1);
             }
         }
 
-        for ( auto &v : the_als_list() )
-        {
-            if ( v.field_4 )
-            {
+        for (auto &v : the_als_list()) {
+            if (v.field_4) {
                 v.field_0->frame_advance_update_pending_params(a1);
             }
         }
 
-        for ( auto &v : the_als_list() )
-        {
-            if ( v.field_4 )
-            {
+        for (auto &v : the_als_list()) {
+            if (v.field_4) {
                 v.field_0->frame_advance_change_mocomp(a1);
             }
         }
 
-        for ( auto &v : the_als_list() )
-        {
-            if ( v.field_4 )
-            {
+        for (auto &v : the_als_list()) {
+            if (v.field_4) {
                 v.field_0->frame_advance_run_mocomp_pre_anim(a1);
             }
         }
@@ -113,17 +96,18 @@ void animation_logic_system_interface::force_update()
 }
 
 
-}
+}  // namespace als
 
-void als_animation_logic_system_interface_patch() {
+void als_animation_logic_system_interface_patch()
+{
     REDIRECT(0x00537181, als::animation_logic_system_interface::frame_advance_pre_controller_all_alses);
 
     {
-        void (als::animation_logic_system_interface::*func)(Float) = &als::animation_logic_system_interface::force_update;
+        void (als::animation_logic_system_interface::*func)(Float) =
+            &als::animation_logic_system_interface::force_update;
         FUNC_ADDRESS(address, func);
         REDIRECT(0x00498D05, address);
         REDIRECT(0x00625FA1, address);
         REDIRECT(0x00642267, address);
     }
 }
-

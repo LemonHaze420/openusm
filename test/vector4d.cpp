@@ -19,7 +19,6 @@ TEST(Vector4d, Equal)
 
     EXPECT_TRUE(approx_equals(a2, result, LARGE_EPSILON));
     EXPECT_TRUE(approx_equals(a3, result, LARGE_EPSILON));
-
 }
 
 TEST(Vector4d, Test1)

@@ -18,11 +18,10 @@ struct als_meta_anim_table_shared;
 
 struct nalAnyPose;
 
-template<typename T>
+template <typename T>
 struct nalAnimClass;
 
 struct animation_controller {
-
     struct anim_ctrl_handle {
         bool field_0;
         float field_4;
@@ -50,11 +49,7 @@ struct animation_controller {
     unsigned int field_10;
 
     //0x00492530
-    animation_controller(
-        actor *a2,
-        nalBaseSkeleton *a3,
-        unsigned int a4,
-        const als::als_meta_anim_table_shared *a5);
+    animation_controller(actor *a2, nalBaseSkeleton *a3, unsigned int a4, const als::als_meta_anim_table_shared *a5);
 
     ~animation_controller();
 
@@ -64,38 +59,19 @@ struct animation_controller {
 
     anim_ctrl_handle get_base_anim_handle();
 
-    anim_ctrl_handle play_layer_anim(
-            const string_hash &a3,
-            unsigned int a4,
-            Float a5,
-            unsigned int a6,
-            bool a7,
-            als::layer_types);
+    anim_ctrl_handle play_layer_anim(const string_hash &a3, unsigned int a4, Float a5, unsigned int a6, bool a7,
+                                     als::layer_types);
 
-    anim_ctrl_handle *_play_base_layer_anim_patch(
-        anim_ctrl_handle *,
-        const string_hash &a3,
-        Float a4,
-        uint32_t a5,
-        bool a6);
+    anim_ctrl_handle *_play_base_layer_anim_patch(anim_ctrl_handle *, const string_hash &a3, Float a4, uint32_t a5,
+                                                  bool a6);
 
-    anim_ctrl_handle play_base_layer_anim(
-        const string_hash &a3,
-        Float a4,
-        uint32_t a5,
-        bool a6);
+    anim_ctrl_handle play_base_layer_anim(const string_hash &a3, Float a4, uint32_t a5, bool a6);
 
     //virtual
     void play_layer_anim(nalAnimClass<nalAnyPose> *, Float, Float, uint32_t, bool, void *) /* = 0 */;
 
     //virtual
-    void play_base_layer_anim(
-        nalAnimClass<nalAnyPose> *a2,
-        Float a3,
-        Float a4,
-        bool a5,
-        bool a6,
-        void *a7) /* = 0 */;
+    void play_base_layer_anim(nalAnimClass<nalAnyPose> *a2, Float a3, Float a4, bool a5, bool a6, void *a7) /* = 0 */;
 
     //virtual
     void kill_domain(uint32_t, Float) /* = 0 */;
@@ -134,10 +110,10 @@ struct animation_controller {
     void reset();
 
     //virtual
-    void * get_base_layer_anim_ptr();
+    void *get_base_layer_anim_ptr();
 
     //virtual
-    void * get_anim_ptr(Float);
+    void *get_anim_ptr(Float);
 
     //virtual
     void offscreen_frame_advance(Float);

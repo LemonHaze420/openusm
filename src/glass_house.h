@@ -7,8 +7,7 @@ struct from_mash_in_place_constructor;
 struct mash_info_struct;
 struct subdivision_node_large_obb;
 
-struct glass_house
-{
+struct glass_house {
     string_hash field_0;
     mVectorBasic<subdivision_node_large_obb> obbs;
 

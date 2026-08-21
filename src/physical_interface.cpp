@@ -26,7 +26,7 @@ VALIDATE_SIZE(physical_interface, 0x1B0);
 
 std::reference_wrapper<int[512]> physical_interface::rotators = var<int[512]>(0x0095AF78);
 
-int & physical_interface::rotators_num = var<int>(0x0095A6B8);
+int &physical_interface::rotators_num = var<int>(0x0095A6B8);
 
 static constexpr float MAX_ASSERT_PHYSICAL_VELOCITY = 500.f;
 
@@ -60,8 +60,7 @@ physical_interface::physical_interface(actor *a2) : field_188(), field_198()
     this->field_185 = 0;
     this->field_186 = 0;
 
-    if (!g_generating_vtables)
-    {
+    if (!g_generating_vtables) {
         this->add_to_phys_ifc_list();
         this->field_174 = nullptr;
         this->m_bp_sys = nullptr;
@@ -138,15 +137,18 @@ void physical_interface::get_parent_terrain_type(string_hash *a2)
     THISCALL(0x004C93E0, this, a2);
 }
 
-bool physical_interface::set_ifc_num(const resource_key &a2, Float a3, bool a4) {
-    return (bool) THISCALL(0x004C9500, this, &a2, a3, a4);
+bool physical_interface::set_ifc_num(const resource_key &a2, Float a3, bool a4)
+{
+    return (bool)THISCALL(0x004C9500, this, &a2, a3, a4);
 }
 
-bool physical_interface::get_ifc_num(const resource_key &a2, float &a3, bool a4) {
-    return (bool) THISCALL(0x004BD160, this, &a2, &a3, a4);
+bool physical_interface::get_ifc_num(const resource_key &a2, float &a3, bool a4)
+{
+    return (bool)THISCALL(0x004BD160, this, &a2, &a3, a4);
 }
 
-void physical_interface::add_to_phys_ifc_list() {
+void physical_interface::add_to_phys_ifc_list()
+{
     THISCALL(0x004DA210, this);
 }
 
@@ -157,8 +159,7 @@ bool physical_interface::is_biped_physics_running() const
 
 biped_system *physical_interface::get_biped_system()
 {
-    if ( !this->is_biped_physics_running() )
-    {
+    if (!this->is_biped_physics_running()) {
         return nullptr;
     }
 
@@ -167,7 +168,8 @@ biped_system *physical_interface::get_biped_system()
     return this->m_bp_sys;
 }
 
-bool sub_5019B0(float *a1, float *a2, Float a3, Float a4, Float a5) {
+bool sub_5019B0(float *a1, float *a2, Float a3, Float a4, Float a5)
+{
     if (equal(float{a3}, 0.0f)) {
         return false;
     }
@@ -184,23 +186,20 @@ bool sub_5019B0(float *a1, float *a2, Float a3, Float a4, Float a5) {
     return true;
 }
 
-void physical_interface::un_mash(generic_mash_header *a2,
-                                 void *a3,
-                                 void *a4,
-                                 generic_mash_data_ptrs *a5) {
+void physical_interface::un_mash(generic_mash_header *a2, void *a3, void *a4, generic_mash_data_ptrs *a5)
+{
     THISCALL(0x004DF4A0, this, a2, a3, a4, a5);
 }
 
-void physical_interface::frame_advance_all_phys_interfaces(Float a1) {
+void physical_interface::frame_advance_all_phys_interfaces(Float a1)
+{
     TRACE("physical_interface::frame_advance_all_phys_interfaces");
 
     CDECL_CALL(0x004FB1D0, a1);
 }
 
-vector3d physical_interface::calculate_force_vector_2(const vector3d *a2,
-                                                      const vector3d *a3,
-                                                      Float a4,
-                                                      Float a5) {
+vector3d physical_interface::calculate_force_vector_2(const vector3d *a2, const vector3d *a3, Float a4, Float a5)
+{
     static const Var<float> g_gravity = (0x00921E3C);
 
     vector3d v21 = (*a3) - (*a2);
@@ -246,18 +245,20 @@ vector3d physical_interface::calculate_force_vector_2(const vector3d *a2,
     return result;
 }
 
-float physical_interface::cancel_all_velocity() {
-    return (float) THISCALL(0x004CEDA0, this);
+float physical_interface::cancel_all_velocity()
+{
+    return (float)THISCALL(0x004CEDA0, this);
 }
 
-bool physical_interface::is_effectively_standing() {
+bool physical_interface::is_effectively_standing()
+{
     return this->field_184;
 }
 
-void physical_interface::set_velocity(const vector3d &new_velocity, bool a3) {
+void physical_interface::set_velocity(const vector3d &new_velocity, bool a3)
+{
     if constexpr (1) {
-        assert(new_velocity.length2() <
-               (MAX_ASSERT_PHYSICAL_VELOCITY * MAX_ASSERT_PHYSICAL_VELOCITY));
+        assert(new_velocity.length2() < (MAX_ASSERT_PHYSICAL_VELOCITY * MAX_ASSERT_PHYSICAL_VELOCITY));
         assert(new_velocity.is_valid());
 
         if (this->field_C & 0x80000) {
@@ -286,15 +287,9 @@ void physical_interface::set_velocity(const vector3d &new_velocity, bool a3) {
                         auto v42 = 1.0f / v35->field_130;
 
                         phys_vector3d a3a;
-                        a3a.field_0[0] = (new_velocity[0] - v35->field_110[0] * v36 +
-                                          v35->field_D0[0]) *
-                            v42;
-                        a3a.field_0[1] = (new_velocity[1] - v35->field_110[1] * v36 +
-                                          v35->field_D0[1]) *
-                            v42;
-                        a3a.field_0[2] = (new_velocity[2] -
-                                          (v35->field_110[2] * v36 + v35->field_D0[2])) *
-                            v42;
+                        a3a.field_0[0] = (new_velocity[0] - v35->field_110[0] * v36 + v35->field_D0[0]) * v42;
+                        a3a.field_0[1] = (new_velocity[1] - v35->field_110[1] * v36 + v35->field_D0[1]) * v42;
+                        a3a.field_0[2] = (new_velocity[2] - (v35->field_110[2] * v36 + v35->field_D0[2])) * v42;
                         bp_sys->field_0.apply_pulse(i, a3a);
                     }
                 }
@@ -328,8 +323,7 @@ vector3d physical_interface::get_velocity() const
 {
     vector3d result;
 
-    if (this->field_C & 0x80000)
-    {
+    if (this->field_C & 0x80000) {
         auto &v3 = this->m_bp_sys->field_0.m_list_rigid_body.m_data[0]->field_D0;
 
         auto &v8 = v3;
@@ -356,14 +350,16 @@ vector3d physical_interface::get_velocity() const
     return result;
 }
 
-void physical_interface::start_biped_physics(physical_interface::biped_physics_body_types a2) {
+void physical_interface::start_biped_physics(physical_interface::biped_physics_body_types a2)
+{
     if constexpr (1) {
     } else {
         THISCALL(0x004F2460, this, a2);
     }
 }
 
-void physical_interface::set_control_parent(entity *a2) {
+void physical_interface::set_control_parent(entity *a2)
+{
     if constexpr (1) {
         if (a2 != nullptr) {
             entity_set_abs_parent(this->field_4, a2);
@@ -393,11 +389,13 @@ void physical_interface::set_control_parent(entity *a2) {
     }
 }
 
-bool physical_interface::allow_manage_standing() {
+bool physical_interface::allow_manage_standing()
+{
     return (this->field_C >> 12) & 1;
 }
 
-void physical_interface::set_allow_manage_standing(bool a2) {
+void physical_interface::set_allow_manage_standing(bool a2)
+{
     uint32_t v3;
 
     auto v2 = this->field_C;
@@ -416,7 +414,8 @@ void physical_interface::clear_static_lists()
     physical_interface::rotators_num = 0;
 }
 
-void physical_interface::set_current_gravity_vector(const vector3d &a2) {
+void physical_interface::set_current_gravity_vector(const vector3d &a2)
+{
     this->field_74 = a2;
 }
 
@@ -426,7 +425,7 @@ float physical_interface::get_floor_offset()
 
     if constexpr (1) {
         if (this->field_CC <= 0.0f) {
-            if ( this->is_biped_physics_running() || this->is_prop_physics_running() ) {
+            if (this->is_biped_physics_running() || this->is_prop_physics_running()) {
                 this->field_10C = 0.25f;
             } else {
                 this->field_10C = this->field_4->get_floor_offset();
@@ -443,11 +442,12 @@ float physical_interface::get_floor_offset()
         return this->field_10C;
 
     } else {
-        return (float) THISCALL(0x004BCC50, this);
+        return (float)THISCALL(0x004BCC50, this);
     }
 }
 
-void physical_interface::suspend(bool a2) {
+void physical_interface::suspend(bool a2)
+{
     if (a2) {
         this->field_C |= 2;
     } else {
@@ -455,10 +455,9 @@ void physical_interface::suspend(bool a2) {
     }
 }
 
-vector3d physical_interface::calculate_perfect_force_vector(const vector3d &start,
-                                                            const vector3d &target,
-                                                            Float max_y,
-                                                            Float gravity_multiplier) {
+vector3d physical_interface::calculate_perfect_force_vector(const vector3d &start, const vector3d &target, Float max_y,
+                                                            Float gravity_multiplier)
+{
     assert(start != target);
 
     auto v5 = g_gravity * gravity_multiplier * 0.5f;
@@ -484,7 +483,8 @@ vector3d physical_interface::calculate_perfect_force_vector(const vector3d &star
     return result;
 }
 
-void physical_interface::calculate_force_vector(Float a1, Float a2, float *a3, float *a4, Float a5) {
+void physical_interface::calculate_force_vector(Float a1, Float a2, float *a3, float *a4, Float a5)
+{
     *a4 = 0.0;
     *a3 = 0.0;
     auto v5 = g_gravity * a5;
@@ -510,11 +510,9 @@ bool physical_interface::is_enabled() const
 int physical_interface::get_num_active_pendulums() const
 {
     int v3 = 0;
-    for ( auto &p : this->field_110 )
-    {
-        if ( p != nullptr )
-        {
-            if ( p->m_active ) {
+    for (auto &p : this->field_110) {
+        if (p != nullptr) {
+            if (p->m_active) {
                 ++v3;
             }
         }
@@ -523,7 +521,8 @@ int physical_interface::get_num_active_pendulums() const
     return v3;
 }
 
-void physical_interface::enable(bool a2) {
+void physical_interface::enable(bool a2)
+{
     if (a2) {
         this->field_C |= 1;
     } else {
@@ -536,29 +535,25 @@ void physical_interface::set_pendulum(int num, pendulum *a3)
 {
     assert(num >= 0 && num < PHYS_IFC_MAX_PENDULUM_CONSTRAINTS);
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         auto *v4 = this->field_110[num];
-        if ( v4 != nullptr && v4 != a3 )
-        {
+        if (v4 != nullptr && v4 != a3) {
             v4->sub_4BD990(this);
         }
 
-        if ( a3 != nullptr && this->field_110[num] != a3 )
-        {
+        if (a3 != nullptr && this->field_110[num] != a3) {
             a3->biped_physics_constraint = nullptr;
             a3->pivot_rigid_body = nullptr;
         }
 
         this->field_110[num] = a3;
-    }
-    else
-    {
+    } else {
         THISCALL(0x004D19E0, this, num, a3);
-    }    
+    }
 }
 
-void physical_interface::set_gravity(bool a2) {
+void physical_interface::set_gravity(bool a2)
+{
     unsigned int v2 = this->field_C;
     if (((v2 >> 2) & 1) != a2) {
         if (a2) {
@@ -571,21 +566,18 @@ void physical_interface::set_gravity(bool a2) {
     }
 }
 
-vector3d physical_interface::apply_positional_constraints(
-        Float a3,
-        const vector3d &a4,
-        bool a5)
+vector3d physical_interface::apply_positional_constraints(Float a3, const vector3d &a4, bool a5)
 {
     vector3d result;
     THISCALL(0x004ECCD0, this, &result, a3, &a4, a5);
     return result;
 }
 
-void physical_interface::apply_force_increment_in_biped_physics_mode(
-    const vector3d &a2, physical_interface::force_type a3, const vector3d &a4, int a5)
+void physical_interface::apply_force_increment_in_biped_physics_mode(const vector3d &a2,
+                                                                     physical_interface::force_type a3,
+                                                                     const vector3d &a4, int a5)
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         biped_system *v5 = nullptr;
         if ((this->field_C & 0x80000) != 0) {
             v5 = this->m_bp_sys;
@@ -622,10 +614,9 @@ void physical_interface::apply_force_increment_in_biped_physics_mode(
     }
 }
 
-void physical_interface::apply_force_increment(const vector3d &a2,
-                                               physical_interface::force_type arg4,
-                                               const vector3d &a4,
-                                               int a5) {
+void physical_interface::apply_force_increment(const vector3d &a2, physical_interface::force_type arg4,
+                                               const vector3d &a4, int a5)
+{
     THISCALL(0x004ECFF0, this, &a2, arg4, &a4, a5);
 }
 
@@ -636,7 +627,8 @@ void physical_interface::manage_standing(bool a2)
     THISCALL(0x004F8580, this, a2);
 }
 
-void physical_interface::stop_biped_physics(bool a2) {
+void physical_interface::stop_biped_physics(bool a2)
+{
     THISCALL(0x004F2700, this, a2);
 }
 
@@ -647,15 +639,13 @@ void physical_interface::stop_prop_physics(bool a2)
 
 void physical_interface::remove_from_phys_ifc_list()
 {
-    for ( auto it = all_phys_interfaces->begin(); it != all_phys_interfaces->end(); ++it )
-    {
+    for (auto it = all_phys_interfaces->begin(); it != all_phys_interfaces->end(); ++it) {
         if ((*it) == this) {
             all_phys_interfaces->erase(it);
         }
     }
 
-    if ( all_phys_interfaces->empty() )
-    {
+    if (all_phys_interfaces->empty()) {
         delete all_phys_interfaces;
         all_phys_interfaces = nullptr;
     }
@@ -664,28 +654,28 @@ void physical_interface::remove_from_phys_ifc_list()
 void physical_interface::release_ifc()
 {
     auto *v2 = this->field_E8;
-    if ( v2 != nullptr )
-    {
-        if ( LOBYTE(v2->field_1C) ) {
-            void (__fastcall *finalize)(void *, void *edx, bool) = CAST(finalize, get_vfunc(v2->m_vtbl, 0x0));
+    if (v2 != nullptr) {
+        if (LOBYTE(v2->field_1C)) {
+            void(__fastcall * finalize)(void *, void *edx, bool) = CAST(finalize, get_vfunc(v2->m_vtbl, 0x0));
             finalize(v2, nullptr, true);
         }
 
         this->field_E8 = nullptr;
     }
 
-    if ( (this->field_C & 0x80000) != 0 ) {
+    if ((this->field_C & 0x80000) != 0) {
         this->stop_biped_physics(true);
     }
 
-    if ( this->field_174 ) {
+    if (this->field_174) {
         this->stop_prop_physics(true);
     }
 
     this->remove_from_phys_ifc_list();
 }
 
-void physical_interface_patch() {
+void physical_interface_patch()
+{
     {
         FUNC_ADDRESS(address, &physical_interface::start_biped_physics);
 

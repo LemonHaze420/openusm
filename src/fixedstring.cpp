@@ -21,10 +21,11 @@ tlFixedString::tlFixedString(const char *a1) : m_hash(0), field_4()
 
 void tlFixedString::unmash(mash_info_struct *, void *)
 {
-  ;
+    ;
 }
 
-int tlFixedString::compare(const tlFixedString &a2) const {
+int tlFixedString::compare(const tlFixedString &a2) const
+{
     for (auto i = 0; i < 8; ++i) {
         auto func = [](const void *self) -> const uint32_t * {
             //
@@ -39,7 +40,8 @@ int tlFixedString::compare(const tlFixedString &a2) const {
     return 0;
 }
 
-bool tlFixedString::operator==(const tlFixedString &a2) const {
+bool tlFixedString::operator==(const tlFixedString &a2) const
+{
     for (int i = 0; i < 8; ++i) {
         auto func = [](const void *self) -> const int * {
             //
@@ -55,7 +57,8 @@ bool tlFixedString::operator==(const tlFixedString &a2) const {
     return true;
 }
 
-bool tlFixedString::operator!=(const tlFixedString &a2) const {
+bool tlFixedString::operator!=(const tlFixedString &a2) const
+{
     for (auto i = 0u; i < 8u; ++i) {
         auto func = [](const void *self) -> const int * {
             //
@@ -71,7 +74,8 @@ bool tlFixedString::operator!=(const tlFixedString &a2) const {
     return false;
 }
 
-tlFixedString *tlFixedString::operator=(const tlFixedString &a1) {
+tlFixedString *tlFixedString::operator=(const tlFixedString &a1)
+{
     for (auto i = 0u; i < 8u; ++i) {
         auto func = [](const void *self) -> const int * {
             //

@@ -14,11 +14,11 @@
 
 #include <memory>
 
-extern tlInstanceBank & nalTypeInstanceBank;
+extern tlInstanceBank &nalTypeInstanceBank;
 
-extern tlInstanceBank & nalComponentInstanceBank;
+extern tlInstanceBank &nalComponentInstanceBank;
 
-extern LARGE_INTEGER & nalPlayerGetPoseTicks;
+extern LARGE_INTEGER &nalPlayerGetPoseTicks;
 
 struct nal_anim_control {
     uint32_t m_vtbl;
@@ -27,7 +27,8 @@ struct nal_anim_control {
 struct nalVector3 {
     float field_0[3];
 
-    float operator[](uint32_t idx) const {
+    float operator[](uint32_t idx) const
+    {
         return this->field_0[idx];
     }
 };
@@ -39,11 +40,13 @@ struct nalMatrix4x4 {
 
     nalMatrix4x4(const nalPositionOrientation &a2);
 
-    auto &operator[](int idx) {
+    auto &operator[](int idx)
+    {
         return arr[idx];
     }
 
-    const auto &operator[](int idx) const {
+    const auto &operator[](int idx) const
+    {
         return arr[idx];
     }
 
@@ -64,7 +67,8 @@ struct nalPositionOrientation {
 struct nalBasePose {
     nalComp::nalCompSkeleton *field_0;
 
-    auto GetSkeleton() const {
+    auto GetSkeleton() const
+    {
         return this->field_0;
     }
 };
@@ -83,7 +87,7 @@ struct nalAnimFile {
     int field_44;
     tlFixedString field_48;
 
-    static tlFixedString * get_string(nalAnimFile *a1)
+    static tlFixedString *get_string(nalAnimFile *a1)
     {
         return &a1->field_10;
     }
@@ -98,58 +102,54 @@ struct nalComponentBase {
     int m_vtbl;
 
     //virtual
-    void Process(const nalGeneric::nalComponentInfo *a1, void *& a2, void *& a3); // = 0;
-
+    void Process(const nalGeneric::nalComponentInfo *a1, void *&a2, void *&a3);  // = 0;
 };
 
 struct nalComponentPOBase : nalComponentBase {
-
     /* virtual */
-    int * _GetType() {
+    int *_GetType()
+    {
         return &TypeID;
     }
 
-    static inline int TypeID {0};
+    static inline int TypeID{0};
 };
 
 struct nalComponentFloat1Base : nalComponentBase {
+    /* virtual */ int *_GetType();
 
-    /* virtual */ int * _GetType();
-
-    static inline int TypeID {0};
+    static inline int TypeID{0};
 };
 
 struct nalComponentFloat3Base : nalComponentBase {
+    /* virtual */ int *_GetType();
 
-    /* virtual */ int * _GetType();
-
-    static inline int TypeID {0};
+    static inline int TypeID{0};
 };
 
 struct nalComponentQuatBase : nalComponentBase {
+    /* virtual */ int *_GetType();
 
-    /* virtual */ int * _GetType();
-
-    static inline int TypeID {0};
+    static inline int TypeID{0};
 };
 
 struct nalComponentU8Base : nalComponentBase {
+    /* virtual */ int *_GetType();
 
-    /* virtual */ int * _GetType();
-
-    static inline int TypeID {0};
+    static inline int TypeID{0};
 };
 
 struct nalComponentStringBase : nalComponentBase {
     char *GetType();
 
-    static inline char & TypeID = var<char>(0x00959560);
+    static inline char &TypeID = var<char>(0x00959560);
 };
 
 struct nalComponentInitList;
 
-template<typename T>
-T nalSkeletonPtrCast(T a1) {
+template <typename T>
+T nalSkeletonPtrCast(T a1)
+{
     if (a1 != nullptr || *a1 != nalGeneric::nalGenericSkeleton::vtbl_ptr) {
         return nullptr;
     }
@@ -179,43 +179,40 @@ extern bool nalLoadAnimFileInternal(nalAnimFile *anim_file);
 extern void nalSetSkeletonDirectory(tlResourceDirectory<nalBaseSkeleton, tlFixedString> *a1);
 
 //0x0050EAB0
-extern tlInstanceBankResourceDirectory<nalBaseSkeleton, tlFixedString> * nalGetSkeletonDirectory();
+extern tlInstanceBankResourceDirectory<nalBaseSkeleton, tlFixedString> *nalGetSkeletonDirectory();
 
 extern void nalSetAnimFileDirectory(tlResourceDirectory<nalAnimFile, tlFixedString> *a1);
 
 //0x0050EA50
-extern tlInstanceBankResourceDirectory<nalAnimFile, tlFixedString> * nalGetAnimFileDirectory();
+extern tlInstanceBankResourceDirectory<nalAnimFile, tlFixedString> *nalGetAnimFileDirectory();
 
 struct nalAnyPose;
 
-template<typename >
+template <typename>
 struct nalAnimClass;
 
 extern void nalSetAnimDirectory(tlResourceDirectory<nalAnimClass<nalAnyPose>, tlFixedString> *a1);
 
 //0x0050EA70
-extern tlInstanceBankResourceDirectory<nalAnimClass<nalAnyPose>, tlFixedString> * nalGetAnimDirectory();
+extern tlInstanceBankResourceDirectory<nalAnimClass<nalAnyPose>, tlFixedString> *nalGetAnimDirectory();
 
 extern void nalSetSceneAnimDirectory(tlResourceDirectory<nalSceneAnim, tlFixedString> *a1);
 
 //0x0050EA90
-extern tlInstanceBankResourceDirectory<nalSceneAnim, tlFixedString> * nalGetSceneAnimDirectory();
+extern tlInstanceBankResourceDirectory<nalSceneAnim, tlFixedString> *nalGetSceneAnimDirectory();
 
-extern char (& nalSkeletonPath)[255];
+extern char (&nalSkeletonPath)[255];
 
-extern char (& nalAnimPath)[255];
+extern char (&nalAnimPath)[255];
 
 struct actor;
 struct string_hash;
 
 namespace als {
-    struct als_meta_anim_table_shared;
+struct als_meta_anim_table_shared;
 }
 
 //0x0049B910
-extern void * get_anim_by_hash(
-        const string_hash &a1,
-        const als::als_meta_anim_table_shared *a2,
-        actor *a3);
+extern void *get_anim_by_hash(const string_hash &a1, const als::als_meta_anim_table_shared *a2, actor *a3);
 
 extern void nalStreamInstance_patch();

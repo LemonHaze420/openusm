@@ -11,12 +11,8 @@ struct entity_interface : generic_interface {
     bool field_8;
 
     //virtual
-    void un_mash(
-        generic_mash_header *a2,
-        void *a3,
-        void *a4,
-        generic_mash_data_ptrs *a5);
+    void un_mash(generic_mash_header *a2, void *a3, void *a4, generic_mash_data_ptrs *a5);
 
     //virtual
-    const char * get_ifc_type_str() const;
+    const char *get_ifc_type_str() const;
 };

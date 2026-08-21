@@ -11,8 +11,7 @@
 struct vector3d;
 struct nglMesh;
 
-enum debug_render_items_e 
-{
+enum debug_render_items_e {
     CAPSULE_HISTORY = 0,
     LIGHTS = 1,
     BOX_TRIGGERS = 2,
@@ -67,7 +66,7 @@ enum debug_render_items_e
     DEBUG_RENDER_ITEMS_COUNT = 51
 };
 
-inline Var<mString [51]> debug_render_items_names{0x00961168};
+inline Var<mString[51]> debug_render_items_names{0x00961168};
 
 struct debug_line {
     vector3d field_0;
@@ -151,9 +150,10 @@ extern void debug_render_done();
 
 extern void render_debug_box(const vector3d &a2, const vector3d &a3, color32 a4);
 
-extern void render_beam(const vector3d &a1, const vector3d &a2, color32 a3, Float a4, bool );
+extern void render_beam(const vector3d &a1, const vector3d &a2, color32 a3, Float a4, bool);
 
-extern void render_quad(const vector3d &pt1, const vector3d &pt2, const vector3d &pt3, const vector3d &pt4, color32 col, bool double_sided);
+extern void render_quad(const vector3d &pt1, const vector3d &pt2, const vector3d &pt3, const vector3d &pt4, color32 col,
+                        bool double_sided);
 
 struct line_info;
 
@@ -167,12 +167,8 @@ extern void print_3d_text(const vector3d &arg0, color32 arg4, float a3, const ch
 
 extern void print_3d_text(const vector3d &arg0, color32 arg4, const char *a2, ...);
 
-extern void sub_CB3F80(const vector3d &a1,
-                const vector3d &a2,
-                const vector3d &a3,
-                const vector3d &a4,
-                int a5,
-                void *a6);
+extern void sub_CB3F80(const vector3d &a1, const vector3d &a2, const vector3d &a3, const vector3d &a4, int a5,
+                       void *a6);
 
 //extern std::vector<vector3d> s_debug_hemisphere_pos;
 

@@ -13,11 +13,9 @@ weapon_instance::weapon_instance(from_mash_in_place_constructor *)
     this->initialize(mash::FROM_MASH, nullptr, nullptr);
 }
 
-void weapon_instance::initialize(mash::allocation_scope a2,
-                                const combo_system_weapon *a3,
-                                actor *a4)
+void weapon_instance::initialize(mash::allocation_scope a2, const combo_system_weapon *a3, actor *a4)
 {
     THISCALL(0x006C8D80, this, a2, a3, a4);
 }
 
-} // namespace ai
+}  // namespace ai

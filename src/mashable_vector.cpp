@@ -25,10 +25,9 @@ VALIDATE_SIZE(mashable_vector<int>, 8u);
 
 
 //0x004C7F50
-template<>
+template <>
 void mashable_vector<resource_directory *>::custom_un_mash([[maybe_unused]] generic_mash_header *a2,
-                                                           [[maybe_unused]] void *a3,
-                                                           generic_mash_data_ptrs *a4,
+                                                           [[maybe_unused]] void *a3, generic_mash_data_ptrs *a4,
                                                            [[maybe_unused]] void *a5)
 {
     TRACE("mashable_vector<resource_directory *>::custom_un_mash");
@@ -36,7 +35,6 @@ void mashable_vector<resource_directory *>::custom_un_mash([[maybe_unused]] gene
     assert(from_mash());
 
     if (this->m_shared) {
-
         a4->rebase_shared(4u);
 
         a4->rebase_shared(4u);
@@ -56,11 +54,9 @@ void mashable_vector<resource_directory *>::custom_un_mash([[maybe_unused]] gene
 }
 
 //0x004C72E0
-template<>
-void mashable_vector<dsg_region_container>::custom_un_mash(generic_mash_header *header,
-                                                           [[maybe_unused]] void *a3,
-                                                           generic_mash_data_ptrs *a4,
-                                                           [[maybe_unused]] void *a5)
+template <>
+void mashable_vector<dsg_region_container>::custom_un_mash(generic_mash_header *header, [[maybe_unused]] void *a3,
+                                                           generic_mash_data_ptrs *a4, [[maybe_unused]] void *a5)
 {
     if (this->is_shared()) {
         error("dsg_region_container's cannot be shared!");
@@ -71,9 +67,8 @@ void mashable_vector<dsg_region_container>::custom_un_mash(generic_mash_header *
     a4->rebase(4);
 
     this->m_data = a4->get<dsg_region_container>(this->m_size);
-    
-    for (auto i = 0u; i < this->m_size; ++i)
-    {
+
+    for (auto i = 0u; i < this->m_size; ++i) {
         assert(((int)header) % 4 == 0);
 
         this->m_data[i].un_mash(header, &this->m_data[i], a4);
@@ -83,11 +78,9 @@ void mashable_vector<dsg_region_container>::custom_un_mash(generic_mash_header *
 }
 
 //0x004C7380
-template<>
-void mashable_vector<dsg_box_container>::custom_un_mash(generic_mash_header *a2,
-                                                        [[maybe_unused]] void *a3,
-                                                        generic_mash_data_ptrs *a4,
-                                                        [[maybe_unused]] void *a5)
+template <>
+void mashable_vector<dsg_box_container>::custom_un_mash(generic_mash_header *a2, [[maybe_unused]] void *a3,
+                                                        generic_mash_data_ptrs *a4, [[maybe_unused]] void *a5)
 {
     if (this->is_shared()) {
         error("dsg_box_container's cannot be shared!");
@@ -107,16 +100,13 @@ void mashable_vector<dsg_box_container>::custom_un_mash(generic_mash_header *a2,
 }
 
 //0x004C7DC0
-template<>
-void mashable_vector<resource_location>::custom_un_mash(generic_mash_header *header,
-                                                        [[maybe_unused]] void *a3,
-                                                        generic_mash_data_ptrs *a4,
-                                                        [[maybe_unused]] void *a5)
+template <>
+void mashable_vector<resource_location>::custom_un_mash(generic_mash_header *header, [[maybe_unused]] void *a3,
+                                                        generic_mash_data_ptrs *a4, [[maybe_unused]] void *a5)
 {
     assert(from_mash());
 
-    if (this->m_shared)
-    {
+    if (this->m_shared) {
         a4->rebase_shared(8u);
 
         auto v24 = *a4->get_from_shared<uint32_t>();
@@ -133,13 +123,10 @@ void mashable_vector<resource_location>::custom_un_mash(generic_mash_header *hea
 
         this->m_data = a4->get_from_shared<value_t>(this->m_size);
 
-        if (v9[0] != 0)
-        {
+        if (v9[0] != 0) {
             a4->get<char>(v24);
             a4->get_from_shared<char>(v11 - sizeof(value_t) * this->m_size);
-        }
-        else
-        {
+        } else {
             for (auto i = 0u; i < this->m_size; ++i) {
                 assert(((int)header) % 4 == 0);
                 this->m_data[i].un_mash(header, &this->m_data[i], a4);
@@ -151,7 +138,6 @@ void mashable_vector<resource_location>::custom_un_mash(generic_mash_header *hea
         a4->rebase_shared(4u);
 
     } else {
-
         a4->rebase(8u);
 
         a4->rebase(4u);
@@ -168,16 +154,13 @@ void mashable_vector<resource_location>::custom_un_mash(generic_mash_header *hea
 }
 
 //0x004C8020
-template<>
-void mashable_vector<tlresource_location>::custom_un_mash(generic_mash_header *header,
-                                                          [[maybe_unused]] void *a3,
-                                                          generic_mash_data_ptrs *a4,
-                                                          [[maybe_unused]] void *a5)
+template <>
+void mashable_vector<tlresource_location>::custom_un_mash(generic_mash_header *header, [[maybe_unused]] void *a3,
+                                                          generic_mash_data_ptrs *a4, [[maybe_unused]] void *a5)
 {
     assert(from_mash());
 
-    if (this->is_shared())
-    {
+    if (this->is_shared()) {
         a4->rebase_shared(8u);
 
         auto offset = *a4->get_from_shared<uint32_t>();
@@ -193,15 +176,12 @@ void mashable_vector<tlresource_location>::custom_un_mash(generic_mash_header *h
 
         this->m_data = a4->get_from_shared<value_t>(this->m_size);
 
-        if (v9[0] != 0)
-        {
+        if (v9[0] != 0) {
             a4->get<char>(offset);
             a4->get_from_shared<char>(offset1 - sizeof(value_t) * this->m_size);
-        }
-        else
-        {
+        } else {
             for (int i = 0; i < this->m_size; ++i) {
-                assert(((int) header) % 4 == 0);
+                assert(((int)header) % 4 == 0);
                 this->m_data[i].un_mash(header, &this->m_data[i], a4);
             }
         }
@@ -211,16 +191,14 @@ void mashable_vector<tlresource_location>::custom_un_mash(generic_mash_header *h
         a4->rebase_shared(4u);
 
     } else {
-
         a4->rebase(8u);
 
         a4->rebase(4u);
 
         this->m_data = a4->get<value_t>(this->m_size);
 
-        for (int i = 0; i < this->m_size; ++i)
-        {
-            assert(((int) header) % 4 == 0);
+        for (int i = 0; i < this->m_size; ++i) {
+            assert(((int)header) % 4 == 0);
             this->m_data[i].un_mash(header, &this->m_data[i], a4);
         }
 
@@ -229,15 +207,13 @@ void mashable_vector<tlresource_location>::custom_un_mash(generic_mash_header *h
 }
 
 //0x004C81B0
-template<>
-void mashable_vector<resource_pack_group>::custom_un_mash(generic_mash_header *header,
-                                                          [[maybe_unused]] void *a3,
-                                                          generic_mash_data_ptrs *a4,
-                                                          [[maybe_unused]] void *a5) {
+template <>
+void mashable_vector<resource_pack_group>::custom_un_mash(generic_mash_header *header, [[maybe_unused]] void *a3,
+                                                          generic_mash_data_ptrs *a4, [[maybe_unused]] void *a5)
+{
     assert(from_mash());
 
     if (this->is_shared()) {
-
         a4->rebase_shared(8u);
 
         auto offset = *a4->get_from_shared<int>();
@@ -259,7 +235,7 @@ void mashable_vector<resource_pack_group>::custom_un_mash(generic_mash_header *h
             a4->get_from_shared<char>(offset1 - sizeof(value_t) * this->m_size);
         } else if (this->m_size != 0) {
             for (int i = 0; i < this->m_size; ++i) {
-                assert(((int) header) % 4 == 0);
+                assert(((int)header) % 4 == 0);
                 this->m_data[i].un_mash(header, &this->m_data[i], a4);
             }
         }
@@ -269,7 +245,6 @@ void mashable_vector<resource_pack_group>::custom_un_mash(generic_mash_header *h
         a4->rebase_shared(4u);
 
     } else {
-
         a4->rebase(8u);
 
         a4->rebase(4u);
@@ -278,7 +253,7 @@ void mashable_vector<resource_pack_group>::custom_un_mash(generic_mash_header *h
 
         if (this->m_size != 0) {
             for (int i = 0; i < this->m_size; ++i) {
-                assert(((int) header) % 4 == 0);
+                assert(((int)header) % 4 == 0);
                 this->m_data[i].un_mash(header, &this->m_data[i], a4);
             }
         }
@@ -289,13 +264,11 @@ void mashable_vector<resource_pack_group>::custom_un_mash(generic_mash_header *h
 }
 
 //0x004C8740
-template<>
-void mashable_vector<resource_allocation_pool>::custom_un_mash(generic_mash_header *header,
-                                                               [[maybe_unused]] void *a3,
-                                                               generic_mash_data_ptrs *a4,
-                                                               [[maybe_unused]] void *a5) {
-    if (this->is_shared())
-    {
+template <>
+void mashable_vector<resource_allocation_pool>::custom_un_mash(generic_mash_header *header, [[maybe_unused]] void *a3,
+                                                               generic_mash_data_ptrs *a4, [[maybe_unused]] void *a5)
+{
+    if (this->is_shared()) {
         a4->rebase_shared(4u);
 
         auto offset = *a4->get_from_shared<uint32_t>();
@@ -313,9 +286,7 @@ void mashable_vector<resource_allocation_pool>::custom_un_mash(generic_mash_head
         if (v9[0]) {
             a4->get<char>(offset);
             a4->get_from_shared<char>(offset1 - sizeof(value_t) * this->m_size);
-        }
-        else
-        {
+        } else {
             for (int i = 0; i < this->m_size; ++i) {
                 this->m_data[i].un_mash(header, &this->m_data[i], a4);
             }
@@ -326,7 +297,6 @@ void mashable_vector<resource_allocation_pool>::custom_un_mash(generic_mash_head
         a4->rebase_shared(4u);
 
     } else {
-
         a4->rebase(4u);
 
         a4->rebase(4u);
@@ -342,15 +312,14 @@ void mashable_vector<resource_allocation_pool>::custom_un_mash(generic_mash_head
 }
 
 //0x
-template<>
+template <>
 void mashable_vector<fixedstring<4>>::custom_un_mash([[maybe_unused]] generic_mash_header *a2,
-                                                     [[maybe_unused]] void *a3,
-                                                     generic_mash_data_ptrs *a4,
-                                                     [[maybe_unused]] void *a5) {
+                                                     [[maybe_unused]] void *a3, generic_mash_data_ptrs *a4,
+                                                     [[maybe_unused]] void *a5)
+{
     assert(from_mash());
 
     if (this->is_shared()) {
-
         a4->rebase_shared(8u);
 
         a4->rebase_shared(4u);
@@ -360,7 +329,6 @@ void mashable_vector<fixedstring<4>>::custom_un_mash([[maybe_unused]] generic_ma
         a4->rebase_shared(4u);
 
     } else {
-
         a4->rebase(8u);
 
         a4->rebase(4u);
@@ -372,13 +340,11 @@ void mashable_vector<fixedstring<4>>::custom_un_mash([[maybe_unused]] generic_ma
 }
 
 //0x004C5F20
-template<>
-void mashable_vector<int>::custom_un_mash([[maybe_unused]] generic_mash_header *a2,
-                                          [[maybe_unused]] void *a3,
-                                          generic_mash_data_ptrs *a4,
-                                          [[maybe_unused]] void *a5) {
+template <>
+void mashable_vector<int>::custom_un_mash([[maybe_unused]] generic_mash_header *a2, [[maybe_unused]] void *a3,
+                                          generic_mash_data_ptrs *a4, [[maybe_unused]] void *a5)
+{
     if (this->m_shared) {
-
         a4->rebase_shared(4u);
 
         a4->rebase_shared(4u);
@@ -388,7 +354,6 @@ void mashable_vector<int>::custom_un_mash([[maybe_unused]] generic_mash_header *
         a4->rebase_shared(4u);
 
     } else {
-
         a4->rebase(4u);
 
         a4->rebase(4u);
@@ -399,13 +364,12 @@ void mashable_vector<int>::custom_un_mash([[maybe_unused]] generic_mash_header *
     }
 }
 
-template<>
+template <>
 void mashable_vector<po>::custom_un_mash(generic_mash_header *, void *, generic_mash_data_ptrs *a4, void *)
 {
     TRACE("mashable_vector<po>::custom_un_mash");
 
-    if ( this->m_shared )
-    {
+    if (this->m_shared) {
         a4->rebase_shared(16);
 
         a4->rebase_shared(4);
@@ -413,26 +377,23 @@ void mashable_vector<po>::custom_un_mash(generic_mash_header *, void *, generic_
         this->m_data = a4->get_from_shared<po>(this->m_size);
 
         a4->rebase_shared(4);
-    }
-    else
-    {
+    } else {
         a4->rebase(16);
 
         a4->rebase(4);
-        
+
         this->m_data = a4->get<po>(this->m_size);
 
         a4->rebase(4);
     }
 }
 
-template<>
+template <>
 void mashable_vector<entity_base *>::custom_un_mash(generic_mash_header *, void *, generic_mash_data_ptrs *a4, void *)
 {
     TRACE("mashable_vector<entity_base *>::custom_un_mash");
 
-    if ( this->m_shared)
-    {
+    if (this->m_shared) {
         a4->rebase_shared(4);
 
         a4->rebase_shared(4);
@@ -440,24 +401,21 @@ void mashable_vector<entity_base *>::custom_un_mash(generic_mash_header *, void 
         this->m_data = a4->get_from_shared<entity_base *>(this->m_size);
 
         a4->rebase_shared(4);
-    }
-    else
-    {
+    } else {
         a4->rebase(4);
 
         a4->rebase(4);
-        
+
         this->m_data = a4->get<entity_base *>(this->m_size);
 
         a4->rebase(4);
     }
 }
 
-template<>
+template <>
 void mashable_vector<int8_t>::custom_un_mash(generic_mash_header *, void *, generic_mash_data_ptrs *a4, void *)
 {
-    if ( this->m_shared )
-    {
+    if (this->m_shared) {
         a4->rebase_shared(4);
 
         a4->rebase_shared(4);
@@ -465,26 +423,23 @@ void mashable_vector<int8_t>::custom_un_mash(generic_mash_header *, void *, gene
         this->m_data = a4->get_from_shared<int8_t>(this->m_size);
 
         a4->rebase_shared(4);
-    }
-    else
-    {
+    } else {
         a4->rebase(4);
 
         a4->rebase(4);
-        
+
         this->m_data = a4->get<int8_t>(this->m_size);
 
         a4->rebase(4);
     }
 }
 
-template<>
+template <>
 void mashable_vector<anim_info>::custom_un_mash(generic_mash_header *a2, void *, generic_mash_data_ptrs *a4, void *)
 {
     TRACE("mashable_vector<anim_info>::custom_un_mash");
 
-    if ( this->m_shared )
-    {
+    if (this->m_shared) {
         a4->rebase_shared(8);
 
         auto offset = *a4->get_from_shared<int>();
@@ -500,15 +455,11 @@ void mashable_vector<anim_info>::custom_un_mash(generic_mash_header *a2, void *,
 
         this->m_data = a4->get_from_shared<anim_info>(this->m_size);
 
-        if ( v9[0] != 0 )
-        {
+        if (v9[0] != 0) {
             a4->get<char>(offset);
             a4->get_from_shared<char>(offset1 - sizeof(value_t) * this->m_size);
-        }
-        else
-        {
-            for ( auto i {0u}; i < this->m_size; ++i )
-            {
+        } else {
+            for (auto i{0u}; i < this->m_size; ++i) {
                 this->m_data[i].un_mash(a2, &this->m_data[i], a4);
             }
         }
@@ -516,16 +467,14 @@ void mashable_vector<anim_info>::custom_un_mash(generic_mash_header *a2, void *,
         ++v9[0];
 
         a4->rebase_shared(4);
-    }
-    else
-    {
+    } else {
         a4->rebase(8);
 
         a4->rebase(4);
 
         this->m_data = a4->get<anim_info>(this->m_size);
 
-        for ( auto i {0u}; i < this->m_size; ++i ) {
+        for (auto i{0u}; i < this->m_size; ++i) {
             this->m_data[i].un_mash(a2, &this->m_data[i], a4);
         }
 
@@ -533,13 +482,13 @@ void mashable_vector<anim_info>::custom_un_mash(generic_mash_header *a2, void *,
     }
 }
 
-template<>
-void mashable_vector<anim_map_ptr_entry>::custom_un_mash(generic_mash_header *header, void *, generic_mash_data_ptrs *a4, void *)
+template <>
+void mashable_vector<anim_map_ptr_entry>::custom_un_mash(generic_mash_header *header, void *,
+                                                         generic_mash_data_ptrs *a4, void *)
 {
     TRACE("mashable_vector<anim_map_ptr_entry>::custom_un_mash");
 
-    if ( this->is_shared() )
-    {
+    if (this->is_shared()) {
         a4->rebase_shared(8);
 
         auto offset = *a4->get_from_shared<int>();
@@ -555,16 +504,12 @@ void mashable_vector<anim_map_ptr_entry>::custom_un_mash(generic_mash_header *he
 
         this->m_data = a4->get_from_shared<anim_map_ptr_entry>(this->m_size);
 
-        if ( v9[0] != 0 )
-        {
+        if (v9[0] != 0) {
             a4->get<char>(offset);
             a4->get_from_shared<char>(offset1 - sizeof(value_t) * this->m_size);
-        }
-        else
-        {
-            for ( auto i = 0; i < this->m_size; ++i )
-            {
-                assert(((int) header) % 4 == 0);
+        } else {
+            for (auto i = 0; i < this->m_size; ++i) {
+                assert(((int)header) % 4 == 0);
                 this->m_data[i].field_8.custom_un_mash(header, &this->m_data[i].field_8, a4, nullptr);
             }
         }
@@ -572,18 +517,15 @@ void mashable_vector<anim_map_ptr_entry>::custom_un_mash(generic_mash_header *he
         ++v9[0];
 
         a4->rebase_shared(4);
-    }
-    else
-    {
+    } else {
         a4->rebase(8);
 
         a4->rebase(4);
 
         this->m_data = a4->get<anim_map_ptr_entry>(this->m_size);
 
-        for ( auto i = 0; i < this->m_size; ++i )
-        {
-            assert(((int) header) % 4 == 0);
+        for (auto i = 0; i < this->m_size; ++i) {
+            assert(((int)header) % 4 == 0);
             this->m_data[i].field_8.custom_un_mash(header, &this->m_data[i].field_8, a4, nullptr);
         }
 
@@ -592,19 +534,14 @@ void mashable_vector<anim_map_ptr_entry>::custom_un_mash(generic_mash_header *he
 }
 
 //0x004CE640
-template<>
-void mashable_vector<fx_cache_ent>::custom_un_mash(
-        generic_mash_header *header,
-        void *a3,
-        generic_mash_data_ptrs *a4,
-        void *a5)
+template <>
+void mashable_vector<fx_cache_ent>::custom_un_mash(generic_mash_header *header, void *a3, generic_mash_data_ptrs *a4,
+                                                   void *a5)
 {
     TRACE("mashable_vector<fx_cache_ent>::custom_un_mash");
 
-    if constexpr (1)
-    {
-        if ( this->is_shared() )
-        {
+    if constexpr (1) {
+        if (this->is_shared()) {
             a4->rebase_shared(8u);
 
             auto offset = *a4->get_from_shared<int>();
@@ -620,16 +557,12 @@ void mashable_vector<fx_cache_ent>::custom_un_mash(
 
             this->m_data = a4->get_from_shared<fx_cache_ent>(this->m_size);
 
-            if ( v9[0] != 0 )
-            {
+            if (v9[0] != 0) {
                 a4->get<char>(offset);
                 a4->get_from_shared<char>(offset1 - sizeof(value_t) * this->m_size);
-            }
-            else
-            {
-                for ( int i = 0; i < this->m_size; ++i )
-                {
-                    assert(((int) header) % 4 == 0);
+            } else {
+                for (int i = 0; i < this->m_size; ++i) {
+                    assert(((int)header) % 4 == 0);
                     auto *ent = &this->m_data[i];
                     ent->un_mash(header, static_cast<cached_special_effect *>(a5), ent, a4);
                 }
@@ -639,24 +572,16 @@ void mashable_vector<fx_cache_ent>::custom_un_mash(
 
             a4->rebase_shared(4u);
         }
-    }
-    else
-    {
-        THISCALL(0x004CE640, this, header,
-                        a3,
-                        a4,
-                        a5);
+    } else {
+        THISCALL(0x004CE640, this, header, a3, a4, a5);
     }
 }
 
-template<>
-void mashable_vector<sin_district_container>::custom_un_mash(
-        generic_mash_header *header,
-        void *,
-        generic_mash_data_ptrs *a4,
-        void *)
+template <>
+void mashable_vector<sin_district_container>::custom_un_mash(generic_mash_header *header, void *,
+                                                             generic_mash_data_ptrs *a4, void *)
 {
-    if ( this->is_shared() ) {
+    if (this->is_shared()) {
         error("sin_district_container's cannot be shared!");
     }
 
@@ -667,29 +592,21 @@ void mashable_vector<sin_district_container>::custom_un_mash(
 
         this->m_data = a4->get<sin_district_container>(this->m_size);
 
-        for ( int i = 0; i < this->m_size; ++i )
-        {
+        for (int i = 0; i < this->m_size; ++i) {
             assert(((int)header) % 4 == 0);
 
-            this->m_data[i].un_mash(
-                header,
-                &this->m_data[i],
-                a4);
+            this->m_data[i].un_mash(header, &this->m_data[i], a4);
         }
 
         a4->rebase(4u);
     }
 }
 
-template<>
-void mashable_vector<sin_strip_container>::custom_un_mash(
-        generic_mash_header *header,
-        void *,
-        generic_mash_data_ptrs *a4,
-        void *)
+template <>
+void mashable_vector<sin_strip_container>::custom_un_mash(generic_mash_header *header, void *,
+                                                          generic_mash_data_ptrs *a4, void *)
 {
-
-    if ( this->is_shared() ) {
+    if (this->is_shared()) {
         error("sin_strip_container's cannot be shared!");
     }
 
@@ -700,8 +617,7 @@ void mashable_vector<sin_strip_container>::custom_un_mash(
 
         this->m_data = a4->get<sin_strip_container>(this->m_size);
 
-        for ( int i = 0; i < this->m_size; ++i )
-        {
+        for (int i = 0; i < this->m_size; ++i) {
             assert(((int)header) % 4 == 0);
 
             this->m_data[i].un_mash(header, &this->m_data[i], a4);

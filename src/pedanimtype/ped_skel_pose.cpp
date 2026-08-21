@@ -4,5 +4,5 @@
 #include "variable.h"
 
 namespace nalPed {
-    int & nalPedSkeleton::vtbl_ptr = var<int>(0x0096AA64);
+int &nalPedSkeleton::vtbl_ptr = var<int>(0x0096AA64);
 }

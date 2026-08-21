@@ -5,7 +5,8 @@
 
 tutorial_controller_gauge::tutorial_controller_gauge() {}
 
-void tutorial_controller_gauge::Init() {
+void tutorial_controller_gauge::Init()
+{
     if (this->field_0 == nullptr) {
         this->field_4C = 1.0;
         this->field_50 = 1.0;
@@ -74,11 +75,13 @@ void tutorial_controller_gauge::Init() {
     this->Hide();
 }
 
-void tutorial_controller_gauge::Hide() {
+void tutorial_controller_gauge::Hide()
+{
     THISCALL(0x006223B0, this);
 }
 
-void tutorial_controller_gauge::DeInit() {
+void tutorial_controller_gauge::DeInit()
+{
     if (this->field_0 != nullptr) {
         this->field_0 = nullptr;
         this->field_4 = nullptr;

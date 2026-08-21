@@ -14,18 +14,22 @@ limited_timer_base::limited_timer_base()
     this->field_0 = timeGetTime();
 }
 
-limited_timer::limited_timer(Float a1) : limited_timer_base() {
+limited_timer::limited_timer(Float a1) : limited_timer_base()
+{
     field_4 = a1;
 }
 
-limited_timer::~limited_timer() {
+limited_timer::~limited_timer()
+{
     this->reset();
 }
 
-void limited_timer_base::reset() {
+void limited_timer_base::reset()
+{
     this->field_0 = timeGetTime();
 }
 
-double limited_timer_base::elapsed() const {
-    return (double) (timeGetTime() - this->field_0) * 0.001;
+double limited_timer_base::elapsed() const
+{
+    return (double)(timeGetTime() - this->field_0) * 0.001;
 }

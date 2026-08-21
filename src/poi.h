@@ -5,7 +5,6 @@
 #include "vector3d.h"
 
 struct point_of_interest {
-
     vector3d field_0;
     int field_C;
     int field_10;
@@ -17,8 +16,7 @@ struct point_of_interest {
     vector3d get_location() const;
 };
 
-namespace poi_manager
-{
+namespace poi_manager {
 
 extern void cleanup();
 
@@ -26,8 +24,8 @@ extern void check_init();
 
 extern bool near_violence_poi(const vector3d &a1);
 
-extern point_of_interest **& poi_list;
+extern point_of_interest **&poi_list;
 
-}
+}  // namespace poi_manager
 
-extern int & dword_938004;
+extern int &dword_938004;

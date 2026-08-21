@@ -17,18 +17,8 @@ struct po {
 
     po();
 
-    po(float a2,
-        float a3,
-        float a4,
-        float a5,
-        float a6,
-        float a7,
-        float a8,
-        float a9,
-        float a10,
-        float a11,
-        float a12,
-        float a13);
+    po(float a2, float a3, float a4, float a5, float a6, float a7, float a8, float a9, float a10, float a11, float a12,
+       float a13);
 
     po(const matrix4x4 &a1);
 
@@ -96,10 +86,7 @@ struct po {
     void set_po(const vector3d &a2, const vector3d &p_ydest, const vector3d &pos);
 
     //0x005BCFE0
-    void set_po(const vector3d &xdest,
-                const vector3d &ydest,
-                const vector3d &zdest,
-                const vector3d &pos);
+    void set_po(const vector3d &xdest, const vector3d &ydest, const vector3d &zdest, const vector3d &pos);
 
     //0x005BDFE0
     void set_facing(const vector3d &a2);
@@ -112,30 +99,34 @@ struct po {
     //0x005BD760
     po *inverse() const;
 
-    inline void set_position(const vector3d &v) {
+    inline void set_position(const vector3d &v)
+    {
         constexpr auto idx = 3;
 
         this->m[idx] = v;
     }
 
-    inline auto &get_position() const {
+    inline auto &get_position() const
+    {
         constexpr auto idx = 3;
 
-        return *(const vector3d *) &this->m[idx];
+        return *(const vector3d *)&this->m[idx];
     }
 
-    auto &operator[](int idx) {
+    auto &operator[](int idx)
+    {
         return m[idx];
     }
 
-    const auto &operator[](int idx) const {
+    const auto &operator[](int idx) const
+    {
         return m[idx];
     }
 
     mString to_string() const;
 };
 
-inline const po po_identity_matrix {1.0, 0, 0, 0, 1.0, 0, 0, 0, 1.0, 0, 0, 0};
+inline const po po_identity_matrix{1.0, 0, 0, 0, 1.0, 0, 0, 0, 1.0, 0, 0, 0};
 
 extern matrix4x4 sub_507130(const TransformMatrices &arg4);
 

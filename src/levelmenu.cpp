@@ -14,15 +14,11 @@ level_descriptor_t *get_level_descriptors(int *)
     return nullptr;
 }
 
-void level_select_handler(debug_menu_entry *)
-{}
+void level_select_handler(debug_menu_entry *) {}
 
-void reboot_handler(debug_menu_entry *)
-{}
+void reboot_handler(debug_menu_entry *) {}
 
-void hero_entry_callback(debug_menu_entry *)
-{
-}
+void hero_entry_callback(debug_menu_entry *) {}
 
 int hero_status;
 int hero_selected;
@@ -43,7 +39,7 @@ const char *hero_list[] = {"arachno_man_costume"};
 void create_level_select_menu(debug_menu *)
 {
     assert(debug_menu::root_menu != nullptr);
-    
+
     level_select_menu = new debug_menu{"Level Select", debug_menu::sort_mode_t::undefined};
 
     debug_menu_entry *v15 = new debug_menu_entry{level_select_menu};
@@ -52,15 +48,13 @@ void create_level_select_menu(debug_menu *)
 
     int arg0;
     auto *level_descriptors = get_level_descriptors(&arg0);
-    for ( auto i = 0; i < arg0; ++i )
-    {
+    for (auto i = 0; i < arg0; ++i) {
         resource_key_type v6 = RESOURCE_KEY_TYPE_PACK;
         auto *v1 = level_descriptors[i].field_0.to_string();
         string_hash v5{v1};
         auto v11 = resource_key{v5, v6};
         auto v17 = resource_manager::get_pack_file_stats(v11, nullptr, nullptr, nullptr);
-        if ( v17 )
-        {
+        if (v17) {
             auto *v3 = level_descriptors[i].field_60.to_string();
             mString v22{v3};
             auto *v39 = new debug_menu_entry{v22};
@@ -79,18 +73,16 @@ void create_level_select_menu(debug_menu *)
 
     hero_select_menu = new debug_menu{"Hero Select", debug_menu::sort_mode_t::undefined};
 
-    auto *v28 = new debug_menu_entry {hero_select_menu};
+    auto *v28 = new debug_menu_entry{hero_select_menu};
 
     level_select_menu->add_entry(v28);
-    for ( auto i = 0u; i < 10u; ++i )
-    {
+    for (auto i = 0u; i < 10u; ++i) {
         resource_key_type v6 = RESOURCE_KEY_TYPE_PACK;
         string_hash v5{(hero_list)[i]};
         auto v11 = resource_key{v5, v6};
         auto v30 = resource_manager::get_pack_file_stats(v11, nullptr, nullptr, nullptr);
-        if ( v30 )
-        {
-            mString v35 {hero_list[i]};
+        if (v30) {
+            mString v35{hero_list[i]};
             auto *v37 = new debug_menu_entry{v35};
 
             v37->set_game_flags_handler(hero_toggle_handler);

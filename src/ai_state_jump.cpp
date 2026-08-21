@@ -27,11 +27,11 @@
 
 #include <cmath>
 
-static auto & g_base_factor = var<float>(0x0091F6D8);
+static auto &g_base_factor = var<float>(0x0091F6D8);
 
-static auto & g_snow_balling = var<float>(0x0091F6DC);
+static auto &g_snow_balling = var<float>(0x0091F6DC);
 
-static auto & g_jump_cap_vel = var<float>(0x0091F6E0);
+static auto &g_jump_cap_vel = var<float>(0x0091F6E0);
 
 namespace ai {
 
@@ -42,9 +42,10 @@ VALIDATE_OFFSET(jump_state, field_30, 0x30);
 VALIDATE_OFFSET(jump_state, field_4C, 0x4C);
 VALIDATE_OFFSET(jump_state, field_81, 0x81);
 
-static auto & jump_params = var<jump_param_t[21]>(0x00958CD0);
+static auto &jump_params = var<jump_param_t[21]>(0x00958CD0);
 
-jump_state::jump_state(from_mash_in_place_constructor *a2) {
+jump_state::jump_state(from_mash_in_place_constructor *a2)
+{
     THISCALL(0x00449D10, this, a2);
 }
 
@@ -69,8 +70,7 @@ vector3d jump_state::calculate_jump_vector(vector3d a3, vector3d a6, Float a9, F
 
 vector3d jump_state::compute_force(vector3d a3, vector3d a4) const
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         auto v5 = this->field_30->field_50;
         auto *v8 = this->get_core();
         auto a9 = v8->field_50.get_pb_float(jump_params[v5].m_height);
@@ -82,82 +82,72 @@ vector3d jump_state::compute_force(vector3d a3, vector3d a4) const
 
         auto result = this->calculate_jump_vector(a3, v13, a9, a10);
         return result;
-    }
-    else
-    {
+    } else {
         vector3d result;
 
-        void (__fastcall *func)(const void *, void *, vector3d *, vector3d a3, vector3d a4) = CAST(func, 0x0044A640);
+        void(__fastcall * func)(const void *, void *, vector3d *, vector3d a3, vector3d a4) = CAST(func, 0x0044A640);
         func(this, nullptr, &result, a3, a4);
 
         return result;
     }
 }
 
-bool jump_state::process_flying(Float a2) {
+bool jump_state::process_flying(Float a2)
+{
     //sp_log("jump_state::process_flying(): %d %f", this->field_81, this->field_30->field_70);
 
-    bool (__fastcall *func)(void *, void *, Float) = CAST(func, 0x00469EF0);
+    bool(__fastcall * func)(void *, void *, Float) = CAST(func, 0x00469EF0);
     return func(this, nullptr, a2);
 }
 
 bool jump_state::check_for_dive_fall()
 {
-    if constexpr (0)
-    {
+    if constexpr (0) {
         const auto v9 = YVEC * 15.0f;
         auto *the_actor = this->get_actor();
         auto v12 = the_actor->get_abs_position() - v9;
         auto *v7 = this->get_actor();
 
-        vector3d v13 {};
-        vector3d v14 {};
+        vector3d v13{};
+        vector3d v14{};
 
-        return !find_intersection(
-                v7->get_abs_position(),
-                v12,
-                *local_collision::entfilter_entity_no_capsules,
-                *local_collision::obbfilter_lineseg_test,
-                &v13,
-                &v14,
-                nullptr,
-                nullptr,
-                nullptr,
-                false);
-    }
-    else
-    {
-        bool (__fastcall *func)(void *) = CAST(func, 0x0044A150);
+        return !find_intersection(v7->get_abs_position(),
+                                  v12,
+                                  *local_collision::entfilter_entity_no_capsules,
+                                  *local_collision::obbfilter_lineseg_test,
+                                  &v13,
+                                  &v14,
+                                  nullptr,
+                                  nullptr,
+                                  nullptr,
+                                  false);
+    } else {
+        bool(__fastcall * func)(void *) = CAST(func, 0x0044A150);
         return func(this);
     }
 }
 
 void jump_state::initiate()
 {
-    if constexpr (0)
-    {
-    }
-    else
-    {
+    if constexpr (0) {
+    } else {
         THISCALL(0x004599C0, this);
     }
 }
 
 void jump_state::initiate_from_ground()
 {
-    if constexpr (0)
-    {
+    if constexpr (0) {
         auto *v2 = this->field_30;
         auto *v3 = v2->field_28;
         auto *v14 = v2->field_24;
         auto v16 = v3->get_z_facing();
-        if ( this->field_30->field_50 != 12 )
-        {
+        if (this->field_30->field_50 != 12) {
             auto *v7 = v14;
             auto v19 = v14->get_axis(static_cast<controller_inode::eControllerAxis>(0));
             auto len2 = v19.length2();
             auto motion_force = v7->field_C->m_player_controller->get_motion_force();
-            if ( len2 <= LARGE_EPSILON ) {
+            if (len2 <= LARGE_EPSILON) {
                 motion_force = LARGE_EPSILON;
             } else {
                 v16 = v19;
@@ -167,11 +157,9 @@ void jump_state::initiate_from_ground()
         }
 
         auto v9 = this->field_30->field_50;
-        if ( v9 == 18 || v9 == 17 )
-        {
+        if (v9 == 18 || v9 == 17) {
             auto v10 = dot(v16, YVEC);
-            if ( v10 > 0.0f )
-            {
+            if (v10 > 0.0f) {
                 auto v11 = 1.0f - v10;
                 auto v20 = v16 * v11;
                 auto v19 = v10 * YVEC;
@@ -182,9 +170,7 @@ void jump_state::initiate_from_ground()
         auto y_facing = v3->get_y_facing();
         this->field_4C = this->compute_force(v16, y_facing);
         this->field_30->field_64 = v3->get_z_facing();
-    }
-    else
-    {
+    } else {
         THISCALL(0x0044AB30, this);
     }
 }
@@ -200,8 +186,7 @@ void jump_state::initiate_super_jump()
 
 void jump_state::initiate_from_wall()
 {
-    if constexpr (0)
-    {
+    if constexpr (0) {
         auto *v2 = this->field_30;
         auto *v3 = v2->field_20;
         auto *v4 = v2->field_24;
@@ -214,8 +199,7 @@ void jump_state::initiate_from_wall()
         auto v36 = YVEC;
 
         vector3d a2;
-        if (std::abs(dot(YVEC, v27)) < 0.80000001f)
-        {
+        if (std::abs(dot(YVEC, v27)) < 0.80000001f) {
             a2 = v27;
 
             auto v27 = v4->get_axis(static_cast<controller_inode::eControllerAxis>(0));
@@ -279,8 +263,7 @@ void jump_state::initiate_from_swing()
 {
     sp_log("jump_state::initiate_from_swing:");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         auto *v2 = this->get_core();
 
         static const string_hash jump_from_swing_y_bias_id{"jump_from_swing_y_bias"};
@@ -293,13 +276,11 @@ void jump_state::initiate_from_swing()
 
         auto jump_from_swing_vel_mul = v3->field_50.get_pb_float(jump_from_swing_vel_mul_id);
 
-        static const string_hash web_swing_jump_nerf_threshhold_id{
-            "web_swing_jump_nerf_threshhold"};
+        static const string_hash web_swing_jump_nerf_threshhold_id{"web_swing_jump_nerf_threshhold"};
 
         auto *v4 = this->get_core();
 
-        auto web_swing_jump_nerf_threshhold = v4->field_50.get_pb_float(
-            web_swing_jump_nerf_threshhold_id);
+        auto web_swing_jump_nerf_threshhold = v4->field_50.get_pb_float(web_swing_jump_nerf_threshhold_id);
 
         auto *hero_inode_ptr = this->field_30;
         auto *physics_inode_ptr = hero_inode_ptr->field_28;
@@ -327,7 +308,7 @@ void jump_state::initiate_from_swing()
             new_vel *= 35.0f / entry;
         }
 
-        if constexpr (1) { //SHOW_LOCOMOTION_INFO
+        if constexpr (1) {  //SHOW_LOCOMOTION_INFO
             mString v25 = {0, "swing time %.2fs", swing_inode_ptr->m_swing_time};
             auto color = color32{255, 255, 255, 255};
             insertDebugString(1, v25, color);
@@ -357,8 +338,7 @@ void jump_state::initiate_from_swing()
 
         v15->set_desired_params(list);
 
-        if constexpr (1)
-        {
+        if constexpr (1) {
             mString v24 = {0, "entry %.2f", entry};
 
             auto v15 = color32{255, 255, 255, 255};
@@ -374,9 +354,7 @@ void jump_state::initiate_from_swing()
         auto &v17 = physics_inode_ptr->get_z_facing();
 
         this->field_4C = this->compute_force(v17, v16);
-    }
-    else
-    {
+    } else {
         THISCALL(0x0044ADA0, this);
     }
 }
@@ -397,51 +375,58 @@ void jump_state::initiate_from_pole_swing()
     this->field_4C = this->calculate_jump_vector(dir, YVEC, height, distance);
 }
 
-void jump_state::initiate_from_air() {
+void jump_state::initiate_from_air()
+{
     THISCALL(0x0044B220, this);
 }
 
-int jump_state::activate(ai_state_machine *a2,
-                         const mashed_state *a3,
-                         const mashed_state *a4,
-                         const param_block *a5,
-                         base_state::activate_flag_e a6) {
+int jump_state::activate(ai_state_machine *a2, const mashed_state *a3, const mashed_state *a4, const param_block *a5,
+                         base_state::activate_flag_e a6)
+{
     return THISCALL(0x00469880, this, a2, a3, a4, a5, a6);
 }
 
-uint32_t jump_state::get_virtual_type_enum() {
+uint32_t jump_state::get_virtual_type_enum()
+{
     return 303;
 }
 
-bool jump_state::is_subclass_of(mash::virtual_types_enum a2) {
-    return (bool) THISCALL(0x0043BAE0, this, a2);
+bool jump_state::is_subclass_of(mash::virtual_types_enum a2)
+{
+    return (bool)THISCALL(0x0043BAE0, this, a2);
 }
 
-void jump_state::deactivate(const ai::mashed_state *a1) {
+void jump_state::deactivate(const ai::mashed_state *a1)
+{
     THISCALL(0x00449FA0, this, a1);
 }
 
-void jump_state::set_gravity_vector(const vector3d &a2, Float a3) {
+void jump_state::set_gravity_vector(const vector3d &a2, Float a3)
+{
     THISCALL(0x0044A230, this, &a2, a3);
 }
 
-int jump_state::frame_advance_jump_type_specifics(Float a2) {
+int jump_state::frame_advance_jump_type_specifics(Float a2)
+{
     return THISCALL(0x00469AC0, this, a2);
 }
 
-int jump_state::frame_advance(Float a2) {
+int jump_state::frame_advance(Float a2)
+{
     return THISCALL(0x00473E70, this, a2);
 }
 
-int jump_state::get_info_node_list(info_node_desc_list &a1) {
+int jump_state::get_info_node_list(info_node_desc_list &a1)
+{
     return THISCALL(0x0044A3B0, this, &a1);
 }
 
-int jump_state::get_mash_sizeof() {
+int jump_state::get_mash_sizeof()
+{
     return 164;
 }
 
-} // namespace ai
+}  // namespace ai
 
 
 void __fastcall set_velocity(ai::physics_inode *self, void *, const vector3d *a2, bool a3)
@@ -449,20 +434,19 @@ void __fastcall set_velocity(ai::physics_inode *self, void *, const vector3d *a2
     self->field_1C->set_velocity(*a2, a3);
 
     {
-        debug_variable_t v67 {"jump_cap_vel", g_jump_cap_vel};
+        debug_variable_t v67{"jump_cap_vel", g_jump_cap_vel};
         g_jump_cap_vel = v67;
 
-        debug_variable_t v68 {"snow_balling", g_snow_balling};
+        debug_variable_t v68{"snow_balling", g_snow_balling};
         g_snow_balling = v68;
 
-        debug_variable_t v88 {"base_factor", g_base_factor};
+        debug_variable_t v88{"base_factor", g_base_factor};
         g_base_factor = v88;
     }
 }
 
 void jump_state_patch()
 {
-
     {
         REDIRECT(0x004593B2, set_velocity);
     }

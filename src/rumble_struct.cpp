@@ -6,7 +6,8 @@
 
 VALIDATE_SIZE(rumble_struct, 0x24);
 
-rumble_struct::rumble_struct() {
+rumble_struct::rumble_struct()
+{
 #if 0
     this->field_20 = 0;
     this->field_0 = -1.0;
@@ -20,7 +21,7 @@ rumble_struct::rumble_struct() {
     this->field_1D = 1;
     this->field_20 = 0;
 #else
-    void (__fastcall *func)(rumble_struct *) = CAST(func, 0x005BA400);
+    void(__fastcall * func)(rumble_struct *) = CAST(func, 0x005BA400);
     func(this);
 #endif
 }

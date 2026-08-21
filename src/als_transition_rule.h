@@ -6,54 +6,51 @@
 struct from_mash_in_place_constructor;
 struct mash_info_struct;
 
-namespace als
-{
-    struct als_data;
-    struct filter_data;
+namespace als {
+struct als_data;
+struct filter_data;
 
-    struct implicit_transition_rule {
-        als::basic_rule_data field_0;
+struct implicit_transition_rule {
+    als::basic_rule_data field_0;
 
-        implicit_transition_rule(from_mash_in_place_constructor *);
+    implicit_transition_rule(from_mash_in_place_constructor *);
 
-        bool can_transition(als_data &a1) const;
+    bool can_transition(als_data &a1) const;
 
-        void unmash(mash_info_struct *a1, void *a3);
-    };
+    void unmash(mash_info_struct *a1, void *a3);
+};
 
-    struct explicit_transition_rule {
-        als::basic_rule_data field_0;
-        string_hash field_24;
+struct explicit_transition_rule {
+    als::basic_rule_data field_0;
+    string_hash field_24;
 
-        explicit_transition_rule(from_mash_in_place_constructor *a2);
+    explicit_transition_rule(from_mash_in_place_constructor *a2);
 
-        bool can_transition(
-            als_data &a1,
-            string_hash a3) const;
+    bool can_transition(als_data &a1, string_hash a3) const;
 
-        void unmash(mash_info_struct *a1, void *a3);
-    };
+    void unmash(mash_info_struct *a1, void *a3);
+};
 
-    struct layer_transition_rule {
-        int field_0;
-        int field_4;
-        basic_rule_data::rule_action field_8;
-        int field_14;
+struct layer_transition_rule {
+    int field_0;
+    int field_4;
+    basic_rule_data::rule_action field_8;
+    int field_14;
 
-        layer_transition_rule(from_mash_in_place_constructor *);
+    layer_transition_rule(from_mash_in_place_constructor *);
 
-        void unmash(mash_info_struct *, void *);
+    void unmash(mash_info_struct *, void *);
 
-        bool can_transition(als_data &a2) const;
-    };
+    bool can_transition(als_data &a2) const;
+};
 
-    struct incoming_transition_rule {
-        basic_rule_data field_0;
-        int field_24;
-        int field_28;
+struct incoming_transition_rule {
+    basic_rule_data field_0;
+    int field_24;
+    int field_28;
 
-        incoming_transition_rule(from_mash_in_place_constructor *a2);
+    incoming_transition_rule(from_mash_in_place_constructor *a2);
 
-        void unmash(mash_info_struct *a1, void *a3);
-    };
-}
+    void unmash(mash_info_struct *a1, void *a3);
+};
+}  // namespace als

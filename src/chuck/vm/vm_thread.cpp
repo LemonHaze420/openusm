@@ -19,18 +19,17 @@ VALIDATE_SIZE(vm_thread, 0x1E8);
 VALIDATE_OFFSET(vm_thread, dstack, 0x20);
 VALIDATE_OFFSET(vm_thread, entry, 0x1D8);
 
-auto & dword_965F1C = var<int (*)(uint32_t, uint32_t)>(0x00965F1C);
+auto &dword_965F1C = var<int (*)(uint32_t, uint32_t)>(0x00965F1C);
 
-auto & dword_965F20 = var<void (*)(vm_thread *, string_hash)>(0x00965F20);
+auto &dword_965F20 = var<void (*)(vm_thread *, string_hash)>(0x00965F20);
 
-Var<fixed_pool> vm_thread::pool {0x00922D58};
+Var<fixed_pool> vm_thread::pool{0x00922D58};
 
 vm_thread::vm_thread(script_instance *a2, const vm_executable *a3) : dstack(this)
 {
     TRACE("vm_thread::vm_thread");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         this->ex = a3;
         this->inst = a2;
         this->field_14 = nullptr;
@@ -44,9 +43,7 @@ vm_thread::vm_thread(script_instance *a2, const vm_executable *a3) : dstack(this
         this->PC_stack.reserve(4u);
         this->field_1B0 = nullptr;
         this->field_1B4 = 0.0;
-    }
-    else
-    {
+    } else {
         THISCALL(0x005A5420, this, a2, a3);
     }
 
@@ -57,8 +54,7 @@ vm_thread::vm_thread(script_instance *a2, const vm_executable *a3, void *a4) : d
 {
     TRACE("vm_thread::vm_thread");
 
-    if constexpr(1)
-    {
+    if constexpr (1) {
         this->ex = a3;
         this->inst = a2;
         this->field_14 = nullptr;
@@ -72,9 +68,7 @@ vm_thread::vm_thread(script_instance *a2, const vm_executable *a3, void *a4) : d
         this->PC_stack.reserve(4u);
         this->field_1B0 = nullptr;
         this->field_1B4 = 0.0;
-    }
-    else
-    {
+    } else {
         THISCALL(0x005A5500, this, a2, a3, a4);
     }
 
@@ -83,12 +77,11 @@ vm_thread::vm_thread(script_instance *a2, const vm_executable *a3, void *a4) : d
 
 vm_thread::~vm_thread()
 {
-    if ( this->inst != nullptr ) {
+    if (this->inst != nullptr) {
         this->inst->run_callbacks(static_cast<script_instance_callback_reason_t>(1), this);
     }
 
-    while ( this->field_1C8.size() != 0 )
-    {
+    while (this->field_1C8.size() != 0) {
         auto &v3 = this->field_1C8.back();
 
         dword_965F20(this, v3.field_0);
@@ -96,7 +89,7 @@ vm_thread::~vm_thread()
     }
 }
 
-void * vm_thread::operator new(size_t )
+void *vm_thread::operator new(size_t)
 {
     return pool().allocate_new_block();
 }
@@ -106,9 +99,9 @@ void vm_thread::operator delete(void *ptr)
     pool().remove(ptr);
 }
 
-const vm_executable * vm_thread::get_running_executable() const
+const vm_executable *vm_thread::get_running_executable() const
 {
-    if ( this->PC != nullptr ) {
+    if (this->PC != nullptr) {
         return script_manager::find_function_by_address(this->PC);
     }
 
@@ -118,39 +111,29 @@ const vm_executable * vm_thread::get_running_executable() const
 
 void vm_thread::set_flag(flags_t a2, bool a3)
 {
-    this->flags = ( a3
-                    ? (this->flags | a2)
-                    : (this->flags & ~a2)
-                    );
+    this->flags = (a3 ? (this->flags | a2) : (this->flags & ~a2));
 }
 
 void vm_thread::set_suspended(bool a2)
 {
     TRACE("vm_thread::set_suspended");
-    if ( !a2 || this->is_flagged(SUSPENDABLE) )
-    {
+    if (!a2 || this->is_flagged(SUSPENDABLE)) {
         this->set_flag(SUSPENDED, a2);
     }
 }
 
 void vm_thread::pop_PC()
 {
-	if constexpr (0)
-    {
-		if ( this->PC_stack.empty() )
-		{
-			this->PC = nullptr;
-		}
-		else
-		{
-			this->PC = this->PC_stack.back();
-			this->PC_stack.pop_back();
-		}
-	}
-    else
-    {
-		THISCALL(0x005A0C10, this);
-	}
+    if constexpr (0) {
+        if (this->PC_stack.empty()) {
+            this->PC = nullptr;
+        } else {
+            this->PC = this->PC_stack.back();
+            this->PC_stack.pop_back();
+        }
+    } else {
+        THISCALL(0x005A0C10, this);
+    }
 }
 
 void vm_thread::create_event_callback(const vm_thread::argument_t &a2, bool a3)
@@ -181,26 +164,23 @@ void vm_thread::spawn_parallel_thread(const vm_thread::argument_t &a2)
 void vm_thread::slf_error(const mString &a2)
 {
     const auto *cur_ex = script_manager::find_function_by_address(this->PC);
-    if ( cur_ex != nullptr )
-    {
+    if (cur_ex != nullptr) {
         auto &v23 = cur_ex->get_fullname();
         auto *v2 = v23.to_string();
-        mString v21 {v2};
-        auto *owner = (const script_object *) cur_ex->get_owner();
+        mString v21{v2};
+        auto *owner = (const script_object *)cur_ex->get_owner();
         auto &v19 = owner->get_name();
         auto *v4 = v19.to_string();
-        mString a3 {v4};
+        mString a3{v4};
         auto &v16 = this->inst->get_name();
         auto *v5 = v16.to_string();
-        auto v9 = mString {v5} + ": " + a3 + "::" + v21 + ":\n" + a2;
+        auto v9 = mString{v5} + ": " + a3 + "::" + v21 + ":\n" + a2;
         auto *v6 = v9.c_str();
         script_manager::run_callbacks((script_manager_callback_reason)4, nullptr, v6);
-    }
-    else
-    {
+    } else {
         auto &v24 = this->inst->get_name();
         auto *v7 = v24.to_string();
-        auto a3a = mString {v7} + ": (UNKNOWN FUNCTION!):\n" + a2;
+        auto a3a = mString{v7} + ": (UNKNOWN FUNCTION!):\n" + a2;
         auto *v8 = a3a.c_str();
         script_manager::run_callbacks((script_manager_callback_reason)4, nullptr, v8);
     }
@@ -216,28 +196,27 @@ bool vm_thread::run()
 
     {
         sp_log("Thread %s %s\n\tPC 0x%08X stack(0x%08X to 0x%08X) size %d\n",
-                this->ex->get_fullname().to_string(),
-                this->inst->get_name().to_string(),
-                (uint32_t) this->PC,
-                bit_cast<uint32_t>(this->PC_stack.begin()),
-                bit_cast<uint32_t>(this->PC_stack.end()),
-                this->PC_stack.size());
+               this->ex->get_fullname().to_string(),
+               this->inst->get_name().to_string(),
+               (uint32_t)this->PC,
+               bit_cast<uint32_t>(this->PC_stack.begin()),
+               bit_cast<uint32_t>(this->PC_stack.end()),
+               this->PC_stack.size());
 
         sp_log("%s", this->inst->get_parent()->get_parent()->field_0.to_string());
     }
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         [[maybe_unused]] auto dword_965F24 = (int)&this->PC;
         bool v109 = false;
 
         opcode_arg_t prev_argtype = OP_ARG_NULL;
         opcode_arg_t argtype = OP_ARG_NULL;
 
-        argument_t arg {};
+        argument_t arg{};
 
-        argument_t prev_arg {};
-        uint16_t saved_dsize = 0; 
+        argument_t prev_arg{};
+        uint16_t saved_dsize = 0;
         float v114 = 0.0;
         bool running = true;
         bool kill_me = false;
@@ -245,13 +224,12 @@ bool vm_thread::run()
         opcode_t op = OP_ADD;
         opcode_t prev_op = OP_ADD;
 
-        while ( running )
-        {
+        while (running) {
             auto *oldPC = this->PC;
             uint16_t opword = *this->PC++;
             printf("\nopword = 0x%04X\n", opword);
 
-            if ( op != 60 && op != 61 ) {
+            if (op != 60 && op != 61) {
                 prev_op = op;
                 prev_argtype = argtype;
                 prev_arg = arg;
@@ -266,12 +244,11 @@ bool vm_thread::run()
             printf("%d %s\n", argtype, opcode_arg_t_str[argtype]);
 
             uint16_t dsize = 4;
-            if ( (opword & OP_DSIZE_FLAG) != 0 ) {
+            if ((opword & OP_DSIZE_FLAG) != 0) {
                 dsize = *this->PC++;
             }
 
-            switch ( argtype )
-            {
+            switch (argtype) {
             case OP_ARG_NULL:
                 break;
             case OP_ARG_NUM:
@@ -354,7 +331,7 @@ bool vm_thread::run()
             };
 
             auto compare_string = [this](opcode_arg_t argtype, const argument_t &arg, auto func) -> void {
-                switch(argtype) {
+                switch (argtype) {
                 case OP_ARG_NULL: {
                     vm_str_t v = this->dstack.pop_str();
                     this->dstack.top_num() = func(strcmp(this->dstack.top_str(), v), 0);
@@ -370,20 +347,17 @@ bool vm_thread::run()
             };
 
             //printf("op = %d, argtype = %s\n", int(op), opcode_arg_t_str[argtype]);
-            switch ( static_cast<int>(op) )
-            {
+            switch (static_cast<int>(op)) {
             case OP_ADD: {
                 assert(dsize == 4);
 
-                if ( argtype == OP_ARG_NUM )
-                {
-                    if ( arg.binary == UNINITIALIZED_SCRIPT_PARM
-                            || (int &)this->dstack.top_num() == UNINITIALIZED_SCRIPT_PARM )
-                    {
+                if (argtype == OP_ARG_NUM) {
+                    if (arg.binary == UNINITIALIZED_SCRIPT_PARM ||
+                        (int &)this->dstack.top_num() == UNINITIALIZED_SCRIPT_PARM) {
                         auto *ex = this->get_executable();
                         auto &v704 = ex->get_fullname();
                         auto *v118 = v704.to_string();
-                        mString a3bs {v118};
+                        mString a3bs{v118};
                         auto v328 = "Uninitilized 'num' in thread " + a3bs + "\n\n" + "OP_ADD (a + b)";
                         this->slf_error(v328);
                     }
@@ -401,18 +375,17 @@ bool vm_thread::run()
             case OP_BF: {
                 assert(argtype == OP_ARG_PCR);
 
-                if ( (int &)this->dstack.top_num() == UNINITIALIZED_SCRIPT_PARM )
-                {
+                if ((int &)this->dstack.top_num() == UNINITIALIZED_SCRIPT_PARM) {
                     auto *ex = this->get_executable();
                     auto &v704 = ex->get_fullname();
                     auto *v118 = v704.to_string();
-                    mString a3bs {v118};
+                    mString a3bs{v118};
                     auto v328 = "Uninitilized 'num' in thread " + a3bs + "\n\n" + "OP_BF ( if(!a) <branch> )";
                     this->slf_error(v328);
                 }
 
                 auto val = this->dstack.pop_num();
-                if ( equal(0.0f, val) ) {
+                if (equal(0.0f, val)) {
                     sp_log("%d", arg.word);
                     //assert(0);
                     (uint32_t &)this->PC += arg.word;
@@ -456,11 +429,10 @@ bool vm_thread::run()
                 assert(dsize == 4);
                 assert(argtype == OP_ARG_NULL);
 
-                if ( (int &)this->dstack.top_num() == UNINITIALIZED_SCRIPT_PARM )
-                {
+                if ((int &)this->dstack.top_num() == UNINITIALIZED_SCRIPT_PARM) {
                     auto *ex = this->get_executable();
                     auto *v26 = ex->get_fullname().to_string();
-                    mString a3j {v26};
+                    mString a3j{v26};
                     auto v295 = "Uninitilized 'num' in thread " + a3j + "\n\n" + "OP_DEC (a-- or --a)";
                     this->slf_error(v295);
                 }
@@ -473,36 +445,26 @@ bool vm_thread::run()
                 binary_func(argtype, arg, std::divides<vm_num_t>{});
                 break;
             case OP_DUP: {
-                switch ( argtype )
-                {
+                switch (argtype) {
                 case OP_ARG_NULL:
                     this->dstack.push(this->dstack.get_SP() - dsize, dsize);
                     break;
                 case OP_ARG_SPR:
-                    memcpy(this->dstack.get_SP() + arg.word,
-                            this->dstack.get_SP() - dsize,
-                            dsize);
+                    memcpy(this->dstack.get_SP() + arg.word, this->dstack.get_SP() - dsize, dsize);
                     break;
                 case OP_ARG_POPO: {
                     auto *si = static_cast<script_instance *>(this->dstack.pop_addr());
-                    if ( (uint32_t) si == 0x0
-                      || (uint32_t) si == 0x7B7B7B7B
-                      || (uint32_t) si == 0x7D7D7D7D
-                      || (uint32_t) si == 0x7F7F7F7F
-                      || (uint32_t) si == 0x7BAD05CF ) {
-
-                        this->slf_error(mString {"reference to bad or uninitialized script object instance value"});
+                    if ((uint32_t)si == 0x0 || (uint32_t)si == 0x7B7B7B7B || (uint32_t)si == 0x7D7D7D7D ||
+                        (uint32_t)si == 0x7F7F7F7F || (uint32_t)si == 0x7BAD05CF) {
+                        this->slf_error(mString{"reference to bad or uninitialized script object instance value"});
                     }
-                    memcpy(si->get_buffer() + arg.word,
-                            this->dstack.get_SP() - dsize,
-                            dsize);
+                    memcpy(si->get_buffer() + arg.word, this->dstack.get_SP() - dsize, dsize);
                     break;
                 }
-                case OP_ARG_SDR:
-                {
+                case OP_ARG_SDR: {
                     int offset;
-                    for ( offset = 4; offset < dsize; offset += 4 ) {
-                        assert((*(int*)( dstack.get_SP() - offset )) != UNINITIALIZED_SCRIPT_PARM);
+                    for (offset = 4; offset < dsize; offset += 4) {
+                        assert((*(int *)(dstack.get_SP() - offset)) != UNINITIALIZED_SCRIPT_PARM);
                     }
 
                     assert(offset == dsize && "dsize should be divisible by 4");
@@ -520,15 +482,13 @@ bool vm_thread::run()
             case OP_EQ: {
                 assert(dsize == 4);
 
-                if ( argtype == OP_ARG_NUM )
-                {
-                    if ( arg.binary == UNINITIALIZED_SCRIPT_PARM
-                            || (int &) this->dstack.top_num() == UNINITIALIZED_SCRIPT_PARM )
-                    {
+                if (argtype == OP_ARG_NUM) {
+                    if (arg.binary == UNINITIALIZED_SCRIPT_PARM ||
+                        (int &)this->dstack.top_num() == UNINITIALIZED_SCRIPT_PARM) {
                         auto *ex = this->get_executable();
                         auto &v704 = ex->get_fullname();
                         auto *v118 = v704.to_string();
-                        mString a3bs {v118};
+                        mString a3bs{v118};
                         auto v328 = "Uninitilized 'num' in thread " + a3bs + "\n\n" + "OP_EQ (a == b)";
                         this->slf_error(v328);
                     }
@@ -540,15 +500,13 @@ bool vm_thread::run()
             case OP_GE:
                 assert(dsize == 4);
 
-                if ( argtype != OP_ARG_NULL )
-                {
-                    if ( arg.binary == UNINITIALIZED_SCRIPT_PARM
-                            || (int &) this->dstack.top_num() == UNINITIALIZED_SCRIPT_PARM )
-                    {
+                if (argtype != OP_ARG_NULL) {
+                    if (arg.binary == UNINITIALIZED_SCRIPT_PARM ||
+                        (int &)this->dstack.top_num() == UNINITIALIZED_SCRIPT_PARM) {
                         auto *ex = this->get_executable();
                         auto &v704 = ex->get_fullname();
                         auto *v118 = v704.to_string();
-                        mString a3bs {v118};
+                        mString a3bs{v118};
                         auto v328 = "Uninitilized 'num' in thread " + a3bs + "\n\n" + "OP_GE (a >= b)";
                         this->slf_error(v328);
                     }
@@ -565,11 +523,10 @@ bool vm_thread::run()
                 assert(dsize == 4);
                 assert(argtype == OP_ARG_NULL);
 
-                if ( (int &)this->dstack.top_num() == UNINITIALIZED_SCRIPT_PARM )
-                {
+                if ((int &)this->dstack.top_num() == UNINITIALIZED_SCRIPT_PARM) {
                     auto *ex = this->get_executable();
                     auto *v26 = ex->get_fullname().to_string();
-                    mString a3j {v26};
+                    mString a3j{v26};
                     auto v295 = "Uninitilized 'num' in thread " + a3j + "\n\n" + "OP_DEC (a++ or ++a)";
                     this->slf_error(v295);
                 }
@@ -580,17 +537,14 @@ bool vm_thread::run()
                 break;
             }
             case OP_KIL: {
-
                 switch (argtype) {
                 case OP_ARG_NULL:
                     kill_me = true;
                     running = false;
                     break;
                 case OP_ARG_SFR: {
-
                     vm_thread *t = nullptr;
-                    if ( this->ex == arg.sfr )
-                    {
+                    if (this->ex == arg.sfr) {
                         kill_me = true;
                         running = false;
                         t = this;
@@ -603,10 +557,8 @@ bool vm_thread::run()
                     break;
                 }
 
-                if ( argtype != 0 ) {
-                    if ( argtype == OP_ARG_SFR )
-                    {
-                    }
+                if (argtype != 0) {
+                    if (argtype == OP_ARG_SFR) {}
                 } else {
                 }
 
@@ -615,8 +567,7 @@ bool vm_thread::run()
             case OP_LE:
                 assert(dsize == 4);
 
-                {
-                }
+                {}
 
                 binary_func(argtype, arg, std::less_equal<vm_num_t>{});
                 break;
@@ -624,11 +575,10 @@ bool vm_thread::run()
                 assert(dsize == 4);
                 assert(argtype == OP_ARG_NULL);
 
-                if ( (int &)this->dstack.top_num() == UNINITIALIZED_SCRIPT_PARM )
-                {
+                if ((int &)this->dstack.top_num() == UNINITIALIZED_SCRIPT_PARM) {
                     auto *ex = this->get_executable();
                     auto *v26 = ex->get_fullname().to_string();
-                    mString a3j {v26};
+                    mString a3j{v26};
                     auto v295 = "Uninitilized 'num' in thread " + a3j + "\n\n" + "OP_LNT (!a)";
                     this->slf_error(v295);
                 }
@@ -641,15 +591,13 @@ bool vm_thread::run()
             case OP_LT: {
                 assert(dsize == 4);
 
-                if ( argtype != OP_ARG_NULL )
-                {
-                    if ( arg.binary == UNINITIALIZED_SCRIPT_PARM
-                            || (int &) this->dstack.top_num() == UNINITIALIZED_SCRIPT_PARM )
-                    {
+                if (argtype != OP_ARG_NULL) {
+                    if (arg.binary == UNINITIALIZED_SCRIPT_PARM ||
+                        (int &)this->dstack.top_num() == UNINITIALIZED_SCRIPT_PARM) {
                         auto *ex = this->get_executable();
                         auto &v704 = ex->get_fullname();
                         auto *v118 = v704.to_string();
-                        mString a3bs {v118};
+                        mString a3bs{v118};
                         auto v328 = "Uninitilized 'num' in thread " + a3bs + "\n\n" + "OP_LT (a < b)";
                         this->slf_error(v328);
                     }
@@ -691,11 +639,10 @@ bool vm_thread::run()
                 assert(dsize == 4);
                 assert(argtype == OP_ARG_NULL);
 
-                if ( (int &)this->dstack.top_num() == UNINITIALIZED_SCRIPT_PARM )
-                {
+                if ((int &)this->dstack.top_num() == UNINITIALIZED_SCRIPT_PARM) {
                     auto *ex = this->get_executable();
                     auto *v26 = ex->get_fullname().to_string();
-                    mString a3j {v26};
+                    mString a3j{v26};
                     auto v295 = "Uninitilized 'num' in thread " + a3j + "\n\n" + "OP_NOT (~a)";
                     this->slf_error(v295);
                 }
@@ -710,8 +657,7 @@ bool vm_thread::run()
                 break;
             }
             case OP_POP: {
-                switch ( argtype )
-                {
+                switch (argtype) {
                 case OP_ARG_NULL: {
                     this->dstack.pop(dsize);
                     break;
@@ -719,49 +665,35 @@ bool vm_thread::run()
                 case OP_ARG_SPR: {
                     auto func = [this, &arg](auto dsize, int a3) {
                         auto *SP = this->dstack.get_SP();
-                        memcpy(SP + arg.word + dsize * a3,
-                                SP - dsize,
-                                dsize);
+                        memcpy(SP + arg.word + dsize * a3, SP - dsize, dsize);
                         this->dstack.pop(dsize);
                     };
 
-                    if ( v109 )
-                    {
+                    if (v109) {
                         v109 = false;
-                        func(saved_dsize, int(v114)); 
-                    }
-                    else
-                    {
-                        func(dsize, 0); 
+                        func(saved_dsize, int(v114));
+                    } else {
+                        func(dsize, 0);
                     }
 
                     break;
                 }
                 case OP_ARG_POPO: {
                     script_instance *si = static_cast<script_instance *>(this->dstack.pop_addr());
-                    if ( (uint32_t)si == 0
-                      || (uint32_t)si == 0x7B7B7B7B
-                      || (uint32_t)si == 0x7D7D7D7D
-                      || (uint32_t)si == 0x7F7F7F7F
-                      || (uint32_t)si == 0x7BAD05CF ) {
-
-                        this->slf_error(mString {"reference to bad or uninitialized script object instance value"});
+                    if ((uint32_t)si == 0 || (uint32_t)si == 0x7B7B7B7B || (uint32_t)si == 0x7D7D7D7D ||
+                        (uint32_t)si == 0x7F7F7F7F || (uint32_t)si == 0x7BAD05CF) {
+                        this->slf_error(mString{"reference to bad or uninitialized script object instance value"});
                     }
 
                     auto func = [this, si, &arg](auto dsize, int a3) -> void {
-                        memcpy(si->get_buffer() + arg.word + dsize * a3,
-                                this->dstack.get_SP() - dsize,
-                                dsize);
+                        memcpy(si->get_buffer() + arg.word + dsize * a3, this->dstack.get_SP() - dsize, dsize);
                         this->dstack.pop(dsize);
                     };
 
-                    if ( v109 )
-                    {
+                    if (v109) {
                         v109 = false;
                         func(saved_dsize, int(v114));
-                    }
-                    else
-                    {
+                    } else {
                         func(dsize, 0);
                     }
 
@@ -769,26 +701,20 @@ bool vm_thread::run()
                 }
                 case OP_ARG_SDR: {
                     auto func = [this, &arg](auto dsize, int a3) -> void {
-
                         int offset;
                         for (offset = 4; offset < dsize; offset += 4) {
-                            assert((*(int*)( dstack.get_SP() - offset )) != UNINITIALIZED_SCRIPT_PARM);
+                            assert((*(int *)(dstack.get_SP() - offset)) != UNINITIALIZED_SCRIPT_PARM);
                         }
 
                         assert(offset == dsize && "dsize should be divisible by 4");
 
-                        memcpy(arg.sdr + dsize * a3,
-                                this->dstack.get_SP() - dsize,
-                                dsize);
+                        memcpy(arg.sdr + dsize * a3, this->dstack.get_SP() - dsize, dsize);
                         this->dstack.pop(dsize);
                     };
 
-                    if ( !v109 )
-                    {
+                    if (!v109) {
                         func(dsize, 0);
-                    }
-                    else
-                    {
+                    } else {
                         v109 = false;
                         func(saved_dsize, int(v114));
                     }
@@ -803,13 +729,10 @@ bool vm_thread::run()
                         this->dstack.pop(dsize);
                     };
 
-                    if ( v109 )
-                    {
+                    if (v109) {
                         v109 = false;
                         func(saved_dsize, int(v114));
-                    }
-                    else
-                    {
+                    } else {
                         func(dsize, 0);
                     }
 
@@ -823,16 +746,13 @@ bool vm_thread::run()
                 break;
             }
             case OP_PSH: {
-
-                switch ( argtype )
-                {
+                switch (argtype) {
                 case OP_ARG_NUM:
-                    if (arg.binary == UNINITIALIZED_SCRIPT_PARM)
-                    {
+                    if (arg.binary == UNINITIALIZED_SCRIPT_PARM) {
                         auto *ex = this->get_executable();
                         auto &v728 = ex->get_fullname();
                         auto *v186 = v728.to_string();
-                        auto v352 = "Uninitilized 'num' in thread " + mString {v186} + "\n\n" + "OP_PSH (?)";
+                        auto v352 = "Uninitilized 'num' in thread " + mString{v186} + "\n\n" + "OP_PSH (?)";
                         this->slf_error(v352);
                     }
 
@@ -848,17 +768,11 @@ bool vm_thread::run()
                     this->dstack.push(this->dstack.get_SP() + arg.word, dsize);
                     break;
                 case OP_ARG_POPO: {
-
                     auto *si = static_cast<script_instance *>(this->dstack.pop_addr());
 
-                    if ( (uint32_t)si == 0
-                      || (uint32_t)si == 0x7B7B7B7B
-                      || (uint32_t)si == 0x7D7D7D7D
-                      || (uint32_t)si == 0x7F7F7F7F
-                      || (uint32_t)si == UNINITIALIZED_SCRIPT_PARM ) 
-                    {
-
-                        this->slf_error(mString {"reference to bad or uninitialized script object instance value"});
+                    if ((uint32_t)si == 0 || (uint32_t)si == 0x7B7B7B7B || (uint32_t)si == 0x7D7D7D7D ||
+                        (uint32_t)si == 0x7F7F7F7F || (uint32_t)si == UNINITIALIZED_SCRIPT_PARM) {
+                        this->slf_error(mString{"reference to bad or uninitialized script object instance value"});
                     }
 
                     this->dstack.push(si->get_buffer() + arg.word, dsize);
@@ -893,7 +807,7 @@ bool vm_thread::run()
                 assert(argtype == OP_ARG_NULL || argtype == OP_ARG_WORD);
 
                 this->pop_PC();
-                if ( this->PC == nullptr ) {
+                if (this->PC == nullptr) {
                     kill_me = true;
                     running = false;
                 }
@@ -916,10 +830,9 @@ bool vm_thread::run()
                 assert(argtype == OP_ARG_WORD);
 
                 this->dstack.move_SP(arg.word);
-                while ( this->field_1C8.size() != 0 )
-                {
+                while (this->field_1C8.size() != 0) {
                     auto &v81 = this->field_1C8.back();
-                    if ( v81.field_4 < this->dstack.get_SP() ) {
+                    if (v81.field_4 < this->dstack.get_SP()) {
                         break;
                     }
 
@@ -981,8 +894,7 @@ bool vm_thread::run()
 
                 auto *si = static_cast<script_instance *>(this->dstack.pop_addr());
                 vm_thread *v32 = nullptr;
-                if ( this->inst == si && this->ex == arg.sfr )
-                {
+                if (this->inst == si && this->ex == arg.sfr) {
                     running = false;
                     kill_me = true;
                     v32 = this;
@@ -994,17 +906,16 @@ bool vm_thread::run()
             case 50: {
                 assert(argtype == OP_ARG_PCR);
 
-                if ( (int &)this->dstack.top_num() == UNINITIALIZED_SCRIPT_PARM )
-                {
+                if ((int &)this->dstack.top_num() == UNINITIALIZED_SCRIPT_PARM) {
                     auto *ex = this->get_executable();
                     auto &v704 = ex->get_fullname();
                     auto *v118 = v704.to_string();
-                    mString a3bs {v118};
+                    mString a3bs{v118};
                     auto v328 = "Uninitilized 'num' in thread " + a3bs + "\n\n" + "OP_BF ( if(!a) <branch> )";
                     this->slf_error(v328);
                 }
 
-                if ( equal(this->dstack.top_num(), 0.0f) ) {
+                if (equal(this->dstack.top_num(), 0.0f)) {
                     (uint32_t &)this->PC += arg.word;
                 }
 
@@ -1016,7 +927,7 @@ bool vm_thread::run()
 
                 auto a1 = this->dstack.pop_num();
                 static char byte_967F90[256]{};
-                if ( op == 51 ) {
+                if (op == 51) {
                     chuck_itoa(a1, byte_967F90, 0x100);
                 } else {
                     chuck_ftoa(a1, 3, byte_967F90, 0x100);
@@ -1042,7 +953,7 @@ bool vm_thread::run()
             }
             case 54: {
                 auto *v33 = this->inst;
-                if ( argtype == OP_ARG_NULL ) {
+                if (argtype == OP_ARG_NULL) {
                     kill_me = true;
                     running = false;
                     v33->massacre_threads(nullptr, this);
@@ -1060,17 +971,15 @@ bool vm_thread::run()
 
                 auto *si = static_cast<script_instance *>(this->dstack.pop_addr());
 
-                if ( si == nullptr || int(si) == UNINITIALIZED_SCRIPT_PARM )
-                {
+                if (si == nullptr || int(si) == UNINITIALIZED_SCRIPT_PARM) {
                     auto *ex = this->get_executable();
                     auto *v26 = ex->get_fullname().to_string();
-                    mString a3j {v26};
+                    mString a3j{v26};
                     auto v295 = "Use of OP_MS2 by " + a3j + ": invalid local script object instance pointer";
                     this->slf_error(v295);
                 }
 
-                if ( this->inst == si && this->ex == arg.sfr )
-                {
+                if (this->inst == si && this->ex == arg.sfr) {
                     kill_me = true;
                     running = false;
                 }
@@ -1099,12 +1008,9 @@ bool vm_thread::run()
             }
             case 58: {
                 auto *si = static_cast<script_instance *>(this->dstack.pop_addr());
-                if ( (uint32_t)si == 0
-                  || (uint32_t)si == 0x7B7B7B7B
-                  || (uint32_t)si == 0x7D7D7D7D
-                  || (uint32_t)si == 0x7F7F7F7F
-                  || (uint32_t)si == 0x7BAD05CF ) {
-                    this->slf_error(mString {"reference to bad or uninitialized script object instance value"});
+                if ((uint32_t)si == 0 || (uint32_t)si == 0x7B7B7B7B || (uint32_t)si == 0x7D7D7D7D ||
+                    (uint32_t)si == 0x7F7F7F7F || (uint32_t)si == 0x7BAD05CF) {
+                    this->slf_error(mString{"reference to bad or uninitialized script object instance value"});
                 }
 
                 auto num_0 = this->dstack.pop_num();
@@ -1112,13 +1018,9 @@ bool vm_thread::run()
                 auto v89 = arg.word;
 
                 auto *src = si->get_buffer() + int(num_0) + v89 * int(num_1);
-                memcpy(
-                    this->dstack.get_SP(),
-                    src,
-                    v89);
+                memcpy(this->dstack.get_SP(), src, v89);
                 this->dstack.move_SP(v89);
                 break;
-
             }
             case 59: {
                 this->dstack.pop(arg.word);
@@ -1148,10 +1050,8 @@ bool vm_thread::run()
 
         dword_965F24 = 0;
         return kill_me;
-    }
-    else
-    {
-        bool (__fastcall *func)(void *) = CAST(func, 0x005ADD00);
+    } else {
+        bool(__fastcall * func)(void *) = CAST(func, 0x005ADD00);
         return func(this);
     }
 }
@@ -1160,12 +1060,9 @@ void vm_thread::push_PC()
 {
     TRACE("vm_thread::push_PC");
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         this->PC_stack.push_back(this->PC);
-    }
-    else
-    {
+    } else {
         THISCALL(0x005A56F0, this);
     }
 
@@ -1175,13 +1072,15 @@ void vm_thread::push_PC()
     }
 }
 
-void vm_thread::raise_event(const vm_thread::argument_t &a2, opcode_arg_t arg_type) {
+void vm_thread::raise_event(const vm_thread::argument_t &a2, opcode_arg_t arg_type)
+{
     assert(arg_type == OP_ARG_SIG || arg_type == OP_ARG_PSIG);
 
     THISCALL(0x00599710, this, &a2, arg_type);
 }
 
-void vm_thread::raise_all_event(const vm_thread::argument_t &a2, opcode_arg_t arg_type) {
+void vm_thread::raise_all_event(const vm_thread::argument_t &a2, opcode_arg_t arg_type)
+{
     assert(arg_type == OP_ARG_SIG);
 
     THISCALL(0x0058F960, this, &a2, arg_type);
@@ -1189,7 +1088,7 @@ void vm_thread::raise_all_event(const vm_thread::argument_t &a2, opcode_arg_t ar
 
 char *vm_thread::install_temp_string(const char *a1)
 {
-    static int & index = var<int>(0x00967E0C);
+    static int &index = var<int>(0x00967E0C);
 
     auto v2 = index++;
     if (index >= 64) {
@@ -1205,8 +1104,7 @@ bool vm_thread::call_script_library_function(const vm_thread::argument_t &arg, c
 {
     //TRACE("vm_thread::call_script_library_function");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         auto *oldSP = this->dstack.get_SP();
 
         printf("arg.lfr = 0x%08X\n", int(arg.lfr->m_vtbl));
@@ -1237,21 +1135,18 @@ bool vm_thread::call_script_library_function(const vm_thread::argument_t &arg, c
         }
 
         return false;
-    }
-    else
-    {
-
-        bool (__fastcall *func)(void *, void *edx, const vm_thread::argument_t *arg, const uint16_t *oldPC) = CAST(func, 0x0058F7E0);
+    } else {
+        bool(__fastcall * func)(void *, void *edx, const vm_thread::argument_t *arg, const uint16_t *oldPC) =
+            CAST(func, 0x0058F7E0);
         return func(this, nullptr, &arg, oldPC);
     }
 }
 
-void vm_thread::register_callbacks(
-        void (*a1)(vm_thread *, string_hash, vhandle_type<signaller>, vm_executable *, char *, bool),
-        void (*a2)(vm_thread *, string_hash, vhandle_type<signaller>),
-        void (*a3)(vm_thread *, string_hash),
-        int (*a4)(uint32_t, uint32_t),
-        void (*a5)(vm_thread *, string_hash))
+void vm_thread::register_callbacks(void (*a1)(vm_thread *, string_hash, vhandle_type<signaller>, vm_executable *,
+                                              char *, bool),
+                                   void (*a2)(vm_thread *, string_hash, vhandle_type<signaller>),
+                                   void (*a3)(vm_thread *, string_hash), int (*a4)(uint32_t, uint32_t),
+                                   void (*a5)(vm_thread *, string_hash))
 {
     vm_thread::add_signal_callback_callback = a1;
     vm_thread::raise_signal_callback = a2;

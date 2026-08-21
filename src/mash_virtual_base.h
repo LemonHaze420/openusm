@@ -10,9 +10,9 @@
 
 namespace mash {
 
-enum virtual_types_enum { };
+enum virtual_types_enum {};
 
-} // namespace mash
+}  // namespace mash
 
 struct mash_info_struct;
 
@@ -21,7 +21,7 @@ struct mash_virtual_base {
 
     mash_virtual_base();
 
-    void * operator new(size_t sz);
+    void *operator new(size_t sz);
 
     void operator delete(void *ptr, size_t sz);
 
@@ -55,9 +55,7 @@ struct mash_virtual_base {
     static void *create_subclass_by_enum(mash::virtual_types_enum a1);
 
     //0x004227E0
-    static void *create_subclass_by_enum_in_place(mash::virtual_types_enum a1,
-                                                  mash_virtual_base *a2,
-                                                  int a3);
+    static void *create_subclass_by_enum_in_place(mash::virtual_types_enum a1, mash_virtual_base *a2, int a3);
 
     //0x0042A7C0
     static void *construct_class_helper(void *a1);
@@ -65,10 +63,10 @@ struct mash_virtual_base {
     //0x0041F820
     static void fixup_vtable(void *a1);
 
-    static inline Var<void *[1]> vtable {0x00957040};
+    static inline Var<void *[1]> vtable{0x00957040};
 
 #ifdef TARGET_XBOX
-    static inline std::map<uint32_t, mash_virtual_base *> map_vtable {}; 
+    static inline std::map<uint32_t, mash_virtual_base *> map_vtable{};
 #endif
 };
 

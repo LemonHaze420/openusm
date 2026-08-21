@@ -31,7 +31,7 @@ struct ped_avoidance_inode : avoidance_inode {
     pedestrian_inode *field_4C;
     float field_50;
 
-    static inline const string_hash default_id {int(to_hash("AVOIDANCE_INODE"))};
+    static inline const string_hash default_id{int(to_hash("AVOIDANCE_INODE"))};
 };
 
-}
+}  // namespace ai

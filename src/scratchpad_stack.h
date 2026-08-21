@@ -4,7 +4,7 @@ struct stack_allocator;
 
 namespace scratchpad_stack {
 
-extern stack_allocator & stk;
+extern stack_allocator &stk;
 
 //0x00512760
 extern void save_state(stack_allocator *a1);
@@ -28,7 +28,7 @@ extern void initialize();
 
 extern void term();
 
-} // namespace scratchpad_stack
+}  // namespace scratchpad_stack
 
 extern bool sub_512730(void *a1);
 

@@ -5,10 +5,7 @@
 
 VALIDATE_SIZE(pfx_interface, 0x40);
 
-pfx_interface::pfx_interface()
-{
-
-}
+pfx_interface::pfx_interface() {}
 
 void pfx_interface::release_ifc()
 {

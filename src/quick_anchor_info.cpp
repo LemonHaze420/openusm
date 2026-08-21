@@ -12,7 +12,8 @@
 
 VALIDATE_SIZE(quick_anchor_info, 0x30);
 
-bool quick_anchor_info::operator<(const quick_anchor_info &a2) {
+bool quick_anchor_info::operator<(const quick_anchor_info &a2)
+{
     if (std::isnan(a2.field_24)) {
         return true;
     }
@@ -24,11 +25,13 @@ bool quick_anchor_info::operator<(const quick_anchor_info &a2) {
     return std::isless(this->field_24, a2.field_24);
 }
 
-void sub_48C340(quick_anchor_info *a1, quick_anchor_info *a2, quick_anchor_info *a3) {
+void sub_48C340(quick_anchor_info *a1, quick_anchor_info *a2, quick_anchor_info *a3)
+{
     CDECL_CALL(0x0048C340, a1, a2, a3);
 }
 
-void sub_48EFB0(quick_anchor_info *begin, quick_anchor_info *end) {
+void sub_48EFB0(quick_anchor_info *begin, quick_anchor_info *end)
+{
     if constexpr (1) {
         if (begin != end) {
             auto *v2 = begin + 1;
@@ -64,11 +67,13 @@ void sub_48EFB0(quick_anchor_info *begin, quick_anchor_info *end) {
     }
 }
 
-void sub_48D790(quick_anchor_info *a1, int a2, int size, quick_anchor_info a4) {
+void sub_48D790(quick_anchor_info *a1, int a2, int size, quick_anchor_info a4)
+{
     CDECL_CALL(0x0048D790, a1, a2, size, a4);
 }
 
-void sub_48E470(quick_anchor_info *begin, quick_anchor_info *end) {
+void sub_48E470(quick_anchor_info *begin, quick_anchor_info *end)
+{
     if constexpr (1) {
         auto size = end - begin;
 
@@ -93,18 +98,21 @@ void sub_48E470(quick_anchor_info *begin, quick_anchor_info *end) {
     }
 }
 
-void sub_48F6D0(quick_anchor_info *a1, quick_anchor_info *a2) {
+void sub_48F6D0(quick_anchor_info *a1, quick_anchor_info *a2)
+{
     CDECL_CALL(0x0048F6D0, a1, a2);
 }
 
 using pair_t = typename std::pair<quick_anchor_info *, quick_anchor_info *>;
 
-pair_t *create_pair(pair_t *out, quick_anchor_info *a2, quick_anchor_info *a3) {
-    return (pair_t *) CDECL_CALL(0x0048EC10, out, a2, a3);
+pair_t *create_pair(pair_t *out, quick_anchor_info *a2, quick_anchor_info *a3)
+{
+    return (pair_t *)CDECL_CALL(0x0048EC10, out, a2, a3);
 }
 
-template<>
-void sort<quick_anchor_info>(quick_anchor_info *begin, quick_anchor_info *end, int size) {
+template <>
+void sort<quick_anchor_info>(quick_anchor_info *begin, quick_anchor_info *end, int size)
+{
     //sp_log("%d", size);
 
     assert(begin <= end);
@@ -161,7 +169,8 @@ void sort<quick_anchor_info>(quick_anchor_info *begin, quick_anchor_info *end, i
     }
 }
 
-void quick_anchor_info_patch() {
+void quick_anchor_info_patch()
+{
     {
         auto *address = sort<quick_anchor_info>;
 

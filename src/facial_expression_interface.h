@@ -20,9 +20,9 @@ struct facial_expression_interface : actor_interface {
     bool field_30;
 
     struct {
-        int field_0 {-1};
-        float field_4[3] {};
-        int field_10 {0};
+        int field_0{-1};
+        float field_4[3]{};
+        int field_10{0};
     } field_34[3];
     int field_70;
     int field_74;
@@ -43,10 +43,9 @@ struct facial_expression_interface : actor_interface {
     void un_mash(generic_mash_header *, actor *a3, void *, generic_mash_data_ptrs *);
 
     //virtual
-    const char * get_ifc_type_str() const;
+    const char *get_ifc_type_str() const;
 
-    static inline Var<_std::vector<facial_expression_interface> *> all_facial_expression_interfaces{
-        0x0096C9AC};
+    static inline Var<_std::vector<facial_expression_interface> *> all_facial_expression_interfaces{0x0096C9AC};
 };
 
 extern void facial_expression_interface_patch();

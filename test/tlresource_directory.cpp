@@ -5,6 +5,6 @@
 
 TEST(TlResourceDirectory, Construct)
 {
-    tlresource_directory<nglTexture, tlFixedString> dir {};
+    tlresource_directory<nglTexture, tlFixedString> dir{};
     EXPECT_TRUE(dir.field_4 == nullptr);
 }

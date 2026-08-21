@@ -12,7 +12,7 @@ struct pc_input_mgr : singleton {
     //0x0059B930
     pc_input_mgr();
 
-    static pc_input_mgr *& instance;
+    static pc_input_mgr *&instance;
 
     //0x005E2C30
     static void create_inst();

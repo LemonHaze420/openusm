@@ -29,7 +29,7 @@ VALIDATE_SIZE(tldir_t::SkipListIterator, 0xC);
 VALIDATE_SIZE(tldir_t::Impl, 0x10);
 VALIDATE_SIZE(tldir_t::Node, 0x8);
 
-auto & tlHostPrefix = var<char[256]>(0x00970D88);
+auto &tlHostPrefix = var<char[256]>(0x00970D88);
 
 #ifndef STANDALONE_SYSTEM
 #error "Not defined macro STANDALONE_SYSTEM"
@@ -37,22 +37,25 @@ auto & tlHostPrefix = var<char[256]>(0x00970D88);
 
 #if !STANDALONE_SYSTEM
 
-int & tlMemAllocCounter = var<int>(0x00970D58);
+int &tlMemAllocCounter = var<int>(0x00970D58);
 
-tlSystemCallbacks & tlCurSystemCallbacks = var<tlSystemCallbacks>(0x00970D6C);
+tlSystemCallbacks &tlCurSystemCallbacks = var<tlSystemCallbacks>(0x00970D6C);
 
-static int & tlStackBegin = var<int>(0x00970E88);
-static int & tlStackEnd = var<int>(0x00970E8C);
+static int &tlStackBegin = var<int>(0x00970E88);
+static int &tlStackEnd = var<int>(0x00970E8C);
 
-int & tlScratchPadRefCount = var<int>(0x00970D5C);
+int &tlScratchPadRefCount = var<int>(0x00970D5C);
 
-tlInstanceBank & nglShaderBank = var<tlInstanceBank>(0x00972840);
+tlInstanceBank &nglShaderBank = var<tlInstanceBank>(0x00972840);
 
 #else
 
 #define make_var(type, name) \
-    static type g_##name {}; \
-    type & name {g_##name}
+    static type g_##name{};  \
+    type &name               \
+    {                        \
+        g_##name             \
+    }
 
 make_var(int, tlMemAllocCounter);
 
@@ -60,40 +63,38 @@ make_var(tlSystemCallbacks, tlCurSystemCallbacks);
 
 #undef make_var
 
-static int & tlStackBegin = []() -> auto & {
-    static int tlStackBegin {};
+static int &tlStackBegin = []() -> auto & {
+    static int tlStackBegin{};
     return tlStackBegin;
 }();
 
-static int & tlStackEnd = []() -> auto & {
-    static int g_tlStackEnd {};
+static int &tlStackEnd = []() -> auto & {
+    static int g_tlStackEnd{};
     return g_tlStackEnd;
 }();
 
-int & tlScratchPadRefCount = []() -> auto & {
-    static int g_tlScratchPadRefCount {};
+int &tlScratchPadRefCount = []() -> auto & {
+    static int g_tlScratchPadRefCount{};
     return g_tlScratchPadRefCount;
 }();
 
-tlInstanceBank & nglShaderBank = []() -> auto & {
-    static tlInstanceBank g_nglShaderBank {};
+tlInstanceBank &nglShaderBank = []() -> auto & {
+    static tlInstanceBank g_nglShaderBank{};
     return g_nglShaderBank;
 }();
 
-FrontEnd_Shader & gFrontEnd_Shader = []() -> auto & {
-    static FrontEnd_Shader g_shader {};
+FrontEnd_Shader &gFrontEnd_Shader = []() -> auto & {
+    static FrontEnd_Shader g_shader{};
     return g_shader;
 }();
 
-tlInitListFunction InitList_Init_nglVertexDef_FrontEnd_builder {
-    &Init_nglVertexDef_FrontEnd_builder
-};
+tlInitListFunction InitList_Init_nglVertexDef_FrontEnd_builder{&Init_nglVertexDef_FrontEnd_builder};
 
 #endif
 
-template<>
-nglFont *tlInstanceBankResourceDirectory<nglFont, tlFixedString>::Impl::Find(
-    const tlFixedString &a1) {
+template <>
+nglFont *tlInstanceBankResourceDirectory<nglFont, tlFixedString>::Impl::Find(const tlFixedString &a1)
+{
     if (this->field_8 == nullptr) {
         return nullptr;
     }
@@ -154,7 +155,8 @@ void tlReleaseFile(tlFileBuf *File)
     }
 }
 
-void tlStackRangeInit() {
+void tlStackRangeInit()
+{
     tlStackBegin = 0;
     tlStackEnd = 0;
 }
@@ -164,11 +166,13 @@ bool sub_101BF70(int a1)
     return a1 >= tlStackBegin && a1 < tlStackEnd;
 }
 
-bool tlIsPow2(int a1) {
+bool tlIsPow2(int a1)
+{
     return a1 && (a1 & (a1 - 1)) == 0;
 }
 
-void tlMemFree(void *Ptr) {
+void tlMemFree(void *Ptr)
+{
     --tlMemAllocCounter;
 
     if (tlCurSystemCallbacks.MemFree != nullptr) {
@@ -178,7 +182,8 @@ void tlMemFree(void *Ptr) {
     }
 }
 
-void *tlMemAlloc(uint32_t Size, uint32_t Alignment, uint32_t Flags) {
+void *tlMemAlloc(uint32_t Size, uint32_t Alignment, uint32_t Flags)
+{
     TRACE("tlMemAlloc", std::to_string(Size).c_str());
 
     void *memPtr;
@@ -216,8 +221,7 @@ bool tlReadFile(const char *FileName, tlFileBuf *File, unsigned int Align, unsig
 {
     TRACE("tlReadFile", FileName);
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         char *allocLoc;
         unsigned int bytesRead = 0;
         char Work[512] = {0};
@@ -239,7 +243,7 @@ bool tlReadFile(const char *FileName, tlFileBuf *File, unsigned int Align, unsig
         }
 
         size_t fileLen = strlen(FileName) + 1;
-        auto *filePtr = (char *) &alignment + 3;
+        auto *filePtr = (char *)&alignment + 3;
         while (*++filePtr) {
             ;
         }
@@ -277,21 +281,21 @@ bool tlReadFile(const char *FileName, tlFileBuf *File, unsigned int Align, unsig
 
         fileSize = File->Size;
         File->Buf = allocLoc;
-        ReadFile(openedFile, allocLoc, fileSize, (LPDWORD) &bytesRead, nullptr);
+        ReadFile(openedFile, allocLoc, fileSize, (LPDWORD)&bytesRead, nullptr);
         CloseHandle(openedFile);
         return true;
-    }
-    else
-    {
-        return (bool) CDECL_CALL(0x0074A710, FileName, File, Align, Flags);
+    } else {
+        return (bool)CDECL_CALL(0x0074A710, FileName, File, Align, Flags);
     }
 }
 
-void tlSetSystemCallbacks(const tlSystemCallbacks &a1) {
+void tlSetSystemCallbacks(const tlSystemCallbacks &a1)
+{
     tlCurSystemCallbacks = a1;
 }
 
-void tlGetSystemCallbacks(tlSystemCallbacks *a1) {
+void tlGetSystemCallbacks(tlSystemCallbacks *a1)
+{
     a1->ReadFile = tlCurSystemCallbacks.ReadFile;
     a1->ReleaseFile = tlCurSystemCallbacks.ReleaseFile;
     a1->field_8 = tlCurSystemCallbacks.field_8;
@@ -303,32 +307,33 @@ void tlGetSystemCallbacks(tlSystemCallbacks *a1) {
 void set_tl_system_directories()
 {
     if constexpr (1) {
-        tlresource_directory<nglTexture,tlFixedString>::system_dir = nglGetTextureDirectory();
-        tlresource_directory<nglMeshFile,tlFixedString>::system_dir = nglGetMeshFileDirectory();
-        tlresource_directory<nglMesh,tlHashString>::system_dir = nglGetMeshDirectory();
-        tlresource_directory<nglMorphFile,tlFixedString>::system_dir = nglGetMorphFileDirectory();
-        tlresource_directory<nglMorphSet,tlHashString>::system_dir = nglGetMorphDirectory();
-        tlresource_directory<nalAnimFile,tlFixedString>::system_dir = nalGetAnimFileDirectory();
-        tlresource_directory<nalAnimClass<nalAnyPose>,tlFixedString>::system_dir = nalGetAnimDirectory();
-        tlresource_directory<nalBaseSkeleton,tlFixedString>::system_dir = nalGetSkeletonDirectory();
-        tlresource_directory<nalSceneAnim,tlFixedString>::system_dir = nalGetSceneAnimDirectory();
-        tlresource_directory<nglTexture,tlFixedString>::default_tlres = nglDefaultTex;
-        tlresource_directory<nglMeshFile,tlFixedString>::default_tlres = nullptr;
-        tlresource_directory<nglMesh,tlHashString>::default_tlres = nullptr;
-        tlresource_directory<nglMorphSet,tlHashString>::default_tlres = nullptr;
-        tlresource_directory<nglMorphFile,tlFixedString>::default_tlres = nullptr;
-        tlresource_directory<nalAnimFile,tlFixedString>::default_tlres = nullptr;
-        tlresource_directory<nalAnimClass<nalAnyPose>,tlFixedString>::default_tlres = nullptr;
-        tlresource_directory<nalSceneAnim,tlFixedString>::default_tlres = nullptr;
-        tlresource_directory<nalBaseSkeleton,tlFixedString>::default_tlres = nullptr;
+        tlresource_directory<nglTexture, tlFixedString>::system_dir = nglGetTextureDirectory();
+        tlresource_directory<nglMeshFile, tlFixedString>::system_dir = nglGetMeshFileDirectory();
+        tlresource_directory<nglMesh, tlHashString>::system_dir = nglGetMeshDirectory();
+        tlresource_directory<nglMorphFile, tlFixedString>::system_dir = nglGetMorphFileDirectory();
+        tlresource_directory<nglMorphSet, tlHashString>::system_dir = nglGetMorphDirectory();
+        tlresource_directory<nalAnimFile, tlFixedString>::system_dir = nalGetAnimFileDirectory();
+        tlresource_directory<nalAnimClass<nalAnyPose>, tlFixedString>::system_dir = nalGetAnimDirectory();
+        tlresource_directory<nalBaseSkeleton, tlFixedString>::system_dir = nalGetSkeletonDirectory();
+        tlresource_directory<nalSceneAnim, tlFixedString>::system_dir = nalGetSceneAnimDirectory();
+        tlresource_directory<nglTexture, tlFixedString>::default_tlres = nglDefaultTex;
+        tlresource_directory<nglMeshFile, tlFixedString>::default_tlres = nullptr;
+        tlresource_directory<nglMesh, tlHashString>::default_tlres = nullptr;
+        tlresource_directory<nglMorphSet, tlHashString>::default_tlres = nullptr;
+        tlresource_directory<nglMorphFile, tlFixedString>::default_tlres = nullptr;
+        tlresource_directory<nalAnimFile, tlFixedString>::default_tlres = nullptr;
+        tlresource_directory<nalAnimClass<nalAnyPose>, tlFixedString>::default_tlres = nullptr;
+        tlresource_directory<nalSceneAnim, tlFixedString>::default_tlres = nullptr;
+        tlresource_directory<nalBaseSkeleton, tlFixedString>::default_tlres = nullptr;
     } else {
         CDECL_CALL(0x0050EAD0);
     }
 }
 
 //0x0078A160
-template<>
-void tlInstanceBankResourceDirectory<nglTexture, tlFixedString>::SkipListIterator::reset() {
+template <>
+void tlInstanceBankResourceDirectory<nglTexture, tlFixedString>::SkipListIterator::reset()
+{
     auto *v1 = this->field_4->field_8;
     if (v1 != nullptr) {
         this->field_8 = v1->field_4[0];
@@ -338,8 +343,9 @@ void tlInstanceBankResourceDirectory<nglTexture, tlFixedString>::SkipListIterato
 }
 
 //0x00773CB0
-template<>
-nglTexture *tlInstanceBankResourceDirectory<nglTexture, tlFixedString>::SkipListIterator::operator*() {
+template <>
+nglTexture *tlInstanceBankResourceDirectory<nglTexture, tlFixedString>::SkipListIterator::operator*()
+{
     nglTexture *result = nullptr;
     auto v1 = this->field_8;
     if (v1 != nullptr) {
@@ -350,30 +356,32 @@ nglTexture *tlInstanceBankResourceDirectory<nglTexture, tlFixedString>::SkipList
 }
 
 //0x00778DF0
-template<>
-bool tlInstanceBankResourceDirectory<nglTexture, tlFixedString>::SkipListIterator::operator()() {
+template <>
+bool tlInstanceBankResourceDirectory<nglTexture, tlFixedString>::SkipListIterator::operator()()
+{
     return this->field_8 != nullptr;
 }
 
 //0x0077A160
-template<>
-void tlInstanceBankResourceDirectory<nglTexture, tlFixedString>::SkipListIterator::operator++() {
+template <>
+void tlInstanceBankResourceDirectory<nglTexture, tlFixedString>::SkipListIterator::operator++()
+{
     auto *v1 = this->field_8;
     if (v1 != nullptr) {
         this->field_8 = v1->field_4[0];
     }
 }
 
-void tlInitList::Register() {
-    void (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x0));
+void tlInitList::Register()
+{
+    void(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x0));
     func(this);
 }
 
-tlInitListFunction::tlInitListFunction(void (*cb)()) : field_8(cb) {
+tlInitListFunction::tlInitListFunction(void (*cb)()) : field_8(cb)
+{
     if constexpr (1) {
-        static void * g_vtbl[] {
-            func_address(&_Register)
-        };
+        static void *g_vtbl[]{func_address(&_Register)};
         this->m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {
         this->m_vtbl = 0x0086F85C;
@@ -389,12 +397,8 @@ void tlInitListInit()
 {
     TRACE("tlInitListInit");
 
-    if constexpr (1)
-    {
-        for (auto *item = tlInitList::head;
-                item != nullptr;
-                item = item->field_4)
-        {
+    if constexpr (1) {
+        for (auto *item = tlInitList::head; item != nullptr; item = item->field_4) {
             item->Register();
         }
 
@@ -403,8 +407,8 @@ void tlInitListInit()
     }
 }
 
-void tl_patch() {
-
+void tl_patch()
+{
     SET_JUMP(0x00749FD0, tlInitListInit);
 
     SET_JUMP(0x0074A710, tlReadFile);
@@ -482,8 +486,7 @@ void tl_patch() {
     }
 
     {
-        tlInstanceBank::Node *(tlInstanceBank::*func)(
-            const tlHashString &a2) = &tlInstanceBank::Search;
+        tlInstanceBank::Node *(tlInstanceBank::*func)(const tlHashString &a2) = &tlInstanceBank::Search;
         FUNC_ADDRESS(address, func);
         //SET_JUMP(0x0074A310, address);
     }

@@ -5,28 +5,27 @@
 #include <cstdint>
 
 struct input_device {
-
     struct vtbl_t {
         int field_0;
         int get_name;
-        device_id_t (__fastcall *get_id)(const input_device *);
-        int (__fastcall *get_axis_count)(const input_device *);
-        int (__fastcall *get_axis_id)(input_device *, void *, int a1);
-        float (__fastcall *get_axis_state)(input_device *, void *edx, int , int);
-        float (__fastcall *get_axis_old_state)(input_device *, void *edx, int , int);
-        float (__fastcall *get_axis_delta)(input_device *, void *edx, int , int );
-        void (__fastcall *poll)(input_device *);
+        device_id_t(__fastcall *get_id)(const input_device *);
+        int(__fastcall *get_axis_count)(const input_device *);
+        int(__fastcall *get_axis_id)(input_device *, void *, int a1);
+        float(__fastcall *get_axis_state)(input_device *, void *edx, int, int);
+        float(__fastcall *get_axis_old_state)(input_device *, void *edx, int, int);
+        float(__fastcall *get_axis_delta)(input_device *, void *edx, int, int);
+        void(__fastcall *poll)(input_device *);
         int normalize;
-        void (__fastcall *finalize)(input_device *, void *, bool);
-        bool (__fastcall *is_connected)(const input_device *);
-        int (__fastcall *clear_state)(input_device *);
-        void (__fastcall *vibrate)(input_device *, void *edx, int , int , int , int a4);
-        void (__fastcall *vibrate_0)(input_device *, void *edx, Float );
-        void (__fastcall *stop_vibration)(input_device *);
-        bool (__fastcall *is_vibrator_present)(const input_device *);
+        void(__fastcall *finalize)(input_device *, void *, bool);
+        bool(__fastcall *is_connected)(const input_device *);
+        int(__fastcall *clear_state)(input_device *);
+        void(__fastcall *vibrate)(input_device *, void *edx, int, int, int, int a4);
+        void(__fastcall *vibrate_0)(input_device *, void *edx, Float);
+        void(__fastcall *stop_vibration)(input_device *);
+        bool(__fastcall *is_vibrator_present)(const input_device *);
     };
 
-    vtbl_t * m_vtbl;
+    vtbl_t *m_vtbl;
 
     int field_4;
 

@@ -3,8 +3,7 @@
 struct generic_mash_header;
 struct generic_mash_data_ptrs;
 
-struct anim_info
-{
+struct anim_info {
     int field_0;
     int field_4;
     int field_8;

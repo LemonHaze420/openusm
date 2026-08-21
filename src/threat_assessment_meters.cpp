@@ -25,8 +25,7 @@ void threat_assessment_meters::init()
 {
     TRACE("threat_assessment_meters::init");
 
-    if ( !this->field_14 )
-    {
+    if (!this->field_14) {
         this->field_14 = PanelFile::UnmashPanelFile("tam_poi", static_cast<panel_layer>(7));
         this->field_18[0] = this->field_14->GetPQ("TAM_meter_icon");
         this->field_18[1] = this->field_14->GetPQ("TAM_meter_arrow");
@@ -39,24 +38,19 @@ void threat_assessment_meters::init()
         auto v31 = this->field_18[0]->GetCenterX();
         auto v28 = this->field_18[0]->GetCenterY();
 
-        for ( int i = 0; i < 6; ++i )
-        {
+        for (int i = 0; i < 6; ++i) {
             float v30;
             float v29;
             this->field_18[i]->GetCenterPos(v30, v29);
 
-            this->field_34[i] = vector2d {v30 - v31, v29 - v28};
+            this->field_34[i] = vector2d{v30 - v31, v29 - v28};
         }
 
         this->field_134 = 30.0f;
 
-        for (int i = 0; i < 4; ++i)
-        {
+        for (int i = 0; i < 4; ++i) {
             auto *mem = mem_alloc(sizeof(fe_mini_map_dot));
-            auto *icon = new (mem) fe_mini_map_dot {
-                static_cast<mini_map_dot_type>(5),
-                vector3d {0, 0, 0}
-            };
+            auto *icon = new (mem) fe_mini_map_dot{static_cast<mini_map_dot_type>(5), vector3d{0, 0, 0}};
 
             assert(icon != nullptr);
 

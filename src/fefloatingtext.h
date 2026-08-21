@@ -1,11 +1,10 @@
-#pragma once 
+#pragma once
 
 #include "fetext.h"
 
 struct mash_info_struct;
 
-struct FEFloatingText : FEText
-{
+struct FEFloatingText : FEText {
     int field_68;
     int field_6C;
     int field_70;
@@ -18,7 +17,7 @@ struct FEFloatingText : FEText
 
     //virtual
     void _unmash(mash_info_struct *a1, void *a3);
-    
+
     //virtual
     int _get_mash_sizeof();
 };

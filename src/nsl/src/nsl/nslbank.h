@@ -2,13 +2,11 @@
 
 #include "variable.h"
 
-enum nslBankID
-{
+enum nslBankID {
     NSL_BANK_ID_INVALID = -1,
 };
 
-struct nslBank
-{
+struct nslBank {
     nslBankID field_0;
     int field_4;
     int field_8;
@@ -27,13 +25,12 @@ struct nslBank
     int field_28;
     int field_2C;
     int field_30;
-
 };
 
-extern nslBank (& nsl_banks)[1];
+extern nslBank (&nsl_banks)[1];
 
-inline auto & nsl_workGuard = var<char *>(0x0097DB18);
-inline auto & nsl_workGuard1 = var<char *>(0x0097DB1C);
+inline auto &nsl_workGuard = var<char *>(0x0097DB18);
+inline auto &nsl_workGuard1 = var<char *>(0x0097DB1C);
 
 //0x00798550
 extern void nslFreeBank(nslBankID a1);
@@ -45,8 +42,8 @@ extern void nslAramFree(unsigned int a1);
 
 extern void nslUpdate();
 
-extern float * nsl_GetMaster();
+extern float *nsl_GetMaster();
 
-extern float * nsl_GetListener();
+extern float *nsl_GetListener();
 
 extern void nsl_patch();

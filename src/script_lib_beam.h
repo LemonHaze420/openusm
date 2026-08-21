@@ -5,7 +5,8 @@
 struct mString;
 
 struct slc_beam_t : script_library_class {
-    slc_beam_t(const char *n, int sz, const char *p = nullptr) : script_library_class(n, sz, p, false) {
+    slc_beam_t(const char *n, int sz, const char *p = nullptr) : script_library_class(n, sz, p, false)
+    {
         m_vtbl = CAST(m_vtbl, 0x0089AAF8);
     }
 

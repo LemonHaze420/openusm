@@ -23,7 +23,8 @@ struct IGOZoomOutMap {
         int field_14;
         int field_18;
 
-        internal() {
+        internal()
+        {
             this->field_14 = 5;
             this->field_18 = 3;
             this->field_0.field_10 = nullptr;

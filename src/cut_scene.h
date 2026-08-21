@@ -39,8 +39,8 @@ struct cut_scene {
     static void init_stream_scene_anims();
 
     //0x0096FB90
-    static resource_pack_standalone & stream_anim_pack;
+    static resource_pack_standalone &stream_anim_pack;
 
     //0x0096FB80
-    static mString & scene_anim_packfile_id;
+    static mString &scene_anim_packfile_id;
 };

@@ -4,5 +4,5 @@
 #include "variable.h"
 
 namespace nalPanel {
-    int & nalPanelAnim::vtbl_ptr = var<int>(0x0096FC9C);
+int &nalPanelAnim::vtbl_ptr = var<int>(0x0096FC9C);
 }

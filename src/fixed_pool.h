@@ -22,7 +22,7 @@ struct fixed_pool {
     bool is_empty();
 
     void remove(void *a2);
-    
+
     int get_entry_size() const
     {
         return this->m_size;
@@ -31,7 +31,7 @@ struct fixed_pool {
     void *allocate_new_block();
 };
 
-template<typename T>
+template <typename T>
 void *allocate_new_block(fixed_pool &pool);
 
 extern void fixed_pool_patch();

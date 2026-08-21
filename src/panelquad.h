@@ -36,7 +36,7 @@ struct PanelQuad : PanelAnimObject {
     //0x0043F7F0
     ~PanelQuad();
 
-    void * operator new(size_t size);
+    void *operator new(size_t size);
 
     void operator delete(void *, size_t size);
 
@@ -83,7 +83,7 @@ struct PanelQuad : PanelAnimObject {
     void SetAlpha(Float a2);
 
     //0x006284D0
-    //virtual 
+    //virtual
     void SetPos(float *a2, float *a3);
 
     /* virtual */ void SetPos(Float a2, Float a3, Float a4, Float a5);

@@ -4,12 +4,9 @@
 #include "trace.h"
 #include "utility.h"
 
-controller::controller()
-{
+controller::controller() {}
 
-}
-
-void * controller::operator new(size_t size)
+void *controller::operator new(size_t size)
 {
     return mem_alloc(size);
 }
@@ -28,7 +25,8 @@ void controller::resurrect()
     this->field_4 = true;
 }
 
-bool controller::is_controller() const {
+bool controller::is_controller() const
+{
     return true;
 }
 
@@ -44,4 +42,3 @@ void controller_patch()
         SET_JUMP(0x0055E7D0, address);
     }
 }
-

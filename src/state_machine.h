@@ -26,7 +26,6 @@ enum external_parameter_types {};
 enum internal_parameter_types {};
 
 struct state_machine {
-
     std::intptr_t m_vtbl;
     layer_state_machine_shared *shared_portion;
     struct {
@@ -36,7 +35,8 @@ struct state_machine {
         string_hash m_cat_id;
         param_list field_8;
 
-        void clear() {
+        void clear()
+        {
             this->field_0 = false;
             this->field_1 = false;
             this->field_2 = false;
@@ -57,9 +57,10 @@ struct state_machine {
         param_list field_0;
         string_hash field_4;
 
-        void clear() {
+        void clear()
+        {
             this->field_0.clear();
-            this->field_4 = string_hash {0};
+            this->field_4 = string_hash{0};
         }
     } field_34;
     state *m_prev_state;
@@ -67,7 +68,6 @@ struct state_machine {
     animation_controller::anim_ctrl_handle field_48;
 
 public:
-
     //0x004A9180
     state_machine();
 
@@ -75,12 +75,9 @@ public:
 
     void set_pending_params(param_list &a2);
 
-    void set_active(
-        animation_logic_system *a2,
-        string_hash a3);
+    void set_active(animation_logic_system *a2, string_hash a3);
 
-    bool is_curr_state_interruptable(
-        animation_logic_system *a2) const;
+    bool is_curr_state_interruptable(animation_logic_system *a2) const;
 
     void update_pending_params(animation_logic_system *a2);
 
@@ -91,28 +88,19 @@ public:
         return field_48;
     }
 
-    param_node *find_external_param(
-        external_parameter_types a2) const;
+    param_node *find_external_param(external_parameter_types a2) const;
 
     bool has_ext_param_been_set(uint32_t a2) const;
 
     ai::param_block *find_param_block_with_param(string_hash a2) const;
 
-    ai::param_block *find_param_block_with_param(
-        string_hash a2,
-        ai::param_types a3) const;
+    ai::param_block *find_param_block_with_param(string_hash a2, ai::param_types a3) const;
 
-    float get_internal_param(
-        animation_logic_system *a3,
-        internal_parameter_types a4) const;
+    float get_internal_param(animation_logic_system *a3, internal_parameter_types a4) const;
 
-    float get_param(
-        animation_logic_system *a2,
-        unsigned int a3) const;
+    float get_param(animation_logic_system *a2, unsigned int a3) const;
 
-    vector3d get_vector_param(
-        animation_logic_system *a2,
-        uint32_t a3) const;
+    vector3d get_vector_param(animation_logic_system *a2, uint32_t a3) const;
 
     void process_requests(animation_logic_system *a2);
 
@@ -134,9 +122,7 @@ public:
 
     state *find_state(string_hash a2) const;
 
-    void change_state(
-        animation_logic_system *a2,
-        state *a3);
+    void change_state(animation_logic_system *a2, state *a3);
 
     /* virtual */ string_hash get_category_id() const;
 
@@ -167,10 +153,10 @@ public:
     float get_pb_float(string_hash a1) const;
 
     //virtual
-    vector3d * get_pb_vector3d(string_hash a2) const;
+    vector3d *get_pb_vector3d(string_hash a2) const;
 
     //virtual
-    variance_variable<float> * get_pb_float_variance(string_hash a2) const;
+    variance_variable<float> *get_pb_float_variance(string_hash a2) const;
 
     //virtual
     bool does_parameter_exist(string_hash a1) const;
@@ -197,15 +183,9 @@ public:
     /* virtual */ string_hash get_state_id() const;
 
     //virtual
-    float get_optional_pb_float(
-        const string_hash &a2,
-        Float a3,
-        bool *a4) const;
+    float get_optional_pb_float(const string_hash &a2, Float a3, bool *a4) const;
 
-    int get_optional_pb_int(
-        const string_hash &a2,
-        int a3,
-        bool *a4);
+    int get_optional_pb_int(const string_hash &a2, int a3, bool *a4);
 
     //virtual
     layer_types get_layer_id();
@@ -214,7 +194,7 @@ public:
     bool determine_if_request_satisfied(animation_logic_system *a2) const;
 };
 
-} // namespace als
+}  // namespace als
 
 
 extern void als_state_machine_patch();

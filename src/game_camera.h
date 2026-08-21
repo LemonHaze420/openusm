@@ -3,7 +3,6 @@
 #include "camera.h"
 
 struct game_camera : camera {
-
     static inline constexpr auto CAMERA_SHAKES_TOTAL = 4u;
 
     struct _camera_shake_t {

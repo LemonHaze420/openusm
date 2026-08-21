@@ -9,7 +9,6 @@
 struct vector3d;
 
 struct ArbitraryPOCharComp : CharComponentBase {
-
     struct BoneData {
         tlFixedString field_0;
         uint16_t field_20;
@@ -67,18 +66,11 @@ struct ArbitraryPOCharComp : CharComponentBase {
     ArbitraryPOCharComp();
 
     //0x005F6130
-    void BlendPoseData(
-            void *a1,
-            uint32_t a2,
-            Float a3,
-            const void *a4,
-            const void *a5,
-            uint32_t a6,
-            uint32_t a7);
+    void BlendPoseData(void *a1, uint32_t a2, Float a3, const void *a4, const void *a5, uint32_t a6, uint32_t a7);
 
     //virtual
     //0x005EF460
-    const void * _ApplyPublicPerSkelDataOffset(uint32_t a1, const void *a2);
+    const void *_ApplyPublicPerSkelDataOffset(uint32_t a1, const void *a2);
 
     //virtual
     //0x005EF470
@@ -86,50 +78,27 @@ struct ArbitraryPOCharComp : CharComponentBase {
 
     //virtual
     //0x005EF480
-    nalPositionOrientation * _GetTrajectoryData(
-        nalPositionOrientation *,
-        uint32_t,
-        const void *,
-        const void *);
+    nalPositionOrientation *_GetTrajectoryData(nalPositionOrientation *, uint32_t, const void *, const void *);
 
     //virtual
     //0x005F5E60
-    void _BuildBoneMatrices(nalMatrix4x4 *, uint32_t , void const *, void const *);
+    void _BuildBoneMatrices(nalMatrix4x4 *, uint32_t, void const *, void const *);
 
 
     //virtula
     //0x008920D4
-    int _GetSizeOfPerInstData(
-            uint32_t a1,
-            const void *a2,
-            const void *a3,
-            const void *a4,
-            const void *a5,
-            const void *a6,
-            bool a7);
+    int _GetSizeOfPerInstData(uint32_t a1, const void *a2, const void *a3, const void *a4, const void *a5,
+                              const void *a6, bool a7);
 
     //virtual
     //0x005EF590
-    int _GetAlignOfPerInstData(
-            uint32_t a1,
-            const void *a2,
-            const void *a3,
-            const void *a4,
-            const void *a5,
-            const void *a6,
-            bool a7);
+    int _GetAlignOfPerInstData(uint32_t a1, const void *a2, const void *a3, const void *a4, const void *a5,
+                               const void *a6, bool a7);
 
     //virtual
     //0x005F2270
-    void _BuildPerInstData(
-            void *a1,
-            uint32_t a2,
-            const void *a3,
-            const void *a4,
-            const void *a5,
-            const void *a6,
-            const void *a7,
-            bool a8);
+    void _BuildPerInstData(void *a1, uint32_t a2, const void *a3, const void *a4, const void *a5, const void *a6,
+                           const void *a7, bool a8);
 
     //virtual
     //0x005EF5A0
@@ -141,40 +110,17 @@ struct ArbitraryPOCharComp : CharComponentBase {
 
     //virtual
     //0x005F98E0
-    void _CalcPoseDataDirect(
-            void *a1,
-            uint32_t a2,
-            Float a3,
-            Float a4,
-            const nalComp::nalCompAnim *a5,
-            const void *a6,
-            const void *a7,
-            const void *a8,
-            void *a9);
+    void _CalcPoseDataDirect(void *a1, uint32_t a2, Float a3, Float a4, const nalComp::nalCompAnim *a5, const void *a6,
+                             const void *a7, const void *a8, void *a9);
 
     //virtual
     //0x005EF710
-    void _CalcPoseDataRemapped(
-            void *a1,
-            uint32_t a2,
-            Float a3,
-            Float a4,
-            const nalComp::nalCompAnim *a5,
-            const void *a6,
-            uint32_t a7,
-            uint32_t a8,
-            const void *a9,
-            const void *a10,
-            void *a11);
+    void _CalcPoseDataRemapped(void *a1, uint32_t a2, Float a3, Float a4, const nalComp::nalCompAnim *a5,
+                               const void *a6, uint32_t a7, uint32_t a8, const void *a9, const void *a10, void *a11);
 
     //virtual
     //0x005F9A20
-    void _BlendPoseData(
-        void *a1,
-        uint32_t a2,
-        Float a3,
-        const void *a4,
-        const void *a5);
+    void _BlendPoseData(void *a1, uint32_t a2, Float a3, const void *a4, const void *a5);
 
     //virtual
     //0x005EF750
@@ -185,18 +131,10 @@ struct ArbitraryPOCharComp : CharComponentBase {
     void _SkelPoseRelease(uint32_t a1, void *, void *a3);
 
     //virtual
-    void _AnimProcess(
-            uint32_t,
-            void *,
-            void *,
-            const void *);
+    void _AnimProcess(uint32_t, void *, void *, const void *);
 
     //virtual
-    void _AnimRelease(
-            uint32_t,
-            void *,
-            void *,
-            const void *);
+    void _AnimRelease(uint32_t, void *, void *, const void *);
 
     //virtual
     //0x005EF7F0

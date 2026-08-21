@@ -15,7 +15,7 @@ VALIDATE_SIZE(skeleton_resource_handler, 0x14u);
 
 skeleton_resource_handler::skeleton_resource_handler(worldly_pack_slot *a1)
 {
-    static void * g_vtbl[] = {
+    static void *g_vtbl[] = {
         func_address(&finalize),
         func_address(&_handle),
         func_address(&_pre_handle_resources),
@@ -35,7 +35,7 @@ void skeleton_resource_handler::finalize(bool a2)
 {
     this->~skeleton_resource_handler();
     if (a2) {
-        delete(this);
+        delete (this);
     }
 }
 
@@ -47,16 +47,15 @@ bool skeleton_resource_handler::_handle(worldly_resource_handler::eBehavior a2, 
 }
 
 //FIXME
-bool skeleton_resource_handler::_handle_resource(worldly_resource_handler::eBehavior a2,
-                                                tlresource_location *a3)
+bool skeleton_resource_handler::_handle_resource(worldly_resource_handler::eBehavior a2, tlresource_location *a3)
 {
+    TRACE("skeleton_resource_handler::handle_resource",
+          int(a2),
+          a3->get_name().to_string(),
+          int(static_cast<uint8_t>(a3->get_type())));
 
-    TRACE("skeleton_resource_handler::handle_resource", int(a2), a3->get_name().to_string(), int(static_cast<uint8_t>(a3->get_type())));
-
-    if constexpr (1)
-    {
-        if (a2 == UNLOAD)
-        {
+    if constexpr (1) {
+        if (a2 == UNLOAD) {
             nalBaseSkeleton *skel = CAST(skel, a3->get_data());
             skel->Release();
         } else {
@@ -67,7 +66,7 @@ bool skeleton_resource_handler::_handle_resource(worldly_resource_handler::eBeha
         ++this->field_C;
         return false;
     } else {
-        return (bool) THISCALL(0x0055F8E0, this, a2, a3);
+        return (bool)THISCALL(0x0055F8E0, this, a2, a3);
     }
 }
 

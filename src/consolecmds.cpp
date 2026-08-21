@@ -49,7 +49,8 @@ std::string ConsoleCommand::getName() const
     return out;
 }
 
-void ConsoleCommand::setName(const std::string &pName) {
+void ConsoleCommand::setName(const std::string &pName)
+{
     assert(pName.size() < MAX_COMMAND_NAME_LEN);
 
     auto *v2 = pName.c_str();
@@ -57,7 +58,8 @@ void ConsoleCommand::setName(const std::string &pName) {
     strlwr(this->field_4);
 }
 
-bool ConsoleCommand::process_cmd(const std::vector<std::string> &) {
+bool ConsoleCommand::process_cmd(const std::vector<std::string> &)
+{
     return false;
 }
 
@@ -68,7 +70,8 @@ bool ConsoleCommand::match(const std::string &a2) const
     return (v4 == a2);
 }
 
-bool ExecCommand::process_cmd(const std::vector<std::string> &a1) {
+bool ExecCommand::process_cmd(const std::vector<std::string> &a1)
+{
     if (a1.size()) {
         auto &v1 = a1.front();
         g_console->exec(v1.c_str());
@@ -79,14 +82,14 @@ bool ExecCommand::process_cmd(const std::vector<std::string> &a1) {
 
 static HelpCommand g_HelpCommand{};
 
-HelpCommand::HelpCommand() {
+HelpCommand::HelpCommand()
+{
     setName(std::string{"help"});
 }
 
 bool HelpCommand::process_cmd(const std::vector<std::string> &a2)
 {
-    if (!a2.empty())
-    {
+    if (!a2.empty()) {
         g_console->addToLog("");
         auto &v2 = a2[0];
 
@@ -131,11 +134,13 @@ bool HelpCommand::process_cmd(const std::vector<std::string> &a2)
 
 static ListEntsCommand g_ListEntsCommand{};
 
-ListEntsCommand::ListEntsCommand() {
+ListEntsCommand::ListEntsCommand()
+{
     setName(std::string{"list_ents"});
 }
 
-bool ListEntsCommand::process_cmd(const std::vector<std::string> &) {
+bool ListEntsCommand::process_cmd(const std::vector<std::string> &)
+{
     g_console->addToLog("visible entities:");
     auto *v10 = g_world_ptr->ent_mgr.get_entities();
     auto it = v10->begin();
@@ -163,11 +168,13 @@ bool ListEntsCommand::process_cmd(const std::vector<std::string> &) {
 
 static LoadLevelCommand g_LoadLevelCommand{};
 
-LoadLevelCommand::LoadLevelCommand() {
+LoadLevelCommand::LoadLevelCommand()
+{
     setName("load_level");
 }
 
-bool LoadLevelCommand::process_cmd(const std::vector<std::string> &a1) {
+bool LoadLevelCommand::process_cmd(const std::vector<std::string> &a1)
+{
     if (a1.size() != 1) {
         return false;
     }
@@ -182,7 +189,8 @@ bool LoadLevelCommand::process_cmd(const std::vector<std::string> &a1) {
 
 static VariableList g_VariableList{};
 
-VariableList::VariableList() {
+VariableList::VariableList()
+{
     setName("varlist");
 }
 
@@ -191,13 +199,10 @@ bool VariableList::process_cmd(const std::vector<std::string> &)
     g_console->addToLog("");
     g_console->addToLog("<-- Console Variables -->");
 
-    if (g_console_vars != nullptr && g_console_vars->size())
-    {
+    if (g_console_vars != nullptr && g_console_vars->size()) {
         auto &vars = *g_console_vars;
-        for (auto &v3 : vars)
-        {
-            if (v3 != nullptr)
-            {
+        for (auto &v3 : vars) {
+            if (v3 != nullptr) {
                 auto v9 = v3->getValue();
                 auto v8 = v3->getName();
 
@@ -213,7 +218,8 @@ bool VariableList::process_cmd(const std::vector<std::string> &)
 
 static SetCommand g_SetCommand{};
 
-SetCommand::SetCommand() {
+SetCommand::SetCommand()
+{
     setName("set");
 }
 
@@ -242,11 +248,13 @@ bool SetCommand::process_cmd(const std::vector<std::string> &a2)
 
 static GetCommand g_GetCommand{};
 
-GetCommand::GetCommand() {
+GetCommand::GetCommand()
+{
     setName("get");
 }
 
-bool GetCommand::process_cmd(const std::vector<std::string> &a2) {
+bool GetCommand::process_cmd(const std::vector<std::string> &a2)
+{
     if (a2.size()) {
         auto &v2 = a2[0];
         auto *v11 = g_console->getVariable(v2);
@@ -271,14 +279,16 @@ bool GetCommand::process_cmd(const std::vector<std::string> &a2) {
 
 static GameStateCommand g_GameStateCommand{};
 
-GameStateCommand::GameStateCommand() {
+GameStateCommand::GameStateCommand()
+{
     setName("game_state");
 }
 
-bool GameStateCommand::process_cmd(const std::vector<std::string> &cmds) {
+bool GameStateCommand::process_cmd(const std::vector<std::string> &cmds)
+{
     if (cmds.size() && cmds.size() <= 2) {
         auto &v3 = cmds[0];
-        mString a1 {v3.c_str()};
+        mString a1{v3.c_str()};
 
         bool a2 = false;
         script_library_class *var_type = nullptr;
@@ -322,16 +332,14 @@ bool GameStateCommand::process_cmd(const std::vector<std::string> &cmds) {
     return true;
 }
 
-static GameInfoCommand g_GameInfoCommand {};
+static GameInfoCommand g_GameInfoCommand{};
 
 bool GameInfoCommand::process_cmd(const std::vector<std::string> &a2)
 {
-    if ( a2.size() != 0 )
-    {
+    if (a2.size() != 0) {
         auto &v2 = a2.at(0);
-        resource_key a2a {string_hash {v2.c_str()}, RESOURCE_KEY_TYPE_IFC_ATTRIBUTE};
-        if ( a2.size() <= 1 )
-        {
+        resource_key a2a{string_hash{v2.c_str()}, RESOURCE_KEY_TYPE_IFC_ATTRIBUTE};
+        if (a2.size() <= 1) {
             float a3 = 0.0;
             auto *v11 = g_game_ptr->get_game_settings();
             v11->get_num(a2a, a3, true);
@@ -339,25 +347,21 @@ bool GameInfoCommand::process_cmd(const std::vector<std::string> &a2)
             auto &v8 = a2.at(0);
             auto *v9 = v8.c_str();
             g_console->addToLog("%s = %.2f", v9, a3);
-        }
-        else
-        {
+        } else {
             auto &v4 = a2.at(1);
             auto *v5 = v4.c_str();
             auto num = atof(v5);
             auto *v6 = g_game_ptr->get_game_settings();
             v6->set_num(a2a, num);
         }
-    }
-    else
-    {
+    } else {
         g_console->addToLog("");
 
         auto func = [](const char *str) -> void {
-            resource_key key {string_hash {str}, RESOURCE_KEY_TYPE_IFC_ATTRIBUTE};
+            resource_key key{string_hash{str}, RESOURCE_KEY_TYPE_IFC_ATTRIBUTE};
             float num = 0.0;
             auto *v11 = g_game_ptr->get_game_settings();
-            if ( v11->get_num(key, num, true) ) {
+            if (v11->get_num(key, num, true)) {
                 g_console->addToLog("%s = %.2f", str, num);
             }
         };
@@ -562,7 +566,8 @@ bool GameInfoCommand::process_cmd(const std::vector<std::string> &a2)
 
 static QuitCommand g_QuitCommand{};
 
-QuitCommand::QuitCommand() {
+QuitCommand::QuitCommand()
+{
     setName("quit");
 }
 
@@ -574,7 +579,8 @@ bool QuitCommand::process_cmd(const std::vector<std::string> &)
 
 static CommandList g_CommandList{};
 
-CommandList::CommandList() {
+CommandList::CommandList()
+{
     this->setName("cmdlist");
 }
 
@@ -582,13 +588,10 @@ bool CommandList::process_cmd(const std::vector<std::string> &)
 {
     g_console->addToLog("");
     g_console->addToLog("<-- Console Commands -->");
-    if (g_console_cmds != nullptr && g_console_cmds->size())
-    {
+    if (g_console_cmds != nullptr && g_console_cmds->size()) {
         auto &cmds = *g_console_cmds;
-        for (auto &cmd : cmds)
-        {
-            if (cmd != nullptr)
-            {
+        for (auto &cmd : cmds) {
+            if (cmd != nullptr) {
                 auto v6 = cmd->getName();
 
                 auto *v4 = v6.c_str();
@@ -602,16 +605,13 @@ bool CommandList::process_cmd(const std::vector<std::string> &)
 
 bool is_int_format(const mString &a1)
 {
-    if ( a1.size() == 0 )
-    {
+    if (a1.size() == 0) {
         return false;
     }
 
-    for ( auto i = 0; i < a1.size(); ++i )
-    {
+    for (auto i = 0; i < a1.size(); ++i) {
         auto v2 = a1.at(i);
-        if ( isdigit(v2) == 0 && (i || a1.at(0) != '-') && (i || a1.at(0) != '+') )
-        {
+        if (isdigit(v2) == 0 && (i || a1.at(0) != '-') && (i || a1.at(0) != '+')) {
             return false;
         }
     }
@@ -628,36 +628,29 @@ ForceMissionCommand::ForceMissionCommand()
 
 bool ForceMissionCommand::process_cmd(const std::vector<std::string> &a1)
 {
-    if ( a1.size() == 3 )
-    {
+    if (a1.size() == 3) {
         auto &v2 = a1.at(2);
-        if ( is_int_format(v2.c_str()) )
-        {
-            mString v3 {a1.at(2).c_str()};
+        if (is_int_format(v2.c_str())) {
+            mString v3{a1.at(2).c_str()};
             auto v19 = v3.to_int();
-            mString v4 {a1.at(1).c_str()};
+            mString v4{a1.at(1).c_str()};
             auto *v16 = v4.c_str();
-            mString v5 {a1.at(0).c_str()};
+            mString v5{a1.at(0).c_str()};
             auto v14 = v5.to_int();
             auto *v6 = mission_manager::s_inst;
             v6->force_mission(v14, v16, v19, nullptr);
-        }
-        else
-        {
+        } else {
             auto &v7 = a1.at(2);
             auto *v20 = v7.c_str();
             auto &v8 = a1.at(1);
             auto *v17 = v8.c_str();
-            mString v9 {a1.at(0).c_str()};
+            mString v9{a1.at(0).c_str()};
             auto v15 = v9.to_int();
             auto *v10 = mission_manager::s_inst;
             v10->force_mission(v15, v17, 0, v20);
         }
-    }
-    else
-    {
-        if ( a1.size() != 1 )
-        {
+    } else {
+        if (a1.size() != 1) {
             g_console->addToLog("force_mission <district name or global> <mission> <instance>");
             g_console->addToLog("force_mission <mission>");
             return false;
@@ -682,8 +675,7 @@ ListDebugVariablesCommand::ListDebugVariablesCommand()
 bool ListDebugVariablesCommand::process_cmd(const std::vector<std::string> &)
 {
     g_console->addToLog("<-- DVars -->");
-    for ( auto &v3 : g_dvars )
-    {
+    for (auto &v3 : g_dvars) {
         auto *v4 = v3.first.c_str();
         g_console->addToLog("  %s", v4);
     }
@@ -691,7 +683,7 @@ bool ListDebugVariablesCommand::process_cmd(const std::vector<std::string> &)
     return true;
 }
 
-static DebugVarCommand g_DebugVarCommand {};
+static DebugVarCommand g_DebugVarCommand{};
 
 DebugVarCommand::DebugVarCommand()
 {
@@ -700,23 +692,19 @@ DebugVarCommand::DebugVarCommand()
 
 bool DebugVarCommand::process_cmd(const std::vector<std::string> &a2)
 {
-    if ( a2.size() == 0 ) {
+    if (a2.size() == 0) {
         return false;
     }
 
     auto &v3 = a2.at(0);
-    auto a1 = g_dvars.find(mString {v3.c_str()});
-    if ( a2.size() == 1 )
-    {
+    auto a1 = g_dvars.find(mString{v3.c_str()});
+    if (a2.size() == 1) {
         auto v4 = g_dvars.end();
-        if ( a1 == v4 )
-        {
+        if (a1 == v4) {
             auto &v5 = a2.at(0);
             auto *v6 = v5.c_str();
             g_console->addToLog("Couldn't find debug variable %s.", v6);
-        }
-        else
-        {
+        } else {
             auto &v7 = (*a1);
             auto *v16 = v7.second.c_str();
             auto &v8 = a2.at(0);
@@ -725,22 +713,17 @@ bool DebugVarCommand::process_cmd(const std::vector<std::string> &a2)
         }
 
         return true;
-    }
-    else if ( a2.size() == 2 )
-    {
+    } else if (a2.size() == 2) {
         auto v10 = g_dvars.end();
-        if ( a1 == v10 )
-        {
+        if (a1 == v10) {
             auto &v17 = a2.at(1);
             auto &v11 = a2.at(0);
-            std::pair<mString, mString> v20 {mString {v11.c_str()}, mString {v17.c_str()} };
+            std::pair<mString, mString> v20{mString{v11.c_str()}, mString{v17.c_str()}};
             g_dvars.insert(v20);
-        }
-        else
-        {
+        } else {
             auto &v18 = a2.at(1);
             auto &v12 = (*a1);
-            v12.second = mString {v18.c_str()};
+            v12.second = mString{v18.c_str()};
         }
 
         auto &v13 = a2.at(1);
@@ -749,9 +732,7 @@ bool DebugVarCommand::process_cmd(const std::vector<std::string> &a2)
         auto *v15 = v14.c_str();
         g_console->addToLog("%s -> %s", v15, v19);
         return true;
-    }
-    else
-    {
+    } else {
         return false;
     }
 }
@@ -767,13 +748,9 @@ bool ListMissionsCommand::process_cmd(const std::vector<std::string> &)
 {
     auto *v2 = mission_manager::s_inst;
     auto v25 = v2->get_district_table_count();
-    for ( auto i = -1; i < v25; ++i )
-    {
-        auto [v20, v21, v19] = [&v2](int i)
-            -> std::tuple<fixedstring<8>, mission_table_container *, int>
-        {
-            if ( i != -1 )
-            {
+    for (auto i = -1; i < v25; ++i) {
+        auto [v20, v21, v19] = [&v2](int i) -> std::tuple<fixedstring<8>, mission_table_container *, int> {
+            if (i != -1) {
                 auto *v21 = v2->get_district_table(i);
                 auto *reg = v21->get_region();
                 auto &v6 = reg->get_name();
@@ -788,16 +765,11 @@ bool ListMissionsCommand::process_cmd(const std::vector<std::string> &)
 
         _std::vector<mission_table_container::script_info> v23;
         v21->append_script_info(&v23);
-        for ( auto &info : v23 )
-        {
+        for (auto &info : v23) {
             auto v14 = info.field_8;
             auto v12 = v19;
             auto *v11 = v20.to_string();
-            g_console->addToLog("Name: '%s' District: '%s'(%d) Instance: %d",
-                    info.field_0,
-                    v11,
-                    v12,
-                    v14);
+            g_console->addToLog("Name: '%s' District: '%s'(%d) Instance: %d", info.field_0, v11, v12, v14);
         }
     }
 
@@ -815,58 +787,47 @@ bool DebugRenderCommand::process_cmd(const std::vector<std::string> &a2)
 {
     int result;
     auto v17 = a2.size();
-    if ( v17 != 0 )
-    {
+    if (v17 != 0) {
         auto &v4 = a2.at(0);
-        mString v15 {v4.c_str()};
+        mString v15{v4.c_str()};
         v15.to_upper();
         int v14 = -1;
-        for ( auto i = 0; i < 51; ++i )
-        {
-            if ( v15 == debug_render_items_names()[i] )
-            {
+        for (auto i = 0; i < 51; ++i) {
+            if (v15 == debug_render_items_names()[i]) {
                 v14 = i;
             }
         }
 
-        if ( v14 == -1 )
-        {
+        if (v14 == -1) {
             goto LABEL_20;
         }
 
-        if ( v17 == 1 )
-        {
+        if (v17 == 1) {
             auto &v9 = debug_render_items()[v14];
             auto *v5 = debug_render_items_names()[v14].c_str();
             g_console->addToLog("%s %d", v5, v9);
             return true;
         }
 
-        if ( v17 != 2 )
-        {
-            LABEL_20:
+        if (v17 != 2) {
+        LABEL_20:
             g_console->addToLog("Bad syntax or unknown render flag!");
             result = true;
-        }
-        else
-        {
+        } else {
             auto &v6 = a2.at(1);
             auto *v7 = v6.c_str();
             auto v12 = std::atoi(v7);
-            auto v11 = debug_render_get_min((debug_render_items_e) v14);
-            auto v10 = debug_render_get_max((debug_render_items_e) v14);
-            if ( v12 >= v11 && v12 <= v10 )
+            auto v11 = debug_render_get_min((debug_render_items_e)v14);
+            auto v10 = debug_render_get_max((debug_render_items_e)v14);
+            if (v12 >= v11 && v12 <= v10)
                 debug_render_items()[v14] = v12;
             else
                 g_console->addToLog("Value out of range. Should be in [%d, %d]", v11, v10);
 
             result = true;
         }
-    }
-    else
-    {
-        for ( auto j = 0; j < 51; ++j )
-        {
+    } else {
+        for (auto j = 0; j < 51; ++j) {
             auto &v8 = debug_render_items()[j];
             auto *v2 = debug_render_items_names()[j].c_str();
             g_console->addToLog("%s %d", v2, v8);
@@ -887,31 +848,26 @@ PlayAnimCommand::PlayAnimCommand()
 
 bool PlayAnimCommand::process_cmd(const std::vector<std::string> &a2)
 {
-    if (a2.size() == 1 || a2.size() == 2 )
-    {
+    if (a2.size() == 1 || a2.size() == 2) {
         auto &v3 = a2.at(0);
-        mString a1 {v3.c_str()};
-        filespec v35 {a1};
+        mString a1{v3.c_str()};
+        filespec v35{a1};
         v35.m_ext = resource_key_type_ext[g_platform][RESOURCE_KEY_TYPE_ANIMATION];
         actor *v33 = nullptr;
-        if ( a2.size() == 2 )
-        {
+        if (a2.size() == 2) {
             auto &v5 = a2.at(1);
-            mString v32 {v5.c_str()};
+            mString v32{v5.c_str()};
             v32.to_upper();
 
             auto *v6 = v32.c_str();
-            string_hash v31 {v6};
+            string_hash v31{v6};
             auto *ent = entity_handle_manager::find_entity(v31, IGNORE_FLAVOR, true);
-            v33 = (actor *) ent;
-            if ( v33 == nullptr )
-            {
+            v33 = (actor *)ent;
+            if (v33 == nullptr) {
                 g_console->addToLog("Entity not found");
                 return 1;
             }
-        }
-        else
-        {
+        } else {
 #if 0
             j_selection_manager::get(g_selection_mgr, (int)&v30, 0);
             if ( sub_6784B6(&v30) != 5 )
@@ -927,8 +883,7 @@ bool PlayAnimCommand::process_cmd(const std::vector<std::string> &a2)
         }
 
         auto *v29 = v33;
-        if ( v33 != nullptr && !v33->is_an_actor() )
-        {
+        if (v33 != nullptr && !v33->is_an_actor()) {
             g_console->addToLog("The selected entity is not an actor.");
             return 1;
         }
@@ -964,8 +919,7 @@ bool PlayAnimCommand::process_cmd(const std::vector<std::string> &a2)
 #else
         {
             auto *pack_slot = v33->get_resource_context();
-            if (pack_slot != nullptr)
-            {
+            if (pack_slot != nullptr) {
                 auto &res_dir = pack_slot->get_resource_directory();
                 auto tlresource_count = res_dir.get_tlresource_count(TLRESOURCE_TYPE_ANIM_FILE);
                 assert(tlresource_count == 1);
@@ -976,24 +930,21 @@ bool PlayAnimCommand::process_cmd(const std::vector<std::string> &a2)
                 assert(anim_file->field_0 == 0x10101);
 
                 nalAnimClass<nalAnyPose> *found_anim = nullptr;
-                for (auto *anim = bit_cast<nalAnimClass<nalAnyPose> *>(anim_file->field_34);
-                        anim != nullptr;
-                        anim = anim->field_4) {
-
-                    if (a1 == mString {anim->field_8.to_string()}) {
+                for (auto *anim = bit_cast<nalAnimClass<nalAnyPose> *>(anim_file->field_34); anim != nullptr;
+                     anim = anim->field_4) {
+                    if (a1 == mString{anim->field_8.to_string()}) {
                         found_anim = anim;
                     }
 
                     sp_log("%s", anim->field_8.to_string());
                 }
 
-                if (found_anim == nullptr)
-                {
+                if (found_anim == nullptr) {
                     g_console->addToLog("Entity animation not in packfile.");
                     return 1;
                 }
 
-                a1 = mString {found_anim->field_8.to_string()};
+                a1 = mString{found_anim->field_8.to_string()};
             }
         }
 
@@ -1001,15 +952,13 @@ bool PlayAnimCommand::process_cmd(const std::vector<std::string> &a2)
 
         auto *v13 = v29->get_resource_context();
         resource_manager::push_resource_context(v13);
-        string_hash v16 {a1.c_str()};
+        string_hash v16{a1.c_str()};
 
         auto v24 = v29->play_anim(v16);
         resource_manager::pop_resource_context();
 
         v24.set_anim_speed(1.0);
-    }
-    else
-    {
+    } else {
         auto *v2 = this->helpText();
         g_console->addToLog(v2);
     }
@@ -1019,7 +968,8 @@ bool PlayAnimCommand::process_cmd(const std::vector<std::string> &a2)
 
 static ListNearbyEntsCommand g_ListNearbyEntsCommand{};
 
-ListNearbyEntsCommand::ListNearbyEntsCommand() {
+ListNearbyEntsCommand::ListNearbyEntsCommand()
+{
     this->setName("list_nearby_ents");
 }
 
@@ -1029,9 +979,8 @@ bool ListNearbyEntsCommand::process_cmd(const std::vector<std::string> &a2)
     auto &abs_position = v3->get_abs_position();
     auto a3 = abs_position;
     float v25 = 10.0;
-    if ( a2.size() == 1 )
-    {
-        mString v5 {a2.at(0).c_str()};
+    if (a2.size() == 1) {
+        mString v5{a2.at(0).c_str()};
         v25 = v5.to_float();
     }
 
@@ -1042,16 +991,14 @@ bool ListNearbyEntsCommand::process_cmd(const std::vector<std::string> &a2)
 
     iterator v24 = the_map.begin();
     iterator end = the_map.end();
-    for ( ; v24 != end; ++v24 )
-    {
+    for (; v24 != end; ++v24) {
         auto &v7 = (*v24);
         auto *v23 = v7.second;
         auto &v8 = v23->get_abs_position();
         auto a2a = v8;
         auto v9 = a2a - a3;
         auto v21 = v9.length();
-        if ( v25 >= v21 )
-        {
+        if (v25 >= v21) {
             auto v16 = a2a.z;
             auto v15 = a2a.y;
             auto v14 = a2a.x;
@@ -1068,58 +1015,48 @@ bool ListNearbyEntsCommand::process_cmd(const std::vector<std::string> &a2)
 
 static DumpThreadsCommand g_DumpThreadsCommand{};
 
-DumpThreadsCommand::DumpThreadsCommand() {
+DumpThreadsCommand::DumpThreadsCommand()
+{
     this->setName("dump_threads");
 }
 
 bool DumpThreadsCommand::process_cmd(const std::vector<std::string> &a2)
 {
-    if ( a2.size() != 0 )
-    {
+    if (a2.size() != 0) {
         auto &v2 = a2.at(0);
-        if ( v2 != "1" ) {
+        if (v2 != "1") {
             return false;
         }
 
         g_console->addToLog("Threads dumped to file.");
         script_manager::dump_threads_to_file();
-    }
-    else
-    {
+    } else {
         g_console->addToLog(mString::null);
         script_manager::dump_threads_to_console();
     }
-    
-    return true; 
+
+    return true;
 }
 
-entity_base * sub_65F164(std::string arg0, string_hash a1, po &a3)
+entity_base *sub_65F164(std::string arg0, string_hash a1, po &a3)
 {
-    filespec v25 {arg0.c_str()};
-    if ( v25.m_ext.length() <= 0 ) {
+    filespec v25{arg0.c_str()};
+    if (v25.m_ext.length() <= 0) {
         v25.m_ext = ".ent";
     }
 
-    if ( v25.m_dir.length() <= 0 ) {
+    if (v25.m_dir.length() <= 0) {
         v25.m_dir = "characters\\" + v25.m_name + "\\";
     }
 
-    mString a7 {};
+    mString a7{};
     string_hash v11 = a1;
-    string_hash v10 {v25.m_name.c_str()};
-    auto *v26 = g_world_ptr->ent_mgr.create_and_add_entity_or_subclass(
-            v10,
-            v11,
-            a3,
-            a7,
-            129,
-            nullptr);
+    string_hash v10{v25.m_name.c_str()};
+    auto *v26 = g_world_ptr->ent_mgr.create_and_add_entity_or_subclass(v10, v11, a3, a7, 129, nullptr);
 
-    if ( v26 != nullptr )
-    {
+    if (v26 != nullptr) {
         auto v17 = v26->get_flavor();
-        if ( v17 == ENTITY_ITEM )
-        {
+        if (v17 == ENTITY_ITEM) {
             a3 = {identity_matrix};
             auto &abs_pos = v26->get_abs_position();
             a3.set_position(abs_pos);
@@ -1133,8 +1070,7 @@ entity_base * sub_65F164(std::string arg0, string_hash a1, po &a3)
         auto *the_terrain = g_world_ptr->get_the_terrain();
         v26->compute_sector(the_terrain, 0, v26);
 
-        if ( v26->has_damage_ifc() )
-        {
+        if (v26->has_damage_ifc()) {
             auto *v7 = v26->damage_ifc();
             auto v13 = v7->field_1FC.field_0[2];
             auto *v8 = v26->damage_ifc();
@@ -1149,42 +1085,33 @@ static SpawnCommand g_SpawnCommand{};
 
 bool SpawnCommand::process_cmd(const std::vector<std::string> &a2)
 {
-    if ( a2.size() != 0 )
-    {
+    if (a2.size() != 0) {
         auto &v5 = a2.at(0);
-        mString v70 {v5.c_str()};
+        mString v70{v5.c_str()};
         v70.to_lower();
 
         mString v69 = v70;
-        if ( a2.size() <= 1 )
-        {
+        if (a2.size() <= 1) {
             g_console->addToLog("Need to pass an entity ID");
-        }
-        else
-        {
+        } else {
             auto &v6 = a2.at(1);
-            mString entity_id {v6.c_str()};
+            mString entity_id{v6.c_str()};
             entity_id.to_upper();
 
             auto *v7 = entity_id.c_str();
-            auto *ent = g_world_ptr->ent_mgr.get_entity(string_hash {v7});
-            if ( ent == nullptr )
-            {
+            auto *ent = g_world_ptr->ent_mgr.get_entity(string_hash{v7});
+            if (ent == nullptr) {
                 auto *v9 = entity_id.c_str();
-                string_hash id {v9};
+                string_hash id{v9};
                 vector3d v67 = ZEROVEC;
 
-                if ( a2.size() <= 4 )
-                {
-                    if ( a2.size() > 2 )
-                    {
+                if (a2.size() <= 4) {
+                    if (a2.size() > 2) {
                         auto &v16 = a2.at(2);
                         auto *v17 = v16.c_str();
                         v67[2] = atof(v17);
                     }
-                }
-                else
-                {
+                } else {
                     auto &v10 = a2.at(2);
                     auto *v11 = v10.c_str();
                     v67[0] = atof(v11);
@@ -1198,7 +1125,7 @@ bool SpawnCommand::process_cmd(const std::vector<std::string> &a2)
                     v67[2] = atof(v15);
                 }
 
-                po v66 {identity_matrix};
+                po v66{identity_matrix};
                 auto *v19 = g_world_ptr->get_hero_ptr(0);
                 v66 = v19->get_abs_po();
 
@@ -1210,52 +1137,43 @@ bool SpawnCommand::process_cmd(const std::vector<std::string> &a2)
                 vector3d v27 = abs_pos + v43;
                 v66.set_position(v27);
 
-                vector3d v65 {};
-                vector3d v64 {};
+                vector3d v65{};
+                vector3d v64{};
 
                 vector3d pos = v66.get_position();
-                bool v30 = find_sphere_intersection(
-                            pos,
-                            0.5f,
-                            *local_collision::entfilter_accept_all,
-                            *local_collision::obbfilter_sphere_test,
-                            &v65,
-                            &v64,
-                            nullptr,
-                            nullptr);
+                bool v30 = find_sphere_intersection(pos,
+                                                    0.5f,
+                                                    *local_collision::entfilter_accept_all,
+                                                    *local_collision::obbfilter_sphere_test,
+                                                    &v65,
+                                                    &v64,
+                                                    nullptr,
+                                                    nullptr);
 
-                if ( v30 )
-                {
-                    vector3d v43 {0.0, 0.1, 0.0};
+                if (v30) {
+                    vector3d v43{0.0, 0.1, 0.0};
                     auto *v32 = g_world_ptr->get_hero_ptr(0);
                     vector3d v33 = v32->get_abs_position();
                     vector3d v34 = v33 + v43;
                     v66.set_position(v34);
                 }
 
-                std::string v41 {v69.c_str()};
+                std::string v41{v69.c_str()};
                 auto *v46 = sub_65F164(v41, id, v66);
-                if ( v46 != nullptr )
-                {
+                if (v46 != nullptr) {
                     auto *v35 = id.to_string();
                     g_console->addToLog("Spawned entity '%s'", v35);
-                }
-                else
-                {
+                } else {
                     auto *v36 = id.to_string();
                     g_console->addToLog("Failed to spawn entity '%s'. Try a different entity file/type", v36);
                 }
-            }
-            else
-            {
+            } else {
                 auto &v37 = a2.at(1);
                 auto *v38 = v37.c_str();
                 g_console->addToLog("Entity ID '%s' is already in use", v38);
             }
         }
-    }
-    else
-    {
+    } else {
         g_console->addToLog("Need to pass an entity type and entity ID or a command");
     }
 
@@ -1268,26 +1186,21 @@ bool SpawnXCommand::process_cmd(const std::vector<std::string> &a2)
 {
     TRACE("SpawnXCommand::process_cmd");
 
-    if ( a2.size() != 0 )
-    {
+    if (a2.size() != 0) {
         auto &v5 = a2.at(0);
-        mString v75 {v5.c_str()};
+        mString v75{v5.c_str()};
         v75.to_lower();
 
         const mString v74 = v75;
 
         vector3d v73 = ZEROVEC;
-        if ( a2.size() <= 3 )
-        {
-            if ( a2.size() > 1 )
-            {
+        if (a2.size() <= 3) {
+            if (a2.size() > 1) {
                 auto &v12 = a2.at(1);
                 auto *v13 = v12.c_str();
                 v73[2] = atof(v13);
             }
-        }
-        else
-        {
+        } else {
             auto &v6 = a2.at(1);
             auto *v7 = v6.c_str();
             v73[0] = atof(v7);
@@ -1301,7 +1214,7 @@ bool SpawnXCommand::process_cmd(const std::vector<std::string> &a2)
             v73[2] = atof(v11);
         }
 
-        po v72 {identity_matrix};
+        po v72{identity_matrix};
         auto *hero_ptr = g_world_ptr->get_hero_ptr(0);
 
         v72 = hero_ptr->get_abs_po();
@@ -1311,52 +1224,41 @@ bool SpawnXCommand::process_cmd(const std::vector<std::string> &a2)
         auto v23 = abs_pos + v46;
         v72.set_position(v23);
 
-        vector3d impact_pos {};
-        vector3d impact_normal {};
+        vector3d impact_pos{};
+        vector3d impact_normal{};
         vector3d pos = v72.get_position();
-        if ( find_sphere_intersection(
-                pos,
-                0.5,
-                *local_collision::entfilter_accept_all,
-                *local_collision::obbfilter_sphere_test,
-                &impact_pos,
-                &impact_normal,
-                nullptr,
-                nullptr) )
-        {
-            vector3d v46 {0.0, 0.1, 0.0};
+        if (find_sphere_intersection(pos,
+                                     0.5,
+                                     *local_collision::entfilter_accept_all,
+                                     *local_collision::obbfilter_sphere_test,
+                                     &impact_pos,
+                                     &impact_normal,
+                                     nullptr,
+                                     nullptr)) {
+            vector3d v46{0.0, 0.1, 0.0};
             auto *v26 = g_world_ptr->get_hero_ptr(0);
             vector3d v27 = v26->get_abs_position();
             auto v28 = v27 + v46;
             v72.set_position(v28);
         }
 
-        filespec v68 {v74};
-        if ( v68.m_ext.length() <= 0 ) {
+        filespec v68{v74};
+        if (v68.m_ext.length() <= 0) {
             v68.m_ext = ".ent";
         }
 
-        if ( v68.m_dir.length() <= 0 ) {
+        if (v68.m_dir.length() <= 0) {
             v68.m_dir = "characters\\" + v68.m_name + "\\";
         }
 
         sp_log("%s", v68.fullname().c_str());
 
-        mString v63 {};
+        mString v63{};
         auto v42 = make_unique_entity_id();
-        string_hash v41 {v68.m_name.c_str()};
-        auto *new_ent = g_world_ptr->ent_mgr.create_and_add_entity_or_subclass(
-                v41,
-                v42,
-                v72,
-                v63,
-                1,
-                nullptr);
-        if ( new_ent != nullptr )
-        {
-            if ( auto v51 = new_ent->get_flavor();
-                    v51 == ENTITY_ITEM )
-            {
+        string_hash v41{v68.m_name.c_str()};
+        auto *new_ent = g_world_ptr->ent_mgr.create_and_add_entity_or_subclass(v41, v42, v72, v63, 1, nullptr);
+        if (new_ent != nullptr) {
+            if (auto v51 = new_ent->get_flavor(); v51 == ENTITY_ITEM) {
                 v72 = {identity_matrix};
                 auto &v31 = new_ent->get_abs_position();
                 v72.set_position(v31);
@@ -1364,8 +1266,7 @@ bool SpawnXCommand::process_cmd(const std::vector<std::string> &a2)
             }
 
             new_ent->set_visible(true, false);
-            if ( new_ent->has_damage_ifc() )
-            {
+            if (new_ent->has_damage_ifc()) {
                 auto *v33 = new_ent->damage_ifc();
 
                 auto v13 = v33->field_1FC.field_0[2];
@@ -1380,61 +1281,50 @@ bool SpawnXCommand::process_cmd(const std::vector<std::string> &a2)
             auto *v79 = id.to_string();
             auto *v38 = v74.c_str();
             g_console->addToLog("Spawned entity '%s' (ent_id = '%s')", v38, v79);
-        }
-        else
-        {
+        } else {
             auto *v39 = v74.c_str();
             g_console->addToLog("Failed to spawn entity '%s'. Try a different entity file/type", v39);
         }
-    }
-    else
-    {
+    } else {
         g_console->addToLog("Need to pass an entity type");
     }
 
     return true;
 }
 
-static SetPBFloatCommand g_SetPBFloatCommand {};
+static SetPBFloatCommand g_SetPBFloatCommand{};
 
-SetPBFloatCommand::SetPBFloatCommand() {
+SetPBFloatCommand::SetPBFloatCommand()
+{
     this->setName("set_ai");
 }
 
 bool SetPBFloatCommand::process_cmd(const std::vector<std::string> &a2)
 {
     auto v46 = a2.size();
-    if ( v46 == 2 || v46 == 3 )
-    {
+    if (v46 == 2 || v46 == 3) {
         auto &v2 = a2.at(0);
         auto *v3 = v2.c_str();
-        string_hash a2a {v3};
+        string_hash a2a{v3};
         auto *ent = entity_handle_manager::find_entity(a2a, IGNORE_FLAVOR, true);
-        if ( ent != nullptr )
-        {
-            if ( ent->is_an_actor() )
-            {
+        if (ent != nullptr) {
+            if (ent->is_an_actor()) {
                 auto *the_actor = bit_cast<actor *>(ent);
                 auto *v42 = the_actor->get_ai_core();
-                if ( v42 != nullptr )
-                {
+                if (v42 != nullptr) {
                     auto &v8 = a2.at(1);
                     auto *v9 = v8.c_str();
-                    string_hash v39 {v9};
+                    string_hash v39{v9};
 
                     auto *the_pblock = v42->get_param_block();
-                    if ( the_pblock->does_parameter_exist(v39) )
-                    {
+                    if (the_pblock->does_parameter_exist(v39)) {
                         auto pb_float = the_pblock->get_pb_float(v39);
-                        if ( v46 == 2 )
-                        {
+                        if (v46 == 2) {
                             auto &v14 = a2.at(1);
                             auto *v15 = v14.c_str();
                             g_console->addToLog("%s = %.2f", v15, pb_float);
                             return true;
-                        }
-                        else
-                        {
+                        } else {
                             auto &v16 = a2.at(2);
                             auto *v17 = v16.c_str();
                             auto v38 = atof(v17);
@@ -1445,62 +1335,51 @@ bool SetPBFloatCommand::process_cmd(const std::vector<std::string> &a2)
                             g_console->addToLog("%s was %.2f, now set to %.2f", v20, pb_float);
                             return true;
                         }
-                    }
-                    else
-                    {
+                    } else {
                         auto &v12 = a2.at(1);
                         auto *v13 = v12.c_str();
                         g_console->addToLog("Parameter %s does not exist in the param block", v13);
                         return true;
                     }
-                }
-                else
-                {
+                } else {
                     g_console->addToLog("This actor doesn't have an AI core!");
                     return true;
                 }
-            }
-            else
-            {
+            } else {
                 g_console->addToLog("This entity is not an actor!");
                 return true;
             }
-        }
-        else
-        {
+        } else {
             auto &v5 = a2.at(0);
             auto *v6 = v5.c_str();
             g_console->addToLog("Entity %s not found!", v6);
             return true;
         }
-    }
-    else
-    {
+    } else {
         auto *v21 = this->helpText();
         g_console->addToLog(v21);
         return true;
     }
 }
 
-static SCCommand g_SCCommand {};
+static SCCommand g_SCCommand{};
 
 bool SCCommand::process_cmd(const std::vector<std::string> &a2)
 {
     auto *gso = script::get_gso();
     auto *gsoi = script::get_gsoi();
-    if ( a2.size() != 1 ) {
+    if (a2.size() != 1) {
         return false;
     }
 
     auto &v3 = a2.at(0);
     auto *v4 = v3.c_str();
-    string_hash v7 {v4};
+    string_hash v7{v4};
     int func_idx = gso->find_func_short(v7);
-    if ( func_idx != -1 )
-    {
+    if (func_idx != -1) {
         auto func = gso->get_func(func_idx);
         auto *v11 = gsoi->add_thread(func);
-        if ( v11 == nullptr ) {
+        if (v11 == nullptr) {
             return false;
         }
 

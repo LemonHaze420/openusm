@@ -2,7 +2,6 @@
 
 #include "common.h"
 
-namespace als
-{
-    VALIDATE_SIZE(filter_data, 0xC);
+namespace als {
+VALIDATE_SIZE(filter_data, 0xC);
 }

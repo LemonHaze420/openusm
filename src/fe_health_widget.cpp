@@ -6,7 +6,8 @@
 
 VALIDATE_SIZE(fe_health_widget, 0x58);
 
-fe_health_widget::fe_health_widget(int a1) {
+fe_health_widget::fe_health_widget(int a1)
+{
     this->field_30 = 0;
     this->number_of_types = a1;
 
@@ -24,15 +25,18 @@ fe_health_widget::fe_health_widget(int a1) {
     this->field_50 = 1.0;
 }
 
-void fe_health_widget::SetShown(bool a2) {
+void fe_health_widget::SetShown(bool a2)
+{
     THISCALL(0x0061A3F0, this, a2);
 }
 
-void fe_health_widget::UpdateMasking() {
+void fe_health_widget::UpdateMasking()
+{
     THISCALL(0x0061A5A0, this);
 }
 
-char fe_health_widget::clear_bars() {
+char fe_health_widget::clear_bars()
+{
     return static_cast<char>(THISCALL(0x0063B170, this));
 }
 
@@ -48,7 +52,8 @@ void fe_health_widget::Init(int type_id, const char *a3, bool a4)
     this->clear_bars();
 }
 
-void fe_health_widget::DeInit(int a2) {
+void fe_health_widget::DeInit(int a2)
+{
     this->panels[a2] = nullptr;
     if (a2 == this->field_38) {
         this->field_54 = 0;

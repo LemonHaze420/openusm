@@ -7,9 +7,8 @@
 
 struct phys_memory_heap;
 
-template<typename T>
-struct phys_memory_pool
-{
+template <typename T>
+struct phys_memory_pool {
     T *m_slot_array;
     T **m_alloc_list;
     int *m_index_array;
@@ -18,11 +17,10 @@ struct phys_memory_pool
 
     ~phys_memory_pool()
     {
-        if ( this->m_slot_array != nullptr )
-        {
-            assert(m_alloc_list == (T**)(m_slot_array + m_slot_array_size));
+        if (this->m_slot_array != nullptr) {
+            assert(m_alloc_list == (T **)(m_slot_array + m_slot_array_size));
 
-            assert(m_index_array == (int*)(m_alloc_list + m_slot_array_size));
+            assert(m_index_array == (int *)(m_alloc_list + m_slot_array_size));
         }
 
         this->m_index_array = nullptr;

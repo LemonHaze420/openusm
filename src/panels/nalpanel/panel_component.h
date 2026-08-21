@@ -9,7 +9,7 @@ struct PanelComponent : BaseComponent {
 };
 
 namespace PanelComponentMgr {
-    extern PanelComponent *& comp_list;
+extern PanelComponent *&comp_list;
 
-    extern void Add(PanelComponent *);
-}
+extern void Add(PanelComponent *);
+}  // namespace PanelComponentMgr

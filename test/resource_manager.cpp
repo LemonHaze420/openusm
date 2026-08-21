@@ -19,7 +19,7 @@ TEST(ResourceManager, CreateInstance)
     initializeFileHandlers(nullptr);
 
     os_developer_options::os_developer_init();
-    os_developer_options::instance->set_flag(mString {"SHOW_RESOURCE_SPAM"}, true);
+    os_developer_options::instance->set_flag(mString{"SHOW_RESOURCE_SPAM"}, true);
 
     nflInitParams a1;
     a1.field_0[0] = 32;
@@ -30,7 +30,7 @@ TEST(ResourceManager, CreateInstance)
     a1.field_0[4] = 0;
 
     const auto dword_965C04 = nflInit(&a1);
-    auto * dword_965C00 = new char[dword_965C04];
+    auto *dword_965C00 = new char[dword_965C04];
 
     nflStart(dword_965C00);
 
@@ -53,24 +53,18 @@ TEST(ResourceManager, CreateInstance)
 
     auto *pD3D = Direct3DCreate9(0x80000020);
 
-    g_valid_texture_format = IDirect3D9_CheckDeviceFormat(
-                                 pD3D,
-                                 0,
-                                 D3DDEVTYPE_HAL,
-                                 D3DFMT_X8R8G8B8,
-                                 0,
-                                 D3DRTYPE_TEXTURE,
-                                 D3DFMT_P8) < 0;
+    g_valid_texture_format =
+        IDirect3D9_CheckDeviceFormat(pD3D, 0, D3DDEVTYPE_HAL, D3DFMT_X8R8G8B8, 0, D3DRTYPE_TEXTURE, D3DFMT_P8) < 0;
 
     ASSERT_TRUE(g_valid_texture_format);
 
     IDirect3D9_CreateDevice(pD3D,
-            D3DADAPTER_DEFAULT,
-            D3DDEVTYPE_REF,
-            g_hWnd,
-            D3DCREATE_SOFTWARE_VERTEXPROCESSING,
-            &d3dpresent_params,
-            &g_Direct3DDevice);
+                            D3DADAPTER_DEFAULT,
+                            D3DDEVTYPE_REF,
+                            g_hWnd,
+                            D3DCREATE_SOFTWARE_VERTEXPROCESSING,
+                            &d3dpresent_params,
+                            &g_Direct3DDevice);
 
     ASSERT_TRUE(g_Direct3DDevice != nullptr);
 
@@ -85,14 +79,8 @@ TEST(ResourceManager, CreateInstance)
 
     resource_manager::create_inst();
 
-    static tlSystemCallbacks ngl_callbacks {
-        ngl_readfile_callback,
-        ngl_releasefile_callback,
-        0,
-        0,
-        ngl_memalloc_callback,
-        ngl_memfree_callback
-    };
+    static tlSystemCallbacks ngl_callbacks{
+        ngl_readfile_callback, ngl_releasefile_callback, 0, 0, ngl_memalloc_callback, ngl_memfree_callback};
 
     tlSetSystemCallbacks(ngl_callbacks);
 

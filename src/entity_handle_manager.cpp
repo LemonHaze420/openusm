@@ -31,47 +31,48 @@ VALIDATE_SIZE(*map::_Mybase::_Myhead, 0x18);
 
 #if !STANDALONE_SYSTEM
 
-simple_queue<int, 32> & entity_handle_manager::free_slot_indices = var<simple_queue<int, 32>>(0x0091FFC0);
+simple_queue<int, 32> &entity_handle_manager::free_slot_indices = var<simple_queue<int, 32>>(0x0091FFC0);
 
-entity_slot *& entity_handle_manager::ent_slots = var<entity_slot *>(0x0095A0D0);
+entity_slot *&entity_handle_manager::ent_slots = var<entity_slot *>(0x0095A0D0);
 
-entity_slot *& entity_handle_manager::ENTS = var<entity_slot *>(0x0095A6F4);
+entity_slot *&entity_handle_manager::ENTS = var<entity_slot *>(0x0095A6F4);
 
-int & entity_handle_manager::curr_idx = var<int>(0x0095BBD8);
+int &entity_handle_manager::curr_idx = var<int>(0x0095BBD8);
 
-bool & entity_handle_manager::check_world_lists = var<bool>(0x0091FE64);
+bool &entity_handle_manager::check_world_lists = var<bool>(0x0091FE64);
 
-stdext::hash_map<string_hash, entity_base *> & entity_handle_manager::the_map = var<stdext::hash_map<string_hash, entity_base *>>(0x0095B79C);
+stdext::hash_map<string_hash, entity_base *> &entity_handle_manager::the_map =
+    var<stdext::hash_map<string_hash, entity_base *>>(0x0095B79C);
 
 #else
 
-simple_queue<int, 32> & entity_handle_manager::free_slot_indices = []() -> auto & {
-    static simple_queue<int, 32> g_free_slot_indices {};
+simple_queue<int, 32> &entity_handle_manager::free_slot_indices = []() -> auto & {
+    static simple_queue<int, 32> g_free_slot_indices{};
     return g_free_slot_indices;
 }();
 
-entity_slot *& entity_handle_manager::ent_slots = []() -> auto & {
-    static entity_slot * g_ent_slots {};
+entity_slot *&entity_handle_manager::ent_slots = []() -> auto & {
+    static entity_slot *g_ent_slots{};
     return g_ent_slots;
 }();
 
-entity_slot *& entity_handle_manager::ENTS = []() -> auto & {
-    static entity_slot * g_ENTS {};
+entity_slot *&entity_handle_manager::ENTS = []() -> auto & {
+    static entity_slot *g_ENTS{};
     return g_ENTS;
 }();
 
-int & entity_handle_manager::curr_idx = []() -> auto & {
-    static int g_curr_idx {};
+int &entity_handle_manager::curr_idx = []() -> auto & {
+    static int g_curr_idx{};
     return g_curr_idx;
 }();
 
-bool & entity_handle_manager::check_world_lists = []() -> auto & {
-    static bool g_check_world_lists {true};
+bool &entity_handle_manager::check_world_lists = []() -> auto & {
+    static bool g_check_world_lists{true};
     return g_check_world_lists;
 }();
 
-stdext::hash_map<string_hash, entity_base *> & entity_handle_manager::the_map = []() -> auto & {
-    static stdext::hash_map<string_hash, entity_base *> g_the_map {};
+stdext::hash_map<string_hash, entity_base *> &entity_handle_manager::the_map = []() -> auto & {
+    static stdext::hash_map<string_hash, entity_base *> g_the_map{};
     return g_the_map;
 }();
 
@@ -95,60 +96,50 @@ VALIDATE_OFFSET(std::decay_t<decltype(entity_handle_manager::the_map)>::_Myvec, 
 VALIDATE_OFFSET(std::decay_t<decltype(entity_handle_manager::the_map)>::_Mylist, m_head, 0x4);
 VALIDATE_OFFSET(std::decay_t<decltype(entity_handle_manager::the_map)>::_Mylist, m_size, 0x8);
 
-void *& dword_95B7A4 = var<void *>(0x0095B7A4);
+void *&dword_95B7A4 = var<void *>(0x0095B7A4);
 
-entity_base *entity_handle_manager::find_entity(const string_hash &arg0,
-                                                entity_flavor_t a2,
-                                                bool a3)
+entity_base *entity_handle_manager::find_entity(const string_hash &arg0, entity_flavor_t a2, bool a3)
 {
     TRACE("entity_handle_manager::find_entity", arg0.to_string());
 
     entity_base *result = nullptr;
-    if constexpr (1)
-    {
+    if constexpr (1) {
         using map = std::decay_t<decltype(the_map)>;
         using iterator = map::iterator;
 
         iterator v13;
         THISCALL(0x00506790, &the_map, &v13, &arg0);
-        if ( !a3 )
-        {
-            if ( v13 == the_map.end() )
-            {
+        if (!a3) {
+            if (v13 == the_map.end()) {
                 auto *v3 = arg0.to_string();
-                mString v4 {v3};
-                mString v5 {"Unable to find entity "};
+                mString v4{v3};
+                mString v5{"Unable to find entity "};
                 auto out = v5 + v4;
                 sp_log("%s", out.c_str());
             }
-
         }
 
-        if ( v13 == the_map.end() ) {
+        if (v13 == the_map.end()) {
             return nullptr;
         }
 
-        if ( a2 != IGNORE_FLAVOR && v13._Ptr->_Myval.second->get_flavor() != a2 )
-        {
-            auto v21 = mString {"Entity "}
-                        + mString {arg0.to_string()}
-                        + " is not a "
-                        + entity_flavor_names[a2];
+        if (a2 != IGNORE_FLAVOR && v13._Ptr->_Myval.second->get_flavor() != a2) {
+            auto v21 = mString{"Entity "} + mString{arg0.to_string()} + " is not a " + entity_flavor_names[a2];
             sp_log("%s", v21.c_str());
             assert(0);
         }
 
         return v13._Ptr->_Myval.second;
-    }
-    else {
-        result = (entity_base *) CDECL_CALL(0x004DC300, &arg0, a2, a3);
+    } else {
+        result = (entity_base *)CDECL_CALL(0x004DC300, &arg0, a2, a3);
     }
 
     assert(result != nullptr);
     return result;
 }
 
-void entity_handle_manager::deregister_entity(entity_base *a1) {
+void entity_handle_manager::deregister_entity(entity_base *a1)
+{
     TRACE("deregister_entity %s", a1->field_10.to_string());
 
     if constexpr (0) {
@@ -171,13 +162,11 @@ void entity_handle_manager::register_entity(entity_base *a1)
 {
     TRACE("entity_handle_manager::register_entity", a1->field_10.to_string());
 
-    if constexpr (1)
-    {
-        if ( a1->field_10 != ANONYMOUS )
-        {
+    if constexpr (1) {
+        if (a1->field_10 != ANONYMOUS) {
             using map_t = typename std::decay_t<decltype(the_map)>;
             using value_type = typename map_t::value_type;
-            value_type value {a1->field_10, a1};
+            value_type value{a1->field_10, a1};
 
             using iterator = map_t::iterator;
             using pair_t = std::pair<iterator, bool>;
@@ -187,31 +176,30 @@ void entity_handle_manager::register_entity(entity_base *a1)
 
             pair_t result;
             if constexpr (1) {
-                void (__fastcall *insert)(map_t *, void *edx, pair_t *, const std::decay_t<decltype(value)> *) = CAST(insert, 0x00509440);
+                void(__fastcall * insert)(map_t *, void *edx, pair_t *, const std::decay_t<decltype(value)> *) =
+                    CAST(insert, 0x00509440);
                 insert(&the_map, nullptr, &result, &value);
             } else {
                 result = the_map.insert(value);
             }
 
-            if (!g_is_the_packer && !result.second)
-            {
+            if (!g_is_the_packer && !result.second) {
                 const char *v1 = a1->field_10.to_string();
 
-                mString v2 {v1};
+                mString v2{v1};
 
-                mString v4 = mString {"Same entity name appears twice: "} + v2;
+                mString v4 = mString{"Same entity name appears twice: "} + v2;
 
                 error("%s", v4.c_str());
             }
         }
-    }
-    else
-    {
+    } else {
         CDECL_CALL(0x004EF970, a1);
     }
 }
 
-int entity_slot::occupy(entity_base *a2) {
+int entity_slot::occupy(entity_base *a2)
+{
     assert(!in_use());
 
     this->my_id += 0x4000;
@@ -220,18 +208,16 @@ int entity_slot::occupy(entity_base *a2) {
 }
 
 
-
 void entity_slot::vacate(const entity_base_vhandle &ent_handle)
 {
     int which_slot = ent_handle.field_0 & 0x3FFF;
     assert(which_slot < MAX_ENTITIES);
 
-    auto ENTITY_HANDLE_ID = [](const auto &ent_handle)
-    {
+    auto ENTITY_HANDLE_ID = [](const auto &ent_handle) {
         return ent_handle.field_0;
     };
 
-    assert(this->my_id == ENTITY_HANDLE_ID( ent_handle ));
+    assert(this->my_id == ENTITY_HANDLE_ID(ent_handle));
 
     assert(this->my_ptr != nullptr);
 
@@ -258,19 +244,17 @@ void entity_handle_manager::create_inst()
 
 void entity_handle_manager::clear_ent_slots()
 {
-    for (int i = 0; i < MAX_ENTITIES; ++i)
-    {
+    for (int i = 0; i < MAX_ENTITIES; ++i) {
         auto *v1 = &ent_slots[i];
         v1->my_id = i;
         v1->my_ptr = nullptr;
     }
 
-    for (int i = 0; i < 32; ++i)
-    {
+    for (int i = 0; i < 32; ++i) {
         auto v3 = ++free_slot_indices.field_6;
         if (free_slot_indices.field_6 >= free_slot_indices.size) {
             v3 = 0;
-            free_slot_indices.field_6= 0;
+            free_slot_indices.field_6 = 0;
         }
 
         free_slot_indices.field_0[v3] = i;
@@ -280,11 +264,12 @@ void entity_handle_manager::clear_ent_slots()
 
 void entity_handle_manager::remove_entity(const entity_base_vhandle &ent_handle)
 {
-    if ( g_world_ptr != nullptr && check_world_lists )
-    {
-        assert("Entity handle is being released while entity still exists in lists" && !g_world_ptr->ent_mgr.is_entity_valid( (entity *) ent_handle.field_0 ));
+    if (g_world_ptr != nullptr && check_world_lists) {
+        assert("Entity handle is being released while entity still exists in lists" &&
+               !g_world_ptr->ent_mgr.is_entity_valid((entity *)ent_handle.field_0));
 
-        assert("Item handle is being released while item still exists in lists" && !g_world_ptr->ent_mgr.is_item_valid( (item *) ent_handle.field_0 ));
+        assert("Item handle is being released while item still exists in lists" &&
+               !g_world_ptr->ent_mgr.is_item_valid((item *)ent_handle.field_0));
     }
 
     int which_slot = ent_handle.field_0 & 0x3FFF;
@@ -293,7 +278,7 @@ void entity_handle_manager::remove_entity(const entity_base_vhandle &ent_handle)
     assert(ent_slots[which_slot].in_use());
 
     ent_slots[which_slot].vacate(ent_handle);
-    if ( free_slot_indices.get_unused_capacity() > 0 ) {
+    if (free_slot_indices.get_unused_capacity() > 0) {
         free_slot_indices.push_back(which_slot);
     }
 }
@@ -304,8 +289,9 @@ entity_base *find_marker(const string_hash &a1)
     return entity_handle_manager::find_entity(a1, MARKER, false);
 }
 
-mic *find_mic(const string_hash &a1) {
-    return (mic *) entity_handle_manager::find_entity(a1, MIC, false);
+mic *find_mic(const string_hash &a1)
+{
+    return (mic *)entity_handle_manager::find_entity(a1, MIC, false);
 }
 
 void entity_handle_manager::delete_inst()
@@ -320,21 +306,17 @@ void entity_handle_manager::delete_inst()
 
 void sub_4CCEA0()
 {
-    if constexpr (1)
-    {
-        while (entity_handle_manager::free_slot_indices.get_unused_capacity() != 0)
-        {
+    if constexpr (1) {
+        while (entity_handle_manager::free_slot_indices.get_unused_capacity() != 0) {
             assert(entity_handle_manager::curr_idx < MAX_ENTITIES);
 
-            if ( !entity_handle_manager::ent_slots[entity_handle_manager::curr_idx].in_use() )
-            {
+            if (!entity_handle_manager::ent_slots[entity_handle_manager::curr_idx].in_use()) {
                 entity_handle_manager::free_slot_indices.push_back(entity_handle_manager::curr_idx);
             }
 
             if (++entity_handle_manager::curr_idx >= MAX_ENTITIES) {
                 entity_handle_manager::curr_idx = 0;
             }
-
         }
 
     } else {
@@ -344,7 +326,7 @@ void sub_4CCEA0()
 
 int entity_handle_manager::get_free_slot()
 {
-    if ( free_slot_indices.count() == 0 )
+    if (free_slot_indices.count() == 0)
         sub_4CCEA0();
 
     if (free_slot_indices.count() == 0) {
@@ -358,9 +340,8 @@ int entity_handle_manager::add_entity(entity_base *ent_to_add)
 {
     TRACE("entity_handle_manager::add_entity");
 
-    if constexpr (1)
-    {
-        static constexpr entity_base_vhandle INVALID_VHANDLE {0};
+    if constexpr (1) {
+        static constexpr entity_base_vhandle INVALID_VHANDLE{0};
 
         assert(ent_to_add != nullptr);
         assert(ent_to_add->get_my_vhandle() == INVALID_VHANDLE && "re-adding an entity!");
@@ -403,5 +384,4 @@ void entity_handle_manager_patch()
         REDIRECT(0x004DCE59, entity_handle_manager::find_entity);
         REDIRECT(0x0055D23E, entity_handle_manager::find_entity);
     }
-
 }

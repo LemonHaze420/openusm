@@ -8,32 +8,30 @@
 
 inline constexpr auto LOG_BASE_TYPE_BITS = 5;
 
-template<typename base_type, int number_of_bits>
+template <typename base_type, int number_of_bits>
 struct fixed_bitvector {
-
     static constexpr auto num = number_of_bits / (sizeof(base_type) * 8) + 1;
     int field_0;
     base_type field_4[num]{};
 
     fixed_bitvector()
     {
-        assert(LOG_BASE_TYPE_BITS == bitmath::intlog2( sizeof( base_type ) * 8 ));
-  
+        assert(LOG_BASE_TYPE_BITS == bitmath::intlog2(sizeof(base_type) * 8));
+
         this->field_0 = number_of_bits + sizeof(base_type) * 8;
 
-        auto sub_A62040 = [](auto *self) -> void
-        {
-            for ( auto i = 0u; i < 65u; ++i ) {
+        auto sub_A62040 = [](auto *self) -> void {
+            for (auto i = 0u; i < 65u; ++i) {
                 self->field_4[i] = 0;
             }
         };
 
-        sub_A62040(this);  
+        sub_A62040(this);
     }
 
     void clear()
     {
-        for ( auto i = 0u; i < num; ++i ) {
+        for (auto i = 0u; i < num; ++i) {
             this->field_4[i] = 0;
         }
     }
@@ -57,4 +55,4 @@ struct fixed_bitvector {
     }
 };
 
-inline Var<fixed_bitvector<uint32_t, 256>> hash_update_bitvector {0x009222B0};
+inline Var<fixed_bitvector<uint32_t, 256>> hash_update_bitvector{0x009222B0};

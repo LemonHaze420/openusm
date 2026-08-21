@@ -4,8 +4,7 @@
 
 struct nglMaterialBase;
 
-struct US_Decal3DShader : nglShader
-{
+struct US_Decal3DShader : nglShader {
     //virtual
     void _BindMaterial(nglMaterialBase *a1);
 

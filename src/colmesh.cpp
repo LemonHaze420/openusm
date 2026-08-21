@@ -28,7 +28,7 @@ cg_mesh::cg_mesh()
 collision_geometry *cg_mesh::make_instance(actor *a2)
 {
     auto *mem = mem_alloc(sizeof(cg_mesh));
-    auto *result = new (mem) cg_mesh {};
+    auto *result = new (mem) cg_mesh{};
     result->owner = a2;
     if (this->field_8 != result->field_8) {
         result->field_8 = this->field_8;
@@ -38,15 +38,18 @@ collision_geometry *cg_mesh::make_instance(actor *a2)
     return result;
 }
 
-vector3d cg_mesh::get_local_space_bounding_sphere_center() {
+vector3d cg_mesh::get_local_space_bounding_sphere_center()
+{
     return this->data->field_10[0].field_0;
 }
 
-float cg_mesh::get_bounding_sphere_radius() {
+float cg_mesh::get_bounding_sphere_radius()
+{
     return this->data->field_10[0].field_C;
 }
 
-int cg_mesh::get_type() {
+int cg_mesh::get_type()
+{
     return collision_geometry::MESH;
 }
 
@@ -54,8 +57,7 @@ void cg_mesh::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data_ptrs
 {
     TRACE("cg_mesh::un_mash");
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         collision_geometry::un_mash(a2, a3, a4);
 
         this->field_9 = false;
@@ -64,25 +66,20 @@ void cg_mesh::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data_ptrs
 
         int size = 0;
         auto *resource = resource_manager::get_resource(col_mesh_name, &size, nullptr);
-        
-        if (resource == nullptr)
-        {
+
+        if (resource == nullptr) {
             auto *str = col_mesh_name.m_hash.to_string();
             error("Couldn't acquire memory image '%s' for collision geometry.", str);
         }
 
         this->data = CAST(this->data, resource);
-        if (this->data->field_0[3] != 'Z')
-        {
-            if (memcmp(this->data->field_0, "COLL", 4) != 0
-                    && memcmp(this->data->field_0, "COLB", 4) != 0)
-            {
+        if (this->data->field_0[3] != 'Z') {
+            if (memcmp(this->data->field_0, "COLL", 4) != 0 && memcmp(this->data->field_0, "COLB", 4) != 0) {
                 auto *str = col_mesh_name.m_hash.to_string();
                 error("corruption collision mesh file %s", str);
             }
 
-            if (this->data->m_version != 0x10003F)
-            {
+            if (this->data->m_version != 0x10003F) {
                 auto *str = col_mesh_name.m_hash.to_string();
                 error("unsupported collision mesh version in file %s", str);
             }

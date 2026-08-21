@@ -12,7 +12,7 @@
 struct actor;
 struct resource_key;
 
-template<typename T>
+template <typename T>
 struct bounded_variable {
     T field_0[4];
 
@@ -83,11 +83,7 @@ struct damage_interface : generic_interface {
     /* virtual */ bool set_ifc_num(const resource_key &att, Float a3, bool is_log);
 
     //virtual
-    void _un_mash(
-        generic_mash_header *a2,
-        void *a3,
-        void *a4,
-        generic_mash_data_ptrs *a5);
+    void _un_mash(generic_mash_header *a2, void *a3, void *a4, generic_mash_data_ptrs *a5);
 
     //virtual
     void release_ifc();
@@ -98,9 +94,9 @@ struct damage_interface : generic_interface {
     //0x004D1990
     static void frame_advance_all_damage_ifc(Float a1);
 
-    static inline auto & all_damage_interfaces = var<_std::vector<damage_interface *> *>(0x0095A660);
+    static inline auto &all_damage_interfaces = var<_std::vector<damage_interface *> *>(0x0095A660);
 
-    static inline auto & found_damageable = var<_std::list<damage_interface *> *>(0x0095A5EC);
+    static inline auto &found_damageable = var<_std::list<damage_interface *> *>(0x0095A5EC);
 };
 
 

@@ -15,4 +15,4 @@ struct als_inode_render_debug : debug_renderable {
     //0x00693720
     als_inode_render_debug(als_inode *a2, conglomerate *a3);
 };
-} // namespace ai
+}  // namespace ai

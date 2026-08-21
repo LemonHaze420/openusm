@@ -35,23 +35,13 @@ struct cached_special_effect {
     void initialize();
 
     //0x004EFC00
-    void spawn(bool a1,
-               const vector3d &a2,
-               const vector3d &a3,
-               handheld_item *a6,
-               entity_base *a7,
-               entity_base *a8,
-               const vector3d &a9,
-               bool a10,
-               bool a11);
+    void spawn(bool a1, const vector3d &a2, const vector3d &a3, handheld_item *a6, entity_base *a7, entity_base *a8,
+               const vector3d &a9, bool a10, bool a11);
 
     //0x004D4E10
     void fill_cache();
 
-    void un_mash(
-        generic_mash_header *a2,
-        void *a3,
-        generic_mash_data_ptrs *a4);
+    void un_mash(generic_mash_header *a2, void *a3, generic_mash_data_ptrs *a4);
 
     //0x004D81F0
     void frame_advance(Float a2);

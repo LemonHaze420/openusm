@@ -7,17 +7,18 @@
 #include <cassert>
 #include <cstdint>
 
-template<typename T>
+template <typename T>
 struct simple_list {
     static_assert(std::is_pointer_v<T>, "");
 
     using value_type = typename std::remove_pointer_t<T>;
 
-    value_type * _first_element;
-    value_type * _last_element;
+    value_type *_first_element;
+    value_type *_last_element;
     uint32_t m_size;
 
-    simple_list() {
+    simple_list()
+    {
         this->initialize(mash::ALLOCATED);
     }
 
@@ -37,33 +38,35 @@ struct simple_list {
 
 
     struct vars_t {
-        value_type * _sl_next_element;
-        value_type * _sl_prev_element;
+        value_type *_sl_next_element;
+        value_type *_sl_prev_element;
         simple_list<T> *_sl_list_owner;
-        
-        vars_t() : _sl_next_element(nullptr),
-                    _sl_prev_element(nullptr),
-                    _sl_list_owner(nullptr) {}
+
+        vars_t() : _sl_next_element(nullptr), _sl_prev_element(nullptr), _sl_list_owner(nullptr) {}
     };
 
     struct iterator {
-        value_type *_ptr {nullptr};
+        value_type *_ptr{nullptr};
 
-        bool operator==(const iterator &it) const {
+        bool operator==(const iterator &it) const
+        {
             return this->_ptr == it._ptr;
         }
 
-        bool operator!=(const iterator &it) const {
+        bool operator!=(const iterator &it) const
+        {
             return this->_ptr != it._ptr;
         }
 
-        void operator++() {
-            if ( this->_ptr != nullptr ) {
+        void operator++()
+        {
+            if (this->_ptr != nullptr) {
                 this->_ptr = this->_ptr->simple_list_vars._sl_next_element;
             }
         }
 
-        value_type *& operator*() {
+        value_type *&operator*()
+        {
             return this->_ptr;
         }
 
@@ -119,27 +122,30 @@ struct simple_list {
 
             std::swap(a._ptr, b._ptr);
         }
-
-
     };
 
-    uint32_t size() const {
+    uint32_t size() const
+    {
         return this->m_size;
     }
 
-    bool empty() const {
+    bool empty() const
+    {
         return (this->m_size == 0);
     }
 
-    iterator begin() {
-        return iterator {this->_first_element};
-    }
-    
-    iterator end() {
-        return iterator {nullptr};
+    iterator begin()
+    {
+        return iterator{this->_first_element};
     }
 
-    value_type *& front() {
+    iterator end()
+    {
+        return iterator{nullptr};
+    }
+
+    value_type *&front()
+    {
         return this->_first_element;
     }
 
@@ -158,12 +164,12 @@ struct simple_list {
         tmp->simple_list_vars._sl_next_element = this->_first_element;
         tmp->simple_list_vars._sl_prev_element = nullptr;
 
-        if ( this->_first_element != nullptr ) {
+        if (this->_first_element != nullptr) {
             this->_first_element->simple_list_vars._sl_prev_element = tmp;
         }
 
         this->_first_element = tmp;
-        if ( tmp->simple_list_vars._sl_next_element == nullptr ) {
+        if (tmp->simple_list_vars._sl_next_element == nullptr) {
             this->_last_element = tmp;
         }
 
@@ -182,13 +188,12 @@ struct simple_list {
         assert(tmp != nullptr);
 
         assert(tmp->simple_list_vars._sl_next_element == nullptr);
-        
+
         assert(tmp->simple_list_vars._sl_prev_element == nullptr);
 
         assert(tmp->simple_list_vars._sl_list_owner == nullptr);
 
-        if ( this->_last_element != nullptr )
-        {
+        if (this->_last_element != nullptr) {
             assert(this->_last_element->simple_list_vars._sl_next_element == nullptr);
 
             this->_last_element->simple_list_vars._sl_next_element = tmp;
@@ -197,33 +202,27 @@ struct simple_list {
             this->_last_element = tmp;
             tmp->simple_list_vars._sl_list_owner = this;
             ++this->m_size;
-            return iterator {tmp};
-        }
-        else
-        {
+            return iterator{tmp};
+        } else {
             return this->push_front(tmp);
         }
     }
 
-    bool contains(value_type *iter) const {
-        return (iter != nullptr)
-                && (iter->simple_list_vars._sl_list_owner == this);
+    bool contains(value_type *iter) const
+    {
+        return (iter != nullptr) && (iter->simple_list_vars._sl_list_owner == this);
     }
 
-    value_type * common_erase(value_type *iter, bool a3)
+    value_type *common_erase(value_type *iter, bool a3)
     {
         value_type *result = nullptr;
-        if ( iter != nullptr )
-        {
+        if (iter != nullptr) {
             assert(this->contains(iter));
 
-            result = (a3
-                        ? iter->simple_list_vars._sl_prev_element
-                        : iter->simple_list_vars._sl_next_element
-                        );
+            result = (a3 ? iter->simple_list_vars._sl_prev_element : iter->simple_list_vars._sl_next_element);
 
             auto *sl_prev_element = iter->simple_list_vars._sl_prev_element;
-            if ( sl_prev_element != nullptr ) {
+            if (sl_prev_element != nullptr) {
                 sl_prev_element->simple_list_vars._sl_next_element = iter->simple_list_vars._sl_next_element;
             } else {
                 assert(iter->simple_list_vars._sl_list_owner->_first_element == iter);
@@ -231,8 +230,9 @@ struct simple_list {
                 iter->simple_list_vars._sl_list_owner->_first_element = iter->simple_list_vars._sl_next_element;
             }
 
-            if ( iter->simple_list_vars._sl_next_element != nullptr ) {
-                iter->simple_list_vars._sl_next_element->simple_list_vars._sl_prev_element = iter->simple_list_vars._sl_prev_element;
+            if (iter->simple_list_vars._sl_next_element != nullptr) {
+                iter->simple_list_vars._sl_next_element->simple_list_vars._sl_prev_element =
+                    iter->simple_list_vars._sl_prev_element;
             } else {
                 assert(iter->simple_list_vars._sl_list_owner->_last_element == iter);
 
@@ -252,7 +252,7 @@ struct simple_list {
 
     bool checked_erase(value_type *a2)
     {
-        if ( !this->contains(a2) ) {
+        if (!this->contains(a2)) {
             return false;
         }
 
@@ -271,5 +271,4 @@ struct simple_list {
         auto it = this->begin();
         this->erase(it._ptr);
     }
-
 };

@@ -15,16 +15,11 @@ class script_var_container {
         char *name;
         int address;
 
-        void un_mash(
-                void *,
-                generic_mash_header *,
-                script_var_container *a3,
-                void *,
-                generic_mash_data_ptrs *a5);
+        void un_mash(void *, generic_mash_header *, script_var_container *a3, void *, generic_mash_data_ptrs *a5);
     };
 
 private:
-    so_data_block script_var_block {};
+    so_data_block script_var_block{};
     script_var_to_addr_t *script_var_to_addr;
     int field_10;
     struct {
@@ -37,11 +32,12 @@ public:
 
     script_var_container();
 
-    void * operator new(size_t size);
+    void *operator new(size_t size);
 
     void operator delete(void *ptr, size_t size);
 
-    bool is_game() const {
+    bool is_game() const
+    {
         return (this->flags & 2) != 0;
     }
 

@@ -11,7 +11,6 @@ struct nalCompAnim;
 struct nalCompSkeleton;
 
 struct nalCompInstance : nalBaseInstance {
-
     struct vtbl {
         void *finalize;
         void *VirtualGetPose;
@@ -36,27 +35,21 @@ struct nalCompInstance : nalBaseInstance {
     int field_18;
     void *field_1C;
 
-    nalCompInstance(
-        nalCompAnim *a2,
-        nalCompSkeleton *a3);
+    nalCompInstance(nalCompAnim *a2, nalCompSkeleton *a3);
 
     //0x00733D00
     void ConstructInstance();
 
-    nalCompSkeleton * GetSkeleton();
+    nalCompSkeleton *GetSkeleton();
 
-    nalCompAnim * GetAnim();
+    nalCompAnim *GetAnim();
 
     //virtual
     ~nalCompInstance();
 
     //virtual
     //0x00744BA0
-    void _VirtualGetPose(
-            Float a1,
-            Float a2,
-            nalBasePose *a3,
-            const nalBasePose *a4);
+    void _VirtualGetPose(Float a1, Float a2, nalBasePose *a3, const nalBasePose *a4);
 
     void _BuildDirectMapping();
 
@@ -83,14 +76,9 @@ struct nalCompInstance : nalBaseInstance {
     void BuildPerInstData();
 
     //0x00733EA0
-    void GetPose(
-            Float a2,
-            Float a3,
-            nalCompPose *a4,
-            const nalCompPose *a5);
-
+    void GetPose(Float a2, Float a3, nalCompPose *a4, const nalCompPose *a5);
 };
 
-}
+}  // namespace nalComp
 
 extern void nalCompInstance_patch();

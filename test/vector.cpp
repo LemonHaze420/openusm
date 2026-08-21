@@ -4,13 +4,13 @@
 
 TEST(StdVector, Construct)
 {
-    _std::vector<int> vec {};
+    _std::vector<int> vec{};
     EXPECT_EQ(vec.size(), 0);
 }
 
 TEST(StdVector, PushBack)
 {
-    _std::vector<int> vec {};
+    _std::vector<int> vec{};
 
     vec.push_back(10);
     EXPECT_EQ(vec.size(), 1);

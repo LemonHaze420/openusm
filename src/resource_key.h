@@ -88,19 +88,23 @@ struct resource_key {
 
     void initialize(mash::allocation_scope a2);
 
-    bool operator==(const resource_key &key) const {
+    bool operator==(const resource_key &key) const
+    {
         return (this->m_hash == key.m_hash && this->m_type == key.m_type);
     }
 
-    bool operator!=(const resource_key &key) const {
+    bool operator!=(const resource_key &key) const
+    {
         return !(*this == key);
     }
 
-    void set_type(resource_key_type type) {
+    void set_type(resource_key_type type)
+    {
         m_type = type;
     }
 
-    decltype(auto) get_type() const {
+    decltype(auto) get_type() const
+    {
         return m_type;
     }
 
@@ -132,8 +136,7 @@ struct resource_key {
     void destruct_mashed_class();
 
     //0x004200D0
-    static void calc_resource_string_and_type_from_path(const char *in_string,
-                                                        mString *out_string,
+    static void calc_resource_string_and_type_from_path(const char *in_string, mString *out_string,
                                                         resource_key_type *type_override);
 
 
@@ -141,10 +144,10 @@ struct resource_key {
 };
 
 using resource_key_type_ext_t = const char *[4][70];
-extern resource_key_type_ext_t & resource_key_type_ext;
+extern resource_key_type_ext_t &resource_key_type_ext;
 
 using resource_key_type_str_t = const char *[70];
-extern resource_key_type_str_t & resource_key_type_str;
+extern resource_key_type_str_t &resource_key_type_str;
 
 extern const char *to_string(resource_key_type type);
 

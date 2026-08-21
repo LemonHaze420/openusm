@@ -14,8 +14,5 @@ struct sin_strip_container {
 
     sin_strip_container();
 
-    void un_mash(
-        generic_mash_header *,
-        void *,
-        generic_mash_data_ptrs *a4);
+    void un_mash(generic_mash_header *, void *, generic_mash_data_ptrs *a4);
 };

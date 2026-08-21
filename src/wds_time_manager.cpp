@@ -8,7 +8,8 @@
 
 VALIDATE_SIZE(wds_time_manager, 32u);
 
-wds_time_manager::wds_time_manager() {
+wds_time_manager::wds_time_manager()
+{
     field_14 = 0.5f;
     field_4 = 0.0f;
     field_1C = false;
@@ -20,7 +21,8 @@ wds_time_manager::wds_time_manager() {
     field_10 = 0.033333335f;
 }
 
-void wds_time_manager::frame_advance(Float a2) {
+void wds_time_manager::frame_advance(Float a2)
+{
     this->field_18 = a2;
     this->field_4 += a2;
     this->field_10 = (1.0 - this->field_14) * this->field_10 + a2 * this->field_14;
@@ -33,6 +35,7 @@ void wds_time_manager::frame_advance(Float a2) {
     }
 }
 
-float wds_time_manager::get_level_time() {
+float wds_time_manager::get_level_time()
+{
     return this->field_4;
 }

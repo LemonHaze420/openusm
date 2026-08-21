@@ -27,10 +27,10 @@ struct state_trans_action {
 
     state_trans_action &operator=(const state_trans_action &a2) = default;
 
-    bool is_default() const {
+    bool is_default() const
+    {
         return this->the_action == 3 || this->the_action == 4;
     }
-
 };
 
-} // namespace ai
+}  // namespace ai

@@ -12,8 +12,7 @@ interact_sound_entry::interact_sound_entry(from_mash_in_place_constructor *a1) :
 
 void interact_sound_entry::initialize(mash::allocation_scope a2)
 {
-    if ( a2 == mash::ALLOCATED )
-    {
+    if (a2 == mash::ALLOCATED) {
         this->field_0 = {0};
         this->field_4 = 0;
         this->field_8 = 0;

@@ -7,7 +7,8 @@
 #include "tl_system.h"
 #include "utility.h"
 
-tlInstanceBank::Node *tlInstanceBank::NewNodeOfLevel(int a1) {
+tlInstanceBank::Node *tlInstanceBank::NewNodeOfLevel(int a1)
+{
     return static_cast<tlInstanceBank::Node *>(tlMemAlloc(4 * a1 + sizeof(Node), 8, 0));
 }
 
@@ -34,7 +35,8 @@ void tlInstanceBank::Init()
     }
 }
 
-int tlInstanceBank::sub_74A020() {
+int tlInstanceBank::sub_74A020()
+{
     int v2 = 0;
 
     int v3;
@@ -59,16 +61,17 @@ int tlInstanceBank::sub_74A020() {
     return result;
 }
 
-tlInstanceBank::tlInstanceBank() {
+tlInstanceBank::tlInstanceBank()
+{
     this->field_0 = nullptr;
     this->field_4 = nullptr;
 }
 
-tlInstanceBank::~tlInstanceBank() {
+tlInstanceBank::~tlInstanceBank()
+{
     auto *v2 = this->field_4;
     if (v2 != nullptr) {
-        for (auto *node = v2->field_28[0]; node != this->field_0;
-             node = this->field_4->field_28[0]) {
+        for (auto *node = v2->field_28[0]; node != this->field_0; node = this->field_4->field_28[0]) {
             this->Delete(node->field_0);
         }
     }
@@ -85,7 +88,8 @@ tlInstanceBank::~tlInstanceBank() {
     this->field_4 = nullptr;
 }
 
-int tlInstanceBank::Delete(const tlFixedString &a2) {
+int tlInstanceBank::Delete(const tlFixedString &a2)
+{
     auto v5 = this->field_4;
     auto v8 = this->field_10;
     auto i = v8;
@@ -131,7 +135,8 @@ int tlInstanceBank::Delete(const tlFixedString &a2) {
     return v3;
 }
 
-tlInstanceBank::Node *tlInstanceBank::Insert(const tlFixedString &a1, void *a3) {
+tlInstanceBank::Node *tlInstanceBank::Insert(const tlFixedString &a1, void *a3)
+{
     if constexpr (1) {
         auto *v7 = this->field_4;
         auto v9 = this->field_10;
@@ -180,7 +185,7 @@ tlInstanceBank::Node *tlInstanceBank::Insert(const tlFixedString &a1, void *a3) 
 
         return result;
     } else {
-        return (tlInstanceBank::Node *) THISCALL(0x0074A070, this, &a1, a3);
+        return (tlInstanceBank::Node *)THISCALL(0x0074A070, this, &a1, a3);
     }
 }
 
@@ -188,8 +193,7 @@ tlInstanceBank::Node *tlInstanceBank::Search(const tlFixedString &a1)
 {
     TRACE("tlInstanceBank::Search", a1.to_string);
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         auto v5 = this->field_4;
         auto v6 = this->field_10;
 
@@ -217,7 +221,7 @@ tlInstanceBank::Node *tlInstanceBank::Search(const tlFixedString &a1)
 
         return nullptr;
     } else {
-        return (Node *) THISCALL(0x0074A310, this, &a1);
+        return (Node *)THISCALL(0x0074A310, this, &a1);
     }
 }
 
@@ -255,8 +259,8 @@ tlInstanceBank::Node *tlInstanceBank::Search(const tlHashString &a2)
     return result;
 }
 
-template<int I>
-tlInstanceBank::Node * __fastcall tlInstanceBank_Search(tlInstanceBank *self, void *, const tlHashString &a2)
+template <int I>
+tlInstanceBank::Node *__fastcall tlInstanceBank_Search(tlInstanceBank *self, void *, const tlHashString &a2)
 {
     TRACE("tlInstanceBank_Search");
 
@@ -292,13 +296,12 @@ tlInstanceBank::Node * __fastcall tlInstanceBank_Search(tlInstanceBank *self, vo
 
 void tlInstanceBank_patch()
 {
-    tlInstanceBank::Node * (tlInstanceBank::*func)(const tlHashString &) = &tlInstanceBank::Search;
+    tlInstanceBank::Node *(tlInstanceBank::*func)(const tlHashString &) = &tlInstanceBank::Search;
 
     FUNC_ADDRESS(address, func);
     //SET_JUMP(0x0074A310, address);
 
-    if constexpr(1)
-    {
+    if constexpr (1) {
         REDIRECT(0x004988E1, &tlInstanceBank_Search<0>);
         REDIRECT(0x00498BD1, &tlInstanceBank_Search<1>);
         REDIRECT(0x005EFA65, &tlInstanceBank_Search<2>);

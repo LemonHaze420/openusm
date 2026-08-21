@@ -2,8 +2,7 @@
 
 #include "mstring.h"
 
-struct pause_menu_awards
-{
+struct pause_menu_awards {
     mString field_0;
     mString field_10;
     mString field_20;

@@ -12,5 +12,5 @@ struct singleton {
 
     void *operator new(size_t size);
 
-    void operator delete(void *, size_t );
+    void operator delete(void *, size_t);
 };

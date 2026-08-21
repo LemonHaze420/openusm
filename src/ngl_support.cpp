@@ -12,49 +12,40 @@
 #include <cmath>
 
 
-void FastListAddMesh(nglMesh *Mesh,
-                     const math::MatClass<4, 3> &LocalToWorld,
-                     nglMeshParams *MeshParams,
+void FastListAddMesh(nglMesh *Mesh, const math::MatClass<4, 3> &LocalToWorld, nglMeshParams *MeshParams,
                      nglParamSet<nglShaderParamSet_Pool> *ShaderParams)
 {
     TRACE("FastListAddMesh");
 
-    if (ShaderParams != nullptr)
-    {
+    if (ShaderParams != nullptr) {
         if (ShaderParams->IsSetParam<nglTintParam>()) {
-
             auto *col = bit_cast<color *>(ShaderParams->Get<nglTintParam>()->field_0);
             sp_log("color = %f %f %f %f", col->r, col->g, col->b, col->a);
         }
     }
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         assert(Mesh != nullptr && "NULL mesh passed to FastListAddMesh.\n");
 
-        assert(((Mesh->Flags & NGLMESH_PROCESSED) ||
-               (Mesh->Flags & NGLMESH_SCRATCH_MESH)) && "Mesh missing NGLMESH_PROCESSED flag.");
+        assert(((Mesh->Flags & NGLMESH_PROCESSED) || (Mesh->Flags & NGLMESH_SCRATCH_MESH)) &&
+               "Mesh missing NGLMESH_PROCESSED flag.");
 
-        assert(std::abs(AbsSquared(LocalToWorld.GetX()) - 1.0f) +
-                       std::abs(AbsSquared(LocalToWorld.GetY()) - 1.0f) +
+        assert(std::abs(AbsSquared(LocalToWorld.GetX()) - 1.0f) + std::abs(AbsSquared(LocalToWorld.GetY()) - 1.0f) +
                        std::abs(AbsSquared(LocalToWorld.GetZ()) - 1.0f) <
                    0.01f &&
                "Invalid scale detected in local to world transform.  If scaling is desired, use "
                "MeshParams.\n");
 
-        if (0) //(nglSyncDebug().field_12) {
+        if (0)  //(nglSyncDebug().field_12) {
         {
             nglDumpMesh(Mesh, LocalToWorld, MeshParams);
         }
 
         assert(MeshParams != nullptr && "NULL MeshParams in FastListAddMesh.\n");
 
-        if (Mesh->NLODs != 0)
-        {
-            math::VecClass<3, 1> v5 = ( (MeshParams->Flags & 1) != 0
-                                            ? Mesh->SphereCenter
-                                            : sub_414360(Mesh->SphereCenter, LocalToWorld)
-                                        );
+        if (Mesh->NLODs != 0) {
+            math::VecClass<3, 1> v5 =
+                ((MeshParams->Flags & 1) != 0 ? Mesh->SphereCenter : sub_414360(Mesh->SphereCenter, LocalToWorld));
 
             math::VecClass<3, 1> a2a = v5;
 
@@ -76,11 +67,9 @@ void FastListAddMesh(nglMesh *Mesh,
                 Mesh = v10[v9].field_0;
             }
 #else
-            auto GetLOD = [](nglMesh *a1, float a2) -> nglMesh *
-            {
-                for ( int i = a1->NLODs - 1; i >= 0; --i )
-                {
-                    if ( a2 > a1->LODs[i].field_4 ) {
+            auto GetLOD = [](nglMesh *a1, float a2) -> nglMesh * {
+                for (int i = a1->NLODs - 1; i >= 0; --i) {
+                    if (a2 > a1->LODs[i].field_4) {
                         return a1->LODs[i].field_0;
                     }
                 }
@@ -91,7 +80,7 @@ void FastListAddMesh(nglMesh *Mesh,
 #endif
         }
 
-        auto *meshNode = new nglMeshNode {};
+        auto *meshNode = new nglMeshNode{};
         meshNode->Mesh = Mesh;
         meshNode->LocalToWorld = LocalToWorld;
 
@@ -109,11 +98,9 @@ void FastListAddMesh(nglMesh *Mesh,
 
         //assert((MeshParams->Flags & NGLP_REFERENCED) && "MeshParams must be referenced in FastListAddMesh.\n");
 
-        assert((MeshParams->Flags & NGLP_NO_CULLING) &&
-               "Mesh must be pre-culled for FastListAddMesh.\n");
+        assert((MeshParams->Flags & NGLP_NO_CULLING) && "Mesh must be pre-culled for FastListAddMesh.\n");
 
-        assert(!(MeshParams->Flags & NGLP_FORCE_LOD) &&
-               "Force LOD not supported by FastListAddMesh.\n");
+        assert(!(MeshParams->Flags & NGLP_FORCE_LOD) && "Force LOD not supported by FastListAddMesh.\n");
 
         meshNode->Params = MeshParams;
 
@@ -121,8 +108,7 @@ void FastListAddMesh(nglMesh *Mesh,
 
         meshNode->field_8C = *ShaderParams;
 
-        for (auto i = 0u; i < Mesh->NSections; ++i)
-        {
+        for (auto i = 0u; i < Mesh->NSections; ++i) {
             auto *MeshSection = Mesh->Sections[i].Section;
 
             nglPerfInfo().m_num_verts += MeshSection->NVertices;

@@ -41,7 +41,7 @@ struct phys_sys {
     static void phys_frame_advance(Float a1);
 
     //0x007A1D60
-    static rigid_body_constraint_contact * create_no_error_rbc_contact(rigid_body *a1, rigid_body *a2);
+    static rigid_body_constraint_contact *create_no_error_rbc_contact(rigid_body *a1, rigid_body *a2);
 
     static void destroy(rigid_body_constraint_distance *a1);
 
@@ -143,7 +143,7 @@ struct physics_system {
     static physics_system *allocate_buffer(const phys_mem_info &a1, phys_memory_heap &a2);
 };
 
-extern physics_system *& g_physics_system;
+extern physics_system *&g_physics_system;
 
 //0x0059F4D0
 extern void physics_system_init();

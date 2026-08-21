@@ -32,8 +32,8 @@ struct ai_core;
 }
 
 enum entity_flag_t {
-    EFLAG_GRAPHICS_VISIBLE  = 0x200,
-    EFLAG_MISC_CAST_SHADOW  = 0x40000,
+    EFLAG_GRAPHICS_VISIBLE = 0x200,
+    EFLAG_MISC_CAST_SHADOW = 0x40000,
     EFLAG_MISC_HIRES_SHADOW = 0x8000000,
 };
 
@@ -125,7 +125,8 @@ struct entity_base : entity_base_vtable {
 
     void set_flag_recursive(entity_flag_t a2, bool a3);
 
-    void set_member_hidden(bool a2) {
+    void set_member_hidden(bool a2)
+    {
         this->set_flag_recursive(static_cast<entity_flag_t>(0x80000000), a2);
     }
 
@@ -303,11 +304,13 @@ struct entity_base : entity_base_vtable {
 
     po &get_rel_po();
 
-    auto *get_parent() {
+    auto *get_parent()
+    {
         return this->m_parent;
     }
 
-    auto get_my_handle() {
+    auto get_my_handle()
+    {
         return this->my_handle;
     }
 
@@ -329,11 +332,13 @@ struct entity_base : entity_base_vtable {
 
     bool are_collisions_active() const;
 
-    bool is_conglom_member() const {
+    bool is_conglom_member() const
+    {
         return ((this->field_4 & 0x8000) != 0);
     }
 
-    bool is_a_conglomerate() const {
+    bool is_a_conglomerate() const
+    {
         return ((this->field_4 & 4) != 0);
     }
 
@@ -345,10 +350,7 @@ struct entity_base : entity_base_vtable {
     void un_mash_start(generic_mash_header *a2, void *a3, generic_mash_data_ptrs *a4, void *a5);
 
     //0x004F3700
-    int add_callback(string_hash a2,
-                     void (*callback)(event *, entity_base_vhandle, void *),
-                     void *a4,
-                     bool a5);
+    int add_callback(string_hash a2, void (*callback)(event *, entity_base_vhandle, void *), void *a4, bool a5);
 
     //0x004DB740
     void add_adopted_child(entity_base *child_arg);
@@ -394,11 +396,13 @@ struct entity_base : entity_base_vtable {
     //0x0048AC00
     const vector3d &get_abs_position();
 
-    entity_base * get_first_child() {
+    entity_base *get_first_child()
+    {
         return this->m_child;
     }
 
-    entity_base * get_next_sibling() {
+    entity_base *get_next_sibling()
+    {
         return this->field_28;
     }
 
@@ -413,7 +417,8 @@ struct entity_base : entity_base_vtable {
     //0x004BFF20
     void dirty_model_po_family();
 
-    inline auto &get_id() const {
+    inline auto &get_id() const
+    {
         return this->field_10;
     }
 
@@ -427,7 +432,8 @@ struct entity_base : entity_base_vtable {
 
     void set_timer(int new_timer);
 
-    auto get_fade_group() const {
+    auto get_fade_group() const
+    {
         return this->field_3E;
     }
 

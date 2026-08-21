@@ -13,4 +13,4 @@ struct spidey_combat_inode : player_combat_inode {
     //virtual
     void update_pending_move(combat_inode::incoming_move a2);
 };
-} // namespace ai
+}  // namespace ai

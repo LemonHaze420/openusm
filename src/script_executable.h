@@ -51,11 +51,7 @@ struct script_executable {
         int field_14;
         int field_18;
 
-        void un_mash(
-            generic_mash_header *header,
-            script_executable *a3,
-            void *,
-            generic_mash_data_ptrs *a5);
+        void un_mash(generic_mash_header *header, script_executable *a3, void *, generic_mash_data_ptrs *a5);
     };
 
     info_t *field_54;
@@ -63,7 +59,7 @@ struct script_executable {
 
     script_executable();
 
-    void * operator new(size_t size);
+    void *operator new(size_t size);
 
     void operator delete(void *ptr, size_t size);
 
@@ -73,10 +69,7 @@ struct script_executable {
     void constructor_common();
 
     //0x005A34B0
-    void add_allocated_stuff(
-        int a2,
-        uint32_t a3,
-        const mString &a1);
+    void add_allocated_stuff(int a2, uint32_t a3, const mString &a1);
 
     //0x005A0790
     void remove_allocated_stuff(int a2, uint32_t a3);
@@ -92,25 +85,27 @@ struct script_executable {
     //0x0059BBA0
     bool has_threads() const;
 
-    bool is_linked() const {
+    bool is_linked() const
+    {
         return (this->flags & SCRIPT_EXECUTABLE_FLAG_LINKED) != 0;
     }
 
     bool is_from_mash() const;
 
-    bool is_un_mashed() const {
+    bool is_un_mashed() const
+    {
         return (this->flags & SCRIPT_EXECUTABLE_FLAG_UN_MASHED) != 0;
     }
 
-    script_library_class * find_library_class(const mString &a2) const;
+    script_library_class *find_library_class(const mString &a2) const;
 
-    const char * lookup_permanent_string(unsigned int index) const;
+    const char *lookup_permanent_string(unsigned int index) const;
 
     static uint32_t get_system_string_index(const std::set<string_hash> &set, const string_hash &p);
 
     const char *get_system_string(unsigned int index) const;
 
-    uint16_t * lookup_sx_code_segment(unsigned int offset) const;
+    uint16_t *lookup_sx_code_segment(unsigned int offset) const;
 
     //0x005A3500
     void link();
@@ -128,9 +123,7 @@ struct script_executable {
 
     script_object *find_object(int index) const;
 
-    script_object *find_object(
-            const string_hash &a2,
-            int *a3) const;
+    script_object *find_object(const string_hash &a2, int *a3) const;
 
     void add_object(script_object *so, int &a3);
 
@@ -155,7 +148,8 @@ struct script_executable {
     void un_mash(generic_mash_header *a2, void *a3, generic_mash_data_ptrs *a4);
 
     //0x005AF460
-    void register_allocated_stuff_callback(int a1, void (*a2)(script_executable *, _std::list<uint32_t> &, _std::list<mString> &));
+    void register_allocated_stuff_callback(int a1, void (*a2)(script_executable *, _std::list<uint32_t> &,
+                                                              _std::list<mString> &));
 
     vm_thread *sub_5AB510(Float a2);
 

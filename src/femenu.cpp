@@ -50,13 +50,15 @@ void FEMenu::operator delete(void *ptr, size_t size)
     mem_dealloc(ptr, size);
 }
 
-void FEMenu::AddEntry(int a2, FEText *a3, bool a4) {
+void FEMenu::AddEntry(int a2, FEText *a3, bool a4)
+{
     auto *mem = mem_alloc(sizeof(FEMenuEntry));
 
     this->field_4[a2] = new (mem) FEMenuEntry{this, a3, a4};
 }
 
-void FEMenu::AddEntry(int a2, global_text_enum a3) {
+void FEMenu::AddEntry(int a2, global_text_enum a3)
+{
     auto *mem = mem_alloc(sizeof(FEMenuEntry));
 
     this->field_4[a2] = new (mem) FEMenuEntry{a3, this, false, static_cast<font_index>(6), 1};
@@ -64,29 +66,27 @@ void FEMenu::AddEntry(int a2, global_text_enum a3) {
 
 void FEMenu::Init()
 {
-    void (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0xC));
+    void(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0xC));
     func(this);
 }
 
 void FEMenu::Load()
 {
-    void (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x10));
+    void(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x10));
     func(this);
 }
 
 void FEMenu::Draw()
 {
-    void (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x18));
+    void(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x18));
     func(this);
 }
 
 void FEMenu::Update(Float a2)
 {
-    if ((128 & this->field_28) != 0 && this->field_2A != -1)
-    {
+    if ((128 & this->field_28) != 0 && this->field_2A != -1) {
         this->field_1C = this->field_1C - a2;
-        if (this->field_1C <= 0.0f)
-        {
+        if (this->field_1C <= 0.0f) {
             this->ButtonHeldAction();
             auto v4 = this->field_28;
             this->field_1C = 0.1;
@@ -104,104 +104,105 @@ void FEMenu::Update(Float a2)
 
 void FEMenu::OnActivate()
 {
-    void (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x2C));
+    void(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x2C));
     func(this);
 }
 
 void FEMenu::OnDeactivate(FEMenu *a2)
 {
-    void (__fastcall *func)(FEMenu *, void *, FEMenu *) = CAST(func, get_vfunc(m_vtbl, 0x30));
+    void(__fastcall * func)(FEMenu *, void *, FEMenu *) = CAST(func, get_vfunc(m_vtbl, 0x30));
     func(this, nullptr, a2);
 }
 
 void FEMenu::OnSelect(int a2)
 {
-    void (__fastcall *func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x34));
+    void(__fastcall * func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x34));
     func(this, nullptr, a2);
 }
 
 void FEMenu::OnStart(int a2)
 {
-    void (__fastcall *func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x38));
+    void(__fastcall * func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x38));
     func(this, nullptr, a2);
 }
 
 void FEMenu::OnUp(int a2)
 {
-    void (__fastcall *func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x3C));
+    void(__fastcall * func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x3C));
     func(this, nullptr, a2);
 }
 
 void FEMenu::OnDown(int a2)
 {
-    void (__fastcall *func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x40));
+    void(__fastcall * func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x40));
     func(this, nullptr, a2);
 }
 
 void FEMenu::OnLeft(int a2)
 {
-    void (__fastcall *func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x44));
+    void(__fastcall * func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x44));
     func(this, nullptr, a2);
 }
 
 void FEMenu::OnRight(int a2)
 {
-    void (__fastcall *func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x48));
+    void(__fastcall * func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x48));
     func(this, nullptr, a2);
 }
 
 void FEMenu::OnCross(int a2)
 {
-    void (__fastcall *func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x4C));
+    void(__fastcall * func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x4C));
     func(this, nullptr, a2);
 }
 
 void FEMenu::OnTriangle(int a2)
 {
-    void (__fastcall *func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x50));
+    void(__fastcall * func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x50));
 
     func(this, nullptr, a2);
 }
 
 void FEMenu::OnSquare(int a2)
 {
-    void (__fastcall *func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x54));
+    void(__fastcall * func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x54));
 
     func(this, nullptr, a2);
 }
 
 void FEMenu::OnCircle(int a2)
 {
-    void (__fastcall *func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x58));
+    void(__fastcall * func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x58));
 
     func(this, nullptr, a2);
 }
 
 void FEMenu::OnL1(int a2)
 {
-    void (__fastcall *func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x5C));
+    void(__fastcall * func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x5C));
     func(this, nullptr, a2);
 }
 
 void FEMenu::OnR1(int a2)
 {
-    void (__fastcall *func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x60));
+    void(__fastcall * func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x60));
     func(this, nullptr, a2);
 }
 
 void FEMenu::OnL2(int a2)
 {
-    void (__fastcall *func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x64));
+    void(__fastcall * func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x64));
     func(this, nullptr, a2);
 }
 
 void FEMenu::OnR2(int a2)
 {
-    void (__fastcall *func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x68));
+    void(__fastcall * func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x68));
     func(this, nullptr, a2);
 }
 
-void FEMenu::OnAnyButtonPress(int a2, int a3) {
+void FEMenu::OnAnyButtonPress(int a2, int a3)
+{
     sp_log("OnAnyButtonPress:");
 
     if ((128 & this->field_28) != 0 && (a3 == 4 || a3 == 8 || a3 == 16 || a3 == 32) &&
@@ -211,14 +212,16 @@ void FEMenu::OnAnyButtonPress(int a2, int a3) {
     }
 }
 
-void FEMenu::OnButtonRelease(int a2, int a3) {
+void FEMenu::OnButtonRelease(int a2, int a3)
+{
     if ((128 & this->field_28) != 0 && (a3 == 4 || a3 == 8 || a3 == 16 || a3 == 32) &&
         a2 == input_mgr::instance->field_58 - 1000000 && a3 == this->field_2A) {
         this->field_2A = -1;
     }
 }
 
-void FEMenu::SetHigh(int a2, bool a3) {
+void FEMenu::SetHigh(int a2, bool a3)
+{
     sp_log("%d", a2);
 
     auto v4 = this->highlighted;
@@ -235,7 +238,8 @@ void FEMenu::SetHigh(int a2, bool a3) {
     this->highlighted = a2;
 }
 
-void FEMenu::SetVis(int a2) {
+void FEMenu::SetVis(int a2)
+{
     sp_log("SetVis(): 0x%08X", m_vtbl);
 
     if constexpr (1) {
@@ -299,19 +303,22 @@ void FEMenu::SetVis(int a2) {
     }
 }
 
-void FEMenu::Up() {
-    void (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0xA4));
+void FEMenu::Up()
+{
+    void(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0xA4));
 
     func(this);
 }
 
-void FEMenu::Down() {
-    void (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0xA8));
+void FEMenu::Down()
+{
+    void(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0xA8));
 
     func(this);
 }
 
-void FEMenu::ButtonHeldAction() {
+void FEMenu::ButtonHeldAction()
+{
     if ((128 & this->field_28) != 0) {
         auto v1 = this->field_2A;
         if (v1 == 4) {
@@ -332,14 +339,15 @@ void sub_582A30()
     hEvent = nullptr;
 }
 
-void sub_5A6D70() {
+void sub_5A6D70()
+{
     sp_log("sub_5A6D70");
 
     CDECL_CALL(0x005A6D70);
 }
 
-void FEMenu_patch() {
-
+void FEMenu_patch()
+{
     return;
     {
         REDIRECT(0x00630B61, sub_5A6D70);

@@ -22,7 +22,7 @@ struct voice_box_inode : info_node {
 
     void sub_6D7E10(const char *a2);
 
-    inline static const string_hash default_id {int(to_hash("VOICE_BOX"))};
+    inline static const string_hash default_id{int(to_hash("VOICE_BOX"))};
 };
 
-}
+}  // namespace ai

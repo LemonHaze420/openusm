@@ -12,8 +12,7 @@ struct from_mash_in_place_constructor;
 
 struct gab_history_entry {};
 
-struct gab_source {
-};
+struct gab_source {};
 
 struct gab_expression {
     string_hash field_0;
@@ -63,6 +62,6 @@ struct gab_manager {
     static gab_database *get_gab_database();
 };
 
-extern _std::list<gab_history_entry> *& s_gab_history;
+extern _std::list<gab_history_entry> *&s_gab_history;
 
-extern gab_database *& s_gab_database;
+extern gab_database *&s_gab_database;

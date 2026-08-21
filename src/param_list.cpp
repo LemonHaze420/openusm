@@ -10,17 +10,20 @@ namespace als {
 
 VALIDATE_SIZE(param_node, 0x10);
 
-param_node::param_node(als::param a2) {
+param_node::param_node(als::param a2)
+{
     this->field_0 = a2;
     this->field_8 = this;
     this->field_C = this;
 }
 
-param_list::param_list() {
+param_list::param_list()
+{
     this->field_0 = nullptr;
 }
 
-void param_list::add_param(uint32_t a1, const vector3d &a2) {
+void param_list::add_param(uint32_t a1, const vector3d &a2)
+{
     als::param v5;
 
     for (uint32_t i = 0; i < 3u; ++i) {
@@ -30,7 +33,8 @@ void param_list::add_param(uint32_t a1, const vector3d &a2) {
     }
 }
 
-void param_list::insert_node(param_node *a2) {
+void param_list::insert_node(param_node *a2)
+{
     if (this->field_0 != nullptr) {
         auto *v4 = this->field_0->field_C;
         v4->field_8 = a2;
@@ -44,7 +48,8 @@ void param_list::insert_node(param_node *a2) {
     }
 }
 
-void param_list::add_param(param a2) {
+void param_list::add_param(param a2)
+{
     if constexpr (1) {
         auto *mem = mem_alloc(sizeof(param_node));
 
@@ -56,7 +61,8 @@ void param_list::add_param(param a2) {
     }
 }
 
-void param_list::clear() {
+void param_list::clear()
+{
     if constexpr (1) {
         while (this->field_0 != nullptr) {
             auto *v2 = this->field_0;
@@ -80,11 +86,13 @@ void param_list::clear() {
     }
 }
 
-bool param_list::is_empty() const {
+bool param_list::is_empty() const
+{
     return (this->field_0 != nullptr);
 }
 
-void param_list::concat_list(als::param_list &a2) {
+void param_list::concat_list(als::param_list &a2)
+{
     if constexpr (1) {
         auto &v2 = a2.field_0;
         if (!a2.is_empty()) {
@@ -107,7 +115,8 @@ void param_list::concat_list(als::param_list &a2) {
     }
 }
 
-void param_list::cull_duplicates_keep_last() {
+void param_list::cull_duplicates_keep_last()
+{
     if constexpr (1) {
         auto &v1 = this->field_0;
         if (this->field_0 != nullptr) {
@@ -164,4 +173,4 @@ void param_list::cull_duplicates_keep_last() {
     }
 }
 
-} // namespace als
+}  // namespace als

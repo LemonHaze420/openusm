@@ -316,6 +316,15 @@ if(ENABLE_TESTS)
 
 endif()
 
+find_program(DOCKER_EXECUTABLE docker)
+if(DOCKER_EXECUTABLE)
+    add_custom_target(check-format
+        COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/scripts/check_format.sh
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        USES_TERMINAL
+        VERBATIM)
+endif()
+
 if(NOT SETUP_STANDALONE_SYSTEM)
     if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../Ultimate Spider-Man/")
         add_custom_command(TARGET binkw32 POST_BUILD

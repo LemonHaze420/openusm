@@ -16,27 +16,33 @@ class vm_stack {
 public:
     vm_stack(vm_thread *t);
 
-    int capacity() const {
+    int capacity() const
+    {
         return sizeof(field_0);
     }
 
-    vm_thread * get_thread() {
+    vm_thread *get_thread()
+    {
         return my_thread;
     }
 
-    auto get_buffer() {
+    auto get_buffer()
+    {
         return this->buffer;
     }
 
-    int size() const {
+    int size() const
+    {
         return this->SP - this->buffer;
     }
 
-    vm_num_t& top_num() {
+    vm_num_t &top_num()
+    {
         return *(vm_num_t *)(SP - sizeof(vm_num_t));
     }
 
-    vm_str_t& top_str() {
+    vm_str_t &top_str()
+    {
         return *(vm_str_t *)(SP - sizeof(vm_str_t));
     }
 
@@ -49,24 +55,27 @@ public:
 
     void push(int);
 
-    char *get_SP() const {
+    char *get_SP() const
+    {
         return this->SP;
     }
 
-    void set_SP(char *sp) {
+    void set_SP(char *sp)
+    {
         SP = sp;
     }
 
     void move_SP(int n);
 
-    void pop(int n) {
+    void pop(int n)
+    {
         this->move_SP(-n);
     }
 
-    void * pop_addr()
+    void *pop_addr()
     {
         this->pop(sizeof(void *));
-        return *(void**)SP;
+        return *(void **)SP;
     }
 
     vm_str_t pop_str()

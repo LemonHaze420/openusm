@@ -17,7 +17,7 @@ struct nalAnimFile;
 struct nalAnyPose;
 struct nalSceneAnim;
 
-template<typename T>
+template <typename T>
 struct nalAnimClass;
 
 struct resource_pack_directory {
@@ -26,7 +26,7 @@ struct resource_pack_directory {
     tlresource_directory<nglMeshFile, tlFixedString> field_C;
     tlresource_directory<nglMesh, tlHashString> field_14;
     tlresource_directory<nglMorphSet, tlHashString> field_1C;
-    tlresource_directory<nglMorphFile,tlFixedString> field_24;
+    tlresource_directory<nglMorphFile, tlFixedString> field_24;
     tlresource_directory<nglMaterialBase, tlHashString> field_2C;
     tlresource_directory<nglMaterialFile, tlFixedString> field_34;
     tlresource_directory<nalAnimFile, tlFixedString> field_3C;
@@ -37,7 +37,8 @@ struct resource_pack_directory {
     //0x0052A9A0
     resource_pack_directory();
 
-    resource_directory *get_resource_directory() {
+    resource_directory *get_resource_directory()
+    {
         return this->field_0;
     }
 

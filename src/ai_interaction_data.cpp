@@ -17,17 +17,10 @@
 VALIDATE_SIZE(ai_interaction_data, 0xA8);
 
 ai_interaction_data::ai_interaction_data(from_mash_in_place_constructor *a2)
-      : field_1C(a2),
-        field_44(a2),
-        field_48(a2),
-        field_4C(a2),
-        field_50(a2),
-        field_54(a2),
-        field_6C(a2),
-        field_80(a2),
-        my_adv_str_test_list(a2)
+    : field_1C(a2), field_44(a2), field_48(a2), field_4C(a2), field_50(a2), field_54(a2), field_6C(a2), field_80(a2),
+      my_adv_str_test_list(a2)
 {
-    if ( this->field_68 != nullptr ) {
+    if (this->field_68 != nullptr) {
         mash_info_struct::construct_class(this->field_68);
     }
 
@@ -37,13 +30,10 @@ ai_interaction_data::ai_interaction_data(from_mash_in_place_constructor *a2)
 void ai_interaction_data::initialize(mash::allocation_scope scope)
 {
     this->field_90 = false;
-    if ( scope )
-    {
+    if (scope) {
         assert(scope == mash::FROM_MASH);
         this->field_7C = resource_manager::get_resource_context();
-    }
-    else
-    {
+    } else {
         this->field_30 = false;
         this->field_31 = true;
         this->field_34 = 0;
@@ -61,35 +51,34 @@ void ai_interaction_data::initialize(mash::allocation_scope scope)
     }
 }
 
-anim_record *ai_interaction_data::does_anim_exist(enum_anim_key::key_enum a2, bool a3) {
+anim_record *ai_interaction_data::does_anim_exist(enum_anim_key::key_enum a2, bool a3)
+{
     TRACE("ai_interaction_data::does_anim_exist");
 
     if constexpr (1) {
-        enum_anim_key v8 {a2};
+        enum_anim_key v8{a2};
 
         return this->does_anim_exist(&v8, a3);
     } else {
-        return (anim_record *) THISCALL(0x0069D600, this, a2, a3);
+        return (anim_record *)THISCALL(0x0069D600, this, a2, a3);
     }
 }
 
-void ai_interaction_data::unregister_interactor(vhandle_type<actor> a2) {
+void ai_interaction_data::unregister_interactor(vhandle_type<actor> a2)
+{
     THISCALL(0x0069AA50, this, a2);
 }
 
-anim_record *ai_interaction_data::does_anim_exist(const anim_key *a2, [[maybe_unused]] bool a3) {
+anim_record *ai_interaction_data::does_anim_exist(const anim_key *a2, [[maybe_unused]] bool a3)
+{
     TRACE("ai_interaction_data::does_anim_exist");
 
     auto *a1 = const_cast<anim_key *>(a2);
 
     int v2 = -1;
 
-    if (binary_search_array_cmp<anim_key *, anim_record *>(&a1,
-                                                    this->field_1C.m_data,
-                                                    0,
-                                                    this->field_1C.size(),
-                                                    &v2,
-                                                    anim_key::compare)) {
+    if (binary_search_array_cmp<anim_key *, anim_record *>(
+            &a1, this->field_1C.m_data, 0, this->field_1C.size(), &v2, anim_key::compare)) {
         auto *result = this->field_1C.at(static_cast<uint16_t>(v2));
         return result;
     }
@@ -102,7 +91,8 @@ void ai_interaction_data::destruct_mashed_class()
     THISCALL(0x006B5400, this);
 }
 
-void ai_interaction_data::register_interactor(vhandle_type<actor> a3) {
+void ai_interaction_data::register_interactor(vhandle_type<actor> a3)
+{
     THISCALL(0x0069F2F0, this, a3);
 }
 
@@ -131,19 +121,18 @@ void ai_interaction_data::unmash(mash_info_struct *a1, void *)
     }
 #endif
 
-    if ( this->field_68 != nullptr )
-    {
-        a1->unmash_class(this->field_68, this
+    if (this->field_68 != nullptr) {
+        a1->unmash_class(this->field_68,
+                         this
 #ifdef TARGET_XBOX
-                , mash::NORMAL_BUFFER
+                         ,
+                         mash::NORMAL_BUFFER
 #endif
-                );
+        );
     }
 }
 
-string_hash ai_interaction_data::get_anim_hash_name(
-        const anim_record *a2,
-        bool a3)
+string_hash ai_interaction_data::get_anim_hash_name(const anim_record *a2, bool a3)
 {
     TRACE("ai_interaction_data::get_anim_hash_name");
 
@@ -153,9 +142,8 @@ string_hash ai_interaction_data::get_anim_hash_name(
     return result;
 }
 
-void *ai_interaction_data::get_anim_ptr(
-        const anim_key *the_anim_key,
-        bool a3) {
+void *ai_interaction_data::get_anim_ptr(const anim_key *the_anim_key, bool a3)
+{
     TRACE("ai_interaction_data::get_anim_ptr");
 
     assert(the_anim_key != nullptr);
@@ -173,21 +161,18 @@ void *ai_interaction_data::get_anim_ptr(
         struct {
             char field_0[0x8];
             void *(__fastcall *field_8)(void *, int, unsigned int);
-        } * vtbl = CAST(vtbl, nalGetAnimDirectory()->m_vtbl);
-        auto *v7 = vtbl->field_8(
-                         nalGetAnimDirectory(),
-                         0,
-                         v4);
+        } *vtbl = CAST(vtbl, nalGetAnimDirectory()->m_vtbl);
+        auto *v7 = vtbl->field_8(nalGetAnimDirectory(), 0, v4);
         resource_manager::pop_resource_context();
         return v7;
-        
+
     } else {
-        return (void *) THISCALL(0x0069D6A0, this, the_anim_key, a3);
+        return (void *)THISCALL(0x0069D6A0, this, the_anim_key, a3);
     }
 }
 
-void ai_interaction_data_patch() {
-
+void ai_interaction_data_patch()
+{
     {
         FUNC_ADDRESS(address, &ai_interaction_data::get_anim_ptr);
         SET_JUMP(0x0069D6A0, address);

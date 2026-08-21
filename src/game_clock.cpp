@@ -2,7 +2,8 @@
 
 #include "func_wrapper.h"
 
-void game_clock::frame_advance(Float a1) {
+void game_clock::frame_advance(Float a1)
+{
 #if 0
     ++game_clock::frames;
     game_clock::delta = a1;

@@ -7,8 +7,7 @@
 
 VALIDATE_SIZE(fixed_allocator_base, 0x8);
 
-fixed_allocator_base::fixed_allocator_base(int align) : 
-    allocator_base(align)
+fixed_allocator_base::fixed_allocator_base(int align) : allocator_base(align)
 {
     this->m_vtbl = 0x00882CC8;
 }

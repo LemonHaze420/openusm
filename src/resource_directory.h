@@ -50,7 +50,7 @@ public:
     int type_end_idxs[71];
 #endif
 
-    uint8_t * get_mash_data(uint32_t offset);
+    uint8_t *get_mash_data(uint32_t offset);
 
     void debug_print() const;
 
@@ -78,9 +78,7 @@ public:
     char *get_tlresource(const tlFixedString &a1, tlresource_type a2);
 
     //0x0051F350
-    bool find_tlresource(uint32_t a1,
-                         tlresource_type tlres_type,
-                         resource_directory **out_dir,
+    bool find_tlresource(uint32_t a1, tlresource_type tlres_type, resource_directory **out_dir,
                          tlresource_location **out_loc);
 
     //0x0051F6E0
@@ -90,8 +88,7 @@ public:
     mashable_vector<tlresource_location> *tlresource_type_to_vector(tlresource_type a2);
 
     //0x0051F0D0
-    void constructor_common(
-        resource_pack_slot *a2, uint8_t *a3, uint8_t *a4, uint32_t a5, uint32_t a6);
+    void constructor_common(resource_pack_slot *a2, uint8_t *a3, uint8_t *a4, uint32_t a5, uint32_t a6);
 
     //0x00537D30
     void remove_parent(resource_directory *a2);
@@ -100,9 +97,7 @@ public:
     void add_parent(resource_directory *new_dir);
 
     //0x0051F550
-    bool find_resource(const resource_key &a2,
-                       resource_directory **out_dir,
-                       resource_location **out_loc);
+    bool find_resource(const resource_key &a2, resource_directory **out_dir, resource_location **out_loc);
 
     uint8_t *get_resource(const resource_location *loc, resource_pack_slot **a3);
 

@@ -15,7 +15,7 @@ VALIDATE_SIZE(glass_house_resource_handler, 0x14);
 glass_house_resource_handler::glass_house_resource_handler(worldly_pack_slot *a2)
 {
     if constexpr (1) {
-        static void * g_vtbl[] = {
+        static void *g_vtbl[] = {
             func_address(&finalize),
             func_address(&_handle),
             func_address(&_pre_handle_resources),
@@ -38,8 +38,7 @@ bool glass_house_resource_handler::_handle(worldly_resource_handler::eBehavior a
     return base_engine_resource_handler::_handle(a2, a3);
 }
 
-bool glass_house_resource_handler::_handle_resource(worldly_resource_handler::eBehavior a2,
-                                                   resource_location *a3)
+bool glass_house_resource_handler::_handle_resource(worldly_resource_handler::eBehavior a2, resource_location *a3)
 {
     TRACE("glass_house_resource_handler::handle_resource");
 
@@ -47,30 +46,29 @@ bool glass_house_resource_handler::_handle_resource(worldly_resource_handler::eB
         auto *resource = my_slot->get_resource_directory().get_resource(a3, nullptr);
         assert(resource != nullptr);
 
-        if ( a2 == worldly_resource_handler::UNLOAD )
-        {
+        if (a2 == worldly_resource_handler::UNLOAD) {
             auto *the_glass_house = bit_cast<glass_house *>(resource);
             assert(the_glass_house != nullptr);
 
             string_hash v6 = the_glass_house->get_name();
             glass_house_manager::remove_glass_house(v6);
             the_glass_house->destruct_mashed_class();
-        }
-        else
-        {
+        } else {
             glass_house *v9 = nullptr;
 
 #ifndef TARGET_XBOX
-            mash_info_struct v8 {resource, a3->m_size};
+            mash_info_struct v8{resource, a3->m_size};
 #else
-            mash_info_struct v8 {mash::UNMASH_MODE, resource, a1->m_size, true};
+            mash_info_struct v8{mash::UNMASH_MODE, resource, a1->m_size, true};
 #endif
 
-            v8.unmash_class(v9, nullptr
+            v8.unmash_class(v9,
+                            nullptr
 #ifdef TARGET_XBOX
-            , mash::NORMAL_BUFFER
+                            ,
+                            mash::NORMAL_BUFFER
 #endif
-                    );
+            );
             mash_info_struct::construct_class(v9);
 
 #ifdef TARGET_XBOX
@@ -81,7 +79,7 @@ bool glass_house_resource_handler::_handle_resource(worldly_resource_handler::eB
         ++this->field_C;
         return false;
     } else {
-        return (bool) THISCALL(0x005730A0, this, a2, a3);
+        return (bool)THISCALL(0x005730A0, this, a2, a3);
     }
 }
 

@@ -17,15 +17,9 @@ struct script_instance_info {
     char *field_10;
     int field_14;
 
-    void un_mash(
-        generic_mash_header *a2,
-        void *a3,
-        generic_mash_data_ptrs *a4);
+    void un_mash(generic_mash_header *a2, void *a3, generic_mash_data_ptrs *a4);
 
-    bool initialize_single(
-        const script_executable *a2,
-        string_hash a3,
-        const po &a4);
+    bool initialize_single(const script_executable *a2, string_hash a3, const po &a4);
 
     bool initialize(const script_executable *a2, const po &a3);
 };

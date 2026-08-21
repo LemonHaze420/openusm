@@ -7,19 +7,9 @@
 static_assert(sizeof(HANDLE) == sizeof(std::ifstream *));
 
 struct os_file {
-    enum mode_flags
-    {
-        FILE_READ = 1,
-        FILE_WRITE = 2,
-        FILE_MODIFY = 3,
-        FILE_APPEND = 4
-    };
+    enum mode_flags { FILE_READ = 1, FILE_WRITE = 2, FILE_MODIFY = 3, FILE_APPEND = 4 };
 
-    enum filepos_t {
-        FP_BEGIN,
-        FP_CURRENT,
-        FP_END
-    };
+    enum filepos_t { FP_BEGIN, FP_CURRENT, FP_END };
 
     mString m_path;
     uint32_t flags;
@@ -44,7 +34,8 @@ struct os_file {
     //0x0059B6F0
     ~os_file();
 
-    bool is_open() const {
+    bool is_open() const
+    {
         return this->opened;
     }
 
@@ -70,7 +61,7 @@ struct os_file {
     //0x00598A60
     void close();
 
-    static bool & system_locked;
+    static bool &system_locked;
 };
 
 //0x00519F40

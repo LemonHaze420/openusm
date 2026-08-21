@@ -19,7 +19,8 @@
 
 VALIDATE_SIZE(po, 0x40);
 
-po::po() {
+po::po()
+{
     m[0][0] = 1.0;
     m[0][1] = 0.0;
     m[0][2] = 0.0;
@@ -41,18 +42,8 @@ po::po() {
     m[3][3] = 1.0;
 }
 
-po::po(float a2,
-        float a3,
-        float a4,
-        float a5,
-        float a6,
-        float a7,
-        float a8,
-        float a9,
-        float a10,
-        float a11,
-        float a12,
-        float a13)
+po::po(float a2, float a3, float a4, float a5, float a6, float a7, float a8, float a9, float a10, float a11, float a12,
+       float a13)
 {
     auto &v13 = this->m[0];
     v13[0] = a2;
@@ -79,19 +70,23 @@ po::po(float a2,
     v25[3] = 1.0;
 }
 
-po::po(const matrix4x4 &a1) : m(a1) {
+po::po(const matrix4x4 &a1) : m(a1)
+{
     assert(!has_nonuniform_scaling());
 }
 
-po::po(const vector3d &a1, const quaternion &a2, Float a3) {
+po::po(const vector3d &a1, const quaternion &a2, Float a3)
+{
     this->set_po(a1, a2, a3);
 }
 
-bool po::operator==(const po &a2) {
+bool po::operator==(const po &a2)
+{
     return memcmp(this, &a2, 64u) == 0;
 }
 
-bool po::is_valid(bool a2, bool a3) const {
+bool po::is_valid(bool a2, bool a3) const
+{
     if (!this->m[0].is_valid()) {
         return false;
     }
@@ -156,7 +151,8 @@ void po::un_mash(generic_mash_header *, void *, generic_mash_data_ptrs *)
     ;
 }
 
-po po::sub_4BAB00(const po &a3) {
+po po::sub_4BAB00(const po &a3)
+{
     po result;
     THISCALL(0x004BAB00, this, &result, &a3);
 
@@ -164,7 +160,8 @@ po po::sub_4BAB00(const po &a3) {
 }
 
 //vec4 = mat4 * vec4{vec3, 0};
-vector3d po::non_affine_slow_xform(const vector3d &a3) {
+vector3d po::non_affine_slow_xform(const vector3d &a3)
+{
     vector3d transformed;
     transformed[0] = this->m[2][0] * a3[2] + this->m[1][0] * a3[1] + this->m[0][0] * a3[0];
     transformed[1] = this->m[2][1] * a3[2] + this->m[1][1] * a3[1] + this->m[0][1] * a3[0];
@@ -223,23 +220,28 @@ vector3d po::non_affine_inverse_xform(const vector3d &a3) const
     return transformed;
 }
 
-matrix4x4 &po::get_matrix() {
+matrix4x4 &po::get_matrix()
+{
     return this->m;
 }
 
-vector3d &po::get_x_facing() const {
+vector3d &po::get_x_facing() const
+{
     return *bit_cast<vector3d *>(&this->m[0]);
 }
 
-vector3d &po::get_y_facing() const {
+vector3d &po::get_y_facing() const
+{
     return *bit_cast<vector3d *>(&this->m[1]);
 }
 
-vector3d &po::get_z_facing() const {
+vector3d &po::get_z_facing() const
+{
     return *bit_cast<vector3d *>(&this->m[2]);
 }
 
-void po::set_rot(const vector3d &a2, Float a1) {
+void po::set_rot(const vector3d &a2, Float a1)
+{
     if constexpr (1) {
         float a2a;
         float a3;
@@ -286,7 +288,8 @@ void po::set_rot(const vector3d &a2, Float a1) {
     }
 }
 
-void po::set_rot(const vector3d &a2) {
+void po::set_rot(const vector3d &a2)
+{
     auto tmp = a2;
 
     auto a1 = tmp.length();
@@ -321,13 +324,15 @@ void po::set_rot(const vector3d &a2) {
     this->m[3][3] = 1.0;
 }
 
-void po::set_po(const vector3d &pos, const quaternion &a3, Float a4) {
+void po::set_po(const vector3d &pos, const quaternion &a3, Float a4)
+{
     a3.to_matrix(this->m);
     this->m.scale(a4.value);
     this->set_position(pos);
 }
 
-void po::set_rotate_x(Float a2) {
+void po::set_rotate_x(Float a2)
+{
     this->m = identity_matrix;
 
     float v2, v1;
@@ -340,7 +345,8 @@ void po::set_rotate_x(Float a2) {
     this->m[2][2] = v1;
 }
 
-void po::set_rotate_y(Float a2) {
+void po::set_rotate_y(Float a2)
+{
     this->m = identity_matrix;
 
     float v2, v3;
@@ -352,7 +358,8 @@ void po::set_rotate_y(Float a2) {
     this->m[2][2] = v3;
 }
 
-void po::set_rotate_z(Float a2) {
+void po::set_rotate_z(Float a2)
+{
     this->m = identity_matrix;
 
     float v3, v2;
@@ -364,14 +371,16 @@ void po::set_rotate_z(Float a2) {
     this->m[1][1] = v2;
 }
 
-void po::set_scale(const vector3d &scale) {
+void po::set_scale(const vector3d &scale)
+{
     this->m = identity_matrix;
     this->m[0][0] = scale[0];
     this->m[1][1] = scale[1];
     this->m[2][2] = scale[2];
 }
 
-void po::set_po(const vector3d &p_zdest, const vector3d &p_ydest, const vector3d &pos) {
+void po::set_po(const vector3d &p_zdest, const vector3d &p_ydest, const vector3d &pos)
+{
     auto ydest = p_ydest.normalized();
 
     auto zdest = p_zdest.normalized();
@@ -414,10 +423,8 @@ void po::set_po(const vector3d &p_zdest, const vector3d &p_ydest, const vector3d
     this->m[3][3] = 1.0;
 }
 
-void po::set_po(const vector3d &xdest,
-                const vector3d &ydest,
-                const vector3d &zdest,
-                const vector3d &pos) {
+void po::set_po(const vector3d &xdest, const vector3d &ydest, const vector3d &zdest, const vector3d &pos)
+{
     this->m[0] = xdest;
     this->m[0][3] = 0.0;
 
@@ -466,9 +473,9 @@ vector3d po::inverse_xform(const vector3d &a3) const
 
 bool po::has_nonuniform_scaling() const
 {
-    bool & g_ignore_nonuniform_scaling = var<bool>(0x0096852D);
+    bool &g_ignore_nonuniform_scaling = var<bool>(0x0096852D);
 
-    if (g_ignore_nonuniform_scaling) { 
+    if (g_ignore_nonuniform_scaling) {
         return false;
     }
 
@@ -489,18 +496,15 @@ bool po::has_nonuniform_scaling() const
 }
 
 //vec4 = mat4 * vec4{vec3, 1}
-vector3d po::slow_xform(const vector3d &a3) const {
-    float x1 = this->m[2][0] * a3[2] + this->m[1][0] * a3[1] + this->m[0][0] * a3[0] +
-        this->m[3][0];
-    float y1 = this->m[2][1] * a3[2] + this->m[1][1] * a3[1] + this->m[0][1] * a3[0] +
-        this->m[3][1];
-    float z1 = this->m[2][2] * a3[2] + this->m[1][2] * a3[1] + this->m[0][2] * a3[0] +
-        this->m[3][2];
+vector3d po::slow_xform(const vector3d &a3) const
+{
+    float x1 = this->m[2][0] * a3[2] + this->m[1][0] * a3[1] + this->m[0][0] * a3[0] + this->m[3][0];
+    float y1 = this->m[2][1] * a3[2] + this->m[1][1] * a3[1] + this->m[0][1] * a3[0] + this->m[3][1];
+    float z1 = this->m[2][2] * a3[2] + this->m[1][2] * a3[1] + this->m[0][2] * a3[0] + this->m[3][2];
 
     vector3d result = {x1, y1, z1};
 
-    [[maybe_unused]] auto w = this->m[0][3] * a3[0] + (this->m[1][3] * a3[1]) + (this->m[2][3] * a3[2]) +
-        this->m[3][3];
+    [[maybe_unused]] auto w = this->m[0][3] * a3[0] + (this->m[1][3] * a3[1]) + (this->m[2][3] * a3[2]) + this->m[3][3];
 
     if constexpr (0) {
         sp_log("\nmatrix: \n%s", this->to_string().c_str());
@@ -526,7 +530,8 @@ vector3d po::slow_xform(const vector3d &a3) const {
     return result;
 }
 
-vector3d po::sub_5BD2B0(const vector3d &a3) {
+vector3d po::sub_5BD2B0(const vector3d &a3)
+{
     float v3 = this->m[2][0] * a3[2] + this->m[1][0] * a3[1] + this->m[0][0] * a3[0];
     float v4 = this->m[2][1] * a3[2] + this->m[1][1] * a3[1] + this->m[0][1] * a3[0];
     float v5 = this->m[2][2] * a3[2] + this->m[1][2] * a3[1] + this->m[0][2] * a3[0];
@@ -539,9 +544,10 @@ vector3d po::sub_5BD2B0(const vector3d &a3) {
     return result;
 }
 
-static po & po_result = var<po>(0x00969F28);
+static po &po_result = var<po>(0x00969F28);
 
-po *po::inverse() const {
+po *po::inverse() const
+{
     po_result.m[0][0] = this->m[0][0];
     po_result.m[0][1] = this->m[1][0];
     po_result.m[0][2] = this->m[2][0];
@@ -568,7 +574,8 @@ po *po::inverse() const {
     return (&po_result);
 }
 
-void po::set_facing(const vector3d &a2) {
+void po::set_facing(const vector3d &a2)
+{
     vector3d z_facing = a2 - this->get_position();
 
     z_facing.normalize();
@@ -629,7 +636,8 @@ void po::set_translate(const vector3d &a2)
     this->m[3] = a2;
 }
 
-mString po::to_string() const {
+mString po::to_string() const
+{
     mString result{0,
                    "%f %f %f %f\n"
                    "%f %f %f %f\n"
@@ -668,10 +676,7 @@ po sub_48F770(const po &arg4, const po &a3)
 
     //sp_log("args: %s %s", arg4.to_string(), a3.to_string());
 
-    const void * a2[2] {
-        &a3,
-        &arg4
-    };
+    const void *a2[2]{&a3, &arg4};
 
     po res;
     res.m.sub_415A30(a2);
@@ -684,18 +689,15 @@ matrix4x4 sub_507130(const TransformMatrices &arg4)
 {
     matrix4x4 result;
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         vector4d a2, a3, a4, a5;
         arg4.decomposeAndProjectToScreen(a2, a3, a4, a5);
 
         vector4d a1a, v5, v4, v3;
         sub_4013C0(a1a, v5, v4, v3, a2, a3, a4, a5);
 
-        result = matrix4x4 {v3, v5, v4, a1a};
-    }
-    else
-    {
+        result = matrix4x4{v3, v5, v4, a1a};
+    } else {
         CDECL_CALL(0x00507130, &result, &arg4);
     }
 

@@ -9,14 +9,13 @@ struct nflDriver;
 struct nflCommand;
 
 //0x0079FC50
-extern int nflBufferAlign(
-    nflDriver *driver, nflCommand *ioCommand, uint32_t a3, uint32_t *a4, uint32_t *a5);
+extern int nflBufferAlign(nflDriver *driver, nflCommand *ioCommand, uint32_t a3, uint32_t *a4, uint32_t *a5);
 
 //0x0079FDA0
 extern int nflIoExecute(nflDriver *driver, nflCommand *ioCommand);
 
-extern BOOL nfd_win32_IoExecute(
-    nflDriver *a1, HANDLE *a2, nflRequestType, uint32_t a4, LPVOID lpBuffer, uint32_t nNumberOfBytes);
+extern BOOL nfd_win32_IoExecute(nflDriver *a1, HANDLE *a2, nflRequestType, uint32_t a4, LPVOID lpBuffer,
+                                uint32_t nNumberOfBytes);
 
 extern BOOL sub_7A00A0(HANDLE *a1);
 

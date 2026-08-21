@@ -13,7 +13,7 @@ struct ragdoll_callbacks {
     void *m_calc_rb_mat_from_bone;
 };
 
-template<typename T>
+template <typename T>
 struct phys_array {
     int field_0;
     int field_4;
@@ -28,7 +28,8 @@ struct phys_array {
     T m_data;
     int m_alloc_count;
 
-    auto &operator[](int i) {
+    auto &operator[](int i)
+    {
         assert(i >= 0 && i < m_alloc_count);
 
         return this->m_data[i];

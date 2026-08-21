@@ -12,8 +12,7 @@ void aeps::FrameAdvance(Float a1)
 {
     TRACE("aeps::FrameAdvance");
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
 #if 0
         int v1;   // eax
         char *v2; // esi
@@ -44,9 +43,7 @@ void aeps::FrameAdvance(Float a1)
 
 #endif
 
-    }
-    else
-    {
+    } else {
         CDECL_CALL(0x004D3980, a1);
     }
 }
@@ -56,7 +53,8 @@ void aeps::FrameSetupRenderAndThenRender()
     CDECL_CALL(0x004EA9F0);
 }
 
-void aeps::RefreshDevOptions() {
+void aeps::RefreshDevOptions()
+{
     CDECL_CALL(0x004CDFC0);
 }
 
@@ -64,7 +62,7 @@ void aeps::Reset()
 {
     TRACE("aeps::Reset");
 
-    void (__cdecl *func)() = CAST(func, 0x004D91A0);
+    void(__cdecl * func)() = CAST(func, 0x004D91A0);
     func();
 }
 
@@ -81,4 +79,3 @@ void aeps_patch()
 
     REDIRECT(0x005AD2DF, aeps::Init);
 }
-

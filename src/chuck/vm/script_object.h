@@ -49,8 +49,9 @@ private:
         _std::list<vm_symbol> field_4;
         _std::list<vm_symbol> field_10;
 
-        ~debug_info_t() {
-            void (__fastcall *func)(void *) = CAST(func, 0x005B7BE0);
+        ~debug_info_t()
+        {
+            void(__fastcall * func)(void *) = CAST(func, 0x005B7BE0);
             func(this);
         }
     };
@@ -70,43 +71,52 @@ public:
     //0x005AF6C0
     ~script_object();
 
-    void * operator new(size_t );
+    void *operator new(size_t);
 
-    void operator delete(void *, size_t );
+    void operator delete(void *, size_t);
 
-    bool is_external_object() const {
+    bool is_external_object() const
+    {
         return (this->flags & SCRIPT_OBJECT_FLAG_EXTERNAL) != 0;
     }
 
-    bool is_global_object() const {
+    bool is_global_object() const
+    {
         return (this->flags & SCRIPT_OBJECT_FLAG_GLOBAL) != 0;
     }
 
-    auto *get_parent() const {
+    auto *get_parent() const
+    {
         return parent;
     }
 
-    void set_parent(script_executable *p) {
+    void set_parent(script_executable *p)
+    {
         this->parent = p;
     }
 
-    auto * get_global_instance() {
+    auto *get_global_instance()
+    {
         return this->global_instance;
     }
 
-    auto & get_static_data() {
+    auto &get_static_data()
+    {
         return this->static_data;
     }
 
-    char * get_static_data_buffer() const {
+    char *get_static_data_buffer() const
+    {
         return this->static_data.get_buffer();
     }
 
-    int get_static_data_size() const {
+    int get_static_data_size() const
+    {
         return this->static_data.size();
     }
 
-    auto &get_name() const {
+    auto &get_name() const
+    {
         return name;
     }
 
@@ -135,10 +145,7 @@ public:
 
     void dump_threads_to_file(FILE *a2);
 
-    script_instance * add_instance(
-            string_hash a1,
-            chunk_file *a3,
-            vm_thread **a4);
+    script_instance *add_instance(string_hash a1, chunk_file *a3, vm_thread **a4);
 
     //0x005AB120
     script_instance *add_instance(string_hash a2, char *a3, vm_thread **a4);
@@ -154,7 +161,7 @@ public:
     //0x0059ECC0
     void add(script_instance *a2);
 
-	vm_thread *add_thread(script_instance *a2, int fidx);
+    vm_thread *add_thread(script_instance *a2, int fidx);
 
     //0x00599530
     void link(const script_executable &a2);
@@ -165,7 +172,7 @@ public:
     //0x005AAEF0
     void create_auto_instance(Float arg0);
 
-    vm_executable * get_func(int) const;
+    vm_executable *get_func(int) const;
 
     int get_size_instances() const;
 
@@ -185,13 +192,12 @@ public:
         int field_C;
     };
 
-    static inline Var<function[20]> function_cache {0x00966D10};
+    static inline Var<function[20]> function_cache{0x00966D10};
 
-    static inline Var<int> usage_counter {0x00965ED4};
+    static inline Var<int> usage_counter{0x00965ED4};
 };
 
-enum script_instance_callback_reason_t {
-};
+enum script_instance_callback_reason_t {};
 
 class script_instance {
 public:
@@ -208,46 +214,48 @@ public:
 private:
     script_object *parent;
     uint32_t flags;
-    void (* m_callback)(script_instance_callback_reason_t, script_instance *, vm_thread *, void *);
+    void (*m_callback)(script_instance_callback_reason_t, script_instance *, vm_thread *, void *);
     _std::set<void *> field_38;
 
 public:
     //0x005AAA40
-    script_instance(string_hash a2,
-        int size,
-        unsigned int a4);
+    script_instance(string_hash a2, int size, unsigned int a4);
 
     ~script_instance();
 
-    void * operator new(size_t size);
+    void *operator new(size_t size);
 
     void operator delete(void *, size_t);
 
-    auto & get_name() const {
+    auto &get_name() const
+    {
         return name;
     }
 
-    script_object * get_parent() {
+    script_object *get_parent()
+    {
         return this->parent;
     }
 
-    void set_parent(script_object *so) {
+    void set_parent(script_object *so)
+    {
         this->parent = so;
     }
 
-    char * get_buffer() const {
+    char *get_buffer() const
+    {
         return this->data.get_buffer();
     }
 
-    auto get_size() const {
+    auto get_size() const
+    {
         return this->data.size();
     }
 
     bool run_single_thread(vm_thread *a2, bool a3);
 
     //0x005AAE60
-    simple_list<vm_thread *>::iterator delete_thread(
-        simple_list<vm_thread *>::iterator a3);
+    simple_list<vm_thread *>::iterator delete_thread(simple_list<vm_thread *>::iterator a3);
 
     void dump_threads_to_file(FILE *a2);
 
@@ -257,9 +265,7 @@ public:
     void add_thread(void *a2, const vm_executable *a3, const char *a4);
 
     //0x0059EC70
-    void run_callbacks(
-        script_instance_callback_reason_t a2,
-        vm_thread *a3);
+    void run_callbacks(script_instance_callback_reason_t a2, vm_thread *a3);
 
     //0x005AF500
     void build_parameters();
@@ -280,10 +286,8 @@ public:
     void kill_thread(const vm_executable *a2, const vm_thread *a3);
 
     //0x005A33F0
-    void register_callback(
-        void (*cb)(script_instance_callback_reason_t, script_instance *, vm_thread *, void *),
-        void *user_data);
-
+    void register_callback(void (*cb)(script_instance_callback_reason_t, script_instance *, vm_thread *, void *),
+                           void *user_data);
 };
 
 extern void script_instance_patch();

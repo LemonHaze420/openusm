@@ -43,9 +43,6 @@ struct universal_soldier_inode : info_node {
     //0x006B58F0
     universal_soldier_inode(from_mash_in_place_constructor *a2);
 
-    static vector3d get_combat_spacing_pos(
-        int slot,
-        const vector3d &a3,
-        Float a4);
+    static vector3d get_combat_spacing_pos(int slot, const vector3d &a3, Float a4);
 };
-} // namespace ai
+}  // namespace ai

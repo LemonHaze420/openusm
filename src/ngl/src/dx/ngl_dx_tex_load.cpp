@@ -21,7 +21,7 @@ void nglSaveTexture(nglTexture *Tex, const char *a2)
 
     assert(*Tex->DXSurfaces != nullptr && "Cannot save the texture, it has no surface ! (cube texture ?)");
 
-    char Dest[1024] {};
+    char Dest[1024]{};
     if (a2 != nullptr) {
         sprintf(Dest, "%s.png", a2);
     } else {
@@ -31,4 +31,3 @@ void nglSaveTexture(nglTexture *Tex, const char *a2)
 
     D3DXSaveTextureToFile(Dest, D3DXIFF_PNG, bit_cast<IDirect3DBaseTexture9 *>(Tex->DXTexture), nullptr);
 }
-

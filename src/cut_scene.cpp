@@ -17,35 +17,29 @@ VALIDATE_SIZE(cut_scene, 0x54);
 VALIDATE_OFFSET(cut_scene, segments, 0x10);
 VALIDATE_ALIGNMENT(cut_scene, 4);
 
-resource_pack_standalone & cut_scene::stream_anim_pack = var<resource_pack_standalone>(0x0096FB90);
+resource_pack_standalone &cut_scene::stream_anim_pack = var<resource_pack_standalone>(0x0096FB90);
 
-mString & cut_scene::scene_anim_packfile_id = var<mString>(0x0096FB80);
+mString &cut_scene::scene_anim_packfile_id = var<mString>(0x0096FB80);
 
 cut_scene::cut_scene(from_mash_in_place_constructor *a2) : field_0(a2), segments(a2)
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         if (resource_manager::resource_context_stack.size()) {
             this->field_50 = resource_manager::resource_context_stack.back();
         } else {
             this->field_50 = nullptr;
         }
 
-    }
-    else
-    {
+    } else {
         THISCALL(0x00742890, this, a2);
     }
 }
 
 void cut_scene::init_stream_scene_anims()
 {
-    if constexpr (1)
-    {
-        if ( !g_is_the_packer &&
-            stream_anim_pack.get_nfl_file_handle() == NFL_FILE_ID_INVALID)
-        {
-            mString v2 {scene_anim_packfile_id.c_str()};
+    if constexpr (1) {
+        if (!g_is_the_packer && stream_anim_pack.get_nfl_file_handle() == NFL_FILE_ID_INVALID) {
+            mString v2{scene_anim_packfile_id.c_str()};
 
             mString v3 = mString::get_standalone_filename(v2, g_platform);
 
@@ -57,9 +51,7 @@ void cut_scene::init_stream_scene_anims()
                 assert(my_file != NFL_FILE_ID_INVALID);
             }
         }
-    }
-    else
-    {
+    } else {
         CDECL_CALL(0x00732C80);
     }
 }
@@ -68,7 +60,7 @@ void cut_scene::destruct_mashed_class()
 {
     if constexpr (0) {
     } else {
-        void (__fastcall *func)(cut_scene *) = CAST(func, 0x00742770);
+        void(__fastcall * func)(cut_scene *) = CAST(func, 0x00742770);
         func(this);
     }
 }
@@ -76,9 +68,8 @@ void cut_scene::destruct_mashed_class()
 void cut_scene::unmash(mash_info_struct *a1, void *a3)
 {
     if constexpr (0) {
-
     } else {
-        void (__fastcall *func)(cut_scene *, void *edx, mash_info_struct *, void *a3) = CAST(func, 0x00742930);
+        void(__fastcall * func)(cut_scene *, void *edx, mash_info_struct *, void *a3) = CAST(func, 0x00742930);
         func(this, nullptr, a1, a3);
     }
 }

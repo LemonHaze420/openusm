@@ -59,9 +59,10 @@ struct traversed_entity {
     entity_base_vhandle m_handle;
     int field_4;
 };
-static Var<fixed_vector<traversed_entity, 750> *> traversed_entities_last_frame {0x0095C7B4};
+static Var<fixed_vector<traversed_entity, 750> *> traversed_entities_last_frame{0x0095C7B4};
 
-wds_render_manager::wds_render_manager() {
+wds_render_manager::wds_render_manager()
+{
     this->field_30.sub_56FCB0();
 
     this->field_0 = new RenderOptimizations();
@@ -89,14 +90,11 @@ wds_render_manager::wds_render_manager() {
 
 void show_terrain_info()
 {
-    if ( g_world_ptr != nullptr )
-    {
+    if (g_world_ptr != nullptr) {
         auto *v0 = g_world_ptr->get_hero_ptr(0);
-        if ( v0 != nullptr )
-        {
+        if (v0 != nullptr) {
             auto *v8 = g_world_ptr->get_hero_ptr(0);
-            if ( v8->has_physical_ifc() )
-            {
+            if (v8->has_physical_ifc()) {
                 auto *v3 = g_world_ptr->get_hero_ptr(0);
                 auto *v4 = v3->physical_ifc();
 
@@ -104,10 +102,10 @@ void show_terrain_info()
                 v4->get_parent_terrain_type(&v17);
 
                 vector2d v5{512.0, 32.0};
-                vector2di v14 {v5};
+                vector2di v14{v5};
 
                 auto *v6 = v17.to_string();
-                mString v16 {v6};
+                mString v16{v6};
                 color32 v7{255, 255, 255, 255};
                 render_text(v16, v14, v7, 1.0, 1.0);
             }
@@ -117,15 +115,15 @@ void show_terrain_info()
 
 void sub_6A9863()
 {
-    if ( debug_render_get_bval(SPHERES) ) {
+    if (debug_render_get_bval(SPHERES)) {
         render_debug_spheres();
     }
 
-    if ( debug_render_get_bval(LINES) ) {
+    if (debug_render_get_bval(LINES)) {
         render_debug_lines();
     }
 
-    if ( debug_render_get_ival(LINE_INFO) ) {
+    if (debug_render_get_ival(LINE_INFO)) {
         debug_render_line_info();
     }
 
@@ -137,21 +135,19 @@ void wds_render_manager::debug_render()
 {
     TRACE("wds_render_manager::debug_render");
 
-    if constexpr (0)
-    {
-        if (os_developer_options::instance->get_flag(mString{"SHOW_TERRAIN_INFO"}))
-        {
+    if constexpr (0) {
+        if (os_developer_options::instance->get_flag(mString{"SHOW_TERRAIN_INFO"})) {
             show_terrain_info();
         }
 
-        if ( debug_render_get_ival((debug_render_items_e)20) || os_developer_options::instance->get_flag(mString {"SHOW_GLASS_HOUSE"}))
-        {
+        if (debug_render_get_ival((debug_render_items_e)20) ||
+            os_developer_options::instance->get_flag(mString{"SHOW_GLASS_HOUSE"})) {
             //glass_house_manager::show_glass_houses();
         }
 
         //if ( debug_render_get_ival((debug_render_items_e)21) || SHOW_OBBS || SHOW_DISTRICTS )
         {
-            auto *ter= g_world_ptr->get_the_terrain();
+            auto *ter = g_world_ptr->get_the_terrain();
             ter->show_obbs();
         }
 
@@ -172,7 +168,8 @@ void wds_render_manager::render_region_mesh(nglMesh *a2, Float fade)
     THISCALL(0x00537390, this, a2, fade);
 }
 
-int wds_render_manager::add_far_away_entity(vhandle_type<entity> a2) {
+int wds_render_manager::add_far_away_entity(vhandle_type<entity> a2)
+{
     return THISCALL(0x0052A470, this, a2);
 }
 
@@ -202,7 +199,7 @@ void wds_render_manager::create_colorvol_scene()
 
 void wds_render_manager::render_lowlods(camera &)
 {
-    if ( os_developer_options::instance->get_flag(mString{"RENDER_LOWLODS"}) ) {
+    if (os_developer_options::instance->get_flag(mString{"RENDER_LOWLODS"})) {
         this->field_94->render();
     }
 }
@@ -244,9 +241,7 @@ void wds_render_manager::update_occluders(camera &a2)
                 v16->field_5C->traverse_sector_raster(v26, 100.0f, visitor);
             }
         }
-    }
-    else
-    {
+    } else {
         THISCALL(0x00530500, this, &a2);
     }
 }
@@ -255,46 +250,39 @@ void update_camera_teleport(camera &cam)
 {
     TRACE("update_camera_teleport");
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         auto *v1 = g_cut_scene_player();
-        auto v17 = ( v1->is_playing() ? 1.0 : 25.0 );
+        auto v17 = (v1->is_playing() ? 1.0 : 25.0);
 
-        static Var<vector3d> last_camera_position {0x00960B48};
-        static Var<bool> last_camera_position_valid {0x00960B54};
+        static Var<vector3d> last_camera_position{0x00960B48};
+        static Var<bool> last_camera_position_valid{0x00960B54};
 
         auto &abs_pos = cam.get_abs_position();
-        if ( !last_camera_position_valid() )
-        {
+        if (!last_camera_position_valid()) {
             last_camera_position() = abs_pos;
         }
 
         ++entity::visit_key;
 
         auto len2 = (last_camera_position() - abs_pos).length2();
-        if ( len2 > v17 )
-        {
-            fixed_vector<region *, 15> a2 {};
-            
-            camera_teleport_update_visitor_t visitor {};
-            loaded_regions_cache::get_regions_intersecting_sphere(abs_pos, culling_params::entity_traversal_distance, &a2);
-            for (auto i = 0u; i < a2.size(); ++i) 
-            {
+        if (len2 > v17) {
+            fixed_vector<region *, 15> a2{};
+
+            camera_teleport_update_visitor_t visitor{};
+            loaded_regions_cache::get_regions_intersecting_sphere(
+                abs_pos, culling_params::entity_traversal_distance, &a2);
+            for (auto i = 0u; i < a2.size(); ++i) {
                 region *reg = a2.at(i);
                 assert(reg != nullptr);
 
-                reg->visibility_map->traverse_sphere(
-                                                abs_pos,
-                                                culling_params::entity_traversal_distance,
-                                                &visitor);
+                reg->visibility_map->traverse_sphere(abs_pos, culling_params::entity_traversal_distance, &visitor);
                 auto *bitvector_of_legos_rendered_last_frame = reg->bitvector_of_legos_rendered_last_frame;
-                if ( bitvector_of_legos_rendered_last_frame != nullptr ) {
+                if (bitvector_of_legos_rendered_last_frame != nullptr) {
                     bitvector_of_legos_rendered_last_frame->clear();
                 }
-
             }
 
-            if ( traversed_entities_last_frame() != nullptr ) {
+            if (traversed_entities_last_frame() != nullptr) {
                 traversed_entities_last_frame()->m_size = 0;
             }
         }
@@ -313,9 +301,8 @@ void sub_520E60()
 
 void update_spidey_interface()
 {
-    if ( g_world_ptr != nullptr )
-    {
-        if ( g_world_ptr->get_hero_ptr(0) != nullptr ) {
+    if (g_world_ptr != nullptr) {
+        if (g_world_ptr->get_hero_ptr(0) != nullptr) {
             g_femanager.IGO->UpdateInScene();
         }
     }
@@ -329,26 +316,21 @@ void wds_render_manager::render(camera &a2, int a3)
 
     assert(this->field_94 != nullptr);
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         sub_520E60();
         update_camera_teleport(a2);
-        if ( g_disable_occlusion_culling == 3 )
-        {
+        if (g_disable_occlusion_culling == 3) {
             occlusion::reset_active_occluders();
-        }
-        else
-        {
+        } else {
             this->update_occluders(a2);
             occlusion::init_frame(a2.get_abs_position());
         }
 
         auto *panel_params = comic_panels::get_panel_params();
-        if ( panel_params == nullptr || (panel_params->field_0 & 0x20) != 0 )
-        {
+        if (panel_params == nullptr || (panel_params->field_0 & 0x20) != 0) {
             this->create_colorvol_scene();
-            
-            if ( debug_render_get_bval(LOW_LODS) ) {
+
+            if (debug_render_get_bval(LOW_LODS)) {
                 this->render_lowlods(a2);
             }
 
@@ -361,22 +343,18 @@ void wds_render_manager::render(camera &a2, int a3)
             auto *prim_reg = a2.get_primary_region();
 
             auto *reg = g_world_ptr->the_terrain->find_region(a2.get_abs_position(), nullptr);
-            if ( reg != prim_reg )
-            {
+            if (reg != prim_reg) {
                 auto *v10 = g_world_ptr->get_hero_ptr(a3);
-                if ( v10 != nullptr )
-                {
-                    if ( v10->get_primary_region() == nullptr )
-                    {
+                if (v10 != nullptr) {
+                    if (v10->get_primary_region() == nullptr) {
                         prim_reg = reg;
                     }
                 }
             }
 
-            if ( prim_reg == nullptr )
-            {
+            if (prim_reg == nullptr) {
                 sp_log("no camera region!!!!");
-                if ( g_disable_occlusion_culling != 3 ) {
+                if (g_disable_occlusion_culling != 3) {
                     occlusion::term_frame();
                 }
 
@@ -393,24 +371,20 @@ void wds_render_manager::render(camera &a2, int a3)
             this->sub_53D560(a2);
         }
 
-        if ( debug_render_get_bval(ENTITIES) )
-        {
+        if (debug_render_get_bval(ENTITIES)) {
             this->build_render_data_ents(this->field_30, a2, a3);
             aeps::FrameSetupRenderAndThenRender();
-            if ( panel_params == nullptr || (panel_params->field_0 & 0x20) != 0 )
-            {
+            if (panel_params == nullptr || (panel_params->field_0 & 0x20) != 0) {
                 motion_effect_struct::render_all_motion_fx(a2, geometry_manager::world_space_frustum);
                 update_spidey_interface();
                 ++entity::visit_key;
             }
         }
 
-        if ( panel_params == nullptr || (panel_params->field_0 & 0x20) != 0 )
-        {
+        if (panel_params == nullptr || (panel_params->field_0 & 0x20) != 0) {
             send_shadow_projectors();
 
-            if ( debug_render_get_bval(OCCLUSION) )
-            {
+            if (debug_render_get_bval(OCCLUSION)) {
                 occlusion::debug_render_occluders();
             }
 
@@ -418,7 +392,7 @@ void wds_render_manager::render(camera &a2, int a3)
             this->clear_colorvol_scene();
         }
 
-        if ( g_disable_occlusion_culling != 3 ) {
+        if (g_disable_occlusion_culling != 3) {
             occlusion::term_frame();
         }
 
@@ -428,19 +402,20 @@ void wds_render_manager::render(camera &a2, int a3)
 
     //_populate_missions();
 
-    if ( debug_render_get_bval(OCCLUSION) )
-    {
+    if (debug_render_get_bval(OCCLUSION)) {
         occlusion::debug_render_occluders();
     }
 
     this->debug_render();
 }
 
-void render_data::sub_56FCB0() {
+void render_data::sub_56FCB0()
+{
     THISCALL(0x0056FCB0, this);
 }
 
-void wds_render_manager::frame_advance(Float a2) {
+void wds_render_manager::frame_advance(Float a2)
+{
     TRACE("wds_render_manager::frame_advance");
 
     THISCALL(0x0054ADE0, this, a2);
@@ -449,7 +424,7 @@ void wds_render_manager::frame_advance(Float a2) {
 void wds_render_manager::render_stencil_shadows(const camera &a2)
 {
     TRACE("wds_render_manager::render_stencil_shadows");
-    
+
     THISCALL(0x0053D5E0, this, &a2);
 }
 
@@ -493,20 +468,17 @@ void wds_render_manager::sub_53D560(camera &a2)
 {
     TRACE("wds_render_manager::sub_53D560");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         g_region_meshes_occluded_this_frame = 0;
         g_region_meshes_rendered_this_frame = 0;
-        if ( debug_render_get_bval(REGION_MESHES) ) {
+        if (debug_render_get_bval(REGION_MESHES)) {
             this->render_meshes(a2);
         }
 
-        if ( debug_render_get_bval(LEGOS) ) {
+        if (debug_render_get_bval(LEGOS)) {
             this->render_legos(a2);
         }
-    }
-    else
-    {
+    } else {
         THISCALL(0x0053D560, this, &a2);
     }
 }

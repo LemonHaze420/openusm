@@ -7,12 +7,12 @@
 
 #include <cassert>
 
-int & ini_parser::scan_pos = var<int>(0x009684F8);
-char *& ini_parser::line = var<char *>(0x009684FC);
-char & ini_parser::token = var<char>(0x009683F8);
-char & ini_parser::stored_token = var<char>(0x00968500);
-char & ini_parser::stored_type = var<char>(0x00968501);
-char & ini_parser::stored_num = var<char>(0x00968502);
+int &ini_parser::scan_pos = var<int>(0x009684F8);
+char *&ini_parser::line = var<char *>(0x009684FC);
+char &ini_parser::token = var<char>(0x009683F8);
+char &ini_parser::stored_token = var<char>(0x00968500);
+char &ini_parser::stored_type = var<char>(0x00968501);
+char &ini_parser::stored_num = var<char>(0x00968502);
 
 void ini_parser::new_line(char *lpBuffer)
 {
@@ -56,9 +56,10 @@ signed int ini_parser::build_token(char *a1, char *a2)
     return result;
 }
 
-int sub_5B8AB0(char *a1) {
-    int result; // eax
-    int i;      // esi
+int sub_5B8AB0(char *a1)
+{
+    int result;  // eax
+    int i;       // esi
 
     result = strlen(a1);
     for (i = result - 1; i >= 0; a1[--i + 1] = 0) {
@@ -90,8 +91,7 @@ int ini_parser::get_token(char **a1, int *a2, int *a3)
         v5 = scan_pos;
         token = 0;
 
-        while (1)
-        {
+        while (1) {
             v6 = isspace(v4[v5]);
             v4 = line;
             v5 = scan_pos;
@@ -118,8 +118,7 @@ int ini_parser::get_token(char **a1, int *a2, int *a3)
                 v5 = scan_pos++ + 1;
             }
         }
-        result = ini_parser::build_token(&line[scan_pos],
-                                         &token);
+        result = ini_parser::build_token(&line[scan_pos], &token);
         scan_pos = result + v5;
         if (result) {
             *a1 = &token;
@@ -151,8 +150,7 @@ static constexpr int TOKEN_STRING = 2;
 
 void ini_parser::parse(const char *ini_filename, os_developer_options *a2)
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         assert(ini_filename != nullptr);
 
         int v11;
@@ -162,7 +160,7 @@ void ini_parser::parse(const char *ini_filename, os_developer_options *a2)
         int v9 = 0;
         strncpy(filename, ini_filename, 256u);
 
-        static char & byte_9683F7 = var<char>(0x009683F7);
+        static char &byte_9683F7 = var<char>(0x009683F7);
         byte_9683F7 = 0;
         scan_pos = 0;
         line = nullptr;
@@ -170,14 +168,13 @@ void ini_parser::parse(const char *ini_filename, os_developer_options *a2)
         stored_token = 0;
         stored_type = 0;
         stored_num = 0;
-        mString v13 {filename};
+        mString v13{filename};
 
         file.open(v13, 1u);
 
         //sub_4209C0(&v13, 0);
         //nullsub_2(0);
-        if (file.opened)
-        {
+        if (file.opened) {
             auto file_size = file.get_size();
             char *buf = static_cast<char *>(malloc(file_size + 1));
             assert(buf != nullptr);
@@ -199,9 +196,7 @@ void ini_parser::parse(const char *ini_filename, os_developer_options *a2)
                         if (memcmp("[flags]", v5, 8u) == 0) {
                             v9 = 1;
                         } else {
-                            v9 = (memcmp("[ints]", v5, 7u) == 0)    ? 2
-                                : memcmp("[strings]", v5, 10u) != 0 ? 0
-                                                                    : 3;
+                            v9 = (memcmp("[ints]", v5, 7u) == 0) ? 2 : memcmp("[strings]", v5, 10u) != 0 ? 0 : 3;
                         }
                     } else if (token_type == TOKEN_STRING) {
                         strupr(Str);
@@ -236,7 +231,7 @@ void ini_parser::parse(const char *ini_filename, os_developer_options *a2)
 
                             assert(token_type == TOKEN_STRING);
 
-                            if (i != num_names) { // useless checking
+                            if (i != num_names) {  // useless checking
                                 switch (v9) {
                                 case 1:
                                     a2->m_flags[i] = atoi(Str) != 0;
@@ -250,17 +245,15 @@ void ini_parser::parse(const char *ini_filename, os_developer_options *a2)
                                 }
                             }
                         } else {
-                            sp_log(
-                                "Mangled INI file, expected '=' but found '%s', trying to salvage "
-                                "things...",
-                                ini_filename);
+                            sp_log("Mangled INI file, expected '=' but found '%s', trying to salvage "
+                                   "things...",
+                                   ini_filename);
                             stored_token = 1;
                         }
                     } else if (token_type == 3) {
-                        sp_log(
-                            "Mangled INI file, expected a key value, but found '=', trying to "
-                            "salvage "
-                            "things...");
+                        sp_log("Mangled INI file, expected a key value, but found '=', trying to "
+                               "salvage "
+                               "things...");
                     }
 
                     if (!ini_parser::get_token(&Str, &token_type, &v11)) {
@@ -272,17 +265,13 @@ void ini_parser::parse(const char *ini_filename, os_developer_options *a2)
                 buf = v12;
             }
             free(buf);
-        }
-        else
-        {
+        } else {
             sp_log("Error.  Could not open ini file %s\n", filename);
             //assert(0);
         }
 
         //sub_59B6F0(&file);
-    }
-    else
-    {
+    } else {
         CDECL_CALL(0x005CA120, ini_filename, a2);
     }
 }

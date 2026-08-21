@@ -2,8 +2,7 @@
 
 #include "mstring.h"
 
-struct pause_menu_goals
-{
+struct pause_menu_goals {
     mString field_0;
     mString field_10[4];
     mString field_50[4];

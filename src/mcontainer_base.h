@@ -18,7 +18,8 @@ struct mContainer_base {
 
     void clear();
 
-    auto size() const {
+    auto size() const
+    {
         return this->m_size;
     }
 

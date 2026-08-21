@@ -8,7 +8,7 @@ VALIDATE_SIZE(city_gradients, 0x1C);
 
 void city_gradients::un_mash_start(generic_mash_header *a2, void *a3, generic_mash_data_ptrs *a4, void *)
 {
-   this->un_mash(a2, a3, a4);
+    this->un_mash(a2, a3, a4);
 }
 
 void city_gradients::un_mash(generic_mash_header *, void *, generic_mash_data_ptrs *a4)

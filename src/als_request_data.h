@@ -23,4 +23,4 @@ struct request_data {
     void operator=(const request_data &a2);
 };
 
-}
+}  // namespace als

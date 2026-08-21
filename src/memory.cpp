@@ -25,8 +25,8 @@ int & mem_total_allocated = var<int>(0x00965EC0);
 #else
 
 #define make_var(type, name) \
-    static type g_##name {}; \
-    type & name = g_##name
+    static type g_##name{};  \
+    type &name = g_##name
 
 make_var(bool, mem_first_malloc);
 make_var(bool, mem_first_memalign);
@@ -45,10 +45,10 @@ int mem_set_checkpoint()
 
 void mem_check_leaks_since_checkpoint(int, uint32_t)
 {
-  ;
+    ;
 }
 
-void * mem_alloc(size_t Size)
+void *mem_alloc(size_t Size)
 {
     //TRACE("mem_alloc");
 
@@ -78,14 +78,13 @@ void mem_dealloc(void *a1, size_t Size)
 void *arch_memalign_internal(size_t Alignment, size_t Size)
 {
     //TRACE("arch_memalign_internal");
-    
-    if constexpr (1)
-    {
+
+    if constexpr (1) {
         void *result = _aligned_malloc(Size, Alignment);
         void *v3 = result;
         if (result != nullptr) {
             result = v3;
-            mem_total_allocated += _msize(*(void **) (((unsigned int) result & 0xFFFFFFFC) - 4));
+            mem_total_allocated += _msize(*(void **)(((unsigned int)result & 0xFFFFFFFC) - 4));
         }
         return result;
     } else {
@@ -93,7 +92,8 @@ void *arch_memalign_internal(size_t Alignment, size_t Size)
     }
 }
 
-void mem_on_first_allocation() {
+void mem_on_first_allocation()
+{
     if (mem_first_allocation) {
         debug_print_va("MEMTRACK is OFF");
         mem_print_stats("very first allocation");
@@ -105,8 +105,7 @@ void *arch_memalign(size_t Alignment, size_t Size)
 {
     //TRACE("arch_memalign");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         if (mem_first_memalign) {
             mem_on_first_allocation();
 
@@ -122,7 +121,7 @@ void *arch_memalign(size_t Alignment, size_t Size)
         return mem;
 
     } else {
-        return (void *) CDECL_CALL(0x005357B0, Alignment, Size);
+        return (void *)CDECL_CALL(0x005357B0, Alignment, Size);
     }
 }
 
@@ -131,17 +130,18 @@ void mem_freealign(void *Memory)
     TRACE("mem_freealign");
 
     if (Memory != nullptr) {
-        mem_total_allocated -= _msize(*(void **) (((unsigned int) Memory & 0xFFFFFFFC) - 4));
+        mem_total_allocated -= _msize(*(void **)(((unsigned int)Memory & 0xFFFFFFFC) - 4));
         _aligned_free(Memory);
     }
 }
 
-void mem_print_stats(const char *a1) {
+void mem_print_stats(const char *a1)
+{
     debug_print_va("mem_print_stats: %s\n", a1);
     debug_print_va("peak: %10lu   curr: %10lu   free: %10lu\n", 0ul, 0ul, 0ul);
 }
 
-void * arch_malloc(size_t Size)
+void *arch_malloc(size_t Size)
 {
     //TRACE("arch_malloc");
 
@@ -164,7 +164,7 @@ void * arch_malloc(size_t Size)
     return mem;
 }
 
-int mem_get_total_alloced(int )
+int mem_get_total_alloced(int)
 {
     return mem_total_allocated;
 }

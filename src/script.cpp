@@ -8,7 +8,8 @@
 #include <cassert>
 
 namespace script {
-int find_function(string_hash a1, const script_object *a2, [[maybe_unused]] bool a3) {
+int find_function(string_hash a1, const script_object *a2, [[maybe_unused]] bool a3)
+{
     {
         auto *str = a1.to_string();
 
@@ -27,8 +28,9 @@ int find_function(string_hash a1, const script_object *a2, [[maybe_unused]] bool
 
     return result;
 }
-} // namespace script
+}  // namespace script
 
-void script_patch() {
+void script_patch()
+{
     SET_JUMP(0x0064E4F0, script::find_function);
 }

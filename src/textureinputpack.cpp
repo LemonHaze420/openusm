@@ -20,13 +20,14 @@ VALIDATE_OFFSET(TextureInputPack, field_5AC, 0x5AC);
 
 TextureInputPack::TextureInputPack() {}
 
-void __fastcall sub_585BE0(void *self, void *, void *a2, int a3, int a4, int a5, int a6, Float a7) {
+void __fastcall sub_585BE0(void *self, void *, void *a2, int a3, int a4, int a5, int a6, Float a7)
+{
     THISCALL(0x00585BE0, self, a2, a3, a4, a5, a6, a7);
 }
 
-void TextureInputPack::sub_5871D0() {
-    if constexpr (0)
-    {
+void TextureInputPack::sub_5871D0()
+{
+    if constexpr (0) {
         if (g_distance_clipping_enabled) {
             IDirect3DDevice9_SetRenderState(g_Direct3DDevice, D3DRS_FOGENABLE, false);
         }
@@ -64,20 +65,10 @@ void TextureInputPack::sub_5871D0() {
                 auto v10 = v8 + v3 - 1;
                 auto *v11 = this->field_1C;
 
-                void (__fastcall *func4)(void *, void *, void *, int, int, int, int, color32, int, Float, Float, int) = CAST(func4, get_vfunc(v11->m_vtbl, 0x4));
+                void(__fastcall * func4)(void *, void *, void *, int, int, int, int, color32, int, Float, Float, int) =
+                    CAST(func4, get_vfunc(v11->m_vtbl, 0x4));
 
-                func4(v11,
-                        nullptr,
-                        v46,
-                        v2,
-                        v3,
-                        v48 - 1,
-                        v10,
-                        v38,
-                        v9,
-                        Float{1.0},
-                        Float{1.0},
-                        0);
+                func4(v11, nullptr, v46, v2, v3, v48 - 1, v10, v38, v9, Float{1.0}, Float{1.0}, 0);
 
                 v2 = v48;
                 ++v7;
@@ -88,14 +79,14 @@ void TextureInputPack::sub_5871D0() {
 
         auto v13 = this->field_3D0;
         auto v14 = this->field_94;
-        auto *v15 = (int *) this->field_88;
+        auto *v15 = (int *)this->field_88;
         auto v16 = v13 + v3;
         auto v47 = v16;
         auto *v44 = v15;
         if (v14 > 0) {
             do {
                 --v14;
-                v44 = (int *) v44[61];
+                v44 = (int *)v44[61];
             } while (v14 != 0);
         }
 
@@ -109,7 +100,7 @@ void TextureInputPack::sub_5871D0() {
             }
 
             auto v19 = this->field_9C;
-            char *v46 = (char *) this->field_4;
+            char *v46 = (char *)this->field_4;
             int v20 = 0;
             int v43 = 0;
             if (v19 + 1 > 0) {
@@ -118,16 +109,18 @@ void TextureInputPack::sub_5871D0() {
                     auto v22 = v21 + v16;
                     auto v23 = v16 - v21 + this->field_3D4 - 1;
                     auto *v24 = &v46[v21];
-                    auto v52 = (int) &v46[v54[v20] - v21 - 1];
+                    auto v52 = (int)&v46[v54[v20] - v21 - 1];
                     if (v20 <= 0) {
-                        void (__fastcall *func4)(void *, void *, char *, int, int, int, int, color32, int, Float, Float, int) = CAST(func4, get_vfunc(this->field_1C->m_vtbl, 0x4));
+                        void(__fastcall *
+                             func4)(void *, void *, char *, int, int, int, int, color32, int, Float, Float, int) =
+                            CAST(func4, get_vfunc(this->field_1C->m_vtbl, 0x4));
 
                         func4(this->field_1C,
                               nullptr,
-                              (char *) v44 + 8,
-                              (int) v46 + v21,
+                              (char *)v44 + 8,
+                              (int)v46 + v21,
                               v22,
-                              (int) v52,
+                              (int)v52,
                               v23,
                               this->field_3F0,
                               this->field_3E4,
@@ -145,29 +138,20 @@ void TextureInputPack::sub_5871D0() {
                             v25 = this->field_3F4;
                         }
 
-                        void (__fastcall *func4)(void *, void *, const char *, int, int, int, int, color32, int, Float, Float, int) = CAST(func4, get_vfunc(this->field_1C->m_vtbl, 0x4));
-                        func4(this->field_1C,
-                              nullptr,
-                              "?????",
-                              (int) v24,
-                              v22,
-                              (int) v52,
-                              v23,
-                              v25,
-                              v39,
-                              1.0,
-                              1.0,
-                              0);
+                        void(__fastcall *
+                             func4)(void *, void *, const char *, int, int, int, int, color32, int, Float, Float, int) =
+                            CAST(func4, get_vfunc(this->field_1C->m_vtbl, 0x4));
+                        func4(this->field_1C, nullptr, "?????", (int)v24, v22, (int)v52, v23, v25, v39, 1.0, 1.0, 0);
                     } else {
                         auto *v26 = &v44[6 * this->field_40C + 3 * this->field_40C + 3 * v20];
-                        auto *v27 = this->field_418->get_string((InputType) v26[49], v26[50]);
-                        auto v48 = (int) v27;
+                        auto *v27 = this->field_418->get_string((InputType)v26[49], v26[50]);
+                        auto v48 = (int)v27;
 
                         char v42;
                         unsigned int v50;
-                        if (v27 != nullptr && (v42 = (int) (v27 + 1), (v50 = strlen(v27)) != 0)) {
+                        if (v27 != nullptr && (v42 = (int)(v27 + 1), (v50 = strlen(v27)) != 0)) {
                             v42 = ' ';
-                            v50 = (unsigned int) (v27 + 1);
+                            v50 = (unsigned int)(v27 + 1);
                             if (strlen(v27) == 1) {
                                 auto v28 = *v27;
                                 switch (v28) {
@@ -191,50 +175,22 @@ void TextureInputPack::sub_5871D0() {
 
                             int v29 = v44[6 * this->field_40C + 49 + 3 * this->field_40C + 3 * v43];
                             if (v29 != 1 && v29 != 2) {
-                                auto v30 = (int) v24;
-                                auto v31 = (int) &v24[v23 - v22];
-                                [[maybe_unused]] auto *v24 = (char *) (v31 + this->field_3D8);
+                                auto v30 = (int)v24;
+                                auto v31 = (int)&v24[v23 - v22];
+                                [[maybe_unused]] auto *v24 = (char *)(v31 + this->field_3D8);
 
                                 switch (v29) {
                                 case 3:
-                                    sub_585BE0(this->field_1C,
-                                               nullptr,
-                                               this->field_78,
-                                               v30,
-                                               v22,
-                                               v31,
-                                               v23,
-                                               0.2);
+                                    sub_585BE0(this->field_1C, nullptr, this->field_78, v30, v22, v31, v23, 0.2);
                                     break;
                                 case 4:
-                                    sub_585BE0(this->field_1C,
-                                               nullptr,
-                                               this->field_7C,
-                                               v30,
-                                               v22,
-                                               v31,
-                                               v23,
-                                               0.2);
+                                    sub_585BE0(this->field_1C, nullptr, this->field_7C, v30, v22, v31, v23, 0.2);
                                     break;
                                 case 5:
-                                    sub_585BE0(this->field_1C,
-                                               nullptr,
-                                               this->field_80,
-                                               v30,
-                                               v22,
-                                               v31,
-                                               v23,
-                                               0.2);
+                                    sub_585BE0(this->field_1C, nullptr, this->field_80, v30, v22, v31, v23, 0.2);
                                     break;
                                 case 6:
-                                    sub_585BE0(this->field_1C,
-                                               nullptr,
-                                               this->field_84,
-                                               v30,
-                                               v22,
-                                               v31,
-                                               v23,
-                                               0.2);
+                                    sub_585BE0(this->field_1C, nullptr, this->field_84, v30, v22, v31, v23, 0.2);
                                     break;
                                 default:
                                     break;
@@ -243,10 +199,7 @@ void TextureInputPack::sub_5871D0() {
 
                             int v40;
                             color32 v32;
-                            if (this->field_410 == v43
-                                    && this->field_414 == v45
-                                    && byte_965C20)
-                            {
+                            if (this->field_410 == v43 && this->field_414 == v45 && byte_965C20) {
                                 v40 = this->field_3E8;
                                 v32 = this->field_3FC;
                             } else {
@@ -255,41 +208,18 @@ void TextureInputPack::sub_5871D0() {
                             }
 
                             auto *v33 = this->field_1C;
-                            void (__fastcall *func4)(void *, void *, const char *, int, int, int, int, color32, int, Float, Float, int) = CAST(func4, get_vfunc(v33->m_vtbl, 0x4));
+                            void(__fastcall * func4)(
+                                void *, void *, const char *, int, int, int, int, color32, int, Float, Float, int) =
+                                CAST(func4, get_vfunc(v33->m_vtbl, 0x4));
                             if (v42 == ' ') {
-                                func4(v33,
-                                      nullptr,
-                                      (char *) v48,
-                                      (int) v24,
-                                      v22,
-                                      (int) v52,
-                                      v23,
-                                      v32,
-                                      v40,
-                                      1.0,
-                                      1.0,
-                                      0);
+                                func4(v33, nullptr, (char *)v48, (int)v24, v22, (int)v52, v23, v32, v40, 1.0, 1.0, 0);
                             } else {
-                                func4(v33,
-                                      nullptr,
-                                      (char *) &v42,
-                                      (int) v24,
-                                      v22,
-                                      (int) v52,
-                                      v23,
-                                      v32,
-                                      v40,
-                                      1.0,
-                                      1.0,
-                                      0);
+                                func4(v33, nullptr, (char *)&v42, (int)v24, v22, (int)v52, v23, v32, v40, 1.0, 1.0, 0);
                             }
                         } else {
                             int v41;
                             color32 v35;
-                            if (this->field_410 == v43
-                                    && this->field_414 == v45
-                                    && byte_965C20)
-                            {
+                            if (this->field_410 == v43 && this->field_414 == v45 && byte_965C20) {
                                 v41 = this->field_3E8;
                                 v35 = this->field_3FC;
                             } else {
@@ -297,13 +227,15 @@ void TextureInputPack::sub_5871D0() {
                                 v35 = this->field_3F8;
                             }
 
-                            void (__fastcall *func4)(void *, void *, const char *, int, int, int, int, color32, int, Float, Float, int) = CAST(func4, get_vfunc(this->field_1C->m_vtbl, 0x4));
+                            void(__fastcall * func4)(
+                                void *, void *, const char *, int, int, int, int, color32, int, Float, Float, int) =
+                                CAST(func4, get_vfunc(this->field_1C->m_vtbl, 0x4));
                             func4(this->field_1C,
                                   nullptr,
                                   this->field_5AC,
-                                  (int) v24,
+                                  (int)v24,
                                   v22,
-                                  (int) v52,
+                                  (int)v52,
                                   v23,
                                   v35,
                                   v41,
@@ -326,7 +258,7 @@ void TextureInputPack::sub_5871D0() {
                 v17 = i;
             }
 
-            auto *v37 = (int *) v44[61];
+            auto *v37 = (int *)v44[61];
             v16 += this->field_3D4;
             ++v18;
             v47 = v16;
@@ -342,22 +274,14 @@ void TextureInputPack::sub_5871D0() {
     }
 }
 
-void __fastcall sub_5B24F0(void *self,
-                           void *,
-                           const char *a2,
-                           int a3,
-                           int a4,
-                           int a5,
-                           int a6,
-                           int a7,
-                           int a8,
-                           Float a9,
-                           Float a10,
-                           int a11) {
+void __fastcall sub_5B24F0(void *self, void *, const char *a2, int a3, int a4, int a5, int a6, int a7, int a8, Float a9,
+                           Float a10, int a11)
+{
     THISCALL(0x005B24F0, self, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
 }
 
-void TextureInputPack_patch() {
+void TextureInputPack_patch()
+{
     set_vfunc(0x0088EBB0, sub_5B24F0);
 
     {

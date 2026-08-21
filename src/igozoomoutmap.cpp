@@ -18,43 +18,47 @@ VALIDATE_SIZE(zoom_map_ui, 0x240u);
 VALIDATE_OFFSET(IGOZoomOutMap, field_5CC, 0x5CC);
 VALIDATE_OFFSET(IGOZoomOutMap, field_5C4, 0x5C4);
 
-IGOZoomOutMap::IGOZoomOutMap() {
+IGOZoomOutMap::IGOZoomOutMap()
+{
     THISCALL(0x006489A0, this);
 }
 
 void IGOZoomOutMap::UpdateInScene()
 {
-    if ( this->field_5C5 )
-    {
-        for ( int i = 0; i < this->field_5B4; ++i )
-        {
-            if ( this->field_5B8 == this->field_0[i].field_14 ) {
+    if (this->field_5C5) {
+        for (int i = 0; i < this->field_5B4; ++i) {
+            if (this->field_5B8 == this->field_0[i].field_14) {
                 this->field_0[i].field_0.UpdateInScene();
             }
         }
     }
 }
 
-void IGOZoomOutMap::DoneZoomingBack() {
+void IGOZoomOutMap::DoneZoomingBack()
+{
     g_game_ptr->enable_marky_cam(false, false, -1000.0, 0.0);
     g_world_ptr->field_28.field_44->set_affixed_x_facing(false);
     g_game_ptr->unpause();
     g_game_ptr->field_15E = false;
 }
 
-bool IGOZoomOutMap::sub_55F320() {
+bool IGOZoomOutMap::sub_55F320()
+{
     return this->field_5C4 || this->field_5C3;
 }
 
-void IGOZoomOutMap::sub_638AD0(int a2, int a3, int a4) {
+void IGOZoomOutMap::sub_638AD0(int a2, int a3, int a4)
+{
     THISCALL(0x00638AD0, this, a2, a3, a4);
 }
 
-void IGOZoomOutMap::Update(Float a2) {
+void IGOZoomOutMap::Update(Float a2)
+{
     THISCALL(0x0063A760, this, a2);
 }
 
-void IGOZoomOutMap::SetZoomLevel(int a2) {
+void IGOZoomOutMap::SetZoomLevel(int a2)
+{
     auto v2 = a2;
     if (a2 >= 1) {
         if (a2 > 4) {
@@ -85,7 +89,8 @@ void IGOZoomPOI::UpdateInScene()
     THISCALL(0x0062A160, this);
 }
 
-void IGOZoomOutMap_patch() {
+void IGOZoomOutMap_patch()
+{
     {
         FUNC_ADDRESS(address, &IGOZoomOutMap::SetZoomLevel);
         SET_JUMP(0x00619550, address);

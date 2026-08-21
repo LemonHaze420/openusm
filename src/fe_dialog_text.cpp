@@ -17,11 +17,13 @@ VALIDATE_SIZE(fe_dialog_text, 0x10C);
 VALIDATE_OFFSET(fe_dialog_text, field_78, 0x78);
 VALIDATE_OFFSET(fe_dialog_text, field_9C, 0x9C);
 
-fe_dialog_text::fe_dialog_text(FEMenuSystem *a2, int a3, int a4) : FEMenu(a2, 0, a3, a4, 0, 0) {
+fe_dialog_text::fe_dialog_text(FEMenuSystem *a2, int a3, int a4) : FEMenu(a2, 0, a3, a4, 0, 0)
+{
     THISCALL(0x0060D570, this, a2, a3, a4);
 }
 
-void fe_dialog_text::set_text(string a1) {
+void fe_dialog_text::set_text(string a1)
+{
     //sp_log("fe_dialog_text::set_text: %s", a1.data);
     THISCALL(0x0060D960, this, a1);
 }
@@ -30,8 +32,7 @@ void fe_dialog_text::_Load()
 {
     TRACE("fe_dialog_text::Load");
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         assert(panel == nullptr && "Dialog text widget already loaded.");
 
         auto *v2 = PanelFile::UnmashPanelFile("text_box_big", static_cast<panel_layer>(1));
@@ -64,7 +65,7 @@ void fe_dialog_text::_Load()
         this->field_8C = v2->GetTextPointer("tb_text_link_center_BLANK");
 
         {
-            mString text {""};
+            mString text{""};
 
             this->field_78->SetTextNoLocalize(text);
 
@@ -72,18 +73,18 @@ void fe_dialog_text::_Load()
 
             this->field_80->SetTextNoLocalize(text);
         }
-        
+
         bit_cast<FEMultiLineText *>(this->field_80)->SetNumLines(15);
         this->field_84->SetText(static_cast<global_text_enum>(148));
         this->field_88->SetText(static_cast<global_text_enum>(149));
         this->field_8C->SetText(static_cast<global_text_enum>(150));
 
-        this->field_78->SetNoFlash(color32 {0xFFC8C8C8});
-        this->field_7C->SetNoFlash(color32 {0xFFC8C8C8});
-        this->field_80->SetNoFlash(color32 {0xFFC8C8C8});
-        this->field_84->SetNoFlash(color32 {0xFFE6D03F});
-        this->field_88->SetNoFlash(color32 {0xFFC87238});
-        this->field_8C->SetNoFlash(color32 {0xFFE6D03F});
+        this->field_78->SetNoFlash(color32{0xFFC8C8C8});
+        this->field_7C->SetNoFlash(color32{0xFFC8C8C8});
+        this->field_80->SetNoFlash(color32{0xFFC8C8C8});
+        this->field_84->SetNoFlash(color32{0xFFE6D03F});
+        this->field_88->SetNoFlash(color32{0xFFC87238});
+        this->field_8C->SetNoFlash(color32{0xFFE6D03F});
 
         this->field_8C->SetScale(1.2, 1.2);
         this->field_9C = 0;
@@ -93,11 +94,11 @@ void fe_dialog_text::_Load()
         this->field_70->GetPos(this->field_A8, this->field_C8);
 
         std::memcpy(this->field_D8, this->field_B8, sizeof(this->field_B8));
-        
+
         this->field_A2 = false;
         this->field_A3 = false;
         this->field_A4 = 0;
-        
+
         this->field_E8 = this->field_80->GetY();
 
         float v71[4];
@@ -107,18 +108,18 @@ void fe_dialog_text::_Load()
         this->field_EC[1] = v71[3];
         this->field_F4[0] = v72[0];
         this->field_F4[1] = v72[3];
-    }
-    else
-    {
+    } else {
         THISCALL(0x00643C90, this);
     }
 }
 
-void fe_dialog_text::set_title(string a2) {
+void fe_dialog_text::set_title(string a2)
+{
     //sp_log("set_title: %d", a2.m_size);
 
     if constexpr (1) {
-        void (__fastcall *SetTextNoLocalize)(void *, void *, string) = CAST(SetTextNoLocalize, get_vfunc(this->field_78->m_vtbl, 0x8C));
+        void(__fastcall * SetTextNoLocalize)(void *, void *, string) =
+            CAST(SetTextNoLocalize, get_vfunc(this->field_78->m_vtbl, 0x8C));
 
         SetTextNoLocalize(this->field_78, nullptr, a2);
     } else {
@@ -126,8 +127,8 @@ void fe_dialog_text::set_title(string a2) {
     }
 }
 
-void fe_dialog_text_patch() {
-
+void fe_dialog_text_patch()
+{
     {
         FUNC_ADDRESS(address, &fe_dialog_text::_Load);
         set_vfunc(0x00893E88, address);

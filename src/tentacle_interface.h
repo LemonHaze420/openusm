@@ -7,11 +7,9 @@
 
 struct entity;
 
-struct tentacle_info {
-};
+struct tentacle_info {};
 
-struct tentacle_interface : conglomerate_interface
-{
+struct tentacle_interface : conglomerate_interface {
     bool field_C;
     char field_D[3];
     vector3d field_10;

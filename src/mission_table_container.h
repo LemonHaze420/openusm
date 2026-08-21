@@ -29,8 +29,7 @@ struct mission_table_game_state_entry {
     bool check() const;
 };
 
-struct mission_condition_instance
-{
+struct mission_condition_instance {
     uint32_t sentinel;
     po *field_4;
     vector3d field_8;
@@ -60,29 +59,23 @@ struct mission_condition_instance
         return (a2 & this->field_54) != 0;
     }
 
-    int get_patrol_num() const {
+    int get_patrol_num() const
+    {
         return this->field_60;
     }
 
-    bool get_key_po(
-        const mission_condition *a2,
-        po *p) const;
+    bool get_key_po(const mission_condition *a2, po *p) const;
 
     bool check_game_state() const;
 
     const char *get_script_data_name() const;
 
-    bool append_nums(
-        const mission_condition *a2,
-        _std::vector<float> *num_list) const;
+    bool append_nums(const mission_condition *a2, _std::vector<float> *num_list) const;
 
-    bool append_strings(
-        const mission_condition *a2,
-        _std::vector<mString> *str_list) const;
+    bool append_strings(const mission_condition *a2, _std::vector<mString> *str_list) const;
 };
 
-struct mission_condition
-{
+struct mission_condition {
     float field_0;
     float field_4;
     mashable_vector<mission_condition_instance> instances;
@@ -102,8 +95,7 @@ struct mission_condition
 
     bool get_key_po(int instance, po *p) const;
 
-    mission_condition_instance * find_best_instance(
-            mission_manager_script_data *data) const;
+    mission_condition_instance *find_best_instance(mission_manager_script_data *data) const;
 
     bool applies_to_current_hero() const;
 
@@ -113,8 +105,7 @@ struct mission_condition
 };
 
 
-struct mission_table_container
-{
+struct mission_table_container {
     mashable_vector<mission_marker_base> field_0;
     mashable_vector<mission_camera_marker> multi_array_camera_markers;
     mashable_vector<mission_transform_marker> field_10;
@@ -139,14 +130,10 @@ struct mission_table_container
 
     bool append_script_info(_std::vector<mission_table_container::script_info> *info);
 
-    bool append_nums(
-        const char *a2,
-        int a3,
-        _std::vector<float> *nums) const;
+    bool append_nums(const char *a2, int a3, _std::vector<float> *nums) const;
 
     //0x005C6010
     void un_mash(generic_mash_header *a2, void *a3, void *a4, generic_mash_data_ptrs *a5);
 };
 
-inline Var<mission_table_container*> s_current_un_mashing_mission_table_container {0x00968524};
-
+inline Var<mission_table_container *> s_current_un_mashing_mission_table_container{0x00968524};

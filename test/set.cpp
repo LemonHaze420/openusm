@@ -4,6 +4,6 @@
 
 TEST(StdSet, Construct)
 {
-    _std::set<int> s {};
+    _std::set<int> s{};
     EXPECT_EQ(s.size(), 0);
 }

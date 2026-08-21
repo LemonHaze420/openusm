@@ -14,8 +14,7 @@ namespace ai {
 struct ai_core;
 struct als_inode;
 
-struct pedestrian_inode : info_node
-{
+struct pedestrian_inode : info_node {
     uint32_t field_1C;
     als_inode *field_20;
     ped_spawner *m_ped_spawner;
@@ -47,7 +46,8 @@ struct pedestrian_inode : info_node
 
     pedestrian_inode();
 
-    bool is_flagged(uint32_t a2) const {
+    bool is_flagged(uint32_t a2) const
+    {
         return (a2 & this->field_1C) != 0;
     }
 
@@ -55,7 +55,7 @@ struct pedestrian_inode : info_node
 
     void set_ped_spawner(ped_spawner *a2);
 
-    traffic_path_lane * get_cur_lane() const;
+    traffic_path_lane *get_cur_lane() const;
 
     void set_flag(uint32_t a3, bool a4);
 
@@ -73,17 +73,17 @@ struct pedestrian_inode : info_node
 
     static void unregister_non_ped(vhandle_type<actor> a1);
 
-    static inline const string_hash default_id {int(to_hash("PEDESTRIAN"))};
+    static inline const string_hash default_id{int(to_hash("PEDESTRIAN"))};
 
-    static inline const string_hash elevation_adj_hash {int(to_hash("elevation_adj"))};
+    static inline const string_hash elevation_adj_hash{int(to_hash("elevation_adj"))};
 
-    static inline const string_hash hit_points_hash {int(to_hash("hit_points"))};
+    static inline const string_hash hit_points_hash{int(to_hash("hit_points"))};
 
-    static inline auto & timer = var<Float>(0x0096C114);
+    static inline auto &timer = var<Float>(0x0096C114);
 };
 
 struct pedestrian_idle_state : enhanced_state {
     void pedize_non_pedestrian();
 };
 
-}
+}  // namespace ai
