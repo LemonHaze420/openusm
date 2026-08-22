@@ -59,6 +59,9 @@ struct CharComponentBase : BaseComponent {
     //virtual
     int GetDomain();
 
+    //virtual
+    uint32_t GetPoseTypeID() const;
+
     int _GetRemapSizeOfPerInstData(uint32_t a1, uint32_t a2, const CharComponentBase *a3, const void *a4,
                                    const void *a5, const void *a6, const void *a7, const void *a8);
 
@@ -88,6 +91,10 @@ struct CharComponentBase : BaseComponent {
     //virtual
     void DestroyRemapPerInstData(void *a2, uint32_t a3, uint32_t a4, const CharComponentBase *a5, const void *a6,
                                  const void *a7);
+
+    //virtual
+    void CalcPoseDataRemapped(void *, uint32_t, Float, Float, const nalComp::nalCompAnim *, const void *, uint32_t,
+                              uint32_t, const void *, const void *, const void *, const void *, void *);
 
     //virtual
     void _AnimRelease(uint32_t, void *, void *);

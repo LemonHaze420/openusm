@@ -251,7 +251,7 @@ void nalChar::nalCharInstance::GetPose(Float a2, Float a3, nalChar::nalCharPose 
 {
     TRACE("nalChar::nalCharInstance::GetPose");
 
-    if constexpr (0) {
+    if constexpr (1) {
         *a4 = *a5;
         for (int i = 0; i < this->field_18; ++i) {
             auto *v30 = &this->field_14[i];
@@ -286,14 +286,17 @@ void nalChar::nalCharInstance::GetPose(Float a2, Float a3, nalChar::nalCharPose 
                     auto v27 = v30->field_8;
                     auto anim = this->GetAnim();
                     auto *v12 = anim->GetSkeleton();
-                    [[maybe_unused]] auto v28 = v12->GetComponentId(v27);
+                    auto componentId = v12->GetComponentId(v27);
                     auto v25 = v30->field_8;
                     auto animTrackData = anim->GetCompAnimTrackData(v25);
                     auto v23 = v30->field_8;
                     auto animDataInt = anim->GetCompPerAnimDataInt(v23);
+
+                    auto defaultPoseData = v12->GetCompDefaultPoseData(v30->field_8);
+                    auto skelDataInt = v12->GetCompPerSkelDataInt(v30->field_8);
                     auto v20 = v30->field_0;
                     auto *Skeleton = anim->GetSkeleton();
-                    auto skelDataInt = Skeleton->GetCompPerSkelDataInt(v20);
+                    auto skelDataInt1 = Skeleton->GetCompPerSkelDataInt(v20);
                     auto v18 = v30->field_0;
                     auto v16 = this->GetSkeleton();
                     auto v19 = v16->GetName(v18);
@@ -303,7 +306,11 @@ void nalChar::nalCharInstance::GetPose(Float a2, Float a3, nalChar::nalCharPose 
                                               a2,
                                               a3,
                                               anim,
+                                              skelDataInt1,
+                                              componentId.field_0,
+                                              componentId.field_4,
                                               skelDataInt,
+                                              defaultPoseData,
                                               bit_cast<void *>(animDataInt),
                                               bit_cast<void *>(animTrackData),
                                               v30->field_C);
@@ -383,6 +390,16 @@ void *nalChar::nalCharAnim::GetPerAnimDataByName(CharComponentBase::Names a2)
     auto *CompPerAnimDataInt = (const void *)this->GetCompPerAnimDataInt(CompIxByName);
     auto *v9 = this->field_30->field_70[CompIxByName].m_component;
     return v9->ApplyPublicPerAnimDataOffset(a2, CompPerAnimDataInt);
+}
+
+void nalChar::nalCharAnim::ComputeFrameValues(float &a2, uint32_t &a3, uint32_t &a4, float &a5, Float a6) const
+{
+    if constexpr (0) {
+    } else {
+        void(__fastcall * func)(const void *, void *edx, float *, uint32_t *, uint32_t *, float *, Float) =
+            CAST(func, 0x005F06B0);
+        func(this, nullptr, &a2, &a3, &a4, &a5, a6);
+    }
 }
 
 void nalCharInstance_patch()

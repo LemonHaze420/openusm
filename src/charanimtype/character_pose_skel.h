@@ -48,6 +48,8 @@ struct nalCharSkeleton : nalComp::nalCompSkeleton {
 
     char *GetCompPerSkelDataInt(int a2) const;
 
+    char *GetCompDefaultPoseData(int iCompIx) const;
+
     nalCharPose *GetDefaultPose() const;
 
     nalCharPose *CreatePose() const;

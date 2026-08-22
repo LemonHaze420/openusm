@@ -114,6 +114,13 @@ char *nalChar::nalCharSkeleton::GetCompPerSkelDataInt(int a2) const
     return nalComp::nalCompSkeleton::GetCompPerSkelDataInt(a2);
 }
 
+char *nalChar::nalCharSkeleton::GetCompDefaultPoseData(int iCompIx) const
+{
+    TRACE("nalChar::nalCharSkeleton::GetCompDefaultPoseData");
+
+    return nalComp::nalCompSkeleton::GetCompDefaultPoseData(iCompIx);
+}
+
 void nalCharPose::InitializePoseDataFromSkel()
 {
     TRACE("nalCharPose::InitializePoseDataFromSkel");
@@ -299,6 +306,17 @@ void nalCharSkeleton::VirtualBlend(nalBasePose *a2, Float a3, nalBasePose *a4, n
 
 void nalChar_patch()
 {
+    {
+        FUNC_ADDRESS(address, &nalChar::nalCharSkeleton::GetCompPerSkelDataInt);
+        REDIRECT(0x005F0FC3, address);
+        REDIRECT(0x005F0FD0, address);
+    }
+
+    {
+        FUNC_ADDRESS(address, &nalChar::nalCharSkeleton::GetCompDefaultPoseData);
+        REDIRECT(0x005F0FB4, address);
+    }
+
     {
         FUNC_ADDRESS(address, &nalChar::nalCharPose::GetNamedPoseData);
         SET_JUMP(0x005F1330, address);

@@ -58,11 +58,15 @@ struct FlexibleCharComp : CharComponentBase {
     }
 
     //0x005FE940
-    void CalcPoseDataDirect(void *a2, uint32_t a3, Float a4, Float a5, const nalComp::nalCompAnim *a6, const void *a7,
-                            const void *a8, const void *a9, void *a10);
+    void _CalcPoseDataDirect(void *a2, uint32_t a3, Float a4, Float a5, const nalComp::nalCompAnim *a6, const void *a7,
+                             const void *a8, const void *a9, void *a10);
 
-    void CalcPoseDataRemapped(void *, uint32_t, Float, Float, const nalComp::nalCompAnim *, const void *, const void *,
-                              const void *, void *);
+    void _CalcPoseDataRemapped(void *, uint32_t, Float, Float, const nalComp::nalCompAnim *, const void *, const void *,
+                               const void *, void *);
+
+    void _CalcPoseDataRemapped(void *a2, uint32_t a3, Float a4, Float a5, const nalComp::nalCompAnim *a6,
+                               const void *a7, uint32_t a8, uint32_t a9, const void *a10, const void *a11,
+                               const void *a12, const void *a13, void *a14);
 
     //virtual
     void _SkelPoseProcess(uint32_t a1, void *a2, void *a3)

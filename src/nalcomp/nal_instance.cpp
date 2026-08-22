@@ -425,15 +425,15 @@ void nalComp::nalCompInstance::GetPose(Float a2, Float a3, nalComp::nalCompPose 
                     auto v16 = this->GetSkeleton();
                     auto v19 = v16->GetName(v18);
                     auto v17 = a4->GetComponentPoseData(v30->field_0);
-                    v29->CalcPoseDataRemapped(v17,
-                                              v19,
-                                              a2,
-                                              a3,
-                                              anim,
-                                              skelDataInt,
-                                              bit_cast<void *>(animDataInt),
-                                              bit_cast<void *>(animTrackData),
-                                              v30->field_C);
+                    bit_cast<BaseComponent *>(v29)->CalcPoseDataRemapped(v17,
+                                                                         v19,
+                                                                         a2,
+                                                                         a3,
+                                                                         anim,
+                                                                         skelDataInt,
+                                                                         bit_cast<void *>(animDataInt),
+                                                                         bit_cast<void *>(animTrackData),
+                                                                         v30->field_C);
                 }
             }
         }

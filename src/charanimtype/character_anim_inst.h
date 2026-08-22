@@ -41,6 +41,9 @@ struct nalCharAnim : nalComp::nalCompAnim {
 
     void *GetPerAnimDataByName(CharComponentBase::Names a2);
 
+    //0x005F06B0
+    void ComputeFrameValues(float &a2, uint32_t &a3, uint32_t &a4, float &a5, Float a6) const;
+
     static int &vtbl_ptr;
 };
 
