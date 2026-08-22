@@ -140,21 +140,6 @@ void FlexibleCharComp_patch()
     }
 
     {
-        auto func = &FlexibleCharComp<TorsoHeadStdPoseDesc,
-                                      TorsoHeadEntCompDecomp<TorsoHeadStdPoseDesc>>::_CalcPoseDataRemapped;
-
-        FUNC_ADDRESS(address, func);
-        set_vfunc(0x00892284, address);
-    }
-
-    {
-        auto func = &FlexibleCharComp<FakerootPoseDesc, FakerootEntCompDecomp<FakerootPoseDesc>>::_CalcPoseDataRemapped;
-
-        FUNC_ADDRESS(address, func);
-        set_vfunc(0x008921F4, address);
-    }
-
-    {
         using FlexibleCharCompClass =
             FlexibleCharComp<TorsoHeadStdPoseDesc, TorsoHeadEntCompDecomp<TorsoHeadStdPoseDesc>>;
 
