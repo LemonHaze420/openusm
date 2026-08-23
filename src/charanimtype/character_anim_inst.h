@@ -14,6 +14,11 @@ struct nalCharInstance;
 struct nalCharPose;
 
 struct nalCharAnim : nalComp::nalCompAnim {
+private:
+    int field_50;
+    float field_54;
+
+public:
     nalCharAnim();
 
     //0x005FB5B0
@@ -43,6 +48,16 @@ struct nalCharAnim : nalComp::nalCompAnim {
 
     //0x005F06B0
     void ComputeFrameValues(float &a2, uint32_t &a3, uint32_t &a4, float &a5, Float a6) const;
+
+    auto GetTotalFrames() const
+    {
+        return this->field_50;
+    }
+
+    auto GetAnimQuantScale() const
+    {
+        return this->field_54;
+    }
 
     static int &vtbl_ptr;
 };

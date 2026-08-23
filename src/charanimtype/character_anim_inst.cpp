@@ -7,6 +7,7 @@
 #include "variables.h"
 
 #include <cassert>
+#include <cmath>
 
 VALIDATE_SIZE(nalChar::nalCharInstance, 0x20u);
 
@@ -394,7 +395,71 @@ void *nalChar::nalCharAnim::GetPerAnimDataByName(CharComponentBase::Names a2)
 
 void nalChar::nalCharAnim::ComputeFrameValues(float &a2, uint32_t &a3, uint32_t &a4, float &a5, Float a6) const
 {
-    if constexpr (0) {
+    TRACE("nalChar::nalCharAnim::ComputeFrameValues");
+
+    if constexpr (1) {
+        auto v7 = a6 * this->field_38;
+
+        a2 = v7;
+        auto a2a = this->field_34 & 1;
+        float v9{};
+        bool v10{};
+        if (a2a) {
+            v9 = this->field_50;
+            v10 = this->field_50 < 0;
+        } else {
+            auto v16 = this->field_50 - 1;
+            v9 = v16;
+            v10 = v16 < 0;
+        }
+
+        if (v10) {
+            v9 += flt_86F860;
+        }
+
+        auto v17 = v9 / this->field_38;
+        if (equal<float>(a6, 1.0f) && equal<float>(this->field_38, 0.0f)) {
+            a3 = 0;
+            a4 = 0;
+            a5 = 0.0f;
+            a2 = 0.0f;
+            return;
+        }
+
+        a3 = std::ceil(v7 * v17);
+        auto v12 = v17 * a2;
+        int a3a = v12;
+        float v13 = a3a;
+        if (a3a < 0) {
+            v13 += flt_86F860;
+        }
+
+        a5 = v12 - v13;
+        if (equal<int>(std::ceil(v17 * a2), int(v17 * a2))) {
+            ++a3;
+            a5 = 0.0f;
+        }
+
+        if (a6 >= 1.0f && !a2a) {
+            a5 = 1.0f;
+        }
+
+        if (a2a) {
+            a3 %= this->GetTotalFrames();
+        } else {
+            uint32_t v14 = this->GetTotalFrames() - 1;
+            a3 = std::min(a3, v14);
+        }
+
+        auto v15 = a3;
+        if (v15) {
+            a4 = v15 - 1;
+        } else if (a2a) {
+            a4 = this->GetTotalFrames() - 1;
+        } else {
+            assert(0 && "Somehow, a Character Animation has a curr frame of 0 and is not looping.");
+            a4 = 0;
+        }
     } else {
         void(__fastcall * func)(const void *, void *edx, float *, uint32_t *, uint32_t *, float *, Float) =
             CAST(func, 0x005F06B0);

@@ -30,6 +30,7 @@ struct nalCompAnim {
     int *field_40;
     int *field_44;
     int field_48;
+    int field_4C;
 
     //0x00734300
     //virtual
