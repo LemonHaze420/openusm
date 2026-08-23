@@ -11,7 +11,61 @@ void LegsIKEntCompDecomp<LegsIKPoseDesc>::AdvanceAnimDataOneFrame(LegsIKEntCompD
                                                                   const nalChar::nalCharAnim *a3, const uint8_t *a4,
                                                                   uint32_t a5)
 {
-    if constexpr (0) {
+    TRACE("LegsIKEntCompDecomp<LegsIKPoseDesc>::AdvanceAnimDataOneFrame");
+
+    if constexpr (1) {
+        constexpr auto flt_96A698 = 1.0 / 1024.0f;
+        auto v22 = flt_96A698 * a3->GetAnimQuantScale();
+        auto *v6 = &a1->field_D0;
+        CharEntropyQuantConverter::DecodeDequantTracks(
+            &a1->field_D0, a4, a1->field_C0, a5, 0, a1->field_C8, v22, a3->IsSceneAnim());
+        if (a5 != 0) {
+            if (a5 == 1) {
+                uint32_t v7 = 0;
+                int i{};
+                for (i = 0; i < 2; ++i) {
+                    if (((1 << i) & a2->field_0) != 0) {
+                        CharEntropyQuantConverter::UnEntropyQuaternionTracksInitial(v6, a4, v7);
+                        v7 += 3;
+                    }
+                }
+
+                for (; i < 4; ++i) {
+                    if (((1 << i) & a2->field_0) != 0) {
+                        CharEntropyQuantConverter::UnEntropyQuaternionTracksInitial(v6, a4, v7);
+                        v7 += 3;
+
+                        CharEntropyQuantConverter::UnEntropyLinearTrackInitial(v6, a4, v7++);
+                        CharEntropyQuantConverter::UnEntropyLinearTrackInitial(v6, a4, v7++);
+                        CharEntropyQuantConverter::UnEntropyLinearTrackInitial(v6, a4, v7);
+                        CharEntropyQuantConverter::UnEntropyLinearTrackInitial(v6, a4, v7 + 1);
+                        v7 += 2;
+                    }
+                }
+            } else {
+                uint32_t v14 = 0;
+                int j{};
+                for (j = 0; j < 2; ++j) {
+                    if (((1 << j) & a2->field_0) != 0) {
+                        CharEntropyQuantConverter::UnEntropyQuaternionTracks(v6, a4, v14);
+                        v14 += 3;
+                    }
+                }
+
+                for (; j < 4; ++j) {
+                    if (((1 << j) & a2->field_0) != 0) {
+                        CharEntropyQuantConverter::UnEntropyQuaternionTracks(v6, a4, v14);
+                        v14 += 3;
+
+                        CharEntropyQuantConverter::UnEntropyLinearTrack(v6, a4, v14++);
+                        CharEntropyQuantConverter::UnEntropyLinearTrack(v6, a4, v14++);
+                        CharEntropyQuantConverter::UnEntropyLinearTrack(v6, a4, v14);
+                        CharEntropyQuantConverter::UnEntropyLinearTrack(v6, a4, v14 + 1);
+                        v14 += 2;
+                    }
+                }
+            }
+        }
     } else {
         void(__fastcall * func)(void *,
                                 void *edx,

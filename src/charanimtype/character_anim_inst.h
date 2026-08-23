@@ -59,6 +59,11 @@ public:
         return this->field_54;
     }
 
+    bool IsSceneAnim() const
+    {
+        return (0x20000u & this->field_34) != 0;
+    }
+
     static int &vtbl_ptr;
 };
 

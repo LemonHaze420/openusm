@@ -17,6 +17,7 @@ struct LegsIKEntCompDecomp {
         CharEntropyDecoder::CharChannelDecoder field_C0;
         int field_C8;
         int field_CC;
+        CharEntropyQuantConverter::EncTrackData field_D0;
     };
 
     void GetPose(T::StdPoseData *a1, unsigned int arg4, Float a3, Float a4, const nalChar::nalCharAnim *a6,
