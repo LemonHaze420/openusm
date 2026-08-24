@@ -17,6 +17,7 @@ enum eHeroLocoMode {
     CRAWLING = 2,
     SWINGING = 3,
     FALLING = 5,
+    POLE_SWING = 8,
     WEB_ZIP = 9,
 };
 

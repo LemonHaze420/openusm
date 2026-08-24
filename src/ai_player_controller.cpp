@@ -153,7 +153,7 @@ hero_type_enum ai_player_controller::find_hero_type() const
 anchor_storage_class ai_player_controller::get_poleswing_anchor() const
 {
     auto *v2 = this->field_4[1]->get_ai_core();
-    auto *v3 = (ai::pole_swing_inode *)v2->get_info_node(ai::pole_swing_inode::default_id(), true);
+    auto *v3 = (ai::pole_swing_inode *)v2->get_info_node(ai::pole_swing_inode::default_id, true);
 
     auto a2 = v3->field_1C;
     return a2;

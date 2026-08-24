@@ -128,8 +128,11 @@ string_hash spidey_base_state::get_desired_state_id(Float a3) const
                 auto *v22 = this->get_actor();
                 auto v53 = v19->get_abs_position() - v22->get_abs_position();
                 v53.normalize();
-                if (dot(axis, v53) != 0.0f) {
-                    hero_inode_ptr->jump_can_go_to(pole_swing_state::default_id);
+                if (not_equal<float>(dot(axis, v53), 0.0f)) {
+                    if (hero_inode_ptr->jump_can_go_to(pole_swing_state::default_id) &&
+                        pole_swing_inode_ptr->is_eligible(a2)) {
+                        return pole_swing_state::default_id;
+                    }
                 }
 
                 if (hero_inode_ptr->jump_can_go_to(combat_state::default_id) && combat_inode_ptr->has_next_move()) {
@@ -150,10 +153,8 @@ string_hash spidey_base_state::get_desired_state_id(Float a3) const
                 return swing_state::default_id;
             }
 
-            if (hero_inode_ptr->jump_can_go_to(pole_swing_state::default_id)) {
-                if (0) {
-                    return pole_swing_state::default_id;
-                }
+            if (hero_inode_ptr->jump_can_go_to(pole_swing_state::default_id) && pole_swing_inode_ptr->is_eligible(a2)) {
+                return pole_swing_state::default_id;
             }
 
             if (hero_inode_ptr->jump_can_go_to(plr_loco_crawl_transition_state::default_id) &&
