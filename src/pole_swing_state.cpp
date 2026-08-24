@@ -73,11 +73,8 @@ void pole_swing_state::_activate(ai_state_machine *a2, const mashed_state *a3, c
 
         this->field_48 = this->field_3C - this->field_30;
         this->field_48.normalize();
-        auto v15 = this->field_30[1] - this->field_3C[1];
-        auto v16 = this->field_30[0] - this->field_3C[0];
-        auto v17 = this->field_30[2] - this->field_3C[2];
-        auto v18 = std::sqrt(v16 * v16 + v15 * v15 + v17 * v17);
-        this->field_68 = v18;
+        auto v15 = this->field_30 - this->field_3C;
+        this->field_68 = v15.length();
         this->field_64 = this->field_68 * 0.5f;
         auto front = info_node->get_abs_po().get_z_facing();
         front[1] = 0.0;
@@ -124,16 +121,16 @@ state_trans_messages pole_swing_state::_frame_advance(Float a1)
 
     if constexpr (0) {
         auto *core = this->get_core();
-        auto *physics_inode = (ai::physics_inode *)core->get_info_node(ai::physics_inode::default_id, true);
+        auto *physics_node_ptr = (physics_inode *)core->get_info_node(physics_inode::default_id, true);
 
         auto *v4 = this->get_core();
-        auto *v5 = (ai::pole_swing_inode *)v4->get_info_node(ai::pole_swing_inode::default_id, true);
+        auto *v5 = (pole_swing_inode *)v4->get_info_node(pole_swing_inode::default_id, true);
 
         auto *v6 = this->get_core();
-        auto *v42 = (ai::als_inode *)v6->get_info_node(ai::als_inode::default_id, true);
+        auto *v42 = (als_inode *)v6->get_info_node(als_inode::default_id, true);
 
         auto *v7 = this->get_core();
-        auto *v8 = (ai::controller_inode *)v7->get_info_node(ai::controller_inode::default_id, true);
+        auto *v8 = (controller_inode *)v7->get_info_node(controller_inode::default_id, true);
         auto *player_controller = this->get_actor()->m_player_controller;
         player_controller->set_spidey_loco_mode(eHeroLocoMode::POLE_SWING);
 
@@ -153,18 +150,18 @@ state_trans_messages pole_swing_state::_frame_advance(Float a1)
 
         auto *v16 = this->get_core();
         auto pole_swing_ang_acc = v16->field_50.get_pb_float(pole_swing_ang_acc_id);
-        if (v42->get_category_id(static_cast<als::layer_types>(0)) != ai::cat_id_pole_swing) {
+        if (v42->get_category_id(static_cast<als::layer_types>(0)) != cat_id_pole_swing) {
             this->field_6C = 0;
         }
 
-        if (v42->get_category_id(static_cast<als::layer_types>(0)) == ai::cat_id_pole_swing) {
+        if (v42->get_category_id(static_cast<als::layer_types>(0)) == cat_id_pole_swing) {
             auto *v17 = this->get_core();
-            auto pole_swing_ang_vel_dampen = v17->field_50.get_pb_float(ai::pole_swing_ang_vel_dampen_id);
+            auto pole_swing_ang_vel_dampen = v17->field_50.get_pb_float(pole_swing_ang_vel_dampen_id);
 
             auto *v18 = this->get_core();
-            auto pole_swing_grav_mul = v18->field_50.get_pb_float(ai::pole_swing_grav_mul_id);
+            auto pole_swing_grav_mul = v18->field_50.get_pb_float(pole_swing_grav_mul_id);
             auto v52 = this->field_54 * -1.0f;
-            auto abs_po = physics_inode->get_abs_po();
+            auto abs_po = physics_node_ptr->get_abs_po();
             this->field_60 = dot(abs_po.get_z_facing(), v52) * pole_swing_grav_mul * a1 + this->field_60;
             this->field_60 *= pole_swing_ang_vel_dampen;
 
@@ -186,8 +183,8 @@ state_trans_messages pole_swing_state::_frame_advance(Float a1)
             }
         } else {
             auto *v24 = v42;
-            if (v42->get_category_id(static_cast<als::layer_types>(0)) != ai::cat_id_pole_idle &&
-                v24->get_category_id(static_cast<als::layer_types>(0)) == ai::cat_id_pole_crawl) {
+            if (v42->get_category_id(static_cast<als::layer_types>(0)) != cat_id_pole_idle &&
+                v24->get_category_id(static_cast<als::layer_types>(0)) == cat_id_pole_crawl) {
                 auto v1 = 2.0f * a1;
                 auto v2 = dot(v43, this->field_48);
                 this->field_64 = v2 * v1 + this->field_64;
@@ -230,7 +227,7 @@ state_trans_messages pole_swing_state::_frame_advance(Float a1)
         auto *als_layer = v42->get_als_layer(static_cast<als::layer_types>(0));
         als_layer->set_desired_params(v40);
         v5->field_24 = v5->field_28;
-        return static_cast<ai::state_trans_messages>(75);
+        return static_cast<state_trans_messages>(75);
     } else {
         state_trans_messages(__fastcall * func)(void *, void *edx, Float) = CAST(func, 0x0045CA30);
         return func(this, nullptr, a1);

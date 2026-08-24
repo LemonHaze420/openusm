@@ -400,8 +400,10 @@ void hero_inode::update_crawl_als_params()
     THISCALL(0x006A63D0, this);
 }
 
-bool hero_inode::run_can_go_to(string_hash arg0)
+bool hero_inode::run_can_go_to(string_hash a2)
 {
+    TRACE("hero_inode::run_can_go_to");
+
     if constexpr (1) {
         auto *v3 = this->field_8;
 
@@ -410,12 +412,12 @@ bool hero_inode::run_can_go_to(string_hash arg0)
         auto *v4 = this->field_8;
 
         auto *v5 = (als_inode *)v4->get_info_node(als_inode::default_id, true);
-        if (arg0 == hit_react_state::default_id) {
+        if (a2 == hit_react_state::default_id) {
             return true;
         }
 
-        if (arg0 == throw_state::default_id &&
-            (arg0 = v5->get_category_id(static_cast<als::layer_types>(0)), arg0 != cat_id_idle_walk_run())) {
+        if (a2 == throw_state::default_id &&
+            (a2 = v5->get_category_id(static_cast<als::layer_types>(0)), a2 != cat_id_idle_walk_run())) {
             return false;
         }
 
@@ -423,7 +425,7 @@ bool hero_inode::run_can_go_to(string_hash arg0)
         return v7->is_interruptable();
 
     } else {
-        return THISCALL(0x006A76D0, this, arg0);
+        return THISCALL(0x006A76D0, this, a2);
     }
 }
 
@@ -804,6 +806,11 @@ bool is_noncrawlable_surface(line_info &a1)
 
 void hero_inode_patch()
 {
+    {
+        FUNC_ADDRESS(address, &ai::hero_inode::run_can_go_to);
+        REDIRECT(0x00488980, address);
+    }
+
     {
         FUNC_ADDRESS(address, &ai::hero_inode::_frame_advance);
         set_vfunc(0x0087DAC0, address);

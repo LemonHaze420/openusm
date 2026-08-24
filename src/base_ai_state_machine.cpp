@@ -412,7 +412,7 @@ bool ai_state_machine::can_switch_to_state(string_hash a2) const
     return result;
 }
 
-bool ai_state_machine::transition_state(string_hash arg0, const param_block *a3)
+bool ai_state_machine::transition_state(string_hash a2, const param_block *a3)
 {
     TRACE("ai_state_machine::transition_state");
 
@@ -421,7 +421,7 @@ bool ai_state_machine::transition_state(string_hash arg0, const param_block *a3)
     if constexpr (1) {
         auto *v4 = this->m_state_graph;
 
-        auto *the_state = v4->find_state(arg0);
+        auto *the_state = v4->find_state(a2);
         if (the_state != nullptr) {
             auto *v13 = bit_cast<ai::base_state *>(this->my_curr_state);
             auto *v14 = v13->my_mashed_state;
@@ -460,14 +460,14 @@ bool ai_state_machine::transition_state(string_hash arg0, const param_block *a3)
             assert(cur_child_machine->my_parent == cur_parent);
 
             auto *v7 = cur_parent->m_state_graph;
-            if (v7->find_state(arg0)) {
+            if (v7->find_state(a2)) {
                 assert(cur_parent->get_curr_state() != nullptr);
 
                 ai::launch_layer_state *v8 = CAST(v8, cur_parent->get_curr_state());
                 if (cur_parent->my_curr_state->is_or_is_subclass_of(static_cast<mash::virtual_types_enum>(330))) {
                     if (auto v9 = cur_child_machine->get_name(); v8->get_layer_resource_key() != v9) {
                         this->external_request_exit();
-                        return cur_parent->transition_state(arg0, nullptr);
+                        return cur_parent->transition_state(a2, nullptr);
                     }
                 }
 
@@ -484,7 +484,7 @@ bool ai_state_machine::transition_state(string_hash arg0, const param_block *a3)
 
                 mString local_string1 = cur_parent->get_name().m_hash.to_string();
 
-                auto *v22 = arg0.to_string();
+                auto *v22 = a2.to_string();
                 mString local_string3{v22};
 
                 sp_log("Layer %s Tried to change parent layer %s's state to %s. The current state of the "
@@ -508,7 +508,7 @@ bool ai_state_machine::transition_state(string_hash arg0, const param_block *a3)
 
         return false;
     } else {
-        return THISCALL(0x0069BAC0, this, arg0, a3);
+        return THISCALL(0x0069BAC0, this, a2, a3);
     }
 }
 
