@@ -70,6 +70,9 @@ struct physics_inode : info_node {
     //0x00694AF0
     void setup_for_swing();
 
+    //0x00AE7C20
+    void setup_for_pole_swing();
+
     void set_collisions_active(bool a1, bool a2);
 
     //0x0068B080

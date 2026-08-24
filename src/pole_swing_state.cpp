@@ -55,6 +55,64 @@ void pole_swing_state::_activate(ai_state_machine *a2, const mashed_state *a3, c
     sp_log("pole_swing_state::activate");
 
     if constexpr (0) {
+        enhanced_state::activate(a2, a3, a4, a5, a6);
+
+        auto core = this->get_core();
+        auto *info_node = (physics_inode *)core->get_info_node(physics_inode::default_id, true);
+
+        auto *v8 = this->get_core();
+        auto *v51 = (als_inode *)v8->get_info_node(als_inode::default_id, true);
+
+        auto *v9 = this->get_core();
+        auto *a4a = (pole_swing_inode *)v9->get_info_node(pole_swing_inode::default_id, true);
+
+        info_node->setup_for_pole_swing();
+        v51->request_category_transition(cat_id_pole_swing, static_cast<als::layer_types>(0), true, false, false);
+        this->field_30 = a4a->field_1C.get_target();
+        this->field_3C = a4a->field_1C.get_origin();
+
+        this->field_48 = this->field_3C - this->field_30;
+        this->field_48.normalize();
+        auto v15 = this->field_30[1] - this->field_3C[1];
+        auto v16 = this->field_30[0] - this->field_3C[0];
+        auto v17 = this->field_30[2] - this->field_3C[2];
+        auto v18 = std::sqrt(v16 * v16 + v15 * v15 + v17 * v17);
+        this->field_68 = v18;
+        this->field_64 = this->field_68 * 0.5f;
+        auto front = info_node->get_abs_po().get_z_facing();
+        front[1] = 0.0;
+        front = sub_444A60(front, this->field_48);
+        front.normalize();
+
+        auto v48 = info_node->get_abs_po().get_x_facing();
+        if (front.length2() < LARGE_EPSILON) {
+            front = v48;
+            front = sub_444A60(front, this->field_48);
+            front[1] = 0.0f;
+            front.normalize();
+
+            assert(front.length2() > LARGE_EPSILON);
+        }
+
+        if (dot(this->field_48, v48) < 0.0f) {
+            std::swap(this->field_30, this->field_3C);
+            this->field_48 = -this->field_48;
+        }
+
+        this->field_54 = vector3d::cross(front, this->field_48);
+        this->field_54.normalize();
+
+        a4a->field_28 = flt_95847C;
+        a4a->field_24 = flt_95847C;
+        this->field_60 = 3.0;
+        this->field_6C = 0;
+        auto *act = this->get_actor();
+        entity_set_abs_position(act, this->field_30);
+
+        als::param_list params{};
+        params.add_param(0x27u, this->field_30);
+        auto *als_layer = v51->get_als_layer(static_cast<als::layer_types>(0));
+        als_layer->set_desired_params(params);
     } else {
         THISCALL(0x0046BD90, this, a2, a3, a4, a5, a6);
     }

@@ -337,6 +337,26 @@ void physics_inode::setup_for_swing()
     }
 }
 
+void physics_inode::setup_for_pole_swing()
+{
+    if constexpr (0) {
+        this->field_1C->field_C &= ~0x400u;
+        this->field_C->invalidate_frame_delta();
+        this->field_1C->set_control_parent(nullptr);
+        this->field_1C->set_gravity(false);
+        this->field_1C->suspend(true);
+        this->field_1C->enable(false);
+        this->field_C->set_collisions_active(1, 1);
+
+        this->field_1C->field_C &= ~0x200u;
+        auto *v2 = this->field_C->physical_ifc();
+        v2->set_current_gravity_vector(-UP);
+    } else {
+        void(__fastcall * func)(void *) = CAST(func, 0x00AE7C20);
+        func(this);
+    }
+}
+
 void physics_inode::set_velocity(const vector3d &a2, bool a3)
 {
     this->field_1C->set_velocity(a2, a3);
