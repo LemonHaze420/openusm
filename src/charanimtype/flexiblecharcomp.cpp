@@ -4,6 +4,8 @@
 #include "common.h"
 #include "fakerootentcompdecomp.h"
 #include "fakerootposedesc.h"
+#include "fing52knuckcurlentcompdecomp.h"
+#include "fing52knuckcurlposedesc.h"
 #include "func_wrapper.h"
 #include "legsikentcompdecomp.h"
 #include "legsikposedesc.h"
@@ -95,6 +97,14 @@ void FlexibleCharComp_patch()
 
         FUNC_ADDRESS(address, func);
         set_vfunc(0x00892280, address);
+    }
+
+    {
+        auto func = &FlexibleCharComp<Fing52KnuckCurlPoseDesc,
+                                      Fing52KnuckCurlEntCompDecomp<Fing52KnuckCurlPoseDesc>>::_CalcPoseDataDirect;
+
+        FUNC_ADDRESS(address, func);
+        set_vfunc(0x008925E8, address);
     }
 
     {
