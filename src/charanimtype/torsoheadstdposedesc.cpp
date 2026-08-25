@@ -17,7 +17,24 @@ void TorsoHeadStdPoseDesc::BlendPoseDataPartial(TorsoHeadStdPoseDesc::StdPoseDat
                                                 const TorsoHeadStdPoseDesc::StdPoseData *a4,
                                                 const TorsoHeadStdPoseDesc::StdPoseData *a5, uint32_t a6) const
 {
-    if constexpr (0) {
+    TRACE("TorsoHeadStdPoseDesc::BlendPoseDataPartial");
+
+    if constexpr (1) {
+        int v8 = 1;
+        for (int i = 0; i < 5; ++i) {
+            if ((v8 & a6) != 0) {
+                a1->field_0[i] = sub_5FD0C0(a3, a4->field_0[i], a5->field_0[i]);
+            }
+
+            v8 *= 2;
+        }
+
+        if ((v8 & a6) != 0) {
+            a1->field_50 = sub_5FD0C0(a3, a4->field_50, a5->field_50);
+            auto v16 = (a5->field_60 - a4->field_60);
+            auto v17 = v16 * a3;
+            a1->field_60 = v17 + a4->field_60;
+        }
     } else {
         void(__fastcall * func)(const void *,
                                 void *edx,
