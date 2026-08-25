@@ -19,7 +19,7 @@ struct TorsoHeadEntCompDecomp {
         CharEntropyQuantConverter::EncTrackData field_F0;
     };
 
-    void RetrievePoseFromInst(T::StdPoseData *a1, TorsoHeadEntCompDecomp<T>::PerInstData *a2, const T::PerAnimData *a3);
+    void RetrievePoseFromInst(T::StdPoseData &a1, TorsoHeadEntCompDecomp<T>::PerInstData *a2, const T::PerAnimData *a3);
 
     void AdvanceAnimDataOneFrame(TorsoHeadEntCompDecomp<T>::PerInstData *a1, const T::PerAnimData *a2,
                                  const nalChar::nalCharAnim *a3, const uint8_t *a4, uint32_t a5);

@@ -1,12 +1,17 @@
 #pragma once
 
 #include "float.hpp"
+#include "vector3d.h"
+#include "vector4d.h"
 
 #include <cstdint>
 
 struct TorsoHeadStdPoseDesc {
     struct StdPoseData {
-        char field_0[0x70];
+        vector4d field_0[5];
+        vector4d field_50;
+        vector3d field_60;
+        int field_6C;
     };
 
     struct PerSkelData {};

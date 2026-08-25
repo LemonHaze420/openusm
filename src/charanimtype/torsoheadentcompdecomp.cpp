@@ -4,19 +4,56 @@
 #include "trace.h"
 #include "variables.h"
 
+#include <cmath>
+
 template <>
 void TorsoHeadEntCompDecomp<TorsoHeadStdPoseDesc>::RetrievePoseFromInst(
-    TorsoHeadStdPoseDesc::StdPoseData *a1, TorsoHeadEntCompDecomp<TorsoHeadStdPoseDesc>::PerInstData *a2,
+    TorsoHeadStdPoseDesc::StdPoseData &a1, TorsoHeadEntCompDecomp<TorsoHeadStdPoseDesc>::PerInstData *a2,
     const TorsoHeadStdPoseDesc::PerAnimData *a3)
 {
-    if constexpr (0) {
+    TRACE("TorsoHeadEntCompDecomp<TorsoHeadStdPoseDesc>::RetrievePoseFromInst");
+
+    if constexpr (1) {
+        int v5 = 0;
+        float *v7 = a2->field_F0.field_0[2];
+
+        for (int v6 = 0; v6 < 5; ++v6) {
+            if (((1 << v6) & a3->field_0) != 0) {
+                auto v8 = *(v7 - 8);
+                auto v9 = *(v7 - 4);
+                v5 += 3;
+                auto v10 = *v7;
+                v7 += 12;
+                a1.field_0[v6][0] = v8;
+                a1.field_0[v6][1] = v9;
+                a1.field_0[v6][2] = v10;
+                auto v22 = std::sqrt(std::abs(1.0f - (v10 * v10 + v9 * v9 + v8 * v8)));
+                a1.field_0[v6][3] = v22;
+            }
+        }
+
+        if ((a3->field_0 & 0x20) != 0) {
+            auto v11 = a2->field_F0.field_0[v5][0];
+            auto v12 = a2->field_F0.field_0[v5 + 1][0];
+            auto v13 = a2->field_F0.field_0[v5 + 2][0];
+            a1.field_50[0] = a2->field_F0.field_0[v5][0];
+            a1.field_50[1] = v12;
+            a1.field_50[2] = v13;
+            auto v23 = std::sqrt(std::abs(1.0f - (v13 * v13 + v12 * v12 + v11 * v11)));
+            a1.field_50[3] = v23;
+
+            auto v14 = v5 + 3;
+            a1.field_60[0] = a2->field_F0.field_0[v14][0];
+            a1.field_60[1] = a2->field_F0.field_0[v14 + 1][0];
+            a1.field_60[2] = a2->field_F0.field_0[v14 + 2][0];
+        }
     } else {
         void(__fastcall * func)(void *,
                                 void *edx,
                                 TorsoHeadStdPoseDesc::StdPoseData *,
                                 TorsoHeadEntCompDecomp<TorsoHeadStdPoseDesc>::PerInstData *,
                                 const TorsoHeadStdPoseDesc::PerAnimData *) = CAST(func, 0x005FF700);
-        func(this, nullptr, a1, a2, a3);
+        func(this, nullptr, &a1, a2, a3);
     }
 }
 
@@ -114,7 +151,7 @@ void TorsoHeadEntCompDecomp<TorsoHeadStdPoseDesc>::GetPose(
                 }
 
                 v12->field_EC = v14;
-                this->RetrievePoseFromInst(&v12->field_0, v12, v11);
+                this->RetrievePoseFromInst(v12->field_0, v12, v11);
             } else {
                 a10->field_EC = v8;
                 v12->field_0 = v12->field_70;
@@ -125,7 +162,7 @@ void TorsoHeadEntCompDecomp<TorsoHeadStdPoseDesc>::GetPose(
             }
 
             this->AdvanceAnimDataOneFrame(v12, v11, a6, v11->field_4, v4);
-            this->RetrievePoseFromInst(&v12->field_70, v12, v11);
+            this->RetrievePoseFromInst(v12->field_70, v12, v11);
         }
 
         a11.BlendPoseDataPartial(a2, a3, v17, &v12->field_0, &v12->field_70, v11->field_0);
