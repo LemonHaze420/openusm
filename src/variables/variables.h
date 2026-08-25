@@ -165,3 +165,5 @@ inline constexpr uint32_t RESOURCE_ENTITY_MASH_VERSION = 0x24D;
 inline constexpr uint32_t RESOURCE_NONENTITY_MASH_VERSION = 0x12D;
 inline constexpr uint32_t RESOURCE_AUTO_MASH_VERSION = 0x249;
 inline constexpr uint32_t RESOURCE_RAW_MASH_VERSION = 0x115;
+
+inline constexpr auto flt_96A698 = 1.0 / 1024.0f;

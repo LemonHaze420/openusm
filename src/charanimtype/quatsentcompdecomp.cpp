@@ -4,6 +4,7 @@
 #include "character_anim_inst.h"
 #include "common.h"
 #include "trace.h"
+#include "variables.h"
 
 template <>
 void QuatsEntCompDecomp<ArmStdPoseDesc>::RetrievePoseFromInst(ArmStdPoseDesc::StdPoseData &a1,
@@ -29,7 +30,30 @@ void QuatsEntCompDecomp<ArmStdPoseDesc>::AdvanceAnimDataOneFrame(QuatsEntCompDec
 {
     TRACE("QuatsEntCompDecomp<ArmStdPoseDesc>::AdvanceAnimDataOneFrame");
 
-    if constexpr (0) {
+    if constexpr (1) {
+        auto v9 = flt_96A698 * a2->GetAnimQuantScale();
+        auto *v5 = &a1->field_110;
+        CharEntropyQuantConverter::DecodeDequantTracks(
+                &a1->field_110,
+                a3,
+                a1->field_100,
+                a4,
+                0,
+                a1->field_108,
+                v9,
+                a2->IsSceneAnim());
+
+        if ( a4 != 0 ) {
+            if ( a4 == 1 ) {
+                for ( int i = 0; i < a1->field_108; i += 3 ) {
+                    CharEntropyQuantConverter::UnEntropyQuaternionTracksInitial(v5, a3, i);
+                }
+            } else {
+                for ( int i = 0; i < a1->field_108; i += 3 ) {
+                    CharEntropyQuantConverter::UnEntropyQuaternionTracks(v5, a3, i);
+                }
+            }
+        }
     } else {
         void(__fastcall * func)(void *,
                                 void *edx,
