@@ -20,7 +20,12 @@ void ArmStdPoseDesc::BlendPoseDataPartial(ArmStdPoseDesc::StdPoseData *a1, uint3
 {
     TRACE("ArmStdPoseDesc::BlendPoseDataPartial");
 
-    if constexpr (0) {
+    if constexpr (1) {
+        for (int i = 0; i < 8; ++i) {
+            if (((1 << i) & a6) != 0) {
+                a1->field_0[i] = sub_5FD0C0(a3, a4->field_0[i], a5->field_0[i]);
+            }
+        }
     } else {
         void(__fastcall * func)(const void *,
                                 void *edx,
