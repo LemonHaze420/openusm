@@ -7,6 +7,8 @@ struct LegsStdPoseDesc {
         char field_0[0x80];
     };
 
+    struct PerAnimData {};
+
     struct PerSkelData {};
 
     void SkelPoseProcess(uint32_t, PerSkelData *, StdPoseData *) {}
