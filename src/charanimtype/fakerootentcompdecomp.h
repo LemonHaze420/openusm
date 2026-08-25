@@ -23,7 +23,7 @@ struct FakerootEntCompDecomp {
     void RetrievePoseFromInst(T::StdPoseData &a1, PerInstData *a2, const T::PerAnimData *a3);
 
     void GetPose(T::StdPoseData *a1, unsigned int arg4, Float a3, Float a4, const nalChar::nalCharAnim *a6,
-                 const T::PerSkelData *a7, const T::PerAnimData *a8, const void *a9, PerInstData *a2, const T *a11);
+                 const T::PerSkelData *a7, const T::PerAnimData *a8, const void *a9, PerInstData *a2, const T &a11);
 };
 
 extern void FakerootEntCompDecomp_patch();

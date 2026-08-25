@@ -4,6 +4,10 @@
 #include "legsikposedesc.h"
 #include "trace.h"
 #include "utility.h"
+#include "variable.h"
+#include "vector3d.h"
+
+#include <cmath>
 
 template <>
 void LegsIKEntCompDecomp<LegsIKPoseDesc>::AdvanceAnimDataOneFrame(LegsIKEntCompDecomp<LegsIKPoseDesc>::PerInstData *a1,
@@ -99,7 +103,7 @@ void LegsIKEntCompDecomp<LegsIKPoseDesc>::GetPose(LegsIKPoseDesc::StdPoseData *a
                                                   const nalChar::nalCharAnim *a6, const LegsIKPoseDesc::PerSkelData *a7,
                                                   const LegsIKPoseDesc::PerAnimData *a8, const void *a9,
                                                   LegsIKEntCompDecomp<LegsIKPoseDesc>::PerInstData *a10,
-                                                  const LegsIKPoseDesc *a11)
+                                                  const LegsIKPoseDesc &a11)
 {
     TRACE("LegsIKEntCompDecomp<LegsIKPoseDesc>::GetPose");
 
@@ -143,7 +147,7 @@ void LegsIKEntCompDecomp<LegsIKPoseDesc>::GetPose(LegsIKPoseDesc::StdPoseData *a
             this->RetrievePoseFromInst(v12->field_60, v12, v11);
         }
 
-        a11->BlendPoseDataPartial(a2, a3, v19, &v12->field_0, &v12->field_60, v11->field_0);
+        a11.BlendPoseDataPartial(a2, a3, v19, &v12->field_0, &v12->field_60, v11->field_0);
     } else {
         void(__fastcall * func)(void *,
                                 void *edx,
@@ -158,6 +162,6 @@ void LegsIKEntCompDecomp<LegsIKPoseDesc>::GetPose(LegsIKPoseDesc::StdPoseData *a
                                 LegsIKEntCompDecomp<LegsIKPoseDesc>::PerInstData *a10,
                                 const LegsIKPoseDesc *a11) = CAST(func, 0x005FE980);
 
-        func(this, nullptr, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
+        func(this, nullptr, a2, a3, a4, a5, a6, a7, a8, a9, a10, &a11);
     }
 }

@@ -72,7 +72,7 @@ void FakerootEntCompDecomp<FakerootPoseDesc>::GetPose(FakerootPoseDesc::StdPoseD
                                                       const FakerootPoseDesc::PerSkelData *a7,
                                                       const FakerootPoseDesc::PerAnimData *a8, const void *a9,
                                                       FakerootEntCompDecomp<FakerootPoseDesc>::PerInstData *a10,
-                                                      const FakerootPoseDesc *a11)
+                                                      const FakerootPoseDesc &a11)
 {
     TRACE("FakerootEntCompDecomp<FakerootPoseDesc>::GetPose");
 
@@ -363,7 +363,7 @@ void FakerootEntCompDecomp<FakerootPoseDesc>::GetPose(FakerootPoseDesc::StdPoseD
             FakerootPoseDesc::GenerateSignalPoseData(a11, v13, a8, a3, a4, a6);
 #endif
     } else {
-        THISCALL(0x005FE980, this, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
+        THISCALL(0x005FE980, this, a2, a3, a4, a5, a6, a7, a8, a9, a10, &a11);
     }
 }
 
