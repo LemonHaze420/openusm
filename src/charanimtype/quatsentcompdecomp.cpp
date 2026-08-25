@@ -34,22 +34,15 @@ void QuatsEntCompDecomp<ArmStdPoseDesc>::AdvanceAnimDataOneFrame(QuatsEntCompDec
         auto v9 = flt_96A698 * a2->GetAnimQuantScale();
         auto *v5 = &a1->field_110;
         CharEntropyQuantConverter::DecodeDequantTracks(
-                &a1->field_110,
-                a3,
-                a1->field_100,
-                a4,
-                0,
-                a1->field_108,
-                v9,
-                a2->IsSceneAnim());
+            &a1->field_110, a3, a1->field_100, a4, 0, a1->field_108, v9, a2->IsSceneAnim());
 
-        if ( a4 != 0 ) {
-            if ( a4 == 1 ) {
-                for ( int i = 0; i < a1->field_108; i += 3 ) {
+        if (a4 != 0) {
+            if (a4 == 1) {
+                for (int i = 0; i < a1->field_108; i += 3) {
                     CharEntropyQuantConverter::UnEntropyQuaternionTracksInitial(v5, a3, i);
                 }
             } else {
-                for ( int i = 0; i < a1->field_108; i += 3 ) {
+                for (int i = 0; i < a1->field_108; i += 3) {
                     CharEntropyQuantConverter::UnEntropyQuaternionTracks(v5, a3, i);
                 }
             }
