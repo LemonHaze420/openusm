@@ -8,7 +8,7 @@
 #include "utility.h"
 
 namespace nalChar {
-    struct nalCharAnim;
+struct nalCharAnim;
 }
 
 template <typename T0, typename T1>
@@ -63,30 +63,21 @@ struct FlexibleCharComp : CharComponentBase {
     }
 
     //0x005FE940
-    void _CalcPoseDataDirect(
-            void *a2,
-            uint32_t a3,
-            Float a4,
-            Float a5,
-            const nalComp::nalCompAnim *a6,
-            const void *a7,
-            const void *a8,
-            const void *a9,
-            void *a10)
+    void _CalcPoseDataDirect(void *a2, uint32_t a3, Float a4, Float a5, const nalComp::nalCompAnim *a6, const void *a7,
+                             const void *a8, const void *a9, void *a10)
     {
         TRACE((get_type_name<FlexibleCharComp<T0, T1>>() + "::CalcPoseDataDirect").c_str());
 
-        this->field_15.GetPose(
-                static_cast<T0::StdPoseData *>(a2),
-                a3,
-                a4,
-                a5,
-                bit_cast<const typename nalChar::nalCharAnim *>(a6),
-                bit_cast<const typename T0::PerSkelData *>(a7),
-                bit_cast<const typename T0::PerAnimData *>(a8),
-                a9,
-                static_cast<T1::PerInstData *>(a10),
-                this->field_14);
+        this->field_15.GetPose(static_cast<T0::StdPoseData *>(a2),
+                               a3,
+                               a4,
+                               a5,
+                               bit_cast<const typename nalChar::nalCharAnim *>(a6),
+                               bit_cast<const typename T0::PerSkelData *>(a7),
+                               bit_cast<const typename T0::PerAnimData *>(a8),
+                               a9,
+                               static_cast<T1::PerInstData *>(a10),
+                               this->field_14);
     }
 
     void _CalcPoseDataRemapped(void *, uint32_t, Float, Float, const nalComp::nalCompAnim *, const void *, const void *,

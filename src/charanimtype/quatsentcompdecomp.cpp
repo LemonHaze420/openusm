@@ -5,57 +5,48 @@
 #include "common.h"
 #include "trace.h"
 
-template<>
-void QuatsEntCompDecomp<ArmStdPoseDesc>::RetrievePoseFromInst(
-        ArmStdPoseDesc::StdPoseData &a1,
-        QuatsEntCompDecomp<ArmStdPoseDesc>::PerInstData *a2,
-        const ArmStdPoseDesc::PerAnimData *a3)
+template <>
+void QuatsEntCompDecomp<ArmStdPoseDesc>::RetrievePoseFromInst(ArmStdPoseDesc::StdPoseData &a1,
+                                                              QuatsEntCompDecomp<ArmStdPoseDesc>::PerInstData *a2,
+                                                              const ArmStdPoseDesc::PerAnimData *a3)
 {
     if constexpr (0) {
     } else {
-        void (__fastcall *func)(
-            void *, void *edx,
-            ArmStdPoseDesc::StdPoseData *a1,
-            QuatsEntCompDecomp<ArmStdPoseDesc>::PerInstData *a2,
-            const ArmStdPoseDesc::PerAnimData *a3) = CAST(func, 0x005FFB70);
+        void(__fastcall * func)(void *,
+                                void *edx,
+                                ArmStdPoseDesc::StdPoseData *a1,
+                                QuatsEntCompDecomp<ArmStdPoseDesc>::PerInstData *a2,
+                                const ArmStdPoseDesc::PerAnimData *a3) = CAST(func, 0x005FFB70);
         func(this, nullptr, &a1, a2, a3);
     }
 }
 
 
-template<>
-void QuatsEntCompDecomp<ArmStdPoseDesc>::AdvanceAnimDataOneFrame(
-        QuatsEntCompDecomp<ArmStdPoseDesc>::PerInstData *a1,
-        const nalChar::nalCharAnim *a2,
-        const uint8_t *a3,
-        uint32_t a4)
+template <>
+void QuatsEntCompDecomp<ArmStdPoseDesc>::AdvanceAnimDataOneFrame(QuatsEntCompDecomp<ArmStdPoseDesc>::PerInstData *a1,
+                                                                 const nalChar::nalCharAnim *a2, const uint8_t *a3,
+                                                                 uint32_t a4)
 {
     TRACE("QuatsEntCompDecomp<ArmStdPoseDesc>::AdvanceAnimDataOneFrame");
 
     if constexpr (0) {
     } else {
-        void (__fastcall *func)(
-                void *, void *edx,
-                QuatsEntCompDecomp<ArmStdPoseDesc>::PerInstData *a1,
-                const nalChar::nalCharAnim *a2,
-                const uint8_t *a3,
-                uint32_t a4) = CAST(func, 0x005FFC10);
-        func (this, nullptr, a1, a2, a3, a4);
+        void(__fastcall * func)(void *,
+                                void *edx,
+                                QuatsEntCompDecomp<ArmStdPoseDesc>::PerInstData *a1,
+                                const nalChar::nalCharAnim *a2,
+                                const uint8_t *a3,
+                                uint32_t a4) = CAST(func, 0x005FFC10);
+        func(this, nullptr, a1, a2, a3, a4);
     }
 }
 
-template<>
-void QuatsEntCompDecomp<ArmStdPoseDesc>::GetPose(
-        ArmStdPoseDesc::StdPoseData *a1,
-        uint32_t a2,
-        Float a3,
-        Float a4,
-        const nalChar::nalCharAnim *a5,
-        const ArmStdPoseDesc::PerSkelData *a6,
-        const ArmStdPoseDesc::PerAnimData *a7,
-        const void *a8,
-        QuatsEntCompDecomp<ArmStdPoseDesc>::PerInstData *a9,
-        const ArmStdPoseDesc &a10)
+template <>
+void QuatsEntCompDecomp<ArmStdPoseDesc>::GetPose(ArmStdPoseDesc::StdPoseData *a1, uint32_t a2, Float a3, Float a4,
+                                                 const nalChar::nalCharAnim *a5, const ArmStdPoseDesc::PerSkelData *a6,
+                                                 const ArmStdPoseDesc::PerAnimData *a7, const void *a8,
+                                                 QuatsEntCompDecomp<ArmStdPoseDesc>::PerInstData *a9,
+                                                 const ArmStdPoseDesc &a10)
 {
     TRACE("QuatsEntCompDecomp<ArmStdPoseDesc>::GetPose");
 
@@ -68,17 +59,17 @@ void QuatsEntCompDecomp<ArmStdPoseDesc>::GetPose(
         auto *v12 = a9;
         auto v13 = a9->field_10C;
         auto v14 = v3;
-        if ( int(v3) != v13 ) {
-            if ( v13 == -1 || int(v3) != v13 + 1 ) {
+        if (int(v3) != v13) {
+            if (v13 == -1 || int(v3) != v13 + 1) {
                 int v16{};
-                if ( v13 == -1 || int(v3) <= v13 ) {
+                if (v13 == -1 || int(v3) <= v13) {
                     v16 = 0;
                     a9->field_100 = CharEntropyDecoder::CharChannelDecoder{a8, 0};
                 } else {
                     v16 = v13 + 2;
                 }
 
-                for ( uint32_t i = v16; i <= v14; ++i ) {
+                for (uint32_t i = v16; i <= v14; ++i) {
                     this->AdvanceAnimDataOneFrame(v12, a5, a7->field_4, i);
                 }
 
@@ -90,7 +81,7 @@ void QuatsEntCompDecomp<ArmStdPoseDesc>::GetPose(
             }
 
             auto v17 = v19;
-            if ( v19 == 0 ) {
+            if (v19 == 0) {
                 v12->field_100 = CharEntropyDecoder::CharChannelDecoder{a8, 0};
             }
 
@@ -100,18 +91,18 @@ void QuatsEntCompDecomp<ArmStdPoseDesc>::GetPose(
 
         a10.BlendPoseDataPartial(a1, a2, v20, &v12->field_0, &v12->field_80, a7->field_0);
     } else {
-        void (__fastcall *func)(
-                void *, void *edx,
-                ArmStdPoseDesc::StdPoseData *a1,
-                uint32_t a2,
-                Float a3,
-                Float,
-                const nalChar::nalCharAnim *a5,
-                const ArmStdPoseDesc::PerSkelData *,
-                const ArmStdPoseDesc::PerAnimData *a7,
-                const void *a8,
-                QuatsEntCompDecomp<ArmStdPoseDesc>::PerInstData *a9,
-                const ArmStdPoseDesc *a10) = CAST(func, 0x00600260);
+        void(__fastcall * func)(void *,
+                                void *edx,
+                                ArmStdPoseDesc::StdPoseData *a1,
+                                uint32_t a2,
+                                Float a3,
+                                Float,
+                                const nalChar::nalCharAnim *a5,
+                                const ArmStdPoseDesc::PerSkelData *,
+                                const ArmStdPoseDesc::PerAnimData *a7,
+                                const void *a8,
+                                QuatsEntCompDecomp<ArmStdPoseDesc>::PerInstData *a9,
+                                const ArmStdPoseDesc *a10) = CAST(func, 0x00600260);
         func(this, nullptr, a1, a2, a3, a4, a5, a6, a7, a8, a9, &a10);
     }
 }
