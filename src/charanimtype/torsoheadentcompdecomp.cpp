@@ -2,6 +2,7 @@
 
 #include "character_anim_inst.h"
 #include "trace.h"
+#include "variables.h"
 
 template <>
 void TorsoHeadEntCompDecomp<TorsoHeadStdPoseDesc>::RetrievePoseFromInst(
@@ -24,7 +25,50 @@ void TorsoHeadEntCompDecomp<TorsoHeadStdPoseDesc>::AdvanceAnimDataOneFrame(
     TorsoHeadEntCompDecomp<TorsoHeadStdPoseDesc>::PerInstData *a1, const TorsoHeadStdPoseDesc::PerAnimData *a2,
     const nalChar::nalCharAnim *a3, const uint8_t *a4, uint32_t a5)
 {
-    if constexpr (0) {
+    TRACE("TorsoHeadEntCompDecomp<TorsoHeadStdPoseDesc>::AdvanceAnimDataOneFrame");
+
+    if constexpr (1) {
+        auto v22 = flt_96A698 * a3->GetAnimQuantScale();
+        auto *v6 = &a1->field_F0;
+        CharEntropyQuantConverter::DecodeDequantTracks(
+            &a1->field_F0, a4, a1->field_E0, a5, 0, a1->field_E8, v22, a3->IsSceneAnim());
+        if (a5 != 0) {
+            if (a5 == 1) {
+                int v7 = 0;
+                for (int i = 0; i < 5; ++i) {
+                    if (((1 << i) & a2->field_0) != 0) {
+                        CharEntropyQuantConverter::UnEntropyQuaternionTracksInitial(v6, a4, v7);
+                        v7 += 3;
+                    }
+                }
+
+                if ((a2->field_0 & 0x20) != 0) {
+                    CharEntropyQuantConverter::UnEntropyQuaternionTracksInitial(v6, a4, v7);
+                    auto v9 = v7 + 3;
+
+                    CharEntropyQuantConverter::UnEntropyLinearTrackInitial(v6, a4, v9++);
+                    CharEntropyQuantConverter::UnEntropyLinearTrackInitial(v6, a4, v9);
+                    CharEntropyQuantConverter::UnEntropyLinearTrackInitial(v6, a4, v9 + 1);
+                }
+            } else {
+                int v11 = 0;
+                for (int j = 0; j < 5; ++j) {
+                    if (((1 << j) & a2->field_0) != 0) {
+                        CharEntropyQuantConverter::UnEntropyQuaternionTracks(v6, a4, v11);
+                        v11 += 3;
+                    }
+                }
+
+                if ((a2->field_0 & 0x20) != 0) {
+                    CharEntropyQuantConverter::UnEntropyQuaternionTracks(v6, a4, v11);
+                    auto v13 = v11 + 3;
+
+                    CharEntropyQuantConverter::UnEntropyLinearTrack(v6, a4, v13++);
+                    CharEntropyQuantConverter::UnEntropyLinearTrack(v6, a4, v13);
+                    CharEntropyQuantConverter::UnEntropyLinearTrack(v6, a4, v13 + 1);
+                }
+            }
+        }
     } else {
         void(__fastcall * func)(void *,
                                 void *edx,
