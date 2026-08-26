@@ -459,6 +459,26 @@ nalMatrix4x4 sub_5FE000(const nalMatrix4x4 &arg4, const nalMatrix4x4 &arg8)
     return result;
 }
 
+nalMatrix4x4 sub_5F2FD0(Float a2, const float *a3)
+{
+    if constexpr (0) {
+    } else {
+        void (*func)(nalMatrix4x4 *out, Float, const float *) = CAST(func, 0x005F2FD0);
+
+        nalMatrix4x4 result{};
+        func(&result, a2, a3);
+        return result;
+    }
+}
+
+float sub_5F4960(const nalMatrix4x4 &a2, bool a3)
+{
+    if constexpr (0) {
+    } else {
+        float (*func)(const nalMatrix4x4 *, bool) = CAST(func, 0x005F4960);
+        return func(&a2, a3);
+    }
+}
 
 vector4d sub_5FC4A0(const vector4d &a2, const float *a3, const vector4d &a4)
 {

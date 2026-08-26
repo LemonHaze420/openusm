@@ -90,6 +90,10 @@ struct nalMatrix4x4 {
 
 extern nalMatrix4x4 sub_5FE000(const nalMatrix4x4 &arg4, const nalMatrix4x4 &arg8);
 
+extern nalMatrix4x4 sub_5F2FD0(Float a2, const float *a3);
+
+extern float sub_5F4960(const nalMatrix4x4 &a2, bool a3);
+
 struct nalPositionOrientation {
     float field_0[4];
     nalVector3 field_10;
