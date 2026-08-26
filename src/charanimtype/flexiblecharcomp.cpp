@@ -9,6 +9,7 @@
 #include "func_wrapper.h"
 #include "legsikentcompdecomp.h"
 #include "legsikposedesc.h"
+#include "legsstdposedesc.h"
 #include "quatsentcompdecomp.h"
 #include "torsoheadentcompdecomp.h"
 #include "torsoheadstdposedesc.h"
@@ -120,6 +121,13 @@ void FlexibleCharComp_patch()
 
         FUNC_ADDRESS(address, func);
         set_vfunc(0x00892424, address);
+    }
+
+    {
+        auto func = &FlexibleCharComp<LegsStdPoseDesc, QuatsEntCompDecomp<LegsStdPoseDesc>>::_BuildBoneMatrices;
+
+        FUNC_ADDRESS(address, func);
+        set_vfunc(0x008922FC, address);
     }
 
     {
