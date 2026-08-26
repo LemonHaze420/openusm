@@ -27,9 +27,44 @@ struct nal_anim_control {
 struct nalVector3 {
     float field_0[3];
 
+    float &operator[](uint32_t idx)
+    {
+        return this->field_0[idx];
+    }
+
     float operator[](uint32_t idx) const
     {
         return this->field_0[idx];
+    }
+
+    nalVector3 operator+(const nalVector3 &v) const
+    {
+        nalVector3 result;
+        result[0] = this->field_0[0] + v[0];
+        result[1] = this->field_0[1] + v[1];
+        result[2] = this->field_0[2] + v[2];
+
+        return result;
+    }
+
+    nalVector3 operator-(const nalVector3 &v) const
+    {
+        nalVector3 result;
+        result[0] = this->field_0[0] - v[0];
+        result[1] = this->field_0[1] - v[1];
+        result[2] = this->field_0[2] - v[2];
+
+        return result;
+    }
+
+    nalVector3 operator*(float a1) const
+    {
+        nalVector3 result;
+        result[0] = this->field_0[0] * a1;
+        result[1] = this->field_0[1] * a1;
+        result[2] = this->field_0[2] * a1;
+
+        return result;
     }
 };
 
@@ -52,6 +87,8 @@ struct nalMatrix4x4 {
 
     void sub_5FC9C0(const nalPositionOrientation &a2);
 };
+
+extern nalMatrix4x4 sub_5FE000(const nalMatrix4x4 &arg4, const nalMatrix4x4 &arg8);
 
 struct nalPositionOrientation {
     float field_0[4];

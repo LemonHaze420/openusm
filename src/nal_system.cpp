@@ -373,6 +373,93 @@ nalMatrix4x4::nalMatrix4x4(const nalPositionOrientation &a2)
     this->arr[3][2] = a2.field_10[2];
 }
 
+nalMatrix4x4 sub_5FE000(const nalMatrix4x4 &arg4, const nalMatrix4x4 &arg8)
+{
+    nalMatrix4x4 result;
+
+    if constexpr (0) {
+        vector4d x_axis;
+        x_axis[0] = arg8[0][0];
+        x_axis[1] = arg8[0][1];
+        x_axis[2] = arg8[0][2];
+        x_axis[3] = arg8[0][3];
+
+        vector4d y_axis;
+        y_axis[0] = arg8[1][0];
+        y_axis[1] = arg8[1][1];
+        y_axis[2] = arg8[1][2];
+        y_axis[3] = arg8[1][3];
+
+        vector4d z_axis;
+        z_axis[0] = arg8[2][0];
+        z_axis[1] = arg8[2][1];
+        z_axis[2] = arg8[2][2];
+        z_axis[3] = arg8[2][3];
+
+        vector4d w_axis;
+        w_axis[0] = arg8[3][0];
+        w_axis[1] = arg8[3][1];
+        w_axis[2] = arg8[3][2];
+        w_axis[3] = arg8[3][3];
+
+        vector4d a3;
+        a3[0] = arg4[0][0];
+        a3[1] = arg4[0][1];
+        a3[2] = arg4[0][2];
+        a3[3] = arg4[0][3];
+
+        vector4d a5;
+        a5[0] = arg4[1][0];
+        a5[1] = arg4[1][1];
+        a5[2] = arg4[1][2];
+        a5[3] = arg4[1][3];
+
+        vector4d a7;
+        a7[0] = arg4[2][0];
+        a7[1] = arg4[2][1];
+        a7[2] = arg4[2][2];
+        a7[3] = arg4[2][3];
+
+        vector4d arg8a;
+        arg8a[0] = arg4[3][0];
+        arg8a[1] = arg4[3][1];
+        arg8a[2] = arg4[3][2];
+        arg8a[3] = arg4[3][3];
+
+        auto v16 = sub_4126E0(x_axis, a3, y_axis, a3, z_axis, a3);
+
+        auto v21 = sub_4126E0(x_axis, a5, y_axis, a5, z_axis, a5);
+
+        auto v25 = sub_4126E0(x_axis, a7, y_axis, a7, z_axis, a7);
+
+        auto v29 = vector4d::sub_413E90(x_axis, arg8a, y_axis, arg8a, z_axis, arg8a, w_axis);
+
+        nalMatrix4x4 result;
+        result[0][0] = v16[0];
+        result[0][1] = v16[1];
+        result[0][2] = v16[2];
+        result[0][3] = v16[3];
+        result[1][0] = v21[0];
+        result[1][1] = v21[1];
+        result[1][2] = v21[2];
+        result[1][3] = v21[3];
+        result[2][0] = v25[0];
+        result[2][1] = v25[1];
+        result[2][2] = v25[2];
+        result[2][3] = v25[3];
+        result[3][0] = v29[0];
+        result[3][1] = v29[1];
+        result[3][2] = v29[2];
+        result[3][3] = v29[3];
+    } else {
+        int(__cdecl * func)(nalMatrix4x4 *, const nalMatrix4x4 *, const nalMatrix4x4 *) = CAST(func, 0x005FE000);
+        func(&result, &arg4, &arg8);
+    }
+
+    return result;
+}
+
+
 vector4d sub_5FC4A0(const vector4d &a2, const float *a3, const vector4d &a4)
 {
     vector4d result;

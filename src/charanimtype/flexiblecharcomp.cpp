@@ -108,6 +108,14 @@ void FlexibleCharComp_patch()
     }
 
     {
+        auto func =
+            &FlexibleCharComp<TorsoHeadStdPoseDesc, TorsoHeadEntCompDecomp<TorsoHeadStdPoseDesc>>::_BuildBoneMatrices;
+
+        FUNC_ADDRESS(address, func);
+        set_vfunc(0x00892264, address);
+    }
+
+    {
         using FlexibleCharCompClass =
             FlexibleCharComp<TorsoHeadStdPoseDesc, TorsoHeadEntCompDecomp<TorsoHeadStdPoseDesc>>;
 

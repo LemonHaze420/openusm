@@ -7,6 +7,8 @@
 #include "trace.h"
 #include "utility.h"
 
+struct nalMatrix4x4;
+
 namespace nalChar {
 struct nalCharAnim;
 }
@@ -60,6 +62,15 @@ struct FlexibleCharComp : CharComponentBase {
         this->m_TheType = to_hash(a1);
         this->field_10 = a2;
         CharComponentManager::RegisterComponent(this);
+    }
+
+    //virtual
+    void _BuildBoneMatrices(nalMatrix4x4 *a1, uint32_t a2, const void *a3, const void *a4)
+    {
+        TRACE((get_type_name<FlexibleCharComp<T0, T1>>() + "::_BuildBoneMatrices").c_str());
+
+        this->field_14.BuildBoneMatrices(
+            a1, a2, bit_cast<const typename T0::PerSkelData *>(a3), bit_cast<const typename T0::StdPoseData *>(a4));
     }
 
     //0x005FE940
