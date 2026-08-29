@@ -279,13 +279,21 @@ extern void DecomposeIKSpin(nalMatrix4x4 &a1, nalMatrix4x4 &a2, const nalMatrix4
 
 extern nalVector3 LegHeuristic(const nalMatrix4x4 &a2, const nalMatrix4x4 &a3, nalVector3 a4);
 
-extern nalMatrix4x4 sub_5F4170(Float a2, Float a3, const nalVector3 &a4);
+//0x005F4170
+extern void ReconstituteBaseKnuckle(nalMatrix4x4 &, Float a2, Float a3, const nalVector3 &a4);
 
-extern void sub_5F42D0(nalMatrix4x4 &a1, nalMatrix4x4 &a2, Float a3, const nalVector3 &a4, const nalVector3 &a5,
-                       bool a6);
+//0x005F42D0
+extern void Unconvert2Knuckle(nalMatrix4x4 &a1, nalMatrix4x4 &a2, Float a3, const nalVector3 &a4, const nalVector3 &a5,
+                              bool a6);
+
+//0x005F4350
+extern void ReconstituteFingerCurl(nalMatrix4x4 &a1, nalMatrix4x4 &a2, nalMatrix4x4 &a3, const nalVector3 &a4,
+                                   const nalVector3 &a5, const nalVector3 &a6, Float a7, Float a8);
 
 extern nalVector3 LeftArmHeuristic(const nalMatrix4x4 &a2, const nalMatrix4x4 &a3, nalVector3 a4);
 
 extern nalVector3 RightArmHeuristic(const nalMatrix4x4 &a2, const nalMatrix4x4 &a3, nalVector3 a4);
+
+extern void sub_5F3080(nalMatrix4x4 &a1, Float a2, const nalVector3 &a3);
 
 extern void nalStreamInstance_patch();

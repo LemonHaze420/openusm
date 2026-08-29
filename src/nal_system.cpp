@@ -641,18 +641,17 @@ nalVector3 LegHeuristic(const nalMatrix4x4 &, const nalMatrix4x4 &a3, nalVector3
     return result;
 }
 
-nalMatrix4x4 sub_5F4170(Float a2, Float a3, const nalVector3 &a4)
+void ReconstituteBaseKnuckle(nalMatrix4x4 &a1, Float a2, Float a3, const nalVector3 &a4)
 {
     if constexpr (0) {
     } else {
         void (*func)(nalMatrix4x4 *a1, Float a2, Float a3, const nalVector3 *a4) = CAST(func, 0x005F4170);
-        nalMatrix4x4 result{};
-        func(&result, a2, a3, &a4);
-        return result;
+        func(&a1, a2, a3, &a4);
     }
 }
 
-void sub_5F42D0(nalMatrix4x4 &a1, nalMatrix4x4 &a2, Float a3, const nalVector3 &a4, const nalVector3 &a5, bool a6)
+void Unconvert2Knuckle(nalMatrix4x4 &a1, nalMatrix4x4 &a2, Float a3, const nalVector3 &a4, const nalVector3 &a5,
+                       bool a6)
 {
     if constexpr (0) {
     } else {
@@ -660,6 +659,14 @@ void sub_5F42D0(nalMatrix4x4 &a1, nalMatrix4x4 &a2, Float a3, const nalVector3 &
             CAST(func, 0x005F42D0);
         func(&a1, &a2, a3, &a4, &a5, a6);
     }
+}
+
+void ReconstituteFingerCurl(nalMatrix4x4 &a1, nalMatrix4x4 &a2, nalMatrix4x4 &a3, const nalVector3 &a4,
+                            const nalVector3 &a5, const nalVector3 &a6, Float a7, Float a8)
+{
+    ReconstituteBaseKnuckle(a1, a7, a8, a4);
+    sub_5F3080(a2, a7, a5);
+    sub_5F3080(a3, a7, a6);
 }
 
 nalVector3 LeftArmHeuristic(const nalMatrix4x4 &a2, const nalMatrix4x4 &a3, nalVector3 a4)
@@ -685,6 +692,16 @@ nalVector3 RightArmHeuristic(const nalMatrix4x4 &a2, const nalMatrix4x4 &a3, nal
         return result;
     }
 }
+
+void sub_5F3080(nalMatrix4x4 &a1, Float a2, const nalVector3 &a3)
+{
+    if constexpr (0) {
+    } else {
+        void (*func)(nalMatrix4x4 *, Float a2, const nalVector3 *) = CAST(func, 0x005F3080);
+        func(&a1, a2, &a3);
+    }
+}
+
 
 void nalStreamInstance_patch()
 {

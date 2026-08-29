@@ -46,14 +46,15 @@ void Fing52KnuckCurlPoseDesc::BuildBoneMatrices(nalMatrix4x4 *a1, uint32_t a2,
             if (a3->field_168[v5] != -1) {
                 if (v5 >= 2) {
                     if (v5 >= 10) {
-                        sub_5F42D0(a1[a3->field_168[v5]],
-                                   a1[a3->field_168[v5 + 10]],
-                                   a4->field_18[v5 + 8],
-                                   a3->field_0[v5],
-                                   a3->field_0[v5 + 10],
-                                   (v5 % 10u) < 2);
+                        Unconvert2Knuckle(a1[a3->field_168[v5]],
+                                          a1[a3->field_168[v5 + 10]],
+                                          a4->field_18[v5 + 8],
+                                          a3->field_0[v5],
+                                          a3->field_0[v5 + 10],
+                                          (v5 % 10u) < 2);
                     } else {
-                        a1[a3->field_168[v5]] = sub_5F4170(a4->field_18[v5], a4->field_18[v5 + 8], a3->field_0[v5]);
+                        ReconstituteBaseKnuckle(
+                            a1[a3->field_168[v5]], a4->field_18[v5], a4->field_18[v5 + 8], a3->field_0[v5]);
                     }
                 } else {
                     nalPositionOrientation v21{a3->field_0[v5], &a4->field_0[v5 * 4]};
