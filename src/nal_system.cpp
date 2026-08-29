@@ -620,6 +620,27 @@ nalVector3 LegHeuristic(const nalMatrix4x4 &, const nalMatrix4x4 &a3, nalVector3
     return result;
 }
 
+nalMatrix4x4 sub_5F4170(Float a2, Float a3, const nalVector3 &a4)
+{
+    if constexpr (0) {
+    } else {
+        void (*func)(nalMatrix4x4 *a1, Float a2, Float a3, const nalVector3 *a4) = CAST(func, 0x005F4170);
+        nalMatrix4x4 result{};
+        func(&result, a2, a3, &a4);
+        return result;
+    }
+}
+
+void sub_5F42D0(nalMatrix4x4 &a1, nalMatrix4x4 &a2, Float a3, const nalVector3 &a4, const nalVector3 &a5, bool a6)
+{
+    if constexpr (0) {
+    } else {
+        void (*func)(nalMatrix4x4 *, nalMatrix4x4 *, Float, const nalVector3 *, const nalVector3 *, bool) =
+            CAST(func, 0x005F42D0);
+        func(&a1, &a2, a3, &a4, &a5, a6);
+    }
+}
+
 void nalStreamInstance_patch()
 {
     REDIRECT(0x005AD21F, nalInit);

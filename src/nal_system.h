@@ -272,4 +272,9 @@ extern void DecomposeIKSpin(nalMatrix4x4 &a1, nalMatrix4x4 &a2, const nalMatrix4
 
 extern nalVector3 LegHeuristic(const nalMatrix4x4 &a2, const nalMatrix4x4 &a3, nalVector3 a4);
 
+extern nalMatrix4x4 sub_5F4170(Float a2, Float a3, const nalVector3 &a4);
+
+extern void sub_5F42D0(nalMatrix4x4 &a1, nalMatrix4x4 &a2, Float a3, const nalVector3 &a4, const nalVector3 &a5,
+                       bool a6);
+
 extern void nalStreamInstance_patch();
