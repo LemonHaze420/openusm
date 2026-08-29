@@ -1,5 +1,7 @@
 #include "flexiblecharcomp.h"
 
+#include "armikentcompdecomp.h"
+#include "armikposedesc.h"
 #include "armstdposedesc.h"
 #include "common.h"
 #include "fakerootentcompdecomp.h"
@@ -122,6 +124,13 @@ void FlexibleCharComp_patch()
 
         FUNC_ADDRESS(address, func);
         set_vfunc(0x00892424, address);
+    }
+
+    {
+        auto func = &FlexibleCharComp<ArmIKPoseDesc, ArmIKEntCompDecomp<ArmIKPoseDesc>>::_BuildBoneMatrices;
+
+        FUNC_ADDRESS(address, func);
+        set_vfunc(0x008924BC, address);
     }
 
     {

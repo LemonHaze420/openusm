@@ -550,6 +550,16 @@ void sub_5FC820(const nalPositionOrientation &a1, vector4d &a2, vector4d &a3, ve
     a4 = sub_5FC4A0(v10, a1.field_0, v15);
 }
 
+nalMatrix4x4::nalMatrix4x4(const nalMatrix4x4 &a2)
+{
+    if constexpr (0) {
+    } else {
+        void(__fastcall * func)(void *, void *edx, const nalMatrix4x4 *a2) = CAST(func, 0x005EBC90);
+        func(this, nullptr, &a2);
+    }
+}
+
+
 void nalMatrix4x4::sub_5FC9C0(const nalPositionOrientation &a2)
 {
     if constexpr (0) {
@@ -575,6 +585,17 @@ void nalMatrix4x4::sub_5FC9C0(const nalPositionOrientation &a2)
     } else {
         void(__fastcall * func)(void *self, void *edx, const float *a2) = CAST(func, 0x005FC9C0);
         func(this, nullptr, &a2.field_0[0]);
+    }
+}
+
+nalMatrix4x4 nalMatrix4x4::sub_5EC0A0()
+{
+    if constexpr (0) {
+    } else {
+        void(__fastcall * func)(void *, void *edx, nalMatrix4x4 *out) = CAST(func, 0x005EC0A0);
+        nalMatrix4x4 result{};
+        func(this, nullptr, &result);
+        return result;
     }
 }
 
@@ -638,6 +659,30 @@ void sub_5F42D0(nalMatrix4x4 &a1, nalMatrix4x4 &a2, Float a3, const nalVector3 &
         void (*func)(nalMatrix4x4 *, nalMatrix4x4 *, Float, const nalVector3 *, const nalVector3 *, bool) =
             CAST(func, 0x005F42D0);
         func(&a1, &a2, a3, &a4, &a5, a6);
+    }
+}
+
+nalVector3 LeftArmHeuristic(const nalMatrix4x4 &a2, const nalMatrix4x4 &a3, nalVector3 a4)
+{
+    if constexpr (0) {
+    } else {
+        nalVector3 result{};
+        void (*func)(nalVector3 *out, const nalMatrix4x4 *a2, const nalMatrix4x4 *a3, nalVector3 a4) =
+            CAST(func, 0x005EEEE0);
+        func(&result, &a2, &a3, a4);
+        return result;
+    }
+}
+
+nalVector3 RightArmHeuristic(const nalMatrix4x4 &a2, const nalMatrix4x4 &a3, nalVector3 a4)
+{
+    if constexpr (0) {
+    } else {
+        nalVector3 result{};
+        void (*func)(nalVector3 *out, const nalMatrix4x4 *a2, const nalMatrix4x4 *a3, nalVector3 a4) =
+            CAST(func, 0x005EF100);
+        func(&result, &a2, &a3, a4);
+        return result;
     }
 }
 

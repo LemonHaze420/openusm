@@ -73,7 +73,12 @@ struct nalMatrix4x4 {
 
     nalMatrix4x4() = default;
 
+    //0x005EBC90
+    nalMatrix4x4(const nalMatrix4x4 &);
+
     nalMatrix4x4(const nalPositionOrientation &a2);
+
+    nalMatrix4x4 &operator=(const nalMatrix4x4 &) = default;
 
     auto &operator[](int idx)
     {
@@ -86,6 +91,8 @@ struct nalMatrix4x4 {
     }
 
     void sub_5FC9C0(const nalPositionOrientation &a2);
+
+    nalMatrix4x4 sub_5EC0A0();
 };
 
 extern nalMatrix4x4 &stru_9771C0;
@@ -276,5 +283,9 @@ extern nalMatrix4x4 sub_5F4170(Float a2, Float a3, const nalVector3 &a4);
 
 extern void sub_5F42D0(nalMatrix4x4 &a1, nalMatrix4x4 &a2, Float a3, const nalVector3 &a4, const nalVector3 &a5,
                        bool a6);
+
+extern nalVector3 LeftArmHeuristic(const nalMatrix4x4 &a2, const nalMatrix4x4 &a3, nalVector3 a4);
+
+extern nalVector3 RightArmHeuristic(const nalMatrix4x4 &a2, const nalMatrix4x4 &a3, nalVector3 a4);
 
 extern void nalStreamInstance_patch();
