@@ -84,13 +84,13 @@ void ArmStdPoseDesc::BuildBoneMatrices(nalMatrix4x4 *a1, unsigned int a2, const 
 
         for (int i = 0; i < 4; ++i) {
             auto v16 = a3->field_90[i + 8];
-            if ( v16 == -1 ) {
+            if (v16 == -1) {
                 continue;
             }
 
             int v17{};
-            if ( i != 0 ) {
-                if ( i == 2 ) {
+            if (i != 0) {
+                if (i == 2) {
                     a1[a3->field_90[10]] = sub_5FE000(a1[a3->field_90[10]], a1[a3->field_90[6]]);
                     continue;
                 }

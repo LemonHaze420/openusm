@@ -24,6 +24,8 @@
 
 VALIDATE_OFFSET(nalGeneric::nalGenericSkeleton, field_50, 0x50);
 
+VALIDATE_SIZE(IKSkelData, 0x14);
+
 struct nalHeap {
     std::intptr_t m_vtbl;
     uint32_t field_4;
@@ -35,6 +37,8 @@ struct nalAnimCache {
     int field_4;
     int field_8;
 };
+
+nalMatrix4x4 &stru_9771C0 = var<nalMatrix4x4>(0x009771C0);
 
 #ifndef STANDALONE_SYSTEM
 #error "Not defined macro STANDALONE_SYSTEM"
@@ -583,6 +587,38 @@ nalPositionOrientation::nalPositionOrientation(nalVector3 a2, const float *a3)
     this->field_10 = a2;
 }
 
+void DecomposeIKSpin(nalMatrix4x4 &a1, nalMatrix4x4 &a2, const nalMatrix4x4 &a3, const nalVector3 &a4,
+                     const nalMatrix4x4 &a5, const IKSkelData &a6,
+                     nalVector3 (*a7)(const nalMatrix4x4 &, const nalMatrix4x4 &, nalVector3), Float a8)
+{
+    TRACE("DecomposeIKSpin");
+
+    if constexpr (0) {
+    } else {
+        void (*func)(nalMatrix4x4 *a1,
+                     nalMatrix4x4 *a2,
+                     const nalMatrix4x4 *a3,
+                     const nalVector3 *a4,
+                     const nalMatrix4x4 *a5,
+                     const IKSkelData *a6,
+                     nalVector3 (*a7)(const nalMatrix4x4 &, const nalMatrix4x4 &, nalVector3),
+                     Float a8) = CAST(func, 0x005F16E0);
+        func(&a1, &a2, &a3, &a4, &a5, &a6, a7, a8);
+    }
+}
+
+nalVector3 LegHeuristic(const nalMatrix4x4 &, const nalMatrix4x4 &a3, nalVector3 a4)
+{
+    auto v4 = a3[1][0];
+    auto v5 = a3[1][1];
+    auto v6 = a3[1][2];
+
+    nalVector3 result;
+    result[0] = a4.field_0[1] * v6 - a4.field_0[2] * v5;
+    result[1] = a4.field_0[2] * v4 - v6 * a4.field_0[0];
+    result[2] = a4.field_0[0] * v5 - a4.field_0[1] * v4;
+    return result;
+}
 
 void nalStreamInstance_patch()
 {

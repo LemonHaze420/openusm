@@ -124,6 +124,13 @@ void FlexibleCharComp_patch()
     }
 
     {
+        auto func = &FlexibleCharComp<LegsIKPoseDesc, LegsIKEntCompDecomp<LegsIKPoseDesc>>::_BuildBoneMatrices;
+
+        FUNC_ADDRESS(address, func);
+        set_vfunc(0x00892394, address);
+    }
+
+    {
         auto func = &FlexibleCharComp<LegsStdPoseDesc, QuatsEntCompDecomp<LegsStdPoseDesc>>::_BuildBoneMatrices;
 
         FUNC_ADDRESS(address, func);

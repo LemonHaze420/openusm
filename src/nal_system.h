@@ -88,6 +88,8 @@ struct nalMatrix4x4 {
     void sub_5FC9C0(const nalPositionOrientation &a2);
 };
 
+extern nalMatrix4x4 &stru_9771C0;
+
 extern nalMatrix4x4 sub_5FE000(const nalMatrix4x4 &arg4, const nalMatrix4x4 &arg8);
 
 extern nalMatrix4x4 sub_5F2FD0(Float a2, const float *a3);
@@ -255,5 +257,19 @@ struct als_meta_anim_table_shared;
 
 //0x0049B910
 extern void *get_anim_by_hash(const string_hash &a1, const als::als_meta_anim_table_shared *a2, actor *a3);
+
+struct IKSkelData {
+    float field_0;
+    float field_4;
+    float field_8;
+    float field_C;
+    float field_10;
+};
+
+extern void DecomposeIKSpin(nalMatrix4x4 &a1, nalMatrix4x4 &a2, const nalMatrix4x4 &a3, const nalVector3 &a4,
+                            const nalMatrix4x4 &a5, const IKSkelData &a6,
+                            nalVector3 (*a7)(const nalMatrix4x4 &, const nalMatrix4x4 &, nalVector3), Float a8);
+
+extern nalVector3 LegHeuristic(const nalMatrix4x4 &a2, const nalMatrix4x4 &a3, nalVector3 a4);
 
 extern void nalStreamInstance_patch();
