@@ -4,6 +4,7 @@
 #include "common.h"
 #include "fakerootentcompdecomp.h"
 #include "fakerootposedesc.h"
+#include "finger5stdposedesc.h"
 #include "fing52knuckcurlentcompdecomp.h"
 #include "fing52knuckcurlposedesc.h"
 #include "func_wrapper.h"
@@ -143,6 +144,13 @@ void FlexibleCharComp_patch()
 
         FUNC_ADDRESS(address, func);
         set_vfunc(0x008925CC, address);
+    }
+
+    {
+        auto func = &FlexibleCharComp<Finger5StdPoseDesc, QuatsEntCompDecomp<Finger5StdPoseDesc>>::_BuildBoneMatrices;
+
+        FUNC_ADDRESS(address, func);
+        set_vfunc(0x00892784, address);
     }
 
     {
