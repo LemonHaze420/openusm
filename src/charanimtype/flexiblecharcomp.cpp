@@ -9,6 +9,8 @@
 #include "finger5stdposedesc.h"
 #include "fing5curlentcompdecomp.h"
 #include "fing5curlposedesc.h"
+#include "fing5redentcompdecomp.h"
+#include "fing5reducedposedesc.h"
 #include "fing52knuckcurlentcompdecomp.h"
 #include "fing52knuckcurlposedesc.h"
 #include "func_wrapper.h"
@@ -162,6 +164,14 @@ void FlexibleCharComp_patch()
 
         FUNC_ADDRESS(address, func);
         set_vfunc(0x00892664, address);
+    }
+
+    {
+        auto func =
+            &FlexibleCharComp<Fing5ReducedPoseDesc, Fing5RedEntCompDecomp<Fing5ReducedPoseDesc>>::_BuildBoneMatrices;
+
+        FUNC_ADDRESS(address, func);
+        set_vfunc(0x008926F4, address);
     }
 
     {
