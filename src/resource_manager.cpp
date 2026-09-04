@@ -15,6 +15,7 @@
 #include "nlPlatformEnum.h"
 #include "os_file.h"
 #include "os_developer_options.h"
+#include "utility/mod.h"
 #include "debug_menu.h"
 #ifdef OPENUSM_XBPACK_V10
 #include "exe_allocator.h"
@@ -1247,6 +1248,20 @@ uint8_t *get_resource(const resource_key &resource_id, int *mash_data_size, reso
         assert(resource_id.is_set());
 
         auto *context = get_resource_context();
+        if (context != nullptr
+                && (resource_id.get_type() == RESOURCE_KEY_TYPE_ENTITY
+                    || resource_id.get_type() == RESOURCE_KEY_TYPE_EXTERNAL_ENT)) {
+            if (auto *mod = getMod(resource_id.m_hash.source_hash_code);
+                    mod != nullptr && !mod->Data.empty()) {
+                if (mash_data_size != nullptr) {
+                    *mash_data_size = static_cast<int>(mod->Data.size());
+                }
+                if (a3 != nullptr) {
+                    *a3 = context;
+                }
+                return mod->Data.data();
+            }
+        }
         if (context != nullptr && context->is_data_ready()) {
             auto *result = context->get_resource(resource_id, mash_data_size, a3);
             if (result != nullptr) {
