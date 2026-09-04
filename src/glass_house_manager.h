@@ -1,6 +1,6 @@
 #pragma once
 
-#include "variable.h"
+#include "string_hash.h"
 
 #include <vector.hpp>
 
@@ -16,9 +16,11 @@ struct glass_house_manager {
 
     static void show_glass_houses();
 
-    static inline Var<bool> enabled{0x00921D78};
+    static void remove_glass_house(string_hash a2);
 
-    static inline Var<_std::vector<glass_house *> [3]> glass_houses{0x0096007C};
+    static bool &enabled;
+
+    static _std::vector<glass_house *> (&glass_houses)[3];
 };
 
 extern void glass_house_manager_patch();

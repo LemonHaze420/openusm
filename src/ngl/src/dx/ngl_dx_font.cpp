@@ -20,18 +20,10 @@ struct nglStringSection {
 };
 VALIDATE_SIZE(nglStringSection, 0x24);
 
-int BuildStringList(
-        nglFont *Font,
-        nglStringSection *a2,
-        Float a3,
-        Float a4,
-        Float a5,
-        Float a6,
-        uint32_t Color,
-        unsigned char *a8,
-        uint32_t &a9)
+int BuildStringList(nglFont *Font, nglStringSection *a2, Float a3, Float a4, Float a5, Float a6, uint32_t Color,
+                    unsigned char *a8, uint32_t &a9)
 {
-    return (int) CDECL_CALL(0x00779570, Font, a2, a3, a4, a5, a6, Color, a8, &a9);
+    return (int)CDECL_CALL(0x00779570, Font, a2, a3, a4, a5, a6, Color, a8, &a9);
 }
 
 void nglStringNode::Render()
@@ -42,26 +34,23 @@ void nglStringNode::Render()
         return;
     }
 
-    if constexpr (0)
-    {
-        if ( this->field_C != nullptr )
-        {
+    if constexpr (0) {
+        if (this->field_C != nullptr) {
             nglFont *v2 = this->field_10;
             auto v3 = v2->field_40;
-            if ( v2->field_24 != nullptr )
-            {
+            if (v2->field_24 != nullptr) {
                 auto perf_counter = query_perf_counter();
 
                 g_renderState().setCullingMode(D3DCULL_NONE);
                 g_renderState().setBlending(v2->m_blend_mode, this->field_10->field_48, 128);
 
-                if ( (v3 & 0x40) != 0 ) {
+                if ((v3 & 0x40) != 0) {
                     nglSetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
                 } else {
                     nglSetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);
                 }
 
-                if ( (v3 & 0x80u) == 0 ) {
+                if ((v3 & 0x80u) == 0) {
                     nglSetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);
                 } else {
                     nglSetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
@@ -69,18 +58,16 @@ void nglStringNode::Render()
 
                 nglDxSetTexture(0, this->field_10->field_24, v3, 3);
 
-                if ( EnableShader() ) {
+                if (EnableShader) {
                     nglSetVertexDeclarationAndShader(&stru_975780());
                 } else {
-                    g_Direct3DDevice()->lpVtbl->SetVertexDeclaration(
-                            g_Direct3DDevice(), dword_9738E0()[28]);
-                    g_Direct3DDevice()->lpVtbl->SetTransform(
-                        g_Direct3DDevice(),
-                        (D3DTRANSFORMSTATETYPE)256,
-                        bit_cast<D3DMATRIX *>(&nglCurScene()->field_24C));
+                    IDirect3DDevice9_SetVertexDeclaration(g_Direct3DDevice, dword_9738E0[28]);
+                    IDirect3DDevice9_SetTransform(g_Direct3DDevice,
+                                                  static_cast<D3DTRANSFORMSTATETYPE>(256),
+                                                  bit_cast<D3DMATRIX *>(&nglCurScene->field_24C));
                 }
 
-                if ( EnableShader() ) {
+                if (EnableShader) {
                     SetPixelShader(&dword_9757A0());
                 } else {
                     nglSetTextureStageState(0, D3DTSS_COLOROP, 4u);
@@ -101,24 +88,19 @@ void nglStringNode::Render()
                 auto a4 = v4;
                 auto v27 = sub_77E820(v20);
 
-                static Var<nglStringSection> dword_975690 {0x00975690};
+                static Var<nglStringSection> dword_975690{0x00975690};
                 uint32_t a9;
-                BuildStringList(
-                    this->field_10,
-                    &dword_975690(),
-                    v25,
-                    a4,
-                    this->field_20,
-                    this->field_24,
-                    this->m_color,
-                    this->field_C,
-                    a9);
+                BuildStringList(this->field_10,
+                                &dword_975690(),
+                                v25,
+                                a4,
+                                this->field_20,
+                                this->field_24,
+                                this->m_color,
+                                this->field_C,
+                                a9);
 
-                for ( auto *i = dword_975690().field_0;
-                      i != nullptr;
-                      i = i->field_0
-                      )
-                {
+                for (auto *i = dword_975690().field_0; i != nullptr; i = i->field_0) {
                     auto v6 = i->field_10[2];
                     auto v7 = i->field_10[3];
                     auto v8 = i->m_color;
@@ -176,15 +158,10 @@ void nglStringNode::Render()
                         v35[22] = v31[0];
                         v35[23] = v31[1];
 
-                        g_Direct3DDevice()->lpVtbl->DrawPrimitiveUP(
-                                g_Direct3DDevice(),
-                                D3DPT_TRIANGLESTRIP,
-                                2,
-                                v35,
-                                24);
+                        IDirect3DDevice9_DrawPrimitiveUP(g_Direct3DDevice, D3DPT_TRIANGLESTRIP, 2, v35, 24);
                         double v18 = this->field_10->GetFontCellWidth(v11);
-                        if ( v18 < 0 ) {
-                            v18 += flt_86F860();
+                        if (v18 < 0) {
+                            v18 += flt_86F860;
                         }
 
                         auto v19 = v18 * i->field_10[2];
@@ -194,7 +171,7 @@ void nglStringNode::Render()
                 }
 
                 dword_975690().field_0 = nullptr;
-                if ( g_distance_clipping_enabled() && !sub_581C30() ) {
+                if (g_distance_clipping_enabled && !sub_581C30()) {
                     g_renderState().setFogEnable(true);
                 }
 

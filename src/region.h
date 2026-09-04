@@ -27,8 +27,7 @@ struct dynamic_rtree_root_t;
 struct lego_map_root_node;
 struct texture_to_frame_map;
 
-struct region
-{
+struct region {
     dynamic_rtree_root_t *collision_proximity_map;
     hierarchical_entity_proximity_map *ai_proximity_map;
     hierarchical_entity_proximity_map *visibility_map;
@@ -106,7 +105,8 @@ struct region
     //0x0053B380
     void * operator new(uint32_t);
 
-    static void prepare_for_visiting() {
+    static void prepare_for_visiting()
+    {
         ++visit_key;
     } 
 
@@ -124,11 +124,13 @@ struct region
 
     bool is_loaded() const;
 
-    bool is_locked() const {
+    bool is_locked() const
+    {
         return this->flags & 1;
     }
 
-    bool is_forced() const {
+    bool is_forced() const
+    {
         return (this->flags & 2) != 0;
     }
 
@@ -176,7 +178,8 @@ struct region
 
     void set_ambient(uint8_t a2, uint8_t a3, uint8_t a4);
 
-    inline auto get_multiblock_number() {
+    inline auto get_multiblock_number()
+    {
         return this->multiblock_number;
     }
 

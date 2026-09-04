@@ -6,7 +6,8 @@
 
 VALIDATE_SIZE(region_intersect_visitor, 0x44);
 
-region_intersect_visitor::region_intersect_visitor(region *r) {
+region_intersect_visitor::region_intersect_visitor(region *r)
+{
     m_vtbl = 0x0088897C;
 
     if (r != nullptr) {
@@ -17,7 +18,8 @@ region_intersect_visitor::region_intersect_visitor(region *r) {
     }
 }
 
-int region_intersect_visitor::visit(subdivision_node *a1) {
+int region_intersect_visitor::visit(subdivision_node *a1)
+{
     auto *r = bit_cast<region *>(a1);
 
     assert(r != nullptr);

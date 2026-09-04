@@ -2,9 +2,6 @@
 
 namespace ai {
 
-throw_state::throw_state()
-{
+throw_state::throw_state() {}
 
-}
-
-} // namespace ai
+}  // namespace ai

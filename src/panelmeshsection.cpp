@@ -8,10 +8,7 @@
 
 VALIDATE_SIZE(PanelMeshSection, 0x50);
 
-PanelMeshSection::PanelMeshSection()
-{
-
-}
+PanelMeshSection::PanelMeshSection() {}
 
 void PanelMeshSection::SetMesh(nglMesh *a2)
 {
@@ -20,8 +17,8 @@ void PanelMeshSection::SetMesh(nglMesh *a2)
 #if defined(TARGET_XBOX) || defined(OPENUSM_XBPACK_MODE)
     this->field_40 = a2;
     this->field_40->SphereRadius = 0.0000099999997;
-    for (int i = this->field_40->NSections; --i >= 0; this->field_40->Sections[i].Section->SphereRadius = 0.0000099999997 )
-    {
+    for (int i = this->field_40->NSections; --i >= 0;
+         this->field_40->Sections[i].Section->SphereRadius = 0.0000099999997) {
         ;
     }
 #else

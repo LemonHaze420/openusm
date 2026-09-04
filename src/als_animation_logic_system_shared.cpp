@@ -16,13 +16,7 @@ namespace als {
 
     VALIDATE_SIZE(animation_logic_system_shared, 0x1C);
 
-    animation_logic_system_shared::animation_logic_system_shared()
-    {
-        THISCALL(0x004AC000, this);
-    }
-
-    animation_logic_system_shared::animation_logic_system_shared(
-        from_mash_in_place_constructor *a2) : field_0(a2)
+animation_logic_system_shared::animation_logic_system_shared(from_mash_in_place_constructor *a2) : field_0(a2)
     {
         auto *v3 = this->field_14;
         if ( v3 != nullptr ) {
@@ -37,19 +31,16 @@ namespace als {
     void animation_logic_system_shared::destruct_mashed_class()
     {
         TRACE("animation_logic_system_shared::destruct_mashed_class");
-        if constexpr (1)
-        {
+    if constexpr (1) {
             this->field_0.destruct_mashed_class();
             auto *v2 = this->field_14;
-            if ( v2 != nullptr )
-            {
+        if (v2 != nullptr) {
                 v2->destruct_mashed_class();
                 this->field_14 = nullptr;
             }
 
             auto *v3 = this->field_18;
-            if ( v3 != nullptr )
-            {
+            if (v3 != nullptr) {
                 exe_allocator<als_nal_meta_anim> {}.deallocate(
                     v3->field_14,
                     v3->field_0.size());
@@ -58,9 +49,7 @@ namespace als {
                 v3->field_0.destruct_mashed_class();
                 this->field_18 = nullptr;
             }
-        }
-        else
-        {
+    } else {
             THISCALL(0x004A6390, this);
         }
     }
@@ -68,8 +57,7 @@ namespace als {
     void animation_logic_system_shared::unmash(mash_info_struct *a1, void *a3)
     {
         TRACE("animation_logic_system_shared::unmash");
-        if constexpr(1)
-        {
+    if constexpr (1) {
             a1->unmash_class_in_place(this->field_0, this);
 
 #if OPENUSM_XBOX_MASH_FORMAT && !defined(OPENUSM_XBPACK_V10)
@@ -80,13 +68,13 @@ namespace als {
             }
 #endif
 
-            if ( this->field_14 != nullptr )
-            {
+        if (this->field_14 != nullptr) {
                 auto *v4 = a1->read_from_buffer(
 #if OPENUSM_XBOX_MASH_FORMAT
                     mash::NORMAL_BUFFER,
 #endif
-                        sizeof(state_machine_shared), 0);
+                sizeof(state_machine_shared),
+                0);
                 this->field_14 = (state_machine_shared *) v4;
                 mash_virtual_base::fixup_vtable(this->field_14);
                 assert(this->field_14->m_vtbl == 0x0087B8F8);
@@ -109,21 +97,20 @@ namespace als {
             }
 #endif
 
-            if ( this->field_18 != nullptr )
-            {
-                a1->unmash_class(this->field_18, this
+            if (this->field_18 != nullptr) {
+                a1->unmash_class(this->field_18,
+                                 this
 #if OPENUSM_XBOX_MASH_FORMAT
-                    , mash::NORMAL_BUFFER
+                                 ,
+                                 mash::NORMAL_BUFFER
 #endif
                         );
             }
-        }
-        else
-        {
+    } else {
             THISCALL(0x004ABAF0, this, a1, a3);
         }
     }
-}
+}  // namespace als
 
 void animation_logic_system_shared_patch()
 {

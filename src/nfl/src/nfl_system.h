@@ -6,7 +6,7 @@
 
 #include "win32/nfl_win32_driver.h"
 
-#define PC_VERSION 1 
+#define PC_VERSION 1
 
 struct resource_pack_header;
 struct resource_pack_streamer;
@@ -35,15 +35,14 @@ struct nflFileID {
     }
 };
 
-enum nfdFileFlags
-{
+enum nfdFileFlags {
     NFD_FILE_FLAGS_READ = 0x1,
     NFD_FILE_FLAGS_WRITE = 0x2,
     NFD_FILE_FLAGS_CREATE = 0x4,
     NFD_FILE_FLAGS_UNDEFINED
 };
 
-inline constexpr nflFileID NFL_FILE_ID_INVALID {-1};
+inline constexpr nflFileID NFL_FILE_ID_INVALID{-1};
 
 struct nflRequestID {
     int field_0;
@@ -52,15 +51,15 @@ struct nflRequestID {
 
     nflRequestID(int a1) : field_0(a1) {}
 
-    operator int() const {
+    operator int() const
+    {
         return field_0;
     }
 };
 
 static inline constexpr auto NFL_REQUEST_ID_INVALID = -1;
 
-enum nflRequestState
-{
+enum nflRequestState {
     NFS_REQUEST_STATE_WAITING = 0,
     NFS_REQUEST_STATE_WORKING = 1,
     NFS_REQUEST_STATE_WORKDONE = 2,
@@ -92,8 +91,7 @@ struct nflRequest {
     int totalBufferSize;
 };
 
-struct nflRequestParams
-{
+struct nflRequestParams {
     nflFileID fileID;
     int streamID;
     void (*m_callback)(nflRequestState, nflRequestID, resource_pack_streamer *);
@@ -114,16 +112,18 @@ void nflUpdate();
 struct nflMediaID {
     int field_0;
 
-    nflMediaID() {
+    nflMediaID()
+    {
         field_0 = 0;
     }
 
-    nflMediaID(int a1) {
+    nflMediaID(int a1)
+    {
         field_0 = a1;
     }
 };
 
-extern inline const nflMediaID NFL_MEDIA_ID_INVALID {-1};
+extern inline const nflMediaID NFL_MEDIA_ID_INVALID{-1};
 
 struct nflCommand {
     int field_0;
@@ -169,12 +169,8 @@ struct nflDriver {
     } *field_C;
 
     struct {
-        BOOL(*field_0)(nflDriver *a1,
-         HANDLE *a2,
-         nflRequestType a3,
-         uint32_t a4,
-         LPVOID lpBuffer,
-         uint32_t nNumberOfBytesToWrite);
+        BOOL (*field_0)(nflDriver *a1, HANDLE *a2, nflRequestType a3, uint32_t a4, LPVOID lpBuffer,
+                        uint32_t nNumberOfBytesToWrite);
         BOOL (*field_4)(HANDLE *a1);
 
         int (*field_8)();
@@ -204,11 +200,13 @@ struct nflInitParams {
     nflInitParams() = default;
     nflInitParams(const nflInitParams &) = default;
 
-    int &operator[](int idx) {
+    int &operator[](int idx)
+    {
         return field_0[idx];
     }
 
-    const int &operator[](int idx) const {
+    const int &operator[](int idx) const
+    {
         return field_0[idx];
     }
 };
@@ -223,7 +221,7 @@ void cancelRequest(nflRequestID a1);
 
 size_t init(void *);
 
-} // namespace nflSystem
+}  // namespace nflSystem
 
 //0x0079F380
 void nflCancelFileRequests(int a1);
@@ -241,8 +239,7 @@ signed int sub_79FF10(HANDLE *a1, LPCSTR lpFileName, uint32_t a3, uint32_t liDis
 //0x0079F4A0
 extern void nflStart(void *a1);
 
-struct nflStreamID
-{
+struct nflStreamID {
     int field_0;
 
     nflStreamID() = default;
@@ -252,19 +249,18 @@ struct nflStreamID
     bool operator==(const nflStreamID &id) const
     {
         return field_0 == id.field_0;
-    } 
+    }
 
     bool operator!=(const nflStreamID &id) const
     {
         return field_0 != id.field_0;
-    } 
+    }
 };
 
 
-static constexpr nflStreamID NFL_STREAM_ID_INVALID {-1};
+static constexpr nflStreamID NFL_STREAM_ID_INVALID{-1};
 
-struct nflPriority
-{
+struct nflPriority {
     int field_0;
 
     nflPriority() = default;

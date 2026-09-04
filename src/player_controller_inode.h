@@ -12,12 +12,14 @@ struct player_controller_inode : controller_inode {
     //0x004813F0
     player_controller_inode(from_mash_in_place_constructor *a2);
 
+    float get_motion_force();
+
     //0x00467E10
     //virtual
     [[nodiscard]] game_button _get_button(controller_inode::eControllerButton a3);
 };
 
-} // namespace ai
+}  // namespace ai
 
 
 extern void player_controller_inode_patch();

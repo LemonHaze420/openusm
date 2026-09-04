@@ -26,4 +26,4 @@ struct base_full_target_inode : info_node {
     //virtual
     bool is_target_known();
 };
-} // namespace ai
+}  // namespace ai

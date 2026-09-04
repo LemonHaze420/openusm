@@ -1,7 +1,5 @@
 #pragma once
 
-#include "variable.h"
-
 #include <cstdint>
 
 struct debug_struct_t {
@@ -15,4 +13,4 @@ struct debug_struct_t {
     static inline constexpr auto OUTPUT_ERROR = 4u;
 };
 
-inline Var<debug_struct_t> g_debug {0x0095FF80};
+extern debug_struct_t &g_debug;

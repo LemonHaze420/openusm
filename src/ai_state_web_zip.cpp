@@ -35,7 +35,8 @@ VALIDATE_SIZE(web_zip_state, 0x40);
 
 VALIDATE_SIZE(web_zip_inode, 0xE0);
 
-web_zip_state::web_zip_state(from_mash_in_place_constructor *a2) {
+web_zip_state::web_zip_state(from_mash_in_place_constructor *a2)
+{
     THISCALL(0x0044C560, this, a2);
 }
 
@@ -51,36 +52,28 @@ state_trans_messages web_zip_state::frame_advance(Float a2)
     }
 }
 
-void web_zip_state::activate(
-        ai::ai_state_machine *a2,
-        const ai::mashed_state *a3,
-        const ai::mashed_state *a4,
-        string_hash a5,
-        ai::base_state::activate_flag_e a6)
+void web_zip_state::activate(ai::ai_state_machine *a2, const ai::mashed_state *a3, const ai::mashed_state *a4,
+                             string_hash a5, ai::base_state::activate_flag_e a6)
 {
-    if constexpr (0)
-    {
+    if constexpr (0) {
         this->activate(a2, a3, a4, a5, a6);
         auto *core = this->get_core();
-        auto *info_node = (ai::hero_inode *) core->get_info_node(ai::hero_inode::default_id, true);
+        auto *info_node = (ai::hero_inode *)core->get_info_node(ai::hero_inode::default_id, true);
         this->field_3C = info_node;
         auto *v10 = info_node->field_20;
         auto *v11 = info_node->field_3C;
 
-        const string_hash v28 {"Web_Zip"};
+        const string_hash v28{"Web_Zip"};
         v10->request_category_transition(v28, static_cast<als::layer_types>(0), true, false, true);
         auto &v12 = g_world_ptr->field_1B0;
-        if ( v12.field_8.is_set() )
-        {
+        if (v12.field_8.is_set()) {
             auto *the_controller = bit_cast<actor *>(g_world_ptr->get_hero_ptr(0))->get_player_controller();
-            if ( the_controller->m_hero_type == SPIDEY || the_controller->m_hero_type == PARKER )
+            if (the_controller->m_hero_type == SPIDEY || the_controller->m_hero_type == PARKER)
                 g_world_ptr->activate_web_splats();
         }
 
         auto *v15 = bit_cast<conglomerate *>(this->get_actor());
-        if ( v15->is_a_conglomerate()
-            && v15->has_tentacle_ifc() )
-        {
+        if (v15->is_a_conglomerate() && v15->has_tentacle_ifc()) {
             auto *v17 = v15->tentacle_ifc();
             v17->begin_zip(v11->field_1C.hit_pos);
         }
@@ -89,18 +82,17 @@ void web_zip_state::activate(
         v18->set_spidey_loco_mode(eHeroLocoMode::WEB_ZIP);
 
         v11->field_7C = 0;
-        if ( v11->m_zip_type == 1 )
-        {
+        if (v11->m_zip_type == 1) {
             this->field_3C->field_28->setup_for_crawl_zip();
 
-            static string_hash web_zip_speed_id {int(to_hash("web_zip_speed"))};
+            static string_hash web_zip_speed_id{int(to_hash("web_zip_speed"))};
             auto *v21 = this->get_core();
             auto pb_float = v21->get_param_block()->get_pb_float(web_zip_speed_id);
 
-            als::param_list v50 {};
+            als::param_list v50{};
             v50.add_param(0x27u, v11->field_1C.hit_pos);
             v50.add_param(0x18u, v11->field_1C.hit_norm);
-            v50.add_param(als::param {0, pb_float});
+            v50.add_param(als::param{0, pb_float});
             v10->set_desired_params(v50, static_cast<als::layer_types>(0));
         }
 
@@ -108,41 +100,38 @@ void web_zip_state::activate(
         this->field_30 = v24->get_abs_position();
         v11->field_80 = false;
 
-        static const string_hash zip_hash {int(to_hash("ZIP"))};
+        static const string_hash zip_hash{int(to_hash("ZIP"))};
 
         auto *v26 = this->get_actor();
-        if ( v26->has_sound_and_pfx_ifc() )
-        {
+        if (v26->has_sound_and_pfx_ifc()) {
             auto *v27 = this->get_actor();
             web_sounds_manager::add_web_sound(v27, v11->field_1C.hit_pos, zip_hash);
         }
-    }
-    else
-    {
+    } else {
         THISCALL(0x0045D340, this, a2, a3, a4, a5, a6);
     }
 }
 
 void web_zip_state::deactivate(const mashed_state *a1)
 {
-    if constexpr (0)
-    {
-    }
-    else
-    {
+    if constexpr (0) {
+    } else {
         THISCALL(0x0044C6E0, this, a1);
     }
 }
 
-web_zip_inode::web_zip_inode(from_mash_in_place_constructor *a2) {
+web_zip_inode::web_zip_inode(from_mash_in_place_constructor *a2)
+{
     THISCALL(0x004815D0, this, a2);
 }
 
-uint32_t web_zip_inode::get_virtual_type_enum() {
+uint32_t web_zip_inode::get_virtual_type_enum()
+{
     return 326;
 }
 
-int web_zip_inode::activate(ai_core *a2) {
+int web_zip_inode::activate(ai_core *a2)
+{
     sp_log("web_zip_inode::activate:");
 
     return THISCALL(0x00481A50, this, a2);
@@ -153,7 +142,7 @@ bool web_zip_inode::can_go_to(string_hash a2)
     TRACE("web_zip_inode::can_go_to");
 
     if constexpr (1) {
-        if ( a2 == hit_react_state::default_id ) {
+        if (a2 == hit_react_state::default_id) {
             return false;
         }
 
@@ -163,9 +152,7 @@ bool web_zip_inode::can_go_to(string_hash a2)
 
         switch (zip_type) {
         case 0: {
-            if ( hero_inode::is_a_crawl_state(a2, true)
-                    || a2 == run_state::default_id)
-            {
+            if (hero_inode::is_a_crawl_state(a2, true) || a2 == run_state::default_id) {
                 return false;
             }
 
@@ -180,7 +167,7 @@ bool web_zip_inode::can_go_to(string_hash a2)
             auto v14 = phys_inode_ptr->get_abs_position() - v23;
             auto len = v14.length();
             auto v16 = this->field_1C.hit_norm.y > 0.5f;
-            if ( hero_inode::is_a_crawl_state(a2, true) ) {
+            if (hero_inode::is_a_crawl_state(a2, true)) {
                 return !v16 && len < 1.3f;
             } else if (a2 == ai::run_state::default_id) {
                 return v16 && this->field_C->physical_ifc()->get_floor_offset() + 0.1f > len;
@@ -190,9 +177,7 @@ bool web_zip_inode::can_go_to(string_hash a2)
             break;
         }
         case 2: {
-            if (hero_inode::is_a_crawl_state(a2, true)
-                && a2 == ai::run_state::default_id )
-            {
+            if (hero_inode::is_a_crawl_state(a2, true) && a2 == ai::run_state::default_id) {
                 return false;
             }
 
@@ -211,22 +196,20 @@ bool web_zip_inode::can_go_to(string_hash a2)
     }
 }
 
-static const string_hash loco_allow_web_zip_id {int(to_hash("loco_allow_web_zip"))};
+static const string_hash loco_allow_web_zip_id{int(to_hash("loco_allow_web_zip"))};
 
 bool web_zip_inode::is_eligible(string_hash a2)
 {
     TRACE("web_zip_inode::is_eligible", a2.to_string());
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         auto *v3 = &this->field_8->field_50;
 
         if (v3->get_pb_int(loco_allow_web_zip_id) == 0) {
             return false;
         }
 
-        game_button v10 = this->field_DC->field_24->get_button(
-            static_cast<controller_inode::eControllerButton>(13));
+        game_button v10 = this->field_DC->field_24->get_button(static_cast<controller_inode::eControllerButton>(13));
 
         bool v5 = v10.is_triggered();
         //sp_log("%d", v5);
@@ -237,23 +220,16 @@ bool web_zip_inode::is_eligible(string_hash a2)
 
         bool result;
 
-        if (a2 == run_state::default_id)
-        {
+        if (a2 == run_state::default_id) {
             this->m_zip_type = 0;
             result = this->find_zip_anchor_and_transition_to_zip_jump({0});
-        }
-        else if (a2 == jump_state::default_id)
-        {
+        } else if (a2 == jump_state::default_id) {
             this->m_zip_type = 2;
             result = this->find_zip_anchor_and_transition_to_zip_jump({0});
-        }
-        else if (hero_inode::is_a_crawl_state(a2, true))
-        {
+        } else if (hero_inode::is_a_crawl_state(a2, true)) {
             this->m_zip_type = 1;
             result = this->find_zip_anchor_from_crawl();
-        }
-        else
-        {
+        } else {
             auto str = a2.to_string();
             sp_log("Trying to switch to web_zip from invalid state: %s", str);
             assert(0);
@@ -262,20 +238,17 @@ bool web_zip_inode::is_eligible(string_hash a2)
         }
 
         return result;
-    }
-    else
-    {
-        bool (__fastcall *func)(const void *, void *edx, string_hash a2) = CAST(func, 0x0046C280);
+    } else {
+        bool(__fastcall * func)(const void *, void *edx, string_hash a2) = CAST(func, 0x0046C280);
         return func(this, nullptr, a2);
     }
 }
 
-static string_hash web_zip_from_crawl_max_length_id {int(to_hash("web_zip_from_crawl_max_length"))};
+static string_hash web_zip_from_crawl_max_length_id{int(to_hash("web_zip_from_crawl_max_length"))};
 
 bool web_zip_inode::find_zip_anchor_from_crawl()
 {
-    if constexpr (0)
-    {
+    if constexpr (0) {
         auto *v2 = this->field_DC->field_28;
         auto *p_param_block = this->field_8->get_param_block();
         bool v89 = false;
@@ -292,20 +265,16 @@ bool web_zip_inode::find_zip_anchor_from_crawl()
         bool v88 = false;
         bool v92 = false;
         this->field_1C.sub_48B410(100.0f);
-        if ( this->field_1C.check_collision(
-            *local_collision::entfilter_entity_no_capsules,
-            *local_collision::obbfilter_lineseg_test,
-            nullptr) )
-        {
-            bool v13 = ( (!is_noncrawlable_surface(this->field_1C) || this->field_1C.hit_norm[1] > 0.73242188f) 
-                && this->correct_zip_target_pos(&this->field_1C) );
+        if (this->field_1C.check_collision(
+                *local_collision::entfilter_entity_no_capsules, *local_collision::obbfilter_lineseg_test, nullptr)) {
+            bool v13 = ((!is_noncrawlable_surface(this->field_1C) || this->field_1C.hit_norm[1] > 0.73242188f) &&
+                        this->correct_zip_target_pos(&this->field_1C));
             v88 = v13;
 
             v92 = true;
         }
 
-        if ( this->field_1C.collision && !v88 )
-        {
+        if (this->field_1C.collision && !v88) {
             vector3d a1 = this->field_1C.hit_pos + this->field_1C.hit_norm;
             this->field_1C.clear();
             this->field_1C.field_0 = a1;
@@ -315,21 +284,18 @@ bool web_zip_inode::find_zip_anchor_from_crawl()
             auto v21 = this->field_1C.field_0 - v19;
             this->field_1C.field_C = v21;
             this->field_1C.sub_48B410(100.0f);
-            if ( this->field_1C.check_collision(
-                    *local_collision::entfilter_entity_no_capsules,
-                    *local_collision::obbfilter_lineseg_test,
-                    nullptr) )
-            {
+            if (this->field_1C.check_collision(*local_collision::entfilter_entity_no_capsules,
+                                               *local_collision::obbfilter_lineseg_test,
+                                               nullptr)) {
                 auto abs_pos = v2->get_abs_position();
                 auto v25 = abs_pos - this->field_1C.hit_pos;
-                v88 = ( v25.length2() > 4.0f 
-                    && (!is_noncrawlable_surface(this->field_1C) || this->field_1C.hit_norm[1] > 0.73242188)
-                    && this->correct_zip_target_pos(&this->field_1C) );
+                v88 = (v25.length2() > 4.0f &&
+                       (!is_noncrawlable_surface(this->field_1C) || this->field_1C.hit_norm[1] > 0.73242188) &&
+                       this->correct_zip_target_pos(&this->field_1C));
             }
         }
 
-        if ( !v88 && !v92 )
-        {
+        if (!v88 && !v92) {
             this->field_1C.clear();
             auto v96 = v2->get_z_facing() * pb_float;
             auto v28 = v2->get_abs_position();
@@ -346,13 +312,10 @@ bool web_zip_inode::find_zip_anchor_from_crawl()
             auto v37 = this->field_1C.field_0 + v36;
             this->field_1C.field_0 = v37;
             this->field_1C.sub_48B410(100.0f);
-            if ( !this->field_1C.check_collision(
-                    *local_collision::entfilter_entity_no_capsules,
-                    *local_collision::obbfilter_lineseg_test,
-                    nullptr)
-                || is_noncrawlable_surface(this->field_1C)
-                || !this->correct_zip_target_pos(&this->field_1C) )
-            {
+            if (!this->field_1C.check_collision(*local_collision::entfilter_entity_no_capsules,
+                                                *local_collision::obbfilter_lineseg_test,
+                                                nullptr) ||
+                is_noncrawlable_surface(this->field_1C) || !this->correct_zip_target_pos(&this->field_1C)) {
                 this->field_1C.clear();
                 auto v41 = v2->get_y_facing();
                 auto v96 = v41 * 1.0f;
@@ -366,28 +329,22 @@ bool web_zip_inode::find_zip_anchor_from_crawl()
                 auto v49 = v48 * pb_float;
                 this->field_1C.field_0 = this->field_1C.field_C + v49;
                 this->field_1C.sub_48B410(100.0f);
-                if ( this->field_1C.check_collision(
-                        *local_collision::entfilter_entity_no_capsules,
-                        *local_collision::obbfilter_lineseg_test,
-                        nullptr)
-                        && !is_noncrawlable_surface(this->field_1C) )
-                {
-                    if ( this->field_1C.hit_norm[1] > 0.73242188 )
-                    {
+                if (this->field_1C.check_collision(*local_collision::entfilter_entity_no_capsules,
+                                                   *local_collision::obbfilter_lineseg_test,
+                                                   nullptr) &&
+                    !is_noncrawlable_surface(this->field_1C)) {
+                    if (this->field_1C.hit_norm[1] > 0.73242188) {
                         auto &v52 = v2->get_z_facing();
-                        if ( std::abs(dot(v52, this->field_1C.hit_norm)) < 0.34999999 ) {
+                        if (std::abs(dot(v52, this->field_1C.hit_norm)) < 0.34999999) {
                             v89 = true;
                         }
                     }
 
-                    static bool & byte_91F728 = var<bool>(0x0091F728);
+                    static bool &byte_91F728 = var<bool>(0x0091F728);
 
-                    if ( !byte_91F728 )
-                    {
-                    }
-                    else
-                    {
-                        line_info v97 {};
+                    if (!byte_91F728) {
+                    } else {
+                        line_info v97{};
                         auto v53 = this->field_1C.hit_norm * 0.1f;
                         v97.field_C = this->field_1C.hit_pos + v53;
                         auto &v54 = v2->get_abs_po();
@@ -401,27 +358,21 @@ bool web_zip_inode::find_zip_anchor_from_crawl()
                         auto v59 = v58 * 2.0f;
                         this->field_1C.field_0 = this->field_1C.field_C + v59;
                         this->field_1C.sub_48B410(100.0f);
-                        if ( this->field_1C.check_collision(
-                                *local_collision::entfilter_entity_no_capsules,
-                                *local_collision::obbfilter_lineseg_test,
-                                nullptr) )
-                        {
+                        if (this->field_1C.check_collision(*local_collision::entfilter_entity_no_capsules,
+                                                           *local_collision::obbfilter_lineseg_test,
+                                                           nullptr)) {
                             auto *v62 = this->get_actor();
                             auto v63 = v62->get_abs_position();
                             auto v64 = v63 - this->field_1C.hit_pos;
-                            if ( v64.length2() < 4.0f )
-                            {
+                            if (v64.length2() < 4.0f) {
                                 this->field_1C.clear();
                                 v89 = false;
                             }
-                        }
-                        else
-                        {
+                        } else {
                             v89 = false;
                         }
 
-                        if ( v89 )
-                        {
+                        if (v89) {
                             v97.clear();
                             auto v65 = this->field_1C.hit_norm * 0.1f;
                             auto v66 = this->field_1C.hit_pos + v65;
@@ -431,24 +382,21 @@ bool web_zip_inode::find_zip_anchor_from_crawl()
                             auto v68 = YVEC * a3;
                             v97.field_C = v97.field_0 + v68;
                             v97.sub_48B410(100.0);
-                            v89 = !v97.check_collision(
-                                    *local_collision::entfilter_entity_no_capsules,
-                                    *local_collision::obbfilter_lineseg_test,
-                                    nullptr);
+                            v89 = !v97.check_collision(*local_collision::entfilter_entity_no_capsules,
+                                                       *local_collision::obbfilter_lineseg_test,
+                                                       nullptr);
                         }
                     }
                 }
 
-                v88 = ( this->field_1C.collision
-                    && (v89 || !is_noncrawlable_surface(this->field_1C))
-                    && this->correct_zip_target_pos(&this->field_1C) );
+                v88 = (this->field_1C.collision && (v89 || !is_noncrawlable_surface(this->field_1C)) &&
+                       this->correct_zip_target_pos(&this->field_1C));
             }
         }
 
-        if (v88)
-        {
-            auto v70  = v2->get_z_facing();
-            if ( v70.y > 0.0f ) {
+        if (v88) {
+            auto v70 = v2->get_z_facing();
+            if (v70.y > 0.0f) {
                 v70 = -v70;
             }
 
@@ -459,25 +407,23 @@ bool web_zip_inode::find_zip_anchor_from_crawl()
 
             auto *v76 = this->get_actor();
 
-            vector3d a5 {};
-            vector3d a6 {};
+            vector3d a5{};
+            vector3d a6{};
 
-            find_intersection(
-                v76->get_abs_position(),
-                v75,
-                *local_collision::entfilter_entity_collision,
-                *local_collision::obbfilter_lineseg_test,
-                &a5,
-                &a6,
-                nullptr,
-                nullptr,
-                nullptr,
-                false);
+            find_intersection(v76->get_abs_position(),
+                              v75,
+                              *local_collision::entfilter_entity_collision,
+                              *local_collision::obbfilter_lineseg_test,
+                              &a5,
+                              &a6,
+                              nullptr,
+                              nullptr,
+                              nullptr,
+                              false);
         }
 
         auto result = v88;
-        if ( !v88 )
-        {
+        if (!v88) {
             this->field_1C.clear();
             auto *v79 = this->get_actor();
 
@@ -489,28 +435,22 @@ bool web_zip_inode::find_zip_anchor_from_crawl()
             this->field_1C.field_C = v84;
             this->field_1C.sub_48B410(100.0f);
             this->field_1C.check_collision(
-                *local_collision::entfilter_entity_no_capsules,
-                *local_collision::obbfilter_lineseg_test,
-                nullptr);
+                *local_collision::entfilter_entity_no_capsules, *local_collision::obbfilter_lineseg_test, nullptr);
 
             return this->field_1C.collision && !is_noncrawlable_surface(this->field_1C);
         }
 
         return result;
-    }
-    else
-    {
-        bool (__fastcall *func)(void *) = CAST(func, 0x0045D600);
+    } else {
+        bool(__fastcall * func)(void *) = CAST(func, 0x0045D600);
         return func(this);
     }
 }
 
 bool web_zip_inode::find_zip_anchor_and_transition_to_zip_jump(web_zip_inode::eZipReattachMode a2)
 {
-    if constexpr (0)
-    {}
-    else
-    {
+    if constexpr (0) {
+    } else {
         return THISCALL(0x0045DFD0, this, a2);
     }
 }
@@ -528,28 +468,27 @@ bool web_zip_inode::correct_zip_target_pos(line_info *si)
     return result;
 }
 
-int web_zip_inode::deactivate() {
+int web_zip_inode::deactivate()
+{
     return THISCALL(0x0044C880, this);
 }
 
-void web_zip_inode::unmash(mash_info_struct *a2, void *a3) {
+void web_zip_inode::unmash(mash_info_struct *a2, void *a3)
+{
     THISCALL(0x00474010, this, a2, a3);
 }
 
 void web_zip_inode::process_zip(Float a2)
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         auto *v3 = this->field_DC->field_28;
 
-        static const string_hash has_tentacle_zip_id {int(to_hash("has_tentacle_zip"))};
+        static const string_hash has_tentacle_zip_id{int(to_hash("has_tentacle_zip"))};
 
         auto *v4 = &this->field_8->field_50;
 
-        if (!v4->get_pb_int(has_tentacle_zip_id))
-        {
-            if (this->field_7C == 0)
-            {
+        if (!v4->get_pb_int(has_tentacle_zip_id)) {
+            if (this->field_7C == 0) {
                 auto *v5 = this->field_C;
 
                 if (v5->event_raised_last_frame(event::ANIM_ACTION)) {
@@ -570,9 +509,8 @@ void web_zip_inode::process_zip(Float a2)
                 }
             }
 
-            if (this->field_7C == 1)
-            {
-                static const string_hash bip01_r_hand {int(to_hash("BIP01 R HAND"))};
+            if (this->field_7C == 1) {
+                static const string_hash bip01_r_hand{int(to_hash("BIP01 R HAND"))};
 
                 auto *bone = bit_cast<conglomerate *>(this->field_C)->get_bone(bip01_r_hand, true);
 
@@ -636,12 +574,12 @@ void web_zip_inode::add_swingback(polytube *&a2, entity_base *a3, actor *a4)
 {
     this->field_A4[this->field_D4].init(a2, a4, a3);
     ++this->field_D4;
-    if ( this->field_D4 >= 3 ) {
+    if (this->field_D4 >= 3) {
         this->field_D4 = 0;
     }
 }
 
-} // namespace ai
+}  // namespace ai
 
 void web_zip_state_patch()
 {
@@ -685,5 +623,4 @@ void web_zip_state_patch()
             REDIRECT(0x00478AD0, address);
         }
     }
-
 }

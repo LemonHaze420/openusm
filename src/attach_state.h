@@ -11,4 +11,4 @@ struct attach_state {
     static const inline string_hash default_id{static_cast<int>(to_hash("ATTACH"))};
 };
 
-} // namespace ai
+}  // namespace ai

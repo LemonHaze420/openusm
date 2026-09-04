@@ -5,17 +5,11 @@
 
 VALIDATE_SIZE(sin_strip_container, 0x10);
 
-sin_strip_container::sin_strip_container()
-{
+sin_strip_container::sin_strip_container() {}
 
-}
-
-void sin_strip_container::un_mash(
-        generic_mash_header *a2,
-        void *,
-        generic_mash_data_ptrs *a4)
+void sin_strip_container::un_mash(generic_mash_header *a2, void *, generic_mash_data_ptrs *a4)
 {
-    rebase(a4->field_0, 4u);
+    a4->rebase(4u);
 
     auto v5 = *a4->get<int>();
     this->strip_name = a4->get<char>(v5);

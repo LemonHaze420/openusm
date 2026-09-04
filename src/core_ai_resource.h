@@ -24,6 +24,8 @@ struct core_ai_resource {
     //0x006D9A10
     core_ai_resource(from_mash_in_place_constructor *a2);
 
+    void initialize(mash::allocation_scope scope);
+
     //0x006D71F0
     void unmash(mash_info_struct *info_struct, void *a3);
 
@@ -36,6 +38,6 @@ struct core_ai_resource {
     bool does_locomotion_graph_exist(resource_key the_graph) const;
 };
 
-} // namespace ai
+}  // namespace ai
 
 extern void core_ai_resource_patch();

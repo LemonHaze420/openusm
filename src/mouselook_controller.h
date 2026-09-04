@@ -18,10 +18,7 @@ struct mouselook_controller : controller {
     entity_base *field_10;
     int field_14;
 
-    mouselook_controller(
-        dolly_and_strafe_mcs *a2,
-        theta_and_psi_mcs *a3,
-        camera *a4);
+    mouselook_controller(dolly_and_strafe_mcs *a2, theta_and_psi_mcs *a3, camera *a4);
 
     //0x0051D0E0
     void reset();
@@ -35,10 +32,9 @@ struct mouselook_controller : controller {
 
 extern Var<mouselook_controller *> g_mouselook_controller;
 
-inline Var<bool> g_debug_cam_get_next_target {0x0095C75C};
+inline Var<bool> g_debug_cam_get_next_target{0x0095C75C};
 
-inline Var<actor *> g_debug_cam_target_actor {0x0095C758};
-
+inline Var<actor *> g_debug_cam_target_actor{0x0095C758};
 
 
 extern void mouselook_controller_patch();

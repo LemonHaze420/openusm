@@ -28,11 +28,13 @@ script_executable::script_executable()
 	this->constructor_common();
 }
 
-void * script_executable::operator new(size_t size) {
+void *script_executable::operator new(size_t size)
+{
     return mem_alloc(size);
 }
 
-void script_executable::operator delete(void *ptr, size_t size) {
+void script_executable::operator delete(void *ptr, size_t size)
+{
     mem_dealloc(ptr, size);
 }
 
@@ -55,10 +57,8 @@ void script_executable::constructor_common()
 
 bool script_executable::has_threads() const
 {
-	if constexpr (1)
-	{
-		for ( int i = 0; i < this->total_script_objects; ++i )
-		{
+    if constexpr (1) {
+        for (int i = 0; i < this->total_script_objects; ++i) {
 			auto &so = this->script_objects[i];
 			if ( so->has_threads() ) {
 				return true;
@@ -71,7 +71,8 @@ bool script_executable::has_threads() const
 	}
 }
 
-bool script_executable::is_from_mash() const {
+bool script_executable::is_from_mash() const
+{
     return (this->flags & SCRIPT_EXECUTABLE_FLAG_FROM_MASH) != 0;
 }
 
@@ -144,30 +145,33 @@ bool script_executable::compare(const script_executable &a, const script_executa
     return true;
 }
 #else
-bool script_executable::compare(const script_executable &, const script_executable &) {
+bool script_executable::compare(const script_executable &, const script_executable &)
+{
+    assert(0);
     return false;
 }
 #endif
 
-void script_executable::un_mash_start(generic_mash_header *a2, void *a3, generic_mash_data_ptrs *a4, [[maybe_unused]] void *a5)
+void script_executable::un_mash_start(generic_mash_header *a2, void *a3, generic_mash_data_ptrs *a4,
+                                      [[maybe_unused]] void *a5)
 {
     TRACE("script_executable::un_mash_start");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         this->un_mash(a2, a3, a4);
-    }
-    else
-    {
-        void (__fastcall *func)(void *,void *edx, generic_mash_header *, void *, generic_mash_data_ptrs *, void *) = CAST(func, 0x005B04D0);
+    } else {
+        void(__fastcall * func)(void *, void *edx, generic_mash_header *, void *, generic_mash_data_ptrs *, void *) =
+            CAST(func, 0x005B04D0);
         func(this, nullptr, a2, a3, a4, a5);
     }
 
-    printf("field_58 = %d\n", this->field_58);
-
-    if constexpr (0)
-    {
+    if constexpr (0) {
         sp_log("%d", this->system_string_table_size);
+
+        auto begin = this->permanent_string_table;
+        auto end = begin + this->permanent_string_table_size;
+        std::for_each(begin, end, [](auto &str) { sp_log("%s", str); });
+
         if (this->field_0 == fixedstring<8>{"CITY_ARENA"}) {
             assert(0);
         }
@@ -180,14 +184,14 @@ void script_executable::un_mash_start(generic_mash_header *a2, void *a3, generic
             return;
         }
 
-        g_is_the_packer() = true;
+        g_is_the_packer = true;
 
         script_executable se{};
         se.load(resource_key {string_hash {this->field_0.to_string()}, RESOURCE_KEY_TYPE_SCRIPT});
 
         assert(script_executable::compare(*this, se));
 
-        g_is_the_packer() = false;
+        g_is_the_packer = false;
     }
 }
 
@@ -204,25 +208,19 @@ script_object *script_executable::find_object(int index) const
     return this->script_objects_by_name[index];
 }
 
-void script_executable::info_t::un_mash(
-        generic_mash_header *header,
-        script_executable *a3,
-        void *,
+void script_executable::info_t::un_mash(generic_mash_header *header, script_executable *a3, void *,
         generic_mash_data_ptrs *a5)
 {
     assert(so_name == chuck_str_t::INVALID_STRING_HASH);
     auto *owner = a3->find_object(this->field_18);
     assert(owner != nullptr);
 
-    if ( this->field_10 == -1 )
-    {
-        rebase(a5->field_0, 4u);
+    if (this->field_10 == -1) {
+        a5->rebase(4u);
 
-        this->field_8 = bit_cast<vm_executable *>(a5->field_0);
+        this->field_8 = a5->get<vm_executable>();
 #ifdef OPENUSM_XBPACK_V10
-        a5->field_0 += sizeof(vm_executable) + sizeof(uint32_t);
-#else
-        a5->field_0 += sizeof(vm_executable);
+        a5->field_0 += sizeof(uint32_t);
 #endif
 
         assert(((int)header) % 4 == 0);
@@ -235,19 +233,15 @@ void script_executable::un_mash(generic_mash_header *header, void *a3, generic_m
 {
     TRACE("script_executable::un_mash");
 
-    if constexpr (1)
-    {
-        if ( this->is_un_mashed() )
-        {
+    if constexpr (1) {
+        if (this->is_un_mashed()) {
             this->quick_un_mash();
-        }
-        else 
-        {
+        } else {
 #ifndef OPENUSM_XBPACK_V10
             assert(script_object_dummy_list == nullptr);
 #endif
 
-            rebase(a4->field_0, 4u);
+            a4->rebase(4u);
 
 #ifndef OPENUSM_XBPACK_V10
             static auto *start_debug = a4->field_0;
@@ -255,16 +249,14 @@ void script_executable::un_mash(generic_mash_header *header, void *a3, generic_m
 
             [this, &a4]() {
 #ifndef OPENUSM_XBPACK_V10
-                if constexpr (1)
-                {
+                if constexpr (1) {
                     filespec v98 {mString {this->field_0.to_string()}};
                     v98.m_dir = mString {"scripts\\"};
                     v98.m_ext = mString {".pc"} + "sxl";
 
                     os_file v85 {};
                     v85.open(v98.fullname(), os_file::FILE_READ);
-                    if ( v85.is_open() )
-                    {
+                    if (v85.is_open()) {
                         sp_log("found pcsxl file %s", v98.fullname().c_str());
                         this->sx_exe_image_size = v85.get_size();
                         this->sx_exe_image = new uint16_t[this->sx_exe_image_size / 2];
@@ -276,12 +268,14 @@ void script_executable::un_mash(generic_mash_header *header, void *a3, generic_m
                 }
 #endif
 
-                this->sx_exe_image = CAST(this->sx_exe_image, a4->field_0);
+                this->sx_exe_image = a4->get<uint16_t>(this->sx_exe_image_size / 2);
             }();
 
+#ifndef OPENUSM_XBPACK_V10
             a4->field_0 += this->sx_exe_image_size;
+#endif
 
-            rebase(a4->field_0, 4u);
+            a4->rebase(4u);
 
 #ifndef OPENUSM_XBPACK_V10
             sp_log("0x%08X", sx_exe_image_size);
@@ -294,12 +288,13 @@ void script_executable::un_mash(generic_mash_header *header, void *a3, generic_m
             sp_log("offset = 0x%08X", a4->field_0 - start_debug);
 #endif
 
-            for ( auto i = 0; i < this->total_script_objects; ++i )
-            {
-                rebase(a4->field_0, 8u);
+            for (auto i = 0; i < this->total_script_objects; ++i) {
+#if OPENUSM_XBOX_MASH_FORMAT
+                a4->rebase(8u);
+#else
+                a4->rebase(4u);
+#endif
 
-                rebase(a4->field_0, 4u);
-                
                 this->script_objects[i] = a4->get<script_object>();
 
                 assert(((int) header) % 4 == 0);
@@ -307,43 +302,39 @@ void script_executable::un_mash(generic_mash_header *header, void *a3, generic_m
                 so->un_mash(header, this, so, a4);
             }
 
-
             this->global_script_object = this->script_objects[0];
 
-            rebase(a4->field_0, 4u);
+            a4->rebase(4u);
 
             this->script_objects_by_name = a4->get<script_object *>(this->total_script_objects);
             for ( auto i = 0; i < this->total_script_objects; ++i ) {
                 this->script_objects_by_name[i] = this->script_objects[(int)this->script_objects_by_name[i]];
             }
 
-            rebase(a4->field_0, 4u);
+            a4->rebase(4u);
 
             this->permanent_string_table = a4->get<char *>(this->permanent_string_table_size);
 
-            for ( auto i = 0; i < this->permanent_string_table_size; ++i )
-            {
-                rebase(a4->field_0, 4u);
+            for (auto i = 0; i < this->permanent_string_table_size; ++i) {
+                a4->rebase(4u);
 
                 auto v21 = *a4->get<uint32_t>();
 
-                this->permanent_string_table[i] = (char *) a4->field_0;
-                a4->field_0 += v21;
+                this->permanent_string_table[i] = a4->get<char>(v21);
             }
 
             this->system_string_table = nullptr;
             this->system_string_table_size = 0;
 
-            rebase(a4->field_0, 4u);
+            a4->rebase(4u);
 
-            rebase(a4->field_0, 4u);
+            a4->rebase(4u);
 
             this->field_54 = a4->get<info_t>(this->field_58);
 
-            rebase(a4->field_0, 4u);
+            a4->rebase(4u);
 
-            for (int i = 0; i < this->field_58; ++i)
-            {
+            for (int i = 0; i < this->field_58; ++i) {
                 assert(((int)header) % 4 == 0);
 
                 if constexpr (1) {
@@ -356,9 +347,8 @@ void script_executable::un_mash(generic_mash_header *header, void *a3, generic_m
                     auto *owner = this->find_object(info->field_18);
                     assert(owner != nullptr);
 
-                    if ( info->field_10 == -1 )
-                    {
-                        rebase(a4->field_0, 4u);
+                    if (info->field_10 == -1) {
+                        a4->rebase(4u);
 
                         info->field_8 = a4->get<vm_executable>();
 
@@ -371,9 +361,7 @@ void script_executable::un_mash(generic_mash_header *header, void *a3, generic_m
             this->constructor_common();
             this->flags |= SCRIPT_EXECUTABLE_FLAG_UN_MASHED;
         }
-    }
-    else
-    {
+    } else {
         THISCALL(0x005B01F0, this, header, a3, a4);
     }
 }
@@ -382,13 +370,10 @@ vm_executable *script_executable::find_function_by_address(const uint16_t *a2) c
 {
     //TRACE("script_executable::find_function_by_address");
 
-    if constexpr (1)
-    {
-        for ( auto i = 0; i < this->total_script_objects; ++i )
-        {
+    if constexpr (1) {
+        for (auto i = 0; i < this->total_script_objects; ++i) {
             auto &so = this->script_objects[i];
-            if ( so != nullptr )
-            {
+            if (so != nullptr) {
                 auto a1 = so->find_function_by_address(a2);
                 if ( a1 != -1 ) {
                     return so->get_func(a1);
@@ -405,14 +390,10 @@ vm_executable *script_executable::find_function_by_address(const uint16_t *a2) c
 vm_executable *script_executable::find_function_by_name(string_hash a2) const
 {
 	TRACE("script_executable::find_function_by_name");
-	if constexpr (1)
-	{
-		for ( int v3 = 0; ++v3 < this->total_script_objects; ++v3 )
-		{
+    if constexpr (1) {
+        for (int v3 = 0; ++v3 < this->total_script_objects; ++v3) {
 			auto &so = this->script_objects[v3];
-			if ( auto idx = so->find_func(a2);
-					idx != -1 )
-			{
+            if (auto idx = so->find_func(a2); idx != -1) {
 				auto *func = so->get_func(idx);
 				auto *owner = func->get_owner();
 				if ( owner->is_global_object() ) {
@@ -427,7 +408,9 @@ vm_executable *script_executable::find_function_by_name(string_hash a2) const
 	}
 }
 
-void script_executable::register_allocated_stuff_callback(int a2, void (*a3)(script_executable *, _std::list<uint32_t> &, _std::list<mString> &))
+void script_executable::register_allocated_stuff_callback(int a2,
+                                                          void (*a3)(script_executable *, _std::list<uint32_t> &,
+                                                                     _std::list<mString> &))
 {
     TRACE("script_executable::register_allocated_stuff_callback");
 
@@ -458,8 +441,7 @@ void script_executable::add_object_by_name(script_object *a1, int a3)
     TRACE("script_executable::add_object_by_name");
 
     int i;
-    for ( i = 0; i < a3; ++i )
-    {
+    for (i = 0; i < a3; ++i) {
         auto v4 = this->script_objects_by_name[i]->name;
         if ( v4 > a1->name ) {
             break;
@@ -484,7 +466,6 @@ void script_executable::add_object_by_name(script_object *a1, int a3)
         });
         //assert(0);
     }
-
 }
 
 void script_executable::add_object(script_object *so, int &a3)
@@ -513,7 +494,6 @@ void script_executable::add_object(script_object *so, int &a3)
     } a2a = {a1, v6};
     //sub_6963C1((void *)v12->script_object_dummy_list, (int)v11, (int)a2a);
 #endif
-
 }
 
 static constexpr auto CHUCK_STR_MAX_LENGTH = 47u;
@@ -614,16 +594,14 @@ void script_executable::load(const resource_key &resource_id)
             v85.read(this->sx_exe_image, file_size);
         }
 
-        if ( this->sx_exe_image == nullptr )
-        {
+        if (this->sx_exe_image == nullptr) {
             auto a1g = v87 + ": executable code file is missing; this is now required with the sx file";
             script_manager::run_callbacks((script_manager_callback_reason)4, this, a1g.c_str());
         }
     }
 
     cf = io.read<chunk_flavor>();
-    if ( cf != CHUNK_SCRIPT_OBJECTS )
-    {
+    if (cf != CHUNK_SCRIPT_OBJECTS) {
         auto a2d = v98.fullname() + ": bad format; script objects were expected";
         script_manager::run_callbacks((script_manager_callback_reason)4, this, a2d.c_str());
     }
@@ -647,11 +625,9 @@ void script_executable::load(const resource_key &resource_id)
 
     [[maybe_unused]] int v84 = 1;
     int v83 = 0;
-    while ( v83 < this->total_script_objects )
-    {
+    while (v83 < this->total_script_objects) {
         cf = io.read<chunk_flavor>();
-        if ( cf == CHUNK_SCRIPT_OBJECT )
-        {
+        if (cf == CHUNK_SCRIPT_OBJECT) {
             auto *so = new script_object{};
             assert(so != nullptr && "Couldn't create a script object");
 
@@ -668,9 +644,7 @@ void script_executable::load(const resource_key &resource_id)
             this->add_object(so, v84);
 
             ++v83;
-        }
-        else
-        {
+        } else {
             auto a2e = v98.fullname() + ": bad format; script object was expected";
             auto *v20 = a2e.c_str();
             script_manager::run_callbacks((script_manager_callback_reason)4, this, v20);
@@ -687,8 +661,7 @@ vm_thread *script_executable::sub_5AB510(Float a2)
 {
 	assert(this->global_script_object != nullptr);
 
-	if constexpr (1)
-    {
+    if constexpr (1) {
 		auto *inst = this->global_script_object->get_global_instance();
 		assert(inst != nullptr && "where did the global instance go?");
 
@@ -706,11 +679,9 @@ void script_executable::un_load(bool a2)
 {
     TRACE("script_executable::un_load");
 
-    if constexpr (1)
-	{
+    if constexpr (1) {
         script_manager::run_callbacks((script_manager_callback_reason)1, this, nullptr);
-        for ( auto i = 0; i < 20; ++i )
-		{
+        for (auto i = 0; i < 20; ++i) {
             if ( script_object::function_cache()[i].field_0 != nullptr ) {
                 if ( script_object::function_cache()[i].field_0->get_parent() == this ) {
                     script_object::function_cache()[i].field_0 = nullptr;
@@ -721,8 +692,7 @@ void script_executable::un_load(bool a2)
             }
         }
 
-        if ( a2 )
-		{
+        if (a2) {
             for ( auto j = 0; j < this->total_script_objects; ++j ) {
                 auto &so = this->script_objects[j];
                 so->create_destructor_instances();
@@ -736,8 +706,7 @@ void script_executable::un_load(bool a2)
                 for ( auto k = this->total_script_objects - 1; k >= 0; --k ) {
                     auto &v9 = this->script_objects[k];
 
-                    if ( v9->get_size_instances() > 0 )
-                    {
+                    if (v9->get_size_instances() > 0) {
                         v9->run(true);
                         if ( v9->has_threads() ) {
                             v12 = false;
@@ -792,7 +761,8 @@ void script_executable::release_mem()
     }
 }
 
-script_library_class * script_executable::find_library_class(const mString &a2) const {
+script_library_class *script_executable::find_library_class(const mString &a2) const
+{
     TRACE("script_executable::find_library_class", a2.c_str());
 
     assert(this->script_object_dummy_list != nullptr);
@@ -805,18 +775,17 @@ script_library_class * script_executable::find_library_class(const mString &a2) 
     return nullptr;
 }
 
-const char *script_executable::get_permanent_string(unsigned int index) const
+const char *script_executable::lookup_permanent_string(unsigned int index) const
 {
-    assert(permanent_string_table != nullptr && "We should still have the string table around any time we're doing a lookup");
+    assert(permanent_string_table != nullptr &&
+           "We should still have the string table around any time we're doing a lookup");
 
     assert((int)index < permanent_string_table_size && "Index out of bounds... bad juju man");
 
     return this->permanent_string_table[index];
 }
 
-script_object *script_executable::find_object(
-        const string_hash &a2,
-        int *a3) const
+script_object *script_executable::find_object(const string_hash &a2, int *a3) const
 {
     TRACE("script_executable::find_object", a2.to_string());
 
@@ -825,31 +794,26 @@ script_object *script_executable::find_object(
         int v7 = this->total_script_objects - 1;
         int v6 = this->total_script_objects / 2;
         script_object *v5 = nullptr;
-        while ( 1 )
-        {
+        while (1) {
             v5 = this->script_objects_by_name[v6];
             if ( v5->name == a2 ) {
                 break;
             }
 
             auto v4 = v6;
-            if ( v5->name == a2 )
-            {
+            if (v5->name == a2) {
                 v8 = v6 + 1;
                 if ( v8 >= this->total_script_objects ) {
                     return nullptr;
                 }
-            }
-            else
-            {
+            } else {
                 v7 = v6 - 1;
                 if ( v7 < 0 ) {
                     return nullptr;
                 }
             }
 
-            if ( v8 <= v7 )
-            {
+            if (v8 <= v7) {
                 v6 = (v8 + v7) / 2;
                 if ( v4 != v6 ) {
                     continue;
@@ -877,27 +841,26 @@ uint32_t script_executable::get_system_string_index(const std::set<string_hash> 
 
     auto begin = set.begin();
     auto end = set.end();
-    auto it_find = std::find_if(begin, end, [&p](auto &name) {
-        return name == p;
-    });
+    auto it_find = std::find_if(begin, end, [&p](auto &name) { return name == p; });
 
     assert(it_find != end);
 
     return std::distance(begin, it_find);
 }
 
-const char *script_executable::get_system_string(unsigned int index) const {
-
-    assert(system_string_table != nullptr && "We should still have the string table around any time we're doing a lookup");
+const char *script_executable::get_system_string(unsigned int index) const
+{
+    assert(system_string_table != nullptr &&
+           "We should still have the string table around any time we're doing a lookup");
 
     assert((int)index < system_string_table_size && "Index out of bounds... bad juju man");
 
     return this->system_string_table[index];
 }
 
-uint16_t * script_executable::get_exec_code(unsigned int offset) {
-
-    TRACE("script_executable::get_exec_code", std::to_string(offset).c_str());
+uint16_t *script_executable::lookup_sx_code_segment(unsigned int offset) const
+{
+    TRACE("script_executable::lookup_sx_code_segment", std::to_string(offset).c_str());
 
     assert(sx_exe_image != nullptr && "We should have loaded the executable code from the sxl or sxb file");
 
@@ -912,10 +875,10 @@ void script_executable::link()
 
     assert(( ( flags & SCRIPT_EXECUTABLE_FLAG_LINKED ) == 0 ) && "trying to link the same exec more than once!!!");
 
-    script_manager::run_callbacks((script_manager_callback_reason)6, this, nullptr);
+    script_manager::run_callbacks(static_cast<script_manager_callback_reason>(6), this, nullptr);
     for ( auto i = 0; i < this->total_script_objects; ++i ) {
         auto &so = this->script_objects[i];
-        so->link(this);
+        so->link(*this);
     }
 
     if ( this->is_from_mash() ) {
@@ -936,7 +899,8 @@ void script_executable::link()
     script_manager::run_callbacks((script_manager_callback_reason)7, this, nullptr);
 }
 
-void script_executable::dump_threads_to_file(FILE *a2) {
+void script_executable::dump_threads_to_file(FILE *a2)
+{
     TRACE("script_executable::dump_threads_to_file");
 
     for ( auto i = 0; i < this->total_script_objects; ++i ) {
@@ -948,10 +912,8 @@ void script_executable::run(Float a2, bool a3)
 {
     TRACE("script_executable::run");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         for ( auto i = 0; i < this->total_script_objects; ++i ) {
-
             auto &so = this->script_objects[i];
             if (so == nullptr) {
                 sp_log("%d", i);
@@ -962,9 +924,7 @@ void script_executable::run(Float a2, bool a3)
                 so->run(a3);
             }
         }
-    }
-    else
-    {
+    } else {
         THISCALL(0x005AF990, this, a2, a3);
     }
 }
@@ -973,15 +933,13 @@ void script_executable::first_run(Float a2, bool a3)
 {
     TRACE("script_executable::first_run");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         if ( !this->is_from_mash() ) {
             return;
         }
 
         this->global_script_object->get_static_data().set_to_zero();
-        for (auto i = 0; i < this->field_58; ++i)
-        {
+        for (auto i = 0; i < this->field_58; ++i) {
             auto &info = this->field_54[i];
             assert(info.so_name == string_hash::INVALID_STRING_HASH);
 
@@ -1005,21 +963,16 @@ void script_executable::first_run(Float a2, bool a3)
                 buffer = info.field_14;
                 break;
             default:
-                buffer = (int)this->get_permanent_string(v14);
+                buffer = (int)this->lookup_permanent_string(v14);
                 break;
             }
         }
-    }
-    else
-    {
+    } else {
         THISCALL(0x005AB440, this, a2, a3);
     }
 }
 
-void script_executable::add_allocated_stuff(
-        int a2,
-        uint32_t a3,
-        const mString &a1)
+void script_executable::add_allocated_stuff(int a2, uint32_t a3, const mString &a1)
 {
     TRACE("script_executable::add_allocated_stuff");
 
@@ -1045,10 +998,8 @@ void script_executable::remove_allocated_stuff(int a2, uint32_t a3)
     assert(it->second.stuff.size() == it->second.debug_stuff_descriptions.size());
 
     auto dsc_it = it->second.debug_stuff_descriptions.begin();
-    for ( auto stuff_it = it->second.stuff.begin(), stuff_end = it->second.stuff.end();
-            stuff_it != stuff_end;
-            ++dsc_it, ++stuff_it
-            ) {
+    for (auto stuff_it = it->second.stuff.begin(), stuff_end = it->second.stuff.end(); stuff_it != stuff_end;
+         ++dsc_it, ++stuff_it) {
         if ( (*stuff_it) == a3 ) {
             it->second.stuff.erase(stuff_it);
             it->second.debug_stuff_descriptions.erase(dsc_it);

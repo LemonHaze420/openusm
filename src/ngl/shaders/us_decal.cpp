@@ -14,7 +14,7 @@ void US_Decal3DShader::_BindMaterial(nglMaterialBase *a1)
         tlFixedString *field_60;
         nglTexture *field_64;
     } *v1 = CAST(v1, a1);
-    
+
 #ifdef TARGET_XBOX
     v1->field_64 = nglLoadTexture(*bit_cast<tlHashString *>(&v1->field_60));
 #else
@@ -30,8 +30,7 @@ void US_Decal3DShader::_RebaseMaterial(nglMaterialBase *a1, unsigned int a2)
 
 #ifndef TARGET_XBOX
     auto v2 = v1->field_60;
-    if ( v2 != nullptr )
-    {
+    if (v2 != nullptr) {
         v1->field_60 = CAST(v1->field_60, int(v2) + a2);
     }
 #endif

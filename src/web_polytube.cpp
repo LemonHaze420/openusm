@@ -8,8 +8,7 @@
 
 VALIDATE_SIZE(web_polytube, 0x17C);
 
-web_polytube::web_polytube(swinger_t *a1, const string_hash &a2, uint32_t a3)
-                : polytube(a2, a3)
+web_polytube::web_polytube(swinger_t *a1, const string_hash &a2, uint32_t a3) : polytube(a2, a3)
 {
     this->m_vtbl = 0x0087E738;
     this->field_178 = a1;
@@ -19,8 +18,7 @@ void web_polytube::render(Float a2)
 {
     TRACE("web_polytube::render:");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         if (this->field_178 != nullptr) {
             this->rebuild_web();
         }
@@ -31,16 +29,14 @@ void web_polytube::render(Float a2)
 
 void web_polytube::rebuild_web()
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         auto *swinger = this->field_178;
 
         sp_log("rebuild_web: visual_point = %s, ", swinger->m_visual_point.to_string().c_str());
 
         const vector3d &a2 = swinger->m_visual_point;
         auto &v38 = swinger->field_0;
-        const vector3d v37 = swinger->field_3C->get_abs_position()
-                                + swinger->field_40;
+        const vector3d v37 = swinger->field_3C->get_abs_position() + swinger->field_40;
 
         auto v2 = this->get_num_control_pts() - 1;
         this->set_abs_control_pt(v2, a2);
@@ -63,9 +59,7 @@ void web_polytube::rebuild_web()
         this->set_abs_control_pt(2, v12);
         this->rebuild_helper();
 
-    }
-    else
-    {
+    } else {
         THISCALL(0x004775A0, this);
     }
 }

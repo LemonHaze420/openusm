@@ -11,11 +11,14 @@ struct worldly_pack_slot;
 struct box_trigger_resource_handler : base_entity_resource_handler {
     box_trigger_resource_handler(worldly_pack_slot *a2);
 
+    //virtual
+    void finalize(bool);
+
     //0x005630F0
-    /* virtual */ int get_num_resources() /* override */;
+    /* virtual */ int _get_num_resources() /* override */;
 
     //virtual
-    bool _handle(worldly_resource_handler::eBehavior behavior, int a4, limited_timer *a5);
+    bool _handle(worldly_resource_handler::eBehavior behavior, limited_timer *a5);
 
     //0x0056BEC0
     /* virtual */ bool _handle_resource(worldly_resource_handler::eBehavior behavior) /* override */;

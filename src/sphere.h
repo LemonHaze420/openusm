@@ -7,4 +7,6 @@ struct sphere {
     float radius;
 
     sphere() = default;
+
+    sphere(const vector3d &a2, float a3);
 };

@@ -30,8 +30,15 @@ struct PanelQuad : PanelAnimObject {
     //0x00637F00
     PanelQuad(from_mash_in_place_constructor *a2);
 
+    //0x00638060
+    PanelQuad(const char *a2);
+
     //0x0043F7F0
     ~PanelQuad();
+
+    void *operator new(size_t size);
+
+    void operator delete(void *, size_t size);
 
     //0x00616990
     vector2d GetMax();
@@ -40,6 +47,8 @@ struct PanelQuad : PanelAnimObject {
     vector2d GetMin();
 
     void sub_616710(Float a2, Float a3);
+
+    void sub_616690(float *a2, float *a3);
 
     //0x00616290
     void SetTexture(nglTexture *a2);
@@ -52,17 +61,29 @@ struct PanelQuad : PanelAnimObject {
 
     /* virtual */ int _get_mash_sizeof();
 
+    //0x00616620
+    void _SetZvalueAbs(Float a2);
+
+    //virtual
+    void SetZvalueAbs(Float a2);
+
     /* virtual */ void Draw();
 
     /* virtual */ void TurnOn(bool a2);
+
+    //virtual
+    void Scale(Float a1, bool a2);
 
     //virtual
     void Rotate(Float a2, Float a3, Float a4, bool a5);
 
     /* virtual */ void SetColor(color32 a2);
 
+    //virtual
+    void SetAlpha(Float a2);
+
     //0x006284D0
-    //virtual 
+    //virtual
     void SetPos(float *a2, float *a3);
 
     /* virtual */ void SetPos(Float a2, Float a3, Float a4, Float a5);
@@ -83,6 +104,18 @@ struct PanelQuad : PanelAnimObject {
     //0x0062E130
     //virtual
     void CopyFrom(const PanelQuad *a2);
+
+    //0x0043F750
+    void _GetCenterPos(float &a2, float &a3) const;
+
+    //virtual
+    void GetCenterPos(float &a2, float &a3) const;
+
+    //0x0043F7D0
+    color32 _GetColor() const;
+
+    //virtual
+    color32 GetColor() const;
 };
 
 extern void PanelQuad_patch();

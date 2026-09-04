@@ -2,9 +2,6 @@
 
 namespace ai {
 
-hit_react_state::hit_react_state()
-{
+hit_react_state::hit_react_state() {}
 
-}
-
-} // namespace ai
+}  // namespace ai

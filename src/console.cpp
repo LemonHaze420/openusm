@@ -1,7 +1,6 @@
 #include "console.h"
 
 #include "color32.h"
-#include "common.h"
 #include "consolecmds.h"
 #include "consolevars.h"
 #include "debug_menu.h"
@@ -26,10 +25,7 @@ std::stack<tokenizer *> s_exec_tok_stack{};
 
 float s_exec_tick{0};
 
-VALIDATE_SIZE(Console, 0x254);
-VALIDATE_OFFSET(Console, current, 0x105);
-
-Console *g_console = nullptr;
+Console *g_console{nullptr};
 
 static void (*kbevcb)(KeyEvent, Key_Axes, void *) = nullptr;
 
@@ -39,37 +35,43 @@ static void (*kbchcb)(char, void *) = nullptr;
 
 static void *kbchudata = nullptr;
 
-char KB_register_char_callback(void (*a1)(char, void *), void *a2) {
+char KB_register_char_callback(void (*a1)(char, void *), void *a2)
+{
     kbchcb = a1;
     kbchudata = a2;
     return 1;
 }
 
-char KB_register_event_callback(void (*a1)(KeyEvent, Key_Axes, void *), void *a2) {
+char KB_register_event_callback(void (*a1)(KeyEvent, Key_Axes, void *), void *a2)
+{
     kbevcb = a1;
     kbevudata = a2;
     return 1;
 }
 
-void _kbevcb(KeyEvent a1, Key_Axes a2) {
+void _kbevcb(KeyEvent a1, Key_Axes a2)
+{
     if (kbevcb != nullptr) {
         kbevcb(a1, a2, kbevudata);
     }
 }
 
-void _kbchcb(char a1) {
+void _kbchcb(char a1)
+{
     if (kbchcb != nullptr) {
         kbchcb(a1, kbchudata);
     }
 }
 
-void console_event_callback(KeyEvent a1, Key_Axes a2, void *a3) {
+void console_event_callback(KeyEvent a1, Key_Axes a2, void *a3)
+{
     if (g_console != nullptr) {
         g_console->handle_event(a1, a2, a3);
     }
 }
 
-void console_char_callback(char a1, void *a2) {
+void console_char_callback(char a1, void *a2)
+{
     if (g_console != nullptr) {
         g_console->handle_char(a1, a2);
     }
@@ -93,8 +95,7 @@ Console::Console()
     this->cmdLogNumber = 0;
     this->field_24E = true;
 
-    auto *mem = mem_alloc(sizeof(PanelQuad));
-    this->field_248 = new (mem) PanelQuad{};
+    this->field_248 = new PanelQuad{};
 
     vector2d v8[4];
     v8[0] = {0.0, 0.0};
@@ -115,7 +116,7 @@ Console::Console()
     this->field_24C = false;
     this->field_24D = false;
 
-    this->field_23C = mString{"console_log.txt"};
+    this->field_23C = {"console_log.txt"};
 
     this->setHeight(200.0);
     this->hide();
@@ -125,7 +126,7 @@ Console::Console()
 
 Console::~Console()
 {
-    sp_log("Console::~Console()");
+    TRACE("Console::~Console()");
 
     if (field_248 != nullptr) {
         void (__fastcall *finalize)(void *, void *, bool) = CAST(finalize, get_vfunc(field_248->m_vtbl, 0x8));
@@ -144,18 +145,19 @@ void Console::operator delete(void *ptr, size_t size)
     mem_dealloc(ptr, size);
 }
 
-void Console::addToCommandLog(const char *a1) {
+void Console::addToCommandLog(const char *a1)
+{
     this->m_command_log.push_front(mString{a1});
 
-    while (this->m_command_log.size() > this->field_234) {
-
+    while (static_cast<int>(this->m_command_log.size()) > this->field_234) {
         this->m_command_log.pop_back();
     }
 
     this->cmdLogNumber = 0;
 }
 
-bool Console::StrnCopy(const char *src, char *dest, int *a3) {
+bool Console::StrnCopy(const char *src, char *dest, int *a3)
+{
     if (src == nullptr) {
         return false;
     }
@@ -191,9 +193,7 @@ ConsoleCommand *Console::getCommand(const std::string &a1)
 
     auto &cmds = (*g_console_cmds);
 
-    auto it = std::find_if(cmds.begin(), cmds.end(), [&a1](auto &cmd) -> bool {
-        return cmd->match(a1);
-    });
+    auto it = std::find_if(cmds.begin(), cmds.end(), [&a1](auto &cmd) -> bool { return cmd->match(a1); });
 
     return (it != cmds.end() ? (*it) : nullptr);
 }
@@ -205,14 +205,13 @@ ConsoleVariable *Console::getVariable(const std::string &a1)
     }
 
     auto &vars = (*g_console_vars);
-    auto it = std::find_if(vars.begin(), vars.end(), [&a1](auto &var) -> bool {
-        return var->match(a1);
-    });
+    auto it = std::find_if(vars.begin(), vars.end(), [&a1](auto &var) -> bool { return var->match(a1); });
 
     return (it != vars.end() ? (*it) : nullptr);
 }
 
-void Console::addToLog(const char *arg4, ...) {
+void Console::addToLog(const char *arg4, ...)
+{
     va_list va;
 
     va_start(va, arg4);
@@ -255,7 +254,8 @@ void Console::addToLog(const char *arg4, ...) {
     va_end(va);
 }
 
-void Console::processCommand(const char *a2, bool is_log) {
+void Console::processCommand(const char *a2, bool is_log)
+{
     if (a2 != nullptr && strlen(a2)) {
         if (is_log) {
             this->addToCommandLog(a2);
@@ -271,8 +271,7 @@ void Console::processCommand(const char *a2, bool is_log) {
         v11.to_lower();
 
         auto *v10 = this->getCommand(v11.c_str());
-        if (v10 != nullptr)
-        {
+        if (v10 != nullptr) {
             while (this->StrnCopy(a2, a1, &a3a)) {
                 std::string v5{a1};
 
@@ -283,8 +282,7 @@ void Console::processCommand(const char *a2, bool is_log) {
                 this->addToLog(a2);
             }
 
-            if (!v10->process_cmd(v17))
-            {
+            if (!v10->process_cmd(v17)) {
                 if (is_log) {
                     this->addToLog("??? %s", a2);
                 }
@@ -320,11 +318,13 @@ void Console::processCommand(const char *a2, bool is_log) {
     }
 }
 
-bool Console::isVisible() const {
+bool Console::isVisible() const
+{
     return this->m_visible;
 }
 
-void Console::setHeight(Float a2) {
+void Console::setHeight(Float a2)
+{
     this->m_height = a2;
 
     this->field_248->SetPos(Float{0.0}, Float{0.0}, Float{640.0}, a2);
@@ -333,12 +333,9 @@ void Console::setHeight(Float a2) {
 void Console::handle_char(char a2, void *)
 {
     if (this->m_visible && a2 >= ' ' && a2 != 127 && a2 != '`' && a2 != '~') {
-
-        if (a2 == '[')
-        {
+        if (a2 == '[') {
             auto v3 = strlen(this->current);
-            if (v3 > 0)
-            {
+            if (v3 > 0) {
                 this->current[v3 - 1] = '\0';
             }
 
@@ -353,7 +350,8 @@ void Console::handle_char(char a2, void *)
     }
 }
 
-void Console::hide() {
+void Console::hide()
+{
     sp_log("Console::hide");
     this->field_248->TurnOn(false);
 
@@ -372,16 +370,17 @@ void Console::hide() {
     g_game_ptr->unpause();
 }
 
-float Console::getHeight() {
+float Console::getHeight()
+{
     return this->m_height;
 }
 
-void Console::exec_frame_advance(Float a2) {
+void Console::exec_frame_advance(Float a2)
+{
     if (!s_exec_tok_stack.empty()) {
         s_exec_tick += a2;
 
-        if (s_exec_tick >= os_developer_options::instance->get_int(mString{"EXEC_DELAY"}))
-        {
+        if (s_exec_tick >= os_developer_options::instance->get_int(mString{"EXEC_DELAY"})) {
             s_exec_tick = 0.0;
             auto &v4 = s_exec_tok_stack.top();
             auto *v3 = v4->get_token();
@@ -399,7 +398,8 @@ void Console::exec_frame_advance(Float a2) {
     }
 }
 
-void Console::exec(const mString &a2) {
+void Console::exec(const mString &a2)
+{
     os_file v10{};
 
     v10.open(a2, 1);
@@ -427,7 +427,8 @@ void Console::exec(const mString &a2) {
     }
 }
 
-void Console::frame_advance(Float a2) {
+void Console::frame_advance(Float a2)
+{
     this->field_224 += a2;
     if (this->field_24E && this->field_224 >= 0.5) {
         this->field_220 = !this->field_220;
@@ -437,18 +438,15 @@ void Console::frame_advance(Float a2) {
     this->exec_frame_advance(a2);
 }
 
-void Console::getMatchingCmds(const char *a2, std::list<mString> &cmds) {
+void Console::getMatchingCmds(const char *a2, std::list<mString> &cmds)
+{
     cmds.clear();
     const auto a3a = strlen(a2);
 
-    if (g_console_cmds != nullptr)
-    {
-        for (auto &cmd : (*g_console_cmds))
-        {
-            if (cmd != nullptr)
-            {
-                if (strncmp(cmd->field_4, a2, a3a) == 0)
-                {
+    if (g_console_cmds != nullptr) {
+        for (auto &cmd : (*g_console_cmds)) {
+            if (cmd != nullptr) {
+                if (strncmp(cmd->field_4, a2, a3a) == 0) {
                     mString v12{cmd->field_4};
 
                     cmds.push_back(v12);
@@ -457,15 +455,12 @@ void Console::getMatchingCmds(const char *a2, std::list<mString> &cmds) {
         }
     }
 
-    if (g_console_vars != nullptr)
-    {
+    if (g_console_vars != nullptr) {
         auto func = [&a2, &a3a](auto &var) -> bool {
-            return (var != nullptr
-                    && strncmp(var->field_4, a2, a3a) == 0);
+            return (var != nullptr && strncmp(var->field_4, a2, a3a) == 0);
         };
 
-        for (auto &var : (*g_console_vars))
-        {
+        for (auto &var : (*g_console_vars)) {
             if ( func(var) ) {
                 cmds.push_back(mString {var->field_4});
             }
@@ -473,10 +468,10 @@ void Console::getMatchingCmds(const char *a2, std::list<mString> &cmds) {
     }
 }
 
-void Console::partialCompleteCmd(char *a1, std::list<mString> &list) {
+void Console::partialCompleteCmd(char *a1, std::list<mString> &list)
+{
     int a3 = -1;
     for (auto it = list.begin(); it != list.end(); ) {
-
         mString &v20 = (*it);
 
         ++it;
@@ -510,7 +505,8 @@ void Console::partialCompleteCmd(char *a1, std::list<mString> &list) {
     }
 }
 
-void Console::handle_event(KeyEvent a2, Key_Axes a3, [[maybe_unused]] void *a4) {
+void Console::handle_event(KeyEvent a2, Key_Axes a3, [[maybe_unused]] void *a4)
+{
     if (a2 == 1) {
         switch (a3) {
         case KB_RETURN:
@@ -632,11 +628,11 @@ void Console::handle_event(KeyEvent a2, Key_Axes a3, [[maybe_unused]] void *a4) 
         case KB_UP:
             if (this->m_visible && this->m_command_log.size()) {
                 ++this->cmdLogNumber;
-                while (this->cmdLogNumber > 0 && this->cmdLogNumber > this->m_command_log.size()) {
+                while (this->cmdLogNumber > 0 && this->cmdLogNumber > static_cast<int>(this->m_command_log.size())) {
                     --this->cmdLogNumber;
                 }
 
-                if (this->cmdLogNumber > 0 && this->cmdLogNumber <= this->m_command_log.size()) {
+                if (this->cmdLogNumber > 0 && this->cmdLogNumber <= static_cast<int>(this->m_command_log.size())) {
                     auto it = this->m_command_log.begin();
                     auto end = this->m_command_log.end();
                     for (auto j = this->cmdLogNumber - 1; j > 0; --j) {
@@ -681,7 +677,8 @@ void Console::show()
     g_game_ptr->pause();
 }
 
-void Console::setRenderCursor(bool a2) {
+void Console::setRenderCursor(bool a2)
+{
     this->field_24E = a2;
 }
 
@@ -691,8 +688,7 @@ void Console::render()
     TRACE("Console::render");
 
     const color32 font_color{255, 255, 255, 255};
-    if (this->m_visible)
-    {
+    if (this->m_visible) {
         this->field_248->Draw();
 
         auto *font = g_femanager.GetFont(static_cast<font_index>(0));
@@ -717,8 +713,7 @@ void Console::render()
         vector2di v2{10, (int) v23};
         render_console_text(v22, v2, font_color);
         v23 = v23 - v24;
-        if (this->lineNumber > 0)
-        {
+        if (this->lineNumber > 0) {
             mString v17{"^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"};
 
             auto v3 = vector2di{10, (int) v23};
@@ -782,8 +777,6 @@ void terrain_types_manager_create_inst()
 void terrain_types_manager_delete_inst()
 {
     CDECL_CALL(0x005BA680);
-
-    delete g_console;
 }
 
 void __fastcall FEManager_Update(void *self, void *edx, Float a2)
@@ -816,4 +809,3 @@ void console_patch()
         REDIRECT(0x0055A102, FEManager_Update);
     }
 }
-

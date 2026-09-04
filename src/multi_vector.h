@@ -3,7 +3,7 @@
 #include "list.hpp"
 #include "vector.hpp"
 
-template<typename T>
+template <typename T>
 struct multi_vector {
     _std::list<_std::vector<T>> field_0;
 
@@ -14,15 +14,16 @@ struct multi_vector {
 
         iterator() = default;
 
-        iterator(multi_vector *a2,
-                 typename _std::list<_std::vector<T>>::iterator &a3,
-                 typename _std::vector<T>::iterator &a4) {
+        iterator(multi_vector *a2, typename _std::list<_std::vector<T>>::iterator &a3,
+                 typename _std::vector<T>::iterator &a4)
+        {
             this->field_0 = a2;
             this->field_4 = a3;
             this->field_8 = a4;
         }
 
-        bool operator==(const multi_vector<T>::iterator &a2) const {
+        bool operator==(const multi_vector<T>::iterator &a2) const
+        {
             if (this->field_0->empty() && a2.field_0->empty()) {
                 return true;
             }
@@ -35,11 +36,13 @@ struct multi_vector {
             return !(*this == it);
         }
 
-        auto & operator*() {
+        auto &operator*()
+        {
             return (*this->field_8);
         }
 
-        iterator &operator++() {
+        iterator &operator++()
+        {
             auto v1 = this->field_0->field_0.end();
             if (this->field_4 != v1) {
                 auto &v2 = (*this->field_4);
@@ -78,7 +81,8 @@ struct multi_vector {
 
     multi_vector() = default;
 
-    iterator begin() {
+    iterator begin()
+    {
         auto v12 = this->field_0.end();
         auto list_iterator = this->field_0.begin();
 
@@ -107,7 +111,8 @@ struct multi_vector {
         return it;
     }
 
-    iterator end() {
+    iterator end()
+    {
         auto list_iter = this->field_0.end();
 
         typename _std::vector<T>::iterator vector_iter{};
@@ -122,7 +127,8 @@ struct multi_vector {
         return it;
     }
 
-    bool empty() {
+    bool empty()
+    {
         return field_0.empty();
     }
 
@@ -131,7 +137,8 @@ struct multi_vector {
     _std::vector<T> *sub_50A230();
 
     //0x0056C050
-    int get_vector_index(_std::vector<T> *a2) {
+    int get_vector_index(_std::vector<T> *a2)
+    {
         auto *v2 = this->field_0.m_head;
         auto *v3 = v2->_Next;
         int result = 0;
@@ -150,7 +157,8 @@ struct multi_vector {
         return result;
     }
 
-    bool sub_572FB0(_std::vector<T> *a2) {
+    bool sub_572FB0(_std::vector<T> *a2)
+    {
         auto *v2 = this->field_0.m_head;
         auto *v3 = v2->_Next;
         if (v2->_Next == v2) {

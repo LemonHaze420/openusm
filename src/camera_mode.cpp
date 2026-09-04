@@ -59,13 +59,10 @@ void camera_mode_chase::pull_by_target(camera_frame &frame, const camera_target_
         v12 = target.facing;
     }
 
-    if ( dword_959E5C()-- != 0 )
-    {
+    if (dword_959E5C()-- != 0) {
         frame.fwd = v12;
-    }
-    else
-    {
-        frame.fwd = lerp(v12, frame.fwd, slow_mix());
+    } else {
+        frame.fwd = lerp(v12, frame.fwd, slow_mix);
         frame.fwd.normalize();
     }
 }
@@ -93,12 +90,9 @@ void camera_mode::deactivate()
 
 void camera_mode::request_recenter(Float a2, const camera_target_info &a3)
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         this->m_vtbl->request_recenter(this, nullptr, a2, &a3);
-    }
-    else
-    {
+    } else {
         auto *v3 = this->field_8;
         if (v3 != nullptr) {
             v3->request_recenter(a2, a3);
@@ -108,8 +102,7 @@ void camera_mode::request_recenter(Float a2, const camera_target_info &a3)
 
 void camera_mode::frame_advance(Float a2, camera_frame &frame, const camera_target_info &a4)
 {
-    if constexpr (0)
-    {
+    if constexpr (0) {
         assert(frame.is_valid());
 
         auto *v4 = this->field_8;
@@ -118,18 +111,13 @@ void camera_mode::frame_advance(Float a2, camera_frame &frame, const camera_targ
         }
 
         assert(frame.is_valid());
-    }
-    else
-    {
+    } else {
         this->m_vtbl->frame_advance(this, nullptr, a2, &frame, &a4);
     }
 }
 
-void camera_mode::set_fixedstatic(
-        const vector3d &a2,
-        const vector3d &a3)
+void camera_mode::set_fixedstatic(const vector3d &a2, const vector3d &a3)
 {
-
     this->m_vtbl->set_fixedstatic(this, nullptr, &a2, &a3);
 }
 
@@ -138,10 +126,7 @@ void camera_mode::clear_fixedstatic()
     this->m_vtbl->clear_fixedstatic(this);
 }
 
-void camera_mode_shake::_frame_advance(
-        Float a2,
-        camera_frame &a3,
-        const camera_target_info &a4)
+void camera_mode_shake::_frame_advance(Float a2, camera_frame &a3, const camera_target_info &a4)
 {
     TRACE("camera_mode_shake::frame_advance");
 
@@ -157,9 +142,7 @@ void camera_mode_shake::_frame_advance(
 #endif
 }
 
-camera_mode_lookaround::camera_mode_lookaround(
-                    spiderman_camera *a2,
-                    camera_mode *a3) : camera_mode(a2, a3)
+camera_mode_lookaround::camera_mode_lookaround(spiderman_camera *a2, camera_mode *a3) : camera_mode(a2, a3)
 {
     this->m_vtbl = CAST(m_vtbl, 0x008820AC);
 
@@ -177,10 +160,7 @@ camera_mode_lookaround::camera_mode_lookaround(
     this->field_40.field_8 = 0.34999999;
 }
 
-vector3d sub_4B22E0(
-        const vector3d &a2,
-        const vector3d &a3,
-        float a4)
+vector3d sub_4B22E0(const vector3d &a2, const vector3d &a3, float a4)
 {
     auto v4 = std::cos(a4);
     auto v5 = (a2[0] * a3[0] + a2[1] * a3[1] + a3[2] * a2[2]) * (1.0f  - v4);
@@ -207,60 +187,44 @@ vector3d sub_4B22E0(
     return result;
 }
 
-void camera_mode_lookaround::_frame_advance(
-        Float a2,
-        camera_frame &a3,
-        const camera_target_info &a4)
+void camera_mode_lookaround::_frame_advance(Float a2, camera_frame &a3, const camera_target_info &a4)
 {
     TRACE("camera_mode_lookaround::frame_advance");
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         auto *v4 = &a4;
         auto *v6 = this->slave;
         auto *v7 = &a3;
-        if ( v6->field_1BC || !this->field_C )
-        {
+        if (v6->field_1BC || !this->field_C) {
             v6->field_1CC = false;
-        }
-        else
-        {
+        } else {
             eHeroLocoMode v9;
             auto *the_controller = a4.field_54->m_player_controller;
-            if ( the_controller != nullptr )
-            {
+            if (the_controller != nullptr) {
                 auto loco_mode = static_cast<eHeroLocoMode>(the_controller->get_spidey_loco_mode());
                 v9 = static_cast<eHeroLocoMode>(1);
                 if ( loco_mode >= 0 ) {
                     v9 = loco_mode;
                 }
-            }
-            else
-            {
+            } else {
                 v9 = static_cast<eHeroLocoMode>(1);
             }
 
             this->field_10.update(a2);
             this->field_40.update(a2);
 
-            if ( this->field_40.field_2D && this->field_10.field_2D )
-            {
-                if ( this->slave->field_1CC )
-                {
-                    this->field_70 = vector2d {0.0, };
+            if (this->field_40.field_2D && this->field_10.field_2D) {
+                if (this->slave->field_1CC) {
+                    this->field_70 = vector2d{0.0, 0.0};
                     if ( (v9 == 3 || v9 == 5 || v9 == 6 || !v4->sub_4B2980()) && !v4->sub_4B29C0() ) {
                         this->slave->field_1CC = false;
                     }
                 }
-            }
-            else
-            {
+            } else {
                 vector2d v82 {this->field_10.field_10, this->field_40.field_10};
-                if ( !Settings::MouseLook() )
-                {
+                if (!Settings::MouseLook) {
                     auto v13 = v82.length2();
-                    if ( v13 > sqr(1.0f) )
-                    {
+                    if (v13 > sqr(1.0f)) {
                         v82 /= std::sqrt(v13);
                     }
 
@@ -271,16 +235,14 @@ void camera_mode_lookaround::_frame_advance(
 
                     auto v16 = v82 - this->field_70;
                     auto v18 = v16.length2();
-                    if ( v18 > sqr(0.25f) )
-                    {
+                    if (v18 > sqr(0.25f)) {
                         auto v19 = 0.25f / sqrt(v18);
                         v16 *= v19;
                     }
 
                     v82 = v16 + this->field_70;
                     auto v20 = v82.length2();
-                    if ( v20 > sqr(1.0f) )
-                    {
+                    if (v20 > sqr(1.0f)) {
                         auto v21 = 1.0f / std::sqrt(v20);
                         v82 *= v21;
                     }
@@ -303,7 +265,7 @@ void camera_mode_lookaround::_frame_advance(
                 auto v29 = v7->fwd * v28;
 
                 vector3d a3a = v29 + v7->eye;
-                a3a = lerp(v84, a3a, slow_mix());
+                a3a = lerp(v84, a3a, slow_mix);
                 auto *gamefile = g_game_ptr->gamefile;
                 auto invert_camera_vert = gamefile->field_340.m_invert_camera_vert;
                 v84 = v7->eye - a3a;
@@ -322,18 +284,14 @@ void camera_mode_lookaround::_frame_advance(
                 auto v40 = sub_4B22E0(v84, v39, -v38);
                 eHeroLocoMode v46 = v9;
                 auto v47 = v40.length();
-                if ( v47 < 4.0f )
-                {
+                if (v47 < 4.0f) {
                     v40 *= 1.0f / v47;
-                    if ( v46 == 2 || v46 == 7 )
-                    {
+                    if (v46 == 2 || v46 == 7) {
                         auto v50 = dot(v40, v4->up);
                         if ( v50 > 0.0f ) {
                             v47 = (1.0f - std::sqrt(1.0f - v50 * v50)) * 4.0f + v47;
                         }
-                    }
-                    else if ( a2b < 0.0f )
-                    {
+                    } else if (a2b < 0.0f) {
                         v47 = v47 - a2b * 4.0f ;
                     }
 
@@ -342,10 +300,7 @@ void camera_mode_lookaround::_frame_advance(
                 }
 
                 v7->eye = a3a + v40;
-                if ( v46 == 1
-                    || v46 == 2
-                    || v46 == 7 )
-                {
+                if (v46 == 1 || v46 == 2 || v46 == 7) {
                     auto abs_pos = v4->field_54->get_abs_position();
 
                     auto a2c = v4->radius * 1.3f;
@@ -360,8 +315,7 @@ void camera_mode_lookaround::_frame_advance(
 
                     float t = 1.0f;
                     sub_5B8F40(a3a, v7->eye, v84, v4->up, &t);
-                    if ( t > 0.0f && t < 1.0f )
-                    {
+                    if (t > 0.0f && t < 1.0f) {
                         auto v64 = v7->eye - a3a;
                         auto v81 = v64 * t;
                         v7->eye = v81 + a3a;
@@ -379,13 +333,10 @@ void camera_mode_lookaround::_frame_advance(
         }
 
         auto *v11 = this->slave;
-        if ( v11->field_1CC )
-        {
+        if (v11->field_1CC) {
             v11->field_1C4 = v11->field_1C0;
             v11->field_1C0 = 1;
-        }
-        else
-        {
+        } else {
             auto *v71 = this->field_8;
             if ( v71 != nullptr ) {
                 v71->frame_advance(a2, *v7, *v4);
@@ -393,16 +344,12 @@ void camera_mode_lookaround::_frame_advance(
 
             this->field_70 = vector2d {0.0, 0.0};
         }
-    }
-    else
-    {
+    } else {
         THISCALL(0x004B5480, this, a2, &a3, &a4);
     }
 }
 
-camera_mode_passive::camera_mode_passive(
-            spiderman_camera *a2,
-            camera_mode *a3) : camera_mode(a2, a3)
+camera_mode_passive::camera_mode_passive(spiderman_camera *a2, camera_mode *a3) : camera_mode(a2, a3)
 {
     this->m_vtbl = CAST(m_vtbl, 0x00882408);
     this->field_10 = g_camera_max_dist;
@@ -422,15 +369,11 @@ void camera_mode_passive::_activate(camera_target_info &a2)
     this->field_1C = YVEC;
 }
 
-void camera_mode_passive::_frame_advance(
-        [[maybe_unused]] Float a2,
-        camera_frame &frame,
-        camera_target_info &target)
+void camera_mode_passive::_frame_advance([[maybe_unused]] Float a2, camera_frame &frame, camera_target_info &target)
 {
     TRACE("camera_mode_passive::frame_advance");
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         [](spiderman_camera *self) -> void {
             self->field_1C4 = self->field_1C0;
             self->field_1C0 = 3;
@@ -445,23 +388,17 @@ void camera_mode_passive::_frame_advance(
         bool is_jumping = loco_mode == 6;
         auto is_swinging = loco_mode == 3;
         auto v47 = loco_mode == 9;
-        auto v13 = (loco_mode == 2
-                    || loco_mode == 7
-                    || loco_mode == 14
-                    || (is_crawling && loco_mode == 9));
+        auto v13 = (loco_mode == 2 || loco_mode == 7 || loco_mode == 14 || (is_crawling && loco_mode == 9));
 
         bool v12 = ( is_falling || is_jumping || is_swinging );
 
         assert(target.min_look_dist > target.radius);
 
         float v14, v15;
-        if ( v13 )
-        {
+        if (v13) {
             v14 = 0.30000001f;
             v15 = 1.0f;
-        }
-        else
-        {
+        } else {
             if ( is_running ) {
                 v14 = 0.30000001f;
             } else {
@@ -471,18 +408,17 @@ void camera_mode_passive::_frame_advance(
             v15 = 0.69999999f;
         }
 
-        target.min_look_dist = lerp(target.min_look_dist, this->field_C, slow_mix());
+        target.min_look_dist = lerp(target.min_look_dist, this->field_C, slow_mix);
         this->field_C = target.min_look_dist;
 
-        target.max_look_dist = lerp(target.max_look_dist, this->field_10, slow_mix());
+        target.max_look_dist = lerp(target.max_look_dist, this->field_10, slow_mix);
         this->field_10 = target.max_look_dist;
 
-        this->field_14 = lerp(v14, this->field_14, slow_mix());
-        this->field_18 = lerp(v15, this->field_18, slow_mix());
+        this->field_14 = lerp(v14, this->field_14, slow_mix);
+        this->field_18 = lerp(v15, this->field_18, slow_mix);
 
         vector3d v19 = YVEC;
-        if ( v12 )
-        {
+        if (v12) {
             auto v50 = vector3d::cross(frame.up, frame.fwd);
             auto v23 = dot(target.field_24, v50);
             v23 = (2.0f / 30.0f) * v23;
@@ -497,10 +433,9 @@ void camera_mode_passive::_frame_advance(
             v19 = a2b * frame.up + v50 * v24;
         }
 
-        this->field_1C.sub_4B9FA0(v19, slow_mix());
+        this->field_1C.sub_4B9FA0(v19, slow_mix);
         frame.up = this->field_1C;
-        if ( v47 )
-        {
+        if (v47) {
             auto v32 = target.pos + target.facing * 5.0f;
 
             frame.rotate_to_include_target(v32, target.pos, target.up, 0.80000001);
@@ -514,8 +449,7 @@ void camera_mode_passive::_frame_advance(
         }
 
         camera_mode_chase::pull_by_target(frame, target, target.max_look_dist);
-        if ( v12 )
-        {
+        if (v12) {
             auto v35 = target.pos - frame.eye;
             auto v51 = vector3d::cross(v35, YVEC);
             auto v38 = v51.normalized();
@@ -523,21 +457,13 @@ void camera_mode_passive::_frame_advance(
                 constrain_normal(frame.fwd, v38, -0.1f, 0.1f);
             }
         }
-    }
-    else
-    {
-
-        void (__fastcall *func)(void *, void *,
-                        Float,
-                        camera_frame *,
-                        camera_target_info *) = CAST(func, 0x004B7400);
+    } else {
+        void(__fastcall * func)(void *, void *, Float, camera_frame *, camera_target_info *) = CAST(func, 0x004B7400);
         func(this, nullptr, a2, &frame, &target);
     }
 }
 
-camera_mode_fixedstatic::camera_mode_fixedstatic(
-        spiderman_camera *a2,
-        camera_mode *a3) : camera_mode(a2, a3)
+camera_mode_fixedstatic::camera_mode_fixedstatic(spiderman_camera *a2, camera_mode *a3) : camera_mode(a2, a3)
 {
     this->m_vtbl = CAST(m_vtbl, 0x00881E74);
     this->field_C = ZEROVEC;
@@ -545,13 +471,9 @@ camera_mode_fixedstatic::camera_mode_fixedstatic(
     this->enabled = false;
 }
 
-void camera_mode_fixedstatic::_frame_advance(
-        Float a2,
-        camera_frame &a3,
-        const camera_target_info &a4)
-{
-    if ( this->enabled )
+void camera_mode_fixedstatic::_frame_advance(Float a2, camera_frame &a3, const camera_target_info &a4)
     {
+    if (this->enabled) {
         a3.eye = this->field_C;
         a3.fwd = this->field_18;
         a3.up = YVEC;
@@ -562,9 +484,7 @@ void camera_mode_fixedstatic::_frame_advance(
             v5->field_1C4 = v5->field_1C0;
             v5->field_1C0 = 0;
         }
-    }
-    else
-    {
+    } else {
         auto *v6 = this->field_8;
         if ( v6 != nullptr ) {
             v6->frame_advance(a2, a3, a4);
@@ -572,9 +492,7 @@ void camera_mode_fixedstatic::_frame_advance(
     }
 }
 
-void camera_mode_fixedstatic::_set_fixedstatic(
-        const vector3d &a2,
-        const vector3d &a3)
+void camera_mode_fixedstatic::_set_fixedstatic(const vector3d &a2, const vector3d &a3)
 {
     auto *v4 = this->field_8;
     if ( v4 != nullptr ) {
@@ -597,20 +515,15 @@ void camera_mode_fixedstatic::_clear_fixedstatic()
     this->enabled = false;
 }
 
-void camera_mode_combat::_frame_advance(
-        Float a2,
-        camera_frame &a3,
-        const camera_target_info &a4)
+void camera_mode_combat::_frame_advance(Float a2, camera_frame &a3, const camera_target_info &a4)
 {
     {
         static float & flt_882444 = var<float>(0x00882444);
         flt_882444 = 0.66000003 * g_camera_min_dist;
     }
 
-    if constexpr (0)
-    {}
-    else
-    {
+    if constexpr (0) {
+    } else {
         THISCALL(0x004B7F90, this, a2, &a3, &a4);
     }
 }

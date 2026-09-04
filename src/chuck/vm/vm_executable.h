@@ -22,8 +22,7 @@ inline constexpr auto VM_EXECUTABLE_FLAG_UN_MASHED = 8u;
 
 struct vm_executable_param_symbol {};
 
-struct vm_executable
-{
+struct vm_executable {
     script_object *owner;
     string_hash fullname;
     string_hash name;
@@ -37,7 +36,8 @@ struct vm_executable
         void **parameters;
         int field_24;
 
-        debug_info_t() {
+        debug_info_t()
+        {
             field_10 = -1;
             parameters = nullptr;
             field_24 = 0;
@@ -52,67 +52,73 @@ struct vm_executable
     //0x005AF310
     ~vm_executable();
 
-    void *operator new(size_t );
+    void *operator new(size_t);
 
-    void operator delete(void *, size_t );
+    void operator delete(void *, size_t);
 
     void destroy();
 
-    int get_size() const {
+    int get_size() const
+    {
         return buffer_len;
     }
 
-    auto &get_name() const {
+    auto &get_name() const
+    {
         return name;
     }
 
-    auto &get_fullname() const {
+    auto &get_fullname() const
+    {
         return fullname;
     }
 
-    const auto *get_start() const {
+    const auto *get_start() const
+    {
         return buffer;
     }
 
-    bool is_static() const {
+    bool is_static() const
+    {
         return (this->flags & VM_EXECUTABLE_FLAG_STATIC) != 0;
     }
 
-    bool is_linked() const {
-        return(this->flags & VM_EXECUTABLE_FLAG_LINKED) != 0;
+    bool is_linked() const
+    {
+        return (this->flags & VM_EXECUTABLE_FLAG_LINKED) != 0;
     }
 
-    bool is_from_mash() const {
+    bool is_from_mash() const
+    {
         return (this->flags & VM_EXECUTABLE_FLAG_FROM_MASH) != 0;
     }
 
-    bool is_un_mashed() const {
+    bool is_un_mashed() const
+    {
         return (this->flags & VM_EXECUTABLE_FLAG_UN_MASHED) != 0;
     }
 
-    int get_parms_stacksize() const {
+    int get_parms_stacksize() const
+    {
         return this->parms_stacksize;
     }
 
-    auto *get_owner() const {
+    auto *get_owner() const
+    {
         return this->owner;
     }
 
-    void un_mash(
-            generic_mash_header *a2,
-            void *a3,
-            void *a4,
-            generic_mash_data_ptrs *a5);
+    void un_mash(generic_mash_header *a2, void *a3, void *a4, generic_mash_data_ptrs *a5);
 
-    void link(const script_executable *a2);
+    void link(const script_executable &a2);
 
-    void link_un_mash(const script_executable *a2);
+    void link_un_mash(const script_executable &a2);
 
     static void write(chunk_file *file, const vm_executable *x, const std::set<string_hash> &);
 
     static void read(chunk_file *file, vm_executable *x);
 
-    static inline Var<void (*)(const char *, uint32_t *)> resolve_signal_callback {0x00965F08};
+    static inline auto &resolve_signal_callback = var<void (*)(const char *, uint32_t *)>(0x00965F08);
 };
 
 extern void vm_executable_patch();

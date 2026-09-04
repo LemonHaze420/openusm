@@ -1,7 +1,8 @@
 #pragma once
 
-#include "string_hash.h"
+#include "mash.h"
 #include "mstring.h"
+#include "string_hash.h"
 
 static inline constexpr auto EXTENSION_LENGTH = 16u;
 
@@ -70,6 +71,7 @@ enum resource_key_type {
     RESOURCE_KEY_TYPE_Z = 70,
 };
 
+struct from_mash_in_place_constructor;
 struct mash_info_struct;
 
 struct resource_key {
@@ -78,23 +80,31 @@ struct resource_key {
 
     resource_key() = default;
 
+    resource_key(from_mash_in_place_constructor *a2);
+
     resource_key(string_hash hash, resource_key_type type) : m_hash(hash), m_type(type) {}
 
     resource_key(const resource_key &arg) : m_hash(arg.m_hash), m_type(arg.m_type) {}
 
-    bool operator==(const resource_key &key) const {
+    void initialize(mash::allocation_scope a2);
+
+    bool operator==(const resource_key &key) const
+    {
         return (this->m_hash == key.m_hash && this->m_type == key.m_type);
     }
 
-    bool operator!=(const resource_key &key) const {
+    bool operator!=(const resource_key &key) const
+    {
         return !(*this == key);
     }
 
-    void set_type(resource_key_type type) {
+    void set_type(resource_key_type type)
+    {
         m_type = type;
     }
 
-    decltype(auto) get_type() const {
+    decltype(auto) get_type() const
+    {
         return m_type;
     }
 
@@ -126,17 +136,18 @@ struct resource_key {
     void destruct_mashed_class();
 
     //0x004200D0
-    static void calc_resource_string_and_type_from_path(const char *in_string,
-                                                        mString *out_string,
+    static void calc_resource_string_and_type_from_path(const char *in_string, mString *out_string,
                                                         resource_key_type *type_override);
 
 
     static resource_key_type resolve_extension(const char *target_string, bool a2);
 };
 
-inline auto & resource_key_type_ext = var<const char *[4][70]>(0x0091E7C8);
+using resource_key_type_ext_t = const char *[4][70];
+extern resource_key_type_ext_t &resource_key_type_ext;
 
-inline auto & resource_key_type_str = var<const char *[70]>(0x0091F088);
+using resource_key_type_str_t = const char *[70];
+extern resource_key_type_str_t &resource_key_type_str;
 
 extern const char *to_string(resource_key_type type);
 

@@ -6,8 +6,9 @@ static Var<math::VecClass<3, 1>> stru_8BFDCC{0x008BFDCC};
 
 static Var<math::VecClass<3, 0>> stru_8BFCA4{0x008BFCA4};
 
-void nuge::get_ballistic_info(
-    rigid_body *const *a1, int a2, math::VecClass<3, 1> *a3, math::VecClass<3, 0> *a4, float *a5) {
+void nuge::get_ballistic_info(rigid_body *const *a1, int a2, math::VecClass<3, 1> *a3, math::VecClass<3, 0> *a4,
+                              float *a5)
+{
     *a3 = stru_8BFDCC();
     *a4 = stru_8BFCA4();
 

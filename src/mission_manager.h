@@ -133,13 +133,13 @@ struct mission_manager {
 
     entity_base *get_mission_key_entity() const;
 
-    trigger * get_mission_key_trigger() const;
+    trigger *get_mission_key_trigger() const;
 
     //0x005BB160
-    _std::vector<float> * get_mission_nums();
+    _std::vector<float> *get_mission_nums();
 
     //0x005BB150
-    _std::vector<mString> * get_mission_strings();
+    _std::vector<mString> *get_mission_strings();
 
     void set_mission_key_po(const po &a2);
 
@@ -149,17 +149,13 @@ struct mission_manager {
 
     bool is_mission_active() const;
 
-    void get_missions_nums_by_index(
-        int a2,
-        const char *a3,
-        int a4,
-        _std::vector<float> *nums_result);
+    void get_missions_nums_by_index(int a2, const char *a3, int a4, _std::vector<float> *nums_result);
 
     int sub_5C5BD0() const;
 
-    static mission_manager *& s_inst;
+    static mission_manager *&s_inst;
 
-    static mString & current_mission_debug_title;
+    static mString &current_mission_debug_title;
 };
 
 extern void mission_manager_patch();

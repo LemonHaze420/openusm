@@ -4,7 +4,6 @@
 #include "vector3d.h"
 
 struct sampling_window {
-
     struct sample {
         float field_0;
         float time;
@@ -23,8 +22,7 @@ struct sampling_window {
     float average(Float duration) const;
 };
 
-struct direction_sampling_window
-{
+struct direction_sampling_window {
     sampling_window field_0[3];
     vector3d field_30C;
 
@@ -34,6 +32,6 @@ struct direction_sampling_window
 
 extern Var<direction_sampling_window> up_sampling_window;
 
-inline Var<direction_sampling_window> heading_sampling_window {0x00958E70};
+inline Var<direction_sampling_window> heading_sampling_window{0x00958E70};
 
-inline Var<sampling_window> heading_change_sampling_window {0x00958610};
+inline Var<sampling_window> heading_change_sampling_window{0x00958610};

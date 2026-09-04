@@ -2,8 +2,7 @@
 
 #include "ngl_math.h"
 
-struct rtree_root_t
-{
+struct rtree_root_t {
     math::VecClass<4, -1> field_0;
     math::VecClass<4, -1> field_10;
     float field_20;

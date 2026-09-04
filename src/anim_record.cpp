@@ -20,11 +20,12 @@ anim_record::anim_record()
 void anim_record::_unmash(mash_info_struct *a2, void *)
 {
     a2->unmash_class_in_place(this->field_8, this);
-    if ( this->my_key != nullptr )
-    {
-        a2->unmash_class(this->my_key, this
+    if (this->my_key != nullptr) {
+        a2->unmash_class(this->my_key,
+                         this
 #if OPENUSM_XBOX_MASH_FORMAT
-            , mash::NORMAL_BUFFER
+                         ,
+                         mash::NORMAL_BUFFER
 #endif
                 );
     }

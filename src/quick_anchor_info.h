@@ -22,7 +22,7 @@ struct quick_anchor_info {
     bool operator<(const quick_anchor_info &a2);
 };
 
-template<typename T>
+template <typename T>
 void sort(T *begin, T *end, int size);
 
 extern void quick_anchor_info_patch();

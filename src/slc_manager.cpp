@@ -6,6 +6,7 @@
 #include "mission_manager.h"
 #include "mission_stack_manager.h"
 #include "open_city_neighborhoods.h"
+#include "osassert.h"
 #include "os_developer_options.h"
 #include "resource_key.h"
 #include "resource_manager.h"
@@ -13,6 +14,7 @@
 
 #include "script_lib.h"
 #include "script_lib_anim.h"
+#include "script_lib_beam.h"
 #include "script_lib_debug_menu.h"
 #include "script_lib_entity.h"
 
@@ -30,14 +32,21 @@
 #include <cstdlib>
 
 #if !STANDALONE_SYSTEM
-_std::vector<script_library_class *> *& slc_manager_class_array = var<_std::vector<script_library_class *> *>(0x00965EC8);
+_std::vector<script_library_class *> *&slc_manager_class_array =
+    var<_std::vector<script_library_class *> *>(0x00965EC8);
 #else
 
-static std::vector<script_library_class *> *g_slc_manager_class_array {nullptr};
-std::vector<script_library_class *> *&
-    slc_manager_class_array {g_slc_manager_class_array};
+static _std::vector<script_library_class *> *g_slc_manager_class_array{nullptr};
+_std::vector<script_library_class *> *&slc_manager_class_array = g_slc_manager_class_array;
 
 #endif
+
+bool compare_script_library_class(script_library_class *a, script_library_class *b)
+{
+    return (strcmp(a->name, b->name) < 0);
+}
+
+static std::set<script_library_class *, decltype(&compare_script_library_class)> *slc_manager_classes = nullptr;
 
 namespace {
 
@@ -158,21 +167,30 @@ void register_standard_script_libs()
 {
     TRACE("register_standard_script_libs");
 
+    if constexpr (0) {
+    } else {
     CDECL_CALL(0x005AB800);
+}
 }
 
 void construct_client_script_libs()
 {
     TRACE("construct_client_script_libs");
 
+    if constexpr (0) {
+    } else {
     CDECL_CALL(0x0058F9C0);
+}
 }
 
 void destruct_client_script_libs()
 {
     TRACE("destruct_client_script_libs");
 
+    if constexpr (0) {
+    } else {
     CDECL_CALL(0x0058FA50);
+}
 }
 
 struct slf__add_civilian_info__vector3d__num__num__num__t : script_library_class::function {
@@ -187,7 +205,8 @@ struct slf__add_civilian_info__vector3d__num__num__num__t : script_library_class
     }
 };
 
-slf__add_civilian_info__vector3d__num__num__num__t::slf__add_civilian_info__vector3d__num__num__num__t(const char *a3) : function(a3)
+slf__add_civilian_info__vector3d__num__num__num__t::slf__add_civilian_info__vector3d__num__num__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089C5BC);
     FUNC_ADDRESS(address, &slf__add_civilian_info__vector3d__num__num__num__t::operator());
@@ -206,7 +225,9 @@ struct slf__add_civilian_info_entity__entity__num__num__num__t : script_library_
     }
 };
 
-slf__add_civilian_info_entity__entity__num__num__num__t::slf__add_civilian_info_entity__entity__num__num__num__t(const char *a3) : function(a3)
+slf__add_civilian_info_entity__entity__num__num__num__t::slf__add_civilian_info_entity__entity__num__num__num__t(
+    const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089C5CC);
     FUNC_ADDRESS(address, &slf__add_civilian_info_entity__entity__num__num__num__t::operator());
@@ -225,7 +246,8 @@ struct slf__add_debug_cyl__vector3d__vector3d__num__t : script_library_class::fu
     }
 };
 
-slf__add_debug_cyl__vector3d__vector3d__num__t::slf__add_debug_cyl__vector3d__vector3d__num__t(const char *a3) : function(a3)
+slf__add_debug_cyl__vector3d__vector3d__num__t::slf__add_debug_cyl__vector3d__vector3d__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089A774);
     FUNC_ADDRESS(address, &slf__add_debug_cyl__vector3d__vector3d__num__t::operator());
@@ -244,7 +266,9 @@ struct slf__add_debug_cyl__vector3d__vector3d__num__vector3d__num__t : script_li
     }
 };
 
-slf__add_debug_cyl__vector3d__vector3d__num__vector3d__num__t::slf__add_debug_cyl__vector3d__vector3d__num__vector3d__num__t(const char *a3) : function(a3)
+slf__add_debug_cyl__vector3d__vector3d__num__vector3d__num__t::
+    slf__add_debug_cyl__vector3d__vector3d__num__vector3d__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089A77C);
     FUNC_ADDRESS(address, &slf__add_debug_cyl__vector3d__vector3d__num__vector3d__num__t::operator());
@@ -282,7 +306,9 @@ struct slf__add_debug_line__vector3d__vector3d__vector3d__num__t : script_librar
     }
 };
 
-slf__add_debug_line__vector3d__vector3d__vector3d__num__t::slf__add_debug_line__vector3d__vector3d__vector3d__num__t(const char *a3) : function(a3)
+slf__add_debug_line__vector3d__vector3d__vector3d__num__t::slf__add_debug_line__vector3d__vector3d__vector3d__num__t(
+    const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089A76C);
     FUNC_ADDRESS(address, &slf__add_debug_line__vector3d__vector3d__vector3d__num__t::operator());
@@ -320,7 +346,9 @@ struct slf__add_debug_sphere__vector3d__num__vector3d__num__t : script_library_c
     }
 };
 
-slf__add_debug_sphere__vector3d__num__vector3d__num__t::slf__add_debug_sphere__vector3d__num__vector3d__num__t(const char *a3) : function(a3)
+slf__add_debug_sphere__vector3d__num__vector3d__num__t::slf__add_debug_sphere__vector3d__num__vector3d__num__t(
+    const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089A75C);
     FUNC_ADDRESS(address, &slf__add_debug_sphere__vector3d__num__vector3d__num__t::operator());
@@ -472,7 +500,9 @@ struct slf__apply_donut_damage__vector3d__num__num__num__num__num__t : script_li
     }
 };
 
-slf__apply_donut_damage__vector3d__num__num__num__num__num__t::slf__apply_donut_damage__vector3d__num__num__num__num__num__t(const char *a3) : function(a3)
+slf__apply_donut_damage__vector3d__num__num__num__num__num__t::
+    slf__apply_donut_damage__vector3d__num__num__num__num__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089A804);
     FUNC_ADDRESS(address, &slf__apply_donut_damage__vector3d__num__num__num__num__num__t::operator());
@@ -491,7 +521,9 @@ struct slf__apply_radius_damage__vector3d__num__num__num__num__t : script_librar
     }
 };
 
-slf__apply_radius_damage__vector3d__num__num__num__num__t::slf__apply_radius_damage__vector3d__num__num__num__num__t(const char *a3) : function(a3)
+slf__apply_radius_damage__vector3d__num__num__num__num__t::slf__apply_radius_damage__vector3d__num__num__num__num__t(
+    const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089A7FC);
     FUNC_ADDRESS(address, &slf__apply_radius_damage__vector3d__num__num__num__num__t::operator());
@@ -510,7 +542,9 @@ struct slf__apply_radius_subdue__vector3d__num__num__num__num__t : script_librar
     }
 };
 
-slf__apply_radius_subdue__vector3d__num__num__num__num__t::slf__apply_radius_subdue__vector3d__num__num__num__num__t(const char *a3) : function(a3)
+slf__apply_radius_subdue__vector3d__num__num__num__num__t::slf__apply_radius_subdue__vector3d__num__num__num__num__t(
+    const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089A80C);
     FUNC_ADDRESS(address, &slf__apply_radius_subdue__vector3d__num__num__num__num__t::operator());
@@ -548,7 +582,9 @@ struct slf__attach_decal__str__vector3d__num__vector3d__entity__t : script_libra
     }
 };
 
-slf__attach_decal__str__vector3d__num__vector3d__entity__t::slf__attach_decal__str__vector3d__num__vector3d__entity__t(const char *a3) : function(a3)
+slf__attach_decal__str__vector3d__num__vector3d__entity__t::slf__attach_decal__str__vector3d__num__vector3d__entity__t(
+    const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089A9FC);
     FUNC_ADDRESS(address, &slf__attach_decal__str__vector3d__num__vector3d__entity__t::operator());
@@ -643,7 +679,8 @@ struct slf__bring_up_dialog_box_debug__str__num__str__t : script_library_class::
     }
 };
 
-slf__bring_up_dialog_box_debug__str__num__str__t::slf__bring_up_dialog_box_debug__str__num__str__t(const char *a3) : function(a3)
+slf__bring_up_dialog_box_debug__str__num__str__t::slf__bring_up_dialog_box_debug__str__num__str__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089BC38);
     FUNC_ADDRESS(address, &slf__bring_up_dialog_box_debug__str__num__str__t::operator());
@@ -662,7 +699,8 @@ struct slf__bring_up_dialog_box_title__num__num__num__t : script_library_class::
     }
 };
 
-slf__bring_up_dialog_box_title__num__num__num__t::slf__bring_up_dialog_box_title__num__num__num__t(const char *a3) : function(a3)
+slf__bring_up_dialog_box_title__num__num__num__t::slf__bring_up_dialog_box_title__num__num__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089BC30);
     FUNC_ADDRESS(address, &slf__bring_up_dialog_box_title__num__num__num__t::operator());
@@ -719,7 +757,9 @@ struct slf__calc_launch_vector__vector3d__vector3d__num__entity__t : script_libr
     }
 };
 
-slf__calc_launch_vector__vector3d__vector3d__num__entity__t::slf__calc_launch_vector__vector3d__vector3d__num__entity__t(const char *a3) : function(a3)
+slf__calc_launch_vector__vector3d__vector3d__num__entity__t::
+    slf__calc_launch_vector__vector3d__vector3d__num__entity__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089A98C);
     FUNC_ADDRESS(address, &slf__calc_launch_vector__vector3d__vector3d__num__entity__t::operator());
@@ -795,7 +835,9 @@ struct slf__clear_civilians_within_radius__vector3d__num__t : script_library_cla
     }
 };
 
-slf__clear_civilians_within_radius__vector3d__num__t::slf__clear_civilians_within_radius__vector3d__num__t(const char *a3) : function(a3)
+slf__clear_civilians_within_radius__vector3d__num__t::slf__clear_civilians_within_radius__vector3d__num__t(
+    const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089C5E4);
     FUNC_ADDRESS(address, &slf__clear_civilians_within_radius__vector3d__num__t::operator());
@@ -928,7 +970,8 @@ struct slf__clear_traffic_within_radius__vector3d__num__t : script_library_class
     }
 };
 
-slf__clear_traffic_within_radius__vector3d__num__t::slf__clear_traffic_within_radius__vector3d__num__t(const char *a3) : function(a3)
+slf__clear_traffic_within_radius__vector3d__num__t::slf__clear_traffic_within_radius__vector3d__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089C5DC);
     FUNC_ADDRESS(address, &slf__clear_traffic_within_radius__vector3d__num__t::operator());
@@ -985,7 +1028,9 @@ struct slf__copy_vector3d_list__vector3d_list__vector3d_list__t : script_library
     }
 };
 
-slf__copy_vector3d_list__vector3d_list__vector3d_list__t::slf__copy_vector3d_list__vector3d_list__vector3d_list__t(const char *a3) : function(a3)
+slf__copy_vector3d_list__vector3d_list__vector3d_list__t::slf__copy_vector3d_list__vector3d_list__vector3d_list__t(
+    const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089BED4);
     FUNC_ADDRESS(address, &slf__copy_vector3d_list__vector3d_list__vector3d_list__t::operator());
@@ -1107,7 +1152,8 @@ struct slf__create_decal__str__vector3d__num__vector3d__t : script_library_class
     }
 };
 
-slf__create_decal__str__vector3d__num__vector3d__t::slf__create_decal__str__vector3d__num__vector3d__t(const char *a3) : function(a3)
+slf__create_decal__str__vector3d__num__vector3d__t::slf__create_decal__str__vector3d__num__vector3d__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089A9F4);
     FUNC_ADDRESS(address, &slf__create_decal__str__vector3d__num__vector3d__t::operator());
@@ -1240,7 +1286,8 @@ struct slf__create_line_info__vector3d__vector3d__t : script_library_class::func
     }
 };
 
-slf__create_line_info__vector3d__vector3d__t::slf__create_line_info__vector3d__vector3d__t(const char *a3) : function(a3)
+slf__create_line_info__vector3d__vector3d__t::slf__create_line_info__vector3d__vector3d__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089B708);
     FUNC_ADDRESS(address, &slf__create_line_info__vector3d__vector3d__t::operator());
@@ -1361,6 +1408,26 @@ slf__create_polytube__str__t::slf__create_polytube__str__t(const char *a3) : fun
     m_vtbl->__cl = CAST(m_vtbl->__cl, address);
 }
 
+struct slf__create_progression_menu_entry__str__str__t : script_library_class::function {
+    slf__create_progression_menu_entry__str__str__t(const char *a3);
+
+    bool operator()(vm_stack &stack, [[maybe_unused]] script_library_class::function::entry_t entry) const
+    {
+        TRACE("slf__create_progression_menu_entry__str__str__t::operator()");
+
+        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00678210);
+        return func(this, nullptr, &stack, entry);
+    }
+};
+
+slf__create_progression_menu_entry__str__str__t::slf__create_progression_menu_entry__str__str__t(const char *a3)
+    : function(a3)
+{
+    m_vtbl = CAST(m_vtbl, 0x0089C714);
+    FUNC_ADDRESS(address, &slf__create_progression_menu_entry__str__str__t::operator());
+    m_vtbl->__cl = CAST(m_vtbl->__cl, address);
+}
+
 struct slf__create_sound_inst__t : script_library_class::function {
     slf__create_sound_inst__t(const char *a3);
 
@@ -1411,7 +1478,8 @@ struct slf__create_stompable_music_sound_inst__str__t : script_library_class::fu
     }
 };
 
-slf__create_stompable_music_sound_inst__str__t::slf__create_stompable_music_sound_inst__str__t(const char *a3) : function(a3)
+slf__create_stompable_music_sound_inst__str__t::slf__create_stompable_music_sound_inst__str__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089B808);
     FUNC_ADDRESS(address, &slf__create_stompable_music_sound_inst__str__t::operator());
@@ -1449,7 +1517,8 @@ struct slf__create_taunt_entry__entity__str__num__t : script_library_class::func
     }
 };
 
-slf__create_taunt_entry__entity__str__num__t::slf__create_taunt_entry__entity__str__num__t(const char *a3) : function(a3)
+slf__create_taunt_entry__entity__str__num__t::slf__create_taunt_entry__entity__str__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089C63C);
     FUNC_ADDRESS(address, &slf__create_taunt_entry__entity__str__num__t::operator());
@@ -1468,7 +1537,9 @@ struct slf__create_taunt_exchange__entity__entity__num__num__num__num__t : scrip
     }
 };
 
-slf__create_taunt_exchange__entity__entity__num__num__num__num__t::slf__create_taunt_exchange__entity__entity__num__num__num__num__t(const char *a3) : function(a3)
+slf__create_taunt_exchange__entity__entity__num__num__num__num__t::
+    slf__create_taunt_exchange__entity__entity__num__num__num__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089C6B4);
     FUNC_ADDRESS(address, &slf__create_taunt_exchange__entity__entity__num__num__num__num__t::operator());
@@ -1525,7 +1596,8 @@ struct slf__create_time_limited_entity__str__num__t : script_library_class::func
     }
 };
 
-slf__create_time_limited_entity__str__num__t::slf__create_time_limited_entity__str__num__t(const char *a3) : function(a3)
+slf__create_time_limited_entity__str__num__t::slf__create_time_limited_entity__str__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089AF3C);
     FUNC_ADDRESS(address, &slf__create_time_limited_entity__str__num__t::operator());
@@ -1601,7 +1673,9 @@ struct slf__create_unstompable_script_cutscene_sound_inst__str__t : script_libra
     }
 };
 
-slf__create_unstompable_script_cutscene_sound_inst__str__t::slf__create_unstompable_script_cutscene_sound_inst__str__t(const char *a3) : function(a3)
+slf__create_unstompable_script_cutscene_sound_inst__str__t::slf__create_unstompable_script_cutscene_sound_inst__str__t(
+    const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089B810);
     FUNC_ADDRESS(address, &slf__create_unstompable_script_cutscene_sound_inst__str__t::operator());
@@ -1734,7 +1808,8 @@ struct slf__debug_print_set_background_color__vector3d__t : script_library_class
     }
 };
 
-slf__debug_print_set_background_color__vector3d__t::slf__debug_print_set_background_color__vector3d__t(const char *a3) : function(a3)
+slf__debug_print_set_background_color__vector3d__t::slf__debug_print_set_background_color__vector3d__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089A538);
     FUNC_ADDRESS(address, &slf__debug_print_set_background_color__vector3d__t::operator());
@@ -1791,7 +1866,8 @@ struct slf__destroy_debug_menu_entry__debug_menu_entry__t : script_library_class
     }
 };
 
-slf__destroy_debug_menu_entry__debug_menu_entry__t::slf__destroy_debug_menu_entry__debug_menu_entry__t(const char *a3) : function(a3)
+slf__destroy_debug_menu_entry__debug_menu_entry__t::slf__destroy_debug_menu_entry__debug_menu_entry__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089C71C);
     FUNC_ADDRESS(address, &slf__destroy_debug_menu_entry__debug_menu_entry__t::operator());
@@ -1848,7 +1924,8 @@ struct slf__destroy_entity_tracker__entity_tracker__t : script_library_class::fu
     }
 };
 
-slf__destroy_entity_tracker__entity_tracker__t::slf__destroy_entity_tracker__entity_tracker__t(const char *a3) : function(a3)
+slf__destroy_entity_tracker__entity_tracker__t::slf__destroy_entity_tracker__entity_tracker__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089C59C);
     FUNC_ADDRESS(address, &slf__destroy_entity_tracker__entity_tracker__t::operator());
@@ -1962,7 +2039,8 @@ struct slf__destroy_taunt_exchange__taunt_exchange__t : script_library_class::fu
     }
 };
 
-slf__destroy_taunt_exchange__taunt_exchange__t::slf__destroy_taunt_exchange__taunt_exchange__t(const char *a3) : function(a3)
+slf__destroy_taunt_exchange__taunt_exchange__t::slf__destroy_taunt_exchange__taunt_exchange__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089C6BC);
     FUNC_ADDRESS(address, &slf__destroy_taunt_exchange__taunt_exchange__t::operator());
@@ -1981,7 +2059,9 @@ struct slf__destroy_taunt_exchange_list__taunt_exchange_list__t : script_library
     }
 };
 
-slf__destroy_taunt_exchange_list__taunt_exchange_list__t::slf__destroy_taunt_exchange_list__taunt_exchange_list__t(const char *a3) : function(a3)
+slf__destroy_taunt_exchange_list__taunt_exchange_list__t::slf__destroy_taunt_exchange_list__taunt_exchange_list__t(
+    const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089C0E4);
     FUNC_ADDRESS(address, &slf__destroy_taunt_exchange_list__taunt_exchange_list__t::operator());
@@ -2000,7 +2080,8 @@ struct slf__destroy_threat_assessment_meter__tam__t : script_library_class::func
     }
 };
 
-slf__destroy_threat_assessment_meter__tam__t::slf__destroy_threat_assessment_meter__tam__t(const char *a3) : function(a3)
+slf__destroy_threat_assessment_meter__tam__t::slf__destroy_threat_assessment_meter__tam__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089C6D4);
     FUNC_ADDRESS(address, &slf__destroy_threat_assessment_meter__tam__t::operator());
@@ -2038,7 +2119,8 @@ struct slf__destroy_vector3d_list__vector3d_list__t : script_library_class::func
     }
 };
 
-slf__destroy_vector3d_list__vector3d_list__t::slf__destroy_vector3d_list__vector3d_list__t(const char *a3) : function(a3)
+slf__destroy_vector3d_list__vector3d_list__t::slf__destroy_vector3d_list__vector3d_list__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089BEDC);
     FUNC_ADDRESS(address, &slf__destroy_vector3d_list__vector3d_list__t::operator());
@@ -2095,7 +2177,8 @@ struct slf__disable_nearby_occlusion_only_obb__vector3d__t : script_library_clas
     }
 };
 
-slf__disable_nearby_occlusion_only_obb__vector3d__t::slf__disable_nearby_occlusion_only_obb__vector3d__t(const char *a3) : function(a3)
+slf__disable_nearby_occlusion_only_obb__vector3d__t::slf__disable_nearby_occlusion_only_obb__vector3d__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089A5E4);
     FUNC_ADDRESS(address, &slf__disable_nearby_occlusion_only_obb__vector3d__t::operator());
@@ -2247,7 +2330,8 @@ struct slf__distance_chase_widget_turn_on__num__num__t : script_library_class::f
     }
 };
 
-slf__distance_chase_widget_turn_on__num__num__t::slf__distance_chase_widget_turn_on__num__num__t(const char *a3) : function(a3)
+slf__distance_chase_widget_turn_on__num__num__t::slf__distance_chase_widget_turn_on__num__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089BB78);
     FUNC_ADDRESS(address, &slf__distance_chase_widget_turn_on__num__num__t::operator());
@@ -2266,7 +2350,8 @@ struct slf__distance_race_widget_set_boss_pos__num__t : script_library_class::fu
     }
 };
 
-slf__distance_race_widget_set_boss_pos__num__t::slf__distance_race_widget_set_boss_pos__num__t(const char *a3) : function(a3)
+slf__distance_race_widget_set_boss_pos__num__t::slf__distance_race_widget_set_boss_pos__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089BBA8);
     FUNC_ADDRESS(address, &slf__distance_race_widget_set_boss_pos__num__t::operator());
@@ -2285,7 +2370,8 @@ struct slf__distance_race_widget_set_hero_pos__num__t : script_library_class::fu
     }
 };
 
-slf__distance_race_widget_set_hero_pos__num__t::slf__distance_race_widget_set_hero_pos__num__t(const char *a3) : function(a3)
+slf__distance_race_widget_set_hero_pos__num__t::slf__distance_race_widget_set_hero_pos__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089BBA0);
     FUNC_ADDRESS(address, &slf__distance_race_widget_set_hero_pos__num__t::operator());
@@ -2304,7 +2390,8 @@ struct slf__distance_race_widget_set_types__num__num__t : script_library_class::
     }
 };
 
-slf__distance_race_widget_set_types__num__num__t::slf__distance_race_widget_set_types__num__num__t(const char *a3) : function(a3)
+slf__distance_race_widget_set_types__num__num__t::slf__distance_race_widget_set_types__num__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089BBB0);
     FUNC_ADDRESS(address, &slf__distance_race_widget_set_types__num__num__t::operator());
@@ -2570,7 +2657,8 @@ struct slf__enable_nearby_occlusion_only_obb__vector3d__t : script_library_class
     }
 };
 
-slf__enable_nearby_occlusion_only_obb__vector3d__t::slf__enable_nearby_occlusion_only_obb__vector3d__t(const char *a3) : function(a3)
+slf__enable_nearby_occlusion_only_obb__vector3d__t::slf__enable_nearby_occlusion_only_obb__vector3d__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089A5DC);
     FUNC_ADDRESS(address, &slf__enable_nearby_occlusion_only_obb__vector3d__t::operator());
@@ -2684,7 +2772,9 @@ struct slf__enable_quad_path_connector__district__num__district__num__num__t : s
     }
 };
 
-slf__enable_quad_path_connector__district__num__district__num__num__t::slf__enable_quad_path_connector__district__num__district__num__num__t(const char *a3) : function(a3)
+slf__enable_quad_path_connector__district__num__district__num__num__t::
+    slf__enable_quad_path_connector__district__num__district__num__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089A578);
     FUNC_ADDRESS(address, &slf__enable_quad_path_connector__district__num__district__num__num__t::operator());
@@ -2873,8 +2963,7 @@ struct slf__entity_exists__str__t : script_library_class::function {
     {
         TRACE("slf__entity_exists__str__t::operator()");
 
-        if constexpr (1)
-        {
+        if constexpr (1) {
             SLF_PARMS;
 
             string_hash entity_name {parms->name};
@@ -2884,9 +2973,7 @@ struct slf__entity_exists__str__t : script_library_class::function {
             SLF_RETURN;
             SLF_DONE;
             
-        }
-        else
-        {
+        } else {
             bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00668BF0);
             return func(this, nullptr, &stack, entry);
         }
@@ -2969,7 +3056,9 @@ struct slf__find_closest_point_on_a_path_to_point__vector3d__t : script_library_
     }
 };
 
-slf__find_closest_point_on_a_path_to_point__vector3d__t::slf__find_closest_point_on_a_path_to_point__vector3d__t(const char *a3) : function(a3)
+slf__find_closest_point_on_a_path_to_point__vector3d__t::slf__find_closest_point_on_a_path_to_point__vector3d__t(
+    const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089A570);
     FUNC_ADDRESS(address, &slf__find_closest_point_on_a_path_to_point__vector3d__t::operator());
@@ -3007,7 +3096,9 @@ struct slf__find_entities_in_radius__entity_list__vector3d__num__num__t : script
     }
 };
 
-slf__find_entities_in_radius__entity_list__vector3d__num__num__t::slf__find_entities_in_radius__entity_list__vector3d__num__num__t(const char *a3) : function(a3)
+slf__find_entities_in_radius__entity_list__vector3d__num__num__t::
+    slf__find_entities_in_radius__entity_list__vector3d__num__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089B46C);
     FUNC_ADDRESS(address, &slf__find_entities_in_radius__entity_list__vector3d__num__num__t::operator());
@@ -3121,7 +3212,8 @@ struct slf__find_trigger_in_district__district__str__t : script_library_class::f
     }
 };
 
-slf__find_trigger_in_district__district__str__t::slf__find_trigger_in_district__district__str__t(const char *a3) : function(a3)
+slf__find_trigger_in_district__district__str__t::slf__find_trigger_in_district__district__str__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089B958);
     FUNC_ADDRESS(address, &slf__find_trigger_in_district__district__str__t::operator());
@@ -3387,7 +3479,9 @@ struct slf__get_closest_point_on_lane_with_facing__num__vector3d__vector3d_list_
     }
 };
 
-slf__get_closest_point_on_lane_with_facing__num__vector3d__vector3d_list__t::slf__get_closest_point_on_lane_with_facing__num__vector3d__vector3d_list__t(const char *a3) : function(a3)
+slf__get_closest_point_on_lane_with_facing__num__vector3d__vector3d_list__t::
+    slf__get_closest_point_on_lane_with_facing__num__vector3d__vector3d_list__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089C61C);
     FUNC_ADDRESS(address, &slf__get_closest_point_on_lane_with_facing__num__vector3d__vector3d_list__t::operator());
@@ -3501,7 +3595,8 @@ struct slf__get_current_instance_thread_count__str__t : script_library_class::fu
     }
 };
 
-slf__get_current_instance_thread_count__str__t::slf__get_current_instance_thread_count__str__t(const char *a3) : function(a3)
+slf__get_current_instance_thread_count__str__t::slf__get_current_instance_thread_count__str__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089A9DC);
     FUNC_ADDRESS(address, &slf__get_current_instance_thread_count__str__t::operator());
@@ -3786,7 +3881,8 @@ struct slf__get_mission_camera_transform_marker__num__t : script_library_class::
     }
 };
 
-slf__get_mission_camera_transform_marker__num__t::slf__get_mission_camera_transform_marker__num__t(const char *a3) : function(a3)
+slf__get_mission_camera_transform_marker__num__t::slf__get_mission_camera_transform_marker__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089C454);
     FUNC_ADDRESS(address, &slf__get_mission_camera_transform_marker__num__t::operator());
@@ -3995,7 +4091,9 @@ struct slf__get_missions_key_position_by_index__district__str__num__t : script_l
     }
 };
 
-slf__get_missions_key_position_by_index__district__str__num__t::slf__get_missions_key_position_by_index__district__str__num__t(const char *a3) : function(a3)
+slf__get_missions_key_position_by_index__district__str__num__t::
+    slf__get_missions_key_position_by_index__district__str__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089C3BC);
     FUNC_ADDRESS(address, &slf__get_missions_key_position_by_index__district__str__num__t::operator());
@@ -4014,7 +4112,9 @@ struct slf__get_missions_nums_by_index__district__str__num__num_list__t : script
     }
 };
 
-slf__get_missions_nums_by_index__district__str__num__num_list__t::slf__get_missions_nums_by_index__district__str__num__num_list__t(const char *a3) : function(a3)
+slf__get_missions_nums_by_index__district__str__num__num_list__t::
+    slf__get_missions_nums_by_index__district__str__num__num_list__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089C3CC);
     FUNC_ADDRESS(address, &slf__get_missions_nums_by_index__district__str__num__num_list__t::operator());
@@ -4033,7 +4133,9 @@ struct slf__get_missions_patrol_waypoint_by_index__district__str__num__t : scrip
     }
 };
 
-slf__get_missions_patrol_waypoint_by_index__district__str__num__t::slf__get_missions_patrol_waypoint_by_index__district__str__num__t(const char *a3) : function(a3)
+slf__get_missions_patrol_waypoint_by_index__district__str__num__t::
+    slf__get_missions_patrol_waypoint_by_index__district__str__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089C3C4);
     FUNC_ADDRESS(address, &slf__get_missions_patrol_waypoint_by_index__district__str__num__t::operator());
@@ -4166,7 +4268,8 @@ struct slf__get_patrol_node_position_by_index__str__num__t : script_library_clas
     }
 };
 
-slf__get_patrol_node_position_by_index__str__num__t::slf__get_patrol_node_position_by_index__str__num__t(const char *a3) : function(a3)
+slf__get_patrol_node_position_by_index__str__num__t::slf__get_patrol_node_position_by_index__str__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089C52C);
     FUNC_ADDRESS(address, &slf__get_patrol_node_position_by_index__str__num__t::operator());
@@ -4261,7 +4364,8 @@ struct slf__get_spider_reflexes_spiderman_time_dilation__t : script_library_clas
     }
 };
 
-slf__get_spider_reflexes_spiderman_time_dilation__t::slf__get_spider_reflexes_spiderman_time_dilation__t(const char *a3) : function(a3)
+slf__get_spider_reflexes_spiderman_time_dilation__t::slf__get_spider_reflexes_spiderman_time_dilation__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089CAC4);
     FUNC_ADDRESS(address, &slf__get_spider_reflexes_spiderman_time_dilation__t::operator());
@@ -4280,7 +4384,8 @@ struct slf__get_spider_reflexes_world_time_dilation__t : script_library_class::f
     }
 };
 
-slf__get_spider_reflexes_world_time_dilation__t::slf__get_spider_reflexes_world_time_dilation__t(const char *a3) : function(a3)
+slf__get_spider_reflexes_world_time_dilation__t::slf__get_spider_reflexes_world_time_dilation__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089CAD4);
     FUNC_ADDRESS(address, &slf__get_spider_reflexes_world_time_dilation__t::operator());
@@ -4375,7 +4480,9 @@ struct slf__get_traffic_spawn_point_near_camera__vector3d_list__t : script_libra
     }
 };
 
-slf__get_traffic_spawn_point_near_camera__vector3d_list__t::slf__get_traffic_spawn_point_near_camera__vector3d_list__t(const char *a3) : function(a3)
+slf__get_traffic_spawn_point_near_camera__vector3d_list__t::slf__get_traffic_spawn_point_near_camera__vector3d_list__t(
+    const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089AA98);
     FUNC_ADDRESS(address, &slf__get_traffic_spawn_point_near_camera__vector3d_list__t::operator());
@@ -4394,7 +4501,8 @@ struct slf__greater_than_or_equal_rounded__num__num__t : script_library_class::f
     }
 };
 
-slf__greater_than_or_equal_rounded__num__num__t::slf__greater_than_or_equal_rounded__num__num__t(const char *a3) : function(a3)
+slf__greater_than_or_equal_rounded__num__num__t::slf__greater_than_or_equal_rounded__num__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089BC90);
     FUNC_ADDRESS(address, &slf__greater_than_or_equal_rounded__num__num__t::operator());
@@ -4831,7 +4939,8 @@ struct slf__is_path_graph_inside_glass_house__str__t : script_library_class::fun
     }
 };
 
-slf__is_path_graph_inside_glass_house__str__t::slf__is_path_graph_inside_glass_house__str__t(const char *a3) : function(a3)
+slf__is_path_graph_inside_glass_house__str__t::slf__is_path_graph_inside_glass_house__str__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089AAA0);
     FUNC_ADDRESS(address, &slf__is_path_graph_inside_glass_house__str__t::operator());
@@ -5268,7 +5377,8 @@ struct slf__press_controller_gauge__num__num__num__t : script_library_class::fun
     }
 };
 
-slf__press_controller_gauge__num__num__num__t::slf__press_controller_gauge__num__num__num__t(const char *a3) : function(a3)
+slf__press_controller_gauge__num__num__num__t::slf__press_controller_gauge__num__num__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089BB30);
     FUNC_ADDRESS(address, &slf__press_controller_gauge__num__num__num__t::operator());
@@ -5401,7 +5511,8 @@ struct slf__remove_civilian_info_entity__entity__num__t : script_library_class::
     }
 };
 
-slf__remove_civilian_info_entity__entity__num__t::slf__remove_civilian_info_entity__entity__num__t(const char *a3) : function(a3)
+slf__remove_civilian_info_entity__entity__num__t::slf__remove_civilian_info_entity__entity__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089C5D4);
     FUNC_ADDRESS(address, &slf__remove_civilian_info_entity__entity__num__t::operator());
@@ -5439,7 +5550,8 @@ struct slf__remove_item_entity_from_world__entity__t : script_library_class::fun
     }
 };
 
-slf__remove_item_entity_from_world__entity__t::slf__remove_item_entity_from_world__entity__t(const char *a3) : function(a3)
+slf__remove_item_entity_from_world__entity__t::slf__remove_item_entity_from_world__entity__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089AFFC);
     FUNC_ADDRESS(address, &slf__remove_item_entity_from_world__entity__t::operator());
@@ -5667,7 +5779,8 @@ struct slf__set_current_mission_objective_caption__num__t : script_library_class
     }
 };
 
-slf__set_current_mission_objective_caption__num__t::slf__set_current_mission_objective_caption__num__t(const char *a3) : function(a3)
+slf__set_current_mission_objective_caption__num__t::slf__set_current_mission_objective_caption__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089CADC);
     FUNC_ADDRESS(address, &slf__set_current_mission_objective_caption__num__t::operator());
@@ -5876,7 +5989,9 @@ struct slf__set_mission_key_pos_facing__vector3d__vector3d__t : script_library_c
     }
 };
 
-slf__set_mission_key_pos_facing__vector3d__vector3d__t::slf__set_mission_key_pos_facing__vector3d__vector3d__t(const char *a3) : function(a3)
+slf__set_mission_key_pos_facing__vector3d__vector3d__t::slf__set_mission_key_pos_facing__vector3d__vector3d__t(
+    const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089C37C);
     FUNC_ADDRESS(address, &slf__set_mission_key_pos_facing__vector3d__vector3d__t::operator());
@@ -6069,7 +6184,8 @@ struct slf__set_sound_category_volume__num__num__num__t : script_library_class::
     }
 };
 
-slf__set_sound_category_volume__num__num__num__t::slf__set_sound_category_volume__num__num__num__t(const char *a3) : function(a3)
+slf__set_sound_category_volume__num__num__num__t::slf__set_sound_category_volume__num__num__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089A9D4);
     FUNC_ADDRESS(address, &slf__set_sound_category_volume__num__num__num__t::operator());
@@ -6107,7 +6223,8 @@ struct slf__set_spider_reflexes_blur_blend_mode__num__t : script_library_class::
     }
 };
 
-slf__set_spider_reflexes_blur_blend_mode__num__t::slf__set_spider_reflexes_blur_blend_mode__num__t(const char *a3) : function(a3)
+slf__set_spider_reflexes_blur_blend_mode__num__t::slf__set_spider_reflexes_blur_blend_mode__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089A69C);
     FUNC_ADDRESS(address, &slf__set_spider_reflexes_blur_blend_mode__num__t::operator());
@@ -6126,7 +6243,8 @@ struct slf__set_spider_reflexes_blur_color__vector3d__t : script_library_class::
     }
 };
 
-slf__set_spider_reflexes_blur_color__vector3d__t::slf__set_spider_reflexes_blur_color__vector3d__t(const char *a3) : function(a3)
+slf__set_spider_reflexes_blur_color__vector3d__t::slf__set_spider_reflexes_blur_color__vector3d__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089A67C);
     FUNC_ADDRESS(address, &slf__set_spider_reflexes_blur_color__vector3d__t::operator());
@@ -6145,7 +6263,8 @@ struct slf__set_spider_reflexes_blur_offset__num__num__t : script_library_class:
     }
 };
 
-slf__set_spider_reflexes_blur_offset__num__num__t::slf__set_spider_reflexes_blur_offset__num__num__t(const char *a3) : function(a3)
+slf__set_spider_reflexes_blur_offset__num__num__t::slf__set_spider_reflexes_blur_offset__num__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089A68C);
     FUNC_ADDRESS(address, &slf__set_spider_reflexes_blur_offset__num__num__t::operator());
@@ -6183,7 +6302,8 @@ struct slf__set_spider_reflexes_blur_scale__num__num__t : script_library_class::
     }
 };
 
-slf__set_spider_reflexes_blur_scale__num__num__t::slf__set_spider_reflexes_blur_scale__num__num__t(const char *a3) : function(a3)
+slf__set_spider_reflexes_blur_scale__num__num__t::slf__set_spider_reflexes_blur_scale__num__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089A684);
     FUNC_ADDRESS(address, &slf__set_spider_reflexes_blur_scale__num__num__t::operator());
@@ -6202,7 +6322,9 @@ struct slf__set_spider_reflexes_hero_meter_depletion_rate__num__t : script_libra
     }
 };
 
-slf__set_spider_reflexes_hero_meter_depletion_rate__num__t::slf__set_spider_reflexes_hero_meter_depletion_rate__num__t(const char *a3) : function(a3)
+slf__set_spider_reflexes_hero_meter_depletion_rate__num__t::slf__set_spider_reflexes_hero_meter_depletion_rate__num__t(
+    const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089CAB4);
     FUNC_ADDRESS(address, &slf__set_spider_reflexes_hero_meter_depletion_rate__num__t::operator());
@@ -6221,7 +6343,9 @@ struct slf__set_spider_reflexes_spiderman_time_dilation__num__t : script_library
     }
 };
 
-slf__set_spider_reflexes_spiderman_time_dilation__num__t::slf__set_spider_reflexes_spiderman_time_dilation__num__t(const char *a3) : function(a3)
+slf__set_spider_reflexes_spiderman_time_dilation__num__t::slf__set_spider_reflexes_spiderman_time_dilation__num__t(
+    const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089CABC);
     FUNC_ADDRESS(address, &slf__set_spider_reflexes_spiderman_time_dilation__num__t::operator());
@@ -6240,7 +6364,9 @@ struct slf__set_spider_reflexes_world_time_dilation__num__t : script_library_cla
     }
 };
 
-slf__set_spider_reflexes_world_time_dilation__num__t::slf__set_spider_reflexes_world_time_dilation__num__t(const char *a3) : function(a3)
+slf__set_spider_reflexes_world_time_dilation__num__t::slf__set_spider_reflexes_world_time_dilation__num__t(
+    const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089CACC);
     FUNC_ADDRESS(address, &slf__set_spider_reflexes_world_time_dilation__num__t::operator());
@@ -6278,7 +6404,8 @@ struct slf__set_target_info__entity__vector3d__vector3d__t : script_library_clas
     }
 };
 
-slf__set_target_info__entity__vector3d__vector3d__t::slf__set_target_info__entity__vector3d__vector3d__t(const char *a3) : function(a3)
+slf__set_target_info__entity__vector3d__vector3d__t::slf__set_target_info__entity__vector3d__vector3d__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089B6C4);
     FUNC_ADDRESS(address, &slf__set_target_info__entity__vector3d__vector3d__t::operator());
@@ -6677,7 +6804,8 @@ struct slf__spiderman_camera_add_shake__num__num__num__t : script_library_class:
     }
 };
 
-slf__spiderman_camera_add_shake__num__num__num__t::slf__spiderman_camera_add_shake__num__num__num__t(const char *a3) : function(a3)
+slf__spiderman_camera_add_shake__num__num__num__t::slf__spiderman_camera_add_shake__num__num__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089CB34);
     FUNC_ADDRESS(address, &slf__spiderman_camera_add_shake__num__num__num__t::operator());
@@ -6753,7 +6881,8 @@ struct slf__spiderman_camera_enable_lookaround__num__t : script_library_class::f
     }
 };
 
-slf__spiderman_camera_enable_lookaround__num__t::slf__spiderman_camera_enable_lookaround__num__t(const char *a3) : function(a3)
+slf__spiderman_camera_enable_lookaround__num__t::slf__spiderman_camera_enable_lookaround__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089CB1C);
     FUNC_ADDRESS(address, &slf__spiderman_camera_enable_lookaround__num__t::operator());
@@ -6772,7 +6901,9 @@ struct slf__spiderman_camera_set_fixedstatic__vector3d__vector3d__t : script_lib
     }
 };
 
-slf__spiderman_camera_set_fixedstatic__vector3d__vector3d__t::slf__spiderman_camera_set_fixedstatic__vector3d__vector3d__t(const char *a3) : function(a3)
+slf__spiderman_camera_set_fixedstatic__vector3d__vector3d__t::
+    slf__spiderman_camera_set_fixedstatic__vector3d__vector3d__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089CAF4);
     FUNC_ADDRESS(address, &slf__spiderman_camera_set_fixedstatic__vector3d__vector3d__t::operator());
@@ -6810,7 +6941,8 @@ struct slf__spiderman_camera_set_hero_underwater__num__t : script_library_class:
     }
 };
 
-slf__spiderman_camera_set_hero_underwater__num__t::slf__spiderman_camera_set_hero_underwater__num__t(const char *a3) : function(a3)
+slf__spiderman_camera_set_hero_underwater__num__t::slf__spiderman_camera_set_hero_underwater__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089CB3C);
     FUNC_ADDRESS(address, &slf__spiderman_camera_set_hero_underwater__num__t::operator());
@@ -6829,7 +6961,9 @@ struct slf__spiderman_camera_set_interpolation_time__num__t : script_library_cla
     }
 };
 
-slf__spiderman_camera_set_interpolation_time__num__t::slf__spiderman_camera_set_interpolation_time__num__t(const char *a3) : function(a3)
+slf__spiderman_camera_set_interpolation_time__num__t::slf__spiderman_camera_set_interpolation_time__num__t(
+    const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089CB14);
     FUNC_ADDRESS(address, &slf__spiderman_camera_set_interpolation_time__num__t::operator());
@@ -6848,7 +6982,9 @@ struct slf__spiderman_camera_set_lockon_min_distance__num__t : script_library_cl
     }
 };
 
-slf__spiderman_camera_set_lockon_min_distance__num__t::slf__spiderman_camera_set_lockon_min_distance__num__t(const char *a3) : function(a3)
+slf__spiderman_camera_set_lockon_min_distance__num__t::slf__spiderman_camera_set_lockon_min_distance__num__t(
+    const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089CB04);
     FUNC_ADDRESS(address, &slf__spiderman_camera_set_lockon_min_distance__num__t::operator());
@@ -6867,7 +7003,8 @@ struct slf__spiderman_camera_set_lockon_y_offset__num__t : script_library_class:
     }
 };
 
-slf__spiderman_camera_set_lockon_y_offset__num__t::slf__spiderman_camera_set_lockon_y_offset__num__t(const char *a3) : function(a3)
+slf__spiderman_camera_set_lockon_y_offset__num__t::slf__spiderman_camera_set_lockon_y_offset__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089CB0C);
     FUNC_ADDRESS(address, &slf__spiderman_camera_set_lockon_y_offset__num__t::operator());
@@ -6905,7 +7042,8 @@ struct slf__spiderman_enable_control_button__num__num__t : script_library_class:
     }
 };
 
-slf__spiderman_enable_control_button__num__num__t::slf__spiderman_enable_control_button__num__num__t(const char *a3) : function(a3)
+slf__spiderman_enable_control_button__num__num__t::slf__spiderman_enable_control_button__num__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089CA94);
     FUNC_ADDRESS(address, &slf__spiderman_enable_control_button__num__num__t::operator());
@@ -6962,7 +7100,8 @@ struct slf__spiderman_engage_lockon__num__entity__t : script_library_class::func
     }
 };
 
-slf__spiderman_engage_lockon__num__entity__t::slf__spiderman_engage_lockon__num__entity__t(const char *a3) : function(a3)
+slf__spiderman_engage_lockon__num__entity__t::slf__spiderman_engage_lockon__num__entity__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089C9BC);
     FUNC_ADDRESS(address, &slf__spiderman_engage_lockon__num__entity__t::operator());
@@ -7342,7 +7481,9 @@ struct slf__spiderman_set_desired_mode__num__vector3d__vector3d__t : script_libr
     }
 };
 
-slf__spiderman_set_desired_mode__num__vector3d__vector3d__t::slf__spiderman_set_desired_mode__num__vector3d__vector3d__t(const char *a3) : function(a3)
+slf__spiderman_set_desired_mode__num__vector3d__vector3d__t::
+    slf__spiderman_set_desired_mode__num__vector3d__vector3d__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089C9EC);
     FUNC_ADDRESS(address, &slf__spiderman_set_desired_mode__num__vector3d__vector3d__t::operator());
@@ -7361,7 +7502,9 @@ struct slf__spiderman_set_health_beep_min_max_cooldown_time__num__num__t : scrip
     }
 };
 
-slf__spiderman_set_health_beep_min_max_cooldown_time__num__num__t::slf__spiderman_set_health_beep_min_max_cooldown_time__num__num__t(const char *a3) : function(a3)
+slf__spiderman_set_health_beep_min_max_cooldown_time__num__num__t::
+    slf__spiderman_set_health_beep_min_max_cooldown_time__num__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089C9F4);
     FUNC_ADDRESS(address, &slf__spiderman_set_health_beep_min_max_cooldown_time__num__num__t::operator());
@@ -7380,7 +7523,8 @@ struct slf__spiderman_set_health_beep_threshold__num__t : script_library_class::
     }
 };
 
-slf__spiderman_set_health_beep_threshold__num__t::slf__spiderman_set_health_beep_threshold__num__t(const char *a3) : function(a3)
+slf__spiderman_set_health_beep_threshold__num__t::slf__spiderman_set_health_beep_threshold__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089C9FC);
     FUNC_ADDRESS(address, &slf__spiderman_set_health_beep_threshold__num__t::operator());
@@ -7399,7 +7543,8 @@ struct slf__spiderman_set_hero_meter_empty_rate__num__t : script_library_class::
     }
 };
 
-slf__spiderman_set_hero_meter_empty_rate__num__t::slf__spiderman_set_hero_meter_empty_rate__num__t(const char *a3) : function(a3)
+slf__spiderman_set_hero_meter_empty_rate__num__t::slf__spiderman_set_hero_meter_empty_rate__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089CB44);
     FUNC_ADDRESS(address, &slf__spiderman_set_hero_meter_empty_rate__num__t::operator());
@@ -7475,7 +7620,8 @@ struct slf__spiderman_set_spidey_sense_level__num__t : script_library_class::fun
     }
 };
 
-slf__spiderman_set_spidey_sense_level__num__t::slf__spiderman_set_spidey_sense_level__num__t(const char *a3) : function(a3)
+slf__spiderman_set_spidey_sense_level__num__t::slf__spiderman_set_spidey_sense_level__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089C994);
     FUNC_ADDRESS(address, &slf__spiderman_set_spidey_sense_level__num__t::operator());
@@ -7494,7 +7640,9 @@ struct slf__spiderman_set_swing_anchor_max_sticky_time__num__t : script_library_
     }
 };
 
-slf__spiderman_set_swing_anchor_max_sticky_time__num__t::slf__spiderman_set_swing_anchor_max_sticky_time__num__t(const char *a3) : function(a3)
+slf__spiderman_set_swing_anchor_max_sticky_time__num__t::slf__spiderman_set_swing_anchor_max_sticky_time__num__t(
+    const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089C9A4);
     FUNC_ADDRESS(address, &slf__spiderman_set_swing_anchor_max_sticky_time__num__t::operator());
@@ -7532,7 +7680,9 @@ struct slf__spiderman_td_set_alternating_wall_run_occurrence_threshold__num__t :
     }
 };
 
-slf__spiderman_td_set_alternating_wall_run_occurrence_threshold__num__t::slf__spiderman_td_set_alternating_wall_run_occurrence_threshold__num__t(const char *a3) : function(a3)
+slf__spiderman_td_set_alternating_wall_run_occurrence_threshold__num__t::
+    slf__spiderman_td_set_alternating_wall_run_occurrence_threshold__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089CA74);
     FUNC_ADDRESS(address, &slf__spiderman_td_set_alternating_wall_run_occurrence_threshold__num__t::operator());
@@ -7551,7 +7701,9 @@ struct slf__spiderman_td_set_alternating_wall_run_time_threshold__num__t : scrip
     }
 };
 
-slf__spiderman_td_set_alternating_wall_run_time_threshold__num__t::slf__spiderman_td_set_alternating_wall_run_time_threshold__num__t(const char *a3) : function(a3)
+slf__spiderman_td_set_alternating_wall_run_time_threshold__num__t::
+    slf__spiderman_td_set_alternating_wall_run_time_threshold__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089CA6C);
     FUNC_ADDRESS(address, &slf__spiderman_td_set_alternating_wall_run_time_threshold__num__t::operator());
@@ -7570,7 +7722,9 @@ struct slf__spiderman_td_set_big_air_height_threshold__num__t : script_library_c
     }
 };
 
-slf__spiderman_td_set_big_air_height_threshold__num__t::slf__spiderman_td_set_big_air_height_threshold__num__t(const char *a3) : function(a3)
+slf__spiderman_td_set_big_air_height_threshold__num__t::slf__spiderman_td_set_big_air_height_threshold__num__t(
+    const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089CA34);
     FUNC_ADDRESS(address, &slf__spiderman_td_set_big_air_height_threshold__num__t::operator());
@@ -7589,7 +7743,9 @@ struct slf__spiderman_td_set_continuous_air_swings_threshold__num__t : script_li
     }
 };
 
-slf__spiderman_td_set_continuous_air_swings_threshold__num__t::slf__spiderman_td_set_continuous_air_swings_threshold__num__t(const char *a3) : function(a3)
+slf__spiderman_td_set_continuous_air_swings_threshold__num__t::
+    slf__spiderman_td_set_continuous_air_swings_threshold__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089CA4C);
     FUNC_ADDRESS(address, &slf__spiderman_td_set_continuous_air_swings_threshold__num__t::operator());
@@ -7608,7 +7764,9 @@ struct slf__spiderman_td_set_gain_altitude_height_threshold__num__t : script_lib
     }
 };
 
-slf__spiderman_td_set_gain_altitude_height_threshold__num__t::slf__spiderman_td_set_gain_altitude_height_threshold__num__t(const char *a3) : function(a3)
+slf__spiderman_td_set_gain_altitude_height_threshold__num__t::
+    slf__spiderman_td_set_gain_altitude_height_threshold__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089CA54);
     FUNC_ADDRESS(address, &slf__spiderman_td_set_gain_altitude_height_threshold__num__t::operator());
@@ -7627,7 +7785,9 @@ struct slf__spiderman_td_set_near_miss_trigger_radius__num__t : script_library_c
     }
 };
 
-slf__spiderman_td_set_near_miss_trigger_radius__num__t::slf__spiderman_td_set_near_miss_trigger_radius__num__t(const char *a3) : function(a3)
+slf__spiderman_td_set_near_miss_trigger_radius__num__t::slf__spiderman_td_set_near_miss_trigger_radius__num__t(
+    const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089CA84);
     FUNC_ADDRESS(address, &slf__spiderman_td_set_near_miss_trigger_radius__num__t::operator());
@@ -7646,7 +7806,9 @@ struct slf__spiderman_td_set_near_miss_velocity_threshold__num__t : script_libra
     }
 };
 
-slf__spiderman_td_set_near_miss_velocity_threshold__num__t::slf__spiderman_td_set_near_miss_velocity_threshold__num__t(const char *a3) : function(a3)
+slf__spiderman_td_set_near_miss_velocity_threshold__num__t::slf__spiderman_td_set_near_miss_velocity_threshold__num__t(
+    const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089CA8C);
     FUNC_ADDRESS(address, &slf__spiderman_td_set_near_miss_velocity_threshold__num__t::operator());
@@ -7665,7 +7827,9 @@ struct slf__spiderman_td_set_orbit_min_radius_threshold__num__t : script_library
     }
 };
 
-slf__spiderman_td_set_orbit_min_radius_threshold__num__t::slf__spiderman_td_set_orbit_min_radius_threshold__num__t(const char *a3) : function(a3)
+slf__spiderman_td_set_orbit_min_radius_threshold__num__t::slf__spiderman_td_set_orbit_min_radius_threshold__num__t(
+    const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089CA3C);
     FUNC_ADDRESS(address, &slf__spiderman_td_set_orbit_min_radius_threshold__num__t::operator());
@@ -7684,7 +7848,9 @@ struct slf__spiderman_td_set_soft_landing_velocity_threshold__num__t : script_li
     }
 };
 
-slf__spiderman_td_set_soft_landing_velocity_threshold__num__t::slf__spiderman_td_set_soft_landing_velocity_threshold__num__t(const char *a3) : function(a3)
+slf__spiderman_td_set_soft_landing_velocity_threshold__num__t::
+    slf__spiderman_td_set_soft_landing_velocity_threshold__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089CA5C);
     FUNC_ADDRESS(address, &slf__spiderman_td_set_soft_landing_velocity_threshold__num__t::operator());
@@ -7703,7 +7869,9 @@ struct slf__spiderman_td_set_super_speed_speed_threshold__num__t : script_librar
     }
 };
 
-slf__spiderman_td_set_super_speed_speed_threshold__num__t::slf__spiderman_td_set_super_speed_speed_threshold__num__t(const char *a3) : function(a3)
+slf__spiderman_td_set_super_speed_speed_threshold__num__t::slf__spiderman_td_set_super_speed_speed_threshold__num__t(
+    const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089CA7C);
     FUNC_ADDRESS(address, &slf__spiderman_td_set_super_speed_speed_threshold__num__t::operator());
@@ -7722,7 +7890,9 @@ struct slf__spiderman_td_set_swinging_wall_run_time_threshold__num__t : script_l
     }
 };
 
-slf__spiderman_td_set_swinging_wall_run_time_threshold__num__t::slf__spiderman_td_set_swinging_wall_run_time_threshold__num__t(const char *a3) : function(a3)
+slf__spiderman_td_set_swinging_wall_run_time_threshold__num__t::
+    slf__spiderman_td_set_swinging_wall_run_time_threshold__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089CA64);
     FUNC_ADDRESS(address, &slf__spiderman_td_set_swinging_wall_run_time_threshold__num__t::operator());
@@ -7741,7 +7911,9 @@ struct slf__spiderman_td_set_wall_sprint_time_threshold__num__t : script_library
     }
 };
 
-slf__spiderman_td_set_wall_sprint_time_threshold__num__t::slf__spiderman_td_set_wall_sprint_time_threshold__num__t(const char *a3) : function(a3)
+slf__spiderman_td_set_wall_sprint_time_threshold__num__t::slf__spiderman_td_set_wall_sprint_time_threshold__num__t(
+    const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089CA44);
     FUNC_ADDRESS(address, &slf__spiderman_td_set_wall_sprint_time_threshold__num__t::operator());
@@ -7779,7 +7951,9 @@ struct slf__spiderman_wait_add_threat__entity__str__num__num__t : script_library
     }
 };
 
-slf__spiderman_wait_add_threat__entity__str__num__num__t::slf__spiderman_wait_add_threat__entity__str__num__num__t(const char *a3) : function(a3)
+slf__spiderman_wait_add_threat__entity__str__num__num__t::slf__spiderman_wait_add_threat__entity__str__num__num__t(
+    const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089CB4C);
     FUNC_ADDRESS(address, &slf__spiderman_wait_add_threat__entity__str__num__num__t::operator());
@@ -7912,7 +8086,8 @@ struct slf__subtitle__num__num__num__num__num__num__t : script_library_class::fu
     }
 };
 
-slf__subtitle__num__num__num__num__num__num__t::slf__subtitle__num__num__num__num__num__num__t(const char *a3) : function(a3)
+slf__subtitle__num__num__num__num__num__num__t::slf__subtitle__num__num__num__num__num__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089BCC4);
     FUNC_ADDRESS(address, &slf__subtitle__num__num__num__num__num__num__t::operator());
@@ -8368,7 +8543,8 @@ struct slf__turn_on_third_party_health__num__entity__t : script_library_class::f
     }
 };
 
-slf__turn_on_third_party_health__num__entity__t::slf__turn_on_third_party_health__num__entity__t(const char *a3) : function(a3)
+slf__turn_on_third_party_health__num__entity__t::slf__turn_on_third_party_health__num__entity__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089BBC8);
     FUNC_ADDRESS(address, &slf__turn_on_third_party_health__num__entity__t::operator());
@@ -8482,7 +8658,9 @@ struct slf__vibrate_controller__num__num__num__num__num__num__t : script_library
     }
 };
 
-slf__vibrate_controller__num__num__num__num__num__num__t::slf__vibrate_controller__num__num__num__num__num__num__t(const char *a3) : function(a3)
+slf__vibrate_controller__num__num__num__num__num__num__t::slf__vibrate_controller__num__num__num__num__num__num__t(
+    const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089A7B4);
     FUNC_ADDRESS(address, &slf__vibrate_controller__num__num__num__num__num__num__t::operator());
@@ -8520,7 +8698,8 @@ struct slf__wait_animate_fog_color__vector3d__num__t : script_library_class::fun
     }
 };
 
-slf__wait_animate_fog_color__vector3d__num__t::slf__wait_animate_fog_color__vector3d__num__t(const char *a3) : function(a3)
+slf__wait_animate_fog_color__vector3d__num__t::slf__wait_animate_fog_color__vector3d__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089A6FC);
     FUNC_ADDRESS(address, &slf__wait_animate_fog_color__vector3d__num__t::operator());
@@ -8558,7 +8737,8 @@ struct slf__wait_animate_fog_distances__num__num__num__t : script_library_class:
     }
 };
 
-slf__wait_animate_fog_distances__num__num__num__t::slf__wait_animate_fog_distances__num__num__num__t(const char *a3) : function(a3)
+slf__wait_animate_fog_distances__num__num__num__t::slf__wait_animate_fog_distances__num__num__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089A70C);
     FUNC_ADDRESS(address, &slf__wait_animate_fog_distances__num__num__num__t::operator());
@@ -8577,14 +8757,17 @@ struct slf__wait_change_blur__num__vector3d__num__num__num__num__num__num__t : s
     }
 };
 
-slf__wait_change_blur__num__vector3d__num__num__num__num__num__num__t::slf__wait_change_blur__num__vector3d__num__num__num__num__num__num__t(const char *a3) : function(a3)
+slf__wait_change_blur__num__vector3d__num__num__num__num__num__num__t::
+    slf__wait_change_blur__num__vector3d__num__num__num__num__num__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089A66C);
     FUNC_ADDRESS(address, &slf__wait_change_blur__num__vector3d__num__num__num__num__num__num__t::operator());
     m_vtbl->__cl = CAST(m_vtbl->__cl, address);
 }
 
-struct slf__wait_change_spider_reflexes_blur__num__vector3d__num__num__num__num__num__num__t : script_library_class::function {
+struct slf__wait_change_spider_reflexes_blur__num__vector3d__num__num__num__num__num__num__t
+    : script_library_class::function {
     slf__wait_change_spider_reflexes_blur__num__vector3d__num__num__num__num__num__num__t(const char *a3);
 
     bool operator()(vm_stack &stack, [[maybe_unused]]script_library_class::function::entry_t entry) const
@@ -8596,10 +8779,13 @@ struct slf__wait_change_spider_reflexes_blur__num__vector3d__num__num__num__num_
     }
 };
 
-slf__wait_change_spider_reflexes_blur__num__vector3d__num__num__num__num__num__num__t::slf__wait_change_spider_reflexes_blur__num__vector3d__num__num__num__num__num__num__t(const char *a3) : function(a3)
+slf__wait_change_spider_reflexes_blur__num__vector3d__num__num__num__num__num__num__t::
+    slf__wait_change_spider_reflexes_blur__num__vector3d__num__num__num__num__num__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089A6A4);
-    FUNC_ADDRESS(address, &slf__wait_change_spider_reflexes_blur__num__vector3d__num__num__num__num__num__num__t::operator());
+    FUNC_ADDRESS(address,
+                 &slf__wait_change_spider_reflexes_blur__num__vector3d__num__num__num__num__num__num__t::operator());
     m_vtbl->__cl = CAST(m_vtbl->__cl, address);
 }
 
@@ -8615,7 +8801,8 @@ struct slf__wait_for_streamer_to_reach_equilibrium__t : script_library_class::fu
     }
 };
 
-slf__wait_for_streamer_to_reach_equilibrium__t::slf__wait_for_streamer_to_reach_equilibrium__t(const char *a3) : function(a3)
+slf__wait_for_streamer_to_reach_equilibrium__t::slf__wait_for_streamer_to_reach_equilibrium__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089C4A4);
     FUNC_ADDRESS(address, &slf__wait_for_streamer_to_reach_equilibrium__t::operator());
@@ -8634,7 +8821,8 @@ struct slf__wait_fps_test__num__num__vector3d__vector3d__t : script_library_clas
     }
 };
 
-slf__wait_fps_test__num__num__vector3d__vector3d__t::slf__wait_fps_test__num__num__vector3d__vector3d__t(const char *a3) : function(a3)
+slf__wait_fps_test__num__num__vector3d__vector3d__t::slf__wait_fps_test__num__num__vector3d__vector3d__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089A8EC);
     FUNC_ADDRESS(address, &slf__wait_fps_test__num__num__vector3d__vector3d__t::operator());
@@ -8672,7 +8860,8 @@ struct slf__wait_set_global_time_dilation__num__num__t : script_library_class::f
     }
 };
 
-slf__wait_set_global_time_dilation__num__num__t::slf__wait_set_global_time_dilation__num__num__t(const char *a3) : function(a3)
+slf__wait_set_global_time_dilation__num__num__t::slf__wait_set_global_time_dilation__num__num__t(const char *a3)
+    : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089A8A4);
     FUNC_ADDRESS(address, &slf__wait_set_global_time_dilation__num__num__t::operator());
@@ -8726,8 +8915,8 @@ slf__write_to_file__str__str__t::slf__write_to_file__str__str__t(const char *a3)
 
 #define DECLARE_SLC(type, base_type, vtbl)                          \
     struct BUILD_SLC_NAME(type) : script_library_class {          \
-        BUILD_SLC_NAME(type) ()                                   \
-            : script_library_class(#type, 4u, #base_type, false) {  \
+        BUILD_SLC_NAME(type)() : script_library_class(#type, 4u, #base_type, false) \
+        {                                                                           \
                 m_vtbl = vtbl;                                      \
             }                                                       \
     }
@@ -8735,8 +8924,6 @@ slf__write_to_file__str__str__t::slf__write_to_file__str__str__t(const char *a3)
 DECLARE_SLC(pfx, "\0", 0x0089C878);
 
 DECLARE_SLC(interactable_interface, "\0", 0x0089B5A8);
-
-DECLARE_SLC(beam, entity, 0x0089AAF8);
 
 DECLARE_SLC(cut_scene, "\0", 0x0089B7A8);
 
@@ -8816,2614 +9003,2988 @@ DECLARE_SLC(district, signaller, 0x0089A4FC);
 
 #define DECLARE_SLF_BEGIN(KLASS, NAME, VTBL) \
     struct BUILD_SLF_NAME(KLASS, NAME) : script_library_class::function { \
-        BUILD_SLF_NAME(KLASS, NAME) (script_library_class *slc, const char *a3) : function(slc, a3)  { \
+        BUILD_SLF_NAME(KLASS, NAME)(script_library_class * slc, const char *a3) : function(slc, a3) \
+        {                                                                                           \
             m_vtbl = CAST(m_vtbl, VTBL); \
         } \
     \
         bool operator()(vm_stack &stack, script_library_class::function::entry_t entry) const
 
 #define DECLARE_SLF_END() \
-    };
+    }                     \
+    ;
 
 
-DECLARE_SLF_BEGIN(beam, add_alpha_effect__num__num__num__num__num__num, 0x0089AB9C){
+DECLARE_SLF_BEGIN(beam, add_alpha_effect__num__num__num__num__num__num, 0x0089AB9C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(beam, add_color_effect__num__num__num__num__num__num__num__num__num__num, 0x0089AB8C){
+DECLARE_SLF_BEGIN(beam, add_color_effect__num__num__num__num__num__num__num__num__num__num, 0x0089AB8C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(beam, add_width_effect__num__num__num__num__num__num, 0x0089AB94){
+DECLARE_SLF_BEGIN(beam, add_width_effect__num__num__num__num__num__num, 0x0089AB94)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(beam, get_impact_normal, 0x0089AB1C){
+DECLARE_SLF_BEGIN(beam, get_impact_normal, 0x0089AB1C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(beam, get_impact_point, 0x0089AB14){
+DECLARE_SLF_BEGIN(beam, get_impact_point, 0x0089AB14)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(beam, hit_hero, 0x0089AB0C){
+DECLARE_SLF_BEGIN(beam, hit_hero, 0x0089AB0C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(beam, hit_world, 0x0089AB04){
+DECLARE_SLF_BEGIN(beam, hit_world, 0x0089AB04)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(beam, kill_all_effects__num, 0x0089ABAC){
+DECLARE_SLF_BEGIN(beam, kill_all_effects__num, 0x0089ABAC)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(beam, kill_effect__num__num, 0x0089ABA4){
+DECLARE_SLF_BEGIN(beam, kill_effect__num__num, 0x0089ABA4)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(beam, set_additive__num, 0x0089AB64){
+DECLARE_SLF_BEGIN(beam, set_additive__num, 0x0089AB64)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(beam, set_collide_beamable__num, 0x0089AB54){
+DECLARE_SLF_BEGIN(beam, set_collide_beamable__num, 0x0089AB54)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(beam, set_collide_hero__num, 0x0089AB44){
+DECLARE_SLF_BEGIN(beam, set_collide_hero__num, 0x0089AB44)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(beam, set_collide_world__num, 0x0089AB4C){
+DECLARE_SLF_BEGIN(beam, set_collide_world__num, 0x0089AB4C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(beam, set_color__num__num__num__num, 0x0089AB34){
+DECLARE_SLF_BEGIN(beam, set_color__num__num__num__num, 0x0089AB34)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(beam, set_detect_stealth__num, 0x0089AB3C){
+DECLARE_SLF_BEGIN(beam, set_detect_stealth__num, 0x0089AB3C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(beam, set_material__str, 0x0089AB84){
+DECLARE_SLF_BEGIN(beam, set_material__str, 0x0089AB84)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(beam, set_max_length__num, 0x0089AB2C){
+DECLARE_SLF_BEGIN(beam, set_max_length__num, 0x0089AB2C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(beam, set_no_collision, 0x0089AB5C){
+DECLARE_SLF_BEGIN(beam, set_no_collision, 0x0089AB5C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(beam, set_point_to_point__vector3d__vector3d, 0x0089AB6C){
+DECLARE_SLF_BEGIN(beam, set_point_to_point__vector3d__vector3d, 0x0089AB6C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(beam, set_thickness__num, 0x0089AB24){
+DECLARE_SLF_BEGIN(beam, set_thickness__num, 0x0089AB24)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(beam, set_tiles_per_meter__num, 0x0089AB7C){
+DECLARE_SLF_BEGIN(beam, set_tiles_per_meter__num, 0x0089AB7C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(beam, set_uv_anim__num__num, 0x0089AB74){
+DECLARE_SLF_BEGIN(beam, set_uv_anim__num__num, 0x0089AB74)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(critical_section, critical_section__num, 0x0089C7E8){
+DECLARE_SLF_BEGIN(critical_section, critical_section__num, 0x0089C7E8)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(cut_scene, wait_play, 0x0089B7D8){
+DECLARE_SLF_BEGIN(cut_scene, wait_play, 0x0089B7D8)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(cut_scene, wait_play__entity_list, 0x0089B7E0){
+DECLARE_SLF_BEGIN(cut_scene, wait_play__entity_list, 0x0089B7E0)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(debug_menu_entry, get_handler, 0x0089C744){
+DECLARE_SLF_BEGIN(debug_menu_entry, get_handler, 0x0089C744)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(debug_menu_entry, get_id, 0x0089C734){
+DECLARE_SLF_BEGIN(debug_menu_entry, get_id, 0x0089C734)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(debug_menu_entry, get_max_value, 0x0089C784){
+DECLARE_SLF_BEGIN(debug_menu_entry, get_max_value, 0x0089C784)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(debug_menu_entry, get_min_value, 0x0089C774){
+DECLARE_SLF_BEGIN(debug_menu_entry, get_min_value, 0x0089C774)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(debug_menu_entry, get_name, 0x0089C724){
+DECLARE_SLF_BEGIN(debug_menu_entry, get_name, 0x0089C724)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(debug_menu_entry, get_step_scale, 0x0089C7A4){
+DECLARE_SLF_BEGIN(debug_menu_entry, get_step_scale, 0x0089C7A4)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(debug_menu_entry, get_step_size, 0x0089C794){
+DECLARE_SLF_BEGIN(debug_menu_entry, get_step_size, 0x0089C794)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(debug_menu_entry, get_value, 0x0089C754){
+DECLARE_SLF_BEGIN(debug_menu_entry, get_value, 0x0089C754)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(debug_menu_entry, get_value_type, 0x0089C764){
+DECLARE_SLF_BEGIN(debug_menu_entry, get_value_type, 0x0089C764)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(debug_menu_entry, set_handler__str, 0x0089C74C){
+DECLARE_SLF_BEGIN(debug_menu_entry, set_handler__str, 0x0089C74C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(debug_menu_entry, set_id__num, 0x0089C73C){
+DECLARE_SLF_BEGIN(debug_menu_entry, set_id__num, 0x0089C73C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(debug_menu_entry, set_max_value__num, 0x0089C78C){
+DECLARE_SLF_BEGIN(debug_menu_entry, set_max_value__num, 0x0089C78C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(debug_menu_entry, set_min_value__num, 0x0089C77C){
+DECLARE_SLF_BEGIN(debug_menu_entry, set_min_value__num, 0x0089C77C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(debug_menu_entry, set_name__str, 0x0089C72C){
+DECLARE_SLF_BEGIN(debug_menu_entry, set_name__str, 0x0089C72C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(debug_menu_entry, set_step_scale__num, 0x0089C7AC){
+DECLARE_SLF_BEGIN(debug_menu_entry, set_step_scale__num, 0x0089C7AC)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(debug_menu_entry, set_step_size__num, 0x0089C79C){
+DECLARE_SLF_BEGIN(debug_menu_entry, set_step_size__num, 0x0089C79C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(debug_menu_entry, set_value__num, 0x0089C75C){
+DECLARE_SLF_BEGIN(debug_menu_entry, set_value__num, 0x0089C75C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(debug_menu_entry, set_value_type__num, 0x0089C76C){
+DECLARE_SLF_BEGIN(debug_menu_entry, set_value_type__num, 0x0089C76C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(district, contains_point__vector3d, 0x0089C838){
+DECLARE_SLF_BEGIN(district, contains_point__vector3d, 0x0089C838)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(district, district__num, 0x0089C7F0){
+DECLARE_SLF_BEGIN(district, district__num, 0x0089C7F0)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(district, district__str, 0x0089C7F8){
+DECLARE_SLF_BEGIN(district, district__str, 0x0089C7F8)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(district, get_id, 0x0089C818){
+DECLARE_SLF_BEGIN(district, get_id, 0x0089C818)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(district, get_name, 0x0089C850){
+DECLARE_SLF_BEGIN(district, get_name, 0x0089C850)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(district, get_neighborhood, 0x0089C868){
+DECLARE_SLF_BEGIN(district, get_neighborhood, 0x0089C868)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(district, get_num_missions__str, 0x0089C860){
+DECLARE_SLF_BEGIN(district, get_num_missions__str, 0x0089C860)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(district, get_variant, 0x0089C840){
+DECLARE_SLF_BEGIN(district, get_variant, 0x0089C840)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(district, get_variant_count, 0x0089C848){
+DECLARE_SLF_BEGIN(district, get_variant_count, 0x0089C848)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(district, is_in_neighborhood__num, 0x0089C870){
+DECLARE_SLF_BEGIN(district, is_in_neighborhood__num, 0x0089C870)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(district, is_loaded, 0x0089C820){
+DECLARE_SLF_BEGIN(district, is_loaded, 0x0089C820)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(district, is_locked, 0x0089C828){
+DECLARE_SLF_BEGIN(district, is_locked, 0x0089C828)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(district, lock, 0x0089C800){
+DECLARE_SLF_BEGIN(district, lock, 0x0089C800)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(district, purge, 0x0089C810){
+DECLARE_SLF_BEGIN(district, purge, 0x0089C810)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(district, set_variant__num, 0x0089C858){
+DECLARE_SLF_BEGIN(district, set_variant__num, 0x0089C858)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(district, unlock, 0x0089C808){
+DECLARE_SLF_BEGIN(district, unlock, 0x0089C808)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(district, wait_for_load, 0x0089C830){
+DECLARE_SLF_BEGIN(district, wait_for_load, 0x0089C830)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(entity_list, add__entity, 0x0089BFE4){
+DECLARE_SLF_BEGIN(entity_list, add__entity, 0x0089BFE4)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(entity_list, begin, 0x0089BFFC){
+DECLARE_SLF_BEGIN(entity_list, begin, 0x0089BFFC)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(entity_list, end, 0x0089C004){
+DECLARE_SLF_BEGIN(entity_list, end, 0x0089C004)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(entity_list, get_index__num, 0x0089C00C){
+DECLARE_SLF_BEGIN(entity_list, get_index__num, 0x0089C00C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(entity_list, remove__entity, 0x0089BFEC){
+DECLARE_SLF_BEGIN(entity_list, remove__entity, 0x0089BFEC)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(entity_list, remove__entity_list_iterator, 0x0089BFF4){
+DECLARE_SLF_BEGIN(entity_list, remove__entity_list_iterator, 0x0089BFF4)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(entity_list, set_index__num__entity, 0x0089C014){
+DECLARE_SLF_BEGIN(entity_list, set_index__num__entity, 0x0089C014)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(entity_list, size, 0x0089BFDC){
+DECLARE_SLF_BEGIN(entity_list, size, 0x0089BFDC)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(entity_list_iterator, get_entity, 0x0089C03C){
+DECLARE_SLF_BEGIN(entity_list_iterator, get_entity, 0x0089C03C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(entity_list_iterator, operator_not_equals__entity_list_iterator, 0x0089C034){
+DECLARE_SLF_BEGIN(entity_list_iterator, operator_not_equals__entity_list_iterator, 0x0089C034)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(entity_list_iterator, operator_plus_plus, 0x0089C01C){
+DECLARE_SLF_BEGIN(entity_list_iterator, operator_plus_plus, 0x0089C01C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(entity_list_iterator, operator_minus_munus, 0x0089C024){
+DECLARE_SLF_BEGIN(entity_list_iterator, operator_minus_munus, 0x0089C024)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(entity_list_iterator, operator_equals_equals__entity_list_iterator, 0x0089C02C){
+DECLARE_SLF_BEGIN(entity_list_iterator, operator_equals_equals__entity_list_iterator, 0x0089C02C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(entity_tracker, get_entity, 0x0089C55C){
+DECLARE_SLF_BEGIN(entity_tracker, get_entity, 0x0089C55C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(entity_tracker, get_mini_map_active, 0x0089C56C){
+DECLARE_SLF_BEGIN(entity_tracker, get_mini_map_active, 0x0089C56C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(entity_tracker, get_poi_active, 0x0089C58C){
+DECLARE_SLF_BEGIN(entity_tracker, get_poi_active, 0x0089C58C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(entity_tracker, set_entity__entity, 0x0089C554){
+DECLARE_SLF_BEGIN(entity_tracker, set_entity__entity, 0x0089C554)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(entity_tracker, set_health_widget_active__num, 0x0089C584){
+DECLARE_SLF_BEGIN(entity_tracker, set_health_widget_active__num, 0x0089C584)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(entity_tracker, set_mini_map_active__num, 0x0089C564){
+DECLARE_SLF_BEGIN(entity_tracker, set_mini_map_active__num, 0x0089C564)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(entity_tracker, set_poi_active__num, 0x0089C57C){
+DECLARE_SLF_BEGIN(entity_tracker, set_poi_active__num, 0x0089C57C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(entity_tracker, set_poi_icon__num, 0x0089C574){
+DECLARE_SLF_BEGIN(entity_tracker, set_poi_icon__num, 0x0089C574)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(glamour_cam, set_angle__num__num__num__num, 0x0089B788){
+DECLARE_SLF_BEGIN(glamour_cam, set_angle__num__num__num__num, 0x0089B788)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(glamour_cam, set_look_at_bone__str, 0x0089B7A0){
+DECLARE_SLF_BEGIN(glamour_cam, set_look_at_bone__str, 0x0089B7A0)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(glamour_cam, set_position_bone__str, 0x0089B798){
+DECLARE_SLF_BEGIN(glamour_cam, set_position_bone__str, 0x0089B798)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(glamour_cam, set_target__entity, 0x0089B790){
+DECLARE_SLF_BEGIN(glamour_cam, set_target__entity, 0x0089B790)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(gun, get_blaster_beam, 0x0089B588){
+DECLARE_SLF_BEGIN(gun, get_blaster_beam, 0x0089B588)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(gun, get_muzzle_pos, 0x0089B590){
+DECLARE_SLF_BEGIN(gun, get_muzzle_pos, 0x0089B590)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(gun, set_target_info__entity__vector3d__vector3d, 0x0089B598){
+DECLARE_SLF_BEGIN(gun, set_target_info__entity__vector3d__vector3d, 0x0089B598)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(interactable_interface, add_box_trigger__string_hash__num__vector3d__vector3d, 0x0089B61C){
+DECLARE_SLF_BEGIN(interactable_interface, add_box_trigger__string_hash__num__vector3d__vector3d, 0x0089B61C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(interactable_interface, add_named_box_trigger__string_hash__str, 0x0089B624){
+DECLARE_SLF_BEGIN(interactable_interface, add_named_box_trigger__string_hash__str, 0x0089B624)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(interactable_interface, add_point_trigger__string_hash__num__vector3d__num, 0x0089B614){
+DECLARE_SLF_BEGIN(interactable_interface, add_point_trigger__string_hash__num__vector3d__num, 0x0089B614)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(interactable_interface, create_interaction__string_hash__num, 0x0089B5E4){
+DECLARE_SLF_BEGIN(interactable_interface, create_interaction__string_hash__num, 0x0089B5E4)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(interactable_interface, create_interaction__string_hash__num__str, 0x0089B5EC){
+DECLARE_SLF_BEGIN(interactable_interface, create_interaction__string_hash__num__str, 0x0089B5EC)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(interactable_interface, disable_interaction__string_hash, 0x0089B5DC){
+DECLARE_SLF_BEGIN(interactable_interface, disable_interaction__string_hash, 0x0089B5DC)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(interactable_interface, enable_interaction__string_hash, 0x0089B5D4){
+DECLARE_SLF_BEGIN(interactable_interface, enable_interaction__string_hash, 0x0089B5D4)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(interactable_interface, nondirectional__string_hash, 0x0089B604){
+DECLARE_SLF_BEGIN(interactable_interface, nondirectional__string_hash, 0x0089B604)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(interactable_interface, one_shot__string_hash, 0x0089B5FC){
+DECLARE_SLF_BEGIN(interactable_interface, one_shot__string_hash, 0x0089B5FC)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(interactable_interface, set_activation_button__string_hash__num, 0x0089B5F4){
+DECLARE_SLF_BEGIN(interactable_interface, set_activation_button__string_hash__num, 0x0089B5F4)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(interactable_interface, set_approach__string_hash__num, 0x0089B60C){
+DECLARE_SLF_BEGIN(interactable_interface, set_approach__string_hash__num, 0x0089B60C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(item, draw, 0x0089B6A4){
+DECLARE_SLF_BEGIN(item, draw, 0x0089B6A4)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(item, get_count, 0x0089B63C){
+DECLARE_SLF_BEGIN(item, get_count, 0x0089B63C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(item, get_last_grenade_armed, 0x0089B674){
+DECLARE_SLF_BEGIN(item, get_last_grenade_armed, 0x0089B674)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(item, get_last_grenade_detonated, 0x0089B67C){
+DECLARE_SLF_BEGIN(item, get_last_grenade_detonated, 0x0089B67C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(item, get_last_grenade_spawned, 0x0089B66C){
+DECLARE_SLF_BEGIN(item, get_last_grenade_spawned, 0x0089B66C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(item, get_launch_force, 0x0089B64C){
+DECLARE_SLF_BEGIN(item, get_launch_force, 0x0089B64C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(item, get_launch_vec, 0x0089B65C){
+DECLARE_SLF_BEGIN(item, get_launch_vec, 0x0089B65C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(item, get_owner, 0x0089B684){
+DECLARE_SLF_BEGIN(item, get_owner, 0x0089B684)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(item, get_visual_item, 0x0089B664){
+DECLARE_SLF_BEGIN(item, get_visual_item, 0x0089B664)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(item, holster, 0x0089B69C){
+DECLARE_SLF_BEGIN(item, holster, 0x0089B69C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(item, is_a_grenade, 0x0089B6E4){
+DECLARE_SLF_BEGIN(item, is_a_grenade, 0x0089B6E4)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(item, is_a_gun, 0x0089B6DC){
+DECLARE_SLF_BEGIN(item, is_a_gun, 0x0089B6DC)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(item, is_a_melee, 0x0089B6F4){
+DECLARE_SLF_BEGIN(item, is_a_melee, 0x0089B6F4)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(item, is_a_rocket, 0x0089B6EC){
+DECLARE_SLF_BEGIN(item, is_a_rocket, 0x0089B6EC)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(item, set_count__num, 0x0089B634){
+DECLARE_SLF_BEGIN(item, set_count__num, 0x0089B634)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(item, set_damage__num, 0x0089B6CC){
+DECLARE_SLF_BEGIN(item, set_damage__num, 0x0089B6CC)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(item, set_drawn_limb__str, 0x0089B68C){
+DECLARE_SLF_BEGIN(item, set_drawn_limb__str, 0x0089B68C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(item, set_holster_limb__str, 0x0089B694){
+DECLARE_SLF_BEGIN(item, set_holster_limb__str, 0x0089B694)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(item, set_launch_force__num, 0x0089B644){
+DECLARE_SLF_BEGIN(item, set_launch_force__num, 0x0089B644)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(item, set_launch_vec__vector3d, 0x0089B654){
+DECLARE_SLF_BEGIN(item, set_launch_vec__vector3d, 0x0089B654)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(item, use, 0x0089B6AC){
+DECLARE_SLF_BEGIN(item, use, 0x0089B6AC)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(item, yank_remove__vector3d__num, 0x0089B6D4){
+DECLARE_SLF_BEGIN(item, yank_remove__vector3d__num, 0x0089B6D4)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(line_info, check_collision__num__num, 0x0089B718){
+DECLARE_SLF_BEGIN(line_info, check_collision__num__num, 0x0089B718)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(line_info, clear_collision, 0x0089B720){
+DECLARE_SLF_BEGIN(line_info, clear_collision, 0x0089B720)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(line_info, debug_render__num, 0x0089B768){
+DECLARE_SLF_BEGIN(line_info, debug_render__num, 0x0089B768)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(line_info, did_collide, 0x0089B760){
+DECLARE_SLF_BEGIN(line_info, did_collide, 0x0089B760)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(line_info, get_end_pos, 0x0089B740){
+DECLARE_SLF_BEGIN(line_info, get_end_pos, 0x0089B740)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(line_info, get_hit_entity, 0x0089B758){
+DECLARE_SLF_BEGIN(line_info, get_hit_entity, 0x0089B758)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(line_info, get_hit_normal, 0x0089B750){
+DECLARE_SLF_BEGIN(line_info, get_hit_normal, 0x0089B750)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(line_info, get_hit_pos, 0x0089B748){
+DECLARE_SLF_BEGIN(line_info, get_hit_pos, 0x0089B748)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(line_info, get_start_pos, 0x0089B730){
+DECLARE_SLF_BEGIN(line_info, get_start_pos, 0x0089B730)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(line_info, set_end_pos__vector3d, 0x0089B738){
+DECLARE_SLF_BEGIN(line_info, set_end_pos__vector3d, 0x0089B738)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(line_info, set_start_pos__vector3d, 0x0089B728){
+DECLARE_SLF_BEGIN(line_info, set_start_pos__vector3d, 0x0089B728)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(mission_camera_marker, get_base_position, 0x0089C41C){
+DECLARE_SLF_BEGIN(mission_camera_marker, get_base_position, 0x0089C41C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(mission_camera_marker, get_camera_position, 0x0089C424){
+DECLARE_SLF_BEGIN(mission_camera_marker, get_camera_position, 0x0089C424)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(mission_camera_transform_marker, get_base_position, 0x0089C45C){
+DECLARE_SLF_BEGIN(mission_camera_transform_marker, get_base_position, 0x0089C45C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(mission_camera_transform_marker, get_camera_position, 0x0089C464){
+DECLARE_SLF_BEGIN(mission_camera_transform_marker, get_camera_position, 0x0089C464)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(mission_camera_transform_marker, get_forward, 0x0089C46C){
+DECLARE_SLF_BEGIN(mission_camera_transform_marker, get_forward, 0x0089C46C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(mission_camera_transform_marker, get_up, 0x0089C474){
+DECLARE_SLF_BEGIN(mission_camera_transform_marker, get_up, 0x0089C474)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(mission_transform_marker, get_base_position, 0x0089C43C){
+DECLARE_SLF_BEGIN(mission_transform_marker, get_base_position, 0x0089C43C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(mission_transform_marker, get_forward, 0x0089C444){
+DECLARE_SLF_BEGIN(mission_transform_marker, get_forward, 0x0089C444)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(mission_transform_marker, get_up, 0x0089C44C){
+DECLARE_SLF_BEGIN(mission_transform_marker, get_up, 0x0089C44C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(num_list, add__num, 0x0089BF6C){
+DECLARE_SLF_BEGIN(num_list, add__num, 0x0089BF6C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(num_list, begin, 0x0089BF84){
+DECLARE_SLF_BEGIN(num_list, begin, 0x0089BF84)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(num_list, end, 0x0089BF8C){
+DECLARE_SLF_BEGIN(num_list, end, 0x0089BF8C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(num_list, get_index__num, 0x0089BF94){
+DECLARE_SLF_BEGIN(num_list, get_index__num, 0x0089BF94)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(num_list, remove__num, 0x0089BF74){
+DECLARE_SLF_BEGIN(num_list, remove__num, 0x0089BF74)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(num_list, remove__num_list_iterator, 0x0089BF7C){
+DECLARE_SLF_BEGIN(num_list, remove__num_list_iterator, 0x0089BF7C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(num_list, set_index__num__num, 0x0089BF9C){
+DECLARE_SLF_BEGIN(num_list, set_index__num__num, 0x0089BF9C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(num_list, size, 0x0089BF64){
+DECLARE_SLF_BEGIN(num_list, size, 0x0089BF64)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(num_list_iterator, get_num, 0x0089BFC4){
+DECLARE_SLF_BEGIN(num_list_iterator, get_num, 0x0089BFC4)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(num_list_iterator, operator_not_equals__num_list_iterator, 0x0089BFBC){
+DECLARE_SLF_BEGIN(num_list_iterator, operator_not_equals__num_list_iterator, 0x0089BFBC)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(num_list_iterator, operator_plus_plus, 0x0089BFA4){
+DECLARE_SLF_BEGIN(num_list_iterator, operator_plus_plus, 0x0089BFA4)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(num_list_iterator, operator_minus_munus, 0x0089BFAC){
+DECLARE_SLF_BEGIN(num_list_iterator, operator_minus_munus, 0x0089BFAC)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(num_list_iterator, operator_equals_equals__num_list_iterator, 0x0089BFB4){
+DECLARE_SLF_BEGIN(num_list_iterator, operator_equals_equals__num_list_iterator, 0x0089BFB4)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(pfx, get_abs_position, 0x0089C8A4){
+DECLARE_SLF_BEGIN(pfx, get_abs_position, 0x0089C8A4)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(pfx, get_parent, 0x0089C884){
+DECLARE_SLF_BEGIN(pfx, get_parent, 0x0089C884)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(pfx, get_position, 0x0089C894){
+DECLARE_SLF_BEGIN(pfx, get_position, 0x0089C894)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(pfx, get_rel_position, 0x0089C8B4){
+DECLARE_SLF_BEGIN(pfx, get_rel_position, 0x0089C8B4)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(pfx, get_rotation, 0x0089C8C4){
+DECLARE_SLF_BEGIN(pfx, get_rotation, 0x0089C8C4)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(pfx, get_scale, 0x0089C8D4){
+DECLARE_SLF_BEGIN(pfx, get_scale, 0x0089C8D4)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(pfx, get_state__num, 0x0089C8E4){
+DECLARE_SLF_BEGIN(pfx, get_state__num, 0x0089C8E4)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(pfx, get_visible, 0x0089C8F4){
+DECLARE_SLF_BEGIN(pfx, get_visible, 0x0089C8F4)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(pfx, set_abs_position__vector3d, 0x0089C8AC){
+DECLARE_SLF_BEGIN(pfx, set_abs_position__vector3d, 0x0089C8AC)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(pfx, set_parent__entity, 0x0089C88C){
+DECLARE_SLF_BEGIN(pfx, set_parent__entity, 0x0089C88C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(pfx, set_position__vector3d, 0x0089C89C){
+DECLARE_SLF_BEGIN(pfx, set_position__vector3d, 0x0089C89C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(pfx, set_rel_position__vector3d, 0x0089C8BC){
+DECLARE_SLF_BEGIN(pfx, set_rel_position__vector3d, 0x0089C8BC)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(pfx, set_rotation__vector3d, 0x0089C8CC){
+DECLARE_SLF_BEGIN(pfx, set_rotation__vector3d, 0x0089C8CC)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(pfx, set_scale__vector3d, 0x0089C8DC){
+DECLARE_SLF_BEGIN(pfx, set_scale__vector3d, 0x0089C8DC)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(pfx, set_state__num__num, 0x0089C8EC){
+DECLARE_SLF_BEGIN(pfx, set_state__num__num, 0x0089C8EC)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(pfx, set_visible__num, 0x0089C8FC){
+DECLARE_SLF_BEGIN(pfx, set_visible__num, 0x0089C8FC)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, add_control_pt__vector3d, 0x0089C108){
+DECLARE_SLF_BEGIN(polytube, add_control_pt__vector3d, 0x0089C108)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, build__num__num, 0x0089C140){
+DECLARE_SLF_BEGIN(polytube, build__num__num, 0x0089C140)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, clear, 0x0089C0F8){
+DECLARE_SLF_BEGIN(polytube, clear, 0x0089C0F8)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, clear_simulations, 0x0089C220){
+DECLARE_SLF_BEGIN(polytube, clear_simulations, 0x0089C220)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, create_tentacle, 0x0089C240){
+DECLARE_SLF_BEGIN(polytube, create_tentacle, 0x0089C240)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, destroy_tentacle, 0x0089C248){
+DECLARE_SLF_BEGIN(polytube, destroy_tentacle, 0x0089C248)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, get_control_pt__num, 0x0089C118){
+DECLARE_SLF_BEGIN(polytube, get_control_pt__num, 0x0089C118)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, get_curve_pt__num, 0x0089C128){
+DECLARE_SLF_BEGIN(polytube, get_curve_pt__num, 0x0089C128)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, get_ifl_frame, 0x0089C1A0){
+DECLARE_SLF_BEGIN(polytube, get_ifl_frame, 0x0089C1A0)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, get_max_length, 0x0089C1D8){
+DECLARE_SLF_BEGIN(polytube, get_max_length, 0x0089C1D8)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, get_num_control_pts, 0x0089C130){
+DECLARE_SLF_BEGIN(polytube, get_num_control_pts, 0x0089C130)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, get_num_curve_pts, 0x0089C138){
+DECLARE_SLF_BEGIN(polytube, get_num_curve_pts, 0x0089C138)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, get_num_sides, 0x0089C1B8){
+DECLARE_SLF_BEGIN(polytube, get_num_sides, 0x0089C1B8)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, get_tiles_per_meter, 0x0089C1C8){
+DECLARE_SLF_BEGIN(polytube, get_tiles_per_meter, 0x0089C1C8)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, get_tube_radius, 0x0089C1A8){
+DECLARE_SLF_BEGIN(polytube, get_tube_radius, 0x0089C1A8)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, ifl_lock__num, 0x0089C190){
+DECLARE_SLF_BEGIN(polytube, ifl_lock__num, 0x0089C190)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, ifl_play, 0x0089C198){
+DECLARE_SLF_BEGIN(polytube, ifl_play, 0x0089C198)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, kill_pt_anim__num__num, 0x0089C208){
+DECLARE_SLF_BEGIN(polytube, kill_pt_anim__num__num, 0x0089C208)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, rebuild, 0x0089C148){
+DECLARE_SLF_BEGIN(polytube, rebuild, 0x0089C148)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, reserve_control_pts__num, 0x0089C100){
+DECLARE_SLF_BEGIN(polytube, reserve_control_pts__num, 0x0089C100)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, set_additive__num, 0x0089C120){
+DECLARE_SLF_BEGIN(polytube, set_additive__num, 0x0089C120)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, set_begin_material__str__num, 0x0089C168){
+DECLARE_SLF_BEGIN(polytube, set_begin_material__str__num, 0x0089C168)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, set_begin_material_ifl__str__num, 0x0089C180){
+DECLARE_SLF_BEGIN(polytube, set_begin_material_ifl__str__num, 0x0089C180)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, set_blend_mode__num, 0x0089C188){
+DECLARE_SLF_BEGIN(polytube, set_blend_mode__num, 0x0089C188)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, set_control_pt__num__vector3d, 0x0089C110){
+DECLARE_SLF_BEGIN(polytube, set_control_pt__num__vector3d, 0x0089C110)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, set_end_material__str__num, 0x0089C160){
+DECLARE_SLF_BEGIN(polytube, set_end_material__str__num, 0x0089C160)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, set_end_material_ifl__str__num, 0x0089C178){
+DECLARE_SLF_BEGIN(polytube, set_end_material_ifl__str__num, 0x0089C178)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, set_force_start__num, 0x0089C150){
+DECLARE_SLF_BEGIN(polytube, set_force_start__num, 0x0089C150)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, set_material__str, 0x0089C158){
+DECLARE_SLF_BEGIN(polytube, set_material__str, 0x0089C158)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, set_material_ifl__str, 0x0089C170){
+DECLARE_SLF_BEGIN(polytube, set_material_ifl__str, 0x0089C170)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, set_max_length__num, 0x0089C1E0){
+DECLARE_SLF_BEGIN(polytube, set_max_length__num, 0x0089C1E0)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, set_num_sides__num, 0x0089C1C0){
+DECLARE_SLF_BEGIN(polytube, set_num_sides__num, 0x0089C1C0)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, set_pt_anim__num__vector3d__num__num, 0x0089C1F8){
+DECLARE_SLF_BEGIN(polytube, set_pt_anim__num__vector3d__num__num, 0x0089C1F8)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, set_random_pt_anim__num__num__num__num, 0x0089C200){
+DECLARE_SLF_BEGIN(polytube, set_random_pt_anim__num__num__num__num, 0x0089C200)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, set_start_v__num, 0x0089C1F0){
+DECLARE_SLF_BEGIN(polytube, set_start_v__num, 0x0089C1F0)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, set_tiles_per_meter__num, 0x0089C1D0){
+DECLARE_SLF_BEGIN(polytube, set_tiles_per_meter__num, 0x0089C1D0)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, set_tube_radius__num, 0x0089C1B0){
+DECLARE_SLF_BEGIN(polytube, set_tube_radius__num, 0x0089C1B0)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, simulate_slack__vector3d__vector3d__num, 0x0089C210){
+DECLARE_SLF_BEGIN(polytube, simulate_slack__vector3d__vector3d__num, 0x0089C210)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, simulate_tether__entity__entity__num, 0x0089C218){
+DECLARE_SLF_BEGIN(polytube, simulate_tether__entity__entity__num, 0x0089C218)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, tentacle_add_dangle_engine__num__num, 0x0089C2A8){
+DECLARE_SLF_BEGIN(polytube, tentacle_add_dangle_engine__num__num, 0x0089C2A8)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, tentacle_add_follow_engine__num__num__vector3d__num, 0x0089C2B0){
+DECLARE_SLF_BEGIN(polytube, tentacle_add_follow_engine__num__num__vector3d__num, 0x0089C2B0)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, tentacle_add_slack_engine__num__num, 0x0089C2B8){
+DECLARE_SLF_BEGIN(polytube, tentacle_add_slack_engine__num__num, 0x0089C2B8)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, tentacle_add_strike_engine__vector3d__num__num, 0x0089C298){
+DECLARE_SLF_BEGIN(polytube, tentacle_add_strike_engine__vector3d__num__num, 0x0089C298)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, tentacle_add_swirl_strike_engine__vector3d__num__num__num__num, 0x0089C2A0){
+DECLARE_SLF_BEGIN(polytube, tentacle_add_swirl_strike_engine__vector3d__num__num__num__num, 0x0089C2A0)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, tentacle_create_line__vector3d__num, 0x0089C280){
+DECLARE_SLF_BEGIN(polytube, tentacle_create_line__vector3d__num, 0x0089C280)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, tentacle_engine_running__num, 0x0089C290){
+DECLARE_SLF_BEGIN(polytube, tentacle_engine_running__num, 0x0089C290)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, tentacle_get_end_position, 0x0089C260){
+DECLARE_SLF_BEGIN(polytube, tentacle_get_end_position, 0x0089C260)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, tentacle_get_engine_drag__num, 0x0089C2F0){
+DECLARE_SLF_BEGIN(polytube, tentacle_get_engine_drag__num, 0x0089C2F0)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, tentacle_get_engine_gravity__num, 0x0089C300){
+DECLARE_SLF_BEGIN(polytube, tentacle_get_engine_gravity__num, 0x0089C300)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, tentacle_get_engine_length__num, 0x0089C2D0){
+DECLARE_SLF_BEGIN(polytube, tentacle_get_engine_length__num, 0x0089C2D0)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, tentacle_get_engine_slack_percent__num, 0x0089C2E0){
+DECLARE_SLF_BEGIN(polytube, tentacle_get_engine_slack_percent__num, 0x0089C2E0)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, tentacle_get_num_positions, 0x0089C268){
+DECLARE_SLF_BEGIN(polytube, tentacle_get_num_positions, 0x0089C268)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, tentacle_get_position__num, 0x0089C278){
+DECLARE_SLF_BEGIN(polytube, tentacle_get_position__num, 0x0089C278)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, tentacle_kill_engine__num, 0x0089C288){
+DECLARE_SLF_BEGIN(polytube, tentacle_kill_engine__num, 0x0089C288)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, tentacle_set_collide__num, 0x0089C250){
+DECLARE_SLF_BEGIN(polytube, tentacle_set_collide__num, 0x0089C250)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, tentacle_set_end_position__vector3d, 0x0089C258){
+DECLARE_SLF_BEGIN(polytube, tentacle_set_end_position__vector3d, 0x0089C258)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, tentacle_set_engine_attach_ent__num__entity, 0x0089C2C0){
+DECLARE_SLF_BEGIN(polytube, tentacle_set_engine_attach_ent__num__entity, 0x0089C2C0)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, tentacle_set_engine_drag__num__num, 0x0089C2F8){
+DECLARE_SLF_BEGIN(polytube, tentacle_set_engine_drag__num__num, 0x0089C2F8)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, tentacle_set_engine_gravity__num__vector3d, 0x0089C308){
+DECLARE_SLF_BEGIN(polytube, tentacle_set_engine_gravity__num__vector3d, 0x0089C308)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, tentacle_set_engine_length__num__num, 0x0089C2D8){
+DECLARE_SLF_BEGIN(polytube, tentacle_set_engine_length__num__num, 0x0089C2D8)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, tentacle_set_engine_slack_percent__num__num, 0x0089C2E8){
+DECLARE_SLF_BEGIN(polytube, tentacle_set_engine_slack_percent__num__num, 0x0089C2E8)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, tentacle_set_engine_target__num__vector3d, 0x0089C2C8){
+DECLARE_SLF_BEGIN(polytube, tentacle_set_engine_target__num__vector3d, 0x0089C2C8)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, tentacle_set_position__num__vector3d, 0x0089C270){
+DECLARE_SLF_BEGIN(polytube, tentacle_set_position__num__vector3d, 0x0089C270)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(polytube, v_animate__num, 0x0089C1E8){
+DECLARE_SLF_BEGIN(polytube, v_animate__num, 0x0089C1E8)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(posfacing3d, get_facing, 0x0089BA98){
+DECLARE_SLF_BEGIN(posfacing3d, get_facing, 0x0089BA98)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(posfacing3d, get_position, 0x0089BAA8){
+DECLARE_SLF_BEGIN(posfacing3d, get_position, 0x0089BAA8)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(posfacing3d, get_rotation, 0x0089BAA0){
+DECLARE_SLF_BEGIN(posfacing3d, get_rotation, 0x0089BAA0)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(posfacing3d, operator_not_equals__posfacing3d, 0x0089BAB8){
+DECLARE_SLF_BEGIN(posfacing3d, operator_not_equals__posfacing3d, 0x0089BAB8)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(posfacing3d, operator_plus__posfacing3d, 0x0089BA88){
+DECLARE_SLF_BEGIN(posfacing3d, operator_plus__posfacing3d, 0x0089BA88)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(posfacing3d, operator_multiply__posfacing3d, 0x0089BA90){
+DECLARE_SLF_BEGIN(posfacing3d, operator_multiply__posfacing3d, 0x0089BA90)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(posfacing3d, operator_equals_equals__posfacing3d, 0x0089BAB0){
+DECLARE_SLF_BEGIN(posfacing3d, operator_equals_equals__posfacing3d, 0x0089BAB0)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(posfacing3d, posfacing3d__num__num__num__num, 0x0089BA68){
+DECLARE_SLF_BEGIN(posfacing3d, posfacing3d__num__num__num__num, 0x0089BA68)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(posfacing3d, posfacing3d__num__num__num__vector3d, 0x0089BA78){
+DECLARE_SLF_BEGIN(posfacing3d, posfacing3d__num__num__num__vector3d, 0x0089BA78)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(posfacing3d, posfacing3d__vector3d__num, 0x0089BA70){
+DECLARE_SLF_BEGIN(posfacing3d, posfacing3d__vector3d__num, 0x0089BA70)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(posfacing3d, posfacing3d__vector3d__vector3d, 0x0089BA80){
+DECLARE_SLF_BEGIN(posfacing3d, posfacing3d__vector3d__vector3d, 0x0089BA80)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(position3d, operator_assign__vector3d, 0x0089BA60){
+DECLARE_SLF_BEGIN(position3d, operator_assign__vector3d, 0x0089BA60)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(position3d, position3d__num__num__num, 0x0089BA58){
+DECLARE_SLF_BEGIN(position3d, position3d__num__num__num, 0x0089BA58)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(script_controller, is_button_pressed__num, 0x0089BCD8){
+DECLARE_SLF_BEGIN(script_controller, is_button_pressed__num, 0x0089BCD8)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(script_controller, is_down_pressed, 0x0089BCE8){
+DECLARE_SLF_BEGIN(script_controller, is_down_pressed, 0x0089BCE8)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(script_controller, is_left_pressed, 0x0089BCF0){
+DECLARE_SLF_BEGIN(script_controller, is_left_pressed, 0x0089BCF0)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(script_controller, is_lstick_down_pressed, 0x0089BD28){
+DECLARE_SLF_BEGIN(script_controller, is_lstick_down_pressed, 0x0089BD28)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(script_controller, is_lstick_left_pressed, 0x0089BD30){
+DECLARE_SLF_BEGIN(script_controller, is_lstick_left_pressed, 0x0089BD30)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(script_controller, is_lstick_right_pressed, 0x0089BD38){
+DECLARE_SLF_BEGIN(script_controller, is_lstick_right_pressed, 0x0089BD38)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(script_controller, is_lstick_up_pressed, 0x0089BD20){
+DECLARE_SLF_BEGIN(script_controller, is_lstick_up_pressed, 0x0089BD20)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(script_controller, is_right_pressed, 0x0089BCF8){
+DECLARE_SLF_BEGIN(script_controller, is_right_pressed, 0x0089BCF8)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(script_controller, is_rstick_down_pressed, 0x0089BD08){
+DECLARE_SLF_BEGIN(script_controller, is_rstick_down_pressed, 0x0089BD08)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(script_controller, is_rstick_left_pressed, 0x0089BD10){
+DECLARE_SLF_BEGIN(script_controller, is_rstick_left_pressed, 0x0089BD10)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(script_controller, is_rstick_right_pressed, 0x0089BD18){
+DECLARE_SLF_BEGIN(script_controller, is_rstick_right_pressed, 0x0089BD18)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(script_controller, is_rstick_up_pressed, 0x0089BD00){
+DECLARE_SLF_BEGIN(script_controller, is_rstick_up_pressed, 0x0089BD00)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(script_controller, is_up_pressed, 0x0089BCE0){
+DECLARE_SLF_BEGIN(script_controller, is_up_pressed, 0x0089BCE0)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(signaller, clear_callback__str, 0x0089B7F0){
+DECLARE_SLF_BEGIN(signaller, clear_callback__str, 0x0089B7F0)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(signaller, clear_callbacks, 0x0089B7E8){
+DECLARE_SLF_BEGIN(signaller, clear_callbacks, 0x0089B7E8)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(sound_inst, dampen_guard, 0x0089B880){
+DECLARE_SLF_BEGIN(sound_inst, dampen_guard, 0x0089B880)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(sound_inst, fade_in__num__num, 0x0089B898){
+DECLARE_SLF_BEGIN(sound_inst, fade_in__num__num, 0x0089B898)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(sound_inst, fade_out__num, 0x0089B8A0){
+DECLARE_SLF_BEGIN(sound_inst, fade_out__num, 0x0089B8A0)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(sound_inst, fade_to__num__num, 0x0089B890){
+DECLARE_SLF_BEGIN(sound_inst, fade_to__num__num, 0x0089B890)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(sound_inst, get_doppler, 0x0089B878){
+DECLARE_SLF_BEGIN(sound_inst, get_doppler, 0x0089B878)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(sound_inst, get_entity, 0x0089B848){
+DECLARE_SLF_BEGIN(sound_inst, get_entity, 0x0089B848)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(sound_inst, get_max_distance, 0x0089B870){
+DECLARE_SLF_BEGIN(sound_inst, get_max_distance, 0x0089B870)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(sound_inst, get_min_distance, 0x0089B868){
+DECLARE_SLF_BEGIN(sound_inst, get_min_distance, 0x0089B868)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(sound_inst, get_pitch, 0x0089B860){
+DECLARE_SLF_BEGIN(sound_inst, get_pitch, 0x0089B860)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(sound_inst, get_source, 0x0089B828){
+DECLARE_SLF_BEGIN(sound_inst, get_source, 0x0089B828)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(sound_inst, get_status, 0x0089B888){
+DECLARE_SLF_BEGIN(sound_inst, get_status, 0x0089B888)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(sound_inst, get_volume, 0x0089B858){
+DECLARE_SLF_BEGIN(sound_inst, get_volume, 0x0089B858)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(sound_inst, is_valid, 0x0089B820){
+DECLARE_SLF_BEGIN(sound_inst, is_valid, 0x0089B820)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(sound_inst, play__num, 0x0089B8B0){
+DECLARE_SLF_BEGIN(sound_inst, play__num, 0x0089B8B0)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(sound_inst, play_3d__vector3d__num, 0x0089B8B8){
+DECLARE_SLF_BEGIN(sound_inst, play_3d__vector3d__num, 0x0089B8B8)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(sound_inst, queue__num, 0x0089B8A8){
+DECLARE_SLF_BEGIN(sound_inst, queue__num, 0x0089B8A8)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(sound_inst, set_entity__entity, 0x0089B850){
+DECLARE_SLF_BEGIN(sound_inst, set_entity__entity, 0x0089B850)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(sound_inst, set_preregistered_source__str, 0x0089B830){
+DECLARE_SLF_BEGIN(sound_inst, set_preregistered_source__str, 0x0089B830)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(sound_inst, set_sound_group__str, 0x0089B840){
+DECLARE_SLF_BEGIN(sound_inst, set_sound_group__str, 0x0089B840)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(sound_inst, set_source__str, 0x0089B838){
+DECLARE_SLF_BEGIN(sound_inst, set_source__str, 0x0089B838)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(sound_inst, stop__num, 0x0089B8C8){
+DECLARE_SLF_BEGIN(sound_inst, stop__num, 0x0089B8C8)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(sound_inst, wait__num, 0x0089B8C0){
+DECLARE_SLF_BEGIN(sound_inst, wait__num, 0x0089B8C0)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(str_list, add__str, 0x0089C05C){
+DECLARE_SLF_BEGIN(str_list, add__str, 0x0089C05C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(str_list, begin, 0x0089C074){
+DECLARE_SLF_BEGIN(str_list, begin, 0x0089C074)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(str_list, end, 0x0089C07C){
+DECLARE_SLF_BEGIN(str_list, end, 0x0089C07C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(str_list, get_index__num, 0x0089C084){
+DECLARE_SLF_BEGIN(str_list, get_index__num, 0x0089C084)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(str_list, remove__str, 0x0089C064){
+DECLARE_SLF_BEGIN(str_list, remove__str, 0x0089C064)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(str_list, remove__str_list_iterator, 0x0089C06C){
+DECLARE_SLF_BEGIN(str_list, remove__str_list_iterator, 0x0089C06C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(str_list, set_index__num__str, 0x0089C08C){
+DECLARE_SLF_BEGIN(str_list, set_index__num__str, 0x0089C08C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(str_list, size, 0x0089C054){
+DECLARE_SLF_BEGIN(str_list, size, 0x0089C054)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(str_list_iterator, get_str, 0x0089C0B4){
+DECLARE_SLF_BEGIN(str_list_iterator, get_str, 0x0089C0B4)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(str_list_iterator, operator_not_equals__str_list_iterator, 0x0089C0AC){
+DECLARE_SLF_BEGIN(str_list_iterator, operator_not_equals__str_list_iterator, 0x0089C0AC)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(str_list_iterator, operator_plus_plus, 0x0089C094){
+DECLARE_SLF_BEGIN(str_list_iterator, operator_plus_plus, 0x0089C094)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(str_list_iterator, operator_minus_munus, 0x0089C09C){
+DECLARE_SLF_BEGIN(str_list_iterator, operator_minus_munus, 0x0089C09C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(str_list_iterator, operator_equals_equals__str_list_iterator, 0x0089C0A4){
+DECLARE_SLF_BEGIN(str_list_iterator, operator_equals_equals__str_list_iterator, 0x0089C0A4)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(string_hash, operator_equals_equals__str, 0x0089C7D4){
+DECLARE_SLF_BEGIN(string_hash, operator_equals_equals__str, 0x0089C7D4)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(string_hash, operator_equals_equals__string_hash, 0x0089C7CC){
+DECLARE_SLF_BEGIN(string_hash, operator_equals_equals__string_hash, 0x0089C7CC)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(string_hash, set__str, 0x0089C7C4){
+DECLARE_SLF_BEGIN(string_hash, set__str, 0x0089C7C4)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(string_hash, string_hash__str, 0x0089C7B4){
+DECLARE_SLF_BEGIN(string_hash, string_hash__str, 0x0089C7B4)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(string_hash, to_string, 0x0089C7BC){
+DECLARE_SLF_BEGIN(string_hash, to_string, 0x0089C7BC)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(switch_obj, get_state, 0x0089B8DC){
+DECLARE_SLF_BEGIN(switch_obj, get_state, 0x0089B8DC)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(switch_obj, set_alarm__num, 0x0089B904){
+DECLARE_SLF_BEGIN(switch_obj, set_alarm__num, 0x0089B904)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(switch_obj, set_single_use__num, 0x0089B90C){
+DECLARE_SLF_BEGIN(switch_obj, set_single_use__num, 0x0089B90C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(switch_obj, set_state__num, 0x0089B8F4){
+DECLARE_SLF_BEGIN(switch_obj, set_state__num, 0x0089B8F4)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(switch_obj, set_web_targetable__num, 0x0089B8FC){
+DECLARE_SLF_BEGIN(switch_obj, set_web_targetable__num, 0x0089B8FC)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(switch_obj, who_pressed_me, 0x0089B8EC){
+DECLARE_SLF_BEGIN(switch_obj, who_pressed_me, 0x0089B8EC)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(tam, set_entity__entity, 0x0089C6DC){
+DECLARE_SLF_BEGIN(tam, set_entity__entity, 0x0089C6DC)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(tam, set_pos__vector3d, 0x0089C6E4){
+DECLARE_SLF_BEGIN(tam, set_pos__vector3d, 0x0089C6E4)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(tam, set_state__num, 0x0089C6EC){
+DECLARE_SLF_BEGIN(tam, set_state__num, 0x0089C6EC)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(tam, set_type__num, 0x0089C6F4){
+DECLARE_SLF_BEGIN(tam, set_type__num, 0x0089C6F4)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(taunt_entry, get_entity, 0x0089C62C){
+DECLARE_SLF_BEGIN(taunt_entry, get_entity, 0x0089C62C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(taunt_entry, get_flags, 0x0089C634){
+DECLARE_SLF_BEGIN(taunt_entry, get_flags, 0x0089C634)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(taunt_entry, get_taunt_name, 0x0089C624){
+DECLARE_SLF_BEGIN(taunt_entry, get_taunt_name, 0x0089C624)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(taunt_exchange, get_entity_to_do_hurting, 0x0089C654){
+DECLARE_SLF_BEGIN(taunt_exchange, get_entity_to_do_hurting, 0x0089C654)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(taunt_exchange, get_entity_to_hurt, 0x0089C64C){
+DECLARE_SLF_BEGIN(taunt_exchange, get_entity_to_hurt, 0x0089C64C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(taunt_exchange, get_last_hit_pt_value, 0x0089C664){
+DECLARE_SLF_BEGIN(taunt_exchange, get_last_hit_pt_value, 0x0089C664)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(taunt_exchange, get_max_times_to_play, 0x0089C684){
+DECLARE_SLF_BEGIN(taunt_exchange, get_max_times_to_play, 0x0089C684)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(taunt_exchange, get_min_damage, 0x0089C65C){
+DECLARE_SLF_BEGIN(taunt_exchange, get_min_damage, 0x0089C65C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(taunt_exchange, get_normalized_weight, 0x0089C6A4){
+DECLARE_SLF_BEGIN(taunt_exchange, get_normalized_weight, 0x0089C6A4)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(taunt_exchange, get_taunt_entry__num, 0x0089C694){
+DECLARE_SLF_BEGIN(taunt_exchange, get_taunt_entry__num, 0x0089C694)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(taunt_exchange, get_times_played, 0x0089C674){
+DECLARE_SLF_BEGIN(taunt_exchange, get_times_played, 0x0089C674)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(taunt_exchange, get_total_taunts, 0x0089C68C){
+DECLARE_SLF_BEGIN(taunt_exchange, get_total_taunts, 0x0089C68C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(taunt_exchange, get_weight, 0x0089C69C){
+DECLARE_SLF_BEGIN(taunt_exchange, get_weight, 0x0089C69C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(taunt_exchange, increment_times_played, 0x0089C67C){
+DECLARE_SLF_BEGIN(taunt_exchange, increment_times_played, 0x0089C67C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(taunt_exchange, set_last_hit_pt_value__num, 0x0089C66C){
+DECLARE_SLF_BEGIN(taunt_exchange, set_last_hit_pt_value__num, 0x0089C66C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(taunt_exchange, set_normalized_weight__num, 0x0089C6AC){
+DECLARE_SLF_BEGIN(taunt_exchange, set_normalized_weight__num, 0x0089C6AC)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(taunt_exchange_list, add__taunt_exchange, 0x0089C0BC){
+DECLARE_SLF_BEGIN(taunt_exchange_list, add__taunt_exchange, 0x0089C0BC)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(taunt_exchange_list, clear, 0x0089C0D4){
+DECLARE_SLF_BEGIN(taunt_exchange_list, clear, 0x0089C0D4)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(taunt_exchange_list, get_index__num, 0x0089C0C4){
+DECLARE_SLF_BEGIN(taunt_exchange_list, get_index__num, 0x0089C0C4)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(taunt_exchange_list, size, 0x0089C0CC){
+DECLARE_SLF_BEGIN(taunt_exchange_list, size, 0x0089C0CC)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(trigger, contains__entity, 0x0089B938){
+DECLARE_SLF_BEGIN(trigger, contains__entity, 0x0089B938)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(trigger, get_abs_position, 0x0089B920){
+DECLARE_SLF_BEGIN(trigger, get_abs_position, 0x0089B920)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(trigger, get_radius, 0x0089B9A0){
+DECLARE_SLF_BEGIN(trigger, get_radius, 0x0089B9A0)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(trigger, get_triggered_ent, 0x0089B928){
+DECLARE_SLF_BEGIN(trigger, get_triggered_ent, 0x0089B928)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(trigger, get_triggered_entity_list, 0x0089B930){
+DECLARE_SLF_BEGIN(trigger, get_triggered_entity_list, 0x0089B930)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(trigger, is_point_radius_trigger, 0x0089B9B0){
+DECLARE_SLF_BEGIN(trigger, is_point_radius_trigger, 0x0089B9B0)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(trigger, set_active__num, 0x0089B940){
+DECLARE_SLF_BEGIN(trigger, set_active__num, 0x0089B940)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(trigger, set_multiple_entrance__num, 0x0089B988){
+DECLARE_SLF_BEGIN(trigger, set_multiple_entrance__num, 0x0089B988)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(trigger, set_position__vector3d, 0x0089B9A8){
+DECLARE_SLF_BEGIN(trigger, set_position__vector3d, 0x0089B9A8)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(trigger, set_radius__num, 0x0089B998){
+DECLARE_SLF_BEGIN(trigger, set_radius__num, 0x0089B998)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(trigger, set_sees_dead_people__num, 0x0089B990){
+DECLARE_SLF_BEGIN(trigger, set_sees_dead_people__num, 0x0089B990)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(trigger, set_use_any_char__num, 0x0089B980){
+DECLARE_SLF_BEGIN(trigger, set_use_any_char__num, 0x0089B980)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(vector3d, length, 0x0089B9F8){
+DECLARE_SLF_BEGIN(vector3d, length, 0x0089B9F8)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(vector3d, length2, 0x0089BA00){
+DECLARE_SLF_BEGIN(vector3d, length2, 0x0089BA00)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(vector3d, operator_not_equals__vector3d, 0x0089B9F0){
+DECLARE_SLF_BEGIN(vector3d, operator_not_equals__vector3d, 0x0089B9F0)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(vector3d, operator_multiply__num, 0x0089B9D8){
+DECLARE_SLF_BEGIN(vector3d, operator_multiply__num, 0x0089B9D8)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(vector3d, operator_plus__vector3d, 0x0089B9C8){
+DECLARE_SLF_BEGIN(vector3d, operator_plus__vector3d, 0x0089B9C8)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(vector3d, operator_minus__vector3d, 0x0089B9D0){
+DECLARE_SLF_BEGIN(vector3d, operator_minus__vector3d, 0x0089B9D0)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(vector3d, operator_divide__num, 0x0089B9E0){
+DECLARE_SLF_BEGIN(vector3d, operator_divide__num, 0x0089B9E0)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(vector3d, operator_equals_equals__vector3d, 0x0089B9E8){
+DECLARE_SLF_BEGIN(vector3d, operator_equals_equals__vector3d, 0x0089B9E8)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(vector3d, vector3d__num__num__num, 0x0089B9C0){
+DECLARE_SLF_BEGIN(vector3d, vector3d__num__num__num, 0x0089B9C0)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(vector3d, x, 0x0089BA18){
+DECLARE_SLF_BEGIN(vector3d, x, 0x0089BA18)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(vector3d, xy_norm, 0x0089BA08){
+DECLARE_SLF_BEGIN(vector3d, xy_norm, 0x0089BA08)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(vector3d, xz_norm, 0x0089BA10){
+DECLARE_SLF_BEGIN(vector3d, xz_norm, 0x0089BA10)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(vector3d, y, 0x0089BA20){
+DECLARE_SLF_BEGIN(vector3d, y, 0x0089BA20)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(vector3d, z, 0x0089BA28){
+DECLARE_SLF_BEGIN(vector3d, z, 0x0089BA28)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(vector3d_list, add__vector3d, 0x0089BEEC){
+DECLARE_SLF_BEGIN(vector3d_list, add__vector3d, 0x0089BEEC)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(vector3d_list, begin, 0x0089BF04){
+DECLARE_SLF_BEGIN(vector3d_list, begin, 0x0089BF04)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(vector3d_list, clear, 0x0089BF1C){
+DECLARE_SLF_BEGIN(vector3d_list, clear, 0x0089BF1C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(vector3d_list, end, 0x0089BF0C){
+DECLARE_SLF_BEGIN(vector3d_list, end, 0x0089BF0C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(vector3d_list, get_index__num, 0x0089BF14){
+DECLARE_SLF_BEGIN(vector3d_list, get_index__num, 0x0089BF14)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(vector3d_list, remove__vector3d, 0x0089BEF4){
+DECLARE_SLF_BEGIN(vector3d_list, remove__vector3d, 0x0089BEF4)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(vector3d_list, remove__vector3d_list_iterator, 0x0089BEFC){
+DECLARE_SLF_BEGIN(vector3d_list, remove__vector3d_list_iterator, 0x0089BEFC)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(vector3d_list, set_index__num__vector3d, 0x0089BF24){
+DECLARE_SLF_BEGIN(vector3d_list, set_index__num__vector3d, 0x0089BF24)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(vector3d_list, size, 0x0089BEE4){
+DECLARE_SLF_BEGIN(vector3d_list, size, 0x0089BEE4)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(vector3d_list_iterator, get_vector3d, 0x0089BF4C){
+DECLARE_SLF_BEGIN(vector3d_list_iterator, get_vector3d, 0x0089BF4C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(vector3d_list_iterator, operator_not_equals__vector3d_list_iterator, 0x0089BF44){
+DECLARE_SLF_BEGIN(vector3d_list_iterator, operator_not_equals__vector3d_list_iterator, 0x0089BF44)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(vector3d_list_iterator, operator_plus_plus, 0x0089BF2C){
+DECLARE_SLF_BEGIN(vector3d_list_iterator, operator_plus_plus, 0x0089BF2C)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(vector3d_list_iterator, operator_minus_munus, 0x0089BF34){
+DECLARE_SLF_BEGIN(vector3d_list_iterator, operator_minus_munus, 0x0089BF34)
+{
     (void) stack;
     (void) entry;
 	return true;
 }
 DECLARE_SLF_END()
 
-DECLARE_SLF_BEGIN(vector3d_list_iterator, operator_equals_equals__vector3d_list_iterator, 0x0089BF3C){
+DECLARE_SLF_BEGIN(vector3d_list_iterator, operator_equals_equals__vector3d_list_iterator, 0x0089BF3C)
+{
     (void) stack;
     (void) entry;
 	return true;
@@ -11437,8 +11998,7 @@ void chuck_register_script_libs()
 {
     TRACE("chuck_register_script_libs");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         std::vector<script_library_class *> classes(xbpack::v10 ? 39u : 40u);
         auto class_idx = 0u;
 
@@ -11451,7 +12011,8 @@ void chuck_register_script_libs()
         slc_anim = new (mem_alloc(sizeof(slc_anim_t))) slc_anim_t {"anim", 4};
         classes[class_idx++] = slc_anim;
 
-        CREATE_SLC(slc_beam_t);
+        slc_beam = new (mem_alloc(sizeof(slc_beam_t))) slc_beam_t{"beam", 4, "entity"};
+        classes[class_idx++] = slc_beam;
 
         slc_entity = new (mem_alloc(sizeof(slc_entity_t))) slc_entity_t {"entity", 4, "signaller"};
         classes[class_idx++] = slc_entity;
@@ -11494,7 +12055,7 @@ void chuck_register_script_libs()
         }
         CREATE_SLC(slc_district_t);
 
-        if (!g_is_the_packer() && !script_manager::using_chuck_old_fashioned()) {
+        if (!g_is_the_packer && !script_manager::using_chuck_old_fashioned()) {
             slc_manager::un_mash_all_funcs();
         }
 
@@ -11508,23 +12069,32 @@ void chuck_register_script_libs()
 #define BUILD_GLOBAL_SLF_NAME(type) slf__ ## type ## __t
 
 #define CREATE_GLOBAL_SLF(TYPE, NAME)              \
-    new (mem_alloc(sizeof(BUILD_GLOBAL_SLF_NAME(TYPE)))) \
-        BUILD_GLOBAL_SLF_NAME(TYPE) {NAME}
+    new (mem_alloc(sizeof(BUILD_GLOBAL_SLF_NAME(TYPE)))) BUILD_GLOBAL_SLF_NAME(TYPE) \
+    {                                                                                \
+        NAME                                                                         \
+    }
 
         {
             CREATE_GLOBAL_SLF(abs_delay__num, "abs_delay(num)");
             CREATE_GLOBAL_SLF(acos__num, "acos(num)");
-            CREATE_GLOBAL_SLF(add_2d_debug_str__vector3d__vector3d__num__str, "add_2d_debug_str(vector3d,vector3d,num,str)");
-            CREATE_GLOBAL_SLF(add_2d_debug_str__vector3d__vector3d__num__str__num, "add_2d_debug_str(vector3d,vector3d,num,str,num)");
-            CREATE_GLOBAL_SLF(add_3d_debug_str__vector3d__vector3d__num__str, "add_3d_debug_str(vector3d,vector3d,num,str)");
+            CREATE_GLOBAL_SLF(add_2d_debug_str__vector3d__vector3d__num__str,
+                              "add_2d_debug_str(vector3d,vector3d,num,str)");
+            CREATE_GLOBAL_SLF(add_2d_debug_str__vector3d__vector3d__num__str__num,
+                              "add_2d_debug_str(vector3d,vector3d,num,str,num)");
+            CREATE_GLOBAL_SLF(add_3d_debug_str__vector3d__vector3d__num__str,
+                              "add_3d_debug_str(vector3d,vector3d,num,str)");
             CREATE_GLOBAL_SLF(add_civilian_info__vector3d__num__num__num, "add_civilian_info(vector3d,num,num,num)");
-            CREATE_GLOBAL_SLF(add_civilian_info_entity__entity__num__num__num, "add_civilian_info_entity(entity,num,num,num)");
+            CREATE_GLOBAL_SLF(add_civilian_info_entity__entity__num__num__num,
+                              "add_civilian_info_entity(entity,num,num,num)");
             CREATE_GLOBAL_SLF(add_debug_cyl__vector3d__vector3d__num, "add_debug_cyl(vector3d,vector3d,num)");
-            CREATE_GLOBAL_SLF(add_debug_cyl__vector3d__vector3d__num__vector3d__num, "add_debug_cyl(vector3d,vector3d,num,vector3d,num)");
+            CREATE_GLOBAL_SLF(add_debug_cyl__vector3d__vector3d__num__vector3d__num,
+                              "add_debug_cyl(vector3d,vector3d,num,vector3d,num)");
             CREATE_GLOBAL_SLF(add_debug_line__vector3d__vector3d, "add_debug_line(vector3d,vector3d)");
-            CREATE_GLOBAL_SLF(add_debug_line__vector3d__vector3d__vector3d__num, "add_debug_line(vector3d,vector3d,vector3d,num)");
+            CREATE_GLOBAL_SLF(add_debug_line__vector3d__vector3d__vector3d__num,
+                              "add_debug_line(vector3d,vector3d,vector3d,num)");
             CREATE_GLOBAL_SLF(add_debug_sphere__vector3d__num, "add_debug_sphere(vector3d,num)");
-            CREATE_GLOBAL_SLF(add_debug_sphere__vector3d__num__vector3d__num, "add_debug_sphere(vector3d,num,vector3d,num)");
+            CREATE_GLOBAL_SLF(add_debug_sphere__vector3d__num__vector3d__num,
+                              "add_debug_sphere(vector3d,num,vector3d,num)");
             CREATE_GLOBAL_SLF(add_glass_house__str, "add_glass_house(str)");
             if constexpr (!xbpack::v10) {
                 CREATE_GLOBAL_SLF(add_glass_house__str__num, "add_glass_house(str,num)");
@@ -11536,12 +12106,16 @@ void chuck_register_script_libs()
             CREATE_GLOBAL_SLF(allow_suspend_thread__num, "allow_suspend_thread(num)");
             CREATE_GLOBAL_SLF(angle_between__vector3d__vector3d, "angle_between(vector3d,vector3d)");
             if constexpr (!xbpack::v10) {
-                CREATE_GLOBAL_SLF(apply_donut_damage__vector3d__num__num__num__num__num, "apply_donut_damage(vector3d,num,num,num,num,num)");
+                CREATE_GLOBAL_SLF(apply_donut_damage__vector3d__num__num__num__num__num,
+                                  "apply_donut_damage(vector3d,num,num,num,num,num)");
             }
-            CREATE_GLOBAL_SLF(apply_radius_damage__vector3d__num__num__num__num, "apply_radius_damage(vector3d,num,num,num,num)");
-            CREATE_GLOBAL_SLF(apply_radius_subdue__vector3d__num__num__num__num, "apply_radius_subdue(vector3d,num,num,num,num)");
+            CREATE_GLOBAL_SLF(apply_radius_damage__vector3d__num__num__num__num,
+                              "apply_radius_damage(vector3d,num,num,num,num)");
+            CREATE_GLOBAL_SLF(apply_radius_subdue__vector3d__num__num__num__num,
+                              "apply_radius_subdue(vector3d,num,num,num,num)");
             CREATE_GLOBAL_SLF(assert__num__str, "assert(num,str)");
-            CREATE_GLOBAL_SLF(attach_decal__str__vector3d__num__vector3d__entity, "attach_decal(str,vector3d,num,vector3d,entity)");
+            CREATE_GLOBAL_SLF(attach_decal__str__vector3d__num__vector3d__entity,
+                              "attach_decal(str,vector3d,num,vector3d,entity)");
             CREATE_GLOBAL_SLF(begin_screen_recording__str__num, "begin_screen_recording(str,num)");
             CREATE_GLOBAL_SLF(blackscreen_off__num, "blackscreen_off(num)");
             CREATE_GLOBAL_SLF(blackscreen_on__num, "blackscreen_on(num)");
@@ -11550,13 +12124,15 @@ void chuck_register_script_libs()
             CREATE_GLOBAL_SLF(bring_up_dialog_box_title__num__num__num, "bring_up_dialog_box_title(num,num,num,...)");
             CREATE_GLOBAL_SLF(bring_up_medal_award_box__num, "bring_up_medal_award_box(num)");
             CREATE_GLOBAL_SLF(bring_up_race_announcer, "bring_up_race_announcer()");
-            CREATE_GLOBAL_SLF(calc_launch_vector__vector3d__vector3d__num__entity, "calc_launch_vector(vector3d,vector3d,num,entity)");
+            CREATE_GLOBAL_SLF(calc_launch_vector__vector3d__vector3d__num__entity,
+                              "calc_launch_vector(vector3d,vector3d,num,entity)");
             if (!slc_manager::using_xbox_v14()) {
                 CREATE_GLOBAL_SLF(can_load_pack__str, "can_load_pack(str)");
             }
             CREATE_GLOBAL_SLF(chase_cam, "chase_cam()");
             CREATE_GLOBAL_SLF(clear_all_grenades, "clear_all_grenades()");
-            CREATE_GLOBAL_SLF(clear_civilians_within_radius__vector3d__num, "clear_civilians_within_radius(vector3d,num)");
+            CREATE_GLOBAL_SLF(clear_civilians_within_radius__vector3d__num,
+                              "clear_civilians_within_radius(vector3d,num)");
             CREATE_GLOBAL_SLF(clear_controls, "clear_controls()");
             CREATE_GLOBAL_SLF(clear_debug_all, "clear_debug_all()");
             CREATE_GLOBAL_SLF(clear_debug_cyls, "clear_debug_cyls()");
@@ -11566,7 +12142,8 @@ void chuck_register_script_libs()
             CREATE_GLOBAL_SLF(clear_traffic_within_radius__vector3d__num, "clear_traffic_within_radius(vector3d,num)");
             CREATE_GLOBAL_SLF(col_check__vector3d__vector3d__num, "col_check(vector3d,vector3d,num)");
             CREATE_GLOBAL_SLF(console_exec__str, "console_exec(str)");
-            CREATE_GLOBAL_SLF(copy_vector3d_list__vector3d_list__vector3d_list, "copy_vector3d_list(vector3d_list,vector3d_list)");
+            CREATE_GLOBAL_SLF(copy_vector3d_list__vector3d_list__vector3d_list,
+                              "copy_vector3d_list(vector3d_list,vector3d_list)");
             CREATE_GLOBAL_SLF(cos__num, "cos(num)");
             CREATE_GLOBAL_SLF(create_beam, "create_beam()");
             CREATE_GLOBAL_SLF(create_credits, "create_credits()");
@@ -11596,14 +12173,16 @@ void chuck_register_script_libs()
             CREATE_GLOBAL_SLF(create_stompable_music_sound_inst__str, "create_stompable_music_sound_inst(str)");
             CREATE_GLOBAL_SLF(create_str_list, "create_str_list()");
             CREATE_GLOBAL_SLF(create_taunt_entry__entity__str__num, "create_taunt_entry(entity,str,num)");
-            CREATE_GLOBAL_SLF(create_taunt_exchange__entity__entity__num__num__num__num, "create_taunt_exchange(entity,entity,num,num,num,num,...)");
+            CREATE_GLOBAL_SLF(create_taunt_exchange__entity__entity__num__num__num__num,
+                              "create_taunt_exchange(entity,entity,num,num,num,num,...)");
             CREATE_GLOBAL_SLF(create_taunt_exchange_list, "create_taunt_exchange_list()");
             CREATE_GLOBAL_SLF(create_threat_assessment_meter, "create_threat_assessment_meter()");
             CREATE_GLOBAL_SLF(create_time_limited_entity__str__num, "create_time_limited_entity(str,num)");
             CREATE_GLOBAL_SLF(create_trigger__entity__num, "create_trigger(entity,num)");
             CREATE_GLOBAL_SLF(create_trigger__str__vector3d__num, "create_trigger(str,vector3d,num)");
             CREATE_GLOBAL_SLF(create_trigger__vector3d__num, "create_trigger(vector3d,num)");
-            CREATE_GLOBAL_SLF(create_unstompable_script_cutscene_sound_inst__str, "create_unstompable_script_cutscene_sound_inst(str)");
+            CREATE_GLOBAL_SLF(create_unstompable_script_cutscene_sound_inst__str,
+                              "create_unstompable_script_cutscene_sound_inst(str)");
             CREATE_GLOBAL_SLF(create_vector3d_list, "create_vector3d_list()");
             CREATE_GLOBAL_SLF(cross__vector3d__vector3d, "cross(vector3d,vector3d)");
             CREATE_GLOBAL_SLF(debug_breakpoint, "debug_breakpoint()");
@@ -11623,14 +12202,16 @@ void chuck_register_script_libs()
             CREATE_GLOBAL_SLF(destroy_str_list__str_list, "destroy_str_list(str_list)");
             CREATE_GLOBAL_SLF(destroy_taunt_entry__taunt_entry, "destroy_taunt_entry(taunt_entry)");
             CREATE_GLOBAL_SLF(destroy_taunt_exchange__taunt_exchange, "destroy_taunt_exchange(taunt_exchange)");
-            CREATE_GLOBAL_SLF(destroy_taunt_exchange_list__taunt_exchange_list, "destroy_taunt_exchange_list(taunt_exchange_list)");
+            CREATE_GLOBAL_SLF(destroy_taunt_exchange_list__taunt_exchange_list,
+                              "destroy_taunt_exchange_list(taunt_exchange_list)");
             CREATE_GLOBAL_SLF(destroy_threat_assessment_meter__tam, "destroy_threat_assessment_meter(tam)");
             CREATE_GLOBAL_SLF(destroy_trigger__trigger, "destroy_trigger(trigger)");
             CREATE_GLOBAL_SLF(destroy_vector3d_list__vector3d_list, "destroy_vector3d_list(vector3d_list)");
             CREATE_GLOBAL_SLF(dilated_delay__num, "dilated_delay(num)");
             CREATE_GLOBAL_SLF(disable_marky_cam__num, "disable_marky_cam(num)");
             if constexpr (!xbpack::v10) {
-                CREATE_GLOBAL_SLF(disable_nearby_occlusion_only_obb__vector3d, "disable_nearby_occlusion_only_obb(vector3d)");
+                CREATE_GLOBAL_SLF(disable_nearby_occlusion_only_obb__vector3d,
+                                  "disable_nearby_occlusion_only_obb(vector3d)");
             }
             CREATE_GLOBAL_SLF(disable_player_shadows, "disable_player_shadows()");
             CREATE_GLOBAL_SLF(disable_subtitles, "disable_subtitles()");
@@ -11664,7 +12245,8 @@ void chuck_register_script_libs()
             CREATE_GLOBAL_SLF(enable_physics__num, "enable_physics(num)");
             CREATE_GLOBAL_SLF(enable_player_shadows, "enable_player_shadows()");
             CREATE_GLOBAL_SLF(enable_pois__num, "enable_pois(num)");
-            CREATE_GLOBAL_SLF(enable_quad_path_connector__district__num__district__num__num, "enable_quad_path_connector(district,num,district,num,num)");
+            CREATE_GLOBAL_SLF(enable_quad_path_connector__district__num__district__num__num,
+                              "enable_quad_path_connector(district,num,district,num,num)");
             CREATE_GLOBAL_SLF(enable_subtitles, "enable_subtitles()");
             CREATE_GLOBAL_SLF(enable_tokens_of_type__num__num, "enable_tokens_of_type(num,num)");
             CREATE_GLOBAL_SLF(enable_traffic__num, "enable_traffic(num)");
@@ -11682,9 +12264,11 @@ void chuck_register_script_libs()
                 CREATE_GLOBAL_SLF(v10_fade_clear, "");
             }
             CREATE_GLOBAL_SLF(exit_water__entity, "exit_water(entity)");
-            CREATE_GLOBAL_SLF(find_closest_point_on_a_path_to_point__vector3d, "find_closest_point_on_a_path_to_point(vector3d)");
+            CREATE_GLOBAL_SLF(find_closest_point_on_a_path_to_point__vector3d,
+                              "find_closest_point_on_a_path_to_point(vector3d)");
             CREATE_GLOBAL_SLF(find_district_for_point__vector3d, "find_district_for_point(vector3d)");
-            CREATE_GLOBAL_SLF(find_entities_in_radius__entity_list__vector3d__num__num, "find_entities_in_radius(entity_list,vector3d,num,num)");
+            CREATE_GLOBAL_SLF(find_entities_in_radius__entity_list__vector3d__num__num,
+                              "find_entities_in_radius(entity_list,vector3d,num,num)");
             CREATE_GLOBAL_SLF(find_entity__str, "find_entity(str)");
             CREATE_GLOBAL_SLF(find_innermost_district__vector3d, "find_innermost_district(vector3d)");
             CREATE_GLOBAL_SLF(find_outermost_district__vector3d, "find_outermost_district(vector3d)");
@@ -11704,7 +12288,8 @@ void chuck_register_script_libs()
             CREATE_GLOBAL_SLF(get_attacker_member, "get_attacker_member()");
             CREATE_GLOBAL_SLF(get_available_stack_size, "get_available_stack_size()");
             CREATE_GLOBAL_SLF(get_character_packname_list, "get_character_packname_list()");
-            CREATE_GLOBAL_SLF(get_closest_point_on_lane_with_facing__num__vector3d__vector3d_list, "get_closest_point_on_lane_with_facing(num,vector3d,vector3d_list)");
+            CREATE_GLOBAL_SLF(get_closest_point_on_lane_with_facing__num__vector3d__vector3d_list,
+                              "get_closest_point_on_lane_with_facing(num,vector3d,vector3d_list)");
             CREATE_GLOBAL_SLF(get_col_hit_ent, "get_col_hit_ent()");
             CREATE_GLOBAL_SLF(get_col_hit_norm, "get_col_hit_norm()");
             CREATE_GLOBAL_SLF(get_col_hit_pos, "get_col_hit_pos()");
@@ -11736,9 +12321,12 @@ void chuck_register_script_libs()
             CREATE_GLOBAL_SLF(get_mission_strings, "get_mission_strings()");
             CREATE_GLOBAL_SLF(get_mission_transform_marker__num, "get_mission_transform_marker(num)");
             CREATE_GLOBAL_SLF(get_mission_trigger, "get_mission_trigger()");
-            CREATE_GLOBAL_SLF(get_missions_key_position_by_index__district__str__num, "get_missions_key_position_by_index(district,str,num)");
-            CREATE_GLOBAL_SLF(get_missions_nums_by_index__district__str__num__num_list, "get_missions_nums_by_index(district,str,num,num_list)");
-            CREATE_GLOBAL_SLF(get_missions_patrol_waypoint_by_index__district__str__num, "get_missions_patrol_waypoint_by_index(district,str,num)");
+            CREATE_GLOBAL_SLF(get_missions_key_position_by_index__district__str__num,
+                              "get_missions_key_position_by_index(district,str,num)");
+            CREATE_GLOBAL_SLF(get_missions_nums_by_index__district__str__num__num_list,
+                              "get_missions_nums_by_index(district,str,num,num_list)");
+            CREATE_GLOBAL_SLF(get_missions_patrol_waypoint_by_index__district__str__num,
+                              "get_missions_patrol_waypoint_by_index(district,str,num)");
             CREATE_GLOBAL_SLF(get_neighborhood_name__num, "get_neighborhood_name(num)");
             if (!slc_manager::using_xbox_v14()) {
                 CREATE_GLOBAL_SLF(get_num_free_slots__str, "get_num_free_slots(str)");
@@ -11752,20 +12340,23 @@ void chuck_register_script_libs()
             }
             CREATE_GLOBAL_SLF(get_pack_size__str, "get_pack_size(str)");
             CREATE_GLOBAL_SLF(get_patrol_difficulty__str, "get_patrol_difficulty(str)");
-            CREATE_GLOBAL_SLF(get_patrol_node_position_by_index__str__num, "get_patrol_node_position_by_index(str,num)");
+            CREATE_GLOBAL_SLF(get_patrol_node_position_by_index__str__num,
+                              "get_patrol_node_position_by_index(str,num)");
             CREATE_GLOBAL_SLF(get_patrol_start_position__str, "get_patrol_start_position(str)");
             CREATE_GLOBAL_SLF(get_patrol_unlock_threshold__str, "get_patrol_unlock_threshold(str)");
             if constexpr (!xbpack::v10) {
                 CREATE_GLOBAL_SLF(get_platform, "get_platform()");
             }
             CREATE_GLOBAL_SLF(get_render_opt_num__str, "get_render_opt_num(str)");
-            CREATE_GLOBAL_SLF(get_spider_reflexes_spiderman_time_dilation, "get_spider_reflexes_spiderman_time_dilation()");
+            CREATE_GLOBAL_SLF(get_spider_reflexes_spiderman_time_dilation,
+                              "get_spider_reflexes_spiderman_time_dilation()");
             CREATE_GLOBAL_SLF(get_spider_reflexes_world_time_dilation, "get_spider_reflexes_world_time_dilation()");
             CREATE_GLOBAL_SLF(get_time_inc, "get_time_inc()");
             CREATE_GLOBAL_SLF(get_time_of_day, "get_time_of_day()");
             CREATE_GLOBAL_SLF(get_time_of_day_rate, "get_time_of_day_rate()");
             CREATE_GLOBAL_SLF(get_token_index_from_id__num__num, "get_token_index_from_id(num,num)");
-            CREATE_GLOBAL_SLF(get_traffic_spawn_point_near_camera__vector3d_list, "get_traffic_spawn_point_near_camera(vector3d_list)");
+            CREATE_GLOBAL_SLF(get_traffic_spawn_point_near_camera__vector3d_list,
+                              "get_traffic_spawn_point_near_camera(vector3d_list)");
             if constexpr (!xbpack::v10) {
                 CREATE_GLOBAL_SLF(greater_than_or_equal_rounded__num__num, "greater_than_or_equal_rounded(num,num)");
             }
@@ -11869,7 +12460,8 @@ void chuck_register_script_libs()
                 CREATE_GLOBAL_SLF(set_max_sounds__num, "set_max_sounds(num)");
             }
             CREATE_GLOBAL_SLF(set_max_streaming_distance__num, "set_max_streaming_distance(num)");
-            CREATE_GLOBAL_SLF(set_mission_key_pos_facing__vector3d__vector3d, "set_mission_key_pos_facing(vector3d,vector3d)");
+            CREATE_GLOBAL_SLF(set_mission_key_pos_facing__vector3d__vector3d,
+                              "set_mission_key_pos_facing(vector3d,vector3d)");
             CREATE_GLOBAL_SLF(set_mission_key_position__vector3d, "set_mission_key_position(vector3d)");
             CREATE_GLOBAL_SLF(set_mission_text__num, "set_mission_text(num,...)");
             CREATE_GLOBAL_SLF(set_mission_text_box_flavor__num, "set_mission_text_box_flavor(num)");
@@ -11888,9 +12480,12 @@ void chuck_register_script_libs()
             CREATE_GLOBAL_SLF(set_spider_reflexes_blur_offset__num__num, "set_spider_reflexes_blur_offset(num,num)");
             CREATE_GLOBAL_SLF(set_spider_reflexes_blur_rot__num, "set_spider_reflexes_blur_rot(num)");
             CREATE_GLOBAL_SLF(set_spider_reflexes_blur_scale__num__num, "set_spider_reflexes_blur_scale(num,num)");
-            CREATE_GLOBAL_SLF(set_spider_reflexes_hero_meter_depletion_rate__num, "set_spider_reflexes_hero_meter_depletion_rate(num)");
-            CREATE_GLOBAL_SLF(set_spider_reflexes_spiderman_time_dilation__num, "set_spider_reflexes_spiderman_time_dilation(num)");
-            CREATE_GLOBAL_SLF(set_spider_reflexes_world_time_dilation__num, "set_spider_reflexes_world_time_dilation(num)");
+            CREATE_GLOBAL_SLF(set_spider_reflexes_hero_meter_depletion_rate__num,
+                              "set_spider_reflexes_hero_meter_depletion_rate(num)");
+            CREATE_GLOBAL_SLF(set_spider_reflexes_spiderman_time_dilation__num,
+                              "set_spider_reflexes_spiderman_time_dilation(num)");
+            CREATE_GLOBAL_SLF(set_spider_reflexes_world_time_dilation__num,
+                              "set_spider_reflexes_world_time_dilation(num)");
             CREATE_GLOBAL_SLF(set_state_of_the_story_caption__num, "set_state_of_the_story_caption(num)");
             CREATE_GLOBAL_SLF(set_target_info__entity__vector3d__vector3d, "set_target_info(entity,vector3d,vector3d)");
             CREATE_GLOBAL_SLF(set_time_of_day__num, "set_time_of_day(num)");
@@ -11922,13 +12517,16 @@ void chuck_register_script_libs()
                 CREATE_GLOBAL_SLF(spiderman_camera_enable_combat__num, "spiderman_camera_enable_combat(num)");
             }
             CREATE_GLOBAL_SLF(spiderman_camera_enable_lookaround__num, "spiderman_camera_enable_lookaround(num)");
-            CREATE_GLOBAL_SLF(spiderman_camera_set_fixedstatic__vector3d__vector3d, "spiderman_camera_set_fixedstatic(vector3d,vector3d)");
+            CREATE_GLOBAL_SLF(spiderman_camera_set_fixedstatic__vector3d__vector3d,
+                              "spiderman_camera_set_fixedstatic(vector3d,vector3d)");
             if constexpr (!xbpack::v10) {
                 CREATE_GLOBAL_SLF(spiderman_camera_set_follow__entity, "spiderman_camera_set_follow(entity)");
             }
             CREATE_GLOBAL_SLF(spiderman_camera_set_hero_underwater__num, "spiderman_camera_set_hero_underwater(num)");
-            CREATE_GLOBAL_SLF(spiderman_camera_set_interpolation_time__num, "spiderman_camera_set_interpolation_time(num)");
-            CREATE_GLOBAL_SLF(spiderman_camera_set_lockon_min_distance__num, "spiderman_camera_set_lockon_min_distance(num)");
+            CREATE_GLOBAL_SLF(spiderman_camera_set_interpolation_time__num,
+                              "spiderman_camera_set_interpolation_time(num)");
+            CREATE_GLOBAL_SLF(spiderman_camera_set_lockon_min_distance__num,
+                              "spiderman_camera_set_lockon_min_distance(num)");
             CREATE_GLOBAL_SLF(spiderman_camera_set_lockon_y_offset__num, "spiderman_camera_set_lockon_y_offset(num)");
             CREATE_GLOBAL_SLF(spiderman_charged_jump, "spiderman_charged_jump()");
             CREATE_GLOBAL_SLF(spiderman_enable_control_button__num__num, "spiderman_enable_control_button(num,num)");
@@ -11954,30 +12552,46 @@ void chuck_register_script_libs()
             CREATE_GLOBAL_SLF(spiderman_lockon_camera_engaged, "spiderman_lockon_camera_engaged()");
             CREATE_GLOBAL_SLF(spiderman_lockon_mode_engaged, "spiderman_lockon_mode_engaged()");
             CREATE_GLOBAL_SLF(spiderman_set_camera_target__entity, "spiderman_set_camera_target(entity)");
-            CREATE_GLOBAL_SLF(spiderman_set_desired_mode__num__vector3d__vector3d, "spiderman_set_desired_mode(num,vector3d,vector3d)");
-            CREATE_GLOBAL_SLF(spiderman_set_health_beep_min_max_cooldown_time__num__num, "spiderman_set_health_beep_min_max_cooldown_time(num,num)");
+            CREATE_GLOBAL_SLF(spiderman_set_desired_mode__num__vector3d__vector3d,
+                              "spiderman_set_desired_mode(num,vector3d,vector3d)");
+            CREATE_GLOBAL_SLF(spiderman_set_health_beep_min_max_cooldown_time__num__num,
+                              "spiderman_set_health_beep_min_max_cooldown_time(num,num)");
             CREATE_GLOBAL_SLF(spiderman_set_health_beep_threshold__num, "spiderman_set_health_beep_threshold(num)");
             CREATE_GLOBAL_SLF(spiderman_set_hero_meter_empty_rate__num, "spiderman_set_hero_meter_empty_rate(num)");
             CREATE_GLOBAL_SLF(spiderman_set_max_height__num, "spiderman_set_max_height(num)");
             CREATE_GLOBAL_SLF(spiderman_set_max_zip_length__num, "spiderman_set_max_zip_length(num)");
             CREATE_GLOBAL_SLF(spiderman_set_min_height__num, "spiderman_set_min_height(num)");
             CREATE_GLOBAL_SLF(spiderman_set_spidey_sense_level__num, "spiderman_set_spidey_sense_level(num)");
-            CREATE_GLOBAL_SLF(spiderman_set_swing_anchor_max_sticky_time__num, "spiderman_set_swing_anchor_max_sticky_time(num)");
+            CREATE_GLOBAL_SLF(spiderman_set_swing_anchor_max_sticky_time__num,
+                              "spiderman_set_swing_anchor_max_sticky_time(num)");
             CREATE_GLOBAL_SLF(spiderman_subtract_hero_points__num, "spiderman_subtract_hero_points(num)");
-            CREATE_GLOBAL_SLF(spiderman_td_set_alternating_wall_run_occurrence_threshold__num, "spiderman_td_set_alternating_wall_run_occurrence_threshold(num)");
-            CREATE_GLOBAL_SLF(spiderman_td_set_alternating_wall_run_time_threshold__num, "spiderman_td_set_alternating_wall_run_time_threshold(num)");
-            CREATE_GLOBAL_SLF(spiderman_td_set_big_air_height_threshold__num, "spiderman_td_set_big_air_height_threshold(num)");
-            CREATE_GLOBAL_SLF(spiderman_td_set_continuous_air_swings_threshold__num, "spiderman_td_set_continuous_air_swings_threshold(num)");
-            CREATE_GLOBAL_SLF(spiderman_td_set_gain_altitude_height_threshold__num, "spiderman_td_set_gain_altitude_height_threshold(num)");
-            CREATE_GLOBAL_SLF(spiderman_td_set_near_miss_trigger_radius__num, "spiderman_td_set_near_miss_trigger_radius(num)");
-            CREATE_GLOBAL_SLF(spiderman_td_set_near_miss_velocity_threshold__num, "spiderman_td_set_near_miss_velocity_threshold(num)");
-            CREATE_GLOBAL_SLF(spiderman_td_set_orbit_min_radius_threshold__num, "spiderman_td_set_orbit_min_radius_threshold(num)");
-            CREATE_GLOBAL_SLF(spiderman_td_set_soft_landing_velocity_threshold__num, "spiderman_td_set_soft_landing_velocity_threshold(num)");
-            CREATE_GLOBAL_SLF(spiderman_td_set_super_speed_speed_threshold__num, "spiderman_td_set_super_speed_speed_threshold(num)");
-            CREATE_GLOBAL_SLF(spiderman_td_set_swinging_wall_run_time_threshold__num, "spiderman_td_set_swinging_wall_run_time_threshold(num)");
-            CREATE_GLOBAL_SLF(spiderman_td_set_wall_sprint_time_threshold__num, "spiderman_td_set_wall_sprint_time_threshold(num)");
+            CREATE_GLOBAL_SLF(spiderman_td_set_alternating_wall_run_occurrence_threshold__num,
+                              "spiderman_td_set_alternating_wall_run_occurrence_threshold(num)");
+            CREATE_GLOBAL_SLF(spiderman_td_set_alternating_wall_run_time_threshold__num,
+                              "spiderman_td_set_alternating_wall_run_time_threshold(num)");
+            CREATE_GLOBAL_SLF(spiderman_td_set_big_air_height_threshold__num,
+                              "spiderman_td_set_big_air_height_threshold(num)");
+            CREATE_GLOBAL_SLF(spiderman_td_set_continuous_air_swings_threshold__num,
+                              "spiderman_td_set_continuous_air_swings_threshold(num)");
+            CREATE_GLOBAL_SLF(spiderman_td_set_gain_altitude_height_threshold__num,
+                              "spiderman_td_set_gain_altitude_height_threshold(num)");
+            CREATE_GLOBAL_SLF(spiderman_td_set_near_miss_trigger_radius__num,
+                              "spiderman_td_set_near_miss_trigger_radius(num)");
+            CREATE_GLOBAL_SLF(spiderman_td_set_near_miss_velocity_threshold__num,
+                              "spiderman_td_set_near_miss_velocity_threshold(num)");
+            CREATE_GLOBAL_SLF(spiderman_td_set_orbit_min_radius_threshold__num,
+                              "spiderman_td_set_orbit_min_radius_threshold(num)");
+            CREATE_GLOBAL_SLF(spiderman_td_set_soft_landing_velocity_threshold__num,
+                              "spiderman_td_set_soft_landing_velocity_threshold(num)");
+            CREATE_GLOBAL_SLF(spiderman_td_set_super_speed_speed_threshold__num,
+                              "spiderman_td_set_super_speed_speed_threshold(num)");
+            CREATE_GLOBAL_SLF(spiderman_td_set_swinging_wall_run_time_threshold__num,
+                              "spiderman_td_set_swinging_wall_run_time_threshold(num)");
+            CREATE_GLOBAL_SLF(spiderman_td_set_wall_sprint_time_threshold__num,
+                              "spiderman_td_set_wall_sprint_time_threshold(num)");
             CREATE_GLOBAL_SLF(spiderman_unlock_spider_reflexes, "spiderman_unlock_spider_reflexes()");
-            CREATE_GLOBAL_SLF(spiderman_wait_add_threat__entity__str__num__num, "spiderman_wait_add_threat(entity,str,num,num)");
+            CREATE_GLOBAL_SLF(spiderman_wait_add_threat__entity__str__num__num,
+                              "spiderman_wait_add_threat(entity,str,num,num)");
             CREATE_GLOBAL_SLF(spidey_can_see__vector3d, "spidey_can_see(vector3d)");
             CREATE_GLOBAL_SLF(sqrt__num, "sqrt(num)");
             CREATE_GLOBAL_SLF(start_patrol__str, "start_patrol(str)");
@@ -12016,13 +12630,16 @@ void chuck_register_script_libs()
             CREATE_GLOBAL_SLF(unlock_district__num, "unlock_district(num)");
             CREATE_GLOBAL_SLF(vibrate_controller__num, "vibrate_controller(num)");
             CREATE_GLOBAL_SLF(vibrate_controller__num__num, "vibrate_controller(num,num)");
-            CREATE_GLOBAL_SLF(vibrate_controller__num__num__num__num__num__num, "vibrate_controller(num,num,num,num,num,num)");
+            CREATE_GLOBAL_SLF(vibrate_controller__num__num__num__num__num__num,
+                              "vibrate_controller(num,num,num,num,num,num)");
             CREATE_GLOBAL_SLF(vo_delay__num__num__num__num, "vo_delay(num,num,num,num)");
             CREATE_GLOBAL_SLF(wait_animate_fog_color__vector3d__num, "wait_animate_fog_color(vector3d,num)");
             CREATE_GLOBAL_SLF(wait_animate_fog_distance__num__num, "wait_animate_fog_distance(num,num)");
             CREATE_GLOBAL_SLF(wait_animate_fog_distances__num__num__num, "wait_animate_fog_distances(num,num,num)");
-            CREATE_GLOBAL_SLF(wait_change_blur__num__vector3d__num__num__num__num__num__num, "wait_change_blur(num,vector3d,num,num,num,num,num,num)");
-            CREATE_GLOBAL_SLF(wait_change_spider_reflexes_blur__num__vector3d__num__num__num__num__num__num, "wait_change_spider_reflexes_blur(num,vector3d,num,num,num,num,num,num)");
+            CREATE_GLOBAL_SLF(wait_change_blur__num__vector3d__num__num__num__num__num__num,
+                              "wait_change_blur(num,vector3d,num,num,num,num,num,num)");
+            CREATE_GLOBAL_SLF(wait_change_spider_reflexes_blur__num__vector3d__num__num__num__num__num__num,
+                              "wait_change_spider_reflexes_blur(num,vector3d,num,num,num,num,num,num)");
             CREATE_GLOBAL_SLF(wait_for_streamer_to_reach_equilibrium, "wait_for_streamer_to_reach_equilibrium()");
             CREATE_GLOBAL_SLF(wait_fps_test__num__num__vector3d__vector3d, "wait_fps_test(num,num,vector3d,vector3d)");
             CREATE_GLOBAL_SLF(wait_frame, "wait_frame()");
@@ -12039,9 +12656,13 @@ void chuck_register_script_libs()
         script_library_class *slc = nullptr;
         {
             slc = classes[3];
-            CREATE_SLF(beam, add_alpha_effect__num__num__num__num__num__num, "add_alpha_effect(num,num,num,num,num,num)");
-            CREATE_SLF(beam, add_color_effect__num__num__num__num__num__num__num__num__num__num, "add_color_effect(num,num,num,num,num,num,num,num,num,num)");
-            CREATE_SLF(beam, add_width_effect__num__num__num__num__num__num, "add_width_effect(num,num,num,num,num,num)");
+            CREATE_SLF(
+                beam, add_alpha_effect__num__num__num__num__num__num, "add_alpha_effect(num,num,num,num,num,num)");
+            CREATE_SLF(beam,
+                       add_color_effect__num__num__num__num__num__num__num__num__num__num,
+                       "add_color_effect(num,num,num,num,num,num,num,num,num,num)");
+            CREATE_SLF(
+                beam, add_width_effect__num__num__num__num__num__num, "add_width_effect(num,num,num,num,num,num)");
             CREATE_SLF(beam, get_impact_normal, "get_impact_normal()");
             CREATE_SLF(beam, get_impact_point, "get_impact_point()");
             CREATE_SLF(beam, hit_hero, "hit_hero()");
@@ -12124,10 +12745,12 @@ void chuck_register_script_libs()
 
             slc = classes[8];
             CREATE_SLF(entity_list_iterator, get_entity, "get_entity()");
-            CREATE_SLF(entity_list_iterator, operator_not_equals__entity_list_iterator, "operator!=(entity_list_iterator)");
+            CREATE_SLF(
+                entity_list_iterator, operator_not_equals__entity_list_iterator, "operator!=(entity_list_iterator)");
             CREATE_SLF(entity_list_iterator, operator_plus_plus, "operator++()");
             CREATE_SLF(entity_list_iterator, operator_minus_munus, "operator--()");
-            CREATE_SLF(entity_list_iterator, operator_equals_equals__entity_list_iterator, "operator==(entity_list_iterator)");
+            CREATE_SLF(
+                entity_list_iterator, operator_equals_equals__entity_list_iterator, "operator==(entity_list_iterator)");
 
             slc = classes[9];
             CREATE_SLF(entity_tracker, get_entity, "get_entity()");
@@ -12151,16 +12774,27 @@ void chuck_register_script_libs()
             CREATE_SLF(gun, set_target_info__entity__vector3d__vector3d, "set_target_info(entity,vector3d,vector3d)");
 
             slc = classes[1];
-            CREATE_SLF(interactable_interface, add_box_trigger__string_hash__num__vector3d__vector3d, "add_box_trigger(string_hash,num,vector3d,vector3d)");
-            CREATE_SLF(interactable_interface, add_named_box_trigger__string_hash__str, "add_named_box_trigger(string_hash,str)");
-            CREATE_SLF(interactable_interface, add_point_trigger__string_hash__num__vector3d__num, "add_point_trigger(string_hash,num,vector3d,num)");
-            CREATE_SLF(interactable_interface, create_interaction__string_hash__num, "create_interaction(string_hash,num)");
-            CREATE_SLF(interactable_interface, create_interaction__string_hash__num__str, "create_interaction(string_hash,num,str)");
+            CREATE_SLF(interactable_interface,
+                       add_box_trigger__string_hash__num__vector3d__vector3d,
+                       "add_box_trigger(string_hash,num,vector3d,vector3d)");
+            CREATE_SLF(interactable_interface,
+                       add_named_box_trigger__string_hash__str,
+                       "add_named_box_trigger(string_hash,str)");
+            CREATE_SLF(interactable_interface,
+                       add_point_trigger__string_hash__num__vector3d__num,
+                       "add_point_trigger(string_hash,num,vector3d,num)");
+            CREATE_SLF(
+                interactable_interface, create_interaction__string_hash__num, "create_interaction(string_hash,num)");
+            CREATE_SLF(interactable_interface,
+                       create_interaction__string_hash__num__str,
+                       "create_interaction(string_hash,num,str)");
             CREATE_SLF(interactable_interface, disable_interaction__string_hash, "disable_interaction(string_hash)");
             CREATE_SLF(interactable_interface, enable_interaction__string_hash, "enable_interaction(string_hash)");
             CREATE_SLF(interactable_interface, nondirectional__string_hash, "nondirectional(string_hash)");
             CREATE_SLF(interactable_interface, one_shot__string_hash, "one_shot(string_hash)");
-            CREATE_SLF(interactable_interface, set_activation_button__string_hash__num, "set_activation_button(string_hash,num)");
+            CREATE_SLF(interactable_interface,
+                       set_activation_button__string_hash__num,
+                       "set_activation_button(string_hash,num)");
             CREATE_SLF(interactable_interface, set_approach__string_hash__num, "set_approach(string_hash,num)");
 
             slc = classes[12];
@@ -12293,10 +12927,16 @@ void chuck_register_script_libs()
             CREATE_SLF(polytube, simulate_slack__vector3d__vector3d__num, "simulate_slack(vector3d,vector3d,num)");
             CREATE_SLF(polytube, simulate_tether__entity__entity__num, "simulate_tether(entity,entity,num)");
             CREATE_SLF(polytube, tentacle_add_dangle_engine__num__num, "tentacle_add_dangle_engine(num,num)");
-            CREATE_SLF(polytube, tentacle_add_follow_engine__num__num__vector3d__num, "tentacle_add_follow_engine(num,num,vector3d,num)");
+            CREATE_SLF(polytube,
+                       tentacle_add_follow_engine__num__num__vector3d__num,
+                       "tentacle_add_follow_engine(num,num,vector3d,num)");
             CREATE_SLF(polytube, tentacle_add_slack_engine__num__num, "tentacle_add_slack_engine(num,num)");
-            CREATE_SLF(polytube, tentacle_add_strike_engine__vector3d__num__num, "tentacle_add_strike_engine(vector3d,num,num)");
-            CREATE_SLF(polytube, tentacle_add_swirl_strike_engine__vector3d__num__num__num__num, "tentacle_add_swirl_strike_engine(vector3d,num,num,num,num)");
+            CREATE_SLF(polytube,
+                       tentacle_add_strike_engine__vector3d__num__num,
+                       "tentacle_add_strike_engine(vector3d,num,num)");
+            CREATE_SLF(polytube,
+                       tentacle_add_swirl_strike_engine__vector3d__num__num__num__num,
+                       "tentacle_add_swirl_strike_engine(vector3d,num,num,num,num)");
             CREATE_SLF(polytube, tentacle_create_line__vector3d__num, "tentacle_create_line(vector3d,num)");
             CREATE_SLF(polytube, tentacle_engine_running__num, "tentacle_engine_running(num)");
             CREATE_SLF(polytube, tentacle_get_end_position, "tentacle_get_end_position()");
@@ -12309,11 +12949,14 @@ void chuck_register_script_libs()
             CREATE_SLF(polytube, tentacle_kill_engine__num, "tentacle_kill_engine(num)");
             CREATE_SLF(polytube, tentacle_set_collide__num, "tentacle_set_collide(num)");
             CREATE_SLF(polytube, tentacle_set_end_position__vector3d, "tentacle_set_end_position(vector3d)");
-            CREATE_SLF(polytube, tentacle_set_engine_attach_ent__num__entity, "tentacle_set_engine_attach_ent(num,entity)");
+            CREATE_SLF(
+                polytube, tentacle_set_engine_attach_ent__num__entity, "tentacle_set_engine_attach_ent(num,entity)");
             CREATE_SLF(polytube, tentacle_set_engine_drag__num__num, "tentacle_set_engine_drag(num,num)");
-            CREATE_SLF(polytube, tentacle_set_engine_gravity__num__vector3d, "tentacle_set_engine_gravity(num,vector3d)");
+            CREATE_SLF(
+                polytube, tentacle_set_engine_gravity__num__vector3d, "tentacle_set_engine_gravity(num,vector3d)");
             CREATE_SLF(polytube, tentacle_set_engine_length__num__num, "tentacle_set_engine_length(num,num)");
-            CREATE_SLF(polytube, tentacle_set_engine_slack_percent__num__num, "tentacle_set_engine_slack_percent(num,num)");
+            CREATE_SLF(
+                polytube, tentacle_set_engine_slack_percent__num__num, "tentacle_set_engine_slack_percent(num,num)");
             CREATE_SLF(polytube, tentacle_set_engine_target__num__vector3d, "tentacle_set_engine_target(num,vector3d)");
             CREATE_SLF(polytube, tentacle_set_position__num__vector3d, "tentacle_set_position(num,vector3d)");
             CREATE_SLF(polytube, v_animate__num, "v_animate(num)");
@@ -12485,10 +13128,14 @@ void chuck_register_script_libs()
 
             slc = classes[36];
             CREATE_SLF(vector3d_list_iterator, get_vector3d, "get_vector3d()");
-            CREATE_SLF(vector3d_list_iterator, operator_not_equals__vector3d_list_iterator, "operator!=(vector3d_list_iterator)");
+            CREATE_SLF(vector3d_list_iterator,
+                       operator_not_equals__vector3d_list_iterator,
+                       "operator!=(vector3d_list_iterator)");
             CREATE_SLF(vector3d_list_iterator, operator_plus_plus, "operator++()");
             CREATE_SLF(vector3d_list_iterator, operator_minus_munus, "operator--()");
-            CREATE_SLF(vector3d_list_iterator, operator_equals_equals__vector3d_list_iterator, "operator==(vector3d_list_iterator)");
+            CREATE_SLF(vector3d_list_iterator,
+                       operator_equals_equals__vector3d_list_iterator,
+                       "operator==(vector3d_list_iterator)");
         }
 
 #undef CREATE_SLF
@@ -12526,10 +13173,10 @@ void slc_manager::init()
 {
     TRACE("slc_manager::init");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         if (slc_manager_classes == nullptr) {
-            slc_manager_classes = new std::set<script_library_class *>{};
+            slc_manager_classes = new std::set<script_library_class *, decltype(&compare_script_library_class)>(
+                &compare_script_library_class);
         }
 
         if (slc_manager_class_array == nullptr) {
@@ -12544,17 +13191,14 @@ void slc_manager::init()
         register_standard_script_libs();
         chuck_register_script_libs();
 
-        if constexpr (0)
-        {
+        if constexpr (1) {
             printf("[");
 
             auto &array = *slc_manager_class_array;
-            for ( auto &slc : array )
-            {
+            for (auto &slc : array) {
                 printf("(\"%s\", [", slc->get_name());
 
-                for ( int i = {0}; i < slc->total_funcs; ++i ) 
-                {
+                for (int i = {0}; i < slc->total_funcs; ++i) {
                     auto *func = slc->get_func(i);
                     printf("\"%s\",\n", func->get_name());
                 }
@@ -12566,9 +13210,7 @@ void slc_manager::init()
         }
 
         construct_client_script_libs();
-    }
-    else
-    {
+    } else {
         CDECL_CALL(0x005AD720);
     }
 }
@@ -12579,46 +13221,17 @@ void slc_manager::add(script_library_class *slc)
 
     assert(slc_manager_class_array != nullptr);
 
-    if constexpr (1)
-    {
-
-#if STANDALONE_SYSTEM || defined(OPENUSM_XBPACK_V10)
-        assert(slc_manager_classes != nullptr);
+    if constexpr (1) {
 #if STANDALONE_SYSTEM
+        assert(slc_manager_classes != nullptr);
         auto ret = slc_manager_classes->insert(slc);
-        if ( !ret.second ) {
+        if (!ret.second) {
             auto name = slc->get_name();
-            sp_log("slc already exists %s", name);
-            assert(0);
+            error("slc already exists %s", name);
         }
 #endif
-
         slc_manager_class_array->push_back(slc);
-
-#else
-
-        auto *v1 = slc_manager_class_array;
-        auto size = slc_manager_class_array->size();
-        if ( size < slc_manager_class_array->capacity() )
-        {
-            auto *m_last = slc_manager_class_array->m_last;
-            *m_last = slc;
-            v1->m_last = m_last + 1;
-        }
-        else
-        {
-            void (__fastcall *sub_5B4DB0)(void *, void *, script_library_class **Src, int a2, script_library_class **a3) = CAST(sub_5B4DB0, 0x005B4DB0);
-            sub_5B4DB0(
-                slc_manager_class_array,
-                nullptr,
-                slc_manager_class_array->m_last,
-                1,
-                &slc);
-        }
-#endif
-    }
-    else
-    {
+    } else {
         CDECL_CALL(0x005A5280, slc);
     }
 }
@@ -12627,11 +13240,9 @@ void slc_manager::kill()
 {
     TRACE("slc_manager::kill");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         destruct_client_script_libs();
-        if ( slc_manager_class_array != nullptr )
-        {
+        if (slc_manager_class_array != nullptr) {
             for ( auto &slc : (*slc_manager_class_array) ) {
                 if ( slc != nullptr ) {
 #ifdef OPENUSM_XBPACK_V10
@@ -12661,34 +13272,35 @@ script_library_class * slc_manager::get_class(int class_index)
 
     assert(class_index >= 0);
 
-    assert(class_index < slc_manager_class_array->size());
+    assert(class_index < static_cast<int>(slc_manager_class_array->size()));
 
     return slc_manager_class_array->at(class_index);
 }
 
 script_library_class *slc_manager::get(const char *a1)
 {
+    TRACE("slc_manager::get");
+
     assert(slc_manager_classes != nullptr);
+
+    if constexpr (1) {
+        assert(!slc_manager_classes->empty());
+    }
 
     script_library_class v9{};
     v9.store_name(a1);
     auto it = slc_manager_classes->find(&v9);
     auto end = slc_manager_classes->end();
-    if ( it != end ) {
-        return (*it);
-    }
-
-    return nullptr;
+    return (it != end ? (*it) : nullptr);
 }
 
 void slc_manager::un_mash_all_funcs()
 {
     TRACE("slc_manager::un_mash_all_funcs");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         assert(!script_manager::using_chuck_old_fashioned());
-        assert(!g_is_the_packer());
+        assert(!g_is_the_packer);
 
         auto a1 = create_resource_key_from_path("all_slc_functions_mac", RESOURCE_KEY_TYPE_SLF_LIST);
         sp_log("%s", a1.get_platform_string(3).c_str());
@@ -12714,7 +13326,7 @@ void slc_manager::un_mash_all_funcs()
         auto total_classes = bit_cast<int *>(image)[0];
         auto *buffer = image + 4;
 
-        assert(total_classes == slc_manager_class_array->size());
+        assert(total_classes == static_cast<int>(slc_manager_class_array->size()));
         
         for ( auto &slc : (*slc_manager_class_array) ) {
             slc->total_funcs = bit_cast<int *>(buffer)[0];
@@ -12727,9 +13339,7 @@ void slc_manager::un_mash_all_funcs()
                 slc->field_1C |= 1u;
             }
         }
-    }
-    else
-    {
+    } else {
         CDECL_CALL(0x0059EC00);
     }
 }
@@ -12751,6 +13361,8 @@ void slc_manager_patch()
         REDIRECT(0x005AB8D4, slc_manager::add);
         REDIRECT(0x005AB948, slc_manager::add);
     }
+
+    script_lib_beam_patch();
 
     script_lib_entity_patch();
 

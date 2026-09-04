@@ -4,7 +4,6 @@
 #include "mstring.h"
 
 struct keyboard_device : input_device {
-
     int field_8;
 
     keyboard_device();
@@ -20,7 +19,7 @@ struct keyboard_device : input_device {
     void _clear_state();
 
     //virtual
-    float _get_axis_state(int axis, int );
+    float _get_axis_state(int axis, int);
 
     float _get_axis_old_state(int a2, int a3);
 

@@ -10,25 +10,28 @@
 
 #include <rb_ragdoll_model.h>
 
-static int & g_physics_system_size = var<int>(0x0098456C);
+static int &g_physics_system_size = var<int>(0x0098456C);
 
-static int & g_physics_system_alignment = var<int>(0x00984570);
+static int &g_physics_system_alignment = var<int>(0x00984570);
 
-physics_system *& g_physics_system = var<physics_system *>(0x00984568);
+physics_system *&g_physics_system = var<physics_system *>(0x00984568);
 
 VALIDATE_SIZE(physics_system, 0x2D8);
 VALIDATE_OFFSET(physics_system, field_1C4, 0x1C4);
 
 //0x0059F4B0
-void physics_system_collision_callback() {
+void physics_system_collision_callback()
+{
     CDECL_CALL(0x0059F4B0);
 }
 
-void calc_bone_mat_from_rb(void *a1, rigid_body *a2, int a3) {
+void calc_bone_mat_from_rb(void *a1, rigid_body *a2, int a3)
+{
     CDECL_CALL(0x00592CE0, a1, a2, a3);
 }
 
-void calc_rb_mat_from_bone(void *a1, rigid_body *a2, int a3) {
+void calc_rb_mat_from_bone(void *a1, rigid_body *a2, int a3)
+{
     CDECL_CALL(0x0059AEC0, a1, a2, a3);
 }
 
@@ -51,8 +54,8 @@ void physics_system_init()
         phys_sys::set_vp_tol(4, 8, 0.25f);
 
         ragdoll_callbacks a1;
-        a1.m_calc_bone_mat_from_rb = (void *) &calc_bone_mat_from_rb;
-        a1.m_calc_rb_mat_from_bone = (void *) &calc_rb_mat_from_bone;
+        a1.m_calc_bone_mat_from_rb = (void *)&calc_bone_mat_from_rb;
+        a1.m_calc_rb_mat_from_bone = (void *)&calc_rb_mat_from_bone;
         rb_ragdoll_model::set_ragdoll_callbacks(a1);
     } else {
         CDECL_CALL(0x0059F4D0);
@@ -64,14 +67,14 @@ void physics_system_shutdown()
     phys_sys::phys_shutdown();
 }
 
-uint32_t physics_system::get_buffer_size(const phys_mem_info &a1) {
+uint32_t physics_system::get_buffer_size(const phys_mem_info &a1)
+{
     return (44 * a1.field_0 +
             ((((((((((((((108 * a1.field_8 +
                           ((108 * a1.field_8 +
                             ((56 * a1.field_C +
                               ((372 * a1.field_0 +
-                                ((((56 * a1.field_0 + ((24 * a1.field_C + 731) & 0xFFFFFFFC) + 3) &
-                                   0xFFFFFFFC) +
+                                ((((56 * a1.field_0 + ((24 * a1.field_C + 731) & 0xFFFFFFFC) + 3) & 0xFFFFFFFC) +
                                   444 * a1.field_4 + 3) &
                                  0xFFFFFFFC) +
                                 3) &
@@ -95,13 +98,12 @@ uint32_t physics_system::get_buffer_size(const phys_mem_info &a1) {
               200 * a1.field_24 + 3) &
              0xFFFFFFFC) +
             148 * (a1.field_28 + 1) + 15) &
-        0xFFFFFFF0;
+           0xFFFFFFF0;
 }
 
 physics_system::physics_system()
 {
-    if constexpr (0)
-    {
+    if constexpr (0) {
         this->field_1A0 = 0;
         this->field_1A4 = 0;
         this->field_1AC = 0;
@@ -173,8 +175,8 @@ physics_system::physics_system()
         this->field_14 = 4;
         this->field_18 = 4;
         this->field_20 = 4;
-        this->field_2C = (int) v2;
-        this->field_30 = (int) v3;
+        this->field_2C = (int)v2;
+        this->field_30 = (int)v3;
         this->field_10 = 0.051282052;
         this->field_1C = 0.010000001;
         this->field_24 = 8;
@@ -185,7 +187,8 @@ physics_system::physics_system()
     }
 }
 
-void physics_system::frame_advance(Float a2) {
+void physics_system::frame_advance(Float a2)
+{
     THISCALL(0x007AB170, this, a2);
 }
 
@@ -196,7 +199,7 @@ void physics_system::create_inst(const phys_mem_info &a1)
     g_physics_system_alignment = physics_system::get_buffer_alignment();
 
     auto *addr = tlMemAlloc(g_physics_system_size, g_physics_system_alignment, 0x5000000u);
-    phys_memory_heap a2 {};
+    phys_memory_heap a2{};
     a2.init(addr, g_physics_system_size, g_physics_system_alignment);
     g_physics_system = physics_system::allocate_buffer(a1, a2);
 
@@ -218,7 +221,8 @@ uint32_t physics_system::get_buffer_alignment()
     return 16u;
 }
 
-physics_system *physics_system::allocate_buffer(const phys_mem_info &a1, phys_memory_heap &a2) {
+physics_system *physics_system::allocate_buffer(const phys_mem_info &a1, phys_memory_heap &a2)
+{
 #if 0
     {
         //sp_log("a2.field_8 = %d", a2.field_8);
@@ -234,30 +238,35 @@ physics_system *physics_system::allocate_buffer(const phys_mem_info &a1, phys_me
     }
 #endif
 
-    return (physics_system *) CDECL_CALL(0x007AB5E0, &a1, &a2);
+    return (physics_system *)CDECL_CALL(0x007AB5E0, &a1, &a2);
 }
 
-void phys_sys::phys_init(const phys_mem_info &a1) {
+void phys_sys::phys_init(const phys_mem_info &a1)
+{
     physics_system::create_inst(a1);
 }
 
-void phys_sys::set_collision_callback(void (*a1)()) {
+void phys_sys::set_collision_callback(void (*a1)())
+{
     g_physics_system->m_callback = a1;
 }
 
-void phys_sys::set_v_tol(int a1, int a2, Float a3) {
+void phys_sys::set_v_tol(int a1, int a2, Float a3)
+{
     g_physics_system->field_14 = a1;
     g_physics_system->field_18 = a2;
     g_physics_system->field_1C = a3;
 }
 
-void phys_sys::set_vp_tol(int a1, int a2, Float a3) {
+void phys_sys::set_vp_tol(int a1, int a2, Float a3)
+{
     g_physics_system->field_20 = a1;
     g_physics_system->field_24 = a2;
     g_physics_system->field_28 = a3;
 }
 
-rigid_body *phys_sys::create_rigid_body() {
+rigid_body *phys_sys::create_rigid_body()
+{
     auto v0 = g_physics_system->field_1D8.m_alloc_count;
     if (v0 >= g_physics_system->field_1D8.m_slot_array_size) {
         return nullptr;
@@ -270,14 +279,13 @@ rigid_body *phys_sys::create_rigid_body() {
 
 rigid_body_constraint_distance *phys_sys::create_rbc_dist(rigid_body *a1, rigid_body *a2)
 {
-    return (rigid_body_constraint_distance *) CDECL_CALL(0x007A1820, a1, a2);
+    return (rigid_body_constraint_distance *)CDECL_CALL(0x007A1820, a1, a2);
 }
 
 user_rigid_body *phys_sys::create_user_rigid_body()
 {
     auto v0 = g_physics_system->field_1C4.m_alloc_count;
-    if ( v0 >= g_physics_system->field_1C4.m_slot_array_size )
-    {
+    if (v0 >= g_physics_system->field_1C4.m_slot_array_size) {
         return nullptr;
     }
 
@@ -291,13 +299,14 @@ environment_rigid_body *phys_sys::get_environment_rigid_body()
     return &g_physics_system->field_34;
 }
 
-void phys_sys::phys_frame_advance(Float a1) {
+void phys_sys::phys_frame_advance(Float a1)
+{
     g_physics_system->frame_advance(a1);
 }
 
-rigid_body_constraint_contact * phys_sys::create_no_error_rbc_contact(rigid_body *a1, rigid_body *a2) 
+rigid_body_constraint_contact *phys_sys::create_no_error_rbc_contact(rigid_body *a1, rigid_body *a2)
 {
-    return (rigid_body_constraint_contact *) CDECL_CALL(0x007A1D60, a1, a2);
+    return (rigid_body_constraint_contact *)CDECL_CALL(0x007A1D60, a1, a2);
 }
 
 void phys_sys::destroy(rigid_body_constraint_distance *a1)
@@ -315,6 +324,7 @@ void phys_sys::phys_shutdown()
     physics_system::destroy_inst();
 }
 
-void physics_system_patch() {
+void physics_system_patch()
+{
     REDIRECT(0x007AB8B4, physics_system::allocate_buffer);
 }

@@ -12,8 +12,7 @@ VALIDATE_SIZE(game_data_meat, 0x154);
 
 void game_data_meat::init()
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         this->m_hero_points = 0;
         this->field_4 = 0;
         this->m_upg_impact_web_pts = 0;
@@ -51,8 +50,7 @@ void game_data_meat::init()
         this->m_run_sensitivity = 0.89999998f;
         this->field_5C = 0;
         this->field_5D = 0;
-        this->m_show_style_points = os_developer_options::instance->get_flag(
-            mString{"SHOW_STYLE_POINTS"});
+        this->m_show_style_points = os_developer_options::instance->get_flag(mString{"SHOW_STYLE_POINTS"});
         this->m_hero_health = 200.0;
         this->m_hero_type = 1;
         this->m_swing_speed = 2;
@@ -123,9 +121,7 @@ void game_data_meat::init()
 
         this->m_district_name = fixedstring<8>{"KG"};
 
-    }
-    else
-    {
+    } else {
         THISCALL(0x00579420, this);
     }
 }
@@ -135,7 +131,8 @@ game_data_meat::game_data_meat()
     this->init();
 }
 
-void game_data_meat_patch() {
+void game_data_meat_patch()
+{
     FUNC_ADDRESS(address, &game_data_meat::init);
     SET_JUMP(0x00579420, address);
 }

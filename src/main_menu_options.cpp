@@ -17,12 +17,13 @@
 
 VALIDATE_SIZE(main_menu_options, 0x110u);
 
-main_menu_options::main_menu_options(FEMenuSystem *a2, int a3, int a4)
-    : FEMenu(a2, 0, a3, a4, 8, 0) {
+main_menu_options::main_menu_options(FEMenuSystem *a2, int a3, int a4) : FEMenu(a2, 0, a3, a4, 8, 0)
+{
     THISCALL(0x006138F0, this, a2, a3, a4);
 }
 
-void main_menu_options::Update(Float a3) {
+void main_menu_options::Update(Float a3)
+{
     FEMenu::Update(a3);
     if (this->field_108) {
         if (!this->field_E8->field_2D) {
@@ -32,7 +33,7 @@ void main_menu_options::Update(Float a3) {
                 (*v3)->TurnOn(false);
                 ++v3;
                 --v4;
-            } while (v4);
+            } while (v4 > 0);
         }
 
         if (this->field_108 && !this->field_E4->field_2D) {
@@ -88,7 +89,8 @@ void main_menu_options::OnActivate()
     THISCALL(0x0062CE60, this);
 }
 
-void main_menu_options::OnDown(int) {
+void main_menu_options::OnDown(int)
+{
     if (!this->field_E4->field_2D) {
         static string_hash fx_scroll_hash{"FE_MO_UDScroll"};
 
@@ -104,22 +106,23 @@ void main_menu_options::OnDown(int) {
     }
 }
 
-void main_menu_options::OnCross(int a2) {
+void main_menu_options::OnCross(int a2)
+{
     if constexpr (1) {
         auto v3 = this->field_104;
         if (v3 || !this->field_10A) {
             if (v3 == 5) {
-                auto *v4 = g_cursor();
-                dword_922908() = 2;
-                if (!g_cursor()->field_120) {
-                    g_cursor()->field_114 = false;
-                    v4 = g_cursor();
+                auto *v4 = g_cursor;
+                dword_922908 = 2;
+                if (!g_cursor->field_120) {
+                    g_cursor->field_114 = false;
+                    v4 = g_cursor;
                 }
 
                 v4->field_120 = true;
-                byte_922994() = true;
+                byte_922994 = true;
             } else if (!this->field_E4->field_2D) {
-                static string_hash fx_accept_hash{"FE_MO_Accept"};
+                static string_hash fx_accept_hash{int(to_hash("FE_MO_Accept"))};
 
                 [[maybe_unused]] sound_instance_id v15 = sub_60B960(fx_accept_hash, 1.0, 1.0);
 
@@ -163,11 +166,13 @@ void main_menu_options::OnCross(int a2) {
     }
 }
 
-void main_menu_options::update_highlight() {
+void main_menu_options::update_highlight()
+{
     THISCALL(0x00623340, this);
 }
 
-void main_menu_options_patch() {
+void main_menu_options_patch()
+{
     {
         FUNC_ADDRESS(address, &main_menu_options::OnActivate);
         //set_vfunc(0x00894724, address);

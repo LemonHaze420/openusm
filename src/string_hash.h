@@ -1,8 +1,10 @@
 #pragma once
 
+#include "mash.h"
 #include <variable.h>
 
 struct entity_base;
+struct from_mash_in_place_constructor;
 struct mic;
 struct mash_info_struct;
 
@@ -11,12 +13,14 @@ struct string_hash {
 
     string_hash();
 
+    string_hash(from_mash_in_place_constructor *);
+
     string_hash(const char *a1);
 
     string_hash(int a4);
 
     //0x00547A00
-    void initialize(int a2, const char *a3, int hash_code);
+    void initialize(mash::allocation_scope a2, const char *a3, int hash_code);
 
     void unmash(mash_info_struct *, void *);
 
@@ -28,23 +32,27 @@ struct string_hash {
 
     void destruct_mashed_class();
 
-    bool operator==(const string_hash &hash) const {
+    bool operator==(const string_hash &hash) const
+    {
         return this->source_hash_code == hash.source_hash_code;
     }
 
-    bool operator<(const string_hash &rhs) const {
+    bool operator<(const string_hash &rhs) const
+    {
         return this->source_hash_code < rhs.source_hash_code;
     }
 
-    bool operator>(const string_hash &rhs) const {
+    bool operator>(const string_hash &rhs) const
+    {
         return this->source_hash_code > rhs.source_hash_code;
     }
 
-    operator size_t() const {
+    operator size_t() const
+    {
         return static_cast<size_t>(this->source_hash_code);
     }
 
-    static Var<char[12]> ghetto_string;
+    static char (&ghetto_string)[12];
 
     static string_hash INVALID_STRING_HASH;
 
@@ -55,14 +63,15 @@ namespace ai {
 extern Var<string_hash> cat_id_idle_walk_run;
 
 extern Var<string_hash> loco_allow_web_tie_id;
-}
+}  // namespace ai
 
 extern string_hash ANONYMOUS;
 
 //0x004BFD50
 extern string_hash make_unique_entity_id();
 
-inline constexpr bool is_alpha(unsigned char c) {
+inline constexpr bool is_alpha(unsigned char c)
+{
     if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) {
         return true;
     }
@@ -70,7 +79,8 @@ inline constexpr bool is_alpha(unsigned char c) {
     return false;
 }
 
-inline constexpr unsigned char to_lower(unsigned char c) {
+inline constexpr unsigned char to_lower(unsigned char c)
+{
     constexpr auto delta = 'a' - 'A';
 
     if (c >= 'A' && c <= 'Z') {
@@ -81,7 +91,8 @@ inline constexpr unsigned char to_lower(unsigned char c) {
 }
 
 //0x00501BE0
-extern constexpr inline std::uint32_t to_hash(const char *str) {
+inline constexpr std::uint32_t to_hash(const char *str)
+{
     std::uint32_t res = 0;
 
     for (int c = *str; c != '\0'; ++str, c = *str) {
@@ -98,5 +109,12 @@ extern constexpr inline std::uint32_t to_hash(const char *str) {
 
     return res;
 }
+
+extern string_hash bip01_head;
+
+extern string_hash &bip01_l_calf;
+extern string_hash &bip01_r_calf;
+extern string_hash &bip01_pelvis;
+extern string_hash &bip01_spine;
 
 extern void string_hash_patch();

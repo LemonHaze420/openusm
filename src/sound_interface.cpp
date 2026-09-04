@@ -7,10 +7,7 @@
 
 VALIDATE_SIZE(sound_interface, 0x28);
 
-sound_interface::sound_interface()
-{
-
-}
+sound_interface::sound_interface() {}
 
 void sound_interface::frame_advance_all_sound_ifc(Float a3)
 {

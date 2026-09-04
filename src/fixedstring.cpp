@@ -11,7 +11,7 @@
 
 VALIDATE_SIZE(fixedstring<8>, 0x20);
 
-tlFixedString::tlFixedString(const char *a1)
+tlFixedString::tlFixedString(const char *a1) : m_hash(0), field_4()
 {
     this->m_hash = to_hash(a1);
 
@@ -19,7 +19,13 @@ tlFixedString::tlFixedString(const char *a1)
     strlwr(this->field_4);
 }
 
-int tlFixedString::compare(const tlFixedString &a2) {
+void tlFixedString::unmash(mash_info_struct *, void *)
+{
+    ;
+}
+
+int tlFixedString::compare(const tlFixedString &a2) const
+{
     for (auto i = 0; i < 8; ++i) {
         auto func = [](const void *self) -> const uint32_t * {
             //
@@ -34,7 +40,8 @@ int tlFixedString::compare(const tlFixedString &a2) {
     return 0;
 }
 
-bool tlFixedString::operator==(const tlFixedString &a2) const {
+bool tlFixedString::operator==(const tlFixedString &a2) const
+{
     for (int i = 0; i < 8; ++i) {
         auto func = [](const void *self) -> const int * {
             //
@@ -50,7 +57,8 @@ bool tlFixedString::operator==(const tlFixedString &a2) const {
     return true;
 }
 
-bool tlFixedString::operator!=(const tlFixedString &a2) const {
+bool tlFixedString::operator!=(const tlFixedString &a2) const
+{
     for (auto i = 0u; i < 8u; ++i) {
         auto func = [](const void *self) -> const int * {
             //
@@ -66,7 +74,8 @@ bool tlFixedString::operator!=(const tlFixedString &a2) const {
     return false;
 }
 
-tlFixedString *tlFixedString::operator=(const tlFixedString &a1) {
+tlFixedString *tlFixedString::operator=(const tlFixedString &a1)
+{
     for (auto i = 0u; i < 8u; ++i) {
         auto func = [](const void *self) -> const int * {
             //
@@ -87,10 +96,10 @@ tlFixedString *tlFixedString::operator=(const tlFixedString &a1) {
 int compare_tlFixedString_tlresource_location(uint32_t &a1, tlresource_location &a2)
 {
     int result;
-    if (a2.name.source_hash_code == a1) {
+    if (a2.get_name().source_hash_code == a1) {
         result = 0;
     } else {
-        result = (a2.name.source_hash_code < a1 ? 1 : -1);
+        result = (a2.get_name().source_hash_code < a1 ? 1 : -1);
     }
 
     return result;

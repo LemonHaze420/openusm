@@ -8,6 +8,7 @@
 #include <list>
 #include <stack>
 #include <string>
+#include <memory>
 
 struct tokenizer;
 struct color32;
@@ -30,7 +31,7 @@ struct Console {
     uint32_t field_230;
     int field_234;
     int cmdLogNumber;
-    mString field_23C;
+    std::string field_23C;
     PanelQuad *field_248;
     bool field_24C;
     bool field_24D;
@@ -39,7 +40,7 @@ struct Console {
 
     Console();
 
-    void * operator new(size_t size);
+    void *operator new(size_t size);
 
     void operator delete(void *ptr, size_t size);
 
@@ -94,6 +95,7 @@ extern char KB_register_event_callback(void (*a1)(KeyEvent, Key_Axes, void *), v
 
 extern void render_console_text(const mString &a1, vector2di a2, const color32 &a4);
 
+//extern std::unique_ptr<Console> g_console;
 extern Console *g_console;
 
 extern std::stack<tokenizer *> s_exec_tok_stack;

@@ -7,8 +7,8 @@
 
 VALIDATE_SIZE(pause_menu_transition, 0x50u);
 
-pause_menu_transition::pause_menu_transition(FEMenuSystem *a2, int a3, int a4)
-    : FEMenu(a2, 0, a3, a4, 0, 0) {
+pause_menu_transition::pause_menu_transition(FEMenuSystem *a2, int a3, int a4) : FEMenu(a2, 0, a3, a4, 0, 0)
+{
     this->m_vtbl = 0x00893FE8;
 
     this->field_2C = bit_cast<PauseMenuSystem *>(a2);
@@ -21,11 +21,13 @@ pause_menu_transition::pause_menu_transition(FEMenuSystem *a2, int a3, int a4)
     this->field_48 = 21;
 }
 
-void pause_menu_transition::set_transition(int a1) {
+void pause_menu_transition::set_transition(int a1)
+{
     this->field_48 = a1;
 }
 
-void pause_menu_transition::Update(Float a2) {
+void pause_menu_transition::Update(Float a2)
+{
     THISCALL(0x0061C680, this, a2);
 }
 

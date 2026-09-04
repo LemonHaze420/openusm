@@ -28,8 +28,8 @@ struct ai_region_paths {
     ai_region_paths();
 
     //0x0046EFF0
-    ai_quad_path *get_quad_path_for_point(
-        const vector3d &a2, Float a3, ai_quad_path_cell **a4, bool a5, ai_quad_path *a6);
+    ai_quad_path *get_quad_path_for_point(const vector3d &a2, Float a3, ai_quad_path_cell **a4, bool a5,
+                                          ai_quad_path *a6);
 
     ai_quad_path *get_quad_path_internal();
 

@@ -19,6 +19,10 @@ struct als_res_data {
     void initialize(mash::allocation_scope);
 
     void unmash(mash_info_struct *a2, void *a3);
+
+    void sub_4AB7F0(int a2);
+
+    void destruct_mashed_class();
 };
 
 extern void als_res_data_patch();

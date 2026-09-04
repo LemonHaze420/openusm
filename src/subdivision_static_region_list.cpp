@@ -6,7 +6,7 @@
 #include "region.h"
 #include "scratchpad_stack.h"
 #include "stack_allocator.h"
-#include "subdivision_node_obb_base.h"
+#include "subdivision_obb.h"
 #include "trace.h"
 #include "utility.h"
 #include "variables.h"
@@ -21,7 +21,7 @@ void static_region_list_methods::init()
 
     if constexpr (1) {
         scratchpad() = static_cast<int *>(scratchpad_stack::alloc(0x40));
-        for ( int i = 0; i < 16; ++i ) {
+        for (int i = 0; i < 16; ++i) {
             scratchpad()[i] = 0;
         }
     } else {
@@ -39,10 +39,9 @@ void static_region_list_methods::term()
     }
 }
 
-int static_region_list_methods::traverse_sphere(const subdivision_node &a2,
-                                                const vector3d &arg4,
-                                                float a4,
-                                                subdivision_visitor &a3) {
+int static_region_list_methods::traverse_sphere(const subdivision_node &a2, const vector3d &arg4, float a4,
+                                                subdivision_visitor &a3)
+{
     traverse_test a1;
 
     a1.field_0 = 0;
@@ -52,9 +51,8 @@ int static_region_list_methods::traverse_sphere(const subdivision_node &a2,
     return this->traverse_using_test(a1, a2, a3);
 }
 
-int static_region_list_methods::traverse_all(const subdivision_node &a2,
-                                             subdivision_visitor &a3,
-                                             bool) {
+int static_region_list_methods::traverse_all(const subdivision_node &a2, subdivision_visitor &a3, bool)
+{
     traverse_test a1;
 
     static Var<vector3d> ZEROVEC_5{0x0095C968};
@@ -65,16 +63,14 @@ int static_region_list_methods::traverse_all(const subdivision_node &a2,
     return this->traverse_using_test(a1, a2, a3);
 }
 
-int static_region_list_methods::traverse_line_segment(const subdivision_node &a2,
-                                                      const vector3d &,
-                                                      const vector3d &,
-                                                      subdivision_visitor &visitor) {
+int static_region_list_methods::traverse_line_segment(const subdivision_node &a2, const vector3d &, const vector3d &,
+                                                      subdivision_visitor &visitor)
+{
     return this->traverse_all(a2, visitor, false);
 }
 
-int static_region_list_methods::traverse_point(const subdivision_node &a1,
-                                               const vector3d &a2,
-                                               subdivision_visitor &a3) {
+int static_region_list_methods::traverse_point(const subdivision_node &a1, const vector3d &a2, subdivision_visitor &a3)
+{
     traverse_test v6;
     v6.field_0 = 1;
     v6.field_4 = a2;
@@ -82,24 +78,21 @@ int static_region_list_methods::traverse_point(const subdivision_node &a1,
     return this->traverse_using_test(v6, a1, a3);
 }
 
-int static_region_list_methods::traverse_using_test(const traverse_test &a1,
-                                                    const subdivision_node &a2,
-                                                    subdivision_visitor &a3) {
+int static_region_list_methods::traverse_using_test(const traverse_test &a1, const subdivision_node &a2,
+                                                    subdivision_visitor &a3)
+{
     return THISCALL(0x00513E50, this, &a1, &a2, &a3);
 }
 
-void static_region_list_builder::build_mirror(
-        stack_allocator &stk,
-        _std::vector<proximity_map_construction_leaf> &a2)
+void static_region_list_builder::build_mirror(stack_allocator &stk, _std::vector<proximity_map_construction_leaf> &a2)
 {
     TRACE("static_region_list_builder::build_mirror");
 
-    for ( uint32_t k = 0; k < a2.size(); ++k )
-    {
+    for (uint32_t k = 0; k < a2.size(); ++k) {
         auto *reg = a2[k].field_0.r;
         auto *v3 = stk.push(sizeof(region_mirror_data));
-        auto *mirror = new (v3) region_mirror_data {reg};
-        if ( k == 0 ) {
+        auto *mirror = new (v3) region_mirror_data{reg};
+        if (k == 0) {
             static_region_list_methods::mirror() = mirror;
         }
 

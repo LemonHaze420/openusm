@@ -5,17 +5,19 @@
 
 #include <cassert>
 #include <cstdint>
+#include <cxxabi.h>
 
 template<typename Func>
-void set_vfunc(std::size_t address, Func func) {
+void set_vfunc(std::size_t address, Func func)
+{
     (*bit_cast<std::uint32_t *>(address)) = (bit_cast<std::uint32_t>(func));
 }
 
 template<typename Func>
-void REDIRECT_IMPL(std::ptrdiff_t addr, Func my_func, const char* name)
+void REDIRECT_IMPL(std::ptrdiff_t addr, Func my_func, const char *name)
 {
-    *bit_cast<uint8_t*>(addr) = 0xE8; //CALL
-    *bit_cast<uint32_t*>(bit_cast<uint8_t*>(addr + 1)) =
+    *bit_cast<uint8_t *>(addr) = 0xE8;  //CALL
+    *bit_cast<uint32_t *>(bit_cast<uint8_t *>(addr + 1)) =
         bit_cast<uint32_t>(my_func) - addr - 5;
 
 #ifdef PROGRESS_LOG
@@ -27,7 +29,7 @@ void REDIRECT_IMPL(std::ptrdiff_t addr, Func my_func, const char* name)
     REDIRECT_IMPL(addr, my_func, #my_func)
 
 template<typename Func>
-void SET_JUMP_IMPL(std::ptrdiff_t addr, Func my_func, const char* name)
+void SET_JUMP_IMPL(std::ptrdiff_t addr, Func my_func, const char *name)
 {
     *bit_cast<uint8_t*>(addr) = 0xE9; //JUMP
 
@@ -46,10 +48,30 @@ void SET_JUMP_IMPL(std::ptrdiff_t addr, Func my_func, const char* name)
 
 
 template<typename Func, typename = typename std::enable_if_t<std::is_member_function_pointer_v<Func>>>
-void *func_address(Func func) {
+void *func_address(Func func)
+{
     auto result = reinterpret_cast<void *&>(func);
 
     return result;
 }
 
 #define FUNC_ADDRESS(address, func) [[maybe_unused]] void *address = func_address(func)
+
+template <typename T>
+std::string get_type_name()
+{
+    const char *mangledName = typeid(T).name();
+
+    int status = 0;
+    char *demangledName = abi::__cxa_demangle(mangledName, nullptr, nullptr, &status);
+
+    std::string result;
+    if (status == 0) {
+        result = demangledName;
+    } else {
+        result = mangledName;
+    }
+
+    std::free(demangledName);
+    return result;
+}

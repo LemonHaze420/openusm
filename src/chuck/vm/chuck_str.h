@@ -5,7 +5,7 @@
 #include <float.hpp>
 
 struct chuck_str_t {
-    static inline const string_hash INVALID_STRING_HASH {0};
+    static inline const string_hash INVALID_STRING_HASH{0};
 };
 
 //0x0058FAE0

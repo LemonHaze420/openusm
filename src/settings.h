@@ -20,21 +20,23 @@ struct Settings {
 
     bool sub_81CC80(const char *Source, DWORD dwType, BYTE *lpData, DWORD cbData);
 
+    bool sub_81CC00(const char *Source, char *Dest, int a3, char *a4, int a5);
+
     bool sub_81D050(const char *a2, bool a3);
 
-    static inline Var<float> GameSoundVolume{0x00965958};
+    static inline float &GameSoundVolume = var<float>(0x00965958);
 
-    static inline Var<float> MusicVolume{0x00965AC0};
+    static inline float &MusicVolume = var<float>(0x00965AC0);
 
-    static inline Var<int> SoundMode{0x00961924};
+    static inline int &SoundMode = var<int>(0x00961924);
 
-    static inline Var<bool> InvertCameraV{0x00961914};
+    static inline bool &InvertCameraV = var<bool>(0x00961914);
 
-    static inline Var<bool> InvertCameraH{0x009659A0};
+    static inline bool &InvertCameraH = var<bool>(0x009659A0);
 
-    static inline Var<bool> MouseLook{0x00965BF4};
+    static inline bool &MouseLook = var<bool>(0x00965BF4);
 };
 
-extern Var<Settings *> g_settings;
+extern Settings *&g_settings;
 
 extern void settings_patch();

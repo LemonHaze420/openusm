@@ -47,7 +47,6 @@ keyboard_device::keyboard_device()
         FUNC_ADDRESS(address, &keyboard_device::_is_connected);
         this->m_vtbl->is_connected = CAST(this->m_vtbl->is_connected, address);
     }
-
 }
 
 static keyboard_device g_device {};
@@ -82,8 +81,7 @@ float keyboard_device::_get_axis_state(int axis, int a3)
 
     // sp_log("axis = %d, %d", axis, a3);
 
-    if (Input::instance() != nullptr)
-    {
+    if (Input::instance != nullptr) {
         static uint16_t key_codes[KB_NUM_AXES] {}; 
 
 #define register_key_code(key)  key_codes[KB_##key] = DIK_##key
@@ -106,14 +104,14 @@ float keyboard_device::_get_axis_state(int axis, int a3)
 
 #undef register_key_code
 
-        float result = (Input::instance()->m_state_keys[key_codes[axis]] != 0);
+        float result = (Input::instance->m_state_keys[key_codes[axis]] != 0);
         return result;
     }
 
     return 0.0f;
 }
 
-float keyboard_device::_get_axis_old_state(int axis, int )
+float keyboard_device::_get_axis_old_state(int, int)
 {
     return 0.0f;
 }
@@ -129,10 +127,12 @@ void keyboard_device::_poll()
     ;
 }
 
-bool keyboard_device::_is_connected() const {
+bool keyboard_device::_is_connected() const
+{
     return this->field_4 != INVALID_DEVICE_ID;
 }
 
-bool keyboard_device::_is_vibrator_present() const {
+bool keyboard_device::_is_vibrator_present() const
+{
     return false;
 }

@@ -4,7 +4,8 @@
 
 #include <cassert>
 
-int distance_fader::get_fade_index_for_fade_distance(Float a1) {
+int distance_fader::get_fade_index_for_fade_distance(Float a1)
+{
     TRACE("distance_fader::get_fade_index_for_fade_distance");
 
     int idx = 0;
@@ -20,7 +21,8 @@ int distance_fader::get_fade_index_for_fade_distance(Float a1) {
     return idx;
 }
 
-int distance_fader::estimate_fade_index_for_bounding_sphere(Float sphere_radius) {
+int distance_fader::estimate_fade_index_for_bounding_sphere(Float sphere_radius)
+{
     assert(sphere_radius >= 0.0f);
     assert(fade_radii()[0] < 0.0f);
 

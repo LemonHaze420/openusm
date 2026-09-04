@@ -11,15 +11,9 @@
 VALIDATE_SIZE(contact_point_info, 0x6C);
 VALIDATE_SIZE(rigid_body_constraint_contact, 0x30);
 
-void rigid_body_constraint_contact::add_point(rigid_body *b1_,
-        rigid_body *b2_,
-        phys_vector3d const &a4,
-        phys_vector3d const &a5,
-        phys_vector3d const &a6,
-        Float fric_coef,
-        Float bounce_coef,
-        Float a9,
-        bool a10)
+void rigid_body_constraint_contact::add_point(rigid_body *b1_, rigid_body *b2_, phys_vector3d const &a4,
+                                              phys_vector3d const &a5, phys_vector3d const &a6, Float fric_coef,
+                                              Float bounce_coef, Float a9, bool a10)
 {
     //sp_log("add_point");
 
@@ -28,13 +22,9 @@ void rigid_body_constraint_contact::add_point(rigid_body *b1_,
     //assert(g_physics_system()->in_system(b1_));
     //assert(g_physics_system()->in_system(b2_));
     //assert(g_physics_system()->in_system(this));
-    
-    if constexpr (0)
-    {
-    
-    }
-    else
-    {
+
+    if constexpr (0) {
+    } else {
         THISCALL(0x007A7360, this, b1_, b2_, &a4, &a5, &a6, fric_coef, bounce_coef, a9, a10);
     }
 }

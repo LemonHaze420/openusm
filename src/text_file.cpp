@@ -6,8 +6,7 @@
 #include "trace.h"
 #include "variables.h"
 
-text_file::text_file()
-    : io(), field_34()
+text_file::text_file() : io(), field_34()
 {
     this->buffer = (char *)arch_memalign(32u, 2048u);
     this->bufpos = 0;
@@ -29,32 +28,29 @@ void text_file::open(const mString &a1, int mode)
     TRACE("text_file::open");
 
     if constexpr (1) {
-        filespec v9 {a1};
-        if ( g_is_the_packer()
-                //|| sub_C01680(a1)
-                )
+        filespec v9{a1};
+        //if ( g_is_the_packer()
+        //       //|| sub_C01680(a1)
+        //        )
         {
-            auto v8 = os_file::system_locked();
-            os_file::system_locked() = false;
-            if ( mode == 1 || mode == 4 )
-            {
+            auto v8 = os_file::system_locked;
+            os_file::system_locked = false;
+            if (mode == os_file::FILE_READ || mode == os_file::FILE_APPEND) {
                 auto v4 = v9.fullname();
                 io.open(v4, mode);
                 this->opened = false;
-            }
-            else if ( mode == 2 )
-            {
+            } else if (mode == os_file::FILE_WRITE) {
                 auto v5 = v9.fullname();
-                io.open(v5, 2);
+                io.open(v5, mode);
             }
 
-            if ( io.is_open() && (mode == 1 || mode == 4) ) {
+            if (io.is_open() && (mode == 1 || mode == 4)) {
                 this->sub_5BC320();
             }
 
 
-            if ( v8 ) {
-                os_file::system_locked() = true;
+            if (v8) {
+                os_file::system_locked = true;
             }
         }
 
@@ -64,16 +60,19 @@ void text_file::open(const mString &a1, int mode)
     }
 }
 
-bool text_file::is_open() const {
+bool text_file::is_open() const
+{
     return io.is_open() || this->opened;
 }
 
-bool text_file::at_eof() const {
+bool text_file::at_eof() const
+{
     return this->bufpos >= this->bufamt && (io.field_15 || opened);
 }
 
-char text_file::peek_char() const {
-    if ( this->field_54 >= 0 ) {
+char text_file::peek_char() const
+{
+    if (this->field_54 >= 0) {
         return this->field_54;
     }
 
@@ -84,15 +83,12 @@ char text_file::peek_char() const {
 char text_file::read_char()
 {
     char v2;
-    if ( this->field_54 < 0 )
-    {
+    if (this->field_54 < 0) {
         assert(bufpos < bufamt);
 
         v2 = this->buffer[this->bufpos++];
-        if ( this->bufpos >= this->bufamt && !this->at_eof() ) {
-
-            auto sub_6707CA = [](text_file *file) -> void
-            {
+        if (this->bufpos >= this->bufamt && !this->at_eof()) {
+            auto sub_6707CA = [](text_file *file) -> void {
                 auto &io = file->io;
                 assert(io.is_open());
 
@@ -101,9 +97,7 @@ char text_file::read_char()
             };
             sub_6707CA(this);
         }
-    }
-    else
-    {
+    } else {
         v2 = this->field_54;
         this->field_54 = -1;
     }
@@ -116,22 +110,20 @@ void text_file::eat_whitespace()
     THISCALL(0x005CBD10, this);
 }
 
-void text_file::read(char *a2, int maxlen) {
+void text_file::read(char *a2, int maxlen)
+{
     if constexpr (1) {
         int v26 = 0;
         auto *cp = a2;
         this->eat_whitespace();
-        if (this->at_eof() || this->peek_char() != '\"' )
-        {
-            while ( !this->at_eof() )
-            {
+        if (this->at_eof() || this->peek_char() != '\"') {
+            while (!this->at_eof()) {
                 auto v3 = this->peek_char();
-                if ( isspace(v3) ) {
+                if (isspace(v3)) {
                     break;
                 }
 
-                if ( v26 >= maxlen )
-                {
+                if (v26 >= maxlen) {
                     *cp = 0;
                     mString v5 = this->get_name() + ": string too long for buffer: " + a2;
                     sp_log(v5.c_str());
@@ -141,38 +133,25 @@ void text_file::read(char *a2, int maxlen) {
                 *cp++ = this->read_char();
                 ++v26;
             }
-        }
-        else
-        {
-            this->read_char(); // eat first quote
+        } else {
+            this->read_char();  // eat first quote
             bool v22 = false;
-            while ( !this->at_eof() && !v22 )
-            {
+            while (!this->at_eof() && !v22) {
                 auto v24 = this->read_char();
-                if ( v24 == '\"' )
-                {
+                if (v24 == '\"') {
                     v22 = true;
-                }
-                else if ( v24 == '\\' )
-                {
+                } else if (v24 == '\\') {
                     auto v11 = this->peek_char();
-                    if ( v11 == '\"' )
-                    {
+                    if (v11 == '\"') {
                         *cp++ = '\"';
                         this->read_char();
-                    }
-                    else if ( v11 == '\\' )
-                    {
+                    } else if (v11 == '\\') {
                         *cp++ = '\\';
                         this->read_char();
-                    }
-                    else
-                    {
+                    } else {
                         *cp++ = v24;
                     }
-                }
-                else
-                {
+                } else {
                     *cp++ = v24;
                 }
             }
@@ -211,6 +190,7 @@ void text_file::read(mString *a1)
     THISCALL(0x005D5970, this, a1);
 }
 
-void text_file::write(const mString &str) {
+void text_file::write(const mString &str)
+{
     this->io.write(str.c_str(), str.size());
 }

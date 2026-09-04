@@ -4,8 +4,7 @@
 #include <iostream>
 #include <tuple>
 
-struct trace_obj                                                                   
-{                                                                               
+struct trace_obj {
     std::string m_func_name;
     static inline int m_indent{0};
     trace_obj(std::string func_name);
@@ -19,8 +18,7 @@ struct trace_obj
 #define TRACE(func_name, ...)                                                       \
     trace_obj tr{func_name};                                                        \
                                                                                     \
-    [](auto&&... args)                                                              \
-    {                                                                               \
+    [](auto &&...args) {                                                       \
        const     auto t = std::make_tuple(std::forward<decltype(args)>(args)...);   \
        constexpr auto N = std::tuple_size<decltype(t)>::value;                      \
                                                                                     \
@@ -29,11 +27,10 @@ struct trace_obj
        }                                                                            \
                                                                                     \
         std::cout << '\n';                                                          \
-                                                                                    \
     }(__VA_ARGS__)
 
 
 #else
-#define TRACE(...) {} 
+#define TRACE(...) \
+    {}
 #endif
-

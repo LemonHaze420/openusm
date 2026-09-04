@@ -26,6 +26,7 @@
 #if defined(OPENUSM_XBPACK_MODE) && !defined(TARGET_XBOX)
 #include <cstddef>
 #include <cstdio>
+#include <cstdlib>
 #include <windows.h>
 #endif
 
@@ -312,9 +313,16 @@ extern "C" __attribute__((noinline, used)) void *__cdecl xbpack_create_mocomp_in
 } // namespace
 #endif
 
-mash_virtual_base::mash_virtual_base()
-{
+mash_virtual_base::mash_virtual_base() {}
 
+void *mash_virtual_base::operator new(size_t sz)
+{
+    return mem_alloc(sz);
+}
+
+void mash_virtual_base::operator delete(void *ptr, size_t sz)
+{
+    mem_dealloc(ptr, sz);
 }
 
 void *mash_virtual_base::create_subclass_by_enum(mash::virtual_types_enum a1)
@@ -324,41 +332,51 @@ void *mash_virtual_base::create_subclass_by_enum(mash::virtual_types_enum a1)
     return (void *) CDECL_CALL(0x0042AB60, a1);
 }
 
-void *mash_virtual_base::create_subclass_by_enum_in_place(mash::virtual_types_enum a1,
-                                                          mash_virtual_base *a2,
-                                                          int a3)
+void *mash_virtual_base::create_subclass_by_enum_in_place(mash::virtual_types_enum a1, mash_virtual_base *a2, int a3)
 {
     TRACE("mash_virtual_base::create_subclass_by_enum_in_place");
 
     return (void *) CDECL_CALL(0x004227E0, a1, a2, a3);
 }
 
-void mash_virtual_base::destruct_mashed_class() {
+void mash_virtual_base::destruct_mashed_class()
+{
     ;
 }
 
-void mash_virtual_base::unmash(mash_info_struct *a2, void *a3) {
-    if constexpr (1)
+void mash_virtual_base::_unmash(mash_info_struct *, void *) {}
+
+void mash_virtual_base::unmash(mash_info_struct *a2, void *a3)
     {
         void (__fastcall *func)(void *, int, mash_info_struct *, void *) = CAST(func, get_vfunc(m_vtbl, 0x4));
         func(this, 0, a2, a3);
     }
-    else
-    {
-        ;
-    }
-}
 
-uint32_t mash_virtual_base::get_virtual_type_enum() const {
+uint32_t mash_virtual_base::_get_virtual_type_enum() const
+{
     return 573;
 }
 
-bool mash_virtual_base::is_subclass_of(mash::virtual_types_enum) const {
+uint32_t mash_virtual_base::get_virtual_type_enum() const
+{
+    uint32_t(__fastcall * func)(const void *) = CAST(func, get_vfunc(m_vtbl, 0xC));
+    return func(this);
+}
+
+bool mash_virtual_base::is_subclass_of(mash::virtual_types_enum) const
+{
     return false;
 }
 
-bool mash_virtual_base::is_or_is_subclass_of(mash::virtual_types_enum a2) const {
+bool mash_virtual_base::_is_or_is_subclass_of(mash::virtual_types_enum a2) const
+{
     return this->get_virtual_type_enum() == a2 || this->is_subclass_of(a2);
+}
+
+bool mash_virtual_base::is_or_is_subclass_of(mash::virtual_types_enum a2) const
+{
+    bool(__fastcall * func)(const void *, void *edx, mash::virtual_types_enum) = CAST(func, get_vfunc(m_vtbl, 0x14));
+    return func(this, nullptr, a2);
 }
 
 void mash_virtual_base::generate_vtable()
@@ -458,8 +476,8 @@ void mash_virtual_base::generate_vtable()
 #endif
 }
 
-void *mash_virtual_base::construct_class_helper(void *a1) {
-
+void *mash_virtual_base::construct_class_helper(void *a1)
+{
     if constexpr (0) {
         auto *v1 = static_cast<mash_virtual_base *>(a1);
 
@@ -467,9 +485,8 @@ void *mash_virtual_base::construct_class_helper(void *a1) {
 
         sp_log("mash::virtual_types_enum = %u", v2);
 
-        return mash_virtual_base::create_subclass_by_enum_in_place(static_cast<mash::virtual_types_enum>(v2),
-                                                                   v1,
-                                                                   0x7FFFFFFF);
+        return mash_virtual_base::create_subclass_by_enum_in_place(
+            static_cast<mash::virtual_types_enum>(v2), v1, 0x7FFFFFFF);
     } else {
         auto *v1 = static_cast<mash_virtual_base *>(a1);
         auto v2 = v1->get_virtual_type_enum();
@@ -755,15 +772,13 @@ void mash_virtual_base::fixup_vtable(void *a1)
     sp_log("0x%08X", static_cast<uint32_t *>(a1)[0]);
 }
 
-void mash_virtual_base_patch() {
-
+void mash_virtual_base_patch()
+{
     REDIRECT(0x00555726, mash_virtual_base::generate_vtable);
 
     REDIRECT(0x004B157A, mash_virtual_base::construct_class_helper);
 
     return;
-
-
 }
 
 #if defined(OPENUSM_XBPACK_MODE) && !defined(TARGET_XBOX)

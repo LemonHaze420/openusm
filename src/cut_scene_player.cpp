@@ -33,7 +33,7 @@ cut_scene_player::cut_scene_player()
     auto vector_constructor = [](void *a1,
                                  uint32_t size,
                                  int count,
-                                 void (__fastcall *a4)(void *),
+                                 void(__fastcall * a4)(void *),
                                  [[maybe_unused]] fastcall_call a5) -> void {
         for (int i = 0; i < count; ++i) {
             a4(static_cast<int *>(a1));
@@ -41,7 +41,7 @@ cut_scene_player::cut_scene_player()
         }
     };
 
-    void (__fastcall *sub_682D80)(void *) = CAST(sub_682D80, 0x00682D80);
+    void(__fastcall * sub_682D80)(void *) = CAST(sub_682D80, 0x00682D80);
     fastcall_call sub_5E46C0 = CAST(sub_5E46C0, 0x005E46C0);
     vector_constructor(&this->field_68, 16u, 5, sub_682D80, sub_5E46C0);
 
@@ -49,8 +49,8 @@ cut_scene_player::cut_scene_player()
     this->field_D7 = 0;
     this->field_E1 = 0;
 
-    this->field_E4 = game_button {(game_control_t) 96};
-    this->field_118 = game_button {(game_control_t) 114};
+    this->field_E4 = game_button{(game_control_t)96};
+    this->field_118 = game_button{(game_control_t)114};
 
     this->field_14C = -1;
     this->field_154 = -1.0;
@@ -58,86 +58,84 @@ cut_scene_player::cut_scene_player()
     this->field_164 = 0;
 }
 
-void cut_scene_player::advance_lip_syncing(Float a2) {
+void cut_scene_player::advance_lip_syncing(Float a2)
+{
     THISCALL(0x00737F60, this, a2);
 }
 
-bool cut_scene_player::advance_panel_anims(Float a2) {
-    return (bool) THISCALL(0x007382E0, this, a2);
+bool cut_scene_player::advance_panel_anims(Float a2)
+{
+    return (bool)THISCALL(0x007382E0, this, a2);
 }
 
-void cut_scene_player::clean_up_finished_segment() {
+void cut_scene_player::clean_up_finished_segment()
+{
     THISCALL(0x0073FFB0, this);
 }
 
 void cut_scene_player::finalize()
 {
-    if constexpr (0)
-    {}
-    else
-    {
+    if constexpr (0) {
+    } else {
         CDECL_CALL(0x0086DE50);
     }
 }
 
-void cut_scene_player::play(cut_scene *a2) {
+void cut_scene_player::play(cut_scene *a2)
+{
     THISCALL(0x00742190, this, a2);
 }
 
-void cut_scene_player::play_current_segment() {
+void cut_scene_player::play_current_segment()
+{
     THISCALL(0x007414E0, this);
 }
 
-void cut_scene_player::frame_advance(Float a2) {
+void cut_scene_player::frame_advance(Float a2)
+{
     TRACE("cut_scene_player::frame_advance");
 
-    if constexpr (0)
-    {
-    }
-    else
-    {
+    if constexpr (0) {
+    } else {
         THISCALL(0x00741EC0, this, a2);
     }
 }
 
 bool cut_scene_player::frame_advance_lite(Float a2)
 {
-    if constexpr (0)
-    {}
-    else
-    {
-        bool (__fastcall *func)(void *, void *, Float) = CAST(func, 0x00741220);
+    if constexpr (0) {
+    } else {
+        bool(__fastcall * func)(void *, void *, Float) = CAST(func, 0x00741220);
         return func(this, nullptr, a2);
     }
 }
 
-bool cut_scene_player::is_playing() {
+bool cut_scene_player::is_playing()
+{
     return this->field_E1 || this->field_E2;
 }
 
 cut_scene_player *g_cut_scene_player()
 {
-    if constexpr (0)
-    {
-        static Var<cut_scene_player> player {0x0096FEB8};
+    if constexpr (0) {
+        static Var<cut_scene_player> player{0x0096FEB8};
 
         return &player();
     } else {
-        return (cut_scene_player *) CDECL_CALL(0x007411C0);
+        return (cut_scene_player *)CDECL_CALL(0x007411C0);
     }
 }
 
 void cut_scene_player::stop(cut_scene *a2)
 {
-    if constexpr (0)
-    {}
-    else
-    {
+    if constexpr (0) {
+    } else {
         THISCALL(0x00740660, this, a2);
     }
 }
 
-void cut_scene_player_patch() {
+void cut_scene_player_patch()
+{
     {
         FUNC_ADDRESS(address, &cut_scene_player::play_current_segment);
         REDIRECT(0x00742419, address);

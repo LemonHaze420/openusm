@@ -6,8 +6,7 @@
 struct camera_target_info;
 struct po;
 
-struct camera_frame
-{
+struct camera_frame {
     vector3d eye;
     vector3d fwd;
     vector3d up;
@@ -24,11 +23,7 @@ struct camera_frame
 
     void avoid_target(const camera_target_info &a1, Float a2);
 
-    void rotate_to_include_target(
-        vector3d a2,
-        vector3d a5,
-        vector3d a4,
-        Float a11);
+    void rotate_to_include_target(vector3d a2, vector3d a5, vector3d a4, Float a11);
 
     void include_target(vector3d a2, Float a5, Float a6);
 
@@ -37,8 +32,6 @@ struct camera_frame
     void smooth_with(const camera_frame &a2, Float a3, Float a4);
 
     void smooth_dir(const camera_frame &a2, Float a3);
-
-
 };
 
 extern void sub_4B2680(vector3d &a1, float a2, vector3d a3);

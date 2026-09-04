@@ -10,11 +10,13 @@
 
 VALIDATE_SIZE(resource_amalgapak_header, 0x38);
 
-resource_amalgapak_header::resource_amalgapak_header() {
+resource_amalgapak_header::resource_amalgapak_header()
+{
     this->clear();
 }
 
-void resource_amalgapak_header::clear() {
+void resource_amalgapak_header::clear()
+{
     this->field_0 = {};
 
     this->field_14 = rand();
@@ -29,7 +31,8 @@ void resource_amalgapak_header::clear() {
     this->field_34 = 0;
 }
 
-bool resource_amalgapak_header::verify([[maybe_unused]] const mString &a2) {
+bool resource_amalgapak_header::verify([[maybe_unused]] const mString &a2)
+{
     if (g_platform == NL_PLATFORM_XBOX &&
         supports_xbox_version(this->field_0)) {
         return true;

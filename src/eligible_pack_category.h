@@ -14,28 +14,23 @@ struct eligible_pack;
 struct eligible_pack_category {
     resource_pack_streamer *my_resource_pack_streamer;
     eligible_pack_streamer *my_eligible_pack_streamer;
-    bool (*field_8)(resource_pack_slot::callback_enum,
-                    resource_pack_streamer *,
-                    resource_pack_slot *,
-                    limited_timer *);
+    bool (*field_8)(resource_pack_slot::callback_enum, resource_pack_streamer *, resource_pack_slot *, limited_timer *);
 
     _std::vector<eligible_pack *> field_C;
     _std::list<resource_pack_slot *> field_1C;
 
     //0x00543100
-    eligible_pack_category(eligible_pack_streamer *a2,
-                           resource_pack_streamer *a3,
-                           bool(__cdecl *a4)(resource_pack_slot::callback_enum,
-                                             resource_pack_streamer *,
-                                             resource_pack_slot *,
-                                             limited_timer *));
+    eligible_pack_category(eligible_pack_streamer *a2, resource_pack_streamer *a3,
+                           bool(__cdecl *a4)(resource_pack_slot::callback_enum, resource_pack_streamer *,
+                                             resource_pack_slot *, limited_timer *));
 
     //0x0053E640
     ~eligible_pack_category();
 
     void clear();
 
-    resource_pack_streamer * get_streamer() {
+    resource_pack_streamer *get_streamer()
+    {
         return my_resource_pack_streamer;
     }
 

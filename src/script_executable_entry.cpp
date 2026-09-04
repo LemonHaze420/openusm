@@ -12,13 +12,9 @@ VALIDATE_SIZE(pair, 0x24);
 bool script_executable_entry_key::operator<(const script_executable_entry_key &a1) const
 {
     bool result = false;
-    if ( this->field_0 == a1.field_0
-        && this->field_8 <= a1.field_8 )
-    {
+    if (this->field_0 == a1.field_0 && this->field_8 <= a1.field_8) {
         result = true;
-    }
-    else
-    {
+    } else {
         result = (this->field_0 <= a1.field_0);
     }
 

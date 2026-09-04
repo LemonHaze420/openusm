@@ -13,23 +13,21 @@
 VALIDATE_SIZE(light_properties, 0x68);
 VALIDATE_SIZE(light_source, 0x6C);
 
-light_properties::light_properties() : m_type(influence_type::POINT),
-                                        m_color{1.0, 1.0, 1.0, 1.0},
-                                        m_amb_color{1.0, 1.0, 1.0, 1.0},
-                                        m_add_color{0, 0, 0, 0},
-                                        m_scale{1.0, 1.0, 1.0}
+light_properties::light_properties()
+    : m_type(influence_type::POINT), m_color{1.0, 1.0, 1.0, 1.0}, m_amb_color{1.0, 1.0, 1.0, 1.0},
+      m_add_color{0, 0, 0, 0}, m_scale{1.0, 1.0, 1.0}
 {
     this->near_range = 1.0;
     this->cutoff_range = 16.0;
 
     this->near_hot = 1.0;
     this->cutoff_hot = 1.0e10;
-    
+
     auto v1 = this->cutoff_range - this->near_range;
-    this->field_3C = ( v1 == 0.0f ? 1.0e10 : (1.f / v1) );
+    this->field_3C = (equal(v1, 0.0f) ? 1.0e10 : (1.f / v1));
 
     auto v2 = this->cutoff_hot - this->near_hot;
-    this->field_48 = ( v2 == 0.0f ? 1.0e10 : (1.f / v2) );
+    this->field_48 = (equal(v2, 0.0f) ? 1.0e10 : (1.f / v2));
 
     this->m_light_category = 1;
     this->m_flags = 0;
@@ -37,20 +35,14 @@ light_properties::light_properties() : m_type(influence_type::POINT),
     this->m_contrast = light_properties::default_contrast;
 }
 
-void light_properties::un_mash(
-        generic_mash_header *,
-        void *,
-        generic_mash_data_ptrs *a4)
+void light_properties::un_mash(generic_mash_header *, void *, generic_mash_data_ptrs *a4)
 {
     tlFixedString v6 = *a4->get_from_shared<tlFixedString>();
 
-    if ( strlen(v6.field_4) != 0 )
-    {
-        tlFixedString v7 {v6.to_string()};
+    if (strlen(v6.field_4) != 0) {
+        tlFixedString v7{v6.to_string()};
         this->m_texture = nglLoadTexture(v7);
-    }
-    else
-    {
+    } else {
         this->m_texture = nullptr;
     }
 }
@@ -58,23 +50,21 @@ void light_properties::un_mash(
 void light_properties::set_light_category_from_light_source_name(const mString &a2)
 {
     this->m_light_category = 0;
-    
+
     auto v3 = a2.find("_CAT", 0);
-    if ( v3 != -1 )
-    {
+    if (v3 != -1) {
         auto v4 = a2.c_str()[v3 + 4] - '0';
-        switch ( v4 )
-        {
-          case 1:
+        switch (v4) {
+        case 1:
             this->m_light_category = 32;
             break;
-          case 2:
+        case 2:
             this->m_light_category = 64;
             break;
-          case 3:
+        case 3:
             this->m_light_category = 128;
             break;
-          case 4:
+        case 4:
             this->m_light_category = 256;
             break;
         }
@@ -83,11 +73,11 @@ void light_properties::set_light_category_from_light_source_name(const mString &
 
 float light_properties::get_influence(Float a2, Float a3) const
 {
-    if ( a2 <= this->near_range && a3 <= this->near_hot ) {
+    if (a2 <= this->near_range && a3 <= this->near_hot) {
         return 1.0f;
     }
 
-    if ( a2 < 0.0f || a2 >= this->cutoff_range || a3 >= this->cutoff_hot ) {
+    if (a2 < 0.0f || a2 >= this->cutoff_range || a3 >= this->cutoff_hot) {
         return 0.0f;
     }
 
@@ -100,37 +90,29 @@ float light_properties::get_influence(Float a2, Float a3) const
     return (1.0f - this->field_48 * v6) * (1.0f - this->field_3C * v5);
 }
 
-light_source::light_source(const string_hash &a2, unsigned int a3) :
-                        entity(a2, a3)
+light_source::light_source(const string_hash &a2, unsigned int a3) : entity(a2, a3)
 {
-
     this->m_vtbl = 0x00888C10;
-    if ( !g_generating_vtables() )
-    {
+    if (!g_generating_vtables) {
         this->properties = new light_properties{};
 
         auto *v6 = this->field_10.to_string();
-        mString a2a {v6};
+        mString a2a{v6};
         this->properties->set_light_category_from_light_source_name(a2a);
     }
 }
 
-light_source::light_source(const light_properties &a2,
-                        entity *a3,
-                        const string_hash &a4) :
-                        entity(a4, 0)
+light_source::light_source(const light_properties &a2, entity *a3, const string_hash &a4) : entity(a4, 0)
 {
     this->m_vtbl = 0x00888C10;
 
-    if ( !g_generating_vtables() )
-    {
+    if (!g_generating_vtables) {
         this->properties = new light_properties(a2);
 
         auto *v7 = this->field_10.to_string();
-        mString v10 {v7};
+        mString v10{v7};
         this->properties->set_light_category_from_light_source_name(v10);
-        if ( a3 != nullptr )
-        {
+        if (a3 != nullptr) {
             this->set_parent(a3);
         }
     }
@@ -142,14 +124,11 @@ light_properties *light_source::get_properties()
     return this->properties;
 }
 
-void light_source::_un_mash(
-        generic_mash_header *header,
-        void *a3,
-        generic_mash_data_ptrs *a4)
+void light_source::_un_mash(generic_mash_header *header, void *a3, generic_mash_data_ptrs *a4)
 {
     entity::un_mash(header, a3, a4);
 
-    rebase(a4->field_0, 4u);
+    a4->rebase(4u);
 
     this->properties = a4->get<light_properties>();
 
@@ -162,19 +141,16 @@ void light_source::get_colors(const vector3d &a2, color &a3, color &a4)
 {
     TRACE("light_source::get_colors");
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         auto influence = this->get_influence(a2);
         a3 = this->get_properties()->m_color * influence;
-        
-        color new_color {1.0, 1.0, 1.0, 1.0};
+
+        color new_color{1.0, 1.0, 1.0, 1.0};
         color a3a = new_color * (1.0f - influence);
 
         color v14 = this->properties->m_amb_color * influence;
         a4 = v14 + a3a;
-    }
-    else
-    {
+    } else {
         THISCALL(0x0041D050, this, &a2, &a3, &a4);
     }
 }
@@ -183,16 +159,13 @@ vector3d light_source::get_dir(const vector3d &a3)
 {
     vector3d v7;
 
-    if (this->properties->get_type() == influence_type::DIRECTIONAL)
-    {
+    if (this->properties->get_type() == influence_type::DIRECTIONAL) {
         po &abs_po = this->get_abs_po();
 
         vector3d v5 = abs_po.get_y_facing();
 
         v7 = -v5;
-    }
-    else
-    {
+    } else {
         v7 = a3 - this->get_abs_position();
         v7.normalize();
     }
@@ -203,8 +176,7 @@ vector3d light_source::get_dir(const vector3d &a3)
 float light_source::get_influence(const vector3d &a2)
 {
     auto v2 = this->properties->get_type();
-    switch ( v2 )
-    {
+    switch (v2) {
     case influence_type::POINT:
         return this->get_influence_point(a2);
         break;

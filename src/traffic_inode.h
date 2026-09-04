@@ -10,4 +10,4 @@ struct traffic_inode : info_node {
     traffic_inode();
 };
 
-} // namespace ai
+}  // namespace ai

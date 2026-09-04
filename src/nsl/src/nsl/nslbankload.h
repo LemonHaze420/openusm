@@ -3,8 +3,7 @@
 #include "variable.h"
 #include "nfl_system.h"
 
-struct nslBankLoad
-{
+struct nslBankLoad {
     int field_0;
     int field_4;
     nflRequestID rid;

@@ -1,15 +1,14 @@
 #pragma once
 
+#include "entity_interface.h"
+
 #include "float.hpp"
 
 #include <cstdint>
 
 struct entity;
 
-struct time_interface {
-    std::intptr_t m_vtbl;
-    entity *field_4;
-    bool field_8;
+struct time_interface : entity_interface {
     float field_C;
     float field_10;
     float field_14;
@@ -30,7 +29,7 @@ struct time_interface {
     //0x004D9870
     void add_to_time_ifc_list();
 
-    bool is_combat_dilated();
+    bool is_combat_dilated() const;
 
     double sub_4ADE50();
 };

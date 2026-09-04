@@ -21,4 +21,4 @@ struct weapon_inode : info_node {
     //0x006CC150
     void create_weapons();
 };
-} // namespace ai
+}  // namespace ai

@@ -10,7 +10,7 @@
 #include "func_wrapper.h"
 #include "physical_interface.h"
 #include "region.h"
-#include "subdivision_node_obb_base.h"
+#include "subdivision_obb.h"
 #include "terrain.h"
 #include "trace.h"
 #include "utility.h"
@@ -25,7 +25,8 @@ VALIDATE_SIZE(ai_path, 0xA4);
 
 static Var<_std::list<ai_path *>> dword_958164{0x00958164};
 
-ai_path::ai_path() {
+ai_path::ai_path()
+{
     this->field_0 = {};
     this->field_10 = {};
     this->field_20 = {};
@@ -41,19 +42,20 @@ ai_path::ai_path() {
 
     auto *v2 = dword_958168();
     auto v3 = dword_958168()[1];
-    auto a3 = (int) this;
+    auto a3 = (int)this;
 
-    int ** (__fastcall *sub_6B78D0)(void *, void *, int, int, void *) = CAST(sub_6B78D0, 0x006B78D0);
+    int **(__fastcall * sub_6B78D0)(void *, void *, int, int, void *) = CAST(sub_6B78D0, 0x006B78D0);
     fastcall_call sub_48E040 = CAST(sub_48E040, 0x0048E040);
 
-    auto v4 = sub_6B78D0(&dword_958164(), nullptr, (int) dword_958168(), v3, &a3);
+    auto v4 = sub_6B78D0(&dword_958164(), nullptr, (int)dword_958168(), v3, &a3);
     dword_958164()._Incsize(1u);
-    v2[1] = (int) v4;
-    *v4[1] = (int) v4;
+    v2[1] = (int)v4;
+    *v4[1] = (int)v4;
     this->field_84 = nullptr;
 }
 
-void ai_path::frame_advance_all_ai_paths(Float a1) {
+void ai_path::frame_advance_all_ai_paths(Float a1)
+{
     TRACE("ai_path::frame_advance_all_ai_paths");
 
     CDECL_CALL(0x00479ED0, a1);
@@ -63,7 +65,7 @@ ai_path::~ai_path()
 {
     [[maybe_unused]] int v4 = 3;
 
-    void (__fastcall *sub_5058F0)(void *, void *, void *) = CAST(sub_5058F0, 0x005058F0);
+    void(__fastcall * sub_5058F0)(void *, void *, void *) = CAST(sub_5058F0, 0x005058F0);
 
     auto *v1 = this;
 
@@ -111,7 +113,8 @@ void ai_path::set_status(ai_path *a1, ai_path::eAIPathStatus a2, const char *For
     va_end(Args);
 }
 
-ai_quad_path_cell *ai_path::advance_to_next_cell() {
+ai_quad_path_cell *ai_path::advance_to_next_cell()
+{
     if (!this->populate_quad_path_cell_route()) {
         return nullptr;
     }
@@ -127,16 +130,18 @@ ai_quad_path_cell *ai_path::advance_to_next_cell() {
     return result;
 }
 
-ai_quad_path_cell *ai_path::advance_to_farthest_direct_cell() {
-    return (ai_quad_path_cell *) THISCALL(0x0048A170, this);
+ai_quad_path_cell *ai_path::advance_to_farthest_direct_cell()
+{
+    return (ai_quad_path_cell *)THISCALL(0x0048A170, this);
 }
 
-bool ai_path::populate_quad_path_cell_route() {
-    return (bool) THISCALL(0x004899A0, this);
+bool ai_path::populate_quad_path_cell_route()
+{
+    return (bool)THISCALL(0x004899A0, this);
 }
 
-void ai_path::setup(
-    entity_base_vhandle a2, const vector3d &a3, const vector3d &a4, bool a5, Float a6) {
+void ai_path::setup(entity_base_vhandle a2, const vector3d &a3, const vector3d &a4, bool a5, Float a6)
+{
     if constexpr (1) {
         this->field_40 = a3;
         this->field_4C = a4;
@@ -181,8 +186,7 @@ void ai_path::setup(
                 auto *v14 = v13->colgeom;
                 if (v14 != nullptr) {
                     if (v14->get_type() == collision_geometry::CAPSULE) {
-                        capsule v21 = bit_cast<collision_capsule *>(v14)->get_abs_capsule(
-                            v13->get_abs_po());
+                        capsule v21 = bit_cast<collision_capsule *>(v14)->get_abs_capsule(v13->get_abs_po());
                         this->field_80 = v21.radius;
                     } else {
                         this->field_80 = v13->get_colgeom_radius();
@@ -207,15 +211,9 @@ void ai_path::setup(
             if (v18 != nullptr) {
                 auto &v19 = v18->get_name();
                 auto &v20 = v17->get_name();
-                ai_path::set_status(this,
-                                    eAIPathStatus{1},
-                                    "Region pathfind failure between %s and %s",
-                                    &v20,
-                                    &v19);
+                ai_path::set_status(this, eAIPathStatus{1}, "Region pathfind failure between %s and %s", &v20, &v19);
             } else {
-                ai_path::set_status(this,
-                                    eAIPathStatus{1},
-                                    "Region pathfind failure (no end region)");
+                ai_path::set_status(this, eAIPathStatus{1}, "Region pathfind failure (no end region)");
             }
         } else {
             ai_path::set_status(this, eAIPathStatus{1}, "Region pathfind failure (no start region)");
@@ -226,7 +224,8 @@ void ai_path::setup(
     }
 }
 
-bool ai_path::can_path_between_points(const vector3d &a1, const vector3d &a2, Float a6) {
+bool ai_path::can_path_between_points(const vector3d &a1, const vector3d &a2, Float a6)
+{
     vector3d v7;
 
     ai_path path{};
@@ -240,13 +239,13 @@ bool ai_path::can_path_between_points(const vector3d &a1, const vector3d &a2, Fl
     return (path.m_pathStatus.field_0 == 0);
 }
 
-vector3d ai_path::get_next_point() {
+vector3d ai_path::get_next_point()
+{
     vector3d result;
 
     if constexpr (1) {
         if ((!this->field_0.empty() || !this->field_20.empty() || !this->field_30.empty()) &&
             this->m_pathStatus.field_0 == 0) {
-
             this->field_58 = this->field_64;
 
             ai_quad_path_cell *v9 = nullptr;
@@ -281,7 +280,8 @@ vector3d ai_path::get_next_point() {
     return result;
 }
 
-region *ai_path::find_region_for_point(const vector3d &a1, Float a2) {
+region *ai_path::find_region_for_point(const vector3d &a1, Float a2)
+{
     if constexpr (1) {
         region *found_region = nullptr;
 
@@ -329,21 +329,21 @@ region *ai_path::find_region_for_point(const vector3d &a1, Float a2) {
         return found_region;
 
     } else {
-        return (region *) CDECL_CALL(0x00479C50, &a1, a2);
+        return (region *)CDECL_CALL(0x00479C50, &a1, a2);
     }
 }
 
-bool ai_path::find_region_route(region *a1, region *a2, _std::vector<region *> *route) {
+bool ai_path::find_region_route(region *a1, region *a2, _std::vector<region *> *route)
+{
     assert(route->empty());
 
     if constexpr (1) {
-
         if (a1 == nullptr && a2 == nullptr) {
             return false;
         }
 
         if (a1 == a2) {
-            void (__fastcall *sub_48F990)(void *, void *, void *) = CAST(sub_48F990, 0x0048F990);
+            void(__fastcall * sub_48F990)(void *, void *, void *) = CAST(sub_48F990, 0x0048F990);
 
             sub_48F990(route, nullptr, &a1);
             return true;
@@ -358,16 +358,17 @@ bool ai_path::find_region_route(region *a1, region *a2, _std::vector<region *> *
             return false;
         }
 
-        void (__fastcall *sub_48FE90)(void *, void *, void *) = CAST(sub_48FE90, 0x0048FE90);
+        void(__fastcall * sub_48FE90)(void *, void *, void *) = CAST(sub_48FE90, 0x0048FE90);
         sub_48FE90(route, nullptr, &v6.field_24);
 
         return true;
 
     } else {
-        return (bool) CDECL_CALL(0x00487F10, a1, a2, route);
+        return (bool)CDECL_CALL(0x00487F10, a1, a2, route);
     }
 }
 
-void ai_path_patch() {
+void ai_path_patch()
+{
     REDIRECT(0x0055844B, ai_path::frame_advance_all_ai_paths);
 }

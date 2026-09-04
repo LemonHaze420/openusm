@@ -4,8 +4,7 @@
 
 struct mString;
 
-struct game_option_t
-{
+struct game_option_t {
     const char *m_name;
     union {
         BOOL *p_bval;
@@ -15,7 +14,7 @@ struct game_option_t
     } m_value;
     enum {
         UNDEFINED,
-        FLAG_OPTION = 1, 
+        FLAG_OPTION = 1,
         INT_OPTION = 2,
         FLOAT_OPTION = 3,
         STRING_OPTION = 4,
@@ -23,4 +22,3 @@ struct game_option_t
 };
 
 extern game_option_t *get_option(int idx);
-

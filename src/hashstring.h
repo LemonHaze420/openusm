@@ -11,7 +11,8 @@ struct tlHashString {
 
     tlHashString(uint32_t v) : field_0(v) {}
 
-    auto GetHash() const {
+    auto GetHash() const
+    {
         return this->field_0;
     }
 

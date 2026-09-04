@@ -5,7 +5,8 @@
 
 VALIDATE_SIZE(patrol_manager, 0x38u);
 
-patrol_manager::patrol_manager() {
+patrol_manager::patrol_manager()
+{
     this->field_0 = 0;
     this->field_4.field_4 = nullptr;
     this->field_4.field_8 = 0;
@@ -21,6 +22,7 @@ patrol_manager::patrol_manager() {
     this->field_34 = string_hash();
 }
 
-void patrol_manager::frame_advance(Float a2) {
+void patrol_manager::frame_advance(Float a2)
+{
     THISCALL(0x005DD330, this, a2);
 }

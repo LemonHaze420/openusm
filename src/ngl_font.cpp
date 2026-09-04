@@ -12,16 +12,13 @@ Var<nglFont *> nglSysFont = {0x00975208};
 int nglGetTokenU32(char *&a1, const char *Token, uint32_t Base)
 {
     auto TokenLength = strlen(Token);
-    while ( *a1 != '\0' )
-    {
+    while (*a1 != '\0') {
         uint32_t i;
-        for ( i = 0; i < TokenLength && (a1)[i] && (a1)[i] == Token[i]; ++i )
-        {
+        for (i = 0; i < TokenLength && (a1)[i] && (a1)[i] == Token[i]; ++i) {
             ;
         }
 
-        if ( i == TokenLength )
-        {
+        if (i == TokenLength) {
             a1 += TokenLength;
             return strtol(a1, &a1, Base);
         }
@@ -61,8 +58,8 @@ void nglParseFDF(char *a3, nglFont *font)
 
     font->GlyphInfo = static_cast<decltype(font->GlyphInfo)>(
         tlMemAlloc(sizeof(nglGlyphInfo) * font->Header.NumGlyphs, 8u, 0x1000000u));
-    font->field_4C = static_cast<decltype(font->field_4C)>(
-        tlMemAlloc(sizeof(nglGlyphSize) * font->Header.NumGlyphs, 4u, 0));
+    font->field_4C =
+        static_cast<decltype(font->field_4C)>(tlMemAlloc(sizeof(nglGlyphSize) * font->Header.NumGlyphs, 4u, 0));
     auto *tex = font->field_24;
     float width = 1.0f / tex->m_width;
 
@@ -99,33 +96,25 @@ void nglParseFDF(char *a3, nglFont *font)
     }
 }
 
-nglGlyphInfo *nglFont::GetGlyphInfo(unsigned char Character) {
-    if (Character < this->Header.FirstGlyph ||
-        Character >= this->Header.NumGlyphs + this->Header.FirstGlyph) {
+nglGlyphInfo *nglFont::GetGlyphInfo(unsigned char Character)
+{
+    if (Character < this->Header.FirstGlyph || Character >= this->Header.NumGlyphs + this->Header.FirstGlyph) {
         return &this->GlyphInfo[32 - this->Header.FirstGlyph];
     }
 
     assert(Character >= Header.FirstGlyph && Character < Header.FirstGlyph + Header.NumGlyphs &&
            "Out of range character in string.");
 
-    assert(GlyphInfo[Character - Header.FirstGlyph].GlyphSize[0] != 0 &&
-           "Trying to render a glyph that has 0 width.");
+    assert(GlyphInfo[Character - Header.FirstGlyph].GlyphSize[0] != 0 && "Trying to render a glyph that has 0 width.");
 
     return &this->GlyphInfo[Character - this->Header.FirstGlyph];
 }
 
-void nglFont::sub_77E2F0(
-        uint8_t a2,
-        float *a3,
-        float *a4,
-        float *a5,
-        float *a6,
-        Float a7,
-        Float a8)
+void nglFont::sub_77E2F0(uint8_t a2, float *a3, float *a4, float *a5, float *a6, Float a7, Float a8)
 {
     auto FirstGlyph = this->Header.FirstGlyph;
     auto v10 = a2;
-    if ( a2 < FirstGlyph || a2 >= FirstGlyph + this->Header.NumGlyphs ) {
+    if (a2 < FirstGlyph || a2 >= FirstGlyph + this->Header.NumGlyphs) {
         v10 = 32;
     }
 

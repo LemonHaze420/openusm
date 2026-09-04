@@ -5,7 +5,8 @@
 
 VALIDATE_SIZE(fe_distance_race, 0xC4);
 
-fe_distance_race::fe_distance_race() {
+fe_distance_race::fe_distance_race()
+{
     this->field_0 = nullptr;
     this->field_4 = nullptr;
     this->field_8 = nullptr;
@@ -34,7 +35,8 @@ fe_distance_race::fe_distance_race() {
     this->field_C0 = 0;
 }
 
-void fe_distance_race::Init() {
+void fe_distance_race::Init()
+{
     this->field_0 = PanelFile::UnmashPanelFile("race_meter", static_cast<panel_layer>(7));
 
     this->field_38 = this->field_0->GetPQ("rm_spidey_player_icon");
@@ -106,6 +108,7 @@ void fe_distance_race::Init() {
     this->field_B0[3] = this->field_90[3];
 }
 
-void fe_distance_race::DeInit() {
+void fe_distance_race::DeInit()
+{
     this->field_0 = nullptr;
 }

@@ -4,6 +4,7 @@
 #include "femenu.h"
 #include "func_wrapper.h"
 #include "input_mgr.h"
+#include "memory.h"
 #include "trace.h"
 #include "utility.h"
 #include "vtbl.h"
@@ -39,7 +40,18 @@ FEMenuSystem::FEMenuSystem(int a2, font_index a3)
     }
 }
 
-void FEMenuSystem::MakeActive(int idx) {
+void *FEMenuSystem::operator new(std::size_t sz)
+{
+    return mem_alloc(sz);
+}
+
+void FEMenuSystem::operator delete(void *ptr, std::size_t sz)
+{
+    mem_dealloc(ptr, sz);
+}
+
+void FEMenuSystem::MakeActive(int idx)
+{
     if constexpr (1) {
         auto old_idx = this->m_index;
         if (old_idx != -1) {
@@ -65,6 +77,12 @@ void FEMenuSystem::MakeActive(int idx) {
     } else {
         THISCALL(0x0060B610, this, idx);
     }
+}
+
+void FEMenuSystem::Update(Float a2)
+{
+    void(__fastcall * func)(void *, void *edx, Float) = CAST(func, get_vfunc(m_vtbl, 0x14));
+    func(this, nullptr, a2);
 }
 
 void FEMenuSystem::UpdateButtonDown()
@@ -103,26 +121,19 @@ bool FEMenuSystem::GetSingleInput()
 
 void FEMenuSystem::OnButtonPress(int a2, int a3)
 {
-    if constexpr (1)
-	{
+    if constexpr (1) {
         const auto idx = this->m_index;
 
-        if (idx >= 0)
-        {
-
+        if (idx >= 0) {
             {
                 auto *v5 = this->field_4[idx];
                 v5->OnAnyButtonPress(a3, a2);
             }
 
-            if (!this->GetSingleInput() || a3 == input_mgr::instance->field_58 - 1000000)
-			{
-                if (a2 > 128)
-				{
-                    if (a2 > 2048)
-					{
-                        if (a2 == 4096)
-						{
+            if (!this->GetSingleInput() || a3 == input_mgr::instance->field_58 - 1000000) {
+                if (a2 > 128) {
+                    if (a2 > 2048) {
+                        if (a2 == 4096) {
                             auto *v19 = this->field_4[this->m_index];
                             v19->OnL2(a3);
                         } else if (a2 == 8192) {
@@ -209,11 +220,9 @@ void FEMenuSystem::OnButtonPress(int a2, int a3)
 
 void FEMenuSystem::OnButtonRelease(int a2, int a3)
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         auto idx = this->m_index;
-        if (idx >= 0)
-        {
+        if (idx >= 0) {
             auto **v4 = this->field_4;
             if (auto *menu = v4[idx]; menu != nullptr) {
                 menu->OnButtonRelease(a3, a2);
@@ -226,8 +235,7 @@ void FEMenuSystem::OnButtonRelease(int a2, int a3)
 
 int sub_618A40(int a2, int a3)
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         auto v2 = input_mgr::instance->get_control_state(a2, static_cast<device_id_t>(a3 + 1000000));
         if (v2 > 0.5) {
             return 1;
@@ -245,8 +253,7 @@ int sub_618A40(int a2, int a3)
 
 bool getButtonState(int a2, int a3)
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         int a2a;
         int v2;
         bool v3;
@@ -256,14 +263,11 @@ bool getButtonState(int a2, int a3)
                 switch (a2) {
                 case 1: {
                     return equal(1.0f,
-                                 input_mgr::instance->get_control_state(93,
-                                                                          static_cast<device_id_t>(a3 + 1000000)));
+                                 input_mgr::instance->get_control_state(93, static_cast<device_id_t>(a3 + 1000000)));
                 }
                 case 2: {
                     return equal(1.0f,
-                                 input_mgr::instance->get_control_state(92,
-                                                                          static_cast<device_id_t>(a3 +
-                                                                                      1000000)));
+                                 input_mgr::instance->get_control_state(92, static_cast<device_id_t>(a3 + 1000000)));
                 }
 
                 case 4: {
@@ -302,9 +306,7 @@ bool getButtonState(int a2, int a3)
                 }
                 case 64: {
                     return equal(1.0f,
-                                 input_mgr::instance->get_control_state(80,
-                                                                          static_cast<device_id_t>(a3 +
-                                                                                      1000000)));
+                                 input_mgr::instance->get_control_state(80, static_cast<device_id_t>(a3 + 1000000)));
                 }
                 default:
                     return false;
@@ -313,9 +315,7 @@ bool getButtonState(int a2, int a3)
                 return v3;
             }
 
-            return equal(1.0f,
-                         input_mgr::instance->get_control_state(82,
-                             static_cast<device_id_t>(a3 + 1000000)));
+            return equal(1.0f, input_mgr::instance->get_control_state(82, static_cast<device_id_t>(a3 + 1000000)));
         }
 
         if (a2 > 2048) {
@@ -349,9 +349,7 @@ bool getButtonState(int a2, int a3)
         }
 
         return equal(1.0f, input_mgr::instance->get_control_state(a2a, static_cast<device_id_t>(a3 + 1000000)));
-    }
-    else
-    {
+    } else {
         bool (*func)(int a2, int a3) = CAST(func, 0x00618A90);
         return func(a2, a3);
     }
@@ -390,14 +388,13 @@ void FEMenuSystem::UpdateButtonPresses()
 
             ++v2;
         }
-    }
-    else
-    {
+    } else {
         THISCALL(0x006298D0, this);
     }
 }
 
-void FEMenuSystem_patch() {
+void FEMenuSystem_patch()
+{
     {
         FUNC_ADDRESS(address, &FEMenuSystem::OnButtonPress);
         //set_vfunc(0x00893AD0, address);

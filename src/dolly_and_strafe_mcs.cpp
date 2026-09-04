@@ -17,8 +17,7 @@ dolly_and_strafe_mcs::dolly_and_strafe_mcs(entity *a2)
 
 void dolly_and_strafe_mcs::frame_advance([[maybe_unused]] Float a2)
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         if (g_mouselook_controller() != nullptr) {
             if (g_mouselook_controller()->field_4) {
                 this->do_dolly(this->m_dolly);
@@ -34,14 +33,17 @@ void dolly_and_strafe_mcs::frame_advance([[maybe_unused]] Float a2)
     }
 }
 
-int dolly_and_strafe_mcs::do_dolly(Float a2) {
+int dolly_and_strafe_mcs::do_dolly(Float a2)
+{
     return THISCALL(0x00526940, this, a2);
 }
 
-int dolly_and_strafe_mcs::do_strafe(Float a2) {
+int dolly_and_strafe_mcs::do_strafe(Float a2)
+{
     return THISCALL(0x00526A30, this, a2);
 }
 
-int dolly_and_strafe_mcs::do_lift(Float a2) {
+int dolly_and_strafe_mcs::do_lift(Float a2)
+{
     return THISCALL(0x00526B20, this, a2);
 }

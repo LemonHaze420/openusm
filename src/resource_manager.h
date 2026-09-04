@@ -57,10 +57,7 @@ resource_pack_slot *get_and_push_resource_context(resource_partition_enum a1);
 void frame_advance(Float a2);
 
 //0x0052A820
-extern bool get_pack_file_stats(const resource_key &a1,
-                                resource_pack_location *a2,
-                                mString *a3,
-                                int *a4);
+extern bool get_pack_file_stats(const resource_key &a1, resource_pack_location *a2, mString *a3, int *a4);
 
 //0x00542740
 resource_pack_slot *push_resource_context(resource_pack_slot *pack_slot);
@@ -112,7 +109,8 @@ struct resource_memory_map {
         int field_C;
     } field_10[8];
 
-    resource_memory_map() {
+    resource_memory_map()
+    {
         this->field_0 = 0;
         std::memset(this->field_10, 0, sizeof(this->field_10));
     }
@@ -123,10 +121,7 @@ extern resource_memory_map *& memory_maps;
 //0x00537AA0
 extern resource_partition *get_partition_pointer(resource_partition_enum which_type);
 
-bool get_resource_if_exists(const resource_key &resource_id,
-                            void *a2,
-                            uint8_t **a3,
-                            worldly_pack_slot *slot_ptr,
+bool get_resource_if_exists(const resource_key &resource_id, void *a2, uint8_t **a3, worldly_pack_slot *slot_ptr,
                             int *mash_data_size);
 
 //0x00531B30

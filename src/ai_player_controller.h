@@ -19,6 +19,7 @@ enum eHeroLocoMode {
     CRAWLING = 2,
     SWINGING = 3,
     FALLING = 5,
+    POLE_SWING = 8,
     WEB_ZIP = 9,
 };
 
@@ -67,7 +68,8 @@ struct ai_player_controller {
 
     void set_spidey_loco_mode(eHeroLocoMode a2);
 
-    void force_always_camera_relative(bool a2) {
+    void force_always_camera_relative(bool a2)
+    {
         this->field_3DD = a2;
     }
 
@@ -80,7 +82,8 @@ struct ai_player_controller {
     //0x00449940
     int get_spidey_loco_mode() const;
 
-    eHeroLocoMode get_prev_spidey_loco_mode() const {
+    eHeroLocoMode get_prev_spidey_loco_mode() const
+    {
         return this->m_prev_spidey_loco_mode;
     }
 

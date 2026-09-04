@@ -34,9 +34,10 @@ VALIDATE_OFFSET(character_viewer, field_2A4, 0x2A4);
 
 VALIDATE_SIZE(character_viewer::internal, 0xC);
 
-Var<const char *[1]> character_files { 0x00937948 };
+Var<const char *[1]> character_files{0x00937948};
 
-character_viewer::character_viewer(FEMenuSystem *a2, int a3, int a4) : FEMenu(a2, 0, a3, a4, 8, 0) {
+character_viewer::character_viewer(FEMenuSystem *a2, int a3, int a4) : FEMenu(a2, 0, a3, a4, 8, 0)
+{
     for (auto &v : this->field_B0) {
         v.field_8 = 0;
     }
@@ -71,22 +72,25 @@ character_viewer::character_viewer(FEMenuSystem *a2, int a3, int a4) : FEMenu(a2
     this->field_88 = nullptr;
 }
 
-void character_viewer::Init() {
+void character_viewer::Init()
+{
     THISCALL(0x00646000, this);
 }
 
-void character_viewer::set_info() {
+void character_viewer::set_info()
+{
     THISCALL(0x006142B0, this);
 }
 
-void character_viewer::update_selected(int a2) {
+void character_viewer::update_selected(int a2)
+{
     if constexpr (1) {
         auto *v3 = this->field_B0;
 
         for (auto i = 40; i; --i) {
-            auto v7 = (float) (a2 * this->field_290);
+            auto v7 = (float)(a2 * this->field_290);
 
-            auto *vtbl = bit_cast<std::intptr_t(*)[1]>(v3->field_0->m_vtbl);
+            auto *vtbl = bit_cast<std::intptr_t (*)[1]>(v3->field_0->m_vtbl);
 
             auto func = (*vtbl)[48];
             assert(func == 0x00616710);
@@ -105,12 +109,12 @@ void character_viewer::update_selected(int a2) {
             idx = (v5 + 38) % 40;
         }
 
-        auto v8 = (float) -(a2 * this->field_294);
+        auto v8 = (float)-(a2 * this->field_294);
 
         {
             auto &_this = this->field_B0[idx].field_0;
 
-            auto *vtbl = bit_cast<std::intptr_t(*)[1]>(_this->m_vtbl);
+            auto *vtbl = bit_cast<std::intptr_t (*)[1]>(_this->m_vtbl);
 
             auto func = (*vtbl)[48];
             assert(func == 0x00616710);
@@ -131,11 +135,9 @@ void character_viewer::update_selected(int a2) {
 
 void character_viewer::sub_63FEC0(int idx)
 {
-    if constexpr (1)
-    {
-        if (this->field_B0[idx].field_8)
-        {
-            mString a3 {character_files()[idx]};
+    if constexpr (1) {
+        if (this->field_B0[idx].field_8) {
+            mString a3{character_files()[idx]};
 
             auto *v3 = g_cut_scene_player();
             auto *v4 = v3->field_7C;
@@ -158,7 +160,8 @@ void character_viewer::sub_63FEC0(int idx)
     }
 }
 
-void character_viewer::sub_6143B0(int a2) {
+void character_viewer::sub_6143B0(int a2)
+{
     if constexpr (1) {
         auto *v3 = &this->field_2A4;
 
@@ -189,7 +192,7 @@ void character_viewer::sub_6143B0(int a2) {
 
             {
                 auto &self = v3[-1].field_4;
-                auto *vtbl = bit_cast<std::intptr_t(*)[1]>(self->m_vtbl);
+                auto *vtbl = bit_cast<std::intptr_t (*)[1]>(self->m_vtbl);
                 auto func = (*vtbl)[29];
                 assert(func = 0x00616290);
 
@@ -207,13 +210,15 @@ void character_viewer::sub_6143B0(int a2) {
     }
 }
 
-void character_viewer::OnDown(int a2) {
+void character_viewer::OnDown(int a2)
+{
     sp_log("character_viewer::OnDown(): %d", a2);
 
     THISCALL(0x00640230, this, a2);
 }
 
-void character_viewer::OnUp([[maybe_unused]] int a2) {
+void character_viewer::OnUp([[maybe_unused]] int a2)
+{
     sp_log("character_viewer::OnUp(): %d", a2);
 
     sp_log("index = %d", field_2C->m_index);
@@ -234,8 +239,9 @@ void character_viewer::OnUp([[maybe_unused]] int a2) {
     }
 }
 
-void character_viewer::OnActivate() {
-    sp_log("character_viewer::OnActivate():");
+void character_viewer::OnActivate()
+{
+    TRACE("character_viewer::OnActivate");
 
     if constexpr (0) {
         mString v34{"unlockables_chars_costumes"};
@@ -246,7 +252,7 @@ void character_viewer::OnActivate() {
 
         {
             auto *vtbl = bit_cast<fastcall_call(*)[4]>(this->m_vtbl);
-            void (__fastcall *func)(void *) = CAST(func, (*vtbl)[3]);
+            void(__fastcall * func)(void *) = CAST(func, (*vtbl)[3]);
             sp_log("func = 0x%08X", func);
 
             func(this);
@@ -257,9 +263,8 @@ void character_viewer::OnActivate() {
         v3->field_4 = "";
 
         v3->field_28 = 0;
-        this->field_34->AddButtons(menu_nav_bar::button_type{15},
-                                   menu_nav_bar::button_type{17},
-                                   static_cast<global_text_enum>(3));
+        this->field_34->AddButtons(
+            menu_nav_bar::button_type{15}, menu_nav_bar::button_type{17}, static_cast<global_text_enum>(3));
         auto *v4 = this->field_34;
 
         {
@@ -270,21 +275,21 @@ void character_viewer::OnActivate() {
         {
             auto *vtbl = bit_cast<fastcall_call(*)[1]>(v4->text_box->m_vtbl);
 
-            void (__fastcall *func)(void *) = CAST(func, (*vtbl)[35]);
+            void(__fastcall * func)(void *) = CAST(func, (*vtbl)[35]);
             sp_log("func = 0x%08X", func);
 
             func(v4->text_box);
         }
 
         {
-            auto *v6 = get_msg(g_fileUSM(), "RESUME");
+            auto *v6 = get_msg(g_fileUSM, "RESUME");
             mString v26{v6};
         }
 
         {
             auto *vtbl = bit_cast<fastcall_call(*)[1]>(v4->text_box->m_vtbl);
 
-            void (__fastcall *func)(void *) = CAST(func, (*vtbl)[35]);
+            void(__fastcall * func)(void *) = CAST(func, (*vtbl)[35]);
 
             func(v4->text_box);
         }
@@ -315,7 +320,7 @@ void character_viewer::OnActivate() {
         {
             auto *vtbl = bit_cast<fastcall_call(*)[1]>(this->field_88->m_vtbl);
 
-            void (__fastcall *func)(void *, void *, float *, float *) = CAST(func, (*vtbl)[42]);
+            void(__fastcall * func)(void *, void *, float *, float *) = CAST(func, (*vtbl)[42]);
             sp_log("func = 0x%08X", func);
 
             func(this->field_88, nullptr, &v28, &v27);
@@ -335,36 +340,35 @@ void character_viewer::OnActivate() {
 
         vector3d v33;
         v33[0] = v28;
-        v33[1] = flt_88E518() - v27;
+        v33[1] = flt_88E518 - v27;
         v33[2] = 10.0;
         v19->set_loc(v33);
         this->field_2D8->field_68 = 1;
-        if (!g_world_ptr->field_28.field_48)
-		{
+        if (!g_world_ptr->field_28.field_48) {
             g_game_ptr->enable_marky_cam(true, true, -1000.0, 0.0);
             auto *v20 = g_world_ptr->field_28.field_44;
 
             auto *v22 = g_game_ptr->get_current_view_camera(0);
 
             auto *vtbl = bit_cast<fastcall_call(*)[1]>(v20->m_vtbl);
-            void (__fastcall *func)(void *, void *, void *) = CAST(func, (*vtbl)[165]);
+            void(__fastcall * func)(void *, void *, void *) = CAST(func, (*vtbl)[165]);
 
             func(v20, nullptr, v22);
         }
 
-        g_cursor()->sub_5A6790();
-        g_cursor()->sub_5A67D0(275, 420, 355, 445);
+        g_cursor->sub_5A6790();
+        g_cursor->sub_5A67D0(275, 420, 355, 445);
         auto v23 = 40;
         auto v24 = 7;
         do {
-            g_cursor()->sub_5A67D0(50, v23, 98, v23 + 50);
+            g_cursor->sub_5A67D0(50, v23, 98, v23 + 50);
             v23 += 54;
             --v24;
         } while (v24);
 
         this->sub_63FC90(this->field_298);
         this->field_2E0[0] = 0.0;
-        this->field_2F4 = g_TOD();
+        this->field_2F4 = g_TOD;
         us_lighting_switch_time_of_day(0);
         auto v25 = g_world_ptr->field_158.field_8;
         this->field_28 |= 0x80u;
@@ -376,17 +380,20 @@ void character_viewer::OnActivate() {
     }
 }
 
-void character_viewer::sub_63FC90(int a2) {
+void character_viewer::sub_63FC90(int a2)
+{
     THISCALL(0x0063FC90, this, a2);
 }
 
-void character_viewer::OnDeactivate(FEMenu *a2) {
+void character_viewer::OnDeactivate(FEMenu *a2)
+{
     sp_log("character_viewer::OnDeactivate():");
 
     THISCALL(0x00614260, this, a2);
 }
 
-void character_viewer_patch() {
+void character_viewer_patch()
+{
     {
         FUNC_ADDRESS(address, &character_viewer::OnActivate);
         //set_vfunc(0x008949F4, address);

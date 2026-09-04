@@ -8,11 +8,13 @@ struct matrix4x4;
 struct quaternion {
     float arr[4];
 
-    const float &operator[](int idx) const {
+    const float &operator[](int idx) const
+    {
         return arr[idx];
     }
 
-    auto &operator[](int idx) {
+    auto &operator[](int idx)
+    {
         return arr[idx];
     }
 
@@ -43,7 +45,8 @@ struct quaternion {
 
     quaternion(float x, float y, float z, float w) : arr{x, y, z, w} {}
 
-    const quaternion operator-() const {
+    const quaternion operator-() const
+    {
         quaternion quat{-arr[0], -arr[1], -arr[2], -arr[3]};
 
         return quat;

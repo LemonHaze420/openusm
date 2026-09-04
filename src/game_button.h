@@ -11,7 +11,6 @@ inline constexpr auto GBFLAG_TRIGGERED = 2;
 inline constexpr auto GBFLAG_RELEASED = 4;
 
 class game_button {
-
     int m_trigger_type;
     device_id_t field_4;
     game_control_t field_8;
@@ -36,7 +35,6 @@ private:
     int16_t m_flags;
 
 public:
-
     //0x0048D9A0
     game_button();
 
@@ -44,31 +42,30 @@ public:
 
     game_button(const game_button &a2);
 
-    game_button(
-        const game_button &a2,
-        const game_button &a3,
-        int a4);
+    game_button(const game_button &a2, const game_button &a3, int a4);
 
-    game_button & operator=(const game_button &a2);
+    game_button &operator=(const game_button &a2);
 
     //0x0048C6F0
     ~game_button();
 
-    void * operator new(size_t size);
+    void *operator new(size_t size);
 
     void operator delete(void *ptr, size_t size);
 
-    bool is_flagged(uint32_t a2) const {
+    bool is_flagged(uint32_t a2) const
+    {
         return (a2 & this->m_flags) != 0;
     }
 
-    void clear_flags() {
+    void clear_flags()
+    {
         this->m_flags &= 0x20u;
     }
 
     void set_flag(uint16_t a2, bool a3)
     {
-        if ( a3 ) {
+        if (a3) {
             this->m_flags |= a2;
         } else {
             this->m_flags &= ~a2;

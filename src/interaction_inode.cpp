@@ -20,7 +20,8 @@ namespace ai {
 
 VALIDATE_SIZE(interaction_inode, 0x4C);
 
-interaction_inode::interaction_inode(from_mash_in_place_constructor *a2) : info_node(a2) {
+interaction_inode::interaction_inode(from_mash_in_place_constructor *a2) : info_node(a2)
+{
     this->field_40 = 0;
     this->field_2C = nullptr;
     this->field_30 = nullptr;
@@ -32,7 +33,8 @@ interaction_inode::interaction_inode(from_mash_in_place_constructor *a2) : info_
     this->curr_status = 0;
 }
 
-interaction_inode::interaction_inode() : info_node() {
+interaction_inode::interaction_inode() : info_node()
+{
     this->field_48 = 0;
     this->field_49 = 0;
     this->field_40 = 0;
@@ -76,7 +78,8 @@ void interaction_inode::set_curr_anim(enum_anim_key::key_enum a2)
     }
 }
 
-bool interaction_inode::is_in_master_mode() {
+bool interaction_inode::is_in_master_mode()
+{
     return this->curr_status == 2;
 }
 
@@ -97,23 +100,20 @@ void interaction_inode::clear_interaction(interaction_result_enum a2)
         string_hash v6;
         entity_base_vhandle v7;
         this->field_28 = a2;
-        if ( a2 != 0 )
-        {
+        if (a2 != 0) {
             if (a2 == 1) {
                 auto *v3 = this->field_30;
-                if ( v3 != nullptr && v3->field_45 ) {
+                if (v3 != nullptr && v3->field_45) {
                     v3->set_enabled(false);
                 }
 
                 v7 = this->target_handle.field_0;
                 v6 = event::INTERACTION_SUCCESS;
 
-            } else if ( a2 == 2 && !this->is_interacting() ) {
+            } else if (a2 == 2 && !this->is_interacting()) {
                 return;
             }
-        }
-        else
-        {
+        } else {
             v7 = this->target_handle.field_0;
             v6 = event::INTERACTION_FAILURE;
         }
@@ -121,21 +121,17 @@ void interaction_inode::clear_interaction(interaction_result_enum a2)
         event_manager::raise_event(v6, v7);
 
         auto *target = this->get_target();
-        if ( target != nullptr )
-        {
+        if (target != nullptr) {
             target->kill_interact_anim();
         }
 
-        if ( !this->is_in_master_mode() )
-        {
+        if (!this->is_in_master_mode()) {
             auto *v5 = this->field_2C;
-            if ( v5 != nullptr ) {
-                v5->unregister_interactor(
-                       vhandle_type<actor> {this->field_C->get_my_vhandle().field_0});
+            if (v5 != nullptr) {
+                v5->unregister_interactor(vhandle_type<actor>{this->field_C->get_my_vhandle().field_0});
             }
 
             this->init_interaction();
-
         }
     } else {
         THISCALL(0x0046E3E0, this, a2);
@@ -143,7 +139,8 @@ void interaction_inode::clear_interaction(interaction_result_enum a2)
 }
 
 
-string_hash interaction_inode::get_chosen_interact_state_id() {
+string_hash interaction_inode::get_chosen_interact_state_id()
+{
     static constexpr auto NUM_INTERACT_TYPES = 4;
 
     assert(target_interaction_type != NUM_INTERACT_TYPES);
@@ -180,7 +177,8 @@ string_hash interaction_inode::get_chosen_interact_state_id() {
     return result;
 }
 
-actor *interaction_inode::get_target() {
+actor *interaction_inode::get_target()
+{
     actor *target = nullptr;
 
     if (this->target_handle.get_volatile_ptr()) {
@@ -190,20 +188,18 @@ actor *interaction_inode::get_target() {
     return target;
 }
 
-void interaction_inode::set_flag_from_param(const string_hash &a2, interaction_type_enum a3) {
+void interaction_inode::set_flag_from_param(const string_hash &a2, interaction_type_enum a3)
+{
     THISCALL(0x00463980, this, &a2, a3);
 }
 
-void interaction_inode::set_interaction(
-        const ai_interaction_data *a2,
-        actor *a3,
-        interaction_type_enum a4,
-        interaction *a5)
+void interaction_inode::set_interaction(const ai_interaction_data *a2, actor *a3, interaction_type_enum a4,
+                                        interaction *a5)
 {
     assert(is_in_master_mode() || !is_interacting());
 
     if (!this->is_in_master_mode()) {
-        this->curr_status  = 1;
+        this->curr_status = 1;
     }
 
     this->target_handle = {a3->my_handle};
@@ -217,12 +213,14 @@ void interaction_inode::set_interaction(
     this->field_28 = 2;
 }
 
-void interaction_inode::set_scripted_start(actor *a2, generic_interaction *a3) {
+void interaction_inode::set_scripted_start(actor *a2, generic_interaction *a3)
+{
     if constexpr (1) {
         this->field_48 = true;
         interaction_type_enum v4 = a3->field_28;
 
-        ai_interaction_data * (__fastcall *get_interaction_data)(void *) = CAST(get_interaction_data, get_vfunc(a3->m_vtbl, 0x20));
+        ai_interaction_data *(__fastcall * get_interaction_data)(void *) =
+            CAST(get_interaction_data, get_vfunc(a3->m_vtbl, 0x20));
 
         auto *v5 = get_interaction_data(a3);
         this->set_interaction(v5, a2, v4, a3);
@@ -231,10 +229,10 @@ void interaction_inode::set_scripted_start(actor *a2, generic_interaction *a3) {
     }
 }
 
-} // namespace ai
+}  // namespace ai
 
-void interaction_inode_patch() {
-
+void interaction_inode_patch()
+{
     void (ai::interaction_inode::*func)(enum_anim_key::key_enum) = &ai::interaction_inode::set_curr_anim;
     FUNC_ADDRESS(address, func);
     REDIRECT(0x00463C59, address);

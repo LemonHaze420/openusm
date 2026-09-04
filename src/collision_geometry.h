@@ -24,7 +24,10 @@ struct collision_geometry {
 
     /* virtual */ ~collision_geometry() = default;
 
-    /* virtual */ collision_geometry *make_instance(actor *) { return nullptr; } /* = 0 ;*/
+    /* virtual */ collision_geometry *make_instance(actor *)
+    {
+        return nullptr;
+    } /* = 0 ;*/
 
     //0x005195C0
     /* virtual */ void xform(const po &a2);
@@ -37,7 +40,7 @@ struct collision_geometry {
     [[nodiscard]] float get_colgeom_radius();
 
     //0x00560370
-    //virtual 
+    //virtual
     [[nodiscard]] vector3d get_local_space_bounding_sphere_center();
 
     /* virtual */ float get_bounding_sphere_radius();

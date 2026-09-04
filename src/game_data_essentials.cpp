@@ -18,9 +18,9 @@ game_data_essentials::game_data_essentials()
         this->field_8 = 0;
         this->field_A = 0;
         this->field_0 = 2000;
-        *(uint32_t *) &this->field_0 = 0;
-        *(uint32_t *) &this->field_4 = 0;
-        *(uint32_t *) &this->field_8 = 0;
+        *bit_cast<uint32_t *>(&this->field_0) = 0;
+        *bit_cast<uint32_t *>(&this->field_4) = 0;
+        *bit_cast<uint32_t *>(&this->field_8) = 0;
         this->field_10 = 0;
         this->field_C = 0;
         strncpy(this->field_14, "02:29:05", 25u);

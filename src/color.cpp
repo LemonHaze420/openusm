@@ -5,7 +5,7 @@
 
 VALIDATE_SIZE(color, 0x10);
 
-void * color::operator new(size_t size)
+void *color::operator new(size_t size)
 {
     auto *mem = nglListAlloc(size, 16);
     return mem;

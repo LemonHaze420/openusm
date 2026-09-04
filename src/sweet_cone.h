@@ -11,10 +11,7 @@ struct sweet_cone_t {
     float field_24;
 
     //0x00451D20
-    sweet_cone_t(const swing_anchor_finder *finder,
-                 const vector3d &pos,
-                 const vector3d &a3,
-                 const vector3d &a4,
+    sweet_cone_t(const swing_anchor_finder *finder, const vector3d &pos, const vector3d &a3, const vector3d &a4,
                  const vector3d &a5);
 
     //0x00451F00

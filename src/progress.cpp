@@ -2,7 +2,8 @@
 
 #include <cassert>
 
-void progress::start() {
+void progress::start()
+{
     assert(m_state == START);
 
     this->m_state = WORK;

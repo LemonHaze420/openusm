@@ -11,7 +11,7 @@ struct state_machine;
 struct animation_logic_system;
 struct param_list;
 
-} // namespace als
+}  // namespace als
 
 namespace ai {
 
@@ -27,7 +27,8 @@ struct als_inode : info_node {
 
     als_inode();
 
-    als::animation_logic_system *get_system() {
+    als::animation_logic_system *get_system()
+    {
         return this->field_1C;
     }
 
@@ -65,6 +66,6 @@ struct als_inode : info_node {
     float get_eta_of_combat_signal(als::layer_types a2);
 };
 
-} // namespace ai
+}  // namespace ai
 
 extern void als_inode_patch();

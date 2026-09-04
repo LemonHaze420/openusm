@@ -1,7 +1,5 @@
 #include "string_hash_entry.h"
 
-#include "string_hash.h"
-
 #include "common.h"
 #include "func_wrapper.h"
 #include "mash_info_struct.h"
@@ -13,9 +11,14 @@ string_hash_entry::string_hash_entry()
     this->initialize(mash::ALLOCATED, nullptr, nullptr);
 }
 
-string_hash_entry::string_hash_entry(const char *a2, const string_hash *a3)
+string_hash_entry::string_hash_entry(const char *a2, const string_hash &a3)
 {
-    this->initialize(mash::ALLOCATED, a2, a3);
+    this->initialize(mash::ALLOCATED, a2, &a3);
+}
+
+string_hash_entry::~string_hash_entry()
+{
+    this->finalize(mash::ALLOCATED);
 }
 
 void string_hash_entry::initialize(mash::allocation_scope, const char *a2, const string_hash *a3)
@@ -27,6 +30,13 @@ void string_hash_entry::initialize(mash::allocation_scope, const char *a2, const
     if (a3 != nullptr) {
         this->field_0 = *a3;
     }
+}
+
+void string_hash_entry::destruct_mashed_class()
+{
+    this->finalize(mash::FROM_MASH);
+    this->field_0.destruct_mashed_class();
+    this->field_4.destruct_mashed_class();
 }
 
 mString string_hash_entry::generate_text(const char *a3) const

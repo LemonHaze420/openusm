@@ -14,8 +14,7 @@ inline constexpr auto MAX_ALLOWED_POSITION_LENGTH_SQUARED = 1.0e10;
 struct euler_direction;
 struct vector4d;
 
-struct vector3d
-{
+struct vector3d {
     float x;
     float y;
     float z;
@@ -26,51 +25,56 @@ struct vector3d
 
     constexpr vector3d(float a1, float a2, float a3) : x(a1), y(a2), z(a3) {}
 
-    vector3d(const vector3d &v) : x(v[0]), y(v[1]), z(v[2]) {
-    }
+    vector3d(const vector3d &v) : x(v[0]), y(v[1]), z(v[2]) {}
 
     vector3d(const vector4d &v);
 
-    vector3d& operator=(const vector3d &v) = default;
+    vector3d &operator=(const vector3d &v) = default;
 
-    const float &operator[](int idx) const {
+    const float &operator[](int idx) const
+    {
         return (&x)[idx];
     }
 
-    float &operator[](int idx) {
+    float &operator[](int idx)
+    {
         return (&x)[idx];
     }
 
     bool operator==(const vector3d &v) const;
 
-    bool operator!=(const vector3d &a2) const {
-        return not_equal(x, a2[0]) || not_equal(y, a2[1]) ||
-            not_equal(z, a2[2]);
+    bool operator!=(const vector3d &a2) const
+    {
+        return not_equal(x, a2[0]) || not_equal(y, a2[1]) || not_equal(z, a2[2]);
     }
 
-    void operator+=(const vector3d &v) {
+    void operator+=(const vector3d &v)
+    {
         *this = *this + v;
     }
 
-    vector3d operator+(float f) const {
+    vector3d operator+(float f) const
+    {
         vector3d result = (*this);
-        result[0] = result[0] + f; 
-        result[1] = result[1] + f; 
-        result[2] = result[2] + f; 
+        result[0] = result[0] + f;
+        result[1] = result[1] + f;
+        result[2] = result[2] + f;
 
         return result;
     }
 
-    vector3d operator-(float f) const {
+    vector3d operator-(float f) const
+    {
         vector3d result = (*this);
-        result[0] = result[0] - f; 
-        result[1] = result[1] - f; 
-        result[2] = result[2] - f; 
+        result[0] = result[0] - f;
+        result[1] = result[1] - f;
+        result[2] = result[2] - f;
 
         return result;
     }
 
-    vector3d operator+(const vector3d &v) const {
+    vector3d operator+(const vector3d &v) const
+    {
         vector3d result;
 
         result[0] = x + v[0];
@@ -80,11 +84,13 @@ struct vector3d
         return result;
     }
 
-    vector3d operator-() const {
+    vector3d operator-() const
+    {
         return ((*this) * -1.f);
     }
 
-    vector3d& operator-=(const vector3d &vec3) {
+    vector3d &operator-=(const vector3d &vec3)
+    {
         x -= vec3[0];
         y -= vec3[1];
         z -= vec3[2];
@@ -92,7 +98,8 @@ struct vector3d
         return (*this);
     }
 
-    vector3d operator-(const vector3d &vec3) const {
+    vector3d operator-(const vector3d &vec3) const
+    {
         vector3d result;
 
         result[0] = x - vec3[0];
@@ -102,7 +109,8 @@ struct vector3d
         return result;
     }
 
-    vector3d operator*(float a1) const {
+    vector3d operator*(float a1) const
+    {
         vector3d result;
         result[0] = x * a1;
         result[1] = y * a1;
@@ -111,19 +119,22 @@ struct vector3d
         return result;
     }
 
-    friend vector3d operator*(float a1, const vector3d &a2) {
+    friend vector3d operator*(float a1, const vector3d &a2)
+    {
         vector3d result = a2 * a1;
 
         return result;
     }
 
-    void operator*=(float a1) {
+    void operator*=(float a1)
+    {
         x *= a1;
         y *= a1;
         z *= a1;
     }
 
-    vector3d operator/(float a1) const {
+    vector3d operator/(float a1) const
+    {
         vector3d result;
         result[0] = x * (1.0 / a1);
         result[1] = y * (1.0 / a1);
@@ -132,7 +143,8 @@ struct vector3d
         return result;
     }
 
-    void operator/=(float a1) {
+    void operator/=(float a1)
+    {
         auto v1 = (1.0 / a1);
         x *= v1;
         y *= v1;
@@ -174,7 +186,7 @@ struct vector3d
     //0x00401870
     static vector3d cross(const vector3d &a2, const vector3d &a3);
 
-    static vector3d min(const vector3d &, const vector3d &); 
+    static vector3d min(const vector3d &, const vector3d &);
 
     static vector3d max(const vector3d &a2, const vector3d &a3);
 };
@@ -182,7 +194,7 @@ struct vector3d
 //0x005BF0B0
 extern bool is_colinear(vector3d a1, vector3d a4, Float epsilon = LARGE_EPSILON);
 
-inline constexpr vector3d UP {0.0, 1.0, 0.0};
+inline constexpr vector3d UP{0.0, 1.0, 0.0};
 
 extern vector3d XVEC;
 
@@ -192,19 +204,16 @@ extern vector3d ZVEC;
 
 extern vector3d ZEROVEC;
 
-inline constexpr vector3d IGNORE_LOC {9.9999998e10, 9.9999998e10, 9.9999998e10};
+extern vector3d FARAWAY;
+
+inline constexpr vector3d IGNORE_LOC{9.9999998e10, 9.9999998e10, 9.9999998e10};
 
 extern float dot(const vector3d &a1, const vector3d &a2);
 
 extern float Abs(const vector3d &a1);
 
 //0x00495450
-extern void reorient_vectors(vector3d a1,
-                             vector3d a4,
-                             vector3d a7,
-                             vector3d a10,
-                             vector3d &a13,
-                             vector3d &a14,
+extern void reorient_vectors(vector3d a1, vector3d a4, vector3d a7, vector3d a10, vector3d &a13, vector3d &a14,
                              Float a15);
 
 
@@ -212,20 +221,17 @@ extern void reorient_vectors(vector3d a1,
 [[nodiscard]] extern vector3d make_vector3d(const euler_direction &a2);
 
 //0x0058FFE0
-extern vector3d orthogonal_projection_onto_plane(
-                                                  const vector3d &a2,
-                                                  const vector3d &a3);
+extern vector3d orthogonal_projection_onto_plane(const vector3d &a2, const vector3d &a3);
 
 //0x005E1E90
 extern float compute_angle_between_vectors(const vector3d &a1, const vector3d &a2);
 
 //0x005B8FC0
-extern bool collide_line_with_plane_infinite(
-    const vector3d &a1, const vector3d &a2, Float a3, Float a4, Float a5, Float a6, vector3d &a7);
+extern bool collide_line_with_plane_infinite(const vector3d &a1, const vector3d &a2, Float a3, Float a4, Float a5,
+                                             Float a6, vector3d &a7);
 
 extern float closest_point_infinite_line_point(const vector3d &a1, const vector3d &a2, const vector3d &a3);
 
 extern vector3d sub_48B5B0(const vector3d &a2, const vector3d &a3, Float a4);
 
 extern vector3d sub_444A60(const vector3d &a2, const vector3d &a3);
-

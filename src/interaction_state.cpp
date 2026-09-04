@@ -18,13 +18,15 @@ VALIDATE_SIZE(interaction_state, 0x58);
 Var<string_hash> interaction_state::pre_interact_motion_hash = (0x00958714);
 Var<string_hash> interaction_state::pre_interact_run_motion_hash = (0x00958844);
 
-interaction_state::interaction_state(from_mash_in_place_constructor *a2) : enhanced_state(a2) {
+interaction_state::interaction_state(from_mash_in_place_constructor *a2) : enhanced_state(a2)
+{
     this->field_30 = nullptr;
     this->field_50 = 0;
     this->field_54 = 0;
 }
 
-void interaction_state::move_actor_to_interact_point() {
+void interaction_state::move_actor_to_interact_point()
+{
     vector3d a4;
     vector3d a2;
     vector3d a3;
@@ -46,19 +48,20 @@ void interaction_state::move_actor_to_interact_point() {
     this->field_30->set_curr_anim({0});
     auto *v6 = this->field_30->field_2C->does_anim_exist(enum_anim_key::key_enum{0}, true);
 
-    string_hash v8 = (v6 != nullptr) ? pre_interact_motion_hash()
-                                     : pre_interact_run_motion_hash();
+    string_hash v8 = (v6 != nullptr) ? pre_interact_motion_hash() : pre_interact_run_motion_hash();
 
     v3->request_category_transition(v8, static_cast<als::layer_types>(0), true, false, false);
 
     v13.clear();
 }
 
-int interaction_state::frame_advance(Float a2) {
+int interaction_state::frame_advance(Float a2)
+{
     return THISCALL(0x00462DF0, this, a2);
 }
 
-po *interaction_state::compute_interact_point(vector3d *a4, vector3d *a2, vector3d *a3) {
+po *interaction_state::compute_interact_point(vector3d *a4, vector3d *a2, vector3d *a3)
+{
 #if 0
     LODWORD(v38[0]) = 1;
     v4 = this;
@@ -199,4 +202,4 @@ po *interaction_state::compute_interact_point(vector3d *a4, vector3d *a2, vector
 #endif
 }
 
-} // namespace ai
+}  // namespace ai

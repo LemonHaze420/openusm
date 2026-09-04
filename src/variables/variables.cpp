@@ -5,119 +5,182 @@
 
 #include <dsound.h>
 
-PolytubeCustomMaterial *& webline_texture = var<PolytubeCustomMaterial *>(0x00958058);
+bool &byte_965950 = var<bool>(0x00965950);
 
-Var<float> flt_87EBD4 = {0x87EBD4};
+RTL_CRITICAL_SECTION &g_CriticalSection = var<RTL_CRITICAL_SECTION>(0x009618F4);
 
-Var<float> flt_86F860 = {0x86F860};
+PolytubeCustomMaterial *&webline_texture = var<PolytubeCustomMaterial *>(0x00958058);
 
-Var<int> dword_975308 = {0x00975308};
+float &flt_937FA4 = var<float>(0x00937FA4);
 
-Var<bool> byte_959561 = {0x00959561};
+float &flt_937FF0 = var<float>(0x00937FF0);
 
-Var<int> dword_975314 = {0x00975314};
+float &flt_937FA8 = var<float>(0x00937FA8);
 
-Var<int> dword_97530C = {0x0097530C};
+float &g_strafe_mult = var<float>(0x00921B70);
 
-Var<bool> byte_971F9C = {0x00971F9C};
+float &g_move_mult = var<float>(0x00921B6C);
 
-Var<bool> s_freeze_game_time = {0x009680AC};
+float &sluggish_mix = var<float>(0x00959E44);
 
-Var<bool> g_generating_vtables = {0x0095A6F1};
+float &med_mix = var<float>(0x00959E50);
 
-Var<float> g_tan_half_fov_ratio{0x00921D7C};
+float &fast_mix = var<float>(0x00959E38);
 
-Var<bool> byte_965C20{0x00965C20};
+float &pronto_mix = var<float>(0x00959E40);
 
-Var<bool> g_distance_clipping_enabled{0x0095C718};
+float &slow_mix = var<float>(0x00959E4C);
 
-Var<int> g_distance_clipping{0x0095C2F8};
+float &nglIFLSpeed = var<float>(0x0093BC78);
 
-Var<int> g_disable_occlusion_culling{0x0095C7AC};
+float &s_camera_target_radius_factor = var<float>(0x0087EBC4);
 
-Var<int> globalTextLanguage{0x0096B430};
+float &flt_87EBD4 = var<float>(0x0087EBD4);
 
-Var<HWND> g_appHwnd{0x009874C4};
+float &flt_86F860 = var<float>(0x0086F860);
 
-Var<bool> g_is_the_packer{0x009682E4};
+int &dword_975308 = var<int>(0x00975308);
 
-Var<bool> g_master_clock_is_up{0x00965EB0};
+bool &byte_959561 = var<bool>(0x00959561);
 
-Var<int> g_TOD{0x0091E000};
+int &dword_975314 = var<int>(0x00975314);
 
-Var<char *[14]> dword_965C24 { 0x00965C24 };
+int &dword_97530C = var<int>(0x0097530C);
 
-Var<char[1024]> g_scene_name = (0x0095C308);
+bool &byte_971F9C = var<bool>(0x00971F9C);
 
-Var<bool> bExit{0x0095C178};
+bool &s_freeze_game_time = var<bool>(0x009680AC);
 
-Var<bool> byte_965BF9 = {0x00965BF9};
+bool &g_generating_vtables = var<bool>(0x0095A6F1);
 
+float &g_tan_half_fov_ratio = var<float>(0x00921D7C);
 
-Var<HCURSOR> hCursor = {0x0096596C};
+LPDIRECTSOUNDBUFFER &dword_982570 = var<LPDIRECTSOUNDBUFFER>(0x00982570);
 
-Var<HANDLE> hEvent{0x00965C5C};
+void *&dword_982574 = var<void *>(0x00982574);
 
-Var<HANDLE> hObject{0x00965C60};
+bool &byte_965C20 = var<bool>(0x00965C20);
 
-Var<bool> byte_965BF5 = {0x00965BF5};
-Var<bool> byte_965BF6 = {0x00965BF6};
+bool &g_distance_clipping_enabled = var<bool>(0x0095C718);
 
-Var<int> dword_922908 = {0x00922908};
+int &g_distance_clipping = var<int>(0x0095C2F8);
 
-Var<bool> byte_922994{0x00922994};
+int &g_disable_occlusion_culling = var<int>(0x0095C7AC);
 
-Var<IDirect3DDevice9 *> g_Direct3DDevice = (0x00971F94);
+HWND &g_appHwnd = var<HWND>(0x009874C4);
 
-Var<char> byte_965C21 = {0x00965C21};
+bool &g_is_the_packer = var<bool>(0x009682E4);
 
-Var<char> byte_965BF8 = {0x00965BF8};
+bool &g_master_clock_is_up = var<bool>(0x00965EB0);
 
-Var<int> g_cx = {0x00965978};
-Var<int> g_cy = {0x00965968};
+int &g_TOD = var<int>(0x0091E000);
 
-Var<char *> dword_95C730 = {0x0095C730};
-Var<char *> dword_95C72C = {0x0095C72C};
+char *(&dword_965C24)[14] = var<char *[14]>(0x00965C24);
 
-Var<int> dword_91E1D8{0x0091E1D8};
+char (&g_scene_name)[1024] = var<char[1024]>(0x0095C308);
 
-Var<bool> g_indoors{0x0095C87B};
+bool &bExit = var<bool>(0x0095C178);
 
-Var<bool> g_player_shadows_enabled = {0x00922C5C};
-Var<char> g_enable_stencil_shadows = {0x00921C98};
+bool &byte_965BF9 = var<bool>(0x00965BF9);
 
-Var<int> g_cur_shadow_target = {0x00965F44};
+HCURSOR &hCursor = var<HCURSOR>(0x0096596C);
 
-Var<bool> byte_975468{0x00975468};
+HANDLE &hEvent = var<HANDLE>(0x00965C5C);
 
-Var<string_hash> bip01_l_calf = {0x0095BA1C};
-Var<string_hash> bip01_r_calf = {0x0095AB1C};
-Var<string_hash> bip01_pelvis = {0x0095AAFC};
-Var<string_hash> bip01_head = {0x0095B9DC};
-Var<string_hash> bip01_spine = {0x0095BA18};
+HANDLE &hObject = var<HANDLE>(0x00965C60);
 
-Var<char[260]> byte_9659B8{0x009659B8};
+bool &byte_965BF5 = var<bool>(0x00965BF5);
+bool &byte_965BF6 = var<bool>(0x00965BF6);
 
-Var<int> nWidth = {0x0093AE84};
-Var<int> nHeight = {0x0093AE88};
+int &dword_922908 = var<int>(0x00922908);
 
-Var<HWND> g_hWnd = {0x00971F98};
+bool &byte_922994 = var<bool>(0x00922994);
 
-Var<float> flt_965BDC{0x00965BDC};
+#if !STANDALONE_SYSTEM
+IDirect3DDevice9 *&g_Direct3DDevice = var<IDirect3DDevice9 *>(0x00971F94);
 
-Var<char> byte_95C718 = {0x0095C718};
-Var<int> dword_95C2F8 = {0x0095C2F8};
+int &nWidth = var<int>(0x0093AE84);
 
-Var<bool> ChromeEffect = {0x0091E1D4};
+int &nHeight = var<int>(0x0093AE88);
 
-Var<int> g_Windowed = {0x00946530};
+int &g_Windowed = var<int>(0x00946530);
 
-Var<float> flt_88E518{0x0088E518};
+HWND &g_hWnd = var<HWND>(0x00971F98);
 
-Var<float> flt_88E51C{0x0088E51C};
+bool &EnableShader = var<bool>(0x00972AB0);
 
-Var<IDirectSound8 *> pUnkOuter{0x00987518};
+int &globalTextLanguage = var<int>(0x0096B430);
 
-Var<bool> cam_target_locked{0x0095C754};
+#else
 
-Var<bool> EnableShader{0x00972AB0};
+IDirect3DDevice9 *&g_Direct3DDevice = []() -> auto & {
+    static IDirect3DDevice9 *g_Direct3DDevice1{};
+    return g_Direct3DDevice1;
+}();
+
+int &nWidth = []() -> auto & {
+    static int g_nWidth{640};
+    return g_nWidth;
+}();
+
+int &nHeight = []() -> auto & {
+    static int g_nHeight{480};
+    return g_nHeight;
+}();
+
+int &g_Windowed = []() -> auto & {
+    static int g_Windowed1{1};
+    return g_Windowed1;
+}();
+
+HWND &g_hWnd = []() -> auto & {
+    static HWND g_hWnd1{};
+    return g_hWnd1;
+}();
+
+bool &EnableShader = []() -> auto & {
+    static bool g_EnableShader{false};
+    return g_EnableShader;
+}();
+
+int &globalTextLanguage = []() -> auto & {
+    static int g_globalTextLanguage{};
+    return g_globalTextLanguage;
+}();
+
+#endif
+
+char &byte_965C21 = var<char>(0x00965C21);
+
+char &byte_965BF8 = var<char>(0x00965BF8);
+
+int &g_cx = var<int>(0x00965978);
+int &g_cy = var<int>(0x00965968);
+
+char *&dword_95C730 = var<char *>(0x0095C730);
+char *&dword_95C72C = var<char *>(0x0095C72C);
+
+int &dword_91E1D8 = var<int>(0x0091E1D8);
+
+bool &g_indoors = var<bool>(0x0095C87B);
+
+bool &g_player_shadows_enabled = var<bool>(0x00922C5C);
+bool &g_enable_stencil_shadows = var<bool>(0x00921C98);
+
+int &g_cur_shadow_target = var<int>(0x00965F44);
+
+bool &byte_975468 = var<bool>(0x00975468);
+
+char (&byte_9659B8)[260] = var<char[260]>(0x009659B8);
+
+float &flt_965BDC = var<float>(0x00965BDC);
+
+bool &ChromeEffect = var<bool>(0x0091E1D4);
+
+float &flt_88E518 = var<float>(0x0088E518);
+
+float &flt_88E51C = var<float>(0x0088E51C);
+
+IDirectSound8 *&g_directSound = var<IDirectSound8 *>(0x00987518);
+
+bool &cam_target_locked = var<bool>(0x0095C754);

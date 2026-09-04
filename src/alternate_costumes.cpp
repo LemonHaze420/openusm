@@ -28,26 +28,30 @@ VALIDATE_SIZE(ptr1_PanelQuad, 8u);
 VALIDATE_SIZE(alternate_costumes, 0x16C);
 VALIDATE_OFFSET(alternate_costumes, field_C4, 0xC4);
 
-static Var<char *[1]> off_937798 { 0x00937798 };
+static Var<char *[1]> off_937798{0x00937798};
 
-alternate_costumes::alternate_costumes(FEMenuSystem *a2, int a3, int a4)
-    : FEMenu(a2, 0, a3, a4, 8, 0) {
+alternate_costumes::alternate_costumes(FEMenuSystem *a2, int a3, int a4) : FEMenu(a2, 0, a3, a4, 8, 0)
+{
     THISCALL(0x00625D70, this, a2, a3, a4);
 }
 
-void alternate_costumes::Init() {
+void alternate_costumes::Init()
+{
     THISCALL(0x00646790, this);
 }
 
-void alternate_costumes::sub_640BC0(int a2) {
+void alternate_costumes::sub_640BC0(int a2)
+{
     THISCALL(0x00640BC0, this, a2);
 }
 
-void alternate_costumes::set_info() {
+void alternate_costumes::set_info()
+{
     THISCALL(0x00614B60, this);
 }
 
-void alternate_costumes::sub_640740(int idx) {
+void alternate_costumes::sub_640740(int idx)
+{
     if constexpr (1) {
         if (this->field_C4[idx].field_8) {
             mString a3{off_937798()[idx]};
@@ -73,19 +77,22 @@ void alternate_costumes::sub_640740(int idx) {
     }
 }
 
-void alternate_costumes::sub_640510(int idx) {
+void alternate_costumes::sub_640510(int idx)
+{
     THISCALL(0x00640510, this, idx);
 }
 
-bool alternate_costumes::sub_614AC0(int a1) {
+bool alternate_costumes::sub_614AC0(int a1)
+{
     mString v4{"gv_unlockable_costumes"};
 
-    auto *v2 = (float *) script_manager::get_game_var_address(v4, nullptr, nullptr);
+    auto *v2 = bit_cast<float *>(script_manager::get_game_var_address(v4, nullptr, nullptr));
 
-    return (v2[a1] == 1.0f);
+    return equal(v2[a1], 1.0f);
 }
 
-void alternate_costumes::onActivate() {
+void alternate_costumes::onActivate()
+{
     sp_log("alternate_costumes::onActivate:");
 
     if constexpr (0) {
@@ -109,9 +116,8 @@ void alternate_costumes::onActivate() {
         v3->field_4 = "";
 
         v3->field_28 = 0;
-        this->field_34->AddButtons(menu_nav_bar::button_type{15},
-                                   menu_nav_bar::button_type{17},
-                                   static_cast<global_text_enum>(3));
+        this->field_34->AddButtons(
+            menu_nav_bar::button_type{15}, menu_nav_bar::button_type{17}, static_cast<global_text_enum>(3));
         auto *v4 = this->field_34;
         auto *v5 = v4->field_4.c_str();
 
@@ -123,7 +129,7 @@ void alternate_costumes::onActivate() {
         }
 
         {
-            auto *v6 = get_msg(g_fileUSM(), "RESUME");
+            auto *v6 = get_msg(g_fileUSM, "RESUME");
 
             mString v23{v6};
             auto str = *bit_cast<FEText::string *>(&v23);
@@ -149,7 +155,7 @@ void alternate_costumes::onActivate() {
         float v24, v25;
         {
             auto *vtbl = bit_cast<fastcall_call(*)[1]>(this->field_4C[20]->m_vtbl);
-            void (__fastcall *GetCenterPos)(void *, void*, float *, float *) = CAST(GetCenterPos, (*vtbl)[42]);
+            void(__fastcall * GetCenterPos)(void *, void *, float *, float *) = CAST(GetCenterPos, (*vtbl)[42]);
             GetCenterPos(this->field_4C[20], nullptr, &v25, &v24);
         };
 
@@ -172,12 +178,11 @@ void alternate_costumes::onActivate() {
         v16->set_loc(v31);
         v16->field_68 = true;
 
-        if (!g_world_ptr->field_28.field_48)
-        {
+        if (!g_world_ptr->field_28.field_48) {
             g_game_ptr->enable_marky_cam(true, true, -1000.0, 0.0);
             auto *v18 = g_world_ptr->field_28.field_44;
             auto *vtbl = bit_cast<fastcall_call(*)[1]>(v18->m_vtbl);
-            void (__fastcall *sync)(void *, void *, void *) = CAST(sync, (*vtbl)[165]);
+            void(__fastcall * sync)(void *, void *, void *) = CAST(sync, (*vtbl)[165]);
 
             auto *v20 = g_game_ptr->get_current_view_camera(0);
             sync(v18, nullptr, v20);
@@ -185,18 +190,18 @@ void alternate_costumes::onActivate() {
 
         this->sub_640510(this->field_114);
         this->field_154 = 0.0;
-        this->field_168 = g_TOD();
+        this->field_168 = g_TOD;
         us_lighting_switch_time_of_day(0);
 
         bit_cast<uint8_t *>(&this->field_28)[0] |= 0x80u;
 
         this->field_2A = -1;
-        g_cursor()->sub_5A6790();
-        g_cursor()->sub_5A67D0(275, 420, 355, 445);
+        g_cursor->sub_5A6790();
+        g_cursor->sub_5A67D0(275, 420, 355, 445);
         auto v21 = 40;
         auto v22 = 6;
         do {
-            g_cursor()->sub_5A67D0(50, v21, 98, v21 + 50);
+            g_cursor->sub_5A67D0(50, v21, 98, v21 + 50);
             v21 += 54;
             --v22;
         } while (v22);
@@ -206,17 +211,20 @@ void alternate_costumes::onActivate() {
     }
 }
 
-void alternate_costumes::OnDeactivate(FEMenu *a2) {
+void alternate_costumes::OnDeactivate(FEMenu *a2)
+{
     sp_log("alternate_costumes::OnDeactivate:");
     THISCALL(0x00614A30, this, a2);
 }
 
-void alternate_costumes::OnTriangle(int a2) {
+void alternate_costumes::OnTriangle(int a2)
+{
     sp_log("alternate_costumes::OnTriangle:");
     THISCALL(0x00640BC0, this, a2);
 }
 
-void alternate_costumes::sub_614C60(int a2) {
+void alternate_costumes::sub_614C60(int a2)
+{
     if constexpr (1) {
         for (auto &p : this->field_11C) {
             if (p.field_4) {
@@ -242,7 +250,7 @@ void alternate_costumes::sub_614C60(int a2) {
             }
 
             auto *vtbl = bit_cast<fastcall_call(*)[1]>(p.field_0->m_vtbl);
-            void (__fastcall *SetTexture)(void *, void *, void *) = CAST(SetTexture, (*vtbl)[29]);
+            void(__fastcall * SetTexture)(void *, void *, void *) = CAST(SetTexture, (*vtbl)[29]);
 
             SetTexture(p.field_0, nullptr, v2);
         }
@@ -253,13 +261,12 @@ void alternate_costumes::sub_614C60(int a2) {
 
 void alternate_costumes::update_selected(int a2)
 {
-    if constexpr (0)
-	{
+    if constexpr (0) {
         for (auto &p : this->field_C4) {
-            auto v7 = (float) (a2 * this->field_10C);
+            auto v7 = (float)(a2 * this->field_10C);
 
             auto vtbl = bit_cast<fastcall_call(*)[1]>(p.field_0->m_vtbl);
-            void (__fastcall *field_C0)(void *, void *, Float, Float) = CAST(field_C0, (*vtbl)[48]);
+            void(__fastcall * field_C0)(void *, void *, Float, Float) = CAST(field_C0, (*vtbl)[48]);
 
             field_C0(p.field_0, nullptr, 0.0, v7);
         }
@@ -273,12 +280,12 @@ void alternate_costumes::update_selected(int a2)
             v6 = (v5 + 4) % 6;
         }
 
-        auto v8 = (float) -(a2 * this->field_110);
+        auto v8 = (float)-(a2 * this->field_110);
 
         auto *panel = this->field_C4[v6].field_0;
 
         auto vtbl = bit_cast<fastcall_call(*)[1]>(panel->m_vtbl);
-        void (__fastcall *field_C0)(void *, void *, Float, Float) = CAST(field_C0, (*vtbl)[48]);
+        void(__fastcall * field_C0)(void *, void *, Float, Float) = CAST(field_C0, (*vtbl)[48]);
         field_C0(panel, nullptr, 0.0, v8);
 
         this->sub_640740(this->field_118);
@@ -291,17 +298,20 @@ void alternate_costumes::update_selected(int a2)
     }
 }
 
-void alternate_costumes::OnUp(int a2) {
+void alternate_costumes::OnUp(int a2)
+{
     sp_log("alternate_costumes::OnUp:");
     THISCALL(0x00640950, this, a2);
 }
 
-void alternate_costumes::OnDown(int a2) {
+void alternate_costumes::OnDown(int a2)
+{
     sp_log("alternate_costumes::OnDown:");
     THISCALL(0x00640A00, this, a2);
 }
 
-void alternate_costumes_patch() {
+void alternate_costumes_patch()
+{
     {
         FUNC_ADDRESS(address, &alternate_costumes::update_selected);
         REDIRECT(0x0064097A, address);

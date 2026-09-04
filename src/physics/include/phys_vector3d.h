@@ -8,15 +8,18 @@ struct phys_vector3d {
     phys_vector3d() = default;
     phys_vector3d(const vector3d &v);
 
-    float &operator[](int idx) {
+    float &operator[](int idx)
+    {
         return field_0[idx];
     }
 
-    const float &operator[](int idx) const {
+    const float &operator[](int idx) const
+    {
         return field_0[idx];
     }
 
-    friend phys_vector3d operator*(float a1, const phys_vector3d &a2) {
+    friend phys_vector3d operator*(float a1, const phys_vector3d &a2)
+    {
         phys_vector3d result;
 
         result[0] = a1 * a2[0];

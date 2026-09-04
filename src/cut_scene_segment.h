@@ -3,6 +3,7 @@
 #include "mAvlTree.h"
 #include "mstring.h"
 #include "mvector.h"
+#include "mVectorBasic.h"
 #include "string_hash.h"
 
 struct entity_class_entry;

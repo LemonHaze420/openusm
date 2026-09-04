@@ -7,8 +7,9 @@
 
 #include <cassert>
 
-template<>
-void fixed_vector<quick_anchor_info, 100>::sort() {
+template <>
+void fixed_vector<quick_anchor_info, 100>::sort()
+{
     auto *begin = this->m_data;
     auto *end = &this->m_data[m_size];
     auto size = end - begin;
@@ -16,11 +17,12 @@ void fixed_vector<quick_anchor_info, 100>::sort() {
     ::sort(begin, end, size);
 }
 
-template<>
-void fixed_vector<quick_anchor_info, 100>::resize(int size, const quick_anchor_info &a3) {
+template <>
+void fixed_vector<quick_anchor_info, 100>::resize(int size, const quick_anchor_info &a3)
+{
     assert(unsigned(size) <= N);
 
-    auto v3 = this->m_size;
+    int v3 = this->m_size;
     if (v3 < size) {
         if (v3 < size) {
             auto v4 = size - v3;
@@ -31,10 +33,9 @@ void fixed_vector<quick_anchor_info, 100>::resize(int size, const quick_anchor_i
                 ++this->m_size;
             } while (v4);
 
-            assert(this->m_size == size);
+            assert(static_cast<int>(this->m_size) == size);
         }
     } else {
         this->m_size = size;
     }
 }
-

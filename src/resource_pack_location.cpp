@@ -6,12 +6,14 @@
 VALIDATE_SIZE(resource_pack_location, 0x50u);
 VALIDATE_OFFSET(resource_pack_location, m_name, 0x30u);
 
-resource_pack_location::resource_pack_location() : loc() {
+resource_pack_location::resource_pack_location() : loc()
+{
     loc.clear();
     this->clear();
 }
 
-void resource_pack_location::clear() {
+void resource_pack_location::clear()
+{
     field_10 = 0;
     field_14 = 0;
     field_18 = 0;

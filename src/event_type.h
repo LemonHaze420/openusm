@@ -19,7 +19,20 @@ struct event_type {
     //0x004E18B0
     event_type(string_hash a2, bool a3);
 
-    event_recipient_entry * find_recipient_entry(entity_base_vhandle a2);
+    //0x004E1970
+    ~event_type();
+
+    void *operator new(size_t sz);
+
+    void operator delete(void *ptr, size_t sz);
+
+    //0x004DB890
+    void clear();
+
+    //0x004D1ED0
+    void clear_callbacks();
+
+    event_recipient_entry *find_recipient_entry(entity_base_vhandle a2);
 
     //0x004EE6C0
     void raise_event(entity_base_vhandle a2, event *a3);

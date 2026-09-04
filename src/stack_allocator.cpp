@@ -26,7 +26,7 @@ bool stack_allocator::allocate(int size, int alignment_arg, int external_alignme
     assert(external_alignment_arg >= alignment_arg);
 
     this->alignment = alignment_arg;
-    this->segment = static_cast<char *> (arch_memalign(external_alignment_arg, size));
+    this->segment = static_cast<char *>(arch_memalign(external_alignment_arg, size));
     this->current = this->segment;
     this->segment_size_bytes = size;
     assert((long(current) & (alignment - 1)) == 0);
@@ -52,16 +52,19 @@ void *stack_allocator::push(int size_bytes)
     return &this->current[-size];
 }
 
-int stack_allocator::get_total_allocated_bytes() {
+int stack_allocator::get_total_allocated_bytes()
+{
     assert(current >= segment);
     return this->current - this->segment;
 }
 
-void stack_allocator::reset() {
+void stack_allocator::reset()
+{
     this->current = this->segment;
 }
 
-void stack_allocator::pop(void *pointer, int size_bytes) {
+void stack_allocator::pop(void *pointer, int size_bytes)
+{
     assert((alignment >= 2) && bitmath::is_power_of_2(alignment));
 
     assert(current <= segment + segment_size_bytes);
@@ -73,10 +76,9 @@ void stack_allocator::pop(void *pointer, int size_bytes) {
 
     this->current -= size;
 
-    assert("Stack allocator failed to pop a pointer -- mismatched alloc/pop pair" &&
-           (current == (char *) pointer));
+    assert("Stack allocator failed to pop a pointer -- mismatched alloc/pop pair" && (current == (char *)pointer));
 
-    assert((int) current >= 0 && "Stack allocator underflow.");
+    assert((int)current >= 0 && "Stack allocator underflow.");
 
     assert((long(current) & (alignment - 1)) == 0);
 }
@@ -91,8 +93,8 @@ void stack_allocator::free()
 void stack_allocator::print() const
 {
     sp_log("segment_size_bytes = %d, alignment = %d, segment = %d, current = %d",
-            this->segment_size_bytes,
-            this->alignment,
-            this->segment,
-            this->current);
+           this->segment_size_bytes,
+           this->alignment,
+           this->segment,
+           this->current);
 }

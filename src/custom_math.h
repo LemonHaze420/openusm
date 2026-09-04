@@ -11,11 +11,13 @@ struct vector3d;
 struct vector4d;
 struct matrix4x4;
 
-inline constexpr float DEG_TO_RAD(float deg) {
+inline constexpr float DEG_TO_RAD(float deg)
+{
     return (PI / 180.0 * deg);
 }
 
-inline constexpr float RAD_TO_DEG(float rad) {
+inline constexpr float RAD_TO_DEG(float rad)
+{
     return (180.0 / PI) * rad;
 }
 
@@ -43,20 +45,14 @@ extern float sub_48A720(float a1, float a2);
 
 extern float sub_4ADC40(float a1);
 
-extern float sub_48C0C0(
-    const float &a1, const float &a2, const float &a3, const float &a4, const float &a5);
+extern float sub_48C0C0(const float &a1, const float &a2, const float &a3, const float &a4, const float &a5);
 
 //0x004D0320
-extern double calculate_xz_angle_relative_to_local_po(const po &a1,
-                                                      const vector3d &a4,
-                                                      const vector3d &a5);
+extern double calculate_xz_angle_relative_to_local_po(const po &a1, const vector3d &a4, const vector3d &a5);
 
 //0x004CCA80
-extern float calculate_xz_angle_relative_to_local_po(const vector3d &a1,
-                                                     const vector3d &a2,
-                                                     const vector3d &a3,
-                                                     const vector3d &a4,
-                                                     const vector3d &a5);
+extern float calculate_xz_angle_relative_to_local_po(const vector3d &a1, const vector3d &a2, const vector3d &a3,
+                                                     const vector3d &a4, const vector3d &a5);
 
 extern int sign(float a1);
 

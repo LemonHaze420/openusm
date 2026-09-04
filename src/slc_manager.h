@@ -30,15 +30,7 @@ struct slc_manager {
     static bool using_xbox_v14();
 };
 
-#if !STANDALONE_SYSTEM
 extern _std::vector<script_library_class *> *& slc_manager_class_array;
-#else
-#include <vector>
-
-extern std::vector<script_library_class *> *& slc_manager_class_array;
-#endif
-
-inline std::set<script_library_class *> *slc_manager_classes = nullptr;
 
 //0x005AB800
 extern void register_standard_script_libs();

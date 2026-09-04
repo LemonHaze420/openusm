@@ -213,26 +213,25 @@ void localized_string_table::load_localizer()
 {
     TRACE("localized_string_table::load_localizer");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         [[maybe_unused]] auto a3 = os_developer_options::instance->get_string(os_developer_options::strings_t::SKU);
-        globalTextLanguage() = 0;
+        globalTextLanguage = 0;
 
-        switch (g_settings()->sub_81D010("Settings\\Language", 0)) {
+        switch (g_settings->sub_81D010("Settings\\Language", 0)) {
         case 1:
-            globalTextLanguage() = 1;
+            globalTextLanguage = 1;
             break;
         case 2:
-            globalTextLanguage() = 2;
+            globalTextLanguage = 2;
             break;
         case 3:
-            globalTextLanguage() = 3;
+            globalTextLanguage = 3;
             break;
         case 4:
-            globalTextLanguage() = 4;
+            globalTextLanguage = 4;
             break;
         default:
-            globalTextLanguage() = 0;
+            globalTextLanguage = 0;
             break;
         }
 
@@ -246,13 +245,10 @@ void localized_string_table::load_localizer()
         auto *my_streamer = my_partition->get_streamer();
         assert(my_streamer != nullptr);
 
-        static const char *globalTextLangFileNames[] { "globaltext_ENGLISH",
-                                                        "globaltext_FRENCH",
-                                                        "globaltext_GERMAN",
-                                                        "globaltext_SPANISH",
-                                                        "globaltext_ITALIAN" };
+        static const char *globalTextLangFileNames[]{
+            "globaltext_ENGLISH", "globaltext_FRENCH", "globaltext_GERMAN", "globaltext_SPANISH", "globaltext_ITALIAN"};
 
-        const auto *textLangFileName = globalTextLangFileNames[globalTextLanguage()];
+        const auto *textLangFileName = globalTextLangFileNames[globalTextLanguage];
 
         my_streamer->load(textLangFileName, 0, nullptr, nullptr);
         my_streamer->flush(RenderLoadMeter);
@@ -267,14 +263,13 @@ void localized_string_table::load_localizer()
 
         string_localizer->sub_60BD30();
         g_game_ptr->field_7C = string_localizer;
-    }
-    else
-    {
+    } else {
         CDECL_CALL(0x0062EF10);
     }
 }
 
-void localized_string_table::sub_60BD30() {
+void localized_string_table::sub_60BD30()
+{
     this->field_0 = (internal *) ((char *) this + (unsigned int) this->field_0);
     this->field_8 += (int) this;
 
@@ -311,9 +306,9 @@ void localized_string_table::sub_60BD30() {
             char DstBuf[4];
             itoa(i, DstBuf, 10);
 #ifdef OPENUSM_XBPACK_V10
-            auto *v6 = g_platform == NL_PLATFORM_XBOX ? nullptr : get_msg(g_fileUSM(), DstBuf);
+            auto *v6 = g_platform == NL_PLATFORM_XBOX ? nullptr : get_msg(g_fileUSM, DstBuf);
 #else
-            auto *v6 = get_msg(g_fileUSM(), DstBuf);
+            auto *v6 = get_msg(g_fileUSM, DstBuf);
 #endif
             if (v6 != nullptr) {
                 strings[i] = v6;
@@ -321,8 +316,8 @@ void localized_string_table::sub_60BD30() {
                 strings[i] += this->field_8;
             }
 
-            auto v7 = (uint8_t *) strings[i];
-            if (v7 != nullptr && *v7) {
+            auto *v7 = reinterpret_cast<uint8_t *>(const_cast<char *>(strings[i]));
+            if (v7 != nullptr && *v7 != 0) {
                 do {
                     if (*v7 == 160) {
                         *v7 = ' ';
@@ -339,7 +334,8 @@ void localized_string_table::sub_60BD30() {
 #endif
 }
 
-const char *localized_string_table::lookup_scripttext_string(int num) {
+const char *localized_string_table::lookup_scripttext_string(int num)
+{
     if (num < 0 || num >= this->scripttext_number) {
         sp_log("localized scripttext lookup out of range: num=%d script_count=%d.", num, this->scripttext_number);
         assert(g_platform == NL_PLATFORM_XBOX);
@@ -376,8 +372,8 @@ const char *localized_string_table::lookup_localized_string(global_text_enum num
     return result != nullptr ? result : localized_error_string(this);
 }
 
-void localized_string_table_patch() {
-
+void localized_string_table_patch()
+{
     SET_JUMP(0x0062EF10, localized_string_table::load_localizer);
 
     {

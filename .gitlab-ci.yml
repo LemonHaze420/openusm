@@ -1,0 +1,47 @@
+stages:
+  - style
+  - build
+
+check-format-job:
+  stage: style
+  image: silkeh/clang:latest
+  tags:
+    - docker
+  variables:
+    GIT_DEPTH: 1
+  script:
+    - clang-format --dry-run --Werror $(find src include test -name '*.cpp' -o -name '*.h' -o -name '*.hpp') main.cpp
+
+build-job:
+  stage: build
+  image: openusm:alpine
+  tags:
+    - docker
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+    GIT_DEPTH: 1
+    GIT_STRATEGY: fetch
+  script:
+    - echo "Compiling the code..."
+    - pwd
+    - cmake -B build
+    - cd build
+    - make -j4
+    - echo "Compile complete."
+
+build-standalone-job:
+  stage: build
+  image: openusm:alpine
+  tags:
+    - docker
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+    GIT_DEPTH: 1
+    GIT_STRATEGY: fetch
+  script:
+    - echo "Compiling the code..."
+    - pwd
+    - cmake -B build -DSETUP_STANDALONE_SYSTEM=ON
+    - cd build
+    - make -j4
+    - echo "Compile complete."

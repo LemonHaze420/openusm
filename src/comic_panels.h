@@ -33,15 +33,13 @@ struct panel_params_t {
         vector4d field_10;
         int field_20;
         int field_24;
-    } field_8[5] {};
+    } field_8[5]{};
     uint8_t field_D0;
     uint8_t field_D1;
 };
 
 struct panel_component {
-
     struct render_info {
-
         math::MatClass<4, 3> field_0;
         panel_params_t field_40;
         aarect<float, vector2d> field_114;
@@ -68,7 +66,7 @@ struct panel_component {
 
 void set_default_bgcolor(const color &a1);
 
-//0x0x00736A60
+//0x00736A60
 void init();
 
 //0x0073EA70
@@ -134,7 +132,7 @@ struct panel_component_camera : panel_component {
     nglTexture *field_44;
     char field_48;
 
-    camera * get_default_camera() const;
+    camera *get_default_camera() const;
 
     //0x00733420
     void register_camera(uint32_t a2, const char *a3);
@@ -177,10 +175,10 @@ extern Var<panel *> game_play_panel;
 
 extern Var<fixed_vector<panel *, 48>> panels;
 
-inline Var<color> default_bgcol {0x009392EC};
+inline Var<color> default_bgcol{0x009392EC};
 
-extern Var<bool> world_has_been_rendered;
+extern bool &world_has_been_rendered;
 
-} // namespace comic_panels
+}  // namespace comic_panels
 
 extern void comic_panels_patch();

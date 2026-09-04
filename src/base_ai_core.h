@@ -20,7 +20,6 @@ struct ai_state_machine;
 struct state_graph;
 
 struct ai_core {
-
     enum mode_e {
         AI_KILLING_MACHINES = 2,
     };
@@ -49,23 +48,21 @@ struct ai_core {
     //0x006AEA90
     ai_core(core_ai_resource *a3, const param_block *arg4, actor *a4);
 
-    actor * get_actor(int) {
+    actor *get_actor(int)
+    {
         return field_64;
     }
 
-    param_block * get_param_block()
+    param_block *get_param_block()
     {
         return &this->field_50;
     }
 
     bool push_base_machine(resource_key a2, int a3);
 
-    bool pop_base_machine(int );
+    bool pop_base_machine(int);
 
-    bool change_base_machine(
-        resource_key the_state_graph,
-        int a3,
-        string_hash a4);
+    bool change_base_machine(resource_key the_state_graph, int a3, string_hash a4);
 
     //0x00687C50
     void create_capsule_alter();
@@ -105,10 +102,8 @@ struct ai_core {
 
     int can_spawn_state_machine(resource_key a2);
 
-    void spawn_state_machine_internal(ai_state_machine *a2,
-                                      resource_key graph_name,
-                                      ai_state_machine **base_machine_ptr,
-                                      string_hash a5);
+    void spawn_state_machine_internal(ai_state_machine *a2, resource_key graph_name,
+                                      ai_state_machine **base_machine_ptr, string_hash a5);
 
     void advance_machine_recursive(ai_state_machine *a1, Float a2, bool a3);
 
@@ -117,6 +112,6 @@ struct ai_core {
     static inline Var<_std::list<ai_core *> *> the_ai_core_list_low{0x0096BE28};
 };
 
-} // namespace ai
+}  // namespace ai
 
 void ai_core_patch();

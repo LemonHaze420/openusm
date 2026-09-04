@@ -3,6 +3,7 @@
 #include "common.h"
 #include "func_wrapper.h"
 #include "string_hash.h"
+#include "trace.h"
 #include "variable.h"
 
 #include "common.h"
@@ -29,13 +30,13 @@ void script_sound_manager::create_inst()
             v1 = v0->field_4;
             v0->m_count = 128;
 
-            void (__fastcall *constructor)(void *) = CAST(constructor, 0x00670E20);
+            void(__fastcall * constructor)(void *) = CAST(constructor, 0x00670E20);
             fastcall_call destructor = CAST(destructor, 0x004ACEE0);
 
             auto vector_constructor = [](void *a1,
                                          uint32_t size,
                                          int count,
-                                         void (__fastcall *constructor)(void *),
+                                         void(__fastcall * constructor)(void *),
                                          [[maybe_unused]] fastcall_call destructor) -> void {
                 for (int i{0}; i < count; ++i) {
                     constructor(static_cast<int *>(a1));
@@ -75,9 +76,12 @@ void script_sound_manager::create_inst()
 
 void script_sound_manager::delete_inst()
 {
+    TRACE("script_sound_manager::delete_inst");
+
     CDECL_CALL(0x0065F190);
 }
 
-void script_sound_manager::frame_advance(Float a1) {
+void script_sound_manager::frame_advance(Float a1)
+{
     CDECL_CALL(0x0065F240, a1);
 }

@@ -141,7 +141,8 @@ void end_entity_creation(entity_base_vhandle a1)
     current_heap_usage = 0;
 }
 
-void frame_advance() {
+void frame_advance()
+{
     ;
 }
 
@@ -149,8 +150,7 @@ void dump_info(debug_menu_entry *)
 {
     TRACE("script_memtrack::dump_info");
 
-    for ( auto it = name_to_class_map.begin(), end = name_to_class_map.end();
-            it != end; ) {
+    for (auto it = name_to_class_map.begin(), end = name_to_class_map.end(); it != end;) {
         auto *cls = it->second;
         if ( !cls->field_10.empty() ) {
             auto v5 = cls->field_C;

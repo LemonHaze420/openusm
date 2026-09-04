@@ -5,6 +5,7 @@
 #include "func_wrapper.h"
 #include "mash_info_struct.h"
 #include "mash_config.h"
+#include "memory.h"
 #include "ngl.h"
 #include "ngl_mesh.h"
 #include "panelquadsection.h"
@@ -14,12 +15,25 @@
 
 VALIDATE_SIZE(PanelQuad, 0x4C);
 
-PanelQuad::PanelQuad() {
+PanelQuad::PanelQuad()
+{
     THISCALL(0x00637E80, this);
 }
 
-PanelQuad::PanelQuad(from_mash_in_place_constructor *a2) {
+PanelQuad::PanelQuad(from_mash_in_place_constructor *a2)
+{
     THISCALL(0x00637F00, this, a2);
+}
+
+PanelQuad::PanelQuad(const char *a2) : field_3C(a2)
+{
+    this->m_vtbl = 0x0087B990;
+
+    this->field_34 = 0.0;
+    this->field_14[0] = 0.0;
+    this->pmesh = nullptr;
+    this->field_38 = 1.0;
+    this->field_14[1] = 0.0;
 }
 
 PanelQuad * __fastcall PanelQuad_constructor(PanelQuad *self, int, from_mash_in_place_constructor *a2)
@@ -28,8 +42,20 @@ PanelQuad * __fastcall PanelQuad_constructor(PanelQuad *self, int, from_mash_in_
     return (PanelQuad*) THISCALL(0x00637F00, self, a2);
 }
 
-PanelQuad::~PanelQuad() {
+PanelQuad::~PanelQuad()
+{
     THISCALL(0x0043F7F0, this);
+}
+
+void *PanelQuad::operator new(size_t size)
+{
+    auto *mem = mem_alloc(size);
+    return mem;
+}
+
+void PanelQuad::operator delete(void *ptr, size_t size)
+{
+    mem_dealloc(ptr, size);
 }
 
 void PanelQuad::_destruct_mashed_class()
@@ -42,33 +68,28 @@ void PanelQuad::_destruct_mashed_class()
 void PanelQuad::_unmash(mash_info_struct *a1, void *a3)
 {
     TRACE("PanelQuad::unmash");
-    if constexpr(1)
-    {
+    if constexpr (1) {
         a1->unmash_class_in_place(this->pqs, this);
 
         a1->unmash_class_in_place(this->field_3C, this);
 
 #if OPENUSM_XBOX_MASH_FORMAT && !defined(OPENUSM_XBPACK_V10)
         uint8_t class_mashed = -1;
-        [](mash_info_struct *a1, mash::buffer_type buffer, uint8_t &a3)
-        {
+        [](mash_info_struct *a1, mash::buffer_type buffer, uint8_t &a3) {
             a3 = *a1->read_from_buffer(buffer, 1, 1);
         }(a1, mash::SHARED_BUFFER, class_mashed);
         assert(class_mashed == 0xAF || class_mashed == 0);
 #endif
 
-        if ( this->pmesh != nullptr )
-        {
-            this->pmesh =
-                (PanelMeshSection *) a1->read_from_buffer(
+        if (this->pmesh != nullptr) {
+            this->pmesh = (PanelMeshSection *)a1->read_from_buffer(
 #if OPENUSM_XBOX_MASH_FORMAT
                     mash::NORMAL_BUFFER,
 #endif 
-                        sizeof(PanelMeshSection), 16);
+                sizeof(PanelMeshSection),
+                16);
         }
-    }
-    else
-    {
+    } else {
         void (__fastcall *func)(void *, void *, mash_info_struct *, void *) = CAST(func, get_vfunc(m_vtbl, 0x4));
         func(this, nullptr, a1, a3);
     }
@@ -81,29 +102,59 @@ int PanelQuad::_get_mash_sizeof()
 #else
     return 0x4C;
 #endif
-
 }
 
-vector2d PanelQuad::GetMax() {
+vector2d PanelQuad::GetMax()
+{
     vector2d result;
     THISCALL(0x00616990, this, &result);
 
     return result;
 }
 
-vector2d PanelQuad::GetMin() {
+vector2d PanelQuad::GetMin()
+{
     vector2d result;
     THISCALL(0x006168C0, this, &result);
 
     return result;
 }
 
-void PanelQuad::sub_616710(Float a2, Float a3) {
+void PanelQuad::sub_616710(Float a2, Float a3)
+{
     THISCALL(0x00616710, this, a2, a3);
 }
 
-void PanelQuad::SetTexture(nglTexture *a2) {
+void PanelQuad::sub_616690(float *a2, float *a3)
+{
+    this->pqs.at(0)->sub_608EF0(a2, a3);
+}
+
+void PanelQuad::SetTexture(nglTexture *a2)
+{
     THISCALL(0x00616290, this, a2);
+}
+
+void PanelQuad::_SetZvalueAbs(Float a2)
+{
+    this->field_8 = a2;
+
+    auto *v3 = this->pmesh;
+    if (v3 != nullptr) {
+        v3->field_44 = a2;
+        v3->field_0[3][2] = a2;
+    }
+
+    for (int i = 0; i < this->pqs.size(); ++i) {
+        auto *q = &this->pqs.at(i)->field_14;
+        nglSetQuadZ(bit_cast<nglQuad *>(q), a2);
+    }
+}
+
+void PanelQuad::SetZvalueAbs(Float a2)
+{
+    void(__fastcall * func)(void *, void *, Float) = CAST(func, get_vfunc(m_vtbl, 0x38));
+    func(this, nullptr, a2);
 }
 
 void PanelQuad::Draw()
@@ -113,10 +164,17 @@ void PanelQuad::Draw()
     THISCALL(0x00616090, this);
 }
 
-void PanelQuad::TurnOn(bool a2) {
+void PanelQuad::TurnOn(bool a2)
+{
     void (__fastcall *func)(void *, void *, bool) = CAST(func, get_vfunc(m_vtbl, 0x5C));
 
     func(this, nullptr, a2);
+}
+
+void PanelQuad::Scale(Float a1, bool a2)
+{
+    void(__fastcall * func)(void *, void *, Float, bool) = CAST(func, get_vfunc(m_vtbl, 0x6C));
+    func(this, nullptr, a1, a2);
 }
 
 void PanelQuad::Rotate(Float a2, Float a3, Float a4, bool a5)
@@ -125,9 +183,7 @@ void PanelQuad::Rotate(Float a2, Float a3, Float a4, bool a5)
 
     sp_log("%f, %f, %f, %d", float(a2), float(a3), float(a4), a5);
 
-    float a4a = ( a5
-                   ? a4 - this->field_34
-                   : float(a4) );
+    float a4a = (a5 ? a4 - this->field_34 : float(a4));
 
     for ( int i = 0; i < this->pqs.size(); ++i ) {
         nglRotateQuad(bit_cast<nglQuad *>(&this->pqs.m_data[i]->field_14), a2, a3, a4a);
@@ -136,9 +192,42 @@ void PanelQuad::Rotate(Float a2, Float a3, Float a4, bool a5)
     this->field_34 += a4a;
 }
 
-void PanelQuad::SetColor(color32 a2) {
+void PanelQuad::SetColor(color32 a2)
+{
     void (__fastcall *func)(void *, void *, color32) = CAST(func, get_vfunc(m_vtbl, 0x7C));
     func(this, nullptr, a2);
+}
+
+void PanelQuad::SetAlpha(Float a2)
+{
+    void(__fastcall * func)(void *, void *, Float) = CAST(func, get_vfunc(m_vtbl, 0x84));
+    func(this, nullptr, a2);
+}
+
+void PanelQuad::_GetCenterPos(float &a2, float &a3) const
+{
+    a2 = this->field_14[0];
+    a3 = this->field_14[1];
+}
+
+void PanelQuad::GetCenterPos(float &a2, float &a3) const
+{
+    void(__fastcall * func)(const void *, void *, float *, float *) = CAST(func, get_vfunc(m_vtbl, 0xA8));
+    func(this, nullptr, &a2, &a3);
+}
+
+color32 PanelQuad::_GetColor() const
+{
+    auto *v1 = this->pqs.at(0);
+    return v1->GetColor(0);
+}
+
+color32 PanelQuad::GetColor() const
+{
+    color32 v1;
+    void(__fastcall * func)(const void *, void *, color32 *) = CAST(func, get_vfunc(m_vtbl, 0xBC));
+    func(this, nullptr, &v1);
+    return v1;
 }
 
 void PanelQuad::SetPos(float *a2, float *a3)
@@ -147,13 +236,16 @@ void PanelQuad::SetPos(float *a2, float *a3)
     func(this, nullptr, a2, a3);
 }
 
-void PanelQuad::SetPos(Float a2, Float a3, Float a4, Float a5) {
+void PanelQuad::SetPos(Float a2, Float a3, Float a4, Float a5)
+{
     void (__fastcall *func)(void *, void *, Float, Float, Float, Float) = CAST(func, get_vfunc(m_vtbl, 0x90));
     func(this, nullptr, a2, a3, a4, a5);
 }
 
-void PanelQuad::Init(vector2d *a2, color32 *a3, panel_layer a4, Float a5, const char *a6) {
-    void (__fastcall *func)(void *, void *, vector2d *, color32 *, panel_layer, Float, const char *) = CAST(func, get_vfunc(m_vtbl, 0x54));
+void PanelQuad::Init(vector2d *a2, color32 *a3, panel_layer a4, Float a5, const char *a6)
+{
+    void(__fastcall * func)(void *, void *, vector2d *, color32 *, panel_layer, Float, const char *) =
+        CAST(func, get_vfunc(m_vtbl, 0x54));
 
     func(this, nullptr, a2, a3, a4, a5, a6);
 }
@@ -176,7 +268,8 @@ float PanelQuad::GetCenterY()
     return result;
 }
 
-void PanelQuad::CopyFrom(const PanelQuad *a2) {
+void PanelQuad::CopyFrom(const PanelQuad *a2)
+{
     THISCALL(0x0062E130, this, a2);
 }
 
@@ -186,8 +279,7 @@ void PanelQuad::GetPos(float *a2, float *a3)
 
     assert(pmesh == nullptr);
 
-    for (auto i = 0u; i < 4u; ++i)
-    {
+    for (auto i = 0u; i < 4u; ++i) {
         auto *quad_section = this->pqs.at(0);
         auto &quad = quad_section->field_14;
         a2[i] = quad.field_0[i].pos.field_0;

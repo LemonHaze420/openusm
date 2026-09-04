@@ -2,6 +2,7 @@
 
 #include "als_basic_rule_data.h"
 #include "als_data.h"
+#include "als_filter_data.h"
 #include "als_transition_rule.h"
 #include "func_wrapper.h"
 #include "layer_state_machine_shared.h"
@@ -13,15 +14,44 @@
 #include "common.h"
 #include "mash_config.h"
 
-namespace als
-{
+namespace als {
     VALIDATE_SIZE(scripted_state, 0x54u);
     VALIDATE_SIZE(base_layer_scripted_state, 0x58u);
 
     scripted_state::scripted_state()
     {
+    if constexpr (1) {
+        static void *g_vtbl[] = {nullptr,
+                                 func_address(&_unmash),
+                                 nullptr,
+                                 func_address(&_get_virtual_type_enum),
+                                 nullptr,
+                                 func_address(&_is_or_is_subclass_of),
+                                 nullptr,
+                                 nullptr,
+                                 nullptr,
+                                 nullptr,
+                                 nullptr,
+                                 nullptr,
+                                 nullptr,
+                                 nullptr,
+                                 func_address(&_get_mash_sizeof)};
+
+        this->m_vtbl = CAST(m_vtbl, &g_vtbl);
+    } else {
         THISCALL(0x004ACA80, this);
     }
+}
+
+scripted_state::scripted_state(from_mash_in_place_constructor *a2)
+    : state(a2), field_14(a2), field_18(a2), field_28(a2), field_3C(a2)
+{
+    this->m_vtbl = 0x0087E1D8;
+
+    if (this->field_50 != nullptr) {
+        mash_info_struct::construct_class(this->field_50);
+    }
+}
 
     void scripted_state::_unmash(mash_info_struct *a1, void *a3)
     {
@@ -32,10 +62,10 @@ namespace als
         a1->unmash_class_in_place(this->field_14, this);
 
         a1->unmash_class_in_place(this->field_18, this);
-        a1->unmash_class_in_place(this->field_28, this);
-        a1->unmash_class_in_place(this->field_3C, this);
 
-        sp_log("%s %d", this->get_nal_anim_name().to_string(), this->field_18.size());
+    a1->unmash_class_in_place(this->field_28, this);
+
+    a1->unmash_class_in_place(this->field_3C, this);
 
 #if OPENUSM_XBOX_MASH_FORMAT && !defined(OPENUSM_XBPACK_V10)
         {
@@ -45,32 +75,31 @@ namespace als
         }
 #endif
 
-        if ( this->field_50 != nullptr )
-        {
-            a1->unmash_class(this->field_50, this
+    if (this->field_50 != nullptr) {
+        a1->unmash_class(this->field_50,
+                         this
 #if OPENUSM_XBOX_MASH_FORMAT
-                    , mash::NORMAL_BUFFER
+                         ,
+                         mash::NORMAL_BUFFER
 #endif
                     );
         }
     }
 
-    bool test_all_trans_groups(
-        request_data &a1,
-        const mVectorBasic<int> &a2,
-        scripted_trans_group::transition_type trans_type,
-        als_data a4,
-        string_hash a5)
+int scripted_state::_get_virtual_type_enum() const
+{
+    return 532;
+}
+
+bool test_all_trans_groups(request_data &a1, const mVectorBasic<int> &a2,
+                           scripted_trans_group::transition_type trans_type, als_data a4, string_hash a5)
     {
         TRACE("als::test_all_trans_groups");
 
         if constexpr (1) {
-            sp_log("%d", a2.size());
-
             auto begin = a2.m_data;
             auto end = begin + a2.size();
-            auto it = std::find_if(begin, end, [&](int v6)
-            {
+        auto it = std::find_if(begin, end, [&](int v6) {
                 auto *trans_group = a4.field_4->get_trans_group(v6);
                 return trans_group->check_transition(a1, trans_type, a4, a5);
             });
@@ -82,60 +111,42 @@ namespace als
         }
     }
 
-    int scripted_state::get_filter(
-        int out,
-        animation_logic_system *,
-        state_machine *,
-        int)
+int scripted_state::get_filter(int out, animation_logic_system *, state_machine *, int)
     {
         TRACE("als::scripted_state::get_filter");
 
         return out;
     }
 
-    request_data scripted_state::do_implicit_trans(
-        animation_logic_system *a4,
-        state_machine *a5)
+request_data scripted_state::do_implicit_trans(animation_logic_system *a4, state_machine *a5)
     {
         TRACE("als::scripted_state::do_implicit_trans");
 
-        if constexpr (1)
-        {
+    if constexpr (1) {
             std::for_each(this->field_28.begin(), this->field_28.end(), [](auto &the_rule){ 
-                printf("the_action = %d, %s\n", the_rule->field_0.field_14.the_action, the_rule->field_0.field_14.field_8.to_string());
+            printf("the_action = %d, %s\n",
+                   the_rule->field_0.field_14.the_action,
+                   the_rule->field_0.field_14.field_8.to_string());
             });
         }
 
-        sp_log("%s", this->get_nal_anim_name().to_string());
-     
         if constexpr (0) {
             request_data data {};
             als_data a2 {a4, a5};
             string_hash v14 {};
-            if ( !test_all_trans_groups(
-                    data,
-                    this->field_18,
-                    scripted_trans_group::IMPLICIT,
-                    a2,
-                    v14) )
-            {
+        if (!test_all_trans_groups(data, this->field_18, scripted_trans_group::IMPLICIT, a2, v14)) {
                 auto begin = this->field_28.m_data;
                 auto end = begin + this->field_28.size();
-                auto it = std::find_if(begin, end, [&a2](auto *trans_rule)
-                {
-                    return trans_rule->can_transition(a2);
-                });
+            auto it = std::find_if(begin, end, [&a2](auto *trans_rule) { return trans_rule->can_transition(a2); });
 
                 if (it != end) {
                     auto &trans_rule = (*it);
                     trans_rule->field_0.field_14.process_action(data);
-                    if ( trans_rule->field_0.has_post_action() )
-                    {
+                if (trans_rule->field_0.has_post_action()) {
                         data.field_10 = scripted_trans_group::IMPLICIT;
                         data.field_C = int(&trans_rule);
                     }
                 }
-
             }
 
             if ( auto v1 = (data.did_transition_occur || data.field_1); !v1 ) {
@@ -144,7 +155,6 @@ namespace als
                 } else {
                     data.field_3 = true;
                 }
-
             }
 
             return data;
@@ -152,20 +162,14 @@ namespace als
             request_data data;
             THISCALL(0x004A6F10, this, &data, a4, a5);
 
-            sp_log("did_transition_occur = %d, %d %d %d",
-                                data.did_transition_occur,
-                                data.field_1,
-                                data.field_2,
-                                data.field_3);
+        sp_log(
+            "did_transition_occur = %d, %d %d %d", data.did_transition_occur, data.field_1, data.field_2, data.field_3);
 
             return data;
         }
     }
 
-    void scripted_state::do_post_trans(
-            animation_logic_system *a1,
-            state_machine *a2,
-            transition_post_handle a4)
+void scripted_state::do_post_trans(animation_logic_system *a1, state_machine *a2, transition_post_handle a4)
     {
         TRACE("als::scripted_state::do_post_trans");
 
@@ -175,6 +179,11 @@ namespace als
         }
     }
 
+int scripted_state::_get_mash_sizeof() const
+{
+    return sizeof(scripted_state);
+}
+
     string_hash scripted_state::get_nal_anim_name() const
     {
         sp_log("0x%08X", m_vtbl);
@@ -183,8 +192,33 @@ namespace als
 
     base_layer_scripted_state::base_layer_scripted_state()
     {
+    if constexpr (1) {
+        static void *g_vtbl[] = {nullptr,
+                                 func_address(&_unmash),
+                                 nullptr,
+                                 func_address(&_get_virtual_type_enum),
+                                 nullptr,
+                                 func_address(&_is_or_is_subclass_of),
+                                 nullptr,
+                                 nullptr,
+                                 nullptr,
+                                 nullptr,
+                                 nullptr,
+                                 nullptr,
+                                 nullptr,
+                                 nullptr,
+                                 func_address(&_get_mash_sizeof)};
+
+        this->m_vtbl = CAST(m_vtbl, &g_vtbl);
+    } else {
         THISCALL(0x00444000, this);
     }
+}
+
+base_layer_scripted_state::base_layer_scripted_state(from_mash_in_place_constructor *a2) : scripted_state(a2)
+{
+    this->m_vtbl = 0x0087E214;
+}
 
     void base_layer_scripted_state::_unmash(mash_info_struct *a1, void *a3)
     {
@@ -193,12 +227,20 @@ namespace als
         scripted_state::_unmash(a1, a3);
     }
 
+int base_layer_scripted_state::_get_virtual_type_enum() const
+{
+    return 530;
 }
 
-als::request_data * __fastcall scripted_state__do_implicit_trans(
-    als::scripted_state *self, void *,
-    als::request_data *out,
-    als::animation_logic_system *a4,
+int base_layer_scripted_state::_get_mash_sizeof() const
+{
+    return sizeof(base_layer_scripted_state);
+}
+
+}  // namespace als
+
+als::request_data *__fastcall scripted_state__do_implicit_trans(als::scripted_state *self, void *,
+                                                                als::request_data *out, als::animation_logic_system *a4,
     als::state_machine *a5)
 {
     *out = self->do_implicit_trans(a4, a5);
@@ -218,8 +260,8 @@ als::scripted_state *__fastcall als_base_layer_scripted_state__constructor0(als:
     return self;
 }
 
-als::base_layer_scripted_state *__fastcall als_base_layer_scripted_state__constructor1(
-        als::base_layer_scripted_state *self, void *,
+als::base_layer_scripted_state *__fastcall
+als_base_layer_scripted_state__constructor1(als::base_layer_scripted_state *self, void *,
         from_mash_in_place_constructor *a2)
 {
     TRACE("als::base_layer_scripted_state::base_layer_scripted_state(from_mash_in_place_constructor *)");

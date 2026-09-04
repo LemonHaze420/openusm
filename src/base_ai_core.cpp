@@ -19,16 +19,19 @@ namespace ai {
 
 VALIDATE_SIZE(ai_core, 0x74u);
 
-ai_core::ai_core(core_ai_resource *a3, const param_block *arg4, actor *a4) {
+ai_core::ai_core(core_ai_resource *a3, const param_block *arg4, actor *a4)
+{
     THISCALL(0x006AEA90, this, a3, arg4, a4);
 }
 
-void sub_86AD60() {
+void sub_86AD60()
+{
     CDECL_CALL(0x0086AD60);
 }
 
-template<typename T>
-bool binary_search_array_deref(T *a1, T **a2, int a3, int *index) {
+template <typename T>
+bool binary_search_array_deref(T *a1, T **a2, int a3, int *index)
+{
     int v4 = a3;
     int v5 = 0;
     int v6 = a3;
@@ -75,8 +78,9 @@ bool binary_search_array_deref(T *a1, T **a2, int a3, int *index) {
     return true;
 }
 
-template<typename T>
-bool binary_search_array_deref1(T *a1, T **a2, int a3, int *index) {
+template <typename T>
+bool binary_search_array_deref1(T *a1, T **a2, int a3, int *index)
+{
     bool result = false;
     int v7 = 0;
     int v6 = a3;
@@ -109,32 +113,28 @@ bool binary_search_array_deref1(T *a1, T **a2, int a3, int *index) {
     return result;
 }
 
-bool ai_core::push_base_machine(resource_key a2, int )
+bool ai_core::push_base_machine(resource_key a2, int)
 {
     TRACE("ai::ai_core::push_base_machine");
 
     assert(my_base_machine != nullptr);
     assert(my_mode != AI_KILLING_MACHINES && "trying to push a new machine while a change is in progress");
 
-    resource_key name = ( this->my_mode == 1
-                    ? this->field_30
-                    : this->my_base_machine->get_name()
-                );
+    resource_key name = (this->my_mode == 1 ? this->field_30 : this->my_base_machine->get_name());
 
     bool result = false;
-    if ( this->change_base_machine(a2, 1, string_hash {0}) ) {
-        if constexpr (0) { 
+    if (this->change_base_machine(a2, 1, string_hash{0})) {
+        if constexpr (0) {
             this->field_0.push_back(name);
         } else {
             auto *m_head = this->field_0.m_head;
             auto *Prev = m_head->_Prev;
-            decltype(Prev) (__fastcall *sub_6B7660)(_std::list<resource_key> *, void *,
-                                                decltype(Prev),
-                                                decltype(Prev),
-                                                resource_key *a2) = CAST(sub_6B7660, 0x006B7660);
+            decltype(Prev)(__fastcall * sub_6B7660)(
+                _std::list<resource_key> *, void *, decltype(Prev), decltype(Prev), resource_key *a2) =
+                CAST(sub_6B7660, 0x006B7660);
             auto *v8 = sub_6B7660(&this->field_0, nullptr, Prev, Prev->_Next, &name);
 
-            void (__fastcall *sub_6B76F0)(_std::list<resource_key> *, void *, uint32_t) = CAST(sub_6B76F0, 0x006B76F0);
+            void(__fastcall * sub_6B76F0)(_std::list<resource_key> *, void *, uint32_t) = CAST(sub_6B76F0, 0x006B76F0);
             sub_6B76F0(&this->field_0, nullptr, 1u);
 
             Prev->_Next = v8;
@@ -144,16 +144,13 @@ bool ai_core::push_base_machine(resource_key a2, int )
         result = true;
     }
 
-    if ( result )
-    {
+    if (result) {
         auto *the_actor = this->get_actor(0);
         auto id = the_actor->get_id();
         auto *v17 = id.to_string();
         auto *v7 = a2.m_hash.to_string();
         debug_print_va("\n--- successful AI machine push to %s  (ent %s)", v7, v17);
-    }
-    else
-    {
+    } else {
         auto *v8 = this->get_actor(0);
         auto v10 = v8->get_id();
         auto *v17 = v10.to_string();
@@ -163,18 +160,17 @@ bool ai_core::push_base_machine(resource_key a2, int )
 
     {
         int v37 = 0;
-        for ( auto name : this->field_0 )
-        {
+        for (auto name : this->field_0) {
             auto *v13 = name.m_hash.to_string();
             debug_print_va("    [%d] %s", v37, v13);
             ++v37;
         }
     }
-    
+
     return result;
 }
 
-bool ai_core::pop_base_machine(int )
+bool ai_core::pop_base_machine(int)
 {
     TRACE("ai::ai_core::pop_base_machine");
 
@@ -182,15 +178,13 @@ bool ai_core::pop_base_machine(int )
 
     resource_key a2;
     bool result = false;
-    if ( !this->field_0.empty() )
-    { 
+    if (!this->field_0.empty()) {
         a2 = this->field_0.front();
 
         {
             auto *head = this->field_0.m_head;
             auto *Prev = head->_Prev;
-            if ( head->_Prev != head )
-            {
+            if (head->_Prev != head) {
                 Prev->_Next->_Prev = Prev->_Prev;
                 auto *v5 = Prev->_Prev;
                 auto *Next = Prev->_Next;
@@ -200,20 +194,17 @@ bool ai_core::pop_base_machine(int )
             }
         }
 
-        result = this->change_base_machine(a2, 2, string_hash {0});
+        result = this->change_base_machine(a2, 2, string_hash{0});
     }
 
-    if ( result )
-    {
+    if (result) {
         auto v21 = a2.m_hash;
         auto *v6 = this->get_actor(0);
         auto id = v6->get_id();
         auto *v18 = id.to_string();
         auto *v8 = v21.to_string();
         debug_print_va("\n--- successful AI machine pop to %s  (ent %s)", v8, v18);
-    }
-    else
-    {
+    } else {
         auto v21 = a2.m_hash;
         auto *v9 = this->get_actor(0);
         auto v11 = v9->get_id();
@@ -224,8 +215,7 @@ bool ai_core::pop_base_machine(int )
 
     {
         int a2 = 0;
-        for ( auto name : this->field_0 )
-        {
+        for (auto name : this->field_0) {
             auto v22 = name.m_hash;
             auto *v14 = v22.to_string();
             debug_print_va("    [%d] %s", a2, v14);
@@ -236,24 +226,20 @@ bool ai_core::pop_base_machine(int )
     return result;
 }
 
-bool ai_core::change_base_machine(
-        resource_key the_state_graph,
-        int a3,
-        string_hash a4)
+bool ai_core::change_base_machine(resource_key the_state_graph, int a3, string_hash a4)
 {
     TRACE("ai::ai_core::change_base_machine");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         if (the_state_graph.get_type() != RESOURCE_KEY_TYPE_AI_STATE_GRAPH) {
             return false;
         }
 
-        if ( !this->field_6C->does_base_graph_exist(the_state_graph) ) {
+        if (!this->field_6C->does_base_graph_exist(the_state_graph)) {
             return false;
         }
 
-        if ( this->find_state_graph(the_state_graph) == nullptr ) {
+        if (this->find_state_graph(the_state_graph) == nullptr) {
             return false;
         }
 
@@ -263,12 +249,13 @@ bool ai_core::change_base_machine(
 
         return true;
     } else {
-        bool (__fastcall *func)(void *, void *, resource_key, int, string_hash) = CAST(func, 0x006978F0);
+        bool(__fastcall * func)(void *, void *, resource_key, int, string_hash) = CAST(func, 0x006978F0);
         return func(this, nullptr, the_state_graph, a3, a4);
     }
 }
 
-void ai_core::create_capsule_alter() {
+void ai_core::create_capsule_alter()
+{
     if constexpr (1) {
         if (this->field_70 == nullptr) {
             this->field_70 = new capsule_alter_sys{this->field_64};
@@ -283,11 +270,13 @@ void ai_core::create_capsule_alter() {
     }
 }
 
-void ai_core::post_entity_mash() {
+void ai_core::post_entity_mash()
+{
     THISCALL(0x006A36E0, this);
 }
 
-void ai_core::frame_advance_all_core_ais(Float a2) {
+void ai_core::frame_advance_all_core_ais(Float a2)
+{
     TRACE("ai_core::frame_advance_all_core_ais");
 
     CDECL_CALL(0x006B4AD0, a2);
@@ -297,31 +286,34 @@ void ai_core::frame_advance(Float a2)
 {
     TRACE("ai_core::frame_advance");
 
-    if constexpr (0)
-    {}
-    else
-    {
+    if constexpr (0) {
+    } else {
         THISCALL(0x006B48A0, this, a2);
     }
 }
 
-bool ai_core::change_locomotion_machine(const string_hash &a2) {
-    return (bool) THISCALL(0x006A34A0, this, &a2);
+bool ai_core::change_locomotion_machine(const string_hash &a2)
+{
+    return (bool)THISCALL(0x006A34A0, this, &a2);
 }
 
-void ai_core::set_allow_facing(bool a2) {
+void ai_core::set_allow_facing(bool a2)
+{
     THISCALL(0x0068FC00, this, a2);
 }
 
-bool ai_core::stop_movement() {
-    return (bool) THISCALL(0x006A3590, this);
+bool ai_core::stop_movement()
+{
+    return (bool)THISCALL(0x006A3590, this);
 }
 
-void ai_core::do_machine_exit(ai_state_machine *a2) {
+void ai_core::do_machine_exit(ai_state_machine *a2)
+{
     THISCALL(0x0069B940, this, a2);
 }
 
-info_node *ai_core::get_info_node(string_hash the_info_node, bool a3) {
+info_node *ai_core::get_info_node(string_hash the_info_node, bool a3)
+{
     //sp_log("ai_core::get_info_node(): %s", string_hash_dictionary::lookup_string(a2));
 
     if (this->field_60 != nullptr) {
@@ -351,9 +343,7 @@ info_node *ai_core::get_info_node(string_hash the_info_node, bool a3) {
 }
 
 namespace state_graph_manager {
-state_graph *find_state_graph_from_resource(
-        resource_key resource_id,
-        resource_pack_slot *pack_slot)
+state_graph *find_state_graph_from_resource(resource_key resource_id, resource_pack_slot *pack_slot)
 {
     auto *__old_context = resource_manager::push_resource_context(pack_slot);
     resource_id.set_type(RESOURCE_KEY_TYPE_AI_STATE_GRAPH);
@@ -363,7 +353,7 @@ state_graph *find_state_graph_from_resource(
     assert(resource_manager::get_resource_context() == __old_context);
     return resource;
 }
-}
+}  // namespace state_graph_manager
 
 state_graph *ai_core::find_state_graph(resource_key a2)
 {
@@ -377,37 +367,31 @@ state_graph *ai_core::find_state_graph(resource_key a2)
 
 ai_state_machine *ai_core::find_machine(resource_key a2)
 {
-	TRACE("ai::ai_core::find_machine");
+    TRACE("ai::ai_core::find_machine");
 
-	if constexpr (1)
-	{
-		for ( auto &v3 : this->my_machine_list )
-		{
-			auto name = v3->get_name();
-			if ( name == a2 )
-			{
-				return v3;
-			}
+    if constexpr (1) {
+        for (auto &v3 : this->my_machine_list) {
+            auto name = v3->get_name();
+            if (name == a2) {
+                return v3;
+            }
+        }
 
-		}
-
-		return nullptr;
-	} else {
-		return (ai_state_machine *) THISCALL(0x0069B8F0, this, a2);
-	}
+        return nullptr;
+    } else {
+        return (ai_state_machine *)THISCALL(0x0069B8F0, this, a2);
+    }
 }
 
 int ai_core::can_spawn_state_machine(resource_key a2)
 {
     TRACE("ai::ai_core::can_spawn_state_machine");
 
-    return (int) THISCALL(0x0069E9B0, this, a2);
+    return (int)THISCALL(0x0069E9B0, this, a2);
 }
 
-void ai_core::spawn_state_machine_internal(ai_state_machine *a2,
-                                           resource_key graph_name,
-                                           ai_state_machine **base_machine_ptr,
-                                           string_hash a5)
+void ai_core::spawn_state_machine_internal(ai_state_machine *a2, resource_key graph_name,
+                                           ai_state_machine **base_machine_ptr, string_hash a5)
 {
     TRACE("ai::ai_core::spawn_state_machine_internal");
 
@@ -415,7 +399,7 @@ void ai_core::spawn_state_machine_internal(ai_state_machine *a2,
 
     auto *v6 = this->find_state_graph(graph_name);
     if (v6 != nullptr) {
-        if ( this->find_machine(graph_name) == nullptr ) {
+        if (this->find_machine(graph_name) == nullptr) {
             auto *mem = mem_alloc(sizeof(ai_state_machine));
 
             auto *new_state_machine = new (mem) ai_state_machine{this, v6, a5};
@@ -430,12 +414,12 @@ void ai_core::spawn_state_machine_internal(ai_state_machine *a2,
             auto *v10 = v9->_Prev;
             auto *v11 = &this->my_machine_list;
 
-            decltype(v9) (__fastcall *sub_5E3BE0)(void *, void *, void *a1, void *a2, ai_state_machine **a3) = CAST(sub_5E3BE0,
-                                                                                       0x005E3BE0);
+            decltype(v9)(__fastcall * sub_5E3BE0)(void *, void *, void *a1, void *a2, ai_state_machine **a3) =
+                CAST(sub_5E3BE0, 0x005E3BE0);
 
             auto *v12 = sub_5E3BE0(v11, nullptr, v9, v10, &new_state_machine);
 
-            void (__fastcall *sub_6B76F0)(void *, void *, unsigned int a2) = CAST(sub_6B76F0, 0x006B76F0);
+            void(__fastcall * sub_6B76F0)(void *, void *, unsigned int a2) = CAST(sub_6B76F0, 0x006B76F0);
 
             sub_6B76F0(v11, nullptr, 1u);
             v9->_Prev = v12;
@@ -450,12 +434,10 @@ void ai_core::advance_info_nodes(Float a2)
 
     if constexpr (0) {
         auto *v3 = this->field_60;
-        if ( v3 != nullptr )
-        {
-            for ( uint16_t i {0}; i < v3->m_size; ++i )
-            {
+        if (v3 != nullptr) {
+            for (uint16_t i{0}; i < v3->m_size; ++i) {
                 auto *v5 = v3->at(i);
-                if ( v5->does_need_advance() ) {
+                if (v5->does_need_advance()) {
                     v5->frame_advance(a2);
                 }
             }
@@ -472,7 +454,7 @@ void ai_core::advance_machine_recursive(ai_state_machine *a1, Float a2, bool a3)
     THISCALL(0x006AF100, this, a1, a2, a3);
 }
 
-} // namespace ai
+}  // namespace ai
 
 void ai_core_patch()
 {
@@ -481,10 +463,10 @@ void ai_core_patch()
         REDIRECT(0x006A34BA, address);
     }
 
-	{
-		FUNC_ADDRESS(address, &ai::ai_core::find_machine);
-		//SET_JUMP(0x0069B8F0, address);
-	}
+    {
+        FUNC_ADDRESS(address, &ai::ai_core::find_machine);
+        //SET_JUMP(0x0069B8F0, address);
+    }
 
     {
         FUNC_ADDRESS(address, &ai::ai_core::push_base_machine);

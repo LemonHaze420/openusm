@@ -10,7 +10,7 @@
 #include <cassert>
 #include <cmath>
 
-void compute_bounding_sphere_for_two_capsules(const capsule &cap0, const capsule &cap1, sphere *a3) 
+void compute_bounding_sphere_for_two_capsules(const capsule &cap0, const capsule &cap1, sphere *a3)
 {
     //sp_log("compute_bounding_sphere_for_two_capsules:");
 
@@ -33,12 +33,8 @@ void compute_bounding_sphere_for_two_capsules(const capsule &cap0, const capsule
     a3->radius = std::sqrt(max_dist2) + v20;
 }
 
-void merge_spheres(const vector3d &a1,
-                    Float radius_0,
-                    const vector3d &a3,
-                    Float radius_1,
-                    vector3d &center_result,
-                    float &radius_result)
+void merge_spheres(const vector3d &a1, Float radius_0, const vector3d &a3, Float radius_1, vector3d &center_result,
+                   float &radius_result)
 {
     TRACE("merge_spheres");
 
@@ -67,13 +63,8 @@ vector3d sub_5E2070(const vector3d &a2, const vector3d &a3, const vector3d &a4)
     return result;
 }
 
-void closest_point_line_segment_plane(
-        const vector3d &a1,
-        const vector3d &a2,
-        const vector3d &a3,
-        const vector3d &a4,
-        vector3d *line_result,
-        vector3d *plane_result)
+void closest_point_line_segment_plane(const vector3d &a1, const vector3d &a2, const vector3d &a3, const vector3d &a4,
+                                      vector3d *line_result, vector3d *plane_result)
 {
     TRACE("closest_point_line_segment_plane");
 
@@ -81,12 +72,10 @@ void closest_point_line_segment_plane(
 
     auto a1a = dot(a1 - a3, a4);
     auto a3a = dot(a2 - a3, a4);
-    if ( (a1a >= 0.0f || a3a >= 0.0f)
-        && (a1a <= 0.0f || a3a <= 0.0f) )
-    {
+    if ((a1a >= 0.0f || a3a >= 0.0f) && (a1a <= 0.0f || a3a <= 0.0f)) {
         auto v8 = a2 - a1;
         auto v9 = dot(v8, a4);
-        if ( std::abs(v9) <= EPSILON ) {
+        if (std::abs(v9) <= EPSILON) {
             *line_result = a1;
             *plane_result = sub_5E2070(a1, a3, a4);
         } else {
@@ -95,12 +84,9 @@ void closest_point_line_segment_plane(
             *plane_result = v14;
             *line_result = v14;
         }
-    }
-    else
-    {
+    } else {
         vector3d v8;
-        if ( std::abs(a3a) <= std::abs(a1a) )
-        {
+        if (std::abs(a3a) <= std::abs(a1a)) {
             *line_result = a2;
             v8 = sub_5E2070(a2, a3, a4);
         } else {
@@ -112,13 +98,8 @@ void closest_point_line_segment_plane(
     }
 }
 
-void closest_point_line_segment_line_segment(
-        const vector3d &a1,
-        const vector3d &a2,
-        const vector3d &a3,
-        const vector3d &a4,
-        float *a5,
-        float *a6)
+void closest_point_line_segment_line_segment(const vector3d &a1, const vector3d &a2, const vector3d &a3,
+                                             const vector3d &a4, float *a5, float *a6)
 {
     TRACE("closest_point_line_segment_line_segment");
 
@@ -132,27 +113,24 @@ void closest_point_line_segment_line_segment(
     auto v40 = dot(v28, v31);
     auto v41 = dot(v25, v31);
     auto v6 = v39 * v20 - v34 * v34;
-    if ( v6 < 0.000001f ) {
+    if (v6 < 0.000001f) {
         *a5 = 0.0;
         closest_point_line_segment_point(a3, a4, a1, *a6);
         return;
     }
 
-    if ( std::abs(v39) < 0.000001f )
-    {
+    if (std::abs(v39) < 0.000001f) {
         *a6 = 0.0;
         closest_point_line_segment_point(a1, a2, a3, *a5);
         return;
     }
 
-    if ( std::abs(v20) >= 0.000001f )
-    {
+    if (std::abs(v20) >= 0.000001f) {
         auto v23 = v41 * v34 - v40 * v39;
         auto v7 = v41 * v20 - v40 * v34;
-        if ( v7 <= 0.0f || v7 >= v6 || v23 <= 0.0f || v23 >= v6 )
-        {
-            float v42[4] {};
-            float v35[4] {};
+        if (v7 <= 0.0f || v7 >= v6 || v23 <= 0.0f || v23 >= v6) {
+            float v42[4]{};
+            float v35[4]{};
             v42[0] = 1.0;
             v42[1] = 0.0;
             v42[2] = (v34 - v40) / v20;
@@ -171,7 +149,7 @@ void closest_point_line_segment_line_segment(
             double v10 = 3.4028235e38;
             int best_k = -1;
 
-            for (int i {0}; i < 4; ++i) {
+            for (int i{0}; i < 4; ++i) {
                 auto v8 = v25 * v35[i];
                 auto v6 = v28 * v42[i];
                 auto v7 = v31 + v6;
@@ -186,16 +164,12 @@ void closest_point_line_segment_line_segment(
             assert(best_k != -1);
             *a5 = v42[best_k];
             *a6 = v35[best_k];
-        }
-        else
-        {
+        } else {
             auto v8 = 1.0f / v6;
             *a6 = v7 * v8;
             *a5 = v8 * v23;
         }
-    }
-    else
-    {
+    } else {
         *a5 = 0.0;
         closest_point_line_segment_point(a3, a4, a1, *a6);
     }
@@ -205,16 +179,12 @@ bool sub_5B8F40(const vector3d &a1, const vector3d &a2, const vector3d &a3, cons
 {
     assert(t != nullptr);
 
-    auto v5 = (a2[2] - a1[2]) * a4[2]
-            + (a2[1] - a1[1]) * a4[1]
-            + (a2[0] - a1[0]) * a4[0];
-    if ( fabs(v5) < EPSILON ) {
+    auto v5 = (a2[2] - a1[2]) * a4[2] + (a2[1] - a1[1]) * a4[1] + (a2[0] - a1[0]) * a4[0];
+    if (fabs(v5) < EPSILON) {
         return false;
     }
 
-    *t = ((a3[2] - a1[2]) * a4[2]
-        + (a3[1] - a1[1]) * a4[1]
-        + (a3[0] - a1[0]) * a4[0]) / v5;
+    *t = ((a3[2] - a1[2]) * a4[2] + (a3[1] - a1[1]) * a4[1] + (a3[0] - a1[0]) * a4[0]) / v5;
     return true;
 }
 

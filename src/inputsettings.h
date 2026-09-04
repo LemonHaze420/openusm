@@ -26,9 +26,8 @@ enum InputType {
 };
 
 struct InputSettings {
-
     struct internal_struct {
-        uint32_t m_size {};
+        uint32_t m_size{};
 
         struct {
             InputType m_input_type;
@@ -36,7 +35,8 @@ struct InputSettings {
             float field_8;
         } field_4[50][6];
 
-        internal_struct() {
+        internal_struct()
+        {
             std::memset(&this->field_4, 0, sizeof(field_4));
         }
 
@@ -77,10 +77,10 @@ struct InputSettings {
 
 extern void input_settings_patch();
 
-extern Var<InputSettings *> g_inputSettingsMenu;
-extern Var<InputSettings *> g_inputSettingsInGame;
-extern Var<InputSettings *> g_inputSettings2;
-extern Var<InputSettings *> g_inputSettings3;
-extern Var<InputSettings *> g_inputSettings4;
+extern InputSettings *&g_inputSettingsMenu;
+extern InputSettings *&g_inputSettingsInGame;
+extern InputSettings *&g_inputSettings2;
+extern InputSettings *&g_inputSettings3;
+extern InputSettings *&g_inputSettings4;
 
 extern void sub_5828B0();

@@ -18,4 +18,4 @@ struct carnage_combat_inode : combat_inode {
     //virtual
     void frame_advance(Float a2);
 };
-} // namespace ai
+}  // namespace ai

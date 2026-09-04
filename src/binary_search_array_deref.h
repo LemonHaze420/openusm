@@ -1,7 +1,8 @@
 #pragma once
 
-template<typename T>
-bool binary_search_array_deref(T *searcher, T **array, int a3, int *index) {
+template <typename T>
+bool binary_search_array_deref(T *searcher, T **array, int a3, int *index)
+{
     bool result = false;
     int v7 = 0;
     int v6 = a3;

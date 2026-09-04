@@ -15,17 +15,19 @@
 #include "trace.h"
 #include "traffic.h"
 #include "utility.h"
+#include "vtbl.h"
 #include "wds.h"
 
 namespace als {
 
 VALIDATE_SIZE(animation_logic_system, 0x80u);
 
-animation_logic_system::animation_logic_system(actor *a1) {
+animation_logic_system::animation_logic_system(actor *a1)
+{
     THISCALL(0x004ABB80, this, a1);
 }
 
-als_meta_anim_table_shared * animation_logic_system::get_meta_anim_table()
+als_meta_anim_table_shared *animation_logic_system::get_meta_anim_table()
 {
     return this->als_shared->field_18;
 }
@@ -33,15 +35,14 @@ als_meta_anim_table_shared * animation_logic_system::get_meta_anim_table()
 bool animation_logic_system::sub_49F2A0()
 {
     auto func = [](auto *v4) -> bool {
-        return ( v4->is_active() && v4->get_curr_state()->is_flag_set(static_cast<state_flags>(2u)) );
+        return (v4->is_active() && v4->get_curr_state()->is_flag_set(static_cast<state_flags>(2u)));
     };
 
     if (func(&this->field_18)) {
         return false;
     }
 
-    for ( auto &the_machine : this->field_8 )
-    {
+    for (auto &the_machine : this->field_8) {
         if (func(the_machine)) {
             return false;
         }
@@ -55,14 +56,16 @@ void animation_logic_system::change_mocomp()
     THISCALL(0x00498F30, this);
 }
 
-void animation_logic_system::enter_biped_physics() {
+void animation_logic_system::enter_biped_physics()
+{
     if constexpr (0) {
     } else {
         THISCALL(0x00498F70, this);
     }
 }
 
-void animation_logic_system::exit_biped_physics() {
+void animation_logic_system::exit_biped_physics()
+{
     auto *v2 = this->field_6C->physical_ifc();
     v2->stop_biped_physics(false);
 
@@ -80,7 +83,7 @@ void animation_logic_system::suspend_logic_system(bool a2)
 {
     TRACE("animation_logic_system::suspend_logic_system");
 
-    if ( this->field_7C && !a2 ) {
+    if (this->field_7C && !a2) {
         this->field_7D = true;
     }
 
@@ -98,26 +101,21 @@ void animation_logic_system::create_instance_data(animation_logic_system_shared 
         this->field_18.init(this->als_shared->field_14);
 
         auto &list = this->als_shared->field_0;
-        std::for_each(list.begin(), list.end(), [this](auto &machine_shared)
-        {
+        std::for_each(list.begin(), list.end(), [this](auto &machine_shared) {
             auto *mem = mem_alloc(sizeof(layer_state_machine));
-            auto *v11 = new (mem) layer_state_machine {};
+            auto *v11 = new (mem) layer_state_machine{};
             v11->init(machine_shared);
 
             if constexpr (1) {
                 auto m_first = this->field_8.m_first;
-                if ( m_first != nullptr && this->field_8.size() < this->field_8.capacity() )
-                {
+                if (m_first != nullptr && this->field_8.size() < this->field_8.capacity()) {
                     auto **m_last = this->field_8.m_last;
                     *m_last = v11;
                     this->field_8.m_last = m_last + 1;
-                }
-                else
-                {
-                    void (__fastcall *insert)(void *, void *edx,
-                            als::state_machine **,
-                            uint32_t,
-                            layer_state_machine **) = CAST(insert, 0x004B0A10);
+                } else {
+                    void(__fastcall *
+                         insert)(void *, void *edx, als::state_machine **, uint32_t, layer_state_machine **) =
+                        CAST(insert, 0x004B0A10);
                     insert(&this->field_8, nullptr, this->field_8.m_last, 1u, &v11);
                 }
             } else {
@@ -131,34 +129,47 @@ void animation_logic_system::create_instance_data(animation_logic_system_shared 
     }
 }
 
-base_state_machine *animation_logic_system::get_als_layer_internal(layer_types a2)
+void animation_logic_system::delete_instance_data()
 {
-    return (base_state_machine *) THISCALL(0x0049F300, this, a2);
+    for (auto &the_state_machine : this->field_8) {
+        if (the_state_machine != nullptr) {
+            void(__fastcall * finalize)(void *, void *, bool) =
+                CAST(finalize, get_vfunc(the_state_machine->m_vtbl, 0x60u));
+            finalize(the_state_machine, nullptr, true);
+        }
+    }
+
+    this->field_8.clear();
 }
 
-void animation_logic_system::transition_layer(
-        layer_types a2,
-        string_hash a3)
+base_state_machine *animation_logic_system::get_als_layer_internal(layer_types a2)
+{
+    return (base_state_machine *)THISCALL(0x0049F300, this, a2);
+}
+
+void animation_logic_system::transition_layer(layer_types a2, string_hash a3)
 {
     auto *the_layer = this->get_als_layer_internal(a2);
-    if ( the_layer != nullptr ) {
+    if (the_layer != nullptr) {
         the_layer->set_active(this, a3);
     }
 }
 
-state_machine *animation_logic_system::get_als_layer(layer_types a2) {
+state_machine *animation_logic_system::get_als_layer(layer_types a2)
+{
     return this->get_als_layer_internal(a2);
 }
 
 void animation_logic_system::reset_animation_player()
 {
     auto *the_controller = this->the_controller;
-    if ( the_controller != nullptr ) {
+    if (the_controller != nullptr) {
         the_controller->reset();
     }
 }
 
-bool animation_logic_system::frame_advance_should_do_frame_advance([[maybe_unused]] Float a2) {
+bool animation_logic_system::frame_advance_should_do_frame_advance([[maybe_unused]] Float a2)
+{
     TRACE("animation_logic_system::frame_advance_should_do_frame_advance");
 
     if (this->field_6C->has_time_ifc()) {
@@ -176,8 +187,7 @@ bool animation_logic_system::frame_advance_should_do_frame_advance([[maybe_unuse
     }
 
     auto *v4 = this->field_6C;
-    if (v4->is_flagged(0x40000000) ||
-        v4->is_in_limbo()) {
+    if (v4->is_flagged(0x40000000) || v4->is_in_limbo()) {
         return false;
     }
 
@@ -194,15 +204,12 @@ void animation_logic_system::frame_advance_post_logic_processing([[maybe_unused]
 
     if constexpr (0) {
         if (!this->field_7C) {
-            time_interface *time_ifc = nullptr;
-            if (this->field_6C->has_time_ifc()) {
-                time_ifc = this->field_6C->time_ifc();
-            }
+            [[maybe_unused]] time_interface *time_ifc =
+                (this->field_6C->has_time_ifc() ? this->field_6C->time_ifc() : nullptr);
 
             if (this->field_6C->has_physical_ifc() && this->field_18.did_do_transition()) {
-                if (!this->field_6C->physical_ifc()->is_biped_physics_running()
-                        || this->field_18.is_curr_state_biped_physics()) {
-
+                if (!this->field_6C->physical_ifc()->is_biped_physics_running() ||
+                    this->field_18.is_curr_state_biped_physics()) {
                     if (this->field_18.is_curr_state_biped_physics()) {
                         if (!this->field_6C->physical_ifc()->is_biped_physics_running()) {
                             this->enter_biped_physics();
@@ -219,8 +226,9 @@ void animation_logic_system::frame_advance_post_logic_processing([[maybe_unused]
     }
 }
 
-float animation_logic_system::convert_layer_id_to_priority(layer_types a2) {
-    float (__fastcall *func)(void *, void *, als::layer_types) = CAST(func, 0x0049F360);
+float animation_logic_system::convert_layer_id_to_priority(layer_types a2)
+{
+    float(__fastcall * func)(void *, void *, als::layer_types) = CAST(func, 0x0049F360);
     return func(this, nullptr, a2);
 }
 
@@ -230,25 +238,24 @@ void animation_logic_system::frame_advance_play_new_animations(Float a2)
 
     {
         state_machine *the_state_machine = &this->field_18;
-        sp_log("is_active = %d, did_do_transition = %d", the_state_machine->is_active(), the_state_machine->did_do_transition());
+        sp_log("is_active = %d, did_do_transition = %d",
+               the_state_machine->is_active(),
+               the_state_machine->did_do_transition());
     }
 
-    if constexpr (1)
-    {
-        if ( !this->field_7C )
-        {
-            if ( this->field_6C->has_time_ifc() ) {
+    if constexpr (1) {
+        if (!this->field_7C) {
+            if (this->field_6C->has_time_ifc()) {
                 this->field_6C->time_ifc();
             }
 
             auto func = [this](state_machine *the_state_machine, int i) {
-                if ( !the_state_machine->is_active() )
+                if (!the_state_machine->is_active())
                     return;
 
-                bool v19 = [](state_machine *the_state_machine, int i) -> bool { 
+                bool v19 = [](state_machine *the_state_machine, int i) -> bool {
                     if (!the_state_machine->did_do_transition()) {
-                        if (i != -1
-                            || the_state_machine->get_anim_handle().is_anim_active()) {
+                        if (i != -1 || the_state_machine->get_anim_handle().is_anim_active()) {
                             return false;
                         }
                     }
@@ -263,21 +270,11 @@ void animation_logic_system::frame_advance_play_new_animations(Float a2)
                     auto anim_name = curr_state->get_nal_anim_name();
 
                     animation_controller::anim_ctrl_handle v9{};
-                    if ( i == -1 )
-                    {
-                        float a4 = this->field_18.get_optional_pb_int(
-                                            anim_start_frame_hash,
-                                            0,
-                                            nullptr) / 30.0;
+                    if (i == -1) {
+                        float a4 = this->field_18.get_optional_pb_int(anim_start_frame_hash, 0, nullptr) / 30.0;
                         auto v18 = curr_state->field_C;
-                        v9 = this->the_controller->play_base_layer_anim(
-                                                                    anim_name,
-                                                                    a4,
-                                                                    v18,
-                                                                    true);
-                    }
-                    else
-                    {
+                        v9 = this->the_controller->play_base_layer_anim(anim_name, a4, v18, true);
+                    } else {
                         auto v10 = bit_cast<layer_state_machine *>(this->field_8[i])->get_domain_bitmask();
                         auto v11 = curr_state->field_C;
                         auto v19 = static_cast<als::layer_types>(the_state_machine->get_layer_id());
@@ -295,7 +292,7 @@ void animation_logic_system::frame_advance_play_new_animations(Float a2)
             auto *old_context = resource_manager::push_resource_context(this->field_6C->get_resource_context());
 
             func(&this->field_18, -1);
-            for ( auto i = 0u; i < this->field_8.size(); ++i ) {
+            for (auto i = 0u; i < this->field_8.size(); ++i) {
                 state_machine *the_state_machine = this->field_8[i];
                 func(the_state_machine, i);
             }
@@ -303,9 +300,7 @@ void animation_logic_system::frame_advance_play_new_animations(Float a2)
             resource_manager::pop_resource_context();
             assert(resource_manager::get_resource_context() == old_context);
         }
-    }
-    else
-    {
+    } else {
         THISCALL(0x004A6400, this, a2);
     }
 }
@@ -314,24 +309,19 @@ void animation_logic_system::frame_advance_update_pending_params(Float a2)
 {
     TRACE("animation_logic_system::frame_advance_update_pending_params");
 
-    if constexpr (0)
-    {
-        if ( !this->field_7C )
-        {
-            if ( this->field_6C->has_time_ifc() ) {
+    if constexpr (0) {
+        if (!this->field_7C) {
+            if (this->field_6C->has_time_ifc()) {
                 this->field_6C->time_ifc();
             }
 
             this->field_18.update_pending_params(this);
 
-            for ( auto &the_machine : this->field_8 )
-            {
+            for (auto &the_machine : this->field_8) {
                 the_machine->update_pending_params(this);
             }
         }
-    }
-    else
-    {
+    } else {
         THISCALL(0x004A65C0, this, a2);
     }
 }
@@ -345,16 +335,12 @@ void animation_logic_system::frame_advance_change_mocomp(Float a2)
 
 void animation_logic_system::frame_advance_run_mocomp_pre_anim(Float a2)
 {
-    if ( !this->field_7C )
-    {
+    if (!this->field_7C) {
         float v4;
-        if ( this->field_6C->has_time_ifc() )
-        {
+        if (this->field_6C->has_time_ifc()) {
             auto *v3 = this->field_6C->time_ifc();
             v4 = v3->sub_4ADE50() * a2;
-        }
-        else
-        {
+        } else {
             v4 = g_world_ptr->field_158.field_0 * a2;
         }
 
@@ -368,7 +354,7 @@ void animation_logic_system::frame_advance_controller(Float a2)
 
     if constexpr (1) {
         double v4;
-        if ( this->field_6C->has_time_ifc() ) {
+        if (this->field_6C->has_time_ifc()) {
             auto *v3 = this->field_6C->time_ifc();
             v4 = v3->sub_4ADE50();
         } else {
@@ -390,26 +376,20 @@ void animation_logic_system::frame_advance_post_controller(Float arg0)
 
     if constexpr (0) {
         double v4;
-        if ( this->field_6C->has_time_ifc() )
-        {
+        if (this->field_6C->has_time_ifc()) {
             auto *v3 = this->field_6C->time_ifc();
             v4 = v3->sub_4ADE50();
-        }
-        else
-        {
+        } else {
             v4 = g_world_ptr->field_158.field_0;
         }
 
         auto arg0a = v4 * arg0;
         resource_manager::push_resource_context(this->field_6C->get_resource_context());
-        if ( this->field_7C )
-        {
-            use_anim_only v6 {};
+        if (this->field_7C) {
+            use_anim_only v6{};
             v6.activate(this);
             v6.post_anim_action(arg0a);
-        }
-        else
-        {
+        } else {
             auto *v1 = this->field_74;
             v1->post_anim_action(arg0a);
         }
@@ -432,24 +412,21 @@ void animation_logic_system::frame_advance_main_als_advance(Float a2)
 {
     TRACE("animation_logic_system::frame_advance_main_als_advance");
 
-    if constexpr (0)
-    {
-        if ( !this->field_7C )
-        {
+    if constexpr (0) {
+        if (!this->field_7C) {
             this->field_7E = false;
-            if ( this->field_6C->has_time_ifc() ) {
+            if (this->field_6C->has_time_ifc()) {
                 this->field_6C->time_ifc();
             }
 
             sp_log("%d", this->field_8.size());
 
-            for ( int i = -1; i < this->field_8.size(); ++i )
-            {
+            for (int i = -1; i < this->field_8.size(); ++i) {
                 state_machine &the_machine = (i == -1 ? this->field_18 : *this->field_8[i]);
 
                 the_machine.process_requests(this);
 
-                if ( the_machine.did_do_transition() ) {
+                if (the_machine.did_do_transition()) {
                     this->field_7E = true;
                 }
             }
@@ -467,7 +444,7 @@ void animation_logic_system::frame_advance_on_layer_trans(Float a2)
 }
 
 
-} // namespace als
+}  // namespace als
 
 void animation_logic_system_patch()
 {
@@ -476,7 +453,7 @@ void animation_logic_system_patch()
         SET_JUMP(0x004931F0, address);
     }
 
-    
+
     {
         FUNC_ADDRESS(address, &als::animation_logic_system::create_instance_data);
         set_vfunc(0x0088146C, address);

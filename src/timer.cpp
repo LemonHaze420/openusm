@@ -10,7 +10,15 @@
 
 VALIDATE_SIZE(Timer, 0x58);
 
-Var<Timer *> g_timer{0x00965BF0};
+#if !STANDALONE_SYSTEM
+Timer *&g_timer = var<Timer *>(0x00965BF0);
+#else
+
+Timer *&g_timer = []() -> auto & {
+    static Timer g_timer1{};
+    return g_timer1;
+}();
+#endif
 
 Timer::Timer(Float a2, Float a3)
 {
@@ -40,7 +48,7 @@ Timer::Timer(Float a2, Float a3)
 
 float Timer::sub_5821D0()
 {
-    float (__fastcall *func)(void *) = CAST(func, 0x005821D0);
+    float(__fastcall * func)(void *) = CAST(func, 0x005821D0);
     auto time_inc = func(this);
 
     return time_inc;
@@ -66,9 +74,9 @@ void Timer::sub_582180()
     }
 }
 
-Timer * __fastcall Timer_constructor(Timer *self, void *, Float a2, Float a3)
+Timer *__fastcall Timer_constructor(Timer *self, void *, Float a2, Float a3)
 {
-    return new (self) Timer {a2, a3};
+    return new (self) Timer{a2, a3};
 }
 
 void Timer_patch()

@@ -25,6 +25,6 @@ struct pick_up_state : interaction_state {
     static const inline string_hash default_id{static_cast<int>(to_hash("pick_up"))};
 };
 
-} // namespace ai
+}  // namespace ai
 
 extern void pick_up_state_patch();

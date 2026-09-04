@@ -13,7 +13,7 @@
 struct collision_free_state;
 struct nalAnyPose;
 
-template<typename T>
+template <typename T>
 struct nalAnimClass;
 
 namespace ai {
@@ -41,6 +41,7 @@ struct lego_map_root_node;
 struct movement_info;
 struct nal_anim_controller;
 struct nalBaseSkeleton;
+struct web_interface;
 
 struct actor : entity {
     using base_type = vhandle_type<entity>;
@@ -64,7 +65,7 @@ struct actor : entity {
     base_ai_data *field_7C;
     interactable_interface *m_interactable_ifc;
     facial_expression_interface *m_facial_expression_interface;
-    int field_88;
+    web_interface *field_88;
     ai_player_controller *m_player_controller;
     mesh_buffers field_90;
     traffic_light_interface *m_traffic_light_interface;
@@ -87,7 +88,8 @@ struct actor : entity {
 
     void common_construct();
 
-    resource_pack_slot * get_resource_context() {
+    resource_pack_slot *get_resource_context()
+    {
         return this->m_resource_context;
     }
 
@@ -103,6 +105,8 @@ struct actor : entity {
 
     bool has_traffic_light_ifc();
 
+    void init_traffic_light_interface();
+
     traffic_light_interface *traffic_light_ifc();
 
     bool has_skeleton_ifc() const;
@@ -110,14 +114,21 @@ struct actor : entity {
     //virtual
     color32 _get_render_color() const;
 
+    //0x004B8D30
+    //virtual
+    void _set_render_alpha_mod(Float a2);
+
     //virtual
     float _get_render_alpha_mod() const;
 
-	//virtual
-	void set_render_scale(const vector3d &s);
+    //virtual
+    void set_render_scale(const vector3d &s);
 
-	//virtual
-	vector3d get_render_scale() const;
+    //virtual
+    vector3d get_render_scale() const;
+
+    //virtual
+    void ifl_play();
 
     //virtual
     void ifl_lock(int a2);
@@ -128,9 +139,7 @@ struct actor : entity {
     void allocate_anim_controller(unsigned int a2, nalBaseSkeleton *a3);
 
     //0x004CC470
-    nal_anim_controller *select_and_new_anim_controller(
-        nalBaseSkeleton *a2,
-        unsigned int a3);
+    nal_anim_controller *select_and_new_anim_controller(nalBaseSkeleton *a2, unsigned int a3);
 
     animation_controller::anim_ctrl_handle play_anim(const string_hash &a3);
 
@@ -145,25 +154,30 @@ struct actor : entity {
     //virtual
     void invalidate_frame_delta();
 
-    inline ai_player_controller *get_player_controller() {
+    inline ai_player_controller *get_player_controller()
+    {
         return this->m_player_controller;
     }
 
     //0x004D6B60
     void set_frame_delta_no_update(const po &a2, Float a3);
 
+    void set_allow_tunnelling_into_next_frame(bool a2);
+
     //0x004CC940
     bool get_allow_tunnelling_into_next_frame();
 
     //0x004D2100
     void *find_like_item(
-        vhandle_type<
-            item,
-            vhandle_type<actor, vhandle_type<entity, vhandle_type<signaller, entity_base_vhandle>>>>
-            a2);
+        vhandle_type<item, vhandle_type<actor, vhandle_type<entity, vhandle_type<signaller, entity_base_vhandle>>>> a2);
 
     //0x004E2670
     void create_damage_ifc();
+
+    void destroy_damage_ifc();
+
+    //0x004D6AA0
+    void create_web_ifc();
 
     //0x004F5720
     void common_destruct();
@@ -180,7 +194,7 @@ struct actor : entity {
     //0x004B8B40
     physical_interface *physical_ifc();
 
-	void create_adv_ptrs();
+    void create_adv_ptrs();
 
     //0x004C0E60
     bool has_camera_collision() const;
@@ -193,6 +207,8 @@ struct actor : entity {
 
     //0x004E26E0
     void create_physical_ifc();
+
+    void destroy_physical_ifc();
 
     //0x004FBD40
     //virtual
@@ -219,7 +235,7 @@ struct actor : entity {
     //virtual
     float get_colgeom_radius() const;
 
-    //0x0x004B8FC0
+    //0x004B8FC0
     //virtual
     bool is_frame_delta_valid() const;
 
@@ -246,7 +262,7 @@ struct actor : entity {
     vector3d get_colgeom_center() const;
 
     //virtual
-    void radius_changed(bool );
+    void radius_changed(bool);
 
     //0x004E33B0
     void _render(Float a2);
@@ -260,12 +276,12 @@ struct actor : entity {
     static void get_animations(actor *a1, std::list<nalAnimClass<nalAnyPose> *> &a2);
 };
 
-inline actor *& global_transfer_variable_the_actor = var<actor *>(0x0096C978);
+inline actor *&global_transfer_variable_the_actor = var<actor *>(0x0096C978);
 
 namespace ai {
 
 //0x0068A440
 extern void setup_hero_capsule(actor *act);
-} // namespace ai
+}  // namespace ai
 
 extern void actor_patch();

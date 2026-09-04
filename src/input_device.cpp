@@ -11,37 +11,38 @@ input_device::input_device()
     this->field_4 = INVALID_DEVICE_ID;
 }
 
-uint8_t input_device::normalize(int a1) {
+uint8_t input_device::normalize(int a1)
+{
     return a1;
 }
 
-bool input_device::is_connected() const {
-
+bool input_device::is_connected() const
+{
     return this->m_vtbl->is_connected(this);
 }
 
-int input_device::get_axis_id(int a1) {
-
+int input_device::get_axis_id(int a1)
+{
     return this->m_vtbl->get_axis_id(this, nullptr, a1);
 }
 
-float input_device::get_axis_delta(int a2, int a3) {
-
+float input_device::get_axis_delta(int a2, int a3)
+{
     return this->m_vtbl->get_axis_delta(this, nullptr, a2, a3);
 }
 
-void input_device::poll() {
-
+void input_device::poll()
+{
     return this->m_vtbl->poll(this);
 }
 
-float input_device::get_axis_old_state(int a2, int a3) {
-
+float input_device::get_axis_old_state(int a2, int a3)
+{
     return this->m_vtbl->get_axis_old_state(this, nullptr, a2, a3);
 }
 
-float input_device::get_axis_state(int a2, int a3) {
-
+float input_device::get_axis_state(int a2, int a3)
+{
     return this->m_vtbl->get_axis_state(this, nullptr, a2, a3);
 }
 

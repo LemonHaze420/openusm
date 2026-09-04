@@ -3,16 +3,16 @@
 #include "mvector.h"
 #include "mash_virtual_base.h"
 
-namespace als
-{
-    struct transition_group_base : mash_virtual_base
-    {
-        //virtual
-        void _unmash(mash_info_struct *, void *);
+namespace als {
+struct transition_group_base : mash_virtual_base {
+    transition_group_base();
 
-        int get_mash_sizeof() const;
-    };
+    //virtual
+    void _unmash(mash_info_struct *, void *);
 
-}
+    int get_mash_sizeof() const;
+};
+
+}  // namespace als
 
 extern void als_transition_group_base_patch();

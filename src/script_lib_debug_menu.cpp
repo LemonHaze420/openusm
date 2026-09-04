@@ -30,12 +30,10 @@ void init_script_debug_menu()
     }
 }
 
-void vm_debug_menu_entry_garbage_collection_callback(script_executable *,
-                                                    _std::list<uint32_t> &a2,
+void vm_debug_menu_entry_garbage_collection_callback(script_executable *, _std::list<uint32_t> &a2,
                                                     _std::list<mString> &)
 {
-    for ( auto &v2 : a2 )
-    {
+    for (auto &v2 : a2) {
         assert(script_menu != nullptr);
 
         auto *entry = bit_cast<debug_menu_entry *>(v2);
@@ -49,11 +47,11 @@ void construct_debug_menu_lib()
 {
     if ( vm_debug_menu_entry_garbage_collection_id == -1 ) {
 #ifdef OPENUSM_XBPACK_V10
-        vm_debug_menu_entry_garbage_collection_id = CDECL_CALL(
-            0x005AFE40,
-            vm_debug_menu_entry_garbage_collection_callback);
+        vm_debug_menu_entry_garbage_collection_id =
+            CDECL_CALL(0x005AFE40, vm_debug_menu_entry_garbage_collection_callback);
 #else
-        vm_debug_menu_entry_garbage_collection_id = script_manager::register_allocated_stuff_callback(vm_debug_menu_entry_garbage_collection_callback);
+        vm_debug_menu_entry_garbage_collection_id =
+            script_manager::register_allocated_stuff_callback(vm_debug_menu_entry_garbage_collection_callback);
 #endif
     }
 }
@@ -104,12 +102,12 @@ slf__create_debug_menu_entry__str__str__t::slf__create_debug_menu_entry__str__st
     m_vtbl->__cl = CAST(m_vtbl->__cl, address);
 }
 
-bool slf__create_debug_menu_entry__str__str__t::operator()(vm_stack &stack, [[maybe_unused]]script_library_class::function::entry_t entry) const
+bool slf__create_debug_menu_entry__str__str__t::operator()(
+    vm_stack &stack, [[maybe_unused]] script_library_class::function::entry_t entry) const
 {
     TRACE("slf__create_debug_menu_entry__str__str__t::operator()");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         SLF_PARMS;
 
         init_script_debug_menu();
@@ -138,9 +136,7 @@ bool slf__create_debug_menu_entry__str__str__t::operator()(vm_stack &stack, [[ma
 
         SLF_RETURN;
         SLF_DONE;
-    }
-    else
-    {
+    } else {
         bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00678210);
         return func(this, nullptr, &stack, entry);
     }

@@ -18,18 +18,15 @@ mic::mic(entity *a2, const string_hash &a3) : entity(a3, 0)
     this->field_74 = ZEROVEC;
 }
 
-void * mic::operator new(size_t size)
+void *mic::operator new(size_t size)
 {
     return mem_alloc(size);
 }
 
 void mic::frame_advance(Float a2)
 {
-    if constexpr (0)
-    {
-    }
-    else
-    {
+    if constexpr (0) {
+    } else {
         THISCALL(0x0051D9A0, this, a2);
     }
 }

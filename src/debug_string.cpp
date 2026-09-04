@@ -2,8 +2,8 @@
 
 fixed_vector<debug_string_t, 25> *debug_strings{nullptr};
 
-debug_string_t::debug_string_t(
-    bool a2, const vector3d &a3, color32 a4, float a5, const mString &a1, float a7) {
+debug_string_t::debug_string_t(bool a2, const vector3d &a3, color32 a4, float a5, const mString &a1, float a7)
+{
     this->field_0 = a2;
 
     this->field_4 = a1;
@@ -15,7 +15,7 @@ debug_string_t::debug_string_t(
 
 void add_3d_debug_str(const vector3d &arg0, color32 a2, Float a3, const mString &a1)
 {
-    if (debug_strings != nullptr && 1) { //SHOW_DEBUG_TEXT
+    if (debug_strings != nullptr && 1) {  //SHOW_DEBUG_TEXT
         debug_string_t *it = debug_strings->m_data;
         auto *end = &debug_strings->m_data[debug_strings->m_size];
         while (it != end) {

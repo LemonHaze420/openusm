@@ -27,5 +27,5 @@ struct light_manager {
 
     void remove_from_list();
 
-    static inline Var<light_manager *> active_light_managers {0x0095C900};
+    static inline Var<light_manager *> active_light_managers{0x0095C900};
 };

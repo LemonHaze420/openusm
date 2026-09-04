@@ -57,4 +57,4 @@ struct combat_inode : info_node {
     void left_air();
 };
 
-} // namespace ai
+}  // namespace ai

@@ -1,6 +1,13 @@
 #pragma once
 
 #include "mstring.h"
+#include "ngl.h"
+
+struct FEText;
+struct PanelAnimFile;
+struct PanelFile;
+struct PanelQuad;
+struct IDirect3DBaseTexture9;
 
 struct FEText;
 struct PanelAnimFile;
@@ -8,23 +15,65 @@ struct PanelFile;
 struct PanelQuad;
 
 struct fe_mission_text {
-    void *m_vtbl;
-    PanelFile *panel;
-    PanelQuad *back_1;
-    PanelQuad *back_2;
-    PanelQuad *detail;
-    PanelQuad *back_panel;
-    char field_18[0x84];
-    PanelQuad *gradient_text;
-    PanelQuad *gradient_hints;
-    PanelQuad *gradient_reward;
-    FEText *text;
-    PanelAnimFile *anim;
+    std::intptr_t m_vtbl;
+    union {
+        PanelFile *field_4;
+        PanelFile *panel;
+    };
+    union {
+        PanelQuad *field_8;
+        PanelQuad *back_1;
+    };
+    union {
+        PanelQuad *field_C;
+        PanelQuad *back_2;
+    };
+    union {
+        PanelQuad *field_10;
+        PanelQuad *detail;
+    };
+    union {
+        PanelQuad *field_14;
+        PanelQuad *back_panel;
+    };
+    IDirect3DBaseTexture9 *field_18;
+    nglTexture field_1C;
+    union {
+        PanelQuad *field_9C;
+        PanelQuad *gradient_text;
+    };
+    union {
+        PanelQuad *field_A0;
+        PanelQuad *gradient_hints;
+    };
+    union {
+        PanelQuad *field_A4;
+        PanelQuad *gradient_reward;
+    };
+    union {
+        FEText *field_A8;
+        FEText *text;
+    };
+    union {
+        PanelAnimFile *field_AC;
+        PanelAnimFile *anim;
+    };
     int field_B0;
-    bool shown;
-    bool positioned;
+    union {
+        bool field_B4;
+        bool shown;
+    };
+    union {
+        bool field_B5;
+        bool positioned;
+    };
+    bool field_B6;
 
+    //0x0060D0F0
     fe_mission_text();
+
+    //0x00643A80
+    void Init();
 
     void draw_v10();
 
@@ -42,6 +91,8 @@ struct fe_mission_text {
 
     //0x0061AA00
     void SetShown(bool a2);
+
+    static inline void *g_vtbl[]{nullptr};
 };
 
 extern void fe_mission_text_patch();

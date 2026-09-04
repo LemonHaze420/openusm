@@ -10,10 +10,10 @@ struct bounding_box {
 
     bounding_box();
 
-    vector3d size() {
+    vector3d size()
+    {
         if (std::equal_to<float>{}(this->field_0[0][0], 3.4028235e38) ||
-                std::equal_to<float>{}(this->field_0[1][0], -3.4028235e38))
-        {
+            std::equal_to<float>{}(this->field_0[1][0], -3.4028235e38)) {
             return ZEROVEC;
         }
 

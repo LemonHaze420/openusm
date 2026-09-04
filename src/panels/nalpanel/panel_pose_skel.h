@@ -1,6 +1,7 @@
 #pragma once
 
 #include <nalcomp/nal_pose_comp.h>
+#include <nalcomp/nal_anim_comp.h>
 
 namespace nalPanel {
 
@@ -11,23 +12,19 @@ struct nalPanelPose : nalComp::nalCompPose {
 };
 
 struct nalPanelSkeleton : nalComp::nalCompSkeleton {
-    struct vtbl {
-        void *field_0;
-        void *finalize;
-        void (nalPanelSkeleton::*Process)();
-        void *Release;
-        bool (nalPanelSkeleton::*CheckVersion)();
-    };
-
     int field_7C;
-    nalPanelPose *field_80;
+    nalPanelPose *m_theDefaultPose;
 
-    void Process();
+    nalPanelSkeleton();
 
-    bool CheckVersion() {
+    //virtual
+    void _Process();
+
+    bool _CheckVersion() const
+    {
         return this->Version == 0x300;
     }
 
-    static int vtbl_ptr;
+    static int &vtbl_ptr;
 };
-} // namespace nalPanel
+}  // namespace nalPanel

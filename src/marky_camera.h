@@ -18,7 +18,7 @@ struct marky_camera : game_camera {
     //0x0057D7F0
     marky_camera(const string_hash &a2);
 
-    void * operator new(size_t size);
+    void *operator new(size_t size);
 
     //0x00578080
     void set_affixed_x_facing(bool a2);

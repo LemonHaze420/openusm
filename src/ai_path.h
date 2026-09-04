@@ -51,8 +51,7 @@ struct ai_path {
     bool populate_quad_path_cell_route();
 
     //0x00489C70
-    void setup(
-        entity_base_vhandle a2, const vector3d &a3, const vector3d &a4, bool a5, Float a6);
+    void setup(entity_base_vhandle a2, const vector3d &a3, const vector3d &a4, bool a5, Float a6);
 
     //0x0048A420
     vector3d get_next_point();

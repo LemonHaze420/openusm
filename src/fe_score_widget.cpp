@@ -2,12 +2,10 @@
 
 #include "panelfile.h"
 
-fe_score_widget::fe_score_widget()
+fe_score_widget::fe_score_widget() {}
+
+void fe_score_widget::Init()
 {
-
-}
-
-void fe_score_widget::Init() {
     if (this->field_14 == nullptr) {
         this->field_14 = PanelFile::UnmashPanelFile("highscoretracking", static_cast<panel_layer>(7));
 
@@ -28,7 +26,8 @@ void fe_score_widget::Init() {
     }
 }
 
-void fe_score_widget::DeInit() {
+void fe_score_widget::DeInit()
+{
     if (this->field_14 != nullptr) {
         this->field_14 = nullptr;
     }

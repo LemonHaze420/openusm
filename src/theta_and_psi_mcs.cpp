@@ -11,10 +11,7 @@
 
 VALIDATE_SIZE(theta_and_psi_mcs, 0x1Cu);
 
-theta_and_psi_mcs::theta_and_psi_mcs(
-        entity *a2,
-        Float a3,
-        Float a4)
+theta_and_psi_mcs::theta_and_psi_mcs(entity *a2, Float a3, Float a4)
 {
     this->m_vtbl = 0x00888EB4;
     this->m_theta = a3;
@@ -24,14 +21,14 @@ theta_and_psi_mcs::theta_and_psi_mcs(
     this->m_ent = a2;
 }
 
-void * theta_and_psi_mcs::operator new(size_t size)
+void *theta_and_psi_mcs::operator new(size_t size)
 {
     return mem_alloc(size);
 }
 
-void theta_and_psi_mcs::reset_angles() {
-    if constexpr (1)
-    {
+void theta_and_psi_mcs::reset_angles()
+{
+    if constexpr (1) {
         auto &z_facing = this->m_ent->get_abs_po().get_z_facing();
 
         auto cross = vector3d::cross(z_facing, YVEC);
@@ -40,8 +37,7 @@ void theta_and_psi_mcs::reset_angles() {
         this->m_theta = std::atan2(cross[2], cross[0]);
 
         float v5;
-        if (this->m_psi >= -half_PI)
-        {
+        if (this->m_psi >= -half_PI) {
             if (this->m_psi <= half_PI) {
                 return;
             }
@@ -53,13 +49,12 @@ void theta_and_psi_mcs::reset_angles() {
 
         this->m_psi = v5 - this->m_psi;
         this->m_theta += PI;
-    }
-    else
-    {
+    } else {
         THISCALL(0x005196E0, this);
     }
 }
 
-void theta_and_psi_mcs::frame_advance(Float dt) {
+void theta_and_psi_mcs::frame_advance(Float dt)
+{
     THISCALL(0x0053B260, this, dt);
 }

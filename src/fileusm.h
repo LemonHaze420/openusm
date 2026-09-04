@@ -20,6 +20,6 @@ extern char *get_msg(FileUSM *a1, const char *a2);
 //0x0081C7C0
 extern FileUSM *create_usm_file(const char *a1, char *a2);
 
-extern Var<FileUSM *> g_fileUSM;
+extern FileUSM *&g_fileUSM;
 
 extern void FileUSM_patch();

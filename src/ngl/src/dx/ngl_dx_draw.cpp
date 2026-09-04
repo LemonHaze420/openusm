@@ -21,11 +21,8 @@ static Var<int> g_MinVertexIndex{0x009729B0};
 
 static Var<IDirect3DVertexBuffer9 *> dword_972964{0x00972964};
 
-HRESULT nglDrawIndexedPrimitive(D3DPRIMITIVETYPE PrimitiveType,
-                   IDirect3DIndexBuffer9 *a2,
-                   UINT startIndex,
-                   UINT NumIndices,
-                   UINT NumVertices)
+HRESULT nglDrawIndexedPrimitive(D3DPRIMITIVETYPE PrimitiveType, IDirect3DIndexBuffer9 *a2, UINT startIndex,
+                                UINT NumIndices, UINT NumVertices)
 {
     TRACE("nglDrawIndexedPrimitive");
 
@@ -34,7 +31,7 @@ HRESULT nglDrawIndexedPrimitive(D3DPRIMITIVETYPE PrimitiveType,
     static Var<IDirect3DIndexBuffer9 *> dword_972968{0x00972968};
 
     if (a2 != dword_972968()) {
-        g_Direct3DDevice()->lpVtbl->SetIndices(g_Direct3DDevice(), a2);
+        IDirect3DDevice9_SetIndices(g_Direct3DDevice, a2);
         dword_972968() = a2;
     }
 
@@ -59,13 +56,8 @@ HRESULT nglDrawIndexedPrimitive(D3DPRIMITIVETYPE PrimitiveType,
         primCount = 0;
         break;
     }
-    return g_Direct3DDevice()->lpVtbl->DrawIndexedPrimitive(g_Direct3DDevice(),
-                                                            PrimitiveType,
-                                                            0,
-                                                            g_MinVertexIndex(),
-                                                            NumVertices,
-                                                            startIndex,
-                                                            primCount);
+    return IDirect3DDevice9_DrawIndexedPrimitive(
+        g_Direct3DDevice, PrimitiveType, 0, g_MinVertexIndex(), NumVertices, startIndex, primCount);
 }
 
 HRESULT nglDrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, int a2, UINT a3)
@@ -94,45 +86,23 @@ HRESULT nglDrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, int a2, UINT a3)
         break;
     }
 
-    return g_Direct3DDevice()->lpVtbl->DrawPrimitive(g_Direct3DDevice(),
-                                                     PrimitiveType,
-                                                     a2 + g_MinVertexIndex(),
-                                                     v3);
+    return IDirect3DDevice9_DrawPrimitive(g_Direct3DDevice, PrimitiveType, a2 + g_MinVertexIndex(), v3);
 }
 
-void nglSetStreamSourceAndDrawPrimitive(
-        D3DPRIMITIVETYPE a1,
-        IDirect3DVertexBuffer9 *a2,
-        uint32_t numVertices,
-        uint32_t baseVertexIndex,
-        uint32_t stride,
-        IDirect3DIndexBuffer9 *a6,
-        uint32_t numIndices,
-        uint32_t startIndex)
+void nglSetStreamSourceAndDrawPrimitive(D3DPRIMITIVETYPE a1, IDirect3DVertexBuffer9 *a2, uint32_t numVertices,
+                                        uint32_t baseVertexIndex, uint32_t stride, IDirect3DIndexBuffer9 *a6,
+                                        uint32_t numIndices, uint32_t startIndex)
 {
-    if constexpr (0)
-    {
-        g_Direct3DDevice()->lpVtbl->SetStreamSource(g_Direct3DDevice(), 0, a2, 0, stride);
+    if constexpr (0) {
+        IDirect3DDevice9_SetStreamSource(g_Direct3DDevice, 0, a2, 0, stride);
         dword_972964() = a2;
-        if ( numIndices != 0 && a6 )
-        {
+        if (numIndices != 0 && a6) {
             nglDrawIndexedPrimitive(a1, a6, startIndex, numIndices, numVertices);
-        }
-        else
-        {
+        } else {
             nglDrawPrimitive(a1, baseVertexIndex, numVertices);
         }
-    }
-    else
-    {
-        CDECL_CALL(0x00771460,
-                a1, a2,
-                numVertices,
-                baseVertexIndex,
-                stride,
-                a6,
-                numIndices,
-                startIndex);
+    } else {
+        CDECL_CALL(0x00771460, a1, a2, numVertices, baseVertexIndex, stride, a6, numIndices, startIndex);
     }
 }
 
@@ -141,21 +111,27 @@ HRESULT nglSetStreamSourceAndDrawPrimitive(nglMeshSection *MeshSection)
 {   
     uint32_t stride = MeshSection->m_stride;
     g_MinVertexIndex() = MeshSection->field_4C / stride;
-    g_Direct3DDevice()->lpVtbl->SetStreamSource(g_Direct3DDevice(), 0, MeshSection->field_3C.m_vertexBuffer, 0, stride);
-    dword_972964() = MeshSection->field_3C.m_vertexBuffer;
+    auto *vertexBuffer = MeshSection->field_3C.getVertexBuffer();
+    g_Direct3DDevice()->lpVtbl->SetStreamSource(g_Direct3DDevice(), 0, vertexBuffer, 0, stride);
+    dword_972964() = vertexBuffer;
 
-    if (MeshSection->NIndices != 0)
-        return nglDrawIndexedPrimitive(MeshSection->m_primitiveType,
+    HRESULT result;
+
+    auto numIndices = MeshSection->NIndices;
+    if (numIndices != 0) {
+        result = nglDrawIndexedPrimitive(MeshSection->m_primitiveType,
             MeshSection->m_indexBuffer,
             MeshSection->StartIndex,
             MeshSection->NIndices,
             MeshSection->NVertices);
-    else
-        return nglDrawPrimitive(MeshSection->m_primitiveType, 0, MeshSection->NVertices);
+    } else {
+        result = nglDrawPrimitive(MeshSection->m_primitiveType, 0, MeshSection->NVertices);
+    }
+
+    return result;
 }
 
 void SetRenderTarget(nglTexture *Tex, nglTexture *a2, int a3, int a4)
 {
     CDECL_CALL(0x00771970, Tex, a2, a3, a4);
 }
-

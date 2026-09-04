@@ -12,7 +12,6 @@ struct token_def;
 struct token_def_list;
 
 struct wds_token_manager {
-
     struct active_token {
         token_def *field_0;
         vhandle_type<entity> field_4;
@@ -41,10 +40,8 @@ struct wds_token_manager {
 
     void unregister_region(region *reg);
 
-    _std::list<wds_token_manager::active_token>::iterator remove_active_token(
-        _std::list<wds_token_manager::active_token>::iterator a3,
-        bool a4,
-        bool a5);
+    _std::list<wds_token_manager::active_token>::iterator
+    remove_active_token(_std::list<wds_token_manager::active_token>::iterator a3, bool a4, bool a5);
 
     void sub_54C0C0();
 };

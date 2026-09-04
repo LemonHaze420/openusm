@@ -9,10 +9,7 @@
 
 VALIDATE_SIZE(rigid_body_constraint_distance, 0x5C);
 
-void rigid_body_constraint_distance::set(phys_vector3d const &a2,
-        phys_vector3d const &a3,
-        Float a4,
-        Float a5)
+void rigid_body_constraint_distance::set(phys_vector3d const &a2, phys_vector3d const &a3, Float a4, Float a5)
 {
     THISCALL(0x007A3390, this, &a2, &a3, a4, a5);
 }
@@ -25,8 +22,7 @@ void rigid_body_constraint_distance::outer_epilog_update(const outer_time &)
 void rigid_body_constraint_distance::outer_prolog_update(const outer_time &a2)
 {
     auto *v2 = this->b1;
-    if ( this->b1 == nullptr || (v2->field_144 & 0x10) != 0 )
-    {
+    if (this->b1 == nullptr || (v2->field_144 & 0x10) != 0) {
         v2 = this->b2;
     }
 

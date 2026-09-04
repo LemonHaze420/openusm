@@ -13,39 +13,35 @@ void nglGenMipmaps(nglTexture *Tex)
 {
     assert(Tex->m_format & NGLTEX_RENDER_TARGET && "NGL: Cannot generate mipmap for non-render-target texture.");
 
-    assert(tlIsPow2(Tex->m_width) && tlIsPow2(Tex->m_height) && "NGL: Cannot generate mipmaps for a non power of 2 texture !");
+    assert(tlIsPow2(Tex->m_width) && tlIsPow2(Tex->m_height) &&
+           "NGL: Cannot generate mipmaps for a non power of 2 texture !");
 
     assert(Tex->m_format & NGLTEX_SWIZZLED && "NGL: Linear textures don't support mipmaps.");
 
-    if ( Tex->m_numLevel > 1 && (Tex->m_format & NGLTEX_RENDER_TARGET) != 0 )
-    {
+    if (Tex->m_numLevel > 1 && (Tex->m_format & NGLTEX_RENDER_TARGET) != 0) {
         g_renderState().setCullingMode(D3DCULL_NONE);
 
         g_renderState().setBlending(NGLBM_OPAQUE, 0, 0);
         nglDxSetTexture(0, Tex, 2u, 3);
         nglSetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
         nglSetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
-        if ( EnableShader() )
-        {
+        if (EnableShader) {
             nglSetVertexDeclarationAndShader(&stru_975788());
             SetPixelShader(&dword_9757DC());
-        }
-        else
-        {
+        } else {
             nglSetTextureStageState(0, D3DTSS_COLOROP, 2u);
             nglSetTextureStageState(0, D3DTSS_COLORARG1, 2u);
             nglSetTextureStageState(0, D3DTSS_ALPHAOP, 2u);
             nglSetTextureStageState(0, D3DTSS_ALPHAARG1, 2u);
             nglSetTextureStageState(1u, D3DTSS_COLOROP, 1u);
             nglSetTextureStageState(1u, D3DTSS_ALPHAOP, 1u);
-            g_Direct3DDevice()->lpVtbl->SetTransform(
-                g_Direct3DDevice(),
-                (D3DTRANSFORMSTATETYPE)256,
-                bit_cast<const D3DMATRIX *>(&nglCurScene()->field_24C));
-            g_Direct3DDevice()->lpVtbl->SetVertexDeclaration(g_Direct3DDevice(), dword_9738E0()[25]);
+            IDirect3DDevice9_SetTransform(g_Direct3DDevice,
+                                          static_cast<D3DTRANSFORMSTATETYPE>(256),
+                                          bit_cast<const D3DMATRIX *>(&nglCurScene->field_24C));
+            IDirect3DDevice9_SetVertexDeclaration(g_Direct3DDevice, dword_9738E0[25]);
         }
 
-        float v2[20] {};
+        float v2[20]{};
         v2[8] = stru_946840[0];
         v2[13] = 0.0;
         v2[18] = stru_946840[0];
@@ -65,12 +61,10 @@ void nglGenMipmaps(nglTexture *Tex)
         v2[15] = 1.0;
         v2[16] = -1.0;
         nglSetSamplerState(0, D3DSAMP_MIPFILTER, 0);
-        if ( Tex->m_numLevel > 1 )
-        {
-            for ( uint32_t i = 1; i < Tex->m_numLevel; ++i)
-            {
+        if (Tex->m_numLevel > 1) {
+            for (uint32_t i = 1; i < Tex->m_numLevel; ++i) {
                 SetRenderTarget(Tex, nullptr, i, 6);
-                g_Direct3DDevice()->lpVtbl->DrawPrimitiveUP(g_Direct3DDevice(), D3DPT_TRIANGLESTRIP, 2, v2, 20);
+                IDirect3DDevice9_DrawPrimitiveUP(g_Direct3DDevice, D3DPT_TRIANGLESTRIP, 2, v2, 20);
             }
         }
 

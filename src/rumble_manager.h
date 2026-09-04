@@ -40,6 +40,8 @@ struct rumble_manager {
 
     rumble_manager();
 
+    ~rumble_manager() = default;
+
     //0x005BA4E0
     void stop_vibration();
 

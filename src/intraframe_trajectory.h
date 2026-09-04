@@ -47,17 +47,9 @@ struct intraframe_trajectory_t {
 
     intraframe_trajectory_t();
 
-    intraframe_trajectory_t(
-        actor *a2,
-        Float a3,
-        const po &a4,
-        dynamic_conglomerate_clone *a5);
+    intraframe_trajectory_t(actor *a2, Float a3, const po &a4, dynamic_conglomerate_clone *a5);
 
-    void init(
-        entity *a2,
-        Float a3,
-        const po &a4,
-        dynamic_conglomerate_clone *a5);
+    void init(entity *a2, Float a3, const po &a4, dynamic_conglomerate_clone *a5);
 
     //0x0053BB20
     void init_capsules();

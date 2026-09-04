@@ -18,6 +18,7 @@
 #include "terrain.h"
 #include "trace.h"
 #include "utility.h"
+#include "variables.h"
 #include "vtbl.h"
 #include "wds.h"
 
@@ -27,11 +28,50 @@ VALIDATE_SIZE(fe_mini_map_widget, 0x3B8u);
 
 fe_mini_map_widget::fe_mini_map_widget()
 {
-    if constexpr (0)
-    {
-    }
-    else
-    {
+    if constexpr (1) {
+#if STANDALONE_SYSTEM
+        if constexpr (1)
+#else
+        if constexpr (0)
+#endif
+        {
+            this->m_vtbl = CAST(m_vtbl, &g_vtbl);
+        } else {
+            this->m_vtbl = 0x00895A00;
+        }
+
+        this->field_3B0 = 0;
+        this->mini_map_icons = nullptr;
+        this->map_icon_others = nullptr;
+        this->map_icon_spidey = nullptr;
+        this->minimap_ring = nullptr;
+        this->mini_map_frame = nullptr;
+        this->map_frame_black = nullptr;
+        this->map_frame_white = nullptr;
+        this->map_frame_white_stub = nullptr;
+        this->compass_base = nullptr;
+        this->compass_arrow = nullptr;
+        this->map_frame_map_placeholder = nullptr;
+
+        for (int i = 0; i < 12; ++i) {
+            this->field_4[i].m_blend_mode = NGLBM_BLEND;
+            this->field_4[i].field_28 = 194;
+            this->field_4[i].m_texture = nullptr;
+        }
+
+        this->field_3AC = 3.4028235e38;
+
+        int *v4 = static_cast<int *>(operator new(0x68u));
+        if (v4 != nullptr) {
+            v4[12] = 0;
+            v4[25] = 0;
+        } else {
+            v4 = nullptr;
+        }
+
+        this->field_3A4 = v4;
+        this->field_3A8 = true;
+    } else {
         THISCALL(0x006343C0, this);
     }
 }
@@ -43,18 +83,16 @@ fe_mini_map_widget::~fe_mini_map_widget()
     operator delete(this->field_3A4);
     this->field_3A4 = nullptr;
 
-    for ( auto &mat : this->field_4 )
-    {
+    for (auto &mat : this->field_4) {
         mat.m_texture = nullptr;
     }
 }
 
-void fe_mini_map_widget::Init()
+void fe_mini_map_widget::_Init()
 {
     TRACE("fe_mini_map_widget::Init");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         assert(mini_map_icons == nullptr);
 
         this->mini_map_icons = PanelFile::UnmashPanelFile("mini_map_items", static_cast<panel_layer>(7));
@@ -74,8 +112,7 @@ void fe_mini_map_widget::Init()
             this->map_frame_white_stub = this->mini_map_frame->GetPQ("map_frame_white_stub");
             this->compass_base = this->mini_map_frame->GetPQ("compass_base");
             this->compass_arrow = this->mini_map_frame->GetPQ("compass_arrow");
-            this->map_frame_map_placeholder = this->mini_map_frame->GetPQ(
-                "map_frame_map_placeholder");
+            this->map_frame_map_placeholder = this->mini_map_frame->GetPQ("map_frame_map_placeholder");
             this->field_3A0 = this->mini_map_frame->GetAnimationPointer(0);
         }
     } else {
@@ -83,13 +120,18 @@ void fe_mini_map_widget::Init()
     }
 }
 
+void fe_mini_map_widget::Init()
+{
+    void(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x4));
+    func(this);
+}
+
 void fe_mini_map_widget::PrepareRegions()
 {
     TRACE("fe_mini_map_widget::PrepareRegions");
 
-    if constexpr (0)
-    {
-        for (auto &mat : this->field_4 ) {
+    if constexpr (0) {
+        for (auto &mat : this->field_4) {
             mat.m_texture = nullptr;
         }
 
@@ -98,35 +140,29 @@ void fe_mini_map_widget::PrepareRegions()
         auto abs_pos = hero_or_marky_cam_ptr->get_abs_position();
         auto *outermost_region = g_world_ptr->the_terrain->find_outermost_region(abs_pos);
 
-        region_array v18 {};
+        region_array v18{};
         build_region_list_radius(&v18, outermost_region, abs_pos, 500.0f, true);
 
         int v14 = 0;
-        for (int i = 0; i < v18.count; ++i)
-        {
+        for (int i = 0; i < v18.count; ++i) {
             auto *reg = v18[i];
-            if ( reg != nullptr )
-            {
-                if ( reg->is_loaded() && !reg->is_interior() )
-                {
+            if (reg != nullptr) {
+                if (reg->is_loaded() && !reg->is_interior()) {
                     auto scene_id = reg->get_scene_id(1);
                     auto key = create_resource_key_from_path(scene_id.c_str(), RESOURCE_KEY_TYPE_PACK);
                     auto *dir = resource_manager::get_resource_directory(key);
-                    if ( dir != nullptr )
-                    {
+                    if (dir != nullptr) {
                         auto v13 = reg->get_scene_id(0);
-                        tlFixedString v17 {v13.c_str()};
-                        this->field_4[v14].m_texture = bit_cast<nglTexture *>(dir->get_tlresource(v17,
-                                                  TLRESOURCE_TYPE_TEXTURE));
+                        tlFixedString v17{v13.c_str()};
+                        this->field_4[v14].m_texture =
+                            bit_cast<nglTexture *>(dir->get_tlresource(v17, TLRESOURCE_TYPE_TEXTURE));
                         reg->get_region_extents(&this->field_244[v14], &this->field_2D4[v14]);
                         ++v14;
                     }
                 }
             }
         }
-    }
-    else
-    {
+    } else {
         THISCALL(0x00619690, this);
     }
 }
@@ -135,28 +171,21 @@ void fe_mini_map_widget::RenderMeshes(matrix4x4 *a2, float &a4)
 {
     TRACE("fe_mini_map_widget::RenderMeshes");
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         uint32_t v5 = 0;
-        for ( int i = 0; i < 12; ++i )
-        {
-            if ( this->field_4[i].m_texture != nullptr ) {
+        for (int i = 0; i < 12; ++i) {
+            if (this->field_4[i].m_texture != nullptr) {
                 ++v5;
             }
         }
 
         nglMesh *mesh = nullptr;
-        if ( v5 != 0 )
-        {
+        if (v5 != 0) {
             nglCreateMesh(0x40000u, v5, 0, nullptr);
             auto *v8 = this->field_4;
-            for (int i = 0; i < 12; ++i)
-            {
-                if ( this->field_4[i].m_texture != nullptr )
-                {
-                    nglMaterialBase *v10 = ( v8 != nullptr
-                                                ? bit_cast<nglMaterialBase *>(&v8->field_4)
-                                                : nullptr );
+            for (int i = 0; i < 12; ++i) {
+                if (this->field_4[i].m_texture != nullptr) {
+                    nglMaterialBase *v10 = (v8 != nullptr ? bit_cast<nglMaterialBase *>(&v8->field_4) : nullptr);
 
                     auto *v11 = sub_507920(v10, 4, 1, 0, nullptr, D3DPT_TRIANGLESTRIP, true);
                     auto iter = v11->CreateIterator();
@@ -164,26 +193,26 @@ void fe_mini_map_widget::RenderMeshes(matrix4x4 *a2, float &a4)
 
                     auto *v14 = g_world_ptr->get_hero_or_marky_cam_ptr();
 
-                    vector3d v47[3] {};
+                    vector3d v47[3]{};
                     v47[2] = v14->get_abs_position();
                     v47[1] = this->field_244[i] - v47[2];
                     v47[0] = this->field_2D4[i] - v47[2];
 
-                    iter.Write(v47[1], -1, vector2d {1.0, 1.0});
+                    iter.Write(v47[1], -1, vector2d{1.0, 1.0});
                     ++iter;
 
-                    iter.Write(v47[1], -1, vector2d {1.0, 0.0});
+                    iter.Write(v47[1], -1, vector2d{1.0, 0.0});
                     ++iter;
 
-                    iter.Write(v47[0], -1, vector2d {0.0, 1.0});
+                    iter.Write(v47[0], -1, vector2d{0.0, 1.0});
                     ++iter;
 
-                    iter.Write(v47[0], -1, vector2d {0.0, 0.0});
+                    iter.Write(v47[0], -1, vector2d{0.0, 0.0});
                     ++iter;
 
                     auto *v36 = iter.field_4->field_4;
-                    if ( (v36->Flags & 0x40000) == 0 ) {
-                        v36->field_3C.m_vertexBuffer->lpVtbl->Unlock(v36->field_3C.m_vertexBuffer);
+                    if ((v36->Flags & 0x40000) == 0) {
+                        IDirect3DVertexBuffer9_Unlock(v36->field_3C.getVertexBuffer());
                     }
                 }
             }
@@ -198,8 +227,8 @@ void fe_mini_map_widget::RenderMeshes(matrix4x4 *a2, float &a4)
 
         auto v68 = -dot(z_facing, YVEC);
         float v41 = 0.0;
-        vector3d v74 {z_facing[0], 0.0, z_facing[2]};
-        if ( std::abs(v74[0]) > 0.0f && std::abs(v74[2]) > 0.0f ) {
+        vector3d v74{z_facing[0], 0.0, z_facing[2]};
+        if (std::abs(v74[0]) > 0.0f && std::abs(v74[2]) > 0.0f) {
             v41 = (dot(z_facing, v74) + 1.0f) * 0.5f;
         }
 
@@ -212,7 +241,7 @@ void fe_mini_map_widget::RenderMeshes(matrix4x4 *a2, float &a4)
         auto CenterX = this->compass_base->GetCenterX();
         this->compass_arrow->Rotate(CenterX, CenterY, v69 + 3.1415927, true);
 
-        matrix4x4 v81 {};
+        matrix4x4 v81{};
         v81.make_rotate(YVEC, v69);
         auto *v55 = g_world_ptr->get_chase_cam_ptr(0);
 
@@ -221,49 +250,41 @@ void fe_mini_map_widget::RenderMeshes(matrix4x4 *a2, float &a4)
         auto v70 = v56;
         auto v63 = std::abs(v56);
         float v57 = sub_4ADC40(v63);
-        if ( v70 < 0.0f ) {
+        if (v70 < 0.0f) {
             v57 = -v57;
         }
 
         a4 = (3.1415927 / 2.0) - v57;
-        if ( a4 >= (3.1415927 / 4.0) )
-        {
-            if ( a4 > (3.1415927 / 2.0) ) {
+        if (a4 >= (3.1415927 / 4.0)) {
+            if (a4 > (3.1415927 / 2.0)) {
                 a4 = (3.1415927 / 2.0);
             }
-        }
-        else
-        {
+        } else {
             a4 = 3.1415927 / 4.0;
         }
 
         float v64 = -a4;
 
-        matrix4x4 a3 {};
+        matrix4x4 a3{};
         a3.make_rotate(XVEC, v64);
-        float MINI_MAP_ZOOM = os_developer_options::instance->get_int(mString {"MINI_MAP_ZOOM"}); 
-        if ( MINI_MAP_ZOOM >= 50.0f )
-        {
-            if ( MINI_MAP_ZOOM > 1000.0f ) {
+        float MINI_MAP_ZOOM = os_developer_options::instance->get_int(mString{"MINI_MAP_ZOOM"});
+        if (MINI_MAP_ZOOM >= 50.0f) {
+            if (MINI_MAP_ZOOM > 1000.0f) {
                 MINI_MAP_ZOOM = 1000.0f;
             }
-        }
-        else
-        {
+        } else {
             MINI_MAP_ZOOM = 50.0f;
         }
 
-        matrix4x4 v83 {};
-        v83.make_translate(vector3d {0, 0, MINI_MAP_ZOOM});
+        matrix4x4 v83{};
+        v83.make_translate(vector3d{0, 0, MINI_MAP_ZOOM});
         auto v60 = v81 * a3;
         matrix4x4 a2 = v60 * v83;
-        if ( mesh != nullptr) {
+        if (mesh != nullptr) {
             nglListAddMesh(mesh, *bit_cast<math::MatClass<4, 3> *>(&a2), nullptr, nullptr);
         }
 
-    }
-    else
-    {
+    } else {
         THISCALL(0x00638C30, this, a2, &a4);
     }
 }
@@ -284,50 +305,36 @@ void sort__poi_sort_record_t(poi_sort_record_t *a1, poi_sort_record_t *a2, int a
     sp_log("%f", a1->field_0);
 }
 
-void fe_mini_map_widget::UpdatePOIs(matrix4x4 *a2,
-                                    Float a3,
-                                    Float a4,
-                                    Float a5,
-                                    Float a6,
-                                    Float a7)
+void fe_mini_map_widget::UpdatePOIs(matrix4x4 *a2, Float a3, Float a4, Float a5, Float a6, Float a7)
 {
     TRACE("fe_mini_map_widget::UpdatePOIs");
 
-    if constexpr (0)
-    {
-    }
-    else
-    {
+    if constexpr (0) {
+    } else {
         THISCALL(0x0063AEC0, this, a2, a3, a4, a5, a6, a7);
     }
 }
 
-void fe_mini_map_widget::Draw()
+void fe_mini_map_widget::_Draw()
 {
     auto *v2 = this->field_3A0;
     auto v3 = v2 && v2->field_2D;
-    if (this->field_3A8 || v3)
-    {
+    if (this->field_3A8 || v3) {
         auto *hero_ptr = g_world_ptr->get_hero_ptr(0);
 
         region *reg;
 
         if (hero_ptr == nullptr ||
-            (reg = g_world_ptr->the_terrain->find_outermost_region(hero_ptr->get_abs_position()),
-             reg == nullptr) ||
-            !reg->is_interior())
-        {
-            if (v3)
-            {
+            (reg = g_world_ptr->the_terrain->find_outermost_region(hero_ptr->get_abs_position()), reg == nullptr) ||
+            !reg->is_interior()) {
+            if (v3) {
                 this->map_frame_map_placeholder->Draw();
-            }
-            else
-            {
+            } else {
                 this->PrepareRegions();
                 nglListBeginScene(static_cast<nglSceneParamType>(0));
                 nglSetClearFlags(1u);
-                nglCurScene()->field_3BA = true;
-                nglCurScene()->m_farz = 10000.0;
+                nglCurScene->field_3BA = true;
+                nglCurScene->m_farz = 10000.0;
 
                 float local_vec0[4], local_vec1[4];
 
@@ -340,12 +347,12 @@ void fe_mini_map_widget::Draw()
 
                 nglSetViewport(local_vec0[0], local_vec1[0], local_vec0[3], local_vec1[3]);
 
-                static const vector4d stru_892F80 {0, 0, 0, 1};
+                static const vector4d stru_892F80{0, 0, 0, 1};
 
                 char v9 = 0;
                 matrix4x4 v19;
                 v19.sub_415740(&v9);
-                v19.arr[3] = stru_892F80;
+                v19.w = stru_892F80;
 
                 nglSetWorldToViewMatrix({v19});
                 nglSetZTestEnable(false);
@@ -374,15 +381,31 @@ void fe_mini_map_widget::Draw()
     }
 }
 
+void fe_mini_map_widget::Draw()
+{
+    void(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x8));
+    func(this);
+}
+
+void fe_mini_map_widget::_Update(Float a2)
+{
+    if constexpr (0) {
+    } else {
+        THISCALL(0x00641810, this, a2);
+    }
+}
+
+
 void fe_mini_map_widget::Update(Float a2)
 {
-    THISCALL(0x00641810, this, a2);
+    void(__fastcall * func)(void *, void *edx, Float) = CAST(func, get_vfunc(m_vtbl, 0xC));
+    func(this, nullptr, a2);
 }
 
 void fe_mini_map_widget_patch()
 {
     {
-        FUNC_ADDRESS(address, &fe_mini_map_widget::Init);
+        FUNC_ADDRESS(address, &fe_mini_map_widget::_Init);
         set_vfunc(0x00895A04, address);
     }
 
@@ -401,7 +424,7 @@ void fe_mini_map_widget_patch()
     return;
 
     {
-        FUNC_ADDRESS(address, &fe_mini_map_widget::Draw);
+        FUNC_ADDRESS(address, &fe_mini_map_widget::_Draw);
         set_vfunc(0x00895A08, address);
     }
 }

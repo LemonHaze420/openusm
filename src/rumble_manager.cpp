@@ -3,10 +3,12 @@
 #include "common.h"
 #include "func_wrapper.h"
 #include "input_mgr.h"
+#include "memory.h"
 
 VALIDATE_SIZE(rumble_manager, 0x64);
 
-rumble_manager::rumble_manager() {
+rumble_manager::rumble_manager()
+{
     this->field_C = 0;
     this->field_10 = 0;
     this->field_14 = -1;
@@ -41,15 +43,18 @@ rumble_manager::rumble_manager() {
     this->field_58 = 15.0;
 }
 
-void rumble_manager::stop_vibration() {
+void rumble_manager::stop_vibration()
+{
     THISCALL(0x005BA4E0, this);
 }
 
-void rumble_manager::enable_vibration() {
+void rumble_manager::enable_vibration()
+{
     input_mgr::instance->field_20 &= 0xFFFFFFFD;
 }
 
-void rumble_manager::disable_vibration() {
+void rumble_manager::disable_vibration()
+{
     this->field_21 = 1;
     this->field_1C = 0.0;
     this->field_4 = -1.0;
@@ -64,17 +69,19 @@ void rumble_manager::disable_vibration() {
     this->field_20 = 0;
     int v1 = this->field_0;
     if (v1) {
-        (*(void (**)(void))(*(uint32_t *) v1 + 60))();
+        (*(void (**)(void))(*(uint32_t *)v1 + 60))();
     }
 
     input_mgr::instance->field_20 |= 2u;
 }
 
-void rumble_manager::vibrate(rumble_struct a2) {
+void rumble_manager::vibrate(rumble_struct a2)
+{
     THISCALL(0x005D78F0, this, a2);
 }
 
-void rumble_manager::get_current_rumble_info(rumble_struct &a2) {
+void rumble_manager::get_current_rumble_info(rumble_struct &a2)
+{
     if (!this->field_5C) {
         this->field_20 = false;
         this->field_21 = true;

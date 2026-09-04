@@ -14,5 +14,3 @@ void singleton::operator delete(void *ptr, size_t sz)
 {
     mem_dealloc(ptr, sz);
 }
-
-

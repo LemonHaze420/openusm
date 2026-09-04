@@ -5,12 +5,10 @@
 
 namespace ai {
 
-info_node_desc_list::info_node_desc_list()
+info_node_desc_list::info_node_desc_list() {}
+
+void info_node_desc_list::add_entry(info_node_descriptor a2)
 {
-
-}
-
-void info_node_desc_list::add_entry(info_node_descriptor a2) {
     assert(0);
 
     if constexpr (1) {
@@ -27,8 +25,7 @@ void info_node_desc_list::add_entry(info_node_descriptor a2) {
                 break;
             }
 
-            if (a2.field_0.source_hash_code == v3[i].field_0.source_hash_code &&
-                a2.field_4 == v3[i].field_4)
+            if (a2.field_0.source_hash_code == v3[i].field_0.source_hash_code && a2.field_4 == v3[i].field_4)
                 return;
         }
 
@@ -43,8 +40,7 @@ void info_node_desc_list::add_entry(info_node_descriptor a2) {
 
             this->field_0.m_last = v6 + 1;
         } else {
-            void (__fastcall *sub_6DCB10)(void *, void *, void *, int, void *) = CAST(sub_6DCB10,
-                                                                              0x006DCB10);
+            void(__fastcall * sub_6DCB10)(void *, void *, void *, int, void *) = CAST(sub_6DCB10, 0x006DCB10);
 
             sub_6DCB10(this, nullptr, this->field_0.m_last, 1, &a2);
         }
@@ -53,9 +49,10 @@ void info_node_desc_list::add_entry(info_node_descriptor a2) {
     }
 }
 
-} // namespace ai
+}  // namespace ai
 
-void info_node_desc_list_patch() {
+void info_node_desc_list_patch()
+{
     FUNC_ADDRESS(address, &ai::info_node_desc_list::add_entry);
     SET_JUMP(0x006D6E20, address);
 }

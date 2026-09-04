@@ -3,5 +3,3 @@
 #include <cstdint>
 
 struct nglTexture;
-
-

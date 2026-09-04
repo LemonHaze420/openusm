@@ -36,9 +36,7 @@ struct cg_mesh : collision_geometry {
     /* virtual */ int get_type() /* override */;
 
     //0x0053B100
-    /* virtual */ void _un_mash(generic_mash_header *a2,
-                               void *a3,
-                               generic_mash_data_ptrs *a4) /* override */;
+    /* virtual */ void _un_mash(generic_mash_header *a2, void *a3, generic_mash_data_ptrs *a4) /* override */;
 };
 
 extern Var<std::intptr_t> collision_mesh_v_table;

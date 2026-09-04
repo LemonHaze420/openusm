@@ -52,11 +52,7 @@ struct interaction_inode : info_node {
 
     void init_interaction();
 
-    void set_interaction(
-        const ai_interaction_data *a2,
-        actor *a3,
-        interaction_type_enum a4,
-        interaction *a5);
+    void set_interaction(const ai_interaction_data *a2, actor *a3, interaction_type_enum a4, interaction *a5);
 
     void clear_interaction(interaction_result_enum a2);
 
@@ -77,6 +73,6 @@ struct interaction_inode : info_node {
     //0x0046E380
     void set_scripted_start(actor *a2, generic_interaction *a3);
 };
-} // namespace ai
+}  // namespace ai
 
 extern void interaction_inode_patch();

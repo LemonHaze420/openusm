@@ -2,6 +2,8 @@
 
 #include "als_dest_weight_data.h"
 #include "als_filter_data.h"
+#include "als_post_layer_alter.h"
+#include "als_post_kill_rule.h"
 #include "als_request_data.h"
 #include "mash_info_struct.h"
 #include "mash_config.h"
@@ -11,10 +13,16 @@
 #include "utility.h"
 #include "xbpack.h"
 
-namespace als
-{
+namespace als {
     VALIDATE_SIZE(basic_rule_data, 0x24);
     VALIDATE_SIZE(basic_rule_data::post_action_rule_set, 0x28u);
+
+    basic_rule_data::basic_rule_data(from_mash_in_place_constructor *a2) : field_0(a2), field_14(a2)
+    {
+        if (this->field_20 != nullptr) {
+            mash_info_struct::construct_class(this->field_20);
+        }
+    }
 
     void filter_data::unmash(mash_info_struct *, void *)
     {
@@ -36,11 +44,12 @@ namespace als
         }
 #endif
 
-        if (this->field_20 != nullptr)
-        {
-            a1->unmash_class(this->field_20, this
+        if (this->field_20 != nullptr) {
+            a1->unmash_class(this->field_20,
+                             this
 #if OPENUSM_XBOX_MASH_FORMAT
-                , mash::NORMAL_BUFFER
+                             ,
+                             mash::NORMAL_BUFFER
 #endif
                     );
         }
@@ -52,8 +61,7 @@ namespace als
         TRACE("als::basic_rule_data::can_transition");
 
         if constexpr (1) {
-            for ( auto &data : this->field_0 )
-            {
+        for (auto &data : this->field_0) {
                 auto param = a2.field_4->get_param(a2.field_0, data->field_0);
                 sp_log("%f %f %f %u", param, data->field_4, data->field_8, data->field_0);
                 if ( param < data->field_4 || data->field_8 < param ) {
@@ -81,6 +89,22 @@ namespace als
         return this->field_20 != nullptr;
     }
 
+basic_rule_data::rule_action::rule_action(from_mash_in_place_constructor *a2) : field_8(a2)
+{
+    this->initialize(mash::FROM_MASH);
+
+    if (this->destination_states != nullptr) {
+        mash_info_struct::construct_class(this->destination_states);
+    }
+}
+
+void basic_rule_data::rule_action::initialize(mash::allocation_scope a2)
+{
+    if (a2 == mash::ALLOCATED) {
+        this->destination_states = nullptr;
+    }
+}
+
     void basic_rule_data::rule_action::unmash(mash_info_struct *a1, void *)
     {
         a1->unmash_class_in_place(this->field_8, this);
@@ -93,11 +117,12 @@ namespace als
         }
 #endif
 
-        if (this->destination_states != nullptr)
-        {
-            a1->unmash_class(this->destination_states, this
+        if (this->destination_states != nullptr) {
+            a1->unmash_class(this->destination_states,
+                             this
 #if OPENUSM_XBOX_MASH_FORMAT
-                , mash::NORMAL_BUFFER
+                             ,
+                             mash::NORMAL_BUFFER
 #endif
                     );
         }
@@ -113,8 +138,7 @@ namespace als
             if ( this->destination_states != nullptr ) {
                 assert(destination_states->size() > 0);
 
-                auto sub_65DB3E = [](float a1, float a2) -> double
-                {
+            auto sub_65DB3E = [](float a1, float a2) -> double {
                     return ((rand() * 0.000030518509) * (a2 - a1)) + a1;
                 };
 
@@ -127,11 +151,9 @@ namespace als
                     });
                 }
 
-                for ( int i = 0; i < this->destination_states->size(); ++i )
-                {
+            for (int i = 0; i < this->destination_states->size(); ++i) {
                     v7 += this->destination_states->at(i)->field_4;
-                    if ( v7 >= v8 )
-                    {
+                if (v7 >= v8) {
                         auto v3 = this->destination_states->at(i)->field_0;
                         return v3;
                     }
@@ -140,9 +162,7 @@ namespace als
                 auto v4 = this->destination_states->size();
                 auto v5 = this->destination_states->at(v4 - 1)->field_0;
                 return v5;
-            }
-            else
-            {
+        } else {
                 return this->field_8;
             }
         } else {
@@ -158,8 +178,7 @@ namespace als
         TRACE("als::basic_rule_data::rule_action::process_action");
 
         if constexpr (1) {
-            switch ( this->the_action )
-            {
+        switch (this->the_action) {
             case TRANSITION:
                 a2.did_transition_occur = true;
                 a2.field_1 = true;
@@ -194,6 +213,10 @@ namespace als
         }
     }
 
+basic_rule_data::post_action_rule_set::post_action_rule_set(from_mash_in_place_constructor *a2)
+    : field_0(a2), field_14(a2)
+{}
+
     void basic_rule_data::post_action_rule_set::unmash(mash_info_struct *a1, void *)
     {
         TRACE("post_action_rule_set::unmash");
@@ -202,7 +225,7 @@ namespace als
         a1->unmash_class_in_place(this->field_14, this);
     }
         
-}
+}  // namespace als
 
 void als_basic_rule_data_patch()
 {

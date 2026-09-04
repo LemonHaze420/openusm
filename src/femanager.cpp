@@ -28,20 +28,15 @@ VALIDATE_OFFSET(FEManager, field_2A, 0x2A);
 
 FEManager & g_femanager = var<FEManager>(0x00937B00);
 
-const char *FEManager::font_name_array[5] = {"nglSysFont",
-                                             "i_upupandaway",
-                                             "badaboom",
-                                             "i_button_icons",
-                                             "damnnoisykids"};
+const char *FEManager::font_name_array[5] = {
+    "nglSysFont", "i_upupandaway", "badaboom", "i_button_icons", "damnnoisykids"};
 
 void FEManager::InitIGO()
 {
     TRACE("FEManager::InitGO");
 
-    if constexpr (0)
-    {
-        auto *mem = mem_alloc(sizeof(PauseMenuSystem));
-        this->m_pause_menu_system = new (mem) PauseMenuSystem{static_cast<font_index>(1)};
+    if constexpr (1) {
+        this->m_pause_menu_system = new PauseMenuSystem{static_cast<font_index>(1)};
 
         this->IGO = new IGOFrontEnd{};
         this->IGO->Init();
@@ -58,13 +53,12 @@ void FEManager::LoadFont(font_index a2)
     this->field_4[a2] = nglLoadFont(a1);
 }
 
-void FEManager::LoadFonts() {
+void FEManager::LoadFonts()
+{
     TRACE("FEManager::LoadFonts");
 
-    if constexpr (0)
-    {
-        if (!this->field_2A)
-        {
+    if constexpr (0) {
+        if (!this->field_2A) {
             for (auto i = 0u; i < 5u; ++i) {
                 this->LoadFont(static_cast<font_index>(i));
             }
@@ -76,11 +70,11 @@ void FEManager::LoadFonts() {
     }
 }
 
-void FEManager::Draw() {
+void FEManager::Draw()
+{
     if constexpr (1) {
         fe_controller_disconnect::draw();
-        if (os_developer_options::instance->get_flag(static_cast<os_developer_options::flags_t>(144)))
-        {
+        if (os_developer_options::instance->get_flag(static_cast<os_developer_options::flags_t>(144))) {
             nglListBeginScene(static_cast<nglSceneParamType>(1));
             nglSetClearFlags(0);
             nglSetOrthoMatrix(0.0, 1000.0);
@@ -93,7 +87,7 @@ void FEManager::Draw() {
             matrix4x4 v5;
             v5.make_scale(v3);
 
-            v5.arr[3] = vector4d{-1.0, 1.0, 0.0, 1.0};
+            v5.w = vector4d{-1.0, 1.0, 0.0, 1.0};
 
             nglSetWorldToViewMatrix({v5});
             auto *v2 = this->m_pause_menu_system;
@@ -117,8 +111,7 @@ void FEManager::Draw() {
 
 void FEManager::Update(Float a2)
 {
-    if constexpr (1)
-	{
+    if constexpr (1) {
         if (fe_controller_disconnect::update()) {
             auto *v3 = this->m_pause_menu_system;
             if (v3->m_index < 0) {
@@ -147,11 +140,13 @@ void FEManager::Update(Float a2)
     }
 }
 
-void FEManager::ReleaseFrontEnd() {
+void FEManager::ReleaseFrontEnd()
+{
     THISCALL(0x0060B920, this);
 }
 
-void FEManager::ReleaseFont(font_index idx) {
+void FEManager::ReleaseFont(font_index idx)
+{
     auto **fonts = this->field_4;
     auto &font = fonts[idx];
 
@@ -160,7 +155,8 @@ void FEManager::ReleaseFont(font_index idx) {
     }
 }
 
-nglFont *FEManager::GetFont(font_index idx) {
+nglFont *FEManager::GetFont(font_index idx)
+{
     if (idx != 5 && idx != 6) {
         return this->field_4[idx];
     }
@@ -170,17 +166,20 @@ nglFont *FEManager::GetFont(font_index idx) {
     return nullptr;
 }
 
-PanelQuad *FEManager::GetDefaultPQ() {
+PanelQuad *FEManager::GetDefaultPQ()
+{
     return (PanelQuad *) THISCALL(0x00638180, this);
 }
 
-void FEManager::LoadFrontEnd() {
-    if constexpr (1) {
+void FEManager::LoadFrontEnd()
+{
+    TRACE("FEManager::LoadFrontEnd");
+
+    if constexpr (0) {
         auto v2 = resource_manager::get_best_context(RESOURCE_PARTITION_MISSION);
         auto *__old_context = resource_manager::push_resource_context(v2);
 
-        auto *mem = mem_alloc(sizeof(FrontEndMenuSystem));
-        this->m_fe_menu_system = new (mem) FrontEndMenuSystem{};
+        this->m_fe_menu_system = new FrontEndMenuSystem{};
         resource_manager::pop_resource_context();
 
         assert(resource_manager::get_resource_context() == __old_context);
@@ -202,7 +201,8 @@ void __fastcall xbpack_load_frontend(FEManager *self, void *)
 }
 #endif
 
-void FEManager::RenderLoadMeter(bool a2) {
+void FEManager::RenderLoadMeter(bool a2)
+{
     if (this->m_fe_menu_system != nullptr) {
         this->m_fe_menu_system->RenderLoadMeter(a2);
     }
@@ -222,8 +222,7 @@ void FEManager::ReleaseFonts()
 
 void RenderLoadMeter()
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         auto *system = g_femanager.m_fe_menu_system;
 
         if (system != nullptr) {
@@ -234,7 +233,14 @@ void RenderLoadMeter()
     }
 }
 
-void FEManager_patch() {
+void FEManager_patch()
+{
+    {
+        FUNC_ADDRESS(address, &FEManager::LoadFrontEnd);
+        REDIRECT(0x0051D2F0, address);
+        REDIRECT(0x00648FD4, address);
+    }
+
     {
         FUNC_ADDRESS(address, &FEManager::LoadFonts);
         REDIRECT(0x00552E61, address);

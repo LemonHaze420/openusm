@@ -23,7 +23,7 @@ struct hero_base_state : base_state {
     static inline string_hash NO_TRANS{int(to_hash("DO NOT TRANSITION!"))};
 };
 
-} // namespace ai
+}  // namespace ai
 
 
 extern void hero_base_state_patch();

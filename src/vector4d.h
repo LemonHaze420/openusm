@@ -16,7 +16,7 @@ struct vector4d {
 
     constexpr vector4d() : x(0), y(0), z(0), w(0) {}
 
-    constexpr explicit vector4d(float a1) : x(a1), y(a1), z(a1), w(a1)  {}
+    constexpr explicit vector4d(float a1) : x(a1), y(a1), z(a1), w(a1) {}
 
     constexpr vector4d(float a1, float a2, float a3, float a4) : x(a1), y(a2), z(a3), w(a4) {}
 
@@ -30,11 +30,13 @@ struct vector4d {
 
     float length() const;
 
-    const auto &operator[](int idx) const {
+    const auto &operator[](int idx) const
+    {
         return (&x)[idx];
     }
 
-    auto &operator[](int idx) {
+    auto &operator[](int idx)
+    {
         return (&x)[idx];
     }
 
@@ -53,7 +55,8 @@ struct vector4d {
 
     static float dot(const vector4d &a1, const vector4d &a2);
 
-    mString to_string() const {
+    mString to_string() const
+    {
         mString str{0, "vec4{%.2f, %.2f, %.2f, %.2f}", x, y, z, w};
 
         return str;
@@ -67,15 +70,12 @@ struct vector4d {
 
     void sub_413530(const vector4d &a2, const vector4d &a3);
 
-    [[nodiscard]] static vector4d sub_413E90(const vector4d &arg4,
-                                             const vector4d &arg8,
-                                             const vector4d &a2,
-                                             const vector4d &a3,
-                                             const vector4d &a6,
-                                             const vector4d &a7,
+    [[nodiscard]] static vector4d sub_413E90(const vector4d &arg4, const vector4d &arg8, const vector4d &a2,
+                                             const vector4d &a3, const vector4d &a6, const vector4d &a7,
                                              const vector4d &a8);
 
-    [[nodiscard]] vector4d operator+(const vector4d &a3) const {
+    [[nodiscard]] vector4d operator+(const vector4d &a3) const
+    {
         vector4d out;
         out[0] = a3[0] + (*this)[0];
         out[1] = a3[1] + (*this)[1];
@@ -86,7 +86,8 @@ struct vector4d {
 
     void operator+=(const vector4d &a3);
 
-    [[nodiscard]] vector4d operator+(const float a3) const {
+    [[nodiscard]] vector4d operator+(const float a3) const
+    {
         vector4d out;
         out[0] = (*this)[0] + a3;
         out[1] = (*this)[1] + a3;
@@ -115,15 +116,18 @@ struct vector4d {
 };
 
 
-[[nodiscard]] extern vector4d sub_4126E0(const vector4d &a2,
-                                             const vector4d &a3,
-                                             const vector4d &a4,
-                                             const vector4d &a5,
-                                             const vector4d &a6,
-                                             const vector4d &a7);
+[[nodiscard]] extern vector4d sub_4126E0(const vector4d &a2, const vector4d &a3, const vector4d &a4, const vector4d &a5,
+                                         const vector4d &a6, const vector4d &a7);
 
-extern bool sub_55F1D0(const vector4d &a1, const vector4d &a2);
+extern bool sub_55F1D0(const vector4d &a1, const vector4d &a2, float a3);
 
 extern vector4d sub_55DA40(const float *a2, const vector4d *a3);
+
+extern vector4d sub_5FD0C0(Float a2, const vector4d &a3, const vector4d &a4);
+
+extern vector4d sub_5FC6D0(const vector4d &a2, const vector4d &a3, const vector4d &a4, const vector4d &a5,
+                           const vector4d &a6, const vector4d &a7, const vector4d &a8);
+
+extern vector4d sub_5FC770(const vector4d &a2, const vector4d &a3, const vector4d &a4, const vector4d &a5);
 
 extern float AbsSquared(const vector4d &a1);

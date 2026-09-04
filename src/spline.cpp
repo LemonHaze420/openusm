@@ -9,7 +9,8 @@
 VALIDATE_OFFSET(spline, field_3C, 0x3C);
 VALIDATE_SIZE(spline, 0x50u);
 
-spline::spline() {
+spline::spline()
+{
     this->curve_pts = {};
 
     this->field_3C = false;
@@ -22,24 +23,27 @@ spline::spline() {
     this->field_3E = true;
 }
 
-void spline::set_control_pt(int32_t index, const vector3d &a3) {
+void spline::set_control_pt(int32_t index, const vector3d &a3)
+{
     assert(index >= 0);
-    assert(index < (int) control_pts.size());
+    assert(index < (int)control_pts.size());
 
-    if (index >= 0 && index < (int) control_pts.size()) {
+    if (index >= 0 && index < (int)control_pts.size()) {
         this->control_pts[index] = a3;
         this->need_rebuild = true;
         this->field_3E = true;
     }
 }
 
-vector3d &spline::get_control_pt(int index) {
-    assert(index >= 0 && index < (int) control_pts.size());
+vector3d &spline::get_control_pt(int index)
+{
+    assert(index >= 0 && index < (int)control_pts.size());
 
     return this->control_pts[index];
 }
 
-void spline::build(int a2, spline::eSplineType a3) {
+void spline::build(int a2, spline::eSplineType a3)
+{
     this->field_30 = a2;
 
     if (a3 != 0) {
@@ -56,7 +60,8 @@ void spline::build(int a2, spline::eSplineType a3) {
     this->rebuild_helper();
 }
 
-void spline::compute_spline_pos(Float a3, vector3d &a4, bool a5, spline::eSplineType a6) {
+void spline::compute_spline_pos(Float a3, vector3d &a4, bool a5, spline::eSplineType a6)
+{
     sp_log("compute_spline_pos: ");
 
     if constexpr (0) {
@@ -65,7 +70,8 @@ void spline::compute_spline_pos(Float a3, vector3d &a4, bool a5, spline::eSpline
     }
 }
 
-vector3d sub_5C2C30(float a3, float a4, float a5, const vector3d *a6) {
+vector3d sub_5C2C30(float a3, float a4, float a5, const vector3d *a6)
+{
     constexpr float v18 = 2.0f;
     constexpr float v19 = 3.0f;
 
@@ -78,7 +84,8 @@ vector3d sub_5C2C30(float a3, float a4, float a5, const vector3d *a6) {
     return result;
 }
 
-vector3d sub_5C2B20(float a3, float a4, float a5, const vector3d *a6) {
+vector3d sub_5C2B20(float a3, float a4, float a5, const vector3d *a6)
+{
     constexpr float v20 = 0.16666667f;
     constexpr float v19 = 0.5f;
     constexpr float v18 = 0.66666669f;
@@ -92,7 +99,8 @@ vector3d sub_5C2B20(float a3, float a4, float a5, const vector3d *a6) {
     return result;
 }
 
-void spline::compute_spline_pos(int index, Float t, vector3d &a4, bool a5, spline::eSplineType a6) {
+void spline::compute_spline_pos(int index, Float t, vector3d &a4, bool a5, spline::eSplineType a6)
+{
     sp_log("compute_spline_pos: ");
 
     auto v6 = a6;
@@ -102,7 +110,7 @@ void spline::compute_spline_pos(int index, Float t, vector3d &a4, bool a5, splin
 
     switch (v6) {
     case 1: {
-        assert((uint32_t) index < (control_pts.size() - 1));
+        assert((uint32_t)index < (control_pts.size() - 1));
 
         assert(t >= 0.0f && t < 1.0001f);
 
@@ -116,7 +124,7 @@ void spline::compute_spline_pos(int index, Float t, vector3d &a4, bool a5, splin
     } break;
     case 2:
     case 3: {
-        assert((uint32_t) index < (control_pts.size() - 1));
+        assert((uint32_t)index < (control_pts.size() - 1));
 
         assert(t >= 0.0f && t < 1.0001f);
 
@@ -136,7 +144,7 @@ void spline::compute_spline_pos(int index, Float t, vector3d &a4, bool a5, splin
             }
 
             vector3d v11;
-            if ((unsigned int) index >= (this->control_pts.size() - 2)) {
+            if ((unsigned int)index >= (this->control_pts.size() - 2)) {
                 auto v12 = stru_96A50C[2] - stru_96A50C[1];
                 v11 = stru_96A50C[2] + v12;
             } else {
@@ -172,7 +180,8 @@ void spline::compute_spline_pos(int index, Float t, vector3d &a4, bool a5, splin
     }
 }
 
-vector3d sub_5C2A20(Float a2, Float a3, Float a4, const vector3d *a5) {
+vector3d sub_5C2A20(Float a2, Float a3, Float a4, const vector3d *a5)
+{
     auto v11 = a4 * a5[3];
     auto v10 = ((-3.0f * a4) + (3.0f * a3)) * a5[2];
     auto v9 = (((3.0f * a4) - (6.0f * a3)) + (3.0f * a2)) * a5[1];
@@ -184,7 +193,8 @@ vector3d sub_5C2A20(Float a2, Float a3, Float a4, const vector3d *a5) {
     return a1;
 }
 
-void spline::compute_bezier_pos(int a2, Float a3, vector3d &a4) {
+void spline::compute_bezier_pos(int a2, Float a3, vector3d &a4)
+{
     if constexpr (1) {
         auto v4 = a3 - a2;
 
@@ -198,11 +208,13 @@ void spline::compute_bezier_pos(int a2, Float a3, vector3d &a4) {
     }
 }
 
-Float spline::curve_length(Float a2) {
-    return (Float) THISCALL(0x005DCFB0, this, a2);
+Float spline::curve_length(Float a2)
+{
+    return (Float)THISCALL(0x005DCFB0, this, a2);
 }
 
-void spline::rebuild_helper() {
+void spline::rebuild_helper()
+{
     THISCALL(0x005DC830, this);
 }
 
@@ -213,23 +225,38 @@ void spline::add_control_pt(const vector3d &a1)
     this->field_3E = true;
 }
 
+void spline::clear()
+{
+    this->control_pts.clear();
+    this->curve_pts.clear();
+    this->need_rebuild = true;
+}
+
+void spline::reserve_control_pts(int a2)
+{
+    this->clear();
+    this->control_pts.reserve(a2);
+}
+
+void spline::set_force_start(bool a2)
+{
+    auto v2 = this->field_3C != a2;
+    this->need_rebuild = v2;
+    this->field_3C = a2;
+}
+
 void spline_patch()
 {
     {
-        void (spline::*compute_spline_pos)(int index,
-                                           Float a3,
-                                           vector3d &a4,
-                                           bool a5,
-                                           spline::eSplineType a6) = &spline::compute_spline_pos;
+        void (spline::*compute_spline_pos)(int index, Float a3, vector3d &a4, bool a5, spline::eSplineType a6) =
+            &spline::compute_spline_pos;
 
         FUNC_ADDRESS(address, compute_spline_pos);
         SET_JUMP(0x005CE910, address);
     }
     {
-        void (spline::*compute_spline_pos)(Float a3,
-                                           vector3d & a4,
-                                           bool a5,
-                                           spline::eSplineType a6) = &spline::compute_spline_pos;
+        void (spline::*compute_spline_pos)(Float a3, vector3d &a4, bool a5, spline::eSplineType a6) =
+            &spline::compute_spline_pos;
 
         FUNC_ADDRESS(address, compute_spline_pos);
         REDIRECT(0x005DB861, address);

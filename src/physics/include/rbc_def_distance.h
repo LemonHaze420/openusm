@@ -9,9 +9,8 @@ struct phys_vector3d;
 struct outer_time;
 struct physics_system;
 
-struct rigid_body_constraint_distance : rigid_body_constraint
-{
-    rigid_body_constraint_distance *field_8; 
+struct rigid_body_constraint_distance : rigid_body_constraint {
+    rigid_body_constraint_distance *field_8;
     phys_vector3d field_C;
     int field_18;
     phys_vector3d field_1C;
@@ -24,10 +23,7 @@ struct rigid_body_constraint_distance : rigid_body_constraint
     int field_40;
     pulse_sum_cache field_44[3];
 
-    void set(phys_vector3d const &a2,
-            phys_vector3d const &a3,
-            Float a4,
-            Float a5);
+    void set(phys_vector3d const &a2, phys_vector3d const &a3, Float a4, Float a5);
 
     void outer_epilog_update(const outer_time &a2);
 

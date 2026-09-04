@@ -44,4 +44,4 @@ struct interaction_state : enhanced_state {
 
     static Var<string_hash> pre_interact_run_motion_hash;
 };
-} // namespace ai
+}  // namespace ai

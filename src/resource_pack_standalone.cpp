@@ -12,6 +12,7 @@
 #include "resource_directory.h"
 #include "resource_manager.h"
 #include "resource_key.h"
+#include "trace.h"
 #include "utility.h"
 #include "variables.h"
 
@@ -42,7 +43,8 @@ resource_pack_standalone::resource_pack_standalone() : m_header()
     this->name.m_type = RESOURCE_KEY_TYPE_NONE;
 }
 
-nflFileID resource_pack_standalone::get_nfl_file_handle() {
+nflFileID resource_pack_standalone::get_nfl_file_handle()
+{
     return this->m_filedID;
 }
 
@@ -54,8 +56,7 @@ bool resource_pack_standalone::get_unloaded_resource_location(const resource_key
 
     resource_directory *find_dir = nullptr;
     resource_location *find_loc = nullptr;
-    if (!this->res_dir->find_resource(a1, &find_dir, &find_loc))
-    {
+    if (!this->res_dir->find_resource(a1, &find_dir, &find_loc)) {
         return false;
     }
 
@@ -81,7 +82,7 @@ bool resource_pack_standalone::load(const mString &str)
     assert(!name.is_set());
 
     if constexpr (1) {
-        os_file file {mString{str.c_str()}, 1u};
+        os_file file{mString{str.c_str()}, 1u};
 
         if (file.opened) {
             file.read(&this->m_header, sizeof(this->m_header));
@@ -102,20 +103,14 @@ bool resource_pack_standalone::load(const mString &str)
                 assert(how_many_did_we_get == res_dir_size);
             }
 
-            auto alloced_mem = parse_generic_object_mash(this->res_dir,
-                                      this->res_dir_mash,
-                                      nullptr,
-                                      nullptr,
-                                      nullptr,
-                                      0,
-                                      0,
-                                      nullptr);
+            auto alloced_mem =
+                parse_generic_object_mash(this->res_dir, this->res_dir_mash, nullptr, nullptr, nullptr, 0, 0, nullptr);
             assert(!alloced_mem && "This should NOT allocate anything!");
 
             this->res_dir->constructor_common(nullptr, nullptr, nullptr, 0u, 0u);
             file.close();
 
-            mString v15 = mString {"data\\"} + str;
+            mString v15 = mString{"data\\"} + str;
 
             this->m_filedID = nflOpenFile(1, v15.c_str());
 
@@ -128,9 +123,9 @@ bool resource_pack_standalone::load(const mString &str)
     return result;
 }
 
-void resource_pack_standalone::unload() {
-    if constexpr (0)
-    {
+void resource_pack_standalone::unload()
+{
+    if constexpr (0) {
         if (this->m_filedID.field_0 != -1) {
             nflCloseFile(this->m_filedID);
         }
@@ -149,30 +144,25 @@ void resource_pack_standalone::unload() {
         this->m_filedID.field_0 = -1;
         this->name.m_hash.source_hash_code = 0;
         this->name.m_type = RESOURCE_KEY_TYPE_NONE;
-    }
-    else
-    {
+    } else {
         THISCALL(0x0052ABB0, this);
     }
 }
 
 void sub_732D60(bool a1)
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         if (!resource_manager::using_amalga || a1) {
-            cut_scene::stream_anim_pack().unload();
+            cut_scene::stream_anim_pack.unload();
         }
-    }
-    else
-    {
+    } else {
         CDECL_CALL(0x00732D60, a1);
     }
 }
 
 
-void resource_pack_standalone_patch() {
-
+void resource_pack_standalone_patch()
+{
     SET_JUMP(0x00732D60, sub_732D60);
 
     {
@@ -182,7 +172,6 @@ void resource_pack_standalone_patch() {
     return;
 
     {
-
         {
             FUNC_ADDRESS(address, &os_file::read);
             REDIRECT(0x0053E420, address);

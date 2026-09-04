@@ -2,8 +2,7 @@
 
 #include "fixedstring.h"
 
-struct level_descriptor_t
-{
+struct level_descriptor_t {
     fixedstring<8> field_0;
     fixedstring<16> field_20;
     fixedstring<4> field_60;

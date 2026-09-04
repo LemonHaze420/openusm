@@ -1,4 +1,7 @@
 #include "combo_system.h"
+
+#include "combo_system_move.h"
+#include "combo_system_weapon.h"
 #include "common.h"
 #include "mash_info_struct.h"
 #include "trace.h"
@@ -11,10 +14,8 @@ VALIDATE_SIZE(combo_system_chain::telegraph_info, 0xC);
 VALIDATE_SIZE(combo_system, 0x50);
 
 #if defined(OPENUSM_XBPACK_V10) && !defined(TARGET_XBOX)
-namespace
-{
-struct pc_mash_info
-{
+namespace {
+struct pc_mash_info {
     uint8_t *image;
     int used;
     int size;
@@ -24,7 +25,6 @@ struct pc_mash_info
 static_assert(sizeof(pc_mash_info) == 0x10);
 }
 #endif
-
 
 void combo_system_chain::telegraph_info::_unmash(mash_info_struct *, void *)
 {
@@ -39,6 +39,24 @@ int combo_system_chain::telegraph_info::get_mash_sizeof()
     return func(this);
 }
 
+combo_system_chain::combo_system_chain(from_mash_in_place_constructor *a2) : field_0(a2), field_14(a2), field_1C(a2)
+{
+    this->initialize(mash::FROM_MASH);
+}
+
+void combo_system_chain::initialize(mash::allocation_scope a2)
+{
+    if (a2 == mash::ALLOCATED) {
+        this->field_18 = 0;
+        this->field_2C = 0;
+        this->field_30 = 0x40000000;
+        this->field_34 = 0;
+        this->field_38 = 3.4028235e38;
+        this->field_3C = 1.0;
+        this->field_40 = -1.0;
+    }
+}
+
 void combo_system_chain::unmash(mash_info_struct *a1, void *)
 {
     TRACE("combo_system_chain::unmash");
@@ -50,11 +68,16 @@ void combo_system_chain::unmash(mash_info_struct *a1, void *)
 
 combo_system::combo_system() {}
 
-combo_system_weapon *combo_system::get_weapon(int idx) {
+combo_system::combo_system(from_mash_in_place_constructor *a2) : field_0(a2), field_14(a2), field_28(a2), field_3C(a2)
+{}
+
+combo_system_weapon *combo_system::get_weapon(int idx)
+{
     return this->field_28.m_data[(uint16_t) idx];
 }
 
-int combo_system::get_num_weapons() {
+int combo_system::get_num_weapons()
+{
     return this->field_28.size();
 }
 
@@ -62,8 +85,7 @@ void combo_system::unmash(mash_info_struct *a1, void *a3)
 {
     TRACE("combo_system::unmash");
 
-    if constexpr (OPENUSM_XBOX_MASH_FORMAT)
-    {
+    if constexpr (OPENUSM_XBOX_MASH_FORMAT) {
 #if defined(OPENUSM_XBPACK_V10) && !defined(TARGET_XBOX)
         auto *pc_mash = reinterpret_cast<pc_mash_info *>(a1);
         mash_info_struct mash_ctx {pc_mash->image, pc_mash->size};
@@ -82,9 +104,7 @@ void combo_system::unmash(mash_info_struct *a1, void *a3)
 #if defined(OPENUSM_XBPACK_V10) && !defined(TARGET_XBOX)
         pc_mash->used = a1->buffer_size_used[mash::NORMAL_BUFFER];
 #endif
-    }
-    else
-    {
+    } else {
         THISCALL(0x00489720, this, a1, a3);
     }
 }

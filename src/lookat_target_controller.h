@@ -25,6 +25,6 @@ struct lookat_target_controller : controller {
     bool _is_mouselook_controller() const;
 };
 
-inline Var<lookat_target_controller *> g_lookat_controller {0x0095C1E0};
+inline Var<lookat_target_controller *> g_lookat_controller{0x0095C1E0};
 
 extern void lookat_target_controller_patch();

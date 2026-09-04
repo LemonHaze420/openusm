@@ -5,7 +5,7 @@
 
 texture_array *sub_5207E0(nglTexture *a1)
 {
-    return (texture_array *) CDECL_CALL(0x005207E0, a1);
+    return (texture_array *)CDECL_CALL(0x005207E0, a1);
 }
 
 void texture_array::load_map_internal(texture_to_frame_map *a2, const char *a3)

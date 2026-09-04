@@ -35,6 +35,6 @@ struct Timer {
     void sub_582180();
 };
 
-extern Var<Timer *> g_timer;
+extern Timer *&g_timer;
 
 extern void Timer_patch();

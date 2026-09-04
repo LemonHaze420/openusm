@@ -18,9 +18,9 @@ void layer_state_machine::init(layer_state_machine_shared *shared_machine)
     this->field_14.m_active = false;
 }
 
-int layer_state_machine::get_domain_bitmask() const {
+int layer_state_machine::get_domain_bitmask() const
+{
     return this->shared_portion->field_40;
 }
 
-} // namespace als
-
+}  // namespace als

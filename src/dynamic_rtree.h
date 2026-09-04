@@ -22,8 +22,8 @@ struct rtree_hash_entry {
 struct rtree_hash_table {
     rtree_hash_entry *field_0[256];
 
-    rtree_hash_entry * get(const entity_base_vhandle &a2);
-    
+    rtree_hash_entry *get(const entity_base_vhandle &a2);
+
     //0x0055FAC0
     bool find(const entity_base_vhandle &key, rtree_hash_entry **a3);
 

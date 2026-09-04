@@ -6,8 +6,7 @@
 #include "mash_info_struct.h"
 
 template<typename T>
-struct mashable_interface : mash_virtual_base
-{
+struct mashable_interface : mash_virtual_base {
     T *ifc = nullptr;
 
     auto *get_interface()
@@ -25,11 +24,9 @@ struct mashable_interface : mash_virtual_base
         int a1 = 0;
         std::memcpy(&a1, a4->field_0, 4);
         a4->field_0 += 4;
-        if ( a1 != 0 )
-        {
+        if (a1 != 0) {
             auto v9 = 4 - ((int) a4->field_0 % 4);
-            if ( v9 < 4 )
-            {
+            if (v9 < 4) {
                 a4->field_0 += v9;
             }
 
@@ -38,15 +35,13 @@ struct mashable_interface : mash_virtual_base
             a4->field_0 += 4;
 
             auto v7 = 16 - ((int) a4->field_0 % 16);
-            if ( v7 < 0x10 )
-            {
+            if (v7 < 0x10) {
                 a4->field_0 += v7;
             }
 
             uint8_t *a2a = nullptr;
             auto v5 = 4 - ((int) a4->field_0 % 4);
-            if ( v5 < 4 )
-            {
+            if (v5 < 4) {
                 a4->field_0 += v5;
             }
 

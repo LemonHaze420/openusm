@@ -3,7 +3,8 @@
 struct interaction_type_enum {
     int value;
 
-    operator int() {
+    operator int()
+    {
         return value;
     }
 };

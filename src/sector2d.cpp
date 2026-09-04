@@ -6,7 +6,8 @@
 
 #include <cmath>
 
-sector2d::sector2d(const vector3d &a2, const vector3d &a3, Float a4) {
+sector2d::sector2d(const vector3d &a2, const vector3d &a3, Float a4)
+{
     auto &v5 = a3;
     this->fov = a4;
     auto v6 = v5[0];

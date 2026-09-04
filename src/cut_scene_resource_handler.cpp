@@ -13,7 +13,19 @@ VALIDATE_SIZE(cut_scene_resource_handler, 0x14);
 
 cut_scene_resource_handler::cut_scene_resource_handler(worldly_pack_slot *a2)
 {
-    this->m_vtbl = 0x00888AD4;
+    if constexpr (1) {
+        static void *g_vtbl[] = {
+            func_address(&finalize),
+            func_address(&_handle),
+            func_address(&_pre_handle_resources),
+            func_address(&_handle_resource),
+        };
+
+        this->m_vtbl = CAST(m_vtbl, &g_vtbl);
+    } else {
+        this->m_vtbl = 0x00888AD4;
+    }
+
     this->my_slot = a2;
     this->field_10 = RESOURCE_KEY_TYPE_CUT_SCENE;
 }
@@ -29,8 +41,8 @@ bool cut_scene_resource_handler::_handle(worldly_resource_handler::eBehavior a2,
     return base_engine_resource_handler::_handle(a2, a3);
 }
 
-bool cut_scene_resource_handler::_handle_resource(worldly_resource_handler::eBehavior a2,
-                                                 resource_location *a3) {
+bool cut_scene_resource_handler::_handle_resource(worldly_resource_handler::eBehavior a2, resource_location *a3)
+{
     auto &res_dir = this->my_slot->get_resource_directory();
     auto *resource = res_dir.get_resource(a3, nullptr);
     assert(resource != nullptr);
@@ -38,11 +50,10 @@ bool cut_scene_resource_handler::_handle_resource(worldly_resource_handler::eBeh
     if (a2 == UNLOAD) {
         auto *v6 = g_cut_scene_player();
 
-        auto *scene = (cut_scene *) resource;
+        auto *scene = (cut_scene *)resource;
         v6->stop(scene);
         scene->destruct_mashed_class();
     } else {
-
         cut_scene *v1 = nullptr;
 
 #ifndef TARGET_XBOX
@@ -50,7 +61,7 @@ bool cut_scene_resource_handler::_handle_resource(worldly_resource_handler::eBeh
 
         info_struct.unmash_class(v1, nullptr);
 #else
-        mash_info_struct info_struct {mash::UNMASH_MODE, resource, a3->m_size, true};
+        mash_info_struct info_struct{mash::UNMASH_MODE, resource, a3->m_size, true};
 
         info_struct.unmash_class(v1, nullptr, mash::NORMAL_BUFFER);
 

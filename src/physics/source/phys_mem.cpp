@@ -4,7 +4,7 @@
 
 unsigned int sub_68B67E(char *a1, int a2)
 {
-  return ~(a2 - 1) & (unsigned int)&a1[a2 - 1];
+    return ~(a2 - 1) & (unsigned int)&a1[a2 - 1];
 }
 
 void *phys_memory_heap::allocate_internal(int size, int align)
@@ -12,8 +12,7 @@ void *phys_memory_heap::allocate_internal(int size, int align)
     assert(size > 0);
 
     auto *mem = (char *)sub_68B67E(this->m_buffer_cur, align);
-    if ( &mem[size] > this->m_buffer_end )
-    {
+    if (&mem[size] > this->m_buffer_end) {
         return nullptr;
     }
 

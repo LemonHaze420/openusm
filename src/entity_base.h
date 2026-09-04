@@ -141,9 +141,9 @@ struct entity_base : entity_base_vtable {
     _std::vector<entity_base *> *adopted_children;
     conglomerate *my_conglom_root;
     sound_and_pfx_interface *my_sound_and_pfx_interface;
-    int16_t field_3C;
+    uint16_t field_3C;
     int16_t field_3E;
-    int8_t field_40;
+    uint8_t field_40;
     int8_t field_41;
     int8_t rel_po_idx;
     int8_t proximity_map_reference_count;
@@ -163,7 +163,7 @@ struct entity_base : entity_base_vtable {
         return this->field_3C;
     }
 
-    uint16_t get_bone_idx() const;
+    int16_t get_bone_idx() const;
 
     float sub_57CB80();
 
@@ -207,6 +207,11 @@ struct entity_base : entity_base_vtable {
     void set_ext_flag_recursive_internal(entity_ext_flag_t f, bool a3);
 
     void set_flag_recursive(entity_flag_t a2, bool a3);
+
+    void set_member_hidden(bool a2)
+    {
+        this->set_flag_recursive(static_cast<entity_flag_t>(0x80000000), a2);
+    }
 
     void set_ext_flag_recursive(entity_ext_flag_t a2, bool a3);
 
@@ -366,6 +371,10 @@ struct entity_base : entity_base_vtable {
     //0x004F36B0
     void raise_event(string_hash a2);
 
+    void add_child(entity_base *good_kid);
+
+    void remove_child(entity_base *bad_kid);
+
     //0x004E0E50
     void set_parent(entity_base *parent);
 
@@ -378,11 +387,13 @@ struct entity_base : entity_base_vtable {
 
     po &get_rel_po();
 
-    auto *get_parent() {
+    auto *get_parent()
+    {
         return this->m_parent;
     }
 
-    auto get_my_handle() {
+    auto get_my_handle()
+    {
         return this->my_handle;
     }
 
@@ -404,11 +415,13 @@ struct entity_base : entity_base_vtable {
 
     bool are_collisions_active() const;
 
-    bool is_conglom_member() const {
+    bool is_conglom_member() const
+    {
         return ((this->field_4 & 0x8000) != 0);
     }
 
-    bool is_a_conglomerate() const {
+    bool is_a_conglomerate() const
+    {
         return ((this->field_4 & 4) != 0);
     }
 
@@ -420,10 +433,7 @@ struct entity_base : entity_base_vtable {
     void un_mash_start(generic_mash_header *a2, void *a3, generic_mash_data_ptrs *a4, void *a5);
 
     //0x004F3700
-    int add_callback(string_hash a2,
-                     void (*callback)(event *, entity_base_vhandle, void *),
-                     void *a4,
-                     bool a5);
+    int add_callback(string_hash a2, void (*callback)(event *, entity_base_vhandle, void *), void *a4, bool a5);
 
     //0x004DB740
     void add_adopted_child(entity_base *child_arg);
@@ -445,9 +455,10 @@ struct entity_base : entity_base_vtable {
     //0x004DB590
     void update_abs_po(bool a2);
 
-    void sub_4D3F60(entity_base *a2);
+    void clear_adopted_children();
 
-    void sub_4E0DD0();
+    //0x004D3F60
+    void remove_adopted_child(entity_base *a2);
 
     //0x004D3FB0
     void clear_parent(bool a1);
@@ -468,7 +479,15 @@ struct entity_base : entity_base_vtable {
     //0x0048AC00
     const vector3d &get_abs_position();
 
-    entity_base *get_first_child();
+    entity_base *get_first_child()
+    {
+        return this->m_child;
+    }
+
+    entity_base *get_next_sibling()
+    {
+        return this->field_28;
+    }
 
     void enter_limbo();
 
@@ -481,7 +500,8 @@ struct entity_base : entity_base_vtable {
     //0x004BFF20
     void dirty_model_po_family();
 
-    inline auto &get_id() const {
+    inline auto &get_id() const
+    {
         return this->field_10;
     }
 
@@ -495,9 +515,12 @@ struct entity_base : entity_base_vtable {
 
     void set_timer(int new_timer);
 
-    auto get_fade_group() const {
+    auto get_fade_group() const
+    {
         return this->field_3E;
     }
+
+    void destroy_sound_and_pfx_ifc();
 };
 
 extern void entity_teleport_abs_position(entity_base *a2, const vector3d &a3, bool a4);

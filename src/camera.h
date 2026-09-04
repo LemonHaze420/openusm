@@ -15,7 +15,7 @@ struct camera : actor {
     //0x00577970
     camera(entity *a2, const string_hash &a3);
 
-    void * operator new(size_t size);
+    void *operator new(size_t size);
 
     float compute_xz_projected_fov();
 
@@ -40,18 +40,12 @@ struct camera : actor {
 
     //virtual
     bool _is_a_camera() const;
-
 };
 
-inline Var<camera*> g_camera_link {0x0095C720};
+inline Var<camera *> g_camera_link{0x0095C720};
 
 struct region;
 
-extern vector3d collide_with_world(
-        camera *,
-        const vector3d &a3,
-        float a2,
-        const vector3d &arg10,
-        region *reg);
+extern vector3d collide_with_world(camera *, const vector3d &a3, float a2, const vector3d &arg10, region *reg);
 
 extern void camera_patch();

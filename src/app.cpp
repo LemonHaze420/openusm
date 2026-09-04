@@ -41,7 +41,6 @@
 #include "tokenizer.h"
 #include "trace.h"
 #include "trigger_manager.h"
-#include "unit_tests.h"
 #include "utility.h"
 #include "window_manager.h"
 
@@ -63,8 +62,7 @@ nglTexture *& g_shadow_target_unblurred = var<nglTexture *>(0x00965F48);
 
 void sub_592E40()
 {
-    for (auto &s : g_shadow())
-    {
+    for (auto &s : g_shadow()) {
         if (s.field_44 != nullptr) {
             nglDestroyTexture(s.field_44);
         }
@@ -87,16 +85,15 @@ void init_shadow_targets()
     sub_592E40();
 
     tlFixedString v1;
-    for ( auto &s : g_shadow() )
-    {
+    for (auto &s : g_shadow()) {
         s.field_44 = nglCreateTexture(4609, 128, 128, 0, 1);
         v1 = tlFixedString{"blurred shadow texture"};
-        s.field_44->field_60 = v1;
+        s.field_44->FileName = v1;
     }
 
     g_shadow_target_unblurred = nglCreateTexture(4609u, 256, 256, 0, 1);
 
-    g_shadow_target_unblurred->field_60 = tlFixedString {"unblurred shadow"};
+    g_shadow_target_unblurred->FileName = tlFixedString{"unblurred shadow"};
 }
 
 void set_god_mode(int a1)
@@ -129,14 +126,43 @@ void set_god_mode(int a1)
     }
 }
 
+static auto &g_hit_list = var<_std::vector<vector3d> *>(0x0095C708);
+static auto &g_normal_list1 = var<_std::vector<vector3d> *>(0x0095C1DC);
+static auto &g_normal_list2 = var<_std::vector<vector3d> *>(0x0095C184);
+
 void colgeom_init_lists()
 {
+    if constexpr (0) {
+        g_hit_list = new _std::vector<vector3d>{};
+        g_hit_list->reserve(1024u);
+
+        g_normal_list1 = new _std::vector<vector3d>{};
+        g_normal_list1->reserve(1024u);
+
+        g_normal_list2 = new _std::vector<vector3d>{};
+        g_normal_list2->reserve(1024u);
+    } else {
     CDECL_CALL(0x00544E90);
+}
 }
 
 void colgeom_destroy_lists()
 {
+    if constexpr (0) {
+        if (g_hit_list != nullptr) {
+            delete g_hit_list;
+        }
+
+        if (g_normal_list1 != nullptr) {
+            delete g_normal_list1;
+        }
+
+        if (g_normal_list2 != nullptr) {
+            delete g_normal_list2;
+        }
+    } else {
     CDECL_CALL(0x005489A0);
+}
 }
 
 app::app()
@@ -144,13 +170,11 @@ app::app()
     TRACE("app::app");
     this->m_vtbl = 0x00891634;
 
-    unit_tests();
     mem_print_stats("after unit tests");
 #ifndef OPENUSM_XBPACK_MODE
     g_platform = NL_PLATFORM_PC;
 #endif
-    if (link_system::use_link_system())
-    {
+    if (link_system::use_link_system()) {
         /*
         link_system::init();
         link_system::add_recipient(spider_monkey::link_receive);
@@ -207,6 +231,8 @@ app::app()
 
 app::~app()
 {
+    TRACE("app::~app");
+
     this->m_vtbl = 0x00891634;
 
     if (this->m_game != nullptr) {
@@ -226,8 +252,7 @@ app::~app()
 
 void app::internal::begin_screen_recording(const mString &a2, int a3)
 {
-    if (this->field_18 != 2)
-    {
+    if (this->field_18 != 2) {
         this->field_18 = 2;
         this->field_0 = a2;
         this->field_14 = 0;
@@ -235,7 +260,8 @@ void app::internal::begin_screen_recording(const mString &a2, int a3)
     }
 }
 
-void app::internal::end_screen_recording() {
+void app::internal::end_screen_recording()
+{
     this->field_18 = 0;
     os_developer_options::instance->set_int(mString{"CAMERA_CENTRIC_STREAMER"}, 0);
 }
@@ -251,8 +277,7 @@ void app::internal::sub_5B8670()
     char Dest[64];
 
     auto v2 = this->field_18;
-    if (v2 != 0)
-    {
+    if (v2 != 0) {
         if (v2 == 1) {
             sprintf(Dest, "screenshot%.4d", this->field_10++);
         } else {
@@ -279,8 +304,7 @@ void app::tick()
         sp_log("frame_lock = %d", frame_lock);
 
         float time_inc = 0.0f;
-        do
-        {
+        do {
             time_inc = this->field_34.elapsed();
             g_game_ptr->handle_frame_locking(&time_inc);
 
@@ -290,14 +314,12 @@ void app::tick()
             if ( time_inc > v4 ) {
                 time_inc = v4;
             }
-        }
-        while ( 0 /* time_inc < 0.0f */ );
+        } while (0 /* time_inc < 0.0f */);
 
         this->field_34.reset();
     }
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         limited_timer_base local_timer;
         local_timer.reset();
 
@@ -309,15 +331,13 @@ void app::tick()
         sub_77B2F0(0);
 
         float time_inc;
-        for (time_inc = g_timer()->sub_5821D0(); equal(time_inc, 0.0f);
-             time_inc = g_timer()->sub_5821D0()) {
+        for (time_inc = g_timer->sub_5821D0(); equal(time_inc, 0.0f); time_inc = g_timer->sub_5821D0()) {
             Sleep(0);
         }
 
         static bool & byte_9682F0 = var<bool>(0x009682F0);
 
-        if (time_inc <= 0.0f)
-        {
+        if (time_inc <= 0.0f) {
             byte_9682F0 = true;
 
             if (g_smoke_test() != nullptr) {
@@ -325,9 +345,8 @@ void app::tick()
             }
 
             if ( (g_game_ptr->flag.level_is_loaded && !g_game_ptr->field_165) ||
-                    g_femanager.m_fe_menu_system != nullptr
-                    && g_femanager.m_fe_menu_system->sub_60C230()
-                    && g_cut_scene_player()->is_playing()) {
+                (g_femanager.m_fe_menu_system != nullptr && g_femanager.m_fe_menu_system->sub_60C230() &&
+                 g_cut_scene_player()->is_playing())) {
                 comic_panels::render();
             } else if (g_femanager.m_fe_menu_system == nullptr || !g_femanager.m_fe_menu_system->sub_60C230()) {
                 game::render_empty_list();
@@ -336,9 +355,7 @@ void app::tick()
             this->field_4.sub_5B8670();
             actor::swap_all_mesh_buffers();
 
-        }
-        else
-        {
+        } else {
             slab_allocator::process_lists();
             script_memtrack::frame_advance();
             if (!IsWindow(window_manager::instance()->field_4)) {
@@ -362,8 +379,7 @@ void app::tick()
             byte_9682F0 = false;
         }
 
-        if (os_developer_options::instance->get_int(mString{"FRAME_LIMIT"}))
-        {
+        if (os_developer_options::instance->get_int(mString{"FRAME_LIMIT"})) {
             while (local_timer.elapsed() < 0.033333335) {
                 ;
             }
@@ -372,9 +388,7 @@ void app::tick()
         this->m_game->field_278 = total_timer.elapsed();
         this->m_game->field_280 = 0;
 
-    }
-    else
-    {
+    } else {
         THISCALL(0x005D6FC0, this);
     }
 }
@@ -396,8 +410,7 @@ void app::cleanup()
 {
     TRACE("app::cleanup");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         gab_manager::delete_inst();
 
         if ( !os_developer_options::instance->get_flag(mString {"DISABLE_AUDIO_BOXES"}) ) { 
@@ -408,22 +421,19 @@ void app::cleanup()
         script_sound_manager::delete_inst();
         sound_manager::delete_inst();
 
-        if ( input_mgr::instance != nullptr )
-        {
+        if (input_mgr::instance != nullptr) {
             delete input_mgr::instance;
             input_mgr::instance = nullptr;
         }
 
         string_hash_dictionary::delete_inst();
 
-        if ( pc_input_mgr::instance() != nullptr )
-        {
-            delete pc_input_mgr::instance();
-            pc_input_mgr::instance() = nullptr;
+        if (pc_input_mgr::instance != nullptr) {
+            delete pc_input_mgr::instance;
+            pc_input_mgr::instance = nullptr;
         }
 
-        if ( trigger_manager::instance != nullptr )
-        {
+        if (trigger_manager::instance != nullptr) {
             delete trigger_manager::instance;
             trigger_manager::instance = nullptr;
         }
@@ -438,12 +448,14 @@ void app::cleanup()
     }
 }
 
+void __fastcall app_finalize(app *self)
+{
+    self->~app();
+}
+
 void app_patch()
 {
-    if constexpr (1)
-    {
-        REDIRECT(0x005E10BF, unit_tests);
-    }
+    REDIRECT(0x005E99D3, app_finalize);
 
     REDIRECT(0x005AD2E9, app::create_inst);
 
@@ -458,5 +470,4 @@ void app_patch()
     }
 
     REDIRECT(0x005E10EE, init_shadow_targets);
-
 }

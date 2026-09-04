@@ -2,9 +2,6 @@
 
 namespace ai {
 
-put_down_state::put_down_state()
-{
+put_down_state::put_down_state() {}
 
-}
-
-} // namespace ai
+}  // namespace ai

@@ -4,11 +4,13 @@
 
 VALIDATE_SIZE(RenderOptimizations, 0x30u);
 
-RenderOptimizations::RenderOptimizations() {
+RenderOptimizations::RenderOptimizations()
+{
     init_defaults();
 }
 
-void RenderOptimizations::init_defaults() {
+void RenderOptimizations::init_defaults()
+{
     this->field_1 = false;
     this->field_0 = true;
     this->field_4 = 35.0f;

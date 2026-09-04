@@ -42,17 +42,17 @@ mString generate_pack_name(const char *a2, vm_stack &stack)
     return v4;
 }
 
-bool slf__set_mission_text__num__t::operator()(vm_stack &stack,
-                                               script_library_class::function::entry_t) {
+bool slf__set_mission_text__num__t::operator()(vm_stack &stack, script_library_class::function::entry_t)
+{
 #if 1
 
     auto v2 = stack.pop_num();
     const int v1 = v2 * 4.0f;
-    float *v3 = (float *) (stack.get_SP() - v1);
+    float *v3 = (float *)(stack.get_SP() - v1);
     stack.pop(v1);
 
-    auto *v4 = g_game_ptr->field_7C->lookup_scripttext_string((uint64_t) *v3);
-    mString a2a {v4};
+    auto *v4 = g_game_ptr->field_7C->lookup_scripttext_string((uint64_t)*v3);
+    mString a2a{v4};
 
     sp_log("%s", a2a.c_str());
 
@@ -74,7 +74,7 @@ bool slf__set_mission_text__num__t::operator()(vm_stack &stack,
                 result_string.append("%");
                 break;
             case 'd': {
-                mString v9 = mString::from_int((uint64_t) *v7);
+                mString v9 = mString::from_int((uint64_t)*v7);
 
                 result_string += v9;
 
@@ -90,7 +90,7 @@ bool slf__set_mission_text__num__t::operator()(vm_stack &stack,
                 break;
             }
             case 's': {
-                auto v11 = g_game_ptr->field_7C->lookup_scripttext_string((uint64_t) *v7);
+                auto v11 = g_game_ptr->field_7C->lookup_scripttext_string((uint64_t)*v7);
                 result_string.append(v11);
                 ++v7;
                 break;
@@ -135,19 +135,20 @@ bool slf__set_mission_text__num__t::operator()(vm_stack &stack,
 
     SLF_DONE;
 #else
-    return (bool) THISCALL(0x00672C00, this, &stack, a2);
+    return (bool)THISCALL(0x00672C00, this, &stack, a2);
 #endif
 }
 
-bool slf__bring_up_dialog_box_title__num__num__num__t::operator()(
-    vm_stack &stack, script_library_class::function::entry_t a2) {
+bool slf__bring_up_dialog_box_title__num__num__num__t::operator()(vm_stack &stack,
+                                                                  script_library_class::function::entry_t a2)
+{
     sp_log("script_library_class::function::entry_t: %d", a2);
 
-    return (bool) THISCALL(0x00673240, this, &stack, a2);
+    return (bool)THISCALL(0x00673240, this, &stack, a2);
 }
 
-bool slf__set_mission_text_box_flavor__num__t::operator()(vm_stack &a1,
-                                                          script_library_class::function::entry_t) {
+bool slf__set_mission_text_box_flavor__num__t::operator()(vm_stack &a1, script_library_class::function::entry_t)
+{
     auto num = a1.pop_num();
 
     sp_log("num = %d %f", num, num);
@@ -156,7 +157,7 @@ bool slf__set_mission_text_box_flavor__num__t::operator()(vm_stack &a1,
     return true;
 }
 
-bool __stdcall slf__get_pack_size__str__t__cl(vm_stack &stack, int )
+bool __stdcall slf__get_pack_size__str__t__cl(vm_stack &stack, int)
 {
     TRACE("slf__get_pack_size__str__t__cl");
 
@@ -172,7 +173,7 @@ bool __stdcall slf__get_pack_size__str__t__cl(vm_stack &stack, int )
     resource_pack_location a2{};
     resource_manager::get_pack_file_stats(out_key, &a2, nullptr, nullptr);
     float result = a2.loc.m_size;
-    if ( a2.loc.m_size < 0 ) {
+    if (a2.loc.m_size < 0) {
         result += 4.2949673e9;
     }
 

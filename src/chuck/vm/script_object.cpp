@@ -30,14 +30,14 @@ script_object::script_object()
     this->constructor_common();
 }
 
-void script_object::constructor_common() {
+void script_object::constructor_common()
+{
     TRACE("script_object::constructor_common");
 
     assert(instances == nullptr);
 
     if constexpr (1) {
-        auto *mem = mem_alloc(sizeof(*this->instances));
-        this->instances = new (mem) simple_list<script_instance> {};
+        this->instances = new simple_list<script_instance *>{};
     } else {
         THISCALL(0x005A0750, this);
     }
@@ -75,20 +75,18 @@ void script_object::destructor_common()
 {
     TRACE("script_object::destructor_common");
 
-    if ( this->instances != nullptr )
-    {
-        while ( !this->instances->empty() )
-        {
+    if (this->instances != nullptr) {
+        while (!this->instances->empty()) {
             auto v5 = this->instances->begin();
-            this->instances->common_erase(v5._Ptr);
+            this->instances->checked_erase(*v5);
 
-            auto *v3 = v5._Ptr;
+            auto *v3 = (*v5);
             if ( v3 != nullptr ) {
                 delete v3;
             }
         }
 
-        mem_dealloc(this->instances, sizeof(*this->instances));
+        delete this->instances;
         this->instances = nullptr;
     }
 
@@ -97,21 +95,17 @@ void script_object::destructor_common()
 
 void script_object::destroy()
 {
-    if ( debug_info != nullptr )
-    {
+    if (debug_info != nullptr) {
         this->debug_info->~debug_info_t();
         ::operator delete(debug_info);
         this->debug_info = nullptr;
     }
 
-    if ( this->funcs != nullptr )
-    {
-        for ( auto i = 0; i < this->total_funcs; ++i )
-        {
+    if (this->funcs != nullptr) {
+        for (auto i = 0; i < this->total_funcs; ++i) {
             auto &v5 = this->funcs[i];
             if ( v5 != nullptr ) {
-                v5->~vm_executable();
-                ::operator delete(v5);
+                delete v5;
             }
         }
 
@@ -125,38 +119,27 @@ void script_object::destroy()
 
 void script_object::create_destructor_instances()
 {
-	if constexpr (1)
-    {
+    if constexpr (1) {
 		this->global_instance = nullptr;
-		if ( this->instances != nullptr )
-		{
-			for ( auto &v2 : (*this->instances) )
-			{
-				v2.massacre_threads(nullptr, nullptr);
-				if ( v2.field_28 != nullptr )
-				{
-					if ( !v2.field_28->is_from_mash() )
-					{
-						v2.field_28->~vm_executable();
-						::operator delete(v2.field_28);
+        if (this->instances != nullptr) {
+            for (auto &v2 : (*this->instances)) {
+                v2->massacre_threads(nullptr, nullptr);
+                if (v2->field_28 != nullptr) {
+                    if (!v2->field_28->is_from_mash()) {
+                        delete v2->field_28;
 					}
 
-					v2.field_28 = nullptr;
+                    v2->field_28 = nullptr;
 				}
 			}
 		}
 
-		if ( this->field_28 != -1
-				&& this->field_28 < this->total_funcs
-				&& this->instances != nullptr )
-		{
+        if (this->field_28 != -1 && this->field_28 < this->total_funcs && this->instances != nullptr) {
 			for ( auto &v3 : (*this->instances) ) {
-				this->add_thread(&v3, this->field_28);
+                this->add_thread(v3, this->field_28);
 			}
 		}
-	}
-    else
-    {
+    } else {
 		THISCALL(0x005AF320, this);
 	}
 }
@@ -169,21 +152,17 @@ void script_object::quick_un_mash()
     }
 }
 
-simple_list<vm_thread>::iterator script_instance::delete_thread(
-        simple_list<vm_thread>::iterator a3)
+simple_list<vm_thread *>::iterator script_instance::delete_thread(simple_list<vm_thread *>::iterator a3)
 {
     TRACE("script_instance::delete_thread");
 
-    if constexpr (0)
-    {
-        auto *condemned = &(*a3);
+    if constexpr (0) {
+        vm_thread *condemned = (*a3);
         assert(condemned != nullptr);
 
-        for ( auto &it : this->threads )
-        {
-            auto *v9 = &it;
-            if ( v9 != condemned && v9->field_14 == condemned ) {
-                v9->field_14 = nullptr;
+        for (auto &t : this->threads) {
+            if (t != condemned && t->field_14 == condemned) {
+                t->field_14 = nullptr;
             }
         }
 
@@ -195,11 +174,8 @@ simple_list<vm_thread>::iterator script_instance::delete_thread(
         }
 
         return v8;
-
-    }
-    else
-    {
-        using iterator_t = simple_list<vm_thread>::iterator;
+    } else {
+        using iterator_t = simple_list<vm_thread *>::iterator;
 
         iterator_t it {};
 
@@ -213,11 +189,9 @@ void script_instance::dump_threads_to_file(FILE *a2)
 {
     TRACE("script_instance::dump_threads_to_file");
 
-    for ( auto &v7 : this->threads )
-    {
-        if ( !v7.is_suspended() )
-        {
-            auto *exec = v7.get_executable();
+    for (auto &v7 : this->threads) {
+        if (!v7->is_suspended()) {
+            auto *exec = v7->get_executable();
             auto &name = exec->get_name();
             auto *v4 = name.to_string();
             auto *v3 = this->name.to_string();
@@ -234,9 +208,8 @@ void script_instance::run(bool a2)
     this->build_parameters();
     auto it = this->threads.begin();
     auto end = this->threads.end();
-    while (it != end)
-    {
-        auto *t = it._Ptr;
+    while (it != end) {
+        auto *t = (*it);
         assert(t != nullptr);
 
         if ( (a2 || !t->is_suspended()) && t->run() ) {
@@ -247,9 +220,7 @@ void script_instance::run(bool a2)
     }
 }
 
-void script_instance::run_callbacks(
-        script_instance_callback_reason_t a2,
-        vm_thread *a3)
+void script_instance::run_callbacks(script_instance_callback_reason_t a2, vm_thread *a3)
 {
     TRACE("script_instance::run_callbacks");
 
@@ -262,47 +233,41 @@ void script_instance::build_parameters()
 {
     TRACE("script_instance::build_parameters");
 
-    if constexpr (1)
-    {
-        if ( this->field_28 != nullptr )
-        {
+    if constexpr (1) {
+        if (this->field_28 != nullptr) {
             assert(parent != nullptr);
 
             static const string_hash inst_name {"__parms_builder"};
-            auto *v6 = parent->add_instance(inst_name, nullptr, nullptr);
+            auto *v6 = parent->add_instance(inst_name, bit_cast<char *>(nullptr), nullptr);
             vm_thread t {v6, this->field_28};
             t.run();
             this->parent->remove_instance(v6);
             t.inst = nullptr;
             t.ex = nullptr;
-            auto *v12 = t.get_data_stack().buffer;
+            auto *v4 = t.get_data_stack().get_buffer();
             assert(threads.size() == 1);
 
             auto *v11 = this->threads._first_element;
             auto constructor_parmsize = this->parent->get_constructor_parmsize();
-            auto v4 = v12;
             auto &stack = v11->get_data_stack();
             stack.push(v4, constructor_parmsize);
-            if ( !this->field_28->is_from_mash() )
-            {
+            if (!this->field_28->is_from_mash()) {
                 auto *v10 = this->field_28;
                 auto *v9 = v10;
                 if ( v10 != nullptr ) {
-                    v9->~vm_executable();
-                    delete(v9);
+                    delete v9;
                 }
             }
 
             this->field_28 = nullptr;
         }
-    }
-    else
-    {
+    } else {
         THISCALL(0x005AF500, this);
     }
 }
 
-int script_object::get_constructor_parmsize() {
+int script_object::get_constructor_parmsize() const
+{
     auto *func = this->get_func(0);
     auto v2 = func->get_parms_stacksize();
     if ( !func->is_static() ) {
@@ -317,16 +282,15 @@ void script_object::run(bool a2)
     TRACE("script_object::run");
 
     for (auto &v1 : (*this->instances) ) {
-        v1.run(a2);
+        v1->run(a2);
     }
 }
 
 bool script_object::has_threads() const
 {
-    if (this->instances != nullptr)
-	{
+    if (this->instances != nullptr) {
         for (auto &v1 : (*this->instances)) {
-            if (v1.has_threads()) {
+            if (v1->has_threads()) {
                 return true;
             }
         }
@@ -341,20 +305,56 @@ void script_object::dump_threads_to_file(FILE *a2)
 
     if ( this->instances != nullptr ) {
         for ( auto &v2 : (*this->instances) ) {
-            v2.dump_threads_to_file(a2);
+            v2->dump_threads_to_file(a2);
         }
     }
+}
+
+script_instance *script_object::add_instance(string_hash a1, chunk_file *a3, vm_thread **a4)
+{
+    assert(!this->is_global_object() && "please don't create global object instances with this method");
+
+    script_instance *inst = new script_instance{a1, this->data_blocksize, 0};
+    assert(inst != nullptr);
+
+    this->add(inst);
+
+    auto &con = *this->get_func(0);
+    assert(con.get_name() == name);
+
+    auto *v21 = inst->add_thread(&con);
+
+    auto &data_stack = v21->get_data_stack();
+    data_stack.push(bit_cast<const char *>(&inst), 4u);
+
+    [[maybe_unused]] auto parms_stacksize = con.get_parms_stacksize();
+    if (!con.is_static()) {
+        parms_stacksize -= 4;
+    }
+
+    if (a3 != nullptr) {
+        inst->field_28 = new vm_executable{this};
+        vm_executable::read(a3, inst->field_28);
+
+        assert(this->parent != nullptr);
+
+        inst->field_28->link(*this->parent);
+    }
+
+    if (a4 != nullptr) {
+        *a4 = v21;
+    }
+
+    return inst;
 }
 
 script_instance * script_object::add_instance(string_hash a2, char *a3, vm_thread **a4)
 {
     TRACE("script_object::add_instance");
 
-    assert(!this->is_global_object()
-                && "please don't create global object instances with this method");
+    assert(!this->is_global_object() && "please don't create global object instances with this method");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         auto *inst = new script_instance {a2, this->data_blocksize, 0u};
         assert(inst != nullptr);
 
@@ -371,8 +371,7 @@ script_instance * script_object::add_instance(string_hash a2, char *a3, vm_threa
             v10 -= 4;
         }
 
-        if ( a3 != nullptr )
-        {
+        if (a3 != nullptr) {
             auto &stack = v9->get_data_stack();
             stack.push(a3, v10);
         }
@@ -395,8 +394,7 @@ script_instance * script_object::add_instance(string_hash a2, vm_executable *par
 
     //assert(parms_builder->is_from_mash() && "this function should only be used for mashed parms_builders");
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         auto *inst = new script_instance {a2, this->data_blocksize, 0};
         assert(inst != nullptr);
 
@@ -413,14 +411,13 @@ script_instance * script_object::add_instance(string_hash a2, vm_executable *par
         assert(parent != nullptr);
 
         if ( inst->field_28 != nullptr ) {
-            inst->field_28->link(this->parent);
+            inst->field_28->link(*this->parent);
         }
 
         return inst;
-    }
-    else
-    {
-        script_instance * (__fastcall *func)(void *, void *edx, string_hash a2, vm_executable *parms_builder) = CAST(func, 0x005AB200);
+    } else {
+        script_instance *(__fastcall * func)(void *, void *edx, string_hash a2, vm_executable *parms_builder) =
+            CAST(func, 0x005AB200);
         return func(this, nullptr, a2, parms_builder);
     }
 }
@@ -431,18 +428,15 @@ void script_object::remove_instance(script_instance *a2)
 
 	assert(this->instances != nullptr);
 
-	if constexpr (1)
-	{
-		for ( auto &v7 : (*this->instances) )
-		{
-			if ( (&v7) == a2 )
-			{
-				auto *v2 = &v7;
+    if constexpr (1) {
+        for (auto &v7 : (*this->instances)) {
+            if (v7 == a2) {
+                auto *v2 = v7;
 				if ( v2 == this->global_instance ) {
 					this->global_instance = nullptr;
 				}
 
-				this->instances->common_erase({v2});
+                this->instances->erase({v2});
 
 				delete v2;
 				return;
@@ -450,9 +444,7 @@ void script_object::remove_instance(script_instance *a2)
 		}
 
 		assert(0);
-	}
-    else
-    {
+    } else {
 		THISCALL(0x005ADC60, this, a2);
 	}
 }
@@ -472,25 +464,21 @@ void script_object::add(script_instance *a2)
 {
     TRACE("script_object::add");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         assert(instances != nullptr);
 
         a2->set_parent(this);
-        this->instances->emplace_back(a2);
-    }
-    else
-    {
+        this->instances->push_back(a2);
+    } else {
         THISCALL(0x0059ECC0, this, a2);
     }
 }
 
-void script_object::link(const script_executable *a2)
+void script_object::link(const script_executable &a2)
 {
     TRACE("script_object::link");
 
-    for ( auto i = 0; i < this->total_funcs; ++i )
-    {
+    for (auto i = 0; i < this->total_funcs; ++i) {
         auto &x = this->funcs[i];
         x->link(a2);
     }
@@ -500,19 +488,17 @@ void script_object::un_mash(generic_mash_header *header, void *a3, void *a4, gen
 {
     TRACE("script_object::un_mash");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         this->parent = static_cast<script_executable *>(a3);
         assert(((int)header) % 4 == 0);
 
         this->static_data.un_mash(header, &this->static_data, a5);
 
-        rebase(a5->field_0, 4u);
+        a5->rebase(4u);
 
         this->funcs = a5->get<vm_executable *>(this->total_funcs);
-        for ( auto i = 0; i < this->total_funcs; ++i )
-        {
-            rebase(a5->field_0, 4u);
+        for (auto i = 0; i < this->total_funcs; ++i) {
+            a5->rebase(4u);
 
             this->funcs[i] = bit_cast<vm_executable *>(a5->field_0);
 #ifdef OPENUSM_XBPACK_V10
@@ -530,9 +516,7 @@ void script_object::un_mash(generic_mash_header *header, void *a3, void *a4, gen
             this->create_auto_instance(Float{0.0});
         }
 
-    }
-    else
-    {
+    } else {
         THISCALL(0x005AB350, this, header, a3, a4, a5);
     }
 
@@ -546,15 +530,13 @@ void script_object::create_auto_instance(Float a2)
 {
     TRACE("script_object::create_auto_instance");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         assert(this->instances != nullptr);
 
         auto &con = *this->get_func(0);
         assert(con.get_name() == name);
 
-        if ( con.get_parms_stacksize() == 4 )
-        {
+        if (con.get_parms_stacksize() == 4) {
             static string_hash auto_inst_name {int(to_hash("__auto"))};
 
             auto *inst = new script_instance {auto_inst_name, this->data_blocksize, 0};
@@ -562,16 +544,13 @@ void script_object::create_auto_instance(Float a2)
             assert(inst != nullptr);
             inst->set_parent(this);
 
-            if ( this->is_global_object() )
-            {
+            if (this->is_global_object()) {
                 assert(global_instance == nullptr);
 
-                this->instances->emplace_back(inst);
-                this->global_instance = inst;
-            }
-            else
-            {
                 this->instances->push_back(inst);
+                this->global_instance = inst;
+            } else {
+                this->instances->push_front(inst);
             }
 
             auto *new_thread = inst->add_thread(&con);
@@ -583,14 +562,12 @@ void script_object::create_auto_instance(Float a2)
                 stack.push((const char *)&inst, 4);
             }
         }
-    }
-    else
-    {
+    } else {
         THISCALL(0x005AAEF0, this, a2);
     }
 }
 
-vm_executable * script_object::get_func(int i)
+vm_executable *script_object::get_func(int i) const
 {
     assert(funcs != nullptr);
 
@@ -603,10 +580,7 @@ vm_executable * script_object::get_func(int i)
 
 int script_object::get_size_instances() const
 {
-    return ( this->instances == nullptr
-            ? 0
-            : this->instances->size()
-            );
+    return (this->instances == nullptr ? 0 : this->instances->size());
 }
 
 int script_object::find_func(string_hash a2) const
@@ -620,10 +594,8 @@ int script_object::find_func(string_hash a2) const
         auto v12 = 0x7FFFFFFF;
         auto lru_index = -1;
         while ( function_cache()[idx].field_8 != -1 ) {
-            if ( function_cache()[idx].field_0 == this 
-                && function_cache()[idx].field_4 == a2 )
-            {
-                static int dword_1597B60 {0};
+            if (function_cache()[idx].field_0 == this && function_cache()[idx].field_4 == a2) {
+                [[maybe_unused]] static int dword_1597B60{0};
                 ++dword_1597B60;
                 function_cache()[idx].field_C = usage_counter()++;
                 auto v4 = function_cache()[idx].field_8;
@@ -647,7 +619,7 @@ int script_object::find_func(string_hash a2) const
         lru_index = idx;
         LABEL_12:
 
-        static int dword_1597B64 {0};
+        [[maybe_unused]] static int dword_1597B64{0};
         ++dword_1597B64;
         for ( auto i = 0; i < this->total_funcs; ++i ) {
             auto &v9 = this->funcs[i];
@@ -671,8 +643,7 @@ int script_object::find_func(string_hash a2) const
 
 int script_object::find_func_short(string_hash a2) const
 {
-    for ( int i = 0; i < this->total_funcs; ++i )
-    {
+    for (int i = 0; i < this->total_funcs; ++i) {
         auto v3 = this->funcs[i]->get_name();
         if ( v3 == a2 ) {
             return i;
@@ -686,13 +657,10 @@ int script_object::find_function_by_address(const uint16_t *a2) const
 {
     //TRACE("script_object::find_function_by_address");
 
-    for ( auto i = 0; i < this->total_funcs; ++i )
-    {
+    for (auto i = 0; i < this->total_funcs; ++i) {
         auto &v4 = this->funcs[i];
-        if ( v4 != nullptr )
-        {
-            if ( a2 >= v4->get_start() )
-            {
+        if (v4 != nullptr) {
+            if (a2 >= v4->get_start()) {
                 auto *v2 = v4->get_start();
                 if ( a2 < v2 + v4->get_size() ) {
                     return i;
@@ -704,7 +672,8 @@ int script_object::find_function_by_address(const uint16_t *a2) const
     return -1;
 }
 
-void vm_symbol::read(chunk_file *file) {
+void vm_symbol::read(chunk_file *file)
+{
     this->field_0 = file->read<mString>();
     this->field_C = file->read<mString>();
 
@@ -737,24 +706,22 @@ void script_object::read(chunk_file *file, script_object *so)
 
     if ( cf == CHUNK_GLOBAL ) {
         so->flags |= SCRIPT_OBJECT_FLAG_GLOBAL;
+        cf = file->read<chunk_flavor>();
     }
 
     if ( cf == CHUNK_STANDARD ) {
         cf = file->read<chunk_flavor>();
-        if ( cf == CHUNK_PARENT )
-        {
+        if (cf == CHUNK_PARENT) {
             auto v39 = file->read<uint32_t>();
             auto *system_string = so->parent->get_system_string(v39);
             so->debug_info->field_0 = string_hash {system_string};
             cf = file->read<chunk_flavor>();
         }
-    } else {
-        cf = file->read<chunk_flavor>();
     }
 
     if ( cf == CHUNK_NSTATIC ) {
         auto i = file->read<int>();
-        while ( i ) {
+        while (i != 0) {
             vm_symbol v38{};
             v38.read(file);
 
@@ -772,54 +739,65 @@ void script_object::read(chunk_file *file, script_object *so)
     cf = file->read<chunk_flavor>();
 
     while ( cf == CHUNK_STAT_INIT ) {
-        auto v36 = file->read<int>();
+        auto offset = file->read<int>();
         auto v35 = file->read<int>();
         auto *buffer = so->static_data.get_buffer();
-        auto *v34 = (float *) &buffer[v36];
-        if ( v35 != 0 )
-        {
-            if ( v35 == 1 )
-            {
+        auto *v34 = bit_cast<float *>(buffer + offset);
+
+        switch (v35) {
+        case 0: {  //pst
+            auto v33 = file->read<int>();
+            auto *permanent_string = so->parent->lookup_permanent_string(v33);
+            *(DWORD *)v34 = (int)permanent_string;
+            break;
+        }
+        case 1: {  //float
                 auto v31 = file->read<float>();
                 *v34 = v31;
+            break;
             }
-            else if ( v35 == 2 )
-            {
+        case 2: {
+            script_object *pso = nullptr;
+            if (so->parent->system_string_table_size != 0) {
                 auto v30 = file->read<int>();
                 auto *str = so->parent->get_system_string(v30);
-                auto *pso = so->parent->find_object(string_hash {str}, nullptr);
-                assert(pso);
+                pso = so->parent->find_object(string_hash{str}, nullptr);
+            } else {
+                auto v30 = file->read<mString>();
+                pso = so->parent->find_object(string_hash{v30.c_str()}, nullptr);
+            }
 
-                v30 = file->read<int>();
-                [[maybe_unused]] auto *v27 = pso->parent->get_system_string(v30);
-                auto v26 = 0;
+            assert(pso != nullptr);
+
+            const char *inst_name = nullptr;
+            if (pso->parent->system_string_table_size != 0) {
+                auto v30 = file->read<int>();
+                inst_name = pso->parent->get_system_string(v30);
+            } else {
+                static mString v30 = file->read<mString>();
+                inst_name = v30.c_str();
+            }
+
+            assert(inst_name != nullptr);
+
+            script_instance *v26 = nullptr;
                 chunk_flavor v25 {"UNREG"};
                 v25 = file->read<chunk_flavor>();
-                if ( v25 == CHUNK_PARMS )
-                {
-                    //v26 = pso->sub_6870D3(string_hash {v27}, file, nullptr);
-                }
-                else if ( v25 == CHUNK_NULL )
-                {
-                    //v26 = (string_hash *)pso->add_instance(string_hash {v27}, this, nullptr);
-                }
-                else if ( v25 == CHUNK_GAME_INIT )
-                {
-                    //v26 = (string_hash *)pso->sub_68757E(string_hash {v27}, nullptr);
-                }
-                else
-                {
+            if (v25 == CHUNK_PARMS) {
+                v26 = pso->add_instance(string_hash{inst_name}, file, nullptr);
+            } else if (v25 == CHUNK_NULL) {
+                char *s = nullptr;
+                v26 = pso->add_instance(string_hash{inst_name}, s, nullptr);
+            } else if (v25 == CHUNK_GAME_INIT) {
+                v26 = pso->add_game_init_instance(string_hash{inst_name}, 0);
+            } else {
                     assert(0 && "bad sx file");
                 }
 
-                *bit_cast<DWORD *>(v34) = v26;
+            *bit_cast<script_instance **>(v34) = v26;
+
+            break;
             }
-        }
-        else
-        {
-            auto v33 = file->read<int>();
-            auto *permanent_string = so->parent->get_permanent_string(v33);
-            *(DWORD *)v34 = (int)permanent_string;
         }
 
         cf = file->read<chunk_flavor>();
@@ -855,8 +833,7 @@ void script_object::read(chunk_file *file, script_object *so)
         so->funcs = (vm_executable **)operator new(4 * so->total_funcs);
         assert(so->funcs != nullptr);
 
-        for ( auto i = 0; i < so->total_funcs; ++i )
-        {
+        for (auto i = 0; i < so->total_funcs; ++i) {
             auto *x = new vm_executable {so};
             assert(x != nullptr);
 
@@ -870,14 +847,8 @@ void script_object::read(chunk_file *file, script_object *so)
     }
 }
 
-script_instance::script_instance(
-        string_hash a2,
-        int size,
-        unsigned int a4) : name(a2),
-                            data(size),
-                            field_28(nullptr),
-                            parent(nullptr),
-                            flags(a4)
+script_instance::script_instance(string_hash a2, int size, unsigned int a4)
+    : name(a2), data(size), field_28(nullptr), parent(nullptr), flags(a4)
 {
     TRACE("script_instance::script_instance", a2.to_string());
     sp_log("%d", size);
@@ -889,21 +860,21 @@ script_instance::~script_instance()
 
     this->run_callbacks(static_cast<script_instance_callback_reason_t>(0), nullptr);
 
-    while ( !this->threads.empty() )
-    {
-        auto *t = &(*this->threads.begin());
-        this->threads.common_erase(t);
+    while (!this->threads.empty()) {
+        auto *t = (*this->threads.begin());
+        this->threads.checked_erase(t);
 
-        t->~vm_thread();
-        vm_thread::pool().remove(t);
+        delete t;
     }
 }
 
-void * script_instance::operator new(size_t size) {
+void *script_instance::operator new(size_t size)
+    {
     return mem_alloc(size);
 }
 
-void script_instance::operator delete(void *ptr, size_t size) {
+void script_instance::operator delete(void *ptr, size_t size)
+{
     mem_dealloc(ptr, size);
 }
 
@@ -911,8 +882,7 @@ bool script_instance::run_single_thread(vm_thread *a2, bool a3)
 {
     TRACE("script_instance::run_single_thread");
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         this->flags |= 2u;
         bool v4 = false;
         auto *inst = a2->get_instance();
@@ -922,12 +892,10 @@ bool script_instance::run_single_thread(vm_thread *a2, bool a3)
         assert(entry != nullptr);
 
         script_manager::run_callbacks(static_cast<script_manager_callback_reason>(10), parent, entry->field_8);
-        if ( (a3 || !a2->is_suspended()) && a2->run() )
-        {
+        if ((a3 || !a2->is_suspended()) && a2->run()) {
             auto end = this->threads.end();
-            for (auto it = this->threads.begin(); it != end; ++it )
-            {
-                if ( &(*it) == a2 ) {
+            for (auto it = this->threads.begin(); it != end; ++it) {
+                if ((*it) == a2) {
                     this->delete_thread(it);
                 }
             }
@@ -937,35 +905,28 @@ bool script_instance::run_single_thread(vm_thread *a2, bool a3)
 
         script_manager::run_callbacks(static_cast<script_manager_callback_reason>(11), parent, entry->field_8);
         return v4;
-    }
-    else
-    {
+    } else {
         return THISCALL(0x005AF100, this, a2, a3);
     }
 }
 
-void script_instance::register_callback(
-    void (*cb)(script_instance_callback_reason_t, script_instance *, vm_thread *, void *),
+void script_instance::register_callback(void (*cb)(script_instance_callback_reason_t, script_instance *, vm_thread *,
+                                                   void *),
     void *user_data)
 {
     assert(cb != nullptr);
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         this->m_callback = cb;
 
         decltype(this->field_38)::ret_t ret;
 
         void (__fastcall *func)(void *, void *edx, decltype(ret) *, void **) = CAST(func, 0x005B50E0);
 
-        func(&this->field_38, nullptr,
-           &ret,
-           &user_data);
+        func(&this->field_38, nullptr, &ret, &user_data);
 
         assert(ret.second && "tried to insert user_data more than once!!!");
-    }
-    else
-    {
+    } else {
         THISCALL(0x005A33F0, this, cb, user_data);
     }
 }
@@ -988,20 +949,18 @@ vm_thread *script_instance::add_thread(const vm_executable *ex, const char *parm
 
 void script_instance::add_thread(void *a2, const vm_executable *a3, const char *a4)
 {
-    if constexpr (0)
-    {
+    if constexpr (0) {
         auto *nt = new vm_thread {this, a3, a2};
 
         assert(nt != nullptr);
 
-        this->threads.emplace_back(nt);
+        this->threads.push_back(nt);
 
         if ( (this->flags & 1) != 0 ) {
             nt->set_suspended(true);
         }
 
-        if ( a4 != nullptr )
-        {
+        if (a4 != nullptr) {
             auto parms_stacksize = a3->get_parms_stacksize();
             auto &data_stack = nt->get_data_stack();
 
@@ -1009,9 +968,7 @@ void script_instance::add_thread(void *a2, const vm_executable *a3, const char *
         }
 
         nt->PC = a3->get_start();
-    }
-    else
-    {
+    } else {
         THISCALL(0x005AAD50, this, a2, a3, a4);
     }
 }
@@ -1022,20 +979,16 @@ void script_instance::recursive_massacre_threads(vm_thread *root)
 
     auto it = this->threads.begin();
     auto end = this->threads.end();
-    while (it != end) 
-    {
-        auto *t = &(*it);
+    while (it != end) {
+        auto *t = (*it);
         assert(t != nullptr);
 
-        if ( t->field_14 == root )
-        {
+        if (t->field_14 == root) {
             assert(t != root);
 
             this->recursive_massacre_threads(t);
             it = this->delete_thread(it);
-        }
-        else
-        {
+        } else {
             ++it;
         }
     }
@@ -1045,44 +998,34 @@ void script_instance::massacre_threads(const vm_executable *a2, const vm_thread 
 {
     TRACE("script_instance::massacre_threads");
 
-    if constexpr (1)
-    {
-        if ( a2 != nullptr )
-        {
+    if constexpr (1) {
+        if (a2 != nullptr) {
             auto it = this->threads.begin();
             auto end = this->threads.end();
-            while ( it != end )
-            {
-                auto *t = &(*it);
+            while (it != end) {
+                auto *t = (*it);
                 assert(t != nullptr);
 
                 bool v9 = false;
-                if ( t != a3 )
-                {
+                if (t != a3) {
                     auto v8 = t->get_executable()->get_name();
                     if ( a2->get_name() == v8 ) {
                         v9 = true;
                     }
                 }
 
-                if ( v9 )
-                {
+                if (v9) {
                     this->recursive_massacre_threads(t);
                     it = this->delete_thread(it);
-                }
-                else
-                {
+                } else {
                     ++it;
                 }
             }
-        }
-        else
-        {
+        } else {
             auto it = this->threads.begin();
             auto end = this->threads.end();
-            while (it != end) 
-            {
-                auto *t = &(*it);
+            while (it != end) {
+                auto *t = (*it);
                 assert(t != nullptr);
 
                 if ( t == a3 ) {
@@ -1101,18 +1044,15 @@ void script_instance::kill_thread(const vm_executable *a2, const vm_thread *a3)
 {
     TRACE("script_instance::kill_thread");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         auto it = this->threads.begin();
         auto end = this->threads.end();
-        while ( it != end )
-        {
-            auto *t = &(*it);
+        while (it != end) {
+            auto *t = (*it);
             assert(t != nullptr);
 
             bool v7 = false;
-            if ( t->get_instance() == this && t != a3 )
-            {
+            if (t->get_instance() == this && t != a3) {
                 auto v6 = a2->get_name();
                 if ( t->get_executable()->get_name() == v6 ) {
                     v7 = true;
@@ -1125,9 +1065,7 @@ void script_instance::kill_thread(const vm_executable *a2, const vm_thread *a3)
                 ++it;
             }
         }
-    }
-    else
-    {
+    } else {
         THISCALL(0x005AD8D0, this, a2, a3);
     }
 }
@@ -1137,25 +1075,21 @@ vm_thread *script_instance::add_thread(const vm_executable *a2)
     TRACE("script_instance::add_thread");
 
 #ifdef OPENUSM_XBPACK_V10
-    vm_thread * (__fastcall *func)(void *, void *, const vm_executable *) =
-        CAST(func, 0x005AAC20);
+    vm_thread *(__fastcall *func)(void *, void *, const vm_executable *) = CAST(func, 0x005AAC20);
     return func(this, nullptr, a2);
 #else
-    if constexpr (1)
-    {
+    if constexpr (1) {
         auto *nt = new vm_thread {this, a2};
         assert(nt != nullptr);
 
-        this->threads.emplace_back(nt);
+        this->threads.push_back(nt);
 
         if ( (this->flags & 1) != 0 ) {
             nt->set_suspended(true);
         }
 
         return nt;
-    }
-    else
-    {
+    } else {
         vm_thread * (__fastcall *func)(void *, void *edx, const vm_executable *a2) = CAST(func, 0x005AAC20);
         return func(this, nullptr, a2);
     }

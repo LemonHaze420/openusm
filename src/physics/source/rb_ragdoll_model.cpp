@@ -12,12 +12,10 @@
 
 static Var<ragdoll_callbacks> g_ragdoll_callbacks{0x00984558};
 
-rb_ragdoll_model::rb_ragdoll_model()
+rb_ragdoll_model::rb_ragdoll_model() {}
+
+rigid_body *rb_ragdoll_model::add_rigid_body(int rb_id)
 {
-
-}
-
-rigid_body *rb_ragdoll_model::add_rigid_body(int rb_id) {
     assert(m_list_rigid_body[rb_id] == nullptr);
 
     auto *result = phys_sys::create_rigid_body();
@@ -25,7 +23,8 @@ rigid_body *rb_ragdoll_model::add_rigid_body(int rb_id) {
     return result;
 }
 
-void rb_ragdoll_model::reset_state_variables() {
+void rb_ragdoll_model::reset_state_variables()
+{
     this->field_420 = 0;
     this->field_428 = 0;
     this->field_424 = 0.0;
@@ -34,7 +33,8 @@ void rb_ragdoll_model::reset_state_variables() {
     this->field_44C = 0;
 }
 
-void rb_ragdoll_model::sub_4ADEF0(int i, const phys_vector3d &a3) {
+void rb_ragdoll_model::sub_4ADEF0(int i, const phys_vector3d &a3)
+{
     assert(i >= 0 && i < this->m_list_rigid_body.m_alloc_count);
 
     auto v3 = 1.0f / this->m_list_rigid_body.m_data[i]->field_130;
@@ -44,7 +44,8 @@ void rb_ragdoll_model::sub_4ADEF0(int i, const phys_vector3d &a3) {
     this->apply_pulse(i, a3a);
 }
 
-void rb_ragdoll_model::apply_pulse(int i, const phys_vector3d &a3) {
+void rb_ragdoll_model::apply_pulse(int i, const phys_vector3d &a3)
+{
     assert(i >= 0 && i < this->m_list_rigid_body.m_alloc_count);
 
     if constexpr (1) {
@@ -63,16 +64,13 @@ void rb_ragdoll_model::apply_pulse(int i, const phys_vector3d &a3) {
     }
 }
 
-void rb_ragdoll_model::get_ballistic_info(phys_vector3d *a2, phys_vector3d *a3, float *a4) {
+void rb_ragdoll_model::get_ballistic_info(phys_vector3d *a2, phys_vector3d *a3, float *a4)
+{
     if constexpr (1) {
         math::VecClass<3, 1> v9;
         math::VecClass<3, 0> v11;
 
-        nuge::get_ballistic_info(this->m_list_rigid_body.m_data,
-                                 this->m_list_rigid_body.m_alloc_count,
-                                 &v9,
-                                 &v11,
-                                 a4);
+        nuge::get_ballistic_info(this->m_list_rigid_body.m_data, this->m_list_rigid_body.m_alloc_count, &v9, &v11, a4);
         a2->field_0[0] = v9[0];
         a2->field_0[1] = v9[1];
         a2->field_0[2] = v9[2];
@@ -86,7 +84,8 @@ void rb_ragdoll_model::get_ballistic_info(phys_vector3d *a2, phys_vector3d *a3, 
     }
 }
 
-void rb_ragdoll_model::update_stability(Float a2) {
+void rb_ragdoll_model::update_stability(Float a2)
+{
     if constexpr (1) {
         auto begin = this->m_list_rigid_body.m_data;
         int rbodies_count = 0;
@@ -154,7 +153,8 @@ void rb_ragdoll_model::update_stability(Float a2) {
     }
 }
 
-void rb_ragdoll_model::set_ragdoll_callbacks(const ragdoll_callbacks &a1) {
+void rb_ragdoll_model::set_ragdoll_callbacks(const ragdoll_callbacks &a1)
+{
     g_ragdoll_callbacks().m_calc_bone_mat_from_rb = a1.m_calc_bone_mat_from_rb;
     g_ragdoll_callbacks().m_calc_rb_mat_from_bone = a1.m_calc_rb_mat_from_bone;
 }

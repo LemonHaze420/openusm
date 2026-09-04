@@ -14,7 +14,6 @@
 struct FETextFlashInfo;
 
 struct FEText : PanelAnimObject {
-
     FETextFlashInfo *flash_info;
     font_index field_18;
 
@@ -36,15 +35,7 @@ struct FEText : PanelAnimObject {
     FEText();
 
     //0x00617500
-    FEText(font_index a2,
-           global_text_enum a3,
-           Float a4,
-           Float a5,
-           int a6,
-           panel_layer a7,
-           Float a8,
-           int a9,
-           int a10,
+    FEText(font_index a2, global_text_enum a3, Float a4, Float a5, int a6, panel_layer a7, Float a8, int a9, int a10,
            color32 a11);
 
     bool CheckIfNotTooLong(int);
@@ -60,13 +51,17 @@ struct FEText : PanelAnimObject {
     //virtual
     void Draw();
 
+    //0x0043C1E0
+    void _TurnOn(bool a2);
+
+    //virtual
+    void TurnOn(bool a2);
+
     struct string {
         int field_0;
         int m_size;
         char *guts;
         int field_C;
-
-        string() = default;
 
         string(const mString &a1)
         {
@@ -76,6 +71,8 @@ struct FEText : PanelAnimObject {
 
     /* virtual */ void Update(Float a2);
 
+    void _SetText(global_text_enum a2);
+
     //0x00617760
     /* virtual */ void SetText(global_text_enum a2);
 
@@ -84,6 +81,12 @@ struct FEText : PanelAnimObject {
     //0x00609980
     //virtual
     void SetNoFlash(color32 a2);
+
+    //0x00609A10
+    void _SetNoColor();
+
+    //virtual
+    void SetNoColor();
 
     //0x0043C240
     //virtual
@@ -97,6 +100,8 @@ struct FEText : PanelAnimObject {
     //virtual
     bool GetFlag(int a2);
 
+    void _SetTextNoLocalize(string a1);
+
     //0x0043C410
     /* virtual */ void SetTextNoLocalize(string a1);
 
@@ -104,7 +109,11 @@ struct FEText : PanelAnimObject {
 
     /* virtual */ void SetY(Float a2);
 
-    /* virtual */ mString GetName();
+    //0043D890
+    mString _GetName() const;
+
+    //virtual
+    mString GetName() const;
 
     /* virtual */ void AdjustForJustification(float *a2, float *a3);
 
@@ -113,6 +122,9 @@ struct FEText : PanelAnimObject {
     /* virtual */ float GetX();
 
     /* virtual */ float GetY();
+
+    //virtual
+    void SetNumLines(int a2);
 };
 
 extern void FEText_patch();

@@ -17,15 +17,18 @@ public:
         this->m_state = START;
     }
 
-    bool is_started() {
+    bool is_started()
+    {
         return this->m_state != START;
     }
 
-    bool is_done() {
+    bool is_done()
+    {
         return this->m_state == END;
     }
 
-    void done() {
+    void done()
+    {
         this->m_state = END;
     }
 

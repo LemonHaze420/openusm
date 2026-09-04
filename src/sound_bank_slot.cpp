@@ -8,24 +8,23 @@
 
 VALIDATE_SIZE(sound_bank_slot, 0x38);
 
-Var<bool> s_running_from_resource_pack {0x0095C828};
+Var<bool> s_running_from_resource_pack{0x0095C828};
 
-int sound_bank_slot::get_state() {
+int sound_bank_slot::get_state()
+{
     return this->m_state;
 }
 
-void sound_bank_slot::unload() {
-    if constexpr (1)
-    {
-        if ( this->nsl_voice_bank_id != NSL_BANK_ID_INVALID )
-        {
+void sound_bank_slot::unload()
+{
+    if constexpr (1) {
+        if (this->nsl_voice_bank_id != NSL_BANK_ID_INVALID) {
             nslFreeBank(this->nsl_voice_bank_id);
         }
 
         auto v2 = this->nsl_non_voice_bank_id;
         this->nsl_voice_bank_id = NSL_BANK_ID_INVALID;
-        if ( v2 != NSL_BANK_ID_INVALID )
-        {
+        if (v2 != NSL_BANK_ID_INVALID) {
             nslFreeBank(v2);
         }
 
@@ -34,25 +33,20 @@ void sound_bank_slot::unload() {
         this->m_state = 0;
 
         auto v3 = !s_running_from_resource_pack();
-        if ( v3 )
-        {
-            if ( this->field_30 != NSL_BANK_ID_INVALID )
-            {
+        if (v3) {
+            if (this->field_30 != NSL_BANK_ID_INVALID) {
                 nflCloseFile(this->field_30);
             }
 
             auto v4 = this->field_34;
             this->field_30 = NSL_BANK_ID_INVALID;
-            if ( v4 != NSL_BANK_ID_INVALID )
-            {
+            if (v4 != NSL_BANK_ID_INVALID) {
                 nflCloseFile(v4);
             }
 
             this->field_34 = NSL_BANK_ID_INVALID;
         }
-    }
-    else
-    {
+    } else {
         THISCALL(0x00520160, this);
     }
 }
@@ -70,56 +64,39 @@ void sound_bank_slot::frame_advance(Float a2)
 {
     TRACE("sound_bank_slot::frame_advance");
 
-    if constexpr (1)
-    {
-        if ( this->m_state == 1 )
-        {
+    if constexpr (1) {
+        if (this->m_state == 1) {
             auto v3 = this->nsl_voice_bank_id;
             bool v6 = false;
-            if ( v3 == NSL_BANK_ID_INVALID)
-            {
+            if (v3 == NSL_BANK_ID_INVALID) {
                 v6 = true;
-            }
-            else if (nslGetBankState(v3) != 0)
-            {
-                if (nslGetBankState(v3) < 0)
-                {
+            } else if (nslGetBankState(v3) != 0) {
+                if (nslGetBankState(v3) < 0) {
                     sp_log("Could not load voice bank for mission %s.", this->field_0.to_string());
                     v6 = true;
                 }
-            }
-            else
-            {
+            } else {
                 v6 = true;
             }
 
             auto v4 = this->nsl_non_voice_bank_id;
             bool v5 = false;
-            if (v4 == NSL_BANK_ID_INVALID)
-            {
+            if (v4 == NSL_BANK_ID_INVALID) {
                 v5 = true;
-            }
-            else if (nslGetBankState(v4) != 0)
-            {
-                if (nslGetBankState(v4) < 0)
-                {
+            } else if (nslGetBankState(v4) != 0) {
+                if (nslGetBankState(v4) < 0) {
                     sp_log("Could not load non-voice bank for mission %s.", this->field_0.to_string());
                     v5 = true;
                 }
-            }
-            else
-            {
+            } else {
                 v5 = true;
             }
 
-            if ( v6 && v5 )
-            {
+            if (v6 && v5) {
                 this->m_state = 2;
             }
         }
-    }
-    else
-    {
+    } else {
         THISCALL(0x00520200, this, a2);
     }
 }

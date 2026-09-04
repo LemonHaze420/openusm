@@ -16,6 +16,7 @@
 #include "resource_pack_slot.h"
 #include "resource_partition.h"
 #include "return_address.h"
+#include "trace.h"
 #include "utility.h"
 #include "xbpack.h"
 
@@ -151,12 +152,9 @@ void resource_directory::un_mash_start(generic_mash_header *header,
 {
     TRACE("resource_directory::un_mash_start");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         //sp_log("0x%08X", a4->field_0);
-        if (uint32_t v6 = 8 - ((uint32_t) a4->field_0 % 8u); v6 < 8) {
-            a4->field_0 += v6;
-        }
+        a4->rebase(8u);
 
         this->parents.custom_un_mash(header, &this->parents, a4, nullptr);
         this->resource_locations.custom_un_mash(header, &this->resource_locations, a4, nullptr);
@@ -167,10 +165,7 @@ void resource_directory::un_mash_start(generic_mash_header *header,
         this->mesh_locations.custom_un_mash(header, &this->mesh_locations, a4, nullptr);
         this->morph_file_locations.custom_un_mash(header, &this->morph_file_locations, a4, nullptr);
         this->morph_locations.custom_un_mash(header, &this->morph_locations, a4, nullptr);
-        this->material_file_locations.custom_un_mash(header,
-                                                     &this->material_file_locations,
-                                                     a4,
-                                                     nullptr);
+        this->material_file_locations.custom_un_mash(header, &this->material_file_locations, a4, nullptr);
         this->material_locations.custom_un_mash(header, &this->material_locations, a4, nullptr);
         this->anim_file_locations.custom_un_mash(header, &this->anim_file_locations, a4, nullptr);
         this->anim_locations.custom_un_mash(header, &this->anim_locations, a4, nullptr);
@@ -234,7 +229,8 @@ void resource_directory::un_mash_start(generic_mash_header *header,
     }
 }
 
-int resource_directory::get_resource_count(resource_key_type type) {
+int resource_directory::get_resource_count(resource_key_type type)
+{
     assert(type > RESOURCE_KEY_TYPE_NONE && type < RESOURCE_KEY_TYPE_Z);
 
     if (g_platform == NL_PLATFORM_XBOX) {
@@ -249,14 +245,12 @@ int resource_directory::get_resource_count(resource_key_type type) {
     return this->type_end_idxs[type];
 }
 
-mashable_vector<tlresource_location> *resource_directory::tlresource_type_to_vector(
-    tlresource_type a2)
+mashable_vector<tlresource_location> *resource_directory::tlresource_type_to_vector(tlresource_type a2)
 {
     mashable_vector<tlresource_location> *result = nullptr;
 
-    if constexpr (1)
-    {
-        switch (a2) {
+    if constexpr (1) {
+        switch (static_cast<int>(a2)) {
         case TLRESOURCE_TYPE_TEXTURE:
         case 13:
         case 14:
@@ -318,92 +312,83 @@ void resource_directory::constructor_common(resource_pack_slot *a2, uint8_t *a3,
 {
     TRACE("resource_directory::constructor_common");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         this->field_80 = a4;
         this->field_84 = a5;
         this->pack_slot = a2;
         this->base = (int) a3;
         this->field_88 = a6;
-        if (this->base != 0)
-        {
-            if (this->field_70.size())
-            {
+        if (this->base != 0) {
+            if (this->field_70.size()) {
                 for (int i = 0; i < this->field_70.size(); ++i) {
                     this->field_70.m_data[i].field_8 += (int) a2->get_header_mem_addr();
                 }
             }
 
-            if (this->texture_locations.size())
-            {
-                for (int i = 0; i < this->texture_locations.size(); ++i)
-                {
-                    this->texture_locations.m_data[i].field_8 += this->base;
+            if (this->texture_locations.size()) {
+                for (int i = 0; i < this->texture_locations.size(); ++i) {
+                    this->texture_locations.m_data[i].add_base(this->base);
                 }
             }
 
-            if (this->mesh_file_locations.size())
-            {
-                for (int i = 0; i < this->mesh_file_locations.size(); ++i)
-                {
+            if (this->mesh_file_locations.size()) {
+                for (int i = 0; i < this->mesh_file_locations.size(); ++i) {
                     auto &mesh_file_loc = this->mesh_file_locations.m_data[i];
-                    mesh_file_loc.field_8 += this->base;
+                    mesh_file_loc.add_base(this->base);
                 }
             }
 
-            if (this->mesh_locations.size())
-            {
+            if (this->mesh_locations.size()) {
                 for (int i = 0; i < this->mesh_locations.size(); ++i) {
-                    this->mesh_locations.m_data[i].field_8 += this->base;
+                    this->mesh_locations.m_data[i].add_base(this->base);
                 }
             }
 
             if (this->morph_file_locations.size()) {
                 for (int i = 0; i < this->morph_file_locations.size(); ++i) {
-                    this->morph_file_locations.m_data[i].field_8 += this->base;
+                    this->morph_file_locations.m_data[i].add_base(this->base);
                 }
             }
 
             if (this->morph_locations.size()) {
                 for (int i = 0; i < this->morph_locations.size(); ++i) {
-                    this->morph_locations.m_data[i].field_8 += this->base;
+                    this->morph_locations.m_data[i].add_base(this->base);
                 }
             }
 
             if (this->material_file_locations.size()) {
                 for (int i = 0; i < this->material_file_locations.size(); ++i) {
-                    this->material_file_locations.m_data[i].field_8 += this->base;
+                    this->material_file_locations.m_data[i].add_base(this->base);
                 }
             }
 
             if (this->material_locations.size()) {
                 for (int i = 0; i < this->material_locations.size(); ++i) {
-                    this->material_locations.m_data[i].field_8 += this->base;
+                    this->material_locations.m_data[i].add_base(this->base);
                 }
             }
 
             if (this->anim_file_locations.size()) {
                 for (int i = 0; i < this->anim_file_locations.size(); ++i) {
-                    this->anim_file_locations.m_data[i].field_8 += this->base;
+                    this->anim_file_locations.m_data[i].add_base(this->base);
                 }
             }
 
             if (this->anim_locations.size()) {
                 for (int i = 0; i < this->anim_locations.size(); ++i) {
-                    this->anim_locations.m_data[i].field_8 += this->base;
+                    this->anim_locations.m_data[i].add_base(this->base);
                 }
             }
 
             if (this->scene_anim_locations.size()) {
                 for (int i = 0; i < this->scene_anim_locations.size(); ++i) {
-                    this->scene_anim_locations.m_data[i].field_8 += this->base;
+                    this->scene_anim_locations.m_data[i].add_base(this->base);
                 }
             }
 
-            if (this->skeleton_locations.size() != 0)
-            {
+            if (this->skeleton_locations.size() != 0) {
                 for (int i = 0; i < this->skeleton_locations.size(); ++i) {
-                    this->skeleton_locations.m_data[i].field_8 += this->base;
+                    this->skeleton_locations.m_data[i].add_base(this->base);
                 }
             }
         }
@@ -412,9 +397,7 @@ void resource_directory::constructor_common(resource_pack_slot *a2, uint8_t *a3,
             sp_log("resource_locations: size = %d", this->resource_locations.size());
             for (auto i = 0u; i < this->resource_locations.size(); ++i) {
                 auto &loc = this->resource_locations.at(i);
-                sp_log("%d %s %d", i,
-                        loc.field_0.get_platform_string(g_platform).c_str(),
-                        loc.m_size);
+                sp_log("%d %s %d", i, loc.field_0.get_platform_string(g_platform).c_str(), loc.m_size);
             }
         }
 
@@ -428,11 +411,10 @@ void resource_directory::remove_parent(resource_directory *bye)
     assert(bye != nullptr);
 
     auto size = this->parents.size();
-    for (auto i = 0; i < size; ++i)
-    {
-        if (this->parents.m_data[i] == bye)
-        {
-            assert((i == parents.size() - 1 || parents[i + 1] == nullptr) && "must remove the LAST parent from directory");
+    for (auto i = 0; i < size; ++i) {
+        if (this->parents.m_data[i] == bye) {
+            assert((i == parents.size() - 1 || parents[i + 1] == nullptr) &&
+                   "must remove the LAST parent from directory");
 
             auto v5 = bye->pack_slot->get_name_key().m_hash;
             auto v6 = this->pack_slot->get_name_key().m_hash;
@@ -441,7 +423,6 @@ void resource_directory::remove_parent(resource_directory *bye)
             return;
         }
     }
-
 }
 
 void resource_directory::add_parent(resource_directory *new_dir)
@@ -451,10 +432,8 @@ void resource_directory::add_parent(resource_directory *new_dir)
     assert(new_dir != nullptr);
 
     auto size = this->parents.m_size;
-    for (auto i = 0; i < size; ++i)
-    {
-        if (this->parents.m_data[i] == nullptr)
-        {
+    for (auto i = 0; i < size; ++i) {
+        if (this->parents.m_data[i] == nullptr) {
             auto v9 = new_dir->pack_slot->get_name_key().m_hash;
             auto v8 = this->pack_slot->get_name_key().m_hash;
             printf("Added parent %s to %s", v9.to_string(), v8.to_string());
@@ -467,12 +446,28 @@ void resource_directory::add_parent(resource_directory *new_dir)
     error("too many parents added to resource_directory");
 }
 
-int compare_resource_key_resource_location_just_hash(const resource_key &a1, resource_location &a2) {
-    //sp_log("%s", a2->field_0.get_platform_string(g_platform).c_str());
-    return CDECL_CALL(0x0055F7E0, &a1, &a2);
+int compare_resource_key_resource_location_just_hash(const resource_key &a1, resource_location &a2)
+{
+    if constexpr (1) {
+        auto v1 = a2.field_0.m_hash;
+        if (a1.m_hash > v1) {
+            return 1;
 }
 
-int resource_directory::get_type_start_idxs(resource_key_type type) {
+        if (a1.m_hash < v1) {
+            return -1;
+        }
+
+        return 0;
+
+    } else {
+        int (*func)(const resource_key *, resource_location *) = CAST(func, 0x0055F7E0);
+        return func(&a1, &a2);
+    }
+}
+
+int resource_directory::get_type_start_idxs(resource_key_type type)
+{
     assert(type > RESOURCE_KEY_TYPE_NONE && type < RESOURCE_KEY_TYPE_Z);
 
     if (g_platform == NL_PLATFORM_XBOX) {
@@ -488,13 +483,13 @@ int resource_directory::get_type_start_idxs(resource_key_type type) {
 }
 
 
-bool resource_directory::find_resource(const resource_key &a2,
-                                       resource_directory **out_dir,
+bool resource_directory::find_resource(const resource_key &a2, resource_directory **out_dir,
                                        resource_location **out_loc)
 {
-    TRACE("resource_directory::find_resource", a2.get_platform_string(g_platform).c_str());
-    if constexpr (1)
-    {
+    TRACE("resource_directory::find_resource");
+    sp_log("%s", a2.get_platform_string(g_platform).c_str());
+
+    if constexpr (1) {
         assert(out_dir != nullptr && out_loc != nullptr);
 
         bool result;
@@ -508,20 +503,11 @@ bool resource_directory::find_resource(const resource_key &a2,
         assert(begin_idx >= 0 && end_idx <= this->resource_locations.size());
 
         auto *v14 = this->resource_locations.m_data;
-
         auto index = 0;
         if (binary_search_array_cmp<const resource_key, resource_location>(
-                &a2,
-                v14,
-                begin_idx,
-                end_idx,
-                &index,
-                compare_resource_key_resource_location_just_hash))
-        {
-            if ( this->pack_slot != nullptr )
-            {
-                if ( os_developer_options::instance->get_flag(mString{"SHOW_RESOURCE_SPAM"}) )
-                {
+                &a2, v14, begin_idx, end_idx, &index, compare_resource_key_resource_location_just_hash)) {
+            if (this->pack_slot != nullptr) {
+                if (os_developer_options::instance->get_flag(mString{"SHOW_RESOURCE_SPAM"})) {
                     auto &v6 = this->pack_slot->get_name_key();
                     auto v27 = v6.m_hash;
                     auto v24 = a2.get_platform_string(g_platform);
@@ -536,13 +522,9 @@ bool resource_directory::find_resource(const resource_key &a2,
             *v5 = this;
             *out_loc = &this->resource_locations.m_data[idx];
             result = true;
-        }
-        else
-        {
-            if (this->parents.size() != 0)
-            {
-                for (auto i = 0u; i < this->parents.size(); ++i)
-                {
+        } else {
+            if (this->parents.size() != 0) {
+                for (auto i = 0u; i < this->parents.size(); ++i) {
                     auto *the_parent = this->parents.at(i);
 #ifdef OPENUSM_XBPACK_V10
                     the_parent = resolve_parent(this, i);
@@ -565,13 +547,13 @@ bool resource_directory::find_resource(const resource_key &a2,
                         }
                     }
 
-                    if ( this->pack_slot != nullptr
-                            && os_developer_options::instance->get_flag(mString{"SHOW_RESOURCE_SPAM"}))
-                    {
+                    if (this->pack_slot != nullptr &&
+                        os_developer_options::instance->get_flag(mString{"SHOW_RESOURCE_SPAM"})) {
                         auto v28 = the_parent->pack_slot->get_name_key().m_hash;
                         auto v25 = this->pack_slot->get_name_key().m_hash;
 
                         auto v23 = a2.get_platform_string(g_platform);
+
                         auto *v21 = v28.to_string();
                         auto *v19 = v25.to_string();
                         auto *v13 = v23.c_str();
@@ -594,11 +576,11 @@ bool resource_directory::find_resource(const resource_key &a2,
     }
 }
 
-void resource_directory::debug_print() const {
+void resource_directory::debug_print() const
+{
     TRACE("resource_directory::debug_print");
 
-    if ( this->pack_slot != nullptr )
-    {
+    if (this->pack_slot != nullptr) {
         auto &v1 = this->pack_slot->get_name_key();
         auto &v40 = v1.m_hash;
         auto *v2 = v40.to_string();
@@ -606,8 +588,7 @@ void resource_directory::debug_print() const {
     }
 
     int i = 0;
-    for ( i = 0; i < this->resource_locations.size(); ++i )
-    {
+    for (i = 0; i < this->resource_locations.size(); ++i) {
         auto v39 = g_platform;
         auto &v4 = this->resource_locations.at(i);
         auto str = v4.field_0.get_platform_string(v39);
@@ -615,85 +596,75 @@ void resource_directory::debug_print() const {
         debug_print_va("  resource %s", v5);
     }
 
-    for ( i = 0; i < this->texture_locations.size(); ++i )
-    {
+    for (i = 0; i < this->texture_locations.size(); ++i) {
         auto &v7 = this->texture_locations.at(i);
-        auto *v8 = v7.name.to_string();
+        auto *v8 = v7.get_name().to_string();
         debug_print_va("  tlresource texture %s", v8);
     }
 
-    for ( i = 0; i < this->mesh_file_locations.size(); ++i )
-    {
+    for (i = 0; i < this->mesh_file_locations.size(); ++i) {
         auto &v10 = this->mesh_file_locations.at(i);
-        auto *v11 = v10.name.to_string();
+        auto *v11 = v10.get_name().to_string();
         debug_print_va("  tlresource mesh file %s", v11);
     }
 
-    for ( i = 0; i < this->mesh_locations.size(); ++i )
-    {
+    for (i = 0; i < this->mesh_locations.size(); ++i) {
         auto &v13 = this->mesh_locations.at(i);
-        auto *v14 = v13.name.to_string();
+        auto *v14 = v13.get_name().to_string();
         debug_print_va("  tlresource mesh %s", v14);
     }
 
-    for ( i = 0; i < this->morph_file_locations.size(); ++i )
-    {
+    for (i = 0; i < this->morph_file_locations.size(); ++i) {
         auto &v16 = this->morph_file_locations.at(i);
-        auto *v17 = v16.name.to_string();
+        auto *v17 = v16.get_name().to_string();
         debug_print_va("  tlresource morph file %s", v17);
     }
 
-    for ( i = 0; i < this->morph_locations.size(); ++i )
-    {
+    for (i = 0; i < this->morph_locations.size(); ++i) {
         auto &v19 = this->morph_locations.at(i);
-        auto *v20 = v19.name.to_string();
+        auto *v20 = v19.get_name().to_string();
         debug_print_va("  tlresource morph %s", v20);
     }
 
-    for ( i = 0; i < this->material_file_locations.size(); ++i )
-    {
+    for (i = 0; i < this->material_file_locations.size(); ++i) {
         auto &v22 = this->material_file_locations.at(i);
-        auto *v23 = v22.name.to_string();
+        auto *v23 = v22.get_name().to_string();
         debug_print_va("  tlresource material file %s", v23);
     }
 
-    for ( i = 0; i < this->material_locations.size(); ++i )
-    {
+    for (i = 0; i < this->material_locations.size(); ++i) {
         auto &v25 = this->material_locations.at(i);
-        auto *v26 = v25.name.to_string();
+        auto *v26 = v25.get_name().to_string();
         debug_print_va("  tlresource material %s", v26);
     }
 
-    for ( i = 0; i < this->anim_file_locations.size(); ++i )
-    {
+    for (i = 0; i < this->anim_file_locations.size(); ++i) {
         auto &v28 = this->anim_file_locations.at(i);
-        auto *v29 = v28.name.to_string();
+        auto *v29 = v28.get_name().to_string();
         debug_print_va("  tlresource anim file %s", v29);
     }
 
-    for ( i = 0; i < this->anim_locations.size(); ++i )
-    {
+    for (i = 0; i < this->anim_locations.size(); ++i) {
         auto &v31 = this->anim_locations.at(i);
-        auto *v32 = v31.name.to_string();
+        auto *v32 = v31.get_name().to_string();
         debug_print_va("  tlresource anim %s", v32);
     }
 
-    for ( auto i = 0; i < this->scene_anim_locations.size(); ++i )
-    {
+    for (auto i = 0; i < this->scene_anim_locations.size(); ++i) {
         auto &v34 = this->scene_anim_locations.at(i);
-        auto *v35 = v34.name.to_string();
+        auto *v35 = v34.get_name().to_string();
         debug_print_va("  tlresource scene anim %s", v35);
     }
 
-    for ( auto i = 0; i < this->skeleton_locations.size(); ++i )
-    {
+    for (auto i = 0; i < this->skeleton_locations.size(); ++i) {
         auto &v37 = this->skeleton_locations.at(i);
-        auto *v38 = v37.name.to_string();
+        auto *v38 = v37.get_name().to_string();
         debug_print_va("  tlresource skeleton %s", v38);
     }
 }
 
-resource_location *resource_directory::get_resource_location(int idx) {
+resource_location *resource_directory::get_resource_location(int idx)
+{
     assert(idx >= 0 && idx < resource_locations.size());
     return &this->resource_locations.at(idx);
 }
@@ -705,8 +676,7 @@ uint8_t *resource_directory::get_resource(const resource_location *loc, resource
     assert(!this->resource_locations.empty());
     assert(loc != nullptr);
 
-    assert(loc >= &(resource_locations.at(0)) &&
-           loc <= &(resource_locations.at(resource_locations.size() - 1)));
+    assert(loc >= &(resource_locations.at(0)) && loc <= &(resource_locations.at(resource_locations.size() - 1)));
 
     auto func = [this](uint32_t a2) -> uint8_t * {
         assert(this->base);
@@ -722,14 +692,11 @@ uint8_t *resource_directory::get_resource(const resource_location *loc, resource
     return result;
 }
 
-uint8_t *resource_directory::get_resource(const resource_key &resource_id,
-                                          int *mash_data_size,
-                                          resource_pack_slot **a4)
+uint8_t *resource_directory::get_resource(const resource_key &resource_id, int *mash_data_size, resource_pack_slot **a4)
 {
     TRACE("resource_directory::get_resource");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         assert(resource_id.is_set());
         assert(resource_id.get_type() != RESOURCE_KEY_TYPE_NONE);
         assert(pack_slot != nullptr);
@@ -753,14 +720,16 @@ uint8_t *resource_directory::get_resource(const resource_key &resource_id,
     }
 }
 
-int resource_directory::get_tlresource_count(tlresource_type a2) {
+int resource_directory::get_tlresource_count(tlresource_type a2)
+{
     auto *locations = this->tlresource_type_to_vector(a2);
     assert(locations != nullptr);
 
     return locations->size();
 }
 
-char *resource_directory::get_tlresource(const tlHashString &a1, tlresource_type a2) {
+char *resource_directory::get_tlresource(const tlHashString &a1, tlresource_type a2)
+{
     auto v3 = a1.GetHash();
     auto *res = this->get_tlresource(v3, a2);
     if (res == nullptr && 1) {
@@ -779,8 +748,7 @@ char *resource_directory::get_tlresource(const tlFixedString &a1, tlresource_typ
     auto *v6 = this->get_tlresource(v3, a2);
 
     bool SHOW_RESOURCE_SPAM = os_developer_options::instance->get_flag(mString {"SHOW_RESOURCE_SPAM"});
-    if ( v6 == nullptr && SHOW_RESOURCE_SPAM )
-    {
+    if (v6 == nullptr && SHOW_RESOURCE_SPAM) {
         auto *v4 = a1.to_string();
         debug_print_va("Failed to find resource %s.", v4);
     }
@@ -788,7 +756,8 @@ char *resource_directory::get_tlresource(const tlFixedString &a1, tlresource_typ
     return v6;
 }
 
-void *resource_directory::allocate_from_pool(int a2, int a3) {
+void *resource_directory::allocate_from_pool(int a2, int a3)
+{
     return (void *) THISCALL(0x0051F620, this, a2, a3);
 }
 
@@ -803,9 +772,8 @@ char *resource_directory::get_tlresource(tlresource_location *loc, resource_pack
 
     assert(loc >= &(vec->at(0)) && loc <= &(vec->at(vec->size() - 1)));
 
-    auto *v6 = loc->field_8;
-    if (a3 != nullptr)
-    {
+    auto *v6 = loc->get_data();
+    if (a3 != nullptr) {
         *a3 = this->pack_slot;
     }
 
@@ -833,8 +801,7 @@ char *resource_directory::get_tlresource(uint32_t a2, tlresource_type tlres_type
     char *result = nullptr;
     resource_directory *found_dir = nullptr;
     tlresource_location *found_loc = nullptr;
-    if (this->find_tlresource(a2, tlres_type, &found_dir, &found_loc))
-    {
+    if (this->find_tlresource(a2, tlres_type, &found_dir, &found_loc)) {
         assert(found_dir != nullptr && found_loc != nullptr);
 
         result = found_dir->get_tlresource(found_loc, nullptr);
@@ -844,27 +811,14 @@ char *resource_directory::get_tlresource(uint32_t a2, tlresource_type tlres_type
 }
 
 static const char *tlresource_type_str[10] {
-    "(none)",
-    "texture",
-    "mesh file",
-    "mesh",
-    "morph file",
-    "morph",
-    "anim file",
-    "anim",
-    "scene anim",
-    "skeleton"
-};
+    "(none)", "texture", "mesh file", "mesh", "morph file", "morph", "anim file", "anim", "scene anim", "skeleton"};
 
-bool resource_directory::find_tlresource(uint32_t a1,
-                                         tlresource_type tlres_type,
-                                         resource_directory **out_dir,
+bool resource_directory::find_tlresource(uint32_t a1, tlresource_type tlres_type, resource_directory **out_dir,
                                          tlresource_location **out_loc)
 {
     TRACE("resource_directory::find_tlresource", std::to_string(a1).c_str());
 
-    if constexpr (0)
-    {
+    if constexpr (1) {
         assert(tlres_type >= TLRESOURCE_TYPE_NONE && tlres_type < TLRESOURCE_TYPE_Z);
 
         if (out_dir != nullptr) {
@@ -938,13 +892,7 @@ bool resource_directory::find_tlresource(uint32_t a1,
         bool result = false;
 
         auto idx = 0;
-        if (binary_search_array_cmp(&a1,
-                                    array,
-                                    0,
-                                    array_size,
-                                    &idx,
-                                    compare_tlFixedString_tlresource_location))
-        {
+        if (binary_search_array_cmp(&a1, array, 0, array_size, &idx, compare_tlFixedString_tlresource_location)) {
             if (out_loc != nullptr) {
                 *out_loc = &array[idx];
             }
@@ -952,15 +900,12 @@ bool resource_directory::find_tlresource(uint32_t a1,
             result = true;
         }
 
-        if (result)
-        {
-            if (SHOW_RESOURCE_SPAM)
-            {
+        if (result) {
+            if (SHOW_RESOURCE_SPAM) {
                 //sp_log("idx = %d", idx);
                 auto &v5 = this->pack_slot->get_name_key();
                 auto v6 = v5.m_hash.to_string();
-                debug_print_va("found tlresource %s 0x%08x in %s",
-                       tlresource_type_str[tlres_type], a1, v6);
+                debug_print_va("found tlresource %s 0x%08x in %s", tlresource_type_str[tlres_type], a1, v6);
             }
 
             if (out_dir != nullptr) {
@@ -968,11 +913,8 @@ bool resource_directory::find_tlresource(uint32_t a1,
             }
 
             return result;
-        }
-        else
-        {
-            for (int i = 0; i < this->parents.size(); ++i)
-            {
+        } else {
+            for (int i = 0; i < this->parents.size(); ++i) {
                 auto *the_parent = this->parents.at(i);
 #ifdef OPENUSM_XBPACK_V10
                 the_parent = resolve_parent(this, i);
@@ -983,8 +925,7 @@ bool resource_directory::find_tlresource(uint32_t a1,
 
                 assert(the_parent->pack_slot != nullptr);
 
-                if (the_parent->pack_slot->get_partition()->get_type() == RESOURCE_PARTITION_STRIP)
-                {
+                if (the_parent->pack_slot->get_partition()->get_type() == RESOURCE_PARTITION_STRIP) {
                     assert(the_parent->parents.size() == 1);
 
 #ifdef OPENUSM_XBPACK_V10
@@ -997,8 +938,7 @@ bool resource_directory::find_tlresource(uint32_t a1,
                     }
                 }
 
-                if (SHOW_RESOURCE_SPAM)
-                {
+                if (SHOW_RESOURCE_SPAM) {
                     auto v18 = the_parent->pack_slot->get_name_key().m_hash;
 
                     auto v16 = this->pack_slot->get_name_key().m_hash;
@@ -1018,42 +958,32 @@ bool resource_directory::find_tlresource(uint32_t a1,
                 }
             }
 
-            if (SHOW_RESOURCE_SPAM)
-            {
+            if (SHOW_RESOURCE_SPAM) {
                 auto v19 = this->pack_slot->get_name_key().m_hash;
 
                 auto *v14 = v19.to_string();
-                debug_print_va("didn't find tlresource %s 0x%08x in %s",
-                       tlresource_type_str[tlres_type],
-                       a1,
-                       v14);
+                debug_print_va("didn't find tlresource %s 0x%08x in %s", tlresource_type_str[tlres_type], a1, v14);
             }
         }
 
         return result;
-    }
-    else
-    {
-        bool (__fastcall *func)(resource_directory *, void *,
-                                uint32_t,
-                                tlresource_type,
-                                resource_directory **,
-                                tlresource_location **) = CAST(func, 0x0051F350);
+    } else {
+        bool(__fastcall *func)(
+            resource_directory *, void *, uint32_t, tlresource_type, resource_directory **, tlresource_location **) =
+            CAST(func, 0x0051F350);
 
-        bool res = func(this, nullptr, a1, tlres_type, out_dir, out_loc);
-        if (res) {
-            if (hasMod(a1)) {
-                if (Mod* mod = getMod(a1))
-                    (*out_loc)->field_8 = reinterpret_cast<char*>(mod->Data.data());
+        bool result = func(this, nullptr, a1, tlres_type, out_dir, out_loc);
+        if (result && hasMod(a1)) {
+            if (Mod *mod = getMod(a1)) {
+                (*out_loc)->field_8 = reinterpret_cast<char *>(mod->Data.data());
             }
         }
-        return res;
+        return result;
     }
 }
 
-char *resource_directory::add_tlresource(tlFixedString *arg0,
-                                         tlresource_type tlres_type,
-                                         char *data) {
+char *resource_directory::add_tlresource(tlFixedString *arg0, tlresource_type tlres_type, char *data)
+{
     char *result = nullptr;
 
     auto v20 = 0;
@@ -1076,12 +1006,7 @@ char *resource_directory::add_tlresource(tlFixedString *arg0,
 
     int v11 = vec->size();
     auto *v4 = vec->data();
-    if (binary_search_array_cmp(&arg0->m_hash,
-                                v4,
-                                0,
-                                v11,
-                                &index,
-                                compare_tlFixedString_tlresource_location))
+    if (binary_search_array_cmp(&arg0->m_hash, v4, 0, v11, &index, compare_tlFixedString_tlresource_location))
         loc = &vec->at(index);
     if (loc != nullptr) {
         int v5 = arg0->m_hash;
@@ -1094,15 +1019,14 @@ char *resource_directory::add_tlresource(tlFixedString *arg0,
             v20 &= 0xFFFFFFFE;
         }
 
-        assert(loc->name == key && "Didn't find what we were looking for");
-        loc->field_8 = data;
+        assert(loc->get_name() == key && "Didn't find what we were looking for");
+        loc->set_data(data);
         if constexpr (1) {
             auto v14 = this->pack_slot->get_name_key().m_hash;
 
             auto *v12 = v14.to_string();
             auto *v7 = arg0->to_string();
-            debug_print_va("added tlresource %s %s to %s",
-                    tlresource_type_str[tlres_type], v7, v12);
+            debug_print_va("added tlresource %s %s to %s", tlresource_type_str[tlres_type], v7, v12);
         }
 
         result = data;
@@ -1113,10 +1037,7 @@ char *resource_directory::add_tlresource(tlFixedString *arg0,
 
             auto *v13 = v15.to_string();
             auto *v10 = arg0->to_string();
-            debug_print_va("couldn't add tlresource %s %s to %s",
-                   tlresource_type_str[tlres_type],
-                   v10,
-                   v13);
+            debug_print_va("couldn't add tlresource %s %s to %s", tlresource_type_str[tlres_type], v10, v13);
         }
 
         assert(0 && "Couldn't find place to add tlresource");
@@ -1127,7 +1048,8 @@ char *resource_directory::add_tlresource(tlFixedString *arg0,
     return result;
 }
 
-bool resource_directory::sub_9C2EE0() {
+bool resource_directory::sub_9C2EE0()
+{
     for (int i = 0; i < this->field_70.size(); ++i) {
         resource_allocation_pool *v1 = &this->field_70.at(i);
         if (!(v1->count == 0)) {
@@ -1138,7 +1060,8 @@ bool resource_directory::sub_9C2EE0() {
     return true;
 }
 
-void resource_directory::release_mem() {
+void resource_directory::release_mem()
+{
     THISCALL(0x0051F7D0, this);
 }
 
@@ -1155,10 +1078,8 @@ void resource_directory_patch()
     }
 
     {
-        uint8_t * (resource_directory::*func)(
-            const resource_key &resource_id,
-            int *a3,
-            resource_pack_slot **a4) = &resource_directory::get_resource;
+        uint8_t *(resource_directory::*func)(const resource_key &resource_id, int *a3, resource_pack_slot **a4) =
+            &resource_directory::get_resource;
 
         FUNC_ADDRESS(address, func);
         REDIRECT(0x0062F022, address);

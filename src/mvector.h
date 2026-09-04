@@ -15,8 +15,10 @@ struct mash_info_struct;
 template<typename T>
 struct mVector : mContainer_base {
     T **m_data;
-    int field_C;
+    int m_max_size;
     bool field_10;
+
+    using value_type = T;
 
     struct iterator {
         T **_Ptr;
@@ -47,56 +49,45 @@ struct mVector : mContainer_base {
         }
     };
 
-    mVector() = default;
-
-    mVector(from_mash_in_place_constructor *) : mVector()
+    mVector() : mContainer_base()
     {
-        if (this->m_data == nullptr) {
-            return;
+        this->initialize(mash::ALLOCATED);
         }
 
-        if (this->m_size <= 0) {
-            return;
-        }
-
-        for (auto i = 0; i < this->m_size; ++i)
+    mVector(from_mash_in_place_constructor *a2) : mContainer_base(a2)
         {
-            T *v5 = nullptr;
-            auto *&v4 = this->m_data[i];
-            if (v4 != nullptr) {
-                v5 = new (v4) T {nullptr};
+        this->initialize(mash::FROM_MASH);
             }
 
-            v4 = v5;
-        }
-    }
-
-    T *at(uint16_t index) {
+    T *at(uint16_t index)
+    {
         assert(index < this->m_size);
         assert(this->m_data != nullptr);
 
         return this->m_data[index];
     }
 
-    const T *at(uint16_t index) const {
+    const T *at(uint16_t index) const
+    {
         assert(index < this->m_size);
         assert(this->m_data != nullptr);
 
         return this->m_data[index];
     }
 
-    auto size() const {
+    auto size() const
+    {
         return m_size;
     }
 
-    auto empty() const {
+    auto empty() const
+    {
         return this->size() == 0;
     }
 
     auto begin()
     {
-        if (this->m_data != nullptr)
-        {
+        if (this->m_data != nullptr) {
             return iterator {this->m_data};
         }
 
@@ -105,8 +96,7 @@ struct mVector : mContainer_base {
 
     auto begin() const
     {
-        if (this->m_data != nullptr)
-        {
+        if (this->m_data != nullptr) {
             return iterator {this->m_data};
         }
 
@@ -115,8 +105,7 @@ struct mVector : mContainer_base {
 
     auto end()
     {
-        if (this->m_data != nullptr)
-        {
+        if (this->m_data != nullptr) {
             return iterator {&this->m_data[this->m_size]};
         }
 
@@ -125,17 +114,43 @@ struct mVector : mContainer_base {
 
     auto end() const
     {
-        if (this->m_data != nullptr)
-        {
+        if (this->m_data != nullptr) {
             return iterator {&this->m_data[this->m_size]};
         }
 
         return iterator {nullptr};
     }
 
-    void initialize(mash::allocation_scope );
+    void initialize(mash::allocation_scope scope)
+#if 1
+    {
+        if (scope) {
+            assert(scope == mash::FROM_MASH);
 
-    void finalize(mash::allocation_scope ) {
+            if (this->m_data != nullptr) {
+                assert(m_size > 0);
+                for (int i = 0; i < this->m_size; ++i) {
+                    if constexpr (std::is_base_of_v<mash_virtual_base, value_type>) {
+                        this->m_data[i] =
+                            bit_cast<value_type *>(mash_virtual_base::construct_class_helper(this->m_data[i]));
+                    } else {
+                        this->m_data[i] =
+                            new (this->m_data[i]) value_type{static_cast<from_mash_in_place_constructor *>(nullptr)};
+                    }
+                }
+            }
+        } else {
+            this->m_data = nullptr;
+            this->m_max_size = 0;
+            this->field_10 = true;
+        }
+    }
+#else
+        ;
+#endif
+
+    void finalize(mash::allocation_scope)
+    {
         this->clear();
     }
 
@@ -148,8 +163,7 @@ struct mVector : mContainer_base {
     void unmash(mash_info_struct *a2, void *a3)
     {
 #if OPENUSM_XBOX_MASH_FORMAT && !defined(OPENUSM_XBPACK_V10)
-        [](mash_info_struct *a1, mash::buffer_type a2, int &a3)
-        {
+        [](mash_info_struct *a1, mash::buffer_type a2, int &a3) {
             a3 = * bit_cast<int *>(a1->read_from_buffer(a2, 4, 4));
         }(a2, mash::SHARED_BUFFER, m_size);
 #endif
@@ -158,23 +172,22 @@ struct mVector : mContainer_base {
     }
 
     void custom_unmash(mash_info_struct *, void *);
-};
 
-template<typename T>
-struct mVectorBasic : mContainer
+    void reserve(int a2);
+
+    void push_back()
 {
-    T *m_data;
-    int field_C;
-
-    int size() const {
-        return this->m_size;
+        assert(this->m_size <= this->m_max_size);
+        if (this->m_size == this->m_max_size || this->is_pointer_in_mash_image(this->m_data)) {
+            this->reserve(8 * (this->m_size / 8) + 8);
     }
 
-    auto &at(int i) {
-        return this->m_data[i];
+        this->m_data[this->m_size++] = nullptr;
     }
 
-    void unmash(mash_info_struct *, void *);
-
-    void custom_unmash(mash_info_struct *, void *);
+    void push_back(T *a2)
+    {
+        this->push_back();
+        this->m_data[this->m_size - 1] = a2;
+    }
 };

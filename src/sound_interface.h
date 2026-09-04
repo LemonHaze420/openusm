@@ -1,21 +1,21 @@
 #pragma once
 
-#include <cstdint>
+#include "entity_base_interface.h"
 
 #include "float.hpp"
 #include "vector3d.h"
-#include "generic_interface.h"
+
+#include <cstdint>
 
 struct shared_sound_interface_info;
 
-struct sound_emitter_id
-{
+struct sound_emitter_id {
     int field_0;
 };
 
-struct sound_interface : generic_interface {
+struct sound_interface : entity_base_interface {
     int field_4;
-    bool field_8;
+    bool dynamic;
     sound_emitter_id field_C;
     shared_sound_interface_info *field_10;
     vector3d field_14;

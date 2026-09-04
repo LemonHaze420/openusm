@@ -16,10 +16,12 @@ struct box_trigger;
 struct worldly_resource_handler;
 struct sound_alias_database_resource;
 
+enum eWorldlyResourceType { MAX_WORLDLY_RESOURCE_TYPES = 21 };
+
 struct worldly_pack_slot : resource_pack_slot {
     progress field_94;
     progress field_98;
-    worldly_resource_handler *m_handlers[21];
+    worldly_resource_handler *m_handlers[MAX_WORLDLY_RESOURCE_TYPES];
     _std::vector<entity *> *entity_instances;
     _std::vector<item *> *item_instances;
     _std::vector<box_trigger *> *box_trigger_instances;
@@ -39,8 +41,9 @@ struct worldly_pack_slot : resource_pack_slot {
 
     void clear_progress();
 
-private:
+    void _finalize(bool a2);
 
+private:
     //0x0050ED20
     //virtual
     bool _on_load(limited_timer *a2) /*override*/;
@@ -58,13 +61,17 @@ private:
     void _clear_pack() /*override*/;
 
 public:
-
     //0x005382F0
     _std::vector<box_trigger *> *get_box_trigger_instances();
 };
 
 struct entity_resource_handler : base_entity_resource_handler {
     entity_resource_handler(worldly_pack_slot *a2);
+
+    //virtual ~entity_resource_handler();
+
+    //virtual
+    bool _handle(worldly_resource_handler::eBehavior behavior, limited_timer *a5);
 
     //0x00563130
     /* virtual */ int _get_num_resources() /* override */;

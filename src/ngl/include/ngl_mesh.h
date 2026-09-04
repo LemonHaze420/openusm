@@ -11,7 +11,7 @@ struct nglMeshFile;
 struct nglMeshParams {
     uint32_t Flags;
     int NBones;
-    math::MatClass<4, 3> *field_8;
+    math::MatClass<4, 3> *Bones;
     int field_C;
     math::VecClass<3, 1> Scale;
 
@@ -35,7 +35,7 @@ struct nglMesh {
     struct {
         int field_0;
         nglMeshSection *Section;
-    } * Sections;
+    } *Sections;
     int NBones;
     math::MatClass<4, 3> *Bones;
     int NLODs;
@@ -45,35 +45,26 @@ struct nglMesh {
     };
 
     Lod *LODs;
-    math::VecClass<3, 1> field_20;
+    math::VecClass<3, 1> SphereCenter;
     float SphereRadius;
     nglMeshFile *File;
     nglMesh *NextMesh;
-    int field_3C;
+    uint32_t DataSize;
 
-    static tlFixedString *get_string(nglMesh *Mesh);
+    static tlHashString *get_string(nglMesh *Mesh);
 };
 
-//0x0076F420
-extern void nglMeshInit();
-
 //0x00770230
-extern math::MatClass<4, 3> *nglListAddMesh_GetScaledMatrix(const math::MatClass<4, 3> &a1,
-                                                            nglMeshParams *a2,
+extern math::MatClass<4, 3> *nglListAddMesh_GetScaledMatrix(const math::MatClass<4, 3> &a1, nglMeshParams *a2,
                                                             float *a3);
 
 //0x00770190
-extern nglMesh *nglListAddMesh_GetLOD(nglMesh *Mesh,
-                                      unsigned int a2,
-                                      nglMeshParams *a3,
-                                      math::VecClass<3, 1> a4);
+extern nglMesh *nglListAddMesh_GetLOD(nglMesh *Mesh, unsigned int a2, nglMeshParams *a3, math::VecClass<3, 1> a4);
 
 extern matrix4x4 sub_507130(void *arg4);
 
 //0x00770360
-extern void nglListAddMesh(nglMesh *Mesh,
-                           const math::MatClass<4, 3> &,
-                           nglMeshParams *,
+extern void nglListAddMesh(nglMesh *Mesh, const math::MatClass<4, 3> &, nglMeshParams *,
                            nglParamSet<nglShaderParamSet_Pool> *);
 
 extern void render_debug_hemisphere(const vector3d &a2, float scale, color32 a4);

@@ -12,9 +12,9 @@ struct rumble_manager;
 struct input_device;
 struct device_axis;
 
-const float AXIS_MAX  = 1.0f;
-const float AXIS_MID  = 0.0f;
-const float AXIS_MIN  = -1.0f;
+inline constexpr float AXIS_MAX = 1.0f;
+inline constexpr float AXIS_MID = 0.0f;
+inline constexpr float AXIS_MIN = -1.0f;
 
 enum device_id_t {
     INVALID_DEVICE_ID = -1,
@@ -29,7 +29,7 @@ inline constexpr auto MAX_KEYBOARD_DEVICES = 1;
 struct input_mgr : singleton {
     rumble_manager *rumble_ptr;
 
-    _std::map<device_id_t, input_device *> field_8;
+    _std::map<device_id_t, input_device *> device_map;
     _std::map<int, game_control> control_map;
 
     int field_20;
@@ -39,14 +39,17 @@ struct input_mgr : singleton {
     bool field_26;
     float (*m_state_callback)(int);
     float (*m_delta_callback)(int);
-    void *field_30[1];
-    int empty1[7];
+    void *field_30[8];
     input_device *keyboard_devices[MAX_KEYBOARD_DEVICES];
     input_device *mouse_devices[MAX_MOUSE_DEVICES];
     device_id_t field_58;
 
     //0x005E0EA0
     input_mgr();
+
+    void *operator new(size_t size);
+
+    void operator delete(void *ptr, size_t size);
 
     //0x005E0870
     //virtual
@@ -92,15 +95,15 @@ struct input_mgr : singleton {
     void map_control(int a2, device_id_t a3, int a4);
 
     //0x005D8610
-    int map_control(int a2, const device_axis &a3);
+    void map_control(int a2, const device_axis &a3);
 
     //0x005EB840
     static void create_inst();
 
     //0x009685DC
-    static inline input_mgr *& instance = var<input_mgr *>(0x009685DC);
+    static input_mgr *&instance;
 };
 
-extern bool & pc_inserted_devices;
+extern bool &pc_inserted_devices;
 
 extern void input_mgr_patch();

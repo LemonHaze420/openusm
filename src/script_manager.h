@@ -9,6 +9,8 @@
 #include <map>
 #endif
 
+#include <cstdint>
+
 struct mString;
 struct script_var_container;
 struct script_library_class;
@@ -21,8 +23,7 @@ struct script_object;
 struct string_hash;
 struct vm_executable;
 
-enum script_manager_callback_reason
-{};
+enum script_manager_callback_reason {};
 
 namespace script_manager {
     //0x005A09B0
@@ -98,22 +99,17 @@ namespace script_manager {
     script_object *find_object(const string_hash &a1);
     
     //0x005A0870
-    script_object *find_object(
-        const resource_key &,
-        const string_hash &,
-        const resource_key &);
+script_object *find_object(const resource_key &, const string_hash &, const resource_key &);
 
     //0x005AFE40
-    int register_allocated_stuff_callback(
-        void (*a1)(script_executable *, _std::list<uint32_t> &, _std::list<mString> &));
+int register_allocated_stuff_callback(void (*a1)(script_executable *, _std::list<uint32_t> &, _std::list<mString> &));
 
     script_object *find_global_object();
 
     float get_time_inc();
 
-    int register_callback(
-        void (*a2)(script_manager_callback_reason, script_executable *, const char *));
-}
+int register_callback(void (*a2)(script_manager_callback_reason, script_executable *, const char *));
+}  // namespace script_manager
 
 extern void script_manager_patch();
 extern void script_manager_xbpack_patch();

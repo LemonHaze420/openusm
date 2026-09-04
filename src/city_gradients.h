@@ -2,17 +2,18 @@
 
 struct generic_mash_header;
 struct generic_mash_data_ptrs;
+struct resource_key;
 
 struct city_gradients {
     int field_0;
     int field_4;
-    int field_8;
-    int field_C;
-    int field_10;
-    int field_14;
-    int field_18;
+    int num_gradients;
+    int num_gradient_keys;
+    void *field_10;
+    void *field_14;
+    resource_key *field_18;
 
-    //0x00527690 
+    //0x00527690
     void un_mash_start(generic_mash_header *a2, void *a3, generic_mash_data_ptrs *a4, void *a5);
 
     //0x0051ACD0

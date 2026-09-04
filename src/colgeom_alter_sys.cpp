@@ -8,7 +8,8 @@
 
 VALIDATE_SIZE(capsule_alter_sys, 0xA4u);
 
-capsule_alter_sys::capsule_alter_sys(actor *a2) {
+capsule_alter_sys::capsule_alter_sys(actor *a2)
+{
     if constexpr (1) {
         this->field_A0 = false;
         this->field_A1 = false;
@@ -49,28 +50,32 @@ capsule_alter_sys::capsule_alter_sys(actor *a2) {
         this->compute_avg_values();
         this->field_A2 = 0;
         this->dynamic = true;
-        this->field_4 = (eAlterMode) 0;
+        this->field_4 = (eAlterMode)0;
 
     } else {
         THISCALL(0x005C51D0, this, a2);
     }
 }
 
-void capsule_alter_sys::compute_avg_values() {
+void capsule_alter_sys::compute_avg_values()
+{
     THISCALL(0x005BA2F0, this);
 }
 
-void capsule_alter_sys::set_avoid_floor(bool a2) {
+void capsule_alter_sys::set_avoid_floor(bool a2)
+{
     this->field_A0 = a2;
 }
 
-void capsule_alter_sys::set_avg_radius(Float a2) {
+void capsule_alter_sys::set_avg_radius(Float a2)
+{
     this->field_94 = a2;
 }
 
 static constexpr auto _CAPSULE_MAX_DYN_AVG_NODES = 5;
 
-void capsule_alter_sys::set_base_avg_node(int index, entity_base *a3, Float a4) {
+void capsule_alter_sys::set_base_avg_node(int index, entity_base *a3, Float a4)
+{
     assert(index >= 0 && index < _CAPSULE_MAX_DYN_AVG_NODES);
 
     this->field_6C[index] = a4;
@@ -78,11 +83,13 @@ void capsule_alter_sys::set_base_avg_node(int index, entity_base *a3, Float a4) 
     this->field_A1 = true;
 }
 
-void capsule_alter_sys::adjust_colgeom(bool a2) {
+void capsule_alter_sys::adjust_colgeom(bool a2)
+{
     THISCALL(0x005D7170, this, a2);
 }
 
-void capsule_alter_sys::set_mode(eAlterMode a2) {
+void capsule_alter_sys::set_mode(eAlterMode a2)
+{
     auto v2 = this->field_4;
     this->field_4 = a2;
     if (a2 != v2) {
@@ -90,10 +97,7 @@ void capsule_alter_sys::set_mode(eAlterMode a2) {
     }
 }
 
-void capsule_alter_sys::set_static_capsule(
-        const vector3d &a2,
-        const vector3d &a3,
-        Float a4)
+void capsule_alter_sys::set_static_capsule(const vector3d &a2, const vector3d &a3, Float a4)
 {
     this->field_28.base = a2;
     this->field_28.end = a3;
@@ -102,7 +106,8 @@ void capsule_alter_sys::set_static_capsule(
     this->adjust_colgeom(v4);
 }
 
-void capsule_alter_sys::set_end_avg_node(int index, entity_base *a3, Float a4) {
+void capsule_alter_sys::set_end_avg_node(int index, entity_base *a3, Float a4)
+{
     assert(index >= 0 && index < _CAPSULE_MAX_DYN_AVG_NODES);
 
     this->field_80[index] = a4;
@@ -110,6 +115,7 @@ void capsule_alter_sys::set_end_avg_node(int index, entity_base *a3, Float a4) {
     this->field_A1 = 1;
 }
 
-void set_to_default_capsule_alter(capsule_alter_sys *a1, conglomerate *a2) {
+void set_to_default_capsule_alter(capsule_alter_sys *a1, conglomerate *a2)
+{
     CDECL_CALL(0x00687B70, a1, a2);
 }

@@ -18,18 +18,14 @@ VALIDATE_SIZE(collision_free_state, 0x64u);
 
 intraframe_trajectory_t::intraframe_trajectory_t() {}
 
-intraframe_trajectory_t::intraframe_trajectory_t(
-        actor *a2,
-        Float a3,
-        const po &a4,
-        dynamic_conglomerate_clone *a5)
+intraframe_trajectory_t::intraframe_trajectory_t(actor *a2, Float a3, const po &a4, dynamic_conglomerate_clone *a5)
 {
     this->init(a2, a3, a4, a5);
 }
 
 capsule xform3d_1_capsule(const matrix4x4 &a2, const capsule &a3)
 {
-    capsule cap {};
+    capsule cap{};
     cap.radius = a3.radius;
 
     cap.base = a2 * a3.base;
@@ -40,14 +36,9 @@ capsule xform3d_1_capsule(const matrix4x4 &a2, const capsule &a3)
 
 static constexpr auto MAX_TRAJECTORY_VELOCITY = 500.0f;
 
-void intraframe_trajectory_t::init(
-        entity *ent_arg,
-        Float a3,
-        const po &a4,
-        dynamic_conglomerate_clone *a5)
+void intraframe_trajectory_t::init(entity *ent_arg, Float a3, const po &a4, dynamic_conglomerate_clone *a5)
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         assert(ent_arg->is_an_actor());
 
         this->field_15C = nullptr;
@@ -59,13 +50,12 @@ void intraframe_trajectory_t::init(
         this->field_165 = false;
         this->field_160 = 0;
         this->field_168 = nullptr;
-        this->field_150 = ( this->ent->has_physical_ifc()
-                            && this->ent->physical_ifc()->is_enabled()
-                            ? this->ent->physical_ifc()->get_velocity()
-                            : ZEROVEC );
-        
-        po my_abs_po {};
-        if ( auto *v8 = this->field_13C; v8 != nullptr ) {
+        this->field_150 = (this->ent->has_physical_ifc() && this->ent->physical_ifc()->is_enabled()
+                               ? this->ent->physical_ifc()->get_velocity()
+                               : ZEROVEC);
+
+        po my_abs_po{};
+        if (auto *v8 = this->field_13C; v8 != nullptr) {
             my_abs_po = *v8->get_member_abs_po(this->ent);
         } else {
             my_abs_po = this->ent->get_abs_po();
@@ -77,10 +67,9 @@ void intraframe_trajectory_t::init(
 
         assert(final_po.is_valid());
 
-        assert(std::abs( final_po.get_matrix().w.length() ) < 100000.0f);
+        assert(std::abs(final_po.get_matrix().w.length()) < 100000.0f);
 
-        if ( this->ent->field_A4 != 0 && !this->ent->get_allow_tunnelling_into_next_frame() )
-        {
+        if (this->ent->field_A4 != 0 && !this->ent->get_allow_tunnelling_into_next_frame()) {
             this->world_po0 = this->ent->get_last_collision_free_state()->xform;
 
             assert(this->world_po0.is_valid());
@@ -94,14 +83,10 @@ void intraframe_trajectory_t::init(
             assert(assert_velocity.length2() < MAX_TRAJECTORY_VELOCITY * MAX_TRAJECTORY_VELOCITY);
         }
 
-        if ( this->ent->are_collisions_active()
-            && this->has_colgeom()
-            && this->get_colgeom()->get_type() == 1 )
-        {
+        if (this->ent->are_collisions_active() && this->has_colgeom() && this->get_colgeom()->get_type() == 1) {
             auto v14 = this->world_po1.get_position() - this->world_po0.get_position();
             this->field_140 = v14 / this->field_14C;
-            if ( this->field_140.length2() > 22500.0f )
-            {
+            if (this->field_140.length2() > 22500.0f) {
                 this->field_140.normalize();
                 this->field_140 *= 150.0f;
                 this->integrate(this->field_14C, &this->world_po1);
@@ -112,11 +97,8 @@ void intraframe_trajectory_t::init(
 
             this->is_capsule = true;
             this->init_capsules();
-        }
-        else
-        {
-            if ( this->has_colgeom() && this->get_colgeom()->get_type() == 1 )
-            {
+        } else {
+            if (this->has_colgeom() && this->get_colgeom()->get_type() == 1) {
                 auto *cap = bit_cast<collision_capsule *>(this->get_colgeom());
                 auto rel_cap = cap->rel_cap;
 
@@ -125,10 +107,8 @@ void intraframe_trajectory_t::init(
 
                 this->my_abs_cap1 = xform3d_1_capsule(this->final_po.get_matrix(), this->relcap1);
                 this->my_abs_cap0 = xform3d_1_capsule(this->final_po.get_matrix(), this->relcap0);
-            }
-            else
-            {
-                this->relcap0 = capsule {ZEROVEC, ZEROVEC, 0.0f};
+            } else {
+                this->relcap0 = capsule{ZEROVEC, ZEROVEC, 0.0f};
 
                 this->relcap1 = this->relcap0;
 
@@ -141,9 +121,7 @@ void intraframe_trajectory_t::init(
         }
 
         this->field_140 = (this->world_po1.get_position() - this->world_po0.get_position()) / this->field_14C;
-    }
-    else
-    {
+    } else {
         THISCALL(0x0053BC80, this, ent_arg, a3, &a4, a5);
     }
 }
@@ -162,14 +140,14 @@ bool build_quat_that_aligns_two_vectors(const vector3d &a1, const vector3d &a2, 
     auto v8 = dot(a2a, v9);
     vector3d v7 = vector3d::cross(a2a, v9);
     auto v6 = v7.length();
-    if ( v6 < 0.000099999997 ) {
+    if (v6 < 0.000099999997) {
         return false;
     }
 
     v7 *= 1.0 / v6;
     auto v5 = v6;
     auto v4 = vector3d::cross(a2, v7);
-    if ( dot(a1, v4) > 0.0 ) {
+    if (dot(a1, v4) > 0.0) {
         v5 = 0.0 - v5;
     }
 
@@ -184,7 +162,7 @@ void extract_axis_aligned_capsule_and_world_xform(const capsule &a3, capsule *aa
 {
     assert(aa_cap != nullptr && world_po != nullptr);
 
-    quaternion v10 {};
+    quaternion v10{};
     auto v3 = a3.end - a3.base;
     build_quat_that_aligns_two_vectors(YVEC, v3, v10);
     world_po->set_po(a3.base, v10, 1.0f);
@@ -199,10 +177,9 @@ void extract_axis_aligned_capsule_and_world_xform(const capsule &a3, capsule *aa
 bool capsules_almost_equal(const capsule &a1, const capsule &a2)
 {
     auto v2 = a1.base - a2.base;
-    if ( v2.length() < 0.0099999998 )
-    {
+    if (v2.length() < 0.0099999998) {
         auto v3 = a1.end - a2.end;
-        if ( v3.length() < 0.0099999998 ) {
+        if (v3.length() < 0.0099999998) {
             return true;
         }
     }
@@ -218,13 +195,13 @@ void intraframe_trajectory_t::init_capsules()
     this->relcap1 = cap->rel_cap;
     this->relcap0 = this->relcap1;
 
-    if ( this->ent->field_A4 != 0 && !this->ent->get_allow_tunnelling_into_next_frame() ) {
+    if (this->ent->field_A4 != 0 && !this->ent->get_allow_tunnelling_into_next_frame()) {
         this->relcap0 = this->ent->get_last_collision_free_state()->rel_cap;
     }
 
     assert(relcap1.radius >= MIN_CAPSULE_RADIUS && relcap0.radius >= MIN_CAPSULE_RADIUS);
 
-    po world_po {};
+    po world_po{};
 
     po save_world_po0 = this->world_po0;
     po save_world_po1 = this->world_po1;
@@ -235,9 +212,9 @@ void intraframe_trajectory_t::init_capsules()
     extract_axis_aligned_capsule_and_world_xform(this->relcap1, &this->my_abs_cap1, &world_po);
     this->world_po1 = world_po.sub_4BAB00(this->world_po1);
 
-    assert(capsules_almost_equal( get_abs_cap1(), xform3d_1_capsule( save_world_po1.get_matrix(), relcap1 ) ));
+    assert(capsules_almost_equal(get_abs_cap1(), xform3d_1_capsule(save_world_po1.get_matrix(), relcap1)));
 
-    assert(capsules_almost_equal( get_abs_cap0(), xform3d_1_capsule( save_world_po0.get_matrix(), relcap0 ) ));
+    assert(capsules_almost_equal(get_abs_cap0(), xform3d_1_capsule(save_world_po0.get_matrix(), relcap0)));
 }
 
 void intraframe_trajectory_t::integrate(Float a2, po *integrated_xform)
@@ -268,13 +245,15 @@ capsule intraframe_trajectory_t::get_abs_cap1()
     return result;
 }
 
-collision_geometry *intraframe_trajectory_t::get_colgeom() {
+collision_geometry *intraframe_trajectory_t::get_colgeom()
+{
     assert(ent->get_colgeom());
 
     return this->ent->get_colgeom();
 }
 
-collision_capsule &intraframe_trajectory_t::get_capsule() {
+collision_capsule &intraframe_trajectory_t::get_capsule()
+{
     assert(ent->get_colgeom());
 
     assert(ent->get_colgeom()->get_type() == collision_geometry::CAPSULE);
@@ -282,7 +261,8 @@ collision_capsule &intraframe_trajectory_t::get_capsule() {
     return *bit_cast<collision_capsule *>(this->get_colgeom());
 }
 
-sphere intraframe_trajectory_t::get_bounding_sphere() {
+sphere intraframe_trajectory_t::get_bounding_sphere()
+{
     sphere a3{};
 
     if (this->is_capsule) {

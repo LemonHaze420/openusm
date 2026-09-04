@@ -35,23 +35,15 @@ Var<panel *> game_play_panel{0x0096F7D4};
 
 Var<fixed_vector<panel *, 48>> panels{0x0096F9F8};
 
-Var<bool> world_has_been_rendered {0x0096F7A0};
+bool &world_has_been_rendered = var<bool>(0x0096F7A0);
 
-void clear_color_rect(
-        aarect<float, vector2d> &a1,
-        color &a2,
-        math::MatClass<4, 3> &a3)
+void clear_color_rect(aarect<float, vector2d> &a1, color &a2, math::MatClass<4, 3> &a3)
 {
     CDECL_CALL(0x0073ADB0, &a1, &a2, &a3);
 }
 
-void draw_textured_quad(
-        math::MatClass<4, 3> &a1,
-        aarect<float, vector2d> &a2,
-        aarect<float, vector2d> &a3,
-        nglTexture *a4,
-        color32 a5,
-        bool a6)
+void draw_textured_quad(math::MatClass<4, 3> &a1, aarect<float, vector2d> &a2, aarect<float, vector2d> &a3,
+                        nglTexture *a4, color32 a5, bool a6)
 {
     CDECL_CALL(0x0073D890, &a1, &a2, &a3, a4, a5, a6);
 }
@@ -74,7 +66,7 @@ aarect<float, vector2d> sub_742E00(aarect<float, vector2d> a2, const vector2d &a
 
 aarect<float, vector2d> sub_744B00()
 {
-    aarect<float, vector2d> result {vector2d {-1.0f, -1.0f}, vector2d {1.0f, 1.0f}};
+    aarect<float, vector2d> result{vector2d{-1.0f, -1.0f}, vector2d{1.0f, 1.0f}};
     return result;
 }
 
@@ -107,7 +99,7 @@ void init()
 void render()
 {
     TRACE("comic_panels::render");
-    
+
     CDECL_CALL(0x0073EA70);
 }
 
@@ -122,42 +114,38 @@ bool render_panels()
 {
     TRACE("comic_panels::render_panels");
 
-    if constexpr (0)
-    {
-    }
-    else
-    {
-        bool (__cdecl *func)() = CAST(func, 0x0073E710);
+    if constexpr (0) {
+    } else {
+        bool(__cdecl * func)() = CAST(func, 0x0073E710);
         return func();
     }
 }
 
-panel *acquire_panel(const char *a1) {
-    return (comic_panels::panel *) CDECL_CALL(0x00733AD0, a1);
+panel *acquire_panel(const char *a1)
+{
+    return (comic_panels::panel *)CDECL_CALL(0x00733AD0, a1);
 }
 
 panel_params_t *get_panel_params()
 {
-    if constexpr (0)
-    {
-        if ( nglCurScene() == nullptr ) {
+    if constexpr (0) {
+        if (nglCurScene == nullptr) {
             return nullptr;
         }
 
-        if ( !nglCurScene()->field_404.IsSetParam<SMPanelParams>() ) {
+        if (!nglCurScene->field_404.IsSetParam<SMPanelParams>()) {
             return nullptr;
         }
 
-        SMPanelParams v1 {};
-        return nglCurScene()->field_404.GetOrDefault<SMPanelParams>(v1)->field_0;
-    }
-    else
-    {
-        return (panel_params_t *) CDECL_CALL(0x00738CB0);
+        SMPanelParams v1{};
+        return nglCurScene->field_404.GetOrDefault<SMPanelParams>(v1)->field_0;
+    } else {
+        return (panel_params_t *)CDECL_CALL(0x00738CB0);
     }
 }
 
-camera *get_current_view_camera(int) {
+camera *get_current_view_camera(int)
+{
     return current_view_camera();
 }
 
@@ -168,7 +156,8 @@ void panel::init_anim(nalPanel::nalPanelAnim *a2)
     THISCALL(0x00736220, this, a2);
 }
 
-void panel::add_camera_component(const char *a2, bool a3, int a4) {
+void panel::add_camera_component(const char *a2, bool a3, int a4)
+{
     if constexpr (1) {
     } else {
         THISCALL(0x007360B0, this, a2, a3, a4);
@@ -177,10 +166,9 @@ void panel::add_camera_component(const char *a2, bool a3, int a4) {
 
 void panel::capture()
 {
-    if ( !this->field_67 && (this->field_50 > 0.0f || !this->field_5C) )
-    {
-        panel_component::render_info v3 {*this, 1};
-        for ( auto *i = this->field_60; i != nullptr; i = i->field_4 ) {
+    if (!this->field_67 && (this->field_50 > 0.0f || !this->field_5C)) {
+        panel_component::render_info v3{*this, 1};
+        for (auto *i = this->field_60; i != nullptr; i = i->field_4) {
             i->capture(v3);
         }
     }
@@ -190,39 +178,30 @@ bool panel::render()
 {
     TRACE("comic_panels::panel::render");
 
-    if constexpr (0)
-    {
-    }
-    else
-    {
-        bool (__fastcall *func)(void *) = CAST(func, 0x00738B50);
+    if constexpr (0) {
+    } else {
+        bool(__fastcall * func)(void *) = CAST(func, 0x00738B50);
         return func(this);
     }
 }
 
 bool sub_731790(const matrix4x4 &a1)
 {
-    auto sub_F3F4D0 = [](float a1, float a2) -> bool
-    {
+    auto sub_F3F4D0 = [](float a1, float a2) -> bool {
         return std::abs(a2 - a1) < 0.050000001;
     };
 
-    return sub_F3F4D0(a1[0][0], 1.0)
-      && sub_F3F4D0(a1[1][1], 1.0)
-      && sub_F3F4D0(a1[2][2], -1.0);
+    return sub_F3F4D0(a1[0][0], 1.0) && sub_F3F4D0(a1[1][1], 1.0) && sub_F3F4D0(a1[2][2], -1.0);
 }
 
 bool panel::is_square() const
 {
     auto v3 = this->get_transform();
-    v3[3] = vector4d {0.0, 0.0, 0.0, 1.0};
+    v3[3] = vector4d{0.0, 0.0, 0.0, 1.0};
     matrix4x4 v1;
-    if ( cur_page_camera() != nullptr )
-    {
+    if (cur_page_camera() != nullptr) {
         v1 = cur_page_camera()->get_transform();
-    }
-    else
-    {
+    } else {
         auto v5 = identity_matrix;
         v5[2][2] = -1.0;
         v1 = v5;
@@ -243,43 +222,43 @@ aarect<float, vector2d> panel::get_rect() const
 {
     auto a2 = this->m_size * 0.5;
     auto v2 = a2 * -1.0f;
-    aarect<float, vector2d> arg0 {v2, a2};
+    aarect<float, vector2d> arg0{v2, a2};
     return arg0;
 }
 
 vector3d panel::get_loc() const
 {
-    vector3d result { 
-        this->field_4[3][0],
-        this->field_4[3][1],
-        this->field_4[3][2]};
+    vector3d result{this->field_4[3][0], this->field_4[3][1], this->field_4[3][2]};
     return result;
 }
 
-void panel::set_size(const vector2d &a2) {
+void panel::set_size(const vector2d &a2)
+{
     this->m_size = a2;
 }
 
-void panel::set_loc(const vector3d &a2) {
+void panel::set_loc(const vector3d &a2)
+{
     this->field_4[3] = a2;
 }
 
-camera * panel_component_camera::get_default_camera() const
+camera *panel_component_camera::get_default_camera() const
 {
     auto v1 = this->field_2C;
-    if ( v1 >= 4 ) {
+    if (v1 >= 4) {
         return g_game_ptr->get_current_view_camera(0);
     }
 
     auto *result = this->field_34[v1].get_volatile_ptr();
-    if ( result == nullptr ) {
+    if (result == nullptr) {
         return g_game_ptr->get_current_view_camera(0);
     }
 
     return result;
 }
 
-void panel_component_camera::register_camera(uint32_t a2, const char *a3) {
+void panel_component_camera::register_camera(uint32_t a2, const char *a3)
+{
     if (a3 != nullptr && a3[0] != '\0') {
         auto *v4 = g_world_ptr->ent_mgr.get_entity(string_hash{a3});
         if (v4 != nullptr) {
@@ -295,7 +274,7 @@ void panel_component_camera::register_camera(uint32_t a2, const char *a3) {
 
 void panel_component::setup_geomgr(panel_component::render_info &a3)
 {
-    void (__fastcall *func)(void *, void *, render_info *) = CAST(func, get_vfunc(m_vtbl, 0x1C));
+    void(__fastcall * func)(void *, void *, render_info *) = CAST(func, get_vfunc(m_vtbl, 0x1C));
     func(this, nullptr, &a3);
 }
 
@@ -306,48 +285,40 @@ panel_component::render_info::render_info(comic_panels::panel &a2, int a3)
 
 void panel_component_camera::set_scene_params(panel_component::render_info &a2)
 {
-    if constexpr (0)
-    {
-        if ( nglCurScene() != nullptr )
-        {
+    if constexpr (0) {
+        if (nglCurScene != nullptr) {
             auto *v2 = &a2;
-            if ( a2.field_40.field_4 != game_play_panel() || a2.field_143 || a2.field_13C->field_4C != nullptr )
-            {
+            if (a2.field_40.field_4 != game_play_panel() || a2.field_143 || a2.field_13C->field_4C != nullptr) {
                 auto *mem = nglListAlloc(sizeof(panel_params_t), 16u);
-                auto *v5 = new (mem) panel_params_t {a2.field_40};
+                auto *v5 = new (mem) panel_params_t{a2.field_40};
 
                 v5->field_0 = 0;
-                if ( (this->field_48 & 8) != 0 ) {
+                if ((this->field_48 & 8) != 0) {
                     v5->field_0 = 0x40;
                 }
 
-                if ( (this->field_48 & 0x10) != 0 ) {
+                if ((this->field_48 & 0x10) != 0) {
                     v5->field_0 |= 0x20u;
                 }
 
-                for ( int i = 0; i < 5; ++i )
-                {
-                    if ( (this->field_30 & (1 << i)) != 0 ) {
+                for (int i = 0; i < 5; ++i) {
+                    if ((this->field_30 & (1 << i)) != 0) {
                         v5->field_0 |= (1 << i);
                     }
                 }
 
                 v5->field_D1 ^= (v5->field_D1 ^ v2->field_143) & 1;
 
-                SMPanelParams params {v5};
+                SMPanelParams params{v5};
                 auto *SceneParams = nglGetSceneParams();
                 SceneParams->SetParam(params);
-            }
-            else
-            {
-                SMPanelParams params {nullptr};
+            } else {
+                SMPanelParams params{nullptr};
                 auto *v3 = nglGetSceneParams();
                 v3->SetParam(params);
             }
         }
-    }
-    else
-    {
+    } else {
         THISCALL(0x007388A0, this, &a2);
     }
 }
@@ -356,26 +327,18 @@ void panel_component_camera::_render(comic_panels::panel_component::render_info 
 {
     TRACE("comic_panels::panel_component_camera::render");
 
-    if constexpr (0)
-    {
-        if ( this->field_2C < 4u )
-        {
+    if constexpr (0) {
+        if (this->field_2C < 4u) {
             auto *v3 = &a2;
-            if ( !a2.field_142 )
-            {
-                if ( !a2.field_114.sub_560880() )
-                {
+            if (!a2.field_142) {
+                if (!a2.field_114.sub_560880()) {
                     const auto v5 = v3->field_138 * this->field_24;
-                    if ( v5 > 0.0f )
-                    {
-                        if ( this->field_44 == nullptr || v3->field_143 )
-                        {
+                    if (v5 > 0.0f) {
+                        if (this->field_44 == nullptr || v3->field_143) {
                             auto v13 = this->field_48;
-                            if ( (v13 & 8) != 0 && (v13 & 0x10) != 0 && v3->field_40.field_4 != game_play_panel() )
-                            {
+                            if ((v13 & 8) != 0 && (v13 & 0x10) != 0 && v3->field_40.field_4 != game_play_panel()) {
                                 auto *v14 = g_cut_scene_player();
-                                if ( v14->is_playing() )
-                                {
+                                if (v14->is_playing()) {
                                     sub_742B20(nullptr, false, false);
                                     nglSetClearFlags(0);
                                     clear_color_rect(v3->field_114, default_bgcol(), v3->field_0);
@@ -399,7 +362,7 @@ void panel_component_camera::_render(comic_panels::panel_component::render_info 
                                 {
                                     this->field_0 = (a2 ? a3 : nullptr);
                                     this->field_4 = *a3;
-                                    if ( a2 ) {
+                                    if (a2) {
                                         *a3 = *a4;
                                     }
                                 }
@@ -407,14 +370,11 @@ void panel_component_camera::_render(comic_panels::panel_component::render_info 
 
                                 ~stru()
                                 {
-                                    if ( this->field_0 != nullptr ) {
+                                    if (this->field_0 != nullptr) {
                                         *this->field_0 = this->field_4;
                                     }
                                 }
-
-
-
-                            } a1 {world_has_been_rendered(), &g_disable_occlusion_culling(), &v22};
+                            } a1{world_has_been_rendered, &g_disable_occlusion_culling, &v22};
 
                             geometry_manager::get_xform(geometry_manager::xform_t::XFORM_VIEW_TO_PROJECTION);
 
@@ -423,12 +383,12 @@ void panel_component_camera::_render(comic_panels::panel_component::render_info 
                             sub_742B20(nullptr, true, true);
                             geometry_manager::set_aspect_ratio(1.0);
                             this->setup_geomgr(*v3);
-                            if ( !v3->field_142 )
-                            {
+                            if (!v3->field_142) {
                                 geometry_manager::set_auto_rebuild_view_frame(v16);
                                 geometry_manager::rebuild_view_frame();
                                 nglSetClearFlags(0);
-                                auto &xform = geometry_manager::get_xform(geometry_manager::XFORM_EFFECTIVE_WORLD_TO_VIEW);
+                                auto &xform =
+                                    geometry_manager::get_xform(geometry_manager::XFORM_EFFECTIVE_WORLD_TO_VIEW);
                                 nglSetWorldToViewMatrix(xform);
 
                                 struct stru {
@@ -439,26 +399,26 @@ void panel_component_camera::_render(comic_panels::panel_component::render_info 
                                     {
                                         this->field_0 = (a2 ? a3 : nullptr);
                                         this->field_4 = *a3;
-                                        if ( a2 ) {
+                                        if (a2) {
                                             *a3 = *a4;
                                         }
                                     }
 
-                                    ~stru() 
+                                    ~stru()
                                     {
-                                        if ( this->field_0 != nullptr ) {
+                                        if (this->field_0 != nullptr) {
                                             *this->field_0 = this->field_4;
                                         }
                                     }
                                 };
-                                
+
                                 bool a6 = (this->field_48 & 0x10) == 0;
                                 bool v23 = false;
-                                stru v28 {a6, &g_player_shadows_enabled(), &v23};
+                                stru v28{a6, &g_player_shadows_enabled, &v23};
 
-                                static Var<bool> byte_922C5D {0x00922C5D};
+                                static Var<bool> byte_922C5D{0x00922C5D};
                                 bool v24 = false;
-                                stru v27 {a6, &byte_922C5D(), &v24};
+                                stru v27{a6, &byte_922C5D(), &v24};
                                 g_game_ptr->render_world();
                             }
 
@@ -466,12 +426,9 @@ void panel_component_camera::_render(comic_panels::panel_component::render_info 
                             geometry_manager::set_auto_rebuild_view_frame(false);
                             auto v18 = sub_744B00();
                             geometry_manager::set_viewport(v18);
-                            if ( v3->field_141 )
-                            {
+                            if (v3->field_141) {
                                 geometry_manager::set_scissor(v3->field_124);
-                            }
-                            else
-                            {
+                            } else {
                                 auto v19 = sub_744B00();
                                 geometry_manager::set_scissor(v19);
                             }
@@ -479,14 +436,12 @@ void panel_component_camera::_render(comic_panels::panel_component::render_info 
                             geometry_manager::set_auto_rebuild_view_frame(v16);
 
                             a2a.field_0 = a2a.field_4;
-                        }
-                        else
-                        {
-                            bool v6 = ( (v5 * 255.0f) == 0xFF &&  (this->field_48 & 0x20) != 0 );
+                        } else {
+                            bool v6 = ((v5 * 255.0f) == 0xFF && (this->field_48 & 0x20) != 0);
 
                             sub_742B20(nullptr, (this->field_48 & 1) == 0, (this->field_48 & 1) != 0);
 
-                            vector2d a3 {};
+                            vector2d a3{};
                             a3[0] = v3->field_0[3][0];
                             a3[1] = v3->field_0[3][1];
 
@@ -496,7 +451,7 @@ void panel_component_camera::_render(comic_panels::panel_component::render_info 
 
                             {
                                 auto *v12 = this->field_44;
-                                color32 a2 {0xFF, 0xFF, 0xFF, 0xFF};
+                                color32 a2{0xFF, 0xFF, 0xFF, 0xFF};
                                 draw_textured_quad(v3->field_0, a2a, a1, v12, a2, v6);
                             }
 
@@ -506,9 +461,7 @@ void panel_component_camera::_render(comic_panels::panel_component::render_info 
                 }
             }
         }
-    }
-    else
-    {
+    } else {
         THISCALL(0x007419C0, this, &a2);
     }
 }
@@ -529,20 +482,16 @@ void panel_component_base::_render(panel_component::render_info &a2)
 
 void panel_component_base::capture(panel_component::render_info &a2)
 {
-    if constexpr (0)
-    {
+    if constexpr (0) {
         a2.field_138 = this->field_8 * a2.field_138;
-    }
-    else
-    {
-        void (__fastcall *func)(void *, void *, panel_component::render_info *) = CAST(func, get_vfunc(m_vtbl, 0x18));
+    } else {
+        void(__fastcall * func)(void *, void *, panel_component::render_info *) = CAST(func, get_vfunc(m_vtbl, 0x18));
         func(this, nullptr, &a2);
     }
 }
 
-    
 
-} // namespace comic_panels
+}  // namespace comic_panels
 
 
 void __fastcall sub_742C50(void *self, int, comic_panels::panel_component_base *a2)

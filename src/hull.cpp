@@ -4,11 +4,13 @@
 
 VALIDATE_SIZE(hull, 0x74);
 
-void hull::add_face(const plane &a2) {
+void hull::add_face(const plane &a2)
+{
     this->field_0.at(this->field_0.m_size++) = a2;
 }
 
-bool hull::sub_5CC030(Float a2, Float a3, Float a4, Float a5) {
+bool hull::sub_5CC030(Float a2, Float a3, Float a4, Float a5)
+{
     auto size = this->field_0.m_size;
 
     if (size == 0) {

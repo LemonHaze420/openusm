@@ -26,26 +26,23 @@
 
 VALIDATE_SIZE(mission_manager, 0x100u);
 
-mission_manager *& mission_manager::s_inst = var<mission_manager *>(0x00968518);
+mission_manager *&mission_manager::s_inst = var<mission_manager *>(0x00968518);
 
-mString & mission_manager::current_mission_debug_title = var<mString>(0x00969E90);
+mString &mission_manager::current_mission_debug_title = var<mString>(0x00969E90);
 
 mission_manager::mission_manager()
 {
-    if constexpr (0)
-    {}
-    else
-    {
-        THISCALL(0x005DA010, this);
+    if constexpr (0) {
+    } else {
+        void(__fastcall * func)(mission_manager *) = CAST(func, 0x005DA010);
+        func(this);
     }
 }
 
 void mission_manager::prepare_unload_script()
 {
-    if ( this->m_script != nullptr )
-    {
-        if ( !this->m_unload_script )
-        {
+    if (this->m_script != nullptr) {
+        if (!this->m_unload_script) {
             auto *v1 = this->m_script->field_0.c_str();
             sp_log("Preparing to unload script '%s'", v1);
             this->m_unload_script = true;
@@ -56,39 +53,32 @@ void mission_manager::prepare_unload_script()
 
 void mission_manager::force_mission(int a2, const char *a3, int a4, const char *a5)
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         this->prepare_unload_script();
         this->field_80 = true;
         this->field_84 = a2;
 
-        fixedstring<8> v5 {a3};
+        fixedstring<8> v5{a3};
         this->field_88 = v5;
         this->field_C8 = a4;
-        if ( a5 != nullptr )
-        {
+        if (a5 != nullptr) {
             fixedstring<8> v6{a5};
             this->field_A8 = v6;
-        }
-        else
-        {
-            fixedstring<8> v7 {mString::null()};
+        } else {
+            fixedstring<8> v7{mString::null};
             this->field_A8 = v7;
-        } 
-    }
-    else
-    {
+        }
+    } else {
         THISCALL(0x005C5A00, this, a2, a3, a4, a5);
     }
 }
 
-void mission_manager::set_real_time() {
-
+void mission_manager::set_real_time()
+{
     {
         mString a1 = mString{"real_world_timer"};
 
-        this->field_60 = CAST(this->field_60,
-                              script_manager::get_game_var_address(a1, nullptr, nullptr));
+        this->field_60 = CAST(this->field_60, script_manager::get_game_var_address(a1, nullptr, nullptr));
     }
 
     float *v2 = CAST(v2, this->field_60);
@@ -103,22 +93,23 @@ void mission_manager::show_mission_loading_panel(const mString &a1)
     THISCALL(0x005DA4B0, this, &a1);
 }
 
-int mission_manager::run_script(const mission_manager_script_data &arg0) {
+int mission_manager::run_script(const mission_manager_script_data &arg0)
+{
     TRACE("mission_manager::run_script");
 
-    if constexpr (0)
-    {}
-    else
-    {
+    if constexpr (0) {
+    } else {
         return THISCALL(0x005DEFA0, this, &arg0);
     }
 }
 
-void mission_manager::unlock() {
+void mission_manager::unlock()
+{
     this->field_CC = false;
 }
 
-void mission_manager::lock() {
+void mission_manager::lock()
+{
     this->field_CC = true;
 }
 
@@ -156,7 +147,8 @@ void mission_manager::unload_script_now()
     } while (this->m_unload_script);
 }
 
-void mission_manager::unload_script_if_requested() {
+void mission_manager::unload_script_if_requested()
+{
     TRACE("mission_manager::unload_script_if_requested");
 
     THISCALL(0x005DBD00, this);
@@ -166,8 +158,7 @@ void mission_manager::load_script(const mission_manager_script_data &data)
 {
     TRACE("mission_manager::load_script");
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         assert(data.uses_script_stack);
 
         assert(m_script_to_load == nullptr);
@@ -202,138 +193,121 @@ void mission_manager::load_script(const mission_manager_script_data &data)
     }
 }
 
-void mission_manager::render_fade() {
+void mission_manager::render_fade()
+{
     THISCALL(0x005BAE20, this);
 }
 
-void mission_manager::sub_5BACA0(Float a2) {
+void mission_manager::sub_5BACA0(Float a2)
+{
     THISCALL(0x005BACA0, this, a2);
 }
 
 void mission_manager::frame_advance(Float a2)
 {
     TRACE("mission_manager::frame_advance");
-    if constexpr (0)
-    {
-        if ( (!g_game_ptr->flag.physics_enabled || g_game_ptr->flag.single_step)
-            && g_game_ptr->level.load_completed
-            && g_game_ptr->flag.level_is_loaded )
-        {
+    if constexpr (0) {
+        if ((!g_game_ptr->flag.physics_enabled || g_game_ptr->flag.single_step) && g_game_ptr->level.load_completed &&
+            g_game_ptr->flag.level_is_loaded) {
             auto v4 = this->field_FC;
-            if ( v4 == 4 || v4 == 3 )
-            {
+            if (v4 == 4 || v4 == 3) {
                 this->sub_5BB220(a2);
             }
 
             auto v5 = a2 * this->field_F8 + this->field_F4;
             this->field_F4 = v5;
-            if ( v5 < 0.0f)
-            {
+            if (v5 < 0.0f) {
                 auto v6 = this->field_FC == 2;
                 this->field_F4 = 0.0;
                 this->field_F8 = 0.0;
-                if ( v6 )
-                {
+                if (v6) {
                     this->field_FC = 0;
                     g_game_ptr->field_166 = 0;
                 }
             }
 
-            if ( this->field_F4 > 1.f )
-            {
+            if (this->field_F4 > 1.f) {
                 auto v6 = this->field_FC == 1;
                 this->field_F4 = 1.0;
                 this->field_F8 = 0.0;
-                if ( v6 )
-                {
+                if (v6) {
                     this->field_FC = 3;
                 }
             }
 
-            if ( this->field_60 == nullptr )
-            {
-                mString a1 {"real_world_timer"};
+            if (this->field_60 == nullptr) {
+                mString a1{"real_world_timer"};
                 this->field_60 = (float *)script_manager::get_game_var_address(a1, nullptr, nullptr);
                 *this->field_60 = 0.0;
             }
 
             auto v7 = a2 + this->field_64;
             this->field_64 = v7;
-            if ( v7 >= 1.f)
-            {
+            if (v7 >= 1.f) {
                 auto v8 = this->field_5C + 1;
                 this->field_5C = v8;
                 auto v9 = (double)this->field_5C;
-                if ( v8 < 0 )
-                    v9 = v9 + flt_86F860();
+                if (v8 < 0) {
+                    v9 += flt_86F860;
+                }
 
                 *this->field_60 = v9;
                 this->field_64 = this->field_64 - 1.f;
             }
 
-            if ( this->field_6C == nullptr )
-            {
+            if (this->field_6C == nullptr) {
                 mString a1{"game_clock_timer"};
                 this->field_6C = (float *)script_manager::get_game_var_address(a1, nullptr, nullptr);
             }
 
-            if ( this->field_7C == nullptr )
-            {
+            if (this->field_7C == nullptr) {
                 mString a1{"game_day_of_the_week"};
                 this->field_7C = (float *)script_manager::get_game_var_address(a1, nullptr, nullptr);
             }
 
-            if ( this->field_78 == nullptr )
-            {
+            if (this->field_78 == nullptr) {
                 mString v22{"game_days"};
                 this->field_78 = (float *)script_manager::get_game_var_address(v22, nullptr, nullptr);
             }
 
-            if ( !g_game_ptr->flag.game_paused || s_freeze_game_time() )
-            {
-                auto v10 = (double)this->field_74;
-                if ( this->field_74 < 0 )
-                    v10 = v10 + flt_86F860();
+            if (!g_game_ptr->flag.game_paused || s_freeze_game_time) {
+                double v10 = this->field_74;
+                if (this->field_74 < 0) {
+                    v10 += flt_86F860;
+                }
 
                 auto v11 = v10 * a2 + this->field_70;
                 this->field_70 = v11;
-                if ( v11 >= 1.f )
-                {
-                    do
-                    {
+                if (v11 >= 1.f) {
+                    do {
                         auto v12 = this->field_68 + 1;
                         this->field_68 = v12;
-                        if ( !(v12 % 60) )
-                        {
-                            event_manager::raise_event(event::TIME_MINUTE_INC, entity_base_vhandle {0});
-                            if ( !(this->field_68 / 60 % 60) )
-                            {
-                                event_manager::raise_event(event::TIME_HOUR_INC, entity_base_vhandle {0});
+                        if ((v12 % 60) == 0) {
+                            event_manager::raise_event(event::TIME_MINUTE_INC, entity_base_vhandle{0});
+                            if (!(this->field_68 / 60 % 60)) {
+                                event_manager::raise_event(event::TIME_HOUR_INC, entity_base_vhandle{0});
                             }
                         }
 
                         auto v13 = this->field_68;
-                        if ( v13 > 86400 )
-                        {
+                        if (v13 > 86400) {
                             this->field_68 = v13 - 86400;
                             *this->field_78 += 1.f;
-                            event_manager::raise_event(event::TIME_DAY_INC, entity_base_vhandle {0});
+                            event_manager::raise_event(event::TIME_DAY_INC, entity_base_vhandle{0});
                             *this->field_7C += 1.f;
                             auto *v14 = this->field_7C;
-                            if ( *v14 > (double)flt_87EBD4() )
-                              *v14 = 0.0;
+                            if (*v14 > flt_87EBD4)
+                                *v14 = 0.0;
                         }
 
-                        auto v15 = (double)this->field_68;
-                        if ( this->field_68 < 0 )
-                        {
-                            v15 += flt_86F860();
+                        double v15 = this->field_68;
+                        if (this->field_68 < 0) {
+                            v15 += flt_86F860;
                         }
 
                         *this->field_6C = v15;
                         this->field_70 = this->field_70 - 1.f;
-                    }
-                    while ( this->field_70 >= 1.f );
+                    } while (this->field_70 >= 1.f);
                 }
             }
 
@@ -342,34 +316,25 @@ void mission_manager::frame_advance(Float a2)
             this->unload_script_if_requested();
 
             bool v16, v17;
-            if ( this->m_script_to_load
-                && (v16 = mission_stack_manager::s_inst->pack_loads_or_unloads_pending == 0,
-                v17 = sound_manager::is_mission_sound_bank_ready(),
-                v16)
-                && v17
-                && this->field_FC != 1 )
-            {
+            if (this->m_script_to_load &&
+                (v16 = mission_stack_manager::s_inst->pack_loads_or_unloads_pending == 0,
+                 v17 = sound_manager::is_mission_sound_bank_ready(),
+                 v16) &&
+                v17 && this->field_FC != 1) {
                 this->run_script(*this->m_script_to_load);
                 auto *v18 = this->m_script_to_load;
-                if ( v18 != nullptr )
-                {
+                if (v18 != nullptr) {
                     v18->~mission_manager_script_data();
                     delete v18;
                 }
 
                 this->m_script_to_load = nullptr;
-            }
-            else
-            {                                           
+            } else {
                 this->sort_district_priorities();
 
-                if ( this->m_script_to_load == nullptr
-                    && this->m_script == nullptr
-                    && !this->field_CC
-                    && !g_game_ptr->flag.game_paused
-                    && this->get_script(&script_data) )
-                {
-                    if ( script_data.uses_script_stack )
+                if (this->m_script_to_load == nullptr && this->m_script == nullptr && !this->field_CC &&
+                    !g_game_ptr->flag.game_paused && this->get_script(&script_data)) {
+                    if (script_data.uses_script_stack)
                         this->load_script(script_data);
                     else
                         this->run_script(script_data);
@@ -378,9 +343,7 @@ void mission_manager::frame_advance(Float a2)
 
             this->update_hero_switch();
         }
-    }
-    else
-    {
+    } else {
         THISCALL(0x005E16B0, this, a2);
     }
 }
@@ -390,21 +353,21 @@ void mission_manager::kill_braindead_script()
     TRACE("mission_manager::kill_braindead_script");
 
     if constexpr (1) {
-        if ( this->m_script != nullptr && !this->m_unload_script ) {
+        if (this->m_script != nullptr && !this->m_unload_script) {
             auto *exec_list = script_manager::get_exec_list();
 
-            script_executable_entry_key a2 {};
+            script_executable_entry_key a2{};
             auto *v1 = this->m_script->field_0.c_str();
-            string_hash v6 {v1};
-            resource_key v9 {v6, RESOURCE_KEY_TYPE_SCRIPT};
+            string_hash v6{v1};
+            resource_key v9{v6, RESOURCE_KEY_TYPE_SCRIPT};
             a2.field_0 = v9;
-            a2.field_8 = resource_key {};
+            a2.field_8 = resource_key{};
             auto it = exec_list->find(a2);
             auto end = exec_list->end();
-            if ( it != end ) {
+            if (it != end) {
                 auto &v4 = (*it);
-                if ( !v4.second.exec->has_threads() ) {
-                    if ( !event_manager::does_script_have_callbacks(v4.second.exec) ) {
+                if (!v4.second.exec->has_threads()) {
+                    if (!event_manager::does_script_have_callbacks(v4.second.exec)) {
                         assert(false && "mission script appears to be dead");
                     }
                 }
@@ -427,18 +390,18 @@ void mission_manager::sub_5BB220(Float a2)
 
 bool mission_manager::get_script(mission_manager_script_data *return_script_data)
 {
-    return (bool) THISCALL(0x005E13D0, this, return_script_data);
+    return (bool)THISCALL(0x005E13D0, this, return_script_data);
 }
 
-int mission_manager::add_global_table(const resource_key &a2) {
+int mission_manager::add_global_table(const resource_key &a2)
+{
     return THISCALL(0x005D1EA0, this, &a2);
 }
 
 void mission_manager::add_district_table(void *a2, region *a3)
 {
-    if constexpr (1)
-    {
-        parse_generic_object_mash<mission_table_container> (
+    if constexpr (1) {
+        parse_generic_object_mash<mission_table_container>(
             this->m_district_table_containers[this->m_district_table_count],
             a2,
             nullptr,
@@ -449,9 +412,7 @@ void mission_manager::add_district_table(void *a2, region *a3)
             nullptr);
 
         this->m_district_table_containers[this->m_district_table_count++]->field_44 = a3;
-    }
-    else
-    {
+    } else {
         THISCALL(0x005D1EE0, this, a2, a3);
     }
 }
@@ -459,7 +420,6 @@ void mission_manager::add_district_table(void *a2, region *a3)
 
 void mission_manager::update_hero_switch()
 {
-
     if (int v3 = g_world_ptr->get_num_players(); v3 > 1) {
         do {
             g_world_ptr->remove_player(--v3);
@@ -494,8 +454,7 @@ void mission_manager::update_hero_switch()
             mString a2 = mString{this->field_D0.to_string()};
             auto new_num_players = g_world_ptr->add_player(a2);
 
-            assert(new_num_players > old_num_players &&
-                   "unable to add player (while switching hero costumes)");
+            assert(new_num_players > old_num_players && "unable to add player (while switching hero costumes)");
 
             this->hero_switch_frame = -1;
         } break;
@@ -509,18 +468,18 @@ entity_base *mission_manager::get_mission_key_entity() const
 {
     assert(m_script != nullptr);
 
-    string_hash a1 {this->m_script->field_84.c_str()};
+    string_hash a1{this->m_script->field_84.c_str()};
     return entity_handle_manager::find_entity(a1, IGNORE_FLAVOR, false);
 }
 
-trigger * mission_manager::get_mission_key_trigger() const
+trigger *mission_manager::get_mission_key_trigger() const
 {
-    mString v3 {this->m_script->field_84.c_str()};
+    mString v3{this->m_script->field_84.c_str()};
     auto *instance = trigger_manager::instance->find_instance(v3);
     return instance;
 }
 
-_std::vector<float> * mission_manager::get_mission_nums()
+_std::vector<float> *mission_manager::get_mission_nums()
 {
     assert(m_script != nullptr);
 
@@ -529,7 +488,7 @@ _std::vector<float> * mission_manager::get_mission_nums()
     return &this->m_script->nums;
 }
 
-_std::vector<mString> * mission_manager::get_mission_strings()
+_std::vector<mString> *mission_manager::get_mission_strings()
 {
     assert(m_script != nullptr);
 
@@ -549,14 +508,14 @@ po mission_manager::get_mission_key_po() const
 {
     assert(m_script != nullptr);
 
-    return *this->m_script->field_94;
+    return (*this->m_script->field_94);
 }
 
 bool mission_manager::is_story_active() const
 {
-    mString v3 {"gv_story_finished"};
-    float *game_var_address = (float *)script_manager::get_game_var_address(v3, nullptr, nullptr);
-    return *game_var_address == 0.0f;
+    mString v3{"gv_story_finished"};
+    float *game_var_address = bit_cast<float *>(script_manager::get_game_var_address(v3, nullptr, nullptr));
+    return equal(*game_var_address, 0.0f);
 }
 
 bool mission_manager::is_mission_active() const
@@ -564,20 +523,13 @@ bool mission_manager::is_mission_active() const
     return this->m_script != nullptr;
 }
 
-void mission_manager::get_missions_nums_by_index(
-        int a2,
-        const char *a3,
-        int a4,
-        _std::vector<float> *nums_result)
+void mission_manager::get_missions_nums_by_index(int a2, const char *a3, int a4, _std::vector<float> *nums_result)
 {
     assert(nums_result != nullptr);
 
-    for ( int i = 0; i < this->m_district_table_count; ++i )
-    {
+    for (int i = 0; i < this->m_district_table_count; ++i) {
         auto *reg = this->m_district_table_containers[i]->get_region();
-        if ( a2 == reg->get_district_id()
-            && this->m_district_table_containers[i]->append_nums(a3, a4, nums_result) )
-        {
+        if (a2 == reg->get_district_id() && this->m_district_table_containers[i]->append_nums(a3, a4, nums_result)) {
             return;
         }
     }
@@ -588,11 +540,11 @@ void mission_manager::get_missions_nums_by_index(
 int mission_manager::sub_5C5BD0() const
 {
     int v1 = (this->field_68 / 60u) / 60 % 24;
-    if ( v1 <= 7 ) {
+    if (v1 <= 7) {
         return 2;
     }
 
-    if ( v1 >= 19 ) {
+    if (v1 >= 19) {
         return 2;
     }
 

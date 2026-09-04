@@ -7,7 +7,6 @@
 #include <optional>
 
 struct os_developer_options : singleton {
-
     enum strings_t {
         SOUND_LIST = 0,
         SCENE_NAME = 1,
@@ -26,9 +25,9 @@ struct os_developer_options : singleton {
 
     };
 
-	enum flags_t {};
+    enum flags_t {};
 
-	enum ints_t {};
+    enum ints_t {};
 
     bool m_flags[150];
     mString m_strings[14];
@@ -42,7 +41,7 @@ struct os_developer_options : singleton {
     //virtual
     ~os_developer_options();
 
-	void toggle_flag(flags_t a2);
+    void toggle_flag(flags_t a2);
 
     //0x005B87E0
     char get_flag(flags_t a2) const;
@@ -95,19 +94,19 @@ struct os_developer_options : singleton {
     //0x005B23E0
     static void os_developer_init();
 
-    static os_developer_options *& instance;
+    static os_developer_options *&instance;
 };
 
 using int_names_t = const char *[76];
-extern int_names_t & int_names;
+extern int_names_t &int_names;
 
 using flag_names_t = const char *[150];
-extern flag_names_t & flag_names;
+extern flag_names_t &flag_names;
 
 using string_names_t = const char *[14];
-extern string_names_t & string_names;
+extern string_names_t &string_names;
 
 using flag_defaults_t = BOOL[150];
-inline flag_defaults_t & flag_defaults = var<flag_defaults_t>(0x00936678);
+extern flag_defaults_t &flag_defaults;
 
 extern void os_developer_options_patch();

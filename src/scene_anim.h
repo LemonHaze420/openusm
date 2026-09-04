@@ -18,14 +18,17 @@ struct nalSceneAnim {
     int field_34;
     int field_38;
     int field_3C;
-    int field_40;
-    int field_44;
-    int field_48;
+    tlFileBuf field_40;
     int field_4C;
     tlFixedString field_50;
+
+    static tlFixedString *get_string(nalSceneAnim *a1)
+    {
+        return &a1->field_10;
+    }
 };
 
-template<typename>
+template <typename>
 struct nalAnimClass;
 
 struct nalSceneAnimInstance {

@@ -3,12 +3,10 @@
 #include "femultilinetext.h"
 #include "panelfile.h"
 
-medal_award_ui::medal_award_ui()
+medal_award_ui::medal_award_ui() {}
+
+void medal_award_ui::Init()
 {
-
-}
-
-void medal_award_ui::Init() {
     if (this->field_0 == nullptr) {
         this->field_0 = PanelFile::UnmashPanelFile("medals_interface", static_cast<panel_layer>(7));
 
@@ -68,9 +66,9 @@ void medal_award_ui::Init() {
     }
 }
 
-void medal_award_ui::DeInit() {
-    if (this->field_0 != nullptr)
-    {
+void medal_award_ui::DeInit()
+{
+    if (this->field_0 != nullptr) {
         this->field_0 = nullptr;
     }
 }

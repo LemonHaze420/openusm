@@ -69,7 +69,7 @@ struct ParamStruct {
     bool field_48;
     bool disableZDepth;
 
-    void * operator new(size_t size);
+    void *operator new(size_t size);
 
     static inline constexpr auto OutlineThickness = 0.003f;
 };
@@ -167,7 +167,7 @@ struct USPersonNode : USVariantShaderNode {
     //0x0041BCD0
     USPersonNode(nglMeshNode *a2, nglMeshSection *a3, nglMaterialBase *a4);
 
-    void * operator new(size_t size);
+    void *operator new(size_t size);
 
     //0x0041CF70
     bool GetLightInfo(USPersonNode::LightInfoStruct &lightInfo);
@@ -184,7 +184,7 @@ struct USPersonNode : USVariantShaderNode {
     /* virtual */ ~USPersonNode() = default;
 };
 
-} // namespace USPersonShaderSpace
+}  // namespace USPersonShaderSpace
 
 struct USPersonParam {
     USPersonShaderSpace::ParamStruct *field_0;

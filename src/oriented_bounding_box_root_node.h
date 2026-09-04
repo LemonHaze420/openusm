@@ -1,6 +1,5 @@
 #pragma once
 
-#include "subdivision_node_obb_base.h"
 #include "color32.h"
 #include "float.hpp"
 
@@ -46,8 +45,5 @@ struct oriented_bounding_box_root_node {
     //0x00522E50
     void traverse_sphere(const vector3d &a2, Float a3, subdivision_visitor *a4);
 
-    void un_mash(
-        char *a2,
-        int *image_size_used,
-        region *reg);
+    void un_mash(char *a2, int *image_size_used, region *reg);
 };

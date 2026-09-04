@@ -7,9 +7,8 @@
 
 biped_system::biped_system() {}
 
-void biped_system::create_bps(conglomerate *a2,
-                              int a3,
-                              physical_interface::biped_physics_body_types arg4a) {
+void biped_system::create_bps(conglomerate *a2, int a3, physical_interface::biped_physics_body_types arg4a)
+{
     this->field_2130 = a3;
     this->setup_physics(a2, arg4a);
     this->field_2134 = 0.0;
@@ -17,8 +16,8 @@ void biped_system::create_bps(conglomerate *a2,
     this->field_0.reset_state_variables();
 }
 
-void biped_system::setup_physics(conglomerate *a2,
-                                 physical_interface::biped_physics_body_types arg4) {
+void biped_system::setup_physics(conglomerate *a2, physical_interface::biped_physics_body_types arg4)
+{
     THISCALL(0x005A0CB0, this, a2, arg4);
 }
 

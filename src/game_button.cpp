@@ -15,8 +15,7 @@ VALIDATE_SIZE(game_button, 0x34u);
 
 game_button::game_button()
 {
-    if constexpr (0)
-    {
+    if constexpr (0) {
         this->field_4 = input_mgr::instance->field_58;
         this->field_C = nullptr;
         this->field_10 = nullptr;
@@ -25,10 +24,9 @@ game_button::game_button()
         this->field_2C = 0.0;
         this->set_control(static_cast<game_control_t>(0));
         this->clear();
-    }
-    else
-    {
-        THISCALL(0x0048D9A0, this);
+    } else {
+        void(__fastcall * func)(game_button *) = CAST(func, 0x0048D9A0);
+        func(this);
     }
 }
 
@@ -52,10 +50,7 @@ game_button::game_button(const game_button &a2)
     (*this) = a2;
 }
 
-game_button::game_button(
-        const game_button &a2,
-        const game_button &a3,
-        int a4)
+game_button::game_button(const game_button &a2, const game_button &a3, int a4)
 {
     this->field_4 = input_mgr::instance->field_58;
     this->field_8 = static_cast<game_control_t>(0);
@@ -69,16 +64,14 @@ game_button::game_button(
     this->clear();
 }
 
-game_button & game_button::operator=(const game_button &a2)
+game_button &game_button::operator=(const game_button &a2)
 {
-    if ( this->field_C != nullptr )
-    {
+    if (this->field_C != nullptr) {
         delete this->field_C;
         this->field_C = nullptr;
     }
 
-    if ( this->field_10 != nullptr )
-    {
+    if (this->field_10 != nullptr) {
         delete this->field_10;
         this->field_10 = nullptr;
     }
@@ -96,12 +89,11 @@ game_button & game_button::operator=(const game_button &a2)
     this->field_2C = a2.field_2C;
     this->field_28 = a2.field_28;
 
-    if ( a2.field_C != nullptr ) {
+    if (a2.field_C != nullptr) {
         this->set_primary(*a2.field_C);
     }
 
-    if ( auto *v5 = a2.field_10; v5 != nullptr )
-    {
+    if (auto *v5 = a2.field_10; v5 != nullptr) {
         this->set_modifier(*v5);
     }
 
@@ -110,20 +102,15 @@ game_button & game_button::operator=(const game_button &a2)
 
 void game_button::override(Float a2, Float a3, Float a4)
 {
-    if constexpr (0)
-    {
+    if constexpr (0) {
         bool v9 = this->m_flags & GBFLAG_PRESSED;
-        if ( this->field_2C > EPSILON )
-        {
-            if ( std::abs(a3) < 0.5f )
-            {
+        if (this->field_2C > EPSILON) {
+            if (std::abs(a3) < 0.5f) {
                 this->field_28 = this->field_2C;
-            }
-            else if ( this->field_28 > 0.0f )
-            {
+            } else if (this->field_28 > 0.0f) {
                 auto v4 = this->field_28 - a2;
                 this->field_28 = v4;
-                if ( v4 > 0.0f ) {
+                if (v4 > 0.0f) {
                     a3 = 0.0;
                 }
 
@@ -134,10 +121,8 @@ void game_button::override(Float a2, Float a3, Float a4)
         this->field_18 = a3;
         this->field_14 = a4;
 
-        auto v5 = (
-                (this->m_flags & GBFLAG_PRESSED) != 0
-                && (this->m_flags & GBFLAG_TRIGGERED) != 0
-                && this->field_14 <= -0.5f );
+        auto v5 = ((this->m_flags & GBFLAG_PRESSED) != 0 && (this->m_flags & GBFLAG_TRIGGERED) != 0 &&
+                   this->field_14 <= -0.5f);
 
         this->set_flag(0x10, v5);
 
@@ -145,8 +130,8 @@ void game_button::override(Float a2, Float a3, Float a4)
         this->set_flag(GBFLAG_TRIGGERED, this->field_14 >= 0.5f);
         this->set_flag(GBFLAG_RELEASED, this->field_14 < -0.5f);
 
-        if ( (this->m_flags & GBFLAG_PRESSED) != 0 && v9 ) {
-            this->field_1C += a2; 
+        if ((this->m_flags & GBFLAG_PRESSED) != 0 && v9) {
+            this->field_1C += a2;
         } else if (!v9) {
             this->field_1C = 0.0;
         }
@@ -155,34 +140,29 @@ void game_button::override(Float a2, Float a3, Float a4)
 
         assert(!(this->m_flags & GBFLAG_TRIGGERED && this->m_flags & GBFLAG_RELEASED));
 
-        if ( this->field_30 > 0 )
-        {
+        if (this->field_30 > 0) {
             this->field_20 += a2;
-            if ( this->field_20 > this->field_24 )
-            {
+            if (this->field_20 > this->field_24) {
                 this->field_30 = 0;
                 this->field_20 = 0.0;
             }
         }
 
-        if ( (this->m_flags & GBFLAG_PRESSED) != 0 && !v9 )
-        {
-            if ( this->field_20 <= this->field_24 ) {
+        if ((this->m_flags & GBFLAG_PRESSED) != 0 && !v9) {
+            if (this->field_20 <= this->field_24) {
                 ++this->field_30;
             }
 
             this->field_20 = 0.0;
         }
-    }
-    else
-    {
+    } else {
         THISCALL(0x0050B640, this, a2, a3, a4);
     }
 }
 
 float game_button::sub_55ED50() const
 {
-    if ( this->is_flagged(0x20) ) {
+    if (this->is_flagged(0x20)) {
         return 0.0f;
     }
 
@@ -191,7 +171,7 @@ float game_button::sub_55ED50() const
 
 float game_button::sub_55ED30() const
 {
-    if ( this->is_flagged(0x20) ) {
+    if (this->is_flagged(0x20)) {
         return 0.0f;
     }
 
@@ -202,11 +182,9 @@ void game_button::update(Float a2)
 {
     TRACE("game_button::update");
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         auto *v3 = this->field_C;
-        if (v3 == nullptr)
-        {
+        if (v3 == nullptr) {
             auto *inst = input_mgr::instance;
             auto v37 = inst->get_control_state(this->field_8, this->field_4);
             auto v35 = inst->get_control_delta(this->field_8, this->field_4);
@@ -217,12 +195,10 @@ void game_button::update(Float a2)
         v3->update(a2);
 
         auto *v6 = this->field_10;
-        if (v6 != nullptr)
-        {
-            if (this->is_flagged(0x8))
-            {
+        if (v6 != nullptr) {
+            if (this->is_flagged(0x8)) {
                 auto *v9 = this->field_C;
-                if ( v9->is_pressed() ) {
+                if (v9->is_pressed()) {
                     this->override(a2, 0.0, 0.0);
                     return;
                 }
@@ -280,8 +256,7 @@ void game_button::update(Float a2)
                 }
 
                 float a2b = v21->sub_55ED30();
-                if ((v19->is_pressed() && v18->is_pressed()) ||
-                    (!v19->is_pressed() && !v18->is_pressed())) {
+                if ((v19->is_pressed() && v18->is_pressed()) || (!v19->is_pressed() && !v18->is_pressed())) {
                     a2b = 0.0;
                 }
 
@@ -308,8 +283,7 @@ void game_button::update(Float a2)
             }
             case 4: {
                 auto *v27 = this->field_10;
-                if (!v27->is_pressed())
-                {
+                if (!v27->is_pressed()) {
                     auto v33 = -this->field_18;
                     this->override(a2, 0.0, v33);
                     return;
@@ -317,14 +291,10 @@ void game_button::update(Float a2)
 
                 game_button *v28;
 
-                if (v27->is_triggered() && (v28 = this->field_C, v28->is_pressed()) &&
-                    !v28->is_triggered())
-                {
+                if (v27->is_triggered() && (v28 = this->field_C, v28->is_pressed()) && !v28->is_triggered()) {
                     this->set_flag(0x8, true);
                     this->override(a2, 0.0, 0.0);
-                }
-                else
-                {
+                } else {
                     auto *v29 = this->field_C;
                     auto v34 = v29->sub_55ED50();
                     auto v30 = v29->sub_55ED30();
@@ -333,13 +303,10 @@ void game_button::update(Float a2)
                 break;
             }
             case 5: {
-                if (this->field_10->is_pressed())
-                {
+                if (this->field_10->is_pressed()) {
                     auto v33 = -this->field_18;
                     this->override(a2, 0.0, v33);
-                }
-                else
-                {
+                } else {
                     auto v26 = this->field_C->sub_55ED30();
 
                     auto v32 = v26 - this->field_18;
@@ -353,19 +320,15 @@ void game_button::update(Float a2)
 
                 return;
             }
-        }
-        else
-        {
+        } else {
             auto *v7 = this->field_C;
 
-            float a2a = ( !v7->is_flagged(0x20) ? v7->field_14 : 0.0f );
-            float v36 = ( !v7->is_flagged(0x20) ? v7->field_18 : 0.0f );
+            float a2a = (!v7->is_flagged(0x20) ? v7->field_14 : 0.0f);
+            float v36 = (!v7->is_flagged(0x20) ? v7->field_18 : 0.0f);
 
             this->override(a2, v36, a2a);
         }
-    }
-    else
-    {
+    } else {
         THISCALL(0x0051D510, this, a2);
     }
 }
@@ -373,21 +336,19 @@ void game_button::update(Float a2)
 game_button::~game_button()
 {
     game_button *v2 = this->field_C;
-    if (v2 != nullptr)
-    {
+    if (v2 != nullptr) {
         delete this->field_C;
         this->field_C = nullptr;
     }
 
     game_button *v3 = this->field_10;
-    if (v3 != nullptr)
-    {
+    if (v3 != nullptr) {
         delete this->field_10;
         this->field_10 = nullptr;
     }
 }
 
-void * game_button::operator new(size_t size)
+void *game_button::operator new(size_t size)
 {
     return mem_alloc(size);
 }
@@ -417,15 +378,13 @@ void game_button::set_trigger_type(int a2)
 void game_button::set_control(game_control_t a2)
 {
     game_button *v3 = this->field_C;
-    if (v3 != nullptr)
-    {
+    if (v3 != nullptr) {
         delete this->field_C;
         this->field_C = nullptr;
     }
 
     game_button *v4 = this->field_10;
-    if (v4 != nullptr)
-    {
+    if (v4 != nullptr) {
         delete this->field_10;
         this->field_10 = nullptr;
     }
@@ -443,13 +402,12 @@ void game_button::set_id(device_id_t a2)
 void game_button::set_primary(const game_button &a2)
 {
     auto *v3 = this->field_C;
-    if ( v3 != nullptr )
-    {
+    if (v3 != nullptr) {
         delete this->field_C;
         this->field_C = nullptr;
     }
 
-    this->field_C = new game_button {a2};
+    this->field_C = new game_button{a2};
 
     this->field_C->set_id(this->field_4);
     this->clear();
@@ -457,17 +415,16 @@ void game_button::set_primary(const game_button &a2)
 
 void game_button::set_modifier(const game_button &a2)
 {
-    if ( this->field_10 != nullptr )
-    {
+    if (this->field_10 != nullptr) {
         delete this->field_10;
         this->field_10 = nullptr;
     }
 
-    if ( this->field_C == nullptr ) {
+    if (this->field_C == nullptr) {
         this->set_primary(*this);
     }
 
-    this->field_10 = new game_button {a2};
+    this->field_10 = new game_button{a2};
     this->field_10->set_id(this->field_4);
     this->clear();
 }
@@ -475,7 +432,7 @@ void game_button::set_modifier(const game_button &a2)
 
 bool game_button::is_pressed() const
 {
-    if ( this->is_flagged(0x20) ) {
+    if (this->is_flagged(0x20)) {
         return false;
     }
 
@@ -484,7 +441,7 @@ bool game_button::is_pressed() const
 
 bool game_button::is_triggered() const
 {
-    bool v5 = ( !this->is_flagged(0x20) && (this->m_flags & GBFLAG_TRIGGERED) != 0);
+    bool v5 = (!this->is_flagged(0x20) && (this->m_flags & GBFLAG_TRIGGERED) != 0);
     return v5;
 }
 

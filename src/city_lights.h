@@ -30,3 +30,5 @@ struct city_lights {
     //0x0051B520
     void un_mash(generic_mash_header *, void *, generic_mash_data_ptrs *a4);
 };
+
+extern void city_lights_patch();

@@ -9,6 +9,7 @@
 struct interaction;
 struct actor;
 struct from_mash_in_place_constructor;
+struct mash_info_struct;
 
 struct interactable_interface {
     actor *field_0;
@@ -30,6 +31,8 @@ struct interactable_interface {
     void update_registrations();
 
     void sub_4DAE90(actor *a2);
+
+    void unmash(mash_info_struct *a2, void *);
 
     //0x004D1C10
     static void frame_advance_all(Float a1);

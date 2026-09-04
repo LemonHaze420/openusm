@@ -15,6 +15,6 @@ struct info_node_desc_list {
     void add_entry(info_node_descriptor a2);
 };
 
-} // namespace ai
+}  // namespace ai
 
 extern void info_node_desc_list_patch();

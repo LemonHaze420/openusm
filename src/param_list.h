@@ -45,4 +45,4 @@ struct param_list {
     //0x0049E270
     void clear();
 };
-} // namespace als
+}  // namespace als

@@ -10,8 +10,7 @@
 
 int compare_resource_key(const resource_key &a1, const resource_key &a2)
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         if (a1 == a2) {
             return 0;
         }
@@ -21,15 +20,12 @@ int compare_resource_key(const resource_key &a1, const resource_key &a2)
         }
 
         return -1;
-    }
-    else
-    {
+    } else {
         return CDECL_CALL(0x004201F0, a1, a2);
     }
 }
 
-int compare_resource_key_resource_pack_location(const resource_key &a1,
-                                                const resource_pack_location &a2)
+int compare_resource_key_resource_pack_location(const resource_key &a1, const resource_pack_location &a2)
 {
 #ifdef OPENUSM_XBPACK_MODE
     const auto requested_hash = a1.m_hash.source_hash_code;
@@ -50,9 +46,7 @@ int compare_resource_key_resource_pack_location(const resource_key &a1,
 }
 
 template<>
-int compare_deref(
-        entity_base_vhandle &a1,
-        event_recipient_entry *&a2)
+int compare_deref(entity_base_vhandle &a1, event_recipient_entry *&a2)
 {
     if ( a1 < a2->field_0 )
         return -1;

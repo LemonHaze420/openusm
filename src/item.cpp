@@ -12,7 +12,8 @@ Var<item *> item::inactive_items{0x0095A730};
 
 Var<item *> item::active_items{0x0095A734};
 
-item::item(const string_hash &a2, uint32_t a3) : actor(a2, a3) {
+item::item(const string_hash &a2, uint32_t a3) : actor(a2, a3)
+{
     this->field_C8 = false;
     this->field_C9 = false;
     this->field_CA = false;
@@ -22,15 +23,18 @@ item::item(const string_hash &a2, uint32_t a3) : actor(a2, a3) {
     this->field_F4 = 0.0;
 }
 
-item::~item() {
+item::~item()
+{
     this->field_D4.~mString();
 }
 
-void item::frame_advance_all_items(Float a3) {
+void item::frame_advance_all_items(Float a3)
+{
     CDECL_CALL(0x004CD9D0, a3);
 }
 
-bool item::is_same_item(const item &a2) {
+bool item::is_same_item(const item &a2)
+{
     bool result;
 
     auto v2 = this->field_D0;
@@ -55,7 +59,8 @@ bool item::is_same_item(const item &a2) {
     return result;
 }
 
-void item::remove_from_list() {
+void item::remove_from_list()
+{
     auto *v1 = this->field_C4;
     if (v1 != nullptr) {
         v1->field_C0 = this->field_C0;
@@ -74,11 +79,13 @@ void item::remove_from_list() {
     this->field_C4 = nullptr;
 }
 
-bool item::give_to_entity(actor *a2) {
-    return (bool) THISCALL(0x004F7590, this, a2);
+bool item::give_to_entity(actor *a2)
+{
+    return (bool)THISCALL(0x004F7590, this, a2);
 }
 
-void item::release_mem() {
+void item::release_mem()
+{
     this->remove_from_list();
     this->field_D4.~mString();
     auto v2 = this->field_7C;

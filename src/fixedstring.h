@@ -4,9 +4,11 @@
 
 #include "utility.h"
 
-template<int ndwords = 2>
-struct fixedstring {
+struct from_mash_in_place_constructor;
+struct mash_info_struct;
 
+template <int ndwords = 2>
+struct fixedstring {
     static inline constexpr auto MAX_CHARS = ndwords * 4;
 
     unsigned value[ndwords];
@@ -21,20 +23,17 @@ struct fixedstring {
 
         assert(len <= MAX_CHARS && "String too big for fixed size.");
 
-        for (auto  i = 0u; i < ndwords; ++i )
-        {
+        for (auto i = 0u; i < ndwords; ++i) {
             this->value[i] = 0;
         }
 
         std::memcpy(this->value, str, len);
     }
 
-    inline bool operator==( const fixedstring<ndwords> & rhs ) const
+    inline bool operator==(const fixedstring<ndwords> &rhs) const
     {
-        for (int i = 0; i < ndwords; ++i)
-        {
-            if (value[i] != rhs.value[i])
-            {
+        for (int i = 0; i < ndwords; ++i) {
+            if (value[i] != rhs.value[i]) {
                 return false;
             }
         }
@@ -56,20 +55,31 @@ struct tlFixedString {
 
     tlFixedString(const tlFixedString &) = default;
 
+    tlFixedString(from_mash_in_place_constructor *) {}
+
     //0x004018D0
     tlFixedString(const char *a1);
 
-    auto GetHash() const {
+    void unmash(mash_info_struct *, void *);
+
+    auto GetHash() const
+    {
         return this->m_hash;
     }
 
-    const char *to_string() const {
+    const char *to_string() const
+    {
+        return field_4;
+    }
+
+    const char *c_str() const
+    {
         return field_4;
     }
 
     tlFixedString *operator=(const tlFixedString &a1);
 
-    int compare(const tlFixedString &a2);
+    int compare(const tlFixedString &a2) const;
 
     bool operator==(const tlFixedString &a2) const;
 

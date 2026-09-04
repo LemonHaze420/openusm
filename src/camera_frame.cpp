@@ -10,19 +10,14 @@
 
 #include <cmath>
 
-camera_frame::camera_frame(const po &a2)
-    : eye(a2.get_position()),
-      fwd(a2.get_z_facing()),
-      up(YVEC)
+camera_frame::camera_frame(const po &a2) : eye(a2.get_position()), fwd(a2.get_z_facing()), up(YVEC)
 {
     assert(is_valid());
 }
 
 bool camera_frame::is_valid() const
 {
-    return this->eye.is_valid()
-      && this->fwd.is_valid()
-      && this->fwd.is_normal();
+    return this->eye.is_valid() && this->fwd.is_valid() && this->fwd.is_normal();
 }
 
 vector3d camera_frame::fix_up_vector(vector3d upn) const
@@ -33,7 +28,7 @@ vector3d camera_frame::fix_up_vector(vector3d upn) const
 
     assert(fwd.is_normal());
 
-    auto v3 =  sub_87D3A0(this->fwd, YVEC);
+    auto v3 = sub_87D3A0(this->fwd, YVEC);
     auto v4 = v3.normalized();
 
     auto v5 = sub_87D3A0(upn, v4);
@@ -46,7 +41,7 @@ vector3d camera_frame::fix_up_vector(vector3d upn) const
 
 po make_look_at(const vector3d &a1, const vector3d &a2, const vector3d &a3)
 {
-    po v19 {};
+    po v19{};
 
     auto v12 = a2 - a1;
     auto v17 = v12.normalized();
@@ -84,7 +79,7 @@ vector3d projected_to_plane_rel(vector3d a2, vector3d normal, vector3d a4)
         auto v6 = dot(v4, normal);
         return v4 - normal * v6;
     }();
-    
+
     vector3d result = v1 + a4;
     return result;
 }
@@ -92,12 +87,11 @@ vector3d projected_to_plane_rel(vector3d a2, vector3d normal, vector3d a4)
 bool sub_4B21E0(vector3d &a1, float a2)
 {
     auto v4 = a1.length2();
-    if ( v4 >= sqr(a2 - LARGE_EPSILON) ) {
+    if (v4 >= sqr(a2 - LARGE_EPSILON)) {
         return false;
     }
 
-    if ( v4 > 0.0f )
-    {
+    if (v4 > 0.0f) {
         auto v2 = a2 / std::sqrt(v4);
         a1 *= v2;
     }
@@ -129,8 +123,7 @@ void camera_frame::include_target(vector3d a2, Float a5, Float a6)
 {
     auto v21 = a2 - this->eye;
     auto v6 = v21.length2();
-    if ( v6 > EPSILON )
-    {
+    if (v6 > EPSILON) {
         auto v7 = sqr(a6) * v6;
         auto v20 = std::sqrt(v6);
         auto v8 = std::sqrt(v6 - v7) - a5;
@@ -143,8 +136,7 @@ void camera_frame::include_target(vector3d a2, Float a5, Float a6)
         auto v14 = 1.0f / v20;
         v21 *= v14;
         constrain_normal(this->fwd, v21, a6, 1.0);
-        if ( v21[1] < 0.99900001f )
-        {
+        if (v21[1] < 0.99900001f) {
             auto v15 = vector3d::cross(YVEC, v21);
             auto v17 = v15.normalized();
             auto v22 = vector3d::cross(v21, v17);
@@ -155,23 +147,18 @@ void camera_frame::include_target(vector3d a2, Float a5, Float a6)
     }
 }
 
-void camera_frame::rotate_to_include_target(
-        vector3d a2,
-        vector3d target_pos,
-        [[maybe_unused]] vector3d a4,
-        Float a11)
+void camera_frame::rotate_to_include_target(vector3d a2, vector3d target_pos, [[maybe_unused]] vector3d a4, Float a11)
 {
     auto v8 = this->eye;
     auto v9 = target_pos - a2;
     auto v10 = v9.length2();
-    if ( v10 > EPSILON )
-    {
+    if (v10 > EPSILON) {
         auto v11 = 1.0f / std::sqrt(v10);
 
         v9 *= v11;
         this->constrain_pos_relative_to_plane(target_pos, v9, a11, 1.0f);
 
-        this->eye = lerp(this->eye, v8, pronto_mix());
+        this->eye = lerp(this->eye, v8, pronto_mix);
     }
 }
 

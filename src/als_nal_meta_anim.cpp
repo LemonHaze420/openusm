@@ -15,33 +15,36 @@ als_nal_meta_anim::als_nal_meta_anim()
     this->field_40 = nullptr;
 }
 
-bool als_nal_meta_anim::is_delay_create() const {
+bool als_nal_meta_anim::is_delay_create() const
+{
     TRACE("als_nal_meta_anim::is_delay_create");
 
     sp_log("0x%08X", this->field_40->m_vtbl);
-    bool (__fastcall *func)(const void *) = CAST(func, get_vfunc(this->field_40->m_vtbl, 0x30));
+    bool(__fastcall * func)(const void *) = CAST(func, get_vfunc(this->field_40->m_vtbl, 0x30));
     return func(this->field_40);
 }
 
-void als_nal_meta_anim::delay_create(actor *a2) {
+void als_nal_meta_anim::delay_create(actor *a2)
+{
     TRACE("als_nal_meta_anim::delay_create");
 
-    void (__fastcall *func)(void *, void *, actor *) = CAST(func, get_vfunc(this->field_40->m_vtbl, 0x34));
+    void(__fastcall * func)(void *, void *, actor *) = CAST(func, get_vfunc(this->field_40->m_vtbl, 0x34));
     func(this->field_40, nullptr, a2);
     this->create(this->field_40);
 }
 
-void als_nal_meta_anim::create(als_meta_anim_base *a2) {
+void als_nal_meta_anim::create(als_meta_anim_base *a2)
+{
     TRACE("als_nal_meta_anim::create");
 
     if constexpr (1) {
         this->field_40 = a2;
         this->field_34 = 0;
-        if ( a2->is_anim_looping() ) {
+        if (a2->is_anim_looping()) {
             this->field_34 |= 1u;
         }
 
-        if ( this->field_40->is_anim_trajectory_relative() ) {
+        if (this->field_40->is_anim_trajectory_relative()) {
             this->field_34 |= 2u;
         }
 
@@ -53,32 +56,26 @@ void als_nal_meta_anim::create(als_meta_anim_base *a2) {
     }
 }
 
-void *als_nal_meta_anim::create_anim_inst(
-        nalBaseSkeleton *a2,
-        animation_logic_system *a3,
-        state_machine *a4)
+void *als_nal_meta_anim::create_anim_inst(nalBaseSkeleton *a2, animation_logic_system *a3, state_machine *a4)
 {
     TRACE("als_nal_meta_anim::create_anim_inst");
 
     sp_log("0x%08X", this->field_40->m_vtbl);
 
-    struct {
-        char field_0[0x2C];
-        void * (__fastcall *func)(void *, void *,
-                nalBaseSkeleton *,
-                als_nal_meta_anim *,
-                animation_logic_system *,
-                state_machine *);
-    } *vtbl = CAST(vtbl, this->field_40->m_vtbl);
-    return vtbl->func(this->field_40, nullptr,
-           a2,
-           this,
-           a3,
-           a4);
+    if constexpr (1) {
+        return this->field_40->create_anim_inst(a2, this, a3, a4);
+    } else {
+        struct {
+            char field_0[0x2C];
+            void *(__fastcall *func)(void *, void *, nalBaseSkeleton *, als_nal_meta_anim *, animation_logic_system *,
+                                     state_machine *);
+        } *vtbl = CAST(vtbl, this->field_40->m_vtbl);
+        return vtbl->func(this->field_40, nullptr, a2, this, a3, a4);
+    }
 }
 
 
-}
+}  // namespace als
 
 void als_nal_meta_anim_patch()
 {

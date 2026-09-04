@@ -13,15 +13,17 @@
 
 VALIDATE_SIZE(MultiLineString, 0x28);
 
-MultiLineString::MultiLineString() {
+MultiLineString::MultiLineString()
+{
     THISCALL(0x00609AA0, this);
 }
 
-void MultiLineString::Set(MultiLineString::string a2, font_index a7, Float a8, Float a9) {
+void MultiLineString::Set(MultiLineString::string a2, font_index a7, Float a8, Float a9)
+{
     TRACE("MultiLineString::Set");
 
     if constexpr (0) {
-        std::memcpy(&this->field_10, &a2, sizeof(a2));
+        this->field_10 = *bit_cast<mString *>(&a2);
         auto *v6 = &this->field_10;
 
         this->m_font_index = a7;
@@ -71,8 +73,9 @@ void MultiLineString::Set(MultiLineString::string a2, font_index a7, Float a8, F
     }
 }
 
-bool sub_609B80(const char *a1, const char *a2, const char **a3, const char *a4, int *a5) {
-    auto v5 = strlen(a2);
+bool sub_609B80(const char *a1, const char *a2, const char **a3, const char *a4, int *a5)
+{
+    int v5 = strlen(a2);
     auto v6 = 0;
     if (v5 > 0) {
         auto *v7 = a1;
@@ -98,7 +101,8 @@ bool sub_609B80(const char *a1, const char *a2, const char **a3, const char *a4,
     return true;
 }
 
-int MultiLineString::ConvertStringToButtonCode(const char *a1, const char **a2, const mString &a3) {
+int MultiLineString::ConvertStringToButtonCode(const char *a1, const char **a2, const mString &a3)
+{
     if (a1[0] != '~') {
         return 0;
     }
@@ -108,7 +112,7 @@ int MultiLineString::ConvertStringToButtonCode(const char *a1, const char **a2, 
     const char *v6;
     const char *v5;
 
-    switch (globalTextLanguage()) {
+    switch (globalTextLanguage) {
     case 1:
         v6 = ":";
         v5 = "9";
@@ -213,8 +217,7 @@ void MultiLineString::Draw(Float a2, int a3, int a4, Float a5, Float a6, Float a
 {
     //sp_log("%s", this->field_10.c_str());
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         int v9 = 0;
         if (this->button_array_size <= 0) {
             auto *v26 = this->field_10.c_str();
@@ -246,7 +249,7 @@ void MultiLineString::Draw(Float a2, int a3, int a4, Float a5, Float a6, Float a
                     auto v31 = this->button_array[2 * v9].field_2;
 
                     auto a4a = v18;
-                    auto a3a = (double) v31 + this->field_4[0];
+                    auto a3a = (double)v31 + this->field_4[0];
 
                     auto *font = g_femanager.GetFont(static_cast<font_index>(3));
 
@@ -261,14 +264,11 @@ void MultiLineString::Draw(Float a2, int a3, int a4, Float a5, Float a6, Float a
                             v21 = this->button_array[2 * v9 + 2].field_0;
                         }
 
-                        auto *v22 = this->field_10
-                                        .slice(this->button_array[2 * v9 + 1].field_0, v21)
-                                        .c_str();
+                        auto *v22 = this->field_10.slice(this->button_array[2 * v9 + 1].field_0, v21).c_str();
 
                         font = g_femanager.GetFont(this->m_font_index);
 
-                        auto a3b = (double) this->button_array[2 * v9 + 1].field_2 +
-                            this->field_4[0];
+                        auto a3b = (double)this->button_array[2 * v9 + 1].field_2 + this->field_4[0];
                         nglListAddString(font, v22, a3b, this->field_4[1], a2, a3, a5, a6);
                     }
 
@@ -283,11 +283,11 @@ void MultiLineString::Draw(Float a2, int a3, int a4, Float a5, Float a6, Float a
     }
 }
 
-double MultiLineString::GetWidth(MultiLineString::string a1, Float a5, font_index a3) {
+double MultiLineString::GetWidth(MultiLineString::string a1, Float a5, font_index a3)
+{
     TRACE("MultiLineString::GetWidth", a1.guts);
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         int v3 = a3;
         nglFont *v4 = nullptr;
 
@@ -304,10 +304,10 @@ double MultiLineString::GetWidth(MultiLineString::string a1, Float a5, font_inde
 
             int tmp;
             uint32_t a4;
-            nglGetStringDimensions(v4, (char *) str.c_str(), (uint32_t *) &tmp, &a4, a5, a5);
+            nglGetStringDimensions(v4, bit_cast<char *>(str.c_str()), (uint32_t *)&tmp, &a4, a5, a5);
 
             if (v3 == 3 && (str == "6" || str == "7" || str == "8")) {
-                float v5 = (double) tmp;
+                float v5 = (double)tmp;
                 if (tmp < 0) {
                     v5 += 4.2949673e9;
                 }
@@ -315,7 +315,7 @@ double MultiLineString::GetWidth(MultiLineString::string a1, Float a5, font_inde
                 tmp = v5 * 0.60000002f;
             }
 
-            float v6 = (double) tmp;
+            float v6 = (double)tmp;
             if (tmp < 0) {
                 v6 += 4.2949673e9;
             }
@@ -325,14 +325,14 @@ double MultiLineString::GetWidth(MultiLineString::string a1, Float a5, font_inde
         return result;
 
     } else {
-
         float (*func)(string, Float, font_index) = CAST(func, 0x00617BF0);
         float result = func(a1, a5, a3);
         return result;
     }
 }
 
-int MultiLineString::ParseForButtons(Float a3, Float a4) {
+int MultiLineString::ParseForButtons(Float a3, Float a4)
+{
     TRACE("MultiLineString::ParseForButtons");
 
     assert(button_array != nullptr && button_array_size > 0);
@@ -340,7 +340,8 @@ int MultiLineString::ParseForButtons(Float a3, Float a4) {
     return THISCALL(0x00628ED0, this, a3, a4);
 }
 
-void MultiLineString_patch() {
+void MultiLineString_patch()
+{
     FUNC_ADDRESS(address, &MultiLineString::Set);
     REDIRECT(0x0062E809, address);
     //REDIRECT(0x0062EA41, address);

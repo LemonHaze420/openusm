@@ -90,7 +90,19 @@ ai_interaction_data *make_v10_interact(uint8_t *source,
 
 ai_interact_resource_handler::ai_interact_resource_handler(worldly_pack_slot *a2) 
 {
+    if constexpr (1) {
+        static void *g_vtbl[] = {
+            func_address(&finalize),
+            func_address(&_handle),
+            func_address(&_pre_handle_resources),
+            func_address(&_handle_resource),
+        };
+
+        this->m_vtbl = CAST(m_vtbl, &g_vtbl);
+    } else {
     this->m_vtbl = 0x00888AE4;
+    }
+
     this->my_slot = a2;
     this->field_10 = RESOURCE_KEY_TYPE_AI_INTERACTION;
 }
@@ -102,8 +114,7 @@ bool ai_interact_resource_handler::_handle(worldly_resource_handler::eBehavior a
     return base_engine_resource_handler::_handle(a2, a3);
 }
 
-bool ai_interact_resource_handler::_handle_resource(worldly_resource_handler::eBehavior a2,
-        resource_location *a3)
+bool ai_interact_resource_handler::_handle_resource(worldly_resource_handler::eBehavior a2, resource_location *a3)
 {
     TRACE("ai_interact_resource_handler::handle_resource");
 
@@ -111,22 +122,17 @@ bool ai_interact_resource_handler::_handle_resource(worldly_resource_handler::eB
     auto *resource = v3.get_resource(a3, nullptr);
     assert(resource != nullptr);
     
-    if ( a2 == UNLOAD)
-    {
+    if (a2 == UNLOAD) {
 #if defined(OPENUSM_XBPACK_V10) && !defined(TARGET_XBOX)
         auto entry = find_v10_interact(a3);
-        if (entry != v10_interacts.end())
-        {
+        if (entry != v10_interacts.end()) {
             entry->object->destruct_mashed_class();
             a3->m_offset = entry->original_offset;
             v10_interacts.erase(entry);
-        }
-        else
+        } else
 #endif
-        bit_cast<ai_interaction_data *>(resource)->destruct_mashed_class();
-    }
-    else
-    {
+            bit_cast<ai_interaction_data *>(resource)->destruct_mashed_class();
+    } else {
 #if defined(OPENUSM_XBPACK_V10) && !defined(TARGET_XBOX)
         auto entry = find_v10_interact(a3);
         if (entry == v10_interacts.end()) {
@@ -142,9 +148,11 @@ bool ai_interact_resource_handler::_handle_resource(worldly_resource_handler::eB
         mash_info_struct info_struct {resource, a3->m_size};
 #endif
 
-        info_struct.unmash_class(new_interact, nullptr
+        info_struct.unmash_class(new_interact,
+                                 nullptr
 #if OPENUSM_XBOX_MASH_FORMAT
-            , mash::NORMAL_BUFFER
+                                 ,
+                                 mash::NORMAL_BUFFER
 #endif
                 );
 

@@ -9,8 +9,6 @@ inline constexpr auto UNINITIALIZED_SCRIPT_PARM = 0x7BAD05CF;
 
 class vm_stack {
     int field_0[96];
-
-public:
     char *buffer;
     char *SP;
     vm_thread *my_thread;
@@ -18,23 +16,33 @@ public:
 public:
     vm_stack(vm_thread *t);
 
-    int capacity() const {
-        return 96 * 4;
+    int capacity() const
+    {
+        return sizeof(field_0);
     }
 
-    vm_thread * get_thread() {
+    vm_thread *get_thread()
+    {
         return my_thread;
     }
 
-    int size() const {
+    auto get_buffer()
+    {
+        return this->buffer;
+    }
+
+    int size() const
+    {
         return this->SP - this->buffer;
     }
 
-    vm_num_t& top_num() {
+    vm_num_t &top_num()
+    {
         return *(vm_num_t *)(SP - sizeof(vm_num_t));
     }
 
-    vm_str_t& top_str() {
+    vm_str_t &top_str()
+    {
         return *(vm_str_t *)(SP - sizeof(vm_str_t));
     }
 
@@ -47,17 +55,20 @@ public:
 
     void push(int);
 
-    char *get_SP() const {
+    char *get_SP() const
+    {
         return this->SP;
     }
 
-    void set_SP(char *sp) {
+    void set_SP(char *sp)
+    {
         SP = sp;
     }
 
     void move_SP(int n);
 
-    void pop(int n) {
+    void pop(int n)
+    {
         this->move_SP(-n);
     }
 

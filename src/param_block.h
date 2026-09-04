@@ -14,11 +14,11 @@
 #include <variant>
 
 struct entity_base_vhandle;
+struct from_mash_in_place_constructor;
 
 namespace ai {
 
 struct param_block {
-
     struct param_data {
     public:
         union U {
@@ -35,8 +35,9 @@ struct param_block {
         string_hash m_name;
 
     public:
-
         param_data();
+
+        param_data(from_mash_in_place_constructor *a2);
 
         ~param_data();
 
@@ -48,7 +49,8 @@ struct param_block {
 
         void destruct_mashed_class();
 
-        string_hash get_name() const {
+        string_hash get_name() const
+        {
             return m_name;
         }
 
@@ -71,7 +73,8 @@ struct param_block {
 
         void * get_data_pointer() const;
 
-        int get_data_type() const {
+        int get_data_type() const
+        {
             return this->my_type;
         }
         const char* get_data_string()
@@ -177,15 +180,19 @@ struct param_block {
 
     struct param_data_array {
         mVector<param_block::param_data> field_0;
-        int field_14;
+        param_block::param_data *field_14;
+
+        param_data_array(from_mash_in_place_constructor *);
 
         ~param_data_array();
+
+        void initialize(mash::allocation_scope);
 
         void destruct_mashed_class();
 
         void finalize(mash::allocation_scope )
         {
-            this->field_14 = 0;
+            this->field_14 = nullptr;
         }
 
         //0x006CD450
@@ -196,10 +203,12 @@ struct param_block {
 
     int field_0;
     param_data_array *param_array;
-    char field_8;
+    bool field_8;
     char pad[3];
 
     param_block();
+
+    param_block(from_mash_in_place_constructor *a2);
 
     ~param_block();
 
@@ -209,11 +218,7 @@ struct param_block {
     void unmash(mash_info_struct *a1, void *a3);
 
     //0x006D6710
-    void add_param(
-        string_hash a2,
-        param_types a3,
-        const void *a4,
-        string_hash a5);
+    void add_param(string_hash a2, param_types a3, const void *a4, string_hash a5);
 
     //0x006CE130
     bool does_parameter_exist(string_hash a2) const;
@@ -236,6 +241,11 @@ struct param_block {
     //0x006CDD40
     const char *get_pb_fixedstring(string_hash a2) const;
 
+    //0x006D6B50
+    void set_pb_fixedstring(string_hash a2, const char *a3, bool a4);
+
+    void set_pb_int(string_hash a2, int a3, bool a4);
+
     void set_pb_float(string_hash a2, Float a3, bool a4);
 
     //0x006CDC60
@@ -249,6 +259,9 @@ struct param_block {
 
     //0x006CDF10
     float get_optional_pb_float(string_hash a2, const float &a3, bool *a4) const;
+
+    //0x006CDFF0
+    const char *get_optional_pb_fixedstring(string_hash a2, const char *a3, bool *a4) const;
 };
 } // namespace ai
 

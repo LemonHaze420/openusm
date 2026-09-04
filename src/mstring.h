@@ -2,22 +2,24 @@
 
 #include "mcontainer.h"
 
+#include "mash.h"
 #include "nlPlatformEnum.h"
 #include "slab_allocator.h"
 #include "variable.h"
 
 #include <windef.h>
 
-extern Var<int> mString_count;
+extern int &mString_count;
 
 //0x00936BD0
-extern Var<const char *[4]> packfile_dir;
+extern const char *(&packfile_dir)[4];
 
 //0x00936BF0
-extern Var<const char *[4]> packfile_ext;
+extern const char *(&packfile_ext)[4];
 
 inline constexpr size_t MAX_MSTRING_LENGTH = 65535u;
 
+struct from_mash_in_place_constructor;
 struct mash_info_struct;
 
 struct mString : mContainer {
@@ -32,6 +34,8 @@ public:
 
     //0x00420F00
     mString();
+
+    mString(from_mash_in_place_constructor *);
 
     //0x00420F60
     mString(mString::fmtd fmt, const char *Format, ...);
@@ -48,7 +52,6 @@ public:
     //0x00421220
     mString(const mString &a2);
 
-    //0x00420F60
     mString(int a2, const char *Format, ...);
 
     //0x0041FE30
@@ -57,26 +60,36 @@ public:
     //0x0041FE10
     mString &operator=(const mString &a2);
 
+    void copy(const char *a1, int a2);
+
+    void copy(const mString &a2);
+
     //0x004015C0
     ~mString();
 
-    inline void set_size(size_t size) {
+    inline void set_size(size_t size)
+    {
         this->m_size = size;
     }
 
-    inline bool empty() const {
+    inline bool empty() const
+    {
         return m_size == 0;
     }
 
-    inline int size() const {
+    inline int size() const
+    {
         return m_size;
     }
 
-    inline int length() const {
+    inline int length() const
+    {
         return m_size;
     }
 
-    void initialize();
+    void initialize(mash::allocation_scope);
+
+    void destruct_mashed_class();
 
     //0x0041F9D0
     void update_guts(const char *from_string, int n);
@@ -96,7 +109,8 @@ public:
     struct pos_t {
         int value;
 
-        operator int() {
+        operator int()
+        {
             return value;
         }
     };
@@ -111,10 +125,10 @@ public:
     [[nodiscard]] mString slice(int start, int end);
 
     //0x0041FC00
-    mString *operator+=(const char *Source);
+    mString &operator+=(const char *a2);
 
     //0x0041FBE0
-    mString *operator+=(const mString &a2);
+    mString &operator+=(const mString &a2);
 
     //0x00421260
     [[nodiscard]] mString substr(int a3, int Count) const;
@@ -124,12 +138,12 @@ public:
     char *data();
 
     //0x004209C0
-    void finalize(int);
+    void finalize(mash::allocation_scope);
 
     //0x0041FD90
-    mString to_lower();
+    mString &to_lower();
 
-    mString to_upper();
+    mString &to_upper();
 
     char at(int i) const;
 
@@ -158,13 +172,13 @@ public:
 
     [[nodiscard]] double to_float() const;
 
-    mString remove_surrounding_whitespace();
-
     //0x00421B60
-    mString remove_leading(const char *a1);
+    mString &remove_leading(const char *a1);
 
     //0x00421C50
-    mString remove_trailing(const char *a2);
+    mString &remove_trailing(const char *a2);
+
+    mString &remove_surrounding_whitespace();
 
     //0x0055DAB0
     [[nodiscard]] static mString from_float(float a2);
@@ -190,7 +204,7 @@ public:
 
     static int npos;
 
-    static inline Var<char *> null {0x0091E7C0};
+    static char *&null;
 };
 
 //0x0064DF30

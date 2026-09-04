@@ -1,11 +1,20 @@
 #pragma once
 
-#include "variable.h"
+#include <cstdint>
 
 struct BaseComponent;
+struct CharComponentBase;
 
 struct CharComponentManager {
-    static inline Var<int> iCurrNumComponents {0x0096A558};
+    static int &iCurrNumComponents;
 
-    static inline Var<BaseComponent **> pCompArray {0x0096A55C};
+    static BaseComponent **&pCompArray;
+
+    static void RegisterComponent(CharComponentBase *a1);
+
+    static void InitComponentArray();
+
+    static BaseComponent *GetComponentByType(uint32_t a1);
+
+    static inline constexpr auto iMaxNumComponents = 50;
 };

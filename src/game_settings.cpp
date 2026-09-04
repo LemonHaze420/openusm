@@ -24,11 +24,9 @@ VALIDATE_SIZE(game_settings, 0x4CCu);
 
 #if USE_CXX_CONSTRUCTOR
 
-void __stdcall vector_constructor(void *a1,
-                                  uint32_t size,
-                                  int count,
-                                  void (__fastcall *constructor)(void *),
-                                  [[maybe_unused]] fastcall_call destructor) {
+void __stdcall vector_constructor(void *a1, uint32_t size, int count, void(__fastcall *constructor)(void *),
+                                  [[maybe_unused]] fastcall_call destructor)
+{
     FUNC_ADDRESS(address, &game_data_essentials::initialize);
 
     constructor = bit_cast<decltype(constructor)>(address);
@@ -42,8 +40,7 @@ void __stdcall vector_constructor(void *a1,
 
 game_settings::game_settings() : field_4{""}
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         this->m_vtbl = 0x0088B234;
 
         this->field_4BF = false;
@@ -79,19 +76,18 @@ void sub_5288B0(void *Memory)
 game_settings::~game_settings()
 {
     this->m_vtbl = 0x0088B234;
-    
-    for (int i = 0; i < 3; ++i)
-    {
+
+    for (int i = 0; i < 3; ++i) {
         mem_freealign(this->field_49C[i]);
     }
 
-    for (int i = 0; i < 2; ++i)
-    {
+    for (int i = 0; i < 2; ++i) {
         sub_5288B0(this->field_494[i]);
     }
 }
 
-void game_settings::Callback(MemoryUnitManager::eOperation a2) {
+void game_settings::Callback(MemoryUnitManager::eOperation a2)
+{
     THISCALL(0x0057C0B0, this, a2);
 }
 
@@ -99,8 +95,7 @@ void game_settings::init_script_buffer()
 {
     TRACE("game_settings::init_script_buffer");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         this->sub_579990();
         script_manager::save_game_var_buffer(this->field_494[0]);
         script_manager::save_game_var_buffer(this->field_494[1]);
@@ -120,7 +115,8 @@ void game_settings::update_miles_crawled_spidey(Float a2)
     this->field_340.field_98 += a2 * 0.0006213712;
 }
 
-void game_settings::start_new_game() {
+void game_settings::start_new_game()
+{
     THISCALL(0x0057EAB0, this);
 }
 
@@ -128,29 +124,26 @@ void game_settings::frame_advance(Float a2)
 {
     TRACE("game_settings::frame_advance");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         if (this->field_4C2 && ++this->field_4C8 > 2) {
             this->load_game(this->m_slot_num);
         }
 
-    }
-    else
-    {
+    } else {
         THISCALL(0x005802D0, this, a2);
     }
 }
 
 void game_settings::export_game_options()
 {
-    sound_manager::set_source_type_volume(0, Settings::GameSoundVolume(), 0.0);
-    sound_manager::set_source_type_volume(1u, Settings::GameSoundVolume(), 0.0);
-    sound_manager::set_source_type_volume(2u, Settings::MusicVolume(), 0.0);
-    sound_manager::set_source_type_volume(3u, Settings::GameSoundVolume(), 0.0);
-    sound_manager::set_source_type_volume(4u, Settings::GameSoundVolume(), 0.0);
-    sound_manager::set_source_type_volume(5u, Settings::GameSoundVolume(), 0.0);
-    sound_manager::set_source_type_volume(6u, Settings::GameSoundVolume(), 0.0);
-    sound_manager::set_source_type_volume(7u, Settings::GameSoundVolume(), 0.0);
+    sound_manager::set_source_type_volume(0, Settings::GameSoundVolume, 0.0);
+    sound_manager::set_source_type_volume(1u, Settings::GameSoundVolume, 0.0);
+    sound_manager::set_source_type_volume(2u, Settings::MusicVolume, 0.0);
+    sound_manager::set_source_type_volume(3u, Settings::GameSoundVolume, 0.0);
+    sound_manager::set_source_type_volume(4u, Settings::GameSoundVolume, 0.0);
+    sound_manager::set_source_type_volume(5u, Settings::GameSoundVolume, 0.0);
+    sound_manager::set_source_type_volume(6u, Settings::GameSoundVolume, 0.0);
+    sound_manager::set_source_type_volume(7u, Settings::GameSoundVolume, 0.0);
     auto *v2 = input_mgr::instance->rumble_ptr;
     if (this->field_340.field_31) {
         v2->enable_vibration();
@@ -158,11 +151,10 @@ void game_settings::export_game_options()
         v2->disable_vibration();
     }
 
-    if (g_world_ptr->get_hero_ptr(0) != nullptr)
-    {
+    if (g_world_ptr->get_hero_ptr(0) != nullptr) {
         mString a1{"gv_hero_spawn_point"};
 
-        auto *v3 = (const vector3d *) script_manager::get_game_var_address(a1, nullptr, nullptr);
+        auto *v3 = (const vector3d *)script_manager::get_game_var_address(a1, nullptr, nullptr);
 
         g_world_ptr->sub_530460(*v3, 0, 0);
     }
@@ -170,13 +162,10 @@ void game_settings::export_game_options()
 
 void game_settings::export_game_settings()
 {
-    if (g_world_ptr != nullptr)
-    {
+    if (g_world_ptr != nullptr) {
         auto *v1 = g_world_ptr->get_hero_ptr(0);
-        if (v1 != nullptr)
-        {
-            if (v1->has_damage_ifc())
-            {
+        if (v1 != nullptr) {
+            if (v1->has_damage_ifc()) {
                 auto &v3 = v1->damage_ifc()->field_1FC.field_0[2];
                 auto *v2 = v1->damage_ifc();
                 v2->field_1FC.sub_48BFB0(v3);
@@ -187,7 +176,8 @@ void game_settings::export_game_settings()
 
 static constexpr auto NUM_SOFT_SAVE_BUFFERS = 2;
 
-void game_settings::soft_load(uint32_t soft_save_type) {
+void game_settings::soft_load(uint32_t soft_save_type)
+{
     if constexpr (1) {
         assert(soft_save_type < NUM_SOFT_SAVE_BUFFERS);
 
@@ -206,15 +196,18 @@ void game_settings::soft_load(uint32_t soft_save_type) {
     }
 }
 
-void game_settings::update_miles_run_venom(Float a2) {
+void game_settings::update_miles_run_venom(Float a2)
+{
     this->field_340.field_BC += a2 * 0.0006213712f;
 }
 
-void game_settings::update_miles_web_zipping(Float a2) {
+void game_settings::update_miles_web_zipping(Float a2)
+{
     this->field_340.m_miles_web_zipping += a2 * 0.0006213712f;
 }
 
-void game_settings::update_miles_run_spidey(Float a2) {
+void game_settings::update_miles_run_spidey(Float a2)
+{
     this->field_340.field_94 += a2 * 0.0006213712f;
 }
 
@@ -225,7 +218,8 @@ void game_settings::set_script_buffer_size()
     this->field_4B4 = script_manager::save_game_var_buffer(nullptr);
 }
 
-void game_settings::update_web_fluid_used(Float a2) {
+void game_settings::update_web_fluid_used(Float a2)
+{
     this->field_340.m_web_fluid_used += a2;
 }
 
@@ -244,10 +238,8 @@ void game_settings::load_game(int slot_num)
 {
     assert(this->m_game_data_valid[slot_num]);
 
-    if constexpr (1)
-    {
-        if (this->field_4C2)
-        {
+    if constexpr (1) {
+        if (this->field_4C2) {
             if (this->field_4C8 > 2) {
                 this->field_4C2 = false;
                 this->start_new_game();
@@ -257,26 +249,25 @@ void game_settings::load_game(int slot_num)
                             this->field_49C[slot_num] + sizeof(game_data_essentials),
                             sizeof(this->field_340));
                 this->sub_579990();
-                std::memcpy(this->field_494[0], this->field_49C[slot_num] + sizeof(game_data_essentials) + sizeof(game_data_meat), this->field_4B4);
+                std::memcpy(this->field_494[0],
+                            this->field_49C[slot_num] + sizeof(game_data_essentials) + sizeof(game_data_meat),
+                            this->field_4B4);
                 std::memcpy(this->field_494[1],
-                            this->field_49C[slot_num] + this->field_4B4 + sizeof(game_data_essentials) + sizeof(game_data_meat),
+                            this->field_49C[slot_num] + this->field_4B4 + sizeof(game_data_essentials) +
+                                sizeof(game_data_meat),
                             this->field_4B4);
                 this->field_4BF = true;
                 this->soft_load(0);
                 this->export_game_settings();
                 this->export_game_options();
 
-                std::memcpy(this->field_4A8,
-                            this->field_28C[slot_num].field_2E,
-                            sizeof(this->field_4A8));
+                std::memcpy(this->field_4A8, this->field_28C[slot_num].field_2E, sizeof(this->field_4A8));
 
                 this->field_4B8 = slot_num;
                 auto *v4 = g_world_ptr->get_chase_cam_ptr(0);
                 g_game_ptr->set_current_camera(v4, true);
             }
-        }
-        else
-        {
+        } else {
             this->field_4C2 = true;
             this->field_4C8 = 0;
             this->m_slot_num = slot_num;
@@ -292,25 +283,23 @@ void game_settings::load_game(int slot_num)
     }
 }
 
-void game_settings::load_most_recent_game() {
+void game_settings::load_most_recent_game()
+{
     THISCALL(0x0057F580, this);
 }
 
-int *GetSystemDate(int *out) {
-    return (int *) CDECL_CALL(0x00573510, out);
+int *GetSystemDate(int *out)
+{
+    return (int *)CDECL_CALL(0x00573510, out);
 }
 
 void game_settings::collect_game_settings()
 {
-    if constexpr (1)
-    {
-        if (g_world_ptr != nullptr)
-        {
+    if constexpr (1) {
+        if (g_world_ptr != nullptr) {
             auto *hero_ptr = g_world_ptr->get_hero_ptr(0);
-            if (hero_ptr != nullptr)
-            {
-                if (hero_ptr->has_damage_ifc())
-                {
+            if (hero_ptr != nullptr) {
+                if (hero_ptr->has_damage_ifc()) {
                     this->field_340.m_hero_health = hero_ptr->damage_ifc()->field_1FC.field_0[0];
                     this->field_4BF = true;
                     return;
@@ -329,8 +318,7 @@ void game_settings::collect_game_settings()
 
 void game_settings::sub_579990()
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         if (this->field_494[0] == nullptr) {
             if (this->field_4B4 == 0) {
                 this->set_script_buffer_size();
@@ -345,11 +333,13 @@ void game_settings::sub_579990()
     }
 }
 
-void game_settings::collect_game_options() {
+void game_settings::collect_game_options()
+{
     THISCALL(0x00579BF0, this);
 }
 
-char *game_settings::get_buffer(int a2) {
+char *game_settings::get_buffer(int a2)
+{
     return this->field_49C[a2];
 }
 
@@ -366,14 +356,14 @@ static constexpr auto MAX_GAME_SIZE = 16384;
 
 int game_settings::get_game_size()
 {
-    if ( this->field_4B4 == 0 ) {
+    if (this->field_4B4 == 0) {
         this->field_4B4 = script_manager::save_game_var_buffer(nullptr);
     }
 
     auto size = 2 * this->field_4B4 + 400;
     assert(size <= MAX_GAME_SIZE && "Uh-oh!!  We've exceeded the maximum size for our save game!!!");
 
-    if ( size < MAX_GAME_SIZE ) {
+    if (size < MAX_GAME_SIZE) {
         return MAX_GAME_SIZE;
     }
 
@@ -392,18 +382,16 @@ void game_settings::save(int slot_num)
         strncpy(v1.field_14, "02:29:05", 25u);
         strncpy(v1.field_2E, this->field_4A8, 12u);
 
-        auto a2a = *(float *) script_manager::get_game_var_address(mString{"real_world_timer"},
-                                                                   nullptr,
-                                                                   nullptr);
+        auto a2a = *(float *)script_manager::get_game_var_address(mString{"real_world_timer"}, nullptr, nullptr);
 
-        v1.field_C = (int) a2a;
+        v1.field_C = (int)a2a;
 
         int v7[3];
         auto *v5 = GetSystemDate(v7);
 
-        *((int *) &v1.field_0) = v5[0];
-        *((int *) &v1.field_4) = v5[1];
-        *((int *) &v1.field_8) = v5[2];
+        *bit_cast<int *>(&v1.field_0) = v5[0];
+        *bit_cast<int *>(&v1.field_4) = v5[1];
+        *bit_cast<int *>(&v1.field_8) = v5[2];
         v1.field_10 = this->field_4B4;
         this->m_game_data_valid[slot_num] = true;
         this->soft_save(0);
@@ -412,16 +400,11 @@ void game_settings::save(int slot_num)
 
         memset(this->field_49C[slot_num], 0, MemoryUnitManager::GetGameSaveSize(size));
         std::memcpy(this->field_49C[slot_num], &v1, sizeof(game_data_essentials));
-        std::memcpy(this->field_49C[slot_num] + sizeof(game_data_essentials),
-                    &this->field_340,
-                    sizeof(game_data_meat));
-        std::memcpy(this->field_49C[slot_num] + sizeof(game_data_essentials) +
-                        sizeof(game_data_essentials),
+        std::memcpy(this->field_49C[slot_num] + sizeof(game_data_essentials), &this->field_340, sizeof(game_data_meat));
+        std::memcpy(this->field_49C[slot_num] + sizeof(game_data_essentials) + sizeof(game_data_essentials),
                     this->field_494[0],
                     this->field_4B4);
-        std::memcpy(&this->field_49C[slot_num][this->field_4B4 + 400],
-                    this->field_494[1],
-                    this->field_4B4);
+        std::memcpy(&this->field_49C[slot_num][this->field_4B4 + 400], this->field_494[1], this->field_4B4);
 
         if (!MemoryUnitManager::SaveGame(this->field_4)) {
             g_game_ptr->field_15D = false;
@@ -438,23 +421,18 @@ bool game_settings::set_str(const resource_key &att, const mString &a3)
 {
     assert(att.get_type() == RESOURCE_KEY_TYPE_IFC_ATTRIBUTE);
 
-    static resource_key pstring_set[2] {
-        resource_key {string_hash {int(to_hash("HERO_NAME"))}, RESOURCE_KEY_TYPE_IFC_ATTRIBUTE},
-        resource_key {string_hash {int(to_hash("DISTRICT_NAME"))}, RESOURCE_KEY_TYPE_IFC_ATTRIBUTE},
+    static resource_key pstring_set[2]{
+        resource_key{string_hash{int(to_hash("HERO_NAME"))}, RESOURCE_KEY_TYPE_IFC_ATTRIBUTE},
+        resource_key{string_hash{int(to_hash("DISTRICT_NAME"))}, RESOURCE_KEY_TYPE_IFC_ATTRIBUTE},
     };
 
-    if ( att == pstring_set[0] )
-    {
+    if (att == pstring_set[0]) {
         this->field_340.m_hero_name = a3.c_str();
         return true;
-    }
-    else if ( att == pstring_set[1] )
-    {
+    } else if (att == pstring_set[1]) {
         this->field_340.m_district_name = a3.c_str();
         return true;
-    }
-    else
-    {
+    } else {
         assert(0 && "invalid game setting");
 
         return false;
@@ -465,23 +443,18 @@ bool game_settings::get_str(const resource_key &att, mString &a3) const
 {
     assert(att.get_type() == RESOURCE_KEY_TYPE_IFC_ATTRIBUTE);
 
-    static resource_key pstring_get[2] {
-        resource_key {string_hash {int(to_hash("HERO_NAME"))}, RESOURCE_KEY_TYPE_IFC_ATTRIBUTE},
-        resource_key {string_hash {int(to_hash("DISTRICT_NAME"))}, RESOURCE_KEY_TYPE_IFC_ATTRIBUTE},
+    static resource_key pstring_get[2]{
+        resource_key{string_hash{int(to_hash("HERO_NAME"))}, RESOURCE_KEY_TYPE_IFC_ATTRIBUTE},
+        resource_key{string_hash{int(to_hash("DISTRICT_NAME"))}, RESOURCE_KEY_TYPE_IFC_ATTRIBUTE},
     };
 
-    if ( att == pstring_get[0] )
-    {
+    if (att == pstring_get[0]) {
         a3 = this->field_340.m_hero_name.to_string();
         return true;
-    }
-    else if ( att == pstring_get[1] )
-    {
+    } else if (att == pstring_get[1]) {
         a3 = this->field_340.m_district_name.to_string();
         return true;
-    }
-    else
-    {
+    } else {
         assert(0 && "invalid game setting");
 
         return false;
@@ -494,11 +467,9 @@ bool game_settings::set_num(const resource_key &att, Float a3)
 
     assert(att.get_type() == RESOURCE_KEY_TYPE_IFC_ATTRIBUTE);
 
-    if constexpr (0)
-    {}
-    else
-    {
-        bool (__fastcall *func)(const void *, void *edx, const resource_key *, Float) = CAST(func, 0x00573AE0);
+    if constexpr (0) {
+    } else {
+        bool(__fastcall * func)(const void *, void *edx, const resource_key *, Float) = CAST(func, 0x00573AE0);
         return func(this, nullptr, &att, a3);
     }
 }
@@ -509,11 +480,10 @@ bool game_settings::get_num(const resource_key &att, float &a3, bool a4) const
 
     assert(att.get_type() == RESOURCE_KEY_TYPE_IFC_ATTRIBUTE);
 
-    if constexpr (0)
-    {}
-    else
-    {
-        bool (__fastcall *func)(const void *, void *edx, const resource_key *att, float *a3, bool a4) = CAST(func, 0x00575930);
+    if constexpr (0) {
+    } else {
+        bool(__fastcall * func)(const void *, void *edx, const resource_key *att, float *a3, bool a4) =
+            CAST(func, 0x00575930);
         bool result = func(this, nullptr, &att, &a3, a4);
         sp_log("%f", a3);
 

@@ -1,15 +1,17 @@
 #pragma once
 
-#include "variable.h"
-
 struct damage_morph_memory_pool {
-    int field_0;
-    int *field_4;
+    void *allocation_list;
+    int *list_end;
     int field_8;
-    int field_C;
+    void *memory_pool;
     int field_10;
     int field_14;
     int field_18;
+
+    damage_morph_memory_pool(int);
+
+    void init();
 
     //0x004C5550
     void *memalloc(int a2, int a3);
@@ -56,11 +58,11 @@ struct damage_morphs {
     //0x004D97C0
     static bool unregister_mesh_copy(int a1);
 
-    static Var<int> allocations_intercept_reference_count;
+    static int &allocations_intercept_reference_count;
 
-    static Var<damage_morph_memory_pool> write_combine_pool;
+    static damage_morph_memory_pool &write_combine_pool;
 
-    static Var<damage_morph_memory_pool> normal_pool;
+    static damage_morph_memory_pool &normal_pool;
 
-    static Var<balanced_tree> registration_tree;
+    static balanced_tree &registration_tree;
 };

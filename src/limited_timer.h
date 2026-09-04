@@ -5,7 +5,7 @@
 #include <cstdint>
 
 struct limited_timer_base {
-    uint32_t field_0; //ms
+    uint32_t field_0;  //ms
 
     limited_timer_base();
 

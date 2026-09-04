@@ -18,7 +18,7 @@ struct ai_tentacle_web_curly : ai_tentacle_dangle {
     //0x00483DE0
     ai_tentacle_web_curly(ai_tentacle_info *a2);
 
-    void * operator new(size_t size);
+    void *operator new(size_t size);
 
     void reset_curl();
 

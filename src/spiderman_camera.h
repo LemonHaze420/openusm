@@ -7,7 +7,6 @@
 struct camera_mode;
 
 struct spiderman_camera : game_camera {
-
     camera_mode *field_1A0;
     vector3d target_pos;
     vector3d target_up;
@@ -21,7 +20,7 @@ struct spiderman_camera : game_camera {
     //0x004B78E0
     spiderman_camera(const string_hash &a2, entity *a3);
 
-    void * operator new(size_t size);
+    void *operator new(size_t size);
 
     void operator delete(void *ptr);
 
@@ -58,11 +57,6 @@ extern Var<spiderman_camera *> g_spiderman_camera_ptr;
 extern void constrain_normal(vector3d &normal, const vector3d &basisA, float a4, float a2);
 
 
-extern void constrain_relative_to_plane(
-        vector3d &a1,
-        const vector3d &a2,
-        const vector3d &norm,
-        float a4,
-        float a5);
+extern void constrain_relative_to_plane(vector3d &a1, const vector3d &a2, const vector3d &norm, float a4, float a5);
 
 extern void spiderman_camera_patch();

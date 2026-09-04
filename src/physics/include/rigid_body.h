@@ -6,8 +6,7 @@
 
 struct phys_vector3d;
 
-struct rigid_body
-{
+struct rigid_body {
     matrix4x4 field_0;
     matrix4x4 field_40;
     int field_80;
@@ -66,19 +65,17 @@ struct rigid_body
     void sub_502640(const vector3d &a2);
 };
 
-struct user_rigid_body : rigid_body
-{
+struct user_rigid_body : rigid_body {
     int field_16C;
     int field_170;
     int field_174;
     int field_178;
-    int field_17C; 
+    int field_17C;
     int field_180[11];
-    const math::MatClass<4,3> *m_dictator;
+    const math::MatClass<4, 3> *m_dictator;
     int field_1B0;
 
-    void set(const math::MatClass<4,3> *dictator);
-
+    void set(const math::MatClass<4, 3> *dictator);
 };
 
 extern void rigid_body_patch();

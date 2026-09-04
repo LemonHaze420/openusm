@@ -11,4 +11,4 @@ struct subdued_state {
     static inline string_hash default_id{int(to_hash("subdued"))};
 };
 
-} // namespace ai
+}  // namespace ai

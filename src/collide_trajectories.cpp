@@ -20,8 +20,8 @@
 
 static Var<fixed_pool> stru_937580{0x00937580};
 
-sphere compute_bounding_sphere_for_trajectory_and_intersected_trajectories(
-    intraframe_trajectory_t *trj) {
+sphere compute_bounding_sphere_for_trajectory_and_intersected_trajectories(intraframe_trajectory_t *trj)
+{
     assert(trj != nullptr);
 
     auto v15 = trj->get_bounding_sphere();
@@ -53,7 +53,8 @@ sphere compute_bounding_sphere_for_trajectory_and_intersected_trajectories(
     return v15;
 }
 
-void sub_602E30(local_collision::primitive_list_t *a1, intraframe_trajectory_t *trj) {
+void sub_602E30(local_collision::primitive_list_t *a1, intraframe_trajectory_t *trj)
+{
     while (a1 != nullptr) {
         if (a1->is_entity()) {
             for (auto *i = trj; i != nullptr; i = i->field_15C) {
@@ -67,9 +68,8 @@ void sub_602E30(local_collision::primitive_list_t *a1, intraframe_trajectory_t *
     }
 }
 
-bool need_to_roll_back_rotation(const capsule &a3,
-                                const capsule &a4,
-                                local_collision::primitive_list_t *a1) {
+bool need_to_roll_back_rotation(const capsule &a3, const capsule &a4, local_collision::primitive_list_t *a1)
+{
     auto v5 = (a3.end - a4.end);
     if (v5.length2() < 0.0000000099999991) {
         return false;
@@ -91,8 +91,8 @@ bool need_to_roll_back_rotation(const capsule &a3,
     return local_collision::get_closest_line_intersection(a1, &lif, false, nullptr, nullptr, nullptr);
 }
 
-void roll_back_rotation_and_rel_capsule_if_tunnelled(intraframe_trajectory_t *trj,
-                                                     primitive_query_token_t *token) {
+void roll_back_rotation_and_rel_capsule_if_tunnelled(intraframe_trajectory_t *trj, primitive_query_token_t *token)
+{
     if (trj->is_capsule) {
         assert(trj->world_po0.is_valid());
 
@@ -141,20 +141,18 @@ void roll_back_rotation_and_rel_capsule_if_tunnelled(intraframe_trajectory_t *tr
     }
 }
 
-local_collision::primitive_list_t *query_potential_collision_primitives(const capsule &a1,
-                                                                        const capsule &a2,
-                                                                        actor *a3,
+local_collision::primitive_list_t *query_potential_collision_primitives(const capsule &a1, const capsule &a2, actor *a3,
                                                                         intraframe_trajectory_t *a4)
 {
     TRACE("query_potential_collision_primitives");
-    
+
     local_collision::primitive_list_t *v11 = nullptr;
 
-    sphere v18 {};
+    sphere v18{};
     compute_bounding_sphere_for_two_capsules(a1, a2, &v18);
     ++entity::visit_key3;
 
-    local_collision::query_args_t v20 {};
+    local_collision::query_args_t v20{};
 
     v20.field_10 = v18.center;
     v20.initialized_flags |= 0x3Cu;
@@ -163,33 +161,37 @@ local_collision::primitive_list_t *query_potential_collision_primitives(const ca
     v20.field_2C = a3;
     v20.field_30 = a3;
 
-    static local_collision::entfilter<local_collision::entfilter_AND<local_collision::entfilter_EXCLUDE_ENTITY,local_collision::entfilter_AND<local_collision::entfilter_VALID_COLLISION_PAIR,local_collision::entfilter_SPHERE_TEST>>> entf_36027 {};
+    static local_collision::entfilter<
+        local_collision::entfilter_AND<local_collision::entfilter_EXCLUDE_ENTITY,
+                                       local_collision::entfilter_AND<local_collision::entfilter_VALID_COLLISION_PAIR,
+                                                                      local_collision::entfilter_SPHERE_TEST>>>
+        entf_36027{};
 
-    for ( auto *i = a4; i != nullptr; i = i->field_15C )
-    {
-        if ( i->ent != a3 && i->has_colgeom() ) {
+    for (auto *i = a4; i != nullptr; i = i->field_15C) {
+        if (i->ent != a3 && i->has_colgeom()) {
             auto v19 = i->get_bounding_sphere();
 
-            auto v9 = [](sphere *self, const vector3d &a2, float a3)
-            {
+            auto v9 = [](sphere *self, const vector3d &a2, float a3) {
                 auto v4 = self->center - a2;
                 auto v7 = AbsSquared(v4);
                 auto v6 = self->radius + a3;
-                return (v6 *v6) >= v7;
+                return (v6 * v6) >= v7;
             }(&v19, v18.center, v18.radius);
 
-            if ( v9 )
-            {
+            if (v9) {
                 dynamic_conglomerate_clone *v10 = nullptr;
-                if ( a4->ent->is_a_dynamic_conglomerate_clone() ) {
+                if (a4->ent->is_a_dynamic_conglomerate_clone()) {
                     v10 = CAST(v10, a4->ent);
                 }
 
-                static local_collision::entfilter<local_collision::entfilter_AND<local_collision::entfilter_EXCLUDE_ENTITY,local_collision::entfilter_VALID_COLLISION_PAIR>> constraint_filter {};
-                
-                if ( local_collision::collision_pair_matches_query_constraints(a4->ent, v10, constraint_filter, v20) ) {
+                static local_collision::entfilter<
+                    local_collision::entfilter_AND<local_collision::entfilter_EXCLUDE_ENTITY,
+                                                   local_collision::entfilter_VALID_COLLISION_PAIR>>
+                    constraint_filter{};
+
+                if (local_collision::collision_pair_matches_query_constraints(a4->ent, v10, constraint_filter, v20)) {
                     auto *mem = local_collision::primitive_list_t::pool.allocate_new_block();
-                    v11 = new (mem) local_collision::primitive_list_t {i->ent, i->field_13C};
+                    v11 = new (mem) local_collision::primitive_list_t{i->ent, i->field_13C};
                     v11->field_10 = i;
                 }
             }
@@ -199,16 +201,12 @@ local_collision::primitive_list_t *query_potential_collision_primitives(const ca
     }
 
     --entity::visit_key3;
-    local_collision::query_args_t v17 {};
-    auto *result = local_collision::query_sphere(
-        v18.center,
-        v18.radius,
-        entf_36027,
-        *local_collision::obbfilter_sphere_test,
-        v17);
+    local_collision::query_args_t v17{};
+    auto *result =
+        local_collision::query_sphere(v18.center, v18.radius, entf_36027, *local_collision::obbfilter_sphere_test, v17);
 
     local_collision::primitive_list_t *j = nullptr;
-    for ( j = (local_collision::primitive_list_t *)&v11; j->field_0 != nullptr; j = j->field_0 ) {
+    for (j = (local_collision::primitive_list_t *)&v11; j->field_0 != nullptr; j = j->field_0) {
         ;
     }
     j->field_0 = result;
@@ -223,8 +221,8 @@ void resolve_rotations(intraframe_trajectory_t *a2, int a1)
     if constexpr (1) {
         stack_allocator allocator;
         scratchpad_stack::save_state(&allocator);
-        auto *token = static_cast<primitive_query_token_t *>(
-                scratchpad_stack::alloc(sizeof(primitive_query_token_t) * a1));
+        auto *token =
+            static_cast<primitive_query_token_t *>(scratchpad_stack::alloc(sizeof(primitive_query_token_t) * a1));
 
         for (auto *trj = a2; trj != nullptr; trj = trj->field_15C) {
             if (a2->is_capsule) {
@@ -240,10 +238,7 @@ void resolve_rotations(intraframe_trajectory_t *a2, int a1)
                 token->field_1C.base = token->field_1C.base - v9;
                 token->field_1C.end = token->field_1C.end - v9;
 
-                auto *v11 = query_potential_collision_primitives(token->field_0,
-                                                                 token->field_1C,
-                                                                 trj->ent,
-                                                                 a2);
+                auto *v11 = query_potential_collision_primitives(token->field_0, token->field_1C, trj->ent, a2);
                 token->field_38 = v11;
                 sub_602E30(v11, a2);
                 ++token;
@@ -265,53 +260,44 @@ void resolve_rotations(intraframe_trajectory_t *a2, int a1)
     }
 }
 
-void resolve_collisions(intraframe_trajectory_t **a1, Float a2) {
+void resolve_collisions(intraframe_trajectory_t **a1, Float a2)
+{
     CDECL_CALL(0x00604E30, a1, a2);
 }
 
 void resolve_moving_pendulums(intraframe_trajectory_t *a1, Float a2)
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         intraframe_trajectory_t *a1a = nullptr;
 
-        for ( auto *v2 = a1; v2 != nullptr; v2 = v2->field_15C )
-        {
-            if ( v2->ent->has_physical_ifc() )
-            {
+        for (auto *v2 = a1; v2 != nullptr; v2 = v2->field_15C) {
+            if (v2->ent->has_physical_ifc()) {
                 auto *v3 = v2->ent->physical_ifc();
-                if ( v3->is_enabled() )
-                {
-                    if ( v3->get_num_active_pendulums() > 0 )
-                    {
-                        for ( auto j = 0; j < 5; ++j )
-                        {
+                if (v3->is_enabled()) {
+                    if (v3->get_num_active_pendulums() > 0) {
+                        for (auto j = 0; j < 5; ++j) {
                             auto *the_pendulum = v3->get_pendulum(j);
-                            if ( the_pendulum != nullptr
-                                    && the_pendulum->has_a_moving_anchor() )
-                            {
+                            if (the_pendulum != nullptr && the_pendulum->has_a_moving_anchor()) {
                                 auto v65 = v2->ent->get_abs_po();
                                 auto v47 = v3->apply_positional_constraints(a2, v65.get_position(), false);
                                 v65.set_position(v47);
 
                                 auto *v9 = intraframe_trajectory_t::pool().allocate_new_block();
-                                auto *v11 = new (v9) intraframe_trajectory_t {v2->ent, a2, v65, nullptr};
+                                auto *v11 = new (v9) intraframe_trajectory_t{v2->ent, a2, v65, nullptr};
 
                                 v11->field_15C = a1a;
                                 a1a = v11;
                                 v11->final_relcap = &v11->relcap0;
-                                if ( a2 > EPSILON )
-                                {
+                                if (a2 > EPSILON) {
                                     auto *v18 = the_pendulum->get_volatile_ptr();
                                     auto v22 = v18->get_last_position();
 
                                     auto v23 = v18->get_abs_position() - v22;
                                     vector3d v51 = v23 / a2;
 
-                                    auto pos = ( v2->ent->field_A4 != 0
+                                    auto pos = (v2->ent->field_A4 != 0
                                                     ? v2->ent->get_last_collision_free_state()->xform.get_position()
-                                                    : v65.get_position()
-                                                    );
+                                                    : v65.get_position());
 
                                     auto v34 = v2->ent->physical_ifc()->field_44;
                                     auto v63 = (v47 - pos) / a2;
@@ -325,13 +311,12 @@ void resolve_moving_pendulums(intraframe_trajectory_t *a1, Float a2)
             }
         }
 
-        if ( a1a != nullptr ) {
+        if (a1a != nullptr) {
             resolve_collisions(&a1a, a2);
         }
 
         intraframe_trajectory_t *v42 = nullptr;
-        for ( auto *k = a1a; k != nullptr; k = v42 )
-        {
+        for (auto *k = a1a; k != nullptr; k = v42) {
             v42 = k->field_15C;
             intraframe_trajectory_t::pool().remove(k);
         }

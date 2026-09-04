@@ -33,8 +33,7 @@ mash_info_struct::mash_info_struct(mash::mode_t a2, uint8_t *a3, int size, bool 
     this->mash_image_ptr[mash::SHARED_BUFFER] = &a3[this->m_index];
     this->buffer_size_used[mash::SHARED_BUFFER] = 0;
     this->m_size = size - this->m_index;
-    if ( a5 )
-    {
+    if (a5) {
         this->advance_buffer(mash::NORMAL_BUFFER, 16);
     }
 #endif
@@ -63,12 +62,9 @@ uint8_t *mash_info_struct::read_from_buffer(mash::buffer_type buffer, int a2, in
 {
     TRACE("mash_info_struct::read_from_buffer");
 
-    if (align != 0)
-    {
+    if (align != 0) {
         this->align_buffer(buffer, align);
-    }
-    else
-    {
+    } else {
         this->deductive_align_buffer(buffer);
     }
 
@@ -91,8 +87,7 @@ void mash_info_struct::align_buffer(mash::buffer_type buffer, int a2)
 
     auto *v2 = &buffer_ptr[this->buffer_size_used[buffer]];
     auto *v3 = bit_cast<uint8_t *>(~(a2 - 1) & ((uint32_t) &v2[a2 - 1]));
-    if (v3 != v2)
-    {
+    if (v3 != v2) {
         if (v1) {
             std::memset(v2, 0xA1u, v3 - v2);
         }
@@ -101,7 +96,8 @@ void mash_info_struct::align_buffer(mash::buffer_type buffer, int a2)
     }
 }
 
-void mash_info_struct::deductive_align_buffer(mash::buffer_type buffer) {
+void mash_info_struct::deductive_align_buffer(mash::buffer_type buffer)
+{
     assert(mode != mash::MASH_MODE || state == INITIALIZED);
     assert(mash_image_ptr[buffer] != nullptr);
 
@@ -112,8 +108,7 @@ void mash_info_struct::deductive_align_buffer(mash::buffer_type buffer) {
     }
 
     auto new_used = i - this->mash_image_ptr[0];
-    if ((new_used % 4) != 0)
-    {
+    if ((new_used % 4) != 0) {
         new_used = 4 * (new_used / 4);
         assert(new_used >= buffer_size_used[buffer]);
     }

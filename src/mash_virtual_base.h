@@ -21,18 +21,31 @@ struct mash_virtual_base {
 
     mash_virtual_base();
 
+    void *operator new(size_t sz);
+
+    void operator delete(void *ptr, size_t sz);
+
     void destruct_mashed_class();
 
+    void _unmash(mash_info_struct *, void *);
+
+    //virtual
     void unmash(mash_info_struct *, void *);
 
     ~mash_virtual_base() = default;
 
     //0x0041F840
+    uint32_t _get_virtual_type_enum() const;
+
+    //virtual
     uint32_t get_virtual_type_enum() const;
 
     bool is_subclass_of(mash::virtual_types_enum) const;
 
     //0x0041F850
+    bool _is_or_is_subclass_of(mash::virtual_types_enum a2) const;
+
+    //virtual
     bool is_or_is_subclass_of(mash::virtual_types_enum a2) const;
 
     //0x00432B60
@@ -42,9 +55,7 @@ struct mash_virtual_base {
     static void *create_subclass_by_enum(mash::virtual_types_enum a1);
 
     //0x004227E0
-    static void *create_subclass_by_enum_in_place(mash::virtual_types_enum a1,
-                                                  mash_virtual_base *a2,
-                                                  int a3);
+    static void *create_subclass_by_enum_in_place(mash::virtual_types_enum a1, mash_virtual_base *a2, int a3);
 
     //0x0042A7C0
     static void *construct_class_helper(void *a1);

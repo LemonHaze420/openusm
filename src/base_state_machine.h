@@ -15,4 +15,4 @@ struct base_state_machine : state_machine {
     bool is_curr_state_biped_physics() const;
 };
 
-} // namespace als
+}  // namespace als

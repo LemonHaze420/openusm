@@ -23,4 +23,4 @@ struct track_field_inode : info_node {
     track_field_inode(from_mash_in_place_constructor *a2);
 };
 
-} // namespace ai
+}  // namespace ai

@@ -31,5 +31,4 @@ struct box_trigger : trigger {
 
     //virtual
     void update_center();
-
 };

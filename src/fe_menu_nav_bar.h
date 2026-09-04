@@ -16,8 +16,8 @@ struct menu_nav_bar {
     FEText *text_box;
     PanelQuad *background_a;
     PanelQuad *field_1C;
-    FEText *field_20;
-    FEText *field_24;
+    PanelQuad *field_20;
+    PanelQuad *field_24;
     bool field_28;
     char empty[3];
 
@@ -31,6 +31,8 @@ struct menu_nav_bar {
 
     //0x006122B0
     void Reformat();
+
+    void Reset();
 };
 
 extern void menu_nav_bar_patch();

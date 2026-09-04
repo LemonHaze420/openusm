@@ -9,6 +9,7 @@
 #include "func_wrapper.h"
 #include "game.h"
 #include "oldmath_po.h"
+#include "trace.h"
 #include "vector3d.h"
 
 VALIDATE_SIZE(occlusion::quad, 0x30);
@@ -21,9 +22,16 @@ Var<int> occlusion::quad_database_count = (0x0095C884);
 Var<bool> occlusion::initialized = (0x0095C87C);
 Var<int> occlusion::num_active_shadow_volumes = (0x0095C88C);
 
-namespace occlusion {
+void occlusion::term()
+{
+    TRACE("occlusion::term");
 
-void init()
+    operator delete[](quad_database());
+    quad_database() = nullptr;
+    quad_database_count() = 0;
+}
+
+void occlusion::init()
 {
     quad_database() = new quad[400u];
     quad_database_count() = 0;
@@ -31,16 +39,8 @@ void init()
     num_active_shadow_volumes() = 0;
 }
 
-void term()
+void occlusion::add_quad_to_database(const occlusion::quad &a1)
 {
-    operator delete[](quad_database());
-    quad_database() = nullptr;
-    quad_database_count() = 0;
-}
-
-}
-
-void occlusion::add_quad_to_database(const occlusion::quad &a1) {
     if (quad_database_count() < 399) {
         std::memcpy(&quad_database()[quad_database_count()++], &a1, sizeof(occlusion::quad));
     }
@@ -51,7 +51,8 @@ void occlusion::reset_active_occluders()
     num_active_shadow_volumes() = 0;
 }
 
-void occlusion::empty_quad_database() {
+void occlusion::empty_quad_database()
+{
     assert(initialized());
 
     occlusion::quad_database_count() = 0;
@@ -59,10 +60,9 @@ void occlusion::empty_quad_database() {
 
 void occlusion::debug_render_occluders()
 {
-    const color32 blue {255, 0, 0, 255};
-    const color32 green {0, 255, 0, 128};
-    for ( auto i = 0; i < num_active_shadow_volumes(); ++i )
-    {
+    const color32 blue{255, 0, 0, 255};
+    const color32 green{0, 255, 0, 128};
+    for (auto i = 0; i < num_active_shadow_volumes(); ++i) {
         auto *v12 = &active_shadow_volumes()[i];
         auto *v1 = app::instance;
         auto *v2 = v1->m_game;

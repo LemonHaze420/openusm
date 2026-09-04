@@ -46,18 +46,16 @@ struct base_state : mash_virtual_base {
 
     bool is_flag_set(int a2) const;
 
-    ai_state_machine * get_machine() const {
+    ai_state_machine *get_machine() const
+    {
         return this->field_C;
     }
 
     /* virtual */ ~base_state() = default;
 
     //0x006C4BD0
-    /* virtual */ void activate(ai_state_machine *the_state_machine,
-                                const mashed_state *a3,
-                                const mashed_state *a4,
-                                const param_block *a5,
-                                activate_flag_e a6);
+    /* virtual */ void activate(ai_state_machine *the_state_machine, const mashed_state *a3, const mashed_state *a4,
+                                const param_block *a5, activate_flag_e a6);
 
     /* virtual */ void deactivate(const mashed_state *);
 
@@ -73,8 +71,7 @@ struct base_state : mash_virtual_base {
     state_trans_action check_transition(Float a3) /* = 0 */;
 
     //virtual
-    state_trans_action process_message(Float a3,
-                    state_trans_messages the_msg) const /* = 0 */;
+    state_trans_action process_message(Float a3, state_trans_messages the_msg) const /* = 0 */;
 
     //0x0043C5E0
     //virtual
@@ -85,4 +82,4 @@ struct base_state : mash_virtual_base {
 
     int get_mash_sizeof();
 };
-} // namespace ai
+}  // namespace ai

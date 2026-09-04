@@ -3,4 +3,4 @@
 namespace ai {
 crawl_request_type::crawl_request_type() {}
 
-} // namespace ai
+}  // namespace ai

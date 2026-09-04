@@ -186,7 +186,8 @@ struct game {
         this->m_user_camera_enabled = a2;
     }
 
-    bool is_user_camera_enabled() const {
+    bool is_user_camera_enabled() const
+    {
         return m_user_camera_enabled;
     }
 

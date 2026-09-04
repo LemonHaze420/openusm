@@ -1,4 +1,3 @@
 #pragma once
 
-enum global_text_enum {
-};
+enum global_text_enum {};

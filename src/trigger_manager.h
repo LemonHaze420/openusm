@@ -42,10 +42,7 @@ struct trigger_manager : singleton {
 
     point_trigger *new_point_trigger(vector3d a2, Float a5);
 
-    point_trigger *new_point_trigger(
-        string_hash a2,
-        vector3d a3,
-        Float a4);
+    point_trigger *new_point_trigger(string_hash a2, vector3d a3, Float a4);
 
     entity_trigger *new_entity_trigger(entity_base *a2, Float a3);
 
@@ -55,7 +52,7 @@ struct trigger_manager : singleton {
 
     static void create_inst();
 
-    static trigger_manager *& instance;
+    static trigger_manager *&instance;
 };
 
 extern void trigger_manager_patch();

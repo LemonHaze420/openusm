@@ -1,4 +1,3 @@
 #pragma once
 
-struct gen_building {
-};
+struct gen_building {};

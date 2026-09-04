@@ -7,7 +7,7 @@
 
 extern float wrap_angle(float ang);
 
-template<typename T>
+template <typename T>
 T lerp(T a, T b, float t)
 {
     assert(t >= 0.0f && t <= 1.0f);

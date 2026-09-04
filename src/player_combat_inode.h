@@ -11,4 +11,4 @@ struct player_combat_inode : combat_inode {
     player_combat_inode();
 };
 
-} // namespace ai
+}  // namespace ai

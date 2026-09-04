@@ -18,8 +18,7 @@ struct universal_soldier_ability_server {
 
     _std::vector<universal_soldier_ability_client *> field_18;
 
-    static void populate_server_array(
-        universal_soldier_ability_server **ability_servers);
+    static void populate_server_array(universal_soldier_ability_server **ability_servers);
 };
 
-}
+}  // namespace ai

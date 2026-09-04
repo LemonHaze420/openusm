@@ -29,15 +29,7 @@ struct FEMultiLineText : FEText {
 
     FEMultiLineText();
 
-    FEMultiLineText(font_index a2,
-                    Float a4,
-                    Float a5,
-                    int a6,
-                    panel_layer a7,
-                    Float a8,
-                    int a9,
-                    int a10,
-                    color32 a11);
+    FEMultiLineText(font_index a2, Float a4, Float a5, int a6, panel_layer a7, Float a8, int a9, int a10, color32 a11);
 
     bool CheckIfNotTooLong(int a2);
 

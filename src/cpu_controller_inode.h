@@ -18,4 +18,4 @@ struct cpu_controller_inode : controller_inode {
     [[nodiscard]] game_button get_button(controller_inode::eControllerButton);
 };
 
-} // namespace ai
+}  // namespace ai

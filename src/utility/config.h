@@ -2,6 +2,7 @@
 
 #include <cstddef>
 
+#include <algorithm>
 #include <cstring>
 
 #define PROGRESS_LOG
@@ -11,8 +12,7 @@
 #endif
 
 // Any compiler claiming C++11 supports, Visual C++ 2015 and Clang version supporting constexpr
-#if ((__cplusplus >= 201103L) || (_MSC_VER >= 1900) || \
-     (__has_feature(cxx_constexpr))) // C++ 11 implementation
+#if ((__cplusplus >= 201103L) || (_MSC_VER >= 1900) || (__has_feature(cxx_constexpr)))  // C++ 11 implementation
 #define _STDEX_NATIVE_CPP11_SUPPORT
 #define _STDEX_NATIVE_CPP11_TYPES_SUPPORT
 #endif
@@ -86,26 +86,26 @@ using uint = uint32_t;
 using rational_t = float;
 
 template<typename T>
-bool equal(T a1, T a2) {
+bool equal(T a1, T a2)
+{
     std::equal_to<T> q{};
     return q(a1, a2);
 }
 
 template<typename T>
-bool not_equal(T a1, T a2) {
+bool not_equal(T a1, T a2)
+{
     std::not_equal_to<T> q{};
     return q(a1, a2);
 }
 
 template<class To, class From>
-constexpr
-    typename std::enable_if_t<sizeof(To) == sizeof(From) && std::is_trivially_copyable_v<From> &&
-                                  std::is_trivially_copyable_v<To>,
-                              To>
+constexpr typename std::enable_if_t<
+    sizeof(To) == sizeof(From) && std::is_trivially_copyable_v<From> && std::is_trivially_copyable_v<To>, To>
     // constexpr support needs compiler magic
-    bit_cast(const From &src) noexcept {
-    static_assert(
-        std::is_trivially_constructible_v<To>,
+bit_cast(const From &src) noexcept
+{
+    static_assert(std::is_trivially_constructible_v<To>,
         "This implementation additionally requires destination type to be trivially constructible");
 
     To dst;
@@ -113,7 +113,4 @@ constexpr
     return dst;
 }
 
-template<typename T0, typename T1>
-decltype(auto) CAST([[maybe_unused]] const T0 &var, T1 address) {
-    return bit_cast<T0>(address);
-}
+#define CAST(var, address) bit_cast<std::remove_reference_t<decltype(var)>>((address))

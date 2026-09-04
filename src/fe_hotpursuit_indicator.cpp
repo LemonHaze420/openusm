@@ -4,7 +4,8 @@
 
 fe_hotpursuit_indicator::fe_hotpursuit_indicator() {}
 
-void fe_hotpursuit_indicator::Init() {
+void fe_hotpursuit_indicator::Init()
+{
     if (this->field_8 == nullptr) {
         this->field_8 = PanelFile::UnmashPanelFile("mg_hotpursuit_indicator", static_cast<panel_layer>(7));
         auto **v3 = &this->field_10;
@@ -25,7 +26,8 @@ void fe_hotpursuit_indicator::Init() {
     }
 }
 
-void fe_hotpursuit_indicator::DeInit() {
+void fe_hotpursuit_indicator::DeInit()
+{
     if (this->field_8 != nullptr) {
         this->field_8 = nullptr;
     }

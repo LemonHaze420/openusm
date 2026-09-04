@@ -14,7 +14,7 @@ struct light_manager;
 struct terrain;
 struct nglMesh;
 
-template<typename T, uint32_t N>
+template <typename T, uint32_t N>
 struct fixed_vector;
 
 struct entity : signaller {
@@ -35,7 +35,8 @@ struct entity : signaller {
     //0x004F9180
     entity(const string_hash &a2, uint32_t a3);
 
-    bool is_a_car() const {
+    bool is_a_car() const
+    {
         return this->is_flagged(0x800u);
     }
 
@@ -148,7 +149,8 @@ struct entity : signaller {
 
     ////// VIRTUAL FUNCTIONS: END //////
 
-    bool is_visible() const {
+    bool is_visible() const
+    {
         return (this->field_4 & 0x200) != 0;
     }
 
@@ -172,7 +174,9 @@ struct entity : signaller {
     void create_time_ifc();
 
     //0x004F5510
-    region *update_regions(region **a2, int a3);
+    void update_regions(region **a2, int a3);
+
+    int count_in_regions() const;
 
     //0x004CB750
     void remove_from_regions();
@@ -189,13 +193,13 @@ struct entity : signaller {
     //0x004D67D0
     static int find_entities(int a1);
 
-    static inline int & visit_key = var<int>(0x0095A6E4);
+    static inline int &visit_key = var<int>(0x0095A6E4);
 
-    static inline int & visit_key2 = var<int>(0x0095A6E8);
+    static inline int &visit_key2 = var<int>(0x0095A6E8);
 
-    static inline int & visit_key3 = var<int>(0x0095A6EC);
+    static inline int &visit_key3 = var<int>(0x0095A6EC);
 
-    static inline _std::list<entity *> *& found_entities = var<_std::list<entity *> *>(0x0095A6E0);
+    static inline _std::list<entity *> *&found_entities = var<_std::list<entity *> *>(0x0095A6E0);
 };
 
 extern void entity_patch();

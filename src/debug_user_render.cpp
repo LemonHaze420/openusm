@@ -18,7 +18,8 @@ struct ColorString {
 
 ColorString s_debug_strings[28]{};
 
-void insertDebugString(int index, const mString &a1, color32 color) {
+void insertDebugString(int index, const mString &a1, color32 color)
+{
     assert(index >= 0);
 
     assert(index < NUM_DEBUG_STRINGS);
@@ -27,7 +28,8 @@ void insertDebugString(int index, const mString &a1, color32 color) {
     s_debug_strings[index].m_color = color;
 }
 
-void sub_CB97D0(int arg0, int arg4, color32 color, float a4, float a5, const char *a2, ...) {
+void sub_CB97D0(int arg0, int arg4, color32 color, float a4, float a5, const char *a2, ...)
+{
     va_list va;
     va_start(va, a2);
 
@@ -45,7 +47,8 @@ void sub_CB97D0(int arg0, int arg4, color32 color, float a4, float a5, const cha
     va_end(va);
 }
 
-void renderDebugStrings() {
+void renderDebugStrings()
+{
     for (int i = 0; i < NUM_DEBUG_STRINGS; ++i) {
         if (!s_debug_strings[i].m_string.empty()) {
             const auto *v0 = s_debug_strings[i].m_string.c_str();

@@ -20,9 +20,6 @@ struct SpidermanLocoSwingBack {
     ~SpidermanLocoSwingBack();
 
     //0x00481650
-    void init(
-        polytube *a2,
-        actor *a3,
-        entity_base *a4);
+    void init(polytube *a2, actor *a3, entity_base *a4);
 };
-} // namespace ai
+}  // namespace ai

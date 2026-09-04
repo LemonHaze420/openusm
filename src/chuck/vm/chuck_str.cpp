@@ -4,7 +4,8 @@
 #include <cstdio>
 #include <cstring>
 
-unsigned int chuck_ftoa(Float a1, int precision, char *result, int result_size) {
+unsigned int chuck_ftoa(Float a1, int precision, char *result, int result_size)
+{
     assert(result_size > 0);
     assert(result != nullptr);
     assert(precision >= 0 && precision < 10);
@@ -17,7 +18,8 @@ unsigned int chuck_ftoa(Float a1, int precision, char *result, int result_size) 
     return strlen(result);
 }
 
-int chuck_itoa(int a1, char *a2, int result_size) {
+int chuck_itoa(int a1, char *a2, int result_size)
+{
     int output_pos = 0;
     auto v7 = a1;
     if (a1 < 0) {
@@ -49,11 +51,12 @@ int chuck_itoa(int a1, char *a2, int result_size) {
 
 static constexpr auto RIDICULOUS_SIZE = 4096;
 
-char *chuck_strcpy(char *dest, const char *src, unsigned int dest_buffer_length) {
+char *chuck_strcpy(char *dest, const char *src, unsigned int dest_buffer_length)
+{
     assert(dest_buffer_length > 0);
     assert(dest_buffer_length <= RIDICULOUS_SIZE);
 
-    for (auto i = 0; i < dest_buffer_length - 1; ++i) {
+    for (auto i = 0u; i < dest_buffer_length - 1; ++i) {
         dest[i] = src[i];
         if (!src[i]) {
             break;
@@ -64,7 +67,8 @@ char *chuck_strcpy(char *dest, const char *src, unsigned int dest_buffer_length)
     return dest;
 }
 
-char *chuck_strcat(char *dest, const char *src, unsigned int dest_buffer_length) {
+char *chuck_strcat(char *dest, const char *src, unsigned int dest_buffer_length)
+{
     assert(dest_buffer_length > 0);
     assert(dest_buffer_length <= RIDICULOUS_SIZE);
     assert(strlen(dest) + strlen(src) < dest_buffer_length - 1);

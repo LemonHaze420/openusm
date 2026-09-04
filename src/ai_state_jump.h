@@ -18,8 +18,7 @@ struct param_block;
 struct info_node_desc_list;
 
 struct jump_param_t {
-    jump_param_t(const char *a1, const char *a2)
-        : m_height(a1), m_distance(a2), field_8(), field_C() {}
+    jump_param_t(const char *a1, const char *a2) : m_height(a1), m_distance(a2), field_8(), field_C() {}
 
     string_hash m_height;
     string_hash m_distance;
@@ -72,16 +71,20 @@ struct jump_state : enhanced_state {
     //0x0044ADA0
     void initiate_from_swing();
 
+    //0x0044B120
+    void initiate_from_pole_swing();
+
     //0x0044B220
     void initiate_from_air();
 
     //0x0044A640
-    vector3d compute_force(vector3d a3, vector3d a4);
+    vector3d compute_force(vector3d a3, vector3d a4) const;
 
     //0x0044A230
     void set_gravity_vector(const vector3d &a2, Float a3);
 
-    vector3d sub_44A580(vector3d a3, vector3d a6, Float a9, Float a10);
+    //0x0044A580
+    vector3d calculate_jump_vector(vector3d a3, vector3d a6, Float a9, Float a10) const;
 
     //0x00469AC0
     //virtual
@@ -104,10 +107,7 @@ struct jump_state : enhanced_state {
 
     //0x00469880
     //virtual
-    int activate(ai_state_machine *a2,
-                 const mashed_state *a3,
-                 const mashed_state *a4,
-                 const param_block *a5,
+    int activate(ai_state_machine *a2, const mashed_state *a3, const mashed_state *a4, const param_block *a5,
                  base_state::activate_flag_e a6);
 
     //0x00449FA0
@@ -119,6 +119,6 @@ struct jump_state : enhanced_state {
 
     static const inline string_hash default_id{to_hash("jump")};
 };
-} // namespace ai
+}  // namespace ai
 
 extern void jump_state_patch();

@@ -12,7 +12,8 @@ request_data::request_data()
 }
 
 
-request_data::request_data(const request_data &a2) {
+request_data::request_data(const request_data &a2)
+{
     this->did_transition_occur = a2.did_transition_occur;
     this->field_1 = a2.field_1;
     this->field_2 = a2.field_2;
@@ -22,7 +23,7 @@ request_data::request_data(const request_data &a2) {
     this->field_C = a2.field_C;
     this->field_10 = a2.field_10;
 }
- 
+
 void request_data::clear()
 {
     this->did_transition_occur = false;
@@ -38,4 +39,4 @@ void request_data::operator=(const request_data &a2)
     THISCALL(0x004ADF40, this, &a2);
 }
 
-}
+}  // namespace als

@@ -29,7 +29,7 @@ struct FEMenu {
     //0x0060AA90
     FEMenu(FEMenuSystem *a2, uint32_t a3, int a4, int a5, int16_t a6, int16_t a7);
 
-    void * operator new (size_t );
+    void *operator new(size_t);
 
     void operator delete(void *ptr, size_t size);
 
@@ -43,6 +43,9 @@ struct FEMenu {
 
     //virtual
     void Load();
+
+    //virtual
+    void Draw();
 
     /* virtual */ void Update(Float a2);
 

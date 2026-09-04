@@ -70,6 +70,9 @@ struct physics_inode : info_node {
     //0x00694AF0
     void setup_for_swing();
 
+    //0x00AE7C20
+    void setup_for_pole_swing();
+
     void set_collisions_active(bool a1, bool a2);
 
     //0x0068B080
@@ -88,13 +91,10 @@ struct physics_inode : info_node {
     void set_gravity(bool a2);
 
     //virtual
-    void apply_force_increment(const vector3d &a2,
-                               physical_interface::force_type a3,
-                               const vector3d &a4,
-                               int a5);
+    void apply_force_increment(const vector3d &a2, physical_interface::force_type a3, const vector3d &a4, int a5);
 
     static const inline string_hash default_id{static_cast<int>(to_hash("physics"))};
 };
-} // namespace ai
+}  // namespace ai
 
 extern void physics_inode_patch();

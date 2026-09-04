@@ -1,6 +1,6 @@
 #pragma once
 
-template<typename T>
+template <typename T>
 struct TreeNode {
     TreeNode<T> *field_0;
     TreeNode<T> *field_4;
@@ -9,22 +9,27 @@ struct TreeNode {
     char field_10;
 };
 
-template<typename T>
+template <typename T>
 struct AvlTree {
     TreeNode<T> *field_0;
     int m_size;
     bool field_8;
 
+    auto size() const
+    {
+        return this->m_size;
+    }
+
     int addHelper(TreeNode<T> *, TreeNode<T> *&, TreeNode<T> *);
 
     void dump(TreeNode<T> *&a2, int a3);
 
-    TreeNode<T> * findHelper(TreeNode<T> *, T *) const;
+    TreeNode<T> *findHelper(TreeNode<T> *, T *) const;
 
-    T * find(T *a2) const
+    T *find(T *a2) const
     {
         auto *v3 = this->findHelper(this->field_0, a2);
-        if ( v3 != nullptr ) {
+        if (v3 != nullptr) {
             return v3->m_key;
         }
 

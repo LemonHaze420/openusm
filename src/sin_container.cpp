@@ -15,26 +15,21 @@ void sin_container::setup_world()
     sp_log("%s", this->master_script_name);
     sp_log("%s", this->field_4);
 
-    if constexpr (0)
-    {}
-    else
-    {
+    if constexpr (0) {
+    } else {
         THISCALL(0x0055BB00, this);
     }
 }
 
-void sin_container::un_mash_start(generic_mash_header *a2,
-                                  void *a3,
-                                  generic_mash_data_ptrs *a4,
-                                  void *) {
+void sin_container::un_mash_start(generic_mash_header *a2, void *a3, generic_mash_data_ptrs *a4, void *)
+{
     this->un_mash(a2, a3, a4);
 }
 
 void sin_container::un_mash(generic_mash_header *a2, void *a3, generic_mash_data_ptrs *a4)
 {
-    if constexpr (0)
-    {
-        rebase(a4->field_0, 4u);
+    if constexpr (0) {
+        a4->rebase(4u);
 
         auto v5 = *a4->get<int>();
         this->master_script_name = a4->get<char>(v5);
@@ -43,19 +38,19 @@ void sin_container::un_mash(generic_mash_header *a2, void *a3, generic_mash_data
         this->field_4 = a4->get<char>(v9);
 
         this->field_24.un_mash(a2, &this->field_24, a4, nullptr);
-    }
-    else
-    {
+    } else {
         THISCALL(0x00520B00, this, a2, a3, a4);
     }
 }
 
-mString sin_container::sub_55F530() {
+mString sin_container::sub_55F530()
+{
     mString a2{this->master_script_name};
     return a2;
 }
 
-mString *sin_container::get_master_script_name(mString *out) {
+mString *sin_container::get_master_script_name(mString *out)
+{
     *out = {this->master_script_name};
     return out;
 }

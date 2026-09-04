@@ -9,8 +9,7 @@ struct conglomerate;
 struct collision_capsule;
 
 struct capsule_alter_sys {
-    enum eAlterMode {
-    };
+    enum eAlterMode {};
 
     actor *field_0;
     eAlterMode field_4;
@@ -51,10 +50,7 @@ struct capsule_alter_sys {
     void set_mode(eAlterMode a2);
 
     //0x005D9540
-    void set_static_capsule(
-        const vector3d &a2,
-        const vector3d &a3,
-        Float a4);
+    void set_static_capsule(const vector3d &a2, const vector3d &a3, Float a4);
 
     //0x005BA2D0
     void set_avoid_floor(bool a2);

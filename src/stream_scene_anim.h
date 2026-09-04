@@ -12,7 +12,7 @@ struct nalClientSceneAnim;
 
 struct nalStreamInstance : nalSceneAnimInstance {
     int field_1C;
-    nalClientSceneAnim * (* m_callback)(const tlFixedString &, void *);
+    nalClientSceneAnim *(*m_callback)(const tlFixedString &, void *);
     void *field_24;
     nflFileID field_28;
     void *field_2C;
@@ -37,7 +37,9 @@ struct nalStreamInstance : nalSceneAnimInstance {
     uint8_t field_78;
     uint8_t field_79;
 
-    void * operator new(size_t size);
+    void *operator new(size_t size);
+
+    void operator delete(void *, size_t);
 
     void AdvanceStream();
 
@@ -49,12 +51,7 @@ struct nalStreamInstance : nalSceneAnimInstance {
 
     //virtual
     bool Advance(Float dt);
-
 };
 
-extern nalStreamInstance *create_stream_instance(uint32_t a1,
-                                          uint32_t a2,
-                                          uint32_t a3,
-                                          [[maybe_unused]] int a4,
-                                          nalClientSceneAnim *(*p_cb)(const tlFixedString &, void *),
-                                          void *a6);
+extern nalStreamInstance *create_stream_instance(uint32_t a1, uint32_t a2, uint32_t a3, [[maybe_unused]] int a4,
+                                                 nalClientSceneAnim *(*p_cb)(const tlFixedString &, void *), void *a6);

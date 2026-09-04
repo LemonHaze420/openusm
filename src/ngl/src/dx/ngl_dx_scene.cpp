@@ -31,8 +31,7 @@ void nglOpaqueCompare<nglRenderNode>(nglRenderNode *node, int count, int a3)
 {
     TRACE("nglRenderList::nglOpaqueCompare<nglRenderNode>");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         nglRenderTextureNode *v1 = static_cast<decltype(v1)>(nglListAlloc(sizeof(nglRenderTextureNode) * count, 16));
 
         [](nglRenderTextureNode *a1, nglRenderNode *a2) -> void {
@@ -48,10 +47,7 @@ void nglOpaqueCompare<nglRenderNode>(nglRenderNode *node, int count, int a3)
             auto end = begin + count;
 
             nglRenderNode *v3 = nullptr;
-            std::for_each(
-                    std::make_reverse_iterator(end),
-                    std::make_reverse_iterator(begin),
-                    [&v3](auto &n) {
+            std::for_each(std::make_reverse_iterator(end), std::make_reverse_iterator(begin), [&v3](auto &n) {
                         n.m_node->m_next_node = v3;
                         v3 = n.m_node;
                     });
@@ -68,16 +64,15 @@ void nglOpaqueCompare<nglRenderNode>(nglRenderNode *node, int count, int a3)
             nglPrevNode() = v9;
             g_CurrentRenderNode = nullptr;
         }
-    }
-    else
-    {
+    } else {
         CDECL_CALL(0x0077E190, node, count, a3);
     }
 }
 
 } // namespace nglRenderList
 
-void *nglListAlloc(int size, int align) {
+void *nglListAlloc(int size, int align)
+{
     TRACE("nglListAlloc");
 
     if constexpr (0) {
@@ -92,7 +87,8 @@ void *nglListAlloc(int size, int align) {
     }
 }
 
-void nglRenderList_patch() {
+void nglRenderList_patch()
+{
     auto *address = &nglRenderList::nglOpaqueCompare<nglRenderNode>;
 
     REDIRECT(0x0077D162, address);

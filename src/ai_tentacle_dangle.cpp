@@ -6,7 +6,7 @@
 
 VALIDATE_SIZE(ai_tentacle_dangle, 0x24);
 
-int & ai_tentacle_engine::id_counter = var<int>(0x0095807C);
+int &ai_tentacle_engine::id_counter = var<int>(0x0095807C);
 
 ai_tentacle_dangle::ai_tentacle_dangle(ai_tentacle_info *a2) : ai_tentacle_engine(a2)
 {

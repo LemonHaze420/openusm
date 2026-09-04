@@ -29,103 +29,128 @@ VALIDATE_OFFSET(map::_Mybase, _Mysize, 0x8);
 
 VALIDATE_SIZE(*map::_Mybase::_Myhead, 0x18);
 
-Var<entity_slot *> entity_handle_manager::ent_slots{0x0095A0D0};
+#if !STANDALONE_SYSTEM
 
-Var<entity_slot *> entity_handle_manager::ENTS{0x0095A6F4};
+simple_queue<int, 32> &entity_handle_manager::free_slot_indices = var<simple_queue<int, 32>>(0x0091FFC0);
 
-Var<int> entity_handle_manager::curr_idx{0x0095BBD8};
+entity_slot *&entity_handle_manager::ent_slots = var<entity_slot *>(0x0095A0D0);
 
-Var<bool> entity_handle_manager::check_world_lists{0x0091FE64};
+entity_slot *&entity_handle_manager::ENTS = var<entity_slot *>(0x0095A6F4);
 
-Var<simple_queue<int, 32>> entity_handle_manager::free_slot_indices{0x0091FFC0};
+int &entity_handle_manager::curr_idx = var<int>(0x0095BBD8);
 
-Var<stdext::hash_map<string_hash, entity_base *>> entity_handle_manager::the_map{0x0095B79C};
+bool &entity_handle_manager::check_world_lists = var<bool>(0x0091FE64);
 
-VALIDATE_SIZE(entity_handle_manager::the_map(), 40);
+stdext::hash_map<string_hash, entity_base *> &entity_handle_manager::the_map =
+    var<stdext::hash_map<string_hash, entity_base *>>(0x0095B79C);
 
-VALIDATE_SIZE(std::decay_t<decltype(entity_handle_manager::the_map())>::_Mybase, 40);
-VALIDATE_SIZE(std::decay_t<decltype(entity_handle_manager::the_map())>::_Myvec, 16);
-VALIDATE_SIZE(std::decay_t<decltype(entity_handle_manager::the_map())>::_Mylist, 12);
+#else
 
-VALIDATE_OFFSET(std::decay_t<decltype(entity_handle_manager::the_map())>::_Mybase, _List, 0x4);
-VALIDATE_OFFSET(std::decay_t<decltype(entity_handle_manager::the_map())>::_Mybase, _Vec, 0x10);
-VALIDATE_OFFSET(std::decay_t<decltype(entity_handle_manager::the_map())>::_Mybase, _Mask, 0x20);
-VALIDATE_OFFSET(std::decay_t<decltype(entity_handle_manager::the_map())>::_Mybase, _Maxidx, 0x24);
+simple_queue<int, 32> &entity_handle_manager::free_slot_indices = []() -> auto & {
+    static simple_queue<int, 32> g_free_slot_indices{};
+    return g_free_slot_indices;
+}();
 
-VALIDATE_OFFSET(std::decay_t<decltype(entity_handle_manager::the_map())>::_Myvec, m_first, 0x4);
-VALIDATE_OFFSET(std::decay_t<decltype(entity_handle_manager::the_map())>::_Myvec, m_last, 0x8);
-VALIDATE_OFFSET(std::decay_t<decltype(entity_handle_manager::the_map())>::_Myvec, m_end, 0xC);
+entity_slot *&entity_handle_manager::ent_slots = []() -> auto & {
+    static entity_slot *g_ent_slots{};
+    return g_ent_slots;
+}();
 
-VALIDATE_OFFSET(std::decay_t<decltype(entity_handle_manager::the_map())>::_Mylist, m_head, 0x4);
-VALIDATE_OFFSET(std::decay_t<decltype(entity_handle_manager::the_map())>::_Mylist, m_size, 0x8);
+entity_slot *&entity_handle_manager::ENTS = []() -> auto & {
+    static entity_slot *g_ENTS{};
+    return g_ENTS;
+}();
 
-Var<void *> dword_95B7A4{0x0095B7A4};
+int &entity_handle_manager::curr_idx = []() -> auto & {
+    static int g_curr_idx{};
+    return g_curr_idx;
+}();
 
-Var<const char *[30]> entity_flavor_names { 0x0091FD38 };
+bool &entity_handle_manager::check_world_lists = []() -> auto & {
+    static bool g_check_world_lists{true};
+    return g_check_world_lists;
+}();
 
-entity_base *entity_handle_manager::find_entity(const string_hash &arg0,
-                                                entity_flavor_t a2,
-                                                bool a3) {
+stdext::hash_map<string_hash, entity_base *> &entity_handle_manager::the_map = []() -> auto & {
+    static stdext::hash_map<string_hash, entity_base *> g_the_map{};
+    return g_the_map;
+}();
+
+#endif
+
+VALIDATE_SIZE(entity_handle_manager::the_map, 40);
+
+VALIDATE_SIZE(std::decay_t<decltype(entity_handle_manager::the_map)>::_Mybase, 40);
+VALIDATE_SIZE(std::decay_t<decltype(entity_handle_manager::the_map)>::_Myvec, 16);
+VALIDATE_SIZE(std::decay_t<decltype(entity_handle_manager::the_map)>::_Mylist, 12);
+
+VALIDATE_OFFSET(std::decay_t<decltype(entity_handle_manager::the_map)>::_Mybase, _List, 0x4);
+VALIDATE_OFFSET(std::decay_t<decltype(entity_handle_manager::the_map)>::_Mybase, _Vec, 0x10);
+VALIDATE_OFFSET(std::decay_t<decltype(entity_handle_manager::the_map)>::_Mybase, _Mask, 0x20);
+VALIDATE_OFFSET(std::decay_t<decltype(entity_handle_manager::the_map)>::_Mybase, _Maxidx, 0x24);
+
+VALIDATE_OFFSET(std::decay_t<decltype(entity_handle_manager::the_map)>::_Myvec, m_first, 0x4);
+VALIDATE_OFFSET(std::decay_t<decltype(entity_handle_manager::the_map)>::_Myvec, m_last, 0x8);
+VALIDATE_OFFSET(std::decay_t<decltype(entity_handle_manager::the_map)>::_Myvec, m_end, 0xC);
+
+VALIDATE_OFFSET(std::decay_t<decltype(entity_handle_manager::the_map)>::_Mylist, m_head, 0x4);
+VALIDATE_OFFSET(std::decay_t<decltype(entity_handle_manager::the_map)>::_Mylist, m_size, 0x8);
+
+void *&dword_95B7A4 = var<void *>(0x0095B7A4);
+
+entity_base *entity_handle_manager::find_entity(const string_hash &arg0, entity_flavor_t a2, bool a3)
+{
     TRACE("entity_handle_manager::find_entity", arg0.to_string());
 
     entity_base *result = nullptr;
-    if constexpr (1)
-    {
-        using map = std::decay_t<decltype(the_map())>;
+    if constexpr (1) {
+        using map = std::decay_t<decltype(the_map)>;
         using iterator = map::iterator;
 
         iterator v13;
-        THISCALL(0x00506790, &the_map(), &v13, &arg0);
-        if ( !a3 )
-        {
-            if ( v13 == the_map().end() )
-            {
+        THISCALL(0x00506790, &the_map, &v13, &arg0);
+        if (!a3) {
+            if (v13 == the_map.end()) {
                 auto *v3 = arg0.to_string();
-                mString v4 {v3};
-                mString v5 {"Unable to find entity "};
+                mString v4{v3};
+                mString v5{"Unable to find entity "};
                 auto out = v5 + v4;
                 sp_log("%s", out.c_str());
             }
-
         }
 
-        if ( v13 == the_map().end() )
-        {
+        if (v13 == the_map.end()) {
             return nullptr;
         }
 
-        if ( a2 != IGNORE_FLAVOR && v13._Ptr->_Myval.second->get_flavor() != a2 )
-        {
-            auto v21 = mString {"Entity "}
-                        + mString {arg0.to_string()}
-                        + " is not a "
-                        + entity_flavor_names()[a2];
+        if (a2 != IGNORE_FLAVOR && v13._Ptr->_Myval.second->get_flavor() != a2) {
+            auto v21 = mString{"Entity "} + mString{arg0.to_string()} + " is not a " + entity_flavor_names[a2];
             sp_log("%s", v21.c_str());
             assert(0);
         }
 
         return v13._Ptr->_Myval.second;
-    }
-    else {
-        result = (entity_base *) CDECL_CALL(0x004DC300, &arg0, a2, a3);
+    } else {
+        result = (entity_base *)CDECL_CALL(0x004DC300, &arg0, a2, a3);
     }
 
     assert(result != nullptr);
     return result;
 }
 
-void entity_handle_manager::deregister_entity(entity_base *a1) {
+void entity_handle_manager::deregister_entity(entity_base *a1)
+{
     TRACE("deregister_entity %s", a1->field_10.to_string());
 
     if constexpr (0) {
         if (a1->field_10 != ANONYMOUS) {
 #if 0
-            sub_506790(&entity_handle_manager::the_map(), &a1, (unsigned int *) &a1->field_10);
+            sub_506790(&entity_handle_manager::the_map, &a1, (unsigned int *) &a1->field_10);
             if (a1 != bit_cast<entity_base *>(dword_95B7A4())) {
-                sub_56CAA0(&entity_handle_manager::the_map(), (int) &a1, a1);
+                sub_56CAA0(&entity_handle_manager::the_map, (int) &a1, a1);
             }
 #else
-            entity_handle_manager::the_map().erase(a1->field_10);
+            entity_handle_manager::the_map.erase(a1->field_10);
 #endif
         }
     } else {
@@ -137,33 +162,35 @@ void entity_handle_manager::register_entity(entity_base *a1)
 {
     TRACE("entity_handle_manager::register_entity", a1->field_10.to_string());
 
-    if constexpr (1)
-    {
-        if (a1->field_10.source_hash_code != ANONYMOUS.source_hash_code) {
-            const _std::pair<string_hash, entity_base *> value{a1->field_10, a1};
+    if constexpr (1) {
+        if (a1->field_10 != ANONYMOUS) {
+            using map_t = typename std::decay_t<decltype(the_map)>;
+            using value_type = typename map_t::value_type;
+            value_type value{a1->field_10, a1};
 
-            using map = std::decay_t<decltype(the_map())>;
-            using iterator = map::iterator;
-            using pair = _std::pair<iterator, bool>;
+            using iterator = map_t::iterator;
+            using pair_t = std::pair<iterator, bool>;
 
-            VALIDATE_SIZE(value, 8);
-            VALIDATE_SIZE(pair, 8);
+            VALIDATE_SIZE(value_type, 8);
+            VALIDATE_SIZE(pair_t, 8);
 
-            pair result;
+            pair_t result;
             if constexpr (1) {
-                THISCALL(0x00509440, &the_map(), &result, &value);
+                void(__fastcall * insert)(map_t *, void *edx, pair_t *, const std::decay_t<decltype(value)> *) =
+                    CAST(insert, 0x00509440);
+                insert(&the_map, nullptr, &result, &value);
             } else {
-                result = the_map().insert(value);
+                result = the_map.insert(value);
             }
 
-            if (!g_is_the_packer() && !result.second) {
+            if (!g_is_the_packer && !result.second) {
                 const char *v1 = a1->field_10.to_string();
 
                 mString v2{v1};
 
-                mString v4 = mString {"Same entity name appears twice: "} + v2;
+                mString v4 = mString{"Same entity name appears twice: "} + v2;
 
-                sp_log("%s", v4.c_str());
+                error("%s", v4.c_str());
             }
         }
     } else {
@@ -171,7 +198,8 @@ void entity_handle_manager::register_entity(entity_base *a1)
     }
 }
 
-int entity_slot::occupy(entity_base *a2) {
+int entity_slot::occupy(entity_base *a2)
+{
     assert(!in_use());
 
     this->my_id += 0x4000;
@@ -180,18 +208,16 @@ int entity_slot::occupy(entity_base *a2) {
 }
 
 
-
 void entity_slot::vacate(const entity_base_vhandle &ent_handle)
 {
     int which_slot = ent_handle.field_0 & 0x3FFF;
     assert(which_slot < MAX_ENTITIES);
 
-    auto ENTITY_HANDLE_ID = [](const auto &ent_handle)
-    {
+    auto ENTITY_HANDLE_ID = [](const auto &ent_handle) {
         return ent_handle.field_0;
     };
 
-    assert(this->my_id == ENTITY_HANDLE_ID( ent_handle ));
+    assert(this->my_id == ENTITY_HANDLE_ID(ent_handle));
 
     assert(this->my_ptr != nullptr);
 
@@ -204,55 +230,56 @@ void entity_handle_manager::create_inst()
     TRACE("entity_handle_manager::create_inst");
 
     if constexpr (1) {
-        ent_slots() = new entity_slot[10240];
-        ENTS() = ent_slots();
+        ent_slots = new entity_slot[10240];
+        ENTS = ent_slots;
         clear_ent_slots();
-        free_slot_indices().field_4 = 0;
-        free_slot_indices().field_6 = -1;
-        free_slot_indices().m_count = 0;
-        check_world_lists() = true;
+        free_slot_indices.field_4 = 0;
+        free_slot_indices.field_6 = -1;
+        free_slot_indices.m_count = 0;
+        check_world_lists = true;
     } else {
         CDECL_CALL(0x004D0F20);
     }
 }
 
-void entity_handle_manager::clear_ent_slots() {
+void entity_handle_manager::clear_ent_slots()
+{
     for (int i = 0; i < MAX_ENTITIES; ++i) {
-        auto *v1 = &ent_slots()[i];
+        auto *v1 = &ent_slots[i];
         v1->my_id = i;
         v1->my_ptr = nullptr;
     }
 
     for (int i = 0; i < 32; ++i) {
-        auto v3 = ++free_slot_indices().field_6;
-        if (free_slot_indices().field_6 >= free_slot_indices().size) {
+        auto v3 = ++free_slot_indices.field_6;
+        if (free_slot_indices.field_6 >= free_slot_indices.size) {
             v3 = 0;
-            free_slot_indices().field_6= 0;
+            free_slot_indices.field_6 = 0;
         }
 
-        free_slot_indices().field_0[v3] = i;
-        ++free_slot_indices().m_count;
+        free_slot_indices.field_0[v3] = i;
+        ++free_slot_indices.m_count;
     }
 }
 
 void entity_handle_manager::remove_entity(const entity_base_vhandle &ent_handle)
 {
-    if ( g_world_ptr != nullptr && check_world_lists() )
-    {
-        assert("Entity handle is being released while entity still exists in lists" && !g_world_ptr->ent_mgr.is_entity_valid( (entity *) ent_handle.field_0 ));
+    if (g_world_ptr != nullptr && check_world_lists) {
+        assert("Entity handle is being released while entity still exists in lists" &&
+               !g_world_ptr->ent_mgr.is_entity_valid((entity *)ent_handle.field_0));
 
-        assert("Item handle is being released while item still exists in lists" && !g_world_ptr->ent_mgr.is_item_valid( (item *) ent_handle.field_0 ));
+        assert("Item handle is being released while item still exists in lists" &&
+               !g_world_ptr->ent_mgr.is_item_valid((item *)ent_handle.field_0));
     }
 
     int which_slot = ent_handle.field_0 & 0x3FFF;
     assert(which_slot < MAX_ENTITIES);
 
-    assert(ent_slots()[which_slot].in_use());
+    assert(ent_slots[which_slot].in_use());
 
-    ent_slots()[which_slot].vacate(ent_handle);
-    if ( free_slot_indices().get_unused_capacity() > 0 )
-    {
-        free_slot_indices().push_back(which_slot);
+    ent_slots[which_slot].vacate(ent_handle);
+    if (free_slot_indices.get_unused_capacity() > 0) {
+        free_slot_indices.push_back(which_slot);
     }
 }
 
@@ -262,34 +289,34 @@ entity_base *find_marker(const string_hash &a1)
     return entity_handle_manager::find_entity(a1, MARKER, false);
 }
 
-mic *find_mic(const string_hash &a1) {
-    return (mic *) entity_handle_manager::find_entity(a1, MIC, false);
+mic *find_mic(const string_hash &a1)
+{
+    return (mic *)entity_handle_manager::find_entity(a1, MIC, false);
 }
 
-void entity_handle_manager::delete_inst() {
+void entity_handle_manager::delete_inst()
+{
     if constexpr (0) {
-        operator delete[](entity_handle_manager::ent_slots());
-        entity_handle_manager::ent_slots() = nullptr;
+        operator delete[](ent_slots);
+        ent_slots = nullptr;
     } else {
         CDECL_CALL(0x004C2A80);
     }
 }
 
-void sub_4CCEA0() {
-    if constexpr (0) {
-        while (entity_handle_manager::free_slot_indices().get_unused_capacity() != 0)
-        {
-            assert(entity_handle_manager::curr_idx() < MAX_ENTITIES);
+void sub_4CCEA0()
+{
+    if constexpr (1) {
+        while (entity_handle_manager::free_slot_indices.get_unused_capacity() != 0) {
+            assert(entity_handle_manager::curr_idx < MAX_ENTITIES);
 
-            if ( !entity_handle_manager::ent_slots()[entity_handle_manager::curr_idx()].in_use() )
-            {
-                entity_handle_manager::free_slot_indices().push_back(entity_handle_manager::curr_idx());
+            if (!entity_handle_manager::ent_slots[entity_handle_manager::curr_idx].in_use()) {
+                entity_handle_manager::free_slot_indices.push_back(entity_handle_manager::curr_idx);
             }
 
-            if (++entity_handle_manager::curr_idx() >= MAX_ENTITIES) {
-                entity_handle_manager::curr_idx() = 0;
+            if (++entity_handle_manager::curr_idx >= MAX_ENTITIES) {
+                entity_handle_manager::curr_idx = 0;
             }
-
         }
 
     } else {
@@ -299,24 +326,22 @@ void sub_4CCEA0() {
 
 int entity_handle_manager::get_free_slot()
 {
-    if ( free_slot_indices().count() == 0 )
+    if (free_slot_indices.count() == 0)
         sub_4CCEA0();
 
-    if (free_slot_indices().count() == 0)
-    {
+    if (free_slot_indices.count() == 0) {
         error("We have exceeded our maximum number of entities %d... Impressive!", 10240);
     }
 
-    return free_slot_indices().pop_front();
+    return free_slot_indices.pop_front();
 }
 
 int entity_handle_manager::add_entity(entity_base *ent_to_add)
 {
     TRACE("entity_handle_manager::add_entity");
 
-    if constexpr (1)
-    {
-        static constexpr entity_base_vhandle INVALID_VHANDLE {0};
+    if constexpr (1) {
+        static constexpr entity_base_vhandle INVALID_VHANDLE{0};
 
         assert(ent_to_add != nullptr);
         assert(ent_to_add->get_my_vhandle() == INVALID_VHANDLE && "re-adding an entity!");
@@ -325,10 +350,10 @@ int entity_handle_manager::add_entity(entity_base *ent_to_add)
 
         assert(slot_to_use >= 0);
         assert(slot_to_use < MAX_ENTITIES);
-        assert(!ent_slots()[slot_to_use].in_use());
-        assert(ent_slots()[slot_to_use].my_ptr == nullptr);
+        assert(!ent_slots[slot_to_use].in_use());
+        assert(ent_slots[slot_to_use].my_ptr == nullptr);
 
-        auto &v2 = ent_slots()[slot_to_use];
+        auto &v2 = ent_slots[slot_to_use];
 
         return v2.occupy(ent_to_add);
     } else {
@@ -359,5 +384,4 @@ void entity_handle_manager_patch()
         REDIRECT(0x004DCE59, entity_handle_manager::find_entity);
         REDIRECT(0x0055D23E, entity_handle_manager::find_entity);
     }
-
 }

@@ -4,7 +4,8 @@
 
 fe_crosshair::fe_crosshair() {}
 
-void fe_crosshair::Init() {
+void fe_crosshair::Init()
+{
     if (this->field_10 == nullptr) {
         this->field_10 = PanelFile::UnmashPanelFile("targeting_reticle_venom", static_cast<panel_layer>(7));
 
@@ -13,7 +14,8 @@ void fe_crosshair::Init() {
     }
 }
 
-void fe_crosshair::DeInit() {
+void fe_crosshair::DeInit()
+{
     if (this->field_10 != nullptr) {
         this->field_10 = nullptr;
     }

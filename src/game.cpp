@@ -126,8 +126,6 @@ static game_process start_process{"start", start_flow, 5};
 static int pause_flow[] = {7, 14};
 static game_process pause_process{"pause", pause_flow, 2};
 
-game *& g_game_ptr = var<game *>(0x009682E0);
-
 static int & g_debug_mem_dump_frame = var<int>(0x00921DCC);
 
 static auto & off_921DAC = var<char *[1]>(0x00921DAC);
@@ -155,55 +153,80 @@ als::animation_logic_system_shared *get_venom_als_shared()
 {
     return venom_als_shared;
 }
+
 bool remap_venom_animation_name(
     const string_hash &requested,
     string_hash *remapped)
 {
     assert(remapped != nullptr);
-    if ( venom_hero_resource_context == nullptr )
+    if (venom_hero_resource_context == nullptr)
         return false;
 
     const auto *name = requested.to_string();
-    const auto has_usm_prefix =name != nullptr
+    if (name == nullptr)
+        return false;
+
+    const auto name_length = std::strlen(name);
+    const auto has_usm_prefix = name_length >= 3
         && (name[0] == 'u' || name[0] == 'U')
         && (name[1] == 's' || name[1] == 'S')
         && (name[2] == 'm' || name[2] == 'M');
-    const auto has_venom_prefix = name != nullptr
+    const auto has_venom_prefix = name_length >= 3
         && (name[0] == 'v' || name[0] == 'V')
         && (name[1] == 'e' || name[1] == 'E')
         && (name[2] == 'n' || name[2] == 'N');
-    if ( has_venom_prefix )
-    {
+    if (has_venom_prefix) {
         *remapped = requested;
         return true;
     }
-    if ( !has_usm_prefix )
+    if (!has_usm_prefix)
         return false;
 
     char remapped_name[256];
-    const auto name_length = std::strlen(name);
-    assert(name_length < sizeof(remapped_name));
+    if (name_length >= sizeof(remapped_name)) {
+        assert(name_length < sizeof(remapped_name));
+        return false;
+    }
     std::memcpy(remapped_name, name, name_length + 1);
     remapped_name[0] = 'v';
     remapped_name[1] = 'e';
     remapped_name[2] = 'n';
-    *remapped = string_hash {remapped_name};
+    *remapped = string_hash{remapped_name};
     return true;
 }
 
+#if !STANDALONE_SYSTEM
+
+game *&g_game_ptr = var<game *>(0x009682E0);
+
+#else
+
+game *&g_game_ptr = []() -> auto & {
+    static game *g_game_ptr1{};
+    return g_game_ptr1;
+}();
+
+#endif
 
 
+void sub_538D10()
+{
+    scratchpad_stack::stk.alignment = 16;
 
-void sub_538D10() {
-    scratchpad_stack::stk().alignment = 16;
-
-    scratchpad_stack::stk().segment = static_cast<char *>(arch_memalign(16u, 16384u));
-    scratchpad_stack::stk().current = scratchpad_stack::stk().segment;
-    scratchpad_stack::stk().segment_size_bytes = 16384;
+    scratchpad_stack::stk.segment = static_cast<char *>(arch_memalign(16u, 16384u));
+    scratchpad_stack::stk.current = scratchpad_stack::stk.segment;
+    scratchpad_stack::stk.segment_size_bytes = 16384;
 }
 
-void construct_script_controllers() {
+void construct_script_controllers()
+{
+    assert(script_pad == nullptr);
+
+    if constexpr (1) {
+        script_pad = new script_controller[2];
+    } else {
     CDECL_CALL(0x0065F4E0);
+}
 }
 
 void destruct_script_controllers()
@@ -211,7 +234,8 @@ void destruct_script_controllers()
     CDECL_CALL(0x0064E290);
 }
 
-void init_subdivision() {
+void init_subdivision()
+{
     init_proximity_map_stacks();
 }
 
@@ -240,14 +264,20 @@ game::game()
 {
     TRACE("game::game");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
+#if !STANDALONE_SYSTEM
         static auto & setup_inputs_p = var<void (*)(game *)>(0x0095C8FC);
-        setup_inputs_p = game__setup_inputs;;
+#else
+        static auto &setup_inputs_p = []() -> auto & {
+            static void (*func)(game *);
+            return func;
+        }();
+#endif
+
+        setup_inputs_p = game__setup_inputs;
     }
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         scratchpad_stack::initialize();
         script_manager::init();
         construct_script_controllers();
@@ -259,14 +289,14 @@ game::game()
 
         geometry_manager::set_field_of_view(fov);
 
-        g_debug().field_0 |= 0x80u;
+        g_debug.field_0 |= 0x80u;
         if (os_developer_options::instance->get_flag(mString{"OUTPUT_WARNING_DISABLE"})) {
-            g_debug().field_0 &= 0x7Fu;
+            g_debug.field_0 &= 0x7Fu;
         }
 
-        g_debug().field_1 |= 4u;
+        g_debug.field_1 |= 4u;
         if (os_developer_options::instance->get_flag(mString{"OUTPUT_ASSERT_DISABLE"})) {
-            g_debug().field_1 &= 0xFBu;
+            g_debug.field_1 &= 0xFBu;
         }
 
         if (os_developer_options::instance->get_flag(mString{"SMOKE_TEST"})) {
@@ -278,19 +308,17 @@ game::game()
             static Var<char *[2]> smoke_test_levels { 0x00921DB0 };
 
             if (os_developer_options::instance->get_flag(mString{"SMOKE_TEST_LEVEL"})) {
-                g_smoke_test() = new smoke_test(bit_cast<const char **>(&g_scene_name()), a3);
+                g_smoke_test() = new smoke_test(bit_cast<const char **>(&g_scene_name), a3);
             } else {
-                g_smoke_test() = new smoke_test(bit_cast<const char **>(&smoke_test_levels()[0]),
-                                                a3);
+                g_smoke_test() = new smoke_test(bit_cast<const char **>(&smoke_test_levels()[0]), a3);
 
-                strcpy(g_scene_name(), smoke_test_levels()[0]);
+                strcpy(g_scene_name, smoke_test_levels()[0]);
             }
         } else if (!os_developer_options::instance->get_flag(mString{"SMOKE_TEST_LEVEL"})) {
             auto v23 = os_developer_options::instance->get_string(os_developer_options::strings_t::SCENE_NAME);
 
-            if (v23)
-            {
-                strcpy(g_scene_name(), v23->c_str());
+            if (v23) {
+                strcpy(g_scene_name, v23->c_str());
             }
         }
 
@@ -313,7 +341,7 @@ game::game()
         this->field_15F = 0;
         this->field_160 = 0;
         this->field_164 = false;
-        bExit() = false;
+        bExit = false;
         this->field_165 = false;
         this->field_166 = false;
         this->field_163 = false;
@@ -371,26 +399,23 @@ game::game()
         this->field_2B5 = false;
 
         this->field_80 = game_button {
-            game_button {static_cast<game_control_t>(105)},
-            game_button {static_cast<game_control_t>(102)},
-            4};
+            game_button{static_cast<game_control_t>(105)}, game_button{static_cast<game_control_t>(102)}, 4};
 
         occlusion::init();
         init_subdivision();
 
         g_debug_mem_dump_frame = os_developer_options::instance->get_int(mString {"MEM_DUMP_FRAME"});
 
-    }
-    else
-    {
+    } else {
         THISCALL(0x00557610, this);
     }
 }
 
 game::~game()
 {
-    if constexpr (1)
-    {
+    TRACE("game::~game");
+
+    if constexpr (1) {
         if ( this->gamefile != nullptr ) {
             void (__fastcall *finalize)(void *, void *, bool) = CAST(finalize, get_vfunc(gamefile->m_vtbl, 0x4));
             finalize(this->gamefile, nullptr, true);
@@ -411,9 +436,8 @@ game::~game()
         }
 
         subtitles_kill();
-        if ( this->the_world != nullptr )
-        {
-            if ( !g_is_the_packer() ) {
+        if (this->the_world != nullptr) {
+            if (!g_is_the_packer) {
                 this->unload_current_level();
             }
 
@@ -464,7 +488,7 @@ game::~game()
         }
 
         script_manager::clear();
-        if ( !g_is_the_packer() ) {
+        if (!g_is_the_packer) {
             this->one_time_deinit_stuff();
         }
 
@@ -486,7 +510,8 @@ void game::begin_hires_screenshot(int a2, int a3)
     this->push_process(hires_screenshot::process());
 }
 
-void game::enable_marky_cam(bool a2, bool a3, Float a4, Float a5) {
+void game::enable_marky_cam(bool a2, bool a3, Float a4, Float a5)
+{
     //sp_log("enable_marky_cam: 0x%08X", v6->m_vtbl);
 
     if constexpr (0) {
@@ -526,19 +551,17 @@ void game::enable_marky_cam(bool a2, bool a3, Float a4, Float a5) {
 
 void game::soft_reset_process()
 {
-    if constexpr (0)
-    {
+    if constexpr (0) {
         this->process_stack.clear();
 
         this->push_process(main_process);
-    }
-    else
-    {
+    } else {
         THISCALL(0x00548C70, this);
     }
 }
 
-void game::load_complete() {
+void game::load_complete()
+{
     g_game_ptr->level.load_completed = true;
 }
 
@@ -560,7 +583,8 @@ void game::push_process(game_process &process)
     last_proc.field_10 = 0;
 }
 
-void game::render_intros() {
+void game::render_intros()
+{
     if constexpr (0) {
     } else {
         THISCALL(0x00557B80, this);
@@ -579,21 +603,14 @@ void game::one_time_deinit_stuff()
         nglReleaseMeshFile(a1);
     }
 
-    {
-        if (g_console != nullptr) {
-            mem_dealloc(g_console, sizeof(Console));
-        }
-
-        g_console = nullptr;
-    }
-
     this->field_B4 = nullptr;
     this->field_B8 = nullptr;
     trigger_manager::instance->deinit();
     terrain_types_manager::delete_inst();
 }
 
-game_settings *game::get_game_settings() {
+game_settings *game::get_game_settings()
+{
     assert(gamefile != nullptr);
 
     return this->gamefile;
@@ -614,9 +631,10 @@ static Var<bool> byte_922558{0x00922558};
 
 static Var<bool> byte_921D79{0x00921D79};
 
-void sub_5935D0() {
+void sub_5935D0()
+{
     if (g_shadow_scene() == nullptr) {
-        g_shadow_scene() = nglCurScene();
+        g_shadow_scene() = nglCurScene;
     }
 }
 
@@ -628,46 +646,42 @@ void game::render_world()
 {
     TRACE("game::render_world");
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         auto *v3 = this->get_current_view_camera(0);
-        if (v3 != nullptr)
-        {
+        if (v3 != nullptr) {
             auto fov = v3->get_fov();
 
             if (fov >= 0.0024999999f) {
-                if (dword_92255C() != g_TOD()) {
-                    ++dword_91E1D8();
-                    dword_92255C() = g_TOD();
+                if (dword_92255C() != g_TOD) {
+                    ++dword_91E1D8;
+                    dword_92255C() = g_TOD;
                 }
 
                 auto fpf = DEG_TO_RAD(os_developer_options::instance->get_int(mString {"CAMERA_FOV"}));
                 if (fov == fpf) {
-                    g_tan_half_fov_ratio() = 1.0f;
+                    g_tan_half_fov_ratio = 1.0f;
                 } else {
                     fpf = std::tan(fov * 0.5f) / std::tan(fpf * 0.5f);
-                    g_tan_half_fov_ratio() = fpf;
+                    g_tan_half_fov_ratio = fpf;
                 }
 
-                g_indoors() = v3->is_indoors();
+                g_indoors = v3->is_indoors();
                 nglSetClearFlags(0);
                 nglListBeginScene(static_cast<nglSceneParamType>(1));
                 sub_5935D0();
                 nglListEndScene();
                 auto *v6 = comic_panels::get_panel_params();
                 auto *v7 = v6;
-                if ((!v6 || (v6->field_0 & 0x40) != 0) && !g_indoors() && byte_922558())
-                {
+                if ((v6 == nullptr || (v6->field_0 & 0x40) != 0) && !g_indoors && byte_922558()) {
                     nglListBeginScene(static_cast<nglSceneParamType>(1));
-                    nglCurScene()->field_408 = true;
+                    nglCurScene->field_408 = true;
                     nglSetSceneCallBack(static_cast<nglSceneCallbackType>(0), UploadLightConsts, nullptr);
                     nglSetSceneCallBack(static_cast<nglSceneCallbackType>(2), sub_510770, nullptr);
                     v3->adjust_geometry_pipe(false);
                     geometry_manager::set_far_plane(12000.0);
                     nglCalculateMatrices(0);
 
-                    for (auto &v10 : this->the_world->field_23C)
-                    {
+                    for (auto &v10 : this->the_world->field_23C) {
                         if (v10->is_visible()) {
                             v10->render(1.0f);
                         }
@@ -685,23 +699,18 @@ void game::render_world()
 
                 geometry_manager::set_far_plane(v11);
 
-                if ( (byte_921D79()
-                        && !this->field_16E)
-                        || g_cut_scene_player()->is_playing())
-                {
+                if ((byte_921D79() && !this->field_16E) || g_cut_scene_player()->is_playing()) {
                     v3->adjust_geometry_pipe(false);
                     auto *v13 = g_femanager.IGO->field_44;
                     auto v14 = v13->field_5C4 || v13->field_5C3;
-                    if (!g_distance_clipping_enabled() || v14) {
+                    if (!g_distance_clipping_enabled || v14) {
                         if (g_renderState().field_88) {
-                            g_Direct3DDevice()->lpVtbl->SetRenderState(g_Direct3DDevice(),
-                                                                       D3DRS_FOGENABLE,
-                                                                       0);
+                            IDirect3DDevice9_SetRenderState(g_Direct3DDevice, D3DRS_FOGENABLE, 0);
                             g_renderState().field_88 = false;
                         }
 
                     } else {
-                        auto v15 = g_distance_clipping() * LARGE_EPSILON * 1900.0f + 100.0f;
+                        auto v15 = g_distance_clipping * LARGE_EPSILON * 1900.0f + 100.0f;
                         float a2 = v15;
                         auto v16 = v15 - 200.0f;
                         auto fov_1 = v16;
@@ -713,11 +722,9 @@ void game::render_world()
 
                         static Var<uint32_t[4]> dword_922548{0x00922548};
 
-                        g_renderState().setFogColor(dword_922548()[g_TOD()]);
+                        g_renderState().setFogColor(dword_922548()[g_TOD]);
                         if (g_renderState().field_90 != 3) {
-                            g_Direct3DDevice()->lpVtbl->SetRenderState(g_Direct3DDevice(),
-                                                                       D3DRS_FOGTABLEMODE,
-                                                                       3);
+                            IDirect3DDevice9_SetRenderState(g_Direct3DDevice, D3DRS_FOGTABLEMODE, 3);
                             g_renderState().field_90 = 3;
                         }
 
@@ -726,17 +733,17 @@ void game::render_world()
                     }
 
                     nglCalculateMatrices(0);
-                    auto v17 = g_disable_occlusion_culling();
-                    if (g_indoors()) {
+                    auto v17 = g_disable_occlusion_culling;
+                    if (g_indoors) {
                         auto *v18 = g_cut_scene_player();
                         if (v18->field_E1 || v18->field_E2) {
-                            g_disable_occlusion_culling() |= 3u;
+                            g_disable_occlusion_culling |= 3u;
                         }
                     }
 
                     this->the_world->field_A0.render(*v3, 0);
-                    g_disable_occlusion_culling() = v17;
-                    if ((!v7 || (v7->field_0 & 0x20) != 0) && !g_indoors()) {
+                    g_disable_occlusion_culling = v17;
+                    if ((!v7 || (v7->field_0 & 0x20) != 0) && !g_indoors) {
                         USOcean2Shader::Draw(v3->get_abs_po().m[3]);
                     }
                 }
@@ -748,9 +755,7 @@ void game::render_world()
             }
         }
 
-    }
-    else
-    {
+    } else {
         THISCALL(0x0054E1B0, this);
     }
 }
@@ -759,8 +764,7 @@ void game::advance_state_legal(Float a2)
 {
     //sp_log("advance_state_legal: start");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         mString v12 {"legalscreen"};
 
         resource_key v11{string_hash{"legalscreen"}, RESOURCE_KEY_TYPE_PACK};
@@ -804,16 +808,18 @@ void game::handle_frame_locking(float *a1)
     }
 }
 
-void game_packs_modified_callback(_std::vector<resource_key> &a1) {
+void game_packs_modified_callback(_std::vector<resource_key> &a1)
+{
     CDECL_CALL(0x0054F6D0, &a1);
 }
+
+static constexpr bool disable_console = true;
 
 void game::one_time_init_stuff()
 {
     TRACE("game::one_time_init_stuff");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         comic_panels::init();
         g_femanager.LoadFonts();
         g_femanager.InitIGO();
@@ -824,8 +830,10 @@ void game::one_time_init_stuff()
 
         resource_manager::add_resource_pack_modified_callback(game_packs_modified_callback);
 
+        if constexpr (disable_console) {
         if (g_console == nullptr) {
-            g_console = new Console {};
+                g_console = new Console();
+            }
         }
 
         tlFixedString a1 {"dropshadow"};
@@ -833,9 +841,7 @@ void game::one_time_init_stuff()
 
         a1 = tlFixedString {"vcl_car_shadow"};
         this->field_B8 = nglGetFirstMeshInFile(a1);
-    }
-    else
-    {
+    } else {
         THISCALL(0x00552E50, this);
     }
 }
@@ -858,8 +864,7 @@ void game::pop_process()
 
 void game::set_current_camera(camera *a2, bool a3)
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         this->field_5C = a2;
         if (a3 && a2->is_a_game_camera()) {
             bit_cast<game_camera *>(a2)->field_12C = false;
@@ -894,7 +899,8 @@ bool game::is_marky_cam_enabled() const
 
 static Var<bool> sounds_paused{0x00960044};
 
-void game::pause() {
+void game::pause()
+{
     TRACE("game::pause");
 
     if (!this->field_15F || !fe_controller_disconnect::get_currently_plugged_in()) {
@@ -938,8 +944,7 @@ void game::pause() {
 
             this->flag.game_paused = true;
             auto *v7 = input_mgr::instance->rumble_ptr;
-            if (v7 != nullptr)
-            {
+            if (v7 != nullptr) {
                 if (v7->field_5C) {
                     v7->get_current_rumble_info(this->field_290);
                     v7->stop_vibration();
@@ -954,10 +959,8 @@ void game::pause() {
 
 void game::unpause()
 {
-    if constexpr (1)
-    {
-        if (this->flag.game_paused && !g_femanager.m_pause_menu_system->IsDialogActivated())
-        {
+    if constexpr (1) {
+        if (this->flag.game_paused && !g_femanager.m_pause_menu_system->IsDialogActivated()) {
             if (sounds_paused()) {
                 sound_manager::unpause_all_sounds();
             }
@@ -1012,8 +1015,8 @@ void game::advance_state_paused(Float a1)
 
         spider_monkey::frame_advance(a1);
 
-        auto *v6 = static_cast<Float *>(
-            script_manager::get_game_var_address(mString{"g_game_paused"}, nullptr, nullptr));
+        auto *v6 =
+            static_cast<Float *>(script_manager::get_game_var_address(mString{"g_game_paused"}, nullptr, nullptr));
 
         *v6 = 1.0;
     } else {
@@ -1046,10 +1049,10 @@ void game::clear_screen()
 
 static Var<float> waiting_time{0x00960B60};
 
-void game::advance_state_wait_link(Float a2) {
+void game::advance_state_wait_link(Float a2)
+{
     if constexpr (1) {
-        if (!link_system::use_link_system() ||
-            !os_developer_options::instance->get_flag(mString{"WAIT_FOR_LINK"})) {
+        if (!link_system::use_link_system() || !os_developer_options::instance->get_flag(mString{"WAIT_FOR_LINK"})) {
             ++this->process_stack.back().index;
         }
 
@@ -1079,37 +1082,31 @@ void sub_5C6700([[maybe_unused]] chunk_file &a1, const mString &a2)
     mString v4 = a2;
     v4.remove_leading(" \n\t\r");
     v4.remove_trailing(" \n\t\r");
-    if ( v4.size() != 0 )
-    {
-        if ( byte_96852C() || a2.find(" ", 0) == -1 && a2.find("\t", 0) == -1 )
-        {
+    if (v4.size() != 0) {
+        if (byte_96852C() || (a2.find(" ", 0) == -1 && a2.find("\t", 0) == -1)) {
             result = a2 + stru_969DE0();
-        }
-        else
-        {
+        } else {
             auto v2 = "\"" + a2;
             mString v3 = v2 + "\"";
             [[maybe_unused]] mString v6 = v3 + stru_969DE0();
         }
-    }
-    else
-    {
+    } else {
         result = "\"\""+ stru_969DE0();
     }
 }
 
 camera * get_scene_analyzer_cam()
 {
-    return (camera *) entity_handle_manager::find_entity(string_hash {"SCENE_ANALYZER_CAM"}, entity_flavor_t::CAMERA, false);
+    return (camera *)entity_handle_manager::find_entity(
+        string_hash{"SCENE_ANALYZER_CAM"}, entity_flavor_t::CAMERA, false);
 }
 
 void sub_5975C0(const char *Format, bool a2, bool a3)
 {
-    if ( os_developer_options::instance->get_flag(static_cast<os_developer_options::flags_t>(128)) && OpenClipboard(0) )
-    {
+    if (os_developer_options::instance->get_flag(static_cast<os_developer_options::flags_t>(128)) &&
+        OpenClipboard(nullptr)) {
         char Dest[4096] {};
-        if ( a2 )
-        {
+        if (a2) {
             char Filename[264] {};
             GetModuleFileNameA(nullptr, Filename, 260u);
             auto *v3 = strrchr(Filename, 92);
@@ -1125,17 +1122,14 @@ void sub_5975C0(const char *Format, bool a2, bool a3)
             } else {
                 sprintf(Dest, Format);
             }
-        }
-        else
-        {
+        } else {
             strncpy(Dest, Format, 4095u);
         }
 
         Dest[4095] = '\0';
         auto v5 = GlobalAlloc(8258u, strlen(Dest) + 1);
         auto *v6 = v5;
-        if ( v5 )
-        {
+        if (v5) {
             strcpy((char *)GlobalLock(v5), Dest);
             GlobalUnlock(v6);
             EmptyClipboard();
@@ -1154,15 +1148,14 @@ void game::handle_cameras(input_mgr *a2, const Float &time_inc)
     TRACE("game::handle_cameras");
 
     if (this->field_5C != nullptr) {
-
         sp_log("0x%08X", this->field_5C->m_vtbl);
     }
 
-    sp_log("%d %d", this->is_user_camera_enabled(),
+    sp_log("%d %d",
+           this->is_user_camera_enabled(),
             os_developer_options::instance->get_int(static_cast<os_developer_options::ints_t>(2)));
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         if ( !this->flag.level_is_loaded ) {
             return;
         }
@@ -1172,34 +1165,27 @@ void game::handle_cameras(input_mgr *a2, const Float &time_inc)
             this->set_camera(1);
         }
 
-        if ( !this->is_user_camera_enabled() && CAMERA_STATE != 0
-                && !geometry_manager::is_scene_analyzer_enabled() )
-        {
+        if (!this->is_user_camera_enabled() && CAMERA_STATE != 0 && !geometry_manager::is_scene_analyzer_enabled()) {
             this->set_camera(0);
         }
 
-        if ( AXIS_MAX == a2->get_control_delta(30, INVALID_DEVICE_ID)
-            && AXIS_MAX == a2->get_control_state(30, INVALID_DEVICE_ID) )
-        {
+        if (AXIS_MAX == a2->get_control_delta(30, INVALID_DEVICE_ID) &&
+            AXIS_MAX == a2->get_control_state(30, INVALID_DEVICE_ID)) {
             enum {
                 CHASE_CAM = 0,
                 USER_CAM = 1,
             };
 
             auto CAMERA_STATE = os_developer_options::instance->get_int(mString {"CAMERA_STATE"});
-            if ( CAMERA_STATE != 0 )
-            {
-                if ( CAMERA_STATE == USER_CAM )
-                {
+            if (CAMERA_STATE != 0) {
+                if (CAMERA_STATE == USER_CAM) {
                     if ( geometry_manager::is_scene_analyzer_enabled() ) {
                         geometry_manager::enable_scene_analyzer(false);
                     }
 
                     g_game_ptr->enable_user_camera(false);
                 }
-            }
-            else
-            {
+            } else {
                 g_game_ptr->enable_user_camera(true);
             }
         }
@@ -1212,14 +1198,12 @@ void game::handle_cameras(input_mgr *a2, const Float &time_inc)
             this->flag.physics_enabled = !this->flag.physics_enabled;
         }
 
-        if ( AXIS_MAX == a2->get_control_delta(SINGLE_STEP, INVALID_DEVICE_ID)
-            && AXIS_MID == a2->get_control_state(PLANE_BOUNDS_MOD, INVALID_DEVICE_ID) )
-        {
+        if (AXIS_MAX == a2->get_control_delta(SINGLE_STEP, INVALID_DEVICE_ID) &&
+            AXIS_MID == a2->get_control_state(PLANE_BOUNDS_MOD, INVALID_DEVICE_ID)) {
             this->flag.single_step = true;
         }
 
-        if ( AXIS_MAX == a2->get_control_delta(119, INVALID_DEVICE_ID) )
-        {
+        if (AXIS_MAX == a2->get_control_delta(119, INVALID_DEVICE_ID)) {
             auto *v8 = g_world_ptr->get_hero_ptr(0);
 
             auto v11 = v8->get_abs_position();
@@ -1227,8 +1211,7 @@ void game::handle_cameras(input_mgr *a2, const Float &time_inc)
             auto v15 = this->field_5C->get_abs_position();
 
             char Dest[256] {};
-            _snprintf(
-                Dest,
+            _snprintf(Dest,
                 255u,
                 "/* hero */ vector3d( %f, %f, %f )\n/* cam */ vector3d( %f, %f, %f )\n",
                 v11[0],
@@ -1244,13 +1227,10 @@ void game::handle_cameras(input_mgr *a2, const Float &time_inc)
             os_developer_options::instance->toggle_flag(static_cast<os_developer_options::flags_t>(20));
         }
 
-        if ( AXIS_MAX == a2->get_control_delta(USERCAM_EQUALS_CHASECAM, INVALID_DEVICE_ID)
-                && !this->flag.game_paused )
-        {
+        if (AXIS_MAX == a2->get_control_delta(USERCAM_EQUALS_CHASECAM, INVALID_DEVICE_ID) && !this->flag.game_paused) {
             auto *ent = entity_handle_manager::find_entity(string_hash {"USER_CAM"}, IGNORE_FLAVOR, false);
             auto *v18 = entity_handle_manager::find_entity(string_hash {"CHASE_CAM"}, IGNORE_FLAVOR, false);
-            if ( ent != nullptr && v18 != nullptr )
-            {
+            if (ent != nullptr && v18 != nullptr) {
                 auto &abs_po = v18->get_abs_po();
                 ent->set_abs_po(abs_po);
             }
@@ -1259,7 +1239,7 @@ void game::handle_cameras(input_mgr *a2, const Float &time_inc)
                 g_mouselook_controller()->reset();
             }
 
-            cam_target_locked() = false;
+            cam_target_locked = false;
         }
 
         if ( AXIS_MAX == a2->get_control_delta(33, INVALID_DEVICE_ID) ) {
@@ -1270,22 +1250,18 @@ void game::handle_cameras(input_mgr *a2, const Float &time_inc)
             g_debug_cam_get_prev_target() = true;
         }
 
-        if ( this->flag.game_paused )
-        {
+        if (this->flag.game_paused) {
             g_debug_cam_get_next_target() = false;
             g_debug_cam_get_prev_target() = false;
         }
 
-        if ( g_debug_cam_get_next_target() || g_debug_cam_get_prev_target() )
-        {
+        if (g_debug_cam_get_next_target() || g_debug_cam_get_prev_target()) {
             int v5 = 0;
 
             camera * arr_camera[64] {};
 
-            if ( ai::ai_core::the_ai_core_list_high() != nullptr )
-            {
-                for ( auto &the_core : (*ai::ai_core::the_ai_core_list_high()) )
-                {
+            if (ai::ai_core::the_ai_core_list_high() != nullptr) {
+                for (auto &the_core : (*ai::ai_core::the_ai_core_list_high())) {
                     if (the_core == nullptr) {
                         continue;
                     }
@@ -1300,24 +1276,19 @@ void game::handle_cameras(input_mgr *a2, const Float &time_inc)
                         arr_camera[v5++] = bit_cast<camera *>(v24);
                     }
                 }
-            }
-            else
-            {
+            } else {
                 g_debug_cam_target_actor() = nullptr;
                 g_debug_cam_get_next_target() = false;
                 g_debug_cam_get_prev_target() = false;
             }
 
-            if ( v5 > 0 )
-            {
+            if (v5 > 0) {
                 auto *v26 = g_debug_cam_target_actor();
-                if ( g_debug_cam_target_actor() == nullptr )
-                {
+                if (g_debug_cam_target_actor() == nullptr) {
                     g_debug_cam_target_actor() = arr_camera[0];
                 }
 
-                if ( g_debug_cam_get_next_target() )
-                {
+                if (g_debug_cam_get_next_target()) {
                     int i = 0;
                     for (; v26 != arr_camera[i] && i < v5; ++i) {
                         ;
@@ -1331,8 +1302,7 @@ void game::handle_cameras(input_mgr *a2, const Float &time_inc)
                     g_debug_cam_get_next_target() = false;
                 }
 
-                if ( g_debug_cam_get_prev_target() )
-                {
+                if (g_debug_cam_get_prev_target()) {
                     int i = v5 - 1;
                     for (; v26 != arr_camera[i] && i >= 0; --i) {
                         ;
@@ -1348,8 +1318,7 @@ void game::handle_cameras(input_mgr *a2, const Float &time_inc)
             }
         }
 
-        if ( AXIS_MAX == a2->get_control_delta(51, INVALID_DEVICE_ID) )
-        {
+        if (AXIS_MAX == a2->get_control_delta(51, INVALID_DEVICE_ID)) {
             static char byte_960C08[128] {};
 
             byte_960C08[0] = '\0';
@@ -1394,19 +1363,15 @@ void game::handle_cameras(input_mgr *a2, const Float &time_inc)
             GetAsyncKeyState(VK_MENU);
         }
 
-        if ( os_developer_options::instance->get_flag(mString {"CAMERA_EDITOR"})
-            && AXIS_MAX == a2->get_control_delta(49, INVALID_DEVICE_ID) )
-        {
+        if (os_developer_options::instance->get_flag(mString{"CAMERA_EDITOR"}) &&
+            AXIS_MAX == a2->get_control_delta(49, INVALID_DEVICE_ID)) {
             chunk_file file {};
             mString v147 = this->level.name_mission_table + "_caminfo.txt";
             file.open(v147, os_file::FILE_MODIFY);
-            if ( file.is_open() )
-            {
+            if (file.is_open()) {
                 auto v143 = "Unable to open file " + v147 + " for output.";
                 sp_log("%s", v143);
-            }
-            else
-            {
+            } else {
                 file.set_fp(0, os_file::FP_END);
                 byte_96852C() = true;
                 mString v46 {dword_95C8E8()};
@@ -1433,11 +1398,9 @@ void game::handle_cameras(input_mgr *a2, const Float &time_inc)
                 sub_5C6700(file, v149);
 
                 int v65 = 1;
-                if ( this->field_270 > 1 )
-                {
+                if (this->field_270 > 1) {
                     auto *v66 = &this->field_180[1][0];
-                    do
-                    {
+                    do {
                         mString v67 {2.0f};
                         mString v140 {v66[2]};
                         mString v141 {v66[1]};
@@ -1460,8 +1423,7 @@ void game::handle_cameras(input_mgr *a2, const Float &time_inc)
                         sub_5C6700(file, v146);
                         ++v65;
                         v66 += 3;
-                    }
-                    while ( v65 < this->field_270 );
+                    } while (v65 < this->field_270);
                 }
 
                 mString v85 {"}"};
@@ -1476,36 +1438,27 @@ void game::handle_cameras(input_mgr *a2, const Float &time_inc)
             ++dword_95C8E8();
         }
 
-        if ( os_developer_options::instance->get_flag(mString {"CAMERA_EDITOR"}) )
-        {
-            if ( AXIS_MAX == a2->get_control_delta(47, INVALID_DEVICE_ID) )
-            {
+        if (os_developer_options::instance->get_flag(mString{"CAMERA_EDITOR"})) {
+            if (AXIS_MAX == a2->get_control_delta(47, INVALID_DEVICE_ID)) {
                 mString v86 {this->field_270};
                 mString v143 = v86 + " Recorded.";
                 mString v138 {v143.c_str()};
                 this->mb->post(*bit_cast<message_board::string *>(&v138), 2.0f, color32 {0xFFFFFFFF});
             }
 
-            if ( AXIS_MAX == a2->get_control_state(48, INVALID_DEVICE_ID) )
-            {
+            if (AXIS_MAX == a2->get_control_state(48, INVALID_DEVICE_ID)) {
                 static uint32_t arr[10] {};
                 std::iota(std::begin(arr), std::end(arr), 0);
-                for (auto &i : arr)
-                {
-                    if ( AXIS_MAX == a2->get_control_delta(35 + i, INVALID_DEVICE_ID) && this->field_270 > i )
-                    {
+                for (auto &i : arr) {
+                    if (AXIS_MAX == a2->get_control_delta(35 + i, INVALID_DEVICE_ID) && this->field_270 > i) {
                         this->field_5C->set_abs_position(this->field_180[i]);
                         mString v138 = "Cam Position " + mString {static_cast<int>(i + 1)};
                         this->mb->post(*bit_cast<message_board::string *>(&v138), 2.0f, color32 {0xFFFFFFFF});
                     }
                 }
-            }
-            else
-            {
-                for ( uint32_t i {0}; i < 10; ++i )
-                {
-                    if ( AXIS_MAX == a2->get_control_delta(35 + i, INVALID_DEVICE_ID) )
-                    {
+            } else {
+                for (uint32_t i{0}; i < 10; ++i) {
+                    if (AXIS_MAX == a2->get_control_delta(35 + i, INVALID_DEVICE_ID)) {
                         this->field_180[i] = this->field_5C->get_abs_position();
 
                         vector3d v142 {0.0, 0.0, 2.0f};
@@ -1522,42 +1475,34 @@ void game::handle_cameras(input_mgr *a2, const Float &time_inc)
                 }
             }
 
-            if ( AXIS_MAX == a2->get_control_delta(45, INVALID_DEVICE_ID) )
-            {
+            if (AXIS_MAX == a2->get_control_delta(45, INVALID_DEVICE_ID)) {
                 auto v118 = this->field_270;
-                if ( v118 > 1 )
-                {
+                if (v118 > 1) {
                     this->field_274 = (v118 - 1) + (v118 - 1);
                     mString v138 {"Do Dolly"};
                     this->mb->post(*bit_cast<message_board::string *>(&v138), 2.0f, color32 {0xFFFFFFFF});
                 }
             }
 
-            if ( AXIS_MAX == a2->get_control_delta(46, INVALID_DEVICE_ID)
-                && AXIS_MAX == a2->get_control_state(48, INVALID_DEVICE_ID) )
-            {
+            if (AXIS_MAX == a2->get_control_delta(46, INVALID_DEVICE_ID) &&
+                AXIS_MAX == a2->get_control_state(48, INVALID_DEVICE_ID)) {
                 this->field_270 = 0;
                 mString v138 {"Dolly Clear"};
                 this->mb->post(*bit_cast<message_board::string *>(&v138), 2.0f, color32 {0xFFFFFFFF});
             }
         }
 
-        if ( time_inc != 0.0f && (!this->flag.physics_enabled || this->flag.single_step) )
-        {
+        if (time_inc != 0.0f && (!this->flag.physics_enabled || this->flag.single_step)) {
             auto *the_world = this->the_world;
-            if ( the_world->field_28.is_marky_cam_enabled() )
-            {
+            if (the_world->field_28.is_marky_cam_enabled()) {
                 auto *v120 = the_world->field_28.field_44;
-                if ( this->current_game_camera != v120 )
-                {
+                if (this->current_game_camera != v120) {
                     this->current_game_camera = v120;
                     this->set_current_camera(bit_cast<camera *>(this->current_game_camera), true);
                 }
 
                 this->field_5C->frame_advance(time_inc);
-            }
-            else
-            {
+            } else {
                 assert(time_inc > 0 && time_inc < 10.0f);
 
                 auto *v121 = this->field_5C;
@@ -1565,12 +1510,10 @@ void game::handle_cameras(input_mgr *a2, const Float &time_inc)
                     v121->frame_advance(time_inc);
                 }
 
-                if ( !v121->is_externally_controlled() )
-                {
+                if (!v121->is_externally_controlled()) {
                     auto *v123 = this->the_world;
                     auto *v124 = v123->get_chase_cam_ptr(0);
-                    if ( this->current_game_camera != v124 )
-                    {
+                    if (this->current_game_camera != v124) {
                         if ( v121 == this->current_game_camera ) {
                             this->set_current_camera(this->the_world->get_chase_cam_ptr(0), false);
                         }
@@ -1579,16 +1522,14 @@ void game::handle_cameras(input_mgr *a2, const Float &time_inc)
                     }
                 }
 
-                if ( g_world_ptr->get_num_players() == 0 )
-                {
+                if (g_world_ptr->get_num_players() == 0) {
                     auto *v126 = this->the_world->get_chase_cam_ptr(0);
                     if ( v126 != nullptr ) {
                         v126->frame_advance(time_inc);
                     }
                 }
 
-                for (int i {0}; i < g_world_ptr->get_num_players(); ++i)
-                {
+                for (int i{0}; i < g_world_ptr->get_num_players(); ++i) {
                     auto *v129 = this->the_world->get_chase_cam_ptr(i);
                     if ( v129 != nullptr ) {
                         v129->frame_advance(time_inc);
@@ -1598,14 +1539,11 @@ void game::handle_cameras(input_mgr *a2, const Float &time_inc)
         }
 
         this->field_5C->adjust_geometry_pipe(false);
-        if ( geometry_manager::is_scene_analyzer_enabled() )
-        {
+        if (geometry_manager::is_scene_analyzer_enabled()) {
             auto *scene_analyzer_cam = get_scene_analyzer_cam();
             scene_analyzer_cam->adjust_geometry_pipe(true);
         }
-    }
-    else
-    {
+    } else {
         THISCALL(0x00552F50, this, a2, &time_inc);
     }
 }
@@ -1614,40 +1552,38 @@ void game::handle_game_states(const Float &a2)
 {
     TRACE("game::handle_game_states");
 
-    if constexpr (0)
-    {
-        switch (this->get_cur_state()) {
-        case game_state::LEGAL: {
+    if constexpr (0) {
+        switch (static_cast<int>(this->get_cur_state())) {
+        case static_cast<int>(game_state::LEGAL): {
             this->advance_state_legal(a2);
             break;
         }
-        case static_cast<game_state>(2):
+        case 2:
             this->go_next_state();
             break;
-        case static_cast<game_state>(3):
+        case 3:
             this->go_next_state();
             break;
-        case game_state::WAIT_LINK: {
+        case static_cast<int>(game_state::WAIT_LINK): {
             this->advance_state_wait_link(a2);
             break;
         }
-        case game_state::LOAD_LEVEL: {
+        case static_cast<int>(game_state::LOAD_LEVEL): {
             this->advance_state_load_level(a2);
             break;
         }
-        case game_state::RUNNING:
+        case static_cast<int>(game_state::RUNNING):
             this->advance_state_running(a2);
             break;
-        case game_state::PAUSED:
+        case static_cast<int>(game_state::PAUSED):
             this->advance_state_paused(a2);
             break;
-        case static_cast<game_state>(8): {
-            nglBeginHiresScreenShot(hires_screenshot::params::width(),
-                                    hires_screenshot::params::height());
+        case 8: {
+            nglBeginHiresScreenShot(hires_screenshot::params::width(), hires_screenshot::params::height());
             this->go_next_state();
             break;
         }
-        case static_cast<game_state>(9): {
+        case 9: {
             if (!nglSaveHiresScreenshot()) {
                 this->go_next_state();
             }
@@ -1655,26 +1591,24 @@ void game::handle_game_states(const Float &a2)
             this->advance_state_paused(a2);
             break;
         }
-        case static_cast<game_state>(10):
-        case static_cast<game_state>(11):
+        case 10:
+        case 11:
             this->advance_state_paused(a2);
             this->go_next_state();
             break;
-        case static_cast<game_state>(12):
-        case static_cast<game_state>(13): {
+        case 12:
+        case 13: {
             this->go_next_state();
             break;
         }
-        case static_cast<game_state>(14):
+        case 14:
             this->pop_process();
             break;
         default:
             assert(0);
             return;
         }
-    }
-    else
-    {
+    } else {
         THISCALL(0x0055D510, this, &a2);
     }
 }
@@ -1689,20 +1623,16 @@ void game::set_camera(int a2)
 {
     TRACE("game::set_camera");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         enum {
             CHASE_CAM = 0,
             USER_CAM = 1,
         };
 
         os_developer_options::instance->set_int(mString{"CAMERA_STATE"}, a2);
-        if (a2 == USER_CAM)
-        {
+        if (a2 == USER_CAM) {
             auto *cam = bit_cast<game_camera *>(
-                entity_handle_manager::find_entity(string_hash{"USER_CAM"},
-                                                   entity_flavor_t::CAMERA,
-                                                   false));
+                entity_handle_manager::find_entity(string_hash{"USER_CAM"}, entity_flavor_t::CAMERA, false));
 
             cam->set_abs_position(this->current_game_camera->get_rel_position());
             this->set_current_camera(cam, true);
@@ -1715,13 +1645,11 @@ void game::set_camera(int a2)
             }
 
             if (g_world_ptr->get_hero_ptr(0) != nullptr) {
-                auto *v7 = entity_handle_manager::find_entity(string_hash{"USER_CAM"},
-                                                             entity_flavor_t::IGNORE_FLAVOR,
-                                                             false);
+                auto *v7 =
+                    entity_handle_manager::find_entity(string_hash{"USER_CAM"}, entity_flavor_t::IGNORE_FLAVOR, false);
 
-                auto *v8 = entity_handle_manager::find_entity(string_hash{"CHASE_CAM"},
-                                                              entity_flavor_t::IGNORE_FLAVOR,
-                                                              false);
+                auto *v8 =
+                    entity_handle_manager::find_entity(string_hash{"CHASE_CAM"}, entity_flavor_t::IGNORE_FLAVOR, false);
 
                 entity_set_abs_po(v7, v8->get_abs_po());
             }
@@ -1733,10 +1661,8 @@ void game::set_camera(int a2)
                 }
             }
 
-            cam_target_locked() = false;
-        }
-        else if (a2 == CHASE_CAM)
-        {
+            cam_target_locked = false;
+        } else if (a2 == CHASE_CAM) {
             auto *v3 = bit_cast<game_camera *>(this->current_game_camera);
 
             this->set_current_camera(v3, true);
@@ -1747,14 +1673,13 @@ void game::set_camera(int a2)
                 this->mb->post(str, 2.0f, color32 {0xFFFFFFFF});
             }
         }
-    }
-    else
-    {
+    } else {
         THISCALL(0x0054F8C0, this, a2);
     }
 }
 
-void game::setup_input_registrations() {
+void game::setup_input_registrations()
+{
     setup_input_registrations_p(this);
 }
 
@@ -1777,33 +1702,27 @@ void game::init_motion_blur()
 {
     TRACE("game::init_motion_blur");
 
-    if constexpr (0)
-    {}
-    else
-    {
+    if constexpr (0) {
+    } else {
         THISCALL(0x00514AB0, this);
     }
 }
 
-void glow_init() {
+void glow_init()
+{
     ;
 }
 
 void game::freeze_hero(bool a2)
 {
-    if constexpr (0)
-    {
-        if ( this->the_world != nullptr )
-        {
-            for ( int v3 = 0; v3 < g_world_ptr->num_players; ++v3 )
-            {
+    if constexpr (0) {
+        if (this->the_world != nullptr) {
+            for (int v3 = 0; v3 < g_world_ptr->num_players; ++v3) {
                 auto *v5 = g_world_ptr->get_hero_ptr(v3);
-                if ( v5 != nullptr )
-                {
+                if (v5 != nullptr) {
                     v5->set_ext_flag_recursive(static_cast<entity_ext_flag_t>(0x4000u), a2);
 
-                    if ( v5->get_ai_core() != nullptr )
-                    {
+                    if (v5->get_ai_core() != nullptr) {
                         if ( a2 ) {
                             v5->suspend(true);
                         } else {
@@ -1815,9 +1734,7 @@ void game::freeze_hero(bool a2)
         }
 
         this->field_160 = a2;
-    }
-    else
-    {
+    } else {
         THISCALL(0x00514F00, this, a2);
     }
 }
@@ -1826,8 +1743,7 @@ void game::load_this_level()
 {
     TRACE("game::load_this_level");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         assert(!flag.level_is_loaded);
 
         this->field_2C0.reset();
@@ -1842,8 +1758,7 @@ void game::load_this_level()
         g_mem_checkpoint_level = 0; // mem_set_checkpoint()
         this->init_motion_blur();
         glow_init();
-        if (g_femanager.m_fe_menu_system != nullptr)
-        {
+        if (g_femanager.m_fe_menu_system != nullptr) {
             g_femanager.m_fe_menu_system->RenderLoadMeter(false);
             if (g_femanager.m_fe_menu_system != nullptr) {
                 g_femanager.m_fe_menu_system->RenderLoadMeter(false);
@@ -1870,9 +1785,7 @@ void game::load_this_level()
 
         mString v90{};
         resource_key_type v88 {RESOURCE_KEY_TYPE_NONE};
-        resource_key::calc_resource_string_and_type_from_path(this->level.descriptor->field_0.to_string(),
-                                                              &v90,
-                                                              &v88);
+        resource_key::calc_resource_string_and_type_from_path(this->level.descriptor->field_0.to_string(), &v90, &v88);
         auto *common_streamer = common_partition->get_streamer();
         common_streamer->load(v90.c_str(), 0, nullptr, nullptr);
         common_streamer->flush(RenderLoadMeter);
@@ -1892,8 +1805,7 @@ void game::load_this_level()
         assert(script_manager::get_total_loaded() == 0);
 
         resource_key v14 = create_resource_key_from_path("init_gv", RESOURCE_KEY_TYPE_NONE);
-        if ( script_manager::is_loadable(v14) )
-		{
+        if (script_manager::is_loadable(v14)) {
             resource_key v69{};
 
             resource_key v73 {string_hash {"init_gv"}, RESOURCE_KEY_TYPE_SCRIPT};
@@ -1909,21 +1821,13 @@ void game::load_this_level()
             this->gamefile->init_script_buffer();
         }
 
-        resource_key v77 = create_resource_key_from_path(this->level.name_mission_table.c_str(),
-                                                         RESOURCE_KEY_TYPE_SIN);
+        resource_key v77 = create_resource_key_from_path(this->level.name_mission_table.c_str(), RESOURCE_KEY_TYPE_SIN);
 
         auto *the_sin_res = common_slot->get_resource(v77, nullptr, nullptr);
         assert(the_sin_res != nullptr);
 
         sin_container *the_sin = nullptr;
-        auto allocated_mem = parse_generic_object_mash(the_sin,
-                                                       the_sin_res,
-                                                       nullptr,
-                                                       nullptr,
-                                                       nullptr,
-                                                       0,
-                                                       0,
-                                                       nullptr);
+        auto allocated_mem = parse_generic_object_mash(the_sin, the_sin_res, nullptr, nullptr, nullptr, 0, 0, nullptr);
         assert(!allocated_mem);
 
         assert(the_sin != nullptr && "we have no sin!!!");
@@ -1963,15 +1867,10 @@ void game::load_this_level()
 
         resource_key v89 {string_hash {v92.m_name.c_str()}, RESOURCE_KEY_TYPE_SCN_ENTITY};
 
-        this->the_world->load_scene(v89,
-                                    true,
-                                    v92.m_name.c_str(),
-                                    nullptr,
-                                    (worldly_pack_slot *) common_slot,
-                                    nullptr);
+        this->the_world->load_scene(v89, true, v92.m_name.c_str(), nullptr, (worldly_pack_slot *)common_slot, nullptr);
 
-        resource_key v93 = create_resource_key_from_path(this->level.name_mission_table.c_str(),
-                                                         RESOURCE_KEY_TYPE_MISSION_TABLE);
+        resource_key v93 =
+            create_resource_key_from_path(this->level.name_mission_table.c_str(), RESOURCE_KEY_TYPE_MISSION_TABLE);
 
         mission_manager::s_inst->add_global_table(v93);
 
@@ -1984,22 +1883,19 @@ void game::load_this_level()
 
         po v86;
 
-        if ( g_game_ptr->m_hero_start_enabled )
-		{
+        if (g_game_ptr->m_hero_start_enabled) {
             auto *marker_hero_start = find_marker(string_hash{"HERO_START"});
 
             v86 = marker_hero_start->get_abs_po();
 
             auto v73 = os_developer_options::instance->get_string(os_developer_options::HERO_START_DISTRICT);
-            if (v73)
-			{
+            if (v73) {
                 auto *ter = g_world_ptr->get_the_terrain();
                 assert(ter != nullptr);
 
                 fixedstring<4> v77{v73->c_str()};
                 auto v39 = ter->get_region_index_by_name(v77);
-                if (v39 != 65535)
-				{
+                if (v39 != 65535) {
                     region *reg = ter->get_region(v39);
                     if ( reg->is_locked() ) {
                         g_world_ptr->the_terrain->unlock_district(reg->get_district_id());
@@ -2014,8 +1910,7 @@ void game::load_this_level()
             auto hero_start_z = os_developer_options::instance->get_int(mString{"HERO_START_Z"});
 
             if (hero_start_x != 0 || hero_start_y != 0 || hero_start_z != 0) {
-                v86.set_position(
-                    vector3d{(float) hero_start_x, (float) hero_start_y, (float) hero_start_z});
+                v86.set_position(vector3d{(float)hero_start_x, (float)hero_start_y, (float)hero_start_z});
             }
         } else {
             v86.set_position(g_game_ptr->level.field_24);
@@ -2023,17 +1918,12 @@ void game::load_this_level()
 
         auto *the_terrain = g_world_ptr->the_terrain;
         if ( auto *reg = the_terrain->find_region(v86.get_position(), nullptr);
-                reg != nullptr && (reg->flags & 0x4000) != 0)
-        {
+            reg != nullptr && (reg->flags & 0x4000) != 0) {
             g_world_ptr->the_terrain->unlock_district(reg->district_id);
-        }
-        else
-        {
-            for (auto j = 0; j < the_terrain->get_num_regions(); ++j)
-            {
+        } else {
+            for (auto j = 0; j < the_terrain->get_num_regions(); ++j) {
                 auto *reg = the_terrain->get_region(j);
-                if (reg != nullptr && (reg->flags & 0x4000) != 0)
-                {
+                if (reg != nullptr && (reg->flags & 0x4000) != 0) {
                     g_world_ptr->the_terrain->unlock_district(reg->get_district_id());
                     v86.set_position(reg->field_A4);
                     break;
@@ -2042,9 +1932,7 @@ void game::load_this_level()
         }
 
 
-        if (v86.m[1][0] != YVEC[0] || v86.m[1][1] != YVEC[1] ||
-            v86.m[1][2] != YVEC[2])
-		{
+        if (not_equal(v86.m[1][0], YVEC[0]) || not_equal(v86.m[1][1], YVEC[1]) || not_equal(v86.m[1][2], YVEC[2])) {
             po v77;
 
             v77.m[0] = vector3d {1.0};
@@ -2060,8 +1948,7 @@ void game::load_this_level()
         }
 
         auto *hero_ptr = g_world_ptr->get_hero_ptr(0);
-        if ( hero_ptr != nullptr )
-		{
+        if (hero_ptr != nullptr) {
             *hero_ptr->my_rel_po = v86;
 
             hero_ptr->dirty_family(false);
@@ -2074,13 +1961,10 @@ void game::load_this_level()
 
             g_spiderman_camera_ptr()->autocorrect(Float{0});
 
-        }
-		else
-		{
+        } else {
             auto *cam_ptr = g_world_ptr->field_28.field_44;
 
-            if ( cam_ptr != nullptr )
-			{
+            if (cam_ptr != nullptr) {
                 *cam_ptr->my_rel_po = v86;
 
                 cam_ptr->dirty_family(false);
@@ -2147,8 +2031,7 @@ void game::level_load_stuff::look_up_level_descriptor()
 {
     TRACE("game::level_load_stuff::look_up_level_descriptor");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         this->descriptor = nullptr;
         auto *game_partition = resource_manager::get_partition_pointer(RESOURCE_PARTITION_START);
         assert(game_partition != nullptr);
@@ -2167,8 +2050,7 @@ void game::level_load_stuff::look_up_level_descriptor()
 
         int lookup_size = 0;
         auto *lvl_descriptors = (level_descriptor_t *) game_slot->get_resource(a1, &lookup_size, nullptr);
-        if ( lvl_descriptors == nullptr )
-        {
+        if (lvl_descriptors == nullptr) {
             sp_log("Game common pack file missing. Please run the packer.");
             assert(0);
         }
@@ -2177,11 +2059,9 @@ void game::level_load_stuff::look_up_level_descriptor()
         int v23 = lookup_size / sizeof_level_descriptor;
         assert((lookup_size % sizeof_level_descriptor) == 0);
 
-        if constexpr (1)
-        {
+        if constexpr (1) {
             printf("lookup_size = %d, num_levels_desc = %d\n", lookup_size, v23);
-            for (auto i = 0; i < v23; ++i)
-            {
+            for (auto i = 0; i < v23; ++i) {
                 printf("\t%s\n", lvl_descriptors[i].field_0.to_string());
             }
         }
@@ -2189,12 +2069,9 @@ void game::level_load_stuff::look_up_level_descriptor()
         {
             auto *begin = lvl_descriptors;
             auto *end = begin + v23;
-            auto *it_find = std::find_if(begin, end, [&v27](const auto &desc) {
-                return (v27 == desc.field_0);
-            });
+            auto *it_find = std::find_if(begin, end, [&v27](const auto &desc) { return (v27 == desc.field_0); });
 
-            if ( it_find == end )
-            {
+            if (it_find == end) {
                 auto *v5 = v27.to_string();
                 error("Couldn't find level descriptor for %s", v5);
             }
@@ -2206,17 +2083,14 @@ void game::level_load_stuff::look_up_level_descriptor()
 
         resource_key v16 {string_hash {this->descriptor->field_0.to_string()}, RESOURCE_KEY_TYPE_PACK};
         auto v19 = resource_manager::get_pack_file_stats(v16, nullptr, nullptr, nullptr);
-        if ( !v19 )
-        {
+        if (!v19) {
             auto *v9 = this->descriptor->field_0.to_string();
             sp_log("Couldn't find packfile for level '%s'. Make sure you packed this level.", v9);
             assert(0);
         }
 
         resource_manager::configure_packs_by_memory_map(this->descriptor->m_index_memory_map);
-    }
-    else
-    {
+    } else {
         THISCALL(0x0055A1C0, this);
     }
 }
@@ -2238,17 +2112,14 @@ void game::level_load_stuff::construct_loading_widgets()
 
 void game::level_load_stuff::destroy_loading_widgets()
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         this->load_widgets_created = false;
         g_femanager.ReleaseFrontEnd();
         mString a1{"spidermanlogo"};
 
         mission_stack_manager::s_inst->pop_mission_pack_immediate(a1, a1);
         mission_manager::s_inst->unlock();
-    }
-    else
-    {
+    } else {
         THISCALL(0x0050B560, this);
     }
 }
@@ -2264,11 +2135,13 @@ bool game::level_load_stuff::wait_for_mem_check()
     return result;
 }
 
-void sub_405CC0() {
+void sub_405CC0()
+{
     CDECL_CALL(0x00405CC0);
 }
 
-void system_idle() {
+void system_idle()
+{
     MSG Msg;
 
     while (PeekMessageA(&Msg, nullptr, 0, 0, 1u)) {
@@ -2291,11 +2164,9 @@ void system_idle() {
 
 camera *game::get_current_view_camera(int a2)
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         auto *cam = comic_panels::get_current_view_camera(a2);
-        if (cam == nullptr)
-        {
+        if (cam == nullptr) {
             auto v4 = this->the_world;
             cam = this->field_5C;
             if (cam == (camera *) v4->get_chase_cam_ptr(0)) {
@@ -2312,7 +2183,7 @@ camera *game::get_current_view_camera(int a2)
 void game::_load_new_level(const mString &a2)
 {
     if (!a2.empty()) {
-        strcpy(g_scene_name(), a2.c_str());
+        strcpy(g_scene_name, a2.c_str());
     }
 
     this->field_15D = true;
@@ -2322,8 +2193,7 @@ void game::_load_new_level(const mString &a2)
 
 void game::load_new_level(const mString &a2, const vector3d &a3)
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         this->_load_new_level(a2);
         this->level.field_24 = a3;
         this->m_hero_start_enabled = false;
@@ -2335,14 +2205,11 @@ void game::load_new_level(const mString &a2, const vector3d &a3)
 
 void game::load_new_level(const mString &a1, int a2)
 {
-    if constexpr (0)
-    {
+    if constexpr (1) {
         this->_load_new_level(a1);
         this->m_hero_start_enabled = true;
 
-    }
-    else
-    {
+    } else {
         THISCALL(0x00514C70, this, &a1, a2);
     }
 }
@@ -2351,18 +2218,16 @@ void game::advance_state_load_level(Float a2)
 {
     TRACE("game::advance_state_load_level");
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         static bool & loading_a_level = var<bool>(0x00960CB5);
 
-        this->level.name_mission_table = g_scene_name();
+        this->level.name_mission_table = g_scene_name;
         input_mgr::instance->field_26 = false;
-        if (!loading_a_level)
-        {
+        if (!loading_a_level) {
             this->level.reset_level_load_data();
             loading_a_level = true;
             this->level.look_up_level_descriptor();
-            if (!g_is_the_packer()) {
+            if (!g_is_the_packer) {
                 sound_manager::load_common_sound_bank(true);
             }
 
@@ -2374,14 +2239,13 @@ void game::advance_state_load_level(Float a2)
         }
 
         this->the_world->the_terrain->frame_advance(a2);
-        if (this->level.load_completed && !this->level.wait_for_mem_check())
-        {
+        if (this->level.load_completed && !this->level.wait_for_mem_check()) {
             this->level.destroy_loading_widgets();
             sub_405CC0();
 
             int TOD = os_developer_options::instance->get_int(mString {"TIME_OF_DAY"});
             if (TOD == -1) {
-                TOD= g_TOD();
+                TOD = g_TOD;
             }
 
             us_lighting_switch_time_of_day(TOD);
@@ -2393,8 +2257,7 @@ void game::advance_state_load_level(Float a2)
         }
 
         cut_scene_player *v13 = g_cut_scene_player();
-        if ( v13->is_playing() )
-        {
+        if (v13->is_playing()) {
             v13->frame_advance(a2);
             this->the_world->update_ai_and_visibility_proximity_maps_for_moved_entities(a2);
 
@@ -2405,17 +2268,15 @@ void game::advance_state_load_level(Float a2)
             light_manager::frame_advance_all_light_managers(a2);
         }
 
-        if (g_femanager.m_fe_menu_system != nullptr)
-        {
-            void (__fastcall *Update)(void *, void *, Float) = CAST(Update, get_vfunc(g_femanager.m_fe_menu_system->m_vtbl, 0x14));
+        if (g_femanager.m_fe_menu_system != nullptr) {
+            void(__fastcall * Update)(void *, void *, Float) =
+                CAST(Update, get_vfunc(g_femanager.m_fe_menu_system->m_vtbl, 0x14));
 
             Update(g_femanager.m_fe_menu_system, nullptr, a2);
 
             g_femanager.m_fe_menu_system->RenderLoadMeter(false);
         }
-    }
-    else
-    {
+    } else {
         THISCALL(0x0055D3A0, this, a2);
     }
 }
@@ -2424,10 +2285,14 @@ void game::frame_advance_game_overlays(Float a1)
 {
     g_femanager.Update(a1);
 
+
+    if constexpr (disable_console) {
     g_console->frame_advance(a1);
 }
+}
 
-void game::message_board_init() {
+void game::message_board_init()
+{
     this->mb = new message_board{};
 }
 
@@ -2439,7 +2304,8 @@ void game::message_board_clear()
     }
 }
 
-void game::render_motion_blur() {
+void game::render_motion_blur()
+{
     THISCALL(0x00521610, this);
 }
 
@@ -2454,27 +2320,21 @@ void game::render_interface()
 {
     TRACE("game::render_interface");
 
-    if constexpr (1)
-    {
-        if (this->flag.level_is_loaded)
-        {
+    if constexpr (1) {
+        if (this->flag.level_is_loaded) {
             sub_5BC870();
             spider_monkey::render();
             this->mb->render();
 
-            if (os_developer_options::instance->get_flag(mString{"SHOW_DEBUG_INFO"}))
-            {
+            if (os_developer_options::instance->get_flag(mString{"SHOW_DEBUG_INFO"})) {
                 this->show_debug_info();
             }
 
-            if (os_developer_options::instance->get_flag(mString{"SHOW_WATERMARK_VELOCITY"}))
-            { 
+            if (os_developer_options::instance->get_flag(mString{"SHOW_WATERMARK_VELOCITY"})) {
                 this->show_max_velocity();
             }
         }
-    }
-    else
-    {
+    } else {
         THISCALL(0x00524290, this);
     }
 }
@@ -2490,15 +2350,12 @@ mString game::get_camera_info() const
     auto *v2 = this->field_5C;
 
     mString v22;
-    if ( v2->get_primary_region() != nullptr )
-    {
+    if (v2->get_primary_region() != nullptr) {
         auto *v4 = v2->get_primary_region();
         auto &v5 = v4->get_name();
         auto *v6 = v5.to_string();
         v22 = mString{v6};
-    }
-    else
-    {
+    } else {
         v22 = mString{"none"};
     }
 
@@ -2508,8 +2365,7 @@ mString game::get_camera_info() const
     auto &v18 = v2->get_abs_position();
     auto *v8 = g_world_ptr->get_the_terrain();
     auto *v32 = v8->find_region(v18, nullptr);
-    if ( v32 != nullptr )
-    {
+    if (v32 != nullptr) {
         auto &v9 = v32->get_name();
         auto *v10 = v9.to_string();
         v33 = {v10};
@@ -2542,8 +2398,7 @@ mString game::get_analyzer_info() const
     auto *v26 = v4->find_region(v14, nullptr);
 
     mString v25 {""};
-    if ( v26 != nullptr )
-    {
+    if (v26 != nullptr) {
         auto &v5 = v26->get_name();
         auto *v6 = v5.to_string();
         v25 = v6;
@@ -2568,47 +2423,38 @@ mString game::get_analyzer_info() const
 mString game::get_hero_info() const
 {
     auto *v30 = g_world_ptr->get_hero_ptr(0);
-    if ( v30 == nullptr )
-    {
+    if (v30 == nullptr) {
         mString result {"(hero does not exist!)"};
         return result;
     }
 
     region *v29 = nullptr;
-    if ( v30 != nullptr )
-    {
+    if (v30 != nullptr) {
         v29 = v30->get_primary_region();
     }
 
     mString v28 {"none"};
-    if ( v29 != nullptr )
-    {
+    if (v29 != nullptr) {
         auto &v4 = v29->get_name();
         auto *v5 = v4.to_string();
         v28 = v5;
     }
 
     mString v12;
-    if ( v30 != nullptr )
-    {
+    if (v30 != nullptr) {
         auto &v6 = v30->get_abs_position();
         v12 = to_string(v6);
-    }
-    else
-    {
+    } else {
         v12 = mString{"N/A"};
     }
 
     mString v27 = v12;
 
     vector3d v15;
-    if ( v30 != nullptr )
-    {
+    if (v30 != nullptr) {
         auto *v7 = v30->physical_ifc();
         v15 = v7->get_velocity();
-    }
-    else
-    {
+    } else {
         v15 = ZEROVEC;
     }
 
@@ -2652,25 +2498,19 @@ void game::show_debug_info() const
 
 void game::show_max_velocity()
 {
-    if constexpr (0)
-    {}
-    else
-    {
+    if constexpr (0) {
+    } else {
         THISCALL(0x00514D00, this);
     }
 }
 
 float game::get_script_game_clock_timer() const
 {
-    if constexpr (1)
-    {
+    if constexpr (1) {
         static mString s_game_clock_timer_str{"game_clock_timer"};
 
-        return *static_cast<float *>(
-            script_manager::get_game_var_address(s_game_clock_timer_str, nullptr, nullptr));
-    }
-    else
-    {
+        return *static_cast<float *>(script_manager::get_game_var_address(s_game_clock_timer_str, nullptr, nullptr));
+    } else {
         float (__fastcall *func)(const game *) = CAST(func, 0x005244E0);
         return func(this);
     }
@@ -2679,8 +2519,7 @@ float game::get_script_game_clock_timer() const
 //TODO
 void game::render_ui()
 {
-    if constexpr (0)
-    {
+    if constexpr (0) {
         nglListBeginScene(static_cast<nglSceneParamType>(1));
         render_motion_blur();
         nglListEndScene();
@@ -2694,12 +2533,9 @@ void game::render_ui()
         static bool & g_disable_interface = var<bool>(0x0095C879);
 
         if ( g_disable_interface || !this->flag.level_is_loaded ||
-            os_developer_options::instance->get_flag(mString {"INTERFACE_DISABLE"}) )
-        {
-            if ( this->flag.level_is_loaded )
-            {
-                if (!EnableShader())
-                {
+            os_developer_options::instance->get_flag(mString{"INTERFACE_DISABLE"})) {
+            if (this->flag.level_is_loaded) {
+                if (!EnableShader) {
                     matrix4x4 a1;
                     a1.arr[0][0] = 0.003125;
                     a1.arr[0][1] = 0.0;
@@ -2724,22 +2560,17 @@ void game::render_ui()
                 }
 
                 mission_manager::s_inst->render_fade();
-            }
-            else
-            {
+            } else {
                 g_femanager.RenderLoadMeter(true);
             }
-        }
-        else
-        {
+        } else {
             g_femanager.Draw();
         }
 
         nglListBeginScene(static_cast<nglSceneParamType>(1));
         nglSetClearFlags(g_preserve_z_buffer ? 0 : 6);
         sub_769DE0(7);
-        if (!EnableShader())
-        {
+        if (!EnableShader) {
             matrix4x4 v5;
             v5.arr[0][0] = 0.003125;
             v5.arr[0][1] = 0.0;
@@ -2767,8 +2598,7 @@ void game::render_ui()
             render_interface();
         }
 
-        if (os_developer_options::instance->get_flag(static_cast<os_developer_options::flags_t>(107)))
-        {
+        if (os_developer_options::instance->get_flag(static_cast<os_developer_options::flags_t>(107))) {
             auto v2 = g_game_ptr->get_script_game_clock_timer();
 
             mString v8{0, "%d:%.02d", (int) v2 / 3600, (int) v2 / 60 % 60};
@@ -2780,7 +2610,9 @@ void game::render_ui()
         }
 
         if constexpr (1) {
+            if constexpr (disable_console) {
             g_console->render();
+            }
 
 #if defined(ENABLE_DEBUG_MENU) && DEBUG_MENU_REIMPL != 1
            debug_menu::render_active();
@@ -2788,17 +2620,16 @@ void game::render_ui()
         }
 
         nglListEndScene();
-        if (!spider_monkey::is_running())
-        {
-            if (os_developer_options::instance->get_int(static_cast<os_developer_options::ints_t>(26)) == 1 && byte_965BF5())
-            {
+        if (!spider_monkey::is_running()) {
+            if (os_developer_options::instance->get_int(static_cast<os_developer_options::ints_t>(26)) == 1 &&
+                byte_965BF5) {
                 SYSTEMTIME SystemTime;
                 GetLocalTime(&SystemTime);
 
                 char Dest[256];
                 sprintf(Dest,
                         "%s\\screenshot_%4d-%02d-%02d-%02d%02d%02d",
-                        byte_9659B8(),
+                        byte_9659B8,
                         SystemTime.wYear,
                         SystemTime.wMonth,
                         SystemTime.wDay,
@@ -2806,13 +2637,11 @@ void game::render_ui()
                         SystemTime.wMinute,
                         SystemTime.wSecond);
                 nglScreenShot(Dest);
-                byte_965BF5() = false;
+                byte_965BF5 = false;
             }
 
             auto ALLOW_SCREENSHOT = os_developer_options::instance->get_int(mString {"ALLOW_SCREENSHOT"});
-            if ( ALLOW_SCREENSHOT == 2
-                    && this->field_80.is_triggered() )
-            {
+            if (ALLOW_SCREENSHOT == 2 && this->field_80.is_triggered()) {
                 static bool & capturing = var<bool>(0x00960B47);
 
                 if (capturing) {
@@ -2826,9 +2655,7 @@ void game::render_ui()
                 capturing = !capturing;
             }
         }
-    }
-    else
-    {
+    } else {
         THISCALL(0x0052B250, this);
     }
 }
@@ -2836,27 +2663,26 @@ void game::render_ui()
 void nglListEndScene_hook()
 {
     {
-        if (os_developer_options::instance->get_flag(mString{"SHOW_DEBUG_INFO"}))
-        {
+        if (os_developer_options::instance->get_flag(mString{"SHOW_DEBUG_INFO"})) {
             g_game_ptr->show_debug_info();
         }
     }
 
-    g_console->render();
 
-    nglCurScene() = nglCurScene()->field_30C;
+    if constexpr (disable_console) {
+        g_console->render();
+    }
+
+    nglCurScene = nglCurScene->field_30C;
 }
 
 void game::advance_state_running(Float a2)
 {
     TRACE("game::advance_state_running");
 
-    if constexpr (1)
-    {
-        if (!this->field_162
-                && !this->field_161
-                && os_developer_options::instance->get_int(mString{"FORCE_WIN"}) == 0)
-        {
+    if constexpr (1) {
+        if (!this->field_162 && !this->field_161 &&
+            os_developer_options::instance->get_int(mString{"FORCE_WIN"}) == 0) {
             if (this->field_164) {
                 this->unload_current_level();
                 this->soft_reset_process();
@@ -2873,8 +2699,7 @@ void game::advance_state_running(Float a2)
                 g_cut_scene_player()->frame_advance(a2);
                 this->the_world->update_light_proximity_maps_for_moved_entities(a2);
                 light_manager::frame_advance_all_light_managers(a2);
-                if (!this->flag.physics_enabled || this->flag.single_step)
-                {
+                if (!this->flag.physics_enabled || this->flag.single_step) {
                     this->the_world->frame_advance(a2);
                     this->mb->frame_advance(a2);
                     this->frame_advance_game_overlays(a2);
@@ -2898,8 +2723,8 @@ void game::advance_state_running(Float a2)
                 if (!console_exec_completed) {
                     console_exec_completed = true;
 
-                    [[maybe_unused]] auto a3 = os_developer_options::instance
-                        ->get_string(os_developer_options::strings_t::CONSOLE_EXEC);
+                    [[maybe_unused]] auto a3 =
+                        os_developer_options::instance->get_string(os_developer_options::strings_t::CONSOLE_EXEC);
                 }
 
                 this->field_64->frame_advance(Float{a2});
@@ -2918,8 +2743,7 @@ void game::load_hero_packfile(const char *str, bool a3)
 {
     TRACE("load_hero_packfile", str);
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         game_settings *v8 = this->gamefile;
         v8->field_340.m_hero_name = fixedstring<8> {str};
 
@@ -2984,19 +2808,15 @@ void game::load_hero_packfile(const char *str, bool a3)
         }
         sound_manager::load_hero_sound_bank(str, true);
 
-    }
-    else
-    {
+    } else {
         THISCALL(0x0055A420, this, str, a3);
     }
 }
 
 void game::render_empty_list()
 {
-    if constexpr (0)
-    {}
-    else
-    {
+    if constexpr (0) {
+    } else {
         CDECL_CALL(0x00510780);
     }
 }
@@ -3007,10 +2827,8 @@ void game::frame_advance(Float a2)
 
     sp_log("%f", float(a2));
 
-    if constexpr (0)
-    {}
-    else
-    {
+    if constexpr (0) {
+    } else {
         THISCALL(0x0055D780, this, a2);
     }
 }
@@ -3019,8 +2837,7 @@ void game::frame_advance_level(Float time_inc)
 {
     TRACE("game::frame_advance_level");
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         static bool & gimme_the_lowdown = var<bool>(0x0095C8EE);
 
         auto *v2 = input_mgr::instance;
@@ -3051,20 +2868,16 @@ void game::frame_advance_level(Float time_inc)
         mission_manager::s_inst->frame_advance(time_inc);
         spider_monkey::frame_advance(time_inc);
         this->gamefile->frame_advance(time_inc);
-    }
-    else
-    {
+    } else {
         THISCALL(0x0055D650, this, time_inc);
     }
 }
 
 void sub_65F200()
 {
-    for (auto i = 0; i < 128; ++i)
-    {
+    for (auto i = 0; i < 128; ++i) {
         auto *v1 = &s_script_sound_instance_slots()[i];
-        if (s_script_sound_instance_slots()[i].field_3C)
-        {
+        if (s_script_sound_instance_slots()[i].field_3C) {
             auto *v2 = v1->field_0.get_sound_instance_ptr();
 
             if (v2 != nullptr) {
@@ -3074,7 +2887,8 @@ void sub_65F200()
     }
 }
 
-void sub_579290() {
+void sub_579290()
+{
     ;
 }
 
@@ -3084,8 +2898,7 @@ void game::unload_current_level()
 {
     TRACE("game::unload_current_level");
 
-    if constexpr (0)
-    {
+    if constexpr (1) {
         mem_print_stats("unload_current_level() start");
 
         this->field_170 = true;
@@ -3132,11 +2945,12 @@ void game::unload_current_level()
         v7->flush(game::render_empty_list, 0.02);
         this->flag.level_is_loaded = false;
         sub_65F200();
-        if (!g_is_the_packer()) {
+
+        if (!g_is_the_packer) {
             sub_79A160();
 
             for (int i = 0; i < 128; ++i) {
-                s_sound_instance_slots()[i].field_50 = 0;
+                s_sound_instance_slots[i].field_50 = 0;
             }
         }
 
@@ -3151,7 +2965,7 @@ void game::unload_current_level()
             v10->field_60 = true;
         }
 
-        if (!bExit()) {
+        if (!bExit) {
             this->freeze_hero(false);
         }
 
@@ -3196,7 +3010,8 @@ void game::unload_current_level()
     }
 }
 
-void game::enable_physics(bool a2) {
+void game::enable_physics(bool a2)
+{
     this->flag.physics_enabled = !a2;
 }
 
@@ -3214,22 +3029,17 @@ void terrain::unload_all_districts_immediate()
     auto *strip_streamer = strip_partition->get_streamer();
     assert(strip_streamer != nullptr);
 
-    do
-    {
-        do
-        {
+    do {
+        do {
             district_streamer->flush(game::render_empty_list);
             strip_streamer->flush(game::render_empty_list);
-        }
-        while ( !district_streamer->is_idle() );
-    }
-    while ( !strip_streamer->is_idle() );
+        } while (!district_streamer->is_idle());
+    } while (!strip_streamer->is_idle());
 
     auto *district_slots = district_streamer->get_pack_slots();
     assert(district_slots != nullptr);
 
-    for ( auto i = 0u; i < district_slots->size(); ++i )
-    {
+    for (auto i = 0u; i < district_slots->size(); ++i) {
         district_streamer->unload(i);
         district_streamer->flush(game::render_empty_list);
         this->force_streamer_refresh();
@@ -3263,12 +3073,10 @@ bool game::is_button_pressed(int a4) const
     bool result = false;
     auto *device = input_mgr::instance->get_device_from_map(id);
 
-    if ( device != nullptr )
-    {
-        if ( 1.0f != device->get_axis_state(22, 0) )
-        {
+    if (device != nullptr) {
+        if (not_equal(1.0f, device->get_axis_state(22, 0))) {
             auto v7 = device->get_axis_id(a4);
-            if ( 1.0f == device->get_axis_delta(v7, 0) ) {
+            if (equal(1.0f, device->get_axis_delta(v7, 0))) {
                 return true;
             }
         }
@@ -3297,7 +3105,7 @@ void game::sub_524170()
         ++achy_breaky_int();
     }
 
-    script_pad()->update();
+    script_pad->update();
     input_mgr::instance->scan_devices();
 }
 
@@ -3370,8 +3178,7 @@ void game__setup_inputs(game *a1)
 {
     TRACE("game::setup_inputs");
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         auto *v2 = input_mgr::instance;
         v2->clear_mapping();
         auto id = v2->field_58;
@@ -3418,8 +3225,7 @@ void game__setup_inputs(game *a1)
             v2->map_control(EDITCAM_BACKWARD, KEYBOARD_DEVICE, KB_K);
         }
 
-        if constexpr (0)
-        {
+        if constexpr (0) {
             v2->map_control(74, KEYBOARD_DEVICE, 86);
             v2->map_control(75, KEYBOARD_DEVICE, 85);
             v2->map_control(76, KEYBOARD_DEVICE, 84);
@@ -3493,19 +3299,15 @@ void game__setup_inputs(game *a1)
         map_pc_2_playstation_inputs();
 
         map_spiderman_controls();
-    }
-    else
-    {
+    } else {
         CDECL_CALL(0x00605950, a1);
     }
 }
 
 void game__setup_input_registrations(game *a1)
 {
-    if constexpr (0)
-    {}
-    else
-    {
+    if constexpr (0) {
+    } else {
         CDECL_CALL(0x006063C0, a1);
     }
 }
@@ -3594,15 +3396,13 @@ void game_patch()
         SET_JUMP(0x00557E10, address);
     }
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         REDIRECT(0x00514EC1, game__setup_inputs);
         REDIRECT(0x005244CA, game__setup_inputs);
         REDIRECT(0x00557A48, game__setup_inputs);
     }
 
     if constexpr (0) {
-
         {
             FUNC_ADDRESS(address, &game::advance_state_paused);
             SET_JUMP(0x00558220, address);

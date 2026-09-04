@@ -35,10 +35,10 @@ struct camera_target_info {
     bool sub_4B29C0() const;
 };
 
-extern float & g_camera_min_dist;
+extern float &g_camera_min_dist;
 
-extern float & g_camera_max_dist;
+extern float &g_camera_max_dist;
 
-extern float & g_camera_supermax_dist;
+extern float &g_camera_supermax_dist;
 
 extern void camera_target_info_patch();

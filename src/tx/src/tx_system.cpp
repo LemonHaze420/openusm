@@ -4,6 +4,7 @@
 #include "func_wrapper.h"
 #include "log.h"
 #include "variable.h"
+#include <variables.h>
 #include "trace.h"
 
 //#include "nfl_system.h"
@@ -16,27 +17,25 @@ VALIDATE_SIZE(txSlotPool, 0x28);
 
 txSlotPool::Slot *txSlotPoolGetSlot(txSlotPool *a1, int id)
 {
-    if (id < 0)
-    {
+    if (id < 0) {
         return nullptr;
     }
 
     int v3 = a1->max_value & id;
-    if ( v3 >= a1->m_count )
-    {
+    if (v3 >= a1->m_count) {
         return nullptr;
     }
 
     auto *slot = bit_cast<txSlotPool::Slot *>(bit_cast<char *>(a1->field_0) + v3 * a1->m_size);
-    if ( id == slot->m_id )
-    {
+    if (id == slot->m_id) {
         return slot;
     }
 
     return nullptr;
 }
 
-int txSlotNew(txSlotPool *a1) {
+int txSlotNew(txSlotPool *a1)
+{
     auto *slot = a1->field_4.field_0;
     if (slot == &a1->field_4) {
         return -1;
@@ -47,20 +46,17 @@ int txSlotNew(txSlotPool *a1) {
         a1->field_0->field_4 = a1->field_4;
     }(slot);
 
-    [](auto *a1, auto *a2) -> void
-    {
+    [](auto *a1, auto *a2) -> void {
         a2->field_0 = a1;
         a2->field_4 = a1->field_4;
         a1->field_4->field_0 = a2;
         a1->field_4 = a2;
     }(&a1->field_10, slot);
 
-    auto result = [](txSlotPool *a1, auto *slot) -> int
-    {
+    auto result = [](txSlotPool *a1, auto *slot) -> int {
         slot->m_id += a1->max_value + 1;
         slot->m_id &= 0x7FFFFFFFu;
-        if ( (slot->m_id & ~(a1->max_value | 0x80000000)) == 0 )
-        {
+        if ((slot->m_id & ~(a1->max_value | 0x80000000)) == 0) {
             slot->m_id += a1->max_value + 1;
         }
 
@@ -76,20 +72,16 @@ bool txSlotPoolInit(txSlotPool *a1, void *entries, uint32_t count, uint32_t size
 
     //sp_log("txSlotPoolInit: count of slots = %u with size = %u", count, size);
 
-    if constexpr (1)
-    {
-        if ((count > 0) && (count <= 0xFFFFF) && (size >= 12))
-		{
+    if constexpr (1) {
+        if ((count > 0) && (count <= 0xFFFFF) && (size >= 12)) {
             int num_bits = 0;
 
             for (auto v5 = count; v5 != 0; v5 >>= 1) {
                 ++num_bits;
             }
 
-            if constexpr (1)
-            {
-                auto res = (num_bits ==
-                            (std::numeric_limits<decltype(count)>::digits - __builtin_clz(count)));
+            if constexpr (1) {
+                auto res = (num_bits == (std::numeric_limits<decltype(count)>::digits - __builtin_clz(count)));
                 assert(res);
             }
 
@@ -98,8 +90,7 @@ bool txSlotPoolInit(txSlotPool *a1, void *entries, uint32_t count, uint32_t size
             a1->m_count = count;
             a1->max_value = (1 << static_cast<uint8_t>(num_bits)) - 1u;
 
-            auto func = [](auto *a1)
-            {
+            auto func = [](auto *a1) {
                 a1->field_0 = a1;
                 a1->field_4 = a1;
                 a1->m_id = -1;
@@ -110,13 +101,11 @@ bool txSlotPoolInit(txSlotPool *a1, void *entries, uint32_t count, uint32_t size
             func(&a1->field_10);
 
             for (uint32_t i{0}; i < count; ++i) {
-               
                 txSlotPool::Slot *slot = CAST(slot, bit_cast<char *>(a1->field_0) + i * a1->m_size);
 
                 slot->m_id = i | 0x80000000;
 
-                [](auto *a1, auto *a2) -> void
-                {
+                [](auto *a1, auto *a2) -> void {
                     a2->field_0 = a1;
                     a2->field_4 = a1->field_4;
                     a1->field_4->field_0 = a2;
@@ -128,27 +117,23 @@ bool txSlotPoolInit(txSlotPool *a1, void *entries, uint32_t count, uint32_t size
         }
 
         return false;
-    }
-    else
-    {
-        return (bool) CDECL_CALL(0x0079F5E0, a1, entries, count, size);
+    } else {
+        return (bool)CDECL_CALL(0x0079F5E0, a1, entries, count, size);
     }
 }
 
 void txSlotFree(txSlotPool *a1, int a2)
 {
     TRACE("txSlotFree");
-        
+
     auto *slot = txSlotPoolGetSlot(a1, a2);
-    if (slot != nullptr)
-    {
+    if (slot != nullptr) {
         slot->m_id |= 0x80000000;
 
         slot->field_4->field_0 = slot->field_0;
         slot->field_0->field_4 = slot->field_4;
 
-        [](auto *a1, auto *a2) -> void
-        {
+        [](auto *a1, auto *a2) -> void {
             a2->field_0 = a1;
             a2->field_4 = a1->field_4;
             a1->field_4->field_0 = a2;
@@ -157,46 +142,49 @@ void txSlotFree(txSlotPool *a1, int a2)
     }
 }
 
-int txSlotNext(txSlotPool *a1, int a2) {
-
+int txSlotNext(txSlotPool *a1, int a2)
+{
     int result = -1;
     auto *slot = txSlotPoolGetSlot(a1, a2);
-    if (slot != nullptr)
-    {
+    if (slot != nullptr) {
         result = slot->field_0->m_id;
     }
 
     return result;
 }
 
-int txSlotFirst(txSlotPool *a1) {
+int txSlotFirst(txSlotPool *a1)
+{
     return a1->field_10.field_0->m_id;
 }
 
-int txSlotIndex(txSlotPool *a1, int a2) {
+int txSlotIndex(txSlotPool *a1, int a2)
+{
     TRACE("txSlotIndex");
 
     int result = -1;
     auto *slot = txSlotPoolGetSlot(a1, a2);
-    if (slot != nullptr)
-    {
+    if (slot != nullptr) {
         result = a1->max_value & slot->m_id;
     }
 
     return result;
 }
 
-#ifndef TEST_CASE
-static Var<int> dword_984538{0x00984538};
+#if !STANDALONE_SYSTEM
+static int &dword_984538 = var<int>(0x00984538);
 #else
 
-static int g_dword_984538{};
-static Var<int> dword_984538{&g_dword_984538};
+static int &dword_984538 = []() -> auto & {
+    static int g_dword_984538{};
+    return g_dword_984538;
+}();
 #endif
 
-int txTime() {
+int txTime()
+{
     auto result = static_cast<uint64_t>(1000ll * clock()) / 1000ull;
 
-    dword_984538() = result;
+    dword_984538 = result;
     return static_cast<int>(result);
 }

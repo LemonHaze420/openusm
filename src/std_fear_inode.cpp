@@ -7,7 +7,8 @@ namespace ai {
 
 VALIDATE_SIZE(std_fear_inode, 0x7Cu);
 
-std_fear_inode::std_fear_inode() : info_node() {
+std_fear_inode::std_fear_inode() : info_node()
+{
     this->field_1C = 0;
     this->field_1D = 0;
     this->field_1E = 0;
@@ -27,7 +28,8 @@ std_fear_inode::std_fear_inode() : info_node() {
     this->initialize(mash::ALLOCATED);
 }
 
-std_fear_inode::std_fear_inode(from_mash_in_place_constructor *a2) : info_node(a2) {
+std_fear_inode::std_fear_inode(from_mash_in_place_constructor *a2) : info_node(a2)
+{
     this->field_1C = 0;
     this->field_1D = 0;
     this->field_1E = 0;
@@ -44,7 +46,8 @@ std_fear_inode::std_fear_inode(from_mash_in_place_constructor *a2) : info_node(a
     this->initialize(mash::ALLOCATED);
 }
 
-void std_fear_inode::initialize(mash::allocation_scope a2) {
+void std_fear_inode::initialize(mash::allocation_scope a2)
+{
 #if 0
     ai::std_fear_inode::set_cowering_forced(this, 0);
     ai::std_fear_inode::set_cowering_stop_forced(this, 0);
@@ -65,8 +68,19 @@ void std_fear_inode::initialize(mash::allocation_scope a2) {
 #endif
 }
 
-void ai::std_fear_inode::add_to_list(_std::vector<ai::std_fear_inode *> **a2) {
+void std_fear_inode::add_to_list(_std::vector<ai::std_fear_inode *> **a2)
+{
     THISCALL(0x006A1810, this, a2);
 }
 
-} // namespace ai
+void std_fear_inode::set_cowering_enabled(bool a2)
+{
+    static const string_hash cowering_enabled_hash{int(to_hash("cowering_enabled"))};
+
+    this->my_param_block.set_pb_int(cowering_enabled_hash, a2, true);
+    if (a2 != this->field_1D) {
+        this->field_1D = a2;
+    }
+}
+
+}  // namespace ai

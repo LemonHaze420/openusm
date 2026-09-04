@@ -1,11 +1,13 @@
 #include "ai_interaction_data.h"
 
+#include "ai_adv_strength_test_data.h"
 #include "anim_record.h"
 #include "attach_interact_data.h"
 #include "binary_search_array_cmp.h"
 #include "config.h"
 #include "func_wrapper.h"
 #include "common.h"
+#include "interact_sound_entry.h"
 #include "nal_system.h"
 #include "resource_manager.h"
 #include "trace.h"
@@ -14,9 +16,43 @@
 
 VALIDATE_SIZE(ai_interaction_data, 0xA8);
 
-ai_interaction_data::ai_interaction_data() {}
+ai_interaction_data::ai_interaction_data(from_mash_in_place_constructor *a2)
+    : field_1C(a2), field_44(a2), field_48(a2), field_4C(a2), field_50(a2), field_54(a2), field_6C(a2), field_80(a2),
+      my_adv_str_test_list(a2)
+{
+    if (this->field_68 != nullptr) {
+        mash_info_struct::construct_class(this->field_68);
+    }
 
-anim_record *ai_interaction_data::does_anim_exist(enum_anim_key::key_enum a2, bool a3) {
+    this->initialize(mash::FROM_MASH);
+}
+
+void ai_interaction_data::initialize(mash::allocation_scope scope)
+{
+    this->field_90 = false;
+    if (scope) {
+        assert(scope == mash::FROM_MASH);
+        this->field_7C = resource_manager::get_resource_context();
+    } else {
+        this->field_30 = false;
+        this->field_31 = true;
+        this->field_34 = 0;
+        this->field_38 = 0.25;
+        this->field_3C = 0.25;
+        this->field_40 = 100.0;
+        this->field_7C = nullptr;
+        this->field_6C = {0};
+        this->field_70 = ZEROVEC;
+        this->field_68 = nullptr;
+        this->field_44 = {0};
+        this->field_48 = {0};
+        this->field_4C = {0};
+        this->field_50 = {0};
+    }
+}
+
+anim_record *ai_interaction_data::does_anim_exist(enum_anim_key::key_enum a2, bool a3)
+{
     TRACE("ai_interaction_data::does_anim_exist");
 
     if constexpr (1) {
@@ -28,23 +64,21 @@ anim_record *ai_interaction_data::does_anim_exist(enum_anim_key::key_enum a2, bo
     }
 }
 
-void ai_interaction_data::unregister_interactor(vhandle_type<actor> a2) {
+void ai_interaction_data::unregister_interactor(vhandle_type<actor> a2)
+{
     THISCALL(0x0069AA50, this, a2);
 }
 
-anim_record *ai_interaction_data::does_anim_exist(const anim_key *a2, [[maybe_unused]] bool a3) {
+anim_record *ai_interaction_data::does_anim_exist(const anim_key *a2, [[maybe_unused]] bool a3)
+{
     TRACE("ai_interaction_data::does_anim_exist");
 
     auto *a1 = const_cast<anim_key *>(a2);
 
     int v2 = -1;
 
-    if (binary_search_array_cmp<anim_key *, anim_record *>(&a1,
-                                                    this->field_1C.m_data,
-                                                    0,
-                                                    this->field_1C.size(),
-                                                    &v2,
-                                                    anim_key::compare)) {
+    if (binary_search_array_cmp<anim_key *, anim_record *>(
+            &a1, this->field_1C.m_data, 0, this->field_1C.size(), &v2, anim_key::compare)) {
         auto *result = this->field_1C.at(static_cast<uint16_t>(v2));
         return result;
     }
@@ -57,7 +91,8 @@ void ai_interaction_data::destruct_mashed_class()
     THISCALL(0x006B5400, this);
 }
 
-void ai_interaction_data::register_interactor(vhandle_type<actor> a3) {
+void ai_interaction_data::register_interactor(vhandle_type<actor> a3)
+{
     THISCALL(0x0069F2F0, this, a3);
 }
 
@@ -76,7 +111,7 @@ void ai_interaction_data::unmash(mash_info_struct *a1, void *)
 
     a1->unmash_class_in_place(this->field_80, this);
 
-    a1->unmash_class_in_place(this->field_94, this);
+    a1->unmash_class_in_place(this->my_adv_str_test_list, this);
 
 #if OPENUSM_XBOX_MASH_FORMAT && !defined(OPENUSM_XBPACK_V10)
     {
@@ -86,19 +121,18 @@ void ai_interaction_data::unmash(mash_info_struct *a1, void *)
     }
 #endif
 
-    if ( this->field_68 != nullptr )
-    {
-        a1->unmash_class(this->field_68, this
+    if (this->field_68 != nullptr) {
+        a1->unmash_class(this->field_68,
+                         this
 #if OPENUSM_XBOX_MASH_FORMAT
-                , mash::NORMAL_BUFFER
+                         ,
+                         mash::NORMAL_BUFFER
 #endif
                 );
     }
 }
 
-string_hash ai_interaction_data::get_anim_hash_name(
-        const anim_record *a2,
-        bool a3)
+string_hash ai_interaction_data::get_anim_hash_name(const anim_record *a2, bool a3)
 {
     TRACE("ai_interaction_data::get_anim_hash_name");
 
@@ -108,9 +142,8 @@ string_hash ai_interaction_data::get_anim_hash_name(
     return result;
 }
 
-void *ai_interaction_data::get_anim_ptr(
-        const anim_key *the_anim_key,
-        bool a3) {
+void *ai_interaction_data::get_anim_ptr(const anim_key *the_anim_key, bool a3)
+{
     TRACE("ai_interaction_data::get_anim_ptr");
 
     assert(the_anim_key != nullptr);
@@ -129,10 +162,7 @@ void *ai_interaction_data::get_anim_ptr(
             char field_0[0x8];
             void *(__fastcall *field_8)(void *, int, unsigned int);
         } * vtbl = CAST(vtbl, nalGetAnimDirectory()->m_vtbl);
-        auto *v7 = vtbl->field_8(
-                         nalGetAnimDirectory(),
-                         0,
-                         v4);
+        auto *v7 = vtbl->field_8(nalGetAnimDirectory(), 0, v4);
         resource_manager::pop_resource_context();
         return v7;
         
@@ -141,8 +171,8 @@ void *ai_interaction_data::get_anim_ptr(
     }
 }
 
-void ai_interaction_data_patch() {
-
+void ai_interaction_data_patch()
+{
     {
         FUNC_ADDRESS(address, &ai_interaction_data::get_anim_ptr);
         SET_JUMP(0x0069D6A0, address);

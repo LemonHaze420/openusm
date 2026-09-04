@@ -6,7 +6,8 @@
 
 #include "vector2di.h"
 
-void render_text(const mString &a1, const vector2di &a2, color32 a3, Float a4, Float a5) {
+void render_text(const mString &a1, const vector2di &a2, color32 a3, Float a4, Float a5)
+{
     //if ()
     if (os_developer_options::instance->get_flag(mString{ "SHOW_DEBUG_TEXT" }))
     {

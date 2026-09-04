@@ -1,52 +1,56 @@
 #pragma once
 
-#include "string_hash.h"
 #include "als_basic_rule_data.h"
+#include "string_hash.h"
 
+struct from_mash_in_place_constructor;
 struct mash_info_struct;
 
-namespace als
-{
-    struct als_data;
-    struct filter_data;
+namespace als {
+struct als_data;
+struct filter_data;
 
-    struct implicit_transition_rule
-    {
-        als::basic_rule_data field_0;
+struct implicit_transition_rule {
+    als::basic_rule_data field_0;
 
-        bool can_transition(als_data &a1) const;
+    implicit_transition_rule(from_mash_in_place_constructor *);
 
-        void unmash(mash_info_struct *a1, void *a3);
-    };
+    bool can_transition(als_data &a1) const;
 
-    struct explicit_transition_rule
-    {
-        als::basic_rule_data field_0;
-        string_hash field_24;
+    void unmash(mash_info_struct *a1, void *a3);
+};
 
-        bool can_transition(
-            als_data &a1,
-            string_hash a3) const;
+struct explicit_transition_rule {
+    als::basic_rule_data field_0;
+    string_hash field_24;
 
-        void unmash(mash_info_struct *a1, void *a3);
-    };
+    explicit_transition_rule(from_mash_in_place_constructor *a2);
 
-    struct layer_transition_rule {
-        int field_0;
-        int field_4;
-        basic_rule_data::rule_action field_8;
-        int field_14;
+    bool can_transition(als_data &a1, string_hash a3) const;
 
-        void unmash(mash_info_struct *, void *);
+    void unmash(mash_info_struct *a1, void *a3);
+};
 
-        bool can_transition(als_data &a2) const;
-    };
+struct layer_transition_rule {
+    int field_0;
+    int field_4;
+    basic_rule_data::rule_action field_8;
+    int field_14;
 
-    struct incoming_transition_rule {
-        basic_rule_data field_0;
-        int field_24;
-        int field_28;
+    layer_transition_rule(from_mash_in_place_constructor *);
 
-        void unmash(mash_info_struct *a1, void *a3);
-    };
-}
+    void unmash(mash_info_struct *, void *);
+
+    bool can_transition(als_data &a2) const;
+};
+
+struct incoming_transition_rule {
+    basic_rule_data field_0;
+    int field_24;
+    int field_28;
+
+    incoming_transition_rule(from_mash_in_place_constructor *a2);
+
+    void unmash(mash_info_struct *a1, void *a3);
+};
+}  // namespace als

@@ -12,4 +12,3 @@ float wrap_angle(float ang)
     auto angb = anga - std::floor(anga);
     return (angb * _2PI);
 }
-

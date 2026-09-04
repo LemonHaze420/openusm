@@ -6,14 +6,14 @@
 
 VALIDATE_SIZE(PanelAnimFile, 0x30);
 
-void PanelAnimFile::Update(Float a2) {
+void PanelAnimFile::Update(Float a2)
+{
     THISCALL(0x00628A40, this, a2);
 }
 
 void PanelAnimFile::PostUnmashFixup(PanelFile *a1)
 {
-    for ( auto i = 0; i < this->field_0.size(); ++i)
-    {
+    for (auto i = 0; i < this->field_0.size(); ++i) {
         auto &v3 = this->field_0.m_data[i];
         v3->PostUnmashFixup(a1);
     }

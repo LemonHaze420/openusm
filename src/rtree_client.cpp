@@ -5,7 +5,8 @@
 
 #include <cassert>
 
-bool rtree_query_size_error_handler(const vector3d &a1, const vector3d &a2) {
+bool rtree_query_size_error_handler(const vector3d &a1, const vector3d &a2)
+{
     auto v2 = a1 - a2;
     auto v8 = (v2.xz_length2() < EPSILON);
 
@@ -15,12 +16,11 @@ bool rtree_query_size_error_handler(const vector3d &a1, const vector3d &a2) {
         return true;
     }
 
-    sp_log(
-        "rtree query size is too large. Please inspect the callstack and fix/reengineer the "
-        "calling code. Probably line check"
-        " needs to be clamped or split into shorter line checks and distributed over multiple "
-        "frames. Thank you.");
-    if (g_is_the_packer()) {
+    sp_log("rtree query size is too large. Please inspect the callstack and fix/reengineer the "
+           "calling code. Probably line check"
+           " needs to be clamped or split into shorter line checks and distributed over multiple "
+           "frames. Thank you.");
+    if (g_is_the_packer) {
         return true;
     }
 

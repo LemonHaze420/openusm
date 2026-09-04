@@ -50,8 +50,7 @@ enum nglBlendModeType {
     NGLBM_MAX_BLEND_MODES
 };
 
-enum nglTextureFileFormat {
-};
+enum nglTextureFileFormat {};
 
 struct nglPalette {
     uint32_t m_palette_idx;
@@ -72,8 +71,8 @@ struct nglTexture {
     uint32_t m_format;
     D3DFORMAT m_d3d_format;
     nglTextureFileFormat field_14;
-    uint32_t m_width;
-    uint32_t m_height;
+    int m_width;
+    int m_height;
     uint32_t m_numLevel;
     D3DLOCKED_RECT field_24;
     int field_2C;
@@ -91,12 +90,43 @@ struct nglTexture {
     int field_54;
     uint32_t m_num_palettes;
     nglTexture **Frames;
-    tlFixedString field_60;
+    tlFixedString FileName;
 
     //0x00775000
     void CreateTextureOrSurface();
 
-    void sub_774F20();
+    //0x00774F20
+    void SetupTextureLevels();
+
+    static tlFixedString *get_string(nglTexture *a1)
+    {
+        return &a1->FileName;
+    }
+};
+
+struct nglPaletteFileHeader {
+    int field_0;
+    int field_4;
+    uint16_t field_8;
+    uint16_t field_A;
+    uint16_t field_C;
+    int field_10;
+};
+
+struct nglPaletteFile {
+    tlFixedString field_0;
+    char field_20[256];
+    bool field_120;
+    int field_124;
+    tlFileBuf field_128;
+    uint16_t *field_134;
+    uint8_t *field_138;
+    nglPalette **field_13C;
+
+    static tlFixedString *get_string(nglPaletteFile *a1)
+    {
+        return &a1->field_0;
+    }
 };
 
 inline constexpr auto NGLP_SCALE = 0x2;
@@ -104,23 +134,20 @@ inline constexpr auto NGLP_SCALE = 0x2;
 inline constexpr auto NGLP_NO_CULLING = 0x40;
 inline constexpr auto NGLP_FORCE_LOD = 0x80;
 
-extern Var<bool> g_valid_texture_format;
+extern bool &g_valid_texture_format;
 
-extern Var<unsigned int> nglTextureAnimFrame;
+extern uint32_t &nglTextureAnimFrame;
 
-extern Var<nglTexture *> nglDefaultTex;
+extern nglTexture *&nglDefaultTex;
 
-extern Var<tlInstanceBank> nglVertexDefBank;
+extern tlInstanceBank &nglVertexDefBank;
 
-enum nglBufferType {
-};
+enum nglBufferType {};
 
 struct nglShader;
 struct nglMeshFile;
 
-struct nglMaterialBase
-{
-
+struct nglMaterialBase {
 #ifdef TARGET_XBOX
     tlHashString Name;
 #else
@@ -169,8 +196,7 @@ struct nglMatrix {
 
 struct nglFont;
 
-struct nglStringNode
-{
+struct nglStringNode {
     std::intptr_t m_vtbl;
     int field_4;
     float field_8;
@@ -187,6 +213,8 @@ struct nglStringNode
 
     void * operator new(size_t size);
 
+    void operator delete(void *, size_t) {}
+
     void Render();
 };
 
@@ -197,17 +225,45 @@ enum ResourceType {
     IndexBuffer = 1,
 };
 
-struct nglVertexBuffer 
-{
-    union {
-        IDirect3DIndexBuffer9 *m_indexBuffer;
-        struct
-        {
+struct nglVertexBuffer {
+    struct vertex_buffer_t {
             char *m_vertexData;
             uint32_t Size;
             IDirect3DVertexBuffer9 *m_vertexBuffer;
         };
+
+    union buffer_union {
+        IDirect3DIndexBuffer9 *m_indexBuffer;
+        vertex_buffer_t m_vtxBuffer;
     }; 
+
+    buffer_union m_buffer;
+
+    auto &getIndexBuffer()
+    {
+        return m_buffer.m_indexBuffer;
+    }
+
+    char *getVertexData()
+    {
+        return this->m_buffer.m_vtxBuffer.m_vertexData;
+    }
+
+    auto getSize() const
+    {
+        return this->m_buffer.m_vtxBuffer.Size;
+    }
+
+    void setVertexData(char *data)
+    {
+        this->m_buffer.m_vtxBuffer.m_vertexData = data;
+    }
+
+    auto &getVertexBuffer()
+    {
+        return m_buffer.m_vtxBuffer.m_vertexBuffer;
+    }
+
 
     //0x007707D0
     bool createIndexBufferAndWriteData(const void *a2, int a3);
@@ -219,12 +275,8 @@ struct nglVertexBuffer
     bool createVertexBuffer(int size, uint32_t flags);
 
     //0x0077B440
-    static HRESULT createIndexOrVertexBuffer(nglVertexBuffer *a1,
-                                             ResourceType resource_type,
-                                             int32_t size,
-                                             uint32_t flags,
-                                             uint32_t fvf,
-                                             D3DPOOL a6);
+    static HRESULT createIndexOrVertexBuffer(nglVertexBuffer *a1, ResourceType resource_type, int32_t size,
+                                             uint32_t flags, uint32_t fvf, D3DPOOL a6);
 
     static void sub_77B5D0(nglVertexBuffer *a1, ResourceType a2);
 };
@@ -252,21 +304,14 @@ struct nglMeshSection {
     uint32_t field_5C;
 };
 
-extern void nglSetStreamSourceAndDrawPrimitive(
-        D3DPRIMITIVETYPE a1,
-        IDirect3DVertexBuffer9 *a2,
-        uint32_t numVertices,
-        uint32_t baseVertexIndex,
-        uint32_t stride,
-        IDirect3DIndexBuffer9 *a6,
-        uint32_t numIndices,
-        uint32_t startIndex);
+extern void nglSetStreamSourceAndDrawPrimitive(D3DPRIMITIVETYPE a1, IDirect3DVertexBuffer9 *a2, uint32_t numVertices,
+                                               uint32_t baseVertexIndex, uint32_t stride, IDirect3DIndexBuffer9 *a6,
+                                               uint32_t numIndices, uint32_t startIndex);
 
 //0x00771AF0
 extern HRESULT nglSetStreamSourceAndDrawPrimitive(nglMeshSection *MeshSection);
 
-enum class TypeDirectoryEntry : uint8_t
-{
+enum class TypeDirectoryEntry : uint8_t {
     MATERIAL = 1,
     MESH = 2,
     MORPH = 3,
@@ -280,7 +325,7 @@ struct nglDirectoryEntry {
     char field_0;
     char field_1;
     char field_2;
-    TypeDirectoryEntry field_3;
+    TypeDirectoryEntry m_type;
     union {
         nglMaterialBase *Material;
         nglMesh *Mesh;
@@ -320,8 +365,8 @@ struct nglPerfomanceInfo {
 };
 
 struct nglMorphFile {
-    char field_0[4];
-    int field_4[72];
+    tlFixedString field_0;
+    int field_20[65];
 
     char *field_124;
     int field_128[7];
@@ -330,9 +375,14 @@ struct nglMorphFile {
 
     //0x00402090
     void un_mash_start(generic_mash_header *header, void *, generic_mash_data_ptrs *a3, void *);
+
+    static tlFixedString *get_string(nglMorphFile *a1)
+    {
+        return &a1->field_0;
+    }
 };
 
-extern Var<char[256]> nglMeshPath;
+extern char (&nglMeshPath)[256];
 
 struct nglMorphSet;
 
@@ -356,8 +406,7 @@ struct nglMeshFile {
 
 //0x0077F0C0
 extern void nglDebugMesh_BuildBox(nglVertexDef_MultipassMesh<nglVertexDef_Debug_Base>::Iterator &a1,
-                                  math::VecClass<3, 0> a2,
-                                  math::VecClass<3, 0> a3);
+                                  math::VecClass<3, 0> a2, math::VecClass<3, 0> a3);
 
 //0x007730E0
 extern void nglInitWhiteTexture();
@@ -387,11 +436,20 @@ extern nglTexture *nglGetTexture(const tlFixedString &a1);
 //0x007730B0
 extern void nglSetTextureDirectory(tlResourceDirectory<nglTexture, tlFixedString> *a1);
 
+//0x007730C0
+extern tlInstanceBankResourceDirectory<nglTexture, tlFixedString> *nglGetTextureDirectory();
+
 //0x0076EF60
 extern void nglSetMeshFileDirectory(tlResourceDirectory<nglMeshFile, tlFixedString> *a1);
 
+//0x0076EF70
+extern tlInstanceBankResourceDirectory<nglMeshFile, tlFixedString> *nglGetMeshFileDirectory();
+
 //0x0076EF80
 extern void nglSetMeshDirectory(tlResourceDirectory<nglMesh, tlHashString> *a1);
+
+//0x0076EF90
+extern tlInstanceBankResourceDirectory<nglMesh, tlHashString> *nglGetMeshDirectory();
 
 struct nglMaterialFile;
 
@@ -401,14 +459,33 @@ extern void nglSetMaterialDirectory(tlResourceDirectory<nglMaterialBase, tlHashS
 
 struct nglMorphSet {
     tlHashString field_0;
+    int NFrames;
+    struct {
+        int field_0;
     int field_4;
-    int *field_8;
+        struct {
+            int field_0;
+            int field_4;
+            int field_8[32];
+        } *field_8;
+    } *Frames;
     nglMeshFile *field_C;
-    nglMorphSet *field_10;
+    nglMorphSet *NextMorph;
+
+    static tlHashString *get_string(nglMorphSet *a1)
+    {
+        return &a1->field_0;
+    }
 };
 
 //0x0076EFA0
 extern void nglSetMorphDirectory(tlResourceDirectory<nglMorphSet, tlHashString> *a1);
+
+//0x0076EFB0
+extern tlInstanceBankResourceDirectory<nglMorphSet, tlHashString> *nglGetMorphDirectory();
+
+//0x00778500
+extern tlInstanceBankResourceDirectory<nglMorphFile, tlFixedString> *nglGetMorphFileDirectory();
 
 extern vector4d sub_411750(const vector4d &a2, const vector4d &a3);
 
@@ -453,7 +530,6 @@ struct nglQuad {
             float field_4;
         } uv;
         uint32_t m_color;
-
     };
     Quad field_0[4];
     union {
@@ -495,22 +571,33 @@ struct nglQuadNode : nglRenderNode {
 
     void * operator new(size_t size);
 
+    void operator delete(void *, size_t) {}
+
     //virtual
     //0x00783670
     void Render();
 };
 
+struct TransformMatrices {
+    const matrix4x4 *m_rel_po;
+    const matrix4x4 *m_abs_po;
+
+    void decomposeAndProjectToScreen(vector4d &a2, vector4d &a3, vector4d &a4, vector4d &a5) const;
+};
+
 struct nglMeshNode {
-    matrix4x4 field_0;
-    matrix4x4 field_40;
+    matrix4x4 LocalToWorld;
+    matrix4x4 WorldToLocal;
     matrix4x4 *field_80;
     int field_84;
-    nglMesh *field_88;
+    nglMesh *Mesh;
     nglParamSet<nglShaderParamSet_Pool> field_8C;
-    nglMeshParams *field_90;
+    nglMeshParams *Params;
     float field_94;
 
     void * operator new(size_t size);
+
+    void operator delete(void *, size_t) {}
 
     matrix4x4 sub_41D840();
 
@@ -545,8 +632,7 @@ struct nglDebugStruct {
 };
 
 
-
-extern Var<nglDebugStruct> nglDebug;
+extern nglDebugStruct &nglDebug;
 extern Var<nglDebugStruct> nglSyncDebug;
 
 extern Var<nglPerfomanceInfo> nglPerfInfo;
@@ -554,7 +640,7 @@ extern Var<nglPerfomanceInfo> nglSyncPerfInfo;
 
 extern Var<int> nglFrame;
 
-extern Var<nglTexture *> nglWhiteTex;
+extern nglTexture *&nglWhiteTex;
 
 extern Var<int> nglScratchMeshPos;
 
@@ -564,8 +650,7 @@ inline Var<IDirect3DBaseTexture9 *> celshadingSolidTex {0x00956360};
 
 inline Var<IDirect3DTexture9 *> water_texture {0x009562C0};
 
-struct nglScratchBuffer_t
-{
+struct nglScratchBuffer_t {
     nglVertexBuffer field_0[1];
     nglVertexBuffer field_C;
     int field_18[2];
@@ -647,16 +732,10 @@ extern bool nglLoadTextureIFL(nglTexture *tex, uint8_t *a2, int a3);
 extern bool nglLoadTextureTM2(nglTexture *tex, uint8_t *a2);
 
 //0x0077AB30
-extern nglTexture *nglConstructTexture(const tlFixedString &a1,
-                                       nglTextureFileFormat a2,
-                                       void *a3,
-                                       unsigned int a4);
+extern nglTexture *nglConstructTexture(const tlFixedString &a1, nglTextureFileFormat a2, void *a3, unsigned int a4);
 
 //0x007732F0
-extern nglTexture *nglLoadTextureInPlace(const tlFixedString &a1,
-                                         nglTextureFileFormat a2,
-                                         void *a3,
-                                         int a4);
+extern nglTexture *nglLoadTextureInPlace(const tlFixedString &a1, nglTextureFileFormat a2, void *a3, int a4);
 
 //0x00773350
 extern bool nglCanReleaseTexture(nglTexture *tex);
@@ -674,31 +753,22 @@ struct nglSortInfo;
 void nglListAddString(nglFont *arg0, float arg4, float a3, float a4, float a5, float a6, const char *a2, ...);
 
 //0x0076C3A0
-extern void nglListAddCustomNode(void (*a1)(unsigned int *&, void *),
-                                 void *a2,
-                                 const nglSortInfo *a3);
+extern void nglListAddCustomNode(void (*a1)(unsigned int *&, void *), void *a2, const nglSortInfo *a3);
 
 //0x0077AFE0
 extern void nglListAddQuad(nglQuad *Quad);
 
 //0x007798E0
-extern void nglGetStringDimensions(
-    nglFont *Font, char *a2, uint32_t *a3, uint32_t *a4, Float a5, Float a6);
+extern void nglGetStringDimensions(nglFont *Font, char *a2, uint32_t *a3, uint32_t *a4, Float a5, Float a6);
 
-extern void nglGetStringDimensions(
-    nglFont *arg0, unsigned int *arg4, unsigned int *a3, const char *a2, ...);
+extern void nglGetStringDimensions(nglFont *arg0, unsigned int *arg4, unsigned int *a3, const char *a2, ...);
 
 //0x00779C40
-extern void nglListAddString(nglFont *font,
-                             const char *a2,
-                             Float a3,
-                             Float a4,
-                             Float z_value,
-                             uint32_t a6,
-                             Float a7,
+extern void nglListAddString(nglFont *font, const char *a2, Float a3, Float a4, Float z_value, uint32_t a6, Float a7,
                              Float a8);
 
-extern void nglListAddString(nglFont* a1, Float a2, Float a3, Float a4, unsigned int a5, Float a6, Float a8, const char* Format, ...);
+extern void nglListAddString(nglFont *a1, Float a2, Float a3, Float a4, unsigned int a5, Float a6, Float a8,
+                             const char *Format, ...);
 
 extern void nglListAddString(nglFont *a1, Float a3, Float a4, Float a5, int a6, const char *Format, ...);
 
@@ -765,9 +835,6 @@ extern void nglListBeginScene(nglSceneParamType a2);
 //0x0076A030
 extern void nglListEndScene();
 
-//0x0076E750
-extern void SetFrameLock(nglFrameLockType a2);
-
 //0x0077AC90
 extern void nglSetQuadTex(nglQuad *a1, nglTexture *a2);
 
@@ -824,28 +891,17 @@ inline constexpr auto NGLTEX_CUBE = 0x10000000u;
 //0x0077A3C0
 extern void nglSaveTexture(nglTexture *Tex, const char *a2);
 
-extern Var<nglTexture> stru_975AC0;
+extern nglTexture &stru_975AC0;
 
-extern Var<int[1024]> dword_975BE8;
-extern Var<int> dword_975BE0;
+extern int (&dword_975BE8)[1024];
+extern int &dword_975BE0;
 
 inline Var<HANDLE> h_sceneDump {0x00976E20};
 
 //0x0077BC90
 extern nglTexture *nglCreateTexture(uint32_t Format, int Width, int Height, int a4, bool a5);
 
-extern Var<tlInstanceBankResourceDirectory<nglMeshFile, tlFixedString> *> nglMeshFileDirectory;
-
 extern Var<tlInstanceBankResourceDirectory<nglFont, tlFixedString> *> nglFontDirectory;
-
-extern Var<tlInstanceBankResourceDirectory<nglMesh, tlHashString> *> nglMeshDirectory;
-
-extern Var<tlInstanceBankResourceDirectory<nglMorphSet, tlHashString> *> nglMorphDirectory;
-
-extern Var<tlInstanceBankResourceDirectory<nglMaterialFile, tlFixedString> *>
-    nglMaterialFileDirectory;
-
-extern Var<tlInstanceBankResourceDirectory<nglMaterialBase, tlHashString> *> nglMaterialDirectory;
 
 extern void ngl_releasefile_callback(tlFileBuf *);
 
@@ -897,6 +953,11 @@ extern void nglRotateQuad(nglQuad *a2, Float a3, Float a4, Float a5);
 //0x0076E3E0
 extern void nglInit(HWND hWnd);
 
+//0x0076F420
+extern void nglMeshInit();
+
+extern void nglTextureInit();
+
 extern void sub_769DE0(int a1);
 
 //0x0076B6D0
@@ -927,11 +988,9 @@ extern const char *GETFOURCC(uint32_t format);
 
 extern math::VecClass<3, 1> sub_414360(const math::VecClass<3, 1> &a2, const math::MatClass<4, 3> &a3);
 
-extern Var<bool> nglLoadingIFL;
+extern bool &nglLoadingIFL;
 
-extern Var<bool> EnableShader;
-
-extern Var<char[256]> nglTexturePath;
+extern char (&nglTexturePath)[256];
 
 extern Var<uint8_t *> nglListWorkPos;
 
@@ -945,8 +1004,7 @@ inline Var<IDirect3DPixelShader9 *> dword_9757A0 {0x009757A0};
 
 inline Var<IDirect3DPixelShader9 *> dword_975794 {0x00975794};
 
-struct nglRenderTextureState 
-{
+struct nglRenderTextureState {
     static constexpr auto MAX_SIZE = 4u;
     IDirect3DTexture9 *field_0[MAX_SIZE];
     int field_10[MAX_SIZE];
@@ -965,10 +1023,21 @@ struct nglRenderTextureState
         }
     }
 
-    void setSamplerState(
-        int stage,
-        uint8_t a3,
-        uint32_t a4);
+    void setSamplerState(int stage, uint8_t a3, uint32_t a4);
+};
+
+struct MatrixPair {
+    math::MatClass<4, 3> &field_0;
+    math::MatClass<4, 3> &field_4;
+
+    void sub_7A5070(math::VecClass<3, 0> &a2, math::VecClass<3, 0> &a3, math::VecClass<3, 0> &a4) const;
+};
+
+struct ComplexMatrixPair {
+    MatrixPair &field_0;
+    matrix4x4 &field_4;
+
+    void sub_7709F0(vector4d &a2, vector4d &a3, vector4d &a4) const;
 };
 
 inline Var<uint32_t[4][14]> SamplerStates {0x00971FF0};
@@ -979,7 +1048,7 @@ inline Var<nglRenderTextureState> g_renderTextureState {0x0093BD50};
 
 inline Var<IDirect3DQuery9 *> g_occlusionQueryTest {0x00972660};
 
-inline Var<D3DPRESENT_PARAMETERS> s_d3dpresent_params{0x009720D0};
+inline D3DPRESENT_PARAMETERS &s_d3dpresent_params = var<D3DPRESENT_PARAMETERS>(0x009720D0);
 
 extern void sub_782030();
 
@@ -991,27 +1060,31 @@ extern void sub_57F3C0();
 
 extern void sub_81E8E0(int a1);
 
+extern bool sub_782B90(const void *a1, nglPaletteFile *a2);
+
+extern void sub_7829F0(nglPalette *a1);
+
 extern double sub_77E820(Float a1);
 
 extern double sub_77E940(Float a1);
 
 extern double sub_77EA00(Float a1);
 
+//0x007722F0
+extern void releaseShaderLists();
+
 extern bool sub_581C30();
+
+extern matrix4x3 sub_770F30(const ComplexMatrixPair &a2);
 
 extern matrix4x3 sub_771210(void *a2);
 
 extern matrix4x4 sub_4150E0(const matrix4x4 &a2);
 
-extern void sub_4013C0(
-        vector4d &a1,
-        vector4d &a2,
-        vector4d &a3,
-        vector4d &a4,
-        const vector4d &x,
-        const vector4d &y,
-        const vector4d &z,
-        const vector4d &w);
+extern matrix4x3 sub_770EB0(const MatrixPair &a2);
+
+extern void sub_4013C0(vector4d &a1, vector4d &a2, vector4d &a3, vector4d &a4, const vector4d &x, const vector4d &y,
+                       const vector4d &z, const vector4d &w);
 
 extern matrix4x3 transposed(const matrix4x3 &a2);
 
@@ -1030,23 +1103,20 @@ extern void nglSetRenderTarget(nglTexture *a1);
 
 inline float stru_946840[2] {1.0f, 1.0f};
 
-extern nglVertexDef_MultipassMesh<nglVertexDef_PCUV_Base> *sub_507920(
-    nglMaterialBase *a1, int a2, int a3, int a4, const void *a5, int a6, bool a7);
+extern nglVertexDef_MultipassMesh<nglVertexDef_PCUV_Base> *sub_507920(nglMaterialBase *a1, int a2, int a3, int a4,
+                                                                      const void *a5, int a6, bool a7);
+
+extern void Init_nglVertexDef_FrontEnd_builder();
 
 template<typename T>
 auto PTR_OFFSET(uint32_t Base, T &Ptr) -> void
 {
-    if constexpr (std::is_pointer_v<T>)
-    {
-        if ( Ptr != nullptr)
-        {
+    if constexpr (std::is_pointer_v<T>) {
+        if (Ptr != nullptr) {
             Ptr = bit_cast<T>( (uint32_t)Ptr + (uint32_t)Base );
         }
-    }
-    else
-    {
-        if ( Ptr != 0)
-        {
+    } else {
+        if (Ptr != 0) {
             Ptr = bit_cast<T>( (uint32_t)Ptr + (uint32_t)Base );
         }
     }

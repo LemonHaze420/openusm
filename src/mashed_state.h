@@ -3,6 +3,8 @@
 #include "mash_virtual_base.h"
 #include "param_block.h"
 
+struct from_mash_in_place_constructor;
+
 namespace ai {
 
 struct mashed_state {
@@ -13,6 +15,8 @@ struct mashed_state {
 
     mashed_state();
 
+    mashed_state(from_mash_in_place_constructor *a2);
+
     void unmash(mash_info_struct *, void *);
 
     string_hash get_name() const;
@@ -22,11 +26,11 @@ struct mashed_state {
         return (this->field_10 & (1 << a2)) != 0;
     }
 
-    bool operator>(const mashed_state &state);
+    bool operator>(const mashed_state &state) const;
 
-    bool operator<(const mashed_state &state);
+    bool operator<(const mashed_state &state) const;
 
     static inline constexpr auto IS_INTERRUPT_STATE = 0;
 };
 
-} // namespace ai
+}  // namespace ai

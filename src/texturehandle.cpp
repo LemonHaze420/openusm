@@ -7,14 +7,16 @@
 
 VALIDATE_SIZE(TextureHandle, 0x10);
 
-TextureHandle::TextureHandle() {
+TextureHandle::TextureHandle()
+{
     this->field_0 = INVALID_HANDLE_VALUE;
     this->field_4 = INVALID_HANDLE_VALUE;
     this->field_8 = nullptr;
     this->m_fileSize = 0;
 }
 
-int TextureHandle::sub_7DF161(LPCWSTR lpWideCharStr, int a3) {
+int TextureHandle::sub_7DF161(LPCWSTR lpWideCharStr, int a3)
+{
     if constexpr (1) {
         HANDLE v8;
 
@@ -30,8 +32,7 @@ int TextureHandle::sub_7DF161(LPCWSTR lpWideCharStr, int a3) {
             VersionInformation.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
             GetVersionExA(&VersionInformation);
             if (VersionInformation.dwPlatformId != VER_PLATFORM_WIN32_NT) {
-                auto cbMultiByte =
-                    WideCharToMultiByte(CP_UTF8, 0, lpWideCharStr, -1, nullptr, 0, nullptr, nullptr);
+                auto cbMultiByte = WideCharToMultiByte(CP_UTF8, 0, lpWideCharStr, -1, nullptr, 0, nullptr, nullptr);
                 auto *v7 = static_cast<CHAR *>(operator new(cbMultiByte));
                 v13 = v7;
                 if (v7 == nullptr) {
@@ -40,14 +41,14 @@ int TextureHandle::sub_7DF161(LPCWSTR lpWideCharStr, int a3) {
 
                 WideCharToMultiByte(CP_UTF8, 0, lpWideCharStr, -1, v7, cbMultiByte, nullptr, nullptr);
                 a3 = 0;
-                v3 = (const WCHAR *) v13;
+                v3 = (const WCHAR *)v13;
             }
         }
 
         if (a3) {
             v8 = CreateFileW(v3, 0x80000000, 1u, nullptr, 3u, 0x10000000u, nullptr);
         } else {
-            v8 = CreateFileA((LPCSTR) v3, 0x80000000, 1u, nullptr, 3u, 0x10000000u, nullptr);
+            v8 = CreateFileA((LPCSTR)v3, 0x80000000, 1u, nullptr, 3u, 0x10000000u, nullptr);
         }
 
         this->field_0 = v8;
@@ -89,7 +90,8 @@ int TextureHandle::sub_7DF161(LPCWSTR lpWideCharStr, int a3) {
     }
 }
 
-TextureHandle::~TextureHandle() {
+TextureHandle::~TextureHandle()
+{
     if (this->field_0 != INVALID_HANDLE_VALUE) {
         auto *v2 = this->field_8;
         if (v2 != nullptr) {
@@ -110,7 +112,8 @@ TextureHandle::~TextureHandle() {
     }
 }
 
-void TextureHandle_patch() {
+void TextureHandle_patch()
+{
     FUNC_ADDRESS(address, &TextureHandle::sub_7DF161);
     REDIRECT(0x007CA245, address);
 }

@@ -17,8 +17,28 @@
 #include "tlresource_directory.h"
 #include "utility.h"
 #include "vtbl.h"
+#include "wds.h"
 
-VALIDATE_SIZE(animation_controller, 0x10);
+VALIDATE_SIZE(animation_controller, 0x14);
+
+animation_controller::animation_controller(actor *a2, nalBaseSkeleton *a3, unsigned int a4,
+                                           const als::als_meta_anim_table_shared *a5)
+{
+    this->m_vtbl = 0x008809E8;
+
+    this->field_4 = a2;
+    this->field_8 = a3;
+    this->field_C = a5;
+    this->field_10 = a4;
+
+    g_world_ptr->add_anim_ctrl(this);
+}
+
+animation_controller::~animation_controller()
+{
+    this->m_vtbl = 0x008809E8;
+    g_world_ptr->remove_anim_ctrl(this);
+}
 
 void animation_controller::get_camera_root_abs_po(po &arg0)
 {
@@ -32,12 +52,8 @@ bool animation_controller::is_same_animtype(tlFixedString a2) const
     return a2 == this->field_8->GetAnimTypeName();
 }
 
-animation_controller::anim_ctrl_handle animation_controller::play_layer_anim(
-        const string_hash &a3,
-        unsigned int a4,
-        Float a5,
-        unsigned int a6,
-        bool a7,
+animation_controller::anim_ctrl_handle animation_controller::play_layer_anim(const string_hash &a3, unsigned int a4,
+                                                                             Float a5, unsigned int a6, bool a7,
         als::layer_types a8)
 {
     TRACE("animation_controller::play_layer_anim");
@@ -56,7 +72,7 @@ animation_controller::anim_ctrl_handle animation_controller::get_base_anim_handl
     return v3;
 }
 
-double sub_497DD0(nalComp::nalCompAnim *a1, int a2)
+float sub_497DD0(nalComp::nalCompAnim *a1, int a2)
 {
     if ( (a2 & 0x20) != 0 ) {
         return 0.0;
@@ -78,25 +94,18 @@ double sub_497DD0(nalComp::nalCompAnim *a1, int a2)
         assert(0 && "MUST HAVE A BLEND FLAG");
         return 0.0;
     }
-
 }
 
-animation_controller::anim_ctrl_handle *animation_controller::_play_base_layer_anim(
-        animation_controller::anim_ctrl_handle *out,
-        const string_hash &a3,
-        Float a4,
-        uint32_t a5,
-        bool a6)
+animation_controller::anim_ctrl_handle *
+animation_controller::_play_base_layer_anim_patch(animation_controller::anim_ctrl_handle *out, const string_hash &a3,
+                                                  Float a4, uint32_t a5, bool a6)
 {
     *out = this->play_base_layer_anim(a3, a4, a5, a6);
     return out;
 }
 
-animation_controller::anim_ctrl_handle animation_controller::play_base_layer_anim(
-        const string_hash &a3,
-        Float a4,
-        uint32_t a5,
-        bool a6)
+animation_controller::anim_ctrl_handle animation_controller::play_base_layer_anim(const string_hash &a3, Float a4,
+                                                                                  uint32_t a5, bool a6)
 {
     TRACE("animation_controller::play_base_layer_anim", a3.to_string());
 
@@ -106,8 +115,8 @@ animation_controller::anim_ctrl_handle animation_controller::play_base_layer_ani
         auto *anim_ptr = (als::als_nal_meta_anim *) get_anim_by_hash(a3, this->field_C, this->field_4);
         if ( anim_ptr == nullptr ) {
             auto v6 = a3.to_string();
-            error(
-              "Animation %s was referred to by an ALS but couldn't be found (likely 'externed' but never provided for us)",
+            error("Animation %s was referred to by an ALS but couldn't be found (likely 'externed' but never provided "
+                  "for us)",
               v6);
         }
 
@@ -125,8 +134,7 @@ animation_controller::anim_ctrl_handle animation_controller::play_base_layer_ani
             auto *v3 = this->field_8->field_8.to_string();
             auto *v4 = anim_ptr->Skeleton->GetAnimTypeName().to_string();
             auto *v15 = anim_ptr->field_8.to_string();
-            error(
-              "Attempted to play an animation %s of animtype %s on a character skeleton %s of animtype %s. They a"
+            error("Attempted to play an animation %s of animtype %s on a character skeleton %s of animtype %s. They a"
               "re not compatible. Please have this animation altered to use the correct character's skeleton.",
               v15,
               v4, 
@@ -135,14 +143,7 @@ animation_controller::anim_ctrl_handle animation_controller::play_base_layer_ani
         }
 
         auto v21 = sub_497DD0((nalComp::nalCompAnim *) anim_ptr, a5);
-        this->play_base_layer_anim(
-            (nalAnimClass<nalAnyPose> *) anim_ptr,
-            a4,
-            v21,
-            a6,
-            (a5 & 0x4000) != 0,
-            &v22
-            );
+        this->play_base_layer_anim((nalAnimClass<nalAnyPose> *)anim_ptr, a4, v21, a6, (a5 & 0x4000) != 0, &v22);
 
         result = this->get_base_anim_handle();
     } else {
@@ -153,23 +154,12 @@ animation_controller::anim_ctrl_handle animation_controller::play_base_layer_ani
     return result;
 }
 
-void animation_controller::play_base_layer_anim(
-        nalAnimClass<nalAnyPose> *a2,
-        Float a3,
-        Float a4,
-        bool a5,
-        bool a6,
+void animation_controller::play_base_layer_anim(nalAnimClass<nalAnyPose> *a2, Float a3, Float a4, bool a5, bool a6,
         void *a7)
 {
-    void (__fastcall *func)(
-            void *,
-            void *,
-            nalAnimClass<nalAnyPose> *a2,
-            Float a3,
-            Float a4,
-            bool a5,
-            bool a6,
-            void *a7) = CAST(func, get_vfunc(m_vtbl, 0x8));
+    void(__fastcall *
+         func)(void *, void *, nalAnimClass<nalAnyPose> *a2, Float a3, Float a4, bool a5, bool a6, void *a7) =
+        CAST(func, get_vfunc(m_vtbl, 0x8));
     func(this, nullptr, a2, a3, a4, a5, a6, a7);
 }
 
@@ -189,11 +179,7 @@ void animation_controller::anim_ctrl_handle::set_anim_speed(Float a2)
     if ( this->field_0 ) {
         vtbl->set_base_anim_speed(this->field_8, nullptr, a2);
     } else {
-        vtbl->set_anim_speed(
-            this->field_8,
-            nullptr,
-            a2,
-            this->field_4);
+        vtbl->set_anim_speed(this->field_8, nullptr, a2, this->field_4);
     }
 }
 
@@ -208,10 +194,22 @@ bool animation_controller::anim_ctrl_handle::is_anim_active() const
 
 void *animation_controller::anim_ctrl_handle::get_anim_ptr() const
 {
-    return (void *) THISCALL(0x004AD230, this);
+    if constexpr (0) {
+        if (this->field_8 != nullptr) {
+            if (this->field_0) {
+                return this->field_8->get_base_layer_anim_ptr();
+            } else {
+                return this->field_8->get_anim_ptr(this->field_4);
+            }
 }
 
-double animation_controller::anim_ctrl_handle::get_anim_time_in_sec() const
+        return nullptr;
+    } else {
+        return (void *)THISCALL(0x004AD230, this);
+    }
+}
+
+float animation_controller::anim_ctrl_handle::get_anim_time_in_sec() const
 {
     TRACE("animation_controller::anim_ctrl_handle::get_anim_time_in_sec");
 
@@ -222,7 +220,7 @@ double animation_controller::anim_ctrl_handle::get_anim_time_in_sec() const
     }
 }
 
-double animation_controller::anim_ctrl_handle::get_anim_speed() const
+float animation_controller::anim_ctrl_handle::get_anim_speed() const
 {
     TRACE("animation_controller::anim_ctrl_handle::get_anim_speed");
 
@@ -249,32 +247,44 @@ bool animation_controller::is_anim_active(Float a1) const
     }
 }
 
-double animation_controller::get_base_anim_time_in_sec() const
+float animation_controller::get_base_anim_time_in_sec() const
 {
-    double (__fastcall *func)(const void *) = CAST(func, get_vfunc(m_vtbl, 0x30));
+    float(__fastcall * func)(const void *) = CAST(func, get_vfunc(m_vtbl, 0x30));
     return func(this);
 }
 
-double animation_controller::get_anim_time_in_sec(Float a2) const
+float animation_controller::get_anim_time_in_sec(Float a2) const
 {
-    double (__fastcall *func)(const void *, void *, Float) = CAST(func, get_vfunc(m_vtbl, 0x34));
+    float(__fastcall * func)(const void *, void *, Float) = CAST(func, get_vfunc(m_vtbl, 0x34));
     return func(this, nullptr, a2);
 }
 
-double animation_controller::get_base_anim_speed()
+float animation_controller::get_base_anim_speed()
 {
     TRACE("animation_controller::get_base_anim_speed");
 
-    double (__fastcall *func)(const void *) = CAST(func, get_vfunc(m_vtbl, 0x50));
+    float(__fastcall * func)(const void *) = CAST(func, get_vfunc(m_vtbl, 0x50));
     return func(this);
 }
 
-double animation_controller::get_anim_speed(Float a2)
+float animation_controller::get_anim_speed(Float a2)
 {
-    TRACE("animation_controller::get_base_anim_speed");
+    TRACE("animation_controller::get_anim_speed");
 
-    double (__fastcall *func)(const void *, void *, Float) = CAST(func, get_vfunc(m_vtbl, 0x54));
+    float(__fastcall * func)(const void *, void *, Float) = CAST(func, get_vfunc(m_vtbl, 0x54));
     return func(this, nullptr, a2);
+}
+
+void *animation_controller::get_base_layer_anim_ptr()
+{
+    void *(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x64));
+    return func(this);
+}
+
+void *animation_controller::get_anim_ptr(Float a1)
+{
+    void *(__fastcall * func)(void *, void *edx, Float) = CAST(func, get_vfunc(m_vtbl, 0x68));
+    return func(this, nullptr, a1);
 }
 
 void animation_controller::frame_advance(Float a2, bool a3, bool a4)
@@ -284,23 +294,16 @@ void animation_controller::frame_advance(Float a2, bool a3, bool a4)
     func(this, nullptr, a2, a3, a4);
 }
 
-namespace
-{
-const als::als_meta_anim_table_shared *
-    black_suit_als_meta_anim_table = nullptr;
+namespace {
+const als::als_meta_anim_table_shared *black_suit_als_meta_anim_table = nullptr;
 }
 
-void set_black_suit_als_meta_anim_table(
-    const als::als_meta_anim_table_shared *table)
+void set_black_suit_als_meta_anim_table(const als::als_meta_anim_table_shared *table)
 {
     black_suit_als_meta_anim_table = table;
 }
 
-//TODO
-void *get_anim_by_hash(
-        const string_hash &a1,
-        const als::als_meta_anim_table_shared *a2,
-        actor *a3)
+void *get_anim_by_hash(const string_hash &a1, const als::als_meta_anim_table_shared *a2, actor *a3)
 {
     TRACE("get_anim_by_hash", a1.to_string());
 
@@ -332,93 +335,89 @@ void *get_anim_by_hash(
         }
 
         string_hash lookup_key = a1;
-        const auto use_venom_directory =remap_venom_animation_name(a1,&lookup_key);
+        const auto use_venom_directory = remap_venom_animation_name(a1, &lookup_key);
 
-        using anim_directory_t = tlresource_directory<nalAnimClass<nalAnyPose>,tlFixedString>;
+        using anim_directory_t = tlresource_directory<nalAnimClass<nalAnyPose>, tlFixedString>;
         auto *hero_context = get_black_suit_hero_resource_context();
         auto *anim_directory = hero_context != nullptr
             ? bit_cast<anim_directory_t *>(&hero_context->get_resource_pack_directory().field_44)
             : bit_cast<anim_directory_t *>(nalGetAnimDirectory());
-        if ( use_venom_directory )
-        {
+        if (use_venom_directory) {
             auto *venom_context = get_venom_hero_resource_context();
             assert(venom_context != nullptr);
-            anim_directory = bit_cast<anim_directory_t *>(&venom_context->get_resource_pack_directory().field_44);
+            anim_directory = bit_cast<anim_directory_t *>(
+                &venom_context->get_resource_pack_directory().field_44);
         }
 
-        auto *v15 =anim_directory->Find(lookup_key.source_hash_code);
-        if ( v15 == nullptr && use_venom_directory )
-        {
+        auto *v15 = anim_directory->Find(lookup_key.source_hash_code);
+        if (v15 == nullptr && use_venom_directory) {
             lookup_key = a1;
             anim_directory = hero_context != nullptr
                 ? bit_cast<anim_directory_t *>(&hero_context->get_resource_pack_directory().field_44)
                 : bit_cast<anim_directory_t *>(nalGetAnimDirectory());
             v15 = anim_directory->Find(lookup_key.source_hash_code);
         }
-        if ( v15 == nullptr && !use_venom_directory )
-        {
-            auto *venom_context =
-                get_venom_hero_resource_context();
-            if ( venom_context != nullptr )
-            {
-                auto *venom_directory =
-                    bit_cast<anim_directory_t *>(
-                        &venom_context
-                            ->get_resource_pack_directory()
-                            .field_44);
-                v15 = venom_directory->Find(
-                    a1.source_hash_code);
+        if (v15 == nullptr && !use_venom_directory) {
+            auto *venom_context = get_venom_hero_resource_context();
+            if (venom_context != nullptr) {
+                auto *venom_directory = bit_cast<anim_directory_t *>(
+                    &venom_context->get_resource_pack_directory().field_44);
+                v15 = venom_directory->Find(a1.source_hash_code);
             }
         }
+
+        if (v15 == nullptr) {
+            auto *partition_pointer =
+                resource_manager::get_partition_pointer(RESOURCE_PARTITION_MISSION);
+            if (partition_pointer != nullptr) {
+                auto &pack_slots = partition_pointer->get_pack_slots();
+                if (!pack_slots.empty()) {
+                    auto *__old_context =
+                        resource_manager::get_and_push_resource_context(
+                            RESOURCE_PARTITION_MISSION);
+                    v15 = nalGetAnimDirectory()->Find(lookup_key.source_hash_code);
+                    resource_manager::pop_resource_context();
+
+                    assert(resource_manager::get_resource_context() == __old_context);
+                }
+            }
+        }
+
         const auto find_in_partition =
             [](resource_partition_enum partition_type,
-               uint32_t animation_hash)
-                -> nalAnimClass<nalAnyPose> *
-        {
-            auto *partition =
-                resource_manager::get_partition_pointer(
-                    partition_type);
-            if ( partition == nullptr )
+               uint32_t animation_hash) -> nalAnimClass<nalAnyPose> * {
+                auto *partition = resource_manager::get_partition_pointer(partition_type);
+                if (partition == nullptr) {
+                    return nullptr;
+                }
+
+                for (auto *slot : partition->get_pack_slots()) {
+                    if (slot == nullptr || !slot->is_pack_ready()) {
+                        continue;
+                    }
+
+                    auto *directory = bit_cast<anim_directory_t *>(
+                        &slot->get_resource_pack_directory().field_44);
+                    if (auto *animation = directory->Find(animation_hash)) {
+                        return animation;
+                    }
+                }
                 return nullptr;
+            };
 
-            for ( auto *slot : partition->get_pack_slots() )
-            {
-                if ( slot == nullptr || !slot->is_pack_ready() )
-                    continue;
+        if (v15 == nullptr) {
+            v15 = find_in_partition(RESOURCE_PARTITION_COMMON,
+                                    lookup_key.source_hash_code);
+        }
 
-                auto *directory =
-                    bit_cast<anim_directory_t *>(
-                        &slot->get_resource_pack_directory()
-                            .field_44);
-                if ( auto *animation =
-                         directory->Find(animation_hash) )
-                    return animation;
+        if (v15 == nullptr) {
+            auto *venom_context = get_venom_hero_resource_context();
+            if (venom_context != nullptr) {
+                auto *venom_directory = bit_cast<anim_directory_t *>(
+                    &venom_context->get_resource_pack_directory().field_44);
+                const string_hash fallback_idle {"VenIdl"};
+                v15 = venom_directory->Find(fallback_idle.source_hash_code);
             }
-            return nullptr;
-        };
-
-        if ( v15 == nullptr )
-            v15 = find_in_partition(
-                RESOURCE_PARTITION_MISSION,
-                lookup_key.source_hash_code);
-        if ( v15 == nullptr )
-            v15 = find_in_partition(
-                RESOURCE_PARTITION_COMMON,
-                lookup_key.source_hash_code);
-
-        if ( v15 == nullptr )
-        {
-            auto *venom_context =
-                get_venom_hero_resource_context();
-            assert(venom_context != nullptr);
-            auto *venom_directory =
-                bit_cast<anim_directory_t *>(
-                    &venom_context
-                        ->get_resource_pack_directory()
-                        .field_44);
-            const string_hash fallback_idle {"VenIdl"};
-            v15 = venom_directory->Find(
-                fallback_idle.source_hash_code);
         }
         return v15;
     } else {
@@ -437,20 +436,18 @@ void animation_controller::reset()
     func(this);
 }
 
+void animation_controller::get_shake_root_rel_po(po &a3)
+{
+    a3 = po{};
+}
 
-void animation_controller_patch() {
 
+void animation_controller_patch()
+{
     REDIRECT(0x0049B9B5, get_anim_by_hash);
 
     {
-        animation_controller::anim_ctrl_handle * (animation_controller::*func)(
-            animation_controller::anim_ctrl_handle *,
-            const string_hash &a3,
-            Float a4,
-            uint32_t a5,
-            bool a6) = &animation_controller::_play_base_layer_anim;
-        FUNC_ADDRESS(address, func);
+        FUNC_ADDRESS(address, &animation_controller::_play_base_layer_anim_patch);
         REDIRECT(0x004A652D, address);
     }
-
 }

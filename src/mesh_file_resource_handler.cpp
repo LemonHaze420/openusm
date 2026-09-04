@@ -27,36 +27,52 @@ VALIDATE_SIZE(mesh_file_resource_handler, 0x14);
 
 mesh_file_resource_handler::mesh_file_resource_handler(worldly_pack_slot *a2)
 {
+    if constexpr (1) {
+        static void *g_vtbl[] = {
+            func_address(&finalize),
+            func_address(&_handle),
+            func_address(&_pre_handle_resources),
+            func_address(&_handle_resource),
+        };
+
+        this->m_vtbl = CAST(m_vtbl, &g_vtbl);
+    } else {
     this->m_vtbl = 0x00888A38;
+    }
+
     this->my_slot = a2;
     this->field_10 = TLRESOURCE_TYPE_MESH_FILE;
+}
+
+void mesh_file_resource_handler::finalize(bool a2)
+{
+    this->~mesh_file_resource_handler();
+    if (a2) {
+        delete (this);
+    }
 }
 
 bool mesh_file_resource_handler::_handle_resource(worldly_resource_handler::eBehavior behavior,
                                                  tlresource_location *loc)
 {
-    TRACE("mesh_file_resource_handler::handle_resource", loc->name.to_string());
-    sp_log("0x%08X", loc->field_8);
+    TRACE("mesh_file_resource_handler::handle_resource", loc->get_name().to_string());
+    sp_log("0x%08X", loc->get_data());
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         assert(my_slot->get_resource_directory().get_tlresource_count(TLRESOURCE_TYPE_MESH_FILE) ==
-               my_slot->get_resource_directory().get_resource_count(
-                   RESOURCE_KEY_TYPE_MESH_FILE_STRUCT));
+               my_slot->get_resource_directory().get_resource_count(RESOURCE_KEY_TYPE_MESH_FILE_STRUCT));
 
-        if (behavior == UNLOAD)
-        {
-            if (loc->field_8 != nullptr &&
-                !nglCanReleaseMeshFile(bit_cast<nglMeshFile *>(loc->field_8))) {
+        if (behavior == UNLOAD) {
+            if (loc->get_data() != nullptr && !nglCanReleaseMeshFile(bit_cast<nglMeshFile *>(loc->get_data()))) {
                 return true;
             }
 
-            nglMeshFile *MeshFile = CAST(MeshFile, loc->field_8);
+            nglMeshFile *MeshFile = CAST(MeshFile, loc->get_data());
             if (MeshFile != nullptr) {
                 auto *Mesh = MeshFile->FirstMesh;
                 if (Mesh != nullptr) {
                 LABEL_10:
-                    auto *v12 = dword_95C824();
+                    auto *v12 = dword_95C824;
                     while (1) {
                         if (Mesh->NSections != 0 && (Mesh->Sections->field_0 & 4) == 0) {
                             for (auto i = 0u; i < Mesh->NSections; ++i) {
@@ -64,7 +80,7 @@ bool mesh_file_resource_handler::_handle_resource(worldly_resource_handler::eBeh
                             }
 
                             Mesh->Sections->field_0 |= 4u;
-                            v12 = dword_95C824();
+                            v12 = dword_95C824;
                         }
 
                         Mesh = Mesh->NextMesh;
@@ -83,33 +99,15 @@ bool mesh_file_resource_handler::_handle_resource(worldly_resource_handler::eBeh
                 }
 
                 for (auto *Mesh = MeshFile->FirstMesh; Mesh != nullptr; Mesh = Mesh->NextMesh) {
-                    if (Mesh->NSections != 0)
-                    {
+                    if (Mesh->NSections != 0) {
                         Mesh->Sections->field_0 &= 0xFFFFFFFB;
                     }
                 }
             }
 
-        }
-        else
-        { //LOAD
-
-
-            bool result = (bool)THISCALL(0x0056BD00, this, behavior, loc);
-
-            return result;
-
-#if 0
-            REDIRECT(0x0056BD63, parse_generic_mash_init);
-
-#endif
-
-#if 0
-            printf("hash = 0x%08X\n", loc->name.source_hash_code);
-
+        } else {  //LOAD
             auto &res_dir = my_slot->get_resource_directory();
-            auto idx = this->field_C +
-                res_dir.get_type_start_idxs(RESOURCE_KEY_TYPE_MESH_FILE_STRUCT);
+            auto idx = this->field_C + res_dir.get_type_start_idxs(RESOURCE_KEY_TYPE_MESH_FILE_STRUCT);
 
             auto *struct_loc = res_dir.get_resource_location(idx);
             assert(struct_loc != nullptr);
@@ -124,47 +122,40 @@ bool mesh_file_resource_handler::_handle_resource(worldly_resource_handler::eBeh
             }
 
             nglMeshFile *meshFile = nullptr;
-            auto alloced_mem = parse_generic_object_mash(meshFile,
-                                                         struct_mash,
-                                                         nullptr,
-                                                         nullptr,
-                                                         nullptr,
-                                                         0,
-                                                         0,
-                                                         nullptr);
-
-
+            auto alloced_mem =
+                parse_generic_object_mash(meshFile, struct_mash, nullptr, nullptr, nullptr, 0, 0, nullptr);
             assert(!alloced_mem && "This should NOT allocate anything!");
 
             auto *v5 = loc;
-            auto *v7 = loc->name.to_string();
+            meshFile->FileBuf.Buf = loc->get_data();
+
+            auto *v7 = loc->get_name().to_string();
             tlFixedString v20{v7};
 
-            if (!nglLoadMeshFileInternal(v20, meshFile, ".pcmesh"))
-            {
-                auto *v10 = v5->name.to_string();
+            if (!nglLoadMeshFileInternal(v20, meshFile, ".pcmesh")) {
+                auto *v10 = v5->get_name().to_string();
                 sp_log("Invalid mesh file %s", v10);
                 assert(0);
             }
 
+#if OPENUSM_XBOX_MASH_FORMAT
             v5->field_8 = CAST(v5->field_8, meshFile);
+#else
+            v5->set_data((char *)meshFile);
 #endif
-
         }
 
         ++this->field_C;
         return false;
-
-    }
-    else
-    {
+    } else {
         bool result = (bool) THISCALL(0x0056BD00, this, behavior, loc);
 
         return result;
     }
 }
 
-bool mesh_file_resource_handler::handle(worldly_resource_handler::eBehavior a2, limited_timer *a3) {
+bool mesh_file_resource_handler::handle(worldly_resource_handler::eBehavior a2, limited_timer *a3)
+{
     //sp_log("return to 0x%08X", getReturnAddress());
 
     if constexpr (1) {
@@ -179,8 +170,7 @@ void mesh_file_resource_handler_patch()
     FUNC_ADDRESS(address, &mesh_file_resource_handler::_handle_resource);
     set_vfunc(0x00888A44, address);
 
-    if constexpr (0)
-    {
+    if constexpr (0) {
         {
             REDIRECT(0x0056BD63, parse_generic_mash_init);
 

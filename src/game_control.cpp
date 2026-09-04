@@ -4,7 +4,4 @@
 
 VALIDATE_SIZE(game_control, 0x14);
 
-game_control::game_control()
-{
-
-}
+game_control::game_control() {}

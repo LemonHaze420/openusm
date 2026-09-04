@@ -1,8 +1,10 @@
 #pragma once
 
+#include "charanimtype/charcomponentbase.h"
 #include "fixedstring.h"
 #include "float.hpp"
 #include "hashstring.h"
+#include "nal_anim.h"
 #include "nfl_system.h"
 #include "tl_system.h"
 #include "variable.h"
@@ -12,170 +14,116 @@
 
 #include <memory>
 
-struct BaseComponent {
-    std::intptr_t m_vtbl;
-    //virtual ~BaseComponent() = default;
+extern tlInstanceBank &nalTypeInstanceBank;
 
-    //virtual
-    int GetType() { return 0; }
+extern tlInstanceBank &nalComponentInstanceBank;
 
-    //virtual
-    void * ApplyPublicPerSkelDataOffset(uint32_t a1, void *a2) const;
-
-    //virtual
-    void SkelPoseProcess(uint32_t a1, void *a2, void *a3) const;
-
-    //virtual
-    void PoseDataFree(uint32_t , void *) const;
-};
-
-extern tlInstanceBank & nalTypeInstanceBank;
-
-extern tlInstanceBank & nalComponentInstanceBank;
-
-namespace PanelComponentMgr {
-extern int *& comp_list;
-}
+extern LARGE_INTEGER &nalPlayerGetPoseTicks;
 
 struct nal_anim_control {
     uint32_t m_vtbl;
 };
 
-struct nalMatrix4x4 {};
+struct nalVector3 {
+    float field_0[3];
+
+    float &operator[](uint32_t idx)
+    {
+        return this->field_0[idx];
+    }
+
+    float operator[](uint32_t idx) const
+    {
+        return this->field_0[idx];
+    }
+
+    nalVector3 operator+(const nalVector3 &v) const
+    {
+        nalVector3 result;
+        result[0] = this->field_0[0] + v[0];
+        result[1] = this->field_0[1] + v[1];
+        result[2] = this->field_0[2] + v[2];
+
+        return result;
+    }
+
+    nalVector3 operator-(const nalVector3 &v) const
+    {
+        nalVector3 result;
+        result[0] = this->field_0[0] - v[0];
+        result[1] = this->field_0[1] - v[1];
+        result[2] = this->field_0[2] - v[2];
+
+        return result;
+    }
+
+    nalVector3 operator*(float a1) const
+    {
+        nalVector3 result;
+        result[0] = this->field_0[0] * a1;
+        result[1] = this->field_0[1] * a1;
+        result[2] = this->field_0[2] * a1;
+
+        return result;
+    }
+};
+
+struct nalMatrix4x4 {
+    float arr[4][4];
+
+    nalMatrix4x4() = default;
+
+    //0x005EBC90
+    nalMatrix4x4(const nalMatrix4x4 &);
+
+    nalMatrix4x4(const nalPositionOrientation &a2);
+
+    nalMatrix4x4 &operator=(const nalMatrix4x4 &) = default;
+
+    auto &operator[](int idx)
+    {
+        return arr[idx];
+    }
+
+    const auto &operator[](int idx) const
+    {
+        return arr[idx];
+    }
+
+    void sub_5FC9C0(const nalPositionOrientation &a2);
+
+    nalMatrix4x4 sub_5EC0A0();
+};
+
+extern nalMatrix4x4 &stru_9771C0;
+
+extern nalMatrix4x4 sub_5FE000(const nalMatrix4x4 &arg4, const nalMatrix4x4 &arg8);
+
+extern nalMatrix4x4 sub_5F2FD0(Float a2, const float *a3);
+
+extern float sub_5F4960(const nalMatrix4x4 &a2, bool a3);
 
 struct nalPositionOrientation {
-    float arr[4];
+    float field_0[4];
+    nalVector3 field_10;
+
+    nalPositionOrientation() = default;
+
+    nalPositionOrientation(nalVector3, const float *);
+
+    static inline nalPositionOrientation &Identity = var<nalPositionOrientation>(0x00977180);
 };
 
 struct nalBasePose {
     nalComp::nalCompSkeleton *field_0;
+
+    auto GetSkeleton() const
+    {
+        return this->field_0;
+    }
 };
 
 struct nalBaseSkeleton;
-
-namespace nalChar {
-struct nalCharAnim {
-    struct vtbl {
-        void *field_0;
-        void *finalize;
-        void *Process;
-        void *Release;
-
-        using CheckVersion_t = bool (nalCharAnim::*)();
-        CheckVersion_t CheckVersion;
-
-        vtbl(void *, void *, void *, void *, CheckVersion_t a4) : CheckVersion(a4) {}
-    };
-
-    std::intptr_t m_vtbl;
-    int field_4;
-    int field_8;
-    int field_C;
-    int field_10;
-    int field_14;
-    int field_18;
-    int field_1C;
-    int field_20;
-    int field_24;
-    int field_28;
-    uint32_t field_2C;
-
-    bool CheckVersion() {
-        return this->field_2C == 0x10003;
-    }
-
-    static int vtbl_ptr;
-};
-
-
-} // namespace nalChar
-
-namespace nalPanel {
-
-struct nalPanelAnim {
-    struct vtbl {
-        void *field_0;
-        void *finalize;
-        void __fastcall (*Process)(void *);
-        void *Release;
-        bool (nalPanelAnim::*CheckVersion)();
-    };
-
-    std::intptr_t m_vtbl;
-    uint32_t field_4;
-
-    bool CheckVersion() {
-        return this->field_4 == 0x300;
-    }
-
-    static int vtbl_ptr;
-};
-
-} // namespace nalPanel
-
-namespace nalPed {
-
-struct nalPedAnim {
-    struct vtbl {
-        void *field_0;
-        void *finalize;
-        void *Process;
-        void *Release;
-
-        using CheckVersion_t = bool (nalPedAnim::*)();
-        CheckVersion_t CheckVersion;
-    };
-
-    static int vtbl_ptr;
-};
-
-struct nalPedSkeleton {
-    struct vtbl {
-        void *field_0;
-        void *finalize;
-        void *Process;
-        void *Release;
-
-        using CheckVersion_t = bool (nalPedAnim::*)();
-        CheckVersion_t CheckVersion;
-    };
-
-    static int vtbl_ptr;
-};
-
-} // namespace nalPed
-
-namespace nalCam {
-
-struct nalCamAnim {
-    struct vtbl {
-        void *field_0;
-        void *finalize;
-        void *Process;
-        void *Release;
-
-        using CheckVersion_t = bool (nalCamAnim::*)();
-        CheckVersion_t CheckVersion;
-    };
-
-    static int vtbl_ptr;
-};
-
-struct nalCamSkeleton {
-    struct vtbl {
-        void *field_0;
-        void *finalize;
-        void *Process;
-        void *Release;
-
-        using CheckVersion_t = bool (nalCamSkeleton::*)();
-        CheckVersion_t CheckVersion;
-    };
-
-    static int vtbl_ptr;
-};
-
-} // namespace nalCam
 
 struct nalAnimFile {
     uint32_t field_0;
@@ -184,10 +132,15 @@ struct nalAnimFile {
     int num_skeletons;
     tlFixedString field_10;
     int field_30;
-    char *field_34;
-    int field_38[3];
+    nalAnimClass<nalAnyPose> *field_34;
+    tlFileBuf field_38;
     int field_44;
     tlFixedString field_48;
+
+    static tlFixedString *get_string(nalAnimFile *a1)
+    {
+        return &a1->field_10;
+    }
 };
 
 struct nalBaseSkeleton;
@@ -195,26 +148,58 @@ struct nalBaseSkeleton;
 //0x0078DC60
 extern nalBaseSkeleton *nalGetSkeleton(const tlFixedString &a1);
 
-struct nalComponentU8Base {
-    int *GetType();
+struct nalComponentBase {
+    int m_vtbl;
+
+    //virtual
+    void Process(const nalGeneric::nalComponentInfo *a1, void *&a2, void *&a3);  // = 0;
+};
+
+struct nalComponentPOBase : nalComponentBase {
+    /* virtual */
+    int *_GetType()
+    {
+        return &TypeID;
+    }
 
     static inline int TypeID{0};
 };
 
-struct nalComponentStringBase {
-    char *GetType();
+struct nalComponentFloat1Base : nalComponentBase {
+    /* virtual */ int *_GetType();
 
-    static inline char & TypeID = var<char>(0x00959560);
+    static inline int TypeID{0};
 };
 
-struct spideySignalData {};
+struct nalComponentFloat3Base : nalComponentBase {
+    /* virtual */ int *_GetType();
 
-struct spideySignal {};
+    static inline int TypeID{0};
+};
+
+struct nalComponentQuatBase : nalComponentBase {
+    /* virtual */ int *_GetType();
+
+    static inline int TypeID{0};
+};
+
+struct nalComponentU8Base : nalComponentBase {
+    /* virtual */ int *_GetType();
+
+    static inline int TypeID{0};
+};
+
+struct nalComponentStringBase : nalComponentBase {
+    char *GetType();
+
+    static inline char &TypeID = var<char>(0x00959560);
+};
 
 struct nalComponentInitList;
 
-template<typename T>
-T nalSkeletonPtrCast(T a1) {
+template <typename T>
+T nalSkeletonPtrCast(T a1)
+{
     if (a1 != nullptr || *a1 != nalGeneric::nalGenericSkeleton::vtbl_ptr) {
         return nullptr;
     }
@@ -243,17 +228,72 @@ extern bool nalLoadAnimFileInternal(nalAnimFile *anim_file);
 
 extern void nalSetSkeletonDirectory(tlResourceDirectory<nalBaseSkeleton, tlFixedString> *a1);
 
+//0x0050EAB0
+extern tlInstanceBankResourceDirectory<nalBaseSkeleton, tlFixedString> *nalGetSkeletonDirectory();
+
 extern void nalSetAnimFileDirectory(tlResourceDirectory<nalAnimFile, tlFixedString> *a1);
+
+//0x0050EA50
+extern tlInstanceBankResourceDirectory<nalAnimFile, tlFixedString> *nalGetAnimFileDirectory();
 
 struct nalAnyPose;
 
-template<typename >
+template <typename>
 struct nalAnimClass;
 
 extern void nalSetAnimDirectory(tlResourceDirectory<nalAnimClass<nalAnyPose>, tlFixedString> *a1);
 
-extern tlResourceDirectory<nalAnimClass<nalAnyPose>, tlFixedString> *nalGetAnimDirectory();
+//0x0050EA70
+extern tlInstanceBankResourceDirectory<nalAnimClass<nalAnyPose>, tlFixedString> *nalGetAnimDirectory();
 
 extern void nalSetSceneAnimDirectory(tlResourceDirectory<nalSceneAnim, tlFixedString> *a1);
+
+//0x0050EA90
+extern tlInstanceBankResourceDirectory<nalSceneAnim, tlFixedString> *nalGetSceneAnimDirectory();
+
+extern char (&nalSkeletonPath)[255];
+
+extern char (&nalAnimPath)[255];
+
+struct actor;
+struct string_hash;
+
+namespace als {
+struct als_meta_anim_table_shared;
+}
+
+//0x0049B910
+extern void *get_anim_by_hash(const string_hash &a1, const als::als_meta_anim_table_shared *a2, actor *a3);
+
+struct IKSkelData {
+    float field_0;
+    float field_4;
+    float field_8;
+    float field_C;
+    float field_10;
+};
+
+extern void DecomposeIKSpin(nalMatrix4x4 &a1, nalMatrix4x4 &a2, const nalMatrix4x4 &a3, const nalVector3 &a4,
+                            const nalMatrix4x4 &a5, const IKSkelData &a6,
+                            nalVector3 (*a7)(const nalMatrix4x4 &, const nalMatrix4x4 &, nalVector3), Float a8);
+
+extern nalVector3 LegHeuristic(const nalMatrix4x4 &a2, const nalMatrix4x4 &a3, nalVector3 a4);
+
+//0x005F4170
+extern void ReconstituteBaseKnuckle(nalMatrix4x4 &, Float a2, Float a3, const nalVector3 &a4);
+
+//0x005F42D0
+extern void Unconvert2Knuckle(nalMatrix4x4 &a1, nalMatrix4x4 &a2, Float a3, const nalVector3 &a4, const nalVector3 &a5,
+                              bool a6);
+
+//0x005F4350
+extern void ReconstituteFingerCurl(nalMatrix4x4 &a1, nalMatrix4x4 &a2, nalMatrix4x4 &a3, const nalVector3 &a4,
+                                   const nalVector3 &a5, const nalVector3 &a6, Float a7, Float a8);
+
+extern nalVector3 LeftArmHeuristic(const nalMatrix4x4 &a2, const nalMatrix4x4 &a3, nalVector3 a4);
+
+extern nalVector3 RightArmHeuristic(const nalMatrix4x4 &a2, const nalMatrix4x4 &a3, nalVector3 a4);
+
+extern void sub_5F3080(nalMatrix4x4 &a1, Float a2, const nalVector3 &a3);
 
 extern void nalStreamInstance_patch();

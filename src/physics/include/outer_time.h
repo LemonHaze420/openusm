@@ -1,6 +1,5 @@
 #pragma once
 
-struct outer_time
-{
+struct outer_time {
     float field_0;
 };

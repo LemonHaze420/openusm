@@ -7,8 +7,8 @@
 
 VALIDATE_SIZE(pause_menu_message_log, 0x100u);
 
-pause_menu_message_log::pause_menu_message_log(FEMenuSystem *a2, int a3, int a4)
-    : FEMenu(a2, 0, a3, a4, 8, 0) {
+pause_menu_message_log::pause_menu_message_log(FEMenuSystem *a2, int a3, int a4) : FEMenu(a2, 0, a3, a4, 8, 0)
+{
     THISCALL(0x00611BD0, this, a2, a3, a4);
 }
 
