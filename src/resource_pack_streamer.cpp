@@ -39,20 +39,17 @@ bool get_standalone_pack_size(const char *name, int *out_size)
     assert(name != nullptr);
     assert(out_size != nullptr);
 
-    if (g_platform != NL_PLATFORM_XBOX) {
-        return false;
-    }
 
     filespec file_spec {mString {packfile_dir()[g_platform]}, mString {name}, mString {packfile_ext()[g_platform]}};
     mString path = file_spec.fullname();
     os_file file {path, os_file::FILE_READ};
     if (!file.is_open()) {
-        sp_log("Xbox standalone fallback not found for %s at %s", name, path.c_str());
+        sp_log("Standalone pack fallback not found for %s at %s", name, path.c_str());
         return false;
     }
 
     *out_size = file.get_size();
-    sp_log("Xbox standalone fallback found %s at %s size=0x%08X", name, path.c_str(), *out_size);
+    sp_log("Standalone pack fallback found %s at %s size=0x%08X", name, path.c_str(), *out_size);
     return true;
 }
 }
