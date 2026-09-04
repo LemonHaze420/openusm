@@ -5,7 +5,9 @@
 #include "common.h"
 #include "exe_allocator.h"
 #include "func_wrapper.h"
+#include "game.h"
 #include "trace.h"
+#include <cstring>
 
 namespace als {
 
@@ -61,51 +63,43 @@ namespace als {
             actor *a3) const {
         TRACE("als_meta_anim_table_shared::get_nal_meta_anim");
 
-        if constexpr (1) {
-
-#if 0
-            for ( auto i = 0; i < this->field_0.size(); ++i )
-            {
-                auto &v5 = this->field_14[i].field_8;
-                if ( a2.source_hash_code == v5.m_hash )
+        const auto find_anim = [this](uint32_t hash)
+            -> als_nal_meta_anim *
+        {
+            auto *begin = this->field_14;
+            auto *end = begin + this->field_0.size();
+            auto *it = std::find_if(
+                begin,
+                end,
+                [hash](const auto &anim)
                 {
-                    if ( this->field_14[i].is_delay_create() ) {
-                        this->field_14[i].delay_create(a3);
-                    }
+                    return anim.field_8.m_hash == hash;
+                });
+            return it == end ? nullptr : it;
+        };
 
-                    auto *v7 = &this->field_14[i];
-                    return v7;
-                }
-
-                ++i;
-            }
-
-            return nullptr;
-#else
-            auto begin = this->field_14;
-            auto end = begin + this->field_0.size();
-            auto it = std::find_if(begin, end, [a2, a3](auto &anim_ptr)
-            {
-                auto &v5 = anim_ptr.field_8;
-                return ( a2.source_hash_code == v5.m_hash );
-            });
-
-            if (it != end) {
-                sp_log("vtbl = 0x%08X", it->m_vtbl);
-                if ( it->is_delay_create() ) {
-                    it->delay_create(a3);
-                }
-
-                return it;
-            }
-
-            return nullptr;
-#endif
-            
-        } else {
-            return (als_nal_meta_anim *) THISCALL(0x004992B0, this, a2, a3);
+        auto *anim = find_anim(a2.source_hash_code);
+        string_hash remapped;
+        if ( anim == nullptr
+            && remap_venom_animation_name(
+                a2,
+                &remapped) )
+        {
+            anim = find_anim(remapped.source_hash_code);
         }
+
+        if ( anim != nullptr && anim->is_delay_create() )
+            anim->delay_create(a3);
+        return anim;
     }
+}
+
+void venom_als_remap_patch()
+{
+    FUNC_ADDRESS(
+        address,
+        &als::als_meta_anim_table_shared::get_nal_meta_anim);
+    REDIRECT(0x0049B92E, address);
 }
 
 void als_meta_anim_table_shared_patch()

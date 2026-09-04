@@ -2,6 +2,7 @@
 
 #include "aeps.h"
 #include "ai_find_best_swing_anchor.h"
+#include "als_animation_logic_system_shared.h"
 #include "ai_pedestrian.h"
 #include "ambient_audio_manager.h"
 #include "app.h"
@@ -70,6 +71,7 @@
 #include "render_text.h"
 #include "renderoptimizations.h"
 #include "resource_manager.h"
+#include "resource_directory.h"
 #include "resource_pack_streamer.h"
 #include "resource_partition.h"
 #include "rumble_manager.h"
@@ -129,6 +131,67 @@ game *& g_game_ptr = var<game *>(0x009682E0);
 static int & g_debug_mem_dump_frame = var<int>(0x00921DCC);
 
 static auto & off_921DAC = var<char *[1]>(0x00921DAC);
+
+namespace
+{
+constexpr int venom_hero_slot_size = 1466368;
+uint8_t *venom_hero_slot_buffer = nullptr;
+resource_pack_slot *black_suit_hero_resource_context = nullptr;
+resource_pack_slot *venom_hero_resource_context = nullptr;
+als::animation_logic_system_shared *venom_als_shared = nullptr;
+}
+
+resource_pack_slot *get_black_suit_hero_resource_context()
+{
+    return black_suit_hero_resource_context;
+}
+
+resource_pack_slot *get_venom_hero_resource_context()
+{
+    return venom_hero_resource_context;
+}
+
+als::animation_logic_system_shared *get_venom_als_shared()
+{
+    return venom_als_shared;
+}
+bool remap_venom_animation_name(
+    const string_hash &requested,
+    string_hash *remapped)
+{
+    assert(remapped != nullptr);
+    if ( venom_hero_resource_context == nullptr )
+        return false;
+
+    const auto *name = requested.to_string();
+    const auto has_usm_prefix =name != nullptr
+        && (name[0] == 'u' || name[0] == 'U')
+        && (name[1] == 's' || name[1] == 'S')
+        && (name[2] == 'm' || name[2] == 'M');
+    const auto has_venom_prefix = name != nullptr
+        && (name[0] == 'v' || name[0] == 'V')
+        && (name[1] == 'e' || name[1] == 'E')
+        && (name[2] == 'n' || name[2] == 'N');
+    if ( has_venom_prefix )
+    {
+        *remapped = requested;
+        return true;
+    }
+    if ( !has_usm_prefix )
+        return false;
+
+    char remapped_name[256];
+    const auto name_length = std::strlen(name);
+    assert(name_length < sizeof(remapped_name));
+    std::memcpy(remapped_name, name, name_length + 1);
+    remapped_name[0] = 'v';
+    remapped_name[1] = 'e';
+    remapped_name[2] = 'n';
+    *remapped = string_hash {remapped_name};
+    return true;
+}
+
+
 
 
 void sub_538D10() {
@@ -2883,7 +2946,42 @@ void game::load_hero_packfile(const char *str, bool a3)
         }
 
         streamer->flush(RenderLoadMeter);
+        const auto is_black_suit =          fixedstring<8> {str} == fixedstring<8> {"usm_blacksuit_costume"}
+                                        ||  fixedstring<8> {str} == fixedstring<8> {"USM_BLACKSUIT_COSTUME"};
+        if ( is_black_suit )
+        {
+            auto &slots = partition->get_pack_slots();
+            if ( slots.size() == 1 )
+            {
+                if ( venom_hero_slot_buffer == nullptr )
+                {
+                    venom_hero_slot_buffer = static_cast<uint8_t *>(arch_memalign(4096u, venom_hero_slot_size));
+                    assert(venom_hero_slot_buffer != nullptr);
+                }
 
+                partition->push_pack_slot(venom_hero_slot_size, venom_hero_slot_buffer);
+            }
+
+            assert(slots.size() >= 2);
+            black_suit_hero_resource_context = slots.front();
+            const auto venom_slot_index = static_cast<int>(slots.size() - 1);
+            streamer->load("venom", venom_slot_index, nullptr, nullptr);
+            streamer->flush(RenderLoadMeter);
+            venom_hero_resource_context = slots.at(venom_slot_index);
+            assert(venom_hero_resource_context != nullptr && venom_hero_resource_context->is_pack_ready());
+
+            auto &venom_resource_directory = venom_hero_resource_context->get_resource_directory();
+            assert(venom_resource_directory.get_resource_count(RESOURCE_KEY_TYPE_ALS_FILE)== 1);
+            auto *venom_als_location = venom_resource_directory.get_resource_location(venom_resource_directory.get_type_start_idxs(RESOURCE_KEY_TYPE_ALS_FILE));
+            venom_als_shared = bit_cast<als::animation_logic_system_shared *>(venom_resource_directory.get_resource(venom_als_location,nullptr));
+            assert(venom_als_shared != nullptr);
+        }
+        else
+        {
+            black_suit_hero_resource_context = nullptr;
+            venom_hero_resource_context = nullptr;
+            venom_als_shared = nullptr;
+        }
         sound_manager::load_hero_sound_bank(str, true);
 
     }
@@ -3148,6 +3246,9 @@ void game::unload_hero_packfile()
     my_streamer->flush(game::render_empty_list);
     my_streamer->unload_all();
     my_streamer->flush(game::render_empty_list);
+    black_suit_hero_resource_context = nullptr;
+    venom_hero_resource_context = nullptr;
+    venom_als_shared = nullptr;
 
     sound_manager::unload_hero_sound_bank();
 }

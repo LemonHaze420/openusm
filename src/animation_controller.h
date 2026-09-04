@@ -105,6 +105,9 @@ struct animation_controller {
     void frame_advance(Float a2, bool a3, bool a4);
 };
 
+extern void set_black_suit_als_meta_anim_table(
+    const als::als_meta_anim_table_shared *table);
+
 //0x0049B910
 extern void *get_anim_by_hash(
         const string_hash &a1,
@@ -112,3 +115,4 @@ extern void *get_anim_by_hash(
         actor *a3);
 
 extern void animation_controller_patch();
+extern void venom_animation_lookup_patch();

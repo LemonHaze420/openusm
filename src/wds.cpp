@@ -2,6 +2,9 @@
 
 #include "aeps.h"
 #include "ai_path.h"
+#include "als_animation_logic_system.h"
+#include "als_animation_logic_system_shared.h"
+#include "als_res_data.h"
 #include "ai_player_controller.h"
 #include "base_ai_core.h"
 #include "beam.h"
@@ -31,6 +34,7 @@
 #include "func_wrapper.h"
 #include "fx_cache.h"
 #include "game.h"
+#include "game_settings.h"
 #include "grenade.h"
 #include "hierarchical_entity_proximity_map.h"
 #include "interactable_interface.h"
@@ -48,6 +52,7 @@
 #include "memory.h"
 #include "motion_effect_struct.h"
 #include "moved_entities.h"
+#include "nal_anim_controller.h"
 #include "nal_system.h"
 #include "nearby_hero_regions.h"
 #include "osassert.h"
@@ -80,6 +85,7 @@
 #include "trigger_manager.h"
 #include "utility.h"
 #include "vtbl.h"
+#include "variables.h"
 #include "wds.h"
 #include "web_interface.h"
 #include "worldly_pack_slot.h"
@@ -368,6 +374,151 @@ entity *world_dynamics_system::get_hero_ptr(int index)
     return result;
 }
 
+namespace
+{
+constexpr uint32_t black_suit_tentacle_count = 4;
+constexpr int black_suit_tentacle_point_count = 5;
+polytube *black_suit_tentacles[black_suit_tentacle_count] {};
+
+void create_black_suit_tentacles(world_dynamics_system *world)
+{
+    if ( black_suit_tentacles[0] != nullptr )
+        return;
+
+    for ( uint32_t index = 0;
+          index < black_suit_tentacle_count;
+          ++index )
+    {
+        auto *memory = mem_alloc(sizeof(polytube));
+        assert(memory != nullptr);
+        auto *tentacle = new (memory) polytube {
+            make_unique_entity_id(),
+            0};
+        tentacle->tube_radius = 0.08f;
+        tentacle->num_sides = 5;
+        tentacle->m_vtbl = 0x0088F2C0;
+        tentacle->tiles_per_meter = 3.0f;
+        tentacle->set_render_color(color32 {72, 24, 96, 255});
+        for ( int point = 0;
+              point < black_suit_tentacle_point_count;
+              ++point )
+            tentacle->add_control_pt(ZEROVEC);
+        tentacle->build(
+            black_suit_tentacle_point_count,
+            static_cast<spline::eSplineType>(3));
+        tentacle->set_visible(true, false);
+        world->ent_mgr.add_dynamic_instanced_entity(tentacle);
+        black_suit_tentacles[index] = tentacle;
+    }
+}
+void install_venom_als(actor *hero)
+{
+    auto *venom_shared = get_venom_als_shared();
+    if ( venom_shared == nullptr )
+        return;
+
+    auto *hero_conglomerate = static_cast<conglomerate *>(hero);
+    assert(hero_conglomerate->field_114 != nullptr);
+    if ( hero->anim_ctrl != nullptr )
+        set_black_suit_als_meta_anim_table(
+            hero->anim_ctrl->field_C);
+
+
+    auto *memory = mem_alloc(sizeof(als::animation_logic_system));
+    assert(memory != nullptr);
+    auto *venom_als =
+        new (memory) als::animation_logic_system {hero};
+    venom_als->create_instance_data(venom_shared);
+    hero_conglomerate->field_114->field_8 = venom_als;
+
+    if ( hero->anim_ctrl != nullptr )
+    {
+        hero->anim_ctrl->field_C = venom_shared->field_18;
+    }
+}
+
+
+void pose_black_suit_tentacles(const po &hero_po)
+{
+    for ( uint32_t tentacle_index = 0;
+          tentacle_index < black_suit_tentacle_count;
+          ++tentacle_index )
+    {
+        auto *tentacle = black_suit_tentacles[tentacle_index];
+        if ( tentacle == nullptr )
+            continue;
+
+        const auto side = (tentacle_index & 1u) == 0u
+            ? -1.0f
+            : 1.0f;
+        const auto upper = (tentacle_index & 2u) == 0u;
+        const vector3d base {
+            side * 0.12f,
+            upper ? 0.08f : -0.08f,
+            -0.12f};
+        const vector3d tip {
+            side * (upper ? 1.05f : 0.9f),
+            upper ? 0.85f : -0.75f,
+            upper ? -0.55f : -0.75f};
+
+        for ( int point_index = 0;
+              point_index < black_suit_tentacle_point_count;
+              ++point_index )
+        {
+            const auto t =
+                static_cast<Float>(point_index)
+                / static_cast<Float>(
+                    black_suit_tentacle_point_count - 1);
+            auto local_position = base + (tip - base) * t;
+            local_position.z -= 0.35f * 4.0f * t * (1.0f - t);
+            tentacle->set_control_pt(
+                point_index,
+                hero_po.slow_xform(local_position));
+        }
+    }
+}
+
+void update_black_suit_tentacle_rig(world_dynamics_system *world)
+{
+    auto *hero = world->get_num_players() == 0
+        ? nullptr
+        : static_cast<actor *>(world->get_hero_ptr(0));
+    if ( hero == nullptr )
+        return;
+
+    const auto &hero_name =
+        g_game_ptr->gamefile->field_340.m_hero_name;
+    const auto black_suit_lower =
+        fixedstring<8> {"usm_blacksuit_costume"};
+    const auto black_suit_upper =
+        fixedstring<8> {"USM_BLACKSUIT_COSTUME"};
+    const auto is_black_suit =
+        hero_name == black_suit_lower
+        || hero_name == black_suit_upper;
+
+    if ( !is_black_suit )
+    {
+        for ( auto *tentacle : black_suit_tentacles )
+            if ( tentacle != nullptr )
+                tentacle->set_visible(false, false);
+        return;
+    }
+
+    create_black_suit_tentacles(world);
+    for ( auto *tentacle : black_suit_tentacles )
+        tentacle->set_visible(true, false);
+    auto *spine = static_cast<conglomerate *>(hero)->get_bone(
+        bip01_spine(),
+        true);
+    pose_black_suit_tentacles(
+        spine != nullptr
+            ? spine->get_abs_po()
+            : hero->get_abs_po());
+}
+}
+
+
+
 void world_dynamics_system::frame_advance(Float a2)
 {
     TRACE("world_dynamics_system::frame_advance");
@@ -435,6 +586,7 @@ void world_dynamics_system::frame_advance(Float a2)
 
     } else {
         THISCALL(0x00558370, this, a2);
+        update_black_suit_tentacle_rig(this);
     }
 }
 
@@ -1471,7 +1623,15 @@ int world_dynamics_system::add_player(const mString &a2)
                             : mString {"HERO"}
                             );
 
-            auto *__old_context = resource_manager::get_and_push_resource_context(RESOURCE_PARTITION_HERO);
+            auto *hero_partition =
+                resource_manager::get_partition_pointer(
+                    RESOURCE_PARTITION_HERO);
+            assert(
+                hero_partition != nullptr
+                && !hero_partition->get_pack_slots().empty());
+            auto *__old_context =
+                resource_manager::push_resource_context(
+                    hero_partition->get_pack_slots().front());
             mString v62 {};
             auto *v23 = v79.c_str();
 
@@ -1488,9 +1648,6 @@ int world_dynamics_system::add_player(const mString &a2)
             auto v40 = v27->get_rel_position() + YVEC;
             auto *v29 = this->field_230[this->num_players];
             v29->set_abs_position(v40);
-            resource_manager::pop_resource_context();
-            
-            assert(resource_manager::get_resource_context() == __old_context);
 
             mString v76 = ( this->num_players >= 1
                             ? "CHASE_CAM" + mString {this->num_players}
@@ -1513,9 +1670,16 @@ int world_dynamics_system::add_player(const mString &a2)
                 auto *v40 = bit_cast<actor *>(this->field_230[this->num_players]);
                 v40->create_player_controller(this->num_players);
             }
+            install_venom_als(
+                static_cast<actor *>(
+                    this->field_230[this->num_players]));
+            resource_manager::pop_resource_context();
+            
+            assert(resource_manager::get_resource_context() == __old_context);
 
             this->field_3E0 = a2;
             ++this->num_players;
+            update_black_suit_tentacle_rig(this);
         }
 
         return this->num_players;
@@ -2006,6 +2170,12 @@ int get_hero_type_helper()
 
     assert(0 && "no hero available right now");
     return 0;
+}
+
+void black_suit_tentacle_patch()
+{
+    FUNC_ADDRESS(address, &world_dynamics_system::frame_advance);
+    REDIRECT(0x0055A0F7, address);
 }
 
 void world_dynamics_system_patch()

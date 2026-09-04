@@ -4576,6 +4576,10 @@ BOOL install_redirects()
     SET_JUMP(0x5FC770, inverse_kinematics::quat_blend);
 
     localized_string_table_patch();
+    black_suit_tentacle_patch();
+    venom_als_remap_patch();
+    venom_animation_lookup_patch();
+
 
     if (!install_xbpack_support()) {
         return false;

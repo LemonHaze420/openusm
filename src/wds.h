@@ -249,3 +249,4 @@ extern world_dynamics_system *& g_world_ptr;
 
 extern void wds_xbpack_patch();
 extern void world_dynamics_system_patch();
+extern void black_suit_tentacle_patch();

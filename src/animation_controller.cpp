@@ -4,14 +4,17 @@
 #include "als_meta_anim_table_shared.h"
 #include "common.h"
 #include "func_wrapper.h"
+#include "game.h"
 #include "nal_anim_comp.h"
 #include "nal_system.h"
 #include "nal_skeleton.h"
 #include "oldmath_po.h"
 #include "osassert.h"
+#include "resource_pack_slot.h"
 #include "resource_manager.h"
 #include "string_hash.h"
 #include "trace.h"
+#include "tlresource_directory.h"
 #include "utility.h"
 #include "vtbl.h"
 
@@ -281,6 +284,18 @@ void animation_controller::frame_advance(Float a2, bool a3, bool a4)
     func(this, nullptr, a2, a3, a4);
 }
 
+namespace
+{
+const als::als_meta_anim_table_shared *
+    black_suit_als_meta_anim_table = nullptr;
+}
+
+void set_black_suit_als_meta_anim_table(
+    const als::als_meta_anim_table_shared *table)
+{
+    black_suit_als_meta_anim_table = table;
+}
+
 //TODO
 void *get_anim_by_hash(
         const string_hash &a1,
@@ -289,7 +304,7 @@ void *get_anim_by_hash(
 {
     TRACE("get_anim_by_hash", a1.to_string());
 
-    if constexpr (0) {
+    if constexpr (1) {
         if ( a2 != nullptr ) {
             auto *v9 = a3;
             string_hash v8 = a1;
@@ -298,41 +313,122 @@ void *get_anim_by_hash(
                 return anim_ptr;
             }
         }
-
-        struct {
-            char field_0[0x8];
-            void * (__fastcall *Find)(void *, void *, uint32_t);
-        } * vtbl = CAST(vtbl, nalGetAnimDirectory()->m_vtbl);
-
-        auto v5 = a1.source_hash_code;
-        auto *v15 = vtbl->Find(
-                          nalGetAnimDirectory(),
-                          nullptr,
-                          v5);
-        if ( v15 == nullptr )
+        if ( black_suit_als_meta_anim_table != nullptr
+            && black_suit_als_meta_anim_table != a2 )
         {
-            auto *partition_pointer = resource_manager::get_partition_pointer(RESOURCE_PARTITION_MISSION);
-            if ( partition_pointer != nullptr )
-            {
-                auto &pack_slots = partition_pointer->get_pack_slots();
-                if ( !pack_slots.empty() )
-                {
-                    auto *__old_context = resource_manager::get_and_push_resource_context(RESOURCE_PARTITION_MISSION);
-                    auto v7 = a1.source_hash_code;
-                    v15 = vtbl->Find(nalGetAnimDirectory(),
-                                    nullptr,
-                                    v7);
-                    resource_manager::pop_resource_context();
-
-                    assert(resource_manager::get_resource_context() == __old_context);
-                }
-            }
+            auto *fallback_context =
+                get_black_suit_hero_resource_context();
+            resource_manager::push_resource_context(
+                fallback_context);
+            auto *anim_ptr = bit_cast<void *>(
+                CDECL_CALL(
+                    0x0049B910,
+                    &a1,
+                    black_suit_als_meta_anim_table,
+                    a3));
+            resource_manager::pop_resource_context();
+            if ( anim_ptr != nullptr )
+                return anim_ptr;
         }
 
+        string_hash lookup_key = a1;
+        const auto use_venom_directory =remap_venom_animation_name(a1,&lookup_key);
+
+        using anim_directory_t = tlresource_directory<nalAnimClass<nalAnyPose>,tlFixedString>;
+        auto *hero_context = get_black_suit_hero_resource_context();
+        auto *anim_directory = hero_context != nullptr
+            ? bit_cast<anim_directory_t *>(&hero_context->get_resource_pack_directory().field_44)
+            : bit_cast<anim_directory_t *>(nalGetAnimDirectory());
+        if ( use_venom_directory )
+        {
+            auto *venom_context = get_venom_hero_resource_context();
+            assert(venom_context != nullptr);
+            anim_directory = bit_cast<anim_directory_t *>(&venom_context->get_resource_pack_directory().field_44);
+        }
+
+        auto *v15 =anim_directory->Find(lookup_key.source_hash_code);
+        if ( v15 == nullptr && use_venom_directory )
+        {
+            lookup_key = a1;
+            anim_directory = hero_context != nullptr
+                ? bit_cast<anim_directory_t *>(&hero_context->get_resource_pack_directory().field_44)
+                : bit_cast<anim_directory_t *>(nalGetAnimDirectory());
+            v15 = anim_directory->Find(lookup_key.source_hash_code);
+        }
+        if ( v15 == nullptr && !use_venom_directory )
+        {
+            auto *venom_context =
+                get_venom_hero_resource_context();
+            if ( venom_context != nullptr )
+            {
+                auto *venom_directory =
+                    bit_cast<anim_directory_t *>(
+                        &venom_context
+                            ->get_resource_pack_directory()
+                            .field_44);
+                v15 = venom_directory->Find(
+                    a1.source_hash_code);
+            }
+        }
+        const auto find_in_partition =
+            [](resource_partition_enum partition_type,
+               uint32_t animation_hash)
+                -> nalAnimClass<nalAnyPose> *
+        {
+            auto *partition =
+                resource_manager::get_partition_pointer(
+                    partition_type);
+            if ( partition == nullptr )
+                return nullptr;
+
+            for ( auto *slot : partition->get_pack_slots() )
+            {
+                if ( slot == nullptr || !slot->is_pack_ready() )
+                    continue;
+
+                auto *directory =
+                    bit_cast<anim_directory_t *>(
+                        &slot->get_resource_pack_directory()
+                            .field_44);
+                if ( auto *animation =
+                         directory->Find(animation_hash) )
+                    return animation;
+            }
+            return nullptr;
+        };
+
+        if ( v15 == nullptr )
+            v15 = find_in_partition(
+                RESOURCE_PARTITION_MISSION,
+                lookup_key.source_hash_code);
+        if ( v15 == nullptr )
+            v15 = find_in_partition(
+                RESOURCE_PARTITION_COMMON,
+                lookup_key.source_hash_code);
+
+        if ( v15 == nullptr )
+        {
+            auto *venom_context =
+                get_venom_hero_resource_context();
+            assert(venom_context != nullptr);
+            auto *venom_directory =
+                bit_cast<anim_directory_t *>(
+                    &venom_context
+                        ->get_resource_pack_directory()
+                        .field_44);
+            const string_hash fallback_idle {"VenIdl"};
+            v15 = venom_directory->Find(
+                fallback_idle.source_hash_code);
+        }
         return v15;
     } else {
         return (void *) CDECL_CALL(0x0049B910, &a1, a2, a3);
     }
+}
+
+void venom_animation_lookup_patch()
+{
+    REDIRECT(0x0049B9B5, get_anim_by_hash);
 }
 
 void animation_controller::reset()

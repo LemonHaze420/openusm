@@ -32,3 +32,4 @@ namespace als {
 
 
 extern void als_meta_anim_table_shared_patch();
+extern void venom_als_remap_patch();

@@ -31,6 +31,12 @@ struct nglMesh;
 struct vector2di;
 struct resource_key;
 struct level_descriptor_t;
+struct resource_pack_slot;
+struct string_hash;
+namespace als {
+struct animation_logic_system_shared;
+}
+
 
 enum class game_state
 {
@@ -370,6 +376,13 @@ public:
 };
 
 extern game *& g_game_ptr;
+extern resource_pack_slot *get_black_suit_hero_resource_context();
+extern resource_pack_slot *get_venom_hero_resource_context();
+extern als::animation_logic_system_shared *get_venom_als_shared();
+extern bool remap_venom_animation_name(
+    const string_hash &requested,
+    string_hash *remapped);
+
 
 //0x00581B40
 extern void system_idle();
