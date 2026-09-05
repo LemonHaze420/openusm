@@ -831,6 +831,9 @@ void game::advance_state_legal(Float a2)
 
         streamer->load("game", 0, nullptr, nullptr);
         streamer->flush(RenderLoadMeter);
+        if constexpr (STANDALONE_SYSTEM) {
+            this->level.load_completed = true;
+        }
 
         auto *resource_context = resource_manager::get_best_context(RESOURCE_PARTITION_START);
 
@@ -2272,71 +2275,62 @@ void game::advance_state_load_level(Float a2)
 {
     TRACE("game::advance_state_load_level");
 
-    if constexpr (STANDALONE_SYSTEM) {
-        if (g_femanager.m_fe_menu_system != nullptr) {
-            static_cast<FrontEndMenuSystem *>(g_femanager.m_fe_menu_system)->sub_619030(false);
-        }
-    } else if constexpr (0) {
-        static bool & loading_a_level = var<bool>(0x00960CB5);
+#if STANDALONE_SYSTEM
+    static bool loading_a_level = false;
 
-        this->level.name_mission_table = g_scene_name;
-        input_mgr::instance->field_26 = false;
-        if (!loading_a_level) {
-            this->level.reset_level_load_data();
-            loading_a_level = true;
-            this->level.look_up_level_descriptor();
-            if (!g_is_the_packer) {
-                sound_manager::load_common_sound_bank(true);
-            }
-
-            mission_stack_manager::s_inst->start_streaming();
-
-            this->level.construct_loading_widgets();
-
-            this->load_this_level();
+    this->level.name_mission_table = g_scene_name;
+    input_mgr::instance->field_26 = false;
+    if (!loading_a_level) {
+        this->level.reset_level_load_data();
+        loading_a_level = true;
+        this->level.look_up_level_descriptor();
+        if (!g_is_the_packer) {
+            sound_manager::load_common_sound_bank(true);
         }
 
-        this->the_world->the_terrain->frame_advance(a2);
-        if (this->level.load_completed && !this->level.wait_for_mem_check()) {
-            this->level.destroy_loading_widgets();
-            sub_405CC0();
+        mission_stack_manager::s_inst->start_streaming();
 
-            int TOD = os_developer_options::instance->get_int(mString {"TIME_OF_DAY"});
-            if (TOD == -1) {
-                TOD = g_TOD;
-            }
+        this->level.construct_loading_widgets();
 
-            us_lighting_switch_time_of_day(TOD);
-            app::instance->field_38 += 2;
-            this->flag.level_is_loaded = true;
-            this->field_167 = false;
-            loading_a_level = false;
-            this->go_next_state();
-        }
-
-        cut_scene_player *v13 = g_cut_scene_player();
-        if (v13->is_playing()) {
-            v13->frame_advance(a2);
-            this->the_world->update_ai_and_visibility_proximity_maps_for_moved_entities(a2);
-
-            this->the_world->update_collision_proximity_maps_for_moved_entities(a2);
-
-            this->the_world->update_light_proximity_maps_for_moved_entities(a2);
-            this->the_world->the_terrain->frame_advance(a2);
-            light_manager::frame_advance_all_light_managers(a2);
-        }
-
-        if (g_femanager.m_fe_menu_system != nullptr) {
-            void(__fastcall * Update)(void *, void *, Float) =
-                CAST(Update, get_vfunc(g_femanager.m_fe_menu_system->m_vtbl, 0x14));
-
-            Update(g_femanager.m_fe_menu_system, nullptr, a2);
-
-            g_femanager.m_fe_menu_system->RenderLoadMeter(false);
-        }
-    } else {
-        THISCALL(0x0055D3A0, this, a2);
+        this->load_this_level();
     }
+
+    this->the_world->the_terrain->frame_advance(a2);
+    if (this->level.load_completed && !this->level.wait_for_mem_check()) {
+        this->level.destroy_loading_widgets();
+        sub_405CC0();
+
+        int TOD = os_developer_options::instance->get_int(mString {"TIME_OF_DAY"});
+        if (TOD == -1) {
+            TOD = g_TOD;
+        }
+
+        us_lighting_switch_time_of_day(TOD);
+        app::instance->field_38 += 2;
+        this->flag.level_is_loaded = true;
+        this->field_167 = false;
+        loading_a_level = false;
+        this->go_next_state();
+    }
+
+    cut_scene_player *v13 = g_cut_scene_player();
+    if (v13->is_playing()) {
+        v13->frame_advance(a2);
+        this->the_world->update_ai_and_visibility_proximity_maps_for_moved_entities(a2);
+
+        this->the_world->update_collision_proximity_maps_for_moved_entities(a2);
+
+        this->the_world->update_light_proximity_maps_for_moved_entities(a2);
+        this->the_world->the_terrain->frame_advance(a2);
+        light_manager::frame_advance_all_light_managers(a2);
+    }
+
+    if (g_femanager.m_fe_menu_system != nullptr) {
+        static_cast<FrontEndMenuSystem *>(g_femanager.m_fe_menu_system)->sub_619030(false);
+    }
+#else
+    THISCALL(0x0055D3A0, this, a2);
+#endif
 }
 
 void game::frame_advance_game_overlays(Float a1)

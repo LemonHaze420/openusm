@@ -183,8 +183,10 @@ void main_menu_start::Update(Float delta_time)
 {
     auto *front_end = static_cast<FrontEndMenuSystem *>(field_12C);
     if (front_end->field_30 == 3 && field_12A >= 2) {
-        field_120 = std::min(1.0f, field_120 + float(delta_time));
-        if (g_game_ptr->level.load_completed && field_120 >= 0.99f) {
+        const bool load_completed = g_game_ptr->level.load_completed;
+        field_120 = std::min(
+            1.0f, field_120 + (load_completed ? 0.02f : 0.002f));
+        if (load_completed && field_120 >= 0.99f) {
             field_12A = 4;
             front_end->GoNextState();
         }

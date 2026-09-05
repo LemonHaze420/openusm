@@ -27,7 +27,9 @@ void PanelAnimFile::Update(Float a2)
             target->ResetXform();
     }
 
-    const float delta_time = std::min(float(a2), 0.083333001f);
+    float delta_time = float(a2);
+    if (delta_time > 0.083333001f)
+        delta_time = 0.083333001f;
     const float previous_time = bit_cast<float>(field_18);
     float current_time = previous_time + delta_time;
     field_18 = bit_cast<int>(current_time);

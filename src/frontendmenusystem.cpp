@@ -26,9 +26,15 @@
 #include "variables.h"
 #include "vtbl.h"
 
+#include <cmath>
+
 VALIDATE_SIZE(FrontEndMenuSystem, 0x80);
 
-static bool &already_drew_this_frame = var<bool>(0x0096B44A);
+static Var<bool> already_drew_this_frame_retail{0x0096B44A};
+static bool standalone_already_drew_this_frame = false;
+static bool &already_drew_this_frame = STANDALONE_SYSTEM
+    ? standalone_already_drew_this_frame
+    : already_drew_this_frame_retail();
 
 FrontEndMenuSystem::FrontEndMenuSystem() : FEMenuSystem(7, static_cast<font_index>(1))
 {
@@ -213,6 +219,34 @@ void sub_582BB0()
     }
 }
 
+void FrontEndMenuSystem::Update(Float delta_time)
+{
+    if constexpr (STANDALONE_SYSTEM) {
+        if (std::fpclassify(delta_time) == FP_ZERO)
+            delta_time = 0.000001f;
+
+        FEMenuSystem::UpdateButtonPresses();
+        if (m_index >= 0) {
+            auto *menu = field_4[m_index];
+            if (menu != nullptr) {
+                if (m_index == 0)
+                    static_cast<main_menu_legal *>(menu)->Update(delta_time);
+                else if (m_index == 1)
+                    static_cast<main_menu_start *>(menu)->Update(delta_time);
+                else
+                    menu->FEMenu::Update(delta_time);
+            }
+        }
+
+        if (field_7C != nullptr)
+            field_7C->Update(delta_time);
+
+        already_drew_this_frame = false;
+    } else {
+        THISCALL(0x0062F190, this, delta_time);
+    }
+}
+
 void FrontEndMenuSystem::sub_619030(bool a2)
 {
     if constexpr (STANDALONE_SYSTEM) {
@@ -223,21 +257,7 @@ void FrontEndMenuSystem::sub_619030(bool a2)
         if (delta_time <= 0.0f)
             delta_time = 0.000001f;
 
-        UpdateButtonPresses();
-        if (m_index >= 0) {
-            auto *menu = field_4[m_index];
-            if (menu != nullptr) {
-                if (menu->m_vtbl == 0x00894598)
-                    static_cast<main_menu_legal *>(menu)->Update(delta_time);
-                else if (menu->m_vtbl == 0x00894648)
-                    static_cast<main_menu_start *>(menu)->Update(delta_time);
-                else
-                    menu->Update(delta_time);
-            }
-        }
-
-        if (field_7C != nullptr)
-            field_7C->Update(delta_time);
+        Update(delta_time);
 
         if (!a2) {
             nglListInit();
@@ -245,12 +265,23 @@ void FrontEndMenuSystem::sub_619030(bool a2)
             nglSetClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             nglSetAspectRatio(1.0f);
             nglSetOrthoMatrix(1000.0f, 10000.0f);
-            auto *menu = m_index >= 0 ? field_4[m_index] : nullptr;
-            if (menu != nullptr && menu->m_vtbl == 0x00894598)
-                static_cast<main_menu_legal *>(menu)->Draw();
-            else if (field_7C != nullptr)
-                field_7C->Draw();
+            auto *menu = m_index >= 0 && m_index < m_count ? field_4[m_index] : nullptr;
+            switch (m_index) {
+            case 0:
+                if (menu != nullptr)
+                    static_cast<main_menu_legal *>(menu)->Draw();
+                else if (field_7C != nullptr)
+                    field_7C->Draw();
+                break;
+            case 1:
+            default:
+                if (field_7C != nullptr)
+                    field_7C->Draw();
+                break;
+            }
         }
+
+        already_drew_this_frame = true;
     } else {
         THISCALL(0x00619030, this, a2);
     }
@@ -295,8 +326,10 @@ void FrontEndMenuSystem::_LoadAll()
 void FrontEndMenuSystem::RenderLoadMeter(bool a1)
 {
     if constexpr (STANDALONE_SYSTEM) {
-        sub_619030(a1);
-    } else if (!os_developer_options::instance->get_flag(mString{"NO_LOAD_SCREEN"})) {
+        if (!os_developer_options::instance->get_flag(
+                static_cast<os_developer_options::flags_t>(66)))
+            sub_619030(a1);
+    } else {
         THISCALL(0x00619230, this, a1);
     }
 }
@@ -305,6 +338,16 @@ void FrontEndMenuSystem::GoNextState()
 {
     if (this->field_30 == 10) {
         return;
+    }
+
+    if constexpr (STANDALONE_SYSTEM) {
+        if (field_30 == 3) {
+            field_30 = 4;
+            if (m_index != 1)
+                MakeActive(1);
+            field_52 = true;
+            return;
+        }
     }
 
     int v3;

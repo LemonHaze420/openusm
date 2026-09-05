@@ -45,6 +45,8 @@ struct FrontEndMenuSystem : FEMenuSystem {
     //0x00619230
     void RenderLoadMeter(bool a1);
 
+    void Update(Float delta_time);
+
     //0x00635BC0
     void GoNextState();
 

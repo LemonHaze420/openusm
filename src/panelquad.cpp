@@ -19,6 +19,36 @@
 #include <new>
 
 VALIDATE_SIZE(PanelQuad, 0x4C);
+namespace {
+vector2d section_get_min(const PanelQuadSection &section)
+{
+    const auto &quad = section.field_14;
+    vector2d result {
+        quad.field_0[0].pos.field_0,
+        quad.field_0[0].pos.field_4,
+    };
+    for (int vertex = 1; vertex < 4; ++vertex) {
+        result[0] = std::max(result[0], quad.field_0[vertex].pos.field_0);
+        result[1] = std::max(result[1], quad.field_0[vertex].pos.field_4);
+    }
+    return result;
+}
+
+vector2d section_get_max(const PanelQuadSection &section)
+{
+    const auto &quad = section.field_14;
+    vector2d result {
+        quad.field_0[0].pos.field_0,
+        quad.field_0[0].pos.field_4,
+    };
+    for (int vertex = 1; vertex < 4; ++vertex) {
+        result[0] = std::min(result[0], quad.field_0[vertex].pos.field_0);
+        result[1] = std::min(result[1], quad.field_0[vertex].pos.field_4);
+    }
+    return result;
+}
+}
+
 
 PanelQuad::PanelQuad()
 {
@@ -26,6 +56,9 @@ PanelQuad::PanelQuad()
         m_vtbl = 0x0087B990;
         field_10 = 4;
         field_4 = 1.0f;
+        pqs.m_data = nullptr;
+        pqs.m_max_size = 0;
+        pqs.field_10 = true;
         pmesh = nullptr;
         field_34 = 0.0f;
         field_38 = 1.0f;
@@ -35,6 +68,7 @@ PanelQuad::PanelQuad()
 }
 
 PanelQuad::PanelQuad(from_mash_in_place_constructor *a2)
+    : pqs(a2), field_3C(a2)
 {
     if constexpr (STANDALONE_SYSTEM) {
         field_10 = 4;
@@ -64,6 +98,9 @@ PanelQuad::PanelQuad(const char *a2) : field_3C(a2)
 {
     this->m_vtbl = 0x0087B990;
 
+    this->pqs.m_data = nullptr;
+    this->pqs.m_max_size = 0;
+    this->pqs.field_10 = true;
     this->field_34 = 0.0;
     this->field_14[0] = 0.0;
     this->pmesh = nullptr;
@@ -145,18 +182,82 @@ int PanelQuad::_get_mash_sizeof()
 
 vector2d PanelQuad::GetMax()
 {
-    vector2d result;
-    THISCALL(0x00616990, this, &result);
+    if constexpr (STANDALONE_SYSTEM) {
+        if (pmesh != nullptr) {
+            const auto *mesh = pmesh->field_40;
+            if (mesh != nullptr) {
+                return {
+                    mesh->SphereCenter[0] - mesh->SphereRadius,
+                    mesh->SphereCenter[1] - mesh->SphereRadius,
+                };
+            }
+            return {0.0f, 0.0f};
+        }
 
-    return result;
+        vector2d result {0.0f, 0.0f};
+        bool have_section = false;
+        if (pqs.m_data != nullptr && pqs.m_size > 0) {
+            for (int section_index = 0; section_index < pqs.m_size; ++section_index) {
+                const auto *section = pqs.m_data[section_index];
+                if (section == nullptr)
+                    continue;
+
+                const auto section_bounds = section_get_max(*section);
+                if (!have_section) {
+                    result = section_bounds;
+                    have_section = true;
+                } else {
+                    result[0] = std::min(result[0], section_bounds[0]);
+                    result[1] = std::min(result[1], section_bounds[1]);
+                }
+            }
+        }
+        return result;
+    } else {
+        vector2d result;
+        THISCALL(0x00616990, this, &result);
+        return result;
+    }
 }
 
 vector2d PanelQuad::GetMin()
 {
-    vector2d result;
-    THISCALL(0x006168C0, this, &result);
+    if constexpr (STANDALONE_SYSTEM) {
+        if (pmesh != nullptr) {
+            const auto *mesh = pmesh->field_40;
+            if (mesh != nullptr) {
+                return {
+                    mesh->SphereCenter[0] + mesh->SphereRadius,
+                    mesh->SphereCenter[1] + mesh->SphereRadius,
+                };
+            }
+            return {0.0f, 0.0f};
+        }
 
-    return result;
+        vector2d result {0.0f, 0.0f};
+        bool have_section = false;
+        if (pqs.m_data != nullptr && pqs.m_size > 0) {
+            for (int section_index = 0; section_index < pqs.m_size; ++section_index) {
+                const auto *section = pqs.m_data[section_index];
+                if (section == nullptr)
+                    continue;
+
+                const auto section_bounds = section_get_min(*section);
+                if (!have_section) {
+                    result = section_bounds;
+                    have_section = true;
+                } else {
+                    result[0] = std::max(result[0], section_bounds[0]);
+                    result[1] = std::max(result[1], section_bounds[1]);
+                }
+            }
+        }
+        return result;
+    } else {
+        vector2d result;
+        THISCALL(0x006168C0, this, &result);
+        return result;
+    }
 }
 
 void PanelQuad::sub_616710(Float a2, Float a3)
