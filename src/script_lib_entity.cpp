@@ -12,6 +12,7 @@
 #include "utility.h"
 #include "vm_stack.h"
 #include "xbpack.h"
+#include <cmath>
 
 ai::ai_core *get_ai_core_from_vhandle(entity_base_vhandle a1)
 {
@@ -2358,7 +2359,7 @@ struct slf__entity__render_name__num__t : script_library_class::function {
         SLF_PARMS;
 
         auto *entity = parms->me.get_volatile_ptr();
-        if (entity != nullptr && parms->enabled != 0.0f) {
+        if (entity != nullptr && std::fpclassify(parms->enabled) != FP_ZERO) {
             (void)entity->get_id().to_string();
         }
 

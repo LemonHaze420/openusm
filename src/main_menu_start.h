@@ -14,4 +14,12 @@ struct main_menu_start : FEMenu {
     FEMenuSystem *field_12C;
 
     main_menu_start(FEMenuSystem *a2, int a3, int a4);
+
+    void _Init();
+    void _OnActivate();
+    void _OnDeactivate();
+    void OnStart(int controller);
+    void OnCross(int controller);
+    bool IsIdle() const;
+    void Update(Float delta_time);
 };

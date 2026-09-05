@@ -37,7 +37,6 @@ struct slf__create_progression_menu_entry__str__str__t : script_library_class::f
 };
 
 extern int vm_debug_menu_entry_garbage_collection_id;
-
 void construct_debug_menu_lib();
 
 extern void script_lib_debug_menu_patch();

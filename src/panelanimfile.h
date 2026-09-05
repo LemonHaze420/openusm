@@ -20,6 +20,7 @@ struct PanelAnimFile {
 
     //0x00628A40
     void Update(Float a2);
+    void Stop();
 
     //0x00617170
     void PostUnmashFixup(PanelFile *a1);

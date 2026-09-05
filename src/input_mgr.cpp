@@ -143,7 +143,7 @@ void input_mgr::create_inst()
 
 void input_mgr::register_control(const game_control &control)
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         _std::map<int, game_control> *map = &this->control_map;
 
         assert(map->find(control.name) == map->end());
@@ -223,37 +223,27 @@ void input_mgr::scan_devices()
         THISCALL(0x00599090, this);
     }
 
-    {
-        using map_t = std::decay_t<decltype(this->control_map)>;
-
-        void(__fastcall * find)(const map_t *, void *edx, map_t::iterator *, const int *a3) = CAST(find, 0x005E47A0);
-
-        const int control = 14;
-        map_t::iterator it;
-        find(&this->control_map, nullptr, &it, &control);
-
-        assert(it != this->control_map.end());
-
-        assert(it->second.mapping.size() == 2u);
-
-        assert(it->second.mapping.front().m_device_id == 0x1E8480);
-    }
 }
 
-void input_mgr::frame_advance(Float a2)
+void input_mgr::frame_advance(Float time_inc)
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
+        (void)time_inc;
+        if (rumble_ptr == nullptr)
+            return;
+
+        assert(rumble_ptr->field_0 == 0 && !rumble_ptr->field_5C &&
+               "Standalone active vibration is not initialized");
     } else {
-        THISCALL(0x005DAB20, this, a2);
+        THISCALL(0x005DAB20, this, time_inc);
     }
 }
 
 float input_mgr::get_control_state(int control, device_id_t a3) const
 {
     TRACE("input_mgr::get_control_state");
-    sp_log("control = %d", control);
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
 #if 1
         auto it = this->control_map.find(control);
         assert(it != this->control_map.end());
@@ -361,20 +351,12 @@ void input_mgr::set_control_delta_monkey_callback(float (*a2)(int))
 }
 
 input_device *input_mgr::get_device_from_map_internal(device_id_t id) const
-    {
-    if constexpr (0) {
-        for (auto &p : this->device_map) {
-            auto *d = p.second;
-            if (d != nullptr) {
-                if (d->get_id() == id) {
-                    return d;
-    }
-            }
-        }
-
-        return nullptr;
+{
+    if constexpr (STANDALONE_SYSTEM) {
+        const auto it = device_map.find(id);
+        return it != device_map.end() ? it->second : nullptr;
     } else {
-        input_device *(__fastcall * func)(const void *, void *edx, device_id_t id) = CAST(func, 0x005D59B0);
+        input_device *(__fastcall * func)(const void *, void *, device_id_t) = CAST(func, 0x005D59B0);
         return func(this, nullptr, id);
     }
 }
@@ -383,13 +365,9 @@ void input_mgr::poll_devices()
 {
     TRACE("input_mgr::poll_devices");
 
-    sp_log("%d", this->device_map.size());
-
-    if constexpr (0) {
-        for (auto &dev : this->device_map) {
-            dev.second->poll();
-        }
-
+    if constexpr (STANDALONE_SYSTEM) {
+        for (auto &device : this->device_map)
+            device.second->poll();
     } else {
         THISCALL(0x005D5A60, this);
     }
@@ -398,7 +376,6 @@ void input_mgr::poll_devices()
 float input_mgr::get_control_delta(int control, device_id_t a3) const
 {
     TRACE("input_mgr::get_control_delta");
-    sp_log("control = %d", control);
 
     if constexpr (1) {
         if (m_delta_callback != nullptr) {
@@ -406,14 +383,15 @@ float input_mgr::get_control_delta(int control, device_id_t a3) const
         }
 
         auto it = [this, control]() {
-            _std::map<int, game_control>::iterator it;
-
-            THISCALL(0x005E47A0, &this->control_map, &it, &control);
-
-            assert(it != control_map.end());
-
-            return it;
+#if STANDALONE_SYSTEM
+            return this->control_map.find(control);
+#else
+            _std::map<int, game_control>::iterator result;
+            THISCALL(0x005E47A0, &this->control_map, &result, &control);
+            return result;
+#endif
         }();
+        assert(it != control_map.end());
 
         auto &dalist = it->second.mapping;
         int size = dalist.size();
@@ -485,39 +463,19 @@ float input_mgr::get_control_delta(int control, device_id_t a3) const
 input_device *input_mgr::get_device_from_map(device_id_t id) const
 {
     TRACE("input_mgr::get_device_from_map");
-
-    if constexpr (1) {
-        assert(id == INVALID_DEVICE_ID || IS_JOYSTICK_DEVICE(id) || IS_KEYBOARD_DEVICE(id) || IS_MOUSE_DEVICE(id));
-
-        if (id <= 0x1E8480) {
-            if (IS_KEYBOARD_DEVICE(id)) {
-                return this->keyboard_devices[0];
-            }
-
-            if (IS_JOYSTICK_DEVICE(id)) {
-                return (input_device *)*(bit_cast<uint32_t *>(&this[0xFFFF562B] + id - 0x11));
-            }
-
-            return this->get_device_from_map(id);
-        }
-
-        if ( IS_MOUSE_DEVICE(id) ) {
-            return this->mouse_devices[0];
-        }
-
-        return this->get_device_from_map(id);
-
+    if constexpr (STANDALONE_SYSTEM) {
+        const auto it = device_map.find(id);
+        return it != device_map.end() ? it->second : nullptr;
     } else {
-        return (input_device *) THISCALL(0x0055E850, this, id);
+        return (input_device *)THISCALL(0x0055E850, this, id);
     }
 }
 
 void input_mgr::clear_mapping()
-        {
-    if constexpr (1) {
-        for (auto &pair : this->control_map) {
-            pair.second.type = {};
-        }
+{
+    if constexpr (STANDALONE_SYSTEM) {
+        for (auto &pair : control_map)
+            pair.second.mapping.clear();
     } else {
         THISCALL(0x005DC2A0, this);
     }

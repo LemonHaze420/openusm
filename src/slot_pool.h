@@ -20,6 +20,9 @@ struct slot_pool {
     int field_18[8];
     int field_38;
 
+    slot_pool()
+        : slot_pool(192) {}
+
     slot_pool(int a2)
     {
         this->MAX_SLOTS = a2;
@@ -39,6 +42,11 @@ struct slot_pool {
         this->field_0 = v3 - 1;
 
         this->sub_64A510();
+    }
+
+    ~slot_pool()
+    {
+        delete[] this->slots;
     }
 
     void sub_64A510()

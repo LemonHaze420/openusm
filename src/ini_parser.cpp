@@ -216,6 +216,7 @@ void ini_parser::parse(const char *ini_filename, os_developer_options *a2)
                             break;
                         default:
                             names = nullptr;
+                            num_names = 0;
                             break;
                         }
 

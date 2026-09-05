@@ -2,9 +2,12 @@
 
 #include "mvector.h"
 
+#include "float.hpp"
+
 struct PanelQuad;
 struct PanelAnimKeyframe;
 struct PanelFile;
+struct matrix4x4;
 
 struct PanelAnim {
     mVector<PanelAnimKeyframe> field_0;
@@ -15,4 +18,6 @@ struct PanelAnim {
     PanelAnim();
 
     void PostUnmashFixup(PanelFile *pf);
+    float GetVisibility(Float time) const;
+    matrix4x4 GetXFormMatrix(Float time) const;
 };

@@ -37,7 +37,7 @@ void calc_rb_mat_from_bone(void *a1, rigid_body *a2, int a3)
 
 void physics_system_init()
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         phys_mem_info v1{};
         v1.field_0 += 122;
         v1.field_4 += 45;

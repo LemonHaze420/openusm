@@ -3,6 +3,7 @@
 #include "float.hpp"
 #include "us_pcuv_shader.h"
 
+#include "utility.h"
 #include <cstdint>
 #include <vector.hpp>
 

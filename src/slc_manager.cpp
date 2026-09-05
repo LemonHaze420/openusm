@@ -41,6 +41,21 @@ _std::vector<script_library_class *> *&slc_manager_class_array = g_slc_manager_c
 
 #endif
 
+namespace {
+void reject_unported_client_allocation(
+    script_executable *, _std::list<uint32_t> &allocations, _std::list<mString> &)
+{
+    assert(allocations.empty() &&
+           "Standalone client script allocation cleanup is not implemented");
+}
+
+void ignore_panel_references(
+    script_executable *, _std::list<uint32_t> &, _std::list<mString> &)
+{
+    // Panels are non-owning script references.
+}
+}
+
 bool compare_script_library_class(script_library_class *a, script_library_class *b)
 {
     return (strcmp(a->name, b->name) < 0);
@@ -166,8 +181,15 @@ struct slf__set_max_sounds__num__t : script_library_class::function {
 void register_standard_script_libs()
 {
     TRACE("register_standard_script_libs");
-
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
+        slc_global() = new (mem_alloc(sizeof(script_library_class)))
+            script_library_class {"_global_slc", 0, nullptr, false};
+        slc_num() = reinterpret_cast<slc_num_t *>(
+            new (mem_alloc(sizeof(slc_num_t)))
+                script_library_class {"num", 4, nullptr, false});
+        slc_str() = reinterpret_cast<slc_str_t *>(
+            new (mem_alloc(sizeof(slc_str_t)))
+                script_library_class {"str", 4, nullptr, false});
     } else {
     CDECL_CALL(0x005AB800);
 }
@@ -176,8 +198,30 @@ void register_standard_script_libs()
 void construct_client_script_libs()
 {
     TRACE("construct_client_script_libs");
-
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
+        script_manager::register_allocated_stuff_callback(
+            reject_unported_client_allocation);
+        construct_debug_menu_lib();
+        script_manager::register_allocated_stuff_callback(
+            reject_unported_client_allocation);
+        script_manager::register_allocated_stuff_callback(
+            reject_unported_client_allocation);
+        script_manager::register_allocated_stuff_callback(
+            reject_unported_client_allocation);
+        script_manager::register_allocated_stuff_callback(
+            reject_unported_client_allocation);
+        script_manager::register_allocated_stuff_callback(ignore_panel_references);
+        for (int i = 0; i < 5; ++i)
+            script_manager::register_allocated_stuff_callback(
+                reject_unported_client_allocation);
+        script_manager::register_allocated_stuff_callback(
+            reject_unported_client_allocation);
+        script_manager::register_allocated_stuff_callback(
+            reject_unported_client_allocation);
+        script_manager::register_allocated_stuff_callback(
+            reject_unported_client_allocation);
+        script_manager::register_allocated_stuff_callback(
+            reject_unported_client_allocation);
     } else {
     CDECL_CALL(0x0058F9C0);
 }
@@ -186,11 +230,8 @@ void construct_client_script_libs()
 void destruct_client_script_libs()
 {
     TRACE("destruct_client_script_libs");
-
-    if constexpr (0) {
-    } else {
-    CDECL_CALL(0x0058FA50);
-}
+    if constexpr (!STANDALONE_SYSTEM)
+        CDECL_CALL(0x0058FA50);
 }
 
 struct slf__add_civilian_info__vector3d__num__num__num__t : script_library_class::function {
@@ -1408,25 +1449,6 @@ slf__create_polytube__str__t::slf__create_polytube__str__t(const char *a3) : fun
     m_vtbl->__cl = CAST(m_vtbl->__cl, address);
 }
 
-struct slf__create_progression_menu_entry__str__str__t : script_library_class::function {
-    slf__create_progression_menu_entry__str__str__t(const char *a3);
-
-    bool operator()(vm_stack &stack, [[maybe_unused]] script_library_class::function::entry_t entry) const
-    {
-        TRACE("slf__create_progression_menu_entry__str__str__t::operator()");
-
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00678210);
-        return func(this, nullptr, &stack, entry);
-    }
-};
-
-slf__create_progression_menu_entry__str__str__t::slf__create_progression_menu_entry__str__str__t(const char *a3)
-    : function(a3)
-{
-    m_vtbl = CAST(m_vtbl, 0x0089C714);
-    FUNC_ADDRESS(address, &slf__create_progression_menu_entry__str__str__t::operator());
-    m_vtbl->__cl = CAST(m_vtbl->__cl, address);
-}
 
 struct slf__create_sound_inst__t : script_library_class::function {
     slf__create_sound_inst__t(const char *a3);

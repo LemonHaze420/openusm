@@ -62,20 +62,35 @@ void sound_manager::load_common_sound_bank(bool a1)
 
 void sound_manager::create_inst()
 {
-    if constexpr (0) {
-    } else {
-        CDECL_CALL(0x00543500);
+#if STANDALONE_SYSTEM
+    for (auto &volume : s_volumes_by_type) {
+        volume.field_0 = 1.0f;
     }
+
+    for (auto &slot : s_sound_bank_slots()) {
+        slot = {};
+        slot.nsl_voice_bank_id = NSL_BANK_ID_INVALID;
+        slot.nsl_non_voice_bank_id = NSL_BANK_ID_INVALID;
+        slot.field_30 = NSL_BANK_ID_INVALID;
+        slot.field_34 = NSL_BANK_ID_INVALID;
+    }
+    s_sound_manager_initialized = true;
+#else
+    CDECL_CALL(0x00543500);
+#endif
 }
 
 void sound_manager::delete_inst()
 {
     TRACE("sound_manager::delete_inst");
-
-    if constexpr (0) {
-    } else {
-        CDECL_CALL(0x00543EF0);
+#if STANDALONE_SYSTEM
+    for (auto &slot : s_sound_bank_slots()) {
+        slot.unload();
     }
+    s_sound_manager_initialized = false;
+#else
+    CDECL_CALL(0x00543EF0);
+#endif
 }
 
 void sound_manager::frame_advance(Float a1)

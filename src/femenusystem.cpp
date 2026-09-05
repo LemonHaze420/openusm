@@ -3,6 +3,7 @@
 #include "common.h"
 #include "femenu.h"
 #include "func_wrapper.h"
+#include "input.h"
 #include "input_mgr.h"
 #include "memory.h"
 #include "trace.h"
@@ -14,6 +15,40 @@
 VALIDATE_SIZE(FEMenuSystem, 0x2C);
 
 bool getButtonState(int a2, int a3);
+
+namespace {
+bool get_keyboard_button_state(int button, int controller)
+{
+    if (!STANDALONE_SYSTEM || controller != 0 || Input::instance == nullptr) {
+        return false;
+    }
+
+    const auto is_down = [](int key) {
+        return Input::instance->m_state_keys[key] != 0;
+    };
+
+    switch (button) {
+    case 1:
+        return is_down(DIK_TAB);
+    case 2:
+        return is_down(DIK_RETURN);
+    case 4:
+        return is_down(DIK_UP) || is_down(DIK_W);
+    case 8:
+        return is_down(DIK_DOWN) || is_down(DIK_S);
+    case 16:
+        return is_down(DIK_LEFT) || is_down(DIK_A);
+    case 32:
+        return is_down(DIK_RIGHT) || is_down(DIK_D);
+    case 64:
+        return is_down(DIK_SPACE);
+    case 128:
+        return is_down(DIK_ESCAPE);
+    default:
+        return false;
+    }
+}
+}
 
 FEMenuSystem::FEMenuSystem(int a2, font_index a3)
 {
@@ -109,14 +144,22 @@ void FEMenuSystem::UpdateButtonDown()
 
 char FEMenuSystem::GetDefaultColorScheme()
 {
-    char (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x2C));
-    return func(this);
+    if constexpr (STANDALONE_SYSTEM) {
+        return field_28;
+    } else {
+        char(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x2C));
+        return func(this);
+    }
 }
 
 bool FEMenuSystem::GetSingleInput()
 {
-    bool (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x34));
-    return func(this);
+    if constexpr (STANDALONE_SYSTEM) {
+        return field_29;
+    } else {
+        bool(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x34));
+        return func(this);
+    }
 }
 
 void FEMenuSystem::OnButtonPress(int a2, int a3)
@@ -253,6 +296,9 @@ int sub_618A40(int a2, int a3)
 
 bool getButtonState(int a2, int a3)
 {
+    if (get_keyboard_button_state(a2, a3)) {
+        return true;
+    }
     if constexpr (1) {
         int a2a;
         int v2;
@@ -359,34 +405,27 @@ void FEMenuSystem::UpdateButtonPresses()
 {
     TRACE("FEMenuSystem::UpdateButtonPresses():");
 
-    if constexpr (0) {
-        int v2 = 0;
-        for (const auto &v3 : this->field_18) {
-            for (int i = 1; i < 16384; i *= 2) {
-                auto *vtbl = bit_cast<fastcall_call(*)[16]>(this->m_vtbl);
+    if constexpr (STANDALONE_SYSTEM) {
+        int controller = 0;
+        for (auto &buttons_down : field_18) {
+            for (int button = 1; button < 16384; button *= 2) {
+                const bool was_down = (buttons_down & button) != 0;
+                const bool is_down = getButtonState(button, controller);
 
-                if (v3 & i && !getButtonState(i, v2)) {
-                    this->field_18[v2] &= ~static_cast<uint16_t>(i);
-
-                    this->OnButtonRelease(i, v2);
+                if (was_down && !is_down) {
+                    buttons_down &= ~static_cast<uint16_t>(button);
+                    OnButtonRelease(button, controller);
                     return;
                 }
 
-                if (!(v3 & i) && getButtonState(i, v2)) {
-                    this->field_18[v2] |= static_cast<uint16_t>(i);
-
-                    auto *func = (*vtbl)[14];
-                    if (bit_cast<std::intptr_t>(func) == 0x006187D0) {
-                        this->OnButtonPress(i, v2);
-                    } else {
-                        func(this, i, v2);
-                    }
-
+                if (!was_down && is_down) {
+                    buttons_down |= static_cast<uint16_t>(button);
+                    OnButtonPress(button, controller);
                     return;
                 }
             }
 
-            ++v2;
+            ++controller;
         }
     } else {
         THISCALL(0x006298D0, this);

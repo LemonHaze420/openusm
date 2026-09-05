@@ -1,4 +1,5 @@
 #include "meta_anim_interact.h"
+#include "animation_controller.h"
 
 #include "common.h"
 #include "func_wrapper.h"

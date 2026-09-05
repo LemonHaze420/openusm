@@ -19,6 +19,79 @@ VALIDATE_SIZE(pc_joypad_device, 0x9Cu);
 VALIDATE_OFFSET(pc_joypad_device, field_70, 0x70);
 
 VALIDATE_SIZE(InputCapabilities, 0x28);
+#if STANDALONE_SYSTEM
+namespace {
+device_id_t __fastcall joypad_get_id(const input_device *device)
+{
+    return static_cast<device_id_t>(static_cast<const pc_joypad_device *>(device)->field_4);
+}
+
+int __fastcall joypad_get_axis_count(const input_device *)
+{
+    return 23;
+}
+
+int __fastcall joypad_get_axis_id(input_device *, void *, int axis)
+{
+    return axis;
+}
+
+float __fastcall joypad_get_axis_state(input_device *device, void *, int axis, int slot)
+{
+    return static_cast<pc_joypad_device *>(device)->_get_axis_state(
+        static_cast<pc_joypad_device::Axis>(axis), slot);
+}
+
+float __fastcall joypad_get_axis_old_state(input_device *device, void *, int axis, int slot)
+{
+    return static_cast<pc_joypad_device *>(device)->_get_axis_old_state(
+        static_cast<pc_joypad_device::Axis>(axis), slot);
+}
+
+float __fastcall joypad_get_axis_delta(input_device *device, void *, int axis, int slot)
+{
+    return static_cast<pc_joypad_device *>(device)->_get_axis_delta(
+        static_cast<pc_joypad_device::Axis>(axis), slot);
+}
+
+void __fastcall joypad_poll(input_device *device)
+{
+    static_cast<pc_joypad_device *>(device)->_poll();
+}
+
+void __fastcall joypad_finalize(input_device *, void *, bool)
+{
+}
+
+bool __fastcall joypad_is_connected(const input_device *device)
+{
+    return const_cast<pc_joypad_device *>(static_cast<const pc_joypad_device *>(device))->_is_connected();
+}
+
+int __fastcall joypad_clear_state(input_device *device)
+{
+    static_cast<pc_joypad_device *>(device)->_clear_state();
+    return 0;
+}
+
+void __fastcall joypad_vibrate(input_device *, void *, int, int, int, int)
+{
+}
+
+void __fastcall joypad_vibrate_scalar(input_device *, void *, Float)
+{
+}
+
+void __fastcall joypad_stop_vibration(input_device *)
+{
+}
+
+bool __fastcall joypad_is_vibrator_present(const input_device *)
+{
+    return false;
+}
+}
+#endif
 
 int sub_81D1C0(int a1)
 {
@@ -94,19 +167,29 @@ pc_joypad_device::pc_joypad_device(int in_port) : input_device()
         auto v3 = (!g_master_clock_is_up);
 
 #if STANDALONE_SYSTEM
-        if constexpr (1)
+        static vtbl_t vtbl{
+            0,
+            0,
+            joypad_get_id,
+            joypad_get_axis_count,
+            joypad_get_axis_id,
+            joypad_get_axis_state,
+            joypad_get_axis_old_state,
+            joypad_get_axis_delta,
+            joypad_poll,
+            0,
+            joypad_finalize,
+            joypad_is_connected,
+            joypad_clear_state,
+            joypad_vibrate,
+            joypad_vibrate_scalar,
+            joypad_stop_vibration,
+            joypad_is_vibrator_present,
+        };
+        this->m_vtbl = &vtbl;
 #else
-        if constexpr (0)
-#endif
-        {
-            static vtbl_t vtbl{};
-            vtbl.get_id = bit_cast<decltype(vtbl_t::get_id)>(func_address(&_get_id));
-            vtbl.is_connected = bit_cast<decltype(vtbl_t::is_connected)>(func_address(&_is_connected));
-
-            this->m_vtbl = &vtbl;
-        } else {
         this->m_vtbl = CAST(m_vtbl, 0x0088EA80);
-        }
+#endif
 
         if (v3) {
             timeBeginPeriod(1u);

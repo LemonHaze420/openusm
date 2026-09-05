@@ -68,9 +68,12 @@ if(CHECK_STRUCT_SIZES)
     add_compile_definitions(CHECK_STRUCT_SIZES)
 endif()
 
-option(SETUP_STANDALONE_SYSTEM "" OFF)
+option(SETUP_STANDALONE_SYSTEM
+    "Build the native USM executable instead of the proxy DLL" OFF)
 if(SETUP_STANDALONE_SYSTEM)
-    add_compile_definitions(SETUP_STANDALONE_SYSTEM)
+    add_compile_definitions(STANDALONE_SYSTEM=1)
+else()
+    add_compile_definitions(STANDALONE_SYSTEM=0)
 endif()
 
 add_compile_definitions(CINTERFACE)
@@ -134,17 +137,24 @@ target_compile_options(usm
     ${flags}
 )
 
-if(NOT SETUP_STANDALONE_SYSTEM)
+if(SETUP_STANDALONE_SYSTEM)
+    add_executable(openusm_standalone WIN32 main.cpp)
+    set_target_properties(openusm_standalone PROPERTIES OUTPUT_NAME USM)
+    set(OPENUSM_RUNTIME_TARGET openusm_standalone)
+    target_link_options(openusm_standalone PRIVATE
+        "-Wl,-Map,${CMAKE_BINARY_DIR}/USM.map"
+        "-Wl,--disable-dynamicbase")
+else()
     add_library(binkw32 SHARED main.cpp)
     if(NOT OPENUSM_DEBUG_SYMBOLS)
         set_property(TARGET binkw32 APPEND_STRING PROPERTY LINK_FLAGS " -s")
     endif()
-target_compile_options(binkw32
-  PRIVATE
-    ${flags}
-)
-    target_link_libraries(binkw32 PUBLIC dxerr8 usm)
+    set(OPENUSM_RUNTIME_TARGET binkw32)
 endif()
+target_compile_options(${OPENUSM_RUNTIME_TARGET}
+    PRIVATE
+    ${flags})
+target_link_libraries(${OPENUSM_RUNTIME_TARGET} PUBLIC dxerr8 usm)
 
 
 file(GLOB_RECURSE BASE_SRC "./src/base/source/*.cpp")

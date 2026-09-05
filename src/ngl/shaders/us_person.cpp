@@ -1192,10 +1192,6 @@ void USPersonNode::RenderWithDisableShader()
             }
         }
     } else {
-        if (this->m_meshNode) {
-            if (this->m_meshNode->field_88->Name)
-                dbgReplaceMesh = getMod(this->m_meshNode->field_88->Name->m_hash);
-        }
 
         THISCALL(0x0041D180, this);
     }
@@ -1208,7 +1204,7 @@ void USPersonNode::_Render()
     if constexpr (1) {
         auto &v2 = this->m_meshNode->field_8C;
         USPersonParam def_param {&DefaultParams()};
-        auto *params = v2.GetOrDefault<USPersonParam>(def_param)->field_0;
+        [[maybe_unused]] auto *params = v2.GetOrDefault<USPersonParam>(def_param)->field_0;
         /*sp_log("field_30 = %f, field_34 = %f, field_38 = %s, field_3C = %d, disableOutline = %s, mask = 0x%X, disableZDepth = %s",
                 params->field_30,
                 params->field_34,
@@ -1233,7 +1229,7 @@ void USPersonNode::_Render()
             //sp_log("%s", v53.to_string());
         }
 
-        auto *file = this->m_material->File;
+        [[maybe_unused]] auto *file = this->m_material->File;
         //sp_log("material = %s, mesh_file = %s", this->m_material->Name->to_string(), file->FileName.to_string());
 
         //sp_log("tex0 = %s", this->field_1C->FileName.to_string());

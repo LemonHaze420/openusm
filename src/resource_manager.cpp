@@ -90,9 +90,7 @@ void resource_manager::delete_inst()
                 }
             }
 
-            if (partitions != nullptr) {
-                operator delete(partitions);
-            }
+            delete partitions;
         }
 
         partitions = nullptr;
@@ -138,7 +136,7 @@ VALIDATE_SIZE(xbox_amalgapak_location, XBOX_AMALGAPAK_LOCATION_SIZE);
 resource_key_type convert_key_type(resource_key_type type)
 {
     const auto raw_type = static_cast<int>(type);
-    assert(raw_type >= 0 && raw_type < xbpack::type_count);
+    assert(raw_type >= 0 && raw_type < static_cast<int>(xbpack::type_count));
     return static_cast<resource_key_type>(xbpack::pc_type(raw_type));
 }
 
@@ -1068,7 +1066,7 @@ uint8_t *get_resource(const resource_key &resource_id, int *mash_data_size, reso
     TRACE("resource_manager::get_resource", resource_id.get_platform_string(g_platform).c_str());
     
     if constexpr (1) {
-        assert(!g_is_the_packer() && "Don't call this function while packing!");
+        assert(!g_is_the_packer && "Don't call this function while packing!");
         assert(resource_id.is_set());
 
         auto *context = get_resource_context();

@@ -98,16 +98,20 @@ void nglParseFDF(char *a3, nglFont *font)
 
 nglGlyphInfo *nglFont::GetGlyphInfo(unsigned char Character)
 {
-    if (Character < this->Header.FirstGlyph || Character >= this->Header.NumGlyphs + this->Header.FirstGlyph) {
+    if (Character < this->Header.FirstGlyph ||
+        Character >= this->Header.NumGlyphs + this->Header.FirstGlyph) {
         return &this->GlyphInfo[32 - this->Header.FirstGlyph];
     }
 
     assert(Character >= Header.FirstGlyph && Character < Header.FirstGlyph + Header.NumGlyphs &&
            "Out of range character in string.");
 
-    assert(GlyphInfo[Character - Header.FirstGlyph].GlyphSize[0] != 0 && "Trying to render a glyph that has 0 width.");
+    auto *glyph = &this->GlyphInfo[Character - this->Header.FirstGlyph];
+    if (Character != ' ' && glyph->GlyphSize[0] == 0) {
+        return &this->GlyphInfo['?' - this->Header.FirstGlyph];
+    }
 
-    return &this->GlyphInfo[Character - this->Header.FirstGlyph];
+    return glyph;
 }
 
 void nglFont::sub_77E2F0(uint8_t a2, float *a3, float *a4, float *a5, float *a6, Float a7, Float a8)

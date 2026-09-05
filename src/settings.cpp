@@ -183,11 +183,9 @@ bool Settings::sub_81CC80(const char *Source, DWORD dwType, BYTE *lpData, DWORD 
     }
 }
 
-bool Settings::sub_81D050(const char *a2, bool a3)
+bool Settings::sub_81D050(const char *name, bool default_value)
 {
-    auto result = (bool)THISCALL(0x0081D050, this, a2, a3);
-
-    return result;
+    return sub_81D010(name, default_value ? 1 : 0) != 0;
 }
 
 void settings_patch()

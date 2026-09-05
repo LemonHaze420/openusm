@@ -94,33 +94,69 @@ matrix4x4 Perspective(float a2, float a3, float Near, float Far)
     return result;
 }
 
-matrix4x4 sub_76A870(matrix4x4 &a1)
+matrix4x4 sub_76A870([[maybe_unused]] matrix4x4 &a1)
 {
-    matrix4x4 result;
-    CDECL_CALL(0x0076A870, &result, &a1);
-
-    return result;
+    if constexpr (STANDALONE_SYSTEM) {
+        matrix4x4 result;
+        const auto *inverse = D3DXMatrixInverse(
+            bit_cast<D3DXMATRIX *>(&result),
+            nullptr,
+            bit_cast<const D3DXMATRIX *>(&nglCurScene->WorldToScreen));
+        assert(inverse != nullptr && "World-to-screen matrix is singular");
+        return result;
+    } else {
+        matrix4x4 result;
+        CDECL_CALL(0x0076A870, &result, &a1);
+        return result;
+    }
 }
 
-matrix4x4 sub_76A760(matrix4x4 &a1)
+matrix4x4 sub_76A760([[maybe_unused]] matrix4x4 &a1)
 {
-    matrix4x4 result;
-    CDECL_CALL(0x0076A760, &result, &a1);
-
-    return result;
+    if constexpr (STANDALONE_SYSTEM) {
+        auto *texture = nglCurScene->field_334;
+        const float half_width =
+            (texture->field_34 & 4u) != 0 ? 320.0f : texture->m_width * 0.5f;
+        const float half_height =
+            (texture->field_34 & 4u) != 0 ? 240.0f : texture->m_height * 0.5f;
+        return matrix4x4{
+            vector4d{1.0f / half_width, 0.0f, 0.0f, 0.0f},
+            vector4d{0.0f, 1.0f / half_height, 0.0f, 0.0f},
+            vector4d{0.0f, 0.0f, 1.0f, 0.0f},
+            vector4d{-1.0f, -1.0f, 0.0f, 1.0f}};
+    } else {
+        matrix4x4 result;
+        CDECL_CALL(0x0076A760, &result, &a1);
+        return result;
+    }
 }
 
-float *sub_64A650(float *a1, const float *a2)
+float *sub_64A650(float *out, const float *angle)
 {
-    return (float *)CDECL_CALL(0x0064A650, a1, a2);
+    if constexpr (STANDALONE_SYSTEM) {
+        float sine;
+        float cosine;
+        fast_sin_cos_approx(*angle, &sine, &cosine);
+        *out = -cosine / sine;
+        return out;
+    } else {
+        return reinterpret_cast<float *>(CDECL_CALL(0x0064A650, out, angle));
+    }
 }
 
 matrix4x4 sub_77CB90()
 {
-    matrix4x4 result;
-    CDECL_CALL(0x0077CB90, &result);
-
-    return result;
+    if constexpr (STANDALONE_SYSTEM) {
+        return matrix4x4{
+            vector4d{1.0f, 0.0f, 0.0f, 0.0f},
+            vector4d{0.0f, -1.0f, 0.0f, 0.0f},
+            vector4d{0.0f, 0.0f, 1.0f, 0.0f},
+            vector4d{0.0f, 0.0f, 0.0f, 1.0f}};
+    } else {
+        matrix4x4 result;
+        CDECL_CALL(0x0077CB90, &result);
+        return result;
+    }
 }
 
 
@@ -224,7 +260,7 @@ void nglCalculateMatrices(bool a1)
 {
     TRACE("nglCalculateMatrices", std::to_string(int(a1)).c_str());
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         if (a1) {
             nglCurScene->field_3E4 = true;
         } else if (nglCurScene->field_3E4) {
@@ -510,13 +546,12 @@ void nglSetupScene(nglScene *a1, nglSceneParamType a2)
 {
     TRACE("nglSetupScene", std::to_string(uint32_t(a2)).c_str());
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         nglScene *v2 = nglCurScene;
         nglCurScene = a1;
 
         switch (a2) {
         case 0: {
-            a1 = new nglScene{};
 
             nglSetDefaultSceneParams();
         } break;

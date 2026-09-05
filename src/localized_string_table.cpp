@@ -26,7 +26,11 @@ constexpr int PACK_GLOBAL_TEXT_COUNT = PC_GLOBAL_TEXT_COUNT;
 
 int expected_global_text_count()
 {
+#ifdef OPENUSM_XBPACK_V10
     return g_platform == NL_PLATFORM_XBOX ? PACK_GLOBAL_TEXT_COUNT : PC_GLOBAL_TEXT_COUNT;
+#else
+    return PC_GLOBAL_TEXT_COUNT;
+#endif
 }
 
 #ifdef OPENUSM_XBPACK_V10

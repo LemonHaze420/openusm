@@ -20,7 +20,7 @@ void nglDxSetTexture(uint32_t a1, nglTexture *Tex, uint8_t a3, int a4)
 {
     TRACE("nglDxSetTexture");
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         assert(Tex != nullptr && "NULL texture pointer.");
 
         auto *v4 = Tex;
@@ -61,7 +61,7 @@ void nglDxSetTexture(uint32_t a1, nglTexture *Tex, uint8_t a3, int a4)
                     v5->Frames[v11]->field_34 |= 8u;
                 }
 
-                v5->DXTexture->lpVtbl->LockRect(v5->DXTexture, 0, &v5->field_24, 0, 0);
+                v5->DXTexture->lpVtbl->LockRect(v5->DXTexture, 0, &v5->field_24, nullptr, 0);
                 auto *v17 = (char *)v5->field_24.pBits;
                 for (int i = 0; i < v5->m_height; ++i) {
                     auto *v14 = (uint32_t *)&v17[i * v5->field_24.Pitch];
@@ -81,7 +81,7 @@ void nglDxSetTexture(uint32_t a1, nglTexture *Tex, uint8_t a3, int a4)
                                 (uint8_t)BYTE2(
                                     *(uint32_t *)&v16->m_palette_entries[v5->field_30[i * v5->m_width + v15]]);
                             ++v15;
-                        } while (v15 < v5->m_width);
+                        } while (v15 < static_cast<uint32_t>(v5->m_width));
                         v4 = Tex;
                         v9 = a1;
                     }
@@ -103,31 +103,21 @@ void nglDxSetTexture(uint32_t a1, nglTexture *Tex, uint8_t a3, int a4)
 
 void nglSetSamplerState(DWORD sampler, D3DSAMPLERSTATETYPE type, DWORD value)
 {
-    if constexpr (1) {
-        auto result = type + 14 * sampler;
-        auto *v4 = (DWORD *)(4 * result + 0x971FF0);
-
-        static Var<uint32_t[1]> dword_971FF0{0x00971FF0};
-        if (dword_971FF0()[result] != value) {
-            result = IDirect3DDevice9_SetSamplerState(g_Direct3DDevice, sampler, type, value);
-            *v4 = value;
-        }
-
-    } else {
-        CDECL_CALL(0x0076DC30, sampler, type, value);
+    const auto state_index = static_cast<std::size_t>(type) + 14u * sampler;
+    static Var<uint32_t[112]> sampler_states{0x00971FF0};
+    if (sampler_states()[state_index] != value) {
+        IDirect3DDevice9_SetSamplerState(g_Direct3DDevice, sampler, type, value);
+        sampler_states()[state_index] = value;
     }
 }
 
-void nglSetTextureStageState(DWORD a1, D3DTEXTURESTAGESTATETYPE a2, DWORD a3)
+void nglSetTextureStageState(DWORD stage, D3DTEXTURESTAGESTATETYPE type, DWORD value)
 {
-    uint32_t v3 = a2 + 33 * a1;
-    auto *v4 = (DWORD *)(4 * v3 + 0x972240);
-
-    static Var<DWORD[264]> dword_972240{0x00972240};
-
-    if (dword_972240()[v3] != a3) {
-        IDirect3DDevice9_SetTextureStageState(g_Direct3DDevice, a1, a2, a3);
-        *v4 = a3;
+    const auto state_index = static_cast<std::size_t>(type) + 33u * stage;
+    static Var<DWORD[264]> texture_stage_states{0x00972240};
+    if (texture_stage_states()[state_index] != value) {
+        IDirect3DDevice9_SetTextureStageState(g_Direct3DDevice, stage, type, value);
+        texture_stage_states()[state_index] = value;
     }
 }
 

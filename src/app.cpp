@@ -47,6 +47,9 @@
 #include <cassert>
 
 GameConfig g_config;
+#if STANDALONE_SYSTEM
+extern const char *g_heap_check_stage;
+#endif
 
 VALIDATE_SIZE(app, 0x3Cu);
 
@@ -132,7 +135,7 @@ static auto &g_normal_list2 = var<_std::vector<vector3d> *>(0x0095C184);
 
 void colgeom_init_lists()
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         g_hit_list = new _std::vector<vector3d>{};
         g_hit_list->reserve(1024u);
 
@@ -142,37 +145,41 @@ void colgeom_init_lists()
         g_normal_list2 = new _std::vector<vector3d>{};
         g_normal_list2->reserve(1024u);
     } else {
-    CDECL_CALL(0x00544E90);
-}
+        CDECL_CALL(0x00544E90);
+    }
 }
 
 void colgeom_destroy_lists()
 {
-    if constexpr (0) {
-        if (g_hit_list != nullptr) {
-            delete g_hit_list;
-        }
+    if constexpr (STANDALONE_SYSTEM) {
+        delete g_hit_list;
+        g_hit_list = nullptr;
 
-        if (g_normal_list1 != nullptr) {
-            delete g_normal_list1;
-        }
+        delete g_normal_list1;
+        g_normal_list1 = nullptr;
 
-        if (g_normal_list2 != nullptr) {
-            delete g_normal_list2;
-        }
+        delete g_normal_list2;
+        g_normal_list2 = nullptr;
     } else {
-    CDECL_CALL(0x005489A0);
-}
+        CDECL_CALL(0x005489A0);
+    }
 }
 
 app::app()
 {
-    TRACE("app::app");
+#if STANDALONE_SYSTEM
+    g_heap_check_stage = "app::app";
+#else
     this->m_vtbl = 0x00891634;
-
+#endif
+    TRACE("app::app");
     mem_print_stats("after unit tests");
 #ifndef OPENUSM_XBPACK_MODE
     g_platform = NL_PLATFORM_PC;
+#endif
+#if STANDALONE_SYSTEM
+    packfile_dir[NL_PLATFORM_PC] = "packs\\pc\\";
+    packfile_ext[NL_PLATFORM_PC] = ".PCPACK";
 #endif
     if (link_system::use_link_system()) {
         /*
@@ -189,39 +196,78 @@ app::app()
 
     init_shadow_targets();
     mem_print_stats("after init_shadow_targets()");
+#if STANDALONE_SYSTEM
+    g_heap_check_stage = "geometry_manager::create_inst";
+#endif
 
     this->field_34.reset();
     this->field_38 = 0;
     geometry_manager::create_inst();
+#if STANDALONE_SYSTEM
+    g_heap_check_stage = "string_hash_dictionary::create_inst";
+#endif
     string_hash_dictionary::create_inst();
+#if STANDALONE_SYSTEM
+    g_heap_check_stage = "event_manager::create_inst";
+#endif
     event_manager::create_inst();
+#if STANDALONE_SYSTEM
+    g_heap_check_stage = "trigger_manager::create_inst";
+#endif
 
     trigger_manager::create_inst();
+#if STANDALONE_SYSTEM
+    g_heap_check_stage = "pc_input_mgr::create_inst";
+#endif
     pc_input_mgr::create_inst();
+#if STANDALONE_SYSTEM
+    g_heap_check_stage = "input_mgr::create_inst";
+#endif
     input_mgr::create_inst();
+#if STANDALONE_SYSTEM
+    g_heap_check_stage = "sound_manager::create_inst";
+#endif
     sound_manager::create_inst();
+#if !STANDALONE_SYSTEM
     script_sound_manager::create_inst();
     ambient_audio_manager::create_inst();
     if (!os_developer_options::instance->get_flag(mString {"DISABLE_AUDIO_BOXES"})) {
         audio_box_manager::create_inst();
     }
-
     gab_manager::create_inst();
+#endif
 
     set_god_mode(os_developer_options::instance->get_int(mString {"GOD_MODE"}));
+#if STANDALONE_SYSTEM
+    g_heap_check_stage = "colgeom_init_lists";
+#endif
 
     colgeom_init_lists();
+#if STANDALONE_SYSTEM
+    g_heap_check_stage = "game::game";
+#endif
+#if !STANDALONE_SYSTEM
     physics_system_init();
+#endif
 
     this->m_game = new game{};
     g_game_ptr = this->m_game;
+#if STANDALONE_SYSTEM
+    g_heap_check_stage = "resource_manager::create_inst";
+#endif
 
     resource_manager::create_inst();
+#if STANDALONE_SYSTEM
+    g_heap_check_stage = "damage_morphs::init_memory_pools";
+#endif
     if (os_developer_options::instance->get_int(mString {"MONKEY_MODE"}) > 0) {
         spider_monkey::start();
     }
 
     damage_morphs::init_memory_pools();
+#if STANDALONE_SYSTEM
+    g_heap_check_stage = "mission_stack_manager::start_streaming";
+#endif
 
     {
         auto *inst = mission_stack_manager::get_instance();
@@ -245,7 +291,9 @@ app::~app()
     this->cleanup();
     //debug_menu::deinit(); // link_system::un_init()
     
+#if !STANDALONE_SYSTEM
     physics_system_shutdown();
+#endif
 
     this->m_vtbl = 0x0088E4C8;
 }
@@ -319,7 +367,7 @@ void app::tick()
         this->field_34.reset();
     }
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         limited_timer_base local_timer;
         local_timer.reset();
 
@@ -328,66 +376,77 @@ void app::tick()
         limited_timer_base total_timer;
         total_timer.reset();
 
+        g_heap_check_stage = "app::tick::sub_77B2F0";
         sub_77B2F0(0);
 
         float time_inc;
-        for (time_inc = g_timer->sub_5821D0(); equal(time_inc, 0.0f); time_inc = g_timer->sub_5821D0()) {
+        g_heap_check_stage = "app::tick::timer";
+        for (time_inc = g_timer->sub_5821D0(); equal(time_inc, 0.0f);
+             time_inc = g_timer->sub_5821D0()) {
             Sleep(0);
         }
 
-        static bool & byte_9682F0 = var<bool>(0x009682F0);
-
+        static bool &byte_9682F0 = var<bool>(0x009682F0);
         if (time_inc <= 0.0f) {
             byte_9682F0 = true;
 
-            if (g_smoke_test() != nullptr) {
+            if (g_smoke_test() != nullptr)
                 g_smoke_test()->frame_advance();
-            }
 
-            if ( (g_game_ptr->flag.level_is_loaded && !g_game_ptr->field_165) ||
-                (g_femanager.m_fe_menu_system != nullptr && g_femanager.m_fe_menu_system->sub_60C230() &&
-                 g_cut_scene_player()->is_playing())) {
+            if (g_femanager.m_fe_menu_system != nullptr) {
+                g_femanager.m_fe_menu_system->RenderLoadMeter(false);
+                nglListSend(true);
+            } else if (g_game_ptr->flag.level_is_loaded && !g_game_ptr->field_165) {
                 comic_panels::render();
-            } else if (g_femanager.m_fe_menu_system == nullptr || !g_femanager.m_fe_menu_system->sub_60C230()) {
+            } else {
                 game::render_empty_list();
             }
 
             this->field_4.sub_5B8670();
             actor::swap_all_mesh_buffers();
-
         } else {
+            g_heap_check_stage = "app::tick::slab_allocator";
             slab_allocator::process_lists();
+            g_heap_check_stage = "app::tick::script_memtrack";
             script_memtrack::frame_advance();
-            if (!IsWindow(window_manager::instance()->field_4)) {
+            if (!IsWindow(window_manager::instance()->field_4))
                 return;
-            }
 
+            g_heap_check_stage = "app::tick::event_manager";
             event_manager::garbage_collect();
+            g_heap_check_stage = "app::tick::input_mgr";
             input_mgr::instance->poll_devices();
 
             assert(time_inc >= 0 && time_inc < 10.0f);
 
-            static float & dword_9682D0 = var<float>(0x009682D0);
-            static float & dword_9680A8 = var<float>(0x009680A8);
-
+            static float &dword_9682D0 = var<float>(0x009682D0);
+            static float &dword_9680A8 = var<float>(0x009680A8);
             dword_9682D0 = time_inc;
             dword_9680A8 = time_inc;
-            nflUpdate();
-            resource_manager::frame_advance(time_inc);
-            link_system::frame_advance(time_inc);
-            this->m_game->frame_advance(time_inc);
+
+            if (g_femanager.m_fe_menu_system != nullptr) {
+                g_femanager.m_fe_menu_system->RenderLoadMeter(false);
+                nglListSend(true);
+            } else {
+                g_heap_check_stage = "app::tick::nflUpdate";
+                nflUpdate();
+                g_heap_check_stage = "app::tick::resource_manager";
+                resource_manager::frame_advance(time_inc);
+                g_heap_check_stage = "app::tick::link_system";
+                link_system::frame_advance(time_inc);
+                g_heap_check_stage = "app::tick::game";
+                this->m_game->frame_advance(time_inc);
+            }
             byte_9682F0 = false;
         }
 
         if (os_developer_options::instance->get_int(mString{"FRAME_LIMIT"})) {
             while (local_timer.elapsed() < 0.033333335) {
-                ;
             }
         }
 
         this->m_game->field_278 = total_timer.elapsed();
         this->m_game->field_280 = 0;
-
     } else {
         THISCALL(0x005D6FC0, this);
     }
@@ -411,14 +470,16 @@ void app::cleanup()
     TRACE("app::cleanup");
 
     if constexpr (1) {
+#if !STANDALONE_SYSTEM
         gab_manager::delete_inst();
 
-        if ( !os_developer_options::instance->get_flag(mString {"DISABLE_AUDIO_BOXES"}) ) { 
+        if ( !os_developer_options::instance->get_flag(mString {"DISABLE_AUDIO_BOXES"}) ) {
             audio_box_manager::delete_inst();
         }
 
         ambient_audio_manager::delete_inst();
         script_sound_manager::delete_inst();
+#endif
         sound_manager::delete_inst();
 
         if (input_mgr::instance != nullptr) {

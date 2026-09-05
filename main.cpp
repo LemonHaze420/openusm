@@ -1,4 +1,6 @@
+#if !STANDALONE_SYSTEM
 #include "forwards.h"
+#endif
 
 #include "aeps.h"
 #include "ai_find_best_swing_anchor.h"
@@ -276,6 +278,9 @@
 
 #include <ngl_dx_scene.h>
 #include <ctime>
+#include <cstdarg>
+#include <cstdio>
+#include <cstdlib>
 #include <corecrt_startup.h>
 
 #include "debug_menu.h"
@@ -321,6 +326,7 @@ void register_class_and_create_window(LPCSTR lpClassName, LPCSTR lpWindowName, i
                                       HINSTANCE hInstance, int a9, DWORD dwStyle);
 
 #define TEXT_START 0x00401000
+#if !STANDALONE_SYSTEM
 #define TEXT_END 0x00988000
 
 DWORD old_perms = 0;
@@ -456,6 +462,7 @@ BOOL install_patches()
 
     return TRUE;
 }
+#endif
 
 static constexpr uint32_t NOP = 0x90;
 
@@ -514,34 +521,147 @@ bool sub_5A3AA0(const char *a1, char *a2)
 }
 
 static bool &ALLOW_ERROR_POPUPS = var<bool>(0x00922A30);
+const char *g_heap_check_stage = "before first heap checkpoint";
+
+static void report_standalone_failure(const char *format, ...)
+{
+    char message[1024];
+    va_list args;
+    va_start(args, format);
+    vsnprintf(message, sizeof(message), format, args);
+    va_end(args);
+
+    OutputDebugStringA(message);
+    const char *path = getenv("OPENUSM_CRASH_LOG");
+    if (path == nullptr || path[0] == '\0')
+        path = "runtime-crash.log";
+    if (FILE *file = fopen(path, "a")) {
+        fputs(message, file);
+        fclose(file);
+    }
+    fputs(message, stderr);
+    fflush(stderr);
+}
 
 void sub_597720(LPCSTR lpText)
 {
     char Dest[2048];
-    char Format[2056];
-
     sprintf(Dest, "%s\n", lpText);
     OutputDebugStringA(Dest);
 
-    {
-        mString v1{Dest};
-        CDECL_CALL(0x0051AB90, &v1);
+    if constexpr (STANDALONE_SYSTEM) {
+        report_standalone_failure("OpenUSM fatal [%s]: %s\n", g_heap_check_stage, lpText);
+        sp_log("%s", lpText);
+    } else {
+        mString message{Dest};
+        CDECL_CALL(0x0051AB90, &message);
+        char format[2056];
+        sprintf(format, "Error: \r\n%s", Dest);
+        CDECL_CALL(0x005975C0, format, 1, 1);
+        if (ALLOW_ERROR_POPUPS) {
+            MessageBoxA(window_manager::instance() != nullptr ? window_manager::instance()->field_4
+                                                              : nullptr,
+                        lpText,
+                        "Error",
+                        0x11010u);
+        }
+        link_system::send_command();
     }
 
-    sprintf(Format, "Error: \r\n%s", Dest);
-    CDECL_CALL(0x005975C0, Format, 1, 1);
-    if (ALLOW_ERROR_POPUPS) {
-        MessageBoxA(window_manager::instance()->field_4, lpText, "Error", 0x11010u);
-    }
-
-    link_system::send_command();
     _flushall();
     exit(-1);
 }
 
 LONG __stdcall TopLevelExceptionFilter(EXCEPTION_POINTERS *pExceptionInfo)
 {
-    return (LONG) STDCALL(0x00597830, pExceptionInfo);
+    if constexpr (!STANDALONE_SYSTEM)
+        return static_cast<LONG>(STDCALL(0x00597830, pExceptionInfo));
+
+    static bool already_handling = false;
+    if (already_handling)
+        exit(-1);
+    already_handling = true;
+
+    const auto *record = pExceptionInfo != nullptr ? pExceptionInfo->ExceptionRecord : nullptr;
+    if (record == nullptr)
+        sub_597720("Unknown exception occurred.");
+
+    const char *description = "Unknown";
+    switch (record->ExceptionCode) {
+    case EXCEPTION_ACCESS_VIOLATION: description = "Access Violation"; break;
+    case EXCEPTION_IN_PAGE_ERROR: description = "In Page Error"; break;
+    case EXCEPTION_DATATYPE_MISALIGNMENT: description = "Data Type Misalignment"; break;
+    case EXCEPTION_ILLEGAL_INSTRUCTION: description = "Illegal Instruction"; break;
+    case EXCEPTION_ARRAY_BOUNDS_EXCEEDED: description = "Array Bounds Exceeded"; break;
+    case EXCEPTION_FLT_DENORMAL_OPERAND: description = "Denormal Float Operand"; break;
+    case EXCEPTION_FLT_DIVIDE_BY_ZERO: description = "Float Divide By Zero"; break;
+    case EXCEPTION_FLT_INEXACT_RESULT: description = "Inexact Float Result"; break;
+    case EXCEPTION_FLT_INVALID_OPERATION: description = "Invalid Float Operation"; break;
+    case EXCEPTION_FLT_OVERFLOW: description = "Float Overflow"; break;
+    case EXCEPTION_FLT_STACK_CHECK: description = "Stack Overflow Caused By Float"; break;
+    case EXCEPTION_FLT_UNDERFLOW: description = "Float Underflow"; break;
+    case EXCEPTION_INT_DIVIDE_BY_ZERO: description = "Int Divide By Zero"; break;
+    case EXCEPTION_INT_OVERFLOW: description = "Int Overflow"; break;
+    case EXCEPTION_STACK_OVERFLOW: description = "Stack Overflow"; break;
+    default: break;
+    }
+
+    char detail[64]{};
+    if ((record->ExceptionCode == EXCEPTION_ACCESS_VIOLATION ||
+         record->ExceptionCode == EXCEPTION_IN_PAGE_ERROR) &&
+        record->NumberParameters > 1) {
+        const auto operation = record->ExceptionInformation[0];
+        const char *operation_text = operation == 8 ? "execute" : operation != 0 ? "write to" : "read from";
+        sprintf(detail,
+                " trying to %s 0x%08x",
+                operation_text,
+                static_cast<unsigned>(record->ExceptionInformation[1]));
+    }
+
+    const auto fault_address = reinterpret_cast<uintptr_t>(record->ExceptionAddress);
+    if (pExceptionInfo->ContextRecord != nullptr) {
+        const auto &ctx = *pExceptionInfo->ContextRecord;
+        report_standalone_failure(
+            "crash [%s]: code 0x%08x at 0x%08x, esp 0x%08x, ebp 0x%08x\n"
+            "crash: eax 0x%08x ebx 0x%08x ecx 0x%08x edx 0x%08x esi 0x%08x edi 0x%08x\n",
+            g_heap_check_stage,
+            static_cast<unsigned>(record->ExceptionCode),
+            static_cast<unsigned>(fault_address),
+            static_cast<unsigned>(ctx.Esp),
+            static_cast<unsigned>(ctx.Ebp),
+            static_cast<unsigned>(ctx.Eax),
+            static_cast<unsigned>(ctx.Ebx),
+            static_cast<unsigned>(ctx.Ecx),
+            static_cast<unsigned>(ctx.Edx),
+            static_cast<unsigned>(ctx.Esi),
+            static_cast<unsigned>(ctx.Edi));
+
+        const auto base = reinterpret_cast<uintptr_t>(GetModuleHandleA(nullptr));
+        const auto *dos = reinterpret_cast<const IMAGE_DOS_HEADER *>(base);
+        const auto *nt = reinterpret_cast<const IMAGE_NT_HEADERS32 *>(base + dos->e_lfanew);
+        const auto code_begin = base + nt->OptionalHeader.BaseOfCode;
+        const auto code_end = code_begin + nt->OptionalHeader.SizeOfCode;
+        const auto *stack = reinterpret_cast<const uintptr_t *>(ctx.Esp);
+        for (unsigned i = 0, found = 0; i < 2048 && found < 48; ++i) {
+            if (IsBadReadPtr(&stack[i], sizeof(stack[i])))
+                break;
+            const auto value = stack[i];
+            if (value >= code_begin && value < code_end) {
+                report_standalone_failure(
+                    "crash: stack[%u] = 0x%08x\n", i, static_cast<unsigned>(value));
+                ++found;
+            }
+        }
+    }
+
+    char text[256];
+    sprintf(text,
+            "%s Exception occurred at 0x%08x%s",
+            description,
+            static_cast<unsigned>(fault_address),
+            detail);
+    sub_597720(text);
+    return EXCEPTION_EXECUTE_HANDLER;
 }
 
 uint8_t color_ramp_function(float ratio, int period_duration, int cur_time)
@@ -569,24 +689,74 @@ uint8_t color_ramp_function(float ratio, int period_duration, int cur_time)
     return 0;
 }
 
-void sub_81E130(int *a1)
+void sub_81E130([[maybe_unused]] int *priority)
 {
-    CDECL_CALL(0x0081E130, a1);
+#if STANDALONE_SYSTEM
+    var<decltype(&CreateFileA)>(0x00955198) = &CreateFileA;
+    var<decltype(&ReadFile)>(0x0095519C) = &ReadFile;
+    var<decltype(&ReadFileEx)>(0x009551A0) = &ReadFileEx;
+    var<decltype(&WriteFile)>(0x009551A4) = &WriteFile;
+    var<decltype(&WriteFileEx)>(0x009551A8) = &WriteFileEx;
+    var<decltype(&CancelIo)>(0x0098750C) = &CancelIo;
+    var<decltype(&CloseHandle)>(0x00987510) = &CloseHandle;
+    var<decltype(&GetOverlappedResult)>(0x00987514) = &GetOverlappedResult;
+#else
+    CDECL_CALL(0x0081E130, priority);
+#endif
 }
 
 void sub_81C1A0()
 {
+#if STANDALONE_SYSTEM
+    var<HMODULE>(0x009874CC) = GetModuleHandleA(nullptr);
+    auto &input_buffer = var<char[112]>(0x009870B8);
+    memset(input_buffer, 0, sizeof(input_buffer));
+    auto &mouse_speed = var<UINT>(0x009874B8);
+    SystemParametersInfoA(SPI_GETMOUSESPEED, 0, &mouse_speed, 0);
+    auto &sticky_keys = var<STICKYKEYS>(0x009874BC);
+    auto &disabled_sticky_keys = var<STICKYKEYS>(0x009870B0);
+    sticky_keys.cbSize = sizeof(STICKYKEYS);
+    SystemParametersInfoA(SPI_GETSTICKYKEYS, sizeof(STICKYKEYS), &sticky_keys, 0);
+    disabled_sticky_keys = sticky_keys;
+    disabled_sticky_keys.dwFlags &= ~(SKF_HOTKEYACTIVE | SKF_CONFIRMHOTKEY);
+    SystemParametersInfoA(SPI_SETSTICKYKEYS, sizeof(STICKYKEYS), &disabled_sticky_keys, 0);
+    auto &screen_saver_timeout = var<UINT>(0x009874DC);
+    if (!SystemParametersInfoA(SPI_GETSCREENSAVETIMEOUT, 0, &screen_saver_timeout, 0))
+        screen_saver_timeout = 0;
+#else
     CDECL_CALL(0x0081C1A0);
+#endif
 }
 
 void init_assert_handler()
 {
+#if STANDALONE_SYSTEM
+    var<int>(0x009682D4) = 0;
+    _set_error_mode(_OUT_TO_STDERR);
+#else
     CDECL_CALL(0x005BC9B0);
+#endif
 }
 
 void sub_5C9EA0()
 {
+#if STANDALONE_SYSTEM
+    static constexpr const char *skus[] = {
+        "SLUS-20870", "SLUS-21285", "SLES-53390", "SLES-53391", "SLES-53672",
+        "DOL-GUTE", "DOL-GUTP", "DOL-GUTF", "DOL-GUTD", "DOL-GUTI", "DOL-GUTS",
+        "AV05301W-AV", "AV05302E-AV", "AV05303E-AV"};
+    auto &release_type = var<int>(0x00968530);
+    release_type = 0;
+    const char *sku = os_developer_options::instance->m_strings[os_developer_options::SKU].c_str();
+    for (size_t i = 0; i < sizeof(skus) / sizeof(skus[0]); ++i) {
+        if (strcmp(sku, skus[i]) == 0) {
+            release_type = static_cast<int>(i + 1);
+            break;
+        }
+    }
+#else
     CDECL_CALL(0x005C9EA0);
+#endif
 }
 
 void create_directory(const char *str)
@@ -713,21 +883,18 @@ void parse_cmd(const char *str)
 
 void create_sound_ifc(HWND a1)
 {
-    if constexpr (0) {
-        HRESULT hr = -1;
-        if (g_directSound != nullptr ||
-            (hr = DirectSoundCreate8(&IID_IDirectSound8, &g_directSound, nullptr), g_directSound != nullptr)) {
-            IDirectSound8_SetCooperativeLevel(g_directSound, a1, DISCL_NONEXCLUSIVE);
-        }
-
-        if (FAILED(hr)) {
-            char tempstr[512]{};
-            sprintf(tempstr, "DirectSound8Create error: %s - %s", DXGetErrorString8(hr), DXGetErrorDescription8(hr));
-            MessageBox(nullptr, tempstr, "Error", MB_OK | MB_ICONINFORMATION);
-        }
+#ifdef STANDALONE_SYSTEM
+    const HRESULT hr = DirectSoundCreate8(nullptr, &g_directSound, nullptr);
+    if (SUCCEEDED(hr)) {
+        IDirectSound8_SetCooperativeLevel(g_directSound, a1, DISCL_NONEXCLUSIVE);
     } else {
-        CDECL_CALL(0x0081E2D0, a1);
+        char tempstr[512]{};
+        sprintf(tempstr, "DirectSound8Create error: %s - %s", DXGetErrorString8(hr), DXGetErrorDescription8(hr));
+        MessageBox(nullptr, tempstr, "Error", MB_OK | MB_ICONINFORMATION);
     }
+#else
+    CDECL_CALL(0x0081E2D0, a1);
+#endif
 
     assert(g_directSound != nullptr);
 }
@@ -774,7 +941,7 @@ void sub_5BCA80(int a1)
     }
 }
 
-static Var<char[]> byte_88CC68 = {0x0088CC68};
+static Var<char[65536]> byte_88CC68 = {0x0088CC68};
 
 LRESULT __stdcall WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 {
@@ -853,6 +1020,9 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
             }
 
             if (g_femanager.m_fe_menu_system != nullptr && g_femanager.m_fe_menu_system->m_index != -1) {
+#if STANDALONE_SYSTEM
+                return DefWindowProcA(hWnd, Msg, wParam, lParam);
+#endif
                 if (g_femanager.m_pause_menu_system->m_index == -1) {
                     auto *frontend_menu_system = g_femanager.m_fe_menu_system;
 
@@ -882,6 +1052,9 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
                 }
 
                 if (g_femanager.m_fe_menu_system != nullptr && g_femanager.m_fe_menu_system->m_index != -1) {
+#if STANDALONE_SYSTEM
+                    return DefWindowProcA(hWnd, Msg, wParam, lParam);
+#endif
                     if (g_femanager.m_pause_menu_system->m_index == -1) {
                         auto *frontend_menu_system = g_femanager.m_fe_menu_system;
 
@@ -994,8 +1167,25 @@ void sub_4DDEC0()
 
 void bink_set_sound_system()
 {
+#if STANDALONE_SYSTEM
+    static HMODULE bink = LoadLibraryA("binkw32_.dll");
+    if (bink == nullptr) {
+        sp_log("Unable to load binkw32_.dll");
+        return;
+    }
+
+    using BinkSetSoundSystemFn = int(__stdcall *)(FARPROC, void *);
+    auto set_sound_system = bit_cast<BinkSetSoundSystemFn>(
+        GetProcAddress(bink, MAKEINTRESOURCEA(57)));
+    auto open_direct_sound = GetProcAddress(bink, MAKEINTRESOURCEA(39));
+    if (set_sound_system == nullptr || open_direct_sound == nullptr) {
+        sp_log("Unable to resolve Bink sound exports");
+        return;
+    }
+    set_sound_system(open_direct_sound, g_directSound);
+#else
     CDECL_CALL(0x0060BBA0);
-    //BinkSetSoundSystem(BinkOpenDirectSound, pUnkOuter());
+#endif
 }
 
 bool get_path(const char *a1, const char *a2, char *out, unsigned int str_len)
@@ -1074,7 +1264,7 @@ void sub_5952D0()
 {
     TRACE("sub_5952D0");
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         operator delete(dword_965C24[0]);
         operator delete(dword_965C24[1]);
         operator delete(dword_965C24[2]);
@@ -1328,133 +1518,13 @@ bool CheckDirectXVersionViaDxDiag(uint32_t a1, uint32_t a2, char a3)
 {
     TRACE("CheckDirectXVersionViaDxDiag");
 
-    if constexpr (0) {
-        bool bGotDirectXVersion = false;
+    if constexpr (STANDALONE_SYSTEM) {
+        auto *direct3d = Direct3DCreate9(D3D_SDK_VERSION);
+        if (direct3d == nullptr)
+            return false;
 
-        uint32_t dwDirectXVersionMajor{};
-        uint32_t dwDirectXVersionMinor{};
-        int cDirectXVersionLetter{};
-
-        char Buffer[260]{};
-        assert(GetSystemDirectoryA(Buffer, 260u));
-
-        Buffer[259] = '\0';
-        char Dest[268]{};
-        sprintf(Dest, "%s\\ole32.dll", Buffer);
-
-        assert(GetModuleHandleA(Dest));
-
-        auto ole32_dll = LoadLibrary(Dest);
-        assert(ole32_dll);
-
-        auto co_initialize = bit_cast<HRESULT(__stdcall *)(void *)>(GetProcAddress(ole32_dll, "CoInitialize"));
-        auto co_create_instance = bit_cast<HRESULT(__stdcall *)(const IID &, LPUNKNOWN, DWORD, const IID &, LPVOID *)>(
-            GetProcAddress(ole32_dll, "CoCreateInstance"));
-        auto co_uninitialize = bit_cast<void(__stdcall *)()>(GetProcAddress(ole32_dll, "CoUninitialize"));
-
-        assert(co_initialize && co_create_instance && co_uninitialize);
-
-#if 0
-        auto hr = CoInitialize(nullptr);
-#else
-        auto hr = co_initialize(nullptr);
-#endif
-
-        bool bCleanupCOM = SUCCEEDED(hr);
-        IDxDiagProvider *pDxDiagProvider = nullptr;
-
-#if 0
-        hr = CoCreateInstance(CLSID_DxDiagProvider, nullptr, CLSCTX_INPROC_SERVER, IID_IDxDiagProvider, (LPVOID *)&pDxDiagProvider);
-#else
-        hr = co_create_instance(
-            CLSID_DxDiagProvider, nullptr, CLSCTX_INPROC_SERVER, IID_IDxDiagProvider, (LPVOID *)&pDxDiagProvider);
-#endif
-
-        if (SUCCEEDED(hr)) {
-            DXDIAG_INIT_PARAMS dxDiagInitParam;
-            ZeroMemory(&dxDiagInitParam, sizeof(DXDIAG_INIT_PARAMS));
-            dxDiagInitParam.dwSize = sizeof(DXDIAG_INIT_PARAMS);
-            dxDiagInitParam.dwDxDiagHeaderVersion = DXDIAG_DX9_SDK_VERSION;
-            dxDiagInitParam.bAllowWHQLChecks = false;
-            dxDiagInitParam.pReserved = nullptr;
-
-            hr = IDxDiagProvider_Initialize(pDxDiagProvider, &dxDiagInitParam);
-            if (SUCCEEDED(hr)) {
-                IDxDiagContainer *pDxDiagRoot = nullptr;
-                IDxDiagContainer *pDxDiagSystemInfo = nullptr;
-
-                hr = IDxDiagProvider_GetRootContainer(pDxDiagProvider, &pDxDiagRoot);
-                if (SUCCEEDED(hr)) {
-                    hr = IDxDiagContainer_GetChildContainer(pDxDiagRoot, L"DxDiag_SystemInfo", &pDxDiagSystemInfo);
-                    if (SUCCEEDED(hr)) {
-                        bool bSuccessGettingMajor = false;
-                        bool bSuccessGettingMinor = false;
-                        bool bSuccessGettingLetter = false;
-
-                        VARIANT var{};
-                        VariantInit(&var);
-
-                        hr = IDxDiagContainer_GetProp(pDxDiagSystemInfo, L"dwDirectXVersionMajor", &var);
-                        if (SUCCEEDED(hr) && var.vt == VT_UI4) {
-                            dwDirectXVersionMajor = var.ulVal;
-                            bSuccessGettingMajor = true;
-                        }
-
-                        VariantClear(&var);
-
-                        hr = IDxDiagContainer_GetProp(pDxDiagSystemInfo, L"dwDirectXVersionMinor", &var);
-                        if (SUCCEEDED(hr) && var.vt == VT_UI4) {
-                            dwDirectXVersionMinor = var.ulVal;
-                            bSuccessGettingMinor = true;
-                        }
-
-                        VariantClear(&var);
-                        hr = IDxDiagContainer_GetProp(pDxDiagSystemInfo, L"szDirectXVersionLetter", &var);
-                        if (SUCCEEDED(hr) && var.vt == VT_BSTR && SysStringLen(var.bstrVal)) {
-                            cDirectXVersionLetter = tolower(var.bstrVal[0]);
-                            bSuccessGettingLetter = true;
-                        }
-
-                        VariantClear(&var);
-                        if (bSuccessGettingMajor && bSuccessGettingMinor && bSuccessGettingLetter) {
-                            bGotDirectXVersion = true;
-                        }
-
-                        assert(bGotDirectXVersion);
-
-                        IDxDiagContainer_Release(pDxDiagSystemInfo);
-                    }
-
-                    IDxDiagContainer_Release(pDxDiagRoot);
-                }
-            }
-
-            IDxDiagProvider_Release(pDxDiagProvider);
-        }
-
-        if (bCleanupCOM) {
-#if 0
-            CoUninitialize();
-#else
-            co_uninitialize();
-#endif
-        }
-
-        auto ValidateVersion = [](auto version, auto a1) -> bool {
-            sp_log("%d %d", version, a1);
-            sp_log("%c %c", version, a1);
-            return (version >= a1);
-        };
-
-#if 1
-        return bGotDirectXVersion &&
-               (ValidateVersion(dwDirectXVersionMajor, a1) && ValidateVersion(dwDirectXVersionMinor, a2) &&
-                ValidateVersion(cDirectXVersionLetter, a3));
-#else
-        return (bGotDirectXVersion && (dwDirectXVersionMajor > a1 || dwDirectXVersionMajor == a1) &&
-                (dwDirectXVersionMinor > a2 || dwDirectXVersionMinor == a2) && cDirectXVersionLetter >= a3);
-
-#endif
+        IDirect3D9_Release(direct3d);
+        return true;
     } else {
         bool(__cdecl * func)(unsigned int a1, unsigned int a2, char a3) = CAST(func, 0x0081C2A0);
         return func(a1, a2, a3);
@@ -1465,6 +1535,9 @@ bool CheckDirectXVersionViaDxDiag(uint32_t a1, uint32_t a2, char a3)
 int __stdcall myWinMain(HINSTANCE hInstance, [[maybe_unused]] HINSTANCE hPrevInstance, LPSTR lpCmdLine,
                         [[maybe_unused]] int nShowCmd)
 {
+#if STANDALONE_SYSTEM
+    SetUnhandledExceptionFilter(TopLevelExceptionFilter);
+#endif
     if (!CreateMutexA(nullptr, true, "USM") || GetLastError() == ERROR_ALREADY_EXISTS) {
         return 0;
     }
@@ -1495,9 +1568,16 @@ int __stdcall myWinMain(HINSTANCE hInstance, [[maybe_unused]] HINSTANCE hPrevIns
 
     g_fileUSM = create_usm_file(Dest, nullptr);
 
-    static Var<CHAR[]> DirectoryName{0x0088FAF8};
+#if STANDALONE_SYSTEM
+    char DirectoryName[MAX_PATH]{};
+    GetCurrentDirectoryA(MAX_PATH, DirectoryName);
+    ULARGE_INTEGER TotalNumberOfFreeBytes{};
+    GetDiskFreeSpaceExA(DirectoryName, nullptr, nullptr, &TotalNumberOfFreeBytes);
+#else
+    static Var<CHAR[MAX_PATH]> DirectoryName{0x0088FAF8};
     ULARGE_INTEGER TotalNumberOfFreeBytes;
     GetDiskFreeSpaceExA(DirectoryName(), nullptr, nullptr, &TotalNumberOfFreeBytes);
+#endif
     if (TotalNumberOfFreeBytes.QuadPart < 0xA00000) {
         auto *v162 = get_msg(g_fileUSM, "MSGBOX_ERROR");
         auto *v7 = get_msg(g_fileUSM, "MSGBOX_SPACE");
@@ -1561,9 +1641,12 @@ int __stdcall myWinMain(HINSTANCE hInstance, [[maybe_unused]] HINSTANCE hPrevIns
     register_class_and_create_window(
         "Render Window", "Ultimate Spider-Man", 0, 0, g_cx, g_cy, WindowProc, hInstance, 80, 1u);
 
-    ShowWindow(g_appHwnd, 3);
-
+#if STANDALONE_SYSTEM
+    ShowWindow(g_appHwnd, SW_SHOWNORMAL);
+#else
+    ShowWindow(g_appHwnd, SW_SHOWMAXIMIZED);
     g_Windowed = 0;
+#endif
     UpdateWindow(g_appHwnd);
     SetWindowPos(g_appHwnd, nullptr, 0, 0, g_cx, g_cy, 4u);
 
@@ -1697,7 +1780,8 @@ int __stdcall myWinMain(HINSTANCE hInstance, [[maybe_unused]] HINSTANCE hPrevIns
     Settings::GameSoundVolume = g_settings->sub_81D010("Settings\\GameSoundVolume", 10) * 0.1;
     Settings::MusicVolume = g_settings->sub_81D010("Settings\\MusicVolume", 10) * 0.1f;
 
-    if (os_developer_options::instance->get_flag(mString {"EXCEPTION_HANDLER"})) {
+    if (STANDALONE_SYSTEM ||
+        os_developer_options::instance->get_flag(mString{"EXCEPTION_HANDLER"})) {
         SetUnhandledExceptionFilter(TopLevelExceptionFilter);
     }
 
@@ -1723,6 +1807,8 @@ int __stdcall myWinMain(HINSTANCE hInstance, [[maybe_unused]] HINSTANCE hPrevIns
     set_tl_system_directories();
 
     static nglFrameLockType &g_frame_lock = var<nglFrameLockType>(0x00922920);
+    if constexpr (STANDALONE_SYSTEM)
+        g_frame_lock = static_cast<nglFrameLockType>(2);
     nglSetFrameLock(g_frame_lock);
 
     auto list_buffer = os_developer_options::instance->get_int(mString{"PCLISTBUFFER"});
@@ -1848,9 +1934,10 @@ int __stdcall myWinMain(HINSTANCE hInstance, [[maybe_unused]] HINSTANCE hPrevIns
 LABEL_94:
 
     if (app::instance != nullptr) {
-        auto *vtbl = bit_cast<int(*)[1]>(app::instance->m_vtbl);
-
+#if !STANDALONE_SYSTEM
+        auto *vtbl = bit_cast<int (*)[1]>(app::instance->m_vtbl);
         assert((*vtbl)[0] == 0x005E99D0);
+#endif
 
         delete app::instance;
 
@@ -1920,6 +2007,7 @@ LABEL_94:
     return 0;
 }
 
+#if !STANDALONE_SYSTEM
 void redirect_winmain()
 {
     REDIRECT(0x00822556, myWinMain);
@@ -1947,6 +2035,7 @@ BOOL __stdcall HookReadFile(HANDLE hFile, LPVOID lpBuffer, DWORD nNumberOfBytesT
 
     return ReadFile(hFile, lpBuffer, nNumberOfBytesToRead, lpNumberOfBytesRead, lpOverlapped);
 }
+#endif
 
 //0x0081BFB0
 void register_class(LPCSTR lpClassName, WNDPROC windowProc, HINSTANCE hInstance, int a4)
@@ -2038,7 +2127,7 @@ void create_window(LPCSTR lpClassName, LPCSTR lpWindowName, HINSTANCE hInstance,
 
 //0x0081C140
 void register_class_and_create_window(LPCSTR lpClassName, LPCSTR lpWindowName, int X, int Y, int a5, int a6,
-                                      WNDPROC windowProc, HINSTANCE hInstance, int a9, DWORD dwStyle)
+                                      WNDPROC windowProc, HINSTANCE hInstance, int a9, DWORD)
 {
     if (g_appHwnd != nullptr) {
         DestroyWindow(g_appHwnd);
@@ -2050,6 +2139,7 @@ void register_class_and_create_window(LPCSTR lpClassName, LPCSTR lpWindowName, i
     bool wnd = WINDOWED_MODE_WND_FIX?  !g_config.WindowedMode : true;
     create_window(lpClassName, lpWindowName, hInstance, X, Y, a5, a6, (int)wnd);
 }
+#if !STANDALONE_SYSTEM
 
 unsigned int hook_controlfp(unsigned int, unsigned int)
 {
@@ -5250,11 +5340,28 @@ BOOL install_hooks()
     const auto restored = restore_text_perms();
     return installed && restored;
 }
+#endif
 
+#if STANDALONE_SYSTEM
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+                   LPSTR lpCmdLine, int nShowCmd)
+{
+    const char *args = GetCommandLineA();
+    if (strstr(args, " -console") != nullptr) {
+        if (!AttachConsole(ATTACH_PARENT_PROCESS))
+            AllocConsole();
+        if (!freopen("CONOUT$", "w", stdout) || !freopen("CONOUT$", "w", stderr)) {
+            MessageBoxA(nullptr, "Couldn't attach console...Closing", "Error", MB_OK | MB_ICONERROR);
+            return 0;
+        }
+        setvbuf(stdout, nullptr, _IONBF, 0);
+        setvbuf(stderr, nullptr, _IONBF, 0);
+    }
+    return myWinMain(hInstance, hPrevInstance, lpCmdLine, nShowCmd);
+}
+#else
 BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, [[maybe_unused]] LPVOID lpvReserved)
 {
-    //printf("DLLMain %lu 0x%08X\n", fdwReason, (int) lpvReserved);
-
     if (fdwReason == DLL_PROCESS_ATTACH) {
         char *args = GetCommandLine();
         if (strstr(args, " -console")) {
@@ -5269,18 +5376,18 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD fdwReason, [[maybe_unused]] LPVOID lpvReser
 
         if (strstr(args, " -windowed"))
             g_config.WindowedMode = true;
-        
+
         if (strstr(args, " -noloadscreen"))
             g_config.NoLoadScreen = true;
 
         bool res = install_hooks();
-        if (res) 
+        if (res)
             enumerate_mods();
         return res;
-
     } else if (fdwReason == DLL_PROCESS_DETACH) {
         FreeConsole();
     }
 
     return TRUE;
 }
+#endif

@@ -6,6 +6,7 @@
 
 #include "nal_system.h"
 #include "ngl.h"
+#include "ngl_font.h"
 #include "ngl_mesh.h"
 #include "nglshader.h"
 #include "return_address.h"
@@ -120,7 +121,7 @@ nglFont *tlResourceDirectory<nglFont, tlFixedString>::StandardLoad(const tlFixed
 {
     TRACE("tlResourceDirectory<nglFont, tlFixedString>::StandardLoad", a1.to_string());
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         char Dest[256];
         _snprintf(Dest, 256u, "%s%s%s", nglTexturePath, a1.to_string(), ".fdf");
 
@@ -132,12 +133,8 @@ nglFont *tlResourceDirectory<nglFont, tlFixedString>::StandardLoad(const tlFixed
 
         auto *font = create_and_parse_fdf(a1, fileBuf.Buf);
         tlReleaseFile(&fileBuf);
-        auto *vtbl = bit_cast<fastcall_call(*)[5]>(this->m_vtbl);
 
-        auto *func = (*vtbl)[4];
-        assert(bit_cast<std::intptr_t>(func) == 0x00773F60);
-
-        if (bit_cast<tlInstanceBankResourceDirectory<nglFont, tlFixedString> *>(this)->Add(font)) {
+        if (bit_cast<tlInstanceBankResourceDirectory<nglFont, tlFixedString> *>(this)->_Add(font)) {
             sp_log("Attempt to load already loaded font %s\n", a1.to_string());
         }
 
@@ -145,6 +142,32 @@ nglFont *tlResourceDirectory<nglFont, tlFixedString>::StandardLoad(const tlFixed
     } else {
         return (nglFont *)THISCALL(0x00779220, this, &a1);
     }
+}
+
+template <>
+int tlResourceDirectory<nglFont, tlFixedString>::StandardRelease(nglFont *font, int mode, bool)
+{
+    if (font == nullptr) {
+        return 0;
+    }
+
+    if (mode == 1) {
+        return font->field_20;
+    }
+
+    if (mode == 0 && --font->field_20 > 0) {
+        return font->field_20;
+    }
+
+    this->Del(font);
+    if (font->field_24 != nullptr) {
+        nglGetTextureDirectory()->Release(font->field_24, 0, false);
+    }
+    tlMemFree(font->GlyphInfo);
+    tlMemFree(font->field_4C);
+    font->~nglFont();
+    tlMemFree(font);
+    return 0;
 }
 
 template <>
@@ -161,7 +184,7 @@ nglMeshFile *tlResourceDirectory<nglMeshFile, tlFixedString>::StandardLoad(const
 {
     TRACE("tlResourceDirectory<nglMeshFile, tlFixedString>::StandardLoad");
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         char Dest[256]{};
         _snprintf(Dest, 256u, "%s%s%s", nglMeshPath, a1.to_string(), ".pcmesh");
         auto *MeshFile = static_cast<nglMeshFile *>(tlMemAlloc(sizeof(nglMeshFile), 8, 0x1000000u));
@@ -180,9 +203,9 @@ nglMeshFile *tlResourceDirectory<nglMeshFile, tlFixedString>::StandardLoad(const
                                         ".pcmesh"
 #endif
                                         )) {
-                bool(__fastcall * Add)(void *, void *, nglMeshFile *) = CAST(Add, get_vfunc(this->m_vtbl, 0x10));
-
-                if (Add(this, nullptr, MeshFile)) {
+                auto *directory =
+                    static_cast<tlInstanceBankResourceDirectory<nglMeshFile, tlFixedString> *>(this);
+                if (directory->_Add(MeshFile)) {
                     auto *v5 = a1.to_string();
                     sp_log("Attempt to load already loaded MeshFile %s\n", v5);
                 }

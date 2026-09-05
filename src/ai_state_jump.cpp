@@ -42,7 +42,33 @@ VALIDATE_OFFSET(jump_state, field_30, 0x30);
 VALIDATE_OFFSET(jump_state, field_4C, 0x4C);
 VALIDATE_OFFSET(jump_state, field_81, 0x81);
 
+#if STANDALONE_SYSTEM
+static jump_param_t jump_params[21] {
+    {"jump_fall_height", "jump_fall_distance"},
+    {"jump_run_height", "jump_run_distance"},
+    {"jump_double_height", "jump_double_distance"},
+    {"jump_double_idle_height", "jump_double_idle_distance"},
+    {"jump_off_wall_height", "jump_off_wall_distance"},
+    {"jump_wall_release_height", "jump_wall_release_distance"},
+    {"jump_wall_idle_height", "jump_wall_idle_distance"},
+    {"jump_wall_run_height", "jump_wall_run_distance"},
+    {"jump_wall_crawl_height", "jump_wall_crawl_distance"},
+    {"jump_to_swing_height", "jump_to_swing_distance"},
+    {"jump_slow_swing_height", "jump_slow_swing_distance"},
+    {"jump_fast_swing_height", "jump_fast_swing_distance"},
+    {"jump_zip_ground_height", "jump_zip_ground_distance"},
+    {"jump_zip_air_height", "jump_zip_air_distance"},
+    {"jump_glass_house_height", "jump_glass_house_distance"},
+    {"jump_super_jump_run_height", "jump_super_jump_run_distance"},
+    {"jump_super_jump_wall_idle_height", "jump_super_jump_wall_idle_distance"},
+    {"jump_super_jump_wall_height", "jump_super_jump_wall_distance"},
+    {"jump_instant_super_jump_wall_height", "jump_instant_super_jump_wall_distance"},
+    {"jump_pole_swing_height", "jump_pole_swing_distance"},
+    {"jump_flying_start_height", "jump_flying_start_distance"},
+};
+#else
 static auto &jump_params = var<jump_param_t[21]>(0x00958CD0);
+#endif
 
 jump_state::jump_state(from_mash_in_place_constructor *a2)
 {

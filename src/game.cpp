@@ -108,6 +108,9 @@
 #include <cstdio>
 #include <cstring>
 #include <numeric>
+#if STANDALONE_SYSTEM
+extern const char *g_heap_check_stage;
+#endif
 
 VALIDATE_SIZE(game::level_load_stuff, 0x3C);
 VALIDATE_SIZE(game, 0x2C4u);
@@ -266,21 +269,30 @@ game::game()
 
     if constexpr (1) {
 #if !STANDALONE_SYSTEM
-        static auto & setup_inputs_p = var<void (*)(game *)>(0x0095C8FC);
+        static auto &setup_inputs_callback = var<void (*)(game *)>(0x0095C8FC);
+        setup_inputs_callback = game__setup_inputs;
 #else
-        static auto &setup_inputs_p = []() -> auto & {
-            static void (*func)(game *);
-            return func;
-        }();
-#endif
-
+        setup_input_registrations_p = game__setup_input_registrations;
         setup_inputs_p = game__setup_inputs;
+#endif
     }
 
     if constexpr (1) {
+#if STANDALONE_SYSTEM
+        g_heap_check_stage = "game::scratchpad_stack::initialize";
+#endif
         scratchpad_stack::initialize();
+#if STANDALONE_SYSTEM
+        g_heap_check_stage = "game::script_manager::init";
+#endif
         script_manager::init();
+#if STANDALONE_SYSTEM
+        g_heap_check_stage = "game::construct_script_controllers";
+#endif
         construct_script_controllers();
+#if STANDALONE_SYSTEM
+        g_heap_check_stage = "game::scene_entity_base::initialize";
+#endif
         scene_entity_base::initialize();
         this->field_2B4 = false;
         this->field_1 = false;
@@ -322,11 +334,17 @@ game::game()
             }
         }
 
+#if STANDALONE_SYSTEM
+        g_heap_check_stage = "game::world_dynamics_system";
+#endif
         this->the_world = new world_dynamics_system();
         g_world_ptr = this->the_world;
 
         this->mb = nullptr;
 
+#if STANDALONE_SYSTEM
+        g_heap_check_stage = "game::game_settings";
+#endif
         this->gamefile = new game_settings();
 
         this->field_278 = 0.0;
@@ -379,8 +397,17 @@ game::game()
         this->field_64 = nullptr;
         this->field_7C = nullptr;
 
+#if STANDALONE_SYSTEM
+        g_heap_check_stage = "game::setup_input_registrations";
+#endif
         this->setup_input_registrations();
+#if STANDALONE_SYSTEM
+        g_heap_check_stage = "game::setup_inputs";
+#endif
         this->setup_inputs();
+#if STANDALONE_SYSTEM
+        g_heap_check_stage = "game::push_process";
+#endif
 
         static Var<bool> g_console_command {0x0095C068};
         g_console_command() = false;
@@ -401,7 +428,13 @@ game::game()
         this->field_80 = game_button {
             game_button{static_cast<game_control_t>(105)}, game_button{static_cast<game_control_t>(102)}, 4};
 
+#if STANDALONE_SYSTEM
+        g_heap_check_stage = "game::occlusion::init";
+#endif
         occlusion::init();
+#if STANDALONE_SYSTEM
+        g_heap_check_stage = "game::init_subdivision";
+#endif
         init_subdivision();
 
         g_debug_mem_dump_frame = os_developer_options::instance->get_int(mString {"MEM_DUMP_FRAME"});
@@ -507,7 +540,11 @@ void game::begin_hires_screenshot(int a2, int a3)
 {
     hires_screenshot::params::width() = a2;
     hires_screenshot::params::height() = a3;
+#if STANDALONE_SYSTEM
+    this->push_process(hires_screenshot::process);
+#else
     this->push_process(hires_screenshot::process());
+#endif
 }
 
 void game::enable_marky_cam(bool a2, bool a3, Float a4, Float a5)
@@ -565,18 +602,31 @@ void game::load_complete()
     g_game_ptr->level.load_completed = true;
 }
 
+#if STANDALONE_SYSTEM
+static int lores_flow[] {10, 11, 12, 14};
+static game_process lores_game_process{"lores", lores_flow, 4};
+#else
 static Var<game_process> lores_game_process{0x00922074};
+#endif
 
 void game::push_lores()
 {
+#if STANDALONE_SYSTEM
+    this->push_process(lores_game_process);
+#else
     this->push_process(lores_game_process());
+#endif
 }
 
 void game::push_process(game_process &process)
 {
-    void (__fastcall *sub_570FD0)(void *, void *, void *) = CAST(sub_570FD0, 0x00570FD0);
-
-    sub_570FD0(&this->process_stack, nullptr, &process);
+    if constexpr (STANDALONE_SYSTEM) {
+        this->process_stack.push_back(process);
+    } else {
+        void(__fastcall *sub_570FD0)(void *, void *, void *) =
+            CAST(sub_570FD0, 0x00570FD0);
+        sub_570FD0(&this->process_stack, nullptr, &process);
+    }
 
     auto &last_proc = this->process_stack.back();
     last_proc.index = 0;
@@ -765,9 +815,9 @@ void game::advance_state_legal(Float a2)
     //sp_log("advance_state_legal: start");
 
     if constexpr (1) {
-        mString v12 {"legalscreen"};
+        mString v12 {"spidermanlogo"};
 
-        resource_key v11{string_hash{"legalscreen"}, RESOURCE_KEY_TYPE_PACK};
+        mission_stack_manager::s_inst->push_mission_pack_immediate(v12, v12);
 
         this->clear_screen();
 
@@ -836,11 +886,20 @@ void game::one_time_init_stuff()
             }
         }
 
-        tlFixedString a1 {"dropshadow"};
-        this->field_B4 = nglGetFirstMeshInFile(a1);
+        if constexpr (STANDALONE_SYSTEM) {
+            this->field_B4 = nullptr;
+            this->field_B8 = nullptr;
+        } else {
+            tlFixedString a1 {"dropshadow"};
+            this->field_B4 = nglGetFirstMeshInFile(a1);
 
-        a1 = tlFixedString {"vcl_car_shadow"};
-        this->field_B8 = nglGetFirstMeshInFile(a1);
+            a1 = tlFixedString {"vcl_car_shadow"};
+            this->field_B8 = nglGetFirstMeshInFile(a1);
+        }
+
+        if constexpr (STANDALONE_SYSTEM) {
+            g_femanager.LoadFrontEnd();
+        }
     } else {
         THISCALL(0x00552E50, this);
     }
@@ -1147,15 +1206,10 @@ void game::handle_cameras(input_mgr *a2, const Float &time_inc)
 {
     TRACE("game::handle_cameras");
 
-    if (this->field_5C != nullptr) {
-        sp_log("0x%08X", this->field_5C->m_vtbl);
-    }
 
-    sp_log("%d %d",
-           this->is_user_camera_enabled(),
-            os_developer_options::instance->get_int(static_cast<os_developer_options::ints_t>(2)));
-
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
+        return;
+    } else if constexpr (0) {
         if ( !this->flag.level_is_loaded ) {
             return;
         }
@@ -1552,7 +1606,7 @@ void game::handle_game_states(const Float &a2)
 {
     TRACE("game::handle_game_states");
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         switch (static_cast<int>(this->get_cur_state())) {
         case static_cast<int>(game_state::LEGAL): {
             this->advance_state_legal(a2);
@@ -1616,7 +1670,7 @@ void game::handle_game_states(const Float &a2)
 void game::go_next_state()
 {
     assert(process_stack.size() != 0);
-    this->process_stack.front().go_next_state();
+    this->process_stack.back().go_next_state();
 }
 
 void game::set_camera(int a2)
@@ -2218,7 +2272,11 @@ void game::advance_state_load_level(Float a2)
 {
     TRACE("game::advance_state_load_level");
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
+        if (g_femanager.m_fe_menu_system != nullptr) {
+            static_cast<FrontEndMenuSystem *>(g_femanager.m_fe_menu_system)->sub_619030(false);
+        }
+    } else if constexpr (0) {
         static bool & loading_a_level = var<bool>(0x00960CB5);
 
         this->level.name_mission_table = g_scene_name;
@@ -2815,21 +2873,32 @@ void game::load_hero_packfile(const char *str, bool a3)
 
 void game::render_empty_list()
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
+        if (mission_manager::s_inst->field_F4 >= 1.0f) {
+            g_game_ptr->field_165 = true;
+            g_game_ptr->field_166 = false;
+        }
+        nglFrame() += 2;
     } else {
         CDECL_CALL(0x00510780);
     }
 }
 
-void game::frame_advance(Float a2)
+void game::frame_advance(Float time_inc)
 {
     TRACE("game::frame_advance");
 
-    sp_log("%f", float(a2));
+    if constexpr (STANDALONE_SYSTEM) {
+        if (time_inc > 0.25f)
+            time_inc = 0.25f;
 
-    if constexpr (0) {
+        this->field_28C = (this->field_28C * 0.8f + time_inc) * 0.5f;
+        this->field_274 = time_inc;
+        this->field_278 = time_inc;
+        this->frame_advance_level(time_inc);
+        comic_panels::frame_advance(time_inc);
     } else {
-        THISCALL(0x0055D780, this, a2);
+        THISCALL(0x0055D780, this, time_inc);
     }
 }
 
@@ -2837,7 +2906,7 @@ void game::frame_advance_level(Float time_inc)
 {
     TRACE("game::frame_advance_level");
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         static bool & gimme_the_lowdown = var<bool>(0x0095C8EE);
 
         auto *v2 = input_mgr::instance;
@@ -2847,7 +2916,7 @@ void game::frame_advance_level(Float time_inc)
 
         this->sub_524170();
 
-        if (this->flag.field_3 && AXIS_MAX != v2->get_control_state(54, INVALID_DEVICE_ID)) {
+        if (this->flag.field_3 && not_equal(AXIS_MAX, v2->get_control_state(54, INVALID_DEVICE_ID))) {
             this->flag.field_3 = false;
         }
 
@@ -2855,7 +2924,7 @@ void game::frame_advance_level(Float time_inc)
 
         this->sub_5241D0(time_inc);
 
-        if (time_inc != 0.0f) {
+        if (not_equal(float{time_inc}, 0.0f)) {
             game_clock::frame_advance(time_inc);
         }
 
@@ -3109,8 +3178,9 @@ void game::sub_524170()
     input_mgr::instance->scan_devices();
 }
 
-void game::sub_559F50(Float *a1)
+void game::sub_559F50([[maybe_unused]] Float *a1)
 {
+#if !STANDALONE_SYSTEM
     script_sound_manager::frame_advance(*a1);
 
     if ( !os_developer_options::instance->get_flag(mString {"DISABLE_AUDIO_BOXES"}) ) {
@@ -3120,6 +3190,7 @@ void game::sub_559F50(Float *a1)
     ambient_audio_manager::frame_advance(*a1);
     sound_manager::frame_advance(*a1);
     gab_manager::frame_advance(*a1);
+#endif
 }
 
 void map_spiderman_controls()
@@ -3178,7 +3249,7 @@ void game__setup_inputs(game *a1)
 {
     TRACE("game::setup_inputs");
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         auto *v2 = input_mgr::instance;
         v2->clear_mapping();
         auto id = v2->field_58;
@@ -3225,7 +3296,7 @@ void game__setup_inputs(game *a1)
             v2->map_control(EDITCAM_BACKWARD, KEYBOARD_DEVICE, KB_K);
         }
 
-        if constexpr (0) {
+        if constexpr (STANDALONE_SYSTEM) {
             v2->map_control(74, KEYBOARD_DEVICE, 86);
             v2->map_control(75, KEYBOARD_DEVICE, 85);
             v2->map_control(76, KEYBOARD_DEVICE, 84);
@@ -3306,7 +3377,16 @@ void game__setup_inputs(game *a1)
 
 void game__setup_input_registrations(game *a1)
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
+        assert(a1 != nullptr);
+        assert(input_mgr::instance != nullptr);
+
+        for (int id = 0; id <= 119; ++id) {
+            game_control control{};
+            control.name = static_cast<control_id_t>(id);
+            control.type = CT_BOOLEAN;
+            input_mgr::instance->register_control(control);
+        }
     } else {
         CDECL_CALL(0x006063C0, a1);
     }

@@ -8,7 +8,7 @@ VALIDATE_SIZE(rumble_struct, 0x24);
 
 rumble_struct::rumble_struct()
 {
-#if 0
+#if STANDALONE_SYSTEM
     this->field_20 = 0;
     this->field_0 = -1.0;
     this->field_4 = -1.0;

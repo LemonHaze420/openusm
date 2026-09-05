@@ -92,48 +92,6 @@ tlInitListFunction InitList_Init_nglVertexDef_FrontEnd_builder{&Init_nglVertexDe
 
 #endif
 
-template <>
-nglFont *tlInstanceBankResourceDirectory<nglFont, tlFixedString>::Impl::Find(const tlFixedString &a1)
-{
-    if (this->field_8 == nullptr) {
-        return nullptr;
-    }
-
-    auto *v7 = this->field_8;
-    auto v8 = this->m_size;
-
-    Node *v6 = nullptr;
-    do {
-        while (1) {
-            v6 = v7->field_4[v8];
-            if (v6 == nullptr) {
-                break;
-            }
-
-            auto *v3 = &v6->field_0->field_0;
-            auto v5 = v3->compare(a1);
-            if (v5 == 0) {
-                return v6->field_0;
-            }
-
-            if (v5 > 0) {
-                break;
-            }
-
-            v7 = v6;
-        }
-
-        --v8;
-    } while (v8 >= 0);
-
-    if (v6 != nullptr) {
-        if (auto &v4 = v6->field_0->field_0; v4 == a1) {
-            return v6->field_0;
-        }
-    }
-
-    return nullptr;
-}
 
 void tlReleaseFile(tlFileBuf *File)
 {

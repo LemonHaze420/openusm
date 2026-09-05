@@ -5,8 +5,15 @@
 #include "vector2d.h"
 #include "color32.h"
 #include "common.h"
+#include "matrix4x4.h"
+#include "vector3d.h"
 
 VALIDATE_SIZE(PanelQuadSection, 0x7C);
+
+PanelQuadSection::PanelQuadSection()
+    : field_78(true)
+{
+}
 
 PanelQuadSection::PanelQuadSection(from_mash_in_place_constructor *)
 {
@@ -50,6 +57,21 @@ void PanelQuadSection::sub_608EF0(float *a2, float *a3)
     a3[1] = (float)this->field_8[1];
     a3[2] = (float)this->field_8[2];
     a3[3] = (float)this->field_8[3];
+}
+
+void PanelQuadSection::Animate(const matrix4x4 &transform, float z, bool relative)
+{
+    auto *quad = reinterpret_cast<nglQuad *>(&field_14);
+    for (int vertex = 0; vertex < 4; ++vertex) {
+        const float x = relative
+            ? quad->field_0[vertex].pos.x
+            : static_cast<float>(field_0[vertex]);
+        const float y = relative
+            ? quad->field_0[vertex].pos.y
+            : static_cast<float>(field_8[vertex]);
+        const vector3d transformed = transform * vector3d {x, y, z};
+        nglSetQuadVPos(quad, vertex, transformed[0], transformed[1]);
+    }
 }
 
 void PanelQuadSection_patch()

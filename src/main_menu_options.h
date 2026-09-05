@@ -39,6 +39,8 @@ struct main_menu_options : FEMenu {
 
     main_menu_options(FEMenuSystem *a2, int a3, int a4);
 
+    void _Init();
+
     /* virtual */ void Update(Float a3);
 
     //0x0062CE60

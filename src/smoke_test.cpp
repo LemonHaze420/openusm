@@ -53,7 +53,7 @@ void smoke_test::frame_advance()
     THISCALL(0x0057B740, this);
 }
 
-static Var<const char *[]> cheat_heroes{0x00922564};
+static Var<const char *[16]> cheat_heroes{0x00922564};
 
 void smoke_test::sub_57B610()
 {

@@ -40,7 +40,7 @@ bool get_standalone_pack_size(const char *name, int *out_size)
     assert(out_size != nullptr);
 
 
-    filespec file_spec {mString {packfile_dir()[g_platform]}, mString {name}, mString {packfile_ext()[g_platform]}};
+    filespec file_spec {mString {packfile_dir[g_platform]}, mString {name}, mString {packfile_ext[g_platform]}};
     mString path = file_spec.fullname();
     os_file file {path, os_file::FILE_READ};
     if (!file.is_open()) {

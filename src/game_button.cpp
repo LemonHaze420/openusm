@@ -15,7 +15,7 @@ VALIDATE_SIZE(game_button, 0x34u);
 
 game_button::game_button()
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         this->field_4 = input_mgr::instance->field_58;
         this->field_C = nullptr;
         this->field_10 = nullptr;

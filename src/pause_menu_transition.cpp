@@ -1,7 +1,10 @@
 #include "pause_menu_transition.h"
 
 #include "common.h"
+#include "config.h"
 #include "func_wrapper.h"
+#include "panelfile.h"
+#include "pausemenusystem.h"
 #include "trace.h"
 #include "utility.h"
 
@@ -34,7 +37,17 @@ void pause_menu_transition::Update(Float a2)
 void pause_menu_transition::_Load()
 {
     TRACE("pause_menu_transition::Load");
-    THISCALL(0x0061C640, this);
+    if constexpr (STANDALONE_SYSTEM) {
+        auto *panel = field_2C->field_2C;
+        field_30 = reinterpret_cast<std::intptr_t>(panel->GetAnimationPointer(0));
+        field_34 = reinterpret_cast<std::intptr_t>(panel->GetAnimationPointer(1));
+        field_38 = reinterpret_cast<std::intptr_t>(panel->GetAnimationPointer(2));
+        field_3C = reinterpret_cast<std::intptr_t>(panel->GetAnimationPointer(3));
+        field_40 = reinterpret_cast<std::intptr_t>(panel->GetAnimationPointer(4));
+        field_44 = reinterpret_cast<std::intptr_t>(panel->GetAnimationPointer(5));
+    } else {
+        THISCALL(0x0061C640, this);
+    }
 }
 
 void pause_menu_transition_patch()

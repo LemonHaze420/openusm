@@ -64,7 +64,7 @@ int_names_t &int_names = []() -> auto & {
                                        "RUN_LENGTH",
                                        "PC_WINDOW_TOP",
                                        "PC_WINDOW_LEFT",
-                                       "PC_WINDOW_WI DTH",
+                                   "PC_WINDOW_WIDTH",
                                        "PC_WINDOW_HEIGHT",
                                        "ALLOW_SCREENSHOT",
                                        "AMALGA_REFRESH_INTERVAL",
@@ -72,7 +72,7 @@ int_names_t &int_names = []() -> auto & {
                                        "GOD_MODE",
                                        "PCLISTBUFFER",
                                        "PCSCRATCHBUFFER",
-                                       "PCSCRATCHI NDEXBUFFER",
+                                   "PCSCRATCHINDEXBUFFER",
                                        "PCSCRATCHVERTEXBUFFER",
                                        "NAL_HEAP_SIZE",
                                        "ASSERT_BOX_MARGIN",
@@ -96,14 +96,14 @@ int_names_t &int_names = []() -> auto & {
                                        "DEBUG_CAMERA_MOVE_MULTIPLIER",
                                        "DEBUG_CAMERA_STRAFE_MULTIPLIER",
                                        "TAM_SCALE_MIN_DISTANCE",
-                                       "TAM_SCALE_MAX_ DISTANCE",
+                                   "TAM_SCALE_MAX_DISTANCE",
                                        "TAM_SCALE_MIN_PERCENT",
                                        "THUG_HEALTH_UI_SCALE_MIN_DISTANCE",
-                                       "THUG_H EALTH_UI_SCALE_MAX_DISTANCE",
+                                   "THUG_HEALTH_UI_SCALE_MAX_DISTANCE",
                                        "THUG_HEALTH_UI_SCALE_MIN_PERCENT",
-                                       "TARGETING_RET ICLE_SCALE_MIN_DISTANCE",
+                                   "TARGETING_RETICLE_SCALE_MIN_DISTANCE",
                                        "TARGETING_RETICLE_SCALE_MAX_DISTANCE",
-                                       "TARGETING_RET ICLE_SCALE_MIN_PERCENT",
+                                   "TARGETING_RETICLE_SCALE_MIN_PERCENT",
                                        "HIRES_SCREENSHOT_X",
                                        "HIRES_SCREENSHOT_Y",
                                        "TIME_OF_DAY",
@@ -157,7 +157,7 @@ flag_names_t &flag_names = []() -> auto & {
                                          "DISABLE_SOUND_DEBUG_OUTPUT",
                                          "DELETE_UNUSED_SOUND_BANKS_ON_PACK",
                                          "LOCKED_HERO",
-                                         "FOG_OVERR IDE",
+                                     "FOG_OVERRIDE",
                                          "FOG_DISABLE",
                                          "MOVE_EDITOR",
                                          "AI_PATH_DEBUG",
@@ -198,7 +198,7 @@ flag_names_t &flag_names = []() -> auto & {
                                          "SMOKE_TEST",
                                          "SMOKE_TEST_LEVEL",
                                          "COMBO_TESTER",
-                                         "DROP _SHADOWS_ALWAYS_RAYCAST",
+                                     "DROP_SHADOWS_ALWAYS_RAYCAST",
                                          "DISABLE_DROP_SHADOWS",
                                          "DISABLE_HIRES_SHADOWS",
                                          "DISABLE_STENCIL_SHADOWS",
@@ -274,7 +274,22 @@ flag_names_t &flag_names = []() -> auto & {
 }();
 
 string_names_t &string_names = []() -> auto & {
-    static const char *g_string_names[14]{};
+    static const char *g_string_names[14] {
+        "SOUND_LIST",
+        "SCENE_NAME",
+        "HERO_NAME",
+        "GAME_TITLE",
+        "GAME_LONG_TITLE",
+        "SAVE_GAME_DESC",
+        "VIDEO_MODE",
+        "GFX_DEVICE",
+        "FORCE_DEBUG_MISSION",
+        "FORCE_LANGUAGE",
+        "SKU",
+        "CONSOLE_EXEC",
+        "HERO_START_DISTRICT",
+        "DEBUG_ENTITY_NAME",
+    };
     return g_string_names;
 }();
 

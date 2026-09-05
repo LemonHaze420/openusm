@@ -112,7 +112,7 @@ HRESULT nglSetStreamSourceAndDrawPrimitive(nglMeshSection *MeshSection)
     uint32_t stride = MeshSection->m_stride;
     g_MinVertexIndex() = MeshSection->field_4C / stride;
     auto *vertexBuffer = MeshSection->field_3C.getVertexBuffer();
-    g_Direct3DDevice()->lpVtbl->SetStreamSource(g_Direct3DDevice(), 0, vertexBuffer, 0, stride);
+    IDirect3DDevice9_SetStreamSource(g_Direct3DDevice, 0, vertexBuffer, 0, stride);
     dword_972964() = vertexBuffer;
 
     HRESULT result;
@@ -131,7 +131,27 @@ HRESULT nglSetStreamSourceAndDrawPrimitive(nglMeshSection *MeshSection)
     return result;
 }
 
-void SetRenderTarget(nglTexture *Tex, nglTexture *a2, int a3, int a4)
+void SetRenderTarget(nglTexture *texture, nglTexture *depth_texture, int level, int face)
 {
-    CDECL_CALL(0x00771970, Tex, a2, a3, a4);
+#if STANDALONE_SYSTEM
+    IDirect3DSurface9 *render_target{};
+    if (face == 6) {
+        render_target = texture->DXSurfaces[level];
+    } else {
+        auto **cube_surfaces = reinterpret_cast<IDirect3DSurface9 **>(texture->DXSurfaces[face]);
+        render_target = cube_surfaces[level];
+    }
+
+    IDirect3DSurface9 *depth_surface{};
+    if (depth_texture != nullptr) {
+        depth_surface = reinterpret_cast<IDirect3DSurface9 *>(depth_texture->DXSurfaces);
+    } else if (texture->field_44 != nullptr) {
+        depth_surface = reinterpret_cast<IDirect3DSurface9 *>(texture->field_44->DXSurfaces);
+    }
+
+    IDirect3DDevice9_SetRenderTarget(g_Direct3DDevice, 0, render_target);
+    IDirect3DDevice9_SetDepthStencilSurface(g_Direct3DDevice, depth_surface);
+#else
+    CDECL_CALL(0x00771970, texture, depth_texture, level, face);
+#endif
 }

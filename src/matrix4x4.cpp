@@ -133,7 +133,30 @@ void matrix4x4::sub_415A30(const void *a2)
 
 void matrix4x4::sub_76CF20(void *a2)
 {
-    THISCALL(0x0076CF20, this, a2);
+    if constexpr (STANDALONE_SYSTEM) {
+        struct matrix_chain {
+            const void *prefix;
+            const matrix4x4 *tail;
+        };
+
+        const auto &outer = *static_cast<const matrix_chain *>(a2);
+        const auto &inner = *static_cast<const matrix_chain *>(outer.prefix);
+
+        matrix4x4 prefix;
+        const TransformMatrices first_pair {
+            static_cast<const matrix4x4 *>(inner.prefix),
+            inner.tail,
+        };
+        prefix.sub_415A30(&first_pair);
+
+        const TransformMatrices second_pair {
+            &prefix,
+            outer.tail,
+        };
+        sub_415A30(&second_pair);
+    } else {
+        THISCALL(0x0076CF20, this, a2);
+    }
 }
 
 
@@ -166,7 +189,11 @@ matrix4x4 matrix4x4::sub_76CA50(const matrix4x4 &arg0)
 
 void matrix4x4::sub_76CE70(void *a2)
 {
-    THISCALL(0x0076CE70, this, a2);
+    if constexpr (STANDALONE_SYSTEM) {
+        sub_415A30(a2);
+    } else {
+        THISCALL(0x0076CE70, this, a2);
+    }
 }
 
 
@@ -318,7 +345,11 @@ float matrix4x4::det()
 
 void matrix4x4::sub_415740(void *a2)
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
+        (void)a2;
+        arr[0] = vector4d{1.0f, 0.0f, 0.0f, 0.0f};
+        arr[1] = vector4d{0.0f, 1.0f, 0.0f, 0.0f};
+        arr[2] = vector4d{0.0f, 0.0f, 1.0f, 0.0f};
     } else {
         THISCALL(0x00415740, this, a2);
     }
@@ -379,11 +410,16 @@ void matrix4x4::rotate(const vector3d &v, Float angle)
 #endif
 }
 
-matrix4x4 operator*(const matrix4x4 &a2, const matrix4x4 &a3)
+matrix4x4 operator*(const matrix4x4 &lhs, const matrix4x4 &rhs)
 {
-    matrix4x4 result;
-    CDECL_CALL(0x00587EB0, &result, &a2, &a3);
-
+    matrix4x4 result{};
+    for (int row = 0; row < 4; ++row) {
+        for (int column = 0; column < 4; ++column) {
+            for (int inner = 0; inner < 4; ++inner) {
+                result.arr[row][column] += lhs.arr[row][inner] * rhs.arr[inner][column];
+            }
+        }
+    }
     return result;
 }
 

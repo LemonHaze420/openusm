@@ -9,15 +9,109 @@
 
 #include <optional>
 
+#if STANDALONE_SYSTEM
+namespace {
+device_id_t __fastcall keyboard_get_id(const input_device *device)
+{
+    return static_cast<device_id_t>(device->field_4);
+}
+
+int __fastcall keyboard_get_axis_count(const input_device *)
+{
+    return KB_NUM_AXES;
+}
+
+int __fastcall keyboard_get_axis_id(input_device *, void *, int axis)
+{
+    return axis;
+}
+
+float __fastcall keyboard_get_axis_state(input_device *device, void *, int axis, int slot)
+{
+    return static_cast<keyboard_device *>(device)->_get_axis_state(axis, slot);
+}
+
+float __fastcall keyboard_get_axis_old_state(input_device *device, void *, int axis, int slot)
+{
+    return static_cast<keyboard_device *>(device)->_get_axis_old_state(axis, slot);
+}
+
+float __fastcall keyboard_get_axis_delta(input_device *device, void *, int axis, int slot)
+{
+    return static_cast<keyboard_device *>(device)->_get_axis_delta(axis, slot);
+}
+
+void __fastcall keyboard_poll(input_device *device)
+{
+    static_cast<keyboard_device *>(device)->_poll();
+}
+
+void __fastcall keyboard_finalize(input_device *, void *, bool)
+{
+}
+
+bool __fastcall keyboard_is_connected(const input_device *device)
+{
+    return static_cast<const keyboard_device *>(device)->_is_connected();
+}
+
+int __fastcall keyboard_clear_state(input_device *device)
+{
+    static_cast<keyboard_device *>(device)->_clear_state();
+    return 0;
+}
+
+void __fastcall keyboard_vibrate(input_device *, void *, int, int, int, int)
+{
+}
+
+void __fastcall keyboard_vibrate_scalar(input_device *, void *, Float)
+{
+}
+
+void __fastcall keyboard_stop_vibration(input_device *)
+{
+}
+
+bool __fastcall keyboard_is_vibrator_present(const input_device *device)
+{
+    return static_cast<const keyboard_device *>(device)->_is_vibrator_present();
+}
+}
+#endif
+
 keyboard_device::keyboard_device()
 {
     using vtbl_t = std::decay_t<decltype(*m_vtbl)>;
+#if STANDALONE_SYSTEM
+    static vtbl_t vtbl{
+        0,
+        0,
+        keyboard_get_id,
+        keyboard_get_axis_count,
+        keyboard_get_axis_id,
+        keyboard_get_axis_state,
+        keyboard_get_axis_old_state,
+        keyboard_get_axis_delta,
+        keyboard_poll,
+        0,
+        keyboard_finalize,
+        keyboard_is_connected,
+        keyboard_clear_state,
+        keyboard_vibrate,
+        keyboard_vibrate_scalar,
+        keyboard_stop_vibration,
+        keyboard_is_vibrator_present,
+    };
+#else
     Var<vtbl_t> tmp {0x0088EA80};
     static vtbl_t vtbl = tmp();
+#endif
 
     this->m_vtbl = &vtbl;
     this->field_4 = INVALID_DEVICE_ID;
 
+#if !STANDALONE_SYSTEM
     {
         FUNC_ADDRESS(address, &keyboard_device::_clear_state);
         this->m_vtbl->clear_state = CAST(this->m_vtbl->clear_state, address);
@@ -47,6 +141,7 @@ keyboard_device::keyboard_device()
         FUNC_ADDRESS(address, &keyboard_device::_is_connected);
         this->m_vtbl->is_connected = CAST(this->m_vtbl->is_connected, address);
     }
+#endif
 }
 
 static keyboard_device g_device {};
@@ -75,7 +170,7 @@ void keyboard_device::_clear_state()
     ;
 }
 
-float keyboard_device::_get_axis_state(int axis, int a3)
+float keyboard_device::_get_axis_state(int axis, [[maybe_unused]] int a3)
 {
     TRACE("keyboard_device::get_axis_state");
 

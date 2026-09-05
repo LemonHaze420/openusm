@@ -1,8 +1,8 @@
 #pragma once
 
 #include "variable.h"
+#include "fixed_pool.h"
 
-struct fixed_pool;
 
 struct dirty_sphere_t {
     dirty_sphere_t();

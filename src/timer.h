@@ -19,13 +19,13 @@ struct Timer {
     float field_30;
     float field_34;
     char field_38;
-    int field_3C;
-    int field_40;
+    float field_3C;
+    float field_40;
     int field_44;
     int field_48;
     int field_4C;
     int field_50;
-    int field_54;
+    float field_54;
 
     //0x00582100
     Timer(Float a2, Float a3);

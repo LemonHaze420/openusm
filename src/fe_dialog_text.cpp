@@ -1,6 +1,7 @@
 #include "fe_dialog_text.h"
 
 #include "common.h"
+#include "config.h"
 #include "femenusystem.h"
 #include "fetext.h"
 #include "femultilinetext.h"
@@ -17,9 +18,18 @@ VALIDATE_SIZE(fe_dialog_text, 0x10C);
 VALIDATE_OFFSET(fe_dialog_text, field_78, 0x78);
 VALIDATE_OFFSET(fe_dialog_text, field_9C, 0x9C);
 
-fe_dialog_text::fe_dialog_text(FEMenuSystem *a2, int a3, int a4) : FEMenu(a2, 0, a3, a4, 0, 0)
+fe_dialog_text::fe_dialog_text(FEMenuSystem *a2, int a3, int a4)
+    : FEMenu(a2, 0, a3, a4, 0, 0)
 {
-    THISCALL(0x0060D570, this, a2, a3, a4);
+    if constexpr (STANDALONE_SYSTEM) {
+        m_vtbl = 0x00893E78;
+        panel = nullptr;
+        field_A4 = 0;
+        field_100 = 1.0f;
+        field_104 = 1.0f;
+    } else {
+        THISCALL(0x0060D570, this, a2, a3, a4);
+    }
 }
 
 void fe_dialog_text::set_text(string a1)
@@ -32,7 +42,7 @@ void fe_dialog_text::_Load()
 {
     TRACE("fe_dialog_text::Load");
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         assert(panel == nullptr && "Dialog text widget already loaded.");
 
         auto *v2 = PanelFile::UnmashPanelFile("text_box_big", static_cast<panel_layer>(1));

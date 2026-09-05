@@ -14,6 +14,7 @@
 
 #include <psapi.h>
 #include <windows.h>
+#include <algorithm>
 
 static Var<const float> PCFreq{0x0093A294};
 
@@ -41,7 +42,73 @@ void nglVif1RenderScene()
 {
     TRACE("nglVif1RenderScene");
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
+        auto render_scene = [&](auto &&self, nglScene *scene) -> void {
+            assert(scene != nullptr);
+            for (auto *child = scene->field_314; child != nullptr; child = child->field_310) {
+                self(self, child);
+            }
+
+            nglCurScene = scene;
+            nglVif1SetupScene(scene);
+            assert(scene->field_31C == nullptr);
+            assert(scene->field_324 == nullptr);
+            assert(scene->field_32C == nullptr);
+
+            const auto render_nodes = [](nglRenderNode *node, int count) {
+                struct SortEntry {
+                    nglRenderNode *node;
+                    int submission_order;
+                };
+
+                auto *nodes = static_cast<SortEntry *>(
+                    nglListAlloc(sizeof(SortEntry) * count, alignof(SortEntry)));
+                int node_count = 0;
+                while (node != nullptr) {
+                    nodes[node_count] = {node, count - node_count - 1};
+                    ++node_count;
+                    node = node->m_next_node;
+                }
+
+                const auto depth = [](const nglRenderNode *render_node) {
+                    if (render_node->m_vtbl == 0x008B9FB4) {
+                        return static_cast<const nglQuadNode *>(render_node)->field_C.field_50.f;
+                    }
+                    return reinterpret_cast<const nglStringNode *>(render_node)->field_8;
+                };
+
+                std::sort(nodes, nodes + node_count,
+                    [&](const SortEntry &left, const SortEntry &right) {
+                        const float left_depth = depth(left.node);
+                        const float right_depth = depth(right.node);
+                        if (left_depth > right_depth)
+                            return true;
+                        if (right_depth > left_depth)
+                            return false;
+                        return left.submission_order < right.submission_order;
+                    });
+
+                for (int i = 0; i < node_count; ++i) {
+                    auto *render_node = nodes[i].node;
+                    switch (render_node->m_vtbl) {
+                    case 0x008B9FB4:
+                        static_cast<nglQuadNode *>(render_node)->Render();
+                        break;
+                    case 0x0088EBB4:
+                        reinterpret_cast<nglStringNode *>(render_node)->Render();
+                        break;
+                    default:
+                        assert(false && "unsupported standalone render node");
+                        break;
+                    }
+                }
+            };
+
+            render_nodes(scene->OpaqueNodes, scene->OpaqueListCount);
+            render_nodes(scene->TransNodes, scene->TransListCount);
+        };
+
+        render_scene(render_scene, nglRootScene());
     } else {
         CDECL_CALL(0x0077D060);
     }
@@ -60,8 +127,8 @@ void nglVif1SetupScene(nglScene *a1)
 {
     TRACE("nglVif1SetupScene");
 
-    if constexpr (0) {
-        if (nglCurScene->AnimTime == 0.0f) {
+    if constexpr (STANDALONE_SYSTEM) {
+        if (equal(nglCurScene->AnimTime, 0.0f)) {
             float v1 = (nglIsFBPAL() ? 20.0 : 16.666666);
 
             float v2 = nglFrameVBlankCount();
@@ -127,8 +194,8 @@ void nglVif1SetupScene(nglScene *a1)
         v23.MaxZ = 1.0;
         IDirect3DDevice9_SetViewport(g_Direct3DDevice, &v23);
         auto *v10 = nglCurScene;
-        if (nglCurScene->sx1 != -1.0f || nglCurScene->sy1 != -1.0f || nglCurScene->sx2 != 1.0f ||
-            nglCurScene->sy2 != 1.0f) {
+        if (not_equal(nglCurScene->sx1, -1.0f) || not_equal(nglCurScene->sy1, -1.0f) ||
+            not_equal(nglCurScene->sx2, 1.0f) || not_equal(nglCurScene->sy2, 1.0f)) {
             RECT v22;
             v22.right = v20;
             v22.left = v7;
@@ -147,7 +214,7 @@ void nglVif1SetupScene(nglScene *a1)
             auto v17 = v10->ClearZ;
             auto v13 = sub_413A50(v10->ClearColor.r, v10->ClearColor.g, v10->ClearColor.b, v10->ClearColor.a);
 
-            IDirect3DDevice9_Clear(g_Direct3DDevice, 0, 0, v10->ClearFlags, v13, v17, v18);
+            IDirect3DDevice9_Clear(g_Direct3DDevice, 0, nullptr, v10->ClearFlags, v13, v17, v18);
         }
 
         g_renderState().setColourBufferWriteEnabled(v10->FBWriteMask);
@@ -184,7 +251,23 @@ void sub_76DE60()
 
 nglLightContext *nglCreateLightContext()
 {
-    return (nglLightContext *)CDECL_CALL(0x00775EC0);
+    if constexpr (STANDALONE_SYSTEM) {
+        auto *context = static_cast<nglLightContext *>(
+            nglListAlloc(sizeof(nglLightContext), alignof(nglLightContext)));
+        assert(context != nullptr);
+        *context = {};
+
+        for (int i = 0; i < NGL_MAX_LIGHTS; ++i) {
+            context->Head.Next[i] = &context->Head;
+            context->ProjectorHead.Next[i] = &context->ProjectorHead;
+        }
+
+        context->Ambient = {1.0f, 1.0f, 1.0f, 1.0f};
+        nglCurLightContext() = context;
+        return context;
+    } else {
+        return (nglLightContext *)CDECL_CALL(0x00775EC0);
+    }
 }
 
 void nglListInit()
@@ -402,8 +485,31 @@ void sub_76DD70()
 
 int __fastcall sub_781EA0(void *a1)
 {
-    int(__fastcall * func)(void *) = CAST(func, 0x00781EA0);
-    return func(a1);
+    if constexpr (STANDALONE_SYSTEM) {
+        (void)a1;
+        auto *texture = nglGetBackBufferTex();
+        assert(texture != nullptr);
+        assert(texture->DXSurfaces != nullptr);
+        assert(texture->DXSurfaces[0] != nullptr);
+
+        IDirect3DSurface9 *back_buffer = nullptr;
+        auto result = IDirect3DDevice9_GetBackBuffer(
+            g_Direct3DDevice, 0, 0, D3DBACKBUFFER_TYPE_MONO, &back_buffer);
+        if (SUCCEEDED(result)) {
+            result = IDirect3DDevice9_StretchRect(
+                g_Direct3DDevice,
+                texture->DXSurfaces[0],
+                nullptr,
+                back_buffer,
+                nullptr,
+                D3DTEXF_NONE);
+            IDirect3DSurface9_Release(back_buffer);
+        }
+        return result;
+    } else {
+        int(__fastcall * func)(void *) = CAST(func, 0x00781EA0);
+        return func(a1);
+    }
 }
 
 void nglQueueFlip()

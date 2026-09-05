@@ -1,9 +1,9 @@
 #pragma once
 
 #include "variable.h"
+#include "fixed_pool.h"
 #include "vector3d.h"
 
-struct fixed_pool;
 
 struct mesh_triangle_intersection_record_t {
     vector3d field_0;

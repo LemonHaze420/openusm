@@ -7,9 +7,26 @@
 #include "fetext.h"
 #include "input_mgr.h"
 #include "memory.h"
+#include "fe_dialog_text.h"
+#include "main_menu_keyboard.h"
+#include "main_menu_load.h"
+#include "main_menu_legal.h"
+#include "main_menu_memcard_check.h"
+#include "main_menu_options.h"
+#include "main_menu_start.h"
+#include "pause_menu_controller.h"
+#include "pause_menu_message_log.h"
+#include "pause_menu_options_display.h"
+#include "pause_menu_root.h"
+#include "pause_menu_save_load_display.h"
+#include "pause_menu_status.h"
+#include "pause_menu_transition.h"
 #include "utility.h"
 #include "variables.h"
 #include "vtbl.h"
+
+#include <cstdio>
+#include <cstdlib>
 
 VALIDATE_SIZE(FEMenu, 44u);
 
@@ -17,7 +34,7 @@ FEMenu::FEMenu(FEMenuSystem *a2, uint32_t a3, int a4, int a5, int16_t a6, int16_
 {
     this->m_vtbl = 0x00893C88;
 
-    this->field_4 = CAST(this->field_4, operator new(4 * a3));
+    this->field_4 = a3 == 0 ? nullptr : CAST(this->field_4, ::operator new(4 * a3));
     for (uint32_t i = 0; i < a3; ++i) {
         this->field_4[i] = nullptr;
     }
@@ -66,14 +83,139 @@ void FEMenu::AddEntry(int a2, global_text_enum a3)
 
 void FEMenu::Init()
 {
-    void(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0xC));
-    func(this);
+    if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl != 0x00893C88) {
+            switch (m_vtbl) {
+            case 0x00894598:
+                return;
+            case 0x00895910:
+                static_cast<main_menu_memcard_check *>(this)->_Init();
+                return;
+            case 0x008946F8:
+                static_cast<main_menu_options *>(this)->_Init();
+                return;
+            case 0x00893E78:
+                return;
+            case 0x00894648:
+                static_cast<main_menu_start *>(this)->_Init();
+                return;
+            case 0x00893F38:
+            case 0x00893FE8:
+                return;
+            case 0x008947A8:
+                static_cast<main_menu_load *>(this)->_Init();
+                return;
+            case 0x00894858:
+                return;
+            case 0x00895790:
+                static_cast<main_menu_keyboard *>(this)->_Init();
+                return;
+            case 0x008940A0:
+            case 0x00894150:
+            case 0x00894200:
+            case 0x008942B0:
+            case 0x008943D8:
+                return;
+            default:
+                sp_log("FEMenu::Init: unsupported standalone vtable 0x%08X", m_vtbl);
+                std::fflush(nullptr);
+                std::exit(3);
+            }
+        }
+
+        if (num_entries > field_26) {
+            field_28 |= 1;
+        }
+
+        int visible_entries;
+        if ((field_28 & 1) != 0) {
+            visible_entries = field_26;
+        } else if ((field_28 & 0x40) != 0) {
+            visible_entries = 0;
+            for (int i = 0; i < num_entries; ++i) {
+                if (!field_4[i]->GetDisable()) {
+                    ++visible_entries;
+                }
+            }
+        } else {
+            visible_entries = num_entries;
+        }
+
+        field_18 = field_14 * (visible_entries - 1) / 2;
+        if (num_entries > 0) {
+            SetHigh(0, false);
+        }
+        field_28 |= 0x200;
+
+        if ((field_28 & 1) != 0) {
+            SetVis(0);
+            return;
+        }
+
+        int visible_index = 0;
+        for (int i = 0; i < num_entries; ++i) {
+            if ((field_28 & 0x40) != 0 && field_4[i]->GetDisable()) {
+                continue;
+            }
+
+            int y;
+            if ((field_28 & 0x400) != 0) {
+                y = field_10 + visible_index * field_14;
+            } else if ((field_28 & 0x800) == 0) {
+                y = field_10 + visible_index * field_14 - field_18;
+            } else {
+                y = field_10 + visible_index * field_14 - 2 * field_18;
+            }
+
+            field_4[i]->SetPos(field_C, y);
+            ++visible_index;
+        }
+    } else {
+        void(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0xC));
+        func(this);
+    }
 }
 
 void FEMenu::Load()
 {
-    void(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x10));
-    func(this);
+    if constexpr (STANDALONE_SYSTEM) {
+        switch (m_vtbl) {
+        case 0x00893C88:
+            Update(0.0f);
+            return;
+        case 0x00893E78:
+            static_cast<fe_dialog_text *>(this)->_Load();
+            return;
+        case 0x00893F38:
+            static_cast<pause_menu_root *>(this)->_Load();
+            return;
+        case 0x00893FE8:
+            static_cast<pause_menu_transition *>(this)->_Load();
+            return;
+        case 0x008940A0:
+            static_cast<pause_menu_status *>(this)->_Load();
+            return;
+        case 0x00894150:
+            static_cast<pause_menu_options_display *>(this)->_Load();
+            return;
+        case 0x00894200:
+            static_cast<pause_menu_controller *>(this)->_Load();
+            return;
+        case 0x008942B0:
+            static_cast<pause_menu_save_load_display *>(this)->_Load();
+            return;
+        case 0x008943D8:
+            static_cast<pause_menu_message_log *>(this)->_Load();
+            return;
+        default:
+            sp_log("FEMenu::Load: unsupported standalone vtable 0x%08X", m_vtbl);
+            std::fflush(nullptr);
+            std::exit(3);
+        }
+    } else {
+        void(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x10));
+        func(this);
+    }
 }
 
 void FEMenu::Draw()
@@ -104,12 +246,42 @@ void FEMenu::Update(Float a2)
 
 void FEMenu::OnActivate()
 {
-    void(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x2C));
-    func(this);
+    if constexpr (STANDALONE_SYSTEM) {
+        switch (m_vtbl) {
+        case 0x00894648:
+            static_cast<main_menu_start *>(this)->_OnActivate();
+            return;
+        case 0x00894598:
+            static_cast<main_menu_legal *>(this)->OnActivate();
+            return;
+        case 0x00893C88:
+            return;
+        default:
+            sp_log("FEMenu::OnActivate: unsupported standalone vtable 0x%08X", m_vtbl);
+            std::fflush(nullptr);
+            std::exit(3);
+        }
+    } else {
+        void(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x2C));
+        func(this);
+    }
 }
 
 void FEMenu::OnDeactivate(FEMenu *a2)
 {
+    if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00894598) {
+            static_cast<main_menu_legal *>(this)->OnDeactivate();
+            return;
+        }
+        if (m_vtbl == 0x00894648) {
+            static_cast<main_menu_start *>(this)->_OnDeactivate();
+            return;
+        }
+        if (m_vtbl == 0x00893C88) {
+            return;
+        }
+    }
     void(__fastcall * func)(FEMenu *, void *, FEMenu *) = CAST(func, get_vfunc(m_vtbl, 0x30));
     func(this, nullptr, a2);
 }
@@ -120,10 +292,17 @@ void FEMenu::OnSelect(int a2)
     func(this, nullptr, a2);
 }
 
-void FEMenu::OnStart(int a2)
+void FEMenu::OnStart(int controller)
 {
+    if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00894648) {
+            static_cast<main_menu_start *>(this)->OnStart(controller);
+        }
+        return;
+    }
+
     void(__fastcall * func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x38));
-    func(this, nullptr, a2);
+    func(this, nullptr, controller);
 }
 
 void FEMenu::OnUp(int a2)
@@ -150,10 +329,17 @@ void FEMenu::OnRight(int a2)
     func(this, nullptr, a2);
 }
 
-void FEMenu::OnCross(int a2)
+void FEMenu::OnCross(int controller)
 {
+    if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00894648) {
+            static_cast<main_menu_start *>(this)->OnCross(controller);
+        }
+        return;
+    }
+
     void(__fastcall * func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x4C));
-    func(this, nullptr, a2);
+    func(this, nullptr, controller);
 }
 
 void FEMenu::OnTriangle(int a2)

@@ -261,10 +261,6 @@ void nal_anim_controller::get_matrix_data_from_pose(nalAnyPose &arg0)
 {
     TRACE("nal_anim_controller::get_matrix_data_from_pose");
 
-    {
-        auto *skel = *bit_cast<nalComp::nalCompSkeleton **>(this->field_40.field_0);
-        //sp_log("0x%08X", skel->m_vtbl);
-    }
 
     if constexpr (0) {
         auto *v3 = (conglomerate *)this->field_4;

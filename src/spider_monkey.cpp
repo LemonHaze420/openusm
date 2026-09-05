@@ -11,6 +11,7 @@
 #include "utility.h"
 #include "render_text.h"
 
+#include <cmath>
 
 float spider_monkey::state_callback(int a1)
 {
@@ -40,7 +41,9 @@ void spider_monkey::render()
 
         if (os_developer_options::instance->get_flag(mString{ "SHOW_FPS" }))
         {
-            auto v40 = (g_game_ptr->field_278 == 0 ? 0.f : (1.f / g_game_ptr->field_278));
+            auto v40 = (std::fpclassify(g_game_ptr->field_278) == FP_ZERO
+                            ? 0.f
+                            : (1.f / g_game_ptr->field_278));
             auto v39 = (
                 ((g_game_ptr->field_278 - g_game_ptr->field_27C) - g_game_ptr->field_280) >= 0.000099999997
                 ? (1.0 / (g_game_ptr->field_278 - g_game_ptr->field_27C - g_game_ptr->field_280))
@@ -176,7 +179,38 @@ void spider_monkey::frame_advance(Float a1)
 {
     TRACE("spider_monkey::frame_advance");
 
-    CDECL_CALL(0x004B6770, a1);
+    if (!m_running())
+        return;
+
+    if (m_runtime_text() != 0) {
+        m_runtime() += static_cast<float>(m_clock().elapsed());
+    }
+
+    m_ook_timer() += a1;
+    if (m_ook_timer() >= 3.0f)
+        m_ook_timer() = 0.0f;
+
+    auto &state = m_game_control_state();
+    auto &last_state = m_game_control_state_last_frame();
+    for (int i = 0; i < 120; ++i)
+        last_state[i] = state[i];
+
+    static constexpr int monkey_controls[] = {
+        96, 97, 98, 99, 100, 101, 102, 103,
+        104, 105, 106, 107, 108, 109, 110, 111,
+        112, 113, 80, 81, 82, 83, 84, 85,
+        86, 87, 88, 89, 90, 91, 92,
+    };
+
+    for (int control : monkey_controls) {
+        if (std::rand() % 30 != 0)
+            continue;
+
+        if (control >= 106 && control <= 111)
+            state[control] = static_cast<float>(std::rand() % 3 - 1);
+        else
+            state[control] = state[control] > 0.5f ? 0.0f : 1.0f;
+    }
 }
 
 bool spider_monkey::is_running()

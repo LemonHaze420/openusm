@@ -1,6 +1,7 @@
 #pragma once
 
 #include "float.hpp"
+#include "fixed_pool.h"
 #include "variable.h"
 #include "vector3d.h"
 
@@ -11,7 +12,6 @@ struct subdivision_node_obb_base;
 struct dynamic_conglomerate_clone;
 struct line_info;
 struct po;
-struct fixed_pool;
 struct line_segment_t;
 struct intraframe_trajectory_t;
 
@@ -99,6 +99,7 @@ struct entfilter : entfilter_base {
     //virtual
     bool accept(actor *a1, dynamic_conglomerate_clone *a2, const query_args_t &a3);
 };
+
 
 struct entfilter_reject_all_t : entfilter_base {};
 

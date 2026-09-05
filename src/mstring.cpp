@@ -297,7 +297,6 @@ mString::mString() : mContainer(), guts(mString::null), field_C(nullptr)
 {
     //TRACE("mString::mString()");
     this->initialize(mash::ALLOCATED);
-    ++mString_count();
 }
 
 mString::mString([[maybe_unused]] mString::fmtd fmt, const char *Format, ...)

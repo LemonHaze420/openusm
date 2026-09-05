@@ -54,6 +54,8 @@ struct mission_stack_manager {
     bool nonstatic_mission_stack_callback(resource_pack_slot::callback_enum a2, resource_pack_streamer *a3,
                                           resource_pack_slot *a4, limited_timer *a5);
 
+    void create_pack_group_slots();
+
     //0x005D1FC0
     static void unmap_directory_parent(resource_pack_slot *a1);
 

@@ -411,7 +411,13 @@ void wds_render_manager::render(camera &a2, int a3)
 
 void render_data::sub_56FCB0()
 {
-    THISCALL(0x0056FCB0, this);
+    if constexpr (STANDALONE_SYSTEM) {
+        field_0.reserve(8);
+        field_10.reserve(256);
+        field_20 = {};
+    } else {
+        THISCALL(0x0056FCB0, this);
+    }
 }
 
 void wds_render_manager::frame_advance(Float a2)

@@ -7,6 +7,7 @@
 #include "game.h"
 #include "geometry_manager.h"
 #include "ngl.h"
+#include "memory.h"
 #include "ngl_params.h"
 #include "ngl_scene.h"
 #include "cut_scene_player.h"
@@ -36,6 +37,10 @@ Var<panel *> game_play_panel{0x0096F7D4};
 Var<fixed_vector<panel *, 48>> panels{0x0096F9F8};
 
 bool &world_has_been_rendered = var<bool>(0x0096F7A0);
+namespace {
+bool g_comic_panels_available = true;
+}
+
 
 void clear_color_rect(aarect<float, vector2d> &a1, color &a2, math::MatClass<4, 3> &a3)
 {
@@ -93,28 +98,59 @@ void init()
 {
     TRACE("comic_panels::init");
 
-    CDECL_CALL(0x00736A60);
+    if constexpr (STANDALONE_SYSTEM) {
+        g_comic_panels_available = false;
+        panels() = {};
+        current_view_camera() = nullptr;
+        world_has_been_rendered = false;
+
+        auto *game_panel = new (mem_alloc(sizeof(panel))) panel{};
+        game_panel->field_4 = identity_matrix;
+        game_panel->m_size = vector2d{640.0f, 480.0f};
+        game_panel->field_50 = 1.0f;
+        game_panel->field_58 = 2.0f;
+        game_panel->field_60 = nullptr;
+        game_panel->field_66 = true;
+        game_panel->field_4[3][0] = 320.0f;
+        game_panel->field_4[3][1] = 240.0f;
+        game_panel->field_4[3][2] = -500.0f;
+
+        panels().push_back(game_panel);
+        game_play_panel() = game_panel;
+        sp_log("comic_panels: disabled in standalone mode; native panel and camera rendering are unavailable");
+    } else {
+        CDECL_CALL(0x00736A60);
+    }
 }
 
 void render()
 {
     TRACE("comic_panels::render");
 
-    CDECL_CALL(0x0073EA70);
+    if constexpr (!STANDALONE_SYSTEM) {
+        CDECL_CALL(0x0073EA70);
+    } else if (g_comic_panels_available) {
+        assert(false && "standalone comic panel renderer unavailable");
+    }
 }
 
 void frame_advance(Float a1)
 {
     TRACE("comic_panels::frame_advance");
 
-    CDECL_CALL(0x0073E160, a1);
+    if constexpr (!STANDALONE_SYSTEM) {
+        CDECL_CALL(0x0073E160, a1);
+    } else {
+        (void)a1;
+    }
 }
 
 bool render_panels()
 {
     TRACE("comic_panels::render_panels");
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
+        return false;
     } else {
         bool(__cdecl * func)() = CAST(func, 0x0073E710);
         return func();
@@ -178,7 +214,8 @@ bool panel::render()
 {
     TRACE("comic_panels::panel::render");
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
+        return false;
     } else {
         bool(__fastcall * func)(void *) = CAST(func, 0x00738B50);
         return func(this);

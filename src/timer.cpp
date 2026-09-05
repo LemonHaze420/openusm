@@ -13,11 +13,8 @@ VALIDATE_SIZE(Timer, 0x58);
 #if !STANDALONE_SYSTEM
 Timer *&g_timer = var<Timer *>(0x00965BF0);
 #else
-
-Timer *&g_timer = []() -> auto & {
-    static Timer g_timer1{};
-    return g_timer1;
-}();
+static Timer *g_timer_storage = nullptr;
+Timer *&g_timer = g_timer_storage;
 #endif
 
 Timer::Timer(Float a2, Float a3)
@@ -48,10 +45,63 @@ Timer::Timer(Float a2, Float a3)
 
 float Timer::sub_5821D0()
 {
-    float(__fastcall * func)(void *) = CAST(func, 0x005821D0);
-    auto time_inc = func(this);
+    if constexpr (STANDALONE_SYSTEM) {
+        if ((field_24 != 0 && (field_10 != 0 || field_14 != 0)) ||
+            (field_24 == 0 && field_20 != 0)) {
+            return 0.0f;
+        }
 
-    return time_inc;
+        float elapsed;
+        if (field_24 != 0) {
+            LARGE_INTEGER now;
+            QueryPerformanceCounter(&now);
+            const LONGLONG ticks = now.QuadPart - field_8.QuadPart;
+            field_8 = now;
+            elapsed = static_cast<float>(
+                static_cast<double>(ticks) / static_cast<double>(field_0.QuadPart));
+        } else {
+            const DWORD now = GetTickCount();
+            const DWORD milliseconds = now - static_cast<DWORD>(field_1C);
+            field_1C = static_cast<int>(now);
+            elapsed = static_cast<float>(milliseconds) / static_cast<float>(field_18);
+        }
+
+        field_3C += elapsed;
+        if (field_3C >= 1.0f) {
+            field_48 = field_44;
+            field_44 = 0;
+            field_50 = field_4C;
+            field_4C = 0;
+            field_54 = field_3C > 0.0f ? static_cast<float>(field_50) / field_3C : 0.0f;
+            field_3C -= 1.0f;
+            field_40 -= 1.0f;
+        }
+
+        if (field_40 + field_34 <= field_3C) {
+            field_40 += field_34;
+            ++field_44;
+            field_38 = 0;
+            return field_34;
+        }
+
+        if (field_40 + field_30 <= field_3C) {
+            const float increment = field_3C - field_40;
+            field_40 += increment;
+            ++field_44;
+            field_38 = 0;
+            return increment;
+        }
+
+        if (field_38 != 0)
+            return 0.0f;
+
+        field_38 = 1;
+        ++field_4C;
+        return -1.0f;
+    } else {
+        float(__fastcall *func)(void *) = CAST(func, 0x005821D0);
+        return func(this);
+    }
 }
 
 void Timer::sub_582180()

@@ -5,6 +5,7 @@
 #include "func_wrapper.h"
 #include "als_scripted_category.h"
 #include "als_scripted_state.h"
+#include "als_meta_anim_swing.h"
 #include "als_transition_group_base.h"
 #include "layer_state_machine_shared.h"
 #include "log.h"
@@ -17,18 +18,144 @@
 #include "spidey_base_state.h"
 #include "std_puppet_trans_state.h"
 #include "string_hash.h"
+#include "scripted_trans_group.h"
 #include "trace.h"
 #include "utility.h"
 #include "vtbl.h"
 
+#include <algorithm>
+#include <array>
 #include <cassert>
+#include <cstdio>
+#include <cstdlib>
+#include <new>
 
 #if defined(OPENUSM_XBPACK_MODE) && !defined(TARGET_XBOX)
 #include <cstddef>
-#include <cstdio>
-#include <cstdlib>
 #include <windows.h>
 #endif
+
+namespace {
+template<typename T>
+void __fastcall native_mash_unmash(
+    T *self, int, mash_info_struct *info, void *context)
+{
+    self->_unmash(info, context);
+}
+
+template<typename T>
+int __fastcall native_mash_sizeof(T *)
+{
+    return sizeof(T);
+}
+
+template<typename T>
+void *native_mash_vtable()
+{
+    static std::array<void *, 96> table {};
+    if (table[1] == nullptr) {
+        table[1] = bit_cast<void *>(&native_mash_unmash<T>);
+        table[0x1C / sizeof(void *)] = bit_cast<void *>(&native_mash_sizeof<T>);
+        table[0x34 / sizeof(void *)] = bit_cast<void *>(&native_mash_sizeof<T>);
+        table[0x38 / sizeof(void *)] = bit_cast<void *>(&native_mash_sizeof<T>);
+        table[0x4C / sizeof(void *)] = bit_cast<void *>(&native_mash_sizeof<T>);
+    }
+    return table.data();
+}
+
+void __fastcall native_base_state_unmash(
+    ai::base_state *, int, mash_info_struct *, void *)
+{
+}
+
+int __fastcall native_base_state_sizeof(ai::base_state *)
+{
+    return sizeof(ai::base_state);
+}
+
+std::array<void *, 96> ped_default_trans_state_vtable {};
+
+template<typename T>
+void set_native_mash_vtable(T *object, uint32_t type)
+{
+    *reinterpret_cast<std::intptr_t *>(object) =
+        bit_cast<std::intptr_t>(mash_virtual_base::vtable()[type]);
+}
+
+template<typename T>
+void *create_mash_class(uint32_t type)
+{
+    auto *object = new T {};
+    set_native_mash_vtable(object, type);
+    return object;
+}
+
+template<typename T>
+void *create_mash_class_in_place(
+    uint32_t type, mash_virtual_base *storage, int storage_size)
+{
+    assert(storage != nullptr);
+    assert(storage_size >= static_cast<int>(sizeof(T)));
+    set_native_mash_vtable(storage, type);
+    return storage;
+}
+
+template<typename T>
+void *create_mash_class(
+    uint32_t type, mash_virtual_base *storage, int storage_size)
+{
+    return storage != nullptr
+        ? create_mash_class_in_place<T>(type, storage, storage_size)
+        : create_mash_class<T>(type);
+}
+
+void *create_native_mash_class(
+    uint32_t type, mash_virtual_base *storage = nullptr, int storage_size = 0)
+{
+    switch (type) {
+    case 169:
+    case 293:
+    case 370:
+        return create_mash_class<ai::base_state>(type, storage, storage_size);
+    case 483:
+        return create_mash_class<als::layer_state_machine_shared>(
+            type, storage, storage_size);
+    case 484:
+        return create_mash_class<als::state_machine_shared>(
+            type, storage, storage_size);
+    case 488:
+        return create_mash_class<als::als_meta_anim_swing>(
+            type, storage, storage_size);
+    case 489:
+        return create_mash_class<als::als_meta_linear_blend>(
+            type, storage, storage_size);
+    case 530:
+        return create_mash_class<als::base_layer_scripted_state>(
+            type, storage, storage_size);
+    case 531:
+        return create_mash_class<als::scripted_category>(
+            type, storage, storage_size);
+    case 532:
+        return create_mash_class<als::scripted_state>(
+            type, storage, storage_size);
+    case 533:
+        return create_mash_class<als::scripted_trans_group>(
+            type, storage, storage_size);
+    case 541:
+        return create_mash_class<PanelQuad>(type, storage, storage_size);
+    case 542:
+        return create_mash_class<FEFloatingText>(type, storage, storage_size);
+    case 543:
+        return create_mash_class<FEMultiLineText>(type, storage, storage_size);
+    case 544:
+        return create_mash_class<FEText>(type, storage, storage_size);
+    default:
+        std::fprintf(stderr, "Unsupported standalone mash factory type %u\n", type);
+        std::fflush(nullptr);
+        std::abort();
+    }
+}
+}
 
 #if defined(OPENUSM_XBPACK_MODE) && !defined(TARGET_XBOX)
 namespace {
@@ -328,15 +455,20 @@ void mash_virtual_base::operator delete(void *ptr, size_t sz)
 void *mash_virtual_base::create_subclass_by_enum(mash::virtual_types_enum a1)
 {
     TRACE("mash_virtual_base::create_subclass_by_enum");
-
-    return (void *) CDECL_CALL(0x0042AB60, a1);
+    if constexpr (STANDALONE_SYSTEM)
+        return create_native_mash_class(static_cast<uint32_t>(a1));
+    else
+        return reinterpret_cast<void *>(CDECL_CALL(0x0042AB60, a1));
 }
 
-void *mash_virtual_base::create_subclass_by_enum_in_place(mash::virtual_types_enum a1, mash_virtual_base *a2, int a3)
+void *mash_virtual_base::create_subclass_by_enum_in_place(
+    mash::virtual_types_enum a1, mash_virtual_base *a2, int a3)
 {
     TRACE("mash_virtual_base::create_subclass_by_enum_in_place");
-
-    return (void *) CDECL_CALL(0x004227E0, a1, a2, a3);
+    if constexpr (STANDALONE_SYSTEM)
+        return create_native_mash_class(static_cast<uint32_t>(a1), a2, a3);
+    else
+        return reinterpret_cast<void *>(CDECL_CALL(0x004227E0, a1, a2, a3));
 }
 
 void mash_virtual_base::destruct_mashed_class()
@@ -381,8 +513,32 @@ bool mash_virtual_base::is_or_is_subclass_of(mash::virtual_types_enum a2) const
 
 void mash_virtual_base::generate_vtable()
 {
-    CDECL_CALL(0x00432B60);
+    if constexpr (STANDALONE_SYSTEM) {
+        std::fill_n(vtable(), 1014, nullptr);
+        vtable()[483] = native_mash_vtable<als::layer_state_machine_shared>();
+        vtable()[484] = native_mash_vtable<als::state_machine_shared>();
+        vtable()[488] = native_mash_vtable<als::als_meta_anim_swing>();
+        vtable()[489] = native_mash_vtable<als::als_meta_linear_blend>();
+        vtable()[530] = native_mash_vtable<als::base_layer_scripted_state>();
+        vtable()[531] = native_mash_vtable<als::scripted_category>();
+        vtable()[532] = native_mash_vtable<als::scripted_state>();
+        vtable()[533] = native_mash_vtable<als::scripted_trans_group>();
+        vtable()[541] = native_mash_vtable<PanelQuad>();
+        vtable()[542] = native_mash_vtable<FEFloatingText>();
+        vtable()[543] = native_mash_vtable<FEMultiLineText>();
+        vtable()[544] = native_mash_vtable<FEText>();
 
+        ped_default_trans_state_vtable.fill(nullptr);
+        ped_default_trans_state_vtable[1] =
+            bit_cast<void *>(&native_base_state_unmash);
+        ped_default_trans_state_vtable[0x34 / sizeof(void *)] =
+            bit_cast<void *>(&native_base_state_sizeof);
+        vtable()[169] = ped_default_trans_state_vtable.data();
+        vtable()[293] = ped_default_trans_state_vtable.data();
+        vtable()[370] = ped_default_trans_state_vtable.data();
+    } else {
+        CDECL_CALL(0x00432B60);
+    }
 #ifdef TARGET_XBOX
     {
         auto *v1 = new PanelQuad{};
@@ -478,21 +634,20 @@ void mash_virtual_base::generate_vtable()
 
 void *mash_virtual_base::construct_class_helper(void *a1)
 {
-    if constexpr (0) {
-        auto *v1 = static_cast<mash_virtual_base *>(a1);
-
-        auto v2 = v1->get_virtual_type_enum();
-
-        sp_log("mash::virtual_types_enum = %u", v2);
-
-        return mash_virtual_base::create_subclass_by_enum_in_place(
-            static_cast<mash::virtual_types_enum>(v2), v1, 0x7FFFFFFF);
+    auto *object = static_cast<mash_virtual_base *>(a1);
+    const auto type = object->get_virtual_type_enum();
+    sp_log("mash::virtual_types_enum = %u", type);
+    if constexpr (STANDALONE_SYSTEM) {
+        return create_subclass_by_enum_in_place(
+            static_cast<mash::virtual_types_enum>(type),
+            object,
+            0x7FFFFFFF);
     } else {
         auto *v1 = static_cast<mash_virtual_base *>(a1);
         auto v2 = v1->get_virtual_type_enum();
 
         sp_log("mash::virtual_types_enum = %u", v2);
-        return (void *) CDECL_CALL(0x0042A7C0, a1);
+        return reinterpret_cast<void *>(CDECL_CALL(0x0042A7C0, a1));
     }
 }
 

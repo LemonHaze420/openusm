@@ -31,7 +31,19 @@ VALIDATE_SIZE(wds_entity_manager, 0x2C);
 
 wds_entity_manager::wds_entity_manager()
 {
-    THISCALL(0x005DF4C0, this);
+    if constexpr (STANDALONE_SYSTEM) {
+        field_18 = 0;
+        field_1C = nullptr;
+        field_20 = 0;
+        field_24 = 0;
+
+        auto *entity_segment = entities.sub_50A230();
+        items.sub_50A2B0();
+        field_28 = new entity{ANONYMOUS, 0};
+        entity_segment->push_back(field_28);
+    } else {
+        THISCALL(0x005DF4C0, this);
+    }
 }
 
 template<typename T>

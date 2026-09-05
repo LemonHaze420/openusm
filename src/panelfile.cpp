@@ -38,7 +38,16 @@ nglMeshFile *&PanelFile::g_curmeshfile = []() -> auto & {
 
 void PanelFile::Draw()
 {
-    THISCALL(0x00616A60, this);
+    if constexpr (STANDALONE_SYSTEM) {
+        for (uint16_t i = 0; i < pquads.m_size; ++i) {
+            pquads.m_data[i]->Draw();
+        }
+        for (uint16_t i = 0; i < ptext.m_size; ++i) {
+            ptext.m_data[i]->Draw();
+        }
+    } else {
+        THISCALL(0x00616A60, this);
+    }
 }
 
 void PanelFile::unmash(mash_info_struct *a1, void *)
@@ -65,7 +74,6 @@ PanelFile *PanelFile::UnmashPanelFile(const char *a1, panel_layer a2)
         int mash_data_size;
         auto *the_panel_image = resource_manager::get_resource(resource_id, &mash_data_size, nullptr);
         assert(the_panel_image != nullptr);
-        sp_log("0x%08X", the_panel_image);
 
 #if !OPENUSM_XBOX_MASH_FORMAT
         mash_info_struct v10 {the_panel_image, mash_data_size};
@@ -121,7 +129,6 @@ PanelQuad *PanelFile::GetPQ(const char *a2)
     TRACE("PanelFile::GetPQ", a2);
     auto v3 = this->pquads.m_data;
 
-    sp_log("size = %d", this->pquads.size());
     for (uint16_t i = 0; i < this->pquads.size(); ++i) {
         auto &pquad = v3[i];
         //sp_log("%d %s", i, pquad->field_3C.c_str());
@@ -133,7 +140,7 @@ PanelQuad *PanelFile::GetPQ(const char *a2)
 
     sp_log("Object %s not found in PANEL file\n", a2);
 
-    return g_femanager.GetDefaultPQ();
+    return STANDALONE_SYSTEM ? nullptr : g_femanager.GetDefaultPQ();
 }
 
 void PanelFile::Update(Float a2)

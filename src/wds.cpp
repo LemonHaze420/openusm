@@ -554,7 +554,7 @@ void update_black_suit_tentacle_rig(world_dynamics_system *world)
     for ( auto *tentacle : black_suit_tentacles )
         tentacle->set_visible(true, false);
     auto *spine = static_cast<conglomerate *>(hero)->get_bone(
-        bip01_spine(),
+        bip01_spine,
         true);
     pose_black_suit_tentacles(
         spine != nullptr

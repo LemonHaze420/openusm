@@ -35,13 +35,14 @@ void FEManager::InitIGO()
 {
     TRACE("FEManager::InitGO");
 
-    if constexpr (1) {
+    if constexpr (STANDALONE_SYSTEM) {
+        m_pause_menu_system = nullptr;
+        IGO = nullptr;
+        sp_log("FEManager::InitIGO: gameplay overlays are deferred in standalone frontend mode");
+    } else {
         this->m_pause_menu_system = new PauseMenuSystem{static_cast<font_index>(1)};
-
         this->IGO = new IGOFrontEnd{};
         this->IGO->Init();
-    } else {
-        THISCALL(0x00648FF0, this);
     }
 }
 
@@ -57,7 +58,7 @@ void FEManager::LoadFonts()
 {
     TRACE("FEManager::LoadFonts");
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         if (!this->field_2A) {
             for (auto i = 0u; i < 5u; ++i) {
                 this->LoadFont(static_cast<font_index>(i));
@@ -175,14 +176,15 @@ void FEManager::LoadFrontEnd()
 {
     TRACE("FEManager::LoadFrontEnd");
 
-    if constexpr (0) {
-        auto v2 = resource_manager::get_best_context(RESOURCE_PARTITION_MISSION);
-        auto *__old_context = resource_manager::push_resource_context(v2);
+    if constexpr (STANDALONE_SYSTEM) {
+        auto context = resource_manager::get_best_context(RESOURCE_PARTITION_MISSION);
+        auto *old_context = resource_manager::push_resource_context(context);
 
-        this->m_fe_menu_system = new FrontEndMenuSystem{};
+        auto *memory = mem_alloc(sizeof(FrontEndMenuSystem));
+        this->m_fe_menu_system = ::new (memory) FrontEndMenuSystem{};
         resource_manager::pop_resource_context();
 
-        assert(resource_manager::get_resource_context() == __old_context);
+        assert(resource_manager::get_resource_context() == old_context);
     } else {
         THISCALL(0x00648AB0, this);
     }

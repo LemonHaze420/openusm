@@ -10,13 +10,22 @@
 
 VALIDATE_SIZE(event_type, 0x2C);
 
-event_type::event_type(string_hash a2, bool a3)
+#if STANDALONE_SYSTEM
+event_type::event_type(string_hash event_id, bool pollable)
+    : field_0{event_id},
+      event_to_raise{nullptr},
+      field_8{},
+      field_18{false},
+      field_1C{},
+      field_28{pollable}
 {
-    if constexpr (0) {
-    } else {
-        THISCALL(0x004E18B0, this, a2, a3);
-    }
 }
+#else
+event_type::event_type(string_hash event_id, bool pollable)
+{
+    THISCALL(0x004E18B0, this, event_id, pollable);
+}
+#endif
 
 event_type::~event_type()
 {
@@ -165,6 +174,10 @@ bool event_type::garbage_collect()
 {
     TRACE("event_type::garbage_collect");
 
-    bool(__fastcall * func)(void *) = CAST(func, 0x004D65B0);
-    return func(this);
+    if constexpr (STANDALONE_SYSTEM) {
+        return field_8.empty() && field_1C.empty() && !field_28;
+    } else {
+        bool(__fastcall *func)(void *) = CAST(func, 0x004D65B0);
+        return func(this);
+    }
 }

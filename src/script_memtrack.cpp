@@ -46,7 +46,7 @@ entity_class_t *find_entity_class(entity_base_vhandle a1)
     return nullptr;
 }
 
-void populate_entity_class_menu(debug_menu_entry *arg0)
+void populate_entity_class_menu(debug_menu_entry *)
 {
     // @todo: debug menu
     /*auto& name = arg0->get_name();

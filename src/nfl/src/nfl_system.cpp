@@ -172,6 +172,11 @@ make_var(Struct_984498, dword_984498);
 
 #endif
 
+static Struct_94983C &nflDriverRegistry()
+{
+    return stru_94983C;
+}
+
 
 nflStreamID sub_79F2C0(nflPriority *a1)
 {
@@ -498,11 +503,12 @@ size_t nflSystem::init(void *a1)
         dword_984498.used = 0;
         int v40 = 0;
         uint32_t v33 = 1;
+        auto &drivers = nflDriverRegistry();
 
         void *v42[32];
 
-        for (int i = 0; i < stru_94983C.field_0; ++i) {
-            auto *driver = stru_94983C.field_4[i];
+        for (int i = 0; i < drivers.field_0; ++i) {
+            auto *driver = drivers.field_4[i];
             auto *v6 = driver->field_C;
             if (v33 < v6->field_0) {
                 v33 = v6->field_0;
@@ -710,12 +716,15 @@ int nfd_win32_FileOpen(HANDLE *a1, LPCSTR lpFileName, uint32_t a3, uint32_t liDi
     TRACE("nfd_win32_FileOpen");
     //TRACE((std::string {lpFileName} + " " + std::to_string(a3) + " " + std::to_string(liDistanceToMove)).c_str());
 
+    DWORD attributes = ((~(a3 << 28)) & 0x20000000);
+    attributes |= FILE_FLAG_OVERLAPPED;
+
     HANDLE v4 = CreateFileA(lpFileName,
                             ((4 * a3) | (a3 & 2)) << 29,
                             a3 & 3,
                             nullptr,
                             ((~(a3 >> 2)) & 1) | 2,
-                            ((~(a3 << 28)) & 0x20000000) | 0x40000000,
+                            attributes,
                             nullptr);
 
     if (v4 == INVALID_HANDLE_VALUE) {
@@ -847,9 +856,10 @@ size_t nflInit(const nflInitParams *a1)
     if (a1 != nullptr) {
         nfl_initParams = *a1;
     }
+    auto &drivers = nflDriverRegistry();
 
-    for (int i = 0; i < stru_94983C.field_0; ++i) {
-        auto *driver = stru_94983C.field_4[i];
+    for (int i = 0; i < drivers.field_0; ++i) {
+        auto *driver = drivers.field_4[i];
 
         assert(driver != nullptr && driver->init != nullptr);
 

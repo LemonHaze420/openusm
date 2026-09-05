@@ -92,7 +92,12 @@ HANDLE &hObject = var<HANDLE>(0x00965C60);
 bool &byte_965BF5 = var<bool>(0x00965BF5);
 bool &byte_965BF6 = var<bool>(0x00965BF6);
 
+#if STANDALONE_SYSTEM
+static int dword_922908_storage = -1;
+int &dword_922908 = dword_922908_storage;
+#else
 int &dword_922908 = var<int>(0x00922908);
+#endif
 
 bool &byte_922994 = var<bool>(0x00922994);
 

@@ -14,6 +14,9 @@ struct Container {
     int field_244;
     char field_248[64];
 
+    Container()
+        : Container("") {}
+
     //0x007B1160
     Container(const char *a2);
 

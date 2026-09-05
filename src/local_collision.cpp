@@ -351,6 +351,14 @@ local_collision::entfilter<local_collision::entfilter_AND<
 {
     this->m_vtbl = 0x008895A8;
 }
+template <>
+local_collision::entfilter<
+    local_collision::entfilter_AND<local_collision::entfilter_ENTITY,
+                                   local_collision::entfilter_NO_CAPSULES>>::entfilter()
+{
+    this->m_vtbl = 0;
+}
+
 
 template <>
 local_collision::obbfilter<

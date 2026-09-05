@@ -322,7 +322,46 @@ void Input::sub_8203F0(int a2, InputSettings *a3)
 
 void Input::sub_81FC00(int a2, const char *a3)
 {
+#if STANDALONE_SYSTEM
+    auto *guid_words = this->field_27F0[a2];
+    std::memset(guid_words, 0, sizeof(this->field_27F0[a2]));
+
+    if (a3 == nullptr || std::strlen(a3) != 36) {
+        return;
+    }
+
+    unsigned int data1;
+    unsigned int data2;
+    unsigned int data3;
+    unsigned int data4[8];
+    const int fields = std::sscanf(a3,
+                                   "%8x-%4x-%4x-%2x%2x-%2x%2x%2x%2x%2x%2x",
+                                   &data1,
+                                   &data2,
+                                   &data3,
+                                   &data4[0],
+                                   &data4[1],
+                                   &data4[2],
+                                   &data4[3],
+                                   &data4[4],
+                                   &data4[5],
+                                   &data4[6],
+                                   &data4[7]);
+    if (fields != 11) {
+        return;
+    }
+
+    GUID guid{};
+    guid.Data1 = data1;
+    guid.Data2 = static_cast<unsigned short>(data2);
+    guid.Data3 = static_cast<unsigned short>(data3);
+    for (int i = 0; i < 8; ++i) {
+        guid.Data4[i] = static_cast<unsigned char>(data4[i]);
+    }
+    std::memcpy(guid_words, &guid, sizeof(guid));
+#else
     THISCALL(0x0081FC00, this, a2, a3);
+#endif
 }
 
 void Input::sub_81FB90(bool a2)
@@ -831,7 +870,7 @@ bool key_pressed = false;
 
 void Input::poll()
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         auto *v2 = this->m_di_keyboard;
         auto *diKeys = this->m_state_keys;
         std::memcpy(this->m_old_state_keys, this->m_state_keys, sizeof(this->m_old_state_keys));
@@ -1115,13 +1154,88 @@ void Input::poll()
     }
 }
 
-BOOL __stdcall sub_821470(const DIDEVICEINSTANCEA *a2, void *arg4)
+struct JoystickEnumerationContext {
+    Input *input;
+    IDirectInputDevice8A *device;
+};
+
+BOOL __stdcall configure_joystick_object(const DIDEVICEOBJECTINSTANCEA *object, void *context)
 {
-    BOOL(__stdcall * func)(const DIDEVICEINSTANCEA *a2, void *) = CAST(func, 0x00821470);
-    return func(a2, arg4);
+    auto *enumeration = static_cast<JoystickEnumerationContext *>(context);
+
+    DIPROPRANGE range{};
+    range.diph.dwSize = sizeof(range);
+    range.diph.dwHeaderSize = sizeof(range.diph);
+    range.diph.dwObj = object->dwType;
+    range.diph.dwHow = DIPH_BYID;
+    range.lMin = -1000;
+    range.lMax = 1000;
+    enumeration->device->lpVtbl->SetProperty(enumeration->device, DIPROP_RANGE, &range.diph);
+
+    if ((object->dwType & DIDFT_AXIS) != 0) {
+        const int device_index = enumeration->input->field_14[1] == bit_cast<int>(enumeration->device) ? 1 : 0;
+        auto &axis_count = enumeration->input->field_64[device_index];
+        if (axis_count < 2) {
+            enumeration->input->field_8C[2 * device_index + axis_count] = object->dwOfs;
+            ++axis_count;
+        }
+    }
+
+    return DIENUM_CONTINUE;
 }
 
+BOOL __stdcall sub_821470(const DIDEVICEINSTANCEA *device_instance, void *context)
+{
+    auto *input = static_cast<Input *>(context);
+    int device_index = -1;
+
+    for (int i = 0; i < 10; ++i) {
+        if (std::memcmp(input->field_27F0[i], &device_instance->guidInstance, sizeof(GUID)) == 0) {
+            device_index = i;
+            break;
+        }
+    }
+
+    if (device_index < 0 && input->field_9) {
+        for (int i = 0; i < 10; ++i) {
+            if (input->field_14[i] == 0) {
+                device_index = i;
+                std::memcpy(input->field_27F0[i], &device_instance->guidInstance, sizeof(GUID));
+                break;
+            }
+        }
+    }
+
+    if (device_index < 0) {
+        return DIENUM_CONTINUE;
+    }
+
+    IDirectInputDevice8A *device = bit_cast<IDirectInputDevice8A *>(input->field_14[device_index]);
+    if (device == nullptr &&
+        FAILED(input->m_din->lpVtbl->CreateDevice(
+            input->m_din, device_instance->guidInstance, &device, nullptr))) {
+        return DIENUM_CONTINUE;
+    }
+
+    input->field_4EC[device_index] = 1;
+    input->field_14[device_index] = bit_cast<int>(device);
+    auto *device_names = reinterpret_cast<char *>(&input->field_8C[20]);
+    std::strncpy(device_names + 100 * device_index, device_instance->tszProductName, 99);
+    device_names[100 * device_index + 99] = '\0';
+
+    device->lpVtbl->SetDataFormat(device, &c_dfDIJoystick2);
+    device->lpVtbl->SetCooperativeLevel(device, input->m_hwnd, DISCL_EXCLUSIVE | DISCL_FOREGROUND);
+    JoystickEnumerationContext enumeration{input, device};
+    device->lpVtbl->EnumObjects(device, configure_joystick_object, &enumeration, DIDFT_ALL);
+    device->lpVtbl->Acquire(device);
+    return DIENUM_CONTINUE;
+}
+
+#if !STANDALONE_SYSTEM
 static auto &dword_8C0AAC = var<int[4]>(0x008C0AAC);
+#else
+static int dword_8C0AAC[4]{};
+#endif
 
 void Input::sub_821490(bool a2)
 {

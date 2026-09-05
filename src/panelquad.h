@@ -15,6 +15,7 @@ struct from_mash_in_place_constructor;
 struct nglTexture;
 struct PanelQuadSection;
 struct PanelMeshSection;
+struct matrix4x4;
 
 struct PanelQuad : PanelAnimObject {
     vector2d field_14;
@@ -87,6 +88,7 @@ struct PanelQuad : PanelAnimObject {
     void SetPos(float *a2, float *a3);
 
     /* virtual */ void SetPos(Float a2, Float a3, Float a4, Float a5);
+    void Animate(const matrix4x4 &transform, Float visibility);
 
     void Init(vector2d *a2, color32 *a3, panel_layer a4, Float a5, const char *a6);
 

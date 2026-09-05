@@ -19,7 +19,7 @@ VALIDATE_SIZE(vehicle, 0x130);
 VALIDATE_OFFSET(vehicle_model, refcount, 0x14);
 VALIDATE_SIZE(vehicle_model, 0x1C);
 
-static auto &car_colors = var<color32[]>(0x00938190);
+static auto &car_colors = var<color32[1]>(0x00938190);
 
 static std::pair<string_hash, string_hash> (&s_tail_parts)[5] = var<std::pair<string_hash, string_hash>[5]>(0x0096D208);
 

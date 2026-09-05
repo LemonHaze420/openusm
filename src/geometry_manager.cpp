@@ -72,12 +72,12 @@ fixed_vector<vector3d, 5> &frustum_verts = []() -> auto & {
 }();
 
 float &PROJ_ASPECT = []() -> auto & {
-    static float result{1.0f};
+    static float result{4.0f / 3.0f};
     return result;
 }();
 
 float &PROJ_FIELD_OF_VIEW = []() -> auto & {
-    static float result{};
+    static float result{1.57079632679f};
     return result;
 }();
 
@@ -478,7 +478,35 @@ float geometry_manager::get_zoom()
 
 void geometry_manager::rebuild_view_frame()
 {
+#if STANDALONE_SYSTEM
+    constexpr float near_plane = 0.1f;
+    const float far_plane = PROJ_FAR_PLANE_D > near_plane ? PROJ_FAR_PLANE_D : near_plane + 1.0f;
+    const float tan_half_fov = std::tan(PROJ_FIELD_OF_VIEW * 0.5f);
+    const float vertical_scale = PROJ_ZOOM / tan_half_fov;
+
+    matrix4x4 projection{};
+    projection[0][0] = vertical_scale / PROJ_ASPECT;
+    projection[1][1] = vertical_scale;
+    projection[2][2] = far_plane / (far_plane - near_plane);
+    projection[2][3] = 1.0f;
+    projection[3][2] = -(near_plane * far_plane) / (far_plane - near_plane);
+    set_xform(XFORM_VIEW_TO_PROJECTION, projection);
+
+    const float horizontal_tangent = tan_half_fov * PROJ_ASPECT;
+    view_frustum.field_0.m_size = 0;
+    view_frustum.add_face(plane{ZEROVEC, vector3d{1.0f, 0.0f, horizontal_tangent}});
+    view_frustum.add_face(plane{ZEROVEC, vector3d{-1.0f, 0.0f, horizontal_tangent}});
+    view_frustum.add_face(plane{ZEROVEC, vector3d{0.0f, -1.0f, tan_half_fov}});
+    view_frustum.add_face(plane{ZEROVEC, vector3d{0.0f, 1.0f, tan_half_fov}});
+    view_frustum.add_face(plane{vector3d{0.0f, 0.0f, near_plane}, ZVEC});
+    view_frustum.add_face(plane{vector3d{0.0f, 0.0f, far_plane}, -ZVEC});
+
+    compute_view_frustum_in_world_space();
+    compute_view_frustum_verts_in_world_space();
+    view_frame_dirty = false;
+#else
     CDECL_CALL(0x0053A930);
+#endif
 }
 
 void geometry_manager_patch()

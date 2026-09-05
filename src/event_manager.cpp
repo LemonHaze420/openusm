@@ -13,17 +13,30 @@
 #include <cassert>
 
 namespace event_manager {
+#if STANDALONE_SYSTEM
+namespace {
+int garbage_index_storage{};
+_std::vector<event_type *> event_types_storage{};
+}
+int &garbage_index = garbage_index_storage;
+_std::vector<event_type *> &event_types = event_types_storage;
+#else
 int &garbage_index = var<int>(0x0095A6DC);
-
 _std::vector<event_type *> &event_types = var<_std::vector<event_type *>>(0x0095BA48);
+#endif
 }  // namespace event_manager
 
 void event_manager::clear()
 {
-    if constexpr (0) {
-    } else {
-        CDECL_CALL(0x004EE7A0);
+#if STANDALONE_SYSTEM
+    for (auto *type : event_types) {
+        delete type;
     }
+    event_types.clear();
+    garbage_index = 0;
+#else
+    CDECL_CALL(0x004EE7A0);
+#endif
 }
 
 bool event_manager::callback_exists(int id)
@@ -49,7 +62,7 @@ void event_manager::delete_inst()
 void event_manager::create_inst()
 {
     TRACE("event_manager::create_inst");
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         clear();
 
         register_event_type(event::ANIM_ACTION, true);
@@ -629,14 +642,20 @@ event_type *event_manager::register_event_type(string_hash a1, bool a2)
 
             assert(the_type != nullptr && "Need to increase the fixed pool on events (increase MAX_EVENT_TYPES)!!!");
 
+#if STANDALONE_SYSTEM
+            event_types.push_back(the_type);
+            std::sort(event_types.begin(), event_types.end(), [](const event_type *lhs, const event_type *rhs) {
+                return lhs->field_0.source_hash_code < rhs->field_0.source_hash_code;
+            });
+#else
             void(__fastcall * push_back)(void *, void *, void *) = CAST(push_back, 0x005E7330);
-
             int (*compare)(const void *, const void *) = CAST(compare, 0x005034D0);
 
             event_types.push_back(the_type);
             if (event_types.size() > 1) {
                 qsort(event_types.m_first, event_types.size(), 4u, compare);
             }
+#endif
         }
 
         return v2;

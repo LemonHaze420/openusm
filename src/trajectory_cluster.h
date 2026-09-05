@@ -1,8 +1,8 @@
 #pragma once
 
 #include "variable.h"
+#include "fixed_pool.h"
 
-struct fixed_pool;
 
 struct trajectory_cluster_t {
     trajectory_cluster_t();

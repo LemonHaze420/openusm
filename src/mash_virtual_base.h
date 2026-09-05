@@ -63,7 +63,7 @@ struct mash_virtual_base {
     //0x0041F820
     static void fixup_vtable(void *a1);
 
-    static inline Var<void *[1]> vtable {0x00957040};
+    static inline Var<void *[1014]> vtable {0x00957040};
 
 #ifdef TARGET_XBOX
     static inline std::map<uint32_t, mash_virtual_base *> map_vtable {}; 

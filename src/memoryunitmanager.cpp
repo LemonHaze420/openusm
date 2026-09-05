@@ -66,7 +66,15 @@ void RegisterObserver(Observer *a1)
 
 void Initialize(uint32_t a1)
 {
-    CDECL_CALL(0x007B16D0, a1);
+    if constexpr (STANDALONE_SYSTEM) {
+        (void) a1;
+        mObserver() = nullptr;
+        mLastError() = static_cast<eStatus>(0);
+        mCurrentOperation() = static_cast<eOperation>(0);
+        new (&mGameSave()) Container {""};
+    } else {
+        CDECL_CALL(0x007B16D0, a1);
+    }
 }
 
 bool Service()

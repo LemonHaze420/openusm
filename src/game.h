@@ -4,7 +4,7 @@
 #define ENABLE_DEBUG_MENU           1
 #define WINDOWED_MODE_WND_FIX       1
 #define FORCE_MIPS                  0
-#define MOD_MESH_SUPPORT            1
+#define MOD_MESH_SUPPORT            (!STANDALONE_SYSTEM)
 #define MOD_MESH_DBG_REPLACE_ALL    0
 
 #include "color32.h"
@@ -370,7 +370,7 @@ public:
     static void render_empty_list();
 
     //0x0095C8F8
-    static inline auto & setup_input_registrations_p = var<int (*)(game *)>(0x0095C8F8);
+    static inline auto & setup_input_registrations_p = var<void (*)(game *)>(0x0095C8F8);
 
     //0x0095C8FC
     static inline void (* setup_inputs_p)(game *) = game__setup_inputs;

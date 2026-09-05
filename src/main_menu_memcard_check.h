@@ -8,4 +8,6 @@ struct main_menu_memcard_check : FEMenu {
     char field_104[0x9C];
 
     main_menu_memcard_check(FEMenuSystem *a2, int a4, int a5);
+
+    void _Init();
 };

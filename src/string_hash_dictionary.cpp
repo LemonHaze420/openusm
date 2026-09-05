@@ -422,7 +422,7 @@ string_hash string_hash_dictionary::register_string(const char *str)
 
     a1 = a3;
 
-    if (!g_is_the_packer()) {
+    if (!g_is_the_packer) {
         if (string_hash_dictionary::is_setup && os_developer_options::instance->get_flag(14)) {
             string_hash_dictionary::hard_log_string(str, a3);
         }

@@ -23,7 +23,25 @@ VALIDATE_SIZE(nglStringSection, 0x24);
 int BuildStringList(nglFont *Font, nglStringSection *a2, Float a3, Float a4, Float a5, Float a6, uint32_t Color,
                     unsigned char *a8, uint32_t &a9)
 {
-    return (int)CDECL_CALL(0x00779570, Font, a2, a3, a4, a5, a6, Color, a8, &a9);
+    if constexpr (STANDALONE_SYSTEM) {
+        auto *section = static_cast<nglStringSection *>(
+            nglListAlloc(sizeof(nglStringSection), alignof(nglStringSection)));
+        *section = {};
+        section->field_4 = reinterpret_cast<char *>(a8);
+        section->field_8 = static_cast<int>(
+            std::strlen(reinterpret_cast<const char *>(a8)));
+        section->field_10[0] = a3;
+        section->field_10[1] = a4;
+        section->field_10[2] = a5;
+        section->field_10[3] = a6;
+        section->m_color = Color;
+        a2->field_0 = section;
+        a9 = static_cast<uint32_t>(section->field_8);
+        return section->field_8;
+    } else {
+        return static_cast<int>(
+            CDECL_CALL(0x00779570, Font, a2, a3, a4, a5, a6, Color, a8, &a9));
+    }
 }
 
 void nglStringNode::Render()
@@ -34,7 +52,7 @@ void nglStringNode::Render()
         return;
     }
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         if (this->field_C != nullptr) {
             nglFont *v2 = this->field_10;
             auto v3 = v2->field_40;
@@ -83,10 +101,8 @@ void nglStringNode::Render()
 
                 g_renderState().setFogEnable(false);
                 auto v4 = this->field_18;
-                auto v20 = this->field_1C;
                 auto v25 = this->field_14;
                 auto a4 = v4;
-                auto v27 = sub_77E820(v20);
 
                 static Var<nglStringSection> dword_975690{0x00975690};
                 uint32_t a9;
@@ -127,38 +143,47 @@ void nglStringNode::Render()
                         v23[1] = v23[1] + v21[1];
                         v31[0] = v31[0] + a5[0];
                         v31[1] = v31[1] + a5[1];
-                        v21[0] = sub_77E940(v21[0]);
-                        v21[1] = sub_77EA00(v21[1]);
-                        v23[0] = sub_77E940(v23[0]);
-                        v23[1] = sub_77EA00(v23[1]);
+                        struct Vertex {
+                            float x;
+                            float y;
+                            float z;
+                            float rhw;
+                            uint32_t color;
+                            float u;
+                            float v;
+                        };
+                        const float scale_x =
+                            static_cast<float>(s_d3dpresent_params.BackBufferWidth) / 640.0f;
+                        const float scale_y =
+                            static_cast<float>(s_d3dpresent_params.BackBufferHeight) / 480.0f;
+                        const float x1 = v21[0] * scale_x;
+                        const float y1 = v21[1] * scale_y;
+                        const float x2 = v23[0] * scale_x;
+                        const float y2 = v23[1] * scale_y;
+                        Vertex vertices[4]{
+                            {x1, y1, 0.5f, 1.0f, v8, a5[0], a5[1]},
+                            {x2, y1, 0.5f, 1.0f, v8, v31[0], a5[1]},
+                            {x1, y2, 0.5f, 1.0f, v8, a5[0], v31[1]},
+                            {x2, y2, 0.5f, 1.0f, v8, v31[0], v31[1]},
+                        };
 
-                        float v35[24];
-                        v35[0] = v21[0];
-                        v35[1] = v21[1];
-                        v35[3] = v8;
-                        v35[2] = v27;
-                        v35[4] = a5[0];
-                        v35[5] = a5[1];
-                        v35[6] = v23[0];
-                        v35[7] = v21[1];
-                        v35[8] = v27;
-                        v35[9] = v8;
-                        v35[10] = v31[0];
-                        v35[11] = a5[1];
-                        v35[12] = v21[0];
-                        v35[13] = v23[1];
-                        v35[14] = v27;
-                        v35[15] = v8;
-                        v35[16] = a5[0];
-                        v35[17] = v31[1];
-                        v35[18] = v23[0];
-                        v35[19] = v23[1];
-                        v35[20] = v27;
-                        v35[21] = v8;
-                        v35[22] = v31[0];
-                        v35[23] = v31[1];
-
-                        IDirect3DDevice9_DrawPrimitiveUP(g_Direct3DDevice, D3DPT_TRIANGLESTRIP, 2, v35, 24);
+                        IDirect3DDevice9_SetVertexShader(g_Direct3DDevice, nullptr);
+                        IDirect3DDevice9_SetPixelShader(g_Direct3DDevice, nullptr);
+                        IDirect3DDevice9_SetFVF(
+                            g_Direct3DDevice,
+                            D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_TEX1);
+                        nglSetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
+                        nglSetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+                        nglSetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+                        nglSetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+                        nglSetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+                        nglSetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+                        IDirect3DDevice9_DrawPrimitiveUP(
+                            g_Direct3DDevice,
+                            D3DPT_TRIANGLESTRIP,
+                            2,
+                            vertices,
+                            sizeof(Vertex));
                         double v18 = this->field_10->GetFontCellWidth(v11);
                         if (v18 < 0) {
                             v18 += flt_86F860;

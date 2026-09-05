@@ -4,6 +4,9 @@
 #include "string_hash.h"
 
 #include <vector.hpp>
+#if STANDALONE_SYSTEM
+#include <vector>
+#endif
 
 struct event;
 struct event_recipient_entry;

@@ -9,6 +9,8 @@
 #include <trace.h>
 #include <utility.h>
 #include <vtbl.h>
+#include <array>
+#include <cstdint>
 
 nglRenderNode* g_CurrentRenderNode = nullptr;
 
@@ -75,15 +77,32 @@ void *nglListAlloc(int size, int align)
 {
     TRACE("nglListAlloc");
 
-    if constexpr (0) {
-        auto *v3 = (uint8_t *) (~(align - 1) & ((int) nglListWorkPos() + align - 1));
+    if constexpr (STANDALONE_SYSTEM) {
+        assert(size >= 0);
+        assert(align > 0 && (align & (align - 1)) == 0);
 
-        nglListWorkPos() = &v3[size];
-        void *result = v3;
+        constexpr std::size_t list_capacity = 0x44000;
+        alignas(16) static std::array<std::uint8_t, list_capacity> fallback_work{};
+        static std::uint8_t *list_begin{};
 
+        auto *position = nglListWorkPos();
+        if (position == nullptr) {
+            position = fallback_work.data();
+        }
+        if (list_begin == nullptr) {
+            list_begin = position;
+        }
+
+        const auto aligned = (reinterpret_cast<std::uintptr_t>(position) + align - 1)
+                           & ~static_cast<std::uintptr_t>(align - 1);
+        auto *result = reinterpret_cast<std::uint8_t *>(aligned);
+        assert(result >= list_begin);
+        assert(static_cast<std::size_t>(result - list_begin) + static_cast<std::size_t>(size)
+               <= list_capacity);
+        nglListWorkPos() = result + size;
         return result;
     } else {
-        return (void *) CDECL_CALL(0x00401A20, size, align);
+        return (void *)CDECL_CALL(0x00401A20, size, align);
     }
 }
 

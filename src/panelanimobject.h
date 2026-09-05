@@ -22,6 +22,7 @@ struct PanelAnimObject : mash_virtual_base {
     void Update(Float a2);
 
     /* virtual */ void StartAnim(bool a1);
+    void ResetXform();
 
     //0x00401050
     //virtual

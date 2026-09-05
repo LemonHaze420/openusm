@@ -2,6 +2,7 @@
 
 #include "func_wrapper.h"
 #include "game.h"
+#include "mission_manager.h"
 #include "osassert.h"
 #include "resource_directory.h"
 #include "resource_manager.h"
@@ -89,7 +90,7 @@ void mission_stack_manager::push_mission_pack(const mString &a2, const mString &
 {
     TRACE("mission_stack_manager::push_mission_pack");
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         mString v29 = a2;
         v29.to_lower();
 
@@ -146,7 +147,8 @@ void mission_stack_manager::push_mission_pack(const mString &a2, const mString &
             assert(district_partition != nullptr);
 
             auto &pack_slots = district_partition->get_pack_slots();
-            assert(district_slot_override_idx >= 0 && district_slot_override_idx < pack_slots.size());
+            assert(district_slot_override_idx >= 0
+                   && static_cast<unsigned>(district_slot_override_idx) < pack_slots.size());
 
             auto *s = pack_slots[district_slot_override_idx];
             assert(s->is_empty());
@@ -189,11 +191,84 @@ void mission_stack_manager::push_mission_pack(const mString &a2, const mString &
     }
 }
 
-bool mission_stack_manager::nonstatic_mission_stack_callback(resource_pack_slot::callback_enum a2,
-                                                             resource_pack_streamer *a3, resource_pack_slot *a4,
-                                                             limited_timer *a5)
+void mission_stack_manager::create_pack_group_slots()
 {
-    return (bool)THISCALL(0x005D56E0, this, a2, a3, a4, a5);
+    auto *partition = resource_manager::get_partition_pointer(RESOURCE_PARTITION_MISSION);
+    assert(partition != nullptr);
+
+    auto &pack_slots = partition->get_pack_slots();
+    if (pack_slots.empty() || pack_slots.size() > 1) {
+        return;
+    }
+
+    auto &groups = pack_slots.front()->get_resource_directory().field_68;
+    field_4 = 0;
+    for (auto &group : groups) {
+        group.field_10 = reinterpret_cast<int *>(partition);
+        for (int i = 0; i < group.field_1C; ++i) {
+            if (!partition->has_room_for_slot(group.field_18)) {
+                continue;
+            }
+
+            partition->push_pack_slot(group.field_18, nullptr);
+            group.field_14[i] = static_cast<int>(partition->get_pack_slots().size()) - 1;
+            field_4 = static_cast<int>(partition->get_pack_slots().size());
+        }
+    }
+}
+
+bool mission_stack_manager::nonstatic_mission_stack_callback(resource_pack_slot::callback_enum event,
+                                                             resource_pack_streamer *,
+                                                             resource_pack_slot *slot,
+                                                             limited_timer *)
+{
+    static int district_slot_idx = -1;
+    switch (static_cast<int>(event)) {
+    case 0:
+        loading_started = true;
+        field_A = false;
+        break;
+    case 1:
+        field_A = true;
+        map_directory_parent(slot);
+        create_pack_group_slots();
+        break;
+    case 3:
+        --pack_loads_or_unloads_pending;
+        loading_started = false;
+        break;
+    case 4:
+        if (!unloading_started) {
+            unmap_directory_parent(slot);
+        }
+        unloading_started = true;
+        break;
+    case 5: {
+        auto *partition = resource_manager::get_partition_pointer(RESOURCE_PARTITION_MISSION);
+        assert(partition != nullptr && !partition->get_pack_slots().empty());
+        district_slot_idx = partition->get_pack_slots().back()->get_pack_token().field_0;
+        break;
+    }
+    case 6: {
+        auto *partition = resource_manager::get_partition_pointer(RESOURCE_PARTITION_MISSION);
+        assert(partition != nullptr);
+        if (district_slot_idx != -1) {
+            g_world_ptr->the_terrain->unlock_district_pack_slot(district_slot_idx);
+        }
+        district_slot_idx = -1;
+        if (partition->get_pack_slots().size() > static_cast<unsigned>(field_4)
+            || mission_manager::s_inst->field_54) {
+            partition->pop_pack_slot();
+        }
+        unloading_started = false;
+        ++pack_loads_or_unloads_pending;
+        break;
+    }
+    default:
+        break;
+    }
+
+    return false;
 }
 
 bool mission_stack_manager::mission_stack_callback(resource_pack_slot::callback_enum a1, resource_pack_streamer *a2,

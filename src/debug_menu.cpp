@@ -29,12 +29,13 @@ const char *to_string(debug_menu_entry_type entry_type)
 }
 
 debug_menu_entry *g_debug_camera_entry {nullptr};
+debug_menu *script_menu = nullptr;
+debug_menu *progression_menu = nullptr;
 
-void entry_frame_advance_callback_default(debug_menu_entry *a1) {}
+void entry_frame_advance_callback_default([[maybe_unused]] debug_menu_entry *a1) {}
 
 struct debug_menu;
 
-std::string entry_render_callback_default(debug_menu_entry* entry);
 
 std::string entry_render_callback_default(debug_menu_entry* entry)
 {
@@ -75,9 +76,47 @@ std::string entry_render_callback_default(debug_menu_entry* entry)
 
 typedef void (*menu_handler_function)(debug_menu_entry*, custom_key_type key_type);
 
-void close_debug();
 
 debug_menu* current_menu = nullptr;
+
+void close_debug()
+{
+    current_menu = nullptr;
+}
+
+namespace
+{
+bool remove_entry_from_menu(debug_menu *menu, debug_menu_entry *entry)
+{
+    if (menu == nullptr || entry == nullptr)
+        return false;
+
+    for (DWORD index = 0; index < menu->used_slots; ++index) {
+        if (&menu->entries[index] == entry) {
+            for (DWORD next = index + 1; next < menu->used_slots; ++next)
+                menu->entries[next - 1] = menu->entries[next];
+            --menu->used_slots;
+            menu->entries[menu->used_slots] = debug_menu_entry {};
+            return true;
+        }
+
+        if (menu->entries[index].entry_type == POINTER_MENU
+            && remove_entry_from_menu(menu->entries[index].m_value.p_menu, entry))
+            return true;
+    }
+
+    return false;
+}
+}
+
+void remove_debug_menu_entry(debug_menu_entry *entry)
+{
+    if (remove_entry_from_menu(debug_menu::root_menu, entry))
+        return;
+    if (remove_entry_from_menu(script_menu, entry))
+        return;
+    remove_entry_from_menu(progression_menu, entry);
+}
 
 void script_handler_helper(debug_menu_entry *a2)
 {
@@ -310,7 +349,7 @@ void* add_debug_menu_entry(debug_menu* menu, debug_menu_entry* entry)
 		} else {
 			menu->capacity += EXTEND_NEW_ENTRIES;
 			menu->entries = static_cast<decltype(menu->entries)>(new_ptr);
-			memset(&menu->entries[menu->used_slots], 0, new_entries_size);
+			memset(static_cast<void *>(&menu->entries[menu->used_slots]), 0, new_entries_size);
 
 			return add_debug_menu_entry(menu, entry);
 		}
@@ -335,7 +374,7 @@ debug_menu * create_menu(const char* title, menu_handler_function function, DWOR
 	menu->handler = function;
 	DWORD total_entries_size = sizeof(debug_menu_entry) * capacity;
 	menu->entries = static_cast<decltype(menu->entries)>(malloc(total_entries_size));
-	memset(menu->entries, 0, total_entries_size);
+	memset(static_cast<void *>(menu->entries), 0, total_entries_size);
 
 	return menu;
 }
@@ -351,7 +390,7 @@ debug_menu * create_menu(const char* title, debug_menu::sort_mode_t mode)
 	menu->capacity = capacity;
 	DWORD total_entries_size = sizeof(debug_menu_entry) * capacity;
 	menu->entries = static_cast<decltype(menu->entries)>(malloc(total_entries_size));
-	memset(menu->entries, 0, total_entries_size);
+	memset(static_cast<void *>(menu->entries), 0, total_entries_size);
 
     menu->m_sort_mode = mode;
 

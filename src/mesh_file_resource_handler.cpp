@@ -117,9 +117,6 @@ bool mesh_file_resource_handler::_handle_resource(worldly_resource_handler::eBeh
 
             //sp_log("%d 0x%08X", this->field_C, (int) struct_mash);
 
-            if (Mod* mod = getMod(loc->name.source_hash_code)) {
-                //struct_mash = mod->Data.data();
-            }
 
             nglMeshFile *meshFile = nullptr;
             auto alloced_mem =

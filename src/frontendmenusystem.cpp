@@ -38,23 +38,25 @@ FrontEndMenuSystem::FrontEndMenuSystem() : FEMenuSystem(7, static_cast<font_inde
         this->field_52 = 0;
 
         static Var<bool> first_time_through{0x00937B78};
+        static bool standalone_first_time_through = true;
+        bool &is_first_time_through = STANDALONE_SYSTEM
+            ? standalone_first_time_through
+            : first_time_through();
 
-        if (first_time_through()) {
+        if (is_first_time_through) {
             this->field_4[this->m_count++] = new main_menu_legal{this, 320, 240};
 
             this->field_4[this->m_count++] = new main_menu_start{this, 320, 240};
 
-            this->field_4[this->m_count++] = new main_menu_memcard_check{this, 320, 240};
+            if constexpr (!STANDALONE_SYSTEM) {
+                this->field_4[this->m_count++] = new main_menu_memcard_check{this, 320, 240};
+                this->field_4[this->m_count++] = new main_menu_options{this, 320, 240};
+                this->field_4[this->m_count++] = new main_menu_load{this, 320, 240};
+                this->field_4[this->m_count++] = new main_menu_keyboard{this, 320, 240};
+                this->field_4[this->m_count++] = new main_menu_credits{this, 320, 240};
+            }
 
-            this->field_4[this->m_count++] = new main_menu_options{this, 320, 240};
-
-            this->field_4[this->m_count++] = new main_menu_load{this, 320, 240};
-
-            this->field_4[this->m_count++] = new main_menu_keyboard{this, 320, 240};
-
-            this->field_4[this->m_count++] = new main_menu_credits{this, 320, 240};
-
-            first_time_through() = false;
+            is_first_time_through = false;
             this->field_50 = false;
         } else {
             this->field_50 = true;
@@ -64,13 +66,17 @@ FrontEndMenuSystem::FrontEndMenuSystem() : FEMenuSystem(7, static_cast<font_inde
         this->field_51 = 0;
         this->field_52 = 0;
         this->field_7C = PanelFile::UnmashPanelFile("main_menu", static_cast<panel_layer>(7));
-        for (int i = 0; i < 7; ++i) {
+        for (int i = 0; i < this->m_count; ++i) {
             this->field_4[i]->Init();
         }
 
         static Var<bool> byte_96B44B{0x0096B44B};
+        static bool standalone_byte_96B44B = false;
+        const bool byte_96B44B_value = STANDALONE_SYSTEM
+            ? standalone_byte_96B44B
+            : byte_96B44B();
 
-        auto v17 = !byte_96B44B();
+        auto v17 = !byte_96B44B_value;
         auto v18 = this->m_index;
         this->field_34 = v18;
         if (v17) {
@@ -104,7 +110,10 @@ FrontEndMenuSystem::FrontEndMenuSystem() : FEMenuSystem(7, static_cast<font_inde
 
 void FrontEndMenuSystem::sub_60C240()
 {
-    THISCALL(0x0060C240, this);
+    if constexpr (STANDALONE_SYSTEM)
+        field_38 = 0;
+    else
+        THISCALL(0x0060C240, this);
 }
 
 bool FrontEndMenuSystem::WaitForMemCheck()
@@ -206,55 +215,41 @@ void sub_582BB0()
 
 void FrontEndMenuSystem::sub_619030(bool a2)
 {
-    if constexpr (0) {
-        sub_582BB0();
-        if (!g_game_ptr->field_165 && !g_game_ptr->field_166) {
-            if (already_drew_this_frame) {
-                if (g_game_ptr->level.load_completed && !g_game_ptr->gamefile->field_4C1) {
-                    return;
-                }
+    if constexpr (STANDALONE_SYSTEM) {
+        static DWORD previous_tick = GetTickCount();
+        const DWORD current_tick = GetTickCount();
+        float delta_time = static_cast<float>(current_tick - previous_tick) * 0.001f;
+        previous_tick = current_tick;
+        if (delta_time <= 0.0f)
+            delta_time = 0.000001f;
 
-                input_mgr::instance->poll_devices();
-                float time_Inc = 0.f;
-                for (time_Inc = g_timer->sub_5821D0(); time_Inc == 0.0f; time_Inc = g_timer->sub_5821D0()) {
-                    Sleep(0);
-                }
-
-                if (time_Inc > 0.f) {
-                    this->Update(time_Inc);
-                }
+        UpdateButtonPresses();
+        if (m_index >= 0) {
+            auto *menu = field_4[m_index];
+            if (menu != nullptr) {
+                if (menu->m_vtbl == 0x00894598)
+                    static_cast<main_menu_legal *>(menu)->Update(delta_time);
+                else if (menu->m_vtbl == 0x00894648)
+                    static_cast<main_menu_start *>(menu)->Update(delta_time);
+                else
+                    menu->Update(delta_time);
             }
+        }
 
-            if (!a2) {
-                nglListInit();
-                nglSetClearFlags(7u);
-                if (!EnableShader) {
-                    math::MatClass<4, 3> a1{};
-                    a1[0][0] = 0.003125;
-                    memset(&a1[0][1], 0, 16);
-                    a1[1][1] = 0.004166666;
-                    memset(&a1[1][2], 0, 16);
-                    a1[2][2] = -1.0;
-                    a1[2][3] = 0.0;
-                    a1[3][0] = -1.0;
-                    a1[3][1] = -1.0;
-                    a1[3][2] = 0.0;
-                    a1[3][3] = 1.0;
-                    nglSetWorldToViewMatrix(a1);
-                    nglSetAspectRatio(1.0);
-                    nglSetOrthoMatrix(1000.0, 10000.0);
-                    nglCalculateMatrices(0);
-                }
-            }
+        if (field_7C != nullptr)
+            field_7C->Update(delta_time);
 
-            auto *v3 = this->field_4[this->m_index];
-            v3->Draw();
-            g_cursor->Draw();
-            if (!a2) {
-                nglListSend(1);
-            }
-
-            already_drew_this_frame = true;
+        if (!a2) {
+            nglListInit();
+            nglSetClearFlags(7);
+            nglSetClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            nglSetAspectRatio(1.0f);
+            nglSetOrthoMatrix(1000.0f, 10000.0f);
+            auto *menu = m_index >= 0 ? field_4[m_index] : nullptr;
+            if (menu != nullptr && menu->m_vtbl == 0x00894598)
+                static_cast<main_menu_legal *>(menu)->Draw();
+            else if (field_7C != nullptr)
+                field_7C->Draw();
         }
     } else {
         THISCALL(0x00619030, this, a2);
@@ -299,11 +294,9 @@ void FrontEndMenuSystem::_LoadAll()
 
 void FrontEndMenuSystem::RenderLoadMeter(bool a1)
 {
-    if constexpr (1) {
-        if (!os_developer_options::instance->get_flag(mString{"NO_LOAD_SCREEN"})) {
-            this->sub_619030(a1);
-        }
-    } else {
+    if constexpr (STANDALONE_SYSTEM) {
+        sub_619030(a1);
+    } else if (!os_developer_options::instance->get_flag(mString{"NO_LOAD_SCREEN"})) {
         THISCALL(0x00619230, this, a1);
     }
 }
@@ -398,6 +391,7 @@ void FrontEndMenuSystem::GoNextState()
             break;
         }
 
+        v3 = this->field_30;
         switch (v3) {
         case 0:
         case 11: {
@@ -416,17 +410,31 @@ void FrontEndMenuSystem::GoNextState()
             break;
         }
         case 2: {
-            if (nglCurScene != nullptr) {
-                --this->field_30;
+            if constexpr (STANDALONE_SYSTEM) {
+                movie_manager::load_and_play_movie(
+                    "mlogonosound", "Marvel_Logo", false);
+                movie_manager::load_and_play_movie(
+                    "ATVI spin logo 640 none", "Activision", false);
+                movie_manager::load_and_play_movie(
+                    "Treyarch_USM_logo", "TREYARCH_LOGO", false);
+                movie_manager::load_and_play_movie("beenox_short", nullptr, false);
+                this->field_30 = 3;
+                this->MakeActive(1);
+                this->sub_60C240();
+                return;
             } else {
-                if (!movie_manager::load_and_play_movie("mlogonosound", "Marvel_Logo", false) &&
-                    !movie_manager::load_and_play_movie("ATVI spin logo 640 none", "Activision", false) &&
-                    !movie_manager::load_and_play_movie("Treyarch_USM_logo", "TREYARCH_LOGO", false)) {
-                    movie_manager::load_and_play_movie("beenox_short", nullptr, false);
-                }
+                if (nglCurScene != nullptr) {
+                    --this->field_30;
+                } else {
+                    if (!movie_manager::load_and_play_movie("mlogonosound", "Marvel_Logo", false) &&
+                        !movie_manager::load_and_play_movie("ATVI spin logo 640 none", "Activision", false) &&
+                        !movie_manager::load_and_play_movie("Treyarch_USM_logo", "TREYARCH_LOGO", false)) {
+                        movie_manager::load_and_play_movie("beenox_short", nullptr, false);
+                    }
 
-                if (this->field_30 != 10) {
-                    continue;
+                    if (this->field_30 != 10) {
+                        continue;
+                    }
                 }
             }
 

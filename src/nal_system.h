@@ -111,8 +111,11 @@ struct nalPositionOrientation {
 
     nalPositionOrientation(nalVector3, const float *);
 
-    static inline nalPositionOrientation &Identity = var<nalPositionOrientation>(0x00977180);
+    static nalPositionOrientation &Identity;
 };
+inline nalPositionOrientation &nalPositionOrientation::Identity
+    = var<nalPositionOrientation>(0x00977180);
+
 
 struct nalBasePose {
     nalComp::nalCompSkeleton *field_0;
@@ -262,8 +265,6 @@ namespace als {
 struct als_meta_anim_table_shared;
 }
 
-//0x0049B910
-extern void *get_anim_by_hash(const string_hash &a1, const als::als_meta_anim_table_shared *a2, actor *a3);
 
 struct IKSkelData {
     float field_0;

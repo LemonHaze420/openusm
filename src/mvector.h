@@ -133,9 +133,13 @@ struct mVector : mContainer_base {
                     if constexpr (std::is_base_of_v<mash_virtual_base, value_type>) {
                         this->m_data[i] =
                             bit_cast<value_type *>(mash_virtual_base::construct_class_helper(this->m_data[i]));
+                    } else if constexpr (std::is_constructible_v<
+                                             value_type,
+                                             from_mash_in_place_constructor *>) {
+                        this->m_data[i] = ::new (static_cast<void *>(this->m_data[i]))
+                            value_type{static_cast<from_mash_in_place_constructor *>(nullptr)};
                     } else {
-                        this->m_data[i] =
-                            new (this->m_data[i]) value_type{static_cast<from_mash_in_place_constructor *>(nullptr)};
+                        assert(false && "mVector value type cannot be constructed from mash");
                     }
                 }
             }

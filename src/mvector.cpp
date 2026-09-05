@@ -802,9 +802,12 @@ void mVector<FEText>::custom_unmash(mash_info_struct *a2, [[maybe_unused]] void 
 
                 {
                     //sp_log("0x%08X", tmp->m_vtbl);
-                    assert(v5->m_vtbl == 0x00879FE0 ||
-                           v5->m_vtbl == 0x0087A0F0 ||
-                           v5->m_vtbl == 0x0087AE58);
+                    if constexpr (STANDALONE_SYSTEM)
+                        assert(v5->m_vtbl != 0);
+                    else
+                        assert(v5->m_vtbl == 0x00879FE0 ||
+                               v5->m_vtbl == 0x0087A0F0 ||
+                               v5->m_vtbl == 0x0087AE58);
                 }
 
                 const auto v7 = v5->get_mash_sizeof();
@@ -873,7 +876,11 @@ void mVector<FEText>::custom_unmash(mash_info_struct *a2, [[maybe_unused]] void 
                 } *tmp = CAST(tmp, v6);
 
                 //sp_log("0x%08X", tmp->m_vtbl);
-                assert(tmp->m_vtbl == 0x00879FE0 || tmp->m_vtbl == 0x0087AE58);
+                if constexpr (STANDALONE_SYSTEM)
+                    assert(tmp->m_vtbl != 0);
+                else
+                    assert(tmp->m_vtbl == 0x00879FE0 ||
+                           tmp->m_vtbl == 0x0087AE58);
             }
 
             auto v7 = v5->get_mash_sizeof();
@@ -960,7 +967,10 @@ void mVector<PanelQuad>::custom_unmash(mash_info_struct *a2, [[maybe_unused]] vo
                             int m_vtbl;
                         } *tmp = CAST(tmp, v6);
 
-                        assert(tmp->m_vtbl == 0x0087B990);
+                        const auto expected_vtable = STANDALONE_SYSTEM
+                            ? bit_cast<uint32_t>(mash_virtual_base::vtable()[541])
+                            : 0x0087B990u;
+                        assert(static_cast<uint32_t>(tmp->m_vtbl) == expected_vtable);
                     }
 
                     const auto v7 = v5->get_mash_sizeof();
@@ -1118,7 +1128,11 @@ void mVector<interaction>::custom_unmash(mash_info_struct *a2, [[maybe_unused]] 
                         int m_vtbl;
                     } *tmp = CAST(tmp, v6);
 
-                    assert(tmp->m_vtbl == 0x0087E3A4);
+                    if constexpr (STANDALONE_SYSTEM) {
+                        assert(tmp->m_vtbl != 0);
+                    } else {
+                        assert(tmp->m_vtbl == 0x0087E3A4);
+                    }
                 }
 
                 auto v7 = v5->get_mash_sizeof();
@@ -2727,40 +2741,4 @@ void mVector<gab_expression>::custom_unmash(mash_info_struct *a2, void *a3)
         void(__fastcall *func)(void *, void *edx, mash_info_struct *, void *) = CAST(func, 0x005E7000);
         func(this, nullptr, a2, a3);
     }
-}
-
-template<>
-void mVectorBasic<vhandle_type<actor>>::custom_unmash(mash_info_struct *a1, void *)
-{
-    TRACE("mVectorBasic<int>::custom_unmash");
-
-#if OPENUSM_XBOX_MASH_FORMAT
-    this->field_C = this->m_size;
-    if (this->m_size <= 0) {
-        this->m_data = nullptr;
-    } else
-#else
-    if (this->m_data != nullptr)
-#endif
-    {
-        this->m_data = CAST(this->m_data, a1->read_from_buffer(
-#if OPENUSM_XBOX_MASH_FORMAT
-            mash::NORMAL_BUFFER,
-#endif
-            4 * this->m_size, 4));
-    }
-
-    this->field_0 = (int)&a1->mash_image_ptr[0][a1->buffer_size_used[0] - (DWORD)this];
-}
-
-template<>
-void mVectorBasic<vhandle_type<actor>>::unmash(mash_info_struct *a1, void *a2)
-{
-#if OPENUSM_XBOX_MASH_FORMAT && !defined(OPENUSM_XBPACK_V10)
-    [](mash_info_struct *a1, mash::buffer_type a2, uint32_t &a3) {
-        a3 = *bit_cast<int *>(a1->read_from_buffer(a2, 4, 4));
-    }(a1, mash::SHARED_BUFFER, m_size);
-#endif
-
-    this->custom_unmash(a1, a2);
 }

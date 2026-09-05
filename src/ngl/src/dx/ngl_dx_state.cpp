@@ -11,12 +11,103 @@ Var<RenderState_t> g_renderState{0x009739A0};
 
 void RenderState_t::Init()
 {
+#if STANDALONE_SYSTEM
+    std::memset(this, 0xFF, sizeof(*this));
+    m_stencilCheckEnabled = false;
+    field_4 = D3DSTENCILOP_KEEP;
+    field_8 = D3DSTENCILOP_KEEP;
+    field_C = D3DCMP_ALWAYS;
+    m_stencilFailOp = D3DSTENCILOP_KEEP;
+    m_stencilRefValue = 0;
+    m_stencilCompareMask = 0xFFFFFFFFu;
+    field_1C = 0xFFFFFFFFu;
+    field_20 = 0;
+    field_21 = 0;
+    field_24 = bit_cast<int>(1.0f);
+    field_28 = 0;
+    field_2C = 0;
+    field_30 = 0;
+    field_34 = 0;
+    field_38 = bit_cast<int>(1.0f);
+    field_3C = 0;
+    field_40 = 0xFFFFFFFF;
+    field_44 = false;
+    field_48 = D3DCMP_GREATER;
+    field_4C = 128;
+    field_50 = true;
+    field_54 = D3DBLEND_SRCALPHA;
+    field_58 = D3DBLEND_INVSRCALPHA;
+    field_5C = 0xFFFFFFFFu;
+    field_60 = D3DBLENDOP_ADD;
+    field_64 = 0;
+    field_68 = 0;
+    field_6C = 0;
+    field_70 = 0;
+    field_74 = false;
+    field_78 = D3DZB_TRUE;
+    field_7C = D3DCMP_LESSEQUAL;
+    field_80 = 0;
+    field_84 = 0;
+    field_88 = false;
+    field_8C = 0;
+    field_90 = 0;
+    field_94 = 0.0f;
+    field_98 = 0.0f;
+    field_9C = 15;
+    field_A0 = 0;
+    field_A1 = false;
+    field_A4 = 0;
+    field_A8 = 15;
+    m_cullingMode = D3DCULL_NONE;
+    field_B0 = D3DFILL_SOLID;
+    field_B4 = D3DSHADE_GOURAUD;
+    field_B8 = 1;
+    field_BC = 0;
+    field_C0 = 0.0f;
+    field_C4 = 1;
+    field_C8 = 1;
+    m_blend_mode = 9;
+    field_D0 = -1;
+    field_D4 = -1;
+    Clear();
+#else
     THISCALL(0x00774E40, this);
+#endif
 }
 
 void RenderState_t::Clear()
 {
+#if STANDALONE_SYSTEM
+    IDirect3DDevice9_SetRenderState(g_Direct3DDevice, D3DRS_STENCILENABLE, m_stencilCheckEnabled);
+    IDirect3DDevice9_SetRenderState(g_Direct3DDevice, D3DRS_STENCILZFAIL, field_4);
+    IDirect3DDevice9_SetRenderState(g_Direct3DDevice, D3DRS_STENCILPASS, field_8);
+    IDirect3DDevice9_SetRenderState(g_Direct3DDevice, D3DRS_STENCILFUNC, field_C);
+    IDirect3DDevice9_SetRenderState(g_Direct3DDevice, D3DRS_STENCILFAIL, m_stencilFailOp);
+    IDirect3DDevice9_SetRenderState(g_Direct3DDevice, D3DRS_STENCILREF, m_stencilRefValue);
+    IDirect3DDevice9_SetRenderState(g_Direct3DDevice, D3DRS_STENCILMASK, m_stencilCompareMask);
+    IDirect3DDevice9_SetRenderState(g_Direct3DDevice, D3DRS_STENCILWRITEMASK, field_1C);
+    IDirect3DDevice9_SetRenderState(g_Direct3DDevice, D3DRS_ALPHATESTENABLE, field_44);
+    IDirect3DDevice9_SetRenderState(g_Direct3DDevice, D3DRS_ALPHAFUNC, field_48);
+    IDirect3DDevice9_SetRenderState(g_Direct3DDevice, D3DRS_ALPHAREF, field_4C);
+    IDirect3DDevice9_SetRenderState(g_Direct3DDevice, D3DRS_ALPHABLENDENABLE, field_50);
+    IDirect3DDevice9_SetRenderState(g_Direct3DDevice, D3DRS_SRCBLEND, field_54);
+    IDirect3DDevice9_SetRenderState(g_Direct3DDevice, D3DRS_DESTBLEND, field_58);
+    IDirect3DDevice9_SetRenderState(g_Direct3DDevice, D3DRS_BLENDFACTOR, field_5C);
+    IDirect3DDevice9_SetRenderState(g_Direct3DDevice, D3DRS_BLENDOP, field_60);
+    IDirect3DDevice9_SetRenderState(g_Direct3DDevice, D3DRS_ZWRITEENABLE, field_74);
+    IDirect3DDevice9_SetRenderState(g_Direct3DDevice, D3DRS_ZENABLE, field_78);
+    IDirect3DDevice9_SetRenderState(g_Direct3DDevice, D3DRS_ZFUNC, field_7C);
+    IDirect3DDevice9_SetRenderState(g_Direct3DDevice, D3DRS_FOGENABLE, field_88);
+    IDirect3DDevice9_SetRenderState(g_Direct3DDevice, D3DRS_FOGCOLOR, field_8C);
+    IDirect3DDevice9_SetRenderState(g_Direct3DDevice, D3DRS_FOGSTART, bit_cast<DWORD>(field_94));
+    IDirect3DDevice9_SetRenderState(g_Direct3DDevice, D3DRS_FOGEND, bit_cast<DWORD>(field_98));
+    IDirect3DDevice9_SetRenderState(g_Direct3DDevice, D3DRS_COLORWRITEENABLE, field_A8);
+    IDirect3DDevice9_SetRenderState(g_Direct3DDevice, D3DRS_CULLMODE, m_cullingMode);
+    IDirect3DDevice9_SetRenderState(g_Direct3DDevice, D3DRS_FILLMODE, field_B0);
+    IDirect3DDevice9_SetRenderState(g_Direct3DDevice, D3DRS_SHADEMODE, field_B4);
+#else
     THISCALL(0x00774610, this);
+#endif
 }
 
 void RenderState_t::setStencilCheckEnabled(bool enabled)
@@ -201,8 +292,10 @@ void RenderState_t::setDepthBufferFunction(D3DCMPFUNC func)
 
 void RenderState_t::setBlending(nglBlendModeType blend_mode, uint32_t BlendModeConst, uint32_t ref_value)
 {
-    if constexpr (0) {
-        if (this->m_blend_mode != blend_mode || this->field_D0 != BlendModeConst || blend_mode == 1) {
+    if constexpr (STANDALONE_SYSTEM) {
+        if (this->m_blend_mode != blend_mode ||
+            this->field_D0 != static_cast<int>(BlendModeConst) ||
+            blend_mode == NGLBM_PUNCHTHROUGH) {
             switch (blend_mode) {
             case NGLBM_OPAQUE:
                 this->setAlphaTesting(false);

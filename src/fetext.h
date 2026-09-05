@@ -12,6 +12,7 @@
 #include <cstdint>
 
 struct FETextFlashInfo;
+struct matrix4x4;
 
 struct FEText : PanelAnimObject {
     FETextFlashInfo *flash_info;
@@ -70,6 +71,7 @@ struct FEText : PanelAnimObject {
     };
 
     /* virtual */ void Update(Float a2);
+    void Animate(const matrix4x4 &transform, Float visibility);
 
     void _SetText(global_text_enum a2);
 

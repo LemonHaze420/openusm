@@ -9,7 +9,10 @@ Var<dynamic_proximity_map_stack *[number_of_district_proximity_map_stacks]> dist
     0x0095C928
 };
 
-dynamic_proximity_map_stack::dynamic_proximity_map_stack() {}
+dynamic_proximity_map_stack::dynamic_proximity_map_stack()
+    : m_vtbl(0), field_4(4), field_8(0), field_C(4), field_10(nullptr), field_14(nullptr)
+{
+}
 
 void *dynamic_proximity_map_stack::alloc(int size)
 {
@@ -23,5 +26,18 @@ void dynamic_proximity_map_stack::release(void *) {}
 
 void init_proximity_map_stacks()
 {
-    CDECL_CALL(0x0053B860);
+    if constexpr (STANDALONE_SYSTEM) {
+        auto &stacks = district_proximity_map_stacks();
+        if (stacks[0] != nullptr)
+            return;
+
+        for (auto &stack : stacks) {
+            stack = new dynamic_proximity_map_stack{};
+            stack->field_8 = 0x4000;
+            stack->field_10 = new char[stack->field_8];
+            stack->field_14 = stack->field_10;
+        }
+    } else {
+        CDECL_CALL(0x0053B860);
+    }
 }

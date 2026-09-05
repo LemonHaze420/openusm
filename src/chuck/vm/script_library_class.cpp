@@ -6,6 +6,7 @@
 #include "memory.h"
 #include "mstring.h"
 #include "script_manager.h"
+#include "slc_manager.h"
 #include "slab_allocator.h"
 #include "trace.h"
 #include "utility.h"
@@ -35,9 +36,51 @@ Var<slc_num_t *> slc_num{0x00965ECC};
 
 Var<slc_str_t *> slc_str{0x00965ED0};
 
-script_library_class::script_library_class(const char *a2, int a3, const char *a4, bool a5)
-    {
-    if constexpr (0) {
+namespace {
+void __fastcall finalize_standalone_script_library_class(
+    script_library_class *slc, void *, bool release_memory)
+{
+    if (slc->funcs != nullptr && !slc->are_funcs_from_mash())
+        delete[] slc->funcs;
+    delete[] slc->name;
+    slc->funcs = nullptr;
+    slc->name = nullptr;
+    if (release_memory)
+        mem_dealloc(slc, sizeof(*slc));
+}
+
+uint32_t __fastcall find_standalone_script_instance(
+    script_library_class *, void *, const mString *)
+{
+    return 0;
+}
+
+std::intptr_t *standalone_script_library_class_vtable()
+{
+    static std::intptr_t table[] {
+        reinterpret_cast<std::intptr_t>(&finalize_standalone_script_library_class),
+        reinterpret_cast<std::intptr_t>(&find_standalone_script_instance),
+    };
+    return table;
+}
+}
+
+script_library_class::script_library_class(
+    const char *a2, int a3, const char *a4, bool a5)
+{
+    if constexpr (STANDALONE_SYSTEM) {
+        field_8 = a3;
+        m_vtbl = reinterpret_cast<std::intptr_t>(
+            standalone_script_library_class_vtable());
+        name = nullptr;
+        funcs = nullptr;
+        total_funcs = 0;
+        next_func_slot = 0;
+        field_1C = 0;
+        field_C = (a4 != nullptr && *a4 != '\0') ? a4 : nullptr;
+        store_name(a2);
+        if (!a5)
+            slc_manager::add(this);
     } else {
         THISCALL(0x005AA860, this, a2, a3, a4, a5);
     }

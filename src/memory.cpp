@@ -48,29 +48,25 @@ void mem_check_leaks_since_checkpoint(int, uint32_t)
     ;
 }
 
-void *mem_alloc(size_t Size)
+void *mem_alloc(size_t size)
 {
-    //TRACE("mem_alloc");
-
-    void *mem;
-
-    if (slab_allocator::get_max_object_size() < Size) {
-        mem = operator new(Size);
+    if constexpr (STANDALONE_SYSTEM) {
+        return ::operator new(size);
+    } else if (slab_allocator::get_max_object_size() < size) {
+        return ::operator new(size);
     } else {
-        mem = slab_allocator::allocate(Size, nullptr);
+        return slab_allocator::allocate(size, nullptr);
     }
-
-    return mem;
 }
 
-void mem_dealloc(void *a1, size_t Size)
+void mem_dealloc(void *memory, size_t size)
 {
-    //TRACE("mem_dealloc");
-
-    if (Size <= slab_allocator::get_max_object_size()) {
-        slab_allocator::deallocate(a1, nullptr);
+    if constexpr (STANDALONE_SYSTEM) {
+        ::operator delete(memory);
+    } else if (size <= slab_allocator::get_max_object_size()) {
+        slab_allocator::deallocate(memory, nullptr);
     } else {
-        operator delete(a1);
+        ::operator delete(memory);
     }
 }
 

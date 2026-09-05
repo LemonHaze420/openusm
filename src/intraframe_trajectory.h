@@ -1,6 +1,7 @@
 #pragma once
 
 #include "capsule.h"
+#include "fixed_pool.h"
 #include "oldmath_po.h"
 
 struct sphere;

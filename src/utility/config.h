@@ -4,6 +4,12 @@
 
 #include <algorithm>
 #include <cstring>
+#if STANDALONE_SYSTEM
+#include <cstdio>
+#include <cstdlib>
+#include <map>
+#include <memory>
+#endif
 
 #define PROGRESS_LOG
 
@@ -113,4 +119,50 @@ bit_cast(const From &src) noexcept
     return dst;
 }
 
-#define CAST(var, address) bit_cast<std::remove_reference_t<decltype(var)>>((address))
+template <typename T, typename = void>
+struct is_complete : std::false_type {};
+
+template <typename T>
+struct is_complete<T, std::void_t<decltype(sizeof(T))>> : std::true_type {};
+
+#if STANDALONE_SYSTEM
+template <typename Pointer>
+Pointer standalone_original_vtable(std::uintptr_t address)
+{
+    using value_type = std::remove_cv_t<std::remove_pointer_t<Pointer>>;
+    static std::map<std::uintptr_t, std::unique_ptr<value_type>> vtables;
+    auto &vtable = vtables[address];
+    if (!vtable)
+        vtable = std::make_unique<value_type>();
+    return vtable.get();
+}
+#endif
+
+template <typename T0, typename T1>
+T0 CAST([[maybe_unused]] const T0 &var, T1 address)
+{
+#if STANDALONE_SYSTEM
+    if constexpr (std::is_pointer_v<T0> &&
+                  std::is_function_v<std::remove_pointer_t<T0>> &&
+                  std::is_integral_v<T1>) {
+        const auto target = static_cast<std::uintptr_t>(address);
+        if (target >= 0x00400000u && target < 0x00900000u) {
+            std::fprintf(stderr,
+                "STANDALONE_SYSTEM blocked raw original function cast to 0x%08lX\n",
+                static_cast<unsigned long>(target));
+            std::fflush(nullptr);
+            std::abort();
+        }
+    }
+    if constexpr (std::is_pointer_v<T0> &&
+                  !std::is_function_v<std::remove_pointer_t<T0>> &&
+                  !std::is_void_v<std::remove_cv_t<std::remove_pointer_t<T0>>> &&
+                  is_complete<std::remove_cv_t<std::remove_pointer_t<T0>>>::value &&
+                  std::is_integral_v<T1>) {
+        const auto target = static_cast<std::uintptr_t>(address);
+        if (target >= 0x00870000u && target < 0x00900000u)
+            return standalone_original_vtable<T0>(target);
+    }
+#endif
+    return bit_cast<T0>(address);
+}

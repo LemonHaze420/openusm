@@ -43,6 +43,11 @@ struct nglFont {
     nglGlyphSize *field_4C;
     char field_50;
     char empty0[3];
+    static tlFixedString *get_string(nglFont *font)
+    {
+        return &font->field_0;
+    }
+
 
     int GetFontCellWidth(uint8_t a2)
     {

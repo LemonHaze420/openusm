@@ -11,6 +11,8 @@
 #include "utility.h"
 
 #include <cassert>
+#include <cstddef>
+#include <cstring>
 
 namespace ai {
 
@@ -25,12 +27,18 @@ param_block::param_block(from_mash_in_place_constructor *)
 {
     TRACE("param_block::param_block");
 
-    if (this->param_array != nullptr) {
-        mash_info_struct::construct_class(this->param_array);
+    param_data_array *array;
+    std::memcpy(
+        &array,
+        reinterpret_cast<const char *>(this) + offsetof(param_block, param_array),
+        sizeof(array));
+    param_array = array;
+    if (param_array != nullptr) {
+        mash_info_struct::construct_class(param_array);
     }
 
-    this->field_0 = 0;
-    this->field_8 = false;
+    field_0 = 0;
+    field_8 = false;
 }
 
 void param_block::unmash(mash_info_struct *a1, void *a3)

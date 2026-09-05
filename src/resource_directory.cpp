@@ -5,6 +5,7 @@
 #include "common.h"
 #include "debugutil.h"
 #include "error.h"
+#include "entity_mash.h"
 #include "variables.h"
 #include "func_wrapper.h"
 #include "hashstring.h"
@@ -50,7 +51,7 @@ namespace
 
     int xb_to_pc(int type)
     {
-        assert(type >= 0 && type < xbpack::type_count);
+        assert(type >= 0 && type < static_cast<int>(xbpack::type_count));
         return xbpack::pc_type(type);
     }
 
@@ -63,7 +64,7 @@ namespace
         const auto *raw_counts = reinterpret_cast<const int *>(base + xbpack::counts_offset);
 
         resource_type_tables tables {};
-        for (int raw_type = 0; raw_type < xbpack::type_count; ++raw_type) {
+        for (int raw_type = 0; raw_type < static_cast<int>(xbpack::type_count); ++raw_type) {
             const auto pc_type = xb_to_pc(raw_type);
             assert(pc_type >= 0 && pc_type < RESOURCE_KEY_TYPE_Z);
 
@@ -975,7 +976,7 @@ bool resource_directory::find_tlresource(uint32_t a1, tlresource_type tlres_type
         bool result = func(this, nullptr, a1, tlres_type, out_dir, out_loc);
         if (result && hasMod(a1)) {
             if (Mod *mod = getMod(a1)) {
-                (*out_loc)->field_8 = reinterpret_cast<char *>(mod->Data.data());
+                (*out_loc)->set_data(reinterpret_cast<char *>(mod->Data.data()));
             }
         }
         return result;

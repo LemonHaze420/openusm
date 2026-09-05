@@ -181,10 +181,6 @@ void unmash_database(gab_database *database, mash_info_struct *info)
 } // namespace
 #endif
 
-gab_database::gab_database(from_mash_in_place_constructor *a2)
-{
-    THISCALL(0x005E0E80, this, a2);
-}
 
 void gab_expression::unmash(mash_info_struct *a1, void *)
 {

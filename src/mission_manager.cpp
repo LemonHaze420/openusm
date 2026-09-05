@@ -32,7 +32,51 @@ mString &mission_manager::current_mission_debug_title = var<mString>(0x00969E90)
 
 mission_manager::mission_manager()
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
+        s_inst = this;
+        field_0 = 0;
+        field_4 = 0;
+        field_8 = 0;
+        field_C = 0;
+        field_10 = 0;
+        m_global_table_container = nullptr;
+        m_district_table_containers[0] = nullptr;
+        field_1C = 0;
+        field_20 = 0;
+        field_24 = 0;
+        field_28 = 0;
+        field_2C = 0;
+        field_30 = 0;
+        field_34 = 0;
+        m_district_table_count = 0;
+        m_script_to_load = nullptr;
+        m_script = nullptr;
+        field_44[0] = 0;
+        field_44[1] = 0;
+        field_44[2] = 0;
+        m_unload_script = false;
+        field_54 = 0;
+        field_58 = 5;
+        field_5C = 0;
+        field_60 = nullptr;
+        field_64 = 0.0f;
+        field_68 = 0;
+        field_6C = nullptr;
+        field_70 = 0;
+        field_74 = 1;
+        field_78 = nullptr;
+        field_7C = nullptr;
+        field_80 = false;
+        field_84 = -1;
+        field_88 = fixedstring<8>{""};
+        field_A8 = fixedstring<8>{""};
+        field_C8 = -1;
+        field_CC = false;
+        field_D0 = fixedstring<8>{""};
+        hero_switch_frame = -1;
+        field_F4 = 0.0f;
+        field_F8 = -1.0f;
+        field_FC = 0;
     } else {
         void(__fastcall * func)(mission_manager *) = CAST(func, 0x005DA010);
         func(this);
@@ -206,7 +250,9 @@ void mission_manager::sub_5BACA0(Float a2)
 void mission_manager::frame_advance(Float a2)
 {
     TRACE("mission_manager::frame_advance");
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
+        return;
+    } else if constexpr (0) {
         if ((!g_game_ptr->flag.physics_enabled || g_game_ptr->flag.single_step) && g_game_ptr->level.load_completed &&
             g_game_ptr->flag.level_is_loaded) {
             auto v4 = this->field_FC;

@@ -4,7 +4,7 @@
 
 struct FETextFlashInfo {
     color32 field_0;
-    int field_4;
+    float field_4;
     float field_8;
     float field_C;
 

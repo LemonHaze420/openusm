@@ -2,10 +2,25 @@
 
 #include "game.h"
 #include "game_settings.h"
+#include "localized_string_table.h"
 
 #include "common.h"
 
 VALIDATE_SIZE(pause_menu_goals, 0x110u);
+
+void pause_menu_goals::initialize()
+{
+    auto *table = g_game_ptr->field_7C;
+    field_0 = table->lookup_localized_string(static_cast<global_text_enum>(275));
+
+    for (int i = 0; i < 4; ++i)
+    {
+        field_10[i] = table->lookup_localized_string(static_cast<global_text_enum>(276 + i));
+        field_50[i] = table->lookup_localized_string(static_cast<global_text_enum>(280 + i));
+        field_90[i] = table->lookup_localized_string(static_cast<global_text_enum>(284 + i));
+        field_D0[i] = table->lookup_localized_string(static_cast<global_text_enum>(288 + i));
+    }
+}
 
 mString pause_menu_goals::get_element_desc(int a2)
 {
