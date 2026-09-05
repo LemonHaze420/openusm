@@ -17,7 +17,28 @@ int proximity_map::traverse_point(const vector3d &a2, subdivision_visitor &a3)
 
 void proximity_map::map_vector3d_to_cell_index(const vector3d &a2, cell_index *a3)
 {
-    THISCALL(0x0055E900, this, &a2, a3);
+    if constexpr (STANDALONE_SYSTEM) {
+        auto x = a2.x - this->field_C.x;
+        auto z = a2.z - this->field_C.z;
+
+        if (x < 0.0f) {
+            x = EPSILON;
+        } else if (x >= this->field_48.x) {
+            x = this->field_48.x;
+        }
+
+        if (z < 0.0f) {
+            z = EPSILON;
+        } else if (z >= this->field_48.z) {
+            z = this->field_48.z;
+        }
+
+        const auto number_of_cells = static_cast<float>(this->number_of_cells);
+        a3->x = static_cast<int16_t>(number_of_cells * this->field_3C.x * x);
+        a3->y = static_cast<int16_t>(number_of_cells * this->field_3C.z * z);
+    } else {
+        THISCALL(0x0055E900, this, &a2, a3);
+    }
 }
 
 void proximity_map::map_vector3d_range_to_cell_range_with_swapping(const vector3d &a2, const vector3d &a3,

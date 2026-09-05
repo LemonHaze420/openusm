@@ -82,7 +82,13 @@ bool box_trigger::get_bounding_sphere(vector3d *a2, float *a3)
 
 void box_trigger::update_center()
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
+        auto *box_ent = this->field_58.get_volatile_ptr();
+        if (box_ent != nullptr) {
+            this->field_68 = box_ent->get_abs_position() + this->field_5C;
+        } else {
+            this->field_68 = this->field_5C;
+        }
     } else {
         THISCALL(0x0050CE70, this);
     }

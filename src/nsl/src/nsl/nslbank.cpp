@@ -110,7 +110,13 @@ int nslGetBankState(nslBankID a2)
 
 int nslBank_WaveCompare(const void *a1, const void *a2)
 {
+#if STANDALONE_SYSTEM
+    const auto lhs = *static_cast<const uint32_t *>(a1);
+    const auto rhs = *static_cast<const uint32_t *>(a2);
+    return (lhs > rhs) - (lhs < rhs);
+#else
     return CDECL_CALL(0x00798120, a1, a2);
+#endif
 }
 
 void nslUpdateBanks()

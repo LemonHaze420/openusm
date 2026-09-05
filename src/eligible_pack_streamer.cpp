@@ -63,7 +63,17 @@ void eligible_pack_streamer::clear()
 
 int compare_eligible_pack_names(const void *a1, const void *a2)
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
+        auto *lhs = *static_cast<eligible_pack *const *>(a1);
+        auto *rhs = *static_cast<eligible_pack *const *>(a2);
+        const auto lhs_name = lhs->field_40.source_hash_code;
+        const auto rhs_name = rhs->field_40.source_hash_code;
+
+        if (lhs_name > rhs_name) {
+            return 1;
+        }
+
+        return -(lhs_name < rhs_name);
     } else {
         return CDECL_CALL(0x0050EC30, a1, a2);
     }
