@@ -1,10 +1,13 @@
 #pragma once
 #include <d3d9.h>
 
+#include <algorithm>
+#include <cctype>
 #include <cstdint>
-
-#include <map>
 #include <filesystem>
+#include <map>
+#include <string>
+#include <vector>
 
 struct Mod {
     std::filesystem::path Path;

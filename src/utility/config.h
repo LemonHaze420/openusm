@@ -139,7 +139,7 @@ Pointer standalone_original_vtable(std::uintptr_t address)
 #endif
 
 template <typename T0, typename T1>
-T0 CAST([[maybe_unused]] const T0 &var, T1 address)
+T0 cast_to(T1 address)
 {
 #if STANDALONE_SYSTEM
     if constexpr (std::is_pointer_v<T0> &&
@@ -166,3 +166,6 @@ T0 CAST([[maybe_unused]] const T0 &var, T1 address)
 #endif
     return bit_cast<T0>(address);
 }
+
+#define CAST(var, address) \
+    cast_to<std::remove_reference_t<decltype(var)>>(address)
