@@ -28,6 +28,9 @@ How to build and install:
 * Copy the compiled `binkw32.dll` from `build` directory to the game's folder.
 
 
+Standalone building via:
+`cmake -S . -B build-standalone -DSETUP_STANDALONE_SYSTEM=ON -DENABLE_TESTS=OFF`
+
 License
 ------------
 
