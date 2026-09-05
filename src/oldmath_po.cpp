@@ -676,30 +676,33 @@ po sub_48F770(const po &arg4, const po &a3)
 
     //sp_log("args: %s %s", arg4.to_string(), a3.to_string());
 
-    const void *a2[2]{&a3, &arg4};
+    const ptr_to_po a2{&a3.m, &arg4.m};
 
     po res;
-    res.m.sub_415A30(a2);
+    res.set_from_ptr_to_po_world(a2);
 
     //sp_log("res: %s", res.to_string());
     return res;
 }
 
-matrix4x4 sub_507130(const TransformMatrices &arg4)
+matrix4x4 sub_507130(const ptr_to_po &arg4)
 {
     matrix4x4 result;
 
-    if constexpr (0) {
-        vector4d a2, a3, a4, a5;
-        arg4.decomposeAndProjectToScreen(a2, a3, a4, a5);
+#if STANDALONE_SYSTEM
+    vector4d x, y, z, w;
+    arg4.build_world_basis_and_pos(x, y, z, w);
 
-        vector4d a1a, v5, v4, v3;
-        sub_4013C0(a1a, v5, v4, v3, a2, a3, a4, a5);
+    vector4d row0, row1, row2, row3;
+    sub_4013C0(row0, row1, row2, row3, x, y, z, w);
 
-        result = matrix4x4{v3, v5, v4, a1a};
-    } else {
-        CDECL_CALL(0x00507130, &result, &arg4);
-    }
+    result[0] = row0;
+    result[1] = row1;
+    result[2] = row2;
+    result.w = row3;
+#else
+    CDECL_CALL(0x00507130, &result, &arg4);
+#endif
 
     return result;
 }

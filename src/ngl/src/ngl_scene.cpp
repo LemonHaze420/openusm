@@ -94,19 +94,48 @@ matrix4x4 Perspective(float a2, float a3, float Near, float Far)
     return result;
 }
 
-matrix4x4 sub_76A870([[maybe_unused]] matrix4x4 &a1)
+matrix4x4 sub_76A870()
 {
     if constexpr (STANDALONE_SYSTEM) {
+        const auto &projection = nglCurScene->field_C;
+        const auto &viewport = nglCurScene->field_4C;
+
+        const float inverse_viewport_x = 1.0f / viewport[0][0];
+        const float inverse_viewport_y = 1.0f / viewport[1][1];
+        const matrix4x4 inverse_viewport{
+            vector4d{inverse_viewport_x, 0.0f, 0.0f, 0.0f},
+            vector4d{0.0f, inverse_viewport_y, 0.0f, 0.0f},
+            vector4d{0.0f, 0.0f, 1.0f, 0.0f},
+            vector4d{-viewport[3][0] * inverse_viewport_x,
+                     -viewport[3][1] * inverse_viewport_y,
+                     0.0f,
+                     1.0f}};
+
+        matrix4x4 inverse_projection;
+        if (nglCurScene->field_33C == 1) {
+            const float inverse_depth = 1.0f / projection[3][2];
+            inverse_projection = matrix4x4{
+                vector4d{1.0f / projection[0][0], 0.0f, 0.0f, 0.0f},
+                vector4d{0.0f, 1.0f / projection[1][1], 0.0f, 0.0f},
+                vector4d{0.0f, 0.0f, 0.0f, inverse_depth},
+                vector4d{0.0f, 0.0f, 1.0f, -projection[2][2] * inverse_depth}};
+        } else {
+            const float inverse_depth = 1.0f / projection[2][2];
+            inverse_projection = matrix4x4{
+                vector4d{1.0f / projection[0][0], 0.0f, 0.0f, 0.0f},
+                vector4d{0.0f, 1.0f / projection[1][1], 0.0f, 0.0f},
+                vector4d{0.0f, 0.0f, inverse_depth, 0.0f},
+                vector4d{0.0f, 0.0f, -projection[3][2] * inverse_depth, 1.0f}};
+        }
+
+        const ptr_to_po projection_viewport{&inverse_viewport, &inverse_projection};
+        const po_chain unproject_chain{&projection_viewport, &nglCurScene->ViewToWorld};
         matrix4x4 result;
-        const auto *inverse = D3DXMatrixInverse(
-            bit_cast<D3DXMATRIX *>(&result),
-            nullptr,
-            bit_cast<const D3DXMATRIX *>(&nglCurScene->WorldToScreen));
-        assert(inverse != nullptr && "World-to-screen matrix is singular");
+        result.from_po_chain(unproject_chain);
         return result;
     } else {
         matrix4x4 result;
-        CDECL_CALL(0x0076A870, &result, &a1);
+        CDECL_CALL(0x0076A870, &result);
         return result;
     }
 }
@@ -411,33 +440,24 @@ void nglCalculateMatrices(bool a1)
             nglCurScene->field_8C = sub_77CB90();
 
             {
-                struct {
-                    void *field_0;
-                    void *field_4;
-                } v47;
-
-                struct {
-                    void *field_0;
-                    void *field_4;
-                } v36{&nglCurScene->field_C, &nglCurScene->field_4C};
-                v47.field_0 = &v36;
-                v47.field_4 = &nglCurScene->field_8C;
-                nglCurScene->ViewToScreen.sub_76CF20(&v47);
+                const ptr_to_po projection_viewport{&nglCurScene->field_C, &nglCurScene->field_4C};
+                const po_chain view_to_screen{&projection_viewport, &nglCurScene->field_8C};
+                nglCurScene->ViewToScreen.from_po_chain(view_to_screen);
             }
 
             auto a1a = sub_4150E0(nglCurScene->WorldToView);
             nglCurScene->ViewToWorld = a1a;
 
             {
-                struct {
-                    void *field_0;
-                    void *field_4;
-                } v40{&nglCurScene->WorldToView, &nglCurScene->ViewToScreen};
-
-                nglCurScene->WorldToScreen.sub_415A30(&v40);
+                const ptr_to_po world_to_screen{&nglCurScene->WorldToView, &nglCurScene->ViewToScreen};
+                world_to_screen.build_world_basis_and_pos(
+                    nglCurScene->WorldToScreen.arr[0],
+                    nglCurScene->WorldToScreen.arr[1],
+                    nglCurScene->WorldToScreen.arr[2],
+                    nglCurScene->WorldToScreen.w);
             }
 
-            nglCurScene->field_1CC = sub_76A870(a1a);
+            nglCurScene->field_1CC = sub_76A870();
             if (!EnableShader) {
                 D3DXMatrixInverse(bit_cast<D3DXMATRIX *>(&nglCurScene->field_24C),
                                   nullptr,

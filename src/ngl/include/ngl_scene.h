@@ -118,5 +118,8 @@ extern bool nglIsFBPAL();
 
 //0x0076B820
 extern void nglSetPerspectiveMatrix(Float a1, Float nearz, Float farz);
+extern matrix4x4 sub_76A870();
+
+extern matrix4x4 sub_77CB90();
 
 extern void nglSetSceneCallBack(nglSceneCallbackType a1, void (*Fn)(unsigned int *&, void *), void *a3);

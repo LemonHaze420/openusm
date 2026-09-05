@@ -84,9 +84,7 @@ void FastListAddMesh(nglMesh *Mesh, const math::MatClass<4, 3> &LocalToWorld, ng
         meshNode->Mesh = Mesh;
         meshNode->LocalToWorld = LocalToWorld;
 
-        TransformMatrices a2a;
-        a2a.m_rel_po = CAST(a2a.m_rel_po, &LocalToWorld);
-        a2a.m_abs_po = CAST(a2a.m_abs_po, &nglCurScene->WorldToScreen);
+        const ptr_to_po a2a{&LocalToWorld, &nglCurScene->WorldToScreen};
 
         meshNode->WorldToLocal = sub_507130(a2a);
 

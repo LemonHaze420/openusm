@@ -10,6 +10,7 @@
 #include "variables.h"
 #include "vector4d.h"
 #include "vtbl.h"
+#include <ngl_dx_state.h>
 
 #include "tl_instance_bank.h"
 #include "tl_system.h"
@@ -162,17 +163,66 @@ void sub_417C10(nglShaderNode *a1)
 
 void sub_413850(nglMaterialBase *a1, nglParamSet<nglShaderParamSet_Pool> *a2, color *a3)
 {
-    if (a2->IsSetParam<nglTintParam>()) {
-        auto *c = bit_cast<color *>(a2->Get<nglTintParam>()->field_0);
-        sp_log("TintParam = %f", c->a);
-    }
+#if STANDALONE_SYSTEM
+    const auto *material_color = reinterpret_cast<const float *>(&a1->field_1C) + 4 * g_TOD;
+    a3->r = material_color[0];
+    a3->g = material_color[1];
+    a3->b = material_color[2];
+    a3->a = material_color[3];
 
+    if (a2->IsSetParam<nglTintParam>()) {
+        const auto *tint = a2->Get<nglTintParam>()->field_0;
+        const color tinted{
+            a3->r * tint->x,
+            a3->g * tint->y,
+            a3->b * tint->z,
+            a3->a * tint->w,
+        };
+        *a3 = tinted;
+    }
+#else
     CDECL_CALL(0x00413850, a1, a2, a3);
+#endif
 }
 
 color *sub_413F80(color *a1, nglMaterialBase *a2, nglParamSet<nglShaderParamSet_Pool> *a3, uint32_t a4)
 {
+#if STANDALONE_SYSTEM
+    color constant_data;
+    sub_413850(a2, a3, &constant_data);
+
+    if (EnableShader) {
+        IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice, a4, &constant_data.r, 1);
+    } else {
+        const auto to_byte = [](float value) -> uint32_t {
+            return static_cast<uint32_t>(value * 255.0f) & 0xFFu;
+        };
+
+        const uint32_t packed_color = (to_byte(constant_data.a) << 24) |
+                                       (to_byte(constant_data.r) << 16) |
+                                       (to_byte(constant_data.g) << 8) |
+                                       to_byte(constant_data.b);
+        auto &render_state = g_renderState();
+        if (render_state.field_9C != packed_color) {
+            IDirect3DDevice9_SetRenderState(g_Direct3DDevice, D3DRS_TEXTUREFACTOR, packed_color);
+            render_state.field_9C = packed_color;
+        }
+    }
+
+    g_renderState().setBlending(
+        bit_cast<uint32_t>(constant_data.a) == bit_cast<uint32_t>(1.0f) ? NGLBM_OPAQUE : NGLBM_BLEND, 0, 128);
+
+    auto &render_state = g_renderState();
+    if (render_state.field_A8 != 7) {
+        IDirect3DDevice9_SetRenderState(g_Direct3DDevice, D3DRS_COLORWRITEENABLE, 7);
+        render_state.field_A8 = 7;
+    }
+
+    *a1 = constant_data;
+    return a1;
+#else
     return (color *)CDECL_CALL(0x00413F80, a1, a2, a3, a4);
+#endif
 }
 
 void nglShader_patch()

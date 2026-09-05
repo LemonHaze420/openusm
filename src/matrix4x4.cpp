@@ -20,6 +20,35 @@
 #include <string>
 
 const matrix4x4 identity_matrix{1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0};
+namespace {
+
+
+vector4d transform_vec4_native(const matrix4x4 &matrix, const vector4d &value)
+{
+    vector4d result;
+    result[0] = matrix.arr[0][0] * value[0] + matrix.arr[1][0] * value[1] + matrix.arr[2][0] * value[2] +
+                matrix.w[0] * value[3];
+    result[1] = matrix.arr[0][1] * value[0] + matrix.arr[1][1] * value[1] + matrix.arr[2][1] * value[2] +
+                matrix.w[1] * value[3];
+    result[2] = matrix.arr[0][2] * value[0] + matrix.arr[1][2] * value[1] + matrix.arr[2][2] * value[2] +
+                matrix.w[2] * value[3];
+    result[3] = matrix.arr[0][3] * value[0] + matrix.arr[1][3] * value[1] + matrix.arr[2][3] * value[2] +
+                matrix.w[3] * value[3];
+    return result;
+}
+
+
+}  // namespace
+
+void po_chain::build_basis_and_pos(vector4d &x, vector4d &y, vector4d &z, vector4d &pos) const
+{
+    prefix->build_world_basis_and_pos(x, y, z, pos);
+    x = transform_vec4_native(*tail, x);
+    y = transform_vec4_native(*tail, y);
+    z = transform_vec4_native(*tail, z);
+    pos = transform_vec4_native(*tail, pos);
+}
+
 
 matrix4x4::matrix4x4(float a2, float a3, float a4, float a5, float a6, float a7, float a8, float a9, float a10,
                      float a11, float a12, float a13, float a14, float a15, float a16, float a17)
@@ -96,66 +125,17 @@ void matrix4x4::decompose(vector4d &a2, vector4d &a3, vector4d &a4, vector4d &a5
 
 #include "oldmath_po.h"
 
-void matrix4x4::sub_415A30(const void *a2)
+void po::set_from_ptr_to_po_world(const ptr_to_po &source)
 {
-    //TRACE("matrix4x4::sub_415A30");
-
-    if constexpr (1) {
-        vector4d a2a;
-        vector4d a3;
-        vector4d a4;
-        vector4d a5;
-
-        TransformMatrices tmp = *bit_cast<const TransformMatrices *>(a2);
-
-        if constexpr (0) {
-            mString str0{tmp.m_rel_po->to_string()};
-            mString str1{tmp.m_abs_po->to_string()};
-            sp_log("args: %s %s", str0.c_str(), str1.c_str());
-        }
-
-        tmp.decomposeAndProjectToScreen(a2a, a3, a4, a5);
-
-        this->arr[0] = a2a;
-
-        this->arr[1] = a3;
-
-        this->arr[2] = a4;
-
-        this->w = a5;
-
-    } else {
-        THISCALL(0x00415A30, this, &a2);
-    }
-
-    //sp_log("res: %s", this->to_string());
+    source.build_world_basis_and_pos(m.arr[0], m.arr[1], m.arr[2], m.w);
 }
 
-void matrix4x4::sub_76CF20(void *a2)
+void matrix4x4::from_po_chain(const po_chain &chain)
 {
     if constexpr (STANDALONE_SYSTEM) {
-        struct matrix_chain {
-            const void *prefix;
-            const matrix4x4 *tail;
-        };
-
-        const auto &outer = *static_cast<const matrix_chain *>(a2);
-        const auto &inner = *static_cast<const matrix_chain *>(outer.prefix);
-
-        matrix4x4 prefix;
-        const TransformMatrices first_pair {
-            static_cast<const matrix4x4 *>(inner.prefix),
-            inner.tail,
-        };
-        prefix.sub_415A30(&first_pair);
-
-        const TransformMatrices second_pair {
-            &prefix,
-            outer.tail,
-        };
-        sub_415A30(&second_pair);
+        chain.build_basis_and_pos(arr[0], arr[1], arr[2], w);
     } else {
-        THISCALL(0x0076CF20, this, a2);
+        THISCALL(0x0076CF20, this, &chain);
     }
 }
 
@@ -187,20 +167,21 @@ matrix4x4 matrix4x4::sub_76CA50(const matrix4x4 &arg0)
     return (*this);
 }
 
+
+
 void matrix4x4::sub_76CE70(void *a2)
 {
     if constexpr (STANDALONE_SYSTEM) {
-        sub_415A30(a2);
+        const auto &pair = *static_cast<const ptr_to_po *>(a2);
+        pair.build_world_basis_and_pos(arr[0], arr[1], arr[2], w);
     } else {
         THISCALL(0x0076CE70, this, a2);
     }
 }
 
-
 matrix4x4 matrix4x4::transpose() const
 {
 #ifndef USE_GLM
-
     matrix4x4 result{};
 
     for (auto i = 0u; i < 3u; ++i) {
@@ -216,15 +197,11 @@ matrix4x4 matrix4x4::transpose() const
     }
 
     result.w[3] = this->w[3];
-
     return result;
 #else
-
     glm::mat4x4 mat = *bit_cast<glm::mat4x4 *>(this);
     auto result = glm::transpose(mat);
-
     return *bit_cast<matrix4x4 *>(&result);
-
 #endif
 }
 
@@ -563,8 +540,13 @@ vector3d sub_5B1370(const matrix4x4 &a2, vector3d a3)
 
 vector3d sub_501B20(const matrix4x4 &a2, const vector3d &a3)
 {
+    const float w = a2.arr[2][3] * a3[2] + a2.arr[0][3] * a3[0] + a2.arr[1][3] * a3[1] + a2.w[3];
+    const float reciprocal_w = w > 0.0f ? 1.0f / w : 1.0f;
+
     vector3d result;
-    CDECL_CALL(0x00501B20, &result, &a2, &a3);
+    result[0] = (a2.arr[2][0] * a3[2] + a2.arr[1][0] * a3[1] + a2.arr[0][0] * a3[0] + a2.w[0]) * reciprocal_w;
+    result[1] = (a2.arr[2][1] * a3[2] + a2.arr[0][1] * a3[0] + a2.arr[1][1] * a3[1] + a2.w[1]) * reciprocal_w;
+    result[2] = (a2.arr[2][2] * a3[2] + a2.arr[0][2] * a3[0] + a2.arr[1][2] * a3[1] + a2.w[2]) * reciprocal_w;
     return result;
 }
 
@@ -652,7 +634,7 @@ void matrix4x4_patch()
 {
     return;
     {
-        FUNC_ADDRESS(address, &matrix4x4::sub_415A30);
+        FUNC_ADDRESS(address, &po::set_from_ptr_to_po_world);
         SET_JUMP(0x00415A30, address);
     }
 

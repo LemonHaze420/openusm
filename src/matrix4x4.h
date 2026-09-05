@@ -8,6 +8,8 @@
 struct ComplexMatrixPair;
 struct MatrixPair;
 struct vector3d;
+struct po_chain;
+struct ptr_to_po;
 
 struct matrix4x4 {
     vector4d arr[3];
@@ -92,11 +94,10 @@ struct matrix4x4 {
 
     matrix4x4 sub_76CA50(const matrix4x4 &arg0);
 
-    void sub_76CF20(void *a2);
+    void from_po_chain(const po_chain &chain);
 
     void sub_76CE70(void *a2);
 
-    void sub_415A30(const void *a2);
 
     //0x004134B0
     void decompose(vector4d &a2, vector4d &a3, vector4d &a4, vector4d &a5) const;
@@ -134,6 +135,19 @@ struct matrix4x4 {
     }
 
     const char *to_string() const;
+};
+struct ptr_to_po {
+    const matrix4x4 *m_rel_po;
+    const matrix4x4 *m_abs_po;
+
+    void build_world_basis_and_pos(vector4d &x, vector4d &y, vector4d &z, vector4d &pos) const;
+};
+
+struct po_chain {
+    const ptr_to_po *prefix;
+    const matrix4x4 *tail;
+
+    void build_basis_and_pos(vector4d &x, vector4d &y, vector4d &z, vector4d &pos) const;
 };
 
 extern const matrix4x4 identity_matrix;

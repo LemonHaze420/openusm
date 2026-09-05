@@ -10,7 +10,6 @@ struct vector3d;
 struct quaternion;
 struct vector4d;
 
-struct TransformMatrices;
 
 struct po {
     matrix4x4 m;
@@ -42,6 +41,7 @@ struct po {
     vector3d slow_xform(const vector3d &a3) const;
 
     void un_mash(generic_mash_header *a1, void *a2, generic_mash_data_ptrs *a3);
+    void set_from_ptr_to_po_world(const ptr_to_po &source);
 
     po sub_4BAB00(const po &a3);
 
@@ -128,7 +128,7 @@ struct po {
 
 inline const po po_identity_matrix{1.0, 0, 0, 0, 1.0, 0, 0, 0, 1.0, 0, 0, 0};
 
-extern matrix4x4 sub_507130(const TransformMatrices &arg4);
+extern matrix4x4 sub_507130(const ptr_to_po &arg4);
 
 extern po sub_48F770(const po &arg4, const po &a3);
 

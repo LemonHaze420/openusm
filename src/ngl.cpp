@@ -598,30 +598,16 @@ void * nglMeshNode::operator new(size_t size)
     return mem;
 }
 
-void TransformMatrices::decomposeAndProjectToScreen(vector4d &a2, vector4d &a3, vector4d &a4, vector4d &a5) const
+void ptr_to_po::build_world_basis_and_pos(
+    vector4d &x, vector4d &y, vector4d &z, vector4d &pos) const
 {
-    if constexpr (1) {
-        vector4d a2a, v13, v14, v15;
-        this->m_rel_po->decompose(a2a, v13, v14, v15);
-
-        a2 = xform_inv(a2a, *bit_cast<matrix4x3 *>(this->m_abs_po));
-
-        a3 = xform_inv(v13, *bit_cast<matrix4x3 *>(this->m_abs_po));
-
-        a4 = xform_inv(v14, *bit_cast<matrix4x3 *>(this->m_abs_po));
-
-        //sp_log("w_axis: %s", v15.to_string().c_str());
-
-        auto v5 = sub_414360(*bit_cast<math::VecClass<3, 1> *>(&v15),
-                             *bit_cast<const math::MatClass<4, 3> *>(this->m_abs_po));
-        a5 = *bit_cast<vector4d *>(&v5);
-
-        //sp_log("res: %s", a5.to_string().c_str());
-
-    } else {
-        THISCALL(0x0048E900, this, &a2, &a3, &a4, &a5);
-    }
+    const auto combined = *m_rel_po * *m_abs_po;
+    x = combined.arr[0];
+    y = combined.arr[1];
+    z = combined.arr[2];
+    pos = combined.w;
 }
+
 
 
 matrix4x4 nglMeshNode::sub_41D840()
@@ -662,7 +648,33 @@ vector4d sub_7A5990(const vector4d &a2)
 
 void __fastcall sub_770FB0(void *self, vector4d &a2, vector4d &a3, vector4d &a4)
 {
+#if STANDALONE_SYSTEM
+    struct ScaledMatrixArgs {
+        const vector4d *scale;
+        const math::MatClass<4, 3> *matrix;
+    };
+
+    const auto *args = static_cast<const ScaledMatrixArgs *>(self);
+    const auto scale = *args->scale;
+    const auto &matrix = *args->matrix;
+
+    a2[0] = matrix[0][0] * scale[0];
+    a2[1] = matrix[0][1] * scale[0];
+    a2[2] = matrix[0][2] * scale[0];
+    a2[3] = matrix[0][3] * scale[0];
+
+    a3[0] = matrix[1][0] * scale[1];
+    a3[1] = matrix[1][1] * scale[1];
+    a3[2] = matrix[1][2] * scale[1];
+    a3[3] = matrix[1][3] * scale[1];
+
+    a4[0] = matrix[2][0] * scale[2];
+    a4[1] = matrix[2][1] * scale[2];
+    a4[2] = matrix[2][2] * scale[2];
+    a4[3] = matrix[2][3] * scale[2];
+#else
     THISCALL(0x00770FB0, self, &a2, &a3, &a4);
+#endif
 }
 
 matrix4x3 sub_771210(void *a2)

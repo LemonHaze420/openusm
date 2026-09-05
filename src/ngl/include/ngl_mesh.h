@@ -61,7 +61,6 @@ extern math::MatClass<4, 3> *nglListAddMesh_GetScaledMatrix(const math::MatClass
 //0x00770190
 extern nglMesh *nglListAddMesh_GetLOD(nglMesh *Mesh, unsigned int a2, nglMeshParams *a3, math::VecClass<3, 1> a4);
 
-extern matrix4x4 sub_507130(void *arg4);
 
 //0x00770360
 extern void nglListAddMesh(nglMesh *Mesh, const math::MatClass<4, 3> &, nglMeshParams *,

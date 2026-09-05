@@ -286,9 +286,8 @@ void nal_anim_controller::get_matrix_data_from_pose(nalAnyPose &arg0)
                         po new_po {};
                         auto *v6 = child->get_model_po();
 
-                        const void *a2[2]{v32, v6};
-
-                        new_po.m.sub_415A30(a2);
+                        const ptr_to_po source{&v32->m, &v6->m};
+                        new_po.set_from_ptr_to_po_world(source);
 
                         child->set_abs_po(new_po);
 
@@ -303,8 +302,8 @@ void nal_anim_controller::get_matrix_data_from_pose(nalAnyPose &arg0)
                 po a2_28 {};
                 this->get_curr_po_offset(a2_28);
 
-                TransformMatrices a2{&a2_28.m, &v3->get_rel_po().m};
-                a2_28.m.sub_415A30(&a2);
+                const ptr_to_po source{&a2_28.m, &v3->get_rel_po().m};
+                a2_28.set_from_ptr_to_po_world(source);
                 a2_28.sub_48D840();
                 this->field_4->set_abs_po(a2_28);
 
@@ -333,8 +332,8 @@ void nal_anim_controller::get_matrix_data_from_pose(nalAnyPose &arg0)
                 this->get_curr_po_offset(a2_28);
                 auto *my_rel_po = &this->field_4->get_rel_po();
 
-                TransformMatrices a2{&a2_28.m, &my_rel_po->m};
-                a2_28.m.sub_415A30(&a2);
+                const ptr_to_po source{&a2_28.m, &my_rel_po->m};
+                a2_28.set_from_ptr_to_po_world(source);
                 a2_28.sub_48D840();
                 this->field_4->set_abs_po(a2_28);
                 vector3d v17 = this->field_4->get_abs_position() - a2_12;

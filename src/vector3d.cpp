@@ -234,10 +234,7 @@ float vector3d::length() const
 
 vector4d vector3d::sub_48D010() const
 {
-    vector4d result;
-    THISCALL(0x0048D010, this, &result);
-
-    return result;
+    return vector4d{*this};
 }
 
 void vector3d::normalize()
