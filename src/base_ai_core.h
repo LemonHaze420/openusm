@@ -39,7 +39,7 @@ struct ai_core {
     int field_4C;
     param_block field_50;
     char field_5C;
-    mVector<info_node> *field_60;
+    mVector<info_node> *my_info_node_list;
     actor *field_64;
     int field_68;
     core_ai_resource *field_6C;
@@ -107,9 +107,11 @@ struct ai_core {
 
     void advance_machine_recursive(ai_state_machine *a1, Float a2, bool a3);
 
-    static inline Var<_std::list<ai_core *> *> the_ai_core_list_high{0x0096BE24};
+    static _std::list<ai_core *> *&the_ai_core_list_high;
 
-    static inline Var<_std::list<ai_core *> *> the_ai_core_list_low{0x0096BE28};
+    static _std::list<ai_core *> *&the_ai_core_list_low;
+
+    static void *&next_ai_core_list_low_iter;
 };
 
 }  // namespace ai

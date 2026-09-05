@@ -39,6 +39,7 @@ struct game_camera : camera {
 
     entity *get_target_entity() const;
 
+    //0x0057CC50
     void set_target_entity(entity *e);
 
     //0x0057A330

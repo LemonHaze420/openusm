@@ -121,7 +121,7 @@ void HealthVariable::setValue(const std::string &arg0, const std::string &a1)
             mString v40{a1.c_str()};
             v40.to_upper();
 
-            auto *v39 = ai::ai_core::the_ai_core_list_high();
+            auto *v39 = ai::ai_core::the_ai_core_list_high;
             if (!v39->empty()) {
                 auto it = v39->begin();
                 auto end = v39->end();

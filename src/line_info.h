@@ -32,6 +32,7 @@ struct line_info {
 
     ~line_info();
 
+    //0x00519F00
     void render(int num, bool a3);
 
     //0x0048C9D0

@@ -65,6 +65,7 @@ struct entity : signaller {
 
     entity *compute_sector(terrain *, bool, entity *);
 
+    //0x0048B830
     void force_region_hack(region *a2);
 
     void force_region(region *a2);

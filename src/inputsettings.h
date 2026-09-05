@@ -54,8 +54,10 @@ struct InputSettings {
 
         void set_mouse(InputAction a2, uint32_t a3, InputMouse value);
 
+        //0x00821FD0
         void set(InputAction a2, uint32_t a3, InputType input_type, int value);
 
+        //0x00821E90
         float get_state(InputAction a2) const;
     };
 

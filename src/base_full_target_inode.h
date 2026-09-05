@@ -17,6 +17,9 @@ struct base_full_target_inode : info_node {
     int field_38;
     int field_3C[18];
 
+    //0x006A1910
+    base_full_target_inode();
+
     //0x006A1990
     base_full_target_inode(from_mash_in_place_constructor *a2);
 

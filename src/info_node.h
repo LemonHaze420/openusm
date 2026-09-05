@@ -26,6 +26,11 @@ struct info_node : mash_virtual_base {
 
     void initialize(mash::allocation_scope a2);
 
+    auto get_name() const
+    {
+        return this->field_4;
+    }
+
     actor *get_actor() const
     {
         return this->field_C;

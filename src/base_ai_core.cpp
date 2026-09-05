@@ -1,8 +1,11 @@
 #include "base_ai_core.h"
 
 #include "actor.h"
+#include "ai_pedestrian.h"
+#include "ai_std_combat_target.h"
 #include "base_ai_state_machine.h"
 #include "colgeom_alter_sys.h"
+#include "combat_inode.h"
 #include "common.h"
 #include "core_ai_resource.h"
 #include "debugutil.h"
@@ -19,7 +22,13 @@ namespace ai {
 
 VALIDATE_SIZE(ai_core, 0x74u);
 
-ai_core::ai_core(core_ai_resource *a3, const param_block *arg4, actor *a4)
+_std::list<ai_core *> *&ai_core::the_ai_core_list_high = var<_std::list<ai_core *> *>(0x0096BE24);
+
+_std::list<ai_core *> *&ai_core::the_ai_core_list_low = var<_std::list<ai_core *> *>(0x0096BE28);
+
+void *&ai_core::next_ai_core_list_low_iter = var<void *>(0x0096C110);
+
+ai_core::ai_core(core_ai_resource *a2, const param_block *a3, actor *a4)
 {
     THISCALL(0x006AEA90, this, a3, arg4, a4);
 }
@@ -316,17 +325,22 @@ info_node *ai_core::get_info_node(string_hash the_info_node, bool a3)
 {
     //sp_log("ai_core::get_info_node(): %s", string_hash_dictionary::lookup_string(a2));
 
-    if (this->field_60 != nullptr) {
+    if (this->my_info_node_list != nullptr) {
         static info_node searcher{};
 
         searcher.field_4 = the_info_node;
-        auto *v4 = this->field_60;
+        auto *v4 = this->my_info_node_list;
         auto v5 = v4->m_size;
         auto **v6 = v4->m_data;
         int index = -1;
 
         if (binary_search_array_deref(&searcher, v6, v5, &index)) {
-            return this->field_60->m_data[static_cast<uint16_t>(index)];
+            assert(index >= 0);
+
+            assert(this->my_info_node_list->at(index)->get_name() == the_info_node);
+
+            auto *found = this->my_info_node_list->at(static_cast<uint16_t>(index));
+            return found;
         }
     }
 
@@ -433,7 +447,7 @@ void ai_core::advance_info_nodes(Float a2)
     TRACE("ai::ai_core::advance_info_nodes");
 
     if constexpr (0) {
-        auto *v3 = this->field_60;
+        auto *v3 = this->my_info_node_list;
         if (v3 != nullptr) {
             for (uint16_t i{0}; i < v3->m_size; ++i) {
                 auto *v5 = v3->at(i);

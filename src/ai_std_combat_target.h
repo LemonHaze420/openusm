@@ -1,5 +1,7 @@
 #pragma once
 
+#include "base_full_target_inode.h"
+
 #include "actor.h"
 #include "entity_base_vhandle.h"
 #include "mvector.h"
@@ -8,7 +10,10 @@
 #include "variable.h"
 
 namespace ai {
-struct combat_target_inode {
+struct combat_target_inode : base_full_target_inode {
+    //0x004406F0
+    combat_target_inode();
+
     static inline Var<string_hash> team_hash{0x0096C470};
 };
 

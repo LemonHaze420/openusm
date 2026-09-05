@@ -6,6 +6,11 @@
 namespace ai {
 VALIDATE_SIZE(base_full_target_inode, 0x84);
 
+base_full_target_inode::base_full_target_inode()
+{
+    THISCALL(0x006A1910, this);
+}
+
 base_full_target_inode::base_full_target_inode(from_mash_in_place_constructor *a2)
 {
     THISCALL(0x006A1990, this, a2);

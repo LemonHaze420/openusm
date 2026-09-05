@@ -32,6 +32,7 @@ struct ped_spawner : spawnable {
 
     ped_spawner(int a2);
 
+    //0x006C30A0
     actor *create_ped_actor();
 
     //virtual

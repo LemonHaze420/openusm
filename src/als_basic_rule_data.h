@@ -35,6 +35,7 @@ struct basic_rule_data {
 
         string_hash get_dest() const;
 
+        //0x004997D0
         void process_action(request_data &a2) const;
     };
 

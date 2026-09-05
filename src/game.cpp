@@ -1193,8 +1193,8 @@ void game::handle_cameras(input_mgr *a2, const Float &time_inc)
 
             camera *arr_camera[64]{};
 
-            if (ai::ai_core::the_ai_core_list_high() != nullptr) {
-                for (auto &the_core : (*ai::ai_core::the_ai_core_list_high())) {
+            if (ai::ai_core::the_ai_core_list_high != nullptr) {
+                for (auto &the_core : (*ai::ai_core::the_ai_core_list_high)) {
                     if (the_core == nullptr) {
                         continue;
                     }

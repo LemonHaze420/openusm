@@ -42,12 +42,12 @@ spawnable::spawnable(vhandle_type<entity>)
 int sub_68FB70()
 {
     int result = 0;
-    if (ai::ai_core::the_ai_core_list_high() != nullptr) {
-        result = ai::ai_core::the_ai_core_list_high()->size();
+    if (ai::ai_core::the_ai_core_list_high != nullptr) {
+        result = ai::ai_core::the_ai_core_list_high->size();
     }
 
-    if (ai::ai_core::the_ai_core_list_low() != nullptr) {
-        result += ai::ai_core::the_ai_core_list_low()->size();
+    if (ai::ai_core::the_ai_core_list_low != nullptr) {
+        result += ai::ai_core::the_ai_core_list_low->size();
     }
 
     return result;
