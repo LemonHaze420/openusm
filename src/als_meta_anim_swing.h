@@ -69,20 +69,20 @@ struct als_meta_anim_swing : als_meta_anim_base {
 
     static inline void *g_vtbl[] = {
         nullptr,
-        func_address(&_unmash),
+        func_address(&als_meta_anim_swing::_unmash),
         nullptr,
-        func_address(&_get_virtual_type_enum),
+        func_address(&als_meta_anim_swing::_get_virtual_type_enum),
         nullptr,
-        func_address(&_is_or_is_subclass_of),
-        func_address(&_get_anim_name),
-        func_address(&_is_anim_looping),
-        func_address(&_is_anim_trajectory_relative),
-        func_address(&_get_anim_duration),
-        func_address(&_get_skeleton),
-        func_address(&_create_anim_inst),
+        func_address(&mash_virtual_base::_is_or_is_subclass_of),
+        func_address(&als_meta_anim_base::_get_anim_name),
+        func_address(&als_meta_anim_swing::_is_anim_looping),
+        func_address(&als_meta_anim_swing::_is_anim_trajectory_relative),
+        func_address(&als_meta_anim_swing::_get_anim_duration),
+        func_address(&als_meta_anim_swing::_get_skeleton),
+        func_address(&als_meta_anim_swing::_create_anim_inst),
         nullptr,
         nullptr,
-        func_address(&_get_mash_sizeof),
+        func_address(&als_meta_anim_swing::_get_mash_sizeof),
     };
 };
 

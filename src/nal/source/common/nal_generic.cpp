@@ -59,8 +59,11 @@ void nalGenericInstance::GetPose(Float a2, Float a3, nalGeneric::nalGenericPose 
 nalGenericSkeleton::nalGenericSkeleton()
 {
     if constexpr (1) {
-        static void *g_vtbl[]{
-            nullptr, nullptr, func_address(&_Process), func_address(&_Release), func_address(&_CheckVersion)};
+        static void *g_vtbl[]{nullptr,
+                              nullptr,
+                              func_address(&nalGenericSkeleton::_Process),
+                              func_address(&nalGenericSkeleton::_Release),
+                              func_address(&nalGenericSkeleton::_CheckVersion)};
 
         m_vtbl = CAST(m_vtbl, &g_vtbl);
     }

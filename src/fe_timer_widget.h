@@ -52,8 +52,11 @@ struct fe_timer_widget {
     //virtual
     void SetShown(bool a2);
 
-    static inline void *g_vtbl[]{
-        nullptr, func_address(&_Init), func_address(&_Update), func_address(&_Draw), func_address(&_SetShown)};
+    static inline void *g_vtbl[]{nullptr,
+                                 func_address(&fe_timer_widget::_Init),
+                                 func_address(&fe_timer_widget::_Update),
+                                 func_address(&fe_timer_widget::_Draw),
+                                 func_address(&fe_timer_widget::_SetShown)};
 };
 
 extern void fe_timer_widget_patch();

@@ -191,7 +191,7 @@ tlInstanceBank::Node *tlInstanceBank::Insert(const tlFixedString &a1, void *a3)
 
 tlInstanceBank::Node *tlInstanceBank::Search(const tlFixedString &a1)
 {
-    TRACE("tlInstanceBank::Search", a1.to_string);
+    TRACE("tlInstanceBank::Search", a1.to_string());
 
     if constexpr (1) {
         auto v5 = this->field_4;

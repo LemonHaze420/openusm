@@ -2,7 +2,6 @@
 
 #include "common.h"
 #include "custom_math.h"
-#include "error.h"
 #include "func_wrapper.h"
 #include "ngl.h"
 #include "ngl_lighting.h"

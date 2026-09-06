@@ -4,27 +4,27 @@
 
 #include <stdexcept>
 
-#ifndef _THROW
-#define _THROW(err, str) throw err(str)
+#ifndef _STDEXT_THROW
+#define _STDEXT_THROW(err, str) throw err(str)
 #endif
 
-#ifndef _TRY_BEGIN
-#define _TRY_BEGIN try {
+#ifndef _STDEXT_TRY_BEGIN
+#define _STDEXT_TRY_BEGIN try {
 #endif
 
-#ifndef _CATCH_ALL
-#define _CATCH_ALL \
-    }              \
-    catch (...)    \
+#ifndef _STDEXT_CATCH_ALL
+#define _STDEXT_CATCH_ALL \
+    }                     \
+    catch (...)           \
     {
 #endif
 
-#ifndef _RERAISE
-#define _RERAISE throw
+#ifndef _STDEXT_RERAISE
+#define _STDEXT_RERAISE throw
 #endif
 
-#ifndef _CATCH_END
-#define _CATCH_END }
+#ifndef _STDEXT_CATCH_END
+#define _STDEXT_CATCH_END }
 #endif
 
 namespace _std {
@@ -347,12 +347,12 @@ public:
 
     deque(const _Myt &_Right) : _Mybase(_Right._Alval), _Map(nullptr), _Mapsize(0), _Myoff(0), _Mysize(0)
     {  // construct by copying _Right
-        _TRY_BEGIN
+        _STDEXT_TRY_BEGIN
         insert(begin(), _Right.begin(), _Right.end());
-        _CATCH_ALL
+        _STDEXT_CATCH_ALL
         _Tidy();
-        _RERAISE;
-        _CATCH_END
+        _STDEXT_RERAISE;
+        _STDEXT_CATCH_END
     }
 
     template <class _It>
@@ -376,22 +376,22 @@ public:
     template <class _It>
     void _Construct(_It _First, _It _Last, input_iterator_tag)
     {  // initialize from [_First, _Last), input iterators
-        _TRY_BEGIN
+        _STDEXT_TRY_BEGIN
         insert(begin(), _First, _Last);
-        _CATCH_ALL
+        _STDEXT_CATCH_ALL
         _Tidy();
-        _RERAISE;
-        _CATCH_END
+        _STDEXT_RERAISE;
+        _STDEXT_CATCH_END
     }
 
     void _Construct_n(size_type _Count, const _Ty &_Val)
     {  // construct from _Count * _Val
-        _TRY_BEGIN
+        _STDEXT_TRY_BEGIN
         _Insert_n(begin(), _Count, _Val);
-        _CATCH_ALL
+        _STDEXT_CATCH_ALL
         _Tidy();
-        _RERAISE;
-        _CATCH_END
+        _STDEXT_RERAISE;
+        _STDEXT_CATCH_END
     }
 
     ~deque()
@@ -406,11 +406,11 @@ public:
         else if (_Right._Mysize == 0)
             clear();
         else if (_Right._Mysize <= _Mysize) {  // new sequence not longer, assign elements and erase unused
-            iterator _Mid = copy(_Right.begin(), _Right.end(), begin());
+            iterator _Mid = std::copy(_Right.begin(), _Right.end(), begin());
             erase(_Mid, end());
         } else {  // new sequence longer, assign elements and append rest
             const_iterator _Mid = _Right.begin() + _Mysize;
-            copy(_Right.begin(), _Mid, begin());
+            std::copy(_Right.begin(), _Mid, begin());
             insert(end(), _Mid, _Right.end());
         }
         return (*this);
@@ -635,11 +635,11 @@ public:
             if (_Off < _Mysize / 2) {  // closer to front, push to front then copy
                 push_front(front());
                 _Mid = begin() + _Off;
-                copy(begin() + 2, _Mid + 1, begin() + 1);
+                std::copy(begin() + 2, _Mid + 1, begin() + 1);
             } else {  // closer to back, push to back then copy
                 push_back(back());
                 _Mid = begin() + _Off;
-                copy_backward(_Mid, end() - 2, end() - 1);
+                std::copy_backward(_Mid, end() - 2, end() - 1);
             }
 
             *_Mid = _Tmp;  // store inserted value
@@ -683,55 +683,55 @@ public:
         size_type _Num;
 
         if (_Off < _Rem) {  // closer to front
-            _TRY_BEGIN
+            _STDEXT_TRY_BEGIN
             if (_Off < _Count) {  // insert longer than prefix
                 _It _Mid = _First;
-                advance(_Mid, _Count - _Off);
+                std::advance(_Mid, _Count - _Off);
 
                 for (_It _Next = _Mid; _First != _Next;)
                     push_front(*--_Next);  // push head of insert
                 for (_Num = _Off; 0 < _Num; --_Num)
-                    push_front(begin()[_Count - 1]);  // push prefix
-                copy(_Mid, _Last, begin() + _Count);  // copy rest of insert
-            } else {                                  // insert not longer than prefix
+                    push_front(begin()[_Count - 1]);       // push prefix
+                std::copy(_Mid, _Last, begin() + _Count);  // copy rest of insert
+            } else {                                       // insert not longer than prefix
                 for (_Num = _Count; 0 < _Num; --_Num)
                     push_front(begin()[_Count - 1]);  // push part of prefix
 
                 iterator _Mid = begin() + _Count;
-                copy(_Mid + _Count, _Mid + _Off, _Mid);  // copy rest of prefix
-                copy(_First, _Last, begin() + _Off);     // copy in insert
+                std::copy(_Mid + _Count, _Mid + _Off, _Mid);  // copy rest of prefix
+                std::copy(_First, _Last, begin() + _Off);     // copy in insert
             }
-            _CATCH_ALL
+            _STDEXT_CATCH_ALL
             for (; _Oldsize < _Mysize;)
                 pop_front();  // restore old size, at least
-            _RERAISE;
-            _CATCH_END
+            _STDEXT_RERAISE;
+            _STDEXT_CATCH_END
         } else {  // closer to back
-            _TRY_BEGIN
+            _STDEXT_TRY_BEGIN
             if (_Rem < _Count) {  // insert longer than suffix
                 _It _Mid = _First;
-                advance(_Mid, _Rem);
+                std::advance(_Mid, _Rem);
 
                 for (_It _Next = _Mid; _Next != _Last; ++_Next)
                     push_back(*_Next);  // push tail of insert
                 for (_Num = 0; _Num < _Rem; ++_Num)
                     push_back(begin()[_Off + _Num]);  // push suffix
 
-                copy(_First, _Mid, begin() + _Off);  // copy rest of insert
-            } else {                                 // insert not longer than suffix
+                std::copy(_First, _Mid, begin() + _Off);  // copy rest of insert
+            } else {                                      // insert not longer than suffix
                 for (_Num = 0; _Num < _Count; ++_Num)
                     push_back(begin()[_Off + _Rem - _Count + _Num]);  // push part of suffix
 
                 iterator _Mid = begin() + _Off;
-                copy_backward(_Mid, _Mid + _Rem - _Count,
-                              _Mid + _Rem);  // copy rest of prefix
-                copy(_First, _Last, _Mid);   // copy in values
+                std::copy_backward(_Mid, _Mid + _Rem - _Count,
+                                   _Mid + _Rem);  // copy rest of prefix
+                std::copy(_First, _Last, _Mid);   // copy in values
             }
-            _CATCH_ALL
+            _STDEXT_CATCH_ALL
             for (; _Oldsize < _Mysize;)
                 pop_back();  // restore old size, at least
-            _RERAISE;
-            _CATCH_END
+            _STDEXT_RERAISE;
+            _STDEXT_CATCH_END
         }
     }
 
@@ -745,12 +745,12 @@ public:
         size_type _Off = _First - begin();
         size_type _Count = _Last - _First;
 
-        if (_Off < (size_type)(end() - _Last)) {    // closer to front
-            copy_backward(begin(), _First, _Last);  // copy over hole
+        if (_Off < (size_type)(end() - _Last)) {         // closer to front
+            std::copy_backward(begin(), _First, _Last);  // copy over hole
             for (; 0 < _Count; --_Count)
-                pop_front();             // pop copied elements
-        } else {                         // closer to back
-            copy(_Last, end(), _First);  // copy over hole
+                pop_front();                  // pop copied elements
+        } else {                              // closer to back
+            std::copy(_Last, end(), _First);  // copy over hole
             for (; 0 < _Count; --_Count)
                 pop_back();  // pop copied elements
         }
@@ -800,15 +800,15 @@ protected:
                         push_front(begin()[_Count - 1]);  // push prefix
 
                     _Mid = begin() + _Count;
-                    fill(_Mid, _Mid + _Off, _Val);  // fill in rest of values
-                } else {                            // insert not longer than prefix
+                    std::fill(_Mid, _Mid + _Off, _Val);  // fill in rest of values
+                } else {                                 // insert not longer than prefix
                     for (_Num = _Count; 0 < _Num; --_Num)
                         push_front(begin()[_Count - 1]);  // push part of prefix
 
                     _Mid = begin() + _Count;
-                    _Ty _Tmp = _Val;                          // in case _Val is in sequence
-                    copy(_Mid + _Count, _Mid + _Off, _Mid);   // copy rest of prefix
-                    fill(begin() + _Off, _Mid + _Off, _Tmp);  // fill in values
+                    _Ty _Tmp = _Val;                               // in case _Val is in sequence
+                    std::copy(_Mid + _Count, _Mid + _Off, _Mid);   // copy rest of prefix
+                    std::fill(begin() + _Off, _Mid + _Off, _Tmp);  // fill in values
                 }
             } catch (...) {
                 for (; _Oldsize < _Mysize;)
@@ -816,7 +816,7 @@ protected:
                 throw;
             }
         } else {  // closer to back
-            _TRY_BEGIN
+            _STDEXT_TRY_BEGIN
             if (_Rem < _Count) {  // insert longer than suffix
                 for (_Num = _Count - _Rem; 0 < _Num; --_Num)
                     push_back(_Val);  // push excess values
@@ -824,33 +824,33 @@ protected:
                     push_back(begin()[_Off + _Num]);  // push suffix
 
                 _Mid = begin() + _Off;
-                fill(_Mid, _Mid + _Rem, _Val);  // fill in rest of values
-            } else {                            // insert not longer than prefix
+                std::fill(_Mid, _Mid + _Rem, _Val);  // fill in rest of values
+            } else {                                 // insert not longer than prefix
                 for (_Num = 0; _Num < _Count; ++_Num)
                     push_back(begin()[_Off + _Rem - _Count + _Num]);  // push part of prefix
 
                 _Mid = begin() + _Off;
                 _Ty _Tmp = _Val;  // in case _Val is in sequence
-                copy_backward(_Mid, _Mid + _Rem - _Count,
-                              _Mid + _Rem);       // copy rest of prefix
-                fill(_Mid, _Mid + _Count, _Tmp);  // fill in values
+                std::copy_backward(_Mid, _Mid + _Rem - _Count,
+                                   _Mid + _Rem);       // copy rest of prefix
+                std::fill(_Mid, _Mid + _Count, _Tmp);  // fill in values
             }
-            _CATCH_ALL
+            _STDEXT_CATCH_ALL
             for (; _Oldsize < _Mysize;)
                 pop_back();  // restore old size, at least
-            _RERAISE;
-            _CATCH_END
+            _STDEXT_RERAISE;
+            _STDEXT_CATCH_END
         }
     }
 
     void _Xlen() const
     {  // report length error
-        _THROW(std::length_error, "deque<T> too long");
+        _STDEXT_THROW(std::length_error, "deque<T> too long");
     }
 
     void _Xran() const
     {  // report range error
-        _THROW(std::out_of_range, "invalid deque<T> subscript");
+        _STDEXT_THROW(std::out_of_range, "invalid deque<T> subscript");
     }
 
     void _Growmap(size_type _Count)
@@ -867,18 +867,20 @@ protected:
         _Mapptr _Newmap = this->_Almap.allocate(_Mapsize + _Count);
         _Mapptr _Myptr = _Newmap + _Myboff;
 
-        _Myptr = _Uninitialized_copy(_Map + _Myboff, _Map + _Mapsize, _Myptr, this->_Almap);  // copy initial to end
+        _Myptr =
+            _STDEXT_Uninitialized_copy(_Map + _Myboff, _Map + _Mapsize, _Myptr, this->_Almap);  // copy initial to end
         if (_Myboff <= _Count) {  // increment greater than offset of initial block
-            _Myptr = _Uninitialized_copy(_Map, _Map + _Myboff, _Myptr, this->_Almap);  // copy rest of old
-            _Uninitialized_fill_n(_Myptr, _Count - _Myboff, (_Tptr)0, this->_Almap);   // clear suffix of new
-            _Uninitialized_fill_n(_Newmap, _Myboff, (_Tptr)0, this->_Almap);           // clear prefix of new
+            _Myptr = _STDEXT_Uninitialized_copy(_Map, _Map + _Myboff, _Myptr, this->_Almap);  // copy rest of old
+            _STDEXT_Uninitialized_fill_n(_Myptr, _Count - _Myboff, (_Tptr)0, this->_Almap);   // clear suffix of new
+            _STDEXT_Uninitialized_fill_n(_Newmap, _Myboff, (_Tptr)0, this->_Almap);           // clear prefix of new
         } else {  // increment not greater than offset of initial block
-            _Uninitialized_copy(_Map, _Map + _Count, _Myptr, this->_Almap);                      // copy more old
-            _Myptr = _Uninitialized_copy(_Map + _Count, _Map + _Myboff, _Newmap, this->_Almap);  // copy rest of old
-            _Uninitialized_fill_n(_Myptr, _Count, (_Tptr)0, this->_Almap);  // clear rest to initial block
+            _STDEXT_Uninitialized_copy(_Map, _Map + _Count, _Myptr, this->_Almap);  // copy more old
+            _Myptr =
+                _STDEXT_Uninitialized_copy(_Map + _Count, _Map + _Myboff, _Newmap, this->_Almap);  // copy rest of old
+            _STDEXT_Uninitialized_fill_n(_Myptr, _Count, (_Tptr)0, this->_Almap);  // clear rest to initial block
         }
 
-        _Destroy_range(_Map + _Myboff, _Map + _Mapsize, this->_Almap);
+        _STDEXT_Destroy_range(_Map + _Myboff, _Map + _Mapsize, this->_Almap);
         if (_Map)
             this->_Almap.deallocate(_Map, _Mapsize);  // free storage for old
 
@@ -926,7 +928,7 @@ inline void swap(deque<_Ty, _Alloc> &_Left, deque<_Ty, _Alloc> &_Right)
 template <class _Ty, class _Alloc>
 inline bool operator==(const deque<_Ty, _Alloc> &_Left, const deque<_Ty, _Alloc> &_Right)
 {  // test for deque equality
-    return (_Left.size() == _Right.size() && equal(_Left.begin(), _Left.end(), _Right.begin()));
+    return (_Left.size() == _Right.size() && std::equal(_Left.begin(), _Left.end(), _Right.begin()));
 }
 
 template <class _Ty, class _Alloc>
@@ -938,7 +940,7 @@ inline bool operator!=(const deque<_Ty, _Alloc> &_Left, const deque<_Ty, _Alloc>
 template <class _Ty, class _Alloc>
 inline bool operator<(const deque<_Ty, _Alloc> &_Left, const deque<_Ty, _Alloc> &_Right)
 {  // test if _Left < _Right for deques
-    return (lexicographical_compare(_Left.begin(), _Left.end(), _Right.begin(), _Right.end()));
+    return (std::lexicographical_compare(_Left.begin(), _Left.end(), _Right.begin(), _Right.end()));
 }
 
 template <class _Ty, class _Alloc>

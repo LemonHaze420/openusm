@@ -71,20 +71,20 @@ struct meta_anim_strength_test : als::als_meta_anim_base {
 
     static inline void *g_vtbl[] = {
         nullptr,
-        func_address(&_unmash),
+        func_address(&meta_anim_strength_test::_unmash),
         nullptr,
-        func_address(&_get_virtual_type_enum),
+        func_address(&meta_anim_strength_test::_get_virtual_type_enum),
         nullptr,
-        func_address(&_is_or_is_subclass_of),
-        func_address(&_get_anim_name),
-        func_address(&_is_anim_looping),
-        func_address(&_is_anim_trajectory_relative),
-        func_address(&_get_anim_duration),
-        func_address(&_get_skeleton),
-        func_address(&_create_anim_inst),
+        func_address(&mash_virtual_base::_is_or_is_subclass_of),
+        func_address(&als_meta_anim_base::_get_anim_name),
+        func_address(&meta_anim_strength_test::_is_anim_looping),
+        func_address(&meta_anim_strength_test::_is_anim_trajectory_relative),
+        func_address(&meta_anim_strength_test::_get_anim_duration),
+        func_address(&meta_anim_strength_test::_get_skeleton),
+        func_address(&meta_anim_strength_test::_create_anim_inst),
         nullptr,
         nullptr,
-        func_address(&_get_mash_sizeof),
+        func_address(&meta_anim_strength_test::_get_mash_sizeof),
     };
 };
 
@@ -170,20 +170,20 @@ struct als_meta_linear_blend : als_meta_anim_base {
 
     static inline void *g_vtbl[] = {
         nullptr,
-        func_address(&_unmash),
+        func_address(&als_meta_linear_blend::_unmash),
         nullptr,
-        func_address(&_get_virtual_type_enum),
+        func_address(&als_meta_linear_blend::_get_virtual_type_enum),
         nullptr,
-        func_address(&_is_or_is_subclass_of),
-        func_address(&_get_anim_name),
-        func_address(&_is_anim_looping),
-        func_address(&_is_anim_trajectory_relative),
-        func_address(&_get_anim_duration),
-        func_address(&_get_skeleton),
-        func_address(&_create_anim_inst),
+        func_address(&mash_virtual_base::_is_or_is_subclass_of),
+        func_address(&als_meta_anim_base::_get_anim_name),
+        func_address(&als_meta_linear_blend::_is_anim_looping),
+        func_address(&als_meta_linear_blend::_is_anim_trajectory_relative),
+        func_address(&als_meta_linear_blend::_get_anim_duration),
+        func_address(&als_meta_linear_blend::_get_skeleton),
+        func_address(&als_meta_linear_blend::_create_anim_inst),
         nullptr,
         nullptr,
-        func_address(&_get_mash_sizeof),
+        func_address(&als_meta_linear_blend::_get_mash_sizeof),
     };
 };
 }  // namespace als

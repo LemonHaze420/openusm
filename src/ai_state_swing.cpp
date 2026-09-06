@@ -75,7 +75,7 @@ static constexpr float magic_velocity_cancelling_angle_in_degrees{120.0f};
 
 static constexpr float min_swing_web_length_squared = 81.180107;
 static constexpr float max_swing_web_length_squared = 5626.5005;
-static constexpr float sweet_cone_angle_cos = std::cos((3.1415927 / 180.0) * 30.01);
+static const float sweet_cone_angle_cos = std::cos((3.1415927 / 180.0) * 30.01);
 
 static float &swing_collision_break_length = var<float>(0x009585BC);
 static float &swing_collision_stick_length = var<float>(0x0091F468);
@@ -1157,7 +1157,7 @@ void swing_inode::fire_new_web(bool is_play_fire_web_sound)
     vector3d a3a = a7.average(a5);
     a3a.normalize();
 
-    static constexpr float flt_9591B8 = std::cos(DEG_TO_RAD(60.0)) * (-1.f);
+    static const float flt_9591B8 = std::cos(DEG_TO_RAD(60.0)) * (-1.f);
 
     auto v17 = a3;
     auto v15 = dot(v17, a3a);

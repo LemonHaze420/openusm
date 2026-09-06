@@ -1,5 +1,7 @@
 #include "wds_render_manager.h"
 
+#include <windows.h>
+
 #include "GL/gl.h"
 
 #include "aeps.h"

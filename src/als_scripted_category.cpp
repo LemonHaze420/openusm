@@ -17,19 +17,19 @@ scripted_category::scripted_category()
 {
     if constexpr (1) {
         static void *g_vtbl[] = {nullptr,
-                                 func_address(&_unmash),
+                                 func_address(&scripted_category::_unmash),
                                  nullptr,
-                                 func_address(&_get_virtual_type_enum),
+                                 func_address(&scripted_category::_get_virtual_type_enum),
                                  nullptr,
-                                 func_address(&_is_or_is_subclass_of),
-                                 nullptr,
-                                 nullptr,
+                                 func_address(&mash_virtual_base::_is_or_is_subclass_of),
                                  nullptr,
                                  nullptr,
                                  nullptr,
                                  nullptr,
                                  nullptr,
-                                 func_address(&_get_mash_sizeof)};
+                                 nullptr,
+                                 nullptr,
+                                 func_address(&scripted_category::_get_mash_sizeof)};
 
         this->m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {

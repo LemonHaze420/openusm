@@ -45,3 +45,20 @@ build-standalone-job:
     - cd build
     - make -j4
     - echo "Compile complete."
+
+build-clang-msvc-job:
+  stage: build
+  image: clang-msvc:latest
+  tags:
+    - docker
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+    GIT_DEPTH: 1
+    GIT_STRATEGY: fetch
+  script:
+    - echo "Compiling the code with clang-cl + xwin..."
+    - pwd
+    - cmake -G Ninja -B build_msvc -DUSM_USE_CLANG_XWIN=ON -DCMAKE_BUILD_TYPE=Release
+    - cd build_msvc
+    - ninja -j4
+    - echo "Compile complete."

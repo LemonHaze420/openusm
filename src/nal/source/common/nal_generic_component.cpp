@@ -15,7 +15,11 @@ nalComponentRLE8Int1 &Component_nalComponentRLE8Int1 = []() -> auto & {
 nalComponentRLE8Int1::nalComponentRLE8Int1()
 {
     if constexpr (1) {
-        static void *g_vtbl[]{func_address(&_GetType), nullptr, nullptr, nullptr, func_address(&_Process)};
+        static void *g_vtbl[]{func_address(&nalComponentU8Base::_GetType),
+                              nullptr,
+                              nullptr,
+                              nullptr,
+                              func_address(&nalComponent::_Process)};
         this->m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {
         this->m_vtbl = 0x008BD4B8;

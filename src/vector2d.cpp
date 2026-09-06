@@ -44,6 +44,13 @@ vector2d vector2d::operator*(float a1) const
     return vector2d{this->x * a1, this->y * a1};
 }
 
+vector2d &vector2d::operator+=(const vector2d &a1)
+{
+    this->x += a1.x;
+    this->y += a1.y;
+    return (*this);
+}
+
 vector2d &vector2d::operator*=(float a2)
 {
     this->x *= a2;

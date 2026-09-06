@@ -1575,22 +1575,22 @@ void us_person_patch()
     }
 
     {
-        FUNC_ADDRESS(address, USPersonShaderSpace::USPersonShader::_BindMaterial);
+        FUNC_ADDRESS(address, &USPersonShaderSpace::USPersonShader::_BindMaterial);
         set_vfunc(0x008717E8, address);
     }
 
     {
-        FUNC_ADDRESS(address, USPersonShaderSpace::USPersonShader::_RebaseMaterial);
+        FUNC_ADDRESS(address, &USPersonShaderSpace::USPersonShader::_RebaseMaterial);
         set_vfunc(0x008717F0, address);
     }
 
     {
-        FUNC_ADDRESS(address, USPersonShaderSpace::USPersonSolidShader::_BindMaterial);
+        FUNC_ADDRESS(address, &USPersonShaderSpace::USPersonSolidShader::_BindMaterial);
         set_vfunc(0x00871814, address);
     }
 
     {
-        FUNC_ADDRESS(address, USPersonShaderSpace::USPersonSolidShader::_RebaseMaterial);
+        FUNC_ADDRESS(address, &USPersonShaderSpace::USPersonSolidShader::_RebaseMaterial);
         set_vfunc(0x0087181C, address);
     }
 

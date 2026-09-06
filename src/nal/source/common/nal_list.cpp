@@ -107,7 +107,7 @@ nalInitListAnimType::nalInitListAnimType(const char *str, std::intptr_t anim_vtb
                                          std::intptr_t skel_vtbl_ptr_arg)
     : nalInitList(), field_8(str), anim_vtbl_ptr(anim_vtbl_ptr_arg), skel_vtbl_ptr(skel_vtbl_ptr_arg)
 {
-    static vtbl g_vtbl = {func_address(&_Register)};
+    static vtbl g_vtbl = {func_address(&nalInitListAnimType::_Register)};
 
     this->m_vtbl = CAST(m_vtbl, &g_vtbl);
 }
@@ -122,7 +122,7 @@ tlInstanceBank::Node *nalInitListAnimType::_Register()
 nalComponentInitList::nalComponentInitList(const char *str, void *a3) : nalInitList(), field_8(str), field_C(a3)
 {
     if constexpr (1) {
-        static vtbl g_vtbl = {func_address(&_Register)};
+        static vtbl g_vtbl = {func_address(&nalComponentInitList::_Register)};
 
         this->m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {

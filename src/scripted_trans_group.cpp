@@ -23,13 +23,13 @@ scripted_trans_group::scripted_trans_group()
 {
     if constexpr (1) {
         static void *g_vtbl[] = {nullptr,
-                                 func_address(&_unmash),
+                                 func_address(&scripted_trans_group::_unmash),
                                  nullptr,
-                                 func_address(&_get_virtual_type_enum),
+                                 func_address(&scripted_trans_group::_get_virtual_type_enum),
                                  nullptr,
-                                 func_address(&_is_or_is_subclass_of),
+                                 func_address(&mash_virtual_base::_is_or_is_subclass_of),
                                  nullptr,
-                                 func_address(&_get_mash_sizeof)};
+                                 func_address(&scripted_trans_group::_get_mash_sizeof)};
 
         this->m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {

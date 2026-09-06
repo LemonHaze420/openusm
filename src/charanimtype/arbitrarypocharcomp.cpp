@@ -30,7 +30,7 @@ ArbitraryPOCharComp::ArbitraryPOCharComp()
     if constexpr (0) {
 #endif
         static void *g_vtbl[]{nullptr,
-                              func_address(&_GetType),
+                              func_address(&CharComponentBase::_GetType),
                               nullptr,
                               nullptr,
                               nullptr,
@@ -44,9 +44,9 @@ ArbitraryPOCharComp::ArbitraryPOCharComp()
                               nullptr,
                               nullptr,
                               nullptr,
-                              func_address(&_SkelPoseProcess),
-                              func_address(&_AnimProcess),
-                              func_address(&_AnimProcess),
+                              func_address(&ArbitraryPOCharComp::_SkelPoseProcess),
+                              func_address(&ArbitraryPOCharComp::_AnimProcess),
+                              func_address(&ArbitraryPOCharComp::_AnimProcess),
                               nullptr,
                               nullptr,
                               nullptr,
@@ -58,7 +58,7 @@ ArbitraryPOCharComp::ArbitraryPOCharComp()
                               nullptr,
                               nullptr,
                               nullptr,
-                              func_address(&_CopyPoseDataToNothing)};
+                              func_address(&ArbitraryPOCharComp::_CopyPoseDataToNothing)};
 
         this->m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {

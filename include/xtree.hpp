@@ -5,8 +5,8 @@
 #include <memory>
 #include <stdexcept>
 
-#ifndef _THROW
-#define _THROW(err, str) throw err(str)
+#ifndef _STDEXT_THROW
+#define _STDEXT_THROW(err, str) throw err(str)
 #endif
 
 #define _POINTER_X(T, A) typename std::allocator_traits<A>::template rebind_alloc<T>::value_type *
@@ -522,7 +522,7 @@ public:
     iterator erase(iterator _Where)
     {  // erase element at _Where
         if (_Isnil(_Where._Mynode())) {
-            _THROW(std::out_of_range, "invalid map/set<T> iterator");
+            _STDEXT_THROW(std::out_of_range, "invalid map/set<T> iterator");
         }
         _Nodeptr _Erasednode = _Where._Mynode();  // node to erase
         ++_Where;                                 // save successor iterator for return
@@ -807,7 +807,7 @@ public:
     iterator _Insert(bool _Addleft, _Nodeptr _Wherenode, const value_type &_Val)
     {  // add node with value next to _Wherenode, to left if _Addnode
         if (max_size() - 1 <= _Mysize) {
-            _THROW(std::length_error, "map/set<T> too long");
+            _STDEXT_THROW(std::length_error, "map/set<T> too long");
         }
 
         _Nodeptr _Newnode = _Buynode(_Myhead, _Wherenode, _Myhead, _Val, _Red);

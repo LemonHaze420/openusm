@@ -16,10 +16,10 @@ VALIDATE_SIZE(skeleton_resource_handler, 0x14u);
 skeleton_resource_handler::skeleton_resource_handler(worldly_pack_slot *a1)
 {
     static void *g_vtbl[] = {
-        func_address(&finalize),
-        func_address(&_handle),
-        func_address(&_pre_handle_resources),
-        func_address(&_handle_resource),
+        func_address(&skeleton_resource_handler::finalize),
+        func_address(&skeleton_resource_handler::_handle),
+        func_address(&base_tl_resource_handler::_pre_handle_resources),
+        func_address(&skeleton_resource_handler::_handle_resource),
     };
 
     if constexpr (1) {

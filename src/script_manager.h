@@ -19,7 +19,7 @@ struct script_executable_entry_key;
 struct script_executable_entry;
 struct script_executable;
 struct script_executable_allocated_stuff_record;
-struct script_object;
+class script_object;
 struct string_hash;
 struct vm_executable;
 

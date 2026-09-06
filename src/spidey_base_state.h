@@ -31,19 +31,19 @@ struct spidey_base_state : hero_base_state {
     /* virtual */ string_hash get_desired_state_id(Float a3) const /* override */;
 
     static inline void *g_vtbl[]{nullptr,
-                                 func_address(&_unmash),
+                                 func_address(&spidey_base_state::_unmash),
                                  nullptr,
-                                 func_address(&_get_virtual_type_enum),
+                                 func_address(&spidey_base_state::_get_virtual_type_enum),
                                  nullptr,
-                                 func_address(&_is_or_is_subclass_of),
-                                 nullptr,
-                                 nullptr,
+                                 func_address(&mash_virtual_base::_is_or_is_subclass_of),
                                  nullptr,
                                  nullptr,
                                  nullptr,
                                  nullptr,
                                  nullptr,
-                                 func_address(&_get_mash_sizeof)};
+                                 nullptr,
+                                 nullptr,
+                                 func_address(&spidey_base_state::_get_mash_sizeof)};
 };
 
 }  // namespace ai

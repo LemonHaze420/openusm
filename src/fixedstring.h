@@ -86,7 +86,7 @@ struct tlFixedString {
     bool operator!=(const tlFixedString &a2) const;
 };
 
-struct tlresource_location;
+class tlresource_location;
 
 //0x00501C30
 extern int compare_tlFixedString_tlresource_location(uint32_t &a1, tlresource_location &a2);

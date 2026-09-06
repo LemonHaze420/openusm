@@ -4,6 +4,8 @@
 
 #include <vector.hpp>
 
+#include <array>
+
 struct entity;
 struct item;
 struct entity_base;

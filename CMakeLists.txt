@@ -1,11 +1,18 @@
 cmake_minimum_required(VERSION 3.12)
 
-include(cmake/i686-pc-mingw32.cmake)
+option(USM_USE_CLANG_XWIN "Cross-compile with clang-cl + xwin instead of mingw" OFF)
 
-set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-static -std=gnu11 -g")
+if(USM_USE_CLANG_XWIN)
+    set(CMAKE_SYSTEM_NAME Windows)
+    set(CMAKE_SYSTEM_PROCESSOR x86)
+else()
+    include(cmake/i686-pc-mingw32.cmake)
 
-set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS}
-    "-fomit-frame-pointer -m32 -fno-asynchronous-unwind-tables -masm=intel -static -g")
+    set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-static -std=gnu11 -g")
+
+    set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS}
+        "-fomit-frame-pointer -m32 -fno-asynchronous-unwind-tables -masm=intel -static -g")
+endif()
 
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -14,31 +21,38 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-list(APPEND flags
-    "-Wall"
-    "-Wextra"
-    "-pedantic"
-    "-Werror"
-    "-Wcast-align"
-    "-Wcast-qual"
-    "-Wzero-as-null-pointer-constant"
-    #"-Wconversion"
-    "-Wctor-dtor-privacy"
-    "-Wduplicated-branches"
-    "-Wduplicated-cond"
-    "-Wextra-semi"
-    "-Wfloat-equal"
-    #"-Weffc++"
-    "-Wlogical-op"
-    "-Wnon-virtual-dtor"
-    #"-Wold-style-cast"
-    "-Woverloaded-virtual"
-    "-Wredundant-decls"
-    #"-Wsign-conversion"
-    "-Wsign-promo"
-    "-Wshift-negative-value"
-    "-Wno-invalid-offsetof"
-    "-Wno-deprecated")
+if(USM_USE_CLANG_XWIN)
+    list(APPEND flags
+        "/W4"
+        "/permissive-"
+        "-Wno-non-pod-varargs")
+else()
+    list(APPEND flags
+        "-Wall"
+        "-Wextra"
+        "-pedantic"
+        "-Werror"
+        "-Wcast-align"
+        "-Wcast-qual"
+        "-Wzero-as-null-pointer-constant"
+        #"-Wconversion"
+        "-Wctor-dtor-privacy"
+        "-Wduplicated-branches"
+        "-Wduplicated-cond"
+        "-Wextra-semi"
+        "-Wfloat-equal"
+        #"-Weffc++"
+        "-Wlogical-op"
+        "-Wnon-virtual-dtor"
+        #"-Wold-style-cast"
+        "-Woverloaded-virtual"
+        "-Wredundant-decls"
+        #"-Wsign-conversion"
+        "-Wsign-promo"
+        "-Wshift-negative-value"
+        "-Wno-invalid-offsetof"
+        "-Wno-deprecated")
+endif()
 
 project(USM-dev)
 
@@ -307,6 +321,7 @@ option(ENABLE_TESTS "" ON)
 
 if(ENABLE_TESTS)
     set(GOOGLETEST_VERSION 1.1)
+    option(gtest_force_shared_crt "" ON)
 
     add_subdirectory(third_party/googletest)
 

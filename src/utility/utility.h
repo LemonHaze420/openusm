@@ -5,7 +5,9 @@
 
 #include <cassert>
 #include <cstdint>
+#ifndef _MSC_VER
 #include <cxxabi.h>
+#endif
 
 template <typename Func>
 void set_vfunc(std::size_t address, Func func)
@@ -46,6 +48,9 @@ std::string get_type_name()
 {
     const char *mangledName = typeid(T).name();
 
+#ifdef _MSC_VER
+    return mangledName;
+#else
     int status = 0;
     char *demangledName = abi::__cxa_demangle(mangledName, nullptr, nullptr, &status);
 
@@ -58,4 +63,5 @@ std::string get_type_name()
 
     std::free(demangledName);
     return result;
+#endif
 }

@@ -24,7 +24,7 @@ struct FlexibleCharComp : CharComponentBase {
     {
         if constexpr (1) {
             static void *g_vtbl[]{nullptr,
-                                  func_address(&_GetType),
+                                  func_address(&CharComponentBase::_GetType),
                                   nullptr,
                                   nullptr,
                                   nullptr,
@@ -38,12 +38,10 @@ struct FlexibleCharComp : CharComponentBase {
                                   nullptr,
                                   nullptr,
                                   nullptr,
-                                  func_address(&_SkelPoseProcess),
+                                  func_address(&FlexibleCharComp::_SkelPoseProcess),
                                   nullptr,
-                                  func_address(&_AnimProcess),
-                                  func_address(&_AnimRelease),
-                                  nullptr,
-                                  nullptr,
+                                  func_address(&FlexibleCharComp::_AnimProcess),
+                                  func_address(&FlexibleCharComp::_AnimRelease),
                                   nullptr,
                                   nullptr,
                                   nullptr,
@@ -52,7 +50,9 @@ struct FlexibleCharComp : CharComponentBase {
                                   nullptr,
                                   nullptr,
                                   nullptr,
-                                  func_address(&_CopyPoseDataToNothing)};
+                                  nullptr,
+                                  nullptr,
+                                  func_address(&FlexibleCharComp::_CopyPoseDataToNothing)};
             this->m_vtbl = CAST(m_vtbl, &g_vtbl);
         } else {
             this->m_vtbl = 0x008921C0;

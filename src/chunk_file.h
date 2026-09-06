@@ -4,7 +4,7 @@
 
 inline constexpr auto CHUNK_FLAVOR_SIZE = 16u;
 
-struct script_object;
+class script_object;
 struct script_var_container;
 
 struct chunk_flavor {

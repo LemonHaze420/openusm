@@ -6,7 +6,7 @@
 
 #include <cstdint>
 
-struct tlresource_location;
+class tlresource_location;
 struct limited_timer;
 struct resource_pack_slot;
 

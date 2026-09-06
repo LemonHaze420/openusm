@@ -3,7 +3,7 @@
 #include "string_hash.h"
 #include "variable.h"
 
-struct script_object;
+class script_object;
 struct script_instance;
 struct vm_thread;
 

@@ -21,20 +21,20 @@ scripted_state::scripted_state()
 {
     if constexpr (1) {
         static void *g_vtbl[] = {nullptr,
-                                 func_address(&_unmash),
+                                 func_address(&scripted_state::_unmash),
                                  nullptr,
-                                 func_address(&_get_virtual_type_enum),
+                                 func_address(&scripted_state::_get_virtual_type_enum),
                                  nullptr,
-                                 func_address(&_is_or_is_subclass_of),
-                                 nullptr,
-                                 nullptr,
+                                 func_address(&mash_virtual_base::_is_or_is_subclass_of),
                                  nullptr,
                                  nullptr,
                                  nullptr,
                                  nullptr,
                                  nullptr,
                                  nullptr,
-                                 func_address(&_get_mash_sizeof)};
+                                 nullptr,
+                                 nullptr,
+                                 func_address(&scripted_state::_get_mash_sizeof)};
 
         this->m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {
@@ -193,20 +193,20 @@ base_layer_scripted_state::base_layer_scripted_state()
 {
     if constexpr (1) {
         static void *g_vtbl[] = {nullptr,
-                                 func_address(&_unmash),
+                                 func_address(&base_layer_scripted_state::_unmash),
                                  nullptr,
-                                 func_address(&_get_virtual_type_enum),
+                                 func_address(&base_layer_scripted_state::_get_virtual_type_enum),
                                  nullptr,
-                                 func_address(&_is_or_is_subclass_of),
-                                 nullptr,
-                                 nullptr,
+                                 func_address(&mash_virtual_base::_is_or_is_subclass_of),
                                  nullptr,
                                  nullptr,
                                  nullptr,
                                  nullptr,
                                  nullptr,
                                  nullptr,
-                                 func_address(&_get_mash_sizeof)};
+                                 nullptr,
+                                 nullptr,
+                                 func_address(&base_layer_scripted_state::_get_mash_sizeof)};
 
         this->m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {

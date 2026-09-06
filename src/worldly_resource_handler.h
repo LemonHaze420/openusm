@@ -2,6 +2,7 @@
 
 #include "progress.h"
 
+#include <cstddef>
 #include <cstdint>
 
 struct worldly_pack_slot;

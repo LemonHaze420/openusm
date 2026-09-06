@@ -18,15 +18,15 @@ void __fastcall nglEmptyShader_GetName(nglEmptyShader *self, void *, tlFixedStri
 
 nglEmptyShader::nglEmptyShader()
 {
-    static void *g_vtbl[]{func_address(&_Register),
+    static void *g_vtbl[]{func_address(&nglEmptyShader::_Register),
                           (void *)nglEmptyShader_GetName,
-                          func_address(&_AddNode),
-                          func_address(&_BindMaterial),
-                          func_address(&_ReleaseMaterial),
-                          func_address(&_RebaseMaterial),
-                          func_address(&_CheckMaterialVersion),
-                          func_address(&_CheckVertexDefVersion),
-                          func_address(&_BindSection)};
+                          func_address(&nglEmptyShader::_AddNode),
+                          func_address(&nglEmptyShader::_BindMaterial),
+                          func_address(&nglEmptyShader::_ReleaseMaterial),
+                          func_address(&nglEmptyShader::_RebaseMaterial),
+                          func_address(&nglShader::_CheckMaterialVersion),
+                          func_address(&nglShader::_CheckVertexDefVersion),
+                          func_address(&nglShader::_BindSection)};
     this->m_vtbl = CAST(m_vtbl, &g_vtbl);
 }
 

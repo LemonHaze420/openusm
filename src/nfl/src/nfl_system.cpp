@@ -569,7 +569,11 @@ size_t nflSystem::init(void *a1)
 
         return dword_984498.used;
     } else {
+#ifdef _MSC_VER
+        __asm { mov esi, a1 }
+#else
         __asm("mov esi, %[_a1]\n" ::[_a1] "m"(a1));
+#endif
 
         return CDECL_CALL(0x0079DC10);
     }

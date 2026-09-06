@@ -29,8 +29,9 @@ nalCharPose::nalCharPose(const nalChar::nalCharSkeleton *a2) : nalCompPose(a2)
         void *(nalCompPose::*GetComponentPoseData0)(uint32_t) = &nalCompPose::_GetComponentPoseData;
         void *(nalCompPose::*GetComponentPoseData1)(uint32_t) const = &nalCompPose::_GetComponentPoseData;
 
-        static void *g_vtbl[]{
-            func_address(GetComponentPoseData0), func_address(GetComponentPoseData1), func_address(&_GetPoseDataSize)};
+        static void *g_vtbl[]{func_address(GetComponentPoseData0),
+                              func_address(GetComponentPoseData1),
+                              func_address(&nalCompPose::_GetPoseDataSize)};
 
         m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {
@@ -150,11 +151,9 @@ nalCharSkeleton::nalCharSkeleton()
 {
     static void *g_vtbl[]{nullptr,
                           nullptr,
-                          func_address(&_Process),
+                          func_address(&nalCharSkeleton::_Process),
                           nullptr,
-                          func_address(&_CheckVersion),
-                          nullptr,
-                          nullptr,
+                          func_address(&nalCharSkeleton::_CheckVersion),
                           nullptr,
                           nullptr,
                           nullptr,
@@ -164,7 +163,9 @@ nalCharSkeleton::nalCharSkeleton()
                           nullptr,
                           nullptr,
                           nullptr,
-                          func_address(&_UnMash)};
+                          nullptr,
+                          nullptr,
+                          func_address(&nalCompSkeleton::_UnMash)};
     this->m_vtbl = CAST(m_vtbl, &g_vtbl);
     this->m_theDefaultPose = nullptr;
     this->Version = 0x10003;

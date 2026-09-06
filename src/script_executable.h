@@ -17,7 +17,7 @@ struct mString;
 struct generic_mash_header;
 struct generic_mash_data_ptrs;
 struct resource_key;
-struct script_object;
+class script_object;
 struct vm_executable;
 struct vm_thread;
 struct script_library_class;

@@ -23,7 +23,6 @@ struct decal_data_interface : conglomerate_interface {
     mashable_vector<int> field_28;
     mashable_vector<float> field_30;
     mashable_vector<terrain_decal> field_38[9];
-    int field_80;
 
     decal_data_interface(conglomerate *a2);
 

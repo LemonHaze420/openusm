@@ -88,7 +88,7 @@ bool dynamic_rtree_root_t::remove_entity(entity *a2)
 {
     auto *s = this->state;
 
-    auto key = entity_base_vhandle{(int)a2};
+    auto key = entity_base_vhandle{uint32_t(a2)};
     auto *data = s->field_140.get(key);
     if (data == nullptr) {
         return false;
@@ -127,10 +127,10 @@ void dynamic_rtree_root_t::update_entity(entity *ent)
         float radius = act->get_colgeom_radius();
         auto vec_radius = vector3d{radius};
 
-        rtree_construction_node_t a2{(int)ent, center - vec_radius, center + vec_radius};
+        rtree_construction_node_t a2{uint32_t(ent), center - vec_radius, center + vec_radius};
 
         auto &s = *this->state;
-        auto key = entity_base_vhandle{(int)ent};
+        auto key = entity_base_vhandle{uint32_t(ent)};
         auto *data = s.field_140.get(key);
         if (data != nullptr) {
             assert(data->entity_aabb != nullptr);

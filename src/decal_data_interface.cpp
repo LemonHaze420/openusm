@@ -10,6 +10,7 @@
 #include "memory.h"
 
 VALIDATE_SIZE(decal_data_interface, 0x80);
+VALIDATE_OFFSET(decal_data_interface, field_38, 0x38);
 
 decal_data_interface::decal_data_interface(conglomerate *a2) : conglomerate_interface(a2)
 {

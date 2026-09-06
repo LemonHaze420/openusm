@@ -129,7 +129,7 @@ terrain::terrain(const mString &a2)
 
         resource_manager::add_resource_pack_modified_callback(terrain_packs_modified_callback);
 
-        this->field_18 = vector3d{3.4028235e38, 3.4028235e38, 3.4028235e38};
+        this->field_18 = vector3d{3.4028235e38f, 3.4028235e38f, 3.4028235e38f};
 
     } else {
         THISCALL(0x00559920, this, a2);
@@ -204,8 +204,8 @@ void terrain::init_region_proximity_map()
         }
 
         _std::vector<proximity_map_construction_leaf> v16;
-        vector3d a4{3.4028235e38, 3.4028235e38, 3.4028235e38};
-        vector3d a5{-3.4028235e38, -3.4028235e38, -3.4028235e38};
+        vector3d a4{3.4028235e38f, 3.4028235e38f, 3.4028235e38f};
+        vector3d a5{-3.4028235e38f, -3.4028235e38f, -3.4028235e38f};
         for (int i = 0; i < this->get_num_regions(); ++i) {
             auto *reg = this->get_region(i);
 

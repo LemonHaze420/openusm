@@ -1,7 +1,7 @@
 // hash_map standard header
 #pragma once
-#ifndef _HASH_MAP_
-#define _HASH_MAP_
+#ifndef _STDEXT_HASH_MAP_HPP_
+#define _STDEXT_HASH_MAP_HPP_
 #ifndef RC_INVOKED
 #include <xhash.hpp>
 
@@ -23,7 +23,7 @@ template <class _Kty,    // key type
           class _Alloc,  // actual allocator type (should be value allocator)
           bool _Mfl>     // true if multiple equivalent keys are permitted
 class _Hmap_traits
-//: public _STD _Container_base
+//: public _STDEXT_STD _Container_base
 {  // traits required to make _Hash behave like a map
 public:
     typedef _Kty key_type;
@@ -244,4 +244,4 @@ _STDEXT_END
 #endif /* _MSC_VER */
 
 #endif /* RC_INVOKED */
-#endif /* _HASH_MAP_ */
+#endif /* _STDEXT_HASH_MAP_HPP_ */

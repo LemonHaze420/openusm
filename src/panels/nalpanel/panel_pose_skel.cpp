@@ -37,11 +37,9 @@ nalPanelSkeleton::nalPanelSkeleton()
     if constexpr (1) {
         static void *g_vtbl[]{nullptr,
                               nullptr,
-                              func_address(&_Process),
+                              func_address(&nalPanelSkeleton::_Process),
                               nullptr,
-                              func_address(&_CheckVersion),
-                              nullptr,
-                              nullptr,
+                              func_address(&nalPanelSkeleton::_CheckVersion),
                               nullptr,
                               nullptr,
                               nullptr,
@@ -51,7 +49,9 @@ nalPanelSkeleton::nalPanelSkeleton()
                               nullptr,
                               nullptr,
                               nullptr,
-                              func_address(&_UnMash)};
+                              nullptr,
+                              nullptr,
+                              func_address(&nalCompSkeleton::_UnMash)};
 
         m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {

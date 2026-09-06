@@ -13,14 +13,14 @@ layer_state_machine_shared::layer_state_machine_shared()
 {
     if constexpr (1) {
         static void *g_vtbl[] = {nullptr,
-                                 func_address(&_unmash),
+                                 func_address(&layer_state_machine_shared::_unmash),
                                  nullptr,
-                                 func_address(&_get_virtual_type_enum),
+                                 func_address(&layer_state_machine_shared::_get_virtual_type_enum),
                                  nullptr,
-                                 func_address(&_is_or_is_subclass_of),
-                                 func_address(&_get_layer_id),
-                                 func_address(&_get_mash_sizeof),
-                                 func_address(&_set_layer_id)};
+                                 func_address(&mash_virtual_base::_is_or_is_subclass_of),
+                                 func_address(&layer_state_machine_shared::_get_layer_id),
+                                 func_address(&layer_state_machine_shared::_get_mash_sizeof),
+                                 func_address(&layer_state_machine_shared::_set_layer_id)};
 
         this->m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {
@@ -69,12 +69,12 @@ void layer_state_machine_shared::_set_layer_id(layer_types a2)
 void als_layer_state_machine_shared_patch()
 {
     {
-        FUNC_ADDRESS(address, als::layer_state_machine_shared::_unmash);
+        FUNC_ADDRESS(address, &als::layer_state_machine_shared::_unmash);
         set_vfunc(0x0087E3A8, address);
     }
 
     {
-        FUNC_ADDRESS(address, als::layer_state_machine_shared::_set_layer_id);
+        FUNC_ADDRESS(address, &als::layer_state_machine_shared::_set_layer_id);
         set_vfunc(0x0087E3C4, address);
     }
 }

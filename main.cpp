@@ -1914,7 +1914,11 @@ void initterm(const _PVFV *ppfn, const _PVFV *end)
 
 void start()
 {
+#ifdef _MSC_VER
+    __asm { add esp, 4 }
+#else
     __asm("add esp, 4\n");
+#endif
 
     int v22;
     int v3;

@@ -19,7 +19,7 @@ int &nalCamAnim::vtbl_ptr = []() -> auto & {
 nalCam::nalCamAnim::nalCamAnim()
 {
     if constexpr (1) {
-        static void *g_vtbl[]{nullptr, nullptr, nullptr, nullptr, func_address(&_VirtualCreateInstance)};
+        static void *g_vtbl[]{nullptr, nullptr, nullptr, nullptr, func_address(&nalCamAnim::_VirtualCreateInstance)};
 
         this->m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {

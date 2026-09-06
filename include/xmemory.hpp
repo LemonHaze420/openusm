@@ -1,7 +1,7 @@
 // xmemory internal header (from <memory>)
 #pragma once
-#ifndef _XMEMORY_
-#define _XMEMORY_
+#ifndef _STDEXT_XMEMORY_HPP_
+#define _STDEXT_XMEMORY_HPP_
 #ifndef RC_INVOKED
 #include <cstdlib>
 #include <exception>
@@ -27,7 +27,7 @@
 
 #define _CRTIMP2_PURE
 
-_STD_BEGIN
+_STDEXT_STD_BEGIN
 // TEMPLATE FUNCTION _Allocate
 template <class _Ty>
 inline _Ty _FARQ *_Allocate(_SIZT _Count, _Ty _FARQ *)
@@ -66,25 +66,25 @@ inline void _Destroy(wchar_t _FARQ *)
 {  // destroy a wchar_t (do nothing)
 }
 
-// TEMPLATE FUNCTION _Destroy_range
+// TEMPLATE FUNCTION _STDEXT_Destroy_range
 template <class _Ty, class _Alloc>
-inline void _Destroy_range(_Ty *_First, _Ty *_Last, _Alloc &_Al)
+inline void _STDEXT_Destroy_range(_Ty *_First, _Ty *_Last, _Alloc &_Al)
 {  // destroy [_First, _Last)
-    _Destroy_range(_First, _Last, _Al, _Ptr_cat(_First, _Last));
+    _STDEXT_Destroy_range(_First, _Last, _Al, _Ptr_cat(_First, _Last));
 }
 
 template <class _Ty, class _Alloc>
-inline void _Destroy_range(_Ty *_First, _Ty *_Last, _Alloc &_Al, _Nonscalar_ptr_iterator_tag)
+inline void _STDEXT_Destroy_range(_Ty *_First, _Ty *_Last, _Alloc &_Al, _Nonscalar_ptr_iterator_tag)
 {  // destroy [_First, _Last), arbitrary type
     for (; _First != _Last; ++_First)
         _Al.destroy(_First);
 }
 
 template <class _Ty, class _Alloc>
-inline void _Destroy_range(_Ty *, _Ty *, _Alloc &, _Scalar_ptr_iterator_tag)
+inline void _STDEXT_Destroy_range(_Ty *, _Ty *, _Alloc &, _Scalar_ptr_iterator_tag)
 {  // destroy [_First, _Last), scalar type (do nothing)
 }
-_STD_END
+_STDEXT_STD_END
 
 #ifdef _MSC_VER
 #pragma warning(default : 4100)
@@ -94,4 +94,4 @@ _STD_END
 #endif /* _MSC_VER */
 
 #endif /* RC_INVOKED */
-#endif /* _XMEMORY_ */
+#endif /* _STDEXT_XMEMORY_HPP_ */

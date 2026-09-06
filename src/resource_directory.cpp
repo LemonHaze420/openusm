@@ -3,7 +3,6 @@
 #include "binary_search_array_cmp.h"
 #include "common.h"
 #include "debugutil.h"
-#include "error.h"
 #include "variables.h"
 #include "func_wrapper.h"
 #include "hashstring.h"

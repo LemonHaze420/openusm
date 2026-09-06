@@ -1,7 +1,7 @@
 // memory standard header
 #pragma once
-#ifndef _MEMORY_
-#define _MEMORY_
+#ifndef _STDEXT_MEMORY_HPP_
+#define _STDEXT_MEMORY_HPP_
 #ifndef RC_INVOKED
 #include <iterator>
 #include <xmemory.hpp>
@@ -11,13 +11,13 @@
 #pragma warning(push, 3)
 #endif /* _MSC_VER */
 
-#define _TRY_BEGIN __try {
-#define _CATCH_ALL \
-    }              \
-    catch (...)    \
+#define _STDEXT_TRY_BEGIN try {
+#define _STDEXT_CATCH_ALL \
+    }                     \
+    catch (...)           \
     {
-#define _RERAISE  //RaiseException()
-#define _CATCH_END }
+#define _STDEXT_RERAISE throw
+#define _STDEXT_CATCH_END }
 
 #define _SECURE_SCL 0
 
@@ -31,7 +31,7 @@ inline _FwdIt unchecked_uninitialized_copy(_InIt _First, _InIt _Last, _FwdIt _De
 
 _STDEXT_END
 
-_STD_BEGIN
+_STDEXT_STD_BEGIN
 
 // TEMPLATE FUNCTION get_temporary_buffer
 template <class _Ty>
@@ -60,26 +60,27 @@ inline void return_temporary_buffer(_Ty *_Pbuf)
 
 // TEMPLATE FUNCTION uninitialized_copy
 template <class _InIt, class _FwdIt>
-inline _FwdIt _Uninit_copy(_InIt _First, _InIt _Last, _FwdIt _Dest, _Nonscalar_ptr_iterator_tag,
-                           _Range_checked_iterator_tag)
+inline _FwdIt _STDEXT_Uninit_copy(_InIt _First, _InIt _Last, _FwdIt _Dest, _Nonscalar_ptr_iterator_tag,
+                                  _Range_checked_iterator_tag)
 {  // copy [_First, _Last) to raw _Dest, arbitrary type
     _DEBUG_RANGE(_First, _Last);
     _DEBUG_POINTER(_Dest);
     _FwdIt _Next = _Dest;
 
-    _TRY_BEGIN
+    _STDEXT_TRY_BEGIN
     for (; _First != _Last; ++_Dest, ++_First)
         _Construct(&*_Dest, *_First);
-    _CATCH_ALL
+    _STDEXT_CATCH_ALL
     for (; _Next != _Dest; ++_Next)
         _Destroy(&*_Next);
-    _RERAISE;
-    _CATCH_END
+    _STDEXT_RERAISE;
+    _STDEXT_CATCH_END
     return (_Dest);
 }
 
 template <class _Ty1, class _Ty2>
-inline _Ty2 _Uninit_copy(_Ty1 _First, _Ty1 _Last, _Ty2 _Dest, _Scalar_ptr_iterator_tag, _Range_checked_iterator_tag)
+inline _Ty2 _STDEXT_Uninit_copy(_Ty1 _First, _Ty1 _Last, _Ty2 _Dest, _Scalar_ptr_iterator_tag,
+                                _Range_checked_iterator_tag)
 {  // copy [_First, _Last) to raw _Dest, scalar type
     _DEBUG_RANGE(_First, _Last);
     _DEBUG_POINTER(_Dest);
@@ -96,27 +97,27 @@ inline _Ty2 _Uninit_copy(_Ty1 _First, _Ty1 _Last, _Ty2 _Dest, _Scalar_ptr_iterat
 template <class _InIt, class _FwdIt>
 inline _IF_CHK(_FwdIt) uninitialized_copy(_InIt _First, _InIt _Last, _FwdIt _Dest)
 {  // copy [_First, _Last) to raw _Dest
-    return (_Uninit_copy(_CHECKED_BASE(_First),
-                         _CHECKED_BASE(_Last),
-                         _Dest,
-                         _Ptr_cat(_First, _Dest),
-                         _STD _Range_checked_iterator_tag()));
+    return (_STDEXT_Uninit_copy(_CHECKED_BASE(_First),
+                                _CHECKED_BASE(_Last),
+                                _Dest,
+                                _Ptr_cat(_First, _Dest),
+                                _STDEXT_STD _Range_checked_iterator_tag()));
 }
 
 template <class _InIt, class _FwdElem, size_t _Size>
 inline _FwdElem *uninitialized_copy(_InIt _First, _InIt _Last, _FwdElem (&_Dest)[_Size])
 {  // copy [_First, _Last) to raw _Dest
-    return (uninitialized_copy(_First, _Last, _STDEXT make_checked_array_iterator(_Dest, _Size)).base());
+    return (uninitialized_copy(_First, _Last, _STDEXT_NS make_checked_array_iterator(_Dest, _Size)).base());
 }
 
 template <class _InIt, class _FwdIt>
 inline _SCL_INSECURE_DEPRECATE _IF_NOT_CHK(_FwdIt) uninitialized_copy(_InIt _First, _InIt _Last, _FwdIt _Dest)
 {  // copy [_First, _Last) to raw _Dest
-    return (_Uninit_copy(_CHECKED_BASE(_First),
-                         _CHECKED_BASE(_Last),
-                         _Dest,
-                         _Ptr_cat(_First, _Dest),
-                         _STD _Range_checked_iterator_tag()));
+    return (_STDEXT_Uninit_copy(_CHECKED_BASE(_First),
+                                _CHECKED_BASE(_Last),
+                                _Dest,
+                                _Ptr_cat(_First, _Dest),
+                                _STDEXT_STD _Range_checked_iterator_tag()));
 }
 
 #else
@@ -124,38 +125,38 @@ inline _SCL_INSECURE_DEPRECATE _IF_NOT_CHK(_FwdIt) uninitialized_copy(_InIt _Fir
 template <class _InIt, class _FwdIt>
 inline _FwdIt uninitialized_copy(_InIt _First, _InIt _Last, _FwdIt _Dest)
 {  // copy [_First, _Last) to raw _Dest
-    return (_Uninit_copy(_CHECKED_BASE(_First),
-                         _CHECKED_BASE(_Last),
-                         _Dest,
-                         _Ptr_cat(_First, _Dest),
-                         _STD _Range_checked_iterator_tag()));
+    return (_STDEXT_Uninit_copy(_CHECKED_BASE(_First),
+                                _CHECKED_BASE(_Last),
+                                _Dest,
+                                _Ptr_cat(_First, _Dest),
+                                _STDEXT_STD _Range_checked_iterator_tag()));
 }
 
 #endif
 
-// TEMPLATE FUNCTION _Uninitialized_copy WITH ALLOCATOR
+// TEMPLATE FUNCTION _STDEXT_Uninitialized_copy WITH ALLOCATOR
 template <class _InIt, class _FwdIt, class _Alloc>
-inline _FwdIt _Uninit_copy(_InIt _First, _InIt _Last, _FwdIt _Dest, _Alloc &_Al, _Nonscalar_ptr_iterator_tag,
-                           _Range_checked_iterator_tag)
+inline _FwdIt _STDEXT_Uninit_copy(_InIt _First, _InIt _Last, _FwdIt _Dest, _Alloc &_Al, _Nonscalar_ptr_iterator_tag,
+                                  _Range_checked_iterator_tag)
 {  // copy [_First, _Last) to raw _Dest, using _Al, arbitrary type
     _DEBUG_RANGE(_First, _Last);
     _DEBUG_POINTER(_Dest);
     _FwdIt _Next = _Dest;
 
-    _TRY_BEGIN
+    _STDEXT_TRY_BEGIN
     for (; _First != _Last; ++_Dest, ++_First)
         _Al.construct(_Dest, *_First);
-    _CATCH_ALL
+    _STDEXT_CATCH_ALL
     for (; _Next != _Dest; ++_Next)
         _Al.destroy(_Next);
-    _RERAISE;
-    _CATCH_END
+    _STDEXT_RERAISE;
+    _STDEXT_CATCH_END
     return (_Dest);
 }
 
 template <class _InIt, class _FwdIt, class _Alloc>
-inline _FwdIt _Uninit_copy(_InIt _First, _InIt _Last, _FwdIt _Dest, _Alloc &, _Scalar_ptr_iterator_tag,
-                           _Range_checked_iterator_tag)
+inline _FwdIt _STDEXT_Uninit_copy(_InIt _First, _InIt _Last, _FwdIt _Dest, _Alloc &, _Scalar_ptr_iterator_tag,
+                                  _Range_checked_iterator_tag)
 {  // copy [_First, _Last) to raw _Dest, scalar type
     _DEBUG_RANGE(_First, _Last);
     _DEBUG_POINTER(_Dest);
@@ -170,60 +171,61 @@ inline _FwdIt _Uninit_copy(_InIt _First, _InIt _Last, _FwdIt _Dest, _Alloc &, _S
 #if _SECURE_SCL
 
 template <class _InIt, class _FwdIt, class _Alloc>
-inline _IF_CHK(_FwdIt) _Uninitialized_copy(_InIt _First, _InIt _Last, _FwdIt _Dest, _Alloc &_Al)
+inline _IF_CHK(_FwdIt) _STDEXT_Uninitialized_copy(_InIt _First, _InIt _Last, _FwdIt _Dest, _Alloc &_Al)
 {  // copy [_First, _Last) to raw _Dest, using _Al
-    return (_Uninit_copy(_CHECKED_BASE(_First),
-                         _CHECKED_BASE(_Last),
-                         _Dest,
-                         _Al,
-                         _Ptr_cat(_First, _Dest),
-                         _STD _Range_checked_iterator_tag()));
+    return (_STDEXT_Uninit_copy(_CHECKED_BASE(_First),
+                                _CHECKED_BASE(_Last),
+                                _Dest,
+                                _Al,
+                                _Ptr_cat(_First, _Dest),
+                                _STDEXT_STD _Range_checked_iterator_tag()));
 }
 
 template <class _InIt, class _FwdElem, class _Alloc, size_t _Size>
-inline _FwdElem *_Uninitialized_copy(_InIt _First, _InIt _Last, _FwdElem (&_Dest)[_Size], _Alloc &_Al)
+inline _FwdElem *_STDEXT_Uninitialized_copy(_InIt _First, _InIt _Last, _FwdElem (&_Dest)[_Size], _Alloc &_Al)
 {  // copy [_First, _Last) to raw _Dest, using _Al
-    return (_Uninitialized_copy(_First, _Last, _STDEXT make_checked_array_iterator(_Dest, _Size), _Al).base());
+    return (
+        _STDEXT_Uninitialized_copy(_First, _Last, _STDEXT_NS make_checked_array_iterator(_Dest, _Size), _Al).base());
 }
 
 template <class _InIt, class _FwdIt, class _Alloc>
 inline _SCL_INSECURE_DEPRECATE _IF_NOT_CHK(_FwdIt)
-    _Uninitialized_copy(_InIt _First, _InIt _Last, _FwdIt _Dest, _Alloc &_Al)
+    _STDEXT_Uninitialized_copy(_InIt _First, _InIt _Last, _FwdIt _Dest, _Alloc &_Al)
 {  // copy [_First, _Last) to raw _Dest, using _Al
-    return (_Uninit_copy(_CHECKED_BASE(_First),
-                         _CHECKED_BASE(_Last),
-                         _Dest,
-                         _Al,
-                         _Ptr_cat(_First, _Dest),
-                         _STD _Range_checked_iterator_tag()));
+    return (_STDEXT_Uninit_copy(_CHECKED_BASE(_First),
+                                _CHECKED_BASE(_Last),
+                                _Dest,
+                                _Al,
+                                _Ptr_cat(_First, _Dest),
+                                _STDEXT_STD _Range_checked_iterator_tag()));
 }
 
 #else
 
 template <class _InIt, class _FwdIt, class _Alloc>
-inline _FwdIt _Uninitialized_copy(_InIt _First, _InIt _Last, _FwdIt _Dest, _Alloc &_Al)
+inline _FwdIt _STDEXT_Uninitialized_copy(_InIt _First, _InIt _Last, _FwdIt _Dest, _Alloc &_Al)
 {  // copy [_First, _Last) to raw _Dest, using _Al
-    return (_Uninit_copy(_CHECKED_BASE(_First),
-                         _CHECKED_BASE(_Last),
-                         _Dest,
-                         _Al,
-                         _Ptr_cat(_First, _Dest),
-                         _STD _Range_checked_iterator_tag()));
+    return (_STDEXT_Uninit_copy(_CHECKED_BASE(_First),
+                                _CHECKED_BASE(_Last),
+                                _Dest,
+                                _Al,
+                                _Ptr_cat(_First, _Dest),
+                                _STDEXT_STD _Range_checked_iterator_tag()));
 }
 
 #endif
 
-// TEMPLATE FUNCTION _Uninitialized_move WITH ALLOCATOR
+// TEMPLATE FUNCTION _STDEXT_Uninitialized_move WITH ALLOCATOR
 template <class _InIt, class _FwdIt, class _Alloc, class _MoveCatTy>
-inline _FwdIt _Uninit_move(_InIt _First, _InIt _Last, _FwdIt _Dest, _Alloc &_Al, _MoveCatTy,
-                           _Range_checked_iterator_tag)
+inline _FwdIt _STDEXT_Uninit_move(_InIt _First, _InIt _Last, _FwdIt _Dest, _Alloc &_Al, _MoveCatTy,
+                                  _Range_checked_iterator_tag)
 {  // move defaults to copy if there is not a more effecient way
-    return _STDEXT unchecked_uninitialized_copy(_First, _Last, _Dest, _Al);
+    return _STDEXT_NS unchecked_uninitialized_copy(_First, _Last, _Dest, _Al);
 }
 
 template <class _InIt, class _FwdIt, class _Alloc>
-inline _FwdIt _Uninit_move(_InIt _First, _InIt _Last, _FwdIt _Dest, _Alloc &_Al, _Swap_move_tag,
-                           _Range_checked_iterator_tag)
+inline _FwdIt _STDEXT_Uninit_move(_InIt _First, _InIt _Last, _FwdIt _Dest, _Alloc &_Al, _Swap_move_tag,
+                                  _Range_checked_iterator_tag)
 {  // use swap to instead of the copy constructor
     _DEBUG_RANGE(_First, _Last);
     _DEBUG_POINTER(_Dest);
@@ -231,49 +233,62 @@ inline _FwdIt _Uninit_move(_InIt _First, _InIt _Last, _FwdIt _Dest, _Alloc &_Al,
     // empty value used in the construction
     typename _Alloc::value_type _Val;
 
-    _TRY_BEGIN
+    _STDEXT_TRY_BEGIN
     for (; _First != _Last; ++_Dest, ++_First) {
         _Al.construct(_Dest, _Val);
-        _STD swap(*_Dest, *_First);
+        _STDEXT_STD swap(*_Dest, *_First);
     }
-    _CATCH_ALL
+    _STDEXT_CATCH_ALL
     for (; _Next != _Dest; ++_Next)
         _Al.destroy(_Next);
-    _RERAISE;
-    _CATCH_END
+    _STDEXT_RERAISE;
+    _STDEXT_CATCH_END
     return (_Dest);
 }
 
 #if _SECURE_SCL
 
 template <class _InIt, class _FwdIt, class _Alloc>
-inline _IF_CHK(_FwdIt) _Uninitialized_move(_InIt _First, _InIt _Last, _FwdIt _Dest, _Alloc &_Al)
+inline _IF_CHK(_FwdIt) _STDEXT_Uninitialized_move(_InIt _First, _InIt _Last, _FwdIt _Dest, _Alloc &_Al)
 {  // move [_First, _Last) to raw _Dest, using _Al
-    return (_Uninit_move(
-        _CHECKED_BASE(_First), _CHECKED_BASE(_Last), _Dest, _Al, _Move_cat(_Dest), _STD _Range_checked_iterator_tag()));
+    return (_STDEXT_Uninit_move(_CHECKED_BASE(_First),
+                                _CHECKED_BASE(_Last),
+                                _Dest,
+                                _Al,
+                                _Move_cat(_Dest),
+                                _STDEXT_STD _Range_checked_iterator_tag()));
 }
 
 template <class _InIt, class _FwdElem, class _Alloc, size_t _Size>
-inline _FwdElem *_Uninitialized_move(_InIt _First, _InIt _Last, _FwdElem (&_Dest)[_Size], _Alloc &_Al)
+inline _FwdElem *_STDEXT_Uninitialized_move(_InIt _First, _InIt _Last, _FwdElem (&_Dest)[_Size], _Alloc &_Al)
 {  // move [_First, _Last) to raw _Dest, using _Al
-    return (_Uninitialized_move(_First, _Last, _STDEXT make_checked_array_iterator(_Dest, _Size), _Al).base());
+    return (
+        _STDEXT_Uninitialized_move(_First, _Last, _STDEXT_NS make_checked_array_iterator(_Dest, _Size), _Al).base());
 }
 
 template <class _InIt, class _FwdIt, class _Alloc>
 inline _SCL_INSECURE_DEPRECATE _IF_NOT_CHK(_FwdIt)
-    _Uninitialized_move(_InIt _First, _InIt _Last, _FwdIt _Dest, _Alloc &_Al)
+    _STDEXT_Uninitialized_move(_InIt _First, _InIt _Last, _FwdIt _Dest, _Alloc &_Al)
 {  // move [_First, _Last) to raw _Dest, using _Al
-    return (_Uninit_move(
-        _CHECKED_BASE(_First), _CHECKED_BASE(_Last), _Dest, _Al, _Move_cat(_Dest), _STD _Range_checked_iterator_tag()));
+    return (_STDEXT_Uninit_move(_CHECKED_BASE(_First),
+                                _CHECKED_BASE(_Last),
+                                _Dest,
+                                _Al,
+                                _Move_cat(_Dest),
+                                _STDEXT_STD _Range_checked_iterator_tag()));
 }
 
 #else
 
 template <class _InIt, class _FwdIt, class _Alloc>
-inline _FwdIt _Uninitialized_move(_InIt _First, _InIt _Last, _FwdIt _Dest, _Alloc &_Al)
+inline _FwdIt _STDEXT_Uninitialized_move(_InIt _First, _InIt _Last, _FwdIt _Dest, _Alloc &_Al)
 {  // move [_First, _Last) to raw _Dest, using _Al
-    return (_Uninit_move(
-        _CHECKED_BASE(_First), _CHECKED_BASE(_Last), _Dest, _Al, _Move_cat(_Dest), _STD _Range_checked_iterator_tag()));
+    return (_STDEXT_Uninit_move(_CHECKED_BASE(_First),
+                                _CHECKED_BASE(_Last),
+                                _Dest,
+                                _Al,
+                                _Move_cat(_Dest),
+                                _STDEXT_STD _Range_checked_iterator_tag()));
 }
 
 #endif
@@ -285,14 +300,14 @@ inline void _Uninit_fill(_FwdIt _First, _FwdIt _Last, const _Tval &_Val, _Nonsca
     _DEBUG_RANGE(_First, _Last);
     _FwdIt _Next = _First;
 
-    _TRY_BEGIN
+    _STDEXT_TRY_BEGIN
     for (; _First != _Last; ++_First)
         _Construct(&*_First, _Val);
-    _CATCH_ALL
+    _STDEXT_CATCH_ALL
     for (; _Next != _First; ++_Next)
         _Destroy(&*_Next);
-    _RERAISE;
-    _CATCH_END
+    _STDEXT_RERAISE;
+    _STDEXT_CATCH_END
 }
 
 template <class _Ty, class _Tval>
@@ -309,8 +324,8 @@ inline void uninitialized_fill(_FwdIt _First, _FwdIt _Last, const _Tval &_Val)
 
 // TEMPLATE FUNCTION uninitialized_fill_n
 template <class _FwdIt, class _Diff, class _Tval>
-inline void _Uninit_fill_n(_FwdIt _First, _Diff _Count, const _Tval &_Val, _Nonscalar_ptr_iterator_tag,
-                           _Range_checked_iterator_tag)
+inline void _STDEXT_Uninit_fill_n(_FwdIt _First, _Diff _Count, const _Tval &_Val, _Nonscalar_ptr_iterator_tag,
+                                  _Range_checked_iterator_tag)
 {  // copy _Count *_Val to raw _First, arbitrary type
 
 #if _HAS_ITERATOR_DEBUGGING
@@ -320,21 +335,21 @@ inline void _Uninit_fill_n(_FwdIt _First, _Diff _Count, const _Tval &_Val, _Nons
 
     _FwdIt _Next = _First;
 
-    _TRY_BEGIN
+    _STDEXT_TRY_BEGIN
     for (; 0 < _Count; --_Count, ++_First)
         _Construct(&*_First, _Val);
-    _CATCH_ALL
+    _STDEXT_CATCH_ALL
     for (; _Next != _First; ++_Next)
         _Destroy(&*_Next);
-    _RERAISE;
-    _CATCH_END
+    _STDEXT_RERAISE;
+    _STDEXT_CATCH_END
 }
 
 template <class _FwdIt, class _Diff, class _Tval>
-inline void _Uninit_fill_n(_FwdIt _First, _Diff _Count, const _Tval &_Val, _Scalar_ptr_iterator_tag,
-                           _Range_checked_iterator_tag)
+inline void _STDEXT_Uninit_fill_n(_FwdIt _First, _Diff _Count, const _Tval &_Val, _Scalar_ptr_iterator_tag,
+                                  _Range_checked_iterator_tag)
 {  // copy _Count *_Val to raw _First, scalar type
-    _STDEXT unchecked_fill_n(&*_First, _Count, _Val);
+    _STDEXT_NS unchecked_fill_n(&*_First, _Count, _Val);
 }
 
 #if _SECURE_SCL
@@ -342,20 +357,20 @@ inline void _Uninit_fill_n(_FwdIt _First, _Diff _Count, const _Tval &_Val, _Scal
 template <class _FwdIt, class _Diff, class _Tval>
 inline _IF_CHK_(_FwdIt, void) uninitialized_fill_n(_FwdIt _First, _Diff _Count, const _Tval &_Val)
 {  // copy _Count *_Val to raw _First
-    _Uninit_fill_n(_First, _Count, _Val, _Ptr_cat(_First, _First), _STD _Range_checked_iterator_tag());
+    _STDEXT_Uninit_fill_n(_First, _Count, _Val, _Ptr_cat(_First, _First), _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 template <class _FwdElem, class _Diff, class _Tval, size_t _Size>
 inline void uninitialized_fill_n(_FwdElem (&_First)[_Size], _Diff _Count, const _Tval &_Val)
 {  // copy _Count *_Val to raw _First
-    uninitialized_fill_n(_STDEXT make_checked_array_iterator(_First, _Size), _Count, _Val);
+    uninitialized_fill_n(_STDEXT_NS make_checked_array_iterator(_First, _Size), _Count, _Val);
 }
 
 template <class _FwdIt, class _Diff, class _Tval>
 inline _SCL_INSECURE_DEPRECATE _IF_NOT_CHK_(_FwdIt, void)
     uninitialized_fill_n(_FwdIt _First, _Diff _Count, const _Tval &_Val)
 {  // copy _Count *_Val to raw _First
-    _Uninit_fill_n(_First, _Count, _Val, _Ptr_cat(_First, _First), _STD _Range_checked_iterator_tag());
+    _STDEXT_Uninit_fill_n(_First, _Count, _Val, _Ptr_cat(_First, _First), _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 #else
@@ -363,15 +378,15 @@ inline _SCL_INSECURE_DEPRECATE _IF_NOT_CHK_(_FwdIt, void)
 template <class _FwdIt, class _Diff, class _Tval>
 inline void uninitialized_fill_n(_FwdIt _First, _Diff _Count, const _Tval &_Val)
 {  // copy _Count *_Val to raw _First
-    _Uninit_fill_n(_First, _Count, _Val, _Ptr_cat(_First, _First), _STD _Range_checked_iterator_tag());
+    _STDEXT_Uninit_fill_n(_First, _Count, _Val, _Ptr_cat(_First, _First), _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 #endif
 
-// TEMPLATE FUNCTION _Uninitialized_fill_n WITH ALLOCATOR
+// TEMPLATE FUNCTION _STDEXT_Uninitialized_fill_n WITH ALLOCATOR
 template <class _FwdIt, class _Diff, class _Tval, class _Alloc>
-inline void _Uninit_fill_n(_FwdIt _First, _Diff _Count, const _Tval &_Val, _Alloc &_Al, _Nonscalar_ptr_iterator_tag,
-                           _Range_checked_iterator_tag)
+inline void _STDEXT_Uninit_fill_n(_FwdIt _First, _Diff _Count, const _Tval &_Val, _Alloc &_Al,
+                                  _Nonscalar_ptr_iterator_tag, _Range_checked_iterator_tag)
 {  // copy _Count *_Val to raw _First, using _Al, arbitrary type
 
 #if _HAS_ITERATOR_DEBUGGING
@@ -381,50 +396,53 @@ inline void _Uninit_fill_n(_FwdIt _First, _Diff _Count, const _Tval &_Val, _Allo
 
     _FwdIt _Next = _First;
 
-    _TRY_BEGIN
+    _STDEXT_TRY_BEGIN
     for (; 0 < _Count; --_Count, ++_First)
         _Al.construct(_First, _Val);
-    _CATCH_ALL
+    _STDEXT_CATCH_ALL
     for (; _Next != _First; ++_Next)
         _Al.destroy(_Next);
-    _RERAISE;
-    _CATCH_END
+    _STDEXT_RERAISE;
+    _STDEXT_CATCH_END
 }
 
 template <class _FwdIt, class _Diff, class _Tval, class _Alloc>
-inline void _Uninit_fill_n(_FwdIt _First, _Diff _Count, const _Tval &_Val, _Alloc &, _Scalar_ptr_iterator_tag,
-                           _Range_checked_iterator_tag)
+inline void _STDEXT_Uninit_fill_n(_FwdIt _First, _Diff _Count, const _Tval &_Val, _Alloc &, _Scalar_ptr_iterator_tag,
+                                  _Range_checked_iterator_tag)
 {  // copy _Count *_Val to raw _First, using _Al, scalar type
-    _STDEXT unchecked_fill_n(_First, _Count, _Val);
+    _STDEXT_NS unchecked_fill_n(_First, _Count, _Val);
 }
 
 #if _SECURE_SCL
 
 template <class _FwdIt, class _Diff, class _Tval, class _Alloc>
-inline _IF_CHK_(_FwdIt, void) _Uninitialized_fill_n(_FwdIt _First, _Diff _Count, const _Tval &_Val, _Alloc &_Al)
+inline _IF_CHK_(_FwdIt, void) _STDEXT_Uninitialized_fill_n(_FwdIt _First, _Diff _Count, const _Tval &_Val, _Alloc &_Al)
 {  // copy _Count *_Val to raw _First, using _Al
-    _Uninit_fill_n(_First, _Count, _Val, _Al, _Ptr_cat(_First, _First), _STD _Range_checked_iterator_tag());
+    _STDEXT_Uninit_fill_n(
+        _First, _Count, _Val, _Al, _Ptr_cat(_First, _First), _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 template <class _FwdElem, class _Diff, class _Tval, class _Alloc, size_t _Size>
-inline void _Uninitialized_fill_n(_FwdElem (&_First)[_Size], _Diff _Count, const _Tval &_Val, _Alloc &_Al)
+inline void _STDEXT_Uninitialized_fill_n(_FwdElem (&_First)[_Size], _Diff _Count, const _Tval &_Val, _Alloc &_Al)
 {  // copy _Count *_Val to raw _First, using _Al
-    _Uninitialized_fill_n(_STDEXT make_checked_array_iterator(_First, _Size), _Count, _Val, _Al);
+    _STDEXT_Uninitialized_fill_n(_STDEXT_NS make_checked_array_iterator(_First, _Size), _Count, _Val, _Al);
 }
 
 template <class _FwdIt, class _Diff, class _Tval, class _Alloc>
 inline _SCL_INSECURE_DEPRECATE _IF_NOT_CHK_(_FwdIt, void)
-    _Uninitialized_fill_n(_FwdIt _First, _Diff _Count, const _Tval &_Val, _Alloc &_Al)
+    _STDEXT_Uninitialized_fill_n(_FwdIt _First, _Diff _Count, const _Tval &_Val, _Alloc &_Al)
 {  // copy _Count *_Val to raw _First, using _Al
-    _Uninit_fill_n(_First, _Count, _Val, _Al, _Ptr_cat(_First, _First), _STD _Range_checked_iterator_tag());
+    _STDEXT_Uninit_fill_n(
+        _First, _Count, _Val, _Al, _Ptr_cat(_First, _First), _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 #else
 
 template <class _FwdIt, class _Diff, class _Tval, class _Alloc>
-inline void _Uninitialized_fill_n(_FwdIt _First, _Diff _Count, const _Tval &_Val, _Alloc &_Al)
+inline void _STDEXT_Uninitialized_fill_n(_FwdIt _First, _Diff _Count, const _Tval &_Val, _Alloc &_Al)
 {  // copy _Count *_Val to raw _First, using _Al
-    _Uninit_fill_n(_First, _Count, _Val, _Al, _Ptr_cat(_First, _First), _STD _Range_checked_iterator_tag());
+    _STDEXT_Uninit_fill_n(
+        _First, _Count, _Val, _Al, _Ptr_cat(_First, _First), _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 #endif
@@ -572,7 +590,7 @@ public:
 
     static void _Xinvarg()
     {  // report an invalid_argument error
-        _THROW(std::invalid_argument, "invalid _Temp_iterator<T> argument");
+        _STDEXT_THROW(std::invalid_argument, "invalid _Temp_iterator<T> argument");
     }
 
 private:
@@ -706,175 +724,183 @@ public:
 private:
     const _Ty *_Myptr;  // the wrapped object pointer
 };
-_STD_END
+_STDEXT_STD_END
 
 _STDEXT_BEGIN
 
 template <class _InIt, class _FwdIt>
 inline _FwdIt unchecked_uninitialized_copy(_InIt _First, _InIt _Last, _FwdIt _Dest)
 {  // copy [_First, _Last) to raw _Dest
-    return (_STD _Uninit_copy(_CHECKED_BASE(_First),
-                              _CHECKED_BASE(_Last),
-                              _Dest,
-                              _STD _Ptr_cat(_First, _Dest),
-                              _STD _Range_checked_iterator_tag()));
+    return (_STDEXT_STD _STDEXT_Uninit_copy(_CHECKED_BASE(_First),
+                                            _CHECKED_BASE(_Last),
+                                            _Dest,
+                                            _STDEXT_STD _Ptr_cat(_First, _Dest),
+                                            _STDEXT_STD _Range_checked_iterator_tag()));
 }
 
 template <class _InIt, class _FwdIt>
 inline _IF_CHK(_FwdIt) checked_uninitialized_copy(_InIt _First, _InIt _Last, _FwdIt _Dest)
 {  // copy [_First, _Last) to raw _Dest
-    return (_STD _Uninit_copy(_CHECKED_BASE(_First),
-                              _CHECKED_BASE(_Last),
-                              _Dest,
-                              _STD _Ptr_cat(_First, _Dest),
-                              _STD _Range_checked_iterator_tag()));
+    return (_STDEXT_STD _STDEXT_Uninit_copy(_CHECKED_BASE(_First),
+                                            _CHECKED_BASE(_Last),
+                                            _Dest,
+                                            _STDEXT_STD _Ptr_cat(_First, _Dest),
+                                            _STDEXT_STD _Range_checked_iterator_tag()));
 }
 
 template <class _InIt, class _FwdElem, size_t _Size>
 inline _FwdElem *checked_uninitialized_copy(_InIt _First, _InIt _Last, _FwdElem (&_Dest)[_Size])
 {  // copy [_First, _Last) to raw _Dest
-    return (checked_uninitialized_copy(_First, _Last, _STDEXT make_checked_array_iterator(_Dest, _Size)).base());
+    return (checked_uninitialized_copy(_First, _Last, _STDEXT_NS make_checked_array_iterator(_Dest, _Size)).base());
 }
 
 template <class _InIt, class _FwdIt>
 inline _SCL_CHECKED_ALGORITHM_WARN _IF_NOT_CHK(_FwdIt)
     checked_uninitialized_copy(_InIt _First, _InIt _Last, _FwdIt _Dest)
 {  // copy [_First, _Last) to raw _Dest
-    return (_STD _Uninit_copy(_CHECKED_BASE(_First),
-                              _CHECKED_BASE(_Last),
-                              _Dest,
-                              _STD _Ptr_cat(_First, _Dest),
-                              _STD _Range_checked_iterator_tag()));
+    return (_STDEXT_STD _STDEXT_Uninit_copy(_CHECKED_BASE(_First),
+                                            _CHECKED_BASE(_Last),
+                                            _Dest,
+                                            _STDEXT_STD _Ptr_cat(_First, _Dest),
+                                            _STDEXT_STD _Range_checked_iterator_tag()));
 }
 
 template <class _InIt, class _FwdIt, class _Alloc>
 inline _FwdIt unchecked_uninitialized_copy(_InIt _First, _InIt _Last, _FwdIt _Dest, _Alloc &_Al)
 {  // copy [_First, _Last) to raw _Dest, using _Al
-    return (_STD _Uninit_copy(_CHECKED_BASE(_First),
-                              _CHECKED_BASE(_Last),
-                              _Dest,
-                              _Al,
-                              _STD _Ptr_cat(_First, _Dest),
-                              _STD _Range_checked_iterator_tag()));
+    return (_STDEXT_STD _STDEXT_Uninit_copy(_CHECKED_BASE(_First),
+                                            _CHECKED_BASE(_Last),
+                                            _Dest,
+                                            _Al,
+                                            _STDEXT_STD _Ptr_cat(_First, _Dest),
+                                            _STDEXT_STD _Range_checked_iterator_tag()));
 }
 
 template <class _InIt, class _FwdIt, class _Alloc>
 inline _IF_CHK(_FwdIt) checked_uninitialized_copy(_InIt _First, _InIt _Last, _FwdIt _Dest, _Alloc &_Al)
 {  // copy [_First, _Last) to raw _Dest, using _Al
-    return (_STD _Uninit_copy(_CHECKED_BASE(_First),
-                              _CHECKED_BASE(_Last),
-                              _Dest,
-                              _Al,
-                              _STD _Ptr_cat(_First, _Dest),
-                              _STD _Range_checked_iterator_tag()));
+    return (_STDEXT_STD _STDEXT_Uninit_copy(_CHECKED_BASE(_First),
+                                            _CHECKED_BASE(_Last),
+                                            _Dest,
+                                            _Al,
+                                            _STDEXT_STD _Ptr_cat(_First, _Dest),
+                                            _STDEXT_STD _Range_checked_iterator_tag()));
 }
 
 template <class _InIt, class _FwdElem, class _Alloc, size_t _Size>
 inline _FwdElem *checked_uninitialized_copy(_InIt _First, _InIt _Last, _FwdElem (&_Dest)[_Size], _Alloc &_Al)
 {  // copy [_First, _Last) to raw _Dest, using _Al
-    return (checked_uninitialized_copy(_First, _Last, _STDEXT make_checked_array_iterator(_Dest, _Size), _Al).base());
+    return (
+        checked_uninitialized_copy(_First, _Last, _STDEXT_NS make_checked_array_iterator(_Dest, _Size), _Al).base());
 }
 
 template <class _InIt, class _FwdIt, class _Alloc>
 inline _SCL_CHECKED_ALGORITHM_WARN _IF_NOT_CHK(_FwdIt)
     checked_uninitialized_copy(_InIt _First, _InIt _Last, _FwdIt _Dest, _Alloc &_Al)
 {  // copy [_First, _Last) to raw _Dest, using _Al
-    return (_STD _Uninit_copy(_CHECKED_BASE(_First),
-                              _CHECKED_BASE(_Last),
-                              _Dest,
-                              _Al,
-                              _STD _Ptr_cat(_First, _Dest),
-                              _STD _Range_checked_iterator_tag()));
+    return (_STDEXT_STD _STDEXT_Uninit_copy(_CHECKED_BASE(_First),
+                                            _CHECKED_BASE(_Last),
+                                            _Dest,
+                                            _Al,
+                                            _STDEXT_STD _Ptr_cat(_First, _Dest),
+                                            _STDEXT_STD _Range_checked_iterator_tag()));
 }
 
 template <class _InIt, class _FwdIt, class _Alloc>
 inline _FwdIt _Unchecked_uninitialized_move(_InIt _First, _InIt _Last, _FwdIt _Dest, _Alloc &_Al)
 {  // move [_First, _Last) to raw _Dest, using _Al
-    return (_STD _Uninit_move(_CHECKED_BASE(_First),
-                              _CHECKED_BASE(_Last),
-                              _Dest,
-                              _Al,
-                              _STD _Move_cat(_Dest),
-                              _STD _Range_checked_iterator_tag()));
+    return (_STDEXT_STD _STDEXT_Uninit_move(_CHECKED_BASE(_First),
+                                            _CHECKED_BASE(_Last),
+                                            _Dest,
+                                            _Al,
+                                            _STDEXT_STD _Move_cat(_Dest),
+                                            _STDEXT_STD _Range_checked_iterator_tag()));
 }
 
 template <class _InIt, class _FwdIt, class _Alloc>
 inline _IF_CHK(_FwdIt) _Checked_uninitialized_move(_InIt _First, _InIt _Last, _FwdIt _Dest, _Alloc &_Al)
 {  // move [_First, _Last) to raw _Dest, using _Al
-    return (_STD _Uninit_move(_CHECKED_BASE(_First),
-                              _CHECKED_BASE(_Last),
-                              _Dest,
-                              _Al,
-                              _STD _Move_cat(_Dest),
-                              _STD _Range_checked_iterator_tag()));
+    return (_STDEXT_STD _STDEXT_Uninit_move(_CHECKED_BASE(_First),
+                                            _CHECKED_BASE(_Last),
+                                            _Dest,
+                                            _Al,
+                                            _STDEXT_STD _Move_cat(_Dest),
+                                            _STDEXT_STD _Range_checked_iterator_tag()));
 }
 
 template <class _InIt, class _FwdElem, class _Alloc, size_t _Size>
 inline _FwdElem *_Checked_uninitialized_move(_InIt _First, _InIt _Last, _FwdElem (&_Dest)[_Size], _Alloc &_Al)
 {  // move [_First, _Last) to raw _Dest, using _Al
-    return (_Checked_uninitialized_move(_First, _Last, _STDEXT make_checked_array_iterator(_Dest, _Size), _Al).base());
+    return (
+        _Checked_uninitialized_move(_First, _Last, _STDEXT_NS make_checked_array_iterator(_Dest, _Size), _Al).base());
 }
 
 template <class _InIt, class _FwdIt, class _Alloc>
 inline _SCL_CHECKED_ALGORITHM_WARN _IF_NOT_CHK(_FwdIt)
     _Checked_uninitialized_move(_InIt _First, _InIt _Last, _FwdIt _Dest, _Alloc &_Al)
 {  // move [_First, _Last) to raw _Dest, using _Al
-    return (_STD _Uninit_move(_CHECKED_BASE(_First),
-                              _CHECKED_BASE(_Last),
-                              _Dest,
-                              _Al,
-                              _STD _Move_cat(_Dest),
-                              _STD _Range_checked_iterator_tag()));
+    return (_STDEXT_STD _STDEXT_Uninit_move(_CHECKED_BASE(_First),
+                                            _CHECKED_BASE(_Last),
+                                            _Dest,
+                                            _Al,
+                                            _STDEXT_STD _Move_cat(_Dest),
+                                            _STDEXT_STD _Range_checked_iterator_tag()));
 }
 
 template <class _FwdIt, class _Diff, class _Tval>
 inline void unchecked_uninitialized_fill_n(_FwdIt _First, _Diff _Count, const _Tval &_Val)
 {  // copy _Count *_Val to raw _First
-    _STD _Uninit_fill_n(_First, _Count, _Val, _STD _Ptr_cat(_First, _First), _STD _Range_checked_iterator_tag());
+    _STDEXT_STD _STDEXT_Uninit_fill_n(
+        _First, _Count, _Val, _STDEXT_STD _Ptr_cat(_First, _First), _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 template <class _FwdIt, class _Diff, class _Tval>
 inline _IF_CHK_(_FwdIt, void) checked_uninitialized_fill_n(_FwdIt _First, _Diff _Count, const _Tval &_Val)
 {  // copy _Count *_Val to raw _First
-    _STD _Uninit_fill_n(_First, _Count, _Val, _STD _Ptr_cat(_First, _First), _STD _Range_checked_iterator_tag());
+    _STDEXT_STD _STDEXT_Uninit_fill_n(
+        _First, _Count, _Val, _STDEXT_STD _Ptr_cat(_First, _First), _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 template <class _FwdElem, class _Diff, class _Tval, size_t _Size>
 inline void checked_uninitialized_fill_n(_FwdElem (&_First)[_Size], _Diff _Count, const _Tval &_Val)
 {  // copy _Count *_Val to raw _First
-    checked_uninitialized_fill_n(_STDEXT make_checked_array_iterator(_First, _Size), _Count, _Val);
+    checked_uninitialized_fill_n(_STDEXT_NS make_checked_array_iterator(_First, _Size), _Count, _Val);
 }
 
 template <class _FwdIt, class _Diff, class _Tval>
 inline _SCL_CHECKED_ALGORITHM_WARN _IF_NOT_CHK_(_FwdIt, void)
     checked_uninitialized_fill_n(_FwdIt _First, _Diff _Count, const _Tval &_Val)
 {  // copy _Count *_Val to raw _First
-    _STD _Uninit_fill_n(_First, _Count, _Val, _STD _Ptr_cat(_First, _First), _STD _Range_checked_iterator_tag());
+    _STDEXT_STD _STDEXT_Uninit_fill_n(
+        _First, _Count, _Val, _STDEXT_STD _Ptr_cat(_First, _First), _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 template <class _FwdIt, class _Diff, class _Tval, class _Alloc>
 inline void unchecked_uninitialized_fill_n(_FwdIt _First, _Diff _Count, const _Tval &_Val, _Alloc &_Al)
 {  // copy _Count *_Val to raw _First, using _Al
-    _STD _Uninit_fill_n(_First, _Count, _Val, _Al, _STD _Ptr_cat(_First, _First), _STD _Range_checked_iterator_tag());
+    _STDEXT_STD _STDEXT_Uninit_fill_n(
+        _First, _Count, _Val, _Al, _STDEXT_STD _Ptr_cat(_First, _First), _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 template <class _FwdIt, class _Diff, class _Tval, class _Alloc>
 inline _IF_CHK_(_FwdIt, void) checked_uninitialized_fill_n(_FwdIt _First, _Diff _Count, const _Tval &_Val, _Alloc &_Al)
 {  // copy _Count *_Val to raw _First, using _Al
-    _STD _Uninit_fill_n(_First, _Count, _Val, _Al, _STD _Ptr_cat(_First, _First), _STD _Range_checked_iterator_tag());
+    _STDEXT_STD _STDEXT_Uninit_fill_n(
+        _First, _Count, _Val, _Al, _STDEXT_STD _Ptr_cat(_First, _First), _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 template <class _FwdElem, class _Diff, class _Tval, class _Alloc, size_t _Size>
 inline void checked_uninitialized_fill_n(_FwdElem (&_First)[_Size], _Diff _Count, const _Tval &_Val, _Alloc &_Al)
 {  // copy _Count *_Val to raw _First, using _Al
-    checked_uninitialized_fill_n(_STDEXT make_checked_array_iterator(_First, _Size), _Count, _Val, _Al);
+    checked_uninitialized_fill_n(_STDEXT_NS make_checked_array_iterator(_First, _Size), _Count, _Val, _Al);
 }
 
 template <class _FwdIt, class _Diff, class _Tval, class _Alloc>
 inline _SCL_CHECKED_ALGORITHM_WARN _IF_NOT_CHK_(_FwdIt, void)
     checked_uninitialized_fill_n(_FwdIt _First, _Diff _Count, const _Tval &_Val, _Alloc &_Al)
 {  // copy _Count *_Val to raw _First, using _Al
-    _STD _Uninit_fill_n(_First, _Count, _Val, _Al, _STD _Ptr_cat(_First, _First), _STD _Range_checked_iterator_tag());
+    _STDEXT_STD _STDEXT_Uninit_fill_n(
+        _First, _Count, _Val, _Al, _STDEXT_STD _Ptr_cat(_First, _First), _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 _STDEXT_END
@@ -885,4 +911,4 @@ _STDEXT_END
 #endif /* _MSC_VER */
 
 #endif /* RC_INVOKED */
-#endif /* _MEMORY_ */
+#endif /* _STDEXT_MEMORY_HPP_ */

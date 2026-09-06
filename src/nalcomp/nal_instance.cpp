@@ -16,12 +16,12 @@ nalComp::nalCompInstance::nalCompInstance(nalComp::nalCompAnim *a2, nalComp::nal
 {
     if constexpr (1) {
         static vtbl g_vtbl = {
-            func_address(&finalize),
-            func_address(&_VirtualGetPose),
-            func_address(&_BuildDirectMapping),
-            func_address(&_BuildSkelRemapping),
-            func_address(&_BuildEmptyPoseArray),
-            func_address(&_BuildPerInstData),
+            func_address(&nalInstanceClass::finalize),
+            func_address(&nalCompInstance::_VirtualGetPose),
+            func_address(&nalCompInstance::_BuildDirectMapping),
+            func_address(&nalCompInstance::_BuildSkelRemapping),
+            func_address(&nalCompInstance::_BuildEmptyPoseArray),
+            func_address(&nalCompInstance::_BuildPerInstData),
         };
         this->m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {

@@ -32,12 +32,12 @@ nalChar::nalCharInstance::nalCharInstance(nalChar::nalCharAnim *a2, nalChar::nal
 {
     if constexpr (1) {
         static vtbl g_vtbl = {
-            func_address(&finalize),
-            func_address(&_VirtualGetPose),
-            func_address(&_BuildDirectMapping),
-            func_address(&_BuildSkelRemapping),
-            func_address(&_BuildEmptyPoseArray),
-            func_address(&_BuildPerInstData),
+            func_address(&nalCharInstance::finalize),
+            func_address(&nalCharInstance::_VirtualGetPose),
+            func_address(&nalCompInstance::_BuildDirectMapping),
+            func_address(&nalCompInstance::_BuildSkelRemapping),
+            func_address(&nalCompInstance::_BuildEmptyPoseArray),
+            func_address(&nalCharInstance::_BuildPerInstData),
         };
         this->m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {
@@ -328,14 +328,14 @@ nalChar::nalCharAnim::nalCharAnim()
     if constexpr (1) {
         static void *g_vtbl[]{
             nullptr,
-            func_address(&_Process),
-            func_address(&_Release),
-            func_address(&_CheckVersion),
-            func_address(&_VirtualCreateInstance),
-            func_address(&_GetPerAnimDataFromComponentIx),
-            func_address(&_GetPerAnimUserDataInt),
-            func_address(&_UnMash),
-            func_address(&_ReMash),
+            func_address(&nalCharAnim::_Process),
+            func_address(&nalCharAnim::_Release),
+            func_address(&nalCharAnim::_CheckVersion),
+            func_address(&nalCharAnim::_VirtualCreateInstance),
+            func_address(&nalCompAnim::_GetPerAnimDataFromComponentIx),
+            func_address(&nalCompAnim::_GetPerAnimUserDataInt),
+            func_address(&nalCompAnim::_UnMash),
+            func_address(&nalCompAnim::_ReMash),
         };
 
         this->m_vtbl = CAST(m_vtbl, &g_vtbl);

@@ -3,6 +3,7 @@
 #include "float.hpp"
 #include "font_index.h"
 
+#include <cstddef>
 #include <cstdint>
 
 struct FEMenu;

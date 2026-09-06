@@ -17,10 +17,10 @@ texture_resource_handler::texture_resource_handler(worldly_pack_slot *a2)
 {
     if constexpr (1) {
         static void *g_vtbl[] = {
-            func_address(&finalize),
-            func_address(&_handle),
-            func_address(&_pre_handle_resources),
-            func_address(&_handle_resource),
+            func_address(&texture_resource_handler::finalize),
+            func_address(&texture_resource_handler::_handle),
+            func_address(&texture_resource_handler::_pre_handle_resources),
+            func_address(&texture_resource_handler::_handle_resource),
         };
 
         this->m_vtbl = CAST(m_vtbl, &g_vtbl);

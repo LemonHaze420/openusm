@@ -1,6 +1,6 @@
 #pragma once
 
-#include <experimental/source_location>
+#include <source_location>
 #include <string_view>
 
 #include <cstdarg>
@@ -9,11 +9,11 @@
 
 void __log(const char *file, int line, const char *format, ...);
 
-#define sp_log(fmt, ...)                                                                                   \
-    {                                                                                                      \
-        constexpr std::string_view file_name = std::experimental::source_location::current().file_name();  \
-                                                                                                           \
-        __log(file_name.data(), std::experimental::source_location::current().line(), fmt, ##__VA_ARGS__); \
+#define sp_log(fmt, ...)                                                                     \
+    {                                                                                        \
+        constexpr std::string_view file_name = std::source_location::current().file_name();  \
+                                                                                             \
+        __log(file_name.data(), std::source_location::current().line(), fmt, ##__VA_ARGS__); \
     }
 
 inline void __log(const char *file, int line, const char *format, ...)

@@ -72,9 +72,9 @@ struct fe_mini_map_widget {
 
     static inline void *g_vtbl[]{
         nullptr,
-        func_address(&_Init),
-        func_address(&_Draw),
-        func_address(&_Update),
+        func_address(&fe_mini_map_widget::_Init),
+        func_address(&fe_mini_map_widget::_Draw),
+        func_address(&fe_mini_map_widget::_Update),
     };
 };
 

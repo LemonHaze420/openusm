@@ -7,7 +7,7 @@ struct entity_base_vhandle {
 
     entity_base_vhandle() = default;
 
-    constexpr entity_base_vhandle(int p) : field_0(p) {}
+    constexpr entity_base_vhandle(uint32_t p) : field_0(p) {}
 
     uint32_t get_goodies() const
     {

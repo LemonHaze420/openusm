@@ -15,13 +15,13 @@ state_machine_shared::state_machine_shared()
 {
     if constexpr (1) {
         static void *g_vtbl[] = {nullptr,
-                                 func_address(&_unmash),
+                                 func_address(&state_machine_shared::_unmash),
                                  nullptr,
-                                 func_address(&_get_virtual_type_enum),
+                                 func_address(&state_machine_shared::_get_virtual_type_enum),
                                  nullptr,
-                                 func_address(&_is_or_is_subclass_of),
+                                 func_address(&mash_virtual_base::_is_or_is_subclass_of),
                                  nullptr,
-                                 func_address(&_get_mash_sizeof),
+                                 func_address(&state_machine_shared::_get_mash_sizeof),
                                  nullptr};
 
         this->m_vtbl = CAST(m_vtbl, &g_vtbl);
