@@ -30,7 +30,10 @@ void *&ai_core::next_ai_core_list_low_iter = var<void *>(0x0096C110);
 
 ai_core::ai_core(core_ai_resource *a2, const param_block *a3, actor *a4)
 {
-    THISCALL(0x006AEA90, this, a3, arg4, a4);
+    if constexpr (0) {
+    } else {
+        THISCALL(0x006AEA90, this, a2, a3, a4);
+    }
 }
 
 void sub_86AD60()
