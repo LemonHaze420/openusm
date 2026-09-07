@@ -13,7 +13,11 @@
 
 bool fe_controller_disconnect::update()
 {
-    return (bool)CDECL_CALL(0x00629E60);
+#if STANDALONE_SYSTEM
+    return !dialog_up();
+#else
+    return static_cast<bool>(CDECL_CALL(0x00629E60));
+#endif
 }
 
 void fe_controller_disconnect::draw()

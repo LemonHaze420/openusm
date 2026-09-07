@@ -40,13 +40,8 @@ entity *game_camera::get_target_entity() const
 {
     TRACE("game_camera::get_target_entity");
 
-    if constexpr (0) {
-        auto *ent = this->field_118.get_volatile_ptr();
-        if (ent != nullptr) {
-            return ent;
-        }
-
-        return nullptr;
+    if constexpr (STANDALONE_SYSTEM) {
+        return this->field_118.get_volatile_ptr();
     } else {
         return (entity *)THISCALL(0x0057A220, this);
     }

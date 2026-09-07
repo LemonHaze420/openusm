@@ -19,12 +19,39 @@ int &nalCamAnim::vtbl_ptr = []() -> auto & {
 nalCam::nalCamAnim::nalCamAnim()
 {
     if constexpr (1) {
-        static void *g_vtbl[]{nullptr, nullptr, nullptr, nullptr, func_address(&_VirtualCreateInstance)};
+        static void *g_vtbl[]{nullptr,
+                              func_address(&_Process),
+                              func_address(&_Release),
+                              func_address(&_CheckVersion),
+                              func_address(&_VirtualCreateInstance)};
 
         this->m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {
         this->m_vtbl = 0x0089209C;
     }
+}
+
+void nalCam::nalCamAnim::_Process()
+{
+    auto *base = bit_cast<char *>(this);
+    auto &data_end = *bit_cast<char **>(base + 0x48);
+    auto &data = *bit_cast<char **>(base + 0x4C);
+    data_end += bit_cast<std::intptr_t>(base + 0x50);
+    data = base + 0x50;
+}
+
+void nalCam::nalCamAnim::_Release()
+{
+    auto *base = bit_cast<char *>(this);
+    auto &data_end = *bit_cast<char **>(base + 0x48);
+    auto &data = *bit_cast<char **>(base + 0x4C);
+    data_end -= bit_cast<std::intptr_t>(base + 0x50);
+    data = nullptr;
+}
+
+bool nalCam::nalCamAnim::_CheckVersion() const
+{
+    return Version == 0x10000;
 }
 
 nalCam::nalCamInstance *nalCam::nalCamAnim::CreateInstance(nalCam::nalCamSkeleton *a2)
@@ -43,7 +70,6 @@ nalCam::nalCamBaseInstance::nalCamBaseInstance(nalAnimClass<nalAnyPose> *a1, nal
 {
     this->m_vtbl = 0x00891AFC;
 }
-
 
 nalCam::nalCamInstance::nalCamInstance(nalCamAnim *a2, nalCam::nalCamSkeleton *a3) : nalCamBaseInstance(a2, a3)
 {

@@ -16,6 +16,53 @@
 #include <d3d9.h>
 
 #include <windows.h>
+struct nglTextureInfo {
+    uint32_t m_extension;
+
+    struct {
+        uint32_t Version;
+        uint32_t field_4;
+        uint32_t Height;
+        int Width;
+        int field_10;
+        int field_14;
+        int field_18;
+        int field_1C;
+        int field_20;
+        int field_24;
+        int field_28;
+        int field_2C;
+        int field_30;
+        int field_34;
+        int field_38;
+        int field_3C;
+        int field_40;
+        int field_44;
+        int field_48;
+        int field_4C;
+        D3DFORMAT field_50;
+        int field_54;
+        int field_58;
+        int field_5C;
+        uint32_t field_60;
+        uint32_t field_64;
+        uint32_t field_68;
+        uint32_t field_6C;
+        unsigned int field_70;
+        int field_74;
+        char field_78;
+        char field_79;
+        char field_7A;
+        char field_7B;
+
+    } Header;
+
+    char field_80[4];
+    char field_84[4];
+    char field_88[4];
+    int field_8C;
+    int field_90;
+};
 
 struct generic_mash_header;
 struct generic_mash_data_ptrs;
@@ -264,7 +311,6 @@ struct nglVertexBuffer {
         return m_buffer.m_vtxBuffer.m_vertexBuffer;
     }
 
-
     //0x007707D0
     bool createIndexBufferAndWriteData(const void *a2, int a3);
 
@@ -332,6 +378,14 @@ struct nglDirectoryEntry {
         nglMorphSet *Morph;
     } field_4;
     void *field_8;
+};
+
+struct nglMeshFileHeader {
+	char Tag[4];                 // 'PCM '
+	uint32_t Version;
+	uint32_t NDirectoryEntries;
+	nglDirectoryEntry *DirectoryEntries;  // Shared vertex buffer for skinned meshes.
+    int field_10;
 };
 
 struct nglPerfomanceInfo {
@@ -578,7 +632,6 @@ struct nglQuadNode : nglRenderNode {
     void Render();
 };
 
-
 struct nglMeshNode {
     matrix4x4 LocalToWorld;
     matrix4x4 WorldToLocal;
@@ -624,7 +677,6 @@ struct nglDebugStruct {
     uint8_t DisableDuplicateMaterialWarning;
     uint8_t DisableMissingTextureWarning;
 };
-
 
 extern nglDebugStruct &nglDebug;
 extern Var<nglDebugStruct> nglSyncDebug;
@@ -742,7 +794,6 @@ extern void nglSetBufferSize(nglBufferType a1, uint32_t a2, bool a3);
 
 struct nglSortInfo;
 
-
 //0x00779E40
 void nglListAddString(nglFont *arg0, float arg4, float a3, float a4, float a5, float a6, const char *a2, ...);
 
@@ -787,7 +838,6 @@ extern nglMeshSection *nglCreateSectionCopy(nglMeshSection *a1);
 extern void nglSetQuadRect(nglQuad *a1, Float a2, Float a3, Float a4, Float a5);
 
 extern void nglReleaseAllTextures();
-
 
 //0x00771E40
 extern void nglCopySection(nglMesh *a1, int a2, nglMesh *a3, int a4);
@@ -1094,7 +1144,6 @@ extern nglTexture *nglGetBackBufferTex();
 
 extern void nglSetRenderTarget(nglTexture *a1);
 
-
 inline float stru_946840[2] {1.0f, 1.0f};
 
 extern nglVertexDef_MultipassMesh<nglVertexDef_PCUV_Base> *sub_507920(nglMaterialBase *a1, int a2, int a3, int a4,
@@ -1115,6 +1164,5 @@ auto PTR_OFFSET(uint32_t Base, T &Ptr) -> void
         }
     }
 }
-
 
 extern void ngl_patch();

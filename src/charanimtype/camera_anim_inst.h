@@ -11,6 +11,10 @@ struct nalCamSkeleton;
 struct nalCamAnim : nalAnimClass<nalAnyPose> {
     nalCamAnim();
 
+    void _Process();
+    void _Release();
+    bool _CheckVersion() const;
+
     //0x005FCD80
     nalCamInstance *CreateInstance(nalCamSkeleton *a2);
 

@@ -10,6 +10,13 @@
 #include "memory.h"
 
 VALIDATE_SIZE(decal_data_interface, 0x80);
+#if STANDALONE_SYSTEM
+static _std::vector<decal_data_interface *> *&standalone_decal_interfaces()
+{
+    static _std::vector<decal_data_interface *> *interfaces = nullptr;
+    return interfaces;
+}
+#endif
 
 decal_data_interface::decal_data_interface(conglomerate *a2) : conglomerate_interface(a2)
 {
@@ -34,12 +41,20 @@ void decal_data_interface::frame_advance_all_decal_interfaces(Float a1)
 
 void decal_data_interface::add_to_decal_ifc_list()
 {
+#if STANDALONE_SYSTEM
+    auto &interfaces = standalone_decal_interfaces();
+    if (interfaces == nullptr) {
+        auto *mem = mem_alloc(sizeof(*interfaces));
+        interfaces = new (mem) _std::vector<decal_data_interface *>{};
+    }
+    interfaces->push_back(this);
+#else
     if (all_decal_interfaces == nullptr) {
         auto *mem = mem_alloc(sizeof(_std::vector<decal_data_interface *>));
         all_decal_interfaces = new (mem) _std::vector<decal_data_interface *>{};
     }
-
     all_decal_interfaces->push_back(this);
+#endif
 }
 
 void decal_data_interface::remove_from_decal_ifc_list()
@@ -70,11 +85,10 @@ void decal_data_interface::constructor_common()
     if (this->field_D) {
         auto *mem = mem_alloc(sizeof(_std::vector<entity *>));
         this->field_14 = new (mem) _std::vector<entity *>{};
-
         auto v6 = this->my_conglomerate->get_my_handle();
-        this->field_18 = event_manager::add_callback(event::TERRAIN_FX, v6, terrain_fx_callback, this->field_14, false);
+        this->field_18 = event_manager::add_callback(
+            event::TERRAIN_FX, v6, terrain_fx_callback, this->field_14, false);
     }
-
     this->add_to_decal_ifc_list();
 }
 

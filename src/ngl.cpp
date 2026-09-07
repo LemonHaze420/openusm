@@ -545,9 +545,82 @@ void nglSetDebugFlag(const char *Flag, uint8_t Set)
     nglSyncDebug() = nglDebug;
 }
 
-void nglDestroyTexture(nglTexture *a1)
+void nglDestroyTexture(nglTexture *tex)
 {
-    CDECL_CALL(0x0077BB20, a1);
+    if constexpr (STANDALONE_SYSTEM) {
+        if (tex == nullptr || static_cast<uint8_t>(tex->m_format) == 17) {
+            return;
+        }
+
+        if (static_cast<uint8_t>(tex->m_format) == 16) {
+            for (uint32_t i = 0; i < tex->m_num_palettes; ++i) {
+                nglReleaseTexture(tex->Frames[i]);
+            }
+            tlMemFree(tex->Frames);
+        } else {
+            if (tex->m_num_palettes != 0) {
+                auto *frames = reinterpret_cast<nglTexture *>(tex->Frames);
+                for (uint32_t i = 0; i < tex->m_num_palettes; ++i) {
+                    sub_7829F0(frames[i].field_48);
+                    frames[i].field_48 = nullptr;
+                    nglTextureDirectory->Del(&frames[i]);
+                }
+                tlMemFree(tex->Frames);
+            }
+
+            sub_7829F0(tex->field_48);
+            tex->field_48 = nullptr;
+
+            if ((tex->m_format & 0x2000) != 0) {
+                if (tex->DXSurfaces != nullptr) {
+                    auto *surface = reinterpret_cast<IUnknown *>(tex->DXSurfaces);
+                    surface->lpVtbl->Release(surface);
+                    tex->DXSurfaces = nullptr;
+                }
+            } else {
+                if (tex->DXSurfaces != nullptr) {
+                    if ((tex->m_format & 0x10000000) != 0) {
+                        auto ***faces = reinterpret_cast<IDirect3DSurface9 ***>(tex->DXSurfaces);
+                        for (uint32_t face = 0; face < 6; ++face) {
+                            for (uint32_t level = 0; level < tex->m_numLevel; ++level) {
+                                if (faces[face][level] != nullptr) {
+                                    faces[face][level]->lpVtbl->Release(faces[face][level]);
+                                }
+                            }
+                            tlMemFree(faces[face]);
+                        }
+                    } else {
+                        for (uint32_t level = 0; level < tex->m_numLevel; ++level) {
+                            if (tex->DXSurfaces[level] != nullptr) {
+                                tex->DXSurfaces[level]->lpVtbl->Release(tex->DXSurfaces[level]);
+                            }
+                        }
+                    }
+                    tlMemFree(tex->DXSurfaces);
+                    tex->DXSurfaces = nullptr;
+                }
+
+                if (tex->DXTexture != nullptr) {
+                    tex->DXTexture->lpVtbl->Release(tex->DXTexture);
+                    tex->DXTexture = nullptr;
+                }
+            }
+
+            if (tex->field_44 != nullptr) {
+                nglTextureDirectory->Del(tex->field_44);
+                nglDestroyTexture(tex->field_44);
+                tex->field_44 = nullptr;
+            }
+        }
+
+        tex->field_0->field_4 = tex->field_4;
+        tex->field_4->field_0 = tex->field_0;
+        tex->field_0 = tex;
+        tex->field_4 = tex;
+        tlMemFree(tex);
+    } else {
+        CDECL_CALL(0x0077BB20, tex);
+    }
 }
 
 nglMesh *nglGetFirstMeshInFile(const tlFixedString &a1)
@@ -2692,15 +2765,6 @@ vector4d sub_411750(const vector4d &a2, const vector4d &a3)
     }
 }
 
-struct nglMeshFileHeader {
-	char Tag[4];                 // 'PCM '
-	uint32_t Version;
-	uint32_t NDirectoryEntries;
-	nglDirectoryEntry *DirectoryEntries;  // Shared vertex buffer for skinned meshes.
-    int field_10;
-};
-
-
 void nglRebaseHeader(uint32_t Base, nglMeshFileHeader *&pHeader)
 {
 	PTR_OFFSET(Base, pHeader->DirectoryEntries);
@@ -2975,17 +3039,11 @@ static bool nglLoadMeshFileInternalPC(const tlFixedString &FileName,
             return false;
         }
 
-        {
-            auto *dir_entries = Header->DirectoryEntries;
-            sp_log("0x%08X", dir_entries);
-        }
-
         const auto Base = bit_cast<int>(&MeshFile->FileBuf.Buf[-Header->field_10]);
 
         nglRebaseHeader(Base, Header);
 
         assert(Base == int(Header));
-        sp_log("Base = 0x%08X", Base);
 
         MeshFile->FirstMesh = nullptr;
         MeshFile->FirstMaterial = nullptr;
@@ -3006,7 +3064,6 @@ static bool nglLoadMeshFileInternalPC(const tlFixedString &FileName,
             PTR_OFFSET(Base, dir_entry.field_8);
 
             auto dir_entry_type = dir_entry.m_type;
-            sp_log("dir_entry_type = %s", to_string(dir_entry_type));
 
             switch (dir_entry_type) {
             case TypeDirectoryEntry::MATERIAL: {
@@ -3051,9 +3108,6 @@ static bool nglLoadMeshFileInternalPC(const tlFixedString &FileName,
                         }
 
                     } else {
-                        auto *v28 = Material->Name->to_string();
-                        auto *v9 = a2.c_str();
-                        sp_log("NGL: Unable to find shader %s, used by material %s.\n", v9, v28);
 
                         Material->m_shader = &gEmptyShader;
                     }
@@ -3960,11 +4014,15 @@ void nglReleaseAllTextures()
     THISCALL(0x00560770, nglTextureDirectory, 1, 0, 2);
 }
 
-void nglReleaseTexture(nglTexture *Tex)
+void nglReleaseTexture(nglTexture *tex)
 {
     TRACE("nglReleaseTexture");
 
-    CDECL_CALL(0x00773380, Tex);
+    if constexpr (STANDALONE_SYSTEM) {
+        nglTextureDirectory->Release(tex, 0, false);
+    } else {
+        CDECL_CALL(0x00773380, tex);
+    }
 }
 
 nglTexture *nglLoadTexture(const tlFixedString &a1)
@@ -4118,54 +4176,6 @@ void CopyDataToTexture(nglTexture *Tex, uint8_t **a2, uint8_t *a3, int a4)
         CDECL_CALL(0x00783080, Tex, a2, a3, a4);
     }
 }
-
-struct nglTextureInfo {
-    uint32_t m_extension;
-
-    struct {
-        uint32_t Version;
-        uint32_t field_4;
-        uint32_t Height;
-        int Width;
-        int field_10;
-        int field_14;
-        int field_18;
-        int field_1C;
-        int field_20;
-        int field_24;
-        int field_28;
-        int field_2C;
-        int field_30;
-        int field_34;
-        int field_38;
-        int field_3C;
-        int field_40;
-        int field_44;
-        int field_48;
-        int field_4C;
-        D3DFORMAT field_50;
-        int field_54;
-        int field_58;
-        int field_5C;
-        uint32_t field_60;
-        uint32_t field_64;
-        uint32_t field_68;
-        uint32_t field_6C;
-        unsigned int field_70;
-        int field_74;
-        char field_78;
-        char field_79;
-        char field_7A;
-        char field_7B;
-
-    } Header;
-
-    char field_80[4];
-    char field_84[4];
-    char field_88[4];
-    int field_8C;
-    int field_90;
-};
 
 bool nglLoadTextureTM2_internal(nglTexture *Tex, nglTextureInfo *TexInfo)
 {
@@ -5073,7 +5083,7 @@ nglMesh *nglGetMesh(const tlFixedString &Name, bool Warn)
 {
     TRACE("nglGetMesh", Name.to_string());
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         tlHashString v2 {Name.m_hash};
 
         nglMesh *(__fastcall * Find)(void *, void *, const tlHashString *) =

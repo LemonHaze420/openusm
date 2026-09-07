@@ -112,6 +112,10 @@ void FEManager::Draw()
 
 void FEManager::Update(Float a2)
 {
+#if STANDALONE_SYSTEM
+    if (this->m_pause_menu_system == nullptr)
+        return;
+#endif
     if constexpr (1) {
         if (fe_controller_disconnect::update()) {
             auto *v3 = this->m_pause_menu_system;
@@ -121,8 +125,6 @@ void FEManager::Update(Float a2)
                 auto *vtbl = bit_cast<fastcall_call(*)[6]>(v3->m_vtbl);
 
                 void (__fastcall *Update)(void *, void *, Float) = CAST(Update, (*vtbl)[5]);
-
-                //sp_log("FEManager::Update(): 0x%08X", func);
 
                 if (bit_cast<std::intptr_t>(Update) == 0x0062F0C0) {
                     PauseMenuSystem *pause_menu_system = CAST(pause_menu_system, v3);
@@ -143,7 +145,12 @@ void FEManager::Update(Float a2)
 
 void FEManager::ReleaseFrontEnd()
 {
+#if STANDALONE_SYSTEM
+    delete m_fe_menu_system;
+    m_fe_menu_system = nullptr;
+#else
     THISCALL(0x0060B920, this);
+#endif
 }
 
 void FEManager::ReleaseFont(font_index idx)

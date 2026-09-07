@@ -30,7 +30,10 @@ VALIDATE_SIZE(PanelComponent, 0x8);
                                       nullptr,                          \
                                       nullptr,                          \
                                       nullptr,                          \
-                                      func_address(&_SkelPoseProcess)}; \
+                                      func_address(&_SkelPoseProcess),  \
+                                      func_address(&_SkelPoseRelease),  \
+                                      func_address(&_AnimProcess),      \
+                                      func_address(&_AnimRelease)};     \
                 m_vtbl = CAST(m_vtbl, &g_vtbl);                         \
             } else {                                                    \
                 this->m_vtbl = Vtbl;                                    \
@@ -44,7 +47,6 @@ VALIDATE_SIZE(PanelComponent, 0x8);
     };                                                                  \
                                                                         \
     static Panel##Type##Component g##Type##Component {}
-
 
 #ifndef STANDALONE_SYSTEM
 #error "Not defined macro STANDALONE_SYSTEM"

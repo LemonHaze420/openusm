@@ -39,11 +39,21 @@ nglMeshFile *&PanelFile::g_curmeshfile = []() -> auto & {
 void PanelFile::Draw()
 {
     if constexpr (STANDALONE_SYSTEM) {
-        for (uint16_t i = 0; i < pquads.m_size; ++i) {
-            pquads.m_data[i]->Draw();
+        if (pquads.m_data != nullptr &&
+            !IsBadReadPtr(pquads.m_data, sizeof(*pquads.m_data) * pquads.m_size)) {
+            for (uint16_t i = 0; i < pquads.m_size; ++i) {
+                if (auto *quad = pquads.m_data[i];
+                    quad != nullptr && !IsBadReadPtr(quad, sizeof(*quad)))
+                    quad->Draw();
+            }
         }
-        for (uint16_t i = 0; i < ptext.m_size; ++i) {
-            ptext.m_data[i]->Draw();
+        if (ptext.m_data != nullptr &&
+            !IsBadReadPtr(ptext.m_data, sizeof(*ptext.m_data) * ptext.m_size)) {
+            for (uint16_t i = 0; i < ptext.m_size; ++i) {
+                if (auto *text = ptext.m_data[i];
+                    text != nullptr && !IsBadReadPtr(text, sizeof(*text)))
+                    text->Draw();
+            }
         }
     } else {
         THISCALL(0x00616A60, this);
@@ -131,8 +141,6 @@ PanelQuad *PanelFile::GetPQ(const char *a2)
 
     for (uint16_t i = 0; i < this->pquads.size(); ++i) {
         auto &pquad = v3[i];
-        //sp_log("%d %s", i, pquad->field_3C.c_str());
-
         if (strcmp(pquad->field_3C.c_str(), a2) == 0) {
             return pquad;
         }
@@ -146,13 +154,25 @@ PanelQuad *PanelFile::GetPQ(const char *a2)
 void PanelFile::Update(Float a2)
 {
     if constexpr (1) {
-        for (uint16_t i = 0; i < this->pquads.m_size; ++i) {
-            auto *v4 = this->pquads.m_data[i];
-            v4->Update(a2);
+        if (this->pquads.m_data != nullptr &&
+            !IsBadReadPtr(this->pquads.m_data,
+                          sizeof(*this->pquads.m_data) * this->pquads.m_size)) {
+            for (uint16_t i = 0; i < this->pquads.m_size; ++i) {
+                if (auto *quad = this->pquads.m_data[i];
+                    quad != nullptr && !IsBadReadPtr(quad, sizeof(*quad)))
+                    quad->Update(a2);
+            }
         }
 
-        for (uint16_t j = 0; j < this->field_28.m_size; ++j) {
-            this->field_28.m_data[j]->Update(a2);
+        if (this->field_28.m_data != nullptr &&
+            !IsBadReadPtr(this->field_28.m_data,
+                          sizeof(*this->field_28.m_data) * this->field_28.m_size)) {
+            for (uint16_t j = 0; j < this->field_28.m_size; ++j) {
+                if (auto *animation = this->field_28.m_data[j];
+                    animation != nullptr &&
+                    !IsBadReadPtr(animation, sizeof(*animation)))
+                    animation->Update(a2);
+            }
         }
     } else {
         THISCALL(0x0062E4D0, this, a2);
@@ -164,19 +184,23 @@ void PanelFile::PostUnmashFixup(panel_layer a3)
     if constexpr (1) {
         for (auto i = 0; i < this->pquads.m_size; ++i) {
             auto *v4 = this->pquads.m_data[i];
-            auto v10 = v4->GetZvalue();
-            v4->SetZvalue(v10, a3);
+            if (v4 != nullptr) {
+                auto v10 = v4->GetZvalue();
+                v4->SetZvalue(v10, a3);
+            }
         }
 
         for (auto j = 0; j < this->ptext.m_size; ++j) {
             auto *v7 = this->ptext.m_data[j];
-            auto v11 = v7->GetZvalue();
-            v7->SetZvalue(v11, a3);
+            if (v7 != nullptr) {
+                auto v11 = v7->GetZvalue();
+                v7->SetZvalue(v11, a3);
+            }
         }
 
         for (auto k = 0; k < this->field_28.size(); ++k) {
-            auto *v1 = this->field_28.m_data[k];
-            v1->PostUnmashFixup(this);
+            if (auto *animation = this->field_28.m_data[k])
+                animation->PostUnmashFixup(this);
         }
     } else {
         THISCALL(0x00628960, this, a3);

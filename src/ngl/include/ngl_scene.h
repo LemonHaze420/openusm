@@ -24,7 +24,6 @@ enum {
     NGLCLIP_MAX = 6
 };
 
-
 struct nglScene {
     int field_0;
     uint32_t ClearStencil;
@@ -118,8 +117,10 @@ extern bool nglIsFBPAL();
 
 //0x0076B820
 extern void nglSetPerspectiveMatrix(Float a1, Float nearz, Float farz);
+//0x0076A870
 extern matrix4x4 sub_76A870();
 
+//0x0077CB90
 extern matrix4x4 sub_77CB90();
 
 extern void nglSetSceneCallBack(nglSceneCallbackType a1, void (*Fn)(unsigned int *&, void *), void *a3);

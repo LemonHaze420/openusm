@@ -34,9 +34,11 @@ light_manager::light_manager(int)
     active_light_managers() = v72;
 }
 
-void light_manager::frame_advance_all_light_managers(Float a1)
+void light_manager::frame_advance_all_light_managers([[maybe_unused]] Float a1)
 {
+#if !STANDALONE_SYSTEM
     CDECL_CALL(0x0053B040, a1);
+#endif
 }
 
 void light_manager::frame_advance(region *a2, Float a3, bool a4)

@@ -317,7 +317,6 @@ void nglListInit()
     }
 }
 
-
 void nglSetFrameLock(nglFrameLockType a2)
 {
     TRACE("nglSetFrameLock");
@@ -462,7 +461,6 @@ void nglRenderPerfInfo()
     float v3 = (630 - a3);
     nglListAddString(nglSysFont(), Dest, v3, 20.0, -9999.0, -1, 1.0, 1.0);
 }
-
 
 void nglRenderDebug()
 {
@@ -718,17 +716,13 @@ void nglListSend(bool Flip)
         nglPerfInfo().field_20 = query_perf_counter();
         float v9 = nglFlipCycle() - nglLastFlipCycle();
         nglPerfInfo().m_render_time = g_renderTime();
-        //sp_log("m_render_time = %f", nglPerfInfo().m_render_time);
-
         if (v9 < 0) {
             v9 += flt_86F860;
         }
 
-        sp_log("v9 = %f, PCFreq = %f", v9, PCFreq());
         nglPerfInfo().field_6C = v9 / PCFreq();
         nglPerfInfo().field_5C = nglPerfInfo().field_5C + nglPerfInfo().field_6C;
         nglPerfInfo().m_fps = 1000.f / nglPerfInfo().field_6C;
-        sp_log("nglPerfInfo.m_fps == %f", nglPerfInfo().m_fps);
 
         nglPerfInfo().field_60 = nglPerfInfo().field_5C * 0.001f;
         if (nglDebug.ScreenShot) {

@@ -222,6 +222,12 @@ void sub_582BB0()
 void FrontEndMenuSystem::Update(Float delta_time)
 {
     if constexpr (STANDALONE_SYSTEM) {
+        if (os_developer_options::instance->get_flag(
+                static_cast<os_developer_options::flags_t>(66))) {
+            already_drew_this_frame = false;
+            return;
+        }
+
         if (std::fpclassify(delta_time) == FP_ZERO)
             delta_time = 0.000001f;
 
@@ -250,6 +256,12 @@ void FrontEndMenuSystem::Update(Float delta_time)
 void FrontEndMenuSystem::sub_619030(bool a2)
 {
     if constexpr (STANDALONE_SYSTEM) {
+        if (os_developer_options::instance->get_flag(
+                static_cast<os_developer_options::flags_t>(66))) {
+            already_drew_this_frame = true;
+            return;
+        }
+
         static DWORD previous_tick = GetTickCount();
         const DWORD current_tick = GetTickCount();
         float delta_time = static_cast<float>(current_tick - previous_tick) * 0.001f;

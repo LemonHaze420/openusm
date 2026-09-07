@@ -18,13 +18,18 @@
 
 VALIDATE_SIZE(camera, 0xCCu);
 
-camera::camera([[maybe_unused]] entity *a2, const string_hash &a3) : actor(a3, 0)
-#if 1
+camera::camera(entity *parent, const string_hash &id) : actor(id, 0)
 {
+#if STANDALONE_SYSTEM
+    this->field_C0 = nullptr;
+    this->field_C4 = 1.5707964f;
+    this->field_C8 = 1.0f;
+    this->field_8 &= ~0x400000u;
+    if (parent != nullptr) {
+        this->set_parent(parent);
+    }
 #else
-{
-    THISCALL(0x00577970, this, a2, &a3);
-
+    THISCALL(0x00577970, this, parent, &id);
 #endif
 }
 
@@ -47,20 +52,32 @@ void camera::sync(camera &a2)
 
 void camera::set_fov(Float fov)
 {
+#if STANDALONE_SYSTEM
+    this->field_C4 = fov;
+#else
     void(__fastcall * func)(void *, void *, Float) = CAST(func, get_vfunc(m_vtbl, 0x29C));
     func(this, nullptr, fov);
+#endif
 }
 
 float camera::get_fov()
 {
+#if STANDALONE_SYSTEM
+    return this->field_C4;
+#else
     float(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x2A0));
     return func(this);
+#endif
 }
 
 float camera::get_far_plane_factor()
 {
+#if STANDALONE_SYSTEM
+    return this->field_C8;
+#else
     float(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x2A8));
     return func(this);
+#endif
 }
 
 void camera::adjust_geometry_pipe(bool scene_analyzer)

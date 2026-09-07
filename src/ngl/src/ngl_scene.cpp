@@ -38,7 +38,6 @@ Var<nglScene *> g_shadow_scene{0x00965960};
 
 static Var<float> flt_93BC78 = (0x0093BC78);
 
-
 void *nglScene::operator new(size_t size)
 {
     auto *mem = nglListAlloc(size, 64);
@@ -188,7 +187,6 @@ matrix4x4 sub_77CB90()
     }
 }
 
-
 matrix4x4 Viewport(float a2, float a3, float a4, float a5)
 {
     vector4d a2a, a3a, a4a, a5a;
@@ -283,7 +281,6 @@ matrix4x4 nglGetMatrix(nglMatrixType a2)
         return result;
     }
 }
-
 
 void nglCalculateMatrices(bool a1)
 {
@@ -484,7 +481,6 @@ void nglCalculateMatrices(bool a1)
     }
 }
 
-
 void nglSetSceneCallBack(nglSceneCallbackType a1, void (*Fn)(unsigned int *&, void *), void *a3)
 {
     if (a1) {
@@ -576,10 +572,12 @@ void nglSetupScene(nglScene *a1, nglSceneParamType a2)
             nglSetDefaultSceneParams();
         } break;
         case 1:
-            a1 = v2;
+            if (v2 != nullptr)
+                *a1 = *v2;
             break;
         case 2:
-            a1 = nglRootScene();
+            if (nglRootScene() != nullptr)
+                *a1 = *nglRootScene();
             break;
         default:
             break;

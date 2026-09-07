@@ -1,27 +1,15 @@
 #pragma once
 
-#include <cstdint>
+#include "../../nalcomp/nal_anim_comp.h"
 
 namespace nalPanel {
 
-struct nalPanelAnim {
-    struct vtbl {
-        void *field_0;
-        void *finalize;
-        void *Process;
-        void *Release;
-        void *nalPanelAnim;
-    };
-
-    std::intptr_t m_vtbl;
-    uint32_t field_4;
-
-    bool CheckVersion()
-    {
-        return this->field_4 == 0x300;
-    }
-
+struct nalPanelAnim : nalComp::nalCompAnim {
     static int &vtbl_ptr;
+
+    void Process();
+    void Release();
+    bool CheckVersion() const;
 };
 
 }  // namespace nalPanel

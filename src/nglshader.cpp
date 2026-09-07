@@ -35,13 +35,8 @@ void nglShader::_Register()
     TRACE("nglShader::Register");
 
     this->field_8 = nglShader::NextID++;
-    auto v4 = this->field_8;
 
     tlFixedString v1 = this->GetName();
-
-    auto *v2 = v1.to_string();
-    sp_log("Registering shader %s, ID: %d\n", v2, v4);
-
     nglShaderBank.Insert(v1, this);
 }
 
@@ -65,9 +60,7 @@ void nglShader::AddNode(nglMeshNode *a1, nglMeshSection *a2, nglMaterialBase *a3
 
 void nglShader::BindMaterial(nglMaterialBase *mat)
 {
-    sp_log("m_vtbl = 0x%08X", m_vtbl);
     void(__fastcall * func)(void *, void *, nglMaterialBase *) = CAST(func, get_vfunc(m_vtbl, 0xC));
-
     func(this, nullptr, mat);
 }
 
@@ -81,10 +74,6 @@ void nglShader::ReleaseMaterial(nglMaterialBase *mat)
 void nglShader::RebaseMaterial(nglMaterialBase *Material, unsigned int a2)
 {
     void(__fastcall * func)(void *, void *, nglMaterialBase *, uint32_t) = CAST(func, get_vfunc(m_vtbl, 0x14));
-
-    if constexpr (1) {
-        sp_log("0x%08X 0x%08X", m_vtbl, (int)func);
-    }
 
     func(this, nullptr, Material, a2);
 }
@@ -164,6 +153,7 @@ void sub_417C10(nglShaderNode *a1)
 void sub_413850(nglMaterialBase *a1, nglParamSet<nglShaderParamSet_Pool> *a2, color *a3)
 {
 #if STANDALONE_SYSTEM
+    // Materials carry one RGBA float quartet per time-of-day at offset 0x1C.
     const auto *material_color = reinterpret_cast<const float *>(&a1->field_1C) + 4 * g_TOD;
     a3->r = material_color[0];
     a3->g = material_color[1];

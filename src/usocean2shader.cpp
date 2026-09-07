@@ -9,8 +9,12 @@ Var<nglMesh *> USOcean2Shader::OceanMesh{0x009562EC};
 
 void USOcean2Shader::Init()
 {
-    tlFixedString a1{USOcean2Shader::OceanMeshFileName()};
-    USOcean2Shader::OceanMesh() = nglGetFirstMeshInFile(a1);
+#if STANDALONE_SYSTEM
+    const tlFixedString mesh_file_name{"oceanmesh"};
+#else
+    const tlFixedString mesh_file_name{USOcean2Shader::OceanMeshFileName()};
+#endif
+    USOcean2Shader::OceanMesh() = nglGetFirstMeshInFile(mesh_file_name);
 }
 
 void USOcean2Shader::Release()

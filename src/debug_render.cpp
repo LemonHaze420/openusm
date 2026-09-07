@@ -281,7 +281,6 @@ void sub_CB3F80(const vector3d &a1, const vector3d &a2, const vector3d &a3, cons
 {
     auto *iter = static_cast<nglVertexDef_MultipassMesh<nglVertexDef_PCUV_Base>::Iterator *>(a6);
 
-
     iter->BeginStrip(4);
 
     iter->Write(a1, a5, vector2d{0.0, 0.0});
@@ -378,7 +377,6 @@ bool debug_render_get_bval(debug_render_items_e item)
     return debug_render_items()[item] != 0;
 }
 
-
 int debug_render_get_min(debug_render_items_e item)
 {
     assert(item < DEBUG_RENDER_ITEMS_COUNT);
@@ -405,6 +403,9 @@ PCUV_ShaderMaterial *dword_15BCE44 = nullptr;
 void debug_render_init()
 {
     TRACE("debug_render_init");
+#if STANDALONE_SYSTEM
+    return;
+#endif
 
     if constexpr (1) {
         static Var<std::array<int, 51>> initial_values{0x00922718};
@@ -558,7 +559,6 @@ static color32 stru_1589F90[] = {color32{0, 255, 0, 128},
                                  color32{80, 80, 255, 128},
                                  color32{255, 80, 80, 128}};
 
-
 void render_billboard(const vector3d &arg0, color32 a2, float a5, const char *a4)
 {
     if (os_developer_options::instance->get_flag(mString{"SHOW_DEBUG_TEXT"})) {
@@ -665,8 +665,6 @@ void debug_render_line_info(line_info *a1, [[maybe_unused]] char a2, int a3)
 
 void debug_render_line_info()
 {
-    //sp_log("%d", num_debug_line_info[1]);
-
     debug_render_line_info(debug_line_info[1], 'c', num_debug_line_info[1]);
     debug_render_line_info(debug_line_info[0], 's', num_debug_line_info[0]);
 }
