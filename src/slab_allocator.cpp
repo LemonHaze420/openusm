@@ -671,7 +671,6 @@ void slab_allocator::process_lists()
 {
     //TRACE("slab_allocator::process_lists");
 
-    dump_debug_info();
     if (g_dump_slab_info) {
         dump_debug_info();
 

@@ -857,17 +857,13 @@ void mVector<FEText>::custom_unmash(mash_info_struct *a2, [[maybe_unused]] void 
     if (this->m_data != nullptr) {
         this->m_data = bit_cast<FEText **>(a2->read_from_buffer(4 * this->m_size, 4));
 
-        sp_log("size = %d", this->size());
         for (auto i = 0; i < this->m_size; ++i) {
             TRACE("mash_info_struct::unmash_class<FEText>");
-            sp_log("i = %d", i);
             auto &v5 = this->m_data[i];
             auto *v6 = a2->read_from_buffer(sizeof(FEText), 0);
-            sp_log("0x%08X", v6);
 
             v5 = CAST(v5, v6);
 
-            sp_log("%d %d", v5->field_1C.m_size, v5->field_50.m_size);
             mash_virtual_base::fixup_vtable(v6);
 
             {
@@ -908,7 +904,6 @@ void mVector<PanelQuad>::custom_unmash(mash_info_struct *a2, [[maybe_unused]] vo
         this->m_data = bit_cast<PanelQuad **>(a2->read_from_buffer(mash::NORMAL_BUFFER, 4 * this->m_size, 4));
 
         for (auto i = 0; i < this->m_size; ++i) {
-            sp_log("i = %d", i);
             TRACE("mash_info_struct::unmash_class<PanelQuad>");
             auto unmash_class = [](mash_info_struct *self, PanelQuad *&a2) {
                 [](mash_info_struct *a2, PanelQuad *&v5) {
@@ -950,7 +945,6 @@ void mVector<PanelQuad>::custom_unmash(mash_info_struct *a2, [[maybe_unused]] vo
         this->m_data = bit_cast<PanelQuad **>(a2->read_from_buffer(4 * this->m_size, 4));
 
         for (auto i = 0; i < this->m_size; ++i) {
-            sp_log("i = %d", i);
  
             auto unmash_class = [](mash_info_struct *self, PanelQuad *&a2) {
                 [](mash_info_struct *a2, PanelQuad *&v5) {

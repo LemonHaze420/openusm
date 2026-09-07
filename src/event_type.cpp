@@ -109,7 +109,7 @@ event_recipient_entry *event_type::find_recipient_entry(entity_base_vhandle a2)
 
 event_recipient_entry *event_type::create_recipient_entry(entity_base_vhandle a2)
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         auto *ret_val = this->find_recipient_entry(a2);
         if (ret_val == nullptr) {
             ret_val = new event_recipient_entry{a2, false};

@@ -348,7 +348,6 @@ void ToggleFullScreen(bool isFullscreen)
     os_developer_options::instance->set_flag(mString{ "ALWAYS_ACTIVE" }, g_config.WindowedMode);
 }
 
-
 void init_hook(HWND hwnd) {
     os_developer_options::instance->set_flag(mString{ "NO_LOAD_SCREEN" }, g_config.NoLoadScreen);
 
@@ -360,7 +359,6 @@ void init_hook(HWND hwnd) {
     g_Windowed() = windowedMode;
     ToggleFullScreen(windowedMode);
 }
-
 
 HRESULT tga_hook(IDirect3DDevice9* dev, unsigned __int8* a2, unsigned int a3, IDirect3DBaseTexture9** a4)
 {
@@ -397,7 +395,6 @@ BOOL install_patches()
 {
     sp_log("Installing patches\n");
 
-
     // @todo: global config
     REDIRECT(0x005AD218, init_hook);
 
@@ -413,7 +410,6 @@ BOOL install_patches()
     }
 
     // SET_JUMP(0x0076D680, create_renderer);
-
 
     SET_JUMP(0x0076E050, nglListInit);
 
@@ -434,7 +430,6 @@ BOOL install_patches()
         REDIRECT(0x0078D653, readFile);    // ....
         REDIRECT(0x0078DA23, readFile);    // ....
         REDIRECT(0x0078DD5E, readFile);    // skeletons
-
 
         FUNC_ADDRESS(address, &mesh_file_resource_handler::_handle_resource);
         set_vfunc(0x00888A44, address);
@@ -1361,7 +1356,6 @@ void sub_5952D0()
             const uint16_t v28 = v2;
 
             InputType v4 = static_cast<InputType>(HIWORD(v0));
-            sp_log("%d, %d, %d", v4, v0, v23);
 
             g_inputSettingsInGame->field_18.set(v22, 0, v4, v23);
 
@@ -1530,7 +1524,6 @@ bool CheckDirectXVersionViaDxDiag(uint32_t a1, uint32_t a2, char a3)
         return func(a1, a2, a3);
     }
 }
-
 
 int __stdcall myWinMain(HINSTANCE hInstance, [[maybe_unused]] HINSTANCE hPrevInstance, LPSTR lpCmdLine,
                         [[maybe_unused]] int nShowCmd)
@@ -1888,7 +1881,9 @@ int __stdcall myWinMain(HINSTANCE hInstance, [[maybe_unused]] HINSTANCE hPrevIns
                     DWORD v168 = timeGetTime() - v158;
                     app::instance->m_game->field_278 = v168 * 0.001f;
 
-                    if (g_inputSettingsInGame->field_18.get_state(InputAction::ScreenShot) <= 0.0) {
+                    const float screenshot_state =
+                        g_inputSettingsInGame->field_18.get_state(InputAction::ScreenShot);
+                    if (screenshot_state <= 0.0f) {
                         if (!byte_965BF5 && byte_965BF6) {
                             byte_965BF5 = true;
                             byte_965BF6 = false;
@@ -2017,8 +2012,6 @@ HANDLE __stdcall HookCreateFileA(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD
                                  LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDisposition,
                                  DWORD dwFlagsAndAttributes, HANDLE hTemplateFile)
 {
-    //sp_log("HookCreateFileA %s, return_address = 0x%08X", lpFileName, getReturnAddress);
-
     return CreateFileA(lpFileName,
                        dwDesiredAccess,
                        dwShareMode,
@@ -2031,8 +2024,6 @@ HANDLE __stdcall HookCreateFileA(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD
 BOOL __stdcall HookReadFile(HANDLE hFile, LPVOID lpBuffer, DWORD nNumberOfBytesToRead, LPDWORD lpNumberOfBytesRead,
                             LPOVERLAPPED lpOverlapped)
 {
-    //sp_log("HookReadFile 0x%08X, return_address = 0x%08X", hFile, getReturnAddress);
-
     return ReadFile(hFile, lpBuffer, nNumberOfBytesToRead, lpNumberOfBytesRead, lpOverlapped);
 }
 #endif
@@ -2107,8 +2098,6 @@ void create_window(LPCSTR lpClassName, LPCSTR lpWindowName, HINSTANCE hInstance,
         }
     }
     SetLastError(0);
-
-    sp_log("create_window");
 
     g_appHwnd = CreateWindowA(
         //CreateWindowExA(dwExStylea,
@@ -2363,7 +2352,6 @@ typedef enum {
     MENU_LEFT,
     MENU_RIGHT,
 
-
     MENU_KEY_MAX
 } MenuKey;
 
@@ -2384,7 +2372,6 @@ void GetDeviceStateHandleKeyboardInput(LPVOID lpvData)
 }
 
 int debug_enabled = 0;
-
 
 int get_menu_key_value(MenuKey key, int keyboard) {
     if (keyboard) {
@@ -2445,7 +2432,6 @@ DWORD modulo(int num, DWORD mod) {
 
 void menu_go_down() {
 
-
     if ((current_menu->window_start + MAX_ELEMENTS_PAGE) < current_menu->used_slots) {
 
         if (current_menu->cur_index < MAX_ELEMENTS_PAGE / 2)
@@ -2466,7 +2452,6 @@ void menu_go_up() {
 
     int num_elements = std::min((DWORD)MAX_ELEMENTS_PAGE, current_menu->used_slots - current_menu->window_start);
     if (current_menu->window_start) {
-
 
         if (current_menu->cur_index > MAX_ELEMENTS_PAGE / 2)
             current_menu->cur_index--;
@@ -2544,7 +2529,6 @@ void menu_input_handler(int keyboard, int SCROLL_SPEED) {
     highlighted->frame_advance_callback(highlighted);
 }
 
-
 typedef int (__stdcall* GetDeviceState_ptr)(IDirectInputDevice8*, DWORD, LPVOID);
 GetDeviceState_ptr GetDeviceStateOriginal = nullptr;
 
@@ -2582,7 +2566,6 @@ HRESULT __stdcall GetDeviceStateHook(IDirectInputDevice8 *self, DWORD cbData, LP
     if (debug_enabled) {
         memset(lpvData, 0, cbData);
     }
-
 
     static constexpr struct {
         int key;
@@ -2785,13 +2768,10 @@ HRESULT __stdcall HookDirectInput8Create(HINSTANCE hinst, DWORD dwVersion, REFII
 typedef void (*aeps_RenderAll_ptr)();
 aeps_RenderAll_ptr aeps_RenderAll_orig = (aeps_RenderAll_ptr)0x004D9310;
 
-
 unsigned int nglColor(int r, int g, int b, int a)
 {
     return ((a << 24) | (r << 16) | (g << 8) | (b & 255));
 }
-
-
 
 // ----------------------------------------------------------------------------------------------------------------------------
 // 
@@ -2816,10 +2796,8 @@ void aeps_RenderAll() {
 
     cur_time = (cur_time + 1) % duration;
 
-
     aeps_RenderAll_orig();
 }
-
 
 void HookFunc(DWORD callAdd, DWORD funcAdd, BOOLEAN jump, const char* reason) {
 
@@ -2945,7 +2923,6 @@ int getStringHeight(const char* str) {
     return height;
 }
 
-
 std::string getRealText(debug_menu_entry* entry) {
     assert(entry->render_callback != nullptr);
 
@@ -2982,7 +2959,6 @@ static const char* TYPE_NAME_ARRAY[8]{
     "entity",
     "pointer"
 };
-
 
 void handle_export_block(debug_menu_entry* arg0)
 {
@@ -3196,7 +3172,6 @@ void ai_core_menu_handler(debug_menu_entry* a2)
     }
 }
 
-
 #include "entity_base.h"
 void populate_ai_root(debug_menu_entry* arg0)
 {
@@ -3236,7 +3211,6 @@ void create_ai_root_menu(debug_menu* parent)
     parent->add_entry(&v5);
 }
 
-
 // Memory
 
 int g_mem_checkpoint_debug_0{ -1 };
@@ -3273,7 +3247,6 @@ void create_memory_menu(debug_menu* parent)
     slab_allocator::create_slab_debug_menu(memory_menu);
 }
 
-
 // Entity Animation 
 
 void entity_animation_handler(debug_menu_entry* entry)
@@ -3305,7 +3278,6 @@ void sub_6918AD(debug_menu_entry* entry)
         auto* a1 = create_menu(entry->text);
         entry->set_submenu(a1);
         auto* v18 = (actor*)e;
-
 
         std::list<nalAnimClass<nalAnyPose>*> v17;
         actor::get_animations(v18,v17);
@@ -3398,7 +3370,6 @@ void replay_handler(debug_menu_entry* entry)
     }
 }
 
-
 void populate_replay_menu(debug_menu_entry* entry)
 {
 
@@ -3421,7 +3392,6 @@ void create_replay_menu(debug_menu* parent)
     parent->add_entry(v2);
 }
 #endif
-
 
 // Entity Variants
 // ----------------------------------------------------------------------------------
@@ -3481,7 +3451,6 @@ void create_entity_variants_menu(debug_menu* parent) {
     entry->set_game_flags_handler(populate_entity_variants_menu);
     parent->add_entry(entry);
 }
-
 
 // Dvars
 // ----------------------------------------------------------------------------------
@@ -3593,7 +3562,6 @@ void debug_menu::init() {
 #   endif
 
     create_entity_variants_menu(root_menu);
-
 
     /*
     for (int i = 0; i < 5; i++) {
@@ -3711,7 +3679,6 @@ void close_debug() {
 
     g_game_ptr->unpause();
 }
-
 
 // Missions
 // ----------------------------------------------------------------------------------
@@ -3988,7 +3955,6 @@ void level_select_handler(debug_menu_entry* entry)
     }
 }
 
-
 void reboot_handler(debug_menu_entry* a1)
 {
 }
@@ -4172,7 +4138,6 @@ void menu_setup(int game_state, int keyboard) {
     }
 }
 
-
 // Devopts 
 
 #include "os_developer_options.h"
@@ -4352,15 +4317,12 @@ void create_game_flags_menu(debug_menu* parent)
     create_gamefile_menu(v92);
 }
 
-
 void init_shadow_targets2()
 {
     debug_menu::init();
 
     CDECL_CALL(0x00592E80);
 }
-
-
 
 uint8_t __stdcall slf__debug_menu_entry__set_handler__str(vm_stack* stack, void* unk) {
 
@@ -4467,7 +4429,6 @@ bool __fastcall slf__create_debug_menu_entry(script_library_class::function* fun
     stack->SP += sz;
     return 1;
 }
-
 
 #include "nal_skeleton.h"
 
@@ -5065,18 +5026,14 @@ BOOL install_redirects()
 
     os_developer_options_patch();
 
-
     //rbc_contact_patch();
 
     //spline_patch();
 
-
     if constexpr (0) {
         anchor_query_visitor_patch();
 
-
         PanelQuadSection_patch();
-
 
         rigid_body_patch();
 
@@ -5123,8 +5080,6 @@ BOOL install_redirects()
                 mString ints{"{"};
 
                 for (size_t i{0}; i < std::size(flag_names()); ++i) {
-                    //sp_log("%d %s", i, int_names()[i]);
-
                     ints += mString{0, "%d \"%s\", \n", i, flag_names()[i]};
                 }
 
@@ -5215,7 +5170,6 @@ BOOL install_redirects()
         collide_aux_patch();
 
         physical_interface_patch();
-
 
         nglRenderList_patch();
 
@@ -5357,6 +5311,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
         setvbuf(stdout, nullptr, _IONBF, 0);
         setvbuf(stderr, nullptr, _IONBF, 0);
     }
+
     return myWinMain(hInstance, hPrevInstance, lpCmdLine, nShowCmd);
 }
 #else

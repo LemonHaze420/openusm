@@ -666,7 +666,7 @@ event_type *event_manager::register_event_type(string_hash a1, bool a2)
 
 void event_manager::clear_script_callbacks(entity_base_vhandle a1, script_executable *a2)
 {
-    if constexpr (0) {
+    if constexpr (1) {
         for (auto &v2 : event_types) {
             v2->clear_script_callbacks(a1, a2);
         }

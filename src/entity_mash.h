@@ -21,10 +21,15 @@ extern entity_base *parse_entity_mash(_std::vector<entity *> *ent_vec_ptr, _std:
 
 extern void entity_mash_patch();
 
+#if STANDALONE_SYSTEM
+extern int ent_v_table_lookup[28];
+extern int ent_size_lookup[28];
+extern std::array<int, 13> ifc_v_table_lookup;
+#else
 extern Var<int[28]> ent_v_table_lookup;
 extern Var<int[28]> ent_size_lookup;
-
 extern std::array<int, 11> &ifc_v_table_lookup;
+#endif
 
 extern uint16_t pc_entity_mash_type(uint16_t type);
 extern uint32_t entity_mash_size(uint16_t type);

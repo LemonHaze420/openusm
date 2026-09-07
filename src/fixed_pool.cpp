@@ -104,7 +104,7 @@ void fixed_pool::remove(void *a2)
 
 void fixed_pool::sub_4368C0()
 {
-    if constexpr (0) {
+    if constexpr (1) {
         auto *base = static_cast<fixed_allocator_base *>(m_base);
         assert(base != nullptr);
 

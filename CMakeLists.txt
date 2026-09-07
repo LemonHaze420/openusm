@@ -174,8 +174,14 @@ target_compile_options(pedanimtype
     PRIVATE
       ${flags}
   )
-target_include_directories(pedanimtype PUBLIC "./src/pedanimtype/")
-target_include_directories(pedanimtype PUBLIC "./src/")
+target_include_directories(pedanimtype PUBLIC
+    "./include/"
+    "./src/"
+    "./src/pedanimtype/"
+    "./src/nal/include/common/"
+    "./src/base/include/"
+    "./src/variables/"
+)
 target_link_libraries(pedanimtype PUBLIC utility)
 
 
@@ -398,6 +404,11 @@ endif()
 
 if(USE_GLM)
     target_link_libraries(usm PUBLIC glm::glm)
+endif()
+
+option(OPENUSM_BUILD_SXCC "Build the retail PC script toolchain" OFF)
+if(OPENUSM_BUILD_SXCC)
+    add_subdirectory(tools/sxcc)
 endif()
 
 option(ENABLE_TESTS "" ON)

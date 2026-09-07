@@ -17,5 +17,10 @@ struct event_callback {
 
     void operator delete(void *ptr, size_t size);
 
+#if STANDALONE_SYSTEM
+    static inline int id_counter_storage = 0;
+    static inline int &id_counter = id_counter_storage;
+#else
     static inline int &id_counter = *bit_cast<int *>(0x0095A6D8);
+#endif
 };

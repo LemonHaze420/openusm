@@ -136,28 +136,16 @@ string_hash make_unique_entity_id()
 {
     TRACE("make_unique_entity_id");
 
-    if constexpr (0) {
-        static Var<int> s_unique_entity_id_idx{0x0095A6C8};
+    static int s_unique_entity_id_idx = 0;
 
-        char Dest[32];  // [esp+4h] [ebp-20h]
+    char buffer[32];
+    uint32_t hash;
+    do {
+        std::snprintf(buffer, sizeof(buffer), "%s%u", "_ENTID_", s_unique_entity_id_idx++);
+        hash = to_hash(buffer);
+    } while (string_hash_dictionary::exists(hash));
 
-        uint32_t hash;
-        do {
-            int v1 = s_unique_entity_id_idx()++;
-            std::snprintf(Dest, 0x20u, "%s%u", "_ENTID_", v1);
-            hash = to_hash(Dest);
-        } while (string_hash_dictionary::exists(hash));
-
-        string_hash result{Dest};
-
-        return result;
-    } else {
-        void (*func)(string_hash *out) = CAST(func, 0x004BFD50);
-
-        string_hash result;
-        func(&result);
-        return result;
-    }
+    return string_hash{buffer};
 }
 
 static_assert(is_alpha('a'));

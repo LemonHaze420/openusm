@@ -16,6 +16,20 @@ int AvlTree<region_lookup_entry>::addHelper(TreeNode<region_lookup_entry> *a2, T
     return THISCALL(0x00569E60, this, a2, &a3, a4);
 }
 
+template <>
+TreeNode<region_lookup_entry> *
+AvlTree<region_lookup_entry>::findHelper(TreeNode<region_lookup_entry> *node, region_lookup_entry *key) const
+{
+    while (node != nullptr && key != nullptr) {
+        auto node_hash = node->m_key->field_0.source_hash_code;
+        auto key_hash = key->field_0.source_hash_code;
+        if (node_hash == key_hash)
+            return node;
+        node = key_hash < node_hash ? node->field_0 : node->field_4;
+    }
+    return nullptr;
+}
+
 //0x00566EA0
 template <>
 void AvlTree<region_lookup_entry>::dump(TreeNode<region_lookup_entry> *&a2, int a3)

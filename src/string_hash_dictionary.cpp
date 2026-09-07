@@ -478,23 +478,18 @@ bool string_hash_dictionary::register_in_tree(mAvlTree<string_hash_entry> *a1, c
 
 bool string_hash_dictionary::exists(uint32_t a1)
 {
-    if constexpr (0) {
-        string_hash a4{static_cast<int>(a1)};
-        string_hash_entry v6{nullptr, a4};
+    string_hash key{static_cast<int>(a1)};
+    string_hash_entry probe{nullptr, key};
 
-        string_hash_entry *v5 = nullptr;
-        if (entries != nullptr) {
-            v5 = entries->find(&v6);
-        } else if (prereg_entries != nullptr) {
-            v5 = prereg_entries->find(&v6);
-        }
-
-        bool v4 = (v5 != nullptr);
-        return v4;
-    } else {
-        bool(__cdecl * func)(uint32_t) = CAST(func, 0x0054C220);
-        return func(a1);
+    if (entries != nullptr) {
+        return entries->find(&probe) != nullptr;
     }
+
+    if (prereg_entries != nullptr) {
+        return prereg_entries->find(&probe) != nullptr;
+    }
+
+    return false;
 }
 
 

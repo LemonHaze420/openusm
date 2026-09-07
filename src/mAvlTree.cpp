@@ -225,6 +225,65 @@ void mAvlTree<entity_class_entry>::finalize(mash::allocation_scope)
 }
 
 template <>
+int mAvlTree<entity_class_entry>::compare(const mAvlNode<entity_class_entry> *lhs,
+                                           const mAvlNode<entity_class_entry> *rhs)
+{
+    if (lhs->m_key->field_0 > rhs->m_key->field_0) {
+        return 1;
+    }
+    if (lhs->m_key->field_0 < rhs->m_key->field_0) {
+        return -1;
+    }
+    return 0;
+}
+
+template <>
+int mAvlTree<entity_class_entry>::addHelper(mAvlNode<entity_class_entry> *node,
+                                             mAvlNode<entity_class_entry> *&root,
+                                             mAvlNode<entity_class_entry> *parent)
+{
+    if (root == nullptr) {
+        node->m_parent = parent;
+        root = node;
+        ++this->m_size;
+        return 1;
+    }
+
+    const int ordering = compare(node, root);
+    int result = 0;
+    if (ordering > 0) {
+        result = this->addHelper(node, root->m_right, root);
+    } else if (ordering < 0) {
+        result = this->addHelper(node, root->m_left, root);
+    }
+    this->nodeHt(root);
+    return result;
+}
+
+template <>
+void mAvlTree<entity_class_entry>::unmash(mash_info_struct *a2, [[maybe_unused]] void *a3)
+{
+    this->m_head = nullptr;
+    const auto real_size = this->m_size;
+    this->m_size = 0;
+
+    for (int i = 0; i < real_size; ++i) {
+        mAvlNode<entity_class_entry> *node = nullptr;
+        a2->unmash_class(node, this);
+        this->addHelper(node, this->m_head, nullptr);
+    }
+
+    assert(real_size == this->m_size);
+    this->field_0 = (int)&a2->mash_image_ptr[a2->buffer_size_used[0] - (DWORD)this];
+}
+
+template <>
+void mAvlNode<entity_class_entry>::unmash(mash_info_struct *a3, void *)
+{
+    a3->unmash_class(this->m_key, this);
+}
+
+template <>
 void mAvlTree<string_hash_entry>::unmash(mash_info_struct *a2, [[maybe_unused]] void *a3)
 {
     if constexpr (1) {

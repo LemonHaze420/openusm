@@ -60,7 +60,7 @@ void event_recipient_entry::clear_callbacks()
 
 int event_recipient_entry::add_callback(void (*cb)(event *, entity_base_vhandle, void *), void *a3, bool a4)
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         auto *new_callback = new code_event_callback{cb, a3, a4};
         assert(new_callback != nullptr && "probably out of memory");
 

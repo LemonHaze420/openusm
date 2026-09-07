@@ -60,7 +60,6 @@ decltype(auto) CDECL_CALL(int address, Args... args)
     return (bit_cast<cdecl_call>(address))(args...);
 }
 
-
 inline void ESI_CALL(uintptr_t addr, int val)
 {
     int a = val;

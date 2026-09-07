@@ -98,63 +98,33 @@ VALIDATE_OFFSET(std::decay_t<decltype(entity_handle_manager::the_map)>::_Mylist,
 
 void *&dword_95B7A4 = var<void *>(0x0095B7A4);
 
-entity_base *entity_handle_manager::find_entity(const string_hash &arg0, entity_flavor_t a2, bool a3)
+entity_base *entity_handle_manager::find_entity(
+    const string_hash &arg0, entity_flavor_t a2, [[maybe_unused]] bool a3)
 {
     TRACE("entity_handle_manager::find_entity", arg0.to_string());
 
-    entity_base *result = nullptr;
-    if constexpr (1) {
-        using map = std::decay_t<decltype(the_map)>;
-        using iterator = map::iterator;
-
-        iterator v13;
-        THISCALL(0x00506790, &the_map, &v13, &arg0);
-        if (!a3) {
-            if (v13 == the_map.end()) {
-                auto *v3 = arg0.to_string();
-                mString v4{v3};
-                mString v5{"Unable to find entity "};
-                auto out = v5 + v4;
-                sp_log("%s", out.c_str());
-            }
-        }
-
-        if (v13 == the_map.end()) {
-            return nullptr;
-        }
-
-        if (a2 != IGNORE_FLAVOR && v13._Ptr->_Myval.second->get_flavor() != a2) {
-            auto v21 = mString{"Entity "} + mString{arg0.to_string()} + " is not a " + entity_flavor_names[a2];
-            sp_log("%s", v21.c_str());
-            assert(0);
-        }
-
-        return v13._Ptr->_Myval.second;
-    } else {
-        result = (entity_base *)CDECL_CALL(0x004DC300, &arg0, a2, a3);
+    const auto found = the_map.find(arg0);
+    if (found == the_map.end()) {
+        return nullptr;
     }
 
-    assert(result != nullptr);
-    return result;
+    if (a2 != IGNORE_FLAVOR && found->second->get_flavor() != a2) {
+        auto out = mString{"Entity "} + mString{arg0.to_string()} + " is not a " + entity_flavor_names[a2];
+        sp_log("%s", out.c_str());
+        assert(0);
+    }
+
+    return found->second;
 }
 
 void entity_handle_manager::deregister_entity(entity_base *a1)
 {
     TRACE("deregister_entity %s", a1->field_10.to_string());
-
-    if constexpr (0) {
-        if (a1->field_10 != ANONYMOUS) {
-#if 0
-            sub_506790(&entity_handle_manager::the_map, &a1, (unsigned int *) &a1->field_10);
-            if (a1 != bit_cast<entity_base *>(dword_95B7A4())) {
-                sub_56CAA0(&entity_handle_manager::the_map, (int) &a1, a1);
-            }
-#else
-            entity_handle_manager::the_map.erase(a1->field_10);
-#endif
+    if (a1->field_10 != ANONYMOUS) {
+        const auto found = the_map.find(a1->field_10);
+        if (found != the_map.end()) {
+            the_map.erase(found);
         }
-    } else {
-        CDECL_CALL(0x004DC510, a1);
     }
 }
 
@@ -162,39 +132,14 @@ void entity_handle_manager::register_entity(entity_base *a1)
 {
     TRACE("entity_handle_manager::register_entity", a1->field_10.to_string());
 
-    if constexpr (1) {
-        if (a1->field_10 != ANONYMOUS) {
-            using map_t = typename std::decay_t<decltype(the_map)>;
-            using value_type = typename map_t::value_type;
-            value_type value{a1->field_10, a1};
+    if (a1->field_10 == ANONYMOUS) {
+        return;
+    }
 
-            using iterator = map_t::iterator;
-            using pair_t = std::pair<iterator, bool>;
-
-            VALIDATE_SIZE(value_type, 8);
-            VALIDATE_SIZE(pair_t, 8);
-
-            pair_t result;
-            if constexpr (1) {
-                void(__fastcall * insert)(map_t *, void *edx, pair_t *, const std::decay_t<decltype(value)> *) =
-                    CAST(insert, 0x00509440);
-                insert(&the_map, nullptr, &result, &value);
-            } else {
-                result = the_map.insert(value);
-            }
-
-            if (!g_is_the_packer && !result.second) {
-                const char *v1 = a1->field_10.to_string();
-
-                mString v2{v1};
-
-                mString v4 = mString{"Same entity name appears twice: "} + v2;
-
-                error("%s", v4.c_str());
-            }
-        }
-    } else {
-        CDECL_CALL(0x004EF970, a1);
+    const auto result = the_map.insert({a1->field_10, a1});
+    if (!g_is_the_packer && !result.second) {
+        auto message = mString{"Same entity name appears twice: "} + mString{a1->field_10.to_string()};
+        error("%s", message.c_str());
     }
 }
 
@@ -206,7 +151,6 @@ int entity_slot::occupy(entity_base *a2)
     this->my_ptr = a2;
     return this->my_id;
 }
-
 
 void entity_slot::vacate(const entity_base_vhandle &ent_handle)
 {
