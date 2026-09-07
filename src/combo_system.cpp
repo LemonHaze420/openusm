@@ -81,7 +81,7 @@ int combo_system::get_num_weapons()
     return this->field_28.size();
 }
 
-void combo_system::unmash(mash_info_struct *a1, void *a3)
+void combo_system::unmash(mash_info_struct *a1, [[maybe_unused]] void *a3)
 {
     TRACE("combo_system::unmash");
 
@@ -105,7 +105,10 @@ void combo_system::unmash(mash_info_struct *a1, void *a3)
         pc_mash->used = a1->buffer_size_used[mash::NORMAL_BUFFER];
 #endif
     } else {
-        THISCALL(0x00489720, this, a1, a3);
+        a1->unmash_class_in_place(this->field_0, this);
+        a1->unmash_class_in_place(this->field_14, this);
+        a1->unmash_class_in_place(this->field_28, this);
+        a1->unmash_class_in_place(this->field_3C, this);
     }
 }
 

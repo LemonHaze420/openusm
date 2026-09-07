@@ -91,14 +91,17 @@ void cut_scene_player::play_current_segment()
     THISCALL(0x007414E0, this);
 }
 
-void cut_scene_player::frame_advance(Float a2)
+void cut_scene_player::frame_advance([[maybe_unused]] Float a2)
 {
     TRACE("cut_scene_player::frame_advance");
 
-    if constexpr (0) {
-    } else {
-        THISCALL(0x00741EC0, this, a2);
+#if STANDALONE_SYSTEM
+    if (!is_playing()) {
+        return;
     }
+#else
+    THISCALL(0x00741EC0, this, a2);
+#endif
 }
 
 bool cut_scene_player::frame_advance_lite(Float a2)
@@ -117,13 +120,13 @@ bool cut_scene_player::is_playing()
 
 cut_scene_player *g_cut_scene_player()
 {
-    if constexpr (0) {
-        static Var<cut_scene_player> player{0x0096FEB8};
-
-        return &player();
-    } else {
-        return (cut_scene_player *)CDECL_CALL(0x007411C0);
-    }
+#if STANDALONE_SYSTEM
+    alignas(cut_scene_player) static unsigned char storage[sizeof(cut_scene_player)] {};
+    return reinterpret_cast<cut_scene_player *>(storage);
+#else
+    static Var<cut_scene_player> player{0x0096FEB8};
+    return &player();
+#endif
 }
 
 void cut_scene_player::stop(cut_scene *a2)

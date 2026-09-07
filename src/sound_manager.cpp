@@ -54,8 +54,7 @@ bool sound_manager::is_mission_sound_bank_ready()
 
 void sound_manager::load_common_sound_bank(bool a1)
 {
-    if constexpr (0) {
-    } else {
+    if constexpr (!STANDALONE_SYSTEM) {
         CDECL_CALL(0x0054DB10, a1);
     }
 }

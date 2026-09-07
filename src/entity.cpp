@@ -160,6 +160,9 @@ entity *entity::compute_sector(terrain *terrain_ptr, bool a2, entity *fallback)
     (void)terrain_ptr;
     (void)a2;
     (void)fallback;
+    if ((this->field_4 & 0x10000000u) == 0) {
+        moved_entities::add_moved({this->get_my_handle()});
+    }
     return this;
 #else
     entity *(__fastcall *func)(void *, void *, terrain *, bool, entity *) =

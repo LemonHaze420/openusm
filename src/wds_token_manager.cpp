@@ -15,6 +15,7 @@
 #include "wds.h"
 
 #include <cassert>
+#include <cmath>
 
 VALIDATE_SIZE(wds_token_manager, 0x24);
 
@@ -129,11 +130,22 @@ int wds_token_manager::get_token_index_from_id(int type, int id) const
     return -1;
 }
 
-void wds_token_manager::frame_advance(Float a1)
+void wds_token_manager::frame_advance(Float elapsed)
 {
     TRACE("wds_token_manager::frame_advance");
 
-    THISCALL(0x00555B50, this, a1);
+#if STANDALONE_SYSTEM
+    constexpr float full_turn = 6.2831853071795864769f;
+    this->field_8 = std::fmod(this->field_8 + elapsed.value * full_turn, full_turn);
+    if (this->field_8 < 0.0f) {
+        this->field_8 += full_turn;
+    }
+
+    assert(this->tokens == nullptr);
+    assert(this->field_18.empty());
+#else
+    THISCALL(0x00555B50, this, elapsed);
+#endif
 }
 
 void wds_token_manager::register_region(region *reg)

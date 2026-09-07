@@ -15,6 +15,9 @@ struct spiderman_camera : game_camera {
     int field_1C4;
     int field_1C8;
     bool field_1CC;
+    bool field_1CD;
+    bool field_1CE;
+    bool field_1CF;
     game_button field_1D0;
 
     //0x004B78E0
@@ -55,7 +58,6 @@ extern float g_pitch_mult;
 extern Var<spiderman_camera *> g_spiderman_camera_ptr;
 
 extern void constrain_normal(vector3d &normal, const vector3d &basisA, float a4, float a2);
-
 
 extern void constrain_relative_to_plane(vector3d &a1, const vector3d &a2, const vector3d &norm, float a4, float a5);
 

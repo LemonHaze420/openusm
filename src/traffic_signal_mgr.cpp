@@ -18,7 +18,13 @@ void traffic_signal_mgr::frame_advance(Float a1)
 
 void traffic_signal_mgr::switch_to_next_state()
 {
+#if STANDALONE_SYSTEM
+    static bool green_phase;
+    green_phase = !green_phase;
+    m_state_timer().field_0 = green_phase ? 30.0f : 4.0f;
+#else
     CDECL_CALL(0x005528D0);
+#endif
 }
 
 void traffic_signal_mgr::add_traffic_light(entity *a1, bool a2)

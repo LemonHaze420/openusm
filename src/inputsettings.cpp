@@ -96,8 +96,6 @@ void InputSettings::internal_struct::set(InputAction a2, uint32_t a3, InputType 
 {
     TRACE("InputSettings::internal_struct::set");
 
-    sp_log("%s, idx = %d, input_type = %d, value = %d", to_string(a2), a3, input_type, value);
-
     if constexpr (1) {
         auto idx = static_cast<uint32_t>(a2);
         auto size = idx + 1;

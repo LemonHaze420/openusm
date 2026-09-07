@@ -36,7 +36,11 @@ bool glass_house_manager::is_enabled()
 
 bool glass_house_manager::is_point_in_glass_house(const vector3d &a1)
 {
-    return (bool)CDECL_CALL(0x00538570, &a1);
+    if constexpr (STANDALONE_SYSTEM) {
+        return false;
+    } else {
+        return static_cast<bool>(CDECL_CALL(0x00538570, &a1));
+    }
 }
 
 void glass_house_manager::show_glass_houses()

@@ -82,7 +82,7 @@ bool base_ai_resource_handler::_handle_resource(worldly_resource_handler::eBehav
 #if OPENUSM_XBOX_MASH_FORMAT
                                      ,
                                      mash::NORMAL_BUFFER
-#endif 
+#endif
                     );
             mash_info_struct::construct_class(new_ai_resource);
 
@@ -96,7 +96,7 @@ bool base_ai_resource_handler::_handle_resource(worldly_resource_handler::eBehav
     } else {
         bool(__fastcall * func)(void *, void *, worldly_resource_handler::eBehavior, resource_location *) =
             CAST(func, 0x00568A10);
-        return func(this, nullptr, behavior, a3); 
+        return func(this, nullptr, behavior, a3);
     }
 }
 

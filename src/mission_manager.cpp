@@ -439,9 +439,18 @@ bool mission_manager::get_script(mission_manager_script_data *return_script_data
     return (bool)THISCALL(0x005E13D0, this, return_script_data);
 }
 
-int mission_manager::add_global_table(const resource_key &a2)
+int mission_manager::add_global_table(const resource_key &key)
 {
-    return THISCALL(0x005D1EA0, this, &a2);
+    auto *resource = resource_manager::get_resource(key, nullptr, nullptr);
+    if (resource == nullptr) {
+        return 0;
+    }
+#if STANDALONE_SYSTEM
+    return 0;
+#endif
+
+    return parse_generic_object_mash(
+        m_global_table_container, resource, nullptr, nullptr, nullptr, 0, 0, nullptr);
 }
 
 void mission_manager::add_district_table(void *a2, region *a3)
@@ -462,7 +471,6 @@ void mission_manager::add_district_table(void *a2, region *a3)
         THISCALL(0x005D1EE0, this, a2, a3);
     }
 }
-
 
 void mission_manager::update_hero_switch()
 {

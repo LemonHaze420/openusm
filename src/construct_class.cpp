@@ -1,6 +1,7 @@
 #include "mash_info_struct.h"
 
 #include "ai_interaction_data.h"
+#include "attach_interact_data.h"
 #include "base_ai_res_state_graph.h"
 #include "als_animation_logic_system_shared.h"
 #include "als_basic_rule_data.h"
@@ -108,10 +109,9 @@ void mash_info_struct::construct_class(token_def_list *&a1)
 template<>
 void mash_info_struct::construct_class(path_graph *&a1)
 {
-    if ( a1 != nullptr )
+    if (a1 != nullptr)
     {
-        void (__fastcall *func)(void *, int edx, void *) = CAST(func, 0x005DE080);
-        func(a1, 0, nullptr);
+        a1 = new (a1) path_graph {nullptr};
     }
 }
 
@@ -192,10 +192,9 @@ void mash_info_struct::construct_class(cut_scene *&a1)
 template<>
 void mash_info_struct::construct_class(ai_interaction_data *&a1)
 {
-    if ( a1 != nullptr )
+    if (a1 != nullptr)
     {
-        void (__fastcall *func)(void *, int edx, void *) = CAST(func, 0x006B65B0);
-        func(a1, 0, nullptr);
+        a1 = new (a1) ai_interaction_data {nullptr};
     }
 }
 
@@ -204,10 +203,9 @@ void mash_info_struct::construct_class(als_res_data *&a1)
 {
     TRACE("mash_info_struct::construct_class<als_res_data>");
 
-    if ( a1 != nullptr )
+    if (a1 != nullptr)
     {
-        void (__fastcall *func)(void *, int edx, void *) = CAST(func, 0x004ABF80);
-        func(a1, 0, nullptr);
+        a1->initialize(mash::FROM_MASH);
     }
 }
 
@@ -260,10 +258,7 @@ template<>
 void mash_info_struct::construct_class(attach_interact_data *&a1)
 {
     if (a1 != nullptr) {
-        if constexpr (!STANDALONE_SYSTEM) {
-            void(__fastcall *func)(void *, int, void *) = CAST(func, 0x006B8F80);
-            func(a1, 0, nullptr);
-        }
+        a1 = new (a1) attach_interact_data {nullptr};
     }
 }
 

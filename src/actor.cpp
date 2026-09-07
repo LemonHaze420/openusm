@@ -710,10 +710,9 @@ void actor::_un_mash(generic_mash_header *a3, void *a4, generic_mash_data_ptrs *
 #endif
 
         const bool missing_conglomerate_tail =
+            this->is_a_conglomerate() ||
             (this->is_conglom_member() &&
-             *reinterpret_cast<const uint32_t *>(v4->field_0 - sizeof(uint32_t)) != MASH_SYNC_TEST_VAL5) ||
-            (this->is_a_conglomerate() && !this->is_conglom_member() &&
-             *reinterpret_cast<const uint32_t *>(v4->field_0) != MASH_SYNC_TEST_VAL5);
+             *reinterpret_cast<const uint32_t *>(v4->field_0 - sizeof(uint32_t)) != MASH_SYNC_TEST_VAL5);
         if (missing_conglomerate_tail) {
             this->field_7C = nullptr;
             this->m_interactable_ifc = nullptr;

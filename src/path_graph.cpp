@@ -151,8 +151,11 @@ void path_graph_edge::clear()
 }
 
 path_graph::path_graph(from_mash_in_place_constructor *a2)
+    : id(a2), field_8(a2), field_1C(a2), field_30(0)
 {
-    THISCALL(0x005DE080, this, a2);
+    for (auto &node : this->field_8) {
+        node->field_10 = reinterpret_cast<uintptr_t>(this);
+    }
 }
 
 void path_graph::destruct_mashed_class()

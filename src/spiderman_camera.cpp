@@ -87,32 +87,41 @@ Var<spiderman_camera *> g_spiderman_camera_ptr{0x00959A70};
 
 spiderman_camera::spiderman_camera(const string_hash &a2, entity *a3) : game_camera(a2, a3)
 {
-    if constexpr (0) {
-        //g_camera_mouse_mode() = DEBUG_CAMERA_MOUSE_MODE;
-        //g_pitch_mult() =    os_developer_options::instance->get_int(mString {"DEBUG_CAMERA_PITCH_MULTIPLIER"}) * 0.1;
-        g_yaw_mult =      os_developer_options::instance->get_int(mString {"DEBUG_CAMERA_YAW_MULTIPLIER"}) * 0.1;
-        g_move_mult = os_developer_options::instance->get_int(mString{"DEBUG_CAMERA_MOVE_MULTIPLIER"}) * 0.1;
-        g_strafe_mult = os_developer_options::instance->get_int(mString{"DEBUG_CAMERA_STRAFE_MULTIPLIER"}) * 0.1;
-
-        this->field_1D0.set_id(input_mgr::instance->field_58);
-        this->field_1D0.set_control(static_cast<game_control_t>(102));
-    } else {
-        THISCALL(0x004B78E0, this, &a2, a3);
-    }
+#if STANDALONE_SYSTEM
+    this->set_target_entity(a3);
+    this->field_1A0 = nullptr;
+    this->target_pos = a3 != nullptr ? a3->get_abs_position() : ZEROVEC;
+    this->target_up = YVEC;
+    this->field_1BC = false;
+    this->field_1C0 = 0;
+    this->field_1C4 = 0;
+    this->field_1C8 = 0;
+    this->field_1CC = false;
+#else
+    THISCALL(0x004B78E0, this, &a2, a3);
+#endif
 }
 
-void * spiderman_camera::operator new(size_t size)
+void *spiderman_camera::operator new(size_t size)
 {
+#if STANDALONE_SYSTEM
+    return mem_alloc(size);
+#else
     using aligned_malloc_t = void *(__cdecl *)(size_t, size_t);
     auto aligned_malloc = *bit_cast<aligned_malloc_t *>(0x0086F354);
     return aligned_malloc(size, 4);
+#endif
 }
 
 void spiderman_camera::operator delete(void *ptr)
 {
+#if STANDALONE_SYSTEM
+    mem_dealloc(ptr, sizeof(spiderman_camera));
+#else
     using aligned_free_t = void (__cdecl *)(void *);
     auto aligned_free = *bit_cast<aligned_free_t *>(0x0086F328);
     aligned_free(ptr);
+#endif
 }
 
 void spiderman_camera::sub_4B3260(bool a2)
@@ -183,14 +192,20 @@ void spiderman_camera::adjust_geometry_pipe(bool a1)
 
 void spiderman_camera::autocorrect(Float a2)
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         auto *target_entity = this->get_target_entity();
-        camera_target_info v13 {target_entity, 0.033333335, this->target_pos, this->target_up};
+        if (target_entity == nullptr) {
+            return;
+        }
 
-        this->field_1A0->request_recenter(a2, v13);
-        if (a2 == 0.0f) {
-            this->target_pos = v13.pos;
-            this->target_up = v13.up;
+        if (this->field_1A0 != nullptr) {
+            camera_target_info target_info {target_entity, 0.033333335f, this->target_pos, this->target_up};
+            this->field_1A0->request_recenter(a2, target_info);
+            this->target_pos = target_info.pos;
+            this->target_up = target_info.up;
+        } else {
+            this->target_pos = target_entity->get_abs_position();
+            this->target_up = target_entity->get_abs_po().get_y_facing();
         }
     } else {
         void (__fastcall *func)(void *, void *, Float) = CAST(func, get_vfunc(m_vtbl, 0x2D0));
@@ -206,7 +221,6 @@ void spiderman_camera::_autocorrect(Float a2)
         auto *target = this->get_target_entity();
         camera_target_info v13 {target, 0.033333335f, this->target_pos, this->target_up};
 
-        //sp_log("0x%08X", this->field_1A0->m_vtbl);
         this->field_1A0->request_recenter(a2, v13);
         if (equal(a2.value, 0.0f)) {
             this->target_pos = v13.pos;

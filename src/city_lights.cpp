@@ -15,7 +15,13 @@ void city_lights::load_from_file(const mString &a2)
 
 void city_lights::update(Float a1, nglMatrix &a2, nglMatrix &a3)
 {
+#if STANDALONE_SYSTEM
+    (void)a1;
+    (void)a2;
+    (void)a3;
+#else
     THISCALL(0x00527EB0, this, a1, &a2, &a3);
+#endif
 }
 
 void city_lights::un_mash_start(generic_mash_header *a1, void *a2, generic_mash_data_ptrs *a3, void *)

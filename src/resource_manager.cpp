@@ -324,7 +324,7 @@ make_var(_std::vector<resource_pack_slot *>, resource_context_stack);
 #else
     mString v1{a2[arg4]};
 #endif
-    
+
     mString v2{"packs\\amalga"};
 
     mString res = v2 + v1;
@@ -924,7 +924,7 @@ void configure_packs_by_memory_map(int idx)
 
             assert((new_partition->get_buffer_size() + resource_buffer_used <= resource_buffer_size) &&
                    "Verify we have room for this partition");
-        
+
             new_partition->set_buffer_used(0);
             new_partition->set_buffer(resource_buffer + resource_buffer_used);
             resource_buffer_used += new_partition->get_buffer_size();
@@ -1054,7 +1054,7 @@ bool get_resource_if_exists(const resource_key &resource_id, [[maybe_unused]] vo
 uint8_t *get_resource(const resource_key &resource_id, int *mash_data_size, resource_pack_slot **a3)
 {
     TRACE("resource_manager::get_resource", resource_id.get_platform_string(g_platform).c_str());
-    
+
     if constexpr (1) {
         assert(!g_is_the_packer && "Don't call this function while packing!");
         assert(resource_id.is_set());

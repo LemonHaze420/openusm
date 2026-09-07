@@ -65,11 +65,10 @@ void cut_scene::destruct_mashed_class()
     }
 }
 
-void cut_scene::unmash(mash_info_struct *a1, void *a3)
+void cut_scene::unmash(mash_info_struct *a1, [[maybe_unused]] void *a3)
 {
-    if constexpr (0) {
-    } else {
-        void(__fastcall * func)(cut_scene *, void *edx, mash_info_struct *, void *a3) = CAST(func, 0x00742930);
-        func(this, nullptr, a1, a3);
-    }
+    a1->unmash_class_in_place(this->field_0, this);
+    a1->unmash_class_in_place(this->segments, this);
+    a1->unmash_class_in_place(this->field_34, this);
+    a1->unmash_class_in_place(this->field_3C, this);
 }

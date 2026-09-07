@@ -805,7 +805,7 @@ entity_base_vhandle entity_base::get_my_vhandle()
 {
     return my_handle;
 }
- 
+
 void entity_base::raise_event(string_hash a2)
 {
     entity_base_vhandle v2 = this->get_my_vhandle();
@@ -1527,7 +1527,6 @@ void entity_base::exit_limbo()
 
 void entity_base::on_fade_distance_changed_internal(int a2)
 {
-    assert(is_an_entity() && ((entity *) this)->is_renderable());
 
     if (this->is_visible() && distance_fader::fade_distances()[a2] > 140.0f) {
         g_world_ptr->field_A0.add_far_away_entity({this->my_handle});
@@ -1723,7 +1722,7 @@ void entity_base_patch()
         set_vfunc(0x00882CC4, address);
     }
     return;
-    
+
     {
         FUNC_ADDRESS(address, &entity_base::update_abs_po);
         SET_JUMP(0x004DB590, address);

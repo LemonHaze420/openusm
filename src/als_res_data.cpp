@@ -32,7 +32,6 @@ void als_res_data::initialize(mash::allocation_scope a2)
                 this->field_8 = new (mem) als::animation_logic_system{global_transfer_variable_the_conglom()};
                 this->field_8->create_instance_data(als_shared);
             } else {
-                assert(0 && "I asked for an ALS resource, but I don't have one at runtime.");
                 this->field_8 = nullptr;
             }
         } else {
@@ -47,6 +46,7 @@ void als_res_data::unmash(mash_info_struct *a2, void *)
     TRACE("als_res_data::unmash");
 
     this->field_0.unmash(a2, this);
+    this->field_0.set_type(RESOURCE_KEY_TYPE_ALS_FILE);
 }
 
 void als_res_data::sub_4AB7F0(int a2)

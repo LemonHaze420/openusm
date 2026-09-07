@@ -86,7 +86,7 @@ bool als_resource_handler::_handle_resource(worldly_resource_handler::eBehavior 
 #if OPENUSM_XBOX_MASH_FORMAT
                             ,
                             mash::NORMAL_BUFFER
-#endif 
+#endif
                     );
 
 #if STANDALONE_SYSTEM

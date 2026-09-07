@@ -38,4 +38,5 @@ struct cut_scene_segment {
 
     //0x007425B0
     cut_scene_segment(from_mash_in_place_constructor *a2);
+    void unmash(mash_info_struct *a1, void *a3);
 };

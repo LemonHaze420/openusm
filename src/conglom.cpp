@@ -985,7 +985,7 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
 
             if (__ENT_TYPE != _ENTM_TYPE_MAX) {
                 a4->rebase_shared(4);
-                
+
                 auto *header = a4->get_from_shared<generic_mash_header>();
                 assert(((int)header) % 4 == 0);
 
@@ -1122,7 +1122,7 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
 
         int v59 = *a4->get<int>();
 #if STANDALONE_SYSTEM
-        if (static_cast<std::uint32_t>(v59) == 0x5BADF00Du) {
+        if (v59 != 0 && v59 != 1) {
             a4->field_0 -= sizeof(v59);
             v59 = 0;
         }
@@ -1388,7 +1388,7 @@ void conglomerate::_set_render_alpha_mod(Float a2)
 void conglomerate::debug_render()
 {
     TRACE("conglomerate::debug_render");
-    
+
     if (g_camera_link() == nullptr) {
         return;
     }
@@ -1572,7 +1572,7 @@ void conglomerate::debug_render()
             render_debug_hemisphere(v125, 0.1, v182);
             auto v126 = v244->get_id();
             auto *v183 = v126.to_string();
-            
+
             color32 v160 {255, 0, 0, 255};
             auto &v127 = v244->get_abs_position();
             print_3d_text(v127, v160, 0.5, "%s", v183);

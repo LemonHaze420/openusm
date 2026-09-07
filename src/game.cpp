@@ -131,7 +131,12 @@ static game_process pause_process{"pause", pause_flow, 2};
 
 static int & g_debug_mem_dump_frame = var<int>(0x00921DCC);
 
-static auto & off_921DAC = var<char *[1]>(0x00921DAC);
+#if STANDALONE_SYSTEM
+static char standalone_system_texture_sentinel[] = "";
+static char *off_921DAC[] = {standalone_system_texture_sentinel};
+#else
+static auto &off_921DAC = var<char *[1]>(0x00921DAC);
+#endif
 
 namespace
 {
@@ -140,6 +145,7 @@ uint8_t *venom_hero_slot_buffer = nullptr;
 resource_pack_slot *black_suit_hero_resource_context = nullptr;
 resource_pack_slot *venom_hero_resource_context = nullptr;
 als::animation_logic_system_shared *venom_als_shared = nullptr;
+
 }
 
 resource_pack_slot *get_black_suit_hero_resource_context()
@@ -210,7 +216,6 @@ game *&g_game_ptr = []() -> auto & {
 }();
 
 #endif
-
 
 void sub_538D10()
 {
@@ -549,8 +554,6 @@ void game::begin_hires_screenshot(int a2, int a3)
 
 void game::enable_marky_cam(bool a2, bool a3, Float a4, Float a5)
 {
-    //sp_log("enable_marky_cam: 0x%08X", v6->m_vtbl);
-
     if constexpr (0) {
         auto *v5 = this->the_world;
         auto *marky_cam = v5->field_28.field_44;
@@ -696,7 +699,20 @@ void game::render_world()
 {
     TRACE("game::render_world");
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
+        auto *view_camera = this->get_current_view_camera(0);
+        if (view_camera == nullptr || view_camera->get_fov() < 0.0024999999f)
+            return;
+
+        nglSetClearFlags(7);
+        nglListBeginScene(static_cast<nglSceneParamType>(1));
+        view_camera->adjust_geometry_pipe(false);
+        geometry_manager::set_far_plane(
+            view_camera->get_far_plane_factor() * 10000.0f);
+        nglCalculateMatrices(false);
+        this->the_world->field_A0.render(*view_camera, 0);
+        nglListEndScene();
+    } else if constexpr (0) {
         auto *v3 = this->get_current_view_camera(0);
         if (v3 != nullptr) {
             auto fov = v3->get_fov();
@@ -812,8 +828,6 @@ void game::render_world()
 
 void game::advance_state_legal(Float a2)
 {
-    //sp_log("advance_state_legal: start");
-
     if constexpr (1) {
         mString v12 {"spidermanlogo"};
 
@@ -850,7 +864,6 @@ void game::advance_state_legal(Float a2)
         THISCALL(0x00558100, this, a2);
     }
 
-    //sp_log("advance_state_legal: end");
 }
 
 void game::handle_frame_locking(float *a1)
@@ -926,17 +939,15 @@ void game::pop_process()
 
 void game::set_current_camera(camera *a2, bool a3)
 {
-    if constexpr (1) {
-        this->field_5C = a2;
-        if (a3 && a2->is_a_game_camera()) {
-            bit_cast<game_camera *>(a2)->field_12C = false;
-        }
-
-        this->field_64 = this->field_5C->field_C0;
-
-    } else {
-        THISCALL(0x00514FD0, this, a2, a3);
+#if STANDALONE_SYSTEM
+    this->field_5C = a2;
+    if (a3) {
+        bit_cast<game_camera *>(a2)->field_12C = false;
     }
+    this->field_64 = this->field_5C->field_C0;
+#else
+    THISCALL(0x00514FD0, this, a2, a3);
+#endif
 }
 
 bool game::level_is_loaded() const
@@ -1085,7 +1096,6 @@ void game::advance_state_paused(Float a1)
         THISCALL(0x00558220, this, a1);
     }
 
-    //sp_log("game::advance_state_paused(): end");
 }
 
 void game::clear_screen()
@@ -1208,7 +1218,6 @@ static Var<bool> g_debug_cam_get_prev_target {0x0095C75D};
 void game::handle_cameras(input_mgr *a2, const Float &time_inc)
 {
     TRACE("game::handle_cameras");
-
 
     if constexpr (STANDALONE_SYSTEM) {
         return;
@@ -1395,7 +1404,6 @@ void game::handle_cameras(input_mgr *a2, const Float &time_inc)
             *((float *)v37 + 1) = v39;
             *((float *)v37 + 2) = v40;
             *((int16_t *)v37 + 6) = v41;
-
 
             strcat(byte_960C08, mString {0, "%f ", abs_pos[0]}.c_str());
             strcat(byte_960C08, mString {0, "%f ", 1.0f}.c_str());
@@ -1759,10 +1767,45 @@ void game::init_motion_blur()
 {
     TRACE("game::init_motion_blur");
 
-    if constexpr (0) {
-    } else {
-        THISCALL(0x00514AB0, this);
-    }
+    auto set_float = [this](std::size_t offset, float value) {
+        *reinterpret_cast<float *>(reinterpret_cast<uint8_t *>(this) + offset) = value;
+    };
+    auto set_int = [this](std::size_t offset, int value) {
+        *reinterpret_cast<int *>(reinterpret_cast<uint8_t *>(this) + offset) = value;
+    };
+
+    set_float(0x114, 1.0f);
+    set_float(0x118, 1.0f);
+    set_float(0x11C, 1.0f);
+    set_float(0x120, 0.0f);
+    set_float(0x124, 0.0f);
+    set_float(0x128, 1.0f);
+    set_float(0x12C, 1.0f);
+    set_float(0x130, 0.0f);
+    set_float(0x134, 0.0f);
+    set_int(0x138, 2);
+
+    set_float(0xC4, 1.0f);
+    set_float(0xC8, 1.0f);
+    set_float(0xCC, 1.0f);
+    set_float(0xD0, 0.0f);
+    set_float(0xD4, 0.0f);
+    set_float(0xD8, 1.0f);
+    set_float(0xDC, 1.0f);
+    set_float(0xE0, 0.0f);
+    set_float(0xE4, 0.0f);
+    set_int(0xE8, 2);
+    set_float(0xEC, 1.0f);
+
+    set_float(0xF0, 1.0f);
+    set_float(0xF4, 1.0f);
+    set_float(0xF8, 0.55f);
+    set_float(0xFC, 0.0f);
+    set_float(0x100, 1.025f);
+    set_float(0x104, 1.025f);
+    set_float(0x108, 0.0f);
+    set_float(0x10C, 0.0f);
+    set_int(0x110, 3);
 }
 
 void glow_init()
@@ -1772,7 +1815,7 @@ void glow_init()
 
 void game::freeze_hero(bool a2)
 {
-    if constexpr (0) {
+    if constexpr (1) {
         if (this->the_world != nullptr) {
             for (int v3 = 0; v3 < g_world_ptr->num_players; ++v3) {
                 auto *v5 = g_world_ptr->get_hero_ptr(v3);
@@ -1962,7 +2005,7 @@ void game::load_this_level()
                 }
             }
 
-            auto hero_start_x = os_developer_options::instance->get_int(mString{"HERO_START_X"}); 
+            auto hero_start_x = os_developer_options::instance->get_int(mString{"HERO_START_X"});
             auto hero_start_y = os_developer_options::instance->get_int(mString{"HERO_START_Y"});
             auto hero_start_z = os_developer_options::instance->get_int(mString{"HERO_START_Z"});
 
@@ -1987,7 +2030,6 @@ void game::load_this_level()
                 }
             }
         }
-
 
         if (not_equal(v86.m[1][0], YVEC[0]) || not_equal(v86.m[1][1], YVEC[1]) || not_equal(v86.m[1][2], YVEC[2])) {
             po v77;
@@ -2116,12 +2158,6 @@ void game::level_load_stuff::look_up_level_descriptor()
         int v23 = lookup_size / sizeof_level_descriptor;
         assert((lookup_size % sizeof_level_descriptor) == 0);
 
-        if constexpr (1) {
-            printf("lookup_size = %d, num_levels_desc = %d\n", lookup_size, v23);
-            for (auto i = 0; i < v23; ++i) {
-                printf("\t%s\n", lvl_descriptors[i].field_0.to_string());
-            }
-        }
 
         {
             auto *begin = lvl_descriptors;
@@ -2140,6 +2176,7 @@ void game::level_load_stuff::look_up_level_descriptor()
 
         resource_key v16 {string_hash {this->descriptor->field_0.to_string()}, RESOURCE_KEY_TYPE_PACK};
         auto v19 = resource_manager::get_pack_file_stats(v16, nullptr, nullptr, nullptr);
+
         if (!v19) {
             auto *v9 = this->descriptor->field_0.to_string();
             sp_log("Couldn't find packfile for level '%s'. Make sure you packed this level.", v9);
@@ -2194,7 +2231,9 @@ bool game::level_load_stuff::wait_for_mem_check()
 
 void sub_405CC0()
 {
+#if !STANDALONE_SYSTEM
     CDECL_CALL(0x00405CC0);
+#endif
 }
 
 void system_idle()
@@ -2337,7 +2376,6 @@ void game::frame_advance_game_overlays(Float a1)
 {
     g_femanager.Update(a1);
 
-
     if constexpr (disable_console) {
     g_console->frame_advance(a1);
 }
@@ -2413,7 +2451,6 @@ mString game::get_camera_info() const
 
     mString v33 = v22;
 
-
     auto &v18 = v2->get_abs_position();
     auto *v8 = g_world_ptr->get_the_terrain();
     auto *v32 = v8->find_region(v18, nullptr);
@@ -2455,7 +2492,7 @@ mString game::get_analyzer_info() const
         auto *v6 = v5.to_string();
         v25 = v6;
     }
-    
+
     auto &v8 = v3->get_abs_position();
     auto v24 = to_string(v8);
 
@@ -2518,7 +2555,7 @@ mString game::get_hero_info() const
     auto *v9 = v27.c_str();
     v25.append(v9, -1);
     v25.append(", v = ", -1);
-    
+
     auto v14 = to_string(v26);
     auto *v10 = v14.c_str();
     v25.append(v10, -1);
@@ -2720,7 +2757,6 @@ void nglListEndScene_hook()
         }
     }
 
-
     if constexpr (disable_console) {
         g_console->render();
     }
@@ -2779,11 +2815,14 @@ void game::advance_state_running(Float a2)
                         os_developer_options::instance->get_string(os_developer_options::strings_t::CONSOLE_EXEC);
                 }
 
-                this->field_64->frame_advance(Float{a2});
+                if (this->field_64 != nullptr)
+                    this->field_64->frame_advance(Float{a2});
                 mString v7{"g_game_paused"};
-
-                auto *v5 = (int *) script_manager::get_game_var_address(v7, nullptr, nullptr);
-                *v5 = 0;
+                if (auto *paused =
+                        static_cast<int *>(script_manager::get_game_var_address(v7, nullptr, nullptr));
+                    paused != nullptr) {
+                    *paused = 0;
+                }
             }
         }
     } else {
@@ -2799,8 +2838,6 @@ void game::load_hero_packfile(const char *str, bool a3)
         game_settings *v8 = this->gamefile;
         v8->field_340.m_hero_name = fixedstring<8> {str};
 
-        //sp_log("%d", resource_manager::partitions()->size());
-
         resource_partition *partition = resource_manager::get_partition_pointer(RESOURCE_PARTITION_HERO);
         assert(partition != nullptr);
 
@@ -2814,10 +2851,7 @@ void game::load_hero_packfile(const char *str, bool a3)
         {
             //streamer->dump();
 
-            //sp_log("\npreload");
             streamer->load(str, 0, nullptr, nullptr);
-            //sp_log("postload\n");
-
             //streamer->dump();
         }
 
@@ -2858,7 +2892,9 @@ void game::load_hero_packfile(const char *str, bool a3)
             venom_hero_resource_context = nullptr;
             venom_als_shared = nullptr;
         }
+#if !STANDALONE_SYSTEM
         sound_manager::load_hero_sound_bank(str, true);
+#endif
 
     } else {
         THISCALL(0x0055A420, this, str, a3);
@@ -3085,7 +3121,7 @@ void terrain::unload_all_districts_immediate()
 
     auto *district_streamer = district_partition->get_streamer();
     assert(district_streamer != nullptr);
-    
+
     auto *strip_partition = resource_manager::get_partition_pointer(RESOURCE_PARTITION_STRIP);
     assert(strip_partition != nullptr);
 
@@ -3247,7 +3283,7 @@ void game__setup_inputs(game *a1)
         auto *v2 = input_mgr::instance;
         v2->clear_mapping();
         auto id = v2->field_58;
-        
+
         v2->map_control(1, id, 10);
         v2->map_control(2, id, 11);
         v2->map_control(3, id, 13);
@@ -3276,7 +3312,6 @@ void game__setup_inputs(game *a1)
         v2->map_control(69, id, 14);
         v2->map_control(72, id, 20);
         v2->map_control(73, id, 21);
-
 
         static constexpr device_id_t KEYBOARD_DEVICE = static_cast<device_id_t>(0x1E8480);
 
@@ -3351,7 +3386,7 @@ void game__setup_inputs(game *a1)
         }
 
         {
-            static constexpr device_id_t MOUSE_DEVICE = static_cast<device_id_t>(0x2DC6C0); 
+            static constexpr device_id_t MOUSE_DEVICE = static_cast<device_id_t>(0x2DC6C0);
             v2->map_control(20, MOUSE_DEVICE, 1);
             v2->map_control(21, MOUSE_DEVICE, 0);
             v2->map_control(26, MOUSE_DEVICE, 3);
@@ -3537,7 +3572,6 @@ void game_patch()
             //REDIRECT(0x005581C6, resource_manager::push_resource_context);
             REDIRECT(0x005581CE, localized_string_table::load_localizer);
         }
-
 
         {
             REDIRECT(0x0052B5A6, render_text);

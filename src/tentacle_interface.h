@@ -5,9 +5,22 @@
 #include "mashable_vector.h"
 #include "vector3d.h"
 
+#include <cstddef>
+#include <cstdint>
+
 struct entity;
 
-struct tentacle_info {};
+// Retail vector loader 0x004D16E0: 0x4C-byte records, with nested
+// eight-byte records at 0x3C and entity pointers at 0x44.
+struct tentacle_info {
+    std::uint8_t field_0[0x3C];
+    mashable_vector<std::uint64_t> field_3C;
+    mashable_vector<entity *> field_44;
+};
+
+static_assert(sizeof(tentacle_info) == 0x4C);
+static_assert(offsetof(tentacle_info, field_3C) == 0x3C);
+static_assert(offsetof(tentacle_info, field_44) == 0x44);
 
 struct tentacle_interface : conglomerate_interface {
     bool field_C;

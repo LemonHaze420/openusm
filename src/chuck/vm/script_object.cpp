@@ -689,7 +689,7 @@ void script_object::read(chunk_file *file, script_object *so)
     TRACE("script_object::load");
 
     auto *mem = mem_alloc(sizeof(debug_info_t));
-    so->debug_info = new (mem) debug_info_t{}; 
+    so->debug_info = new (mem) debug_info_t{};
     assert(so->debug_info != nullptr);
 
     assert(so->parent != nullptr);

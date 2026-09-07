@@ -439,7 +439,14 @@ void wds_entity_manager::process_time_limited_entities(Float a2)
 {
     TRACE("wds_entity_manager::process_time_limited_entities");
 
+#if STANDALONE_SYSTEM
+    (void)a2;
+    assert(this->field_18 == 0);
+    assert(this->field_1C == nullptr);
+    assert(this->field_20 == 0);
+#else
     THISCALL(0x005D92D0, this, a2);
+#endif
 }
 
 void wds_entity_manager::check_water(Float) {}

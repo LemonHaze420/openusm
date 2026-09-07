@@ -19,8 +19,8 @@ VALIDATE_SIZE(ai_player_controller, 0x424u);
 
 ai_player_controller::ai_player_controller(actor *a2)
 {
-    if constexpr (0) {
-        this->m_vtbl = 0x0087EAD8;
+    if constexpr (STANDALONE_SYSTEM) {
+        this->m_vtbl = 0;
 
         this->gb_jump = {};
 
@@ -54,7 +54,6 @@ ai_player_controller::ai_player_controller(actor *a2)
         for (auto &axis : this->field_2BC) {
             axis.field_8 = 0.1;
         }
-
 
         this->field_3E0 = ZEROVEC;
         this->field_4[1] = bit_cast<conglomerate *>(a2);
@@ -126,27 +125,22 @@ void ai_player_controller::set_spidey_loco_mode(eHeroLocoMode a2)
 
 hero_type_enum ai_player_controller::find_hero_type() const
 {
-    if constexpr (0) {
-        auto *v2 = this->field_4[1]->get_ai_core();
-        if (v2 == nullptr) {
+    if constexpr (STANDALONE_SYSTEM) {
+        auto *core = this->field_4[1]->get_ai_core();
+        if (core == nullptr) {
             return hero_type_enum::UNDEFINED;
         }
 
-        static constexpr const char *str[] = {"SPIDEY", "VENOM", "PARKER"};
-
-        int i = 1;
-        for (auto s : str) {
-            resource_key v3{string_hash{s}, RESOURCE_KEY_TYPE_AI_STATE_GRAPH};
-            if (v2->find_machine(v3) != nullptr) {
-                return static_cast<hero_type_enum>(i);
+        static constexpr const char *machine_names[] = {"SPIDEY", "VENOM", "PARKER"};
+        for (std::size_t index = 0; index < std::size(machine_names); ++index) {
+            resource_key key {string_hash {machine_names[index]}, RESOURCE_KEY_TYPE_AI_STATE_GRAPH};
+            if (core->find_machine(key) != nullptr) {
+                return static_cast<hero_type_enum>(index + 1);
             }
-
-            ++i;
         }
-
         return hero_type_enum::UNDEFINED;
     } else {
-        return (hero_type_enum)THISCALL(0x00449390, this);
+        return static_cast<hero_type_enum>(THISCALL(0x00449390, this));
     }
 }
 
@@ -190,7 +184,7 @@ void ai_player_controller::clear_controls()
 
 void ai_player_controller::remap_controls()
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         auto v2 = input_mgr::instance->field_58;
         this->gb_jump.set_id(v2);
 

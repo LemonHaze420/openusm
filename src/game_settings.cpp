@@ -19,6 +19,13 @@
 #include "wds.h"
 
 #include <cassert>
+#if STANDALONE_SYSTEM
+#include <map>
+
+namespace {
+std::map<std::uint32_t, float> standalone_numeric_game_settings;
+}
+#endif
 
 VALIDATE_SIZE(game_settings, 0x4CCu);
 
@@ -467,32 +474,40 @@ bool game_settings::set_num(const resource_key &att, Float a3)
 
     assert(att.get_type() == RESOURCE_KEY_TYPE_IFC_ATTRIBUTE);
 
-    if constexpr (0) {
-    } else {
-        bool(__fastcall * func)(const void *, void *edx, const resource_key *, Float) = CAST(func, 0x00573AE0);
-        return func(this, nullptr, &att, a3);
-    }
+#if STANDALONE_SYSTEM
+    standalone_numeric_game_settings[att.m_hash.source_hash_code] = a3;
+    return true;
+#else
+    bool(__fastcall * func)(const void *, void *edx, const resource_key *, Float) = CAST(func, 0x00573AE0);
+    return func(this, nullptr, &att, a3);
+#endif
 }
 
-bool game_settings::get_num(const resource_key &att, float &a3, bool a4) const
+bool game_settings::get_num(const resource_key &att, float &a3, [[maybe_unused]] bool a4) const
 {
     TRACE("game_settings::get_num", att.m_hash.to_string());
 
     assert(att.get_type() == RESOURCE_KEY_TYPE_IFC_ATTRIBUTE);
 
-    if constexpr (0) {
-    } else {
-        bool(__fastcall * func)(const void *, void *edx, const resource_key *att, float *a3, bool a4) =
-            CAST(func, 0x00575930);
-        bool result = func(this, nullptr, &att, &a3, a4);
-        sp_log("%f", a3);
-
-        if (!result) {
-            assert(0 && "invalid game setting");
-        }
-
-        return result;
+#if STANDALONE_SYSTEM
+    const auto found = standalone_numeric_game_settings.find(att.m_hash.source_hash_code);
+    if (found == standalone_numeric_game_settings.end()) {
+        return false;
     }
+    a3 = found->second;
+    return true;
+#else
+    bool(__fastcall * func)(const void *, void *edx, const resource_key *att, float *a3, bool a4) =
+        CAST(func, 0x00575930);
+    bool result = func(this, nullptr, &att, &a3, a4);
+    sp_log("%f", a3);
+
+    if (!result) {
+        assert(0 && "invalid game setting");
+    }
+
+    return result;
+#endif
 }
 
 void game_settings_patch()

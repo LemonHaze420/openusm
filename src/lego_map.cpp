@@ -1,4 +1,6 @@
 #include "lego_map.h"
+#include "nearby_hero_regions.h"
+#include "ngl.h"
 
 #include "func_wrapper.h"
 #include "trace.h"
@@ -28,13 +30,31 @@ void lego_map_root_node::un_mash(char *image, int *a3, region *reg)
         *a3 = static_cast<std::uint16_t>(static_cast<std::uint32_t>(field_14) >> 16u);
 
         for (std::uint16_t i = 0; i < material_count; ++i) {
-            field_4[i] = nullptr;
+            field_4[i] = nglGetMaterial(
+                static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(field_4[i])));
         }
         for (std::uint16_t i = 0; i < mesh_count; ++i) {
-            field_0[i] = nullptr;
+            field_0[i] = nglGetMesh(
+                static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(field_0[i])), false);
+        }
+
+        bool is_near_hero = false;
+        for (auto *nearby_region : nearby_hero_regions::regs()) {
+            if (nearby_region == reg) {
+                is_near_hero = true;
+                break;
+            }
         }
         for (std::uint16_t i = 0; i < lego_count; ++i) {
-            field_8[i].mesh = nullptr;
+            auto &lego = field_8[i];
+            if (is_near_hero) {
+                lego.fade = 0xFF;
+            }
+            if ((lego.flags & 0x10u) == 0) {
+                const auto mesh_index = static_cast<std::uint16_t>(
+                    reinterpret_cast<std::uintptr_t>(lego.mesh));
+                lego.mesh = mesh_index < mesh_count ? field_0[mesh_index] : nullptr;
+            }
         }
     } else {
         THISCALL(0x0054E5A0, this, image, a3, reg);

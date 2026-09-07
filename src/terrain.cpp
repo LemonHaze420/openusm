@@ -348,7 +348,7 @@ void terrain::update_region_pack_info()
             } else {
                 v2 = self->flags & 0xFFFFBFFF;
 			}
-        
+
             self->flags = v2;
         };
 
@@ -425,7 +425,7 @@ void terrain::unload_district_immediate(int a2)
             auto &v10 = v11->field_48;
             auto *reg = this->get_region(v10.field_4);
             assert(reg != nullptr);
-            
+
             if (reg->district_id == a2) {
                 district_streamer->unload(a1);
                 district_streamer->flush(game::render_empty_list);
@@ -817,7 +817,6 @@ void terrain::show_obbs()
 
 #if 0
                 auto sub_A15D90 = [](region *self) -> subdivision_node_obb_base * {
-                    
 
                     if (self->field_98 != nullptr) {
                         return sub_6A0867(self->field_98);

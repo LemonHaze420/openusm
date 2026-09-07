@@ -345,11 +345,6 @@ void app::tick()
     TRACE("app::tick");
 
     {
-        float v6 = this->field_34.elapsed();
-        sp_log("%f", v6);
-
-        auto frame_lock = os_developer_options::instance->get_int(mString {"FRAME_LOCK"});
-        sp_log("frame_lock = %d", frame_lock);
 
         float time_inc = 0.0f;
         do {
@@ -424,19 +419,14 @@ void app::tick()
             dword_9682D0 = time_inc;
             dword_9680A8 = time_inc;
 
-            if (g_femanager.m_fe_menu_system != nullptr) {
-                g_femanager.m_fe_menu_system->RenderLoadMeter(false);
-                nglListSend(true);
-            } else {
-                g_heap_check_stage = "app::tick::nflUpdate";
-                nflUpdate();
-                g_heap_check_stage = "app::tick::resource_manager";
-                resource_manager::frame_advance(time_inc);
-                g_heap_check_stage = "app::tick::link_system";
-                link_system::frame_advance(time_inc);
-                g_heap_check_stage = "app::tick::game";
-                this->m_game->frame_advance(time_inc);
-            }
+            g_heap_check_stage = "app::tick::nflUpdate";
+            nflUpdate();
+            g_heap_check_stage = "app::tick::resource_manager";
+            resource_manager::frame_advance(time_inc);
+            g_heap_check_stage = "app::tick::link_system";
+            link_system::frame_advance(time_inc);
+            g_heap_check_stage = "app::tick::game";
+            this->m_game->frame_advance(time_inc);
             byte_9682F0 = false;
         }
 

@@ -784,92 +784,92 @@ void mash_virtual_base::generate_vtable()
 #ifdef TARGET_XBOX
     {
         auto *v1 = new PanelQuad{};
-        map_vtable.insert_or_assign(to_hash("PanelQuad"), v1); 
+        map_vtable.insert_or_assign(to_hash("PanelQuad"), v1);
     }
 
     {
         auto *v1 = new FEText{};
-        map_vtable.insert_or_assign(to_hash("FEText"), v1); 
+        map_vtable.insert_or_assign(to_hash("FEText"), v1);
     }
 
     {
         auto *v1 = new FEMultiLineText{};
-        map_vtable.insert_or_assign(to_hash("FEMultiLineText"), v1); 
+        map_vtable.insert_or_assign(to_hash("FEMultiLineText"), v1);
     }
 
     {
         auto *v1 = new FEFloatingText {};
-        map_vtable.insert_or_assign(to_hash("FEFloatingText"), v1); 
+        map_vtable.insert_or_assign(to_hash("FEFloatingText"), v1);
     }
 
     {
         auto *v1 = new als::state_machine_shared {};
-        map_vtable.insert_or_assign(to_hash("als::state_machine_shared"), v1); 
+        map_vtable.insert_or_assign(to_hash("als::state_machine_shared"), v1);
     }
 
     {
         auto *v1 = new als::layer_state_machine_shared {};
-        map_vtable.insert_or_assign(to_hash("als::layer_state_machine_shared"), v1); 
+        map_vtable.insert_or_assign(to_hash("als::layer_state_machine_shared"), v1);
     }
 
     {
         auto *v1 = new als::scripted_state {};
-        map_vtable.insert_or_assign(to_hash("als::scripted_state"), v1); 
+        map_vtable.insert_or_assign(to_hash("als::scripted_state"), v1);
     }
 
     {
         auto *v1 = new als::base_layer_scripted_state {};
-        map_vtable.insert_or_assign(to_hash("als::base_layer_scripted_state"), v1); 
+        map_vtable.insert_or_assign(to_hash("als::base_layer_scripted_state"), v1);
     }
 
     {
         auto *v1 = new als::scripted_category {};
-        map_vtable.insert_or_assign(to_hash("als::scripted_category"), v1); 
+        map_vtable.insert_or_assign(to_hash("als::scripted_category"), v1);
     }
 
     {
         auto *v1 = new als::scripted_trans_group{};
-        map_vtable.insert_or_assign(to_hash("als::scripted_trans_group"), v1); 
+        map_vtable.insert_or_assign(to_hash("als::scripted_trans_group"), v1);
     }
 
     {
         auto *v1 = new ai::meta_anim_interact{};
-        map_vtable.insert_or_assign(to_hash("als::meta_anim_interact"), v1); 
+        map_vtable.insert_or_assign(to_hash("als::meta_anim_interact"), v1);
     }
 
     {
         auto *v1 = new ai::meta_anim_strength_test{};
-        map_vtable.insert_or_assign(to_hash("als::meta_anim_strength_test"), v1); 
+        map_vtable.insert_or_assign(to_hash("als::meta_anim_strength_test"), v1);
     }
 
     {
         auto *v1 = new als::als_meta_linear_blend{};
-        map_vtable.insert_or_assign(to_hash("als::als_meta_linear_blend"), v1); 
+        map_vtable.insert_or_assign(to_hash("als::als_meta_linear_blend"), v1);
     }
 
     {
         auto *v1 = new als::als_meta_anim_swing{};
-        map_vtable.insert_or_assign(to_hash("als::als_meta_anim_swing"), v1); 
+        map_vtable.insert_or_assign(to_hash("als::als_meta_anim_swing"), v1);
     }
 
     {
         auto *v1 = new ai::spidey_base_state {};
-        map_vtable.insert_or_assign(to_hash("spidey_base_state"), v1); 
+        map_vtable.insert_or_assign(to_hash("spidey_base_state"), v1);
     }
 
     {
         auto *v1 = new ai::std_puppet_trans_state {};
-        map_vtable.insert_or_assign(to_hash("std_puppet_trans_state"), v1); 
+        map_vtable.insert_or_assign(to_hash("std_puppet_trans_state"), v1);
     }
 
     {
         auto *v1 = new anim_key {};
-        map_vtable.insert_or_assign(to_hash("anim_key"), v1); 
+        map_vtable.insert_or_assign(to_hash("anim_key"), v1);
     }
 
     {
         auto *v1 = new anim_record {};
-        map_vtable.insert_or_assign(to_hash("anim_record"), v1); 
+        map_vtable.insert_or_assign(to_hash("anim_record"), v1);
     }
 #endif
 }

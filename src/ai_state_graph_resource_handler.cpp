@@ -113,7 +113,7 @@ void ai_state_graph_resource_handler_patch()
         FUNC_ADDRESS(address, &ai_state_graph_resource_handler::_handle);
         set_vfunc(0x00888A1C, address);
     }
-    
+
     {
         FUNC_ADDRESS(address, &ai_state_graph_resource_handler::_handle_resource);
         set_vfunc(0x00888A24, address);

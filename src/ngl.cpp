@@ -644,7 +644,7 @@ math::VecClass<3, 1> sub_413E90(const vector4d &x_axis, const vector4d &arg8, co
     vector4d v14 = a8;
     v14.sub_413530(x_axis, arg8);
     v14.sub_411A50(y_axis, a3);
-    
+
     math::VecClass<3, 1> result = v14 + z_axis * a7.z;
     return result;
 }
@@ -664,7 +664,6 @@ math::VecClass<3, 1> sub_414360(const math::VecClass<3, 1> &a2, const math::MatC
     return math::VecClass<3, 1>{a1a};
 }
 
-
 void * nglMeshNode::operator new(size_t size)
 {
     auto *mem = nglListAlloc(size, 64);
@@ -680,8 +679,6 @@ void ptr_to_po::build_world_basis_and_pos(
     z = combined.arr[2];
     pos = combined.w;
 }
-
-
 
 matrix4x4 nglMeshNode::sub_41D840()
 {
@@ -1136,7 +1133,6 @@ HRESULT nglVertexBuffer::createIndexOrVertexBuffer(nglVertexBuffer *a1, Resource
 
         const auto end_idx = start_idx + num;
 
-
         struct Struct_77B1C0 {
             int field_0;
             void* m_buffer;
@@ -1304,7 +1300,6 @@ HRESULT STDMETHODCALLTYPE HookCreateVertexBuffer(IDirect3DDevice9 *This, UINT Le
     return result;
 }
 
-
 using CreateIndexBuffer_t = decltype(g_Direct3DDevice->lpVtbl->CreateIndexBuffer);
 
 CreateIndexBuffer_t origCreateIndexBuffer;
@@ -1328,8 +1323,6 @@ DrawPrimitive_t origDrawPrimitive;
 HRESULT STDMETHODCALLTYPE HookDrawPrimitive(IDirect3DDevice9 *This, D3DPRIMITIVETYPE PrimitiveType, UINT StartVertex,
                                             UINT PrimitiveCount)
 {
-    //sp_log("HookDrawPrimitive: return to 0x%08X", getReturnAddress());
-
     return origDrawPrimitive(This, PrimitiveType, StartVertex, PrimitiveCount);
 }
 
@@ -1340,8 +1333,6 @@ DrawPrimitiveUP_t origDrawPrimitiveUP;
 HRESULT STDMETHODCALLTYPE HookDrawPrimitiveUP(IDirect3DDevice9 *This, D3DPRIMITIVETYPE primitive_type,
                                               UINT primitive_count, const void *data, UINT stride)
 {
-    //sp_log("HookDrawPrimitiveUP: return to 0x%08X", getReturnAddress());
-
     return origDrawPrimitiveUP(This, primitive_type, primitive_count, data, stride);
 }
 
@@ -1382,15 +1373,12 @@ HRESULT STDMETHODCALLTYPE HookDrawIndexedPrimitive(IDirect3DDevice9 *This, D3DPR
         This, primitive_type, BaseVertexIndex, MinVertexIndex, NumVertices, startIndex, primCount);
 }
 
-
 using SetVertexDeclaration_t = decltype(g_Direct3DDevice->lpVtbl->SetVertexDeclaration);
 
 SetVertexDeclaration_t origSetVertexDeclaration;
 
 HRESULT STDMETHODCALLTYPE HookSetVertexDeclaration(IDirect3DDevice9 *This, IDirect3DVertexDeclaration9 *pDecl)
 {
-    //sp_log("HookSetVertexDeclaration: return to 0x%08X", getReturnAddress());
-
     return origSetVertexDeclaration(This, pDecl);
 }
 
@@ -1412,8 +1400,6 @@ CreateVertexShader_t origCreateVertexShader;
 HRESULT STDMETHODCALLTYPE HookCreateVertexShader(IDirect3DDevice9 *This, const DWORD *byte_code,
                                                  IDirect3DVertexShader9 **shader)
 {
-    //sp_log("HookCreateVertexShader: return to 0x%08X", getReturnAddress());
-
     return origCreateVertexShader(This, byte_code, shader);
 }
 
@@ -1425,8 +1411,6 @@ HRESULT STDMETHODCALLTYPE HookCreateTexture(IDirect3DDevice9 *This, UINT Width, 
                                             D3DFORMAT Format, D3DPOOL Pool, IDirect3DTexture9 **ppTexture,
                                             HANDLE *pSharedHandle)
 {
-    //sp_log("HookCreateTexture: return to 0x%08X", getReturnAddress());
-
     return origCreateTexture(This, Width, Height, Levels, Usage, Format, Pool, ppTexture, pSharedHandle);
 }
 
@@ -1437,8 +1421,6 @@ CreateVertexDeclaration_t origCreateVertexDeclaration;
 HRESULT STDMETHODCALLTYPE HookCreateVertexDeclaration(IDirect3DDevice9 *This, const D3DVERTEXELEMENT9 *elements,
                                                       IDirect3DVertexDeclaration9 **declaration)
 {
-    //sp_log("HookCreateVertexDeclaration: return to 0x%08X", getReturnAddress());
-
     return origCreateVertexDeclaration(This, elements, declaration);
 }
 
@@ -1892,7 +1874,6 @@ void nglTexture::SetupTextureLevels()
     }
 }
 
-
 void sub_77B740()
 {
 #if STANDALONE_SYSTEM
@@ -2139,7 +2120,6 @@ void nglTextureInit()
         nglPaletteFileDirectory = new tlInstanceBankResourceDirectory<nglPaletteFile, tlFixedString>{};
         nglFontDirectory() = new tlInstanceBankResourceDirectory<nglFont, tlFixedString>{};
 
-
         stru_975AC0.field_4 = &stru_975AC0;
         stru_975AC0.field_0 = &stru_975AC0;
 
@@ -2155,7 +2135,6 @@ void nglTextureInit()
 }
 
 static Var<D3DCAPS9> g_deviceCaps {0x00972108};
-
 
 void sub_7726B0(bool a1)
 {
@@ -2173,7 +2152,6 @@ void sub_7726B0(bool a1)
 
             float v3[4] {0.0, 0.5, 1.0, 2.0};
             IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice, 91u, v3, 1u);
-
 
             v3[0] = 3.1415927;
             v3[1] = 0.5;
@@ -2231,8 +2209,6 @@ void nglSetTexturePath(const char *a1)
 nglFont *nglLoadFont(const tlFixedString &a1)
 {
     if constexpr (1) {
-        //sp_log("find = 0x%08X, sub_779FC0 = 0x%08X", find, load);
-
         nglFont *font = nglFontDirectory()->Find(a1);
         if (font == nullptr) {
             return nglFontDirectory()->Load(a1);
@@ -2283,7 +2259,6 @@ tlFixedString *nglMeshFile::get_string(nglMeshFile *a1)
 void nglSetTextureDirectory(tlResourceDirectory<nglTexture, tlFixedString> *a1)
 {
     TRACE("nglSetTextureDirectory");
-
 
     if constexpr (1) {
         nglTextureDirectory = CAST(nglTextureDirectory, a1);
@@ -2340,6 +2315,11 @@ void nglSetMaterialFileDirectory(tlResourceDirectory<nglMaterialFile, tlFixedStr
 void nglSetMaterialDirectory(tlResourceDirectory<nglMaterialBase, tlHashString> *a1)
 {
     nglMaterialDirectory = CAST(nglMaterialDirectory, a1);
+}
+
+nglMaterialBase *nglGetMaterial(uint32_t hash)
+{
+    return nglMaterialDirectory != nullptr ? nglMaterialDirectory->Find(hash) : nullptr;
 }
 
 bool nglMaterialBase::IsSwitchable()
@@ -2416,13 +2396,13 @@ void nglRebaseSection(uint32_t NewBase, uint32_t OldBase, nglMeshSection *a3)
     PTR_OFFSET(idx, Section->BonesIdx);
 
     PTR_OFFSET(idx, Section->VertexBuffer.field_0);
-  
+
     PTR_OFFSET(idx, Section->field_30.field_0 );
 
     PTR_OFFSET(idx, Section->field_38);
 
     PTR_OFFSET(idx, Section->Material);
-    
+
     PTR_OFFSET(idx, Section->VertexDef);
 
     if constexpr (0) {
@@ -2579,10 +2559,6 @@ matrix4x3 transposed(const matrix4x3 &a2)
         CDECL_CALL(0x004135B0, &result, &a2);
     }
 
-    //sp_log("%s", a2.to_string());
-    //sp_log("%s", result.to_string());
-    //sp_log("%s", a2.transposed().to_string());
-
     //assert(approx_equals(result[0][3], 0.0, LARGE_EPSILON));
     //assert(result == a2.transposed());
 
@@ -2613,8 +2589,6 @@ matrix4x4 sub_4150E0(const matrix4x4 &a2)
 {
     TRACE("sub_4150E0");
 
-    // sp_log("%s", a2.to_string());
-
     if constexpr (1) {
         struct transform3d {
             matrix4x3 basis;
@@ -2632,8 +2606,6 @@ matrix4x4 sub_4150E0(const matrix4x4 &a2)
         matrix4x4 result;
 
         CDECL_CALL(0x004150E0, &result, &a2);
-
-        // sp_log("%s", result.to_string());
 
         return result;
     }
@@ -2830,8 +2802,8 @@ int modImportMesh(IDirect3DDevice9* dev, modGenericMesh& data, char* buf, size_t
     if (shaderName.find("uslod") != std::string::npos) {
         stride = 16;
     }
-    else if (shaderName.find("us_character") != std::string::npos || 
-             shaderName.find("usperson") != std::string::npos || 
+    else if (shaderName.find("us_character") != std::string::npos ||
+             shaderName.find("usperson") != std::string::npos ||
              shaderName.find("uspersonsolid") != std::string::npos) {
 
         stride = 64;
@@ -2841,7 +2813,7 @@ int modImportMesh(IDirect3DDevice9* dev, modGenericMesh& data, char* buf, size_t
     std::vector<float> vertices;
     std::vector<uint16_t> indices;
     const bool hasFullVB = stride == 64;
-    
+
     // if we're looking for the first mesh, then
     // find the first mesh with bones if we need them
     if (hasFullVB && !mesh->mNumBones && !meshIndex) {
@@ -2860,7 +2832,7 @@ int modImportMesh(IDirect3DDevice9* dev, modGenericMesh& data, char* buf, size_t
             mesh = scene->mMeshes[meshIndex < scene->mNumMeshes ? meshIndex : scene->mNumMeshes - 1];
     }
 
-    // fill buffers    
+    // fill buffers
     for (unsigned int i = 0; i < mesh->mNumVertices; ++i) {
         const aiVector3D& pos = mesh->mVertices[i];
         vertices.push_back(pos.x);
@@ -2897,7 +2869,7 @@ int modImportMesh(IDirect3DDevice9* dev, modGenericMesh& data, char* buf, size_t
 
         if (hasFullVB)
         {
-            if (mesh->mNumBones) 
+            if (mesh->mNumBones)
             {
                 struct VertexBoneData {
                     uint8_t indices[4] = {};
@@ -2961,7 +2933,6 @@ int modImportMesh(IDirect3DDevice9* dev, modGenericMesh& data, char* buf, size_t
 
     memcpy(vbData, vertices.data(), vertexSize);
     data.vertexBuffer->lpVtbl->Unlock(data.vertexBuffer);
-
 
     // create index buffer
     UINT indexSize = indices.size() * sizeof(uint16_t);
@@ -3050,15 +3021,11 @@ static bool nglLoadMeshFileInternalPC(const tlFixedString &FileName,
         MeshFile->FirstMorph = nullptr;
 
         uint32_t num_dir_entries = Header->NDirectoryEntries;
-        //sp_log("num_dir_entries = %d", num_dir_entries);
-
         nglMesh *LastMesh = nullptr;
         nglMaterialBase *LastMaterial = nullptr;
         nglMorphSet *prevMorph = nullptr;
 
         auto *dir_entries = Header->DirectoryEntries;
-        //sp_log("0x%08X", dir_entries);
-
         std::for_each(dir_entries, dir_entries + num_dir_entries, [&](auto &dir_entry) {
             PTR_OFFSET(Base, dir_entry.field_4.Material);
             PTR_OFFSET(Base, dir_entry.field_8);
@@ -3070,8 +3037,6 @@ static bool nglLoadMeshFileInternalPC(const tlFixedString &FileName,
                 nglMaterialBase *Material = dir_entry.field_4.Material;
 
                 PTR_OFFSET(Base, Material->Name);
-                //sp_log("material_name = %s", Material->Name->to_string());
-
                 PTR_OFFSET(Base, Material->m_shader);
 
                 Material->File = MeshFile;
@@ -3087,8 +3052,6 @@ static bool nglLoadMeshFileInternalPC(const tlFixedString &FileName,
                 if (Header->field_10 == 0) {
                     auto *v17 = bit_cast<tlFixedString *>(Material->m_shader);
                     tlHashString a2 = v17->m_hash;
-                    //sp_log("0x%08X", v17->m_hash);
-
                     auto *v18 = nglShaderBank.Search(a2);
                     if (v18 != nullptr) {
                         auto *shader = static_cast<nglShader *>(v18->field_20);
@@ -3123,7 +3086,6 @@ static bool nglLoadMeshFileInternalPC(const tlFixedString &FileName,
                     } *mat = CAST(mat, Material);
                     sp_log("%s", mat->field_60->to_string());
                 }
-
 
                 Material->m_shader->BindMaterial(Material);
 
@@ -3199,7 +3161,6 @@ static bool nglLoadMeshFileInternalPC(const tlFixedString &FileName,
                     auto *v28 = MeshSection->Material;
                     MeshSection->StartIndex = 0;
 
-
                     tlFixedString v112 = v28->m_shader->GetName();
                     auto* v29 = v112.to_string();
 
@@ -3208,7 +3169,7 @@ static bool nglLoadMeshFileInternalPC(const tlFixedString &FileName,
                             replacementMesh = dbgReplaceMesh;
 #                   endif
 #                   if MOD_MESH_SUPPORT
-                        if (replacementMesh && numCustomSubmeshes) 
+                        if (replacementMesh && numCustomSubmeshes)
                         {
                             if (modImportMesh(g_Direct3DDevice(), modMesh, (char*)replacementMesh->Data.data(), replacementMesh->Data.size(), v29, idx_Section)) {
                                 nglVertexBuffer* vb = &MeshSection->field_3C;
@@ -3305,7 +3266,6 @@ static bool nglLoadMeshFileInternalPC(const tlFixedString &FileName,
                             func(MeshSection);
                             return;
                         }
-                        
 
                         MeshSection->field_3C.createVertexBufferAndWriteData(
                             MeshSection->field_3C.getVertexData(), MeshSection->field_3C.getSize(), 1028);
@@ -3434,7 +3394,7 @@ static bool nglLoadMeshFileInternalPC(const tlFixedString &FileName,
             v96[3] = v60[3] * 0.5f;
 
             auto v69 = 0.0f;
-    
+
             auto *v67 = MeshFile->FirstMesh;
             for (; v67 != nullptr; v67 = v67->NextMesh) {
                 if ((v67->Flags & NGLMESH_PROCESSED) == 0) {
@@ -3581,97 +3541,41 @@ void nglGetStringDimensions(nglFont *Font, char *Text, uint32_t *Width, uint32_t
         float fHeight = 0.0;
         while (const char c = *TextPtr++) {
             switch (c) {
-            case NGLFONT_TOKEN_COLOR:
-                if constexpr (0) {
-                    Text = TextPtr + 1;
-                    strtoul(TextPtr + 1, (char **) &Text, 16);
-                    TextPtr = ++Text;
-                } else {
-                    static auto sub_FDBBE0 = [](char *&Text, uint32_t &color) {
-                        assert( *Text != '[' && "Invalid character found in Token.  Should be '['.\n" );
-
-                        color = strtoul(Text + 1, &Text, 16u);
-                        ++Text;
-                        assert( *Text != ']' && "Invalid character found in Token.  Should be ']'.\n" );
-
-                        ++Text;
-                    };
-
-                    uint32_t v18;
-                    [](char *&a1, uint32_t &c) {
-                          sub_FDBBE0(a1, c);
-                          c = RGBA2ARGB(c);
-                    }(TextPtr, v18);
+            case NGLFONT_TOKEN_COLOR: {
+                ++TextPtr;
+                char *end = nullptr;
+                strtoul(TextPtr, &end, 16);
+                TextPtr = end + 1;
+                break;
+            }
+            case NGLFONT_TOKEN_SCALE: {
+                ++TextPtr;
+                char *end = nullptr;
+                a5 = static_cast<float>(strtod(TextPtr, &end));
+                a6 = a5;
+                TextPtr = end + 1;
+                if (CurMaxScaleY < a5) {
+                    CurMaxScaleY = a5;
                 }
                 break;
-            case NGLFONT_TOKEN_SCALE:
-
-                if constexpr (0) {
-                    Text = TextPtr + 1;
-                    a5 = strtod(TextPtr + 1, (char **) &Text);
-                    a6 = a5;
-                    TextPtr = ++Text;
-                    if (CurMaxScaleY < a5) {
-                        CurMaxScaleY = a5;
-                    }
-                } else {
-                    static auto sub_FDBD50 = [](char *&Text, float &a2) {
-                        assert(*Text == '[' && "Invalid character found in Token.  Should be '['.\n" );
-
-                        a2 = strtod(Text + 1, &Text);
-                        ++Text;
-
-                        assert(*Text == ']' && "Invalid character found in Token.  Should be ']'.\n" );
-                        ++Text;
-                    };
-                    [](char *&Text, float &ScaleX, float &ScaleY, float &CurMaxScaleY) {
-                        sub_FDBD50(Text, ScaleX);
-                        ScaleY = ScaleX;
-                        if ( ScaleY > CurMaxScaleY ) {
-                            CurMaxScaleY = ScaleY;
-                        }
-                    }(TextPtr, a5.value, a6.value, CurMaxScaleY);
-                }
-
-                break;
+            }
             case NGLFONT_TOKEN_SCALEXY: {
-                if constexpr (0) {
-                    Text = TextPtr + 1;
-                    a5 = strtod(TextPtr + 1, (char **) &Text);
-                    ++Text;
-                    a6 = strtod(Text, (char **) &Text);
-                    TextPtr = ++Text;
-                    if (CurMaxScaleY < a6) {
-                        CurMaxScaleY = a6;
-                    }
-                } else {
-                    static auto sub_FDBEA0 = [](char *&Text, float &ScaleX, float &ScaleY) {
-                        assert( *Text != '[' && "Invalid character found in Token.  Should be '['.\n" );
-                        ScaleX = strtod(Text + 1, &Text);
-                        ++Text;
-
-                        assert( *Text != ',' && "Invalid character found in Token.  Should be ','.\n" );
-                        ScaleY = strtod(Text + 1, &Text);
-                        ++Text;
-
-                        assert( *Text != ']' && "Invalid character found in Token.  Should be ']'.\n" );
-                        ++Text;
-                    };
-
-                    [](char *&Text, float &ScaleX, float &ScaleY, float &CurMaxScaleY) {
-                        sub_FDBEA0(Text, ScaleX, ScaleY);
-                        if ( ScaleY > CurMaxScaleY ) {
-                            CurMaxScaleY = ScaleY;
-                        }
-                    }(TextPtr, a5.value, a6.value, CurMaxScaleY);
+                ++TextPtr;
+                char *end = nullptr;
+                a5 = static_cast<float>(strtod(TextPtr, &end));
+                a6 = static_cast<float>(strtod(end + 1, &end));
+                TextPtr = end + 1;
+                if (CurMaxScaleY < a6) {
+                    CurMaxScaleY = a6;
                 }
-            } break;
+                break;
+            }
             case '\t': {
                 int CellWidth = Font->GlyphInfo[' ' - Font->Header.FirstGlyph].CellWidth;
                 double v22 = (CellWidth < 0 ? CellWidth + 4.2949673e9 : CellWidth);
 
                 v7 = ' ';
-                fWidth += v22 * a5 * 4.0f;
+                fWidth += v22 * a5 * 6.0f;
                 break;
             }
             case '\n': {
@@ -3915,7 +3819,6 @@ int nglGetLOD(nglMesh *Mesh, const math::MatClass<4, 3> &a2)
             return i + 1;
         }
     }
-
 
     return 0;
 }
@@ -4394,8 +4297,7 @@ bool nglLoadTextureTM2(nglTexture *tex, uint8_t *a2)
 
     if constexpr (1) {
         bool result = false;
-        
-        
+
 #if MOD_MESH_SUPPORT
         if (auto data = getModDataByHash(tex->field_60.m_hash)) {
             a2 = data;
@@ -4417,7 +4319,6 @@ bool nglLoadTextureTM2(nglTexture *tex, uint8_t *a2)
         return (bool) CDECL_CALL(0x0077A870, tex, a2);
     }
 }
-
 
 struct TextureParserIFL {
     char *field_0;
@@ -4771,7 +4672,7 @@ void nglRenderQuad(nglQuad *a2)
                                       static_cast<D3DTRANSFORMSTATETYPE>(256),
                                       bit_cast<const D3DMATRIX *>(&nglCurScene->field_24C));
     }
-    
+
     if (struct_972688().field_30 && (nglCurScene->field_334->field_34 & 4) != 0) {
         a2->field_0[0].pos.x *= struct_972688().field_34;
         a2->field_0[0].pos.y *= struct_972688().field_38;
@@ -5030,9 +4931,6 @@ void nglListAddString(nglFont *font,
                       Float a7,
                       Float a8)
 {
-    //sp_log("%s %f %f", a2, float{a3}, float{a4});
-    //sp_log("%f", float{z_value});
-
     if constexpr (1) {
         if (nglCurScene->field_3E4) {
             nglCalculateMatrices(false);
@@ -5437,8 +5335,6 @@ void ToggleFullScreen(BOOL isFullscreen)
 
 int __stdcall WndProcEx(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 {
-    //sp_log("%s", g_Windowed() ? "TRUE" : "FALSE");
-
     if constexpr (0) {
         int result;
 
@@ -5635,7 +5531,6 @@ void create_renderer(HWND hWnd)
     s_d3dpresent_params.Flags = 0;
     s_d3dpresent_params.PresentationInterval = 1;
     s_d3dpresent_params.FullScreen_RefreshRateInHz = (g_Windowed ? 0 : 60);
-
 
     g_valid_texture_format =
         IDirect3D9_CheckDeviceFormat(
@@ -6107,7 +6002,6 @@ void Init_nglVertexDef_FrontEnd_builder()
     nglVertexDefBank.Insert(v1, bit_cast<void *>(&Process_nglVertexDef_FrontEnd));
 }
 
-
 bool sub_578420(unsigned int a1)
 {
     nglCreateMesh(0x40000u, a1, 0, nullptr);
@@ -6313,7 +6207,7 @@ void ngl_patch()
     SET_JUMP(0x0076C970, nglListBeginScene);
 
     SET_JUMP(0x0076B6D0, nglSetViewport);
-    
+
     ngl_lighting_patch();
 
     {
@@ -6363,7 +6257,6 @@ void ngl_patch()
 
     SET_JUMP(0x007791A0, create_and_parse_fdf);
 
-
     {
         [[maybe_unused]] void (*func)(nglFont *Font, char *, uint32_t *, uint32_t *a4, Float a5, Float a6) =
             nglGetStringDimensions;
@@ -6385,7 +6278,6 @@ void ngl_patch()
     {
         REDIRECT(0x0064302D, nglLoadMeshFile);
     }
-
 
     {
         nglTexture *(*func)(const tlFixedString &) = &nglLoadTexture;
@@ -6424,9 +6316,6 @@ void ngl_patch()
 
     REDIRECT(0x0076E0CC, nglSceneDumpStart);
 
-    
-
-
     REDIRECT(0x005B86CD, nglSaveTexture);
     REDIRECT(0x007731E2, nglSaveTexture);
     REDIRECT(0x00773210, nglSaveTexture);
@@ -6443,8 +6332,6 @@ void ngl_patch()
     }
 
     REDIRECT(0x0076EA59, nglRenderPerfInfo);
-
-    
 
     {
         FUNC_ADDRESS(address, &nglMeshSection::internal::createIndexBufferAndWriteData);
@@ -6467,8 +6354,6 @@ void ngl_patch()
     REDIRECT(0x00772432, hookD3DXAssembleShader);
 
     REDIRECT(0x00403B5C, nglCreatePShader);
-
-    
 
     {
         FUNC_ADDRESS(address, &USBuildingSimpleShader::Register);

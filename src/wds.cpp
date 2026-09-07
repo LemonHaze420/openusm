@@ -241,7 +241,9 @@ void build_region_list_radius(region_array *arr, region *reg, const vector3d &a3
 
 void cleanup_actor_scene_anim_state_hash()
 {
+#if !STANDALONE_SYSTEM
     CDECL_CALL(0x004D00E0);
+#endif
 }
 
 int world_dynamics_system::add_generator(force_generator *generator)
@@ -578,6 +580,63 @@ void world_dynamics_system::frame_advance(Float a2)
         this->field_158.frame_advance(a2);
         this->field_28.frame_advance(a2);
         this->field_A0.frame_advance(a2);
+        this->field_188.frame_advance(a2);
+        daynight::frame_advance(a2);
+        traffic_signal_mgr::frame_advance(a2);
+        this->ent_mgr.frame_advance(a2);
+        cleanup_actor_scene_anim_state_hash();
+        this->update_ai_and_visibility_proximity_maps_for_moved_entities(a2);
+        moved_entities::reset_all_moved();
+        script_manager::run(a2, false);
+        this->field_28.advance_controllers(a2);
+        this->advance_entity_animations(a2);
+        time_interface::frame_advance_all_time_interfaces(a2);
+        spawnable::advance_traffic_and_peds(a2);
+        if (this->field_3F0) {
+            ai::ai_core::frame_advance_all_core_ais(a2);
+        }
+        ai_path::frame_advance_all_ai_paths(a2);
+        interactable_interface::frame_advance_all(a2);
+        facial_expression_interface::frame_advance_all_facial_expression_ifc(a2);
+        this->field_3A8.frame_advance(a2);
+        this->field_1B0.frame_advance(a2);
+        this->field_1F0.frame_advance(a2);
+
+        for (auto *generator : this->field_260) {
+            struct generator_vtable {
+                int field_0;
+                bool(__fastcall *is_active)(void *, void *);
+                int field_8;
+                void(__fastcall *frame_advance)(void *, void *, Float);
+            };
+
+            auto *vtable = reinterpret_cast<generator_vtable *>(generator->m_vtbl);
+            if (vtable->is_active(generator, nullptr)) {
+                vtable->frame_advance(generator, nullptr, a2);
+            }
+        }
+
+        physical_interface::frame_advance_all_phys_interfaces(a2);
+        manage_standing_for_all_physical_interfaces(a2);
+        zero_xz_velocity_for_effectively_standing_physical_interfaces();
+        collide_all_moved_entities(a2);
+        line_info::frame_advance(2);
+        beam::frame_advance_all_beams(a2);
+        item::frame_advance_all_items(a2);
+        grenade::frame_advance_all_grenades(a2);
+        manip_obj::frame_advance_all_manip_objs(a2);
+        polytube::frame_advance_all_polytubes(a2);
+        motion_effect_struct::record_all_motion_fx(a2);
+        aeps::FrameAdvance(a2);
+        sound_interface::frame_advance_all_sound_ifc(a2);
+        damage_interface::frame_advance_all_damage_ifc(a2);
+        decal_data_interface::frame_advance_all_decal_interfaces(a2);
+        web_interface::frame_advance_all_web_interfaces(a2);
+        this->update_collision_proximity_maps_for_moved_entities(a2);
+        this->the_terrain->frame_advance(a2);
+        trigger_manager::instance->update();
+        this->sub_54A3B0();
+        decal_morphs::frame_advance(a2);
     } else {
         THISCALL(0x00558370, this, a2);
         update_black_suit_tentacle_rig(this);
@@ -957,7 +1016,7 @@ bool world_dynamics_system::un_mash_scene_entities(const resource_key &a2, regio
                 if ( reg != nullptr ) {
                     reg->m_fade_groups_count = fade_groups_count;
                 }
-                
+
                 buffer_index += sizeof(int);
                 if (fade_groups_count > 0) {
                     if ( reg != nullptr ) {
@@ -1360,7 +1419,7 @@ bool world_dynamics_system::load_scene(resource_key &a2, bool a3, const char *a4
         scene_brew *found_brew = nullptr;
         int brew_idx = 0;
         for (auto i = 0u; i < this->scene_loads.size(); ++i) {
-            auto &v = this->scene_loads[i]; 
+            auto &v = this->scene_loads[i];
             if (v.field_8 == a2) {
                 found_brew = &v;
                 brew_idx = i;
@@ -1473,7 +1532,7 @@ void world_dynamics_system::create_water_kill_trigger()
 
     if constexpr (1) {
         convex_box a3{};
-        
+
         static constexpr auto stru_921BB4 = -3.0f;
 
         vector3d a2[8] {};
@@ -1724,7 +1783,7 @@ entity *world_dynamics_system::get_hero_or_marky_cam_ptr()
 void world_dynamics_system::activate_web_splats()
 {
     TRACE("world_dynamics_system::activate_web_splats");
-    
+
     if constexpr (0) {
         auto *act = bit_cast<actor *>(this->get_hero_ptr(0));
 

@@ -347,7 +347,7 @@ script_executable_entry * load(const resource_key &a1, uint32_t a2, void *a3, co
         key.field_8 = a4;
 
         assert(script_manager_exec_map != nullptr);
-        
+
         script_executable_entry *result = nullptr;
         if (auto it = script_manager_exec_map->find(key); it != script_manager_exec_map->end()) {
             auto *v27 = &it->second;
@@ -807,7 +807,7 @@ void clear()
 
             script_manager_exec_map->erase(it);
         }
-        
+
         assert(script_manager_exec_map->size() == 0);
 
         script_manager_execs_pending_link_list->clear();
@@ -998,7 +998,7 @@ void script_manager_patch()
 
     SET_JUMP(0x0058F400, script_manager::get_time_inc);
 
-    SET_JUMP(0x005AFE40, script_manager::register_allocated_stuff_callback); 
+    SET_JUMP(0x005AFE40, script_manager::register_allocated_stuff_callback);
 
     SET_JUMP(0x005AB5D0, script_manager::add_global_constructor_thread);
 

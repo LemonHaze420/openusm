@@ -91,7 +91,7 @@ enum nglBlendModeType {
 	NGLBM_CONST_BLEND = 5,          // Blends the texel with the background, modulated by BlendModeConstant.
 	NGLBM_CONST_ADDITIVE = 6,       // Adds the texel to the background, modulated by BlendModeConstant.
 	NGLBM_CONST_SUBTRACTIVE = 7,    // Subtracts the texel from the background, modulated by BlendModeConstant.
-    
+
     NGLBM_DESTALPHA_ADDITIVE = 8,   // Adds the texel to the background, modulated by Destination Alpha
 
     NGLBM_MAX_BLEND_MODES
@@ -229,6 +229,7 @@ struct nglMaterialBase {
 };
 
 extern nglMaterialBase *nglGetMaterialInFile(const tlFixedString &a1, nglMeshFile *MeshFile);
+extern nglMaterialBase *nglGetMaterial(uint32_t hash);
 
 enum nglMatrixType {
     NGLMTX_VIEW_TO_WORLD = 0,
@@ -282,7 +283,7 @@ struct nglVertexBuffer {
     union buffer_union {
         IDirect3DIndexBuffer9 *m_indexBuffer;
         vertex_buffer_t m_vtxBuffer;
-    }; 
+    };
 
     buffer_union m_buffer;
 

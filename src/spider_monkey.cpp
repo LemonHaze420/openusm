@@ -27,7 +27,6 @@ float spider_monkey::delta_callback(int a1)
 
 void spider_monkey::render()
 {
-    CDECL_CALL(0x004B6890);
 
     {
         g_game_ptr->mb->render();
@@ -148,12 +147,14 @@ void spider_monkey::render()
 
 void spider_monkey::on_level_load()
 {
-    CDECL_CALL(0x004B3910);
+    m_runtime_text() = 0;
+    m_runtime_monkey_text() = 0;
 }
 
 void spider_monkey::on_level_unload()
 {
-    CDECL_CALL(0x004B3B20);
+    m_runtime_text() = 0;
+    m_runtime_monkey_text() = 0;
 }
 
 void spider_monkey::start()
@@ -215,8 +216,6 @@ void spider_monkey::frame_advance(Float a1)
 
 bool spider_monkey::is_running()
 {
-    //sp_log("spider_monkey::is_running(): %d", spider_monkey::m_running());
-
     return spider_monkey::m_running();
 }
 

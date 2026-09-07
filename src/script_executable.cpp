@@ -339,7 +339,7 @@ void script_executable::un_mash(generic_mash_header *header, void *a3, generic_m
                     this->field_54[i].un_mash(header, this, &this->field_54[i], a4);
                 } else {
                     auto *info = this->field_54 + i;
-                    
+
                     assert(info->so_name == string_hash::INVALID_STRING_HASH);
 
                     auto *owner = this->find_object(info->field_18);
@@ -395,7 +395,7 @@ vm_executable *script_executable::find_function_by_name(string_hash a2) const
 				auto *func = so->get_func(idx);
 				auto *owner = func->get_owner();
 				if ( owner->is_global_object() ) {
-					return func;	
+					return func;
 				}
 			}
 		}
@@ -501,7 +501,7 @@ void script_executable::load(const resource_key &resource_id)
     TRACE("script_executable::load", resource_id.get_platform_string(3).c_str());
 
     script_manager::run_callbacks((script_manager_callback_reason)3, this, nullptr);
-    
+
     filespec v98 {mString {resource_id.m_hash.to_string()}};
     //if ( v98.m_dir == mString::null() && script_manager::using_chuck_old_fashioned() )
     {
@@ -509,7 +509,7 @@ void script_executable::load(const resource_key &resource_id)
     }
 
     this->field_0 = fixedstring<8>{v98.m_name.c_str()};
-    
+
     auto get_platform_extension = []() -> mString {
         if constexpr (0) {
             return mString {".xb"};
@@ -543,7 +543,7 @@ void script_executable::load(const resource_key &resource_id)
 
         chuck_strcpy(sst, v94.c_str(), v94.size() + 1);
     }
-    
+
     chunk_file source{};
 
     v98.m_ext = get_platform_extension() + "pst";
@@ -570,7 +570,7 @@ void script_executable::load(const resource_key &resource_id)
 
     chunk_file io{};
     chunk_flavor v88 {"UNREG"};
-    
+
     v98.m_ext = get_platform_extension() + "sx";
     io.open(v98.fullname(), os_file::FILE_READ);
     assert(io.is_open());
@@ -750,7 +750,7 @@ void script_executable::release_mem()
             mem_dealloc(script_allocated_stuff_map, sizeof(*script_allocated_stuff_map));
             this->script_allocated_stuff_map = nullptr;
         }
-            
+
         release_generic_mash(this);
 
     } else {
@@ -767,7 +767,7 @@ script_library_class *script_executable::find_library_class(const mString &a2) c
     auto end = script_object_dummy_list->end();
     if ( it != end ) {
         return it->second;
-    } 
+    }
 
     return nullptr;
 }
@@ -1005,7 +1005,7 @@ void script_executable::remove_allocated_stuff(int a2, uint32_t a3)
 void script_executable_patch()
 {
     {
-        FUNC_ADDRESS(address, &script_executable::get_total_allocated_stuff); 
+        FUNC_ADDRESS(address, &script_executable::get_total_allocated_stuff);
         SET_JUMP(0x005A07F0, address);
     }
 

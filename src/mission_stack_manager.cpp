@@ -311,9 +311,14 @@ void mission_stack_manager::push_mission_pack_immediate(const mString &a1, const
     streamer->flush(game::render_empty_list);
 }
 
-void mission_stack_manager::pop_mission_pack(const mString &a2, const mString &a3)
+void mission_stack_manager::pop_mission_pack([[maybe_unused]] const mString &a2,
+                                             [[maybe_unused]] const mString &a3)
 {
+#if STANDALONE_SYSTEM
+    pop_mission_pack_internal();
+#else
     THISCALL(0x005D5800, this, &a2, &a3);
+#endif
 }
 
 void mission_stack_manager::map_directory_parent(resource_pack_slot *a1)
@@ -342,7 +347,7 @@ void mission_stack_manager::pop_mission_pack_internal()
 
         auto &pack_slots = my_partition->get_pack_slots();
 
-        assert(pack_slots.empty());
+        assert(!pack_slots.empty());
 
         assert(my_partition->get_streamer() != nullptr);
 

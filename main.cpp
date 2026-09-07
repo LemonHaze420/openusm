@@ -415,7 +415,6 @@ BOOL install_patches()
 
     SET_JUMP(0x0076EA10, nglListSend);
 
-    
     // mod loading
     {
         // global assets
@@ -433,7 +432,7 @@ BOOL install_patches()
 
         FUNC_ADDRESS(address, &mesh_file_resource_handler::_handle_resource);
         set_vfunc(0x00888A44, address);
-        
+
         {
             FUNC_ADDRESS(address, &nglTexture::CreateTextureOrSurface);
             SET_JUMP(0x00775000, address);
@@ -2542,7 +2541,7 @@ HRESULT __stdcall GetDeviceStateHook(IDirectInputDevice8 *self, DWORD cbData, LP
     if (cbData == 256) {
         GetDeviceStateHandleKeyboardInput(lpvData);
     }
-     
+
     auto g_state = []() -> game_state {
         if (g_game_ptr != nullptr) {
             return g_game_ptr->get_cur_state();
@@ -2774,8 +2773,8 @@ unsigned int nglColor(int r, int g, int b, int a)
 }
 
 // ----------------------------------------------------------------------------------------------------------------------------
-// 
-// 
+//
+//
 //typedef void (*nglListEndScene_ptr)();
 //nglListEndScene_ptr nglListEndScene = (nglListEndScene_ptr)0x00742B50;
 
@@ -2801,7 +2800,7 @@ void aeps_RenderAll() {
 
 void HookFunc(DWORD callAdd, DWORD funcAdd, BOOLEAN jump, const char* reason) {
 
-    //Only works for E8/E9 hooks	
+    //Only works for E8/E9 hooks
     DWORD jmpOff = funcAdd - callAdd - 5;
 
     BYTE shellcode[] = { 0, 0, 0, 0, 0 };
@@ -3281,7 +3280,7 @@ void sub_6918AD(debug_menu_entry* entry)
 
         std::list<nalAnimClass<nalAnyPose>*> v17;
         actor::get_animations(v18,v17);
-        
+
         for (auto* v15 : v17)
         {
             auto& v3 = v15->field_8;
@@ -3542,7 +3541,7 @@ void debug_menu::init() {
     debug_menu_entry script_entry{ script_menu };
     debug_menu_entry progression_entry{ progression_menu };
     debug_menu_entry level_select_entry{ level_select_menu };
-    
+
     create_entity_animation_menu(root_menu);
     create_camera_menu_items(root_menu);
     create_dvars_menu(root_menu);
@@ -3624,7 +3623,7 @@ void render_current_debug_menu() {
     nglSetQuadColor(&quad, 0xBE0A0A0A);
     nglSetQuadZ(&quad, 0.5f);
     nglListAddQuad(&quad);
-    
+
     int white_color = nglColor(255, 255, 255, 255);
     int yellow_color = nglColor(255, 255, 0, 255);
     int green_color = nglColor(0, 255, 0, 255);
@@ -3634,7 +3633,7 @@ void render_current_debug_menu() {
     render_height += 12;
     int render_x = menu_x_start;
     render_x += 8;
-    
+
     nglListAddString(nglSysFont(), render_x, render_height, 0.2f, green_color, 1.f, 1.f, current_menu->title);
     render_height += getStringHeight(current_menu->title);
 
@@ -3663,7 +3662,7 @@ void render_current_debug_menu() {
 void debug_nglListEndScene_hook() {
     g_console->render();
 
-    if (debug_enabled) 
+    if (debug_enabled)
         render_current_debug_menu();
 
     nglListEndScene();
@@ -4747,7 +4746,7 @@ BOOL install_redirects()
         game_camera_patch();
 
         region_patch();
-        
+
         matrix4x4_patch();
 
         ai_interaction_data_patch();
@@ -4809,7 +4808,7 @@ BOOL install_redirects()
 
     if constexpr (0) {
         tlResourceDirectory_patch();
-        
+
         PanelMeshSection_patch();
 
         fe_mini_map_widget_patch();
@@ -4913,7 +4912,7 @@ BOOL install_redirects()
         ai_state_machine_patch();
 
         line_info_patch();
-        
+
         local_collision_patch();
 
         hierarchical_entity_proximity_map_patch();
@@ -4921,7 +4920,7 @@ BOOL install_redirects()
         spidey_base_state_patch();
 
         hero_base_state_patch();
-        
+
         enhanced_state_patch();
 
         ped_spawner_patch();
@@ -5003,7 +5002,7 @@ BOOL install_redirects()
         als_layer_state_machine_shared_patch();
 
         als_basic_rule_data_patch();
-        
+
         als_res_data_patch();
 
         als_mocomp_patch();
@@ -5144,7 +5143,6 @@ BOOL install_redirects()
         }
 
 #if 0
-        
 
         FEMenuSystem_patch();
 
@@ -5220,9 +5218,6 @@ BOOL install_redirects()
         //message_board_patch();
 
 #if 0
-
-        
-        
 
         param_block_patch();
 
