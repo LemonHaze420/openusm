@@ -77,7 +77,6 @@ animation_logic_system_shared::animation_logic_system_shared(from_mash_in_place_
                 0);
                 this->field_14 = (state_machine_shared *) v4;
                 mash_virtual_base::fixup_vtable(this->field_14);
-                assert(this->field_14->m_vtbl == 0x0087B8F8);
 
                 auto v5 = this->field_14->get_mash_sizeof();
                 a1->advance_buffer(

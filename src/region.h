@@ -25,6 +25,7 @@ struct ai_region_paths;
 struct eligible_pack;
 struct dynamic_rtree_root_t;
 struct lego_map_root_node;
+struct resource_pack_slot;
 struct texture_to_frame_map;
 
 struct region {
@@ -142,6 +143,8 @@ struct region {
 
     void sub_5452D0();
 
+    void set_loaded(bool loaded, resource_pack_slot *pack_slot);
+
     //0x0052E760
     bool is_inside_or_on(const vector3d &a2) const;
 
@@ -198,15 +201,19 @@ struct region {
         return bit_cast<int*>(bit_cast<char*>(this) + 0xC8)[0];
     }
 
-    static inline uint32_t & visit_key = var<uint32_t>(0x0095C914);
-
-	static inline int & visit_key1 = var<int>(0x0095C918);
-
-    static inline int & visit_key2 = var<int>(0x0095C91C);
-
-    static inline region *& all_regions = var<region *>(0x0095C924);
-
-    static inline int & number_of_allocated_regions = var<int>(0x0095C920);
+#if STANDALONE_SYSTEM
+    static inline uint32_t visit_key{};
+    static inline int visit_key1{};
+    static inline int visit_key2{};
+    static inline region *all_regions{};
+    static inline int number_of_allocated_regions{};
+#else
+    static inline uint32_t &visit_key = var<uint32_t>(0x0095C914);
+    static inline int &visit_key1 = var<int>(0x0095C918);
+    static inline int &visit_key2 = var<int>(0x0095C91C);
+    static inline region *&all_regions = var<region *>(0x0095C924);
+    static inline int &number_of_allocated_regions = var<int>(0x0095C920);
+#endif
 };
 
 extern void region_patch();

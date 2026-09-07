@@ -740,6 +740,21 @@ bool convert_actor_mash(generic_mash_header *header, generic_mash_data_ptrs *dat
 }
 } // namespace
 
+bool actor_xbpack_unmash_entity_prefix(entity_base *self, generic_mash_header *header,
+                                       generic_mash_data_ptrs *data)
+{
+    if (g_platform != NL_PLATFORM_XBOX) {
+        return false;
+    }
+#ifdef OPENUSM_XBPACK_V10
+    const bool converted = unmash_v10_sound(self, header, data);
+#else
+    const bool converted = convert_entity_prefix(self, header, data);
+#endif
+    assert(converted);
+    return true;
+}
+
 extern "C" __attribute__((noinline, used)) void __fastcall actor_xbpack_entity_prefix_impl(
     entity_base *self,
     int,
@@ -1006,6 +1021,21 @@ extern "C" __attribute__((naked, used)) void actor_v10_finish_hook()
 }
 #endif
 
+bool actor_xbpack_prepare_mash(generic_mash_header *header, generic_mash_data_ptrs *data)
+{
+    if (g_platform != NL_PLATFORM_XBOX) {
+        return true;
+    }
+#ifdef OPENUSM_XBPACK_V10
+    if (read_u32(data->field_0) != MASH_SYNC_TEST_VAL5) {
+        data->field_0 -= sizeof(uint32_t);
+    }
+    return true;
+#else
+    return convert_actor_mash(header, data);
+#endif
+}
+
 extern "C" __attribute__((noinline, used)) void __cdecl actor_xbpack_prepare_impl(
     actor *self,
     generic_mash_data_ptrs *data,
@@ -1013,15 +1043,7 @@ extern "C" __attribute__((noinline, used)) void __cdecl actor_xbpack_prepare_imp
 {
     THISCALL(0x00502C70, self);
 
-    if (g_platform == NL_PLATFORM_XBOX) {
-#ifdef OPENUSM_XBPACK_V10
-        if (read_u32(data->field_0) != MASH_SYNC_TEST_VAL5) {
-            data->field_0 -= sizeof(uint32_t);
-        }
-#else
-        convert_actor_mash(header, data);
-#endif
-    }
+    actor_xbpack_prepare_mash(header, data);
 }
 
 extern "C" __attribute__((naked)) void actor_xbpack_prepare_hook()

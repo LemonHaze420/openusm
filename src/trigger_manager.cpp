@@ -12,7 +12,14 @@
 
 VALIDATE_SIZE(trigger_manager, 8u);
 
+#if STANDALONE_SYSTEM
+trigger_manager *&trigger_manager::instance = []() -> trigger_manager *& {
+    static trigger_manager *standalone_instance{};
+    return standalone_instance;
+}();
+#else
 trigger_manager *&trigger_manager::instance = var<trigger_manager *>(0x0095FF98);
+#endif
 
 trigger_manager::trigger_manager() : m_triggers(nullptr)
 {

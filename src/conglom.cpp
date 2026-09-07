@@ -34,6 +34,7 @@
 #include "render_text.h"
 #include "skeleton_interface.h"
 #include "tentacle_interface.h"
+#include "terrain_decal.h"
 #include "trace.h"
 #include "utility.h"
 #include "variables.h"
@@ -73,9 +74,26 @@ void conglomerate::init_member_data()
 
 void conglomerate::create_parentage_tree()
 {
-    TRACE("conglomerate::create_parentage_tree");
+    const auto resolve_parent = [this](int index) -> entity_base * {
+        if (index < 0)
+            return this;
 
-    THISCALL(0x004E55E0, this);
+        const auto member_count = static_cast<int>(this->members.size());
+        if (index < member_count)
+            return this->members.at(index);
+
+        index -= member_count;
+        if (index < static_cast<int>(this->skin_bones.size()))
+            return this->skin_bones.at(index);
+
+        return this;
+    };
+
+    for (int i = 0; i < static_cast<int>(this->members.size()); ++i)
+        resolve_parent(this->field_E8.at(i))->add_child(this->members.at(i));
+
+    for (int i = 0; i < static_cast<int>(this->skin_bones.size()); ++i)
+        resolve_parent(this->field_F0.at(i))->add_child(this->skin_bones.at(i));
 }
 
 void conglomerate::create_variant_ifc()
@@ -647,9 +665,128 @@ static bool skip_ifc(
 }
 #endif
 
+#if STANDALONE_SYSTEM
+template<typename T>
+static void unmash_plain_vector(mashable_vector<T> &vector, generic_mash_data_ptrs *data)
+{
+    constexpr auto alignment = alignof(T);
+    if (vector.m_shared) {
+        data->rebase_shared(alignment);
+        data->rebase_shared(4);
+        vector.m_data = data->get_from_shared<T>(vector.m_size);
+        data->rebase_shared(4);
+    } else {
+        data->rebase(alignment);
+        data->rebase(4);
+        vector.m_data = data->get<T>(vector.m_size);
+        data->rebase(4);
+    }
+}
+
+static void unmash_tentacle_records(mashable_vector<tentacle_info> &records,
+                                    generic_mash_header *,
+                                    generic_mash_data_ptrs *data)
+{
+    if (records.m_shared) {
+        data->rebase_shared(4);
+        auto *metadata = data->get_from_shared<uint32_t>(3);
+        data->rebase_shared(4);
+        records.m_data = data->get_from_shared<tentacle_info>(records.m_size);
+        if (metadata[2] != 0) {
+            data->get<char>(metadata[0]);
+            data->get_from_shared<char>(metadata[1] - sizeof(tentacle_info) * records.m_size);
+        } else {
+            for (auto &record : records) {
+                std::memcpy(record.field_0 + 0x30, data->get<uint32_t>(2), 8);
+                unmash_plain_vector(record.field_3C, data);
+                unmash_plain_vector(record.field_44, data);
+            }
+        }
+        ++metadata[2];
+        data->rebase_shared(4);
+    } else {
+        data->rebase(4);
+        data->rebase(4);
+        records.m_data = data->get<tentacle_info>(records.m_size);
+        for (auto &record : records) {
+            std::memcpy(record.field_0 + 0x30, data->get<uint32_t>(2), 8);
+            unmash_plain_vector(record.field_3C, data);
+            unmash_plain_vector(record.field_44, data);
+        }
+        data->rebase(4);
+    }
+}
+
+static void unmash_tentacle_interface(tentacle_interface *ifc,
+                                      conglomerate *owner,
+                                      generic_mash_header *header,
+                                      generic_mash_data_ptrs *data)
+{
+    ifc->my_conglomerate = owner;
+    ifc->dynamic = false;
+    unmash_tentacle_records(ifc->field_1C, header, data);
+    data->rebase(4);
+    ifc->field_24 = data->get<entity *>(ifc->field_1C.m_size);
+    for (uint16_t i = 0; i < ifc->field_1C.m_size; ++i) {
+        ifc->field_24[i] = nullptr;
+    }
+    ifc->field_28 = 3;
+    ifc->field_34 = 0;
+}
+#endif
+#if STANDALONE_SYSTEM
+
+static void unmash_terrain_decals(mashable_vector<terrain_decal> &decals,
+                                  generic_mash_data_ptrs *data)
+{
+    if (decals.m_shared) {
+        data->rebase_shared(8);
+        auto *metadata = data->get_from_shared<uint32_t>(4);
+        data->rebase_shared(8);
+        data->rebase_shared(4);
+        decals.m_data = data->get_from_shared<terrain_decal>(decals.m_size);
+        if (metadata[3] != 0) {
+            data->get<char>(metadata[0]);
+            data->get_from_shared<char>(metadata[1] - sizeof(terrain_decal) * decals.m_size);
+        } else {
+            for (auto &decal : decals) {
+                std::memcpy(&decal, data->get<terrain_decal>(), sizeof(decal));
+            }
+        }
+        ++metadata[3];
+        data->rebase_shared(4);
+    } else {
+        data->rebase(8);
+        data->rebase(4);
+        decals.m_data = data->get<terrain_decal>(decals.m_size);
+        for (auto &decal : decals) {
+            std::memcpy(&decal, data->get<terrain_decal>(), sizeof(decal));
+        }
+        data->rebase(4);
+    }
+}
+
+static void unmash_decal_interface(decal_data_interface *ifc,
+                                   conglomerate *owner,
+                                   generic_mash_data_ptrs *data)
+{
+    ifc->my_conglomerate = owner;
+    ifc->dynamic = false;
+    unmash_plain_vector(ifc->field_20, data);
+    unmash_plain_vector(ifc->field_28, data);
+    unmash_plain_vector(ifc->field_30, data);
+    for (unsigned i = 0; i < 9; ++i) {
+        auto &decals = ifc->field_38[i];
+        unmash_terrain_decals(decals, data);
+    }
+    ifc->constructor_common();
+    ifc->field_C = false;
+}
+#endif
+
 void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data_ptrs *a4)
 {
-    TRACE("conglomerate::un_mash", this->field_10.to_string());
+    TRACE("conglomerate::un_mash");
 
     if constexpr (1) {
         this->field_110 = *a4->get_from_shared<int>();
@@ -657,14 +794,24 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
             this->field_F8 = nullptr;
         }
 
-
-#if !defined(TARGET_XBOX) && (!defined(OPENUSM_XBPACK_MODE) || defined(OPENUSM_XBPACK_V10))
+#if STANDALONE_SYSTEM
         if ((a2->field_E & 0x40) != 0) {
             a4->rebase(4);
-
+            this->skeleton_ifc = a4->get<skeleton_interface>();
+            this->skeleton_ifc->my_conglomerate = this;
+            this->skeleton_ifc->dynamic = false;
+            a4->rebase(16);
+            a4->rebase(4);
+            this->skeleton_ifc->abs_po = a4->get<po>(this->skeleton_ifc->po_count);
+            this->field_8 |= 0x10000000u;
+        } else {
+            this->skeleton_ifc = nullptr;
+        }
+#elif !defined(TARGET_XBOX) && (!defined(OPENUSM_XBPACK_MODE) || defined(OPENUSM_XBPACK_V10))
+        if ((a2->field_E & 0x40) != 0) {
+            a4->rebase(4);
             this->skeleton_ifc = a4->get<skeleton_interface>();
             fix_ifc_v_table((char *) this->skeleton_ifc, (eEntityMashIFCTypeEnum) 6);
-
             this->skeleton_ifc->un_mash(a2, this, this->skeleton_ifc, a4);
         } else {
             this->skeleton_ifc = nullptr;
@@ -751,38 +898,50 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
             this->m_script_data_ifc = nullptr;
         }
 
+#if STANDALONE_SYSTEM
         if ((a2->field_E & 0x2000) != 0) {
             a4->rebase(4);
-
             this->m_tentacle_interface = a4->get<tentacle_interface>();
-
+            unmash_tentacle_interface(this->m_tentacle_interface, this, a2, a4);
+        } else {
+            this->m_tentacle_interface = nullptr;
+        }
+#elif !defined(TARGET_XBOX) && (!defined(OPENUSM_XBPACK_MODE) || defined(OPENUSM_XBPACK_V10))
+        if ((a2->field_E & 0x2000) != 0) {
+            a4->rebase(4);
+            this->m_tentacle_interface = a4->get<tentacle_interface>();
             fix_ifc_v_table((char *)this->m_tentacle_interface, static_cast<eEntityMashIFCTypeEnum>(8));
 #ifdef OPENUSM_XBPACK_V10
             this->m_tentacle_interface = unmash_v10_tentacle_ifc(
-                a2,
-                a4,
-                this->m_tentacle_interface,
-                this);
+                a2, a4, this->m_tentacle_interface, this);
 #else
             this->m_tentacle_interface->un_mash(a2, this, this->m_tentacle_interface, a4);
 #endif
         } else {
             this->m_tentacle_interface = nullptr;
         }
+#endif
 
+#if STANDALONE_SYSTEM
         if ((a2->field_E & 0x1000) != 0) {
             a4->rebase(4);
-
             this->my_decal_data_interface = a4->get<decal_data_interface>();
-
-            fix_ifc_v_table((char *) this->my_decal_data_interface, (eEntityMashIFCTypeEnum) 9);
-            this->my_decal_data_interface->un_mash(a2, this, this->my_decal_data_interface, a4);
-
+            unmash_decal_interface(this->my_decal_data_interface, this, a4);
             assert(!my_decal_data_interface->is_dynamic());
         } else {
             this->my_decal_data_interface = nullptr;
         }
-
+#else
+        if ((a2->field_E & 0x1000) != 0) {
+            a4->rebase(4);
+            this->my_decal_data_interface = a4->get<decal_data_interface>();
+            fix_ifc_v_table((char *) this->my_decal_data_interface, (eEntityMashIFCTypeEnum) 9);
+            this->my_decal_data_interface->un_mash(a2, this, this->my_decal_data_interface, a4);
+            assert(!my_decal_data_interface->is_dynamic());
+        } else {
+            this->my_decal_data_interface = nullptr;
+        }
+#endif
         assert(((int)a2) % 4 == 0);
 
         if ((a2->field_E & 0x4000) != 0) {
@@ -817,7 +976,6 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
 
         this->my_conglom_root = this;
 
-        sp_log("members.size() = %d", this->members.size());
         for (auto &member : this->members) {
             uint16_t __ENT_TYPE = *a4->get_from_shared<uint16_t>();
 
@@ -844,11 +1002,13 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
                     fix_entity_v_table((char *)__ENT_ptr, v11);
                 }
 
-                assert(__ENT_ptr->rel_po_idx != 0xFF);
-                assert(__ENT_ptr->rel_po_idx < all_rel_po.size());
-
-                __ENT_ptr->my_rel_po = &this->all_rel_po.m_data[__ENT_ptr->rel_po_idx];
+                const auto rel_po_idx =
+                    static_cast<int>(v87 - this->member_abs_po.m_data);
+                assert(rel_po_idx < this->all_rel_po.size());
+                __ENT_ptr->rel_po_idx = static_cast<int8_t>(rel_po_idx);
+                __ENT_ptr->my_rel_po = &this->all_rel_po.m_data[rel_po_idx];
                 __ENT_ptr->my_conglom_root = this;
+                __ENT_ptr->my_handle = INVALID_HANDLE;
                 __ENT_ptr->un_mash_start(header, __ENT_ptr, a4, nullptr);
 
                 __ENT_ptr->field_8 |= 0x10u;
@@ -858,10 +1018,9 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
             }
 
             assert(tmp_ptr->is_conglom_member());
-
             assert(!tmp_ptr->manage_abs_po());
-
             tmp_ptr->my_abs_po = v87++;
+
             if (tmp_ptr->is_an_actor()) {
                 if (tmp_ptr->get_colgeom() != nullptr) {
                     this->field_110 |= 4u;
@@ -871,7 +1030,6 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
                             auto *v31 = mem_alloc(sizeof(*this->field_FC));
                             this->field_FC = new (v31) actor_list_t {};
                         }
-
                         this->field_FC->push_back(tmp_ptr);
                     }
                 }
@@ -881,10 +1039,9 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
                     this->set_flag_recursive(static_cast<entity_flag_t>(1), true);
                 }
 
-                if ( this->is_material_switching() ) {
+                if (this->is_material_switching()) {
                     for (auto i = 0; i < 4; ++i) {
-                        auto v20 = this->field_90.field_C[i];
-                        tmp_ptr->field_90.field_C[i] = v20;
+                        tmp_ptr->field_90.field_C[i] = this->field_90.field_C[i];
                     }
                 }
             }
@@ -903,12 +1060,11 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
 
         this->skin_bones.custom_un_mash(a2, &this->skin_bones, a4, nullptr);
 
-        sp_log("skin_bones_size = %d", this->skin_bones.size());
-
 #ifdef TARGET_XBOX
         assert(skin_bones.empty() || tmp_skeleton_ifc.exists());
 #endif
 
+        uint16_t skin_bone_idx = 0;
         for (auto &bone : this->skin_bones) {
             uint16_t __ENT_TYPE = *a4->get_from_shared<uint16_t>();
 
@@ -931,8 +1087,13 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
 
                 {
                     auto v26 = static_cast<eEntityMashTypeEnum>(ent_type);
-                    fix_entity_v_table((char *) __ENT_ptr, v26);
+                    fix_entity_v_table((char *)__ENT_ptr, v26);
                 }
+                __ENT_ptr->my_handle = INVALID_HANDLE;
+                const auto rel_po_idx = this->members.size() + skin_bone_idx;
+                assert(rel_po_idx < this->all_rel_po.size());
+                __ENT_ptr->field_40 = static_cast<uint8_t>(skin_bone_idx);
+                __ENT_ptr->rel_po_idx = static_cast<int8_t>(rel_po_idx);
 
                 assert(__ENT_ptr->rel_po_idx != 0xFF);
                 assert(__ENT_ptr->rel_po_idx < all_rel_po.size());
@@ -955,10 +1116,17 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
 
             this->skeleton_ifc->connect_bone_abs_po(tmp_ptr->get_bone_idx(), tmp_ptr);
 
+            ++skin_bone_idx;
             bone = tmp_ptr;
         }
 
         int v59 = *a4->get<int>();
+#if STANDALONE_SYSTEM
+        if (static_cast<std::uint32_t>(v59) == 0x5BADF00Du) {
+            a4->field_0 -= sizeof(v59);
+            v59 = 0;
+        }
+#endif
         if ( v59 != 0 ) {
             int v61 = *a4->get<int>();
 
@@ -1035,6 +1203,7 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
             this->field_7C->post_entity_mash();
         }
 
+#if !STANDALONE_SYSTEM
         if (this->has_tentacle_ifc()) {
             auto *v81 = this->tentacle_ifc();
             v81->initialize_polytubes();
@@ -1046,6 +1215,7 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
             auto *v83 = v82->get_random_variant();
             v82->apply_variant(v83);
         }
+#endif
     } else {
         THISCALL(0x004FC830, this, a2, a3, a4);
     }
@@ -1599,26 +1769,42 @@ entity_base *conglomerate::get_member(const string_hash &a2, bool a3)
 
 bool conglomerate::has_tentacle_ifc()
 {
+#if STANDALONE_SYSTEM
+    return this->m_tentacle_interface != nullptr;
+#else
     bool (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x294));
     return func(this);
+#endif
 }
 
 tentacle_interface *conglomerate::tentacle_ifc()
 {
-    tentacle_interface * (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x298));
+#if STANDALONE_SYSTEM
+    return this->m_tentacle_interface;
+#else
+    tentacle_interface *(__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x298));
     return func(this);
+#endif
 }
 
 bool conglomerate::has_variant_ifc()
 {
+#if STANDALONE_SYSTEM
+    return this->m_variant_interface != nullptr;
+#else
     bool (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x29C));
     return func(this);
+#endif
 }
 
 variant_interface *conglomerate::variant_ifc()
 {
-    variant_interface* (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x2A0));
+#if STANDALONE_SYSTEM
+    return this->m_variant_interface;
+#else
+    variant_interface *(__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x2A0));
     return func(this);
+#endif
 }
 
 entity_base *conglomerate::get_bone(const string_hash &a2, bool a3)

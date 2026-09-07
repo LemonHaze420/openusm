@@ -50,6 +50,9 @@ void wds_token_manager::initialize(const resource_key &a2)
 
         this->field_8 = 0.0;
         auto *the_terrain = g_world_ptr->get_the_terrain();
+#if STANDALONE_SYSTEM
+        return;
+#endif
 
         int size;
         auto *res = resource_manager::get_resource(a2, &size, nullptr);
@@ -85,7 +88,6 @@ void wds_token_manager::initialize(const resource_key &a2)
             the_terrain->register_region_change_callback(wds_token_manager_region_change_callback);
             region *reg = nullptr;
 
-
             for (int i = 0; i < this->tokens->field_0.m_size; ++i) {
                 assert(this->tokens->field_0.m_data != nullptr);
 
@@ -113,6 +115,18 @@ void wds_token_manager::initialize(const resource_key &a2)
     } else {
         THISCALL(0x005586A0, this, &a2);
     }
+}
+
+int wds_token_manager::get_token_index_from_id(int type, int id) const
+{
+    const auto count = tokens != nullptr ? tokens->field_0.m_size : 0;
+    for (int index = 0; index < count; ++index) {
+        const auto *definition = tokens->field_0.m_data[index];
+        if (definition->type == type && definition->field_20 == id) {
+            return index;
+        }
+    }
+    return -1;
 }
 
 void wds_token_manager::frame_advance(Float a1)

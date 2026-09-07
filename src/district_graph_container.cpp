@@ -4,17 +4,60 @@
 #include "func_wrapper.h"
 #include "parse_generic_mash.h"
 #include "terrain.h"
+#include "region.h"
+#include "subdivision_obb.h"
+
+#include <limits>
+
 #include "trace.h"
 
 VALIDATE_SIZE(dsg_box_container, 0x34);
+VALIDATE_SIZE(dsg_region_container, 0x54);
 
 VALIDATE_SIZE(district_graph_container, 0x14);
 
 void district_graph_container::setup_terrain(terrain *the_terrain)
 {
     TRACE("district_graph_container::setup_terrain");
+    the_terrain->total_regions = field_0.size();
+    the_terrain->regions = new region *[the_terrain->total_regions];
 
-    THISCALL(0x00556640, this, the_terrain);
+    for (int index = 0; index < the_terrain->total_regions; ++index) {
+        auto &source = field_0[index];
+        auto *reg = new region{mString{source.field_0}};
+        reg->field_A4 = *reinterpret_cast<vector3d *>(&source.field_4[1]);
+        if (source.field_50 & 2)
+            reg->flags |= 0x101;
+
+        auto &center = *reinterpret_cast<vector3d *>(&source.field_4[4]);
+        if (source.field_4[16] & 0x20000) {
+            auto *obb = new subdivision_node_large_aabb;
+            obb->init(0, 0, center, *reinterpret_cast<vector3d *>(&source.field_4[7]));
+            reg->obb = obb;
+        } else {
+            auto *obb = new subdivision_node_large_obb;
+            obb->init(0,
+                      0,
+                      center,
+                      *reinterpret_cast<vector3d *>(&source.field_4[7]),
+                      *reinterpret_cast<vector3d *>(&source.field_4[10]),
+                      *reinterpret_cast<vector3d *>(&source.field_4[13]));
+            reg->obb = obb;
+        }
+
+        reg->neighbors.reserve(source.field_48.size());
+        for (int neighbor = 0; neighbor < source.field_48.size(); ++neighbor)
+            reg->neighbors.push_back(static_cast<unsigned short>(source.field_48[neighbor]));
+        reg->field_78 = source.field_0;
+        reg->field_88 = reg->field_78;
+        reg->field_B0 = reg->field_A4;
+        reg->field_BC = std::numeric_limits<float>::max();
+        the_terrain->regions[index] = reg;
+    }
+
+#if !STANDALONE_SYSTEM
+    the_terrain->init_region_proximity_map();
+#endif
 }
 
 void dsg_region_container::un_mash(generic_mash_header *header, [[maybe_unused]] void *a3, generic_mash_data_ptrs *a4)
@@ -33,7 +76,6 @@ void dsg_region_container::un_mash(generic_mash_header *header, [[maybe_unused]]
     }
 }
 
-
 void district_graph_container::un_mash_start(generic_mash_header *a2, void *a3, generic_mash_data_ptrs *a4,
                                              [[maybe_unused]] void *a5)
 {
@@ -44,7 +86,7 @@ void district_graph_container::un_mash(generic_mash_header *a2, [[maybe_unused]]
 {
     TRACE("district_graph_container::un_mash");
 
-    if constexpr (0) {
+    if constexpr (1) {
         this->field_0.custom_un_mash(a2, &this->field_0, a4, nullptr);
         this->field_8.custom_un_mash(a2, &this->field_8, a4, nullptr);
     } else {

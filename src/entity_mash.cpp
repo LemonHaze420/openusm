@@ -10,7 +10,6 @@
 #include "trace.h"
 #include "utility.h"
 
-#include <cstdio>
 #include <cassert>
 #ifdef OPENUSM_XBPACK_MODE
 #include <cstdio>
@@ -146,6 +145,20 @@ static int __fastcall standalone_anchor_marker_flavor(entity_base *)
 static int __fastcall standalone_actor_flavor(entity_base *)
 {
     return 0;
+}
+static int __fastcall standalone_conglomerate_flavor(entity_base *)
+{
+    return 12;
+}
+
+static int __fastcall standalone_light_source_flavor(entity_base *)
+{
+    return 9;
+}
+
+static int __fastcall standalone_line_anchor_flavor(entity_base *)
+{
+    return 26;
 }
 
 static bool __fastcall standalone_actor_true(const entity_base *)
@@ -426,6 +439,8 @@ void construct_v_table_lookup()
     std::copy(std::begin(entity_base_vtable), std::end(entity_base_vtable),
               std::begin(light_source_vtable));
     light_source_vtable[0x60 / 4] = reinterpret_cast<void *>(standalone_entity_true);
+    light_source_vtable[0x54 / 4] =
+        reinterpret_cast<void *>(standalone_light_source_flavor);
     light_source_vtable[0x90 / 4] = reinterpret_cast<void *>(standalone_entity_true);
     light_source_vtable[0x164 / 4] =
         reinterpret_cast<void *>(standalone_light_source_unmash);
@@ -445,6 +460,8 @@ void construct_v_table_lookup()
     std::copy(std::begin(marker_vtables[0]), std::end(marker_vtables[0]),
               std::begin(marker_vtables[5]));
     marker_vtables[5][0xB8 / 4] = reinterpret_cast<void *>(standalone_entity_true);
+    marker_vtables[5][0x54 / 4] =
+        reinterpret_cast<void *>(standalone_line_anchor_flavor);
     entity_vtables()[16] = reinterpret_cast<int>(marker_vtables[0]);
     entity_vtables()[17] = reinterpret_cast<int>(marker_vtables[1]);
     entity_vtables()[18] = reinterpret_cast<int>(marker_vtables[2]);
@@ -461,6 +478,8 @@ void construct_v_table_lookup()
     entity_vtables()[3] = reinterpret_cast<int>(actor_vtable);
     std::copy(std::begin(actor_vtable), std::end(actor_vtable), std::begin(conglomerate_vtable));
     conglomerate_vtable[0x164 / 4] = reinterpret_cast<void *>(standalone_conglomerate_unmash);
+    conglomerate_vtable[0x54 / 4] =
+        reinterpret_cast<void *>(standalone_conglomerate_flavor);
     conglomerate_vtable[0x12C / 4] = reinterpret_cast<void *>(standalone_entity_true);
     conglomerate_vtable[0x268 / 4] = reinterpret_cast<void *>(standalone_actor_ifl_lock);
     conglomerate_vtable[0x294 / 4] =

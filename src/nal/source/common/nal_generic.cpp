@@ -3,6 +3,7 @@
 #include "func_wrapper.h"
 #include "common.h"
 #include "nal_system.h"
+#include "memory.h"
 #include "tl_instance_bank.h"
 #include "trace.h"
 #include "variables.h"
@@ -39,7 +40,9 @@ int &nalGenericPose::PoseStack = []() -> auto & {
 }();
 
 int &nalGenericAnim::vtbl_ptr = []() -> auto & {
-    static int g_vtbl_ptr{};
+    static void *g_vtbl[]{
+        nullptr, func_address(&Process), func_address(&Release), func_address(&CheckVersion), nullptr};
+    static int g_vtbl_ptr = bit_cast<int>(static_cast<void *>(g_vtbl));
     return g_vtbl_ptr;
 }();
 
@@ -49,6 +52,61 @@ int &nalGenericSkeleton::vtbl_ptr = []() -> auto & {
 }();
 
 #endif
+
+void nalGenericAnim::Process()
+{
+    auto *base = bit_cast<char *>(this);
+    const auto align_up = [](std::intptr_t value, int alignment) {
+        return (value + alignment - 1) & ~(alignment - 1);
+    };
+
+    auto &component_data = *bit_cast<char **>(base + 0x60);
+    auto &component_offsets = *bit_cast<char **>(base + 0x5C);
+    auto &cache_entries = *bit_cast<void ***>(base + 0x78);
+    const auto component_data_size = *bit_cast<int *>(base + 0x54);
+    const auto component_alignment = *bit_cast<int *>(base + 0x58);
+    const auto cache_count = *bit_cast<int *>(base + 0x64);
+
+    component_data = bit_cast<char *>(align_up(bit_cast<std::intptr_t>(base + 0x83), 4));
+    component_offsets = bit_cast<char *>(
+        align_up(bit_cast<std::intptr_t>(component_data)
+                     + 4 * ((this->field_30->field_A4 + 31) / 32),
+                 component_alignment));
+
+    auto *offsets = *bit_cast<std::intptr_t **>(base + 0x6C);
+    offsets = bit_cast<std::intptr_t *>(
+        align_up(bit_cast<std::intptr_t>(component_offsets) + component_data_size, 4));
+    *bit_cast<std::intptr_t **>(base + 0x6C) = offsets;
+
+    const auto offset_base = bit_cast<std::intptr_t>(offsets + cache_count);
+    for (int i = 0; i < cache_count; ++i) {
+        offsets[i] += offset_base;
+    }
+
+    cache_entries = static_cast<void **>(tlMemAlloc(4 * cache_count, 8, 0x2000000u));
+    for (int i = 0; i < cache_count; ++i) {
+        cache_entries[i] = nullptr;
+    }
+}
+
+void nalGenericAnim::Release()
+{
+    auto *base = bit_cast<char *>(this);
+    auto *offsets = *bit_cast<std::intptr_t **>(base + 0x6C);
+    const auto cache_count = *bit_cast<int *>(base + 0x64);
+    const auto offset_base = bit_cast<std::intptr_t>(offsets + cache_count);
+    for (int i = 0; i < cache_count; ++i) {
+        offsets[i] -= offset_base;
+    }
+
+    tlMemFree(*bit_cast<void **>(base + 0x78));
+    *bit_cast<void **>(base + 0x78) = nullptr;
+}
+
+bool nalGenericAnim::CheckVersion() const
+{
+    return field_2C == 0x10200;
+}
 
 void nalGenericInstance::GetPose(Float a2, Float a3, nalGeneric::nalGenericPose &a4,
                                  const nalGeneric::nalGenericPose &a5)

@@ -50,9 +50,18 @@ bool box_trigger::triggered(const vector3d &a2)
     return this->box.sub_55EE20(a2, v6->get_abs_po());
 }
 
-void box_trigger::set_box_info(const convex_box &a2)
+void box_trigger::set_box_info(const convex_box &source)
 {
-    THISCALL(0x0050CD30, this, &a2);
+    box = source;
+    const auto center = (box.bbox.field_0[0] + box.bbox.field_0[1]) * 0.5f;
+    field_48 = (box.bbox.field_0[1] - box.bbox.field_0[0]).length() * 0.5f;
+
+    if (auto *box_ent = field_58.get_volatile_ptr()) {
+        field_68 = center;
+        field_48 += (center - box_ent->get_abs_position()).length();
+    } else {
+        field_48 += (center - field_5C).length();
+    }
 }
 
 bool box_trigger::_is_point_trigger()

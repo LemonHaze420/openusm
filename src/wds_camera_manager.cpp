@@ -105,6 +105,9 @@ static Var<theta_and_psi_mcs *> g_theta_and_psi_mcs{0x0095C73C};
 void wds_camera_manager::setup_cameras()
 {
     TRACE("wds_camera_manager::setup_cameras");
+#if STANDALONE_SYSTEM
+    return;
+#endif
 
     if constexpr (0) {
         vector3d v46{ZEROVEC};

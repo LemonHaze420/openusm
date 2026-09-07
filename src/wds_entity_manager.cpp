@@ -179,9 +179,21 @@ void wds_entity_manager::remove_entity_from_misc_lists(entity *e)
     assert(e != nullptr);
 }
 
-void wds_entity_manager::make_time_limited(entity *a1, Float a2)
+void wds_entity_manager::make_time_limited(entity *entity_ptr, Float lifetime)
 {
-    THISCALL(0x005DBBC0, this, a1, a2);
+#if STANDALONE_SYSTEM
+    struct timed_entity {
+        entity_base_vhandle handle;
+        float remaining;
+    };
+
+    auto &timed_entities =
+        *reinterpret_cast<_std::vector<timed_entity> *>(&this->field_18);
+    timed_entities.push_back({entity_ptr->get_my_handle(), lifetime});
+    entity_ptr->field_4 |= 0x10000u;
+#else
+    THISCALL(0x005DBBC0, this, entity_ptr, lifetime);
+#endif
 }
 
 item *wds_entity_manager::add_item(_std::vector<item *> *a2, item *a3)
@@ -244,7 +256,7 @@ entity *wds_entity_manager::create_and_add_entity_or_subclass(string_hash a2, st
 {
     TRACE("wds_entity_manager::create_and_add_entity_or_subclass");
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         entity *v71 = nullptr;
 
         auto v68 = a4;
@@ -358,11 +370,15 @@ box_trigger *wds_entity_manager::create_and_add_box_trigger(string_hash a1, cons
     }
 }
 
-entity *wds_entity_manager::add_to_entities(_std::vector<entity *> *vec, entity *a3)
+entity *wds_entity_manager::add_to_entities(_std::vector<entity *> *vec, entity *ent)
 {
     TRACE("wds_entity_manager::add_to_entities");
-
-    return (entity *) THISCALL(0x005DFAB0, this, vec, a3);
+    if (vec == nullptr) {
+        auto segment = entities.field_0.begin();
+        vec = segment == entities.field_0.end() ? entities.sub_50A230() : &*segment;
+    }
+    vec->push_back(ent);
+    return ent;
 }
 
 int wds_entity_manager::add_entity_internal(_std::vector<entity *> *vec, entity *ent)
@@ -407,8 +423,11 @@ int wds_entity_manager::add_entity_internal(_std::vector<entity *> *vec, entity 
 void wds_entity_manager::add_camera(_std::vector<entity *> *vec, camera *a2)
 {
     TRACE("wds_entity_manager::add_camera");
-
+#if STANDALONE_SYSTEM
+    this->add_to_entities(vec, a2);
+#else
     this->add_entity_internal(vec, a2);
+#endif
 }
 
 void wds_entity_manager::add_mic(_std::vector<entity *> *a1, mic *a2)

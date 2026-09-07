@@ -1,19 +1,15 @@
 #pragma once
 
+#include "../nal/include/common/nal_anim.h"
+
 namespace nalPed {
 
-struct nalPedAnim {
-    struct vtbl {
-        void *field_0;
-        void *finalize;
-        void *Process;
-        void *Release;
-
-        using CheckVersion_t = bool (nalPedAnim::*)();
-        CheckVersion_t CheckVersion;
-    };
-
+struct nalPedAnim : nalAnimClass<nalAnyPose> {
     static int &vtbl_ptr;
+
+    void Process();
+    void Release();
+    bool CheckVersion() const;
 };
 
 }  // namespace nalPed

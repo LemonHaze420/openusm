@@ -9,6 +9,7 @@
 #include "memory.h"
 #include "moved_entities.h"
 #include "region.h"
+#include "terrain.h"
 #include "time_interface.h"
 #include "trace.h"
 #include "utility.h"
@@ -145,7 +146,7 @@ void entity::un_mash(generic_mash_header *a2, void *a3, generic_mash_data_ptrs *
     this->extended_regions = nullptr;
     this->field_58 = nullptr;
     this->colgeom = nullptr;
-    entity_base::un_mash(a2, a3, a4);
+    entity_base::_un_mash(a2, a3, a4);
 }
 
 void entity::clear_region(region *r, int i_know_what_i_am_doing)
@@ -153,20 +154,18 @@ void entity::clear_region(region *r, int i_know_what_i_am_doing)
     THISCALL(0x004F54A0, this, r, i_know_what_i_am_doing);
 }
 
-entity *entity::compute_sector(terrain *a1, bool a2, entity *a3)
+entity *entity::compute_sector(terrain *terrain_ptr, bool a2, entity *fallback)
 {
-    if constexpr (0) {
-        entity *result;
-
-        if ((this->field_4 & 0x10000000) == 0) {
-            moved_entities::add_moved({this->get_my_handle()});
-        }
-
-        return result;
-    } else {
-        entity *(__fastcall * func)(void *, void *, terrain *, bool, entity *) = CAST(func, get_vfunc(m_vtbl, 0x16C));
-        return func(this, nullptr, a1, a2, a3);
-    }
+#if STANDALONE_SYSTEM
+    (void)terrain_ptr;
+    (void)a2;
+    (void)fallback;
+    return this;
+#else
+    entity *(__fastcall *func)(void *, void *, terrain *, bool, entity *) =
+        CAST(func, get_vfunc(m_vtbl, 0x16C));
+    return func(this, nullptr, terrain_ptr, a2, fallback);
+#endif
 }
 
 void entity::force_region_hack(region *a2)
@@ -331,7 +330,6 @@ void entity::set_render_color(color32 c)
     void(__fastcall * func)(entity *, void *, color32) = CAST(func, get_vfunc(m_vtbl, 0x1C0));
     func(this, nullptr, c);
 }
-
 
 color32 entity::get_render_color() const
 {

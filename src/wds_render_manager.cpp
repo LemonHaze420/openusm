@@ -22,6 +22,7 @@
 #include "hierarchical_entity_proximity_map.h"
 #include "igofrontend.h"
 #include "line_info.h"
+#include "lego_map.h"
 #include "loaded_regions_cache.h"
 #include "motion_effect_struct.h"
 #include "ngl.h"
@@ -176,6 +177,9 @@ int wds_render_manager::add_far_away_entity(vhandle_type<entity> a2)
 void wds_render_manager::init_level(const char *a2)
 {
     TRACE("wds_render_manager::init_level", a2);
+#if STANDALONE_SYSTEM
+    return;
+#endif
     if constexpr (1) {
         if (this->field_5C == nullptr) {
             tlFixedString a1{"obb_shadow000"};
@@ -307,12 +311,63 @@ void update_spidey_interface()
         }
     }
 }
+static void render_loaded_region_legos(terrain &terrain)
+{
+    auto &sin_indices = var<unsigned char[449]>(0x0095A0D8);
+    auto &sine = var<float[181]>(0x0095A310);
+    nglMeshParams mesh_params{};
+    mesh_params.Flags = NGLMESH_STATIC | NGLP_NO_CULLING;
+
+    for (int region_index = 0; region_index < terrain.get_num_regions(); ++region_index) {
+        auto *reg = terrain.get_region(region_index);
+        if (reg == nullptr || !reg->is_loaded() || reg->field_9C == nullptr)
+            continue;
+
+        auto &root = *reg->field_9C;
+        const auto lego_count = static_cast<uint16_t>(root.field_14);
+        for (uint16_t lego_index = 0; lego_index < lego_count; ++lego_index) {
+            auto &lego = root.field_8[lego_index];
+            if (lego.mesh == nullptr || (lego.flags & 0x10) != 0)
+                continue;
+
+            matrix4x4 local_to_world = identity_matrix;
+            const float sin_yaw = sine[sin_indices[lego.quantized_yaw]];
+            const float cos_yaw = sine[sin_indices[lego.quantized_yaw + 90]];
+            local_to_world.arr[0][0] = cos_yaw;
+            local_to_world.arr[0][2] = sin_yaw;
+            local_to_world.arr[2][0] = -sin_yaw;
+            local_to_world.arr[2][2] = cos_yaw;
+            local_to_world.w = vector4d{lego.x, lego.y, lego.z, 1.0f};
+
+            using shader_param_set = nglParamSet<nglShaderParamSet_Pool>;
+            const auto param_type = static_cast<shader_param_set::nglParamSetType>(
+                lego.material_indices != 0);
+            shader_param_set shader_params{param_type};
+            if (lego.material_indices != 0) {
+                shader_params.SetParam(USMMaterialListParam{root.field_4});
+                shader_params.SetParam(USMMaterialIndicesParam{
+                    reinterpret_cast<uint8_t *>(&lego.material_indices)});
+            }
+
+            FastListAddMesh(
+                lego.mesh,
+                *bit_cast<const math::MatClass<4, 3> *>(&local_to_world),
+                &mesh_params,
+                &shader_params);
+        }
+    }
+}
 
 #include "debug_menu.h"
 
 void wds_render_manager::render(camera &a2, int a3)
 {
     TRACE("wds_render_manager::render");
+#if STANDALONE_SYSTEM
+    if (g_world_ptr != nullptr && g_world_ptr->the_terrain != nullptr)
+        render_loaded_region_legos(*g_world_ptr->the_terrain);
+    return;
+#endif
 
     assert(this->field_94 != nullptr);
 
@@ -420,11 +475,13 @@ void render_data::sub_56FCB0()
     }
 }
 
-void wds_render_manager::frame_advance(Float a2)
+void wds_render_manager::frame_advance([[maybe_unused]] Float a2)
 {
     TRACE("wds_render_manager::frame_advance");
 
+#if !STANDALONE_SYSTEM
     THISCALL(0x0054ADE0, this, a2);
+#endif
 }
 
 void wds_render_manager::render_stencil_shadows(const camera &a2)

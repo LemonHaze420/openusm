@@ -40,6 +40,10 @@ struct nalGenericAnim {
     struct vtbl {};
 
     static int &vtbl_ptr;
+
+    void Process();
+    void Release();
+    bool CheckVersion() const;
 };
 
 struct nalComponentInfo {

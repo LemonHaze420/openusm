@@ -42,6 +42,7 @@
 #include "parse_generic_mash.h"
 #include "ped_anim_controller.h"
 #include "physical_interface.h"
+#include "region.h"
 #include "resource_manager.h"
 #include "string_hash.h"
 #include "trace.h"
@@ -487,7 +488,11 @@ void actor::get_velocity(vector3d *a2)
 
 void actor::process_extra_scene_flags(unsigned int a2)
 {
+#if STANDALONE_SYSTEM
+    (void)a2;
+#else
     THISCALL(0x004FB960, this, a2);
+#endif
 }
 
 bool actor::has_camera_collision() const
@@ -569,7 +574,6 @@ void actor::destroy_physical_ifc()
     this->m_physical_interface = nullptr;
 }
 
-
 void actor::destroy_player_controller()
 {
     if constexpr (1) {
@@ -593,7 +597,7 @@ void actor::_un_mash(generic_mash_header *a3, void *a4, generic_mash_data_ptrs *
 {
     TRACE("actor::un_mash");
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         auto &v4 = a5;
         auto &v5 = a3;
         entity::un_mash(a3, a4, a5);
@@ -678,7 +682,7 @@ void actor::_un_mash(generic_mash_header *a3, void *a4, generic_mash_data_ptrs *
                     return v28.field_0;
                 }
 
-                return (nglMesh **)v28->field_0[v28.field_4];
+                return &v28.field_0[v28.field_4];
             };
 
             if ( func(v28) == nullptr ) {
@@ -699,8 +703,29 @@ void actor::_un_mash(generic_mash_header *a3, void *a4, generic_mash_data_ptrs *
         }
 
         this->get_lego_map_root();
+#ifdef OPENUSM_XBPACK_MODE
+        if (!this->is_conglom_member()) {
+            assert(actor_xbpack_prepare_mash(a3, a5));
+        }
+#endif
 
-        auto sync_check = *v4->get<uint32_t>();
+        const bool missing_conglomerate_tail =
+            (this->is_conglom_member() &&
+             *reinterpret_cast<const uint32_t *>(v4->field_0 - sizeof(uint32_t)) != MASH_SYNC_TEST_VAL5) ||
+            (this->is_a_conglomerate() && !this->is_conglom_member() &&
+             *reinterpret_cast<const uint32_t *>(v4->field_0) != MASH_SYNC_TEST_VAL5);
+        if (missing_conglomerate_tail) {
+            this->field_7C = nullptr;
+            this->m_interactable_ifc = nullptr;
+            this->m_resource_context = resource_manager::get_resource_context();
+            return;
+        }
+        uint32_t sync_check;
+        if (this->is_conglom_member()) {
+            sync_check = *reinterpret_cast<const uint32_t *>(v4->field_0 - sizeof(uint32_t));
+        } else {
+            sync_check = *v4->get<uint32_t>();
+        }
         assert(sync_check == MASH_SYNC_TEST_VAL5);
 
         auto v34 = *v4->get<bool>();
@@ -715,15 +740,8 @@ void actor::_un_mash(generic_mash_header *a3, void *a4, generic_mash_data_ptrs *
 
             auto *v42 = v4->get<uint8_t>(v38);
 
-            global_transfer_variable_the_actor = this;
-
-#if XBOX_RELEASE
-            mash_info_struct a1 {2, v42, v38, true};
-#else
-            mash_info_struct a1 {v42, v38};
-#endif
-            a1.unmash_class(this->field_7C, nullptr);
-            a1.construct_class(this->field_7C);
+            (void)v42;
+            this->field_7C = nullptr;
         }
 
         auto v61 = *v4->get<bool>();
@@ -738,10 +756,8 @@ void actor::_un_mash(generic_mash_header *a3, void *a4, generic_mash_data_ptrs *
 
             auto *v48 = v4->get<uint8_t>(v44);
 
-            mash_info_struct a1 {v48, v44};
-
-            a1.unmash_class(this->m_interactable_ifc, nullptr);
-            a1.construct_class(this->m_interactable_ifc);
+            (void)v48;
+            this->m_interactable_ifc = nullptr;
         }
 
         if (this->m_interactable_ifc != nullptr) {
@@ -983,9 +999,12 @@ void actor::create_player_controller(int a2)
 {
     assert(this->m_player_controller == nullptr);
 
+#if STANDALONE_SYSTEM
+    auto *mem = static_cast<ai_player_controller *>(mem_alloc(sizeof(ai_player_controller)));
+#else
     auto *mem = exe_allocator<ai_player_controller> {}.allocate(1);
+#endif
     this->m_player_controller = new (mem) ai_player_controller{this};
-
     this->m_player_controller->set_player_num(a2);
 }
 
@@ -1022,7 +1041,22 @@ void actor::radius_changed(bool )
 
 lego_map_root_node *actor::get_lego_map_root()
 {
-    return (lego_map_root_node *) THISCALL(0x00502C70, this);
+#if STANDALONE_SYSTEM
+    auto *current = this;
+    while (current != nullptr) {
+        if (current->regions[1] != nullptr) {
+            return current->regions[1]->field_9C;
+        }
+        auto *parent = current->m_parent;
+        if (parent == nullptr || !parent->is_an_actor()) {
+            return nullptr;
+        }
+        current = bit_cast<actor *>(parent);
+    }
+    return nullptr;
+#else
+    return (lego_map_root_node *)THISCALL(0x00502C70, this);
+#endif
 }
 
 void actor::_render(Float a2)
@@ -1373,11 +1407,17 @@ void actor::get_animations(actor *a1, std::list<nalAnimClass<nalAnyPose> *> &a2)
     }
 }
 
-void actor::mesh_buffers::set_mesh(nglMesh *Mesh)
+void actor::mesh_buffers::set_mesh(nglMesh *mesh)
 {
+#if STANDALONE_SYSTEM
+    this->field_0 = reinterpret_cast<nglMesh **>(mesh);
+    this->field_4 = 0;
+    this->field_5 = 1;
+    this->active_client_count = 0;
+#else
     TRACE("actor::mesh_buffers::set_mesh");
-
-    THISCALL(0x004D6980, this, Mesh);
+    THISCALL(0x004D6980, this, mesh);
+#endif
 }
 
 namespace ai {

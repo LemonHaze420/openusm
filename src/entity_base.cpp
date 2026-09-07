@@ -36,6 +36,7 @@
 #include "wds_render_manager.h"
 
 #include <cassert>
+#include <cstdio>
 #include <cmath>
 
 VALIDATE_SIZE(entity_base, 0x44u);
@@ -741,6 +742,11 @@ void entity_base::_un_mash(generic_mash_header *a1, void *a2, generic_mash_data_
 
             this->my_rel_po->un_mash(a1, this->my_rel_po, a3);
         }
+#if STANDALONE_SYSTEM
+        if (!this->my_rel_po->is_valid() && this->is_a_conglomerate()) {
+            new (this->my_rel_po) po {};
+        }
+#endif
 
         this->my_abs_po = this->my_rel_po;
         this->m_parent = nullptr;
@@ -756,19 +762,23 @@ void entity_base::_un_mash(generic_mash_header *a1, void *a2, generic_mash_data_
 
         assert(!is_ext_flagged(EFLAG_EXT_SIGNALLER_ONLY));
 
-        if ((a1->field_E & 0x880) != 0) {
+        bool handled_xbox_prefix = false;
+#ifdef OPENUSM_XBPACK_MODE
+        handled_xbox_prefix = actor_xbpack_unmash_entity_prefix(this, a1, a3);
+#endif
+        if (!handled_xbox_prefix && (a1->field_E & 0x880) != 0) {
             a3->rebase(8u);
-
-#ifndef TARGET_XBOX
-            if ((a1->field_E & 0x880) != 0) {
-                a3->rebase(4u);
-
-                this->my_sound_and_pfx_interface = a3->get<sound_and_pfx_interface>();
-                this->my_sound_and_pfx_interface->m_vtbl = ifc_v_table_lookup[12];
-                this->my_sound_and_pfx_interface->un_mash(a1, this, this->my_sound_and_pfx_interface, a3);
-            } else {
-                this->my_sound_and_pfx_interface = nullptr;
-            }
+#if STANDALONE_SYSTEM
+            a3->rebase(4u);
+            a3->get<sound_and_pfx_interface>();
+            a3->get<std::uint8_t>(8u);
+            a3->rebase(8u);
+            this->my_sound_and_pfx_interface = nullptr;
+#elif !defined(TARGET_XBOX)
+            a3->rebase(4u);
+            this->my_sound_and_pfx_interface = a3->get<sound_and_pfx_interface>();
+            this->my_sound_and_pfx_interface->m_vtbl = ifc_v_table_lookup[12];
+            this->my_sound_and_pfx_interface->un_mash(a1, this, this->my_sound_and_pfx_interface, a3);
 #endif
         }
 
@@ -786,8 +796,6 @@ void entity_base::_un_mash(generic_mash_header *a1, void *a2, generic_mash_data_
 
 void entity_base::un_mash(generic_mash_header *a1, void *a2, generic_mash_data_ptrs *a3)
 {
-    sp_log("0x%08X", m_vtbl);
-
     void(__fastcall * func)(void *, int, generic_mash_header *, void *, generic_mash_data_ptrs *) =
         CAST(func, get_vfunc(m_vtbl, 0x164));
     func(this, 0, a1, a2, a3);
@@ -1579,7 +1587,6 @@ void entity_base::dirty_model_po_family()
         THISCALL(0x004BFF20, this);
     }
 }
-
 
 void entity_base::destroy_sound_and_pfx_ifc()
 {

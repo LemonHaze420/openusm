@@ -9,6 +9,7 @@ struct dsg_region_container {
     int field_4[17];
 
     mashable_vector<int> field_48;
+    int field_50;
 
     //0x00520B70
     void un_mash(generic_mash_header *a2, void *a3, generic_mash_data_ptrs *a4);

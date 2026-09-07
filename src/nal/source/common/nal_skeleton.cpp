@@ -542,7 +542,6 @@ namespace inverse_kinematics {
         flip_chain_basis(joint1);
     }
 
-
     quaternion* __cdecl quat_blend(
         quaternion* quat,
         quaternion* quatA,

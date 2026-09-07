@@ -88,13 +88,26 @@ void subdivision_node_obb_base::get_extents(vector3d *min_extent, vector3d *max_
 {
     assert(min_extent != nullptr);
     assert(max_extent != nullptr);
-
-    THISCALL(0x0052C580, this, min_extent, max_extent);
+    vector3d vertices[8];
+    get_vertices(vertices);
+    *min_extent = vertices[0];
+    *max_extent = vertices[0];
+    for (int index = 1; index < 8; ++index) {
+        *min_extent = vector3d::min(*min_extent, vertices[index]);
+        *max_extent = vector3d::max(*max_extent, vertices[index]);
+    }
 }
 
 void subdivision_node_obb_base::get_vertices(vector3d *out) const
 {
-    THISCALL(0x00513100, this, out);
+    vector3d axes[3];
+    unpack_axii(axes);
+    for (int index = 0; index < 8; ++index) {
+        auto sx = (index & 1) ? 1.0f : -1.0f;
+        auto sy = (index & 2) ? 1.0f : -1.0f;
+        auto sz = (index & 4) ? 1.0f : -1.0f;
+        out[index] = center + axes[0] * sx + axes[1] * sy + axes[2] * sz;
+    }
 }
 
 float *subdivision_node_obb_base::sub_564D50(float *a2)
@@ -112,7 +125,7 @@ float subdivision_node_obb_base::sub_52CA80()
 
 bool subdivision_node_obb_base::unpack_xform(vector4d &a2, vector4d &a3, vector4d &a4, vector4d &a5) const
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         bool result;
 
         vector4d v43;
@@ -702,7 +715,21 @@ bool subdivision_node_obb_base::is_obb_node() const
 
 void subdivision_node_obb_base::unpack_axii(vector3d *axii) const
 {
-    THISCALL(0x00512980, this, axii);
+    if (get_type() == AABB_LARGE_LEAF_NODE) {
+        auto *self = static_cast<const subdivision_node_large_aabb *>(this);
+        axii[0] = {self->m_size.x, 0.0f, 0.0f};
+        axii[1] = {0.0f, self->m_size.y, 0.0f};
+        axii[2] = {0.0f, 0.0f, self->m_size.z};
+        return;
+    }
+    if (get_type() == OBB_LARGE_LEAF_NODE || get_type() == AUDIO_OBB_LEAF_NODE) {
+        auto *self = static_cast<const subdivision_node_large_obb *>(this);
+        axii[0] = self->x_axis * self->x_length;
+        axii[1] = self->y_axis * self->y_length;
+        axii[2] = self->z_axis * self->z_length;
+        return;
+    }
+    assert(false && "unsupported subdivision node type");
 }
 
 subdivision_node_obb::subdivision_node_obb()
@@ -738,7 +765,6 @@ void check_for_degeneracies(subdivision_node_obb_base *obb)
         }
     }
 }
-
 
 bool subdivision_node_large_aabb::init(uint16_t a2, uint32_t terrain_type_info_arg, const vector3d &a4,
                                        const vector3d &a5)

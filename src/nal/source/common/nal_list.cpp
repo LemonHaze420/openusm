@@ -66,6 +66,8 @@ static nalInitListAnimType InitListAnimType_nalGenericAnim{
 
 static nalInitListAnimType InitListAnimType_nalCamAnim{
     "Camera", nalCam::nalCamAnim::vtbl_ptr, nalCam::nalCamSkeleton::vtbl_ptr};
+static nalInitListAnimType InitListAnimType_nalPedAnim{
+    "Ped", nalPed::nalPedAnim::vtbl_ptr, nalPed::nalPedSkeleton::vtbl_ptr};
 
 #define make_class(Type, Base, Str)                                 \
     struct Type : Base {};                                          \
@@ -79,6 +81,8 @@ static nalInitListAnimType InitListAnimType_nalCamAnim{
     }
 
 make_class(nalComponentEntropyQuat, nalComponentQuatBase, "NAL_EntropyQuaternion");
+make_class(USMEventComp, nalComponentU8Base, "USMEvent");
+make_class(nalComponentPacked16EntropyQuat, nalComponentQuatBase, "NAL_Packed16EntropyQuaternion");
 
 make_class(nalComponentEntropyFloat1, nalComponentFloat1Base, "NAL_EntropyFloat1");
 make_class(nalComponentEntropyFloat3, nalComponentFloat3Base, "NAL_EntropyFloat3");
@@ -135,8 +139,6 @@ tlInstanceBank::Node *nalComponentInitList::_Register()
     TRACE("nalComponentInitList::_Register");
 
     tlFixedString v3{this->field_8};
-
-    //sp_log("%d %s", v3.m_hash, v3.to_string());
 
     return nalComponentInstanceBank.Insert(v3, this->field_C);
 }

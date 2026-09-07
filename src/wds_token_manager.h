@@ -40,6 +40,8 @@ struct wds_token_manager {
 
     void unregister_region(region *reg);
 
+    int get_token_index_from_id(int type, int id) const;
+
     _std::list<wds_token_manager::active_token>::iterator
     remove_active_token(_std::list<wds_token_manager::active_token>::iterator a3, bool a4, bool a5);
 

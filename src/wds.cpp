@@ -71,7 +71,9 @@
 #include "scratchpad_stack.h"
 #include "script.h"
 #include "script_lib_list.h"
+#include "script_object.h"
 #include "script_manager.h"
+#include "parse_generic_mash.h"
 #include "sound_interface.h"
 #include "spawnable.h"
 #include "spiderman_camera.h"
@@ -80,6 +82,7 @@
 #include "thrown_item.h"
 #include "terrain.h"
 #include "time_interface.h"
+#include "vm_thread.h"
 #include "trace.h"
 #include "traffic_signal_mgr.h"
 #include "trajectory_cluster.h"
@@ -155,8 +158,13 @@ world_dynamics_system::~world_dynamics_system()
         this->field_230[0] = nullptr;
         this->field_234[0] = nullptr;
         g_spiderman_camera_ptr() = nullptr;
+#if STANDALONE_SYSTEM
+        script::gso = nullptr;
+        script::gsoi = nullptr;
+#else
         script::gso() = nullptr;
         script::gsoi() = nullptr;
+#endif
         destroy_script_lists();
 
         thrown_item::all_grenades().clear();
@@ -238,7 +246,8 @@ void cleanup_actor_scene_anim_state_hash()
 
 int world_dynamics_system::add_generator(force_generator *generator)
 {
-    return THISCALL(0x005421B0, this, generator);
+    field_260.push_back(generator);
+    return field_260.size();
 }
 
 void world_dynamics_system::advance_entity_animations(Float a3)
@@ -469,7 +478,6 @@ void install_venom_als(actor *hero)
         set_black_suit_als_meta_anim_table(
             hero->anim_ctrl->field_C);
 
-
     auto *memory = mem_alloc(sizeof(als::animation_logic_system));
     assert(memory != nullptr);
     auto *venom_als =
@@ -482,7 +490,6 @@ void install_venom_als(actor *hero)
         hero->anim_ctrl->field_C = venom_shared->field_18;
     }
 }
-
 
 void pose_black_suit_tentacles(const po &hero_po)
 {
@@ -563,71 +570,14 @@ void update_black_suit_tentacle_rig(world_dynamics_system *world)
 }
 }
 
-
-
 void world_dynamics_system::frame_advance(Float a2)
 {
     TRACE("world_dynamics_system::frame_advance");
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         this->field_158.frame_advance(a2);
         this->field_28.frame_advance(a2);
         this->field_A0.frame_advance(a2);
-        this->field_188.frame_advance(a2);
-        daynight::frame_advance(a2);
-
-        traffic_signal_mgr::frame_advance(a2);
-
-        this->ent_mgr.frame_advance(a2);
-        cleanup_actor_scene_anim_state_hash();
-        this->update_ai_and_visibility_proximity_maps_for_moved_entities(a2);
-        moved_entities::reset_all_moved();
-        script_manager::run(a2, false);
-        this->field_28.advance_controllers(a2);
-        this->advance_entity_animations(a2);
-        time_interface::frame_advance_all_time_interfaces(a2);
-        spawnable::advance_traffic_and_peds(a2);
-        if (this->field_3F0) {
-            ai::ai_core::frame_advance_all_core_ais(a2);
-        }
-
-        ai_path::frame_advance_all_ai_paths(a2);
-        interactable_interface::frame_advance_all(a2);
-        facial_expression_interface::frame_advance_all_facial_expression_ifc(a2);
-        this->field_3A8.frame_advance(a2);
-        this->field_1B0.frame_advance(a2);
-        this->field_1F0.frame_advance(a2);
-
-        for (auto &generator : this->field_260) {
-            if (generator->is_active()) {
-                generator->frame_advance(a2);
-            }
-        }
-
-        physical_interface::frame_advance_all_phys_interfaces(a2);
-        manage_standing_for_all_physical_interfaces(a2);
-        zero_xz_velocity_for_effectively_standing_physical_interfaces();
-        collide_all_moved_entities(a2);
-
-        line_info::frame_advance(2);
-        beam::frame_advance_all_beams(a2);
-        item::frame_advance_all_items(a2);
-        grenade::frame_advance_all_grenades(a2);
-        manip_obj::frame_advance_all_manip_objs(a2);
-        polytube::frame_advance_all_polytubes(a2);
-        motion_effect_struct::record_all_motion_fx(a2);
-
-        aeps::FrameAdvance(a2);
-        sound_interface::frame_advance_all_sound_ifc(a2);
-        damage_interface::frame_advance_all_damage_ifc(a2);
-        decal_data_interface::frame_advance_all_decal_interfaces(a2);
-        web_interface::frame_advance_all_web_interfaces(a2);
-        this->update_collision_proximity_maps_for_moved_entities(a2);
-        this->the_terrain->frame_advance(a2);
-        trigger_manager::instance->update();
-        this->sub_54A3B0();
-        decal_morphs::frame_advance(a2);
-
     } else {
         THISCALL(0x00558370, this, a2);
         update_black_suit_tentacle_rig(this);
@@ -641,11 +591,33 @@ bool world_dynamics_system::is_entity_in_water(vhandle_type<entity> a1)
     return THISCALL(0x0052FE00, this, a1);
 }
 
-void world_dynamics_system::entity_sinks(vhandle_type<entity> a2)
+void world_dynamics_system::entity_sinks(vhandle_type<entity> entity_handle)
 {
     TRACE("world_dynamics_system::entity_sinks");
 
-    THISCALL(0x0054A2E0, this, a2);
+    auto *gso = script::get_gso();
+    auto *gsoi = script::get_gsoi();
+    if (gso == nullptr || gsoi == nullptr) {
+        return;
+    }
+
+    const auto function =
+        script::find_function(string_hash{"entity_sinks(entity)"}, gso, true);
+    if (function < 0) {
+        sp_log("Couldn't find entity_sinks(entity) script function");
+        return;
+    }
+
+    auto *entity_ptr = entity_handle.get_volatile_ptr();
+    if (entity_ptr == nullptr) {
+        return;
+    }
+
+    auto *thread = gso->add_thread(gsoi, function);
+    const auto script_handle = entity_handle.field_0;
+    thread->get_data_stack().push(
+        reinterpret_cast<const char *>(&script_handle), sizeof(script_handle));
+    gsoi->run_single_thread(thread, false);
 }
 
 void world_dynamics_system::sub_54A3B0()
@@ -674,7 +646,7 @@ bool world_dynamics_system::un_mash_scene_entities(const resource_key &a2, regio
 {
     TRACE("world_dynamics_system::un_mash_scene_entities");
 
-    if constexpr (0) {
+    if constexpr (1) {
         if (brew.field_0.is_done()) {
             return false;
         }
@@ -698,9 +670,11 @@ bool world_dynamics_system::un_mash_scene_entities(const resource_key &a2, regio
             brew.buffer_index += sizeof(int);
 
             brew.buffer_index = (brew.buffer_index + 15) & 0xFFFFFFF0;
-            if ( v91 ) {
-                reg->field_38 = v91;
-                reg->vobbs_for_region_meshes = (int *)&brew.field_10[brew.buffer_index];
+            if (v91) {
+                if (reg != nullptr) {
+                    reg->field_38 = v91;
+                    reg->vobbs_for_region_meshes = reinterpret_cast<int *>(&brew.field_10[brew.buffer_index]);
+                }
                 brew.buffer_index += 0x30 * v91;
             }
 
@@ -721,7 +695,8 @@ bool world_dynamics_system::un_mash_scene_entities(const resource_key &a2, regio
         auto v87 = brew.field_1C;
         auto parse_code = brew.parse_code;
         auto v85 = brew.field_24;
-        g_femanager.RenderLoadMeter(false);
+        if (g_femanager.m_fe_menu_system != nullptr)
+            g_femanager.RenderLoadMeter(false);
         if ( reg != nullptr ) {
             reg->field_60 = brew.field_3C;
         }
@@ -743,7 +718,12 @@ bool world_dynamics_system::un_mash_scene_entities(const resource_key &a2, regio
 
         auto *ent_vec_ptr = slot_ptr->get_entity_instances();
         auto *item_vec_ptr = slot_ptr->get_item_instances();
+#if STANDALONE_SYSTEM
+        static _std::vector<box_trigger *> standalone_box_trigger_instances;
+        auto *box_trigger_instances = &standalone_box_trigger_instances;
+#else
         auto *box_trigger_instances = slot_ptr->get_box_trigger_instances();
+#endif
         limited_timer_base v81, v80, v79, v78;
         [[maybe_unused]] static auto dword_1568498 = 0.0;
         [[maybe_unused]] static auto dword_156849C = 0.0;
@@ -788,7 +768,9 @@ bool world_dynamics_system::un_mash_scene_entities(const resource_key &a2, regio
                 v80.reset();
                 auto *tmp_e =
                     parse_entity_mash(ent_vec_ptr, item_vec_ptr, &buffer_ptr[buffer_index], nullptr, a6, true);
+#if !STANDALONE_SYSTEM
                 assert(tmp_e->is_an_entity());
+#endif
                 auto *ent_ptr = bit_cast<entity *>(tmp_e);
                 if (reg != nullptr) {
                     ent_ptr->field_8 |= 0x200u;
@@ -856,8 +838,6 @@ bool world_dynamics_system::un_mash_scene_entities(const resource_key &a2, regio
                     v78.reset();
                     g_world_ptr->ent_mgr.add_ent_to_lists(ent_vec_ptr, item_vec_ptr, ent_ptr);
                     dword_15684A4 += sub_68D9F1(v78);
-                    //sp_log("adding entities to lists = %f sec", dword_15684A4);
-
                     check_po(ent_ptr);
                     if (reg != nullptr) {
                         if (ent_ptr->is_a_light_source()) {
@@ -894,8 +874,6 @@ bool world_dynamics_system::un_mash_scene_entities(const resource_key &a2, regio
         }
 
         dword_1568498 = sub_68D9F1(v81);
-        //sp_log("dword_1568498 = %f seconds", dword_1568498);
-
         if (!brew.field_0.is_done() && !brew.field_38.is_started()) {
             brew.field_38.start();
             parse_code = *(int *)&buffer_ptr[buffer_index];
@@ -903,7 +881,6 @@ bool world_dynamics_system::un_mash_scene_entities(const resource_key &a2, regio
         }
 
         while (!brew.field_38.is_done() && parse_code != 18) {
-            sp_log("parse_code = %d", parse_code);
             switch (parse_code) {
             case 3u: {
                 limited_timer_base v58{};
@@ -1082,10 +1059,15 @@ bool world_dynamics_system::un_mash_scene_box_triggers(const resource_key &a1, r
         int mash_data_size = 0;
         uint8_t *buffer_ptr = nullptr;
         int buffer_index = 0;
-        if (!resource_manager::get_resource_if_exists(a1, reg, &buffer_ptr, slot_ptr, &mash_data_size) ||
-            (g_femanager.RenderLoadMeter(false),
-                parse_code = *(uint32_t *)&buffer_ptr[buffer_index],
-             parse_code == 18)) {
+        if (!resource_manager::get_resource_if_exists(a1, reg, &buffer_ptr, slot_ptr, &mash_data_size)) {
+            a4->done();
+            return false;
+        }
+#if !STANDALONE_SYSTEM
+        g_femanager.RenderLoadMeter(false);
+#endif
+        parse_code = *(uint32_t *)&buffer_ptr[buffer_index];
+        if (parse_code == 18) {
             a4->done();
             return false;
         } else {
@@ -1096,7 +1078,12 @@ bool world_dynamics_system::un_mash_scene_box_triggers(const resource_key &a1, r
             v8.reset();
             assert(( buffer_index % 4 ) == 0);
 
+#if STANDALONE_SYSTEM
+            static _std::vector<box_trigger *> standalone_box_trigger_instances;
+            auto *box_trigger_instances = &standalone_box_trigger_instances;
+#else
             auto *box_trigger_instances = slot_ptr->get_box_trigger_instances();
+#endif
             int size;
             this->un_mash_box_triggers(parse_code, (char *)&buffer_ptr[buffer_index], box_trigger_instances, &size);
 
@@ -1134,13 +1121,13 @@ bool world_dynamics_system::un_mash_box_triggers(int parse_code, char *a3,
 {
     TRACE("world_dynamics_system::un_mash_box_triggers");
 
-    if constexpr (0) {
+    if constexpr (1) {
         assert(parse_code == BOX_TRIGGERS_TAG);
 
         int buffer_index = 0;
         int v19 = *(int *)a3;
         buffer_index = 4;
-        for ( auto i = 0u; i < v19; ++i ) {
+        for (int i = 0; i < v19; ++i) {
             assert((buffer_index % 4) == 0);
 
             auto *v18 = (fixedstring<8> *)&a3[buffer_index];
@@ -1254,24 +1241,35 @@ bool world_dynamics_system::un_mash_scene_spline_paths(const resource_key &a2, r
 
             brew.field_14 += 4;
         }
+#if STANDALONE_SYSTEM
+            brew.field_14 = brew.field_C;
+            brew.field_0.done();
+            return false;
+#endif
 
+#if !STANDALONE_SYSTEM
         for (uint32_t i = 0; i < nearby_hero_regions::regs().size(); ++i) {
             if (nearby_hero_regions::regs().at(i) == reg) {
                 break;
             }
         }
+#endif
 
         auto buffer_index = brew.field_14;
         auto v16 = brew.parse_code;
         auto *buffer_ptr = brew.field_10;
         auto a2a = brew.field_C;
 
+#if !STANDALONE_SYSTEM
         g_femanager.RenderLoadMeter(false);
+#endif
 
         assert(the_terrain != nullptr);
 
         int v17;
-        if (this->the_terrain->un_mash_traffic_paths((char *)&buffer_ptr[buffer_index], &v17, reg, brew.field_1C)) {
+        const auto traffic_pending =
+            this->the_terrain->un_mash_traffic_paths((char *)&buffer_ptr[buffer_index], &v17, reg, brew.field_1C);
+        if (traffic_pending) {
             brew.field_10 = buffer_ptr;
             brew.field_8 = slot_ptr;
             brew.parse_code = v16;
@@ -1423,7 +1421,7 @@ bool world_dynamics_system::load_scene(resource_key &a2, bool a3, const char *a4
         auto size = this->scene_loads.size();
         auto &last_scene = this->scene_loads[size - 1];
         auto &v11 = this->scene_loads[brew_idx];
-        THISCALL(0x0055F550, &v11, &last_scene);
+        v11 = last_scene;
         this->scene_loads.pop_back();
         return false;
     } else {
@@ -1469,6 +1467,9 @@ void wds_enter_water_trigger_callback(event *, entity_base_vhandle a2, void *)
 void world_dynamics_system::create_water_kill_trigger()
 {
     TRACE("world_dynamics_system::create_water_kill_trigger");
+#if STANDALONE_SYSTEM
+    return;
+#endif
 
     if constexpr (1) {
         convex_box a3{};
@@ -1585,16 +1586,7 @@ int world_dynamics_system::add_player(const mString &a2)
                 v81.normalize();
                 auto v80 = vector3d::cross(YVEC, v81);
                 auto &v20 = v82.get_position();
-                void(__fastcall * sub_48AA30)(
-                    void *, void *, const vector3d *, const vector3d *, const vector3d *, const vector3d *) =
-                    CAST(sub_48AA30, 0x0048AA30);
-
-                po v45;
-                sub_48AA30(&v45, nullptr, &v80, &YVEC, &v81, &v20);
-                v82 = v45;
-
-                void (__fastcall *sub_48D840)(void *) = CAST(sub_48D840, 0x0048D840);
-                sub_48D840(&v82);
+                v82.set_po(v80, YVEC, v81, v20);
             }
 
             mString v79 = (this->num_players >= 1 ? "HERO" + mString{this->num_players} : mString{"HERO"});
@@ -1841,10 +1833,14 @@ void entity_get_max_visual_and_collision_bounding_sphere(entity *ent, vector3d *
     }
 }
 
-void world_dynamics_system::update_ai_and_visibility_proximity_maps_for_moved_entities(Float a1)
+void world_dynamics_system::update_ai_and_visibility_proximity_maps_for_moved_entities(
+    [[maybe_unused]] Float a1)
 {
     TRACE("world_dynamics_system::update_ai_and_visibility_proximity_maps_for_moved_entities");
 
+#if STANDALONE_SYSTEM
+    return;
+#else
     if constexpr (0) {
         update_limbo_list_if_needed();
 
@@ -1985,12 +1981,17 @@ void world_dynamics_system::update_ai_and_visibility_proximity_maps_for_moved_en
     } else {
         THISCALL(0x00530100, this, a1);
     }
+#endif
 }
 
-void world_dynamics_system::update_collision_proximity_maps_for_moved_entities(Float a1)
+void world_dynamics_system::update_collision_proximity_maps_for_moved_entities(
+    [[maybe_unused]] Float a1)
 {
     TRACE("world_dynamics_system::update_collision_proximity_maps_for_moved_entities");
 
+#if STANDALONE_SYSTEM
+    return;
+#else
     if constexpr (0) {
         for (int i = 0; i < moved_entities::moved_count; ++i) {
             auto *ent = moved_entities::moved_list[i].get_volatile_ptr();
@@ -2017,12 +2018,17 @@ void world_dynamics_system::update_collision_proximity_maps_for_moved_entities(F
     } else {
         THISCALL(0x0054A610, this, a1);
     }
+#endif
 }
 
-void world_dynamics_system::update_light_proximity_maps_for_moved_entities(Float a1)
+void world_dynamics_system::update_light_proximity_maps_for_moved_entities(
+    [[maybe_unused]] Float a1)
 {
     TRACE("world_dynamics_system::update_light_proximity_maps_for_moved_entities");
 
+#if STANDALONE_SYSTEM
+    return;
+#else
     if constexpr (0) {
         for (int i = 0; i < moved_entities::moved_count; ++i) {
             auto *ent = moved_entities::moved_list[i].get_volatile_ptr();
@@ -2066,6 +2072,7 @@ void world_dynamics_system::update_light_proximity_maps_for_moved_entities(Float
     } else {
         THISCALL(0x00529CC0, this, a1);
     }
+#endif
 }
 
 void world_dynamics_system::add_anim_ctrl(animation_controller *a2)
