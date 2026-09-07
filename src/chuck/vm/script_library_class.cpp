@@ -3,6 +3,7 @@
 #include "chuck_str.h"
 #include "common.h"
 #include "func_wrapper.h"
+#include "script_controller.h"
 #include "memory.h"
 #include "mstring.h"
 #include "script_manager.h"
@@ -16,7 +17,6 @@
 #include "vm_thread.h"
 
 #include <cassert>
-
 
 #if SLC_NAME_FIELD
 VALIDATE_SIZE(script_library_class::function, 0x8);
@@ -178,11 +178,26 @@ void script_library_class::add_functions_complete()
     }
 }
 
-uint32_t script_library_class::find_instance(const mString &a1)
+uint32_t script_library_class::find_instance(const mString &name)
 {
-    uint32_t (__fastcall *func)(void *, void *, const mString *) = CAST(func, get_vfunc(this->m_vtbl, 0x4));
+#if STANDALONE_SYSTEM
+    if (std::strcmp(name.c_str(), "NULL") == 0) {
+        return 0;
+    }
+    if (std::strcmp(get_name(), "script_controller") == 0 && script_pad != nullptr) {
+        if (std::strcmp(name.c_str(), "CONTROLLER_1") == 0) {
+            return script_pad[0].my_handle.field_0;
+        }
+        if (std::strcmp(name.c_str(), "CONTROLLER_2") == 0) {
+            return script_pad[1].my_handle.field_0;
+        }
+        return 0;
+    }
+#endif
 
-    return func(this, nullptr, &a1);
+    uint32_t (__fastcall *func)(void *, void *, const mString *) =
+        CAST(func, get_vfunc(this->m_vtbl, 0x4));
+    return func(this, nullptr, &name);
 }
 
 script_library_class::function::function(const char *name)

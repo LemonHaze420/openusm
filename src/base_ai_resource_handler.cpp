@@ -5,6 +5,7 @@
 #include "mash_info_struct.h"
 #include "resource_directory.h"
 #include "trace.h"
+#include "script_manager.h"
 #include "utility.h"
 #include "variables.h"
 #include "worldly_pack_slot.h"
@@ -61,6 +62,12 @@ bool base_ai_resource_handler::_handle_resource(worldly_resource_handler::eBehav
         if (behavior == UNLOAD) {
             bit_cast<ai::core_ai_resource *>(resource)->destruct_mashed_class();
         } else {
+#if STANDALONE_SYSTEM
+            if (script_manager::find_global_object() != nullptr) {
+                ++this->field_C;
+                return false;
+            }
+#endif
             auto *new_ai_resource = bit_cast<ai::core_ai_resource *>(resource);
             assert(new_ai_resource != nullptr);
 

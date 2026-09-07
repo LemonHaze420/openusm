@@ -20,6 +20,7 @@
 #include "vm_executable.h"
 
 #include <cassert>
+#include <cstdio>
 
 VALIDATE_SIZE(script_executable, 0x5Cu);
 
@@ -42,15 +43,15 @@ void script_executable::constructor_common()
 {
 	assert(script_allocated_stuff_map == nullptr);
 
-	if constexpr (1) {
-		auto *v2 = mem_alloc(sizeof(*script_allocated_stuff_map));
-		if ( v2 != nullptr ) {
-			decltype(script_allocated_stuff_map) (__fastcall *sub_5B8490)(void *) = CAST(sub_5B8490, 0x005B8490);
-			this->script_allocated_stuff_map = sub_5B8490(v2);
-		}
-	} else {
-		THISCALL(0x005AFC50, this);
-	}
+    if constexpr (1) {
+        using map_type = _std::map<int, script_executable_allocated_stuff_record>;
+        auto *storage = mem_alloc(sizeof(map_type));
+        if (storage != nullptr) {
+            this->script_allocated_stuff_map = new (storage) map_type {};
+        }
+    } else {
+        THISCALL(0x005AFC50, this);
+    }
 
 	assert(script_allocated_stuff_map != nullptr);
 }
@@ -268,7 +269,7 @@ void script_executable::un_mash(generic_mash_header *header, void *a3, generic_m
                 }
 #endif
 
-                this->sx_exe_image = a4->get<uint16_t>(this->sx_exe_image_size / 2);
+                this->sx_exe_image = reinterpret_cast<uint16_t *>(a4->field_0);
             }();
 
 #ifndef OPENUSM_XBPACK_V10
@@ -289,11 +290,8 @@ void script_executable::un_mash(generic_mash_header *header, void *a3, generic_m
 #endif
 
             for (auto i = 0; i < this->total_script_objects; ++i) {
-#if OPENUSM_XBOX_MASH_FORMAT
                 a4->rebase(8u);
-#else
                 a4->rebase(4u);
-#endif
 
                 this->script_objects[i] = a4->get<script_object>();
 
@@ -614,7 +612,6 @@ void script_executable::load(const resource_key &resource_id)
     this->script_objects = new script_object *[this->total_script_objects];
     this->script_objects_by_name = new script_object *[this->total_script_objects];
 
-
     assert(script_objects != nullptr);
     assert(script_objects_by_name != nullptr);
 
@@ -748,8 +745,8 @@ void script_executable::release_mem()
             this->script_objects[i]->release_mem();
         }
 
-        if ( script_allocated_stuff_map != nullptr ) {
-            THISCALL(0x005B8460, this->script_allocated_stuff_map);
+        if (script_allocated_stuff_map != nullptr) {
+            script_allocated_stuff_map->~map();
             mem_dealloc(script_allocated_stuff_map, sizeof(*script_allocated_stuff_map));
             this->script_allocated_stuff_map = nullptr;
         }
@@ -876,7 +873,7 @@ void script_executable::link()
     assert(( ( flags & SCRIPT_EXECUTABLE_FLAG_LINKED ) == 0 ) && "trying to link the same exec more than once!!!");
 
     script_manager::run_callbacks(static_cast<script_manager_callback_reason>(6), this, nullptr);
-    for ( auto i = 0; i < this->total_script_objects; ++i ) {
+    for (auto i = 0; i < this->total_script_objects; ++i) {
         auto &so = this->script_objects[i];
         so->link(*this);
     }
@@ -945,9 +942,6 @@ void script_executable::first_run(Float a2, bool a3)
 
             auto *so = this->find_object(info.field_18);
             assert(so != nullptr);
-
-            sp_log("name = %s", so->get_name().to_string());
-            sp_log("%d", info.field_C);
 
             auto &buffer = *bit_cast<int *>(this->global_script_object->get_static_data_buffer() + info.field_C);
             uint32_t v14 = info.field_10;

@@ -7,6 +7,7 @@
 #include "utility.h"
 #include "resource_directory.h"
 #include "trace.h"
+#include "script_manager.h"
 #include "variables.h"
 #include "worldly_pack_slot.h"
 
@@ -62,6 +63,12 @@ bool ai_state_graph_resource_handler::_handle_resource(worldly_resource_handler:
         if (a2 == UNLOAD) {
             bit_cast<ai::state_graph *>(resource)->destruct_mashed_class();
         } else {
+#if STANDALONE_SYSTEM
+            if (script_manager::find_global_object() != nullptr) {
+                ++this->field_C;
+                return false;
+            }
+#endif
             ai::state_graph *new_state_graph = CAST(new_state_graph, resource);
             assert(new_state_graph != nullptr);
 

@@ -10,7 +10,13 @@ struct generic_mash_data_ptrs;
 struct chunk_file;
 struct mString;
 
+namespace sxcc {
+struct script_var_container_access;
+}
+
 class script_var_container {
+    friend struct sxcc::script_var_container_access;
+
     struct script_var_to_addr_t {
         char *name;
         int address;

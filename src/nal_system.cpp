@@ -234,14 +234,66 @@ void nalExit()
     CDECL_CALL(0x00783C60);
 }
 
-void nalReleaseSceneAnimInternal(nalSceneAnim *a1)
+void nalReleaseSceneAnimInternal(nalSceneAnim *scene_anim)
 {
-    CDECL_CALL(0x0078D9B0, a1);
+    auto *node = *bit_cast<std::intptr_t **>(bit_cast<char *>(scene_anim) + 0x34);
+    while (node != nullptr) {
+        auto *anim = bit_cast<nalAnimClass<nalAnyPose> *>(node[2]);
+        while (anim != nullptr) {
+            auto *next = anim->field_4;
+            void(__fastcall *release)(void *) = CAST(release, get_vfunc(anim->m_vtbl, 0x8));
+            release(anim);
+            anim = next;
+        }
+        node = bit_cast<std::intptr_t *>(node[0]);
+    }
 }
 
-bool nalLoadSceneAnimInternal(nalSceneAnim *a1)
+bool nalLoadSceneAnimInternal(nalSceneAnim *scene_anim)
 {
-    return (bool)CDECL_CALL(0x0078D8D0, a1);
+    const auto skeleton_count = scene_anim->field_C;
+    auto **skeletons =
+        static_cast<nalBaseSkeleton **>(tlMemAlloc(4 * skeleton_count, 8, 0x2000000u));
+    auto *skeleton_names = &scene_anim->field_50;
+    for (int i = 0; i < skeleton_count; ++i) {
+        skeletons[i] = nalSkeletonDirectory->Find(skeleton_names[i]);
+    }
+
+    auto *base = bit_cast<char *>(scene_anim);
+    auto &head = *bit_cast<std::intptr_t **>(base + 0x34);
+    if (head != nullptr) {
+        head = bit_cast<std::intptr_t *>(base + bit_cast<std::intptr_t>(head));
+        for (auto *node = head; node != nullptr; node = bit_cast<std::intptr_t *>(node[0])) {
+            if (node[0] != 0) {
+                node[0] += bit_cast<std::intptr_t>(node);
+            }
+            if (node[2] != 0) {
+                node[2] += bit_cast<std::intptr_t>(node);
+            }
+
+            auto *anim = bit_cast<nalAnimClass<nalAnyPose> *>(node[2]);
+            while (anim != nullptr) {
+                if (anim->field_4 != nullptr) {
+                    anim->field_4 =
+                        bit_cast<nalAnimClass<nalAnyPose> *>(bit_cast<char *>(anim)
+                                                            + bit_cast<std::intptr_t>(anim->field_4));
+                }
+
+                auto *skeleton = skeletons[anim->field_28];
+                anim->Skeleton = skeleton;
+                auto *instance = nalTypeInstanceBank.Search(skeleton->field_28);
+                assert(instance != nullptr && "couldn't find scene animation type instance");
+                anim->m_vtbl =
+                    static_cast<nalInitListAnimType *>(instance->field_20)->anim_vtbl_ptr;
+                assert(anim->CheckVersion() && "unsupported scene animation version");
+                anim->Process();
+                anim = anim->field_4;
+            }
+        }
+    }
+
+    tlMemFree(skeletons);
+    return true;
 }
 
 bool nalLoadAnimFileInternal(nalAnimFile *anim_file)
@@ -341,7 +393,6 @@ tlInstanceBankResourceDirectory<nalAnimFile, tlFixedString> *nalGetAnimFileDirec
 {
     return nalAnimFileDirectory;
 }
-
 
 void nalSetAnimDirectory(tlResourceDirectory<nalAnimClass<nalAnyPose>, tlFixedString> *a1)
 {
@@ -559,7 +610,6 @@ nalMatrix4x4::nalMatrix4x4(const nalMatrix4x4 &a2)
     }
 }
 
-
 void nalMatrix4x4::sub_5FC9C0(const nalPositionOrientation &a2)
 {
     if constexpr (0) {
@@ -702,14 +752,12 @@ void sub_5F3080(nalMatrix4x4 &a1, Float a2, const nalVector3 &a3)
     }
 }
 
-
 void nalStreamInstance_patch()
 {
     REDIRECT(0x005AD21F, nalInit);
 
     REDIRECT(0x0055F8F4, nalConstructSkeleton);
     return;
-
 
     {
         FUNC_ADDRESS(address, &nalGeneric::nalGenericSkeleton::Process);

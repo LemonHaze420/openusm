@@ -41,7 +41,7 @@ void item_resource_handler::finalize(bool a2)
 
 int item_resource_handler::_get_num_resources()
 {
-    return this->my_slot->item_instances->size();
+    return this->my_slot->item_instances != nullptr ? this->my_slot->item_instances->size() : 0;
 }
 
 bool item_resource_handler::_handle(worldly_resource_handler::eBehavior behavior, limited_timer *a5)

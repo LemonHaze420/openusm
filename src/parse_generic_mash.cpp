@@ -255,7 +255,6 @@ void *parse_generic_mash_init(generic_mash_header *&header,
         *allocated_mem = false;
     }
 
-    sp_log("cur_ptr = 0x%08X", cur_ptr);
     assert(cur_ptr != nullptr);
 
     auto *addr = cur_ptr;
@@ -290,7 +289,6 @@ void *parse_generic_mash_init(generic_mash_header *&header,
         }
 #endif
 
-        //sp_log("%d %d %d %d", addr[0], addr[1], addr[2], addr[3]);
         assert(addr[0] == MASH_V_TABLE_VAL[0] ||
                addr[0] == ((char *)&virtual_table_lookup[class_id])[0]);
 

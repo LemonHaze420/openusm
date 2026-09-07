@@ -32,10 +32,10 @@
 #include <algorithm>
 #include <cassert>
 #include <cstring>
+#include <cstdio>
 #include <new>
 #include <numeric>
 #include <vector>
-
 
 void resource_manager::create_inst()
 {
@@ -103,7 +103,6 @@ void resource_manager::delete_inst()
         CDECL_CALL(0x00547AD0);
     }
 }
-
 
 namespace resource_manager {
 
@@ -557,7 +556,6 @@ void reload_amalgapak()
     }
 }
 
-
 resource_pack_slot *get_best_context(resource_pack_slot *slot)
 {
     TRACE("resource_manager::get_best_context");
@@ -570,7 +568,6 @@ resource_pack_slot *get_best_context(resource_pack_slot *slot)
         resource_partition *the_partition = nullptr;
 
         const auto &vec = (*partitions);
-        sp_log("%d", vec.size());
         for (const auto &my_partition : vec) {
             assert(my_partition != nullptr);
 
@@ -578,7 +575,6 @@ resource_pack_slot *get_best_context(resource_pack_slot *slot)
             for (uint32_t i = 0; i < pack_slots.size(); ++i) {
                 if (pack_slots[i] == slot) {
                     the_partition = my_partition;
-                    sp_log("%d", i);
                     break;
                 }
             }
@@ -593,8 +589,6 @@ resource_pack_slot *get_best_context(resource_pack_slot *slot)
         assert(!the_partition->get_pack_slots().empty());
 
         auto *result = the_partition->get_pack_slots().front();
-        //sp_log("0x%08X", result->pack_directory.field_4.m_vtbl);
-
         return result;
     } else {
         return (resource_pack_slot *) CDECL_CALL(0x005375A0, slot);
@@ -740,7 +734,6 @@ bool get_pack_file_stats(const resource_key &a1, resource_pack_location *a2, mSt
             }
         }
 
-
         if (a2 != nullptr) {
             *a2 = amalgapak_pack_location_table[i];
             a2->loc.m_offset += amalgapak_base_offset;
@@ -761,8 +754,6 @@ bool get_pack_file_stats(const resource_key &a1, resource_pack_location *a2, mSt
 resource_pack_slot *push_resource_context(resource_pack_slot *pack_slot)
 {
     TRACE("resource_manager::push_resource_context");
-
-    sp_log("%s", pack_slot->get_name_key().get_platform_string(3).c_str());
 
     if constexpr (1) {
         assert(pack_slot != nullptr);
@@ -1001,7 +992,6 @@ nflFileID open_pack(const char *name)
     TRACE("resource_manager::open_pack", name);
     const char *ext = packfile_ext[g_platform];
 
-    //sp_log("open pack %s%s", name, ext);
     if constexpr (1) {
         mString v9{ext};
         mString v8{name};

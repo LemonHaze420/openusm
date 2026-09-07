@@ -165,12 +165,23 @@ int __fastcall native_mash_sizeof(T *)
     return sizeof(T);
 }
 
+uint32_t __fastcall native_mash_type(const mash_virtual_base *self)
+{
+    for (uint32_t i = 0; i < ORIGINAL_VTABLE_COUNT; ++i) {
+        if (mash_virtual_base::vtable()[i] == bit_cast<void *>(self->m_vtbl)) {
+            return i;
+        }
+    }
+    report_unsupported_standalone_vtable(ORIGINAL_VTABLE_COUNT, self);
+}
+
 template<typename T>
 void *native_mash_vtable()
 {
     static std::array<void *, 96> table {};
     if (table[1] == nullptr) {
         table[1] = bit_cast<void *>(&native_mash_unmash<T>);
+        table[0x0C / sizeof(void *)] = bit_cast<void *>(&native_mash_type);
         table[0x1C / sizeof(void *)] = bit_cast<void *>(&native_mash_sizeof<T>);
         table[0x34 / sizeof(void *)] = bit_cast<void *>(&native_mash_sizeof<T>);
         table[0x38 / sizeof(void *)] = bit_cast<void *>(&native_mash_sizeof<T>);
@@ -267,6 +278,8 @@ void *create_native_mash_class(
         return create_mash_class<ai::ped_avoidance_inode>(type, storage, storage_size);
     case 159:
         return create_mash_class<ai::pedestrian_inode>(type, storage, storage_size);
+    case 169:
+        return create_mash_class<ai::base_state>(type, storage, storage_size);
     case 177:
         return create_mash_class<ai::pedestrian_idle_state>(type, storage, storage_size);
     case 181:
@@ -758,6 +771,8 @@ void mash_virtual_base::generate_vtable()
         ped_default_trans_state_vtable.fill(nullptr);
         ped_default_trans_state_vtable[1] =
             bit_cast<void *>(&native_base_state_unmash);
+        ped_default_trans_state_vtable[0x0C / sizeof(void *)] =
+            bit_cast<void *>(&native_mash_type);
         ped_default_trans_state_vtable[0x34 / sizeof(void *)] =
             bit_cast<void *>(&native_base_state_sizeof);
         vtable()[169] = ped_default_trans_state_vtable.data();
@@ -863,7 +878,6 @@ void *mash_virtual_base::construct_class_helper(void *a1)
 {
     auto *object = static_cast<mash_virtual_base *>(a1);
     const auto type = object->get_virtual_type_enum();
-    sp_log("mash::virtual_types_enum = %u", type);
     if constexpr (STANDALONE_SYSTEM) {
         return create_subclass_by_enum_in_place(
             static_cast<mash::virtual_types_enum>(type),
@@ -1141,8 +1155,6 @@ void mash_virtual_base::fixup_vtable(void *a1)
 #elif defined(TARGET_XBOX)
     const auto hash = static_cast<uint32_t *>(a1)[0];
 
-    sp_log("0x%08X", hash);
-
     static_cast<uint32_t *>(a1)[0] = map_vtable.at(hash)->m_vtbl;
 
 #else
@@ -1155,7 +1167,6 @@ void mash_virtual_base::fixup_vtable(void *a1)
     static_cast<uint32_t *>(a1)[0] = bit_cast<uint32_t>(vtable()[idx]);
 #endif
 
-    sp_log("0x%08X", static_cast<uint32_t *>(a1)[0]);
 }
 
 void mash_virtual_base_patch()

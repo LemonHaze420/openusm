@@ -7,7 +7,10 @@
 #include "resource_manager.h"
 #include "script_controller.h"
 #include "trace.h"
+#include "vm_executable.h"
 #include "utility.h"
+
+extern void vm_executable_resolve_signal_callback(const char *name, unsigned int *hash);
 
 void script_manager_callback(script_manager_callback_reason a1, script_executable *a2, const char *buffer)
 {
@@ -54,9 +57,9 @@ void register_chuck_callbacks()
 {
     TRACE("register_chuck_callbacks");
 
-    CDECL_CALL(0x006607E0);
+    script_manager::register_callback(script_manager_callback);
+    vm_executable::resolve_signal_callback = vm_executable_resolve_signal_callback;
 }
-
 
 void chuck_callbacks_patch()
 {

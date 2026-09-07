@@ -2,6 +2,11 @@
 
 #include "debugutil.h"
 #include "func_wrapper.h"
+#include "fe_mini_map_widget.h"
+#include "femanager.h"
+#include "game.h"
+#include "game_settings.h"
+#include "igofrontend.h"
 #include "memory.h"
 #include "mission_manager.h"
 #include "mission_stack_manager.h"
@@ -20,6 +25,7 @@
 
 #include "script_library_class.h"
 #include "script_manager.h"
+#include "spiderman_camera.h"
 #include "trace.h"
 #include "utility.h"
 #include "variables.h"
@@ -27,7 +33,9 @@
 #include "vm_thread.h"
 #include "wds.h"
 #include "xbpack.h"
+#include <cmath>
 
+#include <cfloat>
 #include <cstddef>
 #include <cstdlib>
 
@@ -658,8 +666,19 @@ struct slf__blackscreen_off__num__t : script_library_class::function {
     {
         TRACE("slf__blackscreen_off__num__t::operator()");
 
+        const auto duration = stack.pop_num();
+#if STANDALONE_SYSTEM
+        if (mission_manager::s_inst != nullptr && mission_manager::s_inst->field_FC == 3) {
+            mission_manager::s_inst->field_F4 = duration > 0.0f ? mission_manager::s_inst->field_F4 : 0.0f;
+            mission_manager::s_inst->field_F8 = duration > 0.0f ? -1.0f / duration : -FLT_MAX;
+            mission_manager::s_inst->field_FC = 2;
+        }
+        return true;
+#else
         bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00673850);
+        stack.push(duration);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -677,8 +696,20 @@ struct slf__blackscreen_on__num__t : script_library_class::function {
     {
         TRACE("slf__blackscreen_on__num__t::operator()");
 
+        const auto duration = stack.pop_num();
+#if STANDALONE_SYSTEM
+        if (mission_manager::s_inst != nullptr && mission_manager::s_inst->field_FC != 3 &&
+            mission_manager::s_inst->field_FC != 4) {
+            mission_manager::s_inst->field_F4 = duration > 0.0f ? 0.0f : 1.0f;
+            mission_manager::s_inst->field_F8 = duration > 0.0f ? 1.0f / duration : FLT_MAX;
+            mission_manager::s_inst->field_FC = 1;
+        }
+        return true;
+#else
         bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00673800);
+        stack.push(duration);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -1449,7 +1480,6 @@ slf__create_polytube__str__t::slf__create_polytube__str__t(const char *a3) : fun
     m_vtbl->__cl = CAST(m_vtbl->__cl, address);
 }
 
-
 struct slf__create_sound_inst__t : script_library_class::function {
     slf__create_sound_inst__t(const char *a3);
 
@@ -1457,8 +1487,8 @@ struct slf__create_sound_inst__t : script_library_class::function {
     {
         TRACE("slf__create_sound_inst__t::operator()");
 
-        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x0067E840);
-        return func(this, nullptr, &stack, entry);
+        stack.push(0);
+        return true;
     }
 };
 
@@ -1476,8 +1506,9 @@ struct slf__create_sound_inst__str__t : script_library_class::function {
     {
         TRACE("slf__create_sound_inst__str__t::operator()");
 
-        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x0067E920);
-        return func(this, nullptr, &stack, entry);
+        (void)stack.pop_str();
+        stack.push(0);
+        return true;
     }
 };
 
@@ -1609,12 +1640,38 @@ slf__create_threat_assessment_meter__t::slf__create_threat_assessment_meter__t(c
 struct slf__create_time_limited_entity__str__num__t : script_library_class::function {
     slf__create_time_limited_entity__str__num__t(const char *a3);
 
-    bool operator()(vm_stack &stack, [[maybe_unused]]script_library_class::function::entry_t entry) const
+    bool operator()(vm_stack &stack, [[maybe_unused]] script_library_class::function::entry_t entry) const
     {
         TRACE("slf__create_time_limited_entity__str__num__t::operator()");
 
-        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00668C60);
+#if STANDALONE_SYSTEM
+        struct parms_t {
+            vm_str_t resource_path;
+            vm_num_t lifetime;
+        };
+        SLF_PARMS;
+
+        entity_base_vhandle result{0};
+        if (g_world_ptr != nullptr) {
+            const auto key =
+                create_resource_key_from_path(parms->resource_path, RESOURCE_KEY_TYPE_NONE);
+            
+
+            auto *entity_ptr =
+                g_world_ptr->ent_mgr.acquire_entity(key.m_hash, 0x80000u);
+            
+            if (entity_ptr != nullptr) {
+                g_world_ptr->ent_mgr.make_time_limited(entity_ptr, parms->lifetime);
+                result = entity_ptr->get_my_handle();
+            }
+        }
+        SLF_RETURN;
+        return true;
+#else
+        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) =
+            CAST(func, 0x00668C60);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -1841,12 +1898,24 @@ slf__debug_print_set_background_color__vector3d__t::slf__debug_print_set_backgro
 struct slf__delay__num__t : script_library_class::function {
     slf__delay__num__t(const char *a3);
 
-    bool operator()(vm_stack &stack, [[maybe_unused]]script_library_class::function::entry_t entry) const
+    bool operator()(vm_stack &stack, script_library_class::function::entry_t entry) const
     {
         TRACE("slf__delay__num__t::operator()");
 
+#if STANDALONE_SYSTEM
+        const auto duration = stack.pop_num();
+        auto *elapsed = reinterpret_cast<float *>(stack.get_SP() + sizeof(float));
+        if (entry == script_library_class::function::entry_t::FIRST_ENTRY) {
+            *elapsed = 0.0f;
+            return false;
+        }
+        *elapsed += script_manager::get_time_inc();
+        return *elapsed >= duration;
+#else
         bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00663120);
+        stack.push(duration);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -2655,8 +2724,16 @@ struct slf__enable_mini_map__num__t : script_library_class::function {
     {
         TRACE("slf__enable_mini_map__num__t::operator()");
 
+#if STANDALONE_SYSTEM
+        const auto shown = not_equal(stack.pop_num(), 0.0f);
+        if (g_femanager.IGO != nullptr && g_femanager.IGO->field_4 != nullptr) {
+            g_femanager.IGO->field_4->field_3A8 = shown;
+        }
+        return true;
+#else
         bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00672B60);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -2829,8 +2906,17 @@ struct slf__enable_tokens_of_type__num__num__t : script_library_class::function 
     {
         TRACE("slf__enable_tokens_of_type__num__num__t::operator()");
 
+#if STANDALONE_SYSTEM
+        (void)not_equal(stack.pop_num(), 0.0f);
+        (void)static_cast<int>(stack.pop_num());
+        if (g_world_ptr != nullptr) {
+            g_world_ptr->field_188.field_4 = true;
+        }
+        return true;
+#else
         bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x0066F420);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -3321,12 +3407,21 @@ slf__format_time_string__num__t::slf__format_time_string__num__t(const char *a3)
 struct slf__freeze_hero__num__t : script_library_class::function {
     slf__freeze_hero__num__t(const char *a3);
 
-    bool operator()(vm_stack &stack, [[maybe_unused]]script_library_class::function::entry_t entry) const
+    bool operator()(vm_stack &stack, [[maybe_unused]] script_library_class::function::entry_t entry) const
     {
         TRACE("slf__freeze_hero__num__t::operator()");
 
-        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00679A50);
+#if STANDALONE_SYSTEM
+        const auto freeze = std::fpclassify(stack.pop_num()) != FP_ZERO;
+        if (g_game_ptr != nullptr) {
+            g_game_ptr->freeze_hero(freeze);
+        }
+        return true;
+#else
+        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) =
+            CAST(func, 0x00679A50);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -3746,8 +3841,17 @@ struct slf__get_game_info_num__str__t : script_library_class::function {
     {
         TRACE("slf__get_game_info_num__str__t::operator()");
 
+#if STANDALONE_SYSTEM
+        const auto *name = stack.pop_str();
+        const resource_key attribute{string_hash{name}, RESOURCE_KEY_TYPE_IFC_ATTRIBUTE};
+        float value = 0.0f;
+        g_game_ptr->get_game_settings()->get_num(attribute, value, false);
+        stack.push(value);
+        return true;
+#else
         bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00663C00);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -3818,12 +3922,13 @@ slf__get_global_time_dilation__t::slf__get_global_time_dilation__t(const char *a
 struct slf__get_ini_flag__str__t : script_library_class::function {
     slf__get_ini_flag__str__t(const char *a3);
 
-    bool operator()(vm_stack &stack, [[maybe_unused]]script_library_class::function::entry_t entry) const
+    bool operator()(vm_stack &stack, [[maybe_unused]] script_library_class::function::entry_t entry) const
     {
         TRACE("slf__get_ini_flag__str__t::operator()");
 
-        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x0067AC20);
-        return func(this, nullptr, &stack, entry);
+        const mString flag_name {stack.pop_str()};
+        stack.push(static_cast<vm_num_t>(os_developer_options::instance->get_flag(flag_name)));
+        return true;
     }
 };
 
@@ -4440,8 +4545,8 @@ struct slf__get_time_of_day__t : script_library_class::function {
     {
         TRACE("slf__get_time_of_day__t::operator()");
 
-        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00664150);
-        return func(this, nullptr, &stack, entry);
+        stack.push(static_cast<float>(g_TOD));
+        return true;
     }
 };
 
@@ -4478,8 +4583,16 @@ struct slf__get_token_index_from_id__num__num__t : script_library_class::functio
     {
         TRACE("slf__get_token_index_from_id__num__num__t::operator()");
 
+#if STANDALONE_SYSTEM
+        const auto id = static_cast<int>(stack.pop_num());
+        const auto type = static_cast<int>(stack.pop_num());
+        const auto index = g_world_ptr->field_188.get_token_index_from_id(type, id);
+        stack.push(static_cast<float>(index));
+        return true;
+#else
         bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x0066F470);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -4572,12 +4685,24 @@ slf__has_substring__str__str__t::slf__has_substring__str__str__t(const char *a3)
 struct slf__hero__t : script_library_class::function {
     slf__hero__t(const char *a3);
 
-    bool operator()(vm_stack &stack, [[maybe_unused]]script_library_class::function::entry_t entry) const
+    bool operator()(vm_stack &stack, [[maybe_unused]] script_library_class::function::entry_t entry) const
     {
         TRACE("slf__hero__t::operator()");
 
-        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x0067BBA0);
+#if STANDALONE_SYSTEM
+        entity_base_vhandle result{0};
+        if (g_world_ptr != nullptr) {
+            if (auto *hero = g_world_ptr->get_hero_ptr(0); hero != nullptr) {
+                result = hero->get_my_handle();
+            }
+        }
+        SLF_RETURN;
+        return true;
+#else
+        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) =
+            CAST(func, 0x0067BBA0);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -4819,12 +4944,22 @@ slf__is_hero_spidey__t::slf__is_hero_spidey__t(const char *a3) : function(a3)
 struct slf__is_hero_venom__t : script_library_class::function {
     slf__is_hero_venom__t(const char *a3);
 
-    bool operator()(vm_stack &stack, [[maybe_unused]]script_library_class::function::entry_t entry) const
+    bool operator()(vm_stack &stack, [[maybe_unused]] script_library_class::function::entry_t entry) const
     {
         TRACE("slf__is_hero_venom__t::operator()");
 
-        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00668AF0);
+#if STANDALONE_SYSTEM
+        float result = 0.0f;
+        if (g_world_ptr != nullptr && g_world_ptr->get_hero_ptr(0) != nullptr) {
+            result = get_hero_type_helper() == 2 ? 1.0f : 0.0f;
+        }
+        SLF_RETURN;
+        return true;
+#else
+        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) =
+            CAST(func, 0x00668AF0);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -5166,8 +5301,20 @@ struct slf__lock_mission_manager__num__t : script_library_class::function {
     {
         TRACE("slf__lock_mission_manager__num__t::operator()");
 
+#if STANDALONE_SYSTEM
+        const auto should_lock = not_equal(stack.pop_num(), 0.0f);
+        if (mission_manager::s_inst != nullptr) {
+            if (should_lock) {
+                mission_manager::s_inst->lock();
+            } else {
+                mission_manager::s_inst->unlock();
+            }
+        }
+        return true;
+#else
         bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00676FA0);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -5911,8 +6058,16 @@ struct slf__set_game_info_num__str__num__t : script_library_class::function {
     {
         TRACE("slf__set_game_info_num__str__num__t::operator()");
 
+#if STANDALONE_SYSTEM
+        const auto value = stack.pop_num();
+        const auto *name = stack.pop_str();
+        resource_key attribute{string_hash{name}, RESOURCE_KEY_TYPE_IFC_ATTRIBUTE};
+        g_game_ptr->get_game_settings()->set_num(attribute, value);
+        return true;
+#else
         bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00663B90);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -6954,12 +7109,21 @@ slf__spiderman_camera_set_follow__entity__t::slf__spiderman_camera_set_follow__e
 struct slf__spiderman_camera_set_hero_underwater__num__t : script_library_class::function {
     slf__spiderman_camera_set_hero_underwater__num__t(const char *a3);
 
-    bool operator()(vm_stack &stack, [[maybe_unused]]script_library_class::function::entry_t entry) const
+    bool operator()(vm_stack &stack, [[maybe_unused]] script_library_class::function::entry_t entry) const
     {
         TRACE("slf__spiderman_camera_set_hero_underwater__num__t::operator()");
 
-        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00679760);
+#if STANDALONE_SYSTEM
+        const auto underwater = std::fpclassify(stack.pop_num()) != FP_ZERO;
+        if (auto *camera = g_spiderman_camera_ptr(); camera != nullptr) {
+            camera->field_1CF = underwater;
+        }
+        return true;
+#else
+        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) =
+            CAST(func, 0x00679760);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -8854,12 +9018,17 @@ slf__wait_fps_test__num__num__vector3d__vector3d__t::slf__wait_fps_test__num__nu
 struct slf__wait_frame__t : script_library_class::function {
     slf__wait_frame__t(const char *a3);
 
-    bool operator()(vm_stack &stack, [[maybe_unused]]script_library_class::function::entry_t entry) const
+    bool operator()([[maybe_unused]] vm_stack &stack,
+                    script_library_class::function::entry_t entry) const
     {
         TRACE("slf__wait_frame__t::operator()");
 
+#if STANDALONE_SYSTEM
+        return entry != script_library_class::function::entry_t::FIRST_ENTRY;
+#else
         bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00663110);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -9020,22 +9189,28 @@ DECLARE_SLC(district, signaller, 0x0089A4FC);
 #undef DECLARE_SLC
 #undef BUILD_SLC_NAME
 
-
 #define BUILD_SLF_NAME(_KLASS, _TYPE) slf__ ## _KLASS ## __ ## _TYPE ## __t
 
-#define DECLARE_SLF_BEGIN(KLASS, NAME, VTBL) \
-    struct BUILD_SLF_NAME(KLASS, NAME) : script_library_class::function { \
-        BUILD_SLF_NAME(KLASS, NAME)(script_library_class * slc, const char *a3) : function(slc, a3) \
-        {                                                                                           \
-            m_vtbl = CAST(m_vtbl, VTBL); \
-        } \
-    \
+#define DECLARE_SLF_BEGIN(KLASS, NAME, VTBL)                                                   \
+    struct BUILD_SLF_NAME(KLASS, NAME) : script_library_class::function {                      \
+        BUILD_SLF_NAME(KLASS, NAME)(script_library_class *slc, const char *a3)                  \
+            : function(slc, a3)                                                                 \
+        {                                                                                        \
+            if constexpr (STANDALONE_SYSTEM) {                                                  \
+                static void *native_vtable[2] {};                                                \
+                FUNC_ADDRESS(address, &BUILD_SLF_NAME(KLASS, NAME)::operator());                 \
+                native_vtable[1] = address;                                                      \
+                m_vtbl = CAST(m_vtbl, native_vtable);                                            \
+            } else {                                                                             \
+                m_vtbl = CAST(m_vtbl, VTBL);                                                     \
+            }                                                                                    \
+        }                                                                                        \
+                                                                                                 \
         bool operator()(vm_stack &stack, script_library_class::function::entry_t entry) const
 
 #define DECLARE_SLF_END() \
     }                     \
     ;
-
 
 DECLARE_SLF_BEGIN(beam, add_alpha_effect__num__num__num__num__num__num, 0x0089AB9C)
 {
@@ -11239,9 +11414,9 @@ DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(sound_inst, play__num, 0x0089B8B0)
 {
-    (void) stack;
-    (void) entry;
-	return true;
+    (void)entry;
+    stack.pop(sizeof(int) + sizeof(vm_num_t));
+    return true;
 }
 DECLARE_SLF_END()
 
@@ -11263,9 +11438,9 @@ DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(sound_inst, set_entity__entity, 0x0089B850)
 {
-    (void) stack;
-    (void) entry;
-	return true;
+    (void)entry;
+    stack.pop(sizeof(int) + sizeof(entity_base_vhandle));
+    return true;
 }
 DECLARE_SLF_END()
 
@@ -12086,7 +12261,6 @@ void chuck_register_script_libs()
         register_entity_lib();
 
 #undef CREATE_SLC
-
 
 #define BUILD_GLOBAL_SLF_NAME(type) slf__ ## type ## __t
 
@@ -13325,9 +13499,11 @@ void slc_manager::un_mash_all_funcs()
         assert(!g_is_the_packer);
 
         auto a1 = create_resource_key_from_path("all_slc_functions_mac", RESOURCE_KEY_TYPE_SLF_LIST);
+        
         sp_log("%s", a1.get_platform_string(3).c_str());
 
         auto *image = bit_cast<char *>(resource_manager::get_resource(a1, nullptr, nullptr));
+        
         assert(image != nullptr);
 
         if constexpr (xbpack::v10) {
@@ -13346,6 +13522,7 @@ void slc_manager::un_mash_all_funcs()
         assert(slc_manager_class_array != nullptr);
 
         auto total_classes = bit_cast<int *>(image)[0];
+        
         auto *buffer = image + 4;
 
         assert(total_classes == static_cast<int>(slc_manager_class_array->size()));

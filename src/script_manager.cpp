@@ -289,6 +289,9 @@ int load_game_var_buffer(char *a1)
 void run_callbacks(script_manager_callback_reason a1, script_executable *a2, const char *a3)
 {
     TRACE("script_manager::run_callbacks");
+#if STANDALONE_SYSTEM
+    return;
+#endif
 
     assert(script_manager_callbacks != nullptr);
 
@@ -477,8 +480,7 @@ void init()
             if (script_manager_callbacks == nullptr) {
                 using script_manager_callbacks_t = std::decay_t<decltype(*script_manager_callbacks)>;
 
-                auto *mem = mem_alloc(12u);
-                script_manager_callbacks = new (mem) script_manager_callbacks_t {};
+                script_manager_callbacks = new script_manager_callbacks_t {};
 
                 assert(script_manager_callbacks != nullptr);
             }

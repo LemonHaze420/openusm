@@ -7,7 +7,13 @@ inline constexpr auto SO_DATA_BLOCK_FLAG_FROM_MASH = 1u;
 struct generic_mash_header;
 struct generic_mash_data_ptrs;
 
+namespace sxcc {
+struct data_block_access;
+}
+
 class so_data_block {
+    friend struct sxcc::data_block_access;
+
     int m_size;
     char *buffer;
     uint32_t flags;

@@ -114,9 +114,7 @@ bool mesh_file_resource_handler::_handle_resource(worldly_resource_handler::eBeh
 
             auto *struct_mash = res_dir.get_resource(struct_loc, nullptr);
             assert(struct_mash != nullptr);
-
             //sp_log("%d 0x%08X", this->field_C, (int) struct_mash);
-
 
             nglMeshFile *meshFile = nullptr;
             auto alloced_mem =

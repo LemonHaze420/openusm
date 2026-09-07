@@ -66,6 +66,7 @@ void decal_data_interface::constructor_common()
 {
     this->field_14 = nullptr;
     this->field_C = true;
+
     if (this->field_D) {
         auto *mem = mem_alloc(sizeof(_std::vector<entity *>));
         this->field_14 = new (mem) _std::vector<entity *>{};

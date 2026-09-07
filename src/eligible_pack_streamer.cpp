@@ -5,6 +5,7 @@
 #include "eligible_pack.h"
 #include "eligible_pack_category.h"
 #include "eligible_pack_token.h"
+#include "ideal_pack_info.h"
 #include "func_wrapper.h"
 #include "memory.h"
 #include "resource_pack_streamer.h"
@@ -13,6 +14,7 @@
 #include "utility.h"
 
 #include <cassert>
+#include <algorithm>
 
 VALIDATE_SIZE(eligible_pack_streamer, 0x38);
 
@@ -32,9 +34,8 @@ void eligible_pack_streamer::init(int a2, int num_streamers, resource_pack_strea
         assert(num_streamers > 0);
         assert(streamers != nullptr);
 
-        void(__fastcall * reserve)(void *, void *, int) = CAST(reserve, 0x0056E660);
-
-        reserve(&this->field_14, nullptr, num_streamers);
+        this->eligible_packs.reserve(a2);
+        this->field_14.reserve(num_streamers);
         {
             for (int i = 0; i < num_streamers; ++i) {
                 eligible_pack_category *the_category = new eligible_pack_category{this, streamers[i], callbacks[i]};
@@ -44,9 +45,7 @@ void eligible_pack_streamer::init(int a2, int num_streamers, resource_pack_strea
                     *v13 = the_category;
                     this->field_14.m_last = v13 + 1;
                 } else {
-                    void(__fastcall * _Insert_n)(void *, void *, void *, int, void *) = CAST(_Insert_n, 0x0056A260);
-
-                    _Insert_n(&this->field_14, nullptr, this->field_14.m_last, 1, &the_category);
+                    this->field_14.push_back(the_category);
                 }
             };
         }
@@ -58,7 +57,23 @@ void eligible_pack_streamer::init(int a2, int num_streamers, resource_pack_strea
 
 void eligible_pack_streamer::clear()
 {
+#if STANDALONE_SYSTEM
+    this->field_0 = false;
+    for (auto *pack : this->eligible_packs) {
+        if (pack != nullptr) {
+            pack->~eligible_pack();
+            mem_dealloc(pack, sizeof(eligible_pack));
+        }
+    }
+    this->eligible_packs.clear();
+
+    for (auto *category : this->field_14) {
+        delete category;
+    }
+    this->field_14.clear();
+#else
     THISCALL(0x00547BA0, this);
+#endif
 }
 
 int compare_eligible_pack_names(const void *a1, const void *a2)
@@ -149,34 +164,22 @@ void eligible_pack_streamer::fixup_eligible_pack_parent_child_relationships()
 eligible_pack *eligible_pack_streamer::add_eligible_pack(const char *a2, const eligible_pack_token &a3,
                                                          resource_pack_streamer *a4)
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         eligible_pack_category *the_category = nullptr;
-
-        for (auto &pack_cat : this->field_14) {
-            if (pack_cat->my_resource_pack_streamer == a4) {
-                the_category = pack_cat;
+        for (auto *pack_category : this->field_14) {
+            if (pack_category->my_resource_pack_streamer == a4) {
+                the_category = pack_category;
                 break;
             }
         }
-
         assert(the_category != nullptr);
 
         auto *mem = mem_alloc(sizeof(eligible_pack));
-        eligible_pack *v9 = new (mem) eligible_pack{a2, a3, the_category};
-
-        if (this->eligible_packs.size() < this->eligible_packs.capacity()) {
-            auto *v12 = this->eligible_packs.m_last;
-            *v12 = v9;
-            this->eligible_packs.m_last = v12 + 1;
-        } else {
-            void(__fastcall * _Insert_n)(void *, void *, void *, int, void *) = CAST(_Insert_n, 0x0056A260);
-
-            _Insert_n(&this->eligible_packs, nullptr, this->eligible_packs.m_last, 1, &v9);
-        }
-
-        auto v14 = this->eligible_packs.size();
-        qsort(this->eligible_packs.m_first, v14, 4u, compare_eligible_pack_names);
-        return v9;
+        auto *pack = new (mem) eligible_pack{a2, a3, the_category};
+        this->eligible_packs.push_back(pack);
+        qsort(this->eligible_packs.m_first, this->eligible_packs.size(), sizeof(eligible_pack *),
+              compare_eligible_pack_names);
+        return pack;
     } else {
         return (eligible_pack *)THISCALL(0x00551290, this, a2, &a3, a4);
     }
@@ -184,7 +187,26 @@ eligible_pack *eligible_pack_streamer::add_eligible_pack(const char *a2, const e
 
 void eligible_pack_streamer::prioritize()
 {
-    THISCALL(0x00547D80, this);
+    if (!field_0) {
+        return;
+    }
+
+    _std::vector<ideal_pack_info> ideal_packs;
+    get_ideal_pack_info_callback(&ideal_packs);
+
+    _std::vector<ideal_pack_info *> sorted_packs;
+    sorted_packs.reserve(ideal_packs.size());
+    for (auto &pack : ideal_packs) {
+        sorted_packs.push_back(&pack);
+    }
+    std::sort(sorted_packs.begin(), sorted_packs.end(),
+              [](const ideal_pack_info *lhs, const ideal_pack_info *rhs) {
+                  return lhs->field_4 < rhs->field_4;
+              });
+
+    for (auto *category : field_14) {
+        category->prioritize(sorted_packs);
+    }
 }
 
 void eligible_pack_streamer::frame_advance(Float a2)

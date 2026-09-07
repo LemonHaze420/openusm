@@ -10,6 +10,7 @@
 struct resource_pack_streamer;
 struct eligible_pack_streamer;
 struct eligible_pack;
+struct ideal_pack_info;
 
 struct eligible_pack_category {
     resource_pack_streamer *my_resource_pack_streamer;
@@ -42,6 +43,8 @@ struct eligible_pack_category {
 
     //0x005513B0
     void frame_advance(Float a2);
+
+    void prioritize(const _std::vector<ideal_pack_info *> &ideal_packs);
 
     int find_empty_pack_slot() const;
 

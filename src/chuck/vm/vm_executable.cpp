@@ -15,6 +15,8 @@
 #include "trace.h"
 #include "vtbl.h"
 
+#include <cstdio>
+
 VALIDATE_SIZE(vm_executable, 0x24u);
 
 vm_executable::vm_executable(script_object *so) : owner(so) {}
@@ -120,14 +122,12 @@ void vm_executable::link_un_mash(const script_executable &a2)
     }
 
     if constexpr (1) {
-        printf("buffer_len = %d\n", this->buffer_len);
         if (!this->is_linked()) {
             uint16_t *buffer = this->buffer;
             this->flags |= VM_EXECUTABLE_FLAG_LINKED;
             auto &v5 = a2;
             while (buffer < &this->buffer[this->buffer_len]) {
                 auto opword = *buffer++;
-                printf("opword = 0x%X\n", opword);
 
                 [[maybe_unused]] opcode_t op = opcode_t(opword >> 8);
                 [[maybe_unused]] auto dsize = 4u;
@@ -136,13 +136,6 @@ void vm_executable::link_un_mash(const script_executable &a2)
                 }
 
                 auto argtype = opcode_arg_t(opword & OP_ARGTYPE_MASK);
-
-                printf("op = %d\n", op);
-
-                printf("dsize = %d\n", dsize);
-                printf("argtype = %d %s\n", argtype, opcode_arg_t_str[argtype]);
-
-                printf("\n");
 
                 switch (static_cast<int>(argtype)) {
                 case OP_ARG_NULL:
@@ -154,7 +147,6 @@ void vm_executable::link_un_mash(const script_executable &a2)
                 case OP_ARG_STR: {
                     uint32_t idx = *buffer;
                     auto *str = this->owner->get_parent()->lookup_permanent_string(idx);
-                    printf("str = %s\n", str);
                     auto addr = uint32_t(str);
                     buffer += 2;
                     *(buffer - 2) = addr >> 16;
@@ -207,7 +199,6 @@ void vm_executable::link_un_mash(const script_executable &a2)
                               "  - make sure your executable is up-to-date\n"
                               "  - force re-compile scripts, pack, build executable");
                     }
-
                     auto addr = int(func);
                     *(buffer - 2) = addr >> 16;
                     *(buffer - 1) = addr & 0x0000FFFF;

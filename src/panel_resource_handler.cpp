@@ -52,7 +52,6 @@ bool panel_resource_handler::_handle_resource(worldly_resource_handler::eBehavio
 {
     TRACE("panel_resource_handler::handle_resource");
 
-
     if constexpr (1) {
         const char *bosses[] = {"HG_BOSS_SPIDERMAN",
                                 "HG_BOSS_VENOM",
@@ -87,6 +86,10 @@ bool panel_resource_handler::_handle_resource(worldly_resource_handler::eBehavio
         auto &dir = this->my_slot->get_resource_directory();
         auto *resource = dir.get_resource(a3, nullptr);
         assert(resource != nullptr);
+        if (g_femanager.IGO == nullptr) {
+            ++this->field_C;
+            return false;
+        }
 
         if (behavior == worldly_resource_handler::UNLOAD) {
             if (g_femanager.IGO != nullptr) {

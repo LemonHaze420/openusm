@@ -12,6 +12,7 @@
 #include "trace.h"
 
 #include <cassert>
+#include <cstring>
 #include <map>
 
 VALIDATE_SIZE(script_var_container, 0x1Cu);
@@ -127,9 +128,30 @@ int script_var_container::load_script_var_buffer(char *a2)
     return this->script_var_block.size();
 }
 
-void *script_var_container::get_script_var_address(const char *a2, script_library_class **a3)
+void *script_var_container::get_script_var_address(const char *name, script_library_class **owner)
 {
-    return (void *)THISCALL(0x005A0520, this, a2, a3);
+#if STANDALONE_SYSTEM
+    if (owner != nullptr)
+        *owner = nullptr;
+    if (name == nullptr || this->script_var_to_addr == nullptr || this->field_10 <= 0)
+        return nullptr;
+
+    int first = 0;
+    int last = this->field_10 - 1;
+    while (first <= last) {
+        const int index = first + (last - first) / 2;
+        const int comparison = std::strcmp(this->script_var_to_addr[index].name, name);
+        if (comparison == 0)
+            return bit_cast<void *>(this->script_var_to_addr[index].address);
+        if (comparison < 0)
+            first = index + 1;
+        else
+            last = index - 1;
+    }
+    return nullptr;
+#else
+    return (void *)THISCALL(0x005A0520, this, name, owner);
+#endif
 }
 
 char *script_var_container::get_address(int offset)

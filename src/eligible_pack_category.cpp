@@ -4,7 +4,10 @@
 #include "eligible_pack.h"
 #include "eligible_pack_streamer.h"
 #include "func_wrapper.h"
+#include "ideal_pack_info.h"
 #include "resource_pack_streamer.h"
+
+#include <limits>
 
 VALIDATE_SIZE(eligible_pack_category, 0x28);
 
@@ -14,16 +17,12 @@ eligible_pack_category::eligible_pack_category(eligible_pack_streamer *eligible_
                                                                  resource_pack_streamer *, resource_pack_slot *,
                                                                  limited_timer *))
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         assert(eligible_streamer != nullptr && resource_streamer != nullptr);
-
         this->my_eligible_pack_streamer = eligible_streamer;
         this->my_resource_pack_streamer = resource_streamer;
         this->field_8 = a4;
-
-        auto &pack_slots = *this->my_resource_pack_streamer->get_pack_slots();
-        auto v5 = pack_slots.size();
-        this->field_C.reserve(v5);
+        this->field_C.reserve(this->my_resource_pack_streamer->get_pack_slots()->size());
     } else {
         THISCALL(0x00543100, this, eligible_streamer, resource_streamer, a4);
     }
@@ -31,7 +30,7 @@ eligible_pack_category::eligible_pack_category(eligible_pack_streamer *eligible_
 
 eligible_pack_category::~eligible_pack_category()
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         this->clear();
     } else {
         THISCALL(0x0053E640, this);
@@ -96,9 +95,34 @@ int eligible_pack_category::find_empty_pack_slot() const
     return (it != pack_slots.end() ? std::distance(pack_slots.begin(), it) : -1);
 }
 
+void eligible_pack_category::prioritize(
+    const _std::vector<ideal_pack_info *> &ideal_packs)
+{
+    for (auto *pack : field_C) {
+        pack->field_6C = std::numeric_limits<float>::max();
+        pack->field_70 &= ~1;
+    }
+    field_C.clear();
+
+    const auto slot_count = my_resource_pack_streamer->get_pack_slots()->size();
+    for (auto *info : ideal_packs) {
+        auto *pack = info->my_eligible_pack;
+        if (pack->field_50 != this) {
+            continue;
+        }
+
+        pack->field_6C = info->field_4;
+        pack->field_70 |= 1;
+        field_C.push_back(pack);
+        if (field_C.size() >= slot_count) {
+            return;
+        }
+    }
+}
+
 void eligible_pack_category::frame_advance(Float a2)
 {
-    if constexpr (0) {
+    if constexpr (1) {
         assert(this->my_resource_pack_streamer != nullptr);
 
         assert(this->my_resource_pack_streamer->get_pack_slots() != nullptr);
@@ -110,21 +134,21 @@ void eligible_pack_category::frame_advance(Float a2)
             if (slot_idx == -1) {
                 slot_idx = this->find_lowest_priority_unloadable_loading_pack_slot();
                 if (slot_idx != -1) {
-                    assert(slot_idx >= 0 && slot_idx < pack_slots.size());
+                    assert(slot_idx >= 0 && static_cast<size_t>(slot_idx) < pack_slots.size());
 
                     assert(this->my_resource_pack_streamer->can_cancel_load(slot_idx));
 
                     this->my_resource_pack_streamer->cancel_load(slot_idx);
                 }
             } else {
-                assert(slot_idx >= 0 && slot_idx < pack_slots.size());
+                assert(slot_idx >= 0 && static_cast<size_t>(slot_idx) < pack_slots.size());
 
                 assert(pack_slots[slot_idx]->is_pack_ready());
 
                 this->my_resource_pack_streamer->unload(slot_idx);
             }
         } else if (this->my_resource_pack_streamer->is_disk_idle()) {
-            assert(empty_slot_idx >= 0 && empty_slot_idx < pack_slots.size());
+            assert(empty_slot_idx >= 0 && static_cast<size_t>(empty_slot_idx) < pack_slots.size());
 
             assert(pack_slots[empty_slot_idx]->is_empty());
 

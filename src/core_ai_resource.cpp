@@ -853,7 +853,20 @@ void core_ai_resource::unmash(mash_info_struct *a1, [[maybe_unused]] void *a3)
 #endif
 #endif
 #else
-    THISCALL(0x006D71F0, this, a1, a3);
+    a1->unmash_class_in_place(this->field_0, this);
+    a1->unmash_class_in_place(this->my_base_graphs, this);
+    a1->unmash_class_in_place(this->my_locomotion_graphs, this);
+
+    if (this->field_10 != nullptr) {
+        a1->unmash_class(this->field_10, this);
+    }
+
+    a1->align_buffer(4);
+    this->field_40 = *bit_cast<int *>(a1->read_from_buffer(4, 4));
+    a1->align_buffer(16);
+    this->field_C = bit_cast<int>(&a1->mash_image_ptr[0][a1->buffer_size_used[0]]);
+    a1->advance_buffer(this->field_40);
+    a1->read_from_buffer(4, 4);
 #endif
 }
 

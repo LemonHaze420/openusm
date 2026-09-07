@@ -15,6 +15,7 @@
 #include "utility.h"
 
 #include <cassert>
+#include <cstdio>
 
 VALIDATE_SIZE(script_object, 0x34);
 VALIDATE_SIZE(script_object::function, 0x10);
@@ -77,13 +78,10 @@ void script_object::destructor_common()
 
     if (this->instances != nullptr) {
         while (!this->instances->empty()) {
-            auto v5 = this->instances->begin();
-            this->instances->checked_erase(*v5);
-
-            auto *v3 = (*v5);
-            if ( v3 != nullptr ) {
-                delete v3;
-            }
+            auto it = this->instances->begin();
+            auto *instance = *it;
+            this->instances->checked_erase(instance);
+            delete instance;
         }
 
         delete this->instances;
@@ -156,7 +154,7 @@ simple_list<vm_thread *>::iterator script_instance::delete_thread(simple_list<vm
 {
     TRACE("script_instance::delete_thread");
 
-    if constexpr (0) {
+    if constexpr (1) {
         vm_thread *condemned = (*a3);
         assert(condemned != nullptr);
 
@@ -394,7 +392,7 @@ script_instance * script_object::add_instance(string_hash a2, vm_executable *par
 
     //assert(parms_builder->is_from_mash() && "this function should only be used for mashed parms_builders");
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         auto *inst = new script_instance {a2, this->data_blocksize, 0};
         assert(inst != nullptr);
 
@@ -882,7 +880,7 @@ bool script_instance::run_single_thread(vm_thread *a2, bool a3)
 {
     TRACE("script_instance::run_single_thread");
 
-    if constexpr (0) {
+    if constexpr (1) {
         this->flags |= 2u;
         bool v4 = false;
         auto *inst = a2->get_instance();

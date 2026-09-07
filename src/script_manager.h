@@ -88,6 +88,7 @@ namespace script_manager {
 
     int get_total_loaded();
 
+    void add_global_constructor_thread(Float a1, bool a2);
 
 #if !STANDALONE_SYSTEM
     _std::map<script_executable_entry_key, script_executable_entry> *get_exec_list();

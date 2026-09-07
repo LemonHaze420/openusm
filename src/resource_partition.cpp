@@ -10,9 +10,7 @@
 #include "worldly_pack_slot.h"
 
 #include <cassert>
-
 VALIDATE_SIZE(resource_partition, 0xB4u);
-
 resource_partition::resource_partition(resource_partition_enum a2)
 {
     if constexpr (1) {
@@ -46,7 +44,6 @@ void resource_partition::operator delete(void *ptr, size_t size)
     mem_dealloc(ptr, size);
 }
 
-
 void resource_partition::frame_advance(Float a1, limited_timer *a2)
 {
     this->streamer.frame_advance({a1}, a2);
@@ -69,19 +66,16 @@ void resource_partition::clear()
     assert(streamer.is_idle());
 
     if constexpr (1) {
-        for (uint32_t i = 0; i < this->m_pack_slots.size(); ++i) {
-            auto *slot = this->m_pack_slots[i];
+        for (auto *slot : this->m_pack_slots) {
+            assert(slot != nullptr);
+            assert(slot->is_empty());
+            if (slot != nullptr) {
 
-            worldly_pack_slot *delete_me = CAST(delete_me, slot);
-            assert(delete_me != nullptr);
-
-            assert(delete_me->is_empty());
-
-            if (delete_me != nullptr) {
-                assert(int(delete_me->m_vtbl) == 0x008899D0);
-                delete_me->_finalize(true);
+                slot->m_vtbl->finalize(slot, nullptr, true);
+                
             }
         }
+        
 
         if constexpr (0) {
             if (this->m_pack_slots.m_first != nullptr) {
@@ -94,8 +88,10 @@ void resource_partition::clear()
         } else {
             this->m_pack_slots.clear();
         }
+        
 
         this->streamer.clear();
+        
         this->field_0 = 0;
         this->m_partition_buffer = nullptr;
         this->partition_buffer_used = 0;

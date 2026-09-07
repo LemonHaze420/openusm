@@ -34,6 +34,7 @@
 #include "wds.h"
 
 #include <cassert>
+#include <cstdio>
 #ifdef OPENUSM_XBPACK_V10
 #include <cstdio>
 #include <windows.h>
@@ -60,6 +61,7 @@ worldly_pack_slot::worldly_pack_slot()
             replace_vfunc(this->m_vtbl->on_load, &worldly_pack_slot::_on_load);
 
             replace_vfunc(this->m_vtbl->on_unload, &worldly_pack_slot::_on_unload);
+            replace_vfunc(this->m_vtbl->finalize, &worldly_pack_slot::_finalize);
 
             replace_vfunc(this->m_vtbl->clear_slot, &worldly_pack_slot::_clear_slot);
 
@@ -173,10 +175,8 @@ bool worldly_pack_slot::_on_load(limited_timer *a2)
             this->field_94.start();
         }
 
-        sp_log("worldly_pack_slot::on_load(): end");
-
-        for (auto &handler : this->m_handlers) {
-            if (handler->handle(worldly_resource_handler::LOAD, a2)) {
+        for (int i = 0; i < 21; ++i) {
+            if (this->m_handlers[i]->handle(worldly_resource_handler::LOAD, a2)) {
                 return true;
             }
         }
@@ -235,9 +235,8 @@ void worldly_pack_slot::clear_progress()
 bool worldly_pack_slot::_on_unload(limited_timer *a2)
 {
     TRACE("worldly_pack_slot::on_unload");
-    printf("%s\n", this->get_name_key().get_platform_string(3).c_str());
 
-    if constexpr (0) {
+    if constexpr (1) {
         bool result;
         if (this->field_98.is_done()) {
             byte_975468 = false;
@@ -296,8 +295,7 @@ _std::vector<box_trigger *> *worldly_pack_slot::get_box_trigger_instances()
 {
     assert(g_world_ptr != nullptr);
     if (this->box_trigger_instances == nullptr) {
-        auto *mem = mem_alloc(sizeof(_std::vector<box_trigger *>));
-        this->box_trigger_instances = new (mem) _std::vector<box_trigger *> {};
+        this->box_trigger_instances = new _std::vector<box_trigger *>{};
     }
 
     return this->box_trigger_instances;

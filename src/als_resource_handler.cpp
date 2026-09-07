@@ -18,6 +18,7 @@
 #include "mash_config.h"
 #include "meta_anim_interact.h"
 #include "state_machine_shared.h"
+#include "script_manager.h"
 #include "string_hash_dictionary.h"
 #include "scripted_trans_group.h"
 #include "variables.h"
@@ -88,7 +89,13 @@ bool als_resource_handler::_handle_resource(worldly_resource_handler::eBehavior 
 #endif 
                     );
 
+#if STANDALONE_SYSTEM
+            if (script_manager::find_global_object() == nullptr) {
+                mash_info_struct::construct_class(new_als);
+            }
+#else
             mash_info_struct::construct_class(new_als);
+#endif
 
 #if OPENUSM_XBOX_MASH_FORMAT
             a3->m_offset += v5.get_header_size();

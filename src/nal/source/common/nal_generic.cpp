@@ -113,6 +113,7 @@ void nalGenericSkeleton::_Process()
 
         for (int i = 0; i < this->field_A4; ++i) {
             auto *inst = nalComponentInstanceBank.Search(this->field_A8[i].field_0);
+
             assert(inst != nullptr && "could not find an instance of the encoding type of a const component");
 
             this->field_A8[i].field_20 = static_cast<decltype(this->field_A8[i].field_20)>(inst->field_20);
@@ -125,6 +126,7 @@ void nalGenericSkeleton::_Process()
         auto v37 = (void *)v29;
 
         for (int i = 0; i < this->field_88; ++i) {
+
             v30->field_20->Process(v30, v38, v37);
 
             ++v30;
@@ -136,6 +138,7 @@ void nalGenericSkeleton::_Process()
 
         v37 = (void *)v34;
         for (int i = 0; i < this->field_A4; ++i) {
+
             v35->field_20->Process(v35, v38, v37);
 
             ++v35;

@@ -59,7 +59,19 @@ bool mission_table_container::append_nums(const char *a2, int a3, _std::vector<f
 
 void mission_table_container::un_mash(generic_mash_header *a2, void *a3, void *a4, generic_mash_data_ptrs *a5)
 {
-    THISCALL(0x005C6010, this, a2, a3, a4, a5);
+    if constexpr (STANDALONE_SYSTEM) {
+        field_0 = {};
+        multi_array_camera_markers = {};
+        field_10 = {};
+        field_18 = {};
+        multi_array_nums = {};
+        multi_array_strings = {};
+        multi_array_positions = {};
+        field_38 = {};
+        field_44 = nullptr;
+    } else {
+        THISCALL(0x005C6010, this, a2, a3, a4, a5);
+    }
 }
 
 mission_condition_instance *mission_condition::find_best_instance(mission_manager_script_data *data) const

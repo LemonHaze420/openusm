@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 inline constexpr auto OP_DSIZE_FLAG = 0x0080u;
 inline constexpr auto OP_ARGTYPE_MASK = 0x007Fu;
 
@@ -45,16 +47,30 @@ enum opcode_t {
     OP_ESB = 44,
     OP_ECO = 45,
     OP_SCO = 46,
+    OP_RE = 47,
+    OP_RAE = 48,
+    OP_KILL_THREAD = 49,
+    OP_FEQZB = 50,
+    OP_I2S = 51,
+    OP_F2S = 52,
+    OP_PSH_STR = 53,
+    OP_DEL_THREADS = 54,
 
     OP_MS2 = 55,
+    OP_ASF = 56,
+    OP_PSF = 57,
+    OP_CPY = 58,
+    OP_COFF = 59,
 };
 
 inline const char *opcode_t_str[] = {
     "OP_ADD", "OP_AND", "OP_BF",  "OP_BRA", "OP_BSL", "OP_BSR", "OP_BST",    "OP_BTH",    "OP_DEC", "OP_DIV",
     "OP_DUP", "OP_EQ",  "OP_GE",  "OP_GT",  "OP_INC", "OP_KIL", "OP_LE",     "",          "OP_LNT", "",
     "OP_LT",  "OP_MOD", "OP_MUL", "OP_NE",  "OP_NEG", "OP_NOP", "OP_NOT",    "OP_OR",     "OP_POP", "OP_PSH",
-    "OP_RET", "OP_SHL", "OP_SHR", "OP_SPA", "OP_SUB", "OP_XOR", "OP_STR_EQ", "OP_STR_NE", "",       "",
-    "",       "",       "OP_ECB", "OP_ESB", "OP_ECO", "OP_SCO",
+    "OP_RET", "OP_SHL", "OP_SHR", "OP_SPA", "OP_SUB", "OP_XOR", "", "OP_STR_EQ", "OP_STR_NE", "",
+    "", "", "", "OP_ECB", "OP_ESB", "OP_ECO", "OP_SCO", "OP_RE", "OP_RAE", "OP_KILL_THREAD",
+    "OP_FEQZB", "OP_I2S", "OP_F2S", "OP_PSH_STR", "OP_DEL_THREADS", "OP_MS2", "OP_ASF", "OP_PSF",
+    "OP_CPY", "OP_COFF",
 };
 
 enum opcode_arg_t {
@@ -78,8 +94,8 @@ enum opcode_arg_t {
 inline const char *opcode_arg_t_str[] = {
     "OP_ARG_NULL",      "OP_ARG_NUM",       "OP_ARG_NUMR",      "OP_ARG_STR",       "OP_ARG_WORD",
     "OP_ARG_PCR",       "OP_ARG_SPR",       "OP_ARG_POPO",      "OP_ARG_SDR",       "OP_ARG_SFR",
-    "OP_ARG_LFR",       "OP_ARG_CLV",       "OP_ARG_SIG",       "OP_ARG_PSIG",      "OP_ARG_VAR",
-    "OP_ARG_UNDEFINED", "OP_ARG_UNDEFINED", "OP_ARG_UNDEFINED", "OP_ARG_UNDEFINED", "OP_ARG_UNDEFINED",
+    "OP_ARG_LFR",       "OP_ARG_CLV",       "OP_ARG_UNDEFINED", "OP_ARG_UNDEFINED", "OP_ARG_UNDEFINED",
+    "OP_ARG_SIG",       "OP_ARG_PSIG",      "OP_ARG_VAR",       "OP_ARG_UNDEFINED", "OP_ARG_UNDEFINED",
     "OP_ARG_UNDEFINED", "OP_ARG_UNDEFINED", "OP_ARG_UNDEFINED",
 };
 
@@ -96,6 +112,9 @@ inline constexpr uint32_t opcode_arg_t_shift[] = {
     2,  //OP_ARG_SFR
     2,  //OP_ARG_LFR
     2,  //OP_ARG_CLV
+    0,  //reserved 12
+    0,  //reserved 13
+    0,  //reserved 14
     2,  //OP_ARG_SIG
     2,  //OP_ARG_PSIG
     2,  //OP_ARG_VAR

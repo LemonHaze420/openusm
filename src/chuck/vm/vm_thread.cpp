@@ -47,7 +47,6 @@ vm_thread::vm_thread(script_instance *a2, const vm_executable *a3) : dstack(this
         THISCALL(0x005A5420, this, a2, a3);
     }
 
-    sp_log("%d", this->dstack.size());
 }
 
 vm_thread::vm_thread(script_instance *a2, const vm_executable *a3, void *a4) : dstack(this)
@@ -72,7 +71,6 @@ vm_thread::vm_thread(script_instance *a2, const vm_executable *a3, void *a4) : d
         THISCALL(0x005A5500, this, a2, a3, a4);
     }
 
-    sp_log("%d", this->dstack.size());
 }
 
 vm_thread::~vm_thread()
@@ -91,6 +89,11 @@ vm_thread::~vm_thread()
 
 void *vm_thread::operator new(size_t)
 {
+    if constexpr (STANDALONE_SYSTEM) {
+        if (!pool().m_initialized) {
+            pool().init(sizeof(vm_thread), 32, 4, 1, 4, nullptr);
+        }
+    }
     return pool().allocate_new_block();
 }
 
@@ -124,7 +127,7 @@ void vm_thread::set_suspended(bool a2)
 
 void vm_thread::pop_PC()
 {
-    if constexpr (0) {
+    if constexpr (1) {
         if (this->PC_stack.empty()) {
             this->PC = nullptr;
         } else {
@@ -136,29 +139,87 @@ void vm_thread::pop_PC()
     }
 }
 
-void vm_thread::create_event_callback(const vm_thread::argument_t &a2, bool a3)
+void vm_thread::create_event_callback(const vm_thread::argument_t &arg, bool persistent)
 {
     TRACE("vm_thread::create_event_callback");
-    printf("%s\n", a2.sfr->get_fullname().to_string());
-
-    THISCALL(0x0058F890, this, &a2, a3);
+#if STANDALONE_SYSTEM
+    auto *instance = static_cast<script_instance *>(this->dstack.pop_addr());
+    const auto parameter_size = arg.sfr->get_parms_stacksize();
+    this->dstack.pop(parameter_size);
+    auto *parameters = this->dstack.get_SP();
+    const string_hash signal{static_cast<int>(this->dstack.pop_num())};
+    if (add_signal_callback_callback != nullptr) {
+        add_signal_callback_callback(this, signal, vhandle_type<signaller>{field_18},
+                                     arg.sfr, parameters, persistent);
+    }
+    (void)instance;
+#else
+    THISCALL(0x0058F890, this, &arg, persistent);
+#endif
 }
 
-void vm_thread::create_static_event_callback(const vm_thread::argument_t &a2, bool a3)
+void vm_thread::create_static_event_callback(const vm_thread::argument_t &arg, bool persistent)
 {
     TRACE("vm_thread::create_static_event_callback");
-
-    THISCALL(0x0058F900, this, &a2, a3);
+#if STANDALONE_SYSTEM
+    const auto parameter_size = arg.sfr->get_parms_stacksize();
+    this->dstack.pop(parameter_size);
+    auto *parameters = this->dstack.get_SP();
+    const string_hash signal{static_cast<int>(this->dstack.pop_num())};
+    if (add_signal_callback_callback != nullptr) {
+        add_signal_callback_callback(this, signal, vhandle_type<signaller>{field_18},
+                                     arg.sfr, parameters, persistent);
+    }
+#else
+    THISCALL(0x0058F900, this, &arg, persistent);
+#endif
 }
 
-void vm_thread::spawn_sub_thread(const vm_thread::argument_t &a2)
+void vm_thread::spawn_sub_thread(const vm_thread::argument_t &arg)
 {
-    THISCALL(0x005AB670, this, &a2);
+#if STANDALONE_SYSTEM
+    auto *thread = this->inst->add_thread(arg.sfr);
+    thread->field_14 = this;
+    const auto suspendable = this->is_flagged(SUSPENDABLE);
+    thread->set_flag(SUSPENDABLE, suspendable);
+    if (!suspendable) {
+        thread->set_flag(SUSPENDED, false);
+    }
+    thread->field_1E0 = this->field_1E0;
+
+    const auto parameter_size = arg.sfr->get_parms_stacksize();
+    if (parameter_size != 0) {
+        thread->dstack.push(this->dstack.get_SP() - parameter_size, parameter_size);
+    }
+    thread->PC = arg.sfr->get_start();
+    this->dstack.pop(parameter_size);
+#else
+    THISCALL(0x005AB670, this, &arg);
+#endif
 }
 
-void vm_thread::spawn_parallel_thread(const vm_thread::argument_t &a2)
+void vm_thread::spawn_parallel_thread(const vm_thread::argument_t &arg)
 {
-    THISCALL(0x005AB710, this, &a2);
+#if STANDALONE_SYSTEM
+    auto *instance = static_cast<script_instance *>(this->dstack.pop_addr());
+    auto *thread = instance->add_thread(arg.sfr);
+    thread->field_14 = this;
+    const auto suspendable = this->is_flagged(SUSPENDABLE);
+    thread->set_flag(SUSPENDABLE, suspendable);
+    if (!suspendable) {
+        thread->set_flag(SUSPENDED, false);
+    }
+    thread->field_1E0 = this->field_1E0;
+
+    const auto parameter_size = arg.sfr->get_parms_stacksize();
+    if (parameter_size != 0) {
+        thread->dstack.push(this->dstack.get_SP() - parameter_size, parameter_size);
+    }
+    thread->PC = arg.sfr->get_start();
+    this->dstack.pop(parameter_size);
+#else
+    THISCALL(0x005AB710, this, &arg);
+#endif
 }
 
 void vm_thread::slf_error(const mString &a2)
@@ -194,18 +255,6 @@ bool vm_thread::run()
 
     assert(PC_stack.end() >= PC_stack.begin());
 
-    {
-        sp_log("Thread %s %s\n\tPC 0x%08X stack(0x%08X to 0x%08X) size %d\n",
-               this->ex->get_fullname().to_string(),
-               this->inst->get_name().to_string(),
-               (uint32_t)this->PC,
-               bit_cast<uint32_t>(this->PC_stack.begin()),
-               bit_cast<uint32_t>(this->PC_stack.end()),
-               this->PC_stack.size());
-
-        sp_log("%s", this->inst->get_parent()->get_parent()->field_0.to_string());
-    }
-
     if constexpr (1) {
         [[maybe_unused]] auto dword_965F24 = (int)&this->PC;
         bool v109 = false;
@@ -227,7 +276,6 @@ bool vm_thread::run()
         while (running) {
             auto *oldPC = this->PC;
             uint16_t opword = *this->PC++;
-            printf("\nopword = 0x%04X\n", opword);
 
             if (op != 60 && op != 61) {
                 prev_op = op;
@@ -236,12 +284,7 @@ bool vm_thread::run()
             }
 
             op = opcode_t(opword >> 8);
-            if (op < 35) {
-                printf("%d %s\n", op, opcode_t_str[op]);
-            }
-
             argtype = opcode_arg_t(opword & OP_ARGTYPE_MASK);
-            printf("%d %s\n", argtype, opcode_arg_t_str[argtype]);
 
             uint16_t dsize = 4;
             if ((opword & OP_DSIZE_FLAG) != 0) {
@@ -297,12 +340,10 @@ bool vm_thread::run()
                 switch (argtype) {
                 case OP_ARG_NULL: {
                     vm_num_t v = this->dstack.pop_num();
-                    sp_log("%f, %f", this->dstack.top_num(), v);
                     this->dstack.top_num() = func(this->dstack.top_num(), v);
                     break;
                 }
                 case OP_ARG_NUM:
-                    sp_log("%f, %f", this->dstack.top_num(), arg.val);
                     this->dstack.top_num() = func(this->dstack.top_num(), arg.val);
                     break;
                 case OP_ARG_NUMR:
@@ -386,21 +427,18 @@ bool vm_thread::run()
 
                 auto val = this->dstack.pop_num();
                 if (equal(0.0f, val)) {
-                    sp_log("%d", arg.word);
                     //assert(0);
-                    (uint32_t &)this->PC += arg.word;
+                    this->PC = reinterpret_cast<const uint16_t *>(
+                        reinterpret_cast<const char *>(this->PC) + arg.word);
                 }
-
-                sp_log("%f", val);
 
                 break;
             }
             case OP_BRA: {
                 assert(argtype == OP_ARG_PCR);
 
-                sp_log("%d", arg.word);
-
-                (uint32_t &)this->PC += arg.word;
+                this->PC = reinterpret_cast<const uint16_t *>(
+                    reinterpret_cast<const char *>(this->PC) + arg.word);
                 break;
             }
             case OP_BSL:
@@ -450,7 +488,8 @@ bool vm_thread::run()
                     this->dstack.push(this->dstack.get_SP() - dsize, dsize);
                     break;
                 case OP_ARG_SPR:
-                    memcpy(this->dstack.get_SP() + arg.word, this->dstack.get_SP() - dsize, dsize);
+                    memcpy(this->dstack.get_SP() + static_cast<int16_t>(arg.word),
+                           this->dstack.get_SP() - dsize, dsize);
                     break;
                 case OP_ARG_POPO: {
                     auto *si = static_cast<script_instance *>(this->dstack.pop_addr());
@@ -458,7 +497,8 @@ bool vm_thread::run()
                         (uint32_t)si == 0x7F7F7F7F || (uint32_t)si == 0x7BAD05CF) {
                         this->slf_error(mString{"reference to bad or uninitialized script object instance value"});
                     }
-                    memcpy(si->get_buffer() + arg.word, this->dstack.get_SP() - dsize, dsize);
+                    memcpy(si->get_buffer() + static_cast<int16_t>(arg.word),
+                           this->dstack.get_SP() - dsize, dsize);
                     break;
                 }
                 case OP_ARG_SDR: {
@@ -609,7 +649,6 @@ bool vm_thread::run()
             case OP_MOD: {
                 assert(dsize == 4);
 
-
                 binary_func(argtype, arg, std::modulus<int>{});
                 break;
             }
@@ -665,7 +704,7 @@ bool vm_thread::run()
                 case OP_ARG_SPR: {
                     auto func = [this, &arg](auto dsize, int a3) {
                         auto *SP = this->dstack.get_SP();
-                        memcpy(SP + arg.word + dsize * a3, SP - dsize, dsize);
+                        memcpy(SP + static_cast<int16_t>(arg.word) + dsize * a3, SP - dsize, dsize);
                         this->dstack.pop(dsize);
                     };
 
@@ -686,7 +725,8 @@ bool vm_thread::run()
                     }
 
                     auto func = [this, si, &arg](auto dsize, int a3) -> void {
-                        memcpy(si->get_buffer() + arg.word + dsize * a3, this->dstack.get_SP() - dsize, dsize);
+                        memcpy(si->get_buffer() + static_cast<int16_t>(arg.word) + dsize * a3,
+                               this->dstack.get_SP() - dsize, dsize);
                         this->dstack.pop(dsize);
                     };
 
@@ -756,16 +796,13 @@ bool vm_thread::run()
                         this->slf_error(v352);
                     }
 
-                    sp_log("%f", arg.val);
-
                     this->dstack.push(arg.val);
                     break;
                 case OP_ARG_STR:
                     this->dstack.push(arg.str);
                     break;
                 case OP_ARG_SPR:
-                    sp_log("%d", arg.word);
-                    this->dstack.push(this->dstack.get_SP() + arg.word, dsize);
+                    this->dstack.push(this->dstack.get_SP() + static_cast<int16_t>(arg.word), dsize);
                     break;
                 case OP_ARG_POPO: {
                     auto *si = static_cast<script_instance *>(this->dstack.pop_addr());
@@ -775,7 +812,7 @@ bool vm_thread::run()
                         this->slf_error(mString{"reference to bad or uninitialized script object instance value"});
                     }
 
-                    this->dstack.push(si->get_buffer() + arg.word, dsize);
+                    this->dstack.push(si->get_buffer() + static_cast<int16_t>(arg.word), dsize);
                     break;
                 }
                 case OP_ARG_SDR:
@@ -829,7 +866,7 @@ bool vm_thread::run()
             case OP_SPA: {
                 assert(argtype == OP_ARG_WORD);
 
-                this->dstack.move_SP(arg.word);
+                this->dstack.move_SP(static_cast<int16_t>(arg.word));
                 while (this->field_1C8.size() != 0) {
                     auto &v81 = this->field_1C8.back();
                     if (v81.field_4 < this->dstack.get_SP()) {
@@ -916,7 +953,8 @@ bool vm_thread::run()
                 }
 
                 if (equal(this->dstack.top_num(), 0.0f)) {
-                    (uint32_t &)this->PC += arg.word;
+                    this->PC = reinterpret_cast<const uint16_t *>(
+                        reinterpret_cast<const char *>(this->PC) + arg.word);
                 }
 
                 break;
@@ -992,7 +1030,8 @@ bool vm_thread::run()
                 vm_num_t v1258 = this->dstack.pop_num();
                 auto v278 = arg.word;
                 auto *v221 = this->dstack.get_SP();
-                auto *src = v221 + prev_arg.word + arg.word + arg.word * int(v1258);
+                auto *src = v221 + static_cast<int16_t>(prev_arg.word) + arg.word +
+                            arg.word * int(v1258);
                 auto *v222 = this->dstack.get_SP();
                 memcpy(v222, src, v278);
                 this->dstack.move_SP(arg.word);
@@ -1060,7 +1099,7 @@ void vm_thread::push_PC()
 {
     TRACE("vm_thread::push_PC");
 
-    if constexpr (0) {
+    if constexpr (1) {
         this->PC_stack.push_back(this->PC);
     } else {
         THISCALL(0x005A56F0, this);
@@ -1072,18 +1111,39 @@ void vm_thread::push_PC()
     }
 }
 
-void vm_thread::raise_event(const vm_thread::argument_t &a2, opcode_arg_t arg_type)
+void vm_thread::raise_event(const vm_thread::argument_t &arg, opcode_arg_t arg_type)
 {
     assert(arg_type == OP_ARG_SIG || arg_type == OP_ARG_PSIG);
 
-    THISCALL(0x00599710, this, &a2, arg_type);
+#if STANDALONE_SYSTEM
+    vhandle_type<signaller> signaller_handle{{0}};
+    if (arg_type == OP_ARG_PSIG) {
+        this->dstack.pop(sizeof(uint32_t));
+        const auto raw_handle =
+            static_cast<int>(*reinterpret_cast<uint32_t *>(this->dstack.get_SP()));
+        signaller_handle = vhandle_type<signaller>{{raw_handle}};
+    }
+
+    if (raise_signal_callback != nullptr) {
+        raise_signal_callback(
+            this, string_hash{static_cast<int>(arg.binary)}, signaller_handle);
+    }
+#else
+    THISCALL(0x00599710, this, &arg, arg_type);
+#endif
 }
 
-void vm_thread::raise_all_event(const vm_thread::argument_t &a2, opcode_arg_t arg_type)
+void vm_thread::raise_all_event(const vm_thread::argument_t &arg, opcode_arg_t arg_type)
 {
     assert(arg_type == OP_ARG_SIG);
 
-    THISCALL(0x0058F960, this, &a2, arg_type);
+#if STANDALONE_SYSTEM
+    if (raise_all_signal_callback != nullptr) {
+        raise_all_signal_callback(this, string_hash{static_cast<int>(arg.binary)});
+    }
+#else
+    THISCALL(0x0058F960, this, &arg, arg_type);
+#endif
 }
 
 char *vm_thread::install_temp_string(const char *a1)
@@ -1107,11 +1167,6 @@ bool vm_thread::call_script_library_function(const vm_thread::argument_t &arg, c
     if constexpr (1) {
         auto *oldSP = this->dstack.get_SP();
 
-        printf("arg.lfr = 0x%08X\n", int(arg.lfr->m_vtbl));
-
-#if SLC_NAME_FIELD
-        printf("arg.lfr = %s\n", arg.lfr->get_name());
-#endif
         if (arg.lfr->operator()(this->dstack, this->entry)) {
             this->entry = script_library_class::function::entry_t::FIRST_ENTRY;
             this->field_1B0 = nullptr;

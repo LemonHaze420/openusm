@@ -483,12 +483,10 @@ int resource_directory::get_type_start_idxs(resource_key_type type)
     return this->type_start_idxs[type];
 }
 
-
 bool resource_directory::find_resource(const resource_key &a2, resource_directory **out_dir,
                                        resource_location **out_loc)
 {
     TRACE("resource_directory::find_resource");
-    sp_log("%s", a2.get_platform_string(g_platform).c_str());
 
     if constexpr (1) {
         assert(out_dir != nullptr && out_loc != nullptr);
@@ -1063,7 +1061,7 @@ bool resource_directory::sub_9C2EE0()
 
 void resource_directory::release_mem()
 {
-    THISCALL(0x0051F7D0, this);
+    release_generic_mash(this);
 }
 
 void resource_directory_patch()

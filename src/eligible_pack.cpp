@@ -11,9 +11,16 @@
 VALIDATE_SIZE(eligible_pack, 0x74);
 VALIDATE_OFFSET(eligible_pack, field_54, 0x54);
 
-eligible_pack::eligible_pack(const char *a2, const eligible_pack_token &a3, eligible_pack_category *a4)
+eligible_pack::eligible_pack(const char *name, const eligible_pack_token &token, eligible_pack_category *category)
+    : field_0(name),
+      field_20(name),
+      field_40(name != nullptr ? string_hash{name} : string_hash{}),
+      field_44(name != nullptr ? string_hash{name} : string_hash{}),
+      field_48(token),
+      field_50(category),
+      field_6C(3.4028235e38f),
+      field_70(0)
 {
-    THISCALL(0x0054CA90, this, a2, &a3, a4);
 }
 
 void eligible_pack::set_packfile_name(const char *a2)
@@ -97,14 +104,30 @@ bool eligible_pack::sub_5321C0()
     return true;
 }
 
-int eligible_pack::add_parent(eligible_pack *a3)
+int eligible_pack::add_parent(eligible_pack *parent)
 {
-    return THISCALL(0x0053E5A0, this, a3);
+#if STANDALONE_SYSTEM
+    if (std::find(this->field_54.begin(), this->field_54.end(), parent) == this->field_54.end()) {
+        this->field_54.push_back(parent);
+        return 1;
+    }
+    return 0;
+#else
+    return THISCALL(0x0053E5A0, this, parent);
+#endif
 }
 
-int eligible_pack::add_child(eligible_pack *a3)
+int eligible_pack::add_child(eligible_pack *child)
 {
-    return THISCALL(0x0053E5F0, this, a3);
+#if STANDALONE_SYSTEM
+    if (std::find(this->field_60.begin(), this->field_60.end(), child) == this->field_60.end()) {
+        this->field_60.push_back(child);
+        return 1;
+    }
+    return 0;
+#else
+    return THISCALL(0x0053E5F0, this, child);
+#endif
 }
 
 void eligible_pack_patch()

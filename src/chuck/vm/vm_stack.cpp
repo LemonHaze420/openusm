@@ -29,14 +29,11 @@ void vm_stack::push(const char *a2, int n)
     TRACE("vm_stack::push(const char *, int)");
 #endif
 
-    sp_log("0x%X 0x%X %d", this->get_SP(), a2, n);
-
     assert(size() + n <= capacity());
 
     std::memcpy(this->SP, a2, n);
     this->move_SP(n);
 
-    sp_log("size = %d", this->size());
 }
 
 void vm_stack::push(vm_str_t a2)
