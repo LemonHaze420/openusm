@@ -367,7 +367,7 @@ void FEMenuSystem::UpdateButtonPresses()
         int v2 = 0;
         for (const auto &v3 : this->field_18) {
             for (int i = 1; i < 16384; i *= 2) {
-                auto *vtbl = bit_cast<fastcall_call(*)[16]>(this->m_vtbl);
+                auto *vtbl = bit_cast<void *(*)[16]>(this->m_vtbl);
 
                 if (v3 & i && !getButtonState(i, v2)) {
                     this->field_18[v2] &= ~static_cast<uint16_t>(i);
@@ -379,11 +379,11 @@ void FEMenuSystem::UpdateButtonPresses()
                 if (!(v3 & i) && getButtonState(i, v2)) {
                     this->field_18[v2] |= static_cast<uint16_t>(i);
 
-                    auto *func = (*vtbl)[14];
+                    void(__fastcall * func)(void *, void *edx, int, int) = CAST(func, (*vtbl)[14]);
                     if (bit_cast<std::intptr_t>(func) == 0x006187D0) {
                         this->OnButtonPress(i, v2);
                     } else {
-                        func(this, i, v2);
+                        func(this, nullptr, i, v2);
                     }
 
                     return;

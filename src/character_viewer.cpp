@@ -251,7 +251,7 @@ void character_viewer::OnActivate()
         resource_manager::push_resource_context(v2);
 
         {
-            auto *vtbl = bit_cast<fastcall_call(*)[4]>(this->m_vtbl);
+            auto *vtbl = bit_cast<void *(*)[4]>(this->m_vtbl);
             void(__fastcall * func)(void *) = CAST(func, (*vtbl)[3]);
             sp_log("func = 0x%08X", func);
 
@@ -273,7 +273,7 @@ void character_viewer::OnActivate()
         }
 
         {
-            auto *vtbl = bit_cast<fastcall_call(*)[1]>(v4->text_box->m_vtbl);
+            auto *vtbl = bit_cast<void *(*)[1]>(v4->text_box->m_vtbl);
 
             void(__fastcall * func)(void *) = CAST(func, (*vtbl)[35]);
             sp_log("func = 0x%08X", func);
@@ -287,7 +287,7 @@ void character_viewer::OnActivate()
         }
 
         {
-            auto *vtbl = bit_cast<fastcall_call(*)[1]>(v4->text_box->m_vtbl);
+            auto *vtbl = bit_cast<void *(*)[1]>(v4->text_box->m_vtbl);
 
             void(__fastcall * func)(void *) = CAST(func, (*vtbl)[35]);
 
@@ -318,7 +318,7 @@ void character_viewer::OnActivate()
 
         float v28, v27;
         {
-            auto *vtbl = bit_cast<fastcall_call(*)[1]>(this->field_88->m_vtbl);
+            auto *vtbl = bit_cast<void *(*)[1]>(this->field_88->m_vtbl);
 
             void(__fastcall * func)(void *, void *, float *, float *) = CAST(func, (*vtbl)[42]);
             sp_log("func = 0x%08X", func);
@@ -350,7 +350,7 @@ void character_viewer::OnActivate()
 
             auto *v22 = g_game_ptr->get_current_view_camera(0);
 
-            auto *vtbl = bit_cast<fastcall_call(*)[1]>(v20->m_vtbl);
+            auto *vtbl = bit_cast<void *(*)[1]>(v20->m_vtbl);
             void(__fastcall * func)(void *, void *, void *) = CAST(func, (*vtbl)[165]);
 
             func(v20, nullptr, v22);

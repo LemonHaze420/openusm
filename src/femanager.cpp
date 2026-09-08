@@ -95,7 +95,7 @@ void FEManager::Draw()
             if (v2->m_index < 0) {
                 this->IGO->Draw();
             } else {
-                auto *vtbl = bit_cast<fastcall_call(*)[9]>(v2->m_vtbl);
+                auto *vtbl = bit_cast<void *(*)[9]>(v2->m_vtbl);
 
                 void(__fastcall * func)(void *) = CAST(func, (*vtbl)[8]);
                 func(v2);
@@ -117,7 +117,7 @@ void FEManager::Update(Float a2)
             if (v3->m_index < 0) {
                 this->IGO->Update(a2);
             } else {
-                auto *vtbl = bit_cast<fastcall_call(*)[6]>(v3->m_vtbl);
+                auto *vtbl = bit_cast<void *(*)[6]>(v3->m_vtbl);
 
                 void(__fastcall * Update)(void *, void *, Float) = CAST(Update, (*vtbl)[5]);
 

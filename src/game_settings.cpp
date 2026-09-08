@@ -25,7 +25,7 @@ VALIDATE_SIZE(game_settings, 0x4CCu);
 #if USE_CXX_CONSTRUCTOR
 
 void __stdcall vector_constructor(void *a1, uint32_t size, int count, void(__fastcall *constructor)(void *),
-                                  [[maybe_unused]] fastcall_call destructor)
+                                  [[maybe_unused]] void(__fastcall *destructor)(void *))
 {
     FUNC_ADDRESS(address, &game_data_essentials::initialize);
 

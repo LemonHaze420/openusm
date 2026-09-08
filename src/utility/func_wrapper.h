@@ -5,17 +5,15 @@
 
 #include <cassert>
 
-typedef int(__cdecl *cdecl_call)(...);
-typedef int(__stdcall *stdcall_call)(...);
-typedef int(__fastcall *fastcall_call)(...);
-
 template <typename... Args>
 decltype(auto) THISCALL(int address, const void *obj, Args... args)
 {
     if constexpr (sizeof...(Args) > 0) {
-        return (bit_cast<fastcall_call>(address))(obj, 0, args...);
+        using fastcall_fn = int(__fastcall *)(const void *, int, Args...);
+        return (bit_cast<fastcall_fn>(address))(obj, 0, args...);
     } else {
-        return (bit_cast<fastcall_call>(address))(obj);
+        using fastcall_fn = int(__fastcall *)(const void *);
+        return (bit_cast<fastcall_fn>(address))(obj, args...);
     }
 }
 
@@ -26,7 +24,9 @@ decltype(auto) STDCALL(int address, Args... args)
     assert(0);
 #endif
 
-    return (bit_cast<stdcall_call>(address))(args...);
+    using stdcall_fn = int(__stdcall *)(Args...);
+
+    return (bit_cast<stdcall_fn>(address))(args...);
 }
 
 template <typename... Args>
@@ -37,5 +37,7 @@ decltype(auto) CDECL_CALL(int address, Args... args)
     assert(0);
 #endif
 
-    return (bit_cast<cdecl_call>(address))(args...);
+    using cdecl_fn = int(__cdecl *)(Args...);
+
+    return (bit_cast<cdecl_fn>(address))(args...);
 }

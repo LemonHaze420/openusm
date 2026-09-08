@@ -31,13 +31,13 @@ void script_sound_manager::create_inst()
             v0->m_count = 128;
 
             void(__fastcall * constructor)(void *) = CAST(constructor, 0x00670E20);
-            fastcall_call destructor = CAST(destructor, 0x004ACEE0);
+            void(__fastcall * destructor)(void *) = CAST(destructor, 0x004ACEE0);
 
             auto vector_constructor = [](void *a1,
                                          uint32_t size,
                                          int count,
                                          void(__fastcall * constructor)(void *),
-                                         [[maybe_unused]] fastcall_call destructor) -> void {
+                                         [[maybe_unused]] void(__fastcall * destructor)(void *)) -> void {
                 for (int i{0}; i < count; ++i) {
                     constructor(static_cast<int *>(a1));
                     a1 = static_cast<char *>(a1) + size;

@@ -603,14 +603,14 @@ void sub_5BCA60(int a1, int a2)
 void sub_5BCA80(int a1)
 {
     if constexpr (1) {
-        static Var<cdecl_call> dword_9680A4{0x009680A4};
+        static auto &dword_9680A4 = var<int (__cdecl *)(int, int)>(0x009680A4);
 
-        static Var<int> dword_9682D8{0x009682D8};
+        static auto &dword_9682D8 = var<int>(0x009682D8);
 
-        if (dword_9680A4() != nullptr) {
-            sp_log("dword_9680A4 = 0x%08X", dword_9680A4());
+        if (dword_9680A4 != nullptr) {
+            sp_log("dword_9680A4 = 0x%08X", dword_9680A4);
 
-            dword_9680A4()(a1, dword_9682D8());
+            dword_9680A4(a1, dword_9682D8);
         }
     } else {
         CDECL_CALL(0x005BCA80, a1);
@@ -686,9 +686,9 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 
                 auto *pause_menu_system = g_femanager.m_pause_menu_system;
 
-                auto *vtbl = bit_cast<fastcall_call(*)[10]>(pause_menu_system->m_vtbl);
+                auto *vtbl = bit_cast<void *(*)[10]>(pause_menu_system->m_vtbl);
 
-                auto *func = (*vtbl)[9];
+                void (__fastcall *func)(void *, void *edx, int, WPARAM, LPARAM) = CAST(func, (*vtbl)[9]);
 
                 func(pause_menu_system, nullptr, 257, wParam, lParam);
 
@@ -699,9 +699,9 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
                 if (g_femanager.m_pause_menu_system->m_index == -1) {
                     auto *frontend_menu_system = g_femanager.m_fe_menu_system;
 
-                    auto *vtbl = bit_cast<fastcall_call(*)[10]>(frontend_menu_system->m_vtbl);
+                    auto *vtbl = bit_cast<void *(*)[10]>(frontend_menu_system->m_vtbl);
 
-                    auto *func = (*vtbl)[9];
+                    void (__fastcall *func)(void *, void *edx, int, WPARAM, LPARAM) = CAST(func, (*vtbl)[9]);
                     func(frontend_menu_system, nullptr, 257, wParam, lParam);
 
                     return DefWindowProcA(hWnd, Msg, wParam, lParam);
@@ -728,11 +728,10 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
                     if (g_femanager.m_pause_menu_system->m_index == -1) {
                         auto *frontend_menu_system = g_femanager.m_fe_menu_system;
 
-                        auto *vtbl = bit_cast<fastcall_call(*)[10]>(frontend_menu_system->m_vtbl);
+                        auto *vtbl = bit_cast<void *(*)[10]>(frontend_menu_system->m_vtbl);
 
-                        auto *func = (*vtbl)[9];
+                        void (__fastcall *func)(void *, void *edx, int, WPARAM, LPARAM) = CAST(func, (*vtbl)[9]);
                         //assert(bit_cast<std::intptr_t>(func) == 0x0060B6E0);
-
                         func(frontend_menu_system, nullptr, Msg, wParam, lParam);
 
                     } else {
@@ -740,9 +739,9 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 
                         auto *pause_menu_system = g_femanager.m_pause_menu_system;
 
-                        auto *vtbl = bit_cast<fastcall_call(*)[10]>(pause_menu_system->m_vtbl);
+                        auto *vtbl = bit_cast<void *(*)[10]>(pause_menu_system->m_vtbl);
 
-                        auto *func = (*vtbl)[9];
+                        void (__fastcall *func)(void *, void *edx, int, WPARAM, LPARAM) = CAST(func, (*vtbl)[9]);
                         //assert(bit_cast<std::intptr_t>(func) == 0x0060B6E0);
 
                         func(pause_menu_system, nullptr, Msg, wParam, lParam);

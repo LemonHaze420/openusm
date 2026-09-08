@@ -105,7 +105,7 @@ nglTexture *tlResourceDirectory<nglTexture, tlFixedString>::StandardLoad(const t
 
     LABEL_19:
 
-        auto *vtbl = bit_cast<fastcall_call(*)[1]>(this->m_vtbl);
+        auto *vtbl = bit_cast<void *(*)[1]>(this->m_vtbl);
         void(__fastcall * Add)(void *, void *, nglTexture *) = CAST(Add, (*vtbl)[4]);
 
         Add(this, nullptr, tex);
@@ -132,7 +132,7 @@ nglFont *tlResourceDirectory<nglFont, tlFixedString>::StandardLoad(const tlFixed
 
         auto *font = create_and_parse_fdf(a1, fileBuf.Buf);
         tlReleaseFile(&fileBuf);
-        auto *vtbl = bit_cast<fastcall_call(*)[5]>(this->m_vtbl);
+        auto *vtbl = bit_cast<void *(*)[5]>(this->m_vtbl);
 
         auto *func = (*vtbl)[4];
         assert(bit_cast<std::intptr_t>(func) == 0x00773F60);
