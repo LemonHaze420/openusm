@@ -1,4 +1,7 @@
 #include "traffic_path_graph.h"
+#include "entity.h"
+#include "traffic_path.h"
+#include "vector3d.h"
 
 #include "common.h"
 #include "func_wrapper.h"
@@ -14,6 +17,43 @@ traffic_path_lane *traffic_path_graph::get_closest_or_farthest_lane(bool arg0, c
                                                                     bool a7, float *a8)
 {
     return (traffic_path_lane *)THISCALL(0x005CE2D0, this, arg0, &a1, &arg8, a5, a6, a7, a8);
+}
+void traffic_path_graph::get_spawnable_lane_list(
+    entity *camera, _std::vector<laneInfoStruct> *result, Float, Float max_distance)
+{
+    if (camera == nullptr || result == nullptr || roads == nullptr) {
+        return;
+    }
+    const auto camera_position = camera->get_abs_position();
+    const float max_distance_squared = max_distance.value * max_distance.value;
+    for (int road_index = 0; road_index < road_count; ++road_index) {
+        auto *road = roads[road_index];
+        if (road == nullptr || road->all_lanes == nullptr) {
+            continue;
+        }
+        for (int lane_index = 0; lane_index < road->field_14; ++lane_index) {
+            auto *lane = road->all_lanes[lane_index];
+            if (lane == nullptr || !lane->is_valid(this) || lane->nodes == nullptr) {
+                continue;
+            }
+            int closest_node = 0;
+            float closest_distance_squared = max_distance_squared;
+            bool in_range = false;
+            for (int node = 0; node < lane->get_num_nodes(); ++node) {
+                const auto delta = lane->nodes[node] - camera_position;
+                const float distance_squared = delta.length2();
+                if (distance_squared <= closest_distance_squared) {
+                    closest_distance_squared = distance_squared;
+                    closest_node = node;
+                    in_range = true;
+                }
+            }
+            if (in_range) {
+                result->push_back(laneInfoStruct{
+                    this, lane, closest_node, 0, 0, false, 0});
+            }
+        }
+    }
 }
 
 bool traffic_path_graph::un_mash(char *a2, int *a3, region *a4, traffic_path_brew &a5)

@@ -241,9 +241,27 @@ void build_region_list_radius(region_array *arr, region *reg, const vector3d &a3
 
 void cleanup_actor_scene_anim_state_hash()
 {
-#if !STANDALONE_SYSTEM
-    CDECL_CALL(0x004D00E0);
-#endif
+    struct actor_scene_state_node {
+        vhandle_type<actor> handle;
+        int state;
+        actor_scene_state_node *next;
+    };
+    static auto &buckets = var<actor_scene_state_node *[32]>(0x0095BA78);
+    static auto &free_nodes = var<actor_scene_state_node *>(0x0095BB6C);
+
+    for (auto &bucket : buckets) {
+        auto **link = &bucket;
+        while (*link != nullptr) {
+            auto *node = *link;
+            if (node->handle.get_volatile_ptr() != nullptr) {
+                link = &node->next;
+                continue;
+            }
+            *link = node->next;
+            node->next = free_nodes;
+            free_nodes = node;
+        }
+    }
 }
 
 int world_dynamics_system::add_generator(force_generator *generator)
@@ -256,7 +274,7 @@ void world_dynamics_system::advance_entity_animations(Float a3)
 {
     TRACE("world_dynamics_system::advance_entity_animations");
 
-    if constexpr (0) {
+    if constexpr (1) {
         als::animation_logic_system_interface::frame_advance_pre_controller_all_alses(a3);
 
         for (auto *v6 : this->anim_ctrls) {
@@ -318,10 +336,9 @@ void world_dynamics_system::advance_entity_animations(Float a3)
     }
 }
 
-bool world_dynamics_system::is_entity_eligible_for_anim_advance(actor *a1)
+bool world_dynamics_system::is_entity_eligible_for_anim_advance(actor *actor_ptr)
 {
-    bool(__fastcall * func)(void *, void *edx, actor *) = CAST(func, 0x0050D2B0);
-    return func(this, nullptr, a1);
+    return actor_ptr != nullptr;
 }
 
 void zero_xz_velocity_for_effectively_standing_physical_interfaces()
@@ -375,7 +392,7 @@ void collide_all_moved_entities(Float a1)
 {
     TRACE("collide_all_moved_entities");
 
-    if constexpr (0) {
+    if constexpr (1) {
         stack_allocator allocator;
         scratchpad_stack::save_state(&allocator);
         //sub_A4B0D0();
@@ -416,11 +433,33 @@ void collide_all_moved_entities(Float a1)
     }
 }
 
-void manage_standing_for_all_physical_interfaces(Float a1)
+void manage_standing_for_all_physical_interfaces(Float)
 {
     TRACE("manage_standing_for_all_physical_interfaces");
-
-    CDECL_CALL(0x004F28B0, a1);
+    if (physical_interface::all_phys_interfaces == nullptr) {
+        return;
+    }
+    for (auto *interface_ptr : *physical_interface::all_phys_interfaces) {
+        if (interface_ptr == nullptr || interface_ptr->get_actor() == nullptr) {
+            continue;
+        }
+        auto *owner = interface_ptr->get_actor();
+        if (owner->is_in_limbo()) {
+            continue;
+        }
+        const auto flags = interface_ptr->field_C;
+        if (!(((flags & 1) != 0 && (flags & 2) == 0) || (flags & 0x800) != 0)) {
+            continue;
+        }
+        if (interface_ptr->is_effectively_standing() &&
+            !interface_ptr->is_biped_physics_running() &&
+            !interface_ptr->is_prop_physics_running()) {
+            auto velocity = interface_ptr->get_velocity();
+            velocity.x = 0.0f;
+            velocity.z = 0.0f;
+            interface_ptr->set_velocity(velocity, false);
+        }
+    }
 }
 
 entity *world_dynamics_system::get_hero_ptr(int index)
@@ -603,16 +642,27 @@ void world_dynamics_system::frame_advance(Float a2)
         this->field_1F0.frame_advance(a2);
 
         for (auto *generator : this->field_260) {
-            struct generator_vtable {
-                int field_0;
-                bool(__fastcall *is_active)(void *, void *);
-                int field_8;
-                void(__fastcall *frame_advance)(void *, void *, Float);
-            };
+            if (generator == nullptr || generator->m_vtbl == 0) {
+                continue;
+            }
 
-            auto *vtable = reinterpret_cast<generator_vtable *>(generator->m_vtbl);
-            if (vtable->is_active(generator, nullptr)) {
-                vtable->frame_advance(generator, nullptr, a2);
+            auto *is_active_address = get_vfunc(generator->m_vtbl, 0x4);
+            auto *advance_address = get_vfunc(generator->m_vtbl, 0xC);
+            const auto is_active_value =
+                reinterpret_cast<std::uintptr_t>(is_active_address);
+            const auto advance_value =
+                reinterpret_cast<std::uintptr_t>(advance_address);
+            if (is_active_value < 0x00400000 || is_active_value >= 0x00800000 ||
+                advance_value < 0x00400000 || advance_value >= 0x00800000) {
+                continue;
+            }
+
+            bool(__fastcall *is_active)(void *, void *) =
+                CAST(is_active, is_active_address);
+            void(__fastcall *advance)(void *, void *, Float) =
+                CAST(advance, advance_address);
+            if (is_active(generator, nullptr)) {
+                advance(generator, nullptr, a2);
             }
         }
 
@@ -635,7 +685,7 @@ void world_dynamics_system::frame_advance(Float a2)
         this->update_collision_proximity_maps_for_moved_entities(a2);
         this->the_terrain->frame_advance(a2);
         trigger_manager::instance->update();
-        this->sub_54A3B0();
+        this->process_sinking_entities();
         decal_morphs::frame_advance(a2);
     } else {
         THISCALL(0x00558370, this, a2);
@@ -679,9 +729,9 @@ void world_dynamics_system::entity_sinks(vhandle_type<entity> entity_handle)
     gsoi->run_single_thread(thread, false);
 }
 
-void world_dynamics_system::sub_54A3B0()
+void world_dynamics_system::process_sinking_entities()
 {
-    if constexpr (0) {
+    if constexpr (1) {
         for (auto &v1 : this->field_254) {
             vhandle_type<entity> v4 {v1};
             if ( this->is_entity_in_water(v4) ) {
@@ -1897,10 +1947,7 @@ void world_dynamics_system::update_ai_and_visibility_proximity_maps_for_moved_en
 {
     TRACE("world_dynamics_system::update_ai_and_visibility_proximity_maps_for_moved_entities");
 
-#if STANDALONE_SYSTEM
-    return;
-#else
-    if constexpr (0) {
+    if constexpr (1) {
         update_limbo_list_if_needed();
 
         static constexpr auto n_bytes = 2400u;
@@ -1980,7 +2027,7 @@ void world_dynamics_system::update_ai_and_visibility_proximity_maps_for_moved_en
                 fixed_vector<region *, 15> a2a {};
                 auto *v60 = &vec4_pointers[m];
                 loaded_regions_cache::get_regions_intersecting_sphere(v60->field_0, v60->field_C, &a2a);
-                for (int n = 0; n < a2a.size(); ++n) {
+                for (unsigned int n = 0; n < a2a.size(); ++n) {
                     auto *v25 = a2a.m_data[n];
                     [](region_intersect_visitor *self, region *r) -> int {
                         assert(r != nullptr);
@@ -2037,10 +2084,7 @@ void world_dynamics_system::update_ai_and_visibility_proximity_maps_for_moved_en
         }
 
         scratchpad_stack::pop(entity_pointers, n_bytes);
-    } else {
-        THISCALL(0x00530100, this, a1);
     }
-#endif
 }
 
 void world_dynamics_system::update_collision_proximity_maps_for_moved_entities(
@@ -2048,10 +2092,7 @@ void world_dynamics_system::update_collision_proximity_maps_for_moved_entities(
 {
     TRACE("world_dynamics_system::update_collision_proximity_maps_for_moved_entities");
 
-#if STANDALONE_SYSTEM
-    return;
-#else
-    if constexpr (0) {
+    if constexpr (1) {
         for (int i = 0; i < moved_entities::moved_count; ++i) {
             auto *ent = moved_entities::moved_list[i].get_volatile_ptr();
             if (ent != nullptr) {
@@ -2064,7 +2105,7 @@ void world_dynamics_system::update_collision_proximity_maps_for_moved_entities(
                         : 1);
 
                 assert(ent->extended_regions != nullptr ? ent->extended_regions->size() > 0 : 1);
-                if (ent->possibly_collide()) {
+                if (ent->possibly_collide() && ent->regions[0] != nullptr) {
                     auto *v2 = ent->regions[0]->collision_proximity_map;
                     if ( v2 != nullptr ) {
                         v2->update_entity(ent);
@@ -2074,10 +2115,7 @@ void world_dynamics_system::update_collision_proximity_maps_for_moved_entities(
         }
 
         collision_dynamic_rtree().sort();
-    } else {
-        THISCALL(0x0054A610, this, a1);
     }
-#endif
 }
 
 void world_dynamics_system::update_light_proximity_maps_for_moved_entities(
@@ -2138,7 +2176,7 @@ void world_dynamics_system::add_anim_ctrl(animation_controller *a2)
 {
     TRACE("world_dynamics_system::add_anim_ctrl");
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         this->anim_ctrls.push_back(a2);
     } else {
         THISCALL(0x00542160, this, a2);

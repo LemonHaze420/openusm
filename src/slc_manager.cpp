@@ -1,12 +1,16 @@
 #include "slc_manager.h"
 
 #include "debugutil.h"
+#include "filespec.h"
 #include "func_wrapper.h"
 #include "fe_mini_map_widget.h"
 #include "femanager.h"
 #include "game.h"
 #include "game_settings.h"
+#include "fe_health_widget.h"
 #include "igofrontend.h"
+#include "glass_house.h"
+#include "glass_house_manager.h"
 #include "memory.h"
 #include "mission_manager.h"
 #include "mission_stack_manager.h"
@@ -16,6 +20,7 @@
 #include "resource_key.h"
 #include "resource_manager.h"
 #include "resource_pack_group.h"
+#include "region.h"
 
 #include "script_lib.h"
 #include "script_lib_anim.h"
@@ -25,14 +30,20 @@
 
 #include "script_library_class.h"
 #include "script_manager.h"
+#include "script_executable.h"
+#include "chuck/vm/script_object.h"
+#include "chuck/vm/vm_executable.h"
 #include "spiderman_camera.h"
 #include "trace.h"
+#include "traffic.h"
+#include "terrain.h"
 #include "utility.h"
 #include "variables.h"
 #include "vm_stack.h"
 #include "vm_thread.h"
 #include "wds.h"
 #include "xbpack.h"
+#include <algorithm>
 #include <cmath>
 
 #include <cfloat>
@@ -55,6 +66,50 @@ void reject_unported_client_allocation(
 {
     assert(allocations.empty() &&
            "Standalone client script allocation cleanup is not implemented");
+}
+
+int vm_entity_garbage_collection_id = -1;
+int vm_script_entity_lists_garbage_collection_id = -1;
+_std::list<_std::vector<entity_base_vhandle> *> script_entity_lists;
+
+// 0x006615B0
+_std::vector<entity_base_vhandle> *create_script_entity_list()
+{
+    auto *result = new _std::vector<entity_base_vhandle>{};
+    script_entity_lists.push_back(result);
+    return result;
+}
+
+// 0x00661A40
+void release_script_entity_lists(
+    script_executable *, _std::list<uint32_t> &allocations, _std::list<mString> &)
+{
+    for (const auto allocation : allocations) {
+        auto *list = reinterpret_cast<_std::vector<entity_base_vhandle> *>(allocation);
+        const auto found = std::find(
+            script_entity_lists.begin(), script_entity_lists.end(), list);
+        if (found != script_entity_lists.end()) {
+            delete list;
+            script_entity_lists.erase(found);
+        }
+    }
+}
+
+void release_allocated_entities(
+    script_executable *, _std::list<uint32_t> &allocations, _std::list<mString> &)
+{
+    if (g_world_ptr == nullptr) {
+        return;
+    }
+
+    for (const auto handle_value : allocations) {
+        entity_base_vhandle handle{static_cast<int>(handle_value)};
+        auto *entity_base_ptr = handle.get_volatile_ptr();
+        if (entity_base_ptr != nullptr && entity_base_ptr->is_an_entity()) {
+            g_world_ptr->ent_mgr.release_entity(
+                static_cast<entity *>(entity_base_ptr));
+        }
+    }
 }
 
 void ignore_panel_references(
@@ -210,8 +265,9 @@ void construct_client_script_libs()
         script_manager::register_allocated_stuff_callback(
             reject_unported_client_allocation);
         construct_debug_menu_lib();
-        script_manager::register_allocated_stuff_callback(
-            reject_unported_client_allocation);
+        vm_entity_garbage_collection_id =
+            script_manager::register_allocated_stuff_callback(
+                release_allocated_entities);
         script_manager::register_allocated_stuff_callback(
             reject_unported_client_allocation);
         script_manager::register_allocated_stuff_callback(
@@ -219,9 +275,13 @@ void construct_client_script_libs()
         script_manager::register_allocated_stuff_callback(
             reject_unported_client_allocation);
         script_manager::register_allocated_stuff_callback(ignore_panel_references);
-        for (int i = 0; i < 5; ++i)
+        script_manager::register_allocated_stuff_callback(
+            reject_unported_client_allocation);
+        script_manager::register_allocated_stuff_callback(
+            reject_unported_client_allocation);
+        vm_script_entity_lists_garbage_collection_id =
             script_manager::register_allocated_stuff_callback(
-                reject_unported_client_allocation);
+                release_script_entity_lists);
         script_manager::register_allocated_stuff_callback(
             reject_unported_client_allocation);
         script_manager::register_allocated_stuff_callback(
@@ -238,8 +298,14 @@ void construct_client_script_libs()
 void destruct_client_script_libs()
 {
     TRACE("destruct_client_script_libs");
-    if constexpr (!STANDALONE_SYSTEM)
+    if constexpr (STANDALONE_SYSTEM) {
+        for (auto *list : script_entity_lists) {
+            delete list;
+        }
+        script_entity_lists.clear();
+    } else {
         CDECL_CALL(0x0058FA50);
+    }
 }
 
 struct slf__add_civilian_info__vector3d__num__num__num__t : script_library_class::function {
@@ -430,8 +496,30 @@ struct slf__add_glass_house__str__num__t : script_library_class::function {
     {
         TRACE("slf__add_glass_house__str__num__t::operator()");
 
-        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00661FC0);
+#if STANDALONE_SYSTEM
+        struct parms_t {
+            vm_str_t path;
+            vm_num_t group;
+        };
+        SLF_PARMS;
+
+        filespec spec{mString{parms->path}};
+        resource_key key{
+            string_hash{spec.m_name.c_str()}, RESOURCE_KEY_TYPE_GLASS_HOUSE};
+        auto *glass_house_ptr = reinterpret_cast<glass_house *>(
+            resource_manager::get_resource(key, nullptr, nullptr));
+        assert(glass_house_ptr != nullptr);
+
+        const int group = static_cast<int>(parms->group);
+        assert(group >= 0 &&
+               group < static_cast<int>(std::size(glass_house_manager::glass_houses)));
+        glass_house_manager::glass_houses[group].push_back(glass_house_ptr);
+        return true;
+#else
+        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) =
+            CAST(func, 0x00661FC0);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -1239,8 +1327,37 @@ struct slf__create_entity__str__t : script_library_class::function {
     {
         TRACE("slf__create_entity__str__t::operator()");
 
-        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x0067BC10);
+#if STANDALONE_SYSTEM
+        struct parms_t {
+            vm_str_t resource_path;
+        };
+        SLF_PARMS;
+
+        entity_base_vhandle result{0};
+        if (g_world_ptr != nullptr) {
+            const auto key = create_resource_key_from_path(
+                parms->resource_path, RESOURCE_KEY_TYPE_NONE);
+            auto *entity_ptr =
+                g_world_ptr->ent_mgr.acquire_entity(key.m_hash, 0x82000u);
+            if (entity_ptr != nullptr) {
+                entity_ptr->set_abs_position(
+                    vector3d{-999.0f, -999.0f, -999.0f});
+                result = entity_ptr->get_my_handle();
+
+                auto *thread = stack.get_thread();
+                auto *script =
+                    thread->get_executable()->get_owner()->get_parent();
+                script->add_allocated_stuff(
+                    vm_entity_garbage_collection_id, result.field_0, mString{});
+            }
+        }
+        SLF_RETURN;
+        return true;
+#else
+        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) =
+            CAST(func, 0x0067BC10);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -1254,12 +1371,43 @@ slf__create_entity__str__t::slf__create_entity__str__t(const char *a3) : functio
 struct slf__create_entity__str__str__t : script_library_class::function {
     slf__create_entity__str__str__t(const char *a3);
 
-    bool operator()(vm_stack &stack, [[maybe_unused]]script_library_class::function::entry_t entry) const
+    bool operator()(vm_stack &stack,
+                    [[maybe_unused]] script_library_class::function::entry_t entry) const
     {
         TRACE("slf__create_entity__str__str__t::operator()");
 
-        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x0067BD40);
+#if STANDALONE_SYSTEM
+        struct parms_t {
+            vm_str_t resource_path;
+            vm_str_t name;
+        };
+        SLF_PARMS;
+
+        entity_base_vhandle result{0};
+        if (g_world_ptr != nullptr) {
+            const auto key =
+                create_resource_key_from_path(parms->resource_path, RESOURCE_KEY_TYPE_NONE);
+            auto *entity_ptr = g_world_ptr->ent_mgr.acquire_entity(
+                key.m_hash, string_hash{parms->name}, 0x82000u);
+            if (entity_ptr != nullptr) {
+                entity_ptr->set_abs_position(vector3d{-999.0f, -999.0f, -999.0f});
+                result = entity_ptr->get_my_handle();
+
+                auto *thread = stack.get_thread();
+                auto *script =
+                    thread->get_executable()->get_owner()->get_parent();
+                script->add_allocated_stuff(
+                    vm_entity_garbage_collection_id, result.field_0, mString{});
+            }
+        }
+
+        SLF_RETURN;
+        return true;
+#else
+        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) =
+            CAST(func, 0x0067BD40);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -1296,8 +1444,20 @@ struct slf__create_entity_list__t : script_library_class::function {
     {
         TRACE("slf__create_entity_list__t::operator()");
 
-        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x006860D0);
+#if STANDALONE_SYSTEM
+        auto *result = create_script_entity_list();
+        auto *script = stack.get_thread()->get_executable()->get_owner()->get_parent();
+        script->add_allocated_stuff(
+            vm_script_entity_lists_garbage_collection_id,
+            reinterpret_cast<uint32_t>(result),
+            mString{});
+        SLF_RETURN;
+        return true;
+#else
+        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) =
+            CAST(func, 0x006860D0);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -2629,8 +2789,15 @@ struct slf__enable_civilians__num__t : script_library_class::function {
     {
         TRACE("slf__enable_civilians__num__t::operator()");
 
-        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00677940);
+#if STANDALONE_SYSTEM
+        os_developer_options::instance->set_flag(
+            136, not_equal(stack.pop_num(), 0.0f));
+        return true;
+#else
+        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) =
+            CAST(func, 0x00677940);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -2934,8 +3101,14 @@ struct slf__enable_traffic__num__t : script_library_class::function {
     {
         TRACE("slf__enable_traffic__num__t::operator()");
 
-        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x006779C0);
+#if STANDALONE_SYSTEM
+        traffic::enable_traffic(not_equal(stack.pop_num(), 0.0f), true);
+        return true;
+#else
+        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) =
+            CAST(func, 0x006779C0);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -3180,8 +3353,22 @@ struct slf__find_district_for_point__vector3d__t : script_library_class::functio
     {
         TRACE("slf__find_district_for_point__vector3d__t::operator()");
 
-        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00663560);
+#if STANDALONE_SYSTEM
+        struct parms_t {
+            vector3d point;
+        };
+        SLF_PARMS;
+        region *result = nullptr;
+        if (g_world_ptr != nullptr && g_world_ptr->the_terrain != nullptr) {
+            result = g_world_ptr->the_terrain->find_region(parms->point, nullptr);
+        }
+        SLF_RETURN;
+        return true;
+#else
+        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) =
+            CAST(func, 0x00663560);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -3220,8 +3407,26 @@ struct slf__find_entity__str__t : script_library_class::function {
     {
         TRACE("slf__find_entity__str__t::operator()");
 
-        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00668B90);
+#if STANDALONE_SYSTEM
+        struct parms_t {
+            vm_str_t name;
+        };
+        SLF_PARMS;
+
+        entity_base_vhandle result{0};
+        const string_hash entity_name{parms->name};
+        if (auto *ent = entity_handle_manager::find_entity(
+                entity_name, IGNORE_FLAVOR, true);
+            ent != nullptr) {
+            result = ent->get_my_handle();
+        }
+        SLF_RETURN;
+        return true;
+#else
+        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) =
+            CAST(func, 0x00668B90);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -4276,8 +4481,17 @@ struct slf__get_neighborhood_name__num__t : script_library_class::function {
     {
         TRACE("slf__get_neighborhood_name__num__t::operator()");
 
-        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00677220);
+#if STANDALONE_SYSTEM
+        const auto neighborhood =
+            static_cast<neighborhood_e>(static_cast<int>(stack.pop_num()));
+        const char *result = get_neighborhood_name(neighborhood);
+        SLF_RETURN;
+        return true;
+#else
+        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) =
+            CAST(func, 0x00677220);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -4720,8 +4934,18 @@ struct slf__hero_exists__t : script_library_class::function {
     {
         TRACE("slf__hero_exists__t::operator()");
 
-        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00668A10);
+#if STANDALONE_SYSTEM
+        float result =
+            g_world_ptr != nullptr && g_world_ptr->get_hero_ptr(0) != nullptr
+                ? 1.0f
+                : 0.0f;
+        SLF_RETURN;
+        return true;
+#else
+        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) =
+            CAST(func, 0x00668A10);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -5695,8 +5919,16 @@ struct slf__remove_glass_house__str__t : script_library_class::function {
     {
         TRACE("slf__remove_glass_house__str__t::operator()");
 
-        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x006623A0);
+#if STANDALONE_SYSTEM
+        filespec spec{mString{stack.pop_str()}};
+        glass_house_manager::remove_glass_house(
+            string_hash{spec.m_name.c_str()});
+        return true;
+#else
+        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) =
+            CAST(func, 0x006623A0);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -8705,8 +8937,21 @@ struct slf__turn_on_hero_health__num__entity__t : script_library_class::function
     {
         TRACE("slf__turn_on_hero_health__num__entity__t::operator()");
 
-        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00680040);
+#if STANDALONE_SYSTEM
+        struct parms_t {
+            vm_num_t type;
+            entity_base_vhandle entity;
+        };
+        SLF_PARMS;
+        auto *hero_health = g_femanager.IGO->hero_health;
+        hero_health->SetType(static_cast<int>(parms->type), parms->entity.field_0);
+        hero_health->SetShown(true);
+        return true;
+#else
+        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) =
+            CAST(func, 0x00680040);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -9598,9 +9843,18 @@ DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(district, get_neighborhood, 0x0089C868)
 {
-    (void) stack;
-    (void) entry;
-	return true;
+    (void)entry;
+#if STANDALONE_SYSTEM
+    auto *district = static_cast<region *>(stack.pop_addr());
+    const int district_id = district != nullptr ? district->get_district_id() : -1;
+    float result = static_cast<float>(get_neighborhood_for_district(district_id));
+    SLF_RETURN;
+    return true;
+#else
+    bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) =
+        CAST(func, 0x00678B30);
+    return func(this, nullptr, &stack, entry);
+#endif
 }
 DECLARE_SLF_END()
 
@@ -9694,9 +9948,16 @@ DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(entity_list, add__entity, 0x0089BFE4)
 {
-    (void) stack;
     (void) entry;
-	return true;
+    struct parms_t {
+        _std::vector<entity_base_vhandle> *list;
+        entity_base_vhandle entity;
+    };
+    SLF_PARMS;
+    if (parms->list != nullptr && parms->entity.get_volatile_ptr() != nullptr) {
+        parms->list->push_back(parms->entity);
+    }
+    return true;
 }
 DECLARE_SLF_END()
 

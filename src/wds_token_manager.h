@@ -45,7 +45,8 @@ struct wds_token_manager {
     _std::list<wds_token_manager::active_token>::iterator
     remove_active_token(_std::list<wds_token_manager::active_token>::iterator a3, bool a4, bool a5);
 
-    void sub_54C0C0();
+    // 0x0054C0C0
+    void run_left_token_trigger();
 };
 
 extern void wds_token_manager_patch();

@@ -9,6 +9,9 @@
 #include "string_hash.h"
 #include "trace.h"
 #include "vtbl.h"
+#include "time_interface.h"
+#include "variable.h"
+#include "wds.h"
 
 #include <cassert>
 
@@ -16,6 +19,8 @@ VALIDATE_SIZE(polytube, 0x178u);
 VALIDATE_SIZE(polytube_pt_anim, 0x2C);
 
 VALIDATE_SIZE(PolytubeCustomVertex::Iterator, 0x4Cu);
+static Var<polytube *> active_polytubes{0x00965F50};
+static Var<polytube *> inactive_polytubes{0x00965F4C};
 
 polytube_pt_anim::polytube_pt_anim()
     : field_0(0), field_4(ZEROVEC), field_10(ZEROVEC), field_1C(0.0), field_20(0.0), field_24(0.0), field_28(0.0)
@@ -152,11 +157,44 @@ void polytube::set_max_length(Float a2)
     this->max_length = a2;
 }
 
-void polytube::frame_advance_all_polytubes(Float a1)
+void polytube::frame_advance_all_polytubes(Float elapsed)
 {
     TRACE("polytube::frame_advance_all_polytubes");
 
-    CDECL_CALL(0x0059B490, a1);
+    for (auto *current = active_polytubes(); current != nullptr;) {
+        auto *next = current->field_68;
+        const float scale = current->field_58 != nullptr
+            ? static_cast<float>(current->field_58->sub_4ADE50())
+            : g_world_ptr->field_158.field_0;
+        if (current->m_vtbl != 0) {
+            auto *address = get_vfunc(current->m_vtbl, 0x1A4);
+            if (address != nullptr) {
+                void(__fastcall *frame_advance)(polytube *, void *, Float) =
+                    CAST(frame_advance, address);
+                frame_advance(current, nullptr, Float{scale * elapsed.value});
+            }
+        }
+        current->field_150 = 0;
+        current->field_154 = 0;
+        current->field_158 = 0;
+        for (auto &value : current->field_15C) {
+            value = 0;
+        }
+        current->rebuild_helper();
+        current->update_proximity_maps();
+        current = next;
+    }
+
+    for (auto *current = inactive_polytubes(); current != nullptr; current = current->field_68) {
+        current->field_150 = 0;
+        current->field_154 = 0;
+        current->field_158 = 0;
+        for (auto &value : current->field_15C) {
+            value = 0;
+        }
+        current->rebuild_helper();
+        current->update_proximity_maps();
+    }
 }
 
 void polytube::set_material(string_hash a2)

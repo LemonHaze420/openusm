@@ -496,6 +496,7 @@ bool vm_thread::run()
                     if ((uint32_t)si == 0x0 || (uint32_t)si == 0x7B7B7B7B || (uint32_t)si == 0x7D7D7D7D ||
                         (uint32_t)si == 0x7F7F7F7F || (uint32_t)si == 0x7BAD05CF) {
                         this->slf_error(mString{"reference to bad or uninitialized script object instance value"});
+                        return false;
                     }
                     memcpy(si->get_buffer() + static_cast<int16_t>(arg.word),
                            this->dstack.get_SP() - dsize, dsize);
@@ -722,6 +723,7 @@ bool vm_thread::run()
                     if ((uint32_t)si == 0 || (uint32_t)si == 0x7B7B7B7B || (uint32_t)si == 0x7D7D7D7D ||
                         (uint32_t)si == 0x7F7F7F7F || (uint32_t)si == 0x7BAD05CF) {
                         this->slf_error(mString{"reference to bad or uninitialized script object instance value"});
+                        return false;
                     }
 
                     auto func = [this, si, &arg](auto dsize, int a3) -> void {
@@ -810,6 +812,7 @@ bool vm_thread::run()
                     if ((uint32_t)si == 0 || (uint32_t)si == 0x7B7B7B7B || (uint32_t)si == 0x7D7D7D7D ||
                         (uint32_t)si == 0x7F7F7F7F || (uint32_t)si == UNINITIALIZED_SCRIPT_PARM) {
                         this->slf_error(mString{"reference to bad or uninitialized script object instance value"});
+                        return false;
                     }
 
                     this->dstack.push(si->get_buffer() + static_cast<int16_t>(arg.word), dsize);
@@ -865,7 +868,6 @@ bool vm_thread::run()
             }
             case OP_SPA: {
                 assert(argtype == OP_ARG_WORD);
-
                 this->dstack.move_SP(static_cast<int16_t>(arg.word));
                 while (this->field_1C8.size() != 0) {
                     auto &v81 = this->field_1C8.back();
@@ -1015,6 +1017,7 @@ bool vm_thread::run()
                     mString a3j{v26};
                     auto v295 = "Use of OP_MS2 by " + a3j + ": invalid local script object instance pointer";
                     this->slf_error(v295);
+                    return false;
                 }
 
                 if (this->inst == si && this->ex == arg.sfr) {
@@ -1050,6 +1053,7 @@ bool vm_thread::run()
                 if ((uint32_t)si == 0 || (uint32_t)si == 0x7B7B7B7B || (uint32_t)si == 0x7D7D7D7D ||
                     (uint32_t)si == 0x7F7F7F7F || (uint32_t)si == 0x7BAD05CF) {
                     this->slf_error(mString{"reference to bad or uninitialized script object instance value"});
+                    return false;
                 }
 
                 auto num_0 = this->dstack.pop_num();

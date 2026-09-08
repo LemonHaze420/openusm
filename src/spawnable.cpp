@@ -1,3 +1,8 @@
+#include <climits>
+#include <cstdlib>
+
+#include <cmath>
+
 #include "spawnable.h"
 
 #include "actor.h"
@@ -7,6 +12,8 @@
 #include "func_wrapper.h"
 #include "game.h"
 #include "os_developer_options.h"
+#include "region.h"
+
 #include "ped_spawner.h"
 #include "trace.h"
 #include "traffic.h"
@@ -27,6 +34,8 @@ po &spawnable::last_camera_po = var<po>(0x00938140);
 
 float &spawnable::spawn_spacing = var<float>(0x00937FA0);
 
+static Var<bool> force_lane_update{0x00938180};
+
 spawnable::spawnable(vhandle_type<entity>)
 {
     this->m_vtbl = 0x008A59FC;
@@ -39,7 +48,8 @@ spawnable::spawnable(vhandle_type<entity>)
     this->field_5 = true;
 }
 
-int sub_68FB70()
+// 0x0068FB70
+int count_active_ai_cores()
 {
     int result = 0;
     if (ai::ai_core::the_ai_core_list_high() != nullptr) {
@@ -53,14 +63,87 @@ int sub_68FB70()
     return result;
 }
 
-bool spawnable::should_update_spawn_lanes(po &a1, entity_base *ent)
+bool spawnable::should_update_spawn_lanes(po &last_po, entity_base *camera_entity)
 {
-    return (bool)CDECL_CALL(0x006B9560, &a1, ent);
+    const auto &camera_po = camera_entity->get_abs_po();
+    vector3d forward = camera_po[2];
+    if (std::fabs(forward.y) >= 0.99f) {
+        forward = forward.y > 0.0f ? -camera_po[1] : camera_po[1];
+    }
+    forward.y = 0.0f;
+    const float length_squared = forward.x * forward.x + forward.z * forward.z;
+    if (length_squared > 0.00001f) {
+        const float inverse_length = 1.0f / std::sqrt(length_squared);
+        forward.x *= inverse_length;
+        forward.z *= inverse_length;
+    }
+
+    const auto position = camera_po.get_position();
+    const auto previous_position = last_po.get_position();
+    const auto previous_forward = vector3d{last_po[2].x, 0.0f, last_po[2].z};
+    const float facing_dot = forward.x * previous_forward.x + forward.z * previous_forward.z;
+    if (facing_dot <= 0.5f) {
+        const vector3d up{0.0f, 1.0f, 0.0f};
+        last_po.set_po(forward, up, position);
+        return true;
+    }
+
+    const float dx = previous_position.x - position.x;
+    const float dz = previous_position.z - position.z;
+    if (dx * dx + dz * dz > 400.0f || force_lane_update()) {
+        last_po.set_position(position);
+        return true;
+    }
+    return false;
+}
+
+// 0x006DC490
+static void shuffle_spawnable_lanes(
+    traffic_path_graph::laneInfoStruct *first,
+    traffic_path_graph::laneInfoStruct *last)
+{
+    unsigned int count = 2;
+    for (auto *current = first + 1; current != last; ++current, ++count) {
+        unsigned int random_max = RAND_MAX;
+        unsigned int random = static_cast<unsigned int>(std::rand()) & RAND_MAX;
+        while (random_max < count) {
+            if (random_max == UINT_MAX) {
+                break;
+            }
+            random = (random << 15) | RAND_MAX;
+            random_max = (random_max << 15) | RAND_MAX;
+        }
+        auto *selected = first + random % count;
+        const auto temporary = *current;
+        *current = *selected;
+        *selected = temporary;
+    }
 }
 
 void spawnable::update_spawn_lanes()
 {
-    CDECL_CALL(0x006CFF20);
+    last_spawn_lane_info = nullptr;
+    spawnable_lanes->clear();
+
+    auto *camera = g_game_ptr->get_current_view_camera(0);
+    if (camera == nullptr) {
+        return;
+    }
+    auto *primary_region = camera->get_primary_region();
+    if (primary_region == nullptr) {
+        return;
+    }
+    auto *graph = primary_region->get_traffic_path_graph();
+    if (graph == nullptr) {
+        return;
+    }
+    graph->get_spawnable_lane_list(
+        camera, spawnable_lanes, Float{10.0f}, Float{90.0f});
+    if (!spawnable_lanes->empty()) {
+        auto *first = &*spawnable_lanes->begin();
+        shuffle_spawnable_lanes(first, first + spawnable_lanes->size());
+    }
+    force_lane_update() = false;
 }
 
 static int &dword_937F9C = var<int>(0x00937F9C);
@@ -82,10 +165,10 @@ void spawnable::advance_traffic_and_peds(Float a1)
 {
     TRACE("spawnable::advance_traffic_and_peds");
 
-    if constexpr (0) {
+    if constexpr (1) {
         if (spawnable_lanes != nullptr &&
             (traffic::traffic_enabled || os_developer_options::instance->get_flag(mString{"ENABLE_PEDESTRIANS"}))) {  //
-            auto v1 = sub_68FB70();
+            auto v1 = count_active_ai_cores();
             auto v3 = v1 - traffic::traffic_list.size();
             auto v5 = v3 - ped_spawner::ped_spawner_list.size();
             float v6;
@@ -224,7 +307,6 @@ void sub_6C2E10(Float a1)
     flt_937FF0 = std::clamp(static_cast<float>(a1), 0.0f, 1.0f);
     ;
 }
-
 
 void spawnable_patch()
 {

@@ -19,6 +19,11 @@ int vm_debug_menu_entry_garbage_collection_id = -1;
 
 void init_script_debug_menu()
 {
+#if STANDALONE_SYSTEM
+    if (debug_menu::root_menu == nullptr) {
+        return;
+    }
+#endif
     if (script_menu == nullptr) {
         script_menu = create_menu("Script");
         debug_menu::root_menu->add_entry(script_menu);
@@ -67,30 +72,42 @@ bool slf__create_debug_menu_entry__str__t::operator()(vm_stack &stack, [[maybe_u
 {
     TRACE("slf__create_debug_menu_entry__str__t::operator()");
 
-#ifdef OPENUSM_XBPACK_V10
+#if STANDALONE_SYSTEM || defined(OPENUSM_XBPACK_V10)
     SLF_PARMS;
 
     init_script_debug_menu();
-    assert(script_menu != nullptr);
+    if (script_menu == nullptr) {
+        debug_menu_entry *result = nullptr;
+        SLF_RETURN;
+        SLF_DONE;
+    }
 
-    mString label {parms->str0};
-    auto *result = new debug_menu_entry {label};
+    mString label{parms->str0};
+    auto *result = new debug_menu_entry{label};
 
     auto *thread = stack.get_thread();
     auto *script = thread->get_executable()->get_owner()->get_parent();
-    mString source {};
+    mString source{};
+#if STANDALONE_SYSTEM
+    script->add_allocated_stuff(
+        vm_debug_menu_entry_garbage_collection_id,
+        reinterpret_cast<uint32_t>(result),
+        source);
+#else
     THISCALL(
         0x005A34B0,
         script,
         vm_debug_menu_entry_garbage_collection_id,
         int(result),
         &source);
+#endif
     script_menu->add_entry(result);
 
     SLF_RETURN;
     SLF_DONE;
 #else
-    bool (__fastcall *func)(const void *, void *, vm_stack *, entry_t) = CAST(func, 0x0067C1E0);
+    bool (__fastcall *func)(const void *, void *, vm_stack *, entry_t) =
+        CAST(func, 0x0067C1E0);
     return func(this, nullptr, &stack, entry);
 #endif
 }
@@ -109,9 +126,12 @@ bool slf__create_debug_menu_entry__str__str__t::operator()(
 
     if constexpr (1) {
         SLF_PARMS;
-
         init_script_debug_menu();
-        assert(script_menu != nullptr);
+        if (script_menu == nullptr) {
+            debug_menu_entry *result = nullptr;
+            SLF_RETURN;
+            SLF_DONE;
+        }
 
         mString v14 {parms->str0};
         auto *result = new debug_menu_entry {v14};
@@ -154,9 +174,13 @@ bool slf__create_progression_menu_entry__str__str__t::operator()(vm_stack &stack
     TRACE("slf__create_progression_menu_entry__str__str__t::operator()");
 
     SLF_PARMS;
-
     init_script_debug_menu();
-    assert(progression_menu != nullptr);
+
+    if (progression_menu == nullptr) {
+        int result = 0;
+        SLF_RETURN;
+        SLF_DONE;
+    }
 
     debug_menu_entry menu_entry {parms->str0};
     menu_entry.set_script_handler(stack.get_thread()->get_instance(), mString {parms->str1});

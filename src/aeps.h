@@ -3,6 +3,7 @@
 #include "variable.h"
 
 #include "float.hpp"
+#include <vector.hpp>
 
 namespace aeps {
 //0x004D3980
@@ -13,7 +14,7 @@ void RefreshDevOptions();
 
 void FrameSetupRenderAndThenRender();
 
-extern Var<void *> s_activeStructs;
+extern Var<_std::vector<void *> *> s_activeStructs;
 
 //0x004D91A0
 void Reset();

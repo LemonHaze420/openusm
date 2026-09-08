@@ -22,7 +22,7 @@ struct facial_expression_interface : actor_interface {
     struct {
         int field_0{-1};
         float field_4[3]{};
-        int field_10{0};
+        float field_10{0.0f};
     } field_34[3];
     int field_70;
     int field_74;
@@ -32,6 +32,7 @@ struct facial_expression_interface : actor_interface {
     facial_expression_interface(actor *a1);
 
     bool is_dynamic() const;
+    void frame_advance(Float a1);
 
     //0x006C9940
     static void frame_advance_all_facial_expression_ifc(Float a1);
@@ -45,7 +46,7 @@ struct facial_expression_interface : actor_interface {
     //virtual
     const char *get_ifc_type_str() const;
 
-    static inline Var<_std::vector<facial_expression_interface> *> all_facial_expression_interfaces{0x0096C9AC};
+    static inline Var<_std::vector<facial_expression_interface *> *> all_facial_expression_interfaces{0x0096C9AC};
 };
 
 extern void facial_expression_interface_patch();

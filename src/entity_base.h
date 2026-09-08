@@ -24,14 +24,13 @@ struct skeleton_interface;
 struct animation_interface;
 struct script_data_interface;
 struct decal_data_interface;
+struct variant_interface;
 struct resource_key;
 struct motion_effect_struct;
 
 namespace ai {
 struct ai_core;
 }
-
-
 
 // @todo: complete flags
 enum EntityFlags : unsigned __int32
@@ -344,6 +343,8 @@ struct entity_base : entity_base_vtable {
     bool has_script_data_ifc();
 
     script_data_interface *script_data_ifc();
+
+    variant_interface *variant_ifc();
 
     bool has_decal_data_ifc();
 

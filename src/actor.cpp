@@ -50,6 +50,7 @@
 #include "traffic_signal_mgr.h"
 #include "utility.h"
 #include "variables.h"
+#include "tl_system.h"
 #include "vtbl.h"
 #include "web_interface.h"
 
@@ -59,6 +60,28 @@ VALIDATE_SIZE(actor, 0xC0u);
 VALIDATE_OFFSET(actor, adv_ptrs, 0x78);
 
 static collision_free_state *& collision_free_states = var<collision_free_state *>(0x00968504);
+static collision_free_state *&collision_free_states_free =
+    var<collision_free_state *>(0x0095BB68);
+static int &collision_free_state_block_count = var<int>(0x0095BB70);
+
+// 0x00502F60
+static collision_free_state *allocate_collision_free_state_block()
+{
+    if (collision_free_state_block_count >= 1) {
+        return nullptr;
+    }
+
+    auto *block = static_cast<collision_free_state *>(
+        tlMemAlloc(0x7000, 0x10, 4));
+    ++collision_free_state_block_count;
+    collision_free_state *free_head = nullptr;
+    for (int index = 255; index >= 0; --index) {
+        auto *slot = block + index;
+        *reinterpret_cast<collision_free_state **>(slot) = free_head;
+        free_head = slot;
+    }
+    return free_head;
+}
 
 actor::actor(const string_hash &a2, uint32_t a3) : entity(a2, a3)
 {
@@ -337,7 +360,35 @@ bool actor::anim_finished(int)
 
 void actor::invalidate_frame_delta()
 {
+#if STANDALONE_SYSTEM
+    if (this->adv_ptrs == nullptr || this->adv_ptrs->mi == nullptr) {
+        return;
+    }
+
+    auto &movement = *this->adv_ptrs->mi;
+    movement.field_55 = movement.field_54;
+    movement.field_54 = false;
+    movement.field_0 = po_identity_matrix;
+
+    const auto &position = this->get_abs_position();
+    movement.field_50 = (movement.field_44 - position).length();
+    movement.field_44 = position;
+#else
     THISCALL(0x004E3880, this);
+#endif
+}
+
+void actor::update_colgeom(po *a2)
+{
+#if STANDALONE_SYSTEM
+    if (this->colgeom == nullptr) {
+        return;
+    }
+
+    this->colgeom->xform(a2 != nullptr ? *a2 : this->get_abs_po());
+#else
+    THISCALL(0x004E2BD0, this, a2);
+#endif
 }
 
 void actor::set_frame_delta_no_update(const po &a2, Float a3)
@@ -345,14 +396,37 @@ void actor::set_frame_delta_no_update(const po &a2, Float a3)
     THISCALL(0x004D6B60, this, &a2, a3);
 }
 
-void actor::set_allow_tunnelling_into_next_frame(bool a2)
+void actor::set_allow_tunnelling_into_next_frame(bool enabled)
 {
-    THISCALL(0x004D0260, this, a2);
+    if (field_A4 == 0 || collision_free_states == nullptr) {
+        if (collision_free_states == nullptr) {
+            auto *base = allocate_collision_free_state_block();
+            collision_free_states_free =
+                *reinterpret_cast<collision_free_state **>(base);
+            collision_free_states = base;
+        }
+        if (collision_free_states_free == nullptr) {
+            collision_free_states_free = allocate_collision_free_state_block();
+        }
+
+        auto *state = collision_free_states_free;
+        collision_free_states_free =
+            *reinterpret_cast<collision_free_state **>(state);
+        field_A4 = static_cast<int>(state - collision_free_states);
+        state->xform = po_identity_matrix;
+        state->field_5C = false;
+        state->field_60 = -1;
+    }
+
+    if (field_A4 != 0) {
+        collision_free_states[field_A4].field_5C = enabled;
+    }
 }
 
 bool actor::get_allow_tunnelling_into_next_frame()
 {
-    return (bool) THISCALL(0x004CC940, this);
+    auto *state = get_last_collision_free_state();
+    return state != nullptr && state->field_5C;
 }
 
 void *actor::find_like_item(vhandle_type<item> a2)
@@ -709,23 +783,21 @@ void actor::_un_mash(generic_mash_header *a3, void *a4, generic_mash_data_ptrs *
         }
 #endif
 
-        const bool missing_conglomerate_tail =
+        const auto actor_tail_marker =
+            this->is_conglom_member()
+                ? *reinterpret_cast<const uint32_t *>(
+                      v4->field_0 - sizeof(uint32_t))
+                : *v4->get<uint32_t>();
+        const bool missing_actor_tail =
             this->is_a_conglomerate() ||
-            (this->is_conglom_member() &&
-             *reinterpret_cast<const uint32_t *>(v4->field_0 - sizeof(uint32_t)) != MASH_SYNC_TEST_VAL5);
-        if (missing_conglomerate_tail) {
+            actor_tail_marker != MASH_SYNC_TEST_VAL5;
+        if (missing_actor_tail) {
             this->field_7C = nullptr;
             this->m_interactable_ifc = nullptr;
             this->m_resource_context = resource_manager::get_resource_context();
             return;
         }
-        uint32_t sync_check;
-        if (this->is_conglom_member()) {
-            sync_check = *reinterpret_cast<const uint32_t *>(v4->field_0 - sizeof(uint32_t));
-        } else {
-            sync_check = *v4->get<uint32_t>();
-        }
-        assert(sync_check == MASH_SYNC_TEST_VAL5);
+        assert(actor_tail_marker == MASH_SYNC_TEST_VAL5);
 
         auto v34 = *v4->get<bool>();
         v4->rebase(4u);

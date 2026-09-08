@@ -6,6 +6,11 @@
 #include "osassert.h"
 #include "resource_manager.h"
 #include "script_manager.h"
+#include "script.h"
+#include "script_object.h"
+
+#include "oldmath_po.h"
+
 #include "terrain.h"
 #include "token_def.h"
 #include "token_def_list.h"
@@ -141,8 +146,31 @@ void wds_token_manager::frame_advance(Float elapsed)
         this->field_8 += full_turn;
     }
 
-    assert(this->tokens == nullptr);
-    assert(this->field_18.empty());
+    if (this->field_18.empty()) {
+        return;
+    }
+
+    for (auto &active : this->field_18) {
+        auto *icon = active.field_4.get_volatile_ptr();
+        auto *trigger_ptr = active.field_8.get_volatile_ptr();
+        if (icon == nullptr || trigger_ptr == nullptr) {
+            continue;
+        }
+        auto position = icon->get_abs_position();
+        const vector3d facing{std::cos(this->field_8), 0.0f, std::sin(this->field_8)};
+        const vector3d up{0.0f, 1.0f, 0.0f};
+        po transform;
+        transform.set_po(facing, up, position);
+        entity_set_abs_po(icon, transform);
+        if ((trigger_ptr->field_4 & 0x1000) == 0 || editing) {
+            if (!active.field_C) {
+                this->run_left_token_trigger();
+                active.field_C = true;
+            }
+        } else {
+            active.field_C = false;
+        }
+    }
 #else
     THISCALL(0x00555B50, this, elapsed);
 #endif
@@ -187,7 +215,7 @@ wds_token_manager::remove_active_token(_std::list<wds_token_manager::active_toke
     assert(trig != nullptr);
 
     if (((trig->field_4 & 0x1000) != 0) && a5 && !v10.field_C) {
-        this->sub_54C0C0();
+        this->run_left_token_trigger();
     }
 
     trigger_mgr->delete_trigger(trig);
@@ -210,9 +238,25 @@ wds_token_manager::remove_active_token(_std::list<wds_token_manager::active_toke
     return result;
 }
 
-void wds_token_manager::sub_54C0C0()
+void wds_token_manager::run_left_token_trigger()
 {
+#if STANDALONE_SYSTEM
+    auto *gso = script::get_gso();
+    auto *gsoi = script::get_gsoi();
+    if (gso == nullptr || gsoi == nullptr) {
+        return;
+    }
+    const int function =
+        script::find_function(string_hash{"left_token_trigger()"}, gso, false);
+    if (function >= 0) {
+        auto *thread = gso->add_thread(gsoi, function);
+        if (thread != nullptr) {
+            gsoi->run_single_thread(thread, true);
+        }
+    }
+#else
     THISCALL(0x0054C0C0, this);
+#endif
 }
 
 void wds_token_manager_patch()

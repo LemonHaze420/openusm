@@ -11,7 +11,6 @@
 
 VALIDATE_SIZE(line_info, 0x5C);
 
-
 #if 0
 simple_queue<line_info *, 16> & queued_collision_checks = var<simple_queue<line_info *, 16>>(0x009223F8);
 #else
@@ -205,11 +204,19 @@ void line_info::copy(const line_info &a2)
     }
 }
 
-void line_info::frame_advance(int a1)
+void line_info::frame_advance(int count)
 {
     TRACE("line_info::frame_advance");
 
-    CDECL_CALL(0x0052F120, a1);
+    while (count-- > 0 && queued_collision_checks.m_count > 0) {
+        auto *line = queued_collision_checks.field_0[queued_collision_checks.field_4++];
+        if (queued_collision_checks.field_4 >= queued_collision_checks.size) {
+            queued_collision_checks.field_4 = 0;
+        }
+        --queued_collision_checks.m_count;
+        line->queued_for_collision_check = false;
+        line->check_collision(*line->ent_filter, *line->obb_filter, nullptr);
+    }
 }
 
 void line_info::sub_48B410(Float a2)

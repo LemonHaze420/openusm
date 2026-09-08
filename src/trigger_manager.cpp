@@ -1,6 +1,9 @@
 #include "trigger_manager.h"
 
 #include "box_trigger.h"
+#include "actor.h"
+#include "base_ai_core.h"
+
 #include "common.h"
 #include "entity_trigger.h"
 #include "func_wrapper.h"
@@ -9,6 +12,7 @@
 #include "trace.h"
 #include "utility.h"
 #include "vtbl.h"
+#include "wds.h"
 
 VALIDATE_SIZE(trigger_manager, 8u);
 
@@ -56,7 +60,43 @@ void trigger_manager::purge()
 
 void trigger_manager::update()
 {
-    THISCALL(0x00541F30, this);
+    auto *high_priority_ai = ai::ai_core::the_ai_core_list_high();
+
+    _std::vector<trigger_struct> subjects;
+    subjects.reserve((high_priority_ai != nullptr ? high_priority_ai->size() : 0) + 1);
+    auto append_actor = [&subjects](actor *actor_ptr) {
+        trigger_struct subject{};
+        if (actor_ptr != nullptr) {
+            subject.handle = vhandle_type<entity>{actor_ptr->get_my_vhandle()};
+            subject.position = actor_ptr->get_abs_position();
+            subject.field_10 = true;
+            subject.field_11 = false;
+        } else {
+            subject.field_10 = false;
+            subject.field_11 = true;
+        }
+        subjects.push_back(subject);
+    };
+
+    auto *hero = bit_cast<actor *>(g_world_ptr->get_hero_ptr(0));
+    append_actor(hero);
+    if (high_priority_ai != nullptr) {
+        for (auto *core : *high_priority_ai) {
+            if (core != nullptr && core->field_64 != hero) {
+                append_actor(core->field_64);
+            }
+        }
+    }
+
+    auto **link = &m_triggers;
+    while (*link != nullptr) {
+        auto *before = *link;
+        update_trigger(link, subjects.empty() ? nullptr : &subjects[0],
+                       static_cast<int>(subjects.size()));
+        if (*link == before) {
+            link = &before->m_next_trigger;
+        }
+    }
 }
 
 void trigger_manager::update_trigger(trigger **a1, trigger_struct *a2, int a3)

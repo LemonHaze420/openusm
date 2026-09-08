@@ -4,7 +4,13 @@
 #include "entity_base_vhandle.h"
 #include "signaller.h"
 
-struct trigger_struct;
+struct trigger_struct {
+    vhandle_type<entity> handle;
+    vector3d position;
+    bool field_10;
+    bool field_11;
+    char padding[2];
+};
 
 struct trigger : signaller {
     float field_48;

@@ -646,6 +646,13 @@ physical_interface *entity_base::physical_ifc()
     return func(this);
 }
 
+variant_interface *entity_base::variant_ifc()
+{
+    variant_interface *(__fastcall *func)(entity_base *) =
+        CAST(func, get_vfunc(m_vtbl, 0x29C));
+    return func(this);
+}
+
 bool entity_base::has_skeleton_ifc()
 {
     return false;
@@ -896,7 +903,9 @@ po &entity_base::get_rel_po()
         this->compute_rel_po_from_model();
     }
 
-    assert(my_rel_po->is_valid());
+    if (!my_rel_po->is_valid()) {
+        *my_rel_po = po{};
+    }
 
     return *this->my_rel_po;
 }
@@ -1159,7 +1168,10 @@ void entity_base::update_abs_po(bool a2)
                 }
             }
 
-            assert(This->my_abs_po->is_valid());
+            if (!This->my_abs_po->is_valid()) {
+                const auto &relative = This->get_rel_po();
+                *This->my_abs_po = relative.is_valid() ? relative : po{};
+            }
 
             This->field_8 &= 0xEFFFFFFF;
             if (!a2) {
@@ -1513,7 +1525,7 @@ void entity_base::enter_limbo()
 
 void entity_base::exit_limbo()
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         if (this->is_ext_flagged(EXTFLAG_UPDATE_VIA_REGIONLINK) && this->is_ext_flagged(0x200u)) {
             vhandle_type<entity> v3 {this->get_my_handle()};
             remove_from_limbo_list(v3);

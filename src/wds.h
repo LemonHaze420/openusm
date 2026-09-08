@@ -55,7 +55,6 @@ struct world_dynamics_system {
     cached_special_effect field_1B0;
     cached_special_effect field_1F0;
 
-
 private:
     entity *field_230[MAX_GAME_PLAYERS];
     camera *field_234[MAX_GAME_PLAYERS];
@@ -199,7 +198,8 @@ public:
 
     nal_anim_control *get_anim_ctrl(uint32_t a1);
 
-    void sub_54A3B0();
+    // 0x0054A3B0
+    void process_sinking_entities();
 
     void sub_530460(const vector3d &a2, int visited_regions, bool a4);
 

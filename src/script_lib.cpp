@@ -10,7 +10,6 @@
 #include "vm_stack.h"
 #include "vm_thread.h"
 
-
 slf__abs_delay__num__t::slf__abs_delay__num__t(const char *a3) : function(a3)
 {
     m_vtbl = CAST(m_vtbl, 0x0089A724);
@@ -71,12 +70,27 @@ slf__add_2d_debug_str__vector3d__vector3d__num__str__num__t::
 }
 
 bool slf__add_2d_debug_str__vector3d__vector3d__num__str__num__t::operator()(
-    vm_stack &stack, [[maybe_unused]] script_library_class::function::entry_t entry) const
+    vm_stack &stack,
+    [[maybe_unused]] script_library_class::function::entry_t entry) const
 {
     TRACE("slf__add_2d_debug_str__vector3d__vector3d__num__str__num__t::operator()");
 
-    bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00663760);
+#if STANDALONE_SYSTEM
+    struct parms_t {
+        vector3d position;
+        vector3d color;
+        vm_num_t scale;
+        vm_str_t text;
+        vm_num_t duration;
+    };
+    SLF_PARMS;
+    (void)parms;
+    return true;
+#else
+    bool(__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) =
+        CAST(func, 0x00663760);
     return func(this, nullptr, &stack, entry);
+#endif
 }
 
 slf__add_3d_debug_str__vector3d__vector3d__num__str__t::slf__add_3d_debug_str__vector3d__vector3d__num__str__t(
@@ -87,7 +101,6 @@ slf__add_3d_debug_str__vector3d__vector3d__num__str__t::slf__add_3d_debug_str__v
     FUNC_ADDRESS(address, &slf__add_3d_debug_str__vector3d__vector3d__num__str__t::operator());
     m_vtbl->__cl = CAST(m_vtbl->__cl, address);
 }
-
 
 bool slf__add_3d_debug_str__vector3d__vector3d__num__str__t::operator()(vm_stack &stack,
                                                                         script_library_class::function::entry_t)
@@ -127,7 +140,6 @@ bool slf__is_point_inside_glass_house__vector3d__t::operator()(
     SLF_RETURN;
     SLF_DONE;
 }
-
 
 slf__initialize_encounter_object__t::slf__initialize_encounter_object__t(const char *a3) : function(a3)
 {

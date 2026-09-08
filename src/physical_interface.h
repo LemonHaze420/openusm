@@ -124,6 +124,7 @@ struct physical_interface {
     }
 
     bool is_enabled() const;
+    void frame_advance(Float a1);
 
     int get_num_active_pendulums() const;
 
@@ -216,7 +217,6 @@ struct physical_interface {
 
     //virtual
     void release_ifc();
-
 
     //0x004ECFF0
     //virtual

@@ -11,7 +11,7 @@ void animation_logic_system_interface::frame_advance_pre_controller_all_alses(Fl
 {
     TRACE("als::animation_logic_system_interface::frame_advance_pre_controller_all_alses");
 
-    if constexpr (0) {
+    if constexpr (1) {
         for (auto &v : the_als_list()) {
             v.field_4 = v.field_0->frame_advance_should_do_frame_advance(a1);
         }
@@ -70,16 +70,21 @@ void animation_logic_system_interface::frame_advance_pre_controller_all_alses(Fl
 
 void animation_logic_system_interface::frame_advance_controller_all_als(Float a1)
 {
-    void (*func)(Float) = CAST(func, 0x0049EED0);
-    func(a1);
+    for (auto &entry : the_als_list()) {
+        if (entry.field_4) {
+            entry.field_0->frame_advance_controller(a1);
+        }
+    }
 }
 
 void animation_logic_system_interface::frame_advance_post_controller_all_alses(Float a1)
 {
-    void (*func)(Float) = CAST(func, 0x0049EF00);
-    func(a1);
+    for (auto &entry : the_als_list()) {
+        if (entry.field_4) {
+            entry.field_0->frame_advance_post_controller(a1);
+        }
+    }
 }
-
 
 void animation_logic_system_interface::force_update(Float a2)
 {
@@ -94,7 +99,6 @@ void animation_logic_system_interface::force_update()
 
     this->force_update(0.000099999997);
 }
-
 
 }  // namespace als
 

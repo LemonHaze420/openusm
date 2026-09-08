@@ -100,28 +100,25 @@ traffic::~traffic()
 
 void traffic::initialize_traffic()
 {
-    if constexpr (0) {
-        if (!traffic_initialized) {
-            flt_937FA4 = 10.0;
-            flt_937FA8 = 90.0;
-            if (spawnable::spawnable_lanes == nullptr) {
-                spawnable::spawnable_lanes = new _std::vector<traffic_path_graph::laneInfoStruct>{};
-                spawnable::spawnable_lanes->reserve(30u);
-            }
-
-            if (sub_6BA070()) {
-                for (auto i = 29; i > -1; --i) {
-                    create_new_traffic(i);
-                }
-            }
-
-            traffic_initialized = true;
-            vector3d a4{-1234.0};
-            spawnable::last_camera_po.set_po(ZVEC, YVEC, a4);
-        }
-    } else {
-        CDECL_CALL(0x006D1CC0);
+#if STANDALONE_SYSTEM
+    if (traffic_initialized) {
+        return;
     }
+
+    stru_937FA4 = 10.0f;
+    flt_937FA8 = 90.0f;
+    if (spawnable::spawnable_lanes == nullptr) {
+        spawnable::spawnable_lanes =
+            new _std::vector<traffic_path_graph::laneInfoStruct>{};
+        spawnable::spawnable_lanes->reserve(30u);
+    }
+
+    traffic_initialized = true;
+    spawnable::last_camera_po.set_po(
+        ZVEC, YVEC, vector3d{-1234.0f, -1234.0f, -1234.0f});
+#else
+    CDECL_CALL(0x006D1CC0);
+#endif
 }
 
 void traffic::sub_6CD2D0(traffic *a2)
@@ -944,7 +941,6 @@ void traffic::set_driver_type(int a2)
         }
     }
 }
-
 
 void traffic::set_current_lane(traffic_path_lane *a2, int a3, bool a4)
 {

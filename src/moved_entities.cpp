@@ -1,5 +1,7 @@
 #include "moved_entities.h"
 
+#include "intraframe_trajectory.h"
+
 #include "conglom.h"
 #include "func_wrapper.h"
 #include "oldmath_po.h"
@@ -13,7 +15,24 @@ void moved_entities::reset_all_moved()
 {
     TRACE("moved_entities::reset_all_moved");
 
+#if STANDALONE_SYSTEM
+    for (int i = 0; i < moved_count; ++i) {
+        auto *ent = moved_list[i].get_volatile_ptr();
+        if (ent == nullptr) {
+            continue;
+        }
+
+        ent->field_8 &= ~static_cast<uint32_t>(EXTFLAG_ALREADY_MOVED);
+        if (ent->is_an_actor()) {
+            auto *moved_actor = static_cast<actor *>(ent);
+            moved_actor->invalidate_frame_delta();
+            moved_actor->update_colgeom(nullptr);
+        }
+    }
+    moved_count = 0;
+#else
     CDECL_CALL(0x005125D0);
+#endif
 }
 
 void moved_entities::add_moved(vhandle_type<entity> e_arg)
@@ -77,17 +96,27 @@ void moved_entities::add_moved(vhandle_type<entity> e_arg)
     }
 }
 
-intraframe_trajectory_t *moved_entities::get_all_trajectories(Float a1,
-                                                              const moved_entities::trajectory_filter_t &filter)
+intraframe_trajectory_t *moved_entities::get_all_trajectories(
+    Float frame_time, const moved_entities::trajectory_filter_t &)
 {
     TRACE("moved_entities::get_all_trajectories");
 
-    if constexpr (0) {
-    } else {
-        intraframe_trajectory_t * (__cdecl *func)(Float, const trajectory_filter_t *) = CAST(func, 0x0053F2A0);
-        
-        return func(a1, &filter);
+    intraframe_trajectory_t *trajectories = nullptr;
+    for (int index = 0; index < moved_count; ++index) {
+        auto *ent = moved_list[index].get_volatile_ptr();
+        if (ent == nullptr || !ent->is_an_actor() || ent->is_in_limbo() ||
+            !ent->are_collisions_active() || ent->get_colgeom() == nullptr) {
+            continue;
+        }
+
+        auto *storage = intraframe_trajectory_t::pool().allocate_new_block();
+        auto *trajectory = new (storage) intraframe_trajectory_t(
+            static_cast<actor *>(ent), frame_time, ent->get_abs_po(), nullptr);
+        trajectory->field_15C = trajectories;
+        trajectories = trajectory;
     }
+
+    return trajectories;
 }
 
 void moved_entities_patch()

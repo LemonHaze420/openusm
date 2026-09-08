@@ -1,3 +1,5 @@
+#include <cstring>
+
 #include "wds_entity_manager.h"
 
 #include "box_trigger.h"
@@ -15,6 +17,8 @@
 #include "resource_key.h"
 #include "resource_manager.h"
 #include "trace.h"
+#include "time_interface.h"
+
 #include "trigger_manager.h"
 #include "utility.h"
 #include "vtbl.h"
@@ -435,17 +439,47 @@ void wds_entity_manager::add_mic(_std::vector<entity *> *a1, mic *a2)
     this->add_entity_internal(a1, a2);
 }
 
-void wds_entity_manager::process_time_limited_entities(Float a2)
+void wds_entity_manager::process_time_limited_entities(Float elapsed)
 {
     TRACE("wds_entity_manager::process_time_limited_entities");
 
 #if STANDALONE_SYSTEM
-    (void)a2;
-    assert(this->field_18 == 0);
-    assert(this->field_1C == nullptr);
-    assert(this->field_20 == 0);
+    struct time_limited_entity {
+        vhandle_type<entity> handle;
+        float remaining;
+    };
+
+    auto *first = reinterpret_cast<time_limited_entity *>(field_18);
+    auto *last = reinterpret_cast<time_limited_entity *>(field_1C);
+    for (auto *current = first; current != last;) {
+        auto *entity_ptr = current->handle.get_volatile_ptr();
+        bool erase = entity_ptr == nullptr;
+        if (entity_ptr != nullptr && current->remaining > 0.0f) {
+            const float scale = entity_ptr->field_58 != nullptr
+                ? static_cast<float>(entity_ptr->field_58->sub_4ADE50())
+                : g_world_ptr->field_158.field_0;
+            current->remaining -= scale * elapsed.value;
+        } else if (entity_ptr != nullptr) {
+            entity_ptr->set_visible(false, false);
+            bool(__fastcall *is_retained)(entity *, void *) =
+                CAST(is_retained, get_vfunc(entity_ptr->m_vtbl, 0x1A8));
+            if (!is_retained(entity_ptr, nullptr)) {
+                this->destroy_entity(entity_ptr);
+                erase = true;
+            }
+        }
+
+        if (erase) {
+            std::memmove(current, current + 1,
+                         static_cast<size_t>(last - current - 1) * sizeof(*current));
+            --last;
+            field_1C = last;
+        } else {
+            ++current;
+        }
+    }
 #else
-    THISCALL(0x005D92D0, this, a2);
+    THISCALL(0x005D92D0, this, elapsed);
 #endif
 }
 

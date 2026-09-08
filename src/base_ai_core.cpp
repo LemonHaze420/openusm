@@ -1,4 +1,8 @@
+#include <algorithm>
+#include <cmath>
+
 #include "base_ai_core.h"
+#include "core_ai_resource.h"
 
 #include "actor.h"
 #include "base_ai_state_machine.h"
@@ -275,20 +279,87 @@ void ai_core::post_entity_mash()
     THISCALL(0x006A36E0, this);
 }
 
-void ai_core::frame_advance_all_core_ais(Float a2)
+void ai_core::frame_advance_all_core_ais(Float elapsed)
 {
     TRACE("ai_core::frame_advance_all_core_ais");
 
-    CDECL_CALL(0x006B4AD0, a2);
+    auto *high = the_ai_core_list_high();
+    if (high != nullptr) {
+        for (auto it = high->begin(); it != high->end();) {
+            auto *core = *it;
+            core->frame_advance(elapsed);
+            if (core->field_6C != nullptr && core->field_6C->field_44 && (core->field_4C & 1) == 0) {
+                it = high->erase(it);
+                if (the_ai_core_list_low() == nullptr) {
+                    the_ai_core_list_low() = new _std::list<ai_core *>{};
+                }
+                the_ai_core_list_low()->push_back(core);
+            } else {
+                ++it;
+            }
+        }
+        if (high->empty()) {
+            delete high;
+            the_ai_core_list_high() = nullptr;
+        }
+    }
+
+    auto *low = the_ai_core_list_low();
+    if (low == nullptr || low->empty()) {
+        return;
+    }
+
+    auto count = std::max(1, static_cast<int>(
+        static_cast<float>(low->size()) * elapsed.value * 3.0f + 0.5f));
+    auto it = low->begin();
+    while (count-- > 0 && !low->empty()) {
+        if (it == low->end()) {
+            it = low->begin();
+        }
+        auto *core = *it;
+        core->frame_advance(elapsed);
+        if ((core->field_4C & 1) != 0) {
+            it = low->erase(it);
+            if (the_ai_core_list_high() == nullptr) {
+                the_ai_core_list_high() = new _std::list<ai_core *>{};
+            }
+            the_ai_core_list_high()->push_back(core);
+        } else {
+            ++it;
+        }
+    }
+    if (low->empty()) {
+        delete low;
+        the_ai_core_list_low() = nullptr;
+    }
 }
 
-void ai_core::frame_advance(Float a2)
+void ai_core::frame_advance(Float elapsed)
 {
     TRACE("ai_core::frame_advance");
+    if (field_64 == nullptr ||
+        (field_64->is_in_limbo() && !field_64->is_flagged(8u))) {
+        return;
+    }
 
-    if constexpr (0) {
-    } else {
-        THISCALL(0x006B48A0, this, a2);
+    advance_info_nodes(elapsed);
+    if (my_mode == static_cast<mode_e>(1)) {
+        if (my_base_machine != nullptr) {
+            my_base_machine->request_exit();
+        }
+        my_mode = AI_KILLING_MACHINES;
+    }
+    if (my_locomotion_mode == static_cast<mode_e>(1)) {
+        if (my_locomotion_machine != nullptr) {
+            my_locomotion_machine->request_exit();
+        }
+        my_locomotion_mode = AI_KILLING_MACHINES;
+    }
+    if (my_base_machine != nullptr) {
+        advance_machine_recursive(my_base_machine, elapsed, false);
+    }
+    if (my_locomotion_machine != nullptr) {
+        advance_machine_recursive(my_locomotion_machine, elapsed, false);
     }
 }
 
@@ -314,8 +385,6 @@ void ai_core::do_machine_exit(ai_state_machine *a2)
 
 info_node *ai_core::get_info_node(string_hash the_info_node, bool a3)
 {
-    //sp_log("ai_core::get_info_node(): %s", string_hash_dictionary::lookup_string(a2));
-
     if (this->field_60 != nullptr) {
         static info_node searcher{};
 
@@ -428,30 +497,30 @@ void ai_core::spawn_state_machine_internal(ai_state_machine *a2, resource_key gr
     }
 }
 
-void ai_core::advance_info_nodes(Float a2)
+void ai_core::advance_info_nodes(Float elapsed)
 {
     TRACE("ai::ai_core::advance_info_nodes");
-
-    if constexpr (0) {
-        auto *v3 = this->field_60;
-        if (v3 != nullptr) {
-            for (uint16_t i{0}; i < v3->m_size; ++i) {
-                auto *v5 = v3->at(i);
-                if (v5->does_need_advance()) {
-                    v5->frame_advance(a2);
-                }
-            }
+    if (field_60 == nullptr) {
+        return;
+    }
+    for (uint16_t index = 0; index < field_60->m_size; ++index) {
+        auto *node = field_60->at(index);
+        if (node != nullptr && node->does_need_advance()) {
+            node->frame_advance(elapsed);
         }
-    } else {
-        THISCALL(0x0068FCA0, this, a2);
     }
 }
 
-void ai_core::advance_machine_recursive(ai_state_machine *a1, Float a2, bool a3)
+void ai_core::advance_machine_recursive(ai_state_machine *machine, Float elapsed, bool interrupted)
 {
     TRACE("ai::ai_core::advance_machine_recursive");
-
-    THISCALL(0x006AF100, this, a1, a2, a3);
+    if (machine == nullptr) {
+        return;
+    }
+    for (auto *child : machine->field_1C) {
+        advance_machine_recursive(child, elapsed, interrupted);
+    }
+    machine->process_mode(elapsed, interrupted);
 }
 
 }  // namespace ai

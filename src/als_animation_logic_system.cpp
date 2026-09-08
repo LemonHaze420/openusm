@@ -202,7 +202,7 @@ void animation_logic_system::frame_advance_post_logic_processing([[maybe_unused]
 {
     TRACE("als::animation_logic_system::frame_advance_post_logic_processing");
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         if (!this->field_7C) {
             [[maybe_unused]] time_interface *time_ifc =
                 (this->field_6C->has_time_ifc() ? this->field_6C->time_ifc() : nullptr);
@@ -288,7 +288,6 @@ void animation_logic_system::frame_advance_play_new_animations(Float a2)
                 }
             };
 
-
             auto *old_context = resource_manager::push_resource_context(this->field_6C->get_resource_context());
 
             func(&this->field_18, -1);
@@ -309,7 +308,7 @@ void animation_logic_system::frame_advance_update_pending_params(Float a2)
 {
     TRACE("animation_logic_system::frame_advance_update_pending_params");
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         if (!this->field_7C) {
             if (this->field_6C->has_time_ifc()) {
                 this->field_6C->time_ifc();
@@ -374,7 +373,7 @@ void animation_logic_system::frame_advance_post_controller(Float arg0)
 {
     TRACE("animation_logic_system::frame_advance_post_controller");
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         double v4;
         if (this->field_6C->has_time_ifc()) {
             auto *v3 = this->field_6C->time_ifc();
@@ -412,7 +411,7 @@ void animation_logic_system::frame_advance_main_als_advance(Float a2)
 {
     TRACE("animation_logic_system::frame_advance_main_als_advance");
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         if (!this->field_7C) {
             this->field_7E = false;
             if (this->field_6C->has_time_ifc()) {
@@ -421,7 +420,7 @@ void animation_logic_system::frame_advance_main_als_advance(Float a2)
 
             sp_log("%d", this->field_8.size());
 
-            for (int i = -1; i < this->field_8.size(); ++i) {
+            for (int i = -1; i < static_cast<int>(this->field_8.size()); ++i) {
                 state_machine &the_machine = (i == -1 ? this->field_18 : *this->field_8[i]);
 
                 the_machine.process_requests(this);
@@ -443,7 +442,6 @@ void animation_logic_system::frame_advance_on_layer_trans(Float a2)
     THISCALL(0x0049F220, this, a2);
 }
 
-
 }  // namespace als
 
 void animation_logic_system_patch()
@@ -452,7 +450,6 @@ void animation_logic_system_patch()
         FUNC_ADDRESS(address, &als::animation_logic_system::suspend_logic_system);
         SET_JUMP(0x004931F0, address);
     }
-
 
     {
         FUNC_ADDRESS(address, &als::animation_logic_system::create_instance_data);

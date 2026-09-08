@@ -55,7 +55,7 @@ public:
     _std::vector<internal_t> field_1C8;
     script_library_class::function::entry_t entry;
     void *field_1DC;
-    int field_1E0;
+    float field_1E0;
     int field_1E4;
 
     //0x005A5420

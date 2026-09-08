@@ -54,11 +54,29 @@ ai_path::ai_path()
     this->field_84 = nullptr;
 }
 
-void ai_path::frame_advance_all_ai_paths(Float a1)
+void ai_path::frame_advance_all_ai_paths(Float)
 {
     TRACE("ai_path::frame_advance_all_ai_paths");
 
-    CDECL_CALL(0x00479ED0, a1);
+    for (auto *path : dword_958164()) {
+        if (path == nullptr || path->m_pathStatus.field_0 != 0) {
+            continue;
+        }
+
+        bool unloaded_region = false;
+        if (!path->field_10.empty()) {
+            auto *last_region = reinterpret_cast<region *>(path->field_10.back());
+            unloaded_region = last_region != nullptr && !last_region->is_loaded();
+        }
+        if (!unloaded_region && !path->field_0.empty()) {
+            auto *last_region = path->field_0.back();
+            unloaded_region = last_region != nullptr && !last_region->is_loaded();
+        }
+        if (unloaded_region) {
+            set_status(path, eAIPathStatus{1},
+                       "One or more of the necessary regions on our path is not loaded.");
+        }
+    }
 }
 
 ai_path::~ai_path()

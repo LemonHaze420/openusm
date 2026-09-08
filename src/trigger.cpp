@@ -1,8 +1,13 @@
 #include "trigger.h"
+#include "box_trigger.h"
+#include "entity_trigger.h"
+#include "point_trigger.h"
 
 #include "common.h"
 #include "func_wrapper.h"
 #include "trace.h"
+#include <algorithm>
+
 #include "vtbl.h"
 
 VALIDATE_SIZE(trigger, 0x58);
@@ -33,9 +38,57 @@ trigger::~trigger()
     THISCALL(0x0056FE50, this);
 }
 
-void trigger::update(trigger_struct *a2, int a3)
+void trigger::update(trigger_struct *subjects, int subject_count)
 {
-    THISCALL(0x0053C470, this, a2, a3);
+#if STANDALONE_SYSTEM
+    if (subjects == nullptr || subject_count <= 0) {
+        field_4C = {0};
+        return;
+    }
+    if (trigger_current_entities == nullptr) {
+        trigger_current_entities = new _std::list<vhandle_type<entity>>{};
+    }
+    field_4C = {0};
+    for (int index = 0; index < subject_count; ++index) {
+        auto &subject = subjects[index];
+        auto *candidate = subject.handle.get_volatile_ptr();
+        if (candidate == nullptr || !subject.field_10) {
+            continue;
+        }
+        bool inside = false;
+        if (m_vtbl == 0x0088A0B8) {
+            auto *box = static_cast<box_trigger *>(this);
+            box->update_center();
+            inside = box->triggered(subject.position);
+        } else if (m_vtbl == 0x00889F30) {
+            auto *point = static_cast<point_trigger *>(this);
+            inside = (subject.position - point->field_58).length2() <
+                     field_48 * field_48;
+        } else if (m_vtbl == 0x0088A240) {
+            auto *entity_trigger_ptr = static_cast<entity_trigger *>(this);
+            auto *center_entity = entity_trigger_ptr->get_ent();
+            if (center_entity != nullptr) {
+                const auto center =
+                    center_entity->get_abs_position() + entity_trigger_ptr->field_5C;
+                inside = (subject.position - center).length2() <
+                         field_48 * field_48;
+            }
+        }
+
+        auto existing = std::find(trigger_current_entities->begin(),
+                                  trigger_current_entities->end(), subject.handle);
+        if (inside) {
+            field_4C = subject.handle;
+            if (existing == trigger_current_entities->end()) {
+                trigger_current_entities->push_back(subject.handle);
+            }
+        } else if (existing != trigger_current_entities->end()) {
+            trigger_current_entities->erase(existing);
+        }
+    }
+#else
+    THISCALL(0x0053C470, this, subjects, subject_count);
+#endif
 }
 
 void trigger::set_use_any_char(bool a2)
@@ -81,18 +134,15 @@ void trigger::set_multiple_entrance(bool a2)
 
 bool trigger::is_point_trigger() const
 {
-    bool(__fastcall * func)(const void *) = CAST(func, get_vfunc(m_vtbl, 0x170));
-    return func(this);
+    return m_vtbl == 0x00889F30;
 }
 
 bool trigger::is_box_trigger() const
 {
-    bool(__fastcall * func)(const void *) = CAST(func, get_vfunc(m_vtbl, 0x174));
-    return func(this);
+    return m_vtbl == 0x0088A0B8;
 }
 
 bool trigger::is_entity_trigger() const
 {
-    bool(__fastcall * func)(const void *) = CAST(func, get_vfunc(m_vtbl, 0x178));
-    return func(this);
+    return m_vtbl == 0x0088A240;
 }

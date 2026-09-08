@@ -38,7 +38,9 @@ void dynamic_rtree_root_t::term()
 
 void dynamic_rtree_root_t::sort()
 {
-    this->state->sort();
+    if (this->state != nullptr) {
+        this->state->sort();
+    }
 }
 
 rtree_hash_entry::rtree_hash_entry(entity_base_vhandle a2, rtree_node_t *a3) : field_0(a2), entity_aabb(a3) {}
@@ -207,5 +209,13 @@ void dynamic_rtree_root_state::occupy(int index)
 
 void dynamic_rtree_root_state::sort()
 {
-    THISCALL(0x005709C0, this);
+    if (bottom_level == nullptr) {
+        return;
+    }
+
+    for (int index = 0; index < BOTTOM_LEVEL_SIZE; ++index) {
+        const bool occupied_slot =
+            (occupied.field_4[index >> 5] & (1u << (index & 31))) != 0;
+        assert(occupied_slot == bottom_level[index].is_valid());
+    }
 }

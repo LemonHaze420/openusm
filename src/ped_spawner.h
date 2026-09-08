@@ -56,6 +56,7 @@ struct ped_spawner : spawnable {
     static void advance_peds(Float a1);
 
     static void populate_lanes();
+    static void populate_quad_paths();
 
     static ped_spawner *assign_non_ped_actor(vhandle_type<actor> a2, int a3);
 

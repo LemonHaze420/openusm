@@ -6,6 +6,8 @@
 #include "fixed_pool.h"
 #include "fixed_vector.h"
 #include "func_wrapper.h"
+#include "hierarchical_entity_proximity_map.h"
+
 #include "memory.h"
 #include "moved_entities.h"
 #include "region.h"
@@ -74,8 +76,31 @@ void entity::randomize_position(const vector3d &a2, Float a3, Float a4, Float a5
 void entity::update_proximity_maps()
 {
     TRACE("entity::update_proximity_maps");
-
-    THISCALL(0x004CB810, this);
+    auto *root = this;
+    if (is_ext_flagged(0x8000u)) {
+        root = static_cast<entity *>(get_conglom_owner());
+    }
+    if (root == nullptr || !root->is_renderable()) {
+        return;
+    }
+    const bool should_update = root->is_ext_flagged(0x200u);
+    auto process_region = [root, should_update](region *current) {
+        if (current == nullptr || current->visibility_map == nullptr) {
+            return;
+        }
+        if (should_update) {
+            current->visibility_map->update_entity(root);
+        } else {
+            current->visibility_map->remove_entity(root);
+        }
+    };
+    process_region(root->regions[0]);
+    process_region(root->regions[1]);
+    if (root->extended_regions != nullptr) {
+        for (auto *current : *root->extended_regions) {
+            process_region(current);
+        }
+    }
 }
 
 bool entity::is_in_limbo() const
@@ -106,7 +131,11 @@ float entity::get_visual_radius()
 
         return parent->get_visual_radius();
     } else {
-        float(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x28));
+        auto *address = get_vfunc(m_vtbl, 0x28);
+        if (address == nullptr) {
+            return 0.0f;
+        }
+        float(__fastcall * func)(void *) = CAST(func, address);
         return func(this);
     }
 }
@@ -127,7 +156,6 @@ vector3d entity::get_visual_center()
         }
 
     } else {
-        assert(!is_a_conglomerate() && !is_an_actor() && !is_conglom_member());
 
         result = this->get_abs_position();
     }
@@ -249,12 +277,7 @@ bool entity::is_renderable() const
 
 bool entity::possibly_collide()
 {
-    if constexpr (1) {
-        bool(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x190));
-        return func(this);
-    } else {
-        return this->get_colgeom() != nullptr && this->are_collisions_active();
-    }
+    return this->get_colgeom() != nullptr && this->are_collisions_active();
 }
 
 bool entity::possibly_camera_collide()
@@ -462,40 +485,24 @@ void entity::set_recursive_age(Float a2)
     this->set_age(a2);
 }
 
-bool entity::is_in_region(const region *r) const
+bool entity::is_in_region(const region *target) const
 {
-    if constexpr (1) {
-        assert("regions[ 0 ] can not be NULL when regions[ 1 ] is not. " &&
-               (this->regions[1] ? this->regions[0] != nullptr : 1));
-
-        assert("regions[ 0 ] and regions[ 1 ] should not be NULL while extended_regions is not." &&
-                       this->extended_regions
-                   ? this->regions[0] && this->regions[1]
-                   : 1);
-
-        assert(this->extended_regions != nullptr ? this->extended_regions->size() > 0 : 1);
-
-        auto v4 = 0;
-        region *v2 = nullptr;
-        for (auto *reg = this->regions[0]; reg != r; reg = v2) {
-            if (reg == r) {
+    if (target == nullptr) {
+        return false;
+    }
+    for (auto *current : regions) {
+        if (current == target) {
+            return true;
+        }
+    }
+    if (extended_regions != nullptr) {
+        for (auto *current : *extended_regions) {
+            if (current == target) {
                 return true;
             }
-
-            if (++v4 >= 2) {
-                if (this->extended_regions != nullptr) {
-                    v2 = ((v4 - 2) < static_cast<int>(extended_regions->size()) ? extended_regions->m_data[v4 - 2]
-                                                                                : nullptr);
-                }
-            } else {
-                v2 = this->regions[v4];
-            }
         }
-
-        return false;
-    } else {
-        return (bool)THISCALL(0x004CB5C0, this, r);
     }
+    return false;
 }
 
 void entity::add_me_to_region(region *r)
@@ -547,29 +554,80 @@ collision_geometry *entity::get_colgeom() const
 {
     return this->colgeom;
 }
-
 float entity::get_colgeom_radius() const
 {
-    float (*func)(const void *) = CAST(func, get_vfunc(m_vtbl, 0x254));
-
-    return func(this);
+    auto *address = get_vfunc(m_vtbl, 0x254);
+    if (address != nullptr) {
+        float (*func)(const void *) = CAST(func, address);
+        return func(this);
+    }
+    if (colgeom != nullptr && colgeom->m_vtbl != 0) {
+        address = get_vfunc(colgeom->m_vtbl, 0x1C);
+        if (address != nullptr) {
+            float(__fastcall * func)(void *) = CAST(func, address);
+            return func(colgeom);
+        }
+    }
+    return 0.0f;
 }
-
 vector3d entity::get_colgeom_center() const
 {
-    void(__fastcall * func)(const void *, void *, vector3d *) = CAST(func, get_vfunc(m_vtbl, 0x258));
-
-    vector3d result;
-    func(this, nullptr, &result);
-
-    return result;
+    auto *address = get_vfunc(m_vtbl, 0x258);
+    if (address != nullptr) {
+        void(__fastcall * func)(const void *, void *, vector3d *) = CAST(func, address);
+        vector3d result;
+        func(this, nullptr, &result);
+        return result;
+    }
+    if (colgeom != nullptr && colgeom->m_vtbl != 0) {
+        address = get_vfunc(colgeom->m_vtbl, 0x18);
+        if (address != nullptr) {
+            vector3d local;
+            void(__fastcall * func)(void *, void *, vector3d *) = CAST(func, address);
+            func(colgeom, nullptr, &local);
+            return const_cast<entity *>(this)->get_abs_position() + local;
+        }
+    }
+    return const_cast<entity *>(this)->get_abs_position();
 }
 
-void entity::remove_me_from_region(region *r)
+void entity::remove_me_from_region(region *target)
 {
-    assert(r != nullptr);
+    assert(target != nullptr);
+    if (target->is_loaded()) {
+        target->remove(this);
+    }
 
-    THISCALL(0x004F5390, this, r);
+    region *remaining[9]{};
+    int count = 0;
+    for (auto *current : regions) {
+        if (current != nullptr && current != target) {
+            remaining[count++] = current;
+        }
+    }
+    if (extended_regions != nullptr) {
+        for (auto *current : *extended_regions) {
+            if (current != nullptr && current != target) {
+                remaining[count++] = current;
+            }
+        }
+    }
+
+    regions[0] = count > 0 ? remaining[0] : nullptr;
+    regions[1] = count > 1 ? remaining[1] : nullptr;
+    if (extended_regions != nullptr) {
+        extended_regions->m_size = 0;
+        for (int index = 2; index < count; ++index) {
+            extended_regions->push_back(remaining[index]);
+        }
+        if (extended_regions->size() == 0) {
+            entity_extended_regions_array_t::pool.remove(extended_regions);
+            extended_regions = nullptr;
+        }
+    }
+    if (regions[0] == nullptr) {
+        enter_limbo();
+    }
 }
 
 void entity::create_time_ifc()
@@ -650,7 +708,7 @@ void entity::update_regions(region **visited_regions, int a3)
             region *v9 = nullptr;
             for (auto *r = this->regions[0]; r != nullptr; r = v9) {
                 if (!exists_region(visited_regions, a3, r)) {
-                    this->remove_me_from_region(v9);
+                    this->remove_me_from_region(r);
                     goto LABEL_10;
                 }
 
@@ -743,7 +801,7 @@ void entity::remove_from_regions()
 {
     TRACE("entity::remove_from_regions");
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         assert("regions[ 0 ] can not be NULL when regions[ 1 ] is not. " &&
                (this->regions[1] ? this->regions[0] != nullptr : 1));
 
@@ -768,7 +826,7 @@ void entity::remove_from_regions()
             this->regions[1] = nullptr;
             this->regions[0] = nullptr;
             if (this->extended_regions != nullptr) {
-                for (auto v5 = 0; v5 < this->extended_regions->size(); ++v5) {
+                for (unsigned int v5 = 0; v5 < this->extended_regions->size(); ++v5) {
                     auto *reg = this->extended_regions->m_data[v5];
                     if (reg != nullptr && reg->is_loaded()) {
                         reg->remove(this);

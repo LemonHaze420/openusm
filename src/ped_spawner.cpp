@@ -5,10 +5,24 @@
 #include "trace.h"
 #include "utility.h"
 #include "wds.h"
+#include "game.h"
+#include "mstring.h"
+#include "os_developer_options.h"
+#include "oldmath_po.h"
+#include "variable.h"
+#include "vtbl.h"
 
 VALIDATE_SIZE(ped_spawner, 0x4C);
 
 _std::vector<ped_spawner *> &ped_spawner::ped_spawner_list = var<_std::vector<ped_spawner *>>(0x0096D270);
+static auto &peds_initialized = var<bool>(0x0096C9B8);
+static auto &special_proc_index = var<int>(0x0096C9C0);
+static auto &special_proc_index_0 = var<int>(0x0096C9C4);
+static auto &special_proc_timer = var<float>(0x0096C9C8);
+static auto &num_peds_spawned = var<int>(0x0096C9CC);
+static auto &peds_single_step = var<bool>(0x0096C9D0);
+static auto &peds_paused = var<bool>(0x0096C9D1);
+static auto &ped_density = var<float>(0x00937FF0);
 
 ped_spawner::ped_spawner(int a2) : spawnable(vhandle_type<entity>{0})
 {
@@ -64,15 +78,25 @@ actor *ped_spawner::create_ped_actor()
         this->field_44 = 1;
     }
 
+    if (eb != nullptr && eb->m_vtbl == 0) {
+        return nullptr;
+    }
+    if (eb != nullptr) {
+        auto *get_mesh_address = get_vfunc(eb->m_vtbl, 0x1B0);
+        if (get_mesh_address == nullptr) {
+            return nullptr;
+        }
+        nglMesh *(__fastcall *get_mesh)(entity *) =
+            CAST(get_mesh, get_mesh_address);
+        if (get_mesh(eb) == nullptr) {
+            return nullptr;
+        }
+    }
+
     if (eb != nullptr) {
         assert(eb->is_an_actor());
 
         eb->set_visible(false, false);
-
-        assert(!eb->has_physical_ifc() && "Peds should not have physical ifc");
-        if (eb->has_physical_ifc()) {
-            eb->set_collisions_active(false, true);
-        }
 
         return bit_cast<actor *>(eb);
     }
@@ -103,21 +127,115 @@ void ped_spawner::init()
 {
     TRACE("ped_spawner::init");
 
-    CDECL_CALL(0x006D1960);
+    if (peds_initialized) {
+        return;
+    }
+    ped_spawner_list.clear();
+    for (int index = 0; index < 10; ++index) {
+        auto *spawner = new ped_spawner{index};
+        spawner->field_8 = 0;
+        spawner->field_10 = nullptr;
+        spawner->field_14 = nullptr;
+        spawner->field_18 = nullptr;
+        spawner->field_1C = 0;
+        spawner->field_20 = 0;
+        spawner->field_24 = 0;
+        spawner->field_28 = 0;
+        spawner->field_2C = 0;
+        spawner->field_30 = ZEROVEC;
+        spawner->field_3C = vhandle_type<actor>{0};
+        spawner->field_40 = false;
+        spawner->field_44 = 0;
+        spawner->field_48 = 0;
+
+        auto *ped_actor = spawner->create_ped_actor();
+        if (ped_actor == nullptr) {
+            delete spawner;
+            break;
+        }
+        spawner->field_3C = vhandle_type<actor>{ped_actor->get_my_vhandle()};
+        ped_spawner_list.push_back(spawner);
+    }
+    special_proc_index = 0;
+    special_proc_index_0 = 0;
+    special_proc_timer = 0.0f;
+    num_peds_spawned = 0;
+    peds_initialized = true;
+    const vector3d forward{0.0f, 0.0f, 1.0f};
+    const vector3d up{0.0f, 1.0f, 0.0f};
+    const vector3d position{-1234.0f, -1234.0f, -1234.0f};
+    spawnable::last_camera_po.set_po(forward, up, position);
 }
 
 void ped_spawner::cleanup()
 {
     TRACE("ped_spawner::cleanup");
-
-    CDECL_CALL(0x006CDB50);
+    if (!peds_initialized) {
+        return;
+    }
+    for (auto *spawner : ped_spawner_list) {
+        delete spawner;
+    }
+    ped_spawner_list.clear();
+    peds_initialized = false;
+    num_peds_spawned = 0;
 }
 
-void ped_spawner::advance_peds(Float a1)
+void ped_spawner::advance_peds(Float elapsed)
 {
     TRACE("ped_spawner::advance_peds");
 
-    CDECL_CALL(0x006D1B30, a1);
+    if (peds_single_step) {
+        peds_single_step = false;
+    } else if (peds_paused) {
+        return;
+    }
+
+    if (!os_developer_options::instance->get_flag(mString{"ENABLE_PEDESTRIANS"})) {
+        if (peds_initialized) {
+            cleanup();
+        }
+        return;
+    }
+    if (!peds_initialized) {
+        if (g_game_ptr->get_current_view_camera(0) == nullptr) {
+            return;
+        }
+        init();
+    }
+
+    const int target_count = static_cast<int>(
+        static_cast<float>(ped_spawner_list.size()) * ped_density);
+    if (num_peds_spawned < target_count) {
+        if ((g_world_ptr->field_158.field_C & 1) == 0) {
+            populate_quad_paths();
+        }
+        if (num_peds_spawned < target_count) {
+            populate_lanes();
+        }
+    }
+    for (auto *spawner : ped_spawner_list) {
+        if (spawner->get_my_actor() == nullptr) {
+            auto *ped_actor = spawner->create_ped_actor();
+            if (ped_actor != nullptr) {
+                spawner->field_3C = vhandle_type<actor>{ped_actor->get_my_vhandle()};
+            }
+        }
+        spawner->sub_6C2EA0(elapsed);
+    }
+
+    special_proc_timer += elapsed.value;
+    constexpr float interval = 0.011111111f;
+    if (special_proc_timer > interval) {
+        const int steps = static_cast<int>(special_proc_timer * 90.0f);
+        special_proc_index = (special_proc_index_0 + 1) % 10;
+        special_proc_index_0 = (special_proc_index_0 + steps) % 10;
+        special_proc_timer -= static_cast<float>(steps) * interval;
+    }
+}
+void ped_spawner::populate_quad_paths()
+{
+    CDECL_CALL(0x006CCD60);
 }
 
 void ped_spawner::populate_lanes()

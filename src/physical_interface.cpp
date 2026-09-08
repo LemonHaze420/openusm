@@ -7,11 +7,15 @@
 #include "guidance_sys.h"
 #include "log.h"
 #include "oldmath_po.h"
+#include "moved_entities.h"
+
 #include "pendulum.h"
 #include "phys_vector3d.h"
 #include "rb_ragdoll_model.h"
 #include "rigid_body.h"
 #include "trace.h"
+#include "time_interface.h"
+
 #include "utility.h"
 #include "variables.h"
 #include "vector3d.h"
@@ -191,11 +195,60 @@ void physical_interface::un_mash(generic_mash_header *a2, void *a3, void *a4, ge
     THISCALL(0x004DF4A0, this, a2, a3, a4, a5);
 }
 
-void physical_interface::frame_advance_all_phys_interfaces(Float a1)
+void physical_interface::frame_advance_all_phys_interfaces(Float elapsed)
 {
     TRACE("physical_interface::frame_advance_all_phys_interfaces");
+    if (all_phys_interfaces == nullptr) {
+        return;
+    }
 
-    CDECL_CALL(0x004FB1D0, a1);
+    for (auto *interface_ptr : *all_phys_interfaces) {
+        if (interface_ptr == nullptr || interface_ptr->field_4 == nullptr) {
+            continue;
+        }
+        auto *owner = interface_ptr->field_4;
+        if (owner->is_in_limbo()) {
+            continue;
+        }
+        const float scale = owner->field_58 != nullptr
+            ? static_cast<float>(owner->field_58->sub_4ADE50())
+            : g_world_ptr->field_158.field_0;
+        interface_ptr->field_C &= ~0x60u;
+        interface_ptr->field_C4 = 0;
+        if ((interface_ptr->field_C & 1) != 0 &&
+            (interface_ptr->field_C & 2) == 0 &&
+            interface_ptr->field_174 == nullptr) {
+            interface_ptr->frame_advance(Float{scale * elapsed.value});
+            owner->update_abs_po(true);
+        }
+        interface_ptr->field_C &= ~0x8000u;
+    }
+}
+
+void physical_interface::frame_advance(Float elapsed)
+{
+    field_10 = -1;
+    auto *owner = field_4;
+    if (owner == nullptr || owner->get_primary_region() == nullptr) {
+        return;
+    }
+    field_C &= ~0x80u;
+    owner->update_abs_po(true);
+    auto position = owner->get_abs_position();
+    if (position.y < -1000.0f) {
+        m_velocity = ZEROVEC;
+        field_2C = ZEROVEC;
+        field_38 = ZEROVEC;
+        position.y = -999.0f;
+        entity_set_abs_position(owner, position);
+        return;
+    }
+    if ((field_C & 0x80000u) == 0 && field_174 == nullptr) {
+        moved_entities::add_moved(vhandle_type<entity>{owner->get_my_vhandle()});
+    }
+    if ((field_C & 0x20000u) != 0) {
+        field_15C += elapsed.value;
+    }
 }
 
 vector3d physical_interface::calculate_force_vector_2(const vector3d *a2, const vector3d *a3, Float a4, Float a5)
@@ -529,7 +582,6 @@ void physical_interface::enable(bool a2)
         this->field_C &= 0xFFFFFFFE;
     }
 }
-
 
 void physical_interface::set_pendulum(int num, pendulum *a3)
 {

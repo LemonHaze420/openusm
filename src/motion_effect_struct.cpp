@@ -1,4 +1,8 @@
 #include "motion_effect_struct.h"
+#include "entity.h"
+#include "time_interface.h"
+#include "variable.h"
+#include "wds.h"
 
 #include "common.h"
 #include "func_wrapper.h"
@@ -41,11 +45,28 @@ void motion_effect_struct::render_distorted_trail(const vector3d &a1, const vect
     THISCALL(0x004DCA10, this, &a1, &a2, &a3, &a4, &a5, &a6, a7, a8, a9, a10, &a11, &a12);
 }
 
-void motion_effect_struct::record_all_motion_fx(Float a1)
+void motion_effect_struct::record_all_motion_fx(Float elapsed)
 {
     TRACE("motion_effect_struct::record_all_motion_fx");
+    static auto &active = var<motion_effect_struct *>(0x0095A700);
 
-    CDECL_CALL(0x004EFA50, a1);
+    for (auto *current = active; current != nullptr;) {
+        auto *next = reinterpret_cast<motion_effect_struct *>(current->field_0[0]);
+        entity_base_vhandle handle{current->field_0[5]};
+        auto *owner = handle.get_volatile_ptr();
+        float scale = g_world_ptr->field_158.field_0;
+        if (owner != nullptr && (owner->field_4 & 0x8000u) != 0) {
+            owner = owner->get_conglom_owner();
+        }
+        if (owner != nullptr && owner->is_an_entity()) {
+            auto *entity_ptr = static_cast<entity *>(owner);
+            if (entity_ptr->field_58 != nullptr) {
+                scale = static_cast<float>(entity_ptr->field_58->sub_4ADE50());
+            }
+        }
+        THISCALL(0x004E5F00, current, Float{scale * elapsed.value});
+        current = next;
+    }
 }
 
 void motion_effect_struct_patch()

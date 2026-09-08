@@ -153,6 +153,7 @@ struct actor : entity {
 
     //virtual
     void invalidate_frame_delta();
+    void update_colgeom(po *a2);
 
     inline ai_player_controller *get_player_controller()
     {

@@ -1,3 +1,5 @@
+#include <cstddef>
+
 #include "patrol_manager.h"
 
 #include "common.h"
@@ -22,7 +24,29 @@ patrol_manager::patrol_manager()
     this->field_34 = string_hash();
 }
 
-void patrol_manager::frame_advance(Float a2)
+void patrol_manager::frame_advance(Float)
 {
-    THISCALL(0x005DD330, this, a2);
+    auto &sequence = field_4;
+    const auto *first = reinterpret_cast<const char *>(sequence.field_0);
+    const auto *last = reinterpret_cast<const char *>(sequence.field_4);
+    const int count = first != nullptr && last != nullptr
+        ? static_cast<int>((last - first) / 8)
+        : 0;
+
+    if (sequence.field_20 >= count) {
+        if (sequence.field_0 != 0) {
+            operator delete(reinterpret_cast<void *>(sequence.field_0));
+        }
+        sequence.field_0 = 0;
+        sequence.field_4 = nullptr;
+        sequence.field_8 = 0;
+        sequence.field_20 = -1;
+        sequence.field_24 = 0;
+        sequence.field_25 = 0;
+        sequence.field_26 = 1;
+        sequence.field_27 = 1;
+    }
+    if (sequence.field_26) {
+        field_0 = 0;
+    }
 }

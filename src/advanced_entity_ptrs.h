@@ -14,7 +14,7 @@ struct movement_info {
     po field_0;
     float field_40;
     vector3d field_44;
-    int field_50;
+    float field_50;
     bool field_54;
     bool field_55;
 };

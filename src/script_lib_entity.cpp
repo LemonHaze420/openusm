@@ -1,6 +1,7 @@
 #include "script_lib_entity.h"
 
 #include "actor.h"
+
 #include "base_ai_core.h"
 #include "entity_base.h"
 #include "entity_base_vhandle.h"
@@ -14,6 +15,11 @@
 #include "utility.h"
 #include "vm_stack.h"
 #include "xbpack.h"
+#include "marky_camera.h"
+#include "vm_thread.h"
+#include "wds.h"
+#include "variant_interface.h"
+
 #include <cmath>
 #include <type_traits>
 
@@ -1173,11 +1179,26 @@ struct slf__entity__get_district__t : script_library_class::function {
 struct slf__entity__get_facing__t : script_library_class::function {
     slf__entity__get_facing__t(script_library_class *slc, const char *a3) : function(slc, a3)
     {
+#if STANDALONE_SYSTEM
+        bind_standalone_entity_slf(this);
+#else
         m_vtbl = (decltype(m_vtbl))0x0089ABEC;
+#endif
     }
 
-    bool operator()(vm_stack &, script_library_class::function::entry_t) const
+    bool operator()(vm_stack &stack, script_library_class::function::entry_t) const
     {
+        stack.pop(sizeof(entity_base_vhandle));
+        const auto handle =
+            *reinterpret_cast<const entity_base_vhandle *>(stack.get_SP());
+        vector3d result{};
+        if (auto *entity_ptr = handle.get_volatile_ptr(); entity_ptr != nullptr) {
+            const auto &transform = entity_ptr->get_abs_po();
+            result = entity_ptr->get_flavor() == 10
+                ? transform.get_y_facing()
+                : transform.get_z_facing();
+        }
+        SLF_RETURN;
         return true;
     }
 };
@@ -1509,11 +1530,25 @@ struct slf__entity__get_rel_velocity__entity__t : script_library_class::function
 struct slf__entity__get_render_alpha__t : script_library_class::function {
     slf__entity__get_render_alpha__t(script_library_class *slc, const char *a3) : function(slc, a3)
     {
+#if STANDALONE_SYSTEM
+        bind_standalone_entity_slf(this);
+#else
         m_vtbl = (decltype(m_vtbl))0x0089B254;
+#endif
     }
 
-    bool operator()(vm_stack &, script_library_class::function::entry_t) const
+    bool operator()(vm_stack &stack, script_library_class::function::entry_t) const
     {
+        stack.pop(sizeof(entity_base_vhandle));
+        const auto handle =
+            *reinterpret_cast<const entity_base_vhandle *>(stack.get_SP());
+        float result = 1.0f;
+        if (auto *entity_ptr = handle.get_volatile_ptr();
+            entity_ptr != nullptr && entity_ptr->is_an_entity()) {
+            const auto color = static_cast<entity *>(entity_ptr)->get_render_color();
+            result = static_cast<unsigned char>(color.field_0[3]) / 255.0f;
+        }
+        SLF_RETURN;
         return true;
     }
 };
@@ -1825,11 +1860,20 @@ struct slf__entity__is_throwable__t : script_library_class::function {
 struct slf__entity__is_valid__t : script_library_class::function {
     slf__entity__is_valid__t(script_library_class *slc, const char *a3) : function(slc, a3)
     {
+#if STANDALONE_SYSTEM
+        bind_standalone_entity_slf(this);
+#else
         m_vtbl = (decltype(m_vtbl))0x0089B464;
+#endif
     }
 
-    bool operator()(vm_stack &, script_library_class::function::entry_t) const
+    bool operator()(vm_stack &stack, script_library_class::function::entry_t) const
     {
+        stack.pop(sizeof(entity_base_vhandle));
+        const auto handle =
+            *reinterpret_cast<const entity_base_vhandle *>(stack.get_SP());
+        float result = handle.get_volatile_ptr() != nullptr ? 1.0f : 0.0f;
+        SLF_RETURN;
         return true;
     }
 };
@@ -2659,13 +2703,25 @@ struct slf__entity__set_crawlable__num__t : script_library_class::function {
 };
 
 struct slf__entity__set_default_variant__t : script_library_class::function {
-    slf__entity__set_default_variant__t(script_library_class *slc, const char *a3) : function(slc, a3)
+    slf__entity__set_default_variant__t(script_library_class *slc, const char *a3)
+        : function(slc, a3)
     {
+#if STANDALONE_SYSTEM
+        bind_standalone_entity_slf(this);
+#else
         m_vtbl = (decltype(m_vtbl))0x0089B544;
+#endif
     }
 
-    bool operator()(vm_stack &, script_library_class::function::entry_t) const
+    struct parms_t {
+        entity_base_vhandle entity;
+    };
+
+    bool operator()(vm_stack &stack, script_library_class::function::entry_t) const
     {
+        SLF_PARMS;
+        auto *entity_ptr = parms->entity.get_volatile_ptr();
+        entity_ptr->variant_ifc()->apply_variant(string_hash{"__default"});
         return true;
     }
 };
@@ -2685,23 +2741,52 @@ struct slf__entity__set_distance_clip__num__t : script_library_class::function {
 struct slf__entity__set_entity_blur__num__t : script_library_class::function {
     slf__entity__set_entity_blur__num__t(script_library_class *slc, const char *a3) : function(slc, a3)
     {
+#if STANDALONE_SYSTEM
+        bind_standalone_entity_slf(this);
+#else
         m_vtbl = (decltype(m_vtbl))0x0089B224;
+#endif
     }
 
-    bool operator()(vm_stack &, script_library_class::function::entry_t) const
+    struct parms_t {
+        entity_base_vhandle entity;
+        float blur;
+    };
+
+    bool operator()(vm_stack &stack, script_library_class::function::entry_t) const
     {
+        SLF_PARMS;
+        (void) parms->entity.get_volatile_ptr();
         return true;
     }
 };
 
-struct slf__entity__set_facing__vector3d__vector3d__t : script_library_class::function {
-    slf__entity__set_facing__vector3d__vector3d__t(script_library_class *slc, const char *a3) : function(slc, a3)
+struct slf__entity__set_facing__vector3d__vector3d__t
+    : script_library_class::function {
+    slf__entity__set_facing__vector3d__vector3d__t(
+        script_library_class *slc, const char *a3)
+        : function(slc, a3)
     {
-        m_vtbl = (decltype(m_vtbl))0x0089AC8C;
+        bind_standalone_entity_slf(this);
     }
 
-    bool operator()(vm_stack &, script_library_class::function::entry_t) const
+    struct parms_t {
+        entity_base_vhandle entity;
+        vector3d facing;
+        vector3d up;
+    };
+
+    bool operator()(vm_stack &stack,
+                    script_library_class::function::entry_t) const
     {
+        SLF_PARMS;
+        if (auto *entity_ptr = parms->entity.get_volatile_ptr();
+            entity_ptr != nullptr) {
+            auto transform = entity_ptr->get_rel_po();
+            transform.set_po(
+                parms->facing, parms->up, transform.get_position());
+            entity_ptr->set_abs_po(transform);
+        }
         return true;
     }
 };
@@ -3011,6 +3096,32 @@ struct slf__entity__set_pendulum_length__num__t : script_library_class::function
     }
 };
 
+struct slf__entity__set_abs_position__vector3d__t
+    : script_library_class::function {
+    slf__entity__set_abs_position__vector3d__t(
+        script_library_class *slc, const char *a3)
+        : function(slc, a3)
+    {
+        bind_standalone_entity_slf(this);
+    }
+
+    struct parms_t {
+        entity_base_vhandle entity;
+        vector3d position;
+    };
+
+    bool operator()(vm_stack &stack,
+                    script_library_class::function::entry_t) const
+    {
+        SLF_PARMS;
+        if (auto *entity_ptr = parms->entity.get_volatile_ptr();
+            entity_ptr != nullptr) {
+            entity_ptr->set_abs_position(parms->position);
+        }
+        return true;
+    }
+};
+
 struct slf__entity__set_physical__num__t : script_library_class::function {
     slf__entity__set_physical__num__t(script_library_class *slc, const char *a3) : function(slc, a3)
     {
@@ -3042,11 +3153,12 @@ struct slf__entity__set_po_facing__vector3d__t : script_library_class::function 
     {
         SLF_PARMS;
         if (auto *entity_ptr = parms->entity.get_volatile_ptr(); entity_ptr != nullptr) {
-            auto transform = entity_ptr->get_abs_po();
+            po transform;
             auto facing = parms->facing;
             facing.normalize();
             transform.set_facing(facing);
-            entity_ptr->set_abs_po(transform);
+            transform.set_position(entity_ptr->get_abs_position());
+            entity_set_abs_po(entity_ptr, transform);
         }
         return true;
     }
@@ -3055,11 +3167,62 @@ struct slf__entity__set_po_facing__vector3d__t : script_library_class::function 
 struct slf__entity__set_rel_position__vector3d__t : script_library_class::function {
     slf__entity__set_rel_position__vector3d__t(script_library_class *slc, const char *a3) : function(slc, a3)
     {
+#if STANDALONE_SYSTEM
+        bind_standalone_entity_slf(this);
+#else
         m_vtbl = (decltype(m_vtbl))0x0089AC64;
+#endif
     }
 
-    bool operator()(vm_stack &, script_library_class::function::entry_t) const
+    struct parms_t {
+        entity_base_vhandle entity;
+        vector3d position;
+    };
+
+    bool operator()(vm_stack &stack, script_library_class::function::entry_t) const
     {
+        SLF_PARMS;
+        auto *entity_ptr = parms->entity.get_volatile_ptr();
+        if (entity_ptr == nullptr) {
+            return true;
+        }
+
+        auto *marky_camera = g_world_ptr->field_28.field_44;
+        if (entity_ptr == marky_camera &&
+            bit_cast<uint32_t>(stack.get_thread()->field_1E0) !=
+                bit_cast<uint32_t>(marky_camera->field_1D8)) {
+            return true;
+        }
+
+        physical_interface *physical = nullptr;
+        if (entity_ptr->has_physical_ifc()) {
+            physical = entity_ptr->physical_ifc();
+            if (entity_ptr->get_ai_core() != nullptr) {
+                physical->set_control_parent(nullptr);
+            }
+        }
+
+        if (physical != nullptr && (physical->field_C & 0x80000) != 0) {
+            const vector3d translation =
+                parms->position - entity_ptr->get_rel_position();
+            (void)translation;
+            (void)physical->get_biped_system();
+            // 0x0059F400 biped_system::translate_bones is a retail no-op.
+        } else {
+            entity_ptr->set_abs_position(parms->position);
+        }
+
+        if (entity_ptr->is_an_actor()) {
+            auto *actor_ptr = static_cast<actor *>(entity_ptr);
+            actor_ptr->set_allow_tunnelling_into_next_frame(true);
+            actor_ptr->invalidate_frame_delta();
+        }
+
+        if (entity_ptr->is_an_entity() && !entity_ptr->is_ext_flagged(0x8000)) {
+            auto *entity = static_cast<::entity *>(entity_ptr);
+            entity->compute_sector(g_world_ptr->the_terrain, false, nullptr);
+            entity->update_proximity_maps();
+        }
         return true;
     }
 };
@@ -4011,11 +4174,8 @@ void register_entity_lib()
                set_car_combat_info__num__num__num__num__num__num__num__num,
                "set_car_combat_info(num,num,num,num,num,num,num,num)");
     CREATE_SLF(entity, set_crawlable__num, "set_crawlable(num)");
-    if constexpr (!xbpack::v10) {
-        CREATE_SLF(entity, set_default_variant, "set_default_variant()");
-    }
-    CREATE_SLF(entity, set_distance_clip__num, "set_distance_clip(num)");
     CREATE_SLF(entity, set_entity_blur__num, "set_entity_blur(num)");
+    CREATE_SLF(entity, set_distance_clip__num, "set_distance_clip(num)");
     CREATE_SLF(entity, set_facing__vector3d__vector3d, "set_facing(vector3d,vector3d)");
     CREATE_SLF(entity, set_fade_timer__num, "set_fade_timer(num)");
     CREATE_SLF(entity, set_hires_shadow__num, "set_hires_shadow(num)");
@@ -4043,6 +4203,7 @@ void register_entity_lib()
     CREATE_SLF(entity, set_pendulum_attach_limb__num, "set_pendulum_attach_limb(num)");
     CREATE_SLF(entity, set_pendulum_length__num, "set_pendulum_length(num)");
     CREATE_SLF(entity, set_physical__num, "set_physical(num)");
+    CREATE_SLF(entity, set_abs_position__vector3d, "set_abs_position(vector3d)");
     CREATE_SLF(entity, set_po_facing__vector3d, "set_po_facing(vector3d)");
     CREATE_SLF(entity, set_rel_position__vector3d, "set_rel_position(vector3d)");
     CREATE_SLF(entity, set_render_alpha__num, "set_render_alpha(num)");

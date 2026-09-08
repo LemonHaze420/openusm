@@ -35,9 +35,9 @@ enum resource_key_type {
     RESOURCE_KEY_TYPE_PACK = 25,
     RESOURCE_KEY_TYPE_SCENE_ANIM = 26,
     RESOURCE_KEY_TYPE_MISSION_TABLE = 27,
-
     RESOURCE_KEY_TYPE_SCRIPT_HEADER_FILE = 29,
 
+    RESOURCE_KEY_TYPE_GLASS_HOUSE = 39,
     RESOURCE_KEY_TYPE_LOD = 40,
     RESOURCE_KEY_TYPE_SIN = 41,
     RESOURCE_KEY_TYPE_SCRIPT_GV = 42,
@@ -56,7 +56,6 @@ enum resource_key_type {
 #ifdef TARGET_XBOX
     RESOURCE_KEY_TYPE_MASH_UNIT_TEST = 54,
 #endif
-
 
     RESOURCE_KEY_TYPE_FX_CACHE,
     RESOURCE_KEY_TYPE_AI_STATE_GRAPH,
@@ -138,7 +137,6 @@ struct resource_key {
     //0x004200D0
     static void calc_resource_string_and_type_from_path(const char *in_string, mString *out_string,
                                                         resource_key_type *type_override);
-
 
     static resource_key_type resolve_extension(const char *target_string, bool a2);
 };
