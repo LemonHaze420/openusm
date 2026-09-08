@@ -42,7 +42,6 @@ struct nglTintParam {
     static inline Var<int> ID{0x00971E94};
 };
 
-
 struct USSectionIFLParam {
     struct {
         uint32_t NSections;
@@ -184,4 +183,7 @@ public:
     }
 };
 
-extern nglMaterialBase *sub_8EA2E0(nglParamSet<nglShaderParamSet_Pool> *a1, nglMaterialBase *DefaultMaterial);
+// 0x008EA2E0
+extern nglMaterialBase *select_mesh_material(
+    nglParamSet<nglShaderParamSet_Pool> *params,
+    nglMaterialBase *default_material);

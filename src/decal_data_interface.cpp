@@ -8,6 +8,7 @@
 #include "event_manager.h"
 #include "func_wrapper.h"
 #include "memory.h"
+#include "vtbl.h"
 
 VALIDATE_SIZE(decal_data_interface, 0x80);
 #if STANDALONE_SYSTEM
@@ -36,7 +37,28 @@ bool decal_data_interface::is_dynamic() const
 
 void decal_data_interface::frame_advance_all_decal_interfaces(Float a1)
 {
+#if STANDALONE_SYSTEM
+    auto *interfaces = standalone_decal_interfaces();
+    if (interfaces == nullptr) {
+        return;
+    }
+    for (auto *interface_ptr : *interfaces) {
+        if (interface_ptr == nullptr ||
+            interface_ptr->m_vtbl != 0x00883DD4) {
+            continue;
+        }
+
+        auto *address = get_vfunc(interface_ptr->m_vtbl, 0x34);
+        if (address != nullptr) {
+            void(__fastcall *frame_advance)(
+                decal_data_interface *, void *, Float) =
+                CAST(frame_advance, address);
+            frame_advance(interface_ptr, nullptr, a1);
+        }
+    }
+#else
     CDECL_CALL(0x004D1CC0, a1);
+#endif
 }
 
 void decal_data_interface::add_to_decal_ifc_list()

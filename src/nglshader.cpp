@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "fixedstring.h"
+#include "geometry_manager.h"
 #include "log.h"
 #include "ngl.h"
 #include "ngl_params.h"
@@ -11,6 +12,8 @@
 #include "vector4d.h"
 #include "vtbl.h"
 #include <ngl_dx_state.h>
+
+#include <d3d9.h>
 
 #include "tl_instance_bank.h"
 #include "tl_system.h"

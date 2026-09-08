@@ -108,6 +108,17 @@ void fe_distance_race::Init()
     this->field_B0[3] = this->field_90[3];
 }
 
+// 0x0062FE40
+void fe_distance_race::Update(Float time_inc)
+{
+    if (field_0 == nullptr ||
+        (!field_C0 && (field_60 == nullptr || !field_60->field_2D)))
+        return;
+    field_0->Update(time_inc);
+    reinterpret_cast<PanelQuad **>(&field_38)[field_64]->SetPos(field_A0, field_70);
+    reinterpret_cast<PanelQuad **>(&field_48)[field_68]->SetPos(field_B0, field_80);
+}
+
 void fe_distance_race::DeInit()
 {
     this->field_0 = nullptr;

@@ -15,10 +15,15 @@
 #include "oldmath_po.h"
 #include "us_pcuv_shader.h"
 #include "trace.h"
+#include "time_interface.h"
+#include "variable.h"
+#include "vtbl.h"
+#include "wds.h"
 
 #include <cmath>
 
 VALIDATE_SIZE(beam, 0xE8u);
+static Var<beam *> active_beams{0x0095C750};
 
 beam::beam() {}
 
@@ -132,7 +137,6 @@ void beam::_render(Float a1)
                     IDirect3DVertexBuffer9_Unlock(v40->field_3C.getVertexBuffer());
                 }
 
-
                 auto v49 = *bit_cast<math::MatClass<4, 3> *>(&this->get_abs_po().get_matrix());
                 auto v42 = nglCloseMesh();
                 nglListAddMesh(v42, v49, nullptr, nullptr);
@@ -143,9 +147,23 @@ void beam::_render(Float a1)
     }
 }
 
-void beam::frame_advance_all_beams(Float a3)
+void beam::frame_advance_all_beams(Float elapsed)
 {
-    CDECL_CALL(0x0051CED0, a3);
+    for (auto *current = active_beams(); current != nullptr;) {
+        auto *next = reinterpret_cast<beam *>(current->field_68);
+        const float scale = current->field_58 != nullptr
+            ? static_cast<float>(current->field_58->sub_4ADE50())
+            : g_world_ptr->field_158.field_0;
+        if (current->m_vtbl != 0) {
+            auto *address = get_vfunc(current->m_vtbl, 0x1A4);
+            if (address != nullptr) {
+                void(__fastcall *frame_advance)(beam *, void *, Float) =
+                    CAST(frame_advance, address);
+                frame_advance(current, nullptr, Float{scale * elapsed.value});
+            }
+        }
+        current = next;
+    }
 }
 
 bool sub_CB3D60(unsigned int a5)

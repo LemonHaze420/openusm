@@ -10,6 +10,7 @@
 #include <utility.h>
 #include <vtbl.h>
 #include <array>
+#include <algorithm>
 #include <cstdint>
 
 nglRenderNode* g_CurrentRenderNode = nullptr;
@@ -23,9 +24,12 @@ struct nglRenderTextureNode {
 
 VALIDATE_SIZE(nglRenderTextureNode, 0x8u);
 
-void sub_77DFB0(nglRenderTextureNode *begin, nglRenderTextureNode *end, int a3, int a4)
+// 0x0077DFB0
+void sort_opaque_nodes(nglRenderTextureNode *begin, nglRenderTextureNode *end)
 {
-    CDECL_CALL(0x0077DFB0, begin, end, a3, a4);
+    std::sort(begin, end, [](const auto &left, const auto &right) {
+        return left.m_tex < right.m_tex;
+    });
 }
 
 template<>
@@ -43,7 +47,7 @@ void nglOpaqueCompare<nglRenderNode>(nglRenderNode *node, int count, int a3)
             }
         }(v1, node);
 
-        sub_77DFB0(v1, v1 + count, (8 * count) >> 3, a3);
+        sort_opaque_nodes(v1, v1 + count);
 
         [](auto *begin, nglRenderNode *&a2, int count) -> void {
             auto end = begin + count;
@@ -68,6 +72,47 @@ void nglOpaqueCompare<nglRenderNode>(nglRenderNode *node, int count, int a3)
         }
     } else {
         CDECL_CALL(0x0077E190, node, count, a3);
+    }
+}
+
+// 0x0077E220
+void nglTransCompare(nglRenderNode *node, int count, int)
+{
+    nglRenderTextureNode *nodes =
+        static_cast<nglRenderTextureNode *>(
+            nglListAlloc(sizeof(nglRenderTextureNode) * count, 16));
+    auto *entry = nodes;
+    for (auto *current = node; current != nullptr; current = current->m_next_node) {
+        entry->m_node = current;
+        entry->m_tex = current->m_tex;
+        ++entry;
+    }
+
+    std::sort(nodes, nodes + count, [](const auto &left, const auto &right) {
+        const auto left_key = bit_cast<float>(bit_cast<uint32_t>(left.m_tex));
+        const auto right_key = bit_cast<float>(bit_cast<uint32_t>(right.m_tex));
+        if (left_key > right_key) {
+            return true;
+        }
+        if (right_key > left_key) {
+            return false;
+        }
+        return left.m_node < right.m_node;
+    });
+
+    nglRenderNode *sorted = nullptr;
+    for (auto *current = nodes + count; current != nodes;) {
+        --current;
+        current->m_node->m_next_node = sorted;
+        sorted = current->m_node;
+    }
+
+    static Var<nglRenderNode *> nglPrevNode{0x00971F18};
+    for (auto *current = sorted; current != nullptr; current = current->m_next_node) {
+        g_CurrentRenderNode = current;
+        current->Render();
+        nglPrevNode() = current;
+        g_CurrentRenderNode = nullptr;
     }
 }
 

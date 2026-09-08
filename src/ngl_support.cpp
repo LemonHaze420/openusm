@@ -1,5 +1,6 @@
 #include "ngl_support.h"
 
+#include "geometry_manager.h"
 #include "func_wrapper.h"
 #include "ngl.h"
 #include "ngl_dx_scene.h"
@@ -11,18 +12,10 @@
 
 #include <cmath>
 
-
 void FastListAddMesh(nglMesh *Mesh, const math::MatClass<4, 3> &LocalToWorld, nglMeshParams *MeshParams,
                      nglParamSet<nglShaderParamSet_Pool> *ShaderParams)
 {
     TRACE("FastListAddMesh");
-
-    if (ShaderParams != nullptr) {
-        if (ShaderParams->IsSetParam<nglTintParam>()) {
-            auto *col = bit_cast<color *>(ShaderParams->Get<nglTintParam>()->field_0);
-            sp_log("color = %f %f %f %f", col->r, col->g, col->b, col->a);
-        }
-    }
 
     if constexpr (1) {
         assert(Mesh != nullptr && "NULL mesh passed to FastListAddMesh.\n");
@@ -42,6 +35,9 @@ void FastListAddMesh(nglMesh *Mesh, const math::MatClass<4, 3> &LocalToWorld, ng
         }
 
         assert(MeshParams != nullptr && "NULL MeshParams in FastListAddMesh.\n");
+        if (nglCurScene->field_3E4) {
+            nglCalculateMatrices(false);
+        }
 
         if (Mesh->NLODs != 0) {
             math::VecClass<3, 1> v5 =
@@ -111,7 +107,8 @@ void FastListAddMesh(nglMesh *Mesh, const math::MatClass<4, 3> &LocalToWorld, ng
 
             nglPerfInfo().m_num_verts += MeshSection->NVertices;
 
-            nglMaterialBase *v15 = sub_8EA2E0(&meshNode->field_8C, MeshSection->Material);
+            nglMaterialBase *v15 =
+                select_mesh_material(&meshNode->field_8C, MeshSection->Material);
 
             MeshSection->Material->m_shader->AddNode(meshNode, MeshSection, v15);
         }

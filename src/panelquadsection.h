@@ -28,6 +28,8 @@ struct PanelQuadSection {
 
     void sub_608EF0(float *a2, float *a3);
     void Animate(const matrix4x4 &transform, float z, bool relative);
+    // 0x006081B0
+    void Mask(float amount, int direction, float uv_extent, float scale);
 };
 
 extern void PanelQuadSection_patch();

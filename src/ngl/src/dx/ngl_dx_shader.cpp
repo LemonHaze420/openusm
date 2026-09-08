@@ -49,8 +49,6 @@ _std::list<IDirect3DVertexShader9 *> &g_vertexShaderList = []() -> auto & {
 int __stdcall hookD3DXAssembleShader(const char *data, UINT data_len, const D3DXMACRO *defines, ID3DXInclude *include,
                                      DWORD flags, ID3DXBuffer **shader, ID3DXBuffer **error_messages)
 {
-    //sp_log("%s %d", a1, a2);
-
     auto result = STDCALL(0x007CA2E8, data, data_len, defines, include, flags, shader, error_messages);
 
     return result;
@@ -143,9 +141,6 @@ bool compare_codes(const DWORD *code0, const DWORD *code1, int size)
         auto size_code0 = size_codes(code0);
         auto size_code1 = size_codes(code1);
 
-        //sp_log("%d", size_code0);
-        //sp_log("%d", size_code1);
-
         assert(size_code0 == size_code1);
     }
 
@@ -236,7 +231,6 @@ void nglSetupVShaderBonesDX(int a5, nglMeshNode *MeshNode, nglMeshSection *Secti
     TRACE("nglSetupVShaderBonesDX");
 
     auto *meshParams = MeshNode->Params;
-    //sp_log("Flags 0x%08X", meshParams->Flags);
     assert(meshParams->Flags == 0x44);
 
     if constexpr (1) {
@@ -320,13 +314,9 @@ void nglSetupVShaderBonesDX(int a5, nglMeshNode *MeshNode, nglMeshSection *Secti
 
         IDirect3DDevice9_GetVertexShaderConstantF(g_Direct3DDevice, 11, &tmp[0][0].x, 3 * 2);
 
-        //sp_log("%s", tmp[0].to_string());
-        //sp_log("%s", tmp[1].to_string());
-
         float f[4] {};
         IDirect3DDevice9_GetVertexShaderConstantF(g_Direct3DDevice, 90u, f, 1u);
 
-        //sp_log("%f %f %f %f", f[0], f[1], f[2], f[3]);
     }
 }
 
@@ -367,8 +357,6 @@ std::vector<DWORD> CompileVShader(const char *file_name, const D3DXMACRO *define
 
     auto buffer_size = pShader->lpVtbl->GetBufferSize(pShader);
     auto *buffer = pShader->lpVtbl->GetBufferPointer(pShader);
-
-    //sp_log("buffer_size = %d", buffer_size);
 
     //std::unique_ptr<DWORD> out = new DWORD[buffer_size / 4];
 
@@ -437,11 +425,11 @@ void nglCreatePShader(IDirect3DPixelShader9 **a3, const char *SrcCode, ...)
         auto *v7 = static_cast<const DWORD *>(pShader->lpVtbl->GetBufferPointer(pShader));
         g_codes = v7;
 
-        IDirect3DPixelShader9 *v2;
-        IDirect3DDevice9_CreatePixelShader(g_Direct3DDevice, v7, &v2);
-
-        g_pixelShaderList.push_back(*a3);
-
+        IDirect3DPixelShader9 *shader = nullptr;
+        IDirect3DDevice9_CreatePixelShader(g_Direct3DDevice, v7, &shader);
+        *a3 = shader;
+        g_pixelShaderList.push_back(shader);
+        pShader->lpVtbl->Release(pShader);
         va_end(Args);
     } else {
         CDECL_CALL(0x007723A0, a3, SrcCode);
@@ -520,7 +508,6 @@ const char * to_string(CNodeAsmRegister *node)
 
     return str;
 }
-
 
 struct CNodeAsmInstruction : CNode {
     D3DXTOKEN field_10;
@@ -779,7 +766,6 @@ int __fastcall CAssembler_EmitInstruction(CAssembler *self, void *, CNodeAsmInst
                     sp_log("0x%08X", 0x01000000 & 0x18);
                     sp_log("0x%08X", (0x00000003 | 0xFFFFFFF8) << 20);
                 }
-
 
                 uint32_t v29 = (v27->m_swizzling & 0xF0000) | (v27->m_index & 0x7FF) | (token->field_34 & 0xFF00000) |
                                (((v27->field_10 & 0x18) | ((v27->field_10 | 0xFFFFFFF8) << 20)) << 8);
@@ -1077,7 +1063,6 @@ void *__fastcall CAssembler_DecodeRegister(void *self, void *, D3DXTOKEN *token,
 {
     TRACE("CAssembler::DecodeRegister");
     sp_log("%s", token->field_8);
-
 
     void *(__fastcall * func)(void *self, void *, D3DXTOKEN *token, void *a3) = CAST(func, 0x007E66F9);
     return func(self, nullptr, token, a3);

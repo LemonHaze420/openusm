@@ -5,13 +5,13 @@
 #include "slot_pool.h"
 
 #include <cstdint>
-#include <set.hpp>
+#include <map.hpp>
 
 struct entity_tracker;
 struct vector3d;
 
 struct entity_tracker_manager {
-    _std::set<entity_base_vhandle> field_0;
+    _std::map<entity_base_vhandle, uint32_t> field_0;
     slot_pool<entity_tracker *, unsigned int> tracker_slot_pool;
     vhandle_type<entity> field_48;
     bool field_4C;
@@ -21,6 +21,11 @@ struct entity_tracker_manager {
 
     //0x00629E30
     entity_tracker *id_to_ptr(uint32_t a2);
+    // 0x00641500
+    uint32_t create_entity_tracker(entity_base_vhandle handle);
+
+    // 0x0063A270
+    void destroy_entity_tracker(uint32_t id);
 
     //0x0062EE10
     bool get_the_arrow_target_pos(vector3d *);

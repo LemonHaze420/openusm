@@ -251,7 +251,7 @@ void spiderman_camera::_frame_advance(Float a2)
         sp_log("0x%08X", this->field_1A0->m_vtbl);
     }
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         if (g_game_ptr->level_is_loaded() && !g_game_ptr->is_paused() &&
             !os_developer_options::instance->get_flag(mString{"SHOW_PROFILE_INFO"})) {
             static int & old_devopt_fov = var<int>(0x00959E54);

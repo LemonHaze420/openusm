@@ -479,7 +479,30 @@ void wds_render_manager::frame_advance([[maybe_unused]] Float a2)
 {
     TRACE("wds_render_manager::frame_advance");
 
-#if !STANDALONE_SYSTEM
+#if STANDALONE_SYSTEM
+    static auto &curve = var<float[55]>(0x00921BA4);
+    static auto &clock_scale = var<float>(0x00889840);
+    const float clock = g_game_ptr->get_script_game_clock_timer() * clock_scale;
+
+    int record = 0;
+    while (record < 10 && clock >= curve[(record + 1) * 5]) {
+        ++record;
+    }
+    if (record == 0 || record == 10) {
+        for (int component = 0; component < 4; ++component) {
+            field_10[component] = curve[record * 5 + component + 1];
+        }
+    } else {
+        const float start = curve[record * 5];
+        const float end = curve[(record + 1) * 5];
+        const float alpha = (clock - start) / (end - start);
+        for (int component = 0; component < 4; ++component) {
+            const float from = curve[record * 5 + component + 1];
+            const float to = curve[(record + 1) * 5 + component + 1];
+            field_10[component] = from + (to - from) * alpha;
+        }
+    }
+#else
     THISCALL(0x0054ADE0, this, a2);
 #endif
 }

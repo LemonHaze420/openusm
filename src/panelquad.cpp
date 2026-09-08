@@ -49,7 +49,6 @@ vector2d section_get_max(const PanelQuadSection &section)
 }
 }
 
-
 PanelQuad::PanelQuad()
 {
     if constexpr (STANDALONE_SYSTEM) {
@@ -296,10 +295,23 @@ void PanelQuad::_SetZvalueAbs(Float a2)
     }
 }
 
+// 0x006160E0
+void PanelQuad::Mask(float amount, int direction, float uv_extent)
+{
+    if (direction == 0 || pqs.empty())
+        return;
+    amount = std::clamp(amount, 0.0f, 1.0f);
+    pqs.at(0)->Mask(amount, direction, uv_extent, field_38);
+}
+
 void PanelQuad::SetZvalueAbs(Float a2)
 {
-    void(__fastcall * func)(void *, void *, Float) = CAST(func, get_vfunc(m_vtbl, 0x38));
-    func(this, nullptr, a2);
+    if constexpr (STANDALONE_SYSTEM) {
+        _SetZvalueAbs(a2);
+    } else {
+        void(__fastcall * func)(void *, void *, Float) = CAST(func, get_vfunc(m_vtbl, 0x38));
+        func(this, nullptr, a2);
+    }
 }
 
 void PanelQuad::Draw()
@@ -341,7 +353,6 @@ void PanelQuad::Scale(Float a1, bool a2)
 void PanelQuad::Rotate(Float a2, Float a3, Float a4, bool a5)
 {
     TRACE("PanelQuad::Rotate");
-
 
     float a4a = (a5 ? a4 - this->field_34 : float(a4));
 
@@ -418,10 +429,15 @@ color32 PanelQuad::_GetColor() const
 
 color32 PanelQuad::GetColor() const
 {
-    color32 v1;
-    void(__fastcall * func)(const void *, void *, color32 *) = CAST(func, get_vfunc(m_vtbl, 0xBC));
-    func(this, nullptr, &v1);
-    return v1;
+    if constexpr (STANDALONE_SYSTEM) {
+        return _GetColor();
+    } else {
+        color32 result;
+        void(__fastcall *func)(const void *, void *, color32 *) =
+            CAST(func, get_vfunc(m_vtbl, 0xBC));
+        func(this, nullptr, &result);
+        return result;
+    }
 }
 
 void PanelQuad::SetPos(float *a2, float *a3)

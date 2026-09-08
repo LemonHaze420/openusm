@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "config.h"
 
 struct PanelQuad;
@@ -31,19 +30,14 @@ struct fe_health_widget {
     void UpdateMasking();
 
     //0x0063B170
-    char clear_bars();
+    void clear_bars();
 
     void Init(int a2, const char *a3, bool a4);
 
     void DeInit(int a2);
 
-
-    void SetType(int the_type, int a3)
-    {
-        void(__fastcall * func)(void*, void*, int, int) = bit_cast<decltype(func)>(0x00641BC0);
-
-        func(this, nullptr, the_type, a3);
-    }
+    //0x00641BC0
+    void SetType(int the_type, int source_hash_code);
 };
 
 extern void fe_health_widget_patch();

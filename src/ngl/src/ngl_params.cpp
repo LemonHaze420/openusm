@@ -27,23 +27,34 @@ void nglParamSet<nglShaderParamSet_Pool>::set_color(color32 a2)
     }
 }
 
-nglMaterialBase *sub_8EA2E0(nglParamSet<nglShaderParamSet_Pool> *a1, nglMaterialBase *DefaultMaterial)
+nglMaterialBase *select_mesh_material(
+    nglParamSet<nglShaderParamSet_Pool> *a1,
+    nglMaterialBase *DefaultMaterial)
 {
     if (!a1->IsSetParam<USMMaterialListParam>()) {
         return DefaultMaterial;
     }
 
     assert(DefaultMaterial->IsSwitchable());
+    const auto material_slot = *bit_cast<uint32_t *>(&DefaultMaterial->field_18);
 
-    auto v5 = *bit_cast<uint32_t *>(&DefaultMaterial->field_18);
+    auto *material_list = a1->Get<USMMaterialListParam>()->field_0;
+    auto *material_indices = a1->Get<USMMaterialIndicesParam>()->field_0;
+    if (material_slot >= 4u || material_list == nullptr || material_indices == nullptr ||
+        IsBadReadPtr(material_indices, 4)) {
+        return DefaultMaterial;
+    }
 
-    nglMaterialBase **v4 = nullptr;
-    nglMaterialBase *v3 = nullptr;
-    if (v5 < 4u &&
-        (v4 = a1->Get<USMMaterialListParam>()->field_0,
-         (v3 = v4[a1->Get<USMMaterialIndicesParam>()->field_0[v5]]) != nullptr) &&
-        v3->m_shader == DefaultMaterial->m_shader) {
-        return v3;
+    const auto material_index = material_indices[material_slot];
+    if (IsBadReadPtr(material_list,
+                     sizeof(*material_list) * (static_cast<size_t>(material_index) + 1))) {
+        return DefaultMaterial;
+    }
+
+    auto *material = material_list[material_index];
+    if (material != nullptr && !IsBadReadPtr(material, sizeof(*material)) &&
+        material->m_shader == DefaultMaterial->m_shader) {
+        return material;
     }
 
     return DefaultMaterial;

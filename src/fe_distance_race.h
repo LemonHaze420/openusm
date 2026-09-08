@@ -1,4 +1,5 @@
 #pragma once
+#include "float.hpp"
 
 struct PanelFile;
 struct PanelQuad;
@@ -46,6 +47,8 @@ struct fe_distance_race {
 
     //0x00643860
     void Init();
+    // 0x0062FE40
+    void Update(Float time_inc);
 
     void DeInit();
 };

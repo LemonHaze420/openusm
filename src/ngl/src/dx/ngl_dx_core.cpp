@@ -1,9 +1,13 @@
 #include "ngl_dx_core.h"
 
+#include "geometry_manager.h"
 #include "ngl.h"
 #include "ngl_font.h"
 #include "ngl_lighting.h"
+#include "nglshader.h"
 #include "ngl_scene.h"
+#include "ngl_dx_scene.h"
+#include "ngl_texture.h"
 #include "ngl_dx_state.h"
 #include "timer.h"
 #include "trace.h"
@@ -43,72 +47,48 @@ void nglVif1RenderScene()
     TRACE("nglVif1RenderScene");
 
     if constexpr (STANDALONE_SYSTEM) {
-        auto render_scene = [&](auto &&self, nglScene *scene) -> void {
-            assert(scene != nullptr);
-            for (auto *child = scene->field_314; child != nullptr; child = child->field_310) {
-                self(self, child);
-            }
+        auto *scene = nglCurScene;
+        for (auto *child = scene->field_314; child != nullptr; child = child->field_310) {
+            nglCurScene = child;
+            nglVif1RenderScene();
+        }
+        nglCurScene = scene;
 
-            nglCurScene = scene;
-            nglVif1SetupScene(scene);
-            assert(scene->field_31C == nullptr);
-            assert(scene->field_324 == nullptr);
-            assert(scene->field_32C == nullptr);
+        if (g_distance_clipping_enabled && scene->field_3BA && g_renderState().field_88) {
+            g_renderState().setFogEnable(false);
+        }
+        if (scene->field_3E4) {
+            nglCalculateMatrices(false);
+        }
+        nglVif1SetupScene(scene);
 
-            const auto render_nodes = [](nglRenderNode *node, int count) {
-                struct SortEntry {
-                    nglRenderNode *node;
-                    int submission_order;
-                };
+        using scene_callback = void(__cdecl *)(void *);
+        if (scene->field_31C != nullptr) {
+            bit_cast<scene_callback>(scene->field_31C)(scene->field_320);
+        }
 
-                auto *nodes = static_cast<SortEntry *>(
-                    nglListAlloc(sizeof(SortEntry) * count, alignof(SortEntry)));
-                int node_count = 0;
-                while (node != nullptr) {
-                    nodes[node_count] = {node, count - node_count - 1};
-                    ++node_count;
-                    node = node->m_next_node;
-                }
+        g_renderState().setDepthBufferWriteEnabled(scene->ZWriteEnable);
+        nglRenderList::nglOpaqueCompare<nglRenderNode>(
+            scene->OpaqueNodes, scene->OpaqueListCount, 0);
 
-                const auto depth = [](const nglRenderNode *render_node) {
-                    if (render_node->m_vtbl == 0x008B9FB4) {
-                        return static_cast<const nglQuadNode *>(render_node)->field_C.field_50.f;
-                    }
-                    return reinterpret_cast<const nglStringNode *>(render_node)->field_8;
-                };
+        if (scene->field_324 != nullptr) {
+            bit_cast<scene_callback>(scene->field_324)(scene->field_328);
+        }
+        if (scene->TransListCount != 0) {
+            g_renderState().setDepthBufferWriteEnabled(false);
+            nglRenderList::nglTransCompare(scene->TransNodes, scene->TransListCount, 0);
+        }
+        if (scene->field_32C != nullptr) {
+            bit_cast<scene_callback>(scene->field_32C)(scene->field_330);
+        }
 
-                std::sort(nodes, nodes + node_count,
-                    [&](const SortEntry &left, const SortEntry &right) {
-                        const float left_depth = depth(left.node);
-                        const float right_depth = depth(right.node);
-                        if (left_depth > right_depth)
-                            return true;
-                        if (right_depth > left_depth)
-                            return false;
-                        return left.submission_order < right.submission_order;
-                    });
-
-                for (int i = 0; i < node_count; ++i) {
-                    auto *render_node = nodes[i].node;
-                    switch (render_node->m_vtbl) {
-                    case 0x008B9FB4:
-                        static_cast<nglQuadNode *>(render_node)->Render();
-                        break;
-                    case 0x0088EBB4:
-                        reinterpret_cast<nglStringNode *>(render_node)->Render();
-                        break;
-                    default:
-                        assert(false && "unsupported standalone render node");
-                        break;
-                    }
-                }
-            };
-
-            render_nodes(scene->OpaqueNodes, scene->OpaqueListCount);
-            render_nodes(scene->TransNodes, scene->TransListCount);
-        };
-
-        render_scene(render_scene, nglRootScene());
+        if (g_distance_clipping_enabled && scene->field_3BA &&
+            !sub_581C30() && !g_renderState().field_88) {
+            g_renderState().setFogEnable(true);
+        }
+        if (scene->field_334->m_numLevel > 1) {
+            nglGenMipmaps(scene->field_334);
+        }
     } else {
         CDECL_CALL(0x0077D060);
     }
@@ -481,7 +461,8 @@ void sub_76DD70()
     nglFlipQueued() = false;
 }
 
-int __fastcall sub_781EA0(void *a1)
+// 0x00781EA0
+int __fastcall copy_back_buffer_texture_to_swap_chain(void *a1)
 {
     if constexpr (STANDALONE_SYSTEM) {
         (void)a1;
@@ -595,14 +576,14 @@ void nglFlip(bool a1)
     if constexpr (1) {
         ++nglVBlankCount();
         IDirect3DDevice9_BeginScene(g_Direct3DDevice);
-        sub_781EA0(nullptr);
+        copy_back_buffer_texture_to_swap_chain(nullptr);
         IDirect3DDevice9_EndScene(g_Direct3DDevice);
 
         static_assert(D3DERR_DEVICELOST == (HRESULT)0x88760868);
         static_assert(D3DERR_DEVICENOTRESET == (HRESULT)0x88760869);
 
-        if (!byte_971F9C &&
-            IDirect3DDevice9_Present(g_Direct3DDevice, nullptr, nullptr, nullptr, nullptr) == D3DERR_DEVICELOST) {
+        if (IDirect3DDevice9_Present(g_Direct3DDevice, nullptr, nullptr, nullptr, nullptr) ==
+            D3DERR_DEVICELOST) {
             Sleep(100u);
             if (IDirect3DDevice9_TestCooperativeLevel(g_Direct3DDevice) == D3DERR_DEVICENOTRESET) {
                 Reset3DDevice();

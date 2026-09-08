@@ -1,10 +1,16 @@
 #include "fe_mini_map_widget.h"
 
+#include "actor.h"
 #include "camera.h"
 #include "common.h"
 #include "custom_math.h"
 #include "entity.h"
+#include "entity_tracker.h"
+#include "entity_tracker_manager.h"
 #include "fe_mini_map_dot.h"
+#include "femanager.h"
+#include "igofrontend.h"
+#include "mini_map_dot_type.h"
 #include "func_wrapper.h"
 #include "ngl.h"
 #include "ngl_mesh.h"
@@ -13,6 +19,7 @@
 #include "os_developer_options.h"
 #include "panel_layer.h"
 #include "panelfile.h"
+#include "panelanimfile.h"
 #include "region.h"
 #include "resource_manager.h"
 #include "terrain.h"
@@ -387,14 +394,45 @@ void fe_mini_map_widget::Draw()
     func(this);
 }
 
+// 0x00641810
 void fe_mini_map_widget::_Update(Float a2)
 {
-    if constexpr (0) {
-    } else {
-        THISCALL(0x00641810, this, a2);
-    }
-}
+    if (!field_3A8 && (field_3A0 == nullptr || !field_3A0->field_2D))
+        return;
 
+    entity *hero = g_world_ptr->get_hero_ptr(0);
+    auto *previous_hero = reinterpret_cast<entity *>(field_3B0);
+    entity_tracker_manager *manager = g_femanager.IGO->field_54;
+    if (previous_hero != hero) {
+        if (previous_hero != nullptr)
+            manager->destroy_entity_tracker(static_cast<uint32_t>(field_3B4));
+        field_3B0 = reinterpret_cast<std::intptr_t>(hero);
+        field_3B4 = hero != nullptr
+                        ? static_cast<int>(manager->create_entity_tracker(hero->get_my_handle()))
+                        : 0;
+        if (entity_tracker *tracker = manager->id_to_ptr(field_3B4)) {
+            tracker->set_poi_icon(mini_map_dot_type{0});
+            tracker->field_8 = 0;
+            tracker->field_4->field_24 = true;
+        }
+    }
+
+    if (hero != nullptr) {
+        entity_tracker *tracker = manager->id_to_ptr(static_cast<uint32_t>(field_3B4));
+        if (tracker == nullptr || tracker->get_entity() == nullptr) {
+            manager->destroy_entity_tracker(static_cast<uint32_t>(field_3B4));
+            field_3B4 = static_cast<int>(
+                manager->create_entity_tracker(hero->get_my_handle()));
+            tracker = manager->id_to_ptr(static_cast<uint32_t>(field_3B4));
+            if (tracker != nullptr) {
+                tracker->set_poi_icon(mini_map_dot_type{0});
+                tracker->field_8 = 0;
+                tracker->field_4->field_24 = true;
+            }
+        }
+    }
+    mini_map_frame->Update(a2);
+}
 
 void fe_mini_map_widget::Update(Float a2)
 {

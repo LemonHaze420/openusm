@@ -5,7 +5,13 @@
 
 VALIDATE_SIZE(fe_distance_chase, 0x70);
 
-fe_distance_chase::fe_distance_chase() {}
+// Inlined at 0x00648CFD in IGOFrontEnd::IGOFrontEnd.
+fe_distance_chase::fe_distance_chase()
+    : panels{},
+      field_6C(false)
+{
+    field_28 = 7;
+}
 
 void fe_distance_chase::Init(int type_id, const char *a3)
 {
@@ -24,6 +30,20 @@ void fe_distance_chase::Init(int type_id, const char *a3)
     this->field_1C->TurnOn(true);
     this->field_20->TurnOn(false);
     this->field_28 = type_id;
+}
+
+// 0x0062FDE0
+void fe_distance_chase::Update(Float time_inc)
+{
+    if (field_28 < 0 || field_28 > 6 || panels[field_28] == nullptr)
+        return;
+    PanelFile *panel = panels[field_28];
+    if (!field_6C &&
+        (panel->field_28.empty() || !panel->field_28.at(0)->field_2D))
+        return;
+    panel->Update(time_inc);
+    field_1C->SetPos(field_5C, field_2C);
+    field_20->SetPos(field_5C, field_2C);
 }
 
 void fe_distance_chase::DeInit(int a2)

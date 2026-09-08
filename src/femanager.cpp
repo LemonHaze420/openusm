@@ -35,15 +35,9 @@ void FEManager::InitIGO()
 {
     TRACE("FEManager::InitGO");
 
-    if constexpr (STANDALONE_SYSTEM) {
-        m_pause_menu_system = nullptr;
-        IGO = nullptr;
-        sp_log("FEManager::InitIGO: gameplay overlays are deferred in standalone frontend mode");
-    } else {
-        this->m_pause_menu_system = new PauseMenuSystem{static_cast<font_index>(1)};
-        this->IGO = new IGOFrontEnd{};
-        this->IGO->Init();
-    }
+    this->m_pause_menu_system = new PauseMenuSystem{static_cast<font_index>(1)};
+    this->IGO = new IGOFrontEnd{};
+    this->IGO->Init();
 }
 
 void FEManager::LoadFont(font_index a2)

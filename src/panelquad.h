@@ -91,6 +91,8 @@ struct PanelQuad : PanelAnimObject {
     void Animate(const matrix4x4 &transform, Float visibility);
 
     void Init(vector2d *a2, color32 *a3, panel_layer a4, Float a5, const char *a6);
+    // 0x006160E0
+    void Mask(float amount, int direction, float uv_extent);
 
     //0x0043F770
     //virtual

@@ -480,24 +480,27 @@ void geometry_manager::rebuild_view_frame()
 {
 #if STANDALONE_SYSTEM
     constexpr float near_plane = 0.1f;
-    const float far_plane = PROJ_FAR_PLANE_D > near_plane ? PROJ_FAR_PLANE_D : near_plane + 1.0f;
-    const float tan_half_fov = std::tan(PROJ_FIELD_OF_VIEW * 0.5f);
-    const float vertical_scale = PROJ_ZOOM / tan_half_fov;
+    const float far_plane =
+        PROJ_FAR_PLANE_D > near_plane ? PROJ_FAR_PLANE_D : near_plane + 1.0f;
+    const float fovy = PROJ_FIELD_OF_VIEW * PROJ_ZOOM;
+    const float tan_half_fov = std::tan(fovy * 0.5f);
 
-    matrix4x4 projection{};
-    projection[0][0] = vertical_scale / PROJ_ASPECT;
-    projection[1][1] = vertical_scale;
-    projection[2][2] = far_plane / (far_plane - near_plane);
-    projection[2][3] = 1.0f;
-    projection[3][2] = -(near_plane * far_plane) / (far_plane - near_plane);
+    matrix4x4 projection;
+    projection.make_projection(
+        fovy, 1.0f / PROJ_ASPECT, near_plane, far_plane, 0.0f);
     set_xform(XFORM_VIEW_TO_PROJECTION, projection);
 
     const float horizontal_tangent = tan_half_fov * PROJ_ASPECT;
+    const float vertical_tangent = tan_half_fov;
     view_frustum.field_0.m_size = 0;
-    view_frustum.add_face(plane{ZEROVEC, vector3d{1.0f, 0.0f, horizontal_tangent}});
-    view_frustum.add_face(plane{ZEROVEC, vector3d{-1.0f, 0.0f, horizontal_tangent}});
-    view_frustum.add_face(plane{ZEROVEC, vector3d{0.0f, -1.0f, tan_half_fov}});
-    view_frustum.add_face(plane{ZEROVEC, vector3d{0.0f, 1.0f, tan_half_fov}});
+    view_frustum.add_face(
+        plane{ZEROVEC, vector3d{1.0f, 0.0f, horizontal_tangent}});
+    view_frustum.add_face(
+        plane{ZEROVEC, vector3d{-1.0f, 0.0f, horizontal_tangent}});
+    view_frustum.add_face(
+        plane{ZEROVEC, vector3d{0.0f, -1.0f, vertical_tangent}});
+    view_frustum.add_face(
+        plane{ZEROVEC, vector3d{0.0f, 1.0f, vertical_tangent}});
     view_frustum.add_face(plane{vector3d{0.0f, 0.0f, near_plane}, ZVEC});
     view_frustum.add_face(plane{vector3d{0.0f, 0.0f, far_plane}, -ZVEC});
 

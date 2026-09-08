@@ -12,6 +12,7 @@ struct nglMeshNode;
 struct nglMeshSection;
 struct nglMaterialBase;
 struct tlFixedString;
+struct vector4d;
 
 template <typename>
 struct nglParamSet;

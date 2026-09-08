@@ -8,6 +8,8 @@ namespace nglRenderList {
 template<typename T>
 void nglOpaqueCompare(T *node, int count, int a3);
 
+void nglTransCompare(nglRenderNode *node, int count, int a3);
+
 } // namespace nglRenderList
 
 //0x00401A20

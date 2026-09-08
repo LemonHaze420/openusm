@@ -83,7 +83,7 @@ void wds_camera_manager::advance_controllers(Float a2)
 {
     TRACE("wds_camera_manager::advance_controllers");
 
-    if constexpr (0) {
+    if constexpr (1) {
         for (auto &cntrl : this->field_10) {
             if (cntrl->field_4) {
                 struct Vtbl {

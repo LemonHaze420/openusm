@@ -3,6 +3,7 @@
 #include "common.h"
 #include "config.h"
 #include "fetextflashinfo.h"
+#include "femultilinetext.h"
 #include "func_wrapper.h"
 #include "mash_info_struct.h"
 #include "mash_config.h"
@@ -209,7 +210,6 @@ void FEText::SetText(global_text_enum a2)
     }
 }
 
-
 void FEText::SetPos(Float x, Float y)
 {
     if constexpr (STANDALONE_SYSTEM) {
@@ -232,7 +232,6 @@ void FEText::_SetNoColor()
 {
     this->field_64 &= 0xF6u;
 }
-
 
 void FEText::SetNoColor()
 {
@@ -316,8 +315,6 @@ void FEText::AdjustForJustification(float *a2, float *a3)
         float v8 = v13;
         float v7 = v14;
 
-        //sp_log("%f %f", v8, v7);
-
         if (this->GetFlag(32)) {
             *a2 = *a2 - v7;
         } else if (!this->GetFlag(16)) {
@@ -367,9 +364,13 @@ float FEText::GetY()
 
 void FEText::SetNumLines(int a2)
 {
-    void(__fastcall * func)(void *, void *edx, int) = CAST(func, get_vfunc(m_vtbl, 0x144));
-
-    return func(this, nullptr, a2);
+    if constexpr (STANDALONE_SYSTEM) {
+        static_cast<FEMultiLineText *>(this)->SetNumLines(a2);
+    } else {
+        void(__fastcall *func)(void *, void *, int) =
+            CAST(func, get_vfunc(m_vtbl, 0x144));
+        func(this, nullptr, a2);
+    }
 }
 
 void FEText_patch()
@@ -390,7 +391,6 @@ void FEText_patch()
         set_vfunc(0x0087A06C, address);
         set_vfunc(0x0087A17C, address);
     }
-
 
     if constexpr (0) {
         {

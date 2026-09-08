@@ -41,7 +41,6 @@ void web_info_nugget::initialize(mash::allocation_scope)
     this->field_1C = false;
 }
 
-
 void web_info_nugget::create_web_entity()
 {
     assert(this->my_actor != nullptr);
@@ -193,7 +192,7 @@ void web_interface::frame_advance_all_web_interfaces(Float a1)
 {
     TRACE("web_interface::frame_advance_all_web_interfaces");
 
-    if constexpr (0) {
+    if constexpr (1) {
         for (auto &web_curr : m_all_web_interfaces) {
             assert(web_curr != nullptr);
             web_curr->frame_advance(a1);

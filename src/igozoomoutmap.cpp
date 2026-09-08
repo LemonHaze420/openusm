@@ -2,7 +2,10 @@
 
 #include "common.h"
 #include "func_wrapper.h"
+#include "femanager.h"
 #include "game.h"
+#include "input_mgr.h"
+#include "pausemenusystem.h"
 #include "marky_camera.h"
 #include "sound_instance_id.h"
 #include "string_hash.h"
@@ -18,9 +21,28 @@ VALIDATE_SIZE(zoom_map_ui, 0x240u);
 VALIDATE_OFFSET(IGOZoomOutMap, field_5CC, 0x5CC);
 VALIDATE_OFFSET(IGOZoomOutMap, field_5C4, 0x5C4);
 
+// 0x006489A0
 IGOZoomOutMap::IGOZoomOutMap()
 {
-    THISCALL(0x006489A0, this);
+    field_5BC = 0;
+    field_5BD = 0;
+    field_5BE = 0;
+    field_5BF = 0;
+    field_5C0 = 0;
+    field_5C1 = 0;
+    field_5C2 = 0;
+    field_5C3 = false;
+    field_5C4 = false;
+    field_5C5 = 0;
+    field_5C6 = 0;
+    field_5C7 = 0;
+    field_5C8 = 5.0f;
+    field_5B0 = 0;
+    field_5B4 = 0;
+    field_5B8 = 0;
+    field_818 = 0;
+    field_824 = 0;
+    field_828 = 0;
 }
 
 void IGOZoomOutMap::UpdateInScene()
@@ -52,9 +74,43 @@ void IGOZoomOutMap::sub_638AD0(int a2, int a3, int a4)
     THISCALL(0x00638AD0, this, a2, a3, a4);
 }
 
-void IGOZoomOutMap::Update(Float a2)
+// 0x0063A760
+void IGOZoomOutMap::Update(Float)
 {
-    THISCALL(0x0063A760, this, a2);
+    UpdateSelectButton();
+}
+
+// 0x006386E0
+void IGOZoomOutMap::UpdateSelectButton()
+{
+    const float select =
+        input_mgr::instance->get_control_state(115, INVALID_DEVICE_ID);
+    if (!field_5BC && (select < 0.0f || select > 0.0f)) {
+        field_5BC = true;
+        OnSelectPress();
+        if (input_mgr::instance->get_control_state(99, INVALID_DEVICE_ID) >= 0.5f)
+            field_5C0 = true;
+    }
+    if (field_5BC && !(select < 0.0f || select > 0.0f))
+        field_5BC = false;
+}
+
+// 0x00638570
+void IGOZoomOutMap::OnSelectPress()
+{
+    if (g_femanager.m_pause_menu_system->m_index >= 0 || field_5C6)
+        return;
+    entity *hero = g_world_ptr->get_hero_ptr(0);
+    if (hero == nullptr)
+        return;
+
+    field_5C4 = !field_5C4;
+    if (field_5C4) {
+        SetZoomLevel(0);
+    } else {
+        field_5C3 = true;
+        field_5C7 = true;
+    }
 }
 
 void IGOZoomOutMap::SetZoomLevel(int a2)
