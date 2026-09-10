@@ -72,6 +72,8 @@ struct interaction_inode : info_node {
 
     //0x0046E380
     void set_scripted_start(actor *a2, generic_interaction *a3);
+
+    static inline string_hash default_id{int(to_hash("interaction"))};
 };
 }  // namespace ai
 

@@ -15,6 +15,8 @@ struct combat_target_inode : base_full_target_inode {
     combat_target_inode();
 
     static inline Var<string_hash> team_hash{0x0096C470};
+
+    static inline string_hash default_id{to_hash("COMBAT_TARGET")};
 };
 
 struct player_web_target_inode {

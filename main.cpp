@@ -603,7 +603,7 @@ void sub_5BCA60(int a1, int a2)
 void sub_5BCA80(int a1)
 {
     if constexpr (1) {
-        static auto &dword_9680A4 = var<int (__cdecl *)(int, int)>(0x009680A4);
+        static auto &dword_9680A4 = var<int(__cdecl *)(int, int)>(0x009680A4);
 
         static auto &dword_9682D8 = var<int>(0x009682D8);
 
@@ -688,7 +688,7 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 
                 auto *vtbl = bit_cast<void *(*)[10]>(pause_menu_system->m_vtbl);
 
-                void (__fastcall *func)(void *, void *edx, int, WPARAM, LPARAM) = CAST(func, (*vtbl)[9]);
+                void(__fastcall * func)(void *, void *edx, int, WPARAM, LPARAM) = CAST(func, (*vtbl)[9]);
 
                 func(pause_menu_system, nullptr, 257, wParam, lParam);
 
@@ -701,7 +701,7 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 
                     auto *vtbl = bit_cast<void *(*)[10]>(frontend_menu_system->m_vtbl);
 
-                    void (__fastcall *func)(void *, void *edx, int, WPARAM, LPARAM) = CAST(func, (*vtbl)[9]);
+                    void(__fastcall * func)(void *, void *edx, int, WPARAM, LPARAM) = CAST(func, (*vtbl)[9]);
                     func(frontend_menu_system, nullptr, 257, wParam, lParam);
 
                     return DefWindowProcA(hWnd, Msg, wParam, lParam);
@@ -730,7 +730,7 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 
                         auto *vtbl = bit_cast<void *(*)[10]>(frontend_menu_system->m_vtbl);
 
-                        void (__fastcall *func)(void *, void *edx, int, WPARAM, LPARAM) = CAST(func, (*vtbl)[9]);
+                        void(__fastcall * func)(void *, void *edx, int, WPARAM, LPARAM) = CAST(func, (*vtbl)[9]);
                         //assert(bit_cast<std::intptr_t>(func) == 0x0060B6E0);
                         func(frontend_menu_system, nullptr, Msg, wParam, lParam);
 
@@ -741,7 +741,7 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 
                         auto *vtbl = bit_cast<void *(*)[10]>(pause_menu_system->m_vtbl);
 
-                        void (__fastcall *func)(void *, void *edx, int, WPARAM, LPARAM) = CAST(func, (*vtbl)[9]);
+                        void(__fastcall * func)(void *, void *edx, int, WPARAM, LPARAM) = CAST(func, (*vtbl)[9]);
                         //assert(bit_cast<std::intptr_t>(func) == 0x0060B6E0);
 
                         func(pause_menu_system, nullptr, Msg, wParam, lParam);

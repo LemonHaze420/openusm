@@ -7,22 +7,27 @@
 #include "ai_state_jump.h"
 #include "ai_state_swing.h"
 #include "ai_state_web_zip.h"
+#include "ai_std_combat_target.h"
 #include "als_animation_logic_system.h"
 #include "als_inode.h"
 #include "base_ai_core.h"
 #include "colgeom_alter_sys.h"
 #include "collide.h"
 #include "collision_geometry.h"
+#include "combat_inode.h"
 #include "combat_state.h"
 #include "common.h"
 #include "conglom.h"
+#include "controller_inode.h"
 #include "custom_math.h"
 #include "entity.h"
 #include "entity_base_vhandle.h"
 #include "from_mash_in_place_constructor.h"
 #include "func_wrapper.h"
+#include "glass_house_inode.h"
 #include "glass_house_manager.h"
 #include "hit_react_state.h"
+#include "interaction_inode.h"
 #include "line_info.h"
 #include "oldmath_po.h"
 #include "param_list.h"
@@ -31,9 +36,11 @@
 #include "pick_up_state.h"
 #include "plr_loco_crawl_state.h"
 #include "plr_loco_crawl_transition_state.h"
+#include "pole_swing_inode.h"
 #include "put_down_state.h"
 #include "trace.h"
 #include "subdivision_obb.h"
+#include "strength_test_inode.h"
 #include "terrain.h"
 #include "throw_state.h"
 #include "utility.h"
@@ -213,6 +220,41 @@ void hero_inode::_frame_advance(Float a2)
     } else {
         THISCALL(0x006A7950, this, a2);
     }
+}
+
+void hero_inode::_activate(ai_core *a2)
+{
+    TRACE("hero_inode::activate");
+
+    if constexpr (0) {
+        info_node::activate(a2);
+        this->field_54 = this->field_50;
+        this->field_50 = static_cast<eJumpType>(1);
+        this->nearby_crawl_collidables = nullptr;
+        this->nearby_swing_collidables = nullptr;
+        this->field_7C = false;
+        this->field_1C = false;
+        this->field_23C = {0};
+
+        auto *the_core = this->get_core();
+        this->field_20 = (als_inode *)the_core->get_info_node(als_inode::default_id, true);
+        this->field_28 = (physics_inode *)the_core->get_info_node(physics_inode::default_id, true);
+        this->field_24 = (controller_inode *)the_core->get_info_node(controller_inode::default_id, true);
+        this->field_2C = (spidey_combat_inode *)the_core->get_info_node(combat_inode::default_id, true);
+        this->field_30 = (base_full_target_inode *)the_core->get_info_node(combat_target_inode::default_id, true);
+        this->field_34 = (interaction_inode *)the_core->get_info_node(interaction_inode::default_id, true);
+        this->field_3C = (web_zip_inode *)the_core->get_info_node(web_zip_inode::default_id, true);
+        this->field_40 = (swing_inode *)the_core->get_info_node(swing_inode::default_id, false);
+        this->field_44 = (glass_house_inode *)the_core->get_info_node(glass_house_inode::default_id, true);
+
+        this->field_248 = 0;
+        this->field_38 = (strength_test_inode *)this->field_8->get_info_node(strength_test_inode::default_id, true);
+    } else {
+        void(__fastcall * func)(void *, void *edx, ai_core *) = CAST(func, 0x006A77F0);
+        func(this, nullptr, a2);
+    }
+
+    this->field_48 = (pole_swing_inode *)this->field_8->get_info_node(pole_swing_inode::default_id, false);
 }
 
 bool hero_inode::is_a_crawl_state(string_hash a1, bool a2)
@@ -806,6 +848,11 @@ bool is_noncrawlable_surface(line_info &a1)
 
 void hero_inode_patch()
 {
+    {
+        FUNC_ADDRESS(address, &ai::hero_inode::_activate);
+        set_vfunc(0x0087DAC4, address);
+    }
+
     {
         FUNC_ADDRESS(address, &ai::hero_inode::run_can_go_to);
         REDIRECT(0x00488980, address);

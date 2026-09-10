@@ -55,6 +55,8 @@ struct combat_inode : info_node {
     //0x0043FC90
     //virtual
     void left_air();
+
+    static inline string_hash default_id{to_hash("combat_inode")};
 };
 
 }  // namespace ai

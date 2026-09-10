@@ -17,6 +17,8 @@ struct glass_house_inode : info_node {
 
     //0x00455F00
     void show_glass_house_message();
+
+    static inline string_hash default_id{to_hash("glass_house")};
 };
 
 }  // namespace ai
