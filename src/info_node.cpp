@@ -51,16 +51,22 @@ void info_node::_activate(ai_core *a2)
     this->field_C = a2->field_64;
 }
 
+void info_node::deactivate()
+{
+    void(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x24));
+    func(this);
+}
+
 void info_node::reset()
 {
     void(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x28));
     func(this);
 }
 
-void info_node::deactivate()
+int info_node::get_mash_sizeof() const
 {
-    void(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x24));
-    func(this);
+    int(__fastcall * func)(const void *) = CAST(func, get_vfunc(m_vtbl, 0x2C));
+    return func(this);
 }
 
 }  // namespace ai

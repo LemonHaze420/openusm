@@ -470,6 +470,15 @@ void param_block::finalize(mash::allocation_scope)
     }
 }
 
+void param_block::copy_from_pb_override(const param_block &a1)
+{
+    if constexpr (0) {
+    } else {
+        void(__fastcall * func)(void *, void *edx, const param_block *a1) = CAST(func, 0x006D83D0);
+        func(this, nullptr, &a1);
+    }
+}
+
 param_block::param_data *param_block::param_data_array::common_find_data(string_hash a2)
 {
     return (param_block::param_data *)THISCALL(0x006CD450, this, a2);

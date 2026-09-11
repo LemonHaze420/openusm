@@ -141,6 +141,17 @@ bool pedestrian_inode::is_a_pedestrian(ai::ai_core *a1)
     return false;
 }
 
+void pedestrian_inode::register_non_ped(vhandle_type<actor> a3)
+{
+    TRACE("pedestrian_inode::register_non_ped");
+
+    if constexpr (0) {
+    } else {
+        void (*func)(vhandle_type<actor>) = CAST(func, 0x006A1260);
+        func(a3);
+    }
+}
+
 void pedestrian_inode::unregister_non_ped(vhandle_type<actor> a1)
 {
     CDECL_CALL(0x006AE2B0, a1);

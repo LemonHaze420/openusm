@@ -27,6 +27,7 @@
 #include "femultilinetext.h"
 #include "func_wrapper.h"
 #include "gab_manager.h"
+#include "info_node.h"
 #include "interact_sound_entry.h"
 #include "interaction.h"
 #include "layer_state_machine_shared.h"
@@ -2069,4 +2070,38 @@ void mVector<gab_expression>::custom_unmash(mash_info_struct *a2, void *a3)
         void(__fastcall * func)(void *, void *edx, mash_info_struct *, void *) = CAST(func, 0x005E7000);
         func(this, nullptr, a2, a3);
     }
+}
+
+template <>
+void mVector<ai::info_node>::custom_unmash(mash_info_struct *a2, void *a3)
+{
+    TRACE("mVector<ai::info_node>::custom_unmash");
+
+#ifdef TARGET_XBOX
+    this->field_C = this->m_size;
+    if (this->m_size <= 0) {
+        this->m_data = nullptr;
+    } else
+#else
+    if (this->m_data != nullptr)
+#endif
+    {
+        this->m_data = (ai::info_node **)a2->read_from_buffer(
+#ifdef TARGET_XBOX
+            mash::NORMAL_BUFFER,
+#endif
+            4 * this->m_size,
+            4);
+        for (auto i = 0; i < this->m_size; ++i) {
+            a2->unmash_class(this->m_data[i],
+                             a3
+#ifdef TARGET_XBOX
+                             ,
+                             mash::NORMAL_BUFFER
+#endif
+            );
+        }
+    }
+
+    this->field_0 = (int)&a2->mash_image_ptr[0][a2->buffer_size_used[0] - (uint32_t)this];
 }

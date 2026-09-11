@@ -127,6 +127,9 @@ struct param_block {
 
     void finalize(mash::allocation_scope a3);
 
+    //0x006D83D0
+    void copy_from_pb_override(const param_block &a1);
+
     //0x006D56B0
     void unmash(mash_info_struct *a1, void *a3);
 

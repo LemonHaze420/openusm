@@ -16,7 +16,9 @@
 #include "mstring.h"
 #include "resource_manager.h"
 #include "trace.h"
+#include "traffic_inode.h"
 #include "utility.h"
+#include "wds.h"
 
 namespace ai {
 
@@ -30,7 +32,85 @@ void *&ai_core::next_ai_core_list_low_iter = var<void *>(0x0096C110);
 
 ai_core::ai_core(core_ai_resource *a2, const param_block *a3, actor *a4)
 {
-    if constexpr (0) {
+    if constexpr (1) {
+        this->field_0 = {};
+        this->my_base_machine = nullptr;
+        this->my_locomotion_machine = nullptr;
+        this->my_machine_list = {};
+        this->field_20 = {};
+        this->my_mode = static_cast<mode_e>(0);
+        this->field_30 = {};
+        this->my_locomotion_mode = static_cast<mode_e>(0);
+        this->field_40 = nullptr;
+        this->field_44 = 1;
+        this->field_48 = {};
+        this->field_4C = 0;
+        this->field_50 = {};
+        auto *v5 = a2;
+        this->field_64 = a4;
+
+        static constexpr int dword_937CF0 = 8;
+        auto v6 = dword_937CF0;
+        this->field_6C = v5;
+        this->field_70 = nullptr;
+        auto v7 = g_world_ptr->field_158.field_C;
+
+        auto func = [](int begin, int end) -> int {
+            assert(begin < end);
+
+            return begin + ((end * rand()) / 32768.0f);
+        };
+
+        this->field_38 = func(0, v6) + v7;
+        this->field_48 = {0};
+        this->field_50.copy_from_pb_override(v5->field_0);
+        this->field_50.copy_from_pb_override(*a3);
+        this->field_5C = true;
+        auto v8 = v5->field_40;
+        if (v8 != 0) {
+            this->my_info_node_list = static_cast<mVector<info_node> *>(arch_memalign(sizeof(mVector<info_node>), v8));
+            std::memcpy(this->my_info_node_list, v5->field_C, v8);
+
+            mash_info_struct v33{(uint8_t *)this->my_info_node_list, v8};
+            v33.unmash_class(this->my_info_node_list, this);
+            mash_info_struct::construct_class(this->my_info_node_list);
+        } else {
+            this->my_info_node_list = nullptr;
+        }
+
+        assert(this->my_base_machine == nullptr);
+
+        auto v14 = this->field_48;
+        auto *v28 = &this->my_base_machine;
+        auto v27 = v5->sub_6B6D50();
+        this->spawn_state_machine_internal(nullptr, v27, v28, v14);
+
+        assert(this->my_base_machine != nullptr);
+
+        this->field_48.source_hash_code = 0;
+        if (v5->field_44) {
+            if (the_ai_core_list_low == nullptr) {
+                the_ai_core_list_low = new _std::list<ai_core *>{};
+            }
+
+            the_ai_core_list_low->push_back(this);
+            if (the_ai_core_list_low->size() == 1) {
+                next_ai_core_list_low_iter = *the_ai_core_list_low->begin();
+            }
+
+        } else {
+            if (the_ai_core_list_high == nullptr) {
+                the_ai_core_list_high = new _std::list<ai_core *>{};
+            }
+
+            the_ai_core_list_high->push_back(this);
+        }
+
+        if (!pedestrian_inode::is_a_pedestrian(this)) {
+            if (this->get_info_node(traffic_inode::default_id, false) == nullptr) {
+                ai::pedestrian_inode::register_non_ped(vhandle_type<actor>{this->field_64->my_handle.field_0});
+            }
+        }
     } else {
         THISCALL(0x006AEA90, this, a2, a3, a4);
     }

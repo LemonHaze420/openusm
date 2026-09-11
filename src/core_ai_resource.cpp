@@ -40,7 +40,7 @@ void core_ai_resource::initialize(mash::allocation_scope scope)
     } else {
         this->field_3C = nullptr;
         this->field_40 = 0;
-        this->field_C = 0;
+        this->field_C = nullptr;
         this->field_10 = nullptr;
         this->field_44 = false;
     }
@@ -95,7 +95,7 @@ void core_ai_resource::unmash(mash_info_struct *a1, void *a3)
 #endif
             16);
         auto v6 = this->field_40;
-        this->field_C = (int)&a1->mash_image_ptr[0][a1->buffer_size_used[0]];
+        this->field_C = &a1->mash_image_ptr[0][a1->buffer_size_used[0]];
         a1->advance_buffer(
 #ifdef TARGET_XBOX
             mash::NORMAL_BUFFER,
@@ -140,6 +140,13 @@ bool core_ai_resource::does_locomotion_graph_exist(resource_key the_graph) const
     }
 
     return false;
+}
+
+resource_key core_ai_resource::sub_6B6D50()
+{
+    assert(this->my_base_graphs.size() != 0);
+
+    return *this->my_base_graphs.at(0);
 }
 
 }  // namespace ai

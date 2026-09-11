@@ -59,6 +59,9 @@ struct info_node : mash_virtual_base {
 
     //virtual
     void reset();
+
+    //virtual
+    int get_mash_sizeof() const;
 };
 
 }  // namespace ai

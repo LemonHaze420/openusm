@@ -16,6 +16,7 @@ namespace ai {
 
 struct core_ai_resource;
 struct info_node;
+struct loco_inode;
 struct ai_state_machine;
 struct state_graph;
 
@@ -33,7 +34,7 @@ struct ai_core {
     resource_key field_30;
     int field_38;
     mode_e my_locomotion_mode;
-    int field_40;
+    loco_inode *field_40;
     int field_44;
     string_hash field_48;
     int field_4C;

@@ -71,6 +71,9 @@ struct pedestrian_inode : info_node {
 
     static bool is_a_pedestrian(ai::ai_core *a1);
 
+    //0x006A1260
+    static void register_non_ped(vhandle_type<actor> a3);
+
     static void unregister_non_ped(vhandle_type<actor> a1);
 
     static inline const string_hash default_id{int(to_hash("PEDESTRIAN"))};
