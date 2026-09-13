@@ -807,6 +807,13 @@ void swing_inode::play_fire_web_sound()
     }
 }
 
+void swing_inode::_unmash(mash_info_struct *a1, void *a2)
+{
+    TRACE("swing_inode::unmash");
+
+    info_node::_unmash(a1, a2);
+}
+
 void swing_inode::frame_advance(Float a2)
 {
     this->m_swing_time += a2;

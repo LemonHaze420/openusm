@@ -43,6 +43,10 @@ struct info_node : mash_virtual_base {
 
     ~info_node() = default;
 
+    //0x006D6FA0
+    //virtual
+    void _unmash(mash_info_struct *a1, void *a3);
+
     //virtual
     bool does_need_advance() const;
 
@@ -65,3 +69,6 @@ struct info_node : mash_virtual_base {
 };
 
 }  // namespace ai
+
+
+extern void info_node_patch();

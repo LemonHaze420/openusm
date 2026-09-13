@@ -27,6 +27,14 @@ void info_node::initialize(mash::allocation_scope a2)
     }
 }
 
+void info_node::_unmash(mash_info_struct *a1, void *)
+{
+    TRACE("info_node::unmash");
+
+    a1->unmash_class_in_place(this->field_4, this);
+    a1->unmash_class_in_place(this->my_param_block, this);
+}
+
 bool info_node::does_need_advance() const
 {
     bool(__fastcall * func)(const void *) = CAST(func, get_vfunc(m_vtbl, 0x18));
@@ -70,3 +78,11 @@ int info_node::get_mash_sizeof() const
 }
 
 }  // namespace ai
+
+void info_node_patch()
+{
+    {
+        FUNC_ADDRESS(address, &ai::info_node::_unmash);
+        set_vfunc(0x0087BB40, address);
+    }
+}
