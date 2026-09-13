@@ -2,6 +2,7 @@
 
 #include "float.hpp"
 
+#include "anchor_storage_class.h"
 #include "fixed_vector.h"
 #include "quick_anchor_info.h"
 #include "variable.h"
@@ -77,6 +78,10 @@ struct quick_anchor_container_t {
     void add_anchor(occupancy_voxels_t *grid, const vector3d &a3, const vector3d &a4, const vector3d &a5, Float a6,
                     entity *a7, conglomerate_clone *a8);
 };
+
+//0x00486EE0
+extern anchor_storage_class ai_find_best_pole(entity *arg4, const vector3d &arg8, Float a3, Float a5, Float a6,
+                                              Float a7);
 
 inline Var<bool> g_anchor_finding_enabled{0x0091F4D0};
 

@@ -34,9 +34,6 @@ struct combat_state : ai::enhanced_state {
     static const inline string_hash default_id{static_cast<int>(to_hash("COMBAT"))};
 };
 
-//0x00486EE0
-extern anchor_storage_class ai_find_best_pole(entity *arg4, const vector3d &arg8, Float a3, Float a5, Float a6,
-                                              Float a7);
 
 //0x004474B0
 extern void web_start_call_back(event *a1, entity_base_vhandle a2, void *a3);
