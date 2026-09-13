@@ -4,6 +4,12 @@
 
 anchor_storage_class::anchor_storage_class() {}
 
+anchor_storage_class::anchor_storage_class(vhandle_type<entity> a2, entity_base_vhandle a3)
+{
+    this->field_0 = a2;
+    this->field_4 = a3.field_0;
+}
+
 bool anchor_storage_class::is_valid() const
 {
     return this->field_0.get_volatile_ptr() != nullptr;
