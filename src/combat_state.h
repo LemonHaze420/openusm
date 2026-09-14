@@ -7,7 +7,9 @@
 
 #include <cstdint>
 
+struct als_inode;
 struct anchor_storage_class;
+struct combat_inode;
 struct from_mash_in_place_constructor;
 struct vector3d;
 struct entity;
@@ -15,8 +17,8 @@ struct event;
 struct entity_base_vhandle;
 
 struct combat_state : ai::enhanced_state {
-    int field_30;
-    int field_34;
+    combat_inode *field_30;
+    als_inode *field_34;
     vector3d field_38;
     vector3d field_44;
     int field_50[6];

@@ -27,6 +27,10 @@ struct spidey_base_state : hero_base_state {
         return sizeof(*this);
     }
 
+    //0x0044CFB0
+    //virtual
+    void _get_info_node_list(info_node_desc_list &a1);
+
     //0x00488680
     /* virtual */ string_hash get_desired_state_id(Float a3) const /* override */;
 

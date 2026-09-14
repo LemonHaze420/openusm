@@ -33,7 +33,7 @@ struct als_inode;
 struct corner_info;
 struct swing_inode;
 struct web_zip_inode;
-struct spidey_combat_inode;
+struct combat_inode;
 struct controller_inode;
 struct base_full_target_inode;
 struct glass_house_inode;
@@ -56,7 +56,7 @@ struct hero_inode : info_node {
     als_inode *field_20;
     controller_inode *field_24;
     physics_inode *field_28;
-    spidey_combat_inode *field_2C;
+    combat_inode *field_2C;
     base_full_target_inode *field_30;
     interaction_inode *field_34;
     strength_test_inode *field_38;

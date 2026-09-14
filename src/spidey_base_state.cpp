@@ -1,6 +1,7 @@
 #include "spidey_base_state.h"
 
 #include "actor.h"
+#include "ai_action_processor_inode.h"
 #include "ai_interaction_data.h"
 #include "ai_state_jump.h"
 #include "ai_std_hero.h"
@@ -11,6 +12,7 @@
 #include "controller_inode.h"
 #include "func_wrapper.h"
 #include "hit_react_state.h"
+#include "info_node_desc_list.h"
 #include "interaction_inode.h"
 #include "physics_inode.h"
 #include "plr_loco_crawl_transition_state.h"
@@ -20,6 +22,7 @@
 #include "ai_state_run.h"
 #include "ai_state_swing.h"
 #include "ai_state_web_zip.h"
+#include "glass_house_inode.h"
 #include "spidey_combat_inode.h"
 #include "string_hash.h"
 #include "trace.h"
@@ -41,6 +44,18 @@ spidey_base_state::spidey_base_state()
 void spidey_base_state::_unmash(mash_info_struct *a1, void *a2)
 {
     hero_base_state::_unmash(a1, a2);
+}
+
+void spidey_base_state::_get_info_node_list(info_node_desc_list &a1)
+{
+    a1.add_entry({physics_inode::default_id, 402});
+    a1.add_entry({hero_inode::default_id, 384});
+    a1.add_entry({swing_inode::default_id, 318});
+    a1.add_entry({web_zip_inode::default_id, 326});
+    a1.add_entry({controller_inode::default_id, 358});
+    a1.add_entry({combat_inode::default_id, 342});
+    a1.add_entry({glass_house_inode::default_id, 383});
+    a1.add_entry({ai_action_processor_inode::default_id, 11});
 }
 
 string_hash spidey_base_state::get_desired_state_id(Float a3) const
