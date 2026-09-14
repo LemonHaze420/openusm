@@ -114,7 +114,7 @@ void ai_state_machine::process_transition(Float a2)
 
         v3 = this->check_keyword_overrides(v3);
         switch (v3.the_action) {
-        case state_trans_actions::TRANSITION:
+        case state_trans_actions::GOTO_STATE:
             this->transition_state(v3.field_4, v3.field_C);
             break;
         case state_trans_actions::RETURN:
@@ -145,7 +145,7 @@ void ai_state_machine::process_transition_message(Float a2, state_trans_messages
         auto v4 = this->check_keyword_overrides(a3a);
         auto the_action = v4.the_action;
         switch (the_action) {
-        case state_trans_actions::TRANSITION:
+        case state_trans_actions::GOTO_STATE:
             this->transition_state(v4.field_4, v4.field_C);
             break;
         case state_trans_actions::RETURN:
@@ -533,7 +533,7 @@ state_trans_action ai_state_machine::check_keyword_overrides(const state_trans_a
 
     state_trans_action result;
 
-    if (a3.the_action != state_trans_actions::TRANSITION) {
+    if (a3.the_action != state_trans_actions::GOTO_STATE) {
         return a3;
     }
 
@@ -548,14 +548,14 @@ state_trans_action ai_state_machine::check_keyword_overrides(const state_trans_a
         }
 
         auto name = this->get_prev_mashed_state()->get_name();
-        result = state_trans_action{state_trans_actions::TRANSITION, name, TRANS_TOTAL_MSGS, nullptr};
+        result = state_trans_action{state_trans_actions::GOTO_STATE, name, TRANS_TOTAL_MSGS, nullptr};
         return result;
     }
 
     if (v3 == initial_state_id_hash()) {
         auto initial_state = this->get_initial_state_id();
 
-        result = state_trans_action{state_trans_actions::TRANSITION, initial_state, TRANS_TOTAL_MSGS, nullptr};
+        result = state_trans_action{state_trans_actions::GOTO_STATE, initial_state, TRANS_TOTAL_MSGS, nullptr};
         return result;
     }
 

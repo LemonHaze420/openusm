@@ -93,6 +93,22 @@ string_hash base_state::get_name() const
 void base_state::activate(ai_state_machine *the_state_machine, const mashed_state *a3, const mashed_state *a4,
                           const param_block *a5, base_state::activate_flag_e a6)
 {
+    void(__fastcall * func)(void *,
+                            int,
+                            ai_state_machine *the_state_machine,
+                            const mashed_state *a3,
+                            const mashed_state *a4,
+                            const param_block *a5,
+                            base_state::activate_flag_e a6) = CAST(func, get_vfunc(m_vtbl, 0x18));
+
+    func(this, 0, the_state_machine, a3, a4, a5, a6);
+}
+
+void base_state::_activate(ai_state_machine *the_state_machine, const mashed_state *a3, const mashed_state *a4,
+                           const param_block *a5, base_state::activate_flag_e a6)
+{
+    TRACE("base_state::activate");
+
     if constexpr (0) {
         this->field_4 = a6;
         this->field_C = the_state_machine;
@@ -128,8 +144,7 @@ void base_state::activate(ai_state_machine *the_state_machine, const mashed_stat
                                 const mashed_state *a3,
                                 const mashed_state *a4,
                                 const param_block *a5,
-                                base_state::activate_flag_e a6) = CAST(func, get_vfunc(m_vtbl, 0x18));
-
+                                base_state::activate_flag_e a6) = CAST(func, 0x006C4BD0);
 
         func(this, 0, the_state_machine, a3, a4, a5, a6);
     }

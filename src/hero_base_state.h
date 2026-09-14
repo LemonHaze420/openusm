@@ -16,9 +16,13 @@ struct hero_base_state : base_state {
 
     /* virtual */ string_hash get_desired_state_id(Float);
 
+    //0x0044CE90
+    //virtual
+    state_trans_action _process_message(Float a3, state_trans_messages a4);
+
     //0x00478D80
     //virtual
-    state_trans_action check_transition(Float a3);
+    state_trans_action _check_transition(Float a3);
 
     static inline string_hash NO_TRANS{int(to_hash("DO NOT TRANSITION!"))};
 };
