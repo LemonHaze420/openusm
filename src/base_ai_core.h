@@ -106,6 +106,7 @@ struct ai_core {
     void spawn_state_machine_internal(ai_state_machine *a2, resource_key graph_name,
                                       ai_state_machine **base_machine_ptr, string_hash a5);
 
+    //0x006AF100
     void advance_machine_recursive(ai_state_machine *a1, Float a2, bool a3);
 
     static _std::list<ai_core *> *&the_ai_core_list_high;

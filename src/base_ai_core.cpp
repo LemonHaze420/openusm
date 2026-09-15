@@ -548,7 +548,15 @@ void ai_core::advance_machine_recursive(ai_state_machine *a1, Float a2, bool a3)
 {
     TRACE("ai::ai_core::advance_machine_recursive");
 
-    THISCALL(0x006AF100, this, a1, a2, a3);
+    if constexpr (1) {
+        for (uint32_t i = 0; i < a1->field_1C.size(); ++i) {
+            this->advance_machine_recursive(a1->field_1C[i], a2, a3);
+        }
+
+        a1->frame_advance(a2, a3);
+    } else {
+        THISCALL(0x006AF100, this, a1, a2, a3);
+    }
 }
 
 }  // namespace ai

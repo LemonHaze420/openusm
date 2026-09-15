@@ -25,7 +25,7 @@ VALIDATE_SIZE(ai_state_machine, 0x48u);
 
 ai_state_machine::ai_state_machine(ai::ai_core *a2, const ai::state_graph *a3, string_hash a4)
 {
-    this->my_curr_mode = PRE_TEST;
+    this->my_curr_mode = INITIAL_MODE;
     this->my_core = a2;
     this->m_state_graph = a3;
     this->my_parent = nullptr;
@@ -67,7 +67,7 @@ void ai_state_machine::advance_curr_state(Float a2, bool a3)
         }
 
         if (the_msg == TRANS_TOTAL_MSGS) {
-            if (this->my_curr_mode != 2) {
+            if (this->my_curr_mode != BLOCKED_ON_CHILD_MACHINE) {
                 this->process_transition(a2);
             }
         } else {
@@ -78,6 +78,13 @@ void ai_state_machine::advance_curr_state(Float a2, bool a3)
     } else {
         THISCALL(0x0069F870, this, a2, a3);
     }
+}
+
+void ai_state_machine::frame_advance(Float a2, bool a3)
+{
+    TRACE("ai_state_machine::frame_advance");
+
+    this->process_mode(a2, a3);
 }
 
 state_trans_action ai_state_machine::check_trans_on_interrupt(Float a3, const state_trans_action &a4)
@@ -200,8 +207,8 @@ void ai_state_machine::process_mode(Float a2, bool a3)
         base_state *v9;
 
         printf("this->my_curr_mode = %d\n", this->my_curr_mode);
-        switch (static_cast<int>(this->my_curr_mode)) {
-        case PRE_TEST: {
+        switch (this->my_curr_mode) {
+        case INITIAL_MODE: {
             mashed_state *initial_state =
                 (this->field_30 == string_hash{} ? this->m_state_graph->get_initial_state()
                                                  : this->m_state_graph->find_state(this->field_30));
@@ -219,22 +226,22 @@ void ai_state_machine::process_mode(Float a2, bool a3)
             v6->activate(this, v7, nullptr, nullptr, static_cast<base_state::activate_flag_e>(0));
 
             assert(!my_curr_state->is_flag_set(mashed_state::IS_INTERRUPT_STATE));
-            this->my_curr_mode = static_cast<decltype(my_curr_mode)>(1);
+            this->my_curr_mode = STATE_ADVANCE;
             this->process_mode(a2, false);
             break;
         }
-        case 1: {
+        case STATE_ADVANCE: {
             this->advance_curr_state(a2, a3);
             return;
         }
-        case 2: {
+        case BLOCKED_ON_CHILD_MACHINE: {
             if (this->field_2C == 0) {
-                this->my_curr_mode = static_cast<decltype(my_curr_mode)>(1);
+                this->my_curr_mode = STATE_ADVANCE;
                 this->process_mode(a2, false);
             }
             return;
         }
-        case 3: {
+        case BLOCKED_ON_ALL_CHILDREN: {
             if (this->field_1C.size()) {
                 return;
             }
@@ -257,7 +264,7 @@ void ai_state_machine::process_mode(Float a2, bool a3)
         case PROCESSING_EXIT_REQUEST: {
             state_trans_messages v10 = this->my_curr_state->frame_advance(a2);
             if (v10 == TRANS_TOTAL_MSGS) {
-                if (this->my_curr_mode != 2) {
+                if (this->my_curr_mode != BLOCKED_ON_CHILD_MACHINE) {
                     this->process_transition(a2);
                 }
 
@@ -267,9 +274,8 @@ void ai_state_machine::process_mode(Float a2, bool a3)
 
             return;
         }
-        case 5: {
-            auto *v11 = this->field_1C.m_first;
-            if (v11 == nullptr || !(this->field_1C.m_last - v11)) {
+        case EXITING_WAIT_ON_CHILDREN: {
+            if (this->field_1C.empty()) {
                 this->my_core->do_machine_exit(this);
             }
 
@@ -292,10 +298,10 @@ void ai_state_machine::process_machine_exit(ai::state_trans_messages a2)
         this->field_44 = a2;
 
         if (this->field_1C.size() != 0) {
-            this->my_curr_mode = static_cast<decltype(my_curr_mode)>(5);
+            this->my_curr_mode = EXITING_WAIT_ON_CHILDREN;
             for (auto i = 0u; i < this->field_1C.size(); ++i) {
                 auto *v6 = this->field_1C[i];
-                v6->my_curr_mode = static_cast<decltype(v6->my_curr_mode)>(3);
+                v6->my_curr_mode = BLOCKED_ON_ALL_CHILDREN;
                 for (auto j = 0u; i < v6->field_1C.size(); ++j) {
                     v6->field_1C[j]->request_exit();
                 }
@@ -342,7 +348,7 @@ void ai_state_machine::process_return()
 
 void ai_state_machine::request_exit()
 {
-    this->my_curr_mode = static_cast<decltype(my_curr_mode)>(3);
+    this->my_curr_mode = BLOCKED_ON_ALL_CHILDREN;
     for (auto &v3 : this->field_1C) {
         v3->request_exit();
     }
@@ -363,7 +369,8 @@ string_hash ai_state_machine::get_initial_state_id() const
 void ai_state_machine::external_request_exit()
 {
     auto curr_mode = this->my_curr_mode;
-    if (curr_mode != 3 && curr_mode != 5 && curr_mode != 4) {
+    if (curr_mode != BLOCKED_ON_ALL_CHILDREN && curr_mode != EXITING_WAIT_ON_CHILDREN &&
+        curr_mode != PROCESSING_EXIT_REQUEST) {
         this->request_exit();
     }
 }

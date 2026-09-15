@@ -19,10 +19,16 @@ struct state_graph;
 struct ai_core;
 
 struct ai_state_machine {
-    enum {
-        PRE_TEST = 0,
+    enum operation_mode {
+        INITIAL_MODE = 0,
+        STATE_ADVANCE = 1,
+        BLOCKED_ON_CHILD_MACHINE = 2,
+        BLOCKED_ON_ALL_CHILDREN = 3,
         PROCESSING_EXIT_REQUEST = 4,
-    } my_curr_mode;
+        EXITING_WAIT_ON_CHILDREN = 5
+    };
+
+    operation_mode my_curr_mode;
     ai_core *my_core;
     actor *field_8;
     const state_graph *m_state_graph;
@@ -40,6 +46,9 @@ struct ai_state_machine {
 
     //0x0069EB60
     ai_state_machine(ai::ai_core *a2, const ai::state_graph *a3, string_hash a4);
+
+    //0x006A3A60
+    void frame_advance(Float a2, bool a3);
 
     //0x0069BCE0
     void process_machine_exit(ai::state_trans_messages a2);

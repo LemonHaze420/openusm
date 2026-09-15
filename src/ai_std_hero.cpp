@@ -240,7 +240,7 @@ void hero_inode::_activate(ai_core *a2)
         this->field_20 = (als_inode *)the_core->get_info_node(als_inode::default_id, true);
         this->field_28 = (physics_inode *)the_core->get_info_node(physics_inode::default_id, true);
         this->field_24 = (controller_inode *)the_core->get_info_node(controller_inode::default_id, true);
-        this->field_2C = (spidey_combat_inode *)the_core->get_info_node(combat_inode::default_id, true);
+        this->field_2C = (combat_inode *)the_core->get_info_node(combat_inode::default_id, true);
         this->field_30 = (base_full_target_inode *)the_core->get_info_node(combat_target_inode::default_id, true);
         this->field_34 = (interaction_inode *)the_core->get_info_node(interaction_inode::default_id, true);
         this->field_3C = (web_zip_inode *)the_core->get_info_node(web_zip_inode::default_id, true);
