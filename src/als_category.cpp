@@ -30,6 +30,13 @@ request_data category::do_incoming_trans(animation_logic_system *a3, state_machi
     return data;
 }
 
+void category::do_post_trans(animation_logic_system *a1, state_machine *a2, transition_post_handle a3)
+{
+    void(__fastcall * func)(void *, void *edx, animation_logic_system *, state_machine *, transition_post_handle) =
+        CAST(func, get_vfunc(m_vtbl, 0x28));
+    func(this, nullptr, a1, a2, a3);
+}
+
 category::category()
 {
     if constexpr (1) {

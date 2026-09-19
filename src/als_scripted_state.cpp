@@ -142,8 +142,8 @@ request_data scripted_state::do_implicit_trans(animation_logic_system *a4, state
                 auto &trans_rule = (*it);
                 trans_rule->field_0.field_14.process_action(data);
                 if (trans_rule->field_0.has_post_action()) {
-                    data.field_10 = scripted_trans_group::IMPLICIT;
-                    data.field_C = int(&trans_rule);
+                    data.field_C.field_4 = scripted_trans_group::IMPLICIT;
+                    data.field_C.field_0 = bit_cast<basic_rule_data *>(&trans_rule);
                 }
             }
         }
@@ -168,7 +168,7 @@ request_data scripted_state::do_implicit_trans(animation_logic_system *a4, state
     }
 }
 
-void scripted_state::do_post_trans(animation_logic_system *a1, state_machine *a2, transition_post_handle a4)
+void scripted_state::_do_post_trans(animation_logic_system *a1, state_machine *a2, transition_post_handle a4)
 {
     TRACE("als::scripted_state::do_post_trans");
 
@@ -290,7 +290,7 @@ void als_scripted_state_patch()
     }
 
     {
-        FUNC_ADDRESS(address, &als::scripted_state::do_post_trans);
+        FUNC_ADDRESS(address, &als::scripted_state::_do_post_trans);
         SET_JUMP(0x004A72B0, address);
     }
 

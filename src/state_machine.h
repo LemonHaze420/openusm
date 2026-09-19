@@ -104,6 +104,9 @@ public:
 
     void process_requests(animation_logic_system *a2);
 
+    //0049CEC0
+    void process_post_requests(animation_logic_system *a2);
+
     void do_force_state_trans(animation_logic_system *a2);
 
     void do_implicit_trans(animation_logic_system *a2);

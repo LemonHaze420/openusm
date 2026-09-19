@@ -21,7 +21,6 @@ request_data::request_data(const request_data &a2)
     this->field_4 = a2.field_4;
     this->field_8 = a2.field_8;
     this->field_C = a2.field_C;
-    this->field_10 = a2.field_10;
 }
 
 void request_data::clear()

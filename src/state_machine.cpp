@@ -32,7 +32,7 @@ state_machine::state_machine()
         this->curr_req_data.field_2 = false;
         this->curr_req_data.field_3 = false;
         this->curr_req_data.field_4 = false;
-        this->curr_req_data.field_C = 0;
+        this->curr_req_data.field_C.field_0 = nullptr;
 
         this->shared_portion = nullptr;
         this->m_curr_state = nullptr;
@@ -560,12 +560,6 @@ void state_machine::process_requests(animation_logic_system *a2)
 {
     TRACE("als::state_machine::process_requests");
 
-    {
-        auto &v1 = this->field_8;
-        sp_log("%d %d %d", v1.field_0, v1.field_1, v1.field_2);
-        sp_log("%s", v1.m_cat_id.to_string());
-    }
-
     if constexpr (1) {
         this->curr_req_data.clear();
         this->field_40.clear_cache();
@@ -595,6 +589,20 @@ void state_machine::process_requests(animation_logic_system *a2)
         }
     } else {
         THISCALL(0x004A6BA0, this, a2);
+    }
+}
+
+void state_machine::process_post_requests(animation_logic_system *a2)
+{
+    if (this->curr_req_data.field_C.field_0 != nullptr) {
+        if (this->curr_req_data.field_4) {
+            auto *v3 = this->m_prev_state;
+            auto v5 = v3->m_cat_id;
+            auto *category = this->find_category(v5);
+            category->do_post_trans(a2, this, this->curr_req_data.field_C);
+        } else {
+            this->m_prev_state->do_post_trans(a2, this, this->curr_req_data.field_C);
+        }
     }
 }
 

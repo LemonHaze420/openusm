@@ -102,6 +102,14 @@ request_data scripted_category::do_implicit_trans(animation_logic_system *a4, st
     return data;
 }
 
+void scripted_category::_do_post_trans(animation_logic_system *a1, state_machine *a2, transition_post_handle a3)
+{
+    als_data v4{a1, a2};
+    if (a3.field_4 < 2 || a3.field_4 == 3) {
+        a3.field_0->do_post_action(v4);
+    }
+}
+
 int scripted_category::_get_mash_sizeof() const
 {
     return sizeof(scripted_category);

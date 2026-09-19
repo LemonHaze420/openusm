@@ -1,5 +1,6 @@
 #pragma once
 
+#include "als_transition_post_handle.h"
 #include "scripted_trans_group.h"
 #include "string_hash.h"
 
@@ -11,8 +12,7 @@ struct request_data {
     bool field_3;
     bool field_4;
     string_hash field_8;
-    int field_C;
-    scripted_trans_group::transition_type field_10;
+    transition_post_handle field_C;
 
     request_data();
 

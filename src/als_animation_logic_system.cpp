@@ -525,24 +525,37 @@ void animation_logic_system::_frame_advance_post_request_processing(Float a2)
 {
     TRACE("animation_logic_system::frame_advance_post_request_processing");
 
-    THISCALL(0x0049F1A0, this, a2);
+    if constexpr (1) {
+        if (!this->field_7C) {
+            if (this->field_6C->has_time_ifc()) {
+                this->field_6C->time_ifc();
+            }
+
+            for (int i = this->field_8.size() - 1; i >= -1; --i) {
+                auto *v7 = (i == -1 ? &this->field_18 : this->field_8[i]);
+                if (v7->is_active() && v7->curr_req_data.field_C.field_0 != nullptr) {
+                    v7->process_post_requests(this);
+                    this->field_7E = true;
+                }
+            }
+        }
+    } else {
+        THISCALL(0x0049F1A0, this, a2);
+    }
 }
 
-//FIXME
 void animation_logic_system::_frame_advance_main_als_advance(Float a2)
 {
     TRACE("animation_logic_system::frame_advance_main_als_advance");
 
-    if constexpr (0) {
+    if constexpr (1) {
         if (!this->field_7C) {
             this->field_7E = false;
             if (this->field_6C->has_time_ifc()) {
                 this->field_6C->time_ifc();
             }
 
-            sp_log("%d", this->field_8.size());
-
-            for (int i = -1; i < this->field_8.size(); ++i) {
+            for (int i = -1; i < int(this->field_8.size()); ++i) {
                 state_machine &the_machine = (i == -1 ? this->field_18 : *this->field_8[i]);
 
                 the_machine.process_requests(this);

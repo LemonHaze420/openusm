@@ -68,6 +68,13 @@ als::request_data state::do_implicit_trans(animation_logic_system *a4, state_mac
     return data;
 }
 
+void state::do_post_trans(animation_logic_system *a1, state_machine *a2, transition_post_handle a3)
+{
+    void(__fastcall * func)(void *, void *edx, animation_logic_system *, state_machine *, transition_post_handle) =
+        CAST(func, get_vfunc(m_vtbl, 0x30));
+    func(this, nullptr, a1, a2, a3);
+}
+
 string_hash state::get_nal_anim_name() const
 {
     void(__fastcall * func)(const void *, void *, string_hash *) = CAST(func, get_vfunc(m_vtbl, 0x34));
