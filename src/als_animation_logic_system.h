@@ -35,6 +35,13 @@ public:
     //0x004ABB80
     animation_logic_system(actor *a1);
 
+    //0x004A9000
+    ~animation_logic_system();
+
+    void *operator new(std::size_t sz);
+
+    void operator delete(void *, std::size_t sz);
+
     //0x004933C0
     als_meta_anim_table_shared *get_meta_anim_table();
 
@@ -55,22 +62,23 @@ public:
     void transition_layer(layer_types a2, string_hash a3);
 
     //0x004A6400
-    void frame_advance_play_new_animations(Float a2);
+    //virtual
+    void _frame_advance_play_new_animations(Float a2);
 
     //virtual
-    void frame_advance_update_pending_params(Float a2);
+    void _frame_advance_update_pending_params(Float a2);
 
     //virtual
-    void frame_advance_change_mocomp(Float a2);
+    void _frame_advance_change_mocomp(Float a2);
 
     //virtual
-    void frame_advance_run_mocomp_pre_anim(Float a2);
+    void _frame_advance_run_mocomp_pre_anim(Float a2);
 
     //virtual
-    void frame_advance_controller(Float a2);
+    void _frame_advance_controller(Float a2);
 
     //virtual
-    void frame_advance_post_controller(Float a2);
+    void _frame_advance_post_controller(Float a2);
 
     //0x00498F70
     void enter_biped_physics();
@@ -80,38 +88,49 @@ public:
     //virtual
     void suspend_logic_system(bool a2);
 
+    //0x004A63F0
+    /* virtual */ state_machine *_get_als_layer(layer_types a2);
+
+    //0x0049F150
+    //virtual
+    void _kill_all_domains(uint32_t a2);
+
+    //0x004931F0
+    //virtual
+    void _suspend_logic_system(bool a2);
+
     //0x004ABC60
     //virtual
-    void create_instance_data(animation_logic_system_shared *a2);
+    void _create_instance_data(animation_logic_system_shared *a2);
 
     //virtual
-    void delete_instance_data();
+    void _delete_instance_data();
 
     //virtual
-    void reset_animation_player();
+    void _reset_animation_player();
 
     //0x00498D10
-    /* virtual */ bool frame_advance_should_do_frame_advance(Float a2);
+    /* virtual */ bool _frame_advance_should_do_frame_advance(Float a2);
 
-    /* virtual */ void frame_advance_main_als_advance(Float a2);
-
-    //0x0049CC90
-    //virtual
-    void frame_advance_post_logic_processing(Float a2);
+    /* virtual */ void _frame_advance_main_als_advance(Float a2);
 
     //virtual
     //0x0049F1A0
-    void frame_advance_post_request_processing(Float a2);
+    void _frame_advance_post_request_processing(Float a2);
 
     //virtual
-    void frame_advance_on_layer_trans(Float a2);
+    void _frame_advance_on_layer_trans(Float a2);
 
-    //0x004A63F0
-    /* virtual */ state_machine *get_als_layer(layer_types a2);
+    //0x0049CC90
+    //virtual
+    void _frame_advance_post_logic_processing(Float a2);
+
+    //virtual
+    bool _sub_4933E0();
 
     //0x00498F30
     //virtual
-    void change_mocomp();
+    void _change_mocomp();
 
     static inline const string_hash anim_start_frame_hash{static_cast<int32_t>(to_hash("anim_start_frame"))};
 };

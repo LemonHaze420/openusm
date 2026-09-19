@@ -32,9 +32,19 @@ struct ai_core;
 }
 
 enum entity_flag_t {
+    EFLAG_PHYSICS_WALKABLE = 0x80,
+
+    EFLAG_GRAPHICS = 0x100,
     EFLAG_GRAPHICS_VISIBLE = 0x200,
+    EFLAG_MISC_IS_A_CAR = 0x800,
+
+    EFLAG_PHYSICS_COLLISIONS_ACTIVE = 0x4000,
+
     EFLAG_MISC_CAST_SHADOW = 0x40000,
     EFLAG_MISC_HIRES_SHADOW = 0x8000000,
+
+    EFLAG_SUSPENDED = 0x40000000
+
 };
 
 enum entity_ext_flag_t {

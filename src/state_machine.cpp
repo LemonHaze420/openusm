@@ -281,6 +281,17 @@ bool state_machine::is_active() const
     }
 }
 
+void state_machine::kill_layer()
+{
+    void(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x28));
+    func(this);
+}
+
+void state_machine::_kill_layer()
+{
+    this->field_8.field_0 = true;
+}
+
 void state_machine::force_als_state(string_hash a2, int)
 {
     TRACE("als::state_machine::force_als_state");

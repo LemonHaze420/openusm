@@ -199,6 +199,27 @@ void nal_anim_controller::_frame_advance(Float a2, bool a3, bool a4)
     }
 }
 
+bool nal_anim_controller::_sub_49C180()
+{
+    auto func = [](auto *a1) -> bool {
+        for (auto *i = a1->field_20; i != nullptr; i = i->field_40) {
+            if (i->field_34 != 0) {
+                return true;
+            }
+        }
+
+        for (int i = 0; i < a1->field_10; ++i) {
+            if (a1->field_14[i]->field_34 != 0) {
+                return true;
+            }
+        }
+
+        return false;
+    };
+
+    return func(&this->my_player);
+}
+
 bool nal_anim_controller::scene_animation_playing() const
 {
     return this->field_50;

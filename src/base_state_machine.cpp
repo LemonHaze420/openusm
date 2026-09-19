@@ -8,7 +8,10 @@
 
 namespace als {
 
-base_state_machine::base_state_machine() {}
+base_state_machine::base_state_machine()
+{
+    this->m_vtbl = 0x008814B0;
+}
 
 void base_state_machine::init(state_machine_shared *shared_machine)
 {

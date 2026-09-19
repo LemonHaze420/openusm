@@ -144,6 +144,12 @@ public:
     bool is_active() const;
 
     //virtual
+    void kill_layer();
+
+    //0x00493540
+    void _kill_layer();
+
+    //virtual
     void force_als_state(string_hash a2, int a3);
 
     //virtual

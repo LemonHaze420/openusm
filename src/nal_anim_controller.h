@@ -61,6 +61,9 @@ struct nal_anim_controller : animation_controller {
     void get_curr_po_offset(po &a2);
 
     //virtual
+    bool _sub_49C180();
+
+    //virtual
     bool scene_animation_playing() const;
 
     //virtual

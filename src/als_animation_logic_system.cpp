@@ -8,6 +8,7 @@
 #include "func_wrapper.h"
 #include "layer_state_machine.h"
 #include "layer_state_machine_shared.h"
+#include "nal_anim_controller.h"
 #include "memory.h"
 #include "physical_interface.h"
 #include "resource_manager.h"
@@ -24,7 +25,94 @@ VALIDATE_SIZE(animation_logic_system, 0x80u);
 
 animation_logic_system::animation_logic_system(actor *a1)
 {
-    THISCALL(0x004ABB80, this, a1);
+    TRACE("animation_logic_system::animation_logic_system");
+
+    if constexpr (1) {
+        if constexpr (0) {
+            static void *g_vtbl[] = {func_address(&animation_logic_system::_get_als_layer),
+                                     func_address(&animation_logic_system::_kill_all_domains),
+                                     func_address(&animation_logic_system::_suspend_logic_system),
+                                     func_address(&animation_logic_system::_create_instance_data),
+                                     func_address(&animation_logic_system::_delete_instance_data),
+                                     func_address(&animation_logic_system::_reset_animation_player),
+                                     func_address(&animation_logic_system::_frame_advance_should_do_frame_advance),
+                                     func_address(&animation_logic_system::_frame_advance_main_als_advance),
+                                     func_address(&animation_logic_system::_frame_advance_post_request_processing),
+                                     func_address(&animation_logic_system::_frame_advance_on_layer_trans),
+                                     func_address(&animation_logic_system::_frame_advance_post_logic_processing),
+                                     func_address(&animation_logic_system::_frame_advance_play_new_animations),
+                                     func_address(&animation_logic_system::_frame_advance_update_pending_params),
+                                     func_address(&animation_logic_system::_frame_advance_change_mocomp),
+                                     func_address(&animation_logic_system::_frame_advance_run_mocomp_pre_anim),
+                                     func_address(&animation_logic_system::_frame_advance_controller),
+                                     func_address(&animation_logic_system::_frame_advance_post_controller),
+                                     func_address(&animation_logic_system::_sub_4933E0),
+                                     func_address(&animation_logic_system::_change_mocomp)};
+
+            this->m_vtbl = CAST(m_vtbl, &g_vtbl);
+        } else {
+            this->m_vtbl = 0x00881460;
+        }
+
+        this->field_7C = false;
+        this->field_7D = false;
+        this->field_74 = nullptr;
+        this->field_6C = a1;
+        this->the_controller = nullptr;
+        this->als_shared = nullptr;
+
+        auto func = [](uint32_t sz) -> void * {
+            if (slab_allocator::get_max_object_size() < sz) {
+                return ::operator new(sz);
+            } else {
+                return slab_allocator::allocate(sz, nullptr);
+            }
+        };
+
+        this->field_78 = func(0x80u);
+
+        value_t v3{};
+        v3.field_0 = this;
+        the_als_list.push_back(v3);
+    } else {
+        THISCALL(0x004ABB80, this, a1);
+    }
+}
+
+animation_logic_system::~animation_logic_system()
+{
+    this->m_vtbl = 0x00881460;
+    auto *v2 = this->field_74;
+    if (v2 != nullptr) {
+        v2->deactivate();
+        v2->finalize(false);
+        this->field_74 = nullptr;
+    }
+
+    auto *v3 = this->field_78;
+    auto func = [](void *a1) -> void {
+        auto *slab_for_object = slab_allocator::find_slab_for_object(a1);
+        if (slab_for_object != nullptr) {
+            slab_allocator::deallocate(a1, slab_for_object);
+        } else {
+            ::operator delete(a1);
+        }
+    };
+
+    func(v3);
+    this->field_78 = nullptr;
+
+    remove_from_als_list(this);
+}
+
+void *animation_logic_system::operator new(std::size_t sz)
+{
+    return mem_alloc(sz);
+}
+
+void animation_logic_system::operator delete(void *ptr, std::size_t sz)
+{
+    mem_dealloc(ptr, sz);
 }
 
 als_meta_anim_table_shared *animation_logic_system::get_meta_anim_table()
@@ -51,7 +139,16 @@ bool animation_logic_system::sub_49F2A0()
     return true;
 }
 
-void animation_logic_system::change_mocomp()
+bool animation_logic_system::_sub_4933E0()
+{
+    if (this->the_controller != nullptr) {
+        return this->the_controller->sub_49C180();
+    }
+
+    return false;
+}
+
+void animation_logic_system::_change_mocomp()
 {
     THISCALL(0x00498F30, this);
 }
@@ -90,7 +187,7 @@ void animation_logic_system::suspend_logic_system(bool a2)
     this->field_7C = a2;
 }
 
-void animation_logic_system::create_instance_data(animation_logic_system_shared *system_shared)
+void animation_logic_system::_create_instance_data(animation_logic_system_shared *system_shared)
 {
     TRACE("als::animation_logic_system::create_instance_data");
 
@@ -101,26 +198,11 @@ void animation_logic_system::create_instance_data(animation_logic_system_shared 
         this->field_18.init(this->als_shared->field_14);
 
         auto &list = this->als_shared->field_0;
-        std::for_each(list.begin(), list.end(), [this](auto &machine_shared) {
+        std::transform(list.begin(), list.end(), std::back_inserter(this->field_8), [](auto &machine_shared) {
             auto *mem = mem_alloc(sizeof(layer_state_machine));
             auto *v11 = new (mem) layer_state_machine{};
             v11->init(machine_shared);
-
-            if constexpr (1) {
-                auto m_first = this->field_8.m_first;
-                if (m_first != nullptr && this->field_8.size() < this->field_8.capacity()) {
-                    auto **m_last = this->field_8.m_last;
-                    *m_last = v11;
-                    this->field_8.m_last = m_last + 1;
-                } else {
-                    void(__fastcall *
-                         insert)(void *, void *edx, als::state_machine **, uint32_t, layer_state_machine **) =
-                        CAST(insert, 0x004B0A10);
-                    insert(&this->field_8, nullptr, this->field_8.m_last, 1u, &v11);
-                }
-            } else {
-                this->field_8.push_back(v11);
-            }
+            return v11;
         });
 
         this->change_mocomp();
@@ -129,8 +211,10 @@ void animation_logic_system::create_instance_data(animation_logic_system_shared 
     }
 }
 
-void animation_logic_system::delete_instance_data()
+void animation_logic_system::_delete_instance_data()
 {
+    TRACE("animation_logic_system::delete_instance_data");
+
     for (auto &the_state_machine : this->field_8) {
         if (the_state_machine != nullptr) {
             void(__fastcall * finalize)(void *, void *, bool) =
@@ -144,7 +228,24 @@ void animation_logic_system::delete_instance_data()
 
 base_state_machine *animation_logic_system::get_als_layer_internal(layer_types a2)
 {
-    return (base_state_machine *)THISCALL(0x0049F300, this, a2);
+    TRACE("animation_logic_system::get_als_layer_internal");
+
+    if constexpr (1) {
+        auto *v3 = &this->field_18;
+        if (a2 == v3->get_layer_id()) {
+            return v3;
+        }
+
+        for (uint32_t i = 0; i < this->field_8.size(); ++i) {
+            if (a2 == this->field_8[i]->get_layer_id()) {
+                return (base_state_machine *)this->field_8[i];
+            }
+        }
+
+        return nullptr;
+    } else {
+        return (base_state_machine *)THISCALL(0x0049F300, this, a2);
+    }
 }
 
 void animation_logic_system::transition_layer(layer_types a2, string_hash a3)
@@ -155,12 +256,32 @@ void animation_logic_system::transition_layer(layer_types a2, string_hash a3)
     }
 }
 
-state_machine *animation_logic_system::get_als_layer(layer_types a2)
+state_machine *animation_logic_system::_get_als_layer(layer_types a2)
 {
     return this->get_als_layer_internal(a2);
 }
 
-void animation_logic_system::reset_animation_player()
+void animation_logic_system::_kill_all_domains(uint32_t a2)
+{
+    TRACE("animation_logic_system::kill_all_domains");
+
+    for (uint32_t i = 0; i < this->field_8.size(); ++i) {
+        if ((a2 & this->field_8[i]->shared_portion->field_40) != 0) {
+            this->field_8[i]->kill_layer();
+        }
+    }
+}
+
+void animation_logic_system::_suspend_logic_system(bool a2)
+{
+    if (this->field_7C && !a2) {
+        this->field_7D = true;
+    }
+
+    this->field_7C = a2;
+}
+
+void animation_logic_system::_reset_animation_player()
 {
     auto *the_controller = this->the_controller;
     if (the_controller != nullptr) {
@@ -168,7 +289,7 @@ void animation_logic_system::reset_animation_player()
     }
 }
 
-bool animation_logic_system::frame_advance_should_do_frame_advance([[maybe_unused]] Float a2)
+bool animation_logic_system::_frame_advance_should_do_frame_advance([[maybe_unused]] Float a2)
 {
     TRACE("animation_logic_system::frame_advance_should_do_frame_advance");
 
@@ -182,12 +303,12 @@ bool animation_logic_system::frame_advance_should_do_frame_advance([[maybe_unuse
             v3->allocate_anim_controller(0, nullptr);
         }
 
-        this->the_controller = CAST(the_controller, this->field_6C->anim_ctrl);
+        this->the_controller = this->field_6C->anim_ctrl;
         assert(this->the_controller != nullptr);
     }
 
     auto *v4 = this->field_6C;
-    if (v4->is_flagged(0x40000000) || v4->is_in_limbo()) {
+    if (v4->is_suspended() || v4->is_in_limbo()) {
         return false;
     }
 
@@ -198,7 +319,7 @@ bool animation_logic_system::frame_advance_should_do_frame_advance([[maybe_unuse
     return !traffic::is_unanimated_car(this->field_6C);
 }
 
-void animation_logic_system::frame_advance_post_logic_processing([[maybe_unused]] Float a2)
+void animation_logic_system::_frame_advance_post_logic_processing([[maybe_unused]] Float a2)
 {
     TRACE("als::animation_logic_system::frame_advance_post_logic_processing");
 
@@ -232,7 +353,7 @@ float animation_logic_system::convert_layer_id_to_priority(layer_types a2)
     return func(this, nullptr, a2);
 }
 
-void animation_logic_system::frame_advance_play_new_animations(Float a2)
+void animation_logic_system::_frame_advance_play_new_animations(Float a2)
 {
     TRACE("animation_logic_system::frame_advance_play_new_animations");
 
@@ -305,7 +426,7 @@ void animation_logic_system::frame_advance_play_new_animations(Float a2)
     }
 }
 
-void animation_logic_system::frame_advance_update_pending_params(Float a2)
+void animation_logic_system::_frame_advance_update_pending_params(Float a2)
 {
     TRACE("animation_logic_system::frame_advance_update_pending_params");
 
@@ -326,14 +447,14 @@ void animation_logic_system::frame_advance_update_pending_params(Float a2)
     }
 }
 
-void animation_logic_system::frame_advance_change_mocomp(Float a2)
+void animation_logic_system::_frame_advance_change_mocomp(Float a2)
 {
     TRACE("animation_logic_system::frame_advance_change_mocomp");
 
     THISCALL(0x00498DB0, this, a2);
 }
 
-void animation_logic_system::frame_advance_run_mocomp_pre_anim(Float a2)
+void animation_logic_system::_frame_advance_run_mocomp_pre_anim(Float a2)
 {
     if (!this->field_7C) {
         float v4;
@@ -348,7 +469,7 @@ void animation_logic_system::frame_advance_run_mocomp_pre_anim(Float a2)
     }
 }
 
-void animation_logic_system::frame_advance_controller(Float a2)
+void animation_logic_system::_frame_advance_controller(Float a2)
 {
     TRACE("animation_logic_system::frame_advance_controller");
 
@@ -370,7 +491,7 @@ void animation_logic_system::frame_advance_controller(Float a2)
     }
 }
 
-void animation_logic_system::frame_advance_post_controller(Float arg0)
+void animation_logic_system::_frame_advance_post_controller(Float arg0)
 {
     TRACE("animation_logic_system::frame_advance_post_controller");
 
@@ -400,7 +521,7 @@ void animation_logic_system::frame_advance_post_controller(Float arg0)
     }
 }
 
-void animation_logic_system::frame_advance_post_request_processing(Float a2)
+void animation_logic_system::_frame_advance_post_request_processing(Float a2)
 {
     TRACE("animation_logic_system::frame_advance_post_request_processing");
 
@@ -408,7 +529,7 @@ void animation_logic_system::frame_advance_post_request_processing(Float a2)
 }
 
 //FIXME
-void animation_logic_system::frame_advance_main_als_advance(Float a2)
+void animation_logic_system::_frame_advance_main_als_advance(Float a2)
 {
     TRACE("animation_logic_system::frame_advance_main_als_advance");
 
@@ -436,7 +557,7 @@ void animation_logic_system::frame_advance_main_als_advance(Float a2)
     }
 }
 
-void animation_logic_system::frame_advance_on_layer_trans(Float a2)
+void animation_logic_system::_frame_advance_on_layer_trans(Float a2)
 {
     TRACE("animation_logic_system::frame_advance_on_layer_trans");
 
@@ -449,59 +570,31 @@ void animation_logic_system::frame_advance_on_layer_trans(Float a2)
 void animation_logic_system_patch()
 {
     {
-        FUNC_ADDRESS(address, &als::animation_logic_system::suspend_logic_system);
-        SET_JUMP(0x004931F0, address);
-    }
+        auto constexpr address_vtbl = 0x00881460;
 
-
-    {
-        FUNC_ADDRESS(address, &als::animation_logic_system::create_instance_data);
-        set_vfunc(0x0088146C, address);
-    }
-
-    {
-        FUNC_ADDRESS(address, &als::animation_logic_system::frame_advance_should_do_frame_advance);
-        set_vfunc(0x00881478, address);
-    }
-
-    {
-        FUNC_ADDRESS(address, &als::animation_logic_system::frame_advance_change_mocomp);
-        set_vfunc(0x00881494, address);
-    }
-
-    {
-        FUNC_ADDRESS(address, &als::animation_logic_system::frame_advance_controller);
-        set_vfunc(0x0088149C, address);
-    }
-
-    {
-        FUNC_ADDRESS(address, &als::animation_logic_system::frame_advance_post_controller);
-        set_vfunc(0x008814A0, address);
-    }
-
-    {
-        FUNC_ADDRESS(address, &als::animation_logic_system::frame_advance_on_layer_trans);
-        set_vfunc(0x00881484, address);
-    }
-
-    {
-        FUNC_ADDRESS(address, &als::animation_logic_system::frame_advance_post_request_processing);
-        set_vfunc(0x00881480, address);
-    }
-
-    {
-        FUNC_ADDRESS(address, &als::animation_logic_system::frame_advance_main_als_advance);
-        set_vfunc(0x0088147C, address);
-    }
-
-    {
-        FUNC_ADDRESS(address, &als::animation_logic_system::frame_advance_play_new_animations);
-        set_vfunc(0x0088148C, address);
-    }
-
-    {
-        FUNC_ADDRESS(address, &als::animation_logic_system::frame_advance_update_pending_params);
-        set_vfunc(0x00881490, address);
+        set_vfunc(address_vtbl + 0x0, func_address(&als::animation_logic_system::_get_als_layer));
+        set_vfunc(address_vtbl + 0x4, func_address(&als::animation_logic_system::_kill_all_domains));
+        set_vfunc(address_vtbl + 0x8, func_address(&als::animation_logic_system::_suspend_logic_system));
+        set_vfunc(address_vtbl + 0xC, func_address(&als::animation_logic_system::_create_instance_data));
+        set_vfunc(address_vtbl + 0x10, func_address(&als::animation_logic_system::_delete_instance_data));
+        set_vfunc(address_vtbl + 0x14, func_address(&als::animation_logic_system::_reset_animation_player));
+        set_vfunc(address_vtbl + 0x18,
+                  func_address(&als::animation_logic_system::_frame_advance_should_do_frame_advance));
+        set_vfunc(address_vtbl + 0x1C, func_address(&als::animation_logic_system::_frame_advance_main_als_advance));
+        set_vfunc(address_vtbl + 0x20,
+                  func_address(&als::animation_logic_system::_frame_advance_post_request_processing));
+        set_vfunc(address_vtbl + 0x24, func_address(&als::animation_logic_system::_frame_advance_on_layer_trans));
+        set_vfunc(address_vtbl + 0x28,
+                  func_address(&als::animation_logic_system::_frame_advance_post_logic_processing));
+        set_vfunc(address_vtbl + 0x2C, func_address(&als::animation_logic_system::_frame_advance_play_new_animations));
+        set_vfunc(address_vtbl + 0x30,
+                  func_address(&als::animation_logic_system::_frame_advance_update_pending_params));
+        set_vfunc(address_vtbl + 0x34, func_address(&als::animation_logic_system::_frame_advance_change_mocomp));
+        set_vfunc(address_vtbl + 0x38, func_address(&als::animation_logic_system::_frame_advance_run_mocomp_pre_anim));
+        set_vfunc(address_vtbl + 0x3C, func_address(&als::animation_logic_system::_frame_advance_controller));
+        set_vfunc(address_vtbl + 0x40, func_address(&als::animation_logic_system::_frame_advance_post_controller));
+        set_vfunc(address_vtbl + 0x44, func_address(&als::animation_logic_system::_sub_4933E0));
+        set_vfunc(address_vtbl + 0x48, func_address(&als::animation_logic_system::_change_mocomp));
     }
 
     {

@@ -80,6 +80,9 @@ struct animation_controller {
     void kill_specific_anim(Float, Float) /* = 0 */;
 
     //virtual
+    bool sub_49C180();  // = 0;
+
+    //virtual
     void begin_scene_animation() /* = 0 */;
 
     //virtual
