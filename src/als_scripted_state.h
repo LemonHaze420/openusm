@@ -42,7 +42,14 @@ struct scripted_state : state {
     int get_filter(int out, animation_logic_system *a2, state_machine *a3, int a4);
 
     //virtual
-    request_data do_implicit_trans(animation_logic_system *a4, state_machine *a5);
+    int _get_mocomp_type();
+
+    //virtual
+    request_data _do_implicit_trans(animation_logic_system *a4, state_machine *a5);
+
+    //0x004A7180
+    //virtual
+    request_data _do_layer_trans(animation_logic_system *a4, state_machine *a5);
 
     //004A72B0
     //virtual

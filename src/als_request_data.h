@@ -20,6 +20,7 @@ struct request_data {
 
     void clear();
 
+    //0x004ADF40
     void operator=(const request_data &a2);
 };
 

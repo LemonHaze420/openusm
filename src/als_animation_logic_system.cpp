@@ -357,13 +357,6 @@ void animation_logic_system::_frame_advance_play_new_animations(Float a2)
 {
     TRACE("animation_logic_system::frame_advance_play_new_animations");
 
-    {
-        state_machine *the_state_machine = &this->field_18;
-        sp_log("is_active = %d, did_do_transition = %d",
-               the_state_machine->is_active(),
-               the_state_machine->did_do_transition());
-    }
-
     if constexpr (1) {
         if (!this->field_7C) {
             if (this->field_6C->has_time_ifc()) {
@@ -430,7 +423,7 @@ void animation_logic_system::_frame_advance_update_pending_params(Float a2)
 {
     TRACE("animation_logic_system::frame_advance_update_pending_params");
 
-    if constexpr (0) {
+    if constexpr (1) {
         if (!this->field_7C) {
             if (this->field_6C->has_time_ifc()) {
                 this->field_6C->time_ifc();
@@ -451,7 +444,23 @@ void animation_logic_system::_frame_advance_change_mocomp(Float a2)
 {
     TRACE("animation_logic_system::frame_advance_change_mocomp");
 
-    THISCALL(0x00498DB0, this, a2);
+    if constexpr (1) {
+        if (!this->field_7C) {
+            if (this->field_6C->has_time_ifc()) {
+                this->field_6C->time_ifc();
+            }
+
+            if (this->field_18.field_14.m_trans_succeed) {
+                auto *v3 = this->field_18.m_curr_state;
+                int v4 = this->field_74->get_virtual_type_enum();
+                if (v4 != v3->get_mocomp_type() || (this->field_18.m_curr_state->field_C & 0x200) != 0) {
+                    this->change_mocomp();
+                }
+            }
+        }
+    } else {
+        THISCALL(0x00498DB0, this, a2);
+    }
 }
 
 void animation_logic_system::_frame_advance_run_mocomp_pre_anim(Float a2)
@@ -574,7 +583,22 @@ void animation_logic_system::_frame_advance_on_layer_trans(Float a2)
 {
     TRACE("animation_logic_system::frame_advance_on_layer_trans");
 
-    THISCALL(0x0049F220, this, a2);
+    if constexpr (1) {
+        if (!this->field_7C && this->field_7E) {
+            if (this->field_6C->has_time_ifc()) {
+                this->field_6C->time_ifc();
+            }
+
+            for (int i = this->field_8.size() - 1; i >= -1; --i) {
+                auto *v7 = (i == -1 ? &this->field_18 : this->field_8[i]);
+                if (v7->is_active()) {
+                    v7->process_layer_response_rules(this);
+                }
+            }
+        }
+    } else {
+        THISCALL(0x0049F220, this, a2);
+    }
 }
 
 

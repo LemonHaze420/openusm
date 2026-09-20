@@ -117,7 +117,12 @@ int scripted_state::get_filter(int out, animation_logic_system *, state_machine 
     return out;
 }
 
-request_data scripted_state::do_implicit_trans(animation_logic_system *a4, state_machine *a5)
+int scripted_state::_get_mocomp_type()
+{
+    return 573;
+}
+
+request_data scripted_state::_do_implicit_trans(animation_logic_system *a4, state_machine *a5)
 {
     TRACE("als::scripted_state::do_implicit_trans");
 
@@ -166,6 +171,17 @@ request_data scripted_state::do_implicit_trans(animation_logic_system *a4, state
 
         return data;
     }
+}
+
+request_data scripted_state::_do_layer_trans(animation_logic_system *a4, state_machine *a5)
+{
+    request_data *(__fastcall * func)(void *, void *edx, request_data *, animation_logic_system *, state_machine *) =
+        CAST(func, 0x004A7180);
+
+    request_data data;
+    func(this, nullptr, &data, a4, a5);
+
+    return data;
 }
 
 void scripted_state::_do_post_trans(animation_logic_system *a1, state_machine *a2, transition_post_handle a4)
@@ -242,7 +258,7 @@ als::request_data *__fastcall scripted_state__do_implicit_trans(als::scripted_st
                                                                 als::request_data *out, als::animation_logic_system *a4,
                                                                 als::state_machine *a5)
 {
-    *out = self->do_implicit_trans(a4, a5);
+    *out = self->_do_implicit_trans(a4, a5);
     return out;
 }
 

@@ -14,16 +14,25 @@ VALIDATE_SIZE(category, 0x10);
 
 request_data category::do_implicit_trans(animation_logic_system *a3, state_machine *a4)
 {
-    als::request_data data;
+    request_data data;
     void(__fastcall * func)(void *, void *, request_data *, animation_logic_system *, state_machine *) =
         CAST(func, get_vfunc(m_vtbl, 0x18));
     func(this, nullptr, &data, a3, a4);
     return data;
 }
 
+request_data category::do_layer_trans(animation_logic_system *a4, state_machine *a5)
+{
+    request_data data;
+    void(__fastcall * func)(void *, void *, request_data *, animation_logic_system *, state_machine *) =
+        CAST(func, get_vfunc(m_vtbl, 0x20));
+    func(this, nullptr, &data, a4, a5);
+    return data;
+}
+
 request_data category::do_incoming_trans(animation_logic_system *a3, state_machine *a4)
 {
-    als::request_data data;
+    request_data data;
     void(__fastcall * func)(void *, void *, request_data *, animation_logic_system *, state_machine *) =
         CAST(func, get_vfunc(m_vtbl, 0x24));
     func(this, nullptr, &data, a3, a4);

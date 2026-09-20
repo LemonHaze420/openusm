@@ -606,6 +606,22 @@ void state_machine::process_post_requests(animation_logic_system *a2)
     }
 }
 
+void state_machine::process_layer_response_rules(als::animation_logic_system *a2)
+{
+    auto v9 = this->m_curr_state->do_layer_trans(a2, this);
+    if (!v9.did_transition_occur && v9.field_3) {
+        auto v8 = this->get_category_id();
+        auto *the_category = this->find_category(v8);
+        auto v6 = the_category->do_layer_trans(a2, this);
+        v9 = v6;
+    }
+
+    if (v9.did_transition_occur) {
+        auto *the_state = this->find_state(v9.field_8);
+        this->change_state(a2, the_state);
+    }
+}
+
 void state_machine::do_force_state_trans(animation_logic_system *a2)
 {
     TRACE("als::state_machine::do_force_state_trans");

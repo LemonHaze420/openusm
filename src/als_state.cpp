@@ -59,10 +59,25 @@ void state::_unmash(mash_info_struct *a2, void *a3)
     }
 }
 
+int state::get_mocomp_type()
+{
+    int(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x18));
+    return func(this);
+}
+
 als::request_data state::do_implicit_trans(animation_logic_system *a4, state_machine *a5)
 {
     void(__fastcall * func)(void *, void *, request_data *, animation_logic_system *, state_machine *) =
         CAST(func, get_vfunc(m_vtbl, 0x24));
+    request_data data;
+    func(this, nullptr, &data, a4, a5);
+    return data;
+}
+
+request_data state::do_layer_trans(animation_logic_system *a4, state_machine *a5)
+{
+    void(__fastcall * func)(void *, void *, request_data *, animation_logic_system *, state_machine *) =
+        CAST(func, get_vfunc(m_vtbl, 0x2C));
     request_data data;
     func(this, nullptr, &data, a4, a5);
     return data;

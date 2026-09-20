@@ -20,6 +20,12 @@ struct mVector : mContainer_base {
     using value_type = T;
 
     struct iterator {
+        using iterator_category = std::random_access_iterator_tag;
+        using value_type = T;
+        using difference_type = std::ptrdiff_t;
+        using pointer = T *;
+        using reference = T &;
+
         T **_Ptr;
 
         bool operator==(const iterator &it) const
@@ -30,6 +36,11 @@ struct mVector : mContainer_base {
         bool operator!=(const iterator &it) const
         {
             return _Ptr != it._Ptr;
+        }
+
+        difference_type operator-(const iterator &it) const
+        {
+            return _Ptr - it._Ptr;
         }
 
         void operator++()

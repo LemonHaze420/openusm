@@ -35,6 +35,9 @@ struct category : mash_virtual_base {
     request_data do_implicit_trans(animation_logic_system *a4, state_machine *a5);
 
     //virtual
+    request_data do_layer_trans(animation_logic_system *a4, state_machine *a5);
+
+    //virtual
     request_data do_incoming_trans(animation_logic_system *a3, state_machine *a4);
 
     //virtual

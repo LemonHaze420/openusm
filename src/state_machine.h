@@ -104,8 +104,11 @@ public:
 
     void process_requests(animation_logic_system *a2);
 
-    //0049CEC0
+    //0x0049CEC0
     void process_post_requests(animation_logic_system *a2);
+
+    //0x0049CF20
+    void process_layer_response_rules(animation_logic_system *a2);
 
     void do_force_state_trans(animation_logic_system *a2);
 

@@ -102,6 +102,15 @@ request_data scripted_category::do_implicit_trans(animation_logic_system *a4, st
     return data;
 }
 
+request_data scripted_category::_do_layer_trans(animation_logic_system *a4, state_machine *a5)
+{
+    request_data(__fastcall * func)(void *, void *edx, request_data *, animation_logic_system *a4, state_machine *a5) =
+        CAST(func, 0x004A7550);
+    request_data data{};
+    func(this, nullptr, &data, a4, a5);
+    return data;
+}
+
 void scripted_category::_do_post_trans(animation_logic_system *a1, state_machine *a2, transition_post_handle a3)
 {
     als_data v4{a1, a2};
