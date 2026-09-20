@@ -172,29 +172,29 @@ void basic_rule_data::rule_action::process_action(request_data &a2) const
         switch (this->the_action) {
         case TRANSITION:
             a2.did_transition_occur = true;
-            a2.field_1 = true;
-            a2.field_2 = false;
+            a2.do_post_action = true;
+            a2.is_trans_to_category = false;
             a2.field_8 = this->get_dest();
             break;
         case TRANSITION_CATEGORY:
             a2.did_transition_occur = true;
-            a2.field_1 = true;
-            a2.field_2 = true;
+            a2.do_post_action = true;
+            a2.is_trans_to_category = true;
             a2.field_8 = this->get_dest();
             break;
         case 2:
             a2.did_transition_occur = false;
-            a2.field_1 = true;
+            a2.do_post_action = true;
             break;
         case 3:
             a2.did_transition_occur = false;
-            a2.field_1 = false;
-            a2.field_3 = true;
+            a2.do_post_action = false;
+            a2.ignore_no_transition = true;
             break;
         case 4:
             a2.did_transition_occur = false;
-            a2.field_1 = false;
-            a2.field_3 = false;
+            a2.do_post_action = false;
+            a2.ignore_no_transition = false;
             break;
         default:
             return;

@@ -74,6 +74,18 @@ als::request_data state::do_implicit_trans(animation_logic_system *a4, state_mac
     return data;
 }
 
+request_data state::do_explicit_trans(animation_logic_system *a4, state_machine *a5, string_hash a6)
+{
+    request_data *(__fastcall *
+                   func)(void *, void *edx, request_data *, animation_logic_system *, state_machine *, string_hash) =
+        CAST(func, get_vfunc(m_vtbl, 0x28));
+
+    request_data data;
+    func(this, nullptr, &data, a4, a5, a6);
+
+    return data;
+}
+
 request_data state::do_layer_trans(animation_logic_system *a4, state_machine *a5)
 {
     void(__fastcall * func)(void *, void *, request_data *, animation_logic_system *, state_machine *) =

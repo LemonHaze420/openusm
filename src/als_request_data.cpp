@@ -11,14 +11,13 @@ request_data::request_data()
     clear();
 }
 
-
 request_data::request_data(const request_data &a2)
 {
     this->did_transition_occur = a2.did_transition_occur;
-    this->field_1 = a2.field_1;
-    this->field_2 = a2.field_2;
-    this->field_3 = a2.field_3;
-    this->field_4 = a2.field_4;
+    this->do_post_action = a2.do_post_action;
+    this->is_trans_to_category = a2.is_trans_to_category;
+    this->ignore_no_transition = a2.ignore_no_transition;
+    this->post_req_for_category = a2.post_req_for_category;
     this->field_8 = a2.field_8;
     this->field_C = a2.field_C;
 }
@@ -26,10 +25,10 @@ request_data::request_data(const request_data &a2)
 void request_data::clear()
 {
     this->did_transition_occur = false;
-    this->field_1 = false;
-    this->field_2 = false;
-    this->field_3 = false;
-    this->field_4 = false;
+    this->do_post_action = false;
+    this->is_trans_to_category = false;
+    this->ignore_no_transition = false;
+    this->post_req_for_category = false;
     this->field_8 = {0};
 }
 

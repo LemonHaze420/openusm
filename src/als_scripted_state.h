@@ -47,6 +47,10 @@ struct scripted_state : state {
     //virtual
     request_data _do_implicit_trans(animation_logic_system *a4, state_machine *a5);
 
+    //0x004A7040
+    //virtual
+    request_data _do_explicit_trans(animation_logic_system *a4, state_machine *a5, string_hash a6);
+
     //0x004A7180
     //virtual
     request_data _do_layer_trans(animation_logic_system *a4, state_machine *a5);

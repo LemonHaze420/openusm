@@ -21,6 +21,15 @@ request_data category::do_implicit_trans(animation_logic_system *a3, state_machi
     return data;
 }
 
+request_data category::do_explicit_trans(animation_logic_system *a4, state_machine *a5, string_hash a6)
+{
+    request_data data;
+    void(__fastcall * func)(void *, void *, request_data *, animation_logic_system *, state_machine *, string_hash) =
+        CAST(func, get_vfunc(m_vtbl, 0x1C));
+    func(this, nullptr, &data, a4, a5, a6);
+    return data;
+}
+
 request_data category::do_layer_trans(animation_logic_system *a4, state_machine *a5)
 {
     request_data data;
@@ -71,6 +80,14 @@ void category::initialize(mash::allocation_scope a2)
     if (a2 != mash::FROM_MASH) {
         this->field_C = nullptr;
     }
+}
+
+string_hash category::get_default_state() const
+{
+    string_hash result{};
+    int(__fastcall * func)(const category *, void *edx, string_hash *) = CAST(func, get_vfunc(m_vtbl, 0x30));
+    func(this, nullptr, &result);
+    return result;
 }
 
 int category::get_mash_sizeof() const

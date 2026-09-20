@@ -153,11 +153,11 @@ request_data scripted_state::_do_implicit_trans(animation_logic_system *a4, stat
             }
         }
 
-        if (auto v1 = (data.did_transition_occur || data.field_1); !v1) {
+        if (!data.did_rule_pass()) {
             if (this->is_flag_set(static_cast<state_flags>(8))) {
-                data.field_3 = false;
+                data.ignore_no_transition = false;
             } else {
-                data.field_3 = true;
+                data.ignore_no_transition = true;
             }
         }
 
@@ -166,11 +166,20 @@ request_data scripted_state::_do_implicit_trans(animation_logic_system *a4, stat
         request_data data;
         THISCALL(0x004A6F10, this, &data, a4, a5);
 
-        sp_log(
-            "did_transition_occur = %d, %d %d %d", data.did_transition_occur, data.field_1, data.field_2, data.field_3);
-
         return data;
     }
+}
+
+request_data scripted_state::_do_explicit_trans(animation_logic_system *a4, state_machine *a5, string_hash a6)
+{
+    request_data *(__fastcall *
+                   func)(void *, void *edx, request_data *, animation_logic_system *, state_machine *, string_hash) =
+        CAST(func, 0x004A7040);
+
+    request_data data;
+    func(this, nullptr, &data, a4, a5, a6);
+
+    return data;
 }
 
 request_data scripted_state::_do_layer_trans(animation_logic_system *a4, state_machine *a5)

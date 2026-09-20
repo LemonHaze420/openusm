@@ -56,6 +56,9 @@ struct state : mash_virtual_base {
     request_data do_implicit_trans(animation_logic_system *a4, state_machine *a5);
 
     //virtual
+    request_data do_explicit_trans(animation_logic_system *a4, state_machine *a5, string_hash a6);
+
+    //virtual
     request_data do_layer_trans(animation_logic_system *a4, state_machine *a5);
 
     //virtual

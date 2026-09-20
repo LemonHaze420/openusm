@@ -102,6 +102,16 @@ request_data scripted_category::do_implicit_trans(animation_logic_system *a4, st
     return data;
 }
 
+request_data scripted_category::_do_explicit_trans(animation_logic_system *a4, state_machine *a5, string_hash a6)
+{
+    request_data(__fastcall *
+                 func)(void *, void *edx, request_data *, animation_logic_system *a4, state_machine *a5, string_hash) =
+        CAST(func, 0x004A7420);
+    request_data data{};
+    func(this, nullptr, &data, a4, a5, a6);
+    return data;
+}
+
 request_data scripted_category::_do_layer_trans(animation_logic_system *a4, state_machine *a5)
 {
     request_data(__fastcall * func)(void *, void *edx, request_data *, animation_logic_system *a4, state_machine *a5) =
@@ -117,6 +127,11 @@ void scripted_category::_do_post_trans(animation_logic_system *a1, state_machine
     if (a3.field_4 < 2 || a3.field_4 == 3) {
         a3.field_0->do_post_action(v4);
     }
+}
+
+string_hash scripted_category::_get_default_state() const
+{
+    return this->field_10;
 }
 
 int scripted_category::_get_mash_sizeof() const
