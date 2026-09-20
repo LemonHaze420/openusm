@@ -148,11 +148,6 @@ bool animation_logic_system::_sub_4933E0()
     return false;
 }
 
-void animation_logic_system::_change_mocomp()
-{
-    THISCALL(0x00498F30, this);
-}
-
 void animation_logic_system::enter_biped_physics()
 {
     if constexpr (0) {
@@ -321,9 +316,9 @@ bool animation_logic_system::_frame_advance_should_do_frame_advance([[maybe_unus
 
 void animation_logic_system::_frame_advance_post_logic_processing([[maybe_unused]] Float a2)
 {
-    TRACE("als::animation_logic_system::frame_advance_post_logic_processing");
+    TRACE("animation_logic_system::frame_advance_post_logic_processing");
 
-    if constexpr (0) {
+    if constexpr (1) {
         if (!this->field_7C) {
             [[maybe_unused]] time_interface *time_ifc =
                 (this->field_6C->has_time_ifc() ? this->field_6C->time_ifc() : nullptr);
@@ -440,6 +435,27 @@ void animation_logic_system::_frame_advance_update_pending_params(Float a2)
     }
 }
 
+void animation_logic_system::_change_mocomp()
+{
+    TRACE("animation_logic_system::change_mocomp");
+
+    if constexpr (1) {
+        auto *v2 = this->field_74;
+        if (v2 != nullptr) {
+            v2->deactivate();
+            v2->finalize(false);
+        }
+
+        auto *v5 = static_cast<mash_virtual_base *>(this->field_78);
+        auto v3 = static_cast<mash::virtual_types_enum>(this->field_18.m_curr_state->get_mocomp_type());
+        this->field_74 = (motion_compensator *)mash_virtual_base::create_subclass_by_enum_in_place(
+            v3, v5, motion_compensator::get_size_of_memory_block());
+        this->field_74->activate(this);
+    } else {
+        THISCALL(0x00498F30, this);
+    }
+}
+
 void animation_logic_system::_frame_advance_change_mocomp(Float a2)
 {
     TRACE("animation_logic_system::frame_advance_change_mocomp");
@@ -500,11 +516,11 @@ void animation_logic_system::_frame_advance_controller(Float a2)
     }
 }
 
-void animation_logic_system::_frame_advance_post_controller(Float arg0)
+void animation_logic_system::_frame_advance_post_controller(Float a1)
 {
     TRACE("animation_logic_system::frame_advance_post_controller");
 
-    if constexpr (0) {
+    if constexpr (1) {
         double v4;
         if (this->field_6C->has_time_ifc()) {
             auto *v3 = this->field_6C->time_ifc();
@@ -513,20 +529,20 @@ void animation_logic_system::_frame_advance_post_controller(Float arg0)
             v4 = g_world_ptr->field_158.field_0;
         }
 
-        auto arg0a = v4 * arg0;
+        auto v9 = v4 * a1;
         resource_manager::push_resource_context(this->field_6C->get_resource_context());
         if (this->field_7C) {
             use_anim_only v6{};
             v6.activate(this);
-            v6.post_anim_action(arg0a);
+            v6.post_anim_action(v9);
         } else {
             auto *v1 = this->field_74;
-            v1->post_anim_action(arg0a);
+            v1->post_anim_action(v9);
         }
 
         resource_manager::pop_resource_context();
     } else {
-        THISCALL(0x004AB700, this, arg0);
+        THISCALL(0x004AB700, this, a1);
     }
 }
 
