@@ -4,6 +4,7 @@
 #include "als_animation_logic_system_shared.h"
 #include "als_state.h"
 #include "als_use_anim_only.h"
+#include "biped_physics.h"
 #include "common.h"
 #include "func_wrapper.h"
 #include "layer_state_machine.h"
@@ -148,9 +149,106 @@ bool animation_logic_system::_sub_4933E0()
     return false;
 }
 
+static auto &dword_959568 = var<matrix4x4 *>(0x00959568);
+static auto &dword_95956C = var<matrix4x4 *>(0x0095956C);
+
+static int &s_bone_count = var<int>(0x00959564);
+
+static constexpr int MAX_PHYS_ANIM_BONES = 90;
+
+void sub_493210(entity_base *a1)
+{
+    dword_959568[s_bone_count] = a1->get_abs_po().m;
+
+    assert(s_bone_count > 0 && s_bone_count <= MAX_PHYS_ANIM_BONES);
+
+    dword_95956C[s_bone_count] = a1->get_rel_po().m;
+
+    for (auto *the_child = a1->get_first_child(); the_child != nullptr; the_child = the_child->field_28) {
+        if (the_child->get_bone_idx() != -1) {
+            sub_493210(the_child);
+        }
+    }
+}
+
+void sub_4932B0(entity_base *a1)
+{
+    a1->my_abs_po->m = dword_959568[s_bone_count];
+
+    a1->get_rel_po().m = dword_95956C[s_bone_count];
+
+    a1->set_ext_flag_recursive_internal(static_cast<entity_ext_flag_t>(0x10000000u), false);
+
+    assert(s_bone_count > 0 && s_bone_count <= MAX_PHYS_ANIM_BONES);
+
+    for (auto *the_child = a1->get_first_child(); the_child != nullptr; the_child = the_child->field_28) {
+        if (the_child->get_bone_idx() == -1) {
+            the_child->dirty_family(true);
+        } else {
+            sub_4932B0(the_child);
+        }
+    }
+}
+
 void animation_logic_system::enter_biped_physics()
 {
-    if constexpr (0) {
+    TRACE("animation_logic_system::enter_biped_physics");
+
+    if constexpr (1) {
+        auto *the_actor = this->field_6C;
+
+        assert(the_actor->is_a_conglomerate());
+        assert(the_actor->has_physical_ifc() && "Cannot run biped physics on something that has no physical interface");
+
+        if ((this->field_18.get_curr_state()->field_C & 0x2000) != 0) {
+            auto *v4 = the_actor->physical_ifc();
+            v4->set_velocity(ZEROVEC, false);
+        } else {
+            matrix4x4 v18[90]{};
+            matrix4x4 v19[90]{};
+            dword_959568 = v18;
+            dword_95956C = v19;
+
+            s_bone_count = 0;
+            sub_493210(the_actor);
+
+            biped_physics::capture_frame(bit_cast<conglomerate *>(this->field_6C), 0);
+            this->field_74->pre_anim_action(0.033333335);
+            this->the_controller->frame_advance(0.033333335, false, false);
+            this->field_74->post_anim_action(0.033333335f);
+            biped_physics::capture_frame(bit_cast<conglomerate *>(this->field_6C), 1);
+            biped_physics::set_capture_frame_delta(0.033333335f);
+            auto v13 = this->field_6C;
+
+            s_bone_count = 0;
+            sub_4932B0(v13);
+        }
+
+        physical_interface::biped_physics_body_types a2 = static_cast<physical_interface::biped_physics_body_types>(0);
+
+        static string_hash phys_character_type_hash{int(to_hash("phys_character_type"))};
+
+        static string_hash spiderman_hash{to_hash("spiderman")};
+
+        static string_hash venom_hash{to_hash("venom")};
+
+        auto *v6 = &this->field_18;
+        if (v6->does_parameter_exist(phys_character_type_hash)) {
+            if (v6->get_parameter_data_type(phys_character_type_hash) == 2) {
+                auto v17 = v6->get_pb_hash(phys_character_type_hash);
+                if (v17 == spiderman_hash) {
+                    a2 = static_cast<physical_interface::biped_physics_body_types>(1);
+                } else if (v17 == venom_hash) {
+                    a2 = static_cast<physical_interface::biped_physics_body_types>(2);
+                }
+            }
+        }
+
+        the_actor->physical_ifc()->field_9C = 0.1f;
+        auto *v10 = the_actor->physical_ifc();
+        v10->start_biped_physics(a2);
+        auto *v12 = the_actor->physical_ifc();
+        v12->set_allow_manage_standing(0);
     } else {
         THISCALL(0x00498F70, this);
     }

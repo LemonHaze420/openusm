@@ -326,6 +326,22 @@ float state_machine::get_pb_float(string_hash a1) const
     return the_pblock->get_pb_float(a1);
 }
 
+string_hash state_machine::get_pb_hash(string_hash a3) const
+{
+    string_hash result{};
+    void(__fastcall * func)(const void *, void *edx, string_hash *, string_hash) = CAST(func, get_vfunc(m_vtbl, 0x38));
+    func(this, nullptr, &result, a3);
+
+    return result;
+}
+
+string_hash state_machine::_get_pb_hash(string_hash a3) const
+{
+    auto *pblock = this->find_param_block_with_param(a3, static_cast<ai::param_types>(2));
+    auto a2 = pblock->get_pb_hash(a3);
+    return a2;
+}
+
 vector3d *state_machine::get_pb_vector3d(string_hash a2) const
 {
     auto *the_pblock = this->find_param_block_with_param(a2, static_cast<ai::param_types>(4));
@@ -459,8 +475,6 @@ float state_machine::get_time_to_signal(string_hash a2)
                                     : get_generic_time_to_signal(the_handle, a2, false));
 
         auto result = (time_to_signal < 0.0f ? time_to_signal : time_to_signal * (1.0f / the_handle.get_anim_speed()));
-
-        sp_log("%f", result);
         return result;
     } else {
         float(__fastcall * func)(void *, void *, string_hash) = CAST(func, 0x0049F4E0);
@@ -910,10 +924,6 @@ void state_machine::change_state(animation_logic_system *a2, state *a3)
 
     if (!this->field_14.m_trans_succeed) {
         this->m_prev_state = this->m_curr_state;
-
-        sp_log("prev_state = %s, curr_state = %s",
-               this->m_prev_state->get_state_id().to_string(),
-               a3->get_state_id().to_string());
     }
 
     this->m_curr_state = a3;

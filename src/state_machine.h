@@ -172,6 +172,12 @@ public:
     float get_pb_float(string_hash a1) const;
 
     //virtual
+    string_hash get_pb_hash(string_hash a3) const;
+
+    //0x004A6740
+    string_hash _get_pb_hash(string_hash a3) const;
+
+    //virtual
     vector3d *get_pb_vector3d(string_hash a2) const;
 
     //virtual
