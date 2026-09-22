@@ -3,6 +3,7 @@
 #include "actor.h"
 #include "ai_pedestrian.h"
 #include "ai_std_combat_target.h"
+#include "base_ai_graph_manager.h"
 #include "base_ai_state_machine.h"
 #include "colgeom_alter_sys.h"
 #include "combat_inode.h"
@@ -439,19 +440,6 @@ info_node *ai_core::get_info_node(string_hash the_info_node, bool a3)
     return nullptr;
 }
 
-namespace state_graph_manager {
-state_graph *find_state_graph_from_resource(resource_key resource_id, resource_pack_slot *pack_slot)
-{
-    auto *__old_context = resource_manager::push_resource_context(pack_slot);
-    resource_id.set_type(RESOURCE_KEY_TYPE_AI_STATE_GRAPH);
-    auto *resource = bit_cast<state_graph *>(resource_manager::get_resource(resource_id, nullptr, nullptr));
-    resource_manager::pop_resource_context();
-
-    assert(resource_manager::get_resource_context() == __old_context);
-    return resource;
-}
-}  // namespace state_graph_manager
-
 state_graph *ai_core::find_state_graph(resource_key a2)
 {
     TRACE("ai::ai_core::find_state_graph");
@@ -482,9 +470,20 @@ ai_state_machine *ai_core::find_machine(resource_key a2)
 
 int ai_core::can_spawn_state_machine(resource_key a2)
 {
-    TRACE("ai::ai_core::can_spawn_state_machine");
+    TRACE("ai_core::can_spawn_state_machine");
 
-    return (int)THISCALL(0x0069E9B0, this, a2);
+    if constexpr (1) {
+        auto *v5 = this->field_6C->field_3C;
+        auto v4 = a2;
+        if (!state_graph_manager::can_get_graph(v4, v5)) {
+            return 2;
+        }
+
+        return this->find_machine(a2) != nullptr;
+    } else {
+        int(__fastcall * func)(void *, void *edx, resource_key a2) = CAST(func, 0x0069E9B0);
+        return func(this, nullptr, a2);
+    }
 }
 
 void ai_core::spawn_state_machine_internal(ai_state_machine *a2, resource_key graph_name,
