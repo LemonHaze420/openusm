@@ -89,8 +89,8 @@ struct nalCompSkeleton : nalBaseSkeleton {
         }
     } *field_70;
 
-    char *field_74;
-    char *field_78;
+    char *m_pPerSkelDir;
+    char *m_pDirectory;
 
     auto GetNumComponents() const
     {

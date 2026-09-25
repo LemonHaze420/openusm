@@ -183,9 +183,9 @@ void nal_anim_controller::_frame_advance(Float a2, bool a3, bool a4)
             this->my_player.sub_4B06A0(a2);
             this->my_player.sub_4B0860(this->field_40);
             if (this->field_4->is_visible() && !a3) {
-                static tlFixedString stru_959A24{"green_goblin"};
+                static tlFixedString green_goblin_hash{"green_goblin"};
 
-                if (this->field_8->field_8 == stru_959A24) {
+                if (this->field_8->GetName() == green_goblin_hash) {
                     byte_959561 = true;
                 }
 

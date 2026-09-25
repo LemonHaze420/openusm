@@ -127,7 +127,7 @@ void nalCharPose::InitializePoseDataFromSkel()
     TRACE("nalCharPose::InitializePoseDataFromSkel");
 
     if constexpr (1) {
-        auto *v2 = this->field_4->field_78;
+        auto *v2 = this->field_4->m_pDirectory;
         if (v2 != nullptr) {
             this->AllocPoseData();
             this->DirectCopyPoseData(v2);

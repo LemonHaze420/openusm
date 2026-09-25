@@ -14,8 +14,8 @@ struct nalBasePose;
 struct nalBaseSkeleton {
     std::intptr_t m_vtbl;
     int Version;
-    tlFixedString field_8;
-    tlFixedString field_28;
+    tlFixedString Name;
+    tlFixedString AnimTypeName;
     int field_48;
     int field_4C;
     tlFileBuf field_50;
@@ -40,12 +40,12 @@ struct nalBaseSkeleton {
 
     const tlFixedString &GetName() const
     {
-        return this->field_8;
+        return this->Name;
     }
 
     const tlFixedString &GetAnimTypeName() const
     {
-        return this->field_28;
+        return this->AnimTypeName;
     }
 
     static tlFixedString *get_string(nalBaseSkeleton *a1)

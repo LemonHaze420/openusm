@@ -284,7 +284,7 @@ bool nalLoadAnimFileInternal(nalAnimFile *anim_file)
 
             auto *v7 = skeletons[anim_class->field_28];
             anim_class->Skeleton = v7;
-            auto *instance = nalTypeInstanceBank.Search(v7->field_28);
+            auto *instance = nalTypeInstanceBank.Search(v7->GetAnimTypeName());
             if (instance == nullptr) {
                 assert(0 && "couldn't find animation type instance");
             }
