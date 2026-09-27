@@ -69,8 +69,10 @@ struct FlexibleCharComp : CharComponentBase {
     {
         TRACE((get_type_name<FlexibleCharComp<T0, T1>>() + "::_BuildBoneMatrices").c_str());
 
-        this->field_14.BuildBoneMatrices(
-            a1, a2, bit_cast<const typename T0::PerSkelData *>(a3), bit_cast<const typename T0::StdPoseData *>(a4));
+        this->field_14.BuildBoneMatrices(a1,
+                                         a2,
+                                         static_cast<const typename T0::PerSkelData *>(a3),
+                                         static_cast<const typename T0::StdPoseData *>(a4));
     }
 
     //0x005FE940
@@ -84,8 +86,8 @@ struct FlexibleCharComp : CharComponentBase {
                                a4,
                                a5,
                                bit_cast<const typename nalChar::nalCharAnim *>(a6),
-                               bit_cast<const typename T0::PerSkelData *>(a7),
-                               bit_cast<const typename T0::PerAnimData *>(a8),
+                               static_cast<const typename T0::PerSkelData *>(a7),
+                               static_cast<const typename T0::PerAnimData *>(a8),
                                a9,
                                static_cast<T1::PerInstData *>(a10),
                                this->field_14);

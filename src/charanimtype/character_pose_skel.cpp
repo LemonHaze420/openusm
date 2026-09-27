@@ -86,9 +86,8 @@ void nalCharPose::Blend(Float a2, const nalCharPose &src0, const nalCharPose &sr
                 if (v6->ConvertCompIxToPoseIx(i) != -1) {
                     auto *v8 = this->GetComponentPoseData(i);
                     auto *v9 = (unsigned int *)src0.GetComponentPoseData(i);
-                    auto v12 = src1.GetComponentPoseData(i);
-                    auto &v13 = v11->field_70[i];
-                    v13.m_component->BlendPoseData(v8, v13.m_name, a2, v9, v12);
+                    auto *v12 = src1.GetComponentPoseData(i);
+                    v11->GetComponent(i)->BlendPoseData(v8, v11->GetName(i), a2, v9, v12);
                 }
             }
         }
@@ -127,18 +126,18 @@ void nalCharPose::InitializePoseDataFromSkel()
     TRACE("nalCharPose::InitializePoseDataFromSkel");
 
     if constexpr (1) {
-        auto *v2 = this->field_4->m_pDirectory;
-        if (v2 != nullptr) {
+        auto *pDirectory = this->GetSkeleton()->m_pDirectory;
+        if (pDirectory != nullptr) {
             this->AllocPoseData();
-            this->DirectCopyPoseData(v2);
-            auto numComponents = this->field_4->GetNumComponents();
+            this->DirectCopyPoseData(pDirectory);
+            auto numComponents = this->GetSkeleton()->GetNumComponents();
             for (int v3 = 0; v3 < numComponents; ++v3) {
-                if (this->field_4->ConvertCompIxToPoseIx(v3) != -1) {
+                if (this->GetSkeleton()->ConvertCompIxToPoseIx(v3) != -1) {
                     auto *v5 = this->GetComponentPoseData(v3);
-                    auto v6 = this->field_4->GetComponentPoseDataOffset(v3);
-                    auto *v7 = &this->field_4->field_70[v3];
-
-                    bit_cast<CharComponentBase *>(v7->m_component)->CopyPoseDataToNothing(v5, v7->m_name, &v2[v6]);
+                    auto v6 = this->GetSkeleton()->GetComponentPoseDataOffset(v3);
+                    auto *v7 = this->GetSkeleton();
+                    auto name = v7->GetName(v3);
+                    v7->GetComponent(v3)->CopyPoseDataToNothing(v5, name, &pDirectory[v6]);
                 }
             }
         }
@@ -174,7 +173,7 @@ nalCharSkeleton::nalCharSkeleton()
 int nalCharSkeleton::GetCompIxByName(CharComponentBase::Names a2) const
 {
     for (int iCompIx = 0; iCompIx < this->m_iNumComponents; ++iCompIx) {
-        if (this->field_70[iCompIx].m_name == a2) {
+        if (this->GetName(iCompIx) == a2) {
             return iCompIx;
         }
     }
@@ -190,7 +189,7 @@ char *nalCharSkeleton::GetNamedPerSkelData(CharComponentBase::Names a2) const
     }
 
     auto *CompPerSkelDataInt = this->GetCompPerSkelDataInt(CompIxByName);
-    auto *v8 = this->field_70[CompIxByName].m_component;
+    auto *v8 = this->GetComponent(CompIxByName);
     return bit_cast<char *>(v8->ApplyPublicPerSkelDataOffset(a2, CompPerSkelDataInt));
 }
 

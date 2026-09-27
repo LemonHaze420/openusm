@@ -3,7 +3,7 @@
 #include "charcomponentmanager.h"
 #include "common.h"
 #include "func_wrapper.h"
-#include "nal_system.h"
+#include "nal_math.h"
 #include "string_hash.h"
 #include "trace.h"
 #include "utility.h"
@@ -14,11 +14,13 @@
 
 #include <cmath>
 
-VALIDATE_SIZE(ArbitraryPOCharComp::PerSkelData, 0x1C);
+VALIDATE_SIZE(ArbitraryPOCharComp::PerSkelData, 0x20);
 
 VALIDATE_SIZE(ArbitraryPOCharComp::BoneData, 0x30);
 
 VALIDATE_SIZE(ArbitraryPOCharComp::StdPoseData, 0x20);
+
+VALIDATE_SIZE(ArbitraryPOCharComp::PerInstData, 0x3C);
 
 ArbitraryPOCharComp::ArbitraryPOCharComp()
 {
@@ -97,42 +99,30 @@ void ArbitraryPOCharComp::_BuildBoneMatrices(nalMatrix4x4 *a1, uint32_t a2, cons
     TRACE("ArbitraryPOCharComp::BuildBoneMatrices");
 
     if constexpr (1) {
-        auto *v5 = (const uint32_t *)a3;
-        auto v23 = *((const DWORD *)a3 + 4);
-        auto v24 = (char *)*((const DWORD *)a3 + 5);
-        auto v6 = (const char *)a4 + 16;
-        auto v7 = (const char *)a4 + 16 * *(const DWORD *)a4 + 16;
+        auto *perSkelData = static_cast<const PerSkelData *>(a3);
+        auto *stdPoseData = static_cast<const StdPoseData *>(a4);
+        auto *v23 = perSkelData->field_10;
+        const nalVector3 *v24 = perSkelData->field_14;
+        const auto *v6 = stdPoseData->field_10;
+        const nalVector3 *v7 = &stdPoseData->field_10[stdPoseData->field_0];
 
-        for (uint32_t i = 0; i < *v5; ++i) {
-            int16_t *v9 = (int16_t *)(v5[6] + 48 * *(DWORD *)(v5[7] + 4 * i));
-            if (v9[18] != -1) {
-                const float *v10 = nullptr;
-                if (v9[20]) {
-                    v10 = (const float *)&v6[16 * (uint16_t)v9[16]];
-                } else {
-                    v10 = (const float *)(v23 + 16 * (uint16_t)v9[16]);
-                }
+        for (uint32_t i = 0; i < perSkelData->field_0; ++i) {
+            auto *v9 = &perSkelData->field_18[perSkelData->field_1C[i]];
+            if (v9->field_24 != -1) {
+                auto *v10 = (v9->field_28 != 0 ? &v6[v9->field_20] : &v23[v9->field_20]);
 
-                if (!v9[21]) {
-                    v7 = v24;
-                }
+                auto &v15 = (v9->field_2A != 0 ? v24[v9->field_22] : v7[v9->field_22]);
 
-                auto *v15 = (const nalVector3 *)&v7[sizeof(nalVector3) * (uint16_t)v9[17]];
-
-                nalPositionOrientation v26{*v15, v10};
+                nalPositionOrientation v26{v15, v10->field_0};
 
                 nalMatrix4x4 v30{v26};
 
-                auto v18 = (int16_t)v9[18];
-                a1[v18] = v30;
+                a1[v9->field_24] = v30;
 
-                int v19 = v9[19];
-                if (v19 != -1) {
-                    auto &v20 = a1[(int16_t)v9[18]];
-                    v20 = sub_5FE000(v20, a1[v19]);
+                if (v9->field_26 != -1) {
+                    auto &v20 = a1[v9->field_24];
+                    v20 = sub_5FE000(v20, a1[v9->field_26]);
                 }
-
-                v5 = (const uint32_t *)a3;
             }
         }
 
@@ -180,144 +170,114 @@ int sub_C7F000(int a1, int a2)
 }
 
 void ArbitraryPOCharComp::_BuildPerInstData(void *a1, uint32_t a2, const void *a3, const void *a4, const void *a5,
-                                            const void *a6, const void *a7, bool a8)
+                                            const void *a6, const void *a7, bool bIsRemapped)
 {
     TRACE("ArbitraryPOCharComp::BuildPerInstData");
 
     if constexpr (1) {
-        *(DWORD *)a1 = 0;
-        uint32_t v12 = 0;
-        for (; v12 < *((const DWORD *)a4 + 1); ++v12) {
+        auto *v1 = static_cast<PerInstData *>(a1);
+        auto *v3 = static_cast<const PerSkelData *>(a3);
+        auto *v4 = static_cast<const PerSkelData *>(a4);
+        v1->field_0 = 0;
+        int v12 = 0;
+        for (; v12 < v4->field_4; ++v12) {
             if (sub_C75AA0(static_cast<const int *>(a6), v12)) {
-                ++*(DWORD *)a1;
+                ++v1->field_0;
             }
         }
 
-        for (*((DWORD *)a1 + 1) = *(DWORD *)a1; v12 < *((const DWORD *)a4 + 1) + *((const DWORD *)a4 + 2); ++v12) {
+        for (v1->field_4 = v1->field_0; v12 < v4->field_4 + v4->field_8; ++v12) {
             if (sub_C75AA0(static_cast<const int *>(a6), v12)) {
-                ++*((DWORD *)a1 + 1);
+                ++v1->field_4;
             }
         }
 
-        auto v14 = sub_C7F000(*((const DWORD *)a4 + 2) + *((const DWORD *)a4 + 1), 32) >> 5;
-        struct local_t {
-            int field_0;
-            int field_4;
-            int field_8;
-            int field_C;
-            int field_10;
-            int field_14;
-            int field_18;
-            CharEntropyDecoder::CharChannelDecoder field_1C;
-            int field_24;
-            int field_28;
-            int field_2C;
-            int field_30;
-            int field_34;
-            int field_38;
+        auto v14 = sub_C7F000(v4->field_8 + v4->field_4, 32) >> 5;
+        new (a1) PerInstData{a7, bit_cast<uint8_t *>(a6) + 4 * v14};
 
-            local_t(const void *a2, int a3) : field_1C(a2, false), field_24(-1), field_28(a3) {}
-        };
-        local_t *v8 = CAST(v8, a1);
-
-        VALIDATE_SIZE(local_t, 0x3C);
-
-        if (v8 != nullptr) {
-            new (v8) local_t{a7, (int)a6 + 4 * v14};
-        }
-
-        *((DWORD *)a1 + 7) = int(a7);
-        *((BYTE *)a1 + 32) = 0;
-        *((BYTE *)a1 + 33) = -1;
-        *((WORD *)a1 + 17) = 0;
-        auto v16 = (4 * (*((DWORD *)a1 + 1) + *(DWORD *)a1 + 2 * *((DWORD *)a1 + 1)) + 15) & 0xFFFFFFF0;
-
-        v16 = 16 * *(DWORD *)a1;
-        v16 += 12 * (*((DWORD *)a1 + 1) - *(DWORD *)a1);
+        auto v16 = 16 * v1->field_0;
+        v16 += 12 * (v1->field_4 - v1->field_0);
         v16 = sub_C7F000(v16, 16u);
 
-        *((DWORD *)a1 + 9) = -1;
-        *((DWORD *)a1 + 3) = v16;
-        auto *v17 = tlMemAlloc(2 * v16, 16u, 0);
-        *((DWORD *)a1 + 6) = int(v17);
+        v1->field_24 = -1;
+        v1->field_C = v16;
+        auto *v17 = static_cast<uint8_t *>(tlMemAlloc(2 * v1->field_C, 16u, 0));
+        v1->field_18 = v17;
         tlMemFree(v17);
-        auto *v18 = (char *)tlMemAlloc(2 * *((DWORD *)a1 + 3), 16u, 0);
-        auto *v20 = &v18[*((DWORD *)a1 + 3)];
-        *((DWORD *)a1 + 6) = int(v18);
-        *((DWORD *)a1 + 4) = int(v18);
-        auto v21 = 3 * *((DWORD *)a1 + 1);
-        *((DWORD *)a1 + 5) = int(v20);
-        *((DWORD *)a1 + 2) = v21;
 
-        if (a4 == a3) {
-            *((DWORD *)a1 + 11) = 0;
-            *((DWORD *)a1 + 12) = 0;
-            *((DWORD *)a1 + 13) = 0;
-            *((DWORD *)a1 + 14) = 0;
+        auto *v18 = static_cast<uint8_t *>(tlMemAlloc(2 * v1->field_C, 16u, 0));
+        auto *v20 = &v18[v1->field_C];
+        v1->field_18 = v18;
+        v1->field_10 = v18;
+        auto v21 = 3 * v1->field_4;
+        v1->field_14 = v20;
+        v1->field_8 = v21;
+
+        if (v4 == v3) {
+            v1->field_2C = 0;
+            v1->field_30 = nullptr;
+            v1->field_34 = nullptr;
+            v1->field_38 = nullptr;
         } else {
-            *((DWORD *)a1 + 11) = 1;
-            *((DWORD *)a1 + 13) = int(a4);
+            v1->field_2C = 1;
+            v1->field_34 = v4;
 
-            auto dwSize = sub_C7F000(16 * *((const DWORD *)a4 + 1) + 16 + 12 * *((const DWORD *)a4 + 2), 16);
-            DWORD *v22 = (DWORD *)tlMemAlloc(dwSize, 16u, 0);
-            *((DWORD *)a1 + 12) = int(v22);
-            *v22 = *((const DWORD *)a4 + 1);
-            *(DWORD *)(*((DWORD *)a1 + 12) + 4) = *((const DWORD *)a4 + 1) + *((const DWORD *)a4 + 2);
-            *((DWORD *)a1 + 14) = (int)tlMemAlloc(8 * (*((const DWORD *)a3 + 1) + *((const DWORD *)a3 + 2)), 4u, 0);
+            auto dwSize = sub_C7F000(16 * v4->field_4 + 16 + 12 * v4->field_8, 16);
+            v1->field_30 = static_cast<StdPoseData *>(tlMemAlloc(dwSize, 16u, 0));
+            v1->field_30->field_0 = v4->field_4;
+            v1->field_30->field_4 = v4->field_4 + v4->field_8;
+            v1->field_38 = static_cast<int *>(tlMemAlloc(8 * (v3->field_4 + v3->field_8), 4u, 0));
 
             int v14 = 0;
-            int v13 = *((const DWORD *)a3 + 1);
-            for (uint32_t j = 0; j < *(const DWORD *)a3; ++j) {
-                auto *v25 = bit_cast<int16_t *>(*((const DWORD *)a3 + 6) + 0x30 * j);
-                if (v25[20] || v25[21]) {
+            int v13 = v3->field_4;
+            for (uint32_t j = 0; j < v3->field_0; ++j) {
+                auto *v25 = &v3->field_18[j];
+                if (v25->field_28 != 0 || v25->field_2A != 0) {
                     uint32_t k;
-                    for (k = 0; k < *(const DWORD *)a4 &&
-                                (*bit_cast<const tlFixedString *>(*((const DWORD *)a4 + 6) + 0x30 * k) !=
-                                 *bit_cast<const tlFixedString *>(v25));
-                         ++k) {
+                    for (k = 0; k < v4->field_0 && v4->field_18[k].field_0 != v25->field_0; ++k) {
                         ;
                     }
 
-                    if (k == *(const DWORD *)a4) {
-                        if (v25[20]) {
-                            *(DWORD *)(*((DWORD *)a1 + 14) + 8 * v14++) = -1;
+                    if (k == v4->field_0) {
+                        if (v25->field_28 != 0) {
+                            v1->field_38[2 * v14++] = -1;
                         }
 
-                        if (v25[21]) {
-                            *(DWORD *)(*((DWORD *)a1 + 14) + 8 * v13++) = -1;
+                        if (v25->field_2A != 0) {
+                            v1->field_38[2 * v13++] = -1;
                         }
                     } else {
-                        auto *v30 = (uint16_t *)(*((const DWORD *)a4 + 6) + 0x30 * k);
-                        if (v25[20]) {
-                            if (v30[20]) {
-                                if (sub_C75AA0(static_cast<const int *>(a6), v30[16])) {
-                                    *(DWORD *)(*((DWORD *)a1 + 14) + 8 * v14) = v30[16];
-                                    *(DWORD *)(*((DWORD *)a1 + 14) + 8 * v14 + 4) = 1;
+                        auto *v30 = &v4->field_18[k];
+                        if (v25->field_28 != 0) {
+                            if (v30->field_28 != 0) {
+                                if (sub_C75AA0(static_cast<const int *>(a6), v30->field_20)) {
+                                    v1->field_38[2 * v14] = v30->field_20;
+                                    v1->field_38[2 * v14 + 1] = 1;
                                 } else {
-                                    *(DWORD *)(*((DWORD *)a1 + 14) + 8 * v14) = -1;
+                                    v1->field_38[2 * v14] = -1;
                                 }
 
                                 ++v14;
                             } else {
-                                *(DWORD *)(*((DWORD *)a1 + 14) + 8 * v14) = v30[16];
-                                *(DWORD *)(*((DWORD *)a1 + 14) + 8 * v14 + 4) = 0;
+                                v1->field_38[2 * v14] = v30->field_20;
+                                v1->field_38[2 * v14 + 1] = 0;
                                 ++v14;
                             }
                         }
 
-                        if (v25[21]) {
-                            if (v30[21]) {
-                                if (sub_C75AA0(static_cast<const int *>(a6), *((const DWORD *)a4 + 1) + v30[17])) {
-                                    *(DWORD *)(*((DWORD *)a1 + 14) + 8 * v13) = v30[17];
-                                    *(DWORD *)(*((DWORD *)a1 + 14) + 8 * v13 + 4) = 1;
+                        if (v25->field_2A != 0) {
+                            if (v30->field_2A != 0) {
+                                if (sub_C75AA0(static_cast<const int *>(a6), v4->field_4 + v30->field_22)) {
+                                    v1->field_38[2 * v13] = v30->field_22;
+                                    v1->field_38[2 * v13 + 1] = 1;
                                 } else {
-                                    *(DWORD *)(*((DWORD *)a1 + 14) + 8 * v13) = -1;
+                                    v1->field_38[2 * v13] = -1;
                                 }
 
                                 ++v13;
                             } else {
-                                *(DWORD *)(*((DWORD *)a1 + 14) + 8 * v13) = v30[17];
-                                *(DWORD *)(*((DWORD *)a1 + 14) + 8 * v13 + 4) = 0;
+                                v1->field_38[2 * v13] = v30->field_22;
+                                v1->field_38[2 * v13 + 1] = 0;
                                 ++v13;
                             }
                         }
@@ -336,7 +296,7 @@ void ArbitraryPOCharComp::_BuildPerInstData(void *a1, uint32_t a2, const void *a
                                 const void *,
                                 const void *,
                                 bool) = CAST(func, 0x005F2270);
-        func(this, nullptr, a1, a2, a3, a4, a5, a6, a7, a8);
+        func(this, nullptr, a1, a2, a3, a4, a5, a6, a7, bIsRemapped);
     }
 }
 
@@ -464,7 +424,7 @@ void ArbitraryPOCharComp::_CalcPoseDataRemapped(void *a1, uint32_t a2, Float a3,
     }
 }
 
-void ArbitraryPOCharComp::BlendPoseData(void *a1, uint32_t a2, Float a3, const void *a4, const void *a5, uint32_t a6,
+void ArbitraryPOCharComp::BlendPoseData(void *a1, uint32_t a2, Float blend, const void *a4, const void *a5, uint32_t a6,
                                         uint32_t a7)
 {
     TRACE("ArbitraryPOCharComp::BlendPoseData");
@@ -472,7 +432,7 @@ void ArbitraryPOCharComp::BlendPoseData(void *a1, uint32_t a2, Float a3, const v
     if constexpr (1) {
         uint32_t i = 0;
         for (; i < a6; ++i) {
-            auto v13 = sub_5FD0C0(a3, *static_cast<const vector4d *>(a4), *static_cast<const vector4d *>(a5));
+            auto v13 = math::Slerp(blend, *static_cast<const vector4d *>(a4), *static_cast<const vector4d *>(a5));
 
             vector3d *v14 = static_cast<vector3d *>(a1);
             *v14 = v13;
@@ -487,7 +447,7 @@ void ArbitraryPOCharComp::BlendPoseData(void *a1, uint32_t a2, Float a3, const v
             const vector3d *v4 = static_cast<const vector3d *>(a4);
             const vector3d *v5 = static_cast<const vector3d *>(a5);
             auto v10 = (*v5) - (*v4);
-            auto v11 = v10 * a3;
+            auto v11 = v10 * blend;
             auto v12 = (*v4) + v11;
 
             *v16 = v12;
@@ -497,15 +457,15 @@ void ArbitraryPOCharComp::BlendPoseData(void *a1, uint32_t a2, Float a3, const v
             a5 = static_cast<const char *>(a5) + 12;
         }
     } else {
-        THISCALL(0x005F6130, this, a1, a2, a3, a4, a5, a6, a7);
+        THISCALL(0x005F6130, this, a1, a2, blend, a4, a5, a6, a7);
     }
 }
 
-void ArbitraryPOCharComp::_BlendPoseData(void *a1, uint32_t a2, Float a3, const void *a4, const void *a5)
+void ArbitraryPOCharComp::_BlendPoseData(void *a1, uint32_t a2, Float blend, const void *a4, const void *a5)
 {
     this->BlendPoseData(static_cast<char *>(a1) + 16,
                         a2,
-                        a3,
+                        blend,
                         static_cast<const char *>(a4) + 16,
                         static_cast<const char *>(a5) + 16,
                         static_cast<const uint32_t *>(a4)[0],
@@ -516,18 +476,17 @@ void ArbitraryPOCharComp::_SkelPoseProcess(uint32_t, void *a2, void *)
 {
     TRACE("ArbitraryPOCharComp::SkelPoseProcess");
 
-    *((int *)a2 + 6) += int(a2);
-    *((int *)a2 + 7) += int(a2);
-    auto v5 = *((int *)a2 + 5);
-    char *v6 = (v5 != 0) ? ((char *)a2 + v5) : nullptr;
+    auto *v2 = static_cast<PerSkelData *>(a2);
+    v2->field_18 = CAST(v2->field_18, int(v2->field_18) + int(a2));
+    v2->field_1C = CAST(v2->field_1C, int(v2->field_1C) + int(a2));
+    auto *v5 = v2->field_14;
+    v2->field_14 = (v5 != nullptr) ? CAST(v2->field_14, int(a2) + int(v5)) : nullptr;
 
-    *((int *)a2 + 5) = int(v6);
-    auto v7 = *((int *)a2 + 4);
-
-    if (v7 != 0) {
-        *((int *)a2 + 4) = int((char *)a2 + v7);
+    auto *v7 = v2->field_10;
+    if (v7 != nullptr) {
+        v2->field_10 = CAST(v2->field_10, int(a2) + int(v7));
     } else {
-        *((int *)a2 + 4) = 0;
+        v2->field_10 = nullptr;
     }
 }
 
@@ -591,6 +550,12 @@ void ArbitraryPOCharComp::_CopyPoseDataToNothing(void *a1, uint32_t, const void 
     TRACE("ArbitraryPOCharComp::CopyPoseDataToNothing");
 
     std::memcpy(a1, a3, 16 * (*(const DWORD *)a3 + 1) + 12 * (*((const DWORD *)a3 + 1) - *(const DWORD *)a3));
+}
+
+ArbitraryPOCharComp::PerInstData::PerInstData(const void *a2, uint8_t *a3) : field_1C(a2, false)
+{
+    this->field_24 = -1;
+    this->field_28 = a3;
 }
 
 void sub_853300()

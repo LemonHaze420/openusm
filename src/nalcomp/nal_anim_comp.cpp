@@ -23,9 +23,10 @@ void *nalComp::nalCompAnim::_GetPerAnimDataFromComponentIx(int a2)
     return v6->ApplyPublicPerAnimDataOffset(v5, CompPerAnimDataInt);
 }
 
-int nalComp::nalCompAnim::_GetPerAnimUserDataInt()
+void *nalComp::nalCompAnim::_GetPerAnimUserDataInt()
 {
-    return (int)this->field_44 + this->field_44[*this->field_44];
+    auto *pPerAnimDataDir = bit_cast<int *>(this->m_pPerAnimDataDir);
+    return this->m_pPerAnimDataDir + pPerAnimDataDir[pPerAnimDataDir[0]];
 }
 
 void nalComp::nalCompAnim::_UnMash(void *a2)
@@ -33,7 +34,7 @@ void nalComp::nalCompAnim::_UnMash(void *a2)
     TRACE("nalCompAnim::UnMash");
 
     this->field_40 = (int *)((char *)this->field_40 + (unsigned int)a2);
-    this->field_44 = (int *)((char *)this->field_44 + (unsigned int)a2);
+    this->m_pPerAnimDataDir += uint32_t(a2);
     this->field_48 += (int)a2;
 
     auto *Skeleton = this->GetSkeleton();
@@ -78,9 +79,9 @@ void nalComp::nalCompAnim::_ReMash(void *a2)
         }
     }
 
-    this->field_40 = (int *)((char *)a2 - (char *)this->field_40);
-    this->field_44 = (int *)((char *)a2 - (char *)this->field_44);
-    this->field_48 = (int)a2 - this->field_48;
+    this->field_40 = (int *)(static_cast<char *>(a2) - (char *)this->field_40);
+    this->m_pPerAnimDataDir = CAST(this->m_pPerAnimDataDir, static_cast<char *>(a2) - this->m_pPerAnimDataDir);
+    this->field_48 = int(a2) - this->field_48;
 }
 
 void nalComp::nalCompAnim::ReMash(void *a2)
@@ -107,11 +108,11 @@ void *nalComp::nalCompAnim::GetCompPerAnimDataInt(int iCompIx)
         }
     }
 
-    auto *pPerAnimDataDir = this->field_44;
+    auto *pPerAnimDataDir = bit_cast<int *>(this->m_pPerAnimDataDir);
 
-    assert(*pPerAnimDataDir > iOffsetIx && "Bad per-anim data offset.");
+    assert(pPerAnimDataDir[0] > iOffsetIx && "Bad per-anim data offset.");
 
-    auto *result = (char *)this->field_44 + pPerAnimDataDir[iOffsetIx + 1];
+    auto *result = this->m_pPerAnimDataDir + pPerAnimDataDir[iOffsetIx + 1];
     return result;
 }
 

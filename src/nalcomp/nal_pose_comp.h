@@ -39,15 +39,15 @@ struct nalCompPose {
     //virtual
     void *GetComponentPoseData(uint32_t a2) const;
 
-    int _GetPoseDataSize();
+    int _GetPoseDataSize() const;
 
     //virtual
     //0x00734420
-    int GetPoseDataSize();
+    int GetPoseDataSize() const;
 
     //virtual
     //0x00734430
-    int GetPoseDataAlign();
+    int GetPoseDataAlign() const;
 
     //virtual
     //0x00731E90
@@ -76,8 +76,8 @@ struct nalCompSkeleton : nalBaseSkeleton {
     int field_5C;
     int field_60;
     int m_iNumComponents;
-    int field_68;
-    int field_6C;
+    int m_poseDataAlign;
+    int m_poseDataSize;
     struct {
         int m_name;
         BaseComponent *m_component;
@@ -117,9 +117,9 @@ struct nalCompSkeleton : nalBaseSkeleton {
 
     int GetCompIxFromName(nalComp::ComponentId a2) const;
 
-    CharComponentBase *GetComponent(int iCompIx);
+    BaseComponent *GetComponent(int iCompIx);
 
-    CharComponentBase *GetComponent(int iCompIx) const;
+    BaseComponent *GetComponent(int iCompIx) const;
 
     int GetName(int iCompIx) const;
 

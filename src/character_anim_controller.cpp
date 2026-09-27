@@ -149,16 +149,16 @@ float character_anim_controller::get_tentacle_pull_factor(string_hash a2)
 void get_po_from_bone_data(po &a1, const ArbitraryPOCharComp::BoneData *a2, const ArbitraryPOCharComp::PerSkelData *a3,
                            const ArbitraryPOCharComp::StdPoseData *a4)
 {
-    vector3d *v4 = bit_cast<vector3d *>(a4->field_10[4 * a4->field_0]);
+    auto *v4 = &a4->field_10[a4->field_0];
     float v12[4]{};
     if (a2->field_28) {
-        const float *v5 = a4->field_10[4 * a2->field_20];
+        const auto &v5 = a4->field_10[a2->field_20];
         v12[0] = v5[0];
         v12[1] = v5[1];
         v12[2] = v5[2];
         v12[3] = v5[3];
     } else {
-        const float *v7 = &a3->field_10[4 * a2->field_20];
+        const auto &v7 = a3->field_10[a2->field_20];
         v12[0] = v7[0];
         v12[1] = v7[1];
         v12[2] = v7[2];
@@ -166,7 +166,7 @@ void get_po_from_bone_data(po &a1, const ArbitraryPOCharComp::BoneData *a2, cons
     }
 
     auto v9 = a2->field_2A == 0;
-    vector3d *v10 = (v9 ? &a3->field_14[a2->field_22] : &v4[a2->field_22]);
+    auto *v10 = bit_cast<vector3d *>(v9 ? &a3->field_14[a2->field_22] : &v4[a2->field_22]);
 
     vector3d a2a = *v10;
 

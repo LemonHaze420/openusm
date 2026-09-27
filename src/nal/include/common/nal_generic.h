@@ -61,7 +61,7 @@ struct MorphSliderPoseTemplate {
 
 template <typename T>
 struct nalGenericComponentHandle {
-    nalGeneric::nalGenericSkeleton *Skeleton{nullptr};
+    nalGenericSkeleton *Skeleton{nullptr};
     int field_4;
     int field_8;
     int field_C;
@@ -69,7 +69,7 @@ struct nalGenericComponentHandle {
 
 template <typename T>
 struct nalGenericConstComponentHandle {
-    nalGeneric::nalGenericSkeleton *Skeleton{nullptr};
+    nalGenericSkeleton *Skeleton{nullptr};
     struct {
         char field_0[0x2C];
         T *field_2C;
@@ -113,7 +113,7 @@ struct nalGenericPose {
     }
 
     template <typename T>
-    T operator[](nalGeneric::nalGenericConstComponentHandle<T> &handle)
+    T operator[](nalGenericConstComponentHandle<T> &handle)
     {
         static T g_invalidObject{};
 
@@ -198,7 +198,7 @@ struct nalGenericSkeleton : nalBaseSkeleton {
     }
 
     template <typename T>
-    T operator[](nalGeneric::nalGenericConstComponentHandle<T> &handle)
+    T operator[](nalGenericConstComponentHandle<T> &handle)
     {
         static T g_invalidObject{};
 
