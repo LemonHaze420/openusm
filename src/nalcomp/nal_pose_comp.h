@@ -7,6 +7,7 @@
 
 struct BaseComponent;
 struct CharComponentBase;
+struct nalMatrix4x4;
 
 namespace nalComp {
 
@@ -73,21 +74,24 @@ struct nalCompPose {
 };
 
 struct nalCompSkeleton : nalBaseSkeleton {
+    struct ComponentEntry {
+        int m_name;
+        BaseComponent *m_component;
+        uint32_t m_flags;
+
+        //0x00671D5F
+        bool hasFlag(uint8_t a2) const
+        {
+            return ((1 << a2) & this->m_flags) != 0;
+        }
+    };
+
     int field_5C;
     int field_60;
     int m_iNumComponents;
     int m_poseDataAlign;
     int m_poseDataSize;
-    struct {
-        int m_name;
-        BaseComponent *m_component;
-        int field_8;
-
-        bool sub_671D5F(char a2) const
-        {
-            return ((1 << a2) & this->field_8) != 0;
-        }
-    } *field_70;
+    ComponentEntry *m_components;
 
     char *m_pPerSkelDir;
     char *m_pDirectory;
@@ -96,6 +100,13 @@ struct nalCompSkeleton : nalBaseSkeleton {
     {
         return this->m_iNumComponents;
     }
+
+    //0x00734500
+    void GetBoneMatrices(const nalCompPose *a2, nalMatrix4x4 *a3) const;
+
+    //0x005FB520
+    //virtual
+    void _VirtualGetBoneMatrices(const nalBasePose *a1, nalMatrix4x4 *a2) const;
 
     void CopyPose(nalCompPose &a1, const nalCompPose &a2);
 

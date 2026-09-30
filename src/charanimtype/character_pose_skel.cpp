@@ -154,7 +154,7 @@ nalCharSkeleton::nalCharSkeleton()
                           nullptr,
                           func_address(&nalCharSkeleton::_CheckVersion),
                           nullptr,
-                          nullptr,
+                          func_address(&nalCompSkeleton::_VirtualGetBoneMatrices),
                           nullptr,
                           nullptr,
                           nullptr,
@@ -326,6 +326,11 @@ void nalChar_patch()
         FUNC_ADDRESS(address, &nalChar::nalCharSkeleton::_Process);
         set_vfunc(0x00891F90, address);
         //SET_JUMP(0x005F28C0, address);
+    }
+
+    {
+        FUNC_ADDRESS(address, &nalComp::nalCompSkeleton::_VirtualGetBoneMatrices);
+        set_vfunc(0x00891FA0, address);
     }
 
     {
