@@ -566,8 +566,8 @@ static Var<bool> byte_921D79{0x00921D79};
 
 void sub_5935D0()
 {
-    if (g_shadow_scene() == nullptr) {
-        g_shadow_scene() = nglCurScene;
+    if (g_shadow_scene == nullptr) {
+        g_shadow_scene = nglCurScene;
     }
 }
 

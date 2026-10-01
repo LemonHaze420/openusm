@@ -31,9 +31,9 @@ nglScene *&nglCurScene = []() -> auto & {
 }();
 #endif
 
-Var<nglScene *> nglRootScene{0x00971F04};
+nglScene *&nglRootScene = var<nglScene *>(0x00971F04);
 
-Var<nglScene *> g_shadow_scene{0x00965960};
+nglScene *&g_shadow_scene = var<nglScene *>(0x00965960);
 
 static Var<float> flt_93BC78 = (0x0093BC78);
 
@@ -523,7 +523,7 @@ void nglSetupScene(nglScene *a1, nglSceneParamType a2)
             a1 = v2;
             break;
         case 2:
-            a1 = nglRootScene();
+            a1 = nglRootScene;
             break;
         default:
             break;
@@ -542,7 +542,7 @@ void nglSetupScene(nglScene *a1, nglSceneParamType a2)
         if (a2 == 1) {
             a1->field_404 = v2->field_404;
         } else if (a2 == 2) {
-            a1->field_404 = nglRootScene()->field_404;
+            a1->field_404 = nglRootScene->field_404;
         }
 
         a1->field_30C = v2;

@@ -31,6 +31,20 @@ bool nalBaseSkeleton::CheckVersion() const
     return func(this);
 }
 
+void nalBaseSkeleton::VirtualGetBoneMatrices(const nalBasePose *a1, nalMatrix4x4 *a2) const
+{
+    void(__fastcall * func)(const void *, void *edx, const nalBasePose *, nalMatrix4x4 *) =
+        CAST(func, get_vfunc(this->m_vtbl, 0x18));
+    func(this, nullptr, a1, a2);
+}
+
+void nalBaseSkeleton::VirtualGetTrajectoryUpdate(const nalBasePose *a2, nalPositionOrientation *a3)
+{
+    void(__fastcall * func)(const void *, void *edx, const nalBasePose *, nalPositionOrientation *) =
+        CAST(func, get_vfunc(this->m_vtbl, 0x1C));
+    func(this, nullptr, a2, a3);
+}
+
 nalBasePose *nalBaseSkeleton::VirtualGetDefaultPose()
 {
     nalBasePose *(__fastcall * func)(void *) = CAST(func, get_vfunc(this->m_vtbl, 0x24));

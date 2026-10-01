@@ -36,6 +36,39 @@ void nalComp::nalCompSkeleton::GetBoneMatrices(const nalComp::nalCompPose *a2, n
     }
 }
 
+int nalComp::nalCompSkeleton::GetBoneMatrixCount() const
+{
+    return this->m_boneMatrixCount;
+}
+
+void nalComp::nalCompSkeleton::GetTrajectoryUpdate(const nalComp::nalCompPose *a2, nalPositionOrientation *a3)
+{
+    if ((this->field_4C & 1) != 0) {
+        for (int i = 0; i < this->GetNumComponents(); ++i) {
+            if (this->m_components[i].hasFlag(1)) {
+                auto *component = this->GetComponent(i);
+                auto *v16 = a2->GetComponentPoseData(i);
+                auto *v10 = this->GetCompPerSkelDataInt(i);
+                auto name = this->GetName(i);
+
+                nalPositionOrientation result{};
+                component->GetTrajectoryData(&result, name, v10, v16);
+
+                *a3 = result;
+            }
+        }
+    } else {
+        *a3 = nalPositionOrientation::Identity;
+    }
+}
+
+int nalComp::nalCompSkeleton::_VirtualGetBoneMatrixCount() const
+{
+    TRACE("nalCompSkeleton::VirtualGetBoneMatrixCount");
+
+    return this->GetBoneMatrixCount();
+}
+
 void nalComp::nalCompSkeleton::_VirtualGetBoneMatrices(const nalBasePose *a1, nalMatrix4x4 *a2) const
 {
     TRACE("nalCompSkeleton::VirtualGetBoneMatrices");
@@ -50,6 +83,15 @@ void nalComp::nalCompSkeleton::_VirtualGetBoneMatrices(const nalBasePose *a1, na
         void(__fastcall * func)(const void *, void *edx, const nalBasePose *a1, nalMatrix4x4 *a2) =
             CAST(func, 0x005FB520);
         func(this, nullptr, a1, a2);
+    }
+}
+
+void nalComp::nalCompSkeleton::_VirtualGetTrajectoryUpdate(const nalBasePose *a2, nalPositionOrientation *a3)
+{
+    if (a2 != nullptr) {
+        this->GetTrajectoryUpdate((const nalCompPose *)&a2[-1], a3);
+    } else {
+        this->GetTrajectoryUpdate(nullptr, a3);
     }
 }
 

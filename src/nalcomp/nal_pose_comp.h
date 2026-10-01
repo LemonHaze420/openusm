@@ -87,7 +87,7 @@ struct nalCompSkeleton : nalBaseSkeleton {
     };
 
     int field_5C;
-    int field_60;
+    int m_boneMatrixCount;
     int m_iNumComponents;
     int m_poseDataAlign;
     int m_poseDataSize;
@@ -101,12 +101,24 @@ struct nalCompSkeleton : nalBaseSkeleton {
         return this->m_iNumComponents;
     }
 
+    int GetBoneMatrixCount() const;
+
     //0x00734500
     void GetBoneMatrices(const nalCompPose *a2, nalMatrix4x4 *a3) const;
+
+    //0x007345A0
+    void GetTrajectoryUpdate(const nalComp::nalCompPose *a2, nalPositionOrientation *a3);
+
+    //virtual
+    int _VirtualGetBoneMatrixCount() const;
 
     //0x005FB520
     //virtual
     void _VirtualGetBoneMatrices(const nalBasePose *a1, nalMatrix4x4 *a2) const;
+
+    //0x005FB540
+    //virtual
+    void _VirtualGetTrajectoryUpdate(const nalBasePose *a2, nalPositionOrientation *a3);
 
     void CopyPose(nalCompPose &a1, const nalCompPose &a2);
 

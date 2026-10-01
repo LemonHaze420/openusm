@@ -10,6 +10,8 @@
 
 
 struct nalBasePose;
+struct nalMatrix4x4;
+struct nalPositionOrientation;
 
 struct nalBaseSkeleton {
     std::intptr_t m_vtbl;
@@ -25,6 +27,13 @@ struct nalBaseSkeleton {
     /* virtual */ void Release();  // = 0;
 
     /* virtual */ bool CheckVersion() const;  // = 0;
+
+    //virtual
+    void VirtualGetBoneMatrices(const nalBasePose *a1, nalMatrix4x4 *a2) const;  // = 0;
+
+    //virtual
+    void VirtualGetTrajectoryUpdate(const nalBasePose *a2,
+                                    nalPositionOrientation *a3);  // = 0;
 
     //virtual
     nalBasePose *VirtualGetDefaultPose();  // = 0;

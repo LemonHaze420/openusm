@@ -5160,7 +5160,7 @@ void nglListBeginScene(nglSceneParamType a2)
 
             nglCurScene->field_318 = v2;
         } else {
-            nglRootScene() = v2;
+            nglRootScene = v2;
         }
 
         nglSetupScene(v2, a2);

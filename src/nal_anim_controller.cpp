@@ -278,25 +278,15 @@ void nal_anim_controller::get_curr_po_offset(po &a2)
     THISCALL(0x00497FC0, this, &a2);
 }
 
-void nal_anim_controller::get_matrix_data_from_pose(nalAnyPose &arg0)
+void nal_anim_controller::get_matrix_data_from_pose(nalAnyPose &a1)
 {
     TRACE("nal_anim_controller::get_matrix_data_from_pose");
-
-    {
-        auto *skel = *bit_cast<nalComp::nalCompSkeleton **>(this->field_40.field_0);
-        sp_log("0x%08X", skel->m_vtbl);
-    }
 
     if constexpr (0) {
         auto *v3 = (conglomerate *)this->field_4;
         if (v3->is_a_conglomerate()) {
             auto *skel = this->field_40.field_0->field_0;
-            struct {
-                char field_0[0x18];
-                void(__fastcall *VirtualGetBoneMatrices)(void *, void *, const nalBasePose *, nalMatrix4x4 *);
-            } *vtbl = CAST(vtbl, skel->m_vtbl);
-            vtbl->VirtualGetBoneMatrices(
-                skel, nullptr, this->field_40.field_0, bit_cast<nalMatrix4x4 *>(v3->all_model_po.m_data));
+            skel->VirtualGetBoneMatrices(this->field_40.field_0, bit_cast<nalMatrix4x4 *>(v3->all_model_po.m_data));
 
             v3->sub_4D0E00();
             if (this->scene_animation_playing()) {
@@ -338,13 +328,8 @@ void nal_anim_controller::get_matrix_data_from_pose(nalAnyPose &arg0)
             }
         } else {
             nalPositionOrientation v30{};
-            auto *skel = arg0.field_0->field_0;
-            struct {
-                char field_0[0x1C];
-                void(__fastcall *VirtualGetTrajectoryUpdate)(void *, void *, const nalBasePose *,
-                                                             nalPositionOrientation *);
-            } *vtbl = CAST(vtbl, skel->m_vtbl);
-            vtbl->VirtualGetTrajectoryUpdate(skel, nullptr, arg0.field_0, &v30);
+            auto *skel = a1.field_0->field_0;
+            skel->VirtualGetTrajectoryUpdate(a1.field_0, &v30);
             if (this->field_50 ||
                 ((static_cast<nalGeneric::nalGenericAnim *>(this->get_base_layer_anim_ptr())->field_34 & 2) != 0)) {
                 quaternion a2_12{v30.field_0[3], v30.field_0[0], v30.field_0[1], v30.field_0[2]};
@@ -367,7 +352,7 @@ void nal_anim_controller::get_matrix_data_from_pose(nalAnyPose &arg0)
             }
         }
     } else {
-        THISCALL(0x004A8A60, this, &arg0);
+        THISCALL(0x004A8A60, this, &a1);
     }
 }
 

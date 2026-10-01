@@ -245,7 +245,7 @@ void character_anim_controller::post_get_pose_in_scene_anims(uint32_t &, nalAnim
         fire_signals(PerAnimDataByName, *NamedPoseData, (vhandle_type<actor>)this->field_4->my_handle.field_0);
 }
 
-void character_anim_controller::gen_std_play_method::Compose(
+void character_anim_controller::gen_std_play_method::_Compose(
     usm_anim_player<nalAnimClass<nalAnyPose>, 3>::nalAnimState *a2, nalAnyPose &a3, nalAnyPose &a4,
     const nalAnyPose &a5)
 {
@@ -339,7 +339,7 @@ void character_anim_controller_patch()
     }
 
     {
-        FUNC_ADDRESS(address, &character_anim_controller::gen_std_play_method::Compose);
+        FUNC_ADDRESS(address, &character_anim_controller::gen_std_play_method::_Compose);
         set_vfunc(0x00880B74, address);
         set_vfunc(0x00880B8C, address);
         set_vfunc(0x00880BA4, address);
