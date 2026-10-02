@@ -197,7 +197,7 @@ void FlexibleCharComp_patch()
                                             const void *a11,
                                             const void *a12,
                                             const void *a13,
-                                            void *a14) = FlexibleCharCompClass::_CalcPoseDataRemapped;
+                                            void *a14) = &FlexibleCharCompClass::_CalcPoseDataRemapped;
 
         FUNC_ADDRESS(address, func);
         set_vfunc(0x008922BC, address);

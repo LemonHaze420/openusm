@@ -33,12 +33,13 @@ struct als_inode;
 struct corner_info;
 struct swing_inode;
 struct web_zip_inode;
-struct spidey_combat_inode;
+struct combat_inode;
 struct controller_inode;
 struct base_full_target_inode;
 struct glass_house_inode;
 struct interaction_inode;
 struct pole_swing_inode;
+struct strength_test_inode;
 
 struct hero_inode : info_node {
     struct internal {
@@ -55,14 +56,15 @@ struct hero_inode : info_node {
     als_inode *field_20;
     controller_inode *field_24;
     physics_inode *field_28;
-    spidey_combat_inode *field_2C;
+    combat_inode *field_2C;
     base_full_target_inode *field_30;
     interaction_inode *field_34;
-    int field_38;
+    strength_test_inode *field_38;
     web_zip_inode *field_3C;
     swing_inode *field_40;
     glass_house_inode *field_44;
     pole_swing_inode *field_48;
+
     char field_4C;
     eJumpType field_50;
     eJumpType field_54;
@@ -158,6 +160,10 @@ struct hero_inode : info_node {
     //0x006A7950
     //virtual
     void _frame_advance(Float a2);
+
+    //0x006A77F0
+    //virtual
+    void _activate(ai_core *a2);
 
     static hero_type_enum get_hero_type();
 

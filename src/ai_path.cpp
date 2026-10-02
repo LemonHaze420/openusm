@@ -45,7 +45,6 @@ ai_path::ai_path()
     auto a3 = (int)this;
 
     int **(__fastcall * sub_6B78D0)(void *, void *, int, int, void *) = CAST(sub_6B78D0, 0x006B78D0);
-    fastcall_call sub_48E040 = CAST(sub_48E040, 0x0048E040);
 
     auto v4 = sub_6B78D0(&dword_958164(), nullptr, (int)dword_958168(), v3, &a3);
     dword_958164()._Incsize(1u);

@@ -351,7 +351,7 @@ int os_file::get_size()
     return result;
 }
 
-static cdecl_call &dword_965EA0 = var<cdecl_call>(0x00965EA0);
+static auto &dword_965EA0 = var<void(__cdecl *)(os_file *)>(0x00965EA0);
 
 void os_file::open(const mString &path, int shareMode)
 {

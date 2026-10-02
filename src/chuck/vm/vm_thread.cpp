@@ -1123,8 +1123,7 @@ void vm_thread::raise_event(const vm_thread::argument_t &arg, opcode_arg_t arg_t
     vhandle_type<signaller> signaller_handle{{0}};
     if (arg_type == OP_ARG_PSIG) {
         this->dstack.pop(sizeof(uint32_t));
-        const auto raw_handle =
-            static_cast<int>(*reinterpret_cast<uint32_t *>(this->dstack.get_SP()));
+        const auto raw_handle = *reinterpret_cast<uint32_t *>(this->dstack.get_SP());
         signaller_handle = vhandle_type<signaller>{{raw_handle}};
     }
 

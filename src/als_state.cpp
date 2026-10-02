@@ -60,6 +60,12 @@ state::state(from_mash_in_place_constructor *a2) : m_state_id(a2), m_cat_id(a2)
         }
     }
 
+int state::get_mocomp_type()
+{
+    int(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x18));
+    return func(this);
+}
+
 als::request_data state::do_implicit_trans(animation_logic_system *a4, state_machine *a5)
     {
     void(__fastcall * func)(void *, void *, request_data *, animation_logic_system *, state_machine *) =
@@ -68,6 +74,34 @@ als::request_data state::do_implicit_trans(animation_logic_system *a4, state_mac
         func(this, nullptr, &data, a4, a5);
         return data;
     }
+
+request_data state::do_explicit_trans(animation_logic_system *a4, state_machine *a5, string_hash a6)
+{
+    request_data *(__fastcall *
+                   func)(void *, void *edx, request_data *, animation_logic_system *, state_machine *, string_hash) =
+        CAST(func, get_vfunc(m_vtbl, 0x28));
+
+    request_data data;
+    func(this, nullptr, &data, a4, a5, a6);
+
+    return data;
+}
+
+request_data state::do_layer_trans(animation_logic_system *a4, state_machine *a5)
+{
+    void(__fastcall * func)(void *, void *, request_data *, animation_logic_system *, state_machine *) =
+        CAST(func, get_vfunc(m_vtbl, 0x2C));
+    request_data data;
+    func(this, nullptr, &data, a4, a5);
+    return data;
+}
+
+void state::do_post_trans(animation_logic_system *a1, state_machine *a2, transition_post_handle a3)
+{
+    void(__fastcall * func)(void *, void *edx, animation_logic_system *, state_machine *, transition_post_handle) =
+        CAST(func, get_vfunc(m_vtbl, 0x30));
+    func(this, nullptr, a1, a2, a3);
+}
 
 string_hash state::get_nal_anim_name() const
 {

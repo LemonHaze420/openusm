@@ -25,6 +25,8 @@ struct vector2d {
 
     vector2d operator*(float a1) const;
 
+    vector2d &operator+=(const vector2d &a1);
+
     vector2d &operator*=(float a2);
 
     vector2d &operator/=(float a2);

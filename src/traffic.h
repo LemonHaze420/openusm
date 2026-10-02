@@ -12,6 +12,8 @@
 
 #include <vector.hpp>
 
+#include <array>
+
 struct parking_marker;
 struct traffic_path_lane;
 struct traffic_route;

@@ -171,7 +171,7 @@ struct param_block {
 
         void set_data_entity(entity_base_vhandle &a2);
 
-        void set_data_fixedstring(char *);
+        void set_data_fixedstring(const char *);
 
         void set_data_pointer(void *a2);
 
@@ -181,6 +181,8 @@ struct param_block {
     struct param_data_array {
         mVector<param_block::param_data> field_0;
         param_block::param_data *field_14;
+
+        param_data_array();
 
         param_data_array(from_mash_in_place_constructor *);
 
@@ -213,6 +215,9 @@ struct param_block {
     ~param_block();
 
     void finalize(mash::allocation_scope a3);
+
+    //0x006D83D0
+    void copy_from_pb_override(const param_block &a1);
 
     //0x006D56B0
     void unmash(mash_info_struct *a1, void *a3);

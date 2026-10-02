@@ -4,7 +4,7 @@
 #include "info_node.h"
 #include "vector2d.h"
 
-struct game_button;
+class game_button;
 
 namespace ai {
 

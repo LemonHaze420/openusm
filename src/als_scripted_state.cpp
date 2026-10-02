@@ -22,20 +22,20 @@ namespace als {
     {
     if constexpr (1) {
         static void *g_vtbl[] = {nullptr,
-                                 func_address(&_unmash),
+                                 func_address(&scripted_state::_unmash),
                                  nullptr,
-                                 func_address(&_get_virtual_type_enum),
+                                 func_address(&scripted_state::_get_virtual_type_enum),
                                  nullptr,
-                                 func_address(&_is_or_is_subclass_of),
-                                 nullptr,
-                                 nullptr,
+                                 func_address(&mash_virtual_base::_is_or_is_subclass_of),
                                  nullptr,
                                  nullptr,
                                  nullptr,
                                  nullptr,
                                  nullptr,
                                  nullptr,
-                                 func_address(&_get_mash_sizeof)};
+                                 nullptr,
+                                 nullptr,
+                                 func_address(&scripted_state::_get_mash_sizeof)};
 
         this->m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {
@@ -118,96 +118,112 @@ int scripted_state::get_filter(int out, animation_logic_system *, state_machine 
         return out;
     }
 
-request_data scripted_state::do_implicit_trans(animation_logic_system *a4, state_machine *a5)
-    {
-        TRACE("als::scripted_state::do_implicit_trans");
+int scripted_state::_get_mocomp_type()
+{
+    return 573;
+}
 
-    if constexpr (1) {
-            std::for_each(this->field_28.begin(), this->field_28.end(), [](auto &the_rule){ 
-            printf("the_action = %d, %s\n",
-                   the_rule->field_0.field_14.the_action,
-                   the_rule->field_0.field_14.field_8.to_string());
-            });
-        }
+request_data scripted_state::_do_implicit_trans(animation_logic_system *a4, state_machine *a5)
+{
+    TRACE("als::scripted_state::do_implicit_trans");
 
-        if constexpr (0) {
-            request_data data {};
-            als_data a2 {a4, a5};
-            string_hash v14 {};
-        if (!test_all_trans_groups(data, this->field_18, scripted_trans_group::IMPLICIT, a2, v14)) {
-                auto begin = this->field_28.m_data;
-                auto end = begin + this->field_28.size();
-            auto it = std::find_if(begin, end, [&a2](auto *trans_rule) { return trans_rule->can_transition(a2); });
+    if constexpr (0) {
+        request_data data{};
+        als_data context{a4, a5};
+        string_hash explicit_state{};
+        if (!test_all_trans_groups(data, this->field_18, scripted_trans_group::IMPLICIT, context, explicit_state)) {
+            auto begin = this->field_28.m_data;
+            auto end = begin + this->field_28.size();
+            auto it = std::find_if(
+                begin, end, [&context](auto *trans_rule) { return trans_rule->can_transition(context); });
 
-                if (it != end) {
-                    auto &trans_rule = (*it);
-                    trans_rule->field_0.field_14.process_action(data);
+            if (it != end) {
+                auto &trans_rule = *it;
+                trans_rule->field_0.field_14.process_action(data);
                 if (trans_rule->field_0.has_post_action()) {
-                        data.field_10 = scripted_trans_group::IMPLICIT;
-                        data.field_C = int(&trans_rule);
-                    }
+                    data.field_C.field_4 = scripted_trans_group::IMPLICIT;
+                    data.field_C.field_0 = bit_cast<basic_rule_data *>(&trans_rule);
                 }
             }
+        }
 
-            if ( auto v1 = (data.did_transition_occur || data.field_1); !v1 ) {
-                if ( this->is_flag_set(static_cast<state_flags>(8)) ) {
-                    data.field_3 = false;
-                } else {
-                    data.field_3 = true;
-                }
+        if (!data.did_rule_pass()) {
+            if (this->is_flag_set(static_cast<state_flags>(8))) {
+                data.ignore_no_transition = false;
+            } else {
+                data.ignore_no_transition = true;
             }
-
-            return data;
-        } else {
-            request_data data;
-            THISCALL(0x004A6F10, this, &data, a4, a5);
-
-        sp_log(
-            "did_transition_occur = %d, %d %d %d", data.did_transition_occur, data.field_1, data.field_2, data.field_3);
-
-            return data;
         }
-    }
 
-void scripted_state::do_post_trans(animation_logic_system *a1, state_machine *a2, transition_post_handle a4)
-    {
-        TRACE("als::scripted_state::do_post_trans");
-
-        als::als_data v1 {a1, a2};
-        if ( a4.field_4 <= 1 ) {
-            a4.field_0->do_post_action(v1);
-        }
+        return data;
+    } else {
+        request_data data;
+        THISCALL(0x004A6F10, this, &data, a4, a5);
+        return data;
     }
+}
+
+request_data scripted_state::_do_explicit_trans(animation_logic_system *a4, state_machine *a5, string_hash a6)
+{
+    request_data *(__fastcall *
+                   func)(void *, void *edx, request_data *, animation_logic_system *, state_machine *, string_hash) =
+        CAST(func, 0x004A7040);
+
+    request_data data;
+    func(this, nullptr, &data, a4, a5, a6);
+
+    return data;
+}
+
+request_data scripted_state::_do_layer_trans(animation_logic_system *a4, state_machine *a5)
+{
+    request_data *(__fastcall * func)(void *, void *edx, request_data *, animation_logic_system *, state_machine *) =
+        CAST(func, 0x004A7180);
+
+    request_data data;
+    func(this, nullptr, &data, a4, a5);
+
+    return data;
+}
+
+void scripted_state::_do_post_trans(animation_logic_system *a1, state_machine *a2, transition_post_handle a4)
+{
+    TRACE("als::scripted_state::do_post_trans");
+
+    als_data context{a1, a2};
+    if (a4.field_4 <= scripted_trans_group::EXPLICIT) {
+        a4.field_0->do_post_action(context);
+    }
+}
 
 int scripted_state::_get_mash_sizeof() const
 {
     return sizeof(scripted_state);
 }
 
-    string_hash scripted_state::get_nal_anim_name() const
-    {
-        sp_log("0x%08X", m_vtbl);
-        return this->field_14;
-    }
+string_hash scripted_state::get_nal_anim_name() const
+{
+    return this->field_14;
+}
 
     base_layer_scripted_state::base_layer_scripted_state()
     {
     if constexpr (1) {
         static void *g_vtbl[] = {nullptr,
-                                 func_address(&_unmash),
+                                 func_address(&base_layer_scripted_state::_unmash),
                                  nullptr,
-                                 func_address(&_get_virtual_type_enum),
+                                 func_address(&base_layer_scripted_state::_get_virtual_type_enum),
                                  nullptr,
-                                 func_address(&_is_or_is_subclass_of),
-                                 nullptr,
-                                 nullptr,
+                                 func_address(&mash_virtual_base::_is_or_is_subclass_of),
                                  nullptr,
                                  nullptr,
                                  nullptr,
                                  nullptr,
                                  nullptr,
                                  nullptr,
-                                 func_address(&_get_mash_sizeof)};
+                                 nullptr,
+                                 nullptr,
+                                 func_address(&base_layer_scripted_state::_get_mash_sizeof)};
 
         this->m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {
@@ -243,7 +259,7 @@ als::request_data *__fastcall scripted_state__do_implicit_trans(als::scripted_st
                                                                 als::request_data *out, als::animation_logic_system *a4,
     als::state_machine *a5)
 {
-    *out = self->do_implicit_trans(a4, a5);
+    *out = self->_do_implicit_trans(a4, a5);
     return out;
 }
 
@@ -291,7 +307,7 @@ void als_scripted_state_patch()
     }
 
     {
-        FUNC_ADDRESS(address, &als::scripted_state::do_post_trans);
+        FUNC_ADDRESS(address, &als::scripted_state::_do_post_trans);
         SET_JUMP(0x004A72B0, address);
     }
 

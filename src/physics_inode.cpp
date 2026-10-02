@@ -238,6 +238,12 @@ void physics_inode::apply_force_increment(const vector3d &a2, physical_interface
     this->field_1C->apply_force_increment(a2, a3, a4, a5);
 }
 
+void physics_inode::_activate(ai_core *a2)
+{
+    info_node::_activate(a2);
+    this->field_1C = this->field_C->physical_ifc();
+}
+
 static float &g_swing_gravity = var<float>(0x00937D34);
 
 static const string_hash physics_gravity_swing_id{int(to_hash("physics_gravity_swing"))};
@@ -339,20 +345,23 @@ void physics_inode::setup_for_swing()
 
 void physics_inode::setup_for_pole_swing()
 {
+    TRACE("physics_inode::setup_for_pole_swing");
+
     if constexpr (0) {
         this->field_1C->field_C &= ~0x400u;
+
         this->field_C->invalidate_frame_delta();
         this->field_1C->set_control_parent(nullptr);
         this->field_1C->set_gravity(false);
         this->field_1C->suspend(true);
         this->field_1C->enable(false);
-        this->field_C->set_collisions_active(1, 1);
+        this->field_C->set_collisions_active(true, true);
 
         this->field_1C->field_C &= ~0x200u;
         auto *v2 = this->field_C->physical_ifc();
         v2->set_current_gravity_vector(-UP);
     } else {
-        void(__fastcall * func)(void *) = CAST(func, 0x00AE7C20);
+        void(__fastcall * func)(void *) = CAST(func, 0x006950E0);
         func(this);
     }
 }

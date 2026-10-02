@@ -53,9 +53,13 @@ struct base_state : mash_virtual_base {
 
     /* virtual */ ~base_state() = default;
 
+    //virtual
+    void activate(ai_state_machine *the_state_machine, const mashed_state *a3, const mashed_state *a4,
+                  const param_block *a5, activate_flag_e a6);
+
     //0x006C4BD0
-    /* virtual */ void activate(ai_state_machine *the_state_machine, const mashed_state *a3, const mashed_state *a4,
-                                const param_block *a5, activate_flag_e a6);
+    void _activate(ai_state_machine *the_state_machine, const mashed_state *a3, const mashed_state *a4,
+                   const param_block *a5, activate_flag_e a6);
 
     /* virtual */ void deactivate(const mashed_state *);
 

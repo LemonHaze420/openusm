@@ -18,6 +18,7 @@ static _std::vector<decal_data_interface *> *&standalone_decal_interfaces()
     return interfaces;
 }
 #endif
+VALIDATE_OFFSET(decal_data_interface, field_38, 0x38);
 
 decal_data_interface::decal_data_interface(conglomerate *a2) : conglomerate_interface(a2)
 {

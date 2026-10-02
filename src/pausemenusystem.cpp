@@ -140,7 +140,7 @@ void PauseMenuSystem::Update(Float a2)
 
                 if (dialog_text->field_9C != 3) {
                     auto *mini_map_widget = g_femanager.IGO->field_4;
-                    auto *vtbl = bit_cast<fastcall_call(*)[4]>(mini_map_widget->m_vtbl);
+                    auto *vtbl = bit_cast<void *(*)[4]>(mini_map_widget->m_vtbl);
 
                     auto *func = (*vtbl)[3];
                     assert(bit_cast<std::intptr_t>(func) == 0x00641810);
@@ -161,7 +161,7 @@ void PauseMenuSystem::Update(Float a2)
             }
 
             {
-                auto *vtbl = bit_cast<fastcall_call(*)[7]>(this->m_vtbl);
+                auto *vtbl = bit_cast<void *(*)[7]>(this->m_vtbl);
 
                 auto *func = (*vtbl)[6];
                 assert(bit_cast<std::intptr_t>(func) == 0x006298D0);
@@ -172,7 +172,7 @@ void PauseMenuSystem::Update(Float a2)
             this->field_2C->Update(a2);
 
             if ((g_game_ptr->field_165 || g_game_ptr->field_166) && this->m_index >= 0) {
-                auto *vtbl = bit_cast<fastcall_call(*)[7]>(this->m_vtbl);
+                auto *vtbl = bit_cast<void *(*)[7]>(this->m_vtbl);
 
                 auto *func = (*vtbl)[3];
                 assert(bit_cast<std::intptr_t>(func) == 0x0060B610);

@@ -68,6 +68,21 @@ struct nalVector3 {
     }
 };
 
+struct nalVector4 : nalVector3 {
+    float w;
+
+    float &operator[](uint32_t idx)
+    {
+        return this->field_0[idx];
+    }
+
+    float operator[](uint32_t idx) const
+    {
+        return this->field_0[idx];
+    }
+};
+
+
 struct nalMatrix4x4 {
     float arr[4][4];
 

@@ -24,7 +24,7 @@ struct FlexibleCharComp : CharComponentBase {
     {
         if constexpr (1) {
             static void *g_vtbl[]{nullptr,
-                                  func_address(&_GetType),
+                                  func_address(&CharComponentBase::_GetType),
                                   nullptr,
                                   nullptr,
                                   nullptr,
@@ -38,13 +38,11 @@ struct FlexibleCharComp : CharComponentBase {
                                   nullptr,
                                   nullptr,
                                   nullptr,
-                                  func_address(&_SkelPoseProcess),
+                                  func_address(&FlexibleCharComp::_SkelPoseProcess),
                                   nullptr,
-                                  func_address(&_AnimProcess),
-                                  func_address(&_AnimRelease),
-                                  nullptr,
-                                  nullptr,
-                                  nullptr,
+                                  func_address(&FlexibleCharComp::_AnimProcess),
+                                  func_address(&FlexibleCharComp::_AnimRelease),
+                                  func_address(&FlexibleCharComp::_CopyPoseDataToNothing),
                                   nullptr,
                                   nullptr,
                                   nullptr,
@@ -52,7 +50,9 @@ struct FlexibleCharComp : CharComponentBase {
                                   nullptr,
                                   nullptr,
                                   nullptr,
-                                  func_address(&_CopyPoseDataToNothing)};
+                                  nullptr,
+                                  nullptr,
+                                  func_address(&FlexibleCharComp::_CopyPoseDataToNothing)};
             this->m_vtbl = CAST(m_vtbl, &g_vtbl);
         } else {
             this->m_vtbl = 0x008921C0;
@@ -69,8 +69,10 @@ struct FlexibleCharComp : CharComponentBase {
     {
         TRACE((get_type_name<FlexibleCharComp<T0, T1>>() + "::_BuildBoneMatrices").c_str());
 
-        this->field_14.BuildBoneMatrices(
-            a1, a2, bit_cast<const typename T0::PerSkelData *>(a3), bit_cast<const typename T0::StdPoseData *>(a4));
+        this->field_14.BuildBoneMatrices(a1,
+                                         a2,
+                                         static_cast<const typename T0::PerSkelData *>(a3),
+                                         static_cast<const typename T0::StdPoseData *>(a4));
     }
 
     //0x005FE940
@@ -84,8 +86,8 @@ struct FlexibleCharComp : CharComponentBase {
                                a4,
                                a5,
                                bit_cast<const typename nalChar::nalCharAnim *>(a6),
-                               bit_cast<const typename T0::PerSkelData *>(a7),
-                               bit_cast<const typename T0::PerAnimData *>(a8),
+                               static_cast<const typename T0::PerSkelData *>(a7),
+                               static_cast<const typename T0::PerAnimData *>(a8),
                                a9,
                                static_cast<T1::PerInstData *>(a10),
                                this->field_14);

@@ -24,13 +24,13 @@ scripted_trans_group::scripted_trans_group()
 {
     if constexpr (1) {
         static void *g_vtbl[] = {nullptr,
-                                 func_address(&_unmash),
+                                 func_address(&scripted_trans_group::_unmash),
                                  nullptr,
-                                 func_address(&_get_virtual_type_enum),
+                                 func_address(&scripted_trans_group::_get_virtual_type_enum),
                                  nullptr,
-                                 func_address(&_is_or_is_subclass_of),
+                                 func_address(&mash_virtual_base::_is_or_is_subclass_of),
                                  nullptr,
-                                 func_address(&_get_mash_sizeof)};
+                                 func_address(&scripted_trans_group::_get_mash_sizeof)};
 
         this->m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {
@@ -106,8 +106,8 @@ bool scripted_trans_group::check_transition(request_data &data, scripted_trans_g
             if (it != end) {
                 (*it)->field_0.field_14.process_action(data);
                 if ((*it)->field_0.has_post_action()) {
-                    data.field_10 = trans_type;
-                    data.field_C = int(&(*it));
+                    data.field_C.field_4 = trans_type;
+                    data.field_C.field_0 = bit_cast<basic_rule_data *>(&(*it));
                 }
             }
 
@@ -122,8 +122,8 @@ bool scripted_trans_group::check_transition(request_data &data, scripted_trans_g
             if (it != end) {
                 (*it)->field_0.field_14.process_action(data);
                 if ((*it)->field_0.has_post_action()) {
-                    data.field_10 = trans_type;
-                    data.field_C = int(&(*it));
+                    data.field_C.field_4 = trans_type;
+                    data.field_C.field_0 = bit_cast<basic_rule_data *>(&(*it));
                 }
             }
 

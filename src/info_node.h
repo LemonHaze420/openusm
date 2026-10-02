@@ -26,6 +26,11 @@ struct info_node : mash_virtual_base {
 
     void initialize(mash::allocation_scope a2);
 
+    auto get_name() const
+    {
+        return this->field_4;
+    }
+
     actor *get_actor() const
     {
         return this->field_C;
@@ -37,6 +42,10 @@ struct info_node : mash_virtual_base {
     }
 
     ~info_node() = default;
+
+    //0x006D6FA0
+    //virtual
+    void _unmash(mash_info_struct *a1, void *a3);
 
     //virtual
     bool does_need_advance() const;
@@ -54,6 +63,12 @@ struct info_node : mash_virtual_base {
 
     //virtual
     void reset();
+
+    //virtual
+    int get_mash_sizeof() const;
 };
 
 }  // namespace ai
+
+
+extern void info_node_patch();

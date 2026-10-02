@@ -200,6 +200,10 @@ struct swing_inode : info_node {
     static void do_web_splat(vector3d target_point, vector3d target_normal,
                              const local_collision::entfilter_base &entfilter_arg);
 
+    //0x0044BAB0
+    //virtual
+    void _unmash(mash_info_struct *a1, void *a2);
+
     //0x00488040
     //virtual
     void frame_advance(Float a2);

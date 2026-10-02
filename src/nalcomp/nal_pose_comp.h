@@ -7,6 +7,7 @@
 
 struct BaseComponent;
 struct CharComponentBase;
+struct nalMatrix4x4;
 
 namespace nalComp {
 
@@ -39,15 +40,15 @@ struct nalCompPose {
     //virtual
     void *GetComponentPoseData(uint32_t a2) const;
 
-    int _GetPoseDataSize();
+    int _GetPoseDataSize() const;
 
     //virtual
     //0x00734420
-    int GetPoseDataSize();
+    int GetPoseDataSize() const;
 
     //virtual
     //0x00734430
-    int GetPoseDataAlign();
+    int GetPoseDataAlign() const;
 
     //virtual
     //0x00731E90
@@ -73,29 +74,51 @@ struct nalCompPose {
 };
 
 struct nalCompSkeleton : nalBaseSkeleton {
-    int field_5C;
-    int field_60;
-    int m_iNumComponents;
-    int field_68;
-    int field_6C;
-    struct {
+    struct ComponentEntry {
         int m_name;
         BaseComponent *m_component;
-        int field_8;
+        uint32_t m_flags;
 
-        bool sub_671D5F(char a2) const
+        //0x00671D5F
+        bool hasFlag(uint8_t a2) const
         {
-            return ((1 << a2) & this->field_8) != 0;
+            return ((1 << a2) & this->m_flags) != 0;
         }
-    } *field_70;
+    };
 
-    char *field_74;
-    char *field_78;
+    int field_5C;
+    int m_boneMatrixCount;
+    int m_iNumComponents;
+    int m_poseDataAlign;
+    int m_poseDataSize;
+    ComponentEntry *m_components;
+
+    char *m_pPerSkelDir;
+    char *m_pDirectory;
 
     auto GetNumComponents() const
     {
         return this->m_iNumComponents;
     }
+
+    int GetBoneMatrixCount() const;
+
+    //0x00734500
+    void GetBoneMatrices(const nalCompPose *a2, nalMatrix4x4 *a3) const;
+
+    //0x007345A0
+    void GetTrajectoryUpdate(const nalComp::nalCompPose *a2, nalPositionOrientation *a3);
+
+    //virtual
+    int _VirtualGetBoneMatrixCount() const;
+
+    //0x005FB520
+    //virtual
+    void _VirtualGetBoneMatrices(const nalBasePose *a1, nalMatrix4x4 *a2) const;
+
+    //0x005FB540
+    //virtual
+    void _VirtualGetTrajectoryUpdate(const nalBasePose *a2, nalPositionOrientation *a3);
 
     void CopyPose(nalCompPose &a1, const nalCompPose &a2);
 
@@ -117,9 +140,9 @@ struct nalCompSkeleton : nalBaseSkeleton {
 
     int GetCompIxFromName(nalComp::ComponentId a2) const;
 
-    CharComponentBase *GetComponent(int iCompIx);
+    BaseComponent *GetComponent(int iCompIx);
 
-    CharComponentBase *GetComponent(int iCompIx) const;
+    BaseComponent *GetComponent(int iCompIx) const;
 
     int GetName(int iCompIx) const;
 

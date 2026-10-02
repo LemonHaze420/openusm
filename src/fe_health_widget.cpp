@@ -70,7 +70,7 @@ void fe_health_widget::UpdateMasking()
             return;
         }
 
-        vhandle_type<entity> source{entity_base_vhandle{field_30}};
+        vhandle_type<entity> source{entity_base_vhandle{static_cast<uint32_t>(field_30)}};
         if (entity *owner = source.get_volatile_ptr();
             owner != nullptr && owner->has_damage_ifc()) {
             const auto &health = owner->damage_ifc()->field_1FC.field_0;

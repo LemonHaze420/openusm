@@ -26,31 +26,36 @@ enum external_parameter_types {};
 enum internal_parameter_types {};
 
 struct state_machine {
-    std::intptr_t m_vtbl;
-    layer_state_machine_shared *shared_portion;
-    struct {
-        bool field_0;
-        bool field_1;
-        bool field_2;
+    struct smi_variables {
+        bool is_set_kill;
+        bool is_request_or_force;
+        bool is_force_state;
+
         string_hash m_cat_id;
-        param_list field_8;
+        param_list requested_params;
 
         void clear()
         {
-            this->field_0 = false;
-            this->field_1 = false;
-            this->field_2 = false;
+            this->is_set_kill = false;
+            this->is_request_or_force = false;
+            this->is_force_state = false;
             this->m_cat_id = {0};
-            this->field_8.clear();
+            this->requested_params.clear();
         }
-    } field_8;
-    struct {
+    };
+
+    struct smi_return_vars {
         bool m_trans_succeed;
         bool m_request_not_satisfied;
         bool m_curr_state_interruptable;
         bool m_active;
         string_hash m_cat_id;
-    } field_14;
+    };
+
+    std::intptr_t m_vtbl;
+    layer_state_machine_shared *shared_portion;
+    smi_variables field_8;
+    smi_return_vars field_14;
     request_data curr_req_data;
     state *m_curr_state;
     struct {
@@ -98,11 +103,17 @@ public:
 
     float get_internal_param(animation_logic_system *a3, internal_parameter_types a4) const;
 
-    float get_param(animation_logic_system *a2, unsigned int a3) const;
+    float get_param(animation_logic_system *a2, uint32_t a3) const;
 
     vector3d get_vector_param(animation_logic_system *a2, uint32_t a3) const;
 
     void process_requests(animation_logic_system *a2);
+
+    //0x0049CEC0
+    void process_post_requests(animation_logic_system *a2);
+
+    //0x0049CF20
+    void process_layer_response_rules(animation_logic_system *a2);
 
     void do_force_state_trans(animation_logic_system *a2);
 
@@ -119,6 +130,8 @@ public:
     category *get_curr_category() const;
 
     scripted_trans_group *get_trans_group(int idx) const;
+
+    bool does_state_exist(string_hash a1) const;
 
     state *find_state(string_hash a2) const;
 
@@ -144,6 +157,12 @@ public:
     bool is_active() const;
 
     //virtual
+    void kill_layer();
+
+    //0x00493540
+    void _kill_layer();
+
+    //virtual
     void force_als_state(string_hash a2, int a3);
 
     //virtual
@@ -151,6 +170,12 @@ public:
 
     //virtual
     float get_pb_float(string_hash a1) const;
+
+    //virtual
+    string_hash get_pb_hash(string_hash a3) const;
+
+    //0x004A6740
+    string_hash _get_pb_hash(string_hash a3) const;
 
     //virtual
     vector3d *get_pb_vector3d(string_hash a2) const;

@@ -22,6 +22,11 @@ void script_instance_info::un_mash(generic_mash_header *a2, void *a3, generic_ma
     }
 }
 
+void script_instance_info::un_mash_start(generic_mash_header *a2, void *a3, generic_mash_data_ptrs *a4, void *)
+{
+    un_mash(a2, a3, a4);
+}
+
 bool script_instance_info::initialize_single(const script_executable *a2, string_hash a3, const po &a4)
 {
     if constexpr (0) {

@@ -60,7 +60,7 @@ void trigger_manager::purge()
 
 void trigger_manager::update()
 {
-    auto *high_priority_ai = ai::ai_core::the_ai_core_list_high();
+    auto *high_priority_ai = ai::ai_core::the_ai_core_list_high;
 
     _std::vector<trigger_struct> subjects;
     subjects.reserve((high_priority_ai != nullptr ? high_priority_ai->size() : 0) + 1);

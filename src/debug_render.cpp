@@ -593,7 +593,7 @@ void render_billboard(const vector3d &arg0, color32 a2, float a5, const char *a4
                     char *v29 = nullptr;
                     auto *a1 = a4;
                     for (;; a1 = v29 + 1) {
-                        v29 = strchr(a1, 10);
+                        v29 = const_cast<char *>(strchr(a1, 10));
                         if (v29 == nullptr) {
                             break;
                         }

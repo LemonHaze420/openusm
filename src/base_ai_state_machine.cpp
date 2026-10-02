@@ -25,7 +25,7 @@ VALIDATE_SIZE(ai_state_machine, 0x48u);
 
 ai_state_machine::ai_state_machine(ai::ai_core *a2, const ai::state_graph *a3, string_hash a4)
 {
-    this->my_curr_mode = PRE_TEST;
+    this->my_curr_mode = INITIAL_MODE;
     this->my_core = a2;
     this->m_state_graph = a3;
     this->my_parent = nullptr;
@@ -62,12 +62,11 @@ void ai_state_machine::advance_curr_state(Float a2, bool a3)
         state_trans_messages the_msg{TRANS_TOTAL_MSGS};
 
         if (!a3 || this->my_curr_state->is_flag_set(mashed_state::IS_INTERRUPT_STATE)) {
-            printf("frame_advance: 0x%08X\n", this->my_curr_state->m_vtbl);
             the_msg = this->my_curr_state->frame_advance(a2);
         }
 
         if (the_msg == TRANS_TOTAL_MSGS) {
-            if (this->my_curr_mode != 2) {
+            if (this->my_curr_mode != BLOCKED_ON_CHILD_MACHINE) {
                 this->process_transition(a2);
             }
         } else {
@@ -80,15 +79,20 @@ void ai_state_machine::advance_curr_state(Float a2, bool a3)
     }
 }
 
+void ai_state_machine::frame_advance(Float a2, bool a3)
+{
+    TRACE("ai_state_machine::frame_advance");
+
+    this->process_mode(a2, a3);
+}
+
 state_trans_action ai_state_machine::check_trans_on_interrupt(Float a3, const state_trans_action &a4)
 {
     TRACE("ai_state_machine::check_trans_on_interrupt");
 
     if (a4.the_action != 4 && this->field_34) {
-        sp_log("%s", this->get_name().get_platform_string(3).c_str());
         auto &v7 = this->m_state_graph->field_20;
         for (auto *state : v7) {
-            sp_log("0x%08X", state->m_vtbl);
             state->activate(this, nullptr, nullptr, nullptr, static_cast<base_state::activate_flag_e>(1));
             auto trans_action = state->check_transition(a3);
 
@@ -107,14 +111,13 @@ void ai_state_machine::process_transition(Float a2)
     TRACE("ai_state_machine::process_transition");
 
     if constexpr (1) {
-        sp_log("0x%08X", this->my_curr_state->m_vtbl);
         state_trans_action v3 = this->my_curr_state->check_transition(a2);
 
         v3 = this->check_trans_on_interrupt(a2, v3);
 
         v3 = this->check_keyword_overrides(v3);
         switch (v3.the_action) {
-        case state_trans_actions::TRANSITION:
+        case state_trans_actions::GOTO_STATE:
             this->transition_state(v3.field_4, v3.field_C);
             break;
         case state_trans_actions::RETURN:
@@ -145,7 +148,7 @@ void ai_state_machine::process_transition_message(Float a2, state_trans_messages
         auto v4 = this->check_keyword_overrides(a3a);
         auto the_action = v4.the_action;
         switch (the_action) {
-        case state_trans_actions::TRANSITION:
+        case state_trans_actions::GOTO_STATE:
             this->transition_state(v4.field_4, v4.field_C);
             break;
         case state_trans_actions::RETURN:
@@ -171,7 +174,6 @@ state_trans_action ai_state_machine::process_msg_on_interrupt(Float a3, state_tr
 
     if constexpr (1) {
         if (a5.the_action != 4 && this->field_34) {
-            sp_log("%s", this->get_name().get_platform_string(3).c_str());
             for (auto &state : this->m_state_graph->field_20) {
                 state->activate(this, nullptr, nullptr, nullptr, static_cast<base_state::activate_flag_e>(1));
 
@@ -199,9 +201,8 @@ void ai_state_machine::process_mode(Float a2, bool a3)
     if constexpr (1) {
         base_state *v9;
 
-        printf("this->my_curr_mode = %d\n", this->my_curr_mode);
-        switch (static_cast<int>(this->my_curr_mode)) {
-        case PRE_TEST: {
+        switch (this->my_curr_mode) {
+        case INITIAL_MODE: {
             mashed_state *initial_state =
                 (this->field_30 == string_hash{} ? this->m_state_graph->get_initial_state()
                                                  : this->m_state_graph->find_state(this->field_30));
@@ -219,22 +220,22 @@ void ai_state_machine::process_mode(Float a2, bool a3)
             v6->activate(this, v7, nullptr, nullptr, static_cast<base_state::activate_flag_e>(0));
 
             assert(!my_curr_state->is_flag_set(mashed_state::IS_INTERRUPT_STATE));
-            this->my_curr_mode = static_cast<decltype(my_curr_mode)>(1);
+            this->my_curr_mode = STATE_ADVANCE;
             this->process_mode(a2, false);
             break;
         }
-        case 1: {
+        case STATE_ADVANCE: {
             this->advance_curr_state(a2, a3);
             return;
         }
-        case 2: {
+        case BLOCKED_ON_CHILD_MACHINE: {
             if (this->field_2C == 0) {
-                this->my_curr_mode = static_cast<decltype(my_curr_mode)>(1);
+                this->my_curr_mode = STATE_ADVANCE;
                 this->process_mode(a2, false);
             }
             return;
         }
-        case 3: {
+        case BLOCKED_ON_ALL_CHILDREN: {
             if (this->field_1C.size()) {
                 return;
             }
@@ -257,7 +258,7 @@ void ai_state_machine::process_mode(Float a2, bool a3)
         case PROCESSING_EXIT_REQUEST: {
             state_trans_messages v10 = this->my_curr_state->frame_advance(a2);
             if (v10 == TRANS_TOTAL_MSGS) {
-                if (this->my_curr_mode != 2) {
+                if (this->my_curr_mode != BLOCKED_ON_CHILD_MACHINE) {
                     this->process_transition(a2);
                 }
 
@@ -267,9 +268,8 @@ void ai_state_machine::process_mode(Float a2, bool a3)
 
             return;
         }
-        case 5: {
-            auto *v11 = this->field_1C.m_first;
-            if (v11 == nullptr || !(this->field_1C.m_last - v11)) {
+        case EXITING_WAIT_ON_CHILDREN: {
+            if (this->field_1C.empty()) {
                 this->my_core->do_machine_exit(this);
             }
 
@@ -292,11 +292,11 @@ void ai_state_machine::process_machine_exit(ai::state_trans_messages a2)
         this->field_44 = a2;
 
         if (this->field_1C.size() != 0) {
-            this->my_curr_mode = static_cast<decltype(my_curr_mode)>(5);
+            this->my_curr_mode = EXITING_WAIT_ON_CHILDREN;
             for (auto i = 0u; i < this->field_1C.size(); ++i) {
                 auto *v6 = this->field_1C[i];
-                v6->my_curr_mode = static_cast<decltype(v6->my_curr_mode)>(3);
-                for (auto j = 0u; i < v6->field_1C.size(); ++j) {
+                v6->my_curr_mode = BLOCKED_ON_ALL_CHILDREN;
+                for (auto j = 0u; j < v6->field_1C.size(); ++j) {
                     v6->field_1C[j]->request_exit();
                 }
             }
@@ -342,7 +342,7 @@ void ai_state_machine::process_return()
 
 void ai_state_machine::request_exit()
 {
-    this->my_curr_mode = static_cast<decltype(my_curr_mode)>(3);
+    this->my_curr_mode = BLOCKED_ON_ALL_CHILDREN;
     for (auto &v3 : this->field_1C) {
         v3->request_exit();
     }
@@ -363,7 +363,8 @@ string_hash ai_state_machine::get_initial_state_id() const
 void ai_state_machine::external_request_exit()
 {
     auto curr_mode = this->my_curr_mode;
-    if (curr_mode != 3 && curr_mode != 5 && curr_mode != 4) {
+    if (curr_mode != BLOCKED_ON_ALL_CHILDREN && curr_mode != EXITING_WAIT_ON_CHILDREN &&
+        curr_mode != PROCESSING_EXIT_REQUEST) {
         this->request_exit();
     }
 }
@@ -449,7 +450,6 @@ bool ai_state_machine::transition_state(string_hash a2, const param_block *a3)
             auto *v23 = this->field_14;
             this->my_curr_state = v16;
 
-            printf("activate: 0x%08X\n", v16->m_vtbl);
             v16->activate(this, the_state, v23, v24, v25);
             return false;
         }
@@ -533,7 +533,7 @@ state_trans_action ai_state_machine::check_keyword_overrides(const state_trans_a
 
     state_trans_action result;
 
-    if (a3.the_action != state_trans_actions::TRANSITION) {
+    if (a3.the_action != state_trans_actions::GOTO_STATE) {
         return a3;
     }
 
@@ -548,14 +548,14 @@ state_trans_action ai_state_machine::check_keyword_overrides(const state_trans_a
         }
 
         auto name = this->get_prev_mashed_state()->get_name();
-        result = state_trans_action{state_trans_actions::TRANSITION, name, TRANS_TOTAL_MSGS, nullptr};
+        result = state_trans_action{state_trans_actions::GOTO_STATE, name, TRANS_TOTAL_MSGS, nullptr};
         return result;
     }
 
     if (v3 == initial_state_id_hash()) {
         auto initial_state = this->get_initial_state_id();
 
-        result = state_trans_action{state_trans_actions::TRANSITION, initial_state, TRANS_TOTAL_MSGS, nullptr};
+        result = state_trans_action{state_trans_actions::GOTO_STATE, initial_state, TRANS_TOTAL_MSGS, nullptr};
         return result;
     }
 

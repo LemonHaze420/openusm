@@ -14,6 +14,7 @@
 #include "combo_system.h"
 #include "gab_manager.h"
 #include "glass_house.h"
+#include "info_node.h"
 #include "interactable_interface.h"
 #include "mashed_state.h"
 #include "nugget.h"
@@ -112,6 +113,14 @@ void mash_info_struct::construct_class(path_graph *&a1)
     if (a1 != nullptr)
     {
         a1 = new (a1) path_graph {nullptr};
+    }
+}
+
+template<>
+void mash_info_struct::construct_class(mVector<ai::info_node> *&a1)
+{
+    if (a1 != nullptr) {
+        a1 = new (a1) mVector<ai::info_node>{nullptr};
     }
 }
 

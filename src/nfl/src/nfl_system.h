@@ -9,7 +9,7 @@
 #define PC_VERSION 1
 
 struct resource_pack_header;
-struct resource_pack_streamer;
+class resource_pack_streamer;
 
 struct nflRequestInfo {
     int field_0;

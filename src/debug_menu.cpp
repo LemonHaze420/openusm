@@ -29,8 +29,10 @@ const char *to_string(debug_menu_entry_type entry_type)
 }
 
 debug_menu_entry *g_debug_camera_entry {nullptr};
+#if STANDALONE_SYSTEM
 debug_menu *script_menu = nullptr;
 debug_menu *progression_menu = nullptr;
+#endif
 
 void entry_frame_advance_callback_default([[maybe_unused]] debug_menu_entry *a1) {}
 
@@ -79,6 +81,7 @@ typedef void (*menu_handler_function)(debug_menu_entry*, custom_key_type key_typ
 
 debug_menu* current_menu = nullptr;
 
+#if STANDALONE_SYSTEM
 void close_debug()
 {
     current_menu = nullptr;
@@ -117,6 +120,7 @@ void remove_debug_menu_entry(debug_menu_entry *entry)
         return;
     remove_entry_from_menu(progression_menu, entry);
 }
+#endif
 
 void script_handler_helper(debug_menu_entry *a2)
 {

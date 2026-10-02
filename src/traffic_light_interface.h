@@ -2,6 +2,8 @@
 
 #include "actor_interface.h"
 
+#include <cstddef>
+
 struct traffic_light_interface : actor_interface {
     int field_C;
 

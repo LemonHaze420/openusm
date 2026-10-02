@@ -353,18 +353,18 @@ void init_hook(HWND hwnd) {
 
     bool windowedMode = g_config.WindowedMode;
 
-    g_Windowed() = windowedMode;
+    g_Windowed = windowedMode;
     CDECL_CALL(0x0076E3E0, hwnd);
 
-    g_Windowed() = windowedMode;
+    g_Windowed = windowedMode;
     ToggleFullScreen(windowedMode);
 }
 
 HRESULT tga_hook(IDirect3DDevice9* dev, unsigned __int8* a2, unsigned int a3, IDirect3DBaseTexture9** a4)
 {
     nglTexture* tex = reinterpret_cast<nglTexture*>(reinterpret_cast<uint8_t*>(a4) - offsetof(nglTexture, DXTexture));
-    printf("loading TGA %s (0x%08X)\n", tex->field_60.to_string(), tex->field_60.m_hash);
-    if (auto data = getModDataByHash(tex->field_60.m_hash))
+    printf("loading TGA %s (0x%08X)\n", tex->FileName.to_string(), tex->FileName.m_hash);
+    if (auto data = getModDataByHash(tex->FileName.m_hash))
         a2 = data;
 
     return (HRESULT)STDCALL(0x007CA291, dev, a2, a3, a4);
@@ -515,7 +515,6 @@ bool sub_5A3AA0(const char *a1, char *a2)
 }
 
 static bool &ALLOW_ERROR_POPUPS = var<bool>(0x00922A30);
-const char *g_heap_check_stage = "before first heap checkpoint";
 
 static void report_standalone_failure(const char *format, ...)
 {
@@ -544,7 +543,7 @@ void sub_597720(LPCSTR lpText)
     OutputDebugStringA(Dest);
 
     if constexpr (STANDALONE_SYSTEM) {
-        report_standalone_failure("OpenUSM fatal [%s]: %s\n", g_heap_check_stage, lpText);
+        report_standalone_failure("OpenUSM fatal: %s\n", lpText);
         sp_log("%s", lpText);
     } else {
         mString message{Dest};
@@ -616,9 +615,8 @@ LONG __stdcall TopLevelExceptionFilter(EXCEPTION_POINTERS *pExceptionInfo)
     if (pExceptionInfo->ContextRecord != nullptr) {
         const auto &ctx = *pExceptionInfo->ContextRecord;
         report_standalone_failure(
-            "crash [%s]: code 0x%08x at 0x%08x, esp 0x%08x, ebp 0x%08x\n"
+            "crash: code 0x%08x at 0x%08x, esp 0x%08x, ebp 0x%08x\n"
             "crash: eax 0x%08x ebx 0x%08x ecx 0x%08x edx 0x%08x esi 0x%08x edi 0x%08x\n",
-            g_heap_check_stage,
             static_cast<unsigned>(record->ExceptionCode),
             static_cast<unsigned>(fault_address),
             static_cast<unsigned>(ctx.Esp),
@@ -921,14 +919,14 @@ void sub_5BCA60(int a1, int a2)
 void sub_5BCA80(int a1)
 {
     if constexpr (1) {
-        static Var<cdecl_call> dword_9680A4{0x009680A4};
+        static auto &dword_9680A4 = var<int(__cdecl *)(int, int)>(0x009680A4);
 
-        static Var<int> dword_9682D8{0x009682D8};
+        static auto &dword_9682D8 = var<int>(0x009682D8);
 
-        if (dword_9680A4() != nullptr) {
-            sp_log("dword_9680A4 = 0x%08X", dword_9680A4());
+        if (dword_9680A4 != nullptr) {
+            sp_log("dword_9680A4 = 0x%08X", dword_9680A4);
 
-            dword_9680A4()(a1, dword_9682D8());
+            dword_9680A4(a1, dword_9682D8);
         }
     } else {
         CDECL_CALL(0x005BCA80, a1);
@@ -1004,9 +1002,9 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 
                 auto *pause_menu_system = g_femanager.m_pause_menu_system;
 
-                auto *vtbl = bit_cast<fastcall_call(*)[10]>(pause_menu_system->m_vtbl);
+                auto *vtbl = bit_cast<void *(*)[10]>(pause_menu_system->m_vtbl);
 
-                auto *func = (*vtbl)[9];
+                void(__fastcall * func)(void *, void *edx, int, WPARAM, LPARAM) = CAST(func, (*vtbl)[9]);
 
                 func(pause_menu_system, nullptr, 257, wParam, lParam);
 
@@ -1020,9 +1018,9 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
                 if (g_femanager.m_pause_menu_system->m_index == -1) {
                     auto *frontend_menu_system = g_femanager.m_fe_menu_system;
 
-                    auto *vtbl = bit_cast<fastcall_call(*)[10]>(frontend_menu_system->m_vtbl);
+                    auto *vtbl = bit_cast<void *(*)[10]>(frontend_menu_system->m_vtbl);
 
-                    auto *func = (*vtbl)[9];
+                    void(__fastcall * func)(void *, void *edx, int, WPARAM, LPARAM) = CAST(func, (*vtbl)[9]);
                     func(frontend_menu_system, nullptr, 257, wParam, lParam);
 
                     return DefWindowProcA(hWnd, Msg, wParam, lParam);
@@ -1052,11 +1050,10 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
                     if (g_femanager.m_pause_menu_system->m_index == -1) {
                         auto *frontend_menu_system = g_femanager.m_fe_menu_system;
 
-                        auto *vtbl = bit_cast<fastcall_call(*)[10]>(frontend_menu_system->m_vtbl);
+                        auto *vtbl = bit_cast<void *(*)[10]>(frontend_menu_system->m_vtbl);
 
-                        auto *func = (*vtbl)[9];
+                        void(__fastcall * func)(void *, void *edx, int, WPARAM, LPARAM) = CAST(func, (*vtbl)[9]);
                         //assert(bit_cast<std::intptr_t>(func) == 0x0060B6E0);
-
                         func(frontend_menu_system, nullptr, Msg, wParam, lParam);
 
                     } else {
@@ -1064,9 +1061,9 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 
                         auto *pause_menu_system = g_femanager.m_pause_menu_system;
 
-                        auto *vtbl = bit_cast<fastcall_call(*)[10]>(pause_menu_system->m_vtbl);
+                        auto *vtbl = bit_cast<void *(*)[10]>(pause_menu_system->m_vtbl);
 
-                        auto *func = (*vtbl)[9];
+                        void(__fastcall * func)(void *, void *edx, int, WPARAM, LPARAM) = CAST(func, (*vtbl)[9]);
                         //assert(bit_cast<std::intptr_t>(func) == 0x0060B6E0);
 
                         func(pause_menu_system, nullptr, Msg, wParam, lParam);
@@ -2151,7 +2148,11 @@ void initterm(const _PVFV *ppfn, const _PVFV *end)
 
 void start()
 {
+#ifdef _MSC_VER
+    __asm { add esp, 4 }
+#else
     __asm("add esp, 4\n");
+#endif
 
     int v22;
     int v3;
@@ -2399,6 +2400,8 @@ int get_menu_key_value(MenuKey key, int keyboard) {
         case MENU_RIGHT:
             i = DIK_RIGHTARROW;
             break;
+        case MENU_KEY_MAX:
+            break;
         }
         return keys[i];
     }
@@ -2449,7 +2452,6 @@ void menu_go_down() {
 
 void menu_go_up() {
 
-    int num_elements = std::min((DWORD)MAX_ELEMENTS_PAGE, current_menu->used_slots - current_menu->window_start);
     if (current_menu->window_start) {
 
         if (current_menu->cur_index > MAX_ELEMENTS_PAGE / 2)
@@ -2462,7 +2464,7 @@ void menu_go_up() {
 
         int num_elements = std::min(MAX_ELEMENTS_PAGE, current_menu->used_slots - current_menu->window_start);
         current_menu->cur_index = modulo(current_menu->cur_index - 1, num_elements);
-        if (current_menu->cur_index == (num_elements - 1))
+        if (current_menu->cur_index == static_cast<DWORD>(num_elements - 1))
             current_menu->window_start = current_menu->used_slots - num_elements;
 
     }
@@ -2810,7 +2812,7 @@ void HookFunc(DWORD callAdd, DWORD funcAdd, BOOLEAN jump, const char* reason) {
     memcpy((void*)callAdd, shellcode, sizeof(shellcode));
 
     if (reason)
-        printf("Hook: %08X -  %s\n", callAdd, reason);
+        printf("Hook: %08lX -  %s\n", callAdd, reason);
 
 }
 
@@ -2878,18 +2880,18 @@ void remove_debug_menu_entry(debug_menu_entry* entry) {
                     remaining * sizeof(debug_menu_entry));
             }
 
-            memset(&cur->entries[cur->used_slots - 1], 0, sizeof(debug_menu_entry));
+            cur->entries[cur->used_slots - 1] = debug_menu_entry{};
             cur->used_slots--;
             return;
         }
 
     }
 
-    printf("FAILED TO DEALLOCATE AN ENTRY :S %08X\n", entry);
+    printf("FAILED TO DEALLOCATE AN ENTRY :S %p\n", static_cast<void *>(entry));
 
 }
 
-void vm_debug_menu_entry_garbage_collection_callback(void* a1, list* lst) {
+void vm_debug_menu_entry_garbage_collection_callback(void*, list* lst) {
 
     list* end = lst->prev;
 
@@ -3153,7 +3155,7 @@ void ai_core_menu_handler(debug_menu_entry* a2)
     v20.set_data(v2);
     v21->add_entry(&v20);
 
-    auto* v19 = the_core->field_60;
+    auto* v19 = the_core->my_info_node_list;
     if (v19 != nullptr)
     {
         for (auto& v16 : (*v19))
@@ -3164,7 +3166,7 @@ void ai_core_menu_handler(debug_menu_entry* a2)
             debug_menu_entry v20{ mString {0, "%s inode params", v3} };
             v20.set_submenu(nullptr);
             v20.set_game_flags_handler(populate_param_block);
-            auto& v4 = v16->field_10;
+            auto& v4 = v16->my_param_block;
             v20.set_data(&v4);
             v21->add_entry(&v20);
         }
@@ -3178,7 +3180,7 @@ void populate_ai_root(debug_menu_entry* arg0)
     debug_menu* v20 = create_menu(name_menu.c_str(), debug_menu::sort_mode_t::undefined);
     arg0->set_submenu(v20);
 
-    static auto* g_the_ai_core_list = ai::ai_core::the_ai_core_list_high();
+    static auto* g_the_ai_core_list = ai::ai_core::the_ai_core_list_high;
 
     if (g_the_ai_core_list != nullptr)
     {
@@ -3453,7 +3455,9 @@ void create_entity_variants_menu(debug_menu* parent) {
 
 // Dvars
 // ----------------------------------------------------------------------------------
+#ifdef _MSC_VER
 #pragma region "Dvars"
+#endif
 
 static const float flt_881AC0 = 0.5;
 static const float flt_882098 = 2.5;
@@ -3523,7 +3527,9 @@ void create_dvars_menu(debug_menu* arg0)
     v2->set_game_flags_handler(populate_dvars);
     arg0->add_entry(v2);
 }
+#ifdef _MSC_VER
 #pragma endregion
+#endif
 
 // Debug Menu
 // ----------------------------------------------------------------------------------
@@ -3576,14 +3582,15 @@ void debug_menu::init() {
 }
 #ifdef _WIN32
 #define _USE_MATH_DEFINES
+#ifndef NOMINMAX
 #define NOMINMAX
+#endif
 #endif
 
 void render_current_debug_menu() {
     auto UP_ARROW{ " ^ ^ ^ " };
     auto DOWN_ARROW{ " v v v " };
 
-    int num_elements = std::min((DWORD)MAX_ELEMENTS_PAGE, current_menu->used_slots - current_menu->window_start);
     int needs_down_arrow = ((current_menu->window_start + MAX_ELEMENTS_PAGE) < current_menu->used_slots) ? 1 : 0;
 
     int cur_width, cur_height;
@@ -3645,7 +3652,7 @@ void render_current_debug_menu() {
 
     for (int i = 0; i < total_elements_page; i++) {
 
-        int current_color = current_menu->cur_index == i ? yellow_color : white_color;
+        int current_color = current_menu->cur_index == static_cast<DWORD>(i) ? yellow_color : white_color;
 
         debug_menu_entry* entry = &current_menu->entries[current_menu->window_start + i];
         auto cur = getRealText(entry);
@@ -3692,7 +3699,7 @@ struct mission_t
 
 std::vector<mission_t> menu_missions;
 
-void mission_unload_handler(debug_menu_entry* a1)
+void mission_unload_handler(debug_menu_entry*)
 {
     auto* v1 = mission_manager::s_inst;
     v1->prepare_unload_script();
@@ -3954,7 +3961,7 @@ void level_select_handler(debug_menu_entry* entry)
     }
 }
 
-void reboot_handler(debug_menu_entry* a1)
+void reboot_handler(debug_menu_entry*)
 {
 }
 
@@ -4042,7 +4049,7 @@ void hero_toggle_handler(debug_menu_entry* entry)
 
 void hero_entry_callback(debug_menu_entry*)
 {
-    printf("hero_entry_callback: hero_status = %d\n", hero_status);
+    printf("hero_entry_callback: hero_status = %d\n", static_cast<int>(hero_status));
 
     auto v18 = g_world_ptr->num_players;
     switch (hero_status)
@@ -4060,7 +4067,7 @@ void hero_entry_callback(debug_menu_entry*)
         auto v1 = frames_to_skip--;
         if (v1 <= 0)
         {
-            assert(hero_selected > -1 && hero_selected < NUM_HEROES);
+            assert(hero_selected > -1 && static_cast<unsigned int>(hero_selected) < NUM_HEROES);
 
             [[maybe_unused]] auto v2 = g_world_ptr->add_player(mString{ hero_list[hero_selected] });
 
@@ -4094,6 +4101,8 @@ void hero_entry_callback(debug_menu_entry*)
                     break;
                 case hero_type_enum::PARKER:
                     v17 = 5;
+                    break;
+                case hero_type_enum::UNDEFINED:
                     break;
             }
 
@@ -4323,41 +4332,41 @@ void init_shadow_targets2()
     CDECL_CALL(0x00592E80);
 }
 
-uint8_t __stdcall slf__debug_menu_entry__set_handler__str(vm_stack* stack, void* unk) {
+uint8_t __stdcall slf__debug_menu_entry__set_handler__str(vm_stack* stack, void*) {
 
     stack->pop(8);
 
-    void** params = (void**)stack->SP;
+    void** params = (void**)stack->get_SP();
 
     debug_menu_entry* entry = static_cast<decltype(entry)>(params[0]);
     const char* scrpttext = static_cast<char*>(params[1]);
 
     string_hash strhash{ scrpttext };
 
-    script_instance* instance = stack->my_thread->inst;
+    script_instance* instance = stack->get_thread()->inst;
     entry->set_script_handler(instance, mString{ scrpttext });
 
     return true;
 }
 
-uint8_t __stdcall slf__destroy_debug_menu_entry__debug_menu_entry(vm_stack* function, void* unk) {
+uint8_t __stdcall slf__destroy_debug_menu_entry__debug_menu_entry(vm_stack* function, void*) {
 
     function->pop(4);
 
-    debug_menu_entry** entry = (decltype(entry))function->SP;
+    debug_menu_entry** entry = (decltype(entry))function->get_SP();
 
     remove_debug_menu_entry(*entry);
 
     return 1;
 }
 
-void sub_65BB36(script_library_class::function* func, vm_stack* stack, char* a3, int a4)
+void sub_65BB36(script_library_class::function* func, vm_stack*, char* a3, int a4)
 {
     for (auto i = 0; i < a4; ++i)
     {
         if (*bit_cast<DWORD*>(&a3[4 * i]) == 0x7BAD05CF)
         {
-            printf("uninitialized parameters in call to 0x%08X", func->m_vtbl);
+            printf("uninitialized parameters in call to %p", static_cast<void *>(func->m_vtbl));
 
             //v5 = j_vm_stack::get_thread(stack);
             //vm_thread::slf_error(v5, v6);
@@ -4367,13 +4376,13 @@ void sub_65BB36(script_library_class::function* func, vm_stack* stack, char* a3,
     }
 }
 
-bool __fastcall slf__create_debug_menu_entry(script_library_class::function* func, void*, vm_stack* stack, void* unk)
+bool __fastcall slf__create_debug_menu_entry(script_library_class::function* func, void*, vm_stack* stack, void*)
 {
     stack->pop(4);
 
-    auto* stack_ptr = bit_cast<char*>(stack->SP);
+    auto* stack_ptr = stack->get_SP();
     sub_65BB36(func, stack, stack_ptr, 1);
-    char** strs = bit_cast<char**>(stack->SP);
+    char** strs = bit_cast<char**>(stack->get_SP());
 
     //printf("Entry: %s ", strs[0]);
 
@@ -4383,11 +4392,11 @@ bool __fastcall slf__create_debug_menu_entry(script_library_class::function* fun
 
     printf("entry.text = %s\n", entry.text);
 
-    script_instance* instance = stack->my_thread->inst;
+    script_instance* instance = stack->get_thread()->inst;
     printf("Total funcs: %d\n", instance->get_parent()->total_funcs);
     void* res = add_debug_menu_entry(script_menu, &entry);
 
-    script_executable* se = stack->my_thread->ex->owner->parent;
+    script_executable* se = stack->get_thread()->ex->owner->parent;
     printf("total_script_objects = %d\n", se->total_script_objects);
     for (auto i = 0; i < se->total_script_objects; ++i) {
         auto* so = se->script_objects[i];
@@ -4406,7 +4415,7 @@ bool __fastcall slf__create_debug_menu_entry(script_library_class::function* fun
             printf("Func name: %s\n", fn->name.to_string());
 
             debug_menu_entry fn_entry{ fn->name.to_string() };
-            script_instance* instance = stack->my_thread->inst;
+            script_instance* instance = stack->get_thread()->inst;
             fn_entry.set_script_handler(instance, { fn->name.to_string()});
 
             fn_entry.set_data(nullptr);
@@ -4418,14 +4427,11 @@ bool __fastcall slf__create_debug_menu_entry(script_library_class::function* fun
         printf("\n");
     }
 
-    se->add_allocated_stuff(vm_debug_menu_entry_garbage_collection_id, (int)res, 0);
+    se->add_allocated_stuff(vm_debug_menu_entry_garbage_collection_id, reinterpret_cast<uint32_t>(res), mString{});
 
     //printf("%08X\n", res);
 
-    int push = (int)res;
-    auto sz = sizeof(push);
-    memcpy((void*)stack->SP, &push, sz);
-    stack->SP += sz;
+    stack->push(reinterpret_cast<int>(res));
     return 1;
 }
 

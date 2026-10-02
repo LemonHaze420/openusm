@@ -21,7 +21,11 @@ int &nalCamSkeleton::vtbl_ptr = []() -> auto & {
 nalCam::nalCamSkeleton::nalCamSkeleton()
 {
     if constexpr (1) {
-        static void *g_vtbl[]{nullptr, nullptr, func_address(&_Process), nullptr, func_address(&_CheckVersion)};
+        static void *g_vtbl[]{nullptr,
+                              nullptr,
+                              func_address(&nalCamSkeleton::_Process),
+                              nullptr,
+                              func_address(&nalCamSkeleton::_CheckVersion)};
         this->m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {
         this->m_vtbl = 0x00892064;

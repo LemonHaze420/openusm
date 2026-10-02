@@ -2,6 +2,7 @@
 
 #include "ai_state_swing.h"
 #include "anchor_query_visitor.h"
+#include "collide.h"
 #include "common.h"
 #include "conglomerate_clone.h"
 #include "entity.h"
@@ -12,6 +13,7 @@
 #include "loaded_regions_cache.h"
 #include "local_collision.h"
 #include "oldmath_po.h"
+#include "physical_interface.h"
 #include "quick_anchor_info.h"
 #include "region.h"
 #include "scratchpad_stack.h"
@@ -610,6 +612,133 @@ void occupancy_voxels_t::map_vector3d(const vector4d &a2, int &minx, int &miny, 
         THISCALL(0x0048CD70, this, &a2, &minx, &miny, &minz, &maxx, &maxy, &maxz);
     }
 }
+
+anchor_storage_class ai_find_best_pole(entity *self, const vector3d &a2, Float a3, Float a5, Float a6, Float a7)
+{
+    TRACE("ai_find_best_pole");
+
+    if constexpr (STANDALONE_SYSTEM) {
+        assert(self != nullptr);
+
+        [[maybe_unused]] vector3d v71{};
+        auto v70 = self->are_collisions_active();
+        self->set_collisions_active(false, true);
+        quick_anchor_container_t v69{};
+        fixed_vector<region *, 15> v68{};
+        auto abs_position = self->get_abs_position();
+        auto a3a = abs_position;
+        ++entity::visit_key3;
+        anchor_query_visitor v66{&v69, a3a, a3a, false, nullptr};
+        loaded_regions_cache::get_regions_intersecting_sphere(a3a, a3, &v68);
+        for (uint32_t i = 0; i < v68.size(); ++i) {
+            auto &v8 = v68.at(i);
+            auto &v9 = v8->visibility_map;
+            v9->traverse_sphere(a3a, a3, &v66);
+        }
+
+        v69.field_0.sort();
+        entity_base_vhandle v27{0};
+        vhandle_type<entity> v26{0};
+        anchor_storage_class v64{v26, v27};
+
+        auto func = [](anchor_storage_class *self, vhandle_type<entity> a2, entity_base_vhandle a3) -> void {
+            self->field_0 = a2;
+            self->field_4 = a3.field_0;
+        };
+
+        for (uint32_t j = 0; j < v69.field_0.size(); ++j) {
+            auto &a2a = v69.field_0.at(j);
+            auto v13 = a2a.m_position - a3a;
+            auto v61 = v13.length2();
+            if (v61 > a3 * a3) {
+                break;
+            }
+
+            if (v69.field_0.at(j).field_28) {
+                auto *v28 = v69.field_0.at(j).field_28;
+                if (v28->get_flavor() == ANCHOR_MARKER) {
+                    continue;
+                }
+            }
+
+            auto *v60 = v69.field_0.at(j).field_28;
+            entity_base_vhandle v34;
+            if (v69.field_0.at(j).field_2C) {
+                auto &v14 = v69.field_0.at(j);
+                v34 = v14.field_2C->my_handle;
+            } else {
+                v34 = {0};
+            }
+
+            if (v60 != nullptr && v60->is_walkable()) {
+                entity_base_vhandle v39;
+                if (v69.field_0.at(j).field_2C) {
+                    auto &v15 = v69.field_0.at(j);
+                    v39 = v15.field_2C->my_handle;
+                } else {
+                    v39 = {0};
+                }
+
+                vhandle_type<entity> v40{v60->my_handle};
+                func(&v64, v40, v39);
+                vector3d v58{};
+                if (v64.is_valid()) {
+                    auto origin = v64.get_origin();
+                    auto target = v64.get_target();
+                    [[maybe_unused]] auto v57 = closest_point_segment(a3a, target, origin, v58);
+                    line_info v56{};
+                    v56.clear();
+                    v56.field_0 = a3a;
+                    v56.field_C = v58;
+                    if (v56.check_collision(*local_collision::entfilter_entity_no_capsules,
+                                            *local_collision::obbfilter_lineseg_test,
+                                            nullptr)) {
+                        entity_base_vhandle v27{0};
+                        vhandle_type<entity> v26{0};
+                        func(&v64, v26, v27);
+                    }
+                }
+
+                if (v64.is_valid() && self->has_physical_ifc()) {
+                    auto *v19 = self->physical_ifc();
+                    auto v55 = v19->get_velocity();
+                    auto v20 = v58 - a3a;
+                    auto v54 = dot(v55, v20);
+                    if (v54 >= 0.0 && a6 * a6 <= v55.length2()) {
+                        if (a3a[1] <= v58[1]) {
+                            if ((v58[1] - a3a[1]) > a5) {
+                                entity_base_vhandle v27{0};
+                                vhandle_type<entity> v26{0};
+                                func(&v64, v26, v27);
+                            }
+                        } else if ((a3a[1] - v58[1]) > a5) {
+                            entity_base_vhandle v27{0};
+                            vhandle_type<entity> v26{0};
+                            func(&v64, v26, v27);
+                        }
+                    } else {
+                        entity_base_vhandle v27{0};
+                        vhandle_type<entity> v26{0};
+                        func(&v64, v26, v27);
+                    }
+                }
+
+                if (v64.is_valid()) {
+                    break;
+                }
+            }
+        }
+
+        self->set_collisions_active(v70, true);
+        return v64;
+    } else {
+        anchor_storage_class result;
+        CDECL_CALL(0x00486EE0, &result, self, &a2, a3, a5, a6, a7);
+
+        return result;
+    }
+}
+
 
 void swing_anchor_finder_patch()
 {

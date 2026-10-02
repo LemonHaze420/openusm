@@ -48,20 +48,20 @@ struct meta_aimed_shot_vert : als_meta_anim_base {
     int _get_mash_sizeof() const;
 
     static inline void *g_vtbl[] = {nullptr,
-                                    func_address(&_unmash),
+                                    func_address(&meta_aimed_shot_vert::_unmash),
                                     nullptr,
-                                    func_address(&_get_virtual_type_enum),
+                                    func_address(&meta_aimed_shot_vert::_get_virtual_type_enum),
                                     nullptr,
-                                    func_address(&_is_or_is_subclass_of),
-                                    func_address(&_get_anim_name),
-                                    func_address(&_is_anim_looping),
-                                    func_address(&_is_anim_trajectory_relative),
-                                    func_address(&_get_anim_duration),
-                                    func_address(&_get_skeleton),
-                                    func_address(&_create_anim_inst),
+                                    func_address(&mash_virtual_base::_is_or_is_subclass_of),
+                                    func_address(&als_meta_anim_base::_get_anim_name),
+                                    func_address(&meta_aimed_shot_vert::_is_anim_looping),
+                                    func_address(&meta_aimed_shot_vert::_is_anim_trajectory_relative),
+                                    func_address(&meta_aimed_shot_vert::_get_anim_duration),
+                                    func_address(&meta_aimed_shot_vert::_get_skeleton),
+                                    func_address(&meta_aimed_shot_vert::_create_anim_inst),
                                     nullptr,
                                     nullptr,
-                                    func_address(&_get_mash_sizeof)};
+                                    func_address(&meta_aimed_shot_vert::_get_mash_sizeof)};
 };
 }  // namespace als
 

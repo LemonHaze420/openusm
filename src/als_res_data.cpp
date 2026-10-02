@@ -28,8 +28,7 @@ void als_res_data::initialize(mash::allocation_scope a2)
 
             auto *als_shared = bit_cast<als::animation_logic_system_shared *>(resource);
             if (als_shared != nullptr) {
-                auto *mem = mem_alloc(sizeof(als::animation_logic_system));
-                this->field_8 = new (mem) als::animation_logic_system{global_transfer_variable_the_conglom()};
+                this->field_8 = new als::animation_logic_system{global_transfer_variable_the_conglom()};
                 this->field_8->create_instance_data(als_shared);
             } else {
                 this->field_8 = nullptr;

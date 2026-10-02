@@ -8,7 +8,7 @@
 #include "float.hpp"
 
 struct limited_timer;
-struct resource_pack_streamer;
+class resource_pack_streamer;
 struct resource_directory;
 struct resource_pack_header;
 struct resource_partition;

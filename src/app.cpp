@@ -47,9 +47,6 @@
 #include <cassert>
 
 GameConfig g_config;
-#if STANDALONE_SYSTEM
-extern const char *g_heap_check_stage;
-#endif
 
 VALIDATE_SIZE(app, 0x3Cu);
 
@@ -167,9 +164,7 @@ void colgeom_destroy_lists()
 
 app::app()
 {
-#if STANDALONE_SYSTEM
-    g_heap_check_stage = "app::app";
-#else
+#if !STANDALONE_SYSTEM
     this->m_vtbl = 0x00891634;
 #endif
     TRACE("app::app");
@@ -196,37 +191,16 @@ app::app()
 
     init_shadow_targets();
     mem_print_stats("after init_shadow_targets()");
-#if STANDALONE_SYSTEM
-    g_heap_check_stage = "geometry_manager::create_inst";
-#endif
 
     this->field_34.reset();
     this->field_38 = 0;
     geometry_manager::create_inst();
-#if STANDALONE_SYSTEM
-    g_heap_check_stage = "string_hash_dictionary::create_inst";
-#endif
     string_hash_dictionary::create_inst();
-#if STANDALONE_SYSTEM
-    g_heap_check_stage = "event_manager::create_inst";
-#endif
     event_manager::create_inst();
-#if STANDALONE_SYSTEM
-    g_heap_check_stage = "trigger_manager::create_inst";
-#endif
 
     trigger_manager::create_inst();
-#if STANDALONE_SYSTEM
-    g_heap_check_stage = "pc_input_mgr::create_inst";
-#endif
     pc_input_mgr::create_inst();
-#if STANDALONE_SYSTEM
-    g_heap_check_stage = "input_mgr::create_inst";
-#endif
     input_mgr::create_inst();
-#if STANDALONE_SYSTEM
-    g_heap_check_stage = "sound_manager::create_inst";
-#endif
     sound_manager::create_inst();
 #if !STANDALONE_SYSTEM
     script_sound_manager::create_inst();
@@ -238,36 +212,21 @@ app::app()
 #endif
 
     set_god_mode(os_developer_options::instance->get_int(mString {"GOD_MODE"}));
-#if STANDALONE_SYSTEM
-    g_heap_check_stage = "colgeom_init_lists";
-#endif
 
     colgeom_init_lists();
-#if STANDALONE_SYSTEM
-    g_heap_check_stage = "game::game";
-#endif
 #if !STANDALONE_SYSTEM
     physics_system_init();
 #endif
 
     this->m_game = new game{};
     g_game_ptr = this->m_game;
-#if STANDALONE_SYSTEM
-    g_heap_check_stage = "resource_manager::create_inst";
-#endif
 
     resource_manager::create_inst();
-#if STANDALONE_SYSTEM
-    g_heap_check_stage = "damage_morphs::init_memory_pools";
-#endif
     if (os_developer_options::instance->get_int(mString {"MONKEY_MODE"}) > 0) {
         spider_monkey::start();
     }
 
     damage_morphs::init_memory_pools();
-#if STANDALONE_SYSTEM
-    g_heap_check_stage = "mission_stack_manager::start_streaming";
-#endif
 
     {
         auto *inst = mission_stack_manager::get_instance();
@@ -371,11 +330,9 @@ void app::tick()
         limited_timer_base total_timer;
         total_timer.reset();
 
-        g_heap_check_stage = "app::tick::sub_77B2F0";
         sub_77B2F0(0);
 
         float time_inc;
-        g_heap_check_stage = "app::tick::timer";
         for (time_inc = g_timer->sub_5821D0(); equal(time_inc, 0.0f);
              time_inc = g_timer->sub_5821D0()) {
             Sleep(0);
@@ -400,16 +357,12 @@ void app::tick()
             this->field_4.sub_5B8670();
             actor::swap_all_mesh_buffers();
         } else {
-            g_heap_check_stage = "app::tick::slab_allocator";
             slab_allocator::process_lists();
-            g_heap_check_stage = "app::tick::script_memtrack";
             script_memtrack::frame_advance();
             if (!IsWindow(window_manager::instance()->field_4))
                 return;
 
-            g_heap_check_stage = "app::tick::event_manager";
             event_manager::garbage_collect();
-            g_heap_check_stage = "app::tick::input_mgr";
             input_mgr::instance->poll_devices();
 
             assert(time_inc >= 0 && time_inc < 10.0f);
@@ -419,13 +372,9 @@ void app::tick()
             dword_9682D0 = time_inc;
             dword_9680A8 = time_inc;
 
-            g_heap_check_stage = "app::tick::nflUpdate";
             nflUpdate();
-            g_heap_check_stage = "app::tick::resource_manager";
             resource_manager::frame_advance(time_inc);
-            g_heap_check_stage = "app::tick::link_system";
             link_system::frame_advance(time_inc);
-            g_heap_check_stage = "app::tick::game";
             this->m_game->frame_advance(time_inc);
             byte_9682F0 = false;
         }

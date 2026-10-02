@@ -6,11 +6,7 @@
 namespace ai {
 struct param_block;
 
-enum state_trans_actions {
-    TRANSITION = 0,
-    RETURN = 1,
-    MACHINE_EXIT = 2,
-};
+enum state_trans_actions { GOTO_STATE = 0, RETURN = 1, MACHINE_EXIT = 2, NO_ACTION = 3 };
 
 struct state_trans_action {
     state_trans_actions the_action;

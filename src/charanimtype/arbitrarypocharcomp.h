@@ -5,6 +5,7 @@
 #include "charcompressor.h"
 #include "fixedstring.h"
 #include "float.hpp"
+#include "nal_system.h"
 
 struct vector3d;
 
@@ -13,7 +14,8 @@ struct ArbitraryPOCharComp : CharComponentBase {
         tlFixedString field_0;
         uint16_t field_20;
         uint16_t field_22;
-        int field_24;
+        int16_t field_24;
+        int16_t field_26;
         uint16_t field_28;
         uint16_t field_2A;
         int field_2C;
@@ -24,9 +26,10 @@ struct ArbitraryPOCharComp : CharComponentBase {
         int field_4;
         int field_8;
         int field_C;
-        float *field_10;
-        vector3d *field_14;
-        ArbitraryPOCharComp::BoneData *field_18;
+        nalVector4 *field_10;
+        nalVector3 *field_14;
+        BoneData *field_18;
+        int *field_1C;
     };
 
     struct StdPoseData {
@@ -34,7 +37,7 @@ struct ArbitraryPOCharComp : CharComponentBase {
         int field_4;
         int field_8;
         int field_C;
-        float field_10[4][1];
+        nalVector4 field_10[1];
     };
 
     struct PerInstData {
@@ -44,23 +47,16 @@ struct ArbitraryPOCharComp : CharComponentBase {
         int field_C;
         uint8_t *field_10;
         uint8_t *field_14;
-        int field_18;
+        uint8_t *field_18;
         CharEntropyDecoder::CharChannelDecoder field_1C;
         int field_24;
         uint8_t *field_28;
         int field_2C;
         StdPoseData *field_30;
-        int field_34;
-        int field_38;
-        int field_3C;
-        int field_40;
-        int field_44;
-        int field_48;
-        int field_4C;
-        int field_50;
-        int field_54;
-        int field_58;
-        int field_5C;
+        const PerSkelData *field_34;
+        int *field_38;
+
+        PerInstData(const void *, uint8_t *a3);
     };
 
     ArbitraryPOCharComp();

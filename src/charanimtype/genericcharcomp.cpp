@@ -10,7 +10,7 @@ GenericCharComp::GenericCharComp()
 {
     if constexpr (1) {
         static void *g_vtbl[]{nullptr,
-                              func_address(&_GetType),
+                              func_address(&CharComponentBase::_GetType),
                               nullptr,
                               nullptr,
                               nullptr,
@@ -24,7 +24,7 @@ GenericCharComp::GenericCharComp()
                               nullptr,
                               nullptr,
                               nullptr,
-                              func_address(&_SkelPoseProcess)};
+                              func_address(&BaseComponent::_SkelPoseProcess)};
 
         this->m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {

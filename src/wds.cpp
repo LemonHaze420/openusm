@@ -522,7 +522,7 @@ void install_venom_als(actor *hero)
     auto *memory = mem_alloc(sizeof(als::animation_logic_system));
     assert(memory != nullptr);
     auto *venom_als =
-        new (memory) als::animation_logic_system {hero};
+        ::new (memory) als::animation_logic_system {hero};
     venom_als->create_instance_data(venom_shared);
     hero_conglomerate->field_114->field_8 = venom_als;
 

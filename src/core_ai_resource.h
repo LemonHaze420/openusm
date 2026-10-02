@@ -13,7 +13,7 @@ namespace ai {
 
 struct core_ai_resource {
     param_block field_0;
-    int field_C;
+    void *field_C;
     combo_system *field_10;
     mVector<resource_key> my_base_graphs;
     mVector<resource_key> my_locomotion_graphs;
@@ -36,6 +36,8 @@ struct core_ai_resource {
 
     //0x006C4D00
     bool does_locomotion_graph_exist(resource_key the_graph) const;
+
+    resource_key sub_6B6D50();
 };
 
 }  // namespace ai

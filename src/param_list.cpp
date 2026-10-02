@@ -33,17 +33,19 @@ void param_list::add_param(uint32_t a1, const vector3d &a2)
     }
 }
 
-void param_list::insert_node(param_node *a2)
+void param_list::insert_node(param_node *new_node)
 {
+    assert(new_node != nullptr);
+
     if (this->field_0 != nullptr) {
         auto *v4 = this->field_0->field_C;
-        v4->field_8 = a2;
-        a2->field_C = v4;
-        a2->field_8 = this->field_0;
-        this->field_0->field_C = a2;
+        v4->field_8 = new_node;
+        new_node->field_C = v4;
+        new_node->field_8 = this->field_0;
+        this->field_0->field_C = new_node;
     } else {
-        this->field_0 = a2;
-        a2->field_C = a2;
+        this->field_0 = new_node;
+        new_node->field_C = new_node;
         this->field_0->field_8 = this->field_0;
     }
 }

@@ -28,7 +28,7 @@ struct nalCompAnim {
     float field_38;
     int field_3C;
     int *field_40;
-    int *field_44;
+    char *m_pPerAnimDataDir;
     int field_48;
     int field_4C;
 
@@ -38,7 +38,7 @@ struct nalCompAnim {
 
     //0x00731DF0
     //virtual
-    int _GetPerAnimUserDataInt();
+    void *_GetPerAnimUserDataInt();
 
     void _UnMash(void *a2);
 

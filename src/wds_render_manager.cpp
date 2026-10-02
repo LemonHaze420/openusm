@@ -1,5 +1,7 @@
 #include "wds_render_manager.h"
 
+#include <windows.h>
+
 #include "GL/gl.h"
 
 #include "aeps.h"
@@ -311,6 +313,7 @@ void update_spidey_interface()
         }
     }
 }
+#if STANDALONE_SYSTEM
 static void render_loaded_region_legos(terrain &terrain)
 {
     auto &sin_indices = var<unsigned char[449]>(0x0095A0D8);
@@ -357,6 +360,7 @@ static void render_loaded_region_legos(terrain &terrain)
         }
     }
 }
+#endif
 
 #include "debug_menu.h"
 

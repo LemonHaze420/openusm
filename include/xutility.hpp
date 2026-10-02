@@ -30,12 +30,12 @@
 #define _STDEXT_END }
 #endif
 
-#ifndef _STD_BEGIN
-#define _STD_BEGIN namespace _std {
+#ifndef _STDEXT_STD_BEGIN
+#define _STDEXT_STD_BEGIN namespace _std {
 #endif
 
-#ifndef _STD_END
-#define _STD_END }
+#ifndef _STDEXT_STD_END
+#define _STDEXT_STD_END }
 #endif
 
 #ifndef __CLRCALL_OR_CDECL
@@ -46,12 +46,12 @@
 #define __CLR_OR_THIS_CALL
 #endif
 
-#ifndef _STD
-#define _STD _std::
+#ifndef _STDEXT_STD
+#define _STDEXT_STD _std::
 #endif
 
-#ifndef _STDEXT
-#define _STDEXT stdext::
+#ifndef _STDEXT_NS
+#define _STDEXT_NS stdext::
 #endif
 
 #ifndef __out_ecount_full
@@ -74,15 +74,15 @@
 #define _SCL_SECURE_ALWAYS_VALIDATE_RANGE(a1)
 #endif
 
-#ifndef _THROW
-#define _THROW(exception, str) throw exception(str)
+#ifndef _STDEXT_THROW
+#define _STDEXT_THROW(exception, str) throw exception(str)
 #endif
 
 #ifndef _SCL_CHECKED_ALGORITHM_WARN
 #define _SCL_CHECKED_ALGORITHM_WARN
 #endif
 
-_STD_BEGIN
+_STDEXT_STD_BEGIN
 
 // RANGE CHECKED ITERATOR TAGS
 struct _Unchecked_iterator_tag {};
@@ -621,13 +621,13 @@ struct iterator_traits<const _Ty *> {  // get traits from const pointer
 };
 
 template <>
-struct iterator_traits<_Bool> {  // get traits from integer type
+struct iterator_traits<bool> {  // get traits from integer type
     typedef _Int_iterator_tag iterator_category;
-    typedef _Bool value_type;
-    typedef _Bool difference_type;
-    typedef _Bool distance_type;
-    typedef _Bool *pointer;
-    typedef _Bool &reference;
+    typedef bool value_type;
+    typedef bool difference_type;
+    typedef bool distance_type;
+    typedef bool *pointer;
+    typedef bool &reference;
 };
 
 template <>
@@ -1047,12 +1047,12 @@ struct _Ptr_cat_helper<_Undefined_inner_type_tag, _Undefined_inner_type_tag> {
 
 // INTEGER FUNCTION _Ptr_cat
 template <>
-struct _Ptr_cat_helper<_Bool *, _Bool *> {  // return pointer category from pointer to pointer arguments
+struct _Ptr_cat_helper<bool *, bool *> {  // return pointer category from pointer to pointer arguments
     typedef _Scalar_ptr_iterator_tag _Ptr_cat;
 };
 
 template <>
-struct _Ptr_cat_helper<const _Bool *, _Bool *> {  // return pointer category from pointer to pointer arguments
+struct _Ptr_cat_helper<const bool *, bool *> {  // return pointer category from pointer to pointer arguments
     typedef _Scalar_ptr_iterator_tag _Ptr_cat;
 };
 
@@ -1437,7 +1437,7 @@ inline void __CLRCALL_OR_CDECL _Debug_order_single(_InIt _First, _InIt _Last, _P
 //    _Range_checked_iterator_tag: the iterator is checked.
 // To change the checked iterator category in your own iterators,
 // you will need to overload the _Checked_iterator_category typedef.
-#define _CHECKED_CAT(_Iter) _STD _Checked_cat(_Iter)
+#define _CHECKED_CAT(_Iter) _STDEXT_STD _Checked_cat(_Iter)
 
 // _CHECKED_BASE retrieves the base of a checked iterator.
 // The base type of a checked iterator is supposed to be more
@@ -1445,9 +1445,9 @@ inline void __CLRCALL_OR_CDECL _Debug_order_single(_InIt _First, _InIt _Last, _P
 // algorithm implementations for examples on how to use _CHECKED_BASE.
 // To change the checked iterator base type in your own iterators,
 // you will need to overload the _Checked_iterator_base_type typedef.
-#define _CHECKED_BASE(_Iter) _STD _Checked_base(_Iter)
+#define _CHECKED_BASE(_Iter) _STDEXT_STD _Checked_base(_Iter)
 #define _CHECKED_BASE_TYPE(_Iter_type) \
-    typename _STD _Checked_iterator_base_helper<_Iter_type>::_Checked_iterator_base_type
+    typename _STDEXT_STD _Checked_iterator_base_helper<_Iter_type>::_Checked_iterator_base_type
 
 // _ASSIGN_FROM_BASE assign the value of _Src iterator to _Dest.
 // _Src is assumed to be the base of the checked iterator _Dest.
@@ -1456,11 +1456,11 @@ inline void __CLRCALL_OR_CDECL _Debug_order_single(_InIt _First, _InIt _Last, _P
 // To change the checked iterator base type in your own iterators,
 // you will need to overload the _Checked_iterator_assign_from_base()
 // method.
-#define _ASSIGN_FROM_BASE(_Dest, _Src) _STD _Checked_assign_from_base(_Dest, _Src)
+#define _ASSIGN_FROM_BASE(_Dest, _Src) _STDEXT_STD _Checked_assign_from_base(_Dest, _Src)
 
 #else
 
-#define _CHECKED_CAT(_Iter) _STD _Range_checked_iterator_tag()
+#define _CHECKED_CAT(_Iter) _STDEXT_STD _Range_checked_iterator_tag()
 #define _CHECKED_BASE(_Iter) _Iter
 #define _CHECKED_BASE_TYPE(_Iter_type) _Iter_type
 #define _ASSIGN_FROM_BASE(_Dest, _Src) _Dest = (_Src)
@@ -1615,7 +1615,7 @@ public:
     }
 
 #if _SECURE_SCL
-    typedef typename _STD _Checked_iterator_category<_RanIt>::_Checked_cat _Checked_iterator_category;
+    typedef typename _STDEXT_STD _Checked_iterator_category<_RanIt>::_Checked_cat _Checked_iterator_category;
     typedef reverse_iterator<typename _Checked_iterator_base_helper<_RanIt>::_Checked_iterator_base_type>
         _Checked_iterator_base_type;
 
@@ -2181,28 +2181,28 @@ struct _Is_checked_iterator {
 };
 
 #define _IF_CHK(_Iter_type) \
-    typename _STD _Enable_if<_STD _Is_checked_iterator<_Iter_type>::_Result, _Iter_type>::_Result
+    typename _STDEXT_STD _Enable_if<_STDEXT_STD _Is_checked_iterator<_Iter_type>::_Result, _Iter_type>::_Result
 #define _IF_CHK_(_Iter_type, _Result_type) \
-    typename _STD _Enable_if<_STD _Is_checked_iterator<_Iter_type>::_Result, _Result_type>::_Result
-#define _IF_CHK_RET_PAIR(_Iter_type, _Result_type1, _Result_type2) \
-    typename _STD                                                  \
-        _Enable_if<_STD _Is_checked_iterator<_Iter_type>::_Result, std::pair<_Result_type1, _Result_type2>>::_Result
-#define _IF_CHK2_(_Iter1_type, _Iter2_type, _Result_type)                                                              \
-    typename _STD                                                                                                      \
-        _Enable_if<_STD _Is_checked_iterator<_Iter1_type>::_Result && _STD _Is_checked_iterator<_Iter2_type>::_Result, \
-                   _Result_type>::_Result
+    typename _STDEXT_STD _Enable_if<_STDEXT_STD _Is_checked_iterator<_Iter_type>::_Result, _Result_type>::_Result
+#define _IF_CHK_RET_PAIR(_Iter_type, _Result_type1, _Result_type2)                         \
+    typename _STDEXT_STD _Enable_if<_STDEXT_STD _Is_checked_iterator<_Iter_type>::_Result, \
+                                    std::pair<_Result_type1, _Result_type2>>::_Result
+#define _IF_CHK2_(_Iter1_type, _Iter2_type, _Result_type)                                       \
+    typename _STDEXT_STD _Enable_if<_STDEXT_STD _Is_checked_iterator<_Iter1_type>::_Result &&   \
+                                        _STDEXT_STD _Is_checked_iterator<_Iter2_type>::_Result, \
+                                    _Result_type>::_Result
 
 #define _IF_NOT_CHK(_Iter_type) \
-    typename _STD _Enable_if<!_STD _Is_checked_iterator<_Iter_type>::_Result, _Iter_type>::_Result
+    typename _STDEXT_STD _Enable_if<!_STDEXT_STD _Is_checked_iterator<_Iter_type>::_Result, _Iter_type>::_Result
 #define _IF_NOT_CHK_(_Iter_type, _Result_type) \
-    typename _STD _Enable_if<!_STD _Is_checked_iterator<_Iter_type>::_Result, _Result_type>::_Result
-#define _IF_NOT_CHK_RET_PAIR(_Iter_type, _Result_type1, _Result_type2) \
-    typename _STD                                                      \
-        _Enable_if<!_STD _Is_checked_iterator<_Iter_type>::_Result, std::pair<_Result_type1, _Result_type2>>::_Result
-#define _IF_NOT_CHK2_(_Iter1_type, _Iter2_type, _Result_type)                      \
-    typename _STD _Enable_if<!_STD _Is_checked_iterator<_Iter1_type>::_Result ||   \
-                                 !_STD _Is_checked_iterator<_Iter2_type>::_Result, \
-                             _Result_type>::_Result
+    typename _STDEXT_STD _Enable_if<!_STDEXT_STD _Is_checked_iterator<_Iter_type>::_Result, _Result_type>::_Result
+#define _IF_NOT_CHK_RET_PAIR(_Iter_type, _Result_type1, _Result_type2)                      \
+    typename _STDEXT_STD _Enable_if<!_STDEXT_STD _Is_checked_iterator<_Iter_type>::_Result, \
+                                    std::pair<_Result_type1, _Result_type2>>::_Result
+#define _IF_NOT_CHK2_(_Iter1_type, _Iter2_type, _Result_type)                                    \
+    typename _STDEXT_STD _Enable_if<!_STDEXT_STD _Is_checked_iterator<_Iter1_type>::_Result ||   \
+                                        !_STDEXT_STD _Is_checked_iterator<_Iter2_type>::_Result, \
+                                    _Result_type>::_Result
 
 #if _SECURE_SCL
 
@@ -2220,7 +2220,8 @@ inline _IF_CHK(_OutIt) __CLRCALL_OR_CDECL copy(_InIt _First, _InIt _Last, _OutIt
 template <class _InIt, class _OutElem, size_t _Size>
 inline _OutElem *__CLRCALL_OR_CDECL copy(_InIt _First, _InIt _Last, _OutElem (&_Dest)[_Size])
 {  // copy [_First, _Last) to [_Dest, ...)
-    return copy(_CHECKED_BASE(_First), _CHECKED_BASE(_Last), _STDEXT make_checked_array_iterator(_Dest, _Size)).base();
+    return copy(_CHECKED_BASE(_First), _CHECKED_BASE(_Last), _STDEXT_NS make_checked_array_iterator(_Dest, _Size))
+        .base();
 }
 
 template <class _InIt, class _OutIt>
@@ -2291,13 +2292,14 @@ inline _IF_CHK(_OutIt) __CLRCALL_OR_CDECL _Move(_InIt _First, _InIt _Last, _OutI
                      _Dest,
                      _Iter_random(_First, _Dest),
                      _Move_cat(_Dest),
-                     _STD _Range_checked_iterator_tag());
+                     _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 template <class _InIt, class _OutElem, size_t _Size>
 inline _OutElem *__CLRCALL_OR_CDECL _Move(_InIt _First, _InIt _Last, _OutElem (&_Dest)[_Size])
 {  // move [_First, _Last) to [_Dest, ...)
-    return _Move(_CHECKED_BASE(_First), _CHECKED_BASE(_Last), _STDEXT make_checked_array_iterator(_Dest, _Size)).base();
+    return _Move(_CHECKED_BASE(_First), _CHECKED_BASE(_Last), _STDEXT_NS make_checked_array_iterator(_Dest, _Size))
+        .base();
 }
 
 template <class _InIt, class _OutIt>
@@ -2309,7 +2311,7 @@ __CLRCALL_OR_CDECL _Move(_InIt _First, _InIt _Last, _OutIt _Dest)
                      _Dest,
                      _Iter_random(_First, _Dest),
                      _Move_cat(_Dest),
-                     _STD _Range_checked_iterator_tag());
+                     _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 #else
@@ -2322,7 +2324,7 @@ inline _OutIt __CLRCALL_OR_CDECL _Move(_InIt _First, _InIt _Last, _OutIt _Dest)
                      _Dest,
                      _Iter_random(_First, _Dest),
                      _Move_cat(_Dest),
-                     _STD _Range_checked_iterator_tag());
+                     _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 #endif
@@ -2386,7 +2388,7 @@ inline _IF_CHK(_BidIt2) __CLRCALL_OR_CDECL copy_backward(_BidIt1 _First, _BidIt1
                               _Dest,
                               _Iter_random(_First, _Dest),
                               _Ptr_cat(_First, _Dest),
-                              _STD _Range_checked_iterator_tag());
+                              _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 template <class _BidIt1, class _BidIt2>
@@ -2398,7 +2400,7 @@ __CLRCALL_OR_CDECL copy_backward(_BidIt1 _First, _BidIt1 _Last, _BidIt2 _Dest)
                               _Dest,
                               _Iter_random(_First, _Dest),
                               _Ptr_cat(_First, _Dest),
-                              _STD _Range_checked_iterator_tag());
+                              _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 #else
@@ -2411,7 +2413,7 @@ inline _BidIt2 __CLRCALL_OR_CDECL copy_backward(_BidIt1 _First, _BidIt1 _Last, _
                               _Dest,
                               _Iter_random(_First, _Dest),
                               _Ptr_cat(_First, _Dest),
-                              _STD _Range_checked_iterator_tag());
+                              _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 #endif
@@ -2461,7 +2463,7 @@ inline _IF_CHK(_BidIt2) __CLRCALL_OR_CDECL _Move_backward(_BidIt1 _First, _BidIt
                               _Dest,
                               _Iter_random(_First, _Dest),
                               _Move_cat(_Dest),
-                              _STD _Range_checked_iterator_tag());
+                              _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 template <class _BidIt1, class _BidIt2>
@@ -2473,7 +2475,7 @@ __CLRCALL_OR_CDECL _Move_backward(_BidIt1 _First, _BidIt1 _Last, _BidIt2 _Dest)
                               _Dest,
                               _Iter_random(_First, _Dest),
                               _Move_cat(_Dest),
-                              _STD _Range_checked_iterator_tag());
+                              _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 #else
@@ -2486,7 +2488,7 @@ inline _BidIt2 __CLRCALL_OR_CDECL _Move_backward(_BidIt1 _First, _BidIt1 _Last, 
                               _Dest,
                               _Iter_random(_First, _Dest),
                               _Move_cat(_Dest),
-                              _STD _Range_checked_iterator_tag());
+                              _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 #endif
@@ -2533,7 +2535,7 @@ inline _IF_CHK_RET_PAIR(_InIt2, _InIt1, _InIt2) __CLRCALL_OR_CDECL
                                                                  _CHECKED_BASE(_Last1),
                                                                  _First2,
                                                                  _Iter_random(_First1, _First2),
-                                                                 _STD _Range_checked_iterator_tag());
+                                                                 _STDEXT_STD _Range_checked_iterator_tag());
     _ASSIGN_FROM_BASE(_First1, _Result.first);
     return (pair<_InIt1, _InIt2>(_First1, _Result.second));
 }
@@ -2541,8 +2543,8 @@ inline _IF_CHK_RET_PAIR(_InIt2, _InIt1, _InIt2) __CLRCALL_OR_CDECL
 template <class _InIt1, class _InElem2, size_t _Size>
 inline pair<_InIt1, _InElem2 *> __CLRCALL_OR_CDECL mismatch(_InIt1 _First1, _InIt1 _Last1, _InElem2 (&_First2)[_Size])
 {  // return [_First1, _Last1) and [_First2, _Last2) mismatch
-    pair<_InIt1, _STDEXT checked_array_iterator<_InElem2 *>> _Result =
-        mismatch(_First1, _Last1, _STDEXT make_checked_array_iterator(_First2, _Size));
+    pair<_InIt1, _STDEXT_NS checked_array_iterator<_InElem2 *>> _Result =
+        mismatch(_First1, _Last1, _STDEXT_NS make_checked_array_iterator(_First2, _Size));
     return (pair<_InIt1, _InElem2 *>(_Result.first, _Result.second.base()));
 }
 
@@ -2554,7 +2556,7 @@ __CLRCALL_OR_CDECL mismatch(_InIt1 _First1, _InIt1 _Last1, _InIt2 _First2)
                                                                  _CHECKED_BASE(_Last1),
                                                                  _First2,
                                                                  _Iter_random(_First1, _First2),
-                                                                 _STD _Range_checked_iterator_tag());
+                                                                 _STDEXT_STD _Range_checked_iterator_tag());
     _ASSIGN_FROM_BASE(_First1, _Result.first);
     return (pair<_InIt1, _InIt2>(_First1, _Result.second));
 }
@@ -2564,7 +2566,8 @@ __CLRCALL_OR_CDECL mismatch(_InIt1 _First1, _InIt1 _Last1, _InIt2 _First2)
 template <class _InIt1, class _InIt2>
 inline std::pair<_InIt1, _InIt2> __CLRCALL_OR_CDECL mismatch(_InIt1 _First1, _InIt1 _Last1, _InIt2 _First2)
 {  // return [_First1, _Last1) and [_First2, _Last2) mismatch
-    return _Mismatch(_First1, _Last1, _First2, _Iter_random(_First1, _First2), _STD _Range_checked_iterator_tag());
+    return _Mismatch(
+        _First1, _Last1, _First2, _Iter_random(_First1, _First2), _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 #endif
@@ -2613,7 +2616,7 @@ inline _IF_CHK_RET_PAIR(_InIt2, _InIt1, _InIt2) __CLRCALL_OR_CDECL
                                                                  _First2,
                                                                  _Pred,
                                                                  _Iter_random(_First1, _First2),
-                                                                 _STD _Range_checked_iterator_tag());
+                                                                 _STDEXT_STD _Range_checked_iterator_tag());
     _ASSIGN_FROM_BASE(_First1, _Result.first);
     return (pair<_InIt1, _InIt2>(_First1, _Result.second));
 }
@@ -2622,8 +2625,8 @@ template <class _InIt1, class _InElem2, class _Pr, size_t _Size>
 inline pair<_InIt1, _InElem2 *> __CLRCALL_OR_CDECL mismatch(_InIt1 _First1, _InIt1 _Last1, _InElem2 (&_First2)[_Size],
                                                             _Pr _Pred)
 {  // return [_First1, _Last1) and [_First2, _Last2) mismatch using _Pred
-    pair<_InIt1, _STDEXT checked_array_iterator<_InElem2 *>> _Result =
-        mismatch(_First1, _Last1, _STDEXT make_checked_array_iterator(_First2, _Size), _Pred);
+    pair<_InIt1, _STDEXT_NS checked_array_iterator<_InElem2 *>> _Result =
+        mismatch(_First1, _Last1, _STDEXT_NS make_checked_array_iterator(_First2, _Size), _Pred);
     return (pair<_InIt1, _InElem2 *>(_Result.first, _Result.second.base()));
 }
 
@@ -2636,7 +2639,7 @@ __CLRCALL_OR_CDECL mismatch(_InIt1 _First1, _InIt1 _Last1, _InIt2 _First2, _Pr _
                                                                  _First2,
                                                                  _Pred,
                                                                  _Iter_random(_First1, _First2),
-                                                                 _STD _Range_checked_iterator_tag());
+                                                                 _STDEXT_STD _Range_checked_iterator_tag());
     _ASSIGN_FROM_BASE(_First1, _Result.first);
     return (pair<_InIt1, _InIt2>(_First1, _Result.second));
 }
@@ -2647,7 +2650,7 @@ template <class _InIt1, class _InIt2, class _Pr>
 inline std::pair<_InIt1, _InIt2> __CLRCALL_OR_CDECL mismatch(_InIt1 _First1, _InIt1 _Last1, _InIt2 _First2, _Pr _Pred)
 {  // return [_First1, _Last1) and [_First2, _Last2) mismatch using _Pred
     return _Mismatch(
-        _First1, _Last1, _First2, _Pred, _Iter_random(_First1, _First2), _STD _Range_checked_iterator_tag());
+        _First1, _Last1, _First2, _Pred, _Iter_random(_First1, _First2), _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 #endif
@@ -2718,13 +2721,13 @@ inline _IF_CHK_(_InIt2, bool) __CLRCALL_OR_CDECL equal(_InIt1 _First1, _InIt1 _L
                   _CHECKED_BASE(_Last1),
                   _First2,
                   _Iter_random(_First1, _First2),
-                  _STD _Range_checked_iterator_tag());
+                  _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 template <class _InIt1, class _InElem2, size_t _Size>
 inline bool __CLRCALL_OR_CDECL equal(_InIt1 _First1, _InIt1 _Last1, _InElem2 (&_First2)[_Size])
 {  // compare [_First1, _Last1) to [First2, ...)
-    return equal(_First1, _Last1, _STDEXT make_checked_array_iterator(_First2, _Size));
+    return equal(_First1, _Last1, _STDEXT_NS make_checked_array_iterator(_First2, _Size));
 }
 
 template <class _InIt1, class _InIt2>
@@ -2735,7 +2738,7 @@ inline _SCL_INSECURE_DEPRECATE _IF_NOT_CHK_(_InIt2, bool) __CLRCALL_OR_CDECL
                   _CHECKED_BASE(_Last1),
                   _First2,
                   _Iter_random(_First1, _First2),
-                  _STD _Range_checked_iterator_tag());
+                  _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 #else
@@ -2747,7 +2750,7 @@ inline bool __CLRCALL_OR_CDECL equal(_InIt1 _First1, _InIt1 _Last1, _InIt2 _Firs
                   _CHECKED_BASE(_Last1),
                   _First2,
                   _Iter_random(_First1, _First2),
-                  _STD _Range_checked_iterator_tag());
+                  _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 #endif
@@ -2784,13 +2787,13 @@ inline _IF_CHK_(_InIt2, bool) __CLRCALL_OR_CDECL equal(_InIt1 _First1, _InIt1 _L
                   _First2,
                   _Pred,
                   _Iter_random(_First1, _First2),
-                  _STD _Range_checked_iterator_tag());
+                  _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 template <class _InIt1, class _InElem2, class _Pr, size_t _Size>
 inline bool __CLRCALL_OR_CDECL equal(_InIt1 _First1, _InIt1 _Last1, _InElem2 (&_First2)[_Size], _Pr _Pred)
 {  // compare [_First1, _Last1) to [First2, ...) using _Pred
-    return equal(_First1, _Last1, _STDEXT make_checked_array_iterator(_First2, _Size), _Pred);
+    return equal(_First1, _Last1, _STDEXT_NS make_checked_array_iterator(_First2, _Size), _Pred);
 }
 
 template <class _InIt1, class _InIt2, class _Pr>
@@ -2802,7 +2805,7 @@ inline _SCL_INSECURE_DEPRECATE _IF_NOT_CHK_(_InIt2, bool) __CLRCALL_OR_CDECL
                   _First2,
                   _Pred,
                   _Iter_random(_First1, _First2),
-                  _STD _Range_checked_iterator_tag());
+                  _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 #else
@@ -2815,7 +2818,7 @@ inline bool __CLRCALL_OR_CDECL equal(_InIt1 _First1, _InIt1 _Last1, _InIt2 _Firs
                   _First2,
                   _Pred,
                   _Iter_random(_First1, _First2),
-                  _STD _Range_checked_iterator_tag());
+                  _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 #endif
@@ -2923,20 +2926,20 @@ inline void __CLRCALL_OR_CDECL _Fill_n(_OutIt _First, _Diff _Count, const _Ty &_
 template <class _OutIt, class _Diff, class _Ty>
 inline _IF_CHK_(_OutIt, void) __CLRCALL_OR_CDECL fill_n(_OutIt _First, _Diff _Count, const _Ty &_Val)
 {  // copy _Val _Count times through [_First, ...)
-    _Fill_n(_First, _Count, _Val, _Iter_cat(_First), _STD _Range_checked_iterator_tag());
+    _Fill_n(_First, _Count, _Val, _Iter_cat(_First), _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 template <class _OutElem, class _Diff, class _Ty, size_t _Size>
 inline void __CLRCALL_OR_CDECL fill_n(_OutElem (&_First)[_Size], _Diff _Count, const _Ty &_Val)
 {  // copy _Val _Count times through [_First, ...)
-    fill_n(_STDEXT make_checked_array_iterator(_First, _Size), _Count, _Val);
+    fill_n(_STDEXT_NS make_checked_array_iterator(_First, _Size), _Count, _Val);
 }
 
 template <class _OutIt, class _Diff, class _Ty>
 inline _SCL_INSECURE_DEPRECATE _IF_NOT_CHK_(_OutIt, void) __CLRCALL_OR_CDECL
     fill_n(_OutIt _First, _Diff _Count, const _Ty &_Val)
 {  // copy _Val _Count times through [_First, ...)
-    _Fill_n(_First, _Count, _Val, _Iter_cat(_First), _STD _Range_checked_iterator_tag());
+    _Fill_n(_First, _Count, _Val, _Iter_cat(_First), _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 #else
@@ -2944,7 +2947,7 @@ inline _SCL_INSECURE_DEPRECATE _IF_NOT_CHK_(_OutIt, void) __CLRCALL_OR_CDECL
 template <class _OutIt, class _Diff, class _Ty>
 inline void __CLRCALL_OR_CDECL fill_n(_OutIt _First, _Diff _Count, const _Ty &_Val)
 {  // copy _Val _Count times through [_First, ...)
-    _Fill_n(_First, _Count, _Val, _Iter_cat(_First), _STD _Range_checked_iterator_tag());
+    _Fill_n(_First, _Count, _Val, _Iter_cat(_First), _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 #endif
@@ -3064,24 +3067,26 @@ inline const _Ty &(__CLRCALL_OR_CDECL _IMPL_MIN)(const _Ty &_Left, const _Ty &_R
 #undef _IMPL_MAX
 #undef _IMPL_MIN
 
-_STD_END
+_STDEXT_STD_END
 
 _STDEXT_BEGIN
 
 // checked_array_iterator
+#ifndef _MSC_VER
 template <class _Iterator>
-class checked_array_iterator : public _STD iterator<typename _STD iterator_traits<_Iterator>::iterator_category,
-                                                    typename _STD iterator_traits<_Iterator>::value_type,
-                                                    typename _STD iterator_traits<_Iterator>::difference_type,
-                                                    typename _STD iterator_traits<_Iterator>::pointer,
-                                                    typename _STD iterator_traits<_Iterator>::reference> {
+class checked_array_iterator
+    : public _STDEXT_STD iterator<typename _STDEXT_STD iterator_traits<_Iterator>::iterator_category,
+                                  typename _STDEXT_STD iterator_traits<_Iterator>::value_type,
+                                  typename _STDEXT_STD iterator_traits<_Iterator>::difference_type,
+                                  typename _STDEXT_STD iterator_traits<_Iterator>::pointer,
+                                  typename _STDEXT_STD iterator_traits<_Iterator>::reference> {
 public:
     typedef checked_array_iterator<_Iterator> _Myt;
-    typedef typename _STD iterator_traits<_Iterator>::difference_type difference_type;
-    typedef typename _STD iterator_traits<_Iterator>::pointer pointer;
-    typedef typename _STD iterator_traits<_Iterator>::reference reference;
+    typedef typename _STDEXT_STD iterator_traits<_Iterator>::difference_type difference_type;
+    typedef typename _STDEXT_STD iterator_traits<_Iterator>::pointer pointer;
+    typedef typename _STDEXT_STD iterator_traits<_Iterator>::reference reference;
 
-    typedef _STD _Range_checked_iterator_tag _Checked_iterator_category;
+    typedef _STDEXT_STD _Range_checked_iterator_tag _Checked_iterator_category;
     typedef _Iterator _Inner_type;
 
     typedef _Iterator _Checked_iterator_base_type;
@@ -3230,12 +3235,12 @@ public:
 protected:
     void _Xran() const
     {  // report an out_of_range error
-        _THROW(std::out_of_range, "invalid checked_array_iterator<T> subscript");
+        _STDEXT_THROW(std::out_of_range, "invalid checked_array_iterator<T> subscript");
     }
 
     void _Xinvarg() const
     {  // report an invalid_argument error
-        _THROW(std::invalid_argument, "invalid checked_array_iterator<T> argument");
+        _STDEXT_THROW(std::invalid_argument, "invalid checked_array_iterator<T> argument");
     }
 
     _Iterator _Mycont;  // points to the start of the array
@@ -3248,33 +3253,35 @@ checked_array_iterator<_Iter> make_checked_array_iterator(_Iter _Ptr, size_t _Si
 {
     return checked_array_iterator<_Iter>(_Ptr, _Size);
 }
+#endif /* _MSC_VER */
 
 template <class _InIt, class _OutIt>
 inline _OutIt __CLRCALL_OR_CDECL unchecked_copy(_InIt _First, _InIt _Last, _OutIt _Dest)
 {  // copy [_First, _Last) to [_Dest, ...)
-    return (_STD _Copy_opt(_CHECKED_BASE(_First),
-                           _CHECKED_BASE(_Last),
-                           _Dest,
-                           _STD _Iter_random(_First, _Dest),
-                           _STD _Ptr_cat(_First, _Dest),
-                           _STD _Range_checked_iterator_tag()));
+    return (_STDEXT_STD _Copy_opt(_CHECKED_BASE(_First),
+                                  _CHECKED_BASE(_Last),
+                                  _Dest,
+                                  _STDEXT_STD _Iter_random(_First, _Dest),
+                                  _STDEXT_STD _Ptr_cat(_First, _Dest),
+                                  _STDEXT_STD _Range_checked_iterator_tag()));
 }
 
 template <class _InIt, class _OutIt>
 inline _IF_CHK(_OutIt) __CLRCALL_OR_CDECL checked_copy(_InIt _First, _InIt _Last, _OutIt _Dest)
 {  // copy [_First, _Last) to [_Dest, ...)
-    return (_STD _Copy_opt(_CHECKED_BASE(_First),
-                           _CHECKED_BASE(_Last),
-                           _Dest,
-                           _STD _Iter_random(_First, _Dest),
-                           _STD _Ptr_cat(_First, _Dest),
-                           _STD _Range_checked_iterator_tag()));
+    return (_STDEXT_STD _Copy_opt(_CHECKED_BASE(_First),
+                                  _CHECKED_BASE(_Last),
+                                  _Dest,
+                                  _STDEXT_STD _Iter_random(_First, _Dest),
+                                  _STDEXT_STD _Ptr_cat(_First, _Dest),
+                                  _STDEXT_STD _Range_checked_iterator_tag()));
 }
 
 template <class _InIt, class _OutElem, size_t _Size>
 inline _OutElem *__CLRCALL_OR_CDECL checked_copy(_InIt _First, _InIt _Last, _OutElem (&_Dest)[_Size])
 {  // copy [_First, _Last) to [_Dest, ...)
-    return checked_copy(_CHECKED_BASE(_First), _CHECKED_BASE(_Last), _STDEXT make_checked_array_iterator(_Dest, _Size))
+    return checked_copy(
+               _CHECKED_BASE(_First), _CHECKED_BASE(_Last), _STDEXT_NS make_checked_array_iterator(_Dest, _Size))
         .base();
 }
 
@@ -3282,74 +3289,75 @@ template <class _InIt, class _OutIt>
 inline _SCL_CHECKED_ALGORITHM_WARN _IF_NOT_CHK(_OutIt)
 __CLRCALL_OR_CDECL checked_copy(_InIt _First, _InIt _Last, _OutIt _Dest)
 {  // copy [_First, _Last) to [_Dest, ...)
-    return (_STD _Copy_opt(_CHECKED_BASE(_First),
-                           _CHECKED_BASE(_Last),
-                           _Dest,
-                           _STD _Iter_random(_First, _Dest),
-                           _STD _Ptr_cat(_First, _Dest),
-                           _STD _Range_checked_iterator_tag()));
+    return (_STDEXT_STD _Copy_opt(_CHECKED_BASE(_First),
+                                  _CHECKED_BASE(_Last),
+                                  _Dest,
+                                  _STDEXT_STD _Iter_random(_First, _Dest),
+                                  _STDEXT_STD _Ptr_cat(_First, _Dest),
+                                  _STDEXT_STD _Range_checked_iterator_tag()));
 }
 
 template <class _BidIt1, class _BidIt2>
 inline _BidIt2 __CLRCALL_OR_CDECL unchecked_copy_backward(_BidIt1 _First, _BidIt1 _Last, _BidIt2 _Dest)
 {  // copy [_First, _Last) backwards to [..., _Dest)
-    return (_STD _Copy_backward_opt(_CHECKED_BASE(_First),
-                                    _CHECKED_BASE(_Last),
-                                    _Dest,
-                                    _STD _Iter_random(_First, _Dest),
-                                    _STD _Ptr_cat(_First, _Dest),
-                                    _STD _Range_checked_iterator_tag()));
+    return (_STDEXT_STD _Copy_backward_opt(_CHECKED_BASE(_First),
+                                           _CHECKED_BASE(_Last),
+                                           _Dest,
+                                           _STDEXT_STD _Iter_random(_First, _Dest),
+                                           _STDEXT_STD _Ptr_cat(_First, _Dest),
+                                           _STDEXT_STD _Range_checked_iterator_tag()));
 }
 
 template <class _BidIt1, class _BidIt2>
 inline _IF_CHK(_BidIt2) __CLRCALL_OR_CDECL checked_copy_backward(_BidIt1 _First, _BidIt1 _Last, _BidIt2 _Dest)
 {  // copy [_First, _Last) backwards to [..., _Dest)
-    return _STD _Copy_backward_opt(_CHECKED_BASE(_First),
-                                   _CHECKED_BASE(_Last),
-                                   _Dest,
-                                   _STD _Iter_random(_First, _Dest),
-                                   _STD _Ptr_cat(_First, _Dest),
-                                   _STD _Range_checked_iterator_tag());
+    return _STDEXT_STD _Copy_backward_opt(_CHECKED_BASE(_First),
+                                          _CHECKED_BASE(_Last),
+                                          _Dest,
+                                          _STDEXT_STD _Iter_random(_First, _Dest),
+                                          _STDEXT_STD _Ptr_cat(_First, _Dest),
+                                          _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 template <class _BidIt1, class _BidIt2>
 inline _SCL_CHECKED_ALGORITHM_WARN _IF_NOT_CHK(_BidIt2)
 __CLRCALL_OR_CDECL checked_copy_backward(_BidIt1 _First, _BidIt1 _Last, _BidIt2 _Dest)
 {  // copy [_First, _Last) backwards to [..., _Dest)
-    return _STD _Copy_backward_opt(_CHECKED_BASE(_First),
-                                   _CHECKED_BASE(_Last),
-                                   _Dest,
-                                   _STD _Iter_random(_First, _Dest),
-                                   _STD _Ptr_cat(_First, _Dest),
-                                   _STD _Range_checked_iterator_tag());
+    return _STDEXT_STD _Copy_backward_opt(_CHECKED_BASE(_First),
+                                          _CHECKED_BASE(_Last),
+                                          _Dest,
+                                          _STDEXT_STD _Iter_random(_First, _Dest),
+                                          _STDEXT_STD _Ptr_cat(_First, _Dest),
+                                          _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 template <class _InIt, class _OutIt>
 inline _OutIt __CLRCALL_OR_CDECL _Unchecked_move(_InIt _First, _InIt _Last, _OutIt _Dest)
 {  // move [_First, _Last) to [_Dest, ...)
-    return (_STD _Move_opt(_CHECKED_BASE(_First),
-                           _CHECKED_BASE(_Last),
-                           _Dest,
-                           _STD _Iter_random(_First, _Dest),
-                           _STD _Move_cat(_Dest),
-                           _STD _Range_checked_iterator_tag()));
+    return (_STDEXT_STD _Move_opt(_CHECKED_BASE(_First),
+                                  _CHECKED_BASE(_Last),
+                                  _Dest,
+                                  _STDEXT_STD _Iter_random(_First, _Dest),
+                                  _STDEXT_STD _Move_cat(_Dest),
+                                  _STDEXT_STD _Range_checked_iterator_tag()));
 }
 
 template <class _InIt, class _OutIt>
 inline _IF_CHK(_OutIt) __CLRCALL_OR_CDECL _Checked_move(_InIt _First, _InIt _Last, _OutIt _Dest)
 {  // move [_First, _Last) to [_Dest, ...)
-    return _STD _Move_opt(_CHECKED_BASE(_First),
-                          _CHECKED_BASE(_Last),
-                          _Dest,
-                          _STD _Iter_random(_First, _Dest),
-                          _STD _Move_cat(_Dest),
-                          _STD _Range_checked_iterator_tag());
+    return _STDEXT_STD _Move_opt(_CHECKED_BASE(_First),
+                                 _CHECKED_BASE(_Last),
+                                 _Dest,
+                                 _STDEXT_STD _Iter_random(_First, _Dest),
+                                 _STDEXT_STD _Move_cat(_Dest),
+                                 _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 template <class _InIt, class _OutElem, size_t _Size>
 inline _OutElem *__CLRCALL_OR_CDECL _Checked_move(_InIt _First, _InIt _Last, _OutElem (&_Dest)[_Size])
 {  // move [_First, _Last) to [_Dest, ...)
-    return _Checked_move(_CHECKED_BASE(_First), _CHECKED_BASE(_Last), _STDEXT make_checked_array_iterator(_Dest, _Size))
+    return _Checked_move(
+               _CHECKED_BASE(_First), _CHECKED_BASE(_Last), _STDEXT_NS make_checked_array_iterator(_Dest, _Size))
         .base();
 }
 
@@ -3357,87 +3365,91 @@ template <class _InIt, class _OutIt>
 inline _SCL_CHECKED_ALGORITHM_WARN _IF_NOT_CHK(_OutIt)
 __CLRCALL_OR_CDECL _Checked_move(_InIt _First, _InIt _Last, _OutIt _Dest)
 {  // move [_First, _Last) to [_Dest, ...)
-    return _STD _Move_opt(_CHECKED_BASE(_First),
-                          _CHECKED_BASE(_Last),
-                          _Dest,
-                          _STD _Iter_random(_First, _Dest),
-                          _STD _Move_cat(_Dest),
-                          _STD _Range_checked_iterator_tag());
+    return _STDEXT_STD _Move_opt(_CHECKED_BASE(_First),
+                                 _CHECKED_BASE(_Last),
+                                 _Dest,
+                                 _STDEXT_STD _Iter_random(_First, _Dest),
+                                 _STDEXT_STD _Move_cat(_Dest),
+                                 _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 template <class _BidIt1, class _BidIt2>
 inline _BidIt2 __CLRCALL_OR_CDECL _Unchecked_move_backward(_BidIt1 _First, _BidIt1 _Last, _BidIt2 _Dest)
 {  // move [_First, _Last) backwards to [..., _Dest)
-    return (_STD _Move_backward_opt(_CHECKED_BASE(_First),
-                                    _CHECKED_BASE(_Last),
-                                    _Dest,
-                                    _STD _Iter_random(_First, _Dest),
-                                    _STD _Move_cat(_Dest),
-                                    _STD _Range_checked_iterator_tag()));
+    return (_STDEXT_STD _Move_backward_opt(_CHECKED_BASE(_First),
+                                           _CHECKED_BASE(_Last),
+                                           _Dest,
+                                           _STDEXT_STD _Iter_random(_First, _Dest),
+                                           _STDEXT_STD _Move_cat(_Dest),
+                                           _STDEXT_STD _Range_checked_iterator_tag()));
 }
 
 template <class _BidIt1, class _BidIt2>
 inline _IF_CHK(_BidIt2) __CLRCALL_OR_CDECL _Checked_move_backward(_BidIt1 _First, _BidIt1 _Last, _BidIt2 _Dest)
 {  // move [_First, _Last) backwards to [..., _Dest)
-    return _STD _Move_backward_opt(_CHECKED_BASE(_First),
-                                   _CHECKED_BASE(_Last),
-                                   _Dest,
-                                   _STD _Iter_random(_First, _Dest),
-                                   _STD _Move_cat(_Dest),
-                                   _STD _Range_checked_iterator_tag());
+    return _STDEXT_STD _Move_backward_opt(_CHECKED_BASE(_First),
+                                          _CHECKED_BASE(_Last),
+                                          _Dest,
+                                          _STDEXT_STD _Iter_random(_First, _Dest),
+                                          _STDEXT_STD _Move_cat(_Dest),
+                                          _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 template <class _BidIt1, class _BidIt2>
 inline _SCL_CHECKED_ALGORITHM_WARN _IF_NOT_CHK(_BidIt2)
 __CLRCALL_OR_CDECL _Checked_move_backward(_BidIt1 _First, _BidIt1 _Last, _BidIt2 _Dest)
 {  // move [_First, _Last) backwards to [..., _Dest)
-    return _STD _Move_backward_opt(_CHECKED_BASE(_First),
-                                   _CHECKED_BASE(_Last),
-                                   _Dest,
-                                   _STD _Iter_random(_First, _Dest),
-                                   _STD _Move_cat(_Dest),
-                                   _STD _Range_checked_iterator_tag());
+    return _STDEXT_STD _Move_backward_opt(_CHECKED_BASE(_First),
+                                          _CHECKED_BASE(_Last),
+                                          _Dest,
+                                          _STDEXT_STD _Iter_random(_First, _Dest),
+                                          _STDEXT_STD _Move_cat(_Dest),
+                                          _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 template <class _OutIt, class _Diff, class _Ty>
 inline void __CLRCALL_OR_CDECL unchecked_fill_n(_OutIt _First, _Diff _Count, const _Ty &_Val)
 {  // copy _Val _Count times through [_First, ...)
-    _STD _Fill_n(_First, _Count, _Val, _STD _Iter_cat(_First), _STD _Range_checked_iterator_tag());
+    _STDEXT_STD _Fill_n(_First, _Count, _Val, _STDEXT_STD _Iter_cat(_First), _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 template <class _OutIt, class _Diff, class _Ty>
 inline _IF_CHK_(_OutIt, void) __CLRCALL_OR_CDECL checked_fill_n(_OutIt _First, _Diff _Count, const _Ty &_Val)
 {  // copy _Val _Count times through [_First, ...)
-    _Fill_n(_First, _Count, _Val, _STD _Iter_cat(_First), _STD _Range_checked_iterator_tag());
+    _Fill_n(_First, _Count, _Val, _STDEXT_STD _Iter_cat(_First), _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 template <class _OutElem, class _Diff, class _Ty, size_t _Size>
 inline void __CLRCALL_OR_CDECL checked_fill_n(_OutElem (&_First)[_Size], _Diff _Count, const _Ty &_Val)
 {  // copy _Val _Count times through [_First, ...)
-    checked_fill_n(_STDEXT make_checked_array_iterator(_First, _Size), _Count, _Val);
+    checked_fill_n(_STDEXT_NS make_checked_array_iterator(_First, _Size), _Count, _Val);
 }
 
 template <class _OutIt, class _Diff, class _Ty>
 inline _SCL_CHECKED_ALGORITHM_WARN _IF_NOT_CHK_(_OutIt, void) __CLRCALL_OR_CDECL
     checked_fill_n(_OutIt _First, _Diff _Count, const _Ty &_Val)
 {  // copy _Val _Count times through [_First, ...)
-    _Fill_n(_First, _Count, _Val, _STD _Iter_cat(_First), _STD _Range_checked_iterator_tag());
+    _Fill_n(_First, _Count, _Val, _STDEXT_STD _Iter_cat(_First), _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 template <class _InIt1, class _InIt2>
 inline std::pair<_InIt1, _InIt2> __CLRCALL_OR_CDECL unchecked_mismatch(_InIt1 _First1, _InIt1 _Last1, _InIt2 _First2)
 {  // return [_First1, _Last1) and [_First2, _Last2) mismatch
 #if _SECURE_SCL
-    std::pair<_CHECKED_BASE_TYPE(_InIt1), _InIt2> _Result = _STD _Mismatch(_CHECKED_BASE(_First1),
-                                                                           _CHECKED_BASE(_Last1),
-                                                                           _First2,
-                                                                           _STD _Iter_random(_First1, _First2),
-                                                                           _STD _Range_checked_iterator_tag());
+    std::pair<_CHECKED_BASE_TYPE(_InIt1), _InIt2> _Result =
+        _STDEXT_STD _Mismatch(_CHECKED_BASE(_First1),
+                              _CHECKED_BASE(_Last1),
+                              _First2,
+                              _STDEXT_STD _Iter_random(_First1, _First2),
+                              _STDEXT_STD _Range_checked_iterator_tag());
     _ASSIGN_FROM_BASE(_First1, _Result.first);
     return (std::pair<_InIt1, _InIt2>(_First1, _Result.second));
 #else
-    return _STD _Mismatch(
-        _First1, _Last1, _First2, _STD _Iter_random(_First1, _First2), _STD _Range_checked_iterator_tag());
+    return _STDEXT_STD _Mismatch(_First1,
+                                 _Last1,
+                                 _First2,
+                                 _STDEXT_STD _Iter_random(_First1, _First2),
+                                 _STDEXT_STD _Range_checked_iterator_tag());
 #endif
 }
 
@@ -3445,11 +3457,12 @@ template <class _InIt1, class _InIt2>
 inline _IF_CHK_RET_PAIR(_InIt2, _InIt1, _InIt2) __CLRCALL_OR_CDECL
     checked_mismatch(_InIt1 _First1, _InIt1 _Last1, _InIt2 _First2)
 {  // return [_First1, _Last1) and [_First2, _Last2) mismatch
-    std::pair<_CHECKED_BASE_TYPE(_InIt1), _InIt2> _Result = _STD _Mismatch(_CHECKED_BASE(_First1),
-                                                                           _CHECKED_BASE(_Last1),
-                                                                           _First2,
-                                                                           _STD _Iter_random(_First1, _First2),
-                                                                           _STD _Range_checked_iterator_tag());
+    std::pair<_CHECKED_BASE_TYPE(_InIt1), _InIt2> _Result =
+        _STDEXT_STD _Mismatch(_CHECKED_BASE(_First1),
+                              _CHECKED_BASE(_Last1),
+                              _First2,
+                              _STDEXT_STD _Iter_random(_First1, _First2),
+                              _STDEXT_STD _Range_checked_iterator_tag());
     _ASSIGN_FROM_BASE(_First1, _Result.first);
     return (std::pair<_InIt1, _InIt2>(_First1, _Result.second));
 }
@@ -3458,8 +3471,8 @@ template <class _InIt1, class _InElem2, size_t _Size>
 inline std::pair<_InIt1, _InElem2 *> __CLRCALL_OR_CDECL checked_mismatch(_InIt1 _First1, _InIt1 _Last1,
                                                                          _InElem2 (&_First2)[_Size])
 {  // return [_First1, _Last1) and [_First2, _Last2) mismatch
-    std::pair<_InIt1, _STDEXT checked_array_iterator<_InElem2 *>> _Result =
-        checked_mismatch(_First1, _Last1, _STDEXT make_checked_array_iterator(_First2, _Size));
+    std::pair<_InIt1, _STDEXT_NS checked_array_iterator<_InElem2 *>> _Result =
+        checked_mismatch(_First1, _Last1, _STDEXT_NS make_checked_array_iterator(_First2, _Size));
     return (std::pair<_InIt1, _InElem2 *>(_Result.first, _Result.second.base()));
 }
 
@@ -3467,11 +3480,12 @@ template <class _InIt1, class _InIt2>
 inline _SCL_CHECKED_ALGORITHM_WARN _IF_NOT_CHK_RET_PAIR(_InIt2, _InIt1, _InIt2)
 __CLRCALL_OR_CDECL checked_mismatch(_InIt1 _First1, _InIt1 _Last1, _InIt2 _First2)
 {  // return [_First1, _Last1) and [_First2, _Last2) mismatch
-    std::pair<_CHECKED_BASE_TYPE(_InIt1), _InIt2> _Result = _STD _Mismatch(_CHECKED_BASE(_First1),
-                                                                           _CHECKED_BASE(_Last1),
-                                                                           _First2,
-                                                                           _STD _Iter_random(_First1, _First2),
-                                                                           _STD _Range_checked_iterator_tag());
+    std::pair<_CHECKED_BASE_TYPE(_InIt1), _InIt2> _Result =
+        _STDEXT_STD _Mismatch(_CHECKED_BASE(_First1),
+                              _CHECKED_BASE(_Last1),
+                              _First2,
+                              _STDEXT_STD _Iter_random(_First1, _First2),
+                              _STDEXT_STD _Range_checked_iterator_tag());
     _ASSIGN_FROM_BASE(_First1, _Result.first);
     return (std::pair<_InIt1, _InIt2>(_First1, _Result.second));
 }
@@ -3481,17 +3495,22 @@ inline std::pair<_InIt1, _InIt2> __CLRCALL_OR_CDECL unchecked_mismatch(_InIt1 _F
                                                                        _Pr _Pred)
 {  // return [_First1, _Last1) and [_First2, _Last2) mismatch
 #if _SECURE_SCL
-    std::pair<_CHECKED_BASE_TYPE(_InIt1), _InIt2> _Result = _STD _Mismatch(_CHECKED_BASE(_First1),
-                                                                           _CHECKED_BASE(_Last1),
-                                                                           _First2,
-                                                                           _Pred,
-                                                                           _STD _Iter_random(_First1, _First2),
-                                                                           _STD _Range_checked_iterator_tag());
+    std::pair<_CHECKED_BASE_TYPE(_InIt1), _InIt2> _Result =
+        _STDEXT_STD _Mismatch(_CHECKED_BASE(_First1),
+                              _CHECKED_BASE(_Last1),
+                              _First2,
+                              _Pred,
+                              _STDEXT_STD _Iter_random(_First1, _First2),
+                              _STDEXT_STD _Range_checked_iterator_tag());
     _ASSIGN_FROM_BASE(_First1, _Result.first);
     return (std::pair<_InIt1, _InIt2>(_First1, _Result.second));
 #else
-    return _STD _Mismatch(
-        _First1, _Last1, _First2, _Pred, _STD _Iter_random(_First1, _First2), _STD _Range_checked_iterator_tag());
+    return _STDEXT_STD _Mismatch(_First1,
+                                 _Last1,
+                                 _First2,
+                                 _Pred,
+                                 _STDEXT_STD _Iter_random(_First1, _First2),
+                                 _STDEXT_STD _Range_checked_iterator_tag());
 #endif
 }
 
@@ -3499,12 +3518,13 @@ template <class _InIt1, class _InIt2, class _Pr>
 inline _IF_CHK_RET_PAIR(_InIt2, _InIt1, _InIt2) __CLRCALL_OR_CDECL
     checked_mismatch(_InIt1 _First1, _InIt1 _Last1, _InIt2 _First2, _Pr _Pred)
 {  // return [_First1, _Last1) and [_First2, _Last2) mismatch using _Pred
-    std::pair<_CHECKED_BASE_TYPE(_InIt1), _InIt2> _Result = _STD _Mismatch(_CHECKED_BASE(_First1),
-                                                                           _CHECKED_BASE(_Last1),
-                                                                           _First2,
-                                                                           _Pred,
-                                                                           _STD _Iter_random(_First1, _First2),
-                                                                           _STD _Range_checked_iterator_tag());
+    std::pair<_CHECKED_BASE_TYPE(_InIt1), _InIt2> _Result =
+        _STDEXT_STD _Mismatch(_CHECKED_BASE(_First1),
+                              _CHECKED_BASE(_Last1),
+                              _First2,
+                              _Pred,
+                              _STDEXT_STD _Iter_random(_First1, _First2),
+                              _STDEXT_STD _Range_checked_iterator_tag());
     _ASSIGN_FROM_BASE(_First1, _Result.first);
     return (std::pair<_InIt1, _InIt2>(_First1, _Result.second));
 }
@@ -3513,8 +3533,8 @@ template <class _InIt1, class _InElem2, class _Pr, size_t _Size>
 inline std::pair<_InIt1, _InElem2 *> __CLRCALL_OR_CDECL checked_mismatch(_InIt1 _First1, _InIt1 _Last1,
                                                                          _InElem2 (&_First2)[_Size], _Pr _Pred)
 {  // return [_First1, _Last1) and [_First2, _Last2) mismatch using _Pred
-    std::pair<_InIt1, _STDEXT checked_array_iterator<_InElem2 *>> _Result =
-        checked_mismatch(_First1, _Last1, _STDEXT make_checked_array_iterator(_First2, _Size), _Pred);
+    std::pair<_InIt1, _STDEXT_NS checked_array_iterator<_InElem2 *>> _Result =
+        checked_mismatch(_First1, _Last1, _STDEXT_NS make_checked_array_iterator(_First2, _Size), _Pred);
     return (std::pair<_InIt1, _InElem2 *>(_Result.first, _Result.second.base()));
 }
 
@@ -3522,12 +3542,13 @@ template <class _InIt1, class _InIt2, class _Pr>
 inline _SCL_CHECKED_ALGORITHM_WARN _IF_NOT_CHK_RET_PAIR(_InIt2, _InIt1, _InIt2)
 __CLRCALL_OR_CDECL checked_mismatch(_InIt1 _First1, _InIt1 _Last1, _InIt2 _First2, _Pr _Pred)
 {  // return [_First1, _Last1) and [_First2, _Last2) mismatch using _Pred
-    std::pair<_CHECKED_BASE_TYPE(_InIt1), _InIt2> _Result = _STD _Mismatch(_CHECKED_BASE(_First1),
-                                                                           _CHECKED_BASE(_Last1),
-                                                                           _First2,
-                                                                           _Pred,
-                                                                           _STD _Iter_random(_First1, _First2),
-                                                                           _STD _Range_checked_iterator_tag());
+    std::pair<_CHECKED_BASE_TYPE(_InIt1), _InIt2> _Result =
+        _STDEXT_STD _Mismatch(_CHECKED_BASE(_First1),
+                              _CHECKED_BASE(_Last1),
+                              _First2,
+                              _Pred,
+                              _STDEXT_STD _Iter_random(_First1, _First2),
+                              _STDEXT_STD _Range_checked_iterator_tag());
     _ASSIGN_FROM_BASE(_First1, _Result.first);
     return (std::pair<_InIt1, _InIt2>(_First1, _Result.second));
 }
@@ -3535,78 +3556,78 @@ __CLRCALL_OR_CDECL checked_mismatch(_InIt1 _First1, _InIt1 _Last1, _InIt2 _First
 template <class _InIt1, class _InIt2>
 inline bool __CLRCALL_OR_CDECL unchecked_equal(_InIt1 _First1, _InIt1 _Last1, _InIt2 _First2)
 {  // compare [_First1, _Last1) to [First2, ...)
-    return _STD _Equal(_CHECKED_BASE(_First1),
-                       _CHECKED_BASE(_Last1),
-                       _First2,
-                       _STD _Iter_random(_First1, _First2),
-                       _STD _Range_checked_iterator_tag());
+    return _STDEXT_STD _Equal(_CHECKED_BASE(_First1),
+                              _CHECKED_BASE(_Last1),
+                              _First2,
+                              _STDEXT_STD _Iter_random(_First1, _First2),
+                              _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 template <class _InIt1, class _InIt2>
 inline _IF_CHK_(_InIt2, bool) __CLRCALL_OR_CDECL checked_equal(_InIt1 _First1, _InIt1 _Last1, _InIt2 _First2)
 {  // compare [_First1, _Last1) to [First2, ...)
-    return _STD _Equal(_CHECKED_BASE(_First1),
-                       _CHECKED_BASE(_Last1),
-                       _First2,
-                       _STD _Iter_random(_First1, _First2),
-                       _STD _Range_checked_iterator_tag());
+    return _STDEXT_STD _Equal(_CHECKED_BASE(_First1),
+                              _CHECKED_BASE(_Last1),
+                              _First2,
+                              _STDEXT_STD _Iter_random(_First1, _First2),
+                              _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 template <class _InIt1, class _InElem2, size_t _Size>
 inline bool __CLRCALL_OR_CDECL checked_equal(_InIt1 _First1, _InIt1 _Last1, _InElem2 (&_First2)[_Size])
 {  // compare [_First1, _Last1) to [First2, ...)
-    return checked_equal(_First1, _Last1, _STDEXT make_checked_array_iterator(_First2, _Size));
+    return checked_equal(_First1, _Last1, _STDEXT_NS make_checked_array_iterator(_First2, _Size));
 }
 
 template <class _InIt1, class _InIt2>
 inline _SCL_CHECKED_ALGORITHM_WARN _IF_NOT_CHK_(_InIt2, bool) __CLRCALL_OR_CDECL
     checked_equal(_InIt1 _First1, _InIt1 _Last1, _InIt2 _First2)
 {  // compare [_First1, _Last1) to [First2, ...)
-    return _STD _Equal(_CHECKED_BASE(_First1),
-                       _CHECKED_BASE(_Last1),
-                       _First2,
-                       _STD _Iter_random(_First1, _First2),
-                       _STD _Range_checked_iterator_tag());
+    return _STDEXT_STD _Equal(_CHECKED_BASE(_First1),
+                              _CHECKED_BASE(_Last1),
+                              _First2,
+                              _STDEXT_STD _Iter_random(_First1, _First2),
+                              _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 template <class _InIt1, class _InIt2, class _Pr>
 inline bool __CLRCALL_OR_CDECL unchecked_equal(_InIt1 _First1, _InIt1 _Last1, _InIt2 _First2, _Pr _Pred)
 {  // compare [_First1, _Last1) to [First2, ...)
-    return _STD _Equal(_CHECKED_BASE(_First1),
-                       _CHECKED_BASE(_Last1),
-                       _First2,
-                       _Pred,
-                       _STD _Iter_random(_First1, _First2),
-                       _STD _Range_checked_iterator_tag());
+    return _STDEXT_STD _Equal(_CHECKED_BASE(_First1),
+                              _CHECKED_BASE(_Last1),
+                              _First2,
+                              _Pred,
+                              _STDEXT_STD _Iter_random(_First1, _First2),
+                              _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 template <class _InIt1, class _InIt2, class _Pr>
 inline _IF_CHK_(_InIt2, bool) __CLRCALL_OR_CDECL checked_equal(_InIt1 _First1, _InIt1 _Last1, _InIt2 _First2, _Pr _Pred)
 {  // compare [_First1, _Last1) to [First2, ...) using _Pred
-    return _STD _Equal(_CHECKED_BASE(_First1),
-                       _CHECKED_BASE(_Last1),
-                       _First2,
-                       _Pred,
-                       _STD _Iter_random(_First1, _First2),
-                       _STD _Range_checked_iterator_tag());
+    return _STDEXT_STD _Equal(_CHECKED_BASE(_First1),
+                              _CHECKED_BASE(_Last1),
+                              _First2,
+                              _Pred,
+                              _STDEXT_STD _Iter_random(_First1, _First2),
+                              _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 template <class _InIt1, class _InElem2, class _Pr, size_t _Size>
 inline bool __CLRCALL_OR_CDECL checked_equal(_InIt1 _First1, _InIt1 _Last1, _InElem2 (&_First2)[_Size], _Pr _Pred)
 {  // compare [_First1, _Last1) to [First2, ...) using _Pred
-    return checked_equal(_First1, _Last1, _STDEXT make_checked_array_iterator(_First2, _Size), _Pred);
+    return checked_equal(_First1, _Last1, _STDEXT_NS make_checked_array_iterator(_First2, _Size), _Pred);
 }
 
 template <class _InIt1, class _InIt2, class _Pr>
 inline _SCL_CHECKED_ALGORITHM_WARN _IF_NOT_CHK_(_InIt2, bool) __CLRCALL_OR_CDECL
     checked_equal(_InIt1 _First1, _InIt1 _Last1, _InIt2 _First2, _Pr _Pred)
 {  // compare [_First1, _Last1) to [First2, ...) using _Pred
-    return _STD _Equal(_CHECKED_BASE(_First1),
-                       _CHECKED_BASE(_Last1),
-                       _First2,
-                       _Pred,
-                       _STD _Iter_random(_First1, _First2),
-                       _STD _Range_checked_iterator_tag());
+    return _STDEXT_STD _Equal(_CHECKED_BASE(_First1),
+                              _CHECKED_BASE(_Last1),
+                              _First2,
+                              _Pred,
+                              _STDEXT_STD _Iter_random(_First1, _First2),
+                              _STDEXT_STD _Range_checked_iterator_tag());
 }
 
 _STDEXT_END

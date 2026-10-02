@@ -1,7 +1,6 @@
 #pragma once
 
 #include "als_state.h"
-#include "als_transition_post_handle.h"
 #include "mvector.h"
 
 struct mash_info_struct;
@@ -43,10 +42,22 @@ struct scripted_state : state {
     int get_filter(int out, animation_logic_system *a2, state_machine *a3, int a4);
 
     //virtual
-    request_data do_implicit_trans(animation_logic_system *a4, state_machine *a5);
+    int _get_mocomp_type();
 
     //virtual
-    void do_post_trans(animation_logic_system *a1, state_machine *a2, transition_post_handle a4);
+    request_data _do_implicit_trans(animation_logic_system *a4, state_machine *a5);
+
+    //0x004A7040
+    //virtual
+    request_data _do_explicit_trans(animation_logic_system *a4, state_machine *a5, string_hash a6);
+
+    //0x004A7180
+    //virtual
+    request_data _do_layer_trans(animation_logic_system *a4, state_machine *a5);
+
+    //004A72B0
+    //virtual
+    void _do_post_trans(animation_logic_system *a1, state_machine *a2, transition_post_handle a4);
 
     //virtual
     int _get_mash_sizeof() const;

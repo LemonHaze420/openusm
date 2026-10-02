@@ -16,7 +16,7 @@ inline constexpr float AXIS_MAX = 1.0f;
 inline constexpr float AXIS_MID = 0.0f;
 inline constexpr float AXIS_MIN = -1.0f;
 
-enum device_id_t {
+enum device_id_t : int {
     INVALID_DEVICE_ID = -1,
 
     MOUSE1_DEVICE = 11,

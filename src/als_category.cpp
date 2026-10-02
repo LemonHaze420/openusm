@@ -14,22 +14,47 @@ namespace als {
     VALIDATE_SIZE(category, 0x10);
 
 request_data category::do_implicit_trans(animation_logic_system *a3, state_machine *a4)
-    {
-        als::request_data data;
+{
+    request_data data;
     void(__fastcall * func)(void *, void *, request_data *, animation_logic_system *, state_machine *) =
         CAST(func, get_vfunc(m_vtbl, 0x18));
         func(this, nullptr, &data, a3, a4);
         return data;
     }
 
+request_data category::do_explicit_trans(animation_logic_system *a4, state_machine *a5, string_hash a6)
+{
+    request_data data;
+    void(__fastcall * func)(void *, void *, request_data *, animation_logic_system *, state_machine *, string_hash) =
+        CAST(func, get_vfunc(m_vtbl, 0x1C));
+    func(this, nullptr, &data, a4, a5, a6);
+    return data;
+}
+
+request_data category::do_layer_trans(animation_logic_system *a4, state_machine *a5)
+{
+    request_data data;
+    void(__fastcall * func)(void *, void *, request_data *, animation_logic_system *, state_machine *) =
+        CAST(func, get_vfunc(m_vtbl, 0x20));
+    func(this, nullptr, &data, a4, a5);
+    return data;
+}
+
 request_data category::do_incoming_trans(animation_logic_system *a3, state_machine *a4)
-    {
-        als::request_data data;
+{
+    request_data data;
     void(__fastcall * func)(void *, void *, request_data *, animation_logic_system *, state_machine *) =
         CAST(func, get_vfunc(m_vtbl, 0x24));
         func(this, nullptr, &data, a3, a4);
         return data;
     }
+
+void category::do_post_trans(animation_logic_system *a1, state_machine *a2, transition_post_handle a3)
+{
+    void(__fastcall * func)(void *, void *edx, animation_logic_system *, state_machine *, transition_post_handle) =
+        CAST(func, get_vfunc(m_vtbl, 0x28));
+    func(this, nullptr, a1, a2, a3);
+}
 
 category::category()
 {
@@ -58,11 +83,19 @@ void category::initialize(mash::allocation_scope a2)
     }
 }
 
-    int category::get_mash_sizeof() const
-    {
-        int (__fastcall *func)(const category *) = CAST(func, get_vfunc(m_vtbl, 0x34));
-        return func(this);
-    }
+string_hash category::get_default_state() const
+{
+    string_hash result{};
+    int(__fastcall * func)(const category *, void *edx, string_hash *) = CAST(func, get_vfunc(m_vtbl, 0x30));
+    func(this, nullptr, &result);
+    return result;
+}
+
+int category::get_mash_sizeof() const
+{
+    int(__fastcall * func)(const category *) = CAST(func, get_vfunc(m_vtbl, 0x34));
+    return func(this);
+}
 
     void category::_unmash(mash_info_struct *a1, void *a3)
     {

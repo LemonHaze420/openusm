@@ -1,8 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
 
 include(ExternalProject)
-include(cmake/i686-pc-mingw32.cmake)
-
+option(USM_USE_CLANG_XWIN "Cross-compile with clang-cl + xwin instead of mingw" OFF)
 option(OPENUSM_DEBUG_SYMBOLS "Build debug" OFF)
 
 if(OPENUSM_DEBUG_SYMBOLS)
@@ -11,12 +10,17 @@ else()
     set(OPENUSM_DEBUG_FLAG "-g0")
 endif()
 
-set(CMAKE_C_FLAGS_DEBUG "${OPENUSM_DEBUG_FLAG}" CACHE STRING "Flags used by the C compiler during Debug builds." FORCE)
-set(CMAKE_CXX_FLAGS_DEBUG "${OPENUSM_DEBUG_FLAG}" CACHE STRING "Flags used by the CXX compiler during Debug builds." FORCE)
-
-string(APPEND CMAKE_C_FLAGS " -static -std=gnu11 ${OPENUSM_DEBUG_FLAG}")
-string(APPEND CMAKE_CXX_FLAGS
-    " -fomit-frame-pointer -m32 -fno-asynchronous-unwind-tables -masm=intel -static ${OPENUSM_DEBUG_FLAG}")
+if(USM_USE_CLANG_XWIN)
+    set(CMAKE_SYSTEM_NAME Windows)
+    set(CMAKE_SYSTEM_PROCESSOR x86)
+else()
+    include(cmake/i686-pc-mingw32.cmake)
+    set(CMAKE_C_FLAGS_DEBUG "${OPENUSM_DEBUG_FLAG}" CACHE STRING "Flags used by the C compiler during Debug builds." FORCE)
+    set(CMAKE_CXX_FLAGS_DEBUG "${OPENUSM_DEBUG_FLAG}" CACHE STRING "Flags used by the CXX compiler during Debug builds." FORCE)
+    string(APPEND CMAKE_C_FLAGS " -static -std=gnu11 ${OPENUSM_DEBUG_FLAG}")
+    string(APPEND CMAKE_CXX_FLAGS
+        " -fomit-frame-pointer -m32 -fno-asynchronous-unwind-tables -masm=intel -static ${OPENUSM_DEBUG_FLAG}")
+endif()
 
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -25,31 +29,38 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-list(APPEND flags
-    "-Wall"
-    "-Wextra"
-    "-pedantic"
-    "-Werror"
-    "-Wcast-align"
-    "-Wcast-qual"
-    "-Wzero-as-null-pointer-constant"
-    #"-Wconversion"
-    "-Wctor-dtor-privacy"
-    "-Wduplicated-branches"
-    "-Wduplicated-cond"
-    "-Wextra-semi"
-    "-Wfloat-equal"
-    #"-Weffc++"
-    "-Wlogical-op"
-    "-Wnon-virtual-dtor"
-    #"-Wold-style-cast"
-    "-Woverloaded-virtual"
-    "-Wredundant-decls"
-    #"-Wsign-conversion"
-    "-Wsign-promo"
-    "-Wshift-negative-value"
-    "-Wno-invalid-offsetof"
-    "-Wno-deprecated")
+if(USM_USE_CLANG_XWIN)
+    list(APPEND flags
+        "/W4"
+        "/permissive-"
+        "-Wno-non-pod-varargs")
+else()
+    list(APPEND flags
+        "-Wall"
+        "-Wextra"
+        "-pedantic"
+        "-Werror"
+        "-Wcast-align"
+        "-Wcast-qual"
+        "-Wzero-as-null-pointer-constant"
+        #"-Wconversion"
+        "-Wctor-dtor-privacy"
+        "-Wduplicated-branches"
+        "-Wduplicated-cond"
+        "-Wextra-semi"
+        "-Wfloat-equal"
+        #"-Weffc++"
+        "-Wlogical-op"
+        "-Wnon-virtual-dtor"
+        #"-Wold-style-cast"
+        "-Woverloaded-virtual"
+        "-Wredundant-decls"
+        #"-Wsign-conversion"
+        "-Wsign-promo"
+        "-Wshift-negative-value"
+        "-Wno-invalid-offsetof"
+        "-Wno-deprecated")
+endif()
 
 project(USM-dev)
 
@@ -141,12 +152,18 @@ if(SETUP_STANDALONE_SYSTEM)
     add_executable(openusm_standalone WIN32 main.cpp)
     set_target_properties(openusm_standalone PROPERTIES OUTPUT_NAME USM)
     set(OPENUSM_RUNTIME_TARGET openusm_standalone)
-    target_link_options(openusm_standalone PRIVATE
-        "-Wl,-Map,${CMAKE_BINARY_DIR}/USM.map"
-        "-Wl,--disable-dynamicbase")
+    if(USM_USE_CLANG_XWIN)
+        target_link_options(openusm_standalone PRIVATE
+            "/MAP:${CMAKE_BINARY_DIR}/USM.map"
+            "/DYNAMICBASE:NO")
+    else()
+        target_link_options(openusm_standalone PRIVATE
+            "-Wl,-Map,${CMAKE_BINARY_DIR}/USM.map"
+            "-Wl,--disable-dynamicbase")
+    endif()
 else()
     add_library(binkw32 SHARED main.cpp)
-    if(NOT OPENUSM_DEBUG_SYMBOLS)
+    if(NOT OPENUSM_DEBUG_SYMBOLS AND NOT USM_USE_CLANG_XWIN)
         set_property(TARGET binkw32 APPEND_STRING PROPERTY LINK_FLAGS " -s")
     endif()
     set(OPENUSM_RUNTIME_TARGET binkw32)
@@ -360,12 +377,29 @@ target_include_directories(ngl_dx PUBLIC "include" "src")
 
 # Assimp lib
 if(NOT SETUP_STANDALONE_SYSTEM)
+    if(USM_USE_CLANG_XWIN)
+        set(ASSIMP_TOOLCHAIN_ARGS
+            -DCMAKE_SYSTEM_NAME=Windows
+            -DCMAKE_SYSTEM_PROCESSOR=x86
+            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+            -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+            -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
+            -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS})
+        if(CMAKE_TOOLCHAIN_FILE)
+            list(APPEND ASSIMP_TOOLCHAIN_ARGS
+                -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE})
+        endif()
+    else()
+        set(ASSIMP_TOOLCHAIN_ARGS
+            -DCMAKE_TOOLCHAIN_FILE=${CMAKE_SOURCE_DIR}/cmake/i686-pc-mingw32.cmake
+            -DCMAKE_CXX_FLAGS=-static-libgcc\ -static-libstdc++)
+    endif()
     ExternalProject_Add(
         AssimpProject
         SOURCE_DIR ${CMAKE_SOURCE_DIR}/assimp
         BINARY_DIR ${CMAKE_BINARY_DIR}/assimp-build
         CMAKE_ARGS
-            -DCMAKE_TOOLCHAIN_FILE=${CMAKE_SOURCE_DIR}/cmake/i686-pc-mingw32.cmake
+            ${ASSIMP_TOOLCHAIN_ARGS}
             -DCMAKE_BUILD_TYPE=Release
             -DASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT=OFF
             -DASSIMP_BUILD_OBJ_IMPORTER=ON
@@ -378,10 +412,9 @@ if(NOT SETUP_STANDALONE_SYSTEM)
             -DASSIMP_BUILD_ZLIB=ON
             -DASSIMP_BUILD_SAMPLES=OFF
             -DASSIMP_OPT_BUILD_PACKAGES=OFF
-            -DCMAKE_CXX_FLAGS=-static-libgcc\ -static-libstdc++
         INSTALL_COMMAND ""
     )
-    target_include_directories(usm PUBLIC "./assimp/include/")
+    target_include_directories(usm PUBLIC "./assimp/include/" "${CMAKE_BINARY_DIR}/assimp-build/include")
     target_link_directories(usm PUBLIC ${CMAKE_BINARY_DIR}/assimp-build/lib)
     add_dependencies(usm AssimpProject)
 endif()
@@ -415,6 +448,7 @@ option(ENABLE_TESTS "" ON)
 
 if(ENABLE_TESTS)
     set(GOOGLETEST_VERSION 1.1)
+    option(gtest_force_shared_crt "" ON)
 
     add_subdirectory(third_party/googletest)
 

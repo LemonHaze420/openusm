@@ -20,10 +20,10 @@ nalCam::nalCamAnim::nalCamAnim()
 {
     if constexpr (1) {
         static void *g_vtbl[]{nullptr,
-                              func_address(&_Process),
-                              func_address(&_Release),
-                              func_address(&_CheckVersion),
-                              func_address(&_VirtualCreateInstance)};
+                              func_address(&nalCamAnim::_Process),
+                              func_address(&nalCamAnim::_Release),
+                              func_address(&nalCamAnim::_CheckVersion),
+                              func_address(&nalCamAnim::_VirtualCreateInstance)};
 
         this->m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {

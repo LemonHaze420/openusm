@@ -16,8 +16,8 @@ struct character_anim_controller : nal_anim_controller {
 
         //virtual
         //0x0049EC30
-        void Compose(usm_anim_player<nalAnimClass<nalAnyPose>, 3>::nalAnimState *a2, nalAnyPose &a3, nalAnyPose &a4,
-                     const nalAnyPose &a5);
+        void _Compose(usm_anim_player<nalAnimClass<nalAnyPose>, 3>::nalAnimState *a2, nalAnyPose &a3, nalAnyPose &a4,
+                      const nalAnyPose &a5);
 
         //0x00492D10
         void Reference(usm_anim_player<nalAnimClass<nalAnyPose>, 3>::nalAnimState *a1);
@@ -46,8 +46,8 @@ struct character_anim_controller : nal_anim_controller {
         bool ShouldFireSignals(usm_anim_player<nalAnimClass<nalAnyPose>, 3>::nalAnimState *a1);
     };
 
-    character_anim_controller::gen_base_play_method field_54;
-    character_anim_controller::gen_mod_play_method field_5C;
+    gen_base_play_method field_54;
+    gen_mod_play_method field_5C;
     ArbitraryPOCharComp::BoneData *field_64;
     ArbitraryPOCharComp::BoneData *field_68;
     nalBaseSkeleton *field_6C;

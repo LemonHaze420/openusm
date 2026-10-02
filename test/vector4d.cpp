@@ -101,25 +101,3 @@ TEST(Vector4d, Test5)
     auto result = sub_5FC770(a2, a3, a4, a5);
     EXPECT_TRUE(approx_equals(expectedResult, result, LARGE_EPSILON));
 }
-
-TEST(ArbitraryPOCharComp, Test6)
-{
-    const float a2 = 0.125003f;
-    vector4d a3{0.706579, -0.706934, 0.022704, 0.021800};
-    vector4d a4{0.706543, -0.706543, 0.022705, -0.022850};
-    const vector4d expectedResult{0.706673, -0.706983, 0.022707, 0.016219};
-
-    const auto result = sub_5FD0C0(a2, a3, a4);
-    EXPECT_TRUE(approx_equals(result, expectedResult, LARGE_EPSILON));
-}
-
-TEST(ArbitraryPOCharComp, Test7)
-{
-    const float a2 = 0.125003f;
-    vector4d a3{0.00854492, -0.00146484, 0.00854492, 0.999926};
-    vector4d a4{0.00854492, -0.00146484, 0.00854492, 0.999926};
-    const vector4d expectedResult{0.00854492, -0.00146484, 0.00854492, 0.999926};
-
-    const auto result = sub_5FD0C0(a2, a3, a4);
-    EXPECT_TRUE(approx_equals(result, expectedResult, LARGE_EPSILON));
-}

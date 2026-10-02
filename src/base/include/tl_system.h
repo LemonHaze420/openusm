@@ -272,13 +272,13 @@ struct tlInstanceBankResourceDirectory : tlResourceDirectory<T0, T1> {
     tlInstanceBankResourceDirectory()
     {
         T0 *(tlResourceDirectory<T0, T1>::*Find1)(unsigned int) = &tlResourceDirectory<T0, T1>::_Find;
-        static void *g_vtbl[] = {func_address(&finalize),
+        static void *g_vtbl[] = {func_address(&tlInstanceBankResourceDirectory::finalize),
                                  func_address(&base_type::DirectoryName),
                                  func_address(Find1),
-                                 func_address(&_Find),
-                                 func_address(&_Add),
-                                 func_address(&_Del),
-                                 func_address(&_Enumerate),
+                                 func_address(&tlInstanceBankResourceDirectory::_Find),
+                                 func_address(&tlInstanceBankResourceDirectory::_Add),
+                                 func_address(&tlInstanceBankResourceDirectory::_Del),
+                                 func_address(&tlInstanceBankResourceDirectory::_Enumerate),
                                  func_address(&base_type::_ReleaseAll),
                                  func_address(&base_type::Load),
                                  func_address(&base_type::Load),

@@ -18,19 +18,19 @@ namespace als {
     {
     if constexpr (1) {
         static void *g_vtbl[] = {nullptr,
-                                 func_address(&_unmash),
+                                 func_address(&scripted_category::_unmash),
                                  nullptr,
-                                 func_address(&_get_virtual_type_enum),
+                                 func_address(&scripted_category::_get_virtual_type_enum),
                                  nullptr,
-                                 func_address(&_is_or_is_subclass_of),
-                                 nullptr,
-                                 nullptr,
+                                 func_address(&mash_virtual_base::_is_or_is_subclass_of),
                                  nullptr,
                                  nullptr,
                                  nullptr,
                                  nullptr,
                                  nullptr,
-                                 func_address(&_get_mash_sizeof)};
+                                 nullptr,
+                                 nullptr,
+                                 func_address(&scripted_category::_get_mash_sizeof)};
 
         this->m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {
@@ -102,6 +102,38 @@ request_data scripted_category::do_implicit_trans(animation_logic_system *a4, st
         THISCALL(0x004A7300, this, &data, a4, a5);
         return data;
     }
+
+request_data scripted_category::_do_explicit_trans(animation_logic_system *a4, state_machine *a5, string_hash a6)
+{
+    request_data(__fastcall *
+                 func)(void *, void *edx, request_data *, animation_logic_system *a4, state_machine *a5, string_hash) =
+        CAST(func, 0x004A7420);
+    request_data data{};
+    func(this, nullptr, &data, a4, a5, a6);
+    return data;
+}
+
+request_data scripted_category::_do_layer_trans(animation_logic_system *a4, state_machine *a5)
+{
+    request_data(__fastcall * func)(void *, void *edx, request_data *, animation_logic_system *a4, state_machine *a5) =
+        CAST(func, 0x004A7550);
+    request_data data{};
+    func(this, nullptr, &data, a4, a5);
+    return data;
+}
+
+void scripted_category::_do_post_trans(animation_logic_system *a1, state_machine *a2, transition_post_handle a3)
+{
+    als_data v4{a1, a2};
+    if (a3.field_4 < 2 || a3.field_4 == 3) {
+        a3.field_0->do_post_action(v4);
+    }
+}
+
+string_hash scripted_category::_get_default_state() const
+{
+    return this->field_10;
+}
 
 int scripted_category::_get_mash_sizeof() const
 {

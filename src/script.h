@@ -4,7 +4,7 @@
 #include "variable.h"
 
 struct script_instance;
-struct script_object;
+class script_object;
 struct vm_thread;
 
 namespace script {

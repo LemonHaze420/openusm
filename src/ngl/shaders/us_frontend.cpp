@@ -55,16 +55,16 @@ FrontEnd_Shader::FrontEnd_Shader()
 
     if constexpr (1) {
         static void *g_vtbl[]{
-            func_address(&_Register),
+            func_address(&FrontEnd_Shader::_Register),
             (void *)FrontEnd_Shader_GetName,
-            func_address(&_AddNode),
-            func_address(&_BindMaterial),
-            func_address(&_ReleaseMaterial),
-            func_address(&_RebaseMaterial),
-            func_address(&_CheckMaterialVersion),
-            func_address(&_CheckVertexDefVersion),
-            func_address(&_BindSection),
-            func_address(&_IsSwitchable),
+            func_address(&FrontEnd_Shader::_AddNode),
+            func_address(&FrontEnd_Shader::_BindMaterial),
+            func_address(&FrontEnd_Shader::_ReleaseMaterial),
+            func_address(&FrontEnd_Shader::_RebaseMaterial),
+            func_address(&nglShader::_CheckMaterialVersion),
+            func_address(&nglShader::_CheckVertexDefVersion),
+            func_address(&nglShader::_BindSection),
+            func_address(&USShaderBase::_IsSwitchable),
         };
         this->m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {

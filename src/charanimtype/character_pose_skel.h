@@ -25,7 +25,7 @@ struct nalCharPose : nalComp::nalCompPose {
 
     auto GetSkeleton() const
     {
-        return this->field_4;
+        return bit_cast<nalCharSkeleton *>(this->field_4);
     }
 
     void Blend(Float a2, const nalCharPose &a3, const nalCharPose &a4);
@@ -41,6 +41,16 @@ struct nalCharSkeleton : nalComp::nalCompSkeleton {
     nalCharPose *m_theDefaultPose;
 
     nalCharSkeleton();
+
+    CharComponentBase *GetComponent(uint32_t a2)
+    {
+        return bit_cast<CharComponentBase *>(nalCompSkeleton::GetComponent(a2));
+    }
+
+    CharComponentBase *GetComponent(uint32_t a2) const
+    {
+        return bit_cast<CharComponentBase *>(nalCompSkeleton::GetComponent(a2));
+    }
 
     int GetCompIxByName(CharComponentBase::Names a2) const;
 

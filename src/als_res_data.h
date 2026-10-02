@@ -16,6 +16,7 @@ struct als_res_data {
 
     als_res_data();
 
+    //0x004ABE40
     void initialize(mash::allocation_scope);
 
     void unmash(mash_info_struct *a2, void *a3);

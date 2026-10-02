@@ -5,8 +5,12 @@
 #include "core_ai_resource.h"
 
 #include "actor.h"
+#include "ai_pedestrian.h"
+#include "ai_std_combat_target.h"
+#include "base_ai_graph_manager.h"
 #include "base_ai_state_machine.h"
 #include "colgeom_alter_sys.h"
+#include "combat_inode.h"
 #include "common.h"
 #include "core_ai_resource.h"
 #include "debugutil.h"
@@ -17,15 +21,106 @@
 #include "mstring.h"
 #include "resource_manager.h"
 #include "trace.h"
+#include "traffic_inode.h"
 #include "utility.h"
+#include "wds.h"
 
 namespace ai {
 
 VALIDATE_SIZE(ai_core, 0x74u);
 
-ai_core::ai_core(core_ai_resource *a3, const param_block *arg4, actor *a4)
+_std::list<ai_core *> *&ai_core::the_ai_core_list_high = var<_std::list<ai_core *> *>(0x0096BE24);
+
+_std::list<ai_core *> *&ai_core::the_ai_core_list_low = var<_std::list<ai_core *> *>(0x0096BE28);
+
+void *&ai_core::next_ai_core_list_low_iter = var<void *>(0x0096C110);
+
+ai_core::ai_core(core_ai_resource *a2, const param_block *a3, actor *a4)
 {
-    THISCALL(0x006AEA90, this, a3, arg4, a4);
+    if constexpr (1) {
+        this->field_0 = {};
+        this->my_base_machine = nullptr;
+        this->my_locomotion_machine = nullptr;
+        this->my_machine_list = {};
+        this->field_20 = {};
+        this->my_mode = static_cast<mode_e>(0);
+        this->field_30 = {};
+        this->my_locomotion_mode = static_cast<mode_e>(0);
+        this->field_40 = nullptr;
+        this->field_44 = 1;
+        this->field_48 = {};
+        this->field_4C = 0;
+        this->field_50 = {};
+        auto *v5 = a2;
+        this->field_64 = a4;
+
+        static constexpr int dword_937CF0 = 8;
+        auto v6 = dword_937CF0;
+        this->field_6C = v5;
+        this->field_70 = nullptr;
+        auto v7 = g_world_ptr->field_158.field_C;
+
+        auto func = [](int begin, int end) -> int {
+            assert(begin < end);
+
+            return begin + ((end * rand()) / 32768.0f);
+        };
+
+        this->field_38 = func(0, v6) + v7;
+        this->field_48 = {0};
+        this->field_50.copy_from_pb_override(v5->field_0);
+        this->field_50.copy_from_pb_override(*a3);
+        this->field_5C = true;
+        auto v8 = v5->field_40;
+        if (v8 != 0) {
+            this->my_info_node_list =
+                static_cast<mVector<info_node> *>(arch_memalign(16u, v8));
+            assert(this->my_info_node_list != nullptr);
+            std::memcpy(this->my_info_node_list, v5->field_C, v8);
+
+            mash_info_struct v33{(uint8_t *)this->my_info_node_list, v8};
+            v33.unmash_class(this->my_info_node_list, this);
+            mash_info_struct::construct_class(this->my_info_node_list);
+        } else {
+            this->my_info_node_list = nullptr;
+        }
+
+        assert(this->my_base_machine == nullptr);
+
+        auto v14 = this->field_48;
+        auto *v28 = &this->my_base_machine;
+        auto v27 = v5->sub_6B6D50();
+        this->spawn_state_machine_internal(nullptr, v27, v28, v14);
+
+        assert(this->my_base_machine != nullptr);
+
+        this->field_48.source_hash_code = 0;
+        if (v5->field_44) {
+            if (the_ai_core_list_low == nullptr) {
+                the_ai_core_list_low = new _std::list<ai_core *>{};
+            }
+
+            the_ai_core_list_low->push_back(this);
+            if (the_ai_core_list_low->size() == 1) {
+                next_ai_core_list_low_iter = *the_ai_core_list_low->begin();
+            }
+
+        } else {
+            if (the_ai_core_list_high == nullptr) {
+                the_ai_core_list_high = new _std::list<ai_core *>{};
+            }
+
+            the_ai_core_list_high->push_back(this);
+        }
+
+        if (!pedestrian_inode::is_a_pedestrian(this)) {
+            if (this->get_info_node(traffic_inode::default_id, false) == nullptr) {
+                ai::pedestrian_inode::register_non_ped(vhandle_type<actor>{this->field_64->my_handle.field_0});
+            }
+        }
+    } else {
+        THISCALL(0x006AEA90, this, a2, a3, a4);
+    }
 }
 
 void sub_86AD60()
@@ -283,28 +378,28 @@ void ai_core::frame_advance_all_core_ais(Float elapsed)
 {
     TRACE("ai_core::frame_advance_all_core_ais");
 
-    auto *high = the_ai_core_list_high();
+    auto *high = the_ai_core_list_high;
     if (high != nullptr) {
         for (auto it = high->begin(); it != high->end();) {
             auto *core = *it;
             core->frame_advance(elapsed);
             if (core->field_6C != nullptr && core->field_6C->field_44 && (core->field_4C & 1) == 0) {
                 it = high->erase(it);
-                if (the_ai_core_list_low() == nullptr) {
-                    the_ai_core_list_low() = new _std::list<ai_core *>{};
+                if (the_ai_core_list_low == nullptr) {
+                    the_ai_core_list_low = new _std::list<ai_core *>{};
                 }
-                the_ai_core_list_low()->push_back(core);
+                the_ai_core_list_low->push_back(core);
             } else {
                 ++it;
             }
         }
         if (high->empty()) {
             delete high;
-            the_ai_core_list_high() = nullptr;
+            the_ai_core_list_high = nullptr;
         }
     }
 
-    auto *low = the_ai_core_list_low();
+    auto *low = the_ai_core_list_low;
     if (low == nullptr || low->empty()) {
         return;
     }
@@ -320,17 +415,17 @@ void ai_core::frame_advance_all_core_ais(Float elapsed)
         core->frame_advance(elapsed);
         if ((core->field_4C & 1) != 0) {
             it = low->erase(it);
-            if (the_ai_core_list_high() == nullptr) {
-                the_ai_core_list_high() = new _std::list<ai_core *>{};
+            if (the_ai_core_list_high == nullptr) {
+                the_ai_core_list_high = new _std::list<ai_core *>{};
             }
-            the_ai_core_list_high()->push_back(core);
+            the_ai_core_list_high->push_back(core);
         } else {
             ++it;
         }
     }
     if (low->empty()) {
         delete low;
-        the_ai_core_list_low() = nullptr;
+        the_ai_core_list_low = nullptr;
     }
 }
 
@@ -385,17 +480,22 @@ void ai_core::do_machine_exit(ai_state_machine *a2)
 
 info_node *ai_core::get_info_node(string_hash the_info_node, bool a3)
 {
-    if (this->field_60 != nullptr) {
+    if (this->my_info_node_list != nullptr) {
         static info_node searcher{};
 
         searcher.field_4 = the_info_node;
-        auto *v4 = this->field_60;
+        auto *v4 = this->my_info_node_list;
         auto v5 = v4->m_size;
         auto **v6 = v4->m_data;
         int index = -1;
 
         if (binary_search_array_deref(&searcher, v6, v5, &index)) {
-            return this->field_60->m_data[static_cast<uint16_t>(index)];
+            assert(index >= 0);
+
+            assert(this->my_info_node_list->at(index)->get_name() == the_info_node);
+
+            auto *found = this->my_info_node_list->at(static_cast<uint16_t>(index));
+            return found;
         }
     }
 
@@ -404,25 +504,11 @@ info_node *ai_core::get_info_node(string_hash the_info_node, bool a3)
         const char *v9 = the_info_node.to_string();
         mString a1{0, "unknown ai info-node name %s, for entity %s", v9, v8};
         sp_log("%s", a1.c_str());
+        assert(false && "Unknown AI info-node");
     }
-
-    assert(0);
 
     return nullptr;
 }
-
-namespace state_graph_manager {
-state_graph *find_state_graph_from_resource(resource_key resource_id, resource_pack_slot *pack_slot)
-{
-    auto *__old_context = resource_manager::push_resource_context(pack_slot);
-    resource_id.set_type(RESOURCE_KEY_TYPE_AI_STATE_GRAPH);
-    auto *resource = bit_cast<state_graph *>(resource_manager::get_resource(resource_id, nullptr, nullptr));
-    resource_manager::pop_resource_context();
-
-    assert(resource_manager::get_resource_context() == __old_context);
-    return resource;
-}
-}  // namespace state_graph_manager
 
 state_graph *ai_core::find_state_graph(resource_key a2)
 {
@@ -454,9 +540,20 @@ ai_state_machine *ai_core::find_machine(resource_key a2)
 
 int ai_core::can_spawn_state_machine(resource_key a2)
 {
-    TRACE("ai::ai_core::can_spawn_state_machine");
+    TRACE("ai_core::can_spawn_state_machine");
 
-    return (int)THISCALL(0x0069E9B0, this, a2);
+    if constexpr (1) {
+        auto *v5 = this->field_6C->field_3C;
+        auto v4 = a2;
+        if (!state_graph_manager::can_get_graph(v4, v5)) {
+            return 2;
+        }
+
+        return this->find_machine(a2) != nullptr;
+    } else {
+        int(__fastcall * func)(void *, void *edx, resource_key a2) = CAST(func, 0x0069E9B0);
+        return func(this, nullptr, a2);
+    }
 }
 
 void ai_core::spawn_state_machine_internal(ai_state_machine *a2, resource_key graph_name,
@@ -500,11 +597,11 @@ void ai_core::spawn_state_machine_internal(ai_state_machine *a2, resource_key gr
 void ai_core::advance_info_nodes(Float elapsed)
 {
     TRACE("ai::ai_core::advance_info_nodes");
-    if (field_60 == nullptr) {
+    if (my_info_node_list == nullptr) {
         return;
     }
-    for (uint16_t index = 0; index < field_60->m_size; ++index) {
-        auto *node = field_60->at(index);
+    for (uint16_t index = 0; index < my_info_node_list->m_size; ++index) {
+        auto *node = my_info_node_list->at(index);
         if (node != nullptr && node->does_need_advance()) {
             node->frame_advance(elapsed);
         }

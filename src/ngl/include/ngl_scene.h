@@ -107,11 +107,11 @@ extern void nglSetDefaultSceneParams();
 
 extern void nglSceneDumpStart();
 
-extern Var<nglScene *> nglRootScene;
+extern nglScene *&nglRootScene;
 
 extern nglScene *&nglCurScene;
 
-extern Var<nglScene *> g_shadow_scene;
+extern nglScene *&g_shadow_scene;
 
 extern bool nglIsFBPAL();
 

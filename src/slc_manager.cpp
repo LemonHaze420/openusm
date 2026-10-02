@@ -72,6 +72,7 @@ int vm_entity_garbage_collection_id = -1;
 int vm_script_entity_lists_garbage_collection_id = -1;
 _std::list<_std::vector<entity_base_vhandle> *> script_entity_lists;
 
+#if STANDALONE_SYSTEM
 // 0x006615B0
 _std::vector<entity_base_vhandle> *create_script_entity_list()
 {
@@ -79,6 +80,7 @@ _std::vector<entity_base_vhandle> *create_script_entity_list()
     script_entity_lists.push_back(result);
     return result;
 }
+#endif
 
 // 0x00661A40
 void release_script_entity_lists(
@@ -103,7 +105,7 @@ void release_allocated_entities(
     }
 
     for (const auto handle_value : allocations) {
-        entity_base_vhandle handle{static_cast<int>(handle_value)};
+        entity_base_vhandle handle{handle_value};
         auto *entity_base_ptr = handle.get_volatile_ptr();
         if (entity_base_ptr != nullptr && entity_base_ptr->is_an_entity()) {
             g_world_ptr->ent_mgr.release_entity(
@@ -2073,7 +2075,6 @@ struct slf__delay__num__t : script_library_class::function {
         return *elapsed >= duration;
 #else
         bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00663120);
-        stack.push(duration);
         return func(this, nullptr, &stack, entry);
 #endif
     }

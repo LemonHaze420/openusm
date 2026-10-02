@@ -1,6 +1,7 @@
 #include "armstdposedesc.h"
 
 #include "common.h"
+#include "nal_math.h"
 #include "trace.h"
 #include "utility.h"
 
@@ -23,7 +24,7 @@ void ArmStdPoseDesc::BlendPoseDataPartial(ArmStdPoseDesc::StdPoseData *a1, uint3
     if constexpr (1) {
         for (int i = 0; i < 8; ++i) {
             if (((1 << i) & a6) != 0) {
-                a1->field_0[i] = sub_5FD0C0(a3, a4->field_0[i], a5->field_0[i]);
+                a1->field_0[i] = math::Slerp(a3, a4->field_0[i], a5->field_0[i]);
             }
         }
     } else {

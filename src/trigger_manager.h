@@ -36,6 +36,7 @@ struct trigger_manager : singleton {
 
     void remove(trigger **trem);
 
+    //0x0051E560
     void delete_trigger(trigger *delete_me);
 
     void add_trigger(trigger *a2);
@@ -46,8 +47,10 @@ struct trigger_manager : singleton {
 
     entity_trigger *new_entity_trigger(entity_base *a2, Float a3);
 
+    //0x00541E00
     box_trigger *new_box_trigger(string_hash a2, const vector3d &a3);
 
+    //0x00541D70
     box_trigger *new_box_trigger(string_hash a2, entity_base *a3);
 
     static void create_inst();

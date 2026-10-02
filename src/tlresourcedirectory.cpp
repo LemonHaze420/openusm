@@ -106,10 +106,13 @@ nglTexture *tlResourceDirectory<nglTexture, tlFixedString>::StandardLoad(const t
 
     LABEL_19:
 
-        auto *vtbl = bit_cast<fastcall_call(*)[1]>(this->m_vtbl);
-        void(__fastcall * Add)(void *, void *, nglTexture *) = CAST(Add, (*vtbl)[4]);
-
-        Add(this, nullptr, tex);
+        if constexpr (STANDALONE_SYSTEM) {
+            bit_cast<tlInstanceBankResourceDirectory<nglTexture, tlFixedString> *>(this)->_Add(tex);
+        } else {
+            void(__fastcall *Add)(void *, void *, nglTexture *) =
+                CAST(Add, get_vfunc(this->m_vtbl, 0x10));
+            Add(this, nullptr, tex);
+        }
         return tex;
     } else {
         return (nglTexture *)THISCALL(0x0077A8A0, this, &str);

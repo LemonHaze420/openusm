@@ -41,7 +41,7 @@ public:
 
     auto *GetSkeleton()
     {
-        return this->field_30;
+        return bit_cast<nalCharSkeleton *>(this->field_30);
     }
 
     void *GetPerAnimDataByName(CharComponentBase::Names a2);
@@ -96,6 +96,8 @@ struct nalCharInstance : nalComp::nalCompInstance {
     void GetPose(Float a2, Float a3, nalChar::nalCharPose *a4, const nalChar::nalCharPose *a5);
 
     nalCharSkeleton *GetSkeleton();
+
+    nalCharAnim *GetAnim();
 };
 
 

@@ -7,7 +7,7 @@
 #include <list.hpp>
 #include <vector.hpp>
 
-struct resource_pack_streamer;
+class resource_pack_streamer;
 struct eligible_pack_streamer;
 struct eligible_pack;
 struct ideal_pack_info;

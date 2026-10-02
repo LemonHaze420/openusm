@@ -72,7 +72,6 @@ struct simple_queue {
                     }
 
                     if (a3) {
-                        result = result;
                         this->field_0[result] = this->field_0[v5];
                         --this->m_count;
                         if (--this->field_6 < 0) {

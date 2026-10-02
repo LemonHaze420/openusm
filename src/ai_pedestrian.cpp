@@ -141,9 +141,31 @@ bool pedestrian_inode::is_a_pedestrian(ai::ai_core *a1)
     return false;
 }
 
-void pedestrian_inode::unregister_non_ped(vhandle_type<actor> a1)
+void pedestrian_inode::register_non_ped(vhandle_type<actor> actor_handle)
 {
-    CDECL_CALL(0x006AE2B0, a1);
+    TRACE("pedestrian_inode::register_non_ped");
+
+    if (non_ped_list == nullptr) {
+        non_ped_list = new _std::list<vhandle_type<actor>>{};
+    }
+    non_ped_list->push_back(actor_handle);
+}
+
+void pedestrian_inode::unregister_non_ped(vhandle_type<actor> actor_handle)
+{
+    if (non_ped_list == nullptr) {
+        return;
+    }
+    for (auto it = non_ped_list->begin(); it != non_ped_list->end(); ++it) {
+        if (it->field_0 == actor_handle.field_0) {
+            non_ped_list->erase(it);
+            break;
+        }
+    }
+    if (non_ped_list->empty()) {
+        delete non_ped_list;
+        non_ped_list = nullptr;
+    }
 }
 
 void pedestrian_idle_state::pedize_non_pedestrian()

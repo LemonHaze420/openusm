@@ -616,7 +616,7 @@ void nglListSend(bool Flip)
 
         sub_76DE60();
 #if 0
-        if (nglCurScene != nglRootScene()) {
+        if (nglCurScene != nglRootScene) {
             error("nglListSend called while one or more scenes were still active (need to call nglListEndScene).\n");
         }
 #endif
@@ -641,7 +641,7 @@ void nglListSend(bool Flip)
         nglScratchBuffer().field_4C.getVertexBuffer()->lpVtbl->Unlock(nglScratchBuffer().field_4C.getVertexBuffer());
         nglScratchBuffer().field_48->lpVtbl->Unlock(nglScratchBuffer().field_48);
 
-        nglCurScene = nglRootScene();
+        nglCurScene = nglRootScene;
         IDirect3DDevice9_BeginScene(g_Direct3DDevice);
         nglVif1RenderScene();
         IDirect3DDevice9_EndScene(g_Direct3DDevice);

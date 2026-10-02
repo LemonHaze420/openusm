@@ -108,9 +108,6 @@
 #include <cstdio>
 #include <cstring>
 #include <numeric>
-#if STANDALONE_SYSTEM
-extern const char *g_heap_check_stage;
-#endif
 
 VALIDATE_SIZE(game::level_load_stuff, 0x3C);
 VALIDATE_SIZE(game, 0x2C4u);
@@ -283,21 +280,9 @@ game::game()
     }
 
     if constexpr (1) {
-#if STANDALONE_SYSTEM
-        g_heap_check_stage = "game::scratchpad_stack::initialize";
-#endif
         scratchpad_stack::initialize();
-#if STANDALONE_SYSTEM
-        g_heap_check_stage = "game::script_manager::init";
-#endif
         script_manager::init();
-#if STANDALONE_SYSTEM
-        g_heap_check_stage = "game::construct_script_controllers";
-#endif
         construct_script_controllers();
-#if STANDALONE_SYSTEM
-        g_heap_check_stage = "game::scene_entity_base::initialize";
-#endif
         scene_entity_base::initialize();
         this->field_2B4 = false;
         this->field_1 = false;
@@ -339,17 +324,11 @@ game::game()
             }
         }
 
-#if STANDALONE_SYSTEM
-        g_heap_check_stage = "game::world_dynamics_system";
-#endif
         this->the_world = new world_dynamics_system();
         g_world_ptr = this->the_world;
 
         this->mb = nullptr;
 
-#if STANDALONE_SYSTEM
-        g_heap_check_stage = "game::game_settings";
-#endif
         this->gamefile = new game_settings();
 
         this->field_278 = 0.0;
@@ -402,17 +381,8 @@ game::game()
         this->field_64 = nullptr;
         this->field_7C = nullptr;
 
-#if STANDALONE_SYSTEM
-        g_heap_check_stage = "game::setup_input_registrations";
-#endif
         this->setup_input_registrations();
-#if STANDALONE_SYSTEM
-        g_heap_check_stage = "game::setup_inputs";
-#endif
         this->setup_inputs();
-#if STANDALONE_SYSTEM
-        g_heap_check_stage = "game::push_process";
-#endif
 
         static Var<bool> g_console_command {0x0095C068};
         g_console_command() = false;
@@ -433,13 +403,7 @@ game::game()
         this->field_80 = game_button {
             game_button{static_cast<game_control_t>(105)}, game_button{static_cast<game_control_t>(102)}, 4};
 
-#if STANDALONE_SYSTEM
-        g_heap_check_stage = "game::occlusion::init";
-#endif
         occlusion::init();
-#if STANDALONE_SYSTEM
-        g_heap_check_stage = "game::init_subdivision";
-#endif
         init_subdivision();
 
         g_debug_mem_dump_frame = os_developer_options::instance->get_int(mString {"MEM_DUMP_FRAME"});
@@ -686,8 +650,8 @@ static Var<bool> byte_921D79{0x00921D79};
 
 void sub_5935D0()
 {
-    if (g_shadow_scene() == nullptr) {
-        g_shadow_scene() = nglCurScene;
+    if (g_shadow_scene == nullptr) {
+        g_shadow_scene = nglCurScene;
     }
 }
 
@@ -1326,8 +1290,8 @@ void game::handle_cameras(input_mgr *a2, const Float &time_inc)
 
             camera * arr_camera[64] {};
 
-            if (ai::ai_core::the_ai_core_list_high() != nullptr) {
-                for (auto &the_core : (*ai::ai_core::the_ai_core_list_high())) {
+            if (ai::ai_core::the_ai_core_list_high != nullptr) {
+                for (auto &the_core : (*ai::ai_core::the_ai_core_list_high)) {
                     if (the_core == nullptr) {
                         continue;
                     }

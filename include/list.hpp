@@ -6,8 +6,8 @@
 #define _REFERENCE_X(T, A) typename std::allocator_traits<A>::template rebind_alloc<T>::value_type &
 #define _GENERIC_BASE _Node
 
-#ifndef _THROW
-#define _THROW(err, str) throw err(str)
+#ifndef _STDEXT_THROW
+#define _STDEXT_THROW(err, str) throw err(str)
 #endif
 
 namespace _std {
@@ -538,7 +538,7 @@ struct list : public _List_val<_Ty, _Ax> {
     void _Incsize(size_type _Count)
     {
         if (max_size() - m_size < _Count) {
-            _THROW(std::length_error, "list<T> too long");
+            _STDEXT_THROW(std::length_error, "list<T> too long");
         }
 
         m_size += _Count;

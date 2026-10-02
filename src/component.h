@@ -83,5 +83,8 @@ struct BaseComponent {
     void AnimRelease(uint32_t a1, void *a2, void *a3, const void *a4) const;
 
     //virtual
+    void CopyPoseExtraData(void *a2, uint32_t a3, const void *a4);
+
+    //virtual
     void PoseDataFree(uint32_t, void *) const;
 };

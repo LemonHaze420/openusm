@@ -38,6 +38,20 @@ bool nalBaseSkeleton::CheckVersion() const
     return func(this);
 }
 
+void nalBaseSkeleton::VirtualGetBoneMatrices(const nalBasePose *a1, nalMatrix4x4 *a2) const
+{
+    void(__fastcall * func)(const void *, void *edx, const nalBasePose *, nalMatrix4x4 *) =
+        CAST(func, get_vfunc(this->m_vtbl, 0x18));
+    func(this, nullptr, a1, a2);
+}
+
+void nalBaseSkeleton::VirtualGetTrajectoryUpdate(const nalBasePose *a2, nalPositionOrientation *a3)
+{
+    void(__fastcall * func)(const void *, void *edx, const nalBasePose *, nalPositionOrientation *) =
+        CAST(func, get_vfunc(this->m_vtbl, 0x1C));
+    func(this, nullptr, a2, a3);
+}
+
 nalBasePose *nalBaseSkeleton::VirtualGetDefaultPose()
 {
     nalBasePose *(__fastcall *func)(void *) = CAST(func, get_vfunc(this->m_vtbl, 0x24));
@@ -99,7 +113,7 @@ void *nalConstructSkeleton(void *a1)
         if (!skel->CheckVersion()) {
 #ifdef TARGET_XBOX
             auto v3 = skel->Version;
-            auto *v5 = skel->field_8.to_string();
+            auto *v5 = skel->GetName().to_string();
             sp_log("Unsupported skeleton version %x (%s).\n", v3, v5);
             assert(0);
 #endif

@@ -183,9 +183,9 @@ void nal_anim_controller::_frame_advance(Float a2, bool a3, bool a4)
             this->my_player.sub_4B06A0(a2);
             this->my_player.sub_4B0860(this->field_40);
             if (this->field_4->is_visible() && !a3) {
-                static tlFixedString stru_959A24 {"green_goblin"};
+                static tlFixedString green_goblin_hash{"green_goblin"};
 
-                if ( this->field_8->field_8 == stru_959A24 ) {
+                if (this->field_8->GetName() == green_goblin_hash) {
                     byte_959561 = true;
                 }
 
@@ -197,6 +197,27 @@ void nal_anim_controller::_frame_advance(Float a2, bool a3, bool a4)
         void (__fastcall *func)(void *, void *, Float, bool, bool) = CAST(func, 0x004A6110);
         func(this, nullptr, a2, a3, a4);
     }
+}
+
+bool nal_anim_controller::_sub_49C180()
+{
+    auto func = [](auto *a1) -> bool {
+        for (auto *i = a1->field_20; i != nullptr; i = i->field_40) {
+            if (i->field_34 != 0) {
+                return true;
+            }
+        }
+
+        for (int i = 0; i < a1->field_10; ++i) {
+            if (a1->field_14[i]->field_34 != 0) {
+                return true;
+            }
+        }
+
+        return false;
+    };
+
+    return func(&this->my_player);
 }
 
 bool nal_anim_controller::scene_animation_playing() const
@@ -257,7 +278,7 @@ void nal_anim_controller::get_curr_po_offset(po &a2)
     THISCALL(0x00497FC0, this, &a2);
 }
 
-void nal_anim_controller::get_matrix_data_from_pose(nalAnyPose &arg0)
+void nal_anim_controller::get_matrix_data_from_pose(nalAnyPose &a1)
 {
     TRACE("nal_anim_controller::get_matrix_data_from_pose");
 
@@ -266,12 +287,7 @@ void nal_anim_controller::get_matrix_data_from_pose(nalAnyPose &arg0)
         auto *v3 = (conglomerate *)this->field_4;
         if (v3->is_a_conglomerate()) {
             auto *skel = this->field_40.field_0->field_0;
-            struct {
-                char field_0[0x18];
-                void (__fastcall *VirtualGetBoneMatrices)(void *, void *, const nalBasePose *, nalMatrix4x4 *);
-            } * vtbl = CAST(vtbl, skel->m_vtbl);
-            vtbl->VirtualGetBoneMatrices(
-                skel, nullptr, this->field_40.field_0, bit_cast<nalMatrix4x4 *>(v3->all_model_po.m_data));
+            skel->VirtualGetBoneMatrices(this->field_40.field_0, bit_cast<nalMatrix4x4 *>(v3->all_model_po.m_data));
 
             v3->sub_4D0E00();
             if (this->scene_animation_playing()) {
@@ -311,14 +327,9 @@ void nal_anim_controller::get_matrix_data_from_pose(nalAnyPose &arg0)
                 this->field_4->set_frame_delta_trans(v17, 0.033333302);
             }
         } else {
-            nalPositionOrientation v30 {};
-            auto *skel = arg0.field_0->field_0;
-            struct {
-                char field_0[0x1C];
-                void(__fastcall *VirtualGetTrajectoryUpdate)(void *, void *, const nalBasePose *,
-                                                             nalPositionOrientation *);
-            } * vtbl = CAST(vtbl, skel->m_vtbl);
-            vtbl->VirtualGetTrajectoryUpdate(skel, nullptr, arg0.field_0, &v30);
+            nalPositionOrientation v30{};
+            auto *skel = a1.field_0->field_0;
+            skel->VirtualGetTrajectoryUpdate(a1.field_0, &v30);
             if (this->field_50 ||
                 ((static_cast<nalGeneric::nalGenericAnim *>(this->get_base_layer_anim_ptr())->field_34 & 2) != 0)) {
                 quaternion a2_12{v30.field_0[3], v30.field_0[0], v30.field_0[1], v30.field_0[2]};
@@ -341,7 +352,7 @@ void nal_anim_controller::get_matrix_data_from_pose(nalAnyPose &arg0)
             }
         }
     } else {
-        THISCALL(0x004A8A60, this, &arg0);
+        THISCALL(0x004A8A60, this, &a1);
     }
 }
 

@@ -1,6 +1,7 @@
 #include "combat_state.h"
 
 #include "actor.h"
+#include "ai_find_best_swing_anchor.h"
 #include "anchor_storage_class.h"
 #include "common.h"
 #include "entity_base_vhandle.h"
@@ -23,7 +24,6 @@ void web_start_call_back(event *a1, entity_base_vhandle a2, void *a3)
 
 bool combat_state::find_web_hang_spot()
 {
-    sp_log("combat_state::find_web_hang_spot:");
     if constexpr (1) {
         auto *act = this->get_actor();
 
@@ -41,14 +41,6 @@ bool combat_state::find_web_hang_spot()
     } else {
         return (bool)THISCALL(0x00487500, this);
     }
-}
-
-anchor_storage_class ai_find_best_pole(entity *arg4, const vector3d &arg8, Float a3, Float a5, Float a6, Float a7)
-{
-    anchor_storage_class result;
-    CDECL_CALL(0x00486EE0, &result, arg4, &arg8, a3, a5, a6, a7);
-
-    return result;
 }
 
 void combat_state_patch()

@@ -1,7 +1,7 @@
 // xhash internal header
 #pragma once
-#ifndef _XHASH_
-#define _XHASH_
+#ifndef _STDEXT_XHASH_HPP_
+#define _STDEXT_XHASH_HPP_
 #ifndef RC_INVOKED
 
 #include <cstring>
@@ -28,12 +28,12 @@ inline constexpr auto _HASH_SEED = static_cast<size_t>(0xdeadbeef);
 #define _STDEXT_END }
 #endif
 
-#ifndef _STD_BEGIN
-#define _STD_BEGIN namespace _std {
+#ifndef _STDEXT_STD_BEGIN
+#define _STDEXT_STD_BEGIN namespace _std {
 #endif
 
-#ifndef _STD_END
-#define _STD_END }
+#ifndef _STDEXT_STD_END
+#define _STDEXT_STD_END }
 #endif
 
 /* 
@@ -720,9 +720,4 @@ _STDEXT_END
 #endif /* _MSC_VER */
 
 #endif /* RC_INVOKED */
-#endif /* _XHASH_ */
-
-/*
- * Copyright (c) 1992-2005 by P.J. Plauger.  ALL RIGHTS RESERVED.
- * Consult your license regarding permissions and restrictions.
- V4.05:0009 */
+#endif /* _STDEXT_XHASH_HPP_ */

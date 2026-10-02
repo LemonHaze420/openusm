@@ -389,12 +389,12 @@ struct vector<bool, _Alloc> : public _Container_base {
 
     void _Xlen() const
     {  // report a length_error
-        _THROW(std::length_error, "vector<bool> too long");
+        _STDEXT_THROW(std::length_error, "vector<bool> too long");
     }
 
     void _Xran() const
     {  // throw an out_of_range error
-        _THROW(std::out_of_range, "invalid vector<bool> subscript");
+        _STDEXT_THROW(std::out_of_range, "invalid vector<bool> subscript");
     }
 
     size_type m_size;  // current length of sequence

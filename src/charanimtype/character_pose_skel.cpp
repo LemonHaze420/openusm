@@ -29,8 +29,9 @@ nalCharPose::nalCharPose(const nalChar::nalCharSkeleton *a2) : nalCompPose(a2)
         void *(nalCompPose::*GetComponentPoseData0)(uint32_t) = &nalCompPose::_GetComponentPoseData;
         void *(nalCompPose::*GetComponentPoseData1)(uint32_t) const = &nalCompPose::_GetComponentPoseData;
 
-        static void *g_vtbl[]{
-            func_address(GetComponentPoseData0), func_address(GetComponentPoseData1), func_address(&_GetPoseDataSize)};
+        static void *g_vtbl[]{func_address(GetComponentPoseData0),
+                              func_address(GetComponentPoseData1),
+                              func_address(&nalCompPose::_GetPoseDataSize)};
 
         m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {
@@ -85,9 +86,8 @@ void nalCharPose::Blend(Float a2, const nalCharPose &src0, const nalCharPose &sr
                 if (v6->ConvertCompIxToPoseIx(i) != -1) {
                     auto *v8 = this->GetComponentPoseData(i);
                     auto *v9 = (unsigned int *)src0.GetComponentPoseData(i);
-                    auto v12 = src1.GetComponentPoseData(i);
-                    auto &v13 = v11->field_70[i];
-                    v13.m_component->BlendPoseData(v8, v13.m_name, a2, v9, v12);
+                    auto *v12 = src1.GetComponentPoseData(i);
+                    v11->GetComponent(i)->BlendPoseData(v8, v11->GetName(i), a2, v9, v12);
                 }
             }
         }
@@ -126,18 +126,18 @@ void nalCharPose::InitializePoseDataFromSkel()
     TRACE("nalCharPose::InitializePoseDataFromSkel");
 
     if constexpr (1) {
-        auto *v2 = this->field_4->field_78;
-        if (v2 != nullptr) {
+        auto *pDirectory = this->GetSkeleton()->m_pDirectory;
+        if (pDirectory != nullptr) {
             this->AllocPoseData();
-            this->DirectCopyPoseData(v2);
-            auto numComponents = this->field_4->GetNumComponents();
+            this->DirectCopyPoseData(pDirectory);
+            auto numComponents = this->GetSkeleton()->GetNumComponents();
             for (int v3 = 0; v3 < numComponents; ++v3) {
-                if (this->field_4->ConvertCompIxToPoseIx(v3) != -1) {
+                if (this->GetSkeleton()->ConvertCompIxToPoseIx(v3) != -1) {
                     auto *v5 = this->GetComponentPoseData(v3);
-                    auto v6 = this->field_4->GetComponentPoseDataOffset(v3);
-                    auto *v7 = &this->field_4->field_70[v3];
-
-                    bit_cast<CharComponentBase *>(v7->m_component)->CopyPoseDataToNothing(v5, v7->m_name, &v2[v6]);
+                    auto v6 = this->GetSkeleton()->GetComponentPoseDataOffset(v3);
+                    auto *v7 = this->GetSkeleton();
+                    auto name = v7->GetName(v3);
+                    v7->GetComponent(v3)->CopyPoseDataToNothing(v5, name, &pDirectory[v6]);
                 }
             }
         }
@@ -150,21 +150,21 @@ nalCharSkeleton::nalCharSkeleton()
 {
     static void *g_vtbl[]{nullptr,
                           nullptr,
-                          func_address(&_Process),
+                          func_address(&nalCharSkeleton::_Process),
                           nullptr,
-                          func_address(&_CheckVersion),
-                          nullptr,
-                          nullptr,
-                          nullptr,
-                          nullptr,
-                          nullptr,
+                          func_address(&nalCharSkeleton::_CheckVersion),
+                          func_address(&nalCompSkeleton::_VirtualGetBoneMatrixCount),
+                          func_address(&nalCompSkeleton::_VirtualGetBoneMatrices),
+                          func_address(&nalCompSkeleton::_VirtualGetTrajectoryUpdate),
                           nullptr,
                           nullptr,
                           nullptr,
                           nullptr,
                           nullptr,
                           nullptr,
-                          func_address(&_UnMash)};
+                          nullptr,
+                          nullptr,
+                          func_address(&nalCompSkeleton::_UnMash)};
     this->m_vtbl = CAST(m_vtbl, &g_vtbl);
     this->m_theDefaultPose = nullptr;
     this->Version = 0x10003;
@@ -173,7 +173,7 @@ nalCharSkeleton::nalCharSkeleton()
 int nalCharSkeleton::GetCompIxByName(CharComponentBase::Names a2) const
 {
     for (int iCompIx = 0; iCompIx < this->m_iNumComponents; ++iCompIx) {
-        if (this->field_70[iCompIx].m_name == a2) {
+        if (this->GetName(iCompIx) == a2) {
             return iCompIx;
         }
     }
@@ -189,7 +189,7 @@ char *nalCharSkeleton::GetNamedPerSkelData(CharComponentBase::Names a2) const
     }
 
     auto *CompPerSkelDataInt = this->GetCompPerSkelDataInt(CompIxByName);
-    auto *v8 = this->field_70[CompIxByName].m_component;
+    auto *v8 = this->GetComponent(CompIxByName);
     return bit_cast<char *>(v8->ApplyPublicPerSkelDataOffset(a2, CompPerSkelDataInt));
 }
 
@@ -326,6 +326,16 @@ void nalChar_patch()
         FUNC_ADDRESS(address, &nalChar::nalCharSkeleton::_Process);
         set_vfunc(0x00891F90, address);
         //SET_JUMP(0x005F28C0, address);
+    }
+
+    {
+        FUNC_ADDRESS(address, &nalComp::nalCompSkeleton::_VirtualGetBoneMatrixCount);
+        set_vfunc(0x00891F9C, address);
+    }
+
+    {
+        FUNC_ADDRESS(address, &nalComp::nalCompSkeleton::_VirtualGetBoneMatrices);
+        set_vfunc(0x00891FA0, address);
     }
 
     {

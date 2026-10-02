@@ -756,7 +756,7 @@ void actor::_un_mash(generic_mash_header *a3, void *a4, generic_mash_data_ptrs *
                     return v28.field_0;
                 }
 
-                return &v28.field_0[v28.field_4];
+                return (nglMesh **)v28.field_0[v28.field_4];
             };
 
             if ( func(v28) == nullptr ) {

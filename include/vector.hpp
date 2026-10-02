@@ -4,10 +4,11 @@
 #include <stdexcept>
 
 #include <algorithm>
+#include <iterator>
 #include <vector>
 
-#ifndef _THROW
-#define _THROW(err, str) throw err(str)
+#ifndef _STDEXT_THROW
+#define _STDEXT_THROW(err, str) throw err(str)
 #endif
 
 #ifndef _SCL_SECURE_VALIDATE
@@ -55,8 +56,8 @@ struct vector : public _Vector_val<_Ty, _Ax> {
     typedef typename _Alloc::value_type const &const_reference;
     typedef typename _Alloc::value_type value_type;
 
-    typedef typename std::vector<_Ty, _Alloc>::iterator iterator;
-    typedef typename std::vector<_Ty, _Alloc>::const_iterator const_iterator;
+    typedef pointer iterator;
+    typedef const_pointer const_iterator;
 
 #if 0
 
@@ -429,7 +430,7 @@ struct vector : public _Vector_val<_Ty, _Ax> {
             _Umove(_VEC_ITER_BASE(_Where), m_last,
                    _VEC_ITER_BASE(_Where) + _Count);  // copy suffix
             _Iter _Mid = _First;
-            advance(_Mid, end() - _Where);
+            std::advance(_Mid, end() - _Where);
 
             _Ucopy(_Mid, _Last, m_last);  // insert new stuff off end
 
@@ -634,17 +635,17 @@ struct vector : public _Vector_val<_Ty, _Ax> {
 
     static void _Xlen()
     {  // report a length_error
-        _THROW(std::length_error, "vector<T> too long");
+        _STDEXT_THROW(std::length_error, "vector<T> too long");
     }
 
     static void _Xran()
     {  // report an out_of_range error
-        _THROW(std::out_of_range, "invalid vector<T> subscript");
+        _STDEXT_THROW(std::out_of_range, "invalid vector<T> subscript");
     }
 
     static void _Xinvarg()
     {  // report an invalid_argument error
-        _THROW(std::invalid_argument, "invalid vector<T> argument");
+        _STDEXT_THROW(std::invalid_argument, "invalid vector<T> argument");
     }
 
     pointer m_first;  // pointer to beginning of array
@@ -656,7 +657,7 @@ struct vector : public _Vector_val<_Ty, _Ax> {
 template <class _Ty, class _Alloc>
 inline bool operator==(const vector<_Ty, _Alloc> &_Left, const vector<_Ty, _Alloc> &_Right)
 {  // test for vector equality
-    return (_Left.size() == _Right.size() && equal(_Left.begin(), _Left.end(), _Right.begin()));
+    return (_Left.size() == _Right.size() && std::equal(_Left.begin(), _Left.end(), _Right.begin()));
 }
 
 template <class _Ty, class _Alloc>
@@ -668,7 +669,7 @@ inline bool operator!=(const vector<_Ty, _Alloc> &_Left, const vector<_Ty, _Allo
 template <class _Ty, class _Alloc>
 inline bool operator<(const vector<_Ty, _Alloc> &_Left, const vector<_Ty, _Alloc> &_Right)
 {  // test if _Left < _Right for vectors
-    return (lexicographical_compare(_Left.begin(), _Left.end(), _Right.begin(), _Right.end()));
+    return (std::lexicographical_compare(_Left.begin(), _Left.end(), _Right.begin(), _Right.end()));
 }
 
 template <class _Ty, class _Alloc>

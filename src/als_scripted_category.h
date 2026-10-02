@@ -37,6 +37,22 @@ struct scripted_category : category {
     //virtual
     request_data do_implicit_trans(animation_logic_system *a4, state_machine *a5);
 
+    //0x004A7420
+    //virtual
+    request_data _do_explicit_trans(animation_logic_system *a4, state_machine *a5, string_hash a6);
+
+    //0x004A7550
+    //virtual
+    request_data _do_layer_trans(animation_logic_system *a4, state_machine *a5);
+
+    //0x004A7660
+    //virtual
+    void _do_post_trans(animation_logic_system *a1, state_machine *a2, transition_post_handle a3);
+
+    //0x00493ED0
+    //virtual
+    string_hash _get_default_state() const;
+
     //virtual
     int _get_mash_sizeof() const;
 };

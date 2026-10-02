@@ -35,12 +35,12 @@ struct combo_system_move : mash_virtual_base {
         int get_mash_sizeof() const;
 
         static inline void *g_vtbl[]{nullptr,
-                                     func_address(&_unmash),
+                                     func_address(&trigger_info::_unmash),
                                      nullptr,
-                                     func_address(&_get_virtual_type_enum),
+                                     func_address(&trigger_info::_get_virtual_type_enum),
                                      nullptr,
-                                     func_address(&_is_or_is_subclass_of),
-                                     func_address(&_get_mash_sizeof)};
+                                     func_address(&mash_virtual_base::_is_or_is_subclass_of),
+                                     func_address(&trigger_info::_get_mash_sizeof)};
     };
 
     struct target_info : mash_virtual_base {
@@ -69,12 +69,12 @@ struct combo_system_move : mash_virtual_base {
         int get_mash_sizeof() const;
 
         static inline void *g_vtbl[]{nullptr,
-                                     func_address(&_unmash),
+                                     func_address(&target_info::_unmash),
                                      nullptr,
-                                     func_address(&_get_virtual_type_enum),
+                                     func_address(&target_info::_get_virtual_type_enum),
                                      nullptr,
-                                     func_address(&_is_or_is_subclass_of),
-                                     func_address(&_get_mash_sizeof)};
+                                     func_address(&mash_virtual_base::_is_or_is_subclass_of),
+                                     func_address(&target_info::_get_mash_sizeof)};
     };
 
     struct link_info : mash_virtual_base {
@@ -103,12 +103,12 @@ struct combo_system_move : mash_virtual_base {
         int get_mash_sizeof() const;
 
         static inline void *g_vtbl[]{nullptr,
-                                     func_address(&_unmash),
+                                     func_address(&link_info::_unmash),
                                      nullptr,
-                                     func_address(&_get_virtual_type_enum),
+                                     func_address(&link_info::_get_virtual_type_enum),
                                      nullptr,
-                                     func_address(&_is_or_is_subclass_of),
-                                     func_address(&_get_mash_sizeof)};
+                                     func_address(&mash_virtual_base::_is_or_is_subclass_of),
+                                     func_address(&link_info::_get_mash_sizeof)};
     };
 
     struct range_info : mash_virtual_base {
@@ -139,12 +139,12 @@ struct combo_system_move : mash_virtual_base {
         int get_mash_sizeof() const;
 
         static inline void *g_vtbl[]{nullptr,
-                                     func_address(&_unmash),
+                                     func_address(&range_info::_unmash),
                                      nullptr,
-                                     func_address(&_get_virtual_type_enum),
+                                     func_address(&range_info::_get_virtual_type_enum),
                                      nullptr,
-                                     func_address(&_is_or_is_subclass_of),
-                                     func_address(&_get_mash_sizeof)};
+                                     func_address(&mash_virtual_base::_is_or_is_subclass_of),
+                                     func_address(&range_info::_get_mash_sizeof)};
     };
 
     struct requirements : mash_virtual_base {
@@ -177,12 +177,12 @@ struct combo_system_move : mash_virtual_base {
         int get_mash_sizeof() const;
 
         static inline void *g_vtbl[]{nullptr,
-                                     func_address(&_unmash),
+                                     func_address(&requirements::_unmash),
                                      nullptr,
-                                     func_address(&_get_virtual_type_enum),
+                                     func_address(&requirements::_get_virtual_type_enum),
                                      nullptr,
-                                     func_address(&_is_or_is_subclass_of),
-                                     func_address(&_get_mash_sizeof)};
+                                     func_address(&mash_virtual_base::_is_or_is_subclass_of),
+                                     func_address(&requirements::_get_mash_sizeof)};
     };
 
     struct dialation_info : mash_virtual_base {
@@ -211,12 +211,12 @@ struct combo_system_move : mash_virtual_base {
         int get_mash_sizeof() const;
 
         static inline void *g_vtbl[]{nullptr,
-                                     func_address(&_unmash),
+                                     func_address(&dialation_info::_unmash),
                                      nullptr,
-                                     func_address(&_get_virtual_type_enum),
+                                     func_address(&dialation_info::_get_virtual_type_enum),
                                      nullptr,
-                                     func_address(&_is_or_is_subclass_of),
-                                     func_address(&_get_mash_sizeof)};
+                                     func_address(&mash_virtual_base::_is_or_is_subclass_of),
+                                     func_address(&dialation_info::_get_mash_sizeof)};
     };
 
     struct results : mash_virtual_base {
@@ -269,12 +269,12 @@ struct combo_system_move : mash_virtual_base {
         int get_mash_sizeof() const;
 
         static inline void *g_vtbl[]{nullptr,
-                                     func_address(&_unmash),
+                                     func_address(&results::_unmash),
                                      nullptr,
-                                     func_address(&_get_virtual_type_enum),
+                                     func_address(&results::_get_virtual_type_enum),
                                      nullptr,
-                                     func_address(&_is_or_is_subclass_of),
-                                     func_address(&_get_mash_sizeof)};
+                                     func_address(&mash_virtual_base::_is_or_is_subclass_of),
+                                     func_address(&results::_get_mash_sizeof)};
     };
 
     results field_4;
@@ -299,12 +299,12 @@ struct combo_system_move : mash_virtual_base {
     int get_mash_sizeof() const;
 
     static inline void *g_vtbl[]{nullptr,
-                                 func_address(&_unmash),
+                                 func_address(&combo_system_move::_unmash),
                                  nullptr,
-                                 func_address(&_get_virtual_type_enum),
+                                 func_address(&combo_system_move::_get_virtual_type_enum),
                                  nullptr,
-                                 func_address(&_is_or_is_subclass_of),
-                                 func_address(&_get_mash_sizeof)};
+                                 func_address(&mash_virtual_base::_is_or_is_subclass_of),
+                                 func_address(&combo_system_move::_get_mash_sizeof)};
 };
 
 extern void combo_system_move_patch();

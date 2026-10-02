@@ -723,7 +723,7 @@ void convert_core_ai_data(core_ai_resource &resource)
 
     auto storage = std::make_unique<uint8_t[]>(converted_data.size());
     std::memcpy(storage.get(), converted_data.data(), converted_data.size());
-    resource.field_C = reinterpret_cast<intptr_t>(storage.get());
+    resource.field_C = storage.get();
     resource.field_40 = static_cast<int>(converted_data.size());
 
     converted_core_ai_buffers.push_back(std::move(storage));
@@ -743,7 +743,7 @@ core_ai_resource::core_ai_resource(from_mash_in_place_constructor *a2)
     if constexpr (1) {
         if (this->field_10 != nullptr) {
             mash_info_struct::construct_class(this->field_10);
-}
+        }
 
         this->initialize(mash::FROM_MASH);
     } else {
@@ -760,7 +760,7 @@ void core_ai_resource::initialize(mash::allocation_scope scope)
     } else {
         this->field_3C = nullptr;
         this->field_40 = 0;
-        this->field_C = 0;
+        this->field_C = nullptr;
         this->field_10 = nullptr;
         this->field_44 = false;
     }
@@ -788,8 +788,7 @@ void core_ai_resource::unmash(mash_info_struct *a1, [[maybe_unused]] void *a3)
     convert_graph_keys(this->my_base_graphs);
     convert_graph_keys(this->my_locomotion_graphs);
 
-    if (this->field_10 != nullptr)
-    {
+    if (this->field_10 != nullptr) {
         this->field_10 = bit_cast<combo_system *>(a1->read_from_buffer(
             mash::NORMAL_BUFFER, sizeof(combo_system), 4));
         a1->unmash_class_in_place(this->field_10->field_0, this->field_10);
@@ -802,9 +801,8 @@ void core_ai_resource::unmash(mash_info_struct *a1, [[maybe_unused]] void *a3)
     this->field_40 = *reinterpret_cast<int *>(
         a1->read_from_buffer(mash::NORMAL_BUFFER, 4, 4));
     a1->align_buffer(mash::NORMAL_BUFFER, 16);
-    this->field_C = reinterpret_cast<intptr_t>(
-        &a1->mash_image_ptr[mash::NORMAL_BUFFER]
-                           [a1->buffer_size_used[mash::NORMAL_BUFFER]]);
+    this->field_C = &a1->mash_image_ptr[mash::NORMAL_BUFFER]
+                                      [a1->buffer_size_used[mash::NORMAL_BUFFER]];
     a1->advance_buffer(mash::NORMAL_BUFFER, this->field_40);
     a1->read_from_buffer(mash::NORMAL_BUFFER, 4, 4);
 
@@ -837,7 +835,8 @@ void core_ai_resource::unmash(mash_info_struct *a1, [[maybe_unused]] void *a3)
     a1->align_buffer(mash::SHARED_BUFFER, 16);
 
     this->field_40 = normal_data_size;
-    this->field_C = (int)&a1->mash_image_ptr[0][a1->buffer_size_used[0]];
+    this->field_C = &a1->mash_image_ptr[mash::NORMAL_BUFFER]
+                                      [a1->buffer_size_used[mash::NORMAL_BUFFER]];
     a1->advance_buffer(mash::NORMAL_BUFFER, normal_data_size);
     a1->advance_buffer(mash::SHARED_BUFFER, shared_data_size);
 
@@ -864,7 +863,7 @@ void core_ai_resource::unmash(mash_info_struct *a1, [[maybe_unused]] void *a3)
     a1->align_buffer(4);
     this->field_40 = *bit_cast<int *>(a1->read_from_buffer(4, 4));
     a1->align_buffer(16);
-    this->field_C = bit_cast<int>(&a1->mash_image_ptr[0][a1->buffer_size_used[0]]);
+    this->field_C = &a1->mash_image_ptr[0][a1->buffer_size_used[0]];
     a1->advance_buffer(this->field_40);
     a1->read_from_buffer(4, 4);
 #endif
@@ -890,7 +889,7 @@ bool core_ai_resource::does_locomotion_graph_exist(resource_key the_graph) const
     assert(the_graph.get_type() == RESOURCE_KEY_TYPE_AI_STATE_GRAPH);
 
     for (auto &curr : this->my_locomotion_graphs) {
-        assert(curr->get_type() != RESOURCE_KEY_TYPE_AI_STATE_GRAPH);
+        assert(curr->get_type() == RESOURCE_KEY_TYPE_AI_STATE_GRAPH);
 
         if (*curr == the_graph) {
             return true;
@@ -898,6 +897,12 @@ bool core_ai_resource::does_locomotion_graph_exist(resource_key the_graph) const
     }
 
     return false;
+}
+
+resource_key core_ai_resource::sub_6B6D50()
+{
+    assert(!this->my_base_graphs.empty());
+    return *this->my_base_graphs.at(0);
 }
 
 } // namespace ai

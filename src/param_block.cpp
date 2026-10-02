@@ -10,6 +10,9 @@
 #include "trace.h"
 #include "utility.h"
 
+#include "wds.h"
+
+#include <algorithm>
 #include <cassert>
 #include <cstddef>
 #include <cstring>
@@ -21,7 +24,9 @@ VALIDATE_SIZE(param_block::param_data_array, 0x18);
 
 VALIDATE_SIZE(param_block::param_data, 0xC);
 
-param_block::param_block() {}
+param_block::param_block()
+    : field_0(0), param_array(nullptr), field_8(false), pad{}
+{}
 
 param_block::param_block(from_mash_in_place_constructor *)
 {
@@ -68,12 +73,61 @@ void param_block::unmash(mash_info_struct *a1, void *a3)
     }
 }
 
-void param_block::add_param(string_hash a2, param_types a3, const void *a4, string_hash a5)
-    {
-    if constexpr (0) {
-    } else {
-        THISCALL(0x006D6710, this, a2, a3, a4, a5);
+void param_block::add_param(string_hash name, param_types type, const void *value, string_hash)
+{
+    auto *data = param_array != nullptr ? param_array->common_find_data(name) : nullptr;
+    if (data == nullptr) {
+        data = new param_data{};
+        data->m_name = name;
+        data->my_type = type;
+
+        if (param_array == nullptr) {
+            param_array = new param_data_array{};
+            field_8 = true;
+        }
+        param_array->field_0.push_back(data);
+        std::sort(param_array->field_0.m_data,
+                  param_array->field_0.m_data + param_array->field_0.m_size,
+                  [](const param_data *lhs, const param_data *rhs) {
+                      return lhs->m_name.source_hash_code < rhs->m_name.source_hash_code;
+                  });
+        param_array->field_14 = nullptr;
     }
+
+    if (data->my_type != type) {
+        return;
+    }
+    switch (type) {
+    case PT_FLOAT:
+        data->m_union.f = *static_cast<const float *>(value);
+        break;
+    case PT_INTEGER:
+        data->m_union.i = *static_cast<const int *>(value);
+        break;
+    case PT_STRING_HASH:
+        data->m_union.hash = *static_cast<const string_hash *>(value);
+        break;
+    case PT_FIXED_STRING:
+        data->set_data_fixedstring(static_cast<const char *>(value));
+        break;
+    case PT_VECTOR_3D:
+        data->set_data_vector3d(*static_cast<const vector3d *>(value));
+        break;
+    case PT_FLOAT_VARIANCE:
+        data->set_data_float_variance(*static_cast<const variance_variable<float> *>(value));
+        break;
+    case PT_ENTITY:
+        data->m_union.ent = *static_cast<entity_base_vhandle *const *>(value);
+        break;
+    case PT_POINTER:
+        data->m_union.ptr = const_cast<void *>(value);
+        break;
+    default:
+        assert(false && "Invalid parameter type");
+        return;
+    }
+
+    field_0 = g_world_ptr != nullptr ? g_world_ptr->field_158.field_C : 0;
 }
 
 int param_block::get_parameter_data_type(string_hash a2) const
@@ -244,7 +298,7 @@ void param_block::param_data::set_data_pointer(void *a2)
     this->m_union.ptr = a2;
 }
 
-void param_block::param_data::set_data_fixedstring(char *a2)
+void param_block::param_data::set_data_fixedstring(const char *a2)
 {
     assert(my_type == PT_FIXED_STRING);
 
@@ -438,6 +492,10 @@ const char *ai::param_block::get_optional_pb_fixedstring(string_hash a2, const c
     return curr_data->get_data_fixedstring();
 }
 
+param_block::param_data_array::param_data_array()
+    : field_0(), field_14(nullptr)
+{}
+
 param_block::param_data_array::param_data_array(from_mash_in_place_constructor *a2) : field_0(a2)
 {
     this->initialize(mash::FROM_MASH);
@@ -484,9 +542,36 @@ void param_block::finalize(mash::allocation_scope )
     }
 }
 
-param_block::param_data *param_block::param_data_array::common_find_data(string_hash a2)
+void param_block::copy_from_pb_override(const param_block &source)
 {
-    return (param_block::param_data *) THISCALL(0x006CD450, this, a2);
+    if (source.param_array == nullptr) {
+        return;
+    }
+
+    for (const auto *data : source.param_array->field_0) {
+        if (data == nullptr) {
+            continue;
+        }
+
+        const void *value = &data->m_union;
+        if (data->my_type == PT_FIXED_STRING || data->my_type == PT_VECTOR_3D ||
+            data->my_type == PT_FLOAT_VARIANCE || data->my_type == PT_POINTER) {
+            value = data->m_union.ptr;
+        }
+        add_param(data->m_name, data->my_type, value, {});
+    }
+}
+
+param_block::param_data *param_block::param_data_array::common_find_data(string_hash name)
+{
+    for (auto *data : field_0) {
+        if (data != nullptr && data->m_name == name) {
+            field_14 = data;
+            return data;
+        }
+    }
+    field_14 = nullptr;
+    return nullptr;
 }
 
 bool param_block::does_parameter_exist(string_hash a2) const

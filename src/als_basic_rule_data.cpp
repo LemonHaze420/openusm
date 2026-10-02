@@ -63,7 +63,6 @@ namespace als {
         if constexpr (1) {
         for (auto &data : this->field_0) {
                 auto param = a2.field_4->get_param(a2.field_0, data->field_0);
-                sp_log("%f %f %f %u", param, data->field_4, data->field_8, data->field_0);
                 if ( param < data->field_4 || data->field_8 < param ) {
                     return false;
                 }
@@ -145,11 +144,6 @@ void basic_rule_data::rule_action::initialize(mash::allocation_scope a2)
                 auto v8 = sub_65DB3E(0.0, 1.0);
                 float v7 = 0.0;
 
-                {
-                    std::for_each(this->destination_states->begin(), this->destination_states->end(), [](auto &state) {
-                        printf("%s", string_hash {state->field_0}.to_string());
-                    });
-                }
 
             for (int i = 0; i < this->destination_states->size(); ++i) {
                     v7 += this->destination_states->at(i)->field_4;
@@ -177,39 +171,35 @@ void basic_rule_data::rule_action::initialize(mash::allocation_scope a2)
     {
         TRACE("als::basic_rule_data::rule_action::process_action");
 
-        if constexpr (1) {
         switch (this->the_action) {
-            case TRANSITION:
-                a2.did_transition_occur = true;
-                a2.field_1 = true;
-                a2.field_2 = false;
-                a2.field_8 = this->get_dest();
-                break;
-            case TRANSITION_CATEGORY:
-                a2.did_transition_occur = true;
-                a2.field_1 = true;
-                a2.field_2 = true;
-                a2.field_8 = this->get_dest();
-                break;
-            case 2:
-                a2.did_transition_occur = false;
-                a2.field_1 = true;
-                break;
-            case 3:
-                a2.did_transition_occur = false;
-                a2.field_1 = false;
-                a2.field_3 = true;
-                break;
-            case 4:
-                a2.did_transition_occur = false;
-                a2.field_1 = false;
-                a2.field_3 = false;
-                break;
-            default:
-                return;
-            }
-        } else {
-            THISCALL(0x004997D0, this, &a2);
+        case TRANSITION:
+            a2.did_transition_occur = true;
+            a2.do_post_action = true;
+            a2.is_trans_to_category = false;
+            a2.field_8 = this->get_dest();
+            break;
+        case TRANSITION_CATEGORY:
+            a2.did_transition_occur = true;
+            a2.do_post_action = true;
+            a2.is_trans_to_category = true;
+            a2.field_8 = this->get_dest();
+            break;
+        case 2:
+            a2.did_transition_occur = false;
+            a2.do_post_action = true;
+            break;
+        case 3:
+            a2.did_transition_occur = false;
+            a2.do_post_action = false;
+            a2.ignore_no_transition = true;
+            break;
+        case 4:
+            a2.did_transition_occur = false;
+            a2.do_post_action = false;
+            a2.ignore_no_transition = false;
+            break;
+        default:
+            return;
         }
     }
 

@@ -3,6 +3,7 @@
 #include <cstdint>
 
 #include "als_request_data.h"
+#include "als_transition_post_handle.h"
 #include "mash_virtual_base.h"
 #include "string_hash.h"
 
@@ -48,7 +49,20 @@ struct state : mash_virtual_base {
 
     void _unmash(mash_info_struct *, void *);
 
+    //virtual
+    int get_mocomp_type();
+
+    //virtual
     request_data do_implicit_trans(animation_logic_system *a4, state_machine *a5);
+
+    //virtual
+    request_data do_explicit_trans(animation_logic_system *a4, state_machine *a5, string_hash a6);
+
+    //virtual
+    request_data do_layer_trans(animation_logic_system *a4, state_machine *a5);
+
+    //virtual
+    void do_post_trans(animation_logic_system *a1, state_machine *a2, transition_post_handle a3);
 
     //virtual
     string_hash get_nal_anim_name() const;

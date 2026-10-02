@@ -116,27 +116,27 @@ make_tlres_type(nalBaseSkeleton, tlFixedString, TLRESOURCE_TYPE_SKELETON);
 
 #undef make_tlres_type
 
-#define constructor_tlresource_directory(T0, T1, vtbl)                    \
-    template <>                                                           \
-    tlresource_directory<T0, T1>::tlresource_directory()                  \
-    {                                                                     \
-        T0 *(tlresource_directory<T0, T1>::*Find)(unsigned int) = &_Find; \
-                                                                          \
-        T0 *(tlresource_directory<T0, T1>::*Find1)(const T1 &) = &_Find;  \
-                                                                          \
-        if constexpr (1) {                                                \
-            static void *g_vtbl[]{func_address(&finalize),                \
-                                  func_address(&DirectoryName),           \
-                                  func_address(Find),                     \
-                                  func_address(Find1),                    \
-                                  func_address(&_Add)};                   \
-                                                                          \
-            this->m_vtbl = CAST(vtbl, &g_vtbl);                           \
-        } else {                                                          \
-            this->m_vtbl = vtbl;                                          \
-        }                                                                 \
-                                                                          \
-        this->field_4 = nullptr;                                          \
+#define constructor_tlresource_directory(T0, T1, vtbl)                                                  \
+    template <>                                                                                         \
+    tlresource_directory<T0, T1>::tlresource_directory()                                                \
+    {                                                                                                   \
+        T0 *(tlresource_directory<T0, T1>::*Find)(unsigned int) = &tlresource_directory<T0, T1>::_Find; \
+                                                                                                        \
+        T0 *(tlresource_directory<T0, T1>::*Find1)(const T1 &) = &tlresource_directory<T0, T1>::_Find;  \
+                                                                                                        \
+        if constexpr (1) {                                                                              \
+            static void *g_vtbl[]{func_address(&tlresource_directory<T0, T1>::finalize),                \
+                                  func_address(&tlresource_directory<T0, T1>::DirectoryName),           \
+                                  func_address(Find),                                                   \
+                                  func_address(Find1),                                                  \
+                                  func_address(&tlresource_directory<T0, T1>::_Add)};                   \
+                                                                                                        \
+            this->m_vtbl = CAST(vtbl, &g_vtbl);                                                         \
+        } else {                                                                                        \
+            this->m_vtbl = vtbl;                                                                        \
+        }                                                                                               \
+                                                                                                        \
+        this->field_4 = nullptr;                                                                        \
     }
 
 constructor_tlresource_directory(nglTexture, tlFixedString, 0x00889648)
@@ -158,49 +158,49 @@ constructor_tlresource_directory(nglTexture, tlFixedString, 0x00889648)
 {
     {
         nglMeshFile *(tlresource_directory<nglMeshFile, tlFixedString>::*func)(const tlFixedString &) =
-            tlresource_directory<nglMeshFile, tlFixedString>::_Find;
+            &tlresource_directory<nglMeshFile, tlFixedString>::_Find;
         FUNC_ADDRESS(address, func);
         set_vfunc(0x00889680, address);
     }
 
     {
         nglMesh *(tlresource_directory<nglMesh, tlHashString>::*func)(const tlHashString &) =
-            tlresource_directory<nglMesh, tlHashString>::_Find;
+            &tlresource_directory<nglMesh, tlHashString>::_Find;
         FUNC_ADDRESS(address, func);
         set_vfunc(0x008896AC, address);
     }
 
     {
         bool (tlresource_directory<nglMesh, tlHashString>::*func)(nglMesh *) =
-            tlresource_directory<nglMesh, tlHashString>::_Add;
+            &tlresource_directory<nglMesh, tlHashString>::_Add;
         FUNC_ADDRESS(address, func);
         set_vfunc(0x008896B0, address);
     }
 
     {
         nglTexture *(tlresource_directory<nglTexture, tlFixedString>::*func)(uint32_t) =
-            tlresource_directory<nglTexture, tlFixedString>::_Find;
+            &tlresource_directory<nglTexture, tlFixedString>::_Find;
         FUNC_ADDRESS(address, func);
         set_vfunc(0x00889650, address);
     }
 
     {
         nalAnimClass<nalAnyPose> *(tlresource_directory<nalAnimClass<nalAnyPose>, tlFixedString>::*func)(uint32_t) =
-            tlresource_directory<nalAnimClass<nalAnyPose>, tlFixedString>::_Find;
+            &tlresource_directory<nalAnimClass<nalAnyPose>, tlFixedString>::_Find;
         FUNC_ADDRESS(address, func);
         set_vfunc(0x008897B0, address);
     }
 
     {
         nglTexture *(tlresource_directory<nglTexture, tlFixedString>::*func)(const tlFixedString &) =
-            tlresource_directory<nglTexture, tlFixedString>::_Find;
+            &tlresource_directory<nglTexture, tlFixedString>::_Find;
         FUNC_ADDRESS(address, func);
         set_vfunc(0x00889654, address);
     }
 
     {
         nalBaseSkeleton *(tlresource_directory<nalBaseSkeleton, tlFixedString>::*func)(const tlFixedString &) =
-            tlresource_directory<nalBaseSkeleton, tlFixedString>::_Find;
+            &tlresource_directory<nalBaseSkeleton, tlFixedString>::_Find;
         FUNC_ADDRESS(address, func);
         set_vfunc(0x0088980C, address);
     }

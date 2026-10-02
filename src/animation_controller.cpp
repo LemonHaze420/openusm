@@ -131,7 +131,7 @@ animation_controller::anim_ctrl_handle animation_controller::play_base_layer_ani
 
         if ( !this->is_same_animtype(v18) ) {
             auto *v2 = this->field_8->GetAnimTypeName().to_string();
-            auto *v3 = this->field_8->field_8.to_string();
+            auto *v3 = this->field_8->GetName().to_string();
             auto *v4 = anim_ptr->Skeleton->GetAnimTypeName().to_string();
             auto *v15 = anim_ptr->field_8.to_string();
             error("Attempted to play an animation %s of animtype %s on a character skeleton %s of animtype %s. They a"
@@ -234,6 +234,12 @@ float animation_controller::anim_ctrl_handle::get_anim_speed() const
 float animation_controller::anim_ctrl_handle::get_anim_norm_time() const
 {
     float (__fastcall *func)(const void *) = CAST(func, 0x004AD210);
+    return func(this);
+}
+
+bool animation_controller::sub_49C180()
+{
+    bool(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x2C));
     return func(this);
 }
 

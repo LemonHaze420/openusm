@@ -52,12 +52,12 @@ spawnable::spawnable(vhandle_type<entity>)
 int count_active_ai_cores()
 {
     int result = 0;
-    if (ai::ai_core::the_ai_core_list_high() != nullptr) {
-        result = ai::ai_core::the_ai_core_list_high()->size();
+    if (ai::ai_core::the_ai_core_list_high != nullptr) {
+        result = ai::ai_core::the_ai_core_list_high->size();
     }
 
-    if (ai::ai_core::the_ai_core_list_low() != nullptr) {
-        result += ai::ai_core::the_ai_core_list_low()->size();
+    if (ai::ai_core::the_ai_core_list_low != nullptr) {
+        result += ai::ai_core::the_ai_core_list_low->size();
     }
 
     return result;

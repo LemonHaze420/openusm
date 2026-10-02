@@ -281,7 +281,7 @@ bool nalLoadSceneAnimInternal(nalSceneAnim *scene_anim)
 
                 auto *skeleton = skeletons[anim->field_28];
                 anim->Skeleton = skeleton;
-                auto *instance = nalTypeInstanceBank.Search(skeleton->field_28);
+                auto *instance = nalTypeInstanceBank.Search(skeleton->GetAnimTypeName());
                 assert(instance != nullptr && "couldn't find scene animation type instance");
                 anim->m_vtbl =
                     static_cast<nalInitListAnimType *>(instance->field_20)->anim_vtbl_ptr;
@@ -336,7 +336,7 @@ bool nalLoadAnimFileInternal(nalAnimFile *anim_file)
 
             auto *v7 = skeletons[anim_class->field_28];
             anim_class->Skeleton = v7;
-            auto *instance = nalTypeInstanceBank.Search(v7->field_28);
+            auto *instance = nalTypeInstanceBank.Search(v7->GetAnimTypeName());
             if (instance == nullptr) {
                 assert(0 && "couldn't find animation type instance");
             }

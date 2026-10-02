@@ -13,12 +13,24 @@ namespace als {
 
 VALIDATE_SIZE(motion_compensator, 0x14);
 
+void motion_compensator::finalize(bool a1)
+{
+    void(__fastcall * func)(void *, void *edx, bool) = CAST(func, get_vfunc(m_vtbl, 0x8));
+    func(this, nullptr, a1);
+}
+
 void motion_compensator::activate(animation_logic_system *a2)
 {
     this->field_4 = a2;
     this->field_8 = (als::state_machine *)this->field_4->get_als_layer_internal(static_cast<als::layer_types>(0));
     this->the_actor = this->field_4->get_actor();
     this->field_10 = 10.0;
+}
+
+void motion_compensator::deactivate()
+{
+    void(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x1C));
+    func(this);
 }
 
 void motion_compensator::pre_anim_action(Float a3)

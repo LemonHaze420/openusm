@@ -94,6 +94,8 @@ struct web_zip_inode : info_node {
     //0x0044C880
     //virtual
     int deactivate();
+
+    static inline string_hash default_id{to_hash("WEBZIP")};
 };
 
 }  // namespace ai

@@ -5,6 +5,7 @@
 #include "enhanced_state.h"
 #include "entity_base_vhandle.h"
 #include "float.hpp"
+#include <list.hpp>
 
 struct ped_spawner;
 struct traffic_path_lane;
@@ -71,6 +72,9 @@ struct pedestrian_inode : info_node {
 
     static bool is_a_pedestrian(ai::ai_core *a1);
 
+    //0x006A1260
+    static void register_non_ped(vhandle_type<actor> a3);
+
     static void unregister_non_ped(vhandle_type<actor> a1);
 
     static inline const string_hash default_id{int(to_hash("PEDESTRIAN"))};
@@ -80,6 +84,9 @@ struct pedestrian_inode : info_node {
     static inline const string_hash hit_points_hash{int(to_hash("hit_points"))};
 
     static inline auto &timer = var<Float>(0x0096C114);
+
+    static inline auto *&non_ped_list =
+        var<_std::list<vhandle_type<actor>> *>(0x0096BE74);
 };
 
 struct pedestrian_idle_state : enhanced_state {

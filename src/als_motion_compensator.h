@@ -17,7 +17,18 @@ struct motion_compensator : mash_virtual_base {
     actor *the_actor;
     float field_10;
 
+    static inline int get_size_of_memory_block()
+    {
+        return 128;
+    }
+
+    //virtual
+    void finalize(bool a1);
+
     void activate(animation_logic_system *a2);
+
+    //virtual
+    void deactivate();
 
     //virtual
     void pre_anim_action(Float a3);

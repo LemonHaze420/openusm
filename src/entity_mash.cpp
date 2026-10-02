@@ -118,6 +118,7 @@ void fix_ifc_v_table(char *addr, eEntityMashIFCTypeEnum ifc_type)
     std::memcpy(addr, &ifc_v_table_lookup[ifc_type], 4);
 }
 
+#if STANDALONE_SYSTEM
 static bool __fastcall standalone_entity_true(entity_base *)
 {
     return true;
@@ -404,6 +405,7 @@ static void __fastcall standalone_pfx_unmash(entity *self,
     standalone_walk_particle_instance(data);
     *reinterpret_cast<void **>(reinterpret_cast<uint8_t *>(self) + 0x68) = nullptr;
 }
+#endif
 
 void construct_v_table_lookup()
 {

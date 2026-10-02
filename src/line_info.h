@@ -2,10 +2,13 @@
 
 #include "entity.h"
 #include "entity_base_vhandle.h"
+
 #include "local_collision.h"
 #include "simple_classes.h"
 #include "variable.h"
 #include "vector3d.h"
+
+#include <array>
 
 struct line_info_local_query {};
 
@@ -32,6 +35,7 @@ struct line_info {
 
     ~line_info();
 
+    //0x00519F00
     void render(int num, bool a3);
 
     //0x0048C9D0

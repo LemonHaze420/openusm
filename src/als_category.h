@@ -35,10 +35,22 @@ struct category : mash_virtual_base {
     request_data do_implicit_trans(animation_logic_system *a4, state_machine *a5);
 
     //virtual
+    request_data do_explicit_trans(animation_logic_system *a4, state_machine *a5, string_hash a6);
+
+    //virtual
+    request_data do_layer_trans(animation_logic_system *a4, state_machine *a5);
+
+    //virtual
     request_data do_incoming_trans(animation_logic_system *a3, state_machine *a4);
+
+    //virtual
+    void do_post_trans(animation_logic_system *a1, state_machine *a2, transition_post_handle a3);
 
     //
     void _unmash(mash_info_struct *, void *);
+
+    //virtual
+    string_hash get_default_state() const;
 
     int get_mash_sizeof() const;
 };

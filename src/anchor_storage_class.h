@@ -7,10 +7,12 @@
 struct signaller;
 
 struct anchor_storage_class {
-    vhandle_type<entity, vhandle_type<signaller, entity_base_vhandle>> field_0;
+    vhandle_type<entity> field_0;
     int field_4;
 
     anchor_storage_class();
+
+    anchor_storage_class(vhandle_type<entity> a2, entity_base_vhandle a3);
 
     bool is_valid() const;
 

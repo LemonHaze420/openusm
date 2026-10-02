@@ -339,7 +339,7 @@ void tlInitList::Register()
 tlInitListFunction::tlInitListFunction(void (*cb)()) : field_8(cb)
 {
     if constexpr (1) {
-        static void *g_vtbl[]{func_address(&_Register)};
+        static void *g_vtbl[]{func_address(&tlInitListFunction::_Register)};
         this->m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {
         this->m_vtbl = 0x0086F85C;

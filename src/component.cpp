@@ -169,6 +169,13 @@ void BaseComponent::AnimRelease(uint32_t a1, void *a2, void *a3, const void *a4)
     func(this, nullptr, a1, a2, a3, a4);
 }
 
+void BaseComponent::CopyPoseExtraData(void *a2, uint32_t a3, const void *a4)
+{
+    void(__fastcall * func)(void *, void *edx, void *, uint32_t, const void *) =
+        CAST(func, get_vfunc(this->m_vtbl, 0x4C));
+    func(this, nullptr, a2, a3, a4);
+}
+
 void BaseComponent::PoseDataFree(uint32_t a2, void *a3) const
 {
     void(__fastcall * func)(const void *, void *, uint32_t, void *) = CAST(func, get_vfunc(this->m_vtbl, 0x50));
