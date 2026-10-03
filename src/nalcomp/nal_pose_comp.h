@@ -123,6 +123,9 @@ struct nalCompSkeleton : nalBaseSkeleton {
     void CopyPose(nalCompPose &a1, const nalCompPose &a2);
 
     //virtual
+    void _VirtualGetPose(nalBasePose &, const nalMatrix4x4 *, nalMatrix4x4 *, const nalBasePose &);
+
+    //virtual
     void VirtualCopyPose(nalBasePose *a1, const nalBasePose *a2);
 
     //virtual
@@ -146,6 +149,10 @@ struct nalCompSkeleton : nalBaseSkeleton {
 
     int GetName(int iCompIx) const;
 
+    //0x00734700
+    //virtual
+    void *_GetPerSkelDataFromComponent(nalComp::ComponentId a2);
+
     bool _DoesComponentHavePoseTrackData(int a2) const;
 
     //virtual
@@ -157,6 +164,10 @@ struct nalCompSkeleton : nalBaseSkeleton {
     //virtual
     void UnMash(void *a2, BaseComponent **a3, unsigned int iNumComponents);
 
+    //0x007379E0
+    void _ReMash(void *a2);
+
+    //virtual
     void ReMash(void *a2);
 };
 

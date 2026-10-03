@@ -148,24 +148,30 @@ void nalCharPose::InitializePoseDataFromSkel()
 
 nalCharSkeleton::nalCharSkeleton()
 {
-    static void *g_vtbl[]{nullptr,
-                          nullptr,
-                          func_address(&nalCharSkeleton::_Process),
-                          nullptr,
-                          func_address(&nalCharSkeleton::_CheckVersion),
-                          func_address(&nalCompSkeleton::_VirtualGetBoneMatrixCount),
-                          func_address(&nalCompSkeleton::_VirtualGetBoneMatrices),
-                          nullptr,
-                          nullptr,
-                          nullptr,
-                          nullptr,
-                          nullptr,
-                          nullptr,
-                          nullptr,
-                          nullptr,
-                          nullptr,
-                          func_address(&nalCompSkeleton::_UnMash)};
-    this->m_vtbl = CAST(m_vtbl, &g_vtbl);
+    if (0) {
+        static void *g_vtbl[]{nullptr,
+                              nullptr,
+                              func_address(&nalCharSkeleton::_Process),
+                              nullptr,
+                              func_address(&nalCharSkeleton::_CheckVersion),
+                              func_address(&nalCompSkeleton::_VirtualGetBoneMatrixCount),
+                              func_address(&nalCompSkeleton::_VirtualGetBoneMatrices),
+                              func_address(&nalCompSkeleton::_VirtualGetTrajectoryUpdate),
+                              func_address(&nalCompSkeleton::_VirtualGetPose),
+                              func_address(&nalCharSkeleton::_VirtualGetDefaultPose),
+                              func_address(&nalCharSkeleton::_VirtualCreatePose),
+                              func_address(&nalCharSkeleton::_VirtualDestroyPose),
+                              func_address(&nalCharSkeleton::_VirtualCopyPose),
+                              func_address(&nalCharSkeleton::_VirtualBlend),
+                              func_address(&nalCompSkeleton::_GetPerSkelDataFromComponent),
+                              func_address(&nalCompSkeleton::_DoesComponentHavePoseTrackData),
+                              func_address(&nalCompSkeleton::_UnMash),
+                              func_address(&nalCompSkeleton::_ReMash)};
+        this->m_vtbl = CAST(m_vtbl, &g_vtbl);
+    } else {
+        this->m_vtbl = 0x00891F88;
+    }
+
     this->m_theDefaultPose = nullptr;
     this->Version = 0x10003;
 }
@@ -207,6 +213,18 @@ nalCharPose *nalCharSkeleton::CreatePose() const
     return v3;
 }
 
+void nalCharSkeleton::DestroyPose(nalCharPose *a1)
+{
+    if (a1 != nullptr) {
+        delete a1;
+    }
+}
+
+void nalCharSkeleton::CopyPose(nalCharPose *a1, const nalCharPose *a2)
+{
+    *a1 = *a2;
+}
+
 void nalCharSkeleton::_Process()
 {
     TRACE("nalCharSkeleton::Process");
@@ -237,7 +255,7 @@ void nalCharSkeleton::Release()
     this->ReMash(this);
 }
 
-const nalComp::nalCompSkeleton **nalCharSkeleton::VirtualGetDefaultPose() const
+const nalComp::nalCompSkeleton **nalCharSkeleton::_VirtualGetDefaultPose() const
 {
     TRACE("nalCharSkeleton::VirtualGetDefaultPose");
 
@@ -253,7 +271,7 @@ const nalComp::nalCompSkeleton **nalCharSkeleton::VirtualGetDefaultPose() const
     return result;
 }
 
-const nalComp::nalCompSkeleton **nalCharSkeleton::VirtualCreatePose() const
+const nalComp::nalCompSkeleton **nalCharSkeleton::_VirtualCreatePose() const
 {
     auto *v1 = this->CreatePose();
     if (v1 != nullptr) {
@@ -263,24 +281,45 @@ const nalComp::nalCompSkeleton **nalCharSkeleton::VirtualCreatePose() const
     return nullptr;
 }
 
-void nalChar::nalCharSkeleton::VirtualCopyPose(nalBasePose *a1, const nalBasePose *a2)
+void nalCharSkeleton::_VirtualDestroyPose(nalBasePose *a2)
 {
-    TRACE("nalChar::nalCharSkeleton::VirtualCopyPose");
+    TRACE("nalCharSkeleton::VirtualDestroyPose");
 
-    const nalComp::nalCompPose *v3 = nullptr;
-    if (a2 != nullptr) {
-        v3 = (const nalComp::nalCompPose *)&a2[-1];
+    if constexpr (0) {
+        if (a2 != nullptr) {
+            this->DestroyPose((nalCharPose *)&a2[-1]);
+        } else {
+            this->DestroyPose(nullptr);
+        }
+    } else {
+        void(__fastcall * func)(void *, void *edx, nalBasePose *a2) = CAST(func, 0x005FCB10);
+        func(this, nullptr, a2);
     }
-
-    nalComp::nalCompPose *v1 = nullptr;
-    if (a1 != nullptr) {
-        v1 = (nalComp::nalCompPose *)&a1[-1];
-    }
-
-    (*v1) = (*v3);
 }
 
-void nalCharSkeleton::VirtualBlend(nalBasePose *a2, Float a3, nalBasePose *a4, nalBasePose *a5)
+void nalCharSkeleton::_VirtualCopyPose(nalBasePose *a1, const nalBasePose *a2)
+{
+    TRACE("nalCharSkeleton::VirtualCopyPose");
+
+    if constexpr (0) {
+        const nalCharPose *v3 = nullptr;
+        if (a2 != nullptr) {
+            v3 = (const nalCharPose *)&a2[-1];
+        }
+
+        nalCharPose *v1 = nullptr;
+        if (a1 != nullptr) {
+            v1 = (nalCharPose *)&a1[-1];
+        }
+
+        this->CopyPose(v1, v3);
+    } else {
+        void(__fastcall * func)(void *, void *edx, nalBasePose *a1, const nalBasePose *a2) = CAST(func, 0x005FB560);
+        func(this, nullptr, a1, a2);
+    }
+}
+
+void nalCharSkeleton::_VirtualBlend(nalBasePose *a2, Float a3, nalBasePose *a4, nalBasePose *a5)
 {
     TRACE("nalCharSkeleton::VirtualBlend");
 
@@ -306,6 +345,27 @@ void nalCharSkeleton::VirtualBlend(nalBasePose *a2, Float a3, nalBasePose *a4, n
 
 void nalChar_patch()
 {
+    static constexpr auto address_vtbl = 0x00891F88;
+
+    auto set_vfunc_local = [](std::intptr_t offset, auto func) {
+        set_vfunc(address_vtbl + offset, func_address(func));
+    };
+
+    {
+        set_vfunc_local(0x8, &nalChar::nalCharSkeleton::_Process);
+
+        set_vfunc_local(0x14, &nalComp::nalCompSkeleton::_VirtualGetBoneMatrixCount);
+        set_vfunc_local(0x18, &nalComp::nalCompSkeleton::_VirtualGetBoneMatrices);
+
+        set_vfunc_local(0x20, &nalComp::nalCompSkeleton::_VirtualGetPose);
+        set_vfunc_local(0x24, &nalChar::nalCharSkeleton::_VirtualGetDefaultPose);
+
+        //set_vfunc_local(0x30, &nalChar::nalCharSkeleton::_VirtualCopyPose);
+        set_vfunc_local(0x34, &nalChar::nalCharSkeleton::_VirtualBlend);
+
+        set_vfunc_local(0x3C, &nalComp::nalCompSkeleton::_DoesComponentHavePoseTrackData);
+    }
+
     {
         FUNC_ADDRESS(address, &nalChar::nalCharSkeleton::GetCompPerSkelDataInt);
         REDIRECT(0x005F0FC3, address);
@@ -323,43 +383,7 @@ void nalChar_patch()
     }
 
     {
-        FUNC_ADDRESS(address, &nalChar::nalCharSkeleton::_Process);
-        set_vfunc(0x00891F90, address);
-        //SET_JUMP(0x005F28C0, address);
-    }
-
-    {
-        FUNC_ADDRESS(address, &nalComp::nalCompSkeleton::_VirtualGetBoneMatrixCount);
-        set_vfunc(0x00891F9C, address);
-    }
-
-    {
-        FUNC_ADDRESS(address, &nalComp::nalCompSkeleton::_VirtualGetBoneMatrices);
-        set_vfunc(0x00891FA0, address);
-    }
-
-    {
-        FUNC_ADDRESS(address, &nalChar::nalCharSkeleton::VirtualBlend);
-        set_vfunc(0x00891FBC, address);
-    }
-
-    {
-        set_vfunc(0x00891FC4, func_address(&nalComp::nalCompSkeleton::_DoesComponentHavePoseTrackData));
-    }
-
-    {
         FUNC_ADDRESS(address, &nalChar::nalCharPose::InitializePoseDataFromSkel);
         set_vfunc(0x00891A5C, address);
-    }
-
-    return;
-    {
-        FUNC_ADDRESS(address, &nalChar::nalCharSkeleton::VirtualGetDefaultPose);
-        set_vfunc(0x00891FAC, address);
-    }
-
-    {
-        FUNC_ADDRESS(address, &nalChar::nalCharSkeleton::VirtualCopyPose);
-        set_vfunc(0x00891FB8, address);
     }
 }

@@ -95,6 +95,11 @@ void nalComp::nalCompSkeleton::_VirtualGetTrajectoryUpdate(const nalBasePose *a2
     }
 }
 
+void nalComp::nalCompSkeleton::_VirtualGetPose(nalBasePose &, const nalMatrix4x4 *, nalMatrix4x4 *, const nalBasePose &)
+{
+    ;
+}
+
 void nalComp::nalCompSkeleton::CopyPose(nalComp::nalCompPose &a1, const nalComp::nalCompPose &a2)
 {
     a1 = a2;
@@ -223,6 +228,18 @@ char *nalComp::nalCompSkeleton::GetCompPerSkelDataInt(int iCompIx) const
     return result;
 }
 
+void *nalComp::nalCompSkeleton::_GetPerSkelDataFromComponent(nalComp::ComponentId a2)
+{
+    int CompIxFromName = this->GetCompIxFromName(a2);
+    if (CompIxFromName == -1) {
+        return nullptr;
+    }
+
+    auto *perSkelData = this->GetCompPerSkelDataInt(CompIxFromName);
+    auto *component = this->GetComponent(CompIxFromName);
+    return component->ApplyPublicPerSkelDataOffset(a2.field_0, perSkelData);
+}
+
 bool nalComp::nalCompSkeleton::_DoesComponentHavePoseTrackData(int a2) const
 {
     TRACE("nalCompSkeleton::DoesComponentHavePoseTrackData");
@@ -281,7 +298,7 @@ void nalComp::nalCompSkeleton::UnMash(void *a2, BaseComponent **a3, unsigned int
 }
 
 
-void nalComp::nalCompSkeleton::ReMash(void *a2)
+void nalComp::nalCompSkeleton::_ReMash(void *a2)
 {
     TRACE("nalComp::nalCompSkeleton::ReMash");
 
@@ -307,6 +324,12 @@ void nalComp::nalCompSkeleton::ReMash(void *a2)
     } else {
         THISCALL(0x007379E0, this, a2);
     }
+}
+
+void nalComp::nalCompSkeleton::ReMash(void *a2)
+{
+    void(__fastcall * func)(const void *, void *edx, void *) = CAST(func, get_vfunc(m_vtbl, 0x44));
+    func(this, nullptr, a2);
 }
 
 nalComp::ComponentId nalComp::nalCompSkeleton::GetComponentId(int iCompIx)
@@ -553,7 +576,7 @@ void nalCompSkeleton_patch()
 
 
     {
-        FUNC_ADDRESS(address, &nalComp::nalCompSkeleton::ReMash);
+        FUNC_ADDRESS(address, &nalComp::nalCompSkeleton::_ReMash);
         set_vfunc(0x00891FCC, address);
         set_vfunc(0x008AA304, address);
     }

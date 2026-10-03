@@ -64,6 +64,10 @@ struct nalCharSkeleton : nalComp::nalCompSkeleton {
 
     nalCharPose *CreatePose() const;
 
+    void DestroyPose(nalCharPose *a1);
+
+    void CopyPose(nalCharPose *a1, const nalCharPose *a2);
+
     //virtual
     void _Process();
 
@@ -75,17 +79,25 @@ struct nalCharSkeleton : nalComp::nalCompSkeleton {
         return this->Version == 0x10003;
     }
 
+    //0x00743820
     //virtual
-    const nalComp::nalCompSkeleton **VirtualGetDefaultPose() const;
+    const nalComp::nalCompSkeleton **_VirtualGetDefaultPose() const;
 
+    //0x005FE380
     //virtual
-    const nalComp::nalCompSkeleton **VirtualCreatePose() const;
+    const nalComp::nalCompSkeleton **_VirtualCreatePose() const;
 
+    //0x005FCB10
     //virtual
-    void VirtualCopyPose(nalBasePose *a1, const nalBasePose *a2);
+    void _VirtualDestroyPose(nalBasePose *a2);
+
+    //0x005FB560
+    //virtual
+    void _VirtualCopyPose(nalBasePose *a1, const nalBasePose *a2);
 
     //0x005FCAC0
-    void VirtualBlend(nalBasePose *a2, Float a3, nalBasePose *a4, nalBasePose *a5);
+    //virtual
+    void _VirtualBlend(nalBasePose *a2, Float a3, nalBasePose *a4, nalBasePose *a5);
 
     static int &vtbl_ptr;
 };
