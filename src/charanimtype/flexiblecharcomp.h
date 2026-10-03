@@ -100,6 +100,14 @@ struct FlexibleCharComp : CharComponentBase {
                                const void *a7, uint32_t a8, uint32_t a9, const void *a10, const void *a11,
                                const void *a12, const void *a13, void *a14);
 
+    void _BlendPoseData(T0::StdPoseData *a2, uint32_t a3, Float a4, const void *a5, const void *a6)
+    {
+        TRACE((get_type_name<FlexibleCharComp<T0, T1>>() + "::BlendPoseData").c_str());
+
+        this->field_14.BlendPoseData(
+            a2, a3, a4, static_cast<const T0::StdPoseData *>(a5), static_cast<const T0::StdPoseData *>(a6));
+    }
+
     //virtual
     void _SkelPoseProcess(uint32_t a1, void *a2, void *a3)
     {

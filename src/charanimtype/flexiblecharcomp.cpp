@@ -108,6 +108,14 @@ void FlexibleCharComp_patch()
     }
 
     {
+        auto func =
+            &FlexibleCharComp<TorsoHeadStdPoseDesc, TorsoHeadEntCompDecomp<TorsoHeadStdPoseDesc>>::_BlendPoseData;
+
+        FUNC_ADDRESS(address, func);
+        set_vfunc(0x00892288, address);
+    }
+
+    {
         auto func = &FlexibleCharComp<Fing52KnuckCurlPoseDesc,
                                       Fing52KnuckCurlEntCompDecomp<Fing52KnuckCurlPoseDesc>>::_CalcPoseDataDirect;
 

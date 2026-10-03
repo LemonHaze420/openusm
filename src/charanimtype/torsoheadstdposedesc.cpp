@@ -95,3 +95,21 @@ void TorsoHeadStdPoseDesc::BuildBoneMatrices(nalMatrix4x4 *a2, uint32_t a3, cons
         func(this, nullptr, a2, a3, a4, a5);
     }
 }
+
+void TorsoHeadStdPoseDesc::BlendPoseData(TorsoHeadStdPoseDesc::StdPoseData *a1, uint32_t, Float a3,
+                                         const TorsoHeadStdPoseDesc::StdPoseData *a4,
+                                         const TorsoHeadStdPoseDesc::StdPoseData *a5)
+{
+    for (int i = 0; i < 5; ++i) {
+        a1->field_0[i] = math::Slerp(a3, a4->field_0[i], a5->field_0[i]);
+    }
+
+    a1->field_50 = math::Slerp(a3, a4->field_50, a5->field_50);
+    auto v10 = a5->field_60.field_0[1] - a4->field_60.field_0[1];
+    nalVector3 v11{};
+    v11[2] = a5->field_60.field_0[2] - a4->field_60.field_0[2];
+    auto v12 = (a5->field_60.field_0[0] - a4->field_60.field_0[0]) * a3;
+    v11[0] = v12 + a4->field_60.field_0[0];
+    v11[1] = v10 * a3 + a4->field_60.field_0[1];
+    a1->field_60 = v11;
+}

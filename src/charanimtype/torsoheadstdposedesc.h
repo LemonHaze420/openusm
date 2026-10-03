@@ -43,4 +43,7 @@ struct TorsoHeadStdPoseDesc {
 
     //0x005F6610
     void BuildBoneMatrices(nalMatrix4x4 *a2, uint32_t a3, const PerSkelData *a4, const StdPoseData *a5);
+
+    //0x005F63C0
+    void BlendPoseData(StdPoseData *a1, uint32_t a2, Float a3, const StdPoseData *a4, const StdPoseData *a5);
 };
