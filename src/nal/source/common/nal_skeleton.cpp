@@ -38,7 +38,7 @@ void nalBaseSkeleton::VirtualGetBoneMatrices(const nalBasePose *a1, nalMatrix4x4
     func(this, nullptr, a1, a2);
 }
 
-void nalBaseSkeleton::VirtualGetTrajectoryUpdate(const nalBasePose *a2, nalPositionOrientation *a3)
+void nalBaseSkeleton::VirtualGetTrajectoryUpdate(const nalBasePose *a2, nalPositionOrientation *a3) const
 {
     void(__fastcall * func)(const void *, void *edx, const nalBasePose *, nalPositionOrientation *) =
         CAST(func, get_vfunc(this->m_vtbl, 0x1C));
@@ -57,9 +57,9 @@ nalBasePose *nalBaseSkeleton::VirtualCreatePose() const
     return func(this);
 }
 
-void nalBaseSkeleton::VirtualDestroyPose(nalBasePose *a2)
+void nalBaseSkeleton::VirtualDestroyPose(nalBasePose *a2) const
 {
-    void(__fastcall * func)(void *, void *edx, nalBasePose *) = CAST(func, get_vfunc(this->m_vtbl, 0x2C));
+    void(__fastcall * func)(const void *, void *edx, nalBasePose *) = CAST(func, get_vfunc(this->m_vtbl, 0x2C));
     func(this, nullptr, a2);
 }
 
@@ -70,6 +70,12 @@ void nalBaseSkeleton::VirtualCopyPose(nalBasePose &a2, const nalBasePose &a3) co
     func(this, nullptr, &a2, &a3);
 }
 
+void nalBaseSkeleton::VirtualBlend(nalBasePose *a2, Float a3, nalBasePose *a4, nalBasePose *a5) const
+{
+    void(__fastcall * func)(const void *, void *edx, nalBasePose *a2, Float a3, nalBasePose *a4, nalBasePose *a5) =
+        CAST(func, get_vfunc(this->m_vtbl, 0x34));
+    func(this, nullptr, a2, a3, a4, a5);
+}
 
 void sub_826190(nalBasePose &dst, Float a2, nalBasePose &src0, nalBasePose &src1)
 {

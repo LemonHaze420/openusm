@@ -394,16 +394,15 @@ void nalComp::Blend(nalComp::nalCompPose &dst, Float blend, const nalComp::nalCo
     }
 }
 
-nalComp::nalCompPose::nalCompPose(const nalComp::nalCompSkeleton *a2)
+nalComp::nalCompPose::nalCompPose(const nalComp::nalCompSkeleton *a2) : field_4(a2)
 {
     this->m_vtbl = 0x008AA1E4;
-    this->field_4 = a2;
     this->m_pTheData = nullptr;
 }
 
-nalComp::nalCompPose &nalComp::nalCompPose::operator=(const nalComp::nalCompPose *a2)
+nalComp::nalCompPose &nalComp::nalCompPose::operator=(const nalComp::nalCompPose &a2)
 {
-    auto *v2 = a2->m_pTheData;
+    auto *v2 = a2.m_pTheData;
     if (v2 != nullptr) {
         if (this->m_pTheData == nullptr) {
             this->InitializePoseDataFromSkel();
@@ -500,12 +499,18 @@ int nalComp::nalCompPose::GetPoseDataSize() const
     return func(this);
 }
 
-int nalComp::nalCompPose::GetPoseDataAlign() const
+int nalComp::nalCompPose::_GetPoseDataAlign() const
 {
     return this->GetSkeleton()->m_poseDataAlign;
 }
 
-void nalComp::nalCompPose::AllocPoseData()
+int nalComp::nalCompPose::GetPoseDataAlign() const
+{
+    int(__fastcall * func)(const void *) = CAST(func, get_vfunc(m_vtbl, 0xC));
+    return func(this);
+}
+
+void nalComp::nalCompPose::_AllocPoseData()
 {
     TRACE("nalCompPose::AllocPoseData");
 
@@ -517,18 +522,38 @@ void nalComp::nalCompPose::AllocPoseData()
     this->m_pTheData = tlMemAlloc(v3, v4, 0);
 }
 
-void nalComp::nalCompPose::CopyPoseData(void *a2)
+void nalComp::nalCompPose::AllocPoseData()
 {
+    void(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x10));
+    func(this);
+}
+
+void nalComp::nalCompPose::_CopyPoseData(const void *a2)
+{
+    TRACE("nalCompPose::CopyPoseData");
+
     this->ComponentFreePoseData();
     this->CopyPoseDataNoFree(a2);
 }
 
-void nalComp::nalCompPose::DirectCopyPoseData(const void *a2)
+void nalComp::nalCompPose::CopyPoseData(const void *a2)
+{
+    void(__fastcall * func)(void *, void *edx, const void *) = CAST(func, get_vfunc(m_vtbl, 0x14));
+    func(this, nullptr, a2);
+}
+
+void nalComp::nalCompPose::_DirectCopyPoseData(const void *a2)
 {
     std::memcpy(this->m_pTheData, a2, this->GetPoseDataSize());
 }
 
-void nalComp::nalCompPose::FreePoseData()
+void nalComp::nalCompPose::DirectCopyPoseData(const void *a2)
+{
+    void(__fastcall * func)(void *, void *edx, const void *) = CAST(func, get_vfunc(m_vtbl, 0x18));
+    func(this, nullptr, a2);
+}
+
+void nalComp::nalCompPose::_FreePoseData()
 {
     this->ComponentFreePoseData();
     if (this->m_pTheData != nullptr) {
@@ -537,7 +562,13 @@ void nalComp::nalCompPose::FreePoseData()
     }
 }
 
-void nalComp::nalCompPose::InitializePoseDataFromSkel()
+void nalComp::nalCompPose::FreePoseData()
+{
+    void(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x1C));
+    func(this);
+}
+
+void nalComp::nalCompPose::_InitializePoseDataFromSkel()
 {
     auto *v2 = this->GetSkeleton()->m_pDirectory;
     if (v2 != nullptr) {
@@ -546,7 +577,13 @@ void nalComp::nalCompPose::InitializePoseDataFromSkel()
     }
 }
 
-void nalComp::nalCompPose::ComponentFreePoseData()
+void nalComp::nalCompPose::InitializePoseDataFromSkel()
+{
+    void(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x20));
+    func(this);
+}
+
+void nalComp::nalCompPose::_ComponentFreePoseData()
 {
     if (this->m_pTheData != nullptr) {
         uint32_t NumComponents = this->GetSkeleton()->GetNumComponents();
@@ -560,6 +597,12 @@ void nalComp::nalCompPose::ComponentFreePoseData()
             }
         }
     }
+}
+
+void nalComp::nalCompPose::ComponentFreePoseData()
+{
+    void(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x24));
+    func(this);
 }
 
 void nalCompSkeleton_patch()

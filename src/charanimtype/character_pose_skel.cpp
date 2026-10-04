@@ -18,20 +18,30 @@ VALIDATE_SIZE(nalCharPose, 0x10);
 #endif
 
 #if !STANDALONE_SYSTEM
-
 int &nalCharSkeleton::vtbl_ptr = var<int>(0x0096AB90);
-
+#else
+int &nalCharSkeleton::vtbl_ptr = []() -> auto & {
+    static nalCharSkeleton skel{};
+    return skel.m_vtbl;
+}();
 #endif
 
 nalCharPose::nalCharPose(const nalChar::nalCharSkeleton *a2) : nalCompPose(a2)
 {
-    if constexpr (1) {
+    if constexpr (0) {
         void *(nalCompPose::*GetComponentPoseData0)(uint32_t) = &nalCompPose::_GetComponentPoseData;
         void *(nalCompPose::*GetComponentPoseData1)(uint32_t) const = &nalCompPose::_GetComponentPoseData;
 
         static void *g_vtbl[]{func_address(GetComponentPoseData0),
                               func_address(GetComponentPoseData1),
-                              func_address(&nalCompPose::_GetPoseDataSize)};
+                              func_address(&nalCompPose::_GetPoseDataSize),
+                              func_address(&nalCompPose::_GetPoseDataAlign),
+                              func_address(&nalCompPose::_AllocPoseData),
+                              func_address(&nalCharPose::_CopyPoseData),
+                              func_address(&nalCompPose::_DirectCopyPoseData),
+                              func_address(&nalCompPose::_FreePoseData),
+                              func_address(&nalCharPose::_InitializePoseDataFromSkel),
+                              func_address(&nalCompPose::_ComponentFreePoseData)};
 
         m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {
@@ -42,7 +52,7 @@ nalCharPose::nalCharPose(const nalChar::nalCharSkeleton *a2) : nalCompPose(a2)
     this->InitializePoseDataFromSkel();
 }
 
-nalCharPose::nalCharPose(const nalCharPose &a2, bool a3) : nalCompPose(a2.field_4)
+nalCharPose::nalCharPose(const nalCharPose &a2, bool a3) : nalCompPose(a2.GetSkeleton())
 {
     if (a3) {
         *this = a2;
@@ -109,6 +119,19 @@ void *nalCharPose::GetNamedPoseData(CharComponentBase::Names a2)
     }
 }
 
+void *nalCharPose::GetNamedPoseData(CharComponentBase::Names a2) const
+{
+    TRACE("nalCharPose::GetNamedPoseData");
+
+    auto *Skeleton = this->GetSkeleton();
+    int CompIxByName = Skeleton->GetCompIxByName(a2);
+    if (CompIxByName != -1) {
+        return this->GetComponentPoseData(CompIxByName);
+    } else {
+        return nullptr;
+    }
+}
+
 char *nalChar::nalCharSkeleton::GetCompPerSkelDataInt(int a2) const
 {
     return nalComp::nalCompSkeleton::GetCompPerSkelDataInt(a2);
@@ -121,7 +144,22 @@ char *nalChar::nalCharSkeleton::GetCompDefaultPoseData(int iCompIx) const
     return nalComp::nalCompSkeleton::GetCompDefaultPoseData(iCompIx);
 }
 
-void nalCharPose::InitializePoseDataFromSkel()
+void nalCharPose::_CopyPoseData(const void *a2)
+{
+    auto v9 = this->GetSkeleton()->GetNumComponents();
+    for (int v4 = 0; v4 < v9; ++v4) {
+        if (this->GetSkeleton()->ConvertCompIxToPoseIx(v4) != -1) {
+            auto *v5 = this->GetComponentPoseData(v4);
+            auto v6 = this->GetSkeleton()->GetComponentPoseDataOffset(v4);
+            auto *extraData = static_cast<const char *>(a2) + v6;
+            auto name = this->GetSkeleton()->GetName(v4);
+            auto *component = this->GetSkeleton()->GetComponent(v4);
+            component->CopyPoseExtraData(v5, name, extraData);
+        }
+    }
+}
+
+void nalCharPose::_InitializePoseDataFromSkel()
 {
     TRACE("nalCharPose::InitializePoseDataFromSkel");
 
@@ -225,6 +263,14 @@ void nalCharSkeleton::CopyPose(nalCharPose *a1, const nalCharPose *a2)
     *a1 = *a2;
 }
 
+void nalChar::nalCharSkeleton::_finalize(bool a2)
+{
+    this->~nalCharSkeleton();
+    if (a2) {
+        tlMemFree(this);
+    }
+}
+
 void nalCharSkeleton::_Process()
 {
     TRACE("nalCharSkeleton::Process");
@@ -245,7 +291,7 @@ void nalCharSkeleton::_Process()
     }
 }
 
-void nalCharSkeleton::Release()
+void nalCharSkeleton::_Release()
 {
     if (this->m_theDefaultPose != nullptr) {
         delete this->m_theDefaultPose;
@@ -255,24 +301,22 @@ void nalCharSkeleton::Release()
     this->ReMash(this);
 }
 
-const nalComp::nalCompSkeleton **nalCharSkeleton::_VirtualGetDefaultPose() const
+const nalBasePose *nalCharSkeleton::_VirtualGetDefaultPose() const
 {
     TRACE("nalCharSkeleton::VirtualGetDefaultPose");
 
-    const nalComp::nalCompSkeleton **result = nullptr;
-
     auto *v1 = this->GetDefaultPose();
     if (v1 != nullptr) {
-        result = &v1->field_4;
+        return &v1->field_4;
     }
 
-    if (result != nullptr) {}
-
-    return result;
+    return nullptr;
 }
 
-const nalComp::nalCompSkeleton **nalCharSkeleton::_VirtualCreatePose() const
+const nalBasePose *nalCharSkeleton::_VirtualCreatePose() const
 {
+    TRACE("nalCharSkeleton::VirtualCreatePose");
+
     auto *v1 = this->CreatePose();
     if (v1 != nullptr) {
         return &v1->field_4;
@@ -301,7 +345,7 @@ void nalCharSkeleton::_VirtualCopyPose(nalBasePose *a1, const nalBasePose *a2)
 {
     TRACE("nalCharSkeleton::VirtualCopyPose");
 
-    if constexpr (0) {
+    if constexpr (1) {
         const nalCharPose *v3 = nullptr;
         if (a2 != nullptr) {
             v3 = (const nalCharPose *)&a2[-1];
@@ -319,18 +363,18 @@ void nalCharSkeleton::_VirtualCopyPose(nalBasePose *a1, const nalBasePose *a2)
     }
 }
 
-void nalCharSkeleton::_VirtualBlend(nalBasePose *a2, Float a3, nalBasePose *a4, nalBasePose *a5)
+void nalCharSkeleton::_VirtualBlend(nalBasePose *a2, Float a3, const nalBasePose *a4, const nalBasePose *a5)
 {
     TRACE("nalCharSkeleton::VirtualBlend");
 
-    nalCharPose *v5 = nullptr;
+    const nalCharPose *v5 = nullptr;
     if (a5 != nullptr) {
-        v5 = (nalCharPose *)&a5[-1];
+        v5 = (const nalCharPose *)&a5[-1];
     }
 
-    nalCharPose *v6 = nullptr;
+    const nalCharPose *v6 = nullptr;
     if (a4 != nullptr) {
-        v6 = (nalCharPose *)&a4[-1];
+        v6 = (const nalCharPose *)&a4[-1];
     }
 
     nalCharPose *v7 = nullptr;
@@ -345,25 +389,57 @@ void nalCharSkeleton::_VirtualBlend(nalBasePose *a2, Float a3, nalBasePose *a4, 
 
 void nalChar_patch()
 {
-    static constexpr auto address_vtbl = 0x00891F88;
+    auto make_cb = [](uint32_t address_vtbl) {
+        auto result = [address_vtbl](std::intptr_t offset, auto func) {
+            set_vfunc(address_vtbl + offset, func_address(func));
+        };
 
-    auto set_vfunc_local = [](std::intptr_t offset, auto func) {
-        set_vfunc(address_vtbl + offset, func_address(func));
+        return result;
     };
 
     {
-        set_vfunc_local(0x8, &nalChar::nalCharSkeleton::_Process);
+        static constexpr auto address_vtbl = 0x00891F88;
+        auto set_vfunc_local = make_cb(address_vtbl);
 
-        set_vfunc_local(0x14, &nalComp::nalCompSkeleton::_VirtualGetBoneMatrixCount);
-        set_vfunc_local(0x18, &nalComp::nalCompSkeleton::_VirtualGetBoneMatrices);
+        {
+            set_vfunc_local(0x4, &nalChar::nalCharSkeleton::_finalize);
+            set_vfunc_local(0x8, &nalChar::nalCharSkeleton::_Process);
+            set_vfunc_local(0xC, &nalChar::nalCharSkeleton::_Release);
+            set_vfunc_local(0x10, &nalChar::nalCharSkeleton::_CheckVersion);
+            set_vfunc_local(0x14, &nalComp::nalCompSkeleton::_VirtualGetBoneMatrixCount);
+            set_vfunc_local(0x18, &nalComp::nalCompSkeleton::_VirtualGetBoneMatrices);
+            set_vfunc_local(0x1C, &nalComp::nalCompSkeleton::_VirtualGetTrajectoryUpdate);
+            set_vfunc_local(0x20, &nalComp::nalCompSkeleton::_VirtualGetPose);
+            set_vfunc_local(0x24, &nalChar::nalCharSkeleton::_VirtualGetDefaultPose);
+            set_vfunc_local(0x28, &nalChar::nalCharSkeleton::_VirtualCreatePose);
+            set_vfunc_local(0x2C, &nalChar::nalCharSkeleton::_VirtualDestroyPose);
+            set_vfunc_local(0x30, &nalChar::nalCharSkeleton::_VirtualCopyPose);
+            set_vfunc_local(0x34, &nalChar::nalCharSkeleton::_VirtualBlend);
+            set_vfunc_local(0x38, &nalComp::nalCompSkeleton::_GetPerSkelDataFromComponent);
+            set_vfunc_local(0x3C, &nalComp::nalCompSkeleton::_DoesComponentHavePoseTrackData);
+            set_vfunc_local(0x40, &nalComp::nalCompSkeleton::_UnMash);
+            set_vfunc_local(0x44, &nalComp::nalCompSkeleton::_ReMash);
+        }
+    }
 
-        set_vfunc_local(0x20, &nalComp::nalCompSkeleton::_VirtualGetPose);
-        set_vfunc_local(0x24, &nalChar::nalCharSkeleton::_VirtualGetDefaultPose);
+    {
+        static constexpr auto address_vtbl = 0x00891A3C;
+        auto set_vfunc_local = make_cb(address_vtbl);
 
-        //set_vfunc_local(0x30, &nalChar::nalCharSkeleton::_VirtualCopyPose);
-        set_vfunc_local(0x34, &nalChar::nalCharSkeleton::_VirtualBlend);
+        void *(nalComp::nalCompPose::*GetComponentPoseData0)(uint32_t) = &nalComp::nalCompPose::_GetComponentPoseData;
+        void *(nalComp::nalCompPose::*GetComponentPoseData1)(uint32_t) const =
+            &nalComp::nalCompPose::_GetComponentPoseData;
 
-        set_vfunc_local(0x3C, &nalComp::nalCompSkeleton::_DoesComponentHavePoseTrackData);
+        set_vfunc_local(0x0, GetComponentPoseData0);
+        set_vfunc_local(0x4, GetComponentPoseData1);
+        set_vfunc_local(0x8, &nalComp::nalCompPose::_GetPoseDataSize);
+        set_vfunc_local(0xC, &nalComp::nalCompPose::_GetPoseDataAlign);
+        set_vfunc_local(0x10, &nalComp::nalCompPose::_AllocPoseData);
+        set_vfunc_local(0x14, &nalChar::nalCharPose::_CopyPoseData);
+        set_vfunc_local(0x18, &nalComp::nalCompPose::_DirectCopyPoseData);
+        set_vfunc_local(0x1C, &nalComp::nalCompPose::_FreePoseData);
+        set_vfunc_local(0x20, &nalChar::nalCharPose::_InitializePoseDataFromSkel);
+        set_vfunc_local(0x24, &nalComp::nalCompPose::_ComponentFreePoseData);
     }
 
     {
@@ -378,12 +454,10 @@ void nalChar_patch()
     }
 
     {
-        FUNC_ADDRESS(address, &nalChar::nalCharPose::GetNamedPoseData);
-        SET_JUMP(0x005F1330, address);
-    }
+        void *(nalChar::nalCharPose::*GetNamedPoseData)(CharComponentBase::Names) =
+            &nalChar::nalCharPose::GetNamedPoseData;
 
-    {
-        FUNC_ADDRESS(address, &nalChar::nalCharPose::InitializePoseDataFromSkel);
-        set_vfunc(0x00891A5C, address);
+        FUNC_ADDRESS(address, GetNamedPoseData);
+        SET_JUMP(0x005F1330, address);
     }
 }

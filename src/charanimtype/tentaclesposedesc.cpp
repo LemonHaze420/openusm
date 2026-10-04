@@ -60,3 +60,17 @@ float TentaclesPoseDesc::StdPoseData::GetPullFromBone(uint32_t a2) const
     auto v3 = sub_5F0220(a2);
     return (v3 == -1 ? 0.0f : this->field_8[v3]);
 }
+
+void TentaclesPoseDesc::BlendPoseDataPartial(TentaclesPoseDesc::StdPoseData *a1, uint32_t, Float a3,
+                                             const TentaclesPoseDesc::StdPoseData *a4,
+                                             const TentaclesPoseDesc::StdPoseData *a5, uint32_t a6) const
+{
+    int v7 = 1;
+    for (int i = 0; i < 15; ++i) {
+        if ((v7 & a6) != 0) {
+            a1->field_0[i] = ((a5->field_0[i] - a4->field_0[i]) * a3) + a4->field_0[i];
+        }
+
+        v7 *= 2;
+    }
+}

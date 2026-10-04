@@ -108,6 +108,10 @@ struct usm_anim_player {
 
     usm_anim_player(nalBaseSkeleton *a2);
 
+    void PlayModifier(nalAnimClass<nalAnyPose> *a2, usm_anim_player_modifier_type a3, Float a4, uint32_t a5, bool a6,
+                      Float a7, Float a8, nalPlayMethod *a9, Float a10, nalAnimCallback *a11, Float a12, bool a13,
+                      void *a14);
+
     void PlayModifier(T *a2, usm_anim_player_modifier_type a3, Float a4, nalPlayMethod *a5, Float a6, int a7, Float a8,
                       void *a9, bool a10, void *a11);
 

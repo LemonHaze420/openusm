@@ -3,6 +3,7 @@
 #include "common.h"
 #include "func_wrapper.h"
 #include "nal_anim_comp.h"
+#include "nal_pose_comp.h"
 #include "trace.h"
 #include "utility.h"
 #include "vtbl.h"

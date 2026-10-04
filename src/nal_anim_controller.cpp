@@ -96,11 +96,10 @@ nal_anim_controller::nal_anim_controller(actor *a2, nalBaseSkeleton *a3, unsigne
     if constexpr (1) {
         this->m_vtbl = 0x00880D58;
 
-
         auto *v7 = this->field_8->VirtualGetDefaultPose();
         auto *v9 = v7->field_0->VirtualCreatePose();
-        v9->field_0->VirtualCopyPose(v9, v7);
-        this->field_40.field_0->field_0->VirtualCopyPose(this->field_40.field_0, v9);
+        v9->field_0->VirtualCopyPose(*v9, *v7);
+        this->field_40.field_0->field_0->VirtualCopyPose(*this->field_40.field_0, *v9);
         v9->field_0->VirtualDestroyPose(v9);
 
     } else {

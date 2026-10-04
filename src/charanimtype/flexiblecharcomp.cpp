@@ -13,11 +13,13 @@
 #include "fing5reducedposedesc.h"
 #include "fing52knuckcurlentcompdecomp.h"
 #include "fing52knuckcurlposedesc.h"
+#include "floatsentcompdecomp.h"
 #include "func_wrapper.h"
 #include "legsikentcompdecomp.h"
 #include "legsikposedesc.h"
 #include "legsstdposedesc.h"
 #include "quatsentcompdecomp.h"
+#include "tentaclesposedesc.h"
 #include "torsoheadentcompdecomp.h"
 #include "torsoheadstdposedesc.h"
 #include "utility.h"
@@ -121,6 +123,13 @@ void FlexibleCharComp_patch()
 
         FUNC_ADDRESS(address, func);
         set_vfunc(0x008925E8, address);
+    }
+
+    {
+        auto func = &FlexibleCharComp<TentaclesPoseDesc, FloatsEntCompDecomp<TentaclesPoseDesc>>::_CalcPoseDataDirect;
+
+        FUNC_ADDRESS(address, func);
+        set_vfunc(0x00892568, address);
     }
 
     {

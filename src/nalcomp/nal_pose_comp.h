@@ -1,7 +1,7 @@
 #pragma once
 
 #include "component_id.h"
-#include <nal_skeleton.h>
+#include <nal_system.h>
 
 #include <cstdint>
 
@@ -15,18 +15,18 @@ struct nalCompSkeleton;
 
 struct nalCompPose {
     std::intptr_t m_vtbl;
-    const nalCompSkeleton *field_4;
+    nalBasePose field_4;
     void *m_pTheData;
     int field_C;
 
     auto GetSkeleton() const
     {
-        return this->field_4;
+        return bit_cast<const nalCompSkeleton *>(this->field_4.field_0);
     }
 
     nalCompPose(const nalCompSkeleton *);
 
-    nalCompPose &operator=(const nalComp::nalCompPose *a2);
+    nalCompPose &operator=(const nalCompPose &a2);
 
     void CopyPoseDataNoFree(const void *a2);
 
@@ -42,32 +42,48 @@ struct nalCompPose {
 
     int _GetPoseDataSize() const;
 
-    //virtual
     //0x00734420
+    //virtual
     int GetPoseDataSize() const;
 
-    //virtual
     //0x00734430
+    int _GetPoseDataAlign() const;
+
+    //virtual
     int GetPoseDataAlign() const;
 
-    //virtual
     //0x00731E90
+    void _AllocPoseData();
+
+    //virtual
     void AllocPoseData();
 
-    //virtual
     //0x00737800
-    void CopyPoseData(void *a2);
+    void _CopyPoseData(const void *a2);
 
     //virtual
+    void CopyPoseData(const void *a2);
+
     //0x00731EC0
+    void _DirectCopyPoseData(const void *a2);
+
+    //virtual
     void DirectCopyPoseData(const void *a2);
+
+    //0x00731EF0
+    void _FreePoseData();
 
     //virtual
     void FreePoseData();
 
     //virtual
+    void _InitializePoseDataFromSkel();
+
     //0x00737820
     void InitializePoseDataFromSkel();
+
+    //0x00734440
+    void _ComponentFreePoseData();
 
     //virtual
     void ComponentFreePoseData();

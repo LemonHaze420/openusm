@@ -10,7 +10,6 @@
 #include "variable.h"
 
 #include <nal_generic.h>
-#include <nalcomp/nal_pose_comp.h>
 
 #include <memory>
 
@@ -129,16 +128,18 @@ struct nalPositionOrientation {
     static inline nalPositionOrientation &Identity = var<nalPositionOrientation>(0x00977180);
 };
 
+struct nalBaseSkeleton;
+
 struct nalBasePose {
-    nalComp::nalCompSkeleton *field_0;
+    const nalBaseSkeleton *field_0;
+
+    nalBasePose(const nalBaseSkeleton *skel) : field_0(skel) {}
 
     auto GetSkeleton() const
     {
         return this->field_0;
     }
 };
-
-struct nalBaseSkeleton;
 
 struct nalAnimFile {
     uint32_t field_0;

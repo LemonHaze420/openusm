@@ -147,12 +147,12 @@ usm_anim_player<nalAnimClass<nalAnyPose>, 3>::usm_anim_player(nalBaseSkeleton *a
     auto *v4 = v3->field_0->VirtualCreatePose();
 
     this->field_4.field_0 = v4;
-    v4->field_0->VirtualCopyPose(v4, v3);
+    v4->field_0->VirtualCopyPose(*v4, *v3);
     this->field_8.field_0 = a2->VirtualCreatePose();
     auto *v5 = a2->VirtualGetDefaultPose();
     auto *v6 = v5->field_0->VirtualCreatePose();
     this->field_C.field_0 = v6;
-    v6->field_0->VirtualCopyPose(v6, v5);
+    v6->field_0->VirtualCopyPose(*v6, *v5);
 
     this->field_10 = 0;
     this->field_20 = nullptr;
@@ -319,6 +319,34 @@ void usm_anim_player<nalAnimClass<nalAnyPose>, 3>::nalAnimState::sub_4AD850(
     auto *v17 = this->field_10;
     if (v17 != nullptr) {
         v17->Reference(this);
+    }
+}
+
+template <>
+void usm_anim_player<nalAnimClass<nalAnyPose>, 3>::PlayModifier(nalAnimClass<nalAnyPose> *a2,
+                                                                usm_anim_player_modifier_type a3, Float a4, uint32_t a5,
+                                                                bool a6, Float a7, Float a8, nalPlayMethod *a9,
+                                                                Float a10, nalAnimCallback *a11, Float a12, bool a13,
+                                                                void *a14)
+{
+    if constexpr (0) {
+    } else {
+        void(__fastcall * func)(void *,
+                                void *edx,
+                                nalAnimClass<nalAnyPose> *,
+                                usm_anim_player_modifier_type,
+                                Float,
+                                uint32_t,
+                                bool,
+                                Float,
+                                Float,
+                                nalPlayMethod *,
+                                Float,
+                                nalAnimCallback *,
+                                Float,
+                                bool,
+                                void *) = CAST(func, 0x004AFD90);
+        func(this, nullptr, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14);
     }
 }
 

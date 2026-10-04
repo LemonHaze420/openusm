@@ -61,40 +61,45 @@ struct character_anim_controller : nal_anim_controller {
 
     void *operator new(size_t size, void *);
 
+    //0x0049EBA0
     //virtual
+    void _play_layer_anim(nalAnimClass<nalAnyPose> *a2, Float a3, Float a4, uint32_t a5, bool a6, bool a7, void *a8);
+
     //0x004A6220
+    //virtual
     void _play_base_layer_anim(nalAnimClass<nalAnyPose> *a2, Float a3, Float a4, bool a5, bool a6, void *a7);
 
-    //virtual
     //0x00492C20
-    float get_tentacle_width(string_hash a2);
-
-
     //virtual
+    float _get_tentacle_width(string_hash a2);
+
+    //0x00492C60
+    //virtual
+    float _get_tentacle_activity(string_hash a2);
+
     //0x00492CA0
-    float get_tentacle_pull_factor(string_hash a2);
-
-
     //virtual
+    float _get_tentacle_pull_factor(string_hash a2);
+
     //0x004982D0
-    void get_camera_root_rel_po(po &a2);
-
     //virtual
+    void _get_camera_root_rel_po(po &a2);
+
     //0x00498310
-    void get_shake_root_rel_po(po &a2);
-
     //virtual
+    void _get_shake_root_rel_po(po &a2);
+
     //0x00492CE0
-    bool will_have_hint_token_scale(string_hash);
-
     //virtual
+    bool _will_have_hint_token_scale(string_hash);
+
     //0x00492CF0
-    vector3d get_hint_token_scale(string_hash a2);
-
-
     //virtual
+    vector3d _get_hint_token_scale(string_hash a2);
+
     //0x0049EBE0
-    void post_get_pose_in_scene_anims(uint32_t &a2, nalAnimClass<nalAnyPose> *a3, nalAnyPose &a4);
+    //virtual
+    void _post_get_pose_in_scene_anims(uint32_t &a2, nalAnimClass<nalAnyPose> *a3, nalAnyPose &a4);
 };
 
 inline constexpr auto CHARACTER_ANIMTYPE_NAME = "Character";

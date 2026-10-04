@@ -99,6 +99,28 @@ void *character_anim_controller::operator new(size_t, void *ptr)
     return ptr;
 }
 
+void character_anim_controller::_play_layer_anim(nalAnimClass<nalAnyPose> *anim_ptr, Float a3, Float a4, uint32_t a5,
+                                                 bool a6, bool a7, void *a8)
+{
+    TRACE("character_anim_controller::play_layer_anim");
+
+    assert(anim_ptr->GetSkeleton()->GetAnimTypeName() == tlFixedString(CHARACTER_ANIMTYPE_NAME));
+
+    this->my_player.PlayModifier(anim_ptr,
+                                 static_cast<decltype(this->my_player)::usm_anim_player_modifier_type>(1),
+                                 a4,
+                                 a5,
+                                 a6,
+                                 a3,
+                                 0.0f,
+                                 &this->field_5C,
+                                 0.0f,
+                                 nullptr,
+                                 1.0f,
+                                 a7,
+                                 a8);
+}
+
 void character_anim_controller::_play_base_layer_anim(nalAnimClass<nalAnyPose> *anim_ptr, Float a3, Float a4, bool a5,
                                                       bool a6, void *a7)
 {
@@ -109,7 +131,7 @@ void character_anim_controller::_play_base_layer_anim(nalAnimClass<nalAnyPose> *
     this->my_player.PlayModifier(anim_ptr,
                                  static_cast<decltype(this->my_player)::usm_anim_player_modifier_type>(a5),
                                  a4,
-                                 bit_cast<decltype(this->my_player)::nalPlayMethod *>(&this->field_54),
+                                 &this->field_54,
                                  0.0,
                                  0,
                                  1.0,
@@ -118,8 +140,10 @@ void character_anim_controller::_play_base_layer_anim(nalAnimClass<nalAnyPose> *
                                  a7);
 }
 
-float character_anim_controller::get_tentacle_width(string_hash a2)
+float character_anim_controller::_get_tentacle_width(string_hash a2)
 {
+    TRACE("character_anim_controller::get_tentacle_width");
+
     auto *v2 = this->field_40.field_0;
     auto *v3 = (v2 != nullptr ? ((nalChar::nalCharPose *)&v2[-1]) : nullptr);
 
@@ -132,8 +156,29 @@ float character_anim_controller::get_tentacle_width(string_hash a2)
     }
 }
 
-float character_anim_controller::get_tentacle_pull_factor(string_hash a2)
+float character_anim_controller::_get_tentacle_activity(string_hash a2)
 {
+    TRACE("character_anim_controller::get_tentacle_activity");
+
+    const nalChar::nalCharPose *v3 = nullptr;
+    auto *v2 = this->field_40.field_0;
+    if (v2 != nullptr) {
+        v3 = (const nalChar::nalCharPose *)&v2[-1];
+    }
+
+    auto *namedPoseData =
+        bit_cast<TentaclesPoseDesc::StdPoseData *>(v3->GetNamedPoseData(CharComponentBase::Names::TentaclesCompressed));
+    if (namedPoseData != nullptr) {
+        return namedPoseData->GetActivityFromBone(a2.source_hash_code);
+    }
+
+    return 0.0f;
+}
+
+float character_anim_controller::_get_tentacle_pull_factor(string_hash a2)
+{
+    TRACE("character_anim_controller::get_tentacle_pull_factor");
+
     auto v2 = this->field_40.field_0;
     nalChar::nalCharPose *v3 = (v2 != nullptr ? bit_cast<nalChar::nalCharPose *>(v2 - 1) : nullptr);
 
@@ -179,8 +224,10 @@ void get_po_from_bone_data(po &a1, const ArbitraryPOCharComp::BoneData *a2, cons
     a1 = po{a2a, a3a, 1.0f};
 }
 
-void character_anim_controller::get_camera_root_rel_po(po &a2)
+void character_anim_controller::_get_camera_root_rel_po(po &a2)
 {
+    TRACE("character_anim_controller::get_camera_root_rel_po");
+
     auto *v2 = this->field_64;
     if (v2 != nullptr) {
         auto *v3 = bit_cast<ArbitraryPOCharComp::PerSkelData *>(this->field_6C);
@@ -206,8 +253,10 @@ void character_anim_controller::get_camera_root_rel_po(po &a2)
     }
 }
 
-void character_anim_controller::get_shake_root_rel_po(po &a2)
+void character_anim_controller::_get_shake_root_rel_po(po &a2)
 {
+    TRACE("character_anim_controller::get_shake_root_rel_po");
+
     auto *v2 = this->field_68;
     if (v2 != nullptr) {
         auto *v3 = bit_cast<const ArbitraryPOCharComp::PerSkelData *>(this->field_6C);
@@ -222,17 +271,17 @@ void character_anim_controller::get_shake_root_rel_po(po &a2)
     }
 }
 
-bool character_anim_controller::will_have_hint_token_scale(string_hash)
+bool character_anim_controller::_will_have_hint_token_scale(string_hash)
 {
     return false;
 }
 
-vector3d character_anim_controller::get_hint_token_scale(string_hash)
+vector3d character_anim_controller::_get_hint_token_scale(string_hash)
 {
     return vector3d{1.f, 1.f, 1.f};
 }
 
-void character_anim_controller::post_get_pose_in_scene_anims(uint32_t &, nalAnimClass<nalAnyPose> *a3, nalAnyPose &a4)
+void character_anim_controller::_post_get_pose_in_scene_anims(uint32_t &, nalAnimClass<nalAnyPose> *a3, nalAnyPose &a4)
 {
     auto *PerAnimDataByName =
         bit_cast<const FakerootPoseDesc::PerAnimData *>(bit_cast<nalChar::nalCharAnim *>(a3)->GetPerAnimDataByName(
@@ -334,8 +383,19 @@ void character_anim_controller_patch()
     REDIRECT(0x004CC50D, &character_anim_controller__ctor);
 
     {
-        FUNC_ADDRESS(address, &character_anim_controller::_play_base_layer_anim);
-        set_vfunc(0x00880F98, address);
+        constexpr auto address_vtbl = 0x00880F90;
+        auto set_vfunc_local = [address_vtbl](std::intptr_t offset, auto func) {
+            set_vfunc(address_vtbl + offset, func_address(func));
+        };
+
+        set_vfunc_local(0x4, &character_anim_controller::_play_layer_anim);
+        set_vfunc_local(0x8, &character_anim_controller::_play_base_layer_anim);
+
+        set_vfunc_local(0x84, &character_anim_controller::_get_tentacle_width);
+        set_vfunc_local(0x88, &character_anim_controller::_get_tentacle_activity);
+        set_vfunc_local(0x8C, &character_anim_controller::_get_tentacle_pull_factor);
+        set_vfunc_local(0x90, &character_anim_controller::_get_camera_root_rel_po);
+        set_vfunc_local(0x94, &character_anim_controller::_get_shake_root_rel_po);
     }
 
     {

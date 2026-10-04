@@ -30,10 +30,19 @@ struct nalCharPose : nalComp::nalCompPose {
 
     void Blend(Float a2, const nalCharPose &a3, const nalCharPose &a4);
 
+    //0x005F1330
     void *GetNamedPoseData(CharComponentBase::Names a2);
 
+    //0x005F1370
+    void *GetNamedPoseData(CharComponentBase::Names a2) const;
+
+    //0x005F1210
     //virtual
-    void InitializePoseDataFromSkel();
+    void _CopyPoseData(const void *a2);
+
+    //0x005F1290
+    //virtual
+    void _InitializePoseDataFromSkel();
 };
 
 struct nalCharSkeleton : nalComp::nalCompSkeleton {
@@ -69,11 +78,17 @@ struct nalCharSkeleton : nalComp::nalCompSkeleton {
     void CopyPose(nalCharPose *a1, const nalCharPose *a2);
 
     //virtual
+    void _finalize(bool a2);
+
+    //0x005F28C0
+    //virtual
     void _Process();
 
+    //0x005F1510
     //virtual
-    void Release();
+    void _Release();
 
+    //virtual
     bool _CheckVersion() const
     {
         return this->Version == 0x10003;
@@ -81,11 +96,11 @@ struct nalCharSkeleton : nalComp::nalCompSkeleton {
 
     //0x00743820
     //virtual
-    const nalComp::nalCompSkeleton **_VirtualGetDefaultPose() const;
+    const nalBasePose *_VirtualGetDefaultPose() const;
 
     //0x005FE380
     //virtual
-    const nalComp::nalCompSkeleton **_VirtualCreatePose() const;
+    const nalBasePose *_VirtualCreatePose() const;
 
     //0x005FCB10
     //virtual
@@ -97,7 +112,7 @@ struct nalCharSkeleton : nalComp::nalCompSkeleton {
 
     //0x005FCAC0
     //virtual
-    void _VirtualBlend(nalBasePose *a2, Float a3, nalBasePose *a4, nalBasePose *a5);
+    void _VirtualBlend(nalBasePose *a2, Float a3, const nalBasePose *a4, const nalBasePose *a5);
 
     static int &vtbl_ptr;
 };
