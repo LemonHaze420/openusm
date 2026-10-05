@@ -11,10 +11,9 @@ struct ai_action_nugget {
     ai_core *core;
     bool paused;
 
-    ai_action_nugget(ai_core *owner, string_hash name)
-        : id(name), core(owner), paused(false) {}
-    protected:
+    ai_action_nugget(ai_core *owner, string_hash name) : id(name), core(owner), paused(false) {}
 
+protected:
     ~ai_action_nugget() = default;
 };
 

@@ -91,8 +91,7 @@ int eligible_pack_category::find_empty_pack_slot() const
     return (it != pack_slots.end() ? std::distance(pack_slots.begin(), it) : -1);
 }
 
-void eligible_pack_category::prioritize(
-    const _std::vector<ideal_pack_info *> &ideal_packs)
+void eligible_pack_category::prioritize(const _std::vector<ideal_pack_info *> &ideal_packs)
 {
     for (auto *pack : field_C) {
         pack->field_6C = std::numeric_limits<float>::max();

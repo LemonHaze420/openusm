@@ -27,35 +27,58 @@ void *__fastcall clone_delete(conglomerate_clone *self, void *, unsigned flags)
         mem_dealloc(self, sizeof(conglomerate_clone));
     return self;
 }
-int __fastcall clone_size(conglomerate_clone *, void *) { return sizeof(conglomerate_clone); }
-int __fastcall clone_flavor(conglomerate_clone *, void *) { return 13; }
-bool __fastcall clone_query(conglomerate_clone *, void *) { return true; }
-void __fastcall clone_release(conglomerate_clone *self, void *) { self->release_mem(); }
-float __fastcall clone_radius(conglomerate_clone *self, void *) { return self->_get_visual_radius(); }
+int __fastcall clone_size(conglomerate_clone *, void *)
+{
+    return sizeof(conglomerate_clone);
+}
+int __fastcall clone_flavor(conglomerate_clone *, void *)
+{
+    return 13;
+}
+bool __fastcall clone_query(conglomerate_clone *, void *)
+{
+    return true;
+}
+void __fastcall clone_release(conglomerate_clone *self, void *)
+{
+    self->release_mem();
+}
+float __fastcall clone_radius(conglomerate_clone *self, void *)
+{
+    return self->_get_visual_radius();
+}
 vector3d *__fastcall clone_center(conglomerate_clone *self, void *, vector3d *out)
 {
     *out = self->_get_visual_center();
     return out;
 }
-bool __fastcall clone_renderable(conglomerate_clone *self, void *) { return self->_is_renderable(); }
-void __fastcall clone_render(conglomerate_clone *self, void *, Float fade) { self->_render(fade); }
-void __fastcall clone_unmash(conglomerate_clone *self, void *, generic_mash_header *header,
-                             void *object, generic_mash_data_ptrs *data)
+bool __fastcall clone_renderable(conglomerate_clone *self, void *)
+{
+    return self->_is_renderable();
+}
+void __fastcall clone_render(conglomerate_clone *self, void *, Float fade)
+{
+    self->_render(fade);
+}
+void __fastcall clone_unmash(conglomerate_clone *self, void *, generic_mash_header *header, void *object,
+                             generic_mash_data_ptrs *data)
 {
     self->un_mash(header, object, data);
 }
-void __fastcall clone_unlock_ifl(conglomerate_clone *self, void *) { self->field_90.field_6 |= 0x3FFF; }
+void __fastcall clone_unlock_ifl(conglomerate_clone *self, void *)
+{
+    self->field_90.field_6 |= 0x3FFF;
+}
 void __fastcall clone_lock_ifl(conglomerate_clone *self, void *, uint16_t frame)
 {
     self->field_90.field_6 ^= (frame ^ self->field_90.field_6) & 0x3FFF;
 }
 
 void __fastcall clone_release_ifl(conglomerate_clone *, void *) {}
-}
+}  // namespace
 
 void *conglomerate_clone::native_vtable(void **actor_table)
 {
-
     static std::array<void *, 0x294 / 4> table;
     std::copy_n(actor_table, table.size(), table.begin());
     table[0] = reinterpret_cast<void *>(&clone_delete);
@@ -99,7 +122,6 @@ conglomerate_clone::~conglomerate_clone()
 
 void conglomerate_clone::common_destruct()
 {
-
     if (field_C8 != nullptr) {
         if (--*field_C8 <= 0) {
             if (auto *source = field_C0.get_volatile_ptr())

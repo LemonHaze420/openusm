@@ -8,16 +8,8 @@
 VALIDATE_SIZE(cut_scene_segment, 0xB0u);
 
 cut_scene_segment::cut_scene_segment(from_mash_in_place_constructor *a2)
-    : field_10(a2),
-      field_20(a2),
-      field_34(a2),
-      field_48(a2),
-      field_5C(a2),
-      field_70(a2),
-      field_84(a2),
-      field_98(a2)
-{
-}
+    : field_10(a2), field_20(a2), field_34(a2), field_48(a2), field_5C(a2), field_70(a2), field_84(a2), field_98(a2)
+{}
 
 void cut_scene_segment::unmash(mash_info_struct *a1, [[maybe_unused]] void *a3)
 {
@@ -40,94 +32,78 @@ template <>
 void mVector<cut_scene_segment>::custom_unmash(mash_info_struct *a1, void *)
 {
     if (this->m_data != nullptr) {
-        this->m_data = reinterpret_cast<value_type **>(
-            a1->read_from_buffer(sizeof(value_type *) * this->m_size, 4));
+        this->m_data = reinterpret_cast<value_type **>(a1->read_from_buffer(sizeof(value_type *) * this->m_size, 4));
         for (int i = 0; i < this->m_size; ++i) {
-            auto *segment =
-                reinterpret_cast<value_type *>(a1->read_from_buffer(sizeof(value_type), 4));
+            auto *segment = reinterpret_cast<value_type *>(a1->read_from_buffer(sizeof(value_type), 4));
             this->m_data[i] = segment;
             segment->unmash(a1, nullptr);
         }
     }
 
-    this->field_0 =
-        reinterpret_cast<int>(&a1->mash_image_ptr[0][a1->buffer_size_used[0] - (DWORD)this]);
+    this->field_0 = reinterpret_cast<int>(&a1->mash_image_ptr[0][a1->buffer_size_used[0] - (DWORD)this]);
 }
 
 template <>
 void mVectorBasic<nalSceneAnim *>::unmash(mash_info_struct *a1, [[maybe_unused]] void *a3)
 {
     if (this->m_data != nullptr) {
-        this->m_data =
-            reinterpret_cast<value_type *>(a1->read_from_buffer(sizeof(value_type) * this->m_size, 4));
+        this->m_data = reinterpret_cast<value_type *>(a1->read_from_buffer(sizeof(value_type) * this->m_size, 4));
     }
-    this->field_0 =
-        reinterpret_cast<int>(&a1->mash_image_ptr[0][a1->buffer_size_used[0] - (DWORD)this]);
+    this->field_0 = reinterpret_cast<int>(&a1->mash_image_ptr[0][a1->buffer_size_used[0] - (DWORD)this]);
 }
 
 template <>
 void mVector<mString>::custom_unmash(mash_info_struct *a1, [[maybe_unused]] void *a3)
 {
     if (this->m_data != nullptr) {
-        this->m_data = reinterpret_cast<value_type **>(
-            a1->read_from_buffer(sizeof(value_type *) * this->m_size, 4));
+        this->m_data = reinterpret_cast<value_type **>(a1->read_from_buffer(sizeof(value_type *) * this->m_size, 4));
         for (int i = 0; i < this->m_size; ++i) {
             auto *value = reinterpret_cast<value_type *>(a1->read_from_buffer(sizeof(value_type), 4));
             this->m_data[i] = value;
             a1->unmash_class_in_place(*value, nullptr);
         }
     }
-    this->field_0 =
-        reinterpret_cast<int>(&a1->mash_image_ptr[0][a1->buffer_size_used[0] - (DWORD)this]);
+    this->field_0 = reinterpret_cast<int>(&a1->mash_image_ptr[0][a1->buffer_size_used[0] - (DWORD)this]);
 }
 
 template <>
-void mVector<mVector<mString>>::custom_unmash(mash_info_struct *a1,
-                                               [[maybe_unused]] void *a3)
+void mVector<mVector<mString>>::custom_unmash(mash_info_struct *a1, [[maybe_unused]] void *a3)
 {
     if (this->m_data != nullptr) {
-        this->m_data = reinterpret_cast<value_type **>(
-            a1->read_from_buffer(sizeof(value_type *) * this->m_size, 4));
+        this->m_data = reinterpret_cast<value_type **>(a1->read_from_buffer(sizeof(value_type *) * this->m_size, 4));
         for (int i = 0; i < this->m_size; ++i) {
             auto *value = reinterpret_cast<value_type *>(a1->read_from_buffer(sizeof(value_type), 4));
             this->m_data[i] = value;
             a1->unmash_class_in_place(*value, nullptr);
         }
     }
-    this->field_0 =
-        reinterpret_cast<int>(&a1->mash_image_ptr[0][a1->buffer_size_used[0] - (DWORD)this]);
+    this->field_0 = reinterpret_cast<int>(&a1->mash_image_ptr[0][a1->buffer_size_used[0] - (DWORD)this]);
 }
 
 template <>
-void mVector<camera_setup_entry>::custom_unmash(mash_info_struct *a1,
-                                                 [[maybe_unused]] void *a3)
+void mVector<camera_setup_entry>::custom_unmash(mash_info_struct *a1, [[maybe_unused]] void *a3)
 {
     if (this->m_data != nullptr) {
-        this->m_data = reinterpret_cast<value_type **>(
-            a1->read_from_buffer(sizeof(value_type *) * this->m_size, 4));
+        this->m_data = reinterpret_cast<value_type **>(a1->read_from_buffer(sizeof(value_type *) * this->m_size, 4));
         for (int i = 0; i < this->m_size; ++i) {
             auto *value = reinterpret_cast<value_type *>(a1->read_from_buffer(sizeof(value_type), 4));
             this->m_data[i] = value;
             value->unmash(a1, value);
         }
     }
-    this->field_0 =
-        reinterpret_cast<int>(&a1->mash_image_ptr[0][a1->buffer_size_used[0] - (DWORD)this]);
+    this->field_0 = reinterpret_cast<int>(&a1->mash_image_ptr[0][a1->buffer_size_used[0] - (DWORD)this]);
 }
 
 template <>
-void mVector<tracking_panel>::custom_unmash(mash_info_struct *a1,
-                                             [[maybe_unused]] void *a3)
+void mVector<tracking_panel>::custom_unmash(mash_info_struct *a1, [[maybe_unused]] void *a3)
 {
     if (this->m_data != nullptr) {
-        this->m_data = reinterpret_cast<value_type **>(
-            a1->read_from_buffer(sizeof(value_type *) * this->m_size, 4));
+        this->m_data = reinterpret_cast<value_type **>(a1->read_from_buffer(sizeof(value_type *) * this->m_size, 4));
         for (int i = 0; i < this->m_size; ++i) {
             auto *value = reinterpret_cast<value_type *>(a1->read_from_buffer(sizeof(value_type), 4));
             this->m_data[i] = value;
             value->unmash(a1, value);
         }
     }
-    this->field_0 =
-        reinterpret_cast<int>(&a1->mash_image_ptr[0][a1->buffer_size_used[0] - (DWORD)this]);
+    this->field_0 = reinterpret_cast<int>(&a1->mash_image_ptr[0][a1->buffer_size_used[0] - (DWORD)this]);
 }

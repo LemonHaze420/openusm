@@ -26,9 +26,19 @@ VALIDATE_SIZE(vehicle_model, 0x1C);
 
 
 static const color32 car_colors[] = {
-    0xFFFFFFFFu, 0xFF323232u, 0xFF4B7BA8u, 0xFFD23C00u, 0xFF719B56u,
-    0xFFDCB469u, 0xFF73AF64u, 0xFFC8FFBEu, 0xFF3250A0u, 0xFF64503Cu,
-    0xFFA00000u, 0xFF9B7D5Au, 0xFF874646u,
+    0xFFFFFFFFu,
+    0xFF323232u,
+    0xFF4B7BA8u,
+    0xFFD23C00u,
+    0xFF719B56u,
+    0xFFDCB469u,
+    0xFF73AF64u,
+    0xFFC8FFBEu,
+    0xFF3250A0u,
+    0xFF64503Cu,
+    0xFFA00000u,
+    0xFF9B7D5Au,
+    0xFF874646u,
 };
 static const std::pair<string_hash, string_hash> s_tail_parts[5] = {
     {int(to_hash("T1")), int(to_hash("T1_XTRAS_NOTINT"))},
@@ -38,16 +48,36 @@ static const std::pair<string_hash, string_hash> s_tail_parts[5] = {
     {int(to_hash("T5")), int(to_hash("T5_XTRAS_NOTINT"))},
 };
 static const string_hash s_car_nose_parts[5][6] = {
-    {int(to_hash("N1")), int(to_hash("N1_D")), int(to_hash("N1_D_WINDOW_NOTINT")),
-        int(to_hash("N1_P")), int(to_hash("N1_P_WINDOW_NOTINT")), int(to_hash("N1_XTRAS_NOTINT"))},
-    {int(to_hash("N2")), int(to_hash("N2_D")), int(to_hash("N2_D_WINDOW_NOTINT")),
-        int(to_hash("N2_P")), int(to_hash("N2_P_WINDOW_NOTINT")), int(to_hash("N2_XTRAS_NOTINT"))},
-    {int(to_hash("N3")), int(to_hash("N3_D")), int(to_hash("N3_D_WINDOW_NOTINT")),
-        int(to_hash("N3_P")), int(to_hash("N3_P_WINDOW_NOTINT")), int(to_hash("N3_XTRAS_NOTINT"))},
-    {int(to_hash("N4")), int(to_hash("N4_D")), int(to_hash("N4_D_WINDOW_NOTINT")),
-        int(to_hash("N4_P")), int(to_hash("N4_P_WINDOW_NOTINT")), int(to_hash("N4_XTRAS_NOTINT"))},
-    {int(to_hash("N5")), int(to_hash("N5_D")), int(to_hash("N5_D_WINDOW_NOTINT")),
-        int(to_hash("N5_P")), int(to_hash("N5_P_WINDOW_NOTINT")), int(to_hash("N5_XTRAS_NOTINT"))},
+    {int(to_hash("N1")),
+     int(to_hash("N1_D")),
+     int(to_hash("N1_D_WINDOW_NOTINT")),
+     int(to_hash("N1_P")),
+     int(to_hash("N1_P_WINDOW_NOTINT")),
+     int(to_hash("N1_XTRAS_NOTINT"))},
+    {int(to_hash("N2")),
+     int(to_hash("N2_D")),
+     int(to_hash("N2_D_WINDOW_NOTINT")),
+     int(to_hash("N2_P")),
+     int(to_hash("N2_P_WINDOW_NOTINT")),
+     int(to_hash("N2_XTRAS_NOTINT"))},
+    {int(to_hash("N3")),
+     int(to_hash("N3_D")),
+     int(to_hash("N3_D_WINDOW_NOTINT")),
+     int(to_hash("N3_P")),
+     int(to_hash("N3_P_WINDOW_NOTINT")),
+     int(to_hash("N3_XTRAS_NOTINT"))},
+    {int(to_hash("N4")),
+     int(to_hash("N4_D")),
+     int(to_hash("N4_D_WINDOW_NOTINT")),
+     int(to_hash("N4_P")),
+     int(to_hash("N4_P_WINDOW_NOTINT")),
+     int(to_hash("N4_XTRAS_NOTINT"))},
+    {int(to_hash("N5")),
+     int(to_hash("N5_D")),
+     int(to_hash("N5_D_WINDOW_NOTINT")),
+     int(to_hash("N5_P")),
+     int(to_hash("N5_P_WINDOW_NOTINT")),
+     int(to_hash("N5_XTRAS_NOTINT"))},
 };
 static const string_hash s_suv_nose_parts[5][2] = {
     {int(to_hash("N1")), int(to_hash("N1_XTRAS_NOTINT"))},
@@ -71,15 +101,21 @@ static const bool native_vehicle_defaults = [] {
 #endif
 
 namespace {
-actor *__fastcall native_vehicle_actor(vehicle *self, void *) { return self->get_my_actor(); }
-void __fastcall native_vehicle_reset(vehicle *self, void *) { self->reset(); }
+actor *__fastcall native_vehicle_actor(vehicle *self, void *)
+{
+    return self->get_my_actor();
+}
+void __fastcall native_vehicle_reset(vehicle *self, void *)
+{
+    self->reset();
+}
 void __fastcall native_vehicle_set_actor(vehicle *self, void *, vhandle_type<entity> handle)
 {
     self->set_actor(handle);
 }
 
 void __fastcall native_vehicle_out_of_world(vehicle *, void *) {}
-}
+}  // namespace
 
 void *vehicle::native_vtable()
 {
@@ -107,8 +143,8 @@ vehicle::~vehicle()
 entity *vehicle::use_model(int model, int instance_id)
 {
     const auto assign = [this](vhandle_type<entity> handle) {
-        auto function = reinterpret_cast<void(__fastcall *)(vehicle *, void *, vhandle_type<entity>)>(
-            get_vfunc(m_vtbl, 8));
+        auto function =
+            reinterpret_cast<void(__fastcall *)(vehicle *, void *, vhandle_type<entity>)>(get_vfunc(m_vtbl, 8));
         function(this, nullptr, handle);
     };
     if (field_50.get_volatile_ptr()) {
@@ -246,19 +282,16 @@ void vehicle::set_damage_level(int level, int end)
         if (end) {
             static const int car_parts[] = {0, 1, 2};
             static const int suv_parts[] = {1, 3, 4};
-            set_tail_visible((bodytype == 1 ? car_parts : suv_parts)[variant],
-                field_64, true, field_6C);
+            set_tail_visible((bodytype == 1 ? car_parts : suv_parts)[variant], field_64, true, field_6C);
         } else {
             static const int car_parts[] = {0, 1, 4};
             static const int suv_parts[] = {1, 2, 4};
-            set_nose_visible((bodytype == 1 ? car_parts : suv_parts)[variant],
-                field_64, true, field_68);
+            set_nose_visible((bodytype == 1 ? car_parts : suv_parts)[variant], field_64, true, field_68);
         }
         return;
     }
     const auto lock_damage_frame = [this](actor *part) {
-        part->field_90.field_6 = (part->field_90.field_6 & 0x3FFF)
-            | ((-1 - (field_6C & 3)) << 14);
+        part->field_90.field_6 = (part->field_90.field_6 & 0x3FFF) | ((-1 - (field_6C & 3)) << 14);
     };
     lock_damage_frame(body);
     if (bodytype == 6) {
@@ -1020,7 +1053,7 @@ void finish_vehicle_motion(actor *owner, const vector3d &displacement, Float dt)
     if (radius(owner, nullptr) > 0.0f)
         static_cast<conglomerate *>(owner)->field_110 &= ~1u;
 }
-}
+}  // namespace
 
 bool vehicle::is_grounded() const
 {
@@ -1060,15 +1093,16 @@ void vehicle::drive(Float time, float throttle, float steering, bool traction, b
     }
     bool body_changed = false;
     if (dynamics) {
-        const float pitch = static_cast<int>((old_speed - field_C8) / acceleration * 10.0f) * 0.1f * 0.0872664675116539f;
+        const float pitch =
+            static_cast<int>((old_speed - field_C8) / acceleration * 10.0f) * 0.1f * 0.0872664675116539f;
         const float roll = static_cast<int>(field_C8 * 0.02f * 10.0f * steering * 2.0f) * 0.1f * 0.2617993950843811f;
         const auto approach = [](float current, float target, float amount) {
             return target > current ? std::min(current + amount, target) : std::max(current - amount, target);
         };
         const float next_pitch = approach(field_CC, pitch, dt * 0.39269909262657166f);
         const float next_roll = approach(field_D0, roll, dt * 0.6544985175132751f);
-        body_changed = !(field_CC <= next_pitch && field_CC >= next_pitch) ||
-                       !(field_D0 <= next_roll && field_D0 >= next_roll);
+        body_changed =
+            !(field_CC <= next_pitch && field_CC >= next_pitch) || !(field_D0 <= next_roll && field_D0 >= next_roll);
         field_CC = next_pitch;
         field_D0 = next_roll;
     } else {

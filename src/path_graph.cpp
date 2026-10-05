@@ -9,10 +9,8 @@
 #include <cstdint>
 
 #if defined(OPENUSM_XBPACK_MODE) && !defined(TARGET_XBOX)
-namespace
-{
-struct path_index_vector
-{
+namespace {
+struct path_index_vector {
     int field_0;
     int size;
     uint16_t *data;
@@ -21,16 +19,14 @@ struct path_index_vector
     uint8_t padding[3];
 };
 
-struct path_node
-{
+struct path_node {
     uint8_t field_0[0x14];
     mash_virtual_base *field_14;
     path_index_vector field_18;
     uint32_t field_2C;
 };
 
-struct path_edge
-{
+struct path_edge {
     uint8_t fields[0x14];
 };
 
@@ -38,26 +34,23 @@ static_assert(sizeof(path_index_vector) == 0x14);
 static_assert(sizeof(path_node) == 0x30);
 static_assert(sizeof(path_edge) == 0x14);
 
-template<typename T>
+template <typename T>
 void finish_vector(mVector<T> &vector, mash_info_struct &info)
 {
-    vector.field_0 = reinterpret_cast<int>(
-        &info.mash_image_ptr[mash::NORMAL_BUFFER][
-            info.buffer_size_used[mash::NORMAL_BUFFER] -
-            reinterpret_cast<uint32_t>(&vector)]);
+    vector.field_0 =
+        reinterpret_cast<int>(&info.mash_image_ptr[mash::NORMAL_BUFFER][info.buffer_size_used[mash::NORMAL_BUFFER] -
+                                                                        reinterpret_cast<uint32_t>(&vector)]);
 }
 
 void unmash_indices(path_index_vector &indices, mash_info_struct &info)
 {
     if (indices.data != nullptr) {
-        indices.data = reinterpret_cast<uint16_t *>(info.read_from_buffer(
-            mash::NORMAL_BUFFER, 2 * indices.size, 2));
+        indices.data = reinterpret_cast<uint16_t *>(info.read_from_buffer(mash::NORMAL_BUFFER, 2 * indices.size, 2));
     }
 
-    indices.field_0 = reinterpret_cast<int>(
-        &info.mash_image_ptr[mash::NORMAL_BUFFER][
-            info.buffer_size_used[mash::NORMAL_BUFFER] -
-            reinterpret_cast<uint32_t>(&indices)]);
+    indices.field_0 =
+        reinterpret_cast<int>(&info.mash_image_ptr[mash::NORMAL_BUFFER][info.buffer_size_used[mash::NORMAL_BUFFER] -
+                                                                        reinterpret_cast<uint32_t>(&indices)]);
 }
 
 void unmash_node(path_node &node, mash_info_struct &info)
@@ -68,27 +61,23 @@ void unmash_node(path_node &node, mash_info_struct &info)
         return;
     }
 
-    node.field_14 = reinterpret_cast<mash_virtual_base *>(
-        info.read_from_buffer(mash::NORMAL_BUFFER, 8, 0));
+    node.field_14 = reinterpret_cast<mash_virtual_base *>(info.read_from_buffer(mash::NORMAL_BUFFER, 8, 0));
     mash_virtual_base::fixup_vtable(node.field_14);
 
-    const auto get_size = reinterpret_cast<int (__fastcall *)(void *, int)>(
-        get_vfunc(node.field_14->m_vtbl, 0x28));
-    info.advance_buffer(mash::NORMAL_BUFFER,
-                        get_size(node.field_14, 0) - 8);
+    const auto get_size = reinterpret_cast<int(__fastcall *)(void *, int)>(get_vfunc(node.field_14->m_vtbl, 0x28));
+    info.advance_buffer(mash::NORMAL_BUFFER, get_size(node.field_14, 0) - 8);
     node.field_14->unmash(&info, &node);
 }
 
 void unmash_nodes(mVector<path_graph_node> &vector, mash_info_struct &info)
 {
     if (vector.m_data != nullptr) {
-        vector.m_data = reinterpret_cast<path_graph_node **>(
-            info.read_from_buffer(
-                mash::NORMAL_BUFFER, 4 * vector.m_size, 4));
+        vector.m_data =
+            reinterpret_cast<path_graph_node **>(info.read_from_buffer(mash::NORMAL_BUFFER, 4 * vector.m_size, 4));
 
         for (int i = 0; i < vector.m_size; ++i) {
-            auto *node = reinterpret_cast<path_node *>(info.read_from_buffer(
-                mash::NORMAL_BUFFER, sizeof(path_node), 4));
+            auto *node =
+                reinterpret_cast<path_node *>(info.read_from_buffer(mash::NORMAL_BUFFER, sizeof(path_node), 4));
             vector.m_data[i] = reinterpret_cast<path_graph_node *>(node);
             unmash_node(*node, info);
         }
@@ -100,20 +89,18 @@ void unmash_nodes(mVector<path_graph_node> &vector, mash_info_struct &info)
 void unmash_edges(mVector<path_graph_edge> &vector, mash_info_struct &info)
 {
     if (vector.m_data != nullptr) {
-        vector.m_data = reinterpret_cast<path_graph_edge **>(
-            info.read_from_buffer(
-                mash::NORMAL_BUFFER, 4 * vector.m_size, 4));
+        vector.m_data =
+            reinterpret_cast<path_graph_edge **>(info.read_from_buffer(mash::NORMAL_BUFFER, 4 * vector.m_size, 4));
 
         for (int i = 0; i < vector.m_size; ++i) {
-            vector.m_data[i] = reinterpret_cast<path_graph_edge *>(
-                info.read_from_buffer(
-                    mash::NORMAL_BUFFER, sizeof(path_edge), 4));
+            vector.m_data[i] =
+                reinterpret_cast<path_graph_edge *>(info.read_from_buffer(mash::NORMAL_BUFFER, sizeof(path_edge), 4));
         }
     }
 
     finish_vector(vector, info);
 }
-}
+}  // namespace
 #endif
 
 VALIDATE_SIZE(path_graph_node, 0x28);
@@ -150,8 +137,7 @@ void path_graph_edge::clear()
     this->field_10 = -1;
 }
 
-path_graph::path_graph(from_mash_in_place_constructor *a2)
-    : id(a2), field_8(a2), field_1C(a2), field_30(0)
+path_graph::path_graph(from_mash_in_place_constructor *a2) : id(a2), field_8(a2), field_1C(a2), field_30(0)
 {
     for (auto &node : this->field_8) {
         node->field_10 = reinterpret_cast<uintptr_t>(this);

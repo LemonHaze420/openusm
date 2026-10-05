@@ -37,7 +37,6 @@ bool glass_house_manager::is_enabled()
 
 bool glass_house_manager::is_point_in_glass_house(const vector3d &a1)
 {
-
     for (const auto &houses : glass_houses) {
         if (houses.empty()) {
             continue;

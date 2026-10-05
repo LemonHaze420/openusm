@@ -13,7 +13,7 @@ VALIDATE_SIZE(mash_info_struct, 0x28);
 
 mash_info_struct::mash_info_struct(mash::mode_t a2, uint8_t *a3, int size, bool a5)
 {
-    this->state = (decltype(this->state)) 0;
+    this->state = (decltype(this->state))0;
     this->mode = a2;
     this->field_C = 0;
     assert(mode == mash::UNMASH_MODE);
@@ -52,7 +52,7 @@ void mash_info_struct::advance_buffer(mash::buffer_type buffer, int how_many_byt
 int mash_info_struct::get_header_size()
 {
     int result = 0;
-    if ( this->header != nullptr )
+    if (this->header != nullptr)
         result = 16;
 
     return result;
@@ -86,7 +86,7 @@ void mash_info_struct::align_buffer(mash::buffer_type buffer, int a2)
     assert(buffer_ptr != nullptr);
 
     auto *v2 = &buffer_ptr[this->buffer_size_used[buffer]];
-    auto *v3 = bit_cast<uint8_t *>(~(a2 - 1) & ((uint32_t) &v2[a2 - 1]));
+    auto *v3 = bit_cast<uint8_t *>(~(a2 - 1) & ((uint32_t)&v2[a2 - 1]));
     if (v3 != v2) {
         if (v1) {
             std::memset(v2, 0xA1u, v3 - v2);

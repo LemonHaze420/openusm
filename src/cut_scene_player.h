@@ -18,7 +18,7 @@ struct tracking_panel_anim;
 namespace comic_panels {
 struct panel;
 struct page_camera;
-}
+}  // namespace comic_panels
 
 struct cut_scene_panel_state {
     string_hash id;
@@ -108,7 +108,6 @@ struct cut_scene_player {
 
     //0x00740660
     void stop(cut_scene *a2);
-
 };
 
 //0x007411C0

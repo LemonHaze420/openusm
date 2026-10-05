@@ -31,7 +31,6 @@ struct begin_biped_physics : motion_compensator {
 };
 
 
-
 struct move_and_face_no_anim_movement : motion_compensator {
     vector3d initial_position;
     vector3d destination;

@@ -201,10 +201,8 @@ color *sub_413F80(color *a1, nglMaterialBase *a2, nglParamSet<nglShaderParamSet_
             return static_cast<uint32_t>(value * 255.0f) & 0xFFu;
         };
 
-        const uint32_t packed_color = (to_byte(constant_data.a) << 24) |
-                                       (to_byte(constant_data.r) << 16) |
-                                       (to_byte(constant_data.g) << 8) |
-                                       to_byte(constant_data.b);
+        const uint32_t packed_color = (to_byte(constant_data.a) << 24) | (to_byte(constant_data.r) << 16) |
+                                      (to_byte(constant_data.g) << 8) | to_byte(constant_data.b);
         auto &render_state = g_renderState();
         if (render_state.field_9C != packed_color) {
             IDirect3DDevice9_SetRenderState(g_Direct3DDevice, D3DRS_TEXTUREFACTOR, packed_color);

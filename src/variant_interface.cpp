@@ -19,8 +19,7 @@ VALIDATE_SIZE(variant_speaker_id_set, 0xC);
 VALIDATE_OFFSET(variant_speaker_id_set, id_count, 0x2);
 VALIDATE_OFFSET(variant_speaker_id_set, ids, 0x8);
 
-namespace
-{
+namespace {
 void unmash_variant_record(variant_info &record, generic_mash_data_ptrs *data)
 {
     data->rebase(4);
@@ -35,7 +34,7 @@ void unmash_variant_record(variant_speaker_id_set &record, generic_mash_data_ptr
     record.ids = data->get<uint32_t>(record.id_count);
 }
 
-template<typename T>
+template <typename T>
 void unmash_variant_vector(mashable_vector<T> &vector, generic_mash_data_ptrs *data)
 {
     if (vector.is_shared()) {
@@ -65,7 +64,7 @@ void unmash_variant_vector(mashable_vector<T> &vector, generic_mash_data_ptrs *d
         data->rebase(4);
     }
 }
-}
+}  // namespace
 
 variant_interface::variant_interface(conglomerate *a2) : conglomerate_interface(a2)
 {
@@ -98,8 +97,7 @@ variant_interface::~variant_interface()
     my_conglomerate = nullptr;
 }
 
-void variant_interface::_un_mash(generic_mash_header *, void *owner, void *,
-                                generic_mash_data_ptrs *data)
+void variant_interface::_un_mash(generic_mash_header *, void *owner, void *, generic_mash_data_ptrs *data)
 {
     my_conglomerate = static_cast<conglomerate *>(owner);
     dynamic = false;
@@ -201,8 +199,7 @@ nglMorphSet *variant_interface::create_morph_concatenation(nglMorphSet **parts, 
     result->NFrames = source->NFrames;
     result->field_C = source->field_C;
     result->NextMorph = nullptr;
-    result->Frames = static_cast<decltype(result->Frames)>(
-        tlMemAlloc(sizeof(*result->Frames) * result->NFrames, 8, 0));
+    result->Frames = static_cast<decltype(result->Frames)>(tlMemAlloc(sizeof(*result->Frames) * result->NFrames, 8, 0));
 
     int section_count = 0;
     for (int part = 0; part < count; ++part)
@@ -212,8 +209,8 @@ nglMorphSet *variant_interface::create_morph_concatenation(nglMorphSet **parts, 
         auto &destination = result->Frames[frame];
         destination.field_0 = source->Frames[frame].field_0;
         destination.field_4 = section_count;
-        destination.field_8 = static_cast<decltype(destination.field_8)>(
-            tlMemAlloc(sizeof(*destination.field_8) * section_count, 8, 0));
+        destination.field_8 =
+            static_cast<decltype(destination.field_8)>(tlMemAlloc(sizeof(*destination.field_8) * section_count, 8, 0));
         int output_section = 0;
         for (int part = 0; part < count; ++part) {
             const auto &input = parts[part]->Frames[frame];

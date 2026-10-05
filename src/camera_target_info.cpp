@@ -218,8 +218,8 @@ bool camera_target_info::sub_4B28E0() const
     const int mode = controller->get_spidey_loco_mode();
     if (mode != 6 && mode != 7)
         return false;
-    auto *hero = static_cast<ai::hero_inode *>(
-        field_54->get_ai_core()->get_info_node(ai::hero_inode::default_id, false));
+    auto *hero =
+        static_cast<ai::hero_inode *>(field_54->get_ai_core()->get_info_node(ai::hero_inode::default_id, false));
     if (hero == nullptr)
         return false;
     const int jump_type = static_cast<int>(hero->field_50);

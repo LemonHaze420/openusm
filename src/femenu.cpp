@@ -321,7 +321,6 @@ void FEMenu::OnStart(int controller)
 
 void FEMenu::OnUp(int a2)
 {
-
     if constexpr (STANDALONE_SYSTEM) {
         if (m_vtbl == 0x00895790) {
             static_cast<main_menu_keyboard *>(this)->OnUp(a2);

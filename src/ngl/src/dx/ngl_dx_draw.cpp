@@ -16,7 +16,6 @@
 #include <filesystem>
 
 
-
 static Var<int> g_MinVertexIndex{0x009729B0};
 
 static Var<IDirect3DVertexBuffer9 *> dword_972964{0x00972964};
@@ -89,9 +88,9 @@ HRESULT nglDrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, int a2, UINT a3)
     return IDirect3DDevice9_DrawPrimitive(g_Direct3DDevice, PrimitiveType, a2 + g_MinVertexIndex(), v3);
 }
 
-HRESULT nglSetStreamSourceAndDrawPrimitive(D3DPRIMITIVETYPE type, IDirect3DVertexBuffer9 *buffer,
-                                         uint32_t numVertices, uint32_t baseVertexIndex, uint32_t stride,
-                                         IDirect3DIndexBuffer9 *indexBuffer, uint32_t numIndices, uint32_t startIndex)
+HRESULT nglSetStreamSourceAndDrawPrimitive(D3DPRIMITIVETYPE type, IDirect3DVertexBuffer9 *buffer, uint32_t numVertices,
+                                           uint32_t baseVertexIndex, uint32_t stride,
+                                           IDirect3DIndexBuffer9 *indexBuffer, uint32_t numIndices, uint32_t startIndex)
 {
     IDirect3DDevice9_SetStreamSource(g_Direct3DDevice, 0, buffer, 0, stride);
     dword_972964() = buffer;
@@ -103,33 +102,55 @@ HRESULT nglSetStreamSourceAndDrawPrimitive(D3DPRIMITIVETYPE type, IDirect3DVerte
         }
         uint32_t count{};
         switch (type) {
-        case D3DPT_POINTLIST: count = numIndices; break;
-        case D3DPT_LINELIST: count = numIndices / 2; break;
-        case D3DPT_LINESTRIP: count = numIndices - 1; break;
-        case D3DPT_TRIANGLELIST: count = numIndices / 3; break;
+        case D3DPT_POINTLIST:
+            count = numIndices;
+            break;
+        case D3DPT_LINELIST:
+            count = numIndices / 2;
+            break;
+        case D3DPT_LINESTRIP:
+            count = numIndices - 1;
+            break;
+        case D3DPT_TRIANGLELIST:
+            count = numIndices / 3;
+            break;
         case D3DPT_TRIANGLESTRIP:
-        case D3DPT_TRIANGLEFAN: count = numIndices - 2; break;
-        default: break;
+        case D3DPT_TRIANGLEFAN:
+            count = numIndices - 2;
+            break;
+        default:
+            break;
         }
         return IDirect3DDevice9_DrawIndexedPrimitive(
             g_Direct3DDevice, type, baseVertexIndex, startIndex, numVertices, startIndex, count);
     }
     uint32_t count{};
     switch (type) {
-    case D3DPT_POINTLIST: count = numVertices; break;
-    case D3DPT_LINELIST: count = numVertices / 2; break;
-    case D3DPT_LINESTRIP: count = numVertices - 1; break;
-    case D3DPT_TRIANGLELIST: count = numVertices / 3; break;
+    case D3DPT_POINTLIST:
+        count = numVertices;
+        break;
+    case D3DPT_LINELIST:
+        count = numVertices / 2;
+        break;
+    case D3DPT_LINESTRIP:
+        count = numVertices - 1;
+        break;
+    case D3DPT_TRIANGLELIST:
+        count = numVertices / 3;
+        break;
     case D3DPT_TRIANGLESTRIP:
-    case D3DPT_TRIANGLEFAN: count = numVertices - 2; break;
-    default: break;
+    case D3DPT_TRIANGLEFAN:
+        count = numVertices - 2;
+        break;
+    default:
+        break;
     }
     return IDirect3DDevice9_DrawPrimitive(g_Direct3DDevice, type, baseVertexIndex, count);
 }
 
 
 HRESULT nglSetStreamSourceAndDrawPrimitive(nglMeshSection *MeshSection)
-{   
+{
     uint32_t stride = MeshSection->m_stride;
     g_MinVertexIndex() = MeshSection->field_4C / stride;
     auto *vertexBuffer = MeshSection->field_3C.getVertexBuffer();
@@ -141,10 +162,10 @@ HRESULT nglSetStreamSourceAndDrawPrimitive(nglMeshSection *MeshSection)
     auto numIndices = MeshSection->NIndices;
     if (numIndices != 0) {
         result = nglDrawIndexedPrimitive(MeshSection->m_primitiveType,
-            MeshSection->m_indexBuffer,
-            MeshSection->StartIndex,
-            MeshSection->NIndices,
-            MeshSection->NVertices);
+                                         MeshSection->m_indexBuffer,
+                                         MeshSection->StartIndex,
+                                         MeshSection->NIndices,
+                                         MeshSection->NVertices);
     } else {
         result = nglDrawPrimitive(MeshSection->m_primitiveType, 0, MeshSection->NVertices);
     }

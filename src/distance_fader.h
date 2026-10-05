@@ -14,24 +14,49 @@ struct distance_fader {
     static const auto &fade_radii()
     {
         static constexpr float values[16]{
-            -1.0f, 0.0f, 0.2f, 0.5f, 1.0f, 1.5f, 2.0f, 2.5f,
-            3.0f, 3.5f, 4.0f, 7.0f, 10.0f, 15.0f, 20.0f, 40.0f};
+            -1.0f, 0.0f, 0.2f, 0.5f, 1.0f, 1.5f, 2.0f, 2.5f, 3.0f, 3.5f, 4.0f, 7.0f, 10.0f, 15.0f, 20.0f, 40.0f};
         return values;
     }
 
     static const auto &fade_distances()
     {
-        static constexpr float values[16]{
-            10.0f, 15.0f, 20.0f, 30.0f, 40.0f, 50.0f, 60.0f, 70.0f,
-            80.0f, 90.0f, 100.0f, 150.0f, 200.0f, 280.0f, 500.0f, 100000.0f};
+        static constexpr float values[16]{10.0f,
+                                          15.0f,
+                                          20.0f,
+                                          30.0f,
+                                          40.0f,
+                                          50.0f,
+                                          60.0f,
+                                          70.0f,
+                                          80.0f,
+                                          90.0f,
+                                          100.0f,
+                                          150.0f,
+                                          200.0f,
+                                          280.0f,
+                                          500.0f,
+                                          100000.0f};
         return values;
     }
 
     static const auto &fade_distances2()
     {
-        static constexpr float values[16]{
-            100.0f, 225.0f, 400.0f, 900.0f, 1600.0f, 2500.0f, 3600.0f, 4900.0f,
-            6400.0f, 8100.0f, 10000.0f, 22500.0f, 40000.0f, 78400.0f, 250000.0f, 10000000000.0f};
+        static constexpr float values[16]{100.0f,
+                                          225.0f,
+                                          400.0f,
+                                          900.0f,
+                                          1600.0f,
+                                          2500.0f,
+                                          3600.0f,
+                                          4900.0f,
+                                          6400.0f,
+                                          8100.0f,
+                                          10000.0f,
+                                          22500.0f,
+                                          40000.0f,
+                                          78400.0f,
+                                          250000.0f,
+                                          10000000000.0f};
         return values;
     }
 #else

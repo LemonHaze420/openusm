@@ -39,40 +39,85 @@ void *__fastcall handheld_delete(handheld_item *self, void *, unsigned flags)
         mem_dealloc(self, sizeof(handheld_item));
     return self;
 }
-int __fastcall handheld_size(handheld_item *, void *) { return sizeof(handheld_item); }
-void __fastcall handheld_release(handheld_item *self, void *) { self->release_mem(); }
-bool __fastcall handheld_chunk(handheld_item *, void *, void *, void *) { return false; }
-bool __fastcall handheld_query(handheld_item *, void *) { return true; }
-void __fastcall handheld_unmash(handheld_item *self, void *, generic_mash_header *header, void *object, generic_mash_data_ptrs *data)
+int __fastcall handheld_size(handheld_item *, void *)
+{
+    return sizeof(handheld_item);
+}
+void __fastcall handheld_release(handheld_item *self, void *)
+{
+    self->release_mem();
+}
+bool __fastcall handheld_chunk(handheld_item *, void *, void *, void *)
+{
+    return false;
+}
+bool __fastcall handheld_query(handheld_item *, void *)
+{
+    return true;
+}
+void __fastcall handheld_unmash(handheld_item *self, void *, generic_mash_header *header, void *object,
+                                generic_mash_data_ptrs *data)
 {
     self->un_mash(header, object, data);
 }
-void __fastcall handheld_advance(handheld_item *self, void *, Float elapsed) { self->frame_advance(elapsed); }
-void __fastcall handheld_holster(handheld_item *self, void *, bool visible) { self->holster(visible); }
-void __fastcall handheld_draw(handheld_item *self, void *, bool visible) { self->draw(visible); }
-void __fastcall handheld_hide(handheld_item *self, void *) { self->hide(); }
-void __fastcall handheld_show(handheld_item *self, void *) { self->show(); }
+void __fastcall handheld_advance(handheld_item *self, void *, Float elapsed)
+{
+    self->frame_advance(elapsed);
+}
+void __fastcall handheld_holster(handheld_item *self, void *, bool visible)
+{
+    self->holster(visible);
+}
+void __fastcall handheld_draw(handheld_item *self, void *, bool visible)
+{
+    self->draw(visible);
+}
+void __fastcall handheld_hide(handheld_item *self, void *)
+{
+    self->hide();
+}
+void __fastcall handheld_show(handheld_item *self, void *)
+{
+    self->show();
+}
 
 void __fastcall handheld_idle(handheld_item *, void *) {}
 void __fastcall handheld_effect(handheld_item *, void *, int, int, int) {}
-bool __fastcall handheld_available(handheld_item *self, void *) { return !(self->field_10C & 0x10); }
-entity_base *__fastcall handheld_owner(handheld_item *self, void *) { return self->field_108; }
-void __fastcall handheld_set_owner(handheld_item *self, void *, actor *owner) { self->set_owner(owner); }
-void __fastcall handheld_create_visual(handheld_item *self, void *) { self->create_visual_item(); }
-void __fastcall handheld_visibility(handheld_item *self, void *, bool visible) { self->set_visibility(visible); }
-void __fastcall handheld_detach(handheld_item *self, void *) { self->detach(); }
+bool __fastcall handheld_available(handheld_item *self, void *)
+{
+    return !(self->field_10C & 0x10);
+}
+entity_base *__fastcall handheld_owner(handheld_item *self, void *)
+{
+    return self->field_108;
+}
+void __fastcall handheld_set_owner(handheld_item *self, void *, actor *owner)
+{
+    self->set_owner(owner);
+}
+void __fastcall handheld_create_visual(handheld_item *self, void *)
+{
+    self->create_visual_item();
+}
+void __fastcall handheld_visibility(handheld_item *self, void *, bool visible)
+{
+    self->set_visibility(visible);
+}
+void __fastcall handheld_detach(handheld_item *self, void *)
+{
+    self->detach();
+}
 
 visual_item *ensure_visual(handheld_item *self)
 {
-    auto create = reinterpret_cast<void (__fastcall *)(handheld_item *, void *)>(get_vfunc(self->m_vtbl, 0x2E4));
+    auto create = reinterpret_cast<void(__fastcall *)(handheld_item *, void *)>(get_vfunc(self->m_vtbl, 0x2E4));
     create(self, nullptr);
     return self->field_104.get_volatile_ptr();
 }
-}
+}  // namespace
 
 void *handheld_item::native_vtable(void **item_table)
 {
-
     static std::array<void *, 0x2F8 / 4> table;
     std::copy_n(item_table, 0x2C4 / 4, table.begin());
     table[0] = reinterpret_cast<void *>(&handheld_delete);
@@ -142,8 +187,10 @@ void handheld_item::create_visual_item()
     field_104.field_0 = visual->my_handle;
     auto get_mesh = reinterpret_cast<nglMesh *(__fastcall *)(handheld_item *, void *)>(get_vfunc(m_vtbl, 0x1B0));
     visual->field_90.set_mesh(get_mesh(this, nullptr));
-    if (visual->_get_mesh()) visual->field_8 |= 0x100;
-    else visual->field_8 &= ~0x100u;
+    if (visual->_get_mesh())
+        visual->field_8 |= 0x100;
+    else
+        visual->field_8 &= ~0x100u;
     visual->set_abs_position(field_108->get_abs_position());
     g_world_ptr->ent_mgr.add_dynamic_instanced_entity(visual);
     visual->field_C4 = field_108;
@@ -179,13 +226,23 @@ void handheld_item::holster(bool visible)
         visual->set_visible(false, false);
         field_110 = false;
     } else if (field_108 && field_108->get_flavor() == 12) {
-        visual->attach(field_108, data.holstered_bone, data.holstered_scale, data.holstered_position, data.holstered_rotation, false);
+        visual->attach(field_108,
+                       data.holstered_bone,
+                       data.holstered_scale,
+                       data.holstered_position,
+                       data.holstered_rotation,
+                       false);
         visual->set_visible(visible, false);
         visual->compute_sector(g_world_ptr->the_terrain, false, nullptr);
         field_110 = visible;
     } else {
         if (field_108)
-            visual->attach(field_108, string_hash{}, data.holstered_scale, data.holstered_position, data.holstered_rotation, false);
+            visual->attach(field_108,
+                           string_hash{},
+                           data.holstered_scale,
+                           data.holstered_position,
+                           data.holstered_rotation,
+                           false);
         if (visible) {
             visual->set_visible(false, false);
             field_110 = false;
@@ -227,7 +284,8 @@ void handheld_item::frame_advance(Float elapsed)
         visual->compute_sector(g_world_ptr->the_terrain, false, nullptr);
         visual->set_visible((field_108->field_8 & 0x200) && field_110, false);
         auto color = visual->_get_render_color();
-        auto get_color = reinterpret_cast<color32 *(__fastcall *)(entity_base *, void *, color32 *)>(get_vfunc(field_108->m_vtbl, 0x1C4));
+        auto get_color = reinterpret_cast<color32 *(__fastcall *)(entity_base *, void *, color32 *)>(
+            get_vfunc(field_108->m_vtbl, 0x1C4));
         color32 owner_color;
         get_color(field_108, nullptr, &owner_color);
         color[3] = owner_color[3];

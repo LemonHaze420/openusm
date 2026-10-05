@@ -45,20 +45,20 @@ int compare_resource_key_resource_pack_location(const resource_key &a1, const re
 #endif
 }
 
-template<>
+template <>
 int compare_deref(entity_base_vhandle &a1, event_recipient_entry *&a2)
 {
-    if ( a1 < a2->field_0 )
+    if (a1 < a2->field_0)
         return -1;
     else
         return (a1 > a2->field_0);
 }
 
-template<>
+template <>
 int compare_deref(string_hash &a1, event_type *&a2)
 {
     auto source_hash_code = a2->field_0.source_hash_code;
-    if ( source_hash_code <= a1.source_hash_code ) {
+    if (source_hash_code <= a1.source_hash_code) {
         return source_hash_code < a1.source_hash_code;
     } else {
         return -1;

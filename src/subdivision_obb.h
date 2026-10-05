@@ -10,7 +10,9 @@
 #include "vector3d.h"
 
 struct capsule;
-namespace local_collision { struct closest_points_pair_t; }
+namespace local_collision {
+struct closest_points_pair_t;
+}
 
 #pragma pack(push, 1)
 struct subdivision_node_obb_base : subdivision_node {
@@ -125,5 +127,4 @@ struct subdivision_node_large_obb : subdivision_node_obb_base {
 #pragma pack(pop)
 
 
-bool collision_segment_box_overlap(const vector3d &to_center, const vector3d &from_center,
-                                   const vector3d &half);
+bool collision_segment_box_overlap(const vector3d &to_center, const vector3d &from_center, const vector3d &half);

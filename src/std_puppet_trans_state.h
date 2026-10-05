@@ -22,6 +22,5 @@ struct std_puppet_trans_state : base_state {
     {
         return sizeof(*this);
     }
-
 };
 }  // namespace ai

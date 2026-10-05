@@ -65,9 +65,8 @@
 VALIDATE_SIZE(actor, 0xC0u);
 VALIDATE_OFFSET(actor, adv_ptrs, 0x78);
 
-static collision_free_state *& collision_free_states = var<collision_free_state *>(0x00968504);
-static collision_free_state *&collision_free_states_free =
-    var<collision_free_state *>(0x0095BB68);
+static collision_free_state *&collision_free_states = var<collision_free_state *>(0x00968504);
+static collision_free_state *&collision_free_states_free = var<collision_free_state *>(0x0095BB68);
 static int &collision_free_state_block_count = var<int>(0x0095BB70);
 
 // 0x00502F60
@@ -77,8 +76,7 @@ static collision_free_state *allocate_collision_free_state_block()
         return nullptr;
     }
 
-    auto *block = static_cast<collision_free_state *>(
-        tlMemAlloc(0x7000, 0x10, 4));
+    auto *block = static_cast<collision_free_state *>(tlMemAlloc(0x7000, 0x10, 4));
     ++collision_free_state_block_count;
     collision_free_state *free_head = nullptr;
     for (int index = 255; index >= 0; --index) {
@@ -156,7 +154,7 @@ void actor::common_construct()
     this->field_88 = nullptr;
     this->adv_ptrs = nullptr;
     this->anim_ctrl = nullptr;
-    this->m_skeleton= nullptr;
+    this->m_skeleton = nullptr;
     this->field_A4 = 0;
     this->m_resource_context = nullptr;
     this->field_A8[0] = 0;
@@ -167,7 +165,7 @@ void actor::common_construct()
 collision_free_state *actor::get_last_collision_free_state() const
 {
     auto v1 = this->field_A4;
-    if ( v1 != 0 ) {
+    if (v1 != 0) {
         return collision_free_states + v1;
     }
 
@@ -254,7 +252,7 @@ traffic_light_interface *actor::traffic_light_ifc()
 
 bool actor::has_skeleton_ifc() const
 {
-    bool (__fastcall *func)(const void *) = CAST(func, get_vfunc(m_vtbl, 0x12C));
+    bool(__fastcall * func)(const void *) = CAST(func, get_vfunc(m_vtbl, 0x12C));
     return func(this);
 }
 
@@ -266,7 +264,7 @@ color32 actor::_get_render_color() const
     return result;
 }
 
-color32 * __fastcall actor_get_render_color(const actor *self, void *, color32 *out)
+color32 *__fastcall actor_get_render_color(const actor *self, void *, color32 *out)
 {
     *out = self->_get_render_color();
     return out;
@@ -280,8 +278,7 @@ void actor::_set_render_color(color32 value)
     this->create_adv_ptrs();
     if (this->adv_ptrs->field_8 == nullptr) {
         auto *memory = mem_alloc(sizeof(advanced_entity_ptrs::render_data));
-        this->adv_ptrs->field_8 =
-            new (memory) advanced_entity_ptrs::render_data{};
+        this->adv_ptrs->field_8 = new (memory) advanced_entity_ptrs::render_data{};
     }
     this->adv_ptrs->field_8->field_0 = value;
     this->set_visible(value.get_alpha() > 0, false);
@@ -309,15 +306,15 @@ float actor::_get_render_alpha_mod() const
 
 void actor::set_render_scale(const vector3d &s)
 {
-	assert(s.is_valid());
+    assert(s.is_valid());
 
-	this->create_adv_ptrs();
+    this->create_adv_ptrs();
     if (this->adv_ptrs->field_8 == nullptr) {
-		auto *mem = mem_alloc(sizeof(advanced_entity_ptrs::render_data));
-		this->adv_ptrs->field_8 = new (mem) advanced_entity_ptrs::render_data {};
-	}
+        auto *mem = mem_alloc(sizeof(advanced_entity_ptrs::render_data));
+        this->adv_ptrs->field_8 = new (mem) advanced_entity_ptrs::render_data{};
+    }
 
-	this->adv_ptrs->field_8->m_scale = s;
+    this->adv_ptrs->field_8->m_scale = s;
 }
 
 vector3d actor::get_render_scale() const
@@ -334,7 +331,7 @@ void actor::ifl_play()
 
 void actor::ifl_lock(int a2)
 {
-    bool (__fastcall *func)(void *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x268));
+    bool(__fastcall * func)(void *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x268));
     func(this, nullptr, a2);
 }
 
@@ -348,7 +345,7 @@ nal_anim_controller *actor::select_and_new_anim_controller(nalBaseSkeleton *the_
         als::als_meta_anim_table_shared *a5 = nullptr;
         if (this->is_a_conglomerate()) {
             auto *v5 = bit_cast<conglomerate *>(this)->get_my_als();
-            if ( v5 != nullptr ) {
+            if (v5 != nullptr) {
                 a5 = v5->get_meta_anim_table();
             }
         }
@@ -359,10 +356,10 @@ nal_anim_controller *actor::select_and_new_anim_controller(nalBaseSkeleton *the_
             result = new character_anim_controller{this, the_skeleton, a3, a5};
             this->anim_ctrl = result;
         } else if (the_skeleton->GetAnimTypeName() == tlFixedString{"Ped"}) {
-            result = new ped_anim_controller {this, the_skeleton, a3, a5};
+            result = new ped_anim_controller{this, the_skeleton, a3, a5};
             this->anim_ctrl = result;
         } else if (the_skeleton->GetAnimTypeName() == tlFixedString{"Camera"}) {
-            result = new camera_anim_controller {this, the_skeleton, a3, a5};
+            result = new camera_anim_controller{this, the_skeleton, a3, a5};
             this->anim_ctrl = result;
         } else {
             result = new generic_anim_controller{this, the_skeleton, a3, a5};
@@ -372,7 +369,7 @@ nal_anim_controller *actor::select_and_new_anim_controller(nalBaseSkeleton *the_
 
         return result;
     } else {
-        return (generic_anim_controller *) THISCALL(0x004CC470, this, the_skeleton, a3);
+        return (generic_anim_controller *)THISCALL(0x004CC470, this, the_skeleton, a3);
     }
 }
 
@@ -381,12 +378,12 @@ void actor::allocate_anim_controller(unsigned int a2, nalBaseSkeleton *a3)
     TRACE("actor::allocate_anim_controller");
 
     if constexpr (STANDALONE_SYSTEM) {
-        if ( this->anim_ctrl == nullptr ) {
-            if ( a3 != nullptr ) {
+        if (this->anim_ctrl == nullptr) {
+            if (a3 != nullptr) {
                 this->select_and_new_anim_controller(a3, a2);
             } else {
-                if ( this->m_skeleton == nullptr ) {
-                    this->m_skeleton = nalGetSkeleton(tlFixedString {"entity"});
+                if (this->m_skeleton == nullptr) {
+                    this->m_skeleton = nalGetSkeleton(tlFixedString{"entity"});
                 }
 
                 this->select_and_new_anim_controller(this->m_skeleton, a2);
@@ -405,7 +402,7 @@ animation_controller::anim_ctrl_handle actor::play_anim(const string_hash &a3)
 {
     TRACE("actor::play_anim");
 
-    if ( this->anim_ctrl == nullptr ) {
+    if (this->anim_ctrl == nullptr) {
         this->allocate_anim_controller(0u, nullptr);
     }
 
@@ -434,8 +431,8 @@ float actor::get_floor_offset()
 {
     if (anim_ctrl == nullptr)
         return 0.0f;
-    auto callback = reinterpret_cast<float(__fastcall *)(nal_anim_controller *, void *)>(
-        get_vfunc(anim_ctrl->m_vtbl, 0x78));
+    auto callback =
+        reinterpret_cast<float(__fastcall *)(nal_anim_controller *, void *)>(get_vfunc(anim_ctrl->m_vtbl, 0x78));
     return callback(anim_ctrl, nullptr);
 }
 void actor::suspend(bool)
@@ -494,23 +491,20 @@ movement_info &actor_movement(actor *owner)
     owner->create_adv_ptrs();
     if (owner->adv_ptrs->mi == nullptr) {
         auto *storage = mem_alloc(sizeof(movement_info));
-        owner->adv_ptrs->mi = new (storage) movement_info{
-            po_identity_matrix, 0.0f, ZEROVEC, 0.0f, false, false};
-        auto invalidate = reinterpret_cast<void(__fastcall *)(actor *, void *)>(
-            get_vfunc(owner->m_vtbl, 0x284));
+        owner->adv_ptrs->mi = new (storage) movement_info{po_identity_matrix, 0.0f, ZEROVEC, 0.0f, false, false};
+        auto invalidate = reinterpret_cast<void(__fastcall *)(actor *, void *)>(get_vfunc(owner->m_vtbl, 0x284));
         invalidate(owner, nullptr);
     }
     return *owner->adv_ptrs->mi;
 }
-}
+}  // namespace
 
 void actor::set_frame_delta_no_update(const po &a2, Float a3)
 {
 #if STANDALONE_SYSTEM
     auto &movement = actor_movement(this);
     if (movement.field_54) {
-        movement.field_0.set_from_ptr_to_po_world(
-            ptr_to_po{&movement.field_0.m, &a2.m});
+        movement.field_0.set_from_ptr_to_po_world(ptr_to_po{&movement.field_0.m, &a2.m});
     } else {
         movement.field_0 = a2;
     }
@@ -526,8 +520,7 @@ void actor::set_allow_tunnelling_into_next_frame(bool enabled)
     if (field_A4 == 0 || collision_free_states == nullptr) {
         if (collision_free_states == nullptr) {
             auto *base = allocate_collision_free_state_block();
-            collision_free_states_free =
-                *reinterpret_cast<collision_free_state **>(base);
+            collision_free_states_free = *reinterpret_cast<collision_free_state **>(base);
             collision_free_states = base;
         }
         if (collision_free_states_free == nullptr) {
@@ -535,8 +528,7 @@ void actor::set_allow_tunnelling_into_next_frame(bool enabled)
         }
 
         auto *state = collision_free_states_free;
-        collision_free_states_free =
-            *reinterpret_cast<collision_free_state **>(state);
+        collision_free_states_free = *reinterpret_cast<collision_free_state **>(state);
         field_A4 = static_cast<int>(state - collision_free_states);
         state->xform = po_identity_matrix;
         state->field_5C = false;
@@ -556,7 +548,7 @@ bool actor::get_allow_tunnelling_into_next_frame()
 
 void *actor::find_like_item(vhandle_type<item> a2)
 {
-    return (void *) THISCALL(0x004D2100, this, a2);
+    return (void *)THISCALL(0x004D2100, this, a2);
 }
 
 void actor::common_destruct()
@@ -566,12 +558,10 @@ void actor::common_destruct()
             return;
         const auto table = *reinterpret_cast<int *>(value);
         if (*(reinterpret_cast<unsigned char *>(value) + 8) != 0) {
-            auto destroy = reinterpret_cast<void(__fastcall *)(void *, void *, bool)>(
-                get_vfunc(table, 0));
+            auto destroy = reinterpret_cast<void(__fastcall *)(void *, void *, bool)>(get_vfunc(table, 0));
             destroy(value, nullptr, true);
         } else {
-            auto release = reinterpret_cast<void(__fastcall *)(void *, void *)>(
-                get_vfunc(table, 0x24));
+            auto release = reinterpret_cast<void(__fastcall *)(void *, void *)>(get_vfunc(table, 0x24));
             release(value, nullptr);
         }
         value = nullptr;
@@ -583,16 +573,16 @@ void actor::common_destruct()
 
     if (colgeom != nullptr) {
         if (colgeom->is_dynamic()) {
-            auto destroy = reinterpret_cast<void(__fastcall *)(collision_geometry *, void *, bool)>(
-                get_vfunc(colgeom->m_vtbl, 0));
+            auto destroy =
+                reinterpret_cast<void(__fastcall *)(collision_geometry *, void *, bool)>(get_vfunc(colgeom->m_vtbl, 0));
             destroy(colgeom, nullptr, true);
         }
         colgeom = nullptr;
         field_4 &= ~2u;
     }
     if (anim_ctrl != nullptr) {
-        auto destroy = reinterpret_cast<void(__fastcall *)(nal_anim_controller *, void *, bool)>(
-            get_vfunc(anim_ctrl->m_vtbl, 0));
+        auto destroy =
+            reinterpret_cast<void(__fastcall *)(nal_anim_controller *, void *, bool)>(get_vfunc(anim_ctrl->m_vtbl, 0));
         destroy(anim_ctrl, nullptr, true);
         anim_ctrl = nullptr;
     }
@@ -684,8 +674,8 @@ void actor::get_velocity(vector3d *out)
             auto *parent_actor = static_cast<actor *>(parent);
             vector3d parent_velocity;
             parent_actor->get_velocity(&parent_velocity);
-            const vector3d angular_velocity = parent_actor->has_physical_ifc()
-                                                 ? parent_actor->physical_ifc()->field_2C : ZEROVEC;
+            const vector3d angular_velocity =
+                parent_actor->has_physical_ifc() ? parent_actor->physical_ifc()->field_2C : ZEROVEC;
             *out += parent_velocity + vector3d::cross(relative.get_position(), angular_velocity);
         }
     } else if (movement != nullptr && movement->field_54) {
@@ -747,16 +737,16 @@ void actor::kill_interact_anim()
 void actor::create_adv_ptrs()
 {
     if (this->adv_ptrs == nullptr) {
-		auto *mem = mem_alloc(sizeof(advanced_entity_ptrs));
-		this->adv_ptrs = new (mem) advanced_entity_ptrs {};
+        auto *mem = mem_alloc(sizeof(advanced_entity_ptrs));
+        this->adv_ptrs = new (mem) advanced_entity_ptrs{};
 
         this->field_4 |= 0x2000000u;
-	}
+    }
 }
 
 physical_interface *actor::physical_ifc()
 {
-    physical_interface * (__fastcall *func)(actor *) = CAST(func, get_vfunc(m_vtbl, 0x128));
+    physical_interface *(__fastcall * func)(actor *) = CAST(func, get_vfunc(m_vtbl, 0x128));
 
     return func(this);
 }
@@ -809,11 +799,11 @@ void actor::_un_mash(generic_mash_header *a3, void *a4, generic_mash_data_ptrs *
         entity::un_mash(a3, a4, a5);
         this->common_construct();
 
-        if ( this->is_a_conglomerate() ) {
+        if (this->is_a_conglomerate()) {
             bit_cast<conglomerate *>(this)->create_parentage_tree();
         }
 
-        if ( a3->is_flagged(1) ) {
+        if (a3->is_flagged(1)) {
             this->adv_ptrs = v4->get<advanced_entity_ptrs>();
             this->adv_ptrs->un_mash(a3, this, this->adv_ptrs, v4);
         } else {
@@ -828,12 +818,12 @@ void actor::_un_mash(generic_mash_header *a3, void *a4, generic_mash_data_ptrs *
         v4->rebase_shared(8u);
 
         auto *skel_name_id_ptr = (resource_key *)v4->field_4;
-        resource_key skel_name_id {};
+        resource_key skel_name_id{};
         skel_name_id = *v4->get_from_shared<resource_key>();
 
         assert(*skel_name_id_ptr == skel_name_id);
 
-        if ( skel_name_id.is_set() ) {
+        if (skel_name_id.is_set()) {
             auto *context = resource_manager::get_resource_context();
             assert(context != nullptr);
 
@@ -845,7 +835,7 @@ void actor::_un_mash(generic_mash_header *a3, void *a4, generic_mash_data_ptrs *
             this->m_skeleton = nullptr;
         }
 
-        if ( v5->is_flagged(2u) ) {
+        if (v5->is_flagged(2u)) {
             v4->rebase(4u);
 
             auto *v15 = v4->get<collision_capsule>();
@@ -856,7 +846,7 @@ void actor::_un_mash(generic_mash_header *a3, void *a4, generic_mash_data_ptrs *
             v15->un_mash(a3, v15, v4);
             this->set_colgeom(v15);
             this->field_4 &= ~0x20000000u;
-        } else if ( v5->is_flagged(4u) ) {
+        } else if (v5->is_flagged(4u)) {
             v4->rebase(4u);
 
             auto *v19 = v4->get<cg_mesh>();
@@ -871,12 +861,12 @@ void actor::_un_mash(generic_mash_header *a3, void *a4, generic_mash_data_ptrs *
             this->set_colgeom(nullptr);
         }
 
-        if ( colgeom != nullptr ) {
+        if (colgeom != nullptr) {
             colgeom->owner = this;
         }
 
-        if ( v5->is_flagged(8u) ) {
-            tlFixedString a1 {};
+        if (v5->is_flagged(8u)) {
+            tlFixedString a1{};
 
             v4->rebase_shared(8u);
 
@@ -886,14 +876,14 @@ void actor::_un_mash(generic_mash_header *a3, void *a4, generic_mash_data_ptrs *
             v28.set_mesh(Mesh);
 
             auto func = [](auto &v28) -> nglMesh ** {
-                if ( v28.field_5 <= 1u ) {
+                if (v28.field_5 <= 1u) {
                     return v28.field_0;
                 }
 
                 return (nglMesh **)v28.field_0[v28.field_4];
             };
 
-            if ( func(v28) == nullptr ) {
+            if (func(v28) == nullptr) {
                 auto *__old_context = resource_manager::get_and_push_resource_context(RESOURCE_PARTITION_HERO);
                 auto *v32 = nglGetMesh(a1, false);
                 this->field_90.set_mesh(v32);
@@ -901,7 +891,7 @@ void actor::_un_mash(generic_mash_header *a3, void *a4, generic_mash_data_ptrs *
 
                 assert(resource_manager::get_resource_context() == __old_context);
 
-                if ( func(v28) == nullptr ) {
+                if (func(v28) == nullptr) {
                     auto *v10 = a1.to_string();
                     printf("Mesh '%s' not found in packfile!", v10);
                 }
@@ -933,21 +923,19 @@ void actor::_un_mash(generic_mash_header *a3, void *a4, generic_mash_data_ptrs *
         };
         if (has_ai) {
             auto mash = read_interface_blob();
-            this->field_7C = bit_cast<base_ai_data *>(
-                mash.read_from_buffer(sizeof(base_ai_data), 8));
+            this->field_7C = bit_cast<base_ai_data *>(mash.read_from_buffer(sizeof(base_ai_data), 8));
             global_transfer_variable_the_actor = this;
             this->field_7C->unmash(&mash, nullptr);
-            new (this->field_7C) base_ai_data{
-                static_cast<from_mash_in_place_constructor *>(nullptr)};
+            new (this->field_7C) base_ai_data{static_cast<from_mash_in_place_constructor *>(nullptr)};
         }
 
         if (has_interactable) {
             auto mash = read_interface_blob();
-            this->m_interactable_ifc = bit_cast<interactable_interface *>(
-                mash.read_from_buffer(sizeof(interactable_interface), 4));
+            this->m_interactable_ifc =
+                bit_cast<interactable_interface *>(mash.read_from_buffer(sizeof(interactable_interface), 4));
             this->m_interactable_ifc->unmash(&mash, this->m_interactable_ifc);
-            new (this->m_interactable_ifc) interactable_interface{
-                static_cast<from_mash_in_place_constructor *>(nullptr)};
+            new (this->m_interactable_ifc)
+                interactable_interface{static_cast<from_mash_in_place_constructor *>(nullptr)};
             auto &v50 = this->m_interactable_ifc;
             v50->field_0 = this;
             v50->update_registrations();
@@ -976,11 +964,9 @@ void actor::_un_mash(generic_mash_header *a3, void *a4, generic_mash_data_ptrs *
         v4->rebase(16u);
         if (has_web) {
             auto mash = read_interface_blob();
-            this->field_88 = bit_cast<web_interface *>(
-                mash.read_from_buffer(sizeof(web_interface), 4));
+            this->field_88 = bit_cast<web_interface *>(mash.read_from_buffer(sizeof(web_interface), 4));
             this->field_88->unmash(&mash, this->field_88);
-            ::new (this->field_88) web_interface{
-                static_cast<from_mash_in_place_constructor *>(nullptr)};
+            ::new (this->field_88) web_interface{static_cast<from_mash_in_place_constructor *>(nullptr)};
             this->field_88->set_my_actor(this);
             this->field_88->insert_in_web_targets_list();
         }
@@ -991,8 +977,7 @@ void actor::_un_mash(generic_mash_header *a3, void *a4, generic_mash_data_ptrs *
                 v4->rebase(4u);
                 this->m_physical_interface = v4->get<physical_interface>();
                 this->m_physical_interface->m_vtbl = ifc_v_table_lookup[2];
-                this->m_physical_interface->un_mash(
-                    a3, this, this->m_physical_interface, v4);
+                this->m_physical_interface->un_mash(a3, this, this->m_physical_interface, v4);
             } else {
                 this->m_physical_interface = nullptr;
             }
@@ -1001,8 +986,7 @@ void actor::_un_mash(generic_mash_header *a3, void *a4, generic_mash_data_ptrs *
                 v4->rebase(4u);
                 this->m_damage_interface = v4->get<damage_interface>();
                 this->m_damage_interface->m_vtbl = ifc_v_table_lookup[1];
-                this->m_damage_interface->_un_mash(
-                    a3, this, this->m_damage_interface, v4);
+                this->m_damage_interface->_un_mash(a3, this, this->m_damage_interface, v4);
             } else {
                 this->m_damage_interface = nullptr;
             }
@@ -1026,13 +1010,11 @@ void actor::_un_mash(generic_mash_header *a3, void *a4, generic_mash_data_ptrs *
             this->field_7C->post_entity_mash();
         }
         if (this->has_traffic_light_ifc()) {
-            traffic_signal_mgr::add_traffic_light(
-                this, this->traffic_light_ifc()->field_C != 0);
+            traffic_signal_mgr::add_traffic_light(this, this->traffic_light_ifc()->field_C != 0);
         }
         if (this->is_renderable() && (this->field_4 & 0x208000) == 0) {
             this->on_fade_distance_changed(
-                distance_fader::estimate_fade_index_for_bounding_sphere(
-                    this->get_visual_radius()));
+                distance_fader::estimate_fade_index_for_bounding_sphere(this->get_visual_radius()));
         }
         this->field_A8[0] = *v4->get<int16_t>();
         if (this->field_A8[0] != 0) {
@@ -1040,14 +1022,12 @@ void actor::_un_mash(generic_mash_header *a3, void *a4, generic_mash_data_ptrs *
             auto read_packed_float = [v4]() {
                 const auto low = *v4->get<uint16_t>();
                 const auto high = *v4->get<uint16_t>();
-                return bit_cast<float>(
-                    uint32_t{low} | (uint32_t{high} << 16));
+                return bit_cast<float>(uint32_t{low} | (uint32_t{high} << 16));
             };
             this->field_AC.x = read_packed_float();
             this->field_AC.y = read_packed_float();
             this->field_AC.z = read_packed_float();
-            this->field_B8 = (this->field_B8 & ~0xFFFF) |
-                *v4->get<uint16_t>();
+            this->field_B8 = (this->field_B8 & ~0xFFFF) | *v4->get<uint16_t>();
         } else {
             this->field_AC.x = *v4->get<float>();
             this->field_AC.y = *v4->get<float>();
@@ -1076,7 +1056,7 @@ void actor::create_player_controller(int a2)
 #if STANDALONE_SYSTEM
     auto *mem = static_cast<ai_player_controller *>(mem_alloc(sizeof(ai_player_controller)));
 #else
-    auto *mem = exe_allocator<ai_player_controller> {}.allocate(1);
+    auto *mem = exe_allocator<ai_player_controller>{}.allocate(1);
 #endif
     this->m_player_controller = new (mem) ai_player_controller{this};
     this->m_player_controller->set_player_num(a2);
@@ -1097,7 +1077,7 @@ void actor::swap_all_mesh_buffers()
         if (v3 > 1u) {
             ++v2->field_4;
 
-            v2->field_4 %= (int16_t) v3;
+            v2->field_4 %= (int16_t)v3;
             nglCopyMesh(v2->field_0[v2->field_4], v2->field_0[v3]);
         }
     }
@@ -1105,7 +1085,7 @@ void actor::swap_all_mesh_buffers()
 
 vector3d actor::get_colgeom_center() const
 {
-    void (__fastcall *func)(const actor *, void *, vector3d *) = CAST(func, get_vfunc(m_vtbl, 0x258));
+    void(__fastcall * func)(const actor *, void *, vector3d *) = CAST(func, get_vfunc(m_vtbl, 0x258));
 
     vector3d result;
     func(this, nullptr, &result);
@@ -1113,7 +1093,7 @@ vector3d actor::get_colgeom_center() const
     return result;
 }
 
-void actor::radius_changed(bool )
+void actor::radius_changed(bool)
 {
     this->set_ext_flag_recursive_internal(static_cast<entity_ext_flag_t>(0x40u), true);
 }
@@ -1134,12 +1114,10 @@ lego_map_root_node *actor::get_lego_map_root()
 
 void actor::_render(Float fade)
 {
-
     auto *mesh = get_mesh();
     if (mesh == nullptr)
         return;
-    nglParamSet<nglShaderParamSet_Pool> params{
-        static_cast<nglParamSet<nglShaderParamSet_Pool>::nglParamSetType>(1)};
+    nglParamSet<nglShaderParamSet_Pool> params{static_cast<nglParamSet<nglShaderParamSet_Pool>::nglParamSetType>(1)};
     if (is_material_switching()) {
         if (auto *root = get_lego_map_root()) {
             params.SetParam(USMMaterialListParam{root->field_4});
@@ -1166,7 +1144,7 @@ damage_interface *actor::damage_ifc()
 {
     //return this->my_damage_interface;
 
-    damage_interface * (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x118));
+    damage_interface *(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x118));
     return func(this);
 }
 
@@ -1177,7 +1155,7 @@ void actor::create_damage_ifc()
     assert(m_damage_interface == nullptr);
 
     auto *mem = mem_alloc(sizeof(damage_interface));
-    this->m_damage_interface = new (mem) damage_interface {this};
+    this->m_damage_interface = new (mem) damage_interface{this};
 }
 
 void actor::destroy_damage_ifc()
@@ -1204,7 +1182,7 @@ void actor::create_web_ifc()
 
 float actor::get_colgeom_radius() const
 {
-    float (__fastcall *func)(const actor *) = CAST(func, get_vfunc(m_vtbl, 0x254));
+    float(__fastcall * func)(const actor *) = CAST(func, get_vfunc(m_vtbl, 0x254));
     return func(this);
 }
 
@@ -1213,10 +1191,10 @@ bool actor::is_frame_delta_valid() const
     TRACE("actor::is_frame_delta_valid");
 
     if constexpr (1) {
-        auto v1 = (this->adv_ptrs != nullptr && this->adv_ptrs->mi != nullptr );
+        auto v1 = (this->adv_ptrs != nullptr && this->adv_ptrs->mi != nullptr);
         return v1 && this->adv_ptrs->mi->field_54;
     } else {
-        bool (__fastcall *func)(const void *) = CAST(func, 0x004B8FC0);
+        bool(__fastcall * func)(const void *) = CAST(func, 0x004B8FC0);
         return func(this);
     }
 }
@@ -1246,7 +1224,7 @@ po *actor::get_frame_delta() const
         return result;
 
     } else {
-        return (po *) THISCALL(0x004B9000, this);
+        return (po *)THISCALL(0x004B9000, this);
     }
 }
 
@@ -1260,7 +1238,7 @@ void actor::set_frame_delta(const po &a2, Float a3)
 
 void actor::set_frame_delta_trans(const vector3d &a2, Float a3)
 {
-    void (__fastcall *func)(void *, void *, const vector3d *, Float) = CAST(func, get_vfunc(m_vtbl, 0x280));
+    void(__fastcall * func)(void *, void *, const vector3d *, Float) = CAST(func, get_vfunc(m_vtbl, 0x280));
     func(this, nullptr, &a2, a3);
 }
 
@@ -1268,8 +1246,7 @@ void actor::set_frame_delta_trans_native(const vector3d &translation, Float dt)
 {
     if (dt > 0.0f) {
         auto &movement = actor_movement(this);
-        movement.field_0.set_position(movement.field_54
-            ? movement.field_0.get_position() + translation : translation);
+        movement.field_0.set_position(movement.field_54 ? movement.field_0.get_position() + translation : translation);
         movement.field_40 = dt;
         movement.field_54 = true;
         moved_entities::add_moved({my_handle});
@@ -1320,7 +1297,7 @@ vector3d sub_509170(entity_base *a2, unsigned int a3)
 
         result = -2.0f * YVEC + v8 * 3.2f;
 
-    } else if ( a2->is_flagged(0x800) ) {
+    } else if (a2->is_flagged(0x800)) {
         auto &v12 = a2->get_abs_po().get_z_facing();
 
         result = v12 * 2.f;
@@ -1346,8 +1323,6 @@ vector3d *actor::get_cached_visual_bounding_sphere_center()
 
 vector3d actor::_get_visual_center()
 {
-
-
     vector3d center;
     if (auto *mesh = get_mesh()) {
         if (has_vertical_obb()) {
@@ -1369,10 +1344,11 @@ vector3d actor::_get_visual_center()
 
 float actor::_get_visual_radius()
 {
-
     if (auto *mesh = get_mesh()) {
-        const float factor = is_ext_flagged(0x20) ? 0.75f
-            : is_ext_flagged(0x1000000) ? 0.4f : is_flagged(0x800) ? 0.6f : 1.0f;
+        const float factor = is_ext_flagged(0x20)        ? 0.75f
+                             : is_ext_flagged(0x1000000) ? 0.4f
+                             : is_flagged(0x800)         ? 0.6f
+                                                         : 1.0f;
         const auto scale = get_render_scale();
         const float largest = std::max(std::abs(scale.x), std::max(std::abs(scale.y), std::abs(scale.z)));
         return largest * mesh->SphereRadius * factor;
@@ -1399,22 +1375,24 @@ bool actor::add_item(int handle, bool)
     value->remove_from_regions();
     for (const auto &existing_handle : adv_ptrs->coninfo->items) {
         if (auto *existing = existing_handle.get_volatile_ptr(); existing && existing->is_same_item(*value)) {
-            auto quantity = reinterpret_cast<int (__fastcall *)(item *, void *)>(get_vfunc(value->m_vtbl, 0x2AC));
-            auto existing_quantity = reinterpret_cast<int (__fastcall *)(item *, void *)>(get_vfunc(existing->m_vtbl, 0x2AC));
-            auto set = reinterpret_cast<void (__fastcall *)(item *, void *, int)>(get_vfunc(existing->m_vtbl, 0x2A4));
+            auto quantity = reinterpret_cast<int(__fastcall *)(item *, void *)>(get_vfunc(value->m_vtbl, 0x2AC));
+            auto existing_quantity =
+                reinterpret_cast<int(__fastcall *)(item *, void *)>(get_vfunc(existing->m_vtbl, 0x2AC));
+            auto set = reinterpret_cast<void(__fastcall *)(item *, void *, int)>(get_vfunc(existing->m_vtbl, 0x2A4));
             set(existing, nullptr, existing_quantity(existing, nullptr) + quantity(value, nullptr));
-            auto clear = reinterpret_cast<void (__fastcall *)(item *, void *, int)>(get_vfunc(value->m_vtbl, 0x2A4));
+            auto clear = reinterpret_cast<void(__fastcall *)(item *, void *, int)>(get_vfunc(value->m_vtbl, 0x2A4));
             clear(value, nullptr, 0);
             return false;
         }
     }
     adv_ptrs->coninfo->items.push_back(item_handle);
     value->set_visible(false, false);
-    auto handheld = reinterpret_cast<bool (__fastcall *)(item *, void *)>(get_vfunc(value->m_vtbl, 0xDC));
+    auto handheld = reinterpret_cast<bool(__fastcall *)(item *, void *)>(get_vfunc(value->m_vtbl, 0xDC));
     if (handheld(value, nullptr)) {
         auto get_owner = reinterpret_cast<actor *(__fastcall *)(item *, void *)>(get_vfunc(value->m_vtbl, 0x2DC));
         if (!get_owner(value, nullptr)) {
-            auto set_owner = reinterpret_cast<void (__fastcall *)(item *, void *, actor *)>(get_vfunc(value->m_vtbl, 0x2E0));
+            auto set_owner =
+                reinterpret_cast<void(__fastcall *)(item *, void *, actor *)>(get_vfunc(value->m_vtbl, 0x2E0));
             set_owner(value, nullptr, this);
         }
     }
@@ -1455,7 +1433,7 @@ bool __fastcall native_actor_remove_item(actor *self, void *, int handle, bool f
 {
     return self->remove_item(handle, flag);
 }
-}
+}  // namespace
 
 void actor::install_inventory_callbacks(void **table)
 {
@@ -1532,10 +1510,7 @@ nglMesh **actor::sub_4B8BCA()
 
 nglMesh *actor::_get_mesh()
 {
-
-    return field_90.field_5 <= 1
-        ? reinterpret_cast<nglMesh *>(field_90.field_0)
-        : field_90.field_0[field_90.field_4];
+    return field_90.field_5 <= 1 ? reinterpret_cast<nglMesh *>(field_90.field_0) : field_90.field_0[field_90.field_4];
 }
 
 nglMorphSet *actor::get_morph(const tlFixedString &name, bool warn)
@@ -1591,7 +1566,7 @@ void actor::get_animations(actor *a1, std::list<nalAnimClass<nalAnyPose> *> &a2)
             auto *animFile = (nalAnimFile *)tlres_loc->get_data();
             if (animFile->field_0 == 0x10101) {
                 for (auto *anim = bit_cast<nalAnimClass<nalAnyPose> *>(animFile->field_34); anim != nullptr;
-                        anim = anim->field_4 ) {
+                     anim = anim->field_4) {
                     a2.push_back(anim);
                 }
             }
@@ -1665,7 +1640,7 @@ void setup_hero_capsule(actor *act)
         if (ctrl != nullptr && ctrl->m_hero_type == 2) {
             capsule_alter->set_avoid_floor(false);
             capsule_alter->set_avg_radius(0.64999998);
-            capsule_alter->set_mode((capsule_alter_sys::eAlterMode) 3);
+            capsule_alter->set_mode((capsule_alter_sys::eAlterMode)3);
 
             auto *v4 = cngl->get_bone(bip01_l_calf, true);
             capsule_alter->set_base_avg_node(0, v4, 0.5);
@@ -1692,7 +1667,7 @@ void setup_hero_capsule(actor *act)
         CDECL_CALL(0x0068A440, act);
     }
 }
-} // namespace ai
+}  // namespace ai
 
 void actor_patch()
 {

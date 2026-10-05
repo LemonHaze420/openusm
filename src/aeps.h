@@ -148,6 +148,6 @@ void RemEntityFx(Effect *effect);
 void Reset();
 void Destroy();
 void Init();
-} // namespace aeps
+}  // namespace aeps
 
 extern void aeps_patch();

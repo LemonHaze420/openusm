@@ -21,8 +21,7 @@ ai_quad_path *ai_region_paths::get_quad_path_for_point(const vector3d &a2, Float
     float nearest_distance = FLT_MAX;
     auto check = [&](ai_quad_path *path) {
         const auto *bounds = reinterpret_cast<const float *>(path->field_0);
-        if (!a5 && (a2.x <= bounds[0] || a2.x >= bounds[3]
-                || a2.z <= bounds[2] || a2.z >= bounds[5]))
+        if (!a5 && (a2.x <= bounds[0] || a2.x >= bounds[3] || a2.z <= bounds[2] || a2.z >= bounds[5]))
             return false;
         for (int index = 0; index < path->field_2A; ++index) {
             auto *cell = &path->field_24[index];

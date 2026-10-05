@@ -49,8 +49,8 @@ void set_crawl_transition_pose(actor *owner, vector3d heading)
         if (transition == 2 || transition == 3 || transition == 5 || transition == 7)
             heading = -heading;
         if (is_colinear(heading, surface.hit_norm, 0.01f)) {
-            heading = is_colinear(pose.get_z_facing(), surface.hit_norm, 0.01f)
-                ? pose.get_y_facing() : pose.get_z_facing();
+            heading =
+                is_colinear(pose.get_z_facing(), surface.hit_norm, 0.01f) ? pose.get_y_facing() : pose.get_z_facing();
         }
         transform.set_po(heading, surface.hit_norm, position);
     } else {
@@ -71,15 +71,21 @@ void set_crawl_transition_pose(actor *owner, vector3d heading)
         owner->physical_ifc()->manage_standing(true);
 }
 
-uint32_t __fastcall transition_type(const plr_loco_crawl_transition_state *) { return 182; }
+uint32_t __fastcall transition_type(const plr_loco_crawl_transition_state *)
+{
+    return 182;
+}
 bool __fastcall transition_subclass(const plr_loco_crawl_transition_state *, void *, mash::virtual_types_enum type)
 {
     return type == 535 || type == 567 || type == 573;
 }
-int __fastcall transition_size(const plr_loco_crawl_transition_state *) { return 0x34; }
+int __fastcall transition_size(const plr_loco_crawl_transition_state *)
+{
+    return 0x34;
+}
 void __fastcall transition_activate(plr_loco_crawl_transition_state *self, void *, ai::ai_state_machine *machine,
-    const ai::mashed_state *state, const ai::mashed_state *previous, const ai::param_block *params,
-    ai::base_state::activate_flag_e flags)
+                                    const ai::mashed_state *state, const ai::mashed_state *previous,
+                                    const ai::param_block *params, ai::base_state::activate_flag_e flags)
 {
     self->activate(machine, state, previous, params, flags);
 }
@@ -103,11 +109,10 @@ void __fastcall transition_mode(plr_loco_crawl_transition_state *self, void *, a
 {
     self->set_player_mode(owner);
 }
-}
+}  // namespace
 
 void *plr_loco_crawl_transition_state::native_vtable()
 {
-
     static auto table = [] {
         std::array<void *, 18> result;
         std::copy_n(static_cast<void **>(ai::enhanced_state::native_vtable()), 16, result.data());
@@ -138,7 +143,10 @@ plr_loco_crawl_transition_state::plr_loco_crawl_transition_state(from_mash_in_pl
         m_vtbl = bit_cast<std::intptr_t>(native_vtable());
 }
 
-void plr_loco_crawl_transition_state::map_controls(int) { field_30 = 0; }
+void plr_loco_crawl_transition_state::map_controls(int)
+{
+    field_30 = 0;
+}
 
 void plr_loco_crawl_transition_state::set_player_mode(actor *owner)
 {
@@ -153,7 +161,8 @@ void plr_loco_crawl_transition_state::get_info_node_list(ai::info_node_desc_list
 }
 
 void plr_loco_crawl_transition_state::activate(ai::ai_state_machine *machine, const ai::mashed_state *state,
-    const ai::mashed_state *previous, const ai::param_block *params, ai::base_state::activate_flag_e flags)
+                                               const ai::mashed_state *previous, const ai::param_block *params,
+                                               ai::base_state::activate_flag_e flags)
 {
     if constexpr (!STANDALONE_SYSTEM) {
         THISCALL(0x0046A340, this, machine, state, previous, params, flags);
@@ -207,8 +216,8 @@ void plr_loco_crawl_transition_state::activate(ai::ai_state_machine *machine, co
     }
     if (mode != 2 && mode != 14 && mode != 1)
         set_crawl_transition_pose(owner, heading);
-    reinterpret_cast<void (__fastcall *)(plr_loco_crawl_transition_state *, void *, actor *)>(
-        get_vfunc(m_vtbl, 0x44))(this, nullptr, owner);
+    reinterpret_cast<void(__fastcall *)(plr_loco_crawl_transition_state *, void *, actor *)>(get_vfunc(m_vtbl, 0x44))(
+        this, nullptr, owner);
     hero->field_240 = true;
     auto *animation = static_cast<ai::als_inode *>(get_core()->get_info_node(ai::als_inode::default_id, true));
     if (controller)
@@ -216,7 +225,8 @@ void plr_loco_crawl_transition_state::activate(ai::ai_state_machine *machine, co
     const auto transition = static_cast<int>(hero->field_20C.field_0);
     if (wallrun && owner->has_physical_ifc() && !(transition >= 1 && transition <= 5))
         var<vector3d>(0x00958328) = heading;
-    animation->request_category_transition(transition_als_category_hash, static_cast<als::layer_types>(0), true, false, false);
+    animation->request_category_transition(
+        transition_als_category_hash, static_cast<als::layer_types>(0), true, false, false);
     hero->update_wall_run_als_params();
     hero->update_crawl_als_params();
     hero->field_20C.update_crawl_transition_als_params(animation);
@@ -237,8 +247,8 @@ void plr_loco_crawl_transition_state::deactivate(const ai::mashed_state *state)
         auto *animation = static_cast<ai::als_inode *>(get_core()->get_info_node(ai::als_inode::default_id, true));
         static const string_hash jump_air{to_hash("Jump_Air")};
         static const string_hash idle_walk_run{static_cast<int>(to_hash("Idle_Walk_Run"))};
-        animation->request_category_transition(transition == 4 ? jump_air : idle_walk_run,
-            static_cast<als::layer_types>(0), true, false, false);
+        animation->request_category_transition(
+            transition == 4 ? jump_air : idle_walk_run, static_cast<als::layer_types>(0), true, false, false);
         hero->compute_curr_ground_plane(static_cast<force_recompute_enum>(1), 2.5f);
         if (auto *controller = owner->m_player_controller)
             controller->frame_advance(g_world_ptr->time_manager.field_18);

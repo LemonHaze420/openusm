@@ -82,7 +82,7 @@ float *attribute(void *particle, const ParticleFormat &format, unsigned index)
 {
     return &at<float>(particle, format.offsets[index]);
 }
-}
+}  // namespace
 
 void aps_native_curve_set_services(const aps_native::CurveServices &value)
 {
@@ -642,7 +642,7 @@ void clear_container(Container &container)
         ::operator delete[](data);
     container = {};
 }
-}
+}  // namespace
 
 void aps_native_curve_fixup(void *object, unsigned type)
 {

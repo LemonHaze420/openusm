@@ -53,22 +53,52 @@ struct base_full_target_inode : info_node {
     void unregister_as_targetable();
     void update_cached_params(bool force);
     void reset_target_selection_delay();
-    int _get_virtual_type_enum() const { return 349; }
+    int _get_virtual_type_enum() const
+    {
+        return 349;
+    }
     void _frame_advance(Float delta);
     void player_style_frame_advance(Float delta);
     vector3d get_controller_look_direction();
     void start_multi_frame_search(int budget);
     void update_targeting();
     void calc_and_update_target(vhandle_type<actor> candidate);
-    vector3d get_look_direction() { return get_controller_look_direction(); }
-    bool is_perfect_perception() const { return perfect_perception; }
-    float get_vision_angle_cos() const { return vision_angle_cos; }
-    float get_vision_range() const { return vision_range; }
-    float get_viable_radius() const { return viable_radius; }
-    float get_aware_radius() const { return aware_radius; }
-    bool is_multi_frame_search_active() const { return field_54; }
-    void end_multi_frame_search() { field_54 = false; }
-    void clear_target() { field_34 = {0}; }
+    vector3d get_look_direction()
+    {
+        return get_controller_look_direction();
+    }
+    bool is_perfect_perception() const
+    {
+        return perfect_perception;
+    }
+    float get_vision_angle_cos() const
+    {
+        return vision_angle_cos;
+    }
+    float get_vision_range() const
+    {
+        return vision_range;
+    }
+    float get_viable_radius() const
+    {
+        return viable_radius;
+    }
+    float get_aware_radius() const
+    {
+        return aware_radius;
+    }
+    bool is_multi_frame_search_active() const
+    {
+        return field_54;
+    }
+    void end_multi_frame_search()
+    {
+        field_54 = false;
+    }
+    void clear_target()
+    {
+        field_34 = {0};
+    }
 
     //virtual
     vhandle_type<actor> quick_targeting();
@@ -87,7 +117,10 @@ struct targetable_inode_285 : info_node {
     ~targetable_inode_285();
     static void *native_vtable();
     static mVectorBasic<vhandle_type<actor>> &target_list();
-    int _get_virtual_type_enum() const { return 285; }
+    int _get_virtual_type_enum() const
+    {
+        return 285;
+    }
     void _activate(ai_core *core);
     void unregister_as_targetable();
     void _destruct_mashed_class();

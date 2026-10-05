@@ -50,8 +50,7 @@ VALIDATE_SIZE(damage_interface, 0x23Cu);
 VALIDATE_OFFSET(damage_interface, prop_velocity, 0xDCu);
 VALIDATE_OFFSET(damage_interface, prop_lifetime, 0xECu);
 
-int damage_interface::find_damageable(const vector3d &position, float radius,
-                                     unsigned flags, bool restrict_regions)
+int damage_interface::find_damageable(const vector3d &position, float radius, unsigned flags, bool restrict_regions)
 {
     if (all_damage_interfaces && !all_damage_interfaces->empty()) {
         region_array nearby{};
@@ -107,8 +106,7 @@ bool damage_nearby_pedestrians(const vector3d &position, float radius, float amo
         auto *core = ped->get_ai_core();
         if (spawner->field_5 || !ai::pedestrian_inode::is_a_pedestrian(core))
             continue;
-        auto *inode = static_cast<ai::pedestrian_inode *>(
-            core->get_info_node(ai::pedestrian_inode::default_id, true));
+        auto *inode = static_cast<ai::pedestrian_inode *>(core->get_info_node(ai::pedestrian_inode::default_id, true));
         if (inode->field_D1)
             continue;
         const vector3d direction = ped->get_abs_position() - position;
@@ -121,17 +119,14 @@ bool damage_nearby_pedestrians(const vector3d &position, float radius, float amo
             inode->field_D1 = true;
         }
         if (auto *combat = core->get_info_node(ai::combat_inode::default_id, false)) {
-            using reaction_fn = void (__fastcall *)(ai::info_node *, void *,
-                string_hash, string_hash, string_hash, int, entity *,
-                const vector3d &, bool);
+            using reaction_fn = void(__fastcall *)(
+                ai::info_node *, void *, string_hash, string_hash, string_hash, int, entity *, const vector3d &, bool);
             reinterpret_cast<reaction_fn>(get_vfunc(combat->m_vtbl, 0x124))(
-                combat, nullptr, reaction, reaction, reaction, 10, nullptr,
-                direction, false);
+                combat, nullptr, reaction, reaction, reaction, 10, nullptr, direction, false);
         }
     }
     return affected;
 }
-
 
 
 void apply_destruction_radius_damage(const vector3d &position, float inner_radius)
@@ -147,8 +142,7 @@ void apply_destruction_radius_damage(const vector3d &position, float inner_radiu
     const string_hash reaction{"Wounded_Upper_Big"};
     const string_hash empty{0};
     for (int index = 0; index < regions.count; ++index) {
-        auto *entities = static_cast<_std::list<entity *> *>(
-            regions.m_data[index]->region_entities);
+        auto *entities = static_cast<_std::list<entity *> *>(regions.m_data[index]->region_entities);
         for (auto *node = entities->m_head->_Prev; node != entities->m_head;) {
             auto *ent = node->_Myval;
             node = node->_Prev;
@@ -156,18 +150,16 @@ void apply_destruction_radius_damage(const vector3d &position, float inner_radiu
                 continue;
             vector3d direction = ent->get_abs_position() - position;
             const float distance_squared = direction.length2();
-            if (distance_squared < inner_radius * inner_radius ||
-                distance_squared > radius * radius)
+            if (distance_squared < inner_radius * inner_radius || distance_squared > radius * radius)
                 continue;
             direction.normalize();
-            using active_fn = bool (__fastcall *)(entity *);
-            if (!ent->has_damage_ifc() ||
-                !reinterpret_cast<active_fn>(get_vfunc(ent->m_vtbl, 0x50))(ent))
+            using active_fn = bool(__fastcall *)(entity *);
+            if (!ent->has_damage_ifc() || !reinterpret_cast<active_fn>(get_vfunc(ent->m_vtbl, 0x50))(ent))
                 continue;
             if (ent->is_hero() && ent->has_sound_and_pfx_ifc())
                 ent->sound_and_pfx_ifc()->play_sound_grp(pain, 1.0f, 1.0f, 1.0f, -1.0f, -1.0f);
-            ent->damage_ifc()->apply_damage(nullptr, 0.0f, 6, position, direction,
-                0, reaction, empty, empty, false, ZEROVEC, 17, false);
+            ent->damage_ifc()->apply_damage(
+                nullptr, 0.0f, 6, position, direction, 0, reaction, empty, empty, false, ZEROVEC, 17, false);
         }
     }
 }
@@ -193,8 +185,7 @@ void setup_prop_physics(actor *owner)
         if (!member->is_an_actor())
             continue;
         auto *part = static_cast<actor *>(member);
-        if (part->colgeom == nullptr ||
-            part->colgeom->get_type() != collision_geometry::MESH)
+        if (part->colgeom == nullptr || part->colgeom->get_type() != collision_geometry::MESH)
             continue;
         auto *physics = setup_prop_physical_interface(part);
         physics->set_gravity(true);
@@ -218,8 +209,9 @@ void create_destruction_prop(damage_interface *damage, actor *source)
         auto *prop = static_cast<actor *>(ent);
         setup_prop_physics(prop);
         if (!prop->physical_ifc()->start_prop_physics(damage->prop_velocity,
-                damage->prop_velocity_randomness, damage->prop_lifetime,
-                physical_interface::PROP_PRIORITY_LOW))
+                                                      damage->prop_velocity_randomness,
+                                                      damage->prop_lifetime,
+                                                      physical_interface::PROP_PRIORITY_LOW))
             g_world_ptr->ent_mgr.make_time_limited(prop, Float{0.01f});
     }
 }
@@ -239,8 +231,9 @@ struct start_prop_physics_action : ai::ai_action_nugget {
     float remaining;
 
     start_prop_physics_action(ai::ai_core *core, damage_interface *damage_owner)
-        : ai_action_nugget(core, string_hash{"start_prop_physics_action"}),
-          damage(damage_owner), owner_core(core), remaining(damage_owner->field_F8) {}
+        : ai_action_nugget(core, string_hash{"start_prop_physics_action"}), damage(damage_owner), owner_core(core),
+          remaining(damage_owner->field_F8)
+    {}
 
     int frame_advance(Float elapsed) override
     {
@@ -253,12 +246,13 @@ struct start_prop_physics_action : ai::ai_action_nugget {
         damage->continue_post_destruction_actions();
         return 1;
     }
-    protected:
+
+protected:
     ~start_prop_physics_action() = default;
 };
 
 VALIDATE_SIZE(start_prop_physics_action, 0x1Cu);
-}
+}  // namespace
 
 void damage_interface::post_destruction_actions()
 {
@@ -278,8 +272,7 @@ void damage_interface::post_destruction_actions()
             auto *processor = static_cast<ai::ai_action_processor_inode *>(
                 core->get_info_node(ai::ai_action_processor_inode::default_id, false));
             if (processor != nullptr) {
-                auto *action = new (mem_alloc(sizeof(start_prop_physics_action)))
-                    start_prop_physics_action{core, this};
+                auto *action = new (mem_alloc(sizeof(start_prop_physics_action))) start_prop_physics_action{core, this};
                 processor->add_action(action);
                 run_smoking_script(string_hash{"begin_smoking(entity)"}, field_4);
                 return;
@@ -386,19 +379,42 @@ bool damage_interface::get_ifc_num(const resource_key &att, float *a3, bool is_l
         return range <= 0.0f ? 0.0f : (points.field_0[0] - points.field_0[1]) / range;
     };
     switch (att.m_hash.source_hash_code) {
-    case to_hash("HIT_POINTS"): *a3 = field_1FC.field_0[0]; break;
-    case to_hash("SUBDUED_POINTS"): *a3 = field_21C.field_0[0]; break;
-    case to_hash("KNOCK_DOWN_POINTS"): *a3 = static_cast<float>(field_22C.field_0[0]); break;
-    case to_hash("ARMOR_POINTS"): *a3 = field_20C.field_0[0]; break;
+    case to_hash("HIT_POINTS"):
+        *a3 = field_1FC.field_0[0];
+        break;
+    case to_hash("SUBDUED_POINTS"):
+        *a3 = field_21C.field_0[0];
+        break;
+    case to_hash("KNOCK_DOWN_POINTS"):
+        *a3 = static_cast<float>(field_22C.field_0[0]);
+        break;
+    case to_hash("ARMOR_POINTS"):
+        *a3 = field_20C.field_0[0];
+        break;
     case to_hash("MAX_HIT_POINTS"):
-    case to_hash("MAX_ARMOR_POINTS"): *a3 = field_1FC.field_0[2]; break;
-    case to_hash("HIT_POINT_PERCENT"): *a3 = percent(field_1FC); break;
-    case to_hash("ARMOR_POINT_PERCENT"): *a3 = percent(field_20C); break;
-    case to_hash("DAMAGE_MOD"): *a3 = field_1D4; break;
-    case to_hash("TARGET_PRIORITY"): *a3 = field_1D8; break;
-    case to_hash("ALLOW_ARMOR"): *a3 = (field_1F8 & 0x4000) == 0; break;
-    case to_hash("ARMOR_ONLY"): *a3 = (field_1F8 & 0x8000) != 0; break;
-    default: return false;
+    case to_hash("MAX_ARMOR_POINTS"):
+        *a3 = field_1FC.field_0[2];
+        break;
+    case to_hash("HIT_POINT_PERCENT"):
+        *a3 = percent(field_1FC);
+        break;
+    case to_hash("ARMOR_POINT_PERCENT"):
+        *a3 = percent(field_20C);
+        break;
+    case to_hash("DAMAGE_MOD"):
+        *a3 = field_1D4;
+        break;
+    case to_hash("TARGET_PRIORITY"):
+        *a3 = field_1D8;
+        break;
+    case to_hash("ALLOW_ARMOR"):
+        *a3 = (field_1F8 & 0x4000) == 0;
+        break;
+    case to_hash("ARMOR_ONLY"):
+        *a3 = (field_1F8 & 0x8000) != 0;
+        break;
+    default:
+        return false;
     }
     return true;
 }
@@ -429,11 +445,9 @@ bool damage_interface::set_ifc_num(const resource_key &att, Float a3, bool is_lo
         field_21C.sub_48BFB0(value);
         break;
     case to_hash("KNOCK_DOWN_POINTS"): {
-
-
-        const auto converted = value >= -9223372036854775808.0f &&
-                               value < 9223372036854775808.0f
-            ? static_cast<int64_t>(value) : int64_t{0};
+        const auto converted = value >= -9223372036854775808.0f && value < 9223372036854775808.0f
+                                   ? static_cast<int64_t>(value)
+                                   : int64_t{0};
         field_22C.field_0[0] = bit_cast<int>(static_cast<uint32_t>(converted));
         if (field_22C.field_0[0] > field_22C.field_0[2])
             field_22C.field_0[0] = field_22C.field_0[2];
@@ -457,12 +471,10 @@ bool damage_interface::set_ifc_num(const resource_key &att, Float a3, bool is_lo
         field_1D8 = value;
         break;
     case to_hash("ALLOW_ARMOR"):
-        field_1F8 = !(value <= 0.0f && value >= 0.0f)
-            ? field_1F8 & ~0x4000 : field_1F8 | 0x4000;
+        field_1F8 = !(value <= 0.0f && value >= 0.0f) ? field_1F8 & ~0x4000 : field_1F8 | 0x4000;
         break;
     case to_hash("ARMOR_ONLY"):
-        field_1F8 = !(value <= 0.0f && value >= 0.0f)
-            ? field_1F8 | 0x8000 : field_1F8 & ~0x8000;
+        field_1F8 = !(value <= 0.0f && value >= 0.0f) ? field_1F8 | 0x8000 : field_1F8 & ~0x8000;
         break;
     case to_hash("IGNORE_EXPLOSIVE_DAMAGE"):
         field_F4 = !(value <= 0.0f && value >= 0.0f);
@@ -484,8 +496,7 @@ void damage_interface::frame_advance_all_damage_ifc(Float a1)
                     if constexpr (STANDALONE_SYSTEM) {
                         dam->frame_advance(a1);
                     } else {
-                        void(__fastcall *func)(void *, void *, Float) =
-                            CAST(func, get_vfunc(dam->m_vtbl, 0x28));
+                        void(__fastcall * func)(void *, void *, Float) = CAST(func, get_vfunc(dam->m_vtbl, 0x28));
                         func(dam, nullptr, a1);
                     }
                 }
@@ -534,8 +545,7 @@ void damage_interface::_un_mash(generic_mash_header *header, void *a3, void *a4,
             new (&value) mString{};
             a5->rebase_shared(4u);
             const auto size = *a5->get_from_shared<uint32_t>();
-            value = reinterpret_cast<const char *>(
-                a5->get_from_shared<uint8_t>(size));
+            value = reinterpret_cast<const char *>(a5->get_from_shared<uint8_t>(size));
         };
         read_string(this->field_C);
         read_string(this->field_1C);
@@ -570,22 +580,18 @@ void damage_interface::frame_advance(Float a3)
     TRACE("damage_interface::frame_advance");
 
     if constexpr (STANDALONE_SYSTEM) {
-        this->field_1F8 = (this->field_1F8 & 0x2000) != 0
-            ? this->field_1F8 | 0x1000
-            : this->field_1F8 & ~0x1000;
+        this->field_1F8 = (this->field_1F8 & 0x2000) != 0 ? this->field_1F8 | 0x1000 : this->field_1F8 & ~0x1000;
         this->field_1F8 &= ~0x2000;
         auto advance = [a3](bounded_variable<float> &value) {
-            value.sub_48BFB0(
-                a3.value * value.field_0[3] + value.field_0[0]);
+            value.sub_48BFB0(a3.value * value.field_0[3] + value.field_0[0]);
         };
         advance(this->field_1FC);
         advance(this->field_20C);
         if (this->field_1FC.field_0[0] > EPSILON) {
             advance(this->field_21C);
         }
-        this->field_22C.field_0[0] = static_cast<int>(
-            static_cast<double>(this->field_22C.field_0[3]) * a3.value +
-            this->field_22C.field_0[0]);
+        this->field_22C.field_0[0] =
+            static_cast<int>(static_cast<double>(this->field_22C.field_0[3]) * a3.value + this->field_22C.field_0[0]);
         if (this->field_22C.field_0[0] > this->field_22C.field_0[2]) {
             this->field_22C.field_0[0] = this->field_22C.field_0[2];
         }
@@ -608,17 +614,13 @@ void damage_interface::update_hp_change(Float time_step)
     constexpr float hp_epsilon = 0.0001f;
     const float previous_change = field_1E8;
 
-    fe_health_widget *widget = field_4->get_player_controller() != nullptr
-        ? g_femanager.IGO->hero_health
-        : g_femanager.IGO->boss_health;
+    fe_health_widget *widget =
+        field_4->get_player_controller() != nullptr ? g_femanager.IGO->hero_health : g_femanager.IGO->boss_health;
 
     if (std::fabs(field_1E8) >= hp_epsilon) {
-        const double interpolation = 1.0 -
-            static_cast<double>(field_1E8) / field_1E4;
-        const float progress = interpolation < 0.0
-            ? 0.0f : static_cast<float>(interpolation);
-        const double rate = static_cast<double>(field_1EC) +
-            (static_cast<double>(field_1F0) - field_1EC) * progress;
+        const double interpolation = 1.0 - static_cast<double>(field_1E8) / field_1E4;
+        const float progress = interpolation < 0.0 ? 0.0f : static_cast<float>(interpolation);
+        const double rate = static_cast<double>(field_1EC) + (static_cast<double>(field_1F0) - field_1EC) * progress;
         const double change = time_step.value * rate;
         field_1E8 = static_cast<float>(field_1E8 - change);
         const float health = static_cast<float>(field_1FC.field_0[0] + change);
@@ -637,8 +639,7 @@ void damage_interface::update_hp_change(Float time_step)
         field_1FC.sub_48BFB0(health);
     }
 
-    if (std::fabs(previous_change) >= hp_epsilon &&
-        std::fabs(field_1E8) < hp_epsilon && widget != nullptr) {
+    if (std::fabs(previous_change) >= hp_epsilon && std::fabs(field_1E8) < hp_epsilon && widget != nullptr) {
         widget->set_regen_bar_shown(false);
         widget->set_poison_bar_shown(false);
         widget->set_health_bar_shown(true);
@@ -665,15 +666,13 @@ void damage_interface::apply_subdue([[maybe_unused]] entity *source, float amoun
     field_21C.sub_48BFB0(field_21C.field_0[0] + amount);
 }
 
-void damage_interface::apply_damage(entity *source, float amount, int damage_type,
-    const vector3d &position, const vector3d &direction, int flags,
-    const string_hash &attack, const string_hash &category, const string_hash &reaction,
-    bool force_reaction, const vector3d &target, int combo_type, bool skip_combat)
+void damage_interface::apply_damage(entity *source, float amount, int damage_type, const vector3d &position,
+                                    const vector3d &direction, int flags, const string_hash &attack,
+                                    const string_hash &category, const string_hash &reaction, bool force_reaction,
+                                    const vector3d &target, int combo_type, bool skip_combat)
 {
-    if ((damage_type == 6 && field_F4) ||
-        (std::equal_to<float>{}(amount, 0.0f) && damage_type != 7) ||
-        (field_4->is_hero() && amount > 0.0f && god_mode_cheat()) ||
-        (field_4->field_8 & 0x4000) != 0)
+    if ((damage_type == 6 && field_F4) || (std::equal_to<float>{}(amount, 0.0f) && damage_type != 7) ||
+        (field_4->is_hero() && amount > 0.0f && god_mode_cheat()) || (field_4->field_8 & 0x4000) != 0)
         return;
     ai::ai_core *core = field_4->get_ai_core();
     auto *combat = core != nullptr ? core->get_info_node(ai::combat_inode::default_id, false) : nullptr;
@@ -683,11 +682,25 @@ void damage_interface::apply_damage(entity *source, float amount, int damage_typ
             incoming_direction = direction;
             incoming_direction.normalize();
         }
-        using incoming_fn = void (__fastcall *)(ai::info_node *, void *, string_hash, string_hash,
-            string_hash, int, entity_base_vhandle, const vector3d &, bool);
-        reinterpret_cast<incoming_fn>(get_vfunc(combat->m_vtbl, 0x124))(combat, nullptr,
-            attack, category, reaction, combo_type,
-            entity_base_vhandle{source != nullptr ? source->my_handle : 0}, incoming_direction, force_reaction);
+        using incoming_fn = void(__fastcall *)(ai::info_node *,
+                                               void *,
+                                               string_hash,
+                                               string_hash,
+                                               string_hash,
+                                               int,
+                                               entity_base_vhandle,
+                                               const vector3d &,
+                                               bool);
+        reinterpret_cast<incoming_fn>(get_vfunc(combat->m_vtbl, 0x124))(
+            combat,
+            nullptr,
+            attack,
+            category,
+            reaction,
+            combo_type,
+            entity_base_vhandle{source != nullptr ? source->my_handle : 0},
+            incoming_direction,
+            force_reaction);
     }
     float health = field_1FC.field_0[0];
     float armor = field_20C.field_0[0];
@@ -709,9 +722,9 @@ void damage_interface::apply_damage(entity *source, float amount, int damage_typ
             field_104.field_30 = field_104.field_34 = 0;
         }
     }
-    using ignore_fn = bool (__fastcall *)(ai::info_node *, void *, bool);
-    field_104.field_3E = combat != nullptr &&
-        reinterpret_cast<ignore_fn>(get_vfunc(combat->m_vtbl, 0xE4))(combat, nullptr, false);
+    using ignore_fn = bool(__fastcall *)(ai::info_node *, void *, bool);
+    field_104.field_3E =
+        combat != nullptr && reinterpret_cast<ignore_fn>(get_vfunc(combat->m_vtbl, 0xE4))(combat, nullptr, false);
     field_104.amount = field_104.field_3E ? 0.0f : amount;
     field_104.field_8 = direction;
     field_104.field_C = target;
@@ -724,13 +737,14 @@ void damage_interface::apply_damage(entity *source, float amount, int damage_typ
     if (auto *type = event_manager::get_event_type(event::DAMAGED))
         type->raise_event(entity_base_vhandle{field_4->my_handle}, nullptr);
     const double scaled_damage = static_cast<double>(field_1D4) * field_104.amount + 0.5;
-    field_104.amount = field_104.amount > 0.0f && scaled_damage <= 1.0 && field_1D4 > 0.0f
-        ? 1.0f : static_cast<float>(scaled_damage);
+    field_104.amount =
+        field_104.amount > 0.0f && scaled_damage <= 1.0 && field_1D4 > 0.0f ? 1.0f : static_cast<float>(scaled_damage);
     if (field_104.amount < 0.0f)
         field_104.amount = 0.0f;
     float fear_fraction = -1.0f;
     auto *fear = core != nullptr && field_104.amount > 0.0f
-        ? static_cast<ai::std_fear_inode *>(core->get_info_node(ai::std_fear_inode::default_id, false)) : nullptr;
+                     ? static_cast<ai::std_fear_inode *>(core->get_info_node(ai::std_fear_inode::default_id, false))
+                     : nullptr;
     if (fear != nullptr) {
         const double total = static_cast<double>(health) + ((field_1F8 & 0x4000) == 0 ? armor : 0.0f);
         fear_fraction = total <= EPSILON ? 0.0f : std::min(static_cast<float>(field_104.amount / total), 1.0f);
@@ -767,7 +781,7 @@ void damage_interface::apply_damage(entity *source, float amount, int damage_typ
     }
     if (fear != nullptr && fear_fraction > 0.0f && is_alive() && !is_subdued())
         fear->post_event(0, fear_fraction);
-    using notify_fn = void (__fastcall *)(ai::info_node *, void *, float);
+    using notify_fn = void(__fastcall *)(ai::info_node *, void *, float);
     if (combat != nullptr && field_4->is_hero()) {
         reinterpret_cast<notify_fn>(get_vfunc(combat->m_vtbl, 0x74))(combat, nullptr, -field_104.amount);
     } else if (source != nullptr && source->is_hero()) {

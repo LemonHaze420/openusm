@@ -41,8 +41,7 @@
 #include <cstdint>
 #include <cstring>
 
-namespace
-{
+namespace {
 constexpr uintptr_t PLATFORM_INITIALIZER = 0x005E10BB;
 constexpr uintptr_t EXPECTED_RESOURCE_VERSIONS = 0x00937440;
 
@@ -88,23 +87,18 @@ int __fastcall po_size(void *, void *)
     return PO_SIZE;
 }
 
-void __fastcall layout_po(
-    void *, void *, const nalGeneric::nalComponentInfo *info,
-    void **cursor, void **)
+void __fastcall layout_po(void *, void *, const nalGeneric::nalComponentInfo *info, void **cursor, void **)
 {
     *cursor = align16(*cursor) + PO_SIZE * info->field_28;
 }
 
-void __fastcall advance_po(
-    void *, void *, const nalGeneric::nalComponentInfo *info,
-    void **cursor)
+void __fastcall advance_po(void *, void *, const nalGeneric::nalComponentInfo *info, void **cursor)
 {
     *cursor = align16(*cursor) + PO_SIZE * info->field_28;
 }
 
-void __fastcall copy_po(
-    void *, void *, const nalGeneric::nalComponentInfo *info,
-    void **dst_cursor, const void **src_cursor)
+void __fastcall copy_po(void *, void *, const nalGeneric::nalComponentInfo *info, void **dst_cursor,
+                        const void **src_cursor)
 {
     auto *dst = align16(*dst_cursor);
     auto *src = align16(const_cast<void *>(*src_cursor));
@@ -115,23 +109,18 @@ void __fastcall copy_po(
     *src_cursor = src + size;
 }
 
-void __fastcall layout_quat(
-    void *, void *, const nalGeneric::nalComponentInfo *info,
-    void **cursor, void **)
+void __fastcall layout_quat(void *, void *, const nalGeneric::nalComponentInfo *info, void **cursor, void **)
 {
     *cursor = align16(*cursor) + QUAT_SIZE * info->field_28;
 }
 
-void __fastcall advance_quat(
-    void *, void *, const nalGeneric::nalComponentInfo *info,
-    void **cursor)
+void __fastcall advance_quat(void *, void *, const nalGeneric::nalComponentInfo *info, void **cursor)
 {
     *cursor = align16(*cursor) + QUAT_SIZE * info->field_28;
 }
 
-void __fastcall copy_quat(
-    void *, void *, const nalGeneric::nalComponentInfo *info,
-    void **dst_cursor, const void **src_cursor)
+void __fastcall copy_quat(void *, void *, const nalGeneric::nalComponentInfo *info, void **dst_cursor,
+                          const void **src_cursor)
 {
     auto *dst = align16(*dst_cursor);
     auto *src = align16(const_cast<void *>(*src_cursor));
@@ -142,8 +131,7 @@ void __fastcall copy_quat(
     *src_cursor = src + size;
 }
 
-bool component_active(
-    const uintptr_t *context, const nalGeneric::nalComponentInfo *info, int i)
+bool component_active(const uintptr_t *context, const nalGeneric::nalComponentInfo *info, int i)
 {
     auto *bits = *reinterpret_cast<const uint32_t *const *>(context[0] + 0x60);
     auto index = info->field_24 + i;
@@ -165,9 +153,7 @@ int active_quat_count(const uintptr_t *context)
 void compact_quat_states(uint8_t *data, int count)
 {
     for (int i = 1; i < count; ++i) {
-        std::memmove(data + i * PC_QUAT_STATE_SIZE,
-                     data + i * XB_QUAT_STATE_SIZE,
-                     PC_QUAT_STATE_SIZE);
+        std::memmove(data + i * PC_QUAT_STATE_SIZE, data + i * XB_QUAT_STATE_SIZE, PC_QUAT_STATE_SIZE);
     }
 }
 
@@ -175,35 +161,28 @@ void expand_quat_states(uint8_t *data, int count)
 {
     for (int i = count - 1; i >= 0; --i) {
         auto *dst = data + i * XB_QUAT_STATE_SIZE;
-        std::memmove(dst, data + i * PC_QUAT_STATE_SIZE,
-                     PC_QUAT_STATE_SIZE);
-        std::memset(dst + PC_QUAT_STATE_SIZE, 0,
-                    XB_QUAT_STATE_SIZE - PC_QUAT_STATE_SIZE);
+        std::memmove(dst, data + i * PC_QUAT_STATE_SIZE, PC_QUAT_STATE_SIZE);
+        std::memset(dst + PC_QUAT_STATE_SIZE, 0, XB_QUAT_STATE_SIZE - PC_QUAT_STATE_SIZE);
     }
 }
 
-int __fastcall read_quat_control(
-    void *component, void *, uintptr_t *context,
-    void **state_cursor, void **source_cursor, unsigned int n2)
+int __fastcall read_quat_control(void *component, void *, uintptr_t *context, void **state_cursor, void **source_cursor,
+                                 unsigned int n2)
 {
     auto count = active_quat_count(context);
     auto *state = align16(*state_cursor);
     *state_cursor = state;
 
-    auto result = THISCALL(0x00787B50, component, context,
-                           state_cursor, source_cursor, n2);
+    auto result = THISCALL(0x00787B50, component, context, state_cursor, source_cursor, n2);
     if (state != nullptr) {
         expand_quat_states(state, count);
     }
-    *state_cursor = reinterpret_cast<void *>(
-        reinterpret_cast<uintptr_t>(state) + count * XB_QUAT_STATE_SIZE);
+    *state_cursor = reinterpret_cast<void *>(reinterpret_cast<uintptr_t>(state) + count * XB_QUAT_STATE_SIZE);
     return result;
 }
 
-int update_quat(
-    uintptr_t address, void *component, uintptr_t *context,
-    void **data_cursor, void **state_cursor, void *a4,
-    int a5, unsigned int a6, int a7)
+int update_quat(uintptr_t address, void *component, uintptr_t *context, void **data_cursor, void **state_cursor,
+                void *a4, int a5, unsigned int a6, int a7)
 {
     auto count = active_quat_count(context);
     auto *state = align16(*state_cursor);
@@ -212,38 +191,30 @@ int update_quat(
     }
     *state_cursor = state;
 
-    auto result = THISCALL(address, component, context, data_cursor,
-                           state_cursor, a4, a5, a6, a7);
+    auto result = THISCALL(address, component, context, data_cursor, state_cursor, a4, a5, a6, a7);
     if (state != nullptr) {
         expand_quat_states(state, count);
     }
-    *state_cursor = reinterpret_cast<void *>(
-        reinterpret_cast<uintptr_t>(state) + count * XB_QUAT_STATE_SIZE);
+    *state_cursor = reinterpret_cast<void *>(reinterpret_cast<uintptr_t>(state) + count * XB_QUAT_STATE_SIZE);
     return result;
 }
 
-int __fastcall update_entropy_quat(
-    void *component, void *, uintptr_t *context, void **data_cursor,
-    void **state_cursor, void *a4, int a5, unsigned int a6, int a7)
+int __fastcall update_entropy_quat(void *component, void *, uintptr_t *context, void **data_cursor, void **state_cursor,
+                                   void *a4, int a5, unsigned int a6, int a7)
 {
-    return update_quat(0x00787890, component, context, data_cursor,
-                       state_cursor, a4, a5, a6, a7);
+    return update_quat(0x00787890, component, context, data_cursor, state_cursor, a4, a5, a6, a7);
 }
 
-int __fastcall update_packed8_quat(
-    void *component, void *, uintptr_t *context, void **data_cursor,
-    void **state_cursor, void *a4, int a5, unsigned int a6, int a7)
+int __fastcall update_packed8_quat(void *component, void *, uintptr_t *context, void **data_cursor, void **state_cursor,
+                                   void *a4, int a5, unsigned int a6, int a7)
 {
-    return update_quat(0x00787C30, component, context, data_cursor,
-                       state_cursor, a4, a5, a6, a7);
+    return update_quat(0x00787C30, component, context, data_cursor, state_cursor, a4, a5, a6, a7);
 }
 
-int __fastcall update_packed16_quat(
-    void *component, void *, uintptr_t *context, void **data_cursor,
-    void **state_cursor, void *a4, int a5, unsigned int a6, int a7)
+int __fastcall update_packed16_quat(void *component, void *, uintptr_t *context, void **data_cursor,
+                                    void **state_cursor, void *a4, int a5, unsigned int a6, int a7)
 {
-    return update_quat(0x00787DC0, component, context, data_cursor,
-                       state_cursor, a4, a5, a6, a7);
+    return update_quat(0x00787DC0, component, context, data_cursor, state_cursor, a4, a5, a6, a7);
 }
 
 // i expect this might be useful rather than more constants(tm)
@@ -252,23 +223,18 @@ int __fastcall ikspin_size(void *, void *)
     return IKSPIN_SIZE;
 }
 
-void __fastcall layout_ikspin(
-    void *, void *, const nalGeneric::nalComponentInfo *info,
-    void **cursor, void **)
+void __fastcall layout_ikspin(void *, void *, const nalGeneric::nalComponentInfo *info, void **cursor, void **)
 {
     *cursor = align16(*cursor) + IKSPIN_SIZE * info->field_28;
 }
 
-void __fastcall advance_ikspin(
-    void *, void *, const nalGeneric::nalComponentInfo *info,
-    void **cursor)
+void __fastcall advance_ikspin(void *, void *, const nalGeneric::nalComponentInfo *info, void **cursor)
 {
     *cursor = align16(*cursor) + IKSPIN_SIZE * info->field_28;
 }
 
-void __fastcall copy_ikspin(
-    void *, void *, const nalGeneric::nalComponentInfo *info,
-    void **dst_cursor, const void **src_cursor)
+void __fastcall copy_ikspin(void *, void *, const nalGeneric::nalComponentInfo *info, void **dst_cursor,
+                            const void **src_cursor)
 {
     auto *dst = align16(*dst_cursor);
     auto *src = align16(const_cast<void *>(*src_cursor));
@@ -279,9 +245,8 @@ void __fastcall copy_ikspin(
     *src_cursor = src + size;
 }
 
-int __fastcall read_ikspin_control(
-    void *, void *, uintptr_t *context, void **state_cursor,
-    void **source_cursor, unsigned int samples)
+int __fastcall read_ikspin_control(void *, void *, uintptr_t *context, void **state_cursor, void **source_cursor,
+                                   unsigned int samples)
 {
     auto *info = reinterpret_cast<const nalGeneric::nalComponentInfo *>(context[1]);
     auto *state = align_data(*state_cursor, alignof(void *));
@@ -305,9 +270,8 @@ int __fastcall read_ikspin_control(
     return context[1];
 }
 
-int __fastcall update_ikspin(
-    void *, void *, uintptr_t *context, void **cache_cursor,
-    void **state_cursor, void *, int, unsigned int count, int stride)
+int __fastcall update_ikspin(void *, void *, uintptr_t *context, void **cache_cursor, void **state_cursor, void *, int,
+                             unsigned int count, int stride)
 {
     auto *info = reinterpret_cast<const nalGeneric::nalComponentInfo *>(context[1]);
     auto *state = align_data(*state_cursor, alignof(void *));
@@ -332,9 +296,8 @@ int __fastcall update_ikspin(
     return context[1];
 }
 
-int __fastcall apply_ikspin(
-    void *, void *, uintptr_t *context, uint8_t *dst,
-    void **cache_cursor, const uint8_t *fallback, const int32_t *offsets)
+int __fastcall apply_ikspin(void *, void *, uintptr_t *context, uint8_t *dst, void **cache_cursor,
+                            const uint8_t *fallback, const int32_t *offsets)
 {
     auto *info = reinterpret_cast<const nalGeneric::nalComponentInfo *>(context[1]);
     auto *cache = align16(*cache_cursor);
@@ -358,9 +321,7 @@ int __fastcall apply_ikspin(
     return context[1];
 }
 
-int __fastcall skip_ikspin_cache(
-    void *, void *, uintptr_t *context, void **cache_cursor,
-    void **state_cursor, int, int)
+int __fastcall skip_ikspin_cache(void *, void *, uintptr_t *context, void **cache_cursor, void **state_cursor, int, int)
 {
     auto *info = reinterpret_cast<const nalGeneric::nalComponentInfo *>(context[1]);
     auto *cache = align16(*cache_cursor);
@@ -374,8 +335,7 @@ int __fastcall skip_ikspin_cache(
     return info->field_28;
 }
 
-int __fastcall advance_ikspin_cache(
-    void *, void *, uintptr_t *context, void **cache_cursor)
+int __fastcall advance_ikspin_cache(void *, void *, uintptr_t *context, void **cache_cursor)
 {
     auto *cache = align16(*cache_cursor);
     *cache_cursor = cache + active_quat_count(context) * IKSPIN_SIZE;
@@ -384,8 +344,7 @@ int __fastcall advance_ikspin_cache(
 
 void *__fastcall find_event_data(void *anim, void *, void *handle)
 {
-    auto *data = reinterpret_cast<uint8_t *>(
-        THISCALL(0x004AD9F0, anim, handle));
+    auto *data = reinterpret_cast<uint8_t *>(THISCALL(0x004AD9F0, anim, handle));
 
     if (data != nullptr && *reinterpret_cast<uint16_t *>(data + 2) == 0) {
         return nullptr;
@@ -395,7 +354,7 @@ void *__fastcall find_event_data(void *anim, void *, void *handle)
 }
 
 #endif
-}
+}  // namespace
 
 #endif
 
@@ -412,8 +371,7 @@ bool install_xbpack_support()
 
     *platform = NL_PLATFORM_XBOX;
     g_platform = NL_PLATFORM_XBOX;
-    *reinterpret_cast<resource_versions *>(EXPECTED_RESOURCE_VERSIONS) =
-        expected_resource_versions(NL_PLATFORM_XBOX);
+    *reinterpret_cast<resource_versions *>(EXPECTED_RESOURCE_VERSIONS) = expected_resource_versions(NL_PLATFORM_XBOX);
 
     resource_manager_xbpack_patch();
     resource_directory_xbpack_patch();
@@ -464,22 +422,31 @@ bool install_xbpack_support()
         SET_JUMP(0x005F6DA0, inverse_kinematics::LegsIK_BuildBoneMatrices_v10);
 
         constexpr uint8_t keep_flee_state[] = {
-            0xB8, 0x4B, 0x00, 0x00, 0x00, // mov eax, 75
-            0xEB, 0xE5,                   // jmp 0x006EE507
+            0xB8,
+            0x4B,
+            0x00,
+            0x00,
+            0x00,  // mov eax, 75
+            0xEB,
+            0xE5,  // jmp 0x006EE507
         };
-        std::memcpy(reinterpret_cast<void *>(0x006EE51B),
-                    keep_flee_state,
-                    sizeof(keep_flee_state));
+        std::memcpy(reinterpret_cast<void *>(0x006EE51B), keep_flee_state, sizeof(keep_flee_state));
 
         *reinterpret_cast<uint32_t *>(0x006ED73F) = 75;
 
         constexpr uint8_t missing_exit_layer_fallback[] = {
-            0xE9, 0x72, 0x00, 0x00, 0x00, // jmp 0x006CE393
-            0x90, 0x90, 0x90, 0x90,
+            0xE9,
+            0x72,
+            0x00,
+            0x00,
+            0x00,  // jmp 0x006CE393
+            0x90,
+            0x90,
+            0x90,
+            0x90,
         };
-        std::memcpy(reinterpret_cast<void *>(0x006CE31C),
-                    missing_exit_layer_fallback,
-                    sizeof(missing_exit_layer_fallback));
+        std::memcpy(
+            reinterpret_cast<void *>(0x006CE31C), missing_exit_layer_fallback, sizeof(missing_exit_layer_fallback));
 #endif
 
         *reinterpret_cast<uint8_t *>(0x0053D010) = 0xE9;

@@ -54,81 +54,80 @@ bool intraframe_trajectory_t::has_colgeom()
 
 void intraframe_trajectory_t::init(entity *ent_arg, Float a3, const po &, dynamic_conglomerate_clone *a5)
 {
-        assert(ent_arg->is_an_actor());
+    assert(ent_arg->is_an_actor());
 
-        this->field_15C = nullptr;
-        this->ent = CAST(ent, ent_arg);
-        this->field_13C = a5;
-        this->field_14C = a3;
-        this->final_relcap = nullptr;
-        this->field_164 = false;
-        this->field_165 = false;
-        this->field_160 = nullptr;
-        this->field_168 = nullptr;
-        this->field_150 = (this->ent->has_physical_ifc() && this->ent->physical_ifc()->is_enabled()
-                               ? this->ent->physical_ifc()->get_velocity()
-                               : ZEROVEC);
+    this->field_15C = nullptr;
+    this->ent = CAST(ent, ent_arg);
+    this->field_13C = a5;
+    this->field_14C = a3;
+    this->final_relcap = nullptr;
+    this->field_164 = false;
+    this->field_165 = false;
+    this->field_160 = nullptr;
+    this->field_168 = nullptr;
+    this->field_150 = (this->ent->has_physical_ifc() && this->ent->physical_ifc()->is_enabled()
+                           ? this->ent->physical_ifc()->get_velocity()
+                           : ZEROVEC);
 
-        po my_abs_po{};
-        if (auto *v8 = this->field_13C; v8 != nullptr) {
-            my_abs_po = *v8->get_member_abs_po(this->ent);
+    po my_abs_po{};
+    if (auto *v8 = this->field_13C; v8 != nullptr) {
+        my_abs_po = *v8->get_member_abs_po(this->ent);
+    } else {
+        my_abs_po = this->ent->get_abs_po();
+    }
+
+    this->final_po = my_abs_po;
+    this->world_po1 = this->final_po;
+    this->world_po0 = this->world_po1;
+
+    assert(final_po.is_valid());
+
+    assert(std::abs(final_po.get_matrix().w.length()) < 100000.0f);
+
+    if (this->ent->field_A4 != 0 && !this->ent->get_allow_tunnelling_into_next_frame()) {
+        this->world_po0 = this->ent->get_last_collision_free_state()->xform;
+
+        assert(this->world_po0.is_valid());
+    }
+
+    if (this->ent->are_collisions_active() && this->has_colgeom() && this->get_colgeom()->get_type() == 1) {
+        auto v14 = this->world_po1.get_position() - this->world_po0.get_position();
+        this->field_140 = v14 / this->field_14C;
+        if (this->field_140.length2() > 22500.0f) {
+            this->field_140.normalize();
+            this->field_140 *= 150.0f;
+            this->integrate(this->field_14C, &this->world_po1);
+            this->final_po.set_position(this->world_po1.get_position());
+        }
+
+        assert(ent->get_colgeom() != nullptr);
+
+        this->is_capsule = true;
+        this->init_capsules();
+    } else {
+        if (this->has_colgeom() && this->get_colgeom()->get_type() == 1) {
+            auto *cap = bit_cast<collision_capsule *>(this->get_colgeom());
+            auto rel_cap = cap->rel_cap;
+
+            this->relcap1 = rel_cap;
+            this->relcap0 = rel_cap;
+
+            this->my_abs_cap1 = xform3d_1_capsule(this->final_po.get_matrix(), this->relcap1);
+            this->my_abs_cap0 = xform3d_1_capsule(this->final_po.get_matrix(), this->relcap0);
         } else {
-            my_abs_po = this->ent->get_abs_po();
+            this->relcap0 = capsule{ZEROVEC, ZEROVEC, 0.0f};
+
+            this->relcap1 = this->relcap0;
+
+            this->my_abs_cap0 = this->relcap1;
+
+            this->my_abs_cap1 = this->my_abs_cap0;
         }
 
-        this->final_po = my_abs_po;
-        this->world_po1 = this->final_po;
-        this->world_po0 = this->world_po1;
+        this->is_capsule = false;
+    }
 
-        assert(final_po.is_valid());
-
-        assert(std::abs(final_po.get_matrix().w.length()) < 100000.0f);
-
-        if (this->ent->field_A4 != 0 && !this->ent->get_allow_tunnelling_into_next_frame()) {
-            this->world_po0 = this->ent->get_last_collision_free_state()->xform;
-
-            assert(this->world_po0.is_valid());
-
-        }
-
-        if (this->ent->are_collisions_active() && this->has_colgeom() && this->get_colgeom()->get_type() == 1) {
-            auto v14 = this->world_po1.get_position() - this->world_po0.get_position();
-            this->field_140 = v14 / this->field_14C;
-            if (this->field_140.length2() > 22500.0f) {
-                this->field_140.normalize();
-                this->field_140 *= 150.0f;
-                this->integrate(this->field_14C, &this->world_po1);
-                this->final_po.set_position(this->world_po1.get_position());
-            }
-
-            assert(ent->get_colgeom() != nullptr);
-
-            this->is_capsule = true;
-            this->init_capsules();
-        } else {
-            if (this->has_colgeom() && this->get_colgeom()->get_type() == 1) {
-                auto *cap = bit_cast<collision_capsule *>(this->get_colgeom());
-                auto rel_cap = cap->rel_cap;
-
-                this->relcap1 = rel_cap;
-                this->relcap0 = rel_cap;
-
-                this->my_abs_cap1 = xform3d_1_capsule(this->final_po.get_matrix(), this->relcap1);
-                this->my_abs_cap0 = xform3d_1_capsule(this->final_po.get_matrix(), this->relcap0);
-            } else {
-                this->relcap0 = capsule{ZEROVEC, ZEROVEC, 0.0f};
-
-                this->relcap1 = this->relcap0;
-
-                this->my_abs_cap0 = this->relcap1;
-
-                this->my_abs_cap1 = this->my_abs_cap0;
-            }
-
-            this->is_capsule = false;
-        }
-
-        this->field_140 = (this->world_po1.get_position() - this->world_po0.get_position()) / this->field_14C;
+    this->field_140 = (this->world_po1.get_position() - this->world_po0.get_position()) / this->field_14C;
 }
 
 bool build_quat_that_aligns_two_vectors(const vector3d &a1, const vector3d &a2, quaternion &a3)
@@ -249,13 +248,12 @@ void intraframe_trajectory_t::backpropagate(Float elapsed)
     }
     if ((ent->field_4 & 0x8000u) != 0)
         return;
-    if (!ent->has_physical_ifc() || !ent->physical_ifc()->is_enabled() ||
-        (ent->physical_ifc()->field_C & 2u) != 0 || ent->get_parent()) {
+    if (!ent->has_physical_ifc() || !ent->physical_ifc()->is_enabled() || (ent->physical_ifc()->field_C & 2u) != 0 ||
+        ent->get_parent()) {
         entity_set_abs_po(ent, pose);
     } else {
-        const float scale = ent->field_58
-            ? static_cast<float>(ent->field_58->sub_4ADE50())
-            : g_world_ptr->time_manager.field_0;
+        const float scale =
+            ent->field_58 ? static_cast<float>(ent->field_58->sub_4ADE50()) : g_world_ptr->time_manager.field_0;
         ent->physical_ifc()->backpropagate(Float{elapsed.value * scale}, pose, field_150);
     }
 }

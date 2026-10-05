@@ -23,10 +23,9 @@ void update()
         return;
     }
 
-    auto *reg =
-        g_world_ptr->the_terrain->find_region(hero->get_abs_position(), nullptr);
+    auto *reg = g_world_ptr->the_terrain->find_region(hero->get_abs_position(), nullptr);
     if (reg != nullptr) {
         nearby.push_back(reg);
     }
 }
-}
+}  // namespace nearby_hero_regions

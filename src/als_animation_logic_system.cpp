@@ -26,10 +26,8 @@ VALIDATE_SIZE(animation_logic_system, 0x80u);
 
 void animation_logic_system::kill_animation_domain(uint32_t domain)
 {
-
-    using kill_fn = void (__fastcall *)(animation_controller *, void *, uint32_t);
-    reinterpret_cast<kill_fn>(get_vfunc(the_controller->m_vtbl, 0xC))(
-        the_controller, nullptr, domain);
+    using kill_fn = void(__fastcall *)(animation_controller *, void *, uint32_t);
+    reinterpret_cast<kill_fn>(get_vfunc(the_controller->m_vtbl, 0xC))(the_controller, nullptr, domain);
 }
 
 animation_logic_system::animation_logic_system(actor *a1)
@@ -279,7 +277,7 @@ void animation_logic_system::sub_4A6630(layer_types a2)
         layer->field_34.clear();
         layer->change_state(nullptr, nullptr);
         if (layer->get_anim_handle().is_anim_active()) {
-            void(__fastcall *kill_priority)(animation_controller *, void *, Float) =
+            void(__fastcall * kill_priority)(animation_controller *, void *, Float) =
                 CAST(kill_priority, get_vfunc(this->the_controller->m_vtbl, 0x14));
             kill_priority(this->the_controller, nullptr, this->convert_layer_id_to_priority(a2));
         }

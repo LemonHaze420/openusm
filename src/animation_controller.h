@@ -18,7 +18,7 @@ struct als_meta_anim_table_shared;
 
 struct nalAnyPose;
 
-template<typename T>
+template <typename T>
 struct nalAnimClass;
 
 struct animation_controller {
@@ -66,10 +66,10 @@ struct animation_controller {
     anim_ctrl_handle get_base_anim_handle();
 
     anim_ctrl_handle play_layer_anim(const string_hash &a3, unsigned int a4, Float a5, unsigned int a6, bool a7,
-            als::layer_types);
+                                     als::layer_types);
 
     anim_ctrl_handle *_play_base_layer_anim_patch(anim_ctrl_handle *, const string_hash &a3, Float a4, uint32_t a5,
-        bool a6);
+                                                  bool a6);
 
     anim_ctrl_handle play_base_layer_anim(const string_hash &a3, Float a4, uint32_t a5, bool a6);
 
@@ -169,14 +169,10 @@ struct animation_controller {
     vector3d get_hint_token_scale(string_hash);
 };
 
-extern void set_black_suit_als_meta_anim_table(
-    const als::als_meta_anim_table_shared *table);
+extern void set_black_suit_als_meta_anim_table(const als::als_meta_anim_table_shared *table);
 
 //0x0049B910
-extern void *get_anim_by_hash(
-    const string_hash &a1,
-    const als::als_meta_anim_table_shared *a2,
-    actor *a3);
+extern void *get_anim_by_hash(const string_hash &a1, const als::als_meta_anim_table_shared *a2, actor *a3);
 
 extern void animation_controller_patch();
 extern void venom_animation_lookup_patch();

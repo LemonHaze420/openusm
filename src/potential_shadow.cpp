@@ -88,7 +88,7 @@ void clip_shadow_edges(nglTexture *texture)
     nglListAddQuad(&quad);
     nglListEndScene();
 }
-}
+}  // namespace
 
 void potential_shadow::commit()
 {
@@ -120,8 +120,7 @@ void potential_shadow::commit()
     nglSetAspectRatio(1.0f);
     nglSetOrthoMatrix(0.1f, 1000.0f);
     matrix4x4 view;
-    geometry_manager::set_look_at(&view, field_C + field_0 * (m_radius * 100.0f),
-                                  field_C, vector3d{0.0f, 0.0f, 1.0f});
+    geometry_manager::set_look_at(&view, field_C + field_0 * (m_radius * 100.0f), field_C, vector3d{0.0f, 0.0f, 1.0f});
     po camera_transform{view};
     auto projector = camera_transform.inverse()->m;
     projector[3] = field_C;

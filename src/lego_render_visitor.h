@@ -10,7 +10,8 @@ struct hull;
 struct scene_entity;
 struct matrix4x4;
 
-template <typename T, int N> struct fixed_bitvector;
+template <typename T, int N>
+struct fixed_bitvector;
 
 struct lego_render_visitor : subdivision_visitor {
     const hull *frustum;

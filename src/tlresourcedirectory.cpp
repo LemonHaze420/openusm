@@ -109,8 +109,7 @@ nglTexture *tlResourceDirectory<nglTexture, tlFixedString>::StandardLoad(const t
         if constexpr (STANDALONE_SYSTEM) {
             bit_cast<tlInstanceBankResourceDirectory<nglTexture, tlFixedString> *>(this)->_Add(tex);
         } else {
-            void(__fastcall *Add)(void *, void *, nglTexture *) =
-                CAST(Add, get_vfunc(this->m_vtbl, 0x10));
+            void(__fastcall * Add)(void *, void *, nglTexture *) = CAST(Add, get_vfunc(this->m_vtbl, 0x10));
             Add(this, nullptr, tex);
         }
         return tex;
@@ -206,8 +205,7 @@ nglMeshFile *tlResourceDirectory<nglMeshFile, tlFixedString>::StandardLoad(const
                                         ".pcmesh"
 #endif
                                         )) {
-                auto *directory =
-                    static_cast<tlInstanceBankResourceDirectory<nglMeshFile, tlFixedString> *>(this);
+                auto *directory = static_cast<tlInstanceBankResourceDirectory<nglMeshFile, tlFixedString> *>(this);
                 if (directory->_Add(MeshFile)) {
                     auto *v5 = a1.to_string();
                     sp_log("Attempt to load already loaded MeshFile %s\n", v5);

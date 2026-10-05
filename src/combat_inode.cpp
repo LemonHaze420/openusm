@@ -70,7 +70,7 @@ struct combat_tether : ai_tentacle_info {
         }
     }
 };
-}
+}  // namespace
 
 namespace ai {
 
@@ -81,8 +81,14 @@ VALIDATE_OFFSET(combat_inode, field_68, 0x68);
 VALIDATE_SIZE(combat_inode::incoming_move, 0x94);
 
 namespace {
-void __fastcall combat_destruct(combat_inode *self, void *) { self->_destruct_mashed_class(); }
-void __fastcall combat_unmash(combat_inode *self, void *, mash_info_struct *info, void *context) { self->_unmash(info, context); }
+void __fastcall combat_destruct(combat_inode *self, void *)
+{
+    self->_destruct_mashed_class();
+}
+void __fastcall combat_unmash(combat_inode *self, void *, mash_info_struct *info, void *context)
+{
+    self->_unmash(info, context);
+}
 void *__fastcall combat_delete(combat_inode *self, void *, unsigned flags)
 {
     self->~combat_inode();
@@ -90,26 +96,56 @@ void *__fastcall combat_delete(combat_inode *self, void *, unsigned flags)
         ::operator delete(self);
     return self;
 }
-unsigned __fastcall combat_type(combat_inode *, void *) { return 342; }
-bool __fastcall combat_subclass(combat_inode *, void *, unsigned type) { return type == 537 || type == 573; }
-bool __fastcall combat_true(combat_inode *, void *) { return true; }
-void __fastcall combat_advance(combat_inode *self, void *, Float delta) { self->_frame_advance(delta); }
-void __fastcall combat_activate(combat_inode *self, void *, ai_core *core) { self->_activate(core); }
-void __fastcall combat_deactivate(combat_inode *self, void *) { self->_deactivate(); }
-int __fastcall combat_size(combat_inode *, void *) { return sizeof(combat_inode); }
+unsigned __fastcall combat_type(combat_inode *, void *)
+{
+    return 342;
+}
+bool __fastcall combat_subclass(combat_inode *, void *, unsigned type)
+{
+    return type == 537 || type == 573;
+}
+bool __fastcall combat_true(combat_inode *, void *)
+{
+    return true;
+}
+void __fastcall combat_advance(combat_inode *self, void *, Float delta)
+{
+    self->_frame_advance(delta);
+}
+void __fastcall combat_activate(combat_inode *self, void *, ai_core *core)
+{
+    self->_activate(core);
+}
+void __fastcall combat_deactivate(combat_inode *self, void *)
+{
+    self->_deactivate();
+}
+int __fastcall combat_size(combat_inode *, void *)
+{
+    return sizeof(combat_inode);
+}
 void __fastcall combat_set_po(combat_inode *self, void *, const po &transform)
 {
     if (self->field_82)
         entity_set_abs_po(self->field_C, transform);
 }
-int __fastcall combat_avoid_index(combat_inode *self, void *) { return self->get_avoid_index(); }
-int __fastcall combat_react_index(combat_inode *self, void *) { return self->get_react_index(); }
+int __fastcall combat_avoid_index(combat_inode *self, void *)
+{
+    return self->get_avoid_index();
+}
+int __fastcall combat_react_index(combat_inode *self, void *)
+{
+    return self->get_react_index();
+}
 bool __fastcall combat_select(combat_inode *self, void *, vhandle_type<actor> target, const vector3d &direction,
-    unsigned input, string_hash category, float eta, bool known, vhandle_type<actor> current)
+                              unsigned input, string_hash category, float eta, bool known, vhandle_type<actor> current)
 {
     return self->select_satisfactory_move(target, direction, input, category, eta, known, current);
 }
-int __fastcall combat_immediate(combat_inode *self, void *) { return self->get_immediate_index(); }
+int __fastcall combat_immediate(combat_inode *self, void *)
+{
+    return self->get_immediate_index();
+}
 float __fastcall combat_eta(combat_inode *self, void *)
 {
     using query_fn = float(__fastcall *)(als_inode *, void *, int);
@@ -119,16 +155,37 @@ void __fastcall combat_damage(combat_inode *self, void *, combat_inode::incoming
 {
     self->apply_move_damage(move, direction);
 }
-void __fastcall combat_responses(combat_inode *self, void *) { self->consider_incoming_move_forced_responses(); }
-int __fastcall combat_status(combat_inode *self, void *) { return self->field_7C; }
-bool __fastcall combat_false(combat_inode *, void *) { return false; }
-int __fastcall combat_zero(combat_inode *, void *) { return 0; }
+void __fastcall combat_responses(combat_inode *self, void *)
+{
+    self->consider_incoming_move_forced_responses();
+}
+int __fastcall combat_status(combat_inode *self, void *)
+{
+    return self->field_7C;
+}
+bool __fastcall combat_false(combat_inode *, void *)
+{
+    return false;
+}
+int __fastcall combat_zero(combat_inode *, void *)
+{
+    return 0;
+}
 void __fastcall combat_empty(combat_inode *, void *) {}
 void __fastcall combat_empty_four(combat_inode *, void *, int, int, int, int) {}
 void __fastcall combat_empty_one(combat_inode *, void *, int) {}
-float __fastcall combat_combo_mod(combat_inode *self, void *) { return self->field_54; }
-float __fastcall combat_meter(combat_inode *self, void *) { return self->field_58; }
-float __fastcall combat_meter_max(combat_inode *self, void *) { return self->field_60; }
+float __fastcall combat_combo_mod(combat_inode *self, void *)
+{
+    return self->field_54;
+}
+float __fastcall combat_meter(combat_inode *self, void *)
+{
+    return self->field_58;
+}
+float __fastcall combat_meter_max(combat_inode *self, void *)
+{
+    return self->field_60;
+}
 void __fastcall combat_alter_meter(combat_inode *self, void *, float amount)
 {
     self->field_58 += amount;
@@ -142,34 +199,116 @@ void __fastcall combat_zero_meter(combat_inode *self, void *)
     self->field_58 = 0.0f;
     combat_alter_meter(self, nullptr, 0.0f);
 }
-void __fastcall combat_air_attack(combat_inode *self, void *) { ++self->field_68; }
-void __fastcall combat_left_air(combat_inode *self, void *) { self->left_air(); }
-bool __fastcall combat_can_air(combat_inode *self, void *) { return self->can_air_attack(); }
-bool __fastcall combat_has_air(combat_inode *self, void *) { return self->has_accum_air_attack(); }
-bool __fastcall combat_wall(combat_inode *self, void *, entity_base *target) { return self->find_attack_wall(target); }
-vector3d *__fastcall combat_wall_position(combat_inode *self, void *) { return reinterpret_cast<vector3d *>(&self->field_B8); }
-vector3d *__fastcall combat_wall_normal(combat_inode *self, void *) { return reinterpret_cast<vector3d *>(&self->field_C4); }
-bool __fastcall combat_has_wall(combat_inode *self, void *) { return self->field_D0; }
-bool __fastcall combat_check_next(combat_inode *self, void *) { return self->check_for_and_set_next_move(); }
-bool __fastcall combat_chain(combat_inode *, void *, const void *, const combo_system_move *) { return true; }
-bool __fastcall combat_has_cur(combat_inode *self, void *) { return self->has_cur_move(); }
-combo_system_move *__fastcall combat_cur(combat_inode *self, void *) { return self->get_cur_move(); }
-void __fastcall combat_clear_cur(combat_inode *self, void *) { self->_clear_cur_move(); }
-void __fastcall combat_end_cur(combat_inode *self, void *) { self->end_cur_move(); }
-bool __fastcall combat_has_next(combat_inode *self, void *) { return self->has_next_move(); }
-combo_system_move *__fastcall combat_next(combat_inode *self, void *) { return self->get_next_move(); }
-void __fastcall combat_clear_next(combat_inode *self, void *) { self->_clear_next_move(); }
-int __fastcall combat_attack_id(combat_inode *self, void *) { return self->field_48; }
-bool __fastcall combat_performing(combat_inode *self, void *) { return self->performing_combat(); }
-void __fastcall combat_advance_move(combat_inode *self, void *) { self->advance_to_next_move(); }
-combat_inode::incoming_move *__fastcall combat_incoming(combat_inode *self, void *, int index) { return &self->field_D8[index]; }
-void __fastcall combat_update_pending(combat_inode *self, void *, combat_inode::incoming_move move) { self->update_pending_move(move); }
-void __fastcall combat_receive(combat_inode *self, void *, combat_inode::incoming_move move, bool force) { self->receive_and_act_on_results(move, force); }
-bool __fastcall combat_needs_react(combat_inode *self, void *, Float delta) { return self->needs_hit_react(delta); }
-bool __fastcall combat_needs_avoid(combat_inode *self, void *, Float delta) { return self->needs_hit_avoid(delta); }
-bool __fastcall combat_check_avoid(combat_inode *self, void *, string_hash category) { return self->check_avoid_category(category); }
-int __fastcall combat_find_incoming(combat_inode *self, void *, string_hash category) { return self->find_incoming_move(category); }
-string_hash *__fastcall combat_category_from_attack(combat_inode *, void *, string_hash *out, string_hash category, string_hash, int)
+void __fastcall combat_air_attack(combat_inode *self, void *)
+{
+    ++self->field_68;
+}
+void __fastcall combat_left_air(combat_inode *self, void *)
+{
+    self->left_air();
+}
+bool __fastcall combat_can_air(combat_inode *self, void *)
+{
+    return self->can_air_attack();
+}
+bool __fastcall combat_has_air(combat_inode *self, void *)
+{
+    return self->has_accum_air_attack();
+}
+bool __fastcall combat_wall(combat_inode *self, void *, entity_base *target)
+{
+    return self->find_attack_wall(target);
+}
+vector3d *__fastcall combat_wall_position(combat_inode *self, void *)
+{
+    return reinterpret_cast<vector3d *>(&self->field_B8);
+}
+vector3d *__fastcall combat_wall_normal(combat_inode *self, void *)
+{
+    return reinterpret_cast<vector3d *>(&self->field_C4);
+}
+bool __fastcall combat_has_wall(combat_inode *self, void *)
+{
+    return self->field_D0;
+}
+bool __fastcall combat_check_next(combat_inode *self, void *)
+{
+    return self->check_for_and_set_next_move();
+}
+bool __fastcall combat_chain(combat_inode *, void *, const void *, const combo_system_move *)
+{
+    return true;
+}
+bool __fastcall combat_has_cur(combat_inode *self, void *)
+{
+    return self->has_cur_move();
+}
+combo_system_move *__fastcall combat_cur(combat_inode *self, void *)
+{
+    return self->get_cur_move();
+}
+void __fastcall combat_clear_cur(combat_inode *self, void *)
+{
+    self->_clear_cur_move();
+}
+void __fastcall combat_end_cur(combat_inode *self, void *)
+{
+    self->end_cur_move();
+}
+bool __fastcall combat_has_next(combat_inode *self, void *)
+{
+    return self->has_next_move();
+}
+combo_system_move *__fastcall combat_next(combat_inode *self, void *)
+{
+    return self->get_next_move();
+}
+void __fastcall combat_clear_next(combat_inode *self, void *)
+{
+    self->_clear_next_move();
+}
+int __fastcall combat_attack_id(combat_inode *self, void *)
+{
+    return self->field_48;
+}
+bool __fastcall combat_performing(combat_inode *self, void *)
+{
+    return self->performing_combat();
+}
+void __fastcall combat_advance_move(combat_inode *self, void *)
+{
+    self->advance_to_next_move();
+}
+combat_inode::incoming_move *__fastcall combat_incoming(combat_inode *self, void *, int index)
+{
+    return &self->field_D8[index];
+}
+void __fastcall combat_update_pending(combat_inode *self, void *, combat_inode::incoming_move move)
+{
+    self->update_pending_move(move);
+}
+void __fastcall combat_receive(combat_inode *self, void *, combat_inode::incoming_move move, bool force)
+{
+    self->receive_and_act_on_results(move, force);
+}
+bool __fastcall combat_needs_react(combat_inode *self, void *, Float delta)
+{
+    return self->needs_hit_react(delta);
+}
+bool __fastcall combat_needs_avoid(combat_inode *self, void *, Float delta)
+{
+    return self->needs_hit_avoid(delta);
+}
+bool __fastcall combat_check_avoid(combat_inode *self, void *, string_hash category)
+{
+    return self->check_avoid_category(category);
+}
+int __fastcall combat_find_incoming(combat_inode *self, void *, string_hash category)
+{
+    return self->find_incoming_move(category);
+}
+string_hash *__fastcall combat_category_from_attack(combat_inode *, void *, string_hash *out, string_hash category,
+                                                    string_hash, int)
 {
     *out = category;
     return out;
@@ -180,9 +319,12 @@ string_hash *__fastcall combat_react_category(combat_inode *self, void *, string
         *out = string_hash{self->field_90};
     } else {
         using index_fn = int(__fastcall *)(combat_inode *);
-        using category_fn = string_hash *(__fastcall *)(combat_inode *, void *, string_hash *, string_hash, string_hash, int);
-        const auto &move = self->field_D8[std::max(0, reinterpret_cast<index_fn>(get_vfunc(self->m_vtbl, 0x38))(self))].field_14;
-        reinterpret_cast<category_fn>(get_vfunc(self->m_vtbl, 0xF4))(self, nullptr, out, move.field_8, move.field_4, move.field_24);
+        using category_fn =
+            string_hash *(__fastcall *)(combat_inode *, void *, string_hash *, string_hash, string_hash, int);
+        const auto &move =
+            self->field_D8[std::max(0, reinterpret_cast<index_fn>(get_vfunc(self->m_vtbl, 0x38))(self))].field_14;
+        reinterpret_cast<category_fn>(get_vfunc(self->m_vtbl, 0xF4))(
+            self, nullptr, out, move.field_8, move.field_4, move.field_24);
     }
     return out;
 }
@@ -192,76 +334,138 @@ string_hash *__fastcall combat_avoid_category(combat_inode *self, void *, string
         *out = string_hash{self->field_94};
     } else {
         using index_fn = int(__fastcall *)(combat_inode *);
-        using category_fn = string_hash *(__fastcall *)(combat_inode *, void *, string_hash *, string_hash, string_hash, int);
-        const auto &move = self->field_D8[std::max(0, reinterpret_cast<index_fn>(get_vfunc(self->m_vtbl, 0x34))(self))].field_14;
-        reinterpret_cast<category_fn>(get_vfunc(self->m_vtbl, 0xFC))(self, nullptr, out, move.field_C, move.field_4, move.field_24);
+        using category_fn =
+            string_hash *(__fastcall *)(combat_inode *, void *, string_hash *, string_hash, string_hash, int);
+        const auto &move =
+            self->field_D8[std::max(0, reinterpret_cast<index_fn>(get_vfunc(self->m_vtbl, 0x34))(self))].field_14;
+        reinterpret_cast<category_fn>(get_vfunc(self->m_vtbl, 0xFC))(
+            self, nullptr, out, move.field_C, move.field_4, move.field_24);
     }
     return out;
 }
-void __fastcall combat_avoid(combat_inode *self, void *) { self->avoid_attack(); }
-void __fastcall combat_avoid_all(combat_inode *self, void *, vhandle_type<entity> source) { self->avoid_all_attacks(source); }
-void __fastcall combat_clear_target(combat_inode *self, void *, vhandle_type<actor> target) { self->clear_from_target(target); }
-void __fastcall combat_clear_targets(combat_inode *self, void *) { self->field_1C = self->field_20 = 0; }
-vector3d *__fastcall combat_direction(combat_inode *self, void *, vector3d *out) { *out = self->get_attack_direction(); return out; }
-float __fastcall combat_zero_float(combat_inode *, void *) { return 0.0f; }
+void __fastcall combat_avoid(combat_inode *self, void *)
+{
+    self->avoid_attack();
+}
+void __fastcall combat_avoid_all(combat_inode *self, void *, vhandle_type<entity> source)
+{
+    self->avoid_all_attacks(source);
+}
+void __fastcall combat_clear_target(combat_inode *self, void *, vhandle_type<actor> target)
+{
+    self->clear_from_target(target);
+}
+void __fastcall combat_clear_targets(combat_inode *self, void *)
+{
+    self->field_1C = self->field_20 = 0;
+}
+vector3d *__fastcall combat_direction(combat_inode *self, void *, vector3d *out)
+{
+    *out = self->get_attack_direction();
+    return out;
+}
+float __fastcall combat_zero_float(combat_inode *, void *)
+{
+    return 0.0f;
+}
 bool __fastcall combat_track(combat_inode *self, void *)
 {
     return self->field_74 && reinterpret_cast<const int *>(self->field_74)[6] == 3;
 }
 void __fastcall combat_non_combo(combat_inode *self, void *, string_hash react, string_hash attack, string_hash avoid,
-    int type, vhandle_type<entity> source, const vector3d &direction, bool force)
+                                 int type, vhandle_type<entity> source, const vector3d &direction, bool force)
 {
     self->possible_non_combo_system_attack(react, attack, avoid, type, source, direction, force);
 }
 bool __fastcall combat_forced(combat_inode *self, void *, string_hash react, string_hash attack, string_hash avoid,
-    int type, vhandle_type<entity> source, const vector3d &direction, bool pending, bool force)
+                              int type, vhandle_type<entity> source, const vector3d &direction, bool pending,
+                              bool force)
 {
     return self->consider_forced_responses(react, attack, avoid, type, source, direction, pending, force);
 }
-}
+}  // namespace
 
 void *combat_inode::native_vtable()
 {
     auto **base = static_cast<void **>(info_node::native_vtable());
 
     static void *table[] = {
-        reinterpret_cast<void *>(&combat_destruct), reinterpret_cast<void *>(&combat_unmash),
-        reinterpret_cast<void *>(&combat_delete), reinterpret_cast<void *>(&combat_type),
-        reinterpret_cast<void *>(&combat_subclass), base[5], reinterpret_cast<void *>(&combat_true),
-        reinterpret_cast<void *>(&combat_advance), reinterpret_cast<void *>(&combat_activate),
-        reinterpret_cast<void *>(&combat_deactivate), base[10], reinterpret_cast<void *>(&combat_size),
-        reinterpret_cast<void *>(&combat_set_po), reinterpret_cast<void *>(&combat_avoid_index),
-        reinterpret_cast<void *>(&combat_react_index), reinterpret_cast<void *>(&combat_select),
-        reinterpret_cast<void *>(&combat_immediate), reinterpret_cast<void *>(&combat_eta),
-        reinterpret_cast<void *>(&combat_damage), reinterpret_cast<void *>(&combat_responses),
-        reinterpret_cast<void *>(&combat_status), reinterpret_cast<void *>(&combat_false),
-        reinterpret_cast<void *>(&combat_zero), reinterpret_cast<void *>(&combat_empty),
-        reinterpret_cast<void *>(&combat_empty_four), reinterpret_cast<void *>(&combat_empty_one),
-        reinterpret_cast<void *>(&combat_combo_mod), reinterpret_cast<void *>(&combat_meter),
-        reinterpret_cast<void *>(&combat_meter_max), reinterpret_cast<void *>(&combat_alter_meter),
-        reinterpret_cast<void *>(&combat_zero_meter), reinterpret_cast<void *>(&combat_air_attack),
-        reinterpret_cast<void *>(&combat_left_air), reinterpret_cast<void *>(&combat_can_air),
-        reinterpret_cast<void *>(&combat_has_air), reinterpret_cast<void *>(&combat_wall),
-        reinterpret_cast<void *>(&combat_wall_position), reinterpret_cast<void *>(&combat_wall_normal),
-        reinterpret_cast<void *>(&combat_has_wall), reinterpret_cast<void *>(&combat_check_next),
-        reinterpret_cast<void *>(&combat_chain), reinterpret_cast<void *>(&combat_has_cur),
-        reinterpret_cast<void *>(&combat_cur), reinterpret_cast<void *>(&combat_clear_cur),
-        reinterpret_cast<void *>(&combat_end_cur), reinterpret_cast<void *>(&combat_has_next),
-        reinterpret_cast<void *>(&combat_next), reinterpret_cast<void *>(&combat_clear_next),
-        reinterpret_cast<void *>(&combat_attack_id), reinterpret_cast<void *>(&combat_performing),
-        reinterpret_cast<void *>(&combat_advance_move), reinterpret_cast<void *>(&combat_incoming),
-        reinterpret_cast<void *>(&combat_false), reinterpret_cast<void *>(&combat_false),
-        reinterpret_cast<void *>(&combat_update_pending), reinterpret_cast<void *>(&combat_receive),
-        reinterpret_cast<void *>(&combat_needs_react), reinterpret_cast<void *>(&combat_needs_avoid),
-        reinterpret_cast<void *>(&combat_check_avoid), reinterpret_cast<void *>(&combat_find_incoming),
-        reinterpret_cast<void *>(&combat_react_category), reinterpret_cast<void *>(&combat_category_from_attack),
-        reinterpret_cast<void *>(&combat_avoid_category), reinterpret_cast<void *>(&combat_category_from_attack),
-        reinterpret_cast<void *>(&combat_avoid), reinterpret_cast<void *>(&combat_avoid_all),
-        reinterpret_cast<void *>(&combat_clear_target), reinterpret_cast<void *>(&combat_clear_targets),
-        reinterpret_cast<void *>(&combat_direction), reinterpret_cast<void *>(&combat_zero_float),
-        reinterpret_cast<void *>(&combat_empty_one), reinterpret_cast<void *>(&combat_zero),
-        reinterpret_cast<void *>(&combat_track), reinterpret_cast<void *>(&combat_non_combo),
-        reinterpret_cast<void *>(&combat_forced), reinterpret_cast<void *>(&combat_empty_one),
+        reinterpret_cast<void *>(&combat_destruct),
+        reinterpret_cast<void *>(&combat_unmash),
+        reinterpret_cast<void *>(&combat_delete),
+        reinterpret_cast<void *>(&combat_type),
+        reinterpret_cast<void *>(&combat_subclass),
+        base[5],
+        reinterpret_cast<void *>(&combat_true),
+        reinterpret_cast<void *>(&combat_advance),
+        reinterpret_cast<void *>(&combat_activate),
+        reinterpret_cast<void *>(&combat_deactivate),
+        base[10],
+        reinterpret_cast<void *>(&combat_size),
+        reinterpret_cast<void *>(&combat_set_po),
+        reinterpret_cast<void *>(&combat_avoid_index),
+        reinterpret_cast<void *>(&combat_react_index),
+        reinterpret_cast<void *>(&combat_select),
+        reinterpret_cast<void *>(&combat_immediate),
+        reinterpret_cast<void *>(&combat_eta),
+        reinterpret_cast<void *>(&combat_damage),
+        reinterpret_cast<void *>(&combat_responses),
+        reinterpret_cast<void *>(&combat_status),
+        reinterpret_cast<void *>(&combat_false),
+        reinterpret_cast<void *>(&combat_zero),
+        reinterpret_cast<void *>(&combat_empty),
+        reinterpret_cast<void *>(&combat_empty_four),
+        reinterpret_cast<void *>(&combat_empty_one),
+        reinterpret_cast<void *>(&combat_combo_mod),
+        reinterpret_cast<void *>(&combat_meter),
+        reinterpret_cast<void *>(&combat_meter_max),
+        reinterpret_cast<void *>(&combat_alter_meter),
+        reinterpret_cast<void *>(&combat_zero_meter),
+        reinterpret_cast<void *>(&combat_air_attack),
+        reinterpret_cast<void *>(&combat_left_air),
+        reinterpret_cast<void *>(&combat_can_air),
+        reinterpret_cast<void *>(&combat_has_air),
+        reinterpret_cast<void *>(&combat_wall),
+        reinterpret_cast<void *>(&combat_wall_position),
+        reinterpret_cast<void *>(&combat_wall_normal),
+        reinterpret_cast<void *>(&combat_has_wall),
+        reinterpret_cast<void *>(&combat_check_next),
+        reinterpret_cast<void *>(&combat_chain),
+        reinterpret_cast<void *>(&combat_has_cur),
+        reinterpret_cast<void *>(&combat_cur),
+        reinterpret_cast<void *>(&combat_clear_cur),
+        reinterpret_cast<void *>(&combat_end_cur),
+        reinterpret_cast<void *>(&combat_has_next),
+        reinterpret_cast<void *>(&combat_next),
+        reinterpret_cast<void *>(&combat_clear_next),
+        reinterpret_cast<void *>(&combat_attack_id),
+        reinterpret_cast<void *>(&combat_performing),
+        reinterpret_cast<void *>(&combat_advance_move),
+        reinterpret_cast<void *>(&combat_incoming),
+        reinterpret_cast<void *>(&combat_false),
+        reinterpret_cast<void *>(&combat_false),
+        reinterpret_cast<void *>(&combat_update_pending),
+        reinterpret_cast<void *>(&combat_receive),
+        reinterpret_cast<void *>(&combat_needs_react),
+        reinterpret_cast<void *>(&combat_needs_avoid),
+        reinterpret_cast<void *>(&combat_check_avoid),
+        reinterpret_cast<void *>(&combat_find_incoming),
+        reinterpret_cast<void *>(&combat_react_category),
+        reinterpret_cast<void *>(&combat_category_from_attack),
+        reinterpret_cast<void *>(&combat_avoid_category),
+        reinterpret_cast<void *>(&combat_category_from_attack),
+        reinterpret_cast<void *>(&combat_avoid),
+        reinterpret_cast<void *>(&combat_avoid_all),
+        reinterpret_cast<void *>(&combat_clear_target),
+        reinterpret_cast<void *>(&combat_clear_targets),
+        reinterpret_cast<void *>(&combat_direction),
+        reinterpret_cast<void *>(&combat_zero_float),
+        reinterpret_cast<void *>(&combat_empty_one),
+        reinterpret_cast<void *>(&combat_zero),
+        reinterpret_cast<void *>(&combat_track),
+        reinterpret_cast<void *>(&combat_non_combo),
+        reinterpret_cast<void *>(&combat_forced),
+        reinterpret_cast<void *>(&combat_empty_one),
     };
     return table;
 }
@@ -274,7 +478,10 @@ void *__fastcall ped_combat_delete(ped_combat_inode *self, void *, unsigned flag
         ::operator delete(self);
     return self;
 }
-unsigned __fastcall ped_combat_type(ped_combat_inode *, void *) { return 158; }
+unsigned __fastcall ped_combat_type(ped_combat_inode *, void *)
+{
+    return 158;
+}
 bool __fastcall ped_combat_subclass(ped_combat_inode *, void *, unsigned type)
 {
     return type == 342 || type == 537 || type == 573;
@@ -284,15 +491,15 @@ void __fastcall ped_combat_receive(ped_combat_inode *self, void *, combat_inode:
     self->receive_and_act_on_results(move, force);
 }
 bool __fastcall ped_combat_forced(ped_combat_inode *self, void *, string_hash reaction, string_hash attack,
-    string_hash avoid, int type, vhandle_type<entity> source, const vector3d &direction, bool pending, bool force)
+                                  string_hash avoid, int type, vhandle_type<entity> source, const vector3d &direction,
+                                  bool pending, bool force)
 {
     return self->consider_forced_responses(reaction, attack, avoid, type, source, direction, pending, force);
 }
-}
+}  // namespace
 
 void *ped_combat_inode::native_vtable()
 {
-
     static auto table = [] {
         std::array<void *, 76> result;
         std::copy_n(static_cast<void **>(combat_inode::native_vtable()), result.size(), result.data());
@@ -318,7 +525,6 @@ ped_combat_inode::ped_combat_inode(from_mash_in_place_constructor *tag) : combat
 
 void ped_combat_inode::receive_and_act_on_results(incoming_move &move, bool)
 {
-
     field_8->field_64->get_abs_po();
     auto *source = vhandle_type<actor>{entity_base_vhandle{static_cast<unsigned>(move.field_4)}}.get_volatile_ptr();
     if (source) {
@@ -349,11 +555,12 @@ void ped_combat_inode::receive_and_act_on_results(incoming_move &move, bool)
     reinterpret_cast<pending_fn>(get_vfunc(m_vtbl, 0xD8))(this, nullptr, move);
 }
 
-bool ped_combat_inode::consider_forced_responses(string_hash reaction, string_hash attack, string_hash avoid,
-    int type, vhandle_type<entity> source, const vector3d &direction, bool pending, bool force)
+bool ped_combat_inode::consider_forced_responses(string_hash reaction, string_hash attack, string_hash avoid, int type,
+                                                 vhandle_type<entity> source, const vector3d &direction, bool pending,
+                                                 bool force)
 {
-    const bool accepted = combat_inode::consider_forced_responses(
-        reaction, attack, avoid, type, source, direction, pending, force);
+    const bool accepted =
+        combat_inode::consider_forced_responses(reaction, attack, avoid, type, source, direction, pending, force);
     if (accepted) {
         using avoid_fn = void(__fastcall *)(combat_inode *, void *, vhandle_type<entity>);
         reinterpret_cast<avoid_fn>(get_vfunc(m_vtbl, 0x104))(this, nullptr, source);
@@ -423,7 +630,8 @@ bool combat_inode::needs_hit_avoid(Float)
     using index_fn = int(__fastcall *)(combat_inode *);
     using check_fn = bool(__fastcall *)(combat_inode *, void *, string_hash);
     const int index = reinterpret_cast<index_fn>(get_vfunc(m_vtbl, 0x34))(this);
-    return index >= 0 && reinterpret_cast<check_fn>(get_vfunc(m_vtbl, 0xE8))(this, nullptr, field_D8[index].field_14.field_4);
+    return index >= 0 &&
+           reinterpret_cast<check_fn>(get_vfunc(m_vtbl, 0xE8))(this, nullptr, field_D8[index].field_14.field_4);
 }
 
 void combat_inode::avoid_attack()
@@ -435,7 +643,8 @@ void combat_inode::avoid_attack()
         auto &move = field_D8[index];
         auto *attacker = entity_base_vhandle{static_cast<unsigned>(move.field_4)}.get_volatile_ptr();
         auto *combat = static_cast<combat_inode *>(attacker->get_ai_core()->get_info_node(default_id, true));
-        reinterpret_cast<clear_fn>(get_vfunc(combat->m_vtbl, 0x108))(combat, nullptr, vhandle_type<actor>{field_8->field_64->my_handle});
+        reinterpret_cast<clear_fn>(get_vfunc(combat->m_vtbl, 0x108))(
+            combat, nullptr, vhandle_type<actor>{field_8->field_64->my_handle});
         move.field_10 = 0;
     }
 }
@@ -444,7 +653,8 @@ void combat_inode::avoid_all_attacks(vhandle_type<entity> source)
 {
     using clear_fn = void(__fastcall *)(combat_inode *, void *, vhandle_type<actor>);
     const auto clear = [this](combat_inode *combat) {
-        reinterpret_cast<clear_fn>(get_vfunc(combat->m_vtbl, 0x108))(combat, nullptr, vhandle_type<actor>{field_8->field_64->my_handle});
+        reinterpret_cast<clear_fn>(get_vfunc(combat->m_vtbl, 0x108))(
+            combat, nullptr, vhandle_type<actor>{field_8->field_64->my_handle});
     };
     if (auto *attacker = source.get_volatile_ptr())
         if (auto *core = attacker->get_ai_core())
@@ -475,7 +685,7 @@ bool combat_inode::performing_combat()
 {
     using move_fn = combo_system_move *(__fastcall *)(combat_inode *);
     return field_28->get_category_id(static_cast<als::layer_types>(0)) ==
-        reinterpret_cast<move_fn>(get_vfunc(m_vtbl, 0xA8))(this)->field_4.field_4;
+           reinterpret_cast<move_fn>(get_vfunc(m_vtbl, 0xA8))(this)->field_4.field_4;
 }
 
 void combat_inode::advance_to_next_move()
@@ -522,7 +732,8 @@ void combat_inode::update_pending_move(const incoming_move &move)
 }
 
 void combat_inode::try_set_forced_react_needed(string_hash reaction, string_hash attack, int type,
-    vhandle_type<entity> source, vector3d direction, bool pending, bool force)
+                                               vhandle_type<entity> source, vector3d direction, bool pending,
+                                               bool force)
 {
     if (reaction == string_hash{0} || (!force && field_82))
         return;
@@ -544,7 +755,8 @@ void combat_inode::try_set_forced_react_needed(string_hash reaction, string_hash
 }
 
 void combat_inode::try_set_forced_avoid_needed(string_hash reaction, string_hash attack, int type,
-    vhandle_type<entity> source, vector3d direction, bool pending, bool force)
+                                               vhandle_type<entity> source, vector3d direction, bool pending,
+                                               bool force)
 {
     if (reaction == string_hash{0} || (!force && field_83))
         return;
@@ -572,8 +784,15 @@ void combat_inode::apply_move_damage(const incoming_move &move, const vector3d &
             attacker = static_cast<actor *>(source);
     }
     field_D4 = move.field_14.field_4.source_hash_code;
-    field_30->apply_damage(attacker, static_cast<int>(bit_cast<float>(move.field_14.field_20)), direction,
-        move.field_14.field_8, move.field_14.field_4, move.field_14.field_C, false, move.field_14.field_24, true);
+    field_30->apply_damage(attacker,
+                           static_cast<int>(bit_cast<float>(move.field_14.field_20)),
+                           direction,
+                           move.field_14.field_8,
+                           move.field_14.field_4,
+                           move.field_14.field_C,
+                           false,
+                           move.field_14.field_24,
+                           true);
     if (source) {
         if (auto *core = attacker->get_ai_core()) {
             if (core->field_50.get_optional_pb_int(string_hash{"always_apply_subdue"}, 0, nullptr))
@@ -582,8 +801,9 @@ void combat_inode::apply_move_damage(const incoming_move &move, const vector3d &
     }
 }
 
-bool combat_inode::consider_forced_responses(string_hash reaction, string_hash attack, string_hash avoid,
-    int type, vhandle_type<entity> source, const vector3d &direction, bool pending, bool force)
+bool combat_inode::consider_forced_responses(string_hash reaction, string_hash attack, string_hash avoid, int type,
+                                             vhandle_type<entity> source, const vector3d &direction, bool pending,
+                                             bool force)
 {
     using action_fn = void(__fastcall *)(combat_inode *);
     using check_fn = bool(__fastcall *)(combat_inode *, void *, string_hash);
@@ -600,15 +820,19 @@ bool combat_inode::consider_forced_responses(string_hash reaction, string_hash a
     }
     const string_hash reject{"feed_reject_als_cat"};
     if (reaction == string_hash{"Feed_Loop_By_Venom"} && field_8->field_50.does_parameter_exist(reject)) {
-        try_set_forced_avoid_needed(field_8->field_50.get_pb_hash(reject), attack, type, source, direction, pending, force);
+        try_set_forced_avoid_needed(
+            field_8->field_50.get_pb_hash(reject), attack, type, source, direction, pending, force);
         clear_forced_react_needed();
         reinterpret_cast<avoid_fn>(get_vfunc(m_vtbl, 0x104))(this, nullptr, source);
         if (auto *attacker = source.get_volatile_ptr()) {
             if (auto *core = attacker->get_ai_core()) {
                 if (auto *damage = static_cast<damage_inode *>(core->get_info_node(damage_inode::default_id, false))) {
-                    const float amount = field_8->field_50.get_optional_pb_float(string_hash{"feed_burst_damage"}, 15.0f, nullptr);
+                    const float amount =
+                        field_8->field_50.get_optional_pb_float(string_hash{"feed_burst_damage"}, 15.0f, nullptr);
                     damage->apply_forced_damage(static_cast<int>(amount),
-                        field_C->get_abs_position() - attacker->get_abs_position(), string_hash{"Electro_Eject"}, false);
+                                                field_C->get_abs_position() - attacker->get_abs_position(),
+                                                string_hash{"Electro_Eject"},
+                                                false);
                 }
             }
         }
@@ -618,15 +842,26 @@ bool combat_inode::consider_forced_responses(string_hash reaction, string_hash a
 }
 
 void combat_inode::possible_non_combo_system_attack(string_hash reaction, string_hash attack, string_hash avoid,
-    int type, vhandle_type<entity> source, const vector3d &direction, bool force)
+                                                    int type, vhandle_type<entity> source, const vector3d &direction,
+                                                    bool force)
 {
-    using category_fn = string_hash *(__fastcall *)(combat_inode *, void *, string_hash *, string_hash, string_hash, int);
-    using response_fn = bool(__fastcall *)(combat_inode *, void *, string_hash, string_hash, string_hash,
-        int, vhandle_type<entity>, const vector3d &, bool, bool);
+    using category_fn =
+        string_hash *(__fastcall *)(combat_inode *, void *, string_hash *, string_hash, string_hash, int);
+    using response_fn = bool(__fastcall *)(combat_inode *,
+                                           void *,
+                                           string_hash,
+                                           string_hash,
+                                           string_hash,
+                                           int,
+                                           vhandle_type<entity>,
+                                           const vector3d &,
+                                           bool,
+                                           bool);
     string_hash resolved;
     reinterpret_cast<category_fn>(get_vfunc(m_vtbl, 0xF4))(this, nullptr, &resolved, reaction, attack, type);
     try_set_forced_react_needed(resolved, attack, type, source, direction, false, force);
-    reinterpret_cast<response_fn>(get_vfunc(m_vtbl, 0x128))(this, nullptr, reaction, attack, avoid, type, source, direction, false, force);
+    reinterpret_cast<response_fn>(get_vfunc(m_vtbl, 0x128))(
+        this, nullptr, reaction, attack, avoid, type, source, direction, false, force);
 }
 
 vector3d combat_inode::get_attack_direction()
@@ -636,7 +871,8 @@ vector3d combat_inode::get_attack_direction()
         using index_fn = int(__fastcall *)(combat_inode *);
         const int index = reinterpret_cast<index_fn>(get_vfunc(m_vtbl, 0x40))(this);
         if (index != -1) {
-            if (auto *attacker = entity_base_vhandle{static_cast<unsigned>(field_D8[index].field_4)}.get_volatile_ptr()) {
+            if (auto *attacker =
+                    entity_base_vhandle{static_cast<unsigned>(field_D8[index].field_4)}.get_volatile_ptr()) {
                 direction = field_8->field_64->get_abs_position() - attacker->get_abs_position();
                 direction.normalize();
             }
@@ -651,7 +887,8 @@ vector3d combat_inode::get_attack_direction()
 }
 
 bool combat_inode::select_satisfactory_move(vhandle_type<actor> target, const vector3d &direction, unsigned input,
-    string_hash category, float eta, bool target_known, vhandle_type<actor> current_target)
+                                            string_hash category, float eta, bool target_known,
+                                            vhandle_type<actor> current_target)
 {
     using level_fn = int(__fastcall *)(combat_inode *);
     using has_fn = bool(__fastcall *)(combat_inode *);
@@ -668,7 +905,8 @@ bool combat_inode::select_satisfactory_move(vhandle_type<actor> target, const ve
         if (best <= score) {
             if (move->field_4.field_24 == 13) {
                 if (!checked_wall) {
-                    reinterpret_cast<wall_fn>(get_vfunc(m_vtbl, 0x8C))(this, nullptr, current_target.get_volatile_ptr());
+                    reinterpret_cast<wall_fn>(get_vfunc(m_vtbl, 0x8C))(
+                        this, nullptr, current_target.get_volatile_ptr());
                     checked_wall = true;
                 }
                 if (!reinterpret_cast<has_fn>(get_vfunc(m_vtbl, 0x98))(this))
@@ -686,8 +924,8 @@ bool combat_inode::select_satisfactory_move(vhandle_type<actor> target, const ve
     if (count == 0 || reinterpret_cast<has_fn>(get_vfunc(m_vtbl, 0xB4))(this) || field_B4)
         return false;
     field_44 = candidates[static_cast<unsigned>(std::rand() * static_cast<double>(count) * (1.0f / 32768.0f))];
-    field_20 = (moves.m_data[static_cast<uint16_t>(field_44)]->field_80.field_10.field_4 == 5
-        ? current_target : target).field_0.field_0;
+    field_20 = (moves.m_data[static_cast<uint16_t>(field_44)]->field_80.field_10.field_4 == 5 ? current_target : target)
+                   .field_0.field_0;
     field_7C = 2;
     return true;
 }
@@ -701,8 +939,15 @@ bool combat_inode::check_for_and_set_next_move()
     using target_bool_fn = bool(__fastcall *)(base_full_target_inode *);
     using trigger_fn = unsigned(__fastcall *)(controller_inode *, void *, vector3d);
     using signal_fn = void(__fastcall *)(als_inode *, void *, Float &, string_hash &);
-    using select_fn = bool(__fastcall *)(combat_inode *, void *, vhandle_type<actor>, const vector3d &, unsigned,
-        string_hash, float, bool, vhandle_type<actor>);
+    using select_fn = bool(__fastcall *)(combat_inode *,
+                                         void *,
+                                         vhandle_type<actor>,
+                                         const vector3d &,
+                                         unsigned,
+                                         string_hash,
+                                         float,
+                                         bool,
+                                         vhandle_type<actor>);
     if (!field_24 || !reinterpret_cast<controller_fn>(get_vfunc(field_24->m_vtbl, 0x40))(field_24))
         return false;
     auto *layer = field_28->get_als_layer(static_cast<als::layer_types>(0));
@@ -722,15 +967,14 @@ bool combat_inode::check_for_and_set_next_move()
             retain_current = true;
         }
     }
-    if (!retain_current && (field_80 ||
-        reinterpret_cast<target_bool_fn>(get_vfunc(field_2C->m_vtbl, 0x6C))(field_2C) ||
-        g_world_ptr->get_hero_ptr(0) == field_C))
+    if (!retain_current && (field_80 || reinterpret_cast<target_bool_fn>(get_vfunc(field_2C->m_vtbl, 0x6C))(field_2C) ||
+                            g_world_ptr->get_hero_ptr(0) == field_C))
         reinterpret_cast<target_fn>(get_vfunc(field_2C->m_vtbl, 0x38))(field_2C, nullptr, &target);
     const vector3d stick = field_24->get_axis(static_cast<controller_inode::eControllerAxis>(2));
     auto *target_actor = target.get_volatile_ptr();
     layer->set_desired_param(als::param{52, target_actor ? 1.0f : 0.0f});
-    const vector3d direction = target_actor
-        ? target_actor->get_abs_position() - field_8->field_64->get_abs_position() : stick;
+    const vector3d direction =
+        target_actor ? target_actor->get_abs_position() - field_8->field_64->get_abs_position() : stick;
     const unsigned input = reinterpret_cast<trigger_fn>(get_vfunc(field_24->m_vtbl, 0x44))(field_24, nullptr, stick);
     const auto category = field_28->get_category_id(static_cast<als::layer_types>(0));
     string_hash signal_category;
@@ -738,7 +982,8 @@ bool combat_inode::check_for_and_set_next_move()
     reinterpret_cast<signal_fn>(get_vfunc(field_28->m_vtbl, 0x34))(field_28, nullptr, eta, signal_category);
     eta = signal_category == category ? eta - g_world_ptr->time_manager.get_level_time() : -100.0f;
     using hero_fn = bool(__fastcall *)(actor *);
-    if (reinterpret_cast<select_fn>(get_vfunc(m_vtbl, 0x3C))(this, nullptr, target, direction, input, category, eta, known, current) &&
+    if (reinterpret_cast<select_fn>(get_vfunc(m_vtbl, 0x3C))(
+            this, nullptr, target, direction, input, category, eta, known, current) &&
         reinterpret_cast<hero_fn>(get_vfunc(field_C->m_vtbl, 0x4C))(field_C) &&
         reinterpret_cast<has_fn>(get_vfunc(m_vtbl, 0xA4))(this) &&
         reinterpret_cast<move_fn>(get_vfunc(m_vtbl, 0xA8))(this)->field_80.field_10.field_4 != 4 &&
@@ -747,7 +992,8 @@ bool combat_inode::check_for_and_set_next_move()
         if (next->field_80.field_10.field_4 != 4 && next->field_4.field_28 != 1) {
             if (field_1C != field_20)
                 field_54 += 3.0f;
-            if (reinterpret_cast<move_fn>(get_vfunc(m_vtbl, 0xA8))(this)->field_80.field_4.field_8 != next->field_80.field_4.field_8)
+            if (reinterpret_cast<move_fn>(get_vfunc(m_vtbl, 0xA8))(this)->field_80.field_4.field_8 !=
+                next->field_80.field_4.field_8)
                 field_54 += 2.0f;
         }
     }
@@ -784,8 +1030,8 @@ void combat_inode::send_weapon_attack(const incoming_move &move)
     const auto handle = weapons->get_weapon_handle(static_cast<uint16_t>(effect == 16 ? 0 : effect - 3));
     auto *source_combat = static_cast<combat_inode *>(source->get_ai_core()->get_info_node(default_id, true));
     source_combat->field_78 = handle.field_0.field_0;
-    using attack_fn = void(__fastcall *)(handheld_item *, void *, entity_base_vhandle, entity_base_vhandle,
-        const combo_system_move::results *);
+    using attack_fn = void(__fastcall *)(
+        handheld_item *, void *, entity_base_vhandle, entity_base_vhandle, const combo_system_move::results *);
     const auto attack = [&](handheld_item *weapon) {
         reinterpret_cast<attack_fn>(get_vfunc(weapon->m_vtbl, 0x2F4))(
             weapon, nullptr, source->my_handle, field_C->my_handle, &move.field_14);
@@ -827,7 +1073,8 @@ void combat_inode::receive_and_act_on_results(incoming_move &move, bool force)
                 if (damage && damage->is_subdued()) {
                     auto *combat = static_cast<combat_inode *>(source->get_ai_core()->get_info_node(default_id, true));
                     using clear_fn = void(__fastcall *)(combat_inode *, void *, vhandle_type<actor>);
-                    reinterpret_cast<clear_fn>(get_vfunc(combat->m_vtbl, 0x108))(combat, nullptr, vhandle_type<actor>{field_C->my_handle});
+                    reinterpret_cast<clear_fn>(get_vfunc(combat->m_vtbl, 0x108))(
+                        combat, nullptr, vhandle_type<actor>{field_C->my_handle});
                 }
             }
         }
@@ -850,14 +1097,15 @@ bool combat_inode::find_attack_wall(entity_base *target)
         target_position = target->get_abs_position();
     const vector3d direction = field_24->get_axis(static_cast<controller_inode::eControllerAxis>(2));
     vector3d side{direction.z * UP.y - direction.y * UP.z,
-        direction.x * UP.z - direction.z * UP.x, direction.y * UP.x - direction.x * UP.y};
+                  direction.x * UP.z - direction.z * UP.x,
+                  direction.y * UP.x - direction.x * UP.y};
     if (side.length2() > 9.999999439624929e-11f)
         side = side / std::sqrt(side.length2());
     using radius_fn = float(__fastcall *)(actor *);
     const float radius = reinterpret_cast<radius_fn>(get_vfunc(field_C->m_vtbl, 0x254))(field_C);
     const auto collide = [](line_info &line) {
-        return line.check_collision(*local_collision::entfilter_entity_no_capsules,
-            *local_collision::obbfilter_lineseg_test, nullptr);
+        return line.check_collision(
+            *local_collision::entfilter_entity_no_capsules, *local_collision::obbfilter_lineseg_test, nullptr);
     };
     const auto accept = [&] {
         *reinterpret_cast<vector3d *>(&field_B8) = from_actor.hit_pos;
@@ -883,8 +1131,8 @@ bool combat_inode::find_attack_wall(entity_base *target)
             continue;
         from_target.field_0 = target_position;
         from_target.field_C = from_actor.hit_pos - from_actor.hit_norm * 0.01f;
-        if ((from_target.field_C - from_target.field_0).length2() > 144.0f ||
-            !collide(from_target) || from_actor.hit_entity.field_0 != from_target.hit_entity.field_0)
+        if ((from_target.field_C - from_target.field_0).length2() > 144.0f || !collide(from_target) ||
+            from_actor.hit_entity.field_0 != from_target.hit_entity.field_0)
             continue;
         const auto &normal = from_actor.hit_norm;
         const auto &other_normal = from_target.hit_norm;
@@ -893,28 +1141,28 @@ bool combat_inode::find_attack_wall(entity_base *target)
             return accept();
 
         const vector3d axis{normal.y * other_normal.z - normal.z * other_normal.y,
-            normal.z * other_normal.x - normal.x * other_normal.z,
-            normal.x * other_normal.y - normal.y * other_normal.x};
+                            normal.z * other_normal.x - normal.x * other_normal.z,
+                            normal.x * other_normal.y - normal.y * other_normal.x};
         if (axis.length2() < 0.01f)
             continue;
-        const double first_d = -(normal.x * from_actor.hit_pos.x + normal.y * from_actor.hit_pos.y + normal.z * from_actor.hit_pos.z);
-        const double second_d = -(other_normal.x * from_target.hit_pos.x + other_normal.y * from_target.hit_pos.y + other_normal.z * from_target.hit_pos.z);
+        const double first_d =
+            -(normal.x * from_actor.hit_pos.x + normal.y * from_actor.hit_pos.y + normal.z * from_actor.hit_pos.z);
+        const double second_d = -(other_normal.x * from_target.hit_pos.x + other_normal.y * from_target.hit_pos.y +
+                                  other_normal.z * from_target.hit_pos.z);
         const double denominator = static_cast<double>(alignment) * alignment - 1.0;
         const float first_weight = static_cast<float>((alignment * second_d - first_d) / denominator);
         const double second_weight = (alignment * first_d - second_d) / denominator;
-        const vector3d plane_origin{
-            static_cast<float>(normal.x * first_weight + other_normal.x * second_weight),
-            static_cast<float>(normal.y * first_weight + other_normal.y * second_weight),
-            static_cast<float>(normal.z * first_weight + other_normal.z * second_weight)};
+        const vector3d plane_origin{static_cast<float>(normal.x * first_weight + other_normal.x * second_weight),
+                                    static_cast<float>(normal.y * first_weight + other_normal.y * second_weight),
+                                    static_cast<float>(normal.z * first_weight + other_normal.z * second_weight)};
         const auto to_hit = from_actor.hit_pos - plane_origin;
         const float projection = axis.x * to_hit.x + axis.y * to_hit.y + axis.z * to_hit.z;
         const vector3d shared_point = plane_origin + axis * projection;
         from_actor.field_C = from_actor.hit_pos + (shared_point - from_actor.hit_pos) * 0.99f - normal * 0.01f;
         from_target.field_C = from_target.hit_pos + (shared_point - from_target.hit_pos) * 0.99f - other_normal * 0.01f;
         if ((from_actor.field_C - from_actor.field_0).length() < 12.0f &&
-            (from_target.field_C - from_target.field_0).length() < 12.0f &&
-            collide(from_actor) && collide(from_target) &&
-            from_actor.hit_entity.field_0 == from_target.hit_entity.field_0)
+            (from_target.field_C - from_target.field_0).length() < 12.0f && collide(from_actor) &&
+            collide(from_target) && from_actor.hit_entity.field_0 == from_target.hit_entity.field_0)
             return accept();
     }
     return false;
@@ -928,8 +1176,7 @@ combat_inode::incoming_move::incoming_move()
     this->field_90 = false;
 }
 
-combat_inode::incoming_move::incoming_move(from_mash_in_place_constructor *tag)
-    : field_14(tag)
+combat_inode::incoming_move::incoming_move(from_mash_in_place_constructor *tag) : field_14(tag)
 {
     m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[344]);
     field_4 = field_10 = 0;
@@ -944,10 +1191,8 @@ void __fastcall incoming_destruct(incoming_move *self, void *)
     self->field_14.field_8.destruct_mashed_class();
     self->field_14.field_C.destruct_mashed_class();
     self->field_14.field_10.destruct_mashed_class();
-
 }
-void __fastcall incoming_unmash(incoming_move *self, void *,
-                               mash_info_struct *info, void *owner)
+void __fastcall incoming_unmash(incoming_move *self, void *, mash_info_struct *info, void *owner)
 {
     self->_unmash(info, owner);
 }
@@ -958,7 +1203,10 @@ void *__fastcall incoming_delete(incoming_move *self, void *, unsigned flags)
         ::operator delete(self);
     return self;
 }
-unsigned __fastcall incoming_type(incoming_move *, void *) { return 344; }
+unsigned __fastcall incoming_type(incoming_move *, void *)
+{
+    return 344;
+}
 bool __fastcall incoming_subclass(incoming_move *, void *, unsigned type)
 {
     return type == 573;
@@ -967,8 +1215,11 @@ bool __fastcall incoming_is_or_subclass(incoming_move *, void *, unsigned type)
 {
     return type == 344 || type == 573;
 }
-int __fastcall incoming_size(incoming_move *, void *) { return sizeof(incoming_move); }
+int __fastcall incoming_size(incoming_move *, void *)
+{
+    return sizeof(incoming_move);
 }
+}  // namespace
 
 void *combat_inode::incoming_move::native_vtable()
 {
@@ -1011,10 +1262,8 @@ combat_inode::combat_inode()
 }
 
 combat_inode::combat_inode(from_mash_in_place_constructor *tag)
-    : info_node(tag),
-      field_D8{incoming_move(tag), incoming_move(tag), incoming_move(tag), incoming_move(tag)}
+    : info_node(tag), field_D8{incoming_move(tag), incoming_move(tag), incoming_move(tag), incoming_move(tag)}
 {
-
     m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[342]);
     field_1C = field_20 = 0;
     field_78 = 0;
@@ -1133,9 +1382,8 @@ void combat_inode::_activate(ai_core *a2)
 bool combat_inode::needs_hit_react(Float)
 {
     using index_fn = int(__fastcall *)(combat_inode *);
-    return ((!field_82 || field_85) && field_88 != -1
-            && !is_ignored_hit_react_category(string_hash{field_90}))
-        || reinterpret_cast<index_fn>(get_vfunc(m_vtbl, 0x38))(this) != -1;
+    return ((!field_82 || field_85) && field_88 != -1 && !is_ignored_hit_react_category(string_hash{field_90})) ||
+           reinterpret_cast<index_fn>(get_vfunc(m_vtbl, 0x38))(this) != -1;
 }
 
 bool combat_inode::is_ignored_hit_react_category(string_hash category) const
@@ -1191,8 +1439,8 @@ int combat_inode::get_avoid_index()
             continue;
         const float delta = g_world_ptr->time_manager.field_10;
         const float window = std::max(0.033333335f, delta * 0.55f);
-        if (window + 0.03333433344960213f <= move.field_C
-            && move.field_C <= delta * 1.9900000095367432f + 0.13333334028720856f)
+        if (window + 0.03333433344960213f <= move.field_C &&
+            move.field_C <= delta * 1.9900000095367432f + 0.13333334028720856f)
             return i;
     }
     return -1;
@@ -1201,15 +1449,30 @@ int combat_inode::get_avoid_index()
 void combat_inode::consider_incoming_move_forced_responses()
 {
     using index_fn = int(__fastcall *)(combat_inode *);
-    using response_fn = void(__fastcall *)(combat_inode *, void *, string_hash, string_hash,
-                                           string_hash, int, vhandle_type<actor>, const vector3d &, bool, bool);
+    using response_fn = void(__fastcall *)(combat_inode *,
+                                           void *,
+                                           string_hash,
+                                           string_hash,
+                                           string_hash,
+                                           int,
+                                           vhandle_type<actor>,
+                                           const vector3d &,
+                                           bool,
+                                           bool);
     const auto consider = [this](int index) {
         const auto &move = field_D8[index];
         const vector3d normal{0.0f, 0.0f, 0.0f};
         reinterpret_cast<response_fn>(get_vfunc(m_vtbl, 0x128))(
-            this, nullptr, move.field_14.field_8, move.field_14.field_4, move.field_14.field_C,
-            move.field_14.field_24, vhandle_type<actor>{entity_base_vhandle{static_cast<uint32_t>(move.field_4)}},
-            normal, true, false);
+            this,
+            nullptr,
+            move.field_14.field_8,
+            move.field_14.field_4,
+            move.field_14.field_C,
+            move.field_14.field_24,
+            vhandle_type<actor>{entity_base_vhandle{static_cast<uint32_t>(move.field_4)}},
+            normal,
+            true,
+            false);
     };
     const int avoid = reinterpret_cast<index_fn>(get_vfunc(m_vtbl, 0x34))(this);
     if (avoid >= 0)
@@ -1262,8 +1525,8 @@ void combat_inode::_frame_advance(Float delta)
     using action_fn = void(__fastcall *)(combat_inode *);
     using move_fn = combo_system_move *(__fastcall *)(combat_inode *);
     field_84 = false;
-    if (!reinterpret_cast<predicate_fn>(get_vfunc(m_vtbl, 0xA4))(this)
-        && !reinterpret_cast<predicate_fn>(get_vfunc(m_vtbl, 0xB4))(this) && field_6C > 0.0f) {
+    if (!reinterpret_cast<predicate_fn>(get_vfunc(m_vtbl, 0xA4))(this) &&
+        !reinterpret_cast<predicate_fn>(get_vfunc(m_vtbl, 0xB4))(this) && field_6C > 0.0f) {
         field_6C -= delta;
         if (field_6C <= 0.0f)
             field_6C = 0.0f;
@@ -1275,15 +1538,16 @@ void combat_inode::_frame_advance(Float delta)
     const auto expired = [ticks](int stamp) {
         if (stamp == -1)
             return false;
-        return ticks > stamp ? ticks - stamp > 3
-             : ticks < stamp && static_cast<uint32_t>(ticks) - static_cast<uint32_t>(stamp) + 0x7FFFFFFFu > 3;
+        return ticks > stamp
+                   ? ticks - stamp > 3
+                   : ticks < stamp && static_cast<uint32_t>(ticks) - static_cast<uint32_t>(stamp) + 0x7FFFFFFFu > 3;
     };
     if ((!field_82 || field_85) && expired(field_88))
         clear_forced_react_needed();
     if ((!field_83 || field_86) && expired(field_8C))
         clear_forced_avoid_needed();
-    if (reinterpret_cast<predicate_fn>(get_vfunc(m_vtbl, 0xB4))(this)
-        && reinterpret_cast<move_fn>(get_vfunc(m_vtbl, 0xB8))(this)->field_4.field_24 == 15) {
+    if (reinterpret_cast<predicate_fn>(get_vfunc(m_vtbl, 0xB4))(this) &&
+        reinterpret_cast<move_fn>(get_vfunc(m_vtbl, 0xB8))(this)->field_4.field_24 == 15) {
         reinterpret_cast<action_fn>(get_vfunc(m_vtbl, 0xB0))(this);
         reinterpret_cast<action_fn>(get_vfunc(m_vtbl, 0xAC))(this);
     }
@@ -1312,7 +1576,8 @@ void combat_inode::advance_tether(Float delta)
     if (constraint != nullptr) {
         if (field_34 == nullptr) {
             void *storage = sizeof(combat_tether) <= slab_allocator::get_max_object_size()
-                ? slab_allocator::allocate(sizeof(combat_tether), nullptr) : ::operator new(sizeof(combat_tether));
+                                ? slab_allocator::allocate(sizeof(combat_tether), nullptr)
+                                : ::operator new(sizeof(combat_tether));
             field_34 = ::new (storage) combat_tether(constraint->get_pivot_abs_pos());
         }
         vector3d attachment = ZEROVEC;
@@ -1351,8 +1616,8 @@ void combat_inode::_clear_cur_move()
     this->field_B4 = 0;
     using hero_fn = bool(__fastcall *)(actor *);
     using next_fn = bool(__fastcall *)(combat_inode *);
-    if (reinterpret_cast<hero_fn>(get_vfunc(field_C->m_vtbl, 0x4C))(field_C)
-        && !reinterpret_cast<next_fn>(get_vfunc(m_vtbl, 0xB4))(this)) {
+    if (reinterpret_cast<hero_fn>(get_vfunc(field_C->m_vtbl, 0x4C))(field_C) &&
+        !reinterpret_cast<next_fn>(get_vfunc(m_vtbl, 0xB4))(this)) {
         this->field_54 = 0;
     }
 }

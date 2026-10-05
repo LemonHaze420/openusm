@@ -26,11 +26,10 @@
 VALIDATE_OFFSET(FEMultiLineText, lines, 0x88);
 VALIDATE_SIZE(FEMultiLineText, 0xA0u);
 
-FEMultiLineText::FEMultiLineText()
-    : FEText()
+FEMultiLineText::FEMultiLineText() : FEText()
 {
     m_vtbl = 0x0087AE58;
-    field_68 = color32 {0xFFFFFFFFu};
+    field_68 = color32{0xFFFFFFFFu};
     field_6C = 0.0f;
     field_70 = 1.0f;
     field_74 = 0.0f;
@@ -48,28 +47,12 @@ FEMultiLineText::FEMultiLineText()
     field_9E = false;
 }
 
-FEMultiLineText::FEMultiLineText(font_index a2,
-                                 Float a4,
-                                 Float a5,
-                                 int a6,
-                                 panel_layer a7,
-                                 Float a8,
-                                 int a9,
-                                 int a10,
+FEMultiLineText::FEMultiLineText(font_index a2, Float a4, Float a5, int a6, panel_layer a7, Float a8, int a9, int a10,
                                  color32 a11)
-    : FEText(a2,
-             static_cast<global_text_enum>(0),
-             a4,
-             a5,
-             a6,
-             a7,
-             a8,
-             a9,
-             a10,
-             a11)
+    : FEText(a2, static_cast<global_text_enum>(0), a4, a5, a6, a7, a8, a9, a10, a11)
 {
     m_vtbl = 0x0087AE58;
-    field_68 = color32 {0xFFFFFFFFu};
+    field_68 = color32{0xFFFFFFFFu};
     field_6C = 0.0f;
     field_70 = 1.0f;
     field_74 = 0.0f;
@@ -87,8 +70,7 @@ FEMultiLineText::FEMultiLineText(font_index a2,
     field_9E = false;
 
     nglFont *font = nullptr;
-    if (a2 != static_cast<font_index>(5)
-            && a2 != static_cast<font_index>(6)) {
+    if (a2 != static_cast<font_index>(5) && a2 != static_cast<font_index>(6)) {
         font = g_femanager.GetFont(a2);
     }
     uint32_t width = 0;
@@ -99,7 +81,8 @@ FEMultiLineText::FEMultiLineText(font_index a2,
     field_78 = static_cast<float>(height);
 }
 
-void FEMultiLineText::Draw() {
+void FEMultiLineText::Draw()
+{
     Draw(0, field_80);
 }
 
@@ -120,7 +103,8 @@ int FEMultiLineText::_get_mash_sizeof()
 #endif
 }
 
-void FEMultiLineText::Draw(int a2, int a3) {
+void FEMultiLineText::Draw(int a2, int a3)
+{
     if (this->IsShown()) {
         if (a2 < 0) {
             a2 = 0;
@@ -170,16 +154,19 @@ void FEMultiLineText::Draw(int a2, int a3) {
     }
 }
 
-void FEMultiLineText::GetPos(Float &a2, Float &a3) {
+void FEMultiLineText::GetPos(Float &a2, Float &a3)
+{
     a2 = this->field_34[0];
     a3 = this->field_34[1];
 }
 
-void FEMultiLineText::SetButtonColor(color32 a2) {
+void FEMultiLineText::SetButtonColor(color32 a2)
+{
     this->field_68 = a2;
 }
 
-mString FEMultiLineText::ReplaceEndlines(mString a2) {
+mString FEMultiLineText::ReplaceEndlines(mString a2)
+{
     for (auto i = a2.find("\n", 0); i > 0; i = a2.find("\n", i + 2)) {
         a2.data()[i] = ' ';
         a2.data()[i + 1] = '\n';
@@ -188,13 +175,14 @@ mString FEMultiLineText::ReplaceEndlines(mString a2) {
     return a2;
 }
 
-void FEMultiLineText::SetButtonScale(Float a2) {
+void FEMultiLineText::SetButtonScale(Float a2)
+{
     this->field_6C = a2;
 }
 
-void FEMultiLineText::SetTextBox(global_text_enum a2, int a3, Float a4) {
+void FEMultiLineText::SetTextBox(global_text_enum a2, int a3, Float a4)
+{
     if constexpr (STANDALONE_SYSTEM) {
-
         mString text{g_game_ptr->field_7C->lookup_localized_string(a2)};
         SetTextBoxNoLocalize(string{text}, a3, a4);
     } else {
@@ -202,7 +190,8 @@ void FEMultiLineText::SetTextBox(global_text_enum a2, int a3, Float a4) {
     }
 }
 
-char *sub_609580(const char *a1, const char *a2, const char *a3) {
+char *sub_609580(const char *a1, const char *a2, const char *a3)
+{
     if constexpr (1) {
         auto *v3 = a1;
         auto v4 = strlen(a1);
@@ -232,7 +221,7 @@ char *sub_609580(const char *a1, const char *a2, const char *a3) {
             }
 
             strcat(v8, v3);
-            result = (char *) std::realloc(v7, strlen(v7) + 1);
+            result = (char *)std::realloc(v7, strlen(v7) + 1);
         }
 
         sp_log("a1 = %s, a2 = %s, a3 = %s -> %s", a1, a2, a3, result);
@@ -240,12 +229,13 @@ char *sub_609580(const char *a1, const char *a2, const char *a3) {
         return result;
 
     } else {
-        return (char *) CDECL_CALL(0x00609580, a1, a2, a3);
+        return (char *)CDECL_CALL(0x00609580, a1, a2, a3);
     }
 }
 
-void FEMultiLineText::sub_60A4A0(mString &a1) {
-    if (strchr(a1.c_str() , '~') != nullptr) {
+void FEMultiLineText::sub_60A4A0(mString &a1)
+{
+    if (strchr(a1.c_str(), '~') != nullptr) {
         std::string str{a1.c_str()};
         auto *v2 = str.c_str();
         //auto *v2 = static_cast<char *>(operator new(strlen(a1.c_str()) + 1));
@@ -292,10 +282,7 @@ void FEMultiLineText::sub_60A4A0(mString &a1) {
 
         if (strstr(v2, "~both_lr")) {
             char Dest[256]{};
-            sprintf(Dest,
-                    "\"%s & %s\"",
-                    dword_965C24[GamepadInput::L2],
-                    dword_965C24[GamepadInput::R2]);
+            sprintf(Dest, "\"%s & %s\"", dword_965C24[GamepadInput::L2], dword_965C24[GamepadInput::R2]);
             auto *v11 = sub_609580(v2, "~both_lr", Dest);
             v2 = v11;
         }
@@ -334,7 +321,7 @@ int FEMultiLineText::MakeBox(char *a2, int a3, int a4, Float a5, Float a6, bool)
     TRACE("FEMultiLineText::MakeBox");
 
     if constexpr (STANDALONE_SYSTEM) {
-        const std::string text {a2, static_cast<std::size_t>(std::max(a3, 0))};
+        const std::string text{a2, static_cast<std::size_t>(std::max(a3, 0))};
         std::vector<std::string> wrapped_lines;
 
         std::size_t line_start = 0;
@@ -350,21 +337,14 @@ int FEMultiLineText::MakeBox(char *a2, int a3, int a4, Float a5, Float a6, bool)
                     std::size_t candidate_end = segment_start;
                     while (candidate_end < line.size()) {
                         const auto next_space = line.find(' ', candidate_end + 1);
-                        const auto word_end =
-                            next_space == std::string::npos ? line.size() : next_space;
+                        const auto word_end = next_space == std::string::npos ? line.size() : next_space;
                         auto candidate = line.substr(segment_start, word_end - segment_start);
                         uint32_t width = 0;
                         uint32_t height = 0;
                         auto *font = field_18 == static_cast<font_index>(6)
-                            ? nullptr
-                            : g_femanager.field_4[static_cast<int>(field_18)];
-                        nglGetStringDimensions(
-                            font,
-                            candidate.data(),
-                            &width,
-                            &height,
-                            a5,
-                            a6);
+                                         ? nullptr
+                                         : g_femanager.field_4[static_cast<int>(field_18)];
+                        nglGetStringDimensions(font, candidate.data(), &width, &height, a5, a6);
                         if (width > static_cast<uint32_t>(a4) && best_end > segment_start)
                             break;
                         best_end = word_end;
@@ -386,12 +366,10 @@ int FEMultiLineText::MakeBox(char *a2, int a3, int a4, Float a5, Float a6, bool)
             line_start = newline + 1;
         }
 
-        const auto used_lines =
-            std::min<int>(static_cast<int>(wrapped_lines.size()), line_avail_num);
+        const auto used_lines = std::min<int>(static_cast<int>(wrapped_lines.size()), line_avail_num);
         for (int i = 0; i < line_avail_num; ++i) {
             auto &line = lines[i];
-            line.m_font_index =
-                i < used_lines ? field_18 : static_cast<font_index>(6);
+            line.m_font_index = i < used_lines ? field_18 : static_cast<font_index>(6);
             line.field_4 = {0.0f, 0.0f};
             line.field_10 = i < used_lines ? wrapped_lines[i].c_str() : "";
             line.field_C = 0;
@@ -400,13 +378,7 @@ int FEMultiLineText::MakeBox(char *a2, int a3, int a4, Float a5, Float a6, bool)
                 uint32_t width = 0;
                 uint32_t height = 0;
                 auto *font = g_femanager.field_4[static_cast<int>(field_18)];
-                nglGetStringDimensions(
-                    font,
-                    const_cast<char *>(line.field_10.c_str()),
-                    &width,
-                    &height,
-                    a5,
-                    a6);
+                nglGetStringDimensions(font, const_cast<char *>(line.field_10.c_str()), &width, &height, a5, a6);
                 line.field_C = static_cast<int>(width);
             }
         }
@@ -418,19 +390,15 @@ int FEMultiLineText::MakeBox(char *a2, int a3, int a4, Float a5, Float a6, bool)
 
 bool FEMultiLineText::CheckIfNotTooLong(int a2)
 {
-    if ( a2 < this->line_avail_num )
-    {
+    if (a2 < this->line_avail_num) {
         return true;
     }
 
-    if ( this->field_9E )
-    {
+    if (this->field_9E) {
         sp_log("MultiLineString is too long (cut off).  Number allocated lines: %d\n", this->line_avail_num);
         auto *v4 = this->lines->field_10.c_str();
         sp_log("Start of text: %s\n", v4);
-    }
-    else
-    {
+    } else {
         sp_log("MultiLineString is too long (not cut off).  Number allocated lines: %d\n", this->line_avail_num);
         auto *v3 = this->lines->field_10.c_str();
         sp_log("Start of text: %s\n", v3);
@@ -441,7 +409,8 @@ bool FEMultiLineText::CheckIfNotTooLong(int a2)
     return false;
 }
 
-void FEMultiLineText::SetTextBoxNoLocalize(FEMultiLineText::string a2, int a7, Float a8) {
+void FEMultiLineText::SetTextBoxNoLocalize(FEMultiLineText::string a2, int a7, Float a8)
+{
     TRACE("FEMultiLineText::SetTextBoxNoLocalize");
 
     if (line_avail_num == 0) {
@@ -450,8 +419,7 @@ void FEMultiLineText::SetTextBoxNoLocalize(FEMultiLineText::string a2, int a7, F
         std::exit(3);
     }
 
-    if constexpr (STANDALONE_SYSTEM)
-    {
+    if constexpr (STANDALONE_SYSTEM) {
         this->sub_60A4A0(*bit_cast<mString *>(&a2));
         auto v12 = *bit_cast<mString *>(&a2);
         auto v5 = FEMultiLineText::ReplaceEndlines(v12);
@@ -462,29 +430,21 @@ void FEMultiLineText::SetTextBoxNoLocalize(FEMultiLineText::string a2, int a7, F
         a7 = this->field_40;
         this->field_7C = v6;
         auto a5 = v8;
-        if ( !v7 )
-        {
+        if (!v7) {
             a5 = a8;
             a7 = a8;
         }
-        
-        auto v9 = this->MakeBox(
-            a2.guts,
-            static_cast<int>(std::strlen(a2.guts)),
-            v6,
-            a5,
-            a7,
-            true);
+
+        auto v9 = this->MakeBox(a2.guts, static_cast<int>(std::strlen(a2.guts)), v6, a5, a7, true);
         this->field_80 = std::min(v9, this->line_avail_num);
         this->AdjustForJustification();
-    }
-    else
-    {
+    } else {
         THISCALL(0x00633AB0, this, a2, a7, a8);
     }
 }
 
-void FEMultiLineText::SetTextAlloc(global_text_enum a2) {
+void FEMultiLineText::SetTextAlloc(global_text_enum a2)
+{
     sp_log("FEMultiLineText::SetTextAlloc: ");
 
     THISCALL(0x006180B0, this, a2);
@@ -494,7 +454,7 @@ void FEMultiLineText::SetText(global_text_enum a2)
 {
     const char *localized = g_game_ptr->field_7C->lookup_localized_string(a2);
     if constexpr (STANDALONE_SYSTEM) {
-        mString text {localized};
+        mString text{localized};
         _SetTextNoLocalize(*bit_cast<string *>(&text));
     } else {
         THISCALL(0x00618030, this, a2);
@@ -518,13 +478,9 @@ void FEMultiLineText::AdjustForJustification()
             if (GetFlag(0x40)) {
                 line.field_4[1] = field_34[1] + i * field_74;
             } else if (GetFlag(0x80)) {
-                line.field_4[1] =
-                    field_34[1] + (i - field_80 + 1) * field_74 - field_74;
+                line.field_4[1] = field_34[1] + (i - field_80 + 1) * field_74 - field_74;
             } else {
-                line.field_4[1] =
-                    field_34[1] +
-                    (i + 0.5f - field_80 * 0.5f) * field_74 -
-                    field_74 * 0.5f;
+                line.field_4[1] = field_34[1] + (i + 0.5f - field_80 * 0.5f) * field_74 - field_74 * 0.5f;
             }
         }
     } else {
@@ -544,14 +500,13 @@ void FEMultiLineText::_SetTextNoLocalize(FEMultiLineText::string a1)
     if constexpr (STANDALONE_SYSTEM) {
         mString text = *bit_cast<mString *>(&a1);
         sub_60A4A0(text);
-        const std::string value {text.c_str()};
+        const std::string value{text.c_str()};
 
         int count = 0;
         std::size_t start = 0;
         while (count < line_avail_num && start <= value.size()) {
             const auto end = value.find('\n', start);
-            const auto length =
-                end == std::string::npos ? value.size() - start : end - start;
+            const auto length = end == std::string::npos ? value.size() - start : end - start;
             std::string line_text = value.substr(start, length);
             auto &line = lines[count++];
             line.m_font_index = field_18;
@@ -561,11 +516,9 @@ void FEMultiLineText::_SetTextNoLocalize(FEMultiLineText::string a1)
 
             uint32_t width = 0;
             uint32_t height = 0;
-            auto *font = field_18 == static_cast<font_index>(6)
-                ? nullptr
-                : g_femanager.field_4[static_cast<int>(field_18)];
-            nglGetStringDimensions(
-                font, line_text.data(), &width, &height, field_3C, field_6C);
+            auto *font =
+                field_18 == static_cast<font_index>(6) ? nullptr : g_femanager.field_4[static_cast<int>(field_18)];
+            nglGetStringDimensions(font, line_text.data(), &width, &height, field_3C, field_6C);
             line.field_C = static_cast<int>(width);
 
             if (end == std::string::npos)
@@ -587,18 +540,21 @@ void FEMultiLineText::_SetTextNoLocalize(FEMultiLineText::string a1)
     }
 }
 
-int FEMultiLineText::SetTextAllocNoLocalize(const char *a2, int a3) {
+int FEMultiLineText::SetTextAllocNoLocalize(const char *a2, int a3)
+{
     sp_log("FEMultiLineText::SetTextAllocNoLocalize:");
     return THISCALL(0x0062E8D0, this, a2, a3);
 }
 
-void FEMultiLineText::SetTextBoxAlloc(global_text_enum a1, int a3, Float a4) {
+void FEMultiLineText::SetTextBoxAlloc(global_text_enum a1, int a3, Float a4)
+{
     sp_log("FEMultiLineText::SetTextBoxAlloc:");
 
     THISCALL(0x00618140, this, a1, a3, a4);
 }
 
-void FEMultiLineText::SetTextBoxAllocNoLocalize(mString a2, int a6, Float a7) {
+void FEMultiLineText::SetTextBoxAllocNoLocalize(mString a2, int a6, Float a7)
+{
     sp_log("FEMultiLineText::SetTextBoxAllocNoLocalize:");
 
     THISCALL(0x00633C00, this, a2, a6, a7);
@@ -608,34 +564,29 @@ void FEMultiLineText::SetNumLines(int n)
 {
     TRACE("FEMultiLineText::SetNumLines", std::to_string(n).c_str());
 
-    if (n <= 0)
-    {
+    if (n <= 0) {
         sp_log("FEMultiLineText::SetNumLines: invalid line count %d", n);
         std::fflush(nullptr);
         std::exit(3);
     }
 
-    if constexpr (STANDALONE_SYSTEM)
-    {
+    if constexpr (STANDALONE_SYSTEM) {
         delete[] lines;
         line_avail_num = n;
         field_80 = 0;
         lines = new (std::nothrow) MultiLineString[n];
-        if (lines == nullptr)
-        {
+        if (lines == nullptr) {
             sp_log("FEMultiLineText::SetNumLines: allocation failed for %d lines", n);
             std::fflush(nullptr);
             std::exit(3);
         }
-    }
-    else
-    {
+    } else {
         THISCALL(0x00617F30, this, n);
     }
 }
 
-void FEMultiLineText_patch() {
-
+void FEMultiLineText_patch()
+{
     {
         FUNC_ADDRESS(address, &FEMultiLineText::_get_mash_sizeof);
         set_vfunc(0x0087AEA4, address);

@@ -56,14 +56,12 @@ void item::frame_advance_all_items(Float elapsed)
 {
     for (auto *current = active_items(); current != nullptr;) {
         auto *next = current->field_C0;
-        const float scale = current->field_58 != nullptr
-            ? static_cast<float>(current->field_58->sub_4ADE50())
-            : g_world_ptr->time_manager.field_0;
+        const float scale = current->field_58 != nullptr ? static_cast<float>(current->field_58->sub_4ADE50())
+                                                         : g_world_ptr->time_manager.field_0;
         if (current->m_vtbl != 0) {
             auto *address = get_vfunc(current->m_vtbl, 0x1A4);
             if (address != nullptr) {
-                void(__fastcall *frame_advance)(item *, void *, Float) =
-                    CAST(frame_advance, address);
+                void(__fastcall * frame_advance)(item *, void *, Float) = CAST(frame_advance, address);
                 frame_advance(current, nullptr, Float{scale * elapsed.value});
             }
         }
@@ -133,9 +131,9 @@ bool item::give_to_entity(actor *owner)
     }
     if (unique)
         spawn_item_script();
-    auto quantity = reinterpret_cast<int (__fastcall *)(item *, void *)>(get_vfunc(m_vtbl, 0x2AC));
-    auto set = reinterpret_cast<void (__fastcall *)(item *, void *, int)>(get_vfunc(m_vtbl, 0x2A4));
-    auto apply = reinterpret_cast<void (__fastcall *)(item *, void *, actor *)>(get_vfunc(m_vtbl, 0x2B8));
+    auto quantity = reinterpret_cast<int(__fastcall *)(item *, void *)>(get_vfunc(m_vtbl, 0x2AC));
+    auto set = reinterpret_cast<void(__fastcall *)(item *, void *, int)>(get_vfunc(m_vtbl, 0x2A4));
+    auto apply = reinterpret_cast<void(__fastcall *)(item *, void *, actor *)>(get_vfunc(m_vtbl, 0x2B8));
     const int before = quantity(this, nullptr);
     bool received = false;
     switch (field_D0) {
@@ -144,19 +142,25 @@ bool item::give_to_entity(actor *owner)
         set(this, nullptr, 0);
         unique = false;
         break;
-    case 1: case 2: case 3: case 4: {
-        auto add = reinterpret_cast<bool (__fastcall *)(actor *, void *, entity_base_vhandle, bool)>(get_vfunc(owner->m_vtbl, 0x288));
+    case 1:
+    case 2:
+    case 3:
+    case 4: {
+        auto add = reinterpret_cast<bool(__fastcall *)(actor *, void *, entity_base_vhandle, bool)>(
+            get_vfunc(owner->m_vtbl, 0x288));
         received = add(owner, nullptr, my_handle, true);
         break;
     }
-    case 6: case 7: {
-        auto has_damage = reinterpret_cast<bool (__fastcall *)(actor *, void *)>(get_vfunc(owner->m_vtbl, 0x114));
+    case 6:
+    case 7: {
+        auto has_damage = reinterpret_cast<bool(__fastcall *)(actor *, void *)>(get_vfunc(owner->m_vtbl, 0x114));
         if (has_damage(owner, nullptr)) {
-            auto get_damage = reinterpret_cast<damage_interface *(__fastcall *)(actor *, void *)>(get_vfunc(owner->m_vtbl, 0x118));
+            auto get_damage =
+                reinterpret_cast<damage_interface *(__fastcall *)(actor *, void *)>(get_vfunc(owner->m_vtbl, 0x118));
             auto *damage = get_damage(owner, nullptr);
             auto &value = field_D0 == 6 ? damage->field_1FC : damage->field_20C;
-            value.field_0[0] = std::clamp(value.field_0[0] + static_cast<float>(field_E4),
-                                         value.field_0[1], value.field_0[2]);
+            value.field_0[0] =
+                std::clamp(value.field_0[0] + static_cast<float>(field_E4), value.field_0[1], value.field_0[2]);
             set(this, nullptr, 0);
         }
         break;
@@ -169,17 +173,17 @@ bool item::give_to_entity(actor *owner)
     }
     if (before != quantity(this, nullptr) || received)
         event_manager::raise_event(event::PICKUP, my_handle);
-    auto remaining = reinterpret_cast<int (__fastcall *)(item *, void *)>(get_vfunc(m_vtbl, 0x298));
+    auto remaining = reinterpret_cast<int(__fastcall *)(item *, void *)>(get_vfunc(m_vtbl, 0x298));
     if (unique || !remaining(this, nullptr))
         field_CB = true;
-    auto is_hero = reinterpret_cast<bool (__fastcall *)(actor *, void *)>(get_vfunc(owner->m_vtbl, 0x4C));
+    auto is_hero = reinterpret_cast<bool(__fastcall *)(actor *, void *)>(get_vfunc(owner->m_vtbl, 0x4C));
     if (is_hero(owner, nullptr) && adv_ptrs && adv_ptrs->coninfo) {
-
         for (const auto &handle : adv_ptrs->coninfo->items) {
             if (auto *value = handle.get_volatile_ptr()) {
-                auto count = reinterpret_cast<int (__fastcall *)(item *, void *)>(get_vfunc(value->m_vtbl, 0x2AC));
+                auto count = reinterpret_cast<int(__fastcall *)(item *, void *)>(get_vfunc(value->m_vtbl, 0x2AC));
                 if (count(value, nullptr) > 0) {
-                    auto add = reinterpret_cast<bool (__fastcall *)(actor *, void *, entity_base_vhandle, bool)>(get_vfunc(owner->m_vtbl, 0x288));
+                    auto add = reinterpret_cast<bool(__fastcall *)(actor *, void *, entity_base_vhandle, bool)>(
+                        get_vfunc(owner->m_vtbl, 0x288));
                     add(owner, nullptr, value->my_handle, true);
                 }
             }
@@ -212,8 +216,7 @@ void item::un_mash(generic_mash_header *header, void *object, generic_mash_data_
     field_C0 = nullptr;
     field_C4 = nullptr;
     field_CB = false;
-    auto show_family = reinterpret_cast<void(__fastcall *)(entity *, void *, bool)>(
-        get_vfunc(m_vtbl, 0x188));
+    auto show_family = reinterpret_cast<void(__fastcall *)(entity *, void *, bool)>(get_vfunc(m_vtbl, 0x188));
     show_family(this, nullptr, true);
     remove_from_list();
     field_C0 = active_items();
@@ -229,7 +232,7 @@ void item::un_mash(generic_mash_header *header, void *object, generic_mash_data_
 void item::change_list_status()
 {
     remove_from_list();
-    auto is_handheld = reinterpret_cast<bool (__fastcall *)(item *, void *)>(get_vfunc(m_vtbl, 0xDC));
+    auto is_handheld = reinterpret_cast<bool(__fastcall *)(item *, void *)>(get_vfunc(m_vtbl, 0xDC));
     auto &head = (!field_CB || is_handheld(this, nullptr)) ? active_items() : inactive_items();
     field_C0 = head;
     head = this;
@@ -302,31 +305,76 @@ void item::apply_effects(actor *)
 }
 
 namespace {
-void __fastcall native_item_quantity(item *self, void *, int value) { self->set_quantity(value); }
-int __fastcall native_item_get_quantity(item *self, void *) { return self->field_E4; }
-void __fastcall native_item_advance(item *self, void *, Float elapsed) { self->frame_advance(elapsed); }
-void __fastcall native_item_spawn_script(item *self, void *) { self->spawn_item_script(); }
-bool __fastcall native_item_not_handheld(item *, void *) { return false; }
-void __fastcall native_item_increment(item *self, void *) { ++self->field_E4; }
-void __fastcall native_item_decrement(item *self, void *) { --self->field_E4; }
+void __fastcall native_item_quantity(item *self, void *, int value)
+{
+    self->set_quantity(value);
+}
+int __fastcall native_item_get_quantity(item *self, void *)
+{
+    return self->field_E4;
+}
+void __fastcall native_item_advance(item *self, void *, Float elapsed)
+{
+    self->frame_advance(elapsed);
+}
+void __fastcall native_item_spawn_script(item *self, void *)
+{
+    self->spawn_item_script();
+}
+bool __fastcall native_item_not_handheld(item *, void *)
+{
+    return false;
+}
+void __fastcall native_item_increment(item *self, void *)
+{
+    ++self->field_E4;
+}
+void __fastcall native_item_decrement(item *self, void *)
+{
+    --self->field_E4;
+}
 bool __fastcall native_item_has_quantity(item *self, void *)
 {
-    auto quantity = reinterpret_cast<int (__fastcall *)(item *, void *)>(get_vfunc(self->m_vtbl, 0x298));
+    auto quantity = reinterpret_cast<int(__fastcall *)(item *, void *)>(get_vfunc(self->m_vtbl, 0x298));
     return quantity(self, nullptr) > 0;
 }
-void __fastcall native_item_apply(item *self, void *, actor *owner) { self->apply_effects(owner); }
-int __fastcall native_item_size(item *, void *) { return sizeof(item); }
-bool __fastcall native_item_chunk(item *, void *, void *, void *) { return false; }
-bool __fastcall native_item_query(item *, void *) { return true; }
-float __fastcall native_item_radius(item *self, void *) { return std::max(0.25f, self->_get_visual_radius()); }
+void __fastcall native_item_apply(item *self, void *, actor *owner)
+{
+    self->apply_effects(owner);
+}
+int __fastcall native_item_size(item *, void *)
+{
+    return sizeof(item);
+}
+bool __fastcall native_item_chunk(item *, void *, void *, void *)
+{
+    return false;
+}
+bool __fastcall native_item_query(item *, void *)
+{
+    return true;
+}
+float __fastcall native_item_radius(item *self, void *)
+{
+    return std::max(0.25f, self->_get_visual_radius());
+}
 void __fastcall native_item_render(item *self, void *, Float fade)
 {
     if (self->field_E4 > 0)
         self->actor::_render(fade);
 }
-bool __fastcall native_item_give(item *self, void *, actor *owner) { return self->give_to_entity(owner); }
-bool __fastcall native_item_health(item *self, void *) { return self->field_D0 == 6; }
-bool __fastcall native_item_armor(item *self, void *) { return self->field_D0 == 7; }
+bool __fastcall native_item_give(item *self, void *, actor *owner)
+{
+    return self->give_to_entity(owner);
+}
+bool __fastcall native_item_health(item *self, void *)
+{
+    return self->field_D0 == 6;
+}
+bool __fastcall native_item_armor(item *self, void *)
+{
+    return self->field_D0 == 7;
+}
 void __fastcall native_item_preload(item *self, void *)
 {
     if (self->field_C8)
@@ -341,7 +389,7 @@ void __fastcall native_item_preload(item *self, void *)
         instance->run_single_thread(instance->add_thread(global->get_func(index)), false);
     }
 }
-}
+}  // namespace
 
 void item::install_weapon_callbacks(void **table)
 {

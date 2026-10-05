@@ -25,16 +25,15 @@ struct traffic_path_intersection {
     int get_ai_index(vhandle_type<actor> actor_handle);
     bool add_ai(vhandle_type<actor> actor_handle);
     bool reserve_stopsign(vhandle_type<actor> actor_handle, int direction);
-    int get_next_direction(traffic_path_lane *lane, traffic_path_lane **next_lane,
-                           int orientation, int excluded_direction, const vector3d &target,
-                           bool ignore_restrictions, bool randomize);
+    int get_next_direction(traffic_path_lane *lane, traffic_path_lane **next_lane, int orientation,
+                           int excluded_direction, const vector3d &target, bool ignore_restrictions, bool randomize);
     traffic_path_lane *get_next_lane(vector3d position, int direction, traffic_path_lane *lane,
                                      traffic_path_graph **graph, int orientation, bool flag);
     bool get_allowed_ai_roads(traffic_path_lane *lane, traffic_path_road **out_roads);
     int get_direction_to_lane(traffic_path_lane *lane, traffic_path_lane *next_lane);
-    float evaluate_road_chance(traffic_path_lane *lane, traffic_path_lane **next_lane, float bias,
-                               int road_index, int excluded_direction, int direction,
-                               const vector3d &target, bool weigh_flags, bool randomize);
+    float evaluate_road_chance(traffic_path_lane *lane, traffic_path_lane **next_lane, float bias, int road_index,
+                               int excluded_direction, int direction, const vector3d &target, bool weigh_flags,
+                               bool randomize);
 
     bool has_stopsign(bool a1);
 };
@@ -70,8 +69,8 @@ struct traffic_path_road {
     int get_lane_position(const traffic_path_lane *lane) const;
     traffic_path_lane *get_indexed_lane(int index, int type) const;
     traffic_path_lane *get_closest_lane(const vector3d &position, int type) const;
-    int map_lane_index(traffic_path_lane *lane, const traffic_path_road *next_road,
-                       int index, bool allow_incoming) const;
+    int map_lane_index(traffic_path_lane *lane, const traffic_path_road *next_road, int index,
+                       bool allow_incoming) const;
 
     static bool road_is_valid(const traffic_path_road *a1);
 };

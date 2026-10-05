@@ -24,37 +24,66 @@ namespace {
 player_controller_inode *__fastcall player_delete(player_controller_inode *self, void *, unsigned int flags)
 {
     self->~player_controller_inode();
-    if (flags & 1u) ::operator delete(self);
+    if (flags & 1u)
+        ::operator delete(self);
     return self;
 }
-int __fastcall player_type(const player_controller_inode *) { return 358; }
+int __fastcall player_type(const player_controller_inode *)
+{
+    return 358;
+}
 bool __fastcall player_subclass(const player_controller_inode *, void *, mash::virtual_types_enum type)
 {
     return type == 561 || type == 537 || type == 573;
 }
-int __fastcall player_size(const player_controller_inode *) { return sizeof(player_controller_inode); }
-void __fastcall player_frame(player_controller_inode *self, void *, Float dt) { self->_frame_advance(dt); }
+int __fastcall player_size(const player_controller_inode *)
+{
+    return sizeof(player_controller_inode);
+}
+void __fastcall player_frame(player_controller_inode *self, void *, Float dt)
+{
+    self->_frame_advance(dt);
+}
 vector3d *__fastcall player_facing(player_controller_inode *self, void *, vector3d *out)
 {
-    *out = self->_facing(); return out;
+    *out = self->_facing();
+    return out;
 }
-void __fastcall player_buttons(player_controller_inode *self, void *) { self->update_trigger_buttons(); }
-void __fastcall player_sticks(player_controller_inode *self, void *) { self->update_stick_cache(); }
-bool __fastcall player_pending(player_controller_inode *self, void *) { return self->has_pending_trigger(); }
-void __fastcall player_set_trigger(player_controller_inode *self, void *, unsigned int trigger) { self->set_combat_trigger(trigger); }
-vector3d *__fastcall player_axis(player_controller_inode *self, void *, vector3d *out, controller_inode::eControllerAxis axis)
+void __fastcall player_buttons(player_controller_inode *self, void *)
 {
-    *out = self->_get_axis(axis); return out;
+    self->update_trigger_buttons();
 }
-vector2d *__fastcall player_axis_2d(player_controller_inode *self, void *, vector2d *out, controller_inode::eControllerAxis axis)
+void __fastcall player_sticks(player_controller_inode *self, void *)
 {
-    *out = self->_get_axis_2d(axis); return out;
+    self->update_stick_cache();
 }
-game_button *__fastcall player_button(player_controller_inode *self, void *, game_button *out, controller_inode::eControllerButton button)
+bool __fastcall player_pending(player_controller_inode *self, void *)
 {
-    ::new (static_cast<void *>(out)) game_button(self->_get_button(button)); return out;
+    return self->has_pending_trigger();
 }
+void __fastcall player_set_trigger(player_controller_inode *self, void *, unsigned int trigger)
+{
+    self->set_combat_trigger(trigger);
 }
+vector3d *__fastcall player_axis(player_controller_inode *self, void *, vector3d *out,
+                                 controller_inode::eControllerAxis axis)
+{
+    *out = self->_get_axis(axis);
+    return out;
+}
+vector2d *__fastcall player_axis_2d(player_controller_inode *self, void *, vector2d *out,
+                                    controller_inode::eControllerAxis axis)
+{
+    *out = self->_get_axis_2d(axis);
+    return out;
+}
+game_button *__fastcall player_button(player_controller_inode *self, void *, game_button *out,
+                                      controller_inode::eControllerButton button)
+{
+    ::new (static_cast<void *>(out)) game_button(self->_get_button(button));
+    return out;
+}
+}  // namespace
 
 void *player_controller_inode::native_vtable()
 {
@@ -88,8 +117,7 @@ player_controller_inode::player_controller_inode()
 #endif
 }
 
-player_controller_inode::player_controller_inode(from_mash_in_place_constructor *a2)
-    : controller_inode(a2)
+player_controller_inode::player_controller_inode(from_mash_in_place_constructor *a2) : controller_inode(a2)
 {
 #if STANDALONE_SYSTEM
     m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[358]);
@@ -111,23 +139,33 @@ game_button player_controller_inode::_get_button(controller_inode::eControllerBu
     const auto *controller = get_actor()->get_player_controller();
     switch (button) {
     case 0:
-    case 7: return controller->gb_jump;
+    case 7:
+        return controller->gb_jump;
     case 1:
-    case 8: return controller->gb_grab;
+    case 8:
+        return controller->gb_grab;
     case 2:
-    case 9: return controller->gb_attack;
+    case 9:
+        return controller->gb_attack;
     case 3:
-    case 10: return controller->gb_attack_secondary;
+    case 10:
+        return controller->gb_attack_secondary;
     case 4:
-    case 15: return controller->gb_range;
+    case 15:
+        return controller->gb_range;
     case 5:
     case 11:
-    case 12: return controller->field_1B8;
-    case 13: return controller->gb_swing_raw;
-    case 16: return controller->field_254;
-    case 17: return controller->field_288;
+    case 12:
+        return controller->field_1B8;
+    case 13:
+        return controller->gb_swing_raw;
+    case 16:
+        return controller->field_254;
+    case 17:
+        return controller->field_288;
 
-    default: return game_button{};
+    default:
+        return game_button{};
     }
 }
 
@@ -135,14 +173,17 @@ vector3d player_controller_inode::_get_axis(eControllerAxis axis)
 {
     const auto *controller = get_actor()->get_player_controller();
     switch (axis) {
-    case 0: return controller->field_3E0;
-    case 2: return controller->field_3EC;
+    case 0:
+        return controller->field_3E0;
+    case 2:
+        return controller->field_3EC;
     case 3:
     case 4: {
         const auto &trigger = controller->field_2BC[static_cast<int>(axis) - 1];
         return YVEC * (trigger.field_2D ? 0.0f : trigger.field_10);
     }
-    default: return ZEROVEC;
+    default:
+        return ZEROVEC;
     }
 }
 
@@ -183,9 +224,7 @@ void player_controller_inode::update_stick_cache()
 
 vector3d player_controller_inode::_facing()
 {
-
-    constexpr float weights[10] = {0.05f, 0.05f, 0.05f, 0.05f, 0.05f,
-                                   0.35f, 0.35f, 0.05f, 0.05f, 0.05f};
+    constexpr float weights[10] = {0.05f, 0.05f, 0.05f, 0.05f, 0.05f, 0.35f, 0.35f, 0.05f, 0.05f, 0.05f};
     vector3d result = ZEROVEC;
     for (int sample = 0; sample != 10; ++sample) {
         result.x += facing_cache[sample][0] * weights[sample];
@@ -202,7 +241,7 @@ vector3d player_controller_inode::_facing()
 
 void player_controller_inode::_frame_advance(Float)
 {
-    using callback = void (__fastcall *)(player_controller_inode *, void *);
+    using callback = void(__fastcall *)(player_controller_inode *, void *);
     reinterpret_cast<callback>(get_vfunc(m_vtbl, 0x38))(this, nullptr);
     reinterpret_cast<callback>(get_vfunc(m_vtbl, 0x3C))(this, nullptr);
 }
@@ -220,8 +259,8 @@ bool player_controller_inode::has_pending_trigger()
     if (range_held && jump_triggered)
         trigger |= 0x10000;
     auto *combat = static_cast<combat_inode *>(field_8->get_info_node(combat_inode::default_id, true));
-    using int_query = int (__fastcall *)(combat_inode *, void *);
-    using bool_query = bool (__fastcall *)(combat_inode *, void *);
+    using int_query = int(__fastcall *)(combat_inode *, void *);
+    using bool_query = bool(__fastcall *)(combat_inode *, void *);
     if (jump_triggered && reinterpret_cast<int_query>(get_vfunc(combat->m_vtbl, 0x58))(combat, nullptr))
         trigger |= 0x20000;
     if (reinterpret_cast<bool_query>(get_vfunc(combat->m_vtbl, 0x88))(combat, nullptr) &&
@@ -231,16 +270,13 @@ bool player_controller_inode::has_pending_trigger()
     return trigger != 0;
 }
 
-void player_controller_inode::set_combat_trigger(unsigned int)
-{
+void player_controller_inode::set_combat_trigger(unsigned int) {}
 
-}
-
-} // namespace ai
+}  // namespace ai
 
 
 game_button *__fastcall player_controller_inode__get_button(ai::player_controller_inode *self, void *, game_button *out,
-        ai::controller_inode::eControllerButton a3)
+                                                            ai::controller_inode::eControllerButton a3)
 {
     ::new (static_cast<void *>(out)) game_button(self->_get_button(a3));
     return out;

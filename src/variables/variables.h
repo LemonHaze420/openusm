@@ -7,11 +7,11 @@
 
 // @todo: global config
 struct GameConfig {
-	bool DebugMode = false;
+    bool DebugMode = false;
 
-	bool WindowedMode = false;
+    bool WindowedMode = false;
 
-	bool NoLoadScreen = false;
+    bool NoLoadScreen = false;
 };
 
 extern GameConfig g_config;
@@ -30,7 +30,7 @@ extern bool &byte_965950;
 
 extern RTL_CRITICAL_SECTION &g_CriticalSection;
 
-extern PolytubeCustomMaterial *& webline_texture;
+extern PolytubeCustomMaterial *&webline_texture;
 
 extern float &flt_937FA4;
 

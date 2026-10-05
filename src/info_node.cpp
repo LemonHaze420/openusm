@@ -29,20 +29,38 @@ void *__fastcall native_delete(info_node *self, void *, unsigned flags)
     return self;
 }
 
-unsigned __fastcall native_type(info_node *, void *) { return 537; }
-bool __fastcall native_subclass(info_node *, void *, unsigned type) { return type == 573; }
+unsigned __fastcall native_type(info_node *, void *)
+{
+    return 537;
+}
+bool __fastcall native_subclass(info_node *, void *, unsigned type)
+{
+    return type == 573;
+}
 bool __fastcall native_is_or_subclass(info_node *self, void *, unsigned type)
 {
     return self->_is_or_is_subclass_of(static_cast<mash::virtual_types_enum>(type));
 }
 
-bool __fastcall native_needs_advance(info_node *, void *) { return false; }
-void __fastcall native_advance(info_node *, void *, Float) {}
-void __fastcall native_activate(info_node *self, void *, ai_core *core) { self->_activate(core); }
-void __fastcall native_deactivate(info_node *, void *) {}
-void __fastcall native_reset(info_node *self, void *) { self->_reset(); }
-int __fastcall native_size(info_node *, void *) { return sizeof(info_node); }
+bool __fastcall native_needs_advance(info_node *, void *)
+{
+    return false;
 }
+void __fastcall native_advance(info_node *, void *, Float) {}
+void __fastcall native_activate(info_node *self, void *, ai_core *core)
+{
+    self->_activate(core);
+}
+void __fastcall native_deactivate(info_node *, void *) {}
+void __fastcall native_reset(info_node *self, void *)
+{
+    self->_reset();
+}
+int __fastcall native_size(info_node *, void *)
+{
+    return sizeof(info_node);
+}
+}  // namespace
 
 void *info_node::native_vtable()
 {
@@ -69,8 +87,7 @@ info_node::info_node()
     m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[537]);
 }
 
-info_node::info_node(from_mash_in_place_constructor *constructor)
-    : field_4(constructor), my_param_block(constructor)
+info_node::info_node(from_mash_in_place_constructor *constructor) : field_4(constructor), my_param_block(constructor)
 {
     m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[537]);
 }

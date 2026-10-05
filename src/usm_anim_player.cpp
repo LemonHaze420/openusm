@@ -86,9 +86,8 @@ nalComp::nalCompInstance *
 usm_anim_player<nalAnimClass<nalAnyPose>, 3>::nalPlayMethod::CreateInstance(nalAnimClass<nalAnyPose> *a1,
                                                                             nalBaseSkeleton *a2, void *a3)
 {
-    nalComp::nalCompInstance *(__fastcall *func)(
-        void *, void *, nalAnimClass<nalAnyPose> *, nalBaseSkeleton *, void *) =
-        CAST(func, get_vfunc(m_vtbl, 0x8));
+    nalComp::nalCompInstance *(__fastcall * func)(
+        void *, void *, nalAnimClass<nalAnyPose> *, nalBaseSkeleton *, void *) = CAST(func, get_vfunc(m_vtbl, 0x8));
     return func(this, nullptr, a1, a2, a3);
 }
 
@@ -328,7 +327,10 @@ void release_anim_state(type::nalAnimState *state)
         state->field_0->finalize(true);
 }
 
-bool __fastcall nonlooping_invoke(type::nalAnimCallback *, void *, type *) { return true; }
+bool __fastcall nonlooping_invoke(type::nalAnimCallback *, void *, type *)
+{
+    return true;
+}
 void __fastcall nonlooping_reference(type::nalAnimCallback *, void *) {}
 void __fastcall nonlooping_release(type::nalAnimCallback *, void *) {}
 
@@ -342,7 +344,7 @@ type::nalAnimCallback *nonlooping_callback()
     static type::nalAnimCallback callback{static_cast<int>(reinterpret_cast<std::intptr_t>(table))};
     return &callback;
 }
-}
+}  // namespace
 
 template <>
 void usm_anim_player<nalAnimClass<nalAnyPose>, 3>::PlayModifier(nalAnimClass<nalAnyPose> *a2,
@@ -383,10 +385,10 @@ void usm_anim_player<nalAnimClass<nalAnyPose>, 3>::PlayModifier(nalAnimClass<nal
 }
 
 template <>
-void type::PlayModifier(nalAnimClass<nalAnyPose> *anim, usm_anim_player_modifier_type modifier,
-                        Float priority, uint32_t domains, bool force_restart, Float blend_time,
-                        Float fade_out_time, nalPlayMethod *method, Float extra_time,
-                        nalAnimCallback *callback, Float speed, bool completion_flag, void *parameter)
+void type::PlayModifier(nalAnimClass<nalAnyPose> *anim, usm_anim_player_modifier_type modifier, Float priority,
+                        uint32_t domains, bool force_restart, Float blend_time, Float fade_out_time,
+                        nalPlayMethod *method, Float extra_time, nalAnimCallback *callback, Float speed,
+                        bool completion_flag, void *parameter)
 {
     const bool looping = (anim->field_34 & 1) != 0;
     nalAnimState *previous = nullptr;
@@ -427,16 +429,15 @@ void type::PlayModifier(nalAnimClass<nalAnyPose> *anim, usm_anim_player_modifier
     state->field_40 = *position;
     *position = state;
     const float blend_rate = equal<float>(blend_time, 0.0f) ? 0.0f : 1.0f / blend_time;
-    state->sub_4AD850(anim, field_0, blend_rate, method, extra_time, callback,
-                     speed, this, parameter, completion_flag, 0.0f);
+    state->sub_4AD850(
+        anim, field_0, blend_rate, method, extra_time, callback, speed, this, parameter, completion_flag, 0.0f);
     state->field_50 = static_cast<int>(modifier);
     state->field_44 = static_cast<int>(domains);
     state->field_48 = priority;
     state->field_38 = 0;
     state->field_4C = equal<float>(fade_out_time, 0.0f) ? 0.0f : 1.0f / fade_out_time;
     state->field_3C = field_28;
-    if (previous != nullptr && looping && (previous->field_0->field_10->field_34 & 1) != 0 &&
-        !force_restart) {
+    if (previous != nullptr && looping && (previous->field_0->field_10->field_34 & 1) != 0 && !force_restart) {
         state->field_18 = previous->field_18;
         state->field_1C = previous->field_0->field_10 == anim ? previous->field_1C : state->field_18;
     }
@@ -495,8 +496,6 @@ void type::KillPriority(Float priority)
         }
     }
 }
-
-
 
 
 template <>
@@ -641,7 +640,6 @@ void usm_anim_player<nalAnimClass<nalAnyPose>, 3>::sub_4B0860(nalAnyPose &pose)
         for (auto *k = v2; k != nullptr; k = k->field_40) {
             k->sub_854140(pose, this->field_8);
         }
-
     }
 }
 
@@ -669,7 +667,6 @@ template <>
 usm_anim_player<nalAnimClass<nalAnyPose>, 3>::nalAnimState *
 usm_anim_player<nalAnimClass<nalAnyPose>, 3>::Advance(Float priority)
 {
-
     auto *state = this->field_20;
     return state != nullptr && std::equal_to<float>{}(state->field_48, priority.value) ? state : nullptr;
 }

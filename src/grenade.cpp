@@ -44,8 +44,8 @@ Var<grenade *> inactive_grenades{0x0095C768};
 template <typename R, typename... Args>
 R invoke(entity_base *self, unsigned offset, Args... args)
 {
-    return reinterpret_cast<R (__fastcall *)(entity_base *, void *, Args...)>(
-        get_vfunc(self->m_vtbl, offset))(self, nullptr, args...);
+    return reinterpret_cast<R(__fastcall *)(entity_base *, void *, Args...)>(get_vfunc(self->m_vtbl, offset))(
+        self, nullptr, args...);
 }
 
 thrown_item *weapon_owner(grenade *value)
@@ -74,31 +74,46 @@ void *__fastcall grenade_delete(grenade *self, void *, unsigned flags)
         mem_dealloc(self, sizeof(grenade));
     return self;
 }
-bool __fastcall grenade_query(grenade *, void *) { return true; }
+bool __fastcall grenade_query(grenade *, void *)
+{
+    return true;
+}
 bool __fastcall grenade_guided(grenade *self, void *)
 {
     auto *weapon = weapon_owner(self);
     return weapon && (weapon->field_10C & 0x4000);
 }
-void __fastcall grenade_advance(grenade *self, void *, Float elapsed) { self->frame_advance(elapsed); }
+void __fastcall grenade_advance(grenade *self, void *, Float elapsed)
+{
+    self->frame_advance(elapsed);
+}
 void __fastcall grenade_render(grenade *self, void *, Float time)
 {
     if (!self->visual.get_volatile_ptr())
         self->_render(time);
 }
-entity *__fastcall grenade_hit(grenade *self, void *, const vector3d &start, const vector3d &end,
-                               vector3d &hit, int *kind)
+entity *__fastcall grenade_hit(grenade *self, void *, const vector3d &start, const vector3d &end, vector3d &hit,
+                               int *kind)
 {
     return self->check_hit(start, end, hit, kind);
 }
-bool __fastcall grenade_hit_entity(grenade *self, void *, entity *target, const vector3d &start,
-                                    const vector3d &end, vector3d &hit, int *kind)
+bool __fastcall grenade_hit_entity(grenade *self, void *, entity *target, const vector3d &start, const vector3d &end,
+                                   vector3d &hit, int *kind)
 {
     return self->check_if_hit(target, start, end, hit, kind);
 }
-void __fastcall grenade_clear(grenade *self, void *, bool faded) { self->clear(faded); }
-void __fastcall grenade_detonate(grenade *self, void *, int reason, entity *hit) { self->detonate(reason, hit); }
-void __fastcall grenade_intercept(grenade *self, void *) { self->intercept(); }
+void __fastcall grenade_clear(grenade *self, void *, bool faded)
+{
+    self->clear(faded);
+}
+void __fastcall grenade_detonate(grenade *self, void *, int reason, entity *hit)
+{
+    self->detonate(reason, hit);
+}
+void __fastcall grenade_intercept(grenade *self, void *)
+{
+    self->intercept();
+}
 void __fastcall grenade_redirect_position(grenade *self, void *, const vector3d &position, entity_base *source)
 {
     self->redirect(position, source);
@@ -114,7 +129,6 @@ void __fastcall grenade_redirect_direction(grenade *self, void *, const vector3d
 
 void collect_segment_regions(region_array &regions, region *origin, const vector3d &start, const vector3d &end)
 {
-
     if (!origin)
         return;
     for (int i = 0; i < regions.count; ++i)
@@ -128,11 +142,10 @@ void collect_segment_regions(region_array &regions, region *origin, const vector
             collect_segment_regions(regions, connected, start, end);
     }
 }
-}
+}  // namespace
 
 void *grenade::native_vtable(void **actor_table)
 {
-
     static std::array<void *, 173> table;
     std::copy_n(actor_table, 165, table.begin());
     table[0] = reinterpret_cast<void *>(&grenade_delete);
@@ -271,8 +284,8 @@ void grenade::frame_advance_all_grenades(Float elapsed)
 {
     for (auto *current = active_grenades(); current;) {
         auto *next = current->next;
-        const float scale = current->field_58 ? static_cast<float>(current->field_58->sub_4ADE50())
-            : g_world_ptr->time_manager.field_0;
+        const float scale =
+            current->field_58 ? static_cast<float>(current->field_58->sub_4ADE50()) : g_world_ptr->time_manager.field_0;
         invoke<void>(current, 0x1A4, Float{scale * elapsed.value});
         current = next;
     }
@@ -370,8 +383,15 @@ void grenade::intercept()
     if (auto *weapon = weapon_owner(this)) {
         auto *projectile = visual.get_volatile_ptr();
         const auto pose = get_abs_po();
-        weapon->field_240.spawn(false, get_abs_position(), pose.get_z_facing(), weapon,
-            projectile ? projectile : this, nullptr, vector3d{}, true, true);
+        weapon->field_240.spawn(false,
+                                get_abs_position(),
+                                pose.get_z_facing(),
+                                weapon,
+                                projectile ? projectile : this,
+                                nullptr,
+                                vector3d{},
+                                true,
+                                true);
     }
     invoke<void>(this, 0x29C, true);
     event_manager::raise_event(event::BEING_WEBBED, get_my_vhandle());
@@ -398,9 +418,18 @@ void grenade::reacquire_target(float radius, float cosine, float delay, entity_b
         const auto position = get_abs_position();
         const auto destination = position + get_abs_po().get_z_facing() * 100.0f;
         vector3d hit, normal;
-        guidance->field_24 = find_intersection(position, destination, *local_collision::entfilter_blocks_beams,
-            *local_collision::obbfilter_lineseg_test, &hit, &normal, nullptr, nullptr, nullptr, false)
-            ? hit - normal * 10.0f : destination;
+        guidance->field_24 = find_intersection(position,
+                                               destination,
+                                               *local_collision::entfilter_blocks_beams,
+                                               *local_collision::obbfilter_lineseg_test,
+                                               &hit,
+                                               &normal,
+                                               nullptr,
+                                               nullptr,
+                                               nullptr,
+                                               false)
+                                 ? hit - normal * 10.0f
+                                 : destination;
     }
 }
 
@@ -419,7 +448,8 @@ void grenade::redirect(entity_base_vhandle target, entity_base *source)
     auto up = get_abs_po().get_y_facing();
     auto normalized = velocity;
     normalized.normalize();
-    if (std::fabs(normalized.x*up.x + normalized.y*up.y + normalized.z*up.z) > 0.99f || velocity.length() < 0.0001f)
+    if (std::fabs(normalized.x * up.x + normalized.y * up.y + normalized.z * up.z) > 0.99f ||
+        velocity.length() < 0.0001f)
         velocity = get_abs_po().get_z_facing() * -1.0f;
     po pose;
     pose.set_po(velocity, up, get_abs_position());
@@ -435,8 +465,16 @@ void grenade::redirect(entity_base_vhandle target, entity_base *source)
                 const auto position = get_abs_position();
                 auto destination = position + direction * 1000.0f;
                 vector3d hit, normal;
-                if (find_intersection(position, destination, *local_collision::entfilter_blocks_beams,
-                        *local_collision::obbfilter_lineseg_test, &hit, &normal, nullptr, nullptr, nullptr, false))
+                if (find_intersection(position,
+                                      destination,
+                                      *local_collision::entfilter_blocks_beams,
+                                      *local_collision::obbfilter_lineseg_test,
+                                      &hit,
+                                      &normal,
+                                      nullptr,
+                                      nullptr,
+                                      nullptr,
+                                      false))
                     destination = hit - normal;
                 guidance->field_24 = destination;
             }
@@ -457,7 +495,7 @@ void grenade::redirect_dir(const vector3d &input, entity_base *source)
     const auto up = get_abs_po().get_y_facing();
     auto normalized = velocity;
     normalized.normalize();
-    if (std::fabs(normalized.x*up.x + normalized.y*up.y + normalized.z*up.z) > 0.99f)
+    if (std::fabs(normalized.x * up.x + normalized.y * up.y + normalized.z * up.z) > 0.99f)
         velocity = get_abs_po().get_z_facing() * -1.0f;
     po pose;
     pose.set_po(velocity, up, get_abs_position());
@@ -470,8 +508,16 @@ void grenade::redirect_dir(const vector3d &input, entity_base *source)
                 const auto position = get_abs_position();
                 auto destination = position + direction * 1000.0f;
                 vector3d hit, normal;
-                if (find_intersection(position, destination, *local_collision::entfilter_blocks_beams,
-                        *local_collision::obbfilter_lineseg_test, &hit, &normal, nullptr, nullptr, nullptr, false))
+                if (find_intersection(position,
+                                      destination,
+                                      *local_collision::entfilter_blocks_beams,
+                                      *local_collision::obbfilter_lineseg_test,
+                                      &hit,
+                                      &normal,
+                                      nullptr,
+                                      nullptr,
+                                      nullptr,
+                                      false))
                     destination = hit - normal;
                 guidance->field_24 = destination;
             }
@@ -493,8 +539,8 @@ void grenade::detonate(int reason, entity *hit)
         owner->detonate_position = position;
         owner->field_2B0 = this;
         event_manager::raise_event(event::DETONATE, owner->get_my_vhandle());
-        owner->field_140.spawn(false, get_abs_position(), get_abs_po().get_z_facing(),
-            owner, hit, nullptr, vector3d{}, true, true);
+        owner->field_140.spawn(
+            false, get_abs_position(), get_abs_po().get_z_facing(), owner, hit, nullptr, vector3d{}, true, true);
         if (auto *effect = owner->field_140.field_28; effect && effect->get_flavor() == 10)
             invoke<void>(effect, 0x21C, 2, 1.0f);
         if (owner->field_114) {
@@ -503,8 +549,7 @@ void grenade::detonate(int reason, entity *hit)
             if (hit && invoke<bool>(hit, 0x114) && owner->can_damage(hit, redirected))
                 damaged.push_back(hit);
             if (owner->field_11C > 0.0f &&
-                entity::find_entities(0x884 | ((owner->field_10C & 0x800) ? 0x40 : 0),
-                                      this, owner->field_11C) > 0) {
+                entity::find_entities(0x884 | ((owner->field_10C & 0x800) ? 0x40 : 0), this, owner->field_11C) > 0) {
                 for (auto it = entity::found_entities->rbegin(); it != entity::found_entities->rend(); ++it) {
                     auto *candidate = *it;
                     if (candidate == this || candidate == hit ||
@@ -532,35 +577,53 @@ void grenade::detonate(int reason, entity *hit)
                     direction = target->get_abs_position() - position;
                 }
                 direction.normalize();
-                const int amount = target == hit ? static_cast<int>(owner->field_114 * owner->field_118)
-                                                 : owner->field_114;
+                const int amount =
+                    target == hit ? static_cast<int>(owner->field_114 * owner->field_118) : owner->field_114;
                 if (target->has_physical_ifc() && owner->field_128 > 0.0f)
                     target->physical_ifc()->set_gravity_delay_timer(0.5f);
                 const bool explosion = (owner->field_10C & 0x40000000) != 0;
-                const auto force = explosion && owner->field_128 > 0.0f
-                    ? direction * owner->field_128 : vector3d{};
+                const auto force = explosion && owner->field_128 > 0.0f ? direction * owner->field_128 : vector3d{};
                 const string_hash empty{0};
                 const auto &attack = incoming.field_10 ? incoming.field_14.field_8 : empty;
                 const auto &category = incoming.field_10 ? incoming.field_14.field_4 : empty;
                 const auto &reaction = incoming.field_10 ? incoming.field_14.field_C : empty;
-                invoke<damage_interface *>(target, 0x118)->apply_damage(owner, static_cast<float>(amount), explosion ? 6 : 2,
-                    position, direction, 0, attack, category, reaction, false, force, 17, false);
+                invoke<damage_interface *>(target, 0x118)
+                    ->apply_damage(owner,
+                                   static_cast<float>(amount),
+                                   explosion ? 6 : 2,
+                                   position,
+                                   direction,
+                                   0,
+                                   attack,
+                                   category,
+                                   reaction,
+                                   false,
+                                   force,
+                                   17,
+                                   false);
                 if (!explosion && target->has_physical_ifc() && owner->field_128 > 0.0f) {
                     auto *physical = target->physical_ifc();
                     auto impulse = direction * owner->field_128;
                     if (physical->field_184 && target->get_abs_po().get_y_facing().y > 0.8f)
                         impulse.y = 0.0f;
-                    reinterpret_cast<void (__fastcall *)(physical_interface *, void *, const vector3d &,
-                        physical_interface::force_type, const vector3d &, int)>(
-                        get_vfunc(physical->m_vtbl, 0x2C))(physical, nullptr, impulse,
-                            static_cast<physical_interface::force_type>(1), var<vector3d>(0x0091FF90), 0);
+                    reinterpret_cast<void(__fastcall *)(physical_interface *,
+                                                        void *,
+                                                        const vector3d &,
+                                                        physical_interface::force_type,
+                                                        const vector3d &,
+                                                        int)>(get_vfunc(physical->m_vtbl, 0x2C))(
+                        physical,
+                        nullptr,
+                        impulse,
+                        static_cast<physical_interface::force_type>(1),
+                        var<vector3d>(0x0091FF90),
+                        0);
                     physical->set_gravity_delay_timer(1.0f);
                 }
                 if (target->is_an_actor()) {
                     if (auto *core = target->get_ai_core()) {
                         if (auto *damage = static_cast<ai::damage_inode *>(
                                 core->get_info_node(ai::damage_inode::default_id, false))) {
-
                             if (!(damage->field_C->field_8 & 0x4000)) {
                                 damage->field_1C = g_world_ptr->time_manager.field_C;
                                 damage->field_20 = g_world_ptr->time_manager.field_8;
@@ -575,15 +638,15 @@ void grenade::detonate(int reason, entity *hit)
                     invoke<void>(grenade, 0x2A0, 5, static_cast<entity *>(nullptr));
             }
         }
-        auto direction = (owner->field_10C & 0x4000) || !has_physical_ifc()
-            ? get_abs_po().get_z_facing() : physical_ifc()->get_velocity();
+        auto direction = (owner->field_10C & 0x4000) || !has_physical_ifc() ? get_abs_po().get_z_facing()
+                                                                            : physical_ifc()->get_velocity();
         if (has_physical_ifc() && !(owner->field_10C & 0x4000) && direction.length2() < 0.001f)
             direction = get_abs_po().get_z_facing();
         direction.normalize();
         if (owner->field_10C & 0x4000) {
             auto *guidance = physical_ifc()->field_E8;
-            owner->spawn_mirvs(reason, position, direction, guidance->field_20,
-                              guidance->field_24, direction, &incoming);
+            owner->spawn_mirvs(
+                reason, position, direction, guidance->field_20, guidance->field_24, direction, &incoming);
         } else {
             owner->spawn_mirvs(reason, position, direction, {}, vector3d{}, vector3d{}, &incoming);
         }
@@ -605,9 +668,14 @@ void grenade::frame_advance(Float elapsed)
             stuck_time += dt;
             if (m_parent) {
                 vector3d hit, normal;
-                if (is_in_limbo() || find_sphere_intersection(get_abs_position(), Float{0.0f},
-                    *local_collision::entfilter_entity_no_capsules, *local_collision::obbfilter_lineseg_test,
-                    &hit, &normal, nullptr, nullptr)) {
+                if (is_in_limbo() || find_sphere_intersection(get_abs_position(),
+                                                              Float{0.0f},
+                                                              *local_collision::entfilter_entity_no_capsules,
+                                                              *local_collision::obbfilter_lineseg_test,
+                                                              &hit,
+                                                              &normal,
+                                                              nullptr,
+                                                              nullptr)) {
                     if (!owner || owner->field_11C <= 0.0f)
                         invoke<void>(this, 0x29C, true);
                     else
@@ -633,7 +701,8 @@ void grenade::frame_advance(Float elapsed)
     if (owner && (owner->field_30C > 0.0f || owner->field_304 >= 0.0f)) {
         auto position = get_abs_position();
         vector3d normal{0.0f, 1.0f, 0.0f};
-        const float elevation = g_world_ptr->the_terrain->get_elevation(position, normal, this, nullptr, nullptr, -1.0f);
+        const float elevation =
+            g_world_ptr->the_terrain->get_elevation(position, normal, this, nullptr, nullptr, -1.0f);
         if (elevation > -10000.0f) {
             if (owner->field_308 > -10.0f) {
                 position.y = owner->field_308 + elevation;
@@ -653,13 +722,20 @@ void grenade::frame_advance(Float elapsed)
     if (!armed && arm_delay <= 0.0f && (!owner || !owner->is_trip_mine() || stuck)) {
         armed = true;
         if (has_sound_and_pfx_ifc())
-            armed_sound = sound_and_pfx_ifc()->play_sound_grp(
-                var<string_hash>(0x0095FFA0), 1.0f, 1.0f, 1.0f, -1.0f, -1.0f);
+            armed_sound =
+                sound_and_pfx_ifc()->play_sound_grp(var<string_hash>(0x0095FFA0), 1.0f, 1.0f, 1.0f, -1.0f, -1.0f);
         if (owner) {
             owner->field_2B4 = this;
             auto *projectile = visual.get_volatile_ptr();
-            owner->field_200.spawn(false, get_abs_position(), get_abs_po().get_z_facing(),
-                owner, projectile ? projectile : this, nullptr, vector3d{}, true, true);
+            owner->field_200.spawn(false,
+                                   get_abs_position(),
+                                   get_abs_po().get_z_facing(),
+                                   owner,
+                                   projectile ? projectile : this,
+                                   nullptr,
+                                   vector3d{},
+                                   true,
+                                   true);
             if (owner->is_trip_mine()) {
                 if (!beam_entity) {
                     auto *beam = g_world_ptr->ent_mgr.create_and_add_beam(nullptr, make_unique_entity_id(), 0x2000);
@@ -686,11 +762,11 @@ void grenade::frame_advance(Float elapsed)
         const uint32_t flags = owner->field_10C;
         const bool sticky = (flags & 0x80000) != 0;
         const bool alive = owner->is_trip_mine() ||
-            (((owner->field_330 >= 0.0f && sticky && stuck) || !(flags & 0x1000) || fuse > 0.0f) &&
-             (owner->field_330 < 0.0f || !sticky || !stuck || stuck_time < owner->field_330));
+                           (((owner->field_330 >= 0.0f && sticky && stuck) || !(flags & 0x1000) || fuse > 0.0f) &&
+                            (owner->field_330 < 0.0f || !sticky || !stuck || stuck_time < owner->field_330));
         if (alive) {
-            const vector3d start = first_frame && owner->field_108
-                ? owner->field_108->get_abs_position() : previous_position;
+            const vector3d start =
+                first_frame && owner->field_108 ? owner->field_108->get_abs_position() : previous_position;
             auto end = start;
             if (stuck) {
                 if (owner->is_trip_mine() && armed) {
@@ -700,8 +776,16 @@ void grenade::frame_advance(Float elapsed)
                         const auto destination = position + get_abs_po().get_z_facing() * 100.0f;
                         vector3d hit, normal;
                         entity *occluder = nullptr;
-                        find_intersection(position, destination, *local_collision::entfilter_blocks_beams,
-                            *local_collision::obbfilter_lineseg_test, &hit, &normal, nullptr, &occluder, nullptr, false);
+                        find_intersection(position,
+                                          destination,
+                                          *local_collision::entfilter_blocks_beams,
+                                          *local_collision::obbfilter_lineseg_test,
+                                          &hit,
+                                          &normal,
+                                          nullptr,
+                                          &occluder,
+                                          nullptr,
+                                          false);
                         beam_length = (position - hit).length();
                         static_cast<beam *>(beam_entity)->set_point_to_point(position, hit);
                         beam_entity->compute_sector(g_world_ptr->the_terrain, false, nullptr);
@@ -741,16 +825,24 @@ void grenade::frame_advance(Float elapsed)
                 if (first_frame && (physical->field_C & (0x10000000 | 0x20000000)) && !(physical->field_C & 0x80)) {
                     vector3d hit, normal;
                     entity *contact = nullptr;
-                    if (find_intersection(start, end, *local_collision::entfilter_blocks_beams,
-                        *local_collision::obbfilter_lineseg_test, &hit, &normal, nullptr, &contact, nullptr, false)) {
+                    if (find_intersection(start,
+                                          end,
+                                          *local_collision::entfilter_blocks_beams,
+                                          *local_collision::obbfilter_lineseg_test,
+                                          &hit,
+                                          &normal,
+                                          nullptr,
+                                          &contact,
+                                          nullptr,
+                                          false)) {
                         normal.normalize();
                         physical->bounce(elapsed, hit, normal, contact);
                         end = get_abs_position();
                     }
                 }
                 first_frame = false;
-                if ((physical->field_C & 0x80) && (cleared_owner ||
-                    reinterpret_cast<entity_base *>(physical->field_C0) != owner->field_108)) {
+                if ((physical->field_C & 0x80) &&
+                    (cleared_owner || reinterpret_cast<entity_base *>(physical->field_C0) != owner->field_108)) {
                     if (!owner->is_trip_mine() && (flags & 0x2000) && !detonated && armed) {
                         int kind = 0;
                         entity *contact = reinterpret_cast<entity *>(physical->field_C0);
@@ -766,15 +858,23 @@ void grenade::frame_advance(Float elapsed)
                     }
                     if (!detonated) {
                         auto *contact = reinterpret_cast<entity *>(physical->field_C0);
-                        const bool impact_only = owner->is_trip_mine() || !armed ||
+                        const bool impact_only =
+                            owner->is_trip_mine() || !armed ||
                             ((flags & (0x400 | 0x80000)) &&
                              (!(flags & 0x2000) || !contact || !invoke<bool>(contact, 0x114))) ||
                             (contact && ((contact->field_4 & 0x20000) || !owner->can_damage(contact, redirected)));
                         if (impact_only) {
                             if ((flags & (0x80000 | 0x400)) && (physical->get_velocity().length2() >= 2.0f || stuck)) {
                                 auto *projectile = visual.get_volatile_ptr();
-                                owner->field_180.spawn(false, physical->field_A8, physical->field_B4, owner,
-                                    projectile ? projectile : this, nullptr, vector3d{}, true, true);
+                                owner->field_180.spawn(false,
+                                                       physical->field_A8,
+                                                       physical->field_B4,
+                                                       owner,
+                                                       projectile ? projectile : this,
+                                                       nullptr,
+                                                       vector3d{},
+                                                       true,
+                                                       true);
                             }
                         } else {
                             invoke<void>(this, 0x2A0, 1, contact && invoke<bool>(contact, 0x114) ? contact : nullptr);

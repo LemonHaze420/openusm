@@ -185,7 +185,7 @@ void allocate_group(aeps::Group &group, ParticleTemplate &particle)
     group.particles = tlMemAlloc(format(group).stride * particle.capacity, 128, 0x03000000);
     assert(group.particles != nullptr);
 }
-}
+}  // namespace
 
 Instance *load(generic_mash_data_ptrs *data, Entity *owner)
 {
@@ -687,7 +687,7 @@ color32 *__fastcall get_color(const Entity *owner, void *, color32 *result)
         *result = color32{owner->particle->color};
     return result;
 }
-}
+}  // namespace
 
 void *instance_mash_vtable()
 {
@@ -948,7 +948,7 @@ void install_entity_callbacks(void **vtable)
     vtable[0x1C0 / 4] = reinterpret_cast<void *>(set_color);
     vtable[0x1C4 / 4] = reinterpret_cast<void *>(get_color);
 }
-}
+}  // namespace native_pfx
 
 namespace aeps {
 bool DoCallback(entity_base *owner, int callback, unsigned flags)
@@ -971,4 +971,4 @@ bool DoCallback(entity_base *owner, int callback, unsigned flags)
     perform(graph, nullptr, callback, ifc, &info);
     return true;
 }
-}
+}  // namespace aeps

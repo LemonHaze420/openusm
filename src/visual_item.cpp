@@ -21,27 +21,36 @@ void *__fastcall visual_delete(visual_item *self, void *, unsigned flags)
         mem_dealloc(self, sizeof(visual_item));
     return self;
 }
-int __fastcall visual_size(visual_item *, void *) { return sizeof(visual_item); }
-bool __fastcall visual_query(visual_item *, void *) { return true; }
-void __fastcall visual_render(visual_item *self, void *, Float elapsed) { self->_render(elapsed); }
-void __fastcall visual_attach(visual_item *self, void *, entity_base *owner, string_hash bone,
-                              float scale, const vector3d *position, const vector3d *rotation, bool drawn)
+int __fastcall visual_size(visual_item *, void *)
+{
+    return sizeof(visual_item);
+}
+bool __fastcall visual_query(visual_item *, void *)
+{
+    return true;
+}
+void __fastcall visual_render(visual_item *self, void *, Float elapsed)
+{
+    self->_render(elapsed);
+}
+void __fastcall visual_attach(visual_item *self, void *, entity_base *owner, string_hash bone, float scale,
+                              const vector3d *position, const vector3d *rotation, bool drawn)
 {
     self->attach(owner, bone, scale, *position, *rotation, drawn);
 }
 int __fastcall visual_owner_flags(visual_item *self, void *)
 {
     if (self->field_C4 && (self->field_C4->field_4 & 0x200)) {
-        auto query = reinterpret_cast<int (__fastcall *)(entity_base *, void *)>(get_vfunc(self->field_C4->m_vtbl, 0x1E0));
+        auto query =
+            reinterpret_cast<int(__fastcall *)(entity_base *, void *)>(get_vfunc(self->field_C4->m_vtbl, 0x1E0));
         return query(self->field_C4, nullptr);
     }
     return 0;
 }
-}
+}  // namespace
 
 void *visual_item::native_vtable(void **actor_table)
 {
-
     static std::array<void *, 0x29C / 4> table;
     std::copy_n(actor_table, 0x294 / 4, table.begin());
     table[0] = reinterpret_cast<void *>(&visual_delete);
@@ -53,8 +62,7 @@ void *visual_item::native_vtable(void **actor_table)
     return table.data();
 }
 
-visual_item::visual_item(const string_hash &id, uint32_t flags)
-    : actor(id, flags), field_C0(false), field_C4(nullptr)
+visual_item::visual_item(const string_hash &id, uint32_t flags) : actor(id, flags), field_C0(false), field_C4(nullptr)
 {
 #if STANDALONE_SYSTEM
     m_vtbl = ent_v_table_lookup[26];
@@ -63,8 +71,8 @@ visual_item::visual_item(const string_hash &id, uint32_t flags)
 #endif
 }
 
-void visual_item::attach(entity_base *owner, string_hash bone, float scale,
-                         const vector3d &position, const vector3d &rotation, bool)
+void visual_item::attach(entity_base *owner, string_hash bone, float scale, const vector3d &position,
+                         const vector3d &rotation, bool)
 {
     field_C4 = owner;
     entity_base *parent = owner;
@@ -81,9 +89,12 @@ void visual_item::attach(entity_base *owner, string_hash bone, float scale,
         if (std::fabs(radians[axis]) <= 0.0001f)
             continue;
         po increment = po_identity_matrix;
-        if (axis == 0) increment.set_rotate_x(Float{radians[axis]});
-        else if (axis == 1) increment.set_rotate_y(Float{radians[axis]});
-        else increment.set_rotate_z(Float{radians[axis]});
+        if (axis == 0)
+            increment.set_rotate_x(Float{radians[axis]});
+        else if (axis == 1)
+            increment.set_rotate_y(Float{radians[axis]});
+        else
+            increment.set_rotate_z(Float{radians[axis]});
         pose.set_from_ptr_to_po_world(ptr_to_po{&pose.m, &increment.m});
         pose.set_position(position);
     }

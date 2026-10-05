@@ -19,7 +19,6 @@ struct trajectory_cluster_t {
     int iteration;
     dirty_sphere_t *dirty_spheres;
 
-    trajectory_cluster_t(intraframe_trajectory_t *list, float remaining, float collision,
-                         int iteration = 0);
+    trajectory_cluster_t(intraframe_trajectory_t *list, float remaining, float collision, int iteration = 0);
     static inline Var<fixed_pool> pool{0x009375A4};
 };

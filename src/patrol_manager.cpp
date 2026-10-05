@@ -29,9 +29,7 @@ void patrol_manager::frame_advance(Float)
     auto &sequence = field_4;
     const auto *first = reinterpret_cast<const char *>(sequence.field_0);
     const auto *last = reinterpret_cast<const char *>(sequence.field_4);
-    const int count = first != nullptr && last != nullptr
-        ? static_cast<int>((last - first) / 8)
-        : 0;
+    const int count = first != nullptr && last != nullptr ? static_cast<int>((last - first) / 8) : 0;
 
     if (sequence.field_20 >= count) {
         if (sequence.field_0 != 0) {

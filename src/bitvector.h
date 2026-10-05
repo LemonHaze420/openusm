@@ -48,4 +48,3 @@ struct fixed_bitvector {
         v2 |= get_bit(bit_position);
     }
 };
-

@@ -16,13 +16,29 @@ namespace {
 void __fastcall sniper_destroy(sniper_camera *self, void *, bool release)
 {
     self->~sniper_camera();
-    if (release) sniper_camera::operator delete(self);
+    if (release)
+        sniper_camera::operator delete(self);
 }
-int __fastcall sniper_flavor(sniper_camera *, void *) { return 23; }
-bool __fastcall sniper_identity(sniper_camera *, void *) { return true; }
-void __fastcall sniper_advance(sniper_camera *self, void *, Float dt) { self->frame_advance(dt); }
-void __fastcall sniper_sync(sniper_camera *self, void *, camera *source) { self->sync(*source); }
-void __fastcall sniper_zoom(sniper_camera *self, void *, float zoom) { self->set_zoom(zoom); }
+int __fastcall sniper_flavor(sniper_camera *, void *)
+{
+    return 23;
+}
+bool __fastcall sniper_identity(sniper_camera *, void *)
+{
+    return true;
+}
+void __fastcall sniper_advance(sniper_camera *self, void *, Float dt)
+{
+    self->frame_advance(dt);
+}
+void __fastcall sniper_sync(sniper_camera *self, void *, camera *source)
+{
+    self->sync(*source);
+}
+void __fastcall sniper_zoom(sniper_camera *self, void *, float zoom)
+{
+    self->set_zoom(zoom);
+}
 void __fastcall sniper_zoom_out(sniper_camera *self, void *, float amount, float duration)
 {
     self->zoom_to(self->field_1A8 - amount, duration);
@@ -31,9 +47,15 @@ void __fastcall sniper_zoom_in(sniper_camera *self, void *, float amount, float 
 {
     self->zoom_to(self->field_1A8 + amount, duration);
 }
-void __fastcall sniper_zoom_to(sniper_camera *self, void *, float zoom, float duration) { self->zoom_to(zoom, duration); }
-float __fastcall sniper_get_zoom(sniper_camera *self, void *) { return self->field_1A8; }
+void __fastcall sniper_zoom_to(sniper_camera *self, void *, float zoom, float duration)
+{
+    self->zoom_to(zoom, duration);
 }
+float __fastcall sniper_get_zoom(sniper_camera *self, void *)
+{
+    return self->field_1A8;
+}
+}  // namespace
 #endif
 
 void *sniper_camera::native_vtable()
@@ -108,8 +130,7 @@ void sniper_camera::frame_advance(Float dt)
         } else {
             field_1B4 = std::max(0.0f, field_1B4 - dt);
             field_1A8 += dt * field_1B0;
-            if ((field_1B0 < 0.0f && field_1A8 <= field_1AC)
-                || (field_1B0 > 0.0f && field_1A8 >= field_1AC)) {
+            if ((field_1B0 < 0.0f && field_1A8 <= field_1AC) || (field_1B0 > 0.0f && field_1A8 >= field_1AC)) {
                 field_1A8 = field_1AC;
                 field_1B4 = 0.0f;
             }

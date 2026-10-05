@@ -17,7 +17,7 @@ namespace event_manager {
 namespace {
 int garbage_index_storage{};
 _std::vector<event_type *> event_types_storage{};
-}
+}  // namespace
 int &garbage_index = garbage_index_storage;
 _std::vector<event_type *> &event_types = event_types_storage;
 #else

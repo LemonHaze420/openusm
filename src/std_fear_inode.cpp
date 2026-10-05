@@ -18,17 +18,29 @@ namespace ai {
 VALIDATE_SIZE(std_fear_inode, 0x7Cu);
 
 namespace {
-void __fastcall native_destruct(std_fear_inode *self, void *) { self->_destruct_mashed_class(); }
-bool __fastcall native_needs_advance(std_fear_inode *self, void *) { return self->field_1C; }
-void __fastcall native_activate(std_fear_inode *self, void *, ai_core *core) { self->_activate(core); }
-void __fastcall native_advance(std_fear_inode *self, void *, Float dt) { self->_frame_advance(dt); }
+void __fastcall native_destruct(std_fear_inode *self, void *)
+{
+    self->_destruct_mashed_class();
+}
+bool __fastcall native_needs_advance(std_fear_inode *self, void *)
+{
+    return self->field_1C;
+}
+void __fastcall native_activate(std_fear_inode *self, void *, ai_core *core)
+{
+    self->_activate(core);
+}
+void __fastcall native_advance(std_fear_inode *self, void *, Float dt)
+{
+    self->_frame_advance(dt);
+}
 
 void set_fear_flag(std_fear_inode *self, const char *name, bool &field, bool value)
 {
     self->my_param_block.set_pb_int(string_hash{name}, value, true);
     field = value;
 }
-}
+}  // namespace
 
 void *std_fear_inode::native_vtable()
 {
@@ -43,7 +55,10 @@ void *std_fear_inode::native_vtable()
     return table.data();
 }
 
-std_fear_inode::~std_fear_inode() { finalize(mash::ALLOCATED); }
+std_fear_inode::~std_fear_inode()
+{
+    finalize(mash::ALLOCATED);
+}
 
 void std_fear_inode::finalize(mash::allocation_scope)
 {
@@ -60,47 +75,49 @@ void std_fear_inode::_destruct_mashed_class()
 
 void std_fear_inode::refresh_parameters()
 {
-    struct bool_parameter { string_hash name; bool std_fear_inode::*field; int value; };
-    static const bool_parameter flags[] = {
-        {"cowering_enabled", &std_fear_inode::field_1D, 1},
-        {"cowering_forced", &std_fear_inode::field_1E, 0},
-        {"cowering_stop_forced", &std_fear_inode::field_1F, 0},
-        {"cowering_stop_disabled", &std_fear_inode::field_20, 0},
-        {"fleeing_enabled", &std_fear_inode::field_21, 1},
-        {"fleeing_forced", &std_fear_inode::field_22, 0},
-        {"fleeing_entity_forced", &std_fear_inode::field_23, 0},
-        {"fleeing_stop_forced", &std_fear_inode::field_24, 0},
-        {"fleeing_stop_disabled", &std_fear_inode::field_25, 0},
-        {"flee_to_location", &std_fear_inode::field_26, 0},
-        {"can_steal_car_while_fleeing", &std_fear_inode::field_27, 1}
+    struct bool_parameter {
+        string_hash name;
+        bool std_fear_inode::*field;
+        int value;
     };
+    static const bool_parameter flags[] = {{"cowering_enabled", &std_fear_inode::field_1D, 1},
+                                           {"cowering_forced", &std_fear_inode::field_1E, 0},
+                                           {"cowering_stop_forced", &std_fear_inode::field_1F, 0},
+                                           {"cowering_stop_disabled", &std_fear_inode::field_20, 0},
+                                           {"fleeing_enabled", &std_fear_inode::field_21, 1},
+                                           {"fleeing_forced", &std_fear_inode::field_22, 0},
+                                           {"fleeing_entity_forced", &std_fear_inode::field_23, 0},
+                                           {"fleeing_stop_forced", &std_fear_inode::field_24, 0},
+                                           {"fleeing_stop_disabled", &std_fear_inode::field_25, 0},
+                                           {"flee_to_location", &std_fear_inode::field_26, 0},
+                                           {"can_steal_car_while_fleeing", &std_fear_inode::field_27, 1}};
     for (const auto &parameter : flags)
-        this->*parameter.field = my_param_block.get_optional_pb_int(
-            parameter.name, parameter.value, nullptr) != 0;
-    field_28 = reinterpret_cast<std::intptr_t>(my_param_block.get_optional_pb_fixedstring(
-        string_hash{"entity_to_flee_from_id"}, "", nullptr));
+        this->*parameter.field = my_param_block.get_optional_pb_int(parameter.name, parameter.value, nullptr) != 0;
+    field_28 = reinterpret_cast<std::intptr_t>(
+        my_param_block.get_optional_pb_fixedstring(string_hash{"entity_to_flee_from_id"}, "", nullptr));
     field_2C = ZEROVEC;
     if (my_param_block.param_array) {
         if (auto *data = my_param_block.param_array->common_find_data(string_hash{"flee_destination"}))
             field_2C = *data->get_data_vector3d();
     }
-    struct float_parameter { string_hash name; float std_fear_inode::*field; float value; };
-    static const float_parameter values[] = {
-        {"flee_entity_catch_min_time", &std_fear_inode::field_38, -1.0f},
-        {"flee_entity_catch_min_dist", &std_fear_inode::field_3C, 0.0f},
-        {"fear_decrement_speed", &std_fear_inode::field_40, 0.3f},
-        {"fear_decrement_commander_mul", &std_fear_inode::field_44, 1.5f},
-        {"internal_fear_mul", &std_fear_inode::field_48, 1.0f},
-        {"bravado_increment_speed", &std_fear_inode::field_4C, 0.0f},
-        {"bravado_increment_commander_mul", &std_fear_inode::field_50, 1.1f},
-        {"internal_bravado_mul", &std_fear_inode::field_54, 1.0f},
-        {"morale_break_value", &std_fear_inode::field_58, -0.75f},
-        {"morale_break_chance", &std_fear_inode::field_5C, 0.75f},
-        {"flee_chance_vs_cower", &std_fear_inode::field_60, 0.1f}
+    struct float_parameter {
+        string_hash name;
+        float std_fear_inode::*field;
+        float value;
     };
+    static const float_parameter values[] = {{"flee_entity_catch_min_time", &std_fear_inode::field_38, -1.0f},
+                                             {"flee_entity_catch_min_dist", &std_fear_inode::field_3C, 0.0f},
+                                             {"fear_decrement_speed", &std_fear_inode::field_40, 0.3f},
+                                             {"fear_decrement_commander_mul", &std_fear_inode::field_44, 1.5f},
+                                             {"internal_fear_mul", &std_fear_inode::field_48, 1.0f},
+                                             {"bravado_increment_speed", &std_fear_inode::field_4C, 0.0f},
+                                             {"bravado_increment_commander_mul", &std_fear_inode::field_50, 1.1f},
+                                             {"internal_bravado_mul", &std_fear_inode::field_54, 1.0f},
+                                             {"morale_break_value", &std_fear_inode::field_58, -0.75f},
+                                             {"morale_break_chance", &std_fear_inode::field_5C, 0.75f},
+                                             {"flee_chance_vs_cower", &std_fear_inode::field_60, 0.1f}};
     for (const auto &parameter : values)
-        this->*parameter.field = my_param_block.get_optional_pb_float(
-            parameter.name, parameter.value, nullptr);
+        this->*parameter.field = my_param_block.get_optional_pb_float(parameter.name, parameter.value, nullptr);
 }
 
 void std_fear_inode::_activate(ai_core *core)
@@ -135,8 +152,8 @@ void std_fear_inode::_frame_advance(Float dt)
                 set_fear_flag(this, "can_steal_car_while_fleeing", field_27, false);
             }
         } else {
-            if (field_6C < field_58 - EPSILON && !field_22 && !field_24 &&
-                !field_1E && !field_1F && !is_cowering() && !field_64) {
+            if (field_6C < field_58 - EPSILON && !field_22 && !field_24 && !field_1E && !field_1F && !is_cowering() &&
+                !field_64) {
                 const float amount = (field_6C - field_58) / (-1.0f - field_58);
                 const float chance = amount < 0.0f ? 0.0f : amount * field_5C;
                 constexpr float random_scale = 3.0518509447574615e-05f;
@@ -281,20 +298,18 @@ void std_fear_inode::post_event(int event, float magnitude)
         float mean;
         float variation;
     };
-    static const fear_parameter parameters[] = {
-        {string_hash{"FEAR_SELF_DAMAGE"}, -0.15f, 0.05f},
-        {string_hash{"FEAR_SURPRISE"}, -0.25f, 0.0f},
-        {string_hash{"FEAR_FRIEND_DAMAGE"}, -0.05f, 0.05f},
-        {string_hash{"FEAR_FRIEND_COWER"}, -0.1f, 0.05f},
-        {string_hash{"FEAR_FRIEND_FLEE"}, -0.15f, 0.1f},
-        {string_hash{"FEAR_FRIEND_SUBDUED"}, -0.2f, 0.1f},
-        {string_hash{"FEAR_COMMANDER_DAMAGE"}, -0.2f, 0.1f},
-        {string_hash{"FEAR_COMMANDER_COWER"}, -0.15f, 0.1f},
-        {string_hash{"FEAR_COMMANDER_FLEE"}, -0.35f, 0.2f},
-        {string_hash{"FEAR_COMMANDER_SUBDUED"}, -0.5f, 0.2f},
-        {string_hash{"BRAVADO_SEPERATOR"}, 0.0f, 0.0f},
-        {string_hash{"BRAVADO_COMMANDER_MORALE_BOOST"}, 0.75f, 0.0f}
-    };
+    static const fear_parameter parameters[] = {{string_hash{"FEAR_SELF_DAMAGE"}, -0.15f, 0.05f},
+                                                {string_hash{"FEAR_SURPRISE"}, -0.25f, 0.0f},
+                                                {string_hash{"FEAR_FRIEND_DAMAGE"}, -0.05f, 0.05f},
+                                                {string_hash{"FEAR_FRIEND_COWER"}, -0.1f, 0.05f},
+                                                {string_hash{"FEAR_FRIEND_FLEE"}, -0.15f, 0.1f},
+                                                {string_hash{"FEAR_FRIEND_SUBDUED"}, -0.2f, 0.1f},
+                                                {string_hash{"FEAR_COMMANDER_DAMAGE"}, -0.2f, 0.1f},
+                                                {string_hash{"FEAR_COMMANDER_COWER"}, -0.15f, 0.1f},
+                                                {string_hash{"FEAR_COMMANDER_FLEE"}, -0.35f, 0.2f},
+                                                {string_hash{"FEAR_COMMANDER_SUBDUED"}, -0.5f, 0.2f},
+                                                {string_hash{"BRAVADO_SEPERATOR"}, 0.0f, 0.0f},
+                                                {string_hash{"BRAVADO_COMMANDER_MORALE_BOOST"}, 0.75f, 0.0f}};
     double value = 0.0;
     if (event >= 0 && event < 12) {
         const auto &parameter = parameters[event];
@@ -332,10 +347,10 @@ void std_fear_inode::post_event(int event, float magnitude)
 void std_fear_inode::post_event_to_others(int event, float magnitude, bool friends, bool enemies, bool neutrals)
 {
     if (friends) {
-        auto *soldier = static_cast<universal_soldier_inode *>(
-            field_8->get_info_node(string_hash{"universal_soldier"}, false));
-        if (soldier != nullptr && (soldier->field_5C & 0xFF) != 0 &&
-            soldier->field_2C != nullptr && !soldier->field_2C->empty()) {
+        auto *soldier =
+            static_cast<universal_soldier_inode *>(field_8->get_info_node(string_hash{"universal_soldier"}, false));
+        if (soldier != nullptr && (soldier->field_5C & 0xFF) != 0 && soldier->field_2C != nullptr &&
+            !soldier->field_2C->empty()) {
             const int group_event = event >= 2 && event <= 5 ? event + 4 : event;
             for (auto *member : *soldier->field_2C) {
                 if (member->field_40 != nullptr)
@@ -349,13 +364,13 @@ void std_fear_inode::post_event_to_others(int event, float magnitude, bool frien
     const string_hash team_parameter{"team"};
     if (!field_8->get_param_block()->does_parameter_exist(team_parameter))
         return;
-    const auto observer_team = team::manager::get_team_enum_by_hash(
-        field_8->get_param_block()->get_pb_hash(team_parameter));
+    const auto observer_team =
+        team::manager::get_team_enum_by_hash(field_8->get_param_block()->get_pb_hash(team_parameter));
     for (auto *other : *all_fear_inodes()) {
         if (other == this || !other->field_8->get_param_block()->does_parameter_exist(team_parameter))
             continue;
-        const auto candidate_team = team::manager::get_team_enum_by_hash(
-            other->field_8->get_param_block()->get_pb_hash(team_parameter));
+        const auto candidate_team =
+            team::manager::get_team_enum_by_hash(other->field_8->get_param_block()->get_pb_hash(team_parameter));
         if ((friends && team::manager::is_friend(observer_team, candidate_team)) ||
             (enemies && team::manager::is_enemy(observer_team, candidate_team)) ||
             (neutrals && team::manager::is_neutral(observer_team, candidate_team)))

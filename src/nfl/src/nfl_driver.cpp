@@ -380,13 +380,14 @@ HANDLE __stdcall sub_81D790(LPCSTR lpFileName, DWORD dwDesiredAccess, DWORD dwSh
 
         return result;
     } else {
-        HANDLE(__stdcall * func)(LPCSTR lpFileName,
-                                 DWORD dwDesiredAccess,
-                                 DWORD dwShareMode,
-                                 LPSECURITY_ATTRIBUTES lpSecurityAttributes,
-                                 DWORD dwCreationDisposition,
-                                 DWORD dwFlagsAndAttributes,
-                                 HANDLE a7) = CAST(func, 0x0081D790);
+        HANDLE(__stdcall * func)
+        (LPCSTR lpFileName,
+         DWORD dwDesiredAccess,
+         DWORD dwShareMode,
+         LPSECURITY_ATTRIBUTES lpSecurityAttributes,
+         DWORD dwCreationDisposition,
+         DWORD dwFlagsAndAttributes,
+         HANDLE a7) = CAST(func, 0x0081D790);
 
         return func(lpFileName,
                     dwDesiredAccess,
@@ -457,8 +458,8 @@ BOOL __stdcall sub_81D820(HANDLE hFile, LPVOID lpBuffer, DWORD nNumberOfBytesToR
             return ReadFile(v6, lpBuffer, nNumberOfBytesToRead, lpNumberOfBytesRead, nullptr);
         }
     } else {
-        BOOL(__stdcall * func)(
-            HANDLE hFile, LPVOID lpBuffer, DWORD nNumberOfBytesToRead, LPDWORD lpNumberOfBytesRead, LPOVERLAPPED a5) =
+        BOOL(__stdcall * func)
+        (HANDLE hFile, LPVOID lpBuffer, DWORD nNumberOfBytesToRead, LPDWORD lpNumberOfBytesRead, LPOVERLAPPED a5) =
             CAST(func, 0x0081D820);
 
         return func(hFile, lpBuffer, nNumberOfBytesToRead, lpNumberOfBytesRead, a5);
@@ -516,11 +517,12 @@ BOOL __stdcall sub_81D950(HANDLE hFile, LPVOID lpBuffer, DWORD nNumberOfBytesToR
         }
 
     } else {
-        BOOL(__stdcall * func)(HANDLE hFile,
-                               LPVOID lpBuffer,
-                               DWORD nNumberOfBytesToRead,
-                               LPOVERLAPPED a4,
-                               LPOVERLAPPED_COMPLETION_ROUTINE a5) = CAST(func, 0x0081D950);
+        BOOL(__stdcall * func)
+        (HANDLE hFile,
+         LPVOID lpBuffer,
+         DWORD nNumberOfBytesToRead,
+         LPOVERLAPPED a4,
+         LPOVERLAPPED_COMPLETION_ROUTINE a5) = CAST(func, 0x0081D950);
         return func(hFile, lpBuffer, nNumberOfBytesToRead, a4, a5);
     }
 }
@@ -576,11 +578,9 @@ BOOL __stdcall sub_81DA70(HANDLE hFile, LPCVOID lpBuffer, DWORD nNumberOfBytesTo
             return WriteFile(hFile, lpBuffer, nNumberOfBytesToWrite, lpNumberOfBytesWritten, nullptr);
         }
     } else {
-        BOOL(__stdcall * func)(HANDLE hFile,
-                               LPCVOID lpBuffer,
-                               DWORD nNumberOfBytesToWrite,
-                               LPDWORD lpNumberOfBytesWritten,
-                               LPOVERLAPPED a5) = CAST(func, 0x0081DA70);
+        BOOL(__stdcall * func)
+        (HANDLE hFile, LPCVOID lpBuffer, DWORD nNumberOfBytesToWrite, LPDWORD lpNumberOfBytesWritten, LPOVERLAPPED a5) =
+            CAST(func, 0x0081DA70);
 
         return func(hFile, lpBuffer, nNumberOfBytesToWrite, lpNumberOfBytesWritten, a5);
     }
@@ -635,11 +635,12 @@ BOOL __stdcall sub_81DB90(HANDLE hFile, LPCVOID lpBuffer, DWORD nNumberOfBytesTo
         }
 
     } else {
-        BOOL(__stdcall * func)(HANDLE hFile,
-                               LPCVOID lpBuffer,
-                               DWORD nNumberOfBytesToWrite,
-                               LPOVERLAPPED a4,
-                               LPOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine) = CAST(func, 0x0081DB90);
+        BOOL(__stdcall * func)
+        (HANDLE hFile,
+         LPCVOID lpBuffer,
+         DWORD nNumberOfBytesToWrite,
+         LPOVERLAPPED a4,
+         LPOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine) = CAST(func, 0x0081DB90);
 
         return func(hFile, lpBuffer, nNumberOfBytesToWrite, a4, lpCompletionRoutine);
     }

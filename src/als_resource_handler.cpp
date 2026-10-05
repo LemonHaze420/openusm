@@ -37,7 +37,7 @@ als_resource_handler::als_resource_handler(worldly_pack_slot *a2)
 
         this->m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {
-    this->m_vtbl = 0x008889F8;
+        this->m_vtbl = 0x008889F8;
     }
 
     this->my_slot = a2;
@@ -75,9 +75,9 @@ bool als_resource_handler::_handle_resource(worldly_resource_handler::eBehavior 
             assert(new_als != nullptr);
 
 #if OPENUSM_XBOX_MASH_FORMAT
-            mash_info_struct v5 {mash::UNMASH_MODE, resource, a3->m_size, true};
+            mash_info_struct v5{mash::UNMASH_MODE, resource, a3->m_size, true};
 #else
-            mash_info_struct v5 {resource, a3->m_size};
+            mash_info_struct v5{resource, a3->m_size};
 #endif
 
             v5.unmash_class(new_als,
@@ -86,7 +86,7 @@ bool als_resource_handler::_handle_resource(worldly_resource_handler::eBehavior 
                             ,
                             mash::NORMAL_BUFFER
 #endif
-                    );
+            );
 
             mash_info_struct::construct_class(new_als);
 
@@ -98,7 +98,7 @@ bool als_resource_handler::_handle_resource(worldly_resource_handler::eBehavior 
         ++this->field_C;
         return false;
     } else {
-        return (bool) THISCALL(0x00568930, this, a2, a3);
+        return (bool)THISCALL(0x00568930, this, a2, a3);
     }
 }
 

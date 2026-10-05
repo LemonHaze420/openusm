@@ -5,7 +5,8 @@
 #include <vector.hpp>
 #include <cstdint>
 
-template <typename T, uint32_t N> struct fixed_vector;
+template <typename T, uint32_t N>
+struct fixed_vector;
 struct vector2d;
 
 struct entity;
@@ -25,8 +26,8 @@ struct hierarchical_entity_proximity_map {
     dynamic_proximity_map *maps[5];
     int number_of_levels;
 
-    void init(dynamic_proximity_map_stack &allocator, int sphere_kind, const vector3d &min,
-        const vector3d &max, const _std::vector<int> &levels);
+    void init(dynamic_proximity_map_stack &allocator, int sphere_kind, const vector3d &min, const vector3d &max,
+              const _std::vector<int> &levels);
 
     int traverse_sphere(const vector3d &a2, Float a3, subdivision_visitor *a4);
 

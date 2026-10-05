@@ -29,28 +29,59 @@ namespace {
 void __fastcall game_destroy(game_camera *self, void *, bool release)
 {
     self->~game_camera();
-    if (release) mem_dealloc(self, sizeof(game_camera));
+    if (release)
+        mem_dealloc(self, sizeof(game_camera));
 }
-int __fastcall game_size(game_camera *, void *) { return sizeof(game_camera); }
-int __fastcall game_flavor(game_camera *, void *) { return 20; }
-bool __fastcall game_identity(game_camera *, void *) { return true; }
-void __fastcall game_advance(game_camera *self, void *, Float dt) { self->frame_advance(dt); }
-void __fastcall game_sync(game_camera *self, void *, camera *source) { self->_sync(*source); }
+int __fastcall game_size(game_camera *, void *)
+{
+    return sizeof(game_camera);
+}
+int __fastcall game_flavor(game_camera *, void *)
+{
+    return 20;
+}
+bool __fastcall game_identity(game_camera *, void *)
+{
+    return true;
+}
+void __fastcall game_advance(game_camera *self, void *, Float dt)
+{
+    self->frame_advance(dt);
+}
+void __fastcall game_sync(game_camera *self, void *, camera *source)
+{
+    self->_sync(*source);
+}
 vector3d *__fastcall game_shake(game_camera *self, void *, vector3d *out, vector3d pos, Float dt)
 {
     *out = self->frame_advance_shake(pos, dt);
     return out;
 }
-void __fastcall game_target(game_camera *self, void *, entity *target) { self->set_target_entity(target); }
-void __fastcall game_target_handle(game_camera *self, void *, vhandle_type<entity> target) { self->field_118 = target; }
-bool __fastcall game_shaking(game_camera *self, void *, short handle) { return self->is_shake_active(handle); }
+void __fastcall game_target(game_camera *self, void *, entity *target)
+{
+    self->set_target_entity(target);
+}
+void __fastcall game_target_handle(game_camera *self, void *, vhandle_type<entity> target)
+{
+    self->field_118 = target;
+}
+bool __fastcall game_shaking(game_camera *self, void *, short handle)
+{
+    return self->is_shake_active(handle);
+}
 short __fastcall game_add_shake(game_camera *self, void *, float a, float f, float d, float fi, float fo)
 {
     return self->add_shake(a, f, d, fi, fo);
 }
-void __fastcall game_remove_shake(game_camera *self, void *, short handle) { self->remove_shake(handle); }
-void __fastcall game_clear_shakes(game_camera *self, void *) { self->clear_shakes(); }
+void __fastcall game_remove_shake(game_camera *self, void *, short handle)
+{
+    self->remove_shake(handle);
 }
+void __fastcall game_clear_shakes(game_camera *self, void *)
+{
+    self->clear_shakes();
+}
+}  // namespace
 #endif
 
 void *game_camera::native_vtable()
@@ -123,12 +154,14 @@ void game_camera::clear_shakes()
 vector3d game_camera::frame_advance_shake(vector3d position, Float dt)
 {
     for (auto &shake : field_130) {
-        if (!shake.field_1A) continue;
+        if (!shake.field_1A)
+            continue;
         float amplitude = std::sin(shake.field_C / (1.0f / shake.field_4) * 6.283185307179586f) * shake.field_0;
         if (shake.empty[0] > EPSILON && shake.field_C < shake.empty[0]) {
             amplitude *= std::clamp(shake.field_C / shake.empty[0], 0.0f, 1.0f);
         } else if (shake.empty[1] > EPSILON && shake.field_8 + shake.empty[0] < shake.field_C) {
-            amplitude *= std::clamp(1.0f - (shake.field_C - shake.field_8 - shake.empty[0]) / shake.empty[1], 0.0f, 1.0f);
+            amplitude *=
+                std::clamp(1.0f - (shake.field_C - shake.field_8 - shake.empty[0]) / shake.empty[1], 0.0f, 1.0f);
         }
         position.y += amplitude;
         shake.field_C += dt;
@@ -144,10 +177,12 @@ short game_camera::add_shake(float amplitude, float frequency, float duration, f
 {
     _camera_shake_t *selected = nullptr;
     for (auto &shake : field_130) {
-        if (!shake.field_1A) { selected = &shake; break; }
+        if (!shake.field_1A) {
+            selected = &shake;
+            break;
+        }
     }
     if (!selected) {
-
         for (auto &shake : field_130)
             if (shake.field_C / (shake.field_8 + shake.empty[0] + shake.empty[1]) > -1.0e20f)
                 selected = &shake;
@@ -331,11 +366,14 @@ void game_camera::blend(vector3d arg0, vector3d eax0, Float arg18)
         const float angle = std::atan2(-relative.x, relative.z);
         const float radius_delta = std::sqrt(wanted.x * wanted.x + wanted.z * wanted.z) - radius;
         float angle_delta = std::atan2(-wanted.x, wanted.z) - angle;
-        if (angle_delta < -3.141592653589793f) angle_delta += 6.283185307179586f;
-        else if (angle_delta > 3.141592653589793f) angle_delta -= 6.283185307179586f;
+        if (angle_delta < -3.141592653589793f)
+            angle_delta += 6.283185307179586f;
+        else if (angle_delta > 3.141592653589793f)
+            angle_delta -= 6.283185307179586f;
         const float dead_zone = arg18 * 0.001f;
         const float new_radius = radius + (std::fabs(radius_delta) <= dead_zone ? 0.0f : radius_delta * arg18 * 6.0f);
-        const float new_angle = angle + (std::fabs(angle_delta * radius) <= dead_zone ? 0.0f : angle_delta * arg18 * 3.0f);
+        const float new_angle =
+            angle + (std::fabs(angle_delta * radius) <= dead_zone ? 0.0f : angle_delta * arg18 * 3.0f);
         eax0 = {field_11C.x - std::sin(new_angle) * new_radius,
                 current.y + 2.0f * (desired.y - current.y) * arg18,
                 field_11C.z + std::cos(new_angle) * new_radius};
@@ -344,13 +382,22 @@ void game_camera::blend(vector3d arg0, vector3d eax0, Float arg18)
         if (distance > arg18 * 10.0f)
             eax0 = current + movement * (arg18 * 10.0f / distance);
         vector3d hit, normal;
-        if (find_intersection(chest(), eax0, *local_collision::entfilter_line_segment_camera_collision,
-                *local_collision::obbfilter_lineseg_test, &hit, &normal, nullptr, nullptr, nullptr, false)
-            && (chest() - hit).length2() > 1.5625f)
+        if (find_intersection(chest(),
+                              eax0,
+                              *local_collision::entfilter_line_segment_camera_collision,
+                              *local_collision::obbfilter_lineseg_test,
+                              &hit,
+                              &normal,
+                              nullptr,
+                              nullptr,
+                              nullptr,
+                              false) &&
+            (chest() - hit).length2() > 1.5625f)
             eax0 = desired;
     }
     eax0 = collide_with_world(this, eax0 - get_abs_position(), 0.3f, eax0, get_primary_region());
-    if (!eax0.is_valid()) eax0 = get_target_entity()->get_abs_position();
+    if (!eax0.is_valid())
+        eax0 = get_target_entity()->get_abs_position();
     set_abs_position(eax0);
     auto forward = arg0 - get_abs_position();
     const float distance = forward.length();

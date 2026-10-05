@@ -17,17 +17,29 @@ void *__fastcall native_destroy(web_polytube *self, void *, unsigned flags)
         ::operator delete(self);
     return self;
 }
-void __fastcall native_render(web_polytube *self, void *, Float dt) { self->render(dt); }
-void __fastcall native_rebuild(web_polytube *self, void *) { self->rebuild_web(); }
+void __fastcall native_render(web_polytube *self, void *, Float dt)
+{
+    self->render(dt);
+}
+void __fastcall native_rebuild(web_polytube *self, void *)
+{
+    self->rebuild_web();
+}
 short __fastcall native_ifl_lock(web_polytube *self, void *, short frame)
 {
     self->field_140 = frame;
     self->field_142 = 1;
     return frame;
 }
-void __fastcall native_ifl_play(web_polytube *self, void *) { self->field_142 = 0; }
+void __fastcall native_ifl_play(web_polytube *self, void *)
+{
+    self->field_142 = 0;
+}
 void __fastcall native_ifl_pause(web_polytube *, void *) {}
-short __fastcall native_ifl_frame(web_polytube *self, void *) { return self->field_140; }
+short __fastcall native_ifl_frame(web_polytube *self, void *)
+{
+    return self->field_140;
+}
 
 std::intptr_t native_table(std::intptr_t inherited)
 {
@@ -46,7 +58,7 @@ std::intptr_t native_table(std::intptr_t inherited)
     }
     return reinterpret_cast<std::intptr_t>(table.data());
 }
-}
+}  // namespace
 
 web_polytube::web_polytube(swinger_t *a1, const string_hash &a2, uint32_t a3) : polytube(a2, a3)
 {

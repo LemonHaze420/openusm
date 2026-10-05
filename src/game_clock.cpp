@@ -5,10 +5,10 @@
 void game_clock::frame_advance(Float a1)
 {
 #if STANDALONE_SYSTEM
-        ++frames;
-        delta = a1;
-        ticks += static_cast<std::uint64_t>(a1 * 10000.0f);
+    ++frames;
+    delta = a1;
+    ticks += static_cast<std::uint64_t>(a1 * 10000.0f);
 #else
-        CDECL_CALL(0x0058E2F0, a1);
+    CDECL_CALL(0x0058E2F0, a1);
 #endif
 }

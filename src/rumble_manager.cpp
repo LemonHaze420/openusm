@@ -47,8 +47,8 @@ rumble_manager::rumble_manager()
     this->field_58 = 15.0;
 }
 
-void rumble_manager::start_vibration(float amplitude, float duration, float attack,
-                                    float release, unsigned int pulses, float interval)
+void rumble_manager::start_vibration(float amplitude, float duration, float attack, float release, unsigned int pulses,
+                                     float interval)
 {
     if ((input_mgr::instance->field_20 & 2) != 0 || !field_60)
         return;

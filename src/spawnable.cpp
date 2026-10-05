@@ -48,15 +48,23 @@ static const bool native_spawn_defaults = [] {
 namespace {
 
 
-void __fastcall base_spawn(spawnable *, void *, vector3d, vector3d,
-    traffic_path_lane *, int, bool, bool) {}
+void __fastcall base_spawn(spawnable *, void *, vector3d, vector3d, traffic_path_lane *, int, bool, bool) {}
 void __fastcall base_unspawn(spawnable *, void *) {}
 void __fastcall base_critical(spawnable *, void *, Float) {}
-actor *__fastcall base_actor(spawnable *, void *) { return nullptr; }
-void __fastcall base_set_actor(spawnable *, void *, vhandle_type<entity>) {}
-bool __fastcall base_lane(spawnable *, void *, traffic_path_lane *) { return true; }
-bool __fastcall base_position(spawnable *, void *, const vector3d &) { return true; }
+actor *__fastcall base_actor(spawnable *, void *)
+{
+    return nullptr;
 }
+void __fastcall base_set_actor(spawnable *, void *, vhandle_type<entity>) {}
+bool __fastcall base_lane(spawnable *, void *, traffic_path_lane *)
+{
+    return true;
+}
+bool __fastcall base_position(spawnable *, void *, const vector3d &)
+{
+    return true;
+}
+}  // namespace
 
 void *spawnable::native_vtable()
 {
@@ -134,9 +142,7 @@ bool spawnable::should_update_spawn_lanes(po &last_po, entity_base *camera_entit
 }
 
 // 0x006DC490
-static void shuffle_spawnable_lanes(
-    traffic_path_graph::laneInfoStruct *first,
-    traffic_path_graph::laneInfoStruct *last)
+static void shuffle_spawnable_lanes(traffic_path_graph::laneInfoStruct *first, traffic_path_graph::laneInfoStruct *last)
 {
     unsigned int count = 2;
     for (auto *current = first + 1; current != last; ++current, ++count) {
@@ -173,8 +179,7 @@ void spawnable::update_spawn_lanes()
     if (graph == nullptr) {
         return;
     }
-    graph->get_spawnable_lane_list(
-        camera, spawnable_lanes, Float{10.0f}, Float{90.0f});
+    graph->get_spawnable_lane_list(camera, spawnable_lanes, Float{10.0f}, Float{90.0f});
     if (!spawnable_lanes->empty()) {
         auto *first = &*spawnable_lanes->begin();
         shuffle_spawnable_lanes(first, first + spawnable_lanes->size());
@@ -256,7 +261,7 @@ actor *spawnable::get_my_actor()
 }
 
 vector3d spawnable::prepare_for_spawn(traffic_path_graph::laneInfoStruct *next_lane_struct, vector3d &a4,
-    int node_index)
+                                      int node_index)
 {
     vector3d result = ZEROVEC;
 
@@ -315,11 +320,10 @@ traffic_path_graph::laneInfoStruct *spawnable::get_spawnable_lane(traffic_path_l
     for (int visited = 0; visited < count; ++visited, selected = (selected + 1) % count) {
         auto *info = &(*spawnable_lanes)[selected];
         auto *lane = info->field_4;
-        auto viable = reinterpret_cast<bool(__fastcall *)(spawnable *, void *, traffic_path_lane *)>(
-            get_vfunc(m_vtbl, 0x14));
-        if (!traffic_path_lane::lane_is_valid(lane) || !viable(this, nullptr, lane)
-            || !lane->nodes || !lane->is_valid(nullptr)
-            || (last_spawn_lane_info && lane == last_spawn_lane_info->field_4))
+        auto viable =
+            reinterpret_cast<bool(__fastcall *)(spawnable *, void *, traffic_path_lane *)>(get_vfunc(m_vtbl, 0x14));
+        if (!traffic_path_lane::lane_is_valid(lane) || !viable(this, nullptr, lane) || !lane->nodes ||
+            !lane->is_valid(nullptr) || (last_spawn_lane_info && lane == last_spawn_lane_info->field_4))
             continue;
         const int segments = lane->get_num_nodes() - 1;
         const int start = static_cast<int>(std::rand() * (1.0 / 32768.0) * lane->get_num_nodes());
@@ -330,9 +334,8 @@ traffic_path_graph::laneInfoStruct *spawnable::get_spawnable_lane(traffic_path_l
             const vector3d first = lane->get_node(node);
             const vector3d next = lane->get_node(node + 1);
             camera_position.y = first.y;
-            if (lane->get_type() != arg0 || !lane->has_room_for_me(10.0f, true, false)
-                || lane->get_num_ais() > 5 || (a9 && lane->is_clogged(true, false))
-                || (a7 && !info->field_C) || (a8 && !info->field_D))
+            if (lane->get_type() != arg0 || !lane->has_room_for_me(10.0f, true, false) || lane->get_num_ais() > 5 ||
+                (a9 && lane->is_clogged(true, false)) || (a7 && !info->field_C) || (a8 && !info->field_D))
                 continue;
             if (!info->field_D && (a8 || a9))
                 info->field_E = true;
@@ -348,8 +351,8 @@ traffic_path_graph::laneInfoStruct *spawnable::get_spawnable_lane(traffic_path_l
                     continue;
                 direction.normalize();
                 const double random = std::rand() * (1.0 / RAND_MAX);
-                candidate += direction * static_cast<float>(((random * 2.0 - 1.0) * 0.25 + 1.75)
-                    * spawn_spacing * 10.0);
+                candidate +=
+                    direction * static_cast<float>(((random * 2.0 - 1.0) * 0.25 + 1.75) * spawn_spacing * 10.0);
                 if (!lane->is_point_between_nodes(candidate, node, node + 1))
                     continue;
                 const vector3d remaining = info->field_E ? next - candidate : candidate - next;
@@ -359,13 +362,12 @@ traffic_path_graph::laneInfoStruct *spawnable::get_spawnable_lane(traffic_path_l
                     accepted = !a9 && (candidate - camera_position).xz_length2() >= minimum_squared;
                 else
                     accepted = (candidate - camera_position).xz_length2() >= minimum_squared;
-            } else if ((camera_position - first).length2() <= maximum_squared
-                || (camera_position - next).length2() <= maximum_squared) {
+            } else if ((camera_position - first).length2() <= maximum_squared ||
+                       (camera_position - next).length2() <= maximum_squared) {
                 vector3d hits[2];
                 if (collide_segment_hollow_sphere(first, next, camera_position, flt_937FA8, hits) > 0) {
                     candidate = hits[0];
-                    accepted = (candidate - first).length2() > 100.0f
-                        && (candidate - next).length2() > 100.0f;
+                    accepted = (candidate - first).length2() > 100.0f && (candidate - next).length2() > 100.0f;
                 } else {
                     vector3d direction = first - next;
                     direction.normalize();

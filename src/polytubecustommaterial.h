@@ -34,6 +34,9 @@ struct Tentacle_ShaderMaterial {
     Tentacle_ShaderMaterial &operator=(const Tentacle_ShaderMaterial &other);
     ~Tentacle_ShaderMaterial();
     void *destroy(unsigned char flags);
-    nglMaterialBase *material() { return reinterpret_cast<nglMaterialBase *>(&name); }
+    nglMaterialBase *material()
+    {
+        return reinterpret_cast<nglMaterialBase *>(&name);
+    }
     static bool SampleTentacle(int id, float percent, float &radius, float &angle);
 };

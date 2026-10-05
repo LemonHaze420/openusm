@@ -38,11 +38,9 @@ void __fastcall native_motion_set_active(motion_control_system *self, void *, bo
 {
     self->set_active(active);
 }
-}
+}  // namespace
 
-void motion_control_system::initialize_native_vtable(std::intptr_t *table,
-                                                    std::intptr_t destroy,
-                                                    std::intptr_t advance)
+void motion_control_system::initialize_native_vtable(std::intptr_t *table, std::intptr_t destroy, std::intptr_t advance)
 {
     table[0] = destroy;
     table[1] = reinterpret_cast<std::intptr_t>(native_motion_is_active);

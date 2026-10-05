@@ -8,9 +8,8 @@
 #include <new>
 #include <utility>
 
-template<typename T>
-struct exe_allocator
-{
+template <typename T>
+struct exe_allocator {
     using value_type = T;
     using pointer = T *;
     using const_pointer = const T *;
@@ -19,18 +18,16 @@ struct exe_allocator
     using size_type = std::size_t;
     using difference_type = std::ptrdiff_t;
 
-    template<typename U>
-    struct rebind
-    {
+    template <typename U>
+    struct rebind {
         using other = exe_allocator<U>;
     };
 
     exe_allocator() noexcept = default;
 
-    template<typename U>
+    template <typename U>
     exe_allocator(const exe_allocator<U> &) noexcept
-    {
-    }
+    {}
 
     pointer address(reference value) const noexcept
     {
@@ -45,15 +42,15 @@ struct exe_allocator
     pointer allocate(size_type count)
     {
         if (count > max_size())
-            throw std::bad_alloc {};
+            throw std::bad_alloc{};
 
         if constexpr (STANDALONE_SYSTEM) {
             return static_cast<pointer>(::operator new(count * sizeof(T)));
         } else {
             using allocate_t = void *(__cdecl *)(size_type);
-            auto *result = bit_cast<allocate_t>(std::uintptr_t {0x00822046})(count * sizeof(T));
+            auto *result = bit_cast<allocate_t>(std::uintptr_t{0x00822046})(count * sizeof(T));
             if (result == nullptr)
-                throw std::bad_alloc {};
+                throw std::bad_alloc{};
             return static_cast<pointer>(result);
         }
     }
@@ -63,18 +60,18 @@ struct exe_allocator
         if constexpr (STANDALONE_SYSTEM) {
             ::operator delete(ptr);
         } else {
-            using deallocate_t = void (__cdecl *)(void *);
-            bit_cast<deallocate_t>(std::uintptr_t {0x0082207C})(ptr);
+            using deallocate_t = void(__cdecl *)(void *);
+            bit_cast<deallocate_t>(std::uintptr_t{0x0082207C})(ptr);
         }
     }
 
-    template<typename U, typename... Args>
+    template <typename U, typename... Args>
     void construct(U *ptr, Args &&...args)
     {
         ::new (static_cast<void *>(ptr)) U(std::forward<Args>(args)...);
     }
 
-    template<typename U>
+    template <typename U>
     void destroy(U *ptr)
     {
         ptr->~U();
@@ -86,13 +83,13 @@ struct exe_allocator
     }
 };
 
-template<typename T, typename U>
+template <typename T, typename U>
 bool operator==(const exe_allocator<T> &, const exe_allocator<U> &) noexcept
 {
     return true;
 }
 
-template<typename T, typename U>
+template <typename T, typename U>
 bool operator!=(const exe_allocator<T> &, const exe_allocator<U> &) noexcept
 {
     return false;

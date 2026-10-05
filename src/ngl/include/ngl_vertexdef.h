@@ -104,8 +104,8 @@ extern void nglCreateMesh(uint32_t Flags, uint32_t num_sections, uint32_t num_bo
 
 extern nglVertexDef_MultipassMesh<nglVertexDef_PCUV_Base> *nglCreatePCUVVertexDef();
 extern void nglRegisterPCUVVertexDef();
-extern void nglAddPCUVTriangle(nglMaterialBase *material, const vector3d (&positions)[3],
-                             const vector2d (&uv)[3], const uint32_t (&colors)[3]);
+extern void nglAddPCUVTriangle(nglMaterialBase *material, const vector3d (&positions)[3], const vector2d (&uv)[3],
+                               const uint32_t (&colors)[3]);
 
 extern void nglRegisterPersonVertexDefs();
 extern nglVertexDef *nglCreateTentacleVertexDef();

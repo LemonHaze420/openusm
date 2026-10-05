@@ -65,8 +65,8 @@ void district_graph_container::setup_terrain(terrain *the_terrain)
         if (!(source.field_50 & 4))
             reg->field_A4 = reg->field_B0;
         the_terrain->regions[index] = reg;
-        auto *entry = ::new (mem_alloc(sizeof(region_lookup_entry)))
-            region_lookup_entry{string_hash{source.field_0}, index};
+        auto *entry =
+            ::new (mem_alloc(sizeof(region_lookup_entry))) region_lookup_entry{string_hash{source.field_0}, index};
         the_terrain->field_5C.add(entry);
     }
 

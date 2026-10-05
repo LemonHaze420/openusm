@@ -56,7 +56,10 @@ void *__fastcall pedestrian_delete(pedestrian_inode *self, void *, unsigned char
         mash_virtual_base::operator delete(self, sizeof(*self));
     return self;
 }
-unsigned __fastcall pedestrian_type(pedestrian_inode *, void *) { return 159; }
+unsigned __fastcall pedestrian_type(pedestrian_inode *, void *)
+{
+    return 159;
+}
 bool __fastcall pedestrian_subclass(pedestrian_inode *, void *, unsigned type)
 {
     return type == 537 || type == 573;
@@ -73,11 +76,16 @@ void __fastcall pedestrian_activate(pedestrian_inode *self, void *, ai_core *cor
 {
     self->activate(core);
 }
-void __fastcall pedestrian_reset(pedestrian_inode *self, void *) { self->reset(); }
-int __fastcall pedestrian_size(pedestrian_inode *, void *) { return sizeof(pedestrian_inode); }
+void __fastcall pedestrian_reset(pedestrian_inode *self, void *)
+{
+    self->reset();
+}
+int __fastcall pedestrian_size(pedestrian_inode *, void *)
+{
+    return sizeof(pedestrian_inode);
+}
 void __fastcall pedestrian_initialize(pedestrian_inode *self, void *, mash::allocation_scope scope)
 {
-
     if (scope == mash::FROM_MASH) {
         self->m_ped_spawner = ped_spawner::next_ped_spawner;
         self->m_ped_spawner_cleared = false;
@@ -90,7 +98,7 @@ float planar_distance_squared(const vector3d &a, const vector3d &b)
     const float z = a.z - b.z;
     return x * x + z * z;
 }
-}
+}  // namespace
 
 void *pedestrian_inode::native_vtable()
 {
@@ -118,9 +126,9 @@ pedestrian_inode::pedestrian_inode()
 }
 
 pedestrian_inode::pedestrian_inode(from_mash_in_place_constructor *constructor)
-    : info_node(constructor), field_30(constructor), field_3C(constructor),
-      field_4C(constructor), field_58(constructor), dodge_position(constructor),
-      dodge_velocity_direction(constructor), dodge_direction(constructor), field_9C(constructor)
+    : info_node(constructor), field_30(constructor), field_3C(constructor), field_4C(constructor),
+      field_58(constructor), dodge_position(constructor), dodge_velocity_direction(constructor),
+      dodge_direction(constructor), field_9C(constructor)
 {
     m_vtbl = reinterpret_cast<std::intptr_t>(native_vtable());
     initialize(mash::FROM_MASH);
@@ -258,8 +266,7 @@ void pedestrian_inode::reset()
     update_lane_confinement_als_params();
     if (m_ped_spawner == nullptr || m_ped_spawner->field_5)
         field_AC = nullptr;
-    auto *avoidance = static_cast<ped_avoidance_inode *>(
-        field_8->get_info_node(ped_avoidance_inode::default_id, true));
+    auto *avoidance = static_cast<ped_avoidance_inode *>(field_8->get_info_node(ped_avoidance_inode::default_id, true));
     avoidance->set_respect_obbs(false);
     if (is_flagged(1)) {
         avoidance->field_48 = false;
@@ -285,8 +292,7 @@ float pedestrian_inode::get_lane_fraction(const vector3d &direction) const
     const auto &position = field_C->get_abs_position();
     const float side_x = -direction.z;
     const float side_z = direction.x;
-    return -side_z * (position.z - (side_z + field_30.z))
-           - side_x * (position.x - (side_x + field_30.x));
+    return -side_z * (position.z - (side_z + field_30.z)) - side_x * (position.x - (side_x + field_30.x));
 }
 
 void pedestrian_inode::update_lane_endpoints(traffic_path_lane *lane)
@@ -371,8 +377,8 @@ bool pedestrian_inode::get_next_and_prev_lane_node(vector3d &next, vector3d &pre
     if (nearest == -1) {
         nearest = peripheral;
         if (nearest == -1) {
-            const auto reference = is_flagged(2) && planar_distance_squared(field_30, position) < 9.0f
-                                     ? field_30 : position;
+            const auto reference =
+                is_flagged(2) && planar_distance_squared(field_30, position) < 9.0f ? field_30 : position;
             nearest = get_nearest_adjusted_node_index(lane, reference);
             next = get_adjusted_lane_node(lane, nearest);
         } else {
@@ -490,8 +496,7 @@ void pedestrian_inode::update_est_speed()
     field_9C = position;
 }
 
-void pedestrian_inode::calc_elevation(float &elevation, float &ground,
-                                      const vector3d &position, bool limit_rise)
+void pedestrian_inode::calc_elevation(float &elevation, float &ground, const vector3d &position, bool limit_rise)
 {
     if (field_C->has_physical_ifc())
         return;
@@ -511,8 +516,7 @@ void pedestrian_inode::calc_elevation(float &elevation, float &ground,
         if (terrain_y <= -10000.0f && terrain_y >= -10000.0f)
             terrain_y = position.y - floor_offset - m_elevation_adj;
     }
-    elevation = std::max(position.y - 10.0f,
-                         std::min(position.y + 10.0f, terrain_y + m_elevation_adj + floor_offset));
+    elevation = std::max(position.y - 10.0f, std::min(position.y + 10.0f, terrain_y + m_elevation_adj + floor_offset));
     if (limit_rise && elevation - old_y > 2.0f)
         elevation = old_y;
     ground = elevation - floor_offset - m_elevation_adj;
@@ -589,8 +593,7 @@ void pedestrian_inode::update_dodge_direction()
         dodge_direction = {-1.0f, 0.0f, 0.0f};
 }
 
-void pedestrian_inode::check_dodge(entity_base *other, const vector3d &direction,
-                                  float distance_squared, float speed)
+void pedestrian_inode::check_dodge(entity_base *other, const vector3d &direction, float distance_squared, float speed)
 {
     if (distance_squared >= 25.0f)
         return;
@@ -687,8 +690,8 @@ void pedestrian_inode::update_greeting()
     const float now = g_world_ptr->time_manager.field_8;
     if (!(now > next_greeting_time || next_greeting_time - now > 999.0f))
         return;
-    if (static_cast<unsigned>(std::rand() * 0.000091552734375) != 0 ||
-        field_D1 || is_flagged(0x200) || is_flagged(0x400))
+    if (static_cast<unsigned>(std::rand() * 0.000091552734375) != 0 || field_D1 || is_flagged(0x200) ||
+        is_flagged(0x400))
         return;
     static const string_hash ped_combat{int(to_hash("combat_inode"))};
     auto *combat = field_8->get_info_node(ped_combat, true);
@@ -706,8 +709,11 @@ void pedestrian_inode::update_greeting()
     if (distance_squared < 144.0f) {
         static const string_hash idle{int(to_hash("thug_idle"))};
         static const string_hash greet{int(to_hash("greet"))};
-        voice->say_gab(distance_squared < 25.0f && dot(offset, field_C->get_abs_po().get_z_facing()) > 0.0f
-                           ? greet : idle, 0, 0, nullptr);
+        voice->say_gab(distance_squared < 25.0f && dot(offset, field_C->get_abs_po().get_z_facing()) > 0.0f ? greet
+                                                                                                            : idle,
+                       0,
+                       0,
+                       nullptr);
         next_greeting_time = now + 3.0f + static_cast<float>(std::rand()) * (2.0f / 32768.0f);
     }
 }
@@ -792,14 +798,17 @@ void pedestrian_inode::unregister_non_ped(vhandle_type<actor> actor_handle)
 }
 
 namespace {
-unsigned __fastcall idle_state_type(pedestrian_idle_state *, void *) { return 177; }
+unsigned __fastcall idle_state_type(pedestrian_idle_state *, void *)
+{
+    return 177;
+}
 bool __fastcall idle_state_subclass(pedestrian_idle_state *, void *, unsigned type)
 {
     return type == 535 || type == 567 || type == 573;
 }
-void __fastcall idle_state_activate(pedestrian_idle_state *self, void *,
-    ai_state_machine *machine, const mashed_state *state, const mashed_state *previous,
-    const param_block *parameters, base_state::activate_flag_e flags)
+void __fastcall idle_state_activate(pedestrian_idle_state *self, void *, ai_state_machine *machine,
+                                    const mashed_state *state, const mashed_state *previous,
+                                    const param_block *parameters, base_state::activate_flag_e flags)
 {
     self->activate(machine, state, previous, parameters, flags);
 }
@@ -814,15 +823,14 @@ void __stdcall idle_state_nodes(info_node_desc_list *list)
     list->add_entry({controller_inode::default_id, 357});
     list->add_entry({string_hash("nonpath_loco_layer"), 156});
 }
-}
+}  // namespace
 
 pedestrian_idle_state::pedestrian_idle_state() : enhanced_state()
 {
     m_vtbl = reinterpret_cast<std::intptr_t>(native_vtable());
 }
 
-pedestrian_idle_state::pedestrian_idle_state(from_mash_in_place_constructor *constructor)
-    : enhanced_state(constructor)
+pedestrian_idle_state::pedestrian_idle_state(from_mash_in_place_constructor *constructor) : enhanced_state(constructor)
 {
     m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[177]);
 }
@@ -842,16 +850,15 @@ void *pedestrian_idle_state::native_vtable()
     return table.data();
 }
 
-void pedestrian_idle_state::activate(ai_state_machine *machine, const mashed_state *state,
-    const mashed_state *previous, const param_block *parameters, activate_flag_e flags)
+void pedestrian_idle_state::activate(ai_state_machine *machine, const mashed_state *state, const mashed_state *previous,
+                                     const param_block *parameters, activate_flag_e flags)
 {
     enhanced_state::activate(machine, state, previous, parameters, flags);
     auto *core = get_core();
     auto *pedestrian = static_cast<pedestrian_inode *>(core->get_info_node(pedestrian_inode::default_id, true));
     pedestrian->reset();
     core->stop_movement();
-    if (!pedestrian->is_flagged(1) && pedestrian->m_ped_spawner == nullptr &&
-        !pedestrian->m_ped_spawner_cleared)
+    if (!pedestrian->is_flagged(1) && pedestrian->m_ped_spawner == nullptr && !pedestrian->m_ped_spawner_cleared)
         pedize_non_pedestrian();
     core->change_locomotion_machine(string_hash("nonpath_loco_layer"));
     if (core->field_40 != nullptr)
@@ -865,8 +872,7 @@ state_trans_messages pedestrian_idle_state::frame_advance(Float elapsed)
     const auto result = enhanced_state::frame_advance(elapsed);
     auto *core = get_core();
     auto *pedestrian = static_cast<pedestrian_inode *>(core->get_info_node(pedestrian_inode::default_id, true));
-    if (!pedestrian->is_flagged(1) && pedestrian->m_ped_spawner == nullptr &&
-        !pedestrian->m_ped_spawner_cleared)
+    if (!pedestrian->is_flagged(1) && pedestrian->m_ped_spawner == nullptr && !pedestrian->m_ped_spawner_cleared)
         pedize_non_pedestrian();
     if (pedestrian->m_ped_spawner == nullptr || core->field_64 == nullptr)
         return result;
@@ -891,7 +897,8 @@ state_trans_messages pedestrian_idle_state::frame_advance(Float elapsed)
         return static_cast<state_trans_messages>(65);
     bool blocked = false;
     if (pedestrian->field_AC != nullptr) {
-        auto *avoidance = static_cast<ped_avoidance_inode *>(core->get_info_node(ped_avoidance_inode::default_id, false));
+        auto *avoidance =
+            static_cast<ped_avoidance_inode *>(core->get_info_node(ped_avoidance_inode::default_id, false));
         blocked = avoidance != nullptr && (avoidance->field_48 || avoidance->field_50 > 2.25f);
     }
     if (blocked) {

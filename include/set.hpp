@@ -17,13 +17,17 @@ public:
 
     _Tset_traits() : comp() {}
     explicit _Tset_traits(Compare compare) : comp(compare) {}
-    static const T &_Kfn(const T &value) { return value; }
+    static const T &_Kfn(const T &value)
+    {
+        return value;
+    }
     Compare comp;
 };
 
 template <class T, class Compare = std::less<T>, class Alloc = std::allocator<T>>
 class set : public _Tree<_Tset_traits<T, Compare, Alloc>> {
     using base = _Tree<_Tset_traits<T, Compare, Alloc>>;
+
 public:
     using ret_t = std::pair<typename base::iterator, bool>;
     set() : base(Compare(), Alloc()) {}

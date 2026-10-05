@@ -47,29 +47,69 @@ std::array<void *, 0x214 / 4> beam_table;
 void *__fastcall beam_delete(beam *self, void *, unsigned flags)
 {
     self->~beam();
-    if (flags & 1) mem_dealloc(self, sizeof(beam));
+    if (flags & 1)
+        mem_dealloc(self, sizeof(beam));
     return self;
 }
-int __fastcall beam_size(beam *, void *) { return sizeof(beam); }
-int __fastcall beam_flavor(beam *, void *) { return 14; }
-bool __fastcall beam_chunk(beam *, void *, void *, void *) { return false; }
-bool __fastcall beam_query(beam *, void *) { return true; }
-float __fastcall beam_radius(beam *self, void *) { return self->field_A8 * 0.5f; }
+int __fastcall beam_size(beam *, void *)
+{
+    return sizeof(beam);
+}
+int __fastcall beam_flavor(beam *, void *)
+{
+    return 14;
+}
+bool __fastcall beam_chunk(beam *, void *, void *, void *)
+{
+    return false;
+}
+bool __fastcall beam_query(beam *, void *)
+{
+    return true;
+}
+float __fastcall beam_radius(beam *self, void *)
+{
+    return self->field_A8 * 0.5f;
+}
 vector3d *__fastcall beam_center(beam *self, void *, vector3d *out)
 {
     const auto &pose = self->get_abs_po();
     *out = pose.get_position() + pose.get_z_facing() * self->get_visual_radius();
     return out;
 }
-void __fastcall beam_release(beam *self, void *) { self->release_mem(); }
-void __fastcall beam_changed(beam *self, void *) { self->po_changed(); }
-void __fastcall beam_visible(beam *self, void *, bool value, bool recursive) { self->_set_visible(value, recursive); }
-void __fastcall beam_unmash(beam *self, void *, generic_mash_header *h, void *o, generic_mash_data_ptrs *p) { self->un_mash(h, o, p); }
-void __fastcall beam_advance(beam *self, void *, Float dt) { self->_frame_advance(dt); }
-void __fastcall beam_render(beam *self, void *, Float fade) { self->_render(fade); }
-float __fastcall beam_length(beam *self, void *) { return self->field_A8; }
-void __fastcall beam_regions(beam *self, void *, region *r, int value) { self->visit_connected_regions(r, value); }
+void __fastcall beam_release(beam *self, void *)
+{
+    self->release_mem();
 }
+void __fastcall beam_changed(beam *self, void *)
+{
+    self->po_changed();
+}
+void __fastcall beam_visible(beam *self, void *, bool value, bool recursive)
+{
+    self->_set_visible(value, recursive);
+}
+void __fastcall beam_unmash(beam *self, void *, generic_mash_header *h, void *o, generic_mash_data_ptrs *p)
+{
+    self->un_mash(h, o, p);
+}
+void __fastcall beam_advance(beam *self, void *, Float dt)
+{
+    self->_frame_advance(dt);
+}
+void __fastcall beam_render(beam *self, void *, Float fade)
+{
+    self->_render(fade);
+}
+float __fastcall beam_length(beam *self, void *)
+{
+    return self->field_A8;
+}
+void __fastcall beam_regions(beam *self, void *, region *r, int value)
+{
+    self->visit_connected_regions(r, value);
+}
+}  // namespace
 
 void *beam::native_vtable(void **entity_table)
 {
@@ -122,10 +162,14 @@ void beam::unlink()
 {
     auto *next = reinterpret_cast<beam *>(field_68);
     auto *prev = reinterpret_cast<beam *>(field_6C);
-    if (prev) prev->field_68 = field_68;
-    else if (inactive_beams() == this) inactive_beams() = next;
-    else if (active_beams() == this) active_beams() = next;
-    if (next) next->field_6C = field_6C;
+    if (prev)
+        prev->field_68 = field_68;
+    else if (inactive_beams() == this)
+        inactive_beams() = next;
+    else if (active_beams() == this)
+        active_beams() = next;
+    if (next)
+        next->field_6C = field_6C;
     field_68 = field_6C = nullptr;
 }
 
@@ -135,7 +179,8 @@ void beam::update_list()
     auto &head = (field_4 & 0x200) ? active_beams() : inactive_beams();
     field_68 = reinterpret_cast<int *>(head);
     head = this;
-    if (field_68) reinterpret_cast<beam *>(field_68)->field_6C = reinterpret_cast<int *>(this);
+    if (field_68)
+        reinterpret_cast<beam *>(field_68)->field_6C = reinterpret_cast<int *>(this);
 }
 
 beam::~beam()
@@ -145,7 +190,7 @@ beam::~beam()
     auto **end = reinterpret_cast<void **>(field_8C);
     for (auto **it = begin; it != end; ++it) {
         if (*it) {
-            auto destroy = reinterpret_cast<void (__fastcall *)(void *, void *, unsigned)>(
+            auto destroy = reinterpret_cast<void(__fastcall *)(void *, void *, unsigned)>(
                 get_vfunc(*reinterpret_cast<std::intptr_t *>(*it), 0xC));
             destroy(*it, nullptr, 1);
         }
@@ -153,14 +198,27 @@ beam::~beam()
     ::operator delete(begin);
     field_88 = field_8C = field_90 = 0;
     if (my_material) {
-        if (my_material->m_texture) nglReleaseTexture(my_material->m_texture);
+        if (my_material->m_texture)
+            nglReleaseTexture(my_material->m_texture);
         delete my_material;
     }
 }
 
-void beam::release_mem() { unlink(); entity::release_mem(); }
-void beam::po_changed() { field_94 &= ~1; entity_base::po_changed(); }
-void beam::_set_visible(bool visible, bool recursive) { entity::_set_visible(visible, recursive); update_list(); }
+void beam::release_mem()
+{
+    unlink();
+    entity::release_mem();
+}
+void beam::po_changed()
+{
+    field_94 &= ~1;
+    entity_base::po_changed();
+}
+void beam::_set_visible(bool visible, bool recursive)
+{
+    entity::_set_visible(visible, recursive);
+    update_list();
+}
 void beam::un_mash(generic_mash_header *header, void *object, generic_mash_data_ptrs *data)
 {
     entity::un_mash(header, object, data);
@@ -170,27 +228,29 @@ void beam::un_mash(generic_mash_header *header, void *object, generic_mash_data_
 
 void beam::set_texture(const mString &name)
 {
-    if (!my_material) my_material = new PCUV_ShaderMaterial;
+    if (!my_material)
+        my_material = new PCUV_ShaderMaterial;
     else if (my_material->m_texture) {
         nglReleaseTexture(my_material->m_texture);
         my_material->m_texture = nullptr;
     }
     filespec file{name};
-    if (file.m_dir.size() == 0) file.m_dir = "textures\\";
+    if (file.m_dir.size() == 0)
+        file.m_dir = "textures\\";
     nglSetTexturePath(file.m_dir.c_str());
     my_material->m_texture = nglLoadTexture(tlFixedString{file.m_name.c_str()});
 }
 
 void beam::set_point_to_point(const vector3d &start, const vector3d &end)
 {
-    if (field_8 & 0x8000000) compute_rel_po_from_model();
+    if (field_8 & 0x8000000)
+        compute_rel_po_from_model();
     vector3d direction = end - start;
     const float length = std::sqrt(direction.length2());
     field_74 = std::max(length, 0.0f);
     field_78 = 0.0f;
     if (length > 0.0f) {
-        if (direction.x <= 0.0f && direction.x >= 0.0f &&
-            direction.y <= 0.0f && direction.y >= 0.0f) {
+        if (direction.x <= 0.0f && direction.x >= 0.0f && direction.y <= 0.0f && direction.y >= 0.0f) {
             if (direction.z < 0.0f) {
                 po pose;
                 pose.set_rot(YVEC, Float{3.1415927f});
@@ -208,7 +268,8 @@ void beam::set_point_to_point(const vector3d &start, const vector3d &end)
             pose.set_rot(axis, Float{std::acos(std::clamp(direction.z, -1.0f, 1.0f))});
             *my_rel_po = pose;
             dirty_family(false);
-            if (field_4 & 0x8004) dirty_model_po_family();
+            if (field_4 & 0x8004)
+                dirty_model_po_family();
             po_changed();
         }
         set_abs_position(start);
@@ -233,7 +294,8 @@ bool beam_hit_entity(beam *self, entity *candidate, const vector3d &start, vecto
         auto *members = static_cast<conglomerate *>(candidate)->field_FC;
         if (members)
             for (auto *member : *members)
-                if (beam_hit_entity(self, member, start, end)) hit = true;
+                if (beam_hit_entity(self, member, start, end))
+                    hit = true;
     }
     return hit;
 }
@@ -249,7 +311,8 @@ struct beam_collision_visitor : subdivision_visitor {
         auto *candidate = reinterpret_cast<entity *>(const_cast<subdivision_node *>(&node));
         if (candidate->field_5C != entity::visit_key) {
             candidate->field_5C = entity::visit_key;
-            if (beam_hit_entity(self.owner, candidate, *self.start, *self.end)) self.hit = true;
+            if (beam_hit_entity(self.owner, candidate, *self.start, *self.end))
+                self.hit = true;
         }
         return self.hit ? 2 : 0;
     }
@@ -259,7 +322,7 @@ struct beam_collision_visitor : subdivision_visitor {
         m_vtbl = reinterpret_cast<std::intptr_t>(&table);
     }
 };
-}
+}  // namespace
 
 void beam::_frame_advance(Float elapsed)
 {
@@ -272,9 +335,16 @@ void beam::_frame_advance(Float elapsed)
     field_AC = field_98 = end;
     field_94 &= ~2;
     if (!(field_94 & 1) || (field_94 & 0x200) || ((field_94 & 4) && !(field_94 & 8))) {
-        if (!(field_94 & 0x80) &&
-            find_intersection(start, end, *local_collision::entfilter_reject_all,
-                *local_collision::obbfilter_lineseg_test, &field_AC, &field_B8, nullptr, nullptr, nullptr, false)) {
+        if (!(field_94 & 0x80) && find_intersection(start,
+                                                    end,
+                                                    *local_collision::entfilter_reject_all,
+                                                    *local_collision::obbfilter_lineseg_test,
+                                                    &field_AC,
+                                                    &field_B8,
+                                                    nullptr,
+                                                    nullptr,
+                                                    nullptr,
+                                                    false)) {
             field_98 = end = field_AC;
             field_94 |= 2;
         }
@@ -293,10 +363,12 @@ void beam::_frame_advance(Float elapsed)
     if (field_A8 > 0.01f) {
         for (int i = 0; i < g_world_ptr->num_players; ++i) {
             auto *player = g_world_ptr->get_hero_ptr(i);
-            if (!player) continue;
+            if (!player)
+                continue;
             if (collide_segment_entity(start, end, player, player->get_abs_po(), &field_AC, &field_B8)) {
                 hit_player = true;
-                if (!(field_94 & 8)) field_98 = end = field_AC;
+                if (!(field_94 & 8))
+                    field_98 = end = field_AC;
             } else if (!hit_player) {
                 if (field_94 & 4) {
                     field_94 &= ~4;
@@ -320,12 +392,13 @@ void beam::_frame_advance(Float elapsed)
     while (it != end_effects) {
         auto *effect = *it;
         auto table = *reinterpret_cast<std::intptr_t *>(effect);
-        reinterpret_cast<void (__fastcall *)(void *, void *, float)>(get_vfunc(table, 0x24))(effect, nullptr, dt);
-        if (reinterpret_cast<bool (__fastcall *)(void *, void *)>(get_vfunc(table, 0x2C))(effect, nullptr)) {
-            reinterpret_cast<void (__fastcall *)(void *, void *, unsigned)>(get_vfunc(table, 0xC))(effect, nullptr, 1);
+        reinterpret_cast<void(__fastcall *)(void *, void *, float)>(get_vfunc(table, 0x24))(effect, nullptr, dt);
+        if (reinterpret_cast<bool(__fastcall *)(void *, void *)>(get_vfunc(table, 0x2C))(effect, nullptr)) {
+            reinterpret_cast<void(__fastcall *)(void *, void *, unsigned)>(get_vfunc(table, 0xC))(effect, nullptr, 1);
             std::memmove(it, it + 1, (--end_effects - it) * sizeof(void *));
             field_8C = reinterpret_cast<int>(end_effects);
-        } else ++it;
+        } else
+            ++it;
     }
     if (field_E3) {
         for (int axis = 0; axis < 2; ++axis) {
@@ -349,10 +422,12 @@ void beam::visit_connected_regions(region *origin, int mode)
     origin->visited = region::visit_key;
     for (auto index : origin->neighbors) {
         auto *neighbor = g_world_ptr->the_terrain->regions[index];
-        if (neighbor->visited == region::visit_key) continue;
+        if (neighbor->visited == region::visit_key)
+            continue;
         if (neighbor->obb->sphere_intersection(get_abs_position(), Float{get_visual_radius()})) {
             auto *loaded = g_world_ptr->the_terrain->find_region(string_hash{neighbor->mash_info->field_0.to_string()});
-            if (loaded) visit_connected_regions(loaded, mode);
+            if (loaded)
+                visit_connected_regions(loaded, mode);
         }
     }
 }
@@ -481,14 +556,12 @@ void beam::frame_advance_all_beams(Float elapsed)
 {
     for (auto *current = active_beams(); current != nullptr;) {
         auto *next = reinterpret_cast<beam *>(current->field_68);
-        const float scale = current->field_58 != nullptr
-            ? static_cast<float>(current->field_58->sub_4ADE50())
-            : g_world_ptr->time_manager.field_0;
+        const float scale = current->field_58 != nullptr ? static_cast<float>(current->field_58->sub_4ADE50())
+                                                         : g_world_ptr->time_manager.field_0;
         if (current->m_vtbl != 0) {
             auto *address = get_vfunc(current->m_vtbl, 0x1A4);
             if (address != nullptr) {
-                void(__fastcall *frame_advance)(beam *, void *, Float) =
-                    CAST(frame_advance, address);
+                void(__fastcall * frame_advance)(beam *, void *, Float) = CAST(frame_advance, address);
                 frame_advance(current, nullptr, Float{scale * elapsed.value});
             }
         }

@@ -44,16 +44,13 @@ void decal_data_interface::frame_advance_all_decal_interfaces(Float a1)
         return;
     }
     for (auto *interface_ptr : *interfaces) {
-        if (interface_ptr == nullptr ||
-            interface_ptr->m_vtbl != 0x00883DD4) {
+        if (interface_ptr == nullptr || interface_ptr->m_vtbl != 0x00883DD4) {
             continue;
         }
 
         auto *address = get_vfunc(interface_ptr->m_vtbl, 0x34);
         if (address != nullptr) {
-            void(__fastcall *frame_advance)(
-                decal_data_interface *, void *, Float) =
-                CAST(frame_advance, address);
+            void(__fastcall * frame_advance)(decal_data_interface *, void *, Float) = CAST(frame_advance, address);
             frame_advance(interface_ptr, nullptr, a1);
         }
     }
@@ -124,8 +121,7 @@ void decal_data_interface::constructor_common()
         auto *mem = mem_alloc(sizeof(_std::vector<entity *>));
         this->field_14 = new (mem) _std::vector<entity *>{};
         auto v6 = this->my_conglomerate->get_my_handle();
-        this->field_18 = event_manager::add_callback(
-            event::TERRAIN_FX, v6, terrain_fx_callback, this->field_14, false);
+        this->field_18 = event_manager::add_callback(event::TERRAIN_FX, v6, terrain_fx_callback, this->field_14, false);
     }
     this->add_to_decal_ifc_list();
 }

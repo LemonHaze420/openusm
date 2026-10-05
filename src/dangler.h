@@ -32,10 +32,10 @@ struct dangler {
     void frame_advance(Float dt);
     void build_polytube(struct polytube *tube);
 
-    int init_dangle(const vector3d &start, const vector3d &end, const vector3d *intermediate,
-                    int intermediate_count, float total_length, const vector3d &velocity, char first_flags);
+    int init_dangle(const vector3d &start, const vector3d &end, const vector3d *intermediate, int intermediate_count,
+                    float total_length, const vector3d &velocity, char first_flags);
 
-    void init_line(const vector3d &start, const vector3d &end, int segments,
-                   const vector3d &velocity, char first_flags);
+    void init_line(const vector3d &start, const vector3d &end, int segments, const vector3d &velocity,
+                   char first_flags);
     void init_polytube(polytube *tube, const vector3d &velocity, char first_flags);
 };

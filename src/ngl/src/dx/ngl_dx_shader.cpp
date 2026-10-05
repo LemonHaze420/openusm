@@ -232,7 +232,6 @@ static constexpr auto MAX_BONES = 64u;
 
 void nglSetupVShaderBonesDX(int a5, nglMeshNode *MeshNode, nglMeshSection *Section)
 {
-
     static Var<matrix4x3[MAX_BONES]> boneMatrices{0x00972B20};
     static Var<uint32_t> initialized{0x00973720};
     initialized() |= 1u;
@@ -268,7 +267,6 @@ void nglSetupVShaderBonesDX(int a5, nglMeshNode *MeshNode, nglMeshSection *Secti
         }
     } else {
         for (uint32_t i = 0; i < static_cast<uint32_t>(Section->NBones); ++i) {
-
             palette[i][0] = vector4d{1.0f, 0.0f, 0.0f, 0.0f};
             palette[i][1] = vector4d{0.0f, 1.0f, 0.0f, 0.0f};
             palette[i][2] = vector4d{0.0f, 0.0f, 1.0f, 0.0f};
@@ -280,7 +278,6 @@ void nglSetupVShaderBonesDX(int a5, nglMeshNode *MeshNode, nglMeshSection *Secti
 
 void *nglSkinPersonMeshDX(nglMeshNode *meshNode, nglMeshSection *section, const float *normal)
 {
-
     static Var<uint32_t> requiredBytes{0x00973BC8};
     static Var<uint32_t> allocatedBytes{0x00973BCC};
     static Var<char *> scratch{0x00973BD0};
@@ -324,8 +321,9 @@ void *nglSkinPersonMeshDX(nglMeshNode *meshNode, nglMeshSection *section, const 
     for (uint32_t i = 0; i < static_cast<uint32_t>(section->NVertices); ++i) {
         const auto &vertex = source[i];
         D3DXVECTOR4 position;
-        D3DXVec3Transform(&position, &vertex.position,
-            reinterpret_cast<const D3DXMATRIX *>(&palette[section->BonesIdx[vertex.bones[0]]]));
+        D3DXVec3Transform(&position,
+                          &vertex.position,
+                          reinterpret_cast<const D3DXMATRIX *>(&palette[section->BonesIdx[vertex.bones[0]]]));
         if (std::not_equal_to<float>{}(vertex.weights[0], 1.0f)) {
             position.x *= vertex.weights[0];
             position.y *= vertex.weights[0];
@@ -337,7 +335,9 @@ void *nglSkinPersonMeshDX(nglMeshNode *meshNode, nglMeshSection *section, const 
                     break;
                 }
                 D3DXVECTOR4 term;
-                D3DXVec3Transform(&term, &vertex.position,
+                D3DXVec3Transform(
+                    &term,
+                    &vertex.position,
                     reinterpret_cast<const D3DXMATRIX *>(&palette[section->BonesIdx[vertex.bones[influence]]]));
                 position.x = static_cast<float>(static_cast<double>(term.x) * weight + position.x);
                 position.y = static_cast<float>(static_cast<double>(term.y) * weight + position.y);
@@ -349,10 +349,10 @@ void *nglSkinPersonMeshDX(nglMeshNode *meshNode, nglMeshSection *section, const 
         output[i].position[2] = position.z;
         output[i].uv[0] = vertex.uv[0];
         output[i].uv[1] = vertex.uv[1];
-        output[i].shade = static_cast<float>(
-            (static_cast<double>(vertex.normal[0]) * normal[0] +
-             static_cast<double>(vertex.normal[2]) * normal[2] +
-             static_cast<double>(vertex.normal[1]) * normal[1] + 1.0) * 0.5);
+        output[i].shade = static_cast<float>((static_cast<double>(vertex.normal[0]) * normal[0] +
+                                              static_cast<double>(vertex.normal[2]) * normal[2] +
+                                              static_cast<double>(vertex.normal[1]) * normal[1] + 1.0) *
+                                             0.5);
     }
 
 
@@ -442,7 +442,7 @@ const char *disassemble_shader(const DWORD *pShader)
         assert(0);
     }
 
-    auto *disBuf = (const char *) pDisassembly->lpVtbl->GetBufferPointer(pDisassembly);
+    auto *disBuf = (const char *)pDisassembly->lpVtbl->GetBufferPointer(pDisassembly);
 
     return disBuf;
 }
@@ -550,24 +550,24 @@ struct CNodeAsmRegister : CNode {
 
 VALIDATE_SIZE(CNodeAsmRegister, 0x2C);
 
-const char * to_string(CNodeAsmRegister *node)
+const char *to_string(CNodeAsmRegister *node)
 {
-    static char str [1000] {};
+    static char str[1000]{};
 
     snprintf(str,
              sizeof(str) - 1,
-            "field_10 = 0x%08X\n"
-            "field_14 = 0x%08X\n"
-            "m_index = 0x%08X\n"
-            "field_1C = 0x%08X\n"
-            "m_swizzling = 0x%08X\n"
-            "field_24 = 0x%08X",
-            node->field_10,
-            node->field_14,
-            node->m_index,
-            node->field_1C,
-            node->m_swizzling,
-            node->field_24);
+             "field_10 = 0x%08X\n"
+             "field_14 = 0x%08X\n"
+             "m_index = 0x%08X\n"
+             "field_1C = 0x%08X\n"
+             "m_swizzling = 0x%08X\n"
+             "field_24 = 0x%08X",
+             node->field_10,
+             node->field_14,
+             node->m_index,
+             node->field_1C,
+             node->m_swizzling,
+             node->field_24);
 
     return str;
 }
@@ -590,18 +590,18 @@ struct CNodeAsmInstruction : CNode {
 
 VALIDATE_SIZE(CNodeAsmInstruction, 0x60);
 
-const char * to_string(CNodeAsmInstruction *node)
+const char *to_string(CNodeAsmInstruction *node)
 {
-    static char str [1000] {};
+    static char str[1000]{};
 
     snprintf(str,
              sizeof(str) - 1,
-            "field_30 = 0x%08X\n"
-            "field_34 = 0x%08X\n"
-            "field_38 = 0x%08X\n",
-            node->field_30,
-            node->field_34,
-            node->field_38);
+             "field_30 = 0x%08X\n"
+             "field_34 = 0x%08X\n"
+             "field_38 = 0x%08X\n",
+             node->field_30,
+             node->field_34,
+             node->field_38);
 
     return str;
 }
@@ -663,7 +663,7 @@ int __fastcall CAssembler_EmitInstruction(CAssembler *self, void *, CNodeAsmInst
         auto v4 = token->field_30;
         int a2a = 1;
         bool v43 = false;
-        if ( v4 == 31 ) {
+        if (v4 == 31) {
             a2a = 2;
         }
 
@@ -687,7 +687,7 @@ int __fastcall CAssembler_EmitInstruction(CAssembler *self, void *, CNodeAsmInst
         auto *v7 = token->m_dest_reg;
         if (v7 != nullptr && v7->m_node_type == AsmRegister) {
             ++a2a;
-            if ( v7->field_10 == -1 ) {
+            if (v7->field_10 == -1) {
                 v43 = true;
             }
 
@@ -703,7 +703,7 @@ int __fastcall CAssembler_EmitInstruction(CAssembler *self, void *, CNodeAsmInst
                     //D3DXShader::CTErrors::Error(self->field_0, &token->field_10, 0x7D8u, aRelativeAddres);
                     self->field_4C = 1;
                 } else {
-                    if ( v8->field_10.field_0 == -1 ) {
+                    if (v8->field_10.field_0 == -1) {
                         v43 = true;
                     }
 
@@ -726,7 +726,7 @@ int __fastcall CAssembler_EmitInstruction(CAssembler *self, void *, CNodeAsmInst
 
             auto *v12 = token->field_40;
             ++a2a;
-            if ( v12->field_10.field_0 == -1 ) {
+            if (v12->field_10.field_0 == -1) {
                 v43 = true;
             }
 
@@ -742,24 +742,24 @@ int __fastcall CAssembler_EmitInstruction(CAssembler *self, void *, CNodeAsmInst
             }
         }
 
-        
+
         auto **v14 = &token->m_src_reg;
         for (int tokena = 0; tokena < 4; ++tokena) {
             auto *v15 = *v14;
-            if ( v15 == nullptr ) {
+            if (v15 == nullptr) {
                 break;
             }
 
             auto v16 = token->field_30;
             ++a2a;
             if (v16 != 81 && v16 != 48 && v16 != 47) {
-                if ( v15->field_10 == -1 ) {
+                if (v15->field_10 == -1) {
                     v43 = true;
                 }
 
                 auto *v17 = bit_cast<CNodeToken *>(v15->field_28);
                 if (v17 != nullptr) {
-                    if ( v17->field_10.field_0 == -1 ) {
+                    if (v17->field_10.field_0 == -1) {
                         v43 = true;
                     }
 
@@ -768,7 +768,7 @@ int __fastcall CAssembler_EmitInstruction(CAssembler *self, void *, CNodeAsmInst
                         self->field_4C = 1;
                     }
 
-                    if ( self->m_version != 0 ) {
+                    if (self->m_version != 0) {
                         ++a2a;
                     }
                 }
@@ -778,21 +778,21 @@ int __fastcall CAssembler_EmitInstruction(CAssembler *self, void *, CNodeAsmInst
         }
 
         auto func = [](auto *self, auto *token, int a2a, uint32_t v42, bool v43, int v18) {
-            if ( token->field_54 ) {
+            if (token->field_54) {
                 v18 |= 0x40000000u;
             }
 
-            if ( token->field_40 ) {
+            if (token->field_40) {
                 v18 |= 0x10000000u;
             }
 
             auto v24 = self->m_version;
-            if ( (v24 >= 1 && v24 <= 5) || (v24 >= 10 && v24 <= 14) ) {
+            if ((v24 >= 1 && v24 <= 5) || (v24 >= 10 && v24 <= 14)) {
                 v18 |= (a2a - 1) << 24;
             }
 
             auto v25 = token->field_30;
-            if ( v25 == 41 || v25 == 45 || v25 == 94 ) {
+            if (v25 == 41 || v25 == 45 || v25 == 94) {
                 v18 |= (token->field_38 & 7) << 16;
             }
 
@@ -821,7 +821,7 @@ int __fastcall CAssembler_EmitInstruction(CAssembler *self, void *, CNodeAsmInst
                 sp_log("%s", to_string(v27));
 
                 sp_log("%s", to_string(token));
-                
+
                 {
                     sp_log("0x%08X", 0x01000000 & 0xF0000);
                     sp_log("0x%08X", 0x01000000 & 0x7FF);
@@ -832,7 +832,7 @@ int __fastcall CAssembler_EmitInstruction(CAssembler *self, void *, CNodeAsmInst
 
                 uint32_t v29 = (v27->m_swizzling & 0xF0000) | (v27->m_index & 0x7FF) | (token->field_34 & 0xFF00000) |
                                (((v27->field_10 & 0x18) | ((v27->field_10 | 0xFFFFFFF8) << 20)) << 8);
-                if ( v27->field_28 != nullptr ) {
+                if (v27->field_28 != nullptr) {
                     v29 |= 0x2000u;
                 }
 
@@ -870,7 +870,7 @@ int __fastcall CAssembler_EmitInstruction(CAssembler *self, void *, CNodeAsmInst
                 auto **v33 = bit_cast<CNodeToken **>(&token->m_src_reg);
                 for (int tokenb = 0; tokenb < 4; ++tokenb) {
                     auto *v34 = *v33;
-                    if ( v34 == nullptr ) {
+                    if (v34 == nullptr) {
                         break;
                     }
 
@@ -891,11 +891,11 @@ int __fastcall CAssembler_EmitInstruction(CAssembler *self, void *, CNodeAsmInst
                 auto **v36 = bit_cast<CNodeToken **>(&token->m_src_reg);
                 for (int v49 = 0; v49 < 4; ++v49) {
                     auto *v37 = *v36;
-                    if ( v37 == nullptr ) {
+                    if (v37 == nullptr) {
                         break;
                     }
 
-                    if ( v37->field_10.field_0 == 2 || v37->field_10.field_0 == 4 ) {
+                    if (v37->field_10.field_0 == 2 || v37->field_10.field_0 == 4) {
                         self->m_data[m_size] = v37->field_10.field_8.u;
 
                         sp_log("add code");
@@ -919,12 +919,12 @@ int __fastcall CAssembler_EmitInstruction(CAssembler *self, void *, CNodeAsmInst
                 auto **a2b = &token->m_src_reg;
                 for (int tokend = 0; tokend < 4; ++tokend) {
                     auto *v38 = a2b[tokend];
-                    if ( v38 == nullptr )
+                    if (v38 == nullptr)
                         break;
 
                     if (self->m_version == 0 && v38->field_24 == 0xE40000) {
                         auto v39 = token->field_30;
-                        if ( v39 == 6 || v39 == 7 || v39 == 14 || v39 == 78 || v39 == 15 || v39 == 79 ) {
+                        if (v39 == 6 || v39 == 7 || v39 == 14 || v39 == 78 || v39 == 15 || v39 == 79) {
                             v38->field_24 = 0xFF0000;
                         }
                     }
@@ -933,7 +933,7 @@ int __fastcall CAssembler_EmitInstruction(CAssembler *self, void *, CNodeAsmInst
 
                     auto v40 = (v38->field_24 & 0xFF0000) | (v38->m_index & 0x7FF) | (v38->field_14 & 0xF000000) |
                                (((v38->field_10 & 0x18) | ((v38->field_10 | 0xFFFFFFF8) << 20)) << 8);
-                    if ( v38->field_28 != nullptr ) {
+                    if (v38->field_28 != nullptr) {
                         v40 |= 0x2000u;
                     }
 
@@ -976,12 +976,12 @@ int __fastcall CAssembler_EmitInstruction(CAssembler *self, void *, CNodeAsmInst
         if (result >= 0) {
             auto v18 = token->field_30;
             auto v42 = a2a + self->m_size;
-            if ( v18 != 3 ) {
+            if (v18 != 3) {
                 return func(self, token, a2a, v42, v43, v18);
             }
 
             int v19 = self->m_version;
-            if ( (unsigned int)v19 >= 6 && (v19 < 10 || v19 > 14) ) {
+            if ((unsigned int)v19 >= 6 && (v19 < 10 || v19 > 14)) {
                 return func(self, token, a2a, v42, v43, v18);
             }
 
@@ -1062,7 +1062,7 @@ int __fastcall CAssembler_EmitInstruction(CAssembler *self, void *, CNodeAsmInst
             return func(self, token, a2a, v42, v43, v18);
         }
     } else {
-        int (__fastcall *func)(CAssembler *, void *, void *) = CAST(func, 0x007E52E2);
+        int(__fastcall * func)(CAssembler *, void *, void *) = CAST(func, 0x007E52E2);
         result = func(self, nullptr, token);
     }
 
@@ -1176,7 +1176,7 @@ struct CPreProcessor {
 };
 
 int __fastcall CAssembler_Assemble(CAssembler *self, void *, CPreProcessor *a3, unsigned int a4, void *a5,
-        void **shader)
+                                   void **shader)
 {
     TRACE("CAssembler::Assemble");
 

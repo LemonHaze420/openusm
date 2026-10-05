@@ -25,10 +25,7 @@ void scene_entity_base::initialize()
         sin_indices[angle] = static_cast<unsigned char>(angle - 270);
     auto &sine = var<float[181]>(0x0095A310);
     for (int angle = -90; angle <= 90; ++angle) {
-
-
-        const float radians = static_cast<float>(
-            double(angle) * 0.01745329238474369f + 4.71238899230957f);
+        const float radians = static_cast<float>(double(angle) * 0.01745329238474369f + 4.71238899230957f);
         const float phase = -std::fabs(radians) * 0.15915493667125702f;
         const float t = std::fabs(std::ceil(phase) - phase - 0.5f) - 0.25f;
         const float t2 = t * t;

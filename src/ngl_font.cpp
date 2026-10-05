@@ -98,8 +98,7 @@ void nglParseFDF(char *a3, nglFont *font)
 
 nglGlyphInfo *nglFont::GetGlyphInfo(unsigned char Character)
 {
-    if (Character < this->Header.FirstGlyph ||
-        Character >= this->Header.NumGlyphs + this->Header.FirstGlyph) {
+    if (Character < this->Header.FirstGlyph || Character >= this->Header.NumGlyphs + this->Header.FirstGlyph) {
         return &this->GlyphInfo[32 - this->Header.FirstGlyph];
     }
 

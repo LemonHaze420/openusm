@@ -46,8 +46,7 @@ Timer::Timer(Float a2, Float a3)
 float Timer::sub_5821D0()
 {
     if constexpr (STANDALONE_SYSTEM) {
-        if ((field_24 != 0 && (field_10 != 0 || field_14 != 0)) ||
-            (field_24 == 0 && field_20 != 0)) {
+        if ((field_24 != 0 && (field_10 != 0 || field_14 != 0)) || (field_24 == 0 && field_20 != 0)) {
             return 0.0f;
         }
 
@@ -57,8 +56,7 @@ float Timer::sub_5821D0()
             QueryPerformanceCounter(&now);
             const LONGLONG ticks = now.QuadPart - field_8.QuadPart;
             field_8 = now;
-            elapsed = static_cast<float>(
-                static_cast<double>(ticks) / static_cast<double>(field_0.QuadPart));
+            elapsed = static_cast<float>(static_cast<double>(ticks) / static_cast<double>(field_0.QuadPart));
         } else {
             const DWORD now = GetTickCount();
             const DWORD milliseconds = now - static_cast<DWORD>(field_1C);
@@ -99,7 +97,7 @@ float Timer::sub_5821D0()
         ++field_4C;
         return -1.0f;
     } else {
-        float(__fastcall *func)(void *) = CAST(func, 0x005821D0);
+        float(__fastcall * func)(void *) = CAST(func, 0x005821D0);
         return func(this);
     }
 }

@@ -31,8 +31,7 @@ struct Container {
     unsigned int field_244;
     char field_248[64];
 
-    Container()
-        : Container("") {}
+    Container() : Container("") {}
 
     //0x007B1160
     Container(const char *a2);
@@ -50,8 +49,7 @@ struct Container {
 struct Observer;
 
 struct ObserverVTable {
-    using callback_fn =
-        void (__fastcall *)(Observer *, void *, eOperation);
+    using callback_fn = void(__fastcall *)(Observer *, void *, eOperation);
 
     callback_fn Callback;
 };
@@ -68,8 +66,7 @@ struct Observer {
 struct InsertRemoveObserver;
 
 struct InsertRemoveObserverVTable {
-    using callback_fn =
-        void (__stdcall *)(InsertRemoveObserver *, int);
+    using callback_fn = void(__stdcall *)(InsertRemoveObserver *, int);
 
     callback_fn Callback;
 };

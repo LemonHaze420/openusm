@@ -15,10 +15,19 @@ namespace ai {
 VALIDATE_SIZE(glass_house_inode, 0x34);
 
 namespace {
-void __fastcall native_activate(glass_house_inode *self, void *, ai_core *core) { self->activate(core); }
-void __fastcall native_deactivate(glass_house_inode *self, void *) { self->deactivate(); }
-void __fastcall native_advance(glass_house_inode *self, void *, Float dt) { self->frame_advance(dt); }
+void __fastcall native_activate(glass_house_inode *self, void *, ai_core *core)
+{
+    self->activate(core);
 }
+void __fastcall native_deactivate(glass_house_inode *self, void *)
+{
+    self->deactivate();
+}
+void __fastcall native_advance(glass_house_inode *self, void *, Float dt)
+{
+    self->frame_advance(dt);
+}
+}  // namespace
 
 void *glass_house_inode::native_vtable()
 {
@@ -38,8 +47,7 @@ glass_house_inode::glass_house_inode() : info_node(), field_20(false), field_21(
     m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[383]);
 }
 
-glass_house_inode::glass_house_inode(from_mash_in_place_constructor *tag)
-    : info_node(tag), field_24(tag)
+glass_house_inode::glass_house_inode(from_mash_in_place_constructor *tag) : info_node(tag), field_24(tag)
 {
     m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[383]);
 }

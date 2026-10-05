@@ -57,24 +57,28 @@ struct TentacleMeshIterator : nglVertexDef::IteratorBase {
             operator delete(this);
         return this;
     }
-    TentacleMeshIterator *clone() const { return new TentacleMeshIterator(*this); }
-    bool has_next() const { return index < static_cast<unsigned>(definition->field_4->NVertices); }
+    TentacleMeshIterator *clone() const
+    {
+        return new TentacleMeshIterator(*this);
+    }
+    bool has_next() const
+    {
+        return index < static_cast<unsigned>(definition->field_4->NVertices);
+    }
     void write(const vector3d &position, const vector3d &normal, uint32_t color, float u, float v)
     {
         auto *section = definition->field_4;
-        auto *vertices = reinterpret_cast<TentacleVertex *>(
-            section->field_3C.getVertexData() + section->field_4C);
+        auto *vertices = reinterpret_cast<TentacleVertex *>(section->field_3C.getVertexData() + section->field_4C);
         vertices[index++] = {position, {u, v}, color, normal};
     }
 };
 VALIDATE_SIZE(TentacleMeshIterator, 0xC);
 
-TentacleMeshIterator::TentacleMeshIterator(nglVertexDef *definition, bool lock)
-    : definition(definition), index(0)
+TentacleMeshIterator::TentacleMeshIterator(nglVertexDef *definition, bool lock) : definition(definition), index(0)
 {
     static void *table[]{func_address(&TentacleMeshIterator::destroy),
-                        func_address(&TentacleMeshIterator::clone),
-                        func_address(&TentacleMeshIterator::has_next)};
+                         func_address(&TentacleMeshIterator::clone),
+                         func_address(&TentacleMeshIterator::has_next)};
     m_vtbl = reinterpret_cast<std::intptr_t>(table);
     if (lock && (definition->field_4->Flags & NGLMESH_TEMP) == 0) {
         void *data;
@@ -93,15 +97,20 @@ TentacleMeshIterator **__fastcall tentacle_edit(nglVertexDef *self, void *, Tent
     return out;
 }
 nglVertexDef *__fastcall tentacle_copy(nglVertexDef *, void *, nglMeshSection *);
-void __fastcall tentacle_destroy(nglVertexDef *self, void *) { tlMemFree(self); }
+void __fastcall tentacle_destroy(nglVertexDef *self, void *)
+{
+    tlMemFree(self);
+}
 
 void __fastcall tentacle_apply_morph(nglVertexDef *, void *, nglMorphSetSection *, uint32_t, Float) {}
 
 nglVertexDef *process_tentacle(nglVertexDef *self)
 {
-    static void *table[]{reinterpret_cast<void *>(tentacle_rebase), reinterpret_cast<void *>(tentacle_edit),
-                        reinterpret_cast<void *>(tentacle_copy), reinterpret_cast<void *>(tentacle_destroy),
-                        reinterpret_cast<void *>(tentacle_apply_morph)};
+    static void *table[]{reinterpret_cast<void *>(tentacle_rebase),
+                         reinterpret_cast<void *>(tentacle_edit),
+                         reinterpret_cast<void *>(tentacle_copy),
+                         reinterpret_cast<void *>(tentacle_destroy),
+                         reinterpret_cast<void *>(tentacle_apply_morph)};
     self->m_vtbl = reinterpret_cast<std::intptr_t>(table);
     return self;
 }
@@ -138,14 +147,21 @@ struct TentacleCustomIterator {
     {
         nglCreateMesh(NGLMESH_TEMP, 1, 0, nullptr);
         auto *definition = nglCreateTentacleVertexDef();
-        nglVertexDef_MultipassMesh_Base::AddMeshSection(definition, material->material(),
-            2 * offsets->field_8 * (count - 1), count - 1, 0, nullptr, 36, D3DPT_TRIANGLESTRIP, true);
+        nglVertexDef_MultipassMesh_Base::AddMeshSection(definition,
+                                                        material->material(),
+                                                        2 * offsets->field_8 * (count - 1),
+                                                        count - 1,
+                                                        0,
+                                                        nullptr,
+                                                        36,
+                                                        D3DPT_TRIANGLESTRIP,
+                                                        true);
         return definition;
     }
-    TentacleCustomIterator(unsigned count, Tentacle_ShaderMaterial *material,
-        PolytubeCustomOffset::Iterator *offsets, uint32_t color, float tiles, float phase)
-        : point_index(0), point_count(count), offsets(offsets),
-          vertices(create(count, material, offsets), true), color(color), tiles(tiles), phase(phase)
+    TentacleCustomIterator(unsigned count, Tentacle_ShaderMaterial *material, PolytubeCustomOffset::Iterator *offsets,
+                           uint32_t color, float tiles, float phase)
+        : point_index(0), point_count(count), offsets(offsets), vertices(create(count, material, offsets), true),
+          color(color), tiles(tiles), phase(phase)
     {}
 
     void write(const vector3d &point, float radius)
@@ -173,8 +189,8 @@ struct TentacleCustomIterator {
             BeginStrip(2 * offsets->field_8, sizeof(TentacleVertex));
             for (; offsets->field_4 < static_cast<int>(offsets->field_8); ++offsets->field_4) {
                 const vector2d &offset = offsets->field_0[offsets->field_4];
-                const vector3d previous = previous_point +
-                    offset.x * previous_radius * previous_right + offset.y * previous_radius * previous_up;
+                const vector3d previous = previous_point + offset.x * previous_radius * previous_right +
+                                          offset.y * previous_radius * previous_up;
                 const vector3d current = point + offset.x * radius * right + offset.y * radius * up;
                 vector3d normal = previous - previous_point;
                 if (normal.length2() > 9.999999439624929e-11f)
@@ -203,7 +219,7 @@ const vector3d *skip_coincident_points(const vector3d *point, const vector3d *en
         ++point;
     return point;
 }
-}
+}  // namespace
 
 nglVertexDef *nglCreateTentacleVertexDef()
 {
@@ -237,8 +253,9 @@ void polytube_pt_anim::frame_advance(Float elapsed, vector3d &point)
                 const float y = 2.0f * (std::rand() * random_scale);
                 const float x = 2.0f * (std::rand() * random_scale);
                 field_10 = vector3d{(x - 1) * field_1C + field_4.x,
-                                   (y - 1) * field_1C + field_4.y,
-                                   (z - 1) * field_1C + field_4.z} - point;
+                                    (y - 1) * field_1C + field_4.y,
+                                    (z - 1) * field_1C + field_4.z} -
+                           point;
                 const float length = field_10.length();
                 if (length > 0)
                     field_10 = field_10 / length;
@@ -265,9 +282,18 @@ vector3d *__fastcall tube_center(polytube *self, void *, vector3d *out)
     *out = self->get_visual_center();
     return out;
 }
-int __fastcall tube_flavor(polytube *, void *) { return 17; }
-void __fastcall tube_alpha(polytube *self, void *, float value) { self->field_12C = value; }
-float __fastcall tube_get_alpha(polytube *self, void *) { return self->field_12C; }
+int __fastcall tube_flavor(polytube *, void *)
+{
+    return 17;
+}
+void __fastcall tube_alpha(polytube *self, void *, float value)
+{
+    self->field_12C = value;
+}
+float __fastcall tube_get_alpha(polytube *self, void *)
+{
+    return self->field_12C;
+}
 
 std::intptr_t polytube_table(std::intptr_t inherited)
 {
@@ -294,7 +320,7 @@ std::intptr_t polytube_table(std::intptr_t inherited)
     }
     return reinterpret_cast<std::intptr_t>(table.data());
 }
-}
+}  // namespace
 
 polytube::polytube(const string_hash &a2, uint32_t a3) : entity(a2, a3)
 {
@@ -361,10 +387,11 @@ void polytube::remove_from_list()
 void polytube::update_active_list()
 {
     remove_from_list();
-    const bool animated = std::any_of(pt_anims.begin(), pt_anims.end(),
-        [](const polytube_pt_anim &anim) { return (anim.field_0 & 1) != 0; });
+    const bool animated = std::any_of(
+        pt_anims.begin(), pt_anims.end(), [](const polytube_pt_anim &anim) { return (anim.field_0 & 1) != 0; });
     auto &head = field_130 || ((field_4 & 0x200) && (std::not_equal_to<float>{}(field_100, 0.0f) || animated))
-        ? active_polytubes() : inactive_polytubes();
+                     ? active_polytubes()
+                     : inactive_polytubes();
     field_68 = head;
     head = this;
     if (field_68)
@@ -582,10 +609,10 @@ void polytube::init()
 }
 
 extern void PolytubeListAddNode(nglMesh *, nglBlendModeType, const math::VecClass<3, 1> &, Float,
-                               const math::MatClass<4, 3> &, PCUV_ShaderMaterial *,
-                               nglParamSet<nglShaderParamSet_Pool> *);
+                                const math::MatClass<4, 3> &, PCUV_ShaderMaterial *,
+                                nglParamSet<nglShaderParamSet_Pool> *);
 extern void TentacleListAddNode(nglMesh *, nglBlendModeType, const math::VecClass<3, 1> &, Float,
-                               const math::MatClass<4, 3> &);
+                                const math::MatClass<4, 3> &);
 
 void polytube_misc_render_object::render(polytube *tube, Float dt)
 {
@@ -662,7 +689,7 @@ void polytube::_render(Float dt)
         points = &the_spline.curve_pts;
     }
     const auto scalar_property = [this](unsigned slot) {
-        auto function = reinterpret_cast<float (__fastcall *)(polytube *, void *)>(get_vfunc(m_vtbl, slot));
+        auto function = reinterpret_cast<float(__fastcall *)(polytube *, void *)>(get_vfunc(m_vtbl, slot));
         return function(this, nullptr);
     };
     float width = 1;
@@ -719,37 +746,39 @@ void polytube::_render(Float dt)
     };
     if (field_E4) {
         TentacleCustomIterator iter(count, field_E4, field_70, packed_color, tiles_per_meter, field_104);
-        write_curve([&](const vector3d &point, unsigned, float percent) {
-            float radius, angle;
-            Tentacle_ShaderMaterial::SampleTentacle(field_E8, percent, radius, angle);
-            iter.write(point, radius * 4.5f * width);
-        }, [&](const vector3d &point) {
-            iter.write(point, width);
-        });
+        write_curve(
+            [&](const vector3d &point, unsigned, float percent) {
+                float radius, angle;
+                Tentacle_ShaderMaterial::SampleTentacle(field_E8, percent, radius, angle);
+                iter.write(point, radius * 4.5f * width);
+            },
+            [&](const vector3d &point) { iter.write(point, width); });
         close_vertices(iter.vertices.definition);
         field_150 = nglCloseMesh();
     } else {
-        PolytubeCustomVertex::Iterator iter(count - end_count - start_count, field_D0, field_74,
-                                            packed_color, tiles_per_meter, field_104);
+        PolytubeCustomVertex::Iterator iter(
+            count - end_count - start_count, field_D0, field_74, packed_color, tiles_per_meter, field_104);
         vector3d view;
-        write_curve([&](const vector3d &point, unsigned index, float) {
-            view = point - camera;
-            if (index >= start_count && index < count - end_count) {
+        write_curve(
+            [&](const vector3d &point, unsigned index, float) {
+                view = point - camera;
+                if (index >= start_count && index < count - end_count) {
+                    iter.Write(point, view);
+                    ++iter.field_0;
+                }
+            },
+            [&](const vector3d &point) {
                 iter.Write(point, view);
                 ++iter.field_0;
-            }
-        }, [&](const vector3d &point) {
-            iter.Write(point, view);
-            ++iter.field_0;
-        });
+            });
         if ((!start_count && !end_count) || count > start_count + end_count + 1) {
             close_vertices(iter.field_C.field_4);
             field_150 = nglCloseMesh();
         }
     }
     vector3d visual_center;
-    auto center_function = reinterpret_cast<vector3d *(__fastcall *)(polytube *, void *, vector3d *)>(
-        get_vfunc(m_vtbl, 0x2C));
+    auto center_function =
+        reinterpret_cast<vector3d *(__fastcall *)(polytube *, void *, vector3d *)>(get_vfunc(m_vtbl, 0x2C));
     center_function(this, nullptr, &visual_center);
     const math::VecClass<3, 1> center{visual_center.x, visual_center.y, visual_center.z};
     const Float radius{scalar_property(0x28) + tube_radius};
@@ -758,24 +787,24 @@ void polytube::_render(Float dt)
     } else {
         if ((!start_count && !end_count) || count > start_count + end_count + 1)
             PolytubeListAddNode(field_150, blend, center, radius, transform, field_D0, &params);
-        const auto add_end_section = [&](unsigned section_count, bool at_start,
-                                        PolytubeCustomMaterial *material, nglMesh *&mesh) {
-            if (!section_count)
-                return;
-            PolytubeCustomVertex::Iterator iter(section_count + 1, material, field_74, packed_color,
-                                                tiles_per_meter, field_104);
-            unsigned index = 0;
-            for (const auto *point = points->begin(); point != end; ++point, ++index) {
-                if (at_start ? index <= section_count : index >= count - section_count - 1) {
-                    iter.Write(*point, *point - camera);
-                    ++iter.field_0;
+        const auto add_end_section =
+            [&](unsigned section_count, bool at_start, PolytubeCustomMaterial *material, nglMesh *&mesh) {
+                if (!section_count)
+                    return;
+                PolytubeCustomVertex::Iterator iter(
+                    section_count + 1, material, field_74, packed_color, tiles_per_meter, field_104);
+                unsigned index = 0;
+                for (const auto *point = points->begin(); point != end; ++point, ++index) {
+                    if (at_start ? index <= section_count : index >= count - section_count - 1) {
+                        iter.Write(*point, *point - camera);
+                        ++iter.field_0;
+                    }
+                    point = skip_coincident_points(point, end);
                 }
-                point = skip_coincident_points(point, end);
-            }
-            close_vertices(iter.field_C.field_4);
-            mesh = nglCloseMesh();
-            PolytubeListAddNode(mesh, blend, center, radius, transform, material, &params);
-        };
+                close_vertices(iter.field_C.field_4);
+                mesh = nglCloseMesh();
+                PolytubeListAddNode(mesh, blend, center, radius, transform, material, &params);
+            };
         add_end_section(start_count, true, field_D4, field_154);
         add_end_section(end_count, false, field_D8, field_158);
     }
@@ -823,14 +852,12 @@ void polytube::frame_advance_all_polytubes(Float elapsed)
 
     for (auto *current = active_polytubes(); current != nullptr;) {
         auto *next = current->field_68;
-        const float scale = current->field_58 != nullptr
-            ? static_cast<float>(current->field_58->sub_4ADE50())
-            : g_world_ptr->time_manager.field_0;
+        const float scale = current->field_58 != nullptr ? static_cast<float>(current->field_58->sub_4ADE50())
+                                                         : g_world_ptr->time_manager.field_0;
         if (current->m_vtbl != 0) {
             auto *address = get_vfunc(current->m_vtbl, 0x1A4);
             if (address != nullptr) {
-                void(__fastcall *frame_advance)(polytube *, void *, Float) =
-                    CAST(frame_advance, address);
+                void(__fastcall * frame_advance)(polytube *, void *, Float) = CAST(frame_advance, address);
                 frame_advance(current, nullptr, Float{scale * elapsed.value});
             }
         }
@@ -957,14 +984,22 @@ void polytube::set_force_start(bool a1)
 }
 
 PolytubeCustomVertex::Iterator::Iterator(unsigned count, PCUV_ShaderMaterial *material,
-    PolytubeCustomOffset::Iterator *offsets, uint32_t color, float tiles, float phase)
+                                         PolytubeCustomOffset::Iterator *offsets, uint32_t color, float tiles,
+                                         float phase)
     : field_0(0), field_4(count), field_8(offsets), field_40(color), field_44(tiles), field_48(phase)
 {
     nglCreateMesh(NGLMESH_TEMP, 1, 0, nullptr);
     auto *definition = nglCreatePCUVVertexDef();
     nglVertexDef_MultipassMesh_Base::AddMeshSection(definition,
-        material ? reinterpret_cast<nglMaterialBase *>(&material->field_4) : nullptr,
-        2 * offsets->field_8 * (count - 1), count - 1, 0, nullptr, 24, D3DPT_TRIANGLESTRIP, true);
+                                                    material ? reinterpret_cast<nglMaterialBase *>(&material->field_4)
+                                                             : nullptr,
+                                                    2 * offsets->field_8 * (count - 1),
+                                                    count - 1,
+                                                    0,
+                                                    nullptr,
+                                                    24,
+                                                    D3DPT_TRIANGLESTRIP,
+                                                    true);
     field_C = definition->CreateIterator();
 }
 

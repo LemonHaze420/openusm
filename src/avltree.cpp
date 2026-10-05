@@ -63,7 +63,7 @@ void rotate_left(RegionNode *&root)
     if (root->field_4 != nullptr)
         root->field_4->field_8 = root;
 }
-}
+}  // namespace
 
 //0x00569E60
 template <>
@@ -108,15 +108,13 @@ void AvlTree<region_lookup_entry>::add(region_lookup_entry *key)
         return;
 
     void *storage = mem_alloc(sizeof(RegionNode));
-    RegionNode *node = storage != nullptr
-        ? new (storage) RegionNode{nullptr, nullptr, nullptr, key, 0}
-        : nullptr;
+    RegionNode *node = storage != nullptr ? new (storage) RegionNode{nullptr, nullptr, nullptr, key, 0} : nullptr;
     this->addHelper(node, this->field_0, nullptr);
 }
 
 template <>
-TreeNode<region_lookup_entry> *
-AvlTree<region_lookup_entry>::findHelper(TreeNode<region_lookup_entry> *node, region_lookup_entry *key) const
+TreeNode<region_lookup_entry> *AvlTree<region_lookup_entry>::findHelper(TreeNode<region_lookup_entry> *node,
+                                                                        region_lookup_entry *key) const
 {
     while (node != nullptr && key != nullptr) {
         auto node_hash = node->m_key->field_0.source_hash_code;

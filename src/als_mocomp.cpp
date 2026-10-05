@@ -120,13 +120,13 @@ using move_face = move_and_face_no_anim_movement;
 
 void dispatch_destination(move_face *self, int offset)
 {
-    using fn = void (__fastcall *)(move_face *, void *);
+    using fn = void(__fastcall *)(move_face *, void *);
     reinterpret_cast<fn>(get_vfunc(self->m_vtbl, offset))(self, nullptr);
 }
 
 void dispatch_move_frame(move_face *self, int offset, Float dt)
 {
-    using fn = void (__fastcall *)(move_face *, void *, Float);
+    using fn = void(__fastcall *)(move_face *, void *, Float);
     reinterpret_cast<fn>(get_vfunc(self->m_vtbl, offset))(self, nullptr, dt);
 }
 
@@ -145,7 +145,7 @@ po dispatch_orientation(move_face *self, int offset, Float dt, const po &before,
     reinterpret_cast<fn>(get_vfunc(self->m_vtbl, offset))(self, nullptr, &result, dt, &before, &animated);
     return result;
 }
-}
+}  // namespace
 
 void move_face::destruct_mashed_class()
 {
@@ -165,7 +165,6 @@ void move_face::unmash(mash_info_struct *info, void *)
 
 void move_face::activate(animation_logic_system *system)
 {
-
     motion_compensator::activate(system);
     movement_speed = turn_rate = 0.0f;
     translation_disabled = orientation_disabled = 0;
@@ -186,11 +185,11 @@ void move_face::activate(animation_logic_system *system)
 void constant_move_and_face::activate(animation_logic_system *system)
 {
     move_face::activate(system);
-    using optional_fn = float (__fastcall *)(state_machine *, void *, const string_hash &, Float, bool *);
+    using optional_fn = float(__fastcall *)(state_machine *, void *, const string_hash &, Float, bool *);
     auto optional = reinterpret_cast<optional_fn>(get_vfunc(field_8->m_vtbl, 0x64));
     movement_speed = optional(field_8, nullptr, string_hash{int(to_hash("movement_speed"))}, 5.0f, nullptr);
-    turn_rate = optional(field_8, nullptr, string_hash{int(to_hash("turn_rate"))}, 720.0f, nullptr)
-        * (3.1415927f / 180.0f);
+    turn_rate =
+        optional(field_8, nullptr, string_hash{int(to_hash("turn_rate"))}, 720.0f, nullptr) * (3.1415927f / 180.0f);
 }
 
 void crawl_transition::activate(animation_logic_system *system)
@@ -199,7 +198,9 @@ void crawl_transition::activate(animation_logic_system *system)
     auto has = [this](uint32_t type) {
         return field_8->find_external_param(static_cast<external_parameter_types>(type)) != nullptr;
     };
-    auto param = [this](uint32_t type) { return field_8->get_param(field_4, type); };
+    auto param = [this](uint32_t type) {
+        return field_8->get_param(field_4, type);
+    };
     up = the_actor->get_abs_po().get_y_facing();
     if (has(42) && has(7)) {
         const int transition = static_cast<int>(std::floor(param(7) + 0.5f));
@@ -234,8 +235,7 @@ void crawl_transition::activate(animation_logic_system *system)
 vector3d move_face::simple_linear_translation(Float dt, float fraction, const po &pose)
 {
     const vector3d position = pose.get_position();
-    if (std::equal_to<float>{}(destination.x, position.x) &&
-        std::equal_to<float>{}(destination.y, position.y) &&
+    if (std::equal_to<float>{}(destination.x, position.x) && std::equal_to<float>{}(destination.y, position.y) &&
         std::equal_to<float>{}(destination.z, position.z))
         return position;
     vector3d delta = destination - position;
@@ -256,8 +256,6 @@ vector3d move_face::simple_linear_translation(Float dt, float fraction, const po
 
 po move_face::simple_linear_orientation(Float dt, float fraction, const po &pose)
 {
-
-
     vector3d axis = up;
     if (axis.length2() > 9.999999439624929e-11f)
         axis *= 1.0f / axis.length();
@@ -312,10 +310,14 @@ vector3d move_face::select_translation(Float dt, const po &before, const po &ani
 {
     const int mode = remaining_time <= 0.0f ? expired_translation_mode : translation_mode;
     switch (mode) {
-    case 0: return before.get_position();
-    case 1: return dispatch_translation(this, 0x80, dt, before, animated);
-    case 2: return animated.get_position();
-    case 3: return dispatch_translation(this, 0x84, dt, before, animated);
+    case 0:
+        return before.get_position();
+    case 1:
+        return dispatch_translation(this, 0x80, dt, before, animated);
+    case 2:
+        return animated.get_position();
+    case 3:
+        return dispatch_translation(this, 0x84, dt, before, animated);
     default:
 
 #ifdef _MSC_VER
@@ -330,20 +332,24 @@ po move_face::select_orientation(Float dt, const po &before, const po &animated)
 {
     const int mode = remaining_time <= 0.0f ? expired_orientation_mode : orientation_mode;
     switch (mode) {
-    case 0: return before;
-    case 1: return dispatch_orientation(this, 0x8C, dt, before, animated);
-    case 2: return animated;
-    case 3: return dispatch_orientation(this, 0x90, dt, before, animated);
-    default: return po{};
+    case 0:
+        return before;
+    case 1:
+        return dispatch_orientation(this, 0x8C, dt, before, animated);
+    case 2:
+        return animated;
+    case 3:
+        return dispatch_orientation(this, 0x90, dt, before, animated);
+    default:
+        return po{};
     }
 }
 
 void move_face::post_anim_action(Float dt)
 {
-
     if (field_8->find_external_param(static_cast<external_parameter_types>(16))) {
-        using get_fn = double (__fastcall *)(move_face *, void *);
-        using set_fn = void (__fastcall *)(move_face *, void *, Float);
+        using get_fn = double(__fastcall *)(move_face *, void *);
+        using set_fn = void(__fastcall *)(move_face *, void *, Float);
         const Float speed = reinterpret_cast<get_fn>(get_vfunc(m_vtbl, 0x48))(this, nullptr);
         reinterpret_cast<set_fn>(get_vfunc(m_vtbl, 0x40))(this, nullptr, speed);
     }
@@ -369,7 +375,6 @@ void move_face::face_and_arrive_by(Float dt)
 
 po move_face::apply_animation_offset()
 {
-
     po animation_pose;
     field_4->get_animation_controller()->get_curr_po_offset(animation_pose);
     animation_pose.set_from_ptr_to_po_world(ptr_to_po{&animation_pose.m, &the_actor->get_rel_po().m});
@@ -378,31 +383,53 @@ po move_face::apply_animation_offset()
     the_actor->dirty_family(false);
     if (the_actor->is_conglom_member() || the_actor->is_a_conglomerate())
         the_actor->dirty_model_po_family();
-    using changed_fn = void (__fastcall *)(actor *, void *);
+    using changed_fn = void(__fastcall *)(actor *, void *);
     reinterpret_cast<changed_fn>(get_vfunc(the_actor->m_vtbl, 0x34))(the_actor, nullptr);
     return the_actor->get_abs_po();
 }
 
 namespace {
-void __fastcall crawl_destruct(crawl_transition *self, void *) { self->destruct_mashed_class(); }
+void __fastcall crawl_destruct(crawl_transition *self, void *)
+{
+    self->destruct_mashed_class();
+}
 void __fastcall crawl_unmash(crawl_transition *self, void *, mash_info_struct *info, void *context)
-{ self->unmash(info, context); }
+{
+    self->unmash(info, context);
+}
 void *__fastcall crawl_delete(crawl_transition *self, void *, unsigned char flags)
 {
     self->~crawl_transition();
-    if (flags & 1) mem_dealloc(self, sizeof(*self));
+    if (flags & 1)
+        mem_dealloc(self, sizeof(*self));
     return self;
 }
-int __fastcall crawl_type(crawl_transition *, void *) { return 503; }
+int __fastcall crawl_type(crawl_transition *, void *)
+{
+    return 503;
+}
 bool __fastcall crawl_parent(crawl_transition *, void *, uint32_t type)
-{ return type == 498 || type == 512 || type == 490 || type == 573; }
+{
+    return type == 498 || type == 512 || type == 490 || type == 573;
+}
 void __fastcall crawl_activate(crawl_transition *self, void *, animation_logic_system *system)
-{ self->activate(system); }
-void __fastcall crawl_post(crawl_transition *self, void *, Float dt) { self->post_anim_action(dt); }
-int __fastcall crawl_size(crawl_transition *, void *) { return sizeof(crawl_transition); }
+{
+    self->activate(system);
+}
+void __fastcall crawl_post(crawl_transition *self, void *, Float dt)
+{
+    self->post_anim_action(dt);
+}
+int __fastcall crawl_size(crawl_transition *, void *)
+{
+    return sizeof(crawl_transition);
+}
 
 
-void __fastcall move_reset_time(move_face *self, void *) { self->remaining_time = 0.0001f; }
+void __fastcall move_reset_time(move_face *self, void *)
+{
+    self->remaining_time = 0.0001f;
+}
 void __fastcall move_destination_empty(move_face *, void *) {}
 int __fastcall move_reset_destination(move_face *self, void *)
 {
@@ -411,9 +438,18 @@ int __fastcall move_reset_destination(move_face *self, void *)
     self->field_70 = false;
     return 0;
 }
-void __fastcall move_update_position(move_face *self, void *) { dispatch_destination(self, 0x54); }
-void __fastcall move_update_facing(move_face *self, void *) { dispatch_destination(self, 0x58); }
-void __fastcall move_update_up(move_face *self, void *) { dispatch_destination(self, 0x5C); }
+void __fastcall move_update_position(move_face *self, void *)
+{
+    dispatch_destination(self, 0x54);
+}
+void __fastcall move_update_facing(move_face *self, void *)
+{
+    dispatch_destination(self, 0x58);
+}
+void __fastcall move_update_up(move_face *self, void *)
+{
+    dispatch_destination(self, 0x5C);
+}
 void __fastcall move_update_destination(move_face *self, void *, Float)
 {
     dispatch_destination(self, 0x64);
@@ -421,32 +457,56 @@ void __fastcall move_update_destination(move_face *self, void *, Float)
     dispatch_destination(self, 0x6C);
     dispatch_destination(self, 0x70);
 }
-vector3d *__fastcall move_linear_translation(move_face *self, void *, vector3d *out,
-                                            Float dt, float fraction, const po *pose)
-{ *out = self->simple_linear_translation(dt, fraction, *pose); return out; }
-po *__fastcall move_linear_orientation(move_face *self, void *, po *out,
-                                       Float dt, float fraction, const po *pose)
-{ *out = self->simple_linear_orientation(dt, fraction, *pose); return out; }
-vector3d *__fastcall move_compute_translation(move_face *self, void *, vector3d *out,
-                                             Float dt, const po *before, const po *animated)
-{ *out = self->compute_translation(dt, *before, *animated); return out; }
-vector3d *__fastcall move_hybrid_translation(move_face *self, void *, vector3d *out,
-                                            Float dt, const po *, const po *animated)
-{ *out = dispatch_translation(self, 0x80, dt, *animated, *animated); return out; }
-vector3d *__fastcall move_select_translation(move_face *self, void *, vector3d *out,
-                                            Float dt, const po *before, const po *animated)
-{ *out = self->select_translation(dt, *before, *animated); return out; }
-po *__fastcall move_compute_orientation(move_face *self, void *, po *out,
-                                        Float dt, const po *before, const po *animated)
-{ *out = self->compute_orientation(dt, *before, *animated); return out; }
-po *__fastcall move_hybrid_orientation(move_face *self, void *, po *out,
-                                       Float dt, const po *, const po *animated)
-{ *out = dispatch_orientation(self, 0x8C, dt, *animated, *animated); return out; }
-po *__fastcall move_select_orientation(move_face *self, void *, po *out,
-                                       Float dt, const po *before, const po *animated)
-{ *out = self->select_orientation(dt, *before, *animated); return out; }
+vector3d *__fastcall move_linear_translation(move_face *self, void *, vector3d *out, Float dt, float fraction,
+                                             const po *pose)
+{
+    *out = self->simple_linear_translation(dt, fraction, *pose);
+    return out;
+}
+po *__fastcall move_linear_orientation(move_face *self, void *, po *out, Float dt, float fraction, const po *pose)
+{
+    *out = self->simple_linear_orientation(dt, fraction, *pose);
+    return out;
+}
+vector3d *__fastcall move_compute_translation(move_face *self, void *, vector3d *out, Float dt, const po *before,
+                                              const po *animated)
+{
+    *out = self->compute_translation(dt, *before, *animated);
+    return out;
+}
+vector3d *__fastcall move_hybrid_translation(move_face *self, void *, vector3d *out, Float dt, const po *,
+                                             const po *animated)
+{
+    *out = dispatch_translation(self, 0x80, dt, *animated, *animated);
+    return out;
+}
+vector3d *__fastcall move_select_translation(move_face *self, void *, vector3d *out, Float dt, const po *before,
+                                             const po *animated)
+{
+    *out = self->select_translation(dt, *before, *animated);
+    return out;
+}
+po *__fastcall move_compute_orientation(move_face *self, void *, po *out, Float dt, const po *before,
+                                        const po *animated)
+{
+    *out = self->compute_orientation(dt, *before, *animated);
+    return out;
+}
+po *__fastcall move_hybrid_orientation(move_face *self, void *, po *out, Float dt, const po *, const po *animated)
+{
+    *out = dispatch_orientation(self, 0x8C, dt, *animated, *animated);
+    return out;
+}
+po *__fastcall move_select_orientation(move_face *self, void *, po *out, Float dt, const po *before, const po *animated)
+{
+    *out = self->select_orientation(dt, *before, *animated);
+    return out;
+}
 po *__fastcall move_animation_offset(move_face *self, void *, po *out)
-{ *out = self->apply_animation_offset(); return out; }
+{
+    *out = self->apply_animation_offset();
+    return out;
+}
 void __fastcall move_arrival_event(move_face *self, void *, Float)
 {
     if (std::fabs(self->remaining_time) < 0.0001f)
@@ -457,9 +517,15 @@ void __fastcall move_clamp_time(move_face *self, void *, Float dt)
     if (self->remaining_time > 0.0f && self->remaining_time < dt)
         self->remaining_time = dt;
 }
-void __fastcall move_decrement_time(move_face *self, void *, Float dt) { self->remaining_time -= dt; }
-void __fastcall move_arrive(move_face *self, void *, Float dt) { self->face_and_arrive_by(dt); }
+void __fastcall move_decrement_time(move_face *self, void *, Float dt)
+{
+    self->remaining_time -= dt;
 }
+void __fastcall move_arrive(move_face *self, void *, Float dt)
+{
+    self->face_and_arrive_by(dt);
+}
+}  // namespace
 
 void *crawl_transition::native_vtable()
 {

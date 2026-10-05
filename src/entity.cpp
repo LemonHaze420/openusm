@@ -33,7 +33,7 @@ static fixed_pool pool{sizeof(fixed_vector<region *, 7>), 32, 4, 1, 0, nullptr};
 #else
 static fixed_pool &pool = var<fixed_pool>(0x0091FF9C);
 #endif
-}
+}  // namespace entity_extended_regions_array_t
 
 entity::entity(const string_hash &a2, uint32_t a3) : signaller(a2, a3, false)
 {
@@ -68,12 +68,12 @@ entity::~entity()
     if (field_58 != nullptr) {
         auto *time = field_58;
         if (time->field_8) {
-            auto destroy = reinterpret_cast<void(__fastcall *)(time_interface *, void *, bool)>(
-                get_vfunc(time->m_vtbl, 0));
+            auto destroy =
+                reinterpret_cast<void(__fastcall *)(time_interface *, void *, bool)>(get_vfunc(time->m_vtbl, 0));
             destroy(time, nullptr, true);
         } else {
-            auto release = reinterpret_cast<void(__fastcall *)(time_interface *, void *)>(
-                get_vfunc(time->m_vtbl, 0x24));
+            auto release =
+                reinterpret_cast<void(__fastcall *)(time_interface *, void *)>(get_vfunc(time->m_vtbl, 0x24));
             release(time, nullptr);
         }
         field_58 = nullptr;
@@ -86,12 +86,12 @@ void entity::release_mem()
     if (field_58 != nullptr) {
         auto *time = field_58;
         if (time->field_8) {
-            auto destroy = reinterpret_cast<void(__fastcall *)(time_interface *, void *, bool)>(
-                get_vfunc(time->m_vtbl, 0));
+            auto destroy =
+                reinterpret_cast<void(__fastcall *)(time_interface *, void *, bool)>(get_vfunc(time->m_vtbl, 0));
             destroy(time, nullptr, true);
         } else {
-            auto release = reinterpret_cast<void(__fastcall *)(time_interface *, void *)>(
-                get_vfunc(time->m_vtbl, 0x24));
+            auto release =
+                reinterpret_cast<void(__fastcall *)(time_interface *, void *)>(get_vfunc(time->m_vtbl, 0x24));
             release(time, nullptr);
         }
         field_58 = nullptr;
@@ -197,8 +197,7 @@ float entity::get_visual_radius()
 
 vector3d entity::get_visual_center()
 {
-    auto center = reinterpret_cast<vector3d *(__fastcall *)(entity *, void *, vector3d *)>(
-        get_vfunc(m_vtbl, 0x2C));
+    auto center = reinterpret_cast<vector3d *(__fastcall *)(entity *, void *, vector3d *)>(get_vfunc(m_vtbl, 0x2C));
     vector3d result;
     center(this, nullptr, &result);
     return result;
@@ -229,14 +228,13 @@ void entity::clear_region(region *r, int i_know_what_i_am_doing)
 
 void entity::compute_sector(terrain *terrain_ptr, bool loading_scene, entity *fallback)
 {
-    auto compute = reinterpret_cast<void(__fastcall *)(entity *, void *, terrain *, bool, entity *)>(
-        get_vfunc(m_vtbl, 0x16C));
+    auto compute =
+        reinterpret_cast<void(__fastcall *)(entity *, void *, terrain *, bool, entity *)>(get_vfunc(m_vtbl, 0x16C));
     compute(this, nullptr, terrain_ptr, loading_scene, fallback);
 }
 
 void entity::_compute_sector(terrain *terrain_ptr, bool loading_scene, entity *fallback)
 {
-
     (void)terrain_ptr;
     (void)loading_scene;
     (void)fallback;
@@ -292,11 +290,12 @@ void entity::force_regions(entity *ent)
     field_4 |= 0x10000000u;
     region *visited_regions[15];
     int count = 0;
-    for (int index = 0; ; ++index) {
+    for (int index = 0;; ++index) {
         region *current = index < FIXED_REGIONS_ARRAY_SIZE ? ent->regions[index]
-            : ent->extended_regions != nullptr &&
-                      index - FIXED_REGIONS_ARRAY_SIZE < static_cast<int>(ent->extended_regions->size())
-                ? ent->extended_regions->m_data[index - FIXED_REGIONS_ARRAY_SIZE] : nullptr;
+                          : ent->extended_regions != nullptr &&
+                                  index - FIXED_REGIONS_ARRAY_SIZE < static_cast<int>(ent->extended_regions->size())
+                              ? ent->extended_regions->m_data[index - FIXED_REGIONS_ARRAY_SIZE]
+                              : nullptr;
         if (current == nullptr) {
             break;
         }
@@ -305,10 +304,7 @@ void entity::force_regions(entity *ent)
     update_regions(visited_regions, count);
 }
 
-void entity::update_ai_proximity_map_recursive()
-{
-
-}
+void entity::update_ai_proximity_map_recursive() {}
 
 void entity::set_family_visible(bool a2)
 {
@@ -330,8 +326,7 @@ void entity::set_family_visible(bool a2)
 
 bool entity::is_renderable() const
 {
-    auto renderable = reinterpret_cast<bool(__fastcall *)(const entity *, void *)>(
-        get_vfunc(m_vtbl, 0x18C));
+    auto renderable = reinterpret_cast<bool(__fastcall *)(const entity *, void *)>(get_vfunc(m_vtbl, 0x18C));
     return renderable(this, nullptr);
 }
 
@@ -368,7 +363,7 @@ void entity::region_update_poss_collide()
     if constexpr (STANDALONE_SYSTEM) {
         if (is_conglom_member() || regions[0] == nullptr)
             return;
-        bool (__fastcall *collides)(entity *, void *) = CAST(collides, get_vfunc(m_vtbl, 0x190));
+        bool(__fastcall * collides)(entity *, void *) = CAST(collides, get_vfunc(m_vtbl, 0x190));
         auto *map = get_primary_region()->collision_proximity_map;
         if (collides(this, nullptr))
             map->update_entity(this);
@@ -433,16 +428,15 @@ void entity::set_render_color(color32 c)
 color32 entity::get_render_color() const
 {
     color32 result;
-    auto callback = reinterpret_cast<color32 *(__fastcall *)(const entity *, void *, color32 *)>(
-        get_vfunc(m_vtbl, 0x1C4));
+    auto callback =
+        reinterpret_cast<color32 *(__fastcall *)(const entity *, void *, color32 *)>(get_vfunc(m_vtbl, 0x1C4));
     callback(this, nullptr, &result);
     return result;
 }
 
 void entity::set_render_alpha_mod(Float alpha)
 {
-    auto callback = reinterpret_cast<void(__fastcall *)(entity *, void *, Float)>(
-        get_vfunc(m_vtbl, 0x1C8));
+    auto callback = reinterpret_cast<void(__fastcall *)(entity *, void *, Float)>(get_vfunc(m_vtbl, 0x1C8));
     callback(this, nullptr, alpha);
 }
 
@@ -466,8 +460,8 @@ void entity::set_render_scale(const vector3d &)
 vector3d entity::get_render_scale() const
 {
     vector3d result;
-    auto callback = reinterpret_cast<vector3d *(__fastcall *)(const entity *, void *, vector3d *)>(
-        get_vfunc(m_vtbl, 0x1D4));
+    auto callback =
+        reinterpret_cast<vector3d *(__fastcall *)(const entity *, void *, vector3d *)>(get_vfunc(m_vtbl, 0x1D4));
     callback(this, nullptr, &result);
     return result;
 }
@@ -624,8 +618,8 @@ float entity::get_colgeom_radius() const
 }
 vector3d entity::get_colgeom_center() const
 {
-    auto callback = reinterpret_cast<vector3d *(__fastcall *)(const entity *, void *, vector3d *)>(
-        get_vfunc(m_vtbl, 0x258));
+    auto callback =
+        reinterpret_cast<vector3d *(__fastcall *)(const entity *, void *, vector3d *)>(get_vfunc(m_vtbl, 0x258));
     vector3d result;
     callback(this, nullptr, &result);
     return result;
@@ -902,23 +896,18 @@ bool entity::match_search_flags(int a2)
 {
     if constexpr (STANDALONE_SYSTEM) {
         const auto query = [this](unsigned offset) {
-            return reinterpret_cast<bool (__fastcall *)(entity_base *, void *)>(
-                get_vfunc(m_vtbl, offset))(this, nullptr);
+            return reinterpret_cast<bool(__fastcall *)(entity_base *, void *)>(get_vfunc(m_vtbl, offset))(this,
+                                                                                                          nullptr);
         };
-        if ((a2 & 1) == 0 && (((a2 & 0x20) == 0) || !(field_4 & 0x1000)) &&
-            (((a2 & 0x40) == 0) || !query(0xCC)) && (((a2 & 0x80u) == 0) || !query(0xF0)) &&
-            (((a2 & 0x200) == 0) || !query(0xA0)) &&
-            (!query(0x64) ||
-             ((((a2 & 4) == 0) || !query(0x114)) && (((a2 & 8) == 0) || !query(0x124)) &&
-              (((a2 & 2) == 0) || get_ai_core() == nullptr))) &&
-            (!(field_4 & 4) ||
-             ((((a2 & 0x10) == 0) || !query(0x13C)) && (((a2 & 0x100) == 0) || !query(0x29C))))) {
+        if ((a2 & 1) == 0 && (((a2 & 0x20) == 0) || !(field_4 & 0x1000)) && (((a2 & 0x40) == 0) || !query(0xCC)) &&
+            (((a2 & 0x80u) == 0) || !query(0xF0)) && (((a2 & 0x200) == 0) || !query(0xA0)) &&
+            (!query(0x64) || ((((a2 & 4) == 0) || !query(0x114)) && (((a2 & 8) == 0) || !query(0x124)) &&
+                              (((a2 & 2) == 0) || get_ai_core() == nullptr))) &&
+            (!(field_4 & 4) || ((((a2 & 0x10) == 0) || !query(0x13C)) && (((a2 & 0x100) == 0) || !query(0x29C))))) {
             return false;
         }
-        return ((((a2 & 0x800) == 0) || (field_4 & 0x200)) &&
-                (((a2 & 0x1000) == 0) || !(field_4 & 0x200)) &&
-                (((a2 & 0x2000) == 0) || query(0x50)) &&
-                (((a2 & 0x4000) == 0) || !query(0x50)));
+        return ((((a2 & 0x800) == 0) || (field_4 & 0x200)) && (((a2 & 0x1000) == 0) || !(field_4 & 0x200)) &&
+                (((a2 & 0x2000) == 0) || query(0x50)) && (((a2 & 0x4000) == 0) || !query(0x50)));
     } else {
         bool(__fastcall * func)(void *, void *edx, int) = CAST(func, 0x004C0970);
         return func(this, nullptr, a2);
@@ -955,7 +944,6 @@ int entity::find_entities(int a1)
 
 int entity::find_entities(unsigned flags, entity *center, float radius)
 {
-
     if (!found_entities)
         found_entities = new _std::list<entity *>;
     found_entities->clear();
@@ -971,7 +959,7 @@ int entity::find_entities(unsigned flags, entity *center, float radius)
     struct search_filter : local_collision::entfilter_base {
         uint32_t flags;
         static bool __fastcall accept(const local_collision::entfilter_base *base, void *, actor *value,
-            dynamic_conglomerate_clone *, const local_collision::query_args_t *)
+                                      dynamic_conglomerate_clone *, const local_collision::query_args_t *)
         {
             const auto flags = static_cast<const search_filter *>(base)->flags;
             if (flags & 0x4000)
@@ -994,8 +982,7 @@ int entity::find_entities(unsigned flags, entity *center, float radius)
     search_filter filter;
     static local_collision::entfilter_base::native_vtable filter_table{&search_filter::accept};
     filter.m_vtbl = reinterpret_cast<std::intptr_t>(&filter_table);
-    filter.flags = ((flags & 0x80000) |
-        (((flags & 0x800000) | ((flags >> 2) & 0x180000)) >> 13)) >> 5;
+    filter.flags = ((flags & 0x80000) | (((flags & 0x800000) | ((flags >> 2) & 0x180000)) >> 13)) >> 5;
     const auto add_candidate = [&](entity *candidate) {
         if (!candidate->match_search_flags(flags) ||
             !((candidate->get_abs_position() - position).length2() <= radius * radius))
@@ -1003,10 +990,19 @@ int entity::find_entities(unsigned flags, entity *center, float radius)
         if (flags & 0xF00000) {
             vector3d hit, normal;
             entity *occluder = nullptr;
-            auto *obb_filter = flags & 0x100000 ? local_collision::obbfilter_lineseg_test
-                                              : local_collision::obbfilter_reject_all;
-            if (find_intersection(position, candidate->get_abs_position(), filter, *obb_filter,
-                &hit, &normal, nullptr, &occluder, nullptr, false) && occluder != candidate)
+            auto *obb_filter =
+                flags & 0x100000 ? local_collision::obbfilter_lineseg_test : local_collision::obbfilter_reject_all;
+            if (find_intersection(position,
+                                  candidate->get_abs_position(),
+                                  filter,
+                                  *obb_filter,
+                                  &hit,
+                                  &normal,
+                                  nullptr,
+                                  &occluder,
+                                  nullptr,
+                                  false) &&
+                occluder != candidate)
                 return;
         }
         found_entities->push_back(candidate);

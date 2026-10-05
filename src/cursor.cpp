@@ -24,13 +24,12 @@ Cursor *__fastcall destroy_cursor(Cursor *cursor, void *, unsigned char flags)
     return cursor;
 }
 void *native_cursor_table[]{reinterpret_cast<void *>(&destroy_cursor)};
-}
+}  // namespace
 
 Cursor::Cursor(LPCWSTR lpWideCharStr, int a3, int a4)
 {
     if constexpr (1) {
-        this->m_vtbl = STANDALONE_SYSTEM
-            ? reinterpret_cast<std::intptr_t>(native_cursor_table) : 0x0088F4F8;
+        this->m_vtbl = STANDALONE_SYSTEM ? reinterpret_cast<std::intptr_t>(native_cursor_table) : 0x0088F4F8;
         nglTexture *v5 = &this->field_7C;
         v5->FileName = {};
 
@@ -82,8 +81,7 @@ Cursor *__fastcall hookCtor(Cursor *self, void *, LPCWSTR lpWideCharStr, int a3,
 
 Cursor::~Cursor()
 {
-    m_vtbl = STANDALONE_SYSTEM
-        ? reinterpret_cast<std::intptr_t>(native_cursor_table) : 0x0088F4F8;
+    m_vtbl = STANDALONE_SYSTEM ? reinterpret_cast<std::intptr_t>(native_cursor_table) : 0x0088F4F8;
     if (field_14 != nullptr) {
         field_14->lpVtbl->Release(field_14);
     }
@@ -94,9 +92,11 @@ void Cursor::Draw()
     if constexpr (STANDALONE_SYSTEM) {
         if (field_114) {
             sub_581C60();
-            nglSetQuadRect(&field_18, static_cast<float>(field_104.x),
-                static_cast<float>(field_104.y), static_cast<float>(field_104.x + 48),
-                static_cast<float>(field_104.y + 48));
+            nglSetQuadRect(&field_18,
+                           static_cast<float>(field_104.x),
+                           static_cast<float>(field_104.y),
+                           static_cast<float>(field_104.x + 48),
+                           static_cast<float>(field_104.y + 48));
             nglListAddQuad(&field_18);
         }
     } else {
@@ -106,7 +106,6 @@ void Cursor::Draw()
 
 void Cursor::sub_5A67D0(int a1, int a2, int a3, int a4)
 {
-
     field_12C.push_back(RECT{a1, a2, a3, a4});
 }
 

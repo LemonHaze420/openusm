@@ -18,8 +18,7 @@ struct spawnable {
     spawnable(vhandle_type<entity>);
     static void *native_vtable();
 
-    vector3d prepare_for_spawn(traffic_path_graph::laneInfoStruct *next_lane_struct, vector3d &a4,
-        int node_index);
+    vector3d prepare_for_spawn(traffic_path_graph::laneInfoStruct *next_lane_struct, vector3d &a4, int node_index);
 
     //virtual
     void do_spawn(vector3d a4, vector3d a2, traffic_path_lane *lane, int node_index, bool a10, bool a11);

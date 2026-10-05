@@ -14,8 +14,14 @@ struct std_puppet_inode : info_node {
     void activate(ai_core *core);
     void frame_advance(Float dt);
     void set_current_state(string_hash state);
-    uint32_t get_virtual_type_enum() const { return 315; }
-    int get_mash_sizeof() const { return 0x20; }
+    uint32_t get_virtual_type_enum() const
+    {
+        return 315;
+    }
+    int get_mash_sizeof() const
+    {
+        return 0x20;
+    }
 };
 
-}
+}  // namespace ai

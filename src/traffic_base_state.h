@@ -6,7 +6,6 @@ namespace ai {
 
 
 struct traffic_base_state : enhanced_state {
-
     traffic_base_state();
     explicit traffic_base_state(from_mash_in_place_constructor *constructor);
     ~traffic_base_state() = default;
@@ -17,4 +16,4 @@ struct traffic_base_state : enhanced_state {
     void get_info_node_list(info_node_desc_list &nodes);
 };
 
-}
+}  // namespace ai

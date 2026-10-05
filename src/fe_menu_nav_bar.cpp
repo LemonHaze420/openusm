@@ -11,7 +11,8 @@
 
 VALIDATE_SIZE(menu_nav_bar, 0x2Cu);
 
-menu_nav_bar::menu_nav_bar() : field_4() {
+menu_nav_bar::menu_nav_bar() : field_4()
+{
     this->text_box = nullptr;
     this->background_a = nullptr;
     this->field_1C = nullptr;
@@ -37,38 +38,27 @@ void menu_nav_bar::Load()
     if (field_24 != nullptr)
         field_24->SetShown(true);
 
-    text_box->SetNoFlash(color32 {0xFFC8C8C8});
-    text_box->SetFlash(
-        color32 {0xFFC8C8C8},
-        color32 {0xFFFFFFFF},
-        Float {1.0f});
+    text_box->SetNoFlash(color32{0xFFC8C8C8});
+    text_box->SetFlash(color32{0xFFC8C8C8}, color32{0xFFFFFFFF}, Float{1.0f});
     field_28 = false;
 }
 
-void menu_nav_bar::AddButtons(menu_nav_bar::button_type a2,
-                              menu_nav_bar::button_type a3,
-                              global_text_enum a4)
+void menu_nav_bar::AddButtons(menu_nav_bar::button_type a2, menu_nav_bar::button_type a3, global_text_enum a4)
 {
-    if constexpr (STANDALONE_SYSTEM)
-    {
+    if constexpr (STANDALONE_SYSTEM) {
         mString label{g_game_ptr->field_7C->lookup_localized_string(a4)};
         this->field_4 += label + " ";
-    }
-    else
-    {
+    } else {
         THISCALL(0x006121C0, this, a2, a3, a4);
     }
 }
 
 void menu_nav_bar::Reformat()
 {
-    if constexpr (STANDALONE_SYSTEM)
-    {
-        FEText::string text {this->field_4};
+    if constexpr (STANDALONE_SYSTEM) {
+        FEText::string text{this->field_4};
         this->text_box->SetTextNoLocalize(text);
-    }
-    else
-    {
+    } else {
         THISCALL(0x006122B0, this);
     }
 }

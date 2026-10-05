@@ -16,6 +16,6 @@ extern void nslStopSource(nslSourceID source_id);
 extern bool nslSourceIsPlaying(nslSourceID source_id);
 extern void nslSetSourceVolume(nslSourceID source_id, float volume);
 extern void nslSetSourcePitch(nslSourceID source_id, float pitch);
-extern void nslSetSourceSpatial(nslSourceID source_id, const float *position,
-    const float *velocity, float min_distance, float max_distance);
+extern void nslSetSourceSpatial(nslSourceID source_id, const float *position, const float *velocity, float min_distance,
+                                float max_distance);
 extern void nslReleaseSources();

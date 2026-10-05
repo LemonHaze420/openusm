@@ -24,17 +24,15 @@ VALIDATE_SIZE(main_menu_options, 0x110u);
 void sub_582AD0();
 
 
-main_menu_options::main_menu_options(FEMenuSystem *a2, int a3, int a4)
-    : FEMenu(a2, 0, a3, a4, 8, 0)
+main_menu_options::main_menu_options(FEMenuSystem *a2, int a3, int a4) : FEMenu(a2, 0, a3, a4, 8, 0)
 {
-    if constexpr (STANDALONE_SYSTEM)
-    {
+    if constexpr (STANDALONE_SYSTEM) {
         m_vtbl = 0x008946F8;
         field_2C = 1.0f;
         field_30 = 1.25f;
         field_34 = 0.8f;
-        field_38 = color32 {0xFFC87238};
-        field_3C = color32 {0xFFE6D03F};
+        field_38 = color32{0xFFC87238};
+        field_3C = color32{0xFFE6D03F};
         for (auto &quad : field_40)
             quad = nullptr;
         field_A0 = nullptr;
@@ -62,9 +60,7 @@ main_menu_options::main_menu_options(FEMenuSystem *a2, int a3, int a4)
         field_109 = false;
         field_10A = false;
         field_10C = a2;
-    }
-    else
-    {
+    } else {
         THISCALL(0x006138F0, this, a2, a3, a4);
     }
 }
@@ -79,7 +75,7 @@ void main_menu_options::_Init()
         int index;
         const char *name;
     };
-    static constexpr QuadBinding background_quads[] {
+    static constexpr QuadBinding background_quads[]{
         {1, "mm_bkg_city"},
         {2, "mm_bkg_city_01"},
         {3, "mm_bkg_city_02"},
@@ -105,8 +101,7 @@ void main_menu_options::_Init()
         {23, "mm_bkg_detail_dark_06"},
         {0, "mm_logo_medium"},
     };
-    for (const auto &binding : background_quads)
-    {
+    for (const auto &binding : background_quads) {
         auto *quad = panel->GetPQ(binding.name);
         assert(quad != nullptr);
         quad->TurnOn(false);
@@ -117,7 +112,7 @@ void main_menu_options::_Init()
         PanelQuad **destination;
         const char *name;
     };
-    const NamedQuad named_quads[] {
+    const NamedQuad named_quads[]{
         {&field_A0, "mm_bkg_grey_a_01"},
         {&field_A4, "mm_bkg_grey_a_02"},
         {&field_A8, "mm_bkg_grey_a_03"},
@@ -131,8 +126,7 @@ void main_menu_options::_Init()
         {&field_C0[2], "mm_textbox_outline"},
         {&field_C0[3], "mm_textbox_spider"},
     };
-    for (const auto &binding : named_quads)
-    {
+    for (const auto &binding : named_quads) {
         auto *quad = panel->GetPQ(binding.name);
         assert(quad != nullptr);
         quad->TurnOn(false);
@@ -143,21 +137,20 @@ void main_menu_options::_Init()
     if (field_D0 != nullptr)
         field_D0->SetShown(false);
 
-    static constexpr const char *link_names[] {
+    static constexpr const char *link_names[]{
         "mm_options_text_link_01",
         "mm_options_text_link_02",
         "mm_options_text_link_03",
         "mm_options_text_link_04",
     };
-    for (int i = 0; i < 4; ++i)
-    {
+    for (int i = 0; i < 4; ++i) {
         field_EC[i] = panel->GetTextPointer(link_names[i]);
         if (field_EC[i] != nullptr)
             field_EC[i]->SetShown(false);
     }
 
     auto clone_text = [](const FEText &source, float y, const char *name) {
-        auto *clone = new FEText {};
+        auto *clone = new FEText{};
         clone->field_4 = source.field_4;
         clone->field_8 = source.field_8;
         clone->field_C = source.field_C;
@@ -177,10 +170,8 @@ void main_menu_options::_Init()
         clone->SetPos(202.0f, y + flt_965BDC);
         return clone;
     };
-    field_EC[4] = clone_text(
-        *field_EC[3], 358.0f, "mm_options_text_link_06");
-    field_EC[5] = clone_text(
-        *field_EC[3], 385.0f, "mm_options_text_link_05");
+    field_EC[4] = clone_text(*field_EC[3], 358.0f, "mm_options_text_link_06");
+    field_EC[5] = clone_text(*field_EC[3], 385.0f, "mm_options_text_link_05");
     field_EC[5]->SetShown(false);
 
     field_D4 = panel->GetAnimationPointer(3);
@@ -207,7 +198,7 @@ void play_animation(PanelAnimFile *animation, bool reverse, bool loop)
     animation->field_2C = false;
     animation->field_2D = true;
 }
-}
+}  // namespace
 
 void main_menu_options::Draw()
 {
@@ -225,7 +216,8 @@ void main_menu_options::Draw()
     field_D0->Draw();
 }
 
-void main_menu_options::Update(Float a3) {
+void main_menu_options::Update(Float a3)
+{
     FEMenu::Update(a3);
     if (this->field_108) {
         if (!this->field_E8->field_2D) {
@@ -313,10 +305,8 @@ void main_menu_options::OnActivate()
     var<bool>(0x00965BF7) = true;
 
     auto *memcard = static_cast<main_menu_memcard_check *>(field_10C->field_4[2]);
-    field_10A =
-        memcard->field_108 == main_menu_memcard_check::DIALOG_NO_SAVE;
-    field_EC[0]->SetNoFlash(
-        field_10A ? color32{0xFF808080} : field_38);
+    field_10A = memcard->field_108 == main_menu_memcard_check::DIALOG_NO_SAVE;
+    field_EC[0]->SetNoFlash(field_10A ? color32{0xFF808080} : field_38);
     field_EC[0]->SetScale(field_2C);
     field_EC[0]->SetText(static_cast<global_text_enum>(296));
 
@@ -346,7 +336,8 @@ void main_menu_options::OnActivate()
     sub_582AD0();
 }
 
-void main_menu_options::OnUp(int) {
+void main_menu_options::OnUp(int)
+{
     if (!field_E4->field_2D) {
         static string_hash fx_scroll_hash{"FE_MO_UDScroll"};
         [[maybe_unused]] sound_instance_id sound = sub_60B960(fx_scroll_hash, 1.0, 1.0);
@@ -357,7 +348,8 @@ void main_menu_options::OnUp(int) {
     }
 }
 
-void main_menu_options::OnDown(int) {
+void main_menu_options::OnDown(int)
+{
     if (!this->field_E4->field_2D) {
         static string_hash fx_scroll_hash{"FE_MO_UDScroll"};
 
@@ -373,7 +365,8 @@ void main_menu_options::OnDown(int) {
     }
 }
 
-void main_menu_options::OnCross(int a2) {
+void main_menu_options::OnCross(int a2)
+{
     if constexpr (1) {
         auto v3 = this->field_104;
         if (v3 || !this->field_10A) {
@@ -434,19 +427,17 @@ void main_menu_options::OnCross(int a2) {
 
 void main_menu_options::update_highlight()
 {
-    field_EC[field_106]->SetNoFlash(
-        field_106 == 0 && field_10A ? color32{0xFF808080} : field_38);
+    field_EC[field_106]->SetNoFlash(field_106 == 0 && field_10A ? color32{0xFF808080} : field_38);
     field_EC[field_106]->SetScale(field_2C);
-    field_EC[field_104]->SetNoFlash(
-        field_104 == 0 && field_10A ? color32{0xFF808080} : field_3C);
+    field_EC[field_104]->SetNoFlash(field_104 == 0 && field_10A ? color32{0xFF808080} : field_3C);
     field_EC[field_104]->SetScale(field_30);
 
-    field_E8->SetPosition(
-        field_B8[0]->GetCenterX(), field_EC[field_104]->GetY());
+    field_E8->SetPosition(field_B8[0]->GetCenterX(), field_EC[field_104]->GetY());
     play_animation(field_E8, false, false);
 }
 
-void main_menu_options_patch() {
+void main_menu_options_patch()
+{
     {
         FUNC_ADDRESS(address, &main_menu_options::OnActivate);
         //set_vfunc(0x00894724, address);

@@ -14,4 +14,4 @@ struct venom_base_state : hero_base_state {
     string_hash get_desired_state_id(Float dt) const;
 };
 
-}
+}  // namespace ai

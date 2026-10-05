@@ -44,14 +44,10 @@ void *meta_aimed_shot_vert::native_vtable()
     return g_vtbl;
 }
 
-void meta_aimed_shot_vert::_destruct_mashed_class()
-{
-
-}
+void meta_aimed_shot_vert::_destruct_mashed_class() {}
 
 meta_aimed_shot_vert *meta_aimed_shot_vert::_scalar_deleting_destructor(uint32_t flags)
 {
-
     this->~meta_aimed_shot_vert();
     if ((flags & 1) != 0) {
         mash_virtual_base::operator delete(this, sizeof(*this));
@@ -61,20 +57,16 @@ meta_aimed_shot_vert *meta_aimed_shot_vert::_scalar_deleting_destructor(uint32_t
 
 bool meta_aimed_shot_vert::_is_subclass_of(mash::virtual_types_enum type) const
 {
-
-    return type == static_cast<mash::virtual_types_enum>(0x236) ||
-           type == static_cast<mash::virtual_types_enum>(0x23D);
+    return type == static_cast<mash::virtual_types_enum>(0x236) || type == static_cast<mash::virtual_types_enum>(0x23D);
 }
 
 bool meta_aimed_shot_vert::_requires_delay_create() const
 {
-
     return true;
 }
 
 void meta_aimed_shot_vert::_delay_create(actor *owner)
 {
-
     auto *core = owner->get_ai_core();
     if (core != nullptr) {
         auto *node = static_cast<ai::interaction_inode *>(core->get_info_node(ai::interaction_inode::default_id, true));

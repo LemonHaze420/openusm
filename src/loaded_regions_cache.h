@@ -30,8 +30,8 @@ extern void get_regions_intersecting_sphere_platform_independent(const vector4d 
 extern void get_regions_intersecting_sphere(const vector3d &a1, Float a2, fixed_vector<::region *, 15> *a3);
 
 
-void get_regions_intersecting_box(const vector3d &start, const vector3d &end,
-                                  fixed_vector<::region *, 15> *output, const vector3d &margin);
+void get_regions_intersecting_box(const vector3d &start, const vector3d &end, fixed_vector<::region *, 15> *output,
+                                  const vector3d &margin);
 
 inline Var<region[9]> regions{0x009222F8};
 }  // namespace loaded_regions_cache

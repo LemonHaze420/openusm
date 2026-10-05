@@ -83,7 +83,7 @@ static_assert(offsetof(ProgrammableGraphics, size) == 528);
 static_assert(offsetof(ProgrammableGraphics, rotation) == 960);
 static_assert(offsetof(ProgrammableGraphics, position_random) == 1216);
 static_assert(offsetof(ProgrammableGraphics, blend) == 1328);
-}
+}  // namespace aps_native
 
 
 void aps_native_graphics_fixup(void *object, unsigned type);

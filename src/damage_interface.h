@@ -84,7 +84,10 @@ struct damage_interface : generic_interface {
     bounded_variable<float> field_21C;
     bounded_variable<int> field_22C;
 
-    bool is_alive() const { return field_1FC.field_0[0] > 0.0f; }
+    bool is_alive() const
+    {
+        return field_1FC.field_0[0] > 0.0f;
+    }
     bool is_subdued() const
     {
         return field_21C.field_0[0] > 0.0001f && field_1FC.field_0[0] < 0.0001f;
@@ -112,10 +115,10 @@ struct damage_interface : generic_interface {
     void frame_advance(Float a3);
 
 
-    void apply_damage(entity *source, float amount, int damage_type,
-        const vector3d &position, const vector3d &direction, int flags,
-        const string_hash &attack, const string_hash &category, const string_hash &reaction,
-        bool force_reaction, const vector3d &target, int combo_type, bool skip_combat);
+    void apply_damage(entity *source, float amount, int damage_type, const vector3d &position,
+                      const vector3d &direction, int flags, const string_hash &attack, const string_hash &category,
+                      const string_hash &reaction, bool force_reaction, const vector3d &target, int combo_type,
+                      bool skip_combat);
     void post_destruction_actions();
     void continue_post_destruction_actions();
     void apply_subdue(entity *source, float amount);
@@ -127,8 +130,7 @@ struct damage_interface : generic_interface {
     static void frame_advance_all_damage_ifc(Float a1);
 
 
-    static int find_damageable(const vector3d &position, float radius,
-                              unsigned flags, bool restrict_regions);
+    static int find_damageable(const vector3d &position, float radius, unsigned flags, bool restrict_regions);
 
     static inline auto &all_damage_interfaces = var<_std::vector<damage_interface *> *>(0x0095A660);
 

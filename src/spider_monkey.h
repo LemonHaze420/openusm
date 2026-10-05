@@ -8,9 +8,9 @@
 #include "limited_timer.h"
 #include "variable.h"
 
-inline Var<bool> god_mode_cheat{ 0x0095A6A8 };
-inline Var<bool> ultra_god_mode_cheat{ 0x0095A6A9 };
-inline Var<bool> mega_god_mode_cheat{ 0x0095A6AA };
+inline Var<bool> god_mode_cheat{0x0095A6A8};
+inline Var<bool> ultra_god_mode_cheat{0x0095A6A9};
+inline Var<bool> mega_god_mode_cheat{0x0095A6AA};
 
 struct spider_monkey {
     spider_monkey();

@@ -144,7 +144,7 @@ char mString::at(int i) const
 char mString::operator[](int i) const
 {
     assert(guts != nullptr);
-    assert(i <= (int) m_size);
+    assert(i <= (int)m_size);
 
     assert(i >= 0);
 
@@ -158,7 +158,7 @@ void mString::initialize(mash::allocation_scope scope)
     if (scope == mash::ALLOCATED) {
         this->set_size(0);
         this->guts = mString::null;
-}
+    }
 
     this->field_C = nullptr;
     //++mString_count;
@@ -189,8 +189,8 @@ int mString::find(const char *str, int a3) const
     if (v1 != nullptr) {
         return v1 - this->guts;
     } else {
-    return mString::npos;
-}
+        return mString::npos;
+    }
 }
 
 mString &mString::operator+=(const char *a2)
@@ -434,7 +434,7 @@ void *dialog_box_formatting(mString *out_string, mString a2, int a3, int a4)
 {
     //sp_log("dialog_box_formatting: %s", a2.guts);
 
-    return (void *) CDECL_CALL(0x0064DF30, out_string, a2, a3, a4);
+    return (void *)CDECL_CALL(0x0064DF30, out_string, a2, a3, a4);
 }
 
 void mString::append(char a3)
@@ -453,7 +453,7 @@ void mString::append(const char *from_string, int from_string_length)
 
     if (from_string_length) {
         assert(from_string_length > 0);
-        assert(((uint32_t) from_string_length) < MAX_MSTRING_LENGTH);
+        assert(((uint32_t)from_string_length) < MAX_MSTRING_LENGTH);
 
         size_t v6 = from_string_length + this->size();
 
@@ -465,9 +465,8 @@ void mString::append(const char *from_string, int from_string_length)
                 this->guts[v6] = 0;
             } else {
                 slab_allocator::slab_t *v12 = nullptr;
-                char *v8 = (v6 < 176)
-                    ? static_cast<char *>(slab_allocator::allocate(static_cast<int>(v6 + 1), &v12))
-                    : new char[v6 + 1];
+                char *v8 = (v6 < 176) ? static_cast<char *>(slab_allocator::allocate(static_cast<int>(v6 + 1), &v12))
+                                      : new char[v6 + 1];
 
                 if (this->size() <= 0) {
                     v8[0] = 0;
@@ -502,9 +501,9 @@ void mString::destroy_guts()
     if constexpr (1) {
         auto *v2 = this->guts;
         if (v2 != mString::null) {
-            if ((int) v2 < (int) this || (int) v2 > (int) this + this->field_0) {
+            if ((int)v2 < (int)this || (int)v2 > (int)this + this->field_0) {
                 if (this->field_C == nullptr) {
-                    delete[](v2);
+                    delete[] (v2);
                 } else {
                     slab_allocator::deallocate(v2, this->field_C);
                 }
@@ -526,7 +525,7 @@ mString operator+(const char *a2, const mString &a3)
     v5 += a3;
 
     return v5;
-    }
+}
 
 mString operator+(const mString &a1, const char *a2)
 {
@@ -675,21 +674,21 @@ void mString::custom_unmash(mash_info_struct *a1, void *a2)
             a1->align_buffer(
 #if OPENUSM_XBOX_MASH_FORMAT
                 mash::NORMAL_BUFFER,
-#endif 
-                    1);
+#endif
+                1);
 
-            this->guts = (char *) a1->read_from_buffer(
+            this->guts = (char *)a1->read_from_buffer(
 #if OPENUSM_XBOX_MASH_FORMAT
                 mash::NORMAL_BUFFER,
-#endif 
+#endif
                 this->m_size + 1,
                 1);
-;
+            ;
             a1->align_buffer(
 #if OPENUSM_XBOX_MASH_FORMAT
                 mash::NORMAL_BUFFER,
-#endif 
-                    4);
+#endif
+                4);
         }
 
 #if defined(OPENUSM_XBPACK_MODE) && !defined(TARGET_XBOX)

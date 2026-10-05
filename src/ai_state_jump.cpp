@@ -73,8 +73,14 @@ const string_hash jump_release_cat{static_cast<int>(to_hash("Jump_Release"))};
 const string_hash super_jump_launch_cat{to_hash("Super_Jump_Launch")};
 const string_hash super_wall_jump_launch_cat{static_cast<int>(to_hash("Super_Wall_Jump_Launch"))};
 const string_hash instant_super_wall_jump_launch_cat{to_hash("Instant_Super_Wall_Jump_Launch")};
-bool wall_jump(int type) { return type == 4 || type == 6 || type == 7 || type == 8; }
-bool super_jump(int type) { return type >= 15 && type <= 18; }
+bool wall_jump(int type)
+{
+    return type == 4 || type == 6 || type == 7 || type == 8;
+}
+bool super_jump(int type)
+{
+    return type >= 15 && type <= 18;
+}
 void transition(als_inode *animation, string_hash category, bool immediate = false)
 {
     animation->request_category_transition(category, layer, true, false, immediate);
@@ -86,14 +92,17 @@ void *__fastcall jump_delete(jump_state *self, void *, bool release)
         mem_dealloc(self, sizeof(jump_state));
     return self;
 }
-uint32_t __fastcall jump_type(jump_state *self) { return self->get_virtual_type_enum(); }
+uint32_t __fastcall jump_type(jump_state *self)
+{
+    return self->get_virtual_type_enum();
+}
 bool __fastcall jump_subclass(jump_state *self, void *, mash::virtual_types_enum type)
 {
     return self->is_subclass_of(type);
 }
-void __fastcall jump_activate(jump_state *self, void *, ai_state_machine *machine,
-    const mashed_state *state, const mashed_state *previous, const param_block *params,
-    base_state::activate_flag_e flags)
+void __fastcall jump_activate(jump_state *self, void *, ai_state_machine *machine, const mashed_state *state,
+                              const mashed_state *previous, const param_block *params,
+                              base_state::activate_flag_e flags)
 {
     self->activate(machine, state, previous, params, flags);
 }
@@ -101,18 +110,26 @@ void __fastcall jump_deactivate(jump_state *self, void *, const mashed_state *st
 {
     self->deactivate(state);
 }
-int __fastcall jump_frame(jump_state *self, void *, Float dt) { return self->frame_advance(dt); }
-void __fastcall jump_list(jump_state *self, void *, info_node_desc_list &list) { self->get_info_node_list(list); }
-int __fastcall jump_size(jump_state *self) { return self->get_mash_sizeof(); }
+int __fastcall jump_frame(jump_state *self, void *, Float dt)
+{
+    return self->frame_advance(dt);
+}
+void __fastcall jump_list(jump_state *self, void *, info_node_desc_list &list)
+{
+    self->get_info_node_list(list);
+}
+int __fastcall jump_size(jump_state *self)
+{
+    return self->get_mash_sizeof();
+}
 int __fastcall jump_specific(jump_state *self, void *, Float dt)
 {
     return self->frame_advance_jump_type_specifics(dt);
 }
-}
+}  // namespace
 
 void *jump_state::native_vtable()
 {
-
     static const auto table = [] {
         std::array<void *, 17> result;
         std::copy_n(static_cast<void **>(enhanced_state::native_vtable()), 16, result.data());
@@ -130,15 +147,15 @@ void *jump_state::native_vtable()
     return const_cast<void **>(table.data());
 }
 
-jump_state::jump_state() : enhanced_state(), field_34(nullptr), field_40(nullptr),
-    field_4C(nullptr), field_58(nullptr), field_64(nullptr)
+jump_state::jump_state()
+    : enhanced_state(), field_34(nullptr), field_40(nullptr), field_4C(nullptr), field_58(nullptr), field_64(nullptr)
 {
     m_vtbl = STANDALONE_SYSTEM ? bit_cast<std::intptr_t>(native_vtable()) : 0x00877158;
     field_80 = field_81 = field_82 = field_83 = field_84 = false;
 }
 
 #if STANDALONE_SYSTEM
-static jump_param_t jump_params[21] {
+static jump_param_t jump_params[21]{
     {"jump_fall_height", "jump_fall_distance"},
     {"jump_run_height", "jump_run_distance"},
     {"jump_double_height", "jump_double_distance"},
@@ -165,8 +182,8 @@ static jump_param_t jump_params[21] {
 static auto &jump_params = var<jump_param_t[21]>(0x00958CD0);
 #endif
 
-jump_state::jump_state(from_mash_in_place_constructor *a2) : enhanced_state(a2),
-    field_34(a2), field_40(a2), field_4C(a2), field_58(a2), field_64(a2)
+jump_state::jump_state(from_mash_in_place_constructor *a2)
+    : enhanced_state(a2), field_34(a2), field_40(a2), field_4C(a2), field_58(a2), field_64(a2)
 {
     m_vtbl = STANDALONE_SYSTEM ? bit_cast<std::intptr_t>(native_vtable()) : 0x00877158;
 }
@@ -204,7 +221,8 @@ void jump_state::apply_jets(Float dt)
     list.add_param({0, controller->is_axis_neutral(static_cast<controller_inode::eControllerAxis>(0)) ? 0.0f : 5.0f});
     const int type = field_30->field_50;
     if (super_jump(type) || wall_jump(type) || type == 1 || type == 2 || type == 3 || type == 19) {
-        const auto button = controller->get_button(static_cast<controller_inode::eControllerButton>(super_jump(type) ? 12 : 7));
+        const auto button =
+            controller->get_button(static_cast<controller_inode::eControllerButton>(super_jump(type) ? 12 : 7));
         if (!button.is_pressed())
             field_82 = true;
     }
@@ -355,8 +373,10 @@ bool jump_state::process_flying(Float dt)
             field_30->set_jump_type(static_cast<eJumpType>(4), false);
             initiated = true;
         } else if (wall_ready && type != 2 && type != 3 && type != 14) {
-            field_30->set_jump_type(static_cast<eJumpType>(
-                controller->is_axis_neutral(static_cast<controller_inode::eControllerAxis>(0)) ? 3 : 2), false);
+            field_30->set_jump_type(
+                static_cast<eJumpType>(
+                    controller->is_axis_neutral(static_cast<controller_inode::eControllerAxis>(0)) ? 3 : 2),
+                false);
             initiated = true;
         }
         if (initiated) {
@@ -379,8 +399,16 @@ bool jump_state::check_for_dive_fall()
     const auto start = get_actor()->get_abs_position();
     const auto end = start - YVEC * 15.0f;
     vector3d point, normal;
-    return !find_intersection(start, end, *local_collision::entfilter_entity_no_capsules,
-        *local_collision::obbfilter_lineseg_test, &point, &normal, nullptr, nullptr, nullptr, false);
+    return !find_intersection(start,
+                              end,
+                              *local_collision::entfilter_entity_no_capsules,
+                              *local_collision::obbfilter_lineseg_test,
+                              &point,
+                              &normal,
+                              nullptr,
+                              nullptr,
+                              nullptr,
+                              false);
 }
 
 void jump_state::initiate()
@@ -717,7 +745,6 @@ void jump_state::initiate_from_swing()
             auto v14 = swing_inode_ptr->m_swing_time / web_swing_jump_nerf_threshhold;
 
             new_vel *= v14 * v14;
-
         }
 
         als::param_list list{};
@@ -773,7 +800,7 @@ void jump_state::initiate_from_air()
 }
 
 void jump_state::activate(ai_state_machine *machine, const mashed_state *state, const mashed_state *previous,
-    const param_block *params, base_state::activate_flag_e flags)
+                          const param_block *params, base_state::activate_flag_e flags)
 {
     if constexpr (!STANDALONE_SYSTEM) {
         THISCALL(0x00469880, this, machine, state, previous, params, flags);
@@ -787,7 +814,7 @@ void jump_state::activate(ai_state_machine *machine, const mashed_state *state, 
     if (animation->is_cat_our_prev_cat(string_hash{"Loco_Combat_Jump"}, layer))
         field_30->set_jump_type(static_cast<eJumpType>(15), false);
     else if (animation->is_cat_our_prev_cat(string_hash{"Combat_Jump"}, layer) ||
-        animation->get_category_id(layer) == string_hash{"Combat_Jump"})
+             animation->get_category_id(layer) == string_hash{"Combat_Jump"})
         field_30->set_jump_type(static_cast<eJumpType>(1), false);
     else if (animation->get_category_id(layer) == string_hash{"Combat_Fall"})
         field_30->set_jump_type(static_cast<eJumpType>(0), false);
@@ -801,8 +828,8 @@ void jump_state::activate(ai_state_machine *machine, const mashed_state *state, 
         shrink_capsule_for_slanted_surfaces(get_actor());
     initiate();
     field_30->field_64 = get_actor()->get_abs_po().get_y_facing();
-    controller->set_spidey_loco_mode(static_cast<eHeroLocoMode>(
-        field_30->field_50 == 17 || field_30->field_50 == 18 ? 7 : 6));
+    controller->set_spidey_loco_mode(
+        static_cast<eHeroLocoMode>(field_30->field_50 == 17 || field_30->field_50 == 18 ? 7 : 6));
     field_30->field_70 = 0.0f;
     field_81 = field_82 = false;
     field_88 = 25.0f;
@@ -829,8 +856,8 @@ void jump_state::deactivate(const ai::mashed_state *next)
     if (owner && owner->has_physical_ifc()) {
         auto *combat = field_30->field_2C;
         const auto offset = next && next->get_name() == combat_state::default_id ? 0x7C : 0x80;
-        reinterpret_cast<void (__fastcall *)(combat_inode *, void *)>(
-            get_vfunc(combat->m_vtbl, offset))(combat, nullptr);
+        reinterpret_cast<void(__fastcall *)(combat_inode *, void *)>(get_vfunc(combat->m_vtbl, offset))(combat,
+                                                                                                        nullptr);
         setup_hero_capsule(owner);
         if (super_jump(field_30->field_50)) {
             const auto distance = field_30->field_58 - owner->get_abs_position();
@@ -862,18 +889,18 @@ int jump_state::frame_advance_jump_type_specifics(Float dt)
     if (type == 17 || type == 18) {
         field_30->update_crawl_als_params();
         if (!field_83 && (animation->is_cat_our_prev_cat(super_wall_jump_launch_cat, layer) ||
-            (animation->get_category_id(layer) == instant_super_wall_jump_launch_cat &&
-                animation->get_eta_of_combat_signal(layer) <= 0.0f))) {
+                          (animation->get_category_id(layer) == instant_super_wall_jump_launch_cat &&
+                           animation->get_eta_of_combat_signal(layer) <= 0.0f))) {
             field_30->field_28->setup_for_jump(get_gravity_vector());
             initiate();
             field_83 = true;
             field_30->field_7C = false;
         }
         static bool check_super_jump_direction = false;
-        const auto displacement = field_30->field_58 - get_actor()->get_abs_position() +
-            get_actor()->get_abs_po().get_y_facing();
+        const auto displacement =
+            field_30->field_58 - get_actor()->get_abs_position() + get_actor()->get_abs_po().get_y_facing();
         if (field_83 && ((check_super_jump_direction && dot(displacement, field_30->field_64) < 0.0f) ||
-            field_78 > 0.0f || field_1C > 0.75f)) {
+                         field_78 > 0.0f || field_1C > 0.75f)) {
             field_30->set_jump_type(static_cast<eJumpType>(0), false);
             set_gravity_vector(-YVEC, 0.5f);
             initiate();
@@ -881,8 +908,8 @@ int jump_state::frame_advance_jump_type_specifics(Float dt)
         }
     } else if (type == 15) {
         if (!field_83 && (animation->is_cat_our_prev_cat(super_jump_launch_cat, layer) ||
-            (animation->get_category_id(layer) == super_jump_launch_cat &&
-                animation->get_eta_of_combat_signal(layer) <= 0.0f))) {
+                          (animation->get_category_id(layer) == super_jump_launch_cat &&
+                           animation->get_eta_of_combat_signal(layer) <= 0.0f))) {
             initiate();
             field_83 = true;
             field_30->field_7C = false;
@@ -926,8 +953,8 @@ int jump_state::frame_advance(Float dt)
     update_gravity_vector(dt);
     field_30->field_70 += dt;
     const int has_dive = get_core()->field_50.get_pb_int(string_hash{"has_dive_fall"});
-    if (field_30->field_50 == 0 && field_30->field_34->curr_status != 2 && !field_81 &&
-        check_for_dive_fall() && has_dive) {
+    if (field_30->field_50 == 0 && field_30->field_34->curr_status != 2 && !field_81 && check_for_dive_fall() &&
+        has_dive) {
         field_81 = true;
         transition(animation, string_hash{"Jump_Dive_Fall"});
     }
@@ -937,8 +964,8 @@ int jump_state::frame_advance(Float dt)
         return TRANS_TOTAL_MSGS;
     if (!field_81 || field_30->field_70 >= 0.2f)
         process_flying(dt);
-    const auto advanced = reinterpret_cast<int (__fastcall *)(jump_state *, void *, Float)>(
-        get_vfunc(m_vtbl, 0x40))(this, nullptr, dt);
+    const auto advanced =
+        reinterpret_cast<int(__fastcall *)(jump_state *, void *, Float)>(get_vfunc(m_vtbl, 0x40))(this, nullptr, dt);
     field_84 = false;
     return advanced;
 }
@@ -1041,7 +1068,7 @@ void jump_state::update_jump_capsule()
 {
     auto *physics = field_30->field_28;
     const bool floor = (physics->field_1C->field_C & 0x60u) != 0 &&
-        dot(physics->get_last_collision_normal(), -get_actor()->physical_ifc()->field_74) > 0.93f;
+                       dot(physics->get_last_collision_normal(), -get_actor()->physical_ifc()->field_74) > 0.93f;
     auto *capsule = get_core()->field_70;
     if (!floor || field_30->field_50 == 17 || field_30->field_50 == 18) {
         capsule->set_mode(static_cast<capsule_alter_sys::eAlterMode>(3));

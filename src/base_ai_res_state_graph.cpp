@@ -59,8 +59,7 @@ void state_graph::unmash(mash_info_struct *a1, void *)
 
 #ifdef OPENUSM_XBPACK_MODE
     if (this->field_0.m_type != RESOURCE_KEY_TYPE_AI_STATE_GRAPH) {
-        this->field_0.m_type = static_cast<resource_key_type>(
-            xbpack::pc_type(static_cast<int>(this->field_0.m_type)));
+        this->field_0.m_type = static_cast<resource_key_type>(xbpack::pc_type(static_cast<int>(this->field_0.m_type)));
     }
     assert(this->field_0.m_type == RESOURCE_KEY_TYPE_AI_STATE_GRAPH);
 #endif
@@ -83,7 +82,7 @@ void state_graph::unmash(mash_info_struct *a1, void *)
                          ,
                          mash::NORMAL_BUFFER
 #endif
-                );
+        );
 
 #ifdef OPENUSM_XBPACK_V10
         bool converted_with_states = false;
@@ -96,8 +95,7 @@ void state_graph::unmash(mash_info_struct *a1, void *)
 
         if (!converted_with_states) {
             auto &type = this->field_1C->field_14;
-            type = static_cast<mash::virtual_types_enum>(
-                xbpack::pc_state_type(static_cast<uint32_t>(type)));
+            type = static_cast<mash::virtual_types_enum>(xbpack::pc_state_type(static_cast<uint32_t>(type)));
         }
 #endif
     }
@@ -143,10 +141,10 @@ mashed_state *state_graph::find_state(string_hash a2) const
         return result;
 
     } else {
-        return (mashed_state *) THISCALL(0x006D8480, this, a2);
+        return (mashed_state *)THISCALL(0x006D8480, this, a2);
     }
 }
-} // namespace ai
+}  // namespace ai
 
 void state_graph_patch()
 {

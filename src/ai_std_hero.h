@@ -200,7 +200,6 @@ extern bool is_noncrawlable_surface(line_info &a1);
 //0x0069F9A0
 extern bool have_relative_movement(entity *a1, entity *a2);
 
-bool get_axis_correction_delta(const vector3d &axis, const vector3d &delta, float length,
-                               vector3d *corrected_hit_pos);
+bool get_axis_correction_delta(const vector3d &axis, const vector3d &delta, float length, vector3d *corrected_hit_pos);
 
 extern void hero_inode_patch();

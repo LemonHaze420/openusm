@@ -97,17 +97,23 @@ void *Tentacle_ShaderMaterial::destroy(unsigned char flags)
 
 bool Tentacle_ShaderMaterial::SampleTentacle(int id, float percent, float &radius, float &angle)
 {
-    struct Sample { float distance, radius, angle; };
-    static const Sample shape[7][8] = {
-        {{0, .234f, 0}, {4.523f, .045f, 0}, {4.85f, .028f, 0}, {5, 0, 0}},
-        {{0, .228f, 45}, {2.478f, .083f, 320}, {2.826f, 0, 345}},
-        {{0, .113f, -160}, {1.672f, .041f, 115}, {1.874f, 0, 135}},
-        {{0, .088f, -120}, {1.672f, .037f, -180}, {1.874f, 0, -190}},
-        {{0, .081f, -5}, {.9f, .031f, 45}, {1.029f, 0, 50}},
-        {{0, .2f, 0}, {.6f, 0, 0}},
-        {{0, .21f, 0}, {2.2f, .2f, 0}, {2.4f, .11f, 0}, {2.6f, .19f, 0},
-         {3.8f, .18f, 0}, {4, .09f, 0}, {4.25f, .16f, 0}, {5, 0, 0}}
+    struct Sample {
+        float distance, radius, angle;
     };
+    static const Sample shape[7][8] = {{{0, .234f, 0}, {4.523f, .045f, 0}, {4.85f, .028f, 0}, {5, 0, 0}},
+                                       {{0, .228f, 45}, {2.478f, .083f, 320}, {2.826f, 0, 345}},
+                                       {{0, .113f, -160}, {1.672f, .041f, 115}, {1.874f, 0, 135}},
+                                       {{0, .088f, -120}, {1.672f, .037f, -180}, {1.874f, 0, -190}},
+                                       {{0, .081f, -5}, {.9f, .031f, 45}, {1.029f, 0, 50}},
+                                       {{0, .2f, 0}, {.6f, 0, 0}},
+                                       {{0, .21f, 0},
+                                        {2.2f, .2f, 0},
+                                        {2.4f, .11f, 0},
+                                        {2.6f, .19f, 0},
+                                        {3.8f, .18f, 0},
+                                        {4, .09f, 0},
+                                        {4.25f, .16f, 0},
+                                        {5, 0, 0}}};
     static const int counts[]{4, 3, 3, 3, 3, 2, 8};
     const float distance = std::max(.0001f, std::min(1.0f, percent)) * shape[id][counts[id] - 1].distance;
     int index = 0;

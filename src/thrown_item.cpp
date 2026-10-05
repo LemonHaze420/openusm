@@ -35,8 +35,7 @@ constexpr float random_scale = 1.0f / 32767.0f;
 template <typename R, typename... Args>
 R invoke(entity_base *self, unsigned offset, Args... args)
 {
-    auto fn = reinterpret_cast<R (__fastcall *)(entity_base *, void *, Args...)>(
-        get_vfunc(self->m_vtbl, offset));
+    auto fn = reinterpret_cast<R(__fastcall *)(entity_base *, void *, Args...)>(get_vfunc(self->m_vtbl, offset));
     return fn(self, nullptr, args...);
 }
 
@@ -53,7 +52,7 @@ void scatter_direction(vector3d &direction, float spread)
     direction = rotation.non_affine_slow_xform(direction);
     direction.normalize();
 }
-}
+}  // namespace
 
 namespace {
 void *__fastcall thrown_delete(thrown_item *self, void *, unsigned flags)
@@ -63,31 +62,53 @@ void *__fastcall thrown_delete(thrown_item *self, void *, unsigned flags)
         mem_dealloc(self, sizeof(thrown_item));
     return self;
 }
-void __fastcall thrown_release(thrown_item *self, void *) { self->release_mem(); }
-bool __fastcall thrown_chunk(thrown_item *, void *, void *, void *) { return false; }
-bool __fastcall thrown_query(thrown_item *, void *) { return true; }
-void __fastcall thrown_unmash(thrown_item *self, void *, generic_mash_header *header, void *object, generic_mash_data_ptrs *data)
+void __fastcall thrown_release(thrown_item *self, void *)
+{
+    self->release_mem();
+}
+bool __fastcall thrown_chunk(thrown_item *, void *, void *, void *)
+{
+    return false;
+}
+bool __fastcall thrown_query(thrown_item *, void *)
+{
+    return true;
+}
+void __fastcall thrown_unmash(thrown_item *self, void *, generic_mash_header *header, void *object,
+                              generic_mash_data_ptrs *data)
 {
     self->un_mash(header, object, data);
 }
-void __fastcall thrown_advance(thrown_item *self, void *, Float elapsed) { self->frame_advance(elapsed); }
-void __fastcall thrown_apply(thrown_item *self, void *, actor *owner) { self->internal_apply_effects(owner, nullptr); }
+void __fastcall thrown_advance(thrown_item *self, void *, Float elapsed)
+{
+    self->frame_advance(elapsed);
+}
+void __fastcall thrown_apply(thrown_item *self, void *, actor *owner)
+{
+    self->internal_apply_effects(owner, nullptr);
+}
 
 void __fastcall thrown_defaults(thrown_item *, void *) {}
-void __fastcall thrown_owner(thrown_item *self, void *, actor *owner) { self->set_owner(owner); }
+void __fastcall thrown_owner(thrown_item *self, void *, actor *owner)
+{
+    self->set_owner(owner);
+}
 vector3d *__fastcall thrown_fire_position(thrown_item *self, void *, vhandle_type<entity> source,
-                                         const vector3d &position, ai::combat_inode::incoming_move *move)
+                                          const vector3d &position, ai::combat_inode::incoming_move *move)
 {
     return self->fire_at_target_internal(source, {}, position, move);
 }
 vector3d *__fastcall thrown_fire_entity(thrown_item *self, void *, vhandle_type<entity> source,
-                                       vhandle_type<entity> target, ai::combat_inode::incoming_move *move)
+                                        vhandle_type<entity> target, ai::combat_inode::incoming_move *move)
 {
     entity_base *reference = self->field_104.get_volatile_ptr();
     if (!reference)
         reference = self;
-    const auto position = thrown_item::calc_target_pos(reference->get_abs_position(), target,
-        self->launch_speed, thrown_item::calc_target_pos_delta(self->target_spread), self->prediction);
+    const auto position = thrown_item::calc_target_pos(reference->get_abs_position(),
+                                                       target,
+                                                       self->launch_speed,
+                                                       thrown_item::calc_target_pos_delta(self->target_spread),
+                                                       self->prediction);
     return self->fire_at_target_internal(source, target, position, move);
 }
 vector3d *__fastcall thrown_detonation_position(thrown_item *self, void *, vector3d *out)
@@ -95,13 +116,12 @@ vector3d *__fastcall thrown_detonation_position(thrown_item *self, void *, vecto
     *out = self->detonate_position;
     return out;
 }
-void __fastcall thrown_spawn(thrown_item *self, void *, vector3d direction, float speed,
-                             bool explicit_position, const vector3d &position,
-                             ai::combat_inode::incoming_move *move)
+void __fastcall thrown_spawn(thrown_item *self, void *, vector3d direction, float speed, bool explicit_position,
+                             const vector3d &position, ai::combat_inode::incoming_move *move)
 {
     self->spawn_grenade(direction, speed, explicit_position, position, move);
 }
-}
+}  // namespace
 
 void *thrown_item::native_vtable(void **handheld_table)
 {
@@ -125,7 +145,6 @@ void *thrown_item::native_vtable(void **handheld_table)
 }
 
 
-
 thrown_item::~thrown_item() = default;
 
 bool thrown_item::is_trip_mine() const
@@ -140,9 +159,12 @@ grenade *grenade_cache::push_new_grenade(thrown_item *owner)
         value->sub_4D6B10(reinterpret_cast<int>(owner->get_mesh()));
     } else if (owner->projectile_template.get_volatile_ptr() && owner->projectile_resource.m_hash.source_hash_code) {
         resource_manager::push_resource_context(owner->m_resource_context);
-        auto *visual = g_world_ptr->ent_mgr.create_and_add_entity_or_subclass(
-            owner->projectile_resource.m_hash, make_unique_entity_id(), po_identity_matrix,
-            mString{""}, 0x2000, nullptr);
+        auto *visual = g_world_ptr->ent_mgr.create_and_add_entity_or_subclass(owner->projectile_resource.m_hash,
+                                                                              make_unique_entity_id(),
+                                                                              po_identity_matrix,
+                                                                              mString{""},
+                                                                              0x2000,
+                                                                              nullptr);
         resource_manager::pop_resource_context();
         if (visual->has_physical_ifc())
             visual->physical_ifc()->enable(false);
@@ -182,8 +204,8 @@ vector3d thrown_item::calc_target_pos_delta(float radius)
     return delta;
 }
 
-vector3d thrown_item::calc_target_pos(const vector3d &origin, vhandle_type<entity> target,
-                                    float speed, const vector3d &offset, float prediction)
+vector3d thrown_item::calc_target_pos(const vector3d &origin, vhandle_type<entity> target, float speed,
+                                      const vector3d &offset, float prediction)
 {
     vector3d result = offset;
     if (auto *value = target.get_volatile_ptr()) {
@@ -256,14 +278,13 @@ void thrown_item::internal_apply_effects(actor *fallback_owner, ai::combat_inode
 }
 
 vector3d *thrown_item::fire_at_target_internal(vhandle_type<entity> source, vhandle_type<entity> target,
-                                             const vector3d &position, ai::combat_inode::incoming_move *move)
+                                               const vector3d &position, ai::combat_inode::incoming_move *move)
 {
     const vector3d saved_direction = launch_direction;
     const float saved_speed = launch_speed;
     const vector3d zero{0.0f, 0.0f, 0.0f};
-    if (launch_direction.x <= 0.0f && launch_direction.x >= 0.0f &&
-        launch_direction.y <= 0.0f && launch_direction.y >= 0.0f &&
-        launch_direction.z <= 0.0f && launch_direction.z >= 0.0f) {
+    if (launch_direction.x <= 0.0f && launch_direction.x >= 0.0f && launch_direction.y <= 0.0f &&
+        launch_direction.y >= 0.0f && launch_direction.z <= 0.0f && launch_direction.z >= 0.0f) {
         entity_base *reference = field_104.get_volatile_ptr();
         if (!reference)
             reference = this;
@@ -273,8 +294,8 @@ vector3d *thrown_item::fire_at_target_internal(vhandle_type<entity> source, vhan
         if ((field_10C & 0x10000) || field_10C < 0 || gravity_multiplier <= 0.0f)
             direction = position - origin;
         else
-            direction = physical_interface::calculate_force_vector_2(&origin, &position,
-                Float{saved_speed}, Float{gravity_multiplier});
+            direction = physical_interface::calculate_force_vector_2(
+                &origin, &position, Float{saved_speed}, Float{gravity_multiplier});
         direction.normalize();
         launch_direction = invert_launch_vec(direction);
     } else {
@@ -303,9 +324,8 @@ vector3d *thrown_item::fire_at_target_internal(vhandle_type<entity> source, vhan
     return &launch_direction;
 }
 
-void thrown_item::spawn_mirvs(int reason, const vector3d &position, const vector3d &normal,
-                             vhandle_type<entity> target, const vector3d &hit, const vector3d &hit_normal,
-                             ai::combat_inode::incoming_move *move)
+void thrown_item::spawn_mirvs(int reason, const vector3d &position, const vector3d &normal, vhandle_type<entity> target,
+                              const vector3d &hit, const vector3d &hit_normal, ai::combat_inode::incoming_move *move)
 {
     if (!mirv || mirv_count <= 0 || !(reason == 0 || (reason > 1 && reason <= 4)))
         return;
@@ -483,7 +503,6 @@ grenade *thrown_item::get_new_grenade()
 
 bool thrown_item::can_damage(entity_base *target, bool redirected) const
 {
-
     if (field_10C & 0x40000) {
         auto *target_core = target->get_ai_core();
         if (!target_core)
@@ -495,11 +514,10 @@ bool thrown_item::can_damage(entity_base *target, bool redirected) const
         if (static_cast<int>(target_team) != 15 && ai::team::manager::is_friend(owner_team, target_team))
             return false;
     }
-    if ((target->field_4 & 0x20000) || ((field_10C & 0x2000000) &&
-        (!redirected || target != field_108) && target == field_108))
+    if ((target->field_4 & 0x20000) ||
+        ((field_10C & 0x2000000) && (!redirected || target != field_108) && target == field_108))
         return false;
-    if ((!redirected || target != field_108) &&
-        ((field_10C & 0x20000000) || invoke<bool>(target, 0x4C)) &&
+    if ((!redirected || target != field_108) && ((field_10C & 0x20000000) || invoke<bool>(target, 0x4C)) &&
         (!invoke<bool>(target, 0x4C) || (field_10C & 0x4000000))) {
         if (!(field_10C & 0x8000000) || !(target->field_4 & 0x1000) ||
             ((field_10C & 0x4000000) && invoke<bool>(target, 0x4C)))
@@ -508,8 +526,8 @@ bool thrown_item::can_damage(entity_base *target, bool redirected) const
     return true;
 }
 
-void thrown_item::spawn_grenade(vector3d direction, float speed, bool explicit_position,
-    const vector3d &position, ai::combat_inode::incoming_move *move)
+void thrown_item::spawn_grenade(vector3d direction, float speed, bool explicit_position, const vector3d &position,
+                                ai::combat_inode::incoming_move *move)
 {
     auto *visual = field_104.get_volatile_ptr();
     auto *value = get_new_grenade();
@@ -527,11 +545,11 @@ void thrown_item::spawn_grenade(vector3d direction, float speed, bool explicit_p
             physical->create_guidance_sys(1);
         auto *guidance = physical->field_E8;
         if (field_10C & 0x10000) {
-            guidance->field_18 = (guidance->field_18 & ~3) |
-                (std::rand() * random_scale > guidance_probability ? 0 : 1);
+            guidance->field_18 =
+                (guidance->field_18 & ~3) | (std::rand() * random_scale > guidance_probability ? 0 : 1);
         } else if (field_10C < 0) {
-            guidance->field_18 = (guidance->field_18 & ~3) |
-                (std::rand() * random_scale > guidance_probability ? 0 : 2);
+            guidance->field_18 =
+                (guidance->field_18 & ~3) | (std::rand() * random_scale > guidance_probability ? 0 : 2);
         }
         guidance->set_target(target_ent());
         guidance->field_24 = target_hit();
@@ -563,8 +581,7 @@ void thrown_item::spawn_grenade(vector3d direction, float speed, bool explicit_p
         physical->set_gravity(true);
         physical->m_gravity_multiplier = gravity_multiplier;
     }
-    physical->field_C = (physical->field_C & ~0x20000000u) |
-        ((field_10C & 0x80000) ? 0x20000000u : 0);
+    physical->field_C = (physical->field_C & ~0x20000000u) | ((field_10C & 0x80000) ? 0x20000000u : 0);
     physical->field_94 = field_310;
     physical->field_C = (physical->field_C & ~0x80000000u) | 0x10000000u;
     physical->field_90 = field_138;
@@ -579,10 +596,14 @@ void thrown_item::spawn_grenade(vector3d direction, float speed, bool explicit_p
         const auto *data = static_cast<const unsigned char *>(field_31C);
         if (!source->field_18)
             source->field_18 = new motion_effect_struct(source->my_handle, mString{""});
-        source->field_18->activate_trail(source, *reinterpret_cast<const int *>(data + 48),
-            *reinterpret_cast<const float *>(data + 44), color32{0xFFFF0000},
-            *reinterpret_cast<const int *>(data + 36), *reinterpret_cast<const float *>(data + 56),
-            *reinterpret_cast<const int *>(data + 40), data[25] != 0);
+        source->field_18->activate_trail(source,
+                                         *reinterpret_cast<const int *>(data + 48),
+                                         *reinterpret_cast<const float *>(data + 44),
+                                         color32{0xFFFF0000},
+                                         *reinterpret_cast<const int *>(data + 36),
+                                         *reinterpret_cast<const float *>(data + 56),
+                                         *reinterpret_cast<const int *>(data + 40),
+                                         data[25] != 0);
     };
     if (auto *projectile = value->visual.get_volatile_ptr()) {
         *projectile->my_rel_po = value->get_abs_po();
@@ -625,15 +646,15 @@ void thrown_item::spawn_grenade(vector3d direction, float speed, bool explicit_p
         physical->field_E8->launch(direction, speed);
     else {
         const auto force = direction * speed;
-        reinterpret_cast<void (__fastcall *)(physical_interface *, void *, const vector3d &,
-            physical_interface::force_type, const vector3d &, int)>(
-            get_vfunc(physical->m_vtbl, 0x2C))(physical, nullptr, force,
-                static_cast<physical_interface::force_type>(1), var<vector3d>(0x0091FF90), 0);
+        reinterpret_cast<void(__fastcall *)(
+            physical_interface *, void *, const vector3d &, physical_interface::force_type, const vector3d &, int)>(
+            get_vfunc(physical->m_vtbl, 0x2C))(
+            physical, nullptr, force, static_cast<physical_interface::force_type>(1), var<vector3d>(0x0091FF90), 0);
     }
     value->compute_sector(g_world_ptr->the_terrain, false, nullptr);
     if (value->has_sound_and_pfx_ifc())
-        value->flight_sound = value->sound_and_pfx_ifc()->play_sound_grp(
-            var<string_hash>(0x0096018C), 1.0f, 1.0f, 1.0f, -1.0f, -1.0f);
+        value->flight_sound =
+            value->sound_and_pfx_ifc()->play_sound_grp(var<string_hash>(0x0096018C), 1.0f, 1.0f, 1.0f, -1.0f, -1.0f);
     if (adv_ptrs && adv_ptrs->my_script && field_340 != mString{""}) {
         mString function_name = field_340 + mString{"(entity,entity)"};
         auto *instance = adv_ptrs->my_script;
@@ -654,8 +675,15 @@ void thrown_item::spawn_grenade(vector3d direction, float speed, bool explicit_p
     all_grenades().push_back(value);
     auto *projectile = value->visual.get_volatile_ptr();
     const auto pose = value->get_abs_po();
-    field_1C0.spawn(false, value->get_abs_position(), pose.get_z_facing(), this,
-        projectile ? projectile : value, visual, effect_offset, true, invoke<bool>(this, 0x2D8));
+    field_1C0.spawn(false,
+                    value->get_abs_position(),
+                    pose.get_z_facing(),
+                    this,
+                    projectile ? projectile : value,
+                    visual,
+                    effect_offset,
+                    true,
+                    invoke<bool>(this, 0x2D8));
     target_valid() = false;
 }
 

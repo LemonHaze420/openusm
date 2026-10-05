@@ -7,15 +7,15 @@
 
 namespace mash {
 enum mode_t {
-        MASH_MODE = 1,
-        UNMASH_MODE = 2,
-        ALIGN_MODE = 3,
-    };
+    MASH_MODE = 1,
+    UNMASH_MODE = 2,
+    ALIGN_MODE = 3,
+};
 
 enum buffer_type {
-        NORMAL_BUFFER = 0,
-        SHARED_BUFFER = 1,
-    };
+    NORMAL_BUFFER = 0,
+    SHARED_BUFFER = 1,
+};
 }  // namespace mash
 
 struct mash_header {
@@ -39,10 +39,7 @@ struct mash_info_struct {
 
     mash_info_struct(mash::mode_t a2, uint8_t *a3, int size, bool a5);
 
-    mash_info_struct(uint8_t *image, int size)
-        : mash_info_struct(mash::UNMASH_MODE, image, size, true)
-    {
-    }
+    mash_info_struct(uint8_t *image, int size) : mash_info_struct(mash::UNMASH_MODE, image, size, true) {}
 
     int get_header_size();
 
@@ -77,7 +74,7 @@ struct mash_info_struct {
         deductive_align_buffer(mash::NORMAL_BUFFER);
     }
 
-    template<typename T>
+    template <typename T>
     void unmash_class(T *&a2, void *a3, mash::buffer_type buffer)
 #if 0 
     ;
@@ -98,13 +95,13 @@ struct mash_info_struct {
     }
 #endif
 
-    template<typename T>
+    template <typename T>
     void unmash_class(T *&a2, void *a3)
     {
         unmash_class(a2, a3, mash::NORMAL_BUFFER);
     }
 
-    template<typename T>
+    template <typename T>
     void unmash_class_in_place(T &a1, void *a2)
     {
         if constexpr (std::is_base_of_v<mash_virtual_base, T>) {
@@ -114,7 +111,7 @@ struct mash_info_struct {
         a1.unmash(this, a2);
     }
 
-    template<typename T>
+    template <typename T>
     static void construct_class(T *&a1);
 };
 

@@ -33,7 +33,7 @@ int key_interval(const mVector<PanelAnimKeyframe> &keys, float time)
     }
     return keys.size() - 2;
 }
-}
+}  // namespace
 
 float PanelAnim::GetVisibility(Float time) const
 {
@@ -51,8 +51,7 @@ float PanelAnim::GetVisibility(Float time) const
     const float from_time = key_value(from->field_14);
     const float duration = key_value(to->field_14) - from_time;
     const float factor = duration > 0.0f ? (time - from_time) / duration : 0.0f;
-    return key_value(from->field_18) +
-        (key_value(to->field_18) - key_value(from->field_18)) * factor;
+    return key_value(from->field_18) + (key_value(to->field_18) - key_value(from->field_18)) * factor;
 }
 
 matrix4x4 PanelAnim::GetXFormMatrix(Float time) const
@@ -86,16 +85,15 @@ matrix4x4 PanelAnim::GetXFormMatrix(Float time) const
     const float scale_x = interpolate(from->field_8, to->field_8);
     const float scale_y = interpolate(from->field_C, to->field_C);
     const float start_rotation = key_value(from->field_10);
-    const float rotation_delta = std::remainder(
-        key_value(to->field_10) - start_rotation, 6.2831853071795864769f);
+    const float rotation_delta = std::remainder(key_value(to->field_10) - start_rotation, 6.2831853071795864769f);
     const float rotation = start_rotation + rotation_delta * factor;
 
     matrix4x4 scale;
-    scale.make_scale(vector3d {scale_x, scale_y, 1.0f});
+    scale.make_scale(vector3d{scale_x, scale_y, 1.0f});
     matrix4x4 rotate;
-    rotate.make_rotate(vector3d {0.0f, 0.0f, 1.0f}, rotation);
+    rotate.make_rotate(vector3d{0.0f, 0.0f, 1.0f}, rotation);
     matrix4x4 result = scale * rotate;
-    result[3] = vector4d {x, y, 0.0f, 1.0f};
+    result[3] = vector4d{x, y, 0.0f, 1.0f};
     return result;
 }
 

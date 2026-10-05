@@ -33,7 +33,6 @@ void vm_stack::push(const char *a2, int n)
 
     std::memcpy(this->SP, a2, n);
     this->move_SP(n);
-
 }
 
 void vm_stack::push(vm_str_t a2)

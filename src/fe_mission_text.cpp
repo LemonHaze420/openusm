@@ -32,7 +32,7 @@ fe_mission_text::fe_mission_text()
         this->m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {
         this->m_vtbl = 0x00893E70;
-}
+    }
 
     this->field_4 = nullptr;
     this->field_B4 = false;

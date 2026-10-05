@@ -64,7 +64,8 @@ void unlink_effect(motion_effect_struct *effect)
     effect->next = effect->previous = nullptr;
 }
 
-template<class T> void delete_history(T *&info)
+template <class T>
+void delete_history(T *&info)
 {
     if (info != nullptr) {
         delete[] info->samples;
@@ -75,8 +76,8 @@ template<class T> void delete_history(T *&info)
 
 vector3d axis_offset(entity_base *entity, int axis, float width)
 {
-    return vector3d{entity->get_abs_po().m[axis][0], entity->get_abs_po().m[axis][1],
-                    entity->get_abs_po().m[axis][2]} * width;
+    return vector3d{entity->get_abs_po().m[axis][0], entity->get_abs_po().m[axis][1], entity->get_abs_po().m[axis][2]} *
+           width;
 }
 
 void scale_motion_points(entity_base *source, std::initializer_list<vector3d *> points)
@@ -103,8 +104,10 @@ motion_trail_sample current_trail_sample(motion_trail_info *info)
 {
     motion_trail_sample sample;
     if (info->single_entity) {
-        const auto offset = info->axis == 0 ? vector3d{0.0f, 0.0f, 0.0f} :
-            axis_offset(info->first, info->axis >= 1 && info->axis <= 3 ? info->axis - 1 : 0, info->width);
+        const auto offset =
+            info->axis == 0
+                ? vector3d{0.0f, 0.0f, 0.0f}
+                : axis_offset(info->first, info->axis >= 1 && info->axis <= 3 ? info->axis - 1 : 0, info->width);
         const auto position = info->first->get_abs_position();
         sample = {position + offset, position - offset};
     } else {
@@ -118,8 +121,8 @@ motion_distorted_sample current_distorted_sample(motion_distorted_trail_info *in
 {
     motion_distorted_sample sample;
     if (info->single_entity) {
-        const auto offset = axis_offset(info->owner, info->axis >= 1 && info->axis <= 3 ? info->axis - 1 : 0,
-                                        info->width);
+        const auto offset =
+            axis_offset(info->owner, info->axis >= 1 && info->axis <= 3 ? info->axis - 1 : 0, info->width);
         const auto position = info->owner->get_abs_position();
         sample.first = position + offset;
         sample.second = position - offset;
@@ -134,8 +137,8 @@ motion_distorted_sample current_distorted_sample(motion_distorted_trail_info *in
         sample.third = second + delta / divisor;
         if (rendering) {
             const auto position = info->owner->get_abs_position();
-            sample.first = position - (position - first) / var<float>(0x00921B58) -
-                           (position - second) / var<float>(0x00921B58);
+            sample.first =
+                position - (position - first) / var<float>(0x00921B58) - (position - second) / var<float>(0x00921B58);
         } else {
             sample.first = info->samples[info->next_sample].first;
         }
@@ -149,7 +152,10 @@ void build_trail_spline(spline *curve)
     curve->build(8, static_cast<spline::eSplineType>(2));
 }
 
-uint32_t packed_color(color32 color) { return static_cast<uint32_t>(color32::to_int(color)); }
+uint32_t packed_color(color32 color)
+{
+    return static_cast<uint32_t>(color32::to_int(color));
+}
 
 float motion_distance(const vector3d &first, const vector3d &second)
 {
@@ -159,8 +165,8 @@ float motion_distance(const vector3d &first, const vector3d &second)
     return static_cast<float>(std::sqrt(x * x + y * y + z * z));
 }
 
-void submit_triangle(PCUV_ShaderMaterial *material, const vector3d (&positions)[3],
-                     const vector2d (&uv)[3], const uint32_t (&colors)[3])
+void submit_triangle(PCUV_ShaderMaterial *material, const vector3d (&positions)[3], const vector2d (&uv)[3],
+                     const uint32_t (&colors)[3])
 {
     auto *base = material != nullptr ? reinterpret_cast<nglMaterialBase *>(&material->field_4) : nullptr;
     nglAddPCUVTriangle(base, positions, uv, colors);
@@ -171,13 +177,12 @@ void close_motion_mesh(const vector3d &center, float radius)
     nglMeshSetSphere({center}, radius);
     nglListAddMesh(nglCloseMesh(), {identity_matrix}, nullptr, nullptr);
 }
-}
+}  // namespace
 
 motion_effect_struct::motion_effect_struct(entity_base_vhandle handle, const mString &texture)
-    : next(nullptr), previous(nullptr), owner(handle), pose_history(nullptr), trail(nullptr),
-      distorted_trail(nullptr), afterimage(nullptr), draining_trail(false), trail_active(false),
-      field_2A(false), pose_recording(false), draining_distorted_trail(false), distorted_trail_active(false),
-      field_2E(false), field_2F(false)
+    : next(nullptr), previous(nullptr), owner(handle), pose_history(nullptr), trail(nullptr), distorted_trail(nullptr),
+      afterimage(nullptr), draining_trail(false), trail_active(false), field_2A(false), pose_recording(false),
+      draining_distorted_trail(false), distorted_trail_active(false), field_2E(false), field_2F(false)
 {
     if (spline_references()++ == 0) {
         trail_spline() = new spline;
@@ -188,10 +193,10 @@ motion_effect_struct::motion_effect_struct(entity_base_vhandle handle, const mSt
     }
     remove_from_list();
     if (effect_count()++ == 0) {
-        blend_material() = new PCUV_ShaderMaterial(nglLoadTexture(tlFixedString{texture.c_str()}),
-                                                  static_cast<nglBlendModeType>(2), 0, 2);
-        add_material() = new PCUV_ShaderMaterial(nglLoadTexture(tlFixedString{texture.c_str()}),
-                                                static_cast<nglBlendModeType>(3), 0, 2);
+        blend_material() = new PCUV_ShaderMaterial(
+            nglLoadTexture(tlFixedString{texture.c_str()}), static_cast<nglBlendModeType>(2), 0, 2);
+        add_material() = new PCUV_ShaderMaterial(
+            nglLoadTexture(tlFixedString{texture.c_str()}), static_cast<nglBlendModeType>(3), 0, 2);
         blend_fb_material() = new PCUV_ShaderMaterial(nglGetBackBufferTex(), static_cast<nglBlendModeType>(2), 0, 194);
         add_fb_material() = new PCUV_ShaderMaterial(nglGetBackBufferTex(), static_cast<nglBlendModeType>(3), 0, 194);
     }
@@ -204,11 +209,16 @@ motion_effect_struct::~motion_effect_struct()
     delete_history(trail);
     delete_history(distorted_trail);
     if (--spline_references() == 0) {
-        delete trail_spline(); trail_spline() = nullptr;
-        delete trail_spline2(); trail_spline2() = nullptr;
-        delete distorted_spline(); distorted_spline() = nullptr;
-        delete distorted_spline2(); distorted_spline2() = nullptr;
-        delete distorted_spline3(); distorted_spline3() = nullptr;
+        delete trail_spline();
+        trail_spline() = nullptr;
+        delete trail_spline2();
+        trail_spline2() = nullptr;
+        delete distorted_spline();
+        distorted_spline() = nullptr;
+        delete distorted_spline2();
+        distorted_spline2() = nullptr;
+        delete distorted_spline3();
+        distorted_spline3() = nullptr;
     }
     unlink_effect(this);
     if (--effect_count() == 0) {
@@ -223,10 +233,9 @@ motion_effect_struct::~motion_effect_struct()
     }
 }
 
-void motion_effect_struct::activate_trail(entity_base *source, int axis, float width,
-    color32 color, int alpha, float interval, int samples, bool additive)
+void motion_effect_struct::activate_trail(entity_base *source, int axis, float width, color32 color, int alpha,
+                                          float interval, int samples, bool additive)
 {
-
     trail_active = true;
     draining_trail = false;
     if (!trail) {
@@ -256,8 +265,10 @@ void motion_effect_struct::activate_trail(entity_base *source, int axis, float w
 void motion_effect_struct::remove_from_list()
 {
     unlink_effect(this);
-    auto &head = pose_recording || trail_active || distorted_trail_active ||
-        (afterimage != nullptr && afterimage->active) ? active() : inactive();
+    auto &head =
+        pose_recording || trail_active || distorted_trail_active || (afterimage != nullptr && afterimage->active)
+            ? active()
+            : inactive();
     next = head;
     head = this;
     if (next != nullptr)
@@ -276,9 +287,8 @@ void motion_effect_struct::render_all_motion_fx(camera &, hull &)
     }
 }
 
-void motion_effect_struct::render_trail(vector3d a, vector3d b, vector3d c, vector2d ua, vector2d ub,
-                                        vector2d uc, color32 ca, color32 cb, color32 cc, bool additive,
-                                        vector3d, vector3d)
+void motion_effect_struct::render_trail(vector3d a, vector3d b, vector3d c, vector2d ua, vector2d ub, vector2d uc,
+                                        color32 ca, color32 cb, color32 cc, bool additive, vector3d, vector3d)
 {
     const vector3d positions[3]{a, b, c};
     const vector2d uv[3]{ua, ub, uc};
@@ -287,8 +297,9 @@ void motion_effect_struct::render_trail(vector3d a, vector3d b, vector3d c, vect
 }
 
 void motion_effect_struct::render_distorted_trail(const vector3d &a, const vector3d &b, const vector3d &c,
-    const vector4d &ua, const vector4d &ub, const vector4d &uc, color32 ca, color32 cb, color32 cc,
-    bool additive, vector3d &minimum, vector3d &maximum)
+                                                  const vector4d &ua, const vector4d &ub, const vector4d &uc,
+                                                  color32 ca, color32 cb, color32 cc, bool additive, vector3d &minimum,
+                                                  vector3d &maximum)
 {
     const auto jitter = [](const vector4d &source) {
         const int y_range = var<int>(0x00921B20);
@@ -332,7 +343,8 @@ void motion_effect_struct::render_trail()
     second->add_control_pt(current.second);
     int index = trail->next_sample;
     for (int i = 0; i != trail->sample_count; ++i) {
-        if (index <= 0) index = trail->capacity;
+        if (index <= 0)
+            index = trail->capacity;
         const auto &sample = trail->samples[--index];
         first->add_control_pt(sample.first);
         second->add_control_pt(sample.second);
@@ -342,7 +354,8 @@ void motion_effect_struct::render_trail()
     const int count = static_cast<int>(first->curve_pts.size());
     nglCreateMesh(0x40000, 2 * count - 2, 0, nullptr);
     color32 ca = trail->first_color, cb = trail->second_color;
-    ca.set_alpha(trail->alpha); cb.set_alpha(trail->alpha);
+    ca.set_alpha(trail->alpha);
+    cb.set_alpha(trail->alpha);
     const float first_decay = trail->alpha / (static_cast<float>(count) * 0.5f - 2.0f);
     const float second_decay = trail->alpha / (static_cast<float>(second->curve_pts.size()) * 0.5f - 2.0f);
     const auto decay = [](color32 &color, float amount) {
@@ -353,11 +366,32 @@ void motion_effect_struct::render_trail()
     if (!trail->single_entity || trail->axis != 0) {
         for (int i = 0; i < count - 1; ++i) {
             const auto previous_a = ca, previous_b = cb;
-            decay(ca, first_decay); decay(cb, second_decay);
-            render_trail(first->curve_pts[i], second->curve_pts[i], first->curve_pts[i + 1],
-                         {}, {}, {}, previous_a, ca, previous_b, trail->additive, minimum, maximum);
-            render_trail(second->curve_pts[i + 1], first->curve_pts[i + 1], second->curve_pts[i],
-                         {}, {}, {}, cb, previous_b, ca, trail->additive, minimum, maximum);
+            decay(ca, first_decay);
+            decay(cb, second_decay);
+            render_trail(first->curve_pts[i],
+                         second->curve_pts[i],
+                         first->curve_pts[i + 1],
+                         {},
+                         {},
+                         {},
+                         previous_a,
+                         ca,
+                         previous_b,
+                         trail->additive,
+                         minimum,
+                         maximum);
+            render_trail(second->curve_pts[i + 1],
+                         first->curve_pts[i + 1],
+                         second->curve_pts[i],
+                         {},
+                         {},
+                         {},
+                         cb,
+                         previous_b,
+                         ca,
+                         trail->additive,
+                         minimum,
+                         maximum);
         }
     } else {
         auto points = first->curve_pts;
@@ -377,19 +411,42 @@ void motion_effect_struct::render_trail()
                 points[i] = points[i] - tangent * extension;
                 points[i + 1] = points[i] + tangent * (length + 2.0f * extension);
                 normal = normal * trail->width;
-                left[i] = points[i] + normal; right[i] = points[i] - normal;
-                left[i + 1] = points[i + 1] + normal; right[i + 1] = points[i + 1] - normal;
+                left[i] = points[i] + normal;
+                right[i] = points[i] - normal;
+                left[i + 1] = points[i + 1] + normal;
+                right[i + 1] = points[i + 1] - normal;
             }
         }
         for (int i = 1; i < count - 3; ++i) {
             const auto previous_a = ca, previous_b = cb;
-            decay(ca, first_decay); decay(cb, second_decay);
+            decay(ca, first_decay);
+            decay(cb, second_decay);
             const float u = static_cast<float>(i) / var<float>(0x00921B50);
             const float next_u = static_cast<float>(i + 1) / var<float>(0x00921B50);
-            render_trail(left[i], right[i], right[i + 1], {u, 0}, {u, 1}, {next_u, 1},
-                         previous_a, ca, previous_b, trail->additive, minimum, maximum);
-            render_trail(right[i + 1], left[i + 1], left[i], {next_u, 1}, {next_u, 0}, {u, 0},
-                         cb, previous_b, ca, trail->additive, minimum, maximum);
+            render_trail(left[i],
+                         right[i],
+                         right[i + 1],
+                         {u, 0},
+                         {u, 1},
+                         {next_u, 1},
+                         previous_a,
+                         ca,
+                         previous_b,
+                         trail->additive,
+                         minimum,
+                         maximum);
+            render_trail(right[i + 1],
+                         left[i + 1],
+                         left[i],
+                         {next_u, 1},
+                         {next_u, 0},
+                         {u, 0},
+                         cb,
+                         previous_b,
+                         ca,
+                         trail->additive,
+                         minimum,
+                         maximum);
         }
     }
     close_motion_mesh(vector3d{0.0f, 0.0f, 0.0f}, static_cast<float>(std::sqrt(3.0) * 1.0e32));
@@ -398,7 +455,6 @@ void motion_effect_struct::render_trail()
 void motion_effect_struct::render_distorted_trail()
 {
     if (draining_distorted_trail && --distorted_trail->sample_count <= 0) {
-
         trail_active = draining_trail = false;
         delete_history(trail);
         remove_from_list();
@@ -407,20 +463,23 @@ void motion_effect_struct::render_distorted_trail()
     if (distorted_trail->sample_count <= 1)
         return;
     spline *curves[3]{distorted_spline(), distorted_spline2(), distorted_spline3()};
-    for (auto *curve : curves) curve->reserve_control_pts(distorted_trail->sample_count + 1);
+    for (auto *curve : curves)
+        curve->reserve_control_pts(distorted_trail->sample_count + 1);
     const auto current = current_distorted_sample(distorted_trail, true);
     curves[0]->add_control_pt(current.first);
     curves[1]->add_control_pt(current.second);
     curves[2]->add_control_pt(current.third);
     int index = distorted_trail->next_sample;
     for (int i = 0; i != distorted_trail->sample_count; ++i) {
-        if (index <= 0) index = distorted_trail->capacity;
+        if (index <= 0)
+            index = distorted_trail->capacity;
         const auto &sample = distorted_trail->samples[--index];
         curves[0]->add_control_pt(sample.first);
         curves[1]->add_control_pt(sample.second);
         curves[2]->add_control_pt(sample.third);
     }
-    for (auto *curve : curves) build_trail_spline(curve);
+    for (auto *curve : curves)
+        build_trail_spline(curve);
     const int count = static_cast<int>(curves[0]->curve_pts.size());
     nglCreateMesh(0x40000, 6 * count - 6, 0, nullptr);
     vector3d minimum{1.0e32f, 1.0e32f, 1.0e32f}, maximum{-1.0e32f, -1.0e32f, -1.0e32f};
@@ -435,27 +494,28 @@ void motion_effect_struct::render_distorted_trail()
     };
     for (int i = 0; i < count - 1; ++i) {
         const auto ca = color_at(factor), cb = color_at(factor - step);
-        const vector4d uv[4]{{static_cast<float>(i), 0, 0, 0}, {static_cast<float>(i), 1, 0, 0},
-                             {static_cast<float>(i + 1), 0, 0, 0}, {static_cast<float>(i + 1), 1, 0, 0}};
+        const vector4d uv[4]{{static_cast<float>(i), 0, 0, 0},
+                             {static_cast<float>(i), 1, 0, 0},
+                             {static_cast<float>(i + 1), 0, 0, 0},
+                             {static_cast<float>(i + 1), 1, 0, 0}};
         const auto &a = curves[0]->curve_pts, &b = curves[1]->curve_pts, &c = curves[2]->curve_pts;
-        render_distorted_trail(a[i], a[i + 1], b[i], uv[0], uv[2], uv[1], ca, cb, ca,
-                               distorted_trail->additive, minimum, maximum);
-        render_distorted_trail(b[i + 1], b[i], a[i + 1], uv[3], uv[1], uv[2], cb, ca, cb,
-                               distorted_trail->additive, minimum, maximum);
-        render_distorted_trail(a[i], c[i], a[i + 1], uv[1], uv[0], uv[3], ca, ca, cb,
-                               distorted_trail->additive, minimum, maximum);
-        render_distorted_trail(c[i + 1], a[i + 1], c[i], uv[2], uv[3], uv[0], cb, cb, ca,
-                               distorted_trail->additive, minimum, maximum);
-        render_distorted_trail(b[i], b[i + 1], c[i], uv[0], uv[2], uv[1], ca, cb, ca,
-                               distorted_trail->additive, minimum, maximum);
-        render_distorted_trail(c[i + 1], c[i], b[i + 1], uv[3], uv[1], uv[2], cb, ca, cb,
-                               distorted_trail->additive, minimum, maximum);
+        render_distorted_trail(
+            a[i], a[i + 1], b[i], uv[0], uv[2], uv[1], ca, cb, ca, distorted_trail->additive, minimum, maximum);
+        render_distorted_trail(
+            b[i + 1], b[i], a[i + 1], uv[3], uv[1], uv[2], cb, ca, cb, distorted_trail->additive, minimum, maximum);
+        render_distorted_trail(
+            a[i], c[i], a[i + 1], uv[1], uv[0], uv[3], ca, ca, cb, distorted_trail->additive, minimum, maximum);
+        render_distorted_trail(
+            c[i + 1], a[i + 1], c[i], uv[2], uv[3], uv[0], cb, cb, ca, distorted_trail->additive, minimum, maximum);
+        render_distorted_trail(
+            b[i], b[i + 1], c[i], uv[0], uv[2], uv[1], ca, cb, ca, distorted_trail->additive, minimum, maximum);
+        render_distorted_trail(
+            c[i + 1], c[i], b[i + 1], uv[3], uv[1], uv[2], cb, ca, cb, distorted_trail->additive, minimum, maximum);
         factor -= step;
     }
-    const vector3d center{
-        static_cast<float>((static_cast<double>(minimum.x) + maximum.x) * 0.5),
-        static_cast<float>((static_cast<double>(minimum.y) + maximum.y) * 0.5),
-        static_cast<float>((static_cast<double>(minimum.z) + maximum.z) * 0.5)};
+    const vector3d center{static_cast<float>((static_cast<double>(minimum.x) + maximum.x) * 0.5),
+                          static_cast<float>((static_cast<double>(minimum.y) + maximum.y) * 0.5),
+                          static_cast<float>((static_cast<double>(minimum.z) + maximum.z) * 0.5)};
     close_motion_mesh(center, motion_distance(minimum, center));
 }
 
@@ -466,10 +526,13 @@ void motion_effect_struct::record(Float elapsed)
         if (pose_history->remaining <= 0.0f) {
             if (auto *entity = owner.get_volatile_ptr()) {
                 const auto &transform = entity->get_abs_po();
-                pose_history->samples[pose_history->next_sample] = {quaternion{transform.m}, entity->get_abs_position()};
+                pose_history->samples[pose_history->next_sample] = {quaternion{transform.m},
+                                                                    entity->get_abs_position()};
                 ++pose_history->next_sample;
-                if (pose_history->sample_count < pose_history->capacity) ++pose_history->sample_count;
-                if (pose_history->next_sample >= pose_history->capacity) pose_history->next_sample = 0;
+                if (pose_history->sample_count < pose_history->capacity)
+                    ++pose_history->sample_count;
+                if (pose_history->next_sample >= pose_history->capacity)
+                    pose_history->next_sample = 0;
             }
             pose_history->remaining = pose_history->interval;
         }
@@ -489,8 +552,10 @@ void motion_effect_struct::record(Float elapsed)
                     destination = current_distorted_sample(distorted_trail, false);
                 }
                 ++distorted_trail->next_sample;
-                if (distorted_trail->sample_count < distorted_trail->capacity) ++distorted_trail->sample_count;
-                if (distorted_trail->next_sample >= distorted_trail->capacity) distorted_trail->next_sample = 0;
+                if (distorted_trail->sample_count < distorted_trail->capacity)
+                    ++distorted_trail->sample_count;
+                if (distorted_trail->next_sample >= distorted_trail->capacity)
+                    distorted_trail->next_sample = 0;
             }
             distorted_trail->remaining = distorted_trail->interval;
         }
@@ -502,8 +567,10 @@ void motion_effect_struct::record(Float elapsed)
                 if (!trail->single_entity || (trail->axis >= 0 && trail->axis <= 3))
                     trail->samples[trail->next_sample] = current_trail_sample(trail);
                 ++trail->next_sample;
-                if (trail->sample_count < trail->capacity) ++trail->sample_count;
-                if (trail->next_sample >= trail->capacity) trail->next_sample = 0;
+                if (trail->sample_count < trail->capacity)
+                    ++trail->sample_count;
+                if (trail->next_sample >= trail->capacity)
+                    trail->next_sample = 0;
             }
             trail->remaining = trail->interval;
         }

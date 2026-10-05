@@ -29,7 +29,7 @@
 
 #include "func_wrapper.h"
 
-template<>
+template <>
 void mash_info_struct::construct_class<mAvlTree<string_hash_entry>>(mAvlTree<string_hash_entry> *&a1)
 {
     if constexpr (!STANDALONE_SYSTEM) {
@@ -41,17 +41,15 @@ void mash_info_struct::construct_class<mAvlTree<string_hash_entry>>(mAvlTree<str
     }
 }
 
-template<>
+template <>
 void mash_info_struct::construct_class(PanelFile *&a1)
 {
     TRACE("mash_info_struct::construct_class<PanelFile>");
     if (a1 == nullptr)
         return;
 
-    if constexpr (STANDALONE_SYSTEM)
-    {
-        for (auto i = 0; i < a1->pquads.m_size; ++i)
-        {
+    if constexpr (STANDALONE_SYSTEM) {
+        for (auto i = 0; i < a1->pquads.m_size; ++i) {
             auto *quad = a1->pquads.m_data[i];
             if (quad == nullptr)
                 continue;
@@ -62,8 +60,7 @@ void mash_info_struct::construct_class(PanelFile *&a1)
             quad->field_38 = 1.0f;
         }
 
-        for (auto i = 0; i < a1->ptext.m_size; ++i)
-        {
+        for (auto i = 0; i < a1->ptext.m_size; ++i) {
             auto *text = a1->ptext.m_data[i];
             if (text == nullptr)
                 continue;
@@ -71,52 +68,46 @@ void mash_info_struct::construct_class(PanelFile *&a1)
             text->field_4 = 1.0f;
             text->field_10 = 4;
         }
-    }
-    else
-    {
-        auto func = bit_cast<void (__fastcall *)(void *, int, void *)>(
-            0x00642FA0);
+    } else {
+        auto func = bit_cast<void(__fastcall *)(void *, int, void *)>(0x00642FA0);
         func(a1, 0, nullptr);
     }
 }
 
-template<>
+template <>
 void mash_info_struct::construct_class(sound_alias_database *&a1)
 {
     if (a1 != nullptr) {
         if constexpr (!STANDALONE_SYSTEM) {
-            void (__fastcall *func)(void *, int edx, void *) =
-                CAST(func, 0x005D9040);
+            void(__fastcall * func)(void *, int edx, void *) = CAST(func, 0x005D9040);
             func(a1, 0, nullptr);
         }
     }
 }
 
-template<>
+template <>
 void mash_info_struct::construct_class(token_def_list *&a1)
 {
     TRACE("mash_info_struct::construct_class<token_def_list>");
-    if ( a1 != nullptr )
-    {
+    if (a1 != nullptr) {
         if constexpr (0) {
-            void (__fastcall *func)(void *, int edx, void *) = CAST(func, 0x005DEDA0);
+            void(__fastcall * func)(void *, int edx, void *) = CAST(func, 0x005DEDA0);
             func(a1, 0, nullptr);
         } else {
-            new (a1) token_def_list {nullptr};
+            new (a1) token_def_list{nullptr};
         }
     }
 }
 
-template<>
+template <>
 void mash_info_struct::construct_class(path_graph *&a1)
 {
-    if (a1 != nullptr)
-    {
-        a1 = new (a1) path_graph {nullptr};
+    if (a1 != nullptr) {
+        a1 = new (a1) path_graph{nullptr};
     }
 }
 
-template<>
+template <>
 void mash_info_struct::construct_class(mVector<ai::info_node> *&a1)
 {
     if (a1 != nullptr) {
@@ -124,105 +115,95 @@ void mash_info_struct::construct_class(mVector<ai::info_node> *&a1)
     }
 }
 
-template<>
+template <>
 void mash_info_struct::construct_class(ai::state_graph *&a1)
 {
-    if ( a1 != nullptr )
-    {
+    if (a1 != nullptr) {
         if constexpr (STANDALONE_SYSTEM) {
-            a1 = new (a1) ai::state_graph {nullptr};
+            a1 = new (a1) ai::state_graph{nullptr};
         } else {
-            void (__fastcall *func)(void *, int edx, void *) = CAST(func, 0x006DA190);
+            void(__fastcall * func)(void *, int edx, void *) = CAST(func, 0x006DA190);
             func(a1, 0, nullptr);
         }
     }
 }
 
-template<>
+template <>
 void mash_info_struct::construct_class(gab_database *&a1)
 {
-    if ( a1 != nullptr )
-    {
+    if (a1 != nullptr) {
         if constexpr (STANDALONE_SYSTEM) {
-            new (a1) gab_database {nullptr};
+            new (a1) gab_database{nullptr};
         } else {
-            void (__fastcall *func)(void *, int edx, void *) =
-                CAST(func, 0x005E0E80);
+            void(__fastcall * func)(void *, int edx, void *) = CAST(func, 0x005E0E80);
             func(a1, 0, nullptr);
         }
     }
 }
 
-template<>
+template <>
 void mash_info_struct::construct_class(als::animation_logic_system_shared *&a1)
 {
     TRACE("mash_info_struct::construct_class<als::animation_logic_system_shared>");
 
-    if ( a1 != nullptr )
-    {
+    if (a1 != nullptr) {
         if constexpr (STANDALONE_SYSTEM) {
-            a1 = new (a1) als::animation_logic_system_shared {nullptr};
+            a1 = new (a1) als::animation_logic_system_shared{nullptr};
         } else {
-            void (__fastcall *func)(void *, int edx, void *) = CAST(func, 0x004AC000);
+            void(__fastcall * func)(void *, int edx, void *) = CAST(func, 0x004AC000);
             func(a1, 0, nullptr);
         }
     }
 }
 
-template<>
+template <>
 void mash_info_struct::construct_class(ai::core_ai_resource *&a1)
 {
-    if ( a1 != nullptr )
-    {
+    if (a1 != nullptr) {
         if constexpr (STANDALONE_SYSTEM) {
-            a1 = new (a1) ai::core_ai_resource {nullptr};
+            a1 = new (a1) ai::core_ai_resource{nullptr};
         } else {
-            void (__fastcall *func)(void *, int edx, void *) = CAST(func, 0x006D9A10);
+            void(__fastcall * func)(void *, int edx, void *) = CAST(func, 0x006D9A10);
             func(a1, 0, nullptr);
         }
     }
 }
 
-template<>
+template <>
 void mash_info_struct::construct_class(cut_scene *&a1)
 {
-    if (a1 != nullptr)
-    {
+    if (a1 != nullptr) {
         if constexpr (STANDALONE_SYSTEM) {
-            a1 = new (a1) cut_scene {nullptr};
+            a1 = new (a1) cut_scene{nullptr};
         } else {
-            void (__fastcall *func)(void *, int edx, void *) =
-                CAST(func, 0x00742890);
+            void(__fastcall * func)(void *, int edx, void *) = CAST(func, 0x00742890);
             func(a1, 0, nullptr);
         }
     }
 }
 
-template<>
+template <>
 void mash_info_struct::construct_class(ai_interaction_data *&a1)
 {
-    if (a1 != nullptr)
-    {
-        a1 = new (a1) ai_interaction_data {nullptr};
+    if (a1 != nullptr) {
+        a1 = new (a1) ai_interaction_data{nullptr};
     }
 }
 
-template<>
+template <>
 void mash_info_struct::construct_class(als_res_data *&a1)
 {
     TRACE("mash_info_struct::construct_class<als_res_data>");
 
-    if (a1 != nullptr)
-    {
+    if (a1 != nullptr) {
         a1->initialize(mash::FROM_MASH);
     }
 }
 
-template<>
+template <>
 void mash_info_struct::construct_class(skeleton_interface *&a1)
 {
-    if ( a1 != nullptr )
-    {
+    if (a1 != nullptr) {
         auto func = [](skeleton_interface *self, int a2, int a3) {
             self->m_vtbl = 0x0088344C;
             self->my_conglomerate = CAST(self->my_conglomerate, a3);
@@ -233,7 +214,7 @@ void mash_info_struct::construct_class(skeleton_interface *&a1)
     }
 }
 
-template<>
+template <>
 void mash_info_struct::construct_class(mVector<als::dest_weight_data> *&a1)
 {
     if (a1 != nullptr) {
@@ -241,7 +222,7 @@ void mash_info_struct::construct_class(mVector<als::dest_weight_data> *&a1)
     }
 }
 
-template<>
+template <>
 void mash_info_struct::construct_class(mVector<als::layer_transition_rule> *&a1)
 {
     if (a1 != nullptr) {
@@ -249,7 +230,7 @@ void mash_info_struct::construct_class(mVector<als::layer_transition_rule> *&a1)
     }
 }
 
-template<>
+template <>
 void mash_info_struct::construct_class(als::basic_rule_data::post_action_rule_set *&a1)
 {
     if (a1 != nullptr) {
@@ -257,21 +238,21 @@ void mash_info_struct::construct_class(als::basic_rule_data::post_action_rule_se
             from_mash_in_place_constructor *mash = nullptr;
             a1 = new (a1) als::basic_rule_data::post_action_rule_set{mash};
         } else {
-            void(__fastcall *func)(void *, int, void *) = CAST(func, 0x004AC210);
+            void(__fastcall * func)(void *, int, void *) = CAST(func, 0x004AC210);
             func(a1, 0, nullptr);
         }
     }
 }
 
-template<>
+template <>
 void mash_info_struct::construct_class(attach_interact_data *&a1)
 {
     if (a1 != nullptr) {
-        a1 = new (a1) attach_interact_data {nullptr};
+        a1 = new (a1) attach_interact_data{nullptr};
     }
 }
 
-template<>
+template <>
 void mash_info_struct::construct_class(ai::param_block *&a1)
 {
     if (a1 != nullptr) {
@@ -279,7 +260,7 @@ void mash_info_struct::construct_class(ai::param_block *&a1)
     }
 }
 
-template<>
+template <>
 void mash_info_struct::construct_class(nugget *&a1)
 {
     if (a1 != nullptr) {
@@ -287,7 +268,7 @@ void mash_info_struct::construct_class(nugget *&a1)
     }
 }
 
-template<>
+template <>
 void mash_info_struct::construct_class(ai::mashed_state *&a1)
 {
     if (a1 != nullptr) {
@@ -295,7 +276,7 @@ void mash_info_struct::construct_class(ai::mashed_state *&a1)
     }
 }
 
-template<>
+template <>
 void mash_info_struct::construct_class(interactable_interface *&a1)
 {
     if (a1 != nullptr) {
@@ -304,7 +285,7 @@ void mash_info_struct::construct_class(interactable_interface *&a1)
     }
 }
 
-template<>
+template <>
 void mash_info_struct::construct_class(base_ai_data *&a1)
 {
     if (a1 != nullptr) {
@@ -312,7 +293,7 @@ void mash_info_struct::construct_class(base_ai_data *&a1)
     }
 }
 
-template<>
+template <>
 void mash_info_struct::construct_class(patrol_def_set *&a1)
 {
     if (a1 != nullptr) {
@@ -320,7 +301,7 @@ void mash_info_struct::construct_class(patrol_def_set *&a1)
     }
 }
 
-template<>
+template <>
 void mash_info_struct::construct_class(glass_house *&a1)
 {
     if (a1 != nullptr) {
@@ -328,7 +309,7 @@ void mash_info_struct::construct_class(glass_house *&a1)
     }
 }
 
-template<>
+template <>
 void mash_info_struct::construct_class(ai::param_block::param_data_array *&a1)
 {
     if (a1 != nullptr) {
@@ -336,7 +317,7 @@ void mash_info_struct::construct_class(ai::param_block::param_data_array *&a1)
     }
 }
 
-template<>
+template <>
 void mash_info_struct::construct_class(combo_system *&a1)
 {
     if (a1 != nullptr) {

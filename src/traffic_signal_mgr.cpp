@@ -22,7 +22,6 @@ _std::vector<signal_light> &lights()
 void initialize_signal_state()
 {
     static const bool initialized = [] {
-
         var<int>(0x00921D74) = 1;
         return true;
     }();
@@ -40,7 +39,7 @@ void switch_ifl(entity *owner, int state)
         static const string_hash pedestrian_id{"PEDLIGHT01"};
         for (auto *member : {group->get_member(light_id, true), group->get_member(pedestrian_id, true)}) {
             if (member != nullptr) {
-                using lock = void (__fastcall *)(entity_base *, void *, int);
+                using lock = void(__fastcall *)(entity_base *, void *, int);
                 reinterpret_cast<lock>(get_vfunc(member->m_vtbl, 0x268))(member, nullptr, state);
             }
         }
@@ -57,7 +56,7 @@ void remove_first_expired_light()
         }
     }
 }
-}
+}  // namespace
 #endif
 
 traffic_signal_mgr::traffic_signal_mgr() {}

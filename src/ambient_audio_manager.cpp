@@ -27,7 +27,7 @@ Var<_std::vector<ambient_track_request> *> ambient_requests{0x0095C860};
 Var<sound_instance_id> ambient_sound{0x0095F960};
 Var<_std::list<ambient_track> *> ambient_tracks{0x0095C85C};
 Var<int> max_playing_tracks{0x00921D70};
-}
+}  // namespace
 
 void ambient_audio_manager::create_inst()
 {
@@ -99,8 +99,8 @@ void ambient_audio_manager::set_max_playing_tracks(int count)
         if (lowest) {
             if (lowest->sound.get_sound_instance_ptr()) {
                 lowest->flags |= 8;
-                const float fraction = lowest->fade_duration <= 0.0f
-                    ? 1.0f : 1.0f - lowest->fade_remaining / lowest->fade_duration;
+                const float fraction =
+                    lowest->fade_duration <= 0.0f ? 1.0f : 1.0f - lowest->fade_remaining / lowest->fade_duration;
                 lowest->fade_start += fraction * (lowest->fade_target - lowest->fade_start);
                 lowest->fade_target = 0.0f;
                 lowest->fade_duration = 0.0f;

@@ -24,7 +24,7 @@ namespace {
 vector2d section_get_min(const PanelQuadSection &section)
 {
     const auto &quad = section.field_14;
-    vector2d result {
+    vector2d result{
         quad.field_0[0].pos.field_0,
         quad.field_0[0].pos.field_4,
     };
@@ -38,7 +38,7 @@ vector2d section_get_min(const PanelQuadSection &section)
 vector2d section_get_max(const PanelQuadSection &section)
 {
     const auto &quad = section.field_14;
-    vector2d result {
+    vector2d result{
         quad.field_0[0].pos.field_0,
         quad.field_0[0].pos.field_4,
     };
@@ -48,7 +48,7 @@ vector2d section_get_max(const PanelQuadSection &section)
     }
     return result;
 }
-}
+}  // namespace
 
 PanelQuad::PanelQuad()
 {
@@ -67,8 +67,7 @@ PanelQuad::PanelQuad()
     }
 }
 
-PanelQuad::PanelQuad(from_mash_in_place_constructor *a2)
-    : pqs(a2), field_3C(a2)
+PanelQuad::PanelQuad(from_mash_in_place_constructor *a2) : pqs(a2), field_3C(a2)
 {
     if constexpr (STANDALONE_SYSTEM) {
         field_10 = 4;
@@ -84,7 +83,7 @@ PanelQuad::PanelQuad(from_mash_in_place_constructor *a2)
         field_3C.field_C = nullptr;
         if (pmesh != nullptr) {
             new (pmesh) PanelMeshSection();
-            const tlFixedString mesh_name {field_3C.guts};
+            const tlFixedString mesh_name{field_3C.guts};
             pmesh->SetMesh(nglGetMeshInFile(mesh_name, PanelFile::g_curmeshfile));
         }
         field_34 = 0.0f;
@@ -108,8 +107,7 @@ PanelQuad::PanelQuad(const char *a2) : field_3C(a2)
     this->field_14[1] = 0.0;
 }
 
-PanelQuad *__fastcall PanelQuad_constructor(
-    PanelQuad *self, int, from_mash_in_place_constructor *a2)
+PanelQuad *__fastcall PanelQuad_constructor(PanelQuad *self, int, from_mash_in_place_constructor *a2)
 {
     TRACE("PanelQuad::PanelQuad");
     if constexpr (STANDALONE_SYSTEM)
@@ -160,13 +158,13 @@ void PanelQuad::_unmash(mash_info_struct *a1, void *a3)
         if (this->pmesh != nullptr) {
             this->pmesh = (PanelMeshSection *)a1->read_from_buffer(
 #if OPENUSM_XBOX_MASH_FORMAT
-                    mash::NORMAL_BUFFER,
-#endif 
+                mash::NORMAL_BUFFER,
+#endif
                 sizeof(PanelMeshSection),
                 16);
         }
     } else {
-        void (__fastcall *func)(void *, void *, mash_info_struct *, void *) = CAST(func, get_vfunc(m_vtbl, 0x4));
+        void(__fastcall * func)(void *, void *, mash_info_struct *, void *) = CAST(func, get_vfunc(m_vtbl, 0x4));
         func(this, nullptr, a1, a3);
     }
 }
@@ -194,7 +192,7 @@ vector2d PanelQuad::GetMax()
             return {0.0f, 0.0f};
         }
 
-        vector2d result {0.0f, 0.0f};
+        vector2d result{0.0f, 0.0f};
         bool have_section = false;
         if (pqs.m_data != nullptr && pqs.m_size > 0) {
             for (int section_index = 0; section_index < pqs.m_size; ++section_index) {
@@ -234,7 +232,7 @@ vector2d PanelQuad::GetMin()
             return {0.0f, 0.0f};
         }
 
-        vector2d result {0.0f, 0.0f};
+        vector2d result{0.0f, 0.0f};
         bool have_section = false;
         if (pqs.m_data != nullptr && pqs.m_size > 0) {
             for (int section_index = 0; section_index < pqs.m_size; ++section_index) {
@@ -329,8 +327,7 @@ void PanelQuad::Draw()
         params.Flags = 66;
         for (int axis = 0; axis != 3; ++axis) {
             const auto &row = transform[axis];
-            const auto length = std::sqrt(
-                double(row.x) * row.x + double(row.y) * row.y + double(row.z) * row.z);
+            const auto length = std::sqrt(double(row.x) * row.x + double(row.y) * row.y + double(row.z) * row.z);
             params.Scale[axis] = static_cast<float>(length);
             const auto inverse = 1.0 / length;
             transform[axis].x = static_cast<float>(row.x * inverse);
@@ -339,8 +336,7 @@ void PanelQuad::Draw()
         }
         transform[3].x -= 0.47f;
         transform[3].y -= 0.47f;
-        nglListAddMesh(pmesh->field_40,
-            *reinterpret_cast<const math::MatClass<4, 3> *>(&transform), &params, nullptr);
+        nglListAddMesh(pmesh->field_40, *reinterpret_cast<const math::MatClass<4, 3> *>(&transform), &params, nullptr);
         return;
     }
     for (int i = 0; i < pqs.size(); ++i) {
@@ -361,8 +357,7 @@ void PanelQuad::TurnOn(bool a2)
         else
             field_10 &= static_cast<char>(~4);
     } else {
-        void (__fastcall *func)(void *, void *, bool) =
-            CAST(func, get_vfunc(m_vtbl, 0x5C));
+        void(__fastcall * func)(void *, void *, bool) = CAST(func, get_vfunc(m_vtbl, 0x5C));
         func(this, nullptr, a2);
     }
 }
@@ -379,7 +374,7 @@ void PanelQuad::Rotate(Float a2, Float a3, Float a4, bool a5)
 
     float a4a = (a5 ? a4 - this->field_34 : float(a4));
 
-    for ( int i = 0; i < this->pqs.size(); ++i ) {
+    for (int i = 0; i < this->pqs.size(); ++i) {
         nglRotateQuad(bit_cast<nglQuad *>(&this->pqs.m_data[i]->field_14), a2, a3, a4a);
     }
 
@@ -395,8 +390,7 @@ void PanelQuad::SetColor(color32 a2)
         for (int i = 0; i < pqs.size(); ++i)
             nglSetQuadColor(reinterpret_cast<nglQuad *>(&pqs.at(i)->field_14), packed);
     } else {
-        void (__fastcall *func)(void *, void *, color32) =
-            CAST(func, get_vfunc(m_vtbl, 0x7C));
+        void(__fastcall * func)(void *, void *, color32) = CAST(func, get_vfunc(m_vtbl, 0x7C));
         func(this, nullptr, a2);
     }
 }
@@ -414,14 +408,12 @@ void PanelQuad::SetAlpha(Float a2)
             for (int vertex = 0; vertex < 4; ++vertex) {
                 const auto vertex_alpha = static_cast<uint8_t>(section->field_10[vertex]);
                 const auto color = quad->field_0[vertex].m_color & 0x00FFFFFFu;
-                const auto scaled_alpha =
-                    static_cast<uint32_t>(static_cast<float>(vertex_alpha) * alpha);
+                const auto scaled_alpha = static_cast<uint32_t>(static_cast<float>(vertex_alpha) * alpha);
                 nglSetQuadVColor(quad, vertex, color | (scaled_alpha << 24));
             }
         }
     } else {
-        void(__fastcall *func)(void *, void *, Float) =
-            CAST(func, get_vfunc(m_vtbl, 0x84));
+        void(__fastcall * func)(void *, void *, Float) = CAST(func, get_vfunc(m_vtbl, 0x84));
         func(this, nullptr, a2);
     }
 }
@@ -438,8 +430,7 @@ void PanelQuad::GetCenterPos(float &a2, float &a3) const
         a2 = field_14[0];
         a3 = field_14[1];
     } else {
-        void(__fastcall *func)(const void *, void *, float *, float *) =
-            CAST(func, get_vfunc(m_vtbl, 0xA8));
+        void(__fastcall * func)(const void *, void *, float *, float *) = CAST(func, get_vfunc(m_vtbl, 0xA8));
         func(this, nullptr, &a2, &a3);
     }
 }
@@ -456,8 +447,7 @@ color32 PanelQuad::GetColor() const
         return _GetColor();
     } else {
         color32 result;
-        void(__fastcall *func)(const void *, void *, color32 *) =
-            CAST(func, get_vfunc(m_vtbl, 0xBC));
+        void(__fastcall * func)(const void *, void *, color32 *) = CAST(func, get_vfunc(m_vtbl, 0xBC));
         func(this, nullptr, &result);
         return result;
     }
@@ -474,11 +464,7 @@ void PanelQuad::SetPos(float *a2, float *a3)
         if (pqs.m_size == 1) {
             auto *section = pqs.m_data[0];
             for (int vertex = 0; vertex < 4; ++vertex) {
-                nglSetQuadVPos(
-                    bit_cast<nglQuad *>(&section->field_14),
-                    vertex,
-                    a2[vertex],
-                    a3[vertex]);
+                nglSetQuadVPos(bit_cast<nglQuad *>(&section->field_14), vertex, a2[vertex], a3[vertex]);
             }
         } else if (pqs.m_size > 1) {
             auto current_min_x = pqs.m_data[0]->field_14.field_0[0].pos.field_0;
@@ -498,9 +484,8 @@ void PanelQuad::SetPos(float *a2, float *a3)
 
             const auto current_width = current_max_x - current_min_x;
             const auto current_height = current_max_y - current_min_y;
-            const auto x_scale = (current_width > 0.0f || current_width < 0.0f)
-                                     ? (target_max_x - target_min_x) / current_width
-                                     : 1.0f;
+            const auto x_scale =
+                (current_width > 0.0f || current_width < 0.0f) ? (target_max_x - target_min_x) / current_width : 1.0f;
             const auto y_scale = (current_height > 0.0f || current_height < 0.0f)
                                      ? (target_max_y - target_min_y) / current_height
                                      : 1.0f;
@@ -508,11 +493,10 @@ void PanelQuad::SetPos(float *a2, float *a3)
                 auto *section = pqs.m_data[section_index];
                 for (int vertex = 0; vertex < 4; ++vertex) {
                     const auto &pos = section->field_14.field_0[vertex].pos;
-                    nglSetQuadVPos(
-                        bit_cast<nglQuad *>(&section->field_14),
-                        vertex,
-                        (pos.field_0 - current_min_x) * x_scale + target_min_x,
-                        (pos.field_4 - current_min_y) * y_scale + target_min_y);
+                    nglSetQuadVPos(bit_cast<nglQuad *>(&section->field_14),
+                                   vertex,
+                                   (pos.field_0 - current_min_x) * x_scale + target_min_x,
+                                   (pos.field_4 - current_min_y) * y_scale + target_min_y);
                 }
             }
         }
@@ -520,8 +504,7 @@ void PanelQuad::SetPos(float *a2, float *a3)
         field_14[0] = (target_min_x + target_max_x) * 0.5f;
         field_14[1] = (target_min_y + target_max_y) * 0.5f;
     } else {
-        void(__fastcall *func)(void *, void *, float *, float *) =
-            CAST(func, get_vfunc(m_vtbl, 0x94));
+        void(__fastcall * func)(void *, void *, float *, float *) = CAST(func, get_vfunc(m_vtbl, 0x94));
         func(this, nullptr, a2, a3);
     }
 }
@@ -533,8 +516,7 @@ void PanelQuad::SetPos(Float left, Float top, Float right, Float bottom)
         float y[] = {top, top, bottom, bottom};
         SetPos(x, y);
     } else {
-        void(__fastcall *func)(void *, void *, Float, Float, Float, Float) =
-            CAST(func, get_vfunc(m_vtbl, 0x90));
+        void(__fastcall * func)(void *, void *, Float, Float, Float, Float) = CAST(func, get_vfunc(m_vtbl, 0x90));
         func(this, nullptr, left, top, right, bottom);
     }
 }
@@ -546,7 +528,7 @@ void PanelQuad::Animate(const matrix4x4 &transform, Float visibility)
         pmesh->field_0 = transform;
         pmesh->field_0[0].z = 0.0f;
         pmesh->field_0[1].z = 0.0f;
-        pmesh->field_0[2] = vector4d {0.0f, 0.0f, 1.0f, 0.0f};
+        pmesh->field_0[2] = vector4d{0.0f, 0.0f, 1.0f, 0.0f};
         pmesh->field_0[3].z = field_8;
     } else {
         for (int i = 0; i < pqs.size(); ++i)
@@ -557,12 +539,7 @@ void PanelQuad::Animate(const matrix4x4 &transform, Float visibility)
     field_10 |= 1;
 }
 
-void PanelQuad::Init(
-    vector2d *positions,
-    color32 *colors,
-    panel_layer layer,
-    Float z,
-    const char *name)
+void PanelQuad::Init(vector2d *positions, color32 *colors, panel_layer layer, Float z, const char *name)
 {
     if constexpr (STANDALONE_SYSTEM) {
         static vector2d uvs[] = {
@@ -577,7 +554,7 @@ void PanelQuad::Init(
         pqs.field_10 = true;
         pqs.m_data = static_cast<PanelQuadSection **>(mem_alloc(sizeof(*pqs.m_data)));
         auto *storage = mem_alloc(sizeof(PanelQuadSection));
-        pqs.m_data[0] = ::new (storage) PanelQuadSection {};
+        pqs.m_data[0] = ::new (storage) PanelQuadSection{};
         pqs.m_data[0]->Init(positions, uvs, colors, z);
         pmesh = nullptr;
         field_14 = {
@@ -587,14 +564,8 @@ void PanelQuad::Init(
         field_3C = name != nullptr ? name : "";
         SetZvalue(z, layer);
     } else {
-        void(__fastcall *func)(
-            void *,
-            void *,
-            vector2d *,
-            color32 *,
-            panel_layer,
-            Float,
-            const char *) = CAST(func, get_vfunc(m_vtbl, 0x54));
+        void(__fastcall * func)(void *, void *, vector2d *, color32 *, panel_layer, Float, const char *) =
+            CAST(func, get_vfunc(m_vtbl, 0x54));
         func(this, nullptr, positions, colors, layer, z, name);
     }
 }
@@ -630,15 +601,10 @@ void PanelQuad::CopyFrom(const PanelQuad *a2)
         pqs.m_max_size = a2->pqs.m_size;
         pqs.field_10 = true;
         if (pqs.m_size > 0) {
-            pqs.m_data = static_cast<PanelQuadSection **>(
-                mem_alloc(sizeof(*pqs.m_data) * pqs.m_size));
+            pqs.m_data = static_cast<PanelQuadSection **>(mem_alloc(sizeof(*pqs.m_data) * pqs.m_size));
             for (int i = 0; i < pqs.m_size; ++i) {
-                pqs.m_data[i] =
-                    static_cast<PanelQuadSection *>(mem_alloc(sizeof(PanelQuadSection)));
-                std::memcpy(
-                    pqs.m_data[i],
-                    a2->pqs.m_data[i],
-                    sizeof(PanelQuadSection));
+                pqs.m_data[i] = static_cast<PanelQuadSection *>(mem_alloc(sizeof(PanelQuadSection)));
+                std::memcpy(pqs.m_data[i], a2->pqs.m_data[i], sizeof(PanelQuadSection));
             }
         } else {
             pqs.m_data = nullptr;
@@ -646,7 +612,7 @@ void PanelQuad::CopyFrom(const PanelQuad *a2)
 
         if (a2->pmesh != nullptr) {
             auto *storage = mem_alloc(sizeof(PanelMeshSection));
-            pmesh = ::new (storage) PanelMeshSection {*a2->pmesh};
+            pmesh = ::new (storage) PanelMeshSection{*a2->pmesh};
         } else {
             pmesh = nullptr;
         }

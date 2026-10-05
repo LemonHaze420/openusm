@@ -63,9 +63,7 @@ void __fastcall native_controller_resurrect(controller *self, void *)
 }
 
 
-void __fastcall native_controller_handle_input(controller *, void *, int)
-{
-}
+void __fastcall native_controller_handle_input(controller *, void *, int) {}
 
 bool __fastcall native_controller_false(controller *, void *)
 {
@@ -76,10 +74,10 @@ bool __fastcall native_controller_true(controller *, void *)
 {
     return true;
 }
-}
+}  // namespace
 
-void controller::initialize_native_vtable(std::intptr_t *table, std::intptr_t destroy,
-                                          std::intptr_t advance, bool mouselook)
+void controller::initialize_native_vtable(std::intptr_t *table, std::intptr_t destroy, std::intptr_t advance,
+                                          bool mouselook)
 {
     table[0] = destroy;
     table[1] = advance;
@@ -88,8 +86,7 @@ void controller::initialize_native_vtable(std::intptr_t *table, std::intptr_t de
     table[4] = reinterpret_cast<std::intptr_t>(native_controller_handle_input);
     table[5] = reinterpret_cast<std::intptr_t>(native_controller_false);
     table[6] = reinterpret_cast<std::intptr_t>(native_controller_true);
-    table[7] = reinterpret_cast<std::intptr_t>(mouselook ? native_controller_true
-                                                     : native_controller_false);
+    table[7] = reinterpret_cast<std::intptr_t>(mouselook ? native_controller_true : native_controller_false);
     table[8] = reinterpret_cast<std::intptr_t>(native_controller_false);
     table[9] = reinterpret_cast<std::intptr_t>(native_controller_false);
     table[10] = reinterpret_cast<std::intptr_t>(native_controller_false);

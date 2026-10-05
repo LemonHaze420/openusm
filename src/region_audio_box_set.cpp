@@ -16,8 +16,8 @@ void region_audio_box_set::un_mash(char *image, int *image_size_used, region *re
         field_0[i] = 0;
     }
 
-    auto *obb_root = reinterpret_cast<oriented_bounding_box_root_node *>(
-        (reinterpret_cast<uintptr_t>(image) + 63u) & ~uintptr_t{63u});
+    auto *obb_root = reinterpret_cast<oriented_bounding_box_root_node *>((reinterpret_cast<uintptr_t>(image) + 63u) &
+                                                                         ~uintptr_t{63u});
     field_0[1] = reinterpret_cast<int>(obb_root);
     obb_root->un_mash(image, image_size_used, reg);
     if (obb_root->field_30 == 0) {
@@ -46,8 +46,7 @@ void region_audio_box_set::un_mash(char *image, int *image_size_used, region *re
         *reinterpret_cast<char **>(event + 44) = boxes + box_index * 68;
     }
 
-    auto *nodes = reinterpret_cast<char *>(
-        (reinterpret_cast<uintptr_t>(obb_root + 1) + 3u) & ~uintptr_t{3u});
+    auto *nodes = reinterpret_cast<char *>((reinterpret_cast<uintptr_t>(obb_root + 1) + 3u) & ~uintptr_t{3u});
     for (int i = 0; i < event_count; ++i) {
         auto *event = events + i * 64;
         auto *node = nodes + i * 76;

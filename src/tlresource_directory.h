@@ -103,11 +103,22 @@ struct tlresource_directory : tlResourceDirectory<T0, T1> {
     }
 
 
-
-    bool _Del(T0 *) { return true; }
-    typename tlResourceDirectory<T0, T1>::Iterator *_Enumerate() { return nullptr; }
-    T0 *_Load(const T1 &) { return nullptr; }
-    int _Release(T0 *, int, bool) { return 0; }
+    bool _Del(T0 *)
+    {
+        return true;
+    }
+    typename tlResourceDirectory<T0, T1>::Iterator *_Enumerate()
+    {
+        return nullptr;
+    }
+    T0 *_Load(const T1 &)
+    {
+        return nullptr;
+    }
+    int _Release(T0 *, int, bool)
+    {
+        return 0;
+    }
 
     static tlInstanceBankResourceDirectory<T0, T1> *&system_dir;
 

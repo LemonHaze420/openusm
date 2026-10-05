@@ -17,21 +17,38 @@ void *__fastcall player_combat_delete(player_combat_inode *self, void *, unsigne
         ::operator delete(self);
     return self;
 }
-unsigned __fastcall player_combat_type(player_combat_inode *, void *) { return 346; }
+unsigned __fastcall player_combat_type(player_combat_inode *, void *)
+{
+    return 346;
+}
 bool __fastcall player_combat_subclass(player_combat_inode *, void *, unsigned type)
 {
     return type == 342 || type == 537 || type == 573;
 }
-void __fastcall player_combat_advance(player_combat_inode *self, void *, Float delta) { self->_frame_advance(delta); }
-void __fastcall player_combat_activate(player_combat_inode *self, void *, ai_core *core) { self->_activate(core); }
-int __fastcall player_combat_size(player_combat_inode *, void *) { return sizeof(player_combat_inode); }
-void __fastcall player_combat_damage(player_combat_inode *self, void *, float amount) { self->field_328 = amount; }
-int __fastcall player_combat_level(player_combat_inode *self, void *) { return static_cast<int>(*self->field_32C); }
+void __fastcall player_combat_advance(player_combat_inode *self, void *, Float delta)
+{
+    self->_frame_advance(delta);
 }
+void __fastcall player_combat_activate(player_combat_inode *self, void *, ai_core *core)
+{
+    self->_activate(core);
+}
+int __fastcall player_combat_size(player_combat_inode *, void *)
+{
+    return sizeof(player_combat_inode);
+}
+void __fastcall player_combat_damage(player_combat_inode *self, void *, float amount)
+{
+    self->field_328 = amount;
+}
+int __fastcall player_combat_level(player_combat_inode *self, void *)
+{
+    return static_cast<int>(*self->field_32C);
+}
+}  // namespace
 
 void *player_combat_inode::native_vtable()
 {
-
     static auto table = [] {
         std::array<void *, 76> result;
         std::copy_n(static_cast<void **>(combat_inode::native_vtable()), result.size(), result.data());

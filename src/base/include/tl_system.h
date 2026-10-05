@@ -254,12 +254,11 @@ struct tlInstanceBankResourceDirectory : tlResourceDirectory<T0, T1> {
 
         SkipListIterator(Impl *a2) : field_4(a2)
         {
-            static void *table[]{
-                func_address(&SkipListIterator::finalize),
-                func_address(&SkipListIterator::reset),
-                func_address(&SkipListIterator::operator()),
-                func_address(&SkipListIterator::operator++),
-                func_address(&SkipListIterator::operator*)};
+            static void *table[]{func_address(&SkipListIterator::finalize),
+                                 func_address(&SkipListIterator::reset),
+                                 func_address(&SkipListIterator::operator()),
+                                 func_address(&SkipListIterator::operator++),
+                                 func_address(&SkipListIterator::operator*)};
             this->m_vtbl = reinterpret_cast<std::intptr_t>(table);
         }
 

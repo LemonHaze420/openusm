@@ -92,8 +92,7 @@ void sound_instance::play()
 #endif
 }
 
-sound_instance_id create_native_sound_instance(
-    uint32_t scope, nslWaveID wave_id, sound_alias *alias)
+sound_instance_id create_native_sound_instance(uint32_t scope, nslWaveID wave_id, sound_alias *alias)
 {
 #if STANDALONE_SYSTEM
     update_native_sound_instances();
@@ -133,7 +132,6 @@ sound_instance_id create_native_sound_instance(
 
 sound_instance_id sub_60B960(string_hash sound, Float volume, Float pitch)
 {
-
     if (!g_game_ptr->level.load_completed) {
         return sound_instance_id{};
     }
@@ -172,8 +170,7 @@ void update_native_sound_instances()
 {
 #if STANDALONE_SYSTEM
     for (auto &slot : s_sound_instance_slot_storage) {
-        if (slot.field_50 != 0 && slot.instance.state == 3 &&
-            !nslSourceIsPlaying(slot.instance.source_id)) {
+        if (slot.field_50 != 0 && slot.instance.state == 3 && !nslSourceIsPlaying(slot.instance.source_id)) {
             slot.instance.stop();
         }
     }

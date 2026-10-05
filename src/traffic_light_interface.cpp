@@ -21,15 +21,13 @@ void *__fastcall destroy_traffic_light(traffic_light_interface *self, void *, un
 }
 
 
-bool __fastcall traffic_property_unsupported(traffic_light_interface *, void *,
-                                            std::uintptr_t, std::uintptr_t, bool)
+bool __fastcall traffic_property_unsupported(traffic_light_interface *, void *, std::uintptr_t, std::uintptr_t, bool)
 {
     return false;
 }
 
-void __fastcall unmash_traffic_light(traffic_light_interface *self, void *,
-                                    generic_mash_header *header, void *owner, void *data,
-                                    generic_mash_data_ptrs *cursor)
+void __fastcall unmash_traffic_light(traffic_light_interface *self, void *, generic_mash_header *header, void *owner,
+                                     void *data, generic_mash_data_ptrs *cursor)
 {
     self->actor_interface::un_mash(header, owner, data, cursor);
     self->field_C = *cursor->get<int>();
@@ -61,7 +59,7 @@ std::intptr_t traffic_light_vtable()
     };
     return reinterpret_cast<std::intptr_t>(table.data());
 }
-}
+}  // namespace
 #endif
 
 VALIDATE_SIZE(traffic_light_interface, 0x10);

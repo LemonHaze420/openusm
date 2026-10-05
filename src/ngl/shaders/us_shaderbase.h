@@ -13,6 +13,6 @@ inline Var<float[4]> nglHeightLightingConstants{0x0091E3C0};
 
 extern void nglInitShaderLighting();
 extern void nglSetupMaterialLighting(nglMaterialBase *material, nglMeshNode *mesh, uint32_t matrix_register,
-                                   uint32_t color_register, uint32_t height_register,
-                                   uint32_t palette_register, uint32_t palette_count);
+                                     uint32_t color_register, uint32_t height_register, uint32_t palette_register,
+                                     uint32_t palette_count);
 extern void nglUpdateLODVertexColors(nglMeshNode *mesh, nglMeshSection *section);

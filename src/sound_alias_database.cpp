@@ -54,8 +54,7 @@ sound_alias *sound_alias_database::get_sound_alias(string_hash hash)
             count = step;
         }
     }
-    if (first < field_0.m_size &&
-        field_0.m_data[first]->field_0.source_hash_code == hash.source_hash_code) {
+    if (first < field_0.m_size && field_0.m_data[first]->field_0.source_hash_code == hash.source_hash_code) {
         return field_0.m_data[first];
     }
     return nullptr;

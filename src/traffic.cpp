@@ -102,8 +102,7 @@ struct parking_marker_visitor : subdivision_visitor {
     float closest_squared;
     parking_marker *closest = nullptr;
 
-    parking_marker_visitor(const vector3d &position, float radius)
-        : point(position), closest_squared(radius * radius)
+    parking_marker_visitor(const vector3d &position, float radius) : point(position), closest_squared(radius * radius)
     {
         static const native_vtable table{visit_marker, nullptr};
         m_vtbl = reinterpret_cast<std::intptr_t>(&table);
@@ -124,17 +123,23 @@ struct parking_marker_visitor : subdivision_visitor {
     }
 };
 
-void __fastcall native_traffic_spawn(traffic *self, void *, vector3d position,
-    vector3d facing, traffic_path_lane *lane, int node, bool first, bool moving)
+void __fastcall native_traffic_spawn(traffic *self, void *, vector3d position, vector3d facing, traffic_path_lane *lane,
+                                     int node, bool first, bool moving)
 {
     self->_do_spawn(position, facing, lane, node, first, moving);
 }
-void __fastcall native_traffic_unspawn(traffic *self, void *) { self->_un_spawn(); }
+void __fastcall native_traffic_unspawn(traffic *self, void *)
+{
+    self->_un_spawn();
+}
 void __fastcall native_traffic_critical(traffic *self, void *, Float time)
 {
     self->_critical_processing(time);
 }
-actor *__fastcall native_traffic_actor(traffic *self, void *) { return self->field_C.field_54; }
+actor *__fastcall native_traffic_actor(traffic *self, void *)
+{
+    return self->field_C.field_54;
+}
 void __fastcall native_traffic_set_actor(traffic *self, void *, vhandle_type<entity> handle)
 {
     self->set_actor(handle);
@@ -155,7 +160,10 @@ actor *__fastcall native_traffic_vehicle_actor(vehicle *self, void *)
 {
     return vehicle_owner(self)->field_C.field_54;
 }
-void __fastcall native_traffic_vehicle_reset(vehicle *self, void *) { vehicle_owner(self)->reset(); }
+void __fastcall native_traffic_vehicle_reset(vehicle *self, void *)
+{
+    vehicle_owner(self)->reset();
+}
 void __fastcall native_traffic_vehicle_set_actor(vehicle *self, void *, vhandle_type<entity> handle)
 {
     vehicle_owner(self)->set_actor(handle);
@@ -179,14 +187,13 @@ void __cdecl traffic_destroyed(event *, entity_base_vhandle handle, void *)
         car->field_C.stop_horn();
         car->field_C.field_4 = false;
         if (car->field_158 && core) {
-            auto *node = static_cast<ai::traffic_inode *>(
-                core->get_info_node(ai::traffic_inode::default_id, false));
+            auto *node = static_cast<ai::traffic_inode *>(core->get_info_node(ai::traffic_inode::default_id, false));
             if (node)
                 node->remove_from_traffic_system(false);
         }
     }
 }
-}
+}  // namespace
 
 void *traffic::native_vtable()
 {
@@ -214,10 +221,9 @@ void *traffic::native_vehicle_vtable()
 }
 
 traffic::traffic(vhandle_type<entity> handle)
-    : spawnable(handle), field_C(handle), field_140(nullptr), field_158(false),
-      field_170(0), field_174(0), field_180(false), field_1BC(false), field_1BD(false),
-      field_1BE(false), field_1BF(false), field_1C0(0), field_1C9(false), field_1E4(0),
-      field_200(false), field_201(false), field_202(true), field_203(false),
+    : spawnable(handle), field_C(handle), field_140(nullptr), field_158(false), field_170(0), field_174(0),
+      field_180(false), field_1BC(false), field_1BD(false), field_1BE(false), field_1BF(false), field_1C0(0),
+      field_1C9(false), field_1E4(0), field_200(false), field_201(false), field_202(true), field_203(false),
       field_21C(nullptr), field_228(0)
 {
     m_vtbl = reinterpret_cast<std::intptr_t>(native_vtable());
@@ -231,17 +237,16 @@ traffic::traffic(vhandle_type<entity> handle)
         field_C.set_visible(true);
         set_standing(false);
     }
-    field_210 = event_manager::add_callback(event::DAMAGED, field_C.field_50.field_0,
-        traffic_damaged, this, false);
-    field_214 = event_manager::add_callback(event::DESTROYED, field_C.field_50.field_0,
-        traffic_destroyed, this, false);
+    field_210 = event_manager::add_callback(event::DAMAGED, field_C.field_50.field_0, traffic_damaged, this, false);
+    field_214 = event_manager::add_callback(event::DESTROYED, field_C.field_50.field_0, traffic_destroyed, this, false);
 }
 
 traffic *traffic::create_traffic_from_entity(vhandle_type<entity> handle)
 {
     ++var<int>(0x0096CA04);
     void *storage = sizeof(traffic) <= slab_allocator::get_max_object_size()
-        ? slab_allocator::allocate(sizeof(traffic), nullptr) : ::operator new(sizeof(traffic));
+                        ? slab_allocator::allocate(sizeof(traffic), nullptr)
+                        : ::operator new(sizeof(traffic));
     return storage ? new (storage) traffic(handle) : nullptr;
 }
 
@@ -354,7 +359,6 @@ void traffic::set_damage_done(int amount)
 
 int traffic::get_hit_points()
 {
-
     auto *owner = field_C.get_my_actor();
     if (owner && owner->has_damage_ifc()) {
         const auto &health = owner->damage_ifc()->field_1FC.field_0;
@@ -365,7 +369,6 @@ int traffic::get_hit_points()
 
 int traffic::get_damage_done()
 {
-
     auto *owner = field_C.get_my_actor();
     if (owner && owner->has_damage_ifc())
         return static_cast<int>(owner->damage_ifc()->field_1FC.field_0[2]);
@@ -410,10 +413,8 @@ void traffic::damage_callback(int, entity *)
             field_96C9DC = nullptr;
         }
     }
-    field_C.set_damage_level(static_cast<int>(
-        static_cast<float>(get_hit_points()) / (get_damage_done() + 1) * 6.0), 0);
-    field_C.set_damage_level(static_cast<int>(
-        static_cast<float>(get_hit_points()) / (get_damage_done() + 1) * 6.0), 1);
+    field_C.set_damage_level(static_cast<int>(static_cast<float>(get_hit_points()) / (get_damage_done() + 1) * 6.0), 0);
+    field_C.set_damage_level(static_cast<int>(static_cast<float>(get_hit_points()) / (get_damage_done() + 1) * 6.0), 1);
 }
 
 void traffic::play_car_toss_voice()
@@ -586,8 +587,7 @@ void traffic::initialize_traffic()
     stru_937FA4 = 10.0f;
     flt_937FA8 = 90.0f;
     if (spawnable::spawnable_lanes == nullptr) {
-        spawnable::spawnable_lanes =
-            new _std::vector<traffic_path_graph::laneInfoStruct>{};
+        spawnable::spawnable_lanes = new _std::vector<traffic_path_graph::laneInfoStruct>{};
         spawnable::spawnable_lanes->reserve(30u);
     }
     if (sub_6BA070()) {
@@ -596,8 +596,7 @@ void traffic::initialize_traffic()
     }
 
     traffic_initialized = true;
-    spawnable::last_camera_po.set_po(
-        ZVEC, YVEC, vector3d{-1234.0f, -1234.0f, -1234.0f});
+    spawnable::last_camera_po.set_po(ZVEC, YVEC, vector3d{-1234.0f, -1234.0f, -1234.0f});
 }
 
 void traffic::sub_6CD2D0(traffic *entry)
@@ -917,7 +916,6 @@ traffic *traffic::car_ahead()
         handle = field_144->get_ai_by_index(field_144->get_num_ais() - 1);
     return handle.get_volatile_ptr() ? get_traffic_from_entity(vhandle_type<entity>{handle}) : nullptr;
 }
-
 
 
 void traffic::test_script()
@@ -1241,8 +1239,7 @@ bool traffic::_is_viable_pos(const vector3d &position)
         return false;
     if (old_drivers[2] > 0) {
         for (auto *car : traffic_list) {
-            if (car && car->field_1C4 == 2 &&
-                (car->field_C.get_abs_position() - position).xz_length2() < 625.0f)
+            if (car && car->field_1C4 == 2 && (car->field_C.get_abs_position() - position).xz_length2() < 625.0f)
                 return false;
         }
     }
@@ -1398,8 +1395,7 @@ traffic *traffic::get_traffic_from_entity(vhandle_type<entity> handle)
     auto *core = entity_ptr->get_ai_core();
     if (!core)
         return nullptr;
-    auto *node = static_cast<ai::traffic_inode *>(
-        core->get_info_node(ai::traffic_inode::default_id, false));
+    auto *node = static_cast<ai::traffic_inode *>(core->get_info_node(ai::traffic_inode::default_id, false));
     return node ? node->traffic_ptr : nullptr;
 }
 
@@ -1521,15 +1517,20 @@ void traffic::update_facing_lane()
 {
     if (field_190 == field_140 && field_18C == field_168)
         return;
-    const int end = field_168 < 1 ? 1 :
-        (field_168 < field_140->get_num_nodes() - 1 ? field_168 : field_140->get_num_nodes() - 1);
+    const int end =
+        field_168 < 1 ? 1 : (field_168 < field_140->get_num_nodes() - 1 ? field_168 : field_140->get_num_nodes() - 1);
     const auto forward = (field_140->get_node(end) - field_140->get_node(end - 1)).normalized();
     const vector3d right{forward.z, 0.0f, -forward.x};
-    const vector3d up{-forward.y * forward.x, forward.z * forward.z + forward.x * forward.x,
-                      -forward.y * forward.z};
-    field_194 = right.x; field_198 = right.y; field_19C = right.z;
-    field_1A0 = up.x; field_1A4 = up.y; field_1A8 = up.z;
-    field_1AC = forward.x; field_1B0 = forward.y; field_1B4 = forward.z;
+    const vector3d up{-forward.y * forward.x, forward.z * forward.z + forward.x * forward.x, -forward.y * forward.z};
+    field_194 = right.x;
+    field_198 = right.y;
+    field_19C = right.z;
+    field_1A0 = up.x;
+    field_1A4 = up.y;
+    field_1A8 = up.z;
+    field_1AC = forward.x;
+    field_1B0 = forward.y;
+    field_1B4 = forward.z;
     field_190 = field_140;
     field_18C = field_168;
 }
@@ -1561,8 +1562,8 @@ bool traffic::is_destroyed_halt() const
 }
 
 
-void traffic::check_obstacle_point(const vector3d &position, float radius, bool &stop,
-                                   bool &slow, bool &clear, bool check_angle)
+void traffic::check_obstacle_point(const vector3d &position, float radius, bool &stop, bool &slow, bool &clear,
+                                   bool check_angle)
 {
     auto delta = position - field_C.get_abs_position();
     delta.y = 0.0f;

@@ -15,11 +15,11 @@
 #include "mash_config.h"
 
 namespace als {
-    VALIDATE_SIZE(scripted_state, 0x54u);
-    VALIDATE_SIZE(base_layer_scripted_state, 0x58u);
+VALIDATE_SIZE(scripted_state, 0x54u);
+VALIDATE_SIZE(base_layer_scripted_state, 0x58u);
 
-    scripted_state::scripted_state()
-    {
+scripted_state::scripted_state()
+{
     if constexpr (1) {
         static void *g_vtbl[] = {nullptr,
                                  func_address(&scripted_state::_unmash),
@@ -53,26 +53,26 @@ scripted_state::scripted_state(from_mash_in_place_constructor *a2)
     }
 }
 
-    void scripted_state::_unmash(mash_info_struct *a1, void *a3)
-    {
-        TRACE("als::scripted_state::unmash");
+void scripted_state::_unmash(mash_info_struct *a1, void *a3)
+{
+    TRACE("als::scripted_state::unmash");
 
-        state::_unmash(a1, a3);
+    state::_unmash(a1, a3);
 
-        a1->unmash_class_in_place(this->field_14, this);
+    a1->unmash_class_in_place(this->field_14, this);
 
-        a1->unmash_class_in_place(this->field_18, this);
+    a1->unmash_class_in_place(this->field_18, this);
 
     a1->unmash_class_in_place(this->field_28, this);
 
     a1->unmash_class_in_place(this->field_3C, this);
 
 #if OPENUSM_XBOX_MASH_FORMAT && !defined(OPENUSM_XBPACK_V10)
-        {
-            uint8_t class_mashed = -1;
-            class_mashed = *a1->read_from_buffer(mash::SHARED_BUFFER, 1, 1);
-            assert(class_mashed == 0xAF || class_mashed == 0);
-        }
+    {
+        uint8_t class_mashed = -1;
+        class_mashed = *a1->read_from_buffer(mash::SHARED_BUFFER, 1, 1);
+        assert(class_mashed == 0xAF || class_mashed == 0);
+    }
 #endif
 
     if (this->field_50 != nullptr) {
@@ -82,9 +82,9 @@ scripted_state::scripted_state(from_mash_in_place_constructor *a2)
                          ,
                          mash::NORMAL_BUFFER
 #endif
-                    );
-        }
+        );
     }
+}
 
 int scripted_state::_get_virtual_type_enum() const
 {
@@ -93,30 +93,30 @@ int scripted_state::_get_virtual_type_enum() const
 
 bool test_all_trans_groups(request_data &a1, const mVectorBasic<int> &a2,
                            scripted_trans_group::transition_type trans_type, als_data a4, string_hash a5)
-    {
-        TRACE("als::test_all_trans_groups");
+{
+    TRACE("als::test_all_trans_groups");
 
-        if constexpr (1) {
-            auto begin = a2.m_data;
-            auto end = begin + a2.size();
+    if constexpr (1) {
+        auto begin = a2.m_data;
+        auto end = begin + a2.size();
         auto it = std::find_if(begin, end, [&](int v6) {
-                auto *trans_group = a4.field_4->get_trans_group(v6);
-                return trans_group->check_transition(a1, trans_type, a4, a5);
-            });
+            auto *trans_group = a4.field_4->get_trans_group(v6);
+            return trans_group->check_transition(a1, trans_type, a4, a5);
+        });
 
-            return (it != end);
+        return (it != end);
 
-        } else {
-            return (bool) CDECL_CALL(0x004A6EA0, &a1, &a2, trans_type, a4, a5);
-        }
+    } else {
+        return (bool)CDECL_CALL(0x004A6EA0, &a1, &a2, trans_type, a4, a5);
     }
+}
 
 int scripted_state::get_filter(int out, animation_logic_system *, state_machine *, int)
-    {
-        TRACE("als::scripted_state::get_filter");
+{
+    TRACE("als::scripted_state::get_filter");
 
-        return out;
-    }
+    return out;
+}
 
 int scripted_state::_get_mocomp_type()
 {
@@ -134,8 +134,8 @@ request_data scripted_state::_do_implicit_trans(animation_logic_system *a4, stat
         if (!test_all_trans_groups(data, this->field_18, scripted_trans_group::IMPLICIT, context, explicit_state)) {
             auto begin = this->field_28.m_data;
             auto end = begin + this->field_28.size();
-            auto it = std::find_if(
-                begin, end, [&context](auto *trans_rule) { return trans_rule->can_transition(context); });
+            auto it =
+                std::find_if(begin, end, [&context](auto *trans_rule) { return trans_rule->can_transition(context); });
 
             if (it != end) {
                 auto &trans_rule = *it;
@@ -169,7 +169,6 @@ request_data scripted_state::_do_explicit_trans(animation_logic_system *a4, stat
     if constexpr (!STANDALONE_SYSTEM) {
         THISCALL(0x004A7040, this, &data, a4, a5, a6);
     } else {
-
         als_data context{a4, a5};
         if (!test_all_trans_groups(data, field_18, scripted_trans_group::EXPLICIT, context, a6)) {
             for (int i = 0; i < field_3C.size(); ++i) {
@@ -196,7 +195,6 @@ request_data scripted_state::_do_layer_trans(animation_logic_system *a4, state_m
     if constexpr (!STANDALONE_SYSTEM) {
         THISCALL(0x004A7180, this, &data, a4, a5);
     } else {
-
         als_data context{a4, a5};
         if (!test_all_trans_groups(data, field_18, scripted_trans_group::LAYER, context, string_hash{}) &&
             field_50 != nullptr) {
@@ -232,8 +230,8 @@ string_hash scripted_state::get_nal_anim_name() const
     return this->field_14;
 }
 
-    base_layer_scripted_state::base_layer_scripted_state()
-    {
+base_layer_scripted_state::base_layer_scripted_state()
+{
     if constexpr (1) {
         static void *g_vtbl[] = {nullptr,
                                  func_address(&base_layer_scripted_state::_unmash),
@@ -262,12 +260,12 @@ base_layer_scripted_state::base_layer_scripted_state(from_mash_in_place_construc
     this->m_vtbl = 0x0087E214;
 }
 
-    void base_layer_scripted_state::_unmash(mash_info_struct *a1, void *a3)
-    {
-        TRACE("base_layer_scripted_state::unmash");
+void base_layer_scripted_state::_unmash(mash_info_struct *a1, void *a3)
+{
+    TRACE("base_layer_scripted_state::unmash");
 
-        scripted_state::_unmash(a1, a3);
-    }
+    scripted_state::_unmash(a1, a3);
+}
 
 int base_layer_scripted_state::_get_virtual_type_enum() const
 {
@@ -283,13 +281,13 @@ int base_layer_scripted_state::_get_mash_sizeof() const
 
 als::request_data *__fastcall scripted_state__do_implicit_trans(als::scripted_state *self, void *,
                                                                 als::request_data *out, als::animation_logic_system *a4,
-    als::state_machine *a5)
+                                                                als::state_machine *a5)
 {
     *out = self->_do_implicit_trans(a4, a5);
     return out;
 }
 
-string_hash * __fastcall scripted_state__get_nal_anim_name(als::scripted_state *self, void *, string_hash *a2)
+string_hash *__fastcall scripted_state__get_nal_anim_name(als::scripted_state *self, void *, string_hash *a2)
 {
     *a2 = self->get_nal_anim_name();
     return a2;
@@ -302,9 +300,8 @@ als::scripted_state *__fastcall als_base_layer_scripted_state__constructor0(als:
     return self;
 }
 
-als::base_layer_scripted_state *__fastcall
-als_base_layer_scripted_state__constructor1(als::base_layer_scripted_state *self, void *,
-        from_mash_in_place_constructor *a2)
+als::base_layer_scripted_state *__fastcall als_base_layer_scripted_state__constructor1(
+    als::base_layer_scripted_state *self, void *, from_mash_in_place_constructor *a2)
 {
     TRACE("als::base_layer_scripted_state::base_layer_scripted_state(from_mash_in_place_constructor *)");
 

@@ -53,8 +53,8 @@ struct rumble_manager {
     void vibrate(rumble_struct a2);
 
 
-    void start_vibration(float amplitude, float duration, float attack,
-                         float release, unsigned int pulses, float interval);
+    void start_vibration(float amplitude, float duration, float attack, float release, unsigned int pulses,
+                         float interval);
 
     //0x005BA520
     void get_current_rumble_info(rumble_struct &a2);

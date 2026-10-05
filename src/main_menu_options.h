@@ -52,7 +52,7 @@ struct main_menu_options : FEMenu {
 
     /* virtual */ void OnDown(int a2);
 
-                  void OnCross(int a2);
+    void OnCross(int a2);
 
     void update_highlight();
 };

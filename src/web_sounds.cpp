@@ -55,7 +55,8 @@ void web_sounds_manager::add_web_sound(actor *owner, const vector3d &anchor, str
 }
 
 web_sound::web_sound(web_sound_params *parameters, actor *actor_ptr, const vector3d &anchor_position)
-    : owner(actor_ptr->get_my_handle()), travel_sound(0), remaining_time(0.0f), anchor(anchor_position), params(parameters)
+    : owner(actor_ptr->get_my_handle()), travel_sound(0), remaining_time(0.0f), anchor(anchor_position),
+      params(parameters)
 {
     if constexpr (!STANDALONE_SYSTEM) {
         THISCALL(0x00556D00, this, parameters, actor_ptr, &anchor_position);
@@ -64,8 +65,8 @@ web_sound::web_sound(web_sound_params *parameters, actor *actor_ptr, const vecto
     auto *interface_ptr = actor_ptr->my_sound_and_pfx_interface;
     interface_ptr->play_sound_grp(params->launch_group, 1.0f, 1.0f, 1.0f, -1.0f, -1.0f);
     const auto position = actor_ptr->get_abs_position();
-    travel_sound = interface_ptr->play_sound_grp_at(params->travel_group, &position,
-        1.0f, 1.0f, 1.0f, -1.0f, -1.0f, nullptr, 25);
+    travel_sound =
+        interface_ptr->play_sound_grp_at(params->travel_group, &position, 1.0f, 1.0f, 1.0f, -1.0f, -1.0f, nullptr, 25);
     remaining_time = params->travel_factor / (position - anchor).length();
     travel_time = remaining_time;
 }
@@ -85,12 +86,10 @@ bool web_sound::frame_advance(Float elapsed)
         sound->position[0] = travelling_position.x;
         sound->position[1] = travelling_position.y;
         sound->position[2] = travelling_position.z;
-        nslSetSourceSpatial(sound->source_id, sound->position, &ZEROVEC.x,
-            sound->min_distance, sound->max_distance);
+        nslSetSourceSpatial(sound->source_id, sound->position, &ZEROVEC.x, sound->min_distance, sound->max_distance);
     }
     if (remaining_time <= 0.0f) {
-        actor_ptr->my_sound_and_pfx_interface->play_sound_grp(params->impact_group,
-            1.0f, 1.0f, 1.0f, -1.0f, -1.0f);
+        actor_ptr->my_sound_and_pfx_interface->play_sound_grp(params->impact_group, 1.0f, 1.0f, 1.0f, -1.0f, -1.0f);
         return true;
     }
     return false;

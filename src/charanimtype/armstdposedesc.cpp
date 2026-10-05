@@ -41,7 +41,7 @@ void ArmStdPoseDesc::BlendPoseDataPartial(ArmStdPoseDesc::StdPoseData *a1, uint3
 }
 
 void ArmStdPoseDesc::BuildBoneMatrices(nalMatrix4x4 *matrices, uint32_t, const PerSkelData *skel,
-    const StdPoseData *pose)
+                                       const StdPoseData *pose)
 {
     for (unsigned i = 0; i < 8; ++i)
         matrices[skel->field_90[i]] = nalMatrix4x4(nalPositionOrientation(skel->field_0[i], &pose->field_0[i][0]));
@@ -59,7 +59,8 @@ void ArmStdPoseDesc::BuildBoneMatrices(nalMatrix4x4 *matrices, uint32_t, const P
     }
     const int twistBones[4]{skel->field_B0, skel->field_B4, skel->field_B8, skel->field_BC};
     for (unsigned i = 0; i < 4; ++i) {
-        if (twistBones[i] == -1) continue;
+        if (twistBones[i] == -1)
+            continue;
         const int parent = i == 0 ? skel->field_90[2] : i == 2 ? skel->field_90[6] : twistBones[i - 1];
         matrices[twistBones[i]] = sub_5FE000(matrices[twistBones[i]], matrices[parent]);
     }

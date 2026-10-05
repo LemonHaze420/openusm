@@ -80,7 +80,6 @@ private:
     void clear_speech_requests();
 
 public:
-
     void sub_6D7E10(const char *a2);
 
     inline static const string_hash default_id{int(to_hash("VOICE_BOX"))};

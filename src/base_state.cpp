@@ -28,7 +28,10 @@ void *__fastcall state_finalize(base_state *self, void *, bool free_storage)
         mem_dealloc(self, sizeof(base_state));
     return self;
 }
-uint32_t __fastcall state_type(const base_state *) { return 567; }
+uint32_t __fastcall state_type(const base_state *)
+{
+    return 567;
+}
 bool __fastcall state_subclass(const base_state *, void *, mash::virtual_types_enum type)
 {
     return type == 573;
@@ -37,28 +40,37 @@ bool __fastcall state_is_a(const base_state *self, void *, mash::virtual_types_e
 {
     return self->mash_virtual_base::_is_or_is_subclass_of(type);
 }
-void __fastcall state_activate(base_state *self, void *, ai_state_machine *machine,
-    const mashed_state *state, const mashed_state *previous, const param_block *params,
-    base_state::activate_flag_e flags)
+void __fastcall state_activate(base_state *self, void *, ai_state_machine *machine, const mashed_state *state,
+                               const mashed_state *previous, const param_block *params,
+                               base_state::activate_flag_e flags)
 {
     self->_activate(machine, state, previous, params, flags);
 }
 void __fastcall state_deactivate(base_state *, void *, const mashed_state *) {}
 void __fastcall state_info_list(base_state *, void *, info_node_desc_list &) {}
 void __fastcall state_graphs(base_state *, void *, state_graph_list &) {}
-int __fastcall state_size(const base_state *) { return sizeof(base_state); }
+int __fastcall state_size(const base_state *)
+{
+    return sizeof(base_state);
 }
+}  // namespace
 
 void *base_state::native_vtable()
 {
-    static void *table[] {
-        bit_cast<void *>(&state_destroy), bit_cast<void *>(&state_unmash),
-        bit_cast<void *>(&state_finalize), bit_cast<void *>(&state_type),
-        bit_cast<void *>(&state_subclass), bit_cast<void *>(&state_is_a),
-        bit_cast<void *>(&state_activate), bit_cast<void *>(&state_deactivate),
-        nullptr, bit_cast<void *>(&state_info_list), bit_cast<void *>(&state_graphs),
-        nullptr, nullptr, bit_cast<void *>(&state_size)
-    };
+    static void *table[]{bit_cast<void *>(&state_destroy),
+                         bit_cast<void *>(&state_unmash),
+                         bit_cast<void *>(&state_finalize),
+                         bit_cast<void *>(&state_type),
+                         bit_cast<void *>(&state_subclass),
+                         bit_cast<void *>(&state_is_a),
+                         bit_cast<void *>(&state_activate),
+                         bit_cast<void *>(&state_deactivate),
+                         nullptr,
+                         bit_cast<void *>(&state_info_list),
+                         bit_cast<void *>(&state_graphs),
+                         nullptr,
+                         nullptr,
+                         bit_cast<void *>(&state_size)};
     return table;
 }
 

@@ -32,8 +32,7 @@ struct traffic_path_graph {
         traffic_path_intersection **special_intersections;
         int special_count;
         bool field_10;
-        bool un_mash(char *image, int *bytes, traffic_path_graph *graph, region *reg,
-                     intersection_manager_brew &brew);
+        bool un_mash(char *image, int *bytes, traffic_path_graph *graph, region *reg, intersection_manager_brew &brew);
         void release_mem();
     } *intersection_manager;
     region *reg;
@@ -44,8 +43,7 @@ struct traffic_path_graph {
     //0x005CE2D0
     traffic_path_lane *get_closest_or_farthest_lane(bool arg0, const vector3d &a1, const vector3d &arg8, vector3d *a5,
                                                     traffic_path_lane::eLaneType a6, bool a7, float *a8);
-    void get_spawnable_lane_list(entity *a2, _std::vector<laneInfoStruct> *a3,
-                                 Float a4, Float a5);
+    void get_spawnable_lane_list(entity *a2, _std::vector<laneInfoStruct> *a3, Float a4, Float a5);
 
     //0x005C7E20
     bool un_mash(char *a2, int *a3, region *a4, traffic_path_brew &a5);

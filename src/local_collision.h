@@ -76,8 +76,8 @@ struct query_args_t {
 struct entfilter_base {
     std::intptr_t m_vtbl;
     struct native_vtable {
-        bool (__fastcall *accept)(const entfilter_base *, void *, actor *,
-                                   dynamic_conglomerate_clone *, const query_args_t *);
+        bool(__fastcall *accept)(const entfilter_base *, void *, actor *, dynamic_conglomerate_clone *,
+                                 const query_args_t *);
     };
 
     bool accept(actor *act, dynamic_conglomerate_clone *a2, const query_args_t &a3) const;
@@ -86,8 +86,7 @@ struct entfilter_base {
 struct obbfilter_base {
     std::intptr_t m_vtbl;
     struct native_vtable {
-        bool (__fastcall *accept)(const obbfilter_base *, void *, subdivision_node_obb_base *,
-                                   const query_args_t *);
+        bool(__fastcall *accept)(const obbfilter_base *, void *, subdivision_node_obb_base *, const query_args_t *);
     };
 
     bool accept(subdivision_node_obb_base *node, const query_args_t &args) const;
@@ -184,13 +183,13 @@ extern primitive_list_t *query_sphere(const vector3d &a1, Float a2, const entfil
 extern bool get_closest_sphere_intersection(primitive_list_t *a1, const vector3d &a2, Float a3, vector3d *a4,
                                             vector3d *a5, intersection_list_t *best_intersection_record);
 
-extern intersection_list_t *get_all_sphere_intersections(primitive_list_t *primitives,
-    const vector3d &center, Float radius);
+extern intersection_list_t *get_all_sphere_intersections(primitive_list_t *primitives, const vector3d &center,
+                                                         Float radius);
 extern void destroy_intersection_list(intersection_list_t **intersections);
 
 
-extern closest_points_pair_t *get_all_capsule_intersections(primitive_list_t *primitives,
-    const capsule &query, float time);
+extern closest_points_pair_t *get_all_capsule_intersections(primitive_list_t *primitives, const capsule &query,
+                                                            float time);
 extern closest_points_pair_t *allocate_closest_points_pair();
 extern void destroy_closest_points_pair_list(closest_points_pair_t **pairs);
 

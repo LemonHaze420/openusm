@@ -113,17 +113,17 @@ void cached_special_effect::spawn(bool a1, const vector3d &a2, const vector3d &a
                 field_28->set_parent(a8);
             field_28->update_abs_po(false);
             if ((field_28->field_4 & 4) != 0) {
-                auto restart = reinterpret_cast<void(__fastcall *)(entity *, void *)>(
-                    get_vfunc(field_28->m_vtbl, 0x2B4));
+                auto restart =
+                    reinterpret_cast<void(__fastcall *)(entity *, void *)>(get_vfunc(field_28->m_vtbl, 0x2B4));
                 restart(field_28, nullptr);
             }
             field_28->set_active(true);
-            auto reset = reinterpret_cast<void(__fastcall *)(entity *, void *, int)>(
-                get_vfunc(field_28->m_vtbl, 0x208));
+            auto reset =
+                reinterpret_cast<void(__fastcall *)(entity *, void *, int)>(get_vfunc(field_28->m_vtbl, 0x208));
             reset(field_28, nullptr, 0);
             field_28->compute_sector(g_world_ptr->the_terrain, false, nullptr);
-            auto visible = reinterpret_cast<void(__fastcall *)(entity *, void *, bool, bool)>(
-                get_vfunc(field_28->m_vtbl, 0x44));
+            auto visible =
+                reinterpret_cast<void(__fastcall *)(entity *, void *, bool, bool)>(get_vfunc(field_28->m_vtbl, 0x44));
             visible(field_28, nullptr, false, false);
             if (field_28->is_renderable())
                 visible(field_28, nullptr, true, false);
@@ -143,8 +143,8 @@ void cached_special_effect::spawn(bool a1, const vector3d &a2, const vector3d &a
             script::push_arg(a3);
             script::exec_thread(true);
         }
-        if (field_0.m_hash.source_hash_code != 0 && a11 && field_36 == 0 &&
-            a6 != nullptr && a6->has_sound_and_pfx_ifc()) {
+        if (field_0.m_hash.source_hash_code != 0 && a11 && field_36 == 0 && a6 != nullptr &&
+            a6->has_sound_and_pfx_ifc()) {
             auto *ifc = a6->my_sound_and_pfx_interface;
             entity_base *owner = nullptr;
             if (a1) {
@@ -153,11 +153,10 @@ void cached_special_effect::spawn(bool a1, const vector3d &a2, const vector3d &a
                 owner = get_owner(a6, nullptr);
             }
             if (owner != nullptr && owner->has_sound_and_pfx_ifc()) {
-                field_24 = ifc->play_sound_grp_at(field_0.m_hash, nullptr,
-                    1.0f, 1.0f, 1.0f, -1.0f, -1.0f, owner->my_sound_and_pfx_interface);
+                field_24 = ifc->play_sound_grp_at(
+                    field_0.m_hash, nullptr, 1.0f, 1.0f, 1.0f, -1.0f, -1.0f, owner->my_sound_and_pfx_interface);
             } else {
-                auto sound = ifc->play_sound_grp_at(field_0.m_hash, &a2,
-                    1.0f, 1.0f, 1.0f, -1.0f, -1.0f);
+                auto sound = ifc->play_sound_grp_at(field_0.m_hash, &a2, 1.0f, 1.0f, 1.0f, -1.0f, -1.0f);
                 if (a1)
                     field_24 = sound;
             }
@@ -199,8 +198,7 @@ void cached_special_effect::fill_cache()
         }
         auto &entries = field_30->field_8;
         if (field_38 > entries.size()) {
-            auto *storage = static_cast<fx_cache_ent *>(
-                ::operator new[](sizeof(fx_cache_ent) * field_38));
+            auto *storage = static_cast<fx_cache_ent *>(::operator new[](sizeof(fx_cache_ent) * field_38));
             for (int i = 0; i < field_38; ++i)
                 new (storage + i) fx_cache_ent{};
             std::copy_n(entries.m_data, entries.size(), storage);
@@ -212,11 +210,10 @@ void cached_special_effect::fill_cache()
             for (int i = previous_size; i < field_38; ++i) {
                 mString path{"fx\\"};
                 auto *effect = g_world_ptr->ent_mgr.create_and_add_entity_or_subclass(
-                    field_8.m_hash, make_unique_entity_id(), po_identity_matrix,
-                    path, 524417, nullptr);
+                    field_8.m_hash, make_unique_entity_id(), po_identity_matrix, path, 524417, nullptr);
                 effect->set_active(false);
-                auto visible = reinterpret_cast<void(__fastcall *)(entity *, void *, bool, bool)>(
-                    get_vfunc(effect->m_vtbl, 0x44));
+                auto visible =
+                    reinterpret_cast<void(__fastcall *)(entity *, void *, bool, bool)>(get_vfunc(effect->m_vtbl, 0x44));
                 visible(effect, nullptr, false, false);
                 if (std::equal_to<float>{}(field_2C, -1.0f) && effect->is_an_actor())
                     field_2C = effect->get_visual_radius();

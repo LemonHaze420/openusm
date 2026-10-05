@@ -23,7 +23,7 @@ struct pc_mash_info {
 };
 
 static_assert(sizeof(pc_mash_info) == 0x10);
-}
+}  // namespace
 #endif
 
 void combo_system_chain::telegraph_info::_unmash(mash_info_struct *, void *)
@@ -35,7 +35,7 @@ void combo_system_chain::telegraph_info::_unmash(mash_info_struct *, void *)
 
 int combo_system_chain::telegraph_info::get_mash_sizeof()
 {
-    int (__fastcall *func)(combo_system_chain::telegraph_info *) = CAST(func, get_vfunc(m_vtbl, 0x18));
+    int(__fastcall * func)(combo_system_chain::telegraph_info *) = CAST(func, get_vfunc(m_vtbl, 0x18));
     return func(this);
 }
 
@@ -73,7 +73,7 @@ combo_system::combo_system(from_mash_in_place_constructor *a2) : field_0(a2), fi
 
 combo_system_weapon *combo_system::get_weapon(int idx)
 {
-    return this->field_28.m_data[(uint16_t) idx];
+    return this->field_28.m_data[(uint16_t)idx];
 }
 
 int combo_system::get_num_weapons()
@@ -88,7 +88,7 @@ void combo_system::unmash(mash_info_struct *a1, [[maybe_unused]] void *a3)
     if constexpr (OPENUSM_XBOX_MASH_FORMAT) {
 #if defined(OPENUSM_XBPACK_V10) && !defined(TARGET_XBOX)
         auto *pc_mash = reinterpret_cast<pc_mash_info *>(a1);
-        mash_info_struct mash_ctx {pc_mash->image, pc_mash->size};
+        mash_info_struct mash_ctx{pc_mash->image, pc_mash->size};
         mash_ctx.buffer_size_used[mash::NORMAL_BUFFER] = pc_mash->used;
         a1 = &mash_ctx;
 #endif

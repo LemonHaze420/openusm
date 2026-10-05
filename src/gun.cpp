@@ -39,18 +39,16 @@ VALIDATE_OFFSET(gun, laser, 0x32C);
 namespace {
 bool has_damage_interface(entity *value)
 {
-    return reinterpret_cast<bool (__fastcall *)(entity *, void *)>(
-        get_vfunc(value->m_vtbl, 0x114))(value, nullptr);
+    return reinterpret_cast<bool(__fastcall *)(entity *, void *)>(get_vfunc(value->m_vtbl, 0x114))(value, nullptr);
 }
 damage_interface *get_damage_interface(entity *value)
 {
-    return reinterpret_cast<damage_interface *(__fastcall *)(entity *, void *)>(
-        get_vfunc(value->m_vtbl, 0x118))(value, nullptr);
+    return reinterpret_cast<damage_interface *(__fastcall *)(entity *, void *)>(get_vfunc(value->m_vtbl, 0x118))(
+        value, nullptr);
 }
 bool entity_is_alive(entity *value)
 {
-    return reinterpret_cast<bool (__fastcall *)(entity *, void *)>(
-        get_vfunc(value->m_vtbl, 0x50))(value, nullptr);
+    return reinterpret_cast<bool(__fastcall *)(entity *, void *)>(get_vfunc(value->m_vtbl, 0x50))(value, nullptr);
 }
 beam *create_gun_beam()
 {
@@ -60,22 +58,24 @@ beam *create_gun_beam()
 }
 void remove_beam(vhandle_type<beam> &handle)
 {
-    if (auto *value = handle.get_volatile_ptr()) g_world_ptr->ent_mgr.destroy_entity(value);
+    if (auto *value = handle.get_volatile_ptr())
+        g_world_ptr->ent_mgr.destroy_entity(value);
     handle.field_0 = INVALID_HANDLE;
 }
 void stop_beam_effects(beam *value)
 {
     auto **last = reinterpret_cast<void **>(value->field_8C);
     for (auto **it = reinterpret_cast<void **>(value->field_88); it != last; ++it) {
-        if (*it) reinterpret_cast<void (__fastcall *)(void *, void *, bool)>(
-            get_vfunc(*reinterpret_cast<std::intptr_t *>(*it), 0x28))(*it, nullptr, true);
+        if (*it)
+            reinterpret_cast<void(__fastcall *)(void *, void *, bool)>(
+                get_vfunc(*reinterpret_cast<std::intptr_t *>(*it), 0x28))(*it, nullptr, true);
     }
 }
 string_hash move_hash(void *move)
 {
     return move ? *reinterpret_cast<string_hash *>(static_cast<char *>(move) + 0x1C) : string_hash{};
 }
-}
+}  // namespace
 
 struct beam_collision_state {
     entity *target;
@@ -117,21 +117,26 @@ struct blaster_beam {
     }
     void ignore(entity *target)
     {
-        if (!target) return;
-        for (const auto &entry : *ignored) if (entry.target == target) return;
+        if (!target)
+            return;
+        for (const auto &entry : *ignored)
+            if (entry.target == target)
+                return;
         ignored->push_back({target, (target->field_4 & 0x4000) != 0});
     }
     void disable_ignored()
     {
-        for (auto &entry : *ignored) if (entry.target) {
-            entry.enabled = (entry.target->field_4 & 0x4000) != 0;
-            entry.target->set_collisions_active(false, false);
-        }
+        for (auto &entry : *ignored)
+            if (entry.target) {
+                entry.enabled = (entry.target->field_4 & 0x4000) != 0;
+                entry.target->set_collisions_active(false, false);
+            }
     }
     void restore_ignored()
     {
-        for (auto &entry : *ignored) if (entry.target)
-            entry.target->set_collisions_active(entry.enabled, false);
+        for (auto &entry : *ignored)
+            if (entry.target)
+                entry.target->set_collisions_active(entry.enabled, false);
     }
 };
 VALIDATE_SIZE(blaster_beam, 0x44);
@@ -152,11 +157,13 @@ struct gun_beam_cache {
     void un_mash(generic_mash_header *, gun *, generic_mash_data_ptrs *);
     void release_mem()
     {
-        if (--references != 0) return;
+        if (--references != 0)
+            return;
         for (auto *list : {free_beams, used_beams}) {
             for (auto *entry : *list) {
                 remove_beam(entry->handle);
-                if (entry->dynamic) delete entry;
+                if (entry->dynamic)
+                    delete entry;
             }
             delete list;
         }
@@ -164,7 +171,8 @@ struct gun_beam_cache {
         for (auto *list : {free_blasters, used_blasters}) {
             for (auto *entry : *list) {
                 entry->release();
-                if (entry->dynamic) delete entry;
+                if (entry->dynamic)
+                    delete entry;
             }
             delete list;
         }
@@ -190,7 +198,8 @@ struct gun_beam_cache {
                 ++it;
             }
         }
-        if (++advance_index >= references) advance_index = 0;
+        if (++advance_index >= references)
+            advance_index = 0;
     }
     vhandle_type<beam> acquire(float lifetime)
     {
@@ -225,7 +234,8 @@ struct gun_beam_cache {
     }
     void release_blaster(blaster_beam *entry)
     {
-        if (!entry) return;
+        if (!entry)
+            return;
         for (auto it = used_blasters->begin(); it != used_blasters->end(); ++it) {
             if (*it == entry) {
                 entry->active = false;
@@ -283,7 +293,8 @@ void gun_beam::un_mash(generic_mash_header *header, gun *owner, generic_mash_dat
         data->rebase_shared(4);
         cache = data->get_from_shared<gun_beam_cache>();
         cache->un_mash(header, owner, data);
-    } else cache = nullptr;
+    } else
+        cache = nullptr;
     handle.field_0 = INVALID_HANDLE;
 }
 
@@ -291,27 +302,77 @@ namespace {
 void *__fastcall gun_delete(gun *self, void *, unsigned flags)
 {
     self->~gun();
-    if (flags & 1) mem_dealloc(self, sizeof(gun));
+    if (flags & 1)
+        mem_dealloc(self, sizeof(gun));
     return self;
 }
-void __fastcall gun_release(gun *self, void *) { self->release_mem(); }
-bool __fastcall gun_chunk(gun *, void *, void *, void *) { return false; }
-bool __fastcall gun_query(gun *, void *) { return true; }
-void __fastcall gun_unmash(gun *self, void *, generic_mash_header *h, void *o, generic_mash_data_ptrs *p) { self->un_mash(h, o, p); }
-void __fastcall gun_advance(gun *self, void *, Float dt) { self->frame_advance(dt); }
-void __fastcall gun_apply(gun *self, void *, actor *target) { self->apply_effects(target); }
-void __fastcall gun_holster(gun *self, void *, bool visible) { self->holster(visible); }
-void __fastcall gun_draw(gun *self, void *, bool visible) { self->draw(visible); }
-void __fastcall gun_hide(gun *self, void *) { self->hide(); }
-void __fastcall gun_show(gun *self, void *) { self->show(); }
-void __fastcall gun_idle(gun *, void *) {}
-void __fastcall gun_visible(gun *self, void *, bool visible) { self->set_visibility(visible); }
-void __fastcall gun_position(gun *self, void *, vhandle_type<entity> source, const vector3d *pos, void *move) { self->fire_at_position(source, *pos, move); }
-void __fastcall gun_target(gun *self, void *, vhandle_type<entity> source, vhandle_type<entity> target, void *move) { self->fire_at_target(source, target, move); }
-void __fastcall gun_effects(gun *self, void *, entity *source, entity *target, const vector3d *pos, const vector3d *face, string_hash attack) { self->do_effects(source, target, *pos, *face, attack); }
-void __fastcall gun_update(gun *self, void *) { self->update_continuous_fire(); }
-void __fastcall gun_stop(gun *self, void *) { self->deactivate_continuous_fire(); }
+void __fastcall gun_release(gun *self, void *)
+{
+    self->release_mem();
 }
+bool __fastcall gun_chunk(gun *, void *, void *, void *)
+{
+    return false;
+}
+bool __fastcall gun_query(gun *, void *)
+{
+    return true;
+}
+void __fastcall gun_unmash(gun *self, void *, generic_mash_header *h, void *o, generic_mash_data_ptrs *p)
+{
+    self->un_mash(h, o, p);
+}
+void __fastcall gun_advance(gun *self, void *, Float dt)
+{
+    self->frame_advance(dt);
+}
+void __fastcall gun_apply(gun *self, void *, actor *target)
+{
+    self->apply_effects(target);
+}
+void __fastcall gun_holster(gun *self, void *, bool visible)
+{
+    self->holster(visible);
+}
+void __fastcall gun_draw(gun *self, void *, bool visible)
+{
+    self->draw(visible);
+}
+void __fastcall gun_hide(gun *self, void *)
+{
+    self->hide();
+}
+void __fastcall gun_show(gun *self, void *)
+{
+    self->show();
+}
+void __fastcall gun_idle(gun *, void *) {}
+void __fastcall gun_visible(gun *self, void *, bool visible)
+{
+    self->set_visibility(visible);
+}
+void __fastcall gun_position(gun *self, void *, vhandle_type<entity> source, const vector3d *pos, void *move)
+{
+    self->fire_at_position(source, *pos, move);
+}
+void __fastcall gun_target(gun *self, void *, vhandle_type<entity> source, vhandle_type<entity> target, void *move)
+{
+    self->fire_at_target(source, target, move);
+}
+void __fastcall gun_effects(gun *self, void *, entity *source, entity *target, const vector3d *pos,
+                            const vector3d *face, string_hash attack)
+{
+    self->do_effects(source, target, *pos, *face, attack);
+}
+void __fastcall gun_update(gun *self, void *)
+{
+    self->update_continuous_fire();
+}
+void __fastcall gun_stop(gun *self, void *)
+{
+    self->deactivate_continuous_fire();
+}
+}  // namespace
 
 void *gun::native_vtable(void **handheld_table)
 {
@@ -350,9 +411,11 @@ void gun::release_mem()
     delete hits;
     hits = nullptr;
     for (auto *configuration : {&projectile, &laser}) {
-        if (configuration->texture) nglReleaseTexture(configuration->texture);
+        if (configuration->texture)
+            nglReleaseTexture(configuration->texture);
         configuration->texture = nullptr;
-        if (configuration->cache) configuration->cache->release_mem();
+        if (configuration->cache)
+            configuration->cache->release_mem();
         configuration->cache = nullptr;
     }
     muzzle_effect.release_mem();
@@ -385,27 +448,54 @@ void gun::deactivate_continuous_fire()
     remove_beam(projectile.handle);
     muzzle_effect.kill(this, true);
 }
-void gun::remove_laser() { remove_beam(laser.handle); field_10C &= ~0x400; }
-void gun::holster(bool visible) { handheld_item::holster(visible); remove_laser(); deactivate_continuous_fire(); }
+void gun::remove_laser()
+{
+    remove_beam(laser.handle);
+    field_10C &= ~0x400;
+}
+void gun::holster(bool visible)
+{
+    handheld_item::holster(visible);
+    remove_laser();
+    deactivate_continuous_fire();
+}
 void gun::draw(bool visible)
 {
-    if (!(field_10C & 1)) { shot_cooldown = 0.0f; deactivate_continuous_fire(); }
+    if (!(field_10C & 1)) {
+        shot_cooldown = 0.0f;
+        deactivate_continuous_fire();
+    }
     handheld_item::draw(visible);
 }
-void gun::hide() { handheld_item::hide(); if (field_10C & 1) remove_laser(); deactivate_continuous_fire(); }
-void gun::show() { handheld_item::show(); if (field_10C & 1) activate_laser(); deactivate_continuous_fire(); }
+void gun::hide()
+{
+    handheld_item::hide();
+    if (field_10C & 1)
+        remove_laser();
+    deactivate_continuous_fire();
+}
+void gun::show()
+{
+    handheld_item::show();
+    if (field_10C & 1)
+        activate_laser();
+    deactivate_continuous_fire();
+}
 void gun::set_visibility(bool visible)
 {
     handheld_item::set_visibility(visible);
     if (field_10C & 1) {
-        if (visible && field_110) activate_laser();
-        else remove_laser();
+        if (visible && field_110)
+            activate_laser();
+        else
+            remove_laser();
     }
     deactivate_continuous_fire();
 }
 void gun::activate_laser()
 {
-    if (field_108 && (field_10C & 0x100)) laser.spawn(true, calculate_fire_pos(), target_position, this, nullptr, nullptr);
+    if (field_108 && (field_10C & 0x100))
+        laser.spawn(true, calculate_fire_pos(), target_position, this, nullptr, nullptr);
     field_10C |= 0x400;
 }
 vector3d gun::calculate_fire_pos()
@@ -414,10 +504,12 @@ vector3d gun::calculate_fire_pos()
     entity_base *dirty = visual ? static_cast<entity_base *>(visual) : this;
     dirty->field_8 |= 0x10000040;
     for (auto *child = dirty->m_child; child; child = child->field_28)
-        if (!(child->field_8 & 0x10000000)) child->dirty_family(false);
+        if (!(child->field_8 & 0x10000000))
+            child->dirty_family(false);
     vector3d offset = projectile.offset;
     const auto position = visual ? visual->get_abs_position() : field_108->get_abs_position();
-    if (visual && !(offset.length2() <= 0.0f)) offset = visual->get_abs_po().non_affine_slow_xform(offset);
+    if (visual && !(offset.length2() <= 0.0f))
+        offset = visual->get_abs_po().non_affine_slow_xform(offset);
     return position + offset;
 }
 vector3d gun::calculate_laser_pos()
@@ -425,12 +517,14 @@ vector3d gun::calculate_laser_pos()
     auto *visual = field_104.get_volatile_ptr();
     vector3d offset = laser.offset;
     const auto position = visual ? visual->get_abs_position() : field_108->get_abs_position();
-    if (visual && !(offset.length2() <= 0.0f)) offset = visual->get_abs_po().non_affine_slow_xform(offset);
+    if (visual && !(offset.length2() <= 0.0f))
+        offset = visual->get_abs_po().non_affine_slow_xform(offset);
     return position + offset;
 }
 vector3d gun::fire_direction()
 {
-    if (auto *visual = field_104.get_volatile_ptr()) return visual->get_abs_po().get_z_facing();
+    if (auto *visual = field_104.get_volatile_ptr())
+        return visual->get_abs_po().get_z_facing();
     return (field_108 ? field_108 : this)->get_abs_po().get_z_facing();
 }
 void gun::update_targeting()
@@ -443,7 +537,8 @@ void gun::update_targeting()
 }
 void gun::update_continuous_fire()
 {
-    if ((field_10C & 0x3000) != 0x3000) return;
+    if ((field_10C & 0x3000) != 0x3000)
+        return;
     const auto start = calculate_fire_pos();
     if (auto *value = projectile.handle.get_volatile_ptr()) {
         value->set_point_to_point(start, target_position);
@@ -456,18 +551,20 @@ void gun::update_continuous_fire()
 }
 void gun::accumulate_hit(entity *value, const vector3d &position, const vector3d &direction)
 {
-    for (auto &hit : *hits) if (hit.target == value) {
-        ++hit.count;
-        hit.damage += damage;
-        hit.position = position;
-        hit.direction = direction;
-        return;
-    }
+    for (auto &hit : *hits)
+        if (hit.target == value) {
+            ++hit.count;
+            hit.damage += damage;
+            hit.position = position;
+            hit.direction = direction;
+            return;
+        }
     hits->push_back({value, damage, position, direction, 1, 0.0f});
 }
 void gun::setup_fire_gun(entity *source, void *move)
 {
-    if (field_10C & 0x10000) return;
+    if (field_10C & 0x10000)
+        return;
     fire_countdown = fire_delay;
     pending_source = source;
     pending_move = move;
@@ -505,30 +602,35 @@ void gun::fire_at_target(vhandle_type<entity>, vhandle_type<entity> handle, void
 }
 void gun::apply_effects(actor *source)
 {
-    if ((field_10C & 0x3000) == 0x3000) deactivate_continuous_fire();
+    if ((field_10C & 0x3000) == 0x3000)
+        deactivate_continuous_fire();
     else {
-        if (field_108) source = static_cast<actor *>(field_108);
+        if (field_108)
+            source = static_cast<actor *>(field_108);
         fire_gun(source, nullptr);
         item::apply_effects(source);
     }
 }
 void gun::update_charge_effect()
 {
-    if (!charge_effect_dirty) return;
+    if (!charge_effect_dirty)
+        return;
     charge_effect.kill(this, true);
     if (charge_effect_active) {
         auto *visual = field_104.get_volatile_ptr();
         auto direction = field_108->get_abs_po().get_z_facing();
-        if (visual) direction = fire_direction();
+        if (visual)
+            direction = fire_direction();
         charge_effect.spawn(true, calculate_fire_pos(), direction, this, visual, visual, effect_offset, true, false);
     }
     charge_effect_dirty = false;
 }
 
-blaster_beam *gun_beam::spawn(bool persistent, const vector3d &start, const vector3d &end,
-                            gun *owner, _std::list<blaster_beam *> *blasters, void *move)
+blaster_beam *gun_beam::spawn(bool persistent, const vector3d &start, const vector3d &end, gun *owner,
+                              _std::list<blaster_beam *> *blasters, void *move)
 {
-    if (persistent) handle.field_0 = create_gun_beam()->my_handle;
+    if (persistent)
+        handle.field_0 = create_gun_beam()->my_handle;
     blaster_beam *entry = nullptr;
     beam *body;
     beam *trail = nullptr;
@@ -554,17 +656,21 @@ blaster_beam *gun_beam::spawn(bool persistent, const vector3d &start, const vect
         trail->set_point_to_point(start, tip);
         blasters->push_back(entry);
     } else {
-
-        if (persistent) return nullptr;
+        if (persistent)
+            return nullptr;
         handle = cache->acquire(lifetime);
         body = handle.get_volatile_ptr();
         body->set_point_to_point(start, end);
     }
-    if (!body) return nullptr;
+    if (!body)
+        return nullptr;
     auto configure_texture = [this](beam *value) {
-        if (!texture) return;
-        if (!value->my_material) value->my_material = new PCUV_ShaderMaterial;
-        else if (value->my_material->m_texture) nglReleaseTexture(value->my_material->m_texture);
+        if (!texture)
+            return;
+        if (!value->my_material)
+            value->my_material = new PCUV_ShaderMaterial;
+        else if (value->my_material->m_texture)
+            nglReleaseTexture(value->my_material->m_texture);
         value->my_material->m_texture = texture;
         nglAddTextureRef(texture);
     };
@@ -591,21 +697,27 @@ blaster_beam *gun_beam::spawn(bool persistent, const vector3d &start, const vect
         trail->set_visible(owner->trail_length > 0.0001f, false);
         trail->compute_sector(g_world_ptr->the_terrain, false, nullptr);
     }
-    if (!persistent || blasters) handle.field_0 = INVALID_HANDLE;
+    if (!persistent || blasters)
+        handle.field_0 = INVALID_HANDLE;
     return entry;
 }
 
 bool gun::can_hit_this_target(entity *value)
 {
-    if (!value) return false;
+    if (!value)
+        return false;
     auto owner_fn = reinterpret_cast<entity *(__fastcall *)(gun *, void *)>(get_vfunc(m_vtbl, 0x2DC));
     auto *owner = owner_fn(this, nullptr);
-    if (!owner) return true;
-    if (owner == value) return false;
-    if (!owner->is_an_actor() || !value->is_an_actor()) return true;
+    if (!owner)
+        return true;
+    if (owner == value)
+        return false;
+    if (!owner->is_an_actor() || !value->is_an_actor())
+        return true;
     auto *owner_core = owner->get_ai_core();
     auto *target_core = value->get_ai_core();
-    if (!owner_core || !target_core || !(field_10C & 0x8000)) return true;
+    if (!owner_core || !target_core || !(field_10C & 0x8000))
+        return true;
     const string_hash team_key{int(to_hash("team"))};
     const auto first = ai::team::manager::get_team_enum_by_hash(owner_core->field_50.get_pb_hash(team_key));
     const auto second = ai::team::manager::get_team_enum_by_hash(target_core->field_50.get_pb_hash(team_key));
@@ -624,7 +736,8 @@ void gun::release_blasters(bool recycle)
         if (recycle) {
             projectile.cache->release_blaster(entry);
             it = blasters->erase(it);
-        } else ++it;
+        } else
+            ++it;
     }
 }
 
@@ -640,9 +753,12 @@ void gun::frame_advance(Float elapsed)
     hit_effect.frame_advance(elapsed);
     blocked_effect.frame_advance(elapsed);
     world_effect.frame_advance(elapsed);
-    if (projectile.cache) projectile.cache->frame_advance(dt);
-    if (shot_cooldown > 0.0f) shot_cooldown = std::max(shot_cooldown - dt, 0.0f);
-    if (!field_108) return;
+    if (projectile.cache)
+        projectile.cache->frame_advance(dt);
+    if (shot_cooldown > 0.0f)
+        shot_cooldown = std::max(shot_cooldown - dt, 0.0f);
+    if (!field_108)
+        return;
     if ((field_10C & 0x4400) == 0x4400) {
         calculate_target(0.0f, false, ZEROVEC, false);
         update_targeting();
@@ -666,24 +782,26 @@ void gun::frame_advance(Float elapsed)
             const auto saved_direction = target_direction;
             auto *saved_target = target;
             calculate_target(spread, true, direction, false);
-            reinterpret_cast<void (__fastcall *)(gun *, void *)>(get_vfunc(m_vtbl, 0x2FC))(this, nullptr);
+            reinterpret_cast<void(__fastcall *)(gun *, void *)>(get_vfunc(m_vtbl, 0x2FC))(this, nullptr);
             target_position = saved_position;
             target_direction = saved_direction;
             target = saved_target;
         }
-        if (ready) setup_fire_gun(static_cast<entity *>(field_108), nullptr);
+        if (ready)
+            setup_fire_gun(static_cast<entity *>(field_108), nullptr);
     }
-    if (!blasters->empty()) update_blasters(dt);
+    if (!blasters->empty())
+        update_blasters(dt);
     handheld_item::frame_advance(elapsed);
 }
 
 namespace {
 bool __fastcall gun_capsule_filter(const local_collision::entfilter_base *, void *, actor *value,
-                                  dynamic_conglomerate_clone *clone, const local_collision::query_args_t *args)
+                                   dynamic_conglomerate_clone *clone, const local_collision::query_args_t *args)
 {
-    return value->colgeom->get_type() == collision_geometry::CAPSULE &&
-        (value->field_4 & 0x80000) && !(value->field_4 & 0x20000) && entity_is_alive(value) &&
-        local_collision::entity_line_segment_test(value, clone, *args);
+    return value->colgeom->get_type() == collision_geometry::CAPSULE && (value->field_4 & 0x80000) &&
+           !(value->field_4 & 0x20000) && entity_is_alive(value) &&
+           local_collision::entity_line_segment_test(value, clone, *args);
 }
 const local_collision::entfilter_base &capsule_filter()
 {
@@ -691,11 +809,12 @@ const local_collision::entfilter_base &capsule_filter()
     static const local_collision::entfilter_base filter{reinterpret_cast<std::intptr_t>(&table)};
     return filter;
 }
-}
+}  // namespace
 
 void gun::calculate_target(float dispersion, bool firing, const vector3d &desired_direction, bool penetrate)
 {
-    if (!field_108) return;
+    if (!field_108)
+        return;
     vector3d normal = ZEROVEC;
     entity *hit = nullptr;
     auto *visual = field_104.get_volatile_ptr();
@@ -710,7 +829,8 @@ void gun::calculate_target(float dispersion, bool firing, const vector3d &desire
         }
         const auto &pose = visual->get_abs_po();
         up = pose.get_y_facing();
-        if (is_colinear(direction, up, Float{0.01f})) up = pose.get_x_facing();
+        if (is_colinear(direction, up, Float{0.01f}))
+            up = pose.get_x_facing();
         po orientation;
         orientation.set_po(up, direction, ZEROVEC);
         direction = orientation.get_y_facing();
@@ -718,8 +838,16 @@ void gun::calculate_target(float dispersion, bool firing, const vector3d &desire
         if (g_world_ptr->the_terrain->find_region(start, nullptr) && firing) {
             auto behind = start - direction * 0.5f;
             vector3d point;
-            if (find_intersection(start, behind, *local_collision::entfilter_entity_no_capsules,
-                *local_collision::obbfilter_lineseg_test, &point, &normal, nullptr, nullptr, nullptr, false))
+            if (find_intersection(start,
+                                  behind,
+                                  *local_collision::entfilter_entity_no_capsules,
+                                  *local_collision::obbfilter_lineseg_test,
+                                  &point,
+                                  &normal,
+                                  nullptr,
+                                  nullptr,
+                                  nullptr,
+                                  false))
                 behind = point + normal * 0.1f;
             g_world_ptr->the_terrain->find_region(behind, nullptr);
         }
@@ -729,7 +857,8 @@ void gun::calculate_target(float dispersion, bool firing, const vector3d &desire
         if (desired_direction.length2() > 0.01f) {
             direction = desired_direction;
             up = pose.get_y_facing();
-            if (is_colinear(direction, up, Float{0.01f})) up = pose.get_x_facing();
+            if (is_colinear(direction, up, Float{0.01f}))
+                up = pose.get_x_facing();
             po orientation;
             orientation.set_po(up, direction, ZEROVEC);
             direction = orientation.get_y_facing();
@@ -755,7 +884,8 @@ void gun::calculate_target(float dispersion, bool firing, const vector3d &desire
     bool root_collisions = false;
     if (owner->field_4 & 0x8000) {
         root = static_cast<entity *>(owner->get_conglom_owner());
-        if (root == owner) root = nullptr;
+        if (root == owner)
+            root = nullptr;
         if (root) {
             root_collisions = (root->field_4 & 0x4000) != 0;
             root->set_collisions_active(false, false);
@@ -768,35 +898,66 @@ void gun::calculate_target(float dispersion, bool firing, const vector3d &desire
         end = start + segment * 50.0f;
     }
     vector3d world_point, world_normal, point;
-    const bool world_hit = find_intersection(start, end, *local_collision::entfilter_entity_no_capsules,
-        *local_collision::obbfilter_lineseg_test, &world_point, &world_normal, nullptr, &hit, nullptr, false);
-    if (world_hit) end = world_point;
-    hit_target = find_intersection(start, end, *local_collision::entfilter_entity_collision,
-        *local_collision::obbfilter_lineseg_test, &point, &normal, nullptr, &hit, nullptr, false);
+    const bool world_hit = find_intersection(start,
+                                             end,
+                                             *local_collision::entfilter_entity_no_capsules,
+                                             *local_collision::obbfilter_lineseg_test,
+                                             &world_point,
+                                             &world_normal,
+                                             nullptr,
+                                             &hit,
+                                             nullptr,
+                                             false);
+    if (world_hit)
+        end = world_point;
+    hit_target = find_intersection(start,
+                                   end,
+                                   *local_collision::entfilter_entity_collision,
+                                   *local_collision::obbfilter_lineseg_test,
+                                   &point,
+                                   &normal,
+                                   nullptr,
+                                   &hit,
+                                   nullptr,
+                                   false);
     if (!(field_10C & 0x800)) {
         for (int i = 0; i < penetrations; ++i) {
-            if (!penetrate || damage_radius > 0.0f || !hit_target || !hit || !has_damage_interface(hit)) break;
+            if (!penetrate || damage_radius > 0.0f || !hit_target || !hit || !has_damage_interface(hit))
+                break;
             auto *damage_ifc = get_damage_interface(hit);
             if (!(damage_ifc->field_1F8 & 1) || !hit->colgeom ||
-                hit->colgeom->get_type() == collision_geometry::CAPSULE || (hit->field_8 & 0x4000)) break;
+                hit->colgeom->get_type() == collision_geometry::CAPSULE || (hit->field_8 & 0x4000))
+                break;
             accumulate_hit(hit, point, normal * -1.0f);
             start = point;
             g_world_ptr->the_terrain->find_region(start, nullptr);
             if (damage_ifc->field_1FC.field_0[0] > damage)
-                damage_ifc->field_184.spawn(false, point, normal, nullptr, damage_ifc->field_4,
-                    damage_ifc->field_4, ZEROVEC, false, true);
+                damage_ifc->field_184.spawn(
+                    false, point, normal, nullptr, damage_ifc->field_4, damage_ifc->field_4, ZEROVEC, false, true);
             hit->set_collisions_active(false, false);
             hit = nullptr;
-            const auto &filter = max_targets > 1 && damage_radius <= 0.0f
-                ? static_cast<const local_collision::entfilter_base &>(*local_collision::entfilter_blocks_beams)
-                : capsule_filter();
-            hit_target = find_intersection(start, end, filter, *local_collision::obbfilter_reject_all,
-                &point, &normal, nullptr, &hit, nullptr, false);
+            const auto &filter =
+                max_targets > 1 && damage_radius <= 0.0f
+                    ? static_cast<const local_collision::entfilter_base &>(*local_collision::entfilter_blocks_beams)
+                    : capsule_filter();
+            hit_target = find_intersection(start,
+                                           end,
+                                           filter,
+                                           *local_collision::obbfilter_reject_all,
+                                           &point,
+                                           &normal,
+                                           nullptr,
+                                           &hit,
+                                           nullptr,
+                                           false);
         }
     }
-    for (auto &entry : *hits) if (entry.target) entry.target->set_collisions_active(true, false);
+    for (auto &entry : *hits)
+        if (entry.target)
+            entry.target->set_collisions_active(true, false);
     owner->set_collisions_active(owner_collisions, false);
-    if (root) root->set_collisions_active(root_collisions, false);
+    if (root)
+        root->set_collisions_active(root_collisions, false);
     if (hit_target) {
         normal.normalize();
         target = hit;
@@ -820,16 +981,18 @@ void gun::calculate_target(float dispersion, bool firing, const vector3d &desire
 namespace {
 void gun_impulse(entity *target, const vector3d &direction, float force)
 {
-    if (!target->has_physical_ifc() || !(force > 0.0f)) return;
+    if (!target->has_physical_ifc() || !(force > 0.0f))
+        return;
     auto *physical = target->physical_ifc();
     auto delta = direction * force;
-    if (physical->field_184 && target->get_abs_po().get_y_facing().y > 0.8f) delta.y = 0.0f;
+    if (physical->field_184 && target->get_abs_po().get_y_facing().y > 0.8f)
+        delta.y = 0.0f;
     const vector3d center_of_mass{1.0e11f, 1.0e11f, 1.0e11f};
     physical->apply_force_increment(delta, static_cast<physical_interface::force_type>(1), center_of_mass, 0);
     physical->field_A4 = 1.0f;
 }
-void run_gun_script(gun *owner, const mString &name, entity *target,
-                    const vector3d &position, const vector3d &direction)
+void run_gun_script(gun *owner, const mString &name, entity *target, const vector3d &position,
+                    const vector3d &direction)
 {
     if (find_func_and_spawn_new_thread(owner, string_hash{name.c_str()})) {
         script::push_arg(owner);
@@ -839,18 +1002,15 @@ void run_gun_script(gun *owner, const mString &name, entity *target,
         script::exec_thread(false);
     }
 }
-void apply_gun_damage(damage_interface *ifc, entity *source, float amount, int type,
-                      const vector3d &position, const vector3d &direction,
-                      string_hash attack, const vector3d &impulse)
+void apply_gun_damage(damage_interface *ifc, entity *source, float amount, int type, const vector3d &position,
+                      const vector3d &direction, string_hash attack, const vector3d &impulse)
 {
     const string_hash empty{};
-    ifc->apply_damage(source, amount, type, position, direction, 0, attack, empty, empty,
-                      false, impulse, 17, false);
+    ifc->apply_damage(source, amount, type, position, direction, 0, attack, empty, empty, false, impulse, 17, false);
 }
-}
+}  // namespace
 
-void gun::do_effects(entity *source, entity *victim, const vector3d &position,
-                     const vector3d &face, string_hash attack)
+void gun::do_effects(entity *source, entity *victim, const vector3d &position, const vector3d &face, string_hash attack)
 {
     if (source) {
         if (damage_radius > 0.0f) {
@@ -862,23 +1022,34 @@ void gun::do_effects(entity *source, entity *victim, const vector3d &position,
                 for (auto *damage_ifc : *damage_interface::found_damageable) {
                     auto *candidate = damage_ifc->field_4;
                     if (candidate && (candidate->field_4 & 0x200) && !(candidate->field_4 & 0x20000) &&
-                        has_damage_interface(candidate) && entity_is_alive(candidate)) candidates.push_back(candidate);
+                        has_damage_interface(candidate) && entity_is_alive(candidate))
+                        candidates.push_back(candidate);
                 }
             }
             for (auto *candidate : candidates) {
                 auto direction = candidate->get_abs_position() - position;
                 const float squared = direction.length2();
-                if (squared > 1.0f) direction *= 1.0f / std::sqrt(squared);
-                else direction = YVEC;
-                if (!can_hit_this_target(candidate)) continue;
+                if (squared > 1.0f)
+                    direction *= 1.0f / std::sqrt(squared);
+                else
+                    direction = YVEC;
+                if (!can_hit_this_target(candidate))
+                    continue;
                 vector3d force = ZEROVEC;
                 if (impulse > 0.0f) {
                     force = direction * impulse;
-                    if (candidate->has_physical_ifc()) candidate->physical_ifc()->field_A4 = 1.0f;
+                    if (candidate->has_physical_ifc())
+                        candidate->physical_ifc()->field_A4 = 1.0f;
                 }
                 const float amount = candidate == victim ? damage * direct_damage_multiplier : damage;
-                apply_gun_damage(get_damage_interface(candidate), this, amount, 6,
-                    candidate->get_abs_position(), direction, attack, force);
+                apply_gun_damage(get_damage_interface(candidate),
+                                 this,
+                                 amount,
+                                 6,
+                                 candidate->get_abs_position(),
+                                 direction,
+                                 attack,
+                                 force);
             }
         } else if (victim && has_damage_interface(victim)) {
             auto direction = victim->get_abs_position() - source->get_abs_position();
@@ -889,27 +1060,33 @@ void gun::do_effects(entity *source, entity *victim, const vector3d &position,
                 if (can_hit_this_target(victim)) {
                     if (has_damage_interface(victim)) {
                         entity *emitter = field_104.get_volatile_ptr();
-                        if (!emitter) emitter = this;
-                        apply_gun_damage(get_damage_interface(victim), emitter, damage, 5, position, direction, attack, ZEROVEC);
+                        if (!emitter)
+                            emitter = this;
+                        apply_gun_damage(
+                            get_damage_interface(victim), emitter, damage, 5, position, direction, attack, ZEROVEC);
                         if (victim->is_an_actor()) {
                             if (auto *core = victim->get_ai_core()) {
-                                auto *node = static_cast<ai::damage_inode *>(core->get_info_node(ai::damage_inode::default_id, false));
+                                auto *node = static_cast<ai::damage_inode *>(
+                                    core->get_info_node(ai::damage_inode::default_id, false));
                                 if (node && !(node->field_C->field_8 & 0x4000)) {
                                     node->field_1C = g_world_ptr->time_manager.field_C;
                                     node->field_20 = g_world_ptr->time_manager.field_8;
                                 }
                             }
                         }
-                        if (get_damage_interface(victim)->field_104.field_3E) successful = true;
+                        if (get_damage_interface(victim)->field_104.field_3E)
+                            successful = true;
                     }
                     gun_impulse(victim, direction, impulse);
                 }
-            } else accumulate_hit(victim, position, direction);
+            } else
+                accumulate_hit(victim, position, direction);
             if (has_sound_and_pfx_ifc()) {
-                const auto material = terrain_types_manager::get_terrain_type_by_index(static_cast<uint8_t>(victim->field_41));
+                const auto material =
+                    terrain_types_manager::get_terrain_type_by_index(static_cast<uint8_t>(victim->field_41));
                 const auto &where = victim->get_abs_position();
-                my_sound_and_pfx_interface->play_terrain_sound(static_cast<eTerrainSoundType>(successful ? 11 : 10),
-                    material, 1.0f, &where);
+                my_sound_and_pfx_interface->play_terrain_sound(
+                    static_cast<eTerrainSoundType>(successful ? 11 : 10), material, 1.0f, &where);
             }
             auto &effect = successful ? hit_effect : blocked_effect;
             effect.spawn(false, position, face, this, victim, nullptr, ZEROVEC, true, true);
@@ -924,7 +1101,8 @@ void gun::do_effects(entity *source, entity *victim, const vector3d &position,
 void gun::fire_gun(entity *source, void *move)
 {
     auto *visual = field_104.get_volatile_ptr();
-    if (charge_effect_active) charge_effect.kill(this, true);
+    if (charge_effect_active)
+        charge_effect.kill(this, true);
     charge_effect_dirty = charge_effect_active;
     charge_effect_active = false;
     hits->clear();
@@ -942,27 +1120,37 @@ void gun::fire_gun(entity *source, void *move)
     const auto start = calculate_fire_pos();
     if ((field_10C & 0x3000) != 0x3000) {
         const auto facing = visual ? fire_direction() : field_108->get_abs_po().get_z_facing();
-        auto availability = reinterpret_cast<bool (__fastcall *)(gun *, void *)>(get_vfunc(m_vtbl, 0x2D8));
-        muzzle_effect.spawn((field_10C & 0x1000) != 0, start, facing, this, visual, visual,
-            effect_offset, true, availability(this, nullptr));
+        auto availability = reinterpret_cast<bool(__fastcall *)(gun *, void *)>(get_vfunc(m_vtbl, 0x2D8));
+        muzzle_effect.spawn((field_10C & 0x1000) != 0,
+                            start,
+                            facing,
+                            this,
+                            visual,
+                            visual,
+                            effect_offset,
+                            true,
+                            availability(this, nullptr));
     }
     auto direction = target_position - calculate_fire_pos();
     direction.normalize();
     const auto saved_position = target_position;
     const auto saved_direction = target_direction;
     auto *saved_target = target;
-    if (field_10C & 0x1000) field_10C |= 0x2000;
-    else field_10C &= ~0x2000;
-    using effects_fn = void (__fastcall *)(gun *, void *, entity *, entity *,
-        const vector3d *, const vector3d *, string_hash);
+    if (field_10C & 0x1000)
+        field_10C |= 0x2000;
+    else
+        field_10C &= ~0x2000;
+    using effects_fn =
+        void(__fastcall *)(gun *, void *, entity *, entity *, const vector3d *, const vector3d *, string_hash);
     const auto effects = reinterpret_cast<effects_fn>(get_vfunc(m_vtbl, 0x2F8));
     for (int pellet = 0; pellet < pellets; ++pellet) {
         calculate_target(spread, true, direction, true);
         if (pellet == 0)
-            reinterpret_cast<void (__fastcall *)(gun *, void *)>(get_vfunc(m_vtbl, 0x2FC))(this, nullptr);
+            reinterpret_cast<void(__fastcall *)(gun *, void *)>(get_vfunc(m_vtbl, 0x2FC))(this, nullptr);
         if (field_10C & 0x200)
             projectile.spawn(false, start, target_position, this, (field_10C & 0x800) ? blasters : nullptr, move);
-        if (!fire_script.empty()) run_gun_script(this, fire_script, target, start, target_direction);
+        if (!fire_script.empty())
+            run_gun_script(this, fire_script, target, start, target_direction);
         if ((field_10C & 0x800) || max_targets <= 1 || damage_radius > 0.0f) {
             if (!(field_10C & 0x800))
                 effects(this, nullptr, source, target, &target_position, &target_direction, move_hash(move));
@@ -976,13 +1164,14 @@ void gun::fire_gun(entity *source, void *move)
                     _std::vector<gun_hit> candidates;
                     for (auto *ifc : *damage_interface::found_damageable) {
                         auto *candidate = ifc->field_4;
-                        if (!can_hit_this_target(candidate)) continue;
+                        if (!can_hit_this_target(candidate))
+                            continue;
                         auto point = candidate->get_abs_position();
                         auto normal = ray * -1.0f;
-                        using segment_fn = bool (__fastcall *)(entity *, void *, const vector3d *,
-                            const vector3d *, vector3d *, vector3d *, float, bool);
+                        using segment_fn = bool(__fastcall *)(
+                            entity *, void *, const vector3d *, const vector3d *, vector3d *, vector3d *, float, bool);
                         if (reinterpret_cast<segment_fn>(get_vfunc(candidate->m_vtbl, 0x250))(
-                            candidate, nullptr, &start, &target_position, &point, &normal, 1.0f, true))
+                                candidate, nullptr, &start, &target_position, &point, &normal, 1.0f, true))
                             candidates.push_back({candidate, damage, point, normal, 1, (point - start).length2()});
                     }
                     std::sort(candidates.begin(), candidates.end(), [](const gun_hit &a, const gun_hit &b) {
@@ -990,8 +1179,15 @@ void gun::fire_gun(entity *source, void *move)
                     });
                     int count = 0;
                     for (auto &candidate : candidates) {
-                        if (count++ >= max_targets) break;
-                        effects(this, nullptr, source, candidate.target, &candidate.position, &candidate.direction, move_hash(move));
+                        if (count++ >= max_targets)
+                            break;
+                        effects(this,
+                                nullptr,
+                                source,
+                                candidate.target,
+                                &candidate.position,
+                                &candidate.direction,
+                                move_hash(move));
                     }
                 }
             }
@@ -1001,23 +1197,35 @@ void gun::fire_gun(entity *source, void *move)
     target_direction = saved_direction;
     target = saved_target;
     for (auto &hit : *hits) {
-        if (!can_hit_this_target(hit.target)) continue;
+        if (!can_hit_this_target(hit.target))
+            continue;
         if (has_damage_interface(hit.target)) {
             vector3d force = ZEROVEC;
             int type = 5;
             if (explosive_hit_count > 0 && hit.count >= explosive_hit_count) {
                 type = 6;
                 if (impulse > 0.0f) {
-                    if (hit.target->has_physical_ifc()) hit.target->physical_ifc()->field_A4 = 1.0f;
+                    if (hit.target->has_physical_ifc())
+                        hit.target->physical_ifc()->field_A4 = 1.0f;
                     force = hit.direction * impulse;
                 }
-            } else gun_impulse(hit.target, hit.direction, impulse);
-            apply_gun_damage(get_damage_interface(hit.target), this, hit.damage, type, hit.position, hit.direction, move_hash(move), force);
-        } else gun_impulse(hit.target, hit.direction, impulse);
+            } else
+                gun_impulse(hit.target, hit.direction, impulse);
+            apply_gun_damage(get_damage_interface(hit.target),
+                             this,
+                             hit.damage,
+                             type,
+                             hit.position,
+                             hit.direction,
+                             move_hash(move),
+                             force);
+        } else
+            gun_impulse(hit.target, hit.direction, impulse);
     }
     hits->clear();
     ++shots_fired;
-    if (ammunition > 0) --ammunition;
+    if (ammunition > 0)
+        --ammunition;
     shot_cooldown = shot_interval;
 }
 
@@ -1039,7 +1247,8 @@ void gun::update_blasters(float dt)
         auto direction = movement;
         direction.normalize();
         const auto end = position + direction * body->field_74;
-        if (flight_script.c_str()[0]) run_gun_script(this, flight_script, target, position, movement);
+        if (flight_script.c_str()[0])
+            run_gun_script(this, flight_script, target, position, movement);
         auto *owner = static_cast<entity *>(field_108);
         const bool owner_not_excluded = owner && !(owner->field_4 & 0x20000);
         const bool owner_collisions = owner && (owner->field_4 & 0x4000);
@@ -1050,31 +1259,48 @@ void gun::update_blasters(float dt)
         entry->disable_ignored();
         entity *victim = nullptr;
         vector3d point, normal;
-        const bool collided = find_intersection(start, end, *local_collision::entfilter_entity_collision,
-            *local_collision::obbfilter_lineseg_test, &point, &normal, nullptr, &victim, nullptr, false);
+        const bool collided = find_intersection(start,
+                                                end,
+                                                *local_collision::entfilter_entity_collision,
+                                                *local_collision::obbfilter_lineseg_test,
+                                                &point,
+                                                &normal,
+                                                nullptr,
+                                                &victim,
+                                                nullptr,
+                                                false);
         entry->restore_ignored();
         if (owner) {
-            if (owner_not_excluded) owner->field_4 &= ~0x20000;
-            else owner->field_4 |= 0x20000;
+            if (owner_not_excluded)
+                owner->field_4 &= ~0x20000;
+            else
+                owner->field_4 |= 0x20000;
             owner->set_collisions_active(owner_collisions, false);
         }
         body->set_abs_position(position);
-        if (trail_length <= 0.0001f) trail->set_visible(false, false);
+        if (trail_length <= 0.0001f)
+            trail->set_visible(false, false);
         else {
             auto displacement = position - entry->trail_start;
             const float length = std::sqrt(displacement.length2());
-            if (length > trail_length) entry->trail_start = position - displacement * (trail_length / length);
+            if (length > trail_length)
+                entry->trail_start = position - displacement * (trail_length / length);
             trail->set_point_to_point(entry->trail_start, position);
             trail->set_visible(true, false);
         }
         moved_entities::add_moved(vhandle_type<entity>{entry->body.field_0});
-        if (!collided && entry->remaining > 0.0f) { ++it; continue; }
+        if (!collided && entry->remaining > 0.0f) {
+            ++it;
+            continue;
+        }
         if (collided) {
             entity *source = owner;
-            if (!source) source = field_104.get_volatile_ptr();
-            if (!source) source = this;
-            using effects_fn = void (__fastcall *)(gun *, void *, entity *, entity *,
-                const vector3d *, const vector3d *, string_hash);
+            if (!source)
+                source = field_104.get_volatile_ptr();
+            if (!source)
+                source = this;
+            using effects_fn =
+                void(__fastcall *)(gun *, void *, entity *, entity *, const vector3d *, const vector3d *, string_hash);
             reinterpret_cast<effects_fn>(get_vfunc(m_vtbl, 0x2F8))(
                 this, nullptr, source, victim, &point, &normal, entry->attack);
         }
@@ -1082,19 +1308,23 @@ void gun::update_blasters(float dt)
         if (entry->remaining > 0.0f && collided && victim && victim->colgeom) {
             if (victim->colgeom->get_type() == collision_geometry::CAPSULE) {
                 keep = ++entry->actor_hits < max_targets;
-                if (keep) entry->ignore(victim);
-            } else if (entry->penetrations < penetrations && damage_radius <= 0.0f &&
-                       has_damage_interface(victim) && (get_damage_interface(victim)->field_1F8 & 1) &&
-                       !(victim->field_8 & 0x4000)) {
+                if (keep)
+                    entry->ignore(victim);
+            } else if (entry->penetrations < penetrations && damage_radius <= 0.0f && has_damage_interface(victim) &&
+                       (get_damage_interface(victim)->field_1F8 & 1) && !(victim->field_8 & 0x4000)) {
                 entry->ignore(victim);
                 ++entry->penetrations;
                 auto *ifc = get_damage_interface(victim);
                 if (ifc->field_1FC.field_0[0] > damage)
-                    ifc->field_184.spawn(false, point, normal, nullptr, ifc->field_4, ifc->field_4, ZEROVEC, false, true);
+                    ifc->field_184.spawn(
+                        false, point, normal, nullptr, ifc->field_4, ifc->field_4, ZEROVEC, false, true);
                 keep = true;
             }
         }
-        if (keep) { ++it; continue; }
+        if (keep) {
+            ++it;
+            continue;
+        }
         body->set_visible(false, false);
         body->raise_event(event::DESTROYED);
         trail->set_visible(false, false);

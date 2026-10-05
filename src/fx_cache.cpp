@@ -26,8 +26,9 @@ void fx_cache_ent::un_mash(generic_mash_header *a2, cached_special_effect *a3, v
             auto *v8 = g_world_ptr->ent_mgr.create_and_add_entity_or_subclass(v9, v10, v11, v16, 129, nullptr);
             v6 = {v8->my_handle};
             v8->set_active(false);
-            auto visible = reinterpret_cast<void(__fastcall *)(entity *, void *, bool, bool)>(get_vfunc(v8->m_vtbl,0x44));
-            visible(v8,nullptr,false,false);
+            auto visible =
+                reinterpret_cast<void(__fastcall *)(entity *, void *, bool, bool)>(get_vfunc(v8->m_vtbl, 0x44));
+            visible(v8, nullptr, false, false);
             this->field_0 = -1.0;
             this->field_4 = 0;
         }
@@ -74,8 +75,9 @@ void fx_cache::frame_advance(Float a3)
             if (entry.field_0 <= 0.0f) {
                 entry.field_0 = -1.0f;
                 if (auto *ent = entry.field_8.get_volatile_ptr()) {
-                    auto visible = reinterpret_cast<void(__fastcall *)(entity *,void *,bool,bool)>(get_vfunc(ent->m_vtbl,0x44));
-                    visible(ent,nullptr,false,false);
+                    auto visible = reinterpret_cast<void(__fastcall *)(entity *, void *, bool, bool)>(
+                        get_vfunc(ent->m_vtbl, 0x44));
+                    visible(ent, nullptr, false, false);
                     ent->clear_parent(true);
                 }
             } else if (entry.field_0 < entry.field_4) {
@@ -102,7 +104,6 @@ void fx_cache::un_mash(generic_mash_header *a2, cached_special_effect *a3, void 
     }
 
     ++this->field_0;
-
 }
 
 void fx_cache_patch()

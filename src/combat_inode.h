@@ -34,7 +34,10 @@ struct combat_inode : info_node {
         incoming_move &operator=(const incoming_move &) = default;
 
         void _unmash(mash_info_struct *info, void *owner);
-        int _get_virtual_type_enum() const { return 344; }
+        int _get_virtual_type_enum() const
+        {
+            return 344;
+        }
     };
 
     int field_1C;
@@ -95,7 +98,10 @@ struct combat_inode : info_node {
     combat_inode();
     explicit combat_inode(from_mash_in_place_constructor *tag);
     void _unmash(mash_info_struct *info, void *owner);
-    int _get_virtual_type_enum() const { return 342; }
+    int _get_virtual_type_enum() const
+    {
+        return 342;
+    }
     static void *native_vtable();
     void _deactivate();
     void _destruct_mashed_class();
@@ -113,18 +119,19 @@ struct combat_inode : info_node {
     void receive_and_act_on_results(incoming_move &move, bool force);
     void disable_weapon_based_effect(const combo_system_move *move);
     void send_weapon_attack(const incoming_move &move);
-    void try_set_forced_react_needed(string_hash reaction, string_hash attack, int type,
-        vhandle_type<entity> source, vector3d direction, bool pending, bool force);
-    void try_set_forced_avoid_needed(string_hash reaction, string_hash attack, int type,
-        vhandle_type<entity> source, vector3d direction, bool pending, bool force);
-    bool consider_forced_responses(string_hash reaction, string_hash attack, string_hash avoid,
-        int type, vhandle_type<entity> source, const vector3d &direction, bool pending, bool force);
-    void possible_non_combo_system_attack(string_hash reaction, string_hash attack, string_hash avoid,
-        int type, vhandle_type<entity> source, const vector3d &direction, bool force);
+    void try_set_forced_react_needed(string_hash reaction, string_hash attack, int type, vhandle_type<entity> source,
+                                     vector3d direction, bool pending, bool force);
+    void try_set_forced_avoid_needed(string_hash reaction, string_hash attack, int type, vhandle_type<entity> source,
+                                     vector3d direction, bool pending, bool force);
+    bool consider_forced_responses(string_hash reaction, string_hash attack, string_hash avoid, int type,
+                                   vhandle_type<entity> source, const vector3d &direction, bool pending, bool force);
+    void possible_non_combo_system_attack(string_hash reaction, string_hash attack, string_hash avoid, int type,
+                                          vhandle_type<entity> source, const vector3d &direction, bool force);
     vector3d get_attack_direction();
     bool find_attack_wall(entity_base *target);
     bool select_satisfactory_move(vhandle_type<actor> target, const vector3d &direction, unsigned input,
-        string_hash category, float eta, bool target_known, vhandle_type<actor> current_target);
+                                  string_hash category, float eta, bool target_known,
+                                  vhandle_type<actor> current_target);
     bool check_for_and_set_next_move();
 
     //0x00467440
@@ -143,9 +150,18 @@ struct combat_inode : info_node {
     void clear_forced_react_needed();
     void clear_forced_avoid_needed();
     void clear_from_target(vhandle_type<actor> target);
-    bool has_cur_move() const { return field_40 != -1; }
-    bool can_air_attack() const { return field_68 < 2; }
-    bool has_accum_air_attack() const { return field_68 > 0; }
+    bool has_cur_move() const
+    {
+        return field_40 != -1;
+    }
+    bool can_air_attack() const
+    {
+        return field_68 < 2;
+    }
+    bool has_accum_air_attack() const
+    {
+        return field_68 > 0;
+    }
     void _frame_advance(Float delta);
     void advance_tether(Float delta);
 
@@ -177,11 +193,14 @@ struct combat_inode : info_node {
 struct ped_combat_inode : combat_inode {
     ped_combat_inode();
     explicit ped_combat_inode(from_mash_in_place_constructor *tag);
-    int _get_virtual_type_enum() const { return 158; }
+    int _get_virtual_type_enum() const
+    {
+        return 158;
+    }
     static void *native_vtable();
     void receive_and_act_on_results(incoming_move &move, bool force);
-    bool consider_forced_responses(string_hash reaction, string_hash attack, string_hash avoid,
-        int type, vhandle_type<entity> source, const vector3d &direction, bool pending, bool force);
+    bool consider_forced_responses(string_hash reaction, string_hash attack, string_hash avoid, int type,
+                                   vhandle_type<entity> source, const vector3d &direction, bool pending, bool force);
 };
 
 }  // namespace ai

@@ -11,18 +11,16 @@
 VALIDATE_SIZE(base_ai_data, 0x18);
 VALIDATE_OFFSET(base_ai_data, field_14, 0x14);
 
-base_ai_data::base_ai_data(from_mash_in_place_constructor *constructor)
-    : field_0(constructor), field_8(constructor)
+base_ai_data::base_ai_data(from_mash_in_place_constructor *constructor) : field_0(constructor), field_8(constructor)
 {
     if (field_0.m_hash != string_hash{}) {
-        auto *resource = !g_is_the_packer
-            ? reinterpret_cast<ai::core_ai_resource *>(
-                resource_manager::get_resource(field_0, nullptr, nullptr))
-            : nullptr;
-        field_14 = resource != nullptr
-            ? new (mem_alloc(sizeof(ai::ai_core))) ai::ai_core{
-                resource, &field_8, global_transfer_variable_the_actor}
-            : nullptr;
+        auto *resource =
+            !g_is_the_packer
+                ? reinterpret_cast<ai::core_ai_resource *>(resource_manager::get_resource(field_0, nullptr, nullptr))
+                : nullptr;
+        field_14 = resource != nullptr ? new (mem_alloc(sizeof(ai::ai_core)))
+                                             ai::ai_core{resource, &field_8, global_transfer_variable_the_actor}
+                                       : nullptr;
     }
 }
 

@@ -131,7 +131,7 @@ struct pedestrian_idle_state : enhanced_state {
     explicit pedestrian_idle_state(from_mash_in_place_constructor *constructor);
     static void *native_vtable();
     void activate(ai_state_machine *machine, const mashed_state *state, const mashed_state *previous,
-        const param_block *parameters, activate_flag_e flags);
+                  const param_block *parameters, activate_flag_e flags);
     state_trans_messages frame_advance(Float elapsed);
     void pedize_non_pedestrian();
 };

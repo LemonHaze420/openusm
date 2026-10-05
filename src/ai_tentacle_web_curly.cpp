@@ -23,13 +23,19 @@ void *__fastcall native_destroy(ai_tentacle_web_curly *self, void *, unsigned fl
         ::operator delete(self);
     return self;
 }
-int __fastcall native_type(ai_tentacle_web_curly *, void *) { return 8; }
+int __fastcall native_type(ai_tentacle_web_curly *, void *)
+{
+    return 8;
+}
 bool __fastcall native_advance(ai_tentacle_web_curly *self, void *, Float dt, bool modifier)
 {
     return self->frame_advance(dt, modifier);
 }
-float random_unit() { return std::rand() * 3.0518509447574615e-05f; }
+float random_unit()
+{
+    return std::rand() * 3.0518509447574615e-05f;
 }
+}  // namespace
 
 void *ai_tentacle_web_curly::native_vtable()
 {
@@ -96,7 +102,6 @@ bool ai_tentacle_web_curly::frame_advance(Float dt, bool modifier)
 
     const float blend = std::min(speed / 25.0f, 1.0f);
     if ((field_48 >= 1.0f && blend < 1.0f) || field_50 < 0) {
-
         const float choice = random_unit() * (0.33f + 0.33f + 0.33f);
         field_50 = choice <= 0.33f ? 0 : choice <= 0.33f + 0.33f ? 1 : 2;
         field_4C = random_unit() * 2.0f - 1.0f + 2.0f;

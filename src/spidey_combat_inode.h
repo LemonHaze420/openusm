@@ -25,7 +25,10 @@ struct spidey_combat_inode : player_combat_inode {
     void _frame_advance(Float delta);
     void _deactivate();
     void finalize();
-    void activate_sense() { field_338 = 2; }
+    void activate_sense()
+    {
+        field_338 = 2;
+    }
     void activate_web(entity *source, float x, float y, float z);
     void deactivate_web(entity *source);
 

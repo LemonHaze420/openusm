@@ -15,7 +15,6 @@ VALIDATE_SIZE(pole_swing_inode, 0x2C);
 
 void *pole_swing_inode::native_vtable()
 {
-
     static native_inode::table<pole_swing_inode, 304> table;
     return table.data();
 }
@@ -31,7 +30,6 @@ pole_swing_inode::pole_swing_inode()
 
 pole_swing_inode::pole_swing_inode(from_mash_in_place_constructor *tag) : info_node(tag)
 {
-
     m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[304]);
     field_1C.field_0 = vhandle_type<entity>{0};
     field_1C.field_4 = 0;

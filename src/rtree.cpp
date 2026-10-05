@@ -4,8 +4,7 @@
 #include "rtree_root.h"
 #include "subdivision_visitor.h"
 
-void traverse_rtree(const vector3d &start, const vector3d &end, const rtree_root_t &root,
-                    subdivision_visitor &visitor)
+void traverse_rtree(const vector3d &start, const vector3d &end, const rtree_root_t &root, subdivision_visitor &visitor)
 {
     int16_t minimum[3], negative_maximum[3];
     for (int axis = 0; axis != 3; ++axis) {
@@ -30,9 +29,8 @@ void traverse_rtree(const vector3d &start, const vector3d &end, const rtree_root
         const auto entry = stack[--size];
         const auto &node = root.field_20[entry.offset / sizeof(rtree_node_t)];
 
-        if (minimum[0] > node.maxx || negative_maximum[0] > node.minx ||
-            minimum[1] > node.maxy || negative_maximum[1] > node.miny ||
-            minimum[2] > node.maxz || negative_maximum[2] > node.minz)
+        if (minimum[0] > node.maxx || negative_maximum[0] > node.minx || minimum[1] > node.maxy ||
+            negative_maximum[1] > node.miny || minimum[2] > node.maxz || negative_maximum[2] > node.minz)
             continue;
         if (entry.level < root.field_2C) {
             for (int child = 3; child >= 0; --child)

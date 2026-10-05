@@ -72,7 +72,7 @@ static int *entity_sizes()
 uint16_t pc_entity_mash_type(uint16_t type)
 {
 #ifdef OPENUSM_XBPACK_V10
-    if ( type >= 27 )
+    if (type >= 27)
         return type - 1;
 #endif
     return type;
@@ -82,10 +82,8 @@ uint32_t entity_mash_size(uint16_t type)
 {
 #ifdef OPENUSM_XBPACK_V10
     static constexpr uint16_t v10_sizes[] = {
-        0x44,  0x48,  0x68,  0xBC,  0xE8,  0x12C, 0xCC,  0x1A0,
-        0xFC,  0x110, 0x328, 0x148, 0x340, 0x274, 0x6C,  0x158,
-        0x68,  0x68,  0x68,  0x70,  0x68,  0x84,  0xBC,  0x6C,
-        0x150, 0xDC,  0xD8,  0xC4,  0x78,
+        0x44,  0x48, 0x68, 0xBC, 0xE8, 0x12C, 0xCC, 0x1A0, 0xFC, 0x110, 0x328, 0x148, 0x340, 0x274, 0x6C,
+        0x158, 0x68, 0x68, 0x68, 0x70, 0x68,  0x84, 0xBC,  0x6C, 0x150, 0xDC,  0xD8,  0xC4,  0x78,
     };
 
     assert(type < sizeof(v10_sizes) / sizeof(v10_sizes[0]));
@@ -145,7 +143,7 @@ void fix_ifc_v_table(char *addr, eEntityMashIFCTypeEnum ifc_type)
 }
 
 #if STANDALONE_SYSTEM
-template<typename T>
+template <typename T>
 static void __fastcall native_entity_destroy(T *self, void *, bool free_memory)
 {
     self->~T();
@@ -153,19 +151,19 @@ static void __fastcall native_entity_destroy(T *self, void *, bool free_memory)
         mem_dealloc(self, sizeof(T));
 }
 
-template<typename T>
+template <typename T>
 static void __fastcall native_entity_release(T *self, void *)
 {
     self->T::release_mem();
 }
 
-template<typename T>
+template <typename T>
 static void __fastcall native_interface_release(T *self, void *)
 {
     self->T::release_ifc();
 }
 
-template<typename T>
+template <typename T>
 static void __fastcall native_heap_interface_destroy(T *self, void *, bool free_memory)
 {
     self->~T();
@@ -174,9 +172,7 @@ static void __fastcall native_heap_interface_destroy(T *self, void *, bool free_
 }
 
 
-static void __fastcall native_time_release(time_interface *, void *)
-{
-}
+static void __fastcall native_time_release(time_interface *, void *) {}
 
 static void __fastcall native_line_anchor_destroy(entity *self, void *, bool free_memory)
 {
@@ -195,8 +191,8 @@ static void __fastcall native_entity_clear_region(entity *self, void *, region *
     self->entity::clear_region(reg, sentinel);
 }
 
-static void __fastcall native_entity_compute_sector(entity *self, void *, terrain *terrain_ptr,
-                                                    bool loading_scene, entity *fallback)
+static void __fastcall native_entity_compute_sector(entity *self, void *, terrain *terrain_ptr, bool loading_scene,
+                                                    entity *fallback)
 {
     self->entity::_compute_sector(terrain_ptr, loading_scene, fallback);
 }
@@ -211,8 +207,7 @@ static void __fastcall native_entity_set_age(entity *, void *, float) {}
 
 static void __fastcall native_entity_set_recursive_age(entity *self, void *, float age)
 {
-    auto set_age = reinterpret_cast<void(__fastcall *)(entity *, void *, float)>(
-        get_vfunc(self->m_vtbl, 0x204));
+    auto set_age = reinterpret_cast<void(__fastcall *)(entity *, void *, float)>(get_vfunc(self->m_vtbl, 0x204));
     set_age(self, nullptr, age);
 }
 
@@ -221,8 +216,8 @@ static void __fastcall native_conglomerate_set_recursive_age(conglomerate *self,
     native_entity_set_recursive_age(self, nullptr, age);
     for (auto *member : self->members) {
         if (member->is_an_entity()) {
-            auto set_age = reinterpret_cast<void(__fastcall *)(entity_base *, void *, float)>(
-                get_vfunc(member->m_vtbl, 0x208));
+            auto set_age =
+                reinterpret_cast<void(__fastcall *)(entity_base *, void *, float)>(get_vfunc(member->m_vtbl, 0x208));
             set_age(member, nullptr, age);
         }
     }
@@ -232,8 +227,7 @@ static void __fastcall native_conglomerate_update_ai_proximity(conglomerate *sel
 {
     for (auto *member : self->members) {
         if (member->is_an_entity()) {
-            auto update = reinterpret_cast<void(__fastcall *)(entity_base *, void *)>(
-                get_vfunc(member->m_vtbl, 0x184));
+            auto update = reinterpret_cast<void(__fastcall *)(entity_base *, void *)>(get_vfunc(member->m_vtbl, 0x184));
             update(member, nullptr);
         }
     }
@@ -241,7 +235,6 @@ static void __fastcall native_conglomerate_update_ai_proximity(conglomerate *sel
 
 static light_manager *__fastcall native_actor_light_set(actor *, void *)
 {
-
     return nullptr;
 }
 
@@ -255,8 +248,8 @@ static int __fastcall native_item_flavor(item *, void *)
     return ENTITY_ITEM;
 }
 
-static void __fastcall native_item_unmash(item *self, void *, generic_mash_header *header,
-                                        void *object, generic_mash_data_ptrs *data)
+static void __fastcall native_item_unmash(item *self, void *, generic_mash_header *header, void *object,
+                                          generic_mash_data_ptrs *data)
 {
     self->item::un_mash(header, object, data);
 }
@@ -451,10 +444,7 @@ static void __fastcall native_actor_set_color(actor *self, void *, color32 value
 {
     self->_set_render_color(value);
 }
-static void __fastcall native_entity_set_alpha(entity *, void *, float)
-{
-
-}
+static void __fastcall native_entity_set_alpha(entity *, void *, float) {}
 static void __fastcall native_actor_set_alpha(actor *self, void *, float value)
 {
     self->_set_render_alpha_mod(Float{value});
@@ -494,7 +484,7 @@ static bool __fastcall native_entity_possibly_collide(entity *self, void *)
 static bool __fastcall native_conglomerate_possibly_collide(conglomerate *self, void *)
 {
     return (self->field_FC != nullptr && !self->field_FC->empty()) ||
-        (self->colgeom != nullptr && self->are_collisions_active());
+           (self->colgeom != nullptr && self->are_collisions_active());
 }
 static float __fastcall native_conglomerate_visual_radius(conglomerate *self, void *)
 {
@@ -518,7 +508,6 @@ static float __fastcall native_actor_colgeom_radius(actor *self, void *)
 }
 static vector3d *__fastcall native_actor_colgeom_center(actor *self, void *, vector3d *out)
 {
-
     *out = self->get_abs_po().m * self->colgeom->get_local_space_bounding_sphere_center();
     return out;
 }
@@ -553,13 +542,13 @@ static bool __fastcall native_actor_set_ifc_num(actor *self, void *, const resou
 {
     if (self->has_damage_ifc()) {
         auto *damage = self->damage_ifc();
-        using setter = bool (__fastcall *)(damage_interface *, void *, const resource_key &, Float, bool);
+        using setter = bool(__fastcall *)(damage_interface *, void *, const resource_key &, Float, bool);
         if (reinterpret_cast<setter>(get_vfunc(damage->m_vtbl, 0x8))(damage, nullptr, key, value, log))
             return true;
     }
     if (self->has_physical_ifc()) {
         auto *physical = self->physical_ifc();
-        using setter = bool (__fastcall *)(physical_interface *, void *, const resource_key &, Float, bool);
+        using setter = bool(__fastcall *)(physical_interface *, void *, const resource_key &, Float, bool);
         if (reinterpret_cast<setter>(get_vfunc(physical->m_vtbl, 0x8))(physical, nullptr, key, value, log))
             return true;
     }
@@ -580,7 +569,8 @@ static nglMorphSet *__fastcall native_actor_morph(actor *self, void *, const tlF
 {
     return self->_get_morph(*name, create);
 }
-static nglMorphSet *__fastcall native_conglomerate_morph(conglomerate *self, void *, const tlFixedString *name, bool create)
+static nglMorphSet *__fastcall native_conglomerate_morph(conglomerate *self, void *, const tlFixedString *name,
+                                                         bool create)
 {
     return self->_get_morph(*name, create);
 }
@@ -599,12 +589,8 @@ static bool __fastcall standalone_conglomerate_has_variant(conglomerate *self)
 {
     return self->m_variant_interface != nullptr;
 }
-static void __fastcall standalone_light_source_unmash(
-    light_source *self,
-    void *,
-    generic_mash_header *header,
-    void *object,
-    generic_mash_data_ptrs *data)
+static void __fastcall standalone_light_source_unmash(light_source *self, void *, generic_mash_header *header,
+                                                      void *object, generic_mash_data_ptrs *data)
 {
     self->_un_mash(header, object, data);
 }
@@ -614,37 +600,25 @@ static variant_interface *__fastcall standalone_conglomerate_variant(conglomerat
     return self->m_variant_interface;
 }
 
-static void __fastcall standalone_entity_base_unmash(entity_base *self,
-                                                     void *,
-                                                     generic_mash_header *header,
-                                                     void *object,
-                                                     generic_mash_data_ptrs *data)
+static void __fastcall standalone_entity_base_unmash(entity_base *self, void *, generic_mash_header *header,
+                                                     void *object, generic_mash_data_ptrs *data)
 {
     self->entity_base::_un_mash(header, object, data);
 }
 
-static void __fastcall standalone_entity_unmash(entity *self,
-                                                void *,
-                                                generic_mash_header *header,
-                                                void *object,
+static void __fastcall standalone_entity_unmash(entity *self, void *, generic_mash_header *header, void *object,
                                                 generic_mash_data_ptrs *data)
 {
     self->entity::un_mash(header, object, data);
 }
-static void __fastcall standalone_actor_unmash(actor *self,
-                                               void *,
-                                               generic_mash_header *header,
-                                               void *object,
+static void __fastcall standalone_actor_unmash(actor *self, void *, generic_mash_header *header, void *object,
                                                generic_mash_data_ptrs *data)
 {
     self->actor::_un_mash(header, object, data);
 }
 
-static void __fastcall standalone_conglomerate_unmash(conglomerate *self,
-                                                      void *,
-                                                      generic_mash_header *header,
-                                                      void *object,
-                                                      generic_mash_data_ptrs *data)
+static void __fastcall standalone_conglomerate_unmash(conglomerate *self, void *, generic_mash_header *header,
+                                                      void *object, generic_mash_data_ptrs *data)
 {
     self->conglomerate::_un_mash(header, object, data);
 }
@@ -654,10 +628,7 @@ static int __fastcall standalone_pfx_flavor(entity_base *)
 }
 
 
-static void __fastcall standalone_pfx_unmash(entity *self,
-                                             void *,
-                                             generic_mash_header *header,
-                                             void *object,
+static void __fastcall standalone_pfx_unmash(entity *self, void *, generic_mash_header *header, void *object,
                                              generic_mash_data_ptrs *data)
 {
     self->entity::un_mash(header, object, data);
@@ -689,77 +660,74 @@ static bool __fastcall native_actor_alive(actor *self, void *)
     return !self->has_damage_ifc() || self->damage_ifc()->field_1FC.field_0[0] > 0.0f;
 }
 
-static bool __fastcall native_damage_get_num(damage_interface *self, void *,
-    const resource_key &key, float &value, bool log)
+static bool __fastcall native_damage_get_num(damage_interface *self, void *, const resource_key &key, float &value,
+                                             bool log)
 {
     return self->get_ifc_num(key, &value, log);
 }
 
-static bool __fastcall native_damage_set_num(damage_interface *self, void *,
-    const resource_key &key, Float value, bool log)
+static bool __fastcall native_damage_set_num(damage_interface *self, void *, const resource_key &key, Float value,
+                                             bool log)
 {
     return self->set_ifc_num(key, value, log);
 }
 
-static bool __fastcall native_physical_get_num(physical_interface *self, void *,
-    const resource_key &key, float &value, bool log)
+static bool __fastcall native_physical_get_num(physical_interface *self, void *, const resource_key &key, float &value,
+                                               bool log)
 {
     return self->get_ifc_num(key, value, log);
 }
 
-static bool __fastcall native_physical_set_num(physical_interface *self, void *,
-    const resource_key &key, Float value, bool log)
+static bool __fastcall native_physical_set_num(physical_interface *self, void *, const resource_key &key, Float value,
+                                               bool log)
 {
     return self->set_ifc_num(key, value, log);
 }
 
-static bool __fastcall native_physical_get_vec(physical_interface *self, void *,
-    const resource_key &key, vector3d &value, bool log)
+static bool __fastcall native_physical_get_vec(physical_interface *self, void *, const resource_key &key,
+                                               vector3d &value, bool log)
 {
     return self->get_ifc_vec(key, value, log);
 }
 
-static bool __fastcall native_physical_set_vec(physical_interface *self, void *,
-    const resource_key &key, const vector3d &value, bool log)
+static bool __fastcall native_physical_set_vec(physical_interface *self, void *, const resource_key &key,
+                                               const vector3d &value, bool log)
 {
     return self->set_ifc_vec(key, value, log);
 }
 
-static bool __fastcall native_physical_string(physical_interface *, void *,
-    const resource_key &, mString &, bool)
+static bool __fastcall native_physical_string(physical_interface *, void *, const resource_key &, mString &, bool)
 {
-
     return false;
 }
 
-static void __fastcall native_physical_unmash(physical_interface *self, void *,
-    generic_mash_header *header, void *owner, void *object, generic_mash_data_ptrs *data)
+static void __fastcall native_physical_unmash(physical_interface *self, void *, generic_mash_header *header,
+                                              void *owner, void *object, generic_mash_data_ptrs *data)
 {
     self->un_mash(header, owner, object, data);
 }
 
-static void __fastcall native_animation_unmash(animation_interface *self, void *,
-    generic_mash_header *header, void *owner, void *, generic_mash_data_ptrs *data)
+static void __fastcall native_animation_unmash(animation_interface *self, void *, generic_mash_header *header,
+                                               void *owner, void *, generic_mash_data_ptrs *data)
 {
     self->_un_mash(header, owner, 0, data);
 }
 
-static void __fastcall native_script_data_unmash(script_data_interface *self, void *,
-    generic_mash_header *header, void *owner, void *object, generic_mash_data_ptrs *data)
+static void __fastcall native_script_data_unmash(script_data_interface *self, void *, generic_mash_header *header,
+                                                 void *owner, void *object, generic_mash_data_ptrs *data)
 {
     self->_un_mash(header, owner, object, data);
 }
 
-static void __fastcall native_variant_unmash(variant_interface *self, void *,
-    generic_mash_header *header, void *owner, void *object, generic_mash_data_ptrs *data)
+static void __fastcall native_variant_unmash(variant_interface *self, void *, generic_mash_header *header, void *owner,
+                                             void *object, generic_mash_data_ptrs *data)
 {
     self->_un_mash(header, owner, object, data);
 }
 
-static void __fastcall native_skeleton_unmash(skeleton_interface *self, void *,
-    generic_mash_header *, void *owner, void *, generic_mash_data_ptrs *data)
+static void __fastcall native_skeleton_unmash(skeleton_interface *self, void *, generic_mash_header *, void *owner,
+                                              void *, generic_mash_data_ptrs *data)
 {
-
     self->my_conglomerate = static_cast<conglomerate *>(owner);
     self->dynamic = false;
     data->rebase(16);
@@ -778,9 +746,8 @@ static void __fastcall native_physical_frame(physical_interface *self, void *, F
     self->frame_advance(elapsed);
 }
 
-static void __fastcall native_physical_force(physical_interface *self, void *,
-    const vector3d &force, physical_interface::force_type type,
-    const vector3d &point, int limb)
+static void __fastcall native_physical_force(physical_interface *self, void *, const vector3d &force,
+                                             physical_interface::force_type type, const vector3d &point, int limb)
 {
     self->apply_force_increment(force, type, point, limb);
 }
@@ -853,9 +820,9 @@ void construct_v_table_lookup()
     variant_vtable[0x24 / 4] = reinterpret_cast<void *>(native_interface_release<variant_interface>);
     ifc_v_table_lookup[10] = reinterpret_cast<int>(variant_vtable);
 
-    static constexpr int sizes[28] = {
-        0x44, 0x48, 0x68, 0xC0, 0xE8, 0x130, 0xD0, 0x1A4, 0x100, 0x114, 0x374, 0x14C, 0x350, 0x274,
-        0x6C, 0x15C, 0x68, 0x68, 0x68, 0x70, 0x68, 0x84, 0xBC, 0x6C, 0x178, 0xDC, 0xC8, 0x78};
+    static constexpr int sizes[28] = {0x44,  0x48,  0x68,  0xC0,  0xE8,  0x130, 0xD0, 0x1A4, 0x100, 0x114,
+                                      0x374, 0x14C, 0x350, 0x274, 0x6C,  0x15C, 0x68, 0x68,  0x68,  0x70,
+                                      0x68,  0x84,  0xBC,  0x6C,  0x178, 0xDC,  0xC8, 0x78};
     std::copy(std::begin(sizes), std::end(sizes), std::begin(ent_size_lookup));
     entity_base_vtable[0] = reinterpret_cast<void *>(native_entity_destroy<entity_base>);
     entity_base_vtable[0x10 / 4] = reinterpret_cast<void *>(native_entity_release<entity_base>);
@@ -913,8 +880,7 @@ void construct_v_table_lookup()
     entity_vtable[0x208 / 4] = reinterpret_cast<void *>(native_entity_set_recursive_age);
     entity_vtables()[2] = reinterpret_cast<int>(entity_vtable);
     entity_vtables()[27] = reinterpret_cast<int>(ai_cover_marker::native_vtable(entity_vtable));
-    std::copy(std::begin(entity_vtable), std::end(entity_vtable),
-              std::begin(pfx_vtable));
+    std::copy(std::begin(entity_vtable), std::end(entity_vtable), std::begin(pfx_vtable));
     pfx_vtable[0x54 / 4] = reinterpret_cast<void *>(standalone_pfx_flavor);
     pfx_vtable[0x60 / 4] = reinterpret_cast<void *>(standalone_entity_true);
     pfx_vtable[0xD4 / 4] = reinterpret_cast<void *>(standalone_entity_true);
@@ -922,14 +888,11 @@ void construct_v_table_lookup()
     native_pfx::install_entity_callbacks(pfx_vtable);
     entity_vtables()[23] = reinterpret_cast<int>(pfx_vtable);
 
-    std::copy(std::begin(entity_vtable), std::end(entity_vtable),
-              std::begin(light_source_vtable));
+    std::copy(std::begin(entity_vtable), std::end(entity_vtable), std::begin(light_source_vtable));
     light_source_vtable[0x60 / 4] = reinterpret_cast<void *>(standalone_entity_true);
-    light_source_vtable[0x54 / 4] =
-        reinterpret_cast<void *>(standalone_light_source_flavor);
+    light_source_vtable[0x54 / 4] = reinterpret_cast<void *>(standalone_light_source_flavor);
     light_source_vtable[0x90 / 4] = reinterpret_cast<void *>(standalone_entity_true);
-    light_source_vtable[0x164 / 4] =
-        reinterpret_cast<void *>(standalone_light_source_unmash);
+    light_source_vtable[0x164 / 4] = reinterpret_cast<void *>(standalone_light_source_unmash);
     light_source_vtable[0] = reinterpret_cast<void *>(native_entity_destroy<light_source>);
     entity_vtables()[14] = reinterpret_cast<int>(light_source_vtable);
 
@@ -945,11 +908,9 @@ void construct_v_table_lookup()
     marker_vtables[1][0x9C / 4] = reinterpret_cast<void *>(standalone_entity_true);
     initialize_marker_vtable(marker_vtables[2], reinterpret_cast<void *>(standalone_water_exit_marker_flavor));
     initialize_marker_vtable(marker_vtables[3], reinterpret_cast<void *>(standalone_anchor_marker_flavor));
-    std::copy(std::begin(marker_vtables[0]), std::end(marker_vtables[0]),
-              std::begin(marker_vtables[5]));
+    std::copy(std::begin(marker_vtables[0]), std::end(marker_vtables[0]), std::begin(marker_vtables[5]));
     marker_vtables[5][0xB8 / 4] = reinterpret_cast<void *>(standalone_entity_true);
-    marker_vtables[5][0x54 / 4] =
-        reinterpret_cast<void *>(standalone_line_anchor_flavor);
+    marker_vtables[5][0x54 / 4] = reinterpret_cast<void *>(standalone_line_anchor_flavor);
     marker_vtables[5][0] = reinterpret_cast<void *>(native_line_anchor_destroy);
     entity_vtables()[16] = reinterpret_cast<int>(marker_vtables[0]);
     entity_vtables()[17] = reinterpret_cast<int>(marker_vtables[1]);
@@ -1026,8 +987,7 @@ void construct_v_table_lookup()
     conglomerate_vtable[0x184 / 4] = reinterpret_cast<void *>(native_conglomerate_update_ai_proximity);
     conglomerate_vtable[0x1E0 / 4] = reinterpret_cast<void *>(native_conglomerate_light_set);
     conglomerate_vtable[0x208 / 4] = reinterpret_cast<void *>(native_conglomerate_set_recursive_age);
-    conglomerate_vtable[0x54 / 4] =
-        reinterpret_cast<void *>(standalone_conglomerate_flavor);
+    conglomerate_vtable[0x54 / 4] = reinterpret_cast<void *>(standalone_conglomerate_flavor);
     conglomerate_vtable[0x12C / 4] = reinterpret_cast<void *>(standalone_entity_true);
     conglomerate_vtable[0x130 / 4] = reinterpret_cast<void *>(native_conglomerate_skeleton);
     conglomerate_vtable[0x28 / 4] = reinterpret_cast<void *>(native_conglomerate_visual_radius);
@@ -1036,14 +996,10 @@ void construct_v_table_lookup()
     conglomerate_vtable[0x254 / 4] = reinterpret_cast<void *>(native_conglomerate_colgeom_radius);
     conglomerate_vtable[0x258 / 4] = reinterpret_cast<void *>(native_conglomerate_colgeom_center);
     conglomerate_vtable[0x260 / 4] = reinterpret_cast<void *>(native_conglomerate_morph);
-    conglomerate_vtable[0x294 / 4] =
-        reinterpret_cast<void *>(standalone_conglomerate_has_tentacle);
-    conglomerate_vtable[0x298 / 4] =
-        reinterpret_cast<void *>(standalone_conglomerate_tentacle);
-    conglomerate_vtable[0x29C / 4] =
-        reinterpret_cast<void *>(standalone_conglomerate_has_variant);
-    conglomerate_vtable[0x2A0 / 4] =
-        reinterpret_cast<void *>(standalone_conglomerate_variant);
+    conglomerate_vtable[0x294 / 4] = reinterpret_cast<void *>(standalone_conglomerate_has_tentacle);
+    conglomerate_vtable[0x298 / 4] = reinterpret_cast<void *>(standalone_conglomerate_tentacle);
+    conglomerate_vtable[0x29C / 4] = reinterpret_cast<void *>(standalone_conglomerate_has_variant);
+    conglomerate_vtable[0x2A0 / 4] = reinterpret_cast<void *>(standalone_conglomerate_variant);
     conglomerate_vtable[0x1C8 / 4] = reinterpret_cast<void *>(native_conglomerate_set_alpha);
     entity_vtables()[5] = reinterpret_cast<int>(conglomerate_vtable);
 #else
@@ -1119,7 +1075,7 @@ entity_base *parse_entity_mash(_std::vector<entity *> *ent_vec_ptr, _std::vector
 
         return ent_ptr;
     } else {
-        return (entity_base *) CDECL_CALL(0x004FF610, ent_vec_ptr, item_vec_ptr, a3, a7, a8, a9);
+        return (entity_base *)CDECL_CALL(0x004FF610, ent_vec_ptr, item_vec_ptr, a3, a7, a8, a9);
     }
 }
 

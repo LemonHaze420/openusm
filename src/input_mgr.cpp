@@ -87,7 +87,7 @@ input_mgr::input_mgr()
 
         for (int i = 0; i < 8; ++i) {
             this->field_30[i] = nullptr;
-}
+        }
 
         this->keyboard_devices[0] = nullptr;
         this->mouse_devices[0] = nullptr;
@@ -116,8 +116,8 @@ input_mgr::~input_mgr()
 
         this->rumble_ptr = nullptr;
     } else {
-    THISCALL(0x005E0870, this);
-}
+        THISCALL(0x005E0870, this);
+    }
 }
 
 void *input_mgr::operator new(size_t size)
@@ -222,7 +222,6 @@ void input_mgr::scan_devices()
     } else {
         THISCALL(0x00599090, this);
     }
-
 }
 
 void input_mgr::frame_advance(Float time_inc)
@@ -232,8 +231,7 @@ void input_mgr::frame_advance(Float time_inc)
         if (rumble_ptr == nullptr)
             return;
 
-        assert(rumble_ptr->field_0 == 0 && !rumble_ptr->field_5C &&
-               "Standalone active vibration is not initialized");
+        assert(rumble_ptr->field_0 == 0 && !rumble_ptr->field_5C && "Standalone active vibration is not initialized");
     } else {
         THISCALL(0x005DAB20, this, time_inc);
     }
@@ -254,7 +252,7 @@ float input_mgr::get_control_state(int control, device_id_t a3) const
 
             void(__fastcall * func)(const decltype(this->control_map) *, void *edx, decltype(it) *, const int *) =
                 CAST(func, 0x005E47A0);
-            func(&this->control_map, nullptr, &it, &control); 
+            func(&this->control_map, nullptr, &it, &control);
             assert(it != this->control_map.end());
             return it;
         }();
@@ -284,11 +282,11 @@ float input_mgr::get_control_state(int control, device_id_t a3) const
                 auto v12 = device->get_axis_state(axis.field_4, axis.field_8);
                 if (control.type == CT_BOOLEAN) {
                     auto func = [](float a1) -> float {
-                        if ( a1 < -0.75 ) {
+                        if (a1 < -0.75) {
                             return -1.0;
                         }
 
-                        if ( a1 > 0.75 ) {
+                        if (a1 > 0.75) {
                             return 1.0;
                         }
 
@@ -305,7 +303,7 @@ float input_mgr::get_control_state(int control, device_id_t a3) const
         a1 = std::clamp(a1, -1.f, 1.f);
         return a1;
     } else {
-        float (__fastcall *func)(const input_mgr *, void *edx, int, device_id_t) = CAST(func, 0x005D86D0);
+        float(__fastcall * func)(const input_mgr *, void *edx, int, device_id_t) = CAST(func, 0x005D86D0);
         return func(this, nullptr, control, a3);
     }
 }
@@ -321,18 +319,18 @@ void input_mgr::insert_device(input_device *a2)
         auto id = a2->get_id();
 
         if constexpr (0) {
-        input_device ** (__fastcall *insert)(void *, void *edx, const device_id_t *) = CAST(insert, 0x005E8400);
+            input_device **(__fastcall * insert)(void *, void *edx, const device_id_t *) = CAST(insert, 0x005E8400);
             auto found_device = insert(&this->device_map, nullptr, &id);
-        *found_device = v2;
+            *found_device = v2;
         } else {
             this->device_map[id] = v2;
         }
-        
-        if ( IS_JOYSTICK_DEVICE(v2->get_id()) ) {
+
+        if (IS_JOYSTICK_DEVICE(v2->get_id())) {
             *((DWORD *)&this[0xFFFF562B] + v2->get_id() - 0x11) = (DWORD)v2;
-        } else if ( IS_KEYBOARD_DEVICE(v2->get_id()) ) {
+        } else if (IS_KEYBOARD_DEVICE(v2->get_id())) {
             this->keyboard_devices[DEVICE_ID_TO_KEYBOARD_INDEX(v2->get_id())] = v2;
-        } else if ( IS_MOUSE_DEVICE(v2->get_id()) ) {
+        } else if (IS_MOUSE_DEVICE(v2->get_id())) {
             *((DWORD *)&this[0xFFFE027F] + v2->get_id() - 0x14) = (DWORD)v2;
         }
     } else {
@@ -447,7 +445,7 @@ float input_mgr::get_control_delta(int control, device_id_t a3) const
 
         return result;
     } else {
-        float (__fastcall *func)(const void *, void *edx, int control, device_id_t a3) = CAST(func, 0x005D87C0);
+        float(__fastcall * func)(const void *, void *edx, int control, device_id_t a3) = CAST(func, 0x005D87C0);
         return func(this, nullptr, control, a3);
     }
 }
@@ -480,21 +478,21 @@ void input_mgr::map_control(int a2, device_id_t a3, int a4)
     if constexpr (1) {
         auto *v6 = this->get_device_from_map_internal(a3);
         if (v6 != nullptr) {
-                device_axis v9;
+            device_axis v9;
             v9.m_device_id = a3;
-                v9.field_8 = a4;
-                v9.field_4 = v6->get_axis_id(a4);
+            v9.field_8 = a4;
+            v9.field_4 = v6->get_axis_id(a4);
             if (v9.field_4 != -1) {
-                    this->map_control(a2, v9);
-                }
+                this->map_control(a2, v9);
             }
+        }
     } else {
         THISCALL(0x005D8660, this, a2, a3, a4);
     }
 }
 
 void input_mgr::map_control(int a2, const device_axis &a3)
-    {
+{
     TRACE("input_mgr::map_control");
 
     if constexpr (1) {

@@ -53,6 +53,5 @@ struct interaction : mash_virtual_base {
     bool is_inside_trigger_region(const vector3d *position, actor *owner) const;
     void destruct_mashed_class();
     static void *native_vtable();
-    static void *construct_native_in_place(
-        uint32_t type, mash_virtual_base *storage, int storage_size);
+    static void *construct_native_in_place(uint32_t type, mash_virtual_base *storage, int storage_size);
 };

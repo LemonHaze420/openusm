@@ -6,21 +6,19 @@
 #include "string_hash.h"
 
 struct conglomerate;
-struct variant_info
-{
+struct variant_info {
     string_hash hash;
     unsigned __int16 field_4;
     unsigned __int16 field_6;
-    unsigned __int8* parts;
-    char* ifl_frames;
+    unsigned __int8 *parts;
+    char *ifl_frames;
 };
 
 struct nglMeshFile;
 struct nglMesh;
 struct nglMorphSet;
 struct tlFixedString;
-struct variant_speaker_id_set
-{
+struct variant_speaker_id_set {
     uint16_t field_0;
     uint16_t id_count;
     uint32_t field_4;
@@ -49,8 +47,7 @@ struct variant_interface : conglomerate_interface {
     variant_interface(conglomerate *);
     ~variant_interface();
 
-    void _un_mash(generic_mash_header *header, void *owner, void *object,
-                  generic_mash_data_ptrs *data);
+    void _un_mash(generic_mash_header *header, void *owner, void *object, generic_mash_data_ptrs *data);
 
     variant_info *get_random_variant();
 

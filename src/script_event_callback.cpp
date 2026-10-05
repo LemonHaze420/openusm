@@ -34,13 +34,21 @@ void __fastcall spawn(script_event_callback *self, void *, event *, entity_base_
         self->instance->add_thread(self, self->executable, static_cast<const char *>(self->field_4));
     }
 }
-bool __fastcall is_code(script_event_callback *, void *) { return false; }
-bool __fastcall is_script(script_event_callback *, void *) { return true; }
-std::intptr_t table[] = {reinterpret_cast<std::intptr_t>(&finalize), reinterpret_cast<std::intptr_t>(&spawn),
-    reinterpret_cast<std::intptr_t>(&is_code), reinterpret_cast<std::intptr_t>(&is_script)};
+bool __fastcall is_code(script_event_callback *, void *)
+{
+    return false;
 }
+bool __fastcall is_script(script_event_callback *, void *)
+{
+    return true;
+}
+std::intptr_t table[] = {reinterpret_cast<std::intptr_t>(&finalize),
+                         reinterpret_cast<std::intptr_t>(&spawn),
+                         reinterpret_cast<std::intptr_t>(&is_code),
+                         reinterpret_cast<std::intptr_t>(&is_script)};
+}  // namespace
 script_event_callback::script_event_callback(script_instance *owner, const vm_executable *function,
-    const char *arguments, bool one_shot)
+                                             const char *arguments, bool one_shot)
     : event_callback(nullptr, one_shot), instance(owner), executable(function)
 {
     m_vtbl = reinterpret_cast<std::intptr_t>(table);

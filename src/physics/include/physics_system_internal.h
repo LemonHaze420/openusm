@@ -10,7 +10,9 @@ struct rigid_body_constraint_contact;
 struct rigid_body_constraint_distance;
 struct rigid_body_constraint_ragdoll;
 
-struct physics_vec4 { float x, y, z, w; };
+struct physics_vec4 {
+    float x, y, z, w;
+};
 struct physics_constraint_link {
     rigid_body *b1;
     rigid_body *b2;
@@ -96,15 +98,14 @@ rb_partition_node *physics_build_constraint_partitions(physics_system *world);
 void physics_execute_constraint_solver(physics_system *world, rb_partition_node *head, int visit, int next_visit);
 
 rigid_body_constraint_contact **physics_contact_insert(physics_system *world, rigid_body *b1, rigid_body *b2,
-    rigid_body_constraint_contact *contact);
+                                                       rigid_body_constraint_contact *contact);
 rigid_body_constraint_contact *physics_find_contact(physics_system *world, rigid_body *b1, rigid_body *b2);
 
 void physics_setup_ragdoll(rigid_body_constraint_ragdoll *joint, physics_system *world, float elapsed);
 void physics_setup_distance(rigid_body_constraint_distance *joint, physics_system *world, float elapsed);
 void physics_setup_contact(rigid_body_constraint_contact *contact, physics_system *world, float elapsed);
 void physics_add_contact(rigid_body_constraint_contact *contact, rigid_body *first, rigid_body *second,
-    const phys_vector3d &point1, const phys_vector3d &point2, const phys_vector3d &normal,
-    float friction, float bounce, float maximum_bounce, bool);
-void physics_set_scalar(physics_pulse_scalar *pulse, rigid_body *first, physics_vec4 anchor1,
-    rigid_body *second, physics_vec4 anchor2, physics_vec4 direction, pulse_sum_cache *cache,
-    physics_vec4 offset);
+                         const phys_vector3d &point1, const phys_vector3d &point2, const phys_vector3d &normal,
+                         float friction, float bounce, float maximum_bounce, bool);
+void physics_set_scalar(physics_pulse_scalar *pulse, rigid_body *first, physics_vec4 anchor1, rigid_body *second,
+                        physics_vec4 anchor2, physics_vec4 direction, pulse_sum_cache *cache, physics_vec4 offset);

@@ -28,9 +28,18 @@ void __fastcall native_unmash(als_inode *self, void *, mash_info_struct *info, v
 {
     self->_unmash(info, base);
 }
-void __fastcall native_activate(als_inode *self, void *, ai_core *core) { self->activate(core); }
-void __fastcall native_deactivate(als_inode *self, void *) { self->deactivate(); }
-void __fastcall native_advance(als_inode *self, void *, Float dt) { self->frame_advance(dt); }
+void __fastcall native_activate(als_inode *self, void *, ai_core *core)
+{
+    self->activate(core);
+}
+void __fastcall native_deactivate(als_inode *self, void *)
+{
+    self->deactivate();
+}
+void __fastcall native_advance(als_inode *self, void *, Float dt)
+{
+    self->frame_advance(dt);
+}
 void __fastcall native_set_signal(als_inode *self, void *, Float time, string_hash category)
 {
     self->set_known_combat_signal_time_and_category(time, category);
@@ -43,7 +52,7 @@ float __fastcall native_signal_eta(als_inode *self, void *, als::layer_types lay
 {
     return self->get_eta_of_combat_signal(layer);
 }
-}
+}  // namespace
 
 void *als_inode::native_vtable()
 {
@@ -74,8 +83,7 @@ als_inode::als_inode()
     m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[333]);
 }
 
-als_inode::als_inode(from_mash_in_place_constructor *constructor)
-    : info_node(constructor), field_28(constructor)
+als_inode::als_inode(from_mash_in_place_constructor *constructor) : info_node(constructor), field_28(constructor)
 {
     m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[333]);
 }
@@ -88,14 +96,10 @@ void als_inode::_unmash(mash_info_struct *info, void *context)
 
 void als_inode::deactivate()
 {
-
     field_20 = nullptr;
 }
 
-void als_inode::frame_advance(Float)
-{
-
-}
+void als_inode::frame_advance(Float) {}
 
 als::state_machine *als_inode::get_als_layer(als::layer_types a2)
 {

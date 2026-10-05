@@ -130,11 +130,11 @@ entity_base::entity_base(const string_hash &a2, uint32_t a3, bool a4)
     this->set_timer(0xFF);
 }
 
-entity_base * __fastcall entity_base_constructor(void *self, int, const string_hash *a2, unsigned int a3, bool a4)
+entity_base *__fastcall entity_base_constructor(void *self, int, const string_hash *a2, unsigned int a3, bool a4)
 {
     TRACE("entity_base::entity_base");
 
-    return new (self) entity_base {*a2, a3, a4};
+    return new (self) entity_base{*a2, a3, a4};
 }
 
 bool entity_base::has_region_idx() const
@@ -252,8 +252,7 @@ vector3d entity_base::get_visual_center()
 
 float entity_base::get_floor_offset()
 {
-    auto callback = reinterpret_cast<float(__fastcall *)(entity_base *, void *)>(
-        get_vfunc(m_vtbl, 0x220));
+    auto callback = reinterpret_cast<float(__fastcall *)(entity_base *, void *)>(get_vfunc(m_vtbl, 0x220));
     return callback(this, nullptr);
 }
 
@@ -282,7 +281,7 @@ void entity_base::set_ext_flag_recursive_internal(entity_ext_flag_t f, bool a3)
 {
     assert((f & EFLAG_EXT_SYSTEM_ONLY_FLAGS) == 0);
 
-    if ( a3 ) {
+    if (a3) {
         this->field_8 |= f;
     } else {
         this->field_8 &= ~f;
@@ -305,15 +304,14 @@ void entity_base::set_active(bool a2)
 
 void entity_base::set_visible(bool visible, bool suppress_owner_update)
 {
-    auto callback = reinterpret_cast<void(__fastcall *)(entity_base *, void *, bool, bool)>(
-        get_vfunc(m_vtbl, 0x44));
+    auto callback = reinterpret_cast<void(__fastcall *)(entity_base *, void *, bool, bool)>(get_vfunc(m_vtbl, 0x44));
     callback(this, nullptr, visible, suppress_owner_update);
 }
 
 ai::ai_core *entity_base::get_ai_core()
-    {
+{
     if constexpr (1) {
-        ai::ai_core * (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x48));
+        ai::ai_core *(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x48));
         return func(this);
     } else {
         return nullptr;
@@ -322,22 +320,20 @@ ai::ai_core *entity_base::get_ai_core()
 
 bool entity_base::is_hero()
 {
-    auto callback = reinterpret_cast<bool(__fastcall *)(entity_base *, void *)>(
-        get_vfunc(m_vtbl, 0x4C));
+    auto callback = reinterpret_cast<bool(__fastcall *)(entity_base *, void *)>(get_vfunc(m_vtbl, 0x4C));
     return callback(this, nullptr);
 }
 
 bool entity_base::is_alive()
 {
-    auto callback = reinterpret_cast<bool(__fastcall *)(entity_base *, void *)>(
-        get_vfunc(m_vtbl, 0x50));
+    auto callback = reinterpret_cast<bool(__fastcall *)(entity_base *, void *)>(get_vfunc(m_vtbl, 0x50));
     return callback(this, nullptr);
 }
 
 int entity_base::get_flavor()
-    {
+{
     if constexpr (1) {
-        int (__fastcall *func)(entity_base *) = CAST(func, get_vfunc(m_vtbl, 0x54));
+        int(__fastcall * func)(entity_base *) = CAST(func, get_vfunc(m_vtbl, 0x54));
         return func(this);
 
     } else {
@@ -358,7 +354,7 @@ bool entity_base::is_a_signaller()
 bool entity_base::is_an_entity()
 {
     if constexpr (1) {
-        bool (__fastcall *func)(entity_base *) = CAST(func, get_vfunc(m_vtbl, 0x60));
+        bool(__fastcall * func)(entity_base *) = CAST(func, get_vfunc(m_vtbl, 0x60));
         return func(this);
     } else {
         return false;
@@ -366,9 +362,9 @@ bool entity_base::is_an_entity()
 }
 
 bool entity_base::is_an_actor() const
-    {
+{
     if constexpr (1) {
-        bool (__fastcall *func)(const entity_base *) = CAST(func, get_vfunc(m_vtbl, 0x64));
+        bool(__fastcall * func)(const entity_base *) = CAST(func, get_vfunc(m_vtbl, 0x64));
         return func(this);
 
     } else {
@@ -378,8 +374,7 @@ bool entity_base::is_an_actor() const
 
 bool entity_base::is_a_conglomerate_clone()
 {
-    auto predicate = reinterpret_cast<bool(__fastcall *)(entity_base *, void *)>(
-        get_vfunc(m_vtbl, 0x68));
+    auto predicate = reinterpret_cast<bool(__fastcall *)(entity_base *, void *)>(get_vfunc(m_vtbl, 0x68));
     return predicate(this, nullptr);
 }
 
@@ -396,7 +391,7 @@ bool entity_base::is_a_station_camera()
 bool entity_base::is_a_game_camera()
 {
     if constexpr (1) {
-        bool (__fastcall *func)(entity_base *) = CAST(func, get_vfunc(m_vtbl, 0x74));
+        bool(__fastcall * func)(entity_base *) = CAST(func, get_vfunc(m_vtbl, 0x74));
 
         return func(this);
 
@@ -438,7 +433,7 @@ bool entity_base::is_a_spiderman_camera()
 bool entity_base::is_a_light_source()
 {
     if constexpr (1) {
-        bool (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x90));
+        bool(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x90));
         return func(this);
     } else {
         return false;
@@ -446,19 +441,18 @@ bool entity_base::is_a_light_source()
 }
 
 bool entity_base::is_a_neolight()
-    {
-        return false;
-    }
+{
+    return false;
+}
 
 bool entity_base::is_a_marker()
-    {
+{
     return false;
 }
 
 bool entity_base::is_a_parking_marker()
 {
-    auto predicate = reinterpret_cast<bool(__fastcall *)(entity_base *, void *)>(
-        get_vfunc(m_vtbl, 0x9C));
+    auto predicate = reinterpret_cast<bool(__fastcall *)(entity_base *, void *)>(get_vfunc(m_vtbl, 0x9C));
     return predicate(this, nullptr);
 }
 
@@ -530,7 +524,7 @@ bool entity_base::is_a_mic()
 bool entity_base::is_a_pfx_entity() const
 {
     if constexpr (1) {
-        bool (__fastcall *func)(const entity_base *) = CAST(func, get_vfunc(m_vtbl, 0xD4));
+        bool(__fastcall * func)(const entity_base *) = CAST(func, get_vfunc(m_vtbl, 0xD4));
         return func(this);
     } else {
         return false;
@@ -538,12 +532,12 @@ bool entity_base::is_a_pfx_entity() const
 }
 
 bool entity_base::is_an_item()
-    {
-        return false;
-    }
+{
+    return false;
+}
 
 bool entity_base::is_a_handheld_item()
-    {
+{
     return false;
 }
 
@@ -600,7 +594,7 @@ bool entity_base::is_a_trigger()
 bool entity_base::is_material_switching()
 {
     if constexpr (1) {
-        bool (__fastcall *func)(entity_base *) = CAST(func, get_vfunc(m_vtbl, 0x108));
+        bool(__fastcall * func)(entity_base *) = CAST(func, get_vfunc(m_vtbl, 0x108));
         return func(this);
     } else {
         return false;
@@ -620,15 +614,13 @@ time_interface *entity_base::time_ifc()
 
 bool entity_base::has_damage_ifc()
 {
-    auto callback = reinterpret_cast<bool(__fastcall *)(entity_base *, void *)>(
-        get_vfunc(m_vtbl, 0x114));
+    auto callback = reinterpret_cast<bool(__fastcall *)(entity_base *, void *)>(get_vfunc(m_vtbl, 0x114));
     return callback(this, nullptr);
 }
 
 damage_interface *entity_base::damage_ifc()
 {
-    auto callback = reinterpret_cast<damage_interface *(__fastcall *)(entity_base *, void *)>(
-        get_vfunc(m_vtbl, 0x118));
+    auto callback = reinterpret_cast<damage_interface *(__fastcall *)(entity_base *, void *)>(get_vfunc(m_vtbl, 0x118));
     return callback(this, nullptr);
 }
 
@@ -646,7 +638,7 @@ facial_expression_interface *entity_base::facial_expression_ifc()
 bool entity_base::has_physical_ifc()
 {
     if constexpr (1) {
-        bool (__fastcall *func)(entity_base *) = CAST(func, get_vfunc(m_vtbl, 0x124));
+        bool(__fastcall * func)(entity_base *) = CAST(func, get_vfunc(m_vtbl, 0x124));
         return func(this);
 
     } else {
@@ -659,14 +651,13 @@ physical_interface *entity_base::physical_ifc()
     //assert(0 && "Accessing an invalid interface");
     //return nullptr;
 
-    physical_interface * (__fastcall *func)(entity_base *) = CAST(func, get_vfunc(m_vtbl, 0x128));
+    physical_interface *(__fastcall * func)(entity_base *) = CAST(func, get_vfunc(m_vtbl, 0x128));
     return func(this);
 }
 
 variant_interface *entity_base::variant_ifc()
 {
-    variant_interface *(__fastcall *func)(entity_base *) =
-        CAST(func, get_vfunc(m_vtbl, 0x29C));
+    variant_interface *(__fastcall * func)(entity_base *) = CAST(func, get_vfunc(m_vtbl, 0x29C));
     return func(this);
 }
 
@@ -716,13 +707,13 @@ decal_data_interface *entity_base::decal_data_ifc()
 
 bool entity_base::get_ifc_num(const resource_key &key, float &value, bool log)
 {
-    using query = bool (__fastcall *)(entity_base *, void *, const resource_key &, float &, bool);
+    using query = bool(__fastcall *)(entity_base *, void *, const resource_key &, float &, bool);
     return reinterpret_cast<query>(get_vfunc(m_vtbl, 0x14C))(this, nullptr, key, value, log);
 }
 
 bool entity_base::set_ifc_num(const resource_key &key, float value, bool log)
 {
-    using setter = bool (__fastcall *)(entity_base *, void *, const resource_key &, float, bool);
+    using setter = bool(__fastcall *)(entity_base *, void *, const resource_key &, float, bool);
     return reinterpret_cast<setter>(get_vfunc(m_vtbl, 0x150))(this, nullptr, key, value, log);
 }
 
@@ -806,7 +797,7 @@ void entity_base::_un_mash(generic_mash_header *a1, void *a2, generic_mash_data_
             a3->rebase_shared(4u);
 
             auto *v12 = a3->get_from_shared<convex_box>();
-            auto *v13 = (box_trigger *) trigger_manager::instance->new_box_trigger(this->field_10, this);
+            auto *v13 = (box_trigger *)trigger_manager::instance->new_box_trigger(this->field_10, this);
             v13->set_box_info(*v12);
         }
     } else {
@@ -861,43 +852,43 @@ void entity_base::set_parent(entity_base *parent)
             this->clear_parent(true);
         } else if (parent != this->m_parent) {
             if (this->m_parent != nullptr) {
-                    this->clear_parent(true);
-                } else {
+                this->clear_parent(true);
+            } else {
                 this->dirty_family(false);
-                }
+            }
 
             if (this->manage_abs_po() && this->my_abs_po == this->my_rel_po) {
                 auto *mem = mem_alloc(sizeof(po));
-                        auto &v6 = parent->get_abs_po();
+                auto &v6 = parent->get_abs_po();
                 this->my_abs_po = new (mem) po{this->my_rel_po->sub_4BAB00(v6)};
-                    }
+            }
 
             auto *my_child = parent->get_first_child();
-                if (my_child != nullptr) {
-                    for (auto *i = my_child->field_28; i != nullptr; i = i->field_28) {
-                        my_child = i;
-                    }
-
-                    my_child->field_28 = this;
-                } else {
-                    parent->m_child = this;
+            if (my_child != nullptr) {
+                for (auto *i = my_child->field_28; i != nullptr; i = i->field_28) {
+                    my_child = i;
                 }
 
-                this->m_parent = parent;
-                this->field_28 = nullptr;
-                if (!this->is_conglom_member()) {
-                    entity_base *conglom_root = nullptr;
-                    if (parent->is_conglom_member()) {
-                        conglom_root = parent->get_conglom_owner();
-                    } else {
-                        conglom_root = parent;
-                    }
-
-                    assert(conglom_root != nullptr);
-
-                    conglom_root->add_adopted_child(this);
-                }
+                my_child->field_28 = this;
+            } else {
+                parent->m_child = this;
             }
+
+            this->m_parent = parent;
+            this->field_28 = nullptr;
+            if (!this->is_conglom_member()) {
+                entity_base *conglom_root = nullptr;
+                if (parent->is_conglom_member()) {
+                    conglom_root = parent->get_conglom_owner();
+                } else {
+                    conglom_root = parent;
+                }
+
+                assert(conglom_root != nullptr);
+
+                conglom_root->add_adopted_child(this);
+            }
+        }
 
     } else {
         THISCALL(0x004E0E50, this, parent);
@@ -985,28 +976,28 @@ void entity_base::clear_parent(bool a1)
             return;
         }
 
-            this->dirty_family(false);
+        this->dirty_family(false);
 
-            assert(m_parent->get_first_child() != nullptr);
+        assert(m_parent->get_first_child() != nullptr);
 
         if (a1 && !this->is_conglom_member()) {
-                auto *v3 = this->m_parent;
-                if ( v3->is_conglom_member() ) {
-                    v3 = v3->get_conglom_owner();
-                }
+            auto *v3 = this->m_parent;
+            if (v3->is_conglom_member()) {
+                v3 = v3->get_conglom_owner();
+            }
 
             if (v3 != nullptr) {
                 v3->remove_adopted_child(this);
-                }
             }
+        }
 
-            auto *v4 = this->m_parent;
+        auto *v4 = this->m_parent;
         auto *v5 = v4->get_first_child();
-            if (v5 == this) {
-                v4->m_child = this->field_28;
-                this->m_parent = nullptr;
-                this->field_28 = nullptr;
-            } else {
+        if (v5 == this) {
+            v4->m_child = this->field_28;
+            this->m_parent = nullptr;
+            this->field_28 = nullptr;
+        } else {
             auto *curr = v5->get_next_sibling();
             while (curr != nullptr) {
                 if (curr == this) {
@@ -1026,7 +1017,7 @@ void entity_base::clear_parent(bool a1)
     }
 }
 
-entity_base * entity_base::get_conglom_owner() const
+entity_base *entity_base::get_conglom_owner() const
 {
     //TRACE("entity_base::get_conglom_owner");
 
@@ -1096,7 +1087,7 @@ void entity_base::add_adopted_child(entity_base *child_arg)
 #if STANDALONE_SYSTEM
             this->adopted_children->push_back(child_arg);
 #else
-            void (__fastcall *push_back)(void *, void *, void *) = CAST(push_back, 0x005E7330);
+            void(__fastcall * push_back)(void *, void *, void *) = CAST(push_back, 0x005E7330);
             push_back(this->adopted_children, nullptr, &child_arg);
 #endif
         }
@@ -1167,7 +1158,7 @@ void entity_base::update_abs_po(bool a2)
                     } else {
                         assert(This->is_conglom_member());
 
-                        assert((conglomerate *) This != This->my_conglom_root);
+                        assert((conglomerate *)This != This->my_conglom_root);
 
                         const auto model_index = static_cast<uint16_t>(static_cast<uint8_t>(This->rel_po_idx) - 1);
                         assert(model_index < This->my_conglom_root->all_model_po.size());
@@ -1261,7 +1252,7 @@ void entity_set_abs_po(entity_base *ent, const po &the_po)
 
         if (ENABLE_LONG_MALOR_ASSERTS > 0 && !ent->is_flagged(0x800) && ent->is_an_actor() &&
             !bit_cast<actor *>(ent)->get_allow_tunnelling_into_next_frame()) {
-            auto v24 = (float) (ENABLE_LONG_MALOR_ASSERTS * ENABLE_LONG_MALOR_ASSERTS);
+            auto v24 = (float)(ENABLE_LONG_MALOR_ASSERTS * ENABLE_LONG_MALOR_ASSERTS);
             auto a2a = ent->get_abs_position();
 
             auto v22 = the_po.get_position();
@@ -1421,8 +1412,7 @@ unsigned int entity_base::compute_rel_po_from_model()
     if (m_parent == my_conglom_root) {
         *my_rel_po = model;
     } else {
-        const auto parent_index = static_cast<uint16_t>(
-            static_cast<uint8_t>(m_parent->rel_po_idx) - 1);
+        const auto parent_index = static_cast<uint16_t>(static_cast<uint8_t>(m_parent->rel_po_idx) - 1);
         const auto *inverse = my_conglom_root->all_model_po.m_data[parent_index].inverse();
         my_rel_po->set_from_ptr_to_po_world(ptr_to_po{&model.m, &inverse->m});
     }
@@ -1448,16 +1438,16 @@ int entity_base::add_callback(string_hash a2, void (*callback)(event *, entity_b
 
 bool entity_base::event_raised_last_frame(string_hash a2)
 {
-    return (bool) THISCALL(0x004F3800, this, a2);
+    return (bool)THISCALL(0x004F3800, this, a2);
 }
 
 bool entity_base::has_model_po() const
 {
-    if ( !this->is_conglom_member() ) {
+    if (!this->is_conglom_member()) {
         return false;
     }
 
-    if ( this == this->my_conglom_root ) {
+    if (this == this->my_conglom_root) {
         return false;
     }
 
@@ -1538,7 +1528,7 @@ void entity_base::dirty_family(bool a2)
 void entity_base::enter_limbo()
 {
     if (!this->is_ext_flagged(EXTFLAG_UPDATE_VIA_REGIONLINK) && this->is_ext_flagged(0x200u)) {
-        vhandle_type<entity> v3 {this->get_my_handle()};
+        vhandle_type<entity> v3{this->get_my_handle()};
         add_to_limbo_list(v3);
         this->set_ext_flag_recursive_internal(static_cast<entity_ext_flag_t>(EXTFLAG_UPDATE_VIA_REGIONLINK), true);
         this->raise_event(event::ENTER_LIMBO);
@@ -1549,7 +1539,7 @@ void entity_base::exit_limbo()
 {
     if constexpr (STANDALONE_SYSTEM) {
         if (this->is_ext_flagged(EXTFLAG_UPDATE_VIA_REGIONLINK) && this->is_ext_flagged(0x200u)) {
-            vhandle_type<entity> v3 {this->get_my_handle()};
+            vhandle_type<entity> v3{this->get_my_handle()};
             remove_from_limbo_list(v3);
             this->set_ext_flag_recursive_internal(static_cast<entity_ext_flag_t>(EXTFLAG_UPDATE_VIA_REGIONLINK), false);
             this->raise_event(event::EXIT_LIMBO);
@@ -1561,7 +1551,6 @@ void entity_base::exit_limbo()
 
 void entity_base::on_fade_distance_changed_internal(int a2)
 {
-
     if (this->is_visible() && distance_fader::fade_distances()[a2] > 140.0f) {
         g_world_ptr->field_A0.add_far_away_entity({this->my_handle});
     }
@@ -1682,7 +1671,7 @@ void entity_set_abs_position(entity_base *ent, const vector3d &pos)
         auto ENABLE_LONG_MALOR_ASSERTS = os_developer_options::instance->get_int(mString{"ENABLE_LONG_MALOR_ASSERTS"});
         if (ENABLE_LONG_MALOR_ASSERTS > 0 && !ent->is_flagged(0x800) && ent->is_an_actor() &&
             !bit_cast<actor *>(ent)->get_allow_tunnelling_into_next_frame()) {
-            auto v19 = (float) (ENABLE_LONG_MALOR_ASSERTS * ENABLE_LONG_MALOR_ASSERTS);
+            auto v19 = (float)(ENABLE_LONG_MALOR_ASSERTS * ENABLE_LONG_MALOR_ASSERTS);
             auto a2 = ent->get_abs_position();
 
             auto v17 = pos;
@@ -1727,7 +1716,7 @@ void entity_teleport_abs_po(entity_base *a1, const po &a2, bool a3)
 
 void entity_teleport_abs_position(entity_base *a2, const vector3d &a3, bool a4)
 {
-    auto &v5= a2->get_abs_po();
+    auto &v5 = a2->get_abs_po();
     v5.set_position(a3);
     entity_teleport_abs_po(a2, v5, a4);
 }
@@ -1741,17 +1730,17 @@ void check_po(entity_base *e)
         if (abs_po.has_nonuniform_scaling()) {
             auto id = e->get_id();
             auto *v3 = id.to_string();
-            mString v9 {v3};
+            mString v9{v3};
             auto v7 = v9 + ": non-uniform scaling is not supported";
             sp_log(v7.c_str());
         } else if (e->is_an_actor()) {
             if (bit_cast<actor *>(e)->get_colgeom() != nullptr) {
                 auto &v4 = e->get_abs_po();
-                auto v15 = vector3d {v4[0]}.length();
+                auto v15 = vector3d{v4[0]}.length();
                 if (v15 < 0.99000001 || v15 > 1.01) {
                     auto v5 = e->get_id();
                     auto *v6 = v5.to_string();
-                    mString v10 {v6};
+                    mString v10{v6};
                     auto v8 = v10 + ": scaling is not supported on entities with collision geometry";
                     sp_log(v8.c_str());
                 }

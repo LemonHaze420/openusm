@@ -73,21 +73,17 @@ void trigger::update(trigger_struct *subjects, int subject_count)
             inside = box->triggered(subject.position);
         } else if (m_vtbl == 0x00889F30) {
             auto *point = static_cast<point_trigger *>(this);
-            inside = (subject.position - point->field_58).length2() <
-                     field_48 * field_48;
+            inside = (subject.position - point->field_58).length2() < field_48 * field_48;
         } else if (m_vtbl == 0x0088A240) {
             auto *entity_trigger_ptr = static_cast<entity_trigger *>(this);
             auto *center_entity = entity_trigger_ptr->get_ent();
             if (center_entity != nullptr) {
-                const auto center =
-                    center_entity->get_abs_position() + entity_trigger_ptr->field_5C;
-                inside = (subject.position - center).length2() <
-                         field_48 * field_48;
+                const auto center = center_entity->get_abs_position() + entity_trigger_ptr->field_5C;
+                inside = (subject.position - center).length2() < field_48 * field_48;
             }
         }
 
-        auto existing = std::find(trigger_current_entities->begin(),
-                                  trigger_current_entities->end(), subject.handle);
+        auto existing = std::find(trigger_current_entities->begin(), trigger_current_entities->end(), subject.handle);
         if (inside) {
             field_4C = subject.handle;
             if (existing == trigger_current_entities->end()) {

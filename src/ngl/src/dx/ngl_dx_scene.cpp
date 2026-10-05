@@ -12,7 +12,7 @@
 #include <algorithm>
 #include <cstdint>
 
-nglRenderNode* g_CurrentRenderNode = nullptr;
+nglRenderNode *g_CurrentRenderNode = nullptr;
 
 namespace nglRenderList {
 
@@ -26,9 +26,7 @@ VALIDATE_SIZE(nglRenderTextureNode, 0x8u);
 // 0x0077DFB0
 void sort_opaque_nodes(nglRenderTextureNode *begin, nglRenderTextureNode *end)
 {
-    std::sort(begin, end, [](const auto &left, const auto &right) {
-        return left.m_tex < right.m_tex;
-    });
+    std::sort(begin, end, [](const auto &left, const auto &right) { return left.m_tex < right.m_tex; });
 }
 
 static void render_node(nglRenderNode *node)
@@ -46,7 +44,7 @@ static void render_node(nglRenderNode *node)
     node->Render();
 }
 
-template<>
+template <>
 void nglOpaqueCompare<nglRenderNode>(nglRenderNode *node, int count, int a3)
 {
     TRACE("nglRenderList::nglOpaqueCompare<nglRenderNode>");
@@ -55,7 +53,7 @@ void nglOpaqueCompare<nglRenderNode>(nglRenderNode *node, int count, int a3)
         nglRenderTextureNode *v1 = static_cast<decltype(v1)>(nglListAlloc(sizeof(nglRenderTextureNode) * count, 16));
 
         [](nglRenderTextureNode *a1, nglRenderNode *a2) -> void {
-            for (; a2 != nullptr; ++a1, a2 = a2->m_next_node ) {
+            for (; a2 != nullptr; ++a1, a2 = a2->m_next_node) {
                 a1->m_node = a2;
                 a1->m_tex = a2->m_tex;
             }
@@ -68,16 +66,16 @@ void nglOpaqueCompare<nglRenderNode>(nglRenderNode *node, int count, int a3)
 
             nglRenderNode *v3 = nullptr;
             std::for_each(std::make_reverse_iterator(end), std::make_reverse_iterator(begin), [&v3](auto &n) {
-                        n.m_node->m_next_node = v3;
-                        v3 = n.m_node;
-                    });
+                n.m_node->m_next_node = v3;
+                v3 = n.m_node;
+            });
 
             a2 = v3;
         }(v1, node, count);
 
         static Var<nglRenderNode *> nglPrevNode{0x00971F18};
 
-        for ( auto *v9 = node; v9 != nullptr; v9 = v9->m_next_node ) {
+        for (auto *v9 = node; v9 != nullptr; v9 = v9->m_next_node) {
             g_CurrentRenderNode = v9;
             render_node(v9);
 
@@ -93,8 +91,7 @@ void nglOpaqueCompare<nglRenderNode>(nglRenderNode *node, int count, int a3)
 void nglTransCompare(nglRenderNode *node, int count, int)
 {
     nglRenderTextureNode *nodes =
-        static_cast<nglRenderTextureNode *>(
-            nglListAlloc(sizeof(nglRenderTextureNode) * count, 16));
+        static_cast<nglRenderTextureNode *>(nglListAlloc(sizeof(nglRenderTextureNode) * count, 16));
     auto *entry = nodes;
     for (auto *current = node; current != nullptr; current = current->m_next_node) {
         entry->m_node = current;
@@ -130,7 +127,7 @@ void nglTransCompare(nglRenderNode *node, int count, int)
     }
 }
 
-} // namespace nglRenderList
+}  // namespace nglRenderList
 
 void *nglListAlloc(int size, int align)
 {
@@ -145,12 +142,11 @@ void *nglListAlloc(int size, int align)
         auto *position = nglListWorkPos();
         assert(list_begin != nullptr && position != nullptr);
 
-        const auto aligned = (reinterpret_cast<std::uintptr_t>(position) + align - 1)
-                           & ~static_cast<std::uintptr_t>(align - 1);
+        const auto aligned =
+            (reinterpret_cast<std::uintptr_t>(position) + align - 1) & ~static_cast<std::uintptr_t>(align - 1);
         auto *result = reinterpret_cast<std::uint8_t *>(aligned);
         assert(result >= list_begin);
-        assert(static_cast<std::size_t>(result - list_begin) + static_cast<std::size_t>(size)
-               <= list_capacity);
+        assert(static_cast<std::size_t>(result - list_begin) + static_cast<std::size_t>(size) <= list_capacity);
         nglListWorkPos() = result + size;
         return result;
     } else {

@@ -10,7 +10,6 @@ info_node_desc_list::info_node_desc_list() {}
 void info_node_desc_list::add_entry(info_node_descriptor entry)
 {
     if constexpr (STANDALONE_SYSTEM) {
-
         for (const auto &existing : field_0) {
             if (existing.field_0.source_hash_code == entry.field_0.source_hash_code &&
                 existing.field_4 == entry.field_4)

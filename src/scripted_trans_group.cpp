@@ -34,8 +34,8 @@ scripted_trans_group::scripted_trans_group()
 
         this->m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {
-    THISCALL(0x004AC950, this);
-}
+        THISCALL(0x004AC950, this);
+    }
 }
 
 
@@ -60,9 +60,9 @@ void scripted_trans_group::_unmash(mash_info_struct *a1, void *)
 
 #if OPENUSM_XBOX_MASH_FORMAT && !defined(OPENUSM_XBPACK_V10)
     {
-    uint8_t class_mashed = -1;
-    class_mashed = *a1->read_from_buffer(mash::SHARED_BUFFER, 1, 1);
-    assert(class_mashed == 0xAF || class_mashed == 0);
+        uint8_t class_mashed = -1;
+        class_mashed = *a1->read_from_buffer(mash::SHARED_BUFFER, 1, 1);
+        assert(class_mashed == 0xAF || class_mashed == 0);
     }
 #endif
 
@@ -73,7 +73,7 @@ void scripted_trans_group::_unmash(mash_info_struct *a1, void *)
                          ,
                          mash::NORMAL_BUFFER
 #endif
-            );
+        );
     }
 }
 

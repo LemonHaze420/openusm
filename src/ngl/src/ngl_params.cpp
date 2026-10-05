@@ -17,9 +17,18 @@ void nglInitializeParamIDs()
 #if STANDALONE_SYSTEM
 
     constexpr ptrdiff_t shader_ids[] = {
-        0x00956784, 0x009566D8, 0x00956730, 0x009566C4,
-        0x009567B4, 0x0095686C, 0x0095678C, 0x00956788,
-        0x00971E94, 0x00971EE8, 0x00971EEC, 0x00971EE0,
+        0x00956784,
+        0x009566D8,
+        0x00956730,
+        0x009566C4,
+        0x009567B4,
+        0x0095686C,
+        0x0095678C,
+        0x00956788,
+        0x00971E94,
+        0x00971EE8,
+        0x00971EEC,
+        0x00971EE0,
         0x00971EE4,
     };
     int next_id = 0;
@@ -50,9 +59,7 @@ void nglParamSet<nglShaderParamSet_Pool>::set_color(color32 a2)
     }
 }
 
-nglMaterialBase *select_mesh_material(
-    nglParamSet<nglShaderParamSet_Pool> *a1,
-    nglMaterialBase *DefaultMaterial)
+nglMaterialBase *select_mesh_material(nglParamSet<nglShaderParamSet_Pool> *a1, nglMaterialBase *DefaultMaterial)
 {
     if (!a1->IsSetParam<USMMaterialListParam>()) {
         return DefaultMaterial;
@@ -69,8 +76,7 @@ nglMaterialBase *select_mesh_material(
     }
 
     const auto material_index = material_indices[material_slot];
-    if (IsBadReadPtr(material_list,
-                     sizeof(*material_list) * (static_cast<size_t>(material_index) + 1))) {
+    if (IsBadReadPtr(material_list, sizeof(*material_list) * (static_cast<size_t>(material_index) + 1))) {
         return DefaultMaterial;
     }
 

@@ -47,8 +47,8 @@ struct ped_spawner : spawnable {
     actor *create_ped_actor();
 
     //virtual
-    void _do_spawn(vector3d position, vector3d facing, traffic_path_lane *lane,
-        int node_index, bool first, bool moving);
+    void _do_spawn(vector3d position, vector3d facing, traffic_path_lane *lane, int node_index, bool first,
+                   bool moving);
 
     //virtual
     actor *get_my_actor();

@@ -289,8 +289,8 @@ struct traffic : spawnable {
     bool is_destroyed_halt() const;
     bool player_in_front();
     bool point_in_front(const vector3d &position);
-    void check_obstacle_point(const vector3d &position, float radius, bool &stop,
-                              bool &slow, bool &clear, bool check_angle);
+    void check_obstacle_point(const vector3d &position, float radius, bool &stop, bool &slow, bool &clear,
+                              bool check_angle);
     void check_obstacle(entity *other, bool &stop, bool &slow, bool &clear, bool check_angle);
     void pull_over_for_chase();
     void pass_car_in_front(traffic *other);

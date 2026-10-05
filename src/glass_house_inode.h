@@ -16,8 +16,14 @@ struct glass_house_inode : info_node {
     static void *native_vtable();
     glass_house_inode();
     glass_house_inode(from_mash_in_place_constructor *tag);
-    uint32_t get_virtual_type_enum() const { return 383; }
-    int get_mash_sizeof() const { return 0x34; }
+    uint32_t get_virtual_type_enum() const
+    {
+        return 383;
+    }
+    int get_mash_sizeof() const
+    {
+        return 0x34;
+    }
     void unmash(mash_info_struct *info, void *data);
     void activate(ai_core *core);
     void frame_advance(Float dt);

@@ -21,7 +21,7 @@ gab_database_resource_handler::gab_database_resource_handler(worldly_pack_slot *
 
         this->m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {
-    this->m_vtbl = 0x00888AF4;
+        this->m_vtbl = 0x00888AF4;
     }
 
     this->my_slot = a2;
@@ -46,9 +46,8 @@ bool gab_database_resource_handler::_handle_resource(worldly_resource_handler::e
         gab_manager::set_gab_database(nullptr);
         the_gab_database->destruct_mashed_class();
     } else {
-
 #if OPENUSM_XBOX_MASH_FORMAT
-        mash_info_struct info_struct {mash::UNMASH_MODE, resource, a3->m_size, true};
+        mash_info_struct info_struct{mash::UNMASH_MODE, resource, a3->m_size, true};
 #else
         mash_info_struct info_struct{resource, a3->m_size};
 #endif
@@ -59,8 +58,8 @@ bool gab_database_resource_handler::_handle_resource(worldly_resource_handler::e
 #if OPENUSM_XBOX_MASH_FORMAT
                                  ,
                                  mash::NORMAL_BUFFER
-#endif 
-                );
+#endif
+        );
 
         mash_info_struct::construct_class(the_gab_database);
         gab_manager::set_gab_database(the_gab_database);

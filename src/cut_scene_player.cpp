@@ -88,22 +88,17 @@ po restored_pose(const entity_class_entry &entry)
     result.set_position(entry.field_28);
     return result;
 }
-}
+}  // namespace
 
 cut_scene_player::cut_scene_player()
-    : sound_inst(0), peds_and_traffic_overridden(false), field_E1(false),
-      field_E4(static_cast<game_control_t>(96)),
-      field_118(static_cast<game_control_t>(114)), field_14C(-1),
-      field_154(-1.0f), field_158(-1.0f), field_164(0.0f)
-{
-}
+    : sound_inst(0), peds_and_traffic_overridden(false), field_E1(false), field_E4(static_cast<game_control_t>(96)),
+      field_118(static_cast<game_control_t>(114)), field_14C(-1), field_154(-1.0f), field_158(-1.0f), field_164(0.0f)
+{}
 
 cut_scene_player::~cut_scene_player() = default;
 
 cut_scene_panel_tree::~cut_scene_panel_tree()
 {
-
-
     if (root) {
         if (owns_panels)
             THISCALL(0x00746480, this, &root, 1);
@@ -123,8 +118,6 @@ void cut_scene_player::restore_game_play_panel()
     panel->field_4[3][2] = 0.0f;
     panel->m_size = vector2d{640.0f, 480.0f};
     for (auto *component = panel->field_60; component; component = component->field_4) {
-
-
         if (component->m_vtbl == 0x008AA32C)
             reinterpret_cast<comic_panels::panel_component_camera *>(component)->field_2C = 0;
         else if (component->m_vtbl == 0x008A9DF0)
@@ -225,8 +218,7 @@ void cut_scene_player::stop(cut_scene *a2)
                 g_spiderman_camera_ptr()->sync(*static_cast<camera *>(ent));
         }
         if (peds_and_traffic_overridden) {
-            os_developer_options::instance->set_flag(
-                static_cast<os_developer_options::flags_t>(136), m_peds_enabled);
+            os_developer_options::instance->set_flag(static_cast<os_developer_options::flags_t>(136), m_peds_enabled);
             traffic::enable_traffic(m_traffic_enabled, false);
             peds_and_traffic_overridden = false;
         }

@@ -30,8 +30,7 @@
 #include <limits>
 #include <windows.h>
 
-namespace
-{
+namespace {
 constexpr uint32_t MASH_SYNC_TEST_VAL5 = 0x5BADF00D;
 constexpr uint32_t MASH_SYNC_TEST_VAL6 = 0x6BADF00D;
 constexpr uint32_t XB_MASH_MAGIC = 0x6D617368;
@@ -73,8 +72,7 @@ uint32_t read_u32(const void *source)
 uint8_t *align_ptr(uint8_t *value, size_t alignment)
 {
     const auto address = reinterpret_cast<uintptr_t>(value);
-    return reinterpret_cast<uint8_t *>(
-        (address + alignment - 1u) & ~(alignment - 1u));
+    return reinterpret_cast<uint8_t *>((address + alignment - 1u) & ~(alignment - 1u));
 }
 
 void write_u32(void *destination, uint32_t value)
@@ -82,8 +80,7 @@ void write_u32(void *destination, uint32_t value)
     std::memcpy(destination, &value, sizeof(value));
 }
 
-class read_cursor
-{
+class read_cursor {
 public:
     read_cursor(uint8_t *data, size_t size) : m_data(data), m_size(size) {}
 
@@ -141,8 +138,7 @@ private:
     bool m_valid = true;
 };
 
-class write_cursor
-{
+class write_cursor {
 public:
     write_cursor(uint8_t *data, size_t size) : m_data(data), m_size(size) {}
 
@@ -207,8 +203,7 @@ private:
     bool m_valid = true;
 };
 
-struct xb_mash
-{
+struct xb_mash {
     bool present = false;
     const uint8_t *data = nullptr;
     size_t total_size = 0u;
@@ -218,14 +213,12 @@ struct xb_mash
     size_t shared_size = 0u;
 };
 
-struct xb_string
-{
+struct xb_string {
     const uint8_t *data = nullptr;
     uint32_t byte_count = 0u;
 };
 
-struct actor_mash_frame
-{
+struct actor_mash_frame {
     generic_mash_data_ptrs *data = nullptr;
     uint8_t *xb_bounds = nullptr;
     uint8_t *xb_shared = nullptr;
@@ -233,17 +226,14 @@ struct actor_mash_frame
     uint8_t *pc_bounds_end = nullptr;
 };
 
-actor_mash_frame g_actor_mash_stack[ACTOR_MASH_STACK_SIZE] {};
+actor_mash_frame g_actor_mash_stack[ACTOR_MASH_STACK_SIZE]{};
 size_t g_actor_mash_depth = 0u;
 
 bool xbpack_err(const char *reason)
 {
     sp_log("XBPACK conversion failed %s", reason);
     char message[256];
-    std::snprintf(message,
-                  sizeof(message),
-                  "XBPACK conversion failed %s\n",
-                  reason);
+    std::snprintf(message, sizeof(message), "XBPACK conversion failed %s\n", reason);
     OutputDebugStringA(message);
     DebugBreak();
     return false;
@@ -335,7 +325,7 @@ void write_str(write_cursor &writer, const xb_string &string)
 
 void write_str(write_cursor &writer, const char *string)
 {
-    xb_string view {};
+    xb_string view{};
     if (string != nullptr && string[0] != 0) {
         view.data = reinterpret_cast<const uint8_t *>(string);
         view.byte_count = static_cast<uint32_t>(std::strlen(string) + 1u);
@@ -379,23 +369,18 @@ bool write_base_ai(write_cursor &writer, const xb_mash &value)
     return writer.valid();
 }
 
-bool write_physical_interface(
-    write_cursor &normal_writer,
-    write_cursor &shared_writer,
-    const xb_mash &physical)
+bool write_physical_interface(write_cursor &normal_writer, write_cursor &shared_writer, const xb_mash &physical)
 {
     if (physical.normal_size < XB_PHYSICAL_SIZE || physical.shared_size != 0u) {
         return false;
     }
 
-    read_cursor strings(
-        const_cast<uint8_t *>(physical.normal + XB_PHYSICAL_SIZE),
-        physical.normal_size - XB_PHYSICAL_SIZE);
-    xb_string first_string {};
-    xb_string second_string {};
+    read_cursor strings(const_cast<uint8_t *>(physical.normal + XB_PHYSICAL_SIZE),
+                        physical.normal_size - XB_PHYSICAL_SIZE);
+    xb_string first_string{};
+    xb_string second_string{};
     if (!read_str(physical.normal + 0x188u, strings, first_string) ||
-        !read_str(physical.normal + 0x194u, strings, second_string) ||
-        strings.remaining() != 0u) {
+        !read_str(physical.normal + 0x194u, strings, second_string) || strings.remaining() != 0u) {
         return false;
     }
 
@@ -419,8 +404,7 @@ bool convert_float_to_int(const uint8_t *source, uint32_t &result)
     float value = 0.0f;
     std::memcpy(&value, source, sizeof(value));
     const auto wide_value = static_cast<double>(value);
-    if (!std::isfinite(value) ||
-        wide_value < static_cast<double>(std::numeric_limits<int32_t>::min()) ||
+    if (!std::isfinite(value) || wide_value < static_cast<double>(std::numeric_limits<int32_t>::min()) ||
         wide_value > static_cast<double>(std::numeric_limits<int32_t>::max())) {
         return false;
     }
@@ -429,25 +413,19 @@ bool convert_float_to_int(const uint8_t *source, uint32_t &result)
     return true;
 }
 
-bool write_damage_interface(
-    write_cursor &normal_writer,
-    write_cursor &shared_writer,
-    const xb_mash &damage)
+bool write_damage_interface(write_cursor &normal_writer, write_cursor &shared_writer, const xb_mash &damage)
 {
     if (damage.normal_size < XB_DAMAGE_SIZE || damage.shared_size != 0u) {
         return false;
     }
 
-    read_cursor strings(
-        const_cast<uint8_t *>(damage.normal + XB_DAMAGE_SIZE),
-        damage.normal_size - XB_DAMAGE_SIZE);
-    xb_string legacy_string {};
-    xb_string first_source {};
-    xb_string second_source {};
+    read_cursor strings(const_cast<uint8_t *>(damage.normal + XB_DAMAGE_SIZE), damage.normal_size - XB_DAMAGE_SIZE);
+    xb_string legacy_string{};
+    xb_string first_source{};
+    xb_string second_source{};
     if (!read_str(damage.normal + 0x6Cu, strings, legacy_string) ||
         !read_str(damage.normal + 0x168u, strings, first_source) ||
-        !read_str(damage.normal + 0x174u, strings, second_source) ||
-        strings.remaining() != 0u) {
+        !read_str(damage.normal + 0x174u, strings, second_source) || strings.remaining() != 0u) {
         return false;
     }
 
@@ -484,7 +462,7 @@ bool write_damage_interface(
     shared_writer.align(4u);
     shared_writer.reserve(0x14u);
 
-    constexpr size_t xbox_float_offsets[] {0x1ACu, 0x1A4u, 0x1BCu, 0x1B4u};
+    constexpr size_t xbox_float_offsets[]{0x1ACu, 0x1A4u, 0x1BCu, 0x1B4u};
     for (auto offset : xbox_float_offsets) {
         uint32_t value = 0u;
         if (!convert_float_to_int(damage.normal + offset, value)) {
@@ -501,17 +479,14 @@ bool write_damage_interface(
 }
 
 #ifndef OPENUSM_XBPACK_V10
-bool convert_entity_prefix(
-    entity_base *self,
-    generic_mash_header *header,
-    generic_mash_data_ptrs *data)
+bool convert_entity_prefix(entity_base *self, generic_mash_header *header, generic_mash_data_ptrs *data)
 {
     read_cursor input(data->field_0, MAX_ACTOR_MASH_SIZE);
 
     if ((header->field_E & 0x880u) != 0u) {
         input.align(8u);
 
-        xb_mash sound {};
+        xb_mash sound{};
         if (!read_mash(input, sound, true) || !sound.present) {
             return xbpack_err("invalid xb sound interface wrapper");
         }
@@ -519,25 +494,18 @@ bool convert_entity_prefix(
             return xbpack_err("truncated xb sound interface");
         }
 
-        auto *pc_sound = reinterpret_cast<sound_and_pfx_interface *>(
-            THISCALL(0x004E0970, self));
+        auto *pc_sound = reinterpret_cast<sound_and_pfx_interface *>(THISCALL(0x004E0970, self));
         if (pc_sound == nullptr) {
             return xbpack_err("unable to allocate PC sound interface");
         }
 
         // stores sound base only
-        std::memcpy(&pc_sound->field_C,
-                    sound.normal + 0x0Cu,
-                    sizeof(pc_sound->field_C));
-        std::memcpy(&pc_sound->field_14,
-                    sound.normal + 0x14u,
-                    sizeof(pc_sound->field_14));
-        std::memcpy(&pc_sound->field_24,
-                    sound.normal + 0x24u,
-                    sizeof(pc_sound->field_24));
+        std::memcpy(&pc_sound->field_C, sound.normal + 0x0Cu, sizeof(pc_sound->field_C));
+        std::memcpy(&pc_sound->field_14, sound.normal + 0x14u, sizeof(pc_sound->field_14));
+        std::memcpy(&pc_sound->field_24, sound.normal + 0x24u, sizeof(pc_sound->field_24));
     }
 
-    xb_mash time {};
+    xb_mash time{};
     if (!read_mash(input, time, true)) {
         return xbpack_err("invalid xb time interface");
     }
@@ -553,9 +521,7 @@ bool convert_entity_prefix(
             return xbpack_err("unable to allocate PC time interface");
         }
 
-        std::memcpy(reinterpret_cast<uint8_t *>(pc_time) + 0x0Cu,
-                    time.normal + 0x0Cu,
-                    XB_TIME_INTERFACE_SIZE - 0x0Cu);
+        std::memcpy(reinterpret_cast<uint8_t *>(pc_time) + 0x0Cu, time.normal + 0x0Cu, XB_TIME_INTERFACE_SIZE - 0x0Cu);
     }
 
     data->field_0 = input.current();
@@ -564,10 +530,7 @@ bool convert_entity_prefix(
 #endif
 
 #ifdef OPENUSM_XBPACK_V10
-bool unmash_v10_sound(
-    entity_base *self,
-    generic_mash_header *header,
-    generic_mash_data_ptrs *data)
+bool unmash_v10_sound(entity_base *self, generic_mash_header *header, generic_mash_data_ptrs *data)
 {
     if ((header->field_E & 0x880u) == 0u) {
         return true;
@@ -580,8 +543,7 @@ bool unmash_v10_sound(
         return xbpack_err("truncated v10 sound interface");
     }
 
-    auto *pc_sound = reinterpret_cast<sound_and_pfx_interface *>(
-        THISCALL(0x004E0970, self));
+    auto *pc_sound = reinterpret_cast<sound_and_pfx_interface *>(THISCALL(0x004E0970, self));
     if (pc_sound == nullptr) {
         return xbpack_err("unable to allocate PC sound interface");
     }
@@ -610,13 +572,11 @@ bool convert_actor_mash(generic_mash_header *header, generic_mash_data_ptrs *dat
         return xbpack_err("MASH5 marker was not found at the xb actor");
     }
 
-    xb_mash base_ai {};
-    xb_mash interactable {};
-    xb_mash facial {};
-    xb_mash web {};
-    if (!read_mash(input, base_ai, true) ||
-        !read_mash(input, interactable, true) ||
-        !read_mash(input, facial, false) ||
+    xb_mash base_ai{};
+    xb_mash interactable{};
+    xb_mash facial{};
+    xb_mash web{};
+    if (!read_mash(input, base_ai, true) || !read_mash(input, interactable, true) || !read_mash(input, facial, false) ||
         !read_mash(input, web, true)) {
         return xbpack_err("invalid xb actor interface wrapper");
     }
@@ -629,10 +589,9 @@ bool convert_actor_mash(generic_mash_header *header, generic_mash_data_ptrs *dat
         return xbpack_err("invalid MASH6 marker");
     }
 
-    xb_mash physical {};
-    xb_mash damage {};
-    if ((header->field_E & 0x1Bu) != 0u &&
-        (!read_mash(input, physical, true) || !read_mash(input, damage, true))) {
+    xb_mash physical{};
+    xb_mash damage{};
+    if ((header->field_E & 0x1Bu) != 0u && (!read_mash(input, physical, true) || !read_mash(input, damage, true))) {
         return xbpack_err("invalid xb physical or damage");
     }
 
@@ -651,13 +610,11 @@ bool convert_actor_mash(generic_mash_header *header, generic_mash_data_ptrs *dat
     auto *xb_bounds = input.current();
     size_t normal_capacity = 0x400u;
     size_t shared_capacity = 0x400u;
-    if (!checked_add(normal_capacity, base_ai.normal_size) ||
-        !checked_add(normal_capacity, interactable.normal_size) ||
+    if (!checked_add(normal_capacity, base_ai.normal_size) || !checked_add(normal_capacity, interactable.normal_size) ||
         !checked_add(normal_capacity, web.normal_size) ||
         !checked_add(normal_capacity, expects_physical ? PC_PHYSICAL_SIZE : 0u) ||
         !checked_add(normal_capacity, expects_damage ? PC_DAMAGE_SIZE : 0u) ||
-        !checked_add(shared_capacity, physical.normal_size) ||
-        !checked_add(shared_capacity, damage.normal_size)) {
+        !checked_add(shared_capacity, physical.normal_size) || !checked_add(shared_capacity, damage.normal_size)) {
         return xbpack_err("actor exceeds conversion size limit");
     }
     if (g_actor_mash_depth >= ACTOR_MASH_STACK_SIZE) {
@@ -738,10 +695,9 @@ bool convert_actor_mash(generic_mash_header *header, generic_mash_data_ptrs *dat
     data->field_4 = pc_shared;
     return true;
 }
-} // namespace
+}  // namespace
 
-bool actor_xbpack_unmash_entity_prefix(entity_base *self, generic_mash_header *header,
-                                       generic_mash_data_ptrs *data)
+bool actor_xbpack_unmash_entity_prefix(entity_base *self, generic_mash_header *header, generic_mash_data_ptrs *data)
 {
     if (g_platform != NL_PLATFORM_XBOX) {
         return false;
@@ -755,12 +711,10 @@ bool actor_xbpack_unmash_entity_prefix(entity_base *self, generic_mash_header *h
     return true;
 }
 
-extern "C" __attribute__((noinline, used)) void __fastcall actor_xbpack_entity_prefix_impl(
-    entity_base *self,
-    int,
-    generic_mash_header *header,
-    void *context,
-    generic_mash_data_ptrs *data)
+extern "C" __attribute__((noinline, used)) void __fastcall actor_xbpack_entity_prefix_impl(entity_base *self, int,
+                                                                                           generic_mash_header *header,
+                                                                                           void *context,
+                                                                                           generic_mash_data_ptrs *data)
 {
     if (g_platform != NL_PLATFORM_XBOX) {
         THISCALL(0x004CB2F0, self, header, context, data);
@@ -780,17 +734,12 @@ extern "C" __attribute__((noinline, used)) void __fastcall actor_xbpack_entity_p
 }
 
 #ifdef OPENUSM_XBPACK_V10
-extern "C" __attribute__((noinline, used)) void *__cdecl load_v10_pfx(
-    uint8_t **normal,
-    uint8_t **shared,
-    uint32_t size,
-    void *owner)
+extern "C" __attribute__((noinline, used)) void *__cdecl load_v10_pfx(uint8_t **normal, uint8_t **shared, uint32_t size,
+                                                                      void *owner)
 {
-    if (g_platform != NL_PLATFORM_XBOX ||
-        normal == nullptr || *normal == nullptr ||
-        shared == nullptr || *shared == nullptr) {
-        return reinterpret_cast<void *>(
-            CDECL_CALL(0x004F03B0, normal, shared, size, owner));
+    if (g_platform != NL_PLATFORM_XBOX || normal == nullptr || *normal == nullptr || shared == nullptr ||
+        *shared == nullptr) {
+        return reinterpret_cast<void *>(CDECL_CALL(0x004F03B0, normal, shared, size, owner));
     }
 
     auto *xb_cursor = *normal;
@@ -824,29 +773,22 @@ extern "C" __attribute__((noinline, used)) void *__cdecl load_v10_pfx(
     auto *pc_cursor = storage + (shifted ? 8u : 0u);
     auto *pc_pfx = pfx_data(pc_cursor);
     std::memcpy(pc_pfx, xb_pfx, XB_V10_PFX_VECTOR_OFFSET);
-    std::memcpy(pc_pfx + PC_PFX_VECTOR_OFFSET,
-                xb_pfx + XB_V10_PFX_VECTOR_OFFSET,
-                XB_V10_PFX_SIZE - XB_V10_PFX_VECTOR_OFFSET);
+    std::memcpy(
+        pc_pfx + PC_PFX_VECTOR_OFFSET, xb_pfx + XB_V10_PFX_VECTOR_OFFSET, XB_V10_PFX_SIZE - XB_V10_PFX_VECTOR_OFFSET);
     write_u32(pc_pfx + 0x94u, 1u);
     if (nested_size != 0u) {
-        std::memcpy(pc_pfx + PC_PFX_SIZE,
-                    xb_pfx + XB_V10_PFX_SIZE,
-                    nested_size);
+        std::memcpy(pc_pfx + PC_PFX_SIZE, xb_pfx + XB_V10_PFX_SIZE, nested_size);
     }
 
-    auto *result = reinterpret_cast<void *>(
-        CDECL_CALL(0x004F03B0, &pc_cursor, shared, size, owner));
+    auto *result = reinterpret_cast<void *>(CDECL_CALL(0x004F03B0, &pc_cursor, shared, size, owner));
     *normal = align_ptr(xb_pfx + XB_V10_PFX_SIZE + nested_size, 16u);
     return result;
 }
 
-extern "C" __attribute__((noinline, used)) void __fastcall unmash_v10_advanced(
-    void *self,
-    int,
-    generic_mash_header *header,
-    actor *owner,
-    void *context,
-    generic_mash_data_ptrs *data)
+extern "C"
+    __attribute__((noinline, used)) void __fastcall unmash_v10_advanced(void *self, int, generic_mash_header *header,
+                                                                        actor *owner, void *context,
+                                                                        generic_mash_data_ptrs *data)
 {
     if (g_platform != NL_PLATFORM_XBOX || data == nullptr || data->field_4 == nullptr) {
         THISCALL(0x004CFCE0, self, header, owner, context, data);
@@ -867,13 +809,10 @@ extern "C" __attribute__((noinline, used)) void __fastcall unmash_v10_advanced(
     script_key->m_type = raw_type;
 }
 
-extern "C" __attribute__((noinline, used)) base_ai_data *__cdecl construct_v10_base_ai(
-    base_ai_data **value)
+extern "C" __attribute__((noinline, used)) base_ai_data *__cdecl construct_v10_base_ai(base_ai_data **value)
 {
-    if (g_platform != NL_PLATFORM_XBOX ||
-        value == nullptr || *value == nullptr) {
-        return reinterpret_cast<base_ai_data *>(
-            CDECL_CALL(0x005037D0, value));
+    if (g_platform != NL_PLATFORM_XBOX || value == nullptr || *value == nullptr) {
+        return reinterpret_cast<base_ai_data *>(CDECL_CALL(0x005037D0, value));
     }
 
     auto &type = (*value)->field_0.m_type;
@@ -891,47 +830,53 @@ extern "C" __attribute__((noinline, used)) base_ai_data *__cdecl construct_v10_b
     }
 
     type = RESOURCE_KEY_TYPE_BASE_AI;
-    return reinterpret_cast<base_ai_data *>(
-        CDECL_CALL(0x005037D0, value));
+    return reinterpret_cast<base_ai_data *>(CDECL_CALL(0x005037D0, value));
 }
 
-extern "C" __attribute__((noinline, used)) void __fastcall unmash_v10_base_ai(
-    base_ai_data *self,
-    int,
-    void *info,
-    void *context)
+extern "C" __attribute__((noinline, used)) void __fastcall unmash_v10_base_ai(base_ai_data *self, int, void *info,
+                                                                              void *context)
 {
-    uint32_t before[6] {};
+    uint32_t before[6]{};
     std::memcpy(before, self, sizeof(before));
 
     THISCALL(0x006D7370, self, info, context);
 
     if (self->field_0.m_type != XB_V10_BASE_AI_TYPE) {
-        uint32_t after[6] {};
+        uint32_t after[6]{};
         std::memcpy(after, self, sizeof(after));
         const auto *pc_info = static_cast<const uint32_t *>(info);
         char message[320];
-        std::snprintf(
-            message,
-            sizeof(message),
-            "XBPACK v10 base-ai unmash changed object=%p "
-            "before=%08X,%08X,%08X,%08X,%08X,%08X "
-            "after=%08X,%08X,%08X,%08X,%08X,%08X "
-            "info=%08X,%08X,%08X,%08X\n",
-            static_cast<void *>(self),
-            before[0], before[1], before[2], before[3], before[4], before[5],
-            after[0], after[1], after[2], after[3], after[4], after[5],
-            pc_info[0], pc_info[1], pc_info[2], pc_info[3]);
+        std::snprintf(message,
+                      sizeof(message),
+                      "XBPACK v10 base-ai unmash changed object=%p "
+                      "before=%08X,%08X,%08X,%08X,%08X,%08X "
+                      "after=%08X,%08X,%08X,%08X,%08X,%08X "
+                      "info=%08X,%08X,%08X,%08X\n",
+                      static_cast<void *>(self),
+                      before[0],
+                      before[1],
+                      before[2],
+                      before[3],
+                      before[4],
+                      before[5],
+                      after[0],
+                      after[1],
+                      after[2],
+                      after[3],
+                      after[4],
+                      after[5],
+                      pc_info[0],
+                      pc_info[1],
+                      pc_info[2],
+                      pc_info[3]);
         xbpack_err(message);
     }
 }
 
-extern "C" __attribute__((noinline, used)) void __fastcall init_v10_gun_effect(
-    cached_special_effect *self,
-    int,
-    generic_mash_header *header,
-    void *context,
-    generic_mash_data_ptrs *data)
+extern "C"
+    __attribute__((noinline, used)) void __fastcall init_v10_gun_effect(cached_special_effect *self, int,
+                                                                        generic_mash_header *header, void *context,
+                                                                        generic_mash_data_ptrs *data)
 {
     if (g_platform != NL_PLATFORM_XBOX) {
         THISCALL(0x004D3650, self, header, context, data);
@@ -941,23 +886,17 @@ extern "C" __attribute__((noinline, used)) void __fastcall init_v10_gun_effect(
     THISCALL(0x005020D0, self);
 }
 
-extern "C" __attribute__((noinline, used)) int __fastcall unmash_v10_thrown_item(
-    thrown_item *self,
-    int,
-    generic_mash_header *header,
-    void *context,
-    generic_mash_data_ptrs *data)
+extern "C"
+    __attribute__((noinline, used)) int __fastcall unmash_v10_thrown_item(thrown_item *self, int,
+                                                                          generic_mash_header *header, void *context,
+                                                                          generic_mash_data_ptrs *data)
 {
-    if (g_platform == NL_PLATFORM_XBOX &&
-        header != nullptr &&
-        header->is_flagged(0x40000000u) &&
+    if (g_platform == NL_PLATFORM_XBOX && header != nullptr && header->is_flagged(0x40000000u) &&
         header->class_id == XB_V10_THROWN_ITEM_TYPE) {
         auto *bytes = reinterpret_cast<uint8_t *>(self);
 
-        std::memmove(bytes + 0x300u, bytes + 0x2F0u,
-                     XB_V10_THROWN_ITEM_SIZE - 0x2F0u);
-        std::memmove(bytes + 0xC0u, bytes + 0xBCu,
-                     0x2F0u - 0xBCu);
+        std::memmove(bytes + 0x300u, bytes + 0x2F0u, XB_V10_THROWN_ITEM_SIZE - 0x2F0u);
+        std::memmove(bytes + 0xC0u, bytes + 0xBCu, 0x2F0u - 0xBCu);
         std::memset(bytes + 0xBCu, 0, sizeof(uint32_t));
         std::memset(bytes + 0x2F4u, 0, 3u * sizeof(uint32_t));
     }
@@ -965,14 +904,11 @@ extern "C" __attribute__((noinline, used)) int __fastcall unmash_v10_thrown_item
     return THISCALL(0x00549E80, self, header, context, data);
 }
 
-extern "C" __attribute__((noinline, used)) void __cdecl set_v10_actor_context(
-    actor *self,
-    resource_pack_slot *context)
+extern "C" __attribute__((noinline, used)) void __cdecl set_v10_actor_context(actor *self, resource_pack_slot *context)
 {
     auto *colgeom = self->colgeom;
     if (g_platform == NL_PLATFORM_XBOX &&
-        reinterpret_cast<uint8_t *>(colgeom) ==
-            reinterpret_cast<uint8_t *>(self) + XB_V10_ACTOR_SIZE) {
+        reinterpret_cast<uint8_t *>(colgeom) == reinterpret_cast<uint8_t *>(self) + XB_V10_ACTOR_SIZE) {
         collision_geometry *instance = nullptr;
         if (colgeom->m_vtbl == collision_capsule_v_table) {
             instance = reinterpret_cast<collision_capsule *>(colgeom)->make_instance(self);
@@ -993,31 +929,29 @@ extern "C" __attribute__((noinline, used)) void __cdecl set_v10_actor_context(
 
 extern "C" __attribute__((naked, used)) void actor_v10_context_hook()
 {
-    __asm__ volatile(
-        "push eax\n\t"
-        "push ecx\n\t"
-        "push edx\n\t"
-        "push eax\n\t"
-        "push ebx\n\t"
-        "call _set_v10_actor_context\n\t"
-        "add esp, 8\n\t"
-        "pop edx\n\t"
-        "pop ecx\n\t"
-        "pop eax\n\t"
-        "test ecx, ecx\n\t"
-        "push 0x004FC4DA\n\t"
-        "ret\n\t");
+    __asm__ volatile("push eax\n\t"
+                     "push ecx\n\t"
+                     "push edx\n\t"
+                     "push eax\n\t"
+                     "push ebx\n\t"
+                     "call _set_v10_actor_context\n\t"
+                     "add esp, 8\n\t"
+                     "pop edx\n\t"
+                     "pop ecx\n\t"
+                     "pop eax\n\t"
+                     "test ecx, ecx\n\t"
+                     "push 0x004FC4DA\n\t"
+                     "ret\n\t");
 }
 
 extern "C" __attribute__((naked, used)) void actor_v10_finish_hook()
 {
-    __asm__ volatile(
-        "pop edi\n\t"
-        "pop esi\n\t"
-        "pop ebp\n\t"
-        "pop ebx\n\t"
-        "add esp, 0x2C\n\t"
-        "ret 0x0C\n\t");
+    __asm__ volatile("pop edi\n\t"
+                     "pop esi\n\t"
+                     "pop ebp\n\t"
+                     "pop ebx\n\t"
+                     "add esp, 0x2C\n\t"
+                     "ret 0x0C\n\t");
 }
 #endif
 
@@ -1036,10 +970,9 @@ bool actor_xbpack_prepare_mash(generic_mash_header *header, generic_mash_data_pt
 #endif
 }
 
-extern "C" __attribute__((noinline, used)) void __cdecl actor_xbpack_prepare_impl(
-    actor *self,
-    generic_mash_data_ptrs *data,
-    generic_mash_header *header)
+extern "C"
+    __attribute__((noinline, used)) void __cdecl actor_xbpack_prepare_impl(actor *self, generic_mash_data_ptrs *data,
+                                                                           generic_mash_header *header)
 {
     THISCALL(0x00502C70, self);
 
@@ -1088,15 +1021,13 @@ void actor_xbpack_finish(generic_mash_data_ptrs *data)
         return;
     }
 
-    const auto bounding_bytes_consumed =
-        static_cast<size_t>(current - frame.pc_bounds_begin);
+    const auto bounding_bytes_consumed = static_cast<size_t>(current - frame.pc_bounds_begin);
     data->field_0 = frame.xb_bounds + bounding_bytes_consumed;
     data->field_4 = frame.xb_shared;
     --g_actor_mash_depth;
 }
 
-extern "C" __attribute__((noinline, used)) void __cdecl actor_xbpack_finish_impl(
-    generic_mash_data_ptrs *data)
+extern "C" __attribute__((noinline, used)) void __cdecl actor_xbpack_finish_impl(generic_mash_data_ptrs *data)
 {
     actor_xbpack_finish(data);
 }
@@ -1133,7 +1064,7 @@ void actor_xbpack_patch()
     SET_JUMP(0x004FC548, actor_v10_finish_hook);
 #else
     REDIRECT(0x004FC022, actor_xbpack_prepare_hook);
-    // actor::un_mash 
+    // actor::un_mash
     SET_JUMP(0x004FC616, actor_xbpack_finish_hook);
     SET_JUMP(0x004FC66A, actor_xbpack_finish_hook);
 #endif

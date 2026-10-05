@@ -19,7 +19,8 @@ struct light_manager;
 struct light_source;
 struct nglMeshParams;
 struct nglShaderParamSet_Pool;
-template <typename T> struct nglParamSet;
+template <typename T>
+struct nglParamSet;
 
 namespace als {
 struct animation_logic_system;
@@ -90,7 +91,7 @@ struct conglomerate : actor {
 
     void add_member_lights_to_region(region *a1);
 
-	void remove_member_lights_from_region(region *a2);
+    void remove_member_lights_from_region(region *a2);
 
     //0x004D0590
     entity_base *get_member(const string_hash &a2, bool a3);
@@ -165,7 +166,7 @@ struct conglomerate_light_cache_entry {
     fixed_vector<entity_base_vhandle, 10> lights;
 };
 
-inline Var<actor *> global_transfer_variable_the_conglom {0x00959570};
+inline Var<actor *> global_transfer_variable_the_conglom{0x00959570};
 
 extern void conglomerate_patch();
 extern void conglomerate_xbpack_patch();

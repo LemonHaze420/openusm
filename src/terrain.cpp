@@ -121,12 +121,12 @@ terrain::terrain(const mString &a2)
             int v19 = 1;
             while (1) {
                 auto &v4 = reg->get_scene_id(false);
-                mString a1a {{0}, "%s_v%d", v4.c_str(), v19};
+                mString a1a{{0}, "%s_v%d", v4.c_str(), v19};
                 auto v12 = create_resource_key_from_path(a1a.c_str(), RESOURCE_KEY_TYPE_PACK);
                 auto v15 = !resource_manager::get_pack_file_stats(v12, nullptr, nullptr, nullptr);
-                if ( v15 ) {
+                if (v15) {
                     break;
-				}
+                }
 
                 ++v19;
             }
@@ -177,7 +177,7 @@ terrain::~terrain()
         }
 
         if (regions_for_point != nullptr) {
-            for ( auto j = 0; j < this->total_regions; ++j ) {
+            for (auto j = 0; j < this->total_regions; ++j) {
                 regions_for_point->clear();
             }
 
@@ -188,7 +188,7 @@ terrain::~terrain()
             regions_for_point = nullptr;
         }
 
-        if ( region_change_callbacks != nullptr ) {
+        if (region_change_callbacks != nullptr) {
             delete region_change_callbacks;
             region_change_callbacks = nullptr;
         }
@@ -227,7 +227,7 @@ void terrain::init_region_proximity_map()
             a4 = vector3d::min(a4, a3);
             a5 = vector3d::max(a5, a2);
 
-            proximity_map_construction_leaf v9 {reg, a3, a2};
+            proximity_map_construction_leaf v9{reg, a3, a2};
             v16.push_back(v9);
         }
 
@@ -237,8 +237,8 @@ void terrain::init_region_proximity_map()
     }
 }
 
-vector3d terrain::get_elevation_adv(vector3d &position, vector3d &normal, actor *exclude_self,
-                                    entity **out_entity, subdivision_node_obb_base **out_obb, Float distance)
+vector3d terrain::get_elevation_adv(vector3d &position, vector3d &normal, actor *exclude_self, entity **out_entity,
+                                    subdivision_node_obb_base **out_obb, Float distance)
 {
     if (distance <= 0.0f)
         distance = 6.0f;
@@ -249,15 +249,16 @@ vector3d terrain::get_elevation_adv(vector3d &position, vector3d &normal, actor 
     static local_collision::entfilter<local_collision::entfilter_AND<
         local_collision::entfilter_AND<local_collision::entfilter_EXCLUDE_ENTITY,
                                        local_collision::entfilter_NO_CAPSULES>,
-        local_collision::entfilter_AND<local_collision::entfilter_ENTITY, walkable_entfilter_t>>> entity_filter;
+        local_collision::entfilter_AND<local_collision::entfilter_ENTITY, walkable_entfilter_t>>>
+        entity_filter;
     static local_collision::obbfilter<
         local_collision::obbfilter_AND<walkable_obbfilter_t, local_collision::obbfilter_OBB_LINE_SEGMENT_TEST>>
         terrain_filter;
     auto *primitives = local_collision::query_line_segment(position, end, entity_filter, terrain_filter, arguments);
     line_segment_t segment{position, end};
     local_collision::intersection_list_t intersection{};
-    const bool hit = local_collision::get_closest_line_intersection(
-        primitives, &segment, false, nullptr, nullptr, &intersection);
+    const bool hit =
+        local_collision::get_closest_line_intersection(primitives, &segment, false, nullptr, nullptr, &intersection);
     while (primitives != nullptr) {
         auto *next = primitives->field_0;
         local_collision::primitive_list_t::pool.remove(primitives);
@@ -287,7 +288,7 @@ float terrain::get_elevation(vector3d &a2, vector3d &a4, actor *exclude_self, en
 
     assert(ground_pos.is_valid());
 
-    return ( a4.y >= 0.69999999f ? ground_pos.y : -10000.0f);
+    return (a4.y >= 0.69999999f ? ground_pos.y : -10000.0f);
 }
 
 void terrain::update_region_pack_info()
@@ -298,17 +299,17 @@ void terrain::update_region_pack_info()
         auto *v12 = this->regions[i];
         auto &v2 = v12->get_name();
         auto *v3 = v2.to_string();
-        string_hash v6 {v3};
-        resource_key v11 {v6, RESOURCE_KEY_TYPE_PACK};
+        string_hash v6{v3};
+        resource_key v11{v6, RESOURCE_KEY_TYPE_PACK};
         auto v5 = resource_manager::get_pack_file_stats(v11, nullptr, nullptr, nullptr);
 
         auto func = [](region *self, bool a2) -> void {
             uint32_t v2;
-            if ( a2 ) {
+            if (a2) {
                 v2 = self->flags | 0x4000;
             } else {
                 v2 = self->flags & 0xFFFFBFFF;
-			}
+            }
 
             self->flags = v2;
         };
@@ -320,32 +321,32 @@ void terrain::update_region_pack_info()
 bool terrain::district_load_callback(resource_pack_slot::callback_enum reason, resource_pack_streamer *streamer,
                                      resource_pack_slot *slot, limited_timer *a4)
 {
-	TRACE("terrain::district_load_callback");
+    TRACE("terrain::district_load_callback");
 
-	if constexpr (1) {
-		bool result = false;
+    if constexpr (1) {
+        bool result = false;
         switch (reason) {
-		case resource_pack_slot::CALLBACK_LOAD_STARTED:
-			result = terrain::district_load_started_callback(reason, streamer, slot);
-			break;
-		case resource_pack_slot::CALLBACK_CONSTRUCT:
-			result = terrain::district_construct_callback(reason, streamer, slot, a4);
-			break;
-		case resource_pack_slot::CALLBACK_PRE_DESTRUCT:
-			result = terrain::district_pre_destruct_callback(reason, streamer, slot);
-			break;
-		case resource_pack_slot::CALLBACK_DESTRUCT:
-			result = terrain::district_destruct_callback(reason, streamer, slot, a4);
-			break;
-		default:
-			result = false;
-			break;
-		}
+        case resource_pack_slot::CALLBACK_LOAD_STARTED:
+            result = terrain::district_load_started_callback(reason, streamer, slot);
+            break;
+        case resource_pack_slot::CALLBACK_CONSTRUCT:
+            result = terrain::district_construct_callback(reason, streamer, slot, a4);
+            break;
+        case resource_pack_slot::CALLBACK_PRE_DESTRUCT:
+            result = terrain::district_pre_destruct_callback(reason, streamer, slot);
+            break;
+        case resource_pack_slot::CALLBACK_DESTRUCT:
+            result = terrain::district_destruct_callback(reason, streamer, slot, a4);
+            break;
+        default:
+            result = false;
+            break;
+        }
 
-		return result;
-	} else {
-		return (bool) CDECL_CALL(0x0055C350, reason, streamer, slot, a4);
-	}
+        return result;
+    } else {
+        return (bool)CDECL_CALL(0x0055C350, reason, streamer, slot, a4);
+    }
 }
 
 void terrain::unload_district_immediate(int a2)
@@ -406,7 +407,7 @@ region *terrain::find_region(const vector3d &a2, region *a3) const
     }
 
     assert(this->region_map != nullptr);
-    simple_region_visitor visitor {a2, false};
+    simple_region_visitor visitor{a2, false};
     ++region::visit_key2;
     static_region_list_methods::init();
     this->region_map->traverse_point(a2, visitor);
@@ -422,7 +423,7 @@ int terrain::get_region_index_by_name(const fixedstring<4> &a2) const
     TRACE("terrain::get_region_index_by_name", a2.to_string());
 
     if constexpr (STANDALONE_SYSTEM) {
-        region_lookup_entry v8 {a2.to_string(), 0};
+        region_lookup_entry v8{a2.to_string(), 0};
 
         auto *found = this->field_5C.find(&v8);
         if (found != nullptr) {
@@ -439,7 +440,7 @@ int terrain::get_region_index_by_name(const fixedstring<4> &a2) const
 
 region *terrain::get_region(int idx)
 {
-	TRACE("terrain::get_region");
+    TRACE("terrain::get_region");
 
     assert(idx >= 0);
     assert(idx < total_regions);
@@ -494,29 +495,27 @@ int terrain::find_strip(const mString &a2) const
 }
 
 bool terrain::district_pre_destruct_callback(resource_pack_slot::callback_enum reason, resource_pack_streamer *,
-        resource_pack_slot *which_pack_slot)
+                                             resource_pack_slot *which_pack_slot)
 {
-	assert(reason == resource_pack_slot::CALLBACK_PRE_DESTRUCT);
+    assert(reason == resource_pack_slot::CALLBACK_PRE_DESTRUCT);
 
-	auto *ter = g_world_ptr->get_the_terrain();
-	assert(ter != nullptr);
+    auto *ter = g_world_ptr->get_the_terrain();
+    assert(ter != nullptr);
 
-	assert(which_pack_slot != nullptr);
+    assert(which_pack_slot != nullptr);
 
-	auto &v3 = which_pack_slot->get_pack_token();
-	auto *epack = ter->field_24.find_eligible_pack_by_token(v3);
-	assert(epack != nullptr);
+    auto &v3 = which_pack_slot->get_pack_token();
+    auto *epack = ter->field_24.find_eligible_pack_by_token(v3);
+    assert(epack != nullptr);
 
-	auto &v4 = epack->get_token();
-	auto *reg = ter->get_region(v4.field_4);
-	reg->unload_progress.clear();
-	return false;
+    auto &v4 = epack->get_token();
+    auto *reg = ter->get_region(v4.field_4);
+    reg->unload_progress.clear();
+    return false;
 }
 
-bool terrain::district_construct_callback(resource_pack_slot::callback_enum reason,
-                                          resource_pack_streamer *,
-                                          resource_pack_slot *which_pack_slot,
-                                          limited_timer *timer)
+bool terrain::district_construct_callback(resource_pack_slot::callback_enum reason, resource_pack_streamer *,
+                                          resource_pack_slot *which_pack_slot, limited_timer *timer)
 {
     assert(reason == resource_pack_slot::CALLBACK_CONSTRUCT);
     assert(which_pack_slot != nullptr);
@@ -529,16 +528,14 @@ bool terrain::district_construct_callback(resource_pack_slot::callback_enum reas
     }
 
     auto *ter = g_world_ptr->get_the_terrain();
-    auto *eligible_pack = ter->field_24.find_eligible_pack_by_token(
-        which_pack_slot->get_pack_token());
+    auto *eligible_pack = ter->field_24.find_eligible_pack_by_token(which_pack_slot->get_pack_token());
     assert(eligible_pack != nullptr);
 
     auto *reg = ter->get_region(eligible_pack->get_token().field_4);
     assert(reg != nullptr);
 
     const bool is_primary_pack =
-        reg->mash_info != nullptr &&
-        pack_key.m_hash == string_hash {reg->mash_info->field_0.to_string()};
+        reg->mash_info != nullptr && pack_key.m_hash == string_hash{reg->mash_info->field_0.to_string()};
     const auto out_of_time = [timer]() {
         return timer != nullptr && timer->elapsed() >= timer->field_4;
     };
@@ -554,23 +551,16 @@ bool terrain::district_construct_callback(resource_pack_slot::callback_enum reas
     auto &directory = which_pack_slot->get_resource_directory();
     if (!reg->field_118.field_4.is_done()) {
         if (!reg->field_118.field_4.is_started()) {
-            reg->field_118.field_8 =
-                directory.get_type_start_idxs(RESOURCE_KEY_TYPE_SCN_ENTITY);
+            reg->field_118.field_8 = directory.get_type_start_idxs(RESOURCE_KEY_TYPE_SCN_ENTITY);
             reg->field_118.field_4.start();
         }
 
         const int end = directory.get_type_start_idxs(RESOURCE_KEY_TYPE_SCN_ENTITY) +
                         directory.get_resource_count(RESOURCE_KEY_TYPE_SCN_ENTITY);
         while (reg->field_118.field_8 < end) {
-            auto scene_key =
-                directory.get_resource_location(reg->field_118.field_8)->field_0;
+            auto scene_key = directory.get_resource_location(reg->field_118.field_8)->field_0;
             const bool needs_more_work = g_world_ptr->load_scene(
-                scene_key,
-                false,
-                nullptr,
-                reg,
-                reinterpret_cast<worldly_pack_slot *>(which_pack_slot),
-                timer);
+                scene_key, false, nullptr, reg, reinterpret_cast<worldly_pack_slot *>(which_pack_slot), timer);
             if (out_of_time()) {
                 if (!needs_more_work) {
                     ++reg->field_118.field_8;
@@ -583,19 +573,13 @@ bool terrain::district_construct_callback(resource_pack_slot::callback_enum reas
     }
 
     if (!reg->field_118.field_C.is_done()) {
-        resource_key script_key {pack_key.m_hash, RESOURCE_KEY_TYPE_SCRIPT};
+        resource_key script_key{pack_key.m_hash, RESOURCE_KEY_TYPE_SCRIPT};
         resource_directory *script_directory = nullptr;
         resource_location *script_location = nullptr;
-        if (directory.find_resource(
-                script_key, &script_directory, &script_location)) {
-            auto *script_data =
-                script_directory->get_resource(script_location, nullptr);
+        if (directory.find_resource(script_key, &script_directory, &script_location)) {
+            auto *script_data = script_directory->get_resource(script_location, nullptr);
             if (script_data != nullptr) {
-                script_manager::load(
-                    script_key,
-                    0,
-                    which_pack_slot,
-                    *reinterpret_cast<resource_key *>(script_data));
+                script_manager::load(script_key, 0, which_pack_slot, *reinterpret_cast<resource_key *>(script_data));
                 script_manager::link();
             }
         }
@@ -629,8 +613,8 @@ bool terrain::district_construct_callback(resource_pack_slot::callback_enum reas
         }
 
         if (directory.get_resource_count(RESOURCE_KEY_TYPE_MISSION_TABLE) == 1) {
-            auto *location = directory.get_resource_location(
-                directory.get_type_start_idxs(RESOURCE_KEY_TYPE_MISSION_TABLE));
+            auto *location =
+                directory.get_resource_location(directory.get_type_start_idxs(RESOURCE_KEY_TYPE_MISSION_TABLE));
             auto *table_data = directory.get_resource(location, nullptr);
             if (table_data != nullptr) {
                 mission_manager::s_inst->add_district_table(table_data, reg);
@@ -646,8 +630,7 @@ bool terrain::district_construct_callback(resource_pack_slot::callback_enum reas
             occlusion::num_active_shadow_volumes() = 0;
         }
 
-        script_manager::add_global_constructor_thread(
-            static_cast<float>(reg->district_id), true);
+        script_manager::add_global_constructor_thread(static_cast<float>(reg->district_id), true);
         reg->field_118.field_14.done();
     }
 
@@ -655,21 +638,21 @@ bool terrain::district_construct_callback(resource_pack_slot::callback_enum reas
 }
 
 bool terrain::district_load_started_callback(resource_pack_slot::callback_enum, resource_pack_streamer *,
-											 resource_pack_slot *a3)
+                                             resource_pack_slot *a3)
 {
-	auto &v6 = a3->get_pack_token();
-	auto *the_terrain = g_world_ptr->get_the_terrain();
-	auto *eligible_pack = the_terrain->field_24.find_eligible_pack_by_token(v6);
-	auto v7 = eligible_pack->get_token().field_4;
-	auto *reg = the_terrain->get_region(v7);
+    auto &v6 = a3->get_pack_token();
+    auto *the_terrain = g_world_ptr->get_the_terrain();
+    auto *eligible_pack = the_terrain->field_24.find_eligible_pack_by_token(v6);
+    auto v7 = eligible_pack->get_token().field_4;
+    auto *reg = the_terrain->get_region(v7);
     [](auto &v4) {
-		v4.field_0.clear();
-	  	v4.field_4.clear();
-	  	v4.field_C.clear();
-	  	v4.field_10.clear();
-	  	v4.field_14.clear();
-	}(reg->field_118);
-	return false;
+        v4.field_0.clear();
+        v4.field_4.clear();
+        v4.field_C.clear();
+        v4.field_10.clear();
+        v4.field_14.clear();
+    }(reg->field_118);
+    return false;
 }
 
 bool terrain::district_destruct_callback(resource_pack_slot::callback_enum reason, resource_pack_streamer *a2,
@@ -695,8 +678,7 @@ bool terrain::district_destruct_callback(resource_pack_slot::callback_enum reaso
         if (which_pack_slot->get_resource_directory().find_resource(script_key, &directory, &location)) {
             auto *script_data = directory->get_resource(location, nullptr);
             if (script_data != nullptr) {
-                script_manager::un_load(
-                    script_key, true, *reinterpret_cast<const resource_key *>(script_data));
+                script_manager::un_load(script_key, true, *reinterpret_cast<const resource_key *>(script_data));
             }
         }
         script_manager::add_global_constructor_thread(static_cast<float>(-reg->district_id), true);
@@ -724,7 +706,7 @@ bool terrain::district_destruct_callback(resource_pack_slot::callback_enum reaso
         return false;
 
     } else {
-        return (bool) CDECL_CALL(0x00552A20, reason, a2, which_pack_slot, a4);
+        return (bool)CDECL_CALL(0x00552A20, reason, a2, which_pack_slot, a4);
     }
 }
 
@@ -748,7 +730,7 @@ void terrain::register_region_change_callback(void (*a3)(bool, region *))
 
         auto *v6 = _Buynode(v2, nullptr, v4, v4->_Prev, &a3);
 
-        void (__fastcall *sub_566E00)(void *, void *, uint32_t) = CAST(sub_566E00, 0x00566E00);
+        void(__fastcall * sub_566E00)(void *, void *, uint32_t) = CAST(sub_566E00, 0x00566E00);
         sub_566E00(v5, nullptr, 1u);
         v4->_Prev = v6;
         v6->_Prev->_Next = v6;
@@ -763,16 +745,16 @@ void terrain::show_obbs()
     if constexpr (0) {
         sp_log("show_obbs");
 
-        if (1) //(j_debug_render_get_ival((debug_render_items_e) 21) || SHOW_OBBS || SHOW_DISTRICTS)
+        if (1)  //(j_debug_render_get_ival((debug_render_items_e) 21) || SHOW_OBBS || SHOW_DISTRICTS)
         {
             color32 v15[9] = {color32{255, 255, 255, 255},
-                color32{127, 127, 127, 255},
-                color32{255, 0, 0, 255},
-                color32{0, 255, 0, 255},
-                color32{0, 0, 255, 255},
-                color32{0, 255, 255, 255},
-                color32{255, 0, 255, 255},
-                color32{255, 127, 0, 255},
+                              color32{127, 127, 127, 255},
+                              color32{255, 0, 0, 255},
+                              color32{0, 255, 0, 255},
+                              color32{0, 0, 255, 255},
+                              color32{0, 255, 255, 255},
+                              color32{255, 0, 255, 255},
+                              color32{255, 127, 0, 255},
                               color32{127, 0, 127, 255}};
 
             int v14 = 0;
@@ -834,7 +816,7 @@ void terrain::find_ideal_terrain_packs(_std::vector<ideal_pack_info> *ideal_pack
     assert(ideal_pack_infos != nullptr && ideal_pack_infos->empty());
 
     if constexpr (1) {
-        static bool & byte_960C00 = var<bool>(0x00960C00);
+        static bool &byte_960C00 = var<bool>(0x00960C00);
         if (g_world_ptr != nullptr) {
             auto *v3 = g_world_ptr->get_hero_ptr(0);
             if (v3 != nullptr) {
@@ -846,8 +828,7 @@ void terrain::find_ideal_terrain_packs(_std::vector<ideal_pack_info> *ideal_pack
                         float nearest_distance = std::numeric_limits<float>::max();
                         for (int index = 0; index < total_regions; ++index) {
                             auto *candidate = regions[index];
-                            if (candidate == nullptr || candidate->mash_info == nullptr ||
-                                candidate->is_locked())
+                            if (candidate == nullptr || candidate->mash_info == nullptr || candidate->is_locked())
                                 continue;
 
                             const auto delta = candidate->field_B0 - a2a;
@@ -857,7 +838,6 @@ void terrain::find_ideal_terrain_packs(_std::vector<ideal_pack_info> *ideal_pack
                                 hero_reg = candidate;
                             }
                         }
-
                     }
 #endif
 
@@ -870,21 +850,21 @@ void terrain::find_ideal_terrain_packs(_std::vector<ideal_pack_info> *ideal_pack
                         auto *current_view_camera = g_game_ptr->get_current_view_camera(0);
                         auto camera_abs_pos = current_view_camera->get_abs_position();
                         auto *cam_reg = this->find_region(camera_abs_pos, nullptr);
-                        if ( cam_reg == nullptr ) {
+                        if (cam_reg == nullptr) {
                             cam_reg = hero_reg;
                         }
 
-                        _std::vector<region *> a4 {};
+                        _std::vector<region *> a4{};
                         std::copy(this->field_80.begin(), this->field_80.end(), std::back_inserter(a4));
 
                         if (os_developer_options::instance->get_flag(mString{"CAMERA_CENTRIC_STREAMER"})) {
-                            if ( hero_reg != nullptr ) {
+                            if (hero_reg != nullptr) {
                                 a4.push_back(hero_reg);
                             }
 
                             this->find_ideal_terrain_packs_internal(camera_abs_pos, cam_reg, &a4, ideal_pack_infos);
                         } else {
-                            if ( cam_reg != nullptr ) {
+                            if (cam_reg != nullptr) {
                                 a4.push_back(cam_reg);
                             }
 
@@ -909,15 +889,13 @@ void terrain::find_ideal_terrain_packs(_std::vector<ideal_pack_info> *ideal_pack
 float sub_53A7A0(const vector3d &a1, region *a2)
 {
     assert(a2 != nullptr && a2->obb != nullptr);
-    const vector3d center {
-        a2->obb->center[0], a2->obb->center[1], a2->obb->center[2]};
+    const vector3d center{a2->obb->center[0], a2->obb->center[1], a2->obb->center[2]};
 
     if constexpr (STANDALONE_SYSTEM) {
         return (center - a1).length();
     } else {
         vector3d entry, exit;
-        if (!a2->obb->line_segment_intersection(
-                a1, center, &entry, &exit, nullptr, false))
+        if (!a2->obb->line_segment_intersection(a1, center, &entry, &exit, nullptr, false))
             return 0.0f;
 
         return (entry - a1).length();
@@ -933,7 +911,7 @@ void terrain::find_ideal_terrain_packs_internal(const vector3d &a2, region *cent
         if (center_region != nullptr) {
             float v81 = 3.4028235e38;
 
-            std::map<region *, float> region_priorities {};
+            std::map<region *, float> region_priorities{};
 
             assert(center_region != nullptr);
 
@@ -946,7 +924,7 @@ void terrain::find_ideal_terrain_packs_internal(const vector3d &a2, region *cent
                 region_priorities[center_region] = v81;
             }
 
-            std::map<int, float> v79 {};
+            std::map<int, float> v79{};
 
             assert(center_region->get_strip_id() >= 0);
 
@@ -955,7 +933,7 @@ void terrain::find_ideal_terrain_packs_internal(const vector3d &a2, region *cent
             auto v42 = center_region->get_strip_id();
             v79[v42] = v81;
 
-            std::list<region *> regions {};
+            std::list<region *> regions{};
 
             ++region::visit_key;
 
@@ -1005,9 +983,9 @@ void terrain::find_ideal_terrain_packs_internal(const vector3d &a2, region *cent
                     if (!neighbor->already_visited()) {
                         sub_69FD45(neighbor);
                         if (!neighbor->is_locked() && sub_6626C0(neighbor)) {
-                            assert(region_priorities.find( neighbor ) == region_priorities.end());
+                            assert(region_priorities.find(neighbor) == region_priorities.end());
 
-                            assert(region_priorities.find( reg ) != region_priorities.end());
+                            assert(region_priorities.find(reg) != region_priorities.end());
 
                             float v70 = 3.4028235e38;
                             if (region_priorities.at(reg) < 3.4028235e38f) {
@@ -1041,7 +1019,7 @@ void terrain::find_ideal_terrain_packs_internal(const vector3d &a2, region *cent
                 for (auto &r : (*a4)) {
                     assert(r != nullptr);
 
-                    if ( r && !r->is_locked() ) {
+                    if (r && !r->is_locked()) {
                         region_priorities[r] = 0.0;
                     }
                 }
@@ -1051,7 +1029,7 @@ void terrain::find_ideal_terrain_packs_internal(const vector3d &a2, region *cent
                 auto *first = v1.first;
                 auto second_low = v1.second;
                 for (auto &ep : first->field_108) {
-                    ideal_pack_info v31 {ep, second_low};
+                    ideal_pack_info v31{ep, second_low};
                     ideal_pack_infos->push_back(v31);
                 }
             }
@@ -1059,19 +1037,19 @@ void terrain::find_ideal_terrain_packs_internal(const vector3d &a2, region *cent
             float v62 = -0.0099999998;
             for (auto &v33 : v79) {
                 auto *v34 = bit_cast<char *>(this->strips) + 40 * v33.first;
-                string_hash v37 {v34};
+                string_hash v37{v34};
 
                 auto *ep = this->field_24.find_eligible_pack_by_name(v37);
 
                 assert(ep != nullptr);
 
-                ideal_pack_info v36 {ep, v33.second + v62};
+                ideal_pack_info v36{ep, v33.second + v62};
                 ideal_pack_infos->push_back(v36);
             }
         } else {
             auto *gsoi = script::get_gsoi();
             auto *gso = script::get_gso();
-            auto func = gso->find_func(string_hash {"spidey_sinks()"});
+            auto func = gso->find_func(string_hash{"spidey_sinks()"});
             if (func < 0) {
                 sp_log("Couldn't find spidey_sinks() script function");
             } else {
@@ -1113,19 +1091,17 @@ void terrain::start_streaming(void (*callback)(void))
         }
     }
 
-    resource_pack_streamer *streamers[] {strip_streamer, district_streamer};
+    resource_pack_streamer *streamers[]{strip_streamer, district_streamer};
     bool (*callbacks[])(resource_pack_slot::callback_enum,
-                       resource_pack_streamer *,
-                       resource_pack_slot *,
-                       limited_timer *) {nullptr, terrain::district_load_callback};
+                        resource_pack_streamer *,
+                        resource_pack_slot *,
+                        limited_timer *){nullptr, terrain::district_load_callback};
 
-    field_24.init(
-        eligible_pack_count, 2, streamers, callbacks, find_ideal_terrain_packs_callback);
+    field_24.init(eligible_pack_count, 2, streamers, callbacks, find_ideal_terrain_packs_callback);
     field_24.field_0 = true;
 
     for (int i = 0; i < total_strips; ++i) {
-        field_24.add_eligible_pack(
-            strips[i].field_0, eligible_pack_token {1, i}, strip_streamer);
+        field_24.add_eligible_pack(strips[i].field_0, eligible_pack_token{1, i}, strip_streamer);
     }
 
     for (int region_index = 0; region_index < total_regions; ++region_index) {
@@ -1134,16 +1110,14 @@ void terrain::start_streaming(void (*callback)(void))
             continue;
         }
 
-        const eligible_pack_token pack_token {2, region_index};
+        const eligible_pack_token pack_token{2, region_index};
         _std::vector<eligible_pack *> region_packs;
-        region_packs.push_back(field_24.add_eligible_pack(
-            reg->mash_info->field_0.to_string(), pack_token, district_streamer));
+        region_packs.push_back(
+            field_24.add_eligible_pack(reg->mash_info->field_0.to_string(), pack_token, district_streamer));
 
         for (int block = 1; block < reg->get_multiblock_number(); ++block) {
-            mString pack_name {
-                0, "%s_m%d", reg->mash_info->field_0.to_string(), block};
-            region_packs.push_back(
-                field_24.add_eligible_pack(pack_name.c_str(), pack_token, district_streamer));
+            mString pack_name{0, "%s_m%d", reg->mash_info->field_0.to_string(), block};
+            region_packs.push_back(field_24.add_eligible_pack(pack_name.c_str(), pack_token, district_streamer));
         }
 
         reg->field_108 = region_packs;
@@ -1156,55 +1130,55 @@ void terrain::start_streaming(void (*callback)(void))
 void terrain::set_district_variant(int district_id, int variant, bool a4)
 {
     if constexpr (STANDALONE_SYSTEM) {
-		assert(variant >= 0);
+        assert(variant >= 0);
 
-		auto *v5 = this->get_district(district_id);
+        auto *v5 = this->get_district(district_id);
         if (v5 != nullptr) {
-			auto *v7 = v5->get_scene_id(false).c_str();
-			string_hash v23 {v7};
+            auto *v7 = v5->get_scene_id(false).c_str();
+            string_hash v23{v7};
 
-			auto *epack = this->field_24.find_eligible_pack_by_name(v23);
+            auto *epack = this->field_24.find_eligible_pack_by_name(v23);
             if (epack != nullptr) {
                 for (auto &v14 : this->field_70) {
                     if (v14.field_0 == epack) {
-						v14.field_8 = variant;
-						return;
-					}
-				}
+                        v14.field_8 = variant;
+                        return;
+                    }
+                }
 
-				auto &token = epack->get_token();
-				auto *reg = this->get_region(token.field_4);
+                auto &token = epack->get_token();
+                auto *reg = this->get_region(token.field_4);
                 if (reg->get_district_variant() != variant) {
-					auto *slot = this->field_24.get_eligible_pack_slot(epack);
+                    auto *slot = this->field_24.get_eligible_pack_slot(epack);
                     if (slot != nullptr) {
-						pack_switch_info_t v26 {epack, slot, variant};
-						if constexpr (1) {
-							this->field_70.push_back(v26);
-						} else {
-							THISCALL(0x005700A0, &this->field_70, v26);
-						}
+                        pack_switch_info_t v26{epack, slot, variant};
+                        if constexpr (1) {
+                            this->field_70.push_back(v26);
+                        } else {
+                            THISCALL(0x005700A0, &this->field_70, v26);
+                        }
                         if (a4) {
-							reg->flags |= 0x20000u;
-							this->unload_district_immediate(reg->get_district_id());
-						}
+                            reg->flags |= 0x20000u;
+                            this->unload_district_immediate(reg->get_district_id());
+                        }
                     } else {
-						reg->set_district_variant(variant);
-						auto &v22 = reg->get_scene_id(true);
-						epack->set_packfile_name(v22.c_str());
-					}
-				}
-			}
-		}
+                        reg->set_district_variant(variant);
+                        auto &v22 = reg->get_scene_id(true);
+                        epack->set_packfile_name(v22.c_str());
+                    }
+                }
+            }
+        }
 
     } else {
-		THISCALL(0x00557480, this, district_id, variant, a4);
-	}
+        THISCALL(0x00557480, this, district_id, variant, a4);
+    }
 }
 
-region * terrain::find_innermost_region(const vector3d &a1) const
+region *terrain::find_innermost_region(const vector3d &a1) const
 {
     if constexpr (STANDALONE_SYSTEM) {
-        fixed_vector<region *, 15> a2 {};
+        fixed_vector<region *, 15> a2{};
         loaded_regions_cache::get_regions_intersecting_sphere(a1, 0.0f, &a2);
         if (a2.size() == 0)
             return nullptr;
@@ -1218,7 +1192,7 @@ region * terrain::find_innermost_region(const vector3d &a1) const
         }
         return a2.at(0);
     } else {
-        region * (__fastcall *func)(const void *, void *edx, const vector3d *) = CAST(func, 0x00534890);
+        region *(__fastcall * func)(const void *, void *edx, const vector3d *) = CAST(func, 0x00534890);
         return func(this, nullptr, &a1);
     }
 }
@@ -1255,7 +1229,7 @@ region *terrain::find_outermost_region(const vector3d &a2) const
         return static_cast<region *>(a3.field_14[0]);
 
     } else {
-        return (region *) THISCALL(0x00523EC0, this, &a2);
+        return (region *)THISCALL(0x00523EC0, this, &a2);
     }
 }
 
@@ -1348,7 +1322,7 @@ void terrain::find_regions(const vector3d &a2, _std::vector<region *> *regions) 
 
     if constexpr (STANDALONE_SYSTEM) {
         regions->clear();
-        simple_region_visitor v5 {a2, true};
+        simple_region_visitor v5{a2, true};
 
         ++region::visit_key2;
 
@@ -1358,7 +1332,7 @@ void terrain::find_regions(const vector3d &a2, _std::vector<region *> *regions) 
 
         for (int i = 0; i < v5.region_count; ++i) {
             auto *v3 = static_cast<region *>(v5.field_14[i]);
-            if ( v3 != nullptr ) {
+            if (v3 != nullptr) {
                 regions->push_back(v3);
             }
         }
@@ -1392,11 +1366,11 @@ region *terrain::find_region(string_hash a2) const
         }
         return nullptr;
     } else {
-        return (region *) THISCALL(0x00534920, this, a2);
+        return (region *)THISCALL(0x00534920, this, a2);
     }
 }
 
-_std::vector<region *> * terrain::get_region_info_for_point(vector3d a2)
+_std::vector<region *> *terrain::get_region_info_for_point(vector3d a2)
 {
     if (regions_for_point != nullptr) {
         regions_for_point->clear();
@@ -1421,7 +1395,7 @@ void terrain::unlock_district_pack_slot(int slot_idx)
         assert(district_partition != nullptr);
 
         auto &pack_slots = district_partition->get_pack_slots();
-        assert(slot_idx >= 0 && slot_idx < (int) pack_slots.size());
+        assert(slot_idx >= 0 && slot_idx < (int)pack_slots.size());
 
         assert(pack_slots[slot_idx]->is_empty() || pack_slots[slot_idx]->is_pack_unloading());
 
@@ -1441,11 +1415,8 @@ void terrain::frame_advance(Float a2)
             return v3 == nullptr || v3->field_5C4 || v3->field_5C3;
         };
 
-        auto *zoom_map = g_femanager.IGO != nullptr
-                             ? g_femanager.IGO->field_44
-                             : nullptr;
-        if (!os_developer_options::instance->get_flag(mString{"CAMERA_CENTRIC_STREAMER"}) ||
-            func(zoom_map)) {
+        auto *zoom_map = g_femanager.IGO != nullptr ? g_femanager.IGO->field_44 : nullptr;
+        if (!os_developer_options::instance->get_flag(mString{"CAMERA_CENTRIC_STREAMER"}) || func(zoom_map)) {
             auto *ent = g_world_ptr->get_hero_ptr(0);
             if (ent != nullptr) {
                 pos = ent->get_abs_position();
@@ -1508,8 +1479,8 @@ void terrain::un_mash_texture_to_frame(char *a2, int *a3, region *reg)
         reg->m_total_frame_maps = total_frame_maps;
         reg->texture_to_frame_maps = (texture_to_frame_map **)(a1 + 4);
         a1 += 4;
-        int v6 = (int) (a1 + 4 * total_frame_maps);
-        for ( auto i = 0; i < total_frame_maps; ++i ) {
+        int v6 = (int)(a1 + 4 * total_frame_maps);
+        for (auto i = 0; i < total_frame_maps; ++i) {
             *(int *)a1 = v6;
             v6 += 48;
             a1 += 4;
@@ -1553,7 +1524,7 @@ void terrain_patch()
     }
 
     {
-        region * (terrain::*func)(const vector3d &a2, region *a3) const = &terrain::find_region;
+        region *(terrain::*func)(const vector3d &a2, region *a3) const = &terrain::find_region;
         FUNC_ADDRESS(address, func);
         REDIRECT(0x0055CF7F, address);
     }
@@ -1563,4 +1534,3 @@ void terrain_patch()
         REDIRECT(0x005582AA, address);
     }
 }
-

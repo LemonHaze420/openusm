@@ -53,8 +53,7 @@ void physics_system_collision_callback()
 
 void calc_bone_mat_from_rb(void *bone, rigid_body *body, const po *offset)
 {
-    po::compose(*static_cast<entity_base *>(bone)->my_abs_po,
-                reinterpret_cast<const po &>(body->field_0), *offset);
+    po::compose(*static_cast<entity_base *>(bone)->my_abs_po, reinterpret_cast<const po &>(body->field_0), *offset);
 }
 
 void calc_rb_mat_from_bone(void *bone, rigid_body *body, const po *binding)
@@ -64,8 +63,7 @@ void calc_rb_mat_from_bone(void *bone, rigid_body *body, const po *binding)
         for (int component = 0; component < 3; ++component)
             inverse[axis][component] = (*binding)[component][axis];
     inverse.set_position(binding->inverse_xform(ZEROVEC));
-    po::compose(reinterpret_cast<po &>(body->field_0),
-        *static_cast<entity_base *>(bone)->my_abs_po, inverse);
+    po::compose(reinterpret_cast<po &>(body->field_0), *static_cast<entity_base *>(bone)->my_abs_po, inverse);
 }
 
 void physics_system_init()
@@ -135,21 +133,16 @@ uint32_t physics_system::get_buffer_size(const phys_mem_info &a1)
 }
 
 physics_system::physics_system()
-    : field_0(0), field_4(0), field_8(0), m_callback(nullptr),
-      field_10(0.051282052f), field_14(4), field_18(4), field_1C(0.010000001f),
-      field_20(4), field_24(8), field_28(0.25f),
+    : field_0(0), field_4(0), field_8(0), m_callback(nullptr), field_10(0.051282052f), field_14(4), field_18(4),
+      field_1C(0.010000001f), field_20(4), field_24(8), field_28(0.25f),
       field_2C(reinterpret_cast<physics_contact_array *>(&field_200)),
-      field_30(reinterpret_cast<physics_contact_array *>(&field_20C)),
-      field_1A0(0), field_1A4(0), field_1A8(0), field_1AC(0),
-      field_1B0(0), field_1B4(0), field_1B8(nullptr), field_1BC(0), field_1C0(0),
-      field_1C4{}, field_1D8{}, field_1EC{},
-      field_200(nullptr), field_204(0), field_208(0),
-      field_20C(nullptr), field_210(0), field_214(0),
-      field_218{}, field_22C{}, field_240{}, field_254{}, field_268{}, field_27C{},
-      field_290(nullptr), field_294(nullptr), field_298(nullptr),
-      field_29C(0), field_2A0(0), field_2A4(0), field_2A8(0), field_2AC(0),
-      field_2B0(0), field_2B4(0), field_2B8(0), field_2BC(0), field_2C0(0),
-      field_2C4(0), field_2C8(0), field_2CC(0), field_2D0(0), field_2D4(0)
+      field_30(reinterpret_cast<physics_contact_array *>(&field_20C)), field_1A0(0), field_1A4(0), field_1A8(0),
+      field_1AC(0), field_1B0(0), field_1B4(0), field_1B8(nullptr), field_1BC(0), field_1C0(0), field_1C4{},
+      field_1D8{}, field_1EC{}, field_200(nullptr), field_204(0), field_208(0), field_20C(nullptr), field_210(0),
+      field_214(0), field_218{}, field_22C{}, field_240{}, field_254{}, field_268{}, field_27C{}, field_290(nullptr),
+      field_294(nullptr), field_298(nullptr), field_29C(0), field_2A0(0), field_2A4(0), field_2A8(0), field_2AC(0),
+      field_2B0(0), field_2B4(0), field_2B8(0), field_2BC(0), field_2C0(0), field_2C4(0), field_2C8(0), field_2CC(0),
+      field_2D0(0), field_2D4(0)
 {
     field_34.set();
 }
@@ -171,10 +164,10 @@ void physics_system::frame_advance(Float elapsed)
     for (int index = 0; index < field_1C4.m_alloc_count; ++index) {
         auto *body = field_1C4.m_alloc_list[index];
         nuge::calc_velocities(body->field_0,
-            *reinterpret_cast<const matrix4x4 *>(body->m_dictator),
-            frame_time * body->field_13C,
-            reinterpret_cast<phys_vector3d &>(body->field_D0),
-            reinterpret_cast<phys_vector3d &>(body->field_E0));
+                              *reinterpret_cast<const matrix4x4 *>(body->m_dictator),
+                              frame_time * body->field_13C,
+                              reinterpret_cast<phys_vector3d &>(body->field_D0),
+                              reinterpret_cast<phys_vector3d &>(body->field_E0));
     }
     for (int index = 0; index < field_240.m_alloc_count; ++index)
         field_240.m_alloc_list[index]->outer_prolog_update(outer);
@@ -191,8 +184,8 @@ void physics_system::frame_advance(Float elapsed)
         if (body == nullptr || (body->field_144 & 0x10) != 0)
             body = actuator->b2;
         phys_vector3d linear;
-        nuge::calc_velocities(previous, target, frame_time * body->field_13C,
-            linear, *reinterpret_cast<phys_vector3d *>(bytes + 0x8C));
+        nuge::calc_velocities(
+            previous, target, frame_time * body->field_13C, linear, *reinterpret_cast<phys_vector3d *>(bytes + 0x8C));
     }
     for (int step = 0; step < steps; ++step)
         time_step(step_time, step + 1 == steps);
@@ -467,7 +460,7 @@ void phys_sys::destroy_all_constraint(rigid_body *body)
             if ((constraint->b1 != nullptr && constraint->b1 == body) ||
                 (constraint->b2 != nullptr && constraint->b2 == body)) {
                 if constexpr (std::is_same_v<std::remove_pointer_t<decltype(constraint)>,
-                    rigid_body_constraint_contact>) {
+                                             rigid_body_constraint_contact>) {
                     if (constraint->field_2C != 0)
                         *reinterpret_cast<rigid_body_constraint_contact **>(constraint->field_2C) = nullptr;
                 }

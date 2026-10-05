@@ -7,7 +7,7 @@
 #include "common.h"
 #include "custom_math.h"
 #include "game.h"
-#include "game_settings.h" 
+#include "game_settings.h"
 #include "input_mgr.h"
 #include "oldmath_usefulmath.h"
 #include "spiderman_camera.h"
@@ -36,7 +36,7 @@ camera_mode::vtable base_table, shake_table, lookaround_table, passive_table, fi
 void native_shake(camera_mode_shake *, Float, camera_frame &, const camera_target_info &);
 void native_combat(camera_mode_combat *, Float, camera_frame &, const camera_target_info &);
 void initialize_native_tables();
-}
+}  // namespace
 
 VALIDATE_SIZE(camera_mode, 0xC);
 
@@ -47,12 +47,12 @@ VALIDATE_SIZE(camera_mode_lookaround, 0x78);
 
 VALIDATE_SIZE(camera_mode_fixedstatic, 0x28u);
 
-static Var<int> dword_959E5C {0x00959E5C};
+static Var<int> dword_959E5C{0x00959E5C};
 
 bool sub_4B2180(vector3d &a1, float a2)
 {
     auto v2 = a1.length2();
-    if ( v2 <= sqr(a2 + LARGE_EPSILON) ) {
+    if (v2 <= sqr(a2 + LARGE_EPSILON)) {
         return false;
     }
 
@@ -74,7 +74,7 @@ void camera_mode_chase::pull_by_target(camera_frame &frame, const camera_target_
     pull_sphere(frame.eye, a3, target.pos);
     auto v15 = target.pos - frame.eye;
     auto v12 = v15.normalized();
-    if ( v12.length() < EPSILON ) {
+    if (v12.length() < EPSILON) {
         v12 = target.facing;
     }
 
@@ -135,23 +135,29 @@ void camera_mode::clear_fixedstatic()
 }
 
 camera_mode_shake::camera_mode_shake(spiderman_camera *owner, camera_mode *child)
-    : camera_mode(owner, child), field_C(ZEROVEC), field_18(ZEROVEC),
-      frame_fwd(owner->get_abs_po().get_z_facing()), frame_eye(owner->get_abs_position())
+    : camera_mode(owner, child), field_C(ZEROVEC), field_18(ZEROVEC), frame_fwd(owner->get_abs_po().get_z_facing()),
+      frame_eye(owner->get_abs_position())
 {
-    if constexpr (STANDALONE_SYSTEM) m_vtbl = &shake_table;
-    else m_vtbl = CAST(m_vtbl, 0x00881E9C);
+    if constexpr (STANDALONE_SYSTEM)
+        m_vtbl = &shake_table;
+    else
+        m_vtbl = CAST(m_vtbl, 0x00881E9C);
 }
 
 void camera_mode_shake::_frame_advance(Float a2, camera_frame &a3, const camera_target_info &a4)
 {
-    if constexpr (STANDALONE_SYSTEM) native_shake(this, a2, a3, a4);
-    else THISCALL(0x004B6CE0, this, a2, &a3, &a4);
+    if constexpr (STANDALONE_SYSTEM)
+        native_shake(this, a2, a3, a4);
+    else
+        THISCALL(0x004B6CE0, this, a2, &a3, &a4);
 }
 
 camera_mode_lookaround::camera_mode_lookaround(spiderman_camera *a2, camera_mode *a3) : camera_mode(a2, a3)
 {
-    if constexpr (STANDALONE_SYSTEM) this->m_vtbl = &lookaround_table;
-    else this->m_vtbl = CAST(m_vtbl, 0x008820AC);
+    if constexpr (STANDALONE_SYSTEM)
+        this->m_vtbl = &lookaround_table;
+    else
+        this->m_vtbl = CAST(m_vtbl, 0x008820AC);
 
     this->field_70[0] = 0.0;
     this->field_70[1] = 0.0;
@@ -170,7 +176,7 @@ camera_mode_lookaround::camera_mode_lookaround(spiderman_camera *a2, camera_mode
 vector3d sub_4B22E0(const vector3d &a2, const vector3d &a3, float a4)
 {
     auto v4 = std::cos(a4);
-    auto v5 = (a2[0] * a3[0] + a2[1] * a3[1] + a3[2] * a2[2]) * (1.0f  - v4);
+    auto v5 = (a2[0] * a3[0] + a2[1] * a3[1] + a3[2] * a2[2]) * (1.0f - v4);
 
     vector3d v8;
     v8[0] = a3[1] * a2[2] - a2[1] * a3[2];
@@ -180,7 +186,7 @@ vector3d sub_4B22E0(const vector3d &a2, const vector3d &a3, float a4)
     auto v6 = std::sin(a4);
     v8 *= v6;
 
-    auto v9 = v5 *  a3[0];
+    auto v9 = v5 * a3[0];
     auto v10 = v5 * a3[1];
     auto v13 = v4 * a2[2];
     auto v11 = v4 * a2[0] + v9;
@@ -190,13 +196,12 @@ vector3d sub_4B22E0(const vector3d &a2, const vector3d &a3, float a4)
     vector3d result;
     result[0] = v11 + v8[0];
     result[1] = v12 + v8[1];
-    result[2] = v7 +  v8[2];
+    result[2] = v7 + v8[2];
     return result;
 }
 
 void camera_mode_lookaround::_frame_advance(Float a2, camera_frame &a3, const camera_target_info &a4)
 {
-
     if constexpr (STANDALONE_SYSTEM) {
         auto *v4 = &a4;
         auto *v6 = this->slave;
@@ -209,7 +214,7 @@ void camera_mode_lookaround::_frame_advance(Float a2, camera_frame &a3, const ca
             if (the_controller != nullptr) {
                 auto loco_mode = static_cast<eHeroLocoMode>(the_controller->get_spidey_loco_mode());
                 v9 = static_cast<eHeroLocoMode>(1);
-                if ( loco_mode >= 0 ) {
+                if (loco_mode >= 0) {
                     v9 = loco_mode;
                 }
             } else {
@@ -227,7 +232,7 @@ void camera_mode_lookaround::_frame_advance(Float a2, camera_frame &a3, const ca
                     }
                 }
             } else {
-                vector2d v82 {this->field_10.field_10, this->field_40.field_10};
+                vector2d v82{this->field_10.field_10, this->field_40.field_10};
                 if (!Settings::MouseLook) {
                     auto v13 = v82.length2();
                     if (v13 > sqr(1.0f)) {
@@ -261,7 +266,7 @@ void camera_mode_lookaround::_frame_advance(Float a2, camera_frame &a3, const ca
                 v7->eye += v86;
 
                 float v25 = 0.0f;
-                if ( v9 == 1 ) {
+                if (v9 == 1) {
                     v25 = v4->radius * 1.25f;
                 }
 
@@ -277,12 +282,12 @@ void camera_mode_lookaround::_frame_advance(Float a2, camera_frame &a3, const ca
                 v84 = v7->eye - a3a;
 
                 auto invert_camera_horz = gamefile->field_340.m_invert_camera_horz;
-                float v33 = ( invert_camera_horz ? -1.0f : 1.0f );
+                float v33 = (invert_camera_horz ? -1.0f : 1.0f);
 
                 auto v72 = -(v33 * v78 * 4.0f);
                 v84 = sub_4B22E0(v84, v7->up, v72);
 
-                auto v37 = ( invert_camera_vert ? -1.0f : 1.0f );
+                auto v37 = (invert_camera_vert ? -1.0f : 1.0f);
 
                 auto v38 = v37 * v81 * 3.5;
                 auto a2b = v38;
@@ -294,11 +299,11 @@ void camera_mode_lookaround::_frame_advance(Float a2, camera_frame &a3, const ca
                     v40 *= 1.0f / v47;
                     if (v46 == 2 || v46 == 7) {
                         auto v50 = dot(v40, v4->up);
-                        if ( v50 > 0.0f ) {
+                        if (v50 > 0.0f) {
                             v47 = (1.0f - std::sqrt(1.0f - v50 * v50)) * 4.0f + v47;
                         }
                     } else if (a2b < 0.0f) {
-                        v47 = v47 - a2b * 4.0f ;
+                        v47 = v47 - a2b * 4.0f;
                     }
 
                     v47 = std::min(v47, 4.0f);
@@ -329,7 +334,7 @@ void camera_mode_lookaround::_frame_advance(Float a2, camera_frame &a3, const ca
                     }
                 }
 
-                const float min_val = ( v46 == 1 ? -0.89999998f : -0.97000003f);
+                const float min_val = (v46 == 1 ? -0.89999998f : -0.97000003f);
 
                 v7->constrain_pos_relative_to_plane(a3a, YVEC, min_val, 0.97000003f);
 
@@ -345,11 +350,11 @@ void camera_mode_lookaround::_frame_advance(Float a2, camera_frame &a3, const ca
             v11->field_1C0 = 1;
         } else {
             auto *v71 = this->field_8;
-            if ( v71 != nullptr ) {
+            if (v71 != nullptr) {
                 v71->frame_advance(a2, *v7, *v4);
             }
 
-            this->field_70 = vector2d {0.0, 0.0};
+            this->field_70 = vector2d{0.0, 0.0};
         }
     } else {
         THISCALL(0x004B5480, this, a2, &a3, &a4);
@@ -358,8 +363,10 @@ void camera_mode_lookaround::_frame_advance(Float a2, camera_frame &a3, const ca
 
 camera_mode_passive::camera_mode_passive(spiderman_camera *a2, camera_mode *a3) : camera_mode(a2, a3)
 {
-    if constexpr (STANDALONE_SYSTEM) this->m_vtbl = &passive_table;
-    else this->m_vtbl = CAST(m_vtbl, 0x00882408);
+    if constexpr (STANDALONE_SYSTEM)
+        this->m_vtbl = &passive_table;
+    else
+        this->m_vtbl = CAST(m_vtbl, 0x00882408);
     this->field_10 = g_camera_max_dist;
     this->field_C = g_camera_min_dist;
     this->field_14 = -0.5;
@@ -370,7 +377,7 @@ camera_mode_passive::camera_mode_passive(spiderman_camera *a2, camera_mode *a3) 
 void camera_mode_passive::_activate(camera_target_info &a2)
 {
     auto *v3 = this->field_8;
-    if ( v3 != nullptr ) {
+    if (v3 != nullptr) {
         v3->activate(a2);
     }
 
@@ -379,7 +386,6 @@ void camera_mode_passive::_activate(camera_target_info &a2)
 
 void camera_mode_passive::_frame_advance([[maybe_unused]] Float a2, camera_frame &frame, camera_target_info &target)
 {
-
     if constexpr (STANDALONE_SYSTEM) {
         [](spiderman_camera *self) -> void {
             self->field_1C4 = self->field_1C0;
@@ -397,7 +403,7 @@ void camera_mode_passive::_frame_advance([[maybe_unused]] Float a2, camera_frame
         auto v47 = loco_mode == 9;
         auto v13 = (loco_mode == 2 || loco_mode == 7 || loco_mode == 14 || (is_crawling && loco_mode == 9));
 
-        bool v12 = ( is_falling || is_jumping || is_swinging );
+        bool v12 = (is_falling || is_jumping || is_swinging);
 
         assert(target.min_look_dist > target.radius);
 
@@ -406,7 +412,7 @@ void camera_mode_passive::_frame_advance([[maybe_unused]] Float a2, camera_frame
             v14 = 0.30000001f;
             v15 = 1.0f;
         } else {
-            if ( is_running ) {
+            if (is_running) {
                 v14 = 0.30000001f;
             } else {
                 v14 = 0.0f;
@@ -451,7 +457,7 @@ void camera_mode_passive::_frame_advance([[maybe_unused]] Float a2, camera_frame
         }
 
         frame.constrain_pos_relative_to_plane(target.pos, target.up, this->field_14, this->field_18);
-        if ( !v13 || target.up[1] < -0.15000001f ) {
+        if (!v13 || target.up[1] < -0.15000001f) {
             frame.avoid_target(target, target.min_look_dist);
         }
 
@@ -460,7 +466,7 @@ void camera_mode_passive::_frame_advance([[maybe_unused]] Float a2, camera_frame
             auto v35 = target.pos - frame.eye;
             auto v51 = vector3d::cross(v35, YVEC);
             auto v38 = v51.normalized();
-            if ( v38.length() > EPSILON ) {
+            if (v38.length() > EPSILON) {
                 constrain_normal(frame.fwd, v38, -0.1f, 0.1f);
             }
         }
@@ -472,15 +478,17 @@ void camera_mode_passive::_frame_advance([[maybe_unused]] Float a2, camera_frame
 
 camera_mode_fixedstatic::camera_mode_fixedstatic(spiderman_camera *a2, camera_mode *a3) : camera_mode(a2, a3)
 {
-    if constexpr (STANDALONE_SYSTEM) this->m_vtbl = &fixedstatic_table;
-    else this->m_vtbl = CAST(m_vtbl, 0x00881E74);
+    if constexpr (STANDALONE_SYSTEM)
+        this->m_vtbl = &fixedstatic_table;
+    else
+        this->m_vtbl = CAST(m_vtbl, 0x00881E74);
     this->field_C = ZEROVEC;
     this->field_18 = ZVEC;
     this->enabled = false;
 }
 
 void camera_mode_fixedstatic::_frame_advance(Float a2, camera_frame &a3, const camera_target_info &a4)
-    {
+{
     if (this->enabled) {
         a3.eye = this->field_C;
         a3.fwd = this->field_18;
@@ -494,7 +502,7 @@ void camera_mode_fixedstatic::_frame_advance(Float a2, camera_frame &a3, const c
         }
     } else {
         auto *v6 = this->field_8;
-        if ( v6 != nullptr ) {
+        if (v6 != nullptr) {
             v6->frame_advance(a2, a3, a4);
         }
     }
@@ -503,7 +511,7 @@ void camera_mode_fixedstatic::_frame_advance(Float a2, camera_frame &a3, const c
 void camera_mode_fixedstatic::_set_fixedstatic(const vector3d &a2, const vector3d &a3)
 {
     auto *v4 = this->field_8;
-    if ( v4 != nullptr ) {
+    if (v4 != nullptr) {
         v4->set_fixedstatic(this->field_C, a3);
     }
 
@@ -516,7 +524,7 @@ void camera_mode_fixedstatic::_set_fixedstatic(const vector3d &a2, const vector3
 void camera_mode_fixedstatic::_clear_fixedstatic()
 {
     auto *v2 = this->field_8;
-    if ( v2 != nullptr ) {
+    if (v2 != nullptr) {
         v2->clear_fixedstatic();
     }
 
@@ -525,8 +533,10 @@ void camera_mode_fixedstatic::_clear_fixedstatic()
 
 void camera_mode_combat::_frame_advance(Float a2, camera_frame &a3, const camera_target_info &a4)
 {
-    if constexpr (STANDALONE_SYSTEM) native_combat(this, a2, a3, a4);
-    else THISCALL(0x004B7F90, this, a2, &a3, &a4);
+    if constexpr (STANDALONE_SYSTEM)
+        native_combat(this, a2, a3, a4);
+    else
+        THISCALL(0x004B7F90, this, a2, &a3, &a4);
 }
 
 void camera_mode_patch()
@@ -575,7 +585,8 @@ struct camera_mode_transition : camera_mode {
     bool valid = false;
     float remaining = 0.0f;
     camera_mode_transition(spiderman_camera *owner, camera_mode *child)
-        : camera_mode(owner, child), previous(owner->get_abs_po()) {
+        : camera_mode(owner, child), previous(owner->get_abs_po())
+    {
         previous.eye = ZEROVEC;
         previous.fwd = ZVEC;
         previous.up = YVEC;
@@ -599,8 +610,8 @@ VALIDATE_SIZE(camera_mode_reorient, 0x18);
 VALIDATE_SIZE(camera_mode_combat, 0x10);
 VALIDATE_SIZE(camera_mode_shake, 0x3C);
 
-camera_mode::vtable stationary_table, include_table, precollide_table, filter_table,
-    eye_filter_table, transition_eye_table, transition_direction_table, reorient_table;
+camera_mode::vtable stationary_table, include_table, precollide_table, filter_table, eye_filter_table,
+    transition_eye_table, transition_direction_table, reorient_table;
 vector3d &lookaround_target = var<vector3d>(0x00959EBC);
 bool &combat_extra_target = var<bool>(0x00959E58);
 vector3d &combat_extra_position = var<vector3d>(0x00959F50);
@@ -608,65 +619,99 @@ float &combat_extra_radius = var<float>(0x00959E48);
 float &combat_extra_constraint = var<float>(0x00959E3C);
 float &falling_prediction = var<float>(0x00959E90);
 
-void forward_frame(camera_mode *self, Float dt, camera_frame &frame, const camera_target_info &target) {
-    if (self->field_8) self->field_8->frame_advance(dt, frame, target);
+void forward_frame(camera_mode *self, Float dt, camera_frame &frame, const camera_target_info &target)
+{
+    if (self->field_8)
+        self->field_8->frame_advance(dt, frame, target);
 }
-void __fastcall forward_activate(camera_mode *self, void *, camera_target_info *target) {
-    if (self->field_8) self->field_8->activate(*target);
+void __fastcall forward_activate(camera_mode *self, void *, camera_target_info *target)
+{
+    if (self->field_8)
+        self->field_8->activate(*target);
 }
-void __fastcall forward_deactivate(camera_mode *self) {
-    if (self->field_8) self->field_8->deactivate();
+void __fastcall forward_deactivate(camera_mode *self)
+{
+    if (self->field_8)
+        self->field_8->deactivate();
 }
 void __fastcall forward_advance(camera_mode *self, void *, Float dt, camera_frame *frame,
-                                 const camera_target_info *target) {
+                                const camera_target_info *target)
+{
     forward_frame(self, dt, *frame, *target);
 }
-void __fastcall forward_recenter(camera_mode *self, void *, Float dt, const camera_target_info *target) {
-    if (self->field_8) self->field_8->request_recenter(dt, *target);
+void __fastcall forward_recenter(camera_mode *self, void *, Float dt, const camera_target_info *target)
+{
+    if (self->field_8)
+        self->field_8->request_recenter(dt, *target);
 }
-void __fastcall forward_lookaround(camera_mode *self, void *, bool enabled) {
-    if (self->field_8) self->field_8->m_vtbl->enable_lookaround(self->field_8, nullptr, enabled);
+void __fastcall forward_lookaround(camera_mode *self, void *, bool enabled)
+{
+    if (self->field_8)
+        self->field_8->m_vtbl->enable_lookaround(self->field_8, nullptr, enabled);
 }
-void __fastcall forward_fixed(camera_mode *self, void *, const vector3d *eye, const vector3d *at) {
-    if (self->field_8) self->field_8->set_fixedstatic(*eye, *at);
+void __fastcall forward_fixed(camera_mode *self, void *, const vector3d *eye, const vector3d *at)
+{
+    if (self->field_8)
+        self->field_8->set_fixedstatic(*eye, *at);
 }
-void __fastcall forward_clear(camera_mode *self) {
-    if (self->field_8) self->field_8->clear_fixedstatic();
+void __fastcall forward_clear(camera_mode *self)
+{
+    if (self->field_8)
+        self->field_8->clear_fixedstatic();
 }
-void __fastcall forward_notify(camera_mode *self, void *) {
-    if (self->field_8) self->field_8->m_vtbl->notify(self->field_8, nullptr);
+void __fastcall forward_notify(camera_mode *self, void *)
+{
+    if (self->field_8)
+        self->field_8->m_vtbl->notify(self->field_8, nullptr);
 }
-void push_relative_plane(vector3d &eye, float radius, const vector3d &position, const vector3d &normal) {
+void push_relative_plane(vector3d &eye, float radius, const vector3d &position, const vector3d &normal)
+{
     push_sphere(eye, radius, position - normal * dot(position - eye, normal));
 }
-template<class T>
-void *__fastcall finalize_mode(camera_mode *self, void *, unsigned flags) {
+template <class T>
+void *__fastcall finalize_mode(camera_mode *self, void *, unsigned flags)
+{
     destroy_native_camera_modes(self->field_8);
     static_cast<T *>(self)->~T();
-    if (flags & 1) ::operator delete(self);
+    if (flags & 1)
+        ::operator delete(self);
     return self;
 }
-template<class T>
-camera_mode *__fastcall clone_mode(camera_mode *self, void *) {
+template <class T>
+camera_mode *__fastcall clone_mode(camera_mode *self, void *)
+{
     auto *copy = new T(*static_cast<T *>(self));
-    if (self->field_8) copy->field_8 = self->field_8->m_vtbl->clone(self->field_8, nullptr);
+    if (self->field_8)
+        copy->field_8 = self->field_8->m_vtbl->clone(self->field_8, nullptr);
     return copy;
 }
-template<class T>
-camera_mode::vtable mode_table() {
-    return {finalize_mode<T>, clone_mode<T>, forward_activate, forward_deactivate,
-        forward_advance, forward_recenter, forward_lookaround, forward_fixed, forward_clear,
-        forward_notify, {nullptr}};
+template <class T>
+camera_mode::vtable mode_table()
+{
+    return {finalize_mode<T>,
+            clone_mode<T>,
+            forward_activate,
+            forward_deactivate,
+            forward_advance,
+            forward_recenter,
+            forward_lookaround,
+            forward_fixed,
+            forward_clear,
+            forward_notify,
+            {nullptr}};
 }
 
-ai::base_full_target_inode *combat_inode(const camera_target_info &target) {
+ai::base_full_target_inode *combat_inode(const camera_target_info &target)
+{
     return static_cast<ai::base_full_target_inode *>(
         target.field_54->get_ai_core()->get_info_node(ai::combat_target_inode::default_id, true));
 }
-vhandle_type<actor> current_combat_target(const camera_target_info &target) {
+vhandle_type<actor> current_combat_target(const camera_target_info &target)
+{
     return vhandle_type<actor>{combat_inode(target)->field_2C};
 }
-vector3d recenter_eye(const camera_target_info &target) {
+vector3d recenter_eye(const camera_target_info &target)
+{
     float distance = 0.5f * (target.min_look_dist + target.max_look_dist);
     auto *inode = combat_inode(target);
     auto *opponent = inode ? vhandle_type<actor>{inode->field_2C}.get_volatile_ptr() : nullptr;
@@ -678,7 +723,8 @@ vector3d recenter_eye(const camera_target_info &target) {
         direction = -target.facing;
         vector3d normal = target.up;
         float low = 0.0f;
-        if (loco == 2 || loco == 7 || loco == 1) low = 0.3f;
+        if (loco == 2 || loco == 7 || loco == 1)
+            low = 0.3f;
         else if (loco == 14) {
             direction = target.up;
             distance = target.max_look_dist;
@@ -689,17 +735,19 @@ vector3d recenter_eye(const camera_target_info &target) {
     }
     return target.pos + direction * distance;
 }
-void reorient_recenter(camera_mode_reorient *self, Float dt, const camera_target_info &target) {
+void reorient_recenter(camera_mode_reorient *self, Float dt, const camera_target_info &target)
+{
     forward_recenter(self, nullptr, dt, &target);
     self->active = true;
     self->remaining = std::max(float(dt), 0.0f);
 }
-void reorient_frame(camera_mode_reorient *self, Float dt, camera_frame &frame,
-                    const camera_target_info &target) {
+void reorient_frame(camera_mode_reorient *self, Float dt, camera_frame &frame, const camera_target_info &target)
+{
     if (!self->active) {
         auto handle = current_combat_target(target);
         if (handle.field_0.get_goodies() != self->last_target) {
-            if (handle.get_volatile_ptr()) reorient_recenter(self, 0.5f, target);
+            if (handle.get_volatile_ptr())
+                reorient_recenter(self, 0.5f, target);
             self->last_target = handle.field_0.get_goodies();
         }
     }
@@ -728,11 +776,12 @@ void reorient_frame(camera_mode_reorient *self, Float dt, camera_frame &frame,
         self->slave->field_1C8 = 1;
     }
 }
-void __fastcall transition_eye_smooth(camera_mode *mode, void *, camera_frame *frame, Float mix) {
+void __fastcall transition_eye_smooth(camera_mode *mode, void *, camera_frame *frame, Float mix)
+{
     auto *self = static_cast<camera_mode_transition *>(mode);
     float horizontal = std::sqrt(frame->eye.x * frame->eye.x + frame->eye.z * frame->eye.z);
-    float previous = std::sqrt(self->previous.eye.x * self->previous.eye.x +
-                                self->previous.eye.z * self->previous.eye.z);
+    float previous =
+        std::sqrt(self->previous.eye.x * self->previous.eye.x + self->previous.eye.z * self->previous.eye.z);
     horizontal = lerp(horizontal, previous, mix);
     frame->eye = lerp(frame->eye, self->previous.eye, mix);
     vector3d planar{frame->eye.x, 0.0f, frame->eye.z};
@@ -740,19 +789,22 @@ void __fastcall transition_eye_smooth(camera_mode *mode, void *, camera_frame *f
     frame->eye.x = planar.x * horizontal;
     frame->eye.z = planar.z * horizontal;
 }
-void __fastcall transition_direction_smooth(camera_mode *mode, void *, camera_frame *frame, Float mix) {
+void __fastcall transition_direction_smooth(camera_mode *mode, void *, camera_frame *frame, Float mix)
+{
     frame->smooth_dir(static_cast<camera_mode_transition *>(mode)->previous, mix);
     frame->up = frame->fix_up_vector(frame->up);
 }
-void __fastcall reset_filter_state(camera_mode *mode, void *, const camera_target_info *) {
+void __fastcall reset_filter_state(camera_mode *mode, void *, const camera_target_info *)
+{
     static_cast<camera_mode_filter *>(mode)->reset_frames = 1;
 }
-void transition_frame(camera_mode_transition *self, Float dt, camera_frame &frame,
-                       const camera_target_info &target) {
+void transition_frame(camera_mode_transition *self, Float dt, camera_frame &frame, const camera_target_info &target)
+{
     forward_frame(self, dt, frame, target);
     if (self->slave->field_1C4 != self->slave->field_1C0)
         self->remaining = self->slave->field_1C0 == 2 ? 1.0f : 0.0f;
-    if (!self->valid || self->slave->field_1C0 != 2) self->remaining = 0.0f;
+    if (!self->valid || self->slave->field_1C0 != 2)
+        self->remaining = 0.0f;
     camera_frame relative = frame;
     relative.eye -= target.pos;
     if (self->remaining > 0.0f) {
@@ -764,8 +816,8 @@ void transition_frame(camera_mode_transition *self, Float dt, camera_frame &fram
     self->previous = relative;
     self->valid = true;
 }
-void filter_frame(camera_mode_filter *self, Float dt, camera_frame &frame,
-                   const camera_target_info &target) {
+void filter_frame(camera_mode_filter *self, Float dt, camera_frame &frame, const camera_target_info &target)
+{
     camera_frame previous = frame;
     forward_frame(self, dt, frame, target);
     if (self->reset_frames > 0 || self->slave->field_1C8 > 0) {
@@ -781,17 +833,19 @@ void filter_frame(camera_mode_filter *self, Float dt, camera_frame &frame,
         frame.up = frame.fix_up_vector(frame.up);
     }
 }
-void stationary_frame(camera_mode *self, Float dt, camera_frame &frame,
-                       const camera_target_info &target) {
+void stationary_frame(camera_mode *self, Float dt, camera_frame &frame, const camera_target_info &target)
+{
     vector3d eye = frame.eye, forward = frame.fwd;
     forward_frame(self, dt, frame, target);
     if (target.field_24.length2() < EPSILON) {
-        if ((frame.eye - eye).length2() < EPSILON) frame.eye = eye;
-        if ((frame.fwd - forward).length2() < EPSILON) frame.fwd = forward;
+        if ((frame.eye - eye).length2() < EPSILON)
+            frame.eye = eye;
+        if ((frame.fwd - forward).length2() < EPSILON)
+            frame.fwd = forward;
     }
 }
-void include_frame(camera_mode *self, Float dt, camera_frame &frame,
-                     const camera_target_info &target) {
+void include_frame(camera_mode *self, Float dt, camera_frame &frame, const camera_target_info &target)
+{
     forward_frame(self, dt, frame, target);
     float low = -0.97f;
     if (self->slave->field_1CC) {
@@ -801,56 +855,67 @@ void include_frame(camera_mode *self, Float dt, camera_frame &frame,
         int loco = target.get_loco_mode();
         if (loco != 2 && loco != 7) {
             displacement = vector3d{2.0f * target.field_24.x, 0.0f, 2.0f * target.field_24.z};
-            if (target.field_24.y < 0.0f) displacement += target.field_24 * falling_prediction;
+            if (target.field_24.y < 0.0f)
+                displacement += target.field_24 * falling_prediction;
             displacement *= dt;
         }
         frame.include_target(target.pos + displacement, 0.1f, 0.9f);
         if (combat_extra_target)
             frame.include_target(combat_extra_position, combat_extra_radius, combat_extra_constraint);
         frame.include_target(target.field_C, target.radius, 0.8f);
-        if (loco == 1) low = -0.5f;
+        if (loco == 1)
+            low = -0.5f;
     }
     constrain_normal(frame.fwd, YVEC, low, 0.97f);
 }
 
-template<int Kind>
-bool __fastcall camera_entity_filter(const local_collision::entfilter_base *, void *,
-                                    actor *act, dynamic_conglomerate_clone *,
-                                    const local_collision::query_args_t *) {
-    if (act->colgeom->get_type() == collision_geometry::CAPSULE ||
-        !act->has_entity_collision() || !act->has_camera_collision()) return false;
-    if constexpr (Kind == 0) return true;
+template <int Kind>
+bool __fastcall camera_entity_filter(const local_collision::entfilter_base *, void *, actor *act,
+                                     dynamic_conglomerate_clone *, const local_collision::query_args_t *)
+{
+    if (act->colgeom->get_type() == collision_geometry::CAPSULE || !act->has_entity_collision() ||
+        !act->has_camera_collision())
+        return false;
+    if constexpr (Kind == 0)
+        return true;
     bool solid = true;
     if (act->colgeom && (act->field_4 & 0x4000) != 0)
         solid = (act->colgeom->field_C & 0x10) == 0 || (act->colgeom->field_C & 0x100) != 0;
     return Kind == 1 ? solid : !solid;
 }
-template<int Kind>
-bool __fastcall camera_obb_filter(const local_collision::obbfilter_base *, void *,
-                                 subdivision_node_obb_base *node, const local_collision::query_args_t *args) {
-    if constexpr (Kind == 3) return node->sphere_intersection(args->field_10, args->field_28);
+template <int Kind>
+bool __fastcall camera_obb_filter(const local_collision::obbfilter_base *, void *, subdivision_node_obb_base *node,
+                                  const local_collision::query_args_t *args)
+{
+    if constexpr (Kind == 3)
+        return node->sphere_intersection(args->field_10, args->field_28);
     if constexpr (Kind != 0) {
-        if ((node->flags & 0x120) != 0 || ((node->flags & 0x400) != 0) != (Kind == 1)) return false;
+        if ((node->flags & 0x120) != 0 || ((node->flags & 0x400) != 0) != (Kind == 1))
+            return false;
     }
     return node->line_segment_intersection(args->field_4, args->field_1C);
 }
-template<int Kind>
-const local_collision::entfilter_base &entity_filter() {
+template <int Kind>
+const local_collision::entfilter_base &entity_filter()
+{
     static local_collision::entfilter_base::native_vtable table{camera_entity_filter<Kind>};
     static local_collision::entfilter_base filter{reinterpret_cast<std::intptr_t>(&table)};
     return filter;
 }
-template<int Kind>
-const local_collision::obbfilter_base &obb_filter() {
+template <int Kind>
+const local_collision::obbfilter_base &obb_filter()
+{
     static local_collision::obbfilter_base::native_vtable table{camera_obb_filter<Kind>};
     static local_collision::obbfilter_base filter{reinterpret_cast<std::intptr_t>(&table)};
     return filter;
 }
-template<int Kind>
-bool collide_eye(vector3d &eye, vector3d destination) {
+template <int Kind>
+bool collide_eye(vector3d &eye, vector3d destination)
+{
     vector3d start = eye;
     vector3d delta = start - destination;
-    if (delta.length2() >= 10000.0f) start = destination + delta.normalized() * 99.0f;
+    if (delta.length2() >= 10000.0f)
+        start = destination + delta.normalized() * 99.0f;
     line_info line(start, destination);
     line.check_collision(entity_filter<Kind>(), obb_filter<Kind>(), nullptr);
     if (!line.collision) {
@@ -861,11 +926,12 @@ bool collide_eye(vector3d &eye, vector3d destination) {
     vector3d old = eye;
     eye -= (destination - eye).normalized() * 0.1f;
     float pushed = dot(line.hit_norm, eye - old);
-    if (pushed > 0.0f && pushed < 0.25f) eye += line.hit_norm * (0.25f - pushed);
+    if (pushed > 0.0f && pushed < 0.25f)
+        eye += line.hit_norm * (0.25f - pushed);
     return true;
 }
-void precollide_frame(camera_mode *self, Float dt, camera_frame &frame,
-                       const camera_target_info &target) {
+void precollide_frame(camera_mode *self, Float dt, camera_frame &frame, const camera_target_info &target)
+{
     vector3d previous = frame.eye;
     forward_frame(self, dt, frame, target);
     vector3d destination = frame.eye;
@@ -882,17 +948,19 @@ void precollide_frame(camera_mode *self, Float dt, camera_frame &frame,
     local_collision::query_args_t args{};
     auto *primitives = local_collision::query_sphere(frame.eye, 0.25f, entity_filter<0>(), obb_filter<3>(), args);
     vector3d point, normal;
-    bool intersects = local_collision::get_closest_sphere_intersection(primitives, frame.eye, 0.25f,
-                                                                       &point, &normal, nullptr);
+    bool intersects =
+        local_collision::get_closest_sphere_intersection(primitives, frame.eye, 0.25f, &point, &normal, nullptr);
     local_collision::destroy_primitive_list(&primitives);
-    if (intersects) frame.eye = point + normal * 0.25f;
+    if (intersects)
+        frame.eye = point + normal * 0.25f;
 }
-void add_shake(camera_frame &frame, const vector3d &shake, const vector3d &position) {
+void add_shake(camera_frame &frame, const vector3d &shake, const vector3d &position)
+{
     if (shake.length2() >= 0.00000001f)
         frame.eye += shake * (1.5f / ((position - frame.eye).length() * 0.25f + 1.0f));
 }
-void native_shake(camera_mode_shake *self, Float dt, camera_frame &frame,
-                    const camera_target_info &target) {
+void native_shake(camera_mode_shake *self, Float dt, camera_frame &frame, const camera_target_info &target)
+{
     frame.eye = self->frame_eye;
     frame.fwd = self->frame_fwd;
     forward_frame(self, dt, frame, target);
@@ -904,13 +972,12 @@ void native_shake(camera_mode_shake *self, Float dt, camera_frame &frame,
     if (cores) {
         for (auto *core : *cores) {
             auto *act = core->get_actor(0);
-            if (!act->is_hero() && (act->get_abs_position() - frame.eye).length2() <= 10000.0f &&
-                act->anim_ctrl)
+            if (!act->is_hero() && (act->get_abs_position() - frame.eye).length2() <= 10000.0f && act->anim_ctrl)
                 add_shake(frame, act->anim_ctrl->get_camera_shake(), act->get_abs_position());
         }
     }
 }
-}
+}  // namespace
 
 namespace {
 struct combat_candidate {
@@ -919,16 +986,19 @@ struct combat_candidate {
     float distance;
     float weight;
 };
-bool combat_candidate_valid(actor *act, const camera_target_info &target) {
-    if (!act || !act->get_ai_core() || !act->has_damage_ifc() || act == target.field_54) return false;
+bool combat_candidate_valid(actor *act, const camera_target_info &target)
+{
+    if (!act || !act->get_ai_core() || !act->has_damage_ifc() || act == target.field_54)
+        return false;
     auto *damage = act->damage_ifc();
-    if (!damage->is_alive() && damage->is_subdued()) return false;
+    if (!damage->is_alive() && damage->is_subdued())
+        return false;
     auto hash = act->get_ai_core()->get_param_block()->get_pb_hash(ai::combat_target_inode::team_hash());
     return ai::team::manager::is_enemy(ai::team::manager::get_team_enum_by_hash(hash),
-                                      static_cast<ai::team::team_enum>(target.field_58));
+                                       static_cast<ai::team::team_enum>(target.field_58));
 }
-void native_combat(camera_mode_combat *self, Float dt, camera_frame &frame,
-                     const camera_target_info &const_target) {
+void native_combat(camera_mode_combat *self, Float dt, camera_frame &frame, const camera_target_info &const_target)
+{
     auto &target = const_cast<camera_target_info &>(const_target);
     auto *controller = target.field_54->m_player_controller;
     int loco = target.get_loco_mode();
@@ -936,17 +1006,18 @@ void native_combat(camera_mode_combat *self, Float dt, camera_frame &frame,
     bool airborne = loco == 5 || loco == 6 || loco == 3;
     auto *inode = combat_inode(target);
     combat_extra_target = false;
-    if (!self->slave->field_1BC && self->slave->field_1CE &&
-        !self->slave->field_1D0.is_flagged(0x20) && self->slave->field_1D0.is_flagged(2))
+    if (!self->slave->field_1BC && self->slave->field_1CE && !self->slave->field_1D0.is_flagged(0x20) &&
+        self->slave->field_1D0.is_flagged(2))
         self->slave->field_1CD = !self->slave->field_1CD;
     auto *physical = target.field_54->physical_ifc();
     if ((physical && (physical->field_C & 0x80000) != 0 && target.field_54->has_physical_ifc() &&
-         !physical->is_effectively_standing()) || crawling || loco == 9 || loco == 3 || target.sub_4B28E0())
+         !physical->is_effectively_standing()) ||
+        crawling || loco == 9 || loco == 3 || target.sub_4B28E0())
         self->disabled = true;
     else if (self->disabled && !airborne)
         self->disabled = false;
-    if (!self->slave->field_1CD || !self->slave->field_1CE || self->disabled ||
-        !controller || static_cast<int>(controller->m_hero_type) == 0 ||
+    if (!self->slave->field_1CD || !self->slave->field_1CE || self->disabled || !controller ||
+        static_cast<int>(controller->m_hero_type) == 0 ||
         os_developer_options::instance->get_flag(static_cast<os_developer_options::flags_t>(140))) {
         forward_frame(self, dt, frame, target);
         return;
@@ -964,10 +1035,12 @@ void native_combat(camera_mode_combat *self, Float dt, camera_frame &frame,
         auto &actors = ai::combat_target_inode::combat_list();
         for (int i = 0; i < actors.size(); ++i) {
             auto *act = actors.at(i).get_volatile_ptr();
-            if (!combat_candidate_valid(act, target)) continue;
+            if (!combat_candidate_valid(act, target))
+                continue;
             vector3d direction = act->get_abs_position() - target.pos;
             float distance = direction.length();
-            if (distance < 30.0f) candidates.push_back({act, direction, distance, 0.0f});
+            if (distance < 30.0f)
+                candidates.push_back({act, direction, distance, 0.0f});
         }
         if (candidates.empty()) {
             forward_frame(self, dt, frame, target);
@@ -984,18 +1057,17 @@ void native_combat(camera_mode_combat *self, Float dt, camera_frame &frame,
         frame.constrain_pos_relative_to_plane(target.pos, target.up, 0.35f, 0.5f);
         float distance = (center - target.pos).length();
         target.max_look_dist *= 0.8f;
-        auto visual_radius = reinterpret_cast<float (__fastcall *)(entity_base *, void *)>(
-            get_vfunc(scripted->m_vtbl, 0x28));
+        auto visual_radius =
+            reinterpret_cast<float(__fastcall *)(entity_base *, void *)>(get_vfunc(scripted->m_vtbl, 0x28));
         float radius = std::clamp(visual_radius(scripted, nullptr) * 0.5f, 0.75f, 2.5f);
         vector3d horizontal = center - target.pos;
         horizontal.y = 0.0f;
-        float constraint = std::clamp((horizontal.length() /
-            std::clamp(radius + target.radius, 3.0f, 5.0f) - 1.0f) * 1.7f - 1.0f, -1.0f, 0.7f);
+        float constraint = std::clamp(
+            (horizontal.length() / std::clamp(radius + target.radius, 3.0f, 5.0f) - 1.0f) * 1.7f - 1.0f, -1.0f, 0.7f);
         frame.rotate_to_include_target(center, target.pos, target.up, constraint);
         frame.eye = lerp(frame.eye, previous.eye, fast_mix);
         float gap = std::max(distance - (radius + target.radius), 0.0f) * 0.5f + 1.0f;
-        float adjustment = (std::max(target.radius, radius) - target.radius) / sqr(gap) *
-            (0.66f * g_camera_min_dist);
+        float adjustment = (std::max(target.radius, radius) - target.radius) / sqr(gap) * (0.66f * g_camera_min_dist);
         target.min_look_dist += adjustment;
         target.max_look_dist += adjustment;
         pull_sphere(frame.eye, target.max_look_dist, target.pos);
@@ -1034,81 +1106,103 @@ void native_combat(camera_mode_combat *self, Float dt, camera_frame &frame,
         frame.include_target(center, radius, 0.8f);
     }
 }
-template<class T, void (*Function)(T *, Float, camera_frame &, const camera_target_info &)>
-void __fastcall mode_advance(camera_mode *self, void *, Float dt, camera_frame *frame,
-                             const camera_target_info *target) {
+template <class T, void (*Function)(T *, Float, camera_frame &, const camera_target_info &)>
+void __fastcall mode_advance(camera_mode *self, void *, Float dt, camera_frame *frame, const camera_target_info *target)
+{
     Function(static_cast<T *>(self), dt, *frame, *target);
 }
-void shake_advance(camera_mode_shake *self, Float dt, camera_frame &frame, const camera_target_info &target) {
+void shake_advance(camera_mode_shake *self, Float dt, camera_frame &frame, const camera_target_info &target)
+{
     self->_frame_advance(dt, frame, target);
 }
-void lookaround_advance(camera_mode_lookaround *self, Float dt, camera_frame &frame, const camera_target_info &target) {
+void lookaround_advance(camera_mode_lookaround *self, Float dt, camera_frame &frame, const camera_target_info &target)
+{
     self->_frame_advance(dt, frame, target);
 }
-void passive_advance(camera_mode_passive *self, Float dt, camera_frame &frame, const camera_target_info &target) {
+void passive_advance(camera_mode_passive *self, Float dt, camera_frame &frame, const camera_target_info &target)
+{
     self->_frame_advance(dt, frame, const_cast<camera_target_info &>(target));
 }
-void fixedstatic_advance(camera_mode_fixedstatic *self, Float dt, camera_frame &frame, const camera_target_info &target) {
+void fixedstatic_advance(camera_mode_fixedstatic *self, Float dt, camera_frame &frame, const camera_target_info &target)
+{
     self->_frame_advance(dt, frame, target);
 }
-void __fastcall shake_activate(camera_mode *self, void *, camera_target_info *target) {
+void __fastcall shake_activate(camera_mode *self, void *, camera_target_info *target)
+{
     forward_activate(self, nullptr, target);
     auto *shake = static_cast<camera_mode_shake *>(self);
     shake->frame_fwd = self->slave->get_abs_po().get_z_facing();
     shake->frame_eye = self->slave->get_abs_position();
 }
-void __fastcall passive_activate(camera_mode *self, void *, camera_target_info *target) {
+void __fastcall passive_activate(camera_mode *self, void *, camera_target_info *target)
+{
     static_cast<camera_mode_passive *>(self)->_activate(*target);
 }
-void __fastcall passive_clear(camera_mode *self) {
+void __fastcall passive_clear(camera_mode *self)
+{
     forward_clear(self);
     static_cast<camera_mode_passive *>(self)->field_1C = YVEC;
 }
-void __fastcall reset_recenter(camera_mode *self, void *, Float dt, const camera_target_info *target) {
-    if (std::fpclassify(float(dt)) == FP_ZERO) ++dword_959E5C();
+void __fastcall reset_recenter(camera_mode *self, void *, Float dt, const camera_target_info *target)
+{
+    if (std::fpclassify(float(dt)) == FP_ZERO)
+        ++dword_959E5C();
     forward_recenter(self, nullptr, dt, target);
 }
-void __fastcall combat_activate(camera_mode *self, void *, camera_target_info *target) {
+void __fastcall combat_activate(camera_mode *self, void *, camera_target_info *target)
+{
     forward_activate(self, nullptr, target);
     static_cast<camera_mode_combat *>(self)->disabled = false;
 }
-void __fastcall filter_activate(camera_mode *self, void *, camera_target_info *target) {
+void __fastcall filter_activate(camera_mode *self, void *, camera_target_info *target)
+{
     forward_activate(self, nullptr, target);
     static_cast<camera_mode_filter *>(self)->reset_frames = 1;
 }
-void __fastcall filter_recenter(camera_mode *self, void *, Float dt, const camera_target_info *target) {
-    if (std::fpclassify(float(dt)) == FP_ZERO) static_cast<camera_mode_filter *>(self)->reset_frames = 1;
+void __fastcall filter_recenter(camera_mode *self, void *, Float dt, const camera_target_info *target)
+{
+    if (std::fpclassify(float(dt)) == FP_ZERO)
+        static_cast<camera_mode_filter *>(self)->reset_frames = 1;
     forward_recenter(self, nullptr, dt, target);
 }
-void __fastcall transition_activate(camera_mode *self, void *, camera_target_info *target) {
+void __fastcall transition_activate(camera_mode *self, void *, camera_target_info *target)
+{
     forward_activate(self, nullptr, target);
     static_cast<camera_mode_transition *>(self)->valid = false;
 }
-void __fastcall reorient_activate(camera_mode *self, void *, camera_target_info *target) {
+void __fastcall reorient_activate(camera_mode *self, void *, camera_target_info *target)
+{
     forward_activate(self, nullptr, target);
     auto *mode = static_cast<camera_mode_reorient *>(self);
     mode->last_target = 0;
     reorient_recenter(mode, 0.0f, *target);
 }
-void __fastcall reorient_request(camera_mode *self, void *, Float dt, const camera_target_info *target) {
+void __fastcall reorient_request(camera_mode *self, void *, Float dt, const camera_target_info *target)
+{
     reorient_recenter(static_cast<camera_mode_reorient *>(self), dt, *target);
 }
-void __fastcall lookaround_request(camera_mode *self, void *, Float dt, const camera_target_info *target) {
+void __fastcall lookaround_request(camera_mode *self, void *, Float dt, const camera_target_info *target)
+{
     forward_recenter(self, nullptr, dt, target);
     self->slave->field_1CC = false;
 }
-void __fastcall lookaround_enable(camera_mode *self, void *, bool enabled) {
+void __fastcall lookaround_enable(camera_mode *self, void *, bool enabled)
+{
     forward_lookaround(self, nullptr, enabled);
     static_cast<camera_mode_lookaround *>(self)->field_C = enabled;
-    if (!enabled) self->slave->field_1CC = false;
+    if (!enabled)
+        self->slave->field_1CC = false;
 }
-void __fastcall fixedstatic_set(camera_mode *self, void *, const vector3d *eye, const vector3d *at) {
+void __fastcall fixedstatic_set(camera_mode *self, void *, const vector3d *eye, const vector3d *at)
+{
     static_cast<camera_mode_fixedstatic *>(self)->_set_fixedstatic(*eye, *at);
 }
-void __fastcall fixedstatic_clear(camera_mode *self) {
+void __fastcall fixedstatic_clear(camera_mode *self)
+{
     static_cast<camera_mode_fixedstatic *>(self)->_clear_fixedstatic();
 }
-void initialize_native_tables() {
+void initialize_native_tables()
+{
     static const bool initialized = [] {
         base_table = mode_table<camera_mode>();
         shake_table = mode_table<camera_mode_shake>();
@@ -1163,15 +1257,17 @@ void initialize_native_tables() {
     }();
     (void)initialized;
 }
-template<class T>
-camera_mode *wrap_mode(spiderman_camera *slave, camera_mode *child, camera_mode::vtable &table) {
+template <class T>
+camera_mode *wrap_mode(spiderman_camera *slave, camera_mode *child, camera_mode::vtable &table)
+{
     auto *mode = new T(slave, child);
     mode->m_vtbl = &table;
     return mode;
 }
-}
+}  // namespace
 
-camera_mode *create_native_camera_modes(spiderman_camera *slave) {
+camera_mode *create_native_camera_modes(spiderman_camera *slave)
+{
     initialize_native_tables();
     camera_mode *root = new camera_mode_passive(slave, nullptr);
     root = wrap_mode<camera_mode_combat>(slave, root, combat_table);
@@ -1188,6 +1284,8 @@ camera_mode *create_native_camera_modes(spiderman_camera *slave) {
     root = wrap_mode<camera_mode_stationary>(slave, root, stationary_table);
     return new camera_mode_shake(slave, root);
 }
-void destroy_native_camera_modes(camera_mode *root) {
-    if (root) root->m_vtbl->finalize(root, nullptr, 1);
+void destroy_native_camera_modes(camera_mode *root)
+{
+    if (root)
+        root->m_vtbl->finalize(root, nullptr, 1);
 }

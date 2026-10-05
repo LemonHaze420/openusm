@@ -14,13 +14,13 @@ VALIDATE_SIZE(dangler, 0x24);
 VALIDATE_SIZE(dangler::dangler_particle, 0x3C);
 
 dangler::dangler()
-    : field_4(0), damping(0.0f), length(0.0f), gravity(0.0f, -10.0f, 0.0f),
-      constraint_iterations(4), collision_enabled(false), field_21(true)
+    : field_4(0), damping(0.0f), length(0.0f), gravity(0.0f, -10.0f, 0.0f), constraint_iterations(4),
+      collision_enabled(false), field_21(true)
 {
     using particle_vector = _std::vector<dangler_particle>;
     void *memory = sizeof(particle_vector) <= slab_allocator::get_max_object_size()
-        ? slab_allocator::allocate(sizeof(particle_vector), nullptr)
-        : ::operator new(sizeof(particle_vector));
+                       ? slab_allocator::allocate(sizeof(particle_vector), nullptr)
+                       : ::operator new(sizeof(particle_vector));
     particles = new (memory) particle_vector;
 }
 
@@ -39,8 +39,8 @@ dangler::~dangler()
 
 void *dangler::operator new(size_t size)
 {
-    return size <= slab_allocator::get_max_object_size()
-        ? slab_allocator::allocate(size, nullptr) : ::operator new(size);
+    return size <= slab_allocator::get_max_object_size() ? slab_allocator::allocate(size, nullptr)
+                                                         : ::operator new(size);
 }
 
 void dangler::operator delete(void *memory)
@@ -68,7 +68,7 @@ int dangler::init_dangle(const vector3d &start, const vector3d &end, const vecto
         particle.pinned = i == 0;
         if (i != 0) {
             particle.rest_length = total_length > 0.0f ? total_length / (field_4 - 1)
-                : (particle.position - particles->back().position).length();
+                                                       : (particle.position - particles->back().position).length();
             if (total_length <= 0.0f)
                 length += particle.rest_length;
         }
@@ -78,8 +78,8 @@ int dangler::init_dangle(const vector3d &start, const vector3d &end, const vecto
     return field_4;
 }
 
-void dangler::init_line(const vector3d &start, const vector3d &end, int segments,
-                        const vector3d &velocity, char first_flags)
+void dangler::init_line(const vector3d &start, const vector3d &end, int segments, const vector3d &velocity,
+                        char first_flags)
 {
     field_4 = segments + 1;
     length = (end - start).length();
@@ -167,12 +167,12 @@ void dangler::frame_advance(Float dt)
         }
         const vector3d center = (minimum + maximum) * 0.5f;
         const float radius = std::min((center - minimum).length(), 25.0f);
-        auto *primitives = local_collision::query_sphere(center, radius,
-            *local_collision::entfilter_accept_all, *local_collision::obbfilter_sphere_test, {});
+        auto *primitives = local_collision::query_sphere(
+            center, radius, *local_collision::entfilter_accept_all, *local_collision::obbfilter_sphere_test, {});
         for (auto &particle : *particles) {
             vector3d point, normal;
             if (!particle.pinned && local_collision::get_closest_sphere_intersection(
-                    primitives, particle.position, 0.1f, &point, &normal, nullptr)) {
+                                        primitives, particle.position, 0.1f, &point, &normal, nullptr)) {
                 const vector3d normal_velocity = normal * dot(normal, particle.velocity);
                 const vector3d tangent_velocity = particle.velocity - normal_velocity;
                 particle.position = point + normal * 0.1f;

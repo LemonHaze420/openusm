@@ -27,11 +27,7 @@ enum debug_menu_entry_type {
 
 extern const char *to_string(debug_menu_entry_type entry_type);
 
-enum custom_key_type {
-	LEFT,
-	RIGHT,
-	ENTER
-};
+enum custom_key_type { LEFT, RIGHT, ENTER };
 
 struct debug_menu_entry;
 
@@ -39,13 +35,13 @@ extern void entry_frame_advance_callback_default(debug_menu_entry *a1);
 
 struct debug_menu;
 
-extern std::string entry_render_callback_default(debug_menu_entry* entry);
+extern std::string entry_render_callback_default(debug_menu_entry *entry);
 
 class script_instance;
 
 struct debug_menu_entry {
-	char text[MAX_CHARS];
-	debug_menu_entry_type entry_type;
+    char text[MAX_CHARS];
+    debug_menu_entry_type entry_type;
     union {
         float fval;
         float *p_fval;
@@ -55,8 +51,8 @@ struct debug_menu_entry {
         int *p_ival;
         debug_menu *p_menu;
     } m_value;
-	void* data1;
-    uint16_t m_id {0};
+    void *data1;
+    uint16_t m_id{0};
     std::string (*render_callback)(debug_menu_entry *) = entry_render_callback_default;
     void (*m_game_flags_handler)(debug_menu_entry *) = nullptr;
     void (*frame_advance_callback)(debug_menu_entry *) = entry_frame_advance_callback_default;
@@ -67,8 +63,8 @@ struct debug_menu_entry {
         float m_max_value;
         float m_step_size;
         float m_step_scale;
-    } field_20 {0.f, 1.f, 0.1f, 10.f};
-    bool m_value_initialized {false};
+    } field_20{0.f, 1.f, 0.1f, 10.f};
+    bool m_value_initialized{false};
     void *m_data = nullptr;
 
     void set_step_size(float a2)
@@ -86,14 +82,14 @@ struct debug_menu_entry {
         this->m_data = a2;
     }
 
-    void * get_data()
+    void *get_data()
     {
         return this->m_data;
     }
 
     std::string get_script_handler()
     {
-        return std::string {this->text};
+        return std::string{this->text};
     }
 
     void set_id(int id)
@@ -123,34 +119,25 @@ struct debug_menu_entry {
 
     void set_fval(float a2, bool a3)
     {
-        if ( !this->is_value_initialized() )
-        {
-            if ( a2 > this->field_20.m_max_value )
-            {
+        if (!this->is_value_initialized()) {
+            if (a2 > this->field_20.m_max_value) {
                 a2 = this->field_20.m_max_value;
             }
 
-            if ( this->field_20.m_min_value > a2 )
-            {
+            if (this->field_20.m_min_value > a2) {
                 a2 = this->field_20.m_min_value;
             }
 
             auto v3 = this->entry_type;
-            if ( v3 == FLOAT_E )
-            {
+            if (v3 == FLOAT_E) {
                 this->m_value.fval = a2;
-            }
-            else if ( v3 == POINTER_FLOAT )
-            {
+            } else if (v3 == POINTER_FLOAT) {
                 *this->m_value.p_fval = a2;
-            }
-            else
-            {
+            } else {
                 assert(0);
             }
 
-            if ( this->m_game_flags_handler != nullptr && a3 )
-            {
+            if (this->m_game_flags_handler != nullptr && a3) {
                 this->m_game_flags_handler(this);
             }
         }
@@ -176,13 +163,11 @@ struct debug_menu_entry {
     bool get_bval() const
     {
         auto v2 = this->entry_type;
-        if ( v2 == BOOLEAN_E )
-        {
+        if (v2 == BOOLEAN_E) {
             return this->m_value.bval;
         }
 
-        if ( v2 == POINTER_BOOL )
-        {
+        if (v2 == POINTER_BOOL) {
             return *this->m_value.p_bval;
         }
 
@@ -193,13 +178,11 @@ struct debug_menu_entry {
     int get_ival()
     {
         auto v2 = this->entry_type;
-        if ( v2 == INTEGER )
-        {
+        if (v2 == INTEGER) {
             return this->m_value.ival;
         }
 
-        if ( v2 == POINTER_INT )
-        {
+        if (v2 == POINTER_INT) {
             return *this->m_value.p_ival;
         }
 
@@ -221,32 +204,25 @@ struct debug_menu_entry {
     {
         printf("debug_menu_entry::set_ival: a2 = %d\n", a2);
 
-        if ( !this->is_value_initialized() )
-        {
-            if ( a2 > this->field_20.m_max_value ) {
+        if (!this->is_value_initialized()) {
+            if (a2 > this->field_20.m_max_value) {
                 a2 = this->field_20.m_max_value;
             }
 
-            if ( this->field_20.m_min_value > a2 ) {
+            if (this->field_20.m_min_value > a2) {
                 a2 = this->field_20.m_min_value;
             }
 
             auto v4 = this->entry_type;
-            if ( v4 == INTEGER )
-            {
+            if (v4 == INTEGER) {
                 this->m_value.ival = a2;
-            }
-            else if ( v4 == POINTER_INT )
-            {
+            } else if (v4 == POINTER_INT) {
                 *this->m_value.p_ival = a2;
-            }
-            else
-            {
+            } else {
                 assert(0);
             }
 
-            if ( this->m_game_flags_handler != nullptr && a3 )
-            {
+            if (this->m_game_flags_handler != nullptr && a3) {
                 this->m_game_flags_handler(this);
             }
         }
@@ -257,7 +233,7 @@ struct debug_menu_entry {
     void set_p_ival(int *a2)
     {
         this->entry_type = POINTER_INT;
-        this->m_value.p_ival= a2;
+        this->m_value.p_ival = a2;
     }
 
     void set_pt_fval(float *a2)
@@ -284,24 +260,17 @@ struct debug_menu_entry {
 
     bool set_bval(bool a2, bool a3)
     {
-        if ( !this->is_value_initialized() )
-        {
+        if (!this->is_value_initialized()) {
             auto v4 = this->entry_type;
-            if ( v4 == BOOLEAN_E )
-            {
+            if (v4 == BOOLEAN_E) {
                 this->m_value.bval = a2;
-            }
-            else if ( v4 == POINTER_BOOL )
-            {
+            } else if (v4 == POINTER_BOOL) {
                 *this->m_value.p_bval = a2;
-            }
-            else
-            {
+            } else {
                 assert(0);
             }
 
-            if ( this->m_game_flags_handler != nullptr && a3 )
-            {
+            if (this->m_game_flags_handler != nullptr && a3) {
                 this->m_game_flags_handler(this);
             }
         }
@@ -318,7 +287,7 @@ struct debug_menu_entry {
     void set_ival(int a2)
     {
         this->entry_type = INTEGER;
-        this->m_value.ival= a2;
+        this->m_value.ival = a2;
     }
 
     void set_fl_values(const float *a2)
@@ -357,16 +326,16 @@ struct debug_menu_entry {
 };
 
 
-extern void remove_debug_menu_entry(debug_menu_entry* entry);
+extern void remove_debug_menu_entry(debug_menu_entry *entry);
 
 
 extern debug_menu_entry *g_debug_camera_entry;
 
-typedef void (*menu_handler_function)(debug_menu_entry*, custom_key_type key_type);
+typedef void (*menu_handler_function)(debug_menu_entry *, custom_key_type key_type);
 
 extern void close_debug();
 
-extern debug_menu* current_menu;
+extern debug_menu *current_menu;
 
 struct debug_menu {
     enum class sort_mode_t {
@@ -375,21 +344,21 @@ struct debug_menu {
         descending = 2,
     };
 
-	char title[MAX_CHARS];
-	DWORD capacity;
-	DWORD used_slots;
-	DWORD window_start;
-	DWORD cur_index;
-	menu_handler_function handler;
-	debug_menu_entry* entries;
-    debug_menu *m_parent {nullptr};
+    char title[MAX_CHARS];
+    DWORD capacity;
+    DWORD used_slots;
+    DWORD window_start;
+    DWORD cur_index;
+    menu_handler_function handler;
+    debug_menu_entry *entries;
+    debug_menu *m_parent{nullptr};
     sort_mode_t m_sort_mode;
 
     void add_entry(debug_menu_entry *entry);
 
     void add_entry(debug_menu *a1)
     {
-        debug_menu_entry entry {a1};
+        debug_menu_entry entry{a1};
         this->add_entry(&entry);
     }
 
@@ -400,12 +369,11 @@ struct debug_menu {
 
     void go_back()
     {
-        if (this->m_parent != nullptr)
-        { 
+        if (this->m_parent != nullptr) {
             current_menu = this->m_parent;
             return;
         }
-        
+
         close_debug();
     }
 
@@ -416,11 +384,11 @@ struct debug_menu {
     static inline bool physics_state_on_exit = true;
 };
 
-extern void* add_debug_menu_entry(debug_menu* menu, debug_menu_entry* entry);
+extern void *add_debug_menu_entry(debug_menu *menu, debug_menu_entry *entry);
 
-extern debug_menu * create_menu(const char* title, menu_handler_function function, DWORD capacity);
+extern debug_menu *create_menu(const char *title, menu_handler_function function, DWORD capacity);
 
-extern debug_menu * create_menu(const char* title, debug_menu::sort_mode_t mode = debug_menu::sort_mode_t::undefined);
+extern debug_menu *create_menu(const char *title, debug_menu::sort_mode_t mode = debug_menu::sort_mode_t::undefined);
 
 extern debug_menu_entry *create_menu_entry(const mString &str);
 

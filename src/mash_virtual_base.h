@@ -10,9 +10,9 @@
 
 namespace mash {
 
-enum virtual_types_enum { };
+enum virtual_types_enum {};
 
-} // namespace mash
+}  // namespace mash
 
 struct mash_info_struct;
 
@@ -63,10 +63,10 @@ struct mash_virtual_base {
     //0x0041F820
     static void fixup_vtable(void *a1);
 
-    static inline Var<void *[1014]> vtable {0x00957040};
+    static inline Var<void *[1014]> vtable{0x00957040};
 
 #ifdef TARGET_XBOX
-    static inline std::map<uint32_t, mash_virtual_base *> map_vtable {}; 
+    static inline std::map<uint32_t, mash_virtual_base *> map_vtable{};
 #endif
 };
 

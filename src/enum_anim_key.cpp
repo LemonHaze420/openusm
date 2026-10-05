@@ -10,15 +10,9 @@ VALIDATE_SIZE(anim_key, 0x4);
 VALIDATE_SIZE(enum_anim_key, 0x8);
 
 namespace {
-void __fastcall key_destruct_mashed(anim_key *, void *)
-{
+void __fastcall key_destruct_mashed(anim_key *, void *) {}
 
-}
-
-void __fastcall key_unmash(anim_key *, void *, mash_info_struct *, void *)
-{
-
-}
+void __fastcall key_unmash(anim_key *, void *, mash_info_struct *, void *) {}
 
 void *__fastcall key_scalar_delete(anim_key *self, void *, unsigned int flags)
 {
@@ -38,19 +32,33 @@ void *__fastcall enum_key_scalar_delete(enum_anim_key *self, void *, unsigned in
     return self;
 }
 
-int __fastcall key_type(const anim_key *, void *) { return 144; }
-int __fastcall enum_key_type(const enum_anim_key *, void *) { return 147; }
-bool __fastcall key_is_subclass(const anim_key *, void *, mash::virtual_types_enum type) { return type == 573; }
+int __fastcall key_type(const anim_key *, void *)
+{
+    return 144;
+}
+int __fastcall enum_key_type(const enum_anim_key *, void *)
+{
+    return 147;
+}
+bool __fastcall key_is_subclass(const anim_key *, void *, mash::virtual_types_enum type)
+{
+    return type == 573;
+}
 bool __fastcall enum_key_is_subclass(const enum_anim_key *, void *, mash::virtual_types_enum type)
 {
     return type == 144 || type == 573;
 }
-int __fastcall key_size(const anim_key *, void *) { return sizeof(anim_key); }
-int __fastcall enum_key_size(const enum_anim_key *, void *) { return sizeof(enum_anim_key); }
+int __fastcall key_size(const anim_key *, void *)
+{
+    return sizeof(anim_key);
+}
+int __fastcall enum_key_size(const enum_anim_key *, void *)
+{
+    return sizeof(enum_anim_key);
+}
 
 int __fastcall key_compare(const anim_key *self, void *, const anim_key *other)
 {
-
     auto other_type = other->get_virtual_type_enum();
     if (self->get_virtual_type_enum() < other_type) {
         return -1;
@@ -60,7 +68,6 @@ int __fastcall key_compare(const anim_key *self, void *, const anim_key *other)
 
 int __fastcall enum_key_compare(const enum_anim_key *self, void *, const anim_key *other)
 {
-
     if (self->get_virtual_type_enum() != other->get_virtual_type_enum()) {
         return key_compare(self, nullptr, other);
     }
@@ -70,7 +77,7 @@ int __fastcall enum_key_compare(const enum_anim_key *self, void *, const anim_ke
     }
     return self->field_4.field_0 > value;
 }
-}
+}  // namespace
 
 void *anim_key::native_vtable()
 {
@@ -104,9 +111,8 @@ void *enum_anim_key::native_vtable()
 
 enum_anim_key::enum_anim_key()
 {
-
-    this->m_vtbl = reinterpret_cast<std::intptr_t>(
-        STANDALONE_SYSTEM ? native_vtable() : reinterpret_cast<void *>(0x00873908));
+    this->m_vtbl =
+        reinterpret_cast<std::intptr_t>(STANDALONE_SYSTEM ? native_vtable() : reinterpret_cast<void *>(0x00873908));
 }
 
 enum_anim_key::enum_anim_key(enum_anim_key::key_enum a2)

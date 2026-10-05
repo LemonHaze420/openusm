@@ -31,8 +31,7 @@ combo_system_move::combo_system_move()
 }
 
 namespace {
-bool satisfies_move_link(const combo_system_move::requirements &requirements,
-    string_hash category, float eta)
+bool satisfies_move_link(const combo_system_move::requirements &requirements, string_hash category, float eta)
 {
     const auto &links = requirements.field_30;
     if (links.m_size == 0)
@@ -41,9 +40,8 @@ bool satisfies_move_link(const combo_system_move::requirements &requirements,
     for (int index = 0; index < links.m_size; ++index) {
         const auto *link = links.m_data[index];
         if (link->field_4 == category &&
-            (link->field_8 == 0 || (link->field_8 == 3 &&
-                bit_cast<float>(link->field_C) <= time &&
-                bit_cast<float>(link->field_10) >= time)))
+            (link->field_8 == 0 ||
+             (link->field_8 == 3 && bit_cast<float>(link->field_C) <= time && bit_cast<float>(link->field_10) >= time)))
             return true;
     }
     return false;
@@ -51,10 +49,24 @@ bool satisfies_move_link(const combo_system_move::requirements &requirements,
 
 uint32_t converted_trigger_buttons(uint32_t buttons)
 {
-    constexpr uint32_t masks[]{
-        4, 8, 0x10, 0x20, 2, 1, 0x40000, 0x80000, 0x100000,
-        0x200000, 0x20000, 0x10000, 0x100000, 0x80000,
-        0x40004, 0x40008, 0x20000, 0x10000};
+    constexpr uint32_t masks[]{4,
+                               8,
+                               0x10,
+                               0x20,
+                               2,
+                               1,
+                               0x40000,
+                               0x80000,
+                               0x100000,
+                               0x200000,
+                               0x20000,
+                               0x10000,
+                               0x100000,
+                               0x80000,
+                               0x40004,
+                               0x40008,
+                               0x20000,
+                               0x10000};
     uint32_t converted = 0;
     for (unsigned bit = 0; bit != std::size(masks); ++bit)
         if ((buttons & (1u << bit)) != 0)
@@ -83,8 +95,7 @@ int trigger_satisfaction(const combo_system_move::trigger_info &trigger, uint32_
     return score + ((input & ~converted & 0x805FFFFF) != 0 ? 1 : 2);
 }
 
-int target_satisfaction(const combo_system_move::target_info &requirements,
-    vhandle_type<actor> target, bool has_target)
+int target_satisfaction(const combo_system_move::target_info &requirements, vhandle_type<actor> target, bool has_target)
 {
     auto *actor = target.get_volatile_ptr();
     if (actor != nullptr && requirements.field_4 != 4 && requirements.field_4 != 5) {
@@ -98,32 +109,30 @@ int target_satisfaction(const combo_system_move::target_info &requirements,
         const auto size_score = 4 - std::abs(size - requirements.field_8);
         const auto power_score = 7 - std::abs(power - requirements.field_4);
         const auto inverse_seven = bit_cast<float>(0x3E124925u);
-        return static_cast<int>(std::floor(10.0 * (size_score * 0.25) -
-            (1.0 - power_score * double(inverse_seven)) * 2.5 + 0.5));
+        return static_cast<int>(
+            std::floor(10.0 * (size_score * 0.25) - (1.0 - power_score * double(inverse_seven)) * 2.5 + 0.5));
     }
     if (requirements.field_4 == 4)
         return actor == nullptr && !has_target ? 10 : 0;
     return requirements.field_4 == 5 && has_target ? 1 : -100;
 }
-}
+}  // namespace
 
-int combo_system_move::requirements_satisfaction(vhandle_type<actor> target, vector3d displacement,
-    uint32_t input, string_hash previous_category, float eta, bool has_target, float combat_level) const
+int combo_system_move::requirements_satisfaction(vhandle_type<actor> target, vector3d displacement, uint32_t input,
+                                                 string_hash previous_category, float eta, bool has_target,
+                                                 float combat_level) const
 {
     const auto &range = field_80.field_1C;
-    const auto horizontal = std::sqrt(double(displacement.x) * displacement.x +
-        double(displacement.z) * displacement.z);
+    const auto horizontal =
+        std::sqrt(double(displacement.x) * displacement.x + double(displacement.z) * displacement.z);
     const auto vertical = std::fabs(double(displacement.y));
     const auto epsilon = bit_cast<float>(0x38D1B717u);
     if (!satisfies_move_link(field_80, previous_category, eta) ||
-        !(horizontal <= bit_cast<float>(range.field_8) &&
-            horizontal >= bit_cast<float>(range.field_4) &&
-            vertical <= bit_cast<float>(range.field_10) &&
-            vertical >= bit_cast<float>(range.field_C)) ||
+        !(horizontal <= bit_cast<float>(range.field_8) && horizontal >= bit_cast<float>(range.field_4) &&
+          vertical <= bit_cast<float>(range.field_10) && vertical >= bit_cast<float>(range.field_C)) ||
         double(combat_level) + epsilon < field_80.field_44)
         return -100;
-    return target_satisfaction(field_80.field_10, target, has_target) +
-        trigger_satisfaction(field_80.field_4, input);
+    return target_satisfaction(field_80.field_10, target, has_target) + trigger_satisfaction(field_80.field_4, input);
 }
 
 combo_system_move::dialation_info::dialation_info()
@@ -187,20 +196,17 @@ combo_system_move::results::results(from_mash_in_place_constructor *tag)
     : field_4(tag), field_8(tag), field_C(tag), field_10(tag)
 {
     m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[99]);
-    field_40.m_vtbl = field_54.m_vtbl =
-        reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[95]);
+    field_40.m_vtbl = field_54.m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[95]);
 }
 
 combo_system_move::results::results(const results &a2)
-    : field_4(a2.field_4), field_8(a2.field_8), field_C(a2.field_C), field_10(a2.field_10),
-      field_20(a2.field_20), field_24(a2.field_24), field_28(a2.field_28), field_2C(a2.field_2C),
-      field_30(a2.field_30), field_34(a2.field_34), field_38(a2.field_38), field_3C(a2.field_3C),
-      field_40(a2.field_40), field_54(a2.field_54), field_68(a2.field_68), field_6C(a2.field_6C),
-      field_70(a2.field_70), field_74(a2.field_74), field_78(a2.field_78)
+    : field_4(a2.field_4), field_8(a2.field_8), field_C(a2.field_C), field_10(a2.field_10), field_20(a2.field_20),
+      field_24(a2.field_24), field_28(a2.field_28), field_2C(a2.field_2C), field_30(a2.field_30), field_34(a2.field_34),
+      field_38(a2.field_38), field_3C(a2.field_3C), field_40(a2.field_40), field_54(a2.field_54), field_68(a2.field_68),
+      field_6C(a2.field_6C), field_70(a2.field_70), field_74(a2.field_74), field_78(a2.field_78)
 {
     m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[99]);
-    field_40.m_vtbl = field_54.m_vtbl =
-        reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[95]);
+    field_40.m_vtbl = field_54.m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[95]);
 }
 
 combo_system_move::results::~results()

@@ -26,11 +26,9 @@ VALIDATE_OFFSET(main_menu_load, field_F4, 0xF4);
 VALIDATE_OFFSET(main_menu_load, field_104, 0x104);
 VALIDATE_OFFSET(main_menu_load, field_170, 0x170);
 
-main_menu_load::main_menu_load(FEMenuSystem *a2, int a4, int a5)
-    : FEMenu(a2, 0, a4, a5, 8, 0)
+main_menu_load::main_menu_load(FEMenuSystem *a2, int a4, int a5) : FEMenu(a2, 0, a4, a5, 8, 0)
 {
-    if constexpr (STANDALONE_SYSTEM)
-    {
+    if constexpr (STANDALONE_SYSTEM) {
         m_vtbl = 0x008947A8;
         field_2C = 0.8f;
         field_30 = 1.0f;
@@ -45,16 +43,13 @@ main_menu_load::main_menu_load(FEMenuSystem *a2, int a4, int a5)
         field_E0 = 0;
         field_170 = a2;
         if (g_game_ptr != nullptr && g_game_ptr->field_7C != nullptr)
-            field_E4 = g_game_ptr->field_7C->lookup_localized_string(
-                static_cast<global_text_enum>(55));
+            field_E4 = g_game_ptr->field_7C->lookup_localized_string(static_cast<global_text_enum>(55));
         field_F4 = "-- --- ---- - --:--:--";
         for (auto &slot : field_104) {
             slot.date = field_F4;
             slot.disabled = true;
         }
-    }
-    else
-    {
+    } else {
         THISCALL(0x00623950, this, a2, a4, a5);
     }
 }
@@ -69,7 +64,7 @@ void main_menu_load::_Init()
         PanelQuad **destination;
         const char *name;
     };
-    const QuadBinding quads[] {
+    const QuadBinding quads[]{
         {&field_40[1], "mm_bkg_city"},
         {&field_40[2], "mm_bkg_city_01"},
         {&field_40[3], "mm_bkg_city_02"},
@@ -107,7 +102,7 @@ void main_menu_load::_Init()
         (*binding.destination)->TurnOn(false);
     }
 
-    static constexpr const char *text_names[] {
+    static constexpr const char *text_names[]{
         "mm_loadsg_text_header",
         "mm_loadsg_text_link_01a",
         "mm_loadsg_text_link_01b",
@@ -135,19 +130,17 @@ void main_menu_load::SetSaveSlot(int slot, const game_data_essentials *data)
         return;
 
     destination.title = mString{slot + 1} + ". " + data->field_14;
-    const int month = data->timestamp.month >= 1 && data->timestamp.month <= 12
-        ? data->timestamp.month
-        : 1;
+    const int month = data->timestamp.month >= 1 && data->timestamp.month <= 12 ? data->timestamp.month : 1;
     const unsigned int elapsed = static_cast<unsigned int>(data->field_C);
     char date[64]{};
-    std::snprintf(
-        date, sizeof(date), "%02d %s %04d - %02u:%02u:%02u",
-        data->timestamp.day,
-        g_game_ptr->field_7C->lookup_localized_string(
-            static_cast<global_text_enum>(month + 436)),
-        data->timestamp.year,
-        std::min(elapsed / 3600, 99u),
-        elapsed / 60 % 60,
-        elapsed % 60);
+    std::snprintf(date,
+                  sizeof(date),
+                  "%02d %s %04d - %02u:%02u:%02u",
+                  data->timestamp.day,
+                  g_game_ptr->field_7C->lookup_localized_string(static_cast<global_text_enum>(month + 436)),
+                  data->timestamp.year,
+                  std::min(elapsed / 3600, 99u),
+                  elapsed / 60 % 60,
+                  elapsed % 60);
     destination.date = date;
 }

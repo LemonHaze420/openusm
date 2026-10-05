@@ -63,16 +63,15 @@ void check_init()
     }
 }
 
-int add_point_of_interest(const vector3d &position, int type, float radius, float duration,
-                          vhandle_type<entity> owner)
+int add_point_of_interest(const vector3d &position, int type, float radius, float duration, vhandle_type<entity> owner)
 {
     check_init();
     int available = -1;
     const bool attached = owner.get_volatile_ptr() != nullptr;
     for (int i = 0; i < 75; ++i) {
         auto *point = poi_list[i];
-        if (point != nullptr && point->field_1C.field_0.get_goodies() != 0
-            && point->field_1C.get_volatile_ptr() == nullptr) {
+        if (point != nullptr && point->field_1C.field_0.get_goodies() != 0 &&
+            point->field_1C.get_volatile_ptr() == nullptr) {
             remove_point_of_interest(i);
             point = nullptr;
         }
@@ -82,12 +81,10 @@ int add_point_of_interest(const vector3d &position, int type, float radius, floa
             continue;
         }
         if (attached) {
-            if (point->field_1C.field_0.get_goodies() == owner.field_0.get_goodies()
-                && point->field_C == type)
+            if (point->field_1C.field_0.get_goodies() == owner.field_0.get_goodies() && point->field_C == type)
                 return -1;
-        } else if (point->field_C == type && std::fabs(duration - point->field_10) < 0.0001f
-                   && std::fabs(radius - point->field_18) < 0.0001f
-                   && (point->field_0 - position).length2() < 0.1f) {
+        } else if (point->field_C == type && std::fabs(duration - point->field_10) < 0.0001f &&
+                   std::fabs(radius - point->field_18) < 0.0001f && (point->field_0 - position).length2() < 0.1f) {
             return -1;
         }
     }

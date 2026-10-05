@@ -26,8 +26,8 @@ using player = usm_anim_player<nalAnimClass<nalAnyPose>, 3>;
 
 template <typename Handle>
 void find_component(nalGeneric::nalGenericSkeleton *skeleton, Handle &handle, uint32_t bone_hash,
-                    const tlFixedString *bone_name, const tlFixedString &component_name,
-                    const void *type, bool allow_constant)
+                    const tlFixedString *bone_name, const tlFixedString &component_name, const void *type,
+                    bool allow_constant)
 {
     handle = {};
     int component_index = 0;
@@ -133,8 +133,8 @@ const char *event_data(nalGeneric::nalGenericAnim *anim,
     return nullptr;
 }
 
-void fire_generic_signals(generic_anim_controller *controller, uint32_t &next_signal,
-                          nalGeneric::nalGenericAnim *anim, nalGeneric::nalGenericPose *pose)
+void fire_generic_signals(generic_anim_controller *controller, uint32_t &next_signal, nalGeneric::nalGenericAnim *anim,
+                          nalGeneric::nalGenericPose *pose)
 {
     if (!controller->field_A4.Skeleton)
         return;
@@ -154,7 +154,8 @@ void fire_generic_signals(generic_anim_controller *controller, uint32_t &next_si
     const char *signal = total ? data + 4 : nullptr;
     auto advance = [&] {
         signal = static_cast<unsigned char>(signal[2]) == total - 1
-            ? nullptr : signal + 12 + 4 * static_cast<unsigned char>(signal[3]);
+                     ? nullptr
+                     : signal + 12 + 4 * static_cast<unsigned char>(signal[3]);
     };
     for (unsigned i = 0; i < next_signal; ++i)
         advance();
@@ -166,7 +167,8 @@ void fire_generic_signals(generic_anim_controller *controller, uint32_t &next_si
         string_hash bone_name{static_cast<int>(*reinterpret_cast<const uint32_t *>(signal + 8))};
         anim_event event{name, bone_name, static_cast<int>(arguments)};
         for (unsigned argument = 0; argument < arguments; ++argument)
-            event.field_10[argument] = string_hash{static_cast<int>(*reinterpret_cast<const uint32_t *>(signal + 12 + 4 * argument))};
+            event.field_10[argument] =
+                string_hash{static_cast<int>(*reinterpret_cast<const uint32_t *>(signal + 12 + 4 * argument))};
         event_manager::raise_event(&event, controller->field_4->my_handle.field_0);
         ++next_signal;
         advance();
@@ -203,16 +205,18 @@ void __fastcall compose_generic(generic_anim_controller::gen_base_play_method *s
     auto *source = reinterpret_cast<nalGeneric::nalGenericPose *>(temporary.field_0);
     auto *controller = self->field_4;
     if (controller->field_94.Skeleton)
-        pose_component<nalPositionOrientation>(destination, controller->field_94)
-            = pose_component<nalPositionOrientation>(source, controller->field_94);
+        pose_component<nalPositionOrientation>(destination, controller->field_94) =
+            pose_component<nalPositionOrientation>(source, controller->field_94);
     if (controller->field_84.Skeleton)
         pose_component<float>(destination, controller->field_84) = pose_component<float>(source, controller->field_84);
     if (controller->field_A4.Skeleton) {
         auto **table = reinterpret_cast<void **>(self->m_vtbl);
         auto should_fire = reinterpret_cast<bool(__fastcall *)(void *, void *, player::nalAnimState *)>(table[5]);
         if (should_fire(self, nullptr, state))
-            fire_generic_signals(controller, state->field_28,
-                reinterpret_cast<nalGeneric::nalGenericAnim *>(state->field_0->field_10), destination);
+            fire_generic_signals(controller,
+                                 state->field_28,
+                                 reinterpret_cast<nalGeneric::nalGenericAnim *>(state->field_0->field_10),
+                                 destination);
     }
 }
 
@@ -225,19 +229,37 @@ void *__fastcall destroy_generic(generic_anim_controller *self, void *, unsigned
 }
 
 void __fastcall play_generic_layer(generic_anim_controller *self, void *, nalAnimClass<nalAnyPose> *anim,
-                                   Float priority, Float blend, uint32_t domains, bool ordered, bool flag, void *parameter)
+                                   Float priority, Float blend, uint32_t domains, bool ordered, bool flag,
+                                   void *parameter)
 {
-    self->my_player.PlayModifier(anim, static_cast<player::usm_anim_player_modifier_type>(1), blend, domains,
-        ordered, priority, 0.0f, reinterpret_cast<player::nalPlayMethod *>(&self->field_5C),
-        0.0f, nullptr, 1.0f, flag, parameter);
+    self->my_player.PlayModifier(anim,
+                                 static_cast<player::usm_anim_player_modifier_type>(1),
+                                 blend,
+                                 domains,
+                                 ordered,
+                                 priority,
+                                 0.0f,
+                                 reinterpret_cast<player::nalPlayMethod *>(&self->field_5C),
+                                 0.0f,
+                                 nullptr,
+                                 1.0f,
+                                 flag,
+                                 parameter);
 }
 
-void __fastcall play_generic_base(generic_anim_controller *self, void *, nalAnimClass<nalAnyPose> *anim,
-                                  void *token, Float blend, player::usm_anim_player_modifier_type type,
-                                  bool flag, void *parameter)
+void __fastcall play_generic_base(generic_anim_controller *self, void *, nalAnimClass<nalAnyPose> *anim, void *token,
+                                  Float blend, player::usm_anim_player_modifier_type type, bool flag, void *parameter)
 {
-    self->my_player.PlayModifier(anim, type, blend, reinterpret_cast<player::nalPlayMethod *>(&self->field_54),
-                                0.0f, 0, 1.0f, token, flag, parameter);
+    self->my_player.PlayModifier(anim,
+                                 type,
+                                 blend,
+                                 reinterpret_cast<player::nalPlayMethod *>(&self->field_54),
+                                 0.0f,
+                                 0,
+                                 1.0f,
+                                 token,
+                                 flag,
+                                 parameter);
 }
 
 double __fastcall generic_floor(generic_anim_controller *self, void *)
@@ -271,7 +293,7 @@ double __fastcall generic_pull(generic_anim_controller *self, void *, string_has
 }
 
 po *generic_bone_po(generic_anim_controller *self, po *out,
-                   const nalGeneric::nalGenericConstComponentHandle<nalPositionOrientation> &handle)
+                    const nalGeneric::nalGenericConstComponentHandle<nalPositionOrientation> &handle)
 {
     if (handle.Skeleton) {
         const auto &value = pose_component(self->GetPose(), handle);
@@ -311,10 +333,12 @@ vector3d *__fastcall generic_scale(generic_anim_controller *self, void *, vector
 void __fastcall generic_scene_pose(generic_anim_controller *self, void *, uint32_t &next,
                                    nalAnimClass<nalAnyPose> *anim, nalAnyPose &pose)
 {
-    fire_generic_signals(self, next, reinterpret_cast<nalGeneric::nalGenericAnim *>(anim),
+    fire_generic_signals(self,
+                         next,
+                         reinterpret_cast<nalGeneric::nalGenericAnim *>(anim),
                          reinterpret_cast<nalGeneric::nalGenericPose *>(pose.field_0));
 }
-}
+}  // namespace
 
 void *generic_anim_controller::gen_base_play_method::native_vtable()
 {
@@ -378,7 +402,6 @@ generic_anim_controller::generic_anim_controller(actor *a2, nalBaseSkeleton *a3,
     this->m_vtbl = 0x00880EE8;
 #endif
     {
-
         this->field_64 = {};
         this->field_74 = {};
         this->field_84 = {};

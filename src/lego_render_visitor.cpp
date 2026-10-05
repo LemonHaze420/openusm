@@ -78,13 +78,13 @@ void render_scene_entity(const scene_entity &lego, float fade, region &reg)
     }
     if (lego.material_indices != 0) {
         params.SetParam(USMMaterialListParam{reg.field_9C->field_4});
-        params.SetParam(USMMaterialIndicesParam{
-            reinterpret_cast<uint8_t *>(const_cast<uint32_t *>(&lego.material_indices))});
+        params.SetParam(
+            USMMaterialIndicesParam{reinterpret_cast<uint8_t *>(const_cast<uint32_t *>(&lego.material_indices))});
     }
     static nglMeshParams mesh_params{0x80000040u};
     FastListAddMesh(lego.mesh, *bit_cast<const math::MatClass<4, 3> *>(lego_matrix), &mesh_params, &params);
 }
-}
+}  // namespace
 
 lego_render_visitor::lego_render_visitor(region *region, const hull *hull, const vector3d &position, Float scale)
 {
@@ -125,8 +125,8 @@ int static_lego_list_methods::traverse_all(const subdivision_node &node, subdivi
     return 0;
 }
 
-void static_lego_list_methods::init_region_traversal(
-    int count, scene_entity *legos, const fixed_bitvector<uint32_t, 2048> *previous)
+void static_lego_list_methods::init_region_traversal(int count, scene_entity *legos,
+                                                     const fixed_bitvector<uint32_t, 2048> *previous)
 {
     lego_count = count;
     lego_array = legos;
@@ -159,7 +159,7 @@ void lego_render_visitor::render_lego(int index)
     const uint8_t group = lego.render.fade_group;
     const float far_squared = geometry_manager::PROJ_FAR_PLANE_D * geometry_manager::PROJ_FAR_PLANE_D;
     const float fade_distance = group ? reinterpret_cast<const float *>(reg->field_44)[group]
-        : distance_fader::fade_distances2()[lego.flags & 0xF];
+                                      : distance_fader::fade_distances2()[lego.flags & 0xF];
     const float radius = generated ? lego.building.building_height * 5.0f * 0.5f : lego.mesh->SphereRadius + 0.5f;
     const float min_y = lego.y - radius;
     const float max_y = lego.y + radius + (generated && (lego.flags & 0x40000000u) != 0 ? 1.0f : 0.0f);
@@ -216,17 +216,21 @@ void lego_render_visitor::render_epilog(const buffered_lego &record)
             const float nx = packed_frustum.x[index];
             const float ny = packed_frustum.y[index];
             const float nz = packed_frustum.z[index];
-            const float support = std::abs(nx * c + nz * s) * half_width
-                + std::abs(ny) * half_height + std::abs(-nx * s + nz * c) * half_depth;
+            const float support = std::abs(nx * c + nz * s) * half_width + std::abs(ny) * half_height +
+                                  std::abs(-nx * s + nz * c) * half_depth;
             if (nx * lego.x + ny * center_y + nz * lego.z + packed_frustum.w[index] + support < 0.0f)
                 return;
         }
     } else {
         const float radius = lego.mesh->SphereRadius + 0.5f;
-        if (!const_cast<hull *>(frustum)->sub_5CC030(lego.render.sphere_x, lego.sphere.sphere_y, lego.sphere.sphere_z, radius)
-            || (g_disable_occlusion_culling == 0 && occlusion::sphere_occluded(
-                vector3d{static_cast<float>(lego.render.sphere_x), static_cast<float>(lego.sphere.sphere_y),
-                    static_cast<float>(lego.sphere.sphere_z)}, radius, 1)))
+        if (!const_cast<hull *>(frustum)->sub_5CC030(
+                lego.render.sphere_x, lego.sphere.sphere_y, lego.sphere.sphere_z, radius) ||
+            (g_disable_occlusion_culling == 0 &&
+             occlusion::sphere_occluded(vector3d{static_cast<float>(lego.render.sphere_x),
+                                                 static_cast<float>(lego.sphere.sphere_y),
+                                                 static_cast<float>(lego.sphere.sphere_z)},
+                                        radius,
+                                        1)))
             return;
     }
     ++legos_rendered_last_frame();

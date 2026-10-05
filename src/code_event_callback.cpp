@@ -12,13 +12,19 @@ void __fastcall spawn_callback(code_event_callback *self, void *, event *payload
 {
     self->m_callback(payload, recipient, self->field_4);
 }
-bool __fastcall is_code_callback(code_event_callback *, void *) { return true; }
-bool __fastcall is_script_callback(code_event_callback *, void *) { return false; }
-std::intptr_t table[] = {
-    reinterpret_cast<std::intptr_t>(&finalize_callback), reinterpret_cast<std::intptr_t>(&spawn_callback),
-    reinterpret_cast<std::intptr_t>(&is_code_callback), reinterpret_cast<std::intptr_t>(&is_script_callback)
-};
+bool __fastcall is_code_callback(code_event_callback *, void *)
+{
+    return true;
 }
+bool __fastcall is_script_callback(code_event_callback *, void *)
+{
+    return false;
+}
+std::intptr_t table[] = {reinterpret_cast<std::intptr_t>(&finalize_callback),
+                         reinterpret_cast<std::intptr_t>(&spawn_callback),
+                         reinterpret_cast<std::intptr_t>(&is_code_callback),
+                         reinterpret_cast<std::intptr_t>(&is_script_callback)};
+}  // namespace
 
 code_event_callback::code_event_callback(void (*a2)(event *, entity_base_vhandle, void *), void *a1, bool a4)
     : event_callback(a1, a4)

@@ -93,12 +93,12 @@ struct thrown_item : handheld_item {
     void set_owner(actor *);
     void internal_apply_effects(actor *, ai::combat_inode::incoming_move *);
     vector3d invert_launch_vec(const vector3d &);
-    vector3d *fire_at_target_internal(vhandle_type<entity>, vhandle_type<entity>,
-                                    const vector3d &, ai::combat_inode::incoming_move *);
+    vector3d *fire_at_target_internal(vhandle_type<entity>, vhandle_type<entity>, const vector3d &,
+                                      ai::combat_inode::incoming_move *);
     void spawn_grenade(vector3d, float, bool, const vector3d &, ai::combat_inode::incoming_move *);
     grenade *get_new_grenade();
-    void spawn_mirvs(int, const vector3d &, const vector3d &, vhandle_type<entity>,
-                     const vector3d &, const vector3d &, ai::combat_inode::incoming_move *);
+    void spawn_mirvs(int, const vector3d &, const vector3d &, vhandle_type<entity>, const vector3d &, const vector3d &,
+                     ai::combat_inode::incoming_move *);
     static vector3d calc_target_pos_delta(float);
     static vector3d calc_target_pos(const vector3d &, vhandle_type<entity>, float, const vector3d &, float);
     static void remove_live_grenade(grenade *);

@@ -27,9 +27,7 @@ resource_versions expected_resource_versions(_nlPlatformEnum platform)
 bool supports_xbox_version(const resource_versions &versions)
 {
     const auto expected = expected_resource_versions(NL_PLATFORM_XBOX);
-    return versions.field_0 == expected.field_0 &&
-           versions.field_4 == expected.field_4 &&
-           versions.field_8 == expected.field_8 &&
-           versions.field_C == expected.field_C &&
+    return versions.field_0 == expected.field_0 && versions.field_4 == expected.field_4 &&
+           versions.field_8 == expected.field_8 && versions.field_C == expected.field_C &&
            versions.field_10 == expected.field_10;
 }

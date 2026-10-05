@@ -269,11 +269,16 @@ int dynamic_rtree_root_state::find_free_slot() const
     const auto available = ~occupied.field_4[word];
     const auto lowest = available & (0u - available);
     int bit = 31;
-    if ((lowest & 0xFFFFu) != 0) bit = 15;
-    if ((lowest & 0x00FF00FFu) != 0) bit -= 8;
-    if ((lowest & 0x0F0F0F0Fu) != 0) bit -= 4;
-    if ((lowest & 0x33333333u) != 0) bit -= 2;
-    if ((lowest & 0x55555555u) != 0) --bit;
+    if ((lowest & 0xFFFFu) != 0)
+        bit = 15;
+    if ((lowest & 0x00FF00FFu) != 0)
+        bit -= 8;
+    if ((lowest & 0x0F0F0F0Fu) != 0)
+        bit -= 4;
+    if ((lowest & 0x33333333u) != 0)
+        bit -= 2;
+    if ((lowest & 0x55555555u) != 0)
+        --bit;
     return std::min(word * 32 + bit, BOTTOM_LEVEL_SIZE);
 }
 
@@ -308,7 +313,6 @@ void dynamic_rtree_root_state::compact_leaves()
 
 void dynamic_rtree_root_state::rebuild_bounds()
 {
-
     for (int level = bottom_level_index; level > 0; --level) {
         const int count = level_counts.m_data[level];
         auto *children = levels.m_data[level];
@@ -340,8 +344,7 @@ struct collision_sort_index {
     uint16_t padding;
 };
 
-void sort_collision_partition(collision_sort_index *indices, int begin, int end, int split,
-                              bool x_axis, int rounds)
+void sort_collision_partition(collision_sort_index *indices, int begin, int end, int split, bool x_axis, int rounds)
 {
     const auto less = [x_axis](const collision_sort_index &a, const collision_sort_index &b) {
         return x_axis ? a.x < b.x : a.z < b.z;
@@ -355,7 +358,7 @@ void sort_collision_partition(collision_sort_index *indices, int begin, int end,
             sort_collision_partition(indices, split, end, split + (end - split) / 2, !x_axis, rounds - 1);
     }
 }
-}
+}  // namespace
 
 void dynamic_rtree_root_state::sort()
 {
@@ -370,7 +373,8 @@ void dynamic_rtree_root_state::sort()
         const auto &node = bottom_level[i];
         indices[i] = {static_cast<uint16_t>(i),
                       static_cast<uint16_t>((node.maxx - node.minx + 65535) >> 1),
-                      static_cast<uint16_t>((node.maxz - node.minz + 65535) >> 1), 0};
+                      static_cast<uint16_t>((node.maxz - node.minz + 65535) >> 1),
+                      0};
     }
     std::sort(indices, indices + count, [](const collision_sort_index &a, const collision_sort_index &b) {
         return a.z < b.z;

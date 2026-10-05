@@ -17,7 +17,7 @@ void __fastcall destruct_anim_event(anim_event *self, void *)
 
 void __fastcall unmash_anim_event(anim_event *self, void *, mash_info_struct *info, void *owner)
 {
-    using unmash_callback = void (__fastcall *)(event *, void *, mash_info_struct *, void *);
+    using unmash_callback = void(__fastcall *)(event *, void *, mash_info_struct *, void *);
     auto *base = static_cast<std::intptr_t *>(event::native_vtable());
     reinterpret_cast<unmash_callback>(base[1])(self, nullptr, info, owner);
     info->unmash_class_in_place(self->field_C, self);
@@ -35,13 +35,22 @@ void *__fastcall delete_anim_event(anim_event *self, void *, unsigned int flags)
     return self;
 }
 
-int __fastcall anim_event_type(const anim_event *, void *) { return 534; }
-bool __fastcall anim_event_parent(const anim_event *, void *, int type) { return type == 539 || type == 573; }
+int __fastcall anim_event_type(const anim_event *, void *)
+{
+    return 534;
+}
+bool __fastcall anim_event_parent(const anim_event *, void *, int type)
+{
+    return type == 539 || type == 573;
+}
 bool __fastcall anim_event_is_type(const anim_event *, void *, int type)
 {
     return type == 534 || type == 539 || type == 573;
 }
-int __fastcall anim_event_size(const anim_event *, void *) { return sizeof(anim_event); }
+int __fastcall anim_event_size(const anim_event *, void *)
+{
+    return sizeof(anim_event);
+}
 
 void *native_anim_event_vtable()
 {
@@ -58,7 +67,7 @@ void *native_anim_event_vtable()
     };
     return table;
 }
-}
+}  // namespace
 
 VALIDATE_SIZE(anim_event, 0x18);
 

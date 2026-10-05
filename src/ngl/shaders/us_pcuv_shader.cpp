@@ -82,18 +82,17 @@ PCUV_Shader &getPCUV_Shader()
 
 tlFixedString PCUV_Shader::_GetName() const
 {
-    return tlFixedString {"US_PCUV"};
+    return tlFixedString{"US_PCUV"};
 }
 
-void PCUV_Shader::_AddNode(
-    nglMeshNode *mesh_node, nglMeshSection *mesh_section, nglMaterialBase *material)
+void PCUV_Shader::_AddNode(nglMeshNode *mesh_node, nglMeshSection *mesh_section, nglMaterialBase *material)
 {
-    auto *pcuv_material = material == nullptr
-                              ? nullptr
-                              : reinterpret_cast<PCUV_ShaderMaterial *>(
-                                    reinterpret_cast<char *>(material) - sizeof(std::intptr_t));
-    auto *node = new (nglListAlloc(sizeof(PCUV_ShaderNode), 16))
-        PCUV_ShaderNode {mesh_node, mesh_section, pcuv_material};
+    auto *pcuv_material =
+        material == nullptr
+            ? nullptr
+            : reinterpret_cast<PCUV_ShaderMaterial *>(reinterpret_cast<char *>(material) - sizeof(std::intptr_t));
+    auto *node =
+        new (nglListAlloc(sizeof(PCUV_ShaderNode), 16)) PCUV_ShaderNode{mesh_node, mesh_section, pcuv_material};
     if (pcuv_material->m_blend_mode <= NGLBM_PUNCHTHROUGH) {
         node->field_4 = reinterpret_cast<int>(nglCurScene->OpaqueNodes);
         nglCurScene->OpaqueNodes = reinterpret_cast<nglShaderNode *>(node);
@@ -105,31 +104,30 @@ void PCUV_Shader::_AddNode(
 
 void PCUV_Shader::_BindMaterial(nglMaterialBase *material)
 {
-    auto *pcuv_material = reinterpret_cast<PCUV_ShaderMaterial *>(
-        reinterpret_cast<char *>(material) - sizeof(std::intptr_t));
+    auto *pcuv_material =
+        reinterpret_cast<PCUV_ShaderMaterial *>(reinterpret_cast<char *>(material) - sizeof(std::intptr_t));
     pcuv_material->m_texture = nglLoadTexture(*pcuv_material->field_1C);
 }
 
 void PCUV_Shader::_ReleaseMaterial(nglMaterialBase *material)
 {
-    auto *pcuv_material = reinterpret_cast<PCUV_ShaderMaterial *>(
-        reinterpret_cast<char *>(material) - sizeof(std::intptr_t));
+    auto *pcuv_material =
+        reinterpret_cast<PCUV_ShaderMaterial *>(reinterpret_cast<char *>(material) - sizeof(std::intptr_t));
     nglReleaseTexture(pcuv_material->m_texture);
     pcuv_material->m_texture = nullptr;
 }
 
 void PCUV_Shader::_RebaseMaterial(nglMaterialBase *material, unsigned int base)
 {
-    auto *pcuv_material = reinterpret_cast<PCUV_ShaderMaterial *>(
-        reinterpret_cast<char *>(material) - sizeof(std::intptr_t));
+    auto *pcuv_material =
+        reinterpret_cast<PCUV_ShaderMaterial *>(reinterpret_cast<char *>(material) - sizeof(std::intptr_t));
     if (pcuv_material->field_1C != nullptr) {
-        pcuv_material->field_1C = reinterpret_cast<tlFixedString *>(
-            reinterpret_cast<char *>(pcuv_material->field_1C) + base);
+        pcuv_material->field_1C =
+            reinterpret_cast<tlFixedString *>(reinterpret_cast<char *>(pcuv_material->field_1C) + base);
     }
 }
 
-PCUV_ShaderNode::PCUV_ShaderNode(
-    nglMeshNode *mesh_node, nglMeshSection *mesh_section, PCUV_ShaderMaterial *material)
+PCUV_ShaderNode::PCUV_ShaderNode(nglMeshNode *mesh_node, nglMeshSection *mesh_section, PCUV_ShaderMaterial *material)
     : field_4(0), field_8(0), field_C(mesh_node), field_10(mesh_section), field_14(material)
 {
     static void *g_vtbl[]{func_address(&PCUV_ShaderNode::Render)};
@@ -163,8 +161,7 @@ void PCUV_Shader::Register()
                 //static Var<DWORD *> off_939FB0{0x00939FB0};
                 nglCreateVertexDeclarationAndShader(&dword_970AD0(), elements, pShader.data());
             } else {
-                nglCreateVertexDeclarationAndShader(
-                    &dword_970AD0(), elements, us_native_programs::program_8b0f30);
+                nglCreateVertexDeclarationAndShader(&dword_970AD0(), elements, us_native_programs::program_8b0f30);
             }
 
             if constexpr (STANDALONE_SYSTEM) {

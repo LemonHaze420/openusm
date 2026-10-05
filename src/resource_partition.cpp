@@ -70,12 +70,10 @@ void resource_partition::clear()
             assert(slot != nullptr);
             assert(slot->is_empty());
             if (slot != nullptr) {
-
                 slot->m_vtbl->finalize(slot, nullptr, true);
-                
             }
         }
-        
+
 
         if constexpr (0) {
             if (this->m_pack_slots.m_first != nullptr) {
@@ -88,10 +86,10 @@ void resource_partition::clear()
         } else {
             this->m_pack_slots.clear();
         }
-        
+
 
         this->streamer.clear();
-        
+
         this->field_0 = 0;
         this->m_partition_buffer = nullptr;
         this->partition_buffer_used = 0;

@@ -8,13 +8,13 @@ struct hires_screenshot {
 #if STANDALONE_SYSTEM
         static int &width()
         {
-            static int value {};
+            static int value{};
             return value;
         }
 
         static int &height()
         {
-            static int value {};
+            static int value{};
             return value;
         }
 #else
@@ -24,7 +24,7 @@ struct hires_screenshot {
     };
 
 #if STANDALONE_SYSTEM
-    static inline int flow[] {8, 9, 14};
+    static inline int flow[]{8, 9, 14};
     static inline game_process process{"hires_screenshot", flow, 3};
 #else
     static inline Var<game_process> process{0x0092205C};

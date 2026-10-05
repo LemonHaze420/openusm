@@ -188,12 +188,12 @@ bool worldly_pack_slot::_on_load(limited_timer *a2)
 
         return false;
     } else {
-        bool (__fastcall *func)(void *, void *, limited_timer *) = CAST(func, 0x0050ED20);
+        bool(__fastcall * func)(void *, void *, limited_timer *) = CAST(func, 0x0050ED20);
         return func(this, nullptr, a2);
     }
 }
 
-_std::vector<item *> * worldly_pack_slot::get_item_instances()
+_std::vector<item *> *worldly_pack_slot::get_item_instances()
 {
     assert(g_world_ptr != nullptr);
 
@@ -209,7 +209,7 @@ _std::vector<item *> * worldly_pack_slot::get_item_instances()
     return this->item_instances;
 }
 
-_std::vector<entity *> * worldly_pack_slot::get_entity_instances()
+_std::vector<entity *> *worldly_pack_slot::get_entity_instances()
 {
     assert(g_world_ptr != nullptr);
 
@@ -316,7 +316,7 @@ entity_resource_handler::entity_resource_handler(worldly_pack_slot *a2)
 
         this->m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {
-    this->m_vtbl = 0x00888A70;
+        this->m_vtbl = 0x00888A70;
     }
 
     this->my_slot = a2;
@@ -358,14 +358,13 @@ bool entity_resource_handler::_handle_resource(worldly_resource_handler::eBehavi
 #ifdef OPENUSM_XBPACK_V10
                 if (v4->is_conglom_member()) {
                     char message[192];
-                    std::snprintf(
-                        message,
-                        sizeof(message),
-                        "xbp skipped member %p %p flags=0x%08X ext=0x%08X\n",
-                        v4,
-                        v4->my_conglom_root,
-                        static_cast<unsigned int>(v4->field_4),
-                        static_cast<unsigned int>(v4->field_8));
+                    std::snprintf(message,
+                                  sizeof(message),
+                                  "xbp skipped member %p %p flags=0x%08X ext=0x%08X\n",
+                                  v4,
+                                  v4->my_conglom_root,
+                                  static_cast<unsigned int>(v4->field_4),
+                                  static_cast<unsigned int>(v4->field_8));
                     OutputDebugStringA(message);
                 }
 #endif
@@ -373,10 +372,10 @@ bool entity_resource_handler::_handle_resource(worldly_resource_handler::eBehavi
                     g_world_ptr->ent_mgr.remove_entity_from_misc_lists(v4);
                     entity_handle_manager::check_world_lists = false;
                     if (v4->is_dynamic()) {
-                        void (__fastcall *finalize)(void *, void *, bool) = CAST(finalize, get_vfunc(v4->m_vtbl, 0x0));
+                        void(__fastcall * finalize)(void *, void *, bool) = CAST(finalize, get_vfunc(v4->m_vtbl, 0x0));
                         finalize(v4, nullptr, true);
                     } else {
-                        void (__fastcall *release_mem)(void *) = CAST(release_mem, get_vfunc(v4->m_vtbl, 0x10));
+                        void(__fastcall * release_mem)(void *) = CAST(release_mem, get_vfunc(v4->m_vtbl, 0x10));
                         release_mem(v4);
                     }
 
@@ -394,7 +393,7 @@ bool entity_resource_handler::_handle_resource(worldly_resource_handler::eBehavi
 
         return result;
     } else {
-        bool (__fastcall *func)(void *, void *, worldly_resource_handler::eBehavior) = CAST(func, 0x0056BFA0);
+        bool(__fastcall * func)(void *, void *, worldly_resource_handler::eBehavior) = CAST(func, 0x0056BFA0);
         return func(this, nullptr, behavior);
     }
 }

@@ -31,12 +31,12 @@ nglMesh *nglGetMeshInFile(const tlHashString &a1, nglMeshFile *a2)
 
 bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFile, const char *ext)
 {
-    TRACE("nglLoadMeshFileInternal", (std::string {FileName.to_string()} + ext).c_str());
+    TRACE("nglLoadMeshFileInternal", (std::string{FileName.to_string()} + ext).c_str());
 
     if constexpr (1) {
         nglMeshFileHeader *Header = CAST(Header, MeshFile->field_124.Buf);
 
-        MeshFile->field_134 = (int) Header;
+        MeshFile->field_134 = (int)Header;
         MeshFile->field_144 = -1;
         if (strncmp(Header->Tag, "XBXM", 4u) != 0) {
             sp_log("Corrupted mesh file: %s%s%s.\n", nglMeshPath(), FileName.to_string(), ext);
@@ -102,7 +102,7 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
                 LastMaterial = Material;
                 if (Header->field_10 == 0) {
                     uint32_t v17 = CAST(v17, Material->field_4);
-                    const tlHashString a2 {v17};
+                    const tlHashString a2{v17};
 
                     auto *v18 = nglShaderBank().Search(a2);
 
@@ -120,10 +120,10 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
 
                             auto *v8 = Material->Name.c_str();
                             sp_log("Material %s binary version (%d) is not compatible with shader "
-                                "%s.\n",
-                                v8,
-                                v26,
-                                v27);
+                                   "%s.\n",
+                                   v8,
+                                   v26,
+                                   v27);
                             Material->field_4 = &gEmptyShader();
                         }
 
@@ -171,7 +171,7 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
                     Mesh->Sections[idx_Section].field_0 = 1;
 
                     nglMeshSection *MeshSection = CAST(MeshSection, Mesh->Sections[idx_Section].Section);
-                    tlHashString a1 {(uint32_t) MeshSection->Name};
+                    tlHashString a1{(uint32_t)MeshSection->Name};
 
                     MeshSection->Material = nglGetMaterialInFile(a1, MeshFile);
 
@@ -180,9 +180,9 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
 
                         auto *v12 = v111.to_string();
                         sp_log("Section VertexDef Binary version (%d) is incompatible with "
-                            "shader %s\n.",
-                            MeshSection->field_50,
-                            v12);
+                               "shader %s\n.",
+                               MeshSection->field_50,
+                               v12);
                         MeshSection->Material->field_4 = &gEmptyShader();
                     }
 
@@ -232,24 +232,24 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
                                         MeshSection->field_5C = 4;
                                     }
 
-                                    *(uint32_t *) v32 = v32[0];
+                                    *(uint32_t *)v32 = v32[0];
 
-                                    *((uint32_t *) v32 + 1) = v32[1];
+                                    *((uint32_t *)v32 + 1) = v32[1];
 
-                                    *((uint32_t *) v32 + 2) = v32[2];
-                                    *((uint32_t *) v32 + 3) = v32[3];
+                                    *((uint32_t *)v32 + 2) = v32[2];
+                                    *((uint32_t *)v32 + 3) = v32[3];
 
                                     v32 += 16;
                                 }
                             }
 
-                            ((nglVertexBuffer *) &MeshSection->m_vertices)
+                            ((nglVertexBuffer *)&MeshSection->m_vertices)
                                 ->createVertexBufferAndWriteData(
                                     (const void *)MeshSection->m_vertices, MeshSection->field_40, 1028);
 
                             static Var<int> dword_973BC8{0x00973BC8};
 
-                            if (dword_973BC8() < (int) (24 * (MeshSection->field_40 >> 6))) {
+                            if (dword_973BC8() < (int)(24 * (MeshSection->field_40 >> 6))) {
                                 dword_973BC8() = 24 * (MeshSection->field_40 >> 6);
                             }
 
@@ -259,11 +259,11 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
                         if (!EnableShader()) {
                             if (strncmp(v29, "uslod", 5u) == 0) {
                                 nglVertexBuffer::createIndexOrVertexBuffer((nglVertexBuffer *)&MeshSection->m_vertices,
-                                    ResourceType::VertexBuffer,
-                                    16 * (MeshSection->field_40 / 12),
-                                    520,
-                                    0,
-                                    D3DPOOL_DEFAULT);
+                                                                           ResourceType::VertexBuffer,
+                                                                           16 * (MeshSection->field_40 / 12),
+                                                                           520,
+                                                                           0,
+                                                                           D3DPOOL_DEFAULT);
                                 MeshSection->m_stride = 16;
                                 MeshSection->field_5C = 0;
                                 return;
@@ -300,13 +300,13 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
                             return;
                         }
 
-                        ((nglVertexBuffer *) &MeshSection->m_vertices)
+                        ((nglVertexBuffer *)&MeshSection->m_vertices)
                             ->createVertexBufferAndWriteData(
                                 (const void *)MeshSection->m_vertices, MeshSection->field_40, 1028);
                     }(MeshSection);
 
                     if (auto *v39 = MeshSection->VertexDef; v39 != nullptr) {
-                        tlHashString a1 {v39->m_vtbl};
+                        tlHashString a1{v39->m_vtbl};
 
                         auto *v40 = nglVertexDefBank().Search(a1);
                         if (v40 != nullptr) {
@@ -331,7 +331,7 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
             } break;
             case TypeDirectoryEntry::MORPH: {
                 nglMorphSet *new_morph = CAST(new_morph, dir_entry.field_4);
-                nglProcessMorph(MeshFile, &dir_entry, (int) Header);
+                nglProcessMorph(MeshFile, &dir_entry, (int)Header);
                 if (prevMorph != nullptr) {
                     prevMorph->field_10 = new_morph;
                 }
@@ -342,11 +342,11 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
                 auto *v14 = FileName.to_string();
 
                 sp_log("nglLoadMeshFile: file \"%s%s%s\" has an unknown directory entry ( %u ), "
-                    "skipping.\n",
-                    nglMeshPath(),
-                    v14,
-                    ext,
-                    type_dir_entry);
+                       "skipping.\n",
+                       nglMeshPath(),
+                       v14,
+                       ext,
+                       type_dir_entry);
 
                 break;
             }
@@ -411,7 +411,7 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
 
                 auto *Lods = Mesh->LODs;
                 for (int i = 0; i < Mesh->NLODs; ++i) {
-                    tlHashString v1 {bit_cast<uint32_t >(Lods[i].field_0)};
+                    tlHashString v1{bit_cast<uint32_t>(Lods[i].field_0)};
 
                     Mesh->LODs[i].field_0 = nglGetMeshInFile(v1, MeshFile);
                     Lods = Mesh->LODs;
@@ -449,7 +449,7 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
                     a3a[1] = v96[1] - v67->field_20.field_0[1];
                     a3a[2] = v96[2] - v67->field_20.field_0[2];
                     a3a[3] = v96[3] - v67->field_20.field_0[3];
-                    auto v76 = vector3d {a3a[0], a3a[1], a3a[3]}.length() + v67->SphereRadius;
+                    auto v76 = vector3d{a3a[0], a3a[1], a3a[3]}.length() + v67->SphereRadius;
                     if (v69 <= v76) {
                         v69 = v76;
                     }
@@ -468,7 +468,7 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
             }
         }
 
-        Header->field_10 = (int) MeshFile->field_124.Buf;
+        Header->field_10 = (int)MeshFile->field_124.Buf;
         return true;
     } else {
         auto result = static_cast<bool>(CDECL_CALL(0x0076F500, &FileName, MeshFile, ext));
@@ -500,8 +500,7 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
 #include <limits>
 #include <vector>
 
-namespace
-{
+namespace {
 struct xbox_ngl_mesh_file_header {
     char tag[4];
     uint32_t version;
@@ -572,7 +571,7 @@ constexpr auto xbox_triangle_strip = static_cast<D3DPRIMITIVETYPE>(6);
 constexpr auto xbox_triangle_fan = static_cast<D3DPRIMITIVETYPE>(7);
 constexpr auto xbox_quad_list = static_cast<D3DPRIMITIVETYPE>(8);
 
-template<typename T>
+template <typename T>
 T *rebase_pointer(uint32_t base, uint32_t pointer)
 {
     if (pointer == 0) {
@@ -599,20 +598,18 @@ float decode_normal_component(uint32_t value, uint32_t bit_count)
 bool is_skinned_vertex_def(uint32_t hash)
 {
     switch (hash) {
-    case 0x0A79CDB4: // us_character
-    case 0x0C9A7666: // USPersonMorphable_NickFuryEye
-    case 0x9B2581FF: // USPerson
-    case 0x9EF152BA: // USPersonSolid
-    case 0xAC364499: // USPersonMorphable
+    case 0x0A79CDB4:  // us_character
+    case 0x0C9A7666:  // USPersonMorphable_NickFuryEye
+    case 0x9B2581FF:  // USPerson
+    case 0x9EF152BA:  // USPersonSolid
+    case 0xAC364499:  // USPersonMorphable
         return true;
     default:
         return false;
     }
 }
 
-bool convert_skinned_vertices(uint32_t base,
-                              const xbox_ngl_mesh_section &disk,
-                              nglMeshSection *section)
+bool convert_skinned_vertices(uint32_t base, const xbox_ngl_mesh_section &disk, nglMeshSection *section)
 {
     if (disk.vertex_count < 0 ||
         disk.vertices_size != static_cast<uint32_t>(disk.vertex_count) * sizeof(xbox_skinned_vertex)) {
@@ -625,10 +622,8 @@ bool convert_skinned_vertices(uint32_t base,
         return false;
     }
 
-    const auto converted_size =
-        static_cast<uint32_t>(disk.vertex_count) * sizeof(pc_skinned_vertex);
-    auto *converted = static_cast<pc_skinned_vertex *>(
-        tlMemAlloc(converted_size, 16, 0x1000000u));
+    const auto converted_size = static_cast<uint32_t>(disk.vertex_count) * sizeof(pc_skinned_vertex);
+    auto *converted = static_cast<pc_skinned_vertex *>(tlMemAlloc(converted_size, 16, 0x1000000u));
     if (converted_size != 0 && converted == nullptr) {
         return false;
     }
@@ -645,8 +640,7 @@ bool convert_skinned_vertices(uint32_t base,
 
         for (int component = 0; component < 4; ++component) {
             output.bone_indices[component] = static_cast<float>(input.bone_indices[component]);
-            output.bone_weights[component] =
-                static_cast<float>(input.bone_weights[component]) / 255.0f;
+            output.bone_weights[component] = static_cast<float>(input.bone_weights[component]) / 255.0f;
         }
     }
 
@@ -687,9 +681,7 @@ bool fixup_texture_name(nglMaterialBase *material, uint32_t offset)
     return true;
 }
 
-bool fixup_texture_names(nglMaterialBase *material,
-                         uint32_t shader_hash,
-                         bool &uses_hash_names)
+bool fixup_texture_names(nglMaterialBase *material, uint32_t shader_hash, bool &uses_hash_names)
 {
     uses_hash_names = true;
 
@@ -707,8 +699,7 @@ bool fixup_texture_names(nglMaterialBase *material,
     case 0x9EF152BA:
     case 0xAC364499:
     case 0xF964AC5E:
-        return fixup_texture_name(material, 0x18) &&
-               fixup_texture_name(material, 0x20);
+        return fixup_texture_name(material, 0x18) && fixup_texture_name(material, 0x20);
 
     // Interior simple/translucent variants use one name at +0x1C.
     case 0x0372147E:
@@ -721,8 +712,7 @@ bool fixup_texture_names(nglMaterialBase *material,
     // Interior shiny variants use names at +0x1C/+0x28.
     case 0x56F12DDF:
     case 0x91F54E26:
-        return fixup_texture_name(material, 0x1C) &&
-               fixup_texture_name(material, 0x28);
+        return fixup_texture_name(material, 0x1C) && fixup_texture_name(material, 0x28);
 
     // Exterior simple/translucent/decal variants use one name at +0x60.
     case 0x100DE499:
@@ -740,28 +730,22 @@ bool fixup_texture_names(nglMaterialBase *material,
     // Building materials use names at +0x60/+0x68.
     case 0xD6E6B9E2:
     case 0xD98097F0:
-        return fixup_texture_name(material, 0x60) &&
-               fixup_texture_name(material, 0x68);
+        return fixup_texture_name(material, 0x60) && fixup_texture_name(material, 0x68);
 
     // Exterior shiny materials use names at +0x60/+0x6C.
     case 0x9B076DEB:
     case 0xA3C2A47A:
-        return fixup_texture_name(material, 0x60) &&
-               fixup_texture_name(material, 0x6C);
+        return fixup_texture_name(material, 0x60) && fixup_texture_name(material, 0x6C);
 
     // Grunge materials use names at +0x60/+0x70.
     case 0x42317C08:
     case 0xE7E31E4F:
-        return fixup_texture_name(material, 0x60) &&
-               fixup_texture_name(material, 0x70);
+        return fixup_texture_name(material, 0x60) && fixup_texture_name(material, 0x70);
 
     case 0x98A4BA80:
-        return fixup_texture_name(material, 0x18) &&
-               fixup_texture_name(material, 0x20) &&
-               fixup_texture_name(material, 0x28) &&
-               fixup_texture_name(material, 0x30) &&
-               fixup_texture_name(material, 0x38) &&
-               fixup_texture_name(material, 0x40);
+        return fixup_texture_name(material, 0x18) && fixup_texture_name(material, 0x20) &&
+               fixup_texture_name(material, 0x28) && fixup_texture_name(material, 0x30) &&
+               fixup_texture_name(material, 0x38) && fixup_texture_name(material, 0x40);
 
     default:
         uses_hash_names = false;
@@ -771,9 +755,7 @@ bool fixup_texture_names(nglMaterialBase *material,
 
 nglMaterialBase *find_material(nglMeshFile *mesh_file, uint32_t hash)
 {
-    for (auto *material = mesh_file->FirstMaterial;
-         material != nullptr;
-         material = material->NextMaterial) {
+    for (auto *material = mesh_file->FirstMaterial; material != nullptr; material = material->NextMaterial) {
         if (material->Name != nullptr && material->Name->m_hash == hash) {
             return material;
         }
@@ -793,9 +775,7 @@ nglMesh *find_mesh(nglMeshFile *mesh_file, uint32_t hash)
     return nglGetMesh(hash, true);
 }
 
-bool convert_section(uint32_t base,
-                     nglMeshFile *mesh_file,
-                     nglMeshSection *section)
+bool convert_section(uint32_t base, nglMeshFile *mesh_file, nglMeshSection *section)
 {
     xbox_ngl_mesh_section disk{};
     std::memcpy(&disk, section, sizeof(disk));
@@ -843,8 +823,7 @@ bool convert_section(uint32_t base,
         vertex_def_hash = bit_cast<uint32_t>(section->VertexDef->m_vtbl);
     }
 
-    if (disk.stride == sizeof(xbox_skinned_vertex) &&
-        is_skinned_vertex_def(vertex_def_hash) &&
+    if (disk.stride == sizeof(xbox_skinned_vertex) && is_skinned_vertex_def(vertex_def_hash) &&
         !convert_skinned_vertices(base, disk, section)) {
         return false;
     }
@@ -858,9 +837,7 @@ bool convert_section(uint32_t base,
     } else if (section->m_primitiveType == xbox_triangle_fan) {
         section->m_primitiveType = D3DPT_TRIANGLEFAN;
     } else if (section->m_primitiveType == xbox_quad_list) {
-        const int source_index_count = section->NIndices > 0
-            ? section->NIndices
-            : section->NVertices;
+        const int source_index_count = section->NIndices > 0 ? section->NIndices : section->NVertices;
         if (source_index_count <= 0 || (source_index_count % 4) != 0) {
             sp_log("XBXM quad list has an invalid element count: %d", source_index_count);
             return false;
@@ -868,8 +845,8 @@ bool convert_section(uint32_t base,
 
         const int quad_count = source_index_count / 4;
         const int triangle_index_count = quad_count * 6;
-        auto *triangle_indices = static_cast<uint16_t *>(
-            tlMemAlloc(sizeof(uint16_t) * triangle_index_count, 8, 0x1000000u));
+        auto *triangle_indices =
+            static_cast<uint16_t *>(tlMemAlloc(sizeof(uint16_t) * triangle_index_count, 8, 0x1000000u));
         if (triangle_indices == nullptr) {
             return false;
         }
@@ -878,9 +855,8 @@ bool convert_section(uint32_t base,
             uint16_t vertices[4];
             for (int vertex = 0; vertex < 4; ++vertex) {
                 const int source_index = quad * 4 + vertex;
-                vertices[vertex] = section->m_indices != nullptr
-                    ? section->m_indices[source_index]
-                    : static_cast<uint16_t>(source_index);
+                vertices[vertex] = section->m_indices != nullptr ? section->m_indices[source_index]
+                                                                 : static_cast<uint16_t>(source_index);
             }
 
             auto *output = triangle_indices + quad * 6;
@@ -895,10 +871,8 @@ bool convert_section(uint32_t base,
         section->m_primitiveType = D3DPT_TRIANGLELIST;
         section->NIndices = triangle_index_count;
         section->m_indices = triangle_indices;
-    } else if (section->m_primitiveType != D3DPT_POINTLIST &&
-               section->m_primitiveType != D3DPT_LINELIST) {
-        sp_log("XBXM section uses unsupported primitive type %u",
-               static_cast<unsigned>(section->m_primitiveType));
+    } else if (section->m_primitiveType != D3DPT_POINTLIST && section->m_primitiveType != D3DPT_LINELIST) {
+        sp_log("XBXM section uses unsupported primitive type %u", static_cast<unsigned>(section->m_primitiveType));
         return false;
     }
 
@@ -913,12 +887,11 @@ bool convert_section(uint32_t base,
     }
 
     if (section->field_3C.m_vertexData != nullptr && section->field_3C.Size > 0) {
-        section->field_3C.createVertexBufferAndWriteData(
-            section->field_3C.m_vertexData, section->field_3C.Size, 1028);
+        section->field_3C.createVertexBufferAndWriteData(section->field_3C.m_vertexData, section->field_3C.Size, 1028);
     }
 
     if (section->VertexDef != nullptr) {
-        const tlHashString vertex_def_hash {bit_cast<uint32_t>(section->VertexDef->m_vtbl)};
+        const tlHashString vertex_def_hash{bit_cast<uint32_t>(section->VertexDef->m_vtbl)};
         auto *node = nglVertexDefBank().Search(vertex_def_hash);
         if (node != nullptr) {
             section->VertexDef->field_4 = section;
@@ -950,42 +923,31 @@ bool append_unique_bone(std::vector<uint16_t> &bones, uint16_t bone)
     return true;
 }
 
-bool decode_triangles(uint32_t base,
-                      const xbox_ngl_mesh_section &disk,
-                      std::vector<xbox_skin_triangle> &triangles)
+bool decode_triangles(uint32_t base, const xbox_ngl_mesh_section &disk, std::vector<xbox_skin_triangle> &triangles)
 {
-    if (disk.vertex_count < 0 ||
-        disk.vertex_count > static_cast<int32_t>(std::numeric_limits<uint16_t>::max()) + 1 ||
+    if (disk.vertex_count < 0 || disk.vertex_count > static_cast<int32_t>(std::numeric_limits<uint16_t>::max()) + 1 ||
         disk.index_count < 0) {
         return false;
     }
 
-    const auto *source_indices = disk.index_count > 0
-        ? rebase_pointer<uint16_t>(base, disk.indices)
-        : nullptr;
+    const auto *source_indices = disk.index_count > 0 ? rebase_pointer<uint16_t>(base, disk.indices) : nullptr;
     if (disk.index_count > 0 && source_indices == nullptr) {
         return false;
     }
 
     const int source_count = disk.index_count > 0 ? disk.index_count : disk.vertex_count;
     auto index_at = [&](int index) -> uint16_t {
-        return source_indices != nullptr
-            ? source_indices[index]
-            : static_cast<uint16_t>(index);
+        return source_indices != nullptr ? source_indices[index] : static_cast<uint16_t>(index);
     };
     auto append_triangle = [&](xbox_skin_triangle triangle) -> bool {
         for (const auto vertex : triangle) {
             if (vertex >= disk.vertex_count) {
-                sp_log("XBXM skinned section contains vertex index %u outside %d vertices",
-                       vertex,
-                       disk.vertex_count);
+                sp_log("XBXM skinned section contains vertex index %u outside %d vertices", vertex, disk.vertex_count);
                 return false;
             }
         }
 
-        if (triangle[0] != triangle[1] &&
-            triangle[1] != triangle[2] &&
-            triangle[0] != triangle[2]) {
+        if (triangle[0] != triangle[1] && triangle[1] != triangle[2] && triangle[0] != triangle[2]) {
             triangles.push_back(triangle);
         }
         return true;
@@ -1002,7 +964,7 @@ bool decode_triangles(uint32_t base,
         }
     } else if (disk.primitive_type == xbox_triangle_strip) {
         for (int index = 2; index < source_count; ++index) {
-            xbox_skin_triangle triangle {
+            xbox_skin_triangle triangle{
                 index_at(index - 2),
                 index_at(index - 1),
                 index_at(index),
@@ -1029,15 +991,11 @@ bool decode_triangles(uint32_t base,
     return !triangles.empty();
 }
 
-bool build_skin_batches(uint32_t base,
-                        const xbox_ngl_mesh_section &disk,
-                        std::vector<xbox_skin_batch> &batches)
+bool build_skin_batches(uint32_t base, const xbox_ngl_mesh_section &disk, std::vector<xbox_skin_batch> &batches)
 {
-    if (disk.vertex_count < 0 ||
-        disk.bone_count <= PC_SKIN_BONE_LIMIT ||
+    if (disk.vertex_count < 0 || disk.bone_count <= PC_SKIN_BONE_LIMIT ||
         disk.bone_count > std::numeric_limits<int8_t>::max() ||
-        disk.vertices_size != static_cast<uint32_t>(disk.vertex_count) *
-                                  sizeof(xbox_skinned_vertex)) {
+        disk.vertices_size != static_cast<uint32_t>(disk.vertex_count) * sizeof(xbox_skinned_vertex)) {
         return false;
     }
 
@@ -1105,24 +1063,20 @@ uint32_t encode_pointer(uint32_t base, const void *pointer)
 
 bool should_split_section(uint32_t base, const nglMeshSection *section)
 {
-    xbox_ngl_mesh_section disk {};
+    xbox_ngl_mesh_section disk{};
     std::memcpy(&disk, section, sizeof(disk));
-    if (disk.bone_count <= PC_SKIN_BONE_LIMIT ||
-        disk.stride != sizeof(xbox_skinned_vertex)) {
+    if (disk.bone_count <= PC_SKIN_BONE_LIMIT || disk.stride != sizeof(xbox_skinned_vertex)) {
         return false;
     }
 
     const auto *vertex_def = rebase_pointer<nglVertexDef>(base, disk.vertex_def);
-    return vertex_def != nullptr &&
-           is_skinned_vertex_def(bit_cast<uint32_t>(vertex_def->m_vtbl));
+    return vertex_def != nullptr && is_skinned_vertex_def(bit_cast<uint32_t>(vertex_def->m_vtbl));
 }
 
-bool split_section(uint32_t base,
-                   nglMeshFile *mesh_file,
-                   nglMeshSection *source_section,
+bool split_section(uint32_t base, nglMeshFile *mesh_file, nglMeshSection *source_section,
                    std::vector<nglMeshSection *> &output_sections)
 {
-    xbox_ngl_mesh_section disk {};
+    xbox_ngl_mesh_section disk{};
     std::memcpy(&disk, source_section, sizeof(disk));
 
     const auto *source_vertices = rebase_pointer<xbox_skinned_vertex>(base, disk.vertices);
@@ -1154,8 +1108,7 @@ bool split_section(uint32_t base,
 
                     auto vertex = source_vertices[source_index];
                     for (int component = 0; component < 4; ++component) {
-                        if (vertex.bone_weights[component] == 0 ||
-                            vertex.bone_indices[component] < 0) {
+                        if (vertex.bone_weights[component] == 0 || vertex.bone_indices[component] < 0) {
                             vertex.bone_indices[component] = -1;
                             continue;
                         }
@@ -1165,8 +1118,7 @@ bool split_section(uint32_t base,
                         if (found == batch.bones.end()) {
                             return false;
                         }
-                        vertex.bone_indices[component] = static_cast<int8_t>(
-                            std::distance(batch.bones.begin(), found));
+                        vertex.bone_indices[component] = static_cast<int8_t>(std::distance(batch.bones.begin(), found));
                     }
 
                     mapped_index = static_cast<int32_t>(batch_vertices.size());
@@ -1178,31 +1130,21 @@ bool split_section(uint32_t base,
 
         auto *runtime_vertices = static_cast<xbox_skinned_vertex *>(
             tlMemAlloc(sizeof(xbox_skinned_vertex) * batch_vertices.size(), 16, 0x1000000u));
-        auto *runtime_indices = static_cast<uint16_t *>(
-            tlMemAlloc(sizeof(uint16_t) * batch_indices.size(), 8, 0x1000000u));
-        auto *runtime_bones = static_cast<uint16_t *>(
-            tlMemAlloc(sizeof(uint16_t) * batch.bones.size(), 8, 0x1000000u));
-        auto *runtime_vertex_def = static_cast<nglVertexDef *>(
-            tlMemAlloc(sizeof(nglVertexDef), 8, 0x1000000u));
+        auto *runtime_indices =
+            static_cast<uint16_t *>(tlMemAlloc(sizeof(uint16_t) * batch_indices.size(), 8, 0x1000000u));
+        auto *runtime_bones = static_cast<uint16_t *>(tlMemAlloc(sizeof(uint16_t) * batch.bones.size(), 8, 0x1000000u));
+        auto *runtime_vertex_def = static_cast<nglVertexDef *>(tlMemAlloc(sizeof(nglVertexDef), 8, 0x1000000u));
         auto *runtime_section = batch_index == 0
-            ? source_section
-            : static_cast<nglMeshSection *>(
-                  tlMemAlloc(sizeof(nglMeshSection), 8, 0x1000000u));
-        if (runtime_vertices == nullptr || runtime_indices == nullptr ||
-            runtime_bones == nullptr || runtime_vertex_def == nullptr ||
-            runtime_section == nullptr) {
+                                    ? source_section
+                                    : static_cast<nglMeshSection *>(tlMemAlloc(sizeof(nglMeshSection), 8, 0x1000000u));
+        if (runtime_vertices == nullptr || runtime_indices == nullptr || runtime_bones == nullptr ||
+            runtime_vertex_def == nullptr || runtime_section == nullptr) {
             return false;
         }
 
-        std::memcpy(runtime_vertices,
-                    batch_vertices.data(),
-                    sizeof(xbox_skinned_vertex) * batch_vertices.size());
-        std::memcpy(runtime_indices,
-                    batch_indices.data(),
-                    sizeof(uint16_t) * batch_indices.size());
-        std::memcpy(runtime_bones,
-                    batch.bones.data(),
-                    sizeof(uint16_t) * batch.bones.size());
+        std::memcpy(runtime_vertices, batch_vertices.data(), sizeof(xbox_skinned_vertex) * batch_vertices.size());
+        std::memcpy(runtime_indices, batch_indices.data(), sizeof(uint16_t) * batch_indices.size());
+        std::memcpy(runtime_bones, batch.bones.data(), sizeof(uint16_t) * batch.bones.size());
         std::memcpy(runtime_vertex_def, source_vertex_def, sizeof(nglVertexDef));
 
         auto runtime_disk = disk;
@@ -1216,8 +1158,7 @@ bool split_section(uint32_t base,
         runtime_disk.secondary_vertices_size = 0;
         runtime_disk.vertex_count = static_cast<int32_t>(batch_vertices.size());
         runtime_disk.vertices = encode_pointer(base, runtime_vertices);
-        runtime_disk.vertices_size = static_cast<uint32_t>(
-            sizeof(xbox_skinned_vertex) * batch_vertices.size());
+        runtime_disk.vertices_size = static_cast<uint32_t>(sizeof(xbox_skinned_vertex) * batch_vertices.size());
         runtime_disk.stride = sizeof(xbox_skinned_vertex);
         runtime_disk.vertex_def = encode_pointer(base, runtime_vertex_def);
 
@@ -1230,11 +1171,9 @@ bool split_section(uint32_t base,
 
     return true;
 }
-}
+}  // namespace
 
-bool nglLoadMeshFileInternalXbox(const tlFixedString &FileName,
-                                 nglMeshFile *mesh_file,
-                                 const char *ext)
+bool nglLoadMeshFileInternalXbox(const tlFixedString &FileName, nglMeshFile *mesh_file, const char *ext)
 {
     TRACE("nglLoadMeshFileInternalXbox", FileName.to_string());
 
@@ -1296,10 +1235,9 @@ bool nglLoadMeshFileInternalXbox(const tlFixedString &FileName,
                 return false;
             }
 
-            auto *shader_node = nglShaderBank.Search(tlHashString {shader_hash});
-            material->m_shader = shader_node != nullptr
-                ? static_cast<nglShader *>(shader_node->field_20)
-                : static_cast<nglShader *>(&gEmptyShader());
+            auto *shader_node = nglShaderBank.Search(tlHashString{shader_hash});
+            material->m_shader = shader_node != nullptr ? static_cast<nglShader *>(shader_node->field_20)
+                                                        : static_cast<nglShader *>(&gEmptyShader());
             material->File = mesh_file;
             material->NextMaterial = nullptr;
 
@@ -1316,8 +1254,7 @@ bool nglLoadMeshFileInternalXbox(const tlFixedString &FileName,
             }
 
             bool uses_hash_names = false;
-            if (!fixup_texture_names(
-                    material, shader_hash, uses_hash_names)) {
+            if (!fixup_texture_names(material, shader_hash, uses_hash_names)) {
                 return false;
             }
             if (!uses_hash_names) {
@@ -1335,14 +1272,11 @@ bool nglLoadMeshFileInternalXbox(const tlFixedString &FileName,
                 return false;
             }
 
-            mesh->Bones = rebase_pointer<math::MatClass<4, 3>>(
-                base, bit_cast<uint32_t>(mesh->Bones));
-            mesh->LODs = rebase_pointer<nglMesh::Lod>(
-                base, bit_cast<uint32_t>(mesh->LODs));
+            mesh->Bones = rebase_pointer<math::MatClass<4, 3>>(base, bit_cast<uint32_t>(mesh->Bones));
+            mesh->LODs = rebase_pointer<nglMesh::Lod>(base, bit_cast<uint32_t>(mesh->LODs));
             const uint32_t sections_pointer = bit_cast<uint32_t>(mesh->Sections);
-            mesh->Sections = sections_pointer != 0
-                ? bit_cast<decltype(mesh->Sections)>(base + sections_pointer)
-                : nullptr;
+            mesh->Sections =
+                sections_pointer != 0 ? bit_cast<decltype(mesh->Sections)>(base + sections_pointer) : nullptr;
 
             mesh->File = mesh_file;
             mesh->NextMesh = nullptr;
@@ -1354,8 +1288,8 @@ bool nglLoadMeshFileInternalXbox(const tlFixedString &FileName,
             }
             last_mesh = mesh;
 
-            auto add_mesh = bit_cast<void (__fastcall *)(void *, void *, nglMesh *)>(
-                get_vfunc(nglMeshDirectory()->m_vtbl, 0x10));
+            auto add_mesh =
+                bit_cast<void(__fastcall *)(void *, void *, nglMesh *)>(get_vfunc(nglMeshDirectory()->m_vtbl, 0x10));
             add_mesh(nglMeshDirectory(), nullptr, mesh);
 
             const uint32_t source_section_count = mesh->NSections;
@@ -1363,9 +1297,7 @@ bool nglLoadMeshFileInternalXbox(const tlFixedString &FileName,
             std::vector<nglMeshSection *> converted_sections;
             converted_sections.reserve(source_section_count);
 
-            for (uint32_t section_index = 0;
-                 section_index < source_section_count;
-                 ++section_index) {
+            for (uint32_t section_index = 0; section_index < source_section_count; ++section_index) {
                 auto *section = rebase_pointer<nglMeshSection>(
                     base, bit_cast<uint32_t>(source_section_refs[section_index].Section));
                 if (section == nullptr) {
@@ -1373,8 +1305,7 @@ bool nglLoadMeshFileInternalXbox(const tlFixedString &FileName,
                 }
 
                 if (should_split_section(base, section)) {
-                    if (!split_section(
-                            base, mesh_file, section, converted_sections)) {
+                    if (!split_section(base, mesh_file, section, converted_sections)) {
                         return false;
                     }
                 } else {
@@ -1393,16 +1324,12 @@ bool nglLoadMeshFileInternalXbox(const tlFixedString &FileName,
                 mesh->Sections = nullptr;
             } else {
                 auto *runtime_section_refs = static_cast<decltype(mesh->Sections)>(
-                    tlMemAlloc(sizeof(*mesh->Sections) * converted_sections.size(),
-                               8,
-                               0x1000000u));
+                    tlMemAlloc(sizeof(*mesh->Sections) * converted_sections.size(), 8, 0x1000000u));
                 if (runtime_section_refs == nullptr) {
                     return false;
                 }
 
-                for (size_t section_index = 0;
-                     section_index < converted_sections.size();
-                     ++section_index) {
+                for (size_t section_index = 0; section_index < converted_sections.size(); ++section_index) {
                     runtime_section_refs[section_index].field_0 = 1;
                     runtime_section_refs[section_index].Section = converted_sections[section_index];
                 }
@@ -1418,8 +1345,7 @@ bool nglLoadMeshFileInternalXbox(const tlFixedString &FileName,
             if (name == nullptr) {
                 return false;
             }
-            morph->field_0.field_0 =
-                bit_cast<uint32_t>(name) - bit_cast<uint32_t>(header);
+            morph->field_0.field_0 = bit_cast<uint32_t>(name) - bit_cast<uint32_t>(header);
             if (mesh_file->FirstMorph == nullptr) {
                 mesh_file->FirstMorph = morph;
             }

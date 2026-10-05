@@ -93,10 +93,8 @@ void sound_manager::set_listener_orientation(const vector3d &forward, const vect
     const float front_length = front.length();
     const float top_length = top.length();
 
-    var<vector3d>(0x00948658) = front_length > 1.1920928955078125e-7f
-        ? front / front_length : ZEROVEC;
-    var<vector3d>(0x00948664) = top_length > 1.1920928955078125e-7f
-        ? top / top_length : ZEROVEC;
+    var<vector3d>(0x00948658) = front_length > 1.1920928955078125e-7f ? front / front_length : ZEROVEC;
+    var<vector3d>(0x00948664) = top_length > 1.1920928955078125e-7f ? top / top_length : ZEROVEC;
     var<uint32_t>(0x0094859C) |= 0xFC000u;
 }
 
@@ -122,8 +120,7 @@ void sound_manager::load_common_sound_bank(bool synchronous)
         s_sound_bank_slots()[index].load("STREAMS", bank_names[index], synchronous, 0);
     }
     auto *scene_name = sub_50F010();
-    s_sound_bank_slots()[SB_TYPE_LEVEL_COMMON].load(
-        scene_name, scene_name, synchronous, 0);
+    s_sound_bank_slots()[SB_TYPE_LEVEL_COMMON].load(scene_name, scene_name, synchronous, 0);
 #else
     CDECL_CALL(0x0054DB10, synchronous);
 #endif
@@ -153,9 +150,7 @@ void sound_manager::create_inst()
 
 sound_source sound_manager::get_sound_source(string_hash sound)
 {
-
-    if (g_is_the_packer ||
-        os_developer_options::instance->get_flag(static_cast<os_developer_options::flags_t>(0x67))) {
+    if (g_is_the_packer || os_developer_options::instance->get_flag(static_cast<os_developer_options::flags_t>(0x67))) {
         return {};
     }
     sound_source result{nslFindWave(sound.source_hash_code), nullptr};

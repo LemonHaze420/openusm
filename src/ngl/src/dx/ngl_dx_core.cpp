@@ -68,8 +68,7 @@ void nglVif1RenderScene()
         }
 
         g_renderState().setDepthBufferWriteEnabled(scene->ZWriteEnable);
-        nglRenderList::nglOpaqueCompare<nglRenderNode>(
-            scene->OpaqueNodes, scene->OpaqueListCount, 0);
+        nglRenderList::nglOpaqueCompare<nglRenderNode>(scene->OpaqueNodes, scene->OpaqueListCount, 0);
 
         if (scene->field_324 != nullptr) {
             bit_cast<scene_callback>(scene->field_324)(scene->field_328);
@@ -82,8 +81,7 @@ void nglVif1RenderScene()
             bit_cast<scene_callback>(scene->field_32C)(scene->field_330);
         }
 
-        if (g_distance_clipping_enabled && scene->field_3BA &&
-            !sub_581C30() && !g_renderState().field_88) {
+        if (g_distance_clipping_enabled && scene->field_3BA && !sub_581C30() && !g_renderState().field_88) {
             g_renderState().setFogEnable(true);
         }
         if (scene->field_334->m_numLevel > 1) {
@@ -232,8 +230,7 @@ void sub_76DE60()
 nglLightContext *nglCreateLightContext()
 {
     if constexpr (STANDALONE_SYSTEM) {
-        auto *context = static_cast<nglLightContext *>(
-            nglListAlloc(sizeof(nglLightContext), alignof(nglLightContext)));
+        auto *context = static_cast<nglLightContext *>(nglListAlloc(sizeof(nglLightContext), alignof(nglLightContext)));
         assert(context != nullptr);
         *context = {};
 
@@ -472,16 +469,10 @@ int __fastcall copy_back_buffer_texture_to_swap_chain(void *a1)
         assert(texture->DXSurfaces[0] != nullptr);
 
         IDirect3DSurface9 *back_buffer = nullptr;
-        auto result = IDirect3DDevice9_GetBackBuffer(
-            g_Direct3DDevice, 0, 0, D3DBACKBUFFER_TYPE_MONO, &back_buffer);
+        auto result = IDirect3DDevice9_GetBackBuffer(g_Direct3DDevice, 0, 0, D3DBACKBUFFER_TYPE_MONO, &back_buffer);
         if (SUCCEEDED(result)) {
             result = IDirect3DDevice9_StretchRect(
-                g_Direct3DDevice,
-                texture->DXSurfaces[0],
-                nullptr,
-                back_buffer,
-                nullptr,
-                D3DTEXF_NONE);
+                g_Direct3DDevice, texture->DXSurfaces[0], nullptr, back_buffer, nullptr, D3DTEXF_NONE);
             IDirect3DSurface9_Release(back_buffer);
         }
         return result;
@@ -582,8 +573,7 @@ void nglFlip(bool a1)
         static_assert(D3DERR_DEVICELOST == (HRESULT)0x88760868);
         static_assert(D3DERR_DEVICENOTRESET == (HRESULT)0x88760869);
 
-        if (IDirect3DDevice9_Present(g_Direct3DDevice, nullptr, nullptr, nullptr, nullptr) ==
-            D3DERR_DEVICELOST) {
+        if (IDirect3DDevice9_Present(g_Direct3DDevice, nullptr, nullptr, nullptr, nullptr) == D3DERR_DEVICELOST) {
             Sleep(100u);
             if (IDirect3DDevice9_TestCooperativeLevel(g_Direct3DDevice) == D3DERR_DEVICENOTRESET) {
                 Reset3DDevice();

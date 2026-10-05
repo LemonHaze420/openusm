@@ -15,10 +15,10 @@ using log_source_location = std::experimental::source_location;
 
 void __log(const char *file, int line, const char *format, ...);
 
-#define sp_log(fmt, ...)                                                                     \
-    {                                                                                        \
+#define sp_log(fmt, ...)                                                                    \
+    {                                                                                       \
         constexpr std::string_view file_name = log_source_location::current().file_name();  \
-                                                                                             \
+                                                                                            \
         __log(file_name.data(), log_source_location::current().line(), fmt, ##__VA_ARGS__); \
     }
 

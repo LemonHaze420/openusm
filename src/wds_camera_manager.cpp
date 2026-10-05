@@ -47,14 +47,14 @@ wds_camera_manager::~wds_camera_manager()
     if constexpr (STANDALONE_SYSTEM) {
         for (auto *value : field_10) {
             if (value != nullptr) {
-                using destroy_fn = void (__fastcall *)(controller *, void *, bool);
+                using destroy_fn = void(__fastcall *)(controller *, void *, bool);
                 reinterpret_cast<destroy_fn>(get_vfunc(value->m_vtbl, 0))(value, nullptr, true);
             }
         }
         field_10._Tidy();
         for (auto *value : field_0) {
             if (value != nullptr) {
-                using destroy_fn = void (__fastcall *)(motion_control_system *, void *, bool);
+                using destroy_fn = void(__fastcall *)(motion_control_system *, void *, bool);
                 reinterpret_cast<destroy_fn>(get_vfunc(value->m_vtbl, 0))(value, nullptr, true);
             }
         }
@@ -213,10 +213,10 @@ namespace {
 template <typename T>
 void advance_camera_object(T *object, int offset, Float elapsed)
 {
-    using advance_fn = void (__fastcall *)(T *, void *, Float);
+    using advance_fn = void(__fastcall *)(T *, void *, Float);
     reinterpret_cast<advance_fn>(get_vfunc(object->m_vtbl, offset))(object, nullptr, elapsed);
 }
-}
+}  // namespace
 
 void wds_camera_manager::usercam_frame_advance(Float a2)
 {
@@ -256,7 +256,7 @@ void wds_camera_manager::enable_marky_cam(bool a2, Float a3)
         if (a2 ? a3 < field_44->field_1D8 : not_equal(float(a3), field_44->field_1D8))
             return;
         field_48 = a2;
-        using roll_fn = void (__fastcall *)(marky_camera *, void *, float);
+        using roll_fn = void(__fastcall *)(marky_camera *, void *, float);
         reinterpret_cast<roll_fn>(get_vfunc(field_44->m_vtbl, 0x2D8))(field_44, nullptr, 0.0f);
         field_44->field_1D8 = a2 ? float(a3) : -1001.0f;
     } else {

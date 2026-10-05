@@ -43,7 +43,6 @@ struct nglTexture;
 struct nglMeshNode;
 
 
-
 struct nglDirProjectorLightInfo {
     matrix4x4 WorldToUV;
     matrix4x4 UVToWorld;
@@ -63,12 +62,10 @@ struct nglLightContextParam {
     static inline Var<int> ID{0x00971EE4};
 };
 
-void nglListAddDirProjectorLight(uint32_t lightCat, const matrix4x4 &localToWorld,
-                               float width, float height, float depth, float unusedW,
-                               int blendMode, uint32_t color, nglTexture *texture);
+void nglListAddDirProjectorLight(uint32_t lightCat, const matrix4x4 &localToWorld, float width, float height,
+                                 float depth, float unusedW, int blendMode, uint32_t color, nglTexture *texture);
 void nglDetermineProjLights(nglMeshNode *node);
-bool nglProjectorSphereVisible(const nglDirProjectorLightInfo &light,
-                               const vector4d &center, float radius);
+bool nglProjectorSphereVisible(const nglDirProjectorLightInfo &light, const vector4d &center, float radius);
 
 extern Var<nglLightContext *> nglDefaultLightContext;
 

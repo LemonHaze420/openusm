@@ -117,32 +117,30 @@ subdivision_node_builder::subdivision_node_builder()
 #if STANDALONE_SYSTEM
 namespace {
 
-subdivision_node *__fastcall build_static_region_list(
-    subdivision_node_builder *builder, void *, stack_allocator &stack,
-    _std::vector<proximity_map_construction_leaf> &leaves)
+subdivision_node *__fastcall build_static_region_list(subdivision_node_builder *builder, void *, stack_allocator &stack,
+                                                      _std::vector<proximity_map_construction_leaf> &leaves)
 {
     return static_cast<static_region_list_builder *>(builder)->build(stack, leaves);
 }
 
-void __fastcall build_static_region_mirror(
-    subdivision_node_builder *builder, void *, stack_allocator &stack,
-    _std::vector<proximity_map_construction_leaf> &leaves)
+void __fastcall build_static_region_mirror(subdivision_node_builder *builder, void *, stack_allocator &stack,
+                                           _std::vector<proximity_map_construction_leaf> &leaves)
 {
     static_cast<static_region_list_builder *>(builder)->build_mirror(stack, leaves);
 }
 
-const subdivision_node_builder_vtable native_static_region_list_builder{
-    build_static_region_list, build_static_region_mirror};
+const subdivision_node_builder_vtable native_static_region_list_builder{build_static_region_list,
+                                                                        build_static_region_mirror};
 
-}
+}  // namespace
 #endif
 
-subdivision_node *static_region_list_builder::build(
-    stack_allocator &stack, _std::vector<proximity_map_construction_leaf> &leaves)
+subdivision_node *static_region_list_builder::build(stack_allocator &stack,
+                                                    _std::vector<proximity_map_construction_leaf> &leaves)
 {
 #if STANDALONE_SYSTEM
-    auto *node = new (stack.push(sizeof(static_region_list_node) +
-        leaves.size() * sizeof(uint16_t))) static_region_list_node{};
+    auto *node =
+        new (stack.push(sizeof(static_region_list_node) + leaves.size() * sizeof(uint16_t))) static_region_list_node{};
     node->set_type(subdivision_node::STATIC_REGION_LIST_NODE);
     node->count = static_cast<uint8_t>(leaves.size());
     for (uint32_t i = 0; i < leaves.size(); ++i) {

@@ -38,8 +38,8 @@ struct sound_instance {
     void play();
 
 
-    static sound_instance_id play_and_add(sound_interface *owner, string_hash sound,
-        float volume, float pitch, float doppler, float min_distance, float max_distance);
+    static sound_instance_id play_and_add(sound_interface *owner, string_hash sound, float volume, float pitch,
+                                          float doppler, float min_distance, float max_distance);
 };
 
 struct sound_instance_slot {
@@ -57,8 +57,7 @@ struct sound_instance_id {
 };
 
 [[nodiscard]] extern sound_instance_id sub_60B960(string_hash sound, Float volume, Float pitch);
-extern sound_instance_id create_native_sound_instance(
-    uint32_t scope, nslWaveID wave_id, sound_alias *alias);
+extern sound_instance_id create_native_sound_instance(uint32_t scope, nslWaveID wave_id, sound_alias *alias);
 extern void update_native_sound_instances();
 extern void release_native_sound_instances();
 

@@ -100,7 +100,7 @@ void nglDxSetTexture(uint32_t a1, nglTexture *Tex, uint8_t a3, int a4)
                             v14[v15] =
                                 (*(uint32_t *)&v16->m_palette_entries[v5->field_30[i * v5->m_width + v15]] &
                                  0xFF00FF00) |
-                                ((uint8_t)*(uint32_t *)&v16->m_palette_entries[v5->field_30[i * v5->m_width + v15]]
+                                ((uint8_t) * (uint32_t *)&v16->m_palette_entries[v5->field_30[i * v5->m_width + v15]]
                                  << 16) |
                                 (uint8_t)BYTE2(
                                     *(uint32_t *)&v16->m_palette_entries[v5->field_30[i * v5->m_width + v15]]);

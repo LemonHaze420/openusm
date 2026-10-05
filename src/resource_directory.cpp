@@ -35,115 +35,108 @@ VALIDATE_SIZE(resource_directory, 0x2BC);
 
 VALIDATE_OFFSET(resource_directory, pack_slot, 0x78);
 
-namespace
+namespace {
+constexpr auto PC_RESOURCE_KEY_TYPE_COUNT = static_cast<size_t>(RESOURCE_KEY_TYPE_Z);
+
+struct resource_type_tables {
+    std::array<int, PC_RESOURCE_KEY_TYPE_COUNT> starts{};
+    std::array<int, PC_RESOURCE_KEY_TYPE_COUNT> counts{};
+};
+
+std::unordered_map<const resource_directory *, resource_type_tables> g_xbox_type_tables;
+
+int xb_to_pc(int type)
 {
-    constexpr auto PC_RESOURCE_KEY_TYPE_COUNT = static_cast<size_t>(RESOURCE_KEY_TYPE_Z);
+    assert(type >= 0 && type < static_cast<int>(xbpack::type_count));
+    return xbpack::pc_type(type);
+}
 
-    struct resource_type_tables {
-        std::array<int, PC_RESOURCE_KEY_TYPE_COUNT> starts {};
-        std::array<int, PC_RESOURCE_KEY_TYPE_COUNT> counts {};
-    };
+void convert_directory(resource_directory *directory)
+{
+    assert(directory != nullptr);
 
-    std::unordered_map<const resource_directory *, resource_type_tables> g_xbox_type_tables;
+    const auto *base = reinterpret_cast<const uint8_t *>(directory);
+    const auto *raw_starts = reinterpret_cast<const int *>(base + xbpack::starts_offset);
+    const auto *raw_counts = reinterpret_cast<const int *>(base + xbpack::counts_offset);
 
-    int xb_to_pc(int type)
-    {
-        assert(type >= 0 && type < static_cast<int>(xbpack::type_count));
-        return xbpack::pc_type(type);
+    resource_type_tables tables{};
+    for (int raw_type = 0; raw_type < static_cast<int>(xbpack::type_count); ++raw_type) {
+        const auto pc_type = xb_to_pc(raw_type);
+        assert(pc_type >= 0 && pc_type < RESOURCE_KEY_TYPE_Z);
+
+        const auto raw_count = raw_counts[raw_type];
+        if (raw_count == 0) {
+            continue;
+        }
+
+        if (tables.counts[pc_type] == 0) {
+            tables.starts[pc_type] = raw_starts[raw_type];
+        } else {
+            assert(tables.starts[pc_type] + tables.counts[pc_type] == raw_starts[raw_type]);
+        }
+        tables.counts[pc_type] += raw_count;
     }
 
-    void convert_directory(resource_directory *directory)
-    {
-        assert(directory != nullptr);
-
-        const auto *base = reinterpret_cast<const uint8_t *>(directory);
-        const auto *raw_starts = reinterpret_cast<const int *>(base + xbpack::starts_offset);
-        const auto *raw_counts = reinterpret_cast<const int *>(base + xbpack::counts_offset);
-
-        resource_type_tables tables {};
-        for (int raw_type = 0; raw_type < static_cast<int>(xbpack::type_count); ++raw_type) {
-            const auto pc_type = xb_to_pc(raw_type);
-            assert(pc_type >= 0 && pc_type < RESOURCE_KEY_TYPE_Z);
-
-            const auto raw_count = raw_counts[raw_type];
-            if (raw_count == 0) {
-                continue;
-            }
-
-            if (tables.counts[pc_type] == 0) {
-                tables.starts[pc_type] = raw_starts[raw_type];
-            } else {
-                assert(tables.starts[pc_type] + tables.counts[pc_type] ==
-                       raw_starts[raw_type]);
-            }
-            tables.counts[pc_type] += raw_count;
-        }
-
-        for (int i = 0; i < directory->resource_locations.size(); ++i) {
-            auto &location = directory->resource_locations.at(i);
-            const auto raw_type = static_cast<int>(location.field_0.m_type);
-            location.field_0.m_type = static_cast<resource_key_type>(xb_to_pc(raw_type));
-        }
-
-        g_xbox_type_tables[directory] = tables;
-
-        constexpr auto count_capacity =
-            (xbpack::directory_size - offsetof(resource_directory, type_end_idxs)) /
-            sizeof(int);
-        constexpr auto inline_count = count_capacity < PC_RESOURCE_KEY_TYPE_COUNT
-            ? count_capacity
-            : PC_RESOURCE_KEY_TYPE_COUNT;
-
-        for (size_t type = 0; type < PC_RESOURCE_KEY_TYPE_COUNT; ++type) {
-            directory->type_start_idxs[type] = tables.starts[type];
-            if (type < inline_count)
-                directory->type_end_idxs[type] = tables.counts[type];
-        }
+    for (int i = 0; i < directory->resource_locations.size(); ++i) {
+        auto &location = directory->resource_locations.at(i);
+        const auto raw_type = static_cast<int>(location.field_0.m_type);
+        location.field_0.m_type = static_cast<resource_key_type>(xb_to_pc(raw_type));
     }
 
-    const resource_type_tables *type_tables_for(const resource_directory *directory)
-    {
-        auto it = g_xbox_type_tables.find(directory);
-        if (it == g_xbox_type_tables.end()) {
-            auto *dir = const_cast<resource_directory *>(directory);
-            sp_log("converting resource directory 0x%08X", dir);
-            convert_directory(dir);
-            it = g_xbox_type_tables.find(directory);
-        }
+    g_xbox_type_tables[directory] = tables;
 
-        assert(it != g_xbox_type_tables.end());
-        return &it->second;
-    }
+    constexpr auto count_capacity =
+        (xbpack::directory_size - offsetof(resource_directory, type_end_idxs)) / sizeof(int);
+    constexpr auto inline_count =
+        count_capacity < PC_RESOURCE_KEY_TYPE_COUNT ? count_capacity : PC_RESOURCE_KEY_TYPE_COUNT;
 
-    resource_directory *resolve_parent(resource_directory *directory, int index)
-    {
-        assert(directory != nullptr);
-        assert(index >= 0 && index < directory->parents.size());
-
-        auto *&parent = directory->parents.m_data[index];
-        if (parent != nullptr || directory->pack_slot == nullptr) {
-            return parent;
-        }
-
-        resource_pack_location location;
-        if (!resource_manager::get_pack_file_stats(
-                directory->pack_slot->get_name_key(), &location, nullptr, nullptr)
-            || index >= location.prerequisite_count) {
-            return nullptr;
-        }
-
-        const auto prerequisite = index + location.prerequisite_offset;
-        auto *parent_key = resource_manager::get_prerequisiste(prerequisite);
-        assert(parent_key != nullptr);
-        parent = resource_manager::get_resource_directory(*parent_key);
-        return parent;
+    for (size_t type = 0; type < PC_RESOURCE_KEY_TYPE_COUNT; ++type) {
+        directory->type_start_idxs[type] = tables.starts[type];
+        if (type < inline_count)
+            directory->type_end_idxs[type] = tables.counts[type];
     }
 }
 
-void resource_directory::un_mash_start(generic_mash_header *header,
-                                       [[maybe_unused]] void *a3,
-                                       generic_mash_data_ptrs *a4,
-                                       [[maybe_unused]] void *a5)
+const resource_type_tables *type_tables_for(const resource_directory *directory)
+{
+    auto it = g_xbox_type_tables.find(directory);
+    if (it == g_xbox_type_tables.end()) {
+        auto *dir = const_cast<resource_directory *>(directory);
+        sp_log("converting resource directory 0x%08X", dir);
+        convert_directory(dir);
+        it = g_xbox_type_tables.find(directory);
+    }
+
+    assert(it != g_xbox_type_tables.end());
+    return &it->second;
+}
+
+resource_directory *resolve_parent(resource_directory *directory, int index)
+{
+    assert(directory != nullptr);
+    assert(index >= 0 && index < directory->parents.size());
+
+    auto *&parent = directory->parents.m_data[index];
+    if (parent != nullptr || directory->pack_slot == nullptr) {
+        return parent;
+    }
+
+    resource_pack_location location;
+    if (!resource_manager::get_pack_file_stats(directory->pack_slot->get_name_key(), &location, nullptr, nullptr) ||
+        index >= location.prerequisite_count) {
+        return nullptr;
+    }
+
+    const auto prerequisite = index + location.prerequisite_offset;
+    auto *parent_key = resource_manager::get_prerequisiste(prerequisite);
+    assert(parent_key != nullptr);
+    parent = resource_manager::get_resource_directory(*parent_key);
+    return parent;
+}
+}  // namespace
+
+void resource_directory::un_mash_start(generic_mash_header *header, [[maybe_unused]] void *a3,
+                                       generic_mash_data_ptrs *a4, [[maybe_unused]] void *a5)
 {
     TRACE("resource_directory::un_mash_start");
 
@@ -311,12 +304,12 @@ void resource_directory::constructor_common(resource_pack_slot *a2, uint8_t *a3,
         this->field_80 = a4;
         this->field_84 = a5;
         this->pack_slot = a2;
-        this->base = (int) a3;
+        this->base = (int)a3;
         this->field_88 = a6;
         if (this->base != 0) {
             if (this->field_70.size()) {
                 for (int i = 0; i < this->field_70.size(); ++i) {
-                    this->field_70.m_data[i].field_8 += (int) a2->get_header_mem_addr();
+                    this->field_70.m_data[i].field_8 += (int)a2->get_header_mem_addr();
                 }
             }
 
@@ -433,7 +426,7 @@ void resource_directory::add_parent(resource_directory *new_dir)
             auto v8 = this->pack_slot->get_name_key().m_hash;
             printf("Added parent %s to %s", v9.to_string(), v8.to_string());
             this->parents.m_data[i] = new_dir;
-            
+
             return;
         }
     }
@@ -447,7 +440,7 @@ int compare_resource_key_resource_location_just_hash(const resource_key &a1, res
         auto v1 = a2.field_0.m_hash;
         if (a1.m_hash > v1) {
             return 1;
-}
+        }
 
         if (a1.m_hash < v1) {
             return -1;
@@ -558,7 +551,7 @@ bool resource_directory::find_resource(const resource_key &a2, resource_director
 
         return result;
     } else {
-        return (bool) THISCALL(0x0051F550, this, &a2, out_dir, out_loc);
+        return (bool)THISCALL(0x0051F550, this, &a2, out_dir, out_loc);
     }
 }
 
@@ -702,7 +695,7 @@ uint8_t *resource_directory::get_resource(const resource_key &resource_id, int *
         auto *result = found_dir->get_resource(found_loc, a4);
         return result;
     } else {
-        return (uint8_t *) THISCALL(0x0052AA70, this, &resource_id, mash_data_size, a4);
+        return (uint8_t *)THISCALL(0x0052AA70, this, &resource_id, mash_data_size, a4);
     }
 }
 
@@ -733,7 +726,7 @@ char *resource_directory::get_tlresource(const tlFixedString &a1, tlresource_typ
     auto v3 = a1.m_hash;
     auto *v6 = this->get_tlresource(v3, a2);
 
-    bool SHOW_RESOURCE_SPAM = os_developer_options::instance->get_flag(mString {"SHOW_RESOURCE_SPAM"});
+    bool SHOW_RESOURCE_SPAM = os_developer_options::instance->get_flag(mString{"SHOW_RESOURCE_SPAM"});
     if (v6 == nullptr && SHOW_RESOURCE_SPAM) {
         auto *v4 = a1.to_string();
         debug_print_va("Failed to find resource %s.", v4);
@@ -744,7 +737,7 @@ char *resource_directory::get_tlresource(const tlFixedString &a1, tlresource_typ
 
 void *resource_directory::allocate_from_pool(int a2, int a3)
 {
-    return (void *) THISCALL(0x0051F620, this, a2, a3);
+    return (void *)THISCALL(0x0051F620, this, a2, a3);
 }
 
 char *resource_directory::get_tlresource(tlresource_location *loc, resource_pack_slot **a3)
@@ -796,7 +789,7 @@ char *resource_directory::get_tlresource(uint32_t a2, tlresource_type tlres_type
     return result;
 }
 
-static const char *tlresource_type_str[10] {
+static const char *tlresource_type_str[10]{
     "(none)", "texture", "mesh file", "mesh", "morph file", "morph", "anim file", "anim", "scene anim", "skeleton"};
 
 bool resource_directory::find_tlresource(uint32_t a1, tlresource_type tlres_type, resource_directory **out_dir,
@@ -873,7 +866,7 @@ bool resource_directory::find_tlresource(uint32_t a1, tlresource_type tlres_type
 
         assert(array != nullptr);
 
-        auto SHOW_RESOURCE_SPAM = os_developer_options::instance->get_flag(mString {"SHOW_RESOURCE_SPAM"});
+        auto SHOW_RESOURCE_SPAM = os_developer_options::instance->get_flag(mString{"SHOW_RESOURCE_SPAM"});
 
         bool result = false;
 
@@ -925,10 +918,10 @@ bool resource_directory::find_tlresource(uint32_t a1, tlresource_type tlres_type
                     auto *v15 = v18.to_string();
                     auto *v12 = v16.to_string();
                     debug_print_va("didn't find tlresource %s 0x%08x in %s, checking parent %s",
-                           tlresource_type_str[tlres_type],
-                           a1,
-                           v12,
-                           v15);
+                                   tlresource_type_str[tlres_type],
+                                   a1,
+                                   v12,
+                                   v15);
                 }
 
                 result = the_parent->find_tlresource(a1, tlres_type, out_dir, out_loc);
@@ -947,7 +940,7 @@ bool resource_directory::find_tlresource(uint32_t a1, tlresource_type tlres_type
 
         return result;
     } else {
-        bool(__fastcall *func)(
+        bool(__fastcall * func)(
             resource_directory *, void *, uint32_t, tlresource_type, resource_directory **, tlresource_location **) =
             CAST(func, 0x0051F350);
 
@@ -1096,8 +1089,7 @@ void resource_directory_xbpack_patch()
     }
 
     auto *directory_object_size = reinterpret_cast<uint32_t *>(0x0053E1E5);
-    assert(*directory_object_size == sizeof(resource_directory) ||
-           *directory_object_size == xbpack::directory_size);
+    assert(*directory_object_size == sizeof(resource_directory) || *directory_object_size == xbpack::directory_size);
     *directory_object_size = xbpack::directory_size;
 
     {
@@ -1105,14 +1097,8 @@ void resource_directory_xbpack_patch()
         REDIRECT(0x0053E21C, address);
     }
 
-    using parse_directory_fn = bool (*)(resource_directory *&,
-                                        void *,
-                                        void *,
-                                        uint32_t *,
-                                        uint32_t *,
-                                        uint32_t,
-                                        uint32_t,
-                                        void *);
+    using parse_directory_fn =
+        bool (*)(resource_directory *&, void *, void *, uint32_t *, uint32_t *, uint32_t, uint32_t, void *);
     parse_directory_fn parse_directory = &parse_generic_object_mash<resource_directory>;
     SET_JUMP(0x00563F40, parse_directory);
 

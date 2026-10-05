@@ -2,8 +2,7 @@
 
 #include <cstdint>
 
-namespace xbpack
-{
+namespace xbpack {
 #ifdef OPENUSM_XBPACK_V10
 inline constexpr bool v10 = true;
 inline constexpr unsigned type_count = 68;
@@ -49,6 +48,6 @@ constexpr int pc_type(int type)
         return type;
     return type - 1;
 }
-}
+}  // namespace xbpack
 
 bool install_xbpack_support();

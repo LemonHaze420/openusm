@@ -723,13 +723,8 @@ int nfd_win32_FileOpen(HANDLE *a1, LPCSTR lpFileName, uint32_t a3, uint32_t liDi
     DWORD attributes = ((~(a3 << 28)) & 0x20000000);
     attributes |= FILE_FLAG_OVERLAPPED;
 
-    HANDLE v4 = CreateFileA(lpFileName,
-                            ((4 * a3) | (a3 & 2)) << 29,
-                            a3 & 3,
-                            nullptr,
-                            ((~(a3 >> 2)) & 1) | 2,
-                            attributes,
-                            nullptr);
+    HANDLE v4 = CreateFileA(
+        lpFileName, ((4 * a3) | (a3 & 2)) << 29, a3 & 3, nullptr, ((~(a3 >> 2)) & 1) | 2, attributes, nullptr);
 
     if (v4 == INVALID_HANDLE_VALUE) {
         auto errorMessageID = GetLastError();

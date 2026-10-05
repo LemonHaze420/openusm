@@ -50,12 +50,12 @@ ai_interaction_data *__fastcall generic_resource(generic_interaction *self)
 {
     return self->field_50;
 }
-}
+}  // namespace
 
 void *generic_interaction::native_vtable()
 {
     static auto table = [] {
-        std::array<void *, 9> result {};
+        std::array<void *, 9> result{};
         std::copy_n(static_cast<void **>(interaction::native_vtable()), 8, result.data());
         result[0] = bit_cast<void *>(&generic_destroy);
         result[1] = bit_cast<void *>(&generic_unmash);
@@ -75,17 +75,14 @@ generic_interaction::generic_interaction(const resource_key &resource, interacti
     assert(resource.get_type() == RESOURCE_KEY_TYPE_AI_INTERACTION);
     m_vtbl = STANDALONE_SYSTEM ? bit_cast<std::intptr_t>(native_vtable()) : 0x0087E380;
     if (!g_is_the_packer) {
-        field_50 = reinterpret_cast<ai_interaction_data *>(
-            resource_manager::get_resource(field_48, nullptr, nullptr));
+        field_50 = reinterpret_cast<ai_interaction_data *>(resource_manager::get_resource(field_48, nullptr, nullptr));
     }
 }
 
-generic_interaction::generic_interaction(from_mash_in_place_constructor *tag)
-    : interaction(tag), field_48(tag)
+generic_interaction::generic_interaction(from_mash_in_place_constructor *tag) : interaction(tag), field_48(tag)
 {
     m_vtbl = STANDALONE_SYSTEM ? bit_cast<std::intptr_t>(native_vtable()) : 0x0087E380;
-    field_50 = reinterpret_cast<ai_interaction_data *>(
-        resource_manager::get_resource(field_48, nullptr, nullptr));
+    field_50 = reinterpret_cast<ai_interaction_data *>(resource_manager::get_resource(field_48, nullptr, nullptr));
 }
 
 void generic_interaction::_unmash(mash_info_struct *info, void *context)

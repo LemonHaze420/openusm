@@ -44,8 +44,7 @@ void script_controller::update()
         return;
     }
 
-    if (g_femanager.m_pause_menu_system != nullptr &&
-        g_femanager.m_pause_menu_system->IsDialogActivated()) {
+    if (g_femanager.m_pause_menu_system != nullptr && g_femanager.m_pause_menu_system->IsDialogActivated()) {
         return;
     }
 
@@ -97,12 +96,11 @@ void script_controller::update()
         }
 
         constexpr float threshold = 0.7f;
-        const auto dispatch_direction = [this, device](
-                                            int axis,
-                                            string_hash negative_pressed,
-                                            string_hash negative_released,
-                                            string_hash positive_pressed,
-                                            string_hash positive_released) {
+        const auto dispatch_direction = [this, device](int axis,
+                                                       string_hash negative_pressed,
+                                                       string_hash negative_released,
+                                                       string_hash positive_pressed,
+                                                       string_hash positive_released) {
             const auto mapped_axis = device->get_axis_id(axis);
             const auto current = device->get_axis_state(mapped_axis, 0);
             const auto previous = device->get_axis_old_state(mapped_axis, 0);
@@ -126,21 +124,32 @@ void script_controller::update()
             return false;
         };
 
-        if (dispatch_direction(2, event::LEFT_PRESSED, event::LEFT_RELEASED,
-                               event::RIGHT_PRESSED, event::RIGHT_RELEASED) ||
-            dispatch_direction(3, event::UP_PRESSED, event::UP_RELEASED,
-                               event::DOWN_PRESSED, event::DOWN_RELEASED) ||
-            dispatch_direction(7, event::RSTICK_LEFT_PRESSED, event::RSTICK_LEFT_RELEASED,
-                               event::RSTICK_RIGHT_PRESSED, event::RSTICK_RIGHT_RELEASED) ||
-            dispatch_direction(8, event::RSTICK_UP_PRESSED, event::RSTICK_UP_RELEASED,
-                               event::RSTICK_DOWN_PRESSED, event::RSTICK_DOWN_RELEASED) ||
-            dispatch_direction(4, event::LSTICK_LEFT_PRESSED, event::LSTICK_LEFT_RELEASED,
-                               event::LSTICK_RIGHT_PRESSED, event::LSTICK_RIGHT_RELEASED)) {
+        if (dispatch_direction(
+                2, event::LEFT_PRESSED, event::LEFT_RELEASED, event::RIGHT_PRESSED, event::RIGHT_RELEASED) ||
+            dispatch_direction(3, event::UP_PRESSED, event::UP_RELEASED, event::DOWN_PRESSED, event::DOWN_RELEASED) ||
+            dispatch_direction(7,
+                               event::RSTICK_LEFT_PRESSED,
+                               event::RSTICK_LEFT_RELEASED,
+                               event::RSTICK_RIGHT_PRESSED,
+                               event::RSTICK_RIGHT_RELEASED) ||
+            dispatch_direction(8,
+                               event::RSTICK_UP_PRESSED,
+                               event::RSTICK_UP_RELEASED,
+                               event::RSTICK_DOWN_PRESSED,
+                               event::RSTICK_DOWN_RELEASED) ||
+            dispatch_direction(4,
+                               event::LSTICK_LEFT_PRESSED,
+                               event::LSTICK_LEFT_RELEASED,
+                               event::LSTICK_RIGHT_PRESSED,
+                               event::LSTICK_RIGHT_RELEASED)) {
             return;
         }
 
-        dispatch_direction(5, event::LSTICK_UP_PRESSED, event::LSTICK_UP_RELEASED,
-                           event::LSTICK_DOWN_PRESSED, event::LSTICK_DOWN_RELEASED);
+        dispatch_direction(5,
+                           event::LSTICK_UP_PRESSED,
+                           event::LSTICK_UP_RELEASED,
+                           event::LSTICK_DOWN_PRESSED,
+                           event::LSTICK_DOWN_RELEASED);
     } else {
         THISCALL(0x0065F8A0, this);
     }
@@ -149,7 +158,7 @@ void script_controller::update()
 bool script_controller::is_button_pressed(int a1) const
 {
     auto v3 = input_mgr::instance->field_58;
-    if ( v3 == -1 ) {
+    if (v3 == -1) {
         return false;
     }
 
@@ -170,10 +179,10 @@ bool script_controller::is_button_pressed(int a1) const
 float script_controller::get_axis_position(int a1) const
 {
     auto v3 = input_mgr::instance->field_58;
-    if ( v3 == -1 ) {
+    if (v3 == -1) {
         return 0.0f;
     }
-    
+
     auto *device = input_mgr::instance->get_device_from_map_internal(v3);
     if (device != nullptr && device->get_id() != -1 && not_equal(1.0f, device->get_axis_state(22, 0))) {
         auto v6 = device->get_axis_id(a1);

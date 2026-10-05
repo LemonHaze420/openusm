@@ -15,11 +15,11 @@ VALIDATE_OFFSET(rigid_body, field_130, 0x130);
 VALIDATE_SIZE(user_rigid_body, 0x1B4);
 
 namespace {
-void rotate_basis(matrix4x4 &result, const matrix4x4 &pose,
-    const vector4d &angular_velocity, float elapsed)
+void rotate_basis(matrix4x4 &result, const matrix4x4 &pose, const vector4d &angular_velocity, float elapsed)
 {
-    const float speed = std::sqrt(angular_velocity[0] * angular_velocity[0] +
-        angular_velocity[1] * angular_velocity[1] + angular_velocity[2] * angular_velocity[2]);
+    const float speed =
+        std::sqrt(angular_velocity[0] * angular_velocity[0] + angular_velocity[1] * angular_velocity[1] +
+                  angular_velocity[2] * angular_velocity[2]);
     if (speed < 0.00001f) {
         for (int row = 0; row < 3; ++row)
             result[row] = pose[row];
@@ -38,8 +38,8 @@ void rotate_basis(matrix4x4 &result, const matrix4x4 &pose,
     for (int row = 0; row < 3; ++row) {
         const float source[3]{pose[row][0], pose[row][1], pose[row][2]};
         for (int column = 0; column < 3; ++column)
-            result[row][column] = source[0] * rotation[0][column] +
-                source[1] * rotation[1][column] + source[2] * rotation[2][column];
+            result[row][column] =
+                source[0] * rotation[0][column] + source[1] * rotation[1][column] + source[2] * rotation[2][column];
         result[row][3] = 0.0f;
     }
 }
@@ -53,23 +53,22 @@ vector4d transform_inertia(const rigid_body &body, const vector4d &vector, bool 
     const float inertia[3]{body.field_B0, body.field_B4, body.field_B8};
     float local[3];
     for (int row = 0; row < 3; ++row) {
-        local[row] = vector[0] * body.field_0[row][0] +
-            vector[1] * body.field_0[row][1] + vector[2] * body.field_0[row][2];
+        local[row] =
+            vector[0] * body.field_0[row][0] + vector[1] * body.field_0[row][1] + vector[2] * body.field_0[row][2];
         local[row] *= inverse ? inertia[row] : 1.0f / inertia[row];
     }
     vector4d result;
     for (int axis = 0; axis < 4; ++axis)
-        result[axis] = local[0] * body.field_0[0][axis] +
-            local[1] * body.field_0[1][axis] + local[2] * body.field_0[2][axis];
+        result[axis] =
+            local[0] * body.field_0[0][axis] + local[1] * body.field_0[1][axis] + local[2] * body.field_0[2][axis];
     return result;
 }
-}
+}  // namespace
 
 rigid_body::rigid_body() {}
 
-void rigid_body::set(float mass, const phys_vector3d &inertia, const matrix4x4 &pose,
-    const phys_vector3d &velocity, const phys_vector3d &angular_velocity,
-    float collision_scale, int collision_group)
+void rigid_body::set(float mass, const phys_vector3d &inertia, const matrix4x4 &pose, const phys_vector3d &velocity,
+                     const phys_vector3d &angular_velocity, float collision_scale, int collision_group)
 {
     field_130 = 1.0f / mass;
     field_B0 = 1.0f / inertia[0];
@@ -98,16 +97,15 @@ void rigid_body::predict_pose(float elapsed)
 {
     const float step = field_13C * elapsed;
     for (int axis = 0; axis != 4; ++axis)
-        field_40[3][axis] = field_0[3][axis] +
-            step * (field_D0[axis] + step * field_130 * field_110[axis]);
+        field_40[3][axis] = field_0[3][axis] + step * (field_D0[axis] + step * field_130 * field_110[axis]);
     rotate_basis(field_40, field_0, field_E0, step);
 }
 
 void rigid_body::prolog_frame_advance(float elapsed)
 {
     const float step = elapsed * field_13C;
-    const float angular_speed_squared = field_E0[0] * field_E0[0] +
-        field_E0[1] * field_E0[1] + field_E0[2] * field_E0[2];
+    const float angular_speed_squared =
+        field_E0[0] * field_E0[0] + field_E0[1] * field_E0[1] + field_E0[2] * field_E0[2];
     if (angular_speed_squared > field_138 * field_138) {
         const float factor = field_138 / std::sqrt(angular_speed_squared) - 1.0f;
         vector4d correction;
@@ -118,12 +116,13 @@ void rigid_body::prolog_frame_advance(float elapsed)
             const float inverse_inertia[3]{field_B0, field_B4, field_B8};
             float local[3];
             for (int axis = 0; axis < 3; ++axis)
-                local[axis] = factor * (field_E0[0] * field_0[axis][0] +
-                    field_E0[1] * field_0[axis][1] +
-                    field_E0[2] * field_0[axis][2]) / inverse_inertia[axis];
+                local[axis] =
+                    factor *
+                    (field_E0[0] * field_0[axis][0] + field_E0[1] * field_0[axis][1] + field_E0[2] * field_0[axis][2]) /
+                    inverse_inertia[axis];
             for (int axis = 0; axis < 4; ++axis)
-                correction[axis] = local[0] * field_0[0][axis] +
-                    local[1] * field_0[1][axis] + local[2] * field_0[2][axis];
+                correction[axis] =
+                    local[0] * field_0[0][axis] + local[1] * field_0[1][axis] + local[2] * field_0[2][axis];
         }
         auto *torque = reinterpret_cast<float *>(&field_120);
         for (int axis = 0; axis < 4; ++axis)
@@ -154,8 +153,8 @@ void rigid_body::advance_forces(float elapsed)
     } else {
         const auto *tensor = reinterpret_cast<const float *>(&field_80);
         for (int axis = 0; axis < 4; ++axis)
-            angular_increment[axis] = elapsed * (torque[0] * tensor[axis] +
-                torque[1] * tensor[4 + axis] + torque[2] * tensor[8 + axis]);
+            angular_increment[axis] =
+                elapsed * (torque[0] * tensor[axis] + torque[1] * tensor[4 + axis] + torque[2] * tensor[8 + axis]);
     }
     for (int axis = 0; axis < 4; ++axis) {
         field_D0[axis] += linear_scale * field_110[axis];
@@ -188,9 +187,8 @@ void rigid_body::integrate(float elapsed)
 
 void rigid_body::update_sleep(float elapsed)
 {
-    field_168 = field_D0[0] * field_D0[0] + field_D0[1] * field_D0[1] +
-        field_D0[2] * field_D0[2] + field_E0[0] * field_E0[0] +
-        field_E0[1] * field_E0[1] + field_E0[2] * field_E0[2];
+    field_168 = field_D0[0] * field_D0[0] + field_D0[1] * field_D0[1] + field_D0[2] * field_D0[2] +
+                field_E0[0] * field_E0[0] + field_E0[1] * field_E0[1] + field_E0[2] * field_E0[2];
     if (field_168 > 0.1224999949336052f) {
         field_164 = 0.0f;
         field_144 &= ~4u;
@@ -207,10 +205,9 @@ void rigid_body::update_world_inverse_inertia(const matrix4x4 &pose)
     auto *tensor = reinterpret_cast<float *>(&field_80);
     for (int row = 0; row < 3; ++row)
         for (int column = 0; column < 4; ++column)
-            tensor[row * 4 + column] =
-                pose[0][row] * inertia[0] * pose[0][column] +
-                pose[1][row] * inertia[1] * pose[1][column] +
-                pose[2][row] * inertia[2] * pose[2][column];
+            tensor[row * 4 + column] = pose[0][row] * inertia[0] * pose[0][column] +
+                                       pose[1][row] * inertia[1] * pose[1][column] +
+                                       pose[2][row] * inertia[2] * pose[2][column];
 }
 
 void user_rigid_body::predict_pose(float elapsed)

@@ -62,8 +62,6 @@ mission_manager_script_data::~mission_manager_script_data()
 
 void mission_manager_script_data::clear()
 {
-
-
     pos._Tidy();
     strings._Tidy();
     nums._Tidy();
@@ -96,7 +94,6 @@ void mission_manager_script_data::copy(const mission_manager_script_data &a2)
 {
     field_0 = a2.field_0;
     field_10 = a2.field_10;
-
 
 
     const auto copy_vector = [](auto &destination, const auto &source) {

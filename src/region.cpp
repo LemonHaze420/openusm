@@ -41,7 +41,6 @@ _std::list<_std::list<entity *> *> &entity_list_cache()
 {
     static _std::list<_std::list<entity *> *> cache;
     static const bool initialized = [] {
-
         for (int i = 0; i < 9; ++i)
             cache.push_back(new _std::list<entity *>);
         return true;
@@ -49,7 +48,7 @@ _std::list<_std::list<entity *> *> &entity_list_cache()
     (void)initialized;
     return cache;
 }
-}
+}  // namespace
 #endif
 
 static constexpr auto REGION_UNINITIALIZED_STRIP_ID = -1;
@@ -363,8 +362,8 @@ void region::finish_unloading()
         bitvector_of_legos_rendered_last_frame = nullptr;
     }
     const auto detach = [this](entity *ent) {
-        auto clear = reinterpret_cast<void(__fastcall *)(entity *, void *, region *, int)>(
-            get_vfunc(ent->m_vtbl, 0x168));
+        auto clear =
+            reinterpret_cast<void(__fastcall *)(entity *, void *, region *, int)>(get_vfunc(ent->m_vtbl, 0x168));
         clear(ent, nullptr, this, static_cast<int>(0xDEADBEEFu));
     };
     auto *entities = static_cast<_std::list<entity *> *>(region_entities);
@@ -433,23 +432,20 @@ void region::set_loaded(bool loaded, resource_pack_slot *pack_slot)
 
     auto &directory = pack_slot->get_resource_directory();
     if (field_D4 == -1) {
-
-
-        const mString mesh_names[] {
-            get_scene_id(true) + mString {"R"},
-            get_scene_id(true) + mString {"C"},
+        const mString mesh_names[]{
+            get_scene_id(true) + mString{"R"},
+            get_scene_id(true) + mString{"C"},
         };
-        const string_hash mesh_hashes[] {
-            string_hash {mesh_names[0].c_str()},
-            string_hash {mesh_names[1].c_str()},
+        const string_hash mesh_hashes[]{
+            string_hash{mesh_names[0].c_str()},
+            string_hash{mesh_names[1].c_str()},
         };
         const int first = directory.get_type_start_idxs(RESOURCE_KEY_TYPE_MESH);
         const int end = first + directory.get_resource_count(RESOURCE_KEY_TYPE_MESH);
         for (int i = first; i < end; ++i) {
             auto *location = directory.get_resource_location(i);
-            if (directory.get_mash_data(location->m_offset) != nullptr
-                && (location->field_0.m_hash == mesh_hashes[0]
-                    || location->field_0.m_hash == mesh_hashes[1])) {
+            if (directory.get_mash_data(location->m_offset) != nullptr &&
+                (location->field_0.m_hash == mesh_hashes[0] || location->field_0.m_hash == mesh_hashes[1])) {
                 field_D4 = i;
                 break;
             }
@@ -457,11 +453,9 @@ void region::set_loaded(bool loaded, resource_pack_slot *pack_slot)
     }
     if (field_D4 != -1) {
         auto *location = directory.get_resource_location(field_D4);
-        tlFixedString mesh_name {};
+        tlFixedString mesh_name{};
         mesh_name.m_hash = location->field_0.m_hash.source_hash_code;
-        for (auto *mesh = nglGetFirstMeshInFile(mesh_name);
-             mesh != nullptr;
-             mesh = nglGetNextMeshInFile(mesh)) {
+        for (auto *mesh = nglGetFirstMeshInFile(mesh_name); mesh != nullptr; mesh = nglGetNextMeshInFile(mesh)) {
             region_meshes->push_back(mesh);
         }
     }
@@ -490,8 +484,7 @@ void region::create_proximity_maps()
     current_proximity_map_stack = acquire_district_proximity_map_stack();
     collision_proximity_map = &collision_dynamic_rtree();
     const auto create_map = [this]() {
-        auto *map = static_cast<hierarchical_entity_proximity_map *>(
-            current_proximity_map_stack->alloc(0x41C));
+        auto *map = static_cast<hierarchical_entity_proximity_map *>(current_proximity_map_stack->alloc(0x41C));
         if (map != nullptr) {
             new (map) hierarchical_entity_proximity_map;
             map->entity_data_lookup = {};
@@ -549,8 +542,7 @@ void region::un_mash_lego_map(char *a2, int *a3)
         lego_bitvector_pool.init(sizeof(fixed_bitvector<uint, 2048>), 8, 4, 0, 0, nullptr);
 #endif
     auto *mem = lego_bitvector_pool.allocate_new_block();
-    this->bitvector_of_legos_rendered_last_frame =
-        new (mem) fixed_bitvector<uint, 2048> {};
+    this->bitvector_of_legos_rendered_last_frame = new (mem) fixed_bitvector<uint, 2048>{};
 
     assert(bitvector_of_legos_rendered_last_frame != nullptr);
     for (auto i = 0u; i < 65u; ++i) {
@@ -572,12 +564,10 @@ void region::add(entity *e)
     assert(entities != nullptr);
     if (std::find(entities->begin(), entities->end(), e) == entities->end())
         entities->push_back(e);
-    if (e->is_renderable() &&
-        (e->is_flagged(0x200u) || e->is_flagged(4u) || e->is_a_conglomerate_clone()))
+    if (e->is_renderable() && (e->is_flagged(0x200u) || e->is_flagged(4u) || e->is_a_conglomerate_clone()))
         visibility_map->update_entity(e);
     if (e->is_flagged(1u)) {
-        auto update = reinterpret_cast<void(__fastcall *)(entity *, void *)>(
-            get_vfunc(e->m_vtbl, 0x184));
+        auto update = reinterpret_cast<void(__fastcall *)(entity *, void *)>(get_vfunc(e->m_vtbl, 0x184));
         update(e, nullptr);
     }
     if (e->possibly_collide())

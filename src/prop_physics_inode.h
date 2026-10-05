@@ -7,7 +7,6 @@
 namespace ai {
 
 
-
 struct prop_physics_inode : info_node {
     struct prop_record {
         entity_base_vhandle actor_handle;
@@ -36,4 +35,4 @@ private:
     void clear_records();
 };
 
-}
+}  // namespace ai

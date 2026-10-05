@@ -35,8 +35,8 @@ void daynight::frame_advance(Float)
 
     update_shadow_settings();
     if (lights() != nullptr) {
-        nglMatrix unused_a {};
-        nglMatrix unused_b {};
+        nglMatrix unused_a{};
+        nglMatrix unused_b{};
         lights()->update(time, unused_a, unused_b);
     }
 }

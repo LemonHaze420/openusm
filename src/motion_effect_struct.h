@@ -31,7 +31,9 @@ struct motion_pose_history {
     float remaining;
 };
 
-struct motion_trail_sample { vector3d first, second; };
+struct motion_trail_sample {
+    vector3d first, second;
+};
 struct motion_trail_info {
     int field_0;
     int sample_count;
@@ -53,7 +55,9 @@ struct motion_trail_info {
     float interval;
 };
 
-struct motion_distorted_sample { vector3d first, second, third; };
+struct motion_distorted_sample {
+    vector3d first, second, third;
+};
 struct motion_distorted_trail_info {
     entity_base *owner;
     entity_base *first;
@@ -108,19 +112,19 @@ struct motion_effect_struct {
     motion_effect_struct(entity_base_vhandle handle, const mString &texture);
     ~motion_effect_struct();
     void remove_from_list();
-    void activate_trail(entity_base *, int axis, float width, color32 color,
-                        int alpha, float interval, int samples, bool additive);
+    void activate_trail(entity_base *, int axis, float width, color32 color, int alpha, float interval, int samples,
+                        bool additive);
     void record(Float elapsed);
     void render_trail();
     void render_distorted_trail();
     static void render_all_motion_fx(camera &, hull &);
     //0x004DC820
-    void render_trail(vector3d, vector3d, vector3d, vector2d, vector2d, vector2d,
-                      color32, color32, color32, bool, vector3d, vector3d);
+    void render_trail(vector3d, vector3d, vector3d, vector2d, vector2d, vector2d, color32, color32, color32, bool,
+                      vector3d, vector3d);
     //0x004DCA10
-    void render_distorted_trail(const vector3d &, const vector3d &, const vector3d &,
-                                const vector4d &, const vector4d &, const vector4d &,
-                                color32, color32, color32, bool, vector3d &, vector3d &);
+    void render_distorted_trail(const vector3d &, const vector3d &, const vector3d &, const vector4d &,
+                                const vector4d &, const vector4d &, color32, color32, color32, bool, vector3d &,
+                                vector3d &);
     //0x004EFA50
     static void record_all_motion_fx(Float elapsed);
 };

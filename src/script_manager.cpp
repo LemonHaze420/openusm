@@ -28,26 +28,26 @@
 #include <set.hpp>
 
 #if !STANDALONE_SYSTEM
-auto & script_manager_execs_pending_link_list = var<_std::list<script_executable_entry> *>(0x00965EF4);
+auto &script_manager_execs_pending_link_list = var<_std::list<script_executable_entry> *>(0x00965EF4);
 
-auto & script_manager_execs_pending_first_run = var<_std::list<script_executable_entry> *>(0x00965EF8);
+auto &script_manager_execs_pending_first_run = var<_std::list<script_executable_entry> *>(0x00965EF8);
 
-auto & script_manager_exec_map = var<_std::map<script_executable_entry_key, script_executable_entry> *>(0x00965EE4);
+auto &script_manager_exec_map = var<_std::map<script_executable_entry_key, script_executable_entry> *>(0x00965EE4);
 
-auto & script_manager_initialized = var<bool>(0x00965EE1);
+auto &script_manager_initialized = var<bool>(0x00965EE1);
 
-auto & script_manager_next_stuff_id = var<int>(0x00965EFC);
+auto &script_manager_next_stuff_id = var<int>(0x00965EFC);
 
 auto &script_manager_script_allocated_stuff_map =
     var<_std::map<int, script_executable_allocated_stuff_record> *>(0x00965F00);
 
-auto & script_manager_master_script = var<script_executable *>(0x00965EE8);
+auto &script_manager_master_script = var<script_executable *>(0x00965EE8);
 
-auto & script_manager_game_var_container = var<script_var_container *>(0x00965EEC);
+auto &script_manager_game_var_container = var<script_var_container *>(0x00965EEC);
 
-auto & script_manager_shared_var_container = var<script_var_container *>(0x00965EF0);
+auto &script_manager_shared_var_container = var<script_var_container *>(0x00965EF0);
 
-auto & script_manager_time_inc = var<float>(0x00961930);
+auto &script_manager_time_inc = var<float>(0x00961930);
 
 auto &script_manager_callbacks =
     var<_std::set<void (*)(script_manager_callback_reason, script_executable *, const char *)> *>(0x00965F04);
@@ -58,7 +58,7 @@ auto &script_manager_callbacks =
 #include <set>
 
 #define make_var(type, name) \
-    static type g_##name {}; \
+    static type g_##name{};  \
     type &name = g_##name
 
 std::list<script_executable_entry> *g_script_manager_execs_pending_first_run{nullptr};
@@ -70,14 +70,13 @@ auto &script_manager_execs_pending_link_list = g_script_manager_execs_pending_li
 std::map<script_executable_entry_key, script_executable_entry> *g_script_manager_exec_map{nullptr};
 auto &script_manager_exec_map = g_script_manager_exec_map;
 
-static bool g_script_manager_initialized {false};
+static bool g_script_manager_initialized{false};
 bool &script_manager_initialized = g_script_manager_initialized;
 
-static int g_script_manager_next_stuff_id {};
+static int g_script_manager_next_stuff_id{};
 int &script_manager_next_stuff_id{g_script_manager_next_stuff_id};
 
-static std::map<int, script_executable_allocated_stuff_record> *
-    g_script_manager_script_allocated_stuff_map{nullptr};
+static std::map<int, script_executable_allocated_stuff_record> *g_script_manager_script_allocated_stuff_map{nullptr};
 auto &script_manager_script_allocated_stuff_map = g_script_manager_script_allocated_stuff_map;
 
 make_var(script_executable *, script_manager_master_script);
@@ -128,12 +127,12 @@ void *get_game_var_address(const mString &a1, bool *a2, script_library_class **a
     }
 
     if (result == nullptr && a1 == "gv_message_log_title") {
-        static float message_log_title[128] {};
+        static float message_log_title[128]{};
         return message_log_title;
     }
 
     if (result == nullptr && a1 == "gv_message_log_body") {
-        static float message_log_body[128] {};
+        static float message_log_body[128]{};
         return message_log_body;
     }
 #endif
@@ -167,7 +166,7 @@ char *get_shared_var_address(int a1)
 
 bool using_chuck_old_fashioned()
 {
-    return os_developer_options::instance->get_flag(mString {"CHUCK_OLD_FASHIONED"});
+    return os_developer_options::instance->get_flag(mString{"CHUCK_OLD_FASHIONED"});
 }
 
 int get_total_loaded()
@@ -193,8 +192,7 @@ void release_actor_script(script_instance *&instance)
         script::new_thread(parent->field_28, instance);
         script::exec_thread(true);
     }
-    const resource_key script_key {
-        string_hash{instance->parent->parent->field_0.to_string()}, RESOURCE_KEY_TYPE_SCRIPT};
+    const resource_key script_key{string_hash{instance->parent->parent->field_0.to_string()}, RESOURCE_KEY_TYPE_SCRIPT};
     if (instance->parent != nullptr)
         instance->parent->remove_instance(instance);
     instance = nullptr;
@@ -225,7 +223,7 @@ void init_game_var()
 
                 v22.open(spec.fullname(), os_file::FILE_READ);
                 assert(v22.is_open());
-    {
+                {
                     v22.read(script_manager_game_var_container);
                     v22.close();
                 }
@@ -242,7 +240,7 @@ void init_game_var()
                 spec.m_ext = ".sv";
                 v22.open(spec.fullname(), 1);
                 assert(v22.is_open());
-        {
+                {
                     v22.read(script_manager_shared_var_container);
                     v22.close();
                 }
@@ -252,7 +250,7 @@ void init_game_var()
         }
 
         if (script_manager_game_var_container == nullptr) {
-            resource_key a1 {string_hash {"master"}, RESOURCE_KEY_TYPE_SCRIPT_GV};
+            resource_key a1{string_hash{"master"}, RESOURCE_KEY_TYPE_SCRIPT_GV};
             auto *v0 = resource_manager::get_resource(a1, nullptr, nullptr);
             if (v0 != nullptr) {
                 auto allocated_mem = parse_generic_object_mash(
@@ -264,10 +262,10 @@ void init_game_var()
             }
         }
 
-        if ( script_manager_shared_var_container == nullptr ) {
-            resource_key a1 {string_hash {"master"}, RESOURCE_KEY_TYPE_SCRIPT_SV};
+        if (script_manager_shared_var_container == nullptr) {
+            resource_key a1{string_hash{"master"}, RESOURCE_KEY_TYPE_SCRIPT_SV};
             auto *v1 = resource_manager::get_resource(a1, nullptr, nullptr);
-            if ( v1 != nullptr ) {
+            if (v1 != nullptr) {
                 auto allocated_mem = parse_generic_object_mash(
                     script_manager_shared_var_container, v1, nullptr, nullptr, nullptr, 0, 0, nullptr);
 
@@ -286,7 +284,7 @@ void link()
 
     if constexpr (1) {
         for (auto &entry : (*script_manager_execs_pending_link_list)) {
-            if ( !entry.exec->is_linked() ) {
+            if (!entry.exec->is_linked()) {
                 script_manager::run_callbacks(
                     static_cast<script_manager_callback_reason>(6), entry.exec, entry.field_8);
                 entry.exec->link();
@@ -338,7 +336,7 @@ bool is_loadable(const resource_key &a1)
 {
     TRACE("script_manager::is_loadable");
 
-    resource_key a1a {a1.m_hash, RESOURCE_KEY_TYPE_SCRIPT};
+    resource_key a1a{a1.m_hash, RESOURCE_KEY_TYPE_SCRIPT};
     int mash_data_size = 0;
     return (resource_manager::get_resource(a1a, &mash_data_size, nullptr) != nullptr);
 }
@@ -347,9 +345,9 @@ int register_allocated_stuff_callback(void (*a1)(script_executable *, _std::list
 {
     TRACE("script_manager::register_allocated_stuff_callback");
 
-    if ( script_manager_script_allocated_stuff_map == nullptr ) {
+    if (script_manager_script_allocated_stuff_map == nullptr) {
         using map_t = std::decay_t<decltype(*script_manager_script_allocated_stuff_map)>;
-        script_manager_script_allocated_stuff_map = new map_t {};
+        script_manager_script_allocated_stuff_map = new map_t{};
         assert(script_manager_script_allocated_stuff_map != nullptr);
     }
 
@@ -360,7 +358,7 @@ int register_allocated_stuff_callback(void (*a1)(script_executable *, _std::list
     return v7;
 }
 
-script_executable_entry * load(const resource_key &a1, uint32_t a2, void *a3, const resource_key &a4)
+script_executable_entry *load(const resource_key &a1, uint32_t a2, void *a3, const resource_key &a4)
 {
     TRACE("script_manager::load", a1.get_platform_string(g_platform).c_str());
 
@@ -384,11 +382,11 @@ script_executable_entry * load(const resource_key &a1, uint32_t a2, void *a3, co
             ++v27->field_4;
             result = v27;
         } else {
-            script_executable_entry entry {};
+            script_executable_entry entry{};
             if (g_is_the_packer || using_chuck_old_fashioned())
             //if (is_city_arena)
             {
-                entry.exec = new script_executable {};
+                entry.exec = new script_executable{};
             } else {
                 entry.exec = bit_cast<script_executable *>(resource_manager::get_resource(a1, nullptr, nullptr));
             }
@@ -406,7 +404,7 @@ script_executable_entry * load(const resource_key &a1, uint32_t a2, void *a3, co
 #ifdef TARGET_XBOX
                 bool allocated_mem = false;
                 {
-                    auto *a1 = (generic_mash_header *) entry.exec;
+                    auto *a1 = (generic_mash_header *)entry.exec;
                     generic_mash_data_ptrs a4;
                     entry.exec = (script_executable *)parse_generic_mash_init(
                         a1, entry.exec, &allocated_mem, &a4, 0x60, nullptr, nullptr, 0, 0, nullptr);
@@ -442,7 +440,7 @@ script_executable_entry * load(const resource_key &a1, uint32_t a2, void *a3, co
             }
 
             script_manager_exec_map->insert({key, entry});
-            
+
             if (auto it = script_manager_exec_map->find(key); it != script_manager_exec_map->end()) {
                 result = &it->second;
             } else {
@@ -463,7 +461,7 @@ script_object *find_global_object()
 {
     TRACE("script_manager::find_global_object");
 
-    if ( script_manager_master_script != nullptr ) {
+    if (script_manager_master_script != nullptr) {
         return script_manager_master_script->get_global_object();
     }
 
@@ -485,32 +483,32 @@ void init()
 
             using script_manager_execs_pending_link_list_t =
                 std::decay_t<decltype(*script_manager_execs_pending_link_list)>;
-            script_manager_execs_pending_link_list = new  script_manager_execs_pending_link_list_t {};
+            script_manager_execs_pending_link_list = new script_manager_execs_pending_link_list_t{};
             assert(script_manager_execs_pending_link_list != nullptr);
 
             using script_manager_execs_pending_first_run_t =
                 std::decay_t<decltype(*script_manager_execs_pending_first_run)>;
-            script_manager_execs_pending_first_run = new  script_manager_execs_pending_first_run_t {};
+            script_manager_execs_pending_first_run = new script_manager_execs_pending_first_run_t{};
             assert(script_manager_execs_pending_first_run != nullptr);
 
             if (script_manager_exec_map == nullptr) {
                 using script_manager_exec_map_t = std::decay_t<decltype(*script_manager_exec_map)>;
-                script_manager_exec_map = new script_manager_exec_map_t {};
+                script_manager_exec_map = new script_manager_exec_map_t{};
 
                 assert(script_manager_exec_map != nullptr);
             }
 
-            if ( script_manager_script_allocated_stuff_map == nullptr ) {
+            if (script_manager_script_allocated_stuff_map == nullptr) {
                 using script_manager_script_allocated_stuff_map_t =
                     std::decay_t<decltype(*script_manager_script_allocated_stuff_map)>;
-                script_manager_script_allocated_stuff_map = new script_manager_script_allocated_stuff_map_t {};
+                script_manager_script_allocated_stuff_map = new script_manager_script_allocated_stuff_map_t{};
                 assert(script_manager_script_allocated_stuff_map != nullptr);
             }
 
             if (script_manager_callbacks == nullptr) {
                 using script_manager_callbacks_t = std::decay_t<decltype(*script_manager_callbacks)>;
 
-                script_manager_callbacks = new script_manager_callbacks_t {};
+                script_manager_callbacks = new script_manager_callbacks_t{};
 
                 assert(script_manager_callbacks != nullptr);
             }
@@ -557,9 +555,9 @@ void kill()
     script_manager_initialized = false;
 }
 
-FILE * host_fopen(const char *a1, char arg4)
+FILE *host_fopen(const char *a1, char arg4)
 {
-    char v14[3] {};
+    char v14[3]{};
     auto v7 = arg4 & 7;
     switch (v7) {
     case 1:
@@ -577,9 +575,9 @@ FILE * host_fopen(const char *a1, char arg4)
     }
 
     auto v8 = arg4 & 0x18;
-    if ( v8 == 8 ) {
+    if (v8 == 8) {
         v14[1] = 'b';
-    } else if ( v8 == 16 ) {
+    } else if (v8 == 16) {
         v14[1] = 't';
     } else {
         v14[1] = 'b';
@@ -587,16 +585,16 @@ FILE * host_fopen(const char *a1, char arg4)
 
     v14[2] = 0;
 
-    mString v13 {a1};
-    if ( v13.at(1) != ':' && v13.at(0) != '\\' ) {
+    mString v13{a1};
+    if (v13.at(1) != ':' && v13.at(0) != '\\') {
 #if 0
         if ( !aDData[0] ) {
             debug_print_va("Trying to use os_file::root_dir before it has been set in host_fopen\n");
         }
 #endif
 
-        mString a2 {"C:\\usm\\pc_usm\\data\\"};
-        v13 = a2 + mString {a1};
+        mString a2{"C:\\usm\\pc_usm\\data\\"};
+        v13 = a2 + mString{a1};
     }
 
     auto *v2 = v13.c_str();
@@ -615,7 +613,7 @@ void dump_threads_to_file()
 
     assert(script_manager_exec_map != nullptr);
 
-    for ( auto &v0 : (*script_manager_exec_map) ) {
+    for (auto &v0 : (*script_manager_exec_map)) {
         v0.second.exec->dump_threads_to_file(file);
     }
 
@@ -629,7 +627,7 @@ void run(Float a1, bool a2)
     if constexpr (1) {
         script_manager_time_inc = a1;
         if (!script_manager_execs_pending_first_run->empty()) {
-            for ( auto &entry : (*script_manager_execs_pending_first_run) ) {
+            for (auto &entry : (*script_manager_execs_pending_first_run)) {
                 run_callbacks((script_manager_callback_reason)8, entry.exec, entry.field_8);
                 entry.exec->first_run(a1, a2);
                 run_callbacks((script_manager_callback_reason)9, entry.exec, entry.field_8);
@@ -643,7 +641,7 @@ void run(Float a1, bool a2)
         auto it = script_manager_exec_map->begin();
         auto end = script_manager_exec_map->end();
         for (; it != end; ++it) {
-            if ( !script_manager_execs_pending_first_run->empty() ) {
+            if (!script_manager_execs_pending_first_run->empty()) {
                 break;
             }
 
@@ -664,7 +662,7 @@ void destroy_game_var()
 {
     TRACE("script_manager::destroy_game_var");
 
-    if constexpr(1) {
+    if constexpr (1) {
         if (script_manager_game_var_container != nullptr) {
             if ((script_manager_game_var_container->flags & 1) == 0) {
                 auto &v0 = script_manager_game_var_container;
@@ -706,7 +704,7 @@ script_object *find_object(const string_hash &a1)
 
     for (auto &v1 : (*script_manager_exec_map)) {
         auto *so = v1.second.exec->find_object(a1, nullptr);
-        if ( so != nullptr) {
+        if (so != nullptr) {
             return so;
         }
     }
@@ -718,7 +716,7 @@ script_object *find_object(const resource_key &a1, const string_hash &a2, const 
 {
     TRACE("script_manager::find_object");
 
-    if ( a1.m_hash == string_hash {0} ) {
+    if (a1.m_hash == string_hash{0}) {
         return find_object(a2);
     }
 
@@ -746,7 +744,7 @@ void add_global_constructor_thread(Float a1, bool a2)
         assert(script_manager_master_script != nullptr);
         script_manager_master_script->sub_5AB510(a1);
     } else {
-        for ( auto &v2 : (*script_manager_exec_map) ) {
+        for (auto &v2 : (*script_manager_exec_map)) {
             v2.second.exec->sub_5AB510(a1);
         }
     }
@@ -778,12 +776,12 @@ void un_load(const resource_key &a1, bool a2, const resource_key &a3)
 
             auto pending_it = script_manager_execs_pending_link_list->begin();
             auto end = script_manager_execs_pending_link_list->end();
-            while ( pending_it != end ) {
+            while (pending_it != end) {
                 assert(pending_it->exec != found->exec && "why are we trying to un_load a non-linked executable?");
                 ++pending_it;
             }
 
-            if ( found->exec == script_manager_master_script ) {
+            if (found->exec == script_manager_master_script) {
                 script_manager_master_script = nullptr;
             }
 
@@ -806,7 +804,7 @@ void un_load(const resource_key &a1, bool a2, const resource_key &a3)
                 found->exec->release_mem();
             } else {
                 auto *exec = found->exec;
-                if ( exec != nullptr ) {
+                if (exec != nullptr) {
                     delete exec;
                 }
             }
@@ -829,9 +827,9 @@ void clear()
             auto it = script_manager_exec_map->begin();
             auto *exec = it->second.exec;
             exec->un_load(false);
-            if ( exec->is_from_mash() ) {
+            if (exec->is_from_mash()) {
                 exec->release_mem();
-            } else if ( exec != nullptr ) {
+            } else if (exec != nullptr) {
                 delete exec;
             }
 
@@ -855,14 +853,14 @@ vm_executable *find_function_by_address(const uint16_t *a1)
     TRACE("script_manager::find_function_by_address");
 
     if constexpr (1) {
-        if ( script_manager_exec_map == nullptr ) {
+        if (script_manager_exec_map == nullptr) {
             return nullptr;
         }
 
         for (auto &v2 : (*script_manager_exec_map)) {
             if (v2.second.exec != nullptr) {
                 auto *v5 = v2.second.exec->find_function_by_address(a1);
-                if ( v5 != nullptr ) {
+                if (v5 != nullptr) {
                     return v5;
                 }
             }
@@ -870,7 +868,7 @@ vm_executable *find_function_by_address(const uint16_t *a1)
 
         return nullptr;
     } else {
-        return (vm_executable *) CDECL_CALL(0x0059ED70, a1);
+        return (vm_executable *)CDECL_CALL(0x0059ED70, a1);
     }
 }
 
@@ -879,10 +877,10 @@ vm_executable *find_function_by_name(string_hash a1)
     TRACE("script_manager::find_function_by_name");
 
     assert(script_manager_exec_map != nullptr);
-    for ( auto &v1 : (*script_manager_exec_map) ) {
+    for (auto &v1 : (*script_manager_exec_map)) {
         auto *exec = v1.second.exec;
         auto *func = exec->find_function_by_name(a1);
-        if ( func != nullptr) {
+        if (func != nullptr) {
             return func;
         }
     }
@@ -894,18 +892,18 @@ script_executable_entry *find_entry(const script_executable *a1)
 {
     TRACE("script_manager::find_entry");
 
-    if constexpr(1) {
+    if constexpr (1) {
         assert(script_manager_exec_map != nullptr);
 
-        for ( auto &p : (*script_manager_exec_map) ) {
-            if ( p.second.exec == a1 ) {
+        for (auto &p : (*script_manager_exec_map)) {
+            if (p.second.exec == a1) {
                 return &p.second;
             }
         }
 
         return nullptr;
     } else {
-        return (script_executable_entry *) CDECL_CALL(0x0059EE10, a1);
+        return (script_executable_entry *)CDECL_CALL(0x0059EE10, a1);
     }
 }
 
@@ -915,7 +913,7 @@ int save_game_var_buffer(char *a1)
     sp_log("0x%08X", int(a1));
 
     if constexpr (1) {
-        if ( a1 == nullptr && script_manager_game_var_container == nullptr ) {
+        if (a1 == nullptr && script_manager_game_var_container == nullptr) {
             return 0;
         }
 
@@ -974,8 +972,7 @@ void script_manager_xbpack_patch()
     FUNC_ADDRESS(address, &script_executable::un_mash);
     REDIRECT(0x005B0850, address);
 
-    void * (*get_game_var)(const mString &, bool *, script_library_class **) =
-        &script_manager::get_game_var_address;
+    void *(*get_game_var)(const mString &, bool *, script_library_class **) = &script_manager::get_game_var_address;
     SET_JUMP(0x005A09B0, get_game_var);
 #endif
 #endif
@@ -1011,12 +1008,12 @@ void script_manager_patch()
     SET_JUMP(0x0058F470, script_manager::get_shared_var_address);
 
     {
-        void * (*func)(const mString &, bool *, script_library_class **) = &script_manager::get_game_var_address;
+        void *(*func)(const mString &, bool *, script_library_class **) = &script_manager::get_game_var_address;
         SET_JUMP(0x005A09B0, func);
     }
 
     {
-        char * (*func)(int) = &script_manager::get_game_var_address;
+        char *(*func)(int) = &script_manager::get_game_var_address;
         SET_JUMP(0x0058F460, func);
     }
 

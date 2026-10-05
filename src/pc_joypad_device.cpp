@@ -38,20 +38,18 @@ int __fastcall joypad_get_axis_id(input_device *, void *, int axis)
 
 float __fastcall joypad_get_axis_state(input_device *device, void *, int axis, int slot)
 {
-    return static_cast<pc_joypad_device *>(device)->_get_axis_state(
-        static_cast<pc_joypad_device::Axis>(axis), slot);
+    return static_cast<pc_joypad_device *>(device)->_get_axis_state(static_cast<pc_joypad_device::Axis>(axis), slot);
 }
 
 float __fastcall joypad_get_axis_old_state(input_device *device, void *, int axis, int slot)
 {
-    return static_cast<pc_joypad_device *>(device)->_get_axis_old_state(
-        static_cast<pc_joypad_device::Axis>(axis), slot);
+    return static_cast<pc_joypad_device *>(device)->_get_axis_old_state(static_cast<pc_joypad_device::Axis>(axis),
+                                                                        slot);
 }
 
 float __fastcall joypad_get_axis_delta(input_device *device, void *, int axis, int slot)
 {
-    return static_cast<pc_joypad_device *>(device)->_get_axis_delta(
-        static_cast<pc_joypad_device::Axis>(axis), slot);
+    return static_cast<pc_joypad_device *>(device)->_get_axis_delta(static_cast<pc_joypad_device::Axis>(axis), slot);
 }
 
 void __fastcall joypad_poll(input_device *device)
@@ -59,9 +57,7 @@ void __fastcall joypad_poll(input_device *device)
     static_cast<pc_joypad_device *>(device)->_poll();
 }
 
-void __fastcall joypad_finalize(input_device *, void *, bool)
-{
-}
+void __fastcall joypad_finalize(input_device *, void *, bool) {}
 
 bool __fastcall joypad_is_connected(const input_device *device)
 {
@@ -74,23 +70,17 @@ int __fastcall joypad_clear_state(input_device *device)
     return 0;
 }
 
-void __fastcall joypad_vibrate(input_device *, void *, int, int, int, int)
-{
-}
+void __fastcall joypad_vibrate(input_device *, void *, int, int, int, int) {}
 
-void __fastcall joypad_vibrate_scalar(input_device *, void *, Float)
-{
-}
+void __fastcall joypad_vibrate_scalar(input_device *, void *, Float) {}
 
-void __fastcall joypad_stop_vibration(input_device *)
-{
-}
+void __fastcall joypad_stop_vibration(input_device *) {}
 
 bool __fastcall joypad_is_vibrator_present(const input_device *)
 {
     return false;
 }
-}
+}  // namespace
 #endif
 
 int sub_81D1C0(int a1)
@@ -284,9 +274,9 @@ int InputGetState(unsigned int dwUserIndex, InputState &pState)
         Input::instance->poll();
         auto *v2 = (InputSettings *)*(&Input::instance->m_current_connected + dwUserIndex);
         auto &v20 = pState.m_flags;
-        *(uint32_t *) &pState.m_flags = 0;
-        *(uint32_t *) &pState.m_punch = 0;
-        *(uint32_t *) &pState.field_C = 0;
+        *(uint32_t *)&pState.m_flags = 0;
+        *(uint32_t *)&pState.m_punch = 0;
+        *(uint32_t *)&pState.field_C = 0;
 
         pState.field_10 = 0;
         pState.field_14 = 0;
@@ -430,7 +420,7 @@ double sub_58E7F0(int a1)
     auto a1a = v3;
     if (v3 > 7000.0f || a1a < -7000.0f) {
         if (a1 <= 0) {
-            result = -(((double) -a1 - 7000.0f) * 0.000038809329f);
+            result = -(((double)-a1 - 7000.0f) * 0.000038809329f);
         } else {
             result = (a1a - 7000.0f) * 0.000038809329f;
         }
@@ -527,7 +517,7 @@ float pc_joypad_device::_get_axis_state(Axis axis, InputState input_state)
         result = -sub_58E7F0(input_state.field_1C);
         return result;
     }
-    case 9: { // CameraCenter
+    case 9: {  // CameraCenter
         auto result = ((input_state.m_flags & 0x80u) != 0);
 
         return result;
@@ -560,7 +550,7 @@ float pc_joypad_device::_get_axis_state(Axis axis, InputState input_state)
         return result;
     }
     case 19: {
-        float result = (input_state.m_throw_web > 30u );
+        float result = (input_state.m_throw_web > 30u);
         return result;
     }
     case 20: {

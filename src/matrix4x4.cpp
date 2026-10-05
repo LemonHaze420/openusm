@@ -125,10 +125,9 @@ void matrix4x4::sub_41D8A0(void *a2)
         const auto &local = *matrices[0];
         const auto &view = *matrices[1];
         auto transform_basis = [&view](const vector4d &basis) {
-            return vector3d{
-                view.arr[0][0] * basis[0] + view.arr[1][0] * basis[1] + view.arr[2][0] * basis[2],
-                view.arr[0][1] * basis[0] + view.arr[1][1] * basis[1] + view.arr[2][1] * basis[2],
-                view.arr[0][2] * basis[0] + view.arr[1][2] * basis[1] + view.arr[2][2] * basis[2]};
+            return vector3d{view.arr[0][0] * basis[0] + view.arr[1][0] * basis[1] + view.arr[2][0] * basis[2],
+                            view.arr[0][1] * basis[0] + view.arr[1][1] * basis[1] + view.arr[2][1] * basis[2],
+                            view.arr[0][2] * basis[0] + view.arr[1][2] * basis[1] + view.arr[2][2] * basis[2]};
         };
         auto normalize_basis = [](vector3d basis) {
             const float length_squared = basis.length2();
@@ -140,8 +139,7 @@ void matrix4x4::sub_41D8A0(void *a2)
         const auto z = normalize_basis(transform_basis(local.arr[2]));
         const auto x = normalize_basis(vector3d::cross(transform_basis(local.arr[1]), z));
         const auto y = vector3d::cross(z, x);
-        const auto position = transform_vec4_native(view, vector4d{
-            local.w[0], local.w[1], local.w[2], 1.0f});
+        const auto position = transform_vec4_native(view, vector4d{local.w[0], local.w[1], local.w[2], 1.0f});
         *this = matrix4x4{x, y, z, vector3d{position[0], position[1], position[2]}};
     } else {
         THISCALL(0x0041D8A0, this, a2);
@@ -199,7 +197,6 @@ matrix4x4 matrix4x4::sub_76CA50(const matrix4x4 &arg0)
 
     return (*this);
 }
-
 
 
 void matrix4x4::sub_76CE70(void *a2)
@@ -621,7 +618,7 @@ matrix4x3 sub_413770(const matrix4x4 &a2)
     TRACE("sub_413770");
 
     matrix4x3 result;
-    
+
     if constexpr (1) {
         vector4d x_axis, y_axis, z_axis, w_axis;
         a2.decompose(x_axis, y_axis, z_axis, w_axis);
@@ -650,13 +647,13 @@ matrix4x3 sub_413770(const matrix4x4 &a2)
 
 const char *matrix4x4::to_string() const
 {
-    static mString str {};
+    static mString str{};
 
     str = {0,
            "\n mat4x4 {\n %s, \n %s, \n %s, \n %s\n}",
-                arr[0].to_string().c_str(),
-                arr[1].to_string().c_str(),
-                arr[2].to_string().c_str(),
+           arr[0].to_string().c_str(),
+           arr[1].to_string().c_str(),
+           arr[2].to_string().c_str(),
            arr[3].to_string().c_str()};
 
     return str.c_str();

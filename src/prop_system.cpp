@@ -92,7 +92,7 @@ prop_pool &pool()
 bool can_be_a_prop(actor *owner)
 {
     return owner != nullptr && owner->has_physical_ifc() && owner->colgeom != nullptr &&
-        owner->colgeom->get_type() == collision_geometry::MESH;
+           owner->colgeom->get_type() == collision_geometry::MESH;
 }
 
 int count_props(actor *owner)
@@ -207,10 +207,9 @@ void destroy_prop(actor *owner)
 void set_relative_pose(entity_base *owner, const po &parent)
 {
     const auto &p = parent.m;
-    const float determinant =
-        p[0][0] * (p[1][1] * p[2][2] - p[1][2] * p[2][1]) -
-        p[0][1] * (p[1][0] * p[2][2] - p[1][2] * p[2][0]) +
-        p[0][2] * (p[1][0] * p[2][1] - p[1][1] * p[2][0]);
+    const float determinant = p[0][0] * (p[1][1] * p[2][2] - p[1][2] * p[2][1]) -
+                              p[0][1] * (p[1][0] * p[2][2] - p[1][2] * p[2][0]) +
+                              p[0][2] * (p[1][0] * p[2][1] - p[1][1] * p[2][0]);
     const float inverse[3][3] = {
         {(p[1][1] * p[2][2] - p[1][2] * p[2][1]) / determinant,
          (p[0][2] * p[2][1] - p[0][1] * p[2][2]) / determinant,
@@ -243,8 +242,7 @@ void advance_prop(entity_base *owner, int &count)
         if ((owner->field_8 & 0x8000000) != 0)
             owner->compute_rel_po_from_model();
         auto *parent = owner->m_parent;
-        if (owner->has_physical_ifc() && owner->is_an_actor() &&
-            static_cast<actor *>(owner)->colgeom != nullptr &&
+        if (owner->has_physical_ifc() && owner->is_an_actor() && static_cast<actor *>(owner)->colgeom != nullptr &&
             static_cast<actor *>(owner)->colgeom->get_type() == collision_geometry::MESH) {
             auto *physics = owner->physical_ifc();
             if (auto *record = physics->field_174) {
@@ -253,9 +251,10 @@ void advance_prop(entity_base *owner, int &count)
                 record->body->field_C4 = physics->field_74.y;
                 record->body->field_C8 = physics->field_74.z;
                 record->body->field_CC = 0.0f;
-                record->body->field_134 = (physics->field_C & 4) != 0 && physics->field_A4 <= 0.0f
-                    ? (physics->field_D8 <= 0.0f ? physics->m_gravity_multiplier : physics->field_D4)
-                    : 0.0f;
+                record->body->field_134 =
+                    (physics->field_C & 4) != 0 && physics->field_A4 <= 0.0f
+                        ? (physics->field_D8 <= 0.0f ? physics->m_gravity_multiplier : physics->field_D4)
+                        : 0.0f;
                 if (parent != nullptr && (record->body->field_144 & 8) != 0)
                     destroy_prop(static_cast<actor *>(owner));
                 else
@@ -274,8 +273,8 @@ void advance_prop(entity_base *owner, int &count)
         advance_prop(child, count);
 }
 
-bool __fastcall prop_environment_filter(const local_collision::entfilter_base *, void *,
-    actor *candidate, dynamic_conglomerate_clone *, const local_collision::query_args_t *args)
+bool __fastcall prop_environment_filter(const local_collision::entfilter_base *, void *, actor *candidate,
+                                        dynamic_conglomerate_clone *, const local_collision::query_args_t *args)
 {
     return candidate != args->field_2C && candidate->has_entity_collision();
 }
@@ -293,8 +292,8 @@ void collide_prop_environment(actor *owner, int &contact_count)
     static const local_collision::entfilter_base filter{reinterpret_cast<std::intptr_t>(&filter_table)};
     local_collision::query_args_t args{};
     args.set_entity(owner);
-    auto *primitives = local_collision::query_sphere(center, radius, filter,
-        *local_collision::obbfilter_sphere_test, args);
+    auto *primitives =
+        local_collision::query_sphere(center, radius, filter, *local_collision::obbfilter_sphere_test, args);
     auto *intersections = local_collision::get_all_sphere_intersections(primitives, center, radius);
     entity *notified[40];
     int notified_count = 0;
@@ -311,8 +310,8 @@ void collide_prop_environment(actor *owner, int &contact_count)
         const vector3d normal = -intersection->normal;
         vector3d local_normal;
         for (int axis = 0; axis < 3; ++axis)
-            local_normal[axis] = predicted[axis][0] * normal.x +
-                predicted[axis][1] * normal.y + predicted[axis][2] * normal.z;
+            local_normal[axis] =
+                predicted[axis][0] * normal.x + predicted[axis][1] * normal.y + predicted[axis][2] * normal.z;
         const vector3d local_point = predicted.inverse_xform(intersection->point);
         auto *environment = phys_sys::get_environment_rigid_body();
         rigid_body_constraint_contact *contact = nullptr;
@@ -335,8 +334,15 @@ void collide_prop_environment(actor *owner, int &contact_count)
                 const phys_vector3d body_point{record->mesh_offset.slow_xform(point)};
                 const phys_vector3d environment_point{predicted.slow_xform(point - separation * local_normal)};
                 const phys_vector3d contact_normal{normal};
-                contact->add_point(body, environment, body_point, environment_point,
-                    contact_normal, 0.60000002f, 0.30000001f, 100.0f, true);
+                contact->add_point(body,
+                                   environment,
+                                   body_point,
+                                   environment_point,
+                                   contact_normal,
+                                   0.60000002f,
+                                   0.30000001f,
+                                   100.0f,
+                                   true);
                 ++contact_count;
                 point_budget += 2;
             }
@@ -346,16 +352,17 @@ void collide_prop_environment(actor *owner, int &contact_count)
             already_notified |= notified[index] == other;
         if (!already_notified) {
             if (other != nullptr) {
-                collision_event owner_event{other->get_my_vhandle(), nullptr,
-                    intersection->point, intersection->normal};
+                collision_event owner_event{
+                    other->get_my_vhandle(), nullptr, intersection->point, intersection->normal};
                 event_manager::raise_event(&owner_event, owner->get_my_vhandle());
-                collision_event other_event{owner->get_my_vhandle(), nullptr,
-                    intersection->point, -intersection->normal};
+                collision_event other_event{
+                    owner->get_my_vhandle(), nullptr, intersection->point, -intersection->normal};
                 event_manager::raise_event(&other_event, other->get_my_vhandle());
             } else if (intersection->intersection_node != nullptr) {
                 collision_event terrain_event{{},
-                    static_cast<const subdivision_node *>(intersection->intersection_node),
-                    intersection->point, intersection->normal};
+                                              static_cast<const subdivision_node *>(intersection->intersection_node),
+                                              intersection->point,
+                                              intersection->normal};
                 event_manager::raise_event(&terrain_event, owner->get_my_vhandle());
             }
             if (notified_count < 40)
@@ -368,7 +375,7 @@ void collide_prop_environment(actor *owner, int &contact_count)
     local_collision::destroy_primitive_list(&primitives);
 }
 
-}
+}  // namespace
 
 void environment_collision_callback(int &contact_count)
 {
@@ -410,9 +417,10 @@ void collision_callback(event *base_event, entity_base_vhandle handle, void *)
         const vector3d relative_velocity = physics->get_velocity() - other_velocity;
         magnitude = std::fabs(dot(relative_velocity, collision.normal)) * collision.normal.length();
         terrain = other != nullptr
-            ? terrain_types_manager::get_terrain_type_by_index(static_cast<unsigned char>(other->field_41))
-            : physical_interface::calc_obb_face_terrain_type(owner->get_abs_position(),
-                static_cast<subdivision_node_obb_base *>(const_cast<subdivision_node *>(collision.obb)));
+                      ? terrain_types_manager::get_terrain_type_by_index(static_cast<unsigned char>(other->field_41))
+                      : physical_interface::calc_obb_face_terrain_type(
+                            owner->get_abs_position(),
+                            static_cast<subdivision_node_obb_base *>(const_cast<subdivision_node *>(collision.obb)));
     }
     if (owner->has_sound_and_pfx_ifc()) {
         const float volume = std::clamp((magnitude - 5.0f) / 15.0f, 0.0f, 1.0f);
@@ -427,8 +435,18 @@ void collision_callback(event *base_event, entity_base_vhandle handle, void *)
         if (owner->has_damage_ifc() && damage > 0) {
             const string_hash empty{0};
             owner->damage_ifc()->apply_damage(other != nullptr && other->is_an_actor() ? other : nullptr,
-                static_cast<float>(damage), 1, collision.position, collision.normal, 0,
-                empty, empty, empty, false, ZEROVEC, 17, false);
+                                              static_cast<float>(damage),
+                                              1,
+                                              collision.position,
+                                              collision.normal,
+                                              0,
+                                              empty,
+                                              empty,
+                                              empty,
+                                              false,
+                                              ZEROVEC,
+                                              17,
+                                              false);
         }
         if (other != nullptr && other->is_an_actor()) {
             auto *actor = static_cast<::actor *>(other);
@@ -464,10 +482,9 @@ bool start(actor *owner, const vector3d &velocity, float randomness, float lifet
         int victim = -1;
         for (int i = 0; i != max_props; ++i) {
             const auto &candidate = controls()[i];
-            if (candidate.active && (victim == -1 ||
-                candidate.priority < controls()[victim].priority ||
-                (candidate.priority == controls()[victim].priority &&
-                 candidate.remaining < controls()[victim].remaining)))
+            if (candidate.active && (victim == -1 || candidate.priority < controls()[victim].priority ||
+                                     (candidate.priority == controls()[victim].priority &&
+                                      candidate.remaining < controls()[victim].remaining)))
                 victim = i;
         }
         if (victim == -1 || controls()[victim].priority == 3)
@@ -489,8 +506,8 @@ bool start(actor *owner, const vector3d &velocity, float randomness, float lifet
     control.body_count = needed;
     control.remaining = lifetime < 0.0f ? 20.0f : lifetime;
     event_manager::raise_event(event::PROP_PHYSICS_START, owner->get_my_vhandle());
-    physics->field_80 = event_manager::add_callback(event::COLLISION_EVENT,
-        owner->get_my_vhandle(), collision_callback, nullptr, false);
+    physics->field_80 = event_manager::add_callback(
+        event::COLLISION_EVENT, owner->get_my_vhandle(), collision_callback, nullptr, false);
     return true;
 }
 
@@ -554,4 +571,4 @@ void frame_advance(Float elapsed)
         slots_dirty() = false;
     }
 }
-}
+}  // namespace prop_system

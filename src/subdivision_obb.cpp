@@ -134,8 +134,7 @@ float subdivision_node_obb_base::sub_52CA80()
     return v2[0] * v2[1] * v2[2] * 8.0f;
 }
 
-bool subdivision_node_obb_base::unpack_xform(vector4d &half, vector4d &row_x,
-                                            vector4d &row_y, vector4d &row_z) const
+bool subdivision_node_obb_base::unpack_xform(vector4d &half, vector4d &row_x, vector4d &row_y, vector4d &row_z) const
 {
     constexpr double length_scale = double(0.0010681315f);
     constexpr double axis_scale = double(0.000030517578f);
@@ -197,30 +196,25 @@ bool subdivision_node_obb_base::unpack_xform(vector4d &half, vector4d &row_x,
 }
 
 
-bool collision_segment_box_overlap(const vector3d &to_center, const vector3d &from_center,
-                                   const vector3d &half)
+bool collision_segment_box_overlap(const vector3d &to_center, const vector3d &from_center, const vector3d &half)
 {
     for (int axis = 0; axis != 3; ++axis) {
-        if (half[axis] - std::abs(to_center[axis]) < 0.0f &&
-            half[axis] - std::abs(from_center[axis]) < 0.0f &&
+        if (half[axis] - std::abs(to_center[axis]) < 0.0f && half[axis] - std::abs(from_center[axis]) < 0.0f &&
             to_center[axis] * from_center[axis] < 0.0f)
             return false;
     }
     const vector3d direction = to_center + from_center;
     for (int axis = 0; axis != 3; ++axis) {
         const int next = (axis + 1) % 3;
-        const float cross = std::abs(to_center[axis] * direction[next] -
-                                     to_center[next] * direction[axis]);
-        if (half[axis] * std::abs(direction[next]) +
-                half[next] * std::abs(direction[axis]) - cross < 0.0f)
+        const float cross = std::abs(to_center[axis] * direction[next] - to_center[next] * direction[axis]);
+        if (half[axis] * std::abs(direction[next]) + half[next] * std::abs(direction[axis]) - cross < 0.0f)
             return false;
     }
     return true;
 }
 
 namespace {
-vector3d obb_local_vector(const vector3d &v, const vector4d &row_x,
-                          const vector4d &row_y, const vector4d &row_z)
+vector3d obb_local_vector(const vector3d &v, const vector4d &row_x, const vector4d &row_y, const vector4d &row_z)
 {
     return {row_x[0] * v.x + row_y[0] * v.y + row_z[0] * v.z,
             row_x[1] * v.x + row_y[1] * v.y + row_z[1] * v.z,
@@ -231,7 +225,7 @@ bool inside_box(const vector3d &v, const vector3d &half)
 {
     return half.x >= std::abs(v.x) && half.y >= std::abs(v.y) && half.z >= std::abs(v.z);
 }
-}
+}  // namespace
 
 bool subdivision_node_obb_base::line_segment_intersection(const vector3d &start, const vector3d &end)
 {
@@ -250,9 +244,8 @@ bool subdivision_node_obb_base::line_segment_intersection(const vector3d &start,
     return collision_segment_box_overlap(to_center, from_center, half) && !inside_box(to_center, half);
 }
 
-bool subdivision_node_obb_base::line_segment_intersection(const vector3d &start, const vector3d &end,
-                                                          vector3d *point, vector3d *normal,
-                                                          float *fraction, bool allow_exit)
+bool subdivision_node_obb_base::line_segment_intersection(const vector3d &start, const vector3d &end, vector3d *point,
+                                                          vector3d *normal, float *fraction, bool allow_exit)
 {
     if ((flags & 0x101) != 0)
         return false;
@@ -272,7 +265,6 @@ bool subdivision_node_obb_base::line_segment_intersection(const vector3d &start,
         return false;
 
 
-
     constexpr float epsilon = 0.00009999999747378752f;
     constexpr float largest = 3.402823466e38f;
     const vector3d direction = to_center + from_center;
@@ -281,9 +273,8 @@ bool subdivision_node_obb_base::line_segment_intersection(const vector3d &start,
         const float reciprocal = 1.0f / direction[axis];
         const float offset = to_center[axis] * reciprocal;
         const float span = half[axis] * std::abs(reciprocal);
-        parameters[axis] = std::abs(direction[axis]) < epsilon
-            ? (exiting ? largest : -largest)
-            : (exiting ? offset + span : offset - span);
+        parameters[axis] = std::abs(direction[axis]) < epsilon ? (exiting ? largest : -largest)
+                                                               : (exiting ? offset + span : offset - span);
     }
     int axis;
     if (exiting) {
@@ -320,8 +311,8 @@ bool subdivision_node_obb_base::line_segment_intersection(const vector3d &start,
     return true;
 }
 
-bool subdivision_node_obb_base::sphere_intersection(const vector3d &sphere_center, Float radius,
-                                                    vector3d *point, vector3d *normal, float *separation)
+bool subdivision_node_obb_base::sphere_intersection(const vector3d &sphere_center, Float radius, vector3d *point,
+                                                    vector3d *normal, float *separation)
 {
     if ((flags & 0x101) != 0)
         return false;
@@ -346,8 +337,6 @@ bool subdivision_node_obb_base::sphere_intersection(const vector3d &sphere_cente
         if (separation)
             *separation = distance - radius.value;
     } else {
-
-
         const vector3d remaining = half - clamped;
         for (int axis = 0; axis < 3; ++axis) {
             const float other = std::min(remaining[(axis + 1) % 3], remaining[(axis + 2) % 3]);
@@ -361,14 +350,12 @@ bool subdivision_node_obb_base::sphere_intersection(const vector3d &sphere_cente
             *separation = dot(local - closest, local_normal) - radius.value;
     }
     if (rotated) {
-        *point = center + vector3d{
-            row_x.x * closest.x + row_x.y * closest.y + row_x.z * closest.z,
-            row_y.x * closest.x + row_y.y * closest.y + row_y.z * closest.z,
-            row_z.x * closest.x + row_z.y * closest.y + row_z.z * closest.z};
-        *normal = vector3d{
-            row_x.x * local_normal.x + row_x.y * local_normal.y + row_x.z * local_normal.z,
-            row_y.x * local_normal.x + row_y.y * local_normal.y + row_y.z * local_normal.z,
-            row_z.x * local_normal.x + row_z.y * local_normal.y + row_z.z * local_normal.z};
+        *point = center + vector3d{row_x.x * closest.x + row_x.y * closest.y + row_x.z * closest.z,
+                                   row_y.x * closest.x + row_y.y * closest.y + row_y.z * closest.z,
+                                   row_z.x * closest.x + row_z.y * closest.y + row_z.z * closest.z};
+        *normal = vector3d{row_x.x * local_normal.x + row_x.y * local_normal.y + row_x.z * local_normal.z,
+                           row_y.x * local_normal.x + row_y.y * local_normal.y + row_y.z * local_normal.z,
+                           row_z.x * local_normal.x + row_z.y * local_normal.y + row_z.z * local_normal.z};
     } else {
         *point = center + closest;
         *normal = local_normal;
@@ -390,8 +377,7 @@ bool subdivision_node_obb_base::sphere_intersection(const vector3d &sphere_cente
     return (absolute - clamped).length2() <= radius.value * radius.value;
 }
 
-bool subdivision_node_obb_base::capsule_intersection(
-    const capsule &query, local_collision::closest_points_pair_t *pair)
+bool subdivision_node_obb_base::capsule_intersection(const capsule &query, local_collision::closest_points_pair_t *pair)
 {
     if ((flags & 0x101) != 0)
         return false;
@@ -405,7 +391,11 @@ bool subdivision_node_obb_base::capsule_intersection(
     const vector3d delta = query.end - query.base;
     float coordinates[3], derivatives[3], lengths_squared[3];
     int regions[3];
-    struct boundary { float time; int step; int axis; };
+    struct boundary {
+        float time;
+        int step;
+        int axis;
+    };
     boundary boundaries[7]{{1.0f, 0, 0}};
     int count = 1;
     for (int axis = 0; axis != 3; ++axis) {
@@ -423,8 +413,7 @@ bool subdivision_node_obb_base::capsule_intersection(
             }
         }
     }
-    std::sort(boundaries, boundaries + count,
-        [](const boundary &a, const boundary &b) { return a.time < b.time; });
+    std::sort(boundaries, boundaries + count, [](const boundary &a, const boundary &b) { return a.time < b.time; });
     vector3d interval_start = start;
     vector3d best_axis, best_box, best_normal;
     float best_distance = 3.402823466e38f;
@@ -441,15 +430,12 @@ bool subdivision_node_obb_base::capsule_intersection(
         vector3d axis_point, box_point, normal;
         switch (fixed_count) {
         case 0: {
-
-
             float largest = -1.0f;
             int selected_axis = -1;
             vector3d selected_coordinates;
             for (int axis = 0; axis != 3; ++axis) {
                 for (int endpoint = 0; endpoint != 2; ++endpoint) {
-                    const float coordinate = (coordinates[axis] + derivatives[axis] * endpoint) /
-                                             lengths_squared[axis];
+                    const float coordinate = (coordinates[axis] + derivatives[axis] * endpoint) / lengths_squared[axis];
                     if (std::abs(coordinate) >= largest) {
                         largest = std::abs(coordinate);
                         selected_axis = axis;
@@ -462,14 +448,14 @@ bool subdivision_node_obb_base::capsule_intersection(
                 }
             }
             selected_coordinates[selected_axis] = selected_coordinates[selected_axis] >= 0.0f ? 1.0f : -1.0f;
-            box_point = axes[0] * selected_coordinates.x + axes[1] * selected_coordinates.y +
-                        axes[2] * selected_coordinates.z;
+            box_point =
+                axes[0] * selected_coordinates.x + axes[1] * selected_coordinates.y + axes[2] * selected_coordinates.z;
             normal = axes[selected_axis];
             break;
         }
         case 1:
-            closest_point_line_segment_plane(interval_start, interval_end, fixed_axes[0], fixed_axes[0],
-                &axis_point, &box_point);
+            closest_point_line_segment_plane(
+                interval_start, interval_end, fixed_axes[0], fixed_axes[0], &axis_point, &box_point);
             normal = fixed_axes[0];
             break;
         case 2: {
@@ -477,8 +463,8 @@ bool subdivision_node_obb_base::capsule_intersection(
             const vector3d edge_start = edge_center + free_axis;
             const vector3d edge_end = edge_center - free_axis;
             float axis_time, edge_time;
-            closest_point_line_segment_line_segment(interval_start, interval_end, edge_start, edge_end,
-                &axis_time, &edge_time);
+            closest_point_line_segment_line_segment(
+                interval_start, interval_end, edge_start, edge_end, &axis_time, &edge_time);
             axis_point = interval_start + (interval_end - interval_start) * axis_time;
             box_point = edge_start + (edge_end - edge_start) * edge_time;
             normal = axis_point - box_point;
@@ -854,10 +840,9 @@ void subdivision_node_obb_base::unpack_axii(vector3d *axii) const
         constexpr double axis_scale = double(0.000030517578f);
         const auto decode = [](const auto &axis, unsigned length) {
             const float extent = static_cast<float>(length * length_scale);
-            const vector3d direction{
-                static_cast<float>(axis.x * axis_scale),
-                static_cast<float>(axis.y * axis_scale),
-                static_cast<float>(axis.z * axis_scale)};
+            const vector3d direction{static_cast<float>(axis.x * axis_scale),
+                                     static_cast<float>(axis.y * axis_scale),
+                                     static_cast<float>(axis.z * axis_scale)};
             return direction * extent;
         };
         axii[0] = decode(box.x_axis, box.x_length);

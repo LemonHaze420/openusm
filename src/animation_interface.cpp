@@ -40,9 +40,7 @@ void animation_interface::_un_mash(generic_mash_header *a2, void *a3, int, gener
 void animation_interface::release_ifc()
 {
     int local_references = 1;
-    int *references = field_C.is_shared()
-        ? reinterpret_cast<int *>(field_C.m_data) - 1
-        : &local_references;
+    int *references = field_C.is_shared() ? reinterpret_cast<int *>(field_C.m_data) - 1 : &local_references;
     if (--*references == 0) {
         for (auto &entry : field_C) {
             if (entry.field_8.is_shared())

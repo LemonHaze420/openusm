@@ -24,20 +24,31 @@ void *__fastcall cover_marker_delete(ai_cover_marker *self, void *, unsigned fla
         mem_dealloc(self, sizeof(ai_cover_marker));
     return self;
 }
-int __fastcall cover_marker_size(ai_cover_marker *, void *) { return sizeof(ai_cover_marker); }
-int __fastcall cover_marker_flavor(ai_cover_marker *, void *) { return 27; }
-bool __fastcall cover_marker_query(ai_cover_marker *, void *) { return true; }
-void __fastcall cover_marker_release(ai_cover_marker *self, void *) { self->release_mem(); }
-void __fastcall cover_marker_unmash(ai_cover_marker *self, void *, generic_mash_header *header,
-                                   void *object, generic_mash_data_ptrs *data)
+int __fastcall cover_marker_size(ai_cover_marker *, void *)
+{
+    return sizeof(ai_cover_marker);
+}
+int __fastcall cover_marker_flavor(ai_cover_marker *, void *)
+{
+    return 27;
+}
+bool __fastcall cover_marker_query(ai_cover_marker *, void *)
+{
+    return true;
+}
+void __fastcall cover_marker_release(ai_cover_marker *self, void *)
+{
+    self->release_mem();
+}
+void __fastcall cover_marker_unmash(ai_cover_marker *self, void *, generic_mash_header *header, void *object,
+                                    generic_mash_data_ptrs *data)
 {
     self->un_mash(header, object, data);
 }
-}
+}  // namespace
 
 void *ai_cover_marker::native_vtable(void **entity_table)
 {
-
     static std::array<void *, 0x20C / 4> table;
     std::copy_n(entity_table, table.size(), table.begin());
     table[0] = reinterpret_cast<void *>(&cover_marker_delete);
@@ -78,7 +89,6 @@ ai_cover_marker::~ai_cover_marker()
 
 void ai_cover_marker::add_to_cover_list()
 {
-
     auto &list = all_cover_markers();
     next_cover_marker = nullptr;
     previous_cover_marker = nullptr;
@@ -100,7 +110,6 @@ void ai_cover_marker::add_to_cover_list()
 
 void ai_cover_marker::remove_from_cover_list()
 {
-
     if (cover_marker_list != &all_cover_markers())
         return;
     if (previous_cover_marker != nullptr)
@@ -119,15 +128,12 @@ void ai_cover_marker::remove_from_cover_list()
 
 void ai_cover_marker::release_mem()
 {
-
     remove_from_cover_list();
     entity::release_mem();
 }
 
-void ai_cover_marker::un_mash(generic_mash_header *header, void *object,
-                             generic_mash_data_ptrs *data)
+void ai_cover_marker::un_mash(generic_mash_header *header, void *object, generic_mash_data_ptrs *data)
 {
-
     entity::un_mash(header, object, data);
     add_to_cover_list();
     set_active(false);

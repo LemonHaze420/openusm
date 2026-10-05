@@ -38,14 +38,18 @@ const string_hash team_hash{int(to_hash("team"))};
 int next_update_offset = 1;
 constexpr int update_interval = 10;
 
-float length_squared(const vector3d &v) { return dot(v, v); }
-vector3d perpendicular(const vector3d &v) { return {v.z, 0.0f, -v.x}; }
+float length_squared(const vector3d &v)
+{
+    return dot(v, v);
+}
+vector3d perpendicular(const vector3d &v)
+{
+    return {v.z, 0.0f, -v.x};
+}
 
 
-
-bool __fastcall avoidance_entity_filter(const local_collision::entfilter_base *, void *,
-                                        actor *ent, dynamic_conglomerate_clone *,
-                                        const local_collision::query_args_t *args)
+bool __fastcall avoidance_entity_filter(const local_collision::entfilter_base *, void *, actor *ent,
+                                        dynamic_conglomerate_clone *, const local_collision::query_args_t *args)
 {
     if (!ent->has_entity_collision())
         return false;
@@ -72,8 +76,7 @@ bool __fastcall avoidance_entity_filter(const local_collision::entfilter_base *,
 }
 
 const local_collision::entfilter_base::native_vtable avoidance_filter_table{avoidance_entity_filter};
-const local_collision::entfilter_base avoidance_filter{
-    reinterpret_cast<std::intptr_t>(&avoidance_filter_table)};
+const local_collision::entfilter_base avoidance_filter{reinterpret_cast<std::intptr_t>(&avoidance_filter_table)};
 
 
 void horizontal_axes(const vector3d *axes, vector3d &a, vector3d &b)
@@ -81,8 +84,7 @@ void horizontal_axes(const vector3d *axes, vector3d &a, vector3d &b)
     for (int i = 0; i < 3; ++i) {
         const int j = (i + 1) % 3;
         const int k = (i + 2) % 3;
-        if (std::fabs(axes[i].y) > std::fabs(axes[j].y) &&
-            std::fabs(axes[i].y) > std::fabs(axes[k].y)) {
+        if (std::fabs(axes[i].y) > std::fabs(axes[j].y) && std::fabs(axes[i].y) > std::fabs(axes[k].y)) {
             a = axes[j];
             b = axes[k];
             return;
@@ -131,8 +133,8 @@ float entity_radius(entity *ent)
 }
 
 
-float blocking_strength(const avoidance_obstacle &obstacle, const vector3d &position,
-                        const vector3d &center, const vector3d &direction, const vector3d &force)
+float blocking_strength(const avoidance_obstacle &obstacle, const vector3d &position, const vector3d &center,
+                        const vector3d &direction, const vector3d &force)
 {
     const float magnitude2 = length_squared(force);
     if (magnitude2 <= 0.0f)
@@ -159,8 +161,8 @@ float blocking_strength(const avoidance_obstacle &obstacle, const vector3d &posi
 }
 
 
-vector3d passing_force(float strength, bool both_sides, const vector3d &velocity,
-                      const vector3d &direction, const vector3d &force)
+vector3d passing_force(float strength, bool both_sides, const vector3d &velocity, const vector3d &direction,
+                       const vector3d &force)
 {
     if (strength <= 0.0f)
         return {};
@@ -173,22 +175,49 @@ vector3d passing_force(float strength, bool both_sides, const vector3d &velocity
     return side * strength;
 }
 
-template<class T, unsigned Type, unsigned Parent>
+template <class T, unsigned Type, unsigned Parent>
 struct avoidance_table : native_inode::table<T, Type, Parent, 18> {
-    static void __fastcall destruct(T *self, void *) { self->destruct_mashed_class(); }
-    static bool __fastcall needs(T *self, void *) { return self->_does_need_advance(); }
-    static void __fastcall advance(T *self, void *, Float dt) { self->_frame_advance(dt); }
-    static void __fastcall activate(T *self, void *, ai_core *core) { self->_activate(core); }
-    static void __fastcall collect(T *self, void *) { self->collect_obstacles(); }
-    static void __fastcall steer(T *self, void *, const vector3d &direction, const vector3d &target,
-                                 bool stop, float margin, float dt)
-    { self->steer(direction, target, stop, margin, dt); }
+    static void __fastcall destruct(T *self, void *)
+    {
+        self->destruct_mashed_class();
+    }
+    static bool __fastcall needs(T *self, void *)
+    {
+        return self->_does_need_advance();
+    }
+    static void __fastcall advance(T *self, void *, Float dt)
+    {
+        self->_frame_advance(dt);
+    }
+    static void __fastcall activate(T *self, void *, ai_core *core)
+    {
+        self->_activate(core);
+    }
+    static void __fastcall collect(T *self, void *)
+    {
+        self->collect_obstacles();
+    }
+    static void __fastcall steer(T *self, void *, const vector3d &direction, const vector3d &target, bool stop,
+                                 float margin, float dt)
+    {
+        self->steer(direction, target, stop, margin, dt);
+    }
     static bool __fastcall box(T *self, void *, vector3d *axes, vector3d &center, float &top, entity *ent)
-    { return self->get_entity_box(axes, center, top, ent); }
+    {
+        return self->get_entity_box(axes, center, top, ent);
+    }
     static float __fastcall radius(T *self, void *, const avoidance_obstacle &obstacle, const vector3d &direction)
-    { return self->obstacle_radius(obstacle, direction); }
-    static bool __fastcall accept_entity(T *self, void *, entity *ent) { return self->accepts_entity(ent); }
-    static bool __fastcall accept_height(T *self, void *, float top) { return self->accepts_height(top); }
+    {
+        return self->obstacle_radius(obstacle, direction);
+    }
+    static bool __fastcall accept_entity(T *self, void *, entity *ent)
+    {
+        return self->accepts_entity(ent);
+    }
+    static bool __fastcall accept_height(T *self, void *, float top)
+    {
+        return self->accepts_height(top);
+    }
     avoidance_table()
     {
         (*this)[0] = reinterpret_cast<void *>(&destruct);
@@ -203,7 +232,7 @@ struct avoidance_table : native_inode::table<T, Type, Parent, 18> {
         (*this)[17] = reinterpret_cast<void *>(&accept_height);
     }
 };
-}
+}  // namespace
 
 void *avoidance_inode::native_vtable()
 {
@@ -217,8 +246,7 @@ void *ped_avoidance_inode::native_vtable()
     return table.data();
 }
 
-avoidance_inode::avoidance_inode()
-    : field_1C(false), field_20(nullptr), field_44(false)
+avoidance_inode::avoidance_inode() : field_1C(false), field_20(nullptr), field_44(false)
 {
     m_vtbl = reinterpret_cast<std::intptr_t>(native_vtable());
 }
@@ -239,21 +267,18 @@ void avoidance_inode::destruct_mashed_class()
     info_node::_destruct_mashed_class();
 }
 
-ped_avoidance_inode::ped_avoidance_inode()
-    : field_48(false)
+ped_avoidance_inode::ped_avoidance_inode() : field_48(false)
 {
     m_vtbl = reinterpret_cast<std::intptr_t>(native_vtable());
 }
 
-ped_avoidance_inode::ped_avoidance_inode(from_mash_in_place_constructor *constructor)
-    : avoidance_inode(constructor)
+ped_avoidance_inode::ped_avoidance_inode(from_mash_in_place_constructor *constructor) : avoidance_inode(constructor)
 {
     m_vtbl = reinterpret_cast<std::intptr_t>(native_vtable());
 }
 
 void avoidance_inode::clear_obstacles()
 {
-
     _std::vector<avoidance_obstacle> empty;
     field_20->swap(empty);
 }
@@ -309,27 +334,28 @@ void avoidance_inode::_frame_advance(Float)
 
 void avoidance_inode::dispatch_collect()
 {
-    reinterpret_cast<void (__fastcall *)(avoidance_inode *, void *)>(
-        reinterpret_cast<void **>(m_vtbl)[12])(this, nullptr);
+    reinterpret_cast<void(__fastcall *)(avoidance_inode *, void *)>(reinterpret_cast<void **>(m_vtbl)[12])(this,
+                                                                                                           nullptr);
 }
 bool avoidance_inode::dispatch_box(vector3d *axes, vector3d &center, float &top, entity *ent)
 {
-    return reinterpret_cast<bool (__fastcall *)(avoidance_inode *, void *, vector3d *, vector3d &, float &, entity *)>(
+    return reinterpret_cast<bool(__fastcall *)(avoidance_inode *, void *, vector3d *, vector3d &, float &, entity *)>(
         reinterpret_cast<void **>(m_vtbl)[14])(this, nullptr, axes, center, top, ent);
 }
 float avoidance_inode::dispatch_radius(const avoidance_obstacle &obstacle, const vector3d &direction)
 {
-    return reinterpret_cast<float (__fastcall *)(avoidance_inode *, void *, const avoidance_obstacle &, const vector3d &)>(
+    return reinterpret_cast<float(__fastcall *)(
+        avoidance_inode *, void *, const avoidance_obstacle &, const vector3d &)>(
         reinterpret_cast<void **>(m_vtbl)[15])(this, nullptr, obstacle, direction);
 }
 bool avoidance_inode::dispatch_accepts_entity(entity *ent)
 {
-    return reinterpret_cast<bool (__fastcall *)(avoidance_inode *, void *, entity *)>(
+    return reinterpret_cast<bool(__fastcall *)(avoidance_inode *, void *, entity *)>(
         reinterpret_cast<void **>(m_vtbl)[16])(this, nullptr, ent);
 }
 bool avoidance_inode::dispatch_accepts_height(float top)
 {
-    return reinterpret_cast<bool (__fastcall *)(avoidance_inode *, void *, float)>(
+    return reinterpret_cast<bool(__fastcall *)(avoidance_inode *, void *, float)>(
         reinterpret_cast<void **>(m_vtbl)[17])(this, nullptr, top);
 }
 
@@ -348,8 +374,12 @@ void avoidance_inode::collect_obstacles()
         return;
     velocity.normalize();
     const vector3d center = field_C->get_abs_position() + velocity;
-    auto *list = local_collision::query_sphere(center, 3.0f, avoidance_filter,
-        *(field_1C ? local_collision::obbfilter_sphere_test : local_collision::obbfilter_reject_all), {});
+    auto *list = local_collision::query_sphere(
+        center,
+        3.0f,
+        avoidance_filter,
+        *(field_1C ? local_collision::obbfilter_sphere_test : local_collision::obbfilter_reject_all),
+        {});
     for (auto *item = list; item; item = item->field_0) {
         avoidance_obstacle obstacle{};
         if (item->is_ent) {
@@ -382,8 +412,8 @@ bool avoidance_inode::get_entity_box(vector3d *axes, vector3d &center, float &to
     auto &box = mesh->field_10[0];
     const vector3d offset = pose.non_affine_slow_xform(box.field_0);
     vector3d transformed[3] = {pose.non_affine_slow_xform(box.field_10),
-                             pose.non_affine_slow_xform(box.axis_y),
-                             pose.non_affine_slow_xform(box.axis_z)};
+                               pose.non_affine_slow_xform(box.axis_y),
+                               pose.non_affine_slow_xform(box.axis_z)};
     center += offset;
     top = center.y + std::max(0.0f, std::max(transformed[0].y, std::max(transformed[1].y, transformed[2].y)));
     vector3d a, b;
@@ -408,7 +438,8 @@ float avoidance_inode::obstacle_radius(const avoidance_obstacle &obstacle, const
     }
     const auto *geometry = field_C->colgeom;
     return radius + (geometry && field_C->colgeom->get_type() == collision_geometry::CAPSULE
-        ? static_cast<collision_capsule *>(field_C->colgeom)->get_core_radius() : 0.5f);
+                         ? static_cast<collision_capsule *>(field_C->colgeom)->get_core_radius()
+                         : 0.5f);
 }
 
 bool avoidance_inode::accepts_entity(entity *ent)
@@ -419,7 +450,7 @@ bool avoidance_inode::accepts_entity(entity *ent)
         return true;
     auto *core = ent->get_ai_core();
     return !core || !core->field_50.does_parameter_exist(team_hash) ||
-        team::manager::get_team_enum_by_hash(core->field_50.get_pb_hash(team_hash)) != field_40;
+           team::manager::get_team_enum_by_hash(core->field_50.get_pb_hash(team_hash)) != field_40;
 }
 
 bool avoidance_inode::accepts_height(float top)
@@ -428,10 +459,9 @@ bool avoidance_inode::accepts_height(float top)
     return 0.4f * floor < top - (field_C->get_abs_position().y - floor);
 }
 
-vector3d avoidance_inode::avoidance_force(const avoidance_obstacle &obstacle,
-                                         const vector3d &center, const vector3d &direction)
+vector3d avoidance_inode::avoidance_force(const avoidance_obstacle &obstacle, const vector3d &center,
+                                          const vector3d &direction)
 {
-
     vector3d away = field_C->get_abs_position() - center;
     float distance = away.length();
     if (distance < EPSILON)
@@ -475,13 +505,12 @@ float avoidance_inode::target_overlap(const avoidance_obstacle &obstacle, const 
     return dot(from_target, direction) > 0.34f ? overlap + margin : 0.0f;
 }
 
-void avoidance_inode::steer(const vector3d &direction, const vector3d &target,
-                            bool stop_at_target, float margin, float dt)
+void avoidance_inode::steer(const vector3d &direction, const vector3d &target, bool stop_at_target, float margin,
+                            float dt)
 {
     desired_direction = direction;
     if ((field_30 & 1) || field_C->m_player_controller ||
-        (direction.x <= 0.0f && direction.x >= 0.0f &&
-         direction.y <= 0.0f && direction.y >= 0.0f &&
+        (direction.x <= 0.0f && direction.x >= 0.0f && direction.y <= 0.0f && direction.y >= 0.0f &&
          direction.z <= 0.0f && direction.z >= 0.0f))
         return;
     field_30 = 0;
@@ -610,8 +639,8 @@ void ped_avoidance_inode::collect_boxes()
         return;
     velocity.normalize();
     const vector3d center = field_C->get_abs_position() + velocity;
-    auto *list = local_collision::query_sphere(center, 3.0f, *local_collision::entfilter_reject_all,
-                                              *local_collision::obbfilter_sphere_test, {});
+    auto *list = local_collision::query_sphere(
+        center, 3.0f, *local_collision::entfilter_reject_all, *local_collision::obbfilter_sphere_test, {});
     for (auto *item = list; item; item = item->field_0) {
         auto *box = item->field_4.obb;
         if (!box || box->is_flagged(1))
@@ -630,8 +659,7 @@ bool ped_avoidance_inode::add_pedestrian(entity *ent)
         return false;
     const vector3d offset = ent->get_abs_position() - field_C->get_abs_position();
     const float distance2 = length_squared(offset);
-    if (distance2 >= 0.5625f &&
-        (distance2 >= 12.25f || dot(offset, field_C->get_abs_po().get_z_facing()) <= 0.3f))
+    if (distance2 >= 0.5625f && (distance2 >= 12.25f || dot(offset, field_C->get_abs_po().get_z_facing()) <= 0.3f))
         return false;
     avoidance_obstacle obstacle{};
     add_entity_obstacle(obstacle, ent);
@@ -681,7 +709,6 @@ float ped_avoidance_inode::obstacle_radius(const avoidance_obstacle &obstacle, c
 
 bool ped_avoidance_inode::blocks_translation(const vector3d &translation)
 {
-
     const auto &position = field_C->get_abs_position();
     const float target_x = position.x + translation.x;
     const float target_z = position.z + translation.z;
@@ -692,8 +719,7 @@ bool ped_avoidance_inode::blocks_translation(const vector3d &translation)
         if (!dispatch_accepts_height(obstacle.top))
             continue;
         auto *player = g_world_ptr->get_hero_ptr(0);
-        if (player != nullptr && obstacle.is_entity &&
-            obstacle.handle.field_0 == player->my_handle.field_0)
+        if (player != nullptr && obstacle.is_entity && obstacle.handle.field_0 == player->my_handle.field_0)
             continue;
         vector3d radial{target_x - obstacle.center.x, 0.0f, target_z - obstacle.center.z};
         if (!(dot(radial, translation) < 0.0f))
@@ -702,17 +728,17 @@ bool ped_avoidance_inode::blocks_translation(const vector3d &translation)
         if (distance < EPSILON)
             return true;
         radial /= distance;
-        const float clearance = obstacle.has_box
-            ? distance - box_radius(obstacle, radial)
-            : ent != nullptr ? distance - entity_radius(ent) : FLT_MAX;
+        const float clearance = obstacle.has_box ? distance - box_radius(obstacle, radial)
+                                : ent != nullptr ? distance - entity_radius(ent)
+                                                 : FLT_MAX;
         if (clearance < 0.7f)
             return true;
     }
     return false;
 }
 
-void ped_avoidance_inode::steer(const vector3d &direction, const vector3d &target,
-                                bool stop_at_target, float margin, float dt)
+void ped_avoidance_inode::steer(const vector3d &direction, const vector3d &target, bool stop_at_target, float margin,
+                                float dt)
 {
     avoidance_inode::steer(direction, target, stop_at_target, margin, dt);
     if (field_48 || field_4C->is_flagged(0x10) || !field_4C->is_flagged(2))
@@ -752,4 +778,4 @@ void ped_avoidance_inode::steer(const vector3d &direction, const vector3d &targe
     }
 }
 
-} // namespace ai
+}  // namespace ai

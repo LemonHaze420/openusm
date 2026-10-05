@@ -17,16 +17,14 @@ void nglInitShaderLighting()
     static Var<uint32_t[4][4]> alternate_colors{0x0091E068};
 #if STANDALONE_SYSTEM
     static const bool initialized = [&] {
-        const uint32_t primary[4][4]{
-            {0x80AEAEAE, 0x80B9B9B9, 0x80D3D3D3, 0x80EDEDED},
-            {0x808ACBD2, 0x806B9298, 0x80322C2E, 0x80190000},
-            {0x80808080, 0x80959595, 0x80B5B5B5, 0x80C8C8C8},
-            {0x80838383, 0x809D9D9D, 0x80CDCDCD, 0x80F0F0F0}};
-        const uint32_t alternate[4][4]{
-            {0x80737373, 0x80949494, 0x80D4D4D4, 0x80FCFCFC},
-            {0x8072ADB1, 0x80577C7F, 0x80494943, 0x80918A81},
-            {0x80B999B5, 0x80BB9CB7, 0x80CAB1C7, 0x80E7DCE5},
-            {0x803C6292, 0x806188AE, 0x80BFCBDE, 0x80DDEAF3}};
+        const uint32_t primary[4][4]{{0x80AEAEAE, 0x80B9B9B9, 0x80D3D3D3, 0x80EDEDED},
+                                     {0x808ACBD2, 0x806B9298, 0x80322C2E, 0x80190000},
+                                     {0x80808080, 0x80959595, 0x80B5B5B5, 0x80C8C8C8},
+                                     {0x80838383, 0x809D9D9D, 0x80CDCDCD, 0x80F0F0F0}};
+        const uint32_t alternate[4][4]{{0x80737373, 0x80949494, 0x80D4D4D4, 0x80FCFCFC},
+                                       {0x8072ADB1, 0x80577C7F, 0x80494943, 0x80918A81},
+                                       {0x80B999B5, 0x80BB9CB7, 0x80CAB1C7, 0x80E7DCE5},
+                                       {0x803C6292, 0x806188AE, 0x80BFCBDE, 0x80DDEAF3}};
         std::memcpy(colors(), primary, sizeof(primary));
         std::memcpy(alternate_colors(), alternate, sizeof(alternate));
         auto &height = nglHeightLightingConstants();
@@ -54,8 +52,8 @@ void nglInitShaderLighting()
 }
 
 void nglSetupMaterialLighting(nglMaterialBase *material, nglMeshNode *mesh, uint32_t matrix_register,
-                              uint32_t color_register, uint32_t height_register,
-                              uint32_t palette_register, uint32_t palette_count)
+                              uint32_t color_register, uint32_t height_register, uint32_t palette_register,
+                              uint32_t palette_count)
 {
     static Var<nglTexture *[4]> light_textures{0x0095632C};
     static constexpr const char *names[]{"us_day_light", "us_night_light", "us_rainy_light", "us_sunset_light"};
@@ -85,8 +83,8 @@ void nglUpdateLODVertexColors(nglMeshNode *mesh, nglMeshSection *section)
     const auto *source = reinterpret_cast<const float *>(section->field_3C.getVertexData());
     const uint32_t count = section->field_3C.getSize() / 12;
     uint32_t *output{};
-    IDirect3DVertexBuffer9_Lock(section->field_3C.getVertexBuffer(), 0, 0,
-                               reinterpret_cast<void **>(&output), D3DLOCK_DISCARD);
+    IDirect3DVertexBuffer9_Lock(
+        section->field_3C.getVertexBuffer(), 0, 0, reinterpret_cast<void **>(&output), D3DLOCK_DISCARD);
     const auto &height = nglHeightLightingConstants();
     for (uint32_t i = 0; i < count; ++i, source += 3, output += 4) {
         std::memcpy(output, source, 12);

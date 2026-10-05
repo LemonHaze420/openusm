@@ -195,8 +195,7 @@ void FrontEnd_Shader::_Register()
 
                 nglCreateVertexDeclarationAndShader(&stru_970610, elements, pShader.data());
             } else {
-                nglCreateVertexDeclarationAndShader(
-                    &stru_970610, elements, us_native_programs::program_8ad4d8);
+                nglCreateVertexDeclarationAndShader(&stru_970610, elements, us_native_programs::program_8ad4d8);
             }
 
             static Var<char[1]> asc_870AD8{0x00870AD8};

@@ -26,12 +26,11 @@ bool movie_manager::load_and_play_movie(const char *name, const char *sound_name
         };
 
         using BinkOpenFn = BinkHandle *(__stdcall *)(const char *, uint32_t);
-        using BinkCloseFn = void (__stdcall *)(BinkHandle *);
-        using BinkWaitFn = int (__stdcall *)(BinkHandle *);
-        using BinkDoFrameFn = int (__stdcall *)(BinkHandle *);
-        using BinkNextFrameFn = void (__stdcall *)(BinkHandle *);
-        using BinkCopyToBufferFn = int (__stdcall *)(
-            BinkHandle *, void *, int, uint32_t, uint32_t, uint32_t, uint32_t);
+        using BinkCloseFn = void(__stdcall *)(BinkHandle *);
+        using BinkWaitFn = int(__stdcall *)(BinkHandle *);
+        using BinkDoFrameFn = int(__stdcall *)(BinkHandle *);
+        using BinkNextFrameFn = void(__stdcall *)(BinkHandle *);
+        using BinkCopyToBufferFn = int(__stdcall *)(BinkHandle *, void *, int, uint32_t, uint32_t, uint32_t, uint32_t);
 
         static HMODULE bink = LoadLibraryA("binkw32_.dll");
         if (bink == nullptr) {
@@ -39,21 +38,14 @@ bool movie_manager::load_and_play_movie(const char *name, const char *sound_name
             return false;
         }
 
-        const auto bink_open = bit_cast<BinkOpenFn>(
-            GetProcAddress(bink, MAKEINTRESOURCEA(38)));
-        const auto bink_close = bit_cast<BinkCloseFn>(
-            GetProcAddress(bink, MAKEINTRESOURCEA(16)));
-        const auto bink_wait = bit_cast<BinkWaitFn>(
-            GetProcAddress(bink, MAKEINTRESOURCEA(61)));
-        const auto bink_do_frame = bit_cast<BinkDoFrameFn>(
-            GetProcAddress(bink, MAKEINTRESOURCEA(23)));
-        const auto bink_next_frame = bit_cast<BinkNextFrameFn>(
-            GetProcAddress(bink, MAKEINTRESOURCEA(37)));
-        const auto bink_copy_to_buffer = bit_cast<BinkCopyToBufferFn>(
-            GetProcAddress(bink, MAKEINTRESOURCEA(18)));
-        if (bink_open == nullptr || bink_close == nullptr || bink_wait == nullptr ||
-            bink_do_frame == nullptr || bink_next_frame == nullptr ||
-            bink_copy_to_buffer == nullptr) {
+        const auto bink_open = bit_cast<BinkOpenFn>(GetProcAddress(bink, MAKEINTRESOURCEA(38)));
+        const auto bink_close = bit_cast<BinkCloseFn>(GetProcAddress(bink, MAKEINTRESOURCEA(16)));
+        const auto bink_wait = bit_cast<BinkWaitFn>(GetProcAddress(bink, MAKEINTRESOURCEA(61)));
+        const auto bink_do_frame = bit_cast<BinkDoFrameFn>(GetProcAddress(bink, MAKEINTRESOURCEA(23)));
+        const auto bink_next_frame = bit_cast<BinkNextFrameFn>(GetProcAddress(bink, MAKEINTRESOURCEA(37)));
+        const auto bink_copy_to_buffer = bit_cast<BinkCopyToBufferFn>(GetProcAddress(bink, MAKEINTRESOURCEA(18)));
+        if (bink_open == nullptr || bink_close == nullptr || bink_wait == nullptr || bink_do_frame == nullptr ||
+            bink_next_frame == nullptr || bink_copy_to_buffer == nullptr) {
             sp_log("binkw32_.dll is missing a required movie export");
             return false;
         }
@@ -67,16 +59,15 @@ bool movie_manager::load_and_play_movie(const char *name, const char *sound_name
         }
 
         IDirect3DTexture9 *dx_texture = nullptr;
-        const auto create_result = IDirect3DDevice9_CreateTexture(
-            g_Direct3DDevice,
-            movie->width,
-            movie->height,
-            1,
-            D3DUSAGE_DYNAMIC,
-            D3DFMT_X8R8G8B8,
-            D3DPOOL_DEFAULT,
-            &dx_texture,
-            nullptr);
+        const auto create_result = IDirect3DDevice9_CreateTexture(g_Direct3DDevice,
+                                                                  movie->width,
+                                                                  movie->height,
+                                                                  1,
+                                                                  D3DUSAGE_DYNAMIC,
+                                                                  D3DFMT_X8R8G8B8,
+                                                                  D3DPOOL_DEFAULT,
+                                                                  &dx_texture,
+                                                                  nullptr);
         if (FAILED(create_result) || dx_texture == nullptr) {
             bink_close(movie);
             sp_log("Unable to create movie texture for %s", path);
@@ -103,19 +94,15 @@ bool movie_manager::load_and_play_movie(const char *name, const char *sound_name
                     skipped = true;
                     break;
                 }
-                if ((message.message == WM_KEYDOWN ||
-                     message.message == WM_SYSKEYDOWN) &&
-                    (message.wParam == VK_ESCAPE ||
-                     message.wParam == VK_RETURN ||
-                     message.wParam == VK_SPACE)) {
+                if ((message.message == WM_KEYDOWN || message.message == WM_SYSKEYDOWN) &&
+                    (message.wParam == VK_ESCAPE || message.wParam == VK_RETURN || message.wParam == VK_SPACE)) {
                     skipped = true;
                     break;
                 }
                 TranslateMessage(&message);
                 DispatchMessageA(&message);
             }
-            if (skipped || (GetAsyncKeyState(VK_ESCAPE) & 0x8000) != 0 ||
-                (GetAsyncKeyState(VK_RETURN) & 0x8000) != 0 ||
+            if (skipped || (GetAsyncKeyState(VK_ESCAPE) & 0x8000) != 0 || (GetAsyncKeyState(VK_RETURN) & 0x8000) != 0 ||
                 (GetAsyncKeyState(VK_SPACE) & 0x8000) != 0) {
                 skipped = true;
                 break;
@@ -128,15 +115,8 @@ bool movie_manager::load_and_play_movie(const char *name, const char *sound_name
 
             bink_do_frame(movie);
             D3DLOCKED_RECT locked_rect;
-            if (SUCCEEDED(IDirect3DTexture9_LockRect(
-                    dx_texture, 0, &locked_rect, nullptr, D3DLOCK_DISCARD))) {
-                bink_copy_to_buffer(movie,
-                                    locked_rect.pBits,
-                                    locked_rect.Pitch,
-                                    movie->height,
-                                    0,
-                                    0,
-                                    3);
+            if (SUCCEEDED(IDirect3DTexture9_LockRect(dx_texture, 0, &locked_rect, nullptr, D3DLOCK_DISCARD))) {
+                bink_copy_to_buffer(movie, locked_rect.pBits, locked_rect.Pitch, movie->height, 0, 0, 3);
                 IDirect3DTexture9_UnlockRect(dx_texture, 0);
             }
 
@@ -154,7 +134,6 @@ bool movie_manager::load_and_play_movie(const char *name, const char *sound_name
         bink_close(movie);
         return skipped;
     } else {
-        return static_cast<bool>(
-            CDECL_CALL(0x006299E0, name, sound_name, wait_for_sound));
+        return static_cast<bool>(CDECL_CALL(0x006299E0, name, sound_name, wait_for_sound));
     }
 }

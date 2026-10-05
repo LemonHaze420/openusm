@@ -50,8 +50,7 @@ ai_state_machine::~ai_state_machine()
         auto *state = my_curr_state;
         if (state != nullptr) {
             using delete_fn = void *(__fastcall *)(base_state *, void *, unsigned int);
-            reinterpret_cast<delete_fn>(get_vfunc(state->m_vtbl, 0x8))(
-                state, nullptr, 1);
+            reinterpret_cast<delete_fn>(get_vfunc(state->m_vtbl, 0x8))(state, nullptr, 1);
         }
         my_curr_state = nullptr;
     }
@@ -359,7 +358,7 @@ void ai_state_machine::process_return()
         v2->deactivate(this->field_3C);
         auto *v4 = this->my_curr_state;
         if (v4 != nullptr) {
-            using delete_fn = void (__fastcall *)(base_state *, void *, bool);
+            using delete_fn = void(__fastcall *)(base_state *, void *, bool);
             reinterpret_cast<delete_fn>(get_vfunc(v4->m_vtbl, 0x8))(v4, nullptr, true);
         }
 

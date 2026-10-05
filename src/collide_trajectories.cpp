@@ -220,8 +220,8 @@ void resolve_rotations(intraframe_trajectory_t *trajectories, int count)
 {
     stack_allocator allocator;
     scratchpad_stack::save_state(&allocator);
-    auto *tokens = static_cast<primitive_query_token_t *>(
-        scratchpad_stack::alloc(sizeof(primitive_query_token_t) * count));
+    auto *tokens =
+        static_cast<primitive_query_token_t *>(scratchpad_stack::alloc(sizeof(primitive_query_token_t) * count));
     auto *token = tokens;
     for (auto *trj = trajectories; trj; trj = trj->field_15C, ++token) {
         token->field_38 = nullptr;
@@ -232,8 +232,7 @@ void resolve_rotations(intraframe_trajectory_t *trajectories, int count)
         const auto delta = token->field_1C.base - token->field_0.base;
         token->field_1C.base -= delta;
         token->field_1C.end -= delta;
-        token->field_38 = query_potential_collision_primitives(
-            token->field_0, token->field_1C, trj->ent, trajectories);
+        token->field_38 = query_potential_collision_primitives(token->field_0, token->field_1C, trj->ent, trajectories);
         sub_602E30(token->field_38, trajectories);
     }
     token = tokens;
@@ -288,15 +287,13 @@ dirty_sphere_t *add_dirty_sphere(intraframe_trajectory_t *trj, dirty_sphere_t *n
     return dirty;
 }
 
-trajectory_cluster_t *make_cluster(intraframe_trajectory_t *list, float remaining,
-                                   float collision, int iteration)
+trajectory_cluster_t *make_cluster(intraframe_trajectory_t *list, float remaining, float collision, int iteration)
 {
     return new (trajectory_cluster_t::pool().allocate_new_block())
         trajectory_cluster_t(list, remaining, collision, iteration);
 }
 
-trajectory_cluster_t *recompute_clusters(trajectory_cluster_t *old,
-                                         intraframe_trajectory_t **finished)
+trajectory_cluster_t *recompute_clusters(trajectory_cluster_t *old, intraframe_trajectory_t **finished)
 {
     trajectory_cluster_t *result = nullptr;
     auto **result_tail = &result;
@@ -340,8 +337,8 @@ trajectory_cluster_t *recompute_clusters(trajectory_cluster_t *old,
                         break;
                     }
             if (!destination) {
-                destination = make_cluster(item->trajectory, cluster->remaining_time,
-                    cluster->collision_time, cluster->iteration);
+                destination = make_cluster(
+                    item->trajectory, cluster->remaining_time, cluster->collision_time, cluster->iteration);
                 destination->next = split;
                 split = destination;
             }
@@ -371,8 +368,8 @@ trajectory_cluster_t *recompute_clusters(trajectory_cluster_t *old,
     return result;
 }
 
-bool plane_intersection(const vector3d &start, const vector3d &end,
-                        const vector3d &normal, float plane, vector3d &point)
+bool plane_intersection(const vector3d &start, const vector3d &end, const vector3d &normal, float plane,
+                        vector3d &point)
 {
     auto direction = end - start;
     const float length = direction.length();
@@ -386,13 +383,11 @@ bool plane_intersection(const vector3d &start, const vector3d &end,
     return true;
 }
 
-void record_intersected_trajectory(intraframe_trajectory_t *trj,
-                                  local_collision::primitive_list_t *primitive)
+void record_intersected_trajectory(intraframe_trajectory_t *trj, local_collision::primitive_list_t *primitive)
 {
     if (!primitive || !primitive->field_10)
         return;
-    auto *iterator = static_cast<intraframe_trajectory_t::iterator *>(
-        stru_937580().allocate_new_block());
+    auto *iterator = static_cast<intraframe_trajectory_t::iterator *>(stru_937580().allocate_new_block());
     iterator->trj = primitive->field_10;
     iterator->field_4 = trj->field_168;
     trj->field_168 = iterator;
@@ -409,8 +404,8 @@ void estimate_cluster_intersection(trajectory_cluster_t *cluster, primitive_quer
         trj->field_164 = false;
         if (!trj->is_capsule)
             continue;
-        auto *intersections = local_collision::get_all_capsule_intersections(
-            token->field_38, token->field_1C, trj->field_14C);
+        auto *intersections =
+            local_collision::get_all_capsule_intersections(token->field_38, token->field_1C, trj->field_14C);
         for (auto *pair = intersections; pair; pair = pair->next) {
             trj->field_164 = trj->field_165 = true;
             vector3d other_velocity = ZEROVEC;
@@ -433,8 +428,8 @@ void estimate_cluster_intersection(trajectory_cluster_t *cluster, primitive_quer
                     const float distance_squared = (contact - start).length2();
                     const float radius = token->field_1C.radius;
                     if (distance_squared >= radius * radius)
-                        collision_time = (std::sqrt(distance_squared) - radius)
-                            / (start - pair->point).length() * trj->field_14C;
+                        collision_time =
+                            (std::sqrt(distance_squared) - radius) / (start - pair->point).length() * trj->field_14C;
                 }
             }
             if (collision_time < cluster->collision_time) {
@@ -445,9 +440,15 @@ void estimate_cluster_intersection(trajectory_cluster_t *cluster, primitive_quer
         }
         float swept_time = 3.402823466e38f;
         local_collision::closest_points_pair_t swept_pair{};
-        if (swept_capsule_intersection(token->field_1C, token->field_0,
-                cluster->remaining_time, token->field_0.radius, token->field_38,
-                &swept_time, &swept_pair, &cluster->tunnelled, false)) {
+        if (swept_capsule_intersection(token->field_1C,
+                                       token->field_0,
+                                       cluster->remaining_time,
+                                       token->field_0.radius,
+                                       token->field_38,
+                                       &swept_time,
+                                       &swept_pair,
+                                       &cluster->tunnelled,
+                                       false)) {
             trj->field_164 = trj->field_165 = true;
             if (swept_time < cluster->collision_time) {
                 record_intersected_trajectory(trj, swept_pair.primitive);
@@ -469,8 +470,8 @@ void estimate_first_intersections(trajectory_cluster_t *clusters)
             ++count;
     stack_allocator allocator;
     scratchpad_stack::save_state(&allocator);
-    auto *tokens = static_cast<primitive_query_token_t *>(
-        scratchpad_stack::alloc(sizeof(primitive_query_token_t) * count));
+    auto *tokens =
+        static_cast<primitive_query_token_t *>(scratchpad_stack::alloc(sizeof(primitive_query_token_t) * count));
     auto *token = tokens;
     for (auto *cluster = clusters; cluster; cluster = cluster->next)
         for (auto *trj = cluster->trajectories; trj; trj = trj->field_15C, ++token)
@@ -502,12 +503,12 @@ bool is_fixed_for_collision(intraframe_trajectory_t *trj, entity *entity)
     return true;
 }
 
-void resolve_contact_velocities(intraframe_trajectory_t *trj,
-    const local_collision::closest_points_pair_t &pair, bool &fixed)
+void resolve_contact_velocities(intraframe_trajectory_t *trj, const local_collision::closest_points_pair_t &pair,
+                                bool &fixed)
 {
     auto *other = pair.primitive ? pair.primitive->field_10 : nullptr;
-    entity *other_entity = pair.primitive && pair.primitive->is_ent
-        ? pair.primitive->field_4.ent : (other ? other->ent : nullptr);
+    entity *other_entity =
+        pair.primitive && pair.primitive->is_ent ? pair.primitive->field_4.ent : (other ? other->ent : nullptr);
     auto *entity = trj->ent;
     fixed = !trj->is_capsule || is_fixed_for_collision(trj, entity);
     bool other_fixed = is_fixed_for_collision(other, other_entity);
@@ -520,9 +521,8 @@ void resolve_contact_velocities(intraframe_trajectory_t *trj,
             other_fixed = false;
         else if (entity->get_colgeom() && entity->get_colgeom()->get_type() == 2)
             other_fixed = false;
-        else if ((other_entity && other_entity->get_colgeom() &&
-                  other_entity->get_colgeom()->get_type() == 2) || !other ||
-                 other_velocity.length2() <= dot(first_velocity, other_velocity))
+        else if ((other_entity && other_entity->get_colgeom() && other_entity->get_colgeom()->get_type() == 2) ||
+                 !other || other_velocity.length2() <= dot(first_velocity, other_velocity))
             fixed = false;
         else
             other_fixed = false;
@@ -531,8 +531,8 @@ void resolve_contact_velocities(intraframe_trajectory_t *trj,
     const float second_mass = other_fixed ? 3.402823466e38f : 1.0f;
     const float first_inverse = fixed ? 0.0f : 1.0f;
     const float second_inverse = other_fixed ? 0.0f : 1.0f;
-    const float impulse = -(dot(pair.normal, first_velocity - other_velocity) + LARGE_EPSILON)
-        * 1.05f / pair.normal.length2() / (first_inverse + second_inverse);
+    const float impulse = -(dot(pair.normal, first_velocity - other_velocity) + LARGE_EPSILON) * 1.05f /
+                          pair.normal.length2() / (first_inverse + second_inverse);
     set_trajectory_velocity(trj, first_velocity + pair.normal * (impulse / first_mass));
     if (other)
         set_trajectory_velocity(other, other_velocity - pair.normal * (impulse / second_mass));
@@ -555,8 +555,8 @@ void resolve_first_collision(intraframe_trajectory_t *trj, intraframe_trajectory
         resolve_contact_velocities(trj, *pair, fixed);
         auto *contact = static_cast<trajectory_contact_t *>(contact_pool().allocate_new_block());
         contact->normal = pair->normal;
-        contact->other_velocity = pair->primitive && pair->primitive->field_10
-            ? pair->primitive->field_10->field_140 : ZEROVEC;
+        contact->other_velocity =
+            pair->primitive && pair->primitive->field_10 ? pair->primitive->field_10->field_140 : ZEROVEC;
         contact->next = trj->field_160;
         trj->field_160 = contact;
         const float penetration = capsule.radius - std::sqrt(pair->distance_squared);
@@ -621,7 +621,7 @@ void shrink_velocity(vector3d &velocity, const vector3d &normal, const vector3d 
             velocity -= normal * correction;
     }
 }
-}
+}  // namespace
 
 void resolve_collisions(intraframe_trajectory_t **trajectories, Float elapsed)
 {
@@ -663,8 +663,7 @@ void resolve_collisions(intraframe_trajectory_t **trajectories, Float elapsed)
                 trj->integrate(Float{cluster->collision_time}, &integrated);
                 trj->field_14C = cluster->remaining_time;
                 trj->world_po0 = integrated;
-                trj->world_po1.set_position(integrated.get_position()
-                    + trj->field_140 * cluster->remaining_time);
+                trj->world_po1.set_position(integrated.get_position() + trj->field_140 * cluster->remaining_time);
             }
             for (auto *trj = cluster->trajectories; trj; trj = trj->field_15C)
                 resolve_first_collision(trj, cluster->trajectories);
@@ -709,56 +708,56 @@ void resolve_collisions(intraframe_trajectory_t **trajectories, Float elapsed)
 
 void resolve_moving_pendulums(intraframe_trajectory_t *a1, Float a2)
 {
-        intraframe_trajectory_t *a1a = nullptr;
+    intraframe_trajectory_t *a1a = nullptr;
 
-        for (auto *v2 = a1; v2 != nullptr; v2 = v2->field_15C) {
-            if (v2->ent->has_physical_ifc()) {
-                auto *v3 = v2->ent->physical_ifc();
-                if (v3->is_enabled()) {
-                    if (v3->get_num_active_pendulums() > 0) {
-                        for (auto j = 0; j < 5; ++j) {
-                            auto *the_pendulum = v3->get_pendulum(j);
-                            if (the_pendulum != nullptr && the_pendulum->has_a_moving_anchor()) {
-                                auto v65 = v2->ent->get_abs_po();
-                                auto v47 = v3->apply_positional_constraints(a2, v65.get_position(), false);
-                                v65.set_position(v47);
+    for (auto *v2 = a1; v2 != nullptr; v2 = v2->field_15C) {
+        if (v2->ent->has_physical_ifc()) {
+            auto *v3 = v2->ent->physical_ifc();
+            if (v3->is_enabled()) {
+                if (v3->get_num_active_pendulums() > 0) {
+                    for (auto j = 0; j < 5; ++j) {
+                        auto *the_pendulum = v3->get_pendulum(j);
+                        if (the_pendulum != nullptr && the_pendulum->has_a_moving_anchor()) {
+                            auto v65 = v2->ent->get_abs_po();
+                            auto v47 = v3->apply_positional_constraints(a2, v65.get_position(), false);
+                            v65.set_position(v47);
 
-                                auto *v9 = intraframe_trajectory_t::pool().allocate_new_block();
-                                auto *v11 = new (v9) intraframe_trajectory_t{v2->ent, a2, v65, nullptr};
+                            auto *v9 = intraframe_trajectory_t::pool().allocate_new_block();
+                            auto *v11 = new (v9) intraframe_trajectory_t{v2->ent, a2, v65, nullptr};
 
-                                v11->field_15C = a1a;
-                                a1a = v11;
-                                v11->final_relcap = &v11->relcap0;
-                                if (a2 > EPSILON) {
-                                    auto *v18 = the_pendulum->get_volatile_ptr();
-                                    auto v22 = v18->get_last_position();
+                            v11->field_15C = a1a;
+                            a1a = v11;
+                            v11->final_relcap = &v11->relcap0;
+                            if (a2 > EPSILON) {
+                                auto *v18 = the_pendulum->get_volatile_ptr();
+                                auto v22 = v18->get_last_position();
 
-                                    auto v23 = v18->get_abs_position() - v22;
-                                    vector3d v51 = v23 / a2;
+                                auto v23 = v18->get_abs_position() - v22;
+                                vector3d v51 = v23 / a2;
 
-                                    auto pos = (v2->ent->field_A4 != 0
-                                                    ? v2->ent->get_last_collision_free_state()->xform.get_position()
-                                                    : v65.get_position());
+                                auto pos = (v2->ent->field_A4 != 0
+                                                ? v2->ent->get_last_collision_free_state()->xform.get_position()
+                                                : v65.get_position());
 
-                                    auto v34 = v2->ent->physical_ifc()->field_44;
-                                    auto v63 = (v47 - pos) / a2;
-                                    auto v60 = v63 + v34;
-                                    v2->field_150 = v60 + v51;
-                                }
+                                auto v34 = v2->ent->physical_ifc()->field_44;
+                                auto v63 = (v47 - pos) / a2;
+                                auto v60 = v63 + v34;
+                                v2->field_150 = v60 + v51;
                             }
                         }
                     }
                 }
             }
         }
+    }
 
-        if (a1a != nullptr) {
-            resolve_collisions(&a1a, a2);
-        }
+    if (a1a != nullptr) {
+        resolve_collisions(&a1a, a2);
+    }
 
-        intraframe_trajectory_t *v42 = nullptr;
-        for (auto *k = a1a; k != nullptr; k = v42) {
-            v42 = k->field_15C;
-            intraframe_trajectory_t::pool().remove(k);
-        }
+    intraframe_trajectory_t *v42 = nullptr;
+    for (auto *k = a1a; k != nullptr; k = v42) {
+        v42 = k->field_15C;
+        intraframe_trajectory_t::pool().remove(k);
+    }
 }

@@ -10,8 +10,7 @@ VALIDATE_SIZE(lookat_target_controller, 0x24u);
 
 #if STANDALONE_SYSTEM
 namespace {
-lookat_target_controller *__fastcall native_lookat_destroy(lookat_target_controller *self, void *,
-                                                          unsigned char flags)
+lookat_target_controller *__fastcall native_lookat_destroy(lookat_target_controller *self, void *, unsigned char flags)
 {
     self->~lookat_target_controller();
     if (flags & 1)
@@ -28,15 +27,16 @@ std::intptr_t *native_lookat_vtable()
 {
     static std::intptr_t table[11];
     static const bool initialized = [] {
-        controller::initialize_native_vtable(
-            table, reinterpret_cast<std::intptr_t>(native_lookat_destroy),
-            reinterpret_cast<std::intptr_t>(native_lookat_advance), false);
+        controller::initialize_native_vtable(table,
+                                             reinterpret_cast<std::intptr_t>(native_lookat_destroy),
+                                             reinterpret_cast<std::intptr_t>(native_lookat_advance),
+                                             false);
         return true;
     }();
     (void)initialized;
     return table;
 }
-}
+}  // namespace
 #endif
 
 lookat_target_controller::lookat_target_controller(entity_base *a2)

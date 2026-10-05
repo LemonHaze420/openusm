@@ -23,7 +23,6 @@ void rigid_body_constraint_contact::add_point(rigid_body *b1_, rigid_body *b2_, 
 
     assert((b1 == b1_ && b2 == b2_) || (b1 == b2_ && b2 == b1_));
     THISCALL(0x007A7360, this, b1_, b2_, &a4, &a5, &a6, fric_coef, bounce_coef, a9, a10);
-
 }
 
 void rigid_body_constraint_contact::setup_constraint(physics_system *a2, Float a3)

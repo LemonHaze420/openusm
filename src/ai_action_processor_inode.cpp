@@ -10,8 +10,7 @@ void mVectorBasic<ai::ai_action_nugget *>::reserve(int capacity)
 {
     if (capacity <= m_max_size)
         return;
-    auto **data = static_cast<ai::ai_action_nugget **>(
-        ::operator new(capacity * sizeof(ai::ai_action_nugget *)));
+    auto **data = static_cast<ai::ai_action_nugget **>(::operator new(capacity * sizeof(ai::ai_action_nugget *)));
     if (m_size != 0)
         std::memcpy(data, m_data, m_size * sizeof(ai::ai_action_nugget *));
     if (m_data != nullptr && !is_pointer_in_mash_image(m_data))
@@ -35,14 +34,12 @@ namespace ai {
 VALIDATE_SIZE(ai_action_processor_inode, 0x20u);
 VALIDATE_SIZE(ai_action_nugget, 0x10u);
 
-ai_action_processor_inode::ai_action_processor_inode()
-    : m_active_actions_list(nullptr)
+ai_action_processor_inode::ai_action_processor_inode() : m_active_actions_list(nullptr)
 {
     m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[11]);
 }
 
-ai_action_processor_inode::ai_action_processor_inode(
-    from_mash_in_place_constructor *constructor)
+ai_action_processor_inode::ai_action_processor_inode(from_mash_in_place_constructor *constructor)
     : info_node(constructor), m_active_actions_list(nullptr)
 {
     m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[11]);
@@ -51,8 +48,7 @@ ai_action_processor_inode::ai_action_processor_inode(
 void ai_action_processor_inode::add_action(ai_action_nugget *action)
 {
     if (m_active_actions_list == nullptr) {
-        m_active_actions_list = new (mem_alloc(sizeof(*m_active_actions_list)))
-            mVectorBasic<ai_action_nugget *>{};
+        m_active_actions_list = new (mem_alloc(sizeof(*m_active_actions_list))) mVectorBasic<ai_action_nugget *>{};
         m_active_actions_list->m_data = nullptr;
         m_active_actions_list->m_max_size = 0;
     }
@@ -73,8 +69,8 @@ void ai_action_processor_inode::frame_advance(Float elapsed)
         mem_dealloc(action, sizeof(ai_action_nugget));
         auto *list = m_active_actions_list;
         --list->m_size;
-        std::memmove(list->m_data + index, list->m_data + index + 1,
-            (list->m_size - index) * sizeof(ai_action_nugget *));
+        std::memmove(
+            list->m_data + index, list->m_data + index + 1, (list->m_size - index) * sizeof(ai_action_nugget *));
     }
     if (m_active_actions_list->m_size == 0) {
         m_active_actions_list->destruct_mashed_class();
@@ -100,4 +96,4 @@ void ai_action_processor_inode::destruct_mashed_class()
     info_node::_destruct_mashed_class();
 }
 
-}
+}  // namespace ai

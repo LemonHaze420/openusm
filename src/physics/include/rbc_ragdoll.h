@@ -37,10 +37,10 @@ struct rigid_body_constraint_ragdoll {
     void reset();
     void set(const vector3d &first, const vector3d &second);
     void set_damp_k(float value);
-    void set_hinge(const vector3d &first, const vector3d &second,
-        const vector3d &reference1, const vector3d &reference2, float minimum_angle, float maximum_angle);
-    void set_swivel(const vector3d &first, const vector3d &second,
-        const vector3d &reference1, const vector3d &reference2, float minimum_angle, float maximum_angle);
+    void set_hinge(const vector3d &first, const vector3d &second, const vector3d &reference1,
+                   const vector3d &reference2, float minimum_angle, float maximum_angle);
+    void set_swivel(const vector3d &first, const vector3d &second, const vector3d &reference1,
+                    const vector3d &reference2, float minimum_angle, float maximum_angle);
     void add_joint_limit(const vector3d &axis, float angle);
     float relax();
 };

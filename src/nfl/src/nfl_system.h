@@ -169,8 +169,8 @@ struct nflDriver {
     } *field_C;
 
     struct {
-        BOOL (*field_0)(nflDriver *a1, HANDLE *a2, nflRequestType a3, uint32_t a4, LPVOID lpBuffer,
-                        uint32_t nNumberOfBytesToWrite);
+        BOOL(*field_0)
+        (nflDriver *a1, HANDLE *a2, nflRequestType a3, uint32_t a4, LPVOID lpBuffer, uint32_t nNumberOfBytesToWrite);
         BOOL (*field_4)(HANDLE *a1);
 
         int (*field_8)();

@@ -22,19 +22,19 @@ VALIDATE_SIZE(nalBaseSkeleton, 0x5C);
 
 void nalBaseSkeleton::Process()
 {
-    void(__fastcall *func)(void *) = CAST(func, get_vfunc(this->m_vtbl, 0x8));
+    void(__fastcall * func)(void *) = CAST(func, get_vfunc(this->m_vtbl, 0x8));
     func(this);
 }
 
 void nalBaseSkeleton::Release()
 {
-    void(__fastcall *func)(void *) = CAST(func, get_vfunc(this->m_vtbl, 0xC));
+    void(__fastcall * func)(void *) = CAST(func, get_vfunc(this->m_vtbl, 0xC));
     func(this);
 }
 
 bool nalBaseSkeleton::CheckVersion() const
 {
-    bool(__fastcall *func)(const void *) = CAST(func, get_vfunc(this->m_vtbl, 0x10));
+    bool(__fastcall * func)(const void *) = CAST(func, get_vfunc(this->m_vtbl, 0x10));
     return func(this);
 }
 
@@ -54,13 +54,13 @@ void nalBaseSkeleton::VirtualGetTrajectoryUpdate(const nalBasePose *a2, nalPosit
 
 nalBasePose *nalBaseSkeleton::VirtualGetDefaultPose()
 {
-    nalBasePose *(__fastcall *func)(void *) = CAST(func, get_vfunc(this->m_vtbl, 0x24));
+    nalBasePose *(__fastcall * func)(void *) = CAST(func, get_vfunc(this->m_vtbl, 0x24));
     return func(this);
 }
 
 nalBasePose *nalBaseSkeleton::VirtualCreatePose() const
 {
-    nalBasePose *(__fastcall *func)(const void *) = CAST(func, get_vfunc(this->m_vtbl, 0x28));
+    nalBasePose *(__fastcall * func)(const void *) = CAST(func, get_vfunc(this->m_vtbl, 0x28));
     return func(this);
 }
 
@@ -72,14 +72,14 @@ void nalBaseSkeleton::VirtualDestroyPose(nalBasePose *a2) const
 
 void nalBaseSkeleton::VirtualCopyPose(nalBasePose &a2, const nalBasePose &a3) const
 {
-    void(__fastcall *func)(const void *, void *edx, nalBasePose *, const nalBasePose *) =
+    void(__fastcall * func)(const void *, void *edx, nalBasePose *, const nalBasePose *) =
         CAST(func, get_vfunc(this->m_vtbl, 0x30));
     func(this, nullptr, &a2, &a3);
 }
 
 void nalBaseSkeleton::VirtualBlend(nalBasePose *a2, Float a3, const nalBasePose *a4, const nalBasePose *a5) const
 {
-    void(__fastcall *func)(const void *, void *, nalBasePose *, Float, const nalBasePose *, const nalBasePose *) =
+    void(__fastcall * func)(const void *, void *, nalBasePose *, Float, const nalBasePose *, const nalBasePose *) =
         CAST(func, get_vfunc(this->m_vtbl, 0x34));
     func(this, nullptr, a2, a3, a4, a5);
 }
@@ -131,7 +131,7 @@ void *nalConstructSkeleton(void *a1)
         return a1;
 
     } else {
-        return (void *) CDECL_CALL(0x0078DC80, a1);
+        return (void *)CDECL_CALL(0x0078DC80, a1);
     }
 }
 
@@ -140,8 +140,8 @@ void nalComposeMatrices(nalMatrix4x4 &out, const nalMatrix4x4 &local, const nalM
     nalMatrix4x4 result;
     for (int row = 0; row < 4; ++row)
         for (int column = 0; column < 4; ++column) {
-            result[row][column] = parent[2][column] * local[row][2]
-                + parent[1][column] * local[row][1] + parent[0][column] * local[row][0];
+            result[row][column] = parent[2][column] * local[row][2] + parent[1][column] * local[row][1] +
+                                  parent[0][column] * local[row][0];
             if (row == 3)
                 result[row][column] += parent[3][column];
         }
@@ -150,569 +150,468 @@ void nalComposeMatrices(nalMatrix4x4 &out, const nalMatrix4x4 &local, const nalM
 
 namespace inverse_kinematics {
 
-    // let distance d = ||T - P|| and precomputed coefficients,
-    //    cos0 = a0 * d + b0 / d
-    //    cos1 = a1 * d + b1 / d
-    //    sin_i = sqrt(1 - cos_i^2)
-    void __cdecl nalIKSolve2D(
-        matrix4x4* hinge,
-        vector3d* root,
-        vector3d* target,
-        float b0a_len,
-        float b1a_len,
-        float b0b_len,
-        float b1b_len,
-        vector3d* proj_point,
-        vector3d* bone_axis_dir,
-        float* sin0,
-        float* cos0,
-        float* sin1,
-        float* cos1)
-    {
-        vector3d tmpProj;
-        for (int axis = 0; axis < 3; ++axis)
-            (&tmpProj.x)[axis] = hinge->arr[2][axis] * root->z
-                + hinge->arr[1][axis] * root->y + hinge->arr[0][axis] * root->x + hinge->w[axis];
-        *proj_point = tmpProj;
+// let distance d = ||T - P|| and precomputed coefficients,
+//    cos0 = a0 * d + b0 / d
+//    cos1 = a1 * d + b1 / d
+//    sin_i = sqrt(1 - cos_i^2)
+void __cdecl nalIKSolve2D(matrix4x4 *hinge, vector3d *root, vector3d *target, float b0a_len, float b1a_len,
+                          float b0b_len, float b1b_len, vector3d *proj_point, vector3d *bone_axis_dir, float *sin0,
+                          float *cos0, float *sin1, float *cos1)
+{
+    vector3d tmpProj;
+    for (int axis = 0; axis < 3; ++axis)
+        (&tmpProj.x)[axis] = hinge->arr[2][axis] * root->z + hinge->arr[1][axis] * root->y +
+                             hinge->arr[0][axis] * root->x + hinge->w[axis];
+    *proj_point = tmpProj;
 
-        vector3d diff;
-        diff.x = target->x - proj_point->x;
-        diff.y = target->y - proj_point->y;
-        diff.z = target->z - proj_point->z;
+    vector3d diff;
+    diff.x = target->x - proj_point->x;
+    diff.y = target->y - proj_point->y;
+    diff.z = target->z - proj_point->z;
 
-        // ||T - P||
-        float bend_radius = std::sqrt(
-            diff.x * diff.x +
-            diff.y * diff.y +
-            diff.z * diff.z);
+    // ||T - P||
+    float bend_radius = std::sqrt(diff.x * diff.x + diff.y * diff.y + diff.z * diff.z);
 
-        float inv_radius = 1.0f / bend_radius;
+    float inv_radius = 1.0f / bend_radius;
 
-        // (T - P) / ||T - P||
-        bone_axis_dir->x = diff.x * inv_radius;
-        bone_axis_dir->y = diff.y * inv_radius;
-        bone_axis_dir->z = diff.z * inv_radius;
+    // (T - P) / ||T - P||
+    bone_axis_dir->x = diff.x * inv_radius;
+    bone_axis_dir->y = diff.y * inv_radius;
+    bone_axis_dir->z = diff.z * inv_radius;
 
-        float cos0_raw = bend_radius * b0a_len + inv_radius * b0b_len;
-        float cos1_raw = bend_radius * b1a_len + inv_radius * b1b_len;
+    float cos0_raw = bend_radius * b0a_len + inv_radius * b0b_len;
+    float cos1_raw = bend_radius * b1a_len + inv_radius * b1b_len;
 
-        // clamp -1,1
-        float c0 = cos0_raw;
-        if (c0 > 1.0f)
-            c0 = 1.0f;
-        else if (c0 < -1.0f)
-            c0 = -1.0f;
-        *cos0 = c0;
+    // clamp -1,1
+    float c0 = cos0_raw;
+    if (c0 > 1.0f)
+        c0 = 1.0f;
+    else if (c0 < -1.0f)
+        c0 = -1.0f;
+    *cos0 = c0;
 
-        float c1 = cos1_raw;
-        if (c1 > 1.0f)
-            c1 = 1.0f;
-        else if (c1 < -1.0f)
-            c1 = -1.0f;
-        *cos1 = c1;
+    float c1 = cos1_raw;
+    if (c1 > 1.0f)
+        c1 = 1.0f;
+    else if (c1 < -1.0f)
+        c1 = -1.0f;
+    *cos1 = c1;
 
-        // sin = sqrt(1 - cos^2)
-        *sin0 = std::sqrt(1.0f - (*cos0) * (*cos0));
-        *sin1 = std::sqrt(1.0f - (*cos1) * (*cos1));
+    // sin = sqrt(1 - cos^2)
+    *sin0 = std::sqrt(1.0f - (*cos0) * (*cos0));
+    *sin1 = std::sqrt(1.0f - (*cos1) * (*cos1));
+}
+
+void __cdecl nalIKMap2DTo3D(float chain_scale, float sin0, float cos0, float sin1, float cos1, vector3d *origin,
+                            vector3d *bone_axis_dir, vector4d *bend_dir, float chain_sin0, float chain_cos0,
+                            matrix4x4 *joint0, matrix4x4 *joint1)
+{
+    const vector3d bone = *bone_axis_dir;
+    const vector3d bend{bend_dir->x, bend_dir->y, bend_dir->z};
+
+    // N = normalize(bone x bend)
+    vector3d normal = vector3d::cross(bone, bend);
+    const float inverse_length = 1.0f / std::sqrt(normal.x * normal.x + normal.y * normal.y + normal.z * normal.z);
+    normal.x *= inverse_length;
+    normal.y *= inverse_length;
+    normal.z *= inverse_length;
+    vector3d tangent = vector3d::cross(normal, bone);
+
+    // pack basis
+    vector4d axisX{bone.x, bone.y, bone.z, 0.0f};
+    vector4d axisY{tangent.x, tangent.y, tangent.z, 0.0f};
+    vector4d axisZ{normal.x, normal.y, normal.z, 0.0f};
+
+    vector4d origin4{origin->x, origin->y, origin->z, 1.0f};
+
+    matrix4x4 hinge_space;
+    hinge_space.compose_from_basis(&axisX, &axisY, &axisZ, &origin4);
+
+    // j0
+
+    const float neg_chain_sin0 = -chain_sin0;
+
+    vector4d j0_x{// r00
+                  cos0,
+                  sin0 * chain_cos0,
+                  sin0 * chain_sin0,
+                  0.0f};
+
+    vector4d j0_y{// r01
+                  -sin0,
+                  cos0 * chain_cos0,
+                  cos0 * chain_sin0,
+                  0.0f};
+
+    vector4d j0_z{// r02
+                  0.0f,
+                  neg_chain_sin0,
+                  chain_cos0,
+                  0.0f};
+
+    vector4d j0_pos{0, 0, 0, 1};  // r03
+
+    matrix4x4 joint0_local;
+    joint0_local.compose_from_basis(&j0_x, &j0_y, &j0_z, &j0_pos);
+
+    nalComposeMatrices(*reinterpret_cast<nalMatrix4x4 *>(joint0),
+                       reinterpret_cast<const nalMatrix4x4 &>(joint0_local),
+                       reinterpret_cast<const nalMatrix4x4 &>(hinge_space));
+
+    // j1
+
+    float off_sin0 = chain_scale * sin0;
+
+    vector4d j1_pos{// r03
+                    chain_scale * cos0,
+                    chain_cos0 * off_sin0,
+                    chain_sin0 * off_sin0,
+                    1.0f};
+
+    vector4d j1_z{// same as j0_z
+                  0.0f,
+                  neg_chain_sin0,
+                  chain_cos0,
+                  0.0f};
+
+    vector4d j1_y{// r01
+                  sin1,
+                  cos1 * chain_cos0,
+                  cos1 * chain_sin0,
+                  0.0f};
+
+    vector4d j1_x{// r00
+                  cos1,
+                  -(sin1 * chain_cos0),
+                  -(sin1 * chain_sin0),
+                  0.0f};
+
+    matrix4x4 joint1_local;
+    joint1_local.compose_from_basis(&j1_x, &j1_y, &j1_z, &j1_pos);
+
+    nalComposeMatrices(*reinterpret_cast<nalMatrix4x4 *>(joint1),
+                       reinterpret_cast<const nalMatrix4x4 &>(joint1_local),
+                       reinterpret_cast<const nalMatrix4x4 &>(hinge_space));
+}
+
+inline void flip_chain_basis(matrix4x4 *m)
+{
+    vector4d r0 = m->arr[0], r1 = m->arr[1], r2 = m->arr[2];
+
+    auto negate = [](vector4d v) {
+        v.x = -v.x;
+        v.y = -v.y;
+        v.z = -v.z;
+        v.w = -v.w;
+        return v;
+    };
+
+    r0 = negate(r0);
+    r1 = negate(r1);
+    r2 = negate(r2);
+
+    std::swap(r1, r2);
+
+    m->arr[0] = r0;
+    m->arr[1] = r1;
+    m->arr[2] = r2;
+}
+
+vector4d *__cdecl compute_bend_plane_normal(vector4d *out, float * /*unused*/, matrix4x4 *m, float axis_x, float axis_y,
+                                            float axis_z)
+{
+    vector4d *vector4d_1 = out;
+    // axis x effector Y
+    out->x = axis_y * m->arr[1].z - axis_z * m->arr[1].y;
+    out->y = axis_z * m->arr[1].x - m->arr[1].z * axis_x;
+    out->z = axis_x * m->arr[1].y - axis_y * m->arr[1].x;
+    return vector4d_1;
+}
+
+vector3d *__cdecl compute_arm_elbow_bend_direction(vector3d *out, matrix4x4 *m, matrix4x4 * /*ent*/, float dirX,
+                                                   float dirY, float dirZ)
+{
+    const vector3d row0{m->arr[0].x, m->arr[0].y, m->arr[0].z};
+    const vector3d row1{m->arr[1].x, m->arr[1].y, m->arr[1].z};
+    const vector3d row2{m->arr[2].x, m->arr[2].y, m->arr[2].z};
+    const vector3d dir{dirX, dirY, dirZ};
+
+    const vector3d cross = vector3d::cross(dir, row1);
+    const float sign = dirX * row1.x + dirY * row1.y + dirZ * row1.z;
+
+    vector3d result;
+
+    if (sign < 0.0f) {
+        const float a = sign + 1.0f;
+        const float b = -sign;
+        const vector3d diag{-row0.x - row2.x, -row0.y - row2.y, -row0.z - row2.z};
+        result.x = cross.x * a + diag.x * b;
+        result.y = cross.y * a + diag.y * b;
+        result.z = cross.z * a + diag.z * b;
+    } else {
+        const float a = 1.0f - sign;
+        const float b = sign;
+        const vector3d diag{row2.x - row0.x, row2.y - row0.y, row2.z - row0.z};
+        result.x = cross.x * a + diag.x * b;
+        result.y = cross.y * a + diag.y * b;
+        result.z = cross.z * a + diag.z * b;
     }
 
-    void __cdecl nalIKMap2DTo3D(
-        float chain_scale,
-        float sin0,
-        float cos0,
-        float sin1,
-        float cos1,
-        vector3d* origin,
-        vector3d* bone_axis_dir,
-        vector4d* bend_dir,
-        float chain_sin0,
-        float chain_cos0,
-        matrix4x4* joint0,
-        matrix4x4* joint1)
-    {
-        const vector3d bone = *bone_axis_dir;
-        const vector3d bend{
-            bend_dir->x,
-            bend_dir->y,
-            bend_dir->z
-        };
+    out->x = result.x;
+    out->y = result.y;
+    out->z = result.z;
+    return out;
+}
 
-        // N = normalize(bone x bend)
-        vector3d normal = vector3d::cross(bone, bend);
-        const float inverse_length = 1.0f / std::sqrt(
-            normal.x * normal.x + normal.y * normal.y + normal.z * normal.z);
-        normal.x *= inverse_length;
-        normal.y *= inverse_length;
-        normal.z *= inverse_length;
-        vector3d tangent = vector3d::cross(normal, bone);
+vector3d *__cdecl compute_arm_elbow_bend_direction_mirrored(vector3d *out, matrix4x4 *m, matrix4x4 * /*ent*/,
+                                                            float dirX, float dirY, float dirZ)
+{
+    const vector3d row0{m->arr[0].x, m->arr[0].y, m->arr[0].z};
+    const vector3d row1{m->arr[1].x, m->arr[1].y, m->arr[1].z};
+    const vector3d row2{m->arr[2].x, m->arr[2].y, m->arr[2].z};
+    const vector3d dir{dirX, dirY, dirZ};
 
-        // pack basis
-        vector4d axisX{ bone.x,   bone.y,   bone.z,   0.0f };
-        vector4d axisY{ tangent.x,tangent.y,tangent.z,0.0f };
-        vector4d axisZ{ normal.x, normal.y, normal.z, 0.0f };
+    // mirrored "up" axis
+    const vector3d up_m{-row1.x, -row1.y, -row1.z};
 
-        vector4d origin4{
-            origin->x,
-            origin->y,
-            origin->z,
-            1.0f
-        };
+    const vector3d cross = vector3d::cross(dir, up_m);
+    const float sign = dirX * up_m.x + dirY * up_m.y + dirZ * up_m.z;
 
-        matrix4x4 hinge_space;
-        hinge_space.compose_from_basis(&axisX, &axisY, &axisZ, &origin4);
+    vector3d result;
 
-        // j0
-
-        const float neg_chain_sin0 = -chain_sin0;
-
-        vector4d j0_x{ // r00
-            cos0,
-            sin0 * chain_cos0,
-            sin0 * chain_sin0,
-            0.0f
-        };
-
-        vector4d j0_y{ // r01
-            -sin0,
-            cos0 * chain_cos0,
-            cos0 * chain_sin0,
-            0.0f
-        };
-
-        vector4d j0_z{ // r02
-            0.0f,
-            neg_chain_sin0,
-            chain_cos0,
-            0.0f
-        };
-
-        vector4d j0_pos{ 0,0,0,1 }; // r03
-
-        matrix4x4 joint0_local;
-        joint0_local.compose_from_basis(&j0_x, &j0_y, &j0_z, &j0_pos);
-
-        nalComposeMatrices(*reinterpret_cast<nalMatrix4x4 *>(joint0),
-            reinterpret_cast<const nalMatrix4x4 &>(joint0_local),
-            reinterpret_cast<const nalMatrix4x4 &>(hinge_space));
-
-        // j1
-
-        float off_sin0 = chain_scale * sin0;
-
-        vector4d j1_pos{ // r03
-            chain_scale * cos0,
-            chain_cos0 * off_sin0,
-            chain_sin0 * off_sin0,
-            1.0f
-        };
-
-        vector4d j1_z{ // same as j0_z
-            0.0f,
-            neg_chain_sin0,
-            chain_cos0,
-            0.0f
-        };
-
-        vector4d j1_y{ // r01
-            sin1,
-            cos1 * chain_cos0,
-            cos1 * chain_sin0,
-            0.0f
-        };
-
-        vector4d j1_x{ // r00
-            cos1,
-            -(sin1 * chain_cos0),
-            -(sin1 * chain_sin0),
-            0.0f
-        };
-
-        matrix4x4 joint1_local;
-        joint1_local.compose_from_basis(&j1_x, &j1_y, &j1_z, &j1_pos);
-
-        nalComposeMatrices(*reinterpret_cast<nalMatrix4x4 *>(joint1),
-            reinterpret_cast<const nalMatrix4x4 &>(joint1_local),
-            reinterpret_cast<const nalMatrix4x4 &>(hinge_space));
+    if (sign < 0.0f) {
+        const float a = sign + 1.0f;
+        const float b = -sign;
+        const vector3d diag{-row0.x - row2.x, -row0.y - row2.y, -row0.z - row2.z};
+        result.x = cross.x * a + diag.x * b;
+        result.y = cross.y * a + diag.y * b;
+        result.z = cross.z * a + diag.z * b;
+    } else {
+        const float a = 1.0f - sign;
+        const float b = sign;
+        const vector3d diag{row2.x - row0.x, row2.y - row0.y, row2.z - row0.z};
+        result.x = cross.x * a + diag.x * b;
+        result.y = cross.y * a + diag.y * b;
+        result.z = cross.z * a + diag.z * b;
     }
 
-    inline void flip_chain_basis(matrix4x4* m) {
-        vector4d r0 = m->arr[0],
-            r1 = m->arr[1],
-            r2 = m->arr[2];
+    out->x = result.x;
+    out->y = result.y;
+    out->z = result.z;
+    return out;
+}
 
-        auto negate = [](vector4d v) {
-            v.x = -v.x;
-            v.y = -v.y;
-            v.z = -v.z;
-            v.w = -v.w;
-            return v;
-        };
+void __cdecl solve_two_bone(matrix4x4 *j0, matrix4x4 *j1, matrix4x4 *line_xform, vector3d *root, matrix4x4 *effector,
+                            ik_bone_chain_t *chain, get_bend_dir_t get_bend_dir)
+{
+    vector3d target{effector->arr[3].x, effector->arr[3].y, effector->arr[3].z};
+    float sin0 = 0.0f;
+    float sin1 = 0.0f;
+    float cos0 = 1.0f;
+    float cos1 = 1.0f;
+    vector3d proj_point{};
+    vector3d bone_axis_dir{};
 
-        r0 = negate(r0);
-        r1 = negate(r1);
-        r2 = negate(r2);
+    inverse_kinematics::nalIKSolve2D(line_xform,
+                                     root,
+                                     &target,
+                                     chain->b0a_len,
+                                     chain->b0b_len,
+                                     chain->b1a_len,
+                                     chain->b1b_len,
+                                     &proj_point,
+                                     &bone_axis_dir,
+                                     &sin0,
+                                     &cos0,
+                                     &sin1,
+                                     &cos1);
 
-        std::swap(r1, r2);
+    vector3d tmp_bend{};
+    vector3d *bend_dir =
+        get_bend_dir(&tmp_bend, line_xform, effector, bone_axis_dir.x, bone_axis_dir.y, bone_axis_dir.z);
+    vector4d bone_bend_dir{bend_dir->x, bend_dir->y, bend_dir->z, 0.0f};
 
-        m->arr[0] = r0;
-        m->arr[1] = r1;
-        m->arr[2] = r2;
-    }
+    inverse_kinematics::nalIKMap2DTo3D(chain->chain_scale,
+                                       sin0,
+                                       cos0,
+                                       sin1,
+                                       cos1,
+                                       &proj_point,
+                                       &bone_axis_dir,
+                                       &bone_bend_dir,
+                                       0.0f,  // chain_sin0
+                                       1.0f,  // chain_cos0
+                                       j0,
+                                       j1);
 
-    vector4d* __cdecl compute_bend_plane_normal(
-        vector4d* out,
-        float*     /*unused*/,
-        matrix4x4* m,
-        float      axis_x,
-        float      axis_y,
-        float      axis_z)
-    {
-        vector4d *vector4d_1 = out;
-        // axis x effector Y
-        out->x = axis_y * m->arr[1].z - axis_z      * m->arr[1].y;
-        out->y = axis_z * m->arr[1].x - m->arr[1].z * axis_x;
-        out->z = axis_x * m->arr[1].y - axis_y      * m->arr[1].x;
-        return vector4d_1;
-    }
+    flip_chain_basis(j0);
+    flip_chain_basis(j1);
+}
 
-    vector3d* __cdecl compute_arm_elbow_bend_direction(
-        vector3d* out,
-        matrix4x4* m,
-        matrix4x4* /*ent*/,
-        float      dirX,
-        float      dirY,
-        float      dirZ)
-    {
-        const vector3d row0{ m->arr[0].x, m->arr[0].y, m->arr[0].z };
-        const vector3d row1{ m->arr[1].x, m->arr[1].y, m->arr[1].z };
-        const vector3d row2{ m->arr[2].x, m->arr[2].y, m->arr[2].z };
-        const vector3d dir{ dirX, dirY, dirZ };
+void __cdecl DecomposeIKSpin(matrix4x4 *joint0, matrix4x4 *joint1, matrix4x4 *hinge, vector3d *root,
+                             matrix4x4 *effector, ik_bone_chain_t *chain, get_bend_dir_t get_bend_dir, float twistAngle)
+{
+    vector3d target{effector->arr[3].x, effector->arr[3].y, effector->arr[3].z};
 
-        const vector3d cross = vector3d::cross(dir, row1);
-        const float    sign = dirX * row1.x + dirY * row1.y + dirZ * row1.z;
+    float sin0 = 0.0f;
+    float sin1 = 0.0f;
+    float cos0 = 1.0f;
+    float cos1 = 1.0f;
+    vector3d proj_point{};
+    vector3d axis_dir{};  // hinge space
 
-        vector3d result;
+    inverse_kinematics::nalIKSolve2D(hinge,
+                                     root,
+                                     &target,
+                                     chain->b0a_len,
+                                     chain->b0b_len,
+                                     chain->b1a_len,
+                                     chain->b1b_len,
+                                     &proj_point,
+                                     &axis_dir,
+                                     &sin0,
+                                     &cos0,
+                                     &sin1,
+                                     &cos1);
 
-        if (sign < 0.0f)
-        {
-            const float a = sign + 1.0f;
-            const float b = -sign;
-            const vector3d diag{ -row0.x - row2.x,
-                                 -row0.y - row2.y,
-                                 -row0.z - row2.z };
-            result.x = cross.x * a + diag.x * b;
-            result.y = cross.y * a + diag.y * b;
-            result.z = cross.z * a + diag.z * b;
-        }
-        else
-        {
-            const float a = 1.0f - sign;
-            const float b = sign;
-            const vector3d diag{ row2.x - row0.x,
-                                 row2.y - row0.y,
-                                 row2.z - row0.z };
-            result.x = cross.x * a + diag.x * b;
-            result.y = cross.y * a + diag.y * b;
-            result.z = cross.z * a + diag.z * b;
-        }
+    vector3d tmp{};
+    vector3d *bend_vec = get_bend_dir(&tmp, hinge, effector, axis_dir.x, axis_dir.y, axis_dir.z);
+    vector4d bend_dir{bend_vec->x, bend_vec->y, bend_vec->z, 0.0f};
 
-        out->x = result.x;
-        out->y = result.y;
-        out->z = result.z;
-        return out;
-    }
+    // apply twist
+    float chain_cos0 = std::cos(twistAngle);
+    float chain_sin0 = std::sin(twistAngle);
 
-    vector3d* __cdecl compute_arm_elbow_bend_direction_mirrored(
-        vector3d* out,
-        matrix4x4* m,
-        matrix4x4* /*ent*/,
-        float      dirX,
-        float      dirY,
-        float      dirZ)
-    {
-        const vector3d row0{ m->arr[0].x, m->arr[0].y, m->arr[0].z };
-        const vector3d row1{ m->arr[1].x, m->arr[1].y, m->arr[1].z };
-        const vector3d row2{ m->arr[2].x, m->arr[2].y, m->arr[2].z };
-        const vector3d dir{ dirX, dirY, dirZ };
+    inverse_kinematics::nalIKMap2DTo3D(chain->chain_scale,
+                                       sin0,
+                                       cos0,
+                                       sin1,
+                                       cos1,
+                                       &proj_point,
+                                       &axis_dir,
+                                       &bend_dir,
+                                       chain_sin0,
+                                       chain_cos0,
+                                       joint0,
+                                       joint1);
 
-        // mirrored "up" axis
-        const vector3d up_m{ -row1.x, -row1.y, -row1.z };
+    flip_chain_basis(joint0);
+    flip_chain_basis(joint1);
+}
 
-        const vector3d cross = vector3d::cross(dir, up_m);
-        const float    sign = dirX * up_m.x + dirY * up_m.y + dirZ * up_m.z;
+quaternion *__cdecl quat_blend(quaternion *quat, quaternion *quatA, float *weightA, quaternion *quatB,
+                               vector4d *weights)
+{
+    const float a = *weightA;
+    const float b = weights->y;
 
-        vector3d result;
+    const float x = a * quatA->arr[0] + b * quatB->arr[0];
+    const float y = a * quatA->arr[1] + b * quatB->arr[1];
+    const float z = a * quatA->arr[2] + b * quatB->arr[2];
+    const float w = a * quatA->arr[3] + b * quatB->arr[3];
 
-        if (sign < 0.0f)
-        {
-            const float a = sign + 1.0f;
-            const float b = -sign;
-            const vector3d diag{ -row0.x - row2.x,
-                                 -row0.y - row2.y,
-                                 -row0.z - row2.z };
-            result.x = cross.x * a + diag.x * b;
-            result.y = cross.y * a + diag.y * b;
-            result.z = cross.z * a + diag.z * b;
-        }
-        else
-        {
-            const float a = 1.0f - sign;
-            const float b = sign;
-            const vector3d diag{ row2.x - row0.x,
-                                 row2.y - row0.y,
-                                 row2.z - row0.z };
-            result.x = cross.x * a + diag.x * b;
-            result.y = cross.y * a + diag.y * b;
-            result.z = cross.z * a + diag.z * b;
-        }
+    quat->arr[0] = x;
+    quat->arr[1] = y;
+    quat->arr[2] = z;
+    quat->arr[3] = w;
 
-        out->x = result.x;
-        out->y = result.y;
-        out->z = result.z;
-        return out;
-    }
-
-    void __cdecl solve_two_bone(
-        matrix4x4* j0,
-        matrix4x4* j1,
-        matrix4x4* line_xform,
-        vector3d* root,
-        matrix4x4* effector,
-        ik_bone_chain_t* chain,
-        get_bend_dir_t get_bend_dir)
-    {
-        vector3d target{ effector->arr[3].x,effector->arr[3].y, effector->arr[3].z };
-        float    sin0 = 0.0f;
-        float    sin1 = 0.0f;
-        float    cos0 = 1.0f;
-        float    cos1 = 1.0f;
-        vector3d proj_point{};
-        vector3d bone_axis_dir{};
-
-        inverse_kinematics::nalIKSolve2D(
-            line_xform,
-            root,
-            &target,
-            chain->b0a_len,
-            chain->b0b_len,
-            chain->b1a_len,
-            chain->b1b_len,
-            &proj_point,
-            &bone_axis_dir,
-            &sin0,
-            &cos0,
-            &sin1,
-            &cos1);
-
-        vector3d tmp_bend{};
-        vector3d* bend_dir = get_bend_dir(&tmp_bend, line_xform, effector, bone_axis_dir.x, bone_axis_dir.y, bone_axis_dir.z);
-        vector4d bone_bend_dir{ bend_dir->x, bend_dir->y, bend_dir->z, 0.0f };
-
-        inverse_kinematics::nalIKMap2DTo3D(
-            chain->chain_scale,
-            sin0,
-            cos0,
-            sin1,
-            cos1,
-            &proj_point,
-            &bone_axis_dir,
-            &bone_bend_dir,
-            0.0f,   // chain_sin0
-            1.0f,   // chain_cos0
-            j0,
-            j1);
-
-        flip_chain_basis(j0);
-        flip_chain_basis(j1);
-    }
-
-    void __cdecl DecomposeIKSpin(
-        matrix4x4* joint0,
-        matrix4x4* joint1,
-        matrix4x4* hinge,
-        vector3d* root,
-        matrix4x4* effector,
-        ik_bone_chain_t* chain,
-        get_bend_dir_t get_bend_dir,
-        float twistAngle)
-    {
-        vector3d target{ effector->arr[3].x, effector->arr[3].y, effector->arr[3].z };
-
-        float    sin0 = 0.0f;
-        float    sin1 = 0.0f;
-        float    cos0 = 1.0f;
-        float    cos1 = 1.0f;
-        vector3d proj_point{};
-        vector3d axis_dir{}; // hinge space
-
-        inverse_kinematics::nalIKSolve2D(
-            hinge,
-            root,
-            &target,
-            chain->b0a_len,
-            chain->b0b_len,
-            chain->b1a_len,
-            chain->b1b_len,
-            &proj_point,
-            &axis_dir,
-            &sin0,
-            &cos0,
-            &sin1,
-            &cos1);
-
-        vector3d tmp{};
-        vector3d* bend_vec = get_bend_dir(&tmp, hinge, effector, axis_dir.x, axis_dir.y, axis_dir.z);
-        vector4d bend_dir{ bend_vec->x, bend_vec->y, bend_vec->z, 0.0f };
-
-        // apply twist
-        float chain_cos0 = std::cos(twistAngle);
-        float chain_sin0 = std::sin(twistAngle);
-
-        inverse_kinematics::nalIKMap2DTo3D(
-            chain->chain_scale,
-            sin0,
-            cos0,
-            sin1,
-            cos1,
-            &proj_point,
-            &axis_dir,
-            &bend_dir,
-            chain_sin0,
-            chain_cos0,
-            joint0,
-            joint1);
-
-        flip_chain_basis(joint0);
-        flip_chain_basis(joint1);
-    }
-
-    quaternion* __cdecl quat_blend(
-        quaternion* quat,
-        quaternion* quatA,
-        float* weightA,
-        quaternion* quatB,
-        vector4d* weights)
-    {
-        const float a = *weightA;
-        const float b = weights->y;
-
-        const float x = a * quatA->arr[0] + b * quatB->arr[0];
-        const float y = a * quatA->arr[1] + b * quatB->arr[1];
-        const float z = a * quatA->arr[2] + b * quatB->arr[2];
-        const float w = a * quatA->arr[3] + b * quatB->arr[3];
-
-        quat->arr[0] = x;
-        quat->arr[1] = y;
-        quat->arr[2] = z;
-        quat->arr[3] = w;
-
-        return quat;
-    }
+    return quat;
+}
 
 #ifdef OPENUSM_XBPACK_V10
-    namespace
-    {
-    struct legs_ik_skel_v10
-    {
-        vector3d offsets[8];
-        float left_chain[6];
-        float right_chain[6];
-        uint32_t bone_indices[8];
-        uint32_t parent_index;
-        uint32_t padding[3];
-    };
+namespace {
+struct legs_ik_skel_v10 {
+    vector3d offsets[8];
+    float left_chain[6];
+    float right_chain[6];
+    uint32_t bone_indices[8];
+    uint32_t parent_index;
+    uint32_t padding[3];
+};
 
-    struct legs_ik_pose_v10
-    {
-        quaternion foot_quats[2];
-        quaternion foot_targets[2];
-        vector3d foot_positions[2];
-        float knee_spin[2];
-    };
+struct legs_ik_pose_v10 {
+    quaternion foot_quats[2];
+    quaternion foot_targets[2];
+    vector3d foot_positions[2];
+    float knee_spin[2];
+};
 
-    static_assert(sizeof(legs_ik_skel_v10) == 0xC0);
-    static_assert(sizeof(legs_ik_pose_v10) == 0x60);
+static_assert(sizeof(legs_ik_skel_v10) == 0xC0);
+static_assert(sizeof(legs_ik_pose_v10) == 0x60);
 
-    void make_legs_ik_matrix(
-        matrix4x4 &matrix, const quaternion &rotation, const vector3d &position)
-    {
-        const quaternion pc_rotation {
-            rotation.arr[3], rotation.arr[0], rotation.arr[1], rotation.arr[2]};
-        pc_rotation.to_matrix(matrix);
-        matrix.w = vector4d {position, 1.0f};
+void make_legs_ik_matrix(matrix4x4 &matrix, const quaternion &rotation, const vector3d &position)
+{
+    const quaternion pc_rotation{rotation.arr[3], rotation.arr[0], rotation.arr[1], rotation.arr[2]};
+    pc_rotation.to_matrix(matrix);
+    matrix.w = vector4d{position, 1.0f};
+}
+}  // namespace
+
+int __stdcall LegsIK_BuildBoneMatrices_v10(matrix4x4 *matrices, int, void *skel_data, void *pose_data)
+{
+    auto *skel = static_cast<legs_ik_skel_v10 *>(skel_data);
+    auto *pose = static_cast<legs_ik_pose_v10 *>(pose_data);
+
+    for (int i = 0; i < 2; ++i) {
+        make_legs_ik_matrix(matrices[skel->bone_indices[i + 2]], pose->foot_targets[i], pose->foot_positions[i]);
     }
+
+    const matrix4x4 &parent = matrices[skel->parent_index];
+    matrix4x4 parent_rotation = parent;
+    parent_rotation.w = vector4d{0.0f, 0.0f, 0.0f, 1.0f};
+
+    auto *chain = reinterpret_cast<ik_bone_chain_t *>(skel->left_chain);
+    auto heuristic = reinterpret_cast<get_bend_dir_t>(&compute_bend_plane_normal);
+
+    DecomposeIKSpin(&matrices[skel->bone_indices[4]],
+                    &matrices[skel->bone_indices[5]],
+                    &parent_rotation,
+                    &skel->offsets[4],
+                    &matrices[skel->bone_indices[2]],
+                    chain,
+                    heuristic,
+                    pose->knee_spin[0]);
+
+    DecomposeIKSpin(&matrices[skel->bone_indices[6]],
+                    &matrices[skel->bone_indices[7]],
+                    &parent_rotation,
+                    &skel->offsets[6],
+                    &matrices[skel->bone_indices[3]],
+                    chain,
+                    heuristic,
+                    pose->knee_spin[1]);
+
+    for (int i = 2; i < 8; ++i) {
+        auto &matrix = matrices[skel->bone_indices[i]];
+        matrix.w.x += parent.w.x;
+        matrix.w.y += parent.w.y;
+        matrix.w.z += parent.w.z;
+        matrix.w.w = 1.0f;
     }
 
-    int __stdcall LegsIK_BuildBoneMatrices_v10(
-        matrix4x4 *matrices, int, void *skel_data, void *pose_data)
-    {
-        auto *skel = static_cast<legs_ik_skel_v10 *>(skel_data);
-        auto *pose = static_cast<legs_ik_pose_v10 *>(pose_data);
-
-        for (int i = 0; i < 2; ++i) {
-            make_legs_ik_matrix(
-                matrices[skel->bone_indices[i + 2]],
-                pose->foot_targets[i],
-                pose->foot_positions[i]);
-        }
-
-        const matrix4x4 &parent = matrices[skel->parent_index];
-        matrix4x4 parent_rotation = parent;
-        parent_rotation.w = vector4d {0.0f, 0.0f, 0.0f, 1.0f};
-
-        auto *chain = reinterpret_cast<ik_bone_chain_t *>(skel->left_chain);
-        auto heuristic = reinterpret_cast<get_bend_dir_t>(&compute_bend_plane_normal);
-
-        DecomposeIKSpin(
-            &matrices[skel->bone_indices[4]],
-            &matrices[skel->bone_indices[5]],
-            &parent_rotation,
-            &skel->offsets[4],
-            &matrices[skel->bone_indices[2]],
-            chain,
-            heuristic,
-            pose->knee_spin[0]);
-
-        DecomposeIKSpin(
-            &matrices[skel->bone_indices[6]],
-            &matrices[skel->bone_indices[7]],
-            &parent_rotation,
-            &skel->offsets[6],
-            &matrices[skel->bone_indices[3]],
-            chain,
-            heuristic,
-            pose->knee_spin[1]);
-
-        for (int i = 2; i < 8; ++i) {
-            auto &matrix = matrices[skel->bone_indices[i]];
-            matrix.w.x += parent.w.x;
-            matrix.w.y += parent.w.y;
-            matrix.w.z += parent.w.z;
-            matrix.w.w = 1.0f;
-        }
-
-        for (int i = 0; i < 2; ++i) {
-            auto &matrix = matrices[skel->bone_indices[i]];
-            make_legs_ik_matrix(matrix, pose->foot_quats[i], skel->offsets[i]);
-            local_to_world(
-                &matrix,
-                &matrix,
-                &matrices[skel->bone_indices[i + 2]]);
-        }
-
-        return 0;
+    for (int i = 0; i < 2; ++i) {
+        auto &matrix = matrices[skel->bone_indices[i]];
+        make_legs_ik_matrix(matrix, pose->foot_quats[i], skel->offsets[i]);
+        local_to_world(&matrix, &matrix, &matrices[skel->bone_indices[i + 2]]);
     }
+
+    return 0;
+}
 #endif
 
-    int CalcIKTrackDataSize(int mask)
-    {
-        int num_tracks = 0;
+int CalcIKTrackDataSize(int mask)
+{
+    int num_tracks = 0;
 
-        if (mask & 1) num_tracks += 3;
-        if (mask & 2) num_tracks += 3;
-        if (mask & 4) num_tracks += 7;
-        if (mask & 8) num_tracks += 7;
+    if (mask & 1)
+        num_tracks += 3;
+    if (mask & 2)
+        num_tracks += 3;
+    if (mask & 4)
+        num_tracks += 7;
+    if (mask & 8)
+        num_tracks += 7;
 
-        return num_tracks;
-    }
+    return num_tracks;
 }
+}  // namespace inverse_kinematics

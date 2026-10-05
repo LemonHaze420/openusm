@@ -28,15 +28,15 @@ FEText::FEText()
         field_10 = 4;
         field_4 = 1.0f;
         field_C = 0;
-        field_4C = color32 {};
+        field_4C = color32{};
         flash_info = nullptr;
     } else {
         THISCALL(0x00617360, this);
     }
 }
 
-FEText::FEText(font_index a2, global_text_enum a3, Float a4, Float a5, int a6,
-               panel_layer a7, Float a8, int a9, int a10, color32 a11)
+FEText::FEText(font_index a2, global_text_enum a3, Float a4, Float a5, int a6, panel_layer a7, Float a8, int a9,
+               int a10, color32 a11)
 {
     if constexpr (STANDALONE_SYSTEM) {
         m_vtbl = 0x00879FE0;
@@ -76,7 +76,7 @@ void FEText::_unmash(mash_info_struct *a1, void *a3)
         a1->unmash_class_in_place(this->field_1C, this);
         a1->unmash_class_in_place(this->field_50, this);
     } else {
-        void (__fastcall *func)(void *, void *, mash_info_struct *, void *) = CAST(func, get_vfunc(m_vtbl, 0x4));
+        void(__fastcall * func)(void *, void *, mash_info_struct *, void *) = CAST(func, get_vfunc(m_vtbl, 0x4));
         func(this, nullptr, a1, a3);
     }
 }
@@ -103,14 +103,13 @@ void FEText::Draw()
         const auto alpha = color.get_alpha();
         color.set_alpha(static_cast<uint8_t>(static_cast<double>(alpha) * field_4));
         if ((field_64 & 1) == 0)
-            color = color32 {0xFFFFFFFFu};
+            color = color32{0xFFFFFFFFu};
 
         auto x = field_34[0];
         auto y = field_34[1];
         AdjustForJustification(&x, &y);
         nglFont *font = g_femanager.GetFont(field_18);
-        nglListAddString(font, field_1C.c_str(), x, y, GetZvalue(),
-                         color32::to_int(color), field_3C, field_40);
+        nglListAddString(font, field_1C.c_str(), x, y, GetZvalue(), color32::to_int(color), field_3C, field_40);
     } else {
         THISCALL(0x00617640, this);
     }
@@ -126,8 +125,7 @@ void FEText::TurnOn(bool a2)
     if constexpr (STANDALONE_SYSTEM) {
         SetShown(a2);
     } else {
-        void(__fastcall *func)(void *, void *, bool) =
-            CAST(func, get_vfunc(m_vtbl, 0x64));
+        void(__fastcall * func)(void *, void *, bool) = CAST(func, get_vfunc(m_vtbl, 0x64));
         func(this, nullptr, a2);
     }
 }
@@ -142,9 +140,8 @@ mString FEText::GetName() const
     if constexpr (STANDALONE_SYSTEM)
         return field_50;
 
-    void(__fastcall *func)(const void *, void *, mString *out) =
-        CAST(func, get_vfunc(m_vtbl, 0xB0));
-    mString result {};
+    void(__fastcall * func)(const void *, void *, mString *out) = CAST(func, get_vfunc(m_vtbl, 0xB0));
+    mString result{};
     func(this, nullptr, &result);
     return result;
 }
@@ -155,12 +152,10 @@ void FEText::Update(Float delta_time)
     PanelAnimObject::Update(delta_time);
     if ((field_64 & 8) != 0 && flash_info != nullptr) {
         flash_info->field_4 += delta_time;
-        flash_info->field_8 =
-            std::sin(flash_info->field_4 / flash_info->field_C * 6.283185307f) * 0.5f;
+        flash_info->field_8 = std::sin(flash_info->field_4 / flash_info->field_C * 6.283185307f) * 0.5f;
     }
 #else
-    void(__fastcall *func)(FEText *, void *, Float) =
-        CAST(func, get_vfunc(m_vtbl, 0x18));
+    void(__fastcall * func)(FEText *, void *, Float) = CAST(func, get_vfunc(m_vtbl, 0x18));
     func(this, nullptr, delta_time);
 #endif
 }
@@ -180,8 +175,7 @@ void FEText::Animate(const matrix4x4 &transform, Float visibility)
         field_40 = field_44[1] * transform[1].y;
     }
 
-    const float alpha = std::clamp(
-        relative ? float(visibility) * field_4 : float(visibility), 0.0f, 1.0f);
+    const float alpha = std::clamp(relative ? float(visibility) * field_4 : float(visibility), 0.0f, 1.0f);
     field_4C.set_alpha(static_cast<uint8_t>(alpha * 255.0f));
     field_10 |= 1;
 }
@@ -191,11 +185,10 @@ void FEText::_SetText(global_text_enum a2)
     TRACE("FEText::SetText");
     if constexpr (STANDALONE_SYSTEM) {
         auto *table = g_game_ptr->field_7C;
-        mString text {table->lookup_localized_string(a2)};
+        mString text{table->lookup_localized_string(a2)};
         SetTextNoLocalize(*bit_cast<FEText::string *>(&text));
     } else {
-        void(__fastcall *func)(FEText *, void *, global_text_enum) =
-            CAST(func, 0x00617760);
+        void(__fastcall * func)(FEText *, void *, global_text_enum) = CAST(func, 0x00617760);
         func(this, nullptr, a2);
     }
 }
@@ -205,8 +198,7 @@ void FEText::SetText(global_text_enum a2)
     if constexpr (STANDALONE_SYSTEM) {
         _SetText(a2);
     } else {
-        void (__fastcall *func)(FEText *, void *, global_text_enum) =
-            CAST(func, get_vfunc(m_vtbl, 0x88));
+        void(__fastcall * func)(FEText *, void *, global_text_enum) = CAST(func, get_vfunc(m_vtbl, 0x88));
         func(this, nullptr, a2);
     }
 }
@@ -217,8 +209,7 @@ void FEText::SetPos(Float x, Float y)
         field_34.x = x;
         field_34.y = y - flt_965BDC;
     } else {
-        void (__fastcall *func)(FEText *, void *, Float, Float) =
-            CAST(func, get_vfunc(m_vtbl, 0x90));
+        void(__fastcall * func)(FEText *, void *, Float, Float) = CAST(func, get_vfunc(m_vtbl, 0x90));
         func(this, nullptr, x, y);
     }
 }
@@ -239,7 +230,7 @@ void FEText::SetNoColor()
     if constexpr (STANDALONE_SYSTEM) {
         field_64 &= 0xF6u;
     } else {
-        void(__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0xAC));
+        void(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0xAC));
         func(this);
     }
 }
@@ -250,8 +241,7 @@ void FEText::SetScale(Float a2, Float a3)
         field_3C = a2;
         field_40 = a3;
     } else {
-        float(__fastcall *func)(FEText *, void *, Float, Float) =
-            CAST(func, get_vfunc(m_vtbl, 0x78));
+        float(__fastcall * func)(FEText *, void *, Float, Float) = CAST(func, get_vfunc(m_vtbl, 0x78));
         func(this, nullptr, a2, a3);
     }
 }
@@ -284,8 +274,7 @@ void FEText::SetTextNoLocalize(string a1)
     if constexpr (STANDALONE_SYSTEM) {
         _SetTextNoLocalize(a1);
     } else {
-        void(__fastcall *func)(FEText *, void *, string) =
-            CAST(func, get_vfunc(m_vtbl, 0x8C));
+        void(__fastcall * func)(FEText *, void *, string) = CAST(func, get_vfunc(m_vtbl, 0x8C));
         func(this, nullptr, a1);
     }
 }
@@ -350,7 +339,7 @@ float FEText::GetX()
     if constexpr (STANDALONE_SYSTEM)
         return field_34.x;
 
-    float(__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0xD4));
+    float(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0xD4));
     return func(this);
 }
 
@@ -359,7 +348,7 @@ float FEText::GetY()
     if constexpr (STANDALONE_SYSTEM)
         return field_34.y;
 
-    float(__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0xD8));
+    float(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0xD8));
     return func(this);
 }
 
@@ -368,8 +357,7 @@ void FEText::SetNumLines(int a2)
     if constexpr (STANDALONE_SYSTEM) {
         static_cast<FEMultiLineText *>(this)->SetNumLines(a2);
     } else {
-        void(__fastcall *func)(void *, void *, int) =
-            CAST(func, get_vfunc(m_vtbl, 0x144));
+        void(__fastcall * func)(void *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x144));
         func(this, nullptr, a2);
     }
 }

@@ -10,7 +10,7 @@
 namespace ai {
 struct als_inode;
 struct combat_inode;
-}
+}  // namespace ai
 
 struct anchor_storage_class;
 struct from_mash_in_place_constructor;

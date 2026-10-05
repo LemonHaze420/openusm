@@ -19,7 +19,6 @@ namespace {
 
 void calculate_region_boundaries()
 {
-
     static auto &bounds = []() -> vector4d *& {
         auto &pointer = var<vector4d *>(0x00921E44);
         pointer = var<vector4d[32]>(0x0095F978);
@@ -75,7 +74,7 @@ void calculate_region_boundaries()
     block_count = count / 4;
 }
 
-}
+}  // namespace
 #endif
 
 void add(::region *loaded_region)
@@ -115,26 +114,21 @@ void remove(::region *loaded_region)
 #endif
 }
 
-void get_regions_intersecting_sphere_platform_independent(
-    const vector4d &sphere, fixed_vector<::region *, 15> *output_array)
+void get_regions_intersecting_sphere_platform_independent(const vector4d &sphere,
+                                                          fixed_vector<::region *, 15> *output_array)
 {
     assert(output_array != nullptr);
-    const vector3d sphere_min{
-        sphere[0] - sphere[3], sphere[1] - sphere[3], sphere[2] - sphere[3]};
-    const vector3d sphere_max{
-        sphere[0] + sphere[3], sphere[1] + sphere[3], sphere[2] + sphere[3]};
+    const vector3d sphere_min{sphere[0] - sphere[3], sphere[1] - sphere[3], sphere[2] - sphere[3]};
+    const vector3d sphere_max{sphere[0] + sphere[3], sphere[1] + sphere[3], sphere[2] + sphere[3]};
     for (const auto &cached : regions()) {
         if (cached.region_allocation_index == UINT16_MAX) {
             continue;
         }
-        const bool overlaps =
-            cached.field_C[0] >= sphere_min[0] && cached.field_0[0] <= sphere_max[0] &&
-            cached.field_C[1] >= sphere_min[1] && cached.field_0[1] <= sphere_max[1] &&
-            cached.field_C[2] >= sphere_min[2] && cached.field_0[2] <= sphere_max[2];
-        if (overlaps && ::region::all_regions != nullptr &&
-            output_array->size() < 15) {
-            output_array->push_back(
-                &::region::all_regions[cached.region_allocation_index]);
+        const bool overlaps = cached.field_C[0] >= sphere_min[0] && cached.field_0[0] <= sphere_max[0] &&
+                              cached.field_C[1] >= sphere_min[1] && cached.field_0[1] <= sphere_max[1] &&
+                              cached.field_C[2] >= sphere_min[2] && cached.field_0[2] <= sphere_max[2];
+        if (overlaps && ::region::all_regions != nullptr && output_array->size() < 15) {
+            output_array->push_back(&::region::all_regions[cached.region_allocation_index]);
         }
     }
 }
@@ -151,8 +145,8 @@ void get_regions_intersecting_sphere(const vector3d &a1, Float a2, fixed_vector<
     get_regions_intersecting_sphere_platform_independent(v5, a3);
 }
 
-void get_regions_intersecting_box(const vector3d &start, const vector3d &end,
-                                  fixed_vector<::region *, 15> *output, const vector3d &margin)
+void get_regions_intersecting_box(const vector3d &start, const vector3d &end, fixed_vector<::region *, 15> *output,
+                                  const vector3d &margin)
 {
     vector3d minimum;
     for (int axis = 0; axis != 3; ++axis)

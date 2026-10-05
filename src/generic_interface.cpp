@@ -15,9 +15,8 @@ void generic_interface::un_mash(generic_mash_header *a1, void *a2, void *a3, gen
     }
     auto *address = get_vfunc(m_vtbl, 0x1C);
     if (address != nullptr) {
-        void(__fastcall * func)(
-            void *, int, generic_mash_header *, void *, void *,
-            generic_mash_data_ptrs *) = CAST(func, address);
+        void(__fastcall * func)(void *, int, generic_mash_header *, void *, void *, generic_mash_data_ptrs *) =
+            CAST(func, address);
         func(this, 0, a1, a2, a3, a4);
     }
 }

@@ -178,7 +178,9 @@ eligible_pack *eligible_pack_streamer::add_eligible_pack(const char *a2, const e
         auto *mem = mem_alloc(sizeof(eligible_pack));
         auto *pack = new (mem) eligible_pack{a2, a3, the_category};
         this->eligible_packs.push_back(pack);
-        qsort(this->eligible_packs.m_first, this->eligible_packs.size(), sizeof(eligible_pack *),
+        qsort(this->eligible_packs.m_first,
+              this->eligible_packs.size(),
+              sizeof(eligible_pack *),
               compare_eligible_pack_names);
         return pack;
     } else {
@@ -200,10 +202,9 @@ void eligible_pack_streamer::prioritize()
     for (auto &pack : ideal_packs) {
         sorted_packs.push_back(&pack);
     }
-    std::sort(sorted_packs.begin(), sorted_packs.end(),
-              [](const ideal_pack_info *lhs, const ideal_pack_info *rhs) {
-                  return lhs->field_4 < rhs->field_4;
-              });
+    std::sort(sorted_packs.begin(), sorted_packs.end(), [](const ideal_pack_info *lhs, const ideal_pack_info *rhs) {
+        return lhs->field_4 < rhs->field_4;
+    });
 
     for (auto *category : field_14) {
         category->prioritize(sorted_packs);

@@ -72,47 +72,59 @@ void quad(ProcVertex *out, ProcVertex a, ProcVertex b, ProcVertex c, ProcVertex 
 }
 
 
-
 constexpr DWORD building_vs[] = {
-    0xFFFE0101, 0x0000001F, 0x80000000, 0x900F0000, 0x0000001F, 0x80000005, 0x900F0001,
-    0x0000001F, 0x8000000A, 0x900F0002, 0x00000009, 0xC0010000, 0x90E40000, 0xA0E4000B,
-    0x00000009, 0xC0020000, 0x90E40000, 0xA0E4000C, 0x00000009, 0xC0040000, 0x90E40000,
-    0xA0E4000D, 0x00000009, 0xC0080000, 0x90E40000, 0xA0E4000E, 0x00000001, 0xE0030000,
-    0x90E40001, 0x00000009, 0x80020000, 0x90E40000, 0xA0E40001, 0x00000002, 0x80020002,
-    0x80550000, 0xA0550009, 0x00000005, 0xE0030002, 0x80550002, 0xA0000009, 0x00000005,
-    0xD0070000, 0x90000002, 0xA0E40008, 0x00000001, 0xD0080000, 0xA0E40008, 0x0000FFFF,
+    0xFFFE0101, 0x0000001F, 0x80000000, 0x900F0000, 0x0000001F, 0x80000005, 0x900F0001, 0x0000001F, 0x8000000A,
+    0x900F0002, 0x00000009, 0xC0010000, 0x90E40000, 0xA0E4000B, 0x00000009, 0xC0020000, 0x90E40000, 0xA0E4000C,
+    0x00000009, 0xC0040000, 0x90E40000, 0xA0E4000D, 0x00000009, 0xC0080000, 0x90E40000, 0xA0E4000E, 0x00000001,
+    0xE0030000, 0x90E40001, 0x00000009, 0x80020000, 0x90E40000, 0xA0E40001, 0x00000002, 0x80020002, 0x80550000,
+    0xA0550009, 0x00000005, 0xE0030002, 0x80550002, 0xA0000009, 0x00000005, 0xD0070000, 0x90000002, 0xA0E40008,
+    0x00000001, 0xD0080000, 0xA0E40008, 0x0000FFFF,
 };
 constexpr DWORD building_ps[] = {
-    0xFFFF0101, 0x00000042, 0xB00F0000, 0x00000042, 0xB00F0002, 0x00000005, 0x800F0000,
-    0x90E40000, 0xB0E40002, 0x00000005, 0x80070000, 0x80E40000, 0xB0E40000, 0x0000FFFF,
+    0xFFFF0101,
+    0x00000042,
+    0xB00F0000,
+    0x00000042,
+    0xB00F0002,
+    0x00000005,
+    0x800F0000,
+    0x90E40000,
+    0xB0E40002,
+    0x00000005,
+    0x80070000,
+    0x80E40000,
+    0xB0E40000,
+    0x0000FFFF,
 };
 constexpr DWORD windows_vs[] = {
-    0xFFFE0101, 0x0000001F, 0x80000000, 0x900F0000, 0x0000001F, 0x80000005, 0x900F0001,
-    0x0000001F, 0x8000000A, 0x900F0002, 0x00000001, 0x80070000, 0x90E40000, 0x00000001,
-    0x80080000, 0xA0AA005B, 0x00000009, 0xC0010000, 0x80E40000, 0xA0E4000B, 0x00000009,
-    0xC0020000, 0x80E40000, 0xA0E4000C, 0x00000009, 0xC0040000, 0x80E40000, 0xA0E4000D,
-    0x00000009, 0xC0080000, 0x80E40000, 0xA0E4000E, 0x00000001, 0xE00F0000, 0x90E40001,
-    0x00000005, 0xE00F0001, 0x90E40001, 0xA0E4000F, 0x00000009, 0x80020002, 0x90E40000,
-    0xA0E40001, 0x00000002, 0x80020003, 0x80550002, 0xA0550009, 0x00000005, 0xE0030002,
-    0x80550003, 0xA0000009, 0x00000002, 0x80020003, 0x80550002, 0xA055000A, 0x00000005,
-    0xE0030003, 0x80550003, 0xA000000A, 0x00000005, 0xD0070000, 0x90000002, 0xA0E40008,
+    0xFFFE0101, 0x0000001F, 0x80000000, 0x900F0000, 0x0000001F, 0x80000005, 0x900F0001, 0x0000001F, 0x8000000A,
+    0x900F0002, 0x00000001, 0x80070000, 0x90E40000, 0x00000001, 0x80080000, 0xA0AA005B, 0x00000009, 0xC0010000,
+    0x80E40000, 0xA0E4000B, 0x00000009, 0xC0020000, 0x80E40000, 0xA0E4000C, 0x00000009, 0xC0040000, 0x80E40000,
+    0xA0E4000D, 0x00000009, 0xC0080000, 0x80E40000, 0xA0E4000E, 0x00000001, 0xE00F0000, 0x90E40001, 0x00000005,
+    0xE00F0001, 0x90E40001, 0xA0E4000F, 0x00000009, 0x80020002, 0x90E40000, 0xA0E40001, 0x00000002, 0x80020003,
+    0x80550002, 0xA0550009, 0x00000005, 0xE0030002, 0x80550003, 0xA0000009, 0x00000002, 0x80020003, 0x80550002,
+    0xA055000A, 0x00000005, 0xE0030003, 0x80550003, 0xA000000A, 0x00000005, 0xD0070000, 0x90000002, 0xA0E40008,
     0x00000001, 0xD0080000, 0xA0E40008, 0x0000FFFF,
 };
 constexpr DWORD windows_ps[] = {
-    0xFFFF0101, 0x00000042, 0xB00F0000, 0x00000042, 0xB00F0001, 0x00000042, 0xB00F0002,
-    0x00000042, 0xB00F0003, 0x00000005, 0x800F0000, 0x90E40000, 0xB0E40002, 0x00000005,
-    0x80070000, 0x80E40000, 0xB0E40000, 0x00000005, 0x800F0001, 0xB0E40001, 0xB0E40003,
-    0x00000012, 0x80070000, 0xB0FF0000, 0x80E40000, 0x80E40001, 0x0000FFFF,
+    0xFFFF0101, 0x00000042, 0xB00F0000, 0x00000042, 0xB00F0001, 0x00000042, 0xB00F0002, 0x00000042, 0xB00F0003,
+    0x00000005, 0x800F0000, 0x90E40000, 0xB0E40002, 0x00000005, 0x80070000, 0x80E40000, 0xB0E40000, 0x00000005,
+    0x800F0001, 0xB0E40001, 0xB0E40003, 0x00000012, 0x80070000, 0xB0FF0000, 0x80E40000, 0x80E40001, 0x0000FFFF,
 };
 constexpr DWORD roof_vs[] = {
-    0xFFFE0101, 0x0000001F, 0x80000000, 0x900F0000, 0x0000001F, 0x80000005, 0x900F0001,
-    0x0000001F, 0x8000000A, 0x900F0002, 0x00000009, 0xC0010000, 0x90E40000, 0xA0E40000,
-    0x00000009, 0xC0020000, 0x90E40000, 0xA0E40001, 0x00000009, 0xC0040000, 0x90E40000,
-    0xA0E40002, 0x00000009, 0xC0080000, 0x90E40000, 0xA0E40003, 0x00000002, 0xE0030000,
-    0x90E40001, 0xA0540005, 0x00000005, 0xD00F0000, 0x90C00002, 0xA0E40004, 0x0000FFFF,
+    0xFFFE0101, 0x0000001F, 0x80000000, 0x900F0000, 0x0000001F, 0x80000005, 0x900F0001, 0x0000001F, 0x8000000A,
+    0x900F0002, 0x00000009, 0xC0010000, 0x90E40000, 0xA0E40000, 0x00000009, 0xC0020000, 0x90E40000, 0xA0E40001,
+    0x00000009, 0xC0040000, 0x90E40000, 0xA0E40002, 0x00000009, 0xC0080000, 0x90E40000, 0xA0E40003, 0x00000002,
+    0xE0030000, 0x90E40001, 0xA0540005, 0x00000005, 0xD00F0000, 0x90C00002, 0xA0E40004, 0x0000FFFF,
 };
 constexpr DWORD roof_ps[] = {
-    0xFFFF0101, 0x00000042, 0xB00F0000, 0x00000005, 0x800F0000, 0xB0E40000, 0x90E40000,
+    0xFFFF0101,
+    0x00000042,
+    0xB00F0000,
+    0x00000005,
+    0x800F0000,
+    0xB0E40000,
+    0x90E40000,
     0x0000FFFF,
 };
 
@@ -152,7 +164,7 @@ ProcShaders &shaders(bool procedural = true)
 }
 
 nglTexture *material_texture(nglMaterialBase *material, nglParamSet<nglShaderParamSet_Pool> &params,
-                            nglTexture *texture)
+                             nglTexture *texture)
 {
     const auto &data = *reinterpret_cast<const ProcMaterial *>(material);
     if ((texture->m_format & 0xFFu) != 16u)
@@ -169,25 +181,24 @@ nglTexture *material_texture(nglMaterialBase *material, nglParamSet<nglShaderPar
 }
 
 
-void material_colour(nglMaterialBase *material, nglParamSet<nglShaderParamSet_Pool> &params,
-                     unsigned reg, bool preserve_blend = true)
+void material_colour(nglMaterialBase *material, nglParamSet<nglShaderParamSet_Pool> &params, unsigned reg,
+                     bool preserve_blend = true)
 {
     color value;
     sub_413850(material, &params, &value);
     if (EnableShader) {
         IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice, reg, &value.r, 1);
     } else {
-        const uint32_t packed = (static_cast<uint32_t>(value.a * 255.0f) << 24) |
-            ((static_cast<uint32_t>(value.r * 255.0f) & 255u) << 16) |
-            ((static_cast<uint32_t>(value.g * 255.0f) & 255u) << 8) |
-            (static_cast<uint32_t>(value.b * 255.0f) & 255u);
+        const uint32_t packed =
+            (static_cast<uint32_t>(value.a * 255.0f) << 24) | ((static_cast<uint32_t>(value.r * 255.0f) & 255u) << 16) |
+            ((static_cast<uint32_t>(value.g * 255.0f) & 255u) << 8) | (static_cast<uint32_t>(value.b * 255.0f) & 255u);
         if (g_renderState().field_9C != packed) {
             IDirect3DDevice9_SetRenderState(g_Direct3DDevice, D3DRS_TEXTUREFACTOR, packed);
             g_renderState().field_9C = packed;
         }
     }
     auto blend = preserve_blend ? static_cast<uint32_t>(reinterpret_cast<const ProcMaterial *>(material)->blend_mode)
-                               : static_cast<uint32_t>(NGLBM_OPAQUE);
+                                : static_cast<uint32_t>(NGLBM_OPAQUE);
     if (std::not_equal_to<float>{}(value.a, 1.0f) && blend <= 1u)
         blend = NGLBM_BLEND;
     g_renderState().setBlending(static_cast<nglBlendModeType>(blend), 0, 128);
@@ -218,7 +229,8 @@ void building_material(nglMaterialBase *material, const matrix4x4 &local_to_worl
 void window_material()
 {
     static nglTexture *lighting[4]{};
-    static const char *names[] = {"us_day_light_window", "us_night_light_window", "us_rainy_light_window", "us_sunset_light_window"};
+    static const char *names[] = {
+        "us_day_light_window", "us_night_light_window", "us_rainy_light_window", "us_sunset_light_window"};
     if (!lighting[g_TOD])
         lighting[g_TOD] = nglLoadTexture(tlFixedString{names[g_TOD]});
     if (EnableShader) {
@@ -266,22 +278,18 @@ void draw_triangles(const ProcVertex *vertices, unsigned count)
 }
 
 constexpr uint16_t wall_indices[] = {0, 1, 2, 3, 1, 5, 3, 7, 5, 4, 7, 6, 4, 0, 6, 2};
-constexpr uint16_t column_indices[] = {3, 2, 1, 0, 5, 4, 4, 9, 9, 8, 7, 6, 11, 10,
-                                     10, 15, 15, 14, 13, 12, 17, 16, 16, 21, 21, 20, 19, 18, 23, 22};
-
-
+constexpr uint16_t column_indices[] = {3,  2,  1,  0,  5,  4,  4,  9,  9,  8,  7,  6,  11, 10, 10,
+                                       15, 15, 14, 13, 12, 17, 16, 16, 21, 21, 20, 19, 18, 23, 22};
 
 
 constexpr DWORD mesh_windows_vs[] = {
-    0xFFFE0101, 0x0000001F, 0x80000000, 0x900F0000, 0x0000001F, 0x80000005, 0x900F0001,
-    0x0000001F, 0x8000000A, 0x900F0002, 0x00000009, 0xC0010000, 0x90E40000, 0xA0E4000B,
-    0x00000009, 0xC0020000, 0x90E40000, 0xA0E4000C, 0x00000009, 0xC0040000, 0x90E40000,
-    0xA0E4000D, 0x00000009, 0xC0080000, 0x90E40000, 0xA0E4000E, 0x00000001, 0xE00F0000,
-    0x90E40001, 0x00000005, 0xE00F0001, 0xA0E4000F, 0x90E40001, 0x00000009, 0x80020000,
-    0x90E40000, 0xA0E40001, 0x00000002, 0x80020002, 0x80550000, 0xA0550009, 0x00000005,
-    0xE0030002, 0x80550002, 0xA0000009, 0x00000002, 0x80020002, 0x80550000, 0xA055000A,
-    0x00000005, 0xE0030003, 0x80550002, 0xA000000A, 0x00000005, 0xD0070000, 0x90000002,
-    0xA0E40008, 0x00000001, 0xD0080000, 0xA0E40008, 0x0000FFFF,
+    0xFFFE0101, 0x0000001F, 0x80000000, 0x900F0000, 0x0000001F, 0x80000005, 0x900F0001, 0x0000001F, 0x8000000A,
+    0x900F0002, 0x00000009, 0xC0010000, 0x90E40000, 0xA0E4000B, 0x00000009, 0xC0020000, 0x90E40000, 0xA0E4000C,
+    0x00000009, 0xC0040000, 0x90E40000, 0xA0E4000D, 0x00000009, 0xC0080000, 0x90E40000, 0xA0E4000E, 0x00000001,
+    0xE00F0000, 0x90E40001, 0x00000005, 0xE00F0001, 0xA0E4000F, 0x90E40001, 0x00000009, 0x80020000, 0x90E40000,
+    0xA0E40001, 0x00000002, 0x80020002, 0x80550000, 0xA0550009, 0x00000005, 0xE0030002, 0x80550002, 0xA0000009,
+    0x00000002, 0x80020002, 0x80550000, 0xA055000A, 0x00000005, 0xE0030003, 0x80550002, 0xA000000A, 0x00000005,
+    0xD0070000, 0x90000002, 0xA0E40008, 0x00000001, 0xD0080000, 0xA0E40008, 0x0000FFFF,
 };
 
 VShader &mesh_window_program()
@@ -318,10 +326,10 @@ struct BuildingMeshNode : nglShaderNode {
         const auto &data = *reinterpret_cast<const ProcMaterial *>(material);
         textures[0] = material_texture(material, mesh->field_8C, data.texture);
         if constexpr (Windows)
-            textures[1] = material_texture(material, mesh->field_8C,
-                reinterpret_cast<nglTexture *>(data.field_6C));
+            textures[1] = material_texture(material, mesh->field_8C, reinterpret_cast<nglTexture *>(data.field_6C));
         static void *table[]{func_address(&BuildingMeshNode::Render),
-            func_address(&BuildingMeshNode::GetSortInfo), func_address(&BuildingMeshNode::Delete)};
+                             func_address(&BuildingMeshNode::GetSortInfo),
+                             func_address(&BuildingMeshNode::Delete)};
         m_vtbl = reinterpret_cast<decltype(m_vtbl)>(table);
     }
 
@@ -352,10 +360,8 @@ struct BuildingMeshNode : nglShaderNode {
         state.setColourBufferWriteEnabled(15);
         building_material(material, m_meshNode->LocalToWorld, m_meshNode->field_8C, !Windows);
         nglDxSetTexture(0, textures[0], Windows ? 4 : 8, 3);
-        nglSetSamplerState(0, D3DSAMP_ADDRESSU,
-            !Windows && data.field_68 ? D3DTADDRESS_CLAMP : D3DTADDRESS_WRAP);
-        nglSetSamplerState(0, D3DSAMP_ADDRESSV,
-            !Windows && data.field_6C ? D3DTADDRESS_CLAMP : D3DTADDRESS_WRAP);
+        nglSetSamplerState(0, D3DSAMP_ADDRESSU, !Windows && data.field_68 ? D3DTADDRESS_CLAMP : D3DTADDRESS_WRAP);
+        nglSetSamplerState(0, D3DSAMP_ADDRESSV, !Windows && data.field_6C ? D3DTADDRESS_CLAMP : D3DTADDRESS_WRAP);
         if constexpr (Windows) {
             window_material();
             nglDxSetTexture(1, textures[1], 4, 3);
@@ -363,8 +369,7 @@ struct BuildingMeshNode : nglShaderNode {
             nglSetSamplerState(1, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);
         }
         if (EnableShader) {
-            IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice, 11,
-                &m_meshNode->WorldToLocal[0][0], 4);
+            IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice, 11, &m_meshNode->WorldToLocal[0][0], 4);
             if constexpr (Windows) {
                 const float scale[]{0.2f, 0.2f, 1.0f, 1.0f};
                 IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice, 15, scale, 1);
@@ -377,13 +382,13 @@ struct BuildingMeshNode : nglShaderNode {
             }
         } else {
             IDirect3DDevice9_SetVertexDeclaration(g_Direct3DDevice, resources.fixed_declaration);
-            IDirect3DDevice9_SetTransform(g_Direct3DDevice, D3DTS_WORLD,
-                reinterpret_cast<const D3DMATRIX *>(&m_meshNode->LocalToWorld));
+            IDirect3DDevice9_SetTransform(
+                g_Direct3DDevice, D3DTS_WORLD, reinterpret_cast<const D3DMATRIX *>(&m_meshNode->LocalToWorld));
             if constexpr (Windows) {
                 auto scale = identity_matrix;
                 scale[0][0] = scale[1][1] = 0.2f;
-                IDirect3DDevice9_SetTransform(g_Direct3DDevice, D3DTS_TEXTURE1,
-                    reinterpret_cast<const D3DMATRIX *>(&scale));
+                IDirect3DDevice9_SetTransform(
+                    g_Direct3DDevice, D3DTS_TEXTURE1, reinterpret_cast<const D3DMATRIX *>(&scale));
                 nglSetTextureStageState(1, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);
                 nglSetTextureStageState(1, D3DTSS_TEXCOORDINDEX, 0);
                 nglSetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
@@ -420,15 +425,23 @@ struct BuildingMeshShader : nglShader {
     {
         *out = tlFixedString{Windows ? "USM_Building" : "USBuildingSimple"};
     }
-    static bool __fastcall Switchable(BuildingMeshShader *, void *) { return true; }
+    static bool __fastcall Switchable(BuildingMeshShader *, void *)
+    {
+        return true;
+    }
     BuildingMeshShader()
     {
-        static void *table[]{func_address(&BuildingMeshShader::Register), reinterpret_cast<void *>(Name),
-            func_address(&BuildingMeshShader::Add), func_address(&BuildingMeshShader::Bind),
-            func_address(&BuildingMeshShader::Release), func_address(&BuildingMeshShader::Rebase),
-            func_address(&nglShader::_CheckMaterialVersion), func_address(&nglShader::_CheckVertexDefVersion),
-            func_address(&nglShader::_BindSection), reinterpret_cast<void *>(Switchable),
-            func_address(&BuildingMeshShader::Delete)};
+        static void *table[]{func_address(&BuildingMeshShader::Register),
+                             reinterpret_cast<void *>(Name),
+                             func_address(&BuildingMeshShader::Add),
+                             func_address(&BuildingMeshShader::Bind),
+                             func_address(&BuildingMeshShader::Release),
+                             func_address(&BuildingMeshShader::Rebase),
+                             func_address(&nglShader::_CheckMaterialVersion),
+                             func_address(&nglShader::_CheckVertexDefVersion),
+                             func_address(&nglShader::_BindSection),
+                             reinterpret_cast<void *>(Switchable),
+                             func_address(&BuildingMeshShader::Delete)};
         m_vtbl = reinterpret_cast<decltype(m_vtbl)>(table);
     }
     BuildingMeshShader *Delete(unsigned char flags)
@@ -449,7 +462,8 @@ struct BuildingMeshShader : nglShader {
         auto &data = *reinterpret_cast<ProcMaterial *>(material);
         data.texture = nglLoadTexture(*reinterpret_cast<tlFixedString *>(data.texture_name));
         if constexpr (Windows)
-            data.field_6C = reinterpret_cast<uint32_t>(nglLoadTexture(*reinterpret_cast<tlFixedString *>(data.field_68)));
+            data.field_6C =
+                reinterpret_cast<uint32_t>(nglLoadTexture(*reinterpret_cast<tlFixedString *>(data.field_68)));
     }
     void Release(nglMaterialBase *material)
     {
@@ -488,7 +502,7 @@ struct BuildingMeshShader : nglShader {
     }
 };
 #endif
-}
+}  // namespace
 
 #if STANDALONE_SYSTEM
 void initialize_building_mesh_shaders()
@@ -498,8 +512,8 @@ void initialize_building_mesh_shaders()
 }
 #endif
 
-void render_generated_building(const scene_entity &building, Float fade, Float,
-                               region &owner, const matrix4x4 &local_to_world)
+void render_generated_building(const scene_entity &building, Float fade, Float, region &owner,
+                               const matrix4x4 &local_to_world)
 {
     if (!(fade > 0.0f))
         return;
@@ -513,7 +527,7 @@ void render_generated_building(const scene_entity &building, Float fade, Float,
 }
 
 void USProcBlgTopAdd(const scene_entity *building, const matrix4x4 *local_to_world,
-                    nglParamSet<nglShaderParamSet_Pool> *params)
+                     nglParamSet<nglShaderParamSet_Pool> *params)
 {
 #if STANDALONE_SYSTEM
     auto *node = new (nglListAlloc(sizeof(ProcBlgNode), 16)) ProcBlgNode{*local_to_world, *params, building};
@@ -544,8 +558,8 @@ void USProcBlgTopRender(void *payload, void *)
     auto **list = node.params.Get<USMMaterialListParam>()->field_0;
     for (unsigned i = 0; i < 9; ++i) {
         materials[i] = list[record.materials[i]];
-        textures[i] = material_texture(materials[i], node.params,
-            reinterpret_cast<const ProcMaterial *>(materials[i])->texture);
+        textures[i] =
+            material_texture(materials[i], node.params, reinterpret_cast<const ProcMaterial *>(materials[i])->texture);
     }
     auto &resources = shaders();
     g_renderState().setCullingMode(D3DCULL_CW);
@@ -559,8 +573,8 @@ void USProcBlgTopRender(void *payload, void *)
     if (EnableShader) {
         IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice, 11, &projected[0][0], 4);
     } else {
-        IDirect3DDevice9_SetTransform(g_Direct3DDevice, D3DTS_WORLD,
-                                     reinterpret_cast<const D3DMATRIX *>(&node.local_to_world));
+        IDirect3DDevice9_SetTransform(
+            g_Direct3DDevice, D3DTS_WORLD, reinterpret_cast<const D3DMATRIX *>(&node.local_to_world));
         IDirect3DDevice9_SetVertexDeclaration(g_Direct3DDevice, resources.fixed_declaration);
     }
     ProcVertex vertices[576];
@@ -593,8 +607,8 @@ void USProcBlgTopRender(void *payload, void *)
             } else {
                 auto scale = identity_matrix;
                 scale[0][0] = scale[1][1] = 0.2f;
-                IDirect3DDevice9_SetTransform(g_Direct3DDevice, D3DTS_TEXTURE1,
-                                             reinterpret_cast<const D3DMATRIX *>(&scale));
+                IDirect3DDevice9_SetTransform(
+                    g_Direct3DDevice, D3DTS_TEXTURE1, reinterpret_cast<const D3DMATRIX *>(&scale));
                 nglSetTextureStageState(1, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);
                 nglSetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
                 nglSetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
@@ -614,30 +628,53 @@ void USProcBlgTopRender(void *payload, void *)
         }
         nglSetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);
         nglSetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);
-        IDirect3DDevice9_DrawIndexedPrimitiveUP(g_Direct3DDevice, D3DPT_TRIANGLESTRIP, 0, 8, 2,
-            wall_indices + 4 * wall, D3DFMT_INDEX16, vertices, sizeof(ProcVertex));
+        IDirect3DDevice9_DrawIndexedPrimitiveUP(g_Direct3DDevice,
+                                                D3DPT_TRIANGLESTRIP,
+                                                0,
+                                                8,
+                                                2,
+                                                wall_indices + 4 * wall,
+                                                D3DFMT_INDEX16,
+                                                vertices,
+                                                sizeof(ProcVertex));
     }
     bind_building_shader(resources);
     if (flags & 0x40) {
         const float top = y + parapet_height, du = depth * 6.0f, wu = width * 6.0f;
-        quad(vertices, vertex(x,y,-z,du,1), vertex(x,y,z,0,1), vertex(x,top,-z,du,0), vertex(x,top,z,0,0));
-        quad(vertices+6, vertex(x,y,z,wu,1), vertex(-x,y,z,0,1), vertex(x,top,z,wu,0), vertex(-x,top,z,0,0));
-        quad(vertices+12, vertex(-x,y,z,du,1), vertex(-x,y,-z,0,1), vertex(-x,top,z,du,0), vertex(-x,top,-z,0,0));
-        quad(vertices+18, vertex(-x,y,-z,wu,1), vertex(x,y,-z,0,1), vertex(-x,top,-z,wu,0), vertex(x,top,-z,0,0));
+        quad(vertices,
+             vertex(x, y, -z, du, 1),
+             vertex(x, y, z, 0, 1),
+             vertex(x, top, -z, du, 0),
+             vertex(x, top, z, 0, 0));
+        quad(vertices + 6,
+             vertex(x, y, z, wu, 1),
+             vertex(-x, y, z, 0, 1),
+             vertex(x, top, z, wu, 0),
+             vertex(-x, top, z, 0, 0));
+        quad(vertices + 12,
+             vertex(-x, y, z, du, 1),
+             vertex(-x, y, -z, 0, 1),
+             vertex(-x, top, z, du, 0),
+             vertex(-x, top, -z, 0, 0));
+        quad(vertices + 18,
+             vertex(-x, y, -z, wu, 1),
+             vertex(x, y, -z, 0, 1),
+             vertex(-x, top, -z, wu, 0),
+             vertex(x, top, -z, 0, 0));
         building_material(materials[3], node.local_to_world, node.params);
         nglDxSetTexture(0, textures[3], 8, 3);
         draw_triangles(vertices, 8);
-        const float ix = x-inset, iz = z-inset;
+        const float ix = x - inset, iz = z - inset;
 
         const ProcVertex inner[] = {
-            vertex(ix,y,iz,du,0), vertex(ix,y,-iz,0,0), vertex(ix,top,-iz,0,1),
-            vertex(ix,y,iz,du,0), vertex(ix,top,-iz,0,1), vertex(ix,top,iz,du,1),
-            vertex(-ix,y,iz,wu,0), vertex(ix,y,iz,0,0), vertex(ix,top,iz,0,1),
-            vertex(-ix,y,iz,wu,0), vertex(ix,top,iz,0,1), vertex(-ix,top,iz,wu,1),
-            vertex(-ix,y,-iz,du,0), vertex(-ix,y,iz,0,0), vertex(-ix,top,iz,0,1),
-            vertex(-ix,y,-iz,du,0), vertex(-ix,top,iz,0,1), vertex(-ix,top,-iz,du,1),
-            vertex(ix,y,-iz,wu,0), vertex(-ix,y,-iz,0,0), vertex(-ix,top,-iz,0,1),
-            vertex(ix,y,-iz,wu,0), vertex(-ix,top,-iz,0,1), vertex(ix,top,-iz,wu,1),
+            vertex(ix, y, iz, du, 0),   vertex(ix, y, -iz, 0, 0),    vertex(ix, top, -iz, 0, 1),
+            vertex(ix, y, iz, du, 0),   vertex(ix, top, -iz, 0, 1),  vertex(ix, top, iz, du, 1),
+            vertex(-ix, y, iz, wu, 0),  vertex(ix, y, iz, 0, 0),     vertex(ix, top, iz, 0, 1),
+            vertex(-ix, y, iz, wu, 0),  vertex(ix, top, iz, 0, 1),   vertex(-ix, top, iz, wu, 1),
+            vertex(-ix, y, -iz, du, 0), vertex(-ix, y, iz, 0, 0),    vertex(-ix, top, iz, 0, 1),
+            vertex(-ix, y, -iz, du, 0), vertex(-ix, top, iz, 0, 1),  vertex(-ix, top, -iz, du, 1),
+            vertex(ix, y, -iz, wu, 0),  vertex(-ix, y, -iz, 0, 0),   vertex(-ix, top, -iz, 0, 1),
+            vertex(ix, y, -iz, wu, 0),  vertex(-ix, top, -iz, 0, 1), vertex(ix, top, -iz, wu, 1),
         };
         building_material(materials[2], node.local_to_world, node.params);
         nglDxSetTexture(0, textures[2], 8, 3);
@@ -645,23 +682,42 @@ void USProcBlgTopRender(void *payload, void *)
     }
     if (flags & 0x20) {
         const float hu = height * 6.0f;
-        vertices[0] = vertex(x,-y,-z,0,hu); vertices[1] = vertex(x,y,-z,0,0);
-        vertices[2] = vertex(x-1,-y,-z,1,hu); vertices[3] = vertex(x-1,y,-z,1,0);
-        vertices[4] = vertex(x,-y,1-z,1,hu); vertices[5] = vertex(x,y,1-z,1,0);
-        vertices[6] = vertex(x,-y,z,0,hu); vertices[7] = vertex(x,y,z,0,0);
-        vertices[8] = vertex(x,-y,z-1,1,hu); vertices[9] = vertex(x,y,z-1,1,0);
-        vertices[10] = vertex(x-1,-y,z,1,hu); vertices[11] = vertex(x-1,y,z,1,0);
-        vertices[12] = vertex(-x,-y,z,0,hu); vertices[13] = vertex(-x,y,z,0,0);
-        vertices[14] = vertex(1-x,-y,z,1,hu); vertices[15] = vertex(1-x,y,z,1,0);
-        vertices[16] = vertex(-x,-y,z-1,1,hu); vertices[17] = vertex(-x,y,z-1,1,0);
-        vertices[18] = vertex(-x,-y,-z,0,hu); vertices[19] = vertex(-x,y,-z,0,0);
-        vertices[20] = vertex(-x,-y,1-z,1,hu); vertices[21] = vertex(-x,y,1-z,1,0);
-        vertices[22] = vertex(1-x,-y,-z,1,hu); vertices[23] = vertex(1-x,y,-z,1,0);
+        vertices[0] = vertex(x, -y, -z, 0, hu);
+        vertices[1] = vertex(x, y, -z, 0, 0);
+        vertices[2] = vertex(x - 1, -y, -z, 1, hu);
+        vertices[3] = vertex(x - 1, y, -z, 1, 0);
+        vertices[4] = vertex(x, -y, 1 - z, 1, hu);
+        vertices[5] = vertex(x, y, 1 - z, 1, 0);
+        vertices[6] = vertex(x, -y, z, 0, hu);
+        vertices[7] = vertex(x, y, z, 0, 0);
+        vertices[8] = vertex(x, -y, z - 1, 1, hu);
+        vertices[9] = vertex(x, y, z - 1, 1, 0);
+        vertices[10] = vertex(x - 1, -y, z, 1, hu);
+        vertices[11] = vertex(x - 1, y, z, 1, 0);
+        vertices[12] = vertex(-x, -y, z, 0, hu);
+        vertices[13] = vertex(-x, y, z, 0, 0);
+        vertices[14] = vertex(1 - x, -y, z, 1, hu);
+        vertices[15] = vertex(1 - x, y, z, 1, 0);
+        vertices[16] = vertex(-x, -y, z - 1, 1, hu);
+        vertices[17] = vertex(-x, y, z - 1, 1, 0);
+        vertices[18] = vertex(-x, -y, -z, 0, hu);
+        vertices[19] = vertex(-x, y, -z, 0, 0);
+        vertices[20] = vertex(-x, -y, 1 - z, 1, hu);
+        vertices[21] = vertex(-x, y, 1 - z, 1, 0);
+        vertices[22] = vertex(1 - x, -y, -z, 1, hu);
+        vertices[23] = vertex(1 - x, y, -z, 1, 0);
         depth_bias(1);
         building_material(materials[1], node.local_to_world, node.params);
         nglDxSetTexture(0, textures[1], 8, 3);
-        IDirect3DDevice9_DrawIndexedPrimitiveUP(g_Direct3DDevice, D3DPT_TRIANGLESTRIP, 0, 24, 28,
-            column_indices, D3DFMT_INDEX16, vertices, sizeof(ProcVertex));
+        IDirect3DDevice9_DrawIndexedPrimitiveUP(g_Direct3DDevice,
+                                                D3DPT_TRIANGLESTRIP,
+                                                0,
+                                                24,
+                                                28,
+                                                column_indices,
+                                                D3DFMT_INDEX16,
+                                                vertices,
+                                                sizeof(ProcVertex));
         depth_bias(0);
     }
     if (record.floor_spacing) {
@@ -669,26 +725,37 @@ void USProcBlgTopRender(void *payload, void *)
         const unsigned count = (record.height + spacing - 1) / spacing;
         static constexpr auto indices = [] {
             std::array<uint16_t, 240> table{};
-            constexpr uint16_t band[] = {0,4,1,5,3,7,2,6,0,4};
+            constexpr uint16_t band[] = {0, 4, 1, 5, 3, 7, 2, 6, 0, 4};
             for (unsigned i = 0; i < 24; ++i)
                 for (unsigned j = 0; j < 10; ++j)
-                    table[10*i+j] = band[j];
+                    table[10 * i + j] = band[j];
             return table;
         }();
-        const float du = depth*6.0f, wu = width*6.0f;
+        const float du = depth * 6.0f, wu = width * 6.0f;
         for (unsigned i = 0; i < count; ++i) {
-            const float top = y - i*spacing*5.0f, bottom = top-1.0f;
-            auto *v = vertices + 8*i;
-            v[0]=vertex(x,top,-z,0,0); v[1]=vertex(x,top,z,du,0);
-            v[2]=vertex(-x,top,-z,wu,0); v[3]=vertex(-x,top,z,wu+du,0);
-            v[4]=vertex(x,bottom,-z,0,1); v[5]=vertex(x,bottom,z,du,1);
-            v[6]=vertex(-x,bottom,-z,wu,1); v[7]=vertex(-x,bottom,z,wu+du,1);
+            const float top = y - i * spacing * 5.0f, bottom = top - 1.0f;
+            auto *v = vertices + 8 * i;
+            v[0] = vertex(x, top, -z, 0, 0);
+            v[1] = vertex(x, top, z, du, 0);
+            v[2] = vertex(-x, top, -z, wu, 0);
+            v[3] = vertex(-x, top, z, wu + du, 0);
+            v[4] = vertex(x, bottom, -z, 0, 1);
+            v[5] = vertex(x, bottom, z, du, 1);
+            v[6] = vertex(-x, bottom, -z, wu, 1);
+            v[7] = vertex(-x, bottom, z, wu + du, 1);
         }
         depth_bias(2);
         building_material(materials[7], node.local_to_world, node.params);
         nglDxSetTexture(0, textures[7], 8, 3);
-        IDirect3DDevice9_DrawIndexedPrimitiveUP(g_Direct3DDevice, D3DPT_TRIANGLESTRIP, 0, 8*count, 8*count,
-            indices.data(), D3DFMT_INDEX16, vertices, sizeof(ProcVertex));
+        IDirect3DDevice9_DrawIndexedPrimitiveUP(g_Direct3DDevice,
+                                                D3DPT_TRIANGLESTRIP,
+                                                0,
+                                                8 * count,
+                                                8 * count,
+                                                indices.data(),
+                                                D3DFMT_INDEX16,
+                                                vertices,
+                                                sizeof(ProcVertex));
         depth_bias(0);
     }
     if (EnableShader) {
@@ -701,12 +768,28 @@ void USProcBlgTopRender(void *payload, void *)
         nglSetTextureStageState(1, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_DISABLE);
     }
     if (flags & 0x10) {
-        const float top = y+parapet_height, ix = x-inset, iz = z-inset;
-        const float du = depth*6.0f, wu = width*6.0f, edge = inset*0.2f;
-        quad(vertices, vertex(x,top,-z,0,0), vertex(x,top,z,du,0), vertex(ix,top,-iz,edge,1), vertex(ix,top,iz,du-edge,1));
-        quad(vertices+6, vertex(x,top,z,0,0), vertex(-x,top,z,wu,0), vertex(ix,top,iz,edge,1), vertex(-ix,top,iz,wu-edge,1));
-        quad(vertices+12, vertex(-x,top,z,0,0), vertex(-x,top,-z,du,0), vertex(-ix,top,iz,edge,1), vertex(-ix,top,-iz,du-edge,1));
-        quad(vertices+18, vertex(-x,top,-z,0,0), vertex(x,top,-z,wu,0), vertex(-ix,top,-iz,edge,1), vertex(ix,top,-iz,wu-edge,1));
+        const float top = y + parapet_height, ix = x - inset, iz = z - inset;
+        const float du = depth * 6.0f, wu = width * 6.0f, edge = inset * 0.2f;
+        quad(vertices,
+             vertex(x, top, -z, 0, 0),
+             vertex(x, top, z, du, 0),
+             vertex(ix, top, -iz, edge, 1),
+             vertex(ix, top, iz, du - edge, 1));
+        quad(vertices + 6,
+             vertex(x, top, z, 0, 0),
+             vertex(-x, top, z, wu, 0),
+             vertex(ix, top, iz, edge, 1),
+             vertex(-ix, top, iz, wu - edge, 1));
+        quad(vertices + 12,
+             vertex(-x, top, z, 0, 0),
+             vertex(-x, top, -z, du, 0),
+             vertex(-ix, top, iz, edge, 1),
+             vertex(-ix, top, -iz, du - edge, 1));
+        quad(vertices + 18,
+             vertex(-x, top, -z, 0, 0),
+             vertex(x, top, -z, wu, 0),
+             vertex(-ix, top, -iz, edge, 1),
+             vertex(ix, top, -iz, wu - edge, 1));
         if (!(flags & 0x40))
             depth_bias(1);
         material_colour(materials[4], node.params, 4);
@@ -715,7 +798,11 @@ void USProcBlgTopRender(void *payload, void *)
         if (!(flags & 0x40))
             depth_bias(0);
     }
-    quad(vertices, vertex(x,y,-z,0,0), vertex(x,y,z,depth,0), vertex(-x,y,-z,0,width), vertex(-x,y,z,depth,width));
+    quad(vertices,
+         vertex(x, y, -z, 0, 0),
+         vertex(x, y, z, depth, 0),
+         vertex(-x, y, -z, 0, width),
+         vertex(-x, y, z, depth, width));
     material_colour(materials[5], node.params, 4);
     nglDxSetTexture(0, textures[5], 8, 3);
     draw_triangles(vertices, 2);

@@ -22,7 +22,6 @@ struct param_block {
     struct param_data {
     public:
         union U {
-
             U() {}
             int i;
             float f;
@@ -47,7 +46,7 @@ struct param_block {
 
         void initialize(mash::allocation_scope a2);
 
-        void finalize(mash::allocation_scope );
+        void finalize(mash::allocation_scope);
 
         void destruct_mashed_class();
 
@@ -67,26 +66,26 @@ struct param_block {
         //0x006BD200
         string_hash get_data_hash() const;
 
-        const char * get_data_fixedstring() const;
+        const char *get_data_fixedstring() const;
 
-        vector3d * get_data_vector3d() const;
+        vector3d *get_data_vector3d() const;
 
-        variance_variable<float> * get_data_float_variance() const;
+        variance_variable<float> *get_data_float_variance() const;
 
-        void * get_data_pointer() const;
+        void *get_data_pointer() const;
 
         int get_data_type() const
         {
             return this->my_type;
         }
-        const char* get_data_string()
+        const char *get_data_string()
         {
             assert(my_type == PT_FIXED_STRING);
 
             return this->m_union.str;
         }
 
-        entity_base_vhandle* get_data_entity()
+        entity_base_vhandle *get_data_entity()
         {
             assert(my_type == PT_ENTITY);
 
@@ -96,63 +95,59 @@ struct param_block {
         mString get_value_in_string_form()
         {
             mString result{};
-            switch (this->my_type)
-            {
+            switch (this->my_type) {
             case PT_FLOAT: {
                 auto data_float = this->get_data_float();
-                result = mString{ 0, "%.1f", data_float };
+                result = mString{0, "%.1f", data_float};
                 break;
             }
             case PT_INTEGER: {
                 auto data_int = this->get_data_int();
-                result = mString{ 0, "%d", data_int };
+                result = mString{0, "%d", data_int};
                 break;
             }
             case PT_STRING_HASH: {
                 auto v22 = this->get_data_hash();
-                auto* v4 = v22.to_string();
-                result = mString{ v4 };
+                auto *v4 = v22.to_string();
+                result = mString{v4};
                 break;
             }
             case PT_FIXED_STRING: {
-                auto* v5 = this->get_data_fixedstring();
-                result = mString{ v5 };
+                auto *v5 = this->get_data_fixedstring();
+                result = mString{v5};
                 break;
             }
             case PT_VECTOR_3D: {
                 auto v17 = this->get_data_vector3d()->z;
                 auto v16 = this->get_data_vector3d()->y;
                 auto v6 = this->get_data_vector3d()->x;
-                result = mString{ 0, "%.1f %.1f %.1f", v6, v16, v17 };
+                result = mString{0, "%.1f %.1f %.1f", v6, v16, v17};
                 break;
             }
             case PT_FLOAT_VARIANCE: {
                 auto v7 = *this->get_data_float_variance();
                 auto v18 = v7.field_4;
                 auto v9 = v7.field_0;
-                result = mString{ 0, "%.1f %.1f", v9, v18 };
+                result = mString{0, "%.1f %.1f", v9, v18};
                 break;
             }
             case PT_ENTITY: {
                 mString v14{};
-                auto* v10 = this->get_data_entity();
-                if (v10->get_volatile_ptr() != nullptr)
-                {
-                    auto* ent = v10->get_volatile_ptr();
+                auto *v10 = this->get_data_entity();
+                if (v10->get_volatile_ptr() != nullptr) {
+                    auto *ent = v10->get_volatile_ptr();
                     auto id = ent->get_id();
-                    auto* v27 = id.to_string();
-                    v14 = mString{ 0, "%s", v27 };
-                }
-                else
-                {
-                    v14 = mString{ 0, "%s", "<NULL>" };
+                    auto *v27 = id.to_string();
+                    v14 = mString{0, "%s", v27};
+                } else {
+                    v14 = mString{0, "%s", "<NULL>"};
                 }
 
                 result = v14;
                 break;
             }
             case PT_POINTER: {
-                result = mString{ "<NULL>" };
+                result = mString{"<NULL>"};
                 break;
             }
             default:
@@ -194,7 +189,7 @@ struct param_block {
 
         void destruct_mashed_class();
 
-        void finalize(mash::allocation_scope )
+        void finalize(mash::allocation_scope)
         {
             this->field_14 = nullptr;
         }
@@ -273,7 +268,7 @@ struct param_block {
     //0x006CDFF0
     const char *get_optional_pb_fixedstring(string_hash a2, const char *a3, bool *a4) const;
 };
-} // namespace ai
+}  // namespace ai
 
 extern void param_block_patch();
 #ifdef OPENUSM_XBPACK_V10

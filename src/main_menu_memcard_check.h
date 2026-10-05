@@ -66,9 +66,7 @@ struct main_menu_memcard_check : FEMenu {
     void SetDialogMessage();
     void SetUpDialogBox(dialog_state state);
 
-    void OperationFailed(
-        MemoryUnitManager::eOperation operation,
-        MemoryUnitManager::eStatus status);
+    void OperationFailed(MemoryUnitManager::eOperation operation, MemoryUnitManager::eStatus status);
 
 
     void UpdateText();

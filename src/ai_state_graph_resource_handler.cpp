@@ -24,7 +24,7 @@ ai_state_graph_resource_handler::ai_state_graph_resource_handler(worldly_pack_sl
 
         this->m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {
-    this->m_vtbl = 0x00888A18;
+        this->m_vtbl = 0x00888A18;
     }
 
     this->my_slot = a2;
@@ -66,9 +66,9 @@ bool ai_state_graph_resource_handler::_handle_resource(worldly_resource_handler:
             assert(new_state_graph != nullptr);
 
 #if OPENUSM_XBOX_MASH_FORMAT
-            mash_info_struct a1 {mash::UNMASH_MODE, resource, a3->m_size, true};
+            mash_info_struct a1{mash::UNMASH_MODE, resource, a3->m_size, true};
 #else
-            mash_info_struct a1 {resource, a3->m_size};
+            mash_info_struct a1{resource, a3->m_size};
 #endif
 
             a1.unmash_class(new_state_graph,
@@ -77,7 +77,7 @@ bool ai_state_graph_resource_handler::_handle_resource(worldly_resource_handler:
                             ,
                             mash::NORMAL_BUFFER
 #endif
-                    );
+            );
             mash_info_struct::construct_class(new_state_graph);
 
 #if OPENUSM_XBOX_MASH_FORMAT
@@ -88,7 +88,7 @@ bool ai_state_graph_resource_handler::_handle_resource(worldly_resource_handler:
         ++this->field_C;
         return false;
     } else {
-        return (bool) THISCALL(0x00568AF0, this, a2, a3);
+        return (bool)THISCALL(0x00568AF0, this, a2, a3);
     }
 }
 

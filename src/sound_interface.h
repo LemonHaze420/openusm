@@ -44,20 +44,20 @@ struct sound_interface : entity_base_interface {
     void copy(const sound_interface &source);
 
 
-    sound_instance_id play_sound(sound_source source, float volume, float pitch,
-        float doppler, float min_distance, float max_distance);
-    sound_instance_id play_sound_grp(string_hash group, float volume, float pitch,
-        float doppler, float min_distance, float max_distance);
-    sound_instance_id play_sound_grp_at(string_hash group, const vector3d *position,
-        float volume, float pitch, float doppler, float min_distance, float max_distance,
-        sound_interface *emitter_owner = nullptr, uint32_t instance_scope = 0);
+    sound_instance_id play_sound(sound_source source, float volume, float pitch, float doppler, float min_distance,
+                                 float max_distance);
+    sound_instance_id play_sound_grp(string_hash group, float volume, float pitch, float doppler, float min_distance,
+                                     float max_distance);
+    sound_instance_id play_sound_grp_at(string_hash group, const vector3d *position, float volume, float pitch,
+                                        float doppler, float min_distance, float max_distance,
+                                        sound_interface *emitter_owner = nullptr, uint32_t instance_scope = 0);
 
     //0x004D1910
     static void frame_advance_all_sound_ifc(Float a3);
 
 
     sound_instance_id play_terrain_sound(eTerrainSoundType type, string_hash terrain, float volume,
-        const vector3d *position = nullptr);
+                                         const vector3d *position = nullptr);
 };
 
 void release_native_sound_emitter(sound_interface *owner);

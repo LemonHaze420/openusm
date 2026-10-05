@@ -24,12 +24,11 @@ int BuildStringList(nglFont *Font, nglStringSection *a2, Float a3, Float a4, Flo
                     unsigned char *a8, uint32_t &a9)
 {
     if constexpr (STANDALONE_SYSTEM) {
-        auto *section = static_cast<nglStringSection *>(
-            nglListAlloc(sizeof(nglStringSection), alignof(nglStringSection)));
+        auto *section =
+            static_cast<nglStringSection *>(nglListAlloc(sizeof(nglStringSection), alignof(nglStringSection)));
         *section = {};
         section->field_4 = reinterpret_cast<char *>(a8);
-        section->field_8 = static_cast<int>(
-            std::strlen(reinterpret_cast<const char *>(a8)));
+        section->field_8 = static_cast<int>(std::strlen(reinterpret_cast<const char *>(a8)));
         section->field_10[0] = a3;
         section->field_10[1] = a4;
         section->field_10[2] = a5;
@@ -39,8 +38,7 @@ int BuildStringList(nglFont *Font, nglStringSection *a2, Float a3, Float a4, Flo
         a9 = static_cast<uint32_t>(section->field_8);
         return section->field_8;
     } else {
-        return static_cast<int>(
-            CDECL_CALL(0x00779570, Font, a2, a3, a4, a5, a6, Color, a8, &a9));
+        return static_cast<int>(CDECL_CALL(0x00779570, Font, a2, a3, a4, a5, a6, Color, a8, &a9));
     }
 }
 
@@ -153,10 +151,8 @@ void nglStringNode::Render()
                             float u;
                             float v;
                         };
-                        const float scale_x =
-                            static_cast<float>(s_d3dpresent_params.BackBufferWidth) / 640.0f;
-                        const float scale_y =
-                            static_cast<float>(s_d3dpresent_params.BackBufferHeight) / 480.0f;
+                        const float scale_x = static_cast<float>(s_d3dpresent_params.BackBufferWidth) / 640.0f;
+                        const float scale_y = static_cast<float>(s_d3dpresent_params.BackBufferHeight) / 480.0f;
                         const float x1 = v21[0] * scale_x;
                         const float y1 = v21[1] * scale_y;
                         const float x2 = v23[0] * scale_x;
@@ -170,9 +166,7 @@ void nglStringNode::Render()
 
                         IDirect3DDevice9_SetVertexShader(g_Direct3DDevice, nullptr);
                         IDirect3DDevice9_SetPixelShader(g_Direct3DDevice, nullptr);
-                        IDirect3DDevice9_SetFVF(
-                            g_Direct3DDevice,
-                            D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_TEX1);
+                        IDirect3DDevice9_SetFVF(g_Direct3DDevice, D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_TEX1);
                         nglSetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
                         nglSetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
                         nglSetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
@@ -180,11 +174,7 @@ void nglStringNode::Render()
                         nglSetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
                         nglSetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
                         IDirect3DDevice9_DrawPrimitiveUP(
-                            g_Direct3DDevice,
-                            D3DPT_TRIANGLESTRIP,
-                            2,
-                            vertices,
-                            sizeof(Vertex));
+                            g_Direct3DDevice, D3DPT_TRIANGLESTRIP, 2, vertices, sizeof(Vertex));
                         double v18 = this->field_10->GetFontCellWidth(v11);
                         if (v18 < 0) {
                             v18 += flt_86F860;

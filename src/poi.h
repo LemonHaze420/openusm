@@ -28,8 +28,7 @@ extern void check_init();
 
 extern bool near_violence_poi(const vector3d &a1);
 
-int add_point_of_interest(const vector3d &position, int type, float radius, float duration,
-                          vhandle_type<entity> owner);
+int add_point_of_interest(const vector3d &position, int type, float radius, float duration, vhandle_type<entity> owner);
 
 extern point_of_interest **&poi_list;
 

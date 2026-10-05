@@ -15,7 +15,6 @@ static void *__fastcall allocate_map_stack(dynamic_proximity_map_stack *stack, v
 }
 
 
-
 dynamic_proximity_map_stack::dynamic_proximity_map_stack()
 {
     alignment = 4;

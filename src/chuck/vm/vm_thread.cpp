@@ -46,7 +46,6 @@ vm_thread::vm_thread(script_instance *a2, const vm_executable *a3) : dstack(this
     } else {
         THISCALL(0x005A5420, this, a2, a3);
     }
-
 }
 
 vm_thread::vm_thread(script_instance *a2, const vm_executable *a3, void *a4) : dstack(this)
@@ -70,7 +69,6 @@ vm_thread::vm_thread(script_instance *a2, const vm_executable *a3, void *a4) : d
     } else {
         THISCALL(0x005A5500, this, a2, a3, a4);
     }
-
 }
 
 vm_thread::~vm_thread()
@@ -149,8 +147,7 @@ void vm_thread::create_event_callback(const vm_thread::argument_t &arg, bool per
     auto *parameters = this->dstack.get_SP();
     const string_hash signal{static_cast<int>(this->dstack.pop_num())};
     if (add_signal_callback_callback != nullptr) {
-        add_signal_callback_callback(this, signal, vhandle_type<signaller>{field_18},
-                                     arg.sfr, parameters, persistent);
+        add_signal_callback_callback(this, signal, vhandle_type<signaller>{field_18}, arg.sfr, parameters, persistent);
     }
     (void)instance;
 #else
@@ -167,8 +164,7 @@ void vm_thread::create_static_event_callback(const vm_thread::argument_t &arg, b
     auto *parameters = this->dstack.get_SP();
     const string_hash signal{static_cast<int>(this->dstack.pop_num())};
     if (add_signal_callback_callback != nullptr) {
-        add_signal_callback_callback(this, signal, vhandle_type<signaller>{field_18},
-                                     arg.sfr, parameters, persistent);
+        add_signal_callback_callback(this, signal, vhandle_type<signaller>{field_18}, arg.sfr, parameters, persistent);
     }
 #else
     THISCALL(0x0058F900, this, &arg, persistent);
@@ -428,8 +424,7 @@ bool vm_thread::run()
                 auto val = this->dstack.pop_num();
                 if (equal(0.0f, val)) {
                     //assert(0);
-                    this->PC = reinterpret_cast<const uint16_t *>(
-                        reinterpret_cast<const char *>(this->PC) + arg.word);
+                    this->PC = reinterpret_cast<const uint16_t *>(reinterpret_cast<const char *>(this->PC) + arg.word);
                 }
 
                 break;
@@ -437,8 +432,7 @@ bool vm_thread::run()
             case OP_BRA: {
                 assert(argtype == OP_ARG_PCR);
 
-                this->PC = reinterpret_cast<const uint16_t *>(
-                    reinterpret_cast<const char *>(this->PC) + arg.word);
+                this->PC = reinterpret_cast<const uint16_t *>(reinterpret_cast<const char *>(this->PC) + arg.word);
                 break;
             }
             case OP_BSL:
@@ -488,8 +482,8 @@ bool vm_thread::run()
                     this->dstack.push(this->dstack.get_SP() - dsize, dsize);
                     break;
                 case OP_ARG_SPR:
-                    memcpy(this->dstack.get_SP() + static_cast<int16_t>(arg.word),
-                           this->dstack.get_SP() - dsize, dsize);
+                    memcpy(
+                        this->dstack.get_SP() + static_cast<int16_t>(arg.word), this->dstack.get_SP() - dsize, dsize);
                     break;
                 case OP_ARG_POPO: {
                     auto *si = static_cast<script_instance *>(this->dstack.pop_addr());
@@ -498,8 +492,7 @@ bool vm_thread::run()
                         this->slf_error(mString{"reference to bad or uninitialized script object instance value"});
                         return false;
                     }
-                    memcpy(si->get_buffer() + static_cast<int16_t>(arg.word),
-                           this->dstack.get_SP() - dsize, dsize);
+                    memcpy(si->get_buffer() + static_cast<int16_t>(arg.word), this->dstack.get_SP() - dsize, dsize);
                     break;
                 }
                 case OP_ARG_SDR: {
@@ -728,7 +721,8 @@ bool vm_thread::run()
 
                     auto func = [this, si, &arg](auto dsize, int a3) -> void {
                         memcpy(si->get_buffer() + static_cast<int16_t>(arg.word) + dsize * a3,
-                               this->dstack.get_SP() - dsize, dsize);
+                               this->dstack.get_SP() - dsize,
+                               dsize);
                         this->dstack.pop(dsize);
                     };
 
@@ -955,8 +949,7 @@ bool vm_thread::run()
                 }
 
                 if (equal(this->dstack.top_num(), 0.0f)) {
-                    this->PC = reinterpret_cast<const uint16_t *>(
-                        reinterpret_cast<const char *>(this->PC) + arg.word);
+                    this->PC = reinterpret_cast<const uint16_t *>(reinterpret_cast<const char *>(this->PC) + arg.word);
                 }
 
                 break;
@@ -1033,8 +1026,7 @@ bool vm_thread::run()
                 vm_num_t v1258 = this->dstack.pop_num();
                 auto v278 = arg.word;
                 auto *v221 = this->dstack.get_SP();
-                auto *src = v221 + static_cast<int16_t>(prev_arg.word) + arg.word +
-                            arg.word * int(v1258);
+                auto *src = v221 + static_cast<int16_t>(prev_arg.word) + arg.word + arg.word * int(v1258);
                 auto *v222 = this->dstack.get_SP();
                 memcpy(v222, src, v278);
                 this->dstack.move_SP(arg.word);
@@ -1128,8 +1120,7 @@ void vm_thread::raise_event(const vm_thread::argument_t &arg, opcode_arg_t arg_t
     }
 
     if (raise_signal_callback != nullptr) {
-        raise_signal_callback(
-            this, string_hash{static_cast<int>(arg.binary)}, signaller_handle);
+        raise_signal_callback(this, string_hash{static_cast<int>(arg.binary)}, signaller_handle);
     }
 #else
     THISCALL(0x00599710, this, &arg, arg_type);

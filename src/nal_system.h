@@ -130,8 +130,7 @@ struct nalPositionOrientation {
 
     static nalPositionOrientation &Identity;
 };
-inline nalPositionOrientation &nalPositionOrientation::Identity
-    = var<nalPositionOrientation>(0x00977180);
+inline nalPositionOrientation &nalPositionOrientation::Identity = var<nalPositionOrientation>(0x00977180);
 
 
 struct nalBaseSkeleton;

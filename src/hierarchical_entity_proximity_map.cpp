@@ -45,7 +45,7 @@ dynamic_entity_list_node &cell_node(dynamic_proximity_map &map, int x, int y)
     const auto offset = static_cast<int16_t>(directory[x + (y << map.log_number_of_cells)]);
     return *reinterpret_cast<dynamic_entity_list_node *>(words + offset);
 }
-}
+}  // namespace
 
 
 dynamic_proximity_map_stack *acquire_district_proximity_map_stack()
@@ -81,9 +81,8 @@ void release_district_proximity_map_stack(dynamic_proximity_map_stack *stack)
 }
 
 
-
-void dynamic_proximity_map::init(dynamic_proximity_map_stack *allocator, fixed_pool *pool,
-    int cells, const vector3d &min, const vector3d &max, subdivision_node::type_t node_type)
+void dynamic_proximity_map::init(dynamic_proximity_map_stack *allocator, fixed_pool *pool, int cells,
+                                 const vector3d &min, const vector3d &max, subdivision_node::type_t node_type)
 {
     field_0 = 1;
     map_type = DYNAMIC;
@@ -101,7 +100,8 @@ void dynamic_proximity_map::init(dynamic_proximity_map_stack *allocator, fixed_p
     auto *directory = static_cast<uint16_t *>(allocator->alloc(2 * cells * cells));
     const auto directory_offset = reinterpret_cast<char *>(directory) - reinterpret_cast<char *>(this);
     field_8 = static_cast<uint16_t>(directory_offset / 4);
-    auto *nodes = static_cast<dynamic_entity_list_node *>(allocator->alloc(sizeof(dynamic_entity_list_node) * cells * cells));
+    auto *nodes =
+        static_cast<dynamic_entity_list_node *>(allocator->alloc(sizeof(dynamic_entity_list_node) * cells * cells));
     for (int i = 0; i < cells * cells; ++i) {
         const auto offset = reinterpret_cast<char *>(&nodes[i]) - reinterpret_cast<char *>(this);
         directory[i] = static_cast<uint16_t>(offset / 4);
@@ -114,8 +114,8 @@ void dynamic_proximity_map::init(dynamic_proximity_map_stack *allocator, fixed_p
     }
 }
 
-void hierarchical_entity_proximity_map::init(dynamic_proximity_map_stack &allocator,
-    int sphere_kind, const vector3d &min, const vector3d &max, const _std::vector<int> &levels)
+void hierarchical_entity_proximity_map::init(dynamic_proximity_map_stack &allocator, int sphere_kind,
+                                             const vector3d &min, const vector3d &max, const _std::vector<int> &levels)
 {
     static Var<fixed_pool> list_pool{0x0092221C};
     if (!list_pool().m_initialized)
@@ -143,8 +143,8 @@ void dynamic_proximity_map::compute_entity_center_and_radius(entity &ent, vector
         return;
     }
     const int center_slot = entity_sphere_kind == 1 ? 0x258 : 0x2C;
-    auto center_callback = reinterpret_cast<vector3d *(__fastcall *)(entity *, void *, vector3d *)>(
-        get_vfunc(ent.m_vtbl, center_slot));
+    auto center_callback =
+        reinterpret_cast<vector3d *(__fastcall *)(entity *, void *, vector3d *)>(get_vfunc(ent.m_vtbl, center_slot));
     center_callback(&ent, nullptr, &center);
     if (entity_sphere_kind == 4) {
         radius = 0.0f;
@@ -167,7 +167,8 @@ int hierarchical_entity_proximity_map::traverse_point(const vector3d &position, 
     return 0;
 }
 
-int hierarchical_entity_proximity_map::traverse_sphere(const vector3d &center, Float radius, subdivision_visitor *visitor)
+int hierarchical_entity_proximity_map::traverse_sphere(const vector3d &center, Float radius,
+                                                       subdivision_visitor *visitor)
 {
     for (int i = 0; i < number_of_levels; ++i) {
         const int result = maps[i]->traverse_sphere(center, radius, visitor);
@@ -178,8 +179,8 @@ int hierarchical_entity_proximity_map::traverse_sphere(const vector3d &center, F
 }
 
 
-int hierarchical_entity_proximity_map::traverse_convex_hull_raster(
-    const fixed_vector<vector2d, 14> &points, subdivision_visitor &visitor)
+int hierarchical_entity_proximity_map::traverse_convex_hull_raster(const fixed_vector<vector2d, 14> &points,
+                                                                   subdivision_visitor &visitor)
 {
     for (int i = 0; i < number_of_levels; ++i)
         maps[i]->traverse_convex_hull_raster(points, visitor);
@@ -255,8 +256,8 @@ void hierarchical_entity_proximity_map::update_entity(entity *ent)
     if (level < 0)
         return;
     if (data != nullptr) {
-        if (data->map_level == level && data->min_x == first.x && data->min_y == first.y
-            && data->max_x == last.x && data->max_y == last.y)
+        if (data->map_level == level && data->min_x == first.x && data->min_y == first.y && data->max_x == last.x &&
+            data->max_y == last.y)
             return;
         remove_entity(ent, data);
     } else {

@@ -66,5 +66,4 @@ struct biped_system_pool {
 
 extern biped_system_pool *&g_biped_system_pool;
 void destroy_biped_ragdoll(biped_system *biped);
-biped_system *create_biped_ragdoll(conglomerate *owner, int flags,
-    physical_interface::biped_physics_body_types type);
+biped_system *create_biped_ragdoll(conglomerate *owner, int flags, physical_interface::biped_physics_body_types type);

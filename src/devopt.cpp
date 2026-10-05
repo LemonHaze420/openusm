@@ -9,10 +9,9 @@ game_option_t *get_option(int idx)
     assert(idx < NUM_OPTIONS);
 
     static game_option_t option{};
-    if (idx < 150)
-    {
-        auto& name = flag_names[idx];
-        BOOL* flag = (BOOL*) &os_developer_options::instance->m_flags[idx];
+    if (idx < 150) {
+        auto &name = flag_names[idx];
+        BOOL *flag = (BOOL *)&os_developer_options::instance->m_flags[idx];
 
         option.m_name = name;
         option.m_type = game_option_t::FLAG_OPTION;
@@ -22,8 +21,8 @@ game_option_t *get_option(int idx)
     }
 
     idx = idx - 150;
-    auto& name = int_names[idx];
-    int* i = &os_developer_options::instance->m_ints[idx];
+    auto &name = int_names[idx];
+    int *i = &os_developer_options::instance->m_ints[idx];
 
     option.m_name = name;
     option.m_type = game_option_t::INT_OPTION;

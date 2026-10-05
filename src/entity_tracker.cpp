@@ -5,21 +5,10 @@
 
 #include "func_wrapper.h"
 
-entity_tracker::entity_tracker()
-    : field_0(),
-      field_4(nullptr),
-      field_8(0),
-      field_C(30)
-{
-}
+entity_tracker::entity_tracker() : field_0(), field_4(nullptr), field_8(0), field_C(30) {}
 
-entity_tracker::entity_tracker(entity_base_vhandle handle)
-    : field_0(handle),
-      field_4(nullptr),
-      field_8(0),
-      field_C(30)
-{
-}
+entity_tracker::entity_tracker(entity_base_vhandle handle) : field_0(handle), field_4(nullptr), field_8(0), field_C(30)
+{}
 
 entity *entity_tracker::get_entity()
 {
@@ -34,9 +23,7 @@ void entity_tracker::set_poi_icon(mini_map_dot_type type)
         field_4 = nullptr;
     }
     if (field_4 == nullptr) {
-        const vector3d position = get_entity() != nullptr
-                                      ? get_entity()->get_abs_position()
-                                      : vector3d{};
+        const vector3d position = get_entity() != nullptr ? get_entity()->get_abs_position() : vector3d{};
         field_4 = new fe_mini_map_dot{type, position};
     }
 }

@@ -10,10 +10,7 @@
 
 VALIDATE_SIZE(PanelQuadSection, 0x7C);
 
-PanelQuadSection::PanelQuadSection()
-    : field_78(true)
-{
-}
+PanelQuadSection::PanelQuadSection() : field_78(true) {}
 
 PanelQuadSection::PanelQuadSection(from_mash_in_place_constructor *)
 {
@@ -63,13 +60,9 @@ void PanelQuadSection::Animate(const matrix4x4 &transform, float z, bool relativ
 {
     auto *quad = reinterpret_cast<nglQuad *>(&field_14);
     for (int vertex = 0; vertex < 4; ++vertex) {
-        const float x = relative
-            ? quad->field_0[vertex].pos.x
-            : static_cast<float>(field_0[vertex]);
-        const float y = relative
-            ? quad->field_0[vertex].pos.y
-            : static_cast<float>(field_8[vertex]);
-        const vector3d transformed = transform * vector3d {x, y, z};
+        const float x = relative ? quad->field_0[vertex].pos.x : static_cast<float>(field_0[vertex]);
+        const float y = relative ? quad->field_0[vertex].pos.y : static_cast<float>(field_8[vertex]);
+        const vector3d transformed = transform * vector3d{x, y, z};
         nglSetQuadVPos(quad, vertex, transformed[0], transformed[1]);
     }
 }
@@ -87,9 +80,8 @@ void PanelQuadSection::Mask(float amount, int direction, float uv_extent, float 
     const float top = quad->field_0[0].pos.y;
     const float right = quad->field_0[3].pos.x;
     const float bottom = quad->field_0[3].pos.y;
-    const float extent = (direction == 1 || direction == 2)
-                             ? static_cast<float>(field_0[3] - field_0[0]) * scale
-                             : static_cast<float>(field_8[3] - field_8[0]) * scale;
+    const float extent = (direction == 1 || direction == 2) ? static_cast<float>(field_0[3] - field_0[0]) * scale
+                                                            : static_cast<float>(field_8[3] - field_8[0]) * scale;
 
     float masked_left = left;
     float masked_right = right;

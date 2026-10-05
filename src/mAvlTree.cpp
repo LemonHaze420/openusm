@@ -226,7 +226,7 @@ void mAvlTree<entity_class_entry>::finalize(mash::allocation_scope)
 
 template <>
 int mAvlTree<entity_class_entry>::compare(const mAvlNode<entity_class_entry> *lhs,
-                                           const mAvlNode<entity_class_entry> *rhs)
+                                          const mAvlNode<entity_class_entry> *rhs)
 {
     if (lhs->m_key->field_0 > rhs->m_key->field_0) {
         return 1;
@@ -238,9 +238,8 @@ int mAvlTree<entity_class_entry>::compare(const mAvlNode<entity_class_entry> *lh
 }
 
 template <>
-int mAvlTree<entity_class_entry>::addHelper(mAvlNode<entity_class_entry> *node,
-                                             mAvlNode<entity_class_entry> *&root,
-                                             mAvlNode<entity_class_entry> *parent)
+int mAvlTree<entity_class_entry>::addHelper(mAvlNode<entity_class_entry> *node, mAvlNode<entity_class_entry> *&root,
+                                            mAvlNode<entity_class_entry> *parent)
 {
     if (root == nullptr) {
         node->m_parent = parent;

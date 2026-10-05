@@ -135,8 +135,8 @@ struct nalGenericPose {
             return (*skeleton)[handle];
         }
 
-        return *bit_cast<T *>(this->field_4 + bit_cast<const nalComponentInfo *>(handle.field_4)->field_2C
-                             + sizeof(T) * handle.field_8);
+        return *bit_cast<T *>(this->field_4 + bit_cast<const nalComponentInfo *>(handle.field_4)->field_2C +
+                              sizeof(T) * handle.field_8);
     }
 
     static int &PoseSP;
@@ -220,9 +220,12 @@ struct nalGenericSkeleton : nalBaseSkeleton {
     nalGenericPose *GetDefaultPose();
     void CopyPose(nalGenericPose &out, const nalGenericPose &source) const;
     void BlendPose(nalGenericPose &out, Float weight, const nalGenericPose &a, const nalGenericPose &b) const;
-    void GetPoseFromBoneMatrices(nalGenericPose &out, const nalMatrix4x4 *source,
-                                 nalMatrix4x4 *scratch, const nalGenericPose &reference) const;
-    int GetBoneCount() const { return field_60; }
+    void GetPoseFromBoneMatrices(nalGenericPose &out, const nalMatrix4x4 *source, nalMatrix4x4 *scratch,
+                                 const nalGenericPose &reference) const;
+    int GetBoneCount() const
+    {
+        return field_60;
+    }
     void Finalize(bool release);
 
     //virtual
@@ -243,8 +246,8 @@ struct nalGenericSkeleton : nalBaseSkeleton {
 
         assert(handle.Skeleton == this && "handle and pose skeletons don't match");
 
-        auto *v4 = bit_cast<char *>(bit_cast<const nalComponentInfo *>(handle.field_4)->field_2C
-                                    + sizeof(T) * handle.field_8);
+        auto *v4 =
+            bit_cast<char *>(bit_cast<const nalComponentInfo *>(handle.field_4)->field_2C + sizeof(T) * handle.field_8);
         if (handle.field_C) {
             return *bit_cast<T *>(&v4[this->field_B4]);
         } else {

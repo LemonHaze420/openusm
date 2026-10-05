@@ -293,8 +293,7 @@ void RenderState_t::setDepthBufferFunction(D3DCMPFUNC func)
 void RenderState_t::setBlending(nglBlendModeType blend_mode, uint32_t BlendModeConst, uint32_t ref_value)
 {
     if constexpr (STANDALONE_SYSTEM) {
-        if (this->m_blend_mode != blend_mode ||
-            this->field_D0 != static_cast<int>(BlendModeConst) ||
+        if (this->m_blend_mode != blend_mode || this->field_D0 != static_cast<int>(BlendModeConst) ||
             blend_mode == NGLBM_PUNCHTHROUGH) {
             switch (blend_mode) {
             case NGLBM_OPAQUE:

@@ -33,8 +33,7 @@ void resource_amalgapak_header::clear()
 
 bool resource_amalgapak_header::verify([[maybe_unused]] const mString &a2)
 {
-    if (g_platform == NL_PLATFORM_XBOX &&
-        supports_xbox_version(this->field_0)) {
+    if (g_platform == NL_PLATFORM_XBOX && supports_xbox_version(this->field_0)) {
         return true;
     }
 

@@ -18,8 +18,6 @@ struct transition_post_handle {
 
     basic_rule_data &rule_data() const
     {
-
-
         return *static_cast<basic_rule_data *>(field_0);
     }
 };

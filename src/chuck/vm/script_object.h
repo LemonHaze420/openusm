@@ -49,7 +49,7 @@ public:
 
         ~debug_info_t()
         {
-            void (__fastcall *func)(void *) = CAST(func, 0x005B7BE0);
+            void(__fastcall * func)(void *) = CAST(func, 0x005B7BE0);
             func(this);
         }
     };
@@ -69,9 +69,9 @@ public:
     //0x005AF6C0
     ~script_object();
 
-    void * operator new(size_t );
+    void *operator new(size_t);
 
-    void operator delete(void *, size_t );
+    void operator delete(void *, size_t);
 
     bool is_external_object() const
     {
@@ -159,7 +159,7 @@ public:
     //0x0059ECC0
     void add(script_instance *a2);
 
-	vm_thread *add_thread(script_instance *a2, int fidx);
+    vm_thread *add_thread(script_instance *a2, int fidx);
 
     //0x00599530
     void link(const script_executable &a2);
@@ -190,9 +190,9 @@ public:
         int field_C;
     };
 
-    static inline Var<function[20]> function_cache {0x00966D10};
+    static inline Var<function[20]> function_cache{0x00966D10};
 
-    static inline Var<int> usage_counter {0x00965ED4};
+    static inline Var<int> usage_counter{0x00965ED4};
 };
 
 enum script_instance_callback_reason_t {};
@@ -211,7 +211,7 @@ public:
 
     script_object *parent;
     uint32_t flags;
-    void (* m_callback)(script_instance_callback_reason_t, script_instance *, vm_thread *, void *);
+    void (*m_callback)(script_instance_callback_reason_t, script_instance *, vm_thread *, void *);
     _std::set<void *> field_38;
 
 public:
@@ -220,7 +220,7 @@ public:
 
     ~script_instance();
 
-    void * operator new(size_t size);
+    void *operator new(size_t size);
 
     void operator delete(void *, size_t);
 
@@ -285,7 +285,7 @@ public:
 
     //0x005A33F0
     void register_callback(void (*cb)(script_instance_callback_reason_t, script_instance *, vm_thread *, void *),
-        void *user_data);
+                           void *user_data);
 
     void unregister_callback(void *user_data);
 };

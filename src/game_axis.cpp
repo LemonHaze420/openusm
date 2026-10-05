@@ -44,8 +44,8 @@ void game_axis::update(Float a2)
         const auto device = static_cast<device_id_t>(field_0);
         const auto value = input_mgr::instance->get_control_state(field_4, device);
         float delta;
-        if (os_developer_options::instance->get_int(static_cast<os_developer_options::ints_t>(12)) == 3
-            && (field_4 == 110 || field_4 == 111)) {
+        if (os_developer_options::instance->get_int(static_cast<os_developer_options::ints_t>(12)) == 3 &&
+            (field_4 == 110 || field_4 == 111)) {
             delta = value - field_10;
             if (std::not_equal_to<float>{}(std::abs(delta), 1.0f)) {
                 delta = 0.0f;
@@ -70,7 +70,6 @@ void game_axis::override(Float dt, float value, float delta)
 }
 
 
-
 void game_axis::update_multitap(Float dt)
 {
     float delta = field_C;
@@ -83,8 +82,7 @@ void game_axis::update_multitap(Float dt)
     }
     const int tap_count = field_28;
     if (tap_count == 0) {
-        if ((direction == -1 && field_10 < -m_threshold)
-            || (direction == 1 && field_10 > m_threshold)) {
+        if ((direction == -1 && field_10 < -m_threshold) || (direction == 1 && field_10 > m_threshold)) {
             field_1C = 0.0f;
             field_28 = 1;
             field_24 = direction;

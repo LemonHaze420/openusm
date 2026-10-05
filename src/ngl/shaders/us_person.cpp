@@ -61,13 +61,14 @@ const bool person_defaults_initialized = [] {
         Var<USPersonNode::LightInfoStruct> info{static_cast<ptrdiff_t>(address)};
         info() = {};
         auto *ambient = reinterpret_cast<float *>(&info().field_20);
-        for (int i = 0; i < 4; ++i) ambient[i] = 1.0f;
+        for (int i = 0; i < 4; ++i)
+            ambient[i] = 1.0f;
         info().m_contrast = 1.0f;
     }
 #endif
     return true;
 }();
-}
+}  // namespace
 
 static Var<IDirect3DPixelShader9 *> OutlinePShader{0x009707F0};
 
@@ -77,42 +78,59 @@ void __fastcall person_shader_name(Shader *shader, void *, tlFixedString *out)
 {
     *out = shader->field_C;
 }
-bool __fastcall person_material_version(nglShader *, void *, nglMaterialBase *) { return true; }
-bool __fastcall person_vertex_version(nglShader *, void *, nglMeshSection *) { return true; }
-void __fastcall person_bind_section(nglShader *, void *, nglMeshSection *) {}
-bool __fastcall person_switchable(nglShader *, void *) { return false; }
+bool __fastcall person_material_version(nglShader *, void *, nglMaterialBase *)
+{
+    return true;
 }
+bool __fastcall person_vertex_version(nglShader *, void *, nglMeshSection *)
+{
+    return true;
+}
+void __fastcall person_bind_section(nglShader *, void *, nglMeshSection *) {}
+bool __fastcall person_switchable(nglShader *, void *)
+{
+    return false;
+}
+}  // namespace
 
 USPersonShader::USPersonShader() : field_C{"USPerson"}
 {
-    #if STANDALONE_SYSTEM
+#if STANDALONE_SYSTEM
     static void *table[]{
         func_address(&USPersonShader::_Register),
         reinterpret_cast<void *>(person_shader_name<USPersonShader>),
-        func_address(&USPersonShader::_AddNode), func_address(&USPersonShader::_BindMaterial),
-        func_address(&USPersonShader::_ReleaseMaterial), func_address(&USPersonShader::_RebaseMaterial),
-        reinterpret_cast<void *>(person_material_version), reinterpret_cast<void *>(person_vertex_version),
-        reinterpret_cast<void *>(person_bind_section), reinterpret_cast<void *>(person_switchable),
+        func_address(&USPersonShader::_AddNode),
+        func_address(&USPersonShader::_BindMaterial),
+        func_address(&USPersonShader::_ReleaseMaterial),
+        func_address(&USPersonShader::_RebaseMaterial),
+        reinterpret_cast<void *>(person_material_version),
+        reinterpret_cast<void *>(person_vertex_version),
+        reinterpret_cast<void *>(person_bind_section),
+        reinterpret_cast<void *>(person_switchable),
         func_address(&USPersonShader::Delete),
     };
     m_vtbl = reinterpret_cast<decltype(m_vtbl)>(table);
-    #endif
+#endif
 }
 
 USPersonSolidShader::USPersonSolidShader() : field_C{"USPersonSolid"}
 {
-    #if STANDALONE_SYSTEM
+#if STANDALONE_SYSTEM
     static void *table[]{
         func_address(&USPersonSolidShader::Register),
         reinterpret_cast<void *>(person_shader_name<USPersonSolidShader>),
-        func_address(&USPersonSolidShader::_AddNode), func_address(&USPersonSolidShader::_BindMaterial),
-        func_address(&USPersonSolidShader::_ReleaseMaterial), func_address(&USPersonSolidShader::_RebaseMaterial),
-        reinterpret_cast<void *>(person_material_version), reinterpret_cast<void *>(person_vertex_version),
-        reinterpret_cast<void *>(person_bind_section), reinterpret_cast<void *>(person_switchable),
+        func_address(&USPersonSolidShader::_AddNode),
+        func_address(&USPersonSolidShader::_BindMaterial),
+        func_address(&USPersonSolidShader::_ReleaseMaterial),
+        func_address(&USPersonSolidShader::_RebaseMaterial),
+        reinterpret_cast<void *>(person_material_version),
+        reinterpret_cast<void *>(person_vertex_version),
+        reinterpret_cast<void *>(person_bind_section),
+        reinterpret_cast<void *>(person_switchable),
         func_address(&USPersonSolidShader::Delete),
     };
     m_vtbl = reinterpret_cast<decltype(m_vtbl)>(table);
-    #endif
+#endif
 }
 
 tlFixedString USPersonSolidShader::_GetName()
@@ -153,9 +171,9 @@ static Var<VShader[2]> OutlineVShader{0x009707E0};
 
 static Var<VShader[1]> stru_9707E8{0x009707E8};
 
-static Var<VShader[4]> g_vertexShaders {0x009707F4};
+static Var<VShader[4]> g_vertexShaders{0x009707F4};
 
-static Var<IDirect3DPixelShader9 *[8]> g_pixelShaders { 0x009707C0 };
+static Var<IDirect3DPixelShader9 *[8]> g_pixelShaders{0x009707C0};
 
 void CreateVertexDeclAndShaders(const D3DVERTEXELEMENT9 *elements)
 {
@@ -167,7 +185,7 @@ void CreateVertexDeclAndShaders(const D3DVERTEXELEMENT9 *elements)
     }
 #else
     if constexpr (1) {
-        static Var<const DWORD *[4]> g_pFunctions { 0x00939D20 };
+        static Var<const DWORD *[4]> g_pFunctions{0x00939D20};
 
         [[maybe_unused]] auto **v1 = g_pFunctions();
         auto *array_shaders = g_vertexShaders();
@@ -235,15 +253,21 @@ void CreatePixelShaders()
 {
 #if STANDALONE_SYSTEM
     using namespace us_native_programs;
-    const DWORD *programs[]{program_8af3d8, program_8af404, program_8af430, program_8af478,
-                            program_8af4c0, program_8af508, program_8af550, program_8af598};
+    const DWORD *programs[]{program_8af3d8,
+                            program_8af404,
+                            program_8af430,
+                            program_8af478,
+                            program_8af4c0,
+                            program_8af508,
+                            program_8af550,
+                            program_8af598};
     for (unsigned i = 0; i < 8; ++i) {
         CreatePixelShader(&g_pixelShaders()[i], programs[i]);
     }
 #else
     if constexpr (0) {
         if constexpr (0) {
-            static Var<const DWORD *[8]> functions { 0x00939D38 };
+            static Var<const DWORD *[8]> functions{0x00939D38};
 
             for (int i = 0; i < 8; ++i) {
                 CreatePixelShader(&g_pixelShaders()[i], functions()[i]);
@@ -253,50 +277,50 @@ void CreatePixelShaders()
 
         } else {
             static const char *functions[8] = {"tex t0\n"
-                "mul r0.xyz, c2, t0\n"
-                "+mov r0.w, t0.w\n",
+                                               "mul r0.xyz, c2, t0\n"
+                                               "+mov r0.w, t0.w\n",
 
-                "tex t0\n"
-                "mul_x2 r0.xyz, v0, t0\n"
-                "+mov r0.w, t0.w\n",
+                                               "tex t0\n"
+                                               "mul_x2 r0.xyz, v0, t0\n"
+                                               "+mov r0.w, t0.w\n",
 
-                "tex t0\n"
-                "tex t1\n"
-                "mul r0.xyz, c2, t0\n"
-                "+mov r0.w, t0.w\n"
-                "mad r0.xyz, r0, t1.w, c1\n",
+                                               "tex t0\n"
+                                               "tex t1\n"
+                                               "mul r0.xyz, c2, t0\n"
+                                               "+mov r0.w, t0.w\n"
+                                               "mad r0.xyz, r0, t1.w, c1\n",
 
-                "tex t0\n"
-                "tex t1\n"
-                "mul_x2 r0.xyz, v0, t0\n"
-                "+mov r0.w, t0.w\n"
-                "mad r0.xyz, r0, t1.w, c1\n",
+                                               "tex t0\n"
+                                               "tex t1\n"
+                                               "mul_x2 r0.xyz, v0, t0\n"
+                                               "+mov r0.w, t0.w\n"
+                                               "mad r0.xyz, r0, t1.w, c1\n",
 
-                "tex t0\n"
-                "tex t1\n"
-                "mul r0.xyz, c2, t0\n"
-                "+mov r0.w, t0.w\n"
-                "mad r0.xyz, r0, c1.w, t1\n",
+                                               "tex t0\n"
+                                               "tex t1\n"
+                                               "mul r0.xyz, c2, t0\n"
+                                               "+mov r0.w, t0.w\n"
+                                               "mad r0.xyz, r0, c1.w, t1\n",
 
-                "tex t0\n"
-                "tex t1\n"
-                "mul_x2 r0.xyz, v0, t0\n"
-                "+mov r0.w, t0.w\n"
-                "mad r0.xyz, r0, c1.w, t1\n",
+                                               "tex t0\n"
+                                               "tex t1\n"
+                                               "mul_x2 r0.xyz, v0, t0\n"
+                                               "+mov r0.w, t0.w\n"
+                                               "mad r0.xyz, r0, c1.w, t1\n",
 
-                "tex t0\n"
-                "tex t1\n"
-                "mul r0.xyz, c2, t0\n"
-                "+mov r0.w, t0.w\n"
-                "mad r0.xyz, r0, t1.w, t1\n",
+                                               "tex t0\n"
+                                               "tex t1\n"
+                                               "mul r0.xyz, c2, t0\n"
+                                               "+mov r0.w, t0.w\n"
+                                               "mad r0.xyz, r0, t1.w, t1\n",
 
-                "tex t0\n"
-                "tex t1\n"
-                "mul_x2 r0.xyz, v0, t0\n"
-                "+mov r0.w, t0.w\n"
+                                               "tex t0\n"
+                                               "tex t1\n"
+                                               "mul_x2 r0.xyz, v0, t0\n"
+                                               "+mov r0.w, t0.w\n"
                                                "mad r0.xyz, r0, t1.w, t1\n"};
 
-            static Var<const DWORD *[4]> g_pFunctions { 0x00939D38 };
+            static Var<const DWORD *[4]> g_pFunctions{0x00939D38};
 
             [[maybe_unused]] auto **v1 = g_pFunctions();
 
@@ -331,7 +355,7 @@ void CreateOutlineVShader(const D3DVERTEXELEMENT9 *elements)
     TRACE("CreateOutlineVShader");
 
     if constexpr (1) {
-        static Var<const DWORD *[2]> off_939D30 { 0x00939D30 };
+        static Var<const DWORD *[2]> off_939D30{0x00939D30};
 
         auto &v1 = off_939D30();
         auto &v2 = OutlineVShader();
@@ -359,7 +383,7 @@ void CreateOutlineVShader(const D3DVERTEXELEMENT9 *elements)
 #endif
 }
 
-void * ParamStruct::operator new(size_t size)
+void *ParamStruct::operator new(size_t size)
 {
     auto *mem = nglListAlloc(size, 16);
     return mem;
@@ -368,12 +392,11 @@ void * ParamStruct::operator new(size_t size)
 USPersonSolidNode::USPersonSolidNode(nglMeshNode *a2, nglMeshSection *a3, nglMaterialBase *a4)
     : USPersonNode(a2, a3, a4)
 {
-    static void *table[]{func_address(&USPersonSolidNode::_Render),
-                        func_address(&USPersonSolidNode::_GetSortInfo)};
+    static void *table[]{func_address(&USPersonSolidNode::_Render), func_address(&USPersonSolidNode::_GetSortInfo)};
     m_vtbl = CAST(m_vtbl, table);
 }
 
-void * USPersonSolidNode::operator new(size_t size)
+void *USPersonSolidNode::operator new(size_t size)
 {
     auto *mem = nglListAlloc(size, 16);
     return mem;
@@ -384,18 +407,20 @@ void add_solid_pass(nglMeshNode *source, nglMeshSection *section, nglMaterialBas
 {
     auto *mesh = static_cast<nglMeshNode *>(nglListAlloc(sizeof(nglMeshNode), 64));
     ::new (mesh) nglMeshNode{*source};
-    nglParamSet<nglShaderParamSet_Pool> copied{
-        static_cast<nglParamSet<nglShaderParamSet_Pool>::nglParamSetType>(1)};
+    nglParamSet<nglShaderParamSet_Pool> copied{static_cast<nglParamSet<nglShaderParamSet_Pool>::nglParamSetType>(1)};
     copied.copy(source->field_8C);
-    if (pass != 1) copied.Set<USSectionIFLParam>();
-    auto *params = new ParamStruct{source->field_8C.IsSetParam<USPersonParam>()
-        ? *source->field_8C.Get<USPersonParam>()->field_0 : DefaultParams()};
+    if (pass != 1)
+        copied.Set<USSectionIFLParam>();
+    auto *params =
+        new ParamStruct{source->field_8C.IsSetParam<USPersonParam>() ? *source->field_8C.Get<USPersonParam>()->field_0
+                                                                     : DefaultParams()};
     params->field_44 = pass;
     if (pass != 1) {
         params->field_38 = false;
         params->field_3C = pass == 2 ? 1 : 2;
         params->field_41 = false;
-        if (pass == 2) params->disableZDepth = true;
+        if (pass == 2)
+            params->disableZDepth = true;
         else {
             std::memcpy(params->field_0, params->field_10, sizeof(params->field_0));
             params->field_30 = params->field_34;
@@ -405,7 +430,7 @@ void add_solid_pass(nglMeshNode *source, nglMeshSection *section, nglMaterialBas
     mesh->field_8C = copied;
     nglListAddNode(new USPersonSolidNode{mesh, section, material});
 }
-}
+}  // namespace
 
 void USPersonSolidShader::sub_41DEE0(nglMeshNode *a1, nglMeshSection *a2, nglMaterialBase *a3)
 {
@@ -438,7 +463,7 @@ void USPersonSolidShader::_AddNode(nglMeshNode *a1, nglMeshSection *a2, nglMater
             this->sub_41DEE0(a1, a2, a3);
             this->sub_41E0A0(a1, a2, a3);
         } else {
-            auto *v8 = new USPersonSolidNode {a1, a2, a3};
+            auto *v8 = new USPersonSolidNode{a1, a2, a3};
             nglListAddNode(v8);
         }
 
@@ -457,8 +482,8 @@ void USPersonSolidShader::_BindMaterial(nglMaterialBase *a1)
     USPersonMaterial *Material = CAST(Material, a1);
 
 #ifdef TARGET_XBOX
-    a1->field_1C = nglLoadTexture( *bit_cast<tlHashString *>(&a1->field_18));
-    a1->field_24 = nglLoadTexture( *bit_cast<tlHashString *>(&a1->field_20));
+    a1->field_1C = nglLoadTexture(*bit_cast<tlHashString *>(&a1->field_18));
+    a1->field_24 = nglLoadTexture(*bit_cast<tlHashString *>(&a1->field_20));
 #else
     Material->field_1C = nglLoadTexture(*Material->field_18);
     Material->field_24 = nglLoadTexture(*Material->field_20);
@@ -505,7 +530,7 @@ void register_person_shader(nglShader &shader)
         IDirect3DDevice9_CreateVertexDeclaration(g_Direct3DDevice, fixed_elements, &dword_9738E0[12]);
     }
 }
-}
+}  // namespace
 #endif
 
 void USPersonSolidShader::Register()
@@ -518,8 +543,8 @@ void USPersonSolidShader::Register()
     if constexpr (0) {
         nglShader::Register();
 
-        D3DVERTEXELEMENT9 nglVS_Skin_Decl[] {
-            {0, 0,  D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0},
+        D3DVERTEXELEMENT9 nglVS_Skin_Decl[]{
+            {0, 0, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0},
             {0, 12, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_NORMAL, 0},
             {0, 24, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0},
             {0, 32, D3DDECLTYPE_FLOAT4, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_BLENDINDICES, 0},
@@ -540,7 +565,7 @@ void USPersonSolidShader::Register()
             }
 
         } else {
-            D3DVERTEXELEMENT9 nglVS_NonSkin_Decl4[] {
+            D3DVERTEXELEMENT9 nglVS_NonSkin_Decl4[]{
                 {0, 0, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0},
                 {0, 12, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0},
                 {0, 20, D3DDECLTYPE_FLOAT1, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0},
@@ -570,7 +595,7 @@ void USPersonShader::_Register()
 
         if (EnableShader) {
             static const D3DVERTEXELEMENT9 nglVS_Skin_Decl[] = {
-                {0,  0, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0},
+                {0, 0, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0},
                 {0, 12, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_NORMAL, 0},
                 {0, 24, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0},
                 {0, 32, D3DDECLTYPE_FLOAT4, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_BLENDINDICES, 0},
@@ -587,16 +612,16 @@ void USPersonShader::_Register()
                 CreatePixelShader(&OutlinePShader(), pShader.data());
             }
         } else {
-            D3DVERTEXELEMENT9 nglVS_NonSkin_Decl[] {
-                {0,  0, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0},
+            D3DVERTEXELEMENT9 nglVS_NonSkin_Decl[]{
+                {0, 0, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0},
                 {0, 12, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0},
                 {0, 20, D3DDECLTYPE_FLOAT1, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0},
                 D3DDECL_END()};
 
             if (dword_9738E0[12] == nullptr) {
                 IDirect3DDevice9_CreateVertexDeclaration(g_Direct3DDevice, nglVS_NonSkin_Decl, &dword_9738E0[12]);
+            }
         }
-    }
     } else {
         THISCALL(0x00411580, this);
     }
@@ -615,18 +640,18 @@ void USPersonShader::AddNodeOverrideMask(nglMeshNode *a1, nglMeshSection *a2, ng
         new_node->field_8C = param_set;
 
         auto *v7 = &DefaultParams();
-        if ( a1->field_8C.IsSetParam<USPersonParam>() ) {
+        if (a1->field_8C.IsSetParam<USPersonParam>()) {
             v7 = a1->field_8C.Get<USPersonParam>()->field_0;
         }
 
-        auto *v8 = new ParamStruct {};
+        auto *v8 = new ParamStruct{};
         memcpy(v8, v7, sizeof(ParamStruct));
 
         v8->field_44 = 1;
 
-        param_set.SetParam(USPersonParam {v8});
+        param_set.SetParam(USPersonParam{v8});
 
-        auto *v12 = new USPersonNode {new_node, a2, a3};
+        auto *v12 = new USPersonNode{new_node, a2, a3};
         nglListAddNode(v12);
     } else {
         THISCALL(0x0041BEF0, this, a1, a2, a3);
@@ -648,11 +673,11 @@ void USPersonShader::AddNodeClearZ(nglMeshNode *a2, nglMeshSection *a3, nglMater
         new_node->field_8C = param_set;
 
         auto *v9 = &DefaultParams();
-        if ( a2->field_8C.IsSetParam<USPersonParam>() ) {
+        if (a2->field_8C.IsSetParam<USPersonParam>()) {
             v9 = a2->field_8C.Get<USPersonParam>()->field_0;
         }
 
-        auto *v10 = new ParamStruct {};
+        auto *v10 = new ParamStruct{};
         std::memcpy(v10, v9, sizeof(ParamStruct));
 
         v10->field_38 = false;
@@ -661,9 +686,9 @@ void USPersonShader::AddNodeClearZ(nglMeshNode *a2, nglMeshSection *a3, nglMater
         v10->field_44 = 2;
         v10->disableZDepth = true;
 
-        param_set.SetParam(USPersonParam {v10});
+        param_set.SetParam(USPersonParam{v10});
 
-        auto *v14 = new USPersonNode {new_node, a3, a4};
+        auto *v14 = new USPersonNode{new_node, a3, a4};
         nglListAddNode(v14);
     } else {
         THISCALL(0x0041C0B0, this, a2, a3, a4);
@@ -685,11 +710,11 @@ void USPersonShader::AddNodeExtraOutline(nglMeshNode *a1, nglMeshSection *a2, ng
         new_node->field_8C = param_set;
 
         auto *a1a = &DefaultParams();
-        if ( a1->field_8C.IsSetParam<USPersonParam>() ) {
+        if (a1->field_8C.IsSetParam<USPersonParam>()) {
             a1a = a1->field_8C.Get<USPersonParam>()->field_0;
         }
 
-        auto *v7 = new ParamStruct {};
+        auto *v7 = new ParamStruct{};
         memcpy(v7, a1a, sizeof(ParamStruct));
 
         v7->field_38 = false;
@@ -702,9 +727,9 @@ void USPersonShader::AddNodeExtraOutline(nglMeshNode *a1, nglMeshSection *a2, ng
         v7->field_41 = false;
         v7->field_44 = 3;
 
-        param_set.SetParam(USPersonParam {v7});
+        param_set.SetParam(USPersonParam{v7});
 
-        auto *v11 = new USPersonNode {new_node, a2, a3};
+        auto *v11 = new USPersonNode{new_node, a2, a3};
         nglListAddNode(v11);
     } else {
         THISCALL(0x0041C2A0, this, a1, a2, a3);
@@ -728,7 +753,7 @@ void USPersonShader::_AddNode(nglMeshNode *a2, nglMeshSection *a3, nglMaterialBa
             this->AddNodeOverrideMask(a2, a3, a4);
             this->AddNodeClearZ(a2, a3, a4);
         } else {
-            auto *v8 = new USPersonNode {a2, a3, a4};
+            auto *v8 = new USPersonNode{a2, a3, a4};
             nglListAddNode(v8);
         }
 
@@ -747,8 +772,8 @@ void USPersonShader::_BindMaterial(nglMaterialBase *a1)
     USPersonMaterial *Material = CAST(Material, a1);
 
 #ifdef TARGET_XBOX
-    a1->field_1C = nglLoadTexture( *bit_cast<tlHashString *>(&a1->field_18));
-    a1->field_24 = nglLoadTexture( *bit_cast<tlHashString *>(&a1->field_20));
+    a1->field_1C = nglLoadTexture(*bit_cast<tlHashString *>(&a1->field_18));
+    a1->field_24 = nglLoadTexture(*bit_cast<tlHashString *>(&a1->field_20));
 #else
     Material->field_1C = nglLoadTexture(*Material->field_18);
     Material->field_24 = nglLoadTexture(*Material->field_20);
@@ -819,7 +844,7 @@ USPersonNode::USPersonNode(nglMeshNode *a2, nglMeshSection *a3, nglMaterialBase 
     this->field_20 = this->ResolveIFL(this->m_material->field_24);
 }
 
-void * USPersonNode::operator new(size_t size)
+void *USPersonNode::operator new(size_t size)
 {
     auto *mem = nglListAlloc(size, 16);
     return mem;
@@ -861,15 +886,15 @@ bool USPersonNode::GetLightInfo(USPersonNode::LightInfoStruct &lightInfo, bool s
 
         return result;
     } else {
-        auto result = (bool) THISCALL(0x0041CF70, this, &lightInfo);
+        auto result = (bool)THISCALL(0x0041CF70, this, &lightInfo);
 
         return result;
     }
 }
 
-static Var<IDirect3DVertexBuffer9 *> dword_973BC0 {0x00973BC0};
+static Var<IDirect3DVertexBuffer9 *> dword_973BC0{0x00973BC0};
 
-static Var<uint32_t> dword_973BC4 {0x00973BC4};
+static Var<uint32_t> dword_973BC4{0x00973BC4};
 
 void USPersonNode::RenderWithDisableShader()
 {
@@ -878,13 +903,12 @@ void USPersonNode::RenderWithDisableShader()
 
 void USPersonNode::RenderWithDisableShader(bool solid)
 {
-
     if constexpr (1) {
         this->sub_413AF0();
         this->sub_413AF0();
         auto &v3 = this->m_meshNode->field_8C;
         auto *v4 = &USPersonShaderSpace::DefaultParams();
-        if ( v3.IsSet(USPersonParam::ID()) ) {
+        if (v3.IsSet(USPersonParam::ID())) {
             v4 = v3.Get<USPersonParam>()->field_0;
         }
 
@@ -919,7 +943,7 @@ void USPersonNode::RenderWithDisableShader(bool solid)
 
         IDirect3DDevice9_SetVertexDeclaration(g_Direct3DDevice, dword_9738E0[12]);
 
-        D3DMATRIX v20 {};
+        D3DMATRIX v20{};
         memset(&v20._34, 0, 16);
         memset(&v20._23, 0, 16);
         memset(&v20._12, 0, 16);
@@ -932,7 +956,7 @@ void USPersonNode::RenderWithDisableShader(bool solid)
 
         auto *v13 = this->m_meshNode;
 
-        D3DXVECTOR3 v19 {};
+        D3DXVECTOR3 v19{};
         v19[0] = 0.0;
         v19[1] = 0.57735026;
         v19[2] = 0.81649655;
@@ -962,18 +986,18 @@ void USPersonNode::RenderWithDisableShader(bool solid)
                 g_renderState().setDepthBufferFunction(D3DCMP_LESSEQUAL);
 
                 g_renderState().setDepthBufferWriteEnabled(true);
-                
+
                 g_renderState().setDepthBuffer(D3DZB_TRUE);
 
-                g_renderState().setCullingMode(D3DCULL_CW );
+                g_renderState().setCullingMode(D3DCULL_CW);
 
                 g_renderState().setBlending(this->m_material->m_blend_mode, 0, 0);
                 nglDxSetTexture(0, this->field_1C, 8u, 3);
                 nglSetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);
                 nglSetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);
-                const string_hash v16 {int(this->m_meshSection->Material->Name->m_hash)};
-                const string_hash v17 {0x7A6B6091};
-                const string_hash v18 {0x7BB44A0E};
+                const string_hash v16{int(this->m_meshSection->Material->Name->m_hash)};
+                const string_hash v17{0x7A6B6091};
+                const string_hash v18{0x7BB44A0E};
 
                 if (v16 == v17 || (v16 == v18)) {
                     IDirect3DDevice9_SetTexture(g_Direct3DDevice, 1, celshadingSolidTex());
@@ -987,13 +1011,13 @@ void USPersonNode::RenderWithDisableShader(bool solid)
                 nglSetSamplerState(1u, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);
                 auto *v11 = this->m_meshSection;
                 nglSetStreamSourceAndDrawPrimitive(v11->m_primitiveType,
-                    dword_973BC0(),
-                    v11->NVertices,
-                    dword_973BC4(),
-                    v11->m_stride,
-                    v11->m_indexBuffer,
-                    v11->NIndices,
-                    v11->StartIndex);
+                                                   dword_973BC0(),
+                                                   v11->NVertices,
+                                                   dword_973BC4(),
+                                                   v11->m_stride,
+                                                   v11->m_indexBuffer,
+                                                   v11->NIndices,
+                                                   v11->StartIndex);
             }
 
             if (v15) {
@@ -1011,7 +1035,7 @@ void USPersonNode::RenderWithDisableShader(bool solid)
                 nglSetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
                 nglSetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TFACTOR);
 
-                Var<bool> byte_95701C {solid ? 0x00957038 : 0x0095701C};
+                Var<bool> byte_95701C{solid ? 0x00957038 : 0x0095701C};
                 if (byte_95701C()) {
                     g_renderTextureState().field_0[0] = nullptr;
                     IDirect3DDevice9_SetTexture(g_Direct3DDevice, 0, nullptr);
@@ -1019,13 +1043,13 @@ void USPersonNode::RenderWithDisableShader(bool solid)
 
                 auto *v12 = this->m_meshSection;
                 nglSetStreamSourceAndDrawPrimitive(v12->m_primitiveType,
-                    dword_973BC0(),
-                    v12->NVertices,
-                    dword_973BC4(),
-                    v12->m_stride,
-                    v12->m_indexBuffer,
-                    v12->NIndices,
-                    v12->StartIndex);
+                                                   dword_973BC0(),
+                                                   v12->NVertices,
+                                                   dword_973BC4(),
+                                                   v12->m_stride,
+                                                   v12->m_indexBuffer,
+                                                   v12->NIndices,
+                                                   v12->StartIndex);
             }
 
             if (v7) {
@@ -1037,7 +1061,6 @@ void USPersonNode::RenderWithDisableShader(bool solid)
             }
         }
     } else {
-
         THISCALL(0x0041D180, this);
     }
 }
@@ -1157,7 +1180,7 @@ void USPersonNode::RenderPerson(bool solid)
 
                 a2 *= a3;
 
-                a3 = vector4d {1.0};
+                a3 = vector4d{1.0};
 
                 vector4d a1 = a3 - a2;
 
@@ -1202,13 +1225,12 @@ void USPersonNode::RenderPerson(bool solid)
                 IDirect3DDevice9_SetPixelShaderConstantF(g_Direct3DDevice, 2, &a1[0], 1);
             }
 
-            float a1[4] {0, 0, 0, 1};
+            float a1[4]{0, 0, 0, 1};
 
             IDirect3DDevice9_SetPixelShaderConstantF(g_Direct3DDevice, 1, a1, 1);
 
             //sp_log("DRAW!");
             nglSetStreamSourceAndDrawPrimitive(this->m_meshSection);
-
         }
 
         if (disableOutline) {
@@ -1216,7 +1238,7 @@ void USPersonNode::RenderPerson(bool solid)
 
             g_renderState().setBlending(NGLBM_OPAQUE, 0, 0);
 
-            float a1[4] {0, 0, 0, 0};
+            float a1[4]{0, 0, 0, 0};
             IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice, 9, a1, 1);
 
             nglSetVertexDeclarationAndShader(&OutlineVShader()[0]);
@@ -1237,7 +1259,7 @@ void USPersonNode::RenderPerson(bool solid)
                 g_renderState().setBlending(NGLBM_OPAQUE, 0, 0);
                 auto v35 = v34 * params->field_30 * ParamStruct::OutlineThickness;
 
-                float a1[4] {0, 0, 0, v35};
+                float a1[4]{0, 0, 0, v35};
                 IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice, 9, a1, 1);
 
                 nglSetVertexDeclarationAndShader(&OutlineVShader()[0]);
@@ -1260,10 +1282,10 @@ void USPersonNode::RenderPerson(bool solid)
 
             g_renderState().setDepthBufferFunction(D3DCMP_ALWAYS);
 
-            float a1[4] {0, 0, 0, 0};
+            float a1[4]{0, 0, 0, 0};
             IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice, 9, a1, 1);
 
-            static float dword_957004[4] {0, 0, 0, 16777214.0};
+            static float dword_957004[4]{0, 0, 0, 16777214.0};
             IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice, 10, dword_957004, 1);
             nglSetVertexDeclarationAndShader(&OutlineVShader()[1]);
             SetPixelShader(&OutlinePShader());
@@ -1330,27 +1352,29 @@ void USPersonSolidShader::_ReleaseMaterial(nglMaterialBase *base)
 
 USPersonShader *USPersonShader::Delete(unsigned char flags)
 {
-    if (flags & 1) ::operator delete(this);
+    if (flags & 1)
+        ::operator delete(this);
     return this;
 }
 
 USPersonSolidShader *USPersonSolidShader::Delete(unsigned char flags)
 {
-    if (flags & 1) ::operator delete(this);
+    if (flags & 1)
+        ::operator delete(this);
     return this;
 }
 
-} // namespace USPersonShaderSpace
+}  // namespace USPersonShaderSpace
 
 void hookSetStreamSourceAndDrawPrimitive(nglMeshSection *) {}
 
-void * _sub_4150E0(matrix4x4 *out, const matrix4x4 *a2)
+void *_sub_4150E0(matrix4x4 *out, const matrix4x4 *a2)
 {
     *out = sub_4150E0(*a2);
     return out;
 }
 
-void * _sub_4135B0(matrix4x3 *out, const matrix4x3 &a2)
+void *_sub_4135B0(matrix4x3 *out, const matrix4x3 &a2)
 {
     *out = transposed(a2);
     return out;
@@ -1405,8 +1429,9 @@ void us_person_patch()
     }
 
     {
-        FUNC_ADDRESS(address, static_cast<void (USPersonShaderSpace::USPersonNode::*)()>(
-            &USPersonShaderSpace::USPersonNode::RenderWithDisableShader));
+        FUNC_ADDRESS(address,
+                     static_cast<void (USPersonShaderSpace::USPersonNode::*)()>(
+                         &USPersonShaderSpace::USPersonNode::RenderWithDisableShader));
         REDIRECT(0x0041C4EF, address);
     }
 
@@ -1426,7 +1451,7 @@ void us_person_patch()
     }
 
     {
-    REDIRECT(0x0041C5CE, nglSetupVShaderBonesDX);
+        REDIRECT(0x0041C5CE, nglSetupVShaderBonesDX);
         REDIRECT(0x0041E5BE, nglSetupVShaderBonesDX);
     }
 
@@ -1437,9 +1462,10 @@ void us_person_patch()
     //USPersonNode::Render;
     {
         {
-            FUNC_ADDRESS(address, static_cast<bool (USPersonShaderSpace::USPersonNode::*)(
-                USPersonShaderSpace::USPersonNode::LightInfoStruct &)>(
-                    &USPersonShaderSpace::USPersonNode::GetLightInfo));
+            FUNC_ADDRESS(address,
+                         static_cast<bool (USPersonShaderSpace::USPersonNode::*)(
+                             USPersonShaderSpace::USPersonNode::LightInfoStruct &)>(
+                             &USPersonShaderSpace::USPersonNode::GetLightInfo));
             REDIRECT(0x0041C56A, address);
         }
 

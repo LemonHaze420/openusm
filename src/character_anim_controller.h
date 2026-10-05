@@ -77,8 +77,8 @@ struct character_anim_controller : nal_anim_controller {
     static void *native_vtable();
 
 
-    void _play_layer_anim(nalAnimClass<nalAnyPose> *anim, Float blend_time, Float priority,
-                          uint32_t domains, bool force_restart, bool completion_flag, void *parameter);
+    void _play_layer_anim(nalAnimClass<nalAnyPose> *anim, Float blend_time, Float priority, uint32_t domains,
+                          bool force_restart, bool completion_flag, void *parameter);
 
 
     float get_floor_offset();

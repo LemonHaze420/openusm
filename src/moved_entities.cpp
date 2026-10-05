@@ -38,7 +38,7 @@ void moved_entities::reset_all_moved()
 void moved_entities::add_moved(vhandle_type<entity> e_arg)
 {
     TRACE("moved_entities::add_moved");
-    
+
     if constexpr (1) {
         [[maybe_unused]] static vhandle_type<entity> INVALID_VHANDLE{};
         //assert(e_arg != INVALID_VHANDLE);
@@ -49,7 +49,7 @@ void moved_entities::add_moved(vhandle_type<entity> e_arg)
         assert(e->get_abs_po().is_valid());
 
         if (e->is_conglom_member()) {
-            e = (entity *) e->get_conglom_owner();
+            e = (entity *)e->get_conglom_owner();
             assert(e != nullptr && "Failed to obtain conglom owner in add_moved");
         }
 
@@ -86,32 +86,32 @@ void moved_entities::add_moved(vhandle_type<entity> e_arg)
                 assert(adopted_children != nullptr);
 
                 for (auto &child : (*adopted_children)) {
-                    if ( child->is_an_actor() || child->is_a_pfx_entity() )
+                    if (child->is_an_actor() || child->is_a_pfx_entity())
                         moved_entities::add_moved(vhandle_type<entity>{child->my_handle});
+                }
             }
         }
-    }
     } else {
         CDECL_CALL(0x00533D00, e_arg);
     }
 }
 
-intraframe_trajectory_t *moved_entities::get_all_trajectories(
-    Float frame_time, const moved_entities::trajectory_filter_t &)
+intraframe_trajectory_t *moved_entities::get_all_trajectories(Float frame_time,
+                                                              const moved_entities::trajectory_filter_t &)
 {
     TRACE("moved_entities::get_all_trajectories");
 
     intraframe_trajectory_t *trajectories = nullptr;
     for (int index = 0; index < moved_count; ++index) {
         auto *ent = moved_list[index].get_volatile_ptr();
-        if (ent == nullptr || !ent->is_an_actor() || ent->is_in_limbo() ||
-            !ent->are_collisions_active() || ent->get_colgeom() == nullptr) {
+        if (ent == nullptr || !ent->is_an_actor() || ent->is_in_limbo() || !ent->are_collisions_active() ||
+            ent->get_colgeom() == nullptr) {
             continue;
         }
 
         auto *storage = intraframe_trajectory_t::pool().allocate_new_block();
-        auto *trajectory = new (storage) intraframe_trajectory_t(
-            static_cast<actor *>(ent), frame_time, ent->get_abs_po(), nullptr);
+        auto *trajectory =
+            new (storage) intraframe_trajectory_t(static_cast<actor *>(ent), frame_time, ent->get_abs_po(), nullptr);
         trajectory->field_15C = trajectories;
         trajectories = trajectory;
     }

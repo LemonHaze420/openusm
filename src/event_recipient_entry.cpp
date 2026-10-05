@@ -113,10 +113,9 @@ void event_recipient_entry::clean_up_callbacks()
 {
     for (auto it = field_4.begin(); it != field_4.end();) {
         auto *callback = *it;
-        bool (__fastcall *is_script)(event_callback *, void *) =
-            CAST(is_script, get_vfunc(callback->m_vtbl, 0xC));
-        bool remove = is_script(callback, nullptr) &&
-            static_cast<script_event_callback *>(callback)->instance == nullptr;
+        bool(__fastcall * is_script)(event_callback *, void *) = CAST(is_script, get_vfunc(callback->m_vtbl, 0xC));
+        bool remove =
+            is_script(callback, nullptr) && static_cast<script_event_callback *>(callback)->instance == nullptr;
         for (auto id : field_10)
             remove |= callback->id == reinterpret_cast<std::intptr_t>(id);
         if (remove) {
@@ -133,8 +132,8 @@ void event_recipient_entry::clear_script_callbacks(script_executable *executable
 {
     for (auto it = field_4.begin(); it != field_4.end();) {
         auto *callback = *it;
-        auto is_script = reinterpret_cast<bool (__fastcall *)(event_callback *, void *)>(
-            get_vfunc(callback->m_vtbl, 0xC));
+        auto is_script =
+            reinterpret_cast<bool(__fastcall *)(event_callback *, void *)>(get_vfunc(callback->m_vtbl, 0xC));
         if (is_script(callback, nullptr)) {
             auto *instance = static_cast<script_event_callback *>(callback)->instance;
             auto *owner = instance != nullptr ? instance->parent->parent : nullptr;
@@ -151,8 +150,8 @@ void event_recipient_entry::clear_script_callbacks(script_executable *executable
 bool event_recipient_entry::does_script_have_callbacks(const script_executable *executable) const
 {
     for (auto *callback : field_4) {
-        auto is_script = reinterpret_cast<bool (__fastcall *)(event_callback *, void *)>(
-            get_vfunc(callback->m_vtbl, 0xC));
+        auto is_script =
+            reinterpret_cast<bool(__fastcall *)(event_callback *, void *)>(get_vfunc(callback->m_vtbl, 0xC));
         if (is_script(callback, nullptr)) {
             auto *instance = static_cast<script_event_callback *>(callback)->instance;
             auto *owner = instance != nullptr ? instance->parent->parent : nullptr;

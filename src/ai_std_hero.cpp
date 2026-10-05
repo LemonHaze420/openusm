@@ -92,18 +92,38 @@ void *__fastcall hero_delete(hero_inode *self, void *, unsigned flags)
         ::operator delete(self);
     return self;
 }
-unsigned __fastcall hero_type(hero_inode *, void *) { return 384; }
-bool __fastcall hero_subclass(hero_inode *, void *, unsigned type) { return type == 537 || type == 573; }
-bool __fastcall hero_needs_advance(hero_inode *, void *) { return true; }
-void __fastcall hero_advance(hero_inode *self, void *, Float delta) { self->_frame_advance(delta); }
-void __fastcall hero_activate(hero_inode *self, void *, ai_core *core) { self->_activate(core); }
-void __fastcall hero_deactivate(hero_inode *self, void *) { self->_deactivate(); }
-int __fastcall hero_size(hero_inode *, void *) { return sizeof(hero_inode); }
+unsigned __fastcall hero_type(hero_inode *, void *)
+{
+    return 384;
 }
+bool __fastcall hero_subclass(hero_inode *, void *, unsigned type)
+{
+    return type == 537 || type == 573;
+}
+bool __fastcall hero_needs_advance(hero_inode *, void *)
+{
+    return true;
+}
+void __fastcall hero_advance(hero_inode *self, void *, Float delta)
+{
+    self->_frame_advance(delta);
+}
+void __fastcall hero_activate(hero_inode *self, void *, ai_core *core)
+{
+    self->_activate(core);
+}
+void __fastcall hero_deactivate(hero_inode *self, void *)
+{
+    self->_deactivate();
+}
+int __fastcall hero_size(hero_inode *, void *)
+{
+    return sizeof(hero_inode);
+}
+}  // namespace
 
 void *hero_inode::native_vtable()
 {
-
     static auto table = [] {
         std::array<void *, 12> result;
         std::copy_n(static_cast<void **>(info_node::native_vtable()), result.size(), result.data());
@@ -125,10 +145,8 @@ void *hero_inode::native_vtable()
 hero_inode::internal::internal() : field_0(0) {}
 
 hero_inode::hero_inode()
-    : info_node(), field_1C(false), field_4C(0), field_7C(false),
-      field_1AC(false), field_1AD(false),
-      field_20C{static_cast<crawl_transition_type_enum>(0), false, false, 0.0f, 0.0f,
-                ZEROVEC, ZEROVEC, 0.0f},
+    : info_node(), field_1C(false), field_4C(0), field_7C(false), field_1AC(false), field_1AD(false),
+      field_20C{static_cast<crawl_transition_type_enum>(0), false, false, 0.0f, 0.0f, ZEROVEC, ZEROVEC, 0.0f},
       field_23C{0}, field_240(false)
 {
     m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[virtual_type]);
@@ -137,15 +155,13 @@ hero_inode::hero_inode()
 hero_inode::internal::internal(from_mash_in_place_constructor *constructor)
     : field_10(constructor), field_20(constructor), field_7C(constructor)
 {
-
     field_0 = 0;
 }
 
 hero_inode::hero_inode(from_mash_in_place_constructor *constructor)
-    : info_node(constructor), field_58(constructor), field_64(constructor),
-      field_88(constructor), field_1B0(constructor),
-      field_20C{static_cast<crawl_transition_type_enum>(0), false, false, 0.0f, 0.0f,
-                ZEROVEC, ZEROVEC, 0.0f}
+    : info_node(constructor), field_58(constructor), field_64(constructor), field_88(constructor),
+      field_1B0(constructor),
+      field_20C{static_cast<crawl_transition_type_enum>(0), false, false, 0.0f, 0.0f, ZEROVEC, ZEROVEC, 0.0f}
 {
     m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[virtual_type]);
     field_23C = {0};
@@ -153,7 +169,6 @@ hero_inode::hero_inode(from_mash_in_place_constructor *constructor)
 
 void hero_inode::_unmash(mash_info_struct *info, void *context)
 {
-
     info_node::_unmash(info, context);
 }
 
@@ -162,7 +177,7 @@ void hero_inode::_deactivate()
     cleanup_collision_lists();
     if (field_248 != 0) {
         auto *owned = reinterpret_cast<void *>(field_248);
-        using deleting_destructor = void (__fastcall *)(void *, void *, unsigned int);
+        using deleting_destructor = void(__fastcall *)(void *, void *, unsigned int);
         const auto table = *reinterpret_cast<std::intptr_t *>(owned);
         reinterpret_cast<deleting_destructor>(get_vfunc(table, 0))(owned, nullptr, 1);
     }
@@ -176,13 +191,22 @@ void hero_inode::rumble_and_damage(float fall_height)
     if (!medium_fall && fall_height < large)
         return;
     if (auto *rumble = input_mgr::instance->rumble_ptr) {
-        rumble->start_vibration(medium_fall ? 0.5f : 1.0f,
-            medium_fall ? 0.4f : 0.5f, 0.0f, 0.0f, 1, 0.3f);
+        rumble->start_vibration(medium_fall ? 0.5f : 1.0f, medium_fall ? 0.4f : 0.5f, 0.0f, 0.0f, 1, 0.3f);
     }
     const string_hash no_attack{0};
-    field_C->damage_ifc()->apply_damage(nullptr, fall_height - medium, 1,
-        field_C->get_abs_position(), vector3d{0.0f, 1.0f, 0.0f}, 0,
-        no_attack, no_attack, no_attack, false, ZEROVEC, 17, false);
+    field_C->damage_ifc()->apply_damage(nullptr,
+                                        fall_height - medium,
+                                        1,
+                                        field_C->get_abs_position(),
+                                        vector3d{0.0f, 1.0f, 0.0f},
+                                        0,
+                                        no_attack,
+                                        no_attack,
+                                        no_attack,
+                                        false,
+                                        ZEROVEC,
+                                        17,
+                                        false);
 }
 
 bool sub_68A0B0(int a1)
@@ -287,9 +311,16 @@ void hero_inode::_frame_advance(Float time_step)
     static constexpr float max_ground_dist = 10.0f;
     const auto end = position - UP * max_ground_dist;
     vector3d hit, normal;
-    if (find_intersection(position, end, *local_collision::entfilter_entity_no_capsules,
-                          *local_collision::obbfilter_lineseg_test, &hit, &normal,
-                          nullptr, nullptr, nullptr, false)) {
+    if (find_intersection(position,
+                          end,
+                          *local_collision::entfilter_entity_no_capsules,
+                          *local_collision::obbfilter_lineseg_test,
+                          &hit,
+                          &normal,
+                          nullptr,
+                          nullptr,
+                          nullptr,
+                          false)) {
         field_244 = position.y - hit.y;
     } else {
         field_244 = max_ground_dist;
@@ -435,8 +466,8 @@ bool hero_inode::accept_crawl_spot(vector3d position, vector3d normal)
     for (const vector3d &offset : {tangent, -tangent, bitangent, -bitangent}) {
         line.field_0 = position + offset + normal;
         line.field_C = position + offset - normal;
-        if (!line.check_collision(*local_collision::entfilter_entity_no_capsules,
-                                  *local_collision::obbfilter_lineseg_test, nullptr) &&
+        if (!line.check_collision(
+                *local_collision::entfilter_entity_no_capsules, *local_collision::obbfilter_lineseg_test, nullptr) &&
             !is_noncrawlable_surface(line))
             return false;
         if (dot(line.hit_norm, normal) < 0.9f)
@@ -476,7 +507,6 @@ bool corner_surface_forbidden(const line_info &line)
 }
 void find_corner(hero_inode *hero, corner_info &out)
 {
-
     const auto &pose = hero->field_C->get_abs_po();
     const vector3d up = pose.get_y_facing();
     const vector3d forward = pose.get_z_facing();
@@ -493,8 +523,8 @@ void find_corner(hero_inode *hero, corner_info &out)
         const vector3d horizontal = direction * 2.0f;
         line_info wall, high;
         const auto check = [](line_info &line) {
-            return line.check_collision(*local_collision::entfilter_entity_no_capsules,
-                                         *local_collision::obbfilter_lineseg_test, nullptr);
+            return line.check_collision(
+                *local_collision::entfilter_entity_no_capsules, *local_collision::obbfilter_lineseg_test, nullptr);
         };
         high.field_0 = foot + up * 0.2f;
         high.field_C = high.field_0 + horizontal;
@@ -521,8 +551,9 @@ void find_corner(hero_inode *hero, corner_info &out)
                     if (!check(lower) || is_noncrawlable_surface(lower))
                         store_corner(out, 0x84, 3.0f);
                     else
-                        store_corner(out, 0x84, (lower.field_0 - lower.hit_pos).length() -
-                            (wall.field_0 - wall.hit_pos).length());
+                        store_corner(out,
+                                     0x84,
+                                     (lower.field_0 - lower.hit_pos).length() - (wall.field_0 - wall.hit_pos).length());
                 }
             }
         }
@@ -534,7 +565,8 @@ void find_corner(hero_inode *hero, corner_info &out)
             const double alignment = dot(up, normal);
             if (alignment < 0.8f && axis_squared >= 0.0001f) {
                 const double denominator = 1.0 - alignment * alignment;
-                const vector3d line_origin = up * static_cast<float>((alignment * wall_w - ground_plane.w) / denominator) +
+                const vector3d line_origin =
+                    up * static_cast<float>((alignment * wall_w - ground_plane.w) / denominator) +
                     normal * static_cast<float>((alignment * ground_plane.w - wall_w) / denominator);
                 const vector3d probe = foot + forward * 0.5f;
                 const double parameter = dot(probe - line_origin, axis) / axis_squared;
@@ -560,7 +592,7 @@ void find_corner(hero_inode *hero, corner_info &out)
         }
     }
 }
-}
+}  // namespace
 
 bool hero_inode::get_closest_corner(corner_info *corner, crawl_request_type request)
 {
@@ -602,8 +634,8 @@ bool hero_inode::get_closest_corner(corner_info *corner, crawl_request_type requ
         const auto &pose = physics->get_abs_po();
         const float up_alignment = dot(pose.get_y_facing(), corner->field_0.hit_norm);
         const float forward_alignment = dot(pose.get_z_facing(), corner->field_0.hit_norm);
-        accepted = (forward_alignment < -0.1f && corner->field_0.hit_norm.y > -0.2f) ||
-            -up_alignment > 0.8f || up_alignment > 0.8f;
+        accepted = (forward_alignment < -0.1f && corner->field_0.hit_norm.y > -0.2f) || -up_alignment > 0.8f ||
+                   up_alignment > 0.8f;
         if (!accepted) {
             field_1AC = false;
             return false;
@@ -664,8 +696,7 @@ bool hero_inode::crawl_is_eligible(string_hash a2, bool a3)
 bool hero_inode::oldcrawl_is_eligible(string_hash state, bool require_button)
 {
     static const string_hash allow_oldcrawl{static_cast<int>(to_hash("loco_allow_oldcrawl"))};
-    return field_8->field_50.get_pb_int(allow_oldcrawl) != 0 &&
-        crawl_is_eligible_internals(state, require_button);
+    return field_8->field_50.get_pb_int(allow_oldcrawl) != 0 && crawl_is_eligible_internals(state, require_button);
 }
 
 void hero_inode::set_surface_info(const line_info &a2)
@@ -723,15 +754,13 @@ void hero_inode::update_crawl_als_params()
     float motion_force = 0.0f;
     const auto &pose = owner->get_abs_po();
     if (input->is_axis_neutral(static_cast<controller_inode::eControllerAxis>(0))) {
-        const auto basis = is_colinear(pose.get_z_facing(), up, 0.01f)
-            ? pose.get_y_facing() : pose.get_z_facing();
+        const auto basis = is_colinear(pose.get_z_facing(), up, 0.01f) ? pose.get_y_facing() : pose.get_z_facing();
         forward = sub_444A60(basis, up);
         forward.normalize();
     } else {
         forward = sub_444A60(input->get_axis(static_cast<controller_inode::eControllerAxis>(0)), up);
         if (forward.length2() <= 0.1f)
-            forward = is_colinear(pose.get_z_facing(), up, 0.01f)
-                ? pose.get_y_facing() : pose.get_z_facing();
+            forward = is_colinear(pose.get_z_facing(), up, 0.01f) ? pose.get_y_facing() : pose.get_z_facing();
         forward.normalize();
         motion_force = owner->m_player_controller->get_motion_force();
     }
@@ -822,14 +851,14 @@ bool hero_inode::jump_is_eligible(string_hash state)
             line_info forward, wall;
             forward.field_0 = pose.get_position();
             forward.field_C = forward.field_0 + pose.get_z_facing() * 7.0f;
-            forward.check_collision(*local_collision::entfilter_entity_no_capsules,
-                                     *local_collision::obbfilter_lineseg_test, nullptr);
+            forward.check_collision(
+                *local_collision::entfilter_entity_no_capsules, *local_collision::obbfilter_lineseg_test, nullptr);
             bool clearance = false;
             if (!forward.collision) {
                 wall.field_0 = forward.field_C;
                 wall.field_C = wall.field_0 - pose.get_y_facing() * 1.5f;
-                wall.check_collision(*local_collision::entfilter_entity_no_capsules,
-                                      *local_collision::obbfilter_lineseg_test, nullptr);
+                wall.check_collision(
+                    *local_collision::entfilter_entity_no_capsules, *local_collision::obbfilter_lineseg_test, nullptr);
                 clearance = wall.collision;
             }
             return choose(clearance ? 17 : 18);
@@ -841,14 +870,18 @@ bool hero_inode::jump_is_eligible(string_hash state)
             return choose(7);
         if (ought_to_stick_to_wall(field_1B0, false)) {
             if (dot(-YVEC, field_C->get_abs_po().get_z_facing()) < std::cos(0.7853981852531433))
-                return choose(controller->get_axis(static_cast<controller_inode::eControllerAxis>(0)).length2() <= EPSILON ? 6 : 8);
+                return choose(
+                    controller->get_axis(static_cast<controller_inode::eControllerAxis>(0)).length2() <= EPSILON ? 6
+                                                                                                                 : 8);
             return choose(5);
         }
         return true;
     }
     if (physics->field_1C->is_effectively_standing() || !physics->field_1C->allow_manage_standing()) {
-        const bool triggered = controller->get_button(static_cast<controller_inode::eControllerButton>(11)).is_triggered();
-        if (triggered && (super_jump || als->get_category_id(static_cast<als::layer_types>(0)) == cat_id_idle_walk_run())) {
+        const bool triggered =
+            controller->get_button(static_cast<controller_inode::eControllerButton>(11)).is_triggered();
+        if (triggered &&
+            (super_jump || als->get_category_id(static_cast<als::layer_types>(0)) == cat_id_idle_walk_run())) {
             if (super_jump)
                 return choose(15);
             choose(9);
@@ -931,8 +964,8 @@ bool hero_inode::crawl_is_eligible_internals(string_hash state, bool require_but
     if (!glass_house_manager::is_point_in_glass_house(physics->field_C->get_abs_position()))
         return false;
     clear_curr_ground();
-    const bool pressed = !require_button ||
-        controller->get_button(static_cast<controller_inode::eControllerButton>(1)).is_pressed();
+    const bool pressed =
+        !require_button || controller->get_button(static_cast<controller_inode::eControllerButton>(1)).is_pressed();
     const auto accept_corner = [this](const corner_info &corner) {
         field_20C.field_0 = static_cast<crawl_transition_type_enum>(0);
         field_88.field_7C = corner;
@@ -985,13 +1018,13 @@ bool hero_inode::crawl_is_eligible_internals(string_hash state, bool require_but
         return true;
     }
     if (allow_crawl) {
-        const auto *surface = check_exterior_transition(field_C, field_20C, als, get_hero_type() != VENOM, false, false);
+        const auto *surface =
+            check_exterior_transition(field_C, field_20C, als, get_hero_type() != VENOM, false, false);
         field_88.field_7C.field_0.copy(*surface);
         if (field_88.field_7C.field_0.collision) {
             field_1B0.copy(field_88.field_7C.field_0);
             const auto &normal = field_88.field_7C.field_0.hit_norm;
-            field_88.field_10 = vector4d{normal.x, normal.y, normal.z,
-                -dot(normal, field_88.field_7C.field_0.hit_pos)};
+            field_88.field_10 = vector4d{normal.x, normal.y, normal.z, -dot(normal, field_88.field_7C.field_0.hit_pos)};
             field_20C.field_0 = static_cast<crawl_transition_type_enum>(7);
             return true;
         }
@@ -1154,9 +1187,9 @@ void extend_capsule_for_jump(actor *act)
 bool have_relative_movement(entity *first, entity *second)
 {
     const auto moved = [](const po &delta) {
-        return (delta.slow_xform(XVEC) - XVEC).length2() +
-            (delta.slow_xform(YVEC) - YVEC).length2() +
-            (delta.slow_xform(ZVEC) - ZVEC).length2() > 0.001f;
+        return (delta.slow_xform(XVEC) - XVEC).length2() + (delta.slow_xform(YVEC) - YVEC).length2() +
+                   (delta.slow_xform(ZVEC) - ZVEC).length2() >
+               0.001f;
     };
     const auto moving_delta = [&moved](entity *entity) -> const po * {
         if (entity == nullptr || !entity->is_an_actor())

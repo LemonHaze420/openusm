@@ -76,44 +76,39 @@ constexpr D3DVERTEXELEMENT9 shiny_chrome_elements[] = {
     D3DDECL_END(),
 };
 constexpr DWORD shiny_vertex[] = {
-    0xFFFE0101,0x0000001F,0x80000000,0x900F0000,0x0000001F,0x80000003,0x900F0001,
-    0x0000001F,0x80000007,0x900F0002,0x0000001F,0x80000006,0x900F0003,0x0000001F,
-    0x80000005,0x900F0004,0x0000001F,0x8000000A,0x900F0005,0x00000009,0xC0010000,
-    0x90E40000,0xA0E40000,0x00000009,0xC0020000,0x90E40000,0xA0E40001,0x00000009,
-    0xC0040000,0x90E40000,0xA0E40002,0x00000009,0xC0080000,0x90E40000,0xA0E40003,
-    0x00000001,0xE0030000,0x90E40004,0x00000005,0xD00F0000,0x90C00005,0xA0E40004,
-    0x00000008,0x800F0000,0x90E40001,0xA1E40005,0x0000000D,0xD00F0001,0x80E40000,
-    0xA000005B,0x00000002,0x800F0002,0xA0E40006,0x91E40000,0x00000008,0x80080003,
-    0x80A40002,0x80A40002,0x00000007,0x80080003,0x80FF0003,0x00000005,0x80070002,
-    0x80A40002,0x80FF0003,0x00000002,0x800F0004,0x80E40002,0xA1E40005,0x00000008,
-    0x80080005,0x80A40004,0x80A40004,0x00000007,0x80080005,0x80FF0005,0x00000005,
-    0x80070004,0x80A40004,0x80FF0005,0x00000008,0x80010000,0x80E40004,0x90E40003,
-    0x00000008,0x80020000,0x80E40004,0x90E40002,0x00000004,0xE0030001,0x80E40000,
-    0xA055005B,0xA055005B,0x0000FFFF,
+    0xFFFE0101, 0x0000001F, 0x80000000, 0x900F0000, 0x0000001F, 0x80000003, 0x900F0001, 0x0000001F, 0x80000007,
+    0x900F0002, 0x0000001F, 0x80000006, 0x900F0003, 0x0000001F, 0x80000005, 0x900F0004, 0x0000001F, 0x8000000A,
+    0x900F0005, 0x00000009, 0xC0010000, 0x90E40000, 0xA0E40000, 0x00000009, 0xC0020000, 0x90E40000, 0xA0E40001,
+    0x00000009, 0xC0040000, 0x90E40000, 0xA0E40002, 0x00000009, 0xC0080000, 0x90E40000, 0xA0E40003, 0x00000001,
+    0xE0030000, 0x90E40004, 0x00000005, 0xD00F0000, 0x90C00005, 0xA0E40004, 0x00000008, 0x800F0000, 0x90E40001,
+    0xA1E40005, 0x0000000D, 0xD00F0001, 0x80E40000, 0xA000005B, 0x00000002, 0x800F0002, 0xA0E40006, 0x91E40000,
+    0x00000008, 0x80080003, 0x80A40002, 0x80A40002, 0x00000007, 0x80080003, 0x80FF0003, 0x00000005, 0x80070002,
+    0x80A40002, 0x80FF0003, 0x00000002, 0x800F0004, 0x80E40002, 0xA1E40005, 0x00000008, 0x80080005, 0x80A40004,
+    0x80A40004, 0x00000007, 0x80080005, 0x80FF0005, 0x00000005, 0x80070004, 0x80A40004, 0x80FF0005, 0x00000008,
+    0x80010000, 0x80E40004, 0x90E40003, 0x00000008, 0x80020000, 0x80E40004, 0x90E40002, 0x00000004, 0xE0030001,
+    0x80E40000, 0xA055005B, 0xA055005B, 0x0000FFFF,
 };
 constexpr DWORD shiny_vertex_linear[] = {
-    0xFFFE0101,0x0000001F,0x80000000,0x900F0000,0x0000001F,0x80000003,0x900F0001,
-    0x0000001F,0x80000007,0x900F0002,0x0000001F,0x80000006,0x900F0003,0x0000001F,
-    0x80000005,0x900F0004,0x0000001F,0x8000000A,0x900F0005,0x00000009,0xC0010000,
-    0x90E40000,0xA0E40000,0x00000009,0xC0020000,0x90E40000,0xA0E40001,0x00000009,
-    0xC0040000,0x90E40000,0xA0E40002,0x00000009,0xC0080000,0x90E40000,0xA0E40003,
-    0x00000001,0xE0030000,0x90E40004,0x00000005,0xD00F0000,0x90E40005,0xA0E40004,
-    0x00000008,0x800F0000,0x90E40001,0xA1E40005,0x0000000D,0xD00F0001,0x80E40000,
-    0xA000005B,0x00000002,0x800F0002,0xA0E40006,0x91E40000,0x00000008,0x80080003,
-    0x80A40002,0x80A40002,0x00000007,0x80080003,0x80FF0003,0x00000005,0x80070002,
-    0x80A40002,0x80FF0003,0x00000002,0x800F0004,0x80E40002,0xA1E40005,0x00000008,
-    0x80080005,0x80A40004,0x80A40004,0x00000007,0x80080005,0x80FF0005,0x00000005,
-    0x80070004,0x80A40004,0x80FF0005,0x00000008,0x80010000,0x80E40004,0x90E40003,
-    0x00000008,0x80020000,0x80E40004,0x90E40002,0x00000004,0xE0030001,0x80E40000,
-    0xA055005B,0xA055005B,0x0000FFFF,
+    0xFFFE0101, 0x0000001F, 0x80000000, 0x900F0000, 0x0000001F, 0x80000003, 0x900F0001, 0x0000001F, 0x80000007,
+    0x900F0002, 0x0000001F, 0x80000006, 0x900F0003, 0x0000001F, 0x80000005, 0x900F0004, 0x0000001F, 0x8000000A,
+    0x900F0005, 0x00000009, 0xC0010000, 0x90E40000, 0xA0E40000, 0x00000009, 0xC0020000, 0x90E40000, 0xA0E40001,
+    0x00000009, 0xC0040000, 0x90E40000, 0xA0E40002, 0x00000009, 0xC0080000, 0x90E40000, 0xA0E40003, 0x00000001,
+    0xE0030000, 0x90E40004, 0x00000005, 0xD00F0000, 0x90E40005, 0xA0E40004, 0x00000008, 0x800F0000, 0x90E40001,
+    0xA1E40005, 0x0000000D, 0xD00F0001, 0x80E40000, 0xA000005B, 0x00000002, 0x800F0002, 0xA0E40006, 0x91E40000,
+    0x00000008, 0x80080003, 0x80A40002, 0x80A40002, 0x00000007, 0x80080003, 0x80FF0003, 0x00000005, 0x80070002,
+    0x80A40002, 0x80FF0003, 0x00000002, 0x800F0004, 0x80E40002, 0xA1E40005, 0x00000008, 0x80080005, 0x80A40004,
+    0x80A40004, 0x00000007, 0x80080005, 0x80FF0005, 0x00000005, 0x80070004, 0x80A40004, 0x80FF0005, 0x00000008,
+    0x80010000, 0x80E40004, 0x90E40003, 0x00000008, 0x80020000, 0x80E40004, 0x90E40002, 0x00000004, 0xE0030001,
+    0x80E40000, 0xA055005B, 0xA055005B, 0x0000FFFF,
 };
 constexpr DWORD shiny_pixel[] = {
-    0xFFFF0101,0x00000042,0xB00F0000,0x00000042,0xB00F0001,0x00000005,0x800F0001,
-    0xB0E40001,0xB0FF0000,0x00000005,0x800F0001,0x80E40001,0x90FF0001,
-    0x00000004,0x80070000,0xB0E40000,0x90E40000,0x80E40001,
-    0x40000001,0x80080000,0x90FF0000,0x0000FFFF,
+    0xFFFF0101, 0x00000042, 0xB00F0000, 0x00000042, 0xB00F0001, 0x00000005, 0x800F0001, 0xB0E40001,
+    0xB0FF0000, 0x00000005, 0x800F0001, 0x80E40001, 0x90FF0001, 0x00000004, 0x80070000, 0xB0E40000,
+    0x90E40000, 0x80E40001, 0x40000001, 0x80080000, 0x90FF0000, 0x0000FFFF,
 };
-struct ShinyPrograms { VShader vertex[2]; };
+struct ShinyPrograms {
+    VShader vertex[2];
+};
 Var<ShinyPrograms> shiny_programs{0x00970864};
 Var<IDirect3DPixelShader9 *> shiny_pixel_shader{0x00970860};
 Var<int> suppress_shiny{0x00956FEC};
@@ -122,14 +117,16 @@ vector4d shinyBasis(const vector4d &v, const matrix4x4 &m)
 {
     return {v.x * m.arr[0].x + v.y * m.arr[1].x + v.z * m.arr[2].x,
             v.x * m.arr[0].y + v.y * m.arr[1].y + v.z * m.arr[2].y,
-            v.x * m.arr[0].z + v.y * m.arr[1].z + v.z * m.arr[2].z, 0.0f};
+            v.x * m.arr[0].z + v.y * m.arr[1].z + v.z * m.arr[2].z,
+            0.0f};
 }
 
 
 vector4d shinyLightDirection(nglMeshNode *mesh)
 {
     auto *context = mesh->field_8C.IsSetParam<nglLightContextParam>()
-        ? mesh->field_8C.Get<nglLightContextParam>()->field_0 : nglCurScene->field_350;
+                        ? mesh->field_8C.Get<nglLightContextParam>()->field_0
+                        : nglCurScene->field_350;
     nglCurLightContext() = context;
     auto *head = &context->Head;
     head->SelectedNext = head;
@@ -186,17 +183,17 @@ void shinyChromeVertices(nglMeshSection *section, const vector4d &light, const v
         converted.uv[0] = vertex.uv[0];
         converted.uv[1] = vertex.uv[1];
         converted.color = vertex.color;
-        converted.light_color = -vertex.normal[1] * light.y - vertex.normal[0] * light.x -
-            vertex.normal[2] * light.z < 0.0f ? 0u : 0xFFFFFFFFu;
-        D3DXVECTOR3 direction{view.x - vertex.position[0], view.y - vertex.position[1],
-                             view.z - vertex.position[2]};
+        converted.light_color =
+            -vertex.normal[1] * light.y - vertex.normal[0] * light.x - vertex.normal[2] * light.z < 0.0f ? 0u
+                                                                                                         : 0xFFFFFFFFu;
+        D3DXVECTOR3 direction{view.x - vertex.position[0], view.y - vertex.position[1], view.z - vertex.position[2]};
         D3DXVec3Normalize(&direction, &direction);
         D3DXVECTOR3 half{direction.x - light.x, direction.y - light.y, direction.z - light.z};
         D3DXVec3Normalize(&half, &half);
-        converted.shine_uv[0] = (half.z * vertex.tangent[2] + half.y * vertex.tangent[1] +
-                                 half.x * vertex.tangent[0] + 1.0f) * 0.5f;
-        converted.shine_uv[1] = (half.z * vertex.binormal[2] + half.y * vertex.binormal[1] +
-                                 half.x * vertex.binormal[0] + 1.0f) * 0.5f;
+        converted.shine_uv[0] =
+            (half.z * vertex.tangent[2] + half.y * vertex.tangent[1] + half.x * vertex.tangent[0] + 1.0f) * 0.5f;
+        converted.shine_uv[1] =
+            (half.z * vertex.binormal[2] + half.y * vertex.binormal[1] + half.x * vertex.binormal[0] + 1.0f) * 0.5f;
     }
     IDirect3DVertexBuffer9_Unlock(buffer);
 }
@@ -213,13 +210,13 @@ struct ShinyNode : nglShaderNode {
         if ((texture->m_format & 0xFFu) == 16) {
             auto &params = mesh->field_8C;
             const uint32_t frame = params.IsSetParam<nglTextureFrameParam>()
-                ? params.Get<nglTextureFrameParam>()->field_0
-                : data.animate_per_time_of_day ? uint32_t(g_TOD) + 4u * nglCurScene->IFLFrame
-                                              : nglCurScene->IFLFrame;
+                                       ? params.Get<nglTextureFrameParam>()->field_0
+                                   : data.animate_per_time_of_day ? uint32_t(g_TOD) + 4u * nglCurScene->IFLFrame
+                                                                  : nglCurScene->IFLFrame;
             texture = texture->Frames[frame % texture->m_num_palettes];
         }
-        static void *table[]{func_address(&ShinyNode::Render), func_address(&ShinyNode::GetSortInfo),
-                             func_address(&ShinyNode::Delete)};
+        static void *table[]{
+            func_address(&ShinyNode::Render), func_address(&ShinyNode::GetSortInfo), func_address(&ShinyNode::Delete)};
         m_vtbl = reinterpret_cast<decltype(m_vtbl)>(table);
     }
 
@@ -252,8 +249,8 @@ struct ShinyNode : nglShaderNode {
             IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice, 5, &localLight.x, 1);
             IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice, 6, &localView.x, 1);
         } else {
-            IDirect3DDevice9_SetTransform(g_Direct3DDevice, D3DTS_WORLD,
-                reinterpret_cast<const D3DMATRIX *>(&m_meshNode->LocalToWorld));
+            IDirect3DDevice9_SetTransform(
+                g_Direct3DDevice, D3DTS_WORLD, reinterpret_cast<const D3DMATRIX *>(&m_meshNode->LocalToWorld));
             IDirect3DDevice9_SetVertexDeclaration(g_Direct3DDevice, dword_9738E0[10]);
             if (ChromeEffect)
                 shinyChromeVertices(m_meshSection, localLight, localView);
@@ -264,16 +261,21 @@ struct ShinyNode : nglShaderNode {
         if (EnableShader) {
             IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice, 4, &constant.r, 1);
         } else {
-            const auto byte = [](float value) { return uint32_t(value * 255.0f) & 255u; };
-            const uint32_t packed = byte(constant.b) | (byte(constant.g) << 8) |
-                (byte(constant.r) << 16) | (byte(constant.a) << 24);
+            const auto byte = [](float value) {
+                return uint32_t(value * 255.0f) & 255u;
+            };
+            const uint32_t packed =
+                byte(constant.b) | (byte(constant.g) << 8) | (byte(constant.r) << 16) | (byte(constant.a) << 24);
             if (state.field_9C != packed) {
                 IDirect3DDevice9_SetRenderState(g_Direct3DDevice, D3DRS_TEXTUREFACTOR, packed);
                 state.field_9C = packed;
             }
         }
         state.setBlending(std::not_equal_to<float>{}(constant.a, 1.0f) && data.blend <= 1
-            ? NGLBM_BLEND : static_cast<nglBlendModeType>(data.blend), 0, 128);
+                              ? NGLBM_BLEND
+                              : static_cast<nglBlendModeType>(data.blend),
+                          0,
+                          128);
         state.setColourBufferWriteEnabled(7);
         if (EnableShader) {
             SetPixelShader(&shiny_pixel_shader());
@@ -331,15 +333,23 @@ struct ShinyShader : nglShader {
     {
         *out = tlFixedString{"SMShiny"};
     }
-    static bool __fastcall Switchable(ShinyShader *, void *) { return true; }
+    static bool __fastcall Switchable(ShinyShader *, void *)
+    {
+        return true;
+    }
     ShinyShader()
     {
-        static void *table[]{func_address(&ShinyShader::Register), reinterpret_cast<void *>(Name),
-            func_address(&ShinyShader::Add), func_address(&ShinyShader::Bind),
-            func_address(&ShinyShader::Release), func_address(&ShinyShader::Rebase),
-            func_address(&nglShader::_CheckMaterialVersion), func_address(&nglShader::_CheckVertexDefVersion),
-            func_address(&nglShader::_BindSection), reinterpret_cast<void *>(Switchable),
-            func_address(&ShinyShader::Delete)};
+        static void *table[]{func_address(&ShinyShader::Register),
+                             reinterpret_cast<void *>(Name),
+                             func_address(&ShinyShader::Add),
+                             func_address(&ShinyShader::Bind),
+                             func_address(&ShinyShader::Release),
+                             func_address(&ShinyShader::Rebase),
+                             func_address(&nglShader::_CheckMaterialVersion),
+                             func_address(&nglShader::_CheckVertexDefVersion),
+                             func_address(&nglShader::_BindSection),
+                             reinterpret_cast<void *>(Switchable),
+                             func_address(&ShinyShader::Delete)};
         m_vtbl = reinterpret_cast<decltype(m_vtbl)>(table);
     }
     ShinyShader *Delete(unsigned char flags)
@@ -356,8 +366,8 @@ struct ShinyShader : nglShader {
             nglCreateVertexDeclarationAndShader(&shiny_programs().vertex[1], shiny_elements, shiny_vertex_linear);
             CreatePixelShader(&shiny_pixel_shader(), shiny_pixel);
         } else if (!dword_9738E0[10]) {
-            IDirect3DDevice9_CreateVertexDeclaration(g_Direct3DDevice,
-                ChromeEffect ? shiny_chrome_elements : shiny_fixed_elements, &dword_9738E0[10]);
+            IDirect3DDevice9_CreateVertexDeclaration(
+                g_Direct3DDevice, ChromeEffect ? shiny_chrome_elements : shiny_fixed_elements, &dword_9738E0[10]);
         }
     }
     void Bind(nglMaterialBase *material)
@@ -392,7 +402,7 @@ struct ShinyShader : nglShader {
     }
 };
 static_assert(sizeof(ShinyShader) == 0xC);
-}
+}  // namespace
 
 void initialize_shiny_material_shader()
 {

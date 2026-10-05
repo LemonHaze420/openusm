@@ -147,8 +147,8 @@ void mission_stack_manager::push_mission_pack(const mString &a2, const mString &
             assert(district_partition != nullptr);
 
             auto &pack_slots = district_partition->get_pack_slots();
-            assert(district_slot_override_idx >= 0
-                   && static_cast<unsigned>(district_slot_override_idx) < pack_slots.size());
+            assert(district_slot_override_idx >= 0 &&
+                   static_cast<unsigned>(district_slot_override_idx) < pack_slots.size());
 
             auto *s = pack_slots[district_slot_override_idx];
             assert(s->is_empty());
@@ -218,8 +218,7 @@ void mission_stack_manager::create_pack_group_slots()
 }
 
 bool mission_stack_manager::nonstatic_mission_stack_callback(resource_pack_slot::callback_enum event,
-                                                             resource_pack_streamer *,
-                                                             resource_pack_slot *slot,
+                                                             resource_pack_streamer *, resource_pack_slot *slot,
                                                              limited_timer *)
 {
     static int district_slot_idx = -1;
@@ -256,8 +255,7 @@ bool mission_stack_manager::nonstatic_mission_stack_callback(resource_pack_slot:
             g_world_ptr->the_terrain->unlock_district_pack_slot(district_slot_idx);
         }
         district_slot_idx = -1;
-        if (partition->get_pack_slots().size() > static_cast<unsigned>(field_4)
-            || mission_manager::s_inst->field_54) {
+        if (partition->get_pack_slots().size() > static_cast<unsigned>(field_4) || mission_manager::s_inst->field_54) {
             partition->pop_pack_slot();
         }
         unloading_started = false;
@@ -311,8 +309,7 @@ void mission_stack_manager::push_mission_pack_immediate(const mString &a1, const
     streamer->flush(game::render_empty_list);
 }
 
-void mission_stack_manager::pop_mission_pack([[maybe_unused]] const mString &a2,
-                                             [[maybe_unused]] const mString &a3)
+void mission_stack_manager::pop_mission_pack([[maybe_unused]] const mString &a2, [[maybe_unused]] const mString &a3)
 {
 #if STANDALONE_SYSTEM
     pop_mission_pack_internal();

@@ -17,8 +17,7 @@
 VALIDATE_SIZE(ai_interact_resource_handler, 0x14);
 
 #if defined(OPENUSM_XBPACK_V10) && !defined(TARGET_XBOX)
-namespace
-{
+namespace {
 constexpr size_t XBOX_V10_INTERACT_SIZE = 0x9C;
 constexpr size_t PC_INTERACT_SIZE = 0xA8;
 constexpr size_t ADDED_HASHES_OFFSET = 0x48;
@@ -26,8 +25,7 @@ constexpr size_t ADDED_HASHES_SIZE = PC_INTERACT_SIZE - XBOX_V10_INTERACT_SIZE;
 
 static_assert(sizeof(ai_interaction_data) == PC_INTERACT_SIZE);
 
-struct v10_interact_entry
-{
+struct v10_interact_entry {
     resource_location *location;
     uint32_t original_offset;
     std::unique_ptr<uint8_t[]> storage;
@@ -47,8 +45,7 @@ auto find_v10_interact(resource_location *location)
     return v10_interacts.end();
 }
 
-ai_interaction_data *make_v10_interact(uint8_t *source,
-                                      resource_location *location)
+ai_interaction_data *make_v10_interact(uint8_t *source, resource_location *location)
 {
     assert(location->m_size >= static_cast<int>(XBOX_V10_INTERACT_SIZE));
 
@@ -68,8 +65,7 @@ ai_interaction_data *make_v10_interact(uint8_t *source,
                 source + ADDED_HASHES_OFFSET,
                 normal_size - ADDED_HASHES_OFFSET);
 
-    mash_info_struct info_struct {
-        mash::UNMASH_MODE, pc_normal, static_cast<int>(pc_normal_size), true};
+    mash_info_struct info_struct{mash::UNMASH_MODE, pc_normal, static_cast<int>(pc_normal_size), true};
     info_struct.mash_image_ptr[mash::SHARED_BUFFER] = source + normal_size;
 
     auto *object = reinterpret_cast<ai_interaction_data *>(pc_normal);
@@ -78,17 +74,15 @@ ai_interaction_data *make_v10_interact(uint8_t *source,
 
     const auto original_offset = location->m_offset;
     const auto pack_base = reinterpret_cast<uintptr_t>(source) - original_offset;
-    location->m_offset = static_cast<uint32_t>(
-        reinterpret_cast<uintptr_t>(object) - pack_base);
+    location->m_offset = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(object) - pack_base);
 
-    v10_interacts.push_back({
-        location, original_offset, std::move(storage), object});
+    v10_interacts.push_back({location, original_offset, std::move(storage), object});
     return object;
 }
-}
+}  // namespace
 #endif
 
-ai_interact_resource_handler::ai_interact_resource_handler(worldly_pack_slot *a2) 
+ai_interact_resource_handler::ai_interact_resource_handler(worldly_pack_slot *a2)
 {
     if constexpr (1) {
         static void *g_vtbl[] = {
@@ -100,7 +94,7 @@ ai_interact_resource_handler::ai_interact_resource_handler(worldly_pack_slot *a2
 
         this->m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {
-    this->m_vtbl = 0x00888AE4;
+        this->m_vtbl = 0x00888AE4;
     }
 
     this->my_slot = a2;
@@ -121,7 +115,7 @@ bool ai_interact_resource_handler::_handle_resource(worldly_resource_handler::eB
     auto &v3 = this->my_slot->get_resource_directory();
     auto *resource = v3.get_resource(a3, nullptr);
     assert(resource != nullptr);
-    
+
     if (a2 == UNLOAD) {
 #if defined(OPENUSM_XBPACK_V10) && !defined(TARGET_XBOX)
         auto entry = find_v10_interact(a3);
@@ -143,9 +137,9 @@ bool ai_interact_resource_handler::_handle_resource(worldly_resource_handler::eB
         assert(new_interact != nullptr);
 
 #if OPENUSM_XBOX_MASH_FORMAT
-        mash_info_struct info_struct {mash::UNMASH_MODE, resource, a3->m_size, true};
+        mash_info_struct info_struct{mash::UNMASH_MODE, resource, a3->m_size, true};
 #else
-        mash_info_struct info_struct {resource, a3->m_size};
+        mash_info_struct info_struct{resource, a3->m_size};
 #endif
 
         info_struct.unmash_class(new_interact,
@@ -154,7 +148,7 @@ bool ai_interact_resource_handler::_handle_resource(worldly_resource_handler::eB
                                  ,
                                  mash::NORMAL_BUFFER
 #endif
-                );
+        );
 
         mash_info_struct::construct_class(new_interact);
 
@@ -163,7 +157,7 @@ bool ai_interact_resource_handler::_handle_resource(worldly_resource_handler::eB
 #endif
 #endif
     }
-    
+
     ++this->field_C;
     return false;
 }

@@ -168,7 +168,6 @@ void nglListAddMesh(nglMesh *Mesh, const math::MatClass<4, 3> &LocalToWorld, ngl
 {
     if constexpr (STANDALONE_SYSTEM) {
         if (Mesh != nullptr) {
-
             int v20 = (a3 != nullptr ? a3->Flags : 0);
 
             auto *v5 = &LocalToWorld;

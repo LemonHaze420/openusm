@@ -13,8 +13,7 @@ void pause_menu_awards::initialize()
     field_10 = table->lookup_localized_string(static_cast<global_text_enum>(152));
     field_20 = table->lookup_localized_string(static_cast<global_text_enum>(153));
 
-    for (int i = 0; i < 17; ++i)
-    {
+    for (int i = 0; i < 17; ++i) {
         field_30[i] = table->lookup_localized_string(static_cast<global_text_enum>(154 + i));
         field_140[i] = table->lookup_localized_string(static_cast<global_text_enum>(171 + i));
     }

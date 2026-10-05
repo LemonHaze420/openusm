@@ -24,11 +24,10 @@ anim_record::anim_record()
     }
 }
 
-anim_record::anim_record(from_mash_in_place_constructor *constructor)
-    : field_8(constructor)
+anim_record::anim_record(from_mash_in_place_constructor *constructor) : field_8(constructor)
 {
-    this->m_vtbl = reinterpret_cast<std::intptr_t>(
-        STANDALONE_SYSTEM ? native_vtable() : reinterpret_cast<void *>(0x00873928));
+    this->m_vtbl =
+        reinterpret_cast<std::intptr_t>(STANDALONE_SYSTEM ? native_vtable() : reinterpret_cast<void *>(0x00873928));
 }
 
 void *anim_record::native_vtable()
@@ -50,7 +49,7 @@ void anim_record::_destruct_mashed_class()
 {
     this->field_8.destruct_mashed_class();
     if (this->my_key != nullptr) {
-        using destroy_callback = void (__fastcall *)(anim_key *, void *);
+        using destroy_callback = void(__fastcall *)(anim_key *, void *);
         auto destroy = reinterpret_cast<destroy_callback>(get_vfunc(this->my_key->m_vtbl, 0));
         destroy(this->my_key, nullptr);
         this->my_key = nullptr;
@@ -89,15 +88,15 @@ int anim_record::_get_mash_sizeof() const
 
 paired_anim_record::paired_anim_record()
 {
-    this->m_vtbl = reinterpret_cast<std::intptr_t>(
-        STANDALONE_SYSTEM ? native_vtable() : reinterpret_cast<void *>(0x00873948));
+    this->m_vtbl =
+        reinterpret_cast<std::intptr_t>(STANDALONE_SYSTEM ? native_vtable() : reinterpret_cast<void *>(0x00873948));
 }
 
 paired_anim_record::paired_anim_record(from_mash_in_place_constructor *constructor)
     : anim_record(constructor), field_C(constructor)
 {
-    this->m_vtbl = reinterpret_cast<std::intptr_t>(
-        STANDALONE_SYSTEM ? native_vtable() : reinterpret_cast<void *>(0x00873948));
+    this->m_vtbl =
+        reinterpret_cast<std::intptr_t>(STANDALONE_SYSTEM ? native_vtable() : reinterpret_cast<void *>(0x00873948));
 }
 
 void *paired_anim_record::native_vtable()
@@ -135,8 +134,7 @@ int paired_anim_record::_get_virtual_type_enum() const
 
 bool paired_anim_record::_is_subclass_of(mash::virtual_types_enum type) const
 {
-    return type == static_cast<mash::virtual_types_enum>(145) ||
-           type == static_cast<mash::virtual_types_enum>(573);
+    return type == static_cast<mash::virtual_types_enum>(145) || type == static_cast<mash::virtual_types_enum>(573);
 }
 
 int paired_anim_record::_get_mash_sizeof() const
@@ -160,13 +158,13 @@ void anim_record::_unmash(mash_info_struct *a2, void *)
                          ,
                          mash::NORMAL_BUFFER
 #endif
-                );
+        );
     }
 }
 
 int anim_record::get_mash_sizeof()
 {
-    int (__fastcall *func)(anim_record *) = CAST(func, get_vfunc(m_vtbl, 0x1C));
+    int(__fastcall * func)(anim_record *) = CAST(func, get_vfunc(m_vtbl, 0x1C));
     return func(this);
 }
 
@@ -183,5 +181,4 @@ void anim_record_patch()
         FUNC_ADDRESS(address, &anim_record::_unmash);
         set_vfunc(0x0087392C, address);
     }
-
 }

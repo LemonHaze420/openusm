@@ -33,8 +33,8 @@ fe_health_widget::fe_health_widget(int a1)
 void fe_health_widget::SetShown(bool a2)
 {
     if constexpr (STANDALONE_SYSTEM) {
-        if (field_38 < 0 || field_38 >= number_of_types ||
-            panels[field_38] == nullptr || panels[field_38]->field_28.empty())
+        if (field_38 < 0 || field_38 >= number_of_types || panels[field_38] == nullptr ||
+            panels[field_38]->field_28.empty())
             return;
 
         field_55 = true;
@@ -71,8 +71,7 @@ void fe_health_widget::UpdateMasking()
         }
 
         vhandle_type<entity> source{entity_base_vhandle{static_cast<uint32_t>(field_30)}};
-        if (entity *owner = source.get_volatile_ptr();
-            owner != nullptr && owner->has_damage_ifc()) {
+        if (entity *owner = source.get_volatile_ptr(); owner != nullptr && owner->has_damage_ifc()) {
             const auto &health = owner->damage_ifc()->field_1FC.field_0;
             const float range = health[2] - health[1];
             const float amount = range <= 0.0f ? 0.0f : (health[0] - health[1]) / range;

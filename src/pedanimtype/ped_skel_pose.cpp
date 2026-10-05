@@ -53,27 +53,24 @@ nalMatrix4x4 arm_matrix(float twist, float pitch, const float *base, const nalVe
     const float sp = nalPoseSin(pitch * 0.5f), cp = nalPoseCos(pitch * 0.5f);
     const float x = st * sp, y = st * cp, z = ct * sp, w = ct * cp;
 
-    const float rotation[4]{
-        base[3] * x + y * base[2] - z * base[1] + base[0] * w,
-        y * base[3] + w * base[1] - base[2] * x + base[0] * z,
-        x * base[1] - y * base[0] + base[3] * z + base[2] * w,
-        base[3] * w - (y * base[1] + x * base[0] + base[2] * z)};
+    const float rotation[4]{base[3] * x + y * base[2] - z * base[1] + base[0] * w,
+                            y * base[3] + w * base[1] - base[2] * x + base[0] * z,
+                            x * base[1] - y * base[0] + base[3] * z + base[2] * w,
+                            base[3] * w - (y * base[1] + x * base[0] + base[2] * z)};
     return pose_matrix(rotation, position);
 }
 
-vector3d *__cdecl leg_bend(vector3d *out, matrix4x4 *, matrix4x4 *effector,
-                         float x, float y, float z)
+vector3d *__cdecl leg_bend(vector3d *out, matrix4x4 *, matrix4x4 *effector, float x, float y, float z)
 {
     out->x = y * (*effector)[1].z - z * (*effector)[1].y;
     out->y = z * (*effector)[1].x - (*effector)[1].z * x;
     out->z = x * (*effector)[1].y - y * (*effector)[1].x;
     return out;
 }
-}
+}  // namespace
 
 namespace nalPed {
 int &nalPedSkeleton::vtbl_ptr = []() -> int & {
-
     static void *g_vtbl[]{reinterpret_cast<void *>(&ped_empty),
                           reinterpret_cast<void *>(&destroy_ped_skeleton),
                           func_address(&nalPedSkeleton::Process),
@@ -138,7 +135,6 @@ void nalPedSkeleton::CopyPose(nalBasePose *out, const nalBasePose *source) const
 
 void nalPedSkeleton::BlendPose(nalBasePose *out, Float, const nalBasePose *, const nalBasePose *b) const
 {
-
     std::memcpy(out, b, sizeof(nalPedPose));
 }
 
@@ -152,7 +148,9 @@ void nalPedSkeleton::GetTrajectoryUpdate(const nalBasePose *base, nalPositionOri
 void nalPedSkeleton::GetBoneMatrices(const nalBasePose *base, nalMatrix4x4 *matrices)
 {
     const auto &pose = *static_cast<const nalPedPose *>(base);
-    const auto bone = [&](int index) -> nalMatrix4x4 & { return matrices[bone_indices[index]]; };
+    const auto bone = [&](int index) -> nalMatrix4x4 & {
+        return matrices[bone_indices[index]];
+    };
     const auto parent = [&](int child, int ancestor) {
         bone(child) = sub_5FE000(bone(child), bone(ancestor));
     };
@@ -170,8 +168,7 @@ void nalPedSkeleton::GetBoneMatrices(const nalBasePose *base, nalMatrix4x4 *matr
         {0.7369239926338196f, 0.673209011554718f, 0.021265000104904175f, -0.0572660006582737f}};
     for (int i = 0; i < 2; ++i) {
         const int offset = 5 + 4 * i;
-        bone(offset) = arm_matrix(pose.arm_angles[i][0], pose.arm_angles[i][1],
-                                  arm_bases[i], arms[i].twist_offset);
+        bone(offset) = arm_matrix(pose.arm_angles[i][0], pose.arm_angles[i][1], arm_bases[i], arms[i].twist_offset);
         parent(offset, 2);
         bone(offset + 3) = pose_matrix(pose.arm_rotations[i], pose.arm_positions[i]);
     }
@@ -182,13 +179,14 @@ void nalPedSkeleton::GetBoneMatrices(const nalBasePose *base, nalMatrix4x4 *matr
         identity[row][row] = 1.0f;
     for (int i = 0; i < 2; ++i) {
         const int offset = 5 + 4 * i;
-        inverse_kinematics::solve_two_bone(
-            reinterpret_cast<matrix4x4 *>(&bone(offset + 1)),
-            reinterpret_cast<matrix4x4 *>(&bone(offset + 2)), &identity,
-            reinterpret_cast<vector3d *>(&arms[i].root),
-            reinterpret_cast<matrix4x4 *>(&bone(offset + 3)), &chains[i].chain,
-            i == 0 ? inverse_kinematics::compute_arm_elbow_bend_direction :
-                     inverse_kinematics::compute_arm_elbow_bend_direction_mirrored);
+        inverse_kinematics::solve_two_bone(reinterpret_cast<matrix4x4 *>(&bone(offset + 1)),
+                                           reinterpret_cast<matrix4x4 *>(&bone(offset + 2)),
+                                           &identity,
+                                           reinterpret_cast<vector3d *>(&arms[i].root),
+                                           reinterpret_cast<matrix4x4 *>(&bone(offset + 3)),
+                                           &chains[i].chain,
+                                           i == 0 ? inverse_kinematics::compute_arm_elbow_bend_direction
+                                                  : inverse_kinematics::compute_arm_elbow_bend_direction_mirrored);
         for (int j = 1; j <= 3; ++j)
             parent(offset + j, offset);
     }
@@ -200,11 +198,13 @@ void nalPedSkeleton::GetBoneMatrices(const nalBasePose *base, nalMatrix4x4 *matr
     }
     for (int i = 0; i < 2; ++i) {
         const int offset = 13 + 4 * i;
-        inverse_kinematics::solve_two_bone(
-            reinterpret_cast<matrix4x4 *>(&bone(offset)),
-            reinterpret_cast<matrix4x4 *>(&bone(offset + 1)), &identity,
-            reinterpret_cast<vector3d *>(&legs[i].root),
-            reinterpret_cast<matrix4x4 *>(&bone(offset + 2)), &chains[i + 2].chain, &leg_bend);
+        inverse_kinematics::solve_two_bone(reinterpret_cast<matrix4x4 *>(&bone(offset)),
+                                           reinterpret_cast<matrix4x4 *>(&bone(offset + 1)),
+                                           &identity,
+                                           reinterpret_cast<vector3d *>(&legs[i].root),
+                                           reinterpret_cast<matrix4x4 *>(&bone(offset + 2)),
+                                           &chains[i + 2].chain,
+                                           &leg_bend);
         parent(offset, 0);
         parent(offset + 1, 0);
         sub_5F3080(bone(offset + 2), pose.leg_angles[i], legs[i].foot_offset);

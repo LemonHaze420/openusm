@@ -44,15 +44,21 @@ void *__fastcall run_delete(run_state *self, void *, unsigned char flags)
         mash_virtual_base::operator delete(self, sizeof(*self));
     return self;
 }
-unsigned __fastcall run_type(run_state *, void *) { return run_state::virtual_type; }
+unsigned __fastcall run_type(run_state *, void *)
+{
+    return run_state::virtual_type;
+}
 bool __fastcall run_subclass(run_state *, void *, unsigned type)
 {
     return type == 535 || type == 567 || type == 573;
 }
-int __fastcall run_size(run_state *, void *) { return sizeof(run_state); }
-void __fastcall run_activate(run_state *self, void *, ai_state_machine *machine,
-    const mashed_state *state, const mashed_state *previous, const param_block *parameters,
-    base_state::activate_flag_e flags)
+int __fastcall run_size(run_state *, void *)
+{
+    return sizeof(run_state);
+}
+void __fastcall run_activate(run_state *self, void *, ai_state_machine *machine, const mashed_state *state,
+                             const mashed_state *previous, const param_block *parameters,
+                             base_state::activate_flag_e flags)
 {
     self->_activate(machine, state, previous, parameters, flags);
 }
@@ -68,7 +74,7 @@ void __fastcall run_nodes(run_state *self, void *, info_node_desc_list *list)
 {
     self->_get_info_node_list(*list);
 }
-}
+}  // namespace
 
 void *run_state::native_vtable()
 {
@@ -95,7 +101,6 @@ run_state::run_state() : enhanced_state(), field_58(false)
 
 run_state::run_state(from_mash_in_place_constructor *tag) : enhanced_state(tag), field_30(tag), field_3C(tag)
 {
-
     m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[virtual_type]);
 }
 
@@ -136,8 +141,8 @@ void run_state::_activate(ai_state_machine *machine, const mashed_state *state, 
     animation->get_als_layer(layer)->set_desired_params(desired);
 
     auto *owner = get_actor();
-    if (previous && static_cast<unsigned>(previous->field_14) == 303 &&
-        owner->has_sound_and_pfx_ifc() && owner->has_physical_ifc()) {
+    if (previous && static_cast<unsigned>(previous->field_14) == 303 && owner->has_sound_and_pfx_ifc() &&
+        owner->has_physical_ifc()) {
         auto *physical = owner->physical_ifc();
         const float minimum = bit_cast<float>(physical->field_E0);
         const float blend = std::clamp((field_50->field_74 - minimum) / (physical->field_E4 - minimum), 0.0f, 1.0f);
@@ -181,8 +186,8 @@ bool run_state::check_for_fence_hop(Float, vector3d *)
     start.y -= 0.1f;
     const auto end = start + owner->get_abs_po().get_z_facing() * 0.8f;
     line_info collision{start, end};
-    if (collision.check_collision(*local_collision::entfilter_entity_no_capsules,
-                                   *local_collision::obbfilter_lineseg_test, nullptr))
+    if (collision.check_collision(
+            *local_collision::entfilter_entity_no_capsules, *local_collision::obbfilter_lineseg_test, nullptr))
         owner->cancel_animated_movement(collision.hit_norm, 0.0f);
     return false;
 }
@@ -266,8 +271,7 @@ state_trans_messages run_state::_frame_advance(Float elapsed)
         check_for_fence_hop(elapsed, &travel);
         const vector3d camera_forward = g_game_ptr->get_current_view_camera(0)->get_abs_po().m[2];
         auto &settings = Input::instance->field_129D8[0]->field_18;
-        if (settings.get_state(InputAction::Forward) > 0.8f &&
-            settings.get_state(InputAction::Backward) < 0.8f &&
+        if (settings.get_state(InputAction::Forward) > 0.8f && settings.get_state(InputAction::Backward) < 0.8f &&
             settings.get_state(InputAction::TurnRight) < 0.8f) {
             facing = camera_forward;
             travel = camera_forward;

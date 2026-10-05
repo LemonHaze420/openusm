@@ -219,7 +219,7 @@ void __fastcall NativeHeapFree(nalHeap *heap, void *, void *data, int size)
     heap->field_8 -= size;
     tlMemFree(data);
 }
-}
+}  // namespace
 
 void nalCacheFree(void *data)
 {
@@ -237,8 +237,7 @@ void nalCacheFree(void *data)
     else
         nalAnimationCache.field_4 = reinterpret_cast<int>(entry->previous);
     auto *heap = nalAnimationCache.field_0;
-    auto free = reinterpret_cast<void(__fastcall *)(nalHeap *, void *, void *, int)>(
-        get_vfunc(heap->m_vtbl, 8));
+    auto free = reinterpret_cast<void(__fastcall *)(nalHeap *, void *, void *, int)>(get_vfunc(heap->m_vtbl, 8));
     free(heap, nullptr, entry, entry->size);
 }
 
@@ -267,11 +266,10 @@ void nalCacheTouch(void *data)
 void *nalCacheAllocate(int size, int alignment, void **owner)
 {
     auto *heap = nalAnimationCache.field_0;
-    auto allocate = reinterpret_cast<void *(__fastcall *)(nalHeap *, void *, int, int)>(
-        get_vfunc(heap->m_vtbl, 4));
+    auto allocate = reinterpret_cast<void *(__fastcall *)(nalHeap *, void *, int, int)>(get_vfunc(heap->m_vtbl, 4));
     CacheEntry *entry;
-    while (!(entry = static_cast<CacheEntry *>(allocate(
-                 heap, nullptr, size + sizeof(CacheEntry), alignment > 4 ? alignment : 4)))) {
+    while (!(entry = static_cast<CacheEntry *>(
+                 allocate(heap, nullptr, size + sizeof(CacheEntry), alignment > 4 ? alignment : 4)))) {
         nalCacheFree(reinterpret_cast<CacheEntry *>(nalAnimationCache.field_4) + 1);
     }
     entry->size = size + sizeof(CacheEntry);
@@ -341,16 +339,13 @@ void nalExit()
     nalSkeletonDirectory->ReleaseAll(false, false, 1);
 
 
-
     while (nalAnimationCache.field_8 != 0) {
         auto *entry = reinterpret_cast<CacheEntry *>(nalAnimationCache.field_8);
         nalAnimationCache.field_8 = reinterpret_cast<int>(entry->next);
         auto *heap = nalAnimationCache.field_0;
-        auto free = reinterpret_cast<void(__fastcall *)(nalHeap *, void *, void *, int)>(
-            get_vfunc(heap->m_vtbl, 8));
+        auto free = reinterpret_cast<void(__fastcall *)(nalHeap *, void *, void *, int)>(get_vfunc(heap->m_vtbl, 8));
         free(heap, nullptr, entry, entry->size);
     }
-
 
 
     nalTypeInstanceBank.Release();
@@ -358,8 +353,7 @@ void nalExit()
 
     auto destroy_directory = [](auto *directory) {
         if (directory != nullptr) {
-            auto finalize = reinterpret_cast<void(__fastcall *)(void *, void *, bool)>(
-                get_vfunc(directory->m_vtbl, 0));
+            auto finalize = reinterpret_cast<void(__fastcall *)(void *, void *, bool)>(get_vfunc(directory->m_vtbl, 0));
             finalize(directory, nullptr, true);
         }
     };
@@ -381,7 +375,7 @@ void nalReleaseSceneAnimInternal(nalSceneAnim *scene_anim)
         auto *anim = bit_cast<nalAnimClass<nalAnyPose> *>(node[2]);
         while (anim != nullptr) {
             auto *next = anim->field_4;
-            void(__fastcall *release)(void *) = CAST(release, get_vfunc(anim->m_vtbl, 0x8));
+            void(__fastcall * release)(void *) = CAST(release, get_vfunc(anim->m_vtbl, 0x8));
             release(anim);
             anim = next;
         }
@@ -392,8 +386,7 @@ void nalReleaseSceneAnimInternal(nalSceneAnim *scene_anim)
 bool nalLoadSceneAnimInternal(nalSceneAnim *scene_anim)
 {
     const auto skeleton_count = scene_anim->field_C;
-    auto **skeletons =
-        static_cast<nalBaseSkeleton **>(tlMemAlloc(4 * skeleton_count, 8, 0x2000000u));
+    auto **skeletons = static_cast<nalBaseSkeleton **>(tlMemAlloc(4 * skeleton_count, 8, 0x2000000u));
     auto *skeleton_names = &scene_anim->field_50;
     for (int i = 0; i < skeleton_count; ++i) {
         skeletons[i] = nalSkeletonDirectory->Find(skeleton_names[i]);
@@ -414,17 +407,15 @@ bool nalLoadSceneAnimInternal(nalSceneAnim *scene_anim)
             auto *anim = bit_cast<nalAnimClass<nalAnyPose> *>(node[2]);
             while (anim != nullptr) {
                 if (anim->field_4 != nullptr) {
-                    anim->field_4 =
-                        bit_cast<nalAnimClass<nalAnyPose> *>(bit_cast<char *>(anim)
-                                                            + bit_cast<std::intptr_t>(anim->field_4));
+                    anim->field_4 = bit_cast<nalAnimClass<nalAnyPose> *>(bit_cast<char *>(anim) +
+                                                                         bit_cast<std::intptr_t>(anim->field_4));
                 }
 
                 auto *skeleton = skeletons[anim->field_28];
                 anim->Skeleton = skeleton;
                 auto *instance = nalTypeInstanceBank.Search(skeleton->GetAnimTypeName());
                 assert(instance != nullptr && "couldn't find scene animation type instance");
-                anim->m_vtbl =
-                    static_cast<nalInitListAnimType *>(instance->field_20)->anim_vtbl_ptr;
+                anim->m_vtbl = static_cast<nalInitListAnimType *>(instance->field_20)->anim_vtbl_ptr;
                 assert(anim->CheckVersion() && "unsupported scene animation version");
                 anim->Process();
                 anim = anim->field_4;
@@ -606,16 +597,15 @@ float poseAsin(float t)
         const double t3 = t2 * t;
         const double t5 = t3 * t2;
         const double t7 = t5 * t2;
-        return static_cast<float>(t7 * 0.0539812408387661f + t5 * 0.07500000298023224f +
-                                  t3 * 0.16666670143604279f + t);
+        return static_cast<float>(t7 * 0.0539812408387661f + t5 * 0.07500000298023224f + t3 * 0.16666670143604279f + t);
     }
     const double u = std::sqrt(std::fabs((1.0 - t) * 0.5));
     const double u2 = u * u;
     const double u3 = u2 * u;
     const double u5 = u3 * u2;
     const double u7 = u5 * u2;
-    return static_cast<float>(u7 * -0.10796249657869339f - u5 * 0.15000000596046448f -
-                              u3 * 0.3333333134651184f - 2.0 * u + 1.570796012878418f);
+    return static_cast<float>(u7 * -0.10796249657869339f - u5 * 0.15000000596046448f - u3 * 0.3333333134651184f -
+                              2.0 * u + 1.570796012878418f);
 }
 
 nalMatrix4x4 poseIdentity()
@@ -625,7 +615,7 @@ nalMatrix4x4 poseIdentity()
         result[i][i] = 1.0f;
     return result;
 }
-}
+}  // namespace
 
 nalMatrix4x4 sub_5F2FD0(Float angle, const float *position)
 {
@@ -646,15 +636,13 @@ float sub_5F4960(const nalMatrix4x4 &source, bool left)
     nalMatrix4x4 aligned = source;
     const float x = source[0][0];
     if (-0.9900000095367432f < x && x < 0.9900000095367432f) {
-        const float invLength = 1.0f / std::sqrt(source[0][2] * source[0][2] +
-                                                source[0][1] * source[0][1]);
+        const float invLength = 1.0f / std::sqrt(source[0][2] * source[0][2] + source[0][1] * source[0][1]);
         float arc = poseAsin(std::fabs(x));
         if (x < 0.0f)
             arc = -arc;
         const float half = (1.5707963705062866f - arc) * 0.5f;
         const float s = nalPoseSin(half);
-        const float q[4] = {0.0f, -source[0][2] * invLength * s,
-                           source[0][1] * invLength * s, nalPoseCos(half)};
+        const float q[4] = {0.0f, -source[0][2] * invLength * s, source[0][1] * invLength * s, nalPoseCos(half)};
         const nalMatrix4x4 rotation(nalPositionOrientation(nalVector3{}, q));
         aligned = sub_5FE000(aligned, rotation);
         for (int i = 0; i != 4; ++i)
@@ -759,9 +747,8 @@ nalMatrix4x4 nalMatrix4x4::sub_5EC0A0()
                 for (int j = 0; j != 4; ++j)
                     if (j != col)
                         m[n++] = arr[i][j];
-        const double value = double(m[7]) * m[3] * m[2] + double(m[6]) * m[5] * m[1] +
-                             double(m[8]) * m[4] * m[0] - double(m[2]) * m[6] * m[4] -
-                             double(m[7]) * m[5] * m[0] - double(m[3]) * m[1] * m[8];
+        const double value = double(m[7]) * m[3] * m[2] + double(m[6]) * m[5] * m[1] + double(m[8]) * m[4] * m[0] -
+                             double(m[2]) * m[6] * m[4] - double(m[7]) * m[5] * m[0] - double(m[3]) * m[1] * m[8];
         return ((row ^ col) & 1) ? -value : value;
     };
     float determinant = 0.0f;
@@ -795,10 +782,19 @@ void DecomposeIKSpin(nalMatrix4x4 &a1, nalMatrix4x4 &a2, const nalMatrix4x4 &a3,
     vector3d origin;
     vector3d axis;
     float sin0, cos0, sin1, cos1;
-    inverse_kinematics::nalIKSolve2D(
-        reinterpret_cast<matrix4x4 *>(const_cast<nalMatrix4x4 *>(&a3)),
-        reinterpret_cast<vector3d *>(const_cast<nalVector3 *>(&a4)), &target,
-        a6.field_0, a6.field_8, a6.field_4, a6.field_C, &origin, &axis, &sin0, &cos0, &sin1, &cos1);
+    inverse_kinematics::nalIKSolve2D(reinterpret_cast<matrix4x4 *>(const_cast<nalMatrix4x4 *>(&a3)),
+                                     reinterpret_cast<vector3d *>(const_cast<nalVector3 *>(&a4)),
+                                     &target,
+                                     a6.field_0,
+                                     a6.field_8,
+                                     a6.field_4,
+                                     a6.field_C,
+                                     &origin,
+                                     &axis,
+                                     &sin0,
+                                     &cos0,
+                                     &sin1,
+                                     &cos1);
     nalVector3 direction;
     direction[0] = axis.x;
     direction[1] = axis.y;
@@ -807,10 +803,18 @@ void DecomposeIKSpin(nalMatrix4x4 &a1, nalMatrix4x4 &a2, const nalMatrix4x4 &a3,
     vector4d bendDirection{};
     for (int i = 0; i != 3; ++i)
         bendDirection[i] = bend[i];
-    inverse_kinematics::nalIKMap2DTo3D(
-        a6.field_10, sin0, cos0, sin1, cos1, &origin, &axis, &bendDirection,
-        std::sin(a8.value), std::cos(a8.value), reinterpret_cast<matrix4x4 *>(&a1),
-        reinterpret_cast<matrix4x4 *>(&a2));
+    inverse_kinematics::nalIKMap2DTo3D(a6.field_10,
+                                       sin0,
+                                       cos0,
+                                       sin1,
+                                       cos1,
+                                       &origin,
+                                       &axis,
+                                       &bendDirection,
+                                       std::sin(a8.value),
+                                       std::cos(a8.value),
+                                       reinterpret_cast<matrix4x4 *>(&a1),
+                                       reinterpret_cast<matrix4x4 *>(&a2));
     for (nalMatrix4x4 *joint : {&a1, &a2}) {
         for (int i = 0; i != 4; ++i) {
             (*joint)[0][i] = -(*joint)[0][i];
@@ -870,8 +874,7 @@ namespace {
 nalVector3 armHeuristic(const nalMatrix4x4 &matrix, nalVector3 direction, bool mirrored)
 {
     nalVector3 result = LegHeuristic(matrix, matrix, direction);
-    float dot = direction[0] * matrix[1][0] + direction[1] * matrix[1][1] +
-                direction[2] * matrix[1][2];
+    float dot = direction[0] * matrix[1][0] + direction[1] * matrix[1][1] + direction[2] * matrix[1][2];
     if (mirrored)
         dot = -dot;
     for (int i = 0; i != 3; ++i) {
@@ -882,7 +885,7 @@ nalVector3 armHeuristic(const nalMatrix4x4 &matrix, nalVector3 direction, bool m
     }
     return result;
 }
-}
+}  // namespace
 
 nalVector3 LeftArmHeuristic(const nalMatrix4x4 &a2, const nalMatrix4x4 &, nalVector3 a4)
 {

@@ -33,8 +33,7 @@ void convert_graph_keys(mVector<resource_key> &graphs)
 {
     for (auto *key : graphs) {
         if (key->m_type != RESOURCE_KEY_TYPE_AI_STATE_GRAPH) {
-            key->m_type = static_cast<resource_key_type>(
-                xbpack::pc_type(static_cast<int>(key->m_type)));
+            key->m_type = static_cast<resource_key_type>(xbpack::pc_type(static_cast<int>(key->m_type)));
         }
 
         assert(key->m_type == RESOURCE_KEY_TYPE_AI_STATE_GRAPH);
@@ -43,8 +42,7 @@ void convert_graph_keys(mVector<resource_key> &graphs)
 
 #ifdef OPENUSM_XBPACK_V10
 
-struct pc_mash_info
-{
+struct pc_mash_info {
     uint8_t *image;
     int used;
     int size;
@@ -53,8 +51,7 @@ struct pc_mash_info
 
 static_assert(sizeof(pc_mash_info) == 0x10);
 
-enum class node_layout
-{
+enum class node_layout {
     info,
     combat_target,
     hero,
@@ -75,8 +72,7 @@ enum class node_layout
     std_web_zip,
 };
 
-struct xb_node
-{
+struct xb_node {
     uint32_t type;
     uint32_t id;
     uint16_t xbox_size;
@@ -84,7 +80,7 @@ struct xb_node
     node_layout layout;
 };
 
-constexpr xb_node V10_NODES[] {
+constexpr xb_node V10_NODES[]{
     {0x02E, 0x76BB3C7A, 0x058, 0x05C, node_layout::info},
     {0x05F, 0xC1B02807, 0x044, 0x048, node_layout::info},
     {0x060, 0x4312463B, 0x02C, 0x030, node_layout::info},
@@ -205,9 +201,7 @@ void expand_v10_web_zip(const uint8_t *source, uint8_t *destination)
     std::memcpy(destination + 0xD8, source + 0x120, 8);
 }
 
-void expand_v10_combat(const uint8_t *source,
-                       size_t xbox_size,
-                       uint8_t *destination)
+void expand_v10_combat(const uint8_t *source, size_t xbox_size, uint8_t *destination)
 {
     std::memcpy(destination, source, 0x0C);
     std::memcpy(destination + 0x10, source + 0x0C, 0x50);
@@ -312,9 +306,7 @@ const xb_node *find_v10_node(const uint8_t *source)
     return nullptr;
 }
 
-void expand_node(const xb_node &node,
-                 const uint8_t *source,
-                 uint8_t *destination)
+void expand_node(const xb_node &node, const uint8_t *source, uint8_t *destination)
 {
     switch (node.layout) {
     case node_layout::info:
@@ -376,15 +368,13 @@ void expand_node(const xb_node &node,
 
 bool convert_v10_nodes(std::vector<uint8_t> &data)
 {
-    struct node_ref
-    {
+    struct node_ref {
         size_t offset;
         const xb_node *node;
     };
 
     std::vector<node_ref> nodes;
-    for (size_t offset = 0; offset + 8 <= data.size(); offset += 4)
-    {
+    for (size_t offset = 0; offset + 8 <= data.size(); offset += 4) {
         const auto *node = find_v10_node(data.data() + offset);
         if (node == nullptr || offset + node->xbox_size > data.size()) {
             continue;
@@ -409,24 +399,17 @@ bool convert_v10_nodes(std::vector<uint8_t> &data)
     converted.reserve(data.size() + nodes.size() * 0x40);
 
     size_t source_offset = 0;
-    for (const auto &entry : nodes)
-    {
-        converted.insert(converted.end(),
-                         data.begin() + source_offset,
-                         data.begin() + entry.offset);
+    for (const auto &entry : nodes) {
+        converted.insert(converted.end(), data.begin() + source_offset, data.begin() + entry.offset);
 
         const auto destination_offset = converted.size();
         converted.resize(destination_offset + entry.node->pc_size, 0);
-        expand_node(*entry.node,
-                    data.data() + entry.offset,
-                    converted.data() + destination_offset);
+        expand_node(*entry.node, data.data() + entry.offset, converted.data() + destination_offset);
 
         source_offset = entry.offset + entry.node->xbox_size;
     }
 
-    converted.insert(converted.end(),
-                     data.begin() + source_offset,
-                     data.end());
+    converted.insert(converted.end(), data.begin() + source_offset, data.end());
     data.swap(converted);
     return true;
 }
@@ -446,8 +429,7 @@ bool convert_web_zip_inode(std::vector<uint8_t> &data)
     }
 
     bool converted = false;
-    for (size_t offset = 0; offset + xbox_total_size <= data.size(); offset += 4)
-    {
+    for (size_t offset = 0; offset + xbox_total_size <= data.size(); offset += 4) {
         if (read_u32(data.data() + offset) != xbox_hash) {
             continue;
         }
@@ -458,8 +440,7 @@ bool convert_web_zip_inode(std::vector<uint8_t> &data)
             continue;
         }
 
-        data.erase(data.begin() + pointer_offset,
-                   data.begin() + pointer_offset + sizeof(uint32_t));
+        data.erase(data.begin() + pointer_offset, data.begin() + pointer_offset + sizeof(uint32_t));
         converted = true;
         offset += pc_object_size - 4;
     }
@@ -494,21 +475,16 @@ bool convert_swing_inode(std::vector<uint8_t> &data)
     }
 
     bool converted = false;
-    for (size_t offset = 0;
-         offset + xbox_object_size + sizeof(uint32_t) <= data.size();
-         offset += 4)
-    {
+    for (size_t offset = 0; offset + xbox_object_size + sizeof(uint32_t) <= data.size(); offset += 4) {
         const auto *source = data.data() + offset;
-        if (read_u32(source) != swing_hash
-            || read_u32(source + xbox_object_size) != following_hash) {
+        if (read_u32(source) != swing_hash || read_u32(source + xbox_object_size) != following_hash) {
             continue;
         }
 
-        std::array<uint8_t, pc_object_size> expanded {};
+        std::array<uint8_t, pc_object_size> expanded{};
         expand_swing_inode(source, expanded.data());
 
-        data.erase(data.begin() + offset,
-                   data.begin() + offset + xbox_object_size);
+        data.erase(data.begin() + offset, data.begin() + offset + xbox_object_size);
         data.insert(data.begin() + offset, expanded.begin(), expanded.end());
         converted = true;
         offset += pc_object_size - 4;
@@ -528,9 +504,7 @@ void expand_results(const uint8_t *source, uint8_t *destination)
     std::memcpy(destination + pc_only_string_word + sizeof(uint32_t),
                 source + pc_only_string_word,
                 xbox_size - pc_only_string_word);
-    static_assert(pc_only_string_word + sizeof(uint32_t)
-                      + xbox_size - pc_only_string_word
-                  == pc_size);
+    static_assert(pc_only_string_word + sizeof(uint32_t) + xbox_size - pc_only_string_word == pc_size);
 }
 
 void expand_incoming_move(const uint8_t *source, uint8_t *destination)
@@ -542,9 +516,7 @@ void expand_incoming_move(const uint8_t *source, uint8_t *destination)
 
     std::memcpy(destination, source, prefix_size);
     expand_results(source + prefix_size, destination + prefix_size);
-    std::memset(destination + prefix_size + pc_results_size,
-                0,
-                pc_size - prefix_size - pc_results_size);
+    std::memset(destination + prefix_size + pc_results_size, 0, pc_size - prefix_size - pc_results_size);
     static_assert(prefix_size + xbox_results_size == 0x8C);
 }
 
@@ -580,8 +552,7 @@ bool convert_player_combat_inode(std::vector<uint8_t> &data)
     constexpr size_t pc_incoming_size = 0x94;
     constexpr size_t incoming_count = 4;
     constexpr size_t xbox_array_offset = xbox_object_size + parameter_data_size;
-    constexpr size_t xbox_total_size =
-        xbox_array_offset + xbox_incoming_size * incoming_count;
+    constexpr size_t xbox_total_size = xbox_array_offset + xbox_incoming_size * incoming_count;
     constexpr size_t pc_total_size = pc_object_size + parameter_data_size;
 
     static_assert(xbox_array_offset == 0x104);
@@ -593,8 +564,7 @@ bool convert_player_combat_inode(std::vector<uint8_t> &data)
     }
 
     bool converted = false;
-    for (size_t offset = 0; offset + xbox_total_size <= data.size(); offset += 4)
-    {
+    for (size_t offset = 0; offset + xbox_total_size <= data.size(); offset += 4) {
         const auto *source = data.data() + offset;
         if (read_u32(source) != player_hash || read_u32(source + 4) != combat_hash) {
             continue;
@@ -602,8 +572,7 @@ bool convert_player_combat_inode(std::vector<uint8_t> &data)
 
         bool has_expected_moves = true;
         for (size_t i = 0; i < incoming_count; ++i) {
-            if (read_u32(source + xbox_array_offset + i * xbox_incoming_size)
-                != incoming_hash) {
+            if (read_u32(source + xbox_array_offset + i * xbox_incoming_size) != incoming_hash) {
                 has_expected_moves = false;
                 break;
             }
@@ -612,19 +581,16 @@ bool convert_player_combat_inode(std::vector<uint8_t> &data)
             continue;
         }
 
-        std::array<uint8_t, pc_total_size> expanded {};
+        std::array<uint8_t, pc_total_size> expanded{};
         expand_combat_state(source, expanded.data());
 
         for (size_t i = 0; i < incoming_count; ++i) {
-            expand_incoming_move(
-                source + xbox_array_offset + i * xbox_incoming_size,
-                expanded.data() + 0xD8 + i * pc_incoming_size);
+            expand_incoming_move(source + xbox_array_offset + i * xbox_incoming_size,
+                                 expanded.data() + 0xD8 + i * pc_incoming_size);
         }
 
         std::memcpy(expanded.data() + 0x328, source + 0xD4, 8);
-        std::memcpy(expanded.data() + pc_object_size,
-                    source + xbox_object_size,
-                    parameter_data_size);
+        std::memcpy(expanded.data() + pc_object_size, source + xbox_object_size, parameter_data_size);
 
         data.erase(data.begin() + offset, data.begin() + offset + xbox_total_size);
         data.insert(data.begin() + offset, expanded.begin(), expanded.end());
@@ -646,8 +612,7 @@ bool convert_spidey_combat_inode(std::vector<uint8_t> &data)
     constexpr size_t xbox_incoming_size = 0x90;
     constexpr size_t pc_incoming_size = 0x94;
     constexpr size_t incoming_count = 4;
-    constexpr size_t xbox_total_size =
-        xbox_object_size + xbox_incoming_size * incoming_count;
+    constexpr size_t xbox_total_size = xbox_object_size + xbox_incoming_size * incoming_count;
 
     static_assert(xbox_total_size == 0x33C);
 
@@ -656,18 +621,15 @@ bool convert_spidey_combat_inode(std::vector<uint8_t> &data)
     }
 
     bool converted = false;
-    for (size_t offset = 0; offset + xbox_total_size <= data.size(); offset += 4)
-    {
+    for (size_t offset = 0; offset + xbox_total_size <= data.size(); offset += 4) {
         const auto *source = data.data() + offset;
-        if (read_u32(source) != spidey_hash
-            || read_u32(source + 4) != combat_hash) {
+        if (read_u32(source) != spidey_hash || read_u32(source + 4) != combat_hash) {
             continue;
         }
 
         bool has_expected_moves = true;
         for (size_t i = 0; i < incoming_count; ++i) {
-            if (read_u32(source + xbox_object_size + i * xbox_incoming_size)
-                != incoming_hash) {
+            if (read_u32(source + xbox_object_size + i * xbox_incoming_size) != incoming_hash) {
                 has_expected_moves = false;
                 break;
             }
@@ -676,13 +638,12 @@ bool convert_spidey_combat_inode(std::vector<uint8_t> &data)
             continue;
         }
 
-        std::array<uint8_t, pc_object_size> expanded {};
+        std::array<uint8_t, pc_object_size> expanded{};
         expand_combat_state(source, expanded.data());
 
         for (size_t i = 0; i < incoming_count; ++i) {
-            expand_incoming_move(
-                source + xbox_object_size + i * xbox_incoming_size,
-                expanded.data() + 0xD8 + i * pc_incoming_size);
+            expand_incoming_move(source + xbox_object_size + i * xbox_incoming_size,
+                                 expanded.data() + 0xD8 + i * pc_incoming_size);
         }
 
         std::memcpy(expanded.data() + 0x328, source + 0xD4, 8);
@@ -729,7 +690,7 @@ void convert_core_ai_data(core_ai_resource &resource)
     converted_core_ai_buffers.push_back(std::move(storage));
 }
 
-} // namespace
+}  // namespace
 #endif
 
 VALIDATE_SIZE(core_ai_resource, 0x48);
@@ -778,7 +739,7 @@ void core_ai_resource::unmash(mash_info_struct *a1, [[maybe_unused]] void *a3)
 #if OPENUSM_XBOX_MASH_FORMAT
 #if defined(OPENUSM_XBPACK_V10) && !defined(TARGET_XBOX)
     auto *pc_mash = reinterpret_cast<pc_mash_info *>(a1);
-    mash_info_struct mash_ctx {pc_mash->image, pc_mash->size};
+    mash_info_struct mash_ctx{pc_mash->image, pc_mash->size};
     mash_ctx.buffer_size_used[mash::NORMAL_BUFFER] = pc_mash->used;
     a1 = &mash_ctx;
 
@@ -789,8 +750,7 @@ void core_ai_resource::unmash(mash_info_struct *a1, [[maybe_unused]] void *a3)
     convert_graph_keys(this->my_locomotion_graphs);
 
     if (this->field_10 != nullptr) {
-        this->field_10 = bit_cast<combo_system *>(a1->read_from_buffer(
-            mash::NORMAL_BUFFER, sizeof(combo_system), 4));
+        this->field_10 = bit_cast<combo_system *>(a1->read_from_buffer(mash::NORMAL_BUFFER, sizeof(combo_system), 4));
         a1->unmash_class_in_place(this->field_10->field_0, this->field_10);
         a1->unmash_class_in_place(this->field_10->field_14, this->field_10);
         a1->unmash_class_in_place(this->field_10->field_28, this->field_10);
@@ -798,11 +758,9 @@ void core_ai_resource::unmash(mash_info_struct *a1, [[maybe_unused]] void *a3)
     }
 
     a1->align_buffer(mash::NORMAL_BUFFER, 4);
-    this->field_40 = *reinterpret_cast<int *>(
-        a1->read_from_buffer(mash::NORMAL_BUFFER, 4, 4));
+    this->field_40 = *reinterpret_cast<int *>(a1->read_from_buffer(mash::NORMAL_BUFFER, 4, 4));
     a1->align_buffer(mash::NORMAL_BUFFER, 16);
-    this->field_C = &a1->mash_image_ptr[mash::NORMAL_BUFFER]
-                                      [a1->buffer_size_used[mash::NORMAL_BUFFER]];
+    this->field_C = &a1->mash_image_ptr[mash::NORMAL_BUFFER][a1->buffer_size_used[mash::NORMAL_BUFFER]];
     a1->advance_buffer(mash::NORMAL_BUFFER, this->field_40);
     a1->read_from_buffer(mash::NORMAL_BUFFER, 4, 4);
 
@@ -826,24 +784,19 @@ void core_ai_resource::unmash(mash_info_struct *a1, [[maybe_unused]] void *a3)
     }
 
     a1->align_buffer(mash::SHARED_BUFFER, 4);
-    const auto normal_data_size =
-        *reinterpret_cast<int *>(a1->read_from_buffer(mash::SHARED_BUFFER, 4, 4));
-    const auto shared_data_size =
-        *reinterpret_cast<int *>(a1->read_from_buffer(mash::SHARED_BUFFER, 4, 4));
+    const auto normal_data_size = *reinterpret_cast<int *>(a1->read_from_buffer(mash::SHARED_BUFFER, 4, 4));
+    const auto shared_data_size = *reinterpret_cast<int *>(a1->read_from_buffer(mash::SHARED_BUFFER, 4, 4));
 
     a1->align_buffer(mash::NORMAL_BUFFER, 16);
     a1->align_buffer(mash::SHARED_BUFFER, 16);
 
     this->field_40 = normal_data_size;
-    this->field_C = &a1->mash_image_ptr[mash::NORMAL_BUFFER]
-                                      [a1->buffer_size_used[mash::NORMAL_BUFFER]];
+    this->field_C = &a1->mash_image_ptr[mash::NORMAL_BUFFER][a1->buffer_size_used[mash::NORMAL_BUFFER]];
     a1->advance_buffer(mash::NORMAL_BUFFER, normal_data_size);
     a1->advance_buffer(mash::SHARED_BUFFER, shared_data_size);
 
-    const auto normal_sentry =
-        *reinterpret_cast<uint32_t *>(a1->read_from_buffer(mash::NORMAL_BUFFER, 4, 4));
-    const auto shared_sentry =
-        *reinterpret_cast<uint32_t *>(a1->read_from_buffer(mash::SHARED_BUFFER, 4, 4));
+    const auto normal_sentry = *reinterpret_cast<uint32_t *>(a1->read_from_buffer(mash::NORMAL_BUFFER, 4, 4));
+    const auto shared_sentry = *reinterpret_cast<uint32_t *>(a1->read_from_buffer(mash::SHARED_BUFFER, 4, 4));
     assert(normal_sentry == mash::CUSTOM_MASH_SENTRY);
     assert(shared_sentry == mash::CUSTOM_MASH_SENTRY);
 
@@ -905,7 +858,7 @@ resource_key core_ai_resource::sub_6B6D50()
     return *this->my_base_graphs.at(0);
 }
 
-} // namespace ai
+}  // namespace ai
 
 void core_ai_resource_patch()
 {

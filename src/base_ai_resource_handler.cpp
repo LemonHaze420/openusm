@@ -23,7 +23,7 @@ base_ai_resource_handler::base_ai_resource_handler(worldly_pack_slot *a2)
 
         this->m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {
-    this->m_vtbl = 0x00888A08;
+        this->m_vtbl = 0x00888A08;
     }
 
     this->my_slot = a2;
@@ -65,9 +65,9 @@ bool base_ai_resource_handler::_handle_resource(worldly_resource_handler::eBehav
             assert(new_ai_resource != nullptr);
 
 #if OPENUSM_XBOX_MASH_FORMAT
-            mash_info_struct info_struct {mash::UNMASH_MODE, resource, a3->m_size, true};
+            mash_info_struct info_struct{mash::UNMASH_MODE, resource, a3->m_size, true};
 #else
-            mash_info_struct info_struct {resource, a3->m_size};
+            mash_info_struct info_struct{resource, a3->m_size};
 #endif
 
             info_struct.unmash_class(new_ai_resource,
@@ -76,7 +76,7 @@ bool base_ai_resource_handler::_handle_resource(worldly_resource_handler::eBehav
                                      ,
                                      mash::NORMAL_BUFFER
 #endif
-                    );
+            );
             mash_info_struct::construct_class(new_ai_resource);
 
 #if OPENUSM_XBOX_MASH_FORMAT

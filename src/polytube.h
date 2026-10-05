@@ -61,8 +61,8 @@ struct PolytubeCustomVertex {
 
         void Write(const vector3d &a2, const vector3d &a3);
         Iterator() = default;
-        Iterator(unsigned count, PCUV_ShaderMaterial *material, PolytubeCustomOffset::Iterator *offsets,
-                 uint32_t color, float tiles, float phase);
+        Iterator(unsigned count, PCUV_ShaderMaterial *material, PolytubeCustomOffset::Iterator *offsets, uint32_t color,
+                 float tiles, float phase);
     };
 };
 
@@ -151,14 +151,38 @@ struct polytube : entity {
     //0x005A2460
     void set_material(PolytubeCustomMaterial *a2);
     void set_material(Tentacle_ShaderMaterial *material);
-    void set_tentacle_width(Float value) { tentacle_width = value; }
-    void set_tentacle_activity(Float value) { tentacle_activity = value; }
-    void set_tentacle_pull_factor(Float value) { tentacle_pull_factor = value; }
-    float get_tentacle_width() const { return tentacle_width; }
-    float get_tentacle_activity() const { return tentacle_activity; }
-    float get_tentacle_pull_factor() const { return tentacle_pull_factor; }
-    void set_render_color(color32 value) { field_128 = value; }
-    color32 get_render_color() const { return field_128; }
+    void set_tentacle_width(Float value)
+    {
+        tentacle_width = value;
+    }
+    void set_tentacle_activity(Float value)
+    {
+        tentacle_activity = value;
+    }
+    void set_tentacle_pull_factor(Float value)
+    {
+        tentacle_pull_factor = value;
+    }
+    float get_tentacle_width() const
+    {
+        return tentacle_width;
+    }
+    float get_tentacle_activity() const
+    {
+        return tentacle_activity;
+    }
+    float get_tentacle_pull_factor() const
+    {
+        return tentacle_pull_factor;
+    }
+    void set_render_color(color32 value)
+    {
+        field_128 = value;
+    }
+    color32 get_render_color() const
+    {
+        return field_128;
+    }
     void set_visible(bool visible, bool include_children);
     vector3d get_visual_center();
     float get_visual_radius();

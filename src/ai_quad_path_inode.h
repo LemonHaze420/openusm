@@ -13,4 +13,4 @@ struct quad_path_inode : info_node {
     void _destruct_mashed_class();
     static void *native_vtable();
 };
-}
+}  // namespace ai

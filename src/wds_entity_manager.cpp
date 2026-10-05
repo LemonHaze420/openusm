@@ -53,15 +53,15 @@ wds_entity_manager::wds_entity_manager()
         THISCALL(0x005DF4C0, this);
     }
 }
-beam *wds_entity_manager::create_and_add_beam(_std::vector<entity *> *destination,
-    const string_hash &id, uint32_t flags)
+beam *wds_entity_manager::create_and_add_beam(_std::vector<entity *> *destination, const string_hash &id,
+                                              uint32_t flags)
 {
     auto *value = ::new (mem_alloc(sizeof(beam))) beam(id, flags);
     add_entity_internal(destination, value);
     return value;
 }
 
-template<typename T>
+template <typename T>
 typename multi_vector<T>::iterator multi_vector_find(typename multi_vector<T>::iterator &begin,
                                                      typename multi_vector<T>::iterator &end, T &a4)
 {
@@ -102,7 +102,7 @@ bool wds_entity_manager::is_item_valid(item *a2)
 
 entity *wds_entity_manager::acquire_entity(string_hash a2, string_hash a3, uint32_t a6)
 {
-    mString v6 {};
+    mString v6{};
     auto *v5 = this->create_and_add_entity_or_subclass(a2, a3, {identity_matrix}, v6, a6, nullptr);
     return v5;
 }
@@ -112,20 +112,18 @@ entity *wds_entity_manager::acquire_entity(string_hash a1, uint32_t a2)
     TRACE("wds_entity_manager::acquire_entity");
 
     if constexpr (1) {
-        mString a5 {};
+        mString a5{};
         auto v6 = make_unique_entity_id();
         auto *v4 = this->create_and_add_entity_or_subclass(a1, v6, identity_matrix, a5, a2, nullptr);
         return v4;
     } else {
-        return (entity *) THISCALL(0x005E0D40, this, a1, a2);
+        return (entity *)THISCALL(0x005E0D40, this, a1, a2);
     }
 }
 
 void wds_entity_manager::add_dynamic_instanced_entity(entity *value)
 {
-    auto *segment = entities.field_0.empty()
-        ? entities.sub_50A230()
-        : &*entities.field_0.begin();
+    auto *segment = entities.field_0.empty() ? entities.sub_50A230() : &*entities.field_0.begin();
     auto slot = segment->begin();
     for (; slot != segment->end() && *slot != nullptr; ++slot) {}
     if (slot == segment->end())
@@ -134,26 +132,22 @@ void wds_entity_manager::add_dynamic_instanced_entity(entity *value)
         *slot = value;
 
 
-
     value->get_abs_po();
-    value->compute_sector(g_world_ptr->the_terrain,
-                          g_world_ptr->is_loading_from_scn_file(), nullptr);
+    value->compute_sector(g_world_ptr->the_terrain, g_world_ptr->is_loading_from_scn_file(), nullptr);
 }
 
 namespace {
 void destroy_owned_entity(entity *value)
 {
     if ((value->field_8 & 0x80000000u) != 0) {
-        auto destroy = reinterpret_cast<void(__fastcall *)(entity *, void *, bool)>(
-            get_vfunc(value->m_vtbl, 0));
+        auto destroy = reinterpret_cast<void(__fastcall *)(entity *, void *, bool)>(get_vfunc(value->m_vtbl, 0));
         destroy(value, nullptr, true);
     } else {
-        auto release = reinterpret_cast<void(__fastcall *)(entity *, void *)>(
-            get_vfunc(value->m_vtbl, 0x10));
+        auto release = reinterpret_cast<void(__fastcall *)(entity *, void *)>(get_vfunc(value->m_vtbl, 0x10));
         release(value, nullptr);
     }
 }
-}
+}  // namespace
 
 void wds_entity_manager::destroy_all_entities_and_items()
 {
@@ -195,8 +189,6 @@ void wds_entity_manager::destroy_all_entities_and_items()
     }
     for (auto &segment : items.field_0)
         segment._Tidy();
-
-
 }
 
 #ifdef OPENUSM_XBPACK_MODE
@@ -214,9 +206,7 @@ void wds_entity_manager::destroy_entity(entity *e)
 {
     assert(e != nullptr);
 
-    const bool removed = e->get_flavor() == ENTITY_ITEM
-        ? remove_item(static_cast<item *>(e))
-        : remove_entity(e);
+    const bool removed = e->get_flavor() == ENTITY_ITEM ? remove_item(static_cast<item *>(e)) : remove_entity(e);
     if (removed)
         destroy_owned_entity(e);
 }
@@ -261,8 +251,7 @@ void wds_entity_manager::make_time_limited(entity *entity_ptr, Float lifetime)
         float remaining;
     };
 
-    auto &timed_entities =
-        *reinterpret_cast<_std::vector<timed_entity> *>(&this->field_18);
+    auto &timed_entities = *reinterpret_cast<_std::vector<timed_entity> *>(&this->field_18);
     timed_entities.push_back({entity_ptr->get_my_handle(), lifetime});
     entity_ptr->field_4 |= 0x10000u;
 #else
@@ -290,7 +279,7 @@ int wds_entity_manager::add_ent_to_lists(_std::vector<entity *> *a2, _std::vecto
 
     if constexpr (1) {
         auto result = 0;
-        switch ((entity_flavor_t) ent->get_flavor()) {
+        switch ((entity_flavor_t)ent->get_flavor()) {
         case ACTOR:
         case ENTITY:
         case MARKER:
@@ -312,7 +301,7 @@ int wds_entity_manager::add_ent_to_lists(_std::vector<entity *> *a2, _std::vecto
             break;
         }
         case ENTITY_ITEM: {
-            result = (int) this->add_item(a3, (item *) ent);
+            result = (int)this->add_item(a3, (item *)ent);
             break;
         }
         default:
@@ -333,7 +322,7 @@ entity_base *wds_entity_manager::get_entity(string_hash a1)
 
 entity *wds_entity_manager::create_and_add_entity_or_subclass(string_hash a2, string_hash a3, const po &a4,
                                                               const mString &a5, uint32_t a6,
-                                                          const _std::list<region *> *regions)
+                                                              const _std::list<region *> *regions)
 {
     TRACE("wds_entity_manager::create_and_add_entity_or_subclass");
 
@@ -351,7 +340,7 @@ entity *wds_entity_manager::create_and_add_entity_or_subclass(string_hash a2, st
         uint32_t v65 = 1;
         if (!g_is_the_packer) {
             auto v33 = a2;
-            resource_key v58 {v33, RESOURCE_KEY_TYPE_ENTITY};
+            resource_key v58{v33, RESOURCE_KEY_TYPE_ENTITY};
 
             int v57;
             worldly_pack_slot *slot_ptr;
@@ -384,7 +373,7 @@ entity *wds_entity_manager::create_and_add_entity_or_subclass(string_hash a2, st
                 warning("Entity '%s.ent' not found in any loaded packfiles!", v12);
                 auto *partition_pointer = resource_manager::get_partition_pointer(RESOURCE_PARTITION_MISSION);
                 debug_print_va("Mission stack contains:");
-                if ( partition_pointer != nullptr ) {
+                if (partition_pointer != nullptr) {
                     //sub_65ED68(partition_pointer);
                 }
             }
@@ -428,12 +417,12 @@ entity *wds_entity_manager::create_and_add_entity_or_subclass(string_hash a2, st
     } else {
         entity *(__fastcall * func)(void *,
                                     void *edx,
-                  string_hash,
-                  string_hash,
-                  const po *,
-                  const mString *,
-                  uint32_t ,
-                  const _std::list<region *> *) = CAST(func, 0x005E0A10);
+                                    string_hash,
+                                    string_hash,
+                                    const po *,
+                                    const mString *,
+                                    uint32_t,
+                                    const _std::list<region *> *) = CAST(func, 0x005E0A10);
         return func(this, nullptr, a2, a3, &a4, &a5, a6, regions);
     }
 }
@@ -443,11 +432,11 @@ box_trigger *wds_entity_manager::create_and_add_box_trigger(string_hash a1, cons
     TRACE("wds_entity_manager::create_and_add_box_trigger");
 
     if constexpr (1) {
-        auto *new_trigger = (box_trigger *) trigger_manager::instance->new_box_trigger(a1, a3);
+        auto *new_trigger = (box_trigger *)trigger_manager::instance->new_box_trigger(a1, a3);
         new_trigger->set_box_info(a4);
         return new_trigger;
     } else {
-        return (box_trigger *) THISCALL(0x005C2D80, this, a1, &a3, &a4);
+        return (box_trigger *)THISCALL(0x005C2D80, this, a1, &a3, &a4);
     }
 }
 
@@ -473,7 +462,7 @@ int wds_entity_manager::add_entity_internal(_std::vector<entity *> *vec, entity 
             FUNC_ADDRESS(address, &entity_base::get_entity_size);
             FUNC_ADDRESS(address1, &entity_base::is_alive);
 
-            sp_log("0x%08X 0x%08X", (int) address, (int) address1);
+            sp_log("0x%08X 0x%08X", (int)address, (int)address1);
             sp_log("0x%08X", ent->m_vtbl);
         }
 
@@ -532,14 +521,12 @@ void wds_entity_manager::process_time_limited_entities(Float elapsed)
         auto *entity_ptr = current->handle.get_volatile_ptr();
         bool erase = entity_ptr == nullptr;
         if (entity_ptr != nullptr && current->remaining > 0.0f) {
-            const float scale = entity_ptr->field_58 != nullptr
-                ? static_cast<float>(entity_ptr->field_58->sub_4ADE50())
-                : g_world_ptr->time_manager.field_0;
+            const float scale = entity_ptr->field_58 != nullptr ? static_cast<float>(entity_ptr->field_58->sub_4ADE50())
+                                                                : g_world_ptr->time_manager.field_0;
             current->remaining -= scale * elapsed.value;
         } else if (entity_ptr != nullptr) {
             entity_ptr->set_visible(false, false);
-            bool(__fastcall *is_retained)(entity *, void *) =
-                CAST(is_retained, get_vfunc(entity_ptr->m_vtbl, 0x1A8));
+            bool(__fastcall * is_retained)(entity *, void *) = CAST(is_retained, get_vfunc(entity_ptr->m_vtbl, 0x1A8));
             if (!is_retained(entity_ptr, nullptr)) {
                 this->destroy_entity(entity_ptr);
                 erase = true;
@@ -547,8 +534,7 @@ void wds_entity_manager::process_time_limited_entities(Float elapsed)
         }
 
         if (erase) {
-            std::memmove(current, current + 1,
-                         static_cast<size_t>(last - current - 1) * sizeof(*current));
+            std::memmove(current, current + 1, static_cast<size_t>(last - current - 1) * sizeof(*current));
             --last;
             field_1C = last;
         } else {
@@ -586,7 +572,7 @@ void wds_entity_manager_patch()
 
     if constexpr (0) {
         {
-            entity * (wds_entity_manager::*func)(string_hash, uint32_t) = &wds_entity_manager::acquire_entity;
+            entity *(wds_entity_manager::*func)(string_hash, uint32_t) = &wds_entity_manager::acquire_entity;
             FUNC_ADDRESS(address, func);
             REDIRECT(0x00635795, address);
         }

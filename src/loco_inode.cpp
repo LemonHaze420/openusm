@@ -21,10 +21,9 @@ const string_hash default_min_goto_time_id{static_cast<int>(to_hash("default_min
 const string_hash always_update_als_id{static_cast<int>(to_hash("always_update_als"))};
 const string_hash idle_walk_run_id{static_cast<int>(to_hash("Idle_Walk_Run"))};
 const resource_key unset_graph{string_hash{0}, RESOURCE_KEY_TYPE_AI_STATE_GRAPH};
-const resource_key biped_graph{string_hash{static_cast<int>(to_hash("biped_layer"))},
-                             RESOURCE_KEY_TYPE_AI_STATE_GRAPH};
+const resource_key biped_graph{string_hash{static_cast<int>(to_hash("biped_layer"))}, RESOURCE_KEY_TYPE_AI_STATE_GRAPH};
 const resource_key nonpath_graph{string_hash{static_cast<int>(to_hash("nonpath_loco_layer"))},
-                               RESOURCE_KEY_TYPE_AI_STATE_GRAPH};
+                                 RESOURCE_KEY_TYPE_AI_STATE_GRAPH};
 
 void __fastcall native_loco_destruct(loco_inode *self, void *)
 {
@@ -40,13 +39,22 @@ void __fastcall native_loco_activate(loco_inode *self, void *, ai_core *core)
     self->_activate(core);
 }
 void __fastcall native_loco_initialize(loco_inode *, void *) {}
-void __fastcall native_loco_defaults(loco_inode *self, void *) { self->_reset_loco_defaults(); }
-template<class T>
-const resource_key &__fastcall native_loco_graph(const T *self, void *) { return self->_get_graph(); }
-template<class T>
-void __fastcall native_layer_initialize(T *self, void *) { self->_initialize_loco_inode(); }
+void __fastcall native_loco_defaults(loco_inode *self, void *)
+{
+    self->_reset_loco_defaults();
+}
+template <class T>
+const resource_key &__fastcall native_loco_graph(const T *self, void *)
+{
+    return self->_get_graph();
+}
+template <class T>
+void __fastcall native_layer_initialize(T *self, void *)
+{
+    self->_initialize_loco_inode();
+}
 
-template<class T, unsigned Parent>
+template <class T, unsigned Parent>
 native_inode::table<T, T::virtual_type, Parent, 15> make_loco_table()
 {
     native_inode::table<T, T::virtual_type, Parent, 15> result;
@@ -58,11 +66,10 @@ native_inode::table<T, T::virtual_type, Parent, 15> make_loco_table()
     result[14] = reinterpret_cast<void *>(&native_loco_defaults);
     return result;
 }
-}
+}  // namespace
 
 void *loco_inode::native_vtable()
 {
-
     static auto table = make_loco_table<loco_inode, 537>();
     return table.data();
 }
@@ -88,11 +95,10 @@ void *nonpath_loco_inode::native_vtable()
 }
 
 loco_inode::loco_inode()
-    : info_node(), als_category{0}, goto_destination{ZEROVEC.x, ZEROVEC.y, ZEROVEC.z},
-      field_54(false), field_55(false), field_56(false), needs_repathfind(false),
-      field_58(false), field_59(false), allow_facing_change(false),
-      explicit_goto_speed(false), explicit_goto_radius(false), explicit_min_goto_time(false),
-      field_5E(false), field_5F(false), always_update_als(false)
+    : info_node(), als_category{0}, goto_destination{ZEROVEC.x, ZEROVEC.y, ZEROVEC.z}, field_54(false), field_55(false),
+      field_56(false), needs_repathfind(false), field_58(false), field_59(false), allow_facing_change(false),
+      explicit_goto_speed(false), explicit_goto_radius(false), explicit_min_goto_time(false), field_5E(false),
+      field_5F(false), always_update_als(false)
 {
     m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[virtual_type]);
 }
@@ -109,7 +115,6 @@ nonpath_loco_inode::nonpath_loco_inode() : loco_inode()
 
 loco_inode::loco_inode(from_mash_in_place_constructor *tag) : info_node(tag), als_category(tag)
 {
-
     _reset_loco_defaults();
     field_50 = -1.0f;
     allow_facing_change = false;
@@ -120,7 +125,7 @@ loco_inode::loco_inode(from_mash_in_place_constructor *tag) : info_node(tag), al
 
 void loco_inode::initialize_loco_inode()
 {
-    using callback = void (__fastcall *)(loco_inode *, void *);
+    using callback = void(__fastcall *)(loco_inode *, void *);
     reinterpret_cast<callback>(get_vfunc(m_vtbl, 0x30))(this, nullptr);
 }
 
@@ -132,7 +137,7 @@ const resource_key &loco_inode::get_graph() const
 
 void loco_inode::reset_loco_defaults()
 {
-    using callback = void (__fastcall *)(loco_inode *, void *);
+    using callback = void(__fastcall *)(loco_inode *, void *);
     reinterpret_cast<callback>(get_vfunc(m_vtbl, 0x38))(this, nullptr);
 }
 
@@ -232,7 +237,6 @@ const resource_key &nonpath_loco_inode::_get_graph() const
 
 void loco_inode::set_facing_dir(const vector3d &direction)
 {
-
     if (!allow_facing_change)
         return;
     auto *animation = static_cast<als_inode *>(field_8->get_info_node(als_inode::default_id, true));
@@ -242,4 +246,4 @@ void loco_inode::set_facing_dir(const vector3d &direction)
     params.clear();
 }
 
-}
+}  // namespace ai

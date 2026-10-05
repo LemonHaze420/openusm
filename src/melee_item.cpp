@@ -19,29 +19,46 @@ VALIDATE_OFFSET(melee_item, trail_samples, 0x144);
 namespace {
 void *__fastcall melee_delete(melee_item *self, void *, unsigned flags)
 {
-
     self->~melee_item();
     if (flags & 1)
         mem_dealloc(self, sizeof(melee_item));
     return self;
 }
-void __fastcall melee_release(melee_item *self, void *) { self->release_mem(); }
-bool __fastcall melee_chunk(melee_item *, void *, void *, void *) { return false; }
-bool __fastcall melee_query(melee_item *, void *) { return true; }
-void __fastcall melee_unmash(melee_item *self, void *, generic_mash_header *header, void *object, generic_mash_data_ptrs *data)
+void __fastcall melee_release(melee_item *self, void *)
+{
+    self->release_mem();
+}
+bool __fastcall melee_chunk(melee_item *, void *, void *, void *)
+{
+    return false;
+}
+bool __fastcall melee_query(melee_item *, void *)
+{
+    return true;
+}
+void __fastcall melee_unmash(melee_item *self, void *, generic_mash_header *header, void *object,
+                             generic_mash_data_ptrs *data)
 {
     self->un_mash(header, object, data);
 }
-void __fastcall melee_holster(melee_item *self, void *, bool visible) { self->holster(visible); }
+void __fastcall melee_holster(melee_item *self, void *, bool visible)
+{
+    self->holster(visible);
+}
 
 void __fastcall melee_init_defaults(melee_item *, void *) {}
-void __fastcall melee_enable_trail(melee_item *self, void *, bool enabled) { self->enable_motion_trail(enabled); }
-void __fastcall melee_stop_trail(melee_item *self, void *) { self->stop_motion_trail(); }
+void __fastcall melee_enable_trail(melee_item *self, void *, bool enabled)
+{
+    self->enable_motion_trail(enabled);
 }
+void __fastcall melee_stop_trail(melee_item *self, void *)
+{
+    self->stop_motion_trail();
+}
+}  // namespace
 
 void *melee_item::native_vtable(void **handheld_table)
 {
-
     static std::array<void *, 0x300 / 4> table;
     std::copy_n(handheld_table, 0x2F8 / 4, table.begin());
     table[0] = reinterpret_cast<void *>(&melee_delete);
@@ -76,7 +93,7 @@ void melee_item::un_mash(generic_mash_header *header, void *object, generic_mash
 
 void melee_item::holster(bool visible)
 {
-    auto stop = reinterpret_cast<void (__fastcall *)(melee_item *, void *)>(get_vfunc(m_vtbl, 0x2FC));
+    auto stop = reinterpret_cast<void(__fastcall *)(melee_item *, void *)>(get_vfunc(m_vtbl, 0x2FC));
     stop(this, nullptr);
     handheld_item::holster(visible);
 }
@@ -85,7 +102,7 @@ void melee_item::enable_motion_trail(bool enabled)
 {
     auto *visual = field_104.get_volatile_ptr();
     if (!trail_enabled || !enabled || !visual) {
-        auto stop = reinterpret_cast<void (__fastcall *)(melee_item *, void *)>(get_vfunc(m_vtbl, 0x2FC));
+        auto stop = reinterpret_cast<void(__fastcall *)(melee_item *, void *)>(get_vfunc(m_vtbl, 0x2FC));
         stop(this, nullptr);
         return;
     }

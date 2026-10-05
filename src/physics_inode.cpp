@@ -28,18 +28,26 @@ void *__fastcall physics_delete(physics_inode *self, void *, unsigned flags)
         mash_virtual_base::operator delete(self, sizeof(physics_inode));
     return self;
 }
-unsigned __fastcall physics_type(physics_inode *, void *) { return 402; }
+unsigned __fastcall physics_type(physics_inode *, void *)
+{
+    return 402;
+}
 bool __fastcall physics_subclass(physics_inode *, void *, unsigned type)
 {
     return type == 537 || type == 573;
 }
-void __fastcall physics_activate(physics_inode *self, void *, ai_core *core) { self->_activate(core); }
-int __fastcall physics_size(physics_inode *, void *) { return sizeof(physics_inode); }
+void __fastcall physics_activate(physics_inode *self, void *, ai_core *core)
+{
+    self->_activate(core);
 }
+int __fastcall physics_size(physics_inode *, void *)
+{
+    return sizeof(physics_inode);
+}
+}  // namespace
 
 void *physics_inode::native_vtable()
 {
-
     static auto table = [] {
         std::array<void *, 12> result;
         std::copy_n(static_cast<void **>(info_node::native_vtable()), result.size(), result.data());
@@ -307,72 +315,72 @@ void physics_inode::set_collisions_active(bool a1, bool a2)
 
 void physics_inode::setup_for_swing()
 {
-        this->set_collisions_active(true, true);
-        this->set_always_standing(false);
-        this->set_adv_standing(false);
-        this->set_gravity(true);
-        this->set_stationary(false);
-        this->unsuspend();
-        this->enable(true);
+    this->set_collisions_active(true, true);
+    this->set_always_standing(false);
+    this->set_adv_standing(false);
+    this->set_gravity(true);
+    this->set_stationary(false);
+    this->unsuspend();
+    this->enable(true);
 
-        physical_interface *v4 = this->field_C->physical_ifc();
-        v4->set_current_gravity_vector(vector3d{0.0, -1.0, 0.0});
+    physical_interface *v4 = this->field_C->physical_ifc();
+    v4->set_current_gravity_vector(vector3d{0.0, -1.0, 0.0});
 
-        auto v27 = g_swing_air_res;
+    auto v27 = g_swing_air_res;
 
-        auto horz_scale = this->field_8->field_50.get_optional_pb_float(
-            physics_swing_drag_horz_scale_id, g_normal_air_res_horz_scale, nullptr);
+    auto horz_scale = this->field_8->field_50.get_optional_pb_float(
+        physics_swing_drag_horz_scale_id, g_normal_air_res_horz_scale, nullptr);
 
-        auto up_scale = this->field_8->field_50.get_optional_pb_float(
-            physics_swing_drag_up_scale_id, g_normal_air_res_up_scale, nullptr);
+    auto up_scale = this->field_8->field_50.get_optional_pb_float(
+        physics_swing_drag_up_scale_id, g_normal_air_res_up_scale, nullptr);
 
-        auto down_scale = this->field_8->field_50.get_optional_pb_float(
-            physics_swing_drag_down_scale_id, g_normal_air_res_down_scale, nullptr);
+    auto down_scale = this->field_8->field_50.get_optional_pb_float(
+        physics_swing_drag_down_scale_id, g_normal_air_res_down_scale, nullptr);
 
-        int swing_speed = g_game_ptr->gamefile->field_340.m_swing_speed;
+    int swing_speed = g_game_ptr->gamefile->field_340.m_swing_speed;
 
-        float v28 = g_normal_air_res_min_speed;
+    float v28 = g_normal_air_res_min_speed;
 
-        switch (swing_speed) {
-        case 0:
-            v27 = this->field_8->field_50.get_pb_float(physics_swing_drag_0_id);
+    switch (swing_speed) {
+    case 0:
+        v27 = this->field_8->field_50.get_pb_float(physics_swing_drag_0_id);
 
-            v28 = this->field_8->field_50.get_pb_float(physics_swing_drag_min_speed_0_id);
-            break;
-        case 1:
-            v27 = this->field_8->field_50.get_pb_float(physics_swing_drag_1_id);
+        v28 = this->field_8->field_50.get_pb_float(physics_swing_drag_min_speed_0_id);
+        break;
+    case 1:
+        v27 = this->field_8->field_50.get_pb_float(physics_swing_drag_1_id);
 
-            v28 = this->field_8->field_50.get_pb_float(physics_swing_drag_min_speed_1_id);
-            break;
-        case 2:
-            v27 = this->field_8->field_50.get_pb_float(physics_swing_drag_2_id);
+        v28 = this->field_8->field_50.get_pb_float(physics_swing_drag_min_speed_1_id);
+        break;
+    case 2:
+        v27 = this->field_8->field_50.get_pb_float(physics_swing_drag_2_id);
 
-            v28 = this->field_8->field_50.get_pb_float(physics_swing_drag_min_speed_2_id);
+        v28 = this->field_8->field_50.get_pb_float(physics_swing_drag_min_speed_2_id);
 
-            break;
-        case 3:
-            v27 = this->field_8->field_50.get_pb_float(physics_swing_drag_3_id);
+        break;
+    case 3:
+        v27 = this->field_8->field_50.get_pb_float(physics_swing_drag_3_id);
 
-            v28 = this->field_8->field_50.get_pb_float(physics_swing_drag_min_speed_3_id);
-            break;
-        default:
-            break;
-        }
+        v28 = this->field_8->field_50.get_pb_float(physics_swing_drag_min_speed_3_id);
+        break;
+    default:
+        break;
+    }
 
-        auto *phys_ifc = this->field_C->physical_ifc();
+    auto *phys_ifc = this->field_C->physical_ifc();
 
-        phys_ifc->field_15C = v27;
+    phys_ifc->field_15C = v27;
 
-        phys_ifc->field_160 = v28;
+    phys_ifc->field_160 = v28;
 
-        phys_ifc->field_164 = horz_scale;
+    phys_ifc->field_164 = horz_scale;
 
-        phys_ifc->field_168 = up_scale;
+    phys_ifc->field_168 = up_scale;
 
-        phys_ifc->field_16C = down_scale;
+    phys_ifc->field_16C = down_scale;
 
-        this->field_8->field_50.get_optional_pb_float(physics_gravity_swing_id, g_swing_gravity, nullptr);
-        this->field_1C->m_gravity_multiplier = g_swing_gravity;
+    this->field_8->field_50.get_optional_pb_float(physics_gravity_swing_id, g_swing_gravity, nullptr);
+    this->field_1C->m_gravity_multiplier = g_swing_gravity;
 }
 
 void physics_inode::setup_for_pole_swing()

@@ -33,8 +33,8 @@ struct collision_obb_t {
     const collision_triangle_list &triangles() const
     {
         const uint32_t offset = (uint32_t(field_35) << 16) | field_36;
-        return *reinterpret_cast<const collision_triangle_list *>(
-            reinterpret_cast<const unsigned char *>(this) + offset);
+        return *reinterpret_cast<const collision_triangle_list *>(reinterpret_cast<const unsigned char *>(this) +
+                                                                  offset);
     }
 };
 
@@ -43,5 +43,4 @@ static_assert(offsetof(collision_obb_t, field_34) == 0x34);
 static_assert(offsetof(collision_triangle_list, vertices) == 4);
 static_assert(sizeof(collision_triangle_indices) == 6);
 
-bool segment_mesh_box_overlap(const vector3d &start, const vector3d &end,
-    const collision_obb_t &box);
+bool segment_mesh_box_overlap(const vector3d &start, const vector3d &end, const collision_obb_t &box);

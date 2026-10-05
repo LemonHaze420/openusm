@@ -52,8 +52,8 @@ void aeps::DoSpideySenseEffect(entity_base *owner, float lifetime, unsigned flag
     info.lifetime = lifetime;
     auto *graph = ifc->field_28;
     if (graph) {
-        auto perform = reinterpret_cast<void(__fastcall *)(void *, void *, int,
-            sound_and_pfx_interface *, ActionInfoStruct *)>(
+        auto perform =
+            reinterpret_cast<void(__fastcall *)(void *, void *, int, sound_and_pfx_interface *, ActionInfoStruct *)>(
                 get_vfunc(*static_cast<std::intptr_t *>(graph), 0x34));
         perform(graph, nullptr, 5, ifc, &info);
     }
@@ -118,7 +118,6 @@ void destroy(T *object)
 }
 
 
-
 void setup_frame(const matrix4x4 &view, const vector3d &position)
 {
     auto &right = var<vector3d>(0x0093A4EC);
@@ -128,8 +127,7 @@ void setup_frame(const matrix4x4 &view, const vector3d &position)
     up = vector3d{view[0].y, view[1].y, view[2].y};
     forward = vector3d{view[0].z, view[1].z, view[2].z};
     var<vector3d>(0x009711F8) = position;
-    if (right.y < 0.0f || right.y > 0.0f || up.y < 0.0f || up.y > 0.0f ||
-        std::isnan(right.y) || std::isnan(up.y))
+    if (right.y < 0.0f || right.y > 0.0f || up.y < 0.0f || up.y > 0.0f || std::isnan(right.y) || std::isnan(up.y))
         var<float>(0x009711F4) = std::atan2(right.y, up.y);
     std::srand(query_perf_counter().LowPart);
     auto &frame = var<int>(0x00971AA4);
@@ -147,8 +145,7 @@ void append_groups(aeps::Effect &effect)
             aeps::s_renderList().push_back(group);
     }
 }
-}
-
+}  // namespace
 
 
 void aeps::UpdateStruct::advance(float time)
@@ -166,8 +163,7 @@ void aeps::UpdateStruct::advance(float time)
     if (lifetime > 0.0f) {
         lifetime -= time;
         if (lifetime <= 0.0f) {
-            auto finish = reinterpret_cast<void(__fastcall *)(UpdateTarget *, void *)>(
-                get_vfunc(target->m_vtbl, 0x24));
+            auto finish = reinterpret_cast<void(__fastcall *)(UpdateTarget *, void *)>(get_vfunc(target->m_vtbl, 0x24));
             finish(target, nullptr);
             target->updater = nullptr;
             RemUpdater(this);
@@ -193,13 +189,12 @@ void aeps::FrameAdvance(Float time)
         auto &list = s_activeStructs();
         for (unsigned i = list.size(); i != 0; --i) {
             auto *updater = list[i - 1];
-            auto advance = reinterpret_cast<void(__fastcall *)(UpdateStruct *, void *, float, int)>(
-                get_vfunc(updater->m_vtbl, 4));
+            auto advance =
+                reinterpret_cast<void(__fastcall *)(UpdateStruct *, void *, float, int)>(get_vfunc(updater->m_vtbl, 4));
             advance(updater, nullptr, time.value, 0);
         }
     }
 }
-
 
 
 void aeps::Group::render(nglLightContext *light_context)
@@ -213,8 +208,8 @@ void aeps::Group::render(nglLightContext *light_context)
     const vector3d center = (bounds_min + bounds_max) * 0.5f;
     const vector3d delta = render_info.center - center;
     const vector3d extent = bounds_max - bounds_min;
-    render_info.radius = std::sqrt(extent.x * extent.x + extent.y * extent.y + extent.z * extent.z) * 0.5f
-        + std::sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
+    render_info.radius = std::sqrt(extent.x * extent.x + extent.y * extent.y + extent.z * extent.z) * 0.5f +
+                         std::sqrt(delta.x * delta.x + delta.y * delta.y + delta.z * delta.z);
     render_info.transform = transformed ? &transform : nullptr;
     render_info.light_context = light_context;
     auto callback = reinterpret_cast<void(__fastcall *)(GroupGraphics *, void *, GroupRenderInfo *)>(
@@ -344,8 +339,8 @@ aeps::Group *aeps::allocate_groups(unsigned count, group_callback callback, void
             for (unsigned i = start; i < start + count; ++i) {
                 if (groups.in_use[i] == 0)
                     continue;
-                if (priority == 0 || groups.in_use[i] != 1
-                    || (groups.callbacks[i] != nullptr && groups.callbacks[i](groups.contexts[i], priority) != 1)) {
+                if (priority == 0 || groups.in_use[i] != 1 ||
+                    (groups.callbacks[i] != nullptr && groups.callbacks[i](groups.contexts[i], priority) != 1)) {
                     available = false;
                     unsigned next = i + 1;
                     while (next < groups.capacity && groups.in_use[next] == 1 && groups.callbacks[next] == nullptr)
@@ -487,17 +482,18 @@ void aeps::Init()
     auto &buffers = var<nglVertexBuffer *[2]>(0x00971A98);
     for (auto &buffer : buffers) {
         buffer = new (tlMemAlloc(sizeof(nglVertexBuffer), 4, 0)) nglVertexBuffer{};
-        const HRESULT result = nglVertexBuffer::createIndexOrVertexBuffer(buffer,
-            ResourceType::VertexBuffer, 96 * particle_capacity, 0x208, 0, D3DPOOL_DEFAULT);
+        const HRESULT result = nglVertexBuffer::createIndexOrVertexBuffer(
+            buffer, ResourceType::VertexBuffer, 96 * particle_capacity, 0x208, 0, D3DPOOL_DEFAULT);
         assert(SUCCEEDED(result));
     }
     auto &indices = var<nglVertexBuffer *>(0x00971AA0);
     indices = new (tlMemAlloc(sizeof(nglVertexBuffer), 4, 0)) nglVertexBuffer{};
-    const HRESULT result = nglVertexBuffer::createIndexOrVertexBuffer(indices,
-        ResourceType::IndexBuffer, 12 * particle_capacity, 0, 0, D3DPOOL_DEFAULT);
+    const HRESULT result = nglVertexBuffer::createIndexOrVertexBuffer(
+        indices, ResourceType::IndexBuffer, 12 * particle_capacity, 0, 0, D3DPOOL_DEFAULT);
     assert(SUCCEEDED(result));
     uint16_t *data;
-    const HRESULT locked = IDirect3DIndexBuffer9_Lock(indices->getIndexBuffer(), 0, 12 * particle_capacity, reinterpret_cast<void **>(&data), 0);
+    const HRESULT locked = IDirect3DIndexBuffer9_Lock(
+        indices->getIndexBuffer(), 0, 12 * particle_capacity, reinterpret_cast<void **>(&data), 0);
     assert(SUCCEEDED(locked));
     for (unsigned i = 0; i < particle_capacity; ++i) {
         const uint16_t vertex = static_cast<uint16_t>(i * 4);

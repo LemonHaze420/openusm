@@ -17,6 +17,5 @@ struct motion_control_system {
     bool is_active() const;
     void set_active(bool active);
 
-    static void initialize_native_vtable(std::intptr_t *table, std::intptr_t destroy,
-                                        std::intptr_t advance);
+    static void initialize_native_vtable(std::intptr_t *table, std::intptr_t destroy, std::intptr_t advance);
 };

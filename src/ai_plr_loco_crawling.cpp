@@ -50,7 +50,7 @@ bool sub_66024E(const line_info &a1)
 }
 
 line_info *check_interior_transition(actor *owner, ai::crawl_params_record &record, ai::als_inode *animation,
-    bool spidey, bool tight, bool force)
+                                     bool spidey, bool tight, bool force)
 {
     if constexpr (!STANDALONE_SYSTEM) {
         line_info *(*func)(actor *, ai::crawl_params_record *, ai::als_inode *, bool, bool, bool) =
@@ -61,8 +61,8 @@ line_info *check_interior_transition(actor *owner, ai::crawl_params_record &reco
     static Var<line_info> surface{0x00959468};
     auto &hit = surface();
     hit.clear();
-    if (!force && (!owner->is_frame_delta_valid() ||
-        owner->get_movement_info()->field_0.get_position().length2() < EPSILON))
+    if (!force &&
+        (!owner->is_frame_delta_valid() || owner->get_movement_info()->field_0.get_position().length2() < EPSILON))
         return &hit;
     static constexpr float spidey_interior[] = {1.1f, 1.6f, 0.9f, 0.4f, 1.2f, 1.0f};
     static constexpr float venom_interior[] = {2.8f, 2.1f, 1.4f, 0.6f, 2.8f, 1.6f};
@@ -71,8 +71,8 @@ line_info *check_interior_transition(actor *owner, ai::crawl_params_record &reco
     const auto up = owner->get_abs_po().get_y_facing();
     const float reach = sub_48B6F0(distances, tight) * owner->get_render_scale().z;
     auto check = [](line_info &line) {
-        return line.check_collision(*local_collision::entfilter_entity_no_capsules,
-            *local_collision::obbfilter_lineseg_test, nullptr);
+        return line.check_collision(
+            *local_collision::entfilter_entity_no_capsules, *local_collision::obbfilter_lineseg_test, nullptr);
     };
     hit.field_0 = position;
     hit.field_C = position + owner->get_abs_po().get_z_facing() * reach;
@@ -101,8 +101,8 @@ line_info *check_interior_transition(actor *owner, ai::crawl_params_record &reco
         }
     }
     if ((is_noncrawlable_surface(hit) && !(hit.hit_norm.y > 0.732421875f && floor_transition)) ||
-        dot(up, hit.hit_norm) > 0.9848077893f ||
-        is_colinear(owner->get_abs_po().get_y_facing(), hit.hit_norm, 0.01f) || !hit.collision) {
+        dot(up, hit.hit_norm) > 0.9848077893f || is_colinear(owner->get_abs_po().get_y_facing(), hit.hit_norm, 0.01f) ||
+        !hit.collision) {
         hit.clear();
         return &hit;
     }
@@ -141,7 +141,7 @@ line_info *check_interior_transition(actor *owner, ai::crawl_params_record &reco
         const float offset = floor_transition && hit.hit_norm.y > 0.732421875f ? 1.0f : 0.5f;
         clearance.field_0 = hit.hit_pos + hit.hit_norm * offset;
         clearance.field_C = clearance.field_0 + original_destination.get_z_facing() *
-            (static_cast<float>(sub_48B710(distances, probe_tight)) + 0.1f);
+                                                    (static_cast<float>(sub_48B710(distances, probe_tight)) + 0.1f);
         accepted = !check(clearance);
     }
     if (accepted && dot(hit.hit_norm, owner->get_abs_po().get_y_facing()) > -0.1736481935f &&

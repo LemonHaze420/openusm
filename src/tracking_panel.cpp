@@ -6,10 +6,7 @@
 
 VALIDATE_SIZE(tracking_panel, 0x7C);
 
-tracking_panel::tracking_panel(from_mash_in_place_constructor *a2)
-    : field_0(a2), field_10(a2), field_18(a2)
-{
-}
+tracking_panel::tracking_panel(from_mash_in_place_constructor *a2) : field_0(a2), field_10(a2), field_18(a2) {}
 
 void tracking_panel::unmash(mash_info_struct *a1, [[maybe_unused]] void *a3)
 {

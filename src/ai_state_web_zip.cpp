@@ -50,7 +50,10 @@ VALIDATE_SIZE(web_zip_state, 0x40);
 VALIDATE_SIZE(web_zip_inode, 0xE0);
 
 namespace {
-void __fastcall zip_state_destroy(web_zip_state *self, void *) { self->finalize(mash::ALLOCATED); }
+void __fastcall zip_state_destroy(web_zip_state *self, void *)
+{
+    self->finalize(mash::ALLOCATED);
+}
 void *__fastcall zip_state_delete(web_zip_state *self, void *, unsigned flags)
 {
     self->~web_zip_state();
@@ -58,16 +61,18 @@ void *__fastcall zip_state_delete(web_zip_state *self, void *, unsigned flags)
         mash_virtual_base::operator delete(self, sizeof(web_zip_state));
     return self;
 }
-unsigned __fastcall zip_state_type(web_zip_state *, void *) { return 327; }
+unsigned __fastcall zip_state_type(web_zip_state *, void *)
+{
+    return 327;
+}
 bool __fastcall zip_state_subclass(web_zip_state *, void *, mash::virtual_types_enum type)
 {
-    return type == static_cast<mash::virtual_types_enum>(535) ||
-        type == static_cast<mash::virtual_types_enum>(567) ||
-        type == static_cast<mash::virtual_types_enum>(573);
+    return type == static_cast<mash::virtual_types_enum>(535) || type == static_cast<mash::virtual_types_enum>(567) ||
+           type == static_cast<mash::virtual_types_enum>(573);
 }
-void __fastcall zip_state_activate(web_zip_state *self, void *, ai_state_machine *machine,
-    const mashed_state *state, const mashed_state *previous, const param_block *params,
-    base_state::activate_flag_e flags)
+void __fastcall zip_state_activate(web_zip_state *self, void *, ai_state_machine *machine, const mashed_state *state,
+                                   const mashed_state *previous, const param_block *params,
+                                   base_state::activate_flag_e flags)
 {
     self->activate(machine, state, previous, params, flags);
 }
@@ -83,12 +88,14 @@ void __fastcall zip_state_list(web_zip_state *self, void *, info_node_desc_list 
 {
     self->get_info_node_list(list);
 }
-int __fastcall zip_state_size(web_zip_state *, void *) { return sizeof(web_zip_state); }
+int __fastcall zip_state_size(web_zip_state *, void *)
+{
+    return sizeof(web_zip_state);
 }
+}  // namespace
 
 void *web_zip_state::native_vtable()
 {
-
     static auto table = [] {
         std::array<void *, 16> result;
         std::copy_n(static_cast<void **>(enhanced_state::native_vtable()), result.size(), result.data());
@@ -152,15 +159,14 @@ state_trans_messages web_zip_state::frame_advance(Float dt)
     return TRANS_TOTAL_MSGS;
 }
 
-void web_zip_state::activate(ai_state_machine *machine, const mashed_state *state,
-    const mashed_state *previous, const param_block *params, activate_flag_e flags)
+void web_zip_state::activate(ai_state_machine *machine, const mashed_state *state, const mashed_state *previous,
+                             const param_block *params, activate_flag_e flags)
 {
     enhanced_state::activate(machine, state, previous, params, flags);
     field_3C = static_cast<hero_inode *>(get_core()->get_info_node(hero_inode::default_id, true));
     auto *animation = field_3C->field_20;
     auto *zip = field_3C->field_3C;
-    animation->request_category_transition(string_hash{"Web_Zip"}, static_cast<als::layer_types>(0),
-                                          true, false, true);
+    animation->request_category_transition(string_hash{"Web_Zip"}, static_cast<als::layer_types>(0), true, false, true);
     if (!g_world_ptr->field_1B0.field_8.is_set()) {
         auto hero = static_cast<actor *>(g_world_ptr->get_hero_ptr(0))->get_player_controller()->m_hero_type;
         if (hero == SPIDEY || hero == PARKER)
@@ -191,7 +197,6 @@ void web_zip_state::deactivate(const mashed_state *state)
     auto *owner = get_actor();
     if (owner && owner->has_physical_ifc() &&
         !get_core()->get_param_block()->get_pb_int(string_hash{"has_tentacle_zip"})) {
-
         g_game_ptr->gamefile->update_miles_web_zipping((owner->get_abs_position() - field_30).length());
     }
     if (static_cast<conglomerate *>(owner)->has_tentacle_ifc())
@@ -207,8 +212,7 @@ void __fastcall web_zip_destruct(web_zip_inode *self, void *)
     self->_destruct_mashed_class();
 }
 
-void __fastcall web_zip_unmash(web_zip_inode *self, void *,
-                              mash_info_struct *info, void *context)
+void __fastcall web_zip_unmash(web_zip_inode *self, void *, mash_info_struct *info, void *context)
 {
     self->unmash(info, context);
 }
@@ -221,12 +225,18 @@ void *__fastcall web_zip_delete(web_zip_inode *self, void *, unsigned flags)
     return self;
 }
 
-unsigned __fastcall web_zip_type(web_zip_inode *, void *) { return 326; }
+unsigned __fastcall web_zip_type(web_zip_inode *, void *)
+{
+    return 326;
+}
 bool __fastcall web_zip_subclass(web_zip_inode *, void *, unsigned type)
 {
     return type == 537 || type == 573;
 }
-bool __fastcall web_zip_needs_advance(web_zip_inode *, void *) { return true; }
+bool __fastcall web_zip_needs_advance(web_zip_inode *, void *)
+{
+    return true;
+}
 void __fastcall web_zip_advance(web_zip_inode *self, void *, Float dt)
 {
     self->frame_advance(dt);
@@ -239,19 +249,22 @@ void __fastcall web_zip_deactivate(web_zip_inode *self, void *)
 {
     self->deactivate();
 }
-int __fastcall web_zip_size(web_zip_inode *, void *) { return sizeof(web_zip_inode); }
+int __fastcall web_zip_size(web_zip_inode *, void *)
+{
+    return sizeof(web_zip_inode);
 }
+}  // namespace
 
 void *web_zip_inode::native_vtable()
 {
-
     auto **base = static_cast<void **>(info_node::native_vtable());
     static void *table[] = {
         reinterpret_cast<void *>(&web_zip_destruct),
         reinterpret_cast<void *>(&web_zip_unmash),
         reinterpret_cast<void *>(&web_zip_delete),
         reinterpret_cast<void *>(&web_zip_type),
-        reinterpret_cast<void *>(&web_zip_subclass), base[5],
+        reinterpret_cast<void *>(&web_zip_subclass),
+        base[5],
         reinterpret_cast<void *>(&web_zip_needs_advance),
         reinterpret_cast<void *>(&web_zip_advance),
         reinterpret_cast<void *>(&web_zip_activate),
@@ -267,8 +280,7 @@ web_zip_inode::web_zip_inode() : field_80(false)
     m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[326]);
 }
 
-web_zip_inode::web_zip_inode(from_mash_in_place_constructor *a2)
-    : info_node(a2), field_1C(a2)
+web_zip_inode::web_zip_inode(from_mash_in_place_constructor *a2) : info_node(a2), field_1C(a2)
 {
     m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[326]);
 }
@@ -290,7 +302,8 @@ void web_zip_inode::activate(ai_core *core)
     for (auto &swingback : field_A4) {
         swingback.field_0 = field_C;
         void *memory = sizeof(polytube) <= slab_allocator::get_max_object_size()
-            ? slab_allocator::allocate(sizeof(polytube), nullptr) : ::operator new(sizeof(polytube));
+                           ? slab_allocator::allocate(sizeof(polytube), nullptr)
+                           : ::operator new(sizeof(polytube));
         auto *tube = new (memory) polytube{make_unique_entity_id(), 0};
         swingback.field_8 = tube;
         g_world_ptr->ent_mgr.add_dynamic_instanced_entity(tube);
@@ -317,7 +330,8 @@ void web_zip_inode::activate(ai_core *core)
         swingback.field_C = false;
     }
     void *memory = sizeof(polytube) <= slab_allocator::get_max_object_size()
-        ? slab_allocator::allocate(sizeof(polytube), nullptr) : ::operator new(sizeof(polytube));
+                       ? slab_allocator::allocate(sizeof(polytube), nullptr)
+                       : ::operator new(sizeof(polytube));
     field_D8 = new (memory) polytube{make_unique_entity_id(), 0};
     g_world_ptr->ent_mgr.add_dynamic_instanced_entity(field_D8);
     field_D8->set_render_color(color32{0xFFFFFEFF});
@@ -367,7 +381,7 @@ bool web_zip_inode::can_go_to(string_hash state)
         if (crawl || state == run_state::default_id)
             return false;
         return field_DC->field_20->get_als_layer(static_cast<als::layer_types>(0))
-            ->get_time_to_signal(event::ANIM_ACTION) < 0.0f;
+                   ->get_time_to_signal(event::ANIM_ACTION) < 0.0f;
     }
     if (m_zip_type == 1) {
         const auto target = field_1C.hit_pos + field_1C.hit_norm * field_C->get_floor_offset();
@@ -376,7 +390,7 @@ bool web_zip_inode::can_go_to(string_hash state)
         if (crawl)
             return !ground && distance < 1.3f;
         return state == run_state::default_id && ground &&
-            field_C->physical_ifc()->get_floor_offset() + 0.1f > distance;
+               field_C->physical_ifc()->get_floor_offset() + 0.1f > distance;
     }
     return false;
 }
@@ -411,8 +425,8 @@ bool web_zip_inode::find_zip_anchor_from_crawl()
     auto &hit = field_1C;
     auto check = [&] {
         hit.sub_48B410(100.0f);
-        return hit.check_collision(*local_collision::entfilter_entity_no_capsules,
-                                   *local_collision::obbfilter_lineseg_test, nullptr);
+        return hit.check_collision(
+            *local_collision::entfilter_entity_no_capsules, *local_collision::obbfilter_lineseg_test, nullptr);
     };
     auto crawlable = [&] {
         return !is_noncrawlable_surface(hit) || hit.hit_norm.y > 0.732421875f;
@@ -431,8 +445,8 @@ bool web_zip_inode::find_zip_anchor_from_crawl()
         hit.clear();
         hit.field_0 = start;
         hit.field_C = start - physics->get_y_facing() * 2.0f;
-        accepted = check() && (physics->get_abs_position() - hit.hit_pos).length2() > 4.0f &&
-            crawlable() && correct_zip_target_pos(&hit);
+        accepted = check() && (physics->get_abs_position() - hit.hit_pos).length2() > 4.0f && crawlable() &&
+                   correct_zip_target_pos(&hit);
     }
     if (!accepted && !first_collision) {
         hit.clear();
@@ -446,8 +460,8 @@ bool web_zip_inode::find_zip_anchor_from_crawl()
             hit.field_0 = hit.field_C + physics->get_z_facing() * length;
             bool standing_clearance = false;
             if (check() && !is_noncrawlable_surface(hit)) {
-                standing_clearance = hit.hit_norm.y > 0.732421875f &&
-                    std::abs(dot(physics->get_y_facing(), hit.hit_norm)) < 0.35f;
+                standing_clearance =
+                    hit.hit_norm.y > 0.732421875f && std::abs(dot(physics->get_y_facing(), hit.hit_norm)) < 0.35f;
 
                 line_info clearance;
                 clearance.field_C = hit.hit_pos + hit.hit_norm * 0.1f;
@@ -468,11 +482,12 @@ bool web_zip_inode::find_zip_anchor_from_crawl()
                     clearance.field_C = clearance.field_0 + YVEC * (get_actor()->get_render_scale().y * 1.9f);
                     clearance.sub_48B410(100.0f);
                     standing_clearance = !clearance.check_collision(*local_collision::entfilter_entity_no_capsules,
-                        *local_collision::obbfilter_lineseg_test, nullptr);
+                                                                    *local_collision::obbfilter_lineseg_test,
+                                                                    nullptr);
                 }
             }
-            accepted = hit.collision && (standing_clearance || !is_noncrawlable_surface(hit)) &&
-                correct_zip_target_pos(&hit);
+            accepted =
+                hit.collision && (standing_clearance || !is_noncrawlable_surface(hit)) && correct_zip_target_pos(&hit);
         }
     }
     if (accepted) {
@@ -481,8 +496,16 @@ bool web_zip_inode::find_zip_anchor_from_crawl()
             forward = -forward;
         const auto position = get_actor()->get_abs_position();
         vector3d point, normal;
-        find_intersection(position, position + forward * 6.0f, *local_collision::entfilter_entity_collision,
-            *local_collision::obbfilter_lineseg_test, &point, &normal, nullptr, nullptr, nullptr, false);
+        find_intersection(position,
+                          position + forward * 6.0f,
+                          *local_collision::entfilter_entity_collision,
+                          *local_collision::obbfilter_lineseg_test,
+                          &point,
+                          &normal,
+                          nullptr,
+                          nullptr,
+                          nullptr,
+                          false);
         return true;
     }
     hit.clear();
@@ -503,12 +526,12 @@ bool web_zip_inode::find_zip_anchor_and_transition_to_zip_jump(eZipReattachMode)
     auto &hit = field_1C;
     auto check = [&] {
         hit.sub_48B410(100.0f);
-        return hit.check_collision(*local_collision::entfilter_entity_no_capsules,
-                                   *local_collision::obbfilter_lineseg_test, nullptr);
+        return hit.check_collision(
+            *local_collision::entfilter_entity_no_capsules, *local_collision::obbfilter_lineseg_test, nullptr);
     };
     auto acceptable = [&] {
-        const bool surface = m_zip_type == 1 ? !is_noncrawlable_surface(hit) :
-            !g_world_ptr->is_point_under_water(hit.hit_pos);
+        const bool surface =
+            m_zip_type == 1 ? !is_noncrawlable_surface(hit) : !g_world_ptr->is_point_under_water(hit.hit_pos);
         return (surface || hit.hit_norm.y > 0.732421875f) && correct_zip_target_pos(&hit);
     };
     hit.field_0 = get_actor()->get_abs_position();
@@ -523,10 +546,18 @@ bool web_zip_inode::find_zip_anchor_and_transition_to_zip_jump(eZipReattachMode)
     for (int sample = 0; sample < 6; ++sample) {
         vector3d offset = ZEROVEC;
         switch (sample) {
-        case 0: offset = vertical; break;
-        case 1: offset = -vertical; break;
-        case 2: offset = right; break;
-        case 3: offset = -right; break;
+        case 0:
+            offset = vertical;
+            break;
+        case 1:
+            offset = -vertical;
+            break;
+        case 2:
+            offset = right;
+            break;
+        case 3:
+            offset = -right;
+            break;
         default:
             if (field_C->physical_ifc()->is_effectively_standing()) {
                 if (sample == 4) {
@@ -568,9 +599,16 @@ bool web_zip_inode::correct_zip_target_pos(line_info *hit)
         return true;
     const auto corrected = point + correction;
     vector3d intersection, normal;
-    if (!find_intersection(corrected, corrected - hit->hit_norm * 0.1f,
-            *local_collision::entfilter_entity_no_capsules, *local_collision::obbfilter_lineseg_test,
-            &intersection, &normal, nullptr, nullptr, nullptr, false))
+    if (!find_intersection(corrected,
+                           corrected - hit->hit_norm * 0.1f,
+                           *local_collision::entfilter_entity_no_capsules,
+                           *local_collision::obbfilter_lineseg_test,
+                           &intersection,
+                           &normal,
+                           nullptr,
+                           nullptr,
+                           nullptr,
+                           false))
         return false;
     hit->hit_pos += correction;
     if (auto *entity = hit->hit_entity.get_volatile_ptr())
@@ -586,8 +624,7 @@ void web_zip_inode::deactivate()
         g_world_ptr->ent_mgr.destroy_entity(swingback.field_8);
         swingback.field_8 = nullptr;
     }
-    if (field_C->is_a_conglomerate() &&
-        static_cast<conglomerate *>(field_C)->has_tentacle_ifc()) {
+    if (field_C->is_a_conglomerate() && static_cast<conglomerate *>(field_C)->has_tentacle_ifc()) {
         static_cast<conglomerate *>(field_C)->tentacle_ifc()->cancel_zip();
     }
     g_world_ptr->ent_mgr.destroy_entity(field_D8);
@@ -605,11 +642,10 @@ void web_zip_inode::process_zip(Float)
     if (!field_8->get_param_block()->get_pb_int(string_hash{"has_tentacle_zip"})) {
         if (field_7C == 0 && field_C->event_raised_last_frame(event::ANIM_ACTION)) {
             entity_set_abs_po(field_D8, field_C->get_abs_po());
-            const auto hero = static_cast<actor *>(g_world_ptr->get_hero_ptr(0))
-                ->get_player_controller()->m_hero_type;
+            const auto hero = static_cast<actor *>(g_world_ptr->get_hero_ptr(0))->get_player_controller()->m_hero_type;
             if (hero == SPIDEY || hero == PARKER)
-                swing_inode::do_web_splat(field_1C.hit_pos, field_1C.hit_norm,
-                                         *local_collision::entfilter_entity_no_capsules);
+                swing_inode::do_web_splat(
+                    field_1C.hit_pos, field_1C.hit_norm, *local_collision::entfilter_entity_no_capsules);
             field_7C = 1;
         }
         if (field_7C == 1) {

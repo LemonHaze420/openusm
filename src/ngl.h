@@ -81,18 +81,18 @@ extern void nglSetDebugFlag(const char *Flag, uint8_t Set);
 enum nglFrameLockType {};
 
 enum nglBlendModeType {
-    NGLBM_OPAQUE = 0,               // No translucency is performed, alpha is ignored.
-	NGLBM_PUNCHTHROUGH = 1,         // Similar to opaque, except if alpha is below a threshold the pixel is skipped.
+    NGLBM_OPAQUE = 0,        // No translucency is performed, alpha is ignored.
+    NGLBM_PUNCHTHROUGH = 1,  // Similar to opaque, except if alpha is below a threshold the pixel is skipped.
 
-	NGLBM_BLEND = 2,                // Blends the texel with the background, modulated by Alpha.
-	NGLBM_ADDITIVE = 3,             // Adds the texel to the background, modulated by Alpha.
-	NGLBM_SUBTRACTIVE = 4,          // Subtracts the texel from the background, modulated by Alpha.
+    NGLBM_BLEND = 2,        // Blends the texel with the background, modulated by Alpha.
+    NGLBM_ADDITIVE = 3,     // Adds the texel to the background, modulated by Alpha.
+    NGLBM_SUBTRACTIVE = 4,  // Subtracts the texel from the background, modulated by Alpha.
 
-	NGLBM_CONST_BLEND = 5,          // Blends the texel with the background, modulated by BlendModeConstant.
-	NGLBM_CONST_ADDITIVE = 6,       // Adds the texel to the background, modulated by BlendModeConstant.
-	NGLBM_CONST_SUBTRACTIVE = 7,    // Subtracts the texel from the background, modulated by BlendModeConstant.
+    NGLBM_CONST_BLEND = 5,        // Blends the texel with the background, modulated by BlendModeConstant.
+    NGLBM_CONST_ADDITIVE = 6,     // Adds the texel to the background, modulated by BlendModeConstant.
+    NGLBM_CONST_SUBTRACTIVE = 7,  // Subtracts the texel from the background, modulated by BlendModeConstant.
 
-    NGLBM_DESTALPHA_ADDITIVE = 8,   // Adds the texel to the background, modulated by Destination Alpha
+    NGLBM_DESTALPHA_ADDITIVE = 8,  // Adds the texel to the background, modulated by Destination Alpha
 
     NGLBM_MAX_BLEND_MODES
 };
@@ -259,7 +259,7 @@ struct nglStringNode {
 
     nglStringNode();
 
-    void * operator new(size_t size);
+    void *operator new(size_t size);
 
     void operator delete(void *, size_t) {}
 
@@ -275,10 +275,10 @@ enum ResourceType {
 
 struct nglVertexBuffer {
     struct vertex_buffer_t {
-            char *m_vertexData;
-            uint32_t Size;
-            IDirect3DVertexBuffer9 *m_vertexBuffer;
-        };
+        char *m_vertexData;
+        uint32_t Size;
+        IDirect3DVertexBuffer9 *m_vertexBuffer;
+    };
 
     union buffer_union {
         IDirect3DIndexBuffer9 *m_indexBuffer;
@@ -352,8 +352,8 @@ struct nglMeshSection {
 };
 
 extern HRESULT nglSetStreamSourceAndDrawPrimitive(D3DPRIMITIVETYPE a1, IDirect3DVertexBuffer9 *a2, uint32_t numVertices,
-                                               uint32_t baseVertexIndex, uint32_t stride, IDirect3DIndexBuffer9 *a6,
-                                               uint32_t numIndices, uint32_t startIndex);
+                                                  uint32_t baseVertexIndex, uint32_t stride, IDirect3DIndexBuffer9 *a6,
+                                                  uint32_t numIndices, uint32_t startIndex);
 
 //0x00771AF0
 extern HRESULT nglSetStreamSourceAndDrawPrimitive(nglMeshSection *MeshSection);
@@ -382,10 +382,10 @@ struct nglDirectoryEntry {
 };
 
 struct nglMeshFileHeader {
-	char Tag[4];                 // 'PCM '
-	uint32_t Version;
-	uint32_t NDirectoryEntries;
-	nglDirectoryEntry *DirectoryEntries;  // Shared vertex buffer for skinned meshes.
+    char Tag[4];  // 'PCM '
+    uint32_t Version;
+    uint32_t NDirectoryEntries;
+    nglDirectoryEntry *DirectoryEntries;  // Shared vertex buffer for skinned meshes.
     int field_10;
 };
 
@@ -520,7 +520,7 @@ struct nglMorphSet {
     int NFrames;
     struct {
         int field_0;
-    int field_4;
+        int field_4;
         struct {
             int field_0;
             int field_4;
@@ -554,9 +554,7 @@ extern vector4d sub_411750(const vector4d &a2, const vector4d &a3);
 bool nglLoadMeshFileInternal(const tlFixedString &name, nglMeshFile *MeshFile, const char *ext);
 
 #ifdef OPENUSM_XBPACK_MODE
-bool nglLoadMeshFileInternalXbox(const tlFixedString &name,
-                                 nglMeshFile *MeshFile,
-                                 const char *ext);
+bool nglLoadMeshFileInternalXbox(const tlFixedString &name, nglMeshFile *MeshFile, const char *ext);
 void ngl_xbpack_patch();
 #endif
 
@@ -630,7 +628,7 @@ struct mNglQuad {
 struct nglQuadNode : nglRenderNode {
     nglQuad field_C;
 
-    void * operator new(size_t size);
+    void *operator new(size_t size);
 
     void operator delete(void *, size_t) {}
 
@@ -649,7 +647,7 @@ struct nglMeshNode {
     nglMeshParams *Params;
     float field_94;
 
-    void * operator new(size_t size);
+    void *operator new(size_t size);
 
     void operator delete(void *, size_t) {}
 
@@ -697,11 +695,11 @@ extern nglTexture *&nglWhiteTex;
 
 extern Var<int> nglScratchMeshPos;
 
-inline Var<IDirect3DBaseTexture9 *> celshadingTex {0x0095635C};
+inline Var<IDirect3DBaseTexture9 *> celshadingTex{0x0095635C};
 
-inline Var<IDirect3DBaseTexture9 *> celshadingSolidTex {0x00956360};
+inline Var<IDirect3DBaseTexture9 *> celshadingSolidTex{0x00956360};
 
-inline Var<IDirect3DTexture9 *> water_texture {0x009562C0};
+inline Var<IDirect3DTexture9 *> water_texture{0x009562C0};
 
 struct nglScratchBuffer_t {
     nglVertexBuffer field_0[1];
@@ -735,7 +733,7 @@ struct nglScratchBuffer_t {
         this->m_numVertices = a2;
     }
 
-    int16_t * GetIndexBuffer()
+    int16_t *GetIndexBuffer()
     {
         return this->field_20;
     }
@@ -748,7 +746,7 @@ struct nglScratchBuffer_t {
 
 extern Var<nglScratchBuffer_t> nglScratchBuffer;
 
-inline Var<void * (*) (int, int, int)> nglMeshAllocFn {0x00973B1C};
+inline Var<void *(*)(int, int, int)> nglMeshAllocFn{0x00973B1C};
 
 //0x0076F090
 extern nglMesh *nglGetNextMeshInFile(nglMesh *a1);
@@ -828,7 +826,7 @@ extern Var<char[1024]> nglFontBuffer;
 
 extern Var<nglMesh *> nglScratch;
 
-inline Var<int> nglScratchSectionIdx {0x00973B18};
+inline Var<int> nglScratchSectionIdx{0x00973B18};
 
 //0x00775770
 extern nglMesh *nglCreateMeshClone(nglMesh *a1);
@@ -915,7 +913,7 @@ extern math::VecClass<3, 1> nglProjectPoint(math::VecClass<3, 1> a2);
 
 extern void nglProjectPoint(math::VecClass<3, 1> &a1, math::VecClass<3, 1> a2);
 
-extern nglParamSet<nglSceneParamSet_Pool> * nglGetSceneParams();
+extern nglParamSet<nglSceneParamSet_Pool> *nglGetSceneParams();
 
 extern void nglDumpMesh(nglMesh *Mesh, const math::MatClass<4, 3> &a2, nglMeshParams *MeshParams);
 
@@ -954,7 +952,7 @@ extern nglTexture &stru_975AC0;
 extern int (&dword_975BE8)[1024];
 extern int &dword_975BE0;
 
-inline Var<HANDLE> h_sceneDump {0x00976E20};
+inline Var<HANDLE> h_sceneDump{0x00976E20};
 
 //0x0077BC90
 extern nglTexture *nglCreateTexture(uint32_t Format, int Width, int Height, int a4, bool a5);
@@ -1054,15 +1052,15 @@ extern char (&nglTexturePath)[256];
 
 extern Var<uint8_t *> nglListWorkPos;
 
-inline Var<int> nglScratchMeshWorkSize {0x009752F0};
+inline Var<int> nglScratchMeshWorkSize{0x009752F0};
 
-inline Var<int> nglPhysListWorkSize {0x009752F4};
+inline Var<int> nglPhysListWorkSize{0x009752F4};
 
 extern LARGE_INTEGER query_perf_counter();
 
-inline Var<IDirect3DPixelShader9 *> dword_9757A0 {0x009757A0};
+inline Var<IDirect3DPixelShader9 *> dword_9757A0{0x009757A0};
 
-inline Var<IDirect3DPixelShader9 *> dword_975794 {0x00975794};
+inline Var<IDirect3DPixelShader9 *> dword_975794{0x00975794};
 
 struct nglRenderTextureState {
     static constexpr auto MAX_SIZE = 4u;
@@ -1073,7 +1071,7 @@ struct nglRenderTextureState {
 
     void clear()
     {
-        for ( auto i = 0u; i < MAX_SIZE; ++i ) {
+        for (auto i = 0u; i < MAX_SIZE; ++i) {
             this->field_0[i] = nullptr;
             this->field_10[i] = -1;
             this->field_20[0][i] = -1;
@@ -1100,13 +1098,13 @@ struct ComplexMatrixPair {
     void sub_7709F0(vector4d &a2, vector4d &a3, vector4d &a4) const;
 };
 
-inline Var<uint32_t[4][14]> SamplerStates {0x00971FF0};
+inline Var<uint32_t[4][14]> SamplerStates{0x00971FF0};
 
-inline Var<uint32_t[264]> TextureStageStates {0x00972240};
+inline Var<uint32_t[264]> TextureStageStates{0x00972240};
 
-inline Var<nglRenderTextureState> g_renderTextureState {0x0093BD50};
+inline Var<nglRenderTextureState> g_renderTextureState{0x0093BD50};
 
-inline Var<IDirect3DQuery9 *> g_occlusionQueryTest {0x00972660};
+inline Var<IDirect3DQuery9 *> g_occlusionQueryTest{0x00972660};
 
 inline D3DPRESENT_PARAMETERS &s_d3dpresent_params = var<D3DPRESENT_PARAMETERS>(0x009720D0);
 
@@ -1160,23 +1158,23 @@ extern nglTexture *nglGetBackBufferTex();
 
 extern void nglSetRenderTarget(nglTexture *a1);
 
-inline float stru_946840[2] {1.0f, 1.0f};
+inline float stru_946840[2]{1.0f, 1.0f};
 
 extern nglVertexDef_MultipassMesh<nglVertexDef_PCUV_Base> *sub_507920(nglMaterialBase *a1, int a2, int a3, int a4,
                                                                       const void *a5, int a6, bool a7);
 
 extern void Init_nglVertexDef_FrontEnd_builder();
 
-template<typename T>
+template <typename T>
 auto PTR_OFFSET(uint32_t Base, T &Ptr) -> void
 {
     if constexpr (std::is_pointer_v<T>) {
         if (Ptr != nullptr) {
-            Ptr = bit_cast<T>( (uint32_t)Ptr + (uint32_t)Base );
+            Ptr = bit_cast<T>((uint32_t)Ptr + (uint32_t)Base);
         }
     } else {
         if (Ptr != 0) {
-            Ptr = bit_cast<T>( (uint32_t)Ptr + (uint32_t)Base );
+            Ptr = bit_cast<T>((uint32_t)Ptr + (uint32_t)Base);
         }
     }
 }

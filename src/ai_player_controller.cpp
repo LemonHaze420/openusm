@@ -37,13 +37,12 @@ void __fastcall update_player_controls(ai_player_controller *self, void *, Float
 }
 
 
-
 bool __fastcall inactive_player_mode(const ai_player_controller *, void *)
 {
     return false;
 }
 
-template<int Mode>
+template <int Mode>
 bool __fastcall player_mode(const ai_player_controller *self, void *)
 {
     return self->m_spidey_loco_mode == Mode;
@@ -61,20 +60,31 @@ float __fastcall player_motion_force(ai_player_controller *self, void *)
 
 struct player_controller_callbacks {
     ai_player_controller *(__fastcall *destroy)(ai_player_controller *, void *, unsigned char);
-    void (__fastcall *update_controls)(ai_player_controller *, void *, Float, bool);
-    bool (__fastcall *mode[17])(const ai_player_controller *, void *);
-    float (__fastcall *motion_force)(ai_player_controller *, void *);
+    void(__fastcall *update_controls)(ai_player_controller *, void *, Float, bool);
+    bool(__fastcall *mode[17])(const ai_player_controller *, void *);
+    float(__fastcall *motion_force)(ai_player_controller *, void *);
 };
 
-const player_controller_callbacks player_callbacks{
-    destroy_player_controller, update_player_controls,
-    {inactive_player_mode, inactive_player_mode, inactive_player_mode,
-     inactive_player_mode, inactive_player_mode, player_mode<1>, player_mode<1>,
-     inactive_player_mode, inactive_player_mode, player_mode<1>,
-     inactive_player_mode, player_wall_mode, player_mode<5>, player_mode<2>,
-     inactive_player_mode, player_mode<3>, inactive_player_mode},
-    player_motion_force
-};
+const player_controller_callbacks player_callbacks{destroy_player_controller,
+                                                   update_player_controls,
+                                                   {inactive_player_mode,
+                                                    inactive_player_mode,
+                                                    inactive_player_mode,
+                                                    inactive_player_mode,
+                                                    inactive_player_mode,
+                                                    player_mode<1>,
+                                                    player_mode<1>,
+                                                    inactive_player_mode,
+                                                    inactive_player_mode,
+                                                    player_mode<1>,
+                                                    inactive_player_mode,
+                                                    player_wall_mode,
+                                                    player_mode<5>,
+                                                    player_mode<2>,
+                                                    inactive_player_mode,
+                                                    player_mode<3>,
+                                                    inactive_player_mode},
+                                                   player_motion_force};
 
 
 vector3d camera_movement_direction;
@@ -106,7 +116,7 @@ quaternion controller_normal_rotation(const vector3d &previous, const vector3d &
     axis *= std::sin(half_angle);
     return {std::cos(half_angle), axis.x, axis.y, axis.z};
 }
-}
+}  // namespace
 
 VALIDATE_SIZE(ai_player_controller, 0x424u);
 
@@ -181,7 +191,7 @@ hero_type_enum ai_player_controller::find_hero_type() const
 
         static constexpr const char *machine_names[] = {"SPIDEY", "VENOM", "PARKER"};
         for (std::size_t index = 0; index < std::size(machine_names); ++index) {
-            resource_key key {string_hash {machine_names[index]}, RESOURCE_KEY_TYPE_AI_STATE_GRAPH};
+            resource_key key{string_hash{machine_names[index]}, RESOURCE_KEY_TYPE_AI_STATE_GRAPH};
             if (core->find_machine(key) != nullptr) {
                 return static_cast<hero_type_enum>(index + 1);
             }
@@ -372,7 +382,7 @@ vector3d ai_player_controller::convert_left_stick_from_camera_space_to_world_spa
     } else if ((m_spidey_loco_mode == CRAWLING || m_spidey_loco_mode == 7) && hero->anim_ctrl != nullptr) {
         auto *animation = static_cast<generic_anim_controller *>(hero->anim_ctrl);
         po local_floor;
-        auto floor_pose = reinterpret_cast<void (__fastcall *)(generic_anim_controller *, void *, po *)>(
+        auto floor_pose = reinterpret_cast<void(__fastcall *)(generic_anim_controller *, void *, po *)>(
             get_vfunc(animation->m_vtbl, 0x90));
         floor_pose(animation, nullptr, &local_floor);
         po world_floor;
@@ -399,24 +409,23 @@ vector3d ai_player_controller::convert_left_stick_from_camera_space_to_world_spa
             camera_movement_direction = rotate_controller_direction(camera_movement_direction, rotation);
         }
     }
-    if (camera_movement_direction.length2() >= EPSILON
-        && field_3F8 * field_3F8 + field_3FC * field_3FC >= EPSILON
-        && horizontal * horizontal + vertical * vertical >= EPSILON) {
+    if (camera_movement_direction.length2() >= EPSILON && field_3F8 * field_3F8 + field_3FC * field_3FC >= EPSILON &&
+        horizontal * horizontal + vertical * vertical >= EPSILON) {
         const float old_length = std::sqrt(field_3F8 * field_3F8 + field_3FC * field_3FC);
         const float new_length = std::sqrt(horizontal * horizontal + vertical * vertical);
-        const float sine = std::clamp((field_3FC * horizontal - vertical * field_3F8)
-                                     / (old_length * new_length), -1.0f, 1.0f);
+        const float sine =
+            std::clamp((field_3FC * horizontal - vertical * field_3F8) / (old_length * new_length), -1.0f, 1.0f);
         if (std::abs(sine) >= 0.000001f) {
             const float half_angle = std::asin(sine) * 0.5f;
             const auto axis = normal * std::sin(half_angle);
-            camera_movement_direction = rotate_controller_direction(
-                camera_movement_direction, {std::cos(half_angle), axis.x, axis.y, axis.z});
+            camera_movement_direction =
+                rotate_controller_direction(camera_movement_direction, {std::cos(half_angle), axis.x, axis.y, axis.z});
         }
     }
     camera_movement_direction = project_controller_direction(camera_movement_direction, normal);
     camera_movement_direction.set_length(magnitude);
-    auto desired = project_controller_direction(right, normal) * horizontal
-                 + project_controller_direction(forward, normal) * vertical;
+    auto desired = project_controller_direction(right, normal) * horizontal +
+                   project_controller_direction(forward, normal) * vertical;
     auto difference = desired - camera_movement_direction;
     const float max_change = std::max(field_3DD ? 1.0f : 0.025f, 1.75f * field_40C);
     if (difference.length2() > max_change * max_change) {
@@ -518,8 +527,8 @@ void ai_player_controller::frame_advance(Float a2)
         assert(hero_camera != nullptr);
     }
 
-    auto update = reinterpret_cast<void (__fastcall *)(ai_player_controller *, void *, Float, bool)>(
-        get_vfunc(m_vtbl, 0x4));
+    auto update =
+        reinterpret_cast<void(__fastcall *)(ai_player_controller *, void *, Float, bool)>(get_vfunc(m_vtbl, 0x4));
     update(this, nullptr, a2, false);
 
     this->field_3E0 = this->convert_left_stick_from_camera_space_to_world_space(false);
@@ -532,8 +541,8 @@ float ai_player_controller::get_motion_force()
     if constexpr (STANDALONE_SYSTEM) {
         const float vertical = field_2BC[0].field_2D ? 0.0f : field_2BC[0].field_10;
         float horizontal = field_2BC[1].field_2D ? 0.0f : field_2BC[1].field_10;
-        auto reversed = reinterpret_cast<bool (__fastcall *)(const ai_player_controller *, void *)>(
-            get_vfunc(m_vtbl, 0x48));
+        auto reversed =
+            reinterpret_cast<bool(__fastcall *)(const ai_player_controller *, void *)>(get_vfunc(m_vtbl, 0x48));
         if (reversed(this, nullptr)) {
             horizontal = -horizontal;
         }

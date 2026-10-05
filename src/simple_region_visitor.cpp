@@ -10,7 +10,7 @@ int visit_region(subdivision_visitor &visitor, const subdivision_node &node)
     return static_cast<simple_region_visitor &>(visitor).visit(const_cast<subdivision_node *>(&node));
 }
 const subdivision_visitor::native_vtable simple_region_table{visit_region, nullptr};
-}
+}  // namespace
 
 VALIDATE_SIZE(simple_region_visitor, 0x28);
 

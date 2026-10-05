@@ -182,32 +182,83 @@ bool physical_interface::set_ifc_num(const resource_key &key, Float value, bool 
         field_C = nonzero ? field_C | flag : field_C & ~flag;
     };
     switch (key.m_hash.source_hash_code) {
-    case to_hash("MASS"): field_10 = value; break;
-    case to_hash("VOLUME"): field_14 = value; break;
-    case to_hash("SLIDE_FACTOR"): field_8C = value; break;
-    case to_hash("BOUNCE_FACTOR"): field_90 = value; break;
-    case to_hash("STICKY_OFFSET"): field_94 = value; break;
-    case to_hash("DRAG_COEFFICIENT"): field_15C = value; break;
-    case to_hash("DRAG_COEFFICIENT_MIN_SPEED"): field_160 = value; break;
-    case to_hash("DRAG_COEFFICIENT_HORZ_SCALE"): field_164 = value; break;
-    case to_hash("DRAG_COEFFICIENT_UP_SCALE"): field_168 = value; break;
-    case to_hash("DRAG_COEFFICIENT_DOWN_SCALE"): field_16C = value; break;
-    case to_hash("FRICTION_SCALE"): field_98 = value; break;
-    case to_hash("GAME_PHYSICS_TIME_DILATION"): field_1AC = value; break;
-    case to_hash("BOUNCY"): set_flag(0x10000000u); break;
-    case to_hash("STICKY"): set_flag(0x20000000u); break;
-    case to_hash("ENABLED"): enable(nonzero); break;
-    case to_hash("SUSPENDED"): suspend(nonzero); break;
-    case to_hash("GRAVITY"): set_gravity(nonzero); break;
-    case to_hash("GRAVITY_MULTIPLIER"): m_gravity_multiplier = value; break;
-    case to_hash("STICKY_ORIENT"): set_flag(0x40000000u); break;
-    case to_hash("USE_CHAR_VEL_PHYSICS"): set_flag(0x10000u); break;
-    case to_hash("USE_PENDULUM_ORIENTATION"): set_flag(0x20000u); break;
-    case to_hash("IMMOBILE"): set_flag(0x100u); break;
-    case to_hash("ALLOW_MANAGE_STANDING"): set_allow_manage_standing(nonzero); break;
-    case to_hash("FLOOR_OFFSET_SCALE"): field_C8 = value; break;
-    case to_hash("FLOOR_OFFSET_USE_RENDER_SCALE"): field_17D = static_cast<int>(value) != 0; break;
-    default: return false;
+    case to_hash("MASS"):
+        field_10 = value;
+        break;
+    case to_hash("VOLUME"):
+        field_14 = value;
+        break;
+    case to_hash("SLIDE_FACTOR"):
+        field_8C = value;
+        break;
+    case to_hash("BOUNCE_FACTOR"):
+        field_90 = value;
+        break;
+    case to_hash("STICKY_OFFSET"):
+        field_94 = value;
+        break;
+    case to_hash("DRAG_COEFFICIENT"):
+        field_15C = value;
+        break;
+    case to_hash("DRAG_COEFFICIENT_MIN_SPEED"):
+        field_160 = value;
+        break;
+    case to_hash("DRAG_COEFFICIENT_HORZ_SCALE"):
+        field_164 = value;
+        break;
+    case to_hash("DRAG_COEFFICIENT_UP_SCALE"):
+        field_168 = value;
+        break;
+    case to_hash("DRAG_COEFFICIENT_DOWN_SCALE"):
+        field_16C = value;
+        break;
+    case to_hash("FRICTION_SCALE"):
+        field_98 = value;
+        break;
+    case to_hash("GAME_PHYSICS_TIME_DILATION"):
+        field_1AC = value;
+        break;
+    case to_hash("BOUNCY"):
+        set_flag(0x10000000u);
+        break;
+    case to_hash("STICKY"):
+        set_flag(0x20000000u);
+        break;
+    case to_hash("ENABLED"):
+        enable(nonzero);
+        break;
+    case to_hash("SUSPENDED"):
+        suspend(nonzero);
+        break;
+    case to_hash("GRAVITY"):
+        set_gravity(nonzero);
+        break;
+    case to_hash("GRAVITY_MULTIPLIER"):
+        m_gravity_multiplier = value;
+        break;
+    case to_hash("STICKY_ORIENT"):
+        set_flag(0x40000000u);
+        break;
+    case to_hash("USE_CHAR_VEL_PHYSICS"):
+        set_flag(0x10000u);
+        break;
+    case to_hash("USE_PENDULUM_ORIENTATION"):
+        set_flag(0x20000u);
+        break;
+    case to_hash("IMMOBILE"):
+        set_flag(0x100u);
+        break;
+    case to_hash("ALLOW_MANAGE_STANDING"):
+        set_allow_manage_standing(nonzero);
+        break;
+    case to_hash("FLOOR_OFFSET_SCALE"):
+        field_C8 = value;
+        break;
+    case to_hash("FLOOR_OFFSET_USE_RENDER_SCALE"):
+        field_17D = static_cast<int>(value) != 0;
+        break;
+    default:
+        return false;
     }
     return true;
 }
@@ -219,33 +270,86 @@ bool physical_interface::get_ifc_num(const resource_key &key, float &value, bool
     if (key.get_type() != RESOURCE_KEY_TYPE_IFC_ATTRIBUTE)
         return false;
     switch (key.m_hash.source_hash_code) {
-    case to_hash("MASS"): value = field_10; break;
-    case to_hash("VOLUME"): value = field_14; break;
-    case to_hash("SLIDE_FACTOR"): value = field_8C; break;
-    case to_hash("BOUNCE_FACTOR"): value = field_90; break;
-    case to_hash("STICKY_OFFSET"): value = field_94; break;
-    case to_hash("DRAG_COEFFICIENT"): value = field_15C; break;
-    case to_hash("DRAG_COEFFICIENT_MIN_SPEED"): value = field_160; break;
-    case to_hash("DRAG_COEFFICIENT_HORZ_SCALE"): value = field_164; break;
-    case to_hash("DRAG_COEFFICIENT_UP_SCALE"): value = field_168; break;
-    case to_hash("DRAG_COEFFICIENT_DOWN_SCALE"): value = field_16C; break;
-    case to_hash("FRICTION_SCALE"): value = field_98; break;
-    case to_hash("GAME_PHYSICS_TIME_DILATION"): value = field_1AC; break;
-    case to_hash("BOUNCY"): value = (field_C & 0x10000000u) != 0; break;
-    case to_hash("STICKY"): value = (field_C & 0x20000000u) != 0; break;
-    case to_hash("ENABLED"): value = (field_C & 1u) != 0; break;
-    case to_hash("SUSPENDED"): value = (field_C & 2u) != 0; break;
-    case to_hash("GRAVITY"): value = (field_C & 4u) != 0; break;
-    case to_hash("GRAVITY_MULTIPLIER"): value = m_gravity_multiplier; break;
-    case to_hash("HAS_BOUNCED"): value = (field_C & 0x80u) != 0; break;
-    case to_hash("IS_STUCK"): value = (field_C & 0x80000000u) != 0; break;
-    case to_hash("STICKY_ORIENT"): value = (field_C & 0x40000000u) != 0; break;
-    case to_hash("USE_CHAR_VEL_PHYSICS"): value = (field_C & 0x10000u) != 0; break;
-    case to_hash("USE_PENDULUM_ORIENTATION"): value = (field_C & 0x20000u) != 0; break;
-    case to_hash("ALLOW_MANAGE_STANDING"): value = (field_C & 0x1000u) != 0; break;
-    case to_hash("FLOOR_OFFSET_SCALE"): value = field_C8; break;
-    case to_hash("FLOOR_OFFSET_USE_RENDER_SCALE"): value = field_17D != 0; break;
-    default: return false;
+    case to_hash("MASS"):
+        value = field_10;
+        break;
+    case to_hash("VOLUME"):
+        value = field_14;
+        break;
+    case to_hash("SLIDE_FACTOR"):
+        value = field_8C;
+        break;
+    case to_hash("BOUNCE_FACTOR"):
+        value = field_90;
+        break;
+    case to_hash("STICKY_OFFSET"):
+        value = field_94;
+        break;
+    case to_hash("DRAG_COEFFICIENT"):
+        value = field_15C;
+        break;
+    case to_hash("DRAG_COEFFICIENT_MIN_SPEED"):
+        value = field_160;
+        break;
+    case to_hash("DRAG_COEFFICIENT_HORZ_SCALE"):
+        value = field_164;
+        break;
+    case to_hash("DRAG_COEFFICIENT_UP_SCALE"):
+        value = field_168;
+        break;
+    case to_hash("DRAG_COEFFICIENT_DOWN_SCALE"):
+        value = field_16C;
+        break;
+    case to_hash("FRICTION_SCALE"):
+        value = field_98;
+        break;
+    case to_hash("GAME_PHYSICS_TIME_DILATION"):
+        value = field_1AC;
+        break;
+    case to_hash("BOUNCY"):
+        value = (field_C & 0x10000000u) != 0;
+        break;
+    case to_hash("STICKY"):
+        value = (field_C & 0x20000000u) != 0;
+        break;
+    case to_hash("ENABLED"):
+        value = (field_C & 1u) != 0;
+        break;
+    case to_hash("SUSPENDED"):
+        value = (field_C & 2u) != 0;
+        break;
+    case to_hash("GRAVITY"):
+        value = (field_C & 4u) != 0;
+        break;
+    case to_hash("GRAVITY_MULTIPLIER"):
+        value = m_gravity_multiplier;
+        break;
+    case to_hash("HAS_BOUNCED"):
+        value = (field_C & 0x80u) != 0;
+        break;
+    case to_hash("IS_STUCK"):
+        value = (field_C & 0x80000000u) != 0;
+        break;
+    case to_hash("STICKY_ORIENT"):
+        value = (field_C & 0x40000000u) != 0;
+        break;
+    case to_hash("USE_CHAR_VEL_PHYSICS"):
+        value = (field_C & 0x10000u) != 0;
+        break;
+    case to_hash("USE_PENDULUM_ORIENTATION"):
+        value = (field_C & 0x20000u) != 0;
+        break;
+    case to_hash("ALLOW_MANAGE_STANDING"):
+        value = (field_C & 0x1000u) != 0;
+        break;
+    case to_hash("FLOOR_OFFSET_SCALE"):
+        value = field_C8;
+        break;
+    case to_hash("FLOOR_OFFSET_USE_RENDER_SCALE"):
+        value = field_17D != 0;
+        break;
+    default:
+        return false;
     }
     return true;
 }
@@ -257,12 +361,23 @@ bool physical_interface::get_ifc_vec(const resource_key &key, vector3d &value, b
     if (key.get_type() != RESOURCE_KEY_TYPE_IFC_ATTRIBUTE)
         return false;
     switch (key.m_hash.source_hash_code) {
-    case to_hash("VELOCITY"): value = get_velocity(); break;
-    case to_hash("ANGULAR_VELOCITY"): value = field_2C; break;
-    case to_hash("BOUNCE_POS"): value = field_A8; break;
-    case to_hash("BOUNCE_NORM"): value = field_B4; break;
-    case to_hash("GRAVITY_VECTOR"): value = field_74; break;
-    default: return false;
+    case to_hash("VELOCITY"):
+        value = get_velocity();
+        break;
+    case to_hash("ANGULAR_VELOCITY"):
+        value = field_2C;
+        break;
+    case to_hash("BOUNCE_POS"):
+        value = field_A8;
+        break;
+    case to_hash("BOUNCE_NORM"):
+        value = field_B4;
+        break;
+    case to_hash("GRAVITY_VECTOR"):
+        value = field_74;
+        break;
+    default:
+        return false;
     }
     return true;
 }
@@ -274,10 +389,17 @@ bool physical_interface::set_ifc_vec(const resource_key &key, const vector3d &va
     if (key.get_type() != RESOURCE_KEY_TYPE_IFC_ATTRIBUTE)
         return false;
     switch (key.m_hash.source_hash_code) {
-    case to_hash("VELOCITY"): set_velocity(value, false); break;
-    case to_hash("ANGULAR_VELOCITY"): field_2C = value; break;
-    case to_hash("GRAVITY_VECTOR"): field_74 = value; break;
-    default: return false;
+    case to_hash("VELOCITY"):
+        set_velocity(value, false);
+        break;
+    case to_hash("ANGULAR_VELOCITY"):
+        field_2C = value;
+        break;
+    case to_hash("GRAVITY_VECTOR"):
+        field_74 = value;
+        break;
+    default:
+        return false;
     }
     return true;
 }
@@ -367,8 +489,7 @@ void physical_interface::un_mash(generic_mash_header *a2, void *a3, void *a4, ge
             new (&value) mString{};
             a5->rebase_shared(4u);
             const auto size = *a5->get_from_shared<uint32_t>();
-            value = reinterpret_cast<const char *>(
-                a5->get_from_shared<uint8_t>(size));
+            value = reinterpret_cast<const char *>(a5->get_from_shared<uint8_t>(size));
         };
         read_string(this->field_188);
         read_string(this->field_198);
@@ -408,18 +529,18 @@ void physical_interface::frame_advance_rotators(Float elapsed)
         const float cos = cosine(angle);
         const float complement = 1.0f - cos;
         po rotation;
-        rotation.m[0] = vector4d{
-            axis.x * axis.x * complement + cos,
-            axis.x * axis.y * complement + axis.z * sine,
-            axis.x * axis.z * complement - axis.y * sine, 0.0f};
-        rotation.m[1] = vector4d{
-            axis.x * axis.y * complement - axis.z * sine,
-            axis.y * axis.y * complement + cos,
-            axis.y * axis.z * complement + axis.x * sine, 0.0f};
-        rotation.m[2] = vector4d{
-            axis.x * axis.z * complement + axis.y * sine,
-            axis.y * axis.z * complement - axis.x * sine,
-            axis.z * axis.z * complement + cos, 0.0f};
+        rotation.m[0] = vector4d{axis.x * axis.x * complement + cos,
+                                 axis.x * axis.y * complement + axis.z * sine,
+                                 axis.x * axis.z * complement - axis.y * sine,
+                                 0.0f};
+        rotation.m[1] = vector4d{axis.x * axis.y * complement - axis.z * sine,
+                                 axis.y * axis.y * complement + cos,
+                                 axis.y * axis.z * complement + axis.x * sine,
+                                 0.0f};
+        rotation.m[2] = vector4d{axis.x * axis.z * complement + axis.y * sine,
+                                 axis.y * axis.z * complement - axis.x * sine,
+                                 axis.z * axis.z * complement + cos,
+                                 0.0f};
         auto &relative = owner->get_rel_po();
         const auto position = relative.get_position();
         relative.set_from_ptr_to_po_world(ptr_to_po{&rotation.m, &relative.m});
@@ -444,19 +565,17 @@ void physical_interface::frame_advance_all_phys_interfaces(Float elapsed)
     stack_allocator saved;
     scratchpad_stack::save_state(&saved);
     const auto capacity = all_phys_interfaces->size();
-    auto **interfaces = static_cast<physical_interface **>(
-        scratchpad_stack::alloc(capacity * sizeof(physical_interface *)));
+    auto **interfaces =
+        static_cast<physical_interface **>(scratchpad_stack::alloc(capacity * sizeof(physical_interface *)));
     auto *steps = static_cast<float *>(scratchpad_stack::alloc(capacity * sizeof(float)));
     int count = 0;
     for (auto *physical : *all_phys_interfaces) {
         auto *owner = physical->field_4;
-        if ((owner->is_in_limbo() || owner->get_primary_region() == nullptr) &&
-            (owner->field_4 & 8u) == 0)
+        if ((owner->is_in_limbo() || owner->get_primary_region() == nullptr) && (owner->field_4 & 8u) == 0)
             continue;
         interfaces[count] = physical;
-        const float scale = owner->field_58 != nullptr
-            ? static_cast<float>(owner->field_58->sub_4ADE50())
-            : g_world_ptr->time_manager.field_0;
+        const float scale = owner->field_58 != nullptr ? static_cast<float>(owner->field_58->sub_4ADE50())
+                                                       : g_world_ptr->time_manager.field_0;
         steps[count++] = scale * elapsed.value;
     }
     for (int index = 0; index < count; ++index) {
@@ -477,8 +596,7 @@ void physical_interface::frame_advance_all_phys_interfaces(Float elapsed)
     }
     for (int index = 0; index < count; ++index) {
         auto *physical = interfaces[index];
-        if ((physical->field_C & 1u) == 0 || (physical->field_C & 2u) != 0 ||
-            physical->field_174 != nullptr)
+        if ((physical->field_C & 1u) == 0 || (physical->field_C & 2u) != 0 || physical->field_174 != nullptr)
             continue;
         const Float step{steps[index]};
         physical->frame_advance(step);
@@ -518,8 +636,8 @@ void physical_interface::frame_advance(Float elapsed)
         return;
     }
     if (field_E8 != nullptr && (field_C & 0x80000000u) == 0) {
-        auto advance = reinterpret_cast<void(__fastcall *)(rocket_guidance_sys *, void *, Float)>(
-            get_vfunc(field_E8->m_vtbl, 8));
+        auto advance =
+            reinterpret_cast<void(__fastcall *)(rocket_guidance_sys *, void *, Float)>(get_vfunc(field_E8->m_vtbl, 8));
         advance(field_E8, nullptr, elapsed);
     }
     field_C &= ~0x80u;
@@ -556,15 +674,14 @@ void physical_interface::frame_advance_pendulum_orientation(Float)
         if (anchor->is_conglom_member() && anchor->m_parent != nullptr)
             anchor = anchor->get_conglom_owner();
         po transform;
-        transform.set_po(anchor->get_abs_po().get_z_facing(), YVEC,
-            field_4->get_abs_position());
+        transform.set_po(anchor->get_abs_po().get_z_facing(), YVEC, field_4->get_abs_position());
         entity_set_abs_po(field_4, transform);
         return;
     }
 }
 
-bool physical_interface::integrate(Float elapsed, const po &start,
-    const vector3d &velocity, po &result, vector3d &result_velocity)
+bool physical_interface::integrate(Float elapsed, const po &start, const vector3d &velocity, po &result,
+                                   vector3d &result_velocity)
 {
     const float step = elapsed.value * field_1AC;
     result = start;
@@ -582,22 +699,21 @@ bool physical_interface::integrate(Float elapsed, const po &start,
     if ((field_C & 0x30000000u) != 0) {
         const po predicted = result;
         const auto predicted_velocity = result_velocity;
-        process_projectile_collision(Float{step}, start, velocity, predicted,
-            predicted_velocity, result, result_velocity);
+        process_projectile_collision(
+            Float{step}, start, velocity, predicted, predicted_velocity, result, result_velocity);
     }
     return true;
 }
 
-void physical_interface::process_projectile_collision(Float,
-    const po &start, const vector3d &velocity, const po &predicted,
-    const vector3d &predicted_velocity, po &result, vector3d &result_velocity)
+void physical_interface::process_projectile_collision(Float, const po &start, const vector3d &velocity,
+                                                      const po &predicted, const vector3d &predicted_velocity,
+                                                      po &result, vector3d &result_velocity)
 {
     result = predicted;
     result_velocity = predicted_velocity;
     if ((field_C & 0x80000000u) != 0) {
         auto *parent = field_4->m_parent;
-        if (parent != nullptr && parent->is_an_entity() &&
-            !parent->is_alive() && field_17C) {
+        if (parent != nullptr && parent->is_an_entity() && !parent->is_alive() && field_17C) {
             field_4->set_parent(nullptr);
             result_velocity = ZEROVEC;
             set_gravity(true);
@@ -615,16 +731,20 @@ void physical_interface::process_projectile_collision(Float,
     const bool collisions = field_4->are_collisions_active();
     field_4->set_collisions_active(false, false);
     float radius = field_4->get_visual_radius();
-    if (radius < EPSILON && field_4->m_child != nullptr &&
-        field_4->m_child->is_an_actor())
+    if (radius < EPSILON && field_4->m_child != nullptr && field_4->m_child->is_an_actor())
         radius = field_4->m_child->get_visual_radius();
     const float extension = std::max(0.1f, radius * 0.75f);
     const bool recorded_contact = field_4->colgeom != nullptr && (field_C & 0x60u) != 0;
-    if (recorded_contact ||
-        find_intersection(start.get_position() - direction * 0.1f,
-            predicted.get_position() + direction * extension,
-            *local_collision::entfilter_blocks_beams, *local_collision::obbfilter_lineseg_test,
-            &point, &normal, nullptr, &hit, nullptr, false)) {
+    if (recorded_contact || find_intersection(start.get_position() - direction * 0.1f,
+                                              predicted.get_position() + direction * extension,
+                                              *local_collision::entfilter_blocks_beams,
+                                              *local_collision::obbfilter_lineseg_test,
+                                              &point,
+                                              &normal,
+                                              nullptr,
+                                              &hit,
+                                              nullptr,
+                                              false)) {
         if (recorded_contact) {
             normal = field_5C;
             point = field_68;
@@ -647,23 +767,18 @@ void physical_interface::apply_air_resistance(Float elapsed, vector3d &velocity)
         direction *= 1.0f / std::sqrt(squared_speed);
     const float speed = velocity.length();
     const float excess = speed - field_160;
-    const auto drag_velocity = excess < 0.01f || speed <= EPSILON
-        ? ZEROVEC : velocity * (excess / speed);
-    const float horizontal = std::sqrt(drag_velocity.x * drag_velocity.x +
-        drag_velocity.z * drag_velocity.z);
+    const auto drag_velocity = excess < 0.01f || speed <= EPSILON ? ZEROVEC : velocity * (excess / speed);
+    const float horizontal = std::sqrt(drag_velocity.x * drag_velocity.x + drag_velocity.z * drag_velocity.z);
     float coefficient = 0.0f;
     if (speed > 0.001f) {
         const float vertical_coefficient = drag_velocity.y > 0.0f ? field_168 : field_16C;
-        coefficient = vertical_coefficient * (1.0f - horizontal / speed) +
-            horizontal / speed * field_164;
+        coefficient = vertical_coefficient * (1.0f - horizontal / speed) + horizontal / speed * field_164;
     }
-    const auto candidate = velocity + direction *
-        (drag_velocity.length2() * field_15C * coefficient * elapsed.value);
+    const auto candidate = velocity + direction * (drag_velocity.length2() * field_15C * coefficient * elapsed.value);
     velocity = dot(candidate, velocity) >= 0.0f ? candidate : ZEROVEC;
 }
 
-void physical_interface::backpropagate(Float elapsed, const po &result,
-    const vector3d &velocity)
+void physical_interface::backpropagate(Float elapsed, const po &result, const vector3d &velocity)
 {
     const float step = elapsed.value * field_1AC;
     const auto angular_velocity = field_2C;
@@ -680,8 +795,7 @@ void physical_interface::backpropagate(Float elapsed, const po &result,
         transform.set_from_ptr_to_po_world(ptr_to_po{&rotation.m, &result.m});
         transform.set_position(result.get_position());
         if (field_4->m_parent != nullptr)
-            transform.set_from_ptr_to_po_world(ptr_to_po{
-                &field_4->get_rel_po().m, &field_4->m_parent->get_abs_po().m});
+            transform.set_from_ptr_to_po_world(ptr_to_po{&field_4->get_rel_po().m, &field_4->m_parent->get_abs_po().m});
         transform.sub_48D840();
         entity_set_abs_po(field_4, transform);
         moved_entities::add_moved(vhandle_type<entity>{field_4->get_my_vhandle()});
@@ -696,14 +810,12 @@ void physical_interface::backpropagate(Float elapsed, const po &result,
     field_44 = field_38 = ZEROVEC;
     if ((field_C & 0x100000u) != 0) {
         field_18 = std::max(field_18, m_velocity.length());
-        field_1C = std::max(field_1C,
-            std::sqrt(m_velocity.x * m_velocity.x + m_velocity.z * m_velocity.z));
+        field_1C = std::max(field_1C, std::sqrt(m_velocity.x * m_velocity.x + m_velocity.z * m_velocity.z));
     }
 }
 
-void physical_interface::bounce_internal(const vector3d &point,
-    const vector3d &normal, entity *hit, const po &start,
-    const vector3d &velocity, po &result, vector3d &result_velocity)
+void physical_interface::bounce_internal(const vector3d &point, const vector3d &normal, entity *hit, const po &start,
+                                         const vector3d &velocity, po &result, vector3d &result_velocity)
 {
     result_velocity = velocity;
     field_A8 = point;
@@ -735,10 +847,9 @@ void physical_interface::bounce_internal(const vector3d &point,
         } else {
             const auto incoming = -velocity * (1.0f / speed);
             result.set_position(point + incoming * offset);
-            const auto reflected =
-                normal * (2.0f * dot(incoming, normal) / normal.length2()) - incoming;
-            result_velocity = vector3d{reflected.x * speed * field_8C,
-                reflected.y * speed * field_90, reflected.z * speed * field_8C};
+            const auto reflected = normal * (2.0f * dot(incoming, normal) / normal.length2()) - incoming;
+            result_velocity = vector3d{
+                reflected.x * speed * field_8C, reflected.y * speed * field_90, reflected.z * speed * field_8C};
         }
     }
     field_C |= 0x80u;
@@ -746,13 +857,11 @@ void physical_interface::bounce_internal(const vector3d &point,
         type->raise_event(field_4->get_my_vhandle(), nullptr);
 }
 
-void physical_interface::bounce(Float elapsed, const vector3d &point,
-    const vector3d &normal, entity *hit)
+void physical_interface::bounce(Float elapsed, const vector3d &point, const vector3d &normal, entity *hit)
 {
     po result;
     vector3d velocity;
-    bounce_internal(point, normal, hit, field_4->get_abs_po(),
-        get_velocity(), result, velocity);
+    bounce_internal(point, normal, hit, field_4->get_abs_po(), get_velocity(), result, velocity);
     backpropagate(Float{elapsed.value * field_1AC}, result, velocity);
 }
 
@@ -817,7 +926,6 @@ bool physical_interface::is_effectively_standing()
 void physical_interface::set_velocity(const vector3d &new_velocity, bool a3)
 {
     if constexpr (1) {
-
         if (this->field_C & 0x80000) {
             biped_system *bp_sys = this->m_bp_sys;
 
@@ -932,13 +1040,12 @@ void physical_interface::start_biped_physics(physical_interface::biped_physics_b
             member->field_8 |= 0x20000000u;
         for (auto *bone : owner->skin_bones)
             bone->field_8 |= 0x20000000u;
-        field_80 = event_manager::add_callback(event::COLLISION_EVENT,
-            owner->get_my_vhandle(), prop_system::collision_callback, nullptr, false);
+        field_80 = event_manager::add_callback(
+            event::COLLISION_EVENT, owner->get_my_vhandle(), prop_system::collision_callback, nullptr, false);
         event_manager::raise_event(event::PROP_PHYSICS_START, owner->get_my_vhandle());
         if (owner->has_sound_and_pfx_ifc()) {
             static const string_hash start_sound{"biped_physics_start"};
-            owner->my_sound_and_pfx_interface->play_sound_grp(
-                start_sound, 1.0f, 1.0f, 1.0f, -1.0f, -1.0f);
+            owner->my_sound_and_pfx_interface->play_sound_grp(start_sound, 1.0f, 1.0f, 1.0f, -1.0f, -1.0f);
         }
     }
     inside = previous;
@@ -1165,10 +1272,8 @@ vector3d physical_interface::apply_positional_constraints(Float, const vector3d 
         const auto offset = result - pivot;
         const float length = offset.length();
         if (length > constraint->m_constraint) {
-            const float lenience = std::clamp(
-                g_world_ptr->time_manager.field_8 * constraint->field_20, 0.0f, 1.0f);
-            const float radius = constraint->m_constraint +
-                (length - constraint->m_constraint) * lenience;
+            const float lenience = std::clamp(g_world_ptr->time_manager.field_8 * constraint->field_20, 0.0f, 1.0f);
+            const float radius = constraint->m_constraint + (length - constraint->m_constraint) * lenience;
             result = pivot + offset * (radius / length);
         }
     }
@@ -1240,8 +1345,8 @@ void physical_interface::apply_force_increment(const vector3d &force, physical_i
                 if (parent->has_physical_ifc())
                     velocity = parent->physical_ifc()->get_velocity();
                 else if (parent->is_an_actor() && static_cast<actor *>(parent)->is_frame_delta_valid())
-                    velocity = (parent->get_abs_position() - parent->get_last_position()) /
-                        g_world_ptr->time_manager.field_8;
+                    velocity =
+                        (parent->get_abs_position() - parent->get_last_position()) / g_world_ptr->time_manager.field_8;
                 field_38 += velocity;
                 set_control_parent(nullptr);
             }
@@ -1255,17 +1360,15 @@ void physical_interface::apply_force_increment(const vector3d &force, physical_i
     field_170 = 0;
 }
 
-string_hash physical_interface::calc_obb_face_terrain_type(const vector3d &position,
-                                                         subdivision_node_obb_base *obb)
+string_hash physical_interface::calc_obb_face_terrain_type(const vector3d &position, subdivision_node_obb_base *obb)
 {
     vector4d half, row_x, row_y, row_z;
     const bool rotated = obb->unpack_xform(half, row_x, row_y, row_z);
     const vector3d delta = position - obb->center;
-    const vector3d local = rotated
-        ? vector3d{delta.x * row_x[0] + delta.y * row_y[0] + delta.z * row_z[0],
-                   delta.x * row_x[1] + delta.y * row_y[1] + delta.z * row_z[1],
-                   delta.x * row_x[2] + delta.y * row_y[2] + delta.z * row_z[2]}
-        : delta;
+    const vector3d local = rotated ? vector3d{delta.x * row_x[0] + delta.y * row_y[0] + delta.z * row_z[0],
+                                              delta.x * row_x[1] + delta.y * row_y[1] + delta.z * row_z[1],
+                                              delta.x * row_x[2] + delta.y * row_y[2] + delta.z * row_z[2]}
+                                   : delta;
     const float x = local.x / half[0], y = local.y / half[1], z = local.z / half[2];
     const float ax = std::fabs(x), ay = std::fabs(y), az = std::fabs(z);
     unsigned face;
@@ -1304,17 +1407,14 @@ void physical_interface::manage_standing_internal(bool force, float)
 
 
     const bool must_update =
-        (field_C & 0x80000) || field_174 != nullptr || force || (field_C & 0x200) ||
-        field_4->is_hero() || field_4->get_ai_core() == nullptr ||
-        !field_4->get_occluded_last_frame() ||
+        (field_C & 0x80000) || field_174 != nullptr || force || (field_C & 0x200) || field_4->is_hero() ||
+        field_4->get_ai_core() == nullptr || !field_4->get_occluded_last_frame() ||
         ((field_4->field_4 & 0x200) &&
-         (!field_184 || field_84.get_volatile_ptr() != nullptr ||
-          m_velocity.length2() >= EPSILON ||
-          (field_4->is_frame_delta_valid() &&
-           field_4->get_frame_delta()->get_position().length2() >= EPSILON)));
+         (!field_184 || field_84.get_volatile_ptr() != nullptr || m_velocity.length2() >= EPSILON ||
+          (field_4->is_frame_delta_valid() && field_4->get_frame_delta()->get_position().length2() >= EPSILON)));
     if (!must_update || !(field_4->field_4 & 4))
         return;
-    using category_callback = bool (__fastcall *)(actor *, void *);
+    using category_callback = bool(__fastcall *)(actor *, void *);
     if (reinterpret_cast<category_callback>(get_vfunc(field_4->m_vtbl, 0xC8))(field_4, nullptr) ||
         reinterpret_cast<category_callback>(get_vfunc(field_4->m_vtbl, 0xF0))(field_4, nullptr))
         return;
@@ -1330,24 +1430,23 @@ void physical_interface::manage_standing_internal(bool force, float)
             field_F8 = ground_elevation;
         field_F4 = ground_elevation;
     };
-    const auto query_elevation = [this, &remember_elevation](
-                                     vector3d &position, entity *&ground,
-                                     subdivision_node_obb_base *&obb) {
-        remember_elevation();
-        ground = nullptr;
-        obb = nullptr;
-        ground_elevation = g_world_ptr->the_terrain->get_elevation(
-            position, field_100, field_4, &ground, &obb, field_F0);
-        if (std::equal_to<float>{}(ground_elevation, -10000.0f) ||
-            (ground_elevation <= position.y + 10.0f && ground_elevation >= -10010.0f)) {
-            if (obb != nullptr)
-                field_88 = calc_obb_face_terrain_type(field_4->get_abs_position(), obb);
-        } else {
-            ground_elevation = field_184 ? position.y - get_floor_offset() : -10000.0f;
+    const auto query_elevation =
+        [this, &remember_elevation](vector3d &position, entity *&ground, subdivision_node_obb_base *&obb) {
+            remember_elevation();
             ground = nullptr;
             obb = nullptr;
-        }
-    };
+            ground_elevation =
+                g_world_ptr->the_terrain->get_elevation(position, field_100, field_4, &ground, &obb, field_F0);
+            if (std::equal_to<float>{}(ground_elevation, -10000.0f) ||
+                (ground_elevation <= position.y + 10.0f && ground_elevation >= -10010.0f)) {
+                if (obb != nullptr)
+                    field_88 = calc_obb_face_terrain_type(field_4->get_abs_position(), obb);
+            } else {
+                ground_elevation = field_184 ? position.y - get_floor_offset() : -10000.0f;
+                ground = nullptr;
+                obb = nullptr;
+            }
+        };
     const auto set_ground_pose = [this](po &transform) {
         if (field_4->m_parent != nullptr)
             transform = sub_48F770(transform, *field_4->m_parent->get_abs_po().inverse());
@@ -1391,15 +1490,14 @@ void physical_interface::manage_standing_internal(bool force, float)
         entity *ground = nullptr;
         subdivision_node_obb_base *obb = nullptr;
         vector3d from = position + field_100 * 1.5f;
-        vector3d contact = g_world_ptr->the_terrain->get_elevation_adv(
-            from, field_100, field_4, &ground, &obb, field_F0);
+        vector3d contact =
+            g_world_ptr->the_terrain->get_elevation_adv(from, field_100, field_4, &ground, &obb, field_F0);
         if (contact.is_valid()) {
             if (obb != nullptr)
                 field_88 = calc_obb_face_terrain_type(field_4->get_abs_position(), obb);
         } else {
             field_100 = field_4->get_abs_po().get_y_facing();
-            contact = field_184 ? position - field_100 * get_floor_offset()
-                                : vector3d{-10000.0f, -10000.0f, -10000.0f};
+            contact = field_184 ? position - field_100 * get_floor_offset() : vector3d{-10000.0f, -10000.0f, -10000.0f};
             ground = nullptr;
             obb = nullptr;
         }
@@ -1463,8 +1561,8 @@ void physical_interface::manage_standing_internal(bool force, float)
         entity *ground = nullptr;
         subdivision_node_obb_base *obb = nullptr;
         position = field_4->get_abs_position();
-        ground_elevation = g_world_ptr->the_terrain->get_elevation(
-            position, field_100, field_4, &ground, &obb, field_F0);
+        ground_elevation =
+            g_world_ptr->the_terrain->get_elevation(position, field_100, field_4, &ground, &obb, field_F0);
     }
     set_standing(false);
     if (field_4->get_ai_core() != nullptr)
@@ -1519,8 +1617,8 @@ void physical_interface::stop_prop_physics(bool a2)
         THISCALL(0x004F10F0, this, a2);
 }
 
-bool physical_interface::start_prop_physics(const vector3d &velocity,
-    float randomness, float lifetime, prop_phys_priority priority)
+bool physical_interface::start_prop_physics(const vector3d &velocity, float randomness, float lifetime,
+                                            prop_phys_priority priority)
 {
     if constexpr (STANDALONE_SYSTEM)
         return prop_system::start(field_4, velocity, randomness, lifetime, priority);
@@ -1548,8 +1646,8 @@ physical_interface::~physical_interface()
     if (!g_generating_vtables) {
         if (field_E8 != nullptr) {
             if (LOBYTE(field_E8->field_1C)) {
-                auto destroy = reinterpret_cast<void(__fastcall *)(void *, void *, bool)>(
-                    get_vfunc(field_E8->m_vtbl, 0));
+                auto destroy =
+                    reinterpret_cast<void(__fastcall *)(void *, void *, bool)>(get_vfunc(field_E8->m_vtbl, 0));
                 destroy(field_E8, nullptr, true);
             }
             field_E8 = nullptr;

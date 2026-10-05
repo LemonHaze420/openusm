@@ -27,16 +27,43 @@ void *__fastcall track_delete(track_field_inode *self, void *, unsigned flags)
         mash_virtual_base::operator delete(self, sizeof(track_field_inode));
     return self;
 }
-unsigned __fastcall track_type(track_field_inode *, void *) { return 420; }
-bool __fastcall track_subclass(track_field_inode *, void *, unsigned type) { return type == 537 || type == 573; }
-bool __fastcall track_needs_advance(track_field_inode *, void *) { return true; }
-void __fastcall track_advance(track_field_inode *self, void *, Float delta) { self->_frame_advance(delta); }
-void __fastcall track_activate(track_field_inode *self, void *, ai_core *core) { self->_activate(core); }
-int __fastcall track_size(track_field_inode *, void *) { return sizeof(track_field_inode); }
-int __fastcall track_button(track_field_inode *self, void *) { return self->get_curr_button_press(); }
-void __fastcall track_ui_init(track_field_inode *self, void *) { self->ui_init(); }
-void __fastcall track_ui_update(track_field_inode *self, void *) { self->ui_update(); }
+unsigned __fastcall track_type(track_field_inode *, void *)
+{
+    return 420;
 }
+bool __fastcall track_subclass(track_field_inode *, void *, unsigned type)
+{
+    return type == 537 || type == 573;
+}
+bool __fastcall track_needs_advance(track_field_inode *, void *)
+{
+    return true;
+}
+void __fastcall track_advance(track_field_inode *self, void *, Float delta)
+{
+    self->_frame_advance(delta);
+}
+void __fastcall track_activate(track_field_inode *self, void *, ai_core *core)
+{
+    self->_activate(core);
+}
+int __fastcall track_size(track_field_inode *, void *)
+{
+    return sizeof(track_field_inode);
+}
+int __fastcall track_button(track_field_inode *self, void *)
+{
+    return self->get_curr_button_press();
+}
+void __fastcall track_ui_init(track_field_inode *self, void *)
+{
+    self->ui_init();
+}
+void __fastcall track_ui_update(track_field_inode *self, void *)
+{
+    self->ui_update();
+}
+}  // namespace
 
 void *track_field_inode::native_vtable()
 {
@@ -109,8 +136,9 @@ void track_field_inode::ui_init()
         float center = 0.03846154f;
         for (int i = 0; i < 13; ++i) {
             const float distance = std::fabs(center - widget->field_5C);
-            const auto color = distance < widget->field_60 ? widget->field_68 :
-                (distance < widget->field_64 ? widget->field_6C : widget->field_70);
+            const auto color = distance < widget->field_60
+                                   ? widget->field_68
+                                   : (distance < widget->field_64 ? widget->field_6C : widget->field_70);
             widget->field_8[i]->SetColor(color);
             center += 0.07692307978868484f;
         }
@@ -133,8 +161,7 @@ ai::track_field_inode::track_field_inode()
     field_1C = false;
 }
 
-track_field_inode::track_field_inode(from_mash_in_place_constructor *a2)
-    : info_node(a2)
+track_field_inode::track_field_inode(from_mash_in_place_constructor *a2) : info_node(a2)
 {
 #if STANDALONE_SYSTEM
     m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[420]);
@@ -150,9 +177,6 @@ void track_field_inode::_activate(ai_core *core)
     field_28 = field_2C = field_30 = 0;
 }
 
-void track_field_inode::_deactivate()
-{
-
-}
+void track_field_inode::_deactivate() {}
 
 }  // namespace ai

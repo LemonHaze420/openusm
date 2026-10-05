@@ -37,7 +37,7 @@ mesh_file_resource_handler::mesh_file_resource_handler(worldly_pack_slot *a2)
 
         this->m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {
-    this->m_vtbl = 0x00888A38;
+        this->m_vtbl = 0x00888A38;
     }
 
     this->my_slot = a2;
@@ -53,7 +53,7 @@ void mesh_file_resource_handler::finalize(bool a2)
 }
 
 bool mesh_file_resource_handler::_handle_resource(worldly_resource_handler::eBehavior behavior,
-                                                 tlresource_location *loc)
+                                                  tlresource_location *loc)
 {
     TRACE("mesh_file_resource_handler::handle_resource", loc->get_name().to_string());
     sp_log("0x%08X", loc->get_data());
@@ -143,7 +143,7 @@ bool mesh_file_resource_handler::_handle_resource(worldly_resource_handler::eBeh
         ++this->field_C;
         return false;
     } else {
-        bool result = (bool) THISCALL(0x0056BD00, this, behavior, loc);
+        bool result = (bool)THISCALL(0x0056BD00, this, behavior, loc);
 
         return result;
     }
@@ -156,7 +156,7 @@ bool mesh_file_resource_handler::handle(worldly_resource_handler::eBehavior a2, 
     if constexpr (1) {
         return base_tl_resource_handler::handle(a2, a3);
     } else {
-        return (bool) THISCALL(0x00562EC0, this, a2, a3);
+        return (bool)THISCALL(0x00562EC0, this, a2, a3);
     }
 }
 

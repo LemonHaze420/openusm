@@ -54,7 +54,7 @@ ai_path::ai_path()
         auto *v2 = dword_958168();
         auto v3 = dword_958168()[1];
         auto a3 = reinterpret_cast<int>(this);
-        int **(__fastcall *buy_node)(void *, void *, int, int, void *) = CAST(buy_node, 0x006B78D0);
+        int **(__fastcall * buy_node)(void *, void *, int, int, void *) = CAST(buy_node, 0x006B78D0);
         auto node = buy_node(&dword_958164(), nullptr, reinterpret_cast<int>(dword_958168()), v3, &a3);
         dword_958164()._Incsize(1u);
         v2[1] = reinterpret_cast<int>(node);
@@ -82,8 +82,7 @@ void ai_path::frame_advance_all_ai_paths(Float)
             unloaded_region = last_region != nullptr && !last_region->is_loaded();
         }
         if (unloaded_region) {
-            set_status(path, eAIPathStatus{1},
-                       "One or more of the necessary regions on our path is not loaded.");
+            set_status(path, eAIPathStatus{1}, "One or more of the necessary regions on our path is not loaded.");
         }
     }
 }
@@ -99,7 +98,7 @@ ai_path::~ai_path()
                 ++it;
         }
     } else {
-        void(__fastcall *remove)(void *, void *, void *) = CAST(remove, 0x005058F0);
+        void(__fastcall * remove)(void *, void *, void *) = CAST(remove, 0x005058F0);
         auto *self = this;
         remove(&dword_958164(), nullptr, &self);
     }
@@ -313,8 +312,8 @@ vector3d ai_path::get_next_point()
     return result;
 }
 
-bool ai_path::find_closest_point_on_path_to_point(const vector3d &position, Float radius,
-    vector3d *projected, ai_quad_path **path, ai_quad_path_cell **cell)
+bool ai_path::find_closest_point_on_path_to_point(const vector3d &position, Float radius, vector3d *projected,
+                                                  ai_quad_path **path, ai_quad_path_cell **cell)
 {
     if (path)
         *path = nullptr;

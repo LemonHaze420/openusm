@@ -7,7 +7,6 @@ struct traffic;
 namespace ai {
 
 struct traffic_inode : info_node {
-
     struct CarCombatInfo {
         int section;
         int hit_points;
@@ -58,8 +57,8 @@ struct traffic_inode : info_node {
     void _reset();
     bool car_combat_enabled() const;
     void determine_vehicle_type_for_anims();
-    void init(int section, int hit_points, float fire_interval, int burst_size,
-        float attack_interval, float damage, float sense_lead_time, float counter_duration);
+    void init(int section, int hit_points, float fire_interval, int burst_size, float attack_interval, float damage,
+              float sense_lead_time, float counter_duration);
 
     static inline string_hash default_id{int(to_hash("TRAFFIC"))};
 };

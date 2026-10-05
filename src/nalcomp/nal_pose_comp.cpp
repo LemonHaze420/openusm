@@ -233,7 +233,7 @@ void *nalComp::nalCompSkeleton::_GetPerSkelDataFromComponent(ComponentId id) con
 
 void *nalComp::nalCompSkeleton::GetPerSkelDataFromComponent(ComponentId id) const
 {
-    void *(__fastcall *func)(const void *, void *, ComponentId) = CAST(func, get_vfunc(m_vtbl, 0x38));
+    void *(__fastcall * func)(const void *, void *, ComponentId) = CAST(func, get_vfunc(m_vtbl, 0x38));
     return func(this, nullptr, id);
 }
 

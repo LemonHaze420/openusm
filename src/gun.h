@@ -36,8 +36,7 @@ struct gun_beam {
     gun_beam_cache *cache;
 
     void un_mash(generic_mash_header *, gun *, generic_mash_data_ptrs *);
-    blaster_beam *spawn(bool, const vector3d &, const vector3d &, gun *,
-                        _std::list<blaster_beam *> *, void *);
+    blaster_beam *spawn(bool, const vector3d &, const vector3d &, gun *, _std::list<blaster_beam *> *, void *);
 };
 
 struct gun : handheld_item {

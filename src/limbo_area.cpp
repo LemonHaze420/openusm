@@ -5,8 +5,7 @@
 
 #include "utility.h"
 
-bool limbo_area::sphere_intersects_unsafe_area(
-    const vector3d &center, Float radius)
+bool limbo_area::sphere_intersects_unsafe_area(const vector3d &center, Float radius)
 {
     static auto &bounds = var<vector4d *>(0x00921E44);
     static auto &block_count = var<int>(0x0095C2F4);
@@ -20,8 +19,7 @@ bool limbo_area::sphere_intersects_unsafe_area(
     for (int block = 0; block < block_count; ++block) {
         const auto *soa = bounds + block * 4;
         for (int lane = 0; lane < 4; ++lane) {
-            if (soa[0][lane] >= min_x && soa[1][lane] >= min_z &&
-                soa[2][lane] <= max_x && soa[3][lane] <= max_z) {
+            if (soa[0][lane] >= min_x && soa[1][lane] >= min_z && soa[2][lane] <= max_x && soa[3][lane] <= max_z) {
                 return true;
             }
         }

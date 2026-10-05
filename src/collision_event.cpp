@@ -5,11 +5,23 @@
 #include <array>
 
 namespace {
-int __fastcall collision_type(event *, void *) { return 538; }
-int __fastcall collision_size(event *, void *) { return sizeof(collision_event); }
-bool __fastcall collision_subclass(event *, void *, int type) { return type == 539 || type == 573; }
-bool __fastcall collision_is_or_subclass(event *, void *, int type) { return type == 538 || type == 539 || type == 573; }
+int __fastcall collision_type(event *, void *)
+{
+    return 538;
 }
+int __fastcall collision_size(event *, void *)
+{
+    return sizeof(collision_event);
+}
+bool __fastcall collision_subclass(event *, void *, int type)
+{
+    return type == 539 || type == 573;
+}
+bool __fastcall collision_is_or_subclass(event *, void *, int type)
+{
+    return type == 538 || type == 539 || type == 573;
+}
+}  // namespace
 VALIDATE_SIZE(collision_event, 0x2C);
 
 collision_event::collision_event(entity_base_vhandle arg0, const subdivision_node *a3, const vector3d &a4,

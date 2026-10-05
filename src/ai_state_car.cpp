@@ -27,14 +27,17 @@ int &ai_car_inode::searches_in_progress = var<int>(0x00958060);
 int &ai_car_inode::cars_selected = var<int>(0x00958064);
 
 namespace {
-unsigned __fastcall drive_type(drive_car_state *, void *) { return 259; }
+unsigned __fastcall drive_type(drive_car_state *, void *)
+{
+    return 259;
+}
 bool __fastcall drive_subclass(drive_car_state *, void *, mash::virtual_types_enum type)
 {
     return type == 330 || type == 536 || type == 535 || type == 567 || type == 573;
 }
-void __fastcall drive_activate(drive_car_state *self, void *, ai_state_machine *machine,
-    const mashed_state *state, const mashed_state *previous, const param_block *params,
-    base_state::activate_flag_e flags)
+void __fastcall drive_activate(drive_car_state *self, void *, ai_state_machine *machine, const mashed_state *state,
+                               const mashed_state *previous, const param_block *params,
+                               base_state::activate_flag_e flags)
 {
     self->activate(machine, state, previous, params, flags);
 }
@@ -64,11 +67,16 @@ int __fastcall drive_direction(drive_car_state *self, void *, traffic_path_road 
 bool &seat_occupied(traffic_inode *node, int seat)
 {
     switch (seat) {
-    case 0: return node->field_C4;
-    case 1: return node->field_C5;
-    case 2: return node->field_C6;
-    case 3: return node->field_C7;
-    default: return node->field_C8;
+    case 0:
+        return node->field_C4;
+    case 1:
+        return node->field_C5;
+    case 2:
+        return node->field_C6;
+    case 3:
+        return node->field_C7;
+    default:
+        return node->field_C8;
     }
 }
 
@@ -95,7 +103,10 @@ void clear_get_out(ai_car_inode *self)
     self->my_param_block.set_pb_int(string_hash{int(to_hash("get_out_now"))}, 0, true);
 }
 
-void __fastcall car_destruct(ai_car_inode *self, void *) { self->_destruct_mashed_class(); }
+void __fastcall car_destruct(ai_car_inode *self, void *)
+{
+    self->_destruct_mashed_class();
+}
 void *__fastcall car_delete(ai_car_inode *self, void *, unsigned char flags)
 {
     self->~ai_car_inode();
@@ -103,11 +114,23 @@ void *__fastcall car_delete(ai_car_inode *self, void *, unsigned char flags)
         mash_virtual_base::operator delete(self, sizeof(*self));
     return self;
 }
-unsigned __fastcall car_type(ai_car_inode *, void *) { return 258; }
-bool __fastcall car_needs_advance(ai_car_inode *, void *) { return true; }
-void __fastcall car_advance(ai_car_inode *self, void *, Float time) { self->_frame_advance(time); }
-int __fastcall car_size(ai_car_inode *, void *) { return sizeof(ai_car_inode); }
+unsigned __fastcall car_type(ai_car_inode *, void *)
+{
+    return 258;
 }
+bool __fastcall car_needs_advance(ai_car_inode *, void *)
+{
+    return true;
+}
+void __fastcall car_advance(ai_car_inode *self, void *, Float time)
+{
+    self->_frame_advance(time);
+}
+int __fastcall car_size(ai_car_inode *, void *)
+{
+    return sizeof(ai_car_inode);
+}
+}  // namespace
 
 void *ai_car_inode::native_vtable()
 {
@@ -139,8 +162,7 @@ ai_car_inode::ai_car_inode()
     field_38 = 1.0f;
 }
 
-ai_car_inode::ai_car_inode(from_mash_in_place_constructor *constructor)
-    : info_node(constructor)
+ai_car_inode::ai_car_inode(from_mash_in_place_constructor *constructor) : info_node(constructor)
 {
     m_vtbl = reinterpret_cast<std::intptr_t>(native_vtable());
     field_20 = field_24 = field_28 = vhandle_type<entity>{};
@@ -185,18 +207,20 @@ bool ai_car_inode::can_use_car(const traffic *car, int seat, int *selected_seat,
     if ((vehicle->field_4 & 0x204) != 0x204)
         return false;
     const bool full = node->field_C4 && node->field_C6 &&
-        (node->animation_vehicle_type != 1 || (node->field_C7 && node->field_C8)) &&
-        (node->animation_vehicle_type != 2 || (node->field_C5 && node->field_C7 && node->field_C8));
+                      (node->animation_vehicle_type != 1 || (node->field_C7 && node->field_C8)) &&
+                      (node->animation_vehicle_type != 2 || (node->field_C5 && node->field_C7 && node->field_C8));
     if (full)
         return false;
-    static const std::array<string_hash, 5> door_nodes{
-        string_hash{int(to_hash("ai_door_df_node"))}, string_hash{int(to_hash("ai_trunk_node"))},
-        string_hash{int(to_hash("ai_door_pf_node"))}, string_hash{int(to_hash("ai_door_pr_node"))},
-        string_hash{int(to_hash("ai_door_dr_node"))}};
-    static const std::array<string_hash, 5> seat_nodes{
-        string_hash{int(to_hash("driver_node"))}, string_hash{int(to_hash("trunk"))},
-        string_hash{int(to_hash("pass_pf_node"))}, string_hash{int(to_hash("pass_pr_node"))},
-        string_hash{int(to_hash("pass_dr_node"))}};
+    static const std::array<string_hash, 5> door_nodes{string_hash{int(to_hash("ai_door_df_node"))},
+                                                       string_hash{int(to_hash("ai_trunk_node"))},
+                                                       string_hash{int(to_hash("ai_door_pf_node"))},
+                                                       string_hash{int(to_hash("ai_door_pr_node"))},
+                                                       string_hash{int(to_hash("ai_door_dr_node"))}};
+    static const std::array<string_hash, 5> seat_nodes{string_hash{int(to_hash("driver_node"))},
+                                                       string_hash{int(to_hash("trunk"))},
+                                                       string_hash{int(to_hash("pass_pf_node"))},
+                                                       string_hash{int(to_hash("pass_pr_node"))},
+                                                       string_hash{int(to_hash("pass_dr_node"))}};
     auto available = [&](int index) {
         return !seat_occupied(node, index) && vehicle->get_member(door_nodes[index], true) != nullptr &&
                vehicle->get_member(seat_nodes[index], true) != nullptr;
@@ -288,8 +312,11 @@ void ai_car_inode::_frame_advance(Float)
         const auto position = field_C->get_abs_position();
         const float distance = (car->field_C.field_50.get_volatile_ptr()->get_abs_position() - position).length2();
         auto *previous = traffic::get_traffic_from_entity(field_24);
-        const float previous_distance = can_use_car(previous, 5, nullptr, false)
-            ? static_cast<float>((previous->field_C.field_50.get_volatile_ptr()->get_abs_position() - position).length2()) : FLT_MAX;
+        const float previous_distance =
+            can_use_car(previous, 5, nullptr, false)
+                ? static_cast<float>(
+                      (previous->field_C.field_50.get_volatile_ptr()->get_abs_position() - position).length2())
+                : FLT_MAX;
         if (distance < previous_distance) {
             if (previous != nullptr)
                 --previous->ai_potential_car_counter;
@@ -324,8 +351,6 @@ void ai_car_inode::_frame_advance(Float)
 
 void *drive_car_state::native_vtable()
 {
-
-
     static auto table = [] {
         std::array<void *, 19> result;
         std::copy_n(static_cast<void **>(launch_layer_state::native_vtable()), 18, result.data());
@@ -352,8 +377,8 @@ drive_car_state::drive_car_state(from_mash_in_place_constructor *constructor) : 
     m_vtbl = STANDALONE_SYSTEM ? bit_cast<std::intptr_t>(native_vtable()) : 0x00879DD8;
 }
 
-void drive_car_state::activate(ai_state_machine *machine, const mashed_state *state,
-    const mashed_state *previous, const param_block *params, activate_flag_e flags)
+void drive_car_state::activate(ai_state_machine *machine, const mashed_state *state, const mashed_state *previous,
+                               const param_block *params, activate_flag_e flags)
 {
     launch_layer_state::activate(machine, state, previous, params, flags);
     field_40 = 0;
@@ -361,16 +386,16 @@ void drive_car_state::activate(ai_state_machine *machine, const mashed_state *st
     auto *node = static_cast<ai_car_inode *>(get_core()->get_info_node(ai_car_inode::default_id, true));
 
 
-
     const string_hash assigned_car{int(to_hash("assigned_car"))};
     auto *assignment = node->my_param_block.param_array != nullptr
-        ? node->my_param_block.param_array->common_find_data(assigned_car) : nullptr;
+                           ? node->my_param_block.param_array->common_find_data(assigned_car)
+                           : nullptr;
     const vhandle_type<entity> assigned{assignment != nullptr ? assignment->m_union.i : 0};
     if (auto *car = assigned.get_volatile_ptr()) {
         if (!node->field_30 || (node->field_28.get_volatile_ptr() != nullptr &&
-            node->field_28.get_volatile_ptr()->my_handle.field_0 != assigned.field_0.field_0)) {
-            const int seat = node->my_param_block.get_optional_pb_int(
-                string_hash{int(to_hash("assigned_seat"))}, 5, nullptr);
+                                node->field_28.get_volatile_ptr()->my_handle.field_0 != assigned.field_0.field_0)) {
+            const int seat =
+                node->my_param_block.get_optional_pb_int(string_hash{int(to_hash("assigned_seat"))}, 5, nullptr);
             if (seat == 5) {
                 auto *traffic_car = traffic::get_traffic_from_entity(assigned);
                 for (int candidate = 0; candidate < 5; ++candidate) {
@@ -426,7 +451,6 @@ void drive_car_state::get_info_node_list(info_node_desc_list &nodes)
 
 int drive_car_state::get_next_direction(traffic_path_road **roads) const
 {
-
     float weights[3]{roads[0] ? 1.0f : 0.0f, roads[1] ? 1.0f : 0.0f, roads[2] ? 1.0f : 0.0f};
     const float total = weights[0] + weights[1] + weights[2];
     if (total <= 0.0f)
@@ -500,9 +524,8 @@ bool ai_car_inode::car_is_dead() const
     if (field_1E)
         return false;
     auto *car = traffic::get_traffic_from_entity(field_28);
-    return car == nullptr ||
-        ((car->field_15C == 12 || car->field_15C == 13) && car->field_C.field_C8 < 0.0001f &&
-         car->get_damage_done() - car->get_hit_points() <= 0);
+    return car == nullptr || ((car->field_15C == 12 || car->field_15C == 13) && car->field_C.field_C8 < 0.0001f &&
+                              car->get_damage_done() - car->get_hit_points() <= 0);
 }
 
 void ai_car_inode::clear_car()

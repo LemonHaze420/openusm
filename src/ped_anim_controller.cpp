@@ -14,8 +14,8 @@
 namespace {
 using player = usm_anim_player<nalAnimClass<nalAnyPose>, 3>;
 
-void __fastcall compose_ped(player::nalPlayMethod *, void *, player::nalAnimState *state,
-                            nalAnyPose &pose, nalAnyPose &, const nalAnyPose &default_pose)
+void __fastcall compose_ped(player::nalPlayMethod *, void *, player::nalAnimState *state, nalAnyPose &pose,
+                            nalAnyPose &, const nalAnyPose &default_pose)
 {
     state->field_0->VirtualGetPose(state->field_18, state->field_1C, *pose.field_0, *default_pose.field_0);
 }
@@ -62,19 +62,37 @@ void *__fastcall destroy_ped(ped_anim_controller *self, void *, unsigned int fla
     return self;
 }
 
-void __fastcall play_ped_layer(ped_anim_controller *self, void *, nalAnimClass<nalAnyPose> *anim,
-                               Float priority, Float blend, uint32_t domains, bool ordered, bool flag, void *parameter)
+void __fastcall play_ped_layer(ped_anim_controller *self, void *, nalAnimClass<nalAnyPose> *anim, Float priority,
+                               Float blend, uint32_t domains, bool ordered, bool flag, void *parameter)
 {
-    self->my_player.PlayModifier(anim, static_cast<player::usm_anim_player_modifier_type>(1),
-        blend, domains, ordered, priority, 0.0f, &self->field_5C, 0.0f, nullptr, 1.0f, flag, parameter);
+    self->my_player.PlayModifier(anim,
+                                 static_cast<player::usm_anim_player_modifier_type>(1),
+                                 blend,
+                                 domains,
+                                 ordered,
+                                 priority,
+                                 0.0f,
+                                 &self->field_5C,
+                                 0.0f,
+                                 nullptr,
+                                 1.0f,
+                                 flag,
+                                 parameter);
 }
 
-void __fastcall play_ped_base(ped_anim_controller *self, void *, nalAnimClass<nalAnyPose> *anim,
-                              void *token, Float blend, player::usm_anim_player_modifier_type type,
-                              bool flag, void *parameter)
+void __fastcall play_ped_base(ped_anim_controller *self, void *, nalAnimClass<nalAnyPose> *anim, void *token,
+                              Float blend, player::usm_anim_player_modifier_type type, bool flag, void *parameter)
 {
-    self->my_player.PlayModifier(anim, type, blend, reinterpret_cast<player::nalPlayMethod *>(&self->field_54),
-                                0.0f, 0, 1.0f, token, flag, parameter);
+    self->my_player.PlayModifier(anim,
+                                 type,
+                                 blend,
+                                 reinterpret_cast<player::nalPlayMethod *>(&self->field_54),
+                                 0.0f,
+                                 0,
+                                 1.0f,
+                                 token,
+                                 flag,
+                                 parameter);
 }
 
 double __fastcall ped_floor(ped_anim_controller *self, void *)
@@ -83,10 +101,8 @@ double __fastcall ped_floor(ped_anim_controller *self, void *)
 }
 
 
-void __fastcall ped_scene_pose(ped_anim_controller *, void *, uint32_t &, nalAnimClass<nalAnyPose> *, nalAnyPose &)
-{
-}
-}
+void __fastcall ped_scene_pose(ped_anim_controller *, void *, uint32_t &, nalAnimClass<nalAnyPose> *, nalAnyPose &) {}
+}  // namespace
 
 void *ped_anim_controller::native_vtable()
 {

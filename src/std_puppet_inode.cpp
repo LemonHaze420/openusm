@@ -19,16 +19,31 @@ void *__fastcall delete_puppet(std_puppet_inode *self, void *, unsigned flags)
         mash_virtual_base::operator delete(self, sizeof(std_puppet_inode));
     return self;
 }
-unsigned __fastcall puppet_type(std_puppet_inode *, void *) { return 315; }
+unsigned __fastcall puppet_type(std_puppet_inode *, void *)
+{
+    return 315;
+}
 bool __fastcall puppet_subclass(std_puppet_inode *, void *, unsigned type)
 {
     return type == 537 || type == 573;
 }
-bool __fastcall puppet_needs_advance(std_puppet_inode *, void *) { return true; }
-void __fastcall advance_puppet(std_puppet_inode *self, void *, Float dt) { self->frame_advance(dt); }
-void __fastcall activate_puppet(std_puppet_inode *self, void *, ai_core *core) { self->activate(core); }
-int __fastcall puppet_size(std_puppet_inode *, void *) { return sizeof(std_puppet_inode); }
+bool __fastcall puppet_needs_advance(std_puppet_inode *, void *)
+{
+    return true;
 }
+void __fastcall advance_puppet(std_puppet_inode *self, void *, Float dt)
+{
+    self->frame_advance(dt);
+}
+void __fastcall activate_puppet(std_puppet_inode *self, void *, ai_core *core)
+{
+    self->activate(core);
+}
+int __fastcall puppet_size(std_puppet_inode *, void *)
+{
+    return sizeof(std_puppet_inode);
+}
+}  // namespace
 
 void *std_puppet_inode::native_vtable()
 {
@@ -86,7 +101,6 @@ void std_puppet_inode::frame_advance(Float)
         set_current_state(machine->get_curr_state()->get_name());
         field_1C = false;
     } else {
-
         if (!field_1C) {
             set_current_state(string_hash{0});
         }
@@ -94,4 +108,4 @@ void std_puppet_inode::frame_advance(Float)
     }
 }
 
-}
+}  // namespace ai

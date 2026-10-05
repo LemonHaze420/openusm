@@ -16,10 +16,9 @@
 VALIDATE_SIZE(vehicle_sounds, 0x50);
 
 vehicle_sounds::vehicle_sounds()
-    : field_4(true), field_5(true), field_6(true), field_8(0.6f), field_C(0.0f),
-      field_10(0), field_14(0), field_18(0.0f), field_1C(0), field_20(0), field_24(0),
-      field_28(0.0f), field_2C(0), field_30(false), field_31(false), field_34(0.0f),
-      field_38(0), field_3C(0), field_40(0), field_44(0), field_48(0), field_4C(0)
+    : field_4(true), field_5(true), field_6(true), field_8(0.6f), field_C(0.0f), field_10(0), field_14(0),
+      field_18(0.0f), field_1C(0), field_20(0), field_24(0), field_28(0.0f), field_2C(0), field_30(false),
+      field_31(false), field_34(0.0f), field_38(0), field_3C(0), field_40(0), field_44(0), field_48(0), field_4C(0)
 {
 #if STANDALONE_SYSTEM
 
@@ -32,8 +31,6 @@ vehicle_sounds::vehicle_sounds()
     }();
     (void)initialized;
 #endif
-
-
 }
 
 void vehicle_sounds::stop_horn()
@@ -80,11 +77,10 @@ void manage_vehicle_loop(vehicle_sounds *self, sound_instance_id &id, string_has
             id.field_0 = 0;
         }
     } else if (enabled && volume >= LARGE_EPSILON) {
-
         id = play_vehicle_sound(self, group, 0.0f);
     }
 }
-}
+}  // namespace
 
 void vehicle_sounds::manage_engine_sounds(Float, bool audible)
 {
@@ -157,7 +153,8 @@ void vehicle_sounds::handle_horn_sounds(Float time, bool)
                     return;
                 static const string_hash horn_group{int(to_hash("horn"))};
 
-                field_2C = owner->my_sound_and_pfx_interface->play_sound_grp(horn_group, 1.0f, 1.0f, 1.0f, -1.0f, -1.0f);
+                field_2C =
+                    owner->my_sound_and_pfx_interface->play_sound_grp(horn_group, 1.0f, 1.0f, 1.0f, -1.0f, -1.0f);
                 if (static_cast<unsigned>(rand() * (3.0 / 32768.0)) != 0) {
                     field_28 = field_20;
                 } else {

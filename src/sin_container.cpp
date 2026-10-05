@@ -50,11 +50,10 @@ void sin_container::setup_world()
 
             if (district.field_0[1] >= 0 && reg->mash_info != nullptr) {
                 auto packed = static_cast<uint32_t>(district.field_0[1]);
-                reg->mash_info->field_20 = color{
-                    static_cast<float>(packed & 0xFF) / 255.0f,
-                    static_cast<float>((packed >> 8) & 0xFF) / 255.0f,
-                    static_cast<float>((packed >> 16) & 0xFF) / 255.0f,
-                    1.0f};
+                reg->mash_info->field_20 = color{static_cast<float>(packed & 0xFF) / 255.0f,
+                                                 static_cast<float>((packed >> 8) & 0xFF) / 255.0f,
+                                                 static_cast<float>((packed >> 16) & 0xFF) / 255.0f,
+                                                 1.0f};
             }
 
             auto ground_level = bit_cast<float>(district.field_0[4]);

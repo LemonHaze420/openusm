@@ -37,8 +37,7 @@ Var<slc_num_t *> slc_num{0x00965ECC};
 Var<slc_str_t *> slc_str{0x00965ED0};
 
 namespace {
-void __fastcall finalize_standalone_script_library_class(
-    script_library_class *slc, void *, bool release_memory)
+void __fastcall finalize_standalone_script_library_class(script_library_class *slc, void *, bool release_memory)
 {
     if (slc->funcs != nullptr && !slc->are_funcs_from_mash())
         delete[] slc->funcs;
@@ -49,29 +48,26 @@ void __fastcall finalize_standalone_script_library_class(
         mem_dealloc(slc, sizeof(*slc));
 }
 
-uint32_t __fastcall find_standalone_script_instance(
-    script_library_class *, void *, const mString *)
+uint32_t __fastcall find_standalone_script_instance(script_library_class *, void *, const mString *)
 {
     return 0;
 }
 
 std::intptr_t *standalone_script_library_class_vtable()
 {
-    static std::intptr_t table[] {
+    static std::intptr_t table[]{
         reinterpret_cast<std::intptr_t>(&finalize_standalone_script_library_class),
         reinterpret_cast<std::intptr_t>(&find_standalone_script_instance),
     };
     return table;
 }
-}
+}  // namespace
 
-script_library_class::script_library_class(
-    const char *a2, int a3, const char *a4, bool a5)
+script_library_class::script_library_class(const char *a2, int a3, const char *a4, bool a5)
 {
     if constexpr (STANDALONE_SYSTEM) {
         field_8 = a3;
-        m_vtbl = reinterpret_cast<std::intptr_t>(
-            standalone_script_library_class_vtable());
+        m_vtbl = reinterpret_cast<std::intptr_t>(standalone_script_library_class_vtable());
         name = nullptr;
         funcs = nullptr;
         total_funcs = 0;
@@ -88,7 +84,7 @@ script_library_class::script_library_class(
 
 void script_library_class::store_name(const char *a2)
 {
-    if ( this->name != nullptr ) {
+    if (this->name != nullptr) {
         operator delete[](this->name);
     }
 
@@ -98,19 +94,18 @@ void script_library_class::store_name(const char *a2)
 }
 
 void verify_parms_integrity(script_library_class::function *func, vm_stack *the_stack, unsigned int *parms,
-        int parms_size)
+                            int parms_size)
 {
     for (auto i = 0; i < parms_size; ++i) {
-        if ( parms[i] == UNINITIALIZED_SCRIPT_PARM ) {
-            auto v6 = mString {"uninitialized parameters in call to "} + func->get_name();
+        if (parms[i] == UNINITIALIZED_SCRIPT_PARM) {
+            auto v6 = mString{"uninitialized parameters in call to "} + func->get_name();
             the_stack->get_thread()->slf_error(v6);
             assert(0 && "uninitialized parameters in call to script library function");
         }
     }
 }
 
-bool script_library_class::function::operator()(
-    vm_stack &a2, script_library_class::function::entry_t a3) const
+bool script_library_class::function::operator()(vm_stack &a2, script_library_class::function::entry_t a3) const
 {
     return m_vtbl->__cl(this, nullptr, a2, a3);
 }
@@ -126,17 +121,17 @@ script_library_class::function *script_library_class::get_func(int index)
 {
     assert(index >= 0);
     assert(index < total_funcs);
-    
+
     return this->funcs[index];
 }
 
 void script_library_class::add_function(script_library_class::function *f)
 {
     if (g_is_the_packer || script_manager::using_chuck_old_fashioned()) {
-#if SLC_FUNC_LIST_FIELD 
-        if ( ! this->func_list.empty() ) {
-            if ( this->func_list.back() != nullptr ) {
-                assert(strcmp( func_list.back()->get_name(), f->get_name() ) < 0);
+#if SLC_FUNC_LIST_FIELD
+        if (!this->func_list.empty()) {
+            if (this->func_list.back() != nullptr) {
+                assert(strcmp(func_list.back()->get_name(), f->get_name()) < 0);
             }
         }
 
@@ -150,8 +145,8 @@ void script_library_class::add_function(script_library_class::function *f)
         assert(funcs != nullptr);
 
         bool found = false;
-        for ( auto i = this->next_func_slot; i < this->total_funcs; ++i ) {
-            if ( this->funcs[i] != nullptr ) {
+        for (auto i = this->next_func_slot; i < this->total_funcs; ++i) {
+            if (this->funcs[i] != nullptr) {
                 found = true;
                 this->next_func_slot = i;
                 break;
@@ -193,8 +188,7 @@ uint32_t script_library_class::find_instance(const mString &name)
     }
 #endif
 
-    uint32_t (__fastcall *func)(void *, void *, const mString *) =
-        CAST(func, get_vfunc(this->m_vtbl, 0x4));
+    uint32_t(__fastcall * func)(void *, void *, const mString *) = CAST(func, get_vfunc(this->m_vtbl, 0x4));
     return func(this, nullptr, &name);
 }
 

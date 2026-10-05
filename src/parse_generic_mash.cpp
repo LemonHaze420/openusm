@@ -20,8 +20,7 @@
 VALIDATE_SIZE(generic_mash_header, 0x10);
 
 #ifdef OPENUSM_XBPACK_V10
-namespace
-{
+namespace {
 constexpr uint16_t V10_CONGLOM_TYPE = 5;
 constexpr uint16_t V10_GUN_TYPE = 10;
 constexpr uint16_t V10_THROWN_ITEM_TYPE = 12;
@@ -34,8 +33,7 @@ constexpr size_t V10_STREAM_OFFSET = 0x13C;
 constexpr size_t SKELETON_IFC_SIZE = 0x14;
 constexpr size_t SKELETON_PADDING = 0x0C;
 constexpr size_t V10_SKELETON_END = V10_CONGLOM_SIZE + SKELETON_IFC_SIZE;
-constexpr size_t PC_SKELETON_END =
-    PC_CONGLOM_SIZE + SKELETON_IFC_SIZE + SKELETON_PADDING;
+constexpr size_t PC_SKELETON_END = PC_CONGLOM_SIZE + SKELETON_IFC_SIZE + SKELETON_PADDING;
 constexpr size_t V10_GUN_PREFIX_END = 0x128;
 constexpr size_t V10_GUN_EFFECTS_END = 0x2A4;
 constexpr size_t V10_GUN_SIZE = 0x328;
@@ -45,62 +43,35 @@ constexpr size_t PC_GUN_SIZE = 0x374;
 constexpr size_t V10_THROWN_ITEM_SIZE = 0x340;
 constexpr size_t PC_THROWN_ITEM_SIZE = 0x350;
 
-struct v10_mash_clone
-{
+struct v10_mash_clone {
     uint8_t *object;
     uint8_t *normal;
 };
 
-v10_mash_clone clone_v10_conglom(
-    const uint8_t *source,
-    size_t size,
-    uint16_t flags)
+v10_mash_clone clone_v10_conglom(const uint8_t *source, size_t size, uint16_t flags)
 {
     const bool has_skeleton = (flags & SKELETON_IFC_FLAG) != 0;
-    const size_t result_size = size +
-        (has_skeleton
-            ? PC_SKELETON_END - V10_SKELETON_END
-            : V10_STREAM_OFFSET - V10_CONGLOM_SIZE);
+    const size_t result_size =
+        size + (has_skeleton ? PC_SKELETON_END - V10_SKELETON_END : V10_STREAM_OFFSET - V10_CONGLOM_SIZE);
     assert(size >= (has_skeleton ? V10_SKELETON_END : V10_CONGLOM_SIZE));
 
-    auto *result = static_cast<uint8_t *>(
-        arch_memalign(sizeof(generic_mash_header), result_size));
+    auto *result = static_cast<uint8_t *>(arch_memalign(sizeof(generic_mash_header), result_size));
     assert(result != nullptr);
 
     std::memcpy(result, source, V10_ACTOR_SIZE);
     std::memset(result + V10_ACTOR_SIZE, 0, PC_ACTOR_SIZE - V10_ACTOR_SIZE);
-    std::memcpy(
-        result + PC_ACTOR_SIZE,
-        source + V10_ACTOR_SIZE,
-        V10_CONGLOM_SIZE - V10_ACTOR_SIZE);
+    std::memcpy(result + PC_ACTOR_SIZE, source + V10_ACTOR_SIZE, V10_CONGLOM_SIZE - V10_ACTOR_SIZE);
 
     if (has_skeleton) {
-        std::memcpy(
-            result + PC_CONGLOM_SIZE,
-            source + V10_CONGLOM_SIZE,
-            SKELETON_IFC_SIZE);
-        std::memset(
-            result + PC_CONGLOM_SIZE + SKELETON_IFC_SIZE,
-            0,
-            SKELETON_PADDING);
-        std::memcpy(
-            result + PC_SKELETON_END,
-            source + V10_SKELETON_END,
-            size - V10_SKELETON_END);
+        std::memcpy(result + PC_CONGLOM_SIZE, source + V10_CONGLOM_SIZE, SKELETON_IFC_SIZE);
+        std::memset(result + PC_CONGLOM_SIZE + SKELETON_IFC_SIZE, 0, SKELETON_PADDING);
+        std::memcpy(result + PC_SKELETON_END, source + V10_SKELETON_END, size - V10_SKELETON_END);
     } else {
-        std::memset(
-            result + PC_CONGLOM_SIZE,
-            0,
-            V10_STREAM_OFFSET - PC_CONGLOM_SIZE);
-        std::memcpy(
-            result + V10_STREAM_OFFSET,
-            source + V10_CONGLOM_SIZE,
-            size - V10_CONGLOM_SIZE);
+        std::memset(result + PC_CONGLOM_SIZE, 0, V10_STREAM_OFFSET - PC_CONGLOM_SIZE);
+        std::memcpy(result + V10_STREAM_OFFSET, source + V10_CONGLOM_SIZE, size - V10_CONGLOM_SIZE);
     }
 
-    return {
-        result,
-        result + (has_skeleton ? PC_CONGLOM_SIZE : V10_STREAM_OFFSET)};
+    return {result, result + (has_skeleton ? PC_CONGLOM_SIZE : V10_STREAM_OFFSET)};
 }
 
 v10_mash_clone clone_v10_gun(const uint8_t *source, size_t size)
@@ -108,34 +79,23 @@ v10_mash_clone clone_v10_gun(const uint8_t *source, size_t size)
     assert(size >= V10_GUN_SIZE);
 
     const size_t result_size = size + PC_GUN_SIZE - V10_GUN_SIZE;
-    auto *result = static_cast<uint8_t *>(
-        arch_memalign(sizeof(generic_mash_header), result_size));
+    auto *result = static_cast<uint8_t *>(arch_memalign(sizeof(generic_mash_header), result_size));
     assert(result != nullptr);
 
     std::memcpy(result, source, V10_ACTOR_SIZE);
     std::memset(result + V10_ACTOR_SIZE, 0, PC_ACTOR_SIZE - V10_ACTOR_SIZE);
 
-    std::memcpy(result + PC_ACTOR_SIZE,
-                source + V10_ACTOR_SIZE,
-                V10_GUN_PREFIX_END - V10_ACTOR_SIZE);
-    std::memset(result + V10_GUN_PREFIX_END +
-                    (PC_ACTOR_SIZE - V10_ACTOR_SIZE),
+    std::memcpy(result + PC_ACTOR_SIZE, source + V10_ACTOR_SIZE, V10_GUN_PREFIX_END - V10_ACTOR_SIZE);
+    std::memset(result + V10_GUN_PREFIX_END + (PC_ACTOR_SIZE - V10_ACTOR_SIZE),
                 0,
-                PC_GUN_PREFIX_END - V10_GUN_PREFIX_END -
-                    (PC_ACTOR_SIZE - V10_ACTOR_SIZE));
+                PC_GUN_PREFIX_END - V10_GUN_PREFIX_END - (PC_ACTOR_SIZE - V10_ACTOR_SIZE));
 
-    std::memcpy(result + PC_GUN_PREFIX_END,
-                source + V10_GUN_PREFIX_END,
-                V10_GUN_EFFECTS_END - V10_GUN_PREFIX_END);
+    std::memcpy(result + PC_GUN_PREFIX_END, source + V10_GUN_PREFIX_END, V10_GUN_EFFECTS_END - V10_GUN_PREFIX_END);
     std::memset(result + PC_GUN_EFFECTS_END - 0x40, 0, 0x40);
 
-    std::memcpy(result + PC_GUN_EFFECTS_END,
-                source + V10_GUN_EFFECTS_END,
-                V10_GUN_SIZE - V10_GUN_EFFECTS_END);
+    std::memcpy(result + PC_GUN_EFFECTS_END, source + V10_GUN_EFFECTS_END, V10_GUN_SIZE - V10_GUN_EFFECTS_END);
     std::memset(result + PC_GUN_SIZE - sizeof(uint32_t), 0, sizeof(uint32_t));
-    std::memcpy(result + PC_GUN_SIZE,
-                source + V10_GUN_SIZE,
-                size - V10_GUN_SIZE);
+    std::memcpy(result + PC_GUN_SIZE, source + V10_GUN_SIZE, size - V10_GUN_SIZE);
 
     return {result, result + PC_GUN_SIZE};
 }
@@ -144,34 +104,22 @@ v10_mash_clone clone_v10_thrown_item(const uint8_t *source, size_t size)
 {
     assert(size >= V10_THROWN_ITEM_SIZE);
 
-    const size_t result_size =
-        size + PC_THROWN_ITEM_SIZE - V10_THROWN_ITEM_SIZE;
-    auto *result = static_cast<uint8_t *>(
-        arch_memalign(sizeof(generic_mash_header), result_size));
+    const size_t result_size = size + PC_THROWN_ITEM_SIZE - V10_THROWN_ITEM_SIZE;
+    auto *result = static_cast<uint8_t *>(arch_memalign(sizeof(generic_mash_header), result_size));
     assert(result != nullptr);
 
     std::memcpy(result, source, V10_THROWN_ITEM_SIZE);
-    std::memset(result + V10_THROWN_ITEM_SIZE,
-                0,
-                PC_THROWN_ITEM_SIZE - V10_THROWN_ITEM_SIZE);
-    std::memcpy(result + PC_THROWN_ITEM_SIZE,
-                source + V10_THROWN_ITEM_SIZE,
-                size - V10_THROWN_ITEM_SIZE);
+    std::memset(result + V10_THROWN_ITEM_SIZE, 0, PC_THROWN_ITEM_SIZE - V10_THROWN_ITEM_SIZE);
+    std::memcpy(result + PC_THROWN_ITEM_SIZE, source + V10_THROWN_ITEM_SIZE, size - V10_THROWN_ITEM_SIZE);
 
     return {result, result + PC_THROWN_ITEM_SIZE};
 }
-}
+}  // namespace
 #endif
 
-void *parse_generic_mash_init(generic_mash_header *&header,
-                              void *a2,
-                              bool *allocated_mem,
-                              generic_mash_data_ptrs *a4,
-                              uint32_t struct_size,
-                              uint32_t *virtual_table_lookup,
-                              uint32_t *size_table_lookup,
-                              [[maybe_unused]] uint32_t num_table_entries,
-                              [[maybe_unused]] uint32_t base_class_size,
+void *parse_generic_mash_init(generic_mash_header *&header, void *a2, bool *allocated_mem, generic_mash_data_ptrs *a4,
+                              uint32_t struct_size, uint32_t *virtual_table_lookup, uint32_t *size_table_lookup,
+                              [[maybe_unused]] uint32_t num_table_entries, [[maybe_unused]] uint32_t base_class_size,
                               void *a10)
 {
     assert(allocated_mem != nullptr);
@@ -190,50 +138,40 @@ void *parse_generic_mash_init(generic_mash_header *&header,
         cur_ptr = copy_a2;
         header = static_cast<generic_mash_header *>(a10);
 #ifdef OPENUSM_XBPACK_V10
-        if (header->is_flagged(0x40000000) &&
-            header->class_id == V10_CONGLOM_TYPE) {
+        if (header->is_flagged(0x40000000) && header->class_id == V10_CONGLOM_TYPE) {
             const size_t size = header->field_8 - sizeof(generic_mash_header);
-            const auto clone = clone_v10_conglom(
-                copy_a2, size, header->field_E);
+            const auto clone = clone_v10_conglom(copy_a2, size, header->field_E);
             cur_ptr = clone.object;
             normal_override = clone.normal;
             *allocated_mem = true;
-        } else if (header->is_flagged(0x40000000) &&
-                   header->class_id == V10_GUN_TYPE) {
+        } else if (header->is_flagged(0x40000000) && header->class_id == V10_GUN_TYPE) {
             const size_t size = header->field_8 - sizeof(generic_mash_header);
             const auto clone = clone_v10_gun(copy_a2, size);
             cur_ptr = clone.object;
             normal_override = clone.normal;
             *allocated_mem = true;
-        } else if (header->is_flagged(0x40000000) &&
-                   header->class_id == V10_THROWN_ITEM_TYPE) {
+        } else if (header->is_flagged(0x40000000) && header->class_id == V10_THROWN_ITEM_TYPE) {
             const size_t size = header->field_8 - sizeof(generic_mash_header);
             const auto clone = clone_v10_thrown_item(copy_a2, size);
             cur_ptr = clone.object;
             normal_override = clone.normal;
             *allocated_mem = true;
         }
-    } else if (header->is_flagged(0x40000000) &&
-               header->class_id == V10_CONGLOM_TYPE) {
+    } else if (header->is_flagged(0x40000000) && header->class_id == V10_CONGLOM_TYPE) {
         const size_t size = header->field_8 - sizeof(generic_mash_header);
-        const auto clone = clone_v10_conglom(
-            copy_a2 + sizeof(generic_mash_header), size, header->field_E);
+        const auto clone = clone_v10_conglom(copy_a2 + sizeof(generic_mash_header), size, header->field_E);
         cur_ptr = clone.object;
         normal_override = clone.normal;
         *allocated_mem = true;
-    } else if (header->is_flagged(0x40000000) &&
-               header->class_id == V10_GUN_TYPE) {
+    } else if (header->is_flagged(0x40000000) && header->class_id == V10_GUN_TYPE) {
         const size_t size = header->field_8 - sizeof(generic_mash_header);
-        const auto clone = clone_v10_gun(
-            copy_a2 + sizeof(generic_mash_header), size);
+        const auto clone = clone_v10_gun(copy_a2 + sizeof(generic_mash_header), size);
         cur_ptr = clone.object;
         normal_override = clone.normal;
         *allocated_mem = true;
-    } else if (header->is_flagged(0x40000000) &&
-               header->class_id == V10_THROWN_ITEM_TYPE) {
+    } else if (header->is_flagged(0x40000000) && header->class_id == V10_THROWN_ITEM_TYPE) {
         const size_t size = header->field_8 - sizeof(generic_mash_header);
-        const auto clone = clone_v10_thrown_item(
-            copy_a2 + sizeof(generic_mash_header), size);
+        const auto clone = clone_v10_thrown_item(copy_a2 + sizeof(generic_mash_header), size);
         cur_ptr = clone.object;
         normal_override = clone.normal;
         *allocated_mem = true;
@@ -265,9 +203,7 @@ void *parse_generic_mash_init(generic_mash_header *&header,
         const auto mash_class_id = header->class_id;
         auto class_id = mash_class_id;
 #ifdef OPENUSM_XBPACK_V10
-        const bool is_entity_mash =
-            virtual_table_lookup ==
-            reinterpret_cast<uint32_t *>(&ent_v_table_lookup()[0]);
+        const bool is_entity_mash = virtual_table_lookup == reinterpret_cast<uint32_t *>(&ent_v_table_lookup()[0]);
         if (is_entity_mash) {
             class_id = pc_entity_mash_type(class_id);
         }
@@ -289,17 +225,13 @@ void *parse_generic_mash_init(generic_mash_header *&header,
         }
 #endif
 
-        assert(addr[0] == MASH_V_TABLE_VAL[0] ||
-               addr[0] == ((char *)&virtual_table_lookup[class_id])[0]);
+        assert(addr[0] == MASH_V_TABLE_VAL[0] || addr[0] == ((char *)&virtual_table_lookup[class_id])[0]);
 
-        assert(addr[1] == MASH_V_TABLE_VAL[1] ||
-               addr[1] == ((char *)&virtual_table_lookup[class_id])[1]);
+        assert(addr[1] == MASH_V_TABLE_VAL[1] || addr[1] == ((char *)&virtual_table_lookup[class_id])[1]);
 
-        assert(addr[2] == MASH_V_TABLE_VAL[2] ||
-               addr[2] == ((char *)&virtual_table_lookup[class_id])[2]);
+        assert(addr[2] == MASH_V_TABLE_VAL[2] || addr[2] == ((char *)&virtual_table_lookup[class_id])[2]);
 
-        assert(addr[3] == MASH_V_TABLE_VAL[3] ||
-               addr[3] == ((char *)&virtual_table_lookup[class_id])[3]);
+        assert(addr[3] == MASH_V_TABLE_VAL[3] || addr[3] == ((char *)&virtual_table_lookup[class_id])[3]);
 
         std::memcpy(addr, &virtual_table_lookup[class_id], 4);
 
@@ -316,7 +248,7 @@ void *parse_generic_mash_init(generic_mash_header *&header,
     return addr;
 }
 
-template<>
+template <>
 bool parse_generic_object_mash(mission_table_container *&a1, void *a2, [[maybe_unused]] void *a3, unsigned int *a4,
                                unsigned int *a5, uint32_t a6, uint32_t a7, void *a8)
 {
@@ -335,7 +267,7 @@ bool parse_generic_object_mash(mission_table_container *&a1, void *a2, [[maybe_u
     return allocated_mem;
 }
 
-template<>
+template <>
 bool parse_generic_object_mash(resource_directory *&arg0, void *a1, void *a5, uint32_t *a6, uint32_t *a7, uint32_t a8,
                                uint32_t a9, void *a10)
 {

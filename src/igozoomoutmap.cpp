@@ -83,8 +83,7 @@ void IGOZoomOutMap::Update(Float)
 // 0x006386E0
 void IGOZoomOutMap::UpdateSelectButton()
 {
-    const float select =
-        input_mgr::instance->get_control_state(115, INVALID_DEVICE_ID);
+    const float select = input_mgr::instance->get_control_state(115, INVALID_DEVICE_ID);
     if (!field_5BC && (select < 0.0f || select > 0.0f)) {
         field_5BC = true;
         OnSelectPress();

@@ -13,7 +13,7 @@ extern std::map<uint32_t, Mod> Mods;
 #define VALIDATE_SIZE(struc, size)
 #endif
 
-#define VALIDATE_OFFSET(struc, member, offset)       \
+#define VALIDATE_OFFSET(struc, member, offset) \
     static_assert(offsetof(struc, member) == offset, "The offset of " #member " in " #struc " is not " #offset "...")
 
 #define VALIDATE_ALIGNMENT(struc, align) \

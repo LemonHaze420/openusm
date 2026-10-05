@@ -101,8 +101,7 @@ bool traffic_path_lane::lane_is_valid(const traffic_path_lane *a1)
 
 namespace {
 
-bool seed_line_intersection(const vector3d &a, const vector3d &b, const vector3d &c, const vector3d &d,
-                            vector3d &out)
+bool seed_line_intersection(const vector3d &a, const vector3d &b, const vector3d &c, const vector3d &d, vector3d &out)
 {
     if (std::max(a.x, b.x) < std::min(c.x, d.x) || std::max(c.x, d.x) < std::min(a.x, b.x) ||
         std::max(a.z, b.z) < std::min(c.z, d.z) || std::max(c.z, d.z) < std::min(a.z, b.z))
@@ -115,8 +114,7 @@ bool seed_line_intersection(const vector3d &a, const vector3d &b, const vector3d
     const float cz = a.z - c.z;
     const float numerator = cx * bz - cz * bx;
     const float denominator = az * bx - bz * ax;
-    if (denominator <= 0.0f ? numerator > 0.0f || numerator < denominator
-                            : numerator < 0.0f || numerator > denominator)
+    if (denominator <= 0.0f ? numerator > 0.0f || numerator < denominator : numerator < 0.0f || numerator > denominator)
         return false;
     const float other_numerator = cz * ax - cx * az;
     if (denominator <= 0.0f ? other_numerator > 0.0f || other_numerator < denominator
@@ -125,18 +123,15 @@ bool seed_line_intersection(const vector3d &a, const vector3d &b, const vector3d
     if (std::fabs(denominator) < 0.0001f)
         return false;
     auto rounded_coordinate = [denominator](float product) {
-        const bool same_sign = (product > 0.0f && denominator > 0.0f) ||
-                               (product < 0.0f && denominator < 0.0f);
+        const bool same_sign = (product > 0.0f && denominator > 0.0f) || (product < 0.0f && denominator < 0.0f);
         return (product + denominator * (same_sign ? 0.5f : -0.5f)) / denominator;
     };
-    out = vector3d{a.x + rounded_coordinate(numerator * ax), 0.0f,
-                   a.z + rounded_coordinate(numerator * az)};
+    out = vector3d{a.x + rounded_coordinate(numerator * ax), 0.0f, a.z + rounded_coordinate(numerator * az)};
     return true;
 }
 
-bool seed_boundary_intersection(const vector3d &start, const vector3d &end, const vector3d &left,
-                                const vector3d &right, bool exclude_start, bool exclude_end,
-                                vector3d &position)
+bool seed_boundary_intersection(const vector3d &start, const vector3d &end, const vector3d &left, const vector3d &right,
+                                bool exclude_start, bool exclude_end, vector3d &position)
 {
     if (!seed_line_intersection(left, right, start, end, position))
         return false;
@@ -164,7 +159,7 @@ ped_spawner *available_ped_spawner()
     return nullptr;
 }
 
-}
+}  // namespace
 
 bool pedestrian_seed_blocked(entity &camera, const vector3d &position)
 {
@@ -232,8 +227,8 @@ void traffic_path_lane::seed_with_pedestrians(entity &camera, int requested)
             if (!endpoint_selected) {
                 auto center = camera_position + forward * 40.0f;
                 center.y = 0.0f;
-                if (!seed_boundary_intersection(start, end, center - right * 15.0f, center + right * 15.0f,
-                                                false, false, position))
+                if (!seed_boundary_intersection(
+                        start, end, center - right * 15.0f, center + right * 15.0f, false, false, position))
                     continue;
             }
         } else {
@@ -247,13 +242,12 @@ void traffic_path_lane::seed_with_pedestrians(entity &camera, int requested)
             }
             const float sine = std::sin(angle);
             const float cosine = std::cos(angle);
-            const vector3d rotated{forward.x * cosine + forward.z * sine, 0.0f,
-                                   forward.z * cosine - forward.x * sine};
+            const vector3d rotated{forward.x * cosine + forward.z * sine, 0.0f, forward.z * cosine - forward.x * sine};
             auto boundary_start = camera_position - forward * 4.0f + side * 3.0f;
             auto boundary_end = camera_position + rotated * 25.0f;
             boundary_start.y = boundary_end.y = 0.0f;
-            const bool intersected = seed_boundary_intersection(start, end, boundary_start, boundary_end,
-                                                                start_dot > 0.707f, end_dot > 0.707f, position);
+            const bool intersected = seed_boundary_intersection(
+                start, end, boundary_start, boundary_end, start_dot > 0.707f, end_dot > 0.707f, position);
             if (!intersected) {
                 if (start_dot > end_dot && start_dot > 0.0f && start_dot < 0.5f && start_distance < 625.0f) {
                     auto direction = end - start;
@@ -288,8 +282,7 @@ void traffic_path_lane::seed_with_pedestrians(entity &camera, int requested)
         auto facing = start - position;
         facing.normalize();
         const vector3d lateral{facing.z, 0.0f, -facing.x};
-        if (requested > 1 && occupants < 19 &&
-            static_cast<int>(std::rand() * 0.0030517578125) < 10) {
+        if (requested > 1 && occupants < 19 && static_cast<int>(std::rand() * 0.0030517578125) < 10) {
             if (auto *spawner = available_ped_spawner()) {
                 spawner->spawnable::do_spawn(position - lateral * 0.5f, facing, this, -1, false, true);
                 --requested;
@@ -353,8 +346,9 @@ vector3d traffic_path_lane::get_node_before_point(const vector3d &position, int 
         else if (nearest >= 1) {
             const auto segment = nodes[nearest] - nodes[nearest + 1];
             const auto offset = position - nodes[nearest + 1];
-            before = offset.x * offset.x + offset.z * offset.z >=
-                     segment.x * segment.x + segment.z * segment.z ? nearest - 1 : nearest;
+            before = offset.x * offset.x + offset.z * offset.z >= segment.x * segment.x + segment.z * segment.z
+                         ? nearest - 1
+                         : nearest;
         }
     } else {
         for (int node = 1; node < total_nodes; ++node) {
@@ -402,8 +396,7 @@ void traffic_path_lane::update_lane_indexes()
     auto &list = traffic_ai_list::ai_lists[field_10];
     for (int index = 0; index < list.num_ais; ++index) {
         if (list.ais[index].get_volatile_ptr()) {
-            if (auto *car = traffic::get_traffic_from_entity(
-                    vhandle_type<entity>{list.ais[index].field_0}))
+            if (auto *car = traffic::get_traffic_from_entity(vhandle_type<entity>{list.ais[index].field_0}))
                 car->set_lane_position_index(index, static_cast<traffic_path_lane *>(list.owner));
         }
     }
@@ -537,8 +530,7 @@ bool traffic_path_lane::has_room_for_me(float spacing, bool check_intersection, 
                 return false;
             if (distance_squared <= spacing_squared)
                 return false;
-            if (!ignore_last_node &&
-                traffic::get_traffic_from_entity(vhandle_type<entity>{handle})->field_168 < 1)
+            if (!ignore_last_node && traffic::get_traffic_from_entity(vhandle_type<entity>{handle})->field_168 < 1)
                 return false;
         }
         if (check_intersection && my_road != nullptr && my_road->field_18 != nullptr) {
@@ -551,8 +543,7 @@ bool traffic_path_lane::has_room_for_me(float spacing, bool check_intersection, 
         for (int index = 0; index < get_num_ais(); ++index) {
             if (auto *car = get_ai_by_index(index).get_volatile_ptr()) {
                 const auto position = car->get_abs_position();
-                if ((position - start).length2() <= spacing_squared ||
-                    (position - end).length2() <= spacing_squared)
+                if ((position - start).length2() <= spacing_squared || (position - end).length2() <= spacing_squared)
                     return false;
             }
         }
@@ -562,8 +553,7 @@ bool traffic_path_lane::has_room_for_me(float spacing, bool check_intersection, 
 
 bool traffic_path_lane::is_clogged(bool double_spacing, bool ignore_last_node)
 {
-    return get_num_ais() >= 17 ||
-           !has_room_for_me(double_spacing ? 20.0f : 10.0f, false, ignore_last_node);
+    return get_num_ais() >= 17 || !has_room_for_me(double_spacing ? 20.0f : 10.0f, false, ignore_last_node);
 }
 int traffic_path_lane::get_lane_position() const
 {
@@ -587,8 +577,7 @@ bool traffic_path_lane::is_point_between_nodes(const vector3d &position, int fir
     const auto start = get_node(first);
     const auto end = get_node(second);
     const float segment_length_squared = (end - start).length2();
-    return (start - position).length2() < segment_length_squared &&
-           (end - position).length2() < segment_length_squared;
+    return (start - position).length2() < segment_length_squared && (end - position).length2() < segment_length_squared;
 }
 
 int traffic_path_lane::get_nearest_node_xz(const vector3d &position) const

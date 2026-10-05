@@ -34,8 +34,7 @@ Var<nglLightContext *> nglCurLightContext{0x00973B74};
 bool nglGetFakePointLight(nglDirLightInfo *a1, nglPointLightInfo *a2,
                           math::VecClass<3, 1, void, void, math::Rep_Std<false>> a3)
 {
-    const vector4d delta{a3.x - a2->ViewPos.x, a3.y - a2->ViewPos.y,
-                         a3.z - a2->ViewPos.z, a3.w - a2->ViewPos.w};
+    const vector4d delta{a3.x - a2->ViewPos.x, a3.y - a2->ViewPos.y, a3.z - a2->ViewPos.z, a3.w - a2->ViewPos.w};
     const float lengthSquared = delta.x * delta.x + delta.y * delta.y + delta.z * delta.z;
     if (lengthSquared < 0.000001f) {
         a1->Dir = {0.0f, 1.0f, 0.0f, 0.0f};
@@ -45,10 +44,8 @@ bool nglGetFakePointLight(nglDirLightInfo *a1, nglPointLightInfo *a2,
     const float inverseLength = 1.0f / std::sqrt(lengthSquared);
     const float attenuation = 1.0f - (inverseLength * lengthSquared - a2->Near) / (a2->Far - a2->Near);
     const float clamped = std::clamp(attenuation, 0.0f, 1.0f);
-    a1->Color = {a2->Pos.x * clamped, a2->Pos.y * clamped,
-                 a2->Pos.z * clamped, a2->Pos.w * clamped};
-    a1->Dir = {delta.x * inverseLength, delta.y * inverseLength,
-               delta.z * inverseLength, delta.w * inverseLength};
+    a1->Color = {a2->Pos.x * clamped, a2->Pos.y * clamped, a2->Pos.z * clamped, a2->Pos.w * clamped};
+    a1->Dir = {delta.x * inverseLength, delta.y * inverseLength, delta.z * inverseLength, delta.w * inverseLength};
     return attenuation >= 0.0f;
 }
 
@@ -115,7 +112,6 @@ void nglListAddDirLight(unsigned int a2, math::VecClass<3, 0, void, math::VecUni
         Light->Color.w = 1.0f;
         nglListAddLight(NGL_LIGHT_DIRECTIONAL, Light, a2);
     }
-
 }
 
 namespace {
@@ -126,29 +122,24 @@ float projectorDot(const vector4d &a, const vector4d &b)
 
 vector4d projectorNormal(const vector4d &a, const vector4d &b)
 {
-    vector4d n{a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z,
-               a.x * b.y - a.y * b.x, 0.0f};
+    vector4d n{a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x, 0.0f};
     const float squared = projectorDot(n, n);
-    const float scale = (squared <= 0.0f && squared >= 0.0f)
-        ? 0.0f : 1.0f / std::sqrt(std::fabs(squared));
+    const float scale = (squared <= 0.0f && squared >= 0.0f) ? 0.0f : 1.0f / std::sqrt(std::fabs(squared));
     return {n.x * scale, n.y * scale, n.z * scale, 0.0f};
 }
 
-void projectorPlanePair(vector4d *planes, const vector4d &normal,
-                        const vector4d &position, const vector4d &axis)
+void projectorPlanePair(vector4d *planes, const vector4d &normal, const vector4d &position, const vector4d &axis)
 {
     const float distance = projectorDot(position, normal);
     planes[0] = {normal.x, normal.y, normal.z, -distance};
     planes[1] = {-normal.x, -normal.y, -normal.z, distance + projectorDot(axis, normal)};
 }
-}
+}  // namespace
 
-void nglListAddDirProjectorLight(uint32_t lightCat, const matrix4x4 &localToWorld,
-                               float width, float height, float depth, float unusedW,
-                               int blendMode, uint32_t color, nglTexture *texture)
+void nglListAddDirProjectorLight(uint32_t lightCat, const matrix4x4 &localToWorld, float width, float height,
+                                 float depth, float unusedW, int blendMode, uint32_t color, nglTexture *texture)
 {
-    auto *light = static_cast<nglDirProjectorLightInfo *>(
-        nglListAlloc(sizeof(nglDirProjectorLightInfo), 16));
+    auto *light = static_cast<nglDirProjectorLightInfo *>(nglListAlloc(sizeof(nglDirProjectorLightInfo), 16));
     if (!light)
         return;
 
@@ -164,35 +155,30 @@ void nglListAddDirProjectorLight(uint32_t lightCat, const matrix4x4 &localToWorl
     light->ZAxis = localToWorld.arr[2];
 
 
-
-
     const vector4d inverse{1.0f / width, 1.0f / height, 1.0f / depth, 0.0f};
     for (int i = 0; i < 3; ++i) {
         light->WorldToUV.arr[i] = {localToWorld.arr[0][i] * inverse.x,
-                                  localToWorld.arr[1][i] * inverse.y,
-                                  localToWorld.arr[2][i] * inverse.z, 0.0f};
+                                   localToWorld.arr[1][i] * inverse.y,
+                                   localToWorld.arr[2][i] * inverse.z,
+                                   0.0f};
         const float extent = light->Extent[i];
-        light->UVToWorld.arr[i] = {localToWorld.arr[i].x * extent,
-                                  localToWorld.arr[i].y * extent,
-                                  localToWorld.arr[i].z * extent, 0.0f};
+        light->UVToWorld.arr[i] = {
+            localToWorld.arr[i].x * extent, localToWorld.arr[i].y * extent, localToWorld.arr[i].z * extent, 0.0f};
     }
     const auto &position = localToWorld.w;
-    light->WorldToUV.w = {
-        -projectorDot(position, localToWorld.arr[0]) * inverse.x + 0.5f,
-        -projectorDot(position, localToWorld.arr[1]) * inverse.y + 0.5f,
-        -projectorDot(position, localToWorld.arr[2]) * inverse.z, 1.0f};
-    light->UVToWorld.w = {
-        position.x - 0.5f * light->UVToWorld.arr[0].x - 0.5f * light->UVToWorld.arr[1].x,
-        position.y - 0.5f * light->UVToWorld.arr[0].y - 0.5f * light->UVToWorld.arr[1].y,
-        position.z - 0.5f * light->UVToWorld.arr[0].z - 0.5f * light->UVToWorld.arr[1].z, 1.0f};
+    light->WorldToUV.w = {-projectorDot(position, localToWorld.arr[0]) * inverse.x + 0.5f,
+                          -projectorDot(position, localToWorld.arr[1]) * inverse.y + 0.5f,
+                          -projectorDot(position, localToWorld.arr[2]) * inverse.z,
+                          1.0f};
+    light->UVToWorld.w = {position.x - 0.5f * light->UVToWorld.arr[0].x - 0.5f * light->UVToWorld.arr[1].x,
+                          position.y - 0.5f * light->UVToWorld.arr[0].y - 0.5f * light->UVToWorld.arr[1].y,
+                          position.z - 0.5f * light->UVToWorld.arr[0].z - 0.5f * light->UVToWorld.arr[1].z,
+                          1.0f};
     const auto &basis = light->UVToWorld;
-    projectorPlanePair(&light->Planes[4], projectorNormal(basis.arr[0], basis.arr[1]),
-                       basis.w, basis.arr[2]);
-    projectorPlanePair(&light->Planes[2], projectorNormal(basis.arr[1], basis.arr[2]),
-                       basis.w, basis.arr[0]);
+    projectorPlanePair(&light->Planes[4], projectorNormal(basis.arr[0], basis.arr[1]), basis.w, basis.arr[2]);
+    projectorPlanePair(&light->Planes[2], projectorNormal(basis.arr[1], basis.arr[2]), basis.w, basis.arr[0]);
     vector4d yPlanes[2];
-    projectorPlanePair(yPlanes, projectorNormal(basis.arr[2], basis.arr[0]),
-                       basis.w, basis.arr[1]);
+    projectorPlanePair(yPlanes, projectorNormal(basis.arr[2], basis.arr[0]), basis.w, basis.arr[1]);
     light->Planes[1] = yPlanes[0];
     light->Planes[0] = yPlanes[1];
 
@@ -210,10 +196,8 @@ void nglListAddDirProjectorLight(uint32_t lightCat, const matrix4x4 &localToWorl
     }
 }
 
-bool nglProjectorSphereVisible(const nglDirProjectorLightInfo &light,
-                               const vector4d &center, float radius)
+bool nglProjectorSphereVisible(const nglDirProjectorLightInfo &light, const vector4d &center, float radius)
 {
-
     for (const int index : {2, 3, 4, 0, 1, 5}) {
         const auto &plane = light.Planes[index];
         if (projectorDot(plane, center) + plane.w < -radius)
@@ -225,8 +209,8 @@ bool nglProjectorSphereVisible(const nglDirProjectorLightInfo &light,
 void nglDetermineProjLights(nglMeshNode *node)
 {
     auto *context = node->field_8C.IsSetParam<nglLightContextParam>()
-        ? node->field_8C.Get<nglLightContextParam>()->field_0
-        : nglCurScene->field_350;
+                        ? node->field_8C.Get<nglLightContextParam>()->field_0
+                        : nglCurScene->field_350;
     nglCurLightContext() = context;
     auto *head = &context->ProjectorHead;
     head->SelectedNext = head;
@@ -238,11 +222,12 @@ void nglDetermineProjLights(nglMeshNode *node)
     const vector4d worldCenter{
         center.x * matrix.arr[0].x + center.y * matrix.arr[1].x + center.z * matrix.arr[2].x + matrix.w.x,
         center.x * matrix.arr[0].y + center.y * matrix.arr[1].y + center.z * matrix.arr[2].y + matrix.w.y,
-        center.x * matrix.arr[0].z + center.y * matrix.arr[1].z + center.z * matrix.arr[2].z + matrix.w.z, 1.0f};
+        center.x * matrix.arr[0].z + center.y * matrix.arr[1].z + center.z * matrix.arr[2].z + matrix.w.z,
+        1.0f};
     for (auto *light = head->Next[category - 1]; light != head; light = light->Next[category - 1]) {
         if (light->Type == NGL_LIGHT_DIR_PROJECTOR &&
-            nglProjectorSphereVisible(*static_cast<nglDirProjectorLightInfo *>(light->Data),
-                                      worldCenter, node->Mesh->SphereRadius)) {
+            nglProjectorSphereVisible(
+                *static_cast<nglDirProjectorLightInfo *>(light->Data), worldCenter, node->Mesh->SphereRadius)) {
             light->SelectedNext = head->SelectedNext;
             head->SelectedNext = light;
         }

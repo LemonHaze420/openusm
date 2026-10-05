@@ -28,7 +28,6 @@ Var<int> occlusion::quad_database_update_index{0x00960B14};
 
 void occlusion::term()
 {
-
     operator delete[](quad_database());
     quad_database() = nullptr;
     quad_database_count() = 0;
@@ -102,20 +101,18 @@ void occlusion::init_frame(const vector3d &a1)
     active_shadow_volumes_scratchpad_mirror() = active_shadow_volumes();
 }
 
-void occlusion::term_frame()
-{
-
-}
+void occlusion::term_frame() {}
 
 void occlusion::update_based_on_scores(const vector3d &a1)
 {
-    std::qsort(active_shadow_volumes(), num_active_shadow_volumes(), sizeof(quad_shadow_volume),
+    std::qsort(active_shadow_volumes(),
+               num_active_shadow_volumes(),
+               sizeof(quad_shadow_volume),
                [](const void *left, const void *right) {
                    const int a = static_cast<const quad_shadow_volume *>(left)->field_80;
                    const int b = static_cast<const quad_shadow_volume *>(right)->field_80;
                    return a > b ? -1 : (a < b ? 1 : 0);
                });
-
 
 
     const int last = num_active_shadow_volumes() - 1;
@@ -137,8 +134,7 @@ void occlusion::update_based_on_scores(const vector3d &a1)
     for (int index = retained; index < count; ++index) {
         const auto &candidate = quad_database()[quad_database_update_index() % quad_database_count()];
         add_active_occluder(candidate, a1);
-        quad_database_update_index() = static_cast<int>(
-            static_cast<unsigned int>(quad_database_update_index()) + 1u);
+        quad_database_update_index() = static_cast<int>(static_cast<unsigned int>(quad_database_update_index()) + 1u);
     }
     for (int index = 0; index < retained; ++index) {
         build_shadow_volume(active_shadow_volumes()[index], a1);
@@ -158,8 +154,8 @@ plane plane_through_points(const vector3d &origin, const vector3d &a, const vect
     vector3d normal{static_cast<float>(second_y * first_z - second_z * first_y),
                     static_cast<float>(second_z * first_x - second_x * first_z),
                     static_cast<float>(second_x * first_y - second_y * first_x)};
-    const double length_squared = double(normal.x) * normal.x + double(normal.y) * normal.y
-                                  + double(normal.z) * normal.z;
+    const double length_squared =
+        double(normal.x) * normal.x + double(normal.y) * normal.y + double(normal.z) * normal.z;
     if (length_squared > 9.999999439624929e-11) {
         const double inverse_length = 1.0 / std::sqrt(length_squared);
         normal.x = normal.x * inverse_length;
@@ -170,15 +166,13 @@ plane plane_through_points(const vector3d &origin, const vector3d &a, const vect
     result.arr[0] = normal.x;
     result.arr[1] = normal.y;
     result.arr[2] = normal.z;
-    result.arr[3] = -(double(origin.x) * normal.x + double(normal.y) * origin.y
-                      + double(normal.z) * origin.z);
+    result.arr[3] = -(double(origin.x) * normal.x + double(normal.y) * origin.y + double(normal.z) * origin.z);
     return result;
 }
 
 double signed_distance(const plane &face, const vector3d &point)
 {
-    return double(face.arr[2]) * point.z + double(face.arr[1]) * point.y
-           + double(face.arr[0]) * point.x + face.arr[3];
+    return double(face.arr[2]) * point.z + double(face.arr[1]) * point.y + double(face.arr[0]) * point.x + face.arr[3];
 }
 
 void reverse_plane(plane &face)
@@ -187,7 +181,7 @@ void reverse_plane(plane &face)
         component = -component;
     }
 }
-}
+}  // namespace
 
 void occlusion::build_shadow_volume(quad_shadow_volume &volume, const vector3d &camera_position)
 {
@@ -223,9 +217,8 @@ bool occlusion::find_occluding_volume(const vector3d &center, float radius, int 
         const auto &volume = active_shadow_volumes_scratchpad_mirror()[index];
         bool inside = true;
         for (const auto &face : volume.field_30) {
-
-            const double distance = double(center.x) * face.arr[0] + double(center.z) * face.arr[2]
-                                    + double(center.y) * face.arr[1] + face.arr[3] + radius;
+            const double distance = double(center.x) * face.arr[0] + double(center.z) * face.arr[2] +
+                                    double(center.y) * face.arr[1] + face.arr[3] + radius;
             if (!(distance <= 0.0)) {
                 inside = false;
                 break;

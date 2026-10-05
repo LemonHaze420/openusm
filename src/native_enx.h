@@ -10,4 +10,4 @@ void *vtable(unsigned type);
 unsigned size(unsigned type);
 void *construct(unsigned type, void *storage, unsigned *size);
 void release(void *root, pfx_interface *ifc);
-}
+}  // namespace native_enx

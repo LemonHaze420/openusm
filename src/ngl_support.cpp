@@ -107,8 +107,7 @@ void FastListAddMesh(nglMesh *Mesh, const math::MatClass<4, 3> &LocalToWorld, ng
 
             nglPerfInfo().m_num_verts += MeshSection->NVertices;
 
-            nglMaterialBase *v15 =
-                select_mesh_material(&meshNode->field_8C, MeshSection->Material);
+            nglMaterialBase *v15 = select_mesh_material(&meshNode->field_8C, MeshSection->Material);
 
             MeshSection->Material->m_shader->AddNode(meshNode, MeshSection, v15);
         }

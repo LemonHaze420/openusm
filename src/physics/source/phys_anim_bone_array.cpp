@@ -49,8 +49,7 @@ void phys_anim_bone_array::copy_back_bones(entity_base *parent, int &index)
             po::compose_ortho(*child->my_rel_po, *parent->my_abs_po, *child->my_abs_po);
             if (child->field_8 & 0x08000000u)
                 child->compute_rel_po_from_model();
-            child->my_abs_po->set_position(
-                parent->my_abs_po->slow_xform(child->my_rel_po->get_position()));
+            child->my_abs_po->set_position(parent->my_abs_po->slow_xform(child->my_rel_po->get_position()));
         }
         child->field_8 &= ~0x10000000u;
         copy_back_bones(child, index);
@@ -72,14 +71,12 @@ void phys_anim_bone_array::update_owner_matrix(const vector3d &position)
         forward = vector3d(-down.x, 0.0f, -down.z);
     forward.normalize();
     po restored;
-    restored.set_po(vector3d(forward.z, 0.0f, -forward.x),
-                    vector3d(0.0f, 1.0f, 0.0f), forward, position);
+    restored.set_po(vector3d(forward.z, 0.0f, -forward.x), vector3d(0.0f, 1.0f, 0.0f), forward, position);
     *owner->my_abs_po = restored;
     if (owner->m_parent != nullptr) {
         if (owner->field_8 & 0x08000000u)
             owner->compute_rel_po_from_model();
-        po::full_inv_multiply(*owner->my_rel_po, *owner->m_parent->my_abs_po,
-                              *owner->my_abs_po);
+        po::full_inv_multiply(*owner->my_rel_po, *owner->m_parent->my_abs_po, *owner->my_abs_po);
     } else {
         if (owner->field_8 & 0x08000000u)
             owner->compute_rel_po_from_model();
@@ -113,8 +110,7 @@ void phys_anim_bone_array::assign_parents(entity_base *parent, int rigid_parent,
             continue;
         auto &entry = bones[++index];
         entry.field_8 = rigid_parent;
-        assign_parents(child, entry.rigid_body_index == -1
-            ? rigid_parent : entry.rigid_body_index, index);
+        assign_parents(child, entry.rigid_body_index == -1 ? rigid_parent : entry.rigid_body_index, index);
     }
 }
 
@@ -149,12 +145,16 @@ bool phys_anim_bone_array::assign_saved_poses(entity_base *parent, int &index)
 void phys_anim_bone_array::attach_physics_bones()
 {
     copy_bones(owner);
-    static const string_hash names[] = {
-        string_hash{"BIP01 PELVIS"}, string_hash{"BIP01 HEAD"},
-        string_hash{"BIP01 L UPPERARM"}, string_hash{"BIP01 L FOREARM"},
-        string_hash{"BIP01 R UPPERARM"}, string_hash{"BIP01 R FOREARM"},
-        string_hash{"BIP01 L THIGH"}, string_hash{"BIP01 L CALF"},
-        string_hash{"BIP01 R THIGH"}, string_hash{"BIP01 R CALF"}};
+    static const string_hash names[] = {string_hash{"BIP01 PELVIS"},
+                                        string_hash{"BIP01 HEAD"},
+                                        string_hash{"BIP01 L UPPERARM"},
+                                        string_hash{"BIP01 L FOREARM"},
+                                        string_hash{"BIP01 R UPPERARM"},
+                                        string_hash{"BIP01 R FOREARM"},
+                                        string_hash{"BIP01 L THIGH"},
+                                        string_hash{"BIP01 L CALF"},
+                                        string_hash{"BIP01 R THIGH"},
+                                        string_hash{"BIP01 R CALF"}};
     for (int i = 0; i < bone_count; ++i) {
         auto &entry = bones[i];
         entry.rigid_body_index = entry.field_8 = -1;
@@ -193,21 +193,26 @@ void phys_anim_bone_array::restore_poses(const po *absolute, const po *relative)
 
 void phys_anim_bone_array::prepare_physics_pose()
 {
-    static const string_hash end_names[] = {
-        string_hash{"BIP01 HEAD"}, string_hash{"BIP01 NECK"},
-        string_hash{"BIP01 NECK1"}, string_hash{"BIP01 SPINE"},
-        string_hash{"BIP01 SPINE1"}, string_hash{"BIP01 SPINE2"},
-        string_hash{"BIP01 R HAND"}, string_hash{"BIP01 R FOOT"},
-        string_hash{"BIP01 L HAND"}, string_hash{"BIP01 L FOOT"}};
-    static const std::uint32_t rotations[10][4] = {
-        {0,3193573466u,3045472189u,1064968380u},
-        {0,0,0,1065353216u}, {0,1048871917u,897988541u,1064781549u},
-        {906377149u,969976488u,897988541u,1065353216u},
-        {0,0,0,1065353216u}, {0,0,0,1065353216u},
-        {3207915385u,3162284025u,3162297984u,1060441183u},
-        {3171571892u,1026766961u,3179994860u,1065288892u},
-        {1060431737u,3162284025u,1014814336u,1060441183u},
-        {1024088244u,1026766961u,1032511212u,1065288892u}};
+    static const string_hash end_names[] = {string_hash{"BIP01 HEAD"},
+                                            string_hash{"BIP01 NECK"},
+                                            string_hash{"BIP01 NECK1"},
+                                            string_hash{"BIP01 SPINE"},
+                                            string_hash{"BIP01 SPINE1"},
+                                            string_hash{"BIP01 SPINE2"},
+                                            string_hash{"BIP01 R HAND"},
+                                            string_hash{"BIP01 R FOOT"},
+                                            string_hash{"BIP01 L HAND"},
+                                            string_hash{"BIP01 L FOOT"}};
+    static const std::uint32_t rotations[10][4] = {{0, 3193573466u, 3045472189u, 1064968380u},
+                                                   {0, 0, 0, 1065353216u},
+                                                   {0, 1048871917u, 897988541u, 1064781549u},
+                                                   {906377149u, 969976488u, 897988541u, 1065353216u},
+                                                   {0, 0, 0, 1065353216u},
+                                                   {0, 0, 0, 1065353216u},
+                                                   {3207915385u, 3162284025u, 3162297984u, 1060441183u},
+                                                   {3171571892u, 1026766961u, 3179994860u, 1065288892u},
+                                                   {1060431737u, 3162284025u, 1014814336u, 1060441183u},
+                                                   {1024088244u, 1026766961u, 1032511212u, 1065288892u}};
     for (int i = 0; i < bone_count; ++i) {
         auto &entry = bones[i];
         auto *bone = entry.bone;
@@ -271,11 +276,11 @@ void phys_anim_bone_array::copy_back_tween(entity_base *parent, int &index, floa
                 po::compose_ortho(*child->my_rel_po, *parent->my_abs_po, *child->my_abs_po);
             const auto &saved = saved_poses[entry.saved_pose_index];
             const quaternion target = entry.rigid_body_index == -1
-                ? saved.physics_rotation
-                : quaternion{*reinterpret_cast<matrix4x4 *>(child->my_rel_po)};
+                                          ? saved.physics_rotation
+                                          : quaternion{*reinterpret_cast<matrix4x4 *>(child->my_rel_po)};
             const auto position = child->my_rel_po->m[3];
-            slerp(saved.original_rotation, target, fraction).to_matrix(
-                *reinterpret_cast<matrix4x4 *>(child->my_rel_po));
+            slerp(saved.original_rotation, target, fraction)
+                .to_matrix(*reinterpret_cast<matrix4x4 *>(child->my_rel_po));
             child->my_rel_po->m[3] = position;
             po::compose(*child->my_abs_po, *parent->my_abs_po, *child->my_rel_po);
         }

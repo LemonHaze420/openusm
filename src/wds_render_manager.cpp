@@ -258,14 +258,16 @@ void wds_render_manager::create_colorvol_scene()
     USColorVolShaderSpace::gUSColorVolScene() = nglCurScene;
     nglSetZWriteEnable(false);
     nglSetClearFlags(4);
-    nglSetSceneCallBack(static_cast<nglSceneCallbackType>(0), USColorVolShaderSpace::USColorVolPreSceneCallback, nullptr);
-    nglSetSceneCallBack(static_cast<nglSceneCallbackType>(2), USColorVolShaderSpace::USColorVolPostSceneCallback, nullptr);
+    nglSetSceneCallBack(
+        static_cast<nglSceneCallbackType>(0), USColorVolShaderSpace::USColorVolPreSceneCallback, nullptr);
+    nglSetSceneCallBack(
+        static_cast<nglSceneCallbackType>(2), USColorVolShaderSpace::USColorVolPostSceneCallback, nullptr);
     geometry_manager::rebuild_view_frame();
     nglSetWorldToViewMatrix(*bit_cast<const math::MatClass<4, 3> *>(&geometry_manager::xforms[4]));
     float fov, near_plane, far_plane;
     nglGetProjectionParams(&fov, &near_plane, &far_plane);
-    const float clipping_far = g_distance_clipping_enabled
-        ? std::max(g_distance_clipping * LARGE_EPSILON * 1900.0f + 100.0, 100.0) : 10000.0;
+    const float clipping_far =
+        g_distance_clipping_enabled ? std::max(g_distance_clipping * LARGE_EPSILON * 1900.0f + 100.0, 100.0) : 10000.0;
     nglSetPerspectiveMatrix(fov, 0.1f, clipping_far);
     nglCalculateMatrices(false);
     nglListEndScene();
@@ -406,15 +408,14 @@ bool light_affects_position(light_source &light, const vector3d &position)
     case influence_type::DIRECTIONAL: {
         const auto delta = light.get_abs_position() - position;
         const float axial = dot(delta, light.get_abs_po().get_y_facing());
-        return axial >= 0.0f && axial <= properties.cutoff_range
-            && properties.cutoff_hot * properties.cutoff_hot >= delta.length2() - axial * axial;
+        return axial >= 0.0f && axial <= properties.cutoff_range &&
+               properties.cutoff_hot * properties.cutoff_hot >= delta.length2() - axial * axial;
     }
     case influence_type::SPOT: {
         const auto delta = position - light.get_abs_position();
         const float distance_squared = delta.length2();
-        return distance_squared <= properties.cutoff_range * properties.cutoff_range
-            && std::sqrt(distance_squared) * properties.cutoff_hot
-                >= dot(delta, light.get_abs_po().get_y_facing());
+        return distance_squared <= properties.cutoff_range * properties.cutoff_range &&
+               std::sqrt(distance_squared) * properties.cutoff_hot >= dot(delta, light.get_abs_po().get_y_facing());
     }
     default:
         return false;
@@ -445,7 +446,7 @@ struct affecting_light_visitor : subdivision_visitor {
         return 0;
     }
 };
-}
+}  // namespace
 
 _std::vector<light_source *> *wds_render_manager::find_lights(const vector3d &position)
 {
@@ -469,8 +470,8 @@ _std::vector<light_source *> *wds_render_manager::find_lights(const vector3d &po
     }
     return &lights;
 #else
-    return reinterpret_cast<_std::vector<light_source *> *(__fastcall *)(
-        wds_render_manager *, void *, const vector3d *)>(0x00542440)(this, nullptr, &position);
+    return reinterpret_cast<_std::vector<light_source *> *(
+        __fastcall *)(wds_render_manager *, void *, const vector3d *)>(0x00542440)(this, nullptr, &position);
 #endif
 }
 
@@ -669,8 +670,9 @@ bool compute_projected_hull(projected_frustum &points)
     for (int i = 0; i < count; ++i) {
         scan[i].previous = (i + count - 1) % count;
         scan[i].next = (i + 1) % count;
-        if (scan[i].position.y < scan[first].position.y
-            || (std::equal_to<float>{}(scan[i].position.y, scan[first].position.y) && scan[i].position.x < scan[first].position.x))
+        if (scan[i].position.y < scan[first].position.y ||
+            (std::equal_to<float>{}(scan[i].position.y, scan[first].position.y) &&
+             scan[i].position.x < scan[first].position.x))
             first = i;
     }
     int current = scan[first].next;
@@ -706,8 +708,8 @@ bool compute_projected_hull(projected_frustum &points)
     } while (true);
     points.m_size = 0;
     do {
-        points.m_data[points.m_size++] = vector2d{
-            center.x + scan[current].position.x, center.y + scan[current].position.y};
+        points.m_data[points.m_size++] =
+            vector2d{center.x + scan[current].position.x, center.y + scan[current].position.y};
         current = scan[current].next;
     } while (current != first);
     return true;
@@ -738,8 +740,8 @@ void project_view_frustum(const vector3d &forward, projected_frustum &points, fl
         } else {
             const float length = std::sqrt(direction.x * direction.x + direction.z * direction.z);
             if (length > LARGE_EPSILON)
-                points.m_data[points.m_size++] = vector2d{
-                    origin.x + direction.x / length * distance, origin.z + direction.z / length * distance};
+                points.m_data[points.m_size++] =
+                    vector2d{origin.x + direction.x / length * distance, origin.z + direction.z / length * distance};
         }
     }
     compute_projected_hull(points);
@@ -779,8 +781,8 @@ struct region_visibility_visitor : subdivision_visitor {
     {
         auto &visitor = static_cast<region_visibility_visitor &>(base);
         auto &reg = *reinterpret_cast<region *>(const_cast<subdivision_node *>(&node));
-        if (reg.field_5C != region::visit_key2 && reg.is_loaded()
-            && (!g_indoors || (reg.flags & (0x100u | 0x40000u)) != 0)) {
+        if (reg.field_5C != region::visit_key2 && reg.is_loaded() &&
+            (!g_indoors || (reg.flags & (0x100u | 0x40000u)) != 0)) {
             reg.field_5C = region::visit_key2;
             if (visitor.count < 20)
                 visitor.regions[visitor.count++] = &reg;
@@ -843,7 +845,7 @@ float render_ground_level()
     auto *reg = hero != nullptr ? hero->get_primary_region() : nullptr;
     return reg != nullptr ? reg->get_ground_level() : 0.0f;
 }
-}
+}  // namespace
 
 void wds_render_manager::build_render_data_regions(render_data &data, camera &cam)
 {
@@ -863,8 +865,8 @@ void wds_render_manager::build_render_data_regions(render_data &data, camera &ca
         auto *reg = visitor.regions[i];
         vector3d min, max;
         reg->obb->get_extents(&min, &max);
-        if (square_intersects_projected_hull(points, vector2d{min.x - 20.0f, min.z - 20.0f},
-            vector2d{max.x + 20.0f, max.z + 20.0f}))
+        if (square_intersects_projected_hull(
+                points, vector2d{min.x - 20.0f, min.z - 20.0f}, vector2d{max.x + 20.0f, max.z + 20.0f}))
             data.field_0.push_back(render_data::region_info{reg});
     }
 #else
@@ -874,8 +876,6 @@ void wds_render_manager::build_render_data_regions(render_data &data, camera &ca
 
 void wds_render_manager::build_render_data_ents(render_data &data, camera &cam, int)
 {
-
-
     static Var<fixed_vector<traversed_entity, 750> *> this_frame{0x0095C7B8};
     static Var<int> occlusion_status_base{0x0095A6D0};
     static Var<int> fade_rate{0x00921C90};
@@ -922,7 +922,6 @@ void wds_render_manager::build_render_data_ents(render_data &data, camera &cam, 
 
     auto *panel = comic_panels::get_panel_params();
     if (panel != nullptr && panel->field_4 != nullptr && panel->field_4->field_4C != nullptr) {
-
         struct panel_entity_groups {
             uint32_t prefix[26];
             _std::vector<entity_base_vhandle> groups[5];
@@ -934,8 +933,7 @@ void wds_render_manager::build_render_data_ents(render_data &data, camera &cam, 
                 auto *ent = static_cast<entity *>(handle.get_volatile_ptr());
                 if (ent == nullptr || ent->field_5C == entity::visit_key)
                     continue;
-                auto renderable = reinterpret_cast<bool(__fastcall *)(entity *, void *)>(
-                    get_vfunc(ent->m_vtbl, 0x18C));
+                auto renderable = reinterpret_cast<bool(__fastcall *)(entity *, void *)>(get_vfunc(ent->m_vtbl, 0x18C));
                 if (!renderable(ent, nullptr) || !ent->is_visible())
                     continue;
                 ent->field_5C = entity::visit_key;
@@ -950,15 +948,16 @@ void wds_render_manager::build_render_data_ents(render_data &data, camera &cam, 
         }
     }
     if (panel == nullptr || panel->field_4 == nullptr || (panel->field_0 & 0x20) != 0) {
-        const float distance = std::min(geometry_manager::PROJ_FAR_PLANE_D,
-            culling_params::entity_traversal_distance);
+        const float distance = std::min(geometry_manager::PROJ_FAR_PLANE_D, culling_params::entity_traversal_distance);
         for (const auto &entry : data.field_0) {
             auto *reg = entry.field_0;
             if (reg == nullptr || (reg->flags & 0x10) == 0)
                 continue;
             projected_frustum points{};
-            project_view_frustum(cam.get_abs_po().get_z_facing(), points,
-                reg->obb != nullptr ? reg->get_ground_level() : 0.0f, distance);
+            project_view_frustum(cam.get_abs_po().get_z_facing(),
+                                 points,
+                                 reg->obb != nullptr ? reg->get_ground_level() : 0.0f,
+                                 distance);
             visibility_visitor visitor{reg, traversed};
             reg->visibility_map->traverse_convex_hull_raster(points, visitor);
         }
@@ -967,11 +966,10 @@ void wds_render_manager::build_render_data_ents(render_data &data, camera &cam, 
             while (*link != nullptr) {
                 auto *node = *link;
                 auto *ent = node->handle.get_volatile_ptr();
-                bool keep = ent != nullptr && ent->is_ext_flagged(0x200)
-                    && !ent->is_flagged(0x200000);
+                bool keep = ent != nullptr && ent->is_ext_flagged(0x200) && !ent->is_flagged(0x200000);
                 if (keep) {
-                    auto renderable = reinterpret_cast<bool(__fastcall *)(entity *, void *)>(
-                        get_vfunc(ent->m_vtbl, 0x18C));
+                    auto renderable =
+                        reinterpret_cast<bool(__fastcall *)(entity *, void *)>(get_vfunc(ent->m_vtbl, 0x18C));
                     keep = renderable(ent, nullptr);
                 }
                 if (!keep) {
@@ -987,10 +985,11 @@ void wds_render_manager::build_render_data_ents(render_data &data, camera &cam, 
             }
         }
     }
-    std::sort(traversed.m_data, traversed.m_data + traversed.m_size,
-        [](const traversed_entity &left, const traversed_entity &right) {
-            return reinterpret_cast<uintptr_t>(left.ent) < reinterpret_cast<uintptr_t>(right.ent);
-        });
+    std::sort(traversed.m_data,
+              traversed.m_data + traversed.m_size,
+              [](const traversed_entity &left, const traversed_entity &right) {
+                  return reinterpret_cast<uintptr_t>(left.ent) < reinterpret_cast<uintptr_t>(right.ent);
+              });
     stack_allocator saved;
     scratchpad_stack::save_state(&saved);
     using render_list = fixed_vector<render_data::entity_info, 400>;
@@ -1022,23 +1021,23 @@ void wds_render_manager::build_render_data_ents(render_data &data, camera &cam, 
             ent.rendered_last_frame_override = 0;
         }
         vector3d center;
-        auto get_center = reinterpret_cast<vector3d *(__fastcall *)(entity *, void *, vector3d *)>(
-            get_vfunc(ent.m_vtbl, 0x2C));
+        auto get_center =
+            reinterpret_cast<vector3d *(__fastcall *)(entity *, void *, vector3d *)>(get_vfunc(ent.m_vtbl, 0x2C));
         get_center(&ent, nullptr, &center);
-        auto get_radius = reinterpret_cast<float(__fastcall *)(entity *, void *)>(
-            get_vfunc(ent.m_vtbl, 0x28));
+        auto get_radius = reinterpret_cast<float(__fastcall *)(entity *, void *)>(get_vfunc(ent.m_vtbl, 0x28));
         const float radius = get_radius(&ent, nullptr);
         const auto group = static_cast<uint8_t>(ent.field_3E);
         auto *reg = ent.get_primary_region();
-        const vector3d distance_center = group != 0 && reg != nullptr
-            ? vector3d{reg->field_48[group].x, reg->field_48[group].y, reg->field_48[group].z}
-            : center;
+        const vector3d distance_center =
+            group != 0 && reg != nullptr
+                ? vector3d{reg->field_48[group].x, reg->field_48[group].y, reg->field_48[group].z}
+                : center;
         const vector3d delta = distance_center - data.field_20;
 
-        const float distance_squared = delta.x * delta.x + delta.z * delta.z
-            + (group != 0 && reg != nullptr ? 0.0f : delta.y * delta.y);
-        const float fade_distance = group != 0 && reg != nullptr
-            ? reg->field_44[group] : distance_fader::fade_distances2()[ent.field_4 & 0xF];
+        const float distance_squared =
+            delta.x * delta.x + delta.z * delta.z + (group != 0 && reg != nullptr ? 0.0f : delta.y * delta.y);
+        const float fade_distance =
+            group != 0 && reg != nullptr ? reg->field_44[group] : distance_fader::fade_distances2()[ent.field_4 & 0xF];
         int timer;
         if (distance_squared < std::min(far_squared, fade_distance))
             timer = !fade_enabled() || !seen ? 255 : std::min(255, int(ent.m_timer) + fade_rate());
@@ -1052,12 +1051,12 @@ void wds_render_manager::build_render_data_ents(render_data &data, camera &cam, 
             hidden = occlusion::sphere_occluded(center, radius, 3);
         ent.field_44 = occlusion_status_base() - int(hidden);
         if (!hidden)
-            visible.push_back(render_data::entity_info{center, radius, distance_squared,
-                0.0039215689f * float(timer), &ent});
+            visible.push_back(
+                render_data::entity_info{center, radius, distance_squared, 0.0039215689f * float(timer), &ent});
     }
     for (const auto &entry : visible) {
-        auto render = reinterpret_cast<void(__fastcall *)(entity *, void *, float)>(
-            get_vfunc(entry.ent->m_vtbl, 0x1AC));
+        auto render =
+            reinterpret_cast<void(__fastcall *)(entity *, void *, float)>(get_vfunc(entry.ent->m_vtbl, 0x1AC));
         render(entry.ent, nullptr, entry.fade);
     }
     std::swap(traversed_entities_last_frame(), this_frame());
@@ -1094,10 +1093,11 @@ void wds_render_manager::render_meshes(camera &cam)
             const auto &center = mesh->SphereCenter;
             const float dx = center.x - position.x;
             const float dz = center.z - position.z;
-            const float distance = std::max(std::sqrt(dx * dx + dz * dz) - mesh->SphereRadius, 0.0f)
-                + std::max(position.y - (mesh->SphereRadius + altitude_allowance), 0.0f);
-            if (distance >= far_plane || ((g_disable_occlusion_culling & 2) == 0
-                && !geometry_manager::world_space_frustum.sub_5CC030(center.x, center.y, center.z, mesh->SphereRadius)))
+            const float distance = std::max(std::sqrt(dx * dx + dz * dz) - mesh->SphereRadius, 0.0f) +
+                                   std::max(position.y - (mesh->SphereRadius + altitude_allowance), 0.0f);
+            if (distance >= far_plane ||
+                ((g_disable_occlusion_culling & 2) == 0 &&
+                 !geometry_manager::world_space_frustum.sub_5CC030(center.x, center.y, center.z, mesh->SphereRadius)))
                 continue;
             const int fade_index = distance_fader::estimate_fade_index_for_bounding_sphere(mesh->SphereRadius);
             const float fade_start = std::min(distance_fader::fade_distances()[fade_index], far_plane - 10.0f);

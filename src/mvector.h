@@ -12,7 +12,7 @@
 struct from_mash_in_place_constructor;
 struct mash_info_struct;
 
-template<typename T>
+template <typename T>
 struct mVector : mContainer_base {
     T **m_data;
     int m_max_size;
@@ -63,12 +63,12 @@ struct mVector : mContainer_base {
     mVector() : mContainer_base()
     {
         this->initialize(mash::ALLOCATED);
-        }
+    }
 
     mVector(from_mash_in_place_constructor *a2) : mContainer_base(a2)
-        {
+    {
         this->initialize(mash::FROM_MASH);
-            }
+    }
 
     T *at(uint16_t index)
     {
@@ -99,37 +99,37 @@ struct mVector : mContainer_base {
     auto begin()
     {
         if (this->m_data != nullptr) {
-            return iterator {this->m_data};
+            return iterator{this->m_data};
         }
 
-        return iterator {nullptr};
+        return iterator{nullptr};
     }
 
     auto begin() const
     {
         if (this->m_data != nullptr) {
-            return iterator {this->m_data};
+            return iterator{this->m_data};
         }
 
-        return iterator {nullptr};
+        return iterator{nullptr};
     }
 
     auto end()
     {
         if (this->m_data != nullptr) {
-            return iterator {&this->m_data[this->m_size]};
+            return iterator{&this->m_data[this->m_size]};
         }
 
-        return iterator {nullptr};
+        return iterator{nullptr};
     }
 
     auto end() const
     {
         if (this->m_data != nullptr) {
-            return iterator {&this->m_data[this->m_size]};
+            return iterator{&this->m_data[this->m_size]};
         }
 
-        return iterator {nullptr};
+        return iterator{nullptr};
     }
 
     void initialize(mash::allocation_scope scope)
@@ -144,9 +144,7 @@ struct mVector : mContainer_base {
                     if constexpr (std::is_base_of_v<mash_virtual_base, value_type>) {
                         this->m_data[i] =
                             bit_cast<value_type *>(mash_virtual_base::construct_class_helper(this->m_data[i]));
-                    } else if constexpr (std::is_constructible_v<
-                                             value_type,
-                                             from_mash_in_place_constructor *>) {
+                    } else if constexpr (std::is_constructible_v<value_type, from_mash_in_place_constructor *>) {
                         this->m_data[i] = ::new (static_cast<void *>(this->m_data[i]))
                             value_type{static_cast<from_mash_in_place_constructor *>(nullptr)};
                     } else {
@@ -179,7 +177,7 @@ struct mVector : mContainer_base {
     {
 #if OPENUSM_XBOX_MASH_FORMAT && !defined(OPENUSM_XBPACK_V10)
         [](mash_info_struct *a1, mash::buffer_type a2, int &a3) {
-            a3 = * bit_cast<int *>(a1->read_from_buffer(a2, 4, 4));
+            a3 = *bit_cast<int *>(a1->read_from_buffer(a2, 4, 4));
         }(a2, mash::SHARED_BUFFER, m_size);
 #endif
 
@@ -191,11 +189,11 @@ struct mVector : mContainer_base {
     void reserve(int a2);
 
     void push_back()
-{
+    {
         assert(this->m_size <= this->m_max_size);
         if (this->m_size == this->m_max_size || this->is_pointer_in_mash_image(this->m_data)) {
             this->reserve(8 * (this->m_size / 8) + 8);
-    }
+        }
 
         this->m_data[this->m_size++] = nullptr;
     }

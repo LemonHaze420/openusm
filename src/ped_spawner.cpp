@@ -48,23 +48,38 @@ static auto &peds_paused = var<bool>(0x0096C9D1);
 static auto &ped_density = var<float>(0x00937FF0);
 
 namespace {
-void __fastcall native_ped_spawn(ped_spawner *self, void *, vector3d position,
-    vector3d facing, traffic_path_lane *lane, int node, bool first, bool moving)
+void __fastcall native_ped_spawn(ped_spawner *self, void *, vector3d position, vector3d facing, traffic_path_lane *lane,
+                                 int node, bool first, bool moving)
 {
     self->_do_spawn(position, facing, lane, node, first, moving);
 }
-void __fastcall native_ped_unspawn(ped_spawner *self, void *) { self->_un_spawn(); }
+void __fastcall native_ped_unspawn(ped_spawner *self, void *)
+{
+    self->_un_spawn();
+}
 
 void __fastcall native_ped_critical(ped_spawner *, void *, Float) {}
-actor *__fastcall native_ped_actor(ped_spawner *self, void *) { return self->get_my_actor(); }
+actor *__fastcall native_ped_actor(ped_spawner *self, void *)
+{
+    return self->get_my_actor();
+}
 void __fastcall native_ped_set_actor(ped_spawner *, void *, vhandle_type<actor>) {}
-bool __fastcall native_ped_lane(ped_spawner *, void *, traffic_path_lane *) { return true; }
-bool __fastcall native_ped_position(ped_spawner *, void *, const vector3d &) { return true; }
+bool __fastcall native_ped_lane(ped_spawner *, void *, traffic_path_lane *)
+{
+    return true;
+}
+bool __fastcall native_ped_position(ped_spawner *, void *, const vector3d &)
+{
+    return true;
+}
 void __fastcall native_ped_init(ped_spawner *self, void *, vhandle_type<actor> handle)
 {
     self->init_vars(handle);
 }
-void __fastcall native_ped_reset(ped_spawner *self, void *) { self->reset(); }
+void __fastcall native_ped_reset(ped_spawner *self, void *)
+{
+    self->reset();
+}
 void __fastcall native_ped_place(ped_spawner *self, void *, vector3d position, const vector3d &facing)
 {
     self->spawn(position, facing);
@@ -75,7 +90,7 @@ ai::pedestrian_inode *ped_node(actor *owner)
     return core ? static_cast<ai::pedestrian_inode *>(core->get_info_node(ai::pedestrian_inode::default_id, false))
                 : nullptr;
 }
-}
+}  // namespace
 
 void *ped_spawner::native_vtable()
 {
@@ -96,8 +111,8 @@ void *ped_spawner::native_vtable()
 
 void *ped_spawner::operator new(std::size_t size)
 {
-    return size <= slab_allocator::get_max_object_size()
-        ? slab_allocator::allocate(size, nullptr) : ::operator new(size);
+    return size <= slab_allocator::get_max_object_size() ? slab_allocator::allocate(size, nullptr)
+                                                         : ::operator new(size);
 }
 
 void ped_spawner::operator delete(void *storage)
@@ -108,9 +123,9 @@ void ped_spawner::operator delete(void *storage)
         ::operator delete(storage);
 }
 
-ped_spawner::ped_spawner(int index) : spawnable(vhandle_type<entity>{0}),
-    field_C(index), field_10(nullptr), field_14(nullptr), field_18(nullptr),
-    field_3C(0), field_40(false), field_41(false), field_44(0)
+ped_spawner::ped_spawner(int index)
+    : spawnable(vhandle_type<entity>{0}), field_C(index), field_10(nullptr), field_14(nullptr), field_18(nullptr),
+      field_3C(0), field_40(false), field_41(false), field_44(0)
 {
     m_vtbl = reinterpret_cast<std::intptr_t>(native_vtable());
 }
@@ -146,8 +161,7 @@ void ped_spawner::reset()
     field_30 = ZEROVEC;
 }
 
-void ped_spawner::_do_spawn(vector3d position, vector3d facing, traffic_path_lane *lane,
-    int, bool, bool)
+void ped_spawner::_do_spawn(vector3d position, vector3d facing, traffic_path_lane *lane, int, bool, bool)
 {
     if (get_my_actor()) {
         sub_6BBD30(lane);
@@ -265,10 +279,10 @@ void ped_spawner::exit_intersection()
 bool ped_spawner::can_do_special_processing() const
 {
     if (special_proc_index > special_proc_index_0)
-        return field_C <= static_cast<unsigned>(special_proc_index_0)
-            || field_C >= static_cast<unsigned>(special_proc_index);
-    return field_C >= static_cast<unsigned>(special_proc_index)
-        && field_C <= static_cast<unsigned>(special_proc_index_0);
+        return field_C <= static_cast<unsigned>(special_proc_index_0) ||
+               field_C >= static_cast<unsigned>(special_proc_index);
+    return field_C >= static_cast<unsigned>(special_proc_index) &&
+           field_C <= static_cast<unsigned>(special_proc_index_0);
 }
 
 void ped_spawner::sub_6C2EA0(Float elapsed)
@@ -419,8 +433,7 @@ void ped_spawner::advance_peds(Float elapsed)
         init();
     }
 
-    const int target_count = static_cast<int>(
-        static_cast<double>(ped_spawner_list.size()) * ped_density);
+    const int target_count = static_cast<int>(static_cast<double>(ped_spawner_list.size()) * ped_density);
     if (num_peds_spawned < target_count) {
         if ((g_world_ptr->time_manager.field_C & 1) == 0) {
             populate_quad_paths();
@@ -458,16 +471,15 @@ vector3d quad_path_test_position()
     const vector3d direction{std::cos(angle), 0.0f, std::sin(angle)};
     const float cosine = std::clamp(direction.x * forward.x + direction.z * forward.z, -1.0f, 1.0f);
     const float random = static_cast<float>(std::rand()) / 32768.0f;
-    const float radius = std::acos(cosine) >= 0.7853981852531433f
-        ? random * 10.0f + 5.0f : random * 20.0f + 40.0f;
+    const float radius = std::acos(cosine) >= 0.7853981852531433f ? random * 10.0f + 5.0f : random * 20.0f + 40.0f;
     return position + direction * radius;
 }
 
 ai_quad_path_cell *spawner_quad_cell(const ped_spawner *spawner)
 {
     auto *reg = reinterpret_cast<region *>(spawner->field_20);
-    return spawner->field_1C && reg && (reg->flags & 0x10)
-        ? reinterpret_cast<ai_quad_path_cell *>(spawner->field_1C) : nullptr;
+    return spawner->field_1C && reg && (reg->flags & 0x10) ? reinterpret_cast<ai_quad_path_cell *>(spawner->field_1C)
+                                                           : nullptr;
 }
 
 void seed_quad_path_cell(ai_quad_path_cell *cell, region *reg)
@@ -527,7 +539,7 @@ void seed_quad_path_cell(ai_quad_path_cell *cell, region *reg)
         }
     }
 }
-}
+}  // namespace
 
 void ped_spawner::populate_quad_paths()
 {
@@ -559,9 +571,8 @@ void ped_spawner::populate_lanes()
     lanes.reserve(10);
     for (const auto &information : *spawnable_lanes) {
         auto *lane = information.field_4;
-        if (traffic_path_lane::lane_is_valid(lane) && lane->my_road
-            && lane->my_road->total_in_lanes < 8 && lane->my_road->total_out_lanes < 8
-            && lane->get_type() == 1)
+        if (traffic_path_lane::lane_is_valid(lane) && lane->my_road && lane->my_road->total_in_lanes < 8 &&
+            lane->my_road->total_out_lanes < 8 && lane->get_type() == 1)
             lanes.push_back(lane);
     }
     for (unsigned index = 1; index < lanes.size(); ++index)
@@ -624,8 +635,13 @@ ped_spawner *ped_spawner::assign_non_ped_actor(vhandle_type<actor> handle)
     selected->field_5 = false;
     vector3d direction;
     auto *lane = g_world_ptr->the_terrain->traffic_ptr->get_closest_or_farthest_lane(
-        true, owner->get_abs_position(), ZEROVEC, &direction,
-        static_cast<traffic_path_lane::eLaneType>(1), false, nullptr);
+        true,
+        owner->get_abs_position(),
+        ZEROVEC,
+        &direction,
+        static_cast<traffic_path_lane::eLaneType>(1),
+        false,
+        nullptr);
     if (lane)
         selected->sub_6BBD30(lane);
     return selected;

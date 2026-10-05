@@ -109,8 +109,7 @@ namespace resource_manager {
 extern int &amalgapak_pack_location_count;
 extern resource_pack_location *&amalgapak_pack_location_table;
 
-namespace
-{
+namespace {
 constexpr auto XBOX_AMALGAPAK_LOCATION_SIZE = 0x28u;
 
 struct xbox_amalgapak_location {
@@ -146,8 +145,7 @@ void convert_key(resource_key &key)
 
 bool has_full_location_table(os_file &file, const resource_amalgapak_header &header)
 {
-    if (header.location_table_size <= 0
-        || header.location_table_size % sizeof(resource_pack_location) != 0)
+    if (header.location_table_size <= 0 || header.location_table_size % sizeof(resource_pack_location) != 0)
         return false;
 
     std::vector<uint8_t> table(header.location_table_size);
@@ -160,10 +158,8 @@ bool has_full_location_table(os_file &file, const resource_amalgapak_header &hea
         uint32_t hash = 0;
         std::memcpy(&hash, entry, sizeof(hash));
 
-        const auto *name = reinterpret_cast<const char *>(
-            entry + offsetof(resource_pack_location, m_name));
-        const auto *name_end = static_cast<const char *>(
-            std::memchr(name, 0, sizeof(resource_pack_location::m_name)));
+        const auto *name = reinterpret_cast<const char *>(entry + offsetof(resource_pack_location, m_name));
+        const auto *name_end = static_cast<const char *>(std::memchr(name, 0, sizeof(resource_pack_location::m_name)));
         if (name_end == nullptr || name_end == name || to_hash(name) != hash)
             return false;
     }
@@ -175,23 +171,20 @@ void load_pack_location_table(os_file &file, const resource_amalgapak_header &pa
 {
     file.set_fp(pack_file_header.field_1C, os_file::FP_BEGIN);
 
-    const auto full_table = g_platform == NL_PLATFORM_XBOX
-        && has_full_location_table(file, pack_file_header);
+    const auto full_table = g_platform == NL_PLATFORM_XBOX && has_full_location_table(file, pack_file_header);
     file.set_fp(pack_file_header.field_1C, os_file::FP_BEGIN);
 
     if (g_platform == NL_PLATFORM_XBOX && !full_table) {
         assert(pack_file_header.location_table_size % XBOX_AMALGAPAK_LOCATION_SIZE == 0);
 
-        amalgapak_pack_location_count =
-            pack_file_header.location_table_size / XBOX_AMALGAPAK_LOCATION_SIZE;
+        amalgapak_pack_location_count = pack_file_header.location_table_size / XBOX_AMALGAPAK_LOCATION_SIZE;
 
         std::vector<xbox_amalgapak_location> raw_locations(amalgapak_pack_location_count);
-        auto how_many_did_we_get =
-            file.read(raw_locations.data(), pack_file_header.location_table_size);
+        auto how_many_did_we_get = file.read(raw_locations.data(), pack_file_header.location_table_size);
         assert(how_many_did_we_get == pack_file_header.location_table_size);
 
-        amalgapak_pack_location_table = static_cast<resource_pack_location *>(arch_memalign(
-            16u, amalgapak_pack_location_count * sizeof(resource_pack_location)));
+        amalgapak_pack_location_table = static_cast<resource_pack_location *>(
+            arch_memalign(16u, amalgapak_pack_location_count * sizeof(resource_pack_location)));
         assert(amalgapak_pack_location_table != nullptr);
 
         for (int i = 0; i < amalgapak_pack_location_count; ++i) {
@@ -212,15 +205,13 @@ void load_pack_location_table(os_file &file, const resource_amalgapak_header &pa
         return;
     }
 
-    amalgapak_pack_location_count =
-        pack_file_header.location_table_size / sizeof(resource_pack_location);
+    amalgapak_pack_location_count = pack_file_header.location_table_size / sizeof(resource_pack_location);
 
     amalgapak_pack_location_table =
         static_cast<resource_pack_location *>(arch_memalign(16u, pack_file_header.location_table_size));
     assert(amalgapak_pack_location_table != nullptr);
 
-    auto how_many_did_we_get =
-        file.read(amalgapak_pack_location_table, pack_file_header.location_table_size);
+    auto how_many_did_we_get = file.read(amalgapak_pack_location_table, pack_file_header.location_table_size);
     assert(how_many_did_we_get == pack_file_header.location_table_size);
 
     if (g_platform == NL_PLATFORM_XBOX) {
@@ -228,52 +219,52 @@ void load_pack_location_table(os_file &file, const resource_amalgapak_header &pa
             convert_key(amalgapak_pack_location_table[i].loc.field_0);
     }
 }
-}
+}  // namespace
 
 VALIDATE_SIZE(resource_memory_map, 0x90);
 
 VALIDATE_SIZE((*partitions), 16u);
 
 #if !STANDALONE_SYSTEM
-_std::vector<resource_partition *> *& partitions = var<_std::vector<resource_partition *> *>(0x0095C7F0);
+_std::vector<resource_partition *> *&partitions = var<_std::vector<resource_partition *> *>(0x0095C7F0);
 
-mString & amalgapak_name = var<mString>(0x0095CAD4);
+mString &amalgapak_name = var<mString>(0x0095CAD4);
 
-int & amalgapak_base_offset = var<int>(0x00921CB4);
+int &amalgapak_base_offset = var<int>(0x00921CB4);
 
-nflFileID & amalgapak_id = var<nflFileID>(0x00921CB8);
+nflFileID &amalgapak_id = var<nflFileID>(0x00921CB8);
 
-int & resource_buffer_used = var<int>(0x0095C180);
+int &resource_buffer_used = var<int>(0x0095C180);
 
-int & memory_maps_count = var<int>(0x0095C7F4);
+int &memory_maps_count = var<int>(0x0095C7F4);
 
-int & resource_buffer_size = var<int>(0x0095C1C8);
+int &resource_buffer_size = var<int>(0x0095C1C8);
 
-int & in_use_memory_map = var<int>(0x00921CB0);
+int &in_use_memory_map = var<int>(0x00921CB0);
 
-uint8_t *& resource_buffer = var<uint8_t *>(0x0095C738);
+uint8_t *&resource_buffer = var<uint8_t *>(0x0095C738);
 
-bool & using_amalga = var<bool>(0x0095C800);
+bool &using_amalga = var<bool>(0x0095C800);
 
-int & amalgapak_signature = var<int>(0x0095C804);
+int &amalgapak_signature = var<int>(0x0095C804);
 
-resource_memory_map *& memory_maps = var<resource_memory_map *>(0x0095C2F0);
+resource_memory_map *&memory_maps = var<resource_memory_map *>(0x0095C2F0);
 
-int & amalgapak_pack_location_count = var<int>(0x0095C7FC);
+int &amalgapak_pack_location_count = var<int>(0x0095C7FC);
 
-resource_pack_location *& amalgapak_pack_location_table = var<resource_pack_location *>(0x0095C7F8);
+resource_pack_location *&amalgapak_pack_location_table = var<resource_pack_location *>(0x0095C7F8);
 
-int & amalgapak_prerequisite_count = var<int>(0x0095C174);
+int &amalgapak_prerequisite_count = var<int>(0x0095C174);
 
-resource_key *& amalgapak_prerequisite_table = var<resource_key *>(0x0095C300);
+resource_key *&amalgapak_prerequisite_table = var<resource_key *>(0x0095C300);
 
 _std::vector<resource_pack_slot *> &resource_context_stack = var<_std::vector<resource_pack_slot *>>(0x0096015C);
 
 #else
 
-#define make_var(type, name) \
+#define make_var(type, name)      \
     type &name = []() -> auto & { \
-    static type g_##name {}; \
+        static type g_##name{};   \
         return g_##name;          \
     }()
 
@@ -357,7 +348,7 @@ void load_amalgapak()
             amalgapak_name = get_amalgapak_filename(g_platform);
             sp_log("Loading amalgapak...");
 
-            mString a1 {amalgapak_name.c_str()};
+            mString a1{amalgapak_name.c_str()};
 
             file.open(a1, os_file::FILE_READ);
         }
@@ -371,7 +362,7 @@ void load_amalgapak()
         file.read(&pack_file_header, sizeof(resource_amalgapak_header));
 
         {
-            mString a1 {amalgapak_name.c_str()};
+            mString a1{amalgapak_name.c_str()};
 
             pack_file_header.verify(a1);
         }
@@ -392,8 +383,7 @@ void load_amalgapak()
         assert(amalgapak_prerequisite_table != nullptr);
 
         file.set_fp(pack_file_header.field_2C, os_file::FP_BEGIN);
-        auto how_many_did_we_get = file.read(amalgapak_prerequisite_table,
-                                             pack_file_header.prerequisite_table_size);
+        auto how_many_did_we_get = file.read(amalgapak_prerequisite_table, pack_file_header.prerequisite_table_size);
         assert(how_many_did_we_get == pack_file_header.prerequisite_table_size);
 
         if (g_platform == NL_PLATFORM_XBOX) {
@@ -428,8 +418,8 @@ void load_amalgapak()
                 amalgapak_id = nflOpenFile({2}, amalgapak_name.c_str());
 
                 if (amalgapak_id == NFL_FILE_ID_INVALID) {
-                    mString v12 {amalgapak_name.c_str()};
-                    mString v13 {"data\\"};
+                    mString v12{amalgapak_name.c_str()};
+                    mString v13{"data\\"};
 
                     mString a1 = v13 + v12;
 
@@ -475,7 +465,7 @@ bool is_idle()
 
         return true;
     } else {
-        return (bool) CDECL_CALL(0x00537AC0);
+        return (bool)CDECL_CALL(0x00537AC0);
     }
 }
 
@@ -493,7 +483,7 @@ bool can_reload_amalgapak()
         bool result = false;
         os_file v11{};
         auto *v1 = amalgapak_name.c_str();
-        mString v4 {v1};
+        mString v4{v1};
         v11.open(v4, os_file::FILE_READ);
         if (v11.is_open()) {
             resource_amalgapak_header data{};
@@ -514,7 +504,7 @@ bool can_reload_amalgapak()
 
         return result;
     } else {
-        return (bool) CDECL_CALL(0x0053DE90);
+        return (bool)CDECL_CALL(0x0053DE90);
     }
 }
 
@@ -534,7 +524,7 @@ void reload_amalgapak()
         mem_freealign(amalgapak_prerequisite_table);
         mem_freealign(amalgapak_pack_location_table);
 
-        delete[](memory_maps);
+        delete[] (memory_maps);
         amalgapak_prerequisite_table = nullptr;
         amalgapak_pack_location_table = nullptr;
         memory_maps = nullptr;
@@ -591,7 +581,7 @@ resource_pack_slot *get_best_context(resource_pack_slot *slot)
         auto *result = the_partition->get_pack_slots().front();
         return result;
     } else {
-        return (resource_pack_slot *) CDECL_CALL(0x005375A0, slot);
+        return (resource_pack_slot *)CDECL_CALL(0x005375A0, slot);
     }
 }
 
@@ -636,7 +626,7 @@ resource_pack_slot *get_best_context(resource_partition_enum a1)
 
         return best_slot;
     } else {
-        return (resource_pack_slot *) CDECL_CALL(0x00537610, a1);
+        return (resource_pack_slot *)CDECL_CALL(0x00537610, a1);
     }
 }
 
@@ -644,7 +634,7 @@ void frame_advance(Float a2)
 {
     auto v8 = os_developer_options::instance->get_int(mString{"AMALGA_REFRESH_INTERVAL"});
 
-    static float amalga_refresh_timer {0};
+    static float amalga_refresh_timer{0};
     amalga_refresh_timer += a2;
     if (v8 > 0 && amalga_refresh_timer > v8) {
         if (can_reload_amalgapak()) {
@@ -655,7 +645,7 @@ void frame_advance(Float a2)
     }
 
     if constexpr (1) {
-        static auto & dword_960CB0 = var<int>(0x00960CB0);
+        static auto &dword_960CB0 = var<int>(0x00960CB0);
 
         if (dword_960CB0 == 0) {
             limited_timer timer{0.02};
@@ -700,7 +690,7 @@ bool get_pack_file_stats(const resource_key &a1, resource_pack_location *a2, mSt
 
         {
             auto is_sorted = std::is_sorted(amalgapak_pack_location_table,
-                    amalgapak_pack_location_table + amalgapak_pack_location_count,
+                                            amalgapak_pack_location_table + amalgapak_pack_location_count,
                                             [](auto &a1, auto &a2) { return a1.loc.field_0 <= a2.loc.field_0; });
             assert(is_sorted);
         }
@@ -745,7 +735,7 @@ bool get_pack_file_stats(const resource_key &a1, resource_pack_location *a2, mSt
 
         return true;
     } else {
-        auto result = (bool) CDECL_CALL(0x0052A820, &a1, a2, a3, a4);
+        auto result = (bool)CDECL_CALL(0x0052A820, &a1, a2, a3, a4);
         sp_log("%s", result ? "true" : "false");
         return result;
     }
@@ -799,7 +789,7 @@ resource_directory *get_resource_directory(const resource_key &a1)
 
         return nullptr;
     } else {
-        return (resource_directory *) CDECL_CALL(0x00537A10, &a1);
+        return (resource_directory *)CDECL_CALL(0x00537A10, &a1);
     }
 }
 
@@ -914,7 +904,7 @@ void configure_packs_by_memory_map(int idx)
         assert(static_cast<int>(partitions->size()) == pop_start_idx);
 
         for (uint32_t i = pop_start_idx; i < RESOURCE_PARTITION_END; ++i) {
-            auto *new_partition = new resource_partition {static_cast<resource_partition_enum>(i)};
+            auto *new_partition = new resource_partition{static_cast<resource_partition_enum>(i)};
 
             auto &memory_map = memory_maps[idx];
             auto &tmp = memory_map.field_10[i];
@@ -934,8 +924,8 @@ void configure_packs_by_memory_map(int idx)
                 }
             }
 
-                partitions->push_back(new_partition);
-            }
+            partitions->push_back(new_partition);
+        }
 
         assert(partitions->size() == RESOURCE_PARTITION_END &&
                "If this fails there's something wrong with the partition preserving code.");
@@ -1002,7 +992,7 @@ nflFileID open_pack(const char *name)
 
         mString a1 = v11 + dir;
 
-        filespec fileSpec {a1, v8, v9};
+        filespec fileSpec{a1, v8, v9};
 
         mString v12 = fileSpec.fullname();
 
@@ -1060,11 +1050,9 @@ uint8_t *get_resource(const resource_key &resource_id, int *mash_data_size, reso
         assert(resource_id.is_set());
 
         auto *context = get_resource_context();
-        if (context != nullptr
-                && (resource_id.get_type() == RESOURCE_KEY_TYPE_ENTITY
-                    || resource_id.get_type() == RESOURCE_KEY_TYPE_EXTERNAL_ENT)) {
-            if (auto *mod = getMod(resource_id.m_hash.source_hash_code);
-                    mod != nullptr && !mod->Data.empty()) {
+        if (context != nullptr && (resource_id.get_type() == RESOURCE_KEY_TYPE_ENTITY ||
+                                   resource_id.get_type() == RESOURCE_KEY_TYPE_EXTERNAL_ENT)) {
+            if (auto *mod = getMod(resource_id.m_hash.source_hash_code); mod != nullptr && !mod->Data.empty()) {
                 if (mash_data_size != nullptr) {
                     *mash_data_size = static_cast<int>(mod->Data.size());
                 }
@@ -1114,12 +1102,12 @@ uint8_t *get_resource(const resource_key &resource_id, int *mash_data_size, reso
         //        resource_id.get_platform_string(g_platform).c_str());
         return nullptr;
     } else {
-        uint8_t * (* func)(const resource_key *, int *, resource_pack_slot **) = CAST(func, 0x00531B30);
+        uint8_t *(*func)(const resource_key *, int *, resource_pack_slot **) = CAST(func, 0x00531B30);
         return func(&resource_id, mash_data_size, a3);
     }
 }
 
-} // namespace resource_manager
+}  // namespace resource_manager
 
 void resource_manager_patch()
 {
@@ -1130,7 +1118,7 @@ void resource_manager_patch()
     SET_JUMP(0x00531B30, resource_manager::get_resource);
 
     {
-        resource_pack_slot * (* func)(resource_pack_slot *) = &resource_manager::get_best_context;
+        resource_pack_slot *(*func)(resource_pack_slot *) = &resource_manager::get_best_context;
         REDIRECT(0x00542A04, func);
     }
 

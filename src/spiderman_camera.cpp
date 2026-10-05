@@ -30,7 +30,7 @@ float g_pitch_mult = 2.0f;
 
 void set_filter_time(float dt)
 {
-    static const std::array<float, 5> filter_bases {
+    static const std::array<float, 5> filter_bases{
         static_cast<float>(std::pow(0.03999999910593033, 1.0)),
         static_cast<float>(std::pow(0.03999999910593033, 2.0)),
         static_cast<float>(std::pow(0.03999999910593033, 4.0)),
@@ -44,12 +44,12 @@ void set_filter_time(float dt)
     pronto_mix = std::pow(filter_bases[4], dt);
 }
 
-static Var<vector3d> stru_959EBC {0x00959EBC};
+static Var<vector3d> stru_959EBC{0x00959EBC};
 
 void constrain_normal(vector3d &normal, const vector3d &basisA, float a4, float a5)
 {
     assert(normal.is_normal());
-    
+
     assert(basisA.is_normal());
 
     auto a3a = dot(normal, basisA);
@@ -98,10 +98,7 @@ void __fastcall advance_chase_camera(spiderman_camera *self, void *, Float dt)
     self->_frame_advance(dt);
 }
 
-void __fastcall render_chase_camera(spiderman_camera *, void *, Float)
-{
-
-}
+void __fastcall render_chase_camera(spiderman_camera *, void *, Float) {}
 
 void __fastcall sync_chase_camera(spiderman_camera *self, void *, camera *source)
 {
@@ -122,7 +119,7 @@ void __fastcall recenter_chase_camera(spiderman_camera *self, void *, Float dt)
 {
     self->_autocorrect(dt);
 }
-}
+}  // namespace
 #endif
 
 void *spiderman_camera::native_vtable()
@@ -201,7 +198,7 @@ void spiderman_camera::operator delete(void *ptr)
 #if STANDALONE_SYSTEM
     _aligned_free(ptr);
 #else
-    using aligned_free_t = void (__cdecl *)(void *);
+    using aligned_free_t = void(__cdecl *)(void *);
     auto aligned_free = *bit_cast<aligned_free_t *>(0x0086F328);
     aligned_free(ptr);
 #endif
@@ -275,7 +272,7 @@ void spiderman_camera::adjust_geometry_pipe(bool a1)
 
 void spiderman_camera::autocorrect(Float a2)
 {
-    void (__fastcall *func)(void *, void *, Float) = CAST(func, get_vfunc(m_vtbl, 0x2D0));
+    void(__fastcall * func)(void *, void *, Float) = CAST(func, get_vfunc(m_vtbl, 0x2D0));
     func(this, nullptr, a2);
 }
 
@@ -285,7 +282,7 @@ void spiderman_camera::_autocorrect(Float a2)
 
     if constexpr (1) {
         auto *target = this->get_target_entity();
-        camera_target_info v13 {target, 0.033333335f, this->target_pos, this->target_up};
+        camera_target_info v13{target, 0.033333335f, this->target_pos, this->target_up};
 
         this->field_1A0->request_recenter(a2, v13);
         if (equal(a2.value, 0.0f)) {
@@ -312,9 +309,9 @@ void spiderman_camera::_frame_advance(Float a2)
     if constexpr (STANDALONE_SYSTEM) {
         if (g_game_ptr->level_is_loaded() && !g_game_ptr->is_paused() &&
             !os_developer_options::instance->get_flag(mString{"SHOW_PROFILE_INFO"})) {
-            static int & old_devopt_fov = var<int>(0x00959E54);
+            static int &old_devopt_fov = var<int>(0x00959E54);
             this->field_1D0.update(a2);
-            auto CAMERA_FOV = os_developer_options::instance->get_int(mString {"CAMERA_FOV"});
+            auto CAMERA_FOV = os_developer_options::instance->get_int(mString{"CAMERA_FOV"});
             if (CAMERA_FOV != old_devopt_fov) {
                 old_devopt_fov = CAMERA_FOV;
                 auto fov = CAMERA_FOV * 0.017453292f;
@@ -327,26 +324,26 @@ void spiderman_camera::_frame_advance(Float a2)
             }
 
             set_filter_time(a2);
-            if ( this->get_target_entity() == nullptr ) {
+            if (this->get_target_entity() == nullptr) {
                 this->set_target_entity(g_world_ptr->get_hero_ptr(0));
             }
 
             auto *target_entity = this->get_target_entity();
-            camera_target_info v18 {target_entity, a2, this->target_pos, this->target_up};
+            camera_target_info v18{target_entity, a2, this->target_pos, this->target_up};
 
             vector3d v17 = this->get_abs_position() - v18.pos;
             v18.field_48 = v17;
             auto len2 = (v18.pos - this->target_pos).length2();
-            if ( len2 > sqr(16.0) ) {
+            if (len2 > sqr(16.0)) {
                 this->autocorrect(0.0);
             }
 
             auto *the_controller = v18.field_54->m_player_controller;
-            if ( the_controller != nullptr ) {
+            if (the_controller != nullptr) {
                 the_controller->force_always_camera_relative(false);
             }
 
-            camera_frame v19 {this->get_abs_po()};
+            camera_frame v19{this->get_abs_po()};
             v19.fwd.normalize();
 
             this->field_1A0->frame_advance(a2, v19, v18);

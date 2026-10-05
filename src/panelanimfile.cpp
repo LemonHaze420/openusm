@@ -48,10 +48,8 @@ void PanelAnimFile::Update(Float a2)
     }
 
     float sample_time = current_time;
-    if (sample_time > field_20 &&
-        (previous_time < field_20 ||
-         (std::fpclassify(field_20) == FP_ZERO &&
-          std::fpclassify(previous_time) == FP_ZERO))) {
+    if (sample_time > field_20 && (previous_time < field_20 || (std::fpclassify(field_20) == FP_ZERO &&
+                                                                std::fpclassify(previous_time) == FP_ZERO))) {
         sample_time = field_20;
     }
     if (sample_time > field_20) {
@@ -60,9 +58,7 @@ void PanelAnimFile::Update(Float a2)
     }
 
     const float step_time = bit_cast<float>(field_1C);
-    sample_time = field_24 == 1
-        ? field_20 - sample_time + step_time
-        : sample_time + step_time;
+    sample_time = field_24 == 1 ? field_20 - sample_time + step_time : sample_time + step_time;
 
     for (int i = 0; i < field_0.size(); ++i) {
         auto *animation = field_0.m_data[i];

@@ -111,8 +111,7 @@ void fe_distance_race::Init()
 // 0x0062FE40
 void fe_distance_race::Update(Float time_inc)
 {
-    if (field_0 == nullptr ||
-        (!field_C0 && (field_60 == nullptr || !field_60->field_2D)))
+    if (field_0 == nullptr || (!field_C0 && (field_60 == nullptr || !field_60->field_2D)))
         return;
     field_0->Update(time_inc);
     reinterpret_cast<PanelQuad **>(&field_38)[field_64]->SetPos(field_A0, field_70);

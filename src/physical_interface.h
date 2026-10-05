@@ -147,8 +147,7 @@ struct physical_interface {
     void manage_standing(bool force);
     void manage_standing_internal(bool force, float time);
     void synchronize_pendulum_constraints_with_position();
-    static string_hash calc_obb_face_terrain_type(const vector3d &position,
-                                                 subdivision_node_obb_base *obb);
+    static string_hash calc_obb_face_terrain_type(const vector3d &position, subdivision_node_obb_base *obb);
 
     //0x004C9500
     bool set_ifc_num(const resource_key &a2, Float a3, bool a4);
@@ -230,23 +229,20 @@ struct physical_interface {
 
     vector3d apply_positional_constraints(Float a3, const vector3d &a4, bool a5);
     void frame_advance_pendulum_orientation(Float elapsed);
-    bool integrate(Float elapsed, const po &start, const vector3d &velocity,
-        po &result, vector3d &result_velocity);
-    void process_projectile_collision(Float elapsed, const po &start,
-        const vector3d &velocity, const po &predicted,
-        const vector3d &predicted_velocity, po &result, vector3d &result_velocity);
+    bool integrate(Float elapsed, const po &start, const vector3d &velocity, po &result, vector3d &result_velocity);
+    void process_projectile_collision(Float elapsed, const po &start, const vector3d &velocity, const po &predicted,
+                                      const vector3d &predicted_velocity, po &result, vector3d &result_velocity);
     void apply_air_resistance(Float elapsed, vector3d &velocity);
     void backpropagate(Float elapsed, const po &result, const vector3d &velocity);
-    void bounce_internal(const vector3d &point, const vector3d &normal, entity *hit,
-        const po &start, const vector3d &velocity, po &result, vector3d &result_velocity);
+    void bounce_internal(const vector3d &point, const vector3d &normal, entity *hit, const po &start,
+                         const vector3d &velocity, po &result, vector3d &result_velocity);
     void bounce(Float elapsed, const vector3d &point, const vector3d &normal, entity *hit);
 
     //0x004C9430
     void apply_force_increment_in_biped_physics_mode(const vector3d &a2, force_type a3, const vector3d &a4, int a5);
 
     void stop_prop_physics(bool a2);
-    bool start_prop_physics(const vector3d &velocity, float randomness,
-        float lifetime, prop_phys_priority priority);
+    bool start_prop_physics(const vector3d &velocity, float randomness, float lifetime, prop_phys_priority priority);
 
     void remove_from_phys_ifc_list();
 

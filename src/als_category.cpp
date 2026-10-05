@@ -11,16 +11,16 @@
 #include "vtbl.h"
 
 namespace als {
-    VALIDATE_SIZE(category, 0x10);
+VALIDATE_SIZE(category, 0x10);
 
 request_data category::do_implicit_trans(animation_logic_system *a3, state_machine *a4)
 {
     request_data data;
     void(__fastcall * func)(void *, void *, request_data *, animation_logic_system *, state_machine *) =
         CAST(func, get_vfunc(m_vtbl, 0x18));
-        func(this, nullptr, &data, a3, a4);
-        return data;
-    }
+    func(this, nullptr, &data, a3, a4);
+    return data;
+}
 
 request_data category::do_explicit_trans(animation_logic_system *a4, state_machine *a5, string_hash a6)
 {
@@ -45,9 +45,9 @@ request_data category::do_incoming_trans(animation_logic_system *a3, state_machi
     request_data data;
     void(__fastcall * func)(void *, void *, request_data *, animation_logic_system *, state_machine *) =
         CAST(func, get_vfunc(m_vtbl, 0x24));
-        func(this, nullptr, &data, a3, a4);
-        return data;
-    }
+    func(this, nullptr, &data, a3, a4);
+    return data;
+}
 
 void category::do_post_trans(animation_logic_system *a1, state_machine *a2, transition_post_handle a3)
 {
@@ -97,34 +97,34 @@ int category::get_mash_sizeof() const
     return func(this);
 }
 
-    void category::_unmash(mash_info_struct *a1, void *a3)
-    {
-        TRACE("als::category::unmash");
+void category::_unmash(mash_info_struct *a1, void *a3)
+{
+    TRACE("als::category::unmash");
 
     if constexpr (1) {
-            a1->unmash_class_in_place(this->field_4, this);
+        a1->unmash_class_in_place(this->field_4, this);
 
 #if OPENUSM_XBOX_MASH_FORMAT && !defined(OPENUSM_XBPACK_V10)
-            {
-                uint8_t class_mashed = -1;
-                class_mashed = *a1->read_from_buffer(mash::SHARED_BUFFER, 1, 1);
-                assert(class_mashed == 0xAF || class_mashed == 0);
-            }
+        {
+            uint8_t class_mashed = -1;
+            class_mashed = *a1->read_from_buffer(mash::SHARED_BUFFER, 1, 1);
+            assert(class_mashed == 0xAF || class_mashed == 0);
+        }
 #endif
 
-            if (this->field_C != nullptr) {
-                a1->unmash_class(this->field_C,
-                                 this
+        if (this->field_C != nullptr) {
+            a1->unmash_class(this->field_C,
+                             this
 #if OPENUSM_XBOX_MASH_FORMAT
-                                 ,
-                                 mash::NORMAL_BUFFER
+                             ,
+                             mash::NORMAL_BUFFER
 #endif
-                        );
-            }
-    } else {
-            THISCALL(0x0049F110, this, a1, a3);
+            );
         }
+    } else {
+        THISCALL(0x0049F110, this, a1, a3);
     }
+}
 }  // namespace als
 
 void als_category_patch()

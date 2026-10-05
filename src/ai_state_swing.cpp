@@ -196,7 +196,10 @@ namespace ai {
 VALIDATE_SIZE(swing_state, 0x40);
 
 namespace {
-void __fastcall swing_state_destroy(swing_state *self, void *) { self->finalize(mash::ALLOCATED); }
+void __fastcall swing_state_destroy(swing_state *self, void *)
+{
+    self->finalize(mash::ALLOCATED);
+}
 void *__fastcall swing_state_delete(swing_state *self, void *, bool release)
 {
     self->~swing_state();
@@ -204,14 +207,17 @@ void *__fastcall swing_state_delete(swing_state *self, void *, bool release)
         mem_dealloc(self, sizeof(swing_state));
     return self;
 }
-uint32_t __fastcall swing_state_type(swing_state *self) { return self->get_virtual_type_enum(); }
+uint32_t __fastcall swing_state_type(swing_state *self)
+{
+    return self->get_virtual_type_enum();
+}
 bool __fastcall swing_state_subclass(const swing_state *, void *, mash::virtual_types_enum type)
 {
     return type == 535 || type == 567 || type == 573;
 }
-void __fastcall swing_state_activate(swing_state *self, void *, ai_state_machine *machine,
-    const mashed_state *state, const mashed_state *previous, const param_block *params,
-    base_state::activate_flag_e flags)
+void __fastcall swing_state_activate(swing_state *self, void *, ai_state_machine *machine, const mashed_state *state,
+                                     const mashed_state *previous, const param_block *params,
+                                     base_state::activate_flag_e flags)
 {
     self->_activate(machine, state, previous, params, flags);
 }
@@ -227,12 +233,14 @@ void __fastcall swing_state_list(swing_state *self, void *, info_node_desc_list 
 {
     self->get_info_node_list(list);
 }
-int __fastcall swing_state_size(swing_state *self) { return self->get_mash_sizeof(); }
+int __fastcall swing_state_size(swing_state *self)
+{
+    return self->get_mash_sizeof();
 }
+}  // namespace
 
 void *swing_state::native_vtable()
 {
-
     static auto table = [] {
         std::array<void *, 16> result;
         std::copy_n(static_cast<void **>(enhanced_state::native_vtable()), result.size(), result.data());
@@ -449,7 +457,6 @@ swing_inode::swing_inode()
 swing_inode::swing_inode(from_mash_in_place_constructor *tag)
     : info_node(tag), field_48(tag), field_58(tag), field_64(tag), field_70(tag)
 {
-
     m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[318]);
 }
 
@@ -480,9 +487,12 @@ void swing_inode::update_mode_swinging(Float dt)
         const auto state = animation->get_state_id(static_cast<als::layer_types>(0));
         auto *owner = get_actor();
         if (state == state_id_sticky_hang_left || state == state_id_sticky_hang_right) {
-            animation->request_category_transition(field_7C < 0.0f
-                ? cat_id_sticky_hang_right_push_off : cat_id_sticky_hang_left_push_off,
-                static_cast<als::layer_types>(0), true, false, false);
+            animation->request_category_transition(field_7C < 0.0f ? cat_id_sticky_hang_right_push_off
+                                                                   : cat_id_sticky_hang_left_push_off,
+                                                   static_cast<als::layer_types>(0),
+                                                   true,
+                                                   false,
+                                                   false);
             owner->physical_ifc()->set_velocity(owner->get_abs_po().get_z_facing() * 5.0f, false);
         } else {
             animation->request_category_transition(cat_id_swing, static_cast<als::layer_types>(0), true, false, false);
@@ -524,8 +534,7 @@ void swing_inode::update_mode_swinging(Float dt)
         web->set_abs_control_pt(web->get_num_control_pts() - 1, swinger.m_visual_point);
         const auto weighted = (attachment * 3.0f + swinger.m_visual_point * 2.0f) * 0.2f;
         const float constraint = swinger.field_0.get_constraint();
-        float sag = (constraint - (attachment - pivot).length() - 0.5f) * 0.5f +
-            (constraint - 9.0f) * (1.0f / 9.0f);
+        float sag = (constraint - (attachment - pivot).length() - 0.5f) * 0.5f + (constraint - 9.0f) * (1.0f / 9.0f);
         if (sag < LARGE_EPSILON)
             sag = 0.0f;
         web->set_abs_control_pt(1, (attachment + weighted) * 0.5f - YVEC * sag);
@@ -666,15 +675,27 @@ void swing_inode::play_fire_web_sound()
 }
 
 namespace {
-void __fastcall native_swing_destruct(swing_inode *self, void *) { self->_destruct_mashed_class(); }
+void __fastcall native_swing_destruct(swing_inode *self, void *)
+{
+    self->_destruct_mashed_class();
+}
 void __fastcall native_swing_unmash(swing_inode *self, void *, mash_info_struct *info, void *base)
 {
     self->_unmash(info, base);
 }
-void __fastcall native_swing_activate(swing_inode *self, void *, ai_core *core) { self->_activate(core); }
-void __fastcall native_swing_deactivate(swing_inode *self, void *) { self->_deactivate(); }
-void __fastcall native_swing_advance(swing_inode *self, void *, Float dt) { self->frame_advance(dt); }
+void __fastcall native_swing_activate(swing_inode *self, void *, ai_core *core)
+{
+    self->_activate(core);
 }
+void __fastcall native_swing_deactivate(swing_inode *self, void *)
+{
+    self->_deactivate();
+}
+void __fastcall native_swing_advance(swing_inode *self, void *, Float dt)
+{
+    self->frame_advance(dt);
+}
+}  // namespace
 
 void *swing_inode::native_vtable()
 {
@@ -691,7 +712,10 @@ void *swing_inode::native_vtable()
     return table.data();
 }
 
-swing_inode::~swing_inode() { cleanup_swingers(); }
+swing_inode::~swing_inode()
+{
+    cleanup_swingers();
+}
 
 void swing_inode::_destruct_mashed_class()
 {
@@ -774,174 +798,174 @@ float swing_inode::get_swing_cur_max_anchor_dist() const
 
 void swing_inode::init_swingers()
 {
-        if (webline_texture == nullptr) {
-            auto *slot = this->get_actor()->get_resource_context();
-            auto *__old_context = resource_manager::push_resource_context(slot);
+    if (webline_texture == nullptr) {
+        auto *slot = this->get_actor()->get_resource_context();
+        auto *__old_context = resource_manager::push_resource_context(slot);
 
-            auto *mem = mem_alloc(sizeof(PolytubeCustomMaterial));
+        auto *mem = mem_alloc(sizeof(PolytubeCustomMaterial));
 
-            tlFixedString a1{"spideywebstring"};
-            auto *Tex = nglGetTexture(a1);
-            webline_texture = new (mem) PolytubeCustomMaterial{Tex, static_cast<nglBlendModeType>(2), 72};
+        tlFixedString a1{"spideywebstring"};
+        auto *Tex = nglGetTexture(a1);
+        webline_texture = new (mem) PolytubeCustomMaterial{Tex, static_cast<nglBlendModeType>(2), 72};
 
-            resource_manager::pop_resource_context();
-            assert(resource_manager::get_resource_context() == __old_context);
+        resource_manager::pop_resource_context();
+        assert(resource_manager::get_resource_context() == __old_context);
+    }
+
+    for (int i = 0; i < 2; ++i) {
+        auto *mem = mem_alloc(sizeof(web_polytube));
+
+        auto entity_id = make_unique_entity_id();
+        auto *v5 = new (mem) web_polytube{&swingers[i], entity_id, 0};
+        swingers[i].field_90 = v5;
+
+        g_world_ptr->ent_mgr.add_dynamic_instanced_entity(v5);
+
+        auto *v7 = v5;
+        v7->set_render_color(color32{254, 255, 255, 255});
+        if (!(v7->tube_radius <= 0.1f && v7->tube_radius >= 0.1f)) {
+            v7->tube_radius = 0.1;
+            v7->field_78 = false;
         }
 
-        for (int i = 0; i < 2; ++i) {
-            auto *mem = mem_alloc(sizeof(web_polytube));
+        v7->set_tiles_per_meter(1.5f);
 
-            auto entity_id = make_unique_entity_id();
-            auto *v5 = new (mem) web_polytube{&swingers[i], entity_id, 0};
-            swingers[i].field_90 = v5;
-
-            g_world_ptr->ent_mgr.add_dynamic_instanced_entity(v5);
-
-            auto *v7 = v5;
-            v7->set_render_color(color32{254, 255, 255, 255});
-            if (!(v7->tube_radius <= 0.1f && v7->tube_radius >= 0.1f)) {
-                v7->tube_radius = 0.1;
-                v7->field_78 = false;
-            }
-
-            v7->set_tiles_per_meter(1.5f);
-
-            if (v7->num_sides != 2) {
-                v7->num_sides = 2;
-                v7->field_78 = false;
-            }
-
-            v7->field_104 = 30.0f * 1.5f;
-
-            if (webline_texture != nullptr) {
-                v7->set_material(webline_texture);
-                v7->field_D0->m_blend_mode = static_cast<nglBlendModeType>(2);
-            }
-
-            v7->force_regions(this->get_actor());
-
-            v7->set_force_start(true);
-
-            v7->reserve_control_pts(4);
-
-            for (int j = 0; j < 4; ++j) {
-                v7->add_control_pt(ZEROVEC);
-            }
-
-            v7->build(10, static_cast<spline::eSplineType>(3));
-
-            v7->set_visible(false, false);
-
-            if (this->get_actor()->is_a_conglomerate()) {
-                static string_hash bip01_r_prop{int(to_hash("BIP01_R_PROP_HAND"))};
-
-                auto *conglom = bit_cast<conglomerate *>(this->get_actor());
-
-                swingers[i].field_3C = bit_cast<entity *>(conglom->get_bone(bip01_r_prop, true));
-            } else {
-                swingers[i].field_3C = nullptr;
-            }
-
-            auto *v13 = mem_alloc(sizeof(polytube));
-
-            auto v15 = make_unique_entity_id();
-            swingers[i].field_94 = new (v13) polytube{v15, 0};
-
-            g_world_ptr->ent_mgr.add_dynamic_instanced_entity(swingers[i].field_94);
-
-            swingers[i].field_94->set_render_color(color32{255, 255, 254, 255});
-
-            auto *v17 = swingers[i].field_94;
-            if (!(v17->tube_radius <= 0.1f && v17->tube_radius >= 0.1f)) {
-                v17->tube_radius = 0.1;
-                v17->field_78 = false;
-            }
-
-            v17->set_tiles_per_meter(1.5f);
-
-            if (v17->num_sides != 2) {
-                v17->num_sides = 2;
-                v17->field_78 = 0;
-            }
-
-            if (webline_texture != nullptr) {
-                v17->set_material(webline_texture);
-                v17->field_D0->m_blend_mode = static_cast<nglBlendModeType>(2);
-            }
-
-            auto *v18 = swingers[i].field_94;
-
-            v18->set_force_start(true);
-
-            v18->reserve_control_pts(10);
-
-            for (int k = 0; k < 10; ++k) {
-                v18->add_control_pt(ZEROVEC);
-            }
-
-            auto *v22 = v18;
-            v22->build(5, static_cast<spline::eSplineType>(3));
-
-            v22->set_visible(false, false);
-
-            v18->set_parent(swingers[i].field_3C);
-            v18->create_tentacle_info();
-
-            [](ai_tentacle_info *self, bool a2) -> void {
-                self->field_A8 = (a2 ? (self->field_A8 | 4u) : (self->field_A8 & (~4u)));
-            }(v18->field_130, false);
-
-            auto *v23 = new ai_tentacle_web_curly{v18->field_130};
-            swingers[i].field_98 = v23;
-
-            auto v26 = this->get_actor()->get_my_vhandle();
-            auto v46 = swingers[i].field_3C;
-            v23->setup({v26}, v46);
-
-            swingers[i].field_94->field_130->push_engine(swingers[i].field_98);
-
-            swingers[i].field_94->field_130->set_code_blend(1.0, 0.0);
-
-            swingers[i].field_40 = ZEROVEC;
-            swingers[i].field_4C = 0.0f;
-
-            auto *v35 = mem_alloc(sizeof(marker));
-            auto v36 = make_unique_entity_id();
-            auto *v37 = new (v35) marker{v36, 0};
-
-            swingers[i].field_0.sub_48AFB0(v37);
-
-            auto *ent = bit_cast<entity *>(swingers[i].field_0.get_volatile_ptr());
-            g_world_ptr->ent_mgr.add_dynamic_instanced_entity(ent);
-
-            auto *v45 = this->get_actor()->physical_ifc();
-            v45->set_pendulum(i, &swingers[i].field_0);
+        if (v7->num_sides != 2) {
+            v7->num_sides = 2;
+            v7->field_78 = false;
         }
 
-        swinger_lr_swing_accel = 0;
-        swinger_ud_swing_accel = 0;
+        v7->field_104 = 30.0f * 1.5f;
+
+        if (webline_texture != nullptr) {
+            v7->set_material(webline_texture);
+            v7->field_D0->m_blend_mode = static_cast<nglBlendModeType>(2);
+        }
+
+        v7->force_regions(this->get_actor());
+
+        v7->set_force_start(true);
+
+        v7->reserve_control_pts(4);
+
+        for (int j = 0; j < 4; ++j) {
+            v7->add_control_pt(ZEROVEC);
+        }
+
+        v7->build(10, static_cast<spline::eSplineType>(3));
+
+        v7->set_visible(false, false);
+
+        if (this->get_actor()->is_a_conglomerate()) {
+            static string_hash bip01_r_prop{int(to_hash("BIP01_R_PROP_HAND"))};
+
+            auto *conglom = bit_cast<conglomerate *>(this->get_actor());
+
+            swingers[i].field_3C = bit_cast<entity *>(conglom->get_bone(bip01_r_prop, true));
+        } else {
+            swingers[i].field_3C = nullptr;
+        }
+
+        auto *v13 = mem_alloc(sizeof(polytube));
+
+        auto v15 = make_unique_entity_id();
+        swingers[i].field_94 = new (v13) polytube{v15, 0};
+
+        g_world_ptr->ent_mgr.add_dynamic_instanced_entity(swingers[i].field_94);
+
+        swingers[i].field_94->set_render_color(color32{255, 255, 254, 255});
+
+        auto *v17 = swingers[i].field_94;
+        if (!(v17->tube_radius <= 0.1f && v17->tube_radius >= 0.1f)) {
+            v17->tube_radius = 0.1;
+            v17->field_78 = false;
+        }
+
+        v17->set_tiles_per_meter(1.5f);
+
+        if (v17->num_sides != 2) {
+            v17->num_sides = 2;
+            v17->field_78 = 0;
+        }
+
+        if (webline_texture != nullptr) {
+            v17->set_material(webline_texture);
+            v17->field_D0->m_blend_mode = static_cast<nglBlendModeType>(2);
+        }
+
+        auto *v18 = swingers[i].field_94;
+
+        v18->set_force_start(true);
+
+        v18->reserve_control_pts(10);
+
+        for (int k = 0; k < 10; ++k) {
+            v18->add_control_pt(ZEROVEC);
+        }
+
+        auto *v22 = v18;
+        v22->build(5, static_cast<spline::eSplineType>(3));
+
+        v22->set_visible(false, false);
+
+        v18->set_parent(swingers[i].field_3C);
+        v18->create_tentacle_info();
+
+        [](ai_tentacle_info *self, bool a2) -> void {
+            self->field_A8 = (a2 ? (self->field_A8 | 4u) : (self->field_A8 & (~4u)));
+        }(v18->field_130, false);
+
+        auto *v23 = new ai_tentacle_web_curly{v18->field_130};
+        swingers[i].field_98 = v23;
+
+        auto v26 = this->get_actor()->get_my_vhandle();
+        auto v46 = swingers[i].field_3C;
+        v23->setup({v26}, v46);
+
+        swingers[i].field_94->field_130->push_engine(swingers[i].field_98);
+
+        swingers[i].field_94->field_130->set_code_blend(1.0, 0.0);
+
+        swingers[i].field_40 = ZEROVEC;
+        swingers[i].field_4C = 0.0f;
+
+        auto *v35 = mem_alloc(sizeof(marker));
+        auto v36 = make_unique_entity_id();
+        auto *v37 = new (v35) marker{v36, 0};
+
+        swingers[i].field_0.sub_48AFB0(v37);
+
+        auto *ent = bit_cast<entity *>(swingers[i].field_0.get_volatile_ptr());
+        g_world_ptr->ent_mgr.add_dynamic_instanced_entity(ent);
+
+        auto *v45 = this->get_actor()->physical_ifc();
+        v45->set_pendulum(i, &swingers[i].field_0);
+    }
+
+    swinger_lr_swing_accel = 0;
+    swinger_ud_swing_accel = 0;
 }
 
 void swing_inode::cleanup_swingers()
 {
-        if (this->field_1C) {
-            for (auto i = 0u; i < 2; ++i) {
-                if (swingers[i].field_94 != nullptr) {
-                    g_world_ptr->ent_mgr.destroy_entity(swingers[i].field_94);
-                }
-
-                if (swingers[i].field_90 != nullptr) {
-                    g_world_ptr->ent_mgr.destroy_entity(swingers[i].field_90);
-                }
-
-                auto *v3 = (entity *)swingers[i].field_0.get_volatile_ptr();
-                if (v3 != nullptr) {
-                    g_world_ptr->ent_mgr.destroy_entity(v3);
-                }
+    if (this->field_1C) {
+        for (auto i = 0u; i < 2; ++i) {
+            if (swingers[i].field_94 != nullptr) {
+                g_world_ptr->ent_mgr.destroy_entity(swingers[i].field_94);
             }
 
-            this->field_1C = false;
+            if (swingers[i].field_90 != nullptr) {
+                g_world_ptr->ent_mgr.destroy_entity(swingers[i].field_90);
+            }
+
+            auto *v3 = (entity *)swingers[i].field_0.get_volatile_ptr();
+            if (v3 != nullptr) {
+                g_world_ptr->ent_mgr.destroy_entity(v3);
+            }
         }
+
+        this->field_1C = false;
+    }
 }
 
 void swing_inode::clip_web(Float a2)

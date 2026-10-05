@@ -79,7 +79,6 @@ bool entity_tracker_manager::get_the_arrow_target_pos(vector3d *a2)
 
 void entity_tracker_manager::place_poi_reticles()
 {
-
     for (const auto &entry : field_0) {
         auto *tracker = id_to_ptr(entry.second);
         if (tracker != nullptr && tracker->field_0.get_volatile_ptr() != nullptr && tracker->field_8 != 0)

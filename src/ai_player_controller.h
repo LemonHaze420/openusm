@@ -117,7 +117,7 @@ struct ai_player_controller {
     game_button *get_gb_camera_center();
 
     //0x00449B50
-    game_button & get_gb_swing_raw();
+    game_button &get_gb_swing_raw();
 
     //0x00468E80
     void frame_advance(Float a2);

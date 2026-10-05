@@ -156,7 +156,7 @@ void __fastcall destroy_character_pose(nalCharSkeleton *, void *, nalBasePose *p
     if (pose != nullptr)
         delete reinterpret_cast<nalCharPose *>(reinterpret_cast<char *>(pose) - sizeof(int));
 }
-}
+}  // namespace
 
 nalCharSkeleton::nalCharSkeleton()
 {

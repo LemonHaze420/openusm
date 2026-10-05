@@ -33,8 +33,7 @@ void *__fastcall destroy_ped_instance(nalPed::nalPedInstance *self, void *, unsi
 
 vector4d compressed_quaternion(float x, float y, float z)
 {
-    const float w = static_cast<float>(std::sqrt(std::fabs(
-        1.0 - (double(y) * y + double(z) * z + double(x) * x))));
+    const float w = static_cast<float>(std::sqrt(std::fabs(1.0 - (double(y) * y + double(z) * z + double(x) * x))));
     return vector4d{x, y, z, w};
 }
 
@@ -46,10 +45,9 @@ vector4d packed_arm_quaternion(uint32_t packed)
     };
     constexpr float scale11 = 0.0009775171056389809f;
     constexpr float scale10 = 0.0019569469150155783f;
-    return compressed_quaternion(
-        signed_field(packed >> 21, 11) * scale11,
-        signed_field((packed >> 11) & 0x3FF, 10) * scale10,
-        signed_field(packed & 0x7FF, 11) * scale11);
+    return compressed_quaternion(signed_field(packed >> 21, 11) * scale11,
+                                 signed_field((packed >> 11) & 0x3FF, 10) * scale10,
+                                 signed_field(packed & 0x7FF, 11) * scale11);
 }
 
 void unpack_pose(nalPed::nalPedPose &pose, const nalPed::nalPedPackedPose &packed)
@@ -65,9 +63,9 @@ void unpack_pose(nalPed::nalPedPose &pose, const nalPed::nalPedPackedPose &packe
         return static_cast<float>(double(value) * 0.06666667014360428f * half_pi - angle_bias);
     };
 
-    const vector4d root = compressed_quaternion(
-        packed.rotation[0] * quaternion_scale, packed.rotation[1] * quaternion_scale,
-        packed.rotation[2] * quaternion_scale);
+    const vector4d root = compressed_quaternion(packed.rotation[0] * quaternion_scale,
+                                                packed.rotation[1] * quaternion_scale,
+                                                packed.rotation[2] * quaternion_scale);
 
 
     constexpr float basis = 0.70710677f;
@@ -94,7 +92,7 @@ void unpack_pose(nalPed::nalPedPose &pose, const nalPed::nalPedPackedPose &packe
     pose.leg_angles[0] = nibble_angle(packed.leg_angles >> 4);
     pose.leg_angles[1] = nibble_angle(packed.leg_angles & 0xF);
 }
-}
+}  // namespace
 
 namespace nalPed {
 int &nalPedAnim::vtbl_ptr = []() -> int & {
@@ -111,15 +109,14 @@ void nalPedAnim::Process()
 {
     auto *base = reinterpret_cast<char *>(this);
     data = has_data != 0 ? base + sizeof(nalPedAnim) : nullptr;
-    frames = reinterpret_cast<nalPedPackedPose *>(
-        base + sizeof(nalPedAnim) + reinterpret_cast<std::intptr_t>(frames));
+    frames = reinterpret_cast<nalPedPackedPose *>(base + sizeof(nalPedAnim) + reinterpret_cast<std::intptr_t>(frames));
 }
 
 void nalPedAnim::Release()
 {
     auto *base = reinterpret_cast<char *>(this);
-    frames = reinterpret_cast<nalPedPackedPose *>(
-        reinterpret_cast<std::intptr_t>(frames) - reinterpret_cast<std::intptr_t>(base + sizeof(nalPedAnim)));
+    frames = reinterpret_cast<nalPedPackedPose *>(reinterpret_cast<std::intptr_t>(frames) -
+                                                  reinterpret_cast<std::intptr_t>(base + sizeof(nalPedAnim)));
     data = nullptr;
 }
 
@@ -131,14 +128,11 @@ bool nalPedAnim::CheckVersion() const
 nalPedInstance *nalPedAnim::VirtualCreateInstance(nalBaseSkeleton *skeleton)
 {
     void *memory = tlMemAlloc(sizeof(nalPedInstance), 8, 0);
-    return memory != nullptr ? ::new (memory) nalPedInstance(this, static_cast<nalPedSkeleton *>(skeleton)) :
-                               nullptr;
+    return memory != nullptr ? ::new (memory) nalPedInstance(this, static_cast<nalPedSkeleton *>(skeleton)) : nullptr;
 }
 
 uint32_t nalPedAnim::GetPoseFrame(Float time) const
 {
-
-
     const double time_seconds = double(time.value) * field_38;
     const float frame_time = static_cast<float>(time_seconds);
     const uint32_t intervals = (field_34 & 1) ? frame_count : frame_count - 1;
@@ -152,15 +146,14 @@ uint32_t nalPedAnim::GetPoseFrame(Float time) const
     return std::min(frame, frame_count - 1);
 }
 
-nalPedInstance::nalPedInstance(nalPedAnim *anim, nalPedSkeleton *skeleton)
-    : nalBaseInstance(anim, skeleton)
+nalPedInstance::nalPedInstance(nalPedAnim *anim, nalPedSkeleton *skeleton) : nalBaseInstance(anim, skeleton)
 {
     static void *table[]{reinterpret_cast<void *>(&destroy_ped_instance), func_address(&nalPedInstance::GetPose)};
     m_vtbl = reinterpret_cast<std::intptr_t>(table);
     const auto *source = static_cast<const nalPedSkeleton *>(anim->Skeleton);
     for (int i = 0; i < 4; ++i) {
         limb_scales[i] = (skeleton->chains[i].chain.chain_scale + skeleton->chains[i].lower_limb_length) /
-                        (source->chains[i].chain.chain_scale + source->chains[i].lower_limb_length);
+                         (source->chains[i].chain.chain_scale + source->chains[i].lower_limb_length);
     }
 }
 
@@ -181,9 +174,12 @@ void nalPedInstance::GetPose(Float time, Float previous_time, nalBasePose *base,
     }
     for (int i = 0; i < 3; ++i)
         pose.trajectory_position[i] = delta * anim->trajectory_position[i];
-    const vector4d rotation = math::Slerp(delta, vector4d{0.0f, 0.0f, 0.0f, 1.0f},
-        vector4d{anim->trajectory_rotation[0], anim->trajectory_rotation[1],
-                 anim->trajectory_rotation[2], anim->trajectory_rotation[3]});
+    const vector4d rotation = math::Slerp(delta,
+                                          vector4d{0.0f, 0.0f, 0.0f, 1.0f},
+                                          vector4d{anim->trajectory_rotation[0],
+                                                   anim->trajectory_rotation[1],
+                                                   anim->trajectory_rotation[2],
+                                                   anim->trajectory_rotation[3]});
     std::memcpy(pose.trajectory_rotation, &rotation, sizeof(rotation));
     for (int i = 0; i < 2; ++i) {
         for (int j = 0; j < 3; ++j)

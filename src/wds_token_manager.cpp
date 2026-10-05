@@ -253,8 +253,7 @@ void wds_token_manager::run_left_token_trigger()
     if (gso == nullptr || gsoi == nullptr) {
         return;
     }
-    const int function =
-        script::find_function(string_hash{"left_token_trigger()"}, gso, false);
+    const int function = script::find_function(string_hash{"left_token_trigger()"}, gso, false);
     if (function >= 0) {
         auto *thread = gso->add_thread(gsoi, function);
         if (thread != nullptr) {

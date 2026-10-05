@@ -28,14 +28,12 @@ uint16_t s_source_generation;
 
 constexpr int ima_index_adjust[8] = {-1, -1, -1, -1, 2, 4, 6, 8};
 constexpr int ima_step[89] = {
-    7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 19, 21, 23, 25, 28, 31,
-    34, 37, 41, 45, 50, 55, 60, 66, 73, 80, 88, 97, 107, 118, 130,
-    143, 157, 173, 190, 209, 230, 253, 279, 307, 337, 371, 408, 449,
-    494, 544, 598, 658, 724, 796, 876, 963, 1060, 1166, 1282, 1411,
-    1552, 1707, 1878, 2066, 2272, 2499, 2749, 3024, 3327, 3660, 4026,
-    4428, 4871, 5358, 5894, 6484, 7132, 7845, 8630, 9493, 10442,
-    11487, 12635, 13899, 15289, 16818, 18500, 20350, 22385, 24623,
-    27086, 29794, 32767,
+    7,    8,     9,     10,    11,    12,    13,    14,    16,    17,    19,    21,    23,    25,    28,
+    31,   34,    37,    41,    45,    50,    55,    60,    66,    73,    80,    88,    97,    107,   118,
+    130,  143,   157,   173,   190,   209,   230,   253,   279,   307,   337,   371,   408,   449,   494,
+    544,  598,   658,   724,   796,   876,   963,   1060,  1166,  1282,  1411,  1552,  1707,  1878,  2066,
+    2272, 2499,  2749,  3024,  3327,  3660,  4026,  4428,  4871,  5358,  5894,  6484,  7132,  7845,  8630,
+    9493, 10442, 11487, 12635, 13899, 15289, 16818, 18500, 20350, 22385, 24623, 27086, 29794, 32767,
 };
 constexpr float dsp_coefficients[5][2] = {
     {0.0f, 0.0f},
@@ -63,9 +61,12 @@ int16_t decode_ima_nibble(uint8_t nibble, int &previous_sample, int &step_index)
 {
     const auto step = ima_step[step_index];
     auto difference = step >> 3;
-    if ((nibble & 4u) != 0) difference += step;
-    if ((nibble & 2u) != 0) difference += step >> 1;
-    if ((nibble & 1u) != 0) difference += step >> 2;
+    if ((nibble & 4u) != 0)
+        difference += step;
+    if ((nibble & 2u) != 0)
+        difference += step >> 1;
+    if ((nibble & 1u) != 0)
+        difference += step >> 2;
     previous_sample += (nibble & 8u) != 0 ? -difference : difference;
     previous_sample = std::clamp(previous_sample, -32768, 32767);
     step_index = std::clamp(step_index + ima_index_adjust[nibble & 7u], 0, 88);
@@ -98,8 +99,7 @@ void decode_dsp_block(const uint8_t *input, int16_t *output, float &recent, floa
         const auto packed = input[2 + i / 2];
         auto residual = static_cast<int>(i & 1 ? packed & 0xF0u : (packed & 0x0Fu) << 4) << 8;
         residual = static_cast<int16_t>(residual) >> scale;
-        const auto sample = static_cast<float>(residual) +
-                            recent * dsp_coefficients[predictor][0] +
+        const auto sample = static_cast<float>(residual) + recent * dsp_coefficients[predictor][0] +
                             older * dsp_coefficients[predictor][1];
         older = recent;
         recent = sample;
@@ -129,14 +129,8 @@ void decode_dsp(const uint8_t *input, uint32_t size, uint32_t channels, int16_t 
         float right_recent = 0.0f;
         float right_older = 0.0f;
         for (uint32_t block = 0; block < 128; ++block) {
-            decode_dsp_block(input + chunk + block * 16,
-                             left.data() + block * 28,
-                             left_recent,
-                             left_older);
-            decode_dsp_block(input + chunk + 2048 + block * 16,
-                             right.data() + block * 28,
-                             right_recent,
-                             right_older);
+            decode_dsp_block(input + chunk + block * 16, left.data() + block * 28, left_recent, left_older);
+            decode_dsp_block(input + chunk + 2048 + block * 16, right.data() + block * 28, right_recent, right_older);
         }
         for (size_t sample = 0; sample < left.size(); ++sample) {
             *output++ = left[sample];
@@ -212,8 +206,8 @@ bool create_buffer(source_slot &source)
 
     DSBUFFERDESC description{};
     description.dwSize = sizeof(description);
-    description.dwFlags = DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLFREQUENCY |
-                          DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_GLOBALFOCUS;
+    description.dwFlags =
+        DSBCAPS_CTRLVOLUME | DSBCAPS_CTRLFREQUENCY | DSBCAPS_GETCURRENTPOSITION2 | DSBCAPS_GLOBALFOCUS;
     if (channels == 1)
         description.dwFlags |= DSBCAPS_CTRL3D;
     description.dwBufferBytes = buffer_size;
@@ -234,14 +228,8 @@ bool create_buffer(source_slot &source)
     void *output_wrap = nullptr;
     DWORD output_size = 0;
     DWORD output_wrap_size = 0;
-    if (FAILED(IDirectSoundBuffer_Lock(source.buffer,
-                                       0,
-                                       buffer_size,
-                                       &output,
-                                       &output_size,
-                                       &output_wrap,
-                                       &output_wrap_size,
-                                       0)) ||
+    if (FAILED(IDirectSoundBuffer_Lock(
+            source.buffer, 0, buffer_size, &output, &output_size, &output_wrap, &output_wrap_size, 0)) ||
         output_size != buffer_size || output_wrap_size != 0) {
         IDirectSoundBuffer_Release(source.buffer);
         source.buffer = nullptr;
@@ -258,8 +246,8 @@ bool create_buffer(source_slot &source)
     IDirectSoundBuffer_Unlock(source.buffer, output, output_size, output_wrap, output_wrap_size);
     if (channels == 1) {
         IDirectSound3DBuffer *spatial = nullptr;
-        if (SUCCEEDED(IDirectSoundBuffer_QueryInterface(source.buffer, IID_IDirectSound3DBuffer,
-            reinterpret_cast<void **>(&spatial)))) {
+        if (SUCCEEDED(IDirectSoundBuffer_QueryInterface(
+                source.buffer, IID_IDirectSound3DBuffer, reinterpret_cast<void **>(&spatial)))) {
             IDirectSound3DBuffer_SetMode(spatial, DS3DMODE_DISABLE, DS3D_IMMEDIATE);
             IDirectSound3DBuffer_Release(spatial);
         }
@@ -272,11 +260,10 @@ LONG direct_sound_volume(float volume)
     if (volume <= 0.0f) {
         return DSBVOLUME_MIN;
     }
-    return static_cast<LONG>(std::clamp(2000.0f * std::log10(volume),
-                                        static_cast<float>(DSBVOLUME_MIN),
-                                        static_cast<float>(DSBVOLUME_MAX)));
+    return static_cast<LONG>(
+        std::clamp(2000.0f * std::log10(volume), static_cast<float>(DSBVOLUME_MIN), static_cast<float>(DSBVOLUME_MAX)));
 }
-}
+}  // namespace
 
 nslSourceID nslCreateSource(nslWaveID wave_id)
 {
@@ -338,8 +325,7 @@ bool nslSourceIsPlaying(nslSourceID source_id)
         return false;
     }
     DWORD status = 0;
-    return SUCCEEDED(IDirectSoundBuffer_GetStatus(source->buffer, &status)) &&
-           (status & DSBSTATUS_PLAYING) != 0;
+    return SUCCEEDED(IDirectSoundBuffer_GetStatus(source->buffer, &status)) && (status & DSBSTATUS_PLAYING) != 0;
 }
 
 void nslSetSourceVolume(nslSourceID source_id, float volume)
@@ -357,23 +343,22 @@ void nslSetSourcePitch(nslSourceID source_id, float pitch)
     const auto *wave = source != nullptr ? nslGetWave(source->wave_id) : nullptr;
     if (source != nullptr && source->buffer != nullptr && wave != nullptr) {
         source->pitch = pitch;
-        const auto frequency = static_cast<DWORD>(std::clamp(
-            static_cast<float>(wave->sample_rate) * pitch,
-            static_cast<float>(DSBFREQUENCY_MIN),
-            static_cast<float>(DSBFREQUENCY_MAX)));
+        const auto frequency = static_cast<DWORD>(std::clamp(static_cast<float>(wave->sample_rate) * pitch,
+                                                             static_cast<float>(DSBFREQUENCY_MIN),
+                                                             static_cast<float>(DSBFREQUENCY_MAX)));
         IDirectSoundBuffer_SetFrequency(source->buffer, frequency);
     }
 }
 
-void nslSetSourceSpatial(nslSourceID source_id, const float *position,
-    const float *velocity, float min_distance, float max_distance)
+void nslSetSourceSpatial(nslSourceID source_id, const float *position, const float *velocity, float min_distance,
+                         float max_distance)
 {
     auto *source = get_source(source_id);
     if (source == nullptr || source->buffer == nullptr)
         return;
     IDirectSound3DBuffer *spatial = nullptr;
-    if (FAILED(IDirectSoundBuffer_QueryInterface(source->buffer, IID_IDirectSound3DBuffer,
-        reinterpret_cast<void **>(&spatial))))
+    if (FAILED(IDirectSoundBuffer_QueryInterface(
+            source->buffer, IID_IDirectSound3DBuffer, reinterpret_cast<void **>(&spatial))))
         return;
     IDirectSound3DBuffer_SetMode(spatial, DS3DMODE_NORMAL, DS3D_IMMEDIATE);
     IDirectSound3DBuffer_SetPosition(spatial, position[0], position[1], position[2], DS3D_IMMEDIATE);

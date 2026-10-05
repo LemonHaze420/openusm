@@ -38,8 +38,14 @@ struct interaction_inode : info_node {
 
     //0x004830B0
     interaction_inode(from_mash_in_place_constructor *a2);
-    uint32_t get_virtual_type_enum() const { return 148; }
-    int get_mash_sizeof() const { return 0x4C; }
+    uint32_t get_virtual_type_enum() const
+    {
+        return 148;
+    }
+    int get_mash_sizeof() const
+    {
+        return 0x4C;
+    }
     static void *native_vtable();
     void unmash(mash_info_struct *info, void *data);
     void activate(ai_core *core);

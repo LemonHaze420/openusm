@@ -22,7 +22,7 @@ void update_limbo_bucket(int slot)
     for (auto *entry = limbo_entities().field_0[slot]; entry != nullptr; entry = entry->field_4)
         moved_entities::add_moved(entry->field_0);
 }
-}
+}  // namespace
 #endif
 
 limbo_hash_entry *limbo_hash_table_t::get(const vhandle_type<entity> &a2)
@@ -89,7 +89,6 @@ void update_limbo_list()
         update_limbo_bucket(slot);
     last_update_slot() = end;
     if (end == 256) {
-
         for (int slot = 0; slot < 256; ++slot) {
             if ((hash_update_bitvector()[slot >> 5] & (1u << (slot & 31))) != 0)
                 update_limbo_bucket(slot);

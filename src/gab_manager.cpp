@@ -93,31 +93,26 @@ static_assert(sizeof(xb_gab_database_layout) == sizeof(gab_database));
 
 int read_vector_size(mash_info_struct *info)
 {
-    return *reinterpret_cast<int *>(
-        info->read_from_buffer(mash::SHARED_BUFFER, sizeof(int), alignof(int)));
+    return *reinterpret_cast<int *>(info->read_from_buffer(mash::SHARED_BUFFER, sizeof(int), alignof(int)));
 }
 
-template<typename T>
+template <typename T>
 T *read_object(mash_info_struct *info)
 {
-    return reinterpret_cast<T *>(
-        info->read_from_buffer(mash::NORMAL_BUFFER, sizeof(T), alignof(T)));
+    return reinterpret_cast<T *>(info->read_from_buffer(mash::NORMAL_BUFFER, sizeof(T), alignof(T)));
 }
 
-template<typename T>
+template <typename T>
 T **read_pointer_table(mash_info_struct *info, int size)
 {
-    return reinterpret_cast<T **>(info->read_from_buffer(
-        mash::NORMAL_BUFFER, sizeof(T *) * size, alignof(T *)));
+    return reinterpret_cast<T **>(info->read_from_buffer(mash::NORMAL_BUFFER, sizeof(T *) * size, alignof(T *)));
 }
 
 void finish_container(int &field_0, const void *container, mash_info_struct *info)
 {
-    const auto normal_end = reinterpret_cast<std::uintptr_t>(
-        info->mash_image_ptr[mash::NORMAL_BUFFER] +
-        info->buffer_size_used[mash::NORMAL_BUFFER]);
-    field_0 = static_cast<int>(
-        normal_end - reinterpret_cast<std::uintptr_t>(container));
+    const auto normal_end = reinterpret_cast<std::uintptr_t>(info->mash_image_ptr[mash::NORMAL_BUFFER] +
+                                                             info->buffer_size_used[mash::NORMAL_BUFFER]);
+    field_0 = static_cast<int>(normal_end - reinterpret_cast<std::uintptr_t>(container));
 }
 
 void unmash_values(xb_gab_value_vector &values, mash_info_struct *info)
@@ -126,10 +121,8 @@ void unmash_values(xb_gab_value_vector &values, mash_info_struct *info)
     values.field_C = values.m_size;
 
     if (values.m_size > 0) {
-        values.m_data = reinterpret_cast<xb_gab_value *>(info->read_from_buffer(
-            mash::NORMAL_BUFFER,
-            sizeof(xb_gab_value) * values.m_size,
-            alignof(xb_gab_value)));
+        values.m_data = reinterpret_cast<xb_gab_value *>(
+            info->read_from_buffer(mash::NORMAL_BUFFER, sizeof(xb_gab_value) * values.m_size, alignof(xb_gab_value)));
     } else {
         values.m_data = nullptr;
     }
@@ -142,15 +135,13 @@ void unmash_expression(xb_gab_expression &expression, mash_info_struct *info)
     unmash_values(expression.values, info);
 }
 
-void unmash_expressions(xb_gab_expression_vector &expressions,
-                        mash_info_struct *info)
+void unmash_expressions(xb_gab_expression_vector &expressions, mash_info_struct *info)
 {
     expressions.m_size = read_vector_size(info);
     expressions.field_C = expressions.m_size;
 
     if (expressions.m_size > 0) {
-        expressions.m_data =
-            read_pointer_table<xb_gab_expression>(info, expressions.m_size);
+        expressions.m_data = read_pointer_table<xb_gab_expression>(info, expressions.m_size);
 
         for (int i = 0; i < expressions.m_size; ++i) {
             expressions.m_data[i] = read_object<xb_gab_expression>(info);
@@ -183,7 +174,7 @@ void unmash_database(gab_database *database, mash_info_struct *info)
     finish_container(layout.field_0, &layout, info);
 }
 
-} // namespace
+}  // namespace
 #endif
 
 
@@ -231,7 +222,7 @@ void gab_database::unmash(mash_info_struct *a1, void *a3)
     if constexpr (1) {
         a1->unmash_class_in_place(this->field_0, this);
     } else
-    THISCALL(0x005DF4A0, this, a1, a3);
+        THISCALL(0x005DF4A0, this, a1, a3);
 #endif
 }
 
@@ -270,8 +261,6 @@ gab_database *gab_manager::get_gab_database()
 
 sound_source gab_manager::calc_gab_source(const char *speaker, string_hash expression)
 {
-
-
     assert(s_gab_database != nullptr && s_gab_history != nullptr && speaker != nullptr);
     gab_expression *found = nullptr;
     for (auto *archetype : s_gab_database->field_0) {
@@ -290,10 +279,9 @@ sound_source gab_manager::calc_gab_source(const char *speaker, string_hash expre
         return {};
     }
     const auto recently_played = [](const gab_source &source) {
-        return std::any_of(s_gab_history->begin(), s_gab_history->end(),
-            [&source](const gab_history_entry &entry) {
-                return entry.source->sound == source.sound;
-            });
+        return std::any_of(s_gab_history->begin(), s_gab_history->end(), [&source](const gab_history_entry &entry) {
+            return entry.source->sound == source.sound;
+        });
     };
     int eligible = 0;
     for (int i = 0; i < found->field_8.size(); ++i) {
@@ -306,8 +294,7 @@ sound_source gab_manager::calc_gab_source(const char *speaker, string_hash expre
     }
 
 
-    int selected = eligible == 1 ? 0 :
-        static_cast<int>(static_cast<double>(std::rand()) * (eligible - 1) / 32768.0);
+    int selected = eligible == 1 ? 0 : static_cast<int>(static_cast<double>(std::rand()) * (eligible - 1) / 32768.0);
     for (int i = 0; i < found->field_8.size(); ++i) {
         auto &source = found->field_8.at(i);
         if (!recently_played(source) && selected-- == 0) {

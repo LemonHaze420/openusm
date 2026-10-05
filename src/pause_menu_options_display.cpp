@@ -29,8 +29,7 @@ void pause_menu_options_data::initialize()
     }
 }
 
-pause_menu_options_display::pause_menu_options_display(FEMenuSystem *a2, int a3, int a4)
-    : FEMenu(a2, 0, a3, a4, 8, 0)
+pause_menu_options_display::pause_menu_options_display(FEMenuSystem *a2, int a3, int a4) : FEMenu(a2, 0, a3, a4, 8, 0)
 {
     field_140 = a2;
     m_vtbl = 0x00894150;
@@ -79,18 +78,54 @@ void pause_menu_options_display::_Load()
         okay->SetText(static_cast<global_text_enum>(255));
 
         static constexpr const char *quad_names[49] = {
-            "pm_all_back_01", "pm_all_back_02", "pm_all_back_02a", "pm_all_back_02b", "pm_all_back_03",
-            "pm_all_back_04", "pm_all_back_05", "pm_all_detail_02", "pm_all_detail_03", "pm_all_detail_04",
-            "pm_all_detail_05", "pm_all_detail_06", "pm_all_detail_07", "pm_all_detail_08", "pm_all_detail_09",
-            "pm_all_detail_10", "pm_all_detail_11", "pm_all_box_01", "pm_all_box_02", "pm_all_box_03",
-            "pm_all_icon", "pm_opt_text_box_01", "pm_opt_text_box_02", "pm_opt_hilite_text",
-            "pm_opt_hilite_text_01", "pm_opt_gamesound_box_01", "pm_opt_gamesound_box_02",
-            "pm_opt_gamesound_meter_01", "pm_opt_gamesound_meter_02", "pm_opt_gamesound_meter_03",
-            "pm_opt_gamesound_meter_04", "pm_opt_gamesound_meter_05", "pm_opt_gamesound_meter_06",
-            "pm_opt_gamesound_meter_07", "pm_opt_gamesound_meter_08", "pm_opt_gamesound_meter_09",
-            "pm_opt_gamesound_meter_10", "pm_opt_music_box_01", "pm_opt_music_box_02", "pm_opt_music_meter_01",
-            "pm_opt_music_meter_02", "pm_opt_music_meter_03", "pm_opt_music_meter_04", "pm_opt_music_meter_05",
-            "pm_opt_music_meter_06", "pm_opt_music_meter_07", "pm_opt_music_meter_08", "pm_opt_music_meter_09",
+            "pm_all_back_01",
+            "pm_all_back_02",
+            "pm_all_back_02a",
+            "pm_all_back_02b",
+            "pm_all_back_03",
+            "pm_all_back_04",
+            "pm_all_back_05",
+            "pm_all_detail_02",
+            "pm_all_detail_03",
+            "pm_all_detail_04",
+            "pm_all_detail_05",
+            "pm_all_detail_06",
+            "pm_all_detail_07",
+            "pm_all_detail_08",
+            "pm_all_detail_09",
+            "pm_all_detail_10",
+            "pm_all_detail_11",
+            "pm_all_box_01",
+            "pm_all_box_02",
+            "pm_all_box_03",
+            "pm_all_icon",
+            "pm_opt_text_box_01",
+            "pm_opt_text_box_02",
+            "pm_opt_hilite_text",
+            "pm_opt_hilite_text_01",
+            "pm_opt_gamesound_box_01",
+            "pm_opt_gamesound_box_02",
+            "pm_opt_gamesound_meter_01",
+            "pm_opt_gamesound_meter_02",
+            "pm_opt_gamesound_meter_03",
+            "pm_opt_gamesound_meter_04",
+            "pm_opt_gamesound_meter_05",
+            "pm_opt_gamesound_meter_06",
+            "pm_opt_gamesound_meter_07",
+            "pm_opt_gamesound_meter_08",
+            "pm_opt_gamesound_meter_09",
+            "pm_opt_gamesound_meter_10",
+            "pm_opt_music_box_01",
+            "pm_opt_music_box_02",
+            "pm_opt_music_meter_01",
+            "pm_opt_music_meter_02",
+            "pm_opt_music_meter_03",
+            "pm_opt_music_meter_04",
+            "pm_opt_music_meter_05",
+            "pm_opt_music_meter_06",
+            "pm_opt_music_meter_07",
+            "pm_opt_music_meter_08",
+            "pm_opt_music_meter_09",
             "pm_opt_music_meter_10",
         };
         for (int i = 0; i < 49; ++i) {
@@ -98,12 +133,21 @@ void pause_menu_options_display::_Load()
         }
 
         static constexpr const char *text_names[15] = {
-            "pm_header_text_OPTIONS", "pm_opt_text_left_01_AUDIOLEVELS", "pm_opt_text_left_02_GAMESOUND",
-            "pm_opt_text_left_03_MUSIC", "pm_opt_text_left_04_SCOREDISPLAY",
-            "pm_opt_text_left_05_CONTROLLERVIBRATION", "pm_opt_text_left_06_CONTROLLERSETUP",
-            "pm_opt_text_left_07_INVERTCAMERAUPDOWN", "pm_opt_text_right_04_BLANK",
-            "pm_opt_text_right_05_BLANK", "pm_opt_text_right_06_BLANK", "pm_opt_text_right_07_BLANK",
-            "pm_opt_text_right_08_BLANK", "pm_opt_text_right_09", "pm_opt_cont_text_help",
+            "pm_header_text_OPTIONS",
+            "pm_opt_text_left_01_AUDIOLEVELS",
+            "pm_opt_text_left_02_GAMESOUND",
+            "pm_opt_text_left_03_MUSIC",
+            "pm_opt_text_left_04_SCOREDISPLAY",
+            "pm_opt_text_left_05_CONTROLLERVIBRATION",
+            "pm_opt_text_left_06_CONTROLLERSETUP",
+            "pm_opt_text_left_07_INVERTCAMERAUPDOWN",
+            "pm_opt_text_right_04_BLANK",
+            "pm_opt_text_right_05_BLANK",
+            "pm_opt_text_right_06_BLANK",
+            "pm_opt_text_right_07_BLANK",
+            "pm_opt_text_right_08_BLANK",
+            "pm_opt_text_right_09",
+            "pm_opt_cont_text_help",
         };
         for (int i = 0; i < 15; ++i) {
             store_text(field_F0[i], panel->GetTextPointer(text_names[i]));

@@ -89,9 +89,8 @@ bool sphere_mesh_box_overlap(const vector3d &center, const collision_obb_t &box,
 }
 
 
-vector3d sphere_triangle_point(const vector3d &center, const vector3d &a,
-    const vector3d &b, const vector3d &c, const vector3d &ab,
-    const vector3d &bc, const vector3d &normal)
+vector3d sphere_triangle_point(const vector3d &center, const vector3d &a, const vector3d &b, const vector3d &c,
+                               const vector3d &ab, const vector3d &bc, const vector3d &normal)
 {
     const vector3d ca = a - c;
     const vector3d relative = center - b;
@@ -137,10 +136,10 @@ vector3d sphere_triangle_point(const vector3d &center, const vector3d &a,
     }
     return center - (dot(normal, relative) / normal.length2()) * normal;
 }
-}
+}  // namespace
 
-bool best_sphere_obb_tree_intersection(math::VecClass<3, 0> const &a1, const cg_mesh *mesh,
-    const collision_obb_t &node, math::VecClass<3, 0> &nearest, float &radius_squared)
+bool best_sphere_obb_tree_intersection(math::VecClass<3, 0> const &a1, const cg_mesh *mesh, const collision_obb_t &node,
+                                       math::VecClass<3, 0> &nearest, float &radius_squared)
 {
     if constexpr (!STANDALONE_SYSTEM)
         return CDECL_CALL(0x005CA780, &a1, mesh, &node, &nearest, &radius_squared);
@@ -183,8 +182,8 @@ bool best_sphere_obb_tree_intersection(math::VecClass<3, 0> const &a1, const cg_
     return hit;
 }
 
-bool collide_sphere_mesh(const vector3d &center, Float radius, const cg_mesh *mesh,
-    vector3d *hit_loc, vector3d *hit_norm)
+bool collide_sphere_mesh(const vector3d &center, Float radius, const cg_mesh *mesh, vector3d *hit_loc,
+                         vector3d *hit_norm)
 {
     if constexpr (!STANDALONE_SYSTEM)
         return CDECL_CALL(0x005CB2D0, &center, radius, mesh, hit_loc, hit_norm);
@@ -389,8 +388,8 @@ float dist_point_segment_sq_opt(const vector3d &a1, const vector3d &a2, const ve
 namespace {
 
 
-bool segment_cylinder_intersection(const vector3d &start, const vector3d &direction,
-    const vector3d &base, const vector3d &axis, float radius, float length, vector3d *point)
+bool segment_cylinder_intersection(const vector3d &start, const vector3d &direction, const vector3d &base,
+                                   const vector3d &axis, float radius, float length, vector3d *point)
 {
     vector3d local_start = start - base;
     vector3d local_direction = direction;
@@ -401,7 +400,7 @@ bool segment_cylinder_intersection(const vector3d &start, const vector3d &direct
         rotation_axis *= 1.0f / sine;
         const auto rotate = [&](const vector3d &v) {
             return vector3d::cross(rotation_axis, v) * sine + v * axis.y +
-                rotation_axis * (dot(rotation_axis, v) * (1.0f - axis.y));
+                   rotation_axis * (dot(rotation_axis, v) * (1.0f - axis.y));
         };
         local_start = rotate(local_start);
         local_direction = rotate(local_direction);
@@ -426,7 +425,8 @@ bool segment_cylinder_intersection(const vector3d &start, const vector3d &direct
     }
     const float quadratic = local_direction.x * local_direction.x + local_direction.z * local_direction.z;
     const float linear = 2.0f * (local_direction.x * local_start.x + local_direction.z * local_start.z);
-    const float discriminant = linear * linear -
+    const float discriminant =
+        linear * linear -
         (local_start.x * local_start.x + local_start.z * local_start.z - radius_squared) * quadratic * 4.0f;
     if (discriminant >= 0.0f && !(quadratic <= 0.0f && quadratic >= 0.0f)) {
         fraction = -1.0f;
@@ -450,18 +450,17 @@ bool segment_cylinder_intersection(const vector3d &start, const vector3d &direct
     *point = start + direction * fraction;
     return true;
 }
-}
+}  // namespace
 
-bool collide_segment_capsule(const vector3d &start, const vector3d &end,
-    const vector3d &base, const vector3d &tip, Float radius,
-    vector3d *hit_point, vector3d *hit_normal)
+bool collide_segment_capsule(const vector3d &start, const vector3d &end, const vector3d &base, const vector3d &tip,
+                             Float radius, vector3d *hit_point, vector3d *hit_normal)
 {
     const vector3d capsule_direction = tip - base;
     const float capsule_length = capsule_direction.length();
     const vector3d axis = capsule_length >= EPSILON ? capsule_direction / capsule_length : YVEC;
     vector3d candidates[6];
-    int count = segment_cylinder_intersection(start, end - start, base, axis,
-        radius.value, capsule_length, candidates) ? 1 : 0;
+    int count =
+        segment_cylinder_intersection(start, end - start, base, axis, radius.value, capsule_length, candidates) ? 1 : 0;
     count += collide_segment_hollow_sphere(start, end, base, radius, candidates + count);
     count += collide_segment_hollow_sphere(start, end, tip, radius, candidates + count);
     bool hit = false;
@@ -470,7 +469,6 @@ bool collide_segment_capsule(const vector3d &start, const vector3d &end,
         projection = projection >= 0.0f ? (projection > 1.0f ? 1.0f : projection) : 0.0f;
         const vector3d nearest = base + capsule_direction * projection;
         const float distance_squared = (nearest - candidates[i]).length2();
-
 
 
         if (std::abs(distance_squared - radius.value * radius.value) < 0.009999999776482582f &&
@@ -491,9 +489,8 @@ bool collide_segment_capsule(const vector3d &start, const vector3d &end,
 namespace {
 
 
-bool segment_triangle_intersection(const vector3d &start, const vector3d &end,
-                                   const vector3d &a, const vector3d &b, const vector3d &c,
-                                   vector3d &point)
+bool segment_triangle_intersection(const vector3d &start, const vector3d &end, const vector3d &a, const vector3d &b,
+                                   const vector3d &c, vector3d &point)
 {
     constexpr float epsilon = 0.00009999999747378752f;
     const vector3d edge_b = b - a;
@@ -521,8 +518,8 @@ bool segment_triangle_intersection(const vector3d &start, const vector3d &end,
     if (std::abs(edge_b[u]) < epsilon)
         return false;
     const vector3d relative = point - a;
-    const float beta = (relative[u] * edge_b[v] - relative[v] * edge_b[u]) /
-                       (edge_c[u] * edge_b[v] - edge_c[v] * edge_b[u]);
+    const float beta =
+        (relative[u] * edge_b[v] - relative[v] * edge_b[u]) / (edge_c[u] * edge_b[v] - edge_c[v] * edge_b[u]);
     constexpr float lower = -0.000009999999747378752f;
     constexpr float upper = 1.0000100135803223f;
     if (beta < lower || beta > upper)
@@ -531,7 +528,7 @@ bool segment_triangle_intersection(const vector3d &start, const vector3d &end,
     return alpha >= lower && alpha <= upper && alpha + beta <= upper;
 }
 
-}
+}  // namespace
 
 bool get_closest_intersection_from_list(const vector3d &a3, const cg_mesh *mesh,
                                         mesh_triangle_intersection_record_t *a2, vector3d *closest_point,
@@ -591,9 +588,12 @@ void line_segment_obb_tree_intersection(const vector3d &start, const vector3d &e
         for (int triangle = 0; triangle < list.triangle_count; ++triangle) {
             const auto &indices = list.triangles()[triangle];
             vector3d point;
-            if (segment_triangle_intersection(start, end, list.vertices[indices.vertex[0]],
-                                               list.vertices[indices.vertex[1]],
-                                               list.vertices[indices.vertex[2]], point)) {
+            if (segment_triangle_intersection(start,
+                                              end,
+                                              list.vertices[indices.vertex[0]],
+                                              list.vertices[indices.vertex[1]],
+                                              list.vertices[indices.vertex[2]],
+                                              point)) {
                 const float distance = (point - start).length2();
                 if (distance < closest_distance) {
                     closest_distance = distance;
@@ -617,8 +617,7 @@ void line_segment_obb_tree_intersection(const vector3d &start, const vector3d &e
         *hits = hit;
     } else if (segment_mesh_box_overlap(start, end, *node)) {
         for (int child = 0; child < node->field_35; ++child)
-            line_segment_obb_tree_intersection(start, end, mesh,
-                                               &mesh->data->field_10[node->field_36 + child], hits);
+            line_segment_obb_tree_intersection(start, end, mesh, &mesh->data->field_10[node->field_36 + child], hits);
     }
 }
 
@@ -685,8 +684,8 @@ bool collide_segment_geometry(const vector3d &a2, const vector3d &a3, collision_
     return result;
 }
 
-bool collide_segment_entity(const vector3d &start, const vector3d &end, const entity *ent,
-                            const po &transform, vector3d *point, vector3d *normal)
+bool collide_segment_entity(const vector3d &start, const vector3d &end, const entity *ent, const po &transform,
+                            vector3d *point, vector3d *normal)
 {
     auto *geometry = ent->get_colgeom();
     const float radius = ent->get_colgeom_radius();
@@ -729,8 +728,7 @@ bool collide_capsule_capsule(const vector3d &a1, const vector3d &a2, Float radiu
         const vector3d axis = a1 - a2;
         const float x = std::abs(axis.x), y = std::abs(axis.y), z = std::abs(axis.z);
         const int major = x > y && x > z ? 0 : y > z && y > x ? 1 : 2;
-        normal = vector3d::cross(axis, major ? vector3d{1.0f, 0.0f, 0.0f} :
-                                                           vector3d{0.0f, 1.0f, 0.0f});
+        normal = vector3d::cross(axis, major ? vector3d{1.0f, 0.0f, 0.0f} : vector3d{0.0f, 1.0f, 0.0f});
         normal.normalize();
     } else {
         normal = (axis_b - axis_a) / distance;
@@ -743,9 +741,8 @@ bool collide_capsule_capsule(const vector3d &a1, const vector3d &a2, Float radiu
 namespace {
 
 
-void capsule_triangle_edge_points(const vector3d &start, const vector3d &end,
-    const vector3d &edge_start, const vector3d &edge_end,
-    vector3d &axis_point, vector3d &triangle_point)
+void capsule_triangle_edge_points(const vector3d &start, const vector3d &end, const vector3d &edge_start,
+                                  const vector3d &edge_end, vector3d &axis_point, vector3d &triangle_point)
 {
     const vector3d axis = end - start;
     const vector3d edge = edge_end - edge_start;
@@ -771,10 +768,7 @@ void capsule_triangle_edge_points(const vector3d &start, const vector3d &end,
             triangle_point = edge_start + edge * t;
             return;
         }
-    }
-    else {
-
-
+    } else {
         if (b >= 0.0f) {
             if (-d >= a)
                 axis_time = 1.0f;
@@ -805,9 +799,8 @@ void capsule_triangle_edge_points(const vector3d &start, const vector3d &end,
 }
 
 
-bool closest_points_capsule_triangle(const capsule &query, const vector3d &a,
-    const vector3d &b, const vector3d &c, vector3d &axis_point,
-    vector3d &triangle_point, vector3d &normal)
+bool closest_points_capsule_triangle(const capsule &query, const vector3d &a, const vector3d &b, const vector3d &c,
+                                     vector3d &axis_point, vector3d &triangle_point, vector3d &normal)
 {
     constexpr float epsilon = 0.000099999997f;
     const vector3d vertices[3]{a, b, c};
@@ -829,18 +822,14 @@ bool closest_points_capsule_triangle(const capsule &query, const vector3d &a,
     const vector3d delta = query.end - query.base;
 
     auto edge_contact = [&](const vector3d &vertex, const vector3d &edge) {
-        capsule_triangle_edge_points(query.base, query.end, vertex, vertex + edge,
-            axis_point, triangle_point);
+        capsule_triangle_edge_points(query.base, query.end, vertex, vertex + edge, axis_point, triangle_point);
         const vector3d relative = axis_point - triangle_point;
         return dot(relative, normal) >= epsilon && relative.length2() < radius_squared;
     };
-    auto vertex_contact = [&](const vector3d &vertex, const vector3d &first,
-                              const vector3d &second, int mode) {
+    auto vertex_contact = [&](const vector3d &vertex, const vector3d &first, const vector3d &second, int mode) {
         const vector3d start_relative = query.base - vertex;
         const vector3d end_relative = query.end - vertex;
         if (mode == 0) {
-
-
             const float from = dot(second, start_relative);
             const float to = dot(second, end_relative);
             if (from > 0.0f && to > 0.0f)
@@ -851,13 +840,11 @@ bool closest_points_capsule_triangle(const capsule &query, const vector3d &a,
             return edge_contact(vertex, dot(delta, intersection) > 0.0f ? second : first);
         }
         if (mode == 2) {
-
             const vector3d relative = low - vertex;
             const float projection = dot(second, relative);
             const vector3d direction = high - low;
             const vector3d test = direction * projection - second * dot(direction, relative);
-            return edge_contact(vertex,
-                projection > 0.0f && dot(direction, test) > 0.0f ? second : first);
+            return edge_contact(vertex, projection > 0.0f && dot(direction, test) > 0.0f ? second : first);
         }
 
         const float length_squared = delta.length2();
@@ -868,7 +855,7 @@ bool closest_points_capsule_triangle(const capsule &query, const vector3d &a,
                 const float from = dot(edge, start_relative);
                 const float to = dot(edge, end_relative);
                 return (from > 0.0f || to > 0.0f) &&
-                    dot(start_relative, delta) * (from - to) + from * length_squared > 0.0f;
+                       dot(start_relative, delta) * (from - to) + from * length_squared > 0.0f;
             };
             if (beyond_edge(first))
                 return edge_contact(vertex, first);
@@ -942,11 +929,9 @@ bool closest_points_capsule_triangle(const capsule &query, const vector3d &a,
         const int vertex = sum == 1 ? 1 : sum == 2 ? 0 : 2;
         return vertex_contact(vertices[vertex], edges[vertex], -edges[(vertex + 2) % 3], 1);
     }
-    if ((epsilon - highest_plane) * upper_denominator >
-        (lowest_plane - highest_plane) * upper_numerator)
+    if ((epsilon - highest_plane) * upper_denominator > (lowest_plane - highest_plane) * upper_numerator)
         return false;
-    if (upper_numerator <= 1.0f && upper_numerator >= 1.0f &&
-        upper_denominator <= 1.0f && upper_denominator >= 1.0f) {
+    if (upper_numerator <= 1.0f && upper_numerator >= 1.0f && upper_denominator <= 1.0f && upper_denominator >= 1.0f) {
         axis_point = low;
         triangle_point = low - normal * (lowest_plane / normal_squared);
         return true;
@@ -954,16 +939,16 @@ bool closest_points_capsule_triangle(const capsule &query, const vector3d &a,
     return outside_edge(upper_edge, 2);
 }
 
-void capsule_mesh_tree_intersections(const capsule &query, const vector3d &center,
-    float radius_squared, const cg_mesh *mesh, const collision_obb_t &node,
-    local_collision::closest_points_pair_t **pairs)
+void capsule_mesh_tree_intersections(const capsule &query, const vector3d &center, float radius_squared,
+                                     const cg_mesh *mesh, const collision_obb_t &node,
+                                     local_collision::closest_points_pair_t **pairs)
 {
     if (!node.field_34) {
         if (!sphere_mesh_box_overlap(center, node, radius_squared))
             return;
         for (uint8_t child = 0; child != node.field_35; ++child)
-            capsule_mesh_tree_intersections(query, center, radius_squared, mesh,
-                mesh->data->field_10[node.field_36 + child], pairs);
+            capsule_mesh_tree_intersections(
+                query, center, radius_squared, mesh, mesh->data->field_10[node.field_36 + child], pairs);
         return;
     }
     const auto &triangles = node.triangles();
@@ -971,34 +956,43 @@ void capsule_mesh_tree_intersections(const capsule &query, const vector3d &cente
     for (uint16_t index = 0; index != triangles.triangle_count; ++index) {
         vector3d axis_point, triangle_point, normal;
         if (!closest_points_capsule_triangle(query,
-                triangles.vertices[indices[index].vertex[0]],
-                triangles.vertices[indices[index].vertex[1]],
-                triangles.vertices[indices[index].vertex[2]],
-                axis_point, triangle_point, normal))
+                                             triangles.vertices[indices[index].vertex[0]],
+                                             triangles.vertices[indices[index].vertex[1]],
+                                             triangles.vertices[indices[index].vertex[2]],
+                                             axis_point,
+                                             triangle_point,
+                                             normal))
             continue;
         normal /= std::sqrt(normal.length2());
         const vector3d relative = axis_point - triangle_point;
         auto *pair = local_collision::allocate_closest_points_pair();
         pair->point = axis_point;
         pair->other_point = triangle_point;
-        pair->direction = relative.length2() <= 9.99999905104687e-09f ?
-            -normal : relative * (-1.0f / std::sqrt(relative.length2()));
+        pair->direction =
+            relative.length2() <= 9.99999905104687e-09f ? -normal : relative * (-1.0f / std::sqrt(relative.length2()));
         pair->normal = normal;
         pair->distance_squared = relative.length2();
         pair->next = *pairs;
         *pairs = pair;
     }
 }
-}
+}  // namespace
 
-local_collision::closest_points_pair_t *collide_capsule_geometry(
-    const capsule &query, collision_geometry *geometry, const po &transform)
+local_collision::closest_points_pair_t *collide_capsule_geometry(const capsule &query, collision_geometry *geometry,
+                                                                 const po &transform)
 {
     if (geometry->get_type() == collision_geometry::CAPSULE) {
         const capsule other = static_cast<collision_capsule *>(geometry)->get_abs_capsule(transform);
         vector3d query_surface, other_surface, direction;
-        if (!collide_capsule_capsule(query.base, query.end, query.radius, other.base, other.end,
-                other.radius, query_surface, other_surface, direction))
+        if (!collide_capsule_capsule(query.base,
+                                     query.end,
+                                     query.radius,
+                                     other.base,
+                                     other.end,
+                                     other.radius,
+                                     query_surface,
+                                     other_surface,
+                                     direction))
             return nullptr;
         auto *pair = local_collision::allocate_closest_points_pair();
         pair->point = query_surface - direction * query.radius;
@@ -1025,8 +1019,8 @@ local_collision::closest_points_pair_t *collide_capsule_geometry(
     return pairs;
 }
 
-local_collision::closest_points_pair_t *collide_capsule_entity(
-    const capsule &query, const entity *ent, const po &transform)
+local_collision::closest_points_pair_t *collide_capsule_entity(const capsule &query, const entity *ent,
+                                                               const po &transform)
 {
     auto *geometry = ent->get_colgeom();
     const vector3d center = transform.m * geometry->get_local_space_bounding_sphere_center();
@@ -1152,8 +1146,7 @@ void collide_unit_test()
     assert(num_hits == 0);
 }
 
-bool closest_point_segment(const vector3d &point, const vector3d &start,
-                           const vector3d &end, vector3d &closest)
+bool closest_point_segment(const vector3d &point, const vector3d &start, const vector3d &end, vector3d &closest)
 {
     auto direction = end - start;
     const float length = direction.length();
@@ -1184,10 +1177,8 @@ vector3d swept_radius_extension(vector3d movement, float radius)
 }
 
 
-
-bool swept_segment_moving_entity(line_segment_t &segment, const entity &ent,
-    const intraframe_trajectory_t &trajectory, float radius,
-    vector3d &relative_start, vector3d &relative_end, vector3d &relative_hit)
+bool swept_segment_moving_entity(line_segment_t &segment, const entity &ent, const intraframe_trajectory_t &trajectory,
+                                 float radius, vector3d &relative_start, vector3d &relative_end, vector3d &relative_hit)
 {
     po initial = trajectory.world_po0;
     const po inverse_initial = *initial.inverse();
@@ -1197,25 +1188,20 @@ bool swept_segment_moving_entity(line_segment_t &segment, const entity &ent,
     relative_start = inverse_initial.slow_xform(segment.field_0);
     relative_end = inverse_relative.slow_xform(inverse_initial.slow_xform(segment.field_C));
     relative_end += swept_radius_extension(relative_end - relative_start, radius);
-    if (!collide_segment_entity(relative_start, relative_end, &ent, po_identity_matrix,
-                               &segment.field_18, &segment.field_24))
+    if (!collide_segment_entity(
+            relative_start, relative_end, &ent, po_identity_matrix, &segment.field_18, &segment.field_24))
         return false;
     relative_hit = segment.field_18;
     segment.field_34 = true;
     segment.field_18 = initial.slow_xform(relative_transform.slow_xform(segment.field_18));
-    segment.field_24 = initial.non_affine_slow_xform(
-        relative_transform.non_affine_slow_xform(segment.field_24));
+    segment.field_24 = initial.non_affine_slow_xform(relative_transform.non_affine_slow_xform(segment.field_24));
     return true;
 }
 
 
-
-
-
-
-bool swept_segment_moving_entities(local_collision::primitive_list_t *primitives,
-    line_segment_t &segment, float duration, float radius,
-    float *relative_start, float *relative_end, float *relative_hit, bool &selected_contact)
+bool swept_segment_moving_entities(local_collision::primitive_list_t *primitives, line_segment_t &segment,
+                                   float duration, float radius, float *relative_start, float *relative_end,
+                                   float *relative_hit, bool &selected_contact)
 {
     float best_time = duration;
     bool collided = false;
@@ -1223,8 +1209,8 @@ bool swept_segment_moving_entities(local_collision::primitive_list_t *primitives
         if (!primitive->is_ent || !primitive->field_10)
             continue;
         vector3d start, end, hit;
-        if (!swept_segment_moving_entity(segment, *primitive->field_4.ent,
-                                        *primitive->field_10, radius, start, end, hit))
+        if (!swept_segment_moving_entity(
+                segment, *primitive->field_4.ent, *primitive->field_10, radius, start, end, hit))
             continue;
         const float length = (end - start).length();
         const float fraction = length >= EPSILON ? (hit - start).length() / length : 0.0f;
@@ -1253,24 +1239,19 @@ struct swept_endpoint_contact {
     line_segment_t segment;
     bool valid = false;
 };
-}
+}  // namespace
 
 
-
-
-
-bool __fastcall swept_capsule_intersection(const capsule &end, const capsule &start,
-    float duration, float radius, local_collision::primitive_list_t *primitives,
-    float *time, local_collision::closest_points_pair_t *pair, bool *tunnelled, bool skip_base)
+bool __fastcall swept_capsule_intersection(const capsule &end, const capsule &start, float duration, float radius,
+                                           local_collision::primitive_list_t *primitives, float *time,
+                                           local_collision::closest_points_pair_t *pair, bool *tunnelled,
+                                           bool skip_base)
 {
     line_segment_t paths[2]{{start.base, end.base}, {start.end, end.end}};
-    const vector3d extensions[2]{
-        swept_radius_extension(end.base - start.base, radius),
-        swept_radius_extension(end.end - start.end, radius)};
+    const vector3d extensions[2]{swept_radius_extension(end.base - start.base, radius),
+                                 swept_radius_extension(end.end - start.end, radius)};
     swept_endpoint_contact contacts[4];
     constexpr float tunnelling_tolerance = 9.99999905104687e-09f;
-
-
 
 
     float relative_start[3]{extensions[0].x, extensions[0].y, extensions[0].z};
@@ -1285,8 +1266,12 @@ bool __fastcall swept_capsule_intersection(const capsule &end, const capsule &st
         auto &stationary = contacts[endpoint * 2];
         float distance;
         const float initial_time = 0.0f;
-        if (local_collision::get_closest_line_intersection(primitives, &path, false,
-                &distance, radius <= 0.0f && radius >= 0.0f ? &initial_time : nullptr, nullptr)) {
+        if (local_collision::get_closest_line_intersection(primitives,
+                                                           &path,
+                                                           false,
+                                                           &distance,
+                                                           radius <= 0.0f && radius >= 0.0f ? &initial_time : nullptr,
+                                                           nullptr)) {
             stationary.distance_squared = distance * distance;
             stationary.segment = path;
             const float length = (path.field_C - path.field_0).length() - radius;
@@ -1300,8 +1285,10 @@ bool __fastcall swept_capsule_intersection(const capsule &end, const capsule &st
         }
         path.field_C -= extensions[endpoint];
         auto &moving = contacts[endpoint * 2 + 1];
-        if (radius > 0.0f && swept_segment_moving_entities(primitives, path, duration, radius,
-                relative_start, relative_end, relative_hit, selected_contact) && selected_contact) {
+        if (radius > 0.0f &&
+            swept_segment_moving_entities(
+                primitives, path, duration, radius, relative_start, relative_end, relative_hit, selected_contact) &&
+            selected_contact) {
             moving.segment = path;
             const vector3d local_start{relative_start[0], relative_start[1], relative_start[2]};
             const vector3d local_end{relative_end[0], relative_end[1], relative_end[2]};

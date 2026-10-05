@@ -75,4 +75,4 @@ struct nonpath_loco_inode : loco_inode {
     const resource_key &_get_graph() const;
 };
 
-}
+}  // namespace ai

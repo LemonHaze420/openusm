@@ -83,8 +83,7 @@ void spline::compute_spline_pos(Float percent, vector3d &position, bool reuse_co
             const float inverse = 1.0f / total;
             for (int i = 1; i < count - 1; ++i) {
                 const double cumulative = inverse * static_cast<double>(control_pts_pct[i]);
-                control_pts_pct[i] = cumulative > 1.0 ? 1.0f
-                    : cumulative < 0.0 ? 0.0f : static_cast<float>(cumulative);
+                control_pts_pct[i] = cumulative > 1.0 ? 1.0f : cumulative < 0.0 ? 0.0f : static_cast<float>(cumulative);
             }
             control_pts_pct[count - 1] = 1.0f;
         }
@@ -104,8 +103,7 @@ void spline::compute_spline_pos(Float percent, vector3d &position, bool reuse_co
     while (control_pts_pct[index + 1] < amount)
         ++index;
     const double interval = static_cast<double>(control_pts_pct[index + 1]) - control_pts_pct[index];
-    const float local = interval <= 0.0 ? 0.0f
-        : static_cast<float>((amount - control_pts_pct[index]) / interval);
+    const float local = interval <= 0.0 ? 0.0f : static_cast<float>((amount - control_pts_pct[index]) / interval);
     compute_spline_pos(index, Float{local}, position, reuse_controls, type);
 }
 
@@ -147,7 +145,6 @@ vector3d sub_5C2B20(float a3, float a4, float a5, const vector3d *a6)
 
 void spline::compute_spline_pos(int index, Float t, vector3d &a4, bool a5, spline::eSplineType a6)
 {
-
     auto v6 = a6;
     if (a6 == 0) {
         v6 = this->field_38;
@@ -271,18 +268,25 @@ void spline::rebuild_helper()
         curve_pts.reserve(field_30 * segments + 1);
         int index = field_3C ? 0 : 1;
         while (index + 1 < count && (field_3C ? index + 2 <= count : index + 2 < count)) {
-            const vector3d points[4]{
-                index == 0 ? control_pts[0] * 2.0f - control_pts[1] : control_pts[index - 1],
-                control_pts[index], control_pts[index + 1],
-                index + 2 >= count ? control_pts[index + 1] * 2.0f - control_pts[index] : control_pts[index + 2]};
+            const vector3d points[4]{index == 0 ? control_pts[0] * 2.0f - control_pts[1] : control_pts[index - 1],
+                                     control_pts[index],
+                                     control_pts[index + 1],
+                                     index + 2 >= count ? control_pts[index + 1] * 2.0f - control_pts[index]
+                                                        : control_pts[index + 2]};
             for (int sample = 0; sample < field_30; ++sample) {
                 const float t = static_cast<float>(sample) / static_cast<float>(field_30 - 1);
                 const float t2 = t * t;
                 const float t3 = t2 * t;
                 switch (field_38) {
-                case 2: curve_pts.push_back(sub_5C2C30(t, t2, t3, points)); break;
-                case 3: curve_pts.push_back(sub_5C2B20(t, t2, t3, points)); break;
-                case 4: curve_pts.push_back(sub_5C2A20(t, t2, t3, points)); break;
+                case 2:
+                    curve_pts.push_back(sub_5C2C30(t, t2, t3, points));
+                    break;
+                case 3:
+                    curve_pts.push_back(sub_5C2B20(t, t2, t3, points));
+                    break;
+                case 4:
+                    curve_pts.push_back(sub_5C2A20(t, t2, t3, points));
+                    break;
                 }
             }
             index += field_38 == 4 ? 3 : 1;

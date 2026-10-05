@@ -142,4 +142,4 @@ static_assert(offsetof(Instance, resource) == 0x28);
 static_assert(offsetof(Instance, points) == 0x80);
 static_assert(offsetof(Effect, groups_first) == 0x80);
 static_assert(offsetof(Updater, effect) == 0x1C);
-}
+}  // namespace native_pfx

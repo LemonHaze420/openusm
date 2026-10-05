@@ -30,9 +30,8 @@ void po::compose(po &out, const po &parent, const po &relative)
     for (int axis = 0; axis < 4; ++axis) {
         const vector3d v(relative[axis][0], relative[axis][1], relative[axis][2]);
         for (int component = 0; component < 3; ++component)
-            out[axis][component] = parent[0][component] * v.x +
-                parent[1][component] * v.y + parent[2][component] * v.z +
-                (axis == 3 ? parent[3][component] : 0.0f);
+            out[axis][component] = parent[0][component] * v.x + parent[1][component] * v.y +
+                                   parent[2][component] * v.z + (axis == 3 ? parent[3][component] : 0.0f);
     }
 }
 
@@ -46,8 +45,7 @@ void po::compose_ortho(po &out, const po &parent, const po &absolute)
     for (int axis = 0; axis < 3; ++axis) {
         const vector3d v(absolute[axis][0], absolute[axis][1], absolute[axis][2]);
         for (int component = 0; component < 3; ++component)
-            out[axis][component] = parent[component][0] * v.x +
-                parent[component][1] * v.y + parent[component][2] * v.z;
+            out[axis][component] = parent[component][0] * v.x + parent[component][1] * v.y + parent[component][2] * v.z;
     }
 }
 
@@ -719,9 +717,8 @@ void po::sub_48D840()
     };
     const auto x = normalize_axis(vector3d{m[0]});
     const vector3d old_y{m[1]};
-    const auto z = normalize_axis(vector3d{x.y * old_y.z - x.z * old_y.y,
-                                         x.z * old_y.x - x.x * old_y.z,
-                                         x.x * old_y.y - x.y * old_y.x});
+    const auto z = normalize_axis(
+        vector3d{x.y * old_y.z - x.z * old_y.y, x.z * old_y.x - x.x * old_y.z, x.x * old_y.y - x.y * old_y.x});
     const vector3d y{z.y * x.z - z.z * x.y, z.z * x.x - z.x * x.z, z.x * x.y - z.y * x.x};
     m[0] = vector4d{x.x, x.y, x.z, 0.0f};
     m[1] = vector4d{y.x, y.y, y.z, 0.0f};

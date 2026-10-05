@@ -40,8 +40,7 @@ float traffic_angle(const vector3d &a, const vector3d &b)
 }
 
 
-bool turn_intersection(const vector3d &a, const vector3d &b,
-                       const vector3d &c, const vector3d &d, vector3d &out)
+bool turn_intersection(const vector3d &a, const vector3d &b, const vector3d &c, const vector3d &d, vector3d &out)
 {
     const float dx = b.x - a.x, dz = b.z - a.z;
     const float ex = c.x - d.x, ez = c.z - d.z;
@@ -51,16 +50,15 @@ bool turn_intersection(const vector3d &a, const vector3d &b,
         return false;
     const auto coordinate = [&](float direction, float origin) {
         const float product = direction * numerator;
-        const bool same_sign = (product > 0.0f && denominator > 0.0f) ||
-            (product < 0.0f && denominator < 0.0f) ||
-            (product <= 0.0f && product >= 0.0f && denominator <= 0.0f && denominator >= 0.0f);
+        const bool same_sign = (product > 0.0f && denominator > 0.0f) || (product < 0.0f && denominator < 0.0f) ||
+                               (product <= 0.0f && product >= 0.0f && denominator <= 0.0f && denominator >= 0.0f);
         return origin + (product + denominator * (same_sign ? 0.5f : -0.5f)) / denominator;
     };
     out.x = coordinate(dx, a.x);
     out.z = coordinate(dz, a.z);
     return true;
 }
-}
+}  // namespace
 
 
 void traffic::update_follow()
@@ -178,7 +176,8 @@ void traffic::yield_to_chase(traffic *chaser, bool same_lane)
     if (chaser == this)
         return;
     const auto chase_handle = chaser->get_my_actor()->get_my_vhandle();
-    const bool already_yielding = vhandle_type<actor>{entity_base_vhandle{static_cast<uint32_t>(field_174)}}.get_volatile_ptr() != nullptr;
+    const bool already_yielding =
+        vhandle_type<actor>{entity_base_vhandle{static_cast<uint32_t>(field_174)}}.get_volatile_ptr() != nullptr;
     if (already_yielding && static_cast<uint32_t>(field_174) != chase_handle.field_0) {
         un_spawn();
         return;
@@ -194,13 +193,14 @@ void traffic::yield_to_chase(traffic *chaser, bool same_lane)
         }
     }
     bool can_pull_over = !lane_yielding && !old_drivers[3] && field_140->get_num_nodes() <= 2 &&
-        chaser == car_behind() && field_15C != 10 && field_15C != 11 && field_140->get_lane_position() != 1;
+                         chaser == car_behind() && field_15C != 10 && field_15C != 11 &&
+                         field_140->get_lane_position() != 1;
     if (can_pull_over) {
         update_facing_lane();
         const auto position = field_C.get_abs_position();
         const auto front = position + vector3d{field_1AC, field_1B0, field_1B4} * 2.0f;
-        can_pull_over = (front - field_14C).xz_length2() > 625.0f &&
-            (position - field_140->get_node(0)).xz_length2() > 625.0f;
+        can_pull_over =
+            (front - field_14C).xz_length2() > 625.0f && (position - field_140->get_node(0)).xz_length2() > 625.0f;
     }
     if (can_pull_over) {
         field_174 = chase_handle.field_0;
@@ -291,8 +291,8 @@ void traffic::which_way_do_i_go()
     field_144 = intersection->get_next_lane(field_C.get_abs_position(), direction, field_140, &graph, 1, false);
     if (field_1C4 && field_144) {
         auto *other = field_144->get_other_lane();
-        auto *target = field_1E4.get_volatile_ptr() ?
-            get_traffic_from_entity(vhandle_type<entity>{field_1E4.field_0}) : nullptr;
+        auto *target =
+            field_1E4.get_volatile_ptr() ? get_traffic_from_entity(vhandle_type<entity>{field_1E4.field_0}) : nullptr;
         if (!(field_1C4 == 1 && target && target->field_140 == field_144)) {
             if (field_1C4 == 1 && target && target->field_140 == other)
                 field_144 = other;
@@ -307,8 +307,7 @@ bool traffic::_is_viable_lane(traffic_path_lane *lane)
 {
     if (lane->is_clogged(old_drivers[2] > 0, false))
         return false;
-    if ((lane->my_road->total_out_lanes <= 1 || old_drivers[3]) &&
-        (lane->get_num_ais() || old_drivers[3]))
+    if ((lane->my_road->total_out_lanes <= 1 || old_drivers[3]) && (lane->get_num_ais() || old_drivers[3]))
         return is_not_chase_lane(lane);
     return true;
 }
@@ -323,8 +322,13 @@ void traffic::driver(Float dt)
         auto *graph = camera->get_primary_region()->get_traffic_path_graph();
         if (graph) {
             vector3d closest;
-            auto *lane = graph->get_closest_or_farthest_lane(true, field_C.get_abs_position(), ZEROVEC,
-                &closest, static_cast<traffic_path_lane::eLaneType>(0), false, nullptr);
+            auto *lane = graph->get_closest_or_farthest_lane(true,
+                                                             field_C.get_abs_position(),
+                                                             ZEROVEC,
+                                                             &closest,
+                                                             static_cast<traffic_path_lane::eLaneType>(0),
+                                                             false,
+                                                             nullptr);
             set_current_lane(lane, -1, true);
             field_144 = field_140;
             field_148 = field_140;
@@ -367,13 +371,15 @@ void traffic::driver_x(Float dt)
         if (ahead && (ahead->field_4 & 0x200))
             check_obstacle(ahead, stop, slow, clear, false);
         if (!stop && field_144 && (field_15C == 10 || field_15C == 11)) {
-            auto *last = vhandle_type<actor>{field_144->get_ai_by_index(field_144->get_num_ais() - 1)}.get_volatile_ptr();
+            auto *last =
+                vhandle_type<actor>{field_144->get_ai_by_index(field_144->get_num_ais() - 1)}.get_volatile_ptr();
             if (last && last != get_my_actor() && last != ahead)
                 check_obstacle(last, stop, slow, clear, false);
         }
     }
     if ((field_15C == 10 || field_15C == 11) && !field_1BF && stop) {
-        auto *blocking = get_traffic_from_entity(vhandle_type<entity>{entity_base_vhandle{static_cast<uint32_t>(field_1C0)}});
+        auto *blocking =
+            get_traffic_from_entity(vhandle_type<entity>{entity_base_vhandle{static_cast<uint32_t>(field_1C0)}});
         if (blocking && blocking->field_C.field_C8 < EPSILON) {
             slow = true;
             stop = false;
@@ -406,8 +412,7 @@ bool traffic::start_turn()
     if (!field_17C)
         which_way_do_i_go();
     const bool chase_lane = !is_not_chase_lane(field_140);
-    if (!field_1C4 && old_drivers[2] + old_drivers[3] &&
-        !traffic_list.empty() && !chase_lane) {
+    if (!field_1C4 && old_drivers[2] + old_drivers[3] && !traffic_list.empty() && !chase_lane) {
         release_turn();
         return false;
     }
@@ -433,8 +438,8 @@ bool traffic::start_turn()
     }
     if (chase_lane) {
         while (field_144->is_clogged(false, false)) {
-            auto *car = get_traffic_from_entity(vhandle_type<entity>{
-                field_144->get_ai_by_index(field_144->get_num_ais() - 1)});
+            auto *car =
+                get_traffic_from_entity(vhandle_type<entity>{field_144->get_ai_by_index(field_144->get_num_ais() - 1)});
             if (!car || car->field_C.field_C8 > 2.5f)
                 break;
             if (!car->field_4) {
@@ -462,8 +467,7 @@ bool traffic::start_turn()
     const auto first = field_144->get_node(0);
     const auto next = field_144->get_node(1);
     vector3d crossing;
-    if ((last - first).xz_length2() >= 100.0f &&
-        turn_intersection(previous, last, first, next, crossing) &&
+    if ((last - first).xz_length2() >= 100.0f && turn_intersection(previous, last, first, next, crossing) &&
         (crossing - last).xz_length2() < 2500.0f) {
         crossing.y = previous.y;
         field_14C = last + (crossing - last) / (field_C.field_E8 * field_C.field_E8 * 0.1953125f);
@@ -480,8 +484,7 @@ void traffic::check_lane_change()
 {
     const auto forward = get_my_actor()->get_abs_po().get_z_facing();
     const auto front = field_C.get_abs_position() + forward * 2.0f;
-    if (lane_changes_this_frame || field_1BF || field_178 > 0.0f ||
-        (front - field_14C).xz_length2() <= 400.0f)
+    if (lane_changes_this_frame || field_1BF || field_178 > 0.0f || (front - field_14C).xz_length2() <= 400.0f)
         return;
     auto *lane = field_140->get_other_lane();
     if (!lane)
@@ -495,8 +498,8 @@ void traffic::check_lane_change()
         ahead_handle = lane->get_ai_by_index(lane->get_num_ais() - 1);
     if (!field_1C4)
         return;
-    auto *follow = field_1E4.get_volatile_ptr() ?
-        get_traffic_from_entity(vhandle_type<entity>{field_1E4.field_0}) : nullptr;
+    auto *follow =
+        field_1E4.get_volatile_ptr() ? get_traffic_from_entity(vhandle_type<entity>{field_1E4.field_0}) : nullptr;
     if (field_1C4 == 1 && follow && lane != follow->field_140)
         return;
     if (field_140->get_num_nodes() > 2)
@@ -517,12 +520,10 @@ void traffic::check_lane_change()
     auto *blocking = get_traffic_from_entity(field_170);
     auto *ahead = get_traffic_from_entity(vhandle_type<entity>{ahead_handle});
     auto *rear = get_traffic_from_entity(vhandle_type<entity>{rear_handle});
-    if ((blocking && blocking->field_15C == 4) || (ahead && ahead->field_15C == 4) ||
-        (rear && rear->field_15C == 4))
+    if ((blocking && blocking->field_15C == 4) || (ahead && ahead->field_15C == 4) || (rear && rear->field_15C == 4))
         return;
     const float ratio = blocking && blocking->field_15C == 6 ? 1.75f : 1.25f;
-    if (ahead && (front - ahead_position).xz_length2() <
-        (front - blocking_position).xz_length2() * ratio * ratio)
+    if (ahead && (front - ahead_position).xz_length2() < (front - blocking_position).xz_length2() * ratio * ratio)
         return;
     if ((front - g_game_ptr->get_current_view_camera(0)->get_abs_position()).xz_length2() > 2025.0f)
         return;
@@ -532,8 +533,8 @@ void traffic::check_lane_change()
     if ((front - destination).xz_length2() <= 400.0f)
         return;
     const auto first = lane->get_node(0);
-    const float distance = std::sqrt((front - first).xz_length2()) +
-        std::min(15.0f, std::max(5.0f, field_C.field_C8 * 2.0f));
+    const float distance =
+        std::sqrt((front - first).xz_length2()) + std::min(15.0f, std::max(5.0f, field_C.field_C8 * 2.0f));
     destination = first + (destination - first).normalized() * distance;
     if (traffic_angle(destination - front, forward) > 2.3561945f)
         return;
@@ -595,8 +596,8 @@ void traffic::drive_to_destination(Float dt, bool stop, bool slow)
         if (field_17C != 2)
             target_speed = speed_scale * 15.0f;
     }
-    if (field_15C != 10 && field_15C != 11 && field_15C != 4 &&
-        !(field_140->flags & 0x800) && field_140->get_num_nodes() <= 2) {
+    if (field_15C != 10 && field_15C != 11 && field_15C != 4 && !(field_140->flags & 0x800) &&
+        field_140->get_num_nodes() <= 2) {
         if (distance < 3.0f * arrival)
             field_1BC = true;
         if (distance < 5.0f * arrival)
@@ -606,8 +607,7 @@ void traffic::drive_to_destination(Float dt, bool stop, bool slow)
     }
     if (field_140->flags & 0x800)
         target_speed *= 0.65f;
-    if (field_15C != 10 && field_15C != 11 && field_15C != 4 &&
-        (front - field_1D4).xz_length2() < field_1E0)
+    if (field_15C != 10 && field_15C != 11 && field_15C != 4 && (front - field_1D4).xz_length2() < field_1E0)
         finish_goto();
     const float approach = field_C.field_C8 * 0.2f >= 1.0f ? field_C.field_C8 * 2.0f : 10.0f;
     auto *intersection = field_140->get_next_intersection(1);
@@ -656,8 +656,8 @@ void traffic::drive_to_destination(Float dt, bool stop, bool slow)
     if (field_C.field_C8 < target_speed)
         throttle = std::min(acceleration, std::max(minimum_throttle, (target_speed - field_C.field_C8) * 0.1f));
     else if (field_C.field_C8 > target_speed)
-        throttle = std::max(braking * speed_scale,
-            std::min(-minimum_throttle, (target_speed - field_C.field_C8) * 0.1f));
+        throttle =
+            std::max(braking * speed_scale, std::min(-minimum_throttle, (target_speed - field_C.field_C8) * 0.1f));
     const auto delta = field_14C - front;
     float angle = traffic_angle(delta, forward);
     if (angle < (10.0f - std::clamp(distance / 3.0f, 0.0f, 10.0f)) * 0.017453292f)
@@ -716,8 +716,12 @@ void traffic::drive_to_destination(Float dt, bool stop, bool slow)
         }
         if (field_140->flags & 0x20)
             field_C.manage_vehicle_height(true);
-        field_C.drive(dt, throttle, steering, field_1C4 != 0,
-            (field_8 & 1) || field_1C9, ((field_8 & 1) && (field_8 & 2)) || field_1C9);
+        field_C.drive(dt,
+                      throttle,
+                      steering,
+                      field_1C4 != 0,
+                      (field_8 & 1) || field_1C9,
+                      ((field_8 & 1) && (field_8 & 2)) || field_1C9);
     } else {
         field_C.field_BC = YVEC;
         if (field_15C != 10 && field_15C != 11) {
@@ -733,8 +737,8 @@ void traffic::drive_to_destination(Float dt, bool stop, bool slow)
 }
 
 
-void traffic::_do_spawn(vector3d position, vector3d facing, traffic_path_lane *lane,
-                        int node_index, bool first, bool moving)
+void traffic::_do_spawn(vector3d position, vector3d facing, traffic_path_lane *lane, int node_index, bool first,
+                        bool moving)
 {
     set_current_lane(lane, static_cast<int>(first) - 1, true);
     auto *owner = get_my_actor();
@@ -744,8 +748,7 @@ void traffic::_do_spawn(vector3d position, vector3d facing, traffic_path_lane *l
     field_C.set_visible(true);
     if (!is_ai_potential_car() && field_4)
         field_C.pick_body_and_color();
-    field_C.field_C8 = !moving || first ? 0.0f :
-        ((std::rand() / 32767.0f) * 2.0f - 1.0f) * 2.5f + 10.0f;
+    field_C.field_C8 = !moving || first ? 0.0f : ((std::rand() / 32767.0f) * 2.0f - 1.0f) * 2.5f + 10.0f;
     field_17C = static_cast<traffic_path_intersection::eDirection>(0);
     field_15C = moving ? 1 : 3;
     field_1BC = moving;
@@ -789,8 +792,7 @@ void traffic::advance_fade()
     const float alpha = field_20C * 0.0039215689f;
     auto *owner = static_cast<conglomerate *>(get_my_actor());
     for (auto *member : owner->members) {
-        if (member->is_an_entity() && member->field_40 == 255 &&
-            static_cast<int32_t>(member->field_4) >= 0)
+        if (member->is_an_entity() && member->field_40 == 255 && static_cast<int32_t>(member->field_4) >= 0)
             static_cast<entity *>(member)->set_render_alpha_mod(alpha);
     }
 }
@@ -833,12 +835,13 @@ void traffic::advance(Float dt)
     if (field_140) {
         ++living_cars;
         const bool keep = (field_8 & 1) ||
-            ((visible_cars >= 8 || unspawned_this_frame >= 1 || (field_8 & 4) || field_15C == 1) &&
-             traffic_density * 30.0f >= parked_cars + living_cars) ||
-            is_ai_potential_car() || !field_4;
-        const bool retained = keep &&
-            (((traffic_enabled || is_ai_potential_car()) &&
-              (get_my_actor()->get_primary_region() || field_15C == 1)) || !field_4);
+                          ((visible_cars >= 8 || unspawned_this_frame >= 1 || (field_8 & 4) || field_15C == 1) &&
+                           traffic_density * 30.0f >= parked_cars + living_cars) ||
+                          is_ai_potential_car() || !field_4;
+        const bool retained =
+            keep &&
+            (((traffic_enabled || is_ai_potential_car()) && (get_my_actor()->get_primary_region() || field_15C == 1)) ||
+             !field_4);
         if (!retained) {
             if (!keep)
                 ++unspawned_this_frame;
@@ -890,8 +893,8 @@ void traffic::damage_obstacles()
             if (!other || !(other->field_4 & 0x200) || (other->field_4 & 0x800))
                 continue;
             const auto delta = other->get_abs_position() - impact_position;
-            if (dot(forward.normalized(), delta) <= 0.8f || delta.length2() > radius_sq ||
-                !other->has_damage_ifc() || !other->is_alive())
+            if (dot(forward.normalized(), delta) <= 0.8f || delta.length2() > radius_sq || !other->has_damage_ifc() ||
+                !other->is_alive())
                 continue;
             auto *damage = other->damage_ifc();
             float last_damage;
@@ -904,7 +907,8 @@ void traffic::damage_obstacles()
                 damage_hero = core->my_base_machine->my_curr_state->get_name() != ai::attach_state::default_id;
                 if (damage_hero) {
                     auto &disabled_handle = var<int>(0x0096CA78);
-                    auto *disabled = vhandle_type<actor>{entity_base_vhandle{static_cast<uint32_t>(disabled_handle)}}.get_volatile_ptr();
+                    auto *disabled = vhandle_type<actor>{entity_base_vhandle{static_cast<uint32_t>(disabled_handle)}}
+                                         .get_volatile_ptr();
                     auto *owner = get_my_actor();
                     if (!disabled && owner->m_interactable_ifc &&
                         owner->m_interactable_ifc->has_enabled_interaction_of_this_kind(interaction_type_enum{2})) {
@@ -926,10 +930,10 @@ void traffic::damage_obstacles()
                 continue;
             if (other->has_physical_ifc()) {
                 const auto &pose = get_my_actor()->get_abs_po();
-                const auto impulse = (pose.get_y_facing() * 3.0f - pose.get_z_facing()).normalized() *
-                    std::max(20.0f, amount * 2.0f);
-                other->physical_ifc()->apply_force_increment(impulse,
-                    static_cast<physical_interface::force_type>(1), var<vector3d>(0x00938184), 0);
+                const auto impulse =
+                    (pose.get_y_facing() * 3.0f - pose.get_z_facing()).normalized() * std::max(20.0f, amount * 2.0f);
+                other->physical_ifc()->apply_force_increment(
+                    impulse, static_cast<physical_interface::force_type>(1), var<vector3d>(0x00938184), 0);
             }
             const string_hash attack{amount < 2.5f ? "Wounded_Upper" : "Enter_Prop_Physics"};
             auto *core = other->is_an_actor() ? other->get_ai_core() : nullptr;
@@ -937,11 +941,24 @@ void traffic::damage_obstacles()
                 auto *node = static_cast<ai::damage_inode *>(core->get_info_node(ai::damage_inode::default_id, true));
                 auto *hero = static_cast<actor *>(g_world_ptr->get_hero_ptr(0));
                 const bool car_damage = other->is_hero() && hero && hero->get_player_controller()->m_hero_type == 1;
-                node->apply_forced_damage(static_cast<int>(amount), delta,
-                    car_damage ? string_hash{"Enter_Prop_Physics_Car_Damage"} : attack, true);
+                node->apply_forced_damage(static_cast<int>(amount),
+                                          delta,
+                                          car_damage ? string_hash{"Enter_Prop_Physics_Car_Damage"} : attack,
+                                          true);
             } else {
-                damage->apply_damage(other, amount, 6, impact_position, delta * 3.0f, 0,
-                    attack, string_hash{}, string_hash{}, false, ZEROVEC, 17, false);
+                damage->apply_damage(other,
+                                     amount,
+                                     6,
+                                     impact_position,
+                                     delta * 3.0f,
+                                     0,
+                                     attack,
+                                     string_hash{},
+                                     string_hash{},
+                                     false,
+                                     ZEROVEC,
+                                     17,
+                                     false);
             }
         }
     }

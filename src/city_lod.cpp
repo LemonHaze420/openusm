@@ -65,12 +65,11 @@ void un_mash_array(mashable_vector<T> &array, generic_mash_data_ptrs &ptrs)
         ptrs.rebase(4);
     }
 }
-}
+}  // namespace
 
 city_lod::city_lod(const char *name) : field_0(nullptr), field_4(false)
 {
-    field_4 = os_developer_options::instance->get_flag(
-        static_cast<os_developer_options::flags_t>(14));
+    field_4 = os_developer_options::instance->get_flag(static_cast<os_developer_options::flags_t>(14));
     if (!field_4)
         return;
 
@@ -97,7 +96,6 @@ city_lod::city_lod(const char *name) : field_0(nullptr), field_4(false)
 }
 
 
-
 bool lod_batch::outside_frustum(const hull &frustum) const
 {
     const vector3d edge_x = corners[2] - corners[1];
@@ -118,9 +116,8 @@ bool lod_batch::outside_frustum(const hull &frustum) const
     }
     for (uint32_t i = 0; i < frustum.field_0.m_size; ++i) {
         const auto &p = frustum.field_0.m_data[i].arr;
-        const float radius = std::fabs(p[0] * axis.x + p[2] * axis.z) * extent_x
-            + std::fabs(p[1]) * (height * 0.5f)
-            + std::fabs(-p[0] * axis.z + p[2] * axis.x) * extent_z;
+        const float radius = std::fabs(p[0] * axis.x + p[2] * axis.z) * extent_x + std::fabs(p[1]) * (height * 0.5f) +
+                             std::fabs(-p[0] * axis.z + p[2] * axis.x) * extent_z;
         if (p[0] * center.x + p[1] * center.y + p[2] * center.z + p[3] + radius < 0.0f)
             return true;
     }
@@ -139,31 +136,31 @@ void lod_batch::render(const vector3d &camera_position, bool zoom_map) const
         po transform;
         const int rotation = building.rotation + ((building.flags & 0x10) ? 256 : 0);
         transform.set_rotate_y(static_cast<float>(rotation) * 0.017453292f);
-        transform.m[3] = vector4d{building.position.x,
-            building.position.y + building.height * 0.5f, building.position.z, 1.0f};
+        transform.m[3] =
+            vector4d{building.position.x, building.position.y + building.height * 0.5f, building.position.z, 1.0f};
 
         nglParamSet<nglShaderParamSet_Pool> params{
             static_cast<nglParamSet<nglShaderParamSet_Pool>::nglParamSetType>(1)};
 
         const auto color = building.color;
-        auto *tint = new (nglListAlloc(sizeof(vector4d), 16)) vector4d{
-            static_cast<float>(8 * (color & 31)) * (2.0f / 255.0f),
-            static_cast<float>((color >> 2) & 248) * (2.0f / 255.0f),
-            static_cast<float>((color >> 7) & 248) * (2.0f / 255.0f),
-            static_cast<float>((color >> 8) & 128) * (2.0f / 255.0f)};
+        auto *tint =
+            new (nglListAlloc(sizeof(vector4d), 16)) vector4d{static_cast<float>(8 * (color & 31)) * (2.0f / 255.0f),
+                                                              static_cast<float>((color >> 2) & 248) * (2.0f / 255.0f),
+                                                              static_cast<float>((color >> 7) & 248) * (2.0f / 255.0f),
+                                                              static_cast<float>((color >> 8) & 128) * (2.0f / 255.0f)};
         params.SetParam(nglTintParam{tint});
         nglMeshParams mesh_params{};
         mesh_params.Flags = NGLP_SCALE;
         mesh_params.Scale = {vector3d{building.width * 0.5f * lod_box_scale().x,
-            building.height * 0.5f * lod_box_scale().y, building.depth * 0.5f * lod_box_scale().z}};
-        nglListAddMesh(city_lod::box_mesh(),
-            *bit_cast<const math::MatClass<4, 3> *>(&transform.m), &mesh_params, &params);
+                                      building.height * 0.5f * lod_box_scale().y,
+                                      building.depth * 0.5f * lod_box_scale().z}};
+        nglListAddMesh(
+            city_lod::box_mesh(), *bit_cast<const math::MatClass<4, 3> *>(&transform.m), &mesh_params, &params);
     }
 }
 
 void strip_lod::un_mash_start(generic_mash_header *, void *, generic_mash_data_ptrs *ptrs, void *)
 {
-
     uint32_t *shared_header = nullptr;
     if (batches.is_shared()) {
         ptrs->rebase_shared(4);
@@ -220,18 +217,18 @@ void city_lod::render()
     float fov, nearz, farz;
     nglGetProjectionParams(&fov, &nearz, &farz);
     const float far_plane = g_distance_clipping_enabled
-        ? std::fmax(static_cast<float>(g_distance_clipping) * 0.01f * 1900.0f + 100.0f, 100.0f)
-        : 6000.0f;
+                                ? std::fmax(static_cast<float>(g_distance_clipping) * 0.01f * 1900.0f + 100.0f, 100.0f)
+                                : 6000.0f;
     nglSetPerspectiveMatrix(fov, 0.1f, far_plane);
     const auto &eye = camera->get_abs_position();
-    const float distance_squared = eye.y > lod_culling().air_height
-        ? lod_culling().air_distance_squared : lod_culling().ground_distance_squared;
+    const float distance_squared =
+        eye.y > lod_culling().air_height ? lod_culling().air_distance_squared : lod_culling().ground_distance_squared;
     for (const auto &batch : field_0->batches) {
         const vector3d center = (batch.corners[0] + batch.corners[1] + batch.corners[2] + batch.corners[3]) * 0.25f;
         const float dx = eye.x - center.x;
         const float dz = eye.z - center.z;
-        if ((zoom_map || dx * dx + dz * dz < distance_squared)
-            && !batch.outside_frustum(geometry_manager::world_space_frustum))
+        if ((zoom_map || dx * dx + dz * dz < distance_squared) &&
+            !batch.outside_frustum(geometry_manager::world_space_frustum))
             batch.render(eye, zoom_map);
     }
     field_0->render_meshes();

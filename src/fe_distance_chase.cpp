@@ -6,9 +6,7 @@
 VALIDATE_SIZE(fe_distance_chase, 0x70);
 
 // Inlined at 0x00648CFD in IGOFrontEnd::IGOFrontEnd.
-fe_distance_chase::fe_distance_chase()
-    : panels{},
-      field_6C(false)
+fe_distance_chase::fe_distance_chase() : panels{}, field_6C(false)
 {
     field_28 = 7;
 }
@@ -38,8 +36,7 @@ void fe_distance_chase::Update(Float time_inc)
     if (field_28 < 0 || field_28 > 6 || panels[field_28] == nullptr)
         return;
     PanelFile *panel = panels[field_28];
-    if (!field_6C &&
-        (panel->field_28.empty() || !panel->field_28.at(0)->field_2D))
+    if (!field_6C && (panel->field_28.empty() || !panel->field_28.at(0)->field_2D))
         return;
     panel->Update(time_inc);
     field_1C->SetPos(field_5C, field_2C);

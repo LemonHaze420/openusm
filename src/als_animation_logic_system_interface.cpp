@@ -13,12 +13,12 @@ namespace als {
 _std::list<animation_logic_system_interface::value_t> &animation_logic_system_interface::the_als_list =
     []() -> _std::list<animation_logic_system_interface::value_t> & {
 #if STANDALONE_SYSTEM
-        static _std::list<animation_logic_system_interface::value_t> list;
-        return list;
+    static _std::list<animation_logic_system_interface::value_t> list;
+    return list;
 #else
-        return var<_std::list<animation_logic_system_interface::value_t>>(0x009597C0);
+    return var<_std::list<animation_logic_system_interface::value_t>>(0x009597C0);
 #endif
-    }();
+}();
 
 state_machine *animation_logic_system_interface::get_als_layer(layer_types a2)
 {

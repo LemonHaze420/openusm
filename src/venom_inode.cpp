@@ -6,8 +6,7 @@
 
 VALIDATE_SIZE(venom_inode, 0xBC);
 
-venom_inode::venom_inode(from_mash_in_place_constructor *a2)
-    : ai::info_node(a2)
+venom_inode::venom_inode(from_mash_in_place_constructor *a2) : ai::info_node(a2)
 {
 #if STANDALONE_SYSTEM
     m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[440]);

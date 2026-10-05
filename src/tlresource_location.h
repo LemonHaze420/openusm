@@ -46,4 +46,3 @@ public:
     //0x0050EBE0
     void un_mash(generic_mash_header *, void *, generic_mash_data_ptrs *);
 };
-

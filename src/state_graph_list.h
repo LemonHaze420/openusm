@@ -16,4 +16,4 @@ struct state_graph_list {
         graphs.push_back(graph);
     }
 };
-}
+}  // namespace ai

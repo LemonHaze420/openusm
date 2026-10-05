@@ -30,8 +30,8 @@ struct als_meta_anim_swing : als_meta_anim_base {
 
         nalInstance *_scalar_deleting_destructor(uint32_t flags);
         void _get_pose(Float t, Float t_prev, nalBasePose &pose, const nalBasePose &default_pose);
-        void _blend_two_anims(Float t0, Float t1, nalAnyPose &pose, const nalAnyPose &default_pose,
-                              Float blend, nalInstanceClass *anim0, nalInstanceClass *anim1);
+        void _blend_two_anims(Float t0, Float t1, nalAnyPose &pose, const nalAnyPose &default_pose, Float blend,
+                              nalInstanceClass *anim0, nalInstanceClass *anim1);
 
         static inline void *g_vtbl[] = {
             func_address(&nalInstance::_scalar_deleting_destructor),

@@ -56,7 +56,10 @@ struct spidey_combat_web {
         }
     }
 
-    ~spidey_combat_web() { tentacle.kill_all_engines(); }
+    ~spidey_combat_web()
+    {
+        tentacle.kill_all_engines();
+    }
 
     vector3d endpoint()
     {
@@ -80,7 +83,8 @@ struct spidey_combat_web {
         tentacle.field_60 = retracting ? origin + (destination - origin) * amount : origin;
         if (tentacle.tentacle != nullptr && (tentacle.field_A8 & 0x100) == 0 &&
             tentacle.tentacle == reinterpret_cast<polytube *>(tentacle.my_ai != nullptr
-                ? static_cast<entity_base *>(tentacle.my_ai->field_64) : tentacle.tentacle))
+                                                                  ? static_cast<entity_base *>(tentacle.my_ai->field_64)
+                                                                  : tentacle.tentacle))
             tentacle.tentacle->set_abs_position(tentacle.field_60);
         tentacle.end_pos = retracting ? destination : origin + (destination - origin) * amount;
         tentacle.create_line(tentacle.end_pos, nullptr);
@@ -122,7 +126,10 @@ void delete_web(spidey_combat_web *&web)
         ::operator delete(web);
     web = nullptr;
 }
-void __fastcall spidey_destroy(spidey_combat_inode *self, void *) { self->_destruct_mashed_class(); }
+void __fastcall spidey_destroy(spidey_combat_inode *self, void *)
+{
+    self->_destruct_mashed_class();
+}
 void *__fastcall spidey_delete(spidey_combat_inode *self, void *, unsigned flags)
 {
     self->~spidey_combat_inode();
@@ -130,31 +137,54 @@ void *__fastcall spidey_delete(spidey_combat_inode *self, void *, unsigned flags
         ::operator delete(self);
     return self;
 }
-unsigned __fastcall spidey_type(spidey_combat_inode *, void *) { return 248; }
+unsigned __fastcall spidey_type(spidey_combat_inode *, void *)
+{
+    return 248;
+}
 bool __fastcall spidey_subclass(spidey_combat_inode *, void *, unsigned type)
 {
     return type == 346 || type == 342 || type == 537 || type == 573;
 }
-void __fastcall spidey_frame(spidey_combat_inode *self, void *, Float dt) { self->_frame_advance(dt); }
-void __fastcall spidey_activate(spidey_combat_inode *self, void *, ai_core *core) { self->_activate(core); }
-void __fastcall spidey_deactivate(spidey_combat_inode *self, void *) { self->_deactivate(); }
-int __fastcall spidey_size(spidey_combat_inode *, void *) { return sizeof(spidey_combat_inode); }
-int __fastcall spidey_sense(spidey_combat_inode *self, void *) { return self->field_338; }
-void __fastcall spidey_activate_sense(spidey_combat_inode *self, void *) { self->activate_sense(); }
+void __fastcall spidey_frame(spidey_combat_inode *self, void *, Float dt)
+{
+    self->_frame_advance(dt);
+}
+void __fastcall spidey_activate(spidey_combat_inode *self, void *, ai_core *core)
+{
+    self->_activate(core);
+}
+void __fastcall spidey_deactivate(spidey_combat_inode *self, void *)
+{
+    self->_deactivate();
+}
+int __fastcall spidey_size(spidey_combat_inode *, void *)
+{
+    return sizeof(spidey_combat_inode);
+}
+int __fastcall spidey_sense(spidey_combat_inode *self, void *)
+{
+    return self->field_338;
+}
+void __fastcall spidey_activate_sense(spidey_combat_inode *self, void *)
+{
+    self->activate_sense();
+}
 void __fastcall spidey_web(spidey_combat_inode *self, void *, entity *source, float x, float y, float z)
 {
     self->activate_web(source, x, y, z);
 }
-void __fastcall spidey_unweb(spidey_combat_inode *self, void *, entity *source) { self->deactivate_web(source); }
+void __fastcall spidey_unweb(spidey_combat_inode *self, void *, entity *source)
+{
+    self->deactivate_web(source);
+}
 void __fastcall spidey_pending(spidey_combat_inode *self, void *, combat_inode::incoming_move move)
 {
     self->update_pending_move(move);
 }
-}
+}  // namespace
 
 void *spidey_combat_inode::native_vtable()
 {
-
     static auto table = [] {
         std::array<void *, 76> result;
         std::copy_n(static_cast<void **>(player_combat_inode::native_vtable()), result.size(), result.data());
@@ -188,7 +218,10 @@ spidey_combat_inode::spidey_combat_inode(from_mash_in_place_constructor *tag) : 
     field_334 = 0;
     field_348 = field_34C = nullptr;
 }
-spidey_combat_inode::~spidey_combat_inode() { finalize(); }
+spidey_combat_inode::~spidey_combat_inode()
+{
+    finalize();
+}
 
 void spidey_combat_inode::finalize()
 {
@@ -212,7 +245,7 @@ void spidey_combat_inode::_frame_advance(Float delta)
     if (field_338 > 0)
         --field_338;
     player_combat_inode::_frame_advance(delta);
-    using sense_fn = int (__fastcall *)(spidey_combat_inode *, void *);
+    using sense_fn = int(__fastcall *)(spidey_combat_inode *, void *);
     if (reinterpret_cast<sense_fn>(get_vfunc(m_vtbl, 0x58))(this, nullptr))
         aeps::DoSpideySenseEffect(field_C, 0.1f, 0);
     for (auto **web : {&field_348, &field_34C}) {
@@ -250,11 +283,12 @@ void spidey_combat_inode::activate_web(entity *source, float x, float y, float z
         position = actor->get_abs_position();
     else
         position = (field_C->get_abs_po().get_z_facing() * 10.0f + field_C->get_abs_position()) * 0.25f +
-            vector3d{x, y, z} * 0.75f;
+                   vector3d{x, y, z} * 0.75f;
     auto **slot = field_348 == nullptr ? &field_348 : field_34C == nullptr ? &field_34C : nullptr;
     if (slot != nullptr) {
         void *memory = sizeof(spidey_combat_web) <= slab_allocator::get_max_object_size()
-            ? slab_allocator::allocate(sizeof(spidey_combat_web), nullptr) : ::operator new(sizeof(spidey_combat_web));
+                           ? slab_allocator::allocate(sizeof(spidey_combat_web), nullptr)
+                           : ::operator new(sizeof(spidey_combat_web));
         *slot = ::new (memory) spidey_combat_web(source, field_8, target, position);
     }
 }
@@ -273,13 +307,13 @@ void spidey_combat_inode::update_pending_move(const combat_inode::incoming_move 
         field_330 = -1.0f;
         field_334 = 0;
     }
-    using sense_fn = int (__fastcall *)(spidey_combat_inode *, void *);
+    using sense_fn = int(__fastcall *)(spidey_combat_inode *, void *);
     if (reinterpret_cast<sense_fn>(get_vfunc(m_vtbl, 0x58))(this, nullptr)) {
         field_334 = move.field_4;
         field_330 = time + 0.1f;
     }
 }
-} // namespace ai
+}  // namespace ai
 
 void spidey_combat_inode_patch()
 {

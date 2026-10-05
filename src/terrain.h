@@ -24,9 +24,9 @@ struct traffic_path_graph;
 struct traffic_path_brew;
 
 struct pack_switch_info_t {
-	eligible_pack *field_0;
-	resource_pack_slot *field_4;
-	int field_8;
+    eligible_pack *field_0;
+    resource_pack_slot *field_4;
+    int field_8;
 };
 
 struct terrain {
@@ -58,11 +58,11 @@ struct terrain {
 
     //0x0053FD90
     vector3d get_elevation_adv(vector3d &a1, vector3d &a4, actor *a5, entity **a6, subdivision_node_obb_base **a7,
-        Float a8);
+                               Float a8);
 
     //0x00544430
     float get_elevation(vector3d &a2, vector3d &a4, actor *exclude_self, entity **a6, subdivision_node_obb_base **a7,
-        Float a8);
+                        Float a8);
 
     //0x0054F380
     void update_region_pack_info();
@@ -130,7 +130,7 @@ struct terrain {
     //0x00556FF0
     void frame_advance(Float a2);
 
-    _std::vector<region *> * get_region_info_for_point(vector3d a2);
+    _std::vector<region *> *get_region_info_for_point(vector3d a2);
 
     //0x0052DFF0
     region *find_region(const vector3d &a2, region *a3) const;
@@ -160,10 +160,10 @@ struct terrain {
                                             resource_pack_slot *which_pack_slot, limited_timer *a4);
 
     static bool district_load_started_callback(resource_pack_slot::callback_enum a1, resource_pack_streamer *a2,
-											 resource_pack_slot *a3);
+                                               resource_pack_slot *a3);
 
     static bool district_pre_destruct_callback(resource_pack_slot::callback_enum reason, resource_pack_streamer *a2,
-        resource_pack_slot *which_pack_slot);
+                                               resource_pack_slot *which_pack_slot);
 
 
     //0x0055C350
@@ -176,17 +176,16 @@ struct terrain {
 
     static inline constexpr auto STREAMING_BUBBLE_RADIUS2 = 16.0f;
 
-    static inline auto & regions_for_point = var<_std::vector<region *> *>(0x0095C8D0);
+    static inline auto &regions_for_point = var<_std::vector<region *> *>(0x0095C8D0);
 
-    static inline auto & load_complete_callback = var<void (*)(void)>(0x0095C8C8);
+    static inline auto &load_complete_callback = var<void (*)(void)>(0x0095C8C8);
 
-    static inline auto & region_change_callbacks = var<_std::list<void (*)(bool, region *)> *>(0x0095C8CC);
+    static inline auto &region_change_callbacks = var<_std::list<void (*)(bool, region *)> *>(0x0095C8CC);
 
-    static inline float & MAX_STREAMING_DISTANCE = var<float>(0x00921DA4);
+    static inline float &MAX_STREAMING_DISTANCE = var<float>(0x00921DA4);
 };
 
 //0x
 extern void find_ideal_terrain_packs_callback(_std::vector<ideal_pack_info> *a1);
 
 extern void terrain_patch();
-

@@ -71,89 +71,163 @@ int v10_global_text_index(int idx)
     }
 
     switch (idx) {
-    case 243: return 240;
-    case 266: return 262;
+    case 243:
+        return 240;
+    case 266:
+        return 262;
     case 267:
     case 268:
     case 269:
-    case 270: return 263;
-    case 271: return 264;
-    case 272: return 265;
-    case 293: return 285;
-    case 302: return 293;
-    case 315: return 305;
-    case 316: return 306;
-    case 325: return 313;
-    case 326: return 320;
-    case 328: return 327;
+    case 270:
+        return 263;
+    case 271:
+        return 264;
+    case 272:
+        return 265;
+    case 293:
+        return 285;
+    case 302:
+        return 293;
+    case 315:
+        return 305;
+    case 316:
+        return 306;
+    case 325:
+        return 313;
+    case 326:
+        return 320;
+    case 328:
+        return 327;
     case 346:
-    case 367: return 357;
-    case 348: return 334;
+    case 367:
+        return 357;
+    case 348:
+        return 334;
     case 360:
-    case 369: return 349;
-    case 365: return 346;
-    case 368: return 355;
-    case 370: return 359;
-    case 372: return 351;
-    case 373: return 361;
-    case 374: return 362;
-    case 375: return 364;
-    case 376: return 384;
-    case 377: return 366;
-    case 378: return 368;
-    case 379: return 370;
-    case 380: return 372;
-    case 381: return 374;
-    case 382: return 376;
-    case 383: return 378;
-    case 384: return 380;
-    case 385: return 382;
-    case 386: return 386;
-    case 387: return 388;
-    case 388: return 390;
-    case 389: return 341;
-    case 390: return 342;
-    case 391: return 343;
-    case 393: return 345;
-    case 415: return 401;
-    case 416: return 402;
-    case 417: return 403;
-    case 418: return 404;
-    case 426: return 412;
+    case 369:
+        return 349;
+    case 365:
+        return 346;
+    case 368:
+        return 355;
+    case 370:
+        return 359;
+    case 372:
+        return 351;
+    case 373:
+        return 361;
+    case 374:
+        return 362;
+    case 375:
+        return 364;
+    case 376:
+        return 384;
+    case 377:
+        return 366;
+    case 378:
+        return 368;
+    case 379:
+        return 370;
+    case 380:
+        return 372;
+    case 381:
+        return 374;
+    case 382:
+        return 376;
+    case 383:
+        return 378;
+    case 384:
+        return 380;
+    case 385:
+        return 382;
+    case 386:
+        return 386;
+    case 387:
+        return 388;
+    case 388:
+        return 390;
+    case 389:
+        return 341;
+    case 390:
+        return 342;
+    case 391:
+        return 343;
+    case 393:
+        return 345;
+    case 415:
+        return 401;
+    case 416:
+        return 402;
+    case 417:
+        return 403;
+    case 418:
+        return 404;
+    case 426:
+        return 412;
     case 427:
-    case 428: return 413;
-    case 429: return 414;
-    case 430: return 415;
-    case 431: return 416;
-    case 432: return 417;
-    case 433: return 418;
-    case 434: return 419;
-    case 435: return 420;
-    case 436: return 423;
-    case 453: return 443;
-    case 454: return 444;
+    case 428:
+        return 413;
+    case 429:
+        return 414;
+    case 430:
+        return 415;
+    case 431:
+        return 416;
+    case 432:
+        return 417;
+    case 433:
+        return 418;
+    case 434:
+        return 419;
+    case 435:
+        return 420;
+    case 436:
+        return 423;
+    case 453:
+        return 443;
+    case 454:
+        return 444;
     case 455:
-    case 456: return 429;
-    case 457: return 430;
-    case 458: return 431;
-    case 459: return 432;
-    case 461: return 445;
-    case 462: return 433;
-    case 463: return 434;
+    case 456:
+        return 429;
+    case 457:
+        return 430;
+    case 458:
+        return 431;
+    case 459:
+        return 432;
+    case 461:
+        return 445;
+    case 462:
+        return 433;
+    case 463:
+        return 434;
     case 464:
     case 465:
-    case 475: return 435;
-    case 466: return 436;
-    case 467: return 437;
-    case 468: return 438;
-    case 470: return 440;
-    case 471: return 441;
-    case 472: return 442;
-    case 473: return 443;
-    case 474: return 444;
-    case 476: return 433;
-    case 477: return 432;
-    default: return -1;
+    case 475:
+        return 435;
+    case 466:
+        return 436;
+    case 467:
+        return 437;
+    case 468:
+        return 438;
+    case 470:
+        return 440;
+    case 471:
+        return 441;
+    case 472:
+        return 442;
+    case 473:
+        return 443;
+    case 474:
+        return 444;
+    case 476:
+        return 433;
+    case 477:
+        return 432;
+    default:
+        return -1;
     }
 }
 
@@ -211,7 +285,7 @@ const char *localized_error_string(localized_string_table *table)
 
     return "";
 }
-}
+}  // namespace
 
 void localized_string_table::load_localizer()
 {
@@ -274,28 +348,26 @@ void localized_string_table::load_localizer()
 
 void localized_string_table::sub_60BD30()
 {
-    this->field_0 = (internal *) ((char *) this + (unsigned int) this->field_0);
-    this->field_8 += (int) this;
+    this->field_0 = (internal *)((char *)this + (unsigned int)this->field_0);
+    this->field_8 += (int)this;
 
     const int global_text_count = this->field_4 - this->scripttext_number;
     const int expected_count = expected_global_text_count();
     if (global_text_count < 0) {
-        sp_log(
-            "localized strings table has invalid counts: total=%d script=%d global=%d.",
-            this->field_4,
-            this->scripttext_number,
-            global_text_count);
+        sp_log("localized strings table has invalid counts: total=%d script=%d global=%d.",
+               this->field_4,
+               this->scripttext_number,
+               global_text_count);
         assert(0);
         return;
     }
 
     if (global_text_count != expected_count) {
-        sp_log(
-            "localized strings table global count mismatch: expected=%d actual=%d total=%d script=%d.",
-            expected_count,
-            global_text_count,
-            this->field_4,
-            this->scripttext_number);
+        sp_log("localized strings table global count mismatch: expected=%d actual=%d total=%d script=%d.",
+               expected_count,
+               global_text_count,
+               this->field_4,
+               this->scripttext_number);
 
         if (g_platform != NL_PLATFORM_XBOX) {
             assert(0);

@@ -16,8 +16,11 @@ VALIDATE_SIZE(signal_enhanced_state, 0x34);
 
 namespace {
 
-struct signal_transition { int message; string_hash parameter; };
-const signal_transition signal_transitions[] {
+struct signal_transition {
+    int message;
+    string_hash parameter;
+};
+const signal_transition signal_transitions[]{
     {1, string_hash{int(to_hash("to_success_on_signal"))}},
     {2, string_hash{int(to_hash("to_failure_on_signal"))}},
     {3, string_hash{int(to_hash("to_interrupt_on_signal"))}},
@@ -32,15 +35,21 @@ const signal_transition signal_transitions[] {
     {35, string_hash{int(to_hash("to_ranged_8_on_signal"))}},
     {36, string_hash{int(to_hash("to_ranged_9_on_signal"))}},
 };
-unsigned __fastcall signal_type(signal_enhanced_state *, void *) { return 536; }
-int __fastcall signal_size(signal_enhanced_state *, void *) { return sizeof(signal_enhanced_state); }
+unsigned __fastcall signal_type(signal_enhanced_state *, void *)
+{
+    return 536;
+}
+int __fastcall signal_size(signal_enhanced_state *, void *)
+{
+    return sizeof(signal_enhanced_state);
+}
 bool __fastcall signal_subclass(signal_enhanced_state *, void *, mash::virtual_types_enum type)
 {
     return type == 535 || type == 567 || type == 573;
 }
 void __fastcall signal_activate(signal_enhanced_state *self, void *, ai_state_machine *machine,
-    const mashed_state *state, const mashed_state *previous, const param_block *params,
-    base_state::activate_flag_e flags)
+                                const mashed_state *state, const mashed_state *previous, const param_block *params,
+                                base_state::activate_flag_e flags)
 {
     self->activate(machine, state, previous, params, flags);
 }
@@ -49,7 +58,7 @@ state_trans_action *__fastcall signal_check(signal_enhanced_state *self, void *,
     *out = self->check_transition(time);
     return out;
 }
-}
+}  // namespace
 
 void *signal_enhanced_state::native_vtable()
 {
@@ -76,8 +85,8 @@ signal_enhanced_state::signal_enhanced_state(from_mash_in_place_constructor *a2)
     m_vtbl = STANDALONE_SYSTEM ? bit_cast<std::intptr_t>(native_vtable()) : 0x00873858;
 }
 
-void signal_enhanced_state::activate(ai_state_machine *machine, const mashed_state *state,
-    const mashed_state *previous, const param_block *params, activate_flag_e flags)
+void signal_enhanced_state::activate(ai_state_machine *machine, const mashed_state *state, const mashed_state *previous,
+                                     const param_block *params, activate_flag_e flags)
 {
     enhanced_state::activate(machine, state, previous, params, flags);
     field_30 = false;
@@ -108,11 +117,10 @@ state_trans_action signal_enhanced_state::check_transition(Float time)
             if (recipient == nullptr)
                 continue;
             const int ticks = g_world_ptr->time_manager.field_C;
-            if (recipient->field_24 == ticks - 1 ||
-                (recipient->field_24 != ticks && recipient->field_20 == ticks - 1))
+            if (recipient->field_24 == ticks - 1 || (recipient->field_24 != ticks && recipient->field_20 == ticks - 1))
                 return base_state::process_message(time, static_cast<state_trans_messages>(transition.message));
         }
     }
     return enhanced_state::check_transition(time);
 }
-} // namespace ai
+}  // namespace ai

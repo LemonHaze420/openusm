@@ -50,12 +50,11 @@ void motion_compensator::post_anim_action(Float a2)
 }
 
 void motion_compensator::set_facing_to_dir_internal(actor *explicit_actor, vector3d current, vector3d desired,
-                                                   vector3d up, Float turn_rate, Float threshold, Float dt)
+                                                    vector3d up, Float turn_rate, Float threshold, Float dt)
 {
     if constexpr (!STANDALONE_SYSTEM) {
         THISCALL(0x00499E80, this, explicit_actor, current, desired, up, turn_rate, threshold, dt);
     } else {
-
         if (desired.length2() < EPSILON)
             return;
         desired.normalize();
@@ -105,9 +104,7 @@ double motion_compensator::get_anim_movement_scale_param()
 
 double motion_compensator::get_anim_playback_speed_param()
 {
-
-    return field_8->has_ext_param_been_set(0x10u)
-        ? field_8->get_param(field_4, 0x10u) : 1.0;
+    return field_8->has_ext_param_been_set(0x10u) ? field_8->get_param(field_4, 0x10u) : 1.0;
 }
 
 namespace {
@@ -120,18 +117,24 @@ motion_compensator *__fastcall mocomp_finalize(motion_compensator *self, void *,
         mem_dealloc(self, sizeof(motion_compensator));
     return self;
 }
-int __fastcall mocomp_base_type(motion_compensator *, void *) { return 490; }
-int __fastcall mocomp_null_type(motion_compensator *, void *) { return 514; }
+int __fastcall mocomp_base_type(motion_compensator *, void *)
+{
+    return 490;
+}
+int __fastcall mocomp_null_type(motion_compensator *, void *)
+{
+    return 514;
+}
 bool __fastcall mocomp_parent_type(motion_compensator *, void *, int type)
 {
     return type == 490 || type == 573;
 }
 bool __fastcall mocomp_is_type(motion_compensator *self, void *, int type)
 {
-    using type_fn = int (__fastcall *)(motion_compensator *, void *);
-    using parent_fn = bool (__fastcall *)(motion_compensator *, void *, int);
+    using type_fn = int(__fastcall *)(motion_compensator *, void *);
+    using parent_fn = bool(__fastcall *)(motion_compensator *, void *, int);
     return reinterpret_cast<type_fn>(get_vfunc(self->m_vtbl, 0xC))(self, nullptr) == type ||
-        reinterpret_cast<parent_fn>(get_vfunc(self->m_vtbl, 0x10))(self, nullptr, type);
+           reinterpret_cast<parent_fn>(get_vfunc(self->m_vtbl, 0x10))(self, nullptr, type);
 }
 void __fastcall mocomp_activate(motion_compensator *self, void *, animation_logic_system *system)
 {
@@ -140,17 +143,18 @@ void __fastcall mocomp_activate(motion_compensator *self, void *, animation_logi
 void __fastcall mocomp_frame_empty(motion_compensator *, void *, Float) {}
 void __fastcall mocomp_post(motion_compensator *self, void *, Float)
 {
-
-    using get_fn = double (__fastcall *)(motion_compensator *, void *);
-    using set_fn = void (__fastcall *)(motion_compensator *, void *, Float);
+    using get_fn = double(__fastcall *)(motion_compensator *, void *);
+    using set_fn = void(__fastcall *)(motion_compensator *, void *, Float);
     const Float speed = reinterpret_cast<get_fn>(get_vfunc(self->m_vtbl, 0x48))(self, nullptr);
     reinterpret_cast<set_fn>(get_vfunc(self->m_vtbl, 0x40))(self, nullptr, speed);
 }
-bool __fastcall mocomp_fulfilled(motion_compensator *, void *) { return true; }
+bool __fastcall mocomp_fulfilled(motion_compensator *, void *)
+{
+    return true;
+}
 void __fastcall mocomp_po(motion_compensator *self, void *, actor *owner, po *offset)
 {
-
-    using scale_fn = double (__fastcall *)(motion_compensator *, void *);
+    using scale_fn = double(__fastcall *)(motion_compensator *, void *);
     const float scale = reinterpret_cast<scale_fn>(get_vfunc(self->m_vtbl, 0x44))(self, nullptr);
     offset->m[3].x *= scale;
     offset->m[3].y *= scale;
@@ -161,7 +165,6 @@ void __fastcall mocomp_po(motion_compensator *self, void *, actor *owner, po *of
 }
 bool __fastcall mocomp_position(motion_compensator *self, void *, vector3d *position)
 {
-
     bool grounded = false;
     auto *physical = self->the_actor->physical_ifc();
     if (physical != nullptr && std::not_equal_to<float>{}(physical->ground_elevation, -10000.0f)) {
@@ -174,28 +177,28 @@ bool __fastcall mocomp_position(motion_compensator *self, void *, vector3d *posi
     entity_set_abs_position(self->the_actor, *position);
     return grounded;
 }
-void __fastcall mocomp_facing(motion_compensator *self, void *, actor *owner,
-    vector3d current, vector3d desired, vector3d up, Float rate, Float threshold, Float dt)
+void __fastcall mocomp_facing(motion_compensator *self, void *, actor *owner, vector3d current, vector3d desired,
+                              vector3d up, Float rate, Float threshold, Float dt)
 {
     self->set_facing_to_dir_internal(owner, current, desired, up, rate, threshold, dt);
 }
-void dispatch_facing(motion_compensator *self, actor *owner, vector3d current, vector3d desired,
-                     vector3d up, Float rate, Float threshold, Float dt)
+void dispatch_facing(motion_compensator *self, actor *owner, vector3d current, vector3d desired, vector3d up,
+                     Float rate, Float threshold, Float dt)
 {
-    using face_fn = void (__fastcall *)(motion_compensator *, void *, actor *, vector3d,
-        vector3d, vector3d, Float, Float, Float);
+    using face_fn =
+        void(__fastcall *)(motion_compensator *, void *, actor *, vector3d, vector3d, vector3d, Float, Float, Float);
     reinterpret_cast<face_fn>(get_vfunc(self->m_vtbl, 0x3C))(
         self, nullptr, owner, current, desired, up, rate, threshold, dt);
 }
-void __fastcall mocomp_facing_2d(motion_compensator *self, void *, actor *owner,
-    vector3d current, vector3d desired, Float rate, Float threshold, Float dt)
+void __fastcall mocomp_facing_2d(motion_compensator *self, void *, actor *owner, vector3d current, vector3d desired,
+                                 Float rate, Float threshold, Float dt)
 {
     current.y = 0.0f;
     desired.y = 0.0f;
     dispatch_facing(self, owner, current, desired, YVEC, rate, threshold, dt);
 }
-void __fastcall mocomp_facing_3d(motion_compensator *self, void *, actor *owner,
-    vector3d current, vector3d desired, vector3d up, Float rate, Float threshold, Float dt)
+void __fastcall mocomp_facing_3d(motion_compensator *self, void *, actor *owner, vector3d current, vector3d desired,
+                                 vector3d up, Float rate, Float threshold, Float dt)
 {
     current = orthogonal_projection_onto_plane(current, up);
     desired = orthogonal_projection_onto_plane(desired, up);
@@ -213,21 +216,24 @@ double __fastcall mocomp_speed_param(motion_compensator *self, void *)
 {
     return self->get_anim_playback_speed_param();
 }
-int __fastcall mocomp_size(motion_compensator *, void *) { return sizeof(motion_compensator); }
+int __fastcall mocomp_size(motion_compensator *, void *)
+{
+    return sizeof(motion_compensator);
 }
+}  // namespace
 
 void *motion_compensator::native_vtable(uint32_t type)
 {
     static std::array<void *, 20> base_table{
-        reinterpret_cast<void *>(mocomp_empty), reinterpret_cast<void *>(mocomp_unmash),
-        reinterpret_cast<void *>(mocomp_finalize), reinterpret_cast<void *>(mocomp_base_type),
+        reinterpret_cast<void *>(mocomp_empty),       reinterpret_cast<void *>(mocomp_unmash),
+        reinterpret_cast<void *>(mocomp_finalize),    reinterpret_cast<void *>(mocomp_base_type),
         reinterpret_cast<void *>(mocomp_parent_type), reinterpret_cast<void *>(mocomp_is_type),
-        reinterpret_cast<void *>(mocomp_activate), reinterpret_cast<void *>(mocomp_empty),
+        reinterpret_cast<void *>(mocomp_activate),    reinterpret_cast<void *>(mocomp_empty),
         reinterpret_cast<void *>(mocomp_frame_empty), reinterpret_cast<void *>(mocomp_post),
-        reinterpret_cast<void *>(mocomp_fulfilled), reinterpret_cast<void *>(mocomp_po),
-        reinterpret_cast<void *>(mocomp_position), reinterpret_cast<void *>(mocomp_facing_2d),
-        reinterpret_cast<void *>(mocomp_facing_3d), reinterpret_cast<void *>(mocomp_facing),
-        reinterpret_cast<void *>(mocomp_speed), reinterpret_cast<void *>(mocomp_scale),
+        reinterpret_cast<void *>(mocomp_fulfilled),   reinterpret_cast<void *>(mocomp_po),
+        reinterpret_cast<void *>(mocomp_position),    reinterpret_cast<void *>(mocomp_facing_2d),
+        reinterpret_cast<void *>(mocomp_facing_3d),   reinterpret_cast<void *>(mocomp_facing),
+        reinterpret_cast<void *>(mocomp_speed),       reinterpret_cast<void *>(mocomp_scale),
         reinterpret_cast<void *>(mocomp_speed_param), reinterpret_cast<void *>(mocomp_size)};
     static auto null_table = [] {
         auto table = base_table;

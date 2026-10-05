@@ -26,7 +26,7 @@ VALIDATE_SIZE(rb_ragdoll_model, 0x1564);
 
 void rb_ragdoll_model::rdbi_calc_bone_mat_from_rb()
 {
-    using callback = void (__cdecl *)(void *, rigid_body *, const po *);
+    using callback = void(__cdecl *)(void *, rigid_body *, const po *);
     const auto calculate = reinterpret_cast<callback>(g_ragdoll_callbacks().m_calc_bone_mat_from_rb);
     for (int i = 0; i < bone_binding_count; ++i) {
         const auto *binding = bone_bindings[i];
@@ -204,7 +204,7 @@ void rb_ragdoll_model::set_max_rb_index(int count)
         contact_constraints.m_data[contact_constraints.m_alloc_count++] = nullptr;
     }
 }
- 
+
 void rb_ragdoll_model::initialize_storage()
 {
     m_list_rigid_body.m_data = reinterpret_cast<rigid_body **>(&m_list_rigid_body);
@@ -234,8 +234,7 @@ rigid_body_constraint_ragdoll *rb_ragdoll_model::add_joint(int first, int second
 {
     auto &pool = g_physics_system->field_254;
     assert(pool.m_alloc_count < pool.m_slot_array_size);
-    auto *joint = reinterpret_cast<rigid_body_constraint_ragdoll *>(
-        pool.m_alloc_list[pool.m_alloc_count++]);
+    auto *joint = reinterpret_cast<rigid_body_constraint_ragdoll *>(pool.m_alloc_list[pool.m_alloc_count++]);
     joint->reset();
     joint->b1 = m_list_rigid_body.m_data[first];
     joint->b2 = m_list_rigid_body.m_data[second];
@@ -245,7 +244,7 @@ rigid_body_constraint_ragdoll *rb_ragdoll_model::add_joint(int first, int second
 
 void rb_ragdoll_model::rdbi_calc_rb_mat_from_bone()
 {
-    using callback = void (__cdecl *)(void *, rigid_body *, const po *);
+    using callback = void(__cdecl *)(void *, rigid_body *, const po *);
     const auto calculate = reinterpret_cast<callback>(g_ragdoll_callbacks().m_calc_rb_mat_from_bone);
     for (int i = 0; i < bone_binding_count; ++i) {
         const auto *binding = bone_bindings[i];
@@ -299,8 +298,8 @@ void rb_ragdoll_model::update_ballistic_target()
         const float derivative = gravity_distance / (speed * speed) + slope;
         const float difference = vertical - velocity.y;
         const float next = speed - (difference * derivative + speed - along) /
-            (difference * (-2.0f * gravity_distance / (speed * speed * speed)) +
-                derivative * derivative + 1.0f);
+                                       (difference * (-2.0f * gravity_distance / (speed * speed * speed)) +
+                                        derivative * derivative + 1.0f);
         const bool converged = std::fabs(next - speed) < 0.001f;
         speed = next;
         if (converged)
@@ -308,8 +307,7 @@ void rb_ragdoll_model::update_ballistic_target()
     }
     if (std::fabs(speed) < 1.0f && std::fabs(speed) > 0.001f)
         speed = speed < 0.0f ? -1.0f : 1.0f;
-    const vector3d desired = axis * speed +
-        vector3d(0.0f, slope * speed - gravity_distance / speed, 0.0f);
+    const vector3d desired = axis * speed + vector3d(0.0f, slope * speed - gravity_distance / speed, 0.0f);
     float squared_masses = 0.0f;
     for (int i = 0; i < m_list_rigid_body.m_alloc_count; ++i)
         if (auto *body = m_list_rigid_body.m_data[i])

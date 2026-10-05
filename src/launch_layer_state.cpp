@@ -22,19 +22,25 @@ ai_state_machine *find_child(ai_state_machine *machine, const resource_key &grap
             return child;
     return nullptr;
 }
-void __fastcall layer_destroy(launch_layer_state *self, void *) { self->_destruct_mashed_class(); }
+void __fastcall layer_destroy(launch_layer_state *self, void *)
+{
+    self->_destruct_mashed_class();
+}
 void __fastcall layer_unmash(launch_layer_state *self, void *, mash_info_struct *info, void *base)
 {
     self->_unmash(info, base);
 }
-unsigned __fastcall layer_type(launch_layer_state *, void *) { return 330; }
+unsigned __fastcall layer_type(launch_layer_state *, void *)
+{
+    return 330;
+}
 bool __fastcall layer_subclass(launch_layer_state *, void *, mash::virtual_types_enum type)
 {
     return type == 536 || type == 535 || type == 567 || type == 573;
 }
-void __fastcall layer_activate(launch_layer_state *self, void *, ai_state_machine *machine,
-    const mashed_state *state, const mashed_state *previous, const param_block *params,
-    base_state::activate_flag_e flags)
+void __fastcall layer_activate(launch_layer_state *self, void *, ai_state_machine *machine, const mashed_state *state,
+                               const mashed_state *previous, const param_block *params,
+                               base_state::activate_flag_e flags)
 {
     self->activate(machine, state, previous, params, flags);
 }
@@ -50,13 +56,19 @@ void __fastcall layer_graphs(launch_layer_state *self, void *, state_graph_list 
 {
     self->get_state_graph_list(graphs);
 }
-int __fastcall layer_size(launch_layer_state *, void *) { return sizeof(launch_layer_state); }
+int __fastcall layer_size(launch_layer_state *, void *)
+{
+    return sizeof(launch_layer_state);
+}
 resource_key *__fastcall layer_resource(launch_layer_state *self, void *, resource_key *out)
 {
     *out = self->get_layer_resource_key();
     return out;
 }
-int __fastcall layer_block(launch_layer_state *self, void *) { return self->get_block_level(); }
+int __fastcall layer_block(launch_layer_state *self, void *)
+{
+    return self->get_block_level();
+}
 resource_key dispatch_layer_resource(launch_layer_state *self)
 {
     resource_key result;
@@ -65,7 +77,7 @@ resource_key dispatch_layer_resource(launch_layer_state *self)
     fn(self, nullptr, &result);
     return result;
 }
-}
+}  // namespace
 
 void *launch_layer_state::native_vtable()
 {
@@ -93,8 +105,7 @@ launch_layer_state::launch_layer_state() : field_34(string_hash{0}, static_cast<
     m_vtbl = STANDALONE_SYSTEM ? bit_cast<std::intptr_t>(native_vtable()) : 0x00879550;
 }
 
-launch_layer_state::launch_layer_state(from_mash_in_place_constructor *a2)
-    : signal_enhanced_state(a2), field_34(a2)
+launch_layer_state::launch_layer_state(from_mash_in_place_constructor *a2) : signal_enhanced_state(a2), field_34(a2)
 {
     m_vtbl = STANDALONE_SYSTEM ? bit_cast<std::intptr_t>(native_vtable()) : 0x00879550;
 }
@@ -120,8 +131,8 @@ int launch_layer_state::get_block_level() const
     return my_mashed_state->field_0.get_optional_pb_int(string_hash{int(to_hash("block_on_layer"))}, 1, nullptr);
 }
 
-void launch_layer_state::activate(ai_state_machine *machine, const mashed_state *state,
-    const mashed_state *previous, const param_block *params, activate_flag_e flags)
+void launch_layer_state::activate(ai_state_machine *machine, const mashed_state *state, const mashed_state *previous,
+                                  const param_block *params, activate_flag_e flags)
 {
     signal_enhanced_state::activate(machine, state, previous, params, flags);
     field_34 = dispatch_layer_resource(this);
@@ -190,4 +201,4 @@ void launch_layer_state::get_state_graph_list(state_graph_list &graphs)
 {
     graphs.add_entry(dispatch_layer_resource(this).m_hash);
 }
-} // namespace ai
+}  // namespace ai

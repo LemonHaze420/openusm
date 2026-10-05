@@ -26,12 +26,11 @@ struct scoped_swing_pose {
 
 void destroy_swing_anim_instance(nalAnimClass<nalAnyPose>::nalInstanceClass *instance)
 {
-    void *(__fastcall *destroy)(void *, void *, uint32_t) =
-        CAST(destroy, get_vfunc(instance->m_vtbl, 0));
+    void *(__fastcall * destroy)(void *, void *, uint32_t) = CAST(destroy, get_vfunc(instance->m_vtbl, 0));
     destroy(instance, nullptr, 1);
 }
 
-}
+}  // namespace
 
 namespace als {
 
@@ -45,8 +44,7 @@ als_meta_anim_swing::als_meta_anim_swing()
     this->initialize(mash::ALLOCATED);
 }
 
-als_meta_anim_swing::als_meta_anim_swing(from_mash_in_place_constructor *a2)
-    : als_meta_anim_base(a2), field_28(a2)
+als_meta_anim_swing::als_meta_anim_swing(from_mash_in_place_constructor *a2) : als_meta_anim_base(a2), field_28(a2)
 {
     this->m_vtbl = CAST(m_vtbl, native_vtable());
     this->initialize(mash::FROM_MASH);
@@ -64,7 +62,6 @@ void *als_meta_anim_swing::native_vtable()
 
 void als_meta_anim_swing::finalize()
 {
-
     for (auto &pose : this->field_3C) {
         if (pose != nullptr) {
             const_cast<nalBaseSkeleton *>(pose->GetSkeleton())->VirtualDestroyPose(pose->field_0);
@@ -108,26 +105,19 @@ als_meta_anim_swing *als_meta_anim_swing::_scalar_deleting_destructor(uint32_t f
 
 bool als_meta_anim_swing::_is_subclass_of(mash::virtual_types_enum type) const
 {
-
-    return type == static_cast<mash::virtual_types_enum>(0x236) ||
-           type == static_cast<mash::virtual_types_enum>(0x23D);
+    return type == static_cast<mash::virtual_types_enum>(0x236) || type == static_cast<mash::virtual_types_enum>(0x23D);
 }
 
 bool als_meta_anim_swing::_is_pivot_valid() const
 {
-
     return false;
 }
 
-void als_meta_anim_swing::_release(void *)
-{
-
-}
+void als_meta_anim_swing::_release(void *) {}
 
 void als_meta_anim_swing::initialize(mash::allocation_scope scope)
 {
     if (scope == mash::FROM_MASH) {
-
         for (int i = 0; i < 12; ++i) {
             this->field_28.at(i)->lookup_nal_animation();
         }
@@ -224,7 +214,6 @@ als_meta_anim_swing::nalInstance::nalInstance(als::als_meta_anim_swing *a2, nalB
 
 als_meta_anim_swing::nalInstance *als_meta_anim_swing::nalInstance::_scalar_deleting_destructor(uint32_t flags)
 {
-
     --this->field_10->InstanceCount;
     if ((flags & 1) != 0) {
         nalInstanceClass::operator delete(this);
@@ -233,7 +222,7 @@ als_meta_anim_swing::nalInstance *als_meta_anim_swing::nalInstance::_scalar_dele
 }
 
 void als_meta_anim_swing::nalInstance::_get_pose(Float t, Float t_prev, nalBasePose &pose,
-                                                const nalBasePose &default_pose)
+                                                 const nalBasePose &default_pose)
 {
     const float elapsed = std::fabs(static_cast<float>(t) - static_cast<float>(t_prev));
     const float parameter = this->field_18->get_param(this->field_14, 10);
@@ -283,15 +272,16 @@ void als_meta_anim_swing::nalInstance::_get_pose(Float t, Float t_prev, nalBaseP
     scoped_swing_pose original{default_copy.field_0};
     this->field_18->get_param(this->field_14, 0);
     scoped_swing_pose result{this->field_C->VirtualCreatePose()};
-    sub_826190(*result.pose, Float(blend),
-              *this->field_1C->field_3C[this->field_20]->field_0,
-              *this->field_1C->field_3C[this->field_24]->field_0);
+    sub_826190(*result.pose,
+               Float(blend),
+               *this->field_1C->field_3C[this->field_20]->field_0,
+               *this->field_1C->field_3C[this->field_24]->field_0);
     this->field_C->VirtualCopyPose(pose, *result.pose);
 }
 
-void als_meta_anim_swing::nalInstance::_blend_two_anims(
-    Float t0, Float t1, nalAnyPose &pose, const nalAnyPose &default_pose, Float blend,
-    nalInstanceClass *anim0, nalInstanceClass *anim1)
+void als_meta_anim_swing::nalInstance::_blend_two_anims(Float t0, Float t1, nalAnyPose &pose,
+                                                        const nalAnyPose &default_pose, Float blend,
+                                                        nalInstanceClass *anim0, nalInstanceClass *anim1)
 {
     scoped_swing_pose pose0{this->field_C->VirtualCreatePose()};
     scoped_swing_pose pose1{this->field_C->VirtualCreatePose()};

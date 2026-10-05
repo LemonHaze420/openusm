@@ -25,7 +25,7 @@ namespace {
     }
     return true;
 }();
-}
+}  // namespace
 #endif
 
 void send_shadow_projectors()
@@ -36,9 +36,15 @@ void send_shadow_projectors()
     }
     for (auto &shadow : g_shadow()) {
         if (shadow.field_48 && shadow.field_44 != nullptr) {
-            nglListAddDirProjectorLight(0x02000000, shadow.field_0, shadow.field_40 * 2.0f,
-                                      shadow.field_40 * -2.0f, -6.5f, 0.0f, 2,
-                                      0xFF000000, shadow.field_44);
+            nglListAddDirProjectorLight(0x02000000,
+                                        shadow.field_0,
+                                        shadow.field_40 * 2.0f,
+                                        shadow.field_40 * -2.0f,
+                                        -6.5f,
+                                        0.0f,
+                                        2,
+                                        0xFF000000,
+                                        shadow.field_44);
         }
     }
 }

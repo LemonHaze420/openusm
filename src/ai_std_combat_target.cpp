@@ -24,7 +24,10 @@ VALIDATE_SIZE(ai::combat_target_inode, 0x88);
 VALIDATE_SIZE(ai::venom_combat_target_inode, 0x94);
 
 namespace {
-unsigned __fastcall combat_target_type(ai::combat_target_inode *, void *) { return 351; }
+unsigned __fastcall combat_target_type(ai::combat_target_inode *, void *)
+{
+    return 351;
+}
 bool __fastcall combat_target_subclass(ai::combat_target_inode *, void *, unsigned type)
 {
     return type == 349 || type == 350 || type == 537 || type == 573;
@@ -33,16 +36,18 @@ void __fastcall combat_target_activate(ai::combat_target_inode *self, void *, ai
 {
     self->_activate(core);
 }
-int __fastcall combat_target_size(ai::combat_target_inode *, void *) { return sizeof(ai::combat_target_inode); }
+int __fastcall combat_target_size(ai::combat_target_inode *, void *)
+{
+    return sizeof(ai::combat_target_inode);
+}
 bool __fastcall combat_target_plausible(ai::combat_target_inode *self, void *, vhandle_type<actor> candidate)
 {
     return self->target_plausible(candidate);
 }
-}
+}  // namespace
 
 void *ai::combat_target_inode::native_vtable()
 {
-
     static auto table = [] {
         std::array<void *, 39> result;
         std::copy_n(static_cast<void **>(base_full_target_inode::native_vtable()), result.size(), result.data());
@@ -57,7 +62,10 @@ void *ai::combat_target_inode::native_vtable()
 }
 
 namespace {
-unsigned __fastcall venom_target_type(ai::venom_combat_target_inode *, void *) { return 356; }
+unsigned __fastcall venom_target_type(ai::venom_combat_target_inode *, void *)
+{
+    return 356;
+}
 bool __fastcall venom_target_subclass(ai::venom_combat_target_inode *, void *, unsigned type)
 {
     return type == 353 || type == 351 || type == 349 || type == 350 || type == 537 || type == 573;
@@ -66,7 +74,10 @@ void __fastcall venom_target_advance(ai::venom_combat_target_inode *self, void *
 {
     self->_frame_advance(delta);
 }
-int __fastcall venom_target_size(ai::venom_combat_target_inode *, void *) { return sizeof(ai::venom_combat_target_inode); }
+int __fastcall venom_target_size(ai::venom_combat_target_inode *, void *)
+{
+    return sizeof(ai::venom_combat_target_inode);
+}
 vector3d *__fastcall venom_target_direction(ai::venom_combat_target_inode *self, void *, vector3d *out)
 {
     *out = self->get_look_direction();
@@ -99,7 +110,7 @@ bool is_targetable_ped(ped_spawner *spawner)
     }
     return !spawner->field_5 && targetable_team;
 }
-}
+}  // namespace
 
 void *ai::venom_combat_target_inode::native_vtable()
 {
@@ -159,13 +170,17 @@ vhandle_type<actor> ai::venom_combat_target_inode::player_style_get_target()
                 auto *ped = spawner->get_my_actor();
                 if (!ped || !is_targetable_ped(spawner))
                     continue;
-                const float distance = (ped->get_abs_po().get_position() - field_C->get_abs_po().get_position()).length2();
+                const float distance =
+                    (ped->get_abs_po().get_position() - field_C->get_abs_po().get_position()).length2();
                 if (distance < best_distance) {
                     auto *core = ped->get_ai_core();
-                    auto *combat = core ? static_cast<combat_inode *>(core->get_info_node(combat_inode::default_id, false)) : nullptr;
+                    auto *combat =
+                        core ? static_cast<combat_inode *>(core->get_info_node(combat_inode::default_id, false))
+                             : nullptr;
                     if (!combat || !combat->field_82) {
                         using calculate_fn = void(__fastcall *)(base_full_target_inode *, void *, vhandle_type<actor>);
-                        reinterpret_cast<calculate_fn>(get_vfunc(m_vtbl, 0x50))(this, nullptr, vhandle_type<actor>{ped->my_handle});
+                        reinterpret_cast<calculate_fn>(get_vfunc(m_vtbl, 0x50))(
+                            this, nullptr, vhandle_type<actor>{ped->my_handle});
                         if (field_34.get_volatile_ptr())
                             best_distance = distance;
                     }
@@ -191,8 +206,7 @@ ai::combat_target_inode::combat_target_inode()
     field_84 = false;
 }
 
-ai::combat_target_inode::combat_target_inode(from_mash_in_place_constructor *tag)
-    : base_full_target_inode(tag)
+ai::combat_target_inode::combat_target_inode(from_mash_in_place_constructor *tag) : base_full_target_inode(tag)
 {
     m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[351]);
 }
@@ -202,8 +216,7 @@ ai::venom_combat_target_inode::venom_combat_target_inode() : combat_target_inode
     m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[356]);
 }
 
-ai::venom_combat_target_inode::venom_combat_target_inode(from_mash_in_place_constructor *tag)
-    : combat_target_inode(tag)
+ai::venom_combat_target_inode::venom_combat_target_inode(from_mash_in_place_constructor *tag) : combat_target_inode(tag)
 {
     m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[356]);
 }
@@ -285,7 +298,7 @@ void ai::base_full_target_inode::calc_and_update_target(vhandle_type<actor> cand
     if (reinterpret_cast<bool_query>(get_vfunc(m_vtbl, 0x7C))(this)) {
         const auto delta = position - origin;
         const double distance_squared = static_cast<double>(delta.x) * delta.x +
-            static_cast<double>(delta.y) * delta.y + static_cast<double>(delta.z) * delta.z;
+                                        static_cast<double>(delta.y) * delta.y + static_cast<double>(delta.z) * delta.z;
         if (distance_squared < static_cast<double>(field_48) * field_48) {
             field_34 = candidate;
             field_38 = 3;
@@ -296,8 +309,8 @@ void ai::base_full_target_inode::calc_and_update_target(vhandle_type<actor> cand
     }
 
     using damage_query = bool(__fastcall *)(actor *);
-    const bool dead = reinterpret_cast<damage_query>(get_vfunc(target->m_vtbl, 0x114))(target) &&
-        !target->damage_ifc()->is_alive();
+    const bool dead =
+        reinterpret_cast<damage_query>(get_vfunc(target->m_vtbl, 0x114))(target) && !target->damage_ifc()->is_alive();
     vector3d facing;
     reinterpret_cast<direction_query>(get_vfunc(m_vtbl, 0x48))(this, nullptr, &facing);
     auto direction = position - (origin - facing);
@@ -342,8 +355,8 @@ void ai::base_full_target_inode::calc_and_update_target(vhandle_type<actor> cand
         ranked_distance = distance;
         if (rank < field_38 || (rank == field_38 && distance < field_48)) {
             line_info sight{origin, position};
-            if (sight.check_collision(*local_collision::entfilter_blocks_ai_los,
-                                      *local_collision::obbfilter_lineseg_test, nullptr))
+            if (sight.check_collision(
+                    *local_collision::entfilter_blocks_ai_los, *local_collision::obbfilter_lineseg_test, nullptr))
                 rank = 7;
         }
     }

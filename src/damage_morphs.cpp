@@ -33,7 +33,7 @@ int allocation_intercepts{};
 damage_morph_memory_pool write_pool{0};
 damage_morph_memory_pool metadata_pool{0x1400};
 balanced_tree mesh_registrations{};
-}
+}  // namespace
 int &damage_morphs::allocations_intercept_reference_count = allocation_intercepts;
 damage_morph_memory_pool &damage_morphs::write_combine_pool = write_pool;
 damage_morph_memory_pool &damage_morphs::normal_pool = metadata_pool;
@@ -49,7 +49,10 @@ struct mesh_registration {
 VALIDATE_SIZE(mesh_registration, 0xC);
 
 using tree_node = balanced_tree::tree_node;
-int height(tree_node *node) { return node == nullptr ? 0 : node->height; }
+int height(tree_node *node)
+{
+    return node == nullptr ? 0 : node->height;
+}
 void update_height(tree_node *node)
 {
     node->height = 1 + std::max(height(node->left), height(node->right));
@@ -111,8 +114,8 @@ void rebalance(balanced_tree &tree, tree_node *node)
 mesh_registration *find_registration(int id)
 {
     int value;
-    return damage_morphs::registration_tree.retrieve(id, &value)
-        ? reinterpret_cast<mesh_registration *>(value) : nullptr;
+    return damage_morphs::registration_tree.retrieve(id, &value) ? reinterpret_cast<mesh_registration *>(value)
+                                                                 : nullptr;
 }
 void set_actor_mesh(actor *subject, nglMesh *mesh)
 {
@@ -147,13 +150,12 @@ int nearest_morph_region(actor *subject, damage_interface &damage)
     }
     return nearest;
 }
-}
+}  // namespace
 
 damage_morph_memory_pool::damage_morph_memory_pool(int size)
-    : allocation_list(nullptr), list_end(nullptr), field_8(size), memory_pool(nullptr),
-      field_10(0), field_14(0), field_18(0)
-{
-}
+    : allocation_list(nullptr), list_end(nullptr), field_8(size), memory_pool(nullptr), field_10(0), field_14(0),
+      field_18(0)
+{}
 
 void damage_morph_memory_pool::init()
 {
@@ -213,8 +215,8 @@ bool balanced_tree::retrieve(int key, int *value)
 
 void balanced_tree::add(int key, int value)
 {
-    auto *node = new (arch_memalign(4, sizeof(tree_node))) tree_node{key, value, nullptr,
-        nullptr, nullptr, nullptr, newest, 1};
+    auto *node =
+        new (arch_memalign(4, sizeof(tree_node))) tree_node{key, value, nullptr, nullptr, nullptr, nullptr, newest, 1};
     if (newest != nullptr)
         newest->next = node;
     else
@@ -333,8 +335,8 @@ void *damage_morphs::memalloc(int alignment, int size, bool write_combine)
     for (;;) {
         const auto current = pool.field_14;
         const auto oldest = pool.field_18;
-        const auto free_space = current >= oldest
-            ? oldest - reinterpret_cast<uintptr_t>(pool.memory_pool) : oldest - current;
+        const auto free_space =
+            current >= oldest ? oldest - reinterpret_cast<uintptr_t>(pool.memory_pool) : oldest - current;
         if ((current >= oldest && pool.field_10 - current > static_cast<uintptr_t>(required)) ||
             free_space > static_cast<uintptr_t>(required))
             return pool.memalloc(alignment, size);

@@ -27,8 +27,14 @@ struct web_zip_state : enhanced_state {
     static void *native_vtable();
     void finalize(mash::allocation_scope scope);
     void get_info_node_list(info_node_desc_list &list);
-    int get_mash_sizeof() const { return sizeof(web_zip_state); }
-    uint32_t get_virtual_type_enum() const { return 327; }
+    int get_mash_sizeof() const
+    {
+        return sizeof(web_zip_state);
+    }
+    uint32_t get_virtual_type_enum() const
+    {
+        return 327;
+    }
 
     //0x0044C560
     web_zip_state(from_mash_in_place_constructor *a2);
@@ -39,8 +45,8 @@ struct web_zip_state : enhanced_state {
 
     //0x0045D340
     //virtual
-    void activate(ai_state_machine *a2, const mashed_state *a3, const mashed_state *a4,
-                  const param_block *a5, base_state::activate_flag_e a6);
+    void activate(ai_state_machine *a2, const mashed_state *a3, const mashed_state *a4, const param_block *a5,
+                  base_state::activate_flag_e a6);
 
     //0x0044C6E0
     //virtual
@@ -69,7 +75,10 @@ struct web_zip_inode : info_node {
 
     //0x004815D0
     web_zip_inode(from_mash_in_place_constructor *a2);
-    int get_mash_sizeof() const { return 0xE0; }
+    int get_mash_sizeof() const
+    {
+        return 0xE0;
+    }
     void frame_advance(Float dt);
 
     //0x0044C930

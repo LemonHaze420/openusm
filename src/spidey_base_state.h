@@ -35,7 +35,6 @@ struct spidey_base_state : hero_base_state {
 
     //0x00488680
     /* virtual */ string_hash get_desired_state_id(Float a3) const /* override */;
-
 };
 
 }  // namespace ai

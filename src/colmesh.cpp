@@ -19,7 +19,7 @@ const bool collision_mesh_identity_initialized = [] {
     collision_mesh_v_table() = 0x00888E58;
     return true;
 }();
-}
+}  // namespace
 #endif
 
 VALIDATE_SIZE(cg_mesh, 0x18u);
@@ -40,7 +40,7 @@ collision_geometry *cg_mesh::make_instance(actor *a2)
     return reinterpret_cast<collision_geometry *>(THISCALL(0x005267F0, this, a2));
 #else
     auto *mem = mem_alloc(sizeof(cg_mesh));
-    auto *result = new (mem) cg_mesh {};
+    auto *result = new (mem) cg_mesh{};
     result->owner = a2;
     if (this->field_8 != result->field_8) {
         result->field_8 = this->field_8;
@@ -87,7 +87,7 @@ void cg_mesh::_un_mash([[maybe_unused]] generic_mash_header *a2, [[maybe_unused]
 
         this->field_9 = false;
 
-        static resource_key col_mesh_name {};
+        static resource_key col_mesh_name{};
 
         std::memcpy(&col_mesh_name, a4->field_4, sizeof(resource_key));
         a4->field_4 += sizeof(resource_key);
@@ -95,7 +95,7 @@ void cg_mesh::_un_mash([[maybe_unused]] generic_mash_header *a2, [[maybe_unused]
 
         int size = 0;
         auto *resource = resource_manager::get_resource(col_mesh_name, &size, nullptr);
-        
+
         if (resource == nullptr) {
             auto *str = col_mesh_name.m_hash.to_string();
             error("Couldn't acquire memory image '%s' for collision geometry.", str);

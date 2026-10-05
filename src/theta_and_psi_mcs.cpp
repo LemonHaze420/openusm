@@ -16,8 +16,7 @@ VALIDATE_SIZE(theta_and_psi_mcs, 0x1Cu);
 
 #if STANDALONE_SYSTEM
 namespace {
-theta_and_psi_mcs *__fastcall native_theta_destroy(theta_and_psi_mcs *self, void *,
-                                                  unsigned char flags)
+theta_and_psi_mcs *__fastcall native_theta_destroy(theta_and_psi_mcs *self, void *, unsigned char flags)
 {
     self->~theta_and_psi_mcs();
     if (flags & 1)
@@ -34,15 +33,15 @@ std::intptr_t *native_theta_vtable()
 {
     static std::intptr_t table[4];
     static const bool initialized = [] {
-        motion_control_system::initialize_native_vtable(
-            table, reinterpret_cast<std::intptr_t>(native_theta_destroy),
-            reinterpret_cast<std::intptr_t>(native_theta_advance));
+        motion_control_system::initialize_native_vtable(table,
+                                                        reinterpret_cast<std::intptr_t>(native_theta_destroy),
+                                                        reinterpret_cast<std::intptr_t>(native_theta_advance));
         return true;
     }();
     (void)initialized;
     return table;
 }
-}
+}  // namespace
 #endif
 
 theta_and_psi_mcs::theta_and_psi_mcs(entity *a2, Float a3, Float a4)
@@ -95,8 +94,7 @@ void theta_and_psi_mcs::reset_angles()
 void theta_and_psi_mcs::frame_advance(Float dt)
 {
 #if STANDALONE_SYSTEM
-    if (g_mouselook_controller() != nullptr && g_mouselook_controller()->field_4 &&
-        !cam_target_locked) {
+    if (g_mouselook_controller() != nullptr && g_mouselook_controller()->field_4 && !cam_target_locked) {
         m_theta += d_theta_for_next_frame;
         m_psi = std::clamp(m_psi + d_psi_for_next_frame, -half_PI, half_PI);
 

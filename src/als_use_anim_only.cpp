@@ -16,8 +16,8 @@ VALIDATE_SIZE(use_anim_only, 0x14);
 void use_anim_only::post_anim_action(Float arg0)
 {
     if constexpr (STANDALONE_SYSTEM) {
-        using scalar_fn = double (__fastcall *)(use_anim_only *, void *);
-        using speed_fn = void (__fastcall *)(use_anim_only *, void *, Float);
+        using scalar_fn = double(__fastcall *)(use_anim_only *, void *);
+        using speed_fn = void(__fastcall *)(use_anim_only *, void *, Float);
         const Float speed = reinterpret_cast<scalar_fn>(get_vfunc(m_vtbl, 0x48))(this, nullptr);
         reinterpret_cast<speed_fn>(get_vfunc(m_vtbl, 0x40))(this, nullptr, speed);
         const auto previous_position = the_actor->get_abs_position();
@@ -33,18 +33,21 @@ void use_anim_only::post_anim_action(Float arg0)
         const auto translation = the_actor->get_abs_position() - previous_position;
         the_actor->set_frame_delta_trans(translation, arg0);
     } else {
-        void(__fastcall *func)(void *, void *, Float) = CAST(func, get_vfunc(m_vtbl, 0x24));
+        void(__fastcall * func)(void *, void *, Float) = CAST(func, get_vfunc(m_vtbl, 0x24));
         func(this, nullptr, arg0);
     }
 }
 
 namespace {
-unsigned __fastcall anim_only_type(use_anim_only *, void *) { return 525; }
+unsigned __fastcall anim_only_type(use_anim_only *, void *)
+{
+    return 525;
+}
 void __fastcall anim_only_post(use_anim_only *self, void *, Float elapsed)
 {
     self->post_anim_action(elapsed);
 }
-}
+}  // namespace
 
 void *use_anim_only::native_vtable()
 {

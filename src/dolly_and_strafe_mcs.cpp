@@ -13,8 +13,7 @@ VALIDATE_SIZE(dolly_and_strafe_mcs, 0x18u);
 
 #if STANDALONE_SYSTEM
 namespace {
-dolly_and_strafe_mcs *__fastcall native_dolly_destroy(dolly_and_strafe_mcs *self, void *,
-                                                    unsigned char flags)
+dolly_and_strafe_mcs *__fastcall native_dolly_destroy(dolly_and_strafe_mcs *self, void *, unsigned char flags)
 {
     self->~dolly_and_strafe_mcs();
     if (flags & 1)
@@ -31,9 +30,9 @@ std::intptr_t *native_dolly_vtable()
 {
     static std::intptr_t table[4];
     static const bool initialized = [] {
-        motion_control_system::initialize_native_vtable(
-            table, reinterpret_cast<std::intptr_t>(native_dolly_destroy),
-            reinterpret_cast<std::intptr_t>(native_dolly_advance));
+        motion_control_system::initialize_native_vtable(table,
+                                                        reinterpret_cast<std::intptr_t>(native_dolly_destroy),
+                                                        reinterpret_cast<std::intptr_t>(native_dolly_advance));
         return true;
     }();
     (void)initialized;
@@ -47,11 +46,10 @@ void translate_camera(entity *camera, const vector3d &offset)
     camera->dirty_family(false);
     if (camera->is_conglom_member() || camera->is_a_conglomerate())
         camera->dirty_model_po_family();
-    auto changed = reinterpret_cast<void (__fastcall *)(entity *, void *)>(
-        get_vfunc(camera->m_vtbl, 0x34));
+    auto changed = reinterpret_cast<void(__fastcall *)(entity *, void *)>(get_vfunc(camera->m_vtbl, 0x34));
     changed(camera, nullptr);
 }
-}
+}  // namespace
 #endif
 
 dolly_and_strafe_mcs::dolly_and_strafe_mcs(entity *a2)

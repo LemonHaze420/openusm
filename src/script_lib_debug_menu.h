@@ -11,7 +11,7 @@ struct slf__create_debug_menu_entry__str__t : script_library_class::function {
         vm_str_t str0;
     };
 
-    bool operator()(vm_stack &stack, [[maybe_unused]]script_library_class::function::entry_t entry) const;
+    bool operator()(vm_stack &stack, [[maybe_unused]] script_library_class::function::entry_t entry) const;
 };
 
 struct slf__create_debug_menu_entry__str__str__t : script_library_class::function {
@@ -22,7 +22,7 @@ struct slf__create_debug_menu_entry__str__str__t : script_library_class::functio
         vm_str_t str1;
     };
 
-    bool operator()(vm_stack &stack, [[maybe_unused]]script_library_class::function::entry_t entry) const;
+    bool operator()(vm_stack &stack, [[maybe_unused]] script_library_class::function::entry_t entry) const;
 };
 
 struct slf__create_progression_menu_entry__str__str__t : script_library_class::function {
@@ -33,7 +33,7 @@ struct slf__create_progression_menu_entry__str__str__t : script_library_class::f
         vm_str_t str1;
     };
 
-    bool operator()(vm_stack &stack, [[maybe_unused]]script_library_class::function::entry_t entry) const;
+    bool operator()(vm_stack &stack, [[maybe_unused]] script_library_class::function::entry_t entry) const;
 };
 
 extern int vm_debug_menu_entry_garbage_collection_id;

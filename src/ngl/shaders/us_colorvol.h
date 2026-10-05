@@ -46,4 +46,4 @@ struct USColorVolNode : nglShaderNode {
 
 USColorVolShader &getUSColorVolShader();
 
-}
+}  // namespace USColorVolShaderSpace

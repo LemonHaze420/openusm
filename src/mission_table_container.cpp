@@ -105,18 +105,19 @@ void un_mash_states(mashable_vector<mission_table_game_state_entry> &states, gen
     states.m_data = data->get<mission_table_game_state_entry>(states.m_size);
     for (auto &state : states) {
         const int offset = reinterpret_cast<int>(state.field_0);
-        state.field_0 = reinterpret_cast<float *>((state.field_8 & 0x40) != 0
-            ? script_manager::get_game_var_address(offset) : script_manager::get_shared_var_address(offset));
+        state.field_0 =
+            reinterpret_cast<float *>((state.field_8 & 0x40) != 0 ? script_manager::get_game_var_address(offset)
+                                                                  : script_manager::get_shared_var_address(offset));
         if ((state.field_8 & 0x80) != 0)
-            state.field_4.p = reinterpret_cast<float *>(
-                script_manager::get_game_var_address(reinterpret_cast<int>(state.field_4.p)));
+            state.field_4.p =
+                reinterpret_cast<float *>(script_manager::get_game_var_address(reinterpret_cast<int>(state.field_4.p)));
         else if ((state.field_8 & 0x100) != 0)
             state.field_4.p = reinterpret_cast<float *>(
                 script_manager::get_shared_var_address(reinterpret_cast<int>(state.field_4.p)));
     }
     data->rebase(4);
 }
-}
+}  // namespace
 
 void mission_condition_instance::un_mash(generic_mash_data_ptrs *data, mission_table_container *container)
 {
@@ -158,7 +159,7 @@ void mission_condition::un_mash(generic_mash_data_ptrs *data, mission_table_cont
 }
 
 void mission_table_container::un_mash(generic_mash_header *header, void *context, void *object,
-                                     generic_mash_data_ptrs *data)
+                                      generic_mash_data_ptrs *data)
 {
     if constexpr (STANDALONE_SYSTEM) {
         if (!field_0.m_shared)
@@ -197,7 +198,7 @@ void mission_table_container::un_mash(generic_mash_header *header, void *context
 mission_condition_instance *mission_condition::find_best_instance(mission_manager_script_data *data) const
 {
     if constexpr (!STANDALONE_SYSTEM) {
-        mission_condition_instance *(__fastcall *func)(const void *, void *, mission_manager_script_data *) =
+        mission_condition_instance *(__fastcall * func)(const void *, void *, mission_manager_script_data *) =
             CAST(func, 0x005DD780);
         return func(this, nullptr, data);
     }
@@ -222,8 +223,7 @@ mission_condition_instance *mission_condition::find_best_instance(mission_manage
 
 
         const auto in_glass_house = [](const vector3d &position) {
-            return position.length2() <= 0.0100000007f ||
-                   glass_house_manager::is_point_in_glass_house(position);
+            return position.length2() <= 0.0100000007f || glass_house_manager::is_point_in_glass_house(position);
         };
         if (!glass_house_manager::is_enabled()) {
             bool valid = true;
@@ -251,8 +251,8 @@ mission_condition_instance *mission_condition::find_best_instance(mission_manage
                 if (!in_glass_house(position))
                     continue;
             } else if (instance.is_flag_set(2)) {
-                auto *key_entity = entity_handle_manager::find_entity(
-                    string_hash{instance.key_name}, IGNORE_FLAVOR, true);
+                auto *key_entity =
+                    entity_handle_manager::find_entity(string_hash{instance.key_name}, IGNORE_FLAVOR, true);
                 if (key_entity == nullptr)
                     continue;
                 position = key_entity->get_abs_position();
@@ -300,8 +300,8 @@ mission_condition_instance *mission_condition::find_best_instance(mission_manage
                 sight.field_0 = hero_position;
                 sight.field_C = position;
                 sight.sub_48B410(99.900002f);
-                const bool collision = sight.check_collision(*local_collision::entfilter_blocks_ai_los,
-                                                             *local_collision::obbfilter_lineseg_test, nullptr);
+                const bool collision = sight.check_collision(
+                    *local_collision::entfilter_blocks_ai_los, *local_collision::obbfilter_lineseg_test, nullptr);
                 if (collision == is_flag_set(0x20))
                     continue;
             }
@@ -317,8 +317,7 @@ mission_condition_instance *mission_condition::find_best_instance(mission_manage
         } else if (is_flag_set(0x10)) {
             if (static_cast<double>(std::rand()) * (1.0f / RAND_MAX) <= 1.0f / eligible_count)
                 best = &instance;
-        } else if ((is_flag_set(2) && distance2 < best_distance2) ||
-                   (is_flag_set(4) && distance2 > best_distance2)) {
+        } else if ((is_flag_set(2) && distance2 < best_distance2) || (is_flag_set(4) && distance2 > best_distance2)) {
             best = &instance;
             best_distance2 = distance2;
         }

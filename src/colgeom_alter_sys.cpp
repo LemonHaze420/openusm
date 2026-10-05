@@ -202,7 +202,8 @@ void set_to_default_capsule_alter(capsule_alter_sys *alter, conglomerate *owner)
     alter->set_avoid_floor(true);
     auto *geometry = owner->get_colgeom();
     alter->set_avg_radius(geometry != nullptr && geometry->get_type() == collision_geometry::CAPSULE
-                              ? geometry->get_core_radius() : 0.5f);
+                              ? geometry->get_core_radius()
+                              : 0.5f);
     alter->set_mode(static_cast<capsule_alter_sys::eAlterMode>(3));
     alter->set_base_avg_node(0, owner->get_bone(bip01_l_calf, true), 0.5f);
     alter->set_base_avg_node(1, owner->get_bone(bip01_r_calf, true), 0.5f);

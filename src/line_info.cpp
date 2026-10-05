@@ -28,8 +28,8 @@ line_info::line_info()
 }
 
 line_info::line_info(from_mash_in_place_constructor *constructor)
-    : field_0(constructor), field_C(constructor), hit_pos(constructor), hit_norm(constructor),
-      field_30(constructor), field_3C(constructor)
+    : field_0(constructor), field_C(constructor), hit_pos(constructor), hit_norm(constructor), field_30(constructor),
+      field_3C(constructor)
 {
     hit_entity.field_0 = {0};
 }
@@ -116,9 +116,8 @@ bool line_info::check_collision(const local_collision::entfilter_base &entity_fi
     m_obb = nullptr;
     entity *hit = nullptr;
     const auto delta = end - start;
-    const double length = std::sqrt(static_cast<double>(delta.x) * delta.x +
-                                   static_cast<double>(delta.y) * delta.y +
-                                   static_cast<double>(delta.z) * delta.z);
+    const double length = std::sqrt(static_cast<double>(delta.x) * delta.x + static_cast<double>(delta.y) * delta.y +
+                                    static_cast<double>(delta.z) * delta.z);
     if (length > 0.0) {
         const int count = static_cast<int>(std::ceil(length * 0.010000010021030903f));
         const auto step = delta / static_cast<float>(count);
@@ -127,8 +126,16 @@ bool line_info::check_collision(const local_collision::entfilter_base &entity_fi
             const auto previous = current;
             current += step;
             region *hit_region = nullptr;
-            collision = find_intersection(previous, current, entity_filter, terrain_filter,
-                                          &hit_pos, &hit_norm, &hit_region, &hit, &m_obb, false);
+            collision = find_intersection(previous,
+                                          current,
+                                          entity_filter,
+                                          terrain_filter,
+                                          &hit_pos,
+                                          &hit_norm,
+                                          &hit_region,
+                                          &hit,
+                                          &m_obb,
+                                          false);
             if (collision) {
                 hit_entity.field_0 = hit != nullptr ? hit->get_my_handle() : entity_base_vhandle{0};
                 break;
@@ -168,7 +175,6 @@ bool line_info::release_mem()
 
 void line_info::copy(const line_info &source)
 {
-
     field_0 = source.field_0;
     field_C = source.field_C;
     hit_entity = source.hit_entity;

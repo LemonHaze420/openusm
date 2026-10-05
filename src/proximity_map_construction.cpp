@@ -15,8 +15,8 @@ VALIDATE_SIZE(subdivision_node_builder, 0x8);
 #if STANDALONE_SYSTEM
 namespace {
 
-void init_static_proximity_map(
-    proximity_map &map, int cell_count, const vector3d &min_extent, const vector3d &max_extent)
+void init_static_proximity_map(proximity_map &map, int cell_count, const vector3d &min_extent,
+                               const vector3d &max_extent)
 {
     map.map_type = static_cast<proximity_map::proximity_map_type_t>(0);
     map.field_0 = subdivision_node::PROXIMITY_MAP_NODE;
@@ -29,20 +29,17 @@ void init_static_proximity_map(
     map.field_C = min_extent;
     map.field_18 = max_extent;
     map.field_24 = max_extent - min_extent;
-    map.field_3C = vector3d{
-        1.0f / map.field_24.x, 1.0f / map.field_24.y, 1.0f / map.field_24.z};
+    map.field_3C = vector3d{1.0f / map.field_24.x, 1.0f / map.field_24.y, 1.0f / map.field_24.z};
     const auto cell_scale = 1.0 / static_cast<double>(cell_count);
-    map.field_30 = vector3d{
-        static_cast<float>(cell_scale * map.field_24.x),
-        static_cast<float>(cell_scale * map.field_24.y),
-        static_cast<float>(cell_scale * map.field_24.z)};
-    map.field_48 = vector3d{
-        map.field_24.x - map.field_30.x * 0.5f,
-        map.field_24.y - map.field_30.y * 0.5f,
-        map.field_24.z - map.field_30.z * 0.5f};
+    map.field_30 = vector3d{static_cast<float>(cell_scale * map.field_24.x),
+                            static_cast<float>(cell_scale * map.field_24.y),
+                            static_cast<float>(cell_scale * map.field_24.z)};
+    map.field_48 = vector3d{map.field_24.x - map.field_30.x * 0.5f,
+                            map.field_24.y - map.field_30.y * 0.5f,
+                            map.field_24.z - map.field_30.z * 0.5f};
 }
 
-}
+}  // namespace
 #endif
 
 proximity_map *create_static_proximity_map_on_the_stack(stack_allocator &a1,
@@ -69,10 +66,8 @@ proximity_map *create_static_proximity_map_on_the_stack(stack_allocator &a1,
 
     auto *map = new (a1.push(sizeof(proximity_map))) proximity_map{};
     init_static_proximity_map(*map, cell_count, a4, a5);
-    auto *grid = static_cast<uint16_t *>(a1.push(
-        cell_count * cell_count * sizeof(uint16_t)));
-    map->field_8 = static_cast<uint16_t>(
-        (reinterpret_cast<char *>(grid) - reinterpret_cast<char *>(map)) / 4);
+    auto *grid = static_cast<uint16_t *>(a1.push(cell_count * cell_count * sizeof(uint16_t)));
+    map->field_8 = static_cast<uint16_t>((reinterpret_cast<char *>(grid) - reinterpret_cast<char *>(map)) / 4);
 
     std::unique_ptr<_std::vector<proximity_map_construction_leaf>[]> cell_leaves{
         new _std::vector<proximity_map_construction_leaf>[cell_count * cell_count]};
@@ -96,8 +91,8 @@ proximity_map *create_static_proximity_map_on_the_stack(stack_allocator &a1,
                 grid[index] = 0;
             } else {
                 auto *node = a3.m_vtbl->build(&a3, nullptr, a1, leaves);
-                grid[index] = static_cast<uint16_t>(
-                    (reinterpret_cast<char *>(node) - reinterpret_cast<char *>(map)) / 4);
+                grid[index] =
+                    static_cast<uint16_t>((reinterpret_cast<char *>(node) - reinterpret_cast<char *>(map)) / 4);
             }
         }
     }

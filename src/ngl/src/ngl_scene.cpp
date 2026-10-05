@@ -104,26 +104,21 @@ matrix4x4 sub_76A870()
             vector4d{inverse_viewport_x, 0.0f, 0.0f, 0.0f},
             vector4d{0.0f, inverse_viewport_y, 0.0f, 0.0f},
             vector4d{0.0f, 0.0f, 1.0f, 0.0f},
-            vector4d{-viewport[3][0] * inverse_viewport_x,
-                     -viewport[3][1] * inverse_viewport_y,
-                     0.0f,
-                     1.0f}};
+            vector4d{-viewport[3][0] * inverse_viewport_x, -viewport[3][1] * inverse_viewport_y, 0.0f, 1.0f}};
 
         matrix4x4 inverse_projection;
         if (nglCurScene->field_33C == 1) {
             const float inverse_depth = 1.0f / projection[3][2];
-            inverse_projection = matrix4x4{
-                vector4d{1.0f / projection[0][0], 0.0f, 0.0f, 0.0f},
-                vector4d{0.0f, 1.0f / projection[1][1], 0.0f, 0.0f},
-                vector4d{0.0f, 0.0f, 0.0f, inverse_depth},
-                vector4d{0.0f, 0.0f, 1.0f, -projection[2][2] * inverse_depth}};
+            inverse_projection = matrix4x4{vector4d{1.0f / projection[0][0], 0.0f, 0.0f, 0.0f},
+                                           vector4d{0.0f, 1.0f / projection[1][1], 0.0f, 0.0f},
+                                           vector4d{0.0f, 0.0f, 0.0f, inverse_depth},
+                                           vector4d{0.0f, 0.0f, 1.0f, -projection[2][2] * inverse_depth}};
         } else {
             const float inverse_depth = 1.0f / projection[2][2];
-            inverse_projection = matrix4x4{
-                vector4d{1.0f / projection[0][0], 0.0f, 0.0f, 0.0f},
-                vector4d{0.0f, 1.0f / projection[1][1], 0.0f, 0.0f},
-                vector4d{0.0f, 0.0f, inverse_depth, 0.0f},
-                vector4d{0.0f, 0.0f, -projection[3][2] * inverse_depth, 1.0f}};
+            inverse_projection = matrix4x4{vector4d{1.0f / projection[0][0], 0.0f, 0.0f, 0.0f},
+                                           vector4d{0.0f, 1.0f / projection[1][1], 0.0f, 0.0f},
+                                           vector4d{0.0f, 0.0f, inverse_depth, 0.0f},
+                                           vector4d{0.0f, 0.0f, -projection[3][2] * inverse_depth, 1.0f}};
         }
 
         const ptr_to_po projection_viewport{&inverse_viewport, &inverse_projection};
@@ -142,15 +137,12 @@ matrix4x4 sub_76A760([[maybe_unused]] matrix4x4 &a1)
 {
     if constexpr (STANDALONE_SYSTEM) {
         auto *texture = nglCurScene->field_334;
-        const float half_width =
-            (texture->field_34 & 4u) != 0 ? 320.0f : texture->m_width * 0.5f;
-        const float half_height =
-            (texture->field_34 & 4u) != 0 ? 240.0f : texture->m_height * 0.5f;
-        return matrix4x4{
-            vector4d{1.0f / half_width, 0.0f, 0.0f, 0.0f},
-            vector4d{0.0f, 1.0f / half_height, 0.0f, 0.0f},
-            vector4d{0.0f, 0.0f, 1.0f, 0.0f},
-            vector4d{-1.0f, -1.0f, 0.0f, 1.0f}};
+        const float half_width = (texture->field_34 & 4u) != 0 ? 320.0f : texture->m_width * 0.5f;
+        const float half_height = (texture->field_34 & 4u) != 0 ? 240.0f : texture->m_height * 0.5f;
+        return matrix4x4{vector4d{1.0f / half_width, 0.0f, 0.0f, 0.0f},
+                         vector4d{0.0f, 1.0f / half_height, 0.0f, 0.0f},
+                         vector4d{0.0f, 0.0f, 1.0f, 0.0f},
+                         vector4d{-1.0f, -1.0f, 0.0f, 1.0f}};
     } else {
         matrix4x4 result;
         CDECL_CALL(0x0076A760, &result, &a1);
@@ -175,11 +167,10 @@ float *sub_64A650(float *out, const float *angle)
 matrix4x4 sub_77CB90()
 {
     if constexpr (STANDALONE_SYSTEM) {
-        return matrix4x4{
-            vector4d{1.0f, 0.0f, 0.0f, 0.0f},
-            vector4d{0.0f, -1.0f, 0.0f, 0.0f},
-            vector4d{0.0f, 0.0f, 1.0f, 0.0f},
-            vector4d{0.0f, 0.0f, 0.0f, 1.0f}};
+        return matrix4x4{vector4d{1.0f, 0.0f, 0.0f, 0.0f},
+                         vector4d{0.0f, -1.0f, 0.0f, 0.0f},
+                         vector4d{0.0f, 0.0f, 1.0f, 0.0f},
+                         vector4d{0.0f, 0.0f, 0.0f, 1.0f}};
     } else {
         matrix4x4 result;
         CDECL_CALL(0x0077CB90, &result);
@@ -435,19 +426,17 @@ void nglCalculateMatrices(bool a1)
 
             nglCurScene->field_8C = sub_77CB90();
 
-            nglCurScene->ViewToScreen =
-                nglCurScene->field_C * nglCurScene->field_4C * nglCurScene->field_8C;
+            nglCurScene->ViewToScreen = nglCurScene->field_C * nglCurScene->field_4C * nglCurScene->field_8C;
 
             auto a1a = sub_4150E0(nglCurScene->WorldToView);
             nglCurScene->ViewToWorld = a1a;
 
             {
                 const ptr_to_po world_to_screen{&nglCurScene->WorldToView, &nglCurScene->ViewToScreen};
-                world_to_screen.build_world_basis_and_pos(
-                    nglCurScene->WorldToScreen.arr[0],
-                    nglCurScene->WorldToScreen.arr[1],
-                    nglCurScene->WorldToScreen.arr[2],
-                    nglCurScene->WorldToScreen.w);
+                world_to_screen.build_world_basis_and_pos(nglCurScene->WorldToScreen.arr[0],
+                                                          nglCurScene->WorldToScreen.arr[1],
+                                                          nglCurScene->WorldToScreen.arr[2],
+                                                          nglCurScene->WorldToScreen.w);
             }
 
             nglCurScene->field_1CC = sub_76A870();
@@ -564,7 +553,6 @@ void nglSetupScene(nglScene *a1, nglSceneParamType a2)
 
         switch (a2) {
         case 0: {
-
             nglSetDefaultSceneParams();
         } break;
         case 1:

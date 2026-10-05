@@ -42,8 +42,7 @@ bool __fastcall region_subclass(const trigger_region *, int, mash::virtual_types
 
 bool __fastcall region_is_or_subclass(const trigger_region *self, int, mash::virtual_types_enum type)
 {
-    return self->get_virtual_type_enum() == static_cast<uint32_t>(type) ||
-        region_subclass(self, 0, type);
+    return self->get_virtual_type_enum() == static_cast<uint32_t>(type) || region_subclass(self, 0, type);
 }
 
 void __fastcall named_region_unmash(named_trigger_box_region *self, int, mash_info_struct *info, void *context)
@@ -55,7 +54,7 @@ template <typename T, uint32_t Type>
 void *region_vtable()
 {
     static auto table = [] {
-        std::array<void *, 9> result {};
+        std::array<void *, 9> result{};
         result[3] = bit_cast<void *>(&region_type<T, Type>);
         result[4] = bit_cast<void *>(&region_subclass);
         result[5] = bit_cast<void *>(&region_is_or_subclass);
@@ -68,7 +67,7 @@ void *region_vtable()
     }();
     return table.data();
 }
-}
+}  // namespace
 
 void *box_region::native_vtable()
 {
@@ -106,7 +105,6 @@ void trigger_region::unmash(mash_info_struct *info, void *context)
     if (type == 548) {
         static_cast<named_trigger_box_region *>(this)->_unmash(info, context);
     } else {
-
         assert(type == 545 || type == 549);
     }
 }
@@ -124,17 +122,16 @@ int trigger_region::get_mash_sizeof() const
 
 bool trigger_region::is_inside_trigger_region(const vector3d *position, actor *owner) const
 {
-    auto fn = bit_cast<bool(__fastcall *)(const trigger_region *, int, const vector3d *, actor *)>(
-        get_vfunc(m_vtbl, 0x18));
+    auto fn =
+        bit_cast<bool(__fastcall *)(const trigger_region *, int, const vector3d *, actor *)>(get_vfunc(m_vtbl, 0x18));
     return fn(this, 0, position, owner);
 }
 
 bool box_region::contains(const vector3d *position, actor *owner) const
 {
     const auto local = actor_relative ? owner->get_abs_po().inverse_xform(*position) : *position;
-    return lower.x < local.x && local.x < upper.x &&
-        lower.y < local.y && local.y < upper.y &&
-        lower.z < local.z && local.z < upper.z;
+    return lower.x < local.x && local.x < upper.x && lower.y < local.y && local.y < upper.y && lower.z < local.z &&
+           local.z < upper.z;
 }
 
 bool point_dist_region::contains(const vector3d *position, actor *owner) const
@@ -153,8 +150,7 @@ bool named_trigger_box_region::contains(const vector3d *position, actor *) const
     if (target == nullptr) {
         return false;
     }
-    auto fn = bit_cast<bool(__fastcall *)(entity_base *, int, const vector3d *)>(
-        get_vfunc(target->m_vtbl, 0x16C));
+    auto fn = bit_cast<bool(__fastcall *)(entity_base *, int, const vector3d *)>(get_vfunc(target->m_vtbl, 0x16C));
     return fn(target, 0, position);
 }
 

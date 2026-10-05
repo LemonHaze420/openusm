@@ -78,10 +78,10 @@ struct static_region_list_node : subdivision_node {
 
 struct subdivision_node_builder;
 struct subdivision_node_builder_vtable {
-    subdivision_node *(__fastcall *build)(subdivision_node_builder *, void *,
-        stack_allocator &, _std::vector<proximity_map_construction_leaf> &);
-    void (__fastcall *build_mirror)(subdivision_node_builder *, void *,
-        stack_allocator &, _std::vector<proximity_map_construction_leaf> &);
+    subdivision_node *(__fastcall *build)(subdivision_node_builder *, void *, stack_allocator &,
+                                          _std::vector<proximity_map_construction_leaf> &);
+    void(__fastcall *build_mirror)(subdivision_node_builder *, void *, stack_allocator &,
+                                   _std::vector<proximity_map_construction_leaf> &);
 };
 
 struct subdivision_node_builder {

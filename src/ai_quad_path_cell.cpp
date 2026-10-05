@@ -22,8 +22,8 @@ vector3d ai_quad_path_cell::get_edge_midpoint(ai_quad_path_cell *other)
     };
     const int edge = find_edge(this, other);
     const int other_edge = find_edge(other, this);
-    vector3d endpoints[4] = {field_0[edge], field_0[(edge + 1) % 4],
-        other->field_0[other_edge], other->field_0[(other_edge + 1) % 4]};
+    vector3d endpoints[4] = {
+        field_0[edge], field_0[(edge + 1) % 4], other->field_0[other_edge], other->field_0[(other_edge + 1) % 4]};
     const auto delta = endpoints[1] - endpoints[0];
     int axis = 0;
     if (std::fabs(delta.y) > std::fabs(delta.x))
@@ -56,10 +56,9 @@ bool ai_quad_path_cell::is_point_in_cell(const vector3d &position, float radius)
             (&maximum.x)[axis] = std::max((&maximum.x)[axis], (&field_0[index].x)[axis]);
         }
     }
-    const vector3d outside{
-        std::max(position.x - maximum.x, minimum.x - position.x),
-        std::max(position.y - maximum.y, minimum.y - position.y),
-        std::max(position.z - maximum.z, minimum.z - position.z)};
+    const vector3d outside{std::max(position.x - maximum.x, minimum.x - position.x),
+                           std::max(position.y - maximum.y, minimum.y - position.y),
+                           std::max(position.z - maximum.z, minimum.z - position.z)};
     int major = 0;
     if (field_4C == 4 || field_4C == 8)
         major = 1;
@@ -80,10 +79,8 @@ bool ai_quad_path_cell::is_point_in_cell(const vector3d &position, float radius)
     auto dot = [](const vector3d &a, const vector3d &b) {
         return a.x * b.x + a.y * b.y + a.z * b.z;
     };
-    return dot(first, field_0[1] - field_0[0]) >= 0.0f
-        && dot(first, field_0[2] - field_0[1]) >= 0.0f
-        && dot(second, field_0[3] - field_0[2]) >= 0.0f
-        && dot(second, field_0[0] - field_0[3]) >= 0.0f;
+    return dot(first, field_0[1] - field_0[0]) >= 0.0f && dot(first, field_0[2] - field_0[1]) >= 0.0f &&
+           dot(second, field_0[3] - field_0[2]) >= 0.0f && dot(second, field_0[0] - field_0[3]) >= 0.0f;
 }
 
 float ai_quad_path_cell::is_point_near_cell(const vector3d &position) const
@@ -101,8 +98,8 @@ float ai_quad_path_cell::is_point_near_cell(const vector3d &position) const
     for (int edge = 0; edge < 4; ++edge) {
         const auto delta = field_0[(edge + 1) % 4] - field_0[edge];
         const auto relative = position - field_0[edge];
-        if ((&delta.x)[first_axis] * (&relative.x)[second_axis]
-            - (&delta.x)[second_axis] * (&relative.x)[first_axis] < 0.0f)
+        if ((&delta.x)[first_axis] * (&relative.x)[second_axis] - (&delta.x)[second_axis] * (&relative.x)[first_axis] <
+            0.0f)
             inside = false;
     }
     if (inside) {
@@ -141,8 +138,8 @@ void ai_quad_path_cell::un_mash(void *a2, int a3, int a4)
                 neighbors[edge] = nullptr;
                 continue;
             }
-            neighbors[edge] = reinterpret_cast<ai_quad_path_cell **>(
-                buffer + a4 + reinterpret_cast<std::uintptr_t>(neighbors[edge]));
+            neighbors[edge] =
+                reinterpret_cast<ai_quad_path_cell **>(buffer + a4 + reinterpret_cast<std::uintptr_t>(neighbors[edge]));
             for (int index = 0; index < neighbor_counts[edge]; ++index)
                 neighbors[edge][index] = reinterpret_cast<ai_quad_path_cell *>(
                     buffer + a3 + 0x50u * reinterpret_cast<std::uintptr_t>(neighbors[edge][index]));

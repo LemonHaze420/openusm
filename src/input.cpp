@@ -1212,8 +1212,7 @@ BOOL __stdcall sub_821470(const DIDEVICEINSTANCEA *device_instance, void *contex
 
     IDirectInputDevice8A *device = bit_cast<IDirectInputDevice8A *>(input->field_14[device_index]);
     if (device == nullptr &&
-        FAILED(input->m_din->lpVtbl->CreateDevice(
-            input->m_din, device_instance->guidInstance, &device, nullptr))) {
+        FAILED(input->m_din->lpVtbl->CreateDevice(input->m_din, device_instance->guidInstance, &device, nullptr))) {
         return DIENUM_CONTINUE;
     }
 

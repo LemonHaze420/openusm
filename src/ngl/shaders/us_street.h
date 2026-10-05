@@ -31,5 +31,4 @@ struct USStreetShaderNode : nglShaderNode {
 USGroundShader<false> &getUSStreetShader();
 USGroundShader<true> &getUSFloorShader();
 
-}
-
+}  // namespace USStreetShaderSpace

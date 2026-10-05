@@ -108,8 +108,7 @@ struct tlResourceDirectory {
                 }
 
                 if (v8 == 0 && a2) {
-                    auto name = reinterpret_cast<const char *(__fastcall *)(void *)>(
-                        get_vfunc(this->m_vtbl, 0x4));
+                    auto name = reinterpret_cast<const char *(__fastcall *)(void *)>(get_vfunc(this->m_vtbl, 0x4));
                     name(this);
                 }
             }

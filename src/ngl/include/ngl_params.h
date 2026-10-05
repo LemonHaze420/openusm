@@ -188,6 +188,5 @@ public:
 void nglInitializeParamIDs();
 
 // 0x008EA2E0
-extern nglMaterialBase *select_mesh_material(
-    nglParamSet<nglShaderParamSet_Pool> *params,
-    nglMaterialBase *default_material);
+extern nglMaterialBase *select_mesh_material(nglParamSet<nglShaderParamSet_Pool> *params,
+                                             nglMaterialBase *default_material);

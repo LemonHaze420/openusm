@@ -28,8 +28,8 @@ void tentacle_interface::initialize_polytubes()
     for (int index = 0; index < field_1C.m_size; ++index) {
         auto &info = field_1C[index];
         void *storage = sizeof(polytube) > slab_allocator::get_max_object_size()
-            ? ::operator new(sizeof(polytube))
-            : slab_allocator::allocate(sizeof(polytube), nullptr);
+                            ? ::operator new(sizeof(polytube))
+                            : slab_allocator::allocate(sizeof(polytube), nullptr);
         auto *tube = new (storage) polytube(make_unique_entity_id(), 0);
         const tlFixedString sphere_name{"us_char_sphrmap_ink_6"};
         const tlFixedString texture_name{info.texture_name};
@@ -129,7 +129,10 @@ void tentacle_interface::release_ifc()
 
 namespace {
 Var<int> last_tentacle_tick{0x0095BFCC};
-const bool initialize_tentacle_tick = [] { last_tentacle_tick() = -1; return true; }();
+const bool initialize_tentacle_tick = [] {
+    last_tentacle_tick() = -1;
+    return true;
+}();
 
 void apply_tentacle_animation(conglomerate *owner, tentacle_info &info, polytube *tube)
 {
@@ -139,7 +142,7 @@ void apply_tentacle_animation(conglomerate *owner, tentacle_info &info, polytube
         tube->set_tentacle_pull_factor(Float{owner->anim_ctrl->get_tentacle_pull_factor(key)});
     }
 }
-}
+}  // namespace
 
 void tentacle_interface::standard_tentacle_update(int index, tentacle_info &info)
 {

@@ -17,7 +17,7 @@ void create_inst();
 void frame_advance(Float elapsed);
 void delete_inst();
 void add_web_sound(actor *owner, const vector3d &anchor, string_hash category);
-}
+}  // namespace web_sounds_manager
 
 
 struct web_sound_params {

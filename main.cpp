@@ -332,12 +332,12 @@ void register_class_and_create_window(LPCSTR lpClassName, LPCSTR lpWindowName, i
 DWORD old_perms = 0;
 BOOL set_text_to_writable()
 {
-    return VirtualProtect((void *) TEXT_START, TEXT_END - TEXT_START, PAGE_READWRITE, &old_perms);
+    return VirtualProtect((void *)TEXT_START, TEXT_END - TEXT_START, PAGE_READWRITE, &old_perms);
 }
 
 BOOL restore_text_perms()
 {
-    return VirtualProtect((void*)(TEXT_START), TEXT_END - TEXT_START, old_perms, &old_perms);
+    return VirtualProtect((void *)(TEXT_START), TEXT_END - TEXT_START, old_perms, &old_perms);
 }
 
 void ToggleFullScreen(bool isFullscreen)
@@ -345,11 +345,12 @@ void ToggleFullScreen(bool isFullscreen)
     ESI_CALL(0x0076D230, isFullscreen);
 
     // fix focus adjustment
-    os_developer_options::instance->set_flag(mString{ "ALWAYS_ACTIVE" }, g_config.WindowedMode);
+    os_developer_options::instance->set_flag(mString{"ALWAYS_ACTIVE"}, g_config.WindowedMode);
 }
 
-void init_hook(HWND hwnd) {
-    os_developer_options::instance->set_flag(mString{ "NO_LOAD_SCREEN" }, g_config.NoLoadScreen);
+void init_hook(HWND hwnd)
+{
+    os_developer_options::instance->set_flag(mString{"NO_LOAD_SCREEN"}, g_config.NoLoadScreen);
 
     bool windowedMode = g_config.WindowedMode;
 
@@ -360,9 +361,9 @@ void init_hook(HWND hwnd) {
     ToggleFullScreen(windowedMode);
 }
 
-HRESULT tga_hook(IDirect3DDevice9* dev, unsigned __int8* a2, unsigned int a3, IDirect3DBaseTexture9** a4)
+HRESULT tga_hook(IDirect3DDevice9 *dev, unsigned __int8 *a2, unsigned int a3, IDirect3DBaseTexture9 **a4)
 {
-    nglTexture* tex = reinterpret_cast<nglTexture*>(reinterpret_cast<uint8_t*>(a4) - offsetof(nglTexture, DXTexture));
+    nglTexture *tex = reinterpret_cast<nglTexture *>(reinterpret_cast<uint8_t *>(a4) - offsetof(nglTexture, DXTexture));
     printf("loading TGA %s (0x%08X)\n", tex->FileName.to_string(), tex->FileName.m_hash);
     if (auto data = getModDataByHash(tex->FileName.m_hash))
         a2 = data;
@@ -370,7 +371,7 @@ HRESULT tga_hook(IDirect3DDevice9* dev, unsigned __int8* a2, unsigned int a3, ID
     return (HRESULT)STDCALL(0x007CA291, dev, a2, a3, a4);
 }
 
-bool __cdecl readFile(const char* FileName, tlFileBuf* File, size_t Alignment, unsigned int Flags)
+bool __cdecl readFile(const char *FileName, tlFileBuf *File, size_t Alignment, unsigned int Flags)
 {
     if (File != nullptr) {
         File->Buf = nullptr;
@@ -382,7 +383,7 @@ bool __cdecl readFile(const char* FileName, tlFileBuf* File, size_t Alignment, u
         return true;
     }
 
-    const bool result = (bool) CDECL_CALL(0x0074A710, FileName, File, Alignment, Flags);
+    const bool result = (bool)CDECL_CALL(0x0074A710, FileName, File, Alignment, Flags);
     if (result && (File == nullptr || File->Buf == nullptr)) {
         sp_log("readFile couldn't read %s", FileName);
         return false;
@@ -418,17 +419,17 @@ BOOL install_patches()
     // mod loading
     {
         // global assets
-        REDIRECT(0x007700AE, readFile);    // Meshes
-        REDIRECT(0x0077861E, readFile);    // ....
-        REDIRECT(0x00779262, readFile);    // ....
-        REDIRECT(0x0077A9A6, readFile);    // ....
-        REDIRECT(0x0077AA2F, readFile);    // ....
-        REDIRECT(0x0077AA69, readFile);    // ....
-        REDIRECT(0x0077AADC, readFile);    // ....
-        REDIRECT(0x00782CF9, readFile);    // ....
-        REDIRECT(0x0078D653, readFile);    // ....
-        REDIRECT(0x0078DA23, readFile);    // ....
-        REDIRECT(0x0078DD5E, readFile);    // skeletons
+        REDIRECT(0x007700AE, readFile);  // Meshes
+        REDIRECT(0x0077861E, readFile);  // ....
+        REDIRECT(0x00779262, readFile);  // ....
+        REDIRECT(0x0077A9A6, readFile);  // ....
+        REDIRECT(0x0077AA2F, readFile);  // ....
+        REDIRECT(0x0077AA69, readFile);  // ....
+        REDIRECT(0x0077AADC, readFile);  // ....
+        REDIRECT(0x00782CF9, readFile);  // ....
+        REDIRECT(0x0078D653, readFile);  // ....
+        REDIRECT(0x0078DA23, readFile);  // ....
+        REDIRECT(0x0078DD5E, readFile);  // skeletons
 
         FUNC_ADDRESS(address, &mesh_file_resource_handler::_handle_resource);
         set_vfunc(0x00888A44, address);
@@ -439,7 +440,7 @@ BOOL install_patches()
         }
 
         {
-            HRESULT(*func)(nglMeshSection*) = &nglSetStreamSourceAndDrawPrimitive;
+            HRESULT (*func)(nglMeshSection *) = &nglSetStreamSourceAndDrawPrimitive;
             SET_JUMP(0x00771AF0, func);
         }
 
@@ -467,19 +468,19 @@ void set_nop(ptrdiff_t address, size_t num_bytes)
     }
 }
 
-#define REDIRECT_WITH_NOP(addr, my_func)                                          \
-    {                                                                             \
-        *(uint8_t *) addr = 0xE8;                                                 \
-        *(uint32_t *) ((uint8_t *) (addr + 1)) = ((uint32_t) my_func) - addr - 5; \
-        *(uint8_t *) (addr + 5) = NOP;                                            \
-        sp_log("Patched function sub_%08X with %s", addr, #my_func);              \
+#define REDIRECT_WITH_NOP(addr, my_func)                                       \
+    {                                                                          \
+        *(uint8_t *)addr = 0xE8;                                               \
+        *(uint32_t *)((uint8_t *)(addr + 1)) = ((uint32_t)my_func) - addr - 5; \
+        *(uint8_t *)(addr + 5) = NOP;                                          \
+        sp_log("Patched function sub_%08X with %s", addr, #my_func);           \
     }
 
-#define MOVE(addr, my_func)                                            \
-    {                                                                  \
-        *bit_cast<uint8_t *>(addr) = 0xB9;                             \
-        *(uint32_t *) ((uint8_t *) (addr + 1)) = ((uint32_t) my_func); \
-        *bit_cast<uint8_t *>(addr + 5) = NOP;                          \
+#define MOVE(addr, my_func)                                         \
+    {                                                               \
+        *bit_cast<uint8_t *>(addr) = 0xB9;                          \
+        *(uint32_t *)((uint8_t *)(addr + 1)) = ((uint32_t)my_func); \
+        *bit_cast<uint8_t *>(addr + 5) = NOP;                       \
     }
 
 void sub_76F320()
@@ -487,7 +488,7 @@ void sub_76F320()
     if constexpr (1) {
         struct Vtbl {
             int empty[7];
-            void (__fastcall *field_1C)(void *, void *, int, int, int);
+            void(__fastcall *field_1C)(void *, void *, int, int, int);
         };
 
         auto address = get_vtbl(nglGetMeshFileDirectory());
@@ -552,8 +553,7 @@ void sub_597720(LPCSTR lpText)
         sprintf(format, "Error: \r\n%s", Dest);
         CDECL_CALL(0x005975C0, format, 1, 1);
         if (ALLOW_ERROR_POPUPS) {
-            MessageBoxA(window_manager::instance() != nullptr ? window_manager::instance()->field_4
-                                                              : nullptr,
+            MessageBoxA(window_manager::instance() != nullptr ? window_manager::instance()->field_4 : nullptr,
                         lpText,
                         "Error",
                         0x11010u);
@@ -581,52 +581,78 @@ LONG __stdcall TopLevelExceptionFilter(EXCEPTION_POINTERS *pExceptionInfo)
 
     const char *description = "Unknown";
     switch (record->ExceptionCode) {
-    case EXCEPTION_ACCESS_VIOLATION: description = "Access Violation"; break;
-    case EXCEPTION_IN_PAGE_ERROR: description = "In Page Error"; break;
-    case EXCEPTION_DATATYPE_MISALIGNMENT: description = "Data Type Misalignment"; break;
-    case EXCEPTION_ILLEGAL_INSTRUCTION: description = "Illegal Instruction"; break;
-    case EXCEPTION_ARRAY_BOUNDS_EXCEEDED: description = "Array Bounds Exceeded"; break;
-    case EXCEPTION_FLT_DENORMAL_OPERAND: description = "Denormal Float Operand"; break;
-    case EXCEPTION_FLT_DIVIDE_BY_ZERO: description = "Float Divide By Zero"; break;
-    case EXCEPTION_FLT_INEXACT_RESULT: description = "Inexact Float Result"; break;
-    case EXCEPTION_FLT_INVALID_OPERATION: description = "Invalid Float Operation"; break;
-    case EXCEPTION_FLT_OVERFLOW: description = "Float Overflow"; break;
-    case EXCEPTION_FLT_STACK_CHECK: description = "Stack Overflow Caused By Float"; break;
-    case EXCEPTION_FLT_UNDERFLOW: description = "Float Underflow"; break;
-    case EXCEPTION_INT_DIVIDE_BY_ZERO: description = "Int Divide By Zero"; break;
-    case EXCEPTION_INT_OVERFLOW: description = "Int Overflow"; break;
-    case EXCEPTION_STACK_OVERFLOW: description = "Stack Overflow"; break;
-    default: break;
+    case EXCEPTION_ACCESS_VIOLATION:
+        description = "Access Violation";
+        break;
+    case EXCEPTION_IN_PAGE_ERROR:
+        description = "In Page Error";
+        break;
+    case EXCEPTION_DATATYPE_MISALIGNMENT:
+        description = "Data Type Misalignment";
+        break;
+    case EXCEPTION_ILLEGAL_INSTRUCTION:
+        description = "Illegal Instruction";
+        break;
+    case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:
+        description = "Array Bounds Exceeded";
+        break;
+    case EXCEPTION_FLT_DENORMAL_OPERAND:
+        description = "Denormal Float Operand";
+        break;
+    case EXCEPTION_FLT_DIVIDE_BY_ZERO:
+        description = "Float Divide By Zero";
+        break;
+    case EXCEPTION_FLT_INEXACT_RESULT:
+        description = "Inexact Float Result";
+        break;
+    case EXCEPTION_FLT_INVALID_OPERATION:
+        description = "Invalid Float Operation";
+        break;
+    case EXCEPTION_FLT_OVERFLOW:
+        description = "Float Overflow";
+        break;
+    case EXCEPTION_FLT_STACK_CHECK:
+        description = "Stack Overflow Caused By Float";
+        break;
+    case EXCEPTION_FLT_UNDERFLOW:
+        description = "Float Underflow";
+        break;
+    case EXCEPTION_INT_DIVIDE_BY_ZERO:
+        description = "Int Divide By Zero";
+        break;
+    case EXCEPTION_INT_OVERFLOW:
+        description = "Int Overflow";
+        break;
+    case EXCEPTION_STACK_OVERFLOW:
+        description = "Stack Overflow";
+        break;
+    default:
+        break;
     }
 
     char detail[64]{};
-    if ((record->ExceptionCode == EXCEPTION_ACCESS_VIOLATION ||
-         record->ExceptionCode == EXCEPTION_IN_PAGE_ERROR) &&
+    if ((record->ExceptionCode == EXCEPTION_ACCESS_VIOLATION || record->ExceptionCode == EXCEPTION_IN_PAGE_ERROR) &&
         record->NumberParameters > 1) {
         const auto operation = record->ExceptionInformation[0];
         const char *operation_text = operation == 8 ? "execute" : operation != 0 ? "write to" : "read from";
-        sprintf(detail,
-                " trying to %s 0x%08x",
-                operation_text,
-                static_cast<unsigned>(record->ExceptionInformation[1]));
+        sprintf(detail, " trying to %s 0x%08x", operation_text, static_cast<unsigned>(record->ExceptionInformation[1]));
     }
 
     const auto fault_address = reinterpret_cast<uintptr_t>(record->ExceptionAddress);
     if (pExceptionInfo->ContextRecord != nullptr) {
         const auto &ctx = *pExceptionInfo->ContextRecord;
-        report_standalone_failure(
-            "crash: code 0x%08x at 0x%08x, esp 0x%08x, ebp 0x%08x\n"
-            "crash: eax 0x%08x ebx 0x%08x ecx 0x%08x edx 0x%08x esi 0x%08x edi 0x%08x\n",
-            static_cast<unsigned>(record->ExceptionCode),
-            static_cast<unsigned>(fault_address),
-            static_cast<unsigned>(ctx.Esp),
-            static_cast<unsigned>(ctx.Ebp),
-            static_cast<unsigned>(ctx.Eax),
-            static_cast<unsigned>(ctx.Ebx),
-            static_cast<unsigned>(ctx.Ecx),
-            static_cast<unsigned>(ctx.Edx),
-            static_cast<unsigned>(ctx.Esi),
-            static_cast<unsigned>(ctx.Edi));
+        report_standalone_failure("crash: code 0x%08x at 0x%08x, esp 0x%08x, ebp 0x%08x\n"
+                                  "crash: eax 0x%08x ebx 0x%08x ecx 0x%08x edx 0x%08x esi 0x%08x edi 0x%08x\n",
+                                  static_cast<unsigned>(record->ExceptionCode),
+                                  static_cast<unsigned>(fault_address),
+                                  static_cast<unsigned>(ctx.Esp),
+                                  static_cast<unsigned>(ctx.Ebp),
+                                  static_cast<unsigned>(ctx.Eax),
+                                  static_cast<unsigned>(ctx.Ebx),
+                                  static_cast<unsigned>(ctx.Ecx),
+                                  static_cast<unsigned>(ctx.Edx),
+                                  static_cast<unsigned>(ctx.Esi),
+                                  static_cast<unsigned>(ctx.Edi));
 
         const auto base = reinterpret_cast<uintptr_t>(GetModuleHandleA(nullptr));
         const auto *dos = reinterpret_cast<const IMAGE_DOS_HEADER *>(base);
@@ -639,19 +665,14 @@ LONG __stdcall TopLevelExceptionFilter(EXCEPTION_POINTERS *pExceptionInfo)
                 break;
             const auto value = stack[i];
             if (value >= code_begin && value < code_end) {
-                report_standalone_failure(
-                    "crash: stack[%u] = 0x%08x\n", i, static_cast<unsigned>(value));
+                report_standalone_failure("crash: stack[%u] = 0x%08x\n", i, static_cast<unsigned>(value));
                 ++found;
             }
         }
     }
 
     char text[256];
-    sprintf(text,
-            "%s Exception occurred at 0x%08x%s",
-            description,
-            static_cast<unsigned>(fault_address),
-            detail);
+    sprintf(text, "%s Exception occurred at 0x%08x%s", description, static_cast<unsigned>(fault_address), detail);
     sub_597720(text);
     return EXCEPTION_EXECUTE_HANDLER;
 }
@@ -733,10 +754,20 @@ void init_assert_handler()
 void sub_5C9EA0()
 {
 #if STANDALONE_SYSTEM
-    static constexpr const char *skus[] = {
-        "SLUS-20870", "SLUS-21285", "SLES-53390", "SLES-53391", "SLES-53672",
-        "DOL-GUTE", "DOL-GUTP", "DOL-GUTF", "DOL-GUTD", "DOL-GUTI", "DOL-GUTS",
-        "AV05301W-AV", "AV05302E-AV", "AV05303E-AV"};
+    static constexpr const char *skus[] = {"SLUS-20870",
+                                           "SLUS-21285",
+                                           "SLES-53390",
+                                           "SLES-53391",
+                                           "SLES-53672",
+                                           "DOL-GUTE",
+                                           "DOL-GUTP",
+                                           "DOL-GUTF",
+                                           "DOL-GUTD",
+                                           "DOL-GUTI",
+                                           "DOL-GUTS",
+                                           "AV05301W-AV",
+                                           "AV05302E-AV",
+                                           "AV05303E-AV"};
     auto &release_type = var<int>(0x00968530);
     release_type = 0;
     const char *sku = os_developer_options::instance->m_strings[os_developer_options::SKU].c_str();
@@ -1099,11 +1130,11 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
             break;
         case WM_SYSKEYDOWN:
         LABEL_5:
-            sub_5BCA60(1, byte_88CC68()[(uint16_t) wParam]);
+            sub_5BCA60(1, byte_88CC68()[(uint16_t)wParam]);
             result = DefWindowProcA(hWnd, Msg, wParam, lParam);
             break;
         case WM_SYSKEYUP:
-            sub_5BCA60(0, byte_88CC68()[(uint16_t) wParam]);
+            sub_5BCA60(0, byte_88CC68()[(uint16_t)wParam]);
             result = DefWindowProcA(hWnd, Msg, wParam, lParam);
             break;
         case WM_SYSCHAR:
@@ -1117,7 +1148,7 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
         }
         return result;
     } else {
-        return (LRESULT) STDCALL(0x005941A0, hWnd, Msg, wParam, lParam);
+        return (LRESULT)STDCALL(0x005941A0, hWnd, Msg, wParam, lParam);
     }
 }
 
@@ -1202,8 +1233,7 @@ void bink_set_sound_system()
     }
 
     using BinkSetSoundSystemFn = int(__stdcall *)(FARPROC, void *);
-    auto set_sound_system = bit_cast<BinkSetSoundSystemFn>(
-        GetProcAddress(bink, MAKEINTRESOURCEA(57)));
+    auto set_sound_system = bit_cast<BinkSetSoundSystemFn>(GetProcAddress(bink, MAKEINTRESOURCEA(57)));
     auto open_direct_sound = GetProcAddress(bink, MAKEINTRESOURCEA(39));
     if (set_sound_system == nullptr || open_direct_sound == nullptr) {
         sp_log("Unable to resolve Bink sound exports");
@@ -1233,7 +1263,7 @@ bool get_path(const char *a1, const char *a2, char *out, unsigned int str_len)
 
             if (hModule != nullptr) {
                 auto *SHGetFolderPathA = bit_cast<HRESULT(__stdcall *)(HWND, int, HANDLE, DWORD, LPSTR)>(
-                        GetProcAddress(hModule, "SHGetFolderPathA"));
+                    GetProcAddress(hModule, "SHGetFolderPathA"));
                 if (SHGetFolderPathA != nullptr && SHGetFolderPathA(nullptr, 5, nullptr, 0, v12) >= 0) {
                     sprintf(v8, "%s\\%s", v12, a1);
                     if (strlen(v8) >= str_len) {
@@ -1257,7 +1287,7 @@ bool get_path(const char *a1, const char *a2, char *out, unsigned int str_len)
 
         return true;
     } else {
-        return (bool) CDECL_CALL(0x0081BE00, a1, a2, out, str_len);
+        return (bool)CDECL_CALL(0x0081BE00, a1, a2, out, str_len);
     }
 }
 
@@ -1323,43 +1353,43 @@ void sub_5952D0()
         VALIDATE_SIZE(v29, 0x48);
 
         static constexpr decltype(v29) input_value[18] = {
-            {"Forward",      {0, 0, 0, 0, 0, 0, 0, 0},  65553, false, 65736, false, 196612, 0},
-            {"Backward",     {0, 0, 0, 0, 0, 0, 0, 0},  65567, false, 65744, false, 196611, 0},
-            {"TurnLeft",     {0, 0, 0, 0, 0, 0, 0, 0},  65566, false, 65739, false, 196610, 0},
-            {"TurnRight",    {0, 0, 0, 0, 0, 0, 0, 0},  65568, false, 65741, false, 196609, 0},
-            {"Jump",         {0, 0, 0, 0, 0, 0, 0, 0}, 0x10000 + DIK_SPACE, false, 65535, false, 196629, 0},
-            {"StickToWalls", {0, 0, 0, 0, 0, 0, 0, 0},  65569, false, 65578, false, 196630, 0},
-            {"Punch",        {0, 0, 0, 0, 0, 0, 0, 0}, 0x10000 + DIK_Q, false, 65565, false, 196631, 0},
-            {"Kick",         {0, 0, 0, 0, 0, 0, 0, 0}, 0x10000 + DIK_E, false, 65592, false, 196632, 0},
-            {"ThrowWeb",     {0, 0, 0, 0, 0, 0, 0, 0}, 131082, false, 65582, false,  65535, 0},
-            {"BlackButton",  {0, 0, 0, 0, 0, 0, 0, 0}, 131081, false, 65583, false,  65535, 0},
-            {"CameraUp",     {0, 0, 0, 0, 0, 0, 0, 0},  65608, false, 65737, false,  65535, 0},
-            {"CameraDown",   {0, 0, 0, 0, 0, 0, 0, 0},  65616, false, 65745, false,  65535, 0},
-            {"CameraLeft",   {0, 0, 0, 0, 0, 0, 0, 0},  65611, false, 65535, false,  65535, 0},
-            {"CameraRight",  {0, 0, 0, 0, 0, 0, 0, 0},  65613, false, 65535, false,  65535, 0},
-            {"CameraCenter", {0, 0, 0, 0, 0, 0, 0, 0}, 0x10000 + 48, false, 65535, false,  65535, 0},
-            {"Pause",        {0, 0, 0, 0, 0, 0, 0, 0},  65537, true,  65535, false,  65535, 0},
-            {"BackButton",   {0, 0, 0, 0, 0, 0, 0, 0},  65586, false, 65535, false,  65535, 0},
+            {"Forward", {0, 0, 0, 0, 0, 0, 0, 0}, 65553, false, 65736, false, 196612, 0},
+            {"Backward", {0, 0, 0, 0, 0, 0, 0, 0}, 65567, false, 65744, false, 196611, 0},
+            {"TurnLeft", {0, 0, 0, 0, 0, 0, 0, 0}, 65566, false, 65739, false, 196610, 0},
+            {"TurnRight", {0, 0, 0, 0, 0, 0, 0, 0}, 65568, false, 65741, false, 196609, 0},
+            {"Jump", {0, 0, 0, 0, 0, 0, 0, 0}, 0x10000 + DIK_SPACE, false, 65535, false, 196629, 0},
+            {"StickToWalls", {0, 0, 0, 0, 0, 0, 0, 0}, 65569, false, 65578, false, 196630, 0},
+            {"Punch", {0, 0, 0, 0, 0, 0, 0, 0}, 0x10000 + DIK_Q, false, 65565, false, 196631, 0},
+            {"Kick", {0, 0, 0, 0, 0, 0, 0, 0}, 0x10000 + DIK_E, false, 65592, false, 196632, 0},
+            {"ThrowWeb", {0, 0, 0, 0, 0, 0, 0, 0}, 131082, false, 65582, false, 65535, 0},
+            {"BlackButton", {0, 0, 0, 0, 0, 0, 0, 0}, 131081, false, 65583, false, 65535, 0},
+            {"CameraUp", {0, 0, 0, 0, 0, 0, 0, 0}, 65608, false, 65737, false, 65535, 0},
+            {"CameraDown", {0, 0, 0, 0, 0, 0, 0, 0}, 65616, false, 65745, false, 65535, 0},
+            {"CameraLeft", {0, 0, 0, 0, 0, 0, 0, 0}, 65611, false, 65535, false, 65535, 0},
+            {"CameraRight", {0, 0, 0, 0, 0, 0, 0, 0}, 65613, false, 65535, false, 65535, 0},
+            {"CameraCenter", {0, 0, 0, 0, 0, 0, 0, 0}, 0x10000 + 48, false, 65535, false, 65535, 0},
+            {"Pause", {0, 0, 0, 0, 0, 0, 0, 0}, 65537, true, 65535, false, 65535, 0},
+            {"BackButton", {0, 0, 0, 0, 0, 0, 0, 0}, 65586, false, 65535, false, 65535, 0},
             {"ScreenShot", {0, 0, 0, 0, 0, 0, 0, 0}, 65623, false, 65535, false, 65535, 0}};
 
         //0x00922940
         static constexpr InputAction input_actions[18] = {InputAction::Forward,
-                       InputAction::Backward,
-                       InputAction::TurnLeft,
-                       InputAction::TurnRight,
-                       InputAction::Jump,
-                       InputAction::StickToWalls,
-                       InputAction::Punch,
-                       InputAction::Kick,
-                       InputAction::ThrowWeb,
-                       InputAction::BlackButton,
-                       InputAction::CameraUp,
-                       InputAction::CameraDown,
-                       InputAction::CameraLeft,
-                       InputAction::CameraRight,
-                       InputAction::CameraCenter,
-                       InputAction::Pause,
-                       InputAction::BackButton,
+                                                          InputAction::Backward,
+                                                          InputAction::TurnLeft,
+                                                          InputAction::TurnRight,
+                                                          InputAction::Jump,
+                                                          InputAction::StickToWalls,
+                                                          InputAction::Punch,
+                                                          InputAction::Kick,
+                                                          InputAction::ThrowWeb,
+                                                          InputAction::BlackButton,
+                                                          InputAction::CameraUp,
+                                                          InputAction::CameraDown,
+                                                          InputAction::CameraLeft,
+                                                          InputAction::CameraRight,
+                                                          InputAction::CameraCenter,
+                                                          InputAction::Pause,
+                                                          InputAction::BackButton,
                                                           InputAction::ScreenShot};
 
         for (auto i = 0u; i < std::size(input_actions); ++i) {
@@ -1630,7 +1660,7 @@ int __stdcall myWinMain(HINSTANCE hInstance, [[maybe_unused]] HINSTANCE hPrevIns
 #endif
 
     static Var<int> dword_965BFC = {0x00965BFC};
-    dword_965BFC() = (int) hInstance;
+    dword_965BFC() = (int)hInstance;
 
     create_window_handle();
 
@@ -1677,13 +1707,13 @@ int __stdcall myWinMain(HINSTANCE hInstance, [[maybe_unused]] HINSTANCE hPrevIns
 
     create_sound_ifc(g_appHwnd);
     ShowCursor(0);
-    os_developer_options::instance->set_int(mString {"ALLOW_SCREENSHOT"}, 1);
+    os_developer_options::instance->set_int(mString{"ALLOW_SCREENSHOT"}, 1);
 
     window_manager::instance()->field_4 = g_appHwnd;
 
     parse_cmd(lpCmdLine);
 
-    if (os_developer_options::instance->get_flag(mString {"HALT_ON_ASSERTS"})) {
+    if (os_developer_options::instance->get_flag(mString{"HALT_ON_ASSERTS"})) {
         g_debug.field_1 |= 1;
     } else {
         g_debug.field_1 &= 0xFE;
@@ -1713,7 +1743,7 @@ int __stdcall myWinMain(HINSTANCE hInstance, [[maybe_unused]] HINSTANCE hPrevIns
 
     nflStart(dword_965C00());
 
-    int v17 = os_developer_options::instance->get_int(mString {"RANDOM_SEED"});
+    int v17 = os_developer_options::instance->get_int(mString{"RANDOM_SEED"});
     if (v17) {
         srand(v17);
     } else {
@@ -1805,8 +1835,7 @@ int __stdcall myWinMain(HINSTANCE hInstance, [[maybe_unused]] HINSTANCE hPrevIns
     Settings::GameSoundVolume = g_settings->sub_81D010("Settings\\GameSoundVolume", 10) * 0.1;
     Settings::MusicVolume = g_settings->sub_81D010("Settings\\MusicVolume", 10) * 0.1f;
 
-    if (STANDALONE_SYSTEM ||
-        os_developer_options::instance->get_flag(mString{"EXCEPTION_HANDLER"})) {
+    if (STANDALONE_SYSTEM || os_developer_options::instance->get_flag(mString{"EXCEPTION_HANDLER"})) {
         SetUnhandledExceptionFilter(TopLevelExceptionFilter);
     }
 
@@ -1906,15 +1935,14 @@ int __stdcall myWinMain(HINSTANCE hInstance, [[maybe_unused]] HINSTANCE hPrevIns
 
                     DWORD v158 = timeGetTime();
                     DWORD v159 = timeGetTime();
-                    auto v160 = (double) (v159 - v163);
+                    auto v160 = (double)(v159 - v163);
                     v163 = v159;
                     v165 = v165 - v160 * 0.001;
                     app::instance->tick();
                     DWORD v168 = timeGetTime() - v158;
                     app::instance->m_game->field_278 = v168 * 0.001f;
 
-                    const float screenshot_state =
-                        g_inputSettingsInGame->field_18.get_state(InputAction::ScreenShot);
+                    const float screenshot_state = g_inputSettingsInGame->field_18.get_state(InputAction::ScreenShot);
                     if (screenshot_state <= 0.0f) {
                         if (!byte_965BF5 && byte_965BF6) {
                             byte_965BF5 = true;
@@ -1962,7 +1990,7 @@ LABEL_94:
 
     if (app::instance != nullptr) {
 #if !STANDALONE_SYSTEM
-        auto *vtbl = bit_cast<int (*)[1]>(app::instance->m_vtbl);
+        auto *vtbl = bit_cast<int(*)[1]>(app::instance->m_vtbl);
         assert((*vtbl)[0] == 0x005E99D0);
 #endif
 
@@ -1979,7 +2007,7 @@ LABEL_94:
 
     if (g_cursor != nullptr) {
 #if !STANDALONE_SYSTEM
-        auto *vtbl = bit_cast<int (*)[1]>(g_cursor->m_vtbl);
+        auto *vtbl = bit_cast<int(*)[1]>(g_cursor->m_vtbl);
 
         assert((*vtbl)[0] == 0x005B7BC0);
 #endif
@@ -2101,7 +2129,7 @@ void create_window(LPCSTR lpClassName, LPCSTR lpWindowName, HINSTANCE hInstance,
     int y = p_y;
     int x = dwExStyle;
     [[maybe_unused]] DWORD dwExStylea = 0;
-    if ((uint8_t) dwStyle) {
+    if ((uint8_t)dwStyle) {
         dwStylea = 0x80000000;
         dwExStylea = 8;
         x = 0;
@@ -2135,17 +2163,17 @@ void create_window(LPCSTR lpClassName, LPCSTR lpWindowName, HINSTANCE hInstance,
 
     g_appHwnd = CreateWindowA(
         //CreateWindowExA(dwExStylea,
-                              lpClassName,
-                              lpWindowName,
-                              dwStylea,
-                              x,
-                              y,
-                              w,
-                              h,
-                              nullptr,
-                              nullptr,
-                              hInstance,
-                              nullptr);
+        lpClassName,
+        lpWindowName,
+        dwStylea,
+        x,
+        y,
+        w,
+        h,
+        nullptr,
+        nullptr,
+        hInstance,
+        nullptr);
 }
 
 //0x0081C140
@@ -2159,7 +2187,7 @@ void register_class_and_create_window(LPCSTR lpClassName, LPCSTR lpWindowName, i
 
     register_class(lpClassName, windowProc, hInstance, a9);
 
-    bool wnd = WINDOWED_MODE_WND_FIX?  !g_config.WindowedMode : true;
+    bool wnd = WINDOWED_MODE_WND_FIX ? !g_config.WindowedMode : true;
     create_window(lpClassName, lpWindowName, hInstance, X, Y, a5, a6, (int)wnd);
 }
 #if !STANDALONE_SYSTEM
@@ -2253,7 +2281,7 @@ LABEL_11:
 
     _fmode = dword_987BD8();
 
-    Var<int *(*) (void)> _p__commode{0x0086F240};
+    Var<int *(*)(void)> _p__commode{0x0086F240};
     *_p__commode()() = dword_987BD4();
 
     Var<DWORD> adjust_fdiv{0x0086F2BC};
@@ -2267,7 +2295,7 @@ LABEL_11:
     if (!dword_956284()) {
         Var<int (*)(DWORD)> _setusermatherr{0x0086F238};
 
-        _setusermatherr()((DWORD) sub_822858);
+        _setusermatherr()((DWORD)sub_822858);
     }
 
     auto _setdefaultprecision = []() -> unsigned int {
@@ -2316,7 +2344,7 @@ LABEL_11:
     for (i = _acmdln;; ++i) {
         v20 = i;
         auto v6 = *i;
-        if ((uint8_t) *i <= ' ' && (!v6 || !v21)) {
+        if ((uint8_t)*i <= ' ' && (!v6 || !v21)) {
             break;
         }
 
@@ -2358,26 +2386,26 @@ LABEL_11:
 
 static void *HookVTableFunction(void *pVTable, void *fnHookFunc, int nOffset)
 {
-    intptr_t ptrVtable = *((intptr_t *) pVTable); // Pointer to our chosen vtable
+    intptr_t ptrVtable = *((intptr_t *)pVTable);  // Pointer to our chosen vtable
     intptr_t ptrFunction =
         ptrVtable +
         sizeof(intptr_t) *
-            nOffset; // The offset to the function (remember it's a zero indexed array with a size of four bytes)
-    intptr_t ptrOriginal = *((intptr_t *) ptrFunction); // Save original address
+            nOffset;  // The offset to the function (remember it's a zero indexed array with a size of four bytes)
+    intptr_t ptrOriginal = *((intptr_t *)ptrFunction);  // Save original address
 
     // Edit the memory protection so we can modify it
     MEMORY_BASIC_INFORMATION mbi;
-    VirtualQuery((LPCVOID) ptrFunction, &mbi, sizeof(mbi));
+    VirtualQuery((LPCVOID)ptrFunction, &mbi, sizeof(mbi));
     VirtualProtect(mbi.BaseAddress, mbi.RegionSize, PAGE_EXECUTE_READWRITE, &mbi.Protect);
 
     // Overwrite the old function with our new one
-    *((intptr_t *) ptrFunction) = (intptr_t) fnHookFunc;
+    *((intptr_t *)ptrFunction) = (intptr_t)fnHookFunc;
 
     // Restore the protection
     VirtualProtect(mbi.BaseAddress, mbi.RegionSize, mbi.Protect, &mbi.Protect);
 
     // Return the original function address incase we want to call it
-    return (void *) ptrOriginal;
+    return (void *)ptrOriginal;
 }
 
 typedef enum {
@@ -2398,22 +2426,22 @@ uint32_t keys[256];
 
 void GetDeviceStateHandleKeyboardInput(LPVOID lpvData)
 {
-	BYTE* keysCurrent = (BYTE *) lpvData;
+    BYTE *keysCurrent = (BYTE *)lpvData;
 
-	for (auto i = 0u; i < 256u; ++i) {
-		if (keysCurrent[i] != 0) {
-			++keys[i];
-		} else {
-			keys[i] = 0;
-		}
-	}
+    for (auto i = 0u; i < 256u; ++i) {
+        if (keysCurrent[i] != 0) {
+            ++keys[i];
+        } else {
+            keys[i] = 0;
+        }
+    }
 }
 
 int debug_enabled = 0;
 
-int get_menu_key_value(MenuKey key, int keyboard) {
+int get_menu_key_value(MenuKey key, int keyboard)
+{
     if (keyboard) {
-
         int i = 0;
         switch (key) {
         case MENU_TOGGLE:
@@ -2450,15 +2478,18 @@ static constexpr DWORD MAX_ELEMENTS_PAGE = 18;
 void menu_setup(int game_state, int keyboard);
 void menu_input_handler(int keyboard, int SCROLL_SPEED);
 
-int is_menu_key_pressed(MenuKey key, int keyboard) {
+int is_menu_key_pressed(MenuKey key, int keyboard)
+{
     return (get_menu_key_value(key, keyboard) == 2);
 }
 
-int is_menu_key_clicked(MenuKey key, int keyboard) {
+int is_menu_key_clicked(MenuKey key, int keyboard)
+{
     return get_menu_key_value(key, keyboard);
 }
 
-DWORD modulo(int num, DWORD mod) {
+DWORD modulo(int num, DWORD mod)
+{
     if (num >= 0) {
         return num % mod;
     }
@@ -2470,17 +2501,14 @@ DWORD modulo(int num, DWORD mod) {
     return mod - absolute % mod;
 }
 
-void menu_go_down() {
-
+void menu_go_down()
+{
     if ((current_menu->window_start + MAX_ELEMENTS_PAGE) < current_menu->used_slots) {
-
         if (current_menu->cur_index < MAX_ELEMENTS_PAGE / 2)
             ++current_menu->cur_index;
         else
             ++current_menu->window_start;
-    }
-    else {
-
+    } else {
         int num_elements = std::min((DWORD)MAX_ELEMENTS_PAGE, current_menu->used_slots - current_menu->window_start);
         current_menu->cur_index = modulo(current_menu->cur_index + 1, num_elements);
         if (current_menu->cur_index == 0)
@@ -2488,28 +2516,24 @@ void menu_go_down() {
     }
 }
 
-void menu_go_up() {
-
+void menu_go_up()
+{
     if (current_menu->window_start) {
-
         if (current_menu->cur_index > MAX_ELEMENTS_PAGE / 2)
             current_menu->cur_index--;
         else
             current_menu->window_start--;
 
-    }
-    else {
-
+    } else {
         int num_elements = std::min(MAX_ELEMENTS_PAGE, current_menu->used_slots - current_menu->window_start);
         current_menu->cur_index = modulo(current_menu->cur_index - 1, num_elements);
         if (current_menu->cur_index == static_cast<DWORD>(num_elements - 1))
             current_menu->window_start = current_menu->used_slots - num_elements;
-
     }
-
 }
 
-void menu_input_handler(int keyboard, int SCROLL_SPEED) {
+void menu_input_handler(int keyboard, int SCROLL_SPEED)
+{
     if (current_menu == nullptr) {
         return;
     }
@@ -2522,62 +2546,51 @@ void menu_input_handler(int keyboard, int SCROLL_SPEED) {
     }
 
     if (is_menu_key_clicked(MENU_DOWN, keyboard)) {
-
         int key_val = get_menu_key_value(MENU_DOWN, keyboard);
         if (key_val == 1) {
             menu_go_down();
-        }
-        else if ((key_val >= SCROLL_SPEED) && (key_val % SCROLL_SPEED == 0)) {
+        } else if ((key_val >= SCROLL_SPEED) && (key_val % SCROLL_SPEED == 0)) {
             menu_go_down();
         }
-    }
-    else if (is_menu_key_clicked(MENU_UP, keyboard)) {
-
+    } else if (is_menu_key_clicked(MENU_UP, keyboard)) {
         int key_val = get_menu_key_value(MENU_UP, keyboard);
         if (key_val == 1) {
             menu_go_up();
-        }
-        else if ((key_val >= SCROLL_SPEED) && (key_val % SCROLL_SPEED == 0)) {
+        } else if ((key_val >= SCROLL_SPEED) && (key_val % SCROLL_SPEED == 0)) {
             menu_go_up();
         }
-    }
-    else if (is_menu_key_pressed(MENU_ACCEPT, keyboard))
-    {
-        auto* entry = &current_menu->entries[current_menu->window_start + current_menu->cur_index];
+    } else if (is_menu_key_pressed(MENU_ACCEPT, keyboard)) {
+        auto *entry = &current_menu->entries[current_menu->window_start + current_menu->cur_index];
         assert(entry != nullptr);
         entry->on_select(1.0);
         return;
-    }
-    else if (is_menu_key_pressed(MENU_BACK, keyboard)) {
+    } else if (is_menu_key_pressed(MENU_BACK, keyboard)) {
         current_menu->go_back();
         return;
-    }
-    else if (is_menu_key_pressed(MENU_LEFT, keyboard) || is_menu_key_pressed(MENU_RIGHT, keyboard)) {
-
-        debug_menu_entry* cur = &current_menu->entries[current_menu->window_start + current_menu->cur_index];
+    } else if (is_menu_key_pressed(MENU_LEFT, keyboard) || is_menu_key_pressed(MENU_RIGHT, keyboard)) {
+        debug_menu_entry *cur = &current_menu->entries[current_menu->window_start + current_menu->cur_index];
         if (is_menu_key_pressed(MENU_LEFT, keyboard)) {
             cur->on_change(-1.0, false);
-        }
-        else {
+        } else {
             cur->on_change(1.0, true);
         }
     }
 
-    debug_menu_entry* highlighted = &current_menu->entries[current_menu->window_start + current_menu->cur_index];
+    debug_menu_entry *highlighted = &current_menu->entries[current_menu->window_start + current_menu->cur_index];
     assert(highlighted->frame_advance_callback != nullptr);
     highlighted->frame_advance_callback(highlighted);
 }
 
-typedef int (__stdcall* GetDeviceState_ptr)(IDirectInputDevice8*, DWORD, LPVOID);
+typedef int(__stdcall *GetDeviceState_ptr)(IDirectInputDevice8 *, DWORD, LPVOID);
 GetDeviceState_ptr GetDeviceStateOriginal = nullptr;
 
 HRESULT __stdcall GetDeviceStateHook(IDirectInputDevice8 *self, DWORD cbData, LPVOID lpvData)
 {
-	HRESULT res = GetDeviceStateOriginal(self, cbData, lpvData);
+    HRESULT res = GetDeviceStateOriginal(self, cbData, lpvData);
 
     printf("cbData %d %d %d\n", int(cbData), sizeof(DIJOYSTATE), sizeof(DIJOYSTATE2));
 
-	//keyboard time babyyy
+    //keyboard time babyyy
     if (cbData == 256) {
         GetDeviceStateHandleKeyboardInput(lpvData);
     }
@@ -2626,8 +2639,7 @@ HRESULT __stdcall GetDeviceStateHook(IDirectInputDevice8 *self, DWORD cbData, LP
                     {DIK_7, '7'},
                     {DIK_8, '8'},
                     {DIK_9, '9'},
-                    {DIK_0, '0'}
-    };
+                    {DIK_0, '0'}};
 
     auto key_is_pressed = [](int i) -> bool {
         auto res = (keys[i] == 2);
@@ -2709,38 +2721,38 @@ HRESULT __stdcall GetDeviceStateHook(IDirectInputDevice8 *self, DWORD cbData, LP
         }
     }
 
-	if (g_console->isVisible()) {
+    if (g_console->isVisible()) {
         memset(lpvData, 0, cbData);
-	}
+    }
 
-	//printf("Device State called %08X %d\n", this, cbData);
+    //printf("Device State called %08X %d\n", this, cbData);
 
-	return res;
+    return res;
 }
 
-typedef HRESULT(__stdcall* GetDeviceData_ptr)(IDirectInputDevice8*, DWORD, LPDIDEVICEOBJECTDATA, LPDWORD, DWORD);
+typedef HRESULT(__stdcall *GetDeviceData_ptr)(IDirectInputDevice8 *, DWORD, LPDIDEVICEOBJECTDATA, LPDWORD, DWORD);
 GetDeviceData_ptr GetDeviceDataOriginal = nullptr;
 
 HRESULT __stdcall GetDeviceDataHook(IDirectInputDevice8 *self, DWORD cbObjectData, LPDIDEVICEOBJECTDATA rgdod,
                                     LPDWORD pdwInOut, DWORD dwFlags)
 {
-	HRESULT res = GetDeviceDataOriginal(self, cbObjectData, rgdod, pdwInOut, dwFlags);
+    HRESULT res = GetDeviceDataOriginal(self, cbObjectData, rgdod, pdwInOut, dwFlags);
 
-	printf("data\n");
-	if (res == DI_OK) {
-		printf("All gud\n");
-		for (auto i = 0u; i < *pdwInOut; ++i) {
-			if (LOBYTE(rgdod[i].dwData) > 0) {
-				if (rgdod[i].dwOfs == DIK_ESCAPE) {
-					printf("Pressed escaped\n");
-					__debugbreak();
-				}
-			}
-		}
-	}
-	//printf("Device Data called %08X\n", this);
+    printf("data\n");
+    if (res == DI_OK) {
+        printf("All gud\n");
+        for (auto i = 0u; i < *pdwInOut; ++i) {
+            if (LOBYTE(rgdod[i].dwData) > 0) {
+                if (rgdod[i].dwOfs == DIK_ESCAPE) {
+                    printf("Pressed escaped\n");
+                    __debugbreak();
+                }
+            }
+        }
+    }
+    //printf("Device Data called %08X\n", this);
 
-	return res;
+    return res;
 }
 
 typedef HRESULT(__stdcall *IDirectInput8CreateDevice_ptr)(IDirectInput8W *, const GUID *, LPDIRECTINPUTDEVICE8W *,
@@ -2750,8 +2762,8 @@ IDirectInput8CreateDevice_ptr createDeviceOriginal = nullptr;
 HRESULT __stdcall IDirectInput8CreateDeviceHook(IDirectInput8W *self, const GUID *guid, LPDIRECTINPUTDEVICE8W *device,
                                                 LPUNKNOWN unk)
 {
-	//printf("CreateDevice %d %d %d %d %d %d %d\n", *guid, GUID_SysMouse, GUID_SysKeyboard, GUID_SysKeyboardEm, GUID_SysKeyboardEm2, GUID_SysMouseEm, GUID_SysMouseEm2);
-	sp_log("Guid = {%08lX-%04hX-%04hX-%02hhX%02hhX-%02hhX%02hhX%02hhX%02hhX%02hhX%02hhX}\n",
+    //printf("CreateDevice %d %d %d %d %d %d %d\n", *guid, GUID_SysMouse, GUID_SysKeyboard, GUID_SysKeyboardEm, GUID_SysKeyboardEm2, GUID_SysMouseEm, GUID_SysMouseEm2);
+    sp_log("Guid = {%08lX-%04hX-%04hX-%02hhX%02hhX-%02hhX%02hhX%02hhX%02hhX%02hhX%02hhX}\n",
            guid->Data1,
            guid->Data2,
            guid->Data3,
@@ -2764,15 +2776,15 @@ HRESULT __stdcall IDirectInput8CreateDeviceHook(IDirectInput8W *self, const GUID
            guid->Data4[6],
            guid->Data4[7]);
 
-	HRESULT res = createDeviceOriginal(self, guid, device, unk);
+    HRESULT res = createDeviceOriginal(self, guid, device, unk);
 
-	if (IsEqualGUID(GUID_SysMouse, *guid))
-		return res; // ignore mouse
+    if (IsEqualGUID(GUID_SysMouse, *guid))
+        return res;  // ignore mouse
 
     if (IsEqualGUID(GUID_SysKeyboard, *guid)) {
-		sp_log("Found the keyboard");
+        sp_log("Found the keyboard");
     } else {
-		sp_log("Hooking something different...maybe a controller");
+        sp_log("Hooking something different...maybe a controller");
     }
 
     if (GetDeviceStateOriginal == nullptr) {
@@ -2783,7 +2795,7 @@ HRESULT __stdcall IDirectInput8CreateDeviceHook(IDirectInput8W *self, const GUID
         GetDeviceDataOriginal = (GetDeviceData_ptr)HookVTableFunction((void *)*device, (void *)GetDeviceDataHook, 10);
     }
 
-	return res;
+    return res;
 }
 
 typedef HRESULT(__stdcall *DirectInput8Create_ptr)(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID *ppvOut,
@@ -2791,17 +2803,17 @@ typedef HRESULT(__stdcall *DirectInput8Create_ptr)(HINSTANCE hinst, DWORD dwVers
 HRESULT __stdcall HookDirectInput8Create(HINSTANCE hinst, DWORD dwVersion, REFIID riidltf, LPVOID *ppvOut,
                                          LPUNKNOWN punkOuter)
 {
-	DirectInput8Create_ptr caller = (decltype(caller)) *(void**)0x00987944;
-	HRESULT res = caller(hinst, dwVersion, riidltf, ppvOut, punkOuter);
+    DirectInput8Create_ptr caller = (decltype(caller))*(void **)0x00987944;
+    HRESULT res = caller(hinst, dwVersion, riidltf, ppvOut, punkOuter);
 
-	IDirectInput8* iDir = (IDirectInput8 *) (*ppvOut);
+    IDirectInput8 *iDir = (IDirectInput8 *)(*ppvOut);
 
     if (createDeviceOriginal == nullptr) {
         createDeviceOriginal =
             (IDirectInput8CreateDevice_ptr)HookVTableFunction((void *)iDir, (void *)IDirectInput8CreateDeviceHook, 3);
     }
 
-	return res;
+    return res;
 }
 
 typedef void (*aeps_RenderAll_ptr)();
@@ -2821,83 +2833,83 @@ unsigned int nglColor(int r, int g, int b, int a)
 //typedef void (*nglSetClearFlags_ptr)(int);
 //nglSetClearFlags_ptr nglSetClearFlags = (nglSetClearFlags_ptr)0x00769DB0;
 
-void aeps_RenderAll() {
+void aeps_RenderAll()
+{
     static int cur_time = 0;
     int period = 60;
     int duration = 6 * period;
     float ratio = 1.f / period;
 
-    uint8_t red = color_ramp_function(ratio, period, cur_time + 2 * period) + color_ramp_function(ratio, period, cur_time - 4 * period);
+    uint8_t red = color_ramp_function(ratio, period, cur_time + 2 * period) +
+                  color_ramp_function(ratio, period, cur_time - 4 * period);
     uint8_t green = color_ramp_function(ratio, period, cur_time);
     uint8_t blue = color_ramp_function(ratio, period, cur_time - 2 * period);
 
-    nglListAddString(*nglSysFont, 0.1f, 0.2f, 0.2f, nglColor(red, green, blue, 255), 1.f, 1.f, "Krystalgamer's Debug menu");
+    nglListAddString(
+        *nglSysFont, 0.1f, 0.2f, 0.2f, nglColor(red, green, blue, 255), 1.f, 1.f, "Krystalgamer's Debug menu");
 
     cur_time = (cur_time + 1) % duration;
 
     aeps_RenderAll_orig();
 }
 
-void HookFunc(DWORD callAdd, DWORD funcAdd, BOOLEAN jump, const char* reason) {
-
+void HookFunc(DWORD callAdd, DWORD funcAdd, BOOLEAN jump, const char *reason)
+{
     //Only works for E8/E9 hooks
     DWORD jmpOff = funcAdd - callAdd - 5;
 
-    BYTE shellcode[] = { 0, 0, 0, 0, 0 };
+    BYTE shellcode[] = {0, 0, 0, 0, 0};
     shellcode[0] = jump ? 0xE9 : 0xE8;
 
     memcpy(&shellcode[1], &jmpOff, sizeof(jmpOff));
-    memcpy((void*)callAdd, shellcode, sizeof(shellcode));
+    memcpy((void *)callAdd, shellcode, sizeof(shellcode));
 
     if (reason)
         printf("Hook: %08lX -  %s\n", callAdd, reason);
-
 }
 
 #include "script_lib_debug_menu.h"
-typedef int (*script_manager_register_allocated_stuff_callback_ptr)(void* func);
-script_manager_register_allocated_stuff_callback_ptr script_manager_register_allocated_stuff_callback = (script_manager_register_allocated_stuff_callback_ptr)0x005AFE40;
+typedef int (*script_manager_register_allocated_stuff_callback_ptr)(void *func);
+script_manager_register_allocated_stuff_callback_ptr script_manager_register_allocated_stuff_callback =
+    (script_manager_register_allocated_stuff_callback_ptr)0x005AFE40;
 
 typedef int (*construct_client_script_libs_ptr)();
 construct_client_script_libs_ptr construct_client_script_libs = (construct_client_script_libs_ptr)0x0058F9C0;
 typedef struct _list {
-    struct _list* next;
-    struct _list* prev;
-    void* data;
-}list;
+    struct _list *next;
+    struct _list *prev;
+    void *data;
+} list;
 
 #include "levelmenu.h"
-debug_menu* game_menu = nullptr;
-debug_menu* missions_menu = nullptr;
-debug_menu* script_menu = nullptr;
-debug_menu* progression_menu = nullptr;
-debug_menu* level_select_menu = nullptr;
-debug_menu* dvars_menu  = nullptr;
+debug_menu *game_menu = nullptr;
+debug_menu *missions_menu = nullptr;
+debug_menu *script_menu = nullptr;
+debug_menu *progression_menu = nullptr;
+debug_menu *level_select_menu = nullptr;
+debug_menu *dvars_menu = nullptr;
 #ifdef TARGET_XBOX
-    debug_menu* replay_menu  = nullptr;
+debug_menu *replay_menu = nullptr;
 #endif
-debug_menu* entity_variants_menu  = nullptr;
+debug_menu *entity_variants_menu = nullptr;
 
-debug_menu** all_menus[] = {
-    &debug_menu::root_menu,
-    &game_menu,
-    &missions_menu,
-    &script_menu,
-    &progression_menu,
-    &level_select_menu,
-    &dvars_menu,
+debug_menu **all_menus[] = {&debug_menu::root_menu,
+                            &game_menu,
+                            &missions_menu,
+                            &script_menu,
+                            &progression_menu,
+                            &level_select_menu,
+                            &dvars_menu,
 #ifdef TARGET_XBOX
-    &replay_menu,
+                            &replay_menu,
 #endif
-    &entity_variants_menu
-};
+                            &entity_variants_menu};
 
-void remove_debug_menu_entry(debug_menu_entry* entry) {
-
+void remove_debug_menu_entry(debug_menu_entry *entry)
+{
     DWORD to_be = (DWORD)entry;
-    for (auto i = 0u; i < (sizeof(all_menus) / sizeof(void*)); ++i) {
-
-        debug_menu* cur = *all_menus[i];
+    for (auto i = 0u; i < (sizeof(all_menus) / sizeof(void *)); ++i) {
+        debug_menu *cur = *all_menus[i];
 
         if (cur == nullptr || cur->entries == nullptr || cur->used_slots <= 0) {
             continue;
@@ -2907,168 +2919,154 @@ void remove_debug_menu_entry(debug_menu_entry* entry) {
         DWORD end = start + cur->used_slots * sizeof(debug_menu_entry);
 
         if (start <= to_be && to_be < end) {
-
             int index = (to_be - start) / sizeof(debug_menu_entry);
 
             const int remaining = cur->used_slots - index - 1;
             if (remaining > 0) {
-                memmove(
-                    &cur->entries[index],
-                    &cur->entries[index + 1],
-                    remaining * sizeof(debug_menu_entry));
+                memmove(&cur->entries[index], &cur->entries[index + 1], remaining * sizeof(debug_menu_entry));
             }
 
             cur->entries[cur->used_slots - 1] = debug_menu_entry{};
             cur->used_slots--;
             return;
         }
-
     }
 
     printf("FAILED TO DEALLOCATE AN ENTRY :S %p\n", static_cast<void *>(entry));
-
 }
 
-void vm_debug_menu_entry_garbage_collection_callback(void*, list* lst) {
+void vm_debug_menu_entry_garbage_collection_callback(void *, list *lst)
+{
+    list *end = lst->prev;
 
-    list* end = lst->prev;
-
-    for (list* cur = end->next; cur != end; cur = cur->next) {
-
-        debug_menu_entry* entry = ((debug_menu_entry*)cur->data);
+    for (list *cur = end->next; cur != end; cur = cur->next) {
+        debug_menu_entry *entry = ((debug_menu_entry *)cur->data);
         //printf("Will delete %s %08X\n", entry->text, entry);
         remove_debug_menu_entry(entry);
     }
 }
 
-int construct_client_script_libs_hook() {
+int construct_client_script_libs_hook()
+{
     if (vm_debug_menu_entry_garbage_collection_id == -1) {
-        int res = script_manager_register_allocated_stuff_callback((void*)vm_debug_menu_entry_garbage_collection_callback);
+        int res =
+            script_manager_register_allocated_stuff_callback((void *)vm_debug_menu_entry_garbage_collection_callback);
         vm_debug_menu_entry_garbage_collection_id = res;
     }
     return construct_client_script_libs();
 }
 
-inline void nglGetStringDimensions(nglFont* Font, const char* a2, int* a3, int* a4, Float a5, Float a6) {
+inline void nglGetStringDimensions(nglFont *Font, const char *a2, int *a3, int *a4, Float a5, Float a6)
+{
     CDECL_CALL(0x007798E0, Font, a2, a3, a4, a5, a6);
 }
-void getStringDimensions(const char* str, int* width, int* height) {
+void getStringDimensions(const char *str, int *width, int *height)
+{
     nglGetStringDimensions(*nglSysFont, str, width, height, 1.0, 1.0);
 }
 
-int getStringHeight(const char* str) {
+int getStringHeight(const char *str)
+{
     int height;
     nglGetStringDimensions(nglSysFont(), str, nullptr, &height, 1.0, 1.0);
     return height;
 }
 
-std::string getRealText(debug_menu_entry* entry) {
+std::string getRealText(debug_menu_entry *entry)
+{
     assert(entry->render_callback != nullptr);
 
     auto v1 = entry->render_callback(entry);
 
     char a2a[256]{};
     if (v1.size() != 0) {
-        auto* v7 = v1.c_str();
-        auto* v4 = entry->text;
+        auto *v7 = v1.c_str();
+        auto *v4 = entry->text;
         snprintf(a2a, 255u, "%s: %s", v4, v7);
-    }
-    else {
-        auto* v5 = entry->text;
+    } else {
+        auto *v5 = entry->text;
         snprintf(a2a, 255u, "%s", v5);
     }
 
-    return { a2a };
+    return {a2a};
 }
-void handle_debug_entry(debug_menu_entry* entry, custom_key_type) {
+void handle_debug_entry(debug_menu_entry *entry, custom_key_type)
+{
     current_menu = entry->m_value.p_menu;
 }
 
 // AI
 
-static ai::ai_core* debug_menu_ai_core = nullptr;
+static ai::ai_core *debug_menu_ai_core = nullptr;
 
-static const char* TYPE_NAME_ARRAY[8]{
-    "float",
-    "int",
-    "string_hash",
-    "fixedstring",
-    "vector3d",
-    "float_variance",
-    "entity",
-    "pointer"
-};
+static const char *TYPE_NAME_ARRAY[8]{
+    "float", "int", "string_hash", "fixedstring", "vector3d", "float_variance", "entity", "pointer"};
 
-void handle_export_block(debug_menu_entry* arg0)
+void handle_export_block(debug_menu_entry *arg0)
 {
-    auto* the_pb = static_cast<ai::param_block*>(arg0->get_data());
+    auto *the_pb = static_cast<ai::param_block *>(arg0->get_data());
     assert(the_pb != nullptr);
 
-    auto* v2 = debug_menu_ai_core->get_actor(0);
+    auto *v2 = debug_menu_ai_core->get_actor(0);
     auto id = v2->get_id();
     auto v4 = id.to_string();
-    mString a1{ 0, "param_dump_%s.txt", v4 };
-    os_file file{ a1, 2 };
+    mString a1{0, "param_dump_%s.txt", v4};
+    os_file file{a1, 2};
     mString v32{};
 
-    auto* v31 = the_pb->param_array;
-    if (v31 != nullptr)
-    {
-        auto* v8 = id.to_string();
-        v32 = mString{ 0, "// Parameter list for %s\r\n", v8 };
+    auto *v31 = the_pb->param_array;
+    if (v31 != nullptr) {
+        auto *v8 = id.to_string();
+        v32 = mString{0, "// Parameter list for %s\r\n", v8};
         auto v14 = v32.length();
-        auto* v9 = v32.c_str();
+        auto *v9 = v32.c_str();
         file.write(v9, v14);
 
-        for (auto& v28 : v31->field_0)
-        {
+        for (auto &v28 : v31->field_0) {
             auto v21 = v28->get_value_in_string_form();
             auto v19 = v28->m_name;
 
             auto v15 = v21.c_str();
-            auto* v13 = v19.to_string();
+            auto *v13 = v19.to_string();
             auto data_type = v28->get_data_type();
-            v32 = mString{ 0, "%s %s %s\r\n", TYPE_NAME_ARRAY[data_type], v13, v15 };
+            v32 = mString{0, "%s %s %s\r\n", TYPE_NAME_ARRAY[data_type], v13, v15};
             auto v16 = v32.length();
-            auto* v11 = v32.c_str();
+            auto *v11 = v32.c_str();
             file.write(v11, v16);
         }
-    }
-    else
-    {
-        v32 = mString{ "// no parameters defined in this block.\r\n" };
+    } else {
+        v32 = mString{"// no parameters defined in this block.\r\n"};
         auto v17 = v32.length();
-        auto* v12 = v32.c_str();
+        auto *v12 = v32.c_str();
         file.write(v12, v17);
     }
 
     debug_menu::hide();
 }
 
-std::string ai_param_render_callback(debug_menu_entry* a2)
+std::string ai_param_render_callback(debug_menu_entry *a2)
 {
     using namespace ai;
 
     mString result{};
 
-    auto* the_data = static_cast<ai::param_block::param_data*>(a2->get_data());
+    auto *the_data = static_cast<ai::param_block::param_data *>(a2->get_data());
     assert(the_data != nullptr);
 
-    switch (the_data->get_data_type())
-    {
+    switch (the_data->get_data_type()) {
     case PT_STRING_HASH: {
         auto v19 = the_data->get_data_hash();
         auto v18 = the_data->m_name;
-        auto* v15 = v19.to_string();
-        auto* v2 = v18.to_string();
-        result = mString{ 0, "%s %s (hash)", v2, v15 };
+        auto *v15 = v19.to_string();
+        auto *v2 = v18.to_string();
+        result = mString{0, "%s %s (hash)", v2, v15};
         break;
     }
     case PT_FIXED_STRING: {
         auto v20 = the_data->m_name;
-        auto* v16 = the_data->get_data_string();
+        auto *v16 = the_data->get_data_string();
         auto v4 = v20.to_string();
-        result = mString{ 0, "%s %s (fixedstring)", v4, v16 };
+        result = mString{0, "%s %s (fixedstring)", v4, v16};
         break;
     }
     case PT_VECTOR_3D: {
@@ -3077,8 +3075,8 @@ std::string ai_param_render_callback(debug_menu_entry* a2)
         auto v13 = v32[2];
         auto v11 = v32[1];
         auto v10 = v32[0];
-        auto* v6 = v21.to_string();
-        result = mString{ 0, "%s (%.2f %.2f %.2f) (vector3d)", v6, v10, v11, v13 };
+        auto *v6 = v21.to_string();
+        result = mString{0, "%s (%.2f %.2f %.2f) (vector3d)", v6, v10, v11, v13};
         break;
     }
     case PT_FLOAT_VARIANCE: {
@@ -3086,14 +3084,14 @@ std::string ai_param_render_callback(debug_menu_entry* a2)
         auto v22 = the_data->m_name;
         auto v14 = v31.field_4;
         auto v12 = v31.field_0;
-        auto* v8 = v22.to_string();
-        result = mString{ 0, "%s (b%.2f v%.2f) (float variance)", v8, v12, v14 };
+        auto *v8 = v22.to_string();
+        result = mString{0, "%s (b%.2f v%.2f) (float variance)", v8, v12, v14};
         break;
     }
     default: {
         auto v23 = the_data->m_name;
         auto data_type = the_data->get_data_type();
-        auto* v9 = v23.to_string();
+        auto *v9 = v23.to_string();
         printf("Unsupported param data type for %s %d.  This code needs to be updated\n", v9, data_type);
         assert(0);
         return result.c_str();
@@ -3103,33 +3101,30 @@ std::string ai_param_render_callback(debug_menu_entry* a2)
     return result.c_str();
 }
 
-void populate_param_block(debug_menu_entry* a2)
+void populate_param_block(debug_menu_entry *a2)
 {
     using namespace ai;
 
-    auto* the_pb = static_cast<ai::param_block*>(a2->get_data());
+    auto *the_pb = static_cast<ai::param_block *>(a2->get_data());
     assert(the_pb != nullptr);
 
     auto name_menu = a2->get_script_handler();
-    auto* v26 = create_menu(name_menu.c_str(), debug_menu::sort_mode_t::ascending);
+    auto *v26 = create_menu(name_menu.c_str(), debug_menu::sort_mode_t::ascending);
     a2->set_submenu(v26);
 
-    debug_menu_entry* v27 = nullptr;
-    auto* v25 = the_pb->param_array;
-    if (v25 != nullptr)
-    {
-        for (auto& v22 : v25->field_0)
-        {
+    debug_menu_entry *v27 = nullptr;
+    auto *v25 = the_pb->param_array;
+    if (v25 != nullptr) {
+        for (auto &v22 : v25->field_0) {
             auto data_hash = v22->m_name;
-            auto* v2 = data_hash.to_string();
-            mString a1{ 0, "%s", v2 };
+            auto *v2 = data_hash.to_string();
+            mString a1{0, "%s", v2};
 
-            debug_menu_entry v27{ a1 };
+            debug_menu_entry v27{a1};
 
-            switch (v22->get_data_type())
-            {
+            switch (v22->get_data_type()) {
             case PT_FLOAT: {
-                auto* v3 = bit_cast<float*>(v22);
+                auto *v3 = bit_cast<float *>(v22);
 
                 v27.set_pt_fval(v3);
                 v27.set_step_size(0.30000001);
@@ -3139,7 +3134,7 @@ void populate_param_block(debug_menu_entry* a2)
                 break;
             }
             case PT_INTEGER: {
-                auto* v4 = bit_cast<int*>(v22);
+                auto *v4 = bit_cast<int *>(v22);
 
                 v27.set_p_ival(v4);
                 v27.set_max_value(2147483600.0);
@@ -3163,48 +3158,44 @@ void populate_param_block(debug_menu_entry* a2)
             v26->add_entry(&v27);
         }
 
-        v27 = create_menu_entry(mString{ "--Export this block--" });
+        v27 = create_menu_entry(mString{"--Export this block--"});
         v27->set_game_flags_handler(handle_export_block);
         v27->set_data(the_pb);
-    }
-    else
-    {
-        v27 = create_menu_entry(mString{ "--None defined--" });
+    } else {
+        v27 = create_menu_entry(mString{"--None defined--"});
     }
 
     v26->add_entry(v27);
 }
 
-void ai_core_menu_handler(debug_menu_entry* a2)
+void ai_core_menu_handler(debug_menu_entry *a2)
 {
-    auto* the_core = static_cast<ai::ai_core*>(a2->get_data());
+    auto *the_core = static_cast<ai::ai_core *>(a2->get_data());
     assert(the_core != nullptr);
 
     debug_menu_ai_core = the_core;
 
     auto name_menu = a2->get_script_handler();
-    auto* v21 = create_menu(name_menu.c_str(), debug_menu::sort_mode_t::ascending);
+    auto *v21 = create_menu(name_menu.c_str(), debug_menu::sort_mode_t::ascending);
     a2->set_submenu(v21);
 
-    debug_menu_entry v20{ mString {"-Core params"} };
+    debug_menu_entry v20{mString{"-Core params"}};
     v20.set_submenu(nullptr);
     v20.set_game_flags_handler(populate_param_block);
-    auto* v2 = the_core->get_param_block();
+    auto *v2 = the_core->get_param_block();
     v20.set_data(v2);
     v21->add_entry(&v20);
 
-    auto* v19 = the_core->my_info_node_list;
-    if (v19 != nullptr)
-    {
-        for (auto& v16 : (*v19))
-        {
+    auto *v19 = the_core->my_info_node_list;
+    if (v19 != nullptr) {
+        for (auto &v16 : (*v19)) {
             auto v5 = v16->field_4;
-            auto* v3 = v5.to_string();
+            auto *v3 = v5.to_string();
 
-            debug_menu_entry v20{ mString {0, "%s inode params", v3} };
+            debug_menu_entry v20{mString{0, "%s inode params", v3}};
             v20.set_submenu(nullptr);
             v20.set_game_flags_handler(populate_param_block);
-            auto& v4 = v16->my_param_block;
+            auto &v4 = v16->my_param_block;
             v20.set_data(&v4);
             v21->add_entry(&v20);
         }
@@ -3212,24 +3203,21 @@ void ai_core_menu_handler(debug_menu_entry* a2)
 }
 
 #include "entity_base.h"
-void populate_ai_root(debug_menu_entry* arg0)
+void populate_ai_root(debug_menu_entry *arg0)
 {
     auto name_menu = arg0->get_script_handler();
-    debug_menu* v20 = create_menu(name_menu.c_str(), debug_menu::sort_mode_t::undefined);
+    debug_menu *v20 = create_menu(name_menu.c_str(), debug_menu::sort_mode_t::undefined);
     arg0->set_submenu(v20);
 
-    static auto* g_the_ai_core_list = ai::ai_core::the_ai_core_list_high;
+    static auto *g_the_ai_core_list = ai::ai_core::the_ai_core_list_high;
 
-    if (g_the_ai_core_list != nullptr)
-    {
-        for (auto& v17 : (*g_the_ai_core_list))
-        {
-            auto* v3 = v17->get_actor(0);
-            if (!v3->is_flagged(0x800u))
-            {
+    if (g_the_ai_core_list != nullptr) {
+        for (auto &v17 : (*g_the_ai_core_list)) {
+            auto *v3 = v17->get_actor(0);
+            if (!v3->is_flagged(0x800u)) {
                 auto id = v3->get_id();
-                auto* v7 = id.to_string();
-                debug_menu_entry v16{ mString {v7} };
+                auto *v7 = id.to_string();
+                debug_menu_entry v16{mString{v7}};
 
                 v16.set_data(v17);
                 v16.set_submenu(nullptr);
@@ -3240,11 +3228,11 @@ void populate_ai_root(debug_menu_entry* arg0)
     }
 }
 
-void create_ai_root_menu(debug_menu* parent)
+void create_ai_root_menu(debug_menu *parent)
 {
     assert(parent != nullptr);
 
-    debug_menu_entry v5{ mString {"AI"} };
+    debug_menu_entry v5{mString{"AI"}};
     v5.set_submenu(nullptr);
     v5.set_game_flags_handler(populate_ai_root);
     parent->add_entry(&v5);
@@ -3252,54 +3240,53 @@ void create_ai_root_menu(debug_menu* parent)
 
 // Memory
 
-int g_mem_checkpoint_debug_0{ -1 };
+int g_mem_checkpoint_debug_0{-1};
 
-void set_memtrack_checkpoint(debug_menu_entry*)
+void set_memtrack_checkpoint(debug_menu_entry *)
 {
     g_mem_checkpoint_debug_0 = mem_set_checkpoint();
     debug_menu::hide();
 }
 
-void dump_memtrack_data(debug_menu_entry*)
+void dump_memtrack_data(debug_menu_entry *)
 {
     mem_check_leaks_since_checkpoint(g_mem_checkpoint_debug_0, 1u);
     mem_print_stats("\nMemory log\n");
     debug_menu::hide();
 }
 
-void create_memory_menu(debug_menu* parent)
+void create_memory_menu(debug_menu *parent)
 {
-    auto* memory_menu = create_menu("Memory", debug_menu::sort_mode_t::undefined);
-    auto* v2 = create_menu_entry(memory_menu);
+    auto *memory_menu = create_menu("Memory", debug_menu::sort_mode_t::undefined);
+    auto *v2 = create_menu_entry(memory_menu);
     parent->add_entry(v2);
 
     script_memtrack::create_debug_menu(memory_menu);
 
-    auto* entry = create_menu_entry(mString{ "Dump MemTrack Data Since Last Checkpoint" });
+    auto *entry = create_menu_entry(mString{"Dump MemTrack Data Since Last Checkpoint"});
     entry->set_game_flags_handler(dump_memtrack_data);
     memory_menu->add_entry(entry);
 
-    entry = create_menu_entry(mString{ "Set MemTrack Checkpoint" });
+    entry = create_menu_entry(mString{"Set MemTrack Checkpoint"});
     entry->set_game_flags_handler(set_memtrack_checkpoint);
     memory_menu->add_entry(entry);
 
     slab_allocator::create_slab_debug_menu(memory_menu);
 }
 
-// Entity Animation 
+// Entity Animation
 
-void entity_animation_handler(debug_menu_entry* entry)
+void entity_animation_handler(debug_menu_entry *entry)
 {
     printf("handle_animation_entry\n");
 
-    auto* v7 = static_cast<entity*>(entry->data1);
-    if (v7 != nullptr && v7->is_an_actor())
-    {
-        auto* v6 = (actor*)v7;
-        auto* context = v6->m_resource_context;
+    auto *v7 = static_cast<entity *>(entry->data1);
+    if (v7 != nullptr && v7->is_an_actor()) {
+        auto *v6 = (actor *)v7;
+        auto *context = v6->m_resource_context;
         assert(context != nullptr);
 
-        string_hash v4{ entry->text };
+        string_hash v4{entry->text};
         resource_manager::push_resource_context(context);
 
         auto v3 = v6->play_anim(v4);
@@ -3309,25 +3296,23 @@ void entity_animation_handler(debug_menu_entry* entry)
     }
 }
 
-void sub_6918AD(debug_menu_entry* entry)
+void sub_6918AD(debug_menu_entry *entry)
 {
-    auto* e = static_cast<entity*>(entry->data1);
-    if (e->is_an_actor())
-    {
-        auto* a1 = create_menu(entry->text);
+    auto *e = static_cast<entity *>(entry->data1);
+    if (e->is_an_actor()) {
+        auto *a1 = create_menu(entry->text);
         entry->set_submenu(a1);
-        auto* v18 = (actor*)e;
+        auto *v18 = (actor *)e;
 
-        std::list<nalAnimClass<nalAnyPose>*> v17;
-        actor::get_animations(v18,v17);
+        std::list<nalAnimClass<nalAnyPose> *> v17;
+        actor::get_animations(v18, v17);
 
-        for (auto* v15 : v17)
-        {
-            auto& v3 = v15->field_8;
-            auto* v4 = v3.to_string();
-            mString v14{ v4 };
+        for (auto *v15 : v17) {
+            auto &v3 = v15->field_8;
+            auto *v4 = v3.to_string();
+            mString v14{v4};
 
-            debug_menu_entry v13{ v14 };
+            debug_menu_entry v13{v14};
             v13.data1 = entry->data1;
             v13.set_game_flags_handler(entity_animation_handler);
             a1->add_entry(&v13);
@@ -3335,28 +3320,25 @@ void sub_6918AD(debug_menu_entry* entry)
     }
 }
 
-void populate_entity_animation_menu(debug_menu_entry* entry)
+void populate_entity_animation_menu(debug_menu_entry *entry)
 {
-    auto* v26 = create_menu(entry->text);
+    auto *v26 = create_menu(entry->text);
     entry->set_submenu(v26);
     entity::find_entities(1);
 
-    Var<_std::list<entity*>*> found_entities_{ 0x0095A6E0 };
-    auto& found_entities = (*found_entities_());
-    for (auto* ent : found_entities)
-    {
-        if (ent->is_an_actor())
-        {
-            auto* v23 = (actor*)ent;
-            std::list<nalAnimClass<nalAnyPose>*> v22;
+    Var<_std::list<entity *> *> found_entities_{0x0095A6E0};
+    auto &found_entities = (*found_entities_());
+    for (auto *ent : found_entities) {
+        if (ent->is_an_actor()) {
+            auto *v23 = (actor *)ent;
+            std::list<nalAnimClass<nalAnyPose> *> v22;
             actor::get_animations(v23, v22);
-            if (!v22.empty())
-            {
+            if (!v22.empty()) {
                 auto id = v23->get_id();
-                auto* v4 = id.to_string();
-                mString v14{ v4 };
+                auto *v4 = id.to_string();
+                mString v14{v4};
 
-                debug_menu_entry v21{ v14 };
+                debug_menu_entry v21{v14};
 
                 v21.set_game_flags_handler(sub_6918AD);
                 v21.data1 = ent;
@@ -3367,9 +3349,9 @@ void populate_entity_animation_menu(debug_menu_entry* entry)
     }
 }
 
-void create_entity_animation_menu(debug_menu* parent)
+void create_entity_animation_menu(debug_menu *parent)
 {
-    debug_menu_entry v5{ mString{"Entity Animations"} };
+    debug_menu_entry v5{mString{"Entity Animations"}};
 
     v5.set_submenu(nullptr);
     v5.set_game_flags_handler(populate_entity_animation_menu);
@@ -3380,19 +3362,16 @@ void create_entity_animation_menu(debug_menu* parent)
 
 #ifdef TARGET_XBOX
 #include "rtdt_replay_mgr.h"
-bool sub_6694CA(rtdt_replay_mgr* instance)
+bool sub_6694CA(rtdt_replay_mgr *instance)
 {
     g_game_ptr->enable_physics(false);
     return true;
 }
 
-void sub_66ADD4(rtdt_replay_mgr* instance, int flag)
-{
-}
+void sub_66ADD4(rtdt_replay_mgr *instance, int flag) {}
 
-void replay_handler(debug_menu_entry* entry)
+void replay_handler(debug_menu_entry *entry)
 {
-
     if (entry->get_id() == 0) {
         auto instance = rtdt_replay_mgr::m_instance;
 
@@ -3409,24 +3388,23 @@ void replay_handler(debug_menu_entry* entry)
     }
 }
 
-void populate_replay_menu(debug_menu_entry* entry)
+void populate_replay_menu(debug_menu_entry *entry)
 {
-
-    auto* head_menu = create_menu("Replay", debug_menu::sort_mode_t::ascending);
+    auto *head_menu = create_menu("Replay", debug_menu::sort_mode_t::ascending);
     entry->set_submenu(head_menu);
 
-    mString v25{ "Start" };
-    debug_menu_entry v38{ v25.c_str() };
+    mString v25{"Start"};
+    debug_menu_entry v38{v25.c_str()};
 
     v38.set_game_flags_handler(replay_handler);
 
     head_menu->add_entry(&v38);
 }
 
-void create_replay_menu(debug_menu* parent)
+void create_replay_menu(debug_menu *parent)
 {
     replay_menu = create_menu("Replay");
-    auto* v2 = create_menu_entry(replay_menu);
+    auto *v2 = create_menu_entry(replay_menu);
     v2->set_game_flags_handler(populate_replay_menu);
     parent->add_entry(v2);
 }
@@ -3439,21 +3417,21 @@ void create_replay_menu(debug_menu* parent)
 #include "entity.h"
 #include "variant_interface.h"
 
-void apply_variant_handler(debug_menu_entry* entry)
+void apply_variant_handler(debug_menu_entry *entry)
 {
-    if (auto c = static_cast<conglomerate*>(entry->m_data)) {
+    if (auto c = static_cast<conglomerate *>(entry->m_data)) {
         if (auto ifc = c->m_variant_interface) {
-            string_hash hash{ entry->text };
+            string_hash hash{entry->text};
             ifc->apply_variant(hash);
         }
     }
 }
-void populate_variants_menu(debug_menu_entry* entry)
+void populate_variants_menu(debug_menu_entry *entry)
 {
-    auto* menu = create_menu(entry->text, debug_menu::sort_mode_t::ascending);
+    auto *menu = create_menu(entry->text, debug_menu::sort_mode_t::ascending);
     entry->set_submenu(menu);
 
-    auto c = static_cast<conglomerate*>(entry->m_data);
+    auto c = static_cast<conglomerate *>(entry->m_data);
     auto vi = c->m_variant_interface;
     for (int i = 0; i < vi->variants.size(); ++i) {
         string_hash sss(vi->variants.m_data[i].hash);
@@ -3466,14 +3444,15 @@ void populate_variants_menu(debug_menu_entry* entry)
     }
 }
 
-void populate_entity_variants_menu(debug_menu_entry* entry) {
-    auto* submenu = create_menu("Entity Variants", debug_menu::sort_mode_t::ascending);
+void populate_entity_variants_menu(debug_menu_entry *entry)
+{
+    auto *submenu = create_menu("Entity Variants", debug_menu::sort_mode_t::ascending);
     entry->set_submenu(submenu);
 
     entity::find_entities(256);
 
-    _std::list<entity*> entities = *entity::found_entities;
-    for (auto& entity : entities) {
+    _std::list<entity *> entities = *entity::found_entities;
+    for (auto &entity : entities) {
         auto entityName = entity->get_id().to_string();
         auto entityEntry = create_menu_entry(entityName);
         entityEntry->set_game_flags_handler(populate_variants_menu);
@@ -3483,7 +3462,8 @@ void populate_entity_variants_menu(debug_menu_entry* entry) {
     }
 }
 
-void create_entity_variants_menu(debug_menu* parent) {
+void create_entity_variants_menu(debug_menu *parent)
+{
     auto menu = create_menu("Entity Variants");
     auto entry = create_menu_entry(menu);
     entry->set_submenu(nullptr);
@@ -3515,53 +3495,52 @@ static auto _g_snow_balling = Var<float>(0x0091F6DC);
 
 static auto _g_jump_cap_vel = Var<float>(0x0091F6E0);
 
-void populate_dvars(debug_menu_entry* entry)
+void populate_dvars(debug_menu_entry *entry)
 {
-
-    auto* v7 = create_menu("Dvars", debug_menu::sort_mode_t::undefined);
+    auto *v7 = create_menu("Dvars", debug_menu::sort_mode_t::undefined);
     entry->set_submenu(v7);
 
-    auto* base_factor = create_menu_entry(mString{ "base_factor" });
-    const float v10[4]{ -1000.0, 1000.0, 0.5, 10.0 };
+    auto *base_factor = create_menu_entry(mString{"base_factor"});
+    const float v10[4]{-1000.0, 1000.0, 0.5, 10.0};
     base_factor->set_fl_values(v10);
     base_factor->set_pt_fval(&_g_base_factor());
     v7->add_entry(base_factor);
 
-    auto* camera_min_dist = create_menu_entry(mString{ "camera_min_dist" });
-    const float v5[4]{ -1000.0, 1000.0, 0.5, 10.0 };
+    auto *camera_min_dist = create_menu_entry(mString{"camera_min_dist"});
+    const float v5[4]{-1000.0, 1000.0, 0.5, 10.0};
     camera_min_dist->set_fl_values(v5);
     camera_min_dist->set_pt_fval(&_g_camera_min_dist());
     v7->add_entry(camera_min_dist);
 
-    auto* camera_max_dist = create_menu_entry(mString{ "camera_max_dist" });
-    const float v6[4]{ -1000.0, 1000.0, 0.5, 10.0 };
+    auto *camera_max_dist = create_menu_entry(mString{"camera_max_dist"});
+    const float v6[4]{-1000.0, 1000.0, 0.5, 10.0};
     camera_max_dist->set_fl_values(v6);
     camera_max_dist->set_pt_fval(&_g_camera_max_dist());
     v7->add_entry(camera_max_dist);
 
-    auto* camera_supermax_dist = create_menu_entry(mString{ "camera_supermax_dist" });
-    const float v9[4]{ -1000.0, 1000.0, 0.5, 10.0 };
+    auto *camera_supermax_dist = create_menu_entry(mString{"camera_supermax_dist"});
+    const float v9[4]{-1000.0, 1000.0, 0.5, 10.0};
     camera_supermax_dist->set_fl_values(v9);
     camera_supermax_dist->set_pt_fval(&_g_camera_supermax_dist());
     v7->add_entry(camera_supermax_dist);
 
-    auto* jump_cap_vel = create_menu_entry(mString{ "jump_cap_vel" });
-    const float v11[4]{ -1000.0, 1000.0, 0.5, 10.0 };
+    auto *jump_cap_vel = create_menu_entry(mString{"jump_cap_vel"});
+    const float v11[4]{-1000.0, 1000.0, 0.5, 10.0};
     jump_cap_vel->set_fl_values(v11);
     jump_cap_vel->set_pt_fval(&_g_jump_cap_vel());
     v7->add_entry(jump_cap_vel);
 
-    auto* snow_balling = create_menu_entry(mString{ "snow_balling" });
-    const float v12[4]{ -1000.0, 1000.0, 0.5, 10.0 };
+    auto *snow_balling = create_menu_entry(mString{"snow_balling"});
+    const float v12[4]{-1000.0, 1000.0, 0.5, 10.0};
     snow_balling->set_fl_values(v12);
     snow_balling->set_pt_fval(&_g_snow_balling());
     v7->add_entry(snow_balling);
 }
 
-void create_dvars_menu(debug_menu* arg0)
+void create_dvars_menu(debug_menu *arg0)
 {
     dvars_menu = create_menu("Dvars");
-    auto* v2 = create_menu_entry(dvars_menu);
+    auto *v2 = create_menu_entry(dvars_menu);
     v2->set_game_flags_handler(populate_dvars);
     arg0->add_entry(v2);
 }
@@ -3572,7 +3551,8 @@ void create_dvars_menu(debug_menu* arg0)
 // Debug Menu
 // ----------------------------------------------------------------------------------
 
-void debug_menu::init() {
+void debug_menu::init()
+{
     root_menu = create_menu("Debug Menu", handle_debug_entry, 10);
     game_menu = create_menu("Game", handle_game_entry, 300);
     missions_menu = create_menu("Missions");
@@ -3580,11 +3560,11 @@ void debug_menu::init() {
     progression_menu = create_menu("Progression");
     level_select_menu = create_menu("Level Select");
 
-    debug_menu_entry game_entry{ game_menu };
-    debug_menu_entry missions_entry{ missions_menu };
-    debug_menu_entry script_entry{ script_menu };
-    debug_menu_entry progression_entry{ progression_menu };
-    debug_menu_entry level_select_entry{ level_select_menu };
+    debug_menu_entry game_entry{game_menu};
+    debug_menu_entry missions_entry{missions_menu};
+    debug_menu_entry script_entry{script_menu};
+    debug_menu_entry progression_entry{progression_menu};
+    debug_menu_entry level_select_entry{level_select_menu};
 
     create_entity_animation_menu(root_menu);
     create_camera_menu_items(root_menu);
@@ -3600,9 +3580,9 @@ void debug_menu::init() {
     create_ai_root_menu(root_menu);
     create_memory_menu(root_menu);
 
-#   ifdef TARGET_XBOX
-        create_replay_menu(root_menu);
-#   endif
+#ifdef TARGET_XBOX
+    create_replay_menu(root_menu);
+#endif
 
     create_entity_variants_menu(root_menu);
 
@@ -3625,9 +3605,10 @@ void debug_menu::init() {
 #endif
 #endif
 
-void render_current_debug_menu() {
-    auto UP_ARROW{ " ^ ^ ^ " };
-    auto DOWN_ARROW{ " v v v " };
+void render_current_debug_menu()
+{
+    auto UP_ARROW{" ^ ^ ^ "};
+    auto DOWN_ARROW{" v v v "};
 
     int needs_down_arrow = ((current_menu->window_start + MAX_ELEMENTS_PAGE) < current_menu->used_slots) ? 1 : 0;
 
@@ -3635,21 +3616,22 @@ void render_current_debug_menu() {
     int debug_width = 0;
     int debug_height = 0;
 
-    auto get_and_update = [&](auto* x) {\
-        getStringDimensions(x, &cur_width, &cur_height); \
-        debug_height += cur_height; \
-        debug_width = std::max(debug_width, cur_width); \
-        };
+    auto get_and_update = [&](auto *x) {
+        getStringDimensions(x, &cur_width, &cur_height);
+        debug_height += cur_height;
+        debug_width = std::max(debug_width, cur_width);
+    };
 
     //printf("new size: %s %d %d (%d %d)\n", x, debug_width, debug_height, cur_width, cur_height);
 
     get_and_update(current_menu->title);
     get_and_update(UP_ARROW);
 
-    int total_elements_page = needs_down_arrow ? MAX_ELEMENTS_PAGE : current_menu->used_slots - current_menu->window_start;
+    int total_elements_page =
+        needs_down_arrow ? MAX_ELEMENTS_PAGE : current_menu->used_slots - current_menu->window_start;
 
     for (int i = 0; i < total_elements_page; ++i) {
-        debug_menu_entry* entry = &current_menu->entries[current_menu->window_start + i];
+        debug_menu_entry *entry = &current_menu->entries[current_menu->window_start + i];
         auto cur = getRealText(entry);
         get_and_update(cur.c_str());
     }
@@ -3664,7 +3646,11 @@ void render_current_debug_menu() {
     int menu_x_pad = 24, menu_y_pad = 18;
 
     nglInitQuad(&quad);
-    nglSetQuadRect(&quad, menu_x_start, menu_y_start, menu_x_start + debug_width + menu_x_pad, menu_y_start + debug_height + menu_y_pad);
+    nglSetQuadRect(&quad,
+                   menu_x_start,
+                   menu_y_start,
+                   menu_x_start + debug_width + menu_x_pad,
+                   menu_y_start + debug_height + menu_y_pad);
     nglSetQuadColor(&quad, 0xBE0A0A0A);
     nglSetQuadZ(&quad, 0.5f);
     nglListAddQuad(&quad);
@@ -3689,10 +3675,9 @@ void render_current_debug_menu() {
     render_height += getStringHeight(UP_ARROW);
 
     for (int i = 0; i < total_elements_page; i++) {
-
         int current_color = current_menu->cur_index == static_cast<DWORD>(i) ? yellow_color : white_color;
 
-        debug_menu_entry* entry = &current_menu->entries[current_menu->window_start + i];
+        debug_menu_entry *entry = &current_menu->entries[current_menu->window_start + i];
         auto cur = getRealText(entry);
         nglListAddString(*nglSysFont, render_x, render_height, 0.2f, current_color, 1.f, 1.f, cur.c_str());
         render_height += getStringHeight(cur.c_str());
@@ -3704,7 +3689,8 @@ void render_current_debug_menu() {
     }
 }
 
-void debug_nglListEndScene_hook() {
+void debug_nglListEndScene_hook()
+{
     g_console->render();
 
     if (debug_enabled)
@@ -3713,7 +3699,8 @@ void debug_nglListEndScene_hook() {
     nglListEndScene();
 }
 
-void close_debug() {
+void close_debug()
+{
     debug_enabled = 0;
 
     auto *pause_menu = g_femanager.m_pause_menu_system;
@@ -3727,88 +3714,83 @@ void close_debug() {
 // Missions
 // ----------------------------------------------------------------------------------
 
-struct mission_t
-{
+struct mission_t {
     std::string field_0;
-    const char* field_C;
+    const char *field_C;
     int field_10;
     int field_14;
 };
 
 std::vector<mission_t> menu_missions;
 
-void mission_unload_handler(debug_menu_entry*)
+void mission_unload_handler(debug_menu_entry *)
 {
-    auto* v1 = mission_manager::s_inst;
+    auto *v1 = mission_manager::s_inst;
     v1->prepare_unload_script();
 
     close_debug();
 }
 
-void mission_select_handler(debug_menu_entry* entry)
+void mission_select_handler(debug_menu_entry *entry)
 {
     auto v1 = (int)entry->data1;
     auto v7 = &menu_missions.at(v1);
     auto v6 = v7->field_C;
     auto v5 = v7->field_14;
-    auto* v4 = v7->field_0.c_str();
+    auto *v4 = v7->field_0.c_str();
     auto v3 = v7->field_10;
-    auto* v2 = mission_manager::s_inst;
+    auto *v2 = mission_manager::s_inst;
     v2->force_mission(v3, v4, v5, v6);
     close_debug();
 }
 typedef int (*resource_manager_can_reload_amalgapak_ptr)(void);
-resource_manager_can_reload_amalgapak_ptr resource_manager_can_reload_amalgapak = (resource_manager_can_reload_amalgapak_ptr)0x0053DE90;
+resource_manager_can_reload_amalgapak_ptr resource_manager_can_reload_amalgapak =
+    (resource_manager_can_reload_amalgapak_ptr)0x0053DE90;
 
 typedef void (*resource_manager_reload_amalgapak_ptr)(void);
-resource_manager_reload_amalgapak_ptr resource_manager_reload_amalgapak = (resource_manager_reload_amalgapak_ptr)0x0054C2E0;
+resource_manager_reload_amalgapak_ptr resource_manager_reload_amalgapak =
+    (resource_manager_reload_amalgapak_ptr)0x0054C2E0;
 
-void create_game_flags_menu(debug_menu* parent);
+void create_game_flags_menu(debug_menu *parent);
 
-void populate_missions_menu(debug_menu* missions_menu)
+void populate_missions_menu(debug_menu *missions_menu)
 {
-    if (missions_menu->used_slots == 0)
-    {
+    if (missions_menu->used_slots == 0) {
         menu_missions = {};
-        if (resource_manager_can_reload_amalgapak())
-        {
+        if (resource_manager_can_reload_amalgapak()) {
             resource_manager_reload_amalgapak();
         }
 
-        auto* head_menu = missions_menu;
+        auto *head_menu = missions_menu;
 
-        debug_menu_entry mission_unload_entry{ "UNLOAD CURRENT MISSION" };
+        debug_menu_entry mission_unload_entry{"UNLOAD CURRENT MISSION"};
 
         mission_unload_entry.set_game_flags_handler(mission_unload_handler);
         add_debug_menu_entry(head_menu, &mission_unload_entry);
 
-        mission_manager* v2 = mission_manager::s_inst;
+        mission_manager *v2 = mission_manager::s_inst;
         int v58 = v2->m_district_table_count;
-        for (int i = -1; i < v58; ++i)
-        {
+        for (int i = -1; i < v58; ++i) {
             fixedstring<32> v53{};
             int district_id;
-            mission_table_container* table = nullptr;
-            auto* target_menu = head_menu;
-            if (i == -1)
-            {
+            mission_table_container *table = nullptr;
+            auto *target_menu = head_menu;
+            if (i == -1) {
                 table = v2->m_global_table_container;
-                fixedstring<32> a1{ "global" };
+                fixedstring<32> a1{"global"};
                 v53 = a1;
                 district_id = 0;
-            }
-            else
-            {
+            } else {
                 table = v2->m_district_table_containers[i];
-                auto* reg = table->field_44;
-                auto& v6 = reg->get_name();
+                auto *reg = table->field_44;
+                auto &v6 = reg->get_name();
                 v53 = v6.to_string();
 
                 district_id = reg->get_district_id();
 
-                auto* v25 = create_menu(v53.to_string(), nullptr, 10);
+                auto *v25 = create_menu(v53.to_string(), nullptr, 10);
 
-                debug_menu_entry v26{ v25 };
+                debug_menu_entry v26{v25};
 
                 add_debug_menu_entry(head_menu, &v26);
                 target_menu = v25;
@@ -3816,20 +3798,17 @@ void populate_missions_menu(debug_menu* missions_menu)
 
             _std::vector<mission_table_container::script_info> script_infos;
 
-            if (table != nullptr)
-            {
+            if (table != nullptr) {
                 table->append_script_info(&script_infos);
             }
 
-            for (auto& info : script_infos)
-            {
+            for (auto &info : script_infos) {
                 auto v50 = menu_missions.size();
-                std::string a2{ "pk_" };
+                std::string a2{"pk_"};
                 auto v19 = a2 + info.field_0;
-                auto* v11 = v19.c_str();
+                auto *v11 = v19.c_str();
                 auto key = create_resource_key_from_path(v11, RESOURCE_KEY_TYPE_PACK);
-                if (resource_manager::get_pack_file_stats(key, nullptr, nullptr, nullptr))
-                {
+                if (resource_manager::get_pack_file_stats(key, nullptr, nullptr, nullptr)) {
                     mission_t mission{};
                     mission.field_0 = info.field_0;
                     mission.field_10 = district_id;
@@ -3841,34 +3820,30 @@ void populate_missions_menu(debug_menu* missions_menu)
                     std::string v47{};
 
                     char buff[1024];
-                    if (mission.field_C != nullptr)
-                    {
-                        auto* v17 = mission.field_C;
-                        auto* v14 = mission.field_0.c_str();
+                    if (mission.field_C != nullptr) {
+                        auto *v17 = mission.field_C;
+                        auto *v14 = mission.field_0.c_str();
 
                         snprintf(buff, sizeof(buff), "%s (%s)", v14, v17);
                         v47 = buff;
-                    }
-                    else
-                    {
+                    } else {
                         auto v18 = mission.field_14;
-                        auto* v15 = mission.field_0.c_str();
+                        auto *v15 = mission.field_0.c_str();
 
                         snprintf(buff, sizeof(buff), "%s (%d)", v15, v18);
                         v47 = buff;
                     }
 
-                    debug_menu_entry v27{ v47.c_str() };
+                    debug_menu_entry v27{v47.c_str()};
 
                     //v27->set_id(v50);
-                    v27.data1 = (void*)v50;
+                    v27.data1 = (void *)v50;
 
                     v27.set_game_flags_handler(mission_select_handler);
                     add_debug_menu_entry(target_menu, &v27);
                 }
             }
         }
-
     }
 }
 
@@ -3876,18 +3851,16 @@ void populate_missions_menu(debug_menu* missions_menu)
 #include "fe_health_widget.h"
 constexpr auto NUM_HEROES = 10u;
 
-const char* hero_list[NUM_HEROES] = {
-        "ultimate_spiderman",
-        "arachno_man_costume",
-        "usm_wrestling_costume",
-        "usm_blacksuit_costume",
-        "peter_parker",
-        "peter_parker_costume",
-        "peter_hooded",
-        "peter_hooded_costume",
-        "venom",
-        "venom_spider"
-};
+const char *hero_list[NUM_HEROES] = {"ultimate_spiderman",
+                                     "arachno_man_costume",
+                                     "usm_wrestling_costume",
+                                     "usm_blacksuit_costume",
+                                     "peter_parker",
+                                     "peter_parker_costume",
+                                     "peter_hooded",
+                                     "peter_hooded_costume",
+                                     "venom",
+                                     "venom_spider"};
 
 enum class hero_status_e {
     UNDEFINED = 0,
@@ -3899,8 +3872,7 @@ enum class hero_status_e {
 int hero_selected;
 int frames_to_skip = 2;
 
-struct level_descriptor_v2_t
-{
+struct level_descriptor_v2_t {
     fixedstring<32> field_0;
     fixedstring<64> field_20;
     fixedstring<16> field_60;
@@ -3914,48 +3886,45 @@ struct level_descriptor_v2_t
     int field_8C;
 };
 
-level_descriptor_t* get_level_descriptors(int* arg0)
+level_descriptor_t *get_level_descriptors(int *arg0)
 {
-    auto* game_partition = resource_manager::get_partition_pointer(resource_partition_enum(0));
+    auto *game_partition = resource_manager::get_partition_pointer(resource_partition_enum(0));
     assert(game_partition != nullptr);
 
     assert(game_partition->get_pack_slots().size() == 1);
 
-    auto& v2 = game_partition->get_pack_slots();
-    auto* game_slot = v2.front();
+    auto &v2 = game_partition->get_pack_slots();
+    auto *game_slot = v2.front();
     assert(game_slot != nullptr);
 
     auto v6 = 9;
-    string_hash v5{ "level" };
-    resource_key a1{ v5, (resource_key_type)v6 };
+    string_hash v5{"level"};
+    resource_key a1{v5, (resource_key_type)v6};
     int a2 = 0;
-    auto* v11 = (level_descriptor_t*)game_slot->get_resource(a1, &a2, nullptr);
+    auto *v11 = (level_descriptor_t *)game_slot->get_resource(a1, &a2, nullptr);
 
-    if (arg0 != nullptr)
-    {
+    if (arg0 != nullptr) {
         *arg0 = a2 / sizeof(level_descriptor_t);
     }
 
     return v11;
 }
 
-void level_select_handler(debug_menu_entry* entry)
+void level_select_handler(debug_menu_entry *entry)
 {
-    auto* v1 = entry->text;
-    mString v15{ v1 };
+    auto *v1 = entry->text;
+    mString v15{v1};
 
     level_descriptor_t *desc = nullptr;
 
     int arg0;
-    auto* v13 = get_level_descriptors(&arg0);
-    for (auto i = 0; i < arg0; ++i)
-    {
-        auto* v2 = v15.c_str();
-        fixedstring<4> v6{ v2 };
-        if (v13[i].field_60 == v6)
-        {
-            auto* v3 = v13[i].field_0.to_string();
-            v15 = { v3 };
+    auto *v13 = get_level_descriptors(&arg0);
+    for (auto i = 0; i < arg0; ++i) {
+        auto *v2 = v15.c_str();
+        fixedstring<4> v6{v2};
+        if (v13[i].field_60 == v6) {
+            auto *v3 = v13[i].field_0.to_string();
+            v15 = {v3};
             desc = &v13[i];
             break;
         }
@@ -3965,33 +3934,21 @@ void level_select_handler(debug_menu_entry* entry)
     // close_debug();
 
     if (desc != nullptr) {
-        char exe_path[MAX_PATH] {};
+        char exe_path[MAX_PATH]{};
         if (GetModuleFileNameA(nullptr, exe_path, sizeof(exe_path)) == 0) {
             return;
         }
 
         const auto hero = g_game_ptr->gamefile->field_340.m_hero_name.to_string();
-        char command_line[1024] {};
-        snprintf(command_line,
-                 sizeof(command_line),
-                 "\"%s\" -sSOUND_LIST=%s -sHERO_NAME=%s",
-                 exe_path,
-                 v15.c_str(),
-                 hero);
+        char command_line[1024]{};
+        snprintf(
+            command_line, sizeof(command_line), "\"%s\" -sSOUND_LIST=%s -sHERO_NAME=%s", exe_path, v15.c_str(), hero);
 
-        STARTUPINFOA startup_info {};
+        STARTUPINFOA startup_info{};
         startup_info.cb = sizeof(startup_info);
-        PROCESS_INFORMATION process_info {};
-        if (CreateProcessA(exe_path,
-                           command_line,
-                           nullptr,
-                           nullptr,
-                           FALSE,
-                           0,
-                           nullptr,
-                           nullptr,
-                           &startup_info,
-                           &process_info)) {
+        PROCESS_INFORMATION process_info{};
+        if (CreateProcessA(
+                exe_path, command_line, nullptr, nullptr, FALSE, 0, nullptr, nullptr, &startup_info, &process_info)) {
             CloseHandle(process_info.hThread);
             CloseHandle(process_info.hProcess);
             ExitProcess(0);
@@ -3999,36 +3956,32 @@ void level_select_handler(debug_menu_entry* entry)
     }
 }
 
-void reboot_handler(debug_menu_entry*)
-{
-}
+void reboot_handler(debug_menu_entry *) {}
 
-void handle_hero_select_menu(debug_menu_entry* entry, custom_key_type)
+void handle_hero_select_menu(debug_menu_entry *entry, custom_key_type)
 {
     entry->m_game_flags_handler(entry);
 }
 
-void hero_entry_callback(debug_menu_entry*);
+void hero_entry_callback(debug_menu_entry *);
 
-void hero_toggle_handler(debug_menu_entry* entry);
+void hero_toggle_handler(debug_menu_entry *entry);
 
-void create_level_select_menu(debug_menu* level_select_menu)
+void create_level_select_menu(debug_menu *level_select_menu)
 {
     //assert(debug_menu::root_menu != nullptr);
 
     int arg0;
-    auto* level_descriptors = get_level_descriptors(&arg0);
+    auto *level_descriptors = get_level_descriptors(&arg0);
     printf("num_descriptors = %d\n", arg0);
-    for (auto i = 0; i < arg0; ++i)
-    {
-        auto* v1 = level_descriptors[i].field_0.to_string();
-        string_hash v5{ v1 };
-        auto v11 = resource_key{ v5, RESOURCE_KEY_TYPE_PACK };
+    for (auto i = 0; i < arg0; ++i) {
+        auto *v1 = level_descriptors[i].field_0.to_string();
+        string_hash v5{v1};
+        auto v11 = resource_key{v5, RESOURCE_KEY_TYPE_PACK};
         auto v17 = resource_manager::get_pack_file_stats(v11, nullptr, nullptr, nullptr);
-        if (v17)
-        {
-            mString v22{ level_descriptors[i].field_60.to_string() };
-            debug_menu_entry v39{ v22.c_str() };
+        if (v17) {
+            mString v22{level_descriptors[i].field_60.to_string()};
+            debug_menu_entry v39{v22.c_str()};
 
             v39.set_game_flags_handler(level_select_handler);
             v39.m_id = i;
@@ -4036,28 +3989,26 @@ void create_level_select_menu(debug_menu* level_select_menu)
         }
     }
 
-    mString v25{ "-- REBOOT --" };
-    debug_menu_entry v38{ v25.c_str() };
+    mString v25{"-- REBOOT --"};
+    debug_menu_entry v38{v25.c_str()};
 
     v38.set_game_flags_handler(reboot_handler);
 
     level_select_menu->add_entry(&v38);
 
-    static debug_menu* hero_select_menu = create_menu("Hero Select");
+    static debug_menu *hero_select_menu = create_menu("Hero Select");
 
-    debug_menu_entry v28{ hero_select_menu };
+    debug_menu_entry v28{hero_select_menu};
 
     level_select_menu->add_entry(&v28);
-    for (auto i = 0u; i < NUM_HEROES; ++i)
-    {
-        string_hash v5{ hero_list[i] };
-        auto v11 = resource_key{ v5, RESOURCE_KEY_TYPE_PACK };
+    for (auto i = 0u; i < NUM_HEROES; ++i) {
+        string_hash v5{hero_list[i]};
+        auto v11 = resource_key{v5, RESOURCE_KEY_TYPE_PACK};
         auto v30 = resource_manager::get_pack_file_stats(v11, nullptr, nullptr, nullptr);
-        if (v30)
-        {
-            mString v35{ hero_list[i] };
+        if (v30) {
+            mString v35{hero_list[i]};
 
-            debug_menu_entry v37{ v35.c_str() };
+            debug_menu_entry v37{v35.c_str()};
 
             v37.set_game_flags_handler(hero_toggle_handler);
             v37.m_id = i;
@@ -4067,7 +4018,7 @@ void create_level_select_menu(debug_menu* level_select_menu)
     }
 }
 
-void hero_toggle_handler(debug_menu_entry* entry)
+void hero_toggle_handler(debug_menu_entry *entry)
 {
     printf("hero_toggle_handler\n");
     assert(entry->get_id() < NUM_HEROES);
@@ -4085,29 +4036,25 @@ void hero_toggle_handler(debug_menu_entry* entry)
     hero_status = hero_status_e::REMOVE_PLAYER;
 }
 
-void hero_entry_callback(debug_menu_entry*)
+void hero_entry_callback(debug_menu_entry *)
 {
     printf("hero_entry_callback: hero_status = %d\n", static_cast<int>(hero_status));
 
     auto v18 = g_world_ptr->num_players;
-    switch (hero_status)
-    {
-    case hero_status_e::REMOVE_PLAYER:
-    {
+    switch (hero_status) {
+    case hero_status_e::REMOVE_PLAYER: {
         g_world_ptr->remove_player(v18 - 1);
         hero_status = hero_status_e::ADD_PLAYER;
         frames_to_skip = 2;
         g_game_ptr->enable_marky_cam(true, true, -1000.0, 0.0);
         break;
     }
-    case hero_status_e::ADD_PLAYER:
-    {
+    case hero_status_e::ADD_PLAYER: {
         auto v1 = frames_to_skip--;
-        if (v1 <= 0)
-        {
+        if (v1 <= 0) {
             assert(hero_selected > -1 && static_cast<unsigned int>(hero_selected) < NUM_HEROES);
 
-            [[maybe_unused]] auto v2 = g_world_ptr->add_player(mString{ hero_list[hero_selected] });
+            [[maybe_unused]] auto v2 = g_world_ptr->add_player(mString{hero_list[hero_selected]});
 
             /*
             auto v10 = v2 <= v18;
@@ -4123,28 +4070,26 @@ void hero_entry_callback(debug_menu_entry*)
     }
     case hero_status_e::CHANGE_HEALTH_TYPE: {
         auto v3 = frames_to_skip--;
-        if (v3 <= 0)
-        {
+        if (v3 <= 0) {
             auto v17 = 0;
-            auto* v5 = (actor*)g_world_ptr->get_hero_ptr(0);
-            auto* v6 = v5->get_player_controller();
+            auto *v5 = (actor *)g_world_ptr->get_hero_ptr(0);
+            auto *v6 = v5->get_player_controller();
             auto v9 = v6->m_hero_type;
-            switch (v9)
-            {
-                case hero_type_enum::SPIDEY:
-                    v17 = 0;
-                    break;
-                case hero_type_enum::VENOM:
-                    v17 = 4;
-                    break;
-                case hero_type_enum::PARKER:
-                    v17 = 5;
-                    break;
-                case hero_type_enum::UNDEFINED:
-                    break;
+            switch (v9) {
+            case hero_type_enum::SPIDEY:
+                v17 = 0;
+                break;
+            case hero_type_enum::VENOM:
+                v17 = 4;
+                break;
+            case hero_type_enum::PARKER:
+                v17 = 5;
+                break;
+            case hero_type_enum::UNDEFINED:
+                break;
             }
 
-            auto* v7 = g_world_ptr->get_hero_ptr(0);
+            auto *v7 = g_world_ptr->get_hero_ptr(0);
             auto v8 = v7->my_handle;
             g_femanager.IGO->hero_health->SetType(v17, v8.field_0);
             g_femanager.IGO->hero_health->SetShown(true);
@@ -4158,16 +4103,14 @@ void hero_entry_callback(debug_menu_entry*)
     }
 }
 
-void menu_setup(int game_state, int keyboard) {
-
+void menu_setup(int game_state, int keyboard)
+{
     //debug menu stuff
     if (is_menu_key_pressed(MENU_TOGGLE, keyboard) && (game_state == 6 || game_state == 7)) {
-
         if (debug_enabled && game_state == 7) {
             g_game_ptr->unpause();
             debug_enabled = !debug_enabled;
-        }
-        else if (!debug_enabled && game_state == 6) {
+        } else if (!debug_enabled && game_state == 6) {
             g_game_ptr->pause();
             debug_enabled = !debug_enabled;
             current_menu = debug_menu::root_menu;
@@ -4177,52 +4120,47 @@ void menu_setup(int game_state, int keyboard) {
 
         create_game_flags_menu(game_menu);
 
-        if (level_select_menu->used_slots == 0)
-        {
+        if (level_select_menu->used_slots == 0) {
             create_level_select_menu(level_select_menu);
         }
     }
 }
 
-// Devopts 
+// Devopts
 
 #include "os_developer_options.h"
 #include "devopt.h"
 inline constexpr auto NUM_OPTIONS = 150u + 76u;
 
-typedef bool(__fastcall* entity_tracker_manager_get_the_arrow_target_pos_ptr)(void*, void*, vector3d*);
-entity_tracker_manager_get_the_arrow_target_pos_ptr entity_tracker_manager_get_the_arrow_target_pos = (entity_tracker_manager_get_the_arrow_target_pos_ptr)0x0062EE10;
+typedef bool(__fastcall *entity_tracker_manager_get_the_arrow_target_pos_ptr)(void *, void *, vector3d *);
+entity_tracker_manager_get_the_arrow_target_pos_ptr entity_tracker_manager_get_the_arrow_target_pos =
+    (entity_tracker_manager_get_the_arrow_target_pos_ptr)0x0062EE10;
 
-void create_devopt_menu(debug_menu* parent)
+void create_devopt_menu(debug_menu *parent)
 {
     assert(parent != nullptr);
 
-    auto* v22 = create_menu("Devopts", handle_game_entry, 300);
+    auto *v22 = create_menu("Devopts", handle_game_entry, 300);
 
-    for (auto idx = 0u; idx < NUM_OPTIONS; ++idx)
-    {
-        auto* v21 = get_option(idx);
-        switch (v21->m_type)
-        {
-        case game_option_t::INT_OPTION:
-        {
-            auto v20 = debug_menu_entry(mString{ v21->m_name });
+    for (auto idx = 0u; idx < NUM_OPTIONS; ++idx) {
+        auto *v21 = get_option(idx);
+        switch (v21->m_type) {
+        case game_option_t::INT_OPTION: {
+            auto v20 = debug_menu_entry(mString{v21->m_name});
             v20.set_p_ival(v21->m_value.p_ival);
             v20.set_min_value(-1000.0);
             v20.set_max_value(1000.0);
             v22->add_entry(&v20);
             break;
         }
-        case game_option_t::FLAG_OPTION:
-        {
-            auto v19 = debug_menu_entry(mString{ v21->m_name });
-            v19.set_pt_bval((bool*)v21->m_value.p_bval);
+        case game_option_t::FLAG_OPTION: {
+            auto v19 = debug_menu_entry(mString{v21->m_name});
+            v19.set_pt_bval((bool *)v21->m_value.p_bval);
             v22->add_entry(&v19);
             break;
         }
-        case game_option_t::FLOAT_OPTION:
-        {
-            auto v18 = debug_menu_entry(mString{ v21->m_name });
+        case game_option_t::FLOAT_OPTION: {
+            auto v18 = debug_menu_entry(mString{v21->m_name});
             v18.set_pt_fval(v21->m_value.p_fval);
             v18.set_min_value(-1000.0);
             v18.set_max_value(1000.0);
@@ -4237,40 +4175,39 @@ void create_devopt_menu(debug_menu* parent)
     auto v5 = debug_menu_entry(v22);
     parent->add_entry(&v5);
 }
-void create_game_flags_menu(debug_menu* parent)
+void create_game_flags_menu(debug_menu *parent)
 {
-    if (parent->used_slots != 0)
-    {
+    if (parent->used_slots != 0) {
         return;
     }
 
     assert(parent != nullptr);
 
-    auto* v92 = parent;
+    auto *v92 = parent;
 
-    auto v89 = debug_menu_entry(mString{ "Report SLF Recall Timeouts" });
+    auto v89 = debug_menu_entry(mString{"Report SLF Recall Timeouts"});
     static bool byte_1597BC0 = false;
     v89.set_pt_bval(&byte_1597BC0);
     //v92->add_entry(&v89);
 
-    v89 = debug_menu_entry(mString{ "Physics Enabled" });
+    v89 = debug_menu_entry(mString{"Physics Enabled"});
     v89.set_bval(true);
     v89.set_game_flags_handler(game_flags_handler);
     v89.set_id(0);
     v92->add_entry(&v89);
 
-    v89 = debug_menu_entry(mString{ "Single Step" });
+    v89 = debug_menu_entry(mString{"Single Step"});
     v89.set_game_flags_handler(game_flags_handler);
     v89.set_id(1);
     v92->add_entry(&v89);
 
-    v89 = debug_menu_entry(mString{ "Slow Motion Enabled" });
+    v89 = debug_menu_entry(mString{"Slow Motion Enabled"});
     v89.set_bval(false);
     v89.set_game_flags_handler(game_flags_handler);
     v89.set_id(2);
     v92->add_entry(&v89);
 
-    v89 = debug_menu_entry{ mString{"Monkey Enabled"} };
+    v89 = debug_menu_entry{mString{"Monkey Enabled"}};
 
     auto v1 = spider_monkey::is_running();
     v89.set_bval(v1);
@@ -4278,82 +4215,82 @@ void create_game_flags_menu(debug_menu* parent)
     v89.set_id(3);
     v92->add_entry(&v89);
 
-    v89 = debug_menu_entry{ mString{"Rumble Enabled"} };
+    v89 = debug_menu_entry{mString{"Rumble Enabled"}};
     v89.set_bval(true);
     v89.set_game_flags_handler(game_flags_handler);
     v89.set_id(4);
     v92->add_entry(&v89);
 
-    v89 = debug_menu_entry(mString{ "God Mode" });
-    v89.set_ival(os_developer_options::instance->get_int(mString{ "GOD_MODE" }));
+    v89 = debug_menu_entry(mString{"God Mode"});
+    v89.set_ival(os_developer_options::instance->get_int(mString{"GOD_MODE"}));
 
-    const float v2[4] = { 0, 5, 1, 1 };
+    const float v2[4] = {0, 5, 1, 1};
     v89.set_fl_values(v2);
     v89.set_game_flags_handler(game_flags_handler);
     v89.set_id(5);
     v92->add_entry(&v89);
 
-    v89 = debug_menu_entry(mString{ "Show Districts" });
-    v89.set_bval(os_developer_options::instance->get_flag(mString{ "SHOW_STREAMER_INFO" }));
+    v89 = debug_menu_entry(mString{"Show Districts"});
+    v89.set_bval(os_developer_options::instance->get_flag(mString{"SHOW_STREAMER_INFO"}));
     v89.set_game_flags_handler(game_flags_handler);
     v89.set_id(6);
     v92->add_entry(&v89);
 
-    v89 = debug_menu_entry(mString{ "Show Hero Position" });
-    v89.set_bval(os_developer_options::instance->get_flag(mString{ "SHOW_DEBUG_INFO" }));
+    v89 = debug_menu_entry(mString{"Show Hero Position"});
+    v89.set_bval(os_developer_options::instance->get_flag(mString{"SHOW_DEBUG_INFO"}));
     v89.set_game_flags_handler(game_flags_handler);
     v89.set_id(7);
     v92->add_entry(&v89);
 
-    v89 = debug_menu_entry(mString{ "Show FPS" });
-    v89.set_bval(os_developer_options::instance->get_flag(mString{ "SHOW_FPS" }));
+    v89 = debug_menu_entry(mString{"Show FPS"});
+    v89.set_bval(os_developer_options::instance->get_flag(mString{"SHOW_FPS"}));
     v89.set_game_flags_handler(game_flags_handler);
     v89.set_id(8);
     v92->add_entry(&v89);
 
-    v89 = debug_menu_entry(mString{ "User Camera on Controller 2" });
-    v89.set_bval(os_developer_options::instance->get_flag(mString{ "USERCAM_ON_CONTROLLER2" }));
+    v89 = debug_menu_entry(mString{"User Camera on Controller 2"});
+    v89.set_bval(os_developer_options::instance->get_flag(mString{"USERCAM_ON_CONTROLLER2"}));
     v89.set_game_flags_handler(game_flags_handler);
     v89.set_id(9);
     v92->add_entry(&v89);
 
-    v89 = debug_menu_entry(mString{ "Toggle Unload All Districts" });
+    v89 = debug_menu_entry(mString{"Toggle Unload All Districts"});
     v89.set_game_flags_handler(game_flags_handler);
     v89.set_id(13);
     v92->add_entry(&v89);
 
     {
-        auto* v88 = create_menu("Save/Load", handle_game_entry, 10);
+        auto *v88 = create_menu("Save/Load", handle_game_entry, 10);
         auto v18 = debug_menu_entry(v88);
         v92->add_entry(&v18);
 
-        v89 = debug_menu_entry(mString{ "Save Game" });
+        v89 = debug_menu_entry(mString{"Save Game"});
         v89.set_game_flags_handler(game_flags_handler);
         v89.set_id(14);
         v88->add_entry(&v89);
 
-        v89 = debug_menu_entry(mString{ "Load Game" });
+        v89 = debug_menu_entry(mString{"Load Game"});
         v89.set_game_flags_handler(game_flags_handler);
         v89.set_id(15);
         v88->add_entry(&v89);
 
-        v89 = debug_menu_entry(mString{ "Attemp Auto Load" });
+        v89 = debug_menu_entry(mString{"Attemp Auto Load"});
         v89.set_game_flags_handler(game_flags_handler);
         v89.set_id(16);
         v88->add_entry(&v89);
     }
 
     {
-        auto* v87 = create_menu("Screenshot", handle_game_entry, 10);
+        auto *v87 = create_menu("Screenshot", handle_game_entry, 10);
         auto v23 = debug_menu_entry(v87);
         v92->add_entry(&v23);
 
-        v89 = debug_menu_entry(mString{ "Hires Screenshot" });
+        v89 = debug_menu_entry(mString{"Hires Screenshot"});
         v89.set_game_flags_handler(game_flags_handler);
         v89.set_id(11);
         v87->add_entry(&v89);
 
-        v89 = debug_menu_entry(mString{ "Lores Screenshot" });
+        v89 = debug_menu_entry(mString{"Lores Screenshot"});
         v89.set_game_flags_handler(game_flags_handler);
         v89.set_id(12);
         v87->add_entry(&v89);
@@ -4370,40 +4307,38 @@ void init_shadow_targets2()
     CDECL_CALL(0x00592E80);
 }
 
-uint8_t __stdcall slf__debug_menu_entry__set_handler__str(vm_stack* stack, void*) {
-
+uint8_t __stdcall slf__debug_menu_entry__set_handler__str(vm_stack *stack, void *)
+{
     stack->pop(8);
 
-    void** params = (void**)stack->get_SP();
+    void **params = (void **)stack->get_SP();
 
-    debug_menu_entry* entry = static_cast<decltype(entry)>(params[0]);
-    const char* scrpttext = static_cast<char*>(params[1]);
+    debug_menu_entry *entry = static_cast<decltype(entry)>(params[0]);
+    const char *scrpttext = static_cast<char *>(params[1]);
 
-    string_hash strhash{ scrpttext };
+    string_hash strhash{scrpttext};
 
-    script_instance* instance = stack->get_thread()->inst;
-    entry->set_script_handler(instance, mString{ scrpttext });
+    script_instance *instance = stack->get_thread()->inst;
+    entry->set_script_handler(instance, mString{scrpttext});
 
     return true;
 }
 
-uint8_t __stdcall slf__destroy_debug_menu_entry__debug_menu_entry(vm_stack* function, void*) {
-
+uint8_t __stdcall slf__destroy_debug_menu_entry__debug_menu_entry(vm_stack *function, void *)
+{
     function->pop(4);
 
-    debug_menu_entry** entry = (decltype(entry))function->get_SP();
+    debug_menu_entry **entry = (decltype(entry))function->get_SP();
 
     remove_debug_menu_entry(*entry);
 
     return 1;
 }
 
-void sub_65BB36(script_library_class::function* func, vm_stack*, char* a3, int a4)
+void sub_65BB36(script_library_class::function *func, vm_stack *, char *a3, int a4)
 {
-    for (auto i = 0; i < a4; ++i)
-    {
-        if (*bit_cast<DWORD*>(&a3[4 * i]) == 0x7BAD05CF)
-        {
+    for (auto i = 0; i < a4; ++i) {
+        if (*bit_cast<DWORD *>(&a3[4 * i]) == 0x7BAD05CF) {
             printf("uninitialized parameters in call to %p", static_cast<void *>(func->m_vtbl));
 
             //v5 = j_vm_stack::get_thread(stack);
@@ -4414,13 +4349,13 @@ void sub_65BB36(script_library_class::function* func, vm_stack*, char* a3, int a
     }
 }
 
-bool __fastcall slf__create_debug_menu_entry(script_library_class::function* func, void*, vm_stack* stack, void*)
+bool __fastcall slf__create_debug_menu_entry(script_library_class::function *func, void *, vm_stack *stack, void *)
 {
     stack->pop(4);
 
-    auto* stack_ptr = stack->get_SP();
+    auto *stack_ptr = stack->get_SP();
     sub_65BB36(func, stack, stack_ptr, 1);
-    char** strs = bit_cast<char**>(stack->get_SP());
+    char **strs = bit_cast<char **>(stack->get_SP());
 
     //printf("Entry: %s ", strs[0]);
 
@@ -4430,18 +4365,18 @@ bool __fastcall slf__create_debug_menu_entry(script_library_class::function* fun
 
     printf("entry.text = %s\n", entry.text);
 
-    script_instance* instance = stack->get_thread()->inst;
+    script_instance *instance = stack->get_thread()->inst;
     printf("Total funcs: %d\n", instance->get_parent()->total_funcs);
-    void* res = add_debug_menu_entry(script_menu, &entry);
+    void *res = add_debug_menu_entry(script_menu, &entry);
 
-    script_executable* se = stack->get_thread()->ex->owner->parent;
+    script_executable *se = stack->get_thread()->ex->owner->parent;
     printf("total_script_objects = %d\n", se->total_script_objects);
     for (auto i = 0; i < se->total_script_objects; ++i) {
-        auto* so = se->script_objects[i];
+        auto *so = se->script_objects[i];
         printf("Name of script_object = %s\n", so->name.to_string());
 
-        auto* so_menu = create_menu(so->name.to_string(), debug_menu::sort_mode_t::ascending);
-        auto* so_entry = create_menu_entry(so->name.to_string());
+        auto *so_menu = create_menu(so->name.to_string(), debug_menu::sort_mode_t::ascending);
+        auto *so_entry = create_menu_entry(so->name.to_string());
         so_entry->set_data(so);
         so_entry->set_submenu(so_menu);
         so_entry->set_game_flags_handler(nullptr);
@@ -4449,12 +4384,12 @@ bool __fastcall slf__create_debug_menu_entry(script_library_class::function* fun
         script_menu->add_entry(so_entry);
 
         for (auto j = 0; j < so->total_funcs; ++j) {
-            auto* fn = so->funcs[j];
+            auto *fn = so->funcs[j];
             printf("Func name: %s\n", fn->name.to_string());
 
-            debug_menu_entry fn_entry{ fn->name.to_string() };
-            script_instance* instance = stack->get_thread()->inst;
-            fn_entry.set_script_handler(instance, { fn->name.to_string()});
+            debug_menu_entry fn_entry{fn->name.to_string()};
+            script_instance *instance = stack->get_thread()->inst;
+            fn_entry.set_script_handler(instance, {fn->name.to_string()});
 
             fn_entry.set_data(nullptr);
             fn_entry.set_submenu(nullptr);
@@ -4497,7 +4432,7 @@ BOOL install_redirects()
     REDIRECT(0x005AC4A9, register_class_and_create_window);
 
     {
-        DWORD hookDirectInputAddress = (DWORD) HookDirectInput8Create;
+        DWORD hookDirectInputAddress = (DWORD)HookDirectInput8Create;
         REDIRECT(0x008218B0, hookDirectInputAddress);
         set_nop(0x008218B5, 1);
         sp_log("Patching the DirectInput8Create call\n");
@@ -4699,15 +4634,21 @@ BOOL install_redirects()
 
         HookFunc(0x004EACF0, (DWORD)aeps_RenderAll, 0, "Patching call to aeps::RenderAll");
         HookFunc(0x0052B5D7, (DWORD)debug_nglListEndScene_hook, 0, "Hooking nglListEndScene to inject debug menu");
-        HookFunc(0x005AD77D, (DWORD)construct_client_script_libs_hook, 0, "Hooking construct_client_script_libs to inject my vm");
+        HookFunc(0x005AD77D,
+                 (DWORD)construct_client_script_libs_hook,
+                 0,
+                 "Hooking construct_client_script_libs to inject my vm");
         REDIRECT(0x005E10EE, init_shadow_targets2);
 
-        auto writeDWORD = [](int address, DWORD newValue, [[maybe_unused]] const char* reason) -> void {
-            *((DWORD*)address) = newValue;
+        auto writeDWORD = [](int address, DWORD newValue, [[maybe_unused]] const char *reason) -> void {
+            *((DWORD *)address) = newValue;
         };
-        writeDWORD(0x0089AF70, (DWORD)slf__create_debug_menu_entry, "Hooking first ocurrence of create_debug_menu_entry");
-        writeDWORD(0x0089C708, (DWORD)slf__create_debug_menu_entry, "Hooking second  ocurrence of create_debug_menu_entry");
-        writeDWORD(0x0089C720, (DWORD)slf__destroy_debug_menu_entry__debug_menu_entry, "Hooking destroy_debug_menu_entry");
+        writeDWORD(
+            0x0089AF70, (DWORD)slf__create_debug_menu_entry, "Hooking first ocurrence of create_debug_menu_entry");
+        writeDWORD(
+            0x0089C708, (DWORD)slf__create_debug_menu_entry, "Hooking second  ocurrence of create_debug_menu_entry");
+        writeDWORD(
+            0x0089C720, (DWORD)slf__destroy_debug_menu_entry__debug_menu_entry, "Hooking destroy_debug_menu_entry");
         writeDWORD(0x0089C750, (DWORD)slf__debug_menu_entry__set_handler__str, "Hooking set_handler");
     }
 
@@ -5269,14 +5210,14 @@ BOOL install_redirects()
 #endif
     }
 
-#endif //ORIGINAL_DLL
+#endif  //ORIGINAL_DLL
 
     sp_log("Redirects have been installed\n");
 
     return TRUE;
 }
 
-std::vector<uint8_t> read_file(const fs::path& filePath)
+std::vector<uint8_t> read_file(const fs::path &filePath)
 {
     std::ifstream file(filePath, std::ios::binary);
     if (!file)
@@ -5288,7 +5229,7 @@ std::vector<uint8_t> read_file(const fs::path& filePath)
     std::vector<uint8_t> buffer(sz);
     buffer.resize(sz);
     buffer.reserve(sz);
-    file.read(reinterpret_cast<char*>(buffer.data()), sz);
+    file.read(reinterpret_cast<char *>(buffer.data()), sz);
     return buffer;
 }
 
@@ -5298,9 +5239,9 @@ void enumerate_mods()
     if (!fs::is_directory(modsDir))
         return;
 
-    for (const auto& entry : fs::directory_iterator(modsDir)) {
+    for (const auto &entry : fs::directory_iterator(modsDir)) {
         if (entry.is_regular_file()) {
-            const fs::path& path = entry.path();
+            const fs::path &path = entry.path();
             std::vector<uint8_t> fileData = read_file(path);
 
             tlresource_type resType = TLRESOURCE_TYPE_NONE;
@@ -5319,9 +5260,9 @@ void enumerate_mods()
         }
     }
 
-#   if MOD_MESH_DBG_REPLACE_ALL
+#if MOD_MESH_DBG_REPLACE_ALL
     dbgReplaceMesh = getMod(0x1189ab87, TLRESOURCE_TYPE_MESH);
-#   endif
+#endif
 }
 
 BOOL install_hooks()
@@ -5336,8 +5277,7 @@ BOOL install_hooks()
 #endif
 
 #if STANDALONE_SYSTEM
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-                   LPSTR lpCmdLine, int nShowCmd)
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
     const char *args = GetCommandLineA();
     if (strstr(args, " -console") != nullptr) {

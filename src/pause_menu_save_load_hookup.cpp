@@ -40,7 +40,7 @@ void pause_menu_save_load_hookup::initialize()
     field_98[8] = "LOADING GAME.";
     field_98[9] = "SAVING GAME.";
 
-    char date_time[64] {};
+    char date_time[64]{};
     const std::time_t now = std::time(nullptr);
     if (const auto *local_time = std::localtime(&now))
         std::strftime(date_time, sizeof(date_time), "%x %X", local_time);
@@ -69,7 +69,7 @@ void pause_menu_save_load_hookup::initialize()
     field_98[31] = "";
 
     for (int i = 0; i < 3; ++i) {
-        char slot_name[256] {};
+        char slot_name[256]{};
         std::snprintf(slot_name, sizeof(slot_name), "%d. %s", i + 1, field_98[2].c_str());
         field_2C[i].field_0 = slot_name;
         field_2C[i].field_10 = "-- --- ---- - --:--:--";

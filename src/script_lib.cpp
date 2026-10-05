@@ -70,8 +70,7 @@ slf__add_2d_debug_str__vector3d__vector3d__num__str__num__t::
 }
 
 bool slf__add_2d_debug_str__vector3d__vector3d__num__str__num__t::operator()(
-    vm_stack &stack,
-    [[maybe_unused]] script_library_class::function::entry_t entry) const
+    vm_stack &stack, [[maybe_unused]] script_library_class::function::entry_t entry) const
 {
     TRACE("slf__add_2d_debug_str__vector3d__vector3d__num__str__num__t::operator()");
 
@@ -87,8 +86,7 @@ bool slf__add_2d_debug_str__vector3d__vector3d__num__str__num__t::operator()(
     (void)parms;
     return true;
 #else
-    bool(__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) =
-        CAST(func, 0x00663760);
+    bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00663760);
     return func(this, nullptr, &stack, entry);
 #endif
 }

@@ -40,10 +40,10 @@ extern bool collide_capsule_capsule(const vector3d &a1, const vector3d &a2, Floa
                                     const vector3d &a5, Float radius2, vector3d &cp1, vector3d &cp2, vector3d &normal);
 
 
-extern local_collision::closest_points_pair_t *collide_capsule_entity(
-    const capsule &query, const entity *ent, const po &transform);
-extern local_collision::closest_points_pair_t *collide_capsule_geometry(
-    const capsule &query, collision_geometry *geometry, const po &transform);
+extern local_collision::closest_points_pair_t *collide_capsule_entity(const capsule &query, const entity *ent,
+                                                                      const po &transform);
+extern local_collision::closest_points_pair_t *
+collide_capsule_geometry(const capsule &query, collision_geometry *geometry, const po &transform);
 
 extern bool closest_point_segment(const vector3d &a1, const vector3d &a2, const vector3d &a3, vector3d &a4);
 

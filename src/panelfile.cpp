@@ -64,19 +64,19 @@ PanelFile *PanelFile::UnmashPanelFile(const char *a1, panel_layer a2)
     if constexpr (UnmashPanelFile_hook) {
         assert(g_curmeshfile == nullptr);
 
-        tlFixedString v11 {a1};
+        tlFixedString v11{a1};
         g_curmeshfile = nglLoadMeshFile(v11);
 
-        resource_key resource_id {string_hash {a1}, RESOURCE_KEY_TYPE_PANEL};
+        resource_key resource_id{string_hash{a1}, RESOURCE_KEY_TYPE_PANEL};
 
         int mash_data_size;
         auto *the_panel_image = resource_manager::get_resource(resource_id, &mash_data_size, nullptr);
         assert(the_panel_image != nullptr);
 
 #if !OPENUSM_XBOX_MASH_FORMAT
-        mash_info_struct v10 {the_panel_image, mash_data_size};
+        mash_info_struct v10{the_panel_image, mash_data_size};
 #else
-        mash_info_struct v10 {mash::UNMASH_MODE, the_panel_image, mash_data_size, true};
+        mash_info_struct v10{mash::UNMASH_MODE, the_panel_image, mash_data_size, true};
 #endif
 
         PanelFile *v6 = nullptr;
@@ -85,8 +85,8 @@ PanelFile *PanelFile::UnmashPanelFile(const char *a1, panel_layer a2)
 #if OPENUSM_XBOX_MASH_FORMAT
                          ,
                          mash::NORMAL_BUFFER
-#endif 
-                );
+#endif
+        );
         v6->PostUnmashFixup(a2);
         mash_info_struct::construct_class(v6);
 
@@ -94,7 +94,7 @@ PanelFile *PanelFile::UnmashPanelFile(const char *a1, panel_layer a2)
 
         return v6;
     } else {
-        return (PanelFile *) CDECL_CALL(0x00643000, a1, a2);
+        return (PanelFile *)CDECL_CALL(0x00643000, a1, a2);
     }
 }
 
@@ -104,7 +104,7 @@ PanelAnimFile *PanelFile::GetAnimationPointer(int a1)
 }
 
 FEText *PanelFile::GetTextPointer(const char *a2)
-        {
+{
     TRACE("PanelFile::GetTextPointer", a2);
 
     for (uint16_t i = 0; i < this->ptext.size(); ++i) {
@@ -218,8 +218,7 @@ void PanelFile_patch()
     return;
     {
         using unmash_panel_file_fn = void (mash_info_struct::*)(PanelFile *&, void *);
-        auto fn = static_cast<unmash_panel_file_fn>(
-            &mash_info_struct::unmash_class<PanelFile>);
+        auto fn = static_cast<unmash_panel_file_fn>(&mash_info_struct::unmash_class<PanelFile>);
         FUNC_ADDRESS(address, fn);
         REDIRECT(0x0064309E, address);
     }

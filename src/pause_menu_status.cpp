@@ -20,8 +20,8 @@
 
 VALIDATE_SIZE(pause_menu_status, 0x130);
 
-pause_menu_status::pause_menu_status(FEMenuSystem *a2, int a3, int a4)
-    : FEMenu(a2, 0, a3, a4, 0, 0) {
+pause_menu_status::pause_menu_status(FEMenuSystem *a2, int a3, int a4) : FEMenu(a2, 0, a3, a4, 0, 0)
+{
     m_vtbl = 0x008940A0;
     field_E8 = static_cast<PauseMenuSystem *>(a2);
 
@@ -49,15 +49,16 @@ pause_menu_status::pause_menu_status(FEMenuSystem *a2, int a3, int a4)
     field_F8->initialize();
 }
 
-void pause_menu_status::OnTriangle(int a2) {
+void pause_menu_status::OnTriangle(int a2)
+{
     THISCALL(0x0061D3F0, this, a2);
 }
 
-void pause_menu_status::_Load() {
+void pause_menu_status::_Load()
+{
     TRACE("pause_menu_status::Load");
 
-    if constexpr (1)
-    {
+    if constexpr (1) {
         auto *v2 = this->field_E8;
         this->field_12C = 0;
         this->field_12D = 0;
@@ -108,13 +109,13 @@ void pause_menu_status::_Load() {
         this->field_A4[13] = v3->GetTextPointer("pm_status_text_right_06_BLANK");
 
         auto *v4 = mem_alloc(sizeof(PanelQuad));
-        auto *v5 = ::new (v4) PanelQuad {};
+        auto *v5 = ::new (v4) PanelQuad{};
         auto *v6 = this->field_2C[21];
         this->field_DC = v5;
         v5->CopyFrom(v6);
 
-        float v34[4] {};
-        float v30[4] {};
+        float v34[4]{};
+        float v30[4]{};
         this->field_DC->GetPos(v34, v30);
 
         v30[0] = v30[0] - 50.f;
@@ -125,7 +126,7 @@ void pause_menu_status::_Load() {
         this->field_DC->SetPos(v34, v30);
 
         auto *v9 = mem_alloc(sizeof(PanelQuad));
-        auto *v10 = ::new (v9) PanelQuad {};
+        auto *v10 = ::new (v9) PanelQuad{};
         auto *v11 = this->field_2C[22];
         this->field_E0 = v10;
         v10->CopyFrom(v11);
@@ -143,17 +144,16 @@ void pause_menu_status::_Load() {
 
         float a5 = v26 - 45.f;
         float a4 = v27;
-        auto *v15 = ::new (v14) FEText {
-            static_cast<font_index>(1),
-            static_cast<global_text_enum>(292),
-            a4,
-            a5,
-            5,
-            static_cast<panel_layer>(1),
-            1.0,
-            16,
-            0,
-            color32 {0xFFC8C8C8}};
+        auto *v15 = ::new (v14) FEText{static_cast<font_index>(1),
+                                       static_cast<global_text_enum>(292),
+                                       a4,
+                                       a5,
+                                       5,
+                                       static_cast<panel_layer>(1),
+                                       1.0,
+                                       16,
+                                       0,
+                                       color32{0xFFC8C8C8}};
 
         auto *v16 = this->field_90[4];
         this->field_E4 = v15;
@@ -171,9 +171,7 @@ void pause_menu_status::_Load() {
         this->field_128 = 0;
         this->field_11C = v29 - v23;
         this->update_selected();
-    }
-    else
-    {
+    } else {
         THISCALL(0x0063B890, this);
     }
 }
@@ -207,13 +205,13 @@ mString *pause_menu_status::get_element_desc(mString *out, int a3)
     return result;
 }
 
-void pause_menu_status::update_selected() {
+void pause_menu_status::update_selected()
+{
     TRACE("pause_menu_status::update_selected");
 
     if constexpr (STANDALONE_SYSTEM) {
         if (field_10C == field_108 && field_114 != field_110) {
-            const int element_count =
-                field_EC == 0 ? 17 : field_EC == 1 ? 21 : field_EC == 2 ? 4 : 0;
+            const int element_count = field_EC == 0 ? 17 : field_EC == 1 ? 21 : field_EC == 2 ? 4 : 0;
             int element_index = field_128;
             for (int row = field_FC; row <= field_100; ++row, ++element_index) {
                 mString left;
@@ -236,8 +234,8 @@ void pause_menu_status::update_selected() {
                         break;
                     }
                 }
-                field_A4[row]->SetTextNoLocalize(FEText::string {left});
-                field_A4[field_104 + row]->SetTextNoLocalize(FEText::string {right});
+                field_A4[row]->SetTextNoLocalize(FEText::string{left});
+                field_A4[field_104 + row]->SetTextNoLocalize(FEText::string{right});
             }
         }
 
@@ -246,14 +244,13 @@ void pause_menu_status::update_selected() {
         get_element_desc(&description_text, field_110);
         float description_scale;
         std::memcpy(&description_scale, &description->field_7C, sizeof(description_scale));
-        description->SetTextBoxNoLocalize(
-            FEText::string {description_text}, -1, Float {description_scale});
+        description->SetTextBoxNoLocalize(FEText::string{description_text}, -1, Float{description_scale});
 
-        const color32 normal_color {0xFFC87238};
-        const color32 selected_color {0xFFE6D03F};
+        const color32 normal_color{0xFFC87238};
+        const color32 selected_color{0xFFE6D03F};
         if (!field_12C && field_12D) {
             auto *nav_text = field_E8->field_30->text_box;
-            nav_text->SetNoFlash(color32 {0xFFC8C8C8});
+            nav_text->SetNoFlash(color32{0xFFC8C8C8});
             nav_text->SetScale(1.0f, 1.0f);
             field_2C[23]->SetAlpha(1.0f);
             field_2C[24]->SetAlpha(1.0f);
@@ -270,7 +267,7 @@ void pause_menu_status::update_selected() {
             nav_text->SetScale(1.2f, 1.2f);
             field_2C[23]->SetAlpha(0.0f);
             field_2C[24]->SetAlpha(0.0f);
-            description->SetTextNoLocalize(FEText::string {mString {""}});
+            description->SetTextNoLocalize(FEText::string{mString{""}});
         } else {
             field_A4[field_108]->SetNoFlash(selected_color);
             field_A4[field_108]->SetScale(1.2f, 1.2f);
@@ -279,8 +276,8 @@ void pause_menu_status::update_selected() {
         }
 
         auto set_center = [](PanelQuad *quad, float target_x, float target_y) {
-            float x[4] {};
-            float y[4] {};
+            float x[4]{};
+            float y[4]{};
             quad->GetPos(x, y);
             const float delta_x = target_x - quad->GetCenterX();
             const float delta_y = target_y - quad->GetCenterY();
@@ -291,23 +288,12 @@ void pause_menu_status::update_selected() {
             quad->SetPos(x, y);
         };
 
-        set_center(
-            field_2C[23],
-            field_2C[23]->GetCenterX(),
-            field_A4[field_108]->GetY() + field_118);
-        set_center(
-            field_2C[24],
-            field_2C[24]->GetCenterX(),
-            field_A4[field_108]->GetY() + field_11C);
+        set_center(field_2C[23], field_2C[23]->GetCenterX(), field_A4[field_108]->GetY() + field_118);
+        set_center(field_2C[24], field_2C[24]->GetCenterX(), field_A4[field_108]->GetY() + field_11C);
 
-        const int element_count =
-            field_EC == 0 ? 17 : field_EC == 1 ? 21 : field_EC == 2 ? 4 : 0;
-        const float scroll_fraction =
-            element_count > 1 ? static_cast<float>(field_110) / (element_count - 1) : 0.0f;
-        set_center(
-            field_90[4],
-            field_90[4]->GetCenterX(),
-            field_120 + (field_124 - field_120) * scroll_fraction);
+        const int element_count = field_EC == 0 ? 17 : field_EC == 1 ? 21 : field_EC == 2 ? 4 : 0;
+        const float scroll_fraction = element_count > 1 ? static_cast<float>(field_110) / (element_count - 1) : 0.0f;
+        set_center(field_90[4], field_90[4]->GetCenterX(), field_120 + (field_124 - field_120) * scroll_fraction);
 
         field_10C = field_108;
         field_114 = field_110;

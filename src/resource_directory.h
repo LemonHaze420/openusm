@@ -50,7 +50,7 @@ public:
     int type_end_idxs[71];
 #endif
 
-    uint8_t * get_mash_data(uint32_t offset);
+    uint8_t *get_mash_data(uint32_t offset);
 
     void debug_print() const;
 

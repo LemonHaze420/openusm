@@ -24,35 +24,30 @@ VALIDATE_SIZE(ai_tentacle_info, 0xD8u);
 VALIDATE_SIZE(polytube_render_info, 0x28);
 
 polytube_render_info::polytube_render_info()
-    : texture(string_hash{0}, RESOURCE_KEY_TYPE_NONE), blend_mode(-1),
-      radius(0.05f), texture_scale(1.0f), num_sides(0), spline_flags(5), field_1C(0)
-{
-}
+    : texture(string_hash{0}, RESOURCE_KEY_TYPE_NONE), blend_mode(-1), radius(0.05f), texture_scale(1.0f), num_sides(0),
+      spline_flags(5), field_1C(0)
+{}
 
 ai_tentacle_info::ai_tentacle_info(ai::ai_core *core)
-    : field_0(string_hash{0}, static_cast<resource_key_type>(64)),
-      my_ai(core), tentacle(nullptr), field_14(0.0f), field_18(0.0f), field_1C(1.0f),
-      tween_timer(0.0f), tween_duration(-1.0f), tween_amount(0.0f),
-      field_38(1.0f, 0.0f, 0.0f, 0.0f),
-      tween_positions{}, base_node(nullptr), end_node(nullptr), nodes{},
-      field_60{}, end_pos{}, field_78(1.0f, 0.0f, 0.0f, 0.0f),
-      positions{}, node_po_storage{}, field_98(0.0f), field_9C(1.0f),
-      field_A0(0.0f), field_A4(0.5f), field_A8(36), field_B8(0), field_BC(0),
-      field_CC(-1.0f), field_D0(0), field_D4(-1)
+    : field_0(string_hash{0}, static_cast<resource_key_type>(64)), my_ai(core), tentacle(nullptr), field_14(0.0f),
+      field_18(0.0f), field_1C(1.0f), tween_timer(0.0f), tween_duration(-1.0f), tween_amount(0.0f),
+      field_38(1.0f, 0.0f, 0.0f, 0.0f), tween_positions{}, base_node(nullptr), end_node(nullptr), nodes{}, field_60{},
+      end_pos{}, field_78(1.0f, 0.0f, 0.0f, 0.0f), positions{}, node_po_storage{}, field_98(0.0f), field_9C(1.0f),
+      field_A0(0.0f), field_A4(0.5f), field_A8(36), field_B8(0), field_BC(0), field_CC(-1.0f), field_D0(0), field_D4(-1)
 {
     void *memory = sizeof(polytube_render_info) > slab_allocator::get_max_object_size()
-        ? ::operator new(sizeof(polytube_render_info))
-        : slab_allocator::allocate(sizeof(polytube_render_info), nullptr);
+                       ? ::operator new(sizeof(polytube_render_info))
+                       : slab_allocator::allocate(sizeof(polytube_render_info), nullptr);
     render_info = ::new (memory) polytube_render_info;
 }
 
 namespace {
 void destroy_tentacle_engine(ai_tentacle_engine *engine)
 {
-    using destroy_fn = void (__fastcall *)(ai_tentacle_engine *, void *, unsigned int);
+    using destroy_fn = void(__fastcall *)(ai_tentacle_engine *, void *, unsigned int);
     reinterpret_cast<destroy_fn>(get_vfunc(engine->m_vtbl, 0))(engine, nullptr, 1);
 }
-}
+}  // namespace
 
 ai_tentacle_info::~ai_tentacle_info()
 {
@@ -137,7 +132,7 @@ void ai_tentacle_info::frame_advance(Float time_step)
         }
     }
     if (auto *engine = engines._first_element) {
-        using advance_fn = bool (__fastcall *)(ai_tentacle_engine *, void *, Float, bool);
+        using advance_fn = bool(__fastcall *)(ai_tentacle_engine *, void *, Float, bool);
         if (reinterpret_cast<advance_fn>(get_vfunc(engine->m_vtbl, 0xC))(engine, nullptr, time_step, false)) {
             engines.erase(engine);
             destroy_tentacle_engine(engine);
@@ -276,13 +271,13 @@ void ai_tentacle_info::init_positions(bool blend)
     }
 }
 
-vector3d ai_tentacle_info::correct_tentacle_pos(line_info &line, bool &previous_collision,
-                                               vector3d &previous_direction, vector3d &previous_normal)
+vector3d ai_tentacle_info::correct_tentacle_pos(line_info &line, bool &previous_collision, vector3d &previous_direction,
+                                                vector3d &previous_normal)
 {
     vector3d result = line.field_C;
-    if ((field_A8 & 4) == 0 ||
-        !line.check_collision(*local_collision::entfilter_entity_no_capsules,
-                              *local_collision::obbfilter_lineseg_test, nullptr)) {
+    if ((field_A8 & 4) == 0 || !line.check_collision(*local_collision::entfilter_entity_no_capsules,
+                                                     *local_collision::obbfilter_lineseg_test,
+                                                     nullptr)) {
         previous_collision = false;
         return result;
     }
@@ -367,7 +362,8 @@ void ai_tentacle_info::create_tentacle(polytube *tube)
     }
     field_A8 &= ~0x100;
     void *memory = sizeof(polytube) <= slab_allocator::get_max_object_size()
-        ? slab_allocator::allocate(sizeof(polytube), nullptr) : ::operator new(sizeof(polytube));
+                       ? slab_allocator::allocate(sizeof(polytube), nullptr)
+                       : ::operator new(sizeof(polytube));
     tentacle = ::new (memory) polytube(make_unique_entity_id(), 0);
     g_world_ptr->ent_mgr.add_dynamic_instanced_entity(tentacle);
     tentacle->set_force_start(true);
@@ -495,8 +491,8 @@ void ai_tentacle_info::update_spline()
                             entity_set_abs_po(nodes[i - 1], node_po_storage[i]);
                     } else if (i == node_po_storage.size() - 1) {
                         const po &previous = node_po_storage[i - 1];
-                        align_pose(node_po_storage[i], previous,
-                                   node_po_storage[i].get_position() + previous.get_z_facing());
+                        align_pose(
+                            node_po_storage[i], previous, node_po_storage[i].get_position() + previous.get_z_facing());
                         if (apply_poses && !ragdoll && end_node != nullptr)
                             entity_set_abs_po(end_node, end_pose);
                     }
@@ -526,8 +522,8 @@ void ai_tentacle_info::update_spline()
         field_98 = 0.0f;
         const int count = nodes.size() != 0 ? nodes.size() : positions.size();
         for (int i = 0; i < count; ++i, index += step) {
-            const vector3d point = inverse.slow_xform(nodes.size() != 0
-                ? nodes[i]->get_abs_position() : tentacle->get_control_pt(index));
+            const vector3d point =
+                inverse.slow_xform(nodes.size() != 0 ? nodes[i]->get_abs_position() : tentacle->get_control_pt(index));
             if (tentacle != nullptr)
                 tentacle->set_control_pt(index, point);
             field_98 += (point - previous).length();
@@ -543,8 +539,7 @@ void ai_tentacle_info::update_spline()
                 const float difference = field_98 - field_9C;
                 if (std::abs(difference) > EPSILON) {
                     const float amount = std::min(std::abs(difference / field_A0), 1.0f);
-                    const float target = difference > 0.0f
-                        ? render_info->field_20 : render_info->field_24;
+                    const float target = difference > 0.0f ? render_info->field_20 : render_info->field_24;
                     tiles += (target - tiles) * amount;
                 }
                 tentacle->tiles_per_meter = tiles;
@@ -616,8 +611,8 @@ void ai_tentacle_info::create_line(const vector3d &end, const vector3d *facing)
     for (int i = 0; i < positions.size(); ++i)
         positions[i] = start + direction * ((i + 1) * interval);
     end_pos = end;
-    vector3d forward = facing != nullptr ? *facing
-        : end_pos - (positions.size() != 0 ? positions[positions.size() - 1] : start);
+    vector3d forward =
+        facing != nullptr ? *facing : end_pos - (positions.size() != 0 ? positions[positions.size() - 1] : start);
     const float forward_length = forward.length();
     if (forward_length >= EPSILON) {
         forward *= 1.0f / forward_length;

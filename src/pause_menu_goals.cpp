@@ -13,8 +13,7 @@ void pause_menu_goals::initialize()
     auto *table = g_game_ptr->field_7C;
     field_0 = table->lookup_localized_string(static_cast<global_text_enum>(275));
 
-    for (int i = 0; i < 4; ++i)
-    {
+    for (int i = 0; i < 4; ++i) {
         field_10[i] = table->lookup_localized_string(static_cast<global_text_enum>(276 + i));
         field_50[i] = table->lookup_localized_string(static_cast<global_text_enum>(280 + i));
         field_90[i] = table->lookup_localized_string(static_cast<global_text_enum>(284 + i));

@@ -37,13 +37,13 @@ ai::ai_core *get_ai_core_from_vhandle(entity_base_vhandle a1)
     auto *ent = a1.get_volatile_ptr();
     assert(ent != nullptr && "This entity is invalid!");
 
-    if ( ent == nullptr ) {
+    if (ent == nullptr) {
         return nullptr;
     }
 
     assert(ent->is_an_actor() && "This entity is not an actor!");
 
-    if ( !ent->is_an_actor() ) {
+    if (!ent->is_an_actor()) {
         return nullptr;
     }
 
@@ -54,7 +54,7 @@ ai::ai_core *get_ai_core_from_vhandle(entity_base_vhandle a1)
 string_hash get_ai_param_hash_and_core(entity_base_vhandle a2, const char *a3, ai::ai_core **a4, bool a5)
 {
     *a4 = get_ai_core_from_vhandle(a2);
-    string_hash a1 {a3};
+    string_hash a1{a3};
     if (*a4) {
         if (a5) {
             auto *pb = (*a4)->get_param_block();
@@ -62,7 +62,7 @@ string_hash get_ai_param_hash_and_core(entity_base_vhandle a2, const char *a3, a
                 auto *v8 = (*a4)->get_actor(0);
                 auto id = v8->get_id();
                 auto v10 = id.to_string();
-                mString v16 {0, "Unknown AI parameter %s requested by entity %s, from script", a3, v10};
+                mString v16{0, "Unknown AI parameter %s requested by entity %s, from script", a3, v10};
                 auto *v11 = v16.c_str();
                 error(v11);
             }
@@ -75,7 +75,7 @@ string_hash get_ai_param_hash_and_core(entity_base_vhandle a2, const char *a3, a
 struct slf__entity__abs_snap_to__entity__t : script_library_class::function {
     slf__entity__abs_snap_to__entity__t(script_library_class *slc, const char *a3) : function(slc, a3)
     {
-        m_vtbl = (decltype(m_vtbl)) 0x0089AE34;
+        m_vtbl = (decltype(m_vtbl))0x0089AE34;
     }
 
     bool operator()(vm_stack &, script_library_class::function::entry_t) const
@@ -102,10 +102,10 @@ struct slf__entity__add_collision_ignorance__entity__t : script_library_class::f
         SLF_PARMS;
 
         auto *eb_parms_me = bit_cast<actor *>(parms->me.get_volatile_ptr());
-        if ( eb_parms_me != nullptr ) {
+        if (eb_parms_me != nullptr) {
             auto *eb_parms_it = parms->it.get_volatile_ptr();
-            if ( eb_parms_it != nullptr ) {
-                if ( eb_parms_me->is_an_actor() && eb_parms_it->is_an_actor() ) {
+            if (eb_parms_it != nullptr) {
+                if (eb_parms_me->is_an_actor() && eb_parms_it->is_an_actor()) {
                     eb_parms_me->add_collision_ignorance(eb_parms_it->my_handle);
                 }
             }
@@ -148,14 +148,14 @@ struct slf__entity__add_item__entity__t : script_library_class::function {
 
         auto *eb_parms_me = parms->me.get_volatile_ptr();
         auto *eb_parms_it = parms->it.get_volatile_ptr();
-        if ( !eb_parms_me || !eb_parms_it ) {
+        if (!eb_parms_me || !eb_parms_it) {
             SLF_DONE;
         }
 
         assert(eb_parms_it->get_flavor() == ENTITY_ITEM);
 
-        if ( eb_parms_me->is_an_actor() ) {
-            if ( eb_parms_me->is_hero() ) {
+        if (eb_parms_me->is_an_actor()) {
+            if (eb_parms_me->is_hero()) {
                 sp_log("This doesn't actually give the item to the hero. Talk to a coder to find out the new way to do "
                        "this");
             } else {
@@ -536,8 +536,7 @@ struct slf__entity__apply_damage__num__t : script_library_class::function {
     bool operator()(vm_stack &stack, script_library_class::function::entry_t) const
     {
         stack.pop(sizeof(entity_base_vhandle) + sizeof(vm_num_t));
-        const auto *parameters =
-            reinterpret_cast<const entity_base_vhandle *>(stack.get_SP());
+        const auto *parameters = reinterpret_cast<const entity_base_vhandle *>(stack.get_SP());
         (void)parameters[0].get_volatile_ptr();
         return true;
     }
@@ -606,8 +605,7 @@ struct slf__entity__apply_subdue__num__t : script_library_class::function {
     bool operator()(vm_stack &stack, script_library_class::function::entry_t) const
     {
         stack.pop(sizeof(entity_base_vhandle) + sizeof(vm_num_t));
-        const auto *parameters =
-            reinterpret_cast<const entity_base_vhandle *>(stack.get_SP());
+        const auto *parameters = reinterpret_cast<const entity_base_vhandle *>(stack.get_SP());
         (void)parameters[0].get_volatile_ptr();
         return true;
     }
@@ -979,8 +977,7 @@ struct slf__entity__get_abs_position__t : script_library_class::function {
     bool operator()(vm_stack &stack, script_library_class::function::entry_t) const
     {
         stack.pop(sizeof(entity_base_vhandle));
-        const auto handle =
-            *reinterpret_cast<const entity_base_vhandle *>(stack.get_SP());
+        const auto handle = *reinterpret_cast<const entity_base_vhandle *>(stack.get_SP());
         vector3d result{};
         if (auto *entity_ptr = handle.get_volatile_ptr(); entity_ptr != nullptr) {
             result = entity_ptr->get_abs_position();
@@ -1088,7 +1085,7 @@ struct slf__entity__get_anchor_point__t : script_library_class::function {
     {
         SLF_PARMS;
 
-        vector3d result {0, 0, 0};
+        vector3d result{0, 0, 0};
         if (parms->me.get_volatile_ptr() != nullptr) {
             assert(0 && "This function has been disabled (for now?)");
         }
@@ -1189,14 +1186,11 @@ struct slf__entity__get_facing__t : script_library_class::function {
     bool operator()(vm_stack &stack, script_library_class::function::entry_t) const
     {
         stack.pop(sizeof(entity_base_vhandle));
-        const auto handle =
-            *reinterpret_cast<const entity_base_vhandle *>(stack.get_SP());
+        const auto handle = *reinterpret_cast<const entity_base_vhandle *>(stack.get_SP());
         vector3d result{};
         if (auto *entity_ptr = handle.get_volatile_ptr(); entity_ptr != nullptr) {
             const auto &transform = entity_ptr->get_abs_po();
-            result = entity_ptr->get_flavor() == 10
-                ? transform.get_y_facing()
-                : transform.get_z_facing();
+            result = entity_ptr->get_flavor() == 10 ? transform.get_y_facing() : transform.get_z_facing();
         }
         SLF_RETURN;
         return true;
@@ -1263,7 +1257,10 @@ struct slf__entity__get_ifc_num__str__t : script_library_class::function {
 
     bool operator()(vm_stack &stack, script_library_class::function::entry_t) const
     {
-        struct parms_t { entity_base_vhandle owner; const char *path; };
+        struct parms_t {
+            entity_base_vhandle owner;
+            const char *path;
+        };
         SLF_PARMS;
         float result = 0.0f;
         if (auto *owner = parms->owner.get_volatile_ptr()) {
@@ -1552,11 +1549,9 @@ struct slf__entity__get_render_alpha__t : script_library_class::function {
     bool operator()(vm_stack &stack, script_library_class::function::entry_t) const
     {
         stack.pop(sizeof(entity_base_vhandle));
-        const auto handle =
-            *reinterpret_cast<const entity_base_vhandle *>(stack.get_SP());
+        const auto handle = *reinterpret_cast<const entity_base_vhandle *>(stack.get_SP());
         float result = 1.0f;
-        if (auto *entity_ptr = handle.get_volatile_ptr();
-            entity_ptr != nullptr && entity_ptr->is_an_entity()) {
+        if (auto *entity_ptr = handle.get_volatile_ptr(); entity_ptr != nullptr && entity_ptr->is_an_entity()) {
             const auto color = static_cast<entity *>(entity_ptr)->get_render_color();
             result = static_cast<unsigned char>(color.field_0[3]) / 255.0f;
         }
@@ -1832,11 +1827,9 @@ struct slf__entity__is_a_car__t : script_library_class::function {
     bool operator()(vm_stack &stack, script_library_class::function::entry_t) const
     {
         stack.pop(sizeof(entity_base_vhandle));
-        const auto entity_handle =
-            *reinterpret_cast<const entity_base_vhandle *>(stack.get_SP());
+        const auto entity_handle = *reinterpret_cast<const entity_base_vhandle *>(stack.get_SP());
         const auto *entity_ptr = entity_handle.get_volatile_ptr();
-        float result =
-            entity_ptr != nullptr && entity_ptr->is_flagged(0x800u) ? 1.0f : 0.0f;
+        float result = entity_ptr != nullptr && entity_ptr->is_flagged(0x800u) ? 1.0f : 0.0f;
         SLF_RETURN;
         return true;
     }
@@ -1891,8 +1884,7 @@ struct slf__entity__is_valid__t : script_library_class::function {
     bool operator()(vm_stack &stack, script_library_class::function::entry_t) const
     {
         stack.pop(sizeof(entity_base_vhandle));
-        const auto handle =
-            *reinterpret_cast<const entity_base_vhandle *>(stack.get_SP());
+        const auto handle = *reinterpret_cast<const entity_base_vhandle *>(stack.get_SP());
         float result = handle.get_volatile_ptr() != nullptr ? 1.0f : 0.0f;
         SLF_RETURN;
         return true;
@@ -2037,8 +2029,7 @@ struct slf__entity__operator_not_equals__entity__t : script_library_class::funct
     bool operator()(vm_stack &stack, script_library_class::function::entry_t) const
     {
         stack.pop(2 * sizeof(entity_base_vhandle));
-        const auto *handles =
-            reinterpret_cast<const entity_base_vhandle *>(stack.get_SP());
+        const auto *handles = reinterpret_cast<const entity_base_vhandle *>(stack.get_SP());
         float result = handles[0] != handles[1] ? 1.0f : 0.0f;
         SLF_RETURN;
         return true;
@@ -2058,8 +2049,7 @@ struct slf__entity__operator_equals_equals__entity__t : script_library_class::fu
     bool operator()(vm_stack &stack, script_library_class::function::entry_t) const
     {
         stack.pop(2 * sizeof(entity_base_vhandle));
-        const auto *handles =
-            reinterpret_cast<const entity_base_vhandle *>(stack.get_SP());
+        const auto *handles = reinterpret_cast<const entity_base_vhandle *>(stack.get_SP());
         float result = handles[0] == handles[1] ? 1.0f : 0.0f;
         SLF_RETURN;
         return true;
@@ -2092,8 +2082,7 @@ struct slf__entity__physical_ifc_apply_force__vector3d__num__t : script_library_
 };
 
 struct slf__entity__physical_ifc_cancel_all_velocity__t : script_library_class::function {
-    slf__entity__physical_ifc_cancel_all_velocity__t(script_library_class *slc, const char *a3)
-        : function(slc, a3)
+    slf__entity__physical_ifc_cancel_all_velocity__t(script_library_class *slc, const char *a3) : function(slc, a3)
     {
 #if STANDALONE_SYSTEM
         bind_standalone_entity_slf(this);
@@ -2105,10 +2094,8 @@ struct slf__entity__physical_ifc_cancel_all_velocity__t : script_library_class::
     bool operator()(vm_stack &stack, script_library_class::function::entry_t) const
     {
         stack.pop(sizeof(entity_base_vhandle));
-        const auto handle =
-            *reinterpret_cast<const entity_base_vhandle *>(stack.get_SP());
-        if (auto *entity_ptr = handle.get_volatile_ptr();
-            entity_ptr != nullptr && entity_ptr->has_physical_ifc()) {
+        const auto handle = *reinterpret_cast<const entity_base_vhandle *>(stack.get_SP());
+        if (auto *entity_ptr = handle.get_volatile_ptr(); entity_ptr != nullptr && entity_ptr->has_physical_ifc()) {
             entity_ptr->physical_ifc()->set_velocity(ZEROVEC, false);
         }
         return true;
@@ -2487,8 +2474,7 @@ struct slf__entity__remove_vehicle_from_traffic_system__t : script_library_class
 };
 
 struct slf__entity__render_name__num__t : script_library_class::function {
-    slf__entity__render_name__num__t(script_library_class *slc, const char *name) :
-            function(slc, name)
+    slf__entity__render_name__num__t(script_library_class *slc, const char *name) : function(slc, name)
     {
         m_vtbl = CAST(m_vtbl, 0x0089B47C);
         auto local_vtbl = CAST(m_vtbl, mem_alloc(sizeof(*m_vtbl)));
@@ -2724,8 +2710,7 @@ struct slf__entity__set_crawlable__num__t : script_library_class::function {
 };
 
 struct slf__entity__set_default_variant__t : script_library_class::function {
-    slf__entity__set_default_variant__t(script_library_class *slc, const char *a3)
-        : function(slc, a3)
+    slf__entity__set_default_variant__t(script_library_class *slc, const char *a3) : function(slc, a3)
     {
 #if STANDALONE_SYSTEM
         bind_standalone_entity_slf(this);
@@ -2777,16 +2762,13 @@ struct slf__entity__set_entity_blur__num__t : script_library_class::function {
     bool operator()(vm_stack &stack, script_library_class::function::entry_t) const
     {
         SLF_PARMS;
-        (void) parms->entity.get_volatile_ptr();
+        (void)parms->entity.get_volatile_ptr();
         return true;
     }
 };
 
-struct slf__entity__set_facing__vector3d__vector3d__t
-    : script_library_class::function {
-    slf__entity__set_facing__vector3d__vector3d__t(
-        script_library_class *slc, const char *a3)
-        : function(slc, a3)
+struct slf__entity__set_facing__vector3d__vector3d__t : script_library_class::function {
+    slf__entity__set_facing__vector3d__vector3d__t(script_library_class *slc, const char *a3) : function(slc, a3)
     {
         bind_standalone_entity_slf(this);
     }
@@ -2797,15 +2779,12 @@ struct slf__entity__set_facing__vector3d__vector3d__t
         vector3d up;
     };
 
-    bool operator()(vm_stack &stack,
-                    script_library_class::function::entry_t) const
+    bool operator()(vm_stack &stack, script_library_class::function::entry_t) const
     {
         SLF_PARMS;
-        if (auto *entity_ptr = parms->entity.get_volatile_ptr();
-            entity_ptr != nullptr) {
+        if (auto *entity_ptr = parms->entity.get_volatile_ptr(); entity_ptr != nullptr) {
             auto transform = entity_ptr->get_rel_po();
-            transform.set_po(
-                parms->facing, parms->up, transform.get_position());
+            transform.set_po(parms->facing, parms->up, transform.get_position());
             entity_ptr->set_abs_po(transform);
         }
         return true;
@@ -2848,7 +2827,11 @@ struct slf__entity__set_ifc_num__str__num__t : script_library_class::function {
 
     bool operator()(vm_stack &stack, script_library_class::function::entry_t) const
     {
-        struct parms_t { entity_base_vhandle owner; const char *path; float value; };
+        struct parms_t {
+            entity_base_vhandle owner;
+            const char *path;
+            float value;
+        };
         SLF_PARMS;
         if (auto *owner = parms->owner.get_volatile_ptr()) {
             const auto key = create_resource_key_from_path(parms->path, RESOURCE_KEY_TYPE_IFC_ATTRIBUTE);
@@ -3127,11 +3110,8 @@ struct slf__entity__set_pendulum_length__num__t : script_library_class::function
     }
 };
 
-struct slf__entity__set_abs_position__vector3d__t
-    : script_library_class::function {
-    slf__entity__set_abs_position__vector3d__t(
-        script_library_class *slc, const char *a3)
-        : function(slc, a3)
+struct slf__entity__set_abs_position__vector3d__t : script_library_class::function {
+    slf__entity__set_abs_position__vector3d__t(script_library_class *slc, const char *a3) : function(slc, a3)
     {
         bind_standalone_entity_slf(this);
     }
@@ -3141,12 +3121,10 @@ struct slf__entity__set_abs_position__vector3d__t
         vector3d position;
     };
 
-    bool operator()(vm_stack &stack,
-                    script_library_class::function::entry_t) const
+    bool operator()(vm_stack &stack, script_library_class::function::entry_t) const
     {
         SLF_PARMS;
-        if (auto *entity_ptr = parms->entity.get_volatile_ptr();
-            entity_ptr != nullptr) {
+        if (auto *entity_ptr = parms->entity.get_volatile_ptr(); entity_ptr != nullptr) {
             entity_ptr->set_abs_position(parms->position);
         }
         return true;
@@ -3220,8 +3198,7 @@ struct slf__entity__set_rel_position__vector3d__t : script_library_class::functi
 
         auto *marky_camera = g_world_ptr->field_28.field_44;
         if (entity_ptr == marky_camera &&
-            bit_cast<uint32_t>(stack.get_thread()->field_1E0) !=
-                bit_cast<uint32_t>(marky_camera->field_1D8)) {
+            bit_cast<uint32_t>(stack.get_thread()->field_1E0) != bit_cast<uint32_t>(marky_camera->field_1D8)) {
             return true;
         }
 
@@ -3234,8 +3211,7 @@ struct slf__entity__set_rel_position__vector3d__t : script_library_class::functi
         }
 
         if (physical != nullptr && (physical->field_C & 0x80000) != 0) {
-            const vector3d translation =
-                parms->position - entity_ptr->get_rel_position();
+            const vector3d translation = parms->position - entity_ptr->get_rel_position();
             (void)translation;
             (void)physical->get_biped_system();
             // 0x0059F400 biped_system::translate_bones is a retail no-op.
@@ -3434,8 +3410,7 @@ struct slf__entity__set_velocity__vector3d__t : script_library_class::function {
         SLF_PARMS;
         if (auto *entity_ptr = parms->entity.get_volatile_ptr();
             entity_ptr != nullptr && entity_ptr->has_physical_ifc()) {
-            const auto velocity =
-                entity_ptr->get_abs_po().non_affine_slow_xform(parms->velocity);
+            const auto velocity = entity_ptr->get_abs_po().non_affine_slow_xform(parms->velocity);
             entity_ptr->physical_ifc()->set_velocity(velocity, false);
         }
         return true;
@@ -3965,12 +3940,11 @@ slc_entity_t *slc_entity = nullptr;
 
 void register_entity_lib()
 {
-#define BUILD_SLF_NAME(_KLASS, _TYPE) slf__ ## _KLASS ## __ ## _TYPE ## __t
+#define BUILD_SLF_NAME(_KLASS, _TYPE) slf__##_KLASS##__##_TYPE##__t
 
-#define CREATE_SLF(KLASS, TYPE, NAME)                                                        \
-    do {                                                                                     \
-        new (mem_alloc(sizeof(BUILD_SLF_NAME(KLASS, TYPE)))) BUILD_SLF_NAME(KLASS, TYPE) {   \
-            slc_entity, NAME};                                                               \
+#define CREATE_SLF(KLASS, TYPE, NAME)                                                                       \
+    do {                                                                                                    \
+        new (mem_alloc(sizeof(BUILD_SLF_NAME(KLASS, TYPE)))) BUILD_SLF_NAME(KLASS, TYPE){slc_entity, NAME}; \
     } while (false)
 
     CREATE_SLF(entity, abs_snap_to__entity, "abs_snap_to(entity)");

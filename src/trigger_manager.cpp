@@ -91,8 +91,7 @@ void trigger_manager::update()
     auto **link = &m_triggers;
     while (*link != nullptr) {
         auto *before = *link;
-        update_trigger(link, subjects.empty() ? nullptr : &subjects[0],
-                       static_cast<int>(subjects.size()));
+        update_trigger(link, subjects.empty() ? nullptr : &subjects[0], static_cast<int>(subjects.size()));
         if (*link == before) {
             link = &before->m_next_trigger;
         }

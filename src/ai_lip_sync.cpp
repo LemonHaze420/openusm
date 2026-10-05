@@ -13,7 +13,6 @@
 #include <functional>
 
 
-
 struct VisemeStream {
     int viseme_count;
     int phoneme_count;
@@ -31,8 +30,7 @@ VALIDATE_SIZE(ai_lip_sync, 0x50);
 
 bool VisemeStream::apply(nglMesh *mesh, nglMorphSet *morph, float elapsed) const
 {
-    const auto frame = static_cast<int32_t>(static_cast<int64_t>(
-        static_cast<double>(frames_per_second) * elapsed));
+    const auto frame = static_cast<int32_t>(static_cast<int64_t>(static_cast<double>(frames_per_second) * elapsed));
     if (frame >= frame_count)
         return true;
 
@@ -56,7 +54,6 @@ bool ai_lip_sync::sound_start_due() const
 {
     return resource != nullptr && resource->sound_start_delay < elapsed;
 }
-
 
 
 bool ai_lip_sync::play(string_hash sound)
@@ -98,7 +95,6 @@ bool ai_lip_sync::play(string_hash sound)
 }
 
 
-
 void ai_lip_sync::frame_advance(float elapsed_seconds)
 {
     for (int index = 0; index < queued_sounds.m_size;) {
@@ -114,17 +110,14 @@ void ai_lip_sync::frame_advance(float elapsed_seconds)
             sound.to_string();
         const int sounds_after = queued_sounds.m_size - index - 1;
         if (sounds_after != 0)
-            std::memmove(queued_sounds.m_data + index, queued_sounds.m_data + index + 1,
-                         sounds_after * sizeof(string_hash));
+            std::memmove(
+                queued_sounds.m_data + index, queued_sounds.m_data + index + 1, sounds_after * sizeof(string_hash));
         --queued_sounds.m_size;
         const int delays_after = queued_delays.m_size - index - 1;
         if (delays_after != 0)
-            std::memmove(queued_delays.m_data + index, queued_delays.m_data + index + 1,
-                         delays_after * sizeof(float));
+            std::memmove(queued_delays.m_data + index, queued_delays.m_data + index + 1, delays_after * sizeof(float));
         --queued_delays.m_size;
     }
-
-
 
 
     if (resource == nullptr)
@@ -146,8 +139,7 @@ void ai_lip_sync::stop_all()
     if (removed != 0) {
         const int delays_remaining = queued_delays.m_size - removed;
         if (delays_remaining != 0)
-            std::memmove(queued_delays.m_data, queued_delays.m_data + removed,
-                         delays_remaining * sizeof(float));
+            std::memmove(queued_delays.m_data, queued_delays.m_data + removed, delays_remaining * sizeof(float));
         queued_sounds.m_size = 0;
         queued_delays.m_size = delays_remaining;
     }

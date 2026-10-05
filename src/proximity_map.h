@@ -9,7 +9,8 @@ struct fixed_pool;
 struct subdivision_visitor;
 struct sector2d;
 struct vector2d;
-template <typename T, uint32_t N> struct fixed_vector;
+template <typename T, uint32_t N>
+struct fixed_vector;
 struct dynamic_proximity_map_stack;
 struct entity;
 struct traverse_test;

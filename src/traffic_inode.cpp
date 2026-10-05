@@ -33,7 +33,10 @@ VALIDATE_OFFSET(traffic_inode, traffic_ptr, 0xC0);
 VALIDATE_OFFSET(traffic_inode, field_C8, 0xC8);
 
 namespace {
-void __fastcall native_destruct(traffic_inode *self, void *) { self->_destruct_mashed_class(); }
+void __fastcall native_destruct(traffic_inode *self, void *)
+{
+    self->_destruct_mashed_class();
+}
 void __fastcall native_unmash(traffic_inode *self, void *, mash_info_struct *info, void *context)
 {
     self->_unmash(info, context);
@@ -45,7 +48,10 @@ void *__fastcall native_delete(traffic_inode *self, void *, unsigned flags)
         mash_virtual_base::operator delete(self, sizeof(traffic_inode));
     return self;
 }
-unsigned __fastcall native_type(traffic_inode *, void *) { return 422; }
+unsigned __fastcall native_type(traffic_inode *, void *)
+{
+    return 422;
+}
 bool __fastcall native_subclass(traffic_inode *, void *, unsigned type)
 {
     return type == 537 || type == 573;
@@ -54,14 +60,29 @@ bool __fastcall native_is_or_subclass(traffic_inode *self, void *, unsigned type
 {
     return self->_is_or_is_subclass_of(static_cast<mash::virtual_types_enum>(type));
 }
-bool __fastcall native_needs_advance(traffic_inode *, void *) { return true; }
-void __fastcall native_advance(traffic_inode *self, void *, Float time) { self->_frame_advance(time); }
-void __fastcall native_activate(traffic_inode *self, void *, ai_core *core) { self->_activate(core); }
+bool __fastcall native_needs_advance(traffic_inode *, void *)
+{
+    return true;
+}
+void __fastcall native_advance(traffic_inode *self, void *, Float time)
+{
+    self->_frame_advance(time);
+}
+void __fastcall native_activate(traffic_inode *self, void *, ai_core *core)
+{
+    self->_activate(core);
+}
 
 void __fastcall native_deactivate(traffic_inode *, void *) {}
-void __fastcall native_reset(traffic_inode *self, void *) { self->_reset(); }
-int __fastcall native_size(traffic_inode *, void *) { return sizeof(traffic_inode); }
+void __fastcall native_reset(traffic_inode *self, void *)
+{
+    self->_reset();
 }
+int __fastcall native_size(traffic_inode *, void *)
+{
+    return sizeof(traffic_inode);
+}
+}  // namespace
 
 void *traffic_inode::native_vtable()
 {
@@ -185,17 +206,12 @@ void traffic_inode::_frame_advance(Float time)
 }
 
 traffic_inode::CarCombatInfo::CarCombatInfo()
-    : section(3), hit_points(200), fire_interval(1.0f), burst_size(0),
-      attack_interval(3.0f), damage(0.0f), sense_lead_time(0.0f), counter_window(0.0f),
-      field_30(false), dodged(false), attack_left(false), attack_announced(false)
-{
+    : section(3), hit_points(200), fire_interval(1.0f), burst_size(0), attack_interval(3.0f), damage(0.0f),
+      sense_lead_time(0.0f), counter_window(0.0f), field_30(false), dodged(false), attack_left(false),
+      attack_announced(false)
+{}
 
-}
-
-traffic_inode::CarCombatInfo::CarCombatInfo(from_mash_in_place_constructor *)
-{
-
-}
+traffic_inode::CarCombatInfo::CarCombatInfo(from_mash_in_place_constructor *) {}
 
 void traffic_inode::CarCombatInfo::reset_timers()
 {
@@ -220,9 +236,8 @@ void traffic_inode::CarCombatInfo::frame_advance(actor *owner, Float time)
     if (attack_timer <= 0.0f)
         shot_timer -= time;
     if (!attack_announced && attack_timer <= 2.0f) {
-        event_manager::raise_event(
-            attack_left ? event::CAR_COMBAT_LEFT_ATTACK : event::CAR_COMBAT_RIGHT_ATTACK,
-            owner->my_handle);
+        event_manager::raise_event(attack_left ? event::CAR_COMBAT_LEFT_ATTACK : event::CAR_COMBAT_RIGHT_ATTACK,
+                                   owner->my_handle);
         attack_announced = true;
     }
     if (sense_timer <= 0.0f) {
@@ -234,8 +249,7 @@ void traffic_inode::CarCombatInfo::frame_advance(actor *owner, Float time)
 
     if (attack_timer <= 0.0f && shot_timer <= 0.0f && burst_size > 0) {
         const double random = std::rand() * (1.0 / 32768.0);
-        shot_timer = (random * 2.0 - 1.0) * fire_interval * 0.25
-            + fire_interval * 0.5 + fire_interval;
+        shot_timer = (random * 2.0 - 1.0) * fire_interval * 0.25 + fire_interval * 0.5 + fire_interval;
         sense_timer = shot_timer - sense_lead_time;
         if (hero->has_damage_ifc()) {
             bool miss = dodged;
@@ -246,21 +260,28 @@ void traffic_inode::CarCombatInfo::frame_advance(actor *owner, Float time)
             attack_announced = false;
             auto *sound = owner->my_sound_and_pfx_interface;
             if (miss) {
-                sound->play_sound_grp(string_hash("CAR_COMBAT_SHOOT_MISS"),
-                    1.0f, 1.0f, 1.0f, -1.0f, -1.0f);
+                sound->play_sound_grp(string_hash("CAR_COMBAT_SHOOT_MISS"), 1.0f, 1.0f, 1.0f, -1.0f, -1.0f);
                 event_manager::raise_event(event::CAR_COMBAT_DODGED, owner->my_handle);
             } else {
                 const vector3d from = owner->get_abs_position();
-                sound->play_sound_grp(string_hash("CAR_COMBAT_SHOOT"),
-                    1.0f, 1.0f, 1.0f, -1.0f, -1.0f);
+                sound->play_sound_grp(string_hash("CAR_COMBAT_SHOOT"), 1.0f, 1.0f, 1.0f, -1.0f, -1.0f);
                 const vector3d direction = (from - hero->get_abs_position()).normalized();
-                hero->damage_ifc()->apply_damage(owner, damage, 6, from, direction, 0,
-                    string_hash("Car_Combat_Damage_Physics"), string_hash{}, string_hash{},
-                    false, ZEROVEC, 17, false);
-                auto *roof_member = static_cast<conglomerate *>(owner)->get_member(
-                    string_hash("ROOF"), true);
-                decal_morphs::create_decal(string_hash("fx_dcl_bullethole"),
-                    roof_member->get_abs_position(), 30.0f, ZEROVEC, owner);
+                hero->damage_ifc()->apply_damage(owner,
+                                                 damage,
+                                                 6,
+                                                 from,
+                                                 direction,
+                                                 0,
+                                                 string_hash("Car_Combat_Damage_Physics"),
+                                                 string_hash{},
+                                                 string_hash{},
+                                                 false,
+                                                 ZEROVEC,
+                                                 17,
+                                                 false);
+                auto *roof_member = static_cast<conglomerate *>(owner)->get_member(string_hash("ROOF"), true);
+                decal_morphs::create_decal(
+                    string_hash("fx_dcl_bullethole"), roof_member->get_abs_position(), 30.0f, ZEROVEC, owner);
             }
         }
         if (--shots_remaining <= 0)
@@ -290,7 +311,6 @@ void traffic_inode::initialize(bool enabled)
 
 void traffic_inode::_reset()
 {
-
     flags = 0;
     traffic_ptr = nullptr;
     animation_vehicle_type = 0;
@@ -307,15 +327,21 @@ void traffic_inode::determine_vehicle_type_for_anims()
     animation_vehicle_type = 0;
     if (traffic_ptr) {
         switch (traffic_ptr->field_C.bodytype) {
-        case 1: animation_vehicle_type = 0; break;
-        case 5: animation_vehicle_type = 2; break;
-        case 6: animation_vehicle_type = 1; break;
+        case 1:
+            animation_vehicle_type = 0;
+            break;
+        case 5:
+            animation_vehicle_type = 2;
+            break;
+        case 6:
+            animation_vehicle_type = 1;
+            break;
         }
     }
 }
 
-void traffic_inode::init(int section, int hit_points, float fire_interval, int burst_size,
-    float attack_interval, float damage, float sense_lead_time, float counter_duration)
+void traffic_inode::init(int section, int hit_points, float fire_interval, int burst_size, float attack_interval,
+                         float damage, float sense_lead_time, float counter_duration)
 {
     auto *owner = get_actor();
     if (!owner->has_damage_ifc())

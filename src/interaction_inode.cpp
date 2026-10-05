@@ -56,7 +56,7 @@ void __fastcall interaction_deactivate(interaction_inode *self, void *)
 {
     self->deactivate();
 }
-}
+}  // namespace
 
 void *interaction_inode::native_vtable()
 {
@@ -128,23 +128,24 @@ void interaction_inode::frame_advance(Float)
             string_hash{static_cast<int>(to_hash("safe_to_put_down"))}, 0, nullptr);
         field_49 = safe != 0;
         const auto &put_down_offset = field_2C->field_70;
-        if ((std::not_equal_to<float>{}(put_down_offset.x, 0.0f) || std::not_equal_to<float>{}(put_down_offset.y, 0.0f) || std::not_equal_to<float>{}(put_down_offset.z, 0.0f)) && safe == 1) {
+        if ((std::not_equal_to<float>{}(put_down_offset.x, 0.0f) ||
+             std::not_equal_to<float>{}(put_down_offset.y, 0.0f) ||
+             std::not_equal_to<float>{}(put_down_offset.z, 0.0f)) &&
+            safe == 1) {
             const auto offset = field_C->get_abs_po().non_affine_slow_xform(field_2C->field_70);
             line_info line;
             line.field_0 = field_C->get_abs_position();
             line.field_C = line.field_0 + offset;
-            line.check_collision(*local_collision::entfilter_entity_no_capsules,
-                                 *local_collision::obbfilter_lineseg_test, nullptr);
+            line.check_collision(
+                *local_collision::entfilter_entity_no_capsules, *local_collision::obbfilter_lineseg_test, nullptr);
             if (line.collision) {
                 field_49 = false;
             }
         }
-        if (field_C->m_player_controller != nullptr &&
-            field_C->m_player_controller->m_spidey_loco_mode == CRAWLING) {
+        if (field_C->m_player_controller != nullptr && field_C->m_player_controller->m_spidey_loco_mode == CRAWLING) {
             field_49 = false;
         }
-        if (field_C->has_physical_ifc() &&
-            field_C->physical_ifc()->field_84.get_volatile_ptr() != nullptr) {
+        if (field_C->has_physical_ifc() && field_C->physical_ifc()->field_84.get_volatile_ptr() != nullptr) {
             field_49 = false;
         }
         auto *state = field_8->my_base_machine->my_curr_state;
@@ -256,8 +257,8 @@ void interaction_inode::deslave_target(bool request_exit_category)
         auto *als_node = static_cast<als_inode *>(core->get_info_node(als_inode::default_id, true));
         auto *system = static_cast<conglomerate *>(target)->get_my_als();
         if (request_exit_category && field_2C->field_6C != string_hash{0}) {
-            als_node->request_category_transition(field_2C->field_6C, static_cast<als::layer_types>(0),
-                                                  true, false, false);
+            als_node->request_category_transition(
+                field_2C->field_6C, static_cast<als::layer_types>(0), true, false, false);
             const auto facing = -target->get_abs_po().get_z_facing();
             als::param_list params;
             params.add_param(0x37, facing);
@@ -276,8 +277,7 @@ bool interaction_inode::is_eligible(string_hash, bool unrestricted)
 {
     auto *controller = static_cast<controller_inode *>(field_8->get_info_node(controller_inode::default_id, true));
     auto *als = static_cast<als_inode *>(field_8->get_info_node(als_inode::default_id, true));
-    if (!als->get_als_layer(static_cast<als::layer_types>(0))->is_interruptable() ||
-        (curr_status == 2 && !field_49))
+    if (!als->get_als_layer(static_cast<als::layer_types>(0))->is_interruptable() || (curr_status == 2 && !field_49))
         return false;
     if (field_8->my_base_machine->my_curr_state->get_name() == hit_react_state::default_id)
         return false;
@@ -289,20 +289,15 @@ bool interaction_inode::is_eligible(string_hash, bool unrestricted)
     const auto held = [controller](int button) {
         return controller->get_button(static_cast<controller_inode::eControllerButton>(button)).is_pressed();
     };
-    if (triggered(1) &&
-        attempt_interaction(0, unrestricted))
+    if (triggered(1) && attempt_interaction(0, unrestricted))
         return true;
-    if (held(1) &&
-        attempt_interaction(6, unrestricted))
+    if (held(1) && attempt_interaction(6, unrestricted))
         return true;
-    if (triggered(3) &&
-        attempt_interaction(2, unrestricted))
+    if (triggered(3) && attempt_interaction(2, unrestricted))
         return true;
-    if (triggered(2) &&
-        attempt_interaction(1, unrestricted))
+    if (triggered(2) && attempt_interaction(1, unrestricted))
         return true;
-    if (triggered(4) &&
-        attempt_interaction(3, unrestricted))
+    if (triggered(4) && attempt_interaction(3, unrestricted))
         return true;
     return attempt_interaction(5, unrestricted);
 }
@@ -324,7 +319,6 @@ bool interaction_inode::attempt_interaction(int button, bool unrestricted)
             }
         }
     } else {
-
         for (int type : {0, 1, 3, 2}) {
             if (scripted || (field_40 & (1 << type)) != 0) {
                 chosen = attempt_interaction_type({type}, button, unrestricted);
@@ -338,13 +332,12 @@ bool interaction_inode::attempt_interaction(int button, bool unrestricted)
 
 bool interaction_inode::attempt_interaction_type(interaction_type_enum type, int button, bool unrestricted)
 {
-
     auto &list = type.value == 3 ? interactable_interface::throw_list() : interactable_interface::generic_list();
     const auto &pose = field_C->get_abs_po();
     const vector3d position = pose.get_position();
     const vector3d facing = pose.get_z_facing();
-    const float threshold = unrestricted ? std::numeric_limits<float>::max()
-        : static_cast<float>(std::cos(1.5707963705062866));
+    const float threshold =
+        unrestricted ? std::numeric_limits<float>::max() : static_cast<float>(std::cos(1.5707963705062866));
     float nearest = std::numeric_limits<float>::max();
     interaction *chosen = nullptr;
     vhandle_type<actor> chosen_actor{0};
@@ -352,18 +345,18 @@ bool interaction_inode::attempt_interaction_type(interaction_type_enum type, int
         auto *target = list.m_data[index].get_volatile_ptr();
         if (target == nullptr) {
             if (index + 1 < list.m_size)
-                std::memmove(list.m_data + index, list.m_data + index + 1,
-                             sizeof(list.m_data[0]) * (list.m_size - index - 1));
+                std::memmove(
+                    list.m_data + index, list.m_data + index + 1, sizeof(list.m_data[0]) * (list.m_size - index - 1));
             --list.m_size;
             continue;
         }
         ++index;
         interaction *triggered = nullptr;
         for (auto *entry : target->m_interactable_ifc->field_4) {
-            if (entry->field_28.value != type.value || entry->field_3C != button ||
-                !entry->field_44 || entry->field_38 > 0.0f)
+            if (entry->field_28.value != type.value || entry->field_3C != button || !entry->field_44 ||
+                entry->field_38 > 0.0f)
                 continue;
-            using contains_fn = bool (__fastcall *)(interaction *, void *, const vector3d *, actor *);
+            using contains_fn = bool(__fastcall *)(interaction *, void *, const vector3d *, actor *);
             if (reinterpret_cast<contains_fn>(get_vfunc(entry->m_vtbl, 0x18))(
                     entry, nullptr, &position, target->m_interactable_ifc->field_0)) {
                 triggered = entry;
@@ -381,8 +374,8 @@ bool interaction_inode::attempt_interaction_type(interaction_type_enum type, int
         const float squared = direction.length2();
         if (squared >= nearest)
             continue;
-        if (!(threshold <= std::numeric_limits<float>::max() &&
-              threshold >= std::numeric_limits<float>::max()) && !triggered->field_46) {
+        if (!(threshold <= std::numeric_limits<float>::max() && threshold >= std::numeric_limits<float>::max()) &&
+            !triggered->field_46) {
             if (squared > 0.0f)
                 direction *= 1.0f / std::sqrt(squared);
             if (dot(direction, facing) < threshold)

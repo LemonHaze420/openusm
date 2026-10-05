@@ -25,8 +25,7 @@ Var<mouselook_controller *> g_mouselook_controller{0x0095C17C};
 
 #if STANDALONE_SYSTEM
 namespace {
-mouselook_controller *__fastcall native_mouselook_destroy(mouselook_controller *self, void *,
-                                                          unsigned char flags)
+mouselook_controller *__fastcall native_mouselook_destroy(mouselook_controller *self, void *, unsigned char flags)
 {
     self->~mouselook_controller();
     if (flags & 1)
@@ -43,15 +42,16 @@ std::intptr_t *native_mouselook_vtable()
 {
     static std::intptr_t table[11];
     static const bool initialized = [] {
-        controller::initialize_native_vtable(
-            table, reinterpret_cast<std::intptr_t>(native_mouselook_destroy),
-            reinterpret_cast<std::intptr_t>(native_mouselook_advance), true);
+        controller::initialize_native_vtable(table,
+                                             reinterpret_cast<std::intptr_t>(native_mouselook_destroy),
+                                             reinterpret_cast<std::intptr_t>(native_mouselook_advance),
+                                             true);
         return true;
     }();
     (void)initialized;
     return table;
 }
-}
+}  // namespace
 #endif
 
 mouselook_controller::mouselook_controller(dolly_and_strafe_mcs *a2, theta_and_psi_mcs *a3, camera *a4)

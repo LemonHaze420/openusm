@@ -64,13 +64,18 @@ enum opcode_t {
 };
 
 inline const char *opcode_t_str[] = {
-    "OP_ADD", "OP_AND", "OP_BF",  "OP_BRA", "OP_BSL", "OP_BSR", "OP_BST",    "OP_BTH",    "OP_DEC", "OP_DIV",
-    "OP_DUP", "OP_EQ",  "OP_GE",  "OP_GT",  "OP_INC", "OP_KIL", "OP_LE",     "",          "OP_LNT", "",
-    "OP_LT",  "OP_MOD", "OP_MUL", "OP_NE",  "OP_NEG", "OP_NOP", "OP_NOT",    "OP_OR",     "OP_POP", "OP_PSH",
-    "OP_RET", "OP_SHL", "OP_SHR", "OP_SPA", "OP_SUB", "OP_XOR", "", "OP_STR_EQ", "OP_STR_NE", "",
-    "", "", "", "OP_ECB", "OP_ESB", "OP_ECO", "OP_SCO", "OP_RE", "OP_RAE", "OP_KILL_THREAD",
-    "OP_FEQZB", "OP_I2S", "OP_F2S", "OP_PSH_STR", "OP_DEL_THREADS", "OP_MS2", "OP_ASF", "OP_PSF",
-    "OP_CPY", "OP_COFF",
+    "OP_ADD",   "OP_AND", "OP_BF",     "OP_BRA",     "OP_BSL",
+    "OP_BSR",   "OP_BST", "OP_BTH",    "OP_DEC",     "OP_DIV",
+    "OP_DUP",   "OP_EQ",  "OP_GE",     "OP_GT",      "OP_INC",
+    "OP_KIL",   "OP_LE",  "",          "OP_LNT",     "",
+    "OP_LT",    "OP_MOD", "OP_MUL",    "OP_NE",      "OP_NEG",
+    "OP_NOP",   "OP_NOT", "OP_OR",     "OP_POP",     "OP_PSH",
+    "OP_RET",   "OP_SHL", "OP_SHR",    "OP_SPA",     "OP_SUB",
+    "OP_XOR",   "",       "OP_STR_EQ", "OP_STR_NE",  "",
+    "",         "",       "",          "OP_ECB",     "OP_ESB",
+    "OP_ECO",   "OP_SCO", "OP_RE",     "OP_RAE",     "OP_KILL_THREAD",
+    "OP_FEQZB", "OP_I2S", "OP_F2S",    "OP_PSH_STR", "OP_DEL_THREADS",
+    "OP_MS2",   "OP_ASF", "OP_PSF",    "OP_CPY",     "OP_COFF",
 };
 
 enum opcode_arg_t {
@@ -92,11 +97,10 @@ enum opcode_arg_t {
 };
 
 inline const char *opcode_arg_t_str[] = {
-    "OP_ARG_NULL",      "OP_ARG_NUM",       "OP_ARG_NUMR",      "OP_ARG_STR",       "OP_ARG_WORD",
-    "OP_ARG_PCR",       "OP_ARG_SPR",       "OP_ARG_POPO",      "OP_ARG_SDR",       "OP_ARG_SFR",
-    "OP_ARG_LFR",       "OP_ARG_CLV",       "OP_ARG_UNDEFINED", "OP_ARG_UNDEFINED", "OP_ARG_UNDEFINED",
-    "OP_ARG_SIG",       "OP_ARG_PSIG",      "OP_ARG_VAR",       "OP_ARG_UNDEFINED", "OP_ARG_UNDEFINED",
-    "OP_ARG_UNDEFINED", "OP_ARG_UNDEFINED", "OP_ARG_UNDEFINED",
+    "OP_ARG_NULL",      "OP_ARG_NUM",       "OP_ARG_NUMR",      "OP_ARG_STR",       "OP_ARG_WORD",      "OP_ARG_PCR",
+    "OP_ARG_SPR",       "OP_ARG_POPO",      "OP_ARG_SDR",       "OP_ARG_SFR",       "OP_ARG_LFR",       "OP_ARG_CLV",
+    "OP_ARG_UNDEFINED", "OP_ARG_UNDEFINED", "OP_ARG_UNDEFINED", "OP_ARG_SIG",       "OP_ARG_PSIG",      "OP_ARG_VAR",
+    "OP_ARG_UNDEFINED", "OP_ARG_UNDEFINED", "OP_ARG_UNDEFINED", "OP_ARG_UNDEFINED", "OP_ARG_UNDEFINED",
 };
 
 inline constexpr uint32_t opcode_arg_t_shift[] = {

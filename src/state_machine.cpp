@@ -72,35 +72,38 @@ const char *state_machine::get_pb_fixedstring(string_hash key) const
     return block->get_pb_fixedstring(key);
 }
 
-string_hash state_machine::get_optional_pb_hash(
-    const string_hash &key, const string_hash &fallback, bool *found) const
+string_hash state_machine::get_optional_pb_hash(const string_hash &key, const string_hash &fallback, bool *found) const
 {
     auto *block = this->find_param_block_with_param(key, static_cast<ai::param_types>(2));
-    if (found != nullptr) *found = block != nullptr;
+    if (found != nullptr)
+        *found = block != nullptr;
     return block != nullptr ? block->get_pb_hash(key) : fallback;
 }
 
-const char *state_machine::get_optional_pb_fixedstring(
-    const string_hash &key, const char *fallback, bool *found) const
+const char *state_machine::get_optional_pb_fixedstring(const string_hash &key, const char *fallback, bool *found) const
 {
     auto *block = this->find_param_block_with_param(key, static_cast<ai::param_types>(3));
-    if (found != nullptr) *found = block != nullptr;
+    if (found != nullptr)
+        *found = block != nullptr;
     return block != nullptr ? block->get_pb_fixedstring(key) : fallback;
 }
 
-const vector3d *state_machine::get_optional_pb_vector3d(
-    const string_hash &key, const vector3d *fallback, bool *found) const
+const vector3d *state_machine::get_optional_pb_vector3d(const string_hash &key, const vector3d *fallback,
+                                                        bool *found) const
 {
     auto *block = this->find_param_block_with_param(key, static_cast<ai::param_types>(4));
-    if (found != nullptr) *found = block != nullptr;
+    if (found != nullptr)
+        *found = block != nullptr;
     return block != nullptr ? block->get_pb_vector3d(key) : fallback;
 }
 
-const variance_variable<float> *state_machine::get_optional_pb_float_variance(
-    const string_hash &key, const variance_variable<float> *fallback, bool *found) const
+const variance_variable<float> *state_machine::get_optional_pb_float_variance(const string_hash &key,
+                                                                              const variance_variable<float> *fallback,
+                                                                              bool *found) const
 {
     auto *block = this->find_param_block_with_param(key, static_cast<ai::param_types>(5));
-    if (found != nullptr) *found = block != nullptr;
+    if (found != nullptr)
+        *found = block != nullptr;
     return block != nullptr ? block->get_pb_float_variance(key) : fallback;
 }
 
@@ -128,38 +131,37 @@ void state_machine::bind_native_vtable(bool layer)
 {
     static void *tables[2][33];
     static const bool initialized = [] {
-        void *common[] = {
-            func_address(&state_machine::get_category_id),
-            func_address(&state_machine::get_state_id),
-            func_address(&state_machine::set_desired_params),
-            func_address(&state_machine::set_desired_param),
-            func_address(&state_machine::request_category_transition),
-            func_address(&state_machine::is_interruptable),
-            func_address(&state_machine::did_transition_succeed),
-            func_address(&state_machine::is_request_satisfied),
-            func_address(&state_machine::is_active),
-            func_address(&state_machine::force_als_state),
-            func_address(&state_machine::_kill_layer),
-            func_address(&state_machine::does_category_exist),
-            func_address(&state_machine::get_pb_float),
-            func_address(&state_machine::get_pb_int),
-            func_address(&state_machine::_get_pb_hash),
-            func_address(&state_machine::get_pb_fixedstring),
-            func_address(&state_machine::get_pb_vector3d),
-            func_address(&state_machine::get_pb_float_variance),
-            func_address(&state_machine::does_parameter_exist),
-            func_address(&state_machine::get_parameter_data_type),
-            func_address(&state_machine::get_time_to_end_of_anim),
-            func_address(&state_machine::get_time_to_signal),
-            func_address(&state_machine::is_cat_our_prev_cat),
-            func_address(&state_machine::is_requesting_category),
-            func_address(&state_machine::finalize),
-            func_address(&state_machine::get_optional_pb_float),
-            func_address(&state_machine::get_optional_pb_int),
-            func_address(&state_machine::get_optional_pb_hash),
-            func_address(&state_machine::get_optional_pb_fixedstring),
-            func_address(&state_machine::get_optional_pb_vector3d),
-            func_address(&state_machine::get_optional_pb_float_variance)};
+        void *common[] = {func_address(&state_machine::get_category_id),
+                          func_address(&state_machine::get_state_id),
+                          func_address(&state_machine::set_desired_params),
+                          func_address(&state_machine::set_desired_param),
+                          func_address(&state_machine::request_category_transition),
+                          func_address(&state_machine::is_interruptable),
+                          func_address(&state_machine::did_transition_succeed),
+                          func_address(&state_machine::is_request_satisfied),
+                          func_address(&state_machine::is_active),
+                          func_address(&state_machine::force_als_state),
+                          func_address(&state_machine::_kill_layer),
+                          func_address(&state_machine::does_category_exist),
+                          func_address(&state_machine::get_pb_float),
+                          func_address(&state_machine::get_pb_int),
+                          func_address(&state_machine::_get_pb_hash),
+                          func_address(&state_machine::get_pb_fixedstring),
+                          func_address(&state_machine::get_pb_vector3d),
+                          func_address(&state_machine::get_pb_float_variance),
+                          func_address(&state_machine::does_parameter_exist),
+                          func_address(&state_machine::get_parameter_data_type),
+                          func_address(&state_machine::get_time_to_end_of_anim),
+                          func_address(&state_machine::get_time_to_signal),
+                          func_address(&state_machine::is_cat_our_prev_cat),
+                          func_address(&state_machine::is_requesting_category),
+                          func_address(&state_machine::finalize),
+                          func_address(&state_machine::get_optional_pb_float),
+                          func_address(&state_machine::get_optional_pb_int),
+                          func_address(&state_machine::get_optional_pb_hash),
+                          func_address(&state_machine::get_optional_pb_fixedstring),
+                          func_address(&state_machine::get_optional_pb_vector3d),
+                          func_address(&state_machine::get_optional_pb_float_variance)};
         for (int i = 0; i < 31; ++i) {
             tables[0][i] = common[i];
             tables[1][i] = common[i];
@@ -234,12 +236,11 @@ float state_machine::get_internal_param(animation_logic_system *a3, internal_par
             constexpr float full_turn = 6.2831854820251465f;
             constexpr float radians_to_degrees = 57.2957763671875f;
             const auto &pose = a3->get_actor()->get_abs_po();
-            const double turns = static_cast<double>(
-                sub_48A720(dot(pose.get_x_facing(), direction),
-                           dot(pose.get_z_facing(), direction))) / full_turn;
+            const double turns = static_cast<double>(sub_48A720(dot(pose.get_x_facing(), direction),
+                                                                dot(pose.get_z_facing(), direction))) /
+                                 full_turn;
             const float stored_turns = static_cast<float>(turns);
-            const double angle = (stored_turns - std::floor(turns)) *
-                                 full_turn * radians_to_degrees;
+            const double angle = (stored_turns - std::floor(turns)) * full_turn * radians_to_degrees;
             return static_cast<float>(angle > 180.0 ? angle - 360.0 : angle);
         };
 
@@ -251,9 +252,7 @@ float state_machine::get_internal_param(animation_logic_system *a3, internal_par
         case 93:
             return field_48.is_anim_active() ? field_48.get_anim_norm_time() : 0.0f;
         case 94:
-            return field_48.is_anim_active()
-                       ? field_48.get_anim_time_in_sec() / field_48.get_anim_duration()
-                       : 0.0f;
+            return field_48.is_anim_active() ? field_48.get_anim_time_in_sec() / field_48.get_anim_duration() : 0.0f;
         case 95: {
             const auto forward = vector_param(115);
             const auto desired = vector_param(27);
@@ -271,12 +270,10 @@ float state_machine::get_internal_param(animation_logic_system *a3, internal_par
             auto desired_up = vector_param(36);
             up.normalize();
             desired_up.normalize();
-            return static_cast<float>(
-                std::asin(vector3d::cross(desired_up, up).length()) * radians_to_degrees);
+            return static_cast<float>(std::asin(vector3d::cross(desired_up, up).length()) * radians_to_degrees);
         }
         case 97: {
-            const float angle = get_internal_param(a3, static_cast<internal_parameter_types>(96)) *
-                                degrees_to_radians;
+            const float angle = get_internal_param(a3, static_cast<internal_parameter_types>(96)) * degrees_to_radians;
             const auto desired_up = vector_param(36);
             const auto forward = vector_param(115);
 
@@ -291,11 +288,9 @@ float state_machine::get_internal_param(animation_logic_system *a3, internal_par
             if (line_direction.length2() < minimum_direction_length_squared)
                 return -1.0f;
             auto *actor = a3->get_actor();
-            const auto feet = actor->get_abs_position() -
-                              vector_param(108) * actor->get_floor_offset();
+            const auto feet = actor->get_abs_position() - vector_param(108) * actor->get_floor_offset();
             const auto line_origin = vector_param(45);
-            const float parameter =
-                closest_point_infinite_line_point(line_origin, line_direction, feet);
+            const float parameter = closest_point_infinite_line_point(line_origin, line_direction, feet);
             return (feet - (line_direction * parameter + line_origin)).length();
         }
         case 100: {
@@ -320,8 +315,8 @@ float state_machine::get_internal_param(animation_logic_system *a3, internal_par
                 return 0.0f;
             const auto &pose = a3->get_actor()->get_abs_po();
             return static_cast<float>(calculate_xz_angle_relative_to_local_po(
-                       pose, pose.get_z_facing(), view_camera->get_abs_po().get_z_facing()) *
-                       radians_to_degrees);
+                                          pose, pose.get_z_facing(), view_camera->get_abs_po().get_z_facing()) *
+                                      radians_to_degrees);
         }
         case 104: {
             if (!field_48.is_anim_active())
@@ -382,12 +377,11 @@ float state_machine::get_internal_param(animation_logic_system *a3, internal_par
 
 
             const float velocity = physical->get_velocity().y;
-            const float acceleration =
-                g_gravity * physical->m_gravity_multiplier * -0.5f;
+            const float acceleration = g_gravity * physical->m_gravity_multiplier * -0.5f;
             if (std::equal_to<float>{}(acceleration, 0.0f))
                 return -1.0f;
-            const double discriminant = static_cast<double>(velocity) * velocity -
-                                        static_cast<double>(acceleration) * height * 4.0;
+            const double discriminant =
+                static_cast<double>(velocity) * velocity - static_cast<double>(acceleration) * height * 4.0;
             if (discriminant < 0.0)
                 return -1.0f;
             const double root = std::sqrt(discriminant);
@@ -411,8 +405,7 @@ float state_machine::get_internal_param(animation_logic_system *a3, internal_par
         case 127:
             return heading(vector_param(27));
         case 128: {
-            const float angle =
-                get_internal_param(a3, static_cast<internal_parameter_types>(127));
+            const float angle = get_internal_param(a3, static_cast<internal_parameter_types>(127));
             if (angle >= -45.0f && angle < 45.0f)
                 return 0.0f;
             if (angle >= 45.0f)
@@ -423,8 +416,7 @@ float state_machine::get_internal_param(animation_logic_system *a3, internal_par
         }
         case 129: {
             auto *physical = a3->get_actor()->physical_ifc();
-            return physical != nullptr && physical->is_flag(0x80000u) &&
-                   physical->is_biped_stable() ? 1.0f : 0.0f;
+            return physical != nullptr && physical->is_flag(0x80000u) && physical->is_biped_stable() ? 1.0f : 0.0f;
         }
         case 123:
         default:
@@ -1000,8 +992,9 @@ void state_machine::do_cat_force_trans(animation_logic_system *a2)
 {
     auto *cat = this->find_category(this->field_8.m_cat_id);
     request_data result;
-    void(__fastcall *select_state)(category *, void *, request_data *, animation_logic_system *,
-        state_machine *, state *) = CAST(select_state, get_vfunc(cat->m_vtbl, 0x2C));
+    void(__fastcall *
+         select_state)(category *, void *, request_data *, animation_logic_system *, state_machine *, state *) =
+        CAST(select_state, get_vfunc(cat->m_vtbl, 0x2C));
     select_state(cat, nullptr, &result, a2, this, this->m_curr_state);
     this->curr_req_data = result;
     this->change_state(a2, this->find_state(result.field_8));
@@ -1173,7 +1166,6 @@ void state_machine::do_implicit_trans(animation_logic_system *a2)
                         assert(0 && "Implicit transition to category specified failed.");
                     }
                 } else {
-
                     auto *the_state = this->find_state(this->curr_req_data.field_8);
                     this->change_state(a2, the_state);
                 }

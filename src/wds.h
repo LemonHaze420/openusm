@@ -238,7 +238,7 @@ extern void manage_standing_for_all_physical_interfaces(Float a1);
 //0x004D00E0
 extern void cleanup_actor_scene_anim_state_hash();
 
-extern world_dynamics_system *& g_world_ptr;
+extern world_dynamics_system *&g_world_ptr;
 
 extern void wds_xbpack_patch();
 extern void world_dynamics_system_patch();

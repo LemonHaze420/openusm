@@ -53,9 +53,7 @@ void sound_bank_slot::unload()
     }
 }
 
-void sound_bank_slot::load(const char *directory,
-                           const char *bank_name,
-                           bool synchronous,
+void sound_bank_slot::load(const char *directory, const char *bank_name, bool synchronous,
                            [[maybe_unused]] int resource_pack)
 {
     TRACE("sound_bank_slot::load");
@@ -69,16 +67,10 @@ void sound_bank_slot::load(const char *directory,
 
     extern char *sub_598D40();
     static constexpr const char *language_codes[] = {"EN", "FR", "GR", "SP", "IT"};
-    const auto language_index =
-        globalTextLanguage >= 0 && globalTextLanguage < 5 ? globalTextLanguage : 0;
+    const auto language_index = globalTextLanguage >= 0 && globalTextLanguage < 5 ? globalTextLanguage : 0;
 
     char path[MAX_PATH]{};
-    std::snprintf(path,
-                  sizeof(path),
-                  "%sSOUND\\PC\\%s\\%s.WBK",
-                  sub_598D40(),
-                  directory,
-                  bank_name);
+    std::snprintf(path, sizeof(path), "%sSOUND\\PC\\%s\\%s.WBK", sub_598D40(), directory, bank_name);
     nsl_non_voice_bank_id = nslLoadBank(path, field_24 != 1);
 
     std::snprintf(path,

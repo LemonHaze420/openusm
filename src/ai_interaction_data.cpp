@@ -56,11 +56,11 @@ anim_record *ai_interaction_data::does_anim_exist(enum_anim_key::key_enum a2, bo
     TRACE("ai_interaction_data::does_anim_exist");
 
     if constexpr (1) {
-        enum_anim_key v8 {a2};
+        enum_anim_key v8{a2};
 
         return this->does_anim_exist(&v8, a3);
     } else {
-        return (anim_record *) THISCALL(0x0069D600, this, a2, a3);
+        return (anim_record *)THISCALL(0x0069D600, this, a2, a3);
     }
 }
 
@@ -139,7 +139,7 @@ void ai_interaction_data::unmash(mash_info_struct *a1, void *)
                          ,
                          mash::NORMAL_BUFFER
 #endif
-                );
+        );
     }
 }
 
@@ -153,7 +153,7 @@ string_hash ai_interaction_data::get_anim_hash_name(const anim_record *a2, bool 
         auto get_hash = reinterpret_cast<hash_callback>(get_vfunc(a2->m_vtbl, 0x18));
         get_hash(a2, nullptr, &result);
     } else {
-        using type_callback = bool (__fastcall *)(const anim_record *, void *, mash::virtual_types_enum);
+        using type_callback = bool(__fastcall *)(const anim_record *, void *, mash::virtual_types_enum);
         auto is_type = reinterpret_cast<type_callback>(get_vfunc(a2->m_vtbl, 0x14));
         if (is_type(a2, nullptr, static_cast<mash::virtual_types_enum>(146))) {
             auto get_hash = reinterpret_cast<hash_callback>(get_vfunc(a2->m_vtbl, 0x20));
@@ -187,13 +187,13 @@ void *ai_interaction_data::get_anim_ptr(const anim_key *the_anim_key, bool a3)
         struct {
             char field_0[0x8];
             void *(__fastcall *field_8)(void *, int, unsigned int);
-        } * vtbl = CAST(vtbl, nalGetAnimDirectory()->m_vtbl);
+        } *vtbl = CAST(vtbl, nalGetAnimDirectory()->m_vtbl);
         auto *v7 = vtbl->field_8(nalGetAnimDirectory(), 0, v4);
         resource_manager::pop_resource_context();
         return v7;
-        
+
     } else {
-        return (void *) THISCALL(0x0069D6A0, this, the_anim_key, a3);
+        return (void *)THISCALL(0x0069D6A0, this, the_anim_key, a3);
     }
 }
 
@@ -211,8 +211,9 @@ void *ai_interaction_data::get_anim_ptr(enum_anim_key::key_enum key, bool intera
 void ai_interaction_data_patch()
 {
     {
-        FUNC_ADDRESS(address, static_cast<void *(ai_interaction_data::*)(const anim_key *, bool)>(
-            &ai_interaction_data::get_anim_ptr));
+        FUNC_ADDRESS(
+            address,
+            static_cast<void *(ai_interaction_data::*)(const anim_key *, bool)>(&ai_interaction_data::get_anim_ptr));
         SET_JUMP(0x0069D6A0, address);
     }
 }

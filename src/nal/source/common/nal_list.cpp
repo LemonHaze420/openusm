@@ -59,14 +59,11 @@ static void register_animation_types()
 {
     static nalInitListAnimType character{
         "Character", nalChar::nalCharAnim::vtbl_ptr, nalChar::nalCharSkeleton::vtbl_ptr};
-    static nalInitListAnimType panel{
-        "Panel", nalPanel::nalPanelAnim::vtbl_ptr, nalPanel::nalPanelSkeleton::vtbl_ptr};
+    static nalInitListAnimType panel{"Panel", nalPanel::nalPanelAnim::vtbl_ptr, nalPanel::nalPanelSkeleton::vtbl_ptr};
     static nalInitListAnimType generic{
         "generic", nalGeneric::nalGenericAnim::vtbl_ptr, nalGeneric::nalGenericSkeleton::vtbl_ptr};
-    static nalInitListAnimType camera{
-        "Camera", nalCam::nalCamAnim::vtbl_ptr, nalCam::nalCamSkeleton::vtbl_ptr};
-    static nalInitListAnimType pedestrian{
-        "Ped", nalPed::nalPedAnim::vtbl_ptr, nalPed::nalPedSkeleton::vtbl_ptr};
+    static nalInitListAnimType camera{"Camera", nalCam::nalCamAnim::vtbl_ptr, nalCam::nalCamSkeleton::vtbl_ptr};
+    static nalInitListAnimType pedestrian{"Ped", nalPed::nalPedAnim::vtbl_ptr, nalPed::nalPedSkeleton::vtbl_ptr};
 }
 
 #define make_class(Type, Base, Str)                                 \

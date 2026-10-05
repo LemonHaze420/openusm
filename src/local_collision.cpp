@@ -39,54 +39,52 @@ namespace local_collision {
 namespace {
 
 template <bool Value>
-bool __fastcall constant_entity_filter(const entfilter_base *, void *, actor *,
-                                      dynamic_conglomerate_clone *, const query_args_t *)
+bool __fastcall constant_entity_filter(const entfilter_base *, void *, actor *, dynamic_conglomerate_clone *,
+                                       const query_args_t *)
 {
     return Value;
 }
 
 template <bool Value>
-bool __fastcall constant_obb_filter(const obbfilter_base *, void *, subdivision_node_obb_base *,
-                                   const query_args_t *)
+bool __fastcall constant_obb_filter(const obbfilter_base *, void *, subdivision_node_obb_base *, const query_args_t *)
 {
     return Value;
 }
 
 bool __fastcall line_obb_filter(const obbfilter_base *, void *, subdivision_node_obb_base *node,
-                               const query_args_t *args)
+                                const query_args_t *args)
 {
     return node->line_segment_intersection(args->field_4, args->field_1C);
 }
 
 bool __fastcall sphere_obb_filter(const obbfilter_base *, void *, subdivision_node_obb_base *node,
-                                 const query_args_t *args)
+                                  const query_args_t *args)
 {
     return node->sphere_intersection(args->field_10, args->field_28);
 }
 
-bool __fastcall walkable_obb_filter(const obbfilter_base *self, void *unused,
-                                   subdivision_node_obb_base *node, const query_args_t *args)
+bool __fastcall walkable_obb_filter(const obbfilter_base *self, void *unused, subdivision_node_obb_base *node,
+                                    const query_args_t *args)
 {
     return (node->flags & 0x50) != 0x50 && line_obb_filter(self, unused, node, args);
 }
 
-bool __fastcall walkable_entity_filter(const entfilter_base *, void *, actor *act,
-                                      dynamic_conglomerate_clone *, const query_args_t *args)
+bool __fastcall walkable_entity_filter(const entfilter_base *, void *, actor *act, dynamic_conglomerate_clone *,
+                                       const query_args_t *args)
 {
     return act != args->field_2C && act->colgeom->get_type() != collision_geometry::CAPSULE &&
            act->has_entity_collision() && (act->possibly_walkable() || act->sub_4C08E0());
 }
 
-bool __fastcall entity_no_capsules_filter(const entfilter_base *, void *, actor *act,
-                                         dynamic_conglomerate_clone *, const query_args_t *)
+bool __fastcall entity_no_capsules_filter(const entfilter_base *, void *, actor *act, dynamic_conglomerate_clone *,
+                                          const query_args_t *)
 {
     return act->has_entity_collision() && act->colgeom->get_type() != collision_geometry::CAPSULE;
 }
 
-bool __fastcall blocks_ai_los_filter(const entfilter_base *, void *, actor *act,
-                                     dynamic_conglomerate_clone *clone, const query_args_t *args)
+bool __fastcall blocks_ai_los_filter(const entfilter_base *, void *, actor *act, dynamic_conglomerate_clone *clone,
+                                     const query_args_t *args)
 {
-
     if (!entity_line_segment_test(act, clone, *args))
         return false;
     bool ai_actor = act->get_ai_core() != nullptr && (act->field_4 & 0x800) == 0;
@@ -97,10 +95,9 @@ bool __fastcall blocks_ai_los_filter(const entfilter_base *, void *, actor *act,
     return (act->field_8 & 0x100000) == 0 && !ai_actor;
 }
 
-bool __fastcall valid_pair_filter(const entfilter_base *, void *, actor *act,
-                                  dynamic_conglomerate_clone *, const query_args_t *args)
+bool __fastcall valid_pair_filter(const entfilter_base *, void *, actor *act, dynamic_conglomerate_clone *,
+                                  const query_args_t *args)
 {
-
     auto *other = static_cast<actor *>(args->field_30);
     return act != args->field_2C && (other->field_4 & 0x4000) != 0 &&
            (act->colgeom->get_type() != collision_geometry::CAPSULE ||
@@ -112,7 +109,6 @@ bool __fastcall valid_pair_filter(const entfilter_base *, void *, actor *act,
 bool __fastcall valid_pair_sphere_filter(const entfilter_base *self, void *unused, actor *act,
                                          dynamic_conglomerate_clone *clone, const query_args_t *args)
 {
-
     if (!valid_pair_filter(self, unused, act, clone, args))
         return false;
     if ((act->field_4 & 4) != 0) {
@@ -168,8 +164,8 @@ T *&bind_filter(std::uintptr_t address, T &instance)
 
 primitive_list_t *allocate_primitive()
 {
-
-    static const bool initialized = (primitive_list_t::pool.init(sizeof(primitive_list_t), 128, 4, 1, 0, nullptr), true);
+    static const bool initialized =
+        (primitive_list_t::pool.init(sizeof(primitive_list_t), 128, 4, 1, 0, nullptr), true);
     (void)initialized;
     return static_cast<primitive_list_t *>(primitive_list_t::pool.allocate_new_block());
 }
@@ -250,7 +246,7 @@ struct terrain_local_collision_visitor : subdivision_visitor {
         m_vtbl = reinterpret_cast<std::intptr_t>(&table);
     }
 };
-}
+}  // namespace
 
 entfilter_reject_all_t *&entfilter_reject_all = bind_filter(0x00960054, reject_entity_instance);
 entfilter_accept_all_t *&entfilter_accept_all = bind_filter(0x0096004C, accept_entity_instance);
@@ -261,13 +257,11 @@ obbfilter_base *&obbfilter_lineseg_test = bind_filter(0x00960064, line_obb_insta
 obbfilter_base *&obbfilter_sphere_test = bind_filter(0x00960050, sphere_obb_instance);
 obbfilter_base *&obbfilter_reject_all = bind_filter(0x0096006C, reject_obb_instance);
 obbfilter_base *&obbfilter_accept_all = bind_filter(0x00960048, accept_obb_instance);
-}
+}  // namespace local_collision
 
-bool find_intersection(const vector3d &start, const vector3d &end,
-                       const local_collision::entfilter_base &entity_filter,
-                       const local_collision::obbfilter_base &terrain_filter,
-                       vector3d *point, vector3d *normal, region **out_region,
-                       entity **out_entity, subdivision_node_obb_base **out_obb, bool two_sided)
+bool find_intersection(const vector3d &start, const vector3d &end, const local_collision::entfilter_base &entity_filter,
+                       const local_collision::obbfilter_base &terrain_filter, vector3d *point, vector3d *normal,
+                       region **out_region, entity **out_entity, subdivision_node_obb_base **out_obb, bool two_sided)
 {
     local_collision::query_args_t arguments{};
     auto *primitives = local_collision::query_line_segment(start, end, entity_filter, terrain_filter, arguments);
@@ -281,8 +275,8 @@ bool find_intersection(const vector3d &start, const vector3d &end,
         if (out_obb != nullptr && !intersection.is_ent)
             *out_obb = static_cast<subdivision_node_obb_base *>(intersection.intersection_node);
         else if (out_entity != nullptr && intersection.is_ent)
-            *out_entity = static_cast<entity *>(intersection.field_2C != nullptr ?
-                intersection.field_2C : intersection.intersection_node);
+            *out_entity = static_cast<entity *>(intersection.field_2C != nullptr ? intersection.field_2C
+                                                                                 : intersection.intersection_node);
         if (out_region != nullptr) {
             fixed_vector<region *, 15> regions;
             loaded_regions_cache::get_regions_intersecting_sphere(*point, 0.0f, &regions);
@@ -371,8 +365,8 @@ bool test_line_intersection_ex(local_collision::primitive_list_t **a1, const lin
     return true;
 }
 
-bool get_closest_line_intersection(primitive_list_t *primitives, line_segment_t *lif, bool allow_exit,
-                                   float *distance, const float *time, intersection_list_t *record)
+bool get_closest_line_intersection(primitive_list_t *primitives, line_segment_t *lif, bool allow_exit, float *distance,
+                                   const float *time, intersection_list_t *record)
 {
     const vector3d start = lif->field_0;
     vector3d end = lif->field_C;
@@ -435,8 +429,6 @@ bool get_closest_line_intersection(primitive_list_t *primitives, line_segment_t 
 primitive_list_t *query_sphere(const vector3d &center, Float radius, const entfilter_base &entity_filter,
                                const obbfilter_base &terrain_filter, query_args_t args)
 {
-
-
     args.field_10 = center;
     args.field_28 = radius;
     args.initialized_flags |= 0xC;
@@ -481,8 +473,7 @@ void destroy_closest_points_pair_list(closest_points_pair_t **pairs)
     }
 }
 
-closest_points_pair_t *get_all_capsule_intersections(primitive_list_t *primitives,
-    const capsule &query, float time)
+closest_points_pair_t *get_all_capsule_intersections(primitive_list_t *primitives, const capsule &query, float time)
 {
     closest_points_pair_t *head = nullptr;
     auto **tail = &head;
@@ -523,10 +514,9 @@ fixed_pool &sphere_intersection_pool()
     (void)initialized;
     return pool;
 }
-}
+}  // namespace
 
-intersection_list_t *get_all_sphere_intersections(primitive_list_t *primitives,
-    const vector3d &center, Float radius)
+intersection_list_t *get_all_sphere_intersections(primitive_list_t *primitives, const vector3d &center, Float radius)
 {
     intersection_list_t *head = nullptr;
     for (auto *primitive = primitives; primitive != nullptr; primitive = primitive->field_0) {
@@ -552,8 +542,8 @@ intersection_list_t *get_all_sphere_intersections(primitive_list_t *primitives,
         intersection->field_1C = penetration;
         intersection->field_20 = 0;
         intersection->is_ent = primitive->is_ent;
-        intersection->intersection_node = primitive->is_ent
-            ? static_cast<void *>(primitive->field_4.ent) : static_cast<void *>(primitive->field_4.obb);
+        intersection->intersection_node = primitive->is_ent ? static_cast<void *>(primitive->field_4.ent)
+                                                            : static_cast<void *>(primitive->field_4.obb);
         if (primitive->is_ent)
             intersection->field_2C = primitive->field_8;
         head = intersection;
@@ -716,8 +706,7 @@ void destroy_primitive_list(primitive_list_t **head)
     }
 }
 
-primitive_list_t *query_line_segment(const vector3d &start, const vector3d &end,
-                                     const entfilter_base &entity_filter,
+primitive_list_t *query_line_segment(const vector3d &start, const vector3d &end, const entfilter_base &entity_filter,
                                      const obbfilter_base &terrain_filter, query_args_t args)
 {
     args.field_4 = start;
@@ -777,9 +766,8 @@ local_collision::entfilter<local_collision::entfilter_AND<
     this->m_vtbl = reinterpret_cast<std::intptr_t>(&local_collision::walkable_entity_table);
 }
 template <>
-local_collision::entfilter<
-    local_collision::entfilter_AND<local_collision::entfilter_ENTITY,
-                                   local_collision::entfilter_NO_CAPSULES>>::entfilter()
+local_collision::entfilter<local_collision::entfilter_AND<local_collision::entfilter_ENTITY,
+                                                          local_collision::entfilter_NO_CAPSULES>>::entfilter()
 {
     this->m_vtbl = reinterpret_cast<std::intptr_t>(&local_collision::entity_no_capsules_table);
 }

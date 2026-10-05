@@ -288,9 +288,8 @@ struct combo_system_move : mash_virtual_base {
     combo_system_move();
 
 
-    int requirements_satisfaction(vhandle_type<actor> target, vector3d displacement,
-        uint32_t input, string_hash previous_category, float eta, bool has_target,
-        float combat_level) const;
+    int requirements_satisfaction(vhandle_type<actor> target, vector3d displacement, uint32_t input,
+                                  string_hash previous_category, float eta, bool has_target, float combat_level) const;
     //0x00471BA0
     //virtual
     void _unmash(mash_info_struct *a2, void *a3);

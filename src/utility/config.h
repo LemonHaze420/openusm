@@ -14,7 +14,7 @@
 #define PROGRESS_LOG
 
 #ifndef __has_feature
-#define __has_feature(x) 0 // Compatibility with non-clang compilers.
+#define __has_feature(x) 0  // Compatibility with non-clang compilers.
 #endif
 
 // Any compiler claiming C++11 supports, Visual C++ 2015 and Clang version supporting constexpr
@@ -41,7 +41,7 @@
 #endif
 #endif
 
-#if _MSC_VER // Visual C++ fallback
+#if _MSC_VER  // Visual C++ fallback
 #define _STDEX_NATIVE_MICROSOFT_COMPILER_EXTENSIONS_SUPPORT
 #define _STDEX_CDECL __cdecl
 
@@ -91,28 +91,28 @@ using uint = uint32_t;
 
 using rational_t = float;
 
-template<typename T>
+template <typename T>
 bool equal(T a1, T a2)
 {
     std::equal_to<T> q{};
     return q(a1, a2);
 }
 
-template<typename T>
+template <typename T>
 bool not_equal(T a1, T a2)
 {
     std::not_equal_to<T> q{};
     return q(a1, a2);
 }
 
-template<class To, class From>
+template <class To, class From>
 constexpr typename std::enable_if_t<
     sizeof(To) == sizeof(From) && std::is_trivially_copyable_v<From> && std::is_trivially_copyable_v<To>, To>
-    // constexpr support needs compiler magic
+// constexpr support needs compiler magic
 bit_cast(const From &src) noexcept
 {
     static_assert(std::is_trivially_constructible_v<To>,
-        "This implementation additionally requires destination type to be trivially constructible");
+                  "This implementation additionally requires destination type to be trivially constructible");
 
     To dst;
     std::memcpy(&dst, &src, sizeof(To));
@@ -142,23 +142,19 @@ template <typename T0, typename T1>
 T0 cast_to(T1 address)
 {
 #if STANDALONE_SYSTEM
-    if constexpr (std::is_pointer_v<T0> &&
-                  std::is_function_v<std::remove_pointer_t<T0>> &&
-                  std::is_integral_v<T1>) {
+    if constexpr (std::is_pointer_v<T0> && std::is_function_v<std::remove_pointer_t<T0>> && std::is_integral_v<T1>) {
         const auto target = static_cast<std::uintptr_t>(address);
         if (target >= 0x00400000u && target < 0x00900000u) {
             std::fprintf(stderr,
-                "STANDALONE_SYSTEM blocked raw original function cast to 0x%08lX\n",
-                static_cast<unsigned long>(target));
+                         "STANDALONE_SYSTEM blocked raw original function cast to 0x%08lX\n",
+                         static_cast<unsigned long>(target));
             std::fflush(nullptr);
             std::abort();
         }
     }
-    if constexpr (std::is_pointer_v<T0> &&
-                  !std::is_function_v<std::remove_pointer_t<T0>> &&
+    if constexpr (std::is_pointer_v<T0> && !std::is_function_v<std::remove_pointer_t<T0>> &&
                   !std::is_void_v<std::remove_cv_t<std::remove_pointer_t<T0>>> &&
-                  is_complete<std::remove_cv_t<std::remove_pointer_t<T0>>>::value &&
-                  std::is_integral_v<T1>) {
+                  is_complete<std::remove_cv_t<std::remove_pointer_t<T0>>>::value && std::is_integral_v<T1>) {
         const auto target = static_cast<std::uintptr_t>(address);
         if (target >= 0x00870000u && target < 0x00900000u)
             return standalone_original_vtable<T0>(target);
@@ -167,5 +163,4 @@ T0 cast_to(T1 address)
     return bit_cast<T0>(address);
 }
 
-#define CAST(var, address) \
-    cast_to<std::remove_reference_t<decltype(var)>>(address)
+#define CAST(var, address) cast_to<std::remove_reference_t<decltype(var)>>(address)

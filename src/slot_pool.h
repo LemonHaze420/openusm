@@ -20,8 +20,7 @@ struct slot_pool {
     int field_18[8];
     int field_38;
 
-    slot_pool()
-        : slot_pool(192) {}
+    slot_pool() : slot_pool(192) {}
 
     slot_pool(int a2)
     {

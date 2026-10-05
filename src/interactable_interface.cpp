@@ -28,8 +28,7 @@ interactable_interface::interactable_interface(actor *act) : field_4(), field_18
     field_0 = act;
 }
 
-interactable_interface::interactable_interface(from_mash_in_place_constructor *tag)
-    : field_4(tag), field_18(true)
+interactable_interface::interactable_interface(from_mash_in_place_constructor *tag) : field_4(tag), field_18(true)
 {
     if (!g_is_the_packer) {
         add_interface_to_list(this);
@@ -95,8 +94,7 @@ void interactable_interface::update_registrations()
     if (has_enabled_interaction_of_this_kind({3})) {
         register_actor(throw_list());
     }
-    if (has_enabled_interaction_of_this_kind({1}) ||
-        has_enabled_interaction_of_this_kind({0}) ||
+    if (has_enabled_interaction_of_this_kind({1}) || has_enabled_interaction_of_this_kind({0}) ||
         has_enabled_interaction_of_this_kind({2})) {
         register_actor(generic_list());
     }
@@ -120,8 +118,7 @@ void interactable_interface::finalize(mash::allocation_scope scope)
             const auto handle = field_0->get_my_vhandle();
             for (int index = 0; index < list.m_size; ++index) {
                 if (list.m_data[index].field_0 == handle) {
-                    std::copy(list.m_data + index + 1, list.m_data + list.m_size,
-                              list.m_data + index);
+                    std::copy(list.m_data + index + 1, list.m_data + list.m_size, list.m_data + index);
                     --list.m_size;
                     break;
                 }
@@ -129,8 +126,7 @@ void interactable_interface::finalize(mash::allocation_scope scope)
         };
         if (has_enabled_interaction_of_this_kind({3}))
             unregister(throw_list());
-        if (has_enabled_interaction_of_this_kind({1}) ||
-            has_enabled_interaction_of_this_kind({0}) ||
+        if (has_enabled_interaction_of_this_kind({1}) || has_enabled_interaction_of_this_kind({0}) ||
             has_enabled_interaction_of_this_kind({2}))
             unregister(generic_list());
     }

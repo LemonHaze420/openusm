@@ -24,9 +24,9 @@ auto &states = var<morph_state[30]>(0x0095AD50);
 
 bool find_decal_surface(line_info &line, const vector3d &position, bool include_entities)
 {
-    const auto &filter = include_entities
-        ? static_cast<const local_collision::entfilter_base &>(*local_collision::entfilter_accept_all)
-        : static_cast<const local_collision::entfilter_base &>(*local_collision::entfilter_reject_all);
+    const auto &filter =
+        include_entities ? static_cast<const local_collision::entfilter_base &>(*local_collision::entfilter_accept_all)
+                         : static_cast<const local_collision::entfilter_base &>(*local_collision::entfilter_reject_all);
     constexpr vector3d diagonals[]{{0.5f, 0.5f, 0.5f}, {-0.5f, 0.5f, 0.5f}};
     for (const auto &diagonal : diagonals) {
         for (int reverse = 0; reverse != 2; ++reverse) {
@@ -45,12 +45,12 @@ bool find_decal_surface(line_info &line, const vector3d &position, bool include_
     }
     return false;
 }
-}
+}  // namespace
 
 decal_morphs::decal_morphs() {}
 
-bool decal_morphs::create_decal(string_hash name, vector3d position, float lifetime,
-    vector3d direction, entity_base *parent)
+bool decal_morphs::create_decal(string_hash name, vector3d position, float lifetime, vector3d direction,
+                                entity_base *parent)
 {
     line_info surface;
     if (!find_decal_surface(surface, position, parent != nullptr))
@@ -74,17 +74,16 @@ bool decal_morphs::create_decal(string_hash name, vector3d position, float lifet
     const auto angle = static_cast<float>(std::acos(dot(normal, YVEC)));
     const auto absolute_angle = std::fabs(angle);
     const auto alignment_axis = vector3d::cross(normal, YVEC);
-    const auto tangent_x = absolute_angle <= LARGE_EPSILON
-        ? XVEC : vector3d::cross(alignment_axis, normal);
+    const auto tangent_x = absolute_angle <= LARGE_EPSILON ? XVEC : vector3d::cross(alignment_axis, normal);
     const auto tangent_z = absolute_angle <= LARGE_EPSILON ? ZVEC : alignment_axis;
-    const vector3d corners[]{
-        hit + tangent_z * radius - tangent_x * radius,
-        hit - tangent_z * radius - tangent_x * radius,
-        hit + tangent_z * radius + tangent_x * radius,
-        hit - tangent_z * radius + tangent_x * radius};
-    const auto &filter = parent != nullptr
-        ? static_cast<const local_collision::entfilter_base &>(*local_collision::entfilter_accept_all)
-        : static_cast<const local_collision::entfilter_base &>(*local_collision::entfilter_reject_all);
+    const vector3d corners[]{hit + tangent_z * radius - tangent_x * radius,
+                             hit - tangent_z * radius - tangent_x * radius,
+                             hit + tangent_z * radius + tangent_x * radius,
+                             hit - tangent_z * radius + tangent_x * radius};
+    const auto &filter =
+        parent != nullptr
+            ? static_cast<const local_collision::entfilter_base &>(*local_collision::entfilter_accept_all)
+            : static_cast<const local_collision::entfilter_base &>(*local_collision::entfilter_reject_all);
     line_info fitting[4];
     const auto fitting_offset = normal * 0.1f;
     for (int corner = 0; corner != 4; ++corner) {
@@ -97,8 +96,7 @@ bool decal_morphs::create_decal(string_hash name, vector3d position, float lifet
     }
     po transform = po_identity_matrix;
     hit = hit + normal * LARGE_EPSILON;
-    if (absolute_angle > 0.01 &&
-        std::equal_to<float>{}(alignment_axis.length2().value, 0.0f))
+    if (absolute_angle > 0.01 && std::equal_to<float>{}(alignment_axis.length2().value, 0.0f))
         transform.set_rot(XVEC, angle);
     else if (absolute_angle > LARGE_EPSILON)
         transform.set_rot(alignment_axis, angle);
@@ -109,8 +107,7 @@ bool decal_morphs::create_decal(string_hash name, vector3d position, float lifet
         if (std::fabs(turn_angle) > LARGE_EPSILON) {
             auto turn_axis = normal;
             const auto normal_dot = std::fabs(dot(direction, normal));
-            if (normal_dot < LARGE_EPSILON ||
-                !std::equal_to<float>{}(normal_dot, 1.0f)) {
+            if (normal_dot < LARGE_EPSILON || !std::equal_to<float>{}(normal_dot, 1.0f)) {
                 if (normal_dot >= LARGE_EPSILON) {
                     const auto tangent = vector3d::cross(normal, forward);
                     direction = (tangent * dot(direction, tangent)).normalized();
@@ -159,7 +156,6 @@ bool decal_morphs::create_decal(string_hash name, vector3d position, float lifet
 
 void decal_morphs::frame_advance(Float elapsed)
 {
-
     for (auto &state : states) {
         if (state.locked) {
             continue;
@@ -177,8 +173,7 @@ void decal_morphs::frame_advance(Float elapsed)
             auto color = entity_ptr->get_render_color();
             const float progress = 1.0f - state.remaining / state.duration;
             const float squared = progress * progress;
-            color.field_0[3] = static_cast<uint8_t>(
-                (1.0f - squared * squared) * 255.0f + 0.5f);
+            color.field_0[3] = static_cast<uint8_t>((1.0f - squared * squared) * 255.0f + 0.5f);
             entity_ptr->set_render_color(color);
         }
     }

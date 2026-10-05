@@ -8,7 +8,7 @@ struct visual_item : actor {
 
     visual_item(const string_hash &, uint32_t);
     static void *native_vtable(void **actor_table);
-    void attach(entity_base *, string_hash bone, float scale, const vector3d &position,
-                const vector3d &rotation, bool drawn);
+    void attach(entity_base *, string_hash bone, float scale, const vector3d &position, const vector3d &rotation,
+                bool drawn);
     void _render(Float);
 };

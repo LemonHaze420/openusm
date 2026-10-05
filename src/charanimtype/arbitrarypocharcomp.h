@@ -62,7 +62,10 @@ struct ArbitraryPOCharComp : CharComponentBase {
     ArbitraryPOCharComp();
 
     ArbitraryPOCharComp *_DestroyComponent(unsigned char flags);
-    int _DoesContributeToPose(uint32_t, const void *, const void *) { return 0; }
+    int _DoesContributeToPose(uint32_t, const void *, const void *)
+    {
+        return 0;
+    }
 
     //0x005F6130
     void BlendPoseData(void *a1, uint32_t a2, Float a3, const void *a4, const void *a5, uint32_t a6, uint32_t a7);

@@ -19,8 +19,7 @@ VALIDATE_OFFSET(main_menu_start, animations, 0xC8);
 VALIDATE_OFFSET(main_menu_start, press_start, 0x118);
 VALIDATE_OFFSET(main_menu_start, checking, 0x11C);
 
-main_menu_start::main_menu_start(FEMenuSystem *a2, int a3, int a4)
-    : FEMenu(a2, 0, a3, a4, 8, 0)
+main_menu_start::main_menu_start(FEMenuSystem *a2, int a3, int a4) : FEMenu(a2, 0, a3, a4, 8, 0)
 {
     m_vtbl = 0x00894648;
     field_128 = false;
@@ -40,7 +39,7 @@ void main_menu_start::_Init()
         unsigned index;
         const char *name;
     };
-    static constexpr Binding quads[] {
+    static constexpr Binding quads[]{
         {1, "mm_bkg_city"},
         {8, "mm_bkg_detail_01"},
         {4, "mm_bkg_detail_02"},
@@ -89,40 +88,33 @@ void main_menu_start::_Init()
     }
 
     press_start = panel->GetTextPointer("mm_mainmenu_text_PRESSSTART");
-    checking = static_cast<FEMultiLineText *>(
-        panel->GetTextPointer("mm_mainmenu_text_CHECKING"));
+    checking = static_cast<FEMultiLineText *>(panel->GetTextPointer("mm_mainmenu_text_CHECKING"));
     if (press_start != nullptr)
         press_start->SetShown(false);
     if (checking != nullptr)
         checking->SetShown(false);
 
-    static constexpr int animation_indices[] {
-        5, 17, 6, 15, 14, 3, 0, 1,
-        19, 20, 21, 22, 23, 24,
-        25, 26, 27, 28, 29, 30,
+    static constexpr int animation_indices[]{
+        5, 17, 6, 15, 14, 3, 0, 1, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30,
     };
-    static constexpr unsigned animation_slots[] {
-        39, 40, 41, 42, 43, 44, 45, 46,
-        53, 54, 55, 56, 57, 58,
-        47, 48, 49, 50, 51, 52,
+    static constexpr unsigned animation_slots[]{
+        39, 40, 41, 42, 43, 44, 45, 46, 53, 54, 55, 56, 57, 58, 47, 48, 49, 50, 51, 52,
     };
     for (unsigned i = 0; i < 20; ++i)
-        animations[animation_slots[i] - 39] =
-            panel->GetAnimationPointer(animation_indices[i]);
+        animations[animation_slots[i] - 39] = panel->GetAnimationPointer(animation_indices[i]);
 }
 
 void main_menu_start::_OnActivate()
 {
     if (press_start != nullptr) {
         press_start->SetText(static_cast<global_text_enum>(294));
-        press_start->SetNoFlash(color32 {0xFFC8C8C8u});
+        press_start->SetNoFlash(color32{0xFFC8C8C8u});
         press_start->SetScale(1.0f);
         press_start->SetShown(false);
     }
     if (checking != nullptr) {
-        checking->SetTextBox(
-            static_cast<global_text_enum>(293), checking->field_7C, -1.0f);
-        checking->SetNoFlash(color32 {0xFFB42828u});
+        checking->SetTextBox(static_cast<global_text_enum>(293), checking->field_7C, -1.0f);
+        checking->SetNoFlash(color32{0xFFB42828u});
         checking->SetShown(false);
     }
 
@@ -173,7 +165,7 @@ void start_panel_animation(PanelAnimFile *animation, bool reverse, bool loop)
     animation->field_2C = false;
     animation->field_2D = true;
 }
-}
+}  // namespace
 
 bool main_menu_start::IsIdle() const
 {
@@ -190,8 +182,7 @@ void main_menu_start::Update(Float delta_time)
     auto *front_end = static_cast<FrontEndMenuSystem *>(field_12C);
     if (front_end->field_30 == 3 && field_12A >= 2) {
         const bool load_completed = g_game_ptr->level.load_completed;
-        field_120 = std::min(
-            1.0f, field_120 + (load_completed ? 0.02f : 0.002f));
+        field_120 = std::min(1.0f, field_120 + (load_completed ? 0.02f : 0.002f));
         if (load_completed && field_120 >= 0.99f) {
             field_12A = 4;
             front_end->GoNextState();

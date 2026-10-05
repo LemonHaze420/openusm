@@ -43,7 +43,9 @@ static_assert(offsetof(Tentacle_ShaderMaterial, sphere_map) == 0x28);
 static_assert(offsetof(Tentacle_ShaderMaterial, enabled) == 0x2C);
 static_assert(offsetof(Tentacle_ShaderMaterial, field_2E) == 0x2E);
 
-struct VertexShaders { VShader shader[3]; };
+struct VertexShaders {
+    VShader shader[3];
+};
 Var<VertexShaders> vertex_shaders{0x00970C10};
 Var<IDirect3DPixelShader9 *> pixel_texture{0x00956300};
 Var<IDirect3DPixelShader9 *> pixel_main{0x009562E4};
@@ -59,14 +61,19 @@ Var<int> suppress_tentacle{0x00956FE8};
 Var<int> outline_enabled{0x00956FE0};
 Var<int> outline_ccw{0x00956FDC};
 Var<float> last_intensity{0x00956FE4};
-struct Intensity { float value = 1.0f; };
-struct MaterialIntensity { float value = 0.4f; };
-struct OutlineOffset { float value = 0.0002f; };
+struct Intensity {
+    float value = 1.0f;
+};
+struct MaterialIntensity {
+    float value = 0.4f;
+};
+struct OutlineOffset {
+    float value = 0.0002f;
+};
 Var<Intensity> vertex_intensity{0x0091E740};
 Var<MaterialIntensity> enabled_intensity{0x0091E748};
 Var<MaterialIntensity> disabled_intensity{0x0091E744};
 Var<OutlineOffset> outline_offset{0x0091E73C};
-
 
 
 const D3DVERTEXELEMENT9 vertex_elements[] = {
@@ -76,9 +83,33 @@ const D3DVERTEXELEMENT9 vertex_elements[] = {
     {0, 24, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_NORMAL, 0},
     D3DDECL_END(),
 };
-constexpr DWORD vertex_0[] = {0xFFFE0101,0x0000001F,0x80000000,0x900F0000,0x0000001F,0x80000005,0x900F0001,0x0000001F,0x8000000A,0x900F0002,0x0000001F,0x80000003,0x900F0003,0x00000001,0xD00F0001,0xA000005B,0x00000001,0xC00F0001,0xA0AA005B,0x00000009,0xC0010000,0x90E40000,0xA0E40000,0x00000009,0xC0020000,0x90E40000,0xA0E40001,0x00000009,0xC0040000,0x90E40000,0xA0E40002,0x00000009,0xC0080000,0x90E40000,0xA0E40003,0x00000008,0x80010001,0x90E40003,0xA0E40007,0x00000008,0x80020001,0x90E40003,0xA0E40008,0x00000008,0x80040001,0x90E40003,0xA0E40009,0x00000005,0x80030001,0x80540001,0xA0E40004,0x00000004,0xE0030000,0x80540001,0xA055005B,0xA055005B,0x00000002,0x800F0000,0xA0E4000B,0x91E40000,0x00000008,0x80080002,0x80A40000,0x80A40000,0x00000007,0x80080002,0x80FF0002,0x00000005,0x80070000,0x80A40000,0x80FF0002,0x00000008,0x800F000B,0x90E40003,0x80E40000,0x00000002,0x800F000B,0x80E4000B,0xA0E4000D,0x00000005,0x800F0003,0x80E4000B,0xA0E4000C,0x00000002,0xD00F0000,0x80E40003,0x90E40002,0x0000FFFF};
-constexpr DWORD vertex_1[] = {0xFFFE0101,0x0000001F,0x80000000,0x900F0000,0x0000001F,0x80000005,0x900F0001,0x0000001F,0x8000000A,0x900F0002,0x0000001F,0x80000003,0x900F0003,0x00000001,0xD00F0001,0xA000005B,0x00000001,0xC00F0001,0xA0AA005B,0x00000001,0x800F000B,0x90E40003,0x00000004,0x800F0000,0x80A4000B,0xA0FF0005,0x90E40000,0x00000009,0xC0010000,0x80E40000,0xA0E40000,0x00000009,0xC0020000,0x80E40000,0xA0E40001,0x00000009,0xC0040000,0x80E40000,0xA0E40002,0x00000009,0xC0080000,0x80E40000,0xA0E40003,0x00000001,0xD00F0000,0xA0E40006,0x0000FFFF};
-constexpr DWORD vertex_2[] = {0xFFFE0101,0x0000001F,0x80000000,0x900F0000,0x0000001F,0x80000005,0x900F0001,0x0000001F,0x8000000A,0x900F0002,0x0000001F,0x80000003,0x900F0003,0x00000001,0xD00F0001,0xA000005B,0x00000001,0xC00F0001,0xA0AA005B,0x00000001,0x800F000B,0x90E40003,0x00000004,0x800F0000,0x80A4000B,0xA0FF0005,0x90E40000,0x00000009,0xC0010000,0x80E40000,0xA0E40000,0x00000009,0xC0020000,0x80E40000,0xA0E40001,0x00000009,0xC0040000,0x80E40000,0xA0E40002,0x00000009,0xC0080000,0x80E40000,0xA0E40003,0x00000008,0x80010001,0x90E40003,0xA0E40007,0x00000008,0x80020001,0x90E40003,0xA0E40008,0x00000008,0x80040001,0x90E40003,0xA0E40009,0x00000008,0x80080002,0x80A40001,0x80A40001,0x00000007,0x80080002,0x80FF0002,0x00000005,0x80070001,0x80A40001,0x80FF0002,0x00000001,0xE00F0000,0x80540001,0x0000FFFF};
+constexpr DWORD vertex_0[] = {
+    0xFFFE0101, 0x0000001F, 0x80000000, 0x900F0000, 0x0000001F, 0x80000005, 0x900F0001, 0x0000001F, 0x8000000A,
+    0x900F0002, 0x0000001F, 0x80000003, 0x900F0003, 0x00000001, 0xD00F0001, 0xA000005B, 0x00000001, 0xC00F0001,
+    0xA0AA005B, 0x00000009, 0xC0010000, 0x90E40000, 0xA0E40000, 0x00000009, 0xC0020000, 0x90E40000, 0xA0E40001,
+    0x00000009, 0xC0040000, 0x90E40000, 0xA0E40002, 0x00000009, 0xC0080000, 0x90E40000, 0xA0E40003, 0x00000008,
+    0x80010001, 0x90E40003, 0xA0E40007, 0x00000008, 0x80020001, 0x90E40003, 0xA0E40008, 0x00000008, 0x80040001,
+    0x90E40003, 0xA0E40009, 0x00000005, 0x80030001, 0x80540001, 0xA0E40004, 0x00000004, 0xE0030000, 0x80540001,
+    0xA055005B, 0xA055005B, 0x00000002, 0x800F0000, 0xA0E4000B, 0x91E40000, 0x00000008, 0x80080002, 0x80A40000,
+    0x80A40000, 0x00000007, 0x80080002, 0x80FF0002, 0x00000005, 0x80070000, 0x80A40000, 0x80FF0002, 0x00000008,
+    0x800F000B, 0x90E40003, 0x80E40000, 0x00000002, 0x800F000B, 0x80E4000B, 0xA0E4000D, 0x00000005, 0x800F0003,
+    0x80E4000B, 0xA0E4000C, 0x00000002, 0xD00F0000, 0x80E40003, 0x90E40002, 0x0000FFFF};
+constexpr DWORD vertex_1[] = {0xFFFE0101, 0x0000001F, 0x80000000, 0x900F0000, 0x0000001F, 0x80000005, 0x900F0001,
+                              0x0000001F, 0x8000000A, 0x900F0002, 0x0000001F, 0x80000003, 0x900F0003, 0x00000001,
+                              0xD00F0001, 0xA000005B, 0x00000001, 0xC00F0001, 0xA0AA005B, 0x00000001, 0x800F000B,
+                              0x90E40003, 0x00000004, 0x800F0000, 0x80A4000B, 0xA0FF0005, 0x90E40000, 0x00000009,
+                              0xC0010000, 0x80E40000, 0xA0E40000, 0x00000009, 0xC0020000, 0x80E40000, 0xA0E40001,
+                              0x00000009, 0xC0040000, 0x80E40000, 0xA0E40002, 0x00000009, 0xC0080000, 0x80E40000,
+                              0xA0E40003, 0x00000001, 0xD00F0000, 0xA0E40006, 0x0000FFFF};
+constexpr DWORD vertex_2[] = {
+    0xFFFE0101, 0x0000001F, 0x80000000, 0x900F0000, 0x0000001F, 0x80000005, 0x900F0001, 0x0000001F, 0x8000000A,
+    0x900F0002, 0x0000001F, 0x80000003, 0x900F0003, 0x00000001, 0xD00F0001, 0xA000005B, 0x00000001, 0xC00F0001,
+    0xA0AA005B, 0x00000001, 0x800F000B, 0x90E40003, 0x00000004, 0x800F0000, 0x80A4000B, 0xA0FF0005, 0x90E40000,
+    0x00000009, 0xC0010000, 0x80E40000, 0xA0E40000, 0x00000009, 0xC0020000, 0x80E40000, 0xA0E40001, 0x00000009,
+    0xC0040000, 0x80E40000, 0xA0E40002, 0x00000009, 0xC0080000, 0x80E40000, 0xA0E40003, 0x00000008, 0x80010001,
+    0x90E40003, 0xA0E40007, 0x00000008, 0x80020001, 0x90E40003, 0xA0E40008, 0x00000008, 0x80040001, 0x90E40003,
+    0xA0E40009, 0x00000008, 0x80080002, 0x80A40001, 0x80A40001, 0x00000007, 0x80080002, 0x80FF0002, 0x00000005,
+    0x80070001, 0x80A40001, 0x80FF0002, 0x00000001, 0xE00F0000, 0x80540001, 0x0000FFFF};
 
 Tentacle_ShaderMaterial *materialObject(nglMaterialBase *base)
 {
@@ -91,14 +122,22 @@ void __fastcall shader_name(TentacleShader *shader, void *, tlFixedString *out)
 }
 
 
-bool __fastcall material_version(TentacleShader *, void *, nglMaterialBase *) { return true; }
-bool __fastcall vertex_version(TentacleShader *, void *, nglMeshSection *) { return true; }
+bool __fastcall material_version(TentacleShader *, void *, nglMaterialBase *)
+{
+    return true;
+}
+bool __fastcall vertex_version(TentacleShader *, void *, nglMeshSection *)
+{
+    return true;
+}
 void __fastcall section_bind(TentacleShader *, void *, nglMeshSection *) {}
-bool __fastcall switchable(TentacleShader *, void *) { return false; }
+bool __fastcall switchable(TentacleShader *, void *)
+{
+    return false;
+}
 
 void setupSamplers()
 {
-
     g_renderTextureState().setSamplerState(0, 8, 3);
     g_renderTextureState().setSamplerState(1, 8, 3);
     if (EnableShader)
@@ -116,11 +155,16 @@ void setupSamplers()
 TentacleShader::TentacleShader()
 {
     static void *table[] = {
-        func_address(&TentacleShader::Register), reinterpret_cast<void *>(shader_name),
-        func_address(&TentacleShader::Add), func_address(&TentacleShader::Bind),
-        func_address(&TentacleShader::Release), func_address(&TentacleShader::Rebase),
-        reinterpret_cast<void *>(material_version), reinterpret_cast<void *>(vertex_version),
-        reinterpret_cast<void *>(section_bind), reinterpret_cast<void *>(switchable),
+        func_address(&TentacleShader::Register),
+        reinterpret_cast<void *>(shader_name),
+        func_address(&TentacleShader::Add),
+        func_address(&TentacleShader::Bind),
+        func_address(&TentacleShader::Release),
+        func_address(&TentacleShader::Rebase),
+        reinterpret_cast<void *>(material_version),
+        reinterpret_cast<void *>(vertex_version),
+        reinterpret_cast<void *>(section_bind),
+        reinterpret_cast<void *>(switchable),
         func_address(&TentacleShader::Delete),
     };
     m_vtbl = reinterpret_cast<decltype(m_vtbl)>(table);
@@ -142,12 +186,21 @@ void TentacleShader::Register()
 
         nglCreatePShader(&pixel_texture(), "tex t0\nmov r0.rgb, t0\n+mov r0.a, c1.a\n");
         nglCreatePShader(&pixel_main(), "tex t0\nmul r0.rgb, v0, t0\n+mov r0.a, c1.a\n");
-        nglCreatePShader(&pixel_color_map(), "tex t0\ntex t1\nmul r0, t0, c0\nmad r0, r0, t1.a, r0\nadd r0, r0, t1\nmov r0.a, c1.a\n");
-        nglCreatePShader(&pixel_color_map_vertex(), "tex t0\ntex t1\nmul r0, t0, c0\nmad r0, t0, t1.a, r0\nmad r0, v0, t0.a, r0\nmad r0, t1, t0.a, r0\nmov r0.a, c1.a\n");
+        nglCreatePShader(&pixel_color_map(),
+                         "tex t0\ntex t1\nmul r0, t0, c0\nmad r0, r0, t1.a, r0\nadd r0, r0, t1\nmov r0.a, c1.a\n");
+        nglCreatePShader(&pixel_color_map_vertex(),
+                         "tex t0\ntex t1\nmul r0, t0, c0\nmad r0, t0, t1.a, r0\nmad r0, v0, t0.a, r0\nmad r0, t1, "
+                         "t0.a, r0\nmov r0.a, c1.a\n");
         nglCreatePShader(&pixel_map(), "tex t0\ntex t1\nmul r0, t0, t1.a\nadd r0, r0, t1\nmov r0.a, c1.a\n");
-        nglCreatePShader(&pixel_map_vertex(), "tex t0\ntex t1\nmul r0, t0, t1.a\nmad r0, v0, t0.a, r0\nmad r0, t1, t0.a, r0\nmov r0.a, c1.a\n");
-        nglCreatePShader(&pixel_map_vertex_alpha(), "tex t0\ntex t1\nmul r0, t0, t1.a\nadd r0, r0, t1\nmul r1, v0, t0.a\nmad r0, r1, t1.a, r0\nmov r0.a, c1.a\n");
-        nglCreatePShader(&pixel_normal_map(), "tex t0\ntex t1\ntex t2\ndp3_sat r0, t1_bx2, t2_bx2\nmul r0, t0, r0.a\nmul r0, r0, c1\nmul r0, r0, t1.a\n");
+        nglCreatePShader(
+            &pixel_map_vertex(),
+            "tex t0\ntex t1\nmul r0, t0, t1.a\nmad r0, v0, t0.a, r0\nmad r0, t1, t0.a, r0\nmov r0.a, c1.a\n");
+        nglCreatePShader(&pixel_map_vertex_alpha(),
+                         "tex t0\ntex t1\nmul r0, t0, t1.a\nadd r0, r0, t1\nmul r1, v0, t0.a\nmad r0, r1, t1.a, "
+                         "r0\nmov r0.a, c1.a\n");
+        nglCreatePShader(
+            &pixel_normal_map(),
+            "tex t0\ntex t1\ntex t2\ndp3_sat r0, t1_bx2, t2_bx2\nmul r0, t0, r0.a\nmul r0, r0, c1\nmul r0, r0, t1.a\n");
         nglCreatePShader(&pixel_outline(), "mov r0, v0\nmov r0.a, c0.a\n");
         nglCreatePShader(&pixel_texture_alpha(), "tex t0\nmov r0, t0\nmov r0.a, c0.a\n");
     } else if (!dword_9738E0[13]) {
@@ -177,7 +230,8 @@ void TentacleShader::Rebase(nglMaterialBase *base, uint32_t offset)
     if (mat->texture_name)
         mat->texture_name = reinterpret_cast<tlFixedString *>(reinterpret_cast<char *>(mat->texture_name) + offset);
     if (mat->sphere_map_name)
-        mat->sphere_map_name = reinterpret_cast<tlFixedString *>(reinterpret_cast<char *>(mat->sphere_map_name) + offset);
+        mat->sphere_map_name =
+            reinterpret_cast<tlFixedString *>(reinterpret_cast<char *>(mat->sphere_map_name) + offset);
 }
 
 TentacleShader *TentacleShader::Delete(unsigned char flags)
@@ -191,7 +245,8 @@ TentacleNode::TentacleNode(nglMeshNode *mesh, nglMeshSection *section, Tentacle_
     : nglShaderNode(mesh, section), material(mat)
 {
     static void *table[] = {func_address(&TentacleNode::Render),
-        func_address(&TentacleNode::GetSortInfo), func_address(&TentacleNode::Delete)};
+                            func_address(&TentacleNode::GetSortInfo),
+                            func_address(&TentacleNode::Delete)};
     m_vtbl = reinterpret_cast<decltype(m_vtbl)>(table);
 }
 
@@ -219,14 +274,13 @@ TentacleNode *TentacleNode::Delete(unsigned char flags)
 
 void TentacleNode::RenderFixedFunction()
 {
-
     sub_413AF0();
     setupSamplers();
     auto &state = g_renderState();
     state.setCullingMode(D3DCULL_CCW);
     state.setBlending(NGLBM_OPAQUE, 0, 0);
-    IDirect3DDevice9_SetTransform(g_Direct3DDevice, D3DTS_WORLD,
-        reinterpret_cast<const D3DMATRIX *>(&m_meshNode->LocalToWorld));
+    IDirect3DDevice9_SetTransform(
+        g_Direct3DDevice, D3DTS_WORLD, reinterpret_cast<const D3DMATRIX *>(&m_meshNode->LocalToWorld));
     IDirect3DDevice9_SetVertexDeclaration(g_Direct3DDevice, dword_9738E0[13]);
     const auto depthWrite = state.field_74;
     const auto depthFunction = state.field_7C;
@@ -323,7 +377,7 @@ void TentacleNode::Render()
     }
     state.setColourBufferWriteEnabled(7);
 }
-}
+}  // namespace
 
 nglShader &getTentacle_Shader()
 {

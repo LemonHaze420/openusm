@@ -10,7 +10,7 @@
 
 #include <vector.hpp>
 
-template<typename base_type, int number_of_bits>
+template <typename base_type, int number_of_bits>
 struct fixed_bitvector;
 
 struct oriented_bounding_box_root_node;
@@ -83,14 +83,14 @@ struct region {
     ai_region_paths *field_104;
     _std::vector<eligible_pack *> field_108;
     struct {
-		progress field_0;
-		progress field_4;
-		int field_8;
-		progress field_C;
-		progress field_10;
-		progress field_14;
-	} field_118;
-	progress unload_progress;
+        progress field_0;
+        progress field_4;
+        int field_8;
+        progress field_C;
+        progress field_10;
+        progress field_14;
+    } field_118;
+    progress unload_progress;
 
     struct region_astar_search_record : astar_search_record {
         _std::vector<void *> field_24;
@@ -109,12 +109,12 @@ struct region {
     ~region();
 
     //0x0053B380
-    void * operator new(uint32_t);
+    void *operator new(uint32_t);
 
     static void prepare_for_visiting()
     {
         ++visit_key;
-    } 
+    }
 
     void constructor_common();
 
@@ -171,12 +171,12 @@ struct region {
     //0x00519C70
     float get_ground_level() const;
 
-	int get_district_variant() const;
+    int get_district_variant() const;
 
     //0x00545700
     void remove(entity *a3);
 
-	void remove(light_source *a2);
+    void remove(light_source *a2);
 
     bool has_quad_paths() const;
 
@@ -209,7 +209,7 @@ struct region {
 
     int get_district_variant_count() const
     {
-        return bit_cast<int*>(bit_cast<char*>(this) + 0xC8)[0];
+        return bit_cast<int *>(bit_cast<char *>(this) + 0xC8)[0];
     }
 
 #if STANDALONE_SYSTEM

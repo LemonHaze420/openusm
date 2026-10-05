@@ -39,7 +39,6 @@ void SpidermanLocoSwingBack::init(polytube *web, actor *own, entity_base *)
     assert(this->web_dangler != nullptr);
 
 
-
     field_0 = own;
     const vector3d start = web->get_control_pt(web->get_num_control_pts() - 1);
     const vector3d end = web->get_control_pt(0);

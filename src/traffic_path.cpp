@@ -23,7 +23,6 @@ traffic_ai_list (&traffic_ai_list::ai_lists)[64] = var<traffic_ai_list[64]>(0x00
 
 bool traffic_path_intersection::has_stopsign(bool)
 {
-
     return false;
 }
 
@@ -114,16 +113,12 @@ bool traffic_path_intersection::remove_ai_from_intersection(vhandle_type<actor> 
     return true;
 }
 
-void traffic_path_intersection::release_semaphore(bool)
-{
-
-}
+void traffic_path_intersection::release_semaphore(bool) {}
 
 traffic_path_lane *traffic_path_road::get_lane(int index, int type, bool incoming) const
 {
     auto **lanes = type == 1 ? all_lanes : incoming ? in_lanes : out_lanes;
-    const unsigned count = type == 1 ? total_in_lanes + total_out_lanes
-                                    : incoming ? total_in_lanes : total_out_lanes;
+    const unsigned count = type == 1 ? total_in_lanes + total_out_lanes : incoming ? total_in_lanes : total_out_lanes;
     int match = 0;
     for (unsigned lane = 0; lane < count; ++lane) {
         if (lanes[lane]->get_type() == type) {
@@ -159,8 +154,7 @@ int traffic_path_road::get_lane_position(const traffic_path_lane *lane) const
     const int type = lane->get_type();
     if (get_lane(0, type, true) == lane)
         return 2;
-    if (get_lane(count_lanes(type, true) - 1, type, true) == lane ||
-        get_lane(0, type, false) == lane)
+    if (get_lane(count_lanes(type, true) - 1, type, true) == lane || get_lane(0, type, false) == lane)
         return 1;
     return get_lane(count_lanes(type, false) - 1, type, false) == lane ? 2 : 4;
 }
@@ -199,8 +193,8 @@ traffic_path_lane *traffic_path_road::get_closest_lane(const vector3d &position,
     return result;
 }
 
-int traffic_path_road::map_lane_index(traffic_path_lane *lane, const traffic_path_road *next_road,
-                                      int index, bool allow_incoming) const
+int traffic_path_road::map_lane_index(traffic_path_lane *lane, const traffic_path_road *next_road, int index,
+                                      bool allow_incoming) const
 {
     const int type = lane->get_type();
     if (type != 1) {
@@ -285,7 +279,6 @@ bool traffic_path_intersection::add_ai(vhandle_type<actor> actor_handle)
 
 bool traffic_path_intersection::reserve_stopsign(vhandle_type<actor>, int)
 {
-
     return true;
 }
 
@@ -337,8 +330,7 @@ int traffic_path_intersection::get_direction_to_lane(traffic_path_lane *lane, tr
 {
     auto *source = lane->my_road;
     auto *destination = next_lane->my_road;
-    if ((destination != nullptr ? destination->field_18 : nullptr) !=
-        (source != nullptr ? source->field_1C : nullptr))
+    if ((destination != nullptr ? destination->field_18 : nullptr) != (source != nullptr ? source->field_1C : nullptr))
         return 0;
     if ((source->n2 + 1) % 4 == destination->n2_1)
         return -1;
@@ -359,7 +351,7 @@ int lane_turn_position(traffic_path_lane *lane)
         return road->count_lanes(type, true) <= 1 ? 4 : road->get_lane_position(lane);
     return road->all_lanes[0]->get_type() != type ? 2 : 1;
 }
-}
+}  // namespace
 
 bool traffic_path_intersection::get_allowed_ai_roads(traffic_path_lane *lane, traffic_path_road **out_roads)
 {
@@ -369,8 +361,7 @@ bool traffic_path_intersection::get_allowed_ai_roads(traffic_path_lane *lane, tr
     const unsigned restrictions[] = {0x80, 0x40, 0x100};
     const unsigned road_flag = (lane->flags & 2) != 0 ? 4 : 8;
     for (int index = 0; index < 3; ++index) {
-        if ((position == 1 && index == 0) || (position == 2 && index == 1) ||
-            (lane->flags & restrictions[index]) != 0)
+        if ((position == 1 && index == 0) || (position == 2 && index == 1) || (lane->flags & restrictions[index]) != 0)
             continue;
         auto *road = roads[road_slot(lane->my_road->n2 + offsets[index])];
         if (road != nullptr && (road->flags & road_flag) != 0)
@@ -379,10 +370,8 @@ bool traffic_path_intersection::get_allowed_ai_roads(traffic_path_lane *lane, tr
     return out_roads[0] != nullptr || out_roads[1] != nullptr || out_roads[2] != nullptr;
 }
 
-traffic_path_lane *traffic_path_intersection::get_next_lane(vector3d position, int direction,
-                                                            traffic_path_lane *lane,
-                                                            traffic_path_graph **graph,
-                                                            int orientation, bool)
+traffic_path_lane *traffic_path_intersection::get_next_lane(vector3d position, int direction, traffic_path_lane *lane,
+                                                            traffic_path_graph **graph, int orientation, bool)
 {
     auto *source = lane->my_road;
     const int slot = road_slot((orientation > 0 ? source->n2 : source->n2_1) + direction);
@@ -405,9 +394,9 @@ traffic_path_lane *traffic_path_intersection::get_next_lane(vector3d position, i
     return result != nullptr && result->get_type() == lane->get_type() ? result : nullptr;
 }
 
-float traffic_path_intersection::evaluate_road_chance(
-    traffic_path_lane *lane, traffic_path_lane **next_lane, float bias, int road_index,
-    int excluded_direction, int direction, const vector3d &target, bool weigh_flags, bool randomize)
+float traffic_path_intersection::evaluate_road_chance(traffic_path_lane *lane, traffic_path_lane **next_lane,
+                                                      float bias, int road_index, int excluded_direction, int direction,
+                                                      const vector3d &target, bool weigh_flags, bool randomize)
 {
     auto *road = roads[road_slot(road_index)];
     if (road == nullptr || (road->flags & ((lane->flags & 2) != 0 ? 4 : 8)) == 0)
@@ -463,9 +452,9 @@ float traffic_path_intersection::evaluate_road_chance(
     return chance;
 }
 
-int traffic_path_intersection::get_next_direction(
-    traffic_path_lane *lane, traffic_path_lane **next_lane, int orientation, int excluded_direction,
-    const vector3d &target, bool ignore_restrictions, bool randomize)
+int traffic_path_intersection::get_next_direction(traffic_path_lane *lane, traffic_path_lane **next_lane,
+                                                  int orientation, int excluded_direction, const vector3d &target,
+                                                  bool ignore_restrictions, bool randomize)
 {
     const int base = orientation > 0 ? lane->my_road->n2 : lane->my_road->n2_1;
     const int position = lane_turn_position(lane);
@@ -476,16 +465,16 @@ int traffic_path_intersection::get_next_direction(
     float right_chance = 0.0f;
     float straight_chance = 0.0f;
     auto evaluate_left = [&] {
-        left_chance = evaluate_road_chance(lane, &left, 0.1f, base - 1, excluded_direction,
-                                           -1, target, false, randomize);
+        left_chance =
+            evaluate_road_chance(lane, &left, 0.1f, base - 1, excluded_direction, -1, target, false, randomize);
     };
     auto evaluate_right = [&] {
-        right_chance = evaluate_road_chance(lane, &right, 0.1f, base + 1, excluded_direction,
-                                            1, target, false, randomize);
+        right_chance =
+            evaluate_road_chance(lane, &right, 0.1f, base + 1, excluded_direction, 1, target, false, randomize);
     };
     auto evaluate_straight = [&] {
-        straight_chance = evaluate_road_chance(lane, &straight, 0.2f, base + 2, excluded_direction,
-                                               2, target, false, randomize);
+        straight_chance =
+            evaluate_road_chance(lane, &straight, 0.2f, base + 2, excluded_direction, 2, target, false, randomize);
     };
     if (randomize) {
         if (position != 1 && ((lane->flags & 0x80) == 0 || ignore_restrictions))
@@ -496,8 +485,7 @@ int traffic_path_intersection::get_next_direction(
             evaluate_straight();
         straight_chance *= 2.0f;
         if (position == 1) {
-            if (std::max(right_chance, straight_chance) <= 0.0f &&
-                ((lane->flags & 0x80) == 0 || ignore_restrictions))
+            if (std::max(right_chance, straight_chance) <= 0.0f && ((lane->flags & 0x80) == 0 || ignore_restrictions))
                 evaluate_left();
         } else if (position != 2 || std::max(left_chance, straight_chance) <= 0.0f) {
             if ((lane->flags & 0x40) == 0 || ignore_restrictions)

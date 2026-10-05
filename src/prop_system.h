@@ -18,9 +18,8 @@ struct prop_physics_body {
 
 namespace prop_system {
 void collision_callback(event *base_event, entity_base_vhandle handle, void *context);
-bool start(actor *owner, const vector3d &velocity, float randomness,
-    float lifetime, int priority);
+bool start(actor *owner, const vector3d &velocity, float randomness, float lifetime, int priority);
 void stop(actor *owner, bool destroying);
 void frame_advance(Float elapsed);
 void environment_collision_callback(int &contact_count);
-}
+}  // namespace prop_system

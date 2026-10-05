@@ -7,8 +7,6 @@ struct from_mash_in_place_constructor;
 namespace ai {
 
 struct player_controller_inode : controller_inode {
-
-
     vector2d stick_cache[10];
     float facing_cache[10][3];
 

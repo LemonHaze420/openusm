@@ -25,7 +25,7 @@ path_resource_handler::path_resource_handler(worldly_pack_slot *a2)
 
         this->m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {
-    this->m_vtbl = 0x00888AA4;
+        this->m_vtbl = 0x00888AA4;
     }
 
     this->my_slot = a2;
@@ -40,7 +40,7 @@ bool path_resource_handler::_handle(worldly_resource_handler::eBehavior a2, limi
 }
 
 bool path_resource_handler::_handle_resource(worldly_resource_handler::eBehavior a2, resource_location *a3)
-    {
+{
     if constexpr (1) {
         auto &res_dir = this->my_slot->get_resource_directory();
         auto *resource = res_dir.get_resource(a3, nullptr);
@@ -58,7 +58,7 @@ bool path_resource_handler::_handle_resource(worldly_resource_handler::eBehavior
 #ifndef TARGET_XBOX
             mash_info_struct info_struct{resource, a3->m_size};
 #else
-            mash_info_struct info_struct {mash::UNMASH_MODE, resource, a3->m_size, true};
+            mash_info_struct info_struct{mash::UNMASH_MODE, resource, a3->m_size, true};
 #endif
 
             path_graph *pg = nullptr;
@@ -67,20 +67,19 @@ bool path_resource_handler::_handle_resource(worldly_resource_handler::eBehavior
 #ifdef TARGET_XBOX
                                      ,
                                      mash::NORMAL_BUFFER
-#endif 
-                    );
+#endif
+            );
 
 #if defined(OPENUSM_XBPACK_MODE) && !defined(TARGET_XBOX)
             if (pg->id.m_type != RESOURCE_KEY_TYPE_PATH) {
-                pg->id.m_type = static_cast<resource_key_type>(
-                    xbpack::pc_type(static_cast<int>(pg->id.m_type)));
+                pg->id.m_type = static_cast<resource_key_type>(xbpack::pc_type(static_cast<int>(pg->id.m_type)));
             }
             assert(pg->id.m_type == RESOURCE_KEY_TYPE_PATH);
 #endif
 
             mash_info_struct::construct_class(pg);
 
-            void (__fastcall *push_back)(void *, void *, const path_graph *) = CAST(push_back, 0x00542220);
+            void(__fastcall * push_back)(void *, void *, const path_graph *) = CAST(push_back, 0x00542220);
 
             push_back(&g_world_ptr->field_14.path_graph_list, nullptr, pg);
         }
@@ -88,7 +87,7 @@ bool path_resource_handler::_handle_resource(worldly_resource_handler::eBehavior
         ++this->field_C;
         return false;
     } else {
-        return (bool) THISCALL(0x0056FF90, this, a2, a3);
+        return (bool)THISCALL(0x0056FF90, this, a2, a3);
     }
 }
 

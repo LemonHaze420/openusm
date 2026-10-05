@@ -3,7 +3,9 @@
 #include "charcompressor.h"
 #include "float.hpp"
 
-namespace nalChar { struct nalCharAnim; }
+namespace nalChar {
+struct nalCharAnim;
+}
 
 template <typename T>
 struct FakerootEntCompDecomp {
@@ -23,8 +25,8 @@ struct FakerootEntCompDecomp {
     };
     void RetrievePoseFromInst(typename T::StdPoseData &pose, PerInstData *state, const typename T::PerAnimData *data);
     void GetPose(typename T::StdPoseData *pose, uint32_t index, Float time, Float previousTime,
-        const nalChar::nalCharAnim *anim, const typename T::PerSkelData *skel,
-        const typename T::PerAnimData *data, const void *stream, PerInstData *state, const T &descriptor);
+                 const nalChar::nalCharAnim *anim, const typename T::PerSkelData *skel,
+                 const typename T::PerAnimData *data, const void *stream, PerInstData *state, const T &descriptor);
 };
 
 extern void FakerootEntCompDecomp_patch();

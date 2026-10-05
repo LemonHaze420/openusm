@@ -41,7 +41,7 @@ T &standalone_var(ptrdiff_t address)
             ::new (static_cast<void *>(bytes)) T{};
         } else {
             static_assert(std::is_trivially_destructible_v<T>,
-                "Non-default standalone globals must be trivially destructible");
+                          "Non-default standalone globals must be trivially destructible");
             std::memset(bytes, 0, sizeof(T));
         }
         initialized = true;
@@ -69,8 +69,7 @@ struct Var {
 #else
         : pointer(bit_cast<T *>(address))
 #endif
-    {
-    }
+    {}
 
 #if STANDALONE_SYSTEM
     ptrdiff_t address;

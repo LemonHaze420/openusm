@@ -72,10 +72,10 @@ public:
         this->move_SP(-n);
     }
 
-    void * pop_addr()
+    void *pop_addr()
     {
         this->pop(sizeof(void *));
-        return *(void**)SP;
+        return *(void **)SP;
     }
 
     vm_str_t pop_str()

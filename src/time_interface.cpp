@@ -21,7 +21,7 @@ void decrement_to_zero(float &value, float amount)
         value = 0.0f;
     }
 }
-}
+}  // namespace
 
 time_interface::time_interface(entity *a2)
 {
@@ -103,10 +103,7 @@ void time_interface::set_state(int state, Float elapsed)
             set_state(1, elapsed - field_24);
         } else {
             field_20 = field_24 - elapsed;
-            field_10 =
-                (1.0f - field_20 / field_24) *
-                    (field_14 - 1.0f) +
-                1.0f;
+            field_10 = (1.0f - field_20 / field_24) * (field_14 - 1.0f) + 1.0f;
         }
         break;
     case 4:
@@ -114,10 +111,7 @@ void time_interface::set_state(int state, Float elapsed)
             set_state(0, elapsed - field_28);
         } else {
             field_20 = field_28 - elapsed;
-            field_10 =
-                (1.0f - field_20 / field_28) *
-                    (1.0f - field_14) +
-                field_14;
+            field_10 = (1.0f - field_20 / field_28) * (1.0f - field_14) + field_14;
         }
         break;
     default:
@@ -148,20 +142,14 @@ void time_interface::frame_advance(Float elapsed)
                 set_state(1, remainder - field_24);
             } else {
                 field_20 = field_24 - remainder;
-                field_10 =
-                    (1.0f - field_20 / field_24) *
-                        (field_14 - 1.0f) +
-                    1.0f;
+                field_10 = (1.0f - field_20 / field_24) * (field_14 - 1.0f) + 1.0f;
             }
         }
         break;
     case 3:
         if (elapsed < field_20) {
             decrement_to_zero(field_20, elapsed);
-            field_10 =
-                (1.0f - field_20 / field_24) *
-                    (field_14 - 1.0f) +
-                1.0f;
+            field_10 = (1.0f - field_20 / field_24) * (field_14 - 1.0f) + 1.0f;
         } else {
             const float remainder = elapsed - field_20;
             field_20 = 0;
@@ -171,10 +159,7 @@ void time_interface::frame_advance(Float elapsed)
     case 4:
         if (elapsed < field_20) {
             decrement_to_zero(field_20, elapsed);
-            field_10 =
-                (1.0f - field_20 / field_28) *
-                    (1.0f - field_14) +
-                field_14;
+            field_10 = (1.0f - field_20 / field_28) * (1.0f - field_14) + field_14;
         } else {
             field_30 = 0;
             field_10 = 1.0f;

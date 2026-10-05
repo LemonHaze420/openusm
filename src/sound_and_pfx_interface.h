@@ -47,8 +47,7 @@ static_assert(offsetof(shared_sound_interface_info, groups) == 24);
 struct sound_and_pfx_interface : pfx_interface {
     sound_and_pfx_interface();
 
-    void un_mash(generic_mash_header *header, void *owner, void *storage,
-                 generic_mash_data_ptrs *data);
+    void un_mash(generic_mash_header *header, void *owner, void *storage, generic_mash_data_ptrs *data);
     static std::intptr_t native_vtable();
 
     web_sound_params *get_web_sound_params(string_hash a1);

@@ -90,7 +90,7 @@ void character_viewer::update_selected(int a2)
         for (auto i = 40; i; --i) {
             auto v7 = (float)(a2 * this->field_290);
 
-            auto *vtbl = bit_cast<std::intptr_t (*)[1]>(v3->field_0->m_vtbl);
+            auto *vtbl = bit_cast<std::intptr_t(*)[1]>(v3->field_0->m_vtbl);
 
             auto func = (*vtbl)[48];
             assert(func == 0x00616710);
@@ -114,7 +114,7 @@ void character_viewer::update_selected(int a2)
         {
             auto &_this = this->field_B0[idx].field_0;
 
-            auto *vtbl = bit_cast<std::intptr_t (*)[1]>(_this->m_vtbl);
+            auto *vtbl = bit_cast<std::intptr_t(*)[1]>(_this->m_vtbl);
 
             auto func = (*vtbl)[48];
             assert(func == 0x00616710);
@@ -188,7 +188,7 @@ void character_viewer::sub_6143B0(int a2)
 
             {
                 auto &self = v3[-1].field_4;
-                auto *vtbl = bit_cast<std::intptr_t (*)[1]>(self->m_vtbl);
+                auto *vtbl = bit_cast<std::intptr_t(*)[1]>(self->m_vtbl);
                 auto func = (*vtbl)[29];
                 assert(func = 0x00616290);
 

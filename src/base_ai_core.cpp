@@ -64,18 +64,17 @@ ai_core::~ai_core()
     }
     for (int index = 0; index < my_info_node_list->m_size; ++index)
         my_info_node_list->m_data[index]->deactivate();
-    if (!pedestrian_inode::is_a_pedestrian(this) &&
-        get_info_node(traffic_inode::default_id, false) == nullptr)
+    if (!pedestrian_inode::is_a_pedestrian(this) && get_info_node(traffic_inode::default_id, false) == nullptr)
         pedestrian_inode::unregister_non_ped(vhandle_type<actor>{field_64->my_handle});
     if (field_5C != 0) {
         if (my_info_node_list->field_10) {
             for (int index = 0; index < my_info_node_list->m_size; ++index) {
                 auto *node = my_info_node_list->m_data[index];
                 if (my_info_node_list->is_pointer_in_mash_image(node)) {
-                    using destroy_fn = void (__fastcall *)(info_node *, void *);
+                    using destroy_fn = void(__fastcall *)(info_node *, void *);
                     reinterpret_cast<destroy_fn>(get_vfunc(node->m_vtbl, 0))(node, nullptr);
                 } else if (node != nullptr) {
-                    using delete_fn = void (__fastcall *)(info_node *, void *, bool);
+                    using delete_fn = void(__fastcall *)(info_node *, void *, bool);
                     reinterpret_cast<delete_fn>(get_vfunc(node->m_vtbl, 0x8))(node, nullptr, true);
                 }
                 my_info_node_list->m_data[index] = nullptr;
@@ -91,14 +90,12 @@ ai_core::~ai_core()
     }
     delete field_70;
     field_70 = nullptr;
-    auto *&registry = !field_6C->field_44 || (field_4C & 1) != 0
-        ? the_ai_core_list_high : the_ai_core_list_low;
+    auto *&registry = !field_6C->field_44 || (field_4C & 1) != 0 ? the_ai_core_list_high : the_ai_core_list_low;
     auto it = std::find(registry->begin(), registry->end(), this);
     if (it != registry->end()) {
         auto next = it;
         ++next;
-        if (&registry == &the_ai_core_list_low &&
-            next_ai_core_list_low_iter == it._Mynode()) {
+        if (&registry == &the_ai_core_list_low && next_ai_core_list_low_iter == it._Mynode()) {
             next_ai_core_list_low_iter = next._Mynode();
             if (next == registry->end())
                 next_ai_core_list_low_iter = registry->begin()._Mynode();
@@ -132,16 +129,14 @@ ai_core::ai_core(core_ai_resource *a2, const param_block *a3, actor *a4)
         this->field_70 = nullptr;
         auto v7 = g_world_ptr->time_manager.field_C;
 
-        this->field_38 = v7 + static_cast<int>(
-            static_cast<double>(rand()) * v6 / 32768.0);
+        this->field_38 = v7 + static_cast<int>(static_cast<double>(rand()) * v6 / 32768.0);
         this->field_48 = {0};
         this->field_50.copy_from_pb_override(v5->field_0);
         this->field_50.copy_from_pb_override(*a3);
         this->field_5C = true;
         auto v8 = v5->field_40;
         if (v8 != 0) {
-            this->my_info_node_list =
-                static_cast<mVector<info_node> *>(arch_memalign(16u, v8));
+            this->my_info_node_list = static_cast<mVector<info_node> *>(arch_memalign(16u, v8));
             assert(this->my_info_node_list != nullptr);
             std::memcpy(this->my_info_node_list, v5->field_C, v8);
 
@@ -444,7 +439,8 @@ void ai_core::adjust_colgeom(bool force)
     if (!restore) {
         const auto &position = field_64->get_abs_position();
         for (int player = 0; player < g_world_ptr->num_players; ++player) {
-            const float squared = (g_game_ptr->get_current_view_camera(player)->get_abs_position() - position).length2();
+            const float squared =
+                (g_game_ptr->get_current_view_camera(player)->get_abs_position() - position).length2();
             if (squared < nearest)
                 nearest = squared;
         }
@@ -469,9 +465,8 @@ void ai_core::post_entity_mash()
     }
     if (!field_6C->my_locomotion_graphs.empty()) {
         static const string_hash locomotion_hash{"base_locomotion_inode"};
-        const auto name = field_50.does_parameter_exist(locomotion_hash)
-            ? field_50.get_pb_hash(locomotion_hash)
-            : field_6C->my_locomotion_graphs.at(0)->m_hash;
+        const auto name = field_50.does_parameter_exist(locomotion_hash) ? field_50.get_pb_hash(locomotion_hash)
+                                                                         : field_6C->my_locomotion_graphs.at(0)->m_hash;
         change_locomotion_machine(name);
     }
 }
@@ -506,8 +501,7 @@ void ai_core::frame_advance_all_core_ais(Float elapsed)
         return;
     }
 
-    auto count = std::max(1, static_cast<int>(
-        static_cast<float>(low->size()) * elapsed.value * 3.0f + 0.5f));
+    auto count = std::max(1, static_cast<int>(static_cast<float>(low->size()) * elapsed.value * 3.0f + 0.5f));
     auto it = low->begin();
     while (count-- > 0 && !low->empty()) {
         if (it == low->end()) {
@@ -540,8 +534,7 @@ void ai_core::frame_advance(Float elapsed)
     if (auto *controller = field_64->get_player_controller()) {
         controller->frame_advance(elapsed);
     }
-    if ((!field_64->is_in_limbo() && field_64->get_primary_region() != nullptr) ||
-        field_64->is_ext_flagged(8u)) {
+    if ((!field_64->is_in_limbo() && field_64->get_primary_region() != nullptr) || field_64->is_ext_flagged(8u)) {
         if (field_64->is_ext_flagged(0x40000000u) && elapsed > EPSILON) {
             return;
         }
@@ -595,14 +588,12 @@ bool ai_core::change_locomotion_machine(const string_hash &name)
     if (node == field_40) {
         return true;
     }
-    if (node == nullptr ||
-        !node->is_subclass_of(static_cast<mash::virtual_types_enum>(391))) {
+    if (node == nullptr || !node->is_subclass_of(static_cast<mash::virtual_types_enum>(391))) {
         return false;
     }
     auto *loco = static_cast<loco_inode *>(node);
     const auto &graph = loco->get_graph();
-    if (!field_6C->does_locomotion_graph_exist(graph) ||
-        find_state_graph(graph) == nullptr) {
+    if (!field_6C->does_locomotion_graph_exist(graph) || find_state_graph(graph) == nullptr) {
         return false;
     }
     if (my_locomotion_machine != nullptr) {
@@ -718,8 +709,7 @@ void ai_core::remove_slave(vhandle_type<actor> actor_handle)
     auto *node = static_cast<slave_inode *>(get_info_node(slave_inode::default_id, true));
     for (int i = 0; i < node->records.m_size; ++i) {
         if (node->records_data[i].actor_handle.field_0 == actor_handle.field_0.field_0) {
-            std::move(node->records_data + i + 1,
-                      node->records_data + node->records.m_size, node->records_data + i);
+            std::move(node->records_data + i + 1, node->records_data + node->records.m_size, node->records_data + i);
             --node->records.m_size;
             break;
         }

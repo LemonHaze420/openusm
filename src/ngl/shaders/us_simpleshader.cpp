@@ -35,21 +35,26 @@ static_assert(offsetof(WorldMaterial, texture) == 0x64);
 
 
 constexpr DWORD simple_vertex[] = {
-    0xFFFE0101, 0x0000001F, 0x80000000, 0x900F0000, 0x0000001F, 0x80000005, 0x900F0001,
-    0x0000001F, 0x8000000A, 0x900F0002, 0x00000009, 0xC0010000, 0x90E40000, 0xA0E40000,
-    0x00000009, 0xC0020000, 0x90E40000, 0xA0E40001, 0x00000009, 0xC0040000, 0x90E40000,
-    0xA0E40002, 0x00000009, 0xC0080000, 0x90E40000, 0xA0E40003, 0x00000002, 0xE0030000,
-    0x90E40001, 0xA0540005, 0x00000005, 0xD00F0000, 0x90C00002, 0xA0E40004, 0x0000FFFF,
+    0xFFFE0101, 0x0000001F, 0x80000000, 0x900F0000, 0x0000001F, 0x80000005, 0x900F0001, 0x0000001F, 0x8000000A,
+    0x900F0002, 0x00000009, 0xC0010000, 0x90E40000, 0xA0E40000, 0x00000009, 0xC0020000, 0x90E40000, 0xA0E40001,
+    0x00000009, 0xC0040000, 0x90E40000, 0xA0E40002, 0x00000009, 0xC0080000, 0x90E40000, 0xA0E40003, 0x00000002,
+    0xE0030000, 0x90E40001, 0xA0540005, 0x00000005, 0xD00F0000, 0x90C00002, 0xA0E40004, 0x0000FFFF,
 };
 constexpr DWORD translucent_vertex[] = {
-    0xFFFE0101, 0x0000001F, 0x80000000, 0x900F0000, 0x0000001F, 0x80000005, 0x900F0001,
-    0x0000001F, 0x8000000A, 0x900F0002, 0x00000009, 0xC0010000, 0x90E40000, 0xA0E40000,
-    0x00000009, 0xC0020000, 0x90E40000, 0xA0E40001, 0x00000009, 0xC0040000, 0x90E40000,
-    0xA0E40002, 0x00000009, 0xC0080000, 0x90E40000, 0xA0E40003, 0x00000005, 0xD00F0000,
-    0x90C00002, 0xA0E40004, 0x00000002, 0xE0030000, 0x90E40001, 0xA0540005, 0x0000FFFF,
+    0xFFFE0101, 0x0000001F, 0x80000000, 0x900F0000, 0x0000001F, 0x80000005, 0x900F0001, 0x0000001F, 0x8000000A,
+    0x900F0002, 0x00000009, 0xC0010000, 0x90E40000, 0xA0E40000, 0x00000009, 0xC0020000, 0x90E40000, 0xA0E40001,
+    0x00000009, 0xC0040000, 0x90E40000, 0xA0E40002, 0x00000009, 0xC0080000, 0x90E40000, 0xA0E40003, 0x00000005,
+    0xD00F0000, 0x90C00002, 0xA0E40004, 0x00000002, 0xE0030000, 0x90E40001, 0xA0540005, 0x0000FFFF,
 };
 constexpr DWORD world_pixel[] = {
-    0xFFFF0101, 0x00000042, 0xB00F0000, 0x00000005, 0x800F0000, 0xB0E40000, 0x90E40000, 0x0000FFFF,
+    0xFFFF0101,
+    0x00000042,
+    0xB00F0000,
+    0x00000005,
+    0x800F0000,
+    0xB0E40000,
+    0x90E40000,
+    0x0000FFFF,
 };
 constexpr D3DVERTEXELEMENT9 world_elements[] = {
     {0, 0, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0},
@@ -57,11 +62,16 @@ constexpr D3DVERTEXELEMENT9 world_elements[] = {
     {0, 20, D3DDECLTYPE_D3DCOLOR, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_COLOR, 0},
     D3DDECL_END(),
 };
-template <bool Translucent> struct WorldPrograms {
+template <bool Translucent>
+struct WorldPrograms {
     VShader vertex{};
     IDirect3DPixelShader9 *pixel{};
     IDirect3DVertexDeclaration9 *fixed{};
-    static WorldPrograms &get() { static WorldPrograms value; return value; }
+    static WorldPrograms &get()
+    {
+        static WorldPrograms value;
+        return value;
+    }
 };
 
 template <bool Translucent, bool Trilinear>
@@ -77,13 +87,13 @@ struct WorldNode : nglShaderNode {
         if ((texture->m_format & 0xFFu) == 16) {
             auto &params = mesh->field_8C;
             const uint32_t frame = params.IsSetParam<nglTextureFrameParam>()
-                ? params.Get<nglTextureFrameParam>()->field_0
-                : data.animate_per_time_of_day ? uint32_t(g_TOD) + 4u * nglCurScene->IFLFrame
-                                              : nglCurScene->IFLFrame;
+                                       ? params.Get<nglTextureFrameParam>()->field_0
+                                   : data.animate_per_time_of_day ? uint32_t(g_TOD) + 4u * nglCurScene->IFLFrame
+                                                                  : nglCurScene->IFLFrame;
             texture = texture->Frames[frame % texture->m_num_palettes];
         }
-        static void *table[]{func_address(&WorldNode::Render),
-            func_address(&WorldNode::GetSortInfo), func_address(&WorldNode::Delete)};
+        static void *table[]{
+            func_address(&WorldNode::Render), func_address(&WorldNode::GetSortInfo), func_address(&WorldNode::Delete)};
         m_vtbl = reinterpret_cast<decltype(m_vtbl)>(table);
     }
 
@@ -97,8 +107,7 @@ struct WorldNode : nglShaderNode {
     }
     void Render()
     {
-        static Var<int> disabled{Translucent ? (Trilinear ? 0x956FC8 : 0x956FC4)
-                                            : (Trilinear ? 0x956FB0 : 0x956FAC)};
+        static Var<int> disabled{Translucent ? (Trilinear ? 0x956FC8 : 0x956FC4) : (Trilinear ? 0x956FB0 : 0x956FAC)};
         if (disabled())
             return;
         const auto &data = *reinterpret_cast<const WorldMaterial *>(material);
@@ -112,22 +121,20 @@ struct WorldNode : nglShaderNode {
         scroll.x -= std::floor(scroll.x);
         scroll.y -= std::floor(scroll.y);
         if (EnableShader) {
-
-
             IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice, 0, &m_meshNode->WorldToLocal[0][0], 4);
             IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice, 5, &scroll.x, 1);
             nglSetVertexDeclarationAndShader(&programs.vertex);
         } else {
-            IDirect3DDevice9_SetTransform(g_Direct3DDevice, D3DTS_WORLD,
-                reinterpret_cast<const D3DMATRIX *>(&m_meshNode->LocalToWorld));
+            IDirect3DDevice9_SetTransform(
+                g_Direct3DDevice, D3DTS_WORLD, reinterpret_cast<const D3DMATRIX *>(&m_meshNode->LocalToWorld));
             IDirect3DDevice9_SetVertexDeclaration(g_Direct3DDevice, programs.fixed);
             if (std::not_equal_to<float>{}(data.scroll_u, 0.0f) || std::not_equal_to<float>{}(data.scroll_v, 0.0f)) {
                 auto transform = identity_matrix;
                 transform[2][0] = scroll.x;
                 transform[2][1] = scroll.y;
                 nglSetTextureStageState(0, D3DTSS_TEXTURETRANSFORMFLAGS, D3DTTFF_COUNT2);
-                IDirect3DDevice9_SetTransform(g_Direct3DDevice, D3DTS_TEXTURE0,
-                    reinterpret_cast<const D3DMATRIX *>(&transform));
+                IDirect3DDevice9_SetTransform(
+                    g_Direct3DDevice, D3DTS_TEXTURE0, reinterpret_cast<const D3DMATRIX *>(&transform));
             }
         }
         auto color = data.color[g_TOD];
@@ -139,16 +146,19 @@ struct WorldNode : nglShaderNode {
         if (EnableShader) {
             IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice, 4, &color.x, 1);
         } else {
-            const auto byte = [](float value) { return uint32_t(value * 255.0f) & 255u; };
-            const uint32_t packed = byte(color.z) | (byte(color.y) << 8) |
-                (byte(color.x) << 16) | (byte(color.w) << 24);
+            const auto byte = [](float value) {
+                return uint32_t(value * 255.0f) & 255u;
+            };
+            const uint32_t packed =
+                byte(color.z) | (byte(color.y) << 8) | (byte(color.x) << 16) | (byte(color.w) << 24);
             if (state.field_9C != packed) {
                 IDirect3DDevice9_SetRenderState(g_Direct3DDevice, D3DRS_TEXTUREFACTOR, packed);
                 state.field_9C = packed;
             }
         }
         const auto blend = std::not_equal_to<float>{}(color.w, 1.0f) && data.blend <= 1
-            ? NGLBM_BLEND : static_cast<nglBlendModeType>(data.blend);
+                               ? NGLBM_BLEND
+                               : static_cast<nglBlendModeType>(data.blend);
         state.setBlending(blend, 0, 128);
         state.setColourBufferWriteEnabled(7);
         nglDxSetTexture(0, texture, 8, 3);
@@ -186,17 +196,25 @@ struct WorldShader : nglShader {
     static void __fastcall Name(WorldShader *, void *, tlFixedString *out)
     {
         *out = tlFixedString{Translucent ? (Trilinear ? "USTranslucentTrilinear" : "SMTranslucent")
-                                       : (Trilinear ? "USSimpleTrilinear" : "SMSimple")};
+                                         : (Trilinear ? "USSimpleTrilinear" : "SMSimple")};
     }
-    static bool __fastcall Switchable(WorldShader *, void *) { return true; }
+    static bool __fastcall Switchable(WorldShader *, void *)
+    {
+        return true;
+    }
     WorldShader()
     {
-        static void *table[]{func_address(&WorldShader::Register), reinterpret_cast<void *>(Name),
-            func_address(&WorldShader::Add), func_address(&WorldShader::Bind),
-            func_address(&WorldShader::Release), func_address(&WorldShader::Rebase),
-            func_address(&nglShader::_CheckMaterialVersion), func_address(&nglShader::_CheckVertexDefVersion),
-            func_address(&nglShader::_BindSection), reinterpret_cast<void *>(Switchable),
-            func_address(&WorldShader::Delete)};
+        static void *table[]{func_address(&WorldShader::Register),
+                             reinterpret_cast<void *>(Name),
+                             func_address(&WorldShader::Add),
+                             func_address(&WorldShader::Bind),
+                             func_address(&WorldShader::Release),
+                             func_address(&WorldShader::Rebase),
+                             func_address(&nglShader::_CheckMaterialVersion),
+                             func_address(&nglShader::_CheckVertexDefVersion),
+                             func_address(&nglShader::_BindSection),
+                             reinterpret_cast<void *>(Switchable),
+                             func_address(&WorldShader::Delete)};
         m_vtbl = reinterpret_cast<decltype(m_vtbl)>(table);
     }
     WorldShader *Delete(unsigned char flags)
@@ -211,8 +229,8 @@ struct WorldShader : nglShader {
         auto &programs = WorldPrograms<Translucent>::get();
         if (EnableShader) {
             if (!programs.vertex.field_0) {
-                nglCreateVertexDeclarationAndShader(&programs.vertex, world_elements,
-                    Translucent ? translucent_vertex : simple_vertex);
+                nglCreateVertexDeclarationAndShader(
+                    &programs.vertex, world_elements, Translucent ? translucent_vertex : simple_vertex);
                 CreatePixelShader(&programs.pixel, world_pixel);
             }
         } else if (!programs.fixed) {
@@ -247,11 +265,11 @@ struct WorldShader : nglShader {
         auto *node = new (nglListAlloc(sizeof(Node), 16)) Node{mesh, section, material};
         auto &params = mesh->field_8C;
         if (Translucent || (params.IsSetParam<nglTintParam>() &&
-            std::not_equal_to<float>{}(params.Get<nglTintParam>()->field_0->w, 1.0f))) {
+                            std::not_equal_to<float>{}(params.Get<nglTintParam>()->field_0->w, 1.0f))) {
             sub_417C10(node);
             if constexpr (Translucent) {
-                const float distance = bit_cast<float>(node->m_tex) +
-                    reinterpret_cast<WorldMaterial *>(material)->sort_bias;
+                const float distance =
+                    bit_cast<float>(node->m_tex) + reinterpret_cast<WorldMaterial *>(material)->sort_bias;
                 node->m_tex = bit_cast<nglTexture *>(distance);
             }
         } else {
@@ -262,12 +280,10 @@ struct WorldShader : nglShader {
         }
     }
 };
-}
+}  // namespace
 
 void initialize_world_material_shaders()
 {
-
-
     static WorldShader<false, false> simple;
     static WorldShader<false, true> simple_trilinear;
     static WorldShader<true, false> translucent;

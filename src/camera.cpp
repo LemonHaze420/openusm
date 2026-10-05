@@ -30,24 +30,58 @@ namespace {
 void __fastcall camera_destroy(camera *self, void *, bool release)
 {
     self->~camera();
-    if (release) mem_dealloc(self, sizeof(camera));
+    if (release)
+        mem_dealloc(self, sizeof(camera));
 }
-int __fastcall camera_size(camera *, void *) { return sizeof(camera); }
-int __fastcall camera_flavor(camera *, void *) { return 2; }
-bool __fastcall camera_identity(camera *, void *) { return true; }
-void __fastcall camera_advance(camera *self, void *, Float dt) { self->_frame_advance(dt); }
-void __fastcall camera_sync(camera *self, void *, camera *source) { self->_sync(*source); }
-void __fastcall camera_geometry(camera *self, void *, bool analyzer) { self->adjust_geometry_pipe(analyzer); }
-void __fastcall camera_fov(camera *self, void *, Float value) { self->set_fov(value); }
-float __fastcall camera_get_fov(camera *self, void *) { return self->get_fov(); }
-float __fastcall camera_aspect(camera *, void *) { return 1.0f; }
-float __fastcall camera_far(camera *self, void *) { return self->get_far_plane_factor(); }
-void __fastcall camera_set_far(camera *self, void *, Float value) { self->set_far_plane_factor(value); }
+int __fastcall camera_size(camera *, void *)
+{
+    return sizeof(camera);
+}
+int __fastcall camera_flavor(camera *, void *)
+{
+    return 2;
+}
+bool __fastcall camera_identity(camera *, void *)
+{
+    return true;
+}
+void __fastcall camera_advance(camera *self, void *, Float dt)
+{
+    self->_frame_advance(dt);
+}
+void __fastcall camera_sync(camera *self, void *, camera *source)
+{
+    self->_sync(*source);
+}
+void __fastcall camera_geometry(camera *self, void *, bool analyzer)
+{
+    self->adjust_geometry_pipe(analyzer);
+}
+void __fastcall camera_fov(camera *self, void *, Float value)
+{
+    self->set_fov(value);
+}
+float __fastcall camera_get_fov(camera *self, void *)
+{
+    return self->get_fov();
+}
+float __fastcall camera_aspect(camera *, void *)
+{
+    return 1.0f;
+}
+float __fastcall camera_far(camera *self, void *)
+{
+    return self->get_far_plane_factor();
+}
+void __fastcall camera_set_far(camera *self, void *, Float value)
+{
+    self->set_far_plane_factor(value);
+}
 nal_anim_controller *__fastcall camera_animation(camera *self, void *, unsigned flags, nalBaseSkeleton *)
 {
     return self->select_and_new_anim_controller(nalGetSkeleton(tlFixedString{"camera"}), flags);
 }
-}
+}  // namespace
 #endif
 
 void *camera::native_vtable()
@@ -102,7 +136,7 @@ camera::~camera()
 #if STANDALONE_SYSTEM
     m_vtbl = reinterpret_cast<int>(native_vtable());
     if (field_C0) {
-        auto destroy = reinterpret_cast<void (__fastcall *)(mic *, void *, bool)>(get_vfunc(field_C0->m_vtbl, 0));
+        auto destroy = reinterpret_cast<void(__fastcall *)(mic *, void *, bool)>(get_vfunc(field_C0->m_vtbl, 0));
         destroy(field_C0, nullptr, true);
     }
 #endif
@@ -127,13 +161,13 @@ void camera::_sync(camera &source)
 
 void camera::frame_advance(Float dt)
 {
-    auto advance = reinterpret_cast<void (__fastcall *)(camera *, void *, Float)>(get_vfunc(m_vtbl, 0x1A4));
+    auto advance = reinterpret_cast<void(__fastcall *)(camera *, void *, Float)>(get_vfunc(m_vtbl, 0x1A4));
     advance(this, nullptr, dt);
 }
 
 void camera::_frame_advance(Float dt)
 {
-    auto advance = reinterpret_cast<void (__fastcall *)(mic *, void *, Float)>(get_vfunc(field_C0->m_vtbl, 0x1A4));
+    auto advance = reinterpret_cast<void(__fastcall *)(mic *, void *, Float)>(get_vfunc(field_C0->m_vtbl, 0x1A4));
     advance(field_C0, nullptr, dt);
 }
 
@@ -183,8 +217,8 @@ float camera::get_far_plane_factor()
 {
 #if STANDALONE_SYSTEM
     if (anim_ctrl) {
-        auto animated_factor = reinterpret_cast<float (__fastcall *)(nal_anim_controller *, void *)>(
-            get_vfunc(anim_ctrl->m_vtbl, 0x80));
+        auto animated_factor =
+            reinterpret_cast<float(__fastcall *)(nal_anim_controller *, void *)>(get_vfunc(anim_ctrl->m_vtbl, 0x80));
         return std::clamp(animated_factor(anim_ctrl, nullptr) * 0.0001f, 0.0001f, 1.0f);
     }
     return this->field_C8;
@@ -262,9 +296,16 @@ vector3d collide_with_world(camera *, const vector3d &a3, float a2, const vector
     if (displacement.length2() > 0.00001f) {
         vector3d hit, normal;
         const auto end = arg10 + displacement;
-        if (find_intersection(arg10, end, *local_collision::entfilter_line_segment_camera_collision,
-                *local_collision::obbfilter_lineseg_test, &hit, &normal, &hit_region,
-                nullptr, nullptr, false)) {
+        if (find_intersection(arg10,
+                              end,
+                              *local_collision::entfilter_line_segment_camera_collision,
+                              *local_collision::obbfilter_lineseg_test,
+                              &hit,
+                              &normal,
+                              &hit_region,
+                              nullptr,
+                              nullptr,
+                              false)) {
             displacement = hit - arg10;
             const float distance = displacement.length();
             displacement *= (distance - LARGE_EPSILON) / distance;
@@ -273,12 +314,19 @@ vector3d collide_with_world(camera *, const vector3d &a3, float a2, const vector
     for (int attempt = 0; attempt < 5; ++attempt) {
         const auto position = arg10 + displacement;
         vector3d impact, normal;
-        if (!find_sphere_intersection(position, a2, *local_collision::entfilter_sphere_camera_collision,
-                *local_collision::obbfilter_sphere_test, &impact, &normal, nullptr, nullptr))
+        if (!find_sphere_intersection(position,
+                                      a2,
+                                      *local_collision::entfilter_sphere_camera_collision,
+                                      *local_collision::obbfilter_sphere_test,
+                                      &impact,
+                                      &normal,
+                                      nullptr,
+                                      nullptr))
             return position;
         normal = position - impact;
         const float square = normal.length2();
-        if (square <= 0.0f) break;
+        if (square <= 0.0f)
+            break;
         const float distance = std::sqrt(square);
         displacement += normal * ((a2 + EPSILON - distance) / distance);
     }

@@ -46,22 +46,24 @@ struct Curve {
     std::array<std::uint32_t, 4> values;
     std::array<std::uint32_t, 3> field_24;
 };
-struct Point { std::array<std::uint32_t, 6> words; };
-struct Auxiliary { std::array<std::uint32_t, 11> words; };
+struct Point {
+    std::array<std::uint32_t, 6> words;
+};
+struct Auxiliary {
+    std::array<std::uint32_t, 11> words;
+};
 
 // APS graphics types 0..7 have fixed payloads; 8..22 are fixed curve values; 23..54 contain
 // the two Curve containers (52/53 additionally contain an inline 12-byte value).
 inline constexpr std::array<std::uint16_t, 55> aps_sizes{
-    16,16,16,24,16,16,24,1344,
-    12,28,8,16,20,12,28,44,44,20,20,28,20,20,20,
-    52,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,48,60,60,48
-};
+    16, 16, 16, 24, 16, 16, 24, 1344, 12, 28, 8,  16, 20, 12, 28, 44, 44, 20, 20, 28, 20, 20, 20, 52, 48, 48, 48, 48,
+    48, 48, 48, 48, 48, 48, 48, 48,   48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 48, 60, 60, 48};
 // PC mash_virtual_base types 5,6,8,9: event, particle, script and sound slots.
-inline constexpr std::array<std::uint16_t, 10> action_sizes{0,0,0,0,0,64,112,0,152,80};
+inline constexpr std::array<std::uint16_t, 10> action_sizes{0, 0, 0, 0, 0, 64, 112, 0, 152, 80};
 inline constexpr std::uint32_t enx_mesh_type = 3;
 inline constexpr std::uint32_t particle_slot_type = 6;
 inline constexpr std::uint32_t particle_instance_type = 7;
-inline constexpr std::array<std::uint8_t, 8> interface_marker{0xA2,0xA2,0xA2,0xA2,0xA2,0xA2,0xA2,0xA2};
+inline constexpr std::array<std::uint8_t, 8> interface_marker{0xA2, 0xA2, 0xA2, 0xA2, 0xA2, 0xA2, 0xA2, 0xA2};
 inline constexpr std::uint8_t alignment_marker = 0xA1;
 
 static_assert(sizeof(Vector) == 20);
@@ -71,4 +73,4 @@ static_assert(sizeof(ParticleInstance) == 152 && offsetof(ParticleInstance, poin
 static_assert(sizeof(ParticleTemplate) == 28 && offsetof(ParticleTemplate, graphics) == 20);
 static_assert(sizeof(EffectTemplate) == 144 && offsetof(EffectTemplate, auxiliaries) == 20);
 static_assert(sizeof(Curve) == 48 && offsetof(Curve, values) == 20);
-}
+}  // namespace effect_mash

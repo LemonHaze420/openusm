@@ -32,10 +32,7 @@ web_info_nugget::web_info_nugget(mString a2, Float fade_in_time, Float a4)
     this->field_1C = false;
 }
 
-web_info_nugget::web_info_nugget(from_mash_in_place_constructor *tag) : field_18(tag)
-{
-
-}
+web_info_nugget::web_info_nugget(from_mash_in_place_constructor *tag) : field_18(tag) {}
 
 void web_info_nugget::unmash(mash_info_struct *info, void *)
 {
@@ -46,14 +43,12 @@ template <>
 void mVector<web_info_nugget>::custom_unmash(mash_info_struct *info, void *)
 {
     if (m_data != nullptr) {
-        m_data = reinterpret_cast<web_info_nugget **>(
-            info->read_from_buffer(sizeof(web_info_nugget *) * m_size, 4));
+        m_data = reinterpret_cast<web_info_nugget **>(info->read_from_buffer(sizeof(web_info_nugget *) * m_size, 4));
         for (int i = 0; i < m_size; ++i) {
             info->unmash_class(m_data[i], this);
         }
     }
-    field_0 = reinterpret_cast<int>(
-        info->mash_image_ptr[0] + info->buffer_size_used[0]) - reinterpret_cast<int>(this);
+    field_0 = reinterpret_cast<int>(info->mash_image_ptr[0] + info->buffer_size_used[0]) - reinterpret_cast<int>(this);
 }
 
 void web_info_nugget::initialize(mash::allocation_scope)
@@ -204,8 +199,7 @@ void web_interface::release()
     auto &list = m_all_web_interfaces;
     for (int index = 0; index < list.m_size; ++index) {
         if (list.m_data[index] == this) {
-            std::copy(list.m_data + index + 1, list.m_data + list.m_size,
-                      list.m_data + index);
+            std::copy(list.m_data + index + 1, list.m_data + list.m_size, list.m_data + index);
             --list.m_size;
             break;
         }
@@ -215,8 +209,7 @@ void web_interface::release()
         const auto handle = my_actor->get_my_vhandle();
         for (int index = 0; index < targets.m_size; ++index) {
             if (targets.m_data[index].field_0 == handle) {
-                std::copy(targets.m_data + index + 1, targets.m_data + targets.m_size,
-                          targets.m_data + index);
+                std::copy(targets.m_data + index + 1, targets.m_data + targets.m_size, targets.m_data + index);
                 --targets.m_size;
                 break;
             }

@@ -17,7 +17,7 @@ VALIDATE_SIZE(sound_and_pfx_interface, 0x40);
 namespace {
 #if STANDALONE_SYSTEM
 
-template<class T, class Decode>
+template <class T, class Decode>
 void decode_vector(mashable_vector<T> &values, generic_mash_data_ptrs *data, Decode decode)
 {
     if (values.is_shared()) {
@@ -48,9 +48,7 @@ void decode_vector(mashable_vector<T> &values, generic_mash_data_ptrs *data, Dec
 void decode_event(sound_interface_event_info &event, generic_mash_data_ptrs *data)
 {
     *reinterpret_cast<std::uint8_t *>(&event.field_14) = 0;
-    decode_vector(event.resources, data, [](sound_interface_resource_info &resource) {
-        resource.flags &= ~1u;
-    });
+    decode_vector(event.resources, data, [](sound_interface_resource_info &resource) { resource.flags &= ~1u; });
 
     event.available = new _std::list<sound_interface_resource_info *>;
 }
@@ -105,7 +103,6 @@ void remove_sound_interface(sound_interface *interface_ptr)
 
 bool __fastcall unsupported_attribute(sound_and_pfx_interface *, void *, const resource_key *, void *, bool)
 {
-
     return false;
 }
 
@@ -114,8 +111,8 @@ const char *__fastcall interface_type(sound_and_pfx_interface *, void *)
     return "entity_base";
 }
 
-void __fastcall unmash_interface(sound_and_pfx_interface *self, void *, generic_mash_header *header,
-                                void *owner, void *storage, generic_mash_data_ptrs *data)
+void __fastcall unmash_interface(sound_and_pfx_interface *self, void *, generic_mash_header *header, void *owner,
+                                 void *storage, generic_mash_data_ptrs *data)
 {
     self->un_mash(header, owner, storage, data);
 }
@@ -140,7 +137,7 @@ void __fastcall advance_interface(sound_and_pfx_interface *self, void *, Float e
     frame_advance_native_sound_emitter(self, elapsed);
 }
 #endif
-}
+}  // namespace
 
 web_sound_params *shared_sound_interface_info::get_web_sound_params(string_hash name)
 {
@@ -152,7 +149,7 @@ web_sound_params *shared_sound_interface_info::get_web_sound_params(string_hash 
     }
     return nullptr;
 #else
-    web_sound_params *(__fastcall *func)(void *, void *, string_hash) = CAST(func, 0x00564670);
+    web_sound_params *(__fastcall * func)(void *, void *, string_hash) = CAST(func, 0x00564670);
     return func(this, nullptr, name);
 #endif
 }
@@ -162,14 +159,17 @@ sound_and_pfx_interface::sound_and_pfx_interface() {}
 std::intptr_t sound_and_pfx_interface::native_vtable()
 {
 #if STANDALONE_SYSTEM
-    static void *table[] = {
-        reinterpret_cast<void *>(destroy_interface),
-        reinterpret_cast<void *>(unsupported_attribute), reinterpret_cast<void *>(unsupported_attribute),
-        reinterpret_cast<void *>(unsupported_attribute), reinterpret_cast<void *>(unsupported_attribute),
-        reinterpret_cast<void *>(unsupported_attribute), reinterpret_cast<void *>(unsupported_attribute),
-        reinterpret_cast<void *>(unmash_interface), reinterpret_cast<void *>(interface_type),
-        reinterpret_cast<void *>(release_interface), reinterpret_cast<void *>(advance_interface)
-    };
+    static void *table[] = {reinterpret_cast<void *>(destroy_interface),
+                            reinterpret_cast<void *>(unsupported_attribute),
+                            reinterpret_cast<void *>(unsupported_attribute),
+                            reinterpret_cast<void *>(unsupported_attribute),
+                            reinterpret_cast<void *>(unsupported_attribute),
+                            reinterpret_cast<void *>(unsupported_attribute),
+                            reinterpret_cast<void *>(unsupported_attribute),
+                            reinterpret_cast<void *>(unmash_interface),
+                            reinterpret_cast<void *>(interface_type),
+                            reinterpret_cast<void *>(release_interface),
+                            reinterpret_cast<void *>(advance_interface)};
     return reinterpret_cast<std::intptr_t>(table);
 #else
     return 0x00883A18;
@@ -177,7 +177,7 @@ std::intptr_t sound_and_pfx_interface::native_vtable()
 }
 
 void sound_and_pfx_interface::un_mash(generic_mash_header *header, void *owner, [[maybe_unused]] void *storage,
-                                    generic_mash_data_ptrs *data)
+                                      generic_mash_data_ptrs *data)
 {
 #if STANDALONE_SYSTEM
     field_30 = field_34 = field_38 = field_3C = 0;
@@ -192,19 +192,15 @@ void sound_and_pfx_interface::un_mash(generic_mash_header *header, void *owner, 
     field_14 = ZEROVEC;
     field_24 = 0.0f;
     if (header->is_flagged(0x10)) {
-
         data->rebase_shared(4);
         field_10 = data->get_from_shared<shared_sound_interface_info>();
         *reinterpret_cast<std::uint8_t *>(&field_10->field_0) = 0;
-        decode_vector(field_10->events, data, [data](sound_interface_event_info &event) {
-            decode_event(event, data);
-        });
+        decode_vector(field_10->events, data, [data](sound_interface_event_info &event) { decode_event(event, data); });
         decode_vector(field_10->web_parameters, data, [data](std::array<std::uint32_t, 4> &entry) {
             for (auto &word : entry)
                 word = *data->get_from_shared<std::uint32_t>();
         });
         decode_vector(field_10->groups, data, [data](web_sound_params &entry) {
-
             entry.category = string_hash{int(*data->get_from_shared<uint32_t>())};
             entry.launch_group = string_hash{int(*data->get_from_shared<uint32_t>())};
             entry.travel_group = string_hash{int(*data->get_from_shared<uint32_t>())};
@@ -256,7 +252,6 @@ void sound_and_pfx_interface::release_ifc()
 
 void sound_interface::copy(const sound_interface &source)
 {
-
     if (field_10) {
         --field_10->references;
         if (*reinterpret_cast<uint8_t *>(&field_10->field_0)) {

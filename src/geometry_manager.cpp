@@ -482,27 +482,22 @@ void geometry_manager::rebuild_view_frame()
     constexpr float near_plane = 0.1f;
     const int screen_width = nglGetScreenWidth();
     const int screen_height = nglGetScreenHeight();
-    const int viewport_width = static_cast<int>(
-        (viewport_rect.field_0[1][0] - viewport_rect.field_0[0][0]) *
-        static_cast<double>(screen_width) * 0.5);
-    const int viewport_height = static_cast<int>(
-        (viewport_rect.field_0[1][1] - viewport_rect.field_0[0][1]) *
-        static_cast<double>(screen_height) * 0.5);
+    const int viewport_width = static_cast<int>((viewport_rect.field_0[1][0] - viewport_rect.field_0[0][0]) *
+                                                static_cast<double>(screen_width) * 0.5);
+    const int viewport_height = static_cast<int>((viewport_rect.field_0[1][1] - viewport_rect.field_0[0][1]) *
+                                                 static_cast<double>(screen_height) * 0.5);
     float aspect_ratio = viewport_height != 0
-        ? static_cast<float>(
-              static_cast<double>(viewport_width) * PROJ_ASPECT / viewport_height)
-        : 8999999488.0f;
+                             ? static_cast<float>(static_cast<double>(viewport_width) * PROJ_ASPECT / viewport_height)
+                             : 8999999488.0f;
     float fovy = PROJ_FIELD_OF_VIEW * (scene_analyzer_enabled ? 1.0f : PROJ_ZOOM);
-    if (os_developer_options::instance->get_flag(
-            static_cast<os_developer_options::flags_t>(1))) {
+    if (os_developer_options::instance->get_flag(static_cast<os_developer_options::flags_t>(1))) {
         fovy = 1.5707964f;
         aspect_ratio = 1.0f;
     }
     const float inverse_aspect = 1.0f / aspect_ratio;
 
     matrix4x4 projection;
-    projection.make_projection(
-        fovy, inverse_aspect, near_plane, PROJ_FAR_PLANE_D, 0.0f);
+    projection.make_projection(fovy, inverse_aspect, near_plane, PROJ_FAR_PLANE_D, 0.0f);
     set_xform(XFORM_VIEW_TO_PROJECTION, projection);
 
     if (nglCurScene != nullptr) {
@@ -510,12 +505,16 @@ void geometry_manager::rebuild_view_frame()
         const float hfov = 2.0f * std::atan2(std::tan(fovy * 0.5f) / aspect_ratio, 1.0f);
         nglSetPerspectiveMatrix(RAD_TO_DEG(hfov), near_plane, FAR_CLIP_PLANE);
         if (!viewport_rect.sub_560880()) {
-            nglSetView(viewport_rect.field_0[0][0], viewport_rect.field_0[0][1],
-                       viewport_rect.field_0[1][0], viewport_rect.field_0[1][1]);
+            nglSetView(viewport_rect.field_0[0][0],
+                       viewport_rect.field_0[0][1],
+                       viewport_rect.field_0[1][0],
+                       viewport_rect.field_0[1][1]);
         }
         if (!scissor_rect.sub_560880()) {
-            nglSetScissor(scissor_rect.field_0[0][0], scissor_rect.field_0[0][1],
-                          scissor_rect.field_0[1][0], scissor_rect.field_0[1][1]);
+            nglSetScissor(scissor_rect.field_0[0][0],
+                          scissor_rect.field_0[0][1],
+                          scissor_rect.field_0[1][0],
+                          scissor_rect.field_0[1][1]);
         }
     }
 
@@ -533,17 +532,12 @@ void geometry_manager::rebuild_view_frame()
 
 
     view_frustum.field_0.m_size = 0;
-    view_frustum.add_face(
-        plane{ZEROVEC, vector3d{cosine, 0.0f, sine}});
-    view_frustum.add_face(
-        plane{ZEROVEC, vector3d{-cosine, 0.0f, sine}});
-    view_frustum.add_face(
-        plane{vector3d{0.0f, 0.0f, PROJ_FAR_PLANE_D}, -ZVEC});
+    view_frustum.add_face(plane{ZEROVEC, vector3d{cosine, 0.0f, sine}});
+    view_frustum.add_face(plane{ZEROVEC, vector3d{-cosine, 0.0f, sine}});
+    view_frustum.add_face(plane{vector3d{0.0f, 0.0f, PROJ_FAR_PLANE_D}, -ZVEC});
     const float vertical_sine = inverse_aspect * sine;
-    view_frustum.add_face(
-        plane{ZEROVEC, vector3d{0.0f, cosine, vertical_sine}});
-    view_frustum.add_face(
-        plane{ZEROVEC, vector3d{0.0f, -cosine, vertical_sine}});
+    view_frustum.add_face(plane{ZEROVEC, vector3d{0.0f, cosine, vertical_sine}});
+    view_frustum.add_face(plane{ZEROVEC, vector3d{0.0f, -cosine, vertical_sine}});
 
     compute_view_frustum_in_world_space();
     compute_view_frustum_verts_in_world_space();

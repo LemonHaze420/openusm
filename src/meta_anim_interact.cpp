@@ -25,10 +25,7 @@ VALIDATE_SIZE(meta_anim_strength_test, 0x38u);
 VALIDATE_SIZE(strength_test_anim_inst, 0x24u);
 
 namespace {
-void __fastcall strength_destruct_mashed(meta_anim_strength_test *, void *)
-{
-
-}
+void __fastcall strength_destruct_mashed(meta_anim_strength_test *, void *) {}
 
 void *__fastcall strength_scalar_delete(meta_anim_strength_test *self, void *, unsigned int flags)
 {
@@ -61,11 +58,10 @@ void __fastcall strength_instance_sample(strength_test_anim_inst *self, void *, 
 {
     self->sample_pose(t, t_prev, pose, default_pose);
 }
-}
+}  // namespace
 
 void *meta_anim_strength_test::native_vtable()
 {
-
     static void *table[] = {
         reinterpret_cast<void *>(&strength_destruct_mashed),
         func_address(&meta_anim_strength_test::_unmash),
@@ -93,7 +89,6 @@ bool meta_anim_strength_test::_is_subclass_of(mash::virtual_types_enum type) con
 
 void *meta_anim_strength_test::scalar_delete(unsigned int flags)
 {
-
     this->~meta_anim_strength_test();
     if (flags & 1) {
         mash_virtual_base::operator delete(this, sizeof(*this));
@@ -103,7 +98,6 @@ void *meta_anim_strength_test::scalar_delete(unsigned int flags)
 
 void meta_anim_strength_test::delay_create(actor *owner)
 {
-
     auto *core = owner->get_ai_core();
     if (core != nullptr) {
         auto *node = static_cast<interaction_inode *>(core->get_info_node(interaction_inode::default_id, true));
@@ -240,7 +234,6 @@ strength_test_anim_inst::strength_test_anim_inst(nalAnimClass<nalAnyPose> *a2, n
 
 void *strength_test_anim_inst::native_vtable()
 {
-
     static void *table[] = {
         reinterpret_cast<void *>(&strength_instance_delete),
         reinterpret_cast<void *>(&strength_instance_sample),
@@ -250,7 +243,6 @@ void *strength_test_anim_inst::native_vtable()
 
 strength_test_anim_inst::~strength_test_anim_inst()
 {
-
     using destroy_callback = void *(__fastcall *)(nalInstanceClass *, void *, unsigned int);
     if (field_14 != nullptr) {
         auto destroy = reinterpret_cast<destroy_callback>(get_vfunc(field_14->m_vtbl, 0));
@@ -260,7 +252,6 @@ strength_test_anim_inst::~strength_test_anim_inst()
         auto destroy = reinterpret_cast<destroy_callback>(get_vfunc(field_18->m_vtbl, 0));
         destroy(field_18, nullptr, 1);
     }
-
 }
 
 void *strength_test_anim_inst::scalar_delete(unsigned int flags)
@@ -274,14 +265,12 @@ void *strength_test_anim_inst::scalar_delete(unsigned int flags)
 
 double strength_test_anim_inst::get_curr_strength() const
 {
-
     auto *node = static_cast<strength_test_inode *>(field_1C->get_info_node(strength_test_inode::default_id, true));
     return node->advanced ? node->advanced_strength : node->strength;
 }
 
 void strength_test_anim_inst::sample_pose(Float, Float, nalBasePose &pose, const nalBasePose &default_pose)
 {
-
     double strength = get_curr_strength();
     float current_strength = static_cast<float>(strength);
     if (strength <= field_20) {
@@ -324,25 +313,22 @@ bool __fastcall linear_has_no_extra_mash_data(const als_meta_linear_blend *, voi
     return false;
 }
 
-void __fastcall linear_release_extra_mash_data(als_meta_linear_blend *, void *, void *)
-{
-
-}
+void __fastcall linear_release_extra_mash_data(als_meta_linear_blend *, void *, void *) {}
 
 void *__fastcall linear_instance_delete(linear_instance *self, void *, unsigned int flags)
 {
     return self->scalar_delete(flags);
 }
 
-void __fastcall linear_instance_sample(linear_instance *self, void *, Float t, Float t_prev,
-                                       nalBasePose &pose, const nalBasePose &default_pose)
+void __fastcall linear_instance_sample(linear_instance *self, void *, Float t, Float t_prev, nalBasePose &pose,
+                                       const nalBasePose &default_pose)
 {
     self->sample_pose(t, t_prev, pose, default_pose);
 }
 
-void __fastcall linear_instance_blend(linear_instance *self, void *, Float t, Float t_prev,
-                                      nalAnyPose &pose, const nalAnyPose &default_pose, Float weight,
-                                      child_instance *lower, child_instance *upper)
+void __fastcall linear_instance_blend(linear_instance *self, void *, Float t, Float t_prev, nalAnyPose &pose,
+                                      const nalAnyPose &default_pose, Float weight, child_instance *lower,
+                                      child_instance *upper)
 {
     self->blend_poses(t, t_prev, pose, default_pose, weight, lower, upper);
 }
@@ -355,11 +341,10 @@ struct linear_blend_pose : nalAnyPose {
         const_cast<nalBaseSkeleton *>(GetSkeleton())->VirtualDestroyPose(field_0);
     }
 };
-}
+}  // namespace
 
 void *als_meta_linear_blend::native_vtable()
 {
-
     static void *table[] = {
         reinterpret_cast<void *>(&linear_destruct_mashed),
         func_address(&als_meta_linear_blend::_unmash),
@@ -382,14 +367,11 @@ void *als_meta_linear_blend::native_vtable()
 
 bool als_meta_linear_blend::_is_subclass_of(mash::virtual_types_enum type) const
 {
-
     return type == 566 || type == 573;
 }
 
 void als_meta_linear_blend::clear_key_anims()
 {
-
-
     if (key_anims.field_10) {
         for (int i = 0; i < key_anims.size(); ++i) {
             auto *key = key_anims.m_data[i];
@@ -574,7 +556,6 @@ als_meta_linear_blend::nalInstance::nalInstance(als::als_meta_linear_blend *a2, 
 
 void *als_meta_linear_blend::nalInstance::native_vtable()
 {
-
     static void *table[] = {
         reinterpret_cast<void *>(&linear_instance_delete),
         reinterpret_cast<void *>(&linear_instance_sample),
@@ -585,7 +566,6 @@ void *als_meta_linear_blend::nalInstance::native_vtable()
 
 als_meta_linear_blend::nalInstance::~nalInstance()
 {
-
     for (int i = 0; i < field_20->key_anims.size(); ++i) {
         auto *child = static_cast<child_instance *>(field_14[i]);
         if (child != nullptr) {
@@ -596,7 +576,6 @@ als_meta_linear_blend::nalInstance::~nalInstance()
         field_14[i] = nullptr;
     }
     delete[] field_14;
-
 }
 
 void *als_meta_linear_blend::nalInstance::scalar_delete(unsigned int flags)
@@ -609,9 +588,8 @@ void *als_meta_linear_blend::nalInstance::scalar_delete(unsigned int flags)
 }
 
 void als_meta_linear_blend::nalInstance::sample_pose(Float t, Float t_prev, nalBasePose &pose,
-                                                    const nalBasePose &default_pose)
+                                                     const nalBasePose &default_pose)
 {
-
     linear_blend_pose reference(default_pose, true);
     float parameter = field_1C->get_param(field_18, 18);
     if (field_1C->find_external_param(static_cast<external_parameter_types>(18))) {
@@ -637,18 +615,24 @@ void als_meta_linear_blend::nalInstance::sample_pose(Float t, Float t_prev, nalB
     auto *lower = static_cast<child_instance *>(field_14[static_cast<unsigned int>(lower_index)]);
     auto *upper = static_cast<child_instance *>(field_14[static_cast<unsigned int>(upper_index)]);
     linear_blend_pose result(field_C);
-    using blend_callback = void(__fastcall *)(nalInstance *, void *, Float, Float, nalAnyPose &,
-                                              const nalAnyPose &, Float, child_instance *, child_instance *);
+    using blend_callback = void(__fastcall *)(nalInstance *,
+                                              void *,
+                                              Float,
+                                              Float,
+                                              nalAnyPose &,
+                                              const nalAnyPose &,
+                                              Float,
+                                              child_instance *,
+                                              child_instance *);
     auto blend = reinterpret_cast<blend_callback>(get_vfunc(m_vtbl, 8));
     blend(this, nullptr, t, t_prev, result, reference, Float(weight), lower, upper);
     field_C->VirtualCopyPose(pose, *result.field_0);
 }
 
 void als_meta_linear_blend::nalInstance::blend_poses(Float t, Float t_prev, nalAnyPose &pose,
-                                                    const nalAnyPose &default_pose, Float weight,
-                                                    child_instance *lower, child_instance *upper)
+                                                     const nalAnyPose &default_pose, Float weight,
+                                                     child_instance *lower, child_instance *upper)
 {
-
     if (lower == upper) {
         lower->VirtualGetPose(t, t_prev, *pose.field_0, *default_pose.field_0);
         return;

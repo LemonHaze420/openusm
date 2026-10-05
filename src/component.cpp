@@ -119,8 +119,8 @@ void BaseComponent::CalcPoseDataDirect(void *a1, uint32_t a2, Float a3, Float a4
 }
 
 void BaseComponent::CalcPoseDataRemapped(void *a1, uint32_t a2, Float a3, Float a4, const nalComp::nalCompAnim *a5,
-                                         const void *a6, uint32_t sourceIndex, uint32_t sourceType,
-                                         const void *a7, const void *a8, void *a9)
+                                         const void *a6, uint32_t sourceIndex, uint32_t sourceType, const void *a7,
+                                         const void *a8, void *a9)
 {
     void(__fastcall * func)(void *,
                             void *edx,

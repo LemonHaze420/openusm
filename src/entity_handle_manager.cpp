@@ -98,8 +98,7 @@ VALIDATE_OFFSET(std::decay_t<decltype(entity_handle_manager::the_map)>::_Mylist,
 
 void *&dword_95B7A4 = var<void *>(0x0095B7A4);
 
-entity_base *entity_handle_manager::find_entity(
-    const string_hash &arg0, entity_flavor_t a2, [[maybe_unused]] bool a3)
+entity_base *entity_handle_manager::find_entity(const string_hash &arg0, entity_flavor_t a2, [[maybe_unused]] bool a3)
 {
     TRACE("entity_handle_manager::find_entity", arg0.to_string());
 

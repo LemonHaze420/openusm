@@ -13,8 +13,7 @@ corner_info::corner_info(from_mash_in_place_constructor *constructor) : field_0(
     field_0.clear();
 }
 
-corner_info::corner_info(const corner_info &source)
-    : field_0(static_cast<from_mash_in_place_constructor *>(nullptr))
+corner_info::corner_info(const corner_info &source) : field_0(static_cast<from_mash_in_place_constructor *>(nullptr))
 {
     field_0.collision = false;
     field_0.field_59 = false;

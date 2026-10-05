@@ -189,7 +189,7 @@ pool_view &pool(physics_system *world, unsigned offset)
     return field<pool_view>(world, offset);
 }
 constexpr unsigned pool_offsets[] = {0x1EC, 0x218, 0x22C, 0x240, 0x254, 0x268, 0x27C};
-}
+}  // namespace
 
 VALIDATE_SIZE(rb_partition_node, 0x38);
 VALIDATE_SIZE(physics_pulse_body, 0x2C);
@@ -616,7 +616,7 @@ void prepare_ragdoll(rigid_body_constraint_ragdoll *joint)
     else
         joint->flags |= 0x20;
 }
-}
+}  // namespace
 
 void physics_setup_ragdoll(rigid_body_constraint_ragdoll *joint, physics_system *world, float elapsed)
 {
@@ -708,7 +708,7 @@ float contact_distance(contact_point *first, contact_point *second)
          b = sub(first->point2, second->point2);
     return dot3(n, n) + dot3(a, a) + dot3(b, b);
 }
-}
+}  // namespace
 
 void physics_add_contact(rigid_body_constraint_contact *contact, rigid_body *first, rigid_body *,
                          const phys_vector3d &point1, const phys_vector3d &point2, const phys_vector3d &normal,
@@ -1140,7 +1140,7 @@ void solve_pulses(physics_system *world, int visit, int next_visit, float elapse
             body->body->field_144 &= ~8u;
     }
 }
-}
+}  // namespace
 
 namespace {
 physics_vec4 predicted_vector(rigid_body *body, physics_vec4 value)
@@ -1406,7 +1406,7 @@ void finish_wheel(physics_constraint_link *joint, float elapsed)
     }
     field<float>(joint, 0x90) += elapsed * field<float>(joint, 0x88);
 }
-}
+}  // namespace
 
 void physics_execute_constraint_solver(physics_system *world, rb_partition_node *head, int visit, int next_visit)
 {

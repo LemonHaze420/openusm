@@ -57,9 +57,8 @@ struct rigid_body {
     rigid_body();
 
 
-    void set(float mass, const phys_vector3d &inertia, const matrix4x4 &pose,
-        const phys_vector3d &velocity, const phys_vector3d &angular_velocity,
-        float collision_scale, int collision_group);
+    void set(float mass, const phys_vector3d &inertia, const matrix4x4 &pose, const phys_vector3d &velocity,
+             const phys_vector3d &angular_velocity, float collision_scale, int collision_group);
     void predict_pose(float elapsed);
     void prolog_frame_advance(float elapsed);
     void advance_forces(float elapsed);

@@ -1,11 +1,11 @@
 #pragma once
 
-#define DEBUG_MENU_REIMPL           1
-#define ENABLE_DEBUG_MENU           1
-#define WINDOWED_MODE_WND_FIX       1
-#define FORCE_MIPS                  0
-#define MOD_MESH_SUPPORT            (!STANDALONE_SYSTEM)
-#define MOD_MESH_DBG_REPLACE_ALL    0
+#define DEBUG_MENU_REIMPL 1
+#define ENABLE_DEBUG_MENU 1
+#define WINDOWED_MODE_WND_FIX 1
+#define FORCE_MIPS 0
+#define MOD_MESH_SUPPORT (!STANDALONE_SYSTEM)
+#define MOD_MESH_DBG_REPLACE_ALL 0
 
 #include "color32.h"
 #include "float.hpp"
@@ -38,8 +38,7 @@ struct animation_logic_system_shared;
 }
 
 
-enum class game_state
-{
+enum class game_state {
     LEGAL = 1u,
     SPLASH_SCREENS = 2u,
     LOADING_SCREENS = 3u,
@@ -370,19 +369,17 @@ public:
     static void render_empty_list();
 
     //0x0095C8F8
-    static inline auto & setup_input_registrations_p = var<void (*)(game *)>(0x0095C8F8);
+    static inline auto &setup_input_registrations_p = var<void (*)(game *)>(0x0095C8F8);
 
     //0x0095C8FC
-    static inline void (* setup_inputs_p)(game *) = game__setup_inputs;
+    static inline void (*setup_inputs_p)(game *) = game__setup_inputs;
 };
 
-extern game *& g_game_ptr;
+extern game *&g_game_ptr;
 extern resource_pack_slot *get_black_suit_hero_resource_context();
 extern resource_pack_slot *get_venom_hero_resource_context();
 extern als::animation_logic_system_shared *get_venom_als_shared();
-extern bool remap_venom_animation_name(
-    const string_hash &requested,
-    string_hash *remapped);
+extern bool remap_venom_animation_name(const string_hash &requested, string_hash *remapped);
 
 
 //0x00581B40
@@ -396,6 +393,3 @@ extern void game_patch();
 #ifdef OPENUSM_XBPACK_V10
 extern void game_v10_patch();
 #endif
-
-
-

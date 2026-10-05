@@ -19,15 +19,15 @@ VALIDATE_SIZE(traffic_path_graph::laneInfoStruct, 0x10);
 
 traffic_path_graph::traffic_path_graph() {}
 
-traffic_path_lane *traffic_path_graph::get_closest_or_farthest_lane(
-    bool closest, const vector3d &position, const vector3d &direction, vector3d *point,
-    traffic_path_lane::eLaneType type, bool check_collision, float *distance)
+traffic_path_lane *traffic_path_graph::get_closest_or_farthest_lane(bool closest, const vector3d &position,
+                                                                    const vector3d &direction, vector3d *point,
+                                                                    traffic_path_lane::eLaneType type,
+                                                                    bool check_collision, float *distance)
 {
     float best = distance != nullptr ? *distance : closest ? FLT_MAX : -1.0f;
     traffic_path_lane *result = nullptr;
-    const bool directional = !(direction.x <= 0.0f && direction.x >= 0.0f &&
-                               direction.y <= 0.0f && direction.y >= 0.0f &&
-                               direction.z <= 0.0f && direction.z >= 0.0f);
+    const bool directional = !(direction.x <= 0.0f && direction.x >= 0.0f && direction.y <= 0.0f &&
+                               direction.y >= 0.0f && direction.z <= 0.0f && direction.z >= 0.0f);
     auto facing = direction;
     if (directional)
         facing.normalize();
@@ -53,8 +53,7 @@ traffic_path_lane *traffic_path_graph::get_closest_or_farthest_lane(
         }
         auto toward_end = end - position;
         toward_end.normalize();
-        if ((closest ? candidate < best : candidate > best) &&
-            (!directional || dot(toward_end, facing) > 0.0f)) {
+        if ((closest ? candidate < best : candidate > best) && (!directional || dot(toward_end, facing) > 0.0f)) {
             *point = candidate_point;
             best = candidate;
             result = lane;
@@ -64,8 +63,8 @@ traffic_path_lane *traffic_path_graph::get_closest_or_farthest_lane(
         return get_closest_or_farthest_lane(closest, position, ZEROVEC, point, type, check_collision, distance);
     if (result != nullptr && check_collision) {
         line_info query{position, *point};
-        if (query.check_collision(*local_collision::entfilter_entity_no_capsules,
-                                  *local_collision::obbfilter_lineseg_test, nullptr))
+        if (query.check_collision(
+                *local_collision::entfilter_entity_no_capsules, *local_collision::obbfilter_lineseg_test, nullptr))
             result = nullptr;
     }
     if (result != nullptr && distance != nullptr)
@@ -82,11 +81,12 @@ vector3d approximate_intersection_position(traffic_path_intersection *intersecti
     for (auto *road : intersection->roads) {
         if (road == nullptr)
             continue;
-        const auto first = road->total_in_lanes != 0 ? road->in_lanes[0]->get_directional_node()
-            : road->total_out_lanes != 0 ? road->out_lanes[0]->get_node(0) : road->all_lanes[0]->get_node(0);
-        const auto last = road->total_out_lanes != 0 ? road->out_lanes[road->total_out_lanes - 1]->get_node(0)
-            : road->total_in_lanes != 0 ? road->in_lanes[road->total_in_lanes - 1]->get_directional_node()
-                                      : road->all_lanes[0]->get_node(0);
+        const auto first = road->total_in_lanes != 0    ? road->in_lanes[0]->get_directional_node()
+                           : road->total_out_lanes != 0 ? road->out_lanes[0]->get_node(0)
+                                                        : road->all_lanes[0]->get_node(0);
+        const auto last = road->total_out_lanes != 0  ? road->out_lanes[road->total_out_lanes - 1]->get_node(0)
+                          : road->total_in_lanes != 0 ? road->in_lanes[road->total_in_lanes - 1]->get_directional_node()
+                                                      : road->all_lanes[0]->get_node(0);
         sum += (first + last) * 0.5f;
         ++count;
     }
@@ -113,14 +113,19 @@ void store_lane_information(traffic_path_road *road, traffic_path_graph *graph, 
         auto toward_camera = camera_position - start;
         toward_camera.normalize();
         result->push_back(traffic_path_graph::laneInfoStruct{
-            graph, lane, priority, static_cast<char>(parked),
-            static_cast<char>(dot(toward_camera, lane_direction) > std::cos(0.7853981852531433)), false, 0});
+            graph,
+            lane,
+            priority,
+            static_cast<char>(parked),
+            static_cast<char>(dot(toward_camera, lane_direction) > std::cos(0.7853981852531433)),
+            false,
+            0});
     }
 }
-}
+}  // namespace
 
-void traffic_path_graph::get_spawnable_lane_list(
-    entity *camera, _std::vector<laneInfoStruct> *result, Float, Float max_distance)
+void traffic_path_graph::get_spawnable_lane_list(entity *camera, _std::vector<laneInfoStruct> *result, Float,
+                                                 Float max_distance)
 {
     for (auto *intersection : visited_intersections)
         mark_intersection_roads(intersection, false);
@@ -183,8 +188,8 @@ int un_mash_road(traffic_path_road *road, char *image, traffic_path_graph *graph
         road->in_lanes = reinterpret_cast<traffic_path_lane **>(image + sizeof(traffic_path_road));
         road->out_lanes = road->in_lanes + road->total_in_lanes;
         road->all_lanes = road->out_lanes + road->total_out_lanes;
-        return sizeof(traffic_path_road) + 2 * sizeof(traffic_path_lane *) *
-            (road->total_in_lanes + road->total_out_lanes);
+        return sizeof(traffic_path_road) +
+               2 * sizeof(traffic_path_lane *) * (road->total_in_lanes + road->total_out_lanes);
     }
     auto resolve_lane = [graph](traffic_path_lane *encoded) {
         const auto index = reinterpret_cast<std::intptr_t>(encoded);
@@ -217,10 +222,10 @@ void release_intersection(traffic_path_intersection *intersection)
     intersection->field_10 = nullptr;
     intersection->field_16 = -1;
 }
-}
+}  // namespace
 
-bool traffic_path_graph::intersection_manager::un_mash(
-    char *image, int *bytes, traffic_path_graph *graph, region *, intersection_manager_brew &brew)
+bool traffic_path_graph::intersection_manager::un_mash(char *image, int *bytes, traffic_path_graph *graph, region *,
+                                                       intersection_manager_brew &brew)
 {
     if (image == nullptr) {
         if (brew.field_0 != 2) {

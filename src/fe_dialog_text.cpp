@@ -18,8 +18,7 @@ VALIDATE_SIZE(fe_dialog_text, 0x10C);
 VALIDATE_OFFSET(fe_dialog_text, field_78, 0x78);
 VALIDATE_OFFSET(fe_dialog_text, field_9C, 0x9C);
 
-fe_dialog_text::fe_dialog_text(FEMenuSystem *a2, int a3, int a4)
-    : FEMenu(a2, 0, a3, a4, 0, 0)
+fe_dialog_text::fe_dialog_text(FEMenuSystem *a2, int a3, int a4) : FEMenu(a2, 0, a3, a4, 0, 0)
 {
     if constexpr (STANDALONE_SYSTEM) {
         m_vtbl = 0x00893E78;

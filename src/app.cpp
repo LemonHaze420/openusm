@@ -52,13 +52,13 @@ VALIDATE_SIZE(app, 0x3Cu);
 
 VALIDATE_OFFSET(app, m_game, 0x30);
 
-app *& app::instance = var<app *>(0x009685D4);
+app *&app::instance = var<app *>(0x009685D4);
 
-nglTexture *& g_shadow_target_blurred = var<nglTexture *>(0x00966EF4);
+nglTexture *&g_shadow_target_blurred = var<nglTexture *>(0x00966EF4);
 
-int & dword_966F8C = var<int>(0x00966F8C);
+int &dword_966F8C = var<int>(0x00966F8C);
 
-nglTexture *& g_shadow_target_unblurred = var<nglTexture *>(0x00965F48);
+nglTexture *&g_shadow_target_unblurred = var<nglTexture *>(0x00965F48);
 
 void sub_592E40()
 {
@@ -81,7 +81,7 @@ void init_shadow_targets()
 #if defined(ENABLE_DEBUG_MENU) && DEBUG_MENU_REIMPL == 0
     debug_menu::init();
 #endif
-    
+
     sub_592E40();
 
     tlFixedString v1;
@@ -98,9 +98,9 @@ void init_shadow_targets()
 
 void set_god_mode(int a1)
 {
-    bool & god_mode_cheat = var<bool>(0x0095A6A8);
-    bool & ultra_god_mode_cheat = var<bool>(0x0095A6A9);
-    bool & mega_god_mode_cheat = var<bool>(0x0095A6AA);
+    bool &god_mode_cheat = var<bool>(0x0095A6A8);
+    bool &ultra_god_mode_cheat = var<bool>(0x0095A6A9);
+    bool &mega_god_mode_cheat = var<bool>(0x0095A6AA);
 
     god_mode_cheat = false;
     ultra_god_mode_cheat = false;
@@ -205,13 +205,13 @@ app::app()
 #if !STANDALONE_SYSTEM
     script_sound_manager::create_inst();
     ambient_audio_manager::create_inst();
-    if (!os_developer_options::instance->get_flag(mString {"DISABLE_AUDIO_BOXES"})) {
+    if (!os_developer_options::instance->get_flag(mString{"DISABLE_AUDIO_BOXES"})) {
         audio_box_manager::create_inst();
     }
     gab_manager::create_inst();
 #endif
 
-    set_god_mode(os_developer_options::instance->get_int(mString {"GOD_MODE"}));
+    set_god_mode(os_developer_options::instance->get_int(mString{"GOD_MODE"}));
 
     colgeom_init_lists();
     physics_system_init();
@@ -220,7 +220,7 @@ app::app()
     g_game_ptr = this->m_game;
 
     resource_manager::create_inst();
-    if (os_developer_options::instance->get_int(mString {"MONKEY_MODE"}) > 0) {
+    if (os_developer_options::instance->get_int(mString{"MONKEY_MODE"}) > 0) {
         spider_monkey::start();
     }
 
@@ -247,7 +247,7 @@ app::~app()
 
     this->cleanup();
     //debug_menu::deinit(); // link_system::un_init()
-    
+
     physics_system_shutdown();
 
     this->m_vtbl = 0x0088E4C8;
@@ -300,7 +300,6 @@ void app::tick()
     TRACE("app::tick");
 
     {
-
         float time_inc = 0.0f;
         do {
             time_inc = this->field_34.elapsed();
@@ -309,7 +308,7 @@ void app::tick()
             assert(time_inc >= 0 && time_inc < 1e9f);
 
             const float v4 = 0.066733405f;
-            if ( time_inc > v4 ) {
+            if (time_inc > v4) {
                 time_inc = v4;
             }
         } while (0 /* time_inc < 0.0f */);
@@ -329,8 +328,7 @@ void app::tick()
         const auto render_frame = [](bool paused) {
             if (g_game_ptr->flag.level_is_loaded &&
                 (!paused || !g_game_ptr->field_165 ||
-                 os_developer_options::instance->get_flag(
-                     static_cast<os_developer_options::flags_t>(66)))) {
+                 os_developer_options::instance->get_flag(static_cast<os_developer_options::flags_t>(66)))) {
                 nglListInit();
                 nglSetClearFlags(7);
                 nglSetClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -341,8 +339,7 @@ void app::tick()
                 g_game_ptr->render_world();
                 nglListSend(true);
             } else if (g_femanager.m_fe_menu_system != nullptr &&
-                       !os_developer_options::instance->get_flag(
-                           static_cast<os_developer_options::flags_t>(66))) {
+                       !os_developer_options::instance->get_flag(static_cast<os_developer_options::flags_t>(66))) {
                 g_femanager.m_fe_menu_system->RenderLoadMeter(false);
                 nglListSend(true);
             } else {
@@ -353,8 +350,7 @@ void app::tick()
         sub_77B2F0(0);
 
         float time_inc;
-        for (time_inc = g_timer->sub_5821D0(); equal(time_inc, 0.0f);
-             time_inc = g_timer->sub_5821D0()) {
+        for (time_inc = g_timer->sub_5821D0(); equal(time_inc, 0.0f); time_inc = g_timer->sub_5821D0()) {
             Sleep(0);
         }
 
@@ -394,8 +390,7 @@ void app::tick()
         }
 
         if (os_developer_options::instance->get_int(mString{"FRAME_LIMIT"})) {
-            while (local_timer.elapsed() < 0.033333335) {
-            }
+            while (local_timer.elapsed() < 0.033333335) {}
         }
 
         this->m_game->field_278 = total_timer.elapsed();
@@ -412,7 +407,7 @@ void app::create_inst()
     assert(instance == nullptr);
 
     if constexpr (1) {
-        instance = new app {};
+        instance = new app{};
     } else {
         CDECL_CALL(0x005B2450);
     }
@@ -426,7 +421,7 @@ void app::cleanup()
 #if !STANDALONE_SYSTEM
         gab_manager::delete_inst();
 
-        if ( !os_developer_options::instance->get_flag(mString {"DISABLE_AUDIO_BOXES"}) ) {
+        if (!os_developer_options::instance->get_flag(mString{"DISABLE_AUDIO_BOXES"})) {
             audio_box_manager::delete_inst();
         }
 

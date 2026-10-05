@@ -33,12 +33,11 @@ void play_keyboard_animation(PanelAnimFile *animation, bool loop)
     animation->field_2C = false;
     animation->field_2D = true;
 }
-}
+}  // namespace
 
 VALIDATE_SIZE(main_menu_keyboard, 0x148);
 
-main_menu_keyboard::main_menu_keyboard(FEMenuSystem *a2, int a3, int a4)
-    : FEMenu(a2, 0, a3, a4, 8, 0)
+main_menu_keyboard::main_menu_keyboard(FEMenuSystem *a2, int a3, int a4) : FEMenu(a2, 0, a3, a4, 8, 0)
 {
     if constexpr (STANDALONE_SYSTEM) {
         m_vtbl = 0x00895790;
@@ -108,9 +107,10 @@ void main_menu_keyboard::OnActivate()
         field_E4 += " ";
     for (int i = 0; i < 8; ++i) {
         const char c = field_E4.c_str()[i];
-        field_104[i] = c >= 'A' && c <= 'Z' ? c - 'A' :
-                       c >= '0' && c <= '9' ? c - 23 :
-                       c == ' ' ? static_cast<int>(field_F4.size()) - 1 : 0;
+        field_104[i] = c >= 'A' && c <= 'Z'   ? c - 'A'
+                       : c >= '0' && c <= '9' ? c - 23
+                       : c == ' '             ? static_cast<int>(field_F4.size()) - 1
+                                              : 0;
         auto *text = field_C4[i];
         text->SetShown(true);
         text->SetNoFlash(color32{0xFFC8C8C8});
@@ -227,8 +227,14 @@ void main_menu_keyboard::move_letter(int delta)
     field_C4[field_138]->SetScale(2.0f);
 }
 
-void main_menu_keyboard::OnLeft(int) { move_letter(-1); }
-void main_menu_keyboard::OnRight(int) { move_letter(1); }
+void main_menu_keyboard::OnLeft(int)
+{
+    move_letter(-1);
+}
+void main_menu_keyboard::OnRight(int)
+{
+    move_letter(1);
+}
 
 void main_menu_keyboard::OnCross(int)
 {
@@ -255,8 +261,7 @@ void main_menu_keyboard::OnCross(int)
 
 void main_menu_keyboard::OnTriangle(int)
 {
-    if (field_AC->field_2D ||
-        static_cast<main_menu_memcard_check *>(field_140->field_4[2])->field_108 != 2)
+    if (field_AC->field_2D || static_cast<main_menu_memcard_check *>(field_140->field_4[2])->field_108 != 2)
         return;
     play_keyboard_animation(field_AC, false);
     field_AC->field_24 = 1;

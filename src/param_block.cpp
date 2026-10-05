@@ -24,19 +24,14 @@ VALIDATE_SIZE(param_block::param_data_array, 0x18);
 
 VALIDATE_SIZE(param_block::param_data, 0xC);
 
-param_block::param_block()
-    : field_0(0), param_array(nullptr), field_8(false), pad{}
-{}
+param_block::param_block() : field_0(0), param_array(nullptr), field_8(false), pad{} {}
 
 param_block::param_block(from_mash_in_place_constructor *)
 {
     TRACE("param_block::param_block");
 
     param_data_array *array;
-    std::memcpy(
-        &array,
-        reinterpret_cast<const char *>(this) + offsetof(param_block, param_array),
-        sizeof(array));
+    std::memcpy(&array, reinterpret_cast<const char *>(this) + offsetof(param_block, param_array), sizeof(array));
     param_array = array;
     if (param_array != nullptr) {
         mash_info_struct::construct_class(param_array);
@@ -66,7 +61,7 @@ void param_block::unmash(mash_info_struct *a1, void *a3)
                              ,
                              mash::NORMAL_BUFFER
 #endif
-                    );
+            );
         }
     } else {
         THISCALL(0x006D56B0, this, a1, a3);
@@ -181,11 +176,11 @@ void param_block::set_pb_int(string_hash a2, int a3, bool a4)
 void param_block::set_pb_float(string_hash a2, Float a3, bool a4)
 {
     if (a4) {
-        this->add_param(a2, PT_FLOAT, &a3, string_hash {0});
+        this->add_param(a2, PT_FLOAT, &a3, string_hash{0});
     } else {
         auto *data = this->param_array->common_find_data(a2);
-        if ( data != nullptr ) {
-            this->add_param(a2, PT_FLOAT, &a3, string_hash {0});
+        if (data != nullptr) {
+            this->add_param(a2, PT_FLOAT, &a3, string_hash{0});
         }
     }
 }
@@ -309,12 +304,12 @@ void param_block::param_data::set_data_fixedstring(const char *a2)
 {
     assert(my_type == PT_FIXED_STRING);
 
-    if ( this->m_union.str == nullptr ) {
-        this->m_union.str = new char[32] {};
+    if (this->m_union.str == nullptr) {
+        this->m_union.str = new char[32]{};
     }
 
     for (int i = 0; i < 32; ++i) {
-        if ( a2[i] != '\0' ) {
+        if (a2[i] != '\0') {
             this->m_union.str[i] = a2[i];
         } else {
             this->m_union.str[i] = '\0';
@@ -345,12 +340,12 @@ string_hash param_block::get_pb_hash(string_hash a3) const
 
 variance_variable<float> *param_block::get_pb_float_variance(string_hash a2)
 {
-    return (variance_variable<float> *) THISCALL(0x006CDDF0, this, a2);
+    return (variance_variable<float> *)THISCALL(0x006CDDF0, this, a2);
 }
 
 vector3d *param_block::get_pb_vector3d(string_hash a2)
 {
-    return (vector3d *) THISCALL(0x006CDD80, this, a2);
+    return (vector3d *)THISCALL(0x006CDD80, this, a2);
 }
 
 int param_block::get_pb_int(string_hash a2)
@@ -387,7 +382,7 @@ string_hash param_block::param_data::get_data_hash() const
     return this->m_union.hash;
 }
 
-const char * param_block::param_data::get_data_fixedstring() const
+const char *param_block::param_data::get_data_fixedstring() const
 {
     assert(my_type == PT_FIXED_STRING);
     return this->m_union.str;
@@ -398,7 +393,7 @@ vector3d *param_block::param_data::get_data_vector3d() const
     return m_union.vec3;
 }
 
-variance_variable<float> * param_block::param_data::get_data_float_variance() const
+variance_variable<float> *param_block::param_data::get_data_float_variance() const
 {
     assert(my_type == PT_FLOAT_VARIANCE);
     return this->m_union.float_variance;
@@ -410,7 +405,7 @@ int param_block::param_data::get_data_int()
     return m_union.i;
 }
 
-void * param_block::param_data::get_data_pointer() const
+void *param_block::param_data::get_data_pointer() const
 {
     assert(my_type == PT_POINTER);
     return this->m_union.ptr;
@@ -499,9 +494,7 @@ const char *ai::param_block::get_optional_pb_fixedstring(string_hash a2, const c
     return curr_data->get_data_fixedstring();
 }
 
-param_block::param_data_array::param_data_array()
-    : field_0(), field_14(nullptr)
-{}
+param_block::param_data_array::param_data_array() : field_0(), field_14(nullptr) {}
 
 param_block::param_data_array::param_data_array(from_mash_in_place_constructor *a2) : field_0(a2)
 {
@@ -523,7 +516,7 @@ void param_block::param_data_array::unmash(mash_info_struct *a1, void *)
 {
     TRACE("param_block::param_data_array::unmash");
 
-    a1->unmash_class_in_place(this->field_0, this); 
+    a1->unmash_class_in_place(this->field_0, this);
 }
 
 void param_block::param_data_array::destruct_mashed_class()
@@ -537,10 +530,10 @@ param_block::~param_block()
     this->finalize(mash::ALLOCATED);
 }
 
-void param_block::finalize(mash::allocation_scope )
+void param_block::finalize(mash::allocation_scope)
 {
     if (this->param_array != nullptr && this->field_8) {
-        if ( this->param_array != nullptr ) {
+        if (this->param_array != nullptr) {
             this->param_array->~param_data_array();
             mem_dealloc(this->param_array, sizeof(param_data_array));
         }
@@ -561,8 +554,8 @@ void param_block::copy_from_pb_override(const param_block &source)
         }
 
         const void *value = &data->m_union;
-        if (data->my_type == PT_FIXED_STRING || data->my_type == PT_VECTOR_3D ||
-            data->my_type == PT_FLOAT_VARIANCE || data->my_type == PT_POINTER) {
+        if (data->my_type == PT_FIXED_STRING || data->my_type == PT_VECTOR_3D || data->my_type == PT_FLOAT_VARIANCE ||
+            data->my_type == PT_POINTER) {
             value = data->m_union.ptr;
         }
         add_param(data->m_name, data->my_type, value, {});
@@ -596,7 +589,7 @@ bool param_block::does_parameter_exist(string_hash a2) const
 
 bool param_block::does_parameter_match(const param_block::param_data *a2) const
 {
-    if ( this->param_array == nullptr ) {
+    if (this->param_array == nullptr) {
         return false;
     }
 
@@ -627,7 +620,7 @@ void param_block::param_data::custom_unmash(mash_info_struct *a2, void *a3)
             this->m_union.str = (char *)a2->read_from_buffer(sizeof(char[32]), 4);
             break;
         case PT_VECTOR_3D:
-            this->m_union.vec3 = (vector3d *) a2->read_from_buffer(sizeof(vector3d), 4);
+            this->m_union.vec3 = (vector3d *)a2->read_from_buffer(sizeof(vector3d), 4);
             break;
         case PT_FLOAT_VARIANCE:
             this->m_union.float_variance =
@@ -647,7 +640,7 @@ void param_block::param_data::custom_unmash(mash_info_struct *a2, void *a3)
 
 bool param_block::param_data::deep_compare(const param_block::param_data *a2) const
 {
-    return (bool) THISCALL(0x006C4AE0, this, a2);
+    return (bool)THISCALL(0x006C4AE0, this, a2);
 }
 
 void param_block::param_data::unmash(mash_info_struct *a1, void *a3)
@@ -656,7 +649,7 @@ void param_block::param_data::unmash(mash_info_struct *a1, void *a3)
     this->custom_unmash(a1, a3);
 }
 
-} // namespace ai
+}  // namespace ai
 
 void param_block_patch()
 {

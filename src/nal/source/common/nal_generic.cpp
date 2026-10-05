@@ -94,13 +94,13 @@ bool same_channel(const nalGenericSkeleton *a, int ai, const nalGenericSkeleton 
     const auto *bc = reinterpret_cast<const char *>(b->field_84 + bi * 40);
     const int an = *reinterpret_cast<const int *>(ac + 32);
     const int bn = *reinterpret_cast<const int *>(bc + 32);
-    return std::memcmp(ac, bc, 32) == 0
-        && std::memcmp(reinterpret_cast<const void *>(a->field_78 + an * 48),
-                       reinterpret_cast<const void *>(b->field_78 + bn * 48), 32) == 0;
+    return std::memcmp(ac, bc, 32) == 0 && std::memcmp(reinterpret_cast<const void *>(a->field_78 + an * 48),
+                                                       reinterpret_cast<const void *>(b->field_78 + bn * 48),
+                                                       32) == 0;
 }
 
-void find_handle(const nalGenericSkeleton *skeleton, void *output, const void *name,
-                 const tlFixedString &channel, const void *type, bool constant, bool hash_only)
+void find_handle(const nalGenericSkeleton *skeleton, void *output, const void *name, const tlFixedString &channel,
+                 const void *type, bool constant, bool hash_only)
 {
     auto *handle = static_cast<int *>(output);
     handle[0] = 0;
@@ -111,8 +111,8 @@ void find_handle(const nalGenericSkeleton *skeleton, void *output, const void *n
         for (int i = 0; i < count; ++i) {
             for (int j = 0; j < infos[i].field_28; ++j, ++channel_index) {
                 const auto *entry = reinterpret_cast<const char *>(skeleton->field_84 + channel_index * 40);
-                const auto *node = reinterpret_cast<const void *>(skeleton->field_78
-                    + 48 * *reinterpret_cast<const int *>(entry + 32));
+                const auto *node = reinterpret_cast<const void *>(skeleton->field_78 +
+                                                                  48 * *reinterpret_cast<const int *>(entry + 32));
                 if (std::memcmp(entry, &channel, 32) || std::memcmp(node, name, hash_only ? 4 : 32))
                     continue;
                 if (component_call<const void *>(infos[i].field_20, 0) != type)
@@ -126,7 +126,7 @@ void find_handle(const nalGenericSkeleton *skeleton, void *output, const void *n
         }
     }
 }
-}
+}  // namespace
 
 struct OffsetMap {
     int references;
@@ -143,14 +143,20 @@ int &nalGenericPose::PoseStack = var<int>(0x00977204);
 int &nalGenericAnim::vtbl_ptr = var<int>(0x00977120);
 int &nalGenericSkeleton::vtbl_ptr = var<int>(0x009770E0);
 #else
-int &nalGenericPose::PoseSP = []() -> int & { static int value; return value; }();
+int &nalGenericPose::PoseSP = []() -> int & {
+    static int value;
+    return value;
+}();
 int &nalGenericPose::PoseStack = []() -> int & {
     alignas(16) static int storage[0x2800 / 4];
     return storage[0];
 }();
 int &nalGenericAnim::vtbl_ptr = []() -> int & {
-    static void *table[]{func_address(&nalGenericSkeleton::_Release), func_address(&Process), func_address(&Release),
-                         func_address(&CheckVersion), func_address(&CreateInstance)};
+    static void *table[]{func_address(&nalGenericSkeleton::_Release),
+                         func_address(&Process),
+                         func_address(&Release),
+                         func_address(&CheckVersion),
+                         func_address(&CreateInstance)};
     static int value = reinterpret_cast<int>(table);
     return value;
 }();
@@ -163,8 +169,8 @@ int &nalGenericSkeleton::vtbl_ptr = []() -> int & {
 void nalGenericAnim::Process()
 {
     field_60 = reinterpret_cast<uint32_t *>(aligned(reinterpret_cast<int>(&field_80), 4));
-    field_5C = reinterpret_cast<void *>(aligned(reinterpret_cast<int>(field_60)
-        + 4 * ((field_30->field_80 + 31) / 32), field_58));
+    field_5C = reinterpret_cast<void *>(
+        aligned(reinterpret_cast<int>(field_60) + 4 * ((field_30->field_80 + 31) / 32), field_58));
     field_6C = reinterpret_cast<void **>(aligned(reinterpret_cast<int>(field_5C) + field_54, 4));
     const auto base = reinterpret_cast<int>(field_6C + field_64);
     for (int i = 0; i < field_64; ++i)
@@ -197,7 +203,10 @@ void nalGenericAnim::Release()
         field_6C[i] = reinterpret_cast<void *>(reinterpret_cast<int>(field_6C[i]) - base);
 }
 
-bool nalGenericAnim::CheckVersion() const { return field_2C == 0x10200; }
+bool nalGenericAnim::CheckVersion() const
+{
+    return field_2C == 0x10200;
+}
 
 nalGenericInstance *nalGenericAnim::CreateInstance(nalGenericSkeleton *skeleton)
 {
@@ -208,15 +217,14 @@ nalGenericInstance *nalGenericAnim::CreateInstance(nalGenericSkeleton *skeleton)
 nalGenericInstance::nalGenericInstance(nalGenericAnim *anim, nalGenericSkeleton *skeleton)
     : field_4(*reinterpret_cast<float *>(&anim->field_38)),
       field_8(std::equal_to<float>{}(field_4, 0.0f) ? 0.0f : 1.0f / field_4),
-      field_C(skeleton ? skeleton : anim->field_30), field_10(anim), field_14(field_C),
-      field_20(-1000000000.0f)
+      field_C(skeleton ? skeleton : anim->field_30), field_10(anim), field_14(field_C), field_20(-1000000000.0f)
 {
     static void *table[]{func_address(&nalGenericInstance::Finalize), func_address(&nalGenericInstance::GetPose)};
     m_vtbl = reinterpret_cast<int>(table);
     ++anim->field_3C;
     const auto *source = anim->field_30;
-    const unsigned bucket = ((reinterpret_cast<unsigned>(source)
-        ^ (reinterpret_cast<unsigned>(field_C) >> 3)) >> 3) % 67;
+    const unsigned bucket =
+        ((reinterpret_cast<unsigned>(source) ^ (reinterpret_cast<unsigned>(field_C) >> 3)) >> 3) % 67;
     for (auto *map = offset_maps[bucket]; map; map = map->next) {
         if (map->source == source && map->destination == field_C) {
             field_28 = map;
@@ -258,8 +266,8 @@ nalGenericInstance::nalGenericInstance(nalGenericAnim *anim, nalGenericSkeleton 
 
 nalGenericInstance::~nalGenericInstance()
 {
-    const unsigned bucket = ((reinterpret_cast<unsigned>(field_10->field_30)
-        ^ (reinterpret_cast<unsigned>(field_C) >> 3)) >> 3) % 67;
+    const unsigned bucket =
+        ((reinterpret_cast<unsigned>(field_10->field_30) ^ (reinterpret_cast<unsigned>(field_C) >> 3)) >> 3) % 67;
     auto **link = &offset_maps[bucket];
     while (*link && *link != field_28)
         link = &(*link)->next;
@@ -288,10 +296,9 @@ void nalGenericInstance::CacheBlock(int block)
     void *skel = reinterpret_cast<void *>(skeleton->field_C8);
     void *constant = anim->field_5C;
     if (anim->field_48) {
-
         alignas(16) static char scratch[0x4000];
-        auto *work_base = reinterpret_cast<void *>(aligned(reinterpret_cast<int>(scratch)
-            + anim->field_48 * anim->field_70 + 3, anim->field_50));
+        auto *work_base = reinterpret_cast<void *>(
+            aligned(reinterpret_cast<int>(scratch) + anim->field_48 * anim->field_70 + 3, anim->field_50));
         void *work = work_base;
         void *temporary = static_cast<char *>(work_base) + anim->field_4C;
         for (int i = 0; i < skeleton->field_88; ++i) {
@@ -308,8 +315,8 @@ void nalGenericInstance::CacheBlock(int block)
             for (int i = 0; i < skeleton->field_88; ++i) {
                 auto *info = &skeleton->field_8C[i];
                 ComponentCursor cursor{anim, info, &skel, &constant};
-                component_call<void>(info->field_20, 6, &cursor, &decoded, &work,
-                                     temporary, first, frames, anim->field_70);
+                component_call<void>(
+                    info->field_20, 6, &cursor, &decoded, &work, temporary, first, frames, anim->field_70);
             }
             const int bytes = frames * anim->field_70;
             std::memcpy(out, scratch, bytes);
@@ -341,8 +348,13 @@ void nalGenericInstance::GetFrame(int frame, nalGenericPose &out, const nalGener
     for (int i = 0; i < anim->field_30->field_88; ++i) {
         auto *info = &anim->field_30->field_8C[i];
         ComponentCursor cursor{anim, info, &skel, &constant};
-        component_call<void>(info->field_20, 8, &cursor, reinterpret_cast<void *>(out.field_4),
-            &data, reinterpret_cast<void *>(reference.field_4), field_28->offsets);
+        component_call<void>(info->field_20,
+                             8,
+                             &cursor,
+                             reinterpret_cast<void *>(out.field_4),
+                             &data,
+                             reinterpret_cast<void *>(reference.field_4),
+                             field_28->offsets);
     }
 }
 
@@ -355,7 +367,6 @@ void nalGenericInstance::GetPose(Float time_value, Float previous_value, nalGene
     float time = time_value, previous = previous_value;
     int cycles = 0;
     if (loop) {
-
         const int now_cycle = time < 0.0f ? 1 - static_cast<int>(time) : static_cast<int>(time);
         const int old_cycle = previous < 0.0f ? 1 - static_cast<int>(previous) : static_cast<int>(previous);
         time = time < 0.0f ? time + now_cycle : time - now_cycle;
@@ -383,8 +394,8 @@ void nalGenericInstance::GetPose(Float time_value, Float previous_value, nalGene
             for (int i = 0; i < anim->field_30->field_88; ++i) {
                 auto *info = &anim->field_30->field_8C[i];
                 ComponentCursor cursor{anim, info, &skel, &constant};
-                component_call<void>(info->field_20, 9, &cursor, reinterpret_cast<void *>(b.field_4),
-                                     relative, field_28->offsets);
+                component_call<void>(
+                    info->field_20, 9, &cursor, reinterpret_cast<void *>(b.field_4), relative, field_28->offsets);
             }
         }
         Blend(&out, static_cast<float>(position - first), &a, &b);
@@ -403,8 +414,14 @@ void nalGenericInstance::GetPose(Float time_value, Float previous_value, nalGene
     for (int i = 0; i < anim->field_30->field_88; ++i) {
         auto *info = &anim->field_30->field_8C[i];
         ComponentCursor cursor{anim, info, &skel, &constant};
-        component_call<void>(info->field_20, 10, &cursor, reinterpret_cast<void *>(out.field_4),
-            reinterpret_cast<void *>(field_14.field_4), cycles, relative, field_28->offsets);
+        component_call<void>(info->field_20,
+                             10,
+                             &cursor,
+                             reinterpret_cast<void *>(out.field_4),
+                             reinterpret_cast<void *>(field_14.field_4),
+                             cycles,
+                             relative,
+                             field_28->offsets);
     }
     field_14 = absolute;
     field_20 = time;
@@ -431,8 +448,7 @@ nalGenericPose::nalGenericPose(const nalGenericSkeleton *skeleton)
     ConstructEmptyData();
 }
 
-nalGenericPose::nalGenericPose(const nalGenericPose &source, bool copy)
-    : nalGenericPose(source.field_0)
+nalGenericPose::nalGenericPose(const nalGenericPose &source, bool copy) : nalGenericPose(source.field_0)
 {
     if (copy)
         *this = source;
@@ -458,8 +474,7 @@ nalGenericPose::~nalGenericPose()
     }
     if (field_8)
         free_pose(reinterpret_cast<void *>(field_4));
-    else if (field_4 >= reinterpret_cast<int>(&PoseStack)
-             && field_4 < reinterpret_cast<int>(&PoseStack) + 0x2800)
+    else if (field_4 >= reinterpret_cast<int>(&PoseStack) && field_4 < reinterpret_cast<int>(&PoseStack) + 0x2800)
         PoseSP = *reinterpret_cast<int *>(reinterpret_cast<char *>(&PoseStack) + PoseSP - 4);
 }
 
@@ -478,10 +493,13 @@ void Blend(nalGenericPose *out, float weight, const nalGenericPose *a, const nal
 {
     for (int i = 0; i < a->field_0->field_88; ++i) {
         const auto &info = a->field_0->field_8C[i];
-        component_call<void>(info.field_20, 2, info.field_28,
-            reinterpret_cast<void *>(out->field_4 + info.field_2C),
-            reinterpret_cast<const void *>(a->field_4 + info.field_2C),
-            reinterpret_cast<const void *>(b->field_4 + info.field_2C), weight);
+        component_call<void>(info.field_20,
+                             2,
+                             info.field_28,
+                             reinterpret_cast<void *>(out->field_4 + info.field_2C),
+                             reinterpret_cast<const void *>(a->field_4 + info.field_2C),
+                             reinterpret_cast<const void *>(b->field_4 + info.field_2C),
+                             weight);
     }
 }
 
@@ -542,10 +560,19 @@ void nalGenericSkeleton::DestroyPose(nalGenericPose *pose) const
         tlMemFree(pose);
     }
 }
-nalGenericPose *nalGenericSkeleton::GetDefaultPose() { return &field_CC; }
-void nalGenericSkeleton::CopyPose(nalGenericPose &out, const nalGenericPose &source) const { out = source; }
+nalGenericPose *nalGenericSkeleton::GetDefaultPose()
+{
+    return &field_CC;
+}
+void nalGenericSkeleton::CopyPose(nalGenericPose &out, const nalGenericPose &source) const
+{
+    out = source;
+}
 void nalGenericSkeleton::BlendPose(nalGenericPose &out, Float weight, const nalGenericPose &a,
-                                  const nalGenericPose &b) const { Blend(&out, weight, &a, &b); }
+                                   const nalGenericPose &b) const
+{
+    Blend(&out, weight, &a, &b);
+}
 
 namespace {
 void rotation(nalMatrix4x4 &out, const float *q)
@@ -595,8 +622,8 @@ void relative_matrix(nalMatrix4x4 &out, const nalMatrix4x4 &parent)
         for (int column = 0; column < 3; ++column)
             inverse[row][column] = parent[column][row];
         inverse[row][3] = 0.0f;
-        inverse[3][row] = -(parent[3][2] * parent[row][2]
-            + parent[3][1] * parent[row][1] + parent[3][0] * parent[row][0]);
+        inverse[3][row] =
+            -(parent[3][2] * parent[row][2] + parent[3][1] * parent[row][1] + parent[3][0] * parent[row][0]);
     }
     inverse[3][3] = 1.0f;
     nalComposeMatrices(out, out, inverse);
@@ -668,9 +695,19 @@ void evaluate_ik(nalMatrix4x4 *matrices, const unsigned char *code, const IKPose
     vector3d target = pose.target;
     vector3d base, direction;
     float sin_upper, cos_upper, sin_lower, cos_lower;
-    inverse_kinematics::nalIKSolve2D(reinterpret_cast<matrix4x4 *>(&parent), &root, &target,
-        coefficients[0], coefficients[1], coefficients[2], coefficients[3], &base, &direction,
-        &sin_upper, &cos_upper, &sin_lower, &cos_lower);
+    inverse_kinematics::nalIKSolve2D(reinterpret_cast<matrix4x4 *>(&parent),
+                                     &root,
+                                     &target,
+                                     coefficients[0],
+                                     coefficients[1],
+                                     coefficients[2],
+                                     coefficients[3],
+                                     &base,
+                                     &direction,
+                                     &sin_upper,
+                                     &cos_upper,
+                                     &sin_lower,
+                                     &cos_lower);
     vector4d bend_direction;
     if (bend_mode == 0) {
         bend_direction.x = direction.y * solved_end[1][2] - solved_end[1][1] * direction.z;
@@ -680,23 +717,29 @@ void evaluate_ik(nalMatrix4x4 *matrices, const unsigned char *code, const IKPose
         const float sign = bend_mode == 2 ? -1.0f : 1.0f;
         const float x = parent[1][0], y = parent[1][1], z = parent[1][2];
         const float dot = sign * (x * direction.x + y * direction.y + z * direction.z);
-        const float cross[]{direction.y * z - y * direction.z,
-                            x * direction.z - direction.x * z,
-                            direction.x * y - x * direction.y};
+        const float cross[]{
+            direction.y * z - y * direction.z, x * direction.z - direction.x * z, direction.x * y - x * direction.y};
         for (int axis = 0; axis < 3; ++axis) {
             if (dot < 0.0f)
-                bend_direction[axis] = cross[axis] * (dot + 1.0f)
-                    + (-parent[0][axis] - parent[2][axis]) * -dot;
+                bend_direction[axis] = cross[axis] * (dot + 1.0f) + (-parent[0][axis] - parent[2][axis]) * -dot;
             else
-                bend_direction[axis] = cross[axis] * (1.0f - dot)
-                    + (-parent[0][axis] + parent[2][axis]) * dot;
+                bend_direction[axis] = cross[axis] * (1.0f - dot) + (-parent[0][axis] + parent[2][axis]) * dot;
         }
     }
     bend_direction.w = 0.0f;
     const float twist = (pose.twist - 0.5) * two_pi * angle_units;
-    inverse_kinematics::nalIKMap2DTo3D(upper_length, sin_upper, cos_upper, sin_lower, cos_lower,
-        &base, &direction, &bend_direction, std::sin(twist), std::cos(twist),
-        reinterpret_cast<matrix4x4 *>(&solved_upper), reinterpret_cast<matrix4x4 *>(&solved_lower));
+    inverse_kinematics::nalIKMap2DTo3D(upper_length,
+                                       sin_upper,
+                                       cos_upper,
+                                       sin_lower,
+                                       cos_lower,
+                                       &base,
+                                       &direction,
+                                       &bend_direction,
+                                       std::sin(twist),
+                                       std::cos(twist),
+                                       reinterpret_cast<matrix4x4 *>(&solved_upper),
+                                       reinterpret_cast<matrix4x4 *>(&solved_lower));
     flip_ik_basis(solved_upper);
     flip_ik_basis(solved_lower);
     if (std::equal_to<float>{}(pose.weight, 1.0f)) {
@@ -722,7 +765,7 @@ void evaluate_ik(nalMatrix4x4 *matrices, const unsigned char *code, const IKPose
     nalComposeMatrices(lower, lower, upper);
     nalComposeMatrices(end, end, lower);
 }
-}
+}  // namespace
 
 nalMatrix4x4 *nalGenericSkeleton::GetBoneMatrices(const nalGenericPose *pose, nalMatrix4x4 *matrices) const
 {
@@ -780,8 +823,8 @@ nalMatrix4x4 *nalGenericSkeleton::GetBoneMatrices(const nalGenericPose *pose, na
     return matrices;
 }
 
-void nalGenericSkeleton::GetPoseFromBoneMatrices(nalGenericPose &out, const nalMatrix4x4 *source,
-                                                 nalMatrix4x4 *scratch, const nalGenericPose &reference) const
+void nalGenericSkeleton::GetPoseFromBoneMatrices(nalGenericPose &out, const nalMatrix4x4 *source, nalMatrix4x4 *scratch,
+                                                 const nalGenericPose &reference) const
 {
     std::copy_n(source, field_60, scratch);
     out = reference;
@@ -809,8 +852,8 @@ void nalGenericSkeleton::GetPoseFromBoneMatrices(nalGenericPose &out, const nalM
             break;
         }
         case 9:
-            reinterpret_cast<float *>(data)[0] = reinterpret_cast<float *>(data)[1]
-                = reinterpret_cast<float *>(data)[2] = 1.0f;
+            reinterpret_cast<float *>(data)[0] = reinterpret_cast<float *>(data)[1] =
+                reinterpret_cast<float *>(data)[2] = 1.0f;
             data += 12;
             break;
         case 11: {
@@ -819,12 +862,10 @@ void nalGenericSkeleton::GetPoseFromBoneMatrices(nalGenericPose &out, const nalM
             for (int i = 0; i < 3; ++i)
                 dot += source[upper][0][i] * source[lower][0][i];
             float angle = std::acos(std::max(-1.0f, std::min(1.0f, dot)));
-            const float cross[]{
-                source[upper][0][1] * source[lower][0][2] - source[upper][0][2] * source[lower][0][1],
-                source[upper][0][2] * source[lower][0][0] - source[upper][0][0] * source[lower][0][2],
-                source[upper][0][0] * source[lower][0][1] - source[upper][0][1] * source[lower][0][0]};
-            if (cross[0] * source[lower][1][0] + cross[1] * source[lower][1][1]
-                + cross[2] * source[lower][1][2] < 0.0f)
+            const float cross[]{source[upper][0][1] * source[lower][0][2] - source[upper][0][2] * source[lower][0][1],
+                                source[upper][0][2] * source[lower][0][0] - source[upper][0][0] * source[lower][0][2],
+                                source[upper][0][0] * source[lower][0][1] - source[upper][0][1] * source[lower][0][0]};
+            if (cross[0] * source[lower][1][0] + cross[1] * source[lower][1][1] + cross[2] * source[lower][1][2] < 0.0f)
                 angle = -angle;
             relative_matrix(scratch[tip], source[lower]);
             relative_matrix(scratch[lower], source[upper]);
@@ -851,7 +892,6 @@ void nalGenericSkeleton::GetPoseFromBoneMatrices(nalGenericPose &out, const nalM
 
 nalGenericSkeleton::nalGenericSkeleton()
 {
-
     static void *table[]{func_address(&nalGenericSkeleton::_Release),
                          func_address(&nalGenericSkeleton::Finalize),
                          func_address(&nalGenericSkeleton::_Process),
@@ -876,25 +916,43 @@ void nalGenericSkeleton::Finalize(bool release)
         tlMemFree(this);
 }
 
-template <> void nalGenericSkeleton::GetComponentHandle<nalPositionOrientation>(
+template <>
+void nalGenericSkeleton::GetComponentHandle<nalPositionOrientation>(
     nalGenericComponentHandle<nalPositionOrientation> &out, tlFixedString &name, tlFixedString &channel)
-{ find_handle(this, &out, &name, channel, &nalComponentPOBase::TypeID, false, false); }
-template <> void nalGenericSkeleton::GetComponentHandle<nalPositionOrientation>(
+{
+    find_handle(this, &out, &name, channel, &nalComponentPOBase::TypeID, false, false);
+}
+template <>
+void nalGenericSkeleton::GetComponentHandle<nalPositionOrientation>(
     nalGenericConstComponentHandle<nalPositionOrientation> &out, tlFixedString &name, tlFixedString &channel) const
-{ find_handle(this, &out, &name, channel, &nalComponentPOBase::TypeID, true, false); }
-template <> void nalGenericSkeleton::GetComponentHandle<float>(
-    nalGenericComponentHandle<float> &out, tlFixedString &name, tlFixedString &channel)
-{ find_handle(this, &out, &name, channel, &nalComponentFloat1Base::TypeID, false, false); }
-template <> void nalGenericSkeleton::GetComponentHandle<float>(
-    nalGenericConstComponentHandle<float> &out, tlFixedString &name, tlFixedString &channel) const
-{ find_handle(this, &out, &name, channel, &nalComponentFloat1Base::TypeID, true, false); }
-template <> void nalGenericSkeleton::GetComponentHandle<unsigned char>(
-    nalGenericComponentHandle<unsigned char> &out, tlFixedString &name, tlFixedString &channel)
-{ find_handle(this, &out, &name, channel, &nalComponentU8Base::TypeID, false, false); }
-template <> void nalGenericSkeleton::GetComponentHandle<nalVector3>(
-    nalGenericConstComponentHandle<nalVector3> &out, uint32_t name, tlFixedString &channel) const
-{ find_handle(this, &out, &name, channel, &nalComponentFloat3Base::TypeID, true, true); }
+{
+    find_handle(this, &out, &name, channel, &nalComponentPOBase::TypeID, true, false);
+}
+template <>
+void nalGenericSkeleton::GetComponentHandle<float>(nalGenericComponentHandle<float> &out, tlFixedString &name,
+                                                   tlFixedString &channel)
+{
+    find_handle(this, &out, &name, channel, &nalComponentFloat1Base::TypeID, false, false);
+}
+template <>
+void nalGenericSkeleton::GetComponentHandle<float>(nalGenericConstComponentHandle<float> &out, tlFixedString &name,
+                                                   tlFixedString &channel) const
+{
+    find_handle(this, &out, &name, channel, &nalComponentFloat1Base::TypeID, true, false);
+}
+template <>
+void nalGenericSkeleton::GetComponentHandle<unsigned char>(nalGenericComponentHandle<unsigned char> &out,
+                                                           tlFixedString &name, tlFixedString &channel)
+{
+    find_handle(this, &out, &name, channel, &nalComponentU8Base::TypeID, false, false);
+}
+template <>
+void nalGenericSkeleton::GetComponentHandle<nalVector3>(nalGenericConstComponentHandle<nalVector3> &out, uint32_t name,
+                                                        tlFixedString &channel) const
+{
+    find_handle(this, &out, &name, channel, &nalComponentFloat3Base::TypeID, true, true);
+}
 
-} // namespace nalGeneric
+}  // namespace nalGeneric
 
 void nalGeneric_patch() {}

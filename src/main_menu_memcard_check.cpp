@@ -36,19 +36,15 @@ VALIDATE_OFFSET(main_menu_memcard_check, field_12C, 0x12C);
 VALIDATE_OFFSET(main_menu_memcard_check, field_19C, 0x19C);
 namespace {
 
-void __stdcall insert_remove_callback(
-    MemoryUnitManager::InsertRemoveObserver *, int)
-{
-}
+void __stdcall insert_remove_callback(MemoryUnitManager::InsertRemoveObserver *, int) {}
 
-MemoryUnitManager::InsertRemoveObserverVTable insert_remove_observer_vtable {
+MemoryUnitManager::InsertRemoveObserverVTable insert_remove_observer_vtable{
     &insert_remove_callback,
 };
-}
+}  // namespace
 
 
-main_menu_memcard_check::main_menu_memcard_check(FEMenuSystem *a2, int a4, int a5)
-    : FEMenu(a2, 0, a4, a5, 8, 0)
+main_menu_memcard_check::main_menu_memcard_check(FEMenuSystem *a2, int a4, int a5) : FEMenu(a2, 0, a4, a5, 8, 0)
 {
     m_vtbl = 0x00895910;
     field_2C.m_vtbl = &insert_remove_observer_vtable;
@@ -88,7 +84,7 @@ void main_menu_memcard_check::_Init()
         PanelQuad **destination;
         const char *name;
     };
-    const QuadBinding quads[] {
+    const QuadBinding quads[]{
         {&field_30[0], "mm_bkg_city"},
         {&field_30[1], "mm_bkg_city_01"},
         {&field_30[2], "mm_bkg_city_02"},
@@ -130,15 +126,12 @@ void main_menu_memcard_check::_Init()
         (*binding.destination)->TurnOn(false);
     }
 
-    field_F4 = static_cast<FEMultiLineText *>(
-        panel->GetTextPointer("mm_mainmenu_text_CHECKING"));
-    field_EC = static_cast<FEMultiLineText *>(
-        panel->GetTextPointer("mm_dialog_box_text_BODY"));
+    field_F4 = static_cast<FEMultiLineText *>(panel->GetTextPointer("mm_mainmenu_text_CHECKING"));
+    field_EC = static_cast<FEMultiLineText *>(panel->GetTextPointer("mm_dialog_box_text_BODY"));
     field_D4[0] = panel->GetTextPointer("mm_dialog_box_text_line_01");
     field_D4[1] = panel->GetTextPointer("mm_dialog_box_text_line_03");
     field_D4[2] = panel->GetTextPointer("mm_dialog_box_text_line_02");
-    field_F0 = static_cast<FEMultiLineText *>(
-        panel->GetTextPointer("mm_dialog_box_text_BODY_ps2"));
+    field_F0 = static_cast<FEMultiLineText *>(panel->GetTextPointer("mm_dialog_box_text_BODY_ps2"));
     field_E0[0] = panel->GetTextPointer("mm_dialog_box_text_line_01_ps2");
     field_E0[1] = panel->GetTextPointer("mm_dialog_box_text_line_02_ps2");
     field_E0[2] = panel->GetTextPointer("mm_dialog_box_text_line_03_ps2");
@@ -159,8 +152,7 @@ void main_menu_memcard_check::_Init()
     field_D0 = panel->GetAnimationPointer(1);
 
     if (g_game_ptr != nullptr && g_game_ptr->field_7C != nullptr)
-        field_18C = g_game_ptr->field_7C->lookup_localized_string(
-            static_cast<global_text_enum>(464));
+        field_18C = g_game_ptr->field_7C->lookup_localized_string(static_cast<global_text_enum>(464));
 }
 
 namespace {
@@ -185,40 +177,33 @@ void start_animation(PanelAnimFile *animation, bool reverse)
 
 void set_box_text(FEMultiLineText *text, const mString &value)
 {
-    text->SetTextBoxNoLocalize(
-        *bit_cast<FEMultiLineText::string *>(const_cast<mString *>(&value)),
-        -1, -1.0f);
+    text->SetTextBoxNoLocalize(*bit_cast<FEMultiLineText::string *>(const_cast<mString *>(&value)), -1, -1.0f);
 }
-}
+}  // namespace
 
 void main_menu_memcard_check::SetDialogMessage()
 {
     switch (field_108) {
     case DIALOG_NONE:
-        field_12C[0] = g_game_ptr->field_7C->lookup_localized_string(
-            static_cast<global_text_enum>(451));
+        field_12C[0] = g_game_ptr->field_7C->lookup_localized_string(static_cast<global_text_enum>(451));
         break;
     case DIALOG_NO_SAVE:
-        field_12C[0] = g_game_ptr->field_7C->lookup_localized_string(
-            static_cast<global_text_enum>(466));
+        field_12C[0] = g_game_ptr->field_7C->lookup_localized_string(static_cast<global_text_enum>(466));
         break;
     case DIALOG_HAS_SAVE:
-        field_12C[0] = g_game_ptr->field_7C->lookup_localized_string(
-            static_cast<global_text_enum>(21));
+        field_12C[0] = g_game_ptr->field_7C->lookup_localized_string(static_cast<global_text_enum>(21));
         break;
     case DIALOG_CHECKING:
         field_12C[0] = "CHECKING MEMORY CARD.";
         break;
     case DIALOG_LOAD_CORRUPT:
-        field_12C[1] = g_game_ptr->field_7C->lookup_localized_string(
-            static_cast<global_text_enum>(460));
+        field_12C[1] = g_game_ptr->field_7C->lookup_localized_string(static_cast<global_text_enum>(460));
         break;
     case DIALOG_OPERATION_FAILED:
         field_12C[1] = field_18C;
         break;
     case DIALOG_INSUFFICIENT_SPACE:
-        field_12C[1] = g_game_ptr->field_7C->lookup_localized_string(
-            static_cast<global_text_enum>(459));
+        field_12C[1] = g_game_ptr->field_7C->lookup_localized_string(static_cast<global_text_enum>(459));
         break;
     default:
         break;
@@ -236,14 +221,11 @@ void main_menu_memcard_check::SetUpDialogBox(dialog_state state)
     field_12C[5] = "";
     SetDialogMessage();
     if (state == DIALOG_LOAD_CORRUPT) {
-        field_12C[3] = g_game_ptr->field_7C->lookup_localized_string(
-            static_cast<global_text_enum>(51));
+        field_12C[3] = g_game_ptr->field_7C->lookup_localized_string(static_cast<global_text_enum>(51));
     } else if (state == DIALOG_OPERATION_FAILED) {
-        field_12C[3] = g_game_ptr->field_7C->lookup_localized_string(
-            static_cast<global_text_enum>(255));
+        field_12C[3] = g_game_ptr->field_7C->lookup_localized_string(static_cast<global_text_enum>(255));
     } else if (state == DIALOG_INSUFFICIENT_SPACE) {
-        field_12C[3] = g_game_ptr->field_7C->lookup_localized_string(
-            static_cast<global_text_enum>(50));
+        field_12C[3] = g_game_ptr->field_7C->lookup_localized_string(static_cast<global_text_enum>(50));
     }
     for (auto *quad : field_AC)
         quad->SetAlpha(0.0f);
@@ -259,40 +241,31 @@ void main_menu_memcard_check::SetUpDialogBox(dialog_state state)
         field_E0[i]->SetNoFlash(color32{0xFFC8C8C8});
         field_E0[i]->SetScale(0.9f);
     }
-    field_D4[0]->SetFlash(
-        color32{0xFFE6D03F}, color32{0x80E6D03F}, 0.6f);
+    field_D4[0]->SetFlash(color32{0xFFE6D03F}, color32{0x80E6D03F}, 0.6f);
     field_D4[0]->SetScale(1.0f);
-    field_E0[0]->SetFlash(
-        color32{0xFFE6D03F}, color32{0x80E6D03F}, 0.6f);
+    field_E0[0]->SetFlash(color32{0xFFE6D03F}, color32{0x80E6D03F}, 0.6f);
     field_E0[0]->SetScale(1.0f);
     UpdateText();
 }
 
-void main_menu_memcard_check::OperationFailed(
-    MemoryUnitManager::eOperation operation,
-    MemoryUnitManager::eStatus status)
+void main_menu_memcard_check::OperationFailed(MemoryUnitManager::eOperation operation,
+                                              MemoryUnitManager::eStatus status)
 {
-    if (operation == MemoryUnitManager::OPERATION_LOAD &&
-        status == MemoryUnitManager::STATUS_LOAD_CORRUPT) {
+    if (operation == MemoryUnitManager::OPERATION_LOAD && status == MemoryUnitManager::STATUS_LOAD_CORRUPT) {
         SetUpDialogBox(DIALOG_LOAD_CORRUPT);
         return;
     }
 
     if (operation == MemoryUnitManager::OPERATION_DELETE) {
-        field_18C = g_game_ptr->field_7C->lookup_localized_string(
-            static_cast<global_text_enum>(27));
+        field_18C = g_game_ptr->field_7C->lookup_localized_string(static_cast<global_text_enum>(27));
         field_18C += " ";
-        field_18C += g_game_ptr->field_7C->lookup_localized_string(
-            static_cast<global_text_enum>(465));
+        field_18C += g_game_ptr->field_7C->lookup_localized_string(static_cast<global_text_enum>(465));
     } else if (operation == MemoryUnitManager::OPERATION_FORMAT) {
-        field_18C = g_game_ptr->field_7C->lookup_localized_string(
-            static_cast<global_text_enum>(28));
+        field_18C = g_game_ptr->field_7C->lookup_localized_string(static_cast<global_text_enum>(28));
         field_18C += " ";
-        field_18C += g_game_ptr->field_7C->lookup_localized_string(
-            static_cast<global_text_enum>(465));
+        field_18C += g_game_ptr->field_7C->lookup_localized_string(static_cast<global_text_enum>(465));
     } else {
-        field_18C = g_game_ptr->field_7C->lookup_localized_string(
-            static_cast<global_text_enum>(464));
+        field_18C = g_game_ptr->field_7C->lookup_localized_string(static_cast<global_text_enum>(464));
     }
     SetUpDialogBox(DIALOG_OPERATION_FAILED);
 }
@@ -308,10 +281,8 @@ void main_menu_memcard_check::UpdateText()
     for (int i = 0; i < 3; ++i) {
         const bool shown = field_12C[3 + i].size() != 0;
         if (shown) {
-            field_D4[i]->SetTextNoLocalize(
-                *bit_cast<FEText::string *>(&field_12C[3 + i]));
-            field_E0[i]->SetTextNoLocalize(
-                *bit_cast<FEText::string *>(&field_12C[3 + i]));
+            field_D4[i]->SetTextNoLocalize(*bit_cast<FEText::string *>(&field_12C[3 + i]));
+            field_E0[i]->SetTextNoLocalize(*bit_cast<FEText::string *>(&field_12C[3 + i]));
         }
         field_D4[i]->SetShown(shown);
         field_E0[i]->SetShown(shown);
@@ -320,8 +291,7 @@ void main_menu_memcard_check::UpdateText()
 
 void main_menu_memcard_check::LoadMemoryCard()
 {
-    if (!os_developer_options::instance->get_flag(
-            static_cast<os_developer_options::flags_t>(146))) {
+    if (!os_developer_options::instance->get_flag(static_cast<os_developer_options::flags_t>(146))) {
         field_108 = DIALOG_NO_SAVE;
         SetDialogMessage();
         UpdateText();
@@ -331,19 +301,16 @@ void main_menu_memcard_check::LoadMemoryCard()
 
     g_game_ptr->gamefile->reset_container(false);
     DWORD disk_info[8]{};
-    if (MemoryUnitManager::GetDiskInfo(disk_info) &&
-        MemoryUnitManager::EnumerateSaveDirectories() > 0) {
+    if (MemoryUnitManager::GetDiskInfo(disk_info) && MemoryUnitManager::EnumerateSaveDirectories() > 0) {
         g_game_ptr->gamefile->load();
         field_F8 = true;
         return;
     }
 
-    const unsigned int save_size = MemoryUnitManager::GetGameSaveSize(
-        std::max(0x4000, 2 * g_game_ptr->gamefile->field_4B4 + 400));
-    const unsigned long long free_bytes =
-        (static_cast<unsigned long long>(disk_info[1]) << 32) | disk_info[0];
-    if (MemoryUnitManager::GetLastError() == MemoryUnitManager::STATUS_OK &&
-        3ull * save_size <= free_bytes) {
+    const unsigned int save_size =
+        MemoryUnitManager::GetGameSaveSize(std::max(0x4000, 2 * g_game_ptr->gamefile->field_4B4 + 400));
+    const unsigned long long free_bytes = (static_cast<unsigned long long>(disk_info[1]) << 32) | disk_info[0];
+    if (MemoryUnitManager::GetLastError() == MemoryUnitManager::STATUS_OK && 3ull * save_size <= free_bytes) {
         field_108 = DIALOG_NO_SAVE;
         SetDialogMessage();
         UpdateText();
@@ -376,8 +343,7 @@ void main_menu_memcard_check::Update(Float delta_time)
         start_animation(field_B8, true);
         field_104 = 1;
         field_FC = 1.0f;
-    } else if (field_104 == 1 && !field_B8->field_2D &&
-               field_108 == DIALOG_CHECKING) {
+    } else if (field_104 == 1 && !field_B8->field_2D && field_108 == DIALOG_CHECKING) {
         field_FC -= delta_time;
         if (field_FC <= 0.0f) {
             field_108 = DIALOG_NONE;
@@ -446,8 +412,7 @@ void main_menu_memcard_check::OnActivate()
 void main_menu_memcard_check::OnCross(int)
 {
     if (!field_C4->field_2D &&
-        (field_108 == DIALOG_LOAD_CORRUPT ||
-         field_108 == DIALOG_OPERATION_FAILED ||
+        (field_108 == DIALOG_LOAD_CORRUPT || field_108 == DIALOG_OPERATION_FAILED ||
          field_108 == DIALOG_INSUFFICIENT_SPACE) &&
         field_100 == 0) {
         field_EC->SetShown(false);
@@ -466,8 +431,7 @@ void main_menu_memcard_check::OnSuccessfulLoad()
     bool any_valid = false;
     for (int i = 0; i < 3; ++i) {
         const auto &data = g_game_ptr->gamefile->field_28C[i];
-        const bool valid =
-            g_game_ptr->gamefile->m_game_data_valid[i] && data.timestamp.year != 0;
+        const bool valid = g_game_ptr->gamefile->m_game_data_valid[i] && data.timestamp.year != 0;
         load_menu->SetSaveSlot(i, valid ? &data : nullptr);
         any_valid |= valid;
     }

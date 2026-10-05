@@ -17,7 +17,7 @@ void dispatch_callbacks(_std::list<event_callback *> &callbacks, event *payload,
     for (auto it = callbacks.begin(); it != callbacks.end();) {
         auto *callback = *it;
         if (!callback->field_C) {
-            void (__fastcall *spawn)(event_callback *, void *, event *, entity_base_vhandle) =
+            void(__fastcall * spawn)(event_callback *, void *, event *, entity_base_vhandle) =
                 CAST(spawn, get_vfunc(callback->m_vtbl, 4));
             spawn(callback, nullptr, payload, handle);
         }
@@ -29,20 +29,15 @@ void dispatch_callbacks(_std::list<event_callback *> &callbacks, event *payload,
         }
     }
 }
-}
+}  // namespace
 
 VALIDATE_SIZE(event_type, 0x2C);
 
 #if STANDALONE_SYSTEM
 event_type::event_type(string_hash event_id, bool pollable)
-    : field_0{event_id},
-      event_to_raise{new (mem_alloc(sizeof(event))) event{event_id}},
-      field_8{},
-      field_18{false},
-      field_1C{},
-      field_28{pollable}
-{
-}
+    : field_0{event_id}, event_to_raise{new(mem_alloc(sizeof(event))) event{event_id}}, field_8{}, field_18{false},
+      field_1C{}, field_28{pollable}
+{}
 #else
 event_type::event_type(string_hash event_id, bool pollable)
 {
@@ -163,7 +158,7 @@ void event_type::raise_event(entity_base_vhandle a2, event *a3)
             recipient = create_recipient_entry(a2);
         if (recipient != nullptr) {
             recipient->clean_up_callbacks();
-            void (__fastcall *raise)(event *, void *) = CAST(raise, get_vfunc(payload->m_vtbl, 0x18));
+            void(__fastcall * raise)(event *, void *) = CAST(raise, get_vfunc(payload->m_vtbl, 0x18));
             raise(payload, nullptr);
             const int ticks = g_world_ptr->time_manager.field_C;
             if (recipient->field_24 != ticks) {
@@ -232,7 +227,7 @@ bool event_type::garbage_collect()
     if constexpr (STANDALONE_SYSTEM) {
         return field_8.empty() && field_1C.empty() && !field_28;
     } else {
-        bool(__fastcall *func)(void *) = CAST(func, 0x004D65B0);
+        bool(__fastcall * func)(void *) = CAST(func, 0x004D65B0);
         return func(this);
     }
 }

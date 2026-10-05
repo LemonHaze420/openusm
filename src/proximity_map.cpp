@@ -25,13 +25,11 @@ int proximity_map::traverse_point(const vector3d &a2, subdivision_visitor &a3)
     assert(initialized);
     cell_index index;
     map_vector3d_to_cell_index(a2, &index);
-    const auto *directory = reinterpret_cast<const uint16_t *>(
-        reinterpret_cast<const uint32_t *>(this) + field_8);
+    const auto *directory = reinterpret_cast<const uint16_t *>(reinterpret_cast<const uint32_t *>(this) + field_8);
     const int16_t offset = static_cast<int16_t>(directory[index.x + (index.y << log_number_of_cells)]);
     if (offset == 0)
         return 0;
-    const auto &node = *reinterpret_cast<const subdivision_node *>(
-        reinterpret_cast<const uint32_t *>(this) + offset);
+    const auto &node = *reinterpret_cast<const subdivision_node *>(reinterpret_cast<const uint32_t *>(this) + offset);
     const traverse_test test{1, a2, 0.0f};
     return visit_cell_node(node, a3, &test);
 #else
@@ -86,16 +84,15 @@ int proximity_map::traverse_sphere(const vector3d &position, Float radius, subdi
     const float extent = radius + LARGE_EPSILON;
     cell_index first, last;
     map_vector3d_range_to_cell_range_with_swapping(position - extent, position + extent, first, last);
-    const auto *directory = reinterpret_cast<const uint16_t *>(
-        reinterpret_cast<const uint32_t *>(this) + field_8);
+    const auto *directory = reinterpret_cast<const uint16_t *>(reinterpret_cast<const uint32_t *>(this) + field_8);
     const traverse_test test{0, position, radius};
     for (int x = first.x; x <= last.x; ++x) {
         for (int y = first.y; y <= last.y; ++y) {
             const int16_t offset = static_cast<int16_t>(directory[x + (y << log_number_of_cells)]);
             if (offset == 0)
                 continue;
-            const auto &node = *reinterpret_cast<const subdivision_node *>(
-                reinterpret_cast<const uint32_t *>(this) + offset);
+            const auto &node =
+                *reinterpret_cast<const subdivision_node *>(reinterpret_cast<const uint32_t *>(this) + offset);
             const int status = visit_cell_node(node, *visitor, &test);
             if (status != 0)
                 return status;
@@ -138,9 +135,7 @@ void proximity_map::traverse_sector_raster(const sector2d &sec, Float sector_rad
 }
 
 
-
-void proximity_map::traverse_convex_hull_raster(
-    const fixed_vector<vector2d, 14> &points, subdivision_visitor &visitor)
+void proximity_map::traverse_convex_hull_raster(const fixed_vector<vector2d, 14> &points, subdivision_visitor &visitor)
 {
 #if STANDALONE_SYSTEM
     assert(initialized);
@@ -159,57 +154,56 @@ void proximity_map::traverse_convex_hull_raster(
 
 void proximity_map::mark_raster_line(const vector2d &from, const vector2d &to, uint32_t (&rows)[32])
 {
-        cell_index cell, end;
-        map_vector3d_to_cell_index(vector3d{from.x, 0.0f, from.y}, &cell);
-        map_vector3d_to_cell_index(vector3d{to.x, 0.0f, to.y}, &end);
-        const float dx = to.x - from.x;
-        const float dz = to.y - from.y;
-        if (std::abs(dx) <= LARGE_EPSILON && std::abs(dz) <= LARGE_EPSILON) {
-            rows[cell.y] |= uint32_t{1} << cell.x;
-            return;
-        }
-        const int step_x = (dx > 0.0f) - (dx < 0.0f);
-        const int step_z = (dz > 0.0f) - (dz < 0.0f);
-        bool finished_x = std::abs(dx) <= EPSILON;
-        bool finished_z = std::abs(dz) <= EPSILON;
-        const float delta_x = finished_x ? 0.0f : std::abs(field_30.x / dx);
-        const float delta_z = finished_z ? 0.0f : std::abs(field_30.z / dz);
-        float next_x = finished_x ? std::numeric_limits<float>::max()
-            : ((cell.x + (step_x > 0)) * field_30.x + field_C.x - from.x) / dx;
-        float next_z = finished_z ? std::numeric_limits<float>::max()
-            : ((cell.y + (step_z > 0)) * field_30.z + field_C.z - from.y) / dz;
-        for (int iteration = 0;; ++iteration) {
-            rows[cell.y] |= uint32_t{1} << cell.x;
-            if ((next_x < next_z || finished_z) && !finished_x) {
-                cell.x += step_x;
-                next_x += delta_x;
-                if (cell.x < 0 || cell.x >= number_of_cells) {
-                    cell.x = static_cast<int16_t>(std::clamp<int>(cell.x, 0, number_of_cells - 1));
-                    finished_x = true;
-                }
-            } else {
-                cell.y += step_z;
-                next_z += delta_z;
-                if (cell.y < 0 || cell.y >= number_of_cells) {
-                    cell.y = static_cast<int16_t>(std::clamp<int>(cell.y, 0, number_of_cells - 1));
-                    finished_z = true;
-                }
+    cell_index cell, end;
+    map_vector3d_to_cell_index(vector3d{from.x, 0.0f, from.y}, &cell);
+    map_vector3d_to_cell_index(vector3d{to.x, 0.0f, to.y}, &end);
+    const float dx = to.x - from.x;
+    const float dz = to.y - from.y;
+    if (std::abs(dx) <= LARGE_EPSILON && std::abs(dz) <= LARGE_EPSILON) {
+        rows[cell.y] |= uint32_t{1} << cell.x;
+        return;
+    }
+    const int step_x = (dx > 0.0f) - (dx < 0.0f);
+    const int step_z = (dz > 0.0f) - (dz < 0.0f);
+    bool finished_x = std::abs(dx) <= EPSILON;
+    bool finished_z = std::abs(dz) <= EPSILON;
+    const float delta_x = finished_x ? 0.0f : std::abs(field_30.x / dx);
+    const float delta_z = finished_z ? 0.0f : std::abs(field_30.z / dz);
+    float next_x = finished_x ? std::numeric_limits<float>::max()
+                              : ((cell.x + (step_x > 0)) * field_30.x + field_C.x - from.x) / dx;
+    float next_z = finished_z ? std::numeric_limits<float>::max()
+                              : ((cell.y + (step_z > 0)) * field_30.z + field_C.z - from.y) / dz;
+    for (int iteration = 0;; ++iteration) {
+        rows[cell.y] |= uint32_t{1} << cell.x;
+        if ((next_x < next_z || finished_z) && !finished_x) {
+            cell.x += step_x;
+            next_x += delta_x;
+            if (cell.x < 0 || cell.x >= number_of_cells) {
+                cell.x = static_cast<int16_t>(std::clamp<int>(cell.x, 0, number_of_cells - 1));
+                finished_x = true;
             }
-            const bool reached_x = step_x > 0 ? cell.x >= end.x : cell.x <= end.x;
-            const bool reached_z = step_z > 0 ? cell.y >= end.y : cell.y <= end.y;
-            if ((reached_x && reached_z) || (finished_x && finished_z)) {
-                rows[cell.y] |= uint32_t{1} << cell.x;
-                break;
+        } else {
+            cell.y += step_z;
+            next_z += delta_z;
+            if (cell.y < 0 || cell.y >= number_of_cells) {
+                cell.y = static_cast<int16_t>(std::clamp<int>(cell.y, 0, number_of_cells - 1));
+                finished_z = true;
             }
-            if (iteration >= 200)
-                break;
         }
+        const bool reached_x = step_x > 0 ? cell.x >= end.x : cell.x <= end.x;
+        const bool reached_z = step_z > 0 ? cell.y >= end.y : cell.y <= end.y;
+        if ((reached_x && reached_z) || (finished_x && finished_z)) {
+            rows[cell.y] |= uint32_t{1} << cell.x;
+            break;
+        }
+        if (iteration >= 200)
+            break;
+    }
 }
 
 void proximity_map::visit_raster_rows(const uint32_t (&rows)[32], subdivision_visitor &visitor)
 {
-    const auto *directory = reinterpret_cast<const uint16_t *>(
-        reinterpret_cast<const uint32_t *>(this) + field_8);
+    const auto *directory = reinterpret_cast<const uint16_t *>(reinterpret_cast<const uint32_t *>(this) + field_8);
     for (int y = 0; y < 32; ++y) {
         uint32_t mask = rows[y];
         if (mask == 0)
@@ -227,18 +221,19 @@ void proximity_map::visit_raster_rows(const uint32_t (&rows)[32], subdivision_vi
             const int16_t offset = static_cast<int16_t>(directory[x + (y << log_number_of_cells)]);
             if (offset == 0)
                 continue;
-            const auto &node = *reinterpret_cast<const subdivision_node *>(
-                reinterpret_cast<const uint32_t *>(this) + offset);
+            const auto &node =
+                *reinterpret_cast<const subdivision_node *>(reinterpret_cast<const uint32_t *>(this) + offset);
             visit_cell_node(node, visitor, nullptr);
         }
     }
 }
 
 
-int proximity_map::visit_cell_node(const subdivision_node &node, subdivision_visitor &visitor, const traverse_test *test)
+int proximity_map::visit_cell_node(const subdivision_node &node, subdivision_visitor &visitor,
+                                   const traverse_test *test)
 {
-    if (node.get_type() == subdivision_node::DYNAMIC_LEAF_LIST_NODE
-        || node.get_type() == subdivision_node::DYNAMIC_ENTITY_LIST_NODE) {
+    if (node.get_type() == subdivision_node::DYNAMIC_LEAF_LIST_NODE ||
+        node.get_type() == subdivision_node::DYNAMIC_ENTITY_LIST_NODE) {
         const auto &list = static_cast<const dynamic_entity_list_node &>(node);
         int result = 0;
         for (auto *entry = list.head; entry != nullptr; entry = entry->next) {
@@ -253,8 +248,8 @@ int proximity_map::visit_cell_node(const subdivision_node &node, subdivision_vis
     if (node.get_type() == subdivision_node::STATIC_LEGO_LIST_NODE)
         return static_lego_list_methods::traverse_all(node, visitor);
     const auto &list = static_cast<const static_region_list_node &>(node);
-    assert(node.get_type() == subdivision_node::STATIC_REGION_LIST_NODE
-        || node.get_type() == subdivision_node::STATIC_LEAF_LIST_NODE);
+    assert(node.get_type() == subdivision_node::STATIC_REGION_LIST_NODE ||
+           node.get_type() == subdivision_node::STATIC_LEAF_LIST_NODE);
     int result = 0;
     for (uint8_t index = 0; index < list.count; ++index) {
         const uint16_t id = list.region_indices()[index];
@@ -268,16 +263,16 @@ int proximity_map::visit_cell_node(const subdivision_node &node, subdivision_vis
             if (test != nullptr && test->field_0 != 2) {
                 const auto &point = test->field_4;
                 const float radius = test->field_0 == 0 ? test->field_10 : 0.0f;
-                if (point.x > mirror.field_10.x + radius || point.x < mirror.field_4.x - radius
-                    || point.y > mirror.field_10.y + radius || point.y < mirror.field_4.y - radius
-                    || point.z > mirror.field_10.z + radius || point.z < mirror.field_4.z - radius)
+                if (point.x > mirror.field_10.x + radius || point.x < mirror.field_4.x - radius ||
+                    point.y > mirror.field_10.y + radius || point.y < mirror.field_4.y - radius ||
+                    point.z > mirror.field_10.z + radius || point.z < mirror.field_4.z - radius)
                     continue;
             }
             if (visitor.visit(*reinterpret_cast<const subdivision_node *>(mirror.field_0)) == 3)
                 return 2;
         } else {
-            const auto &leaf = *reinterpret_cast<const subdivision_node *>(
-                reinterpret_cast<const uint32_t *>(&list) + static_cast<int16_t>(id));
+            const auto &leaf = *reinterpret_cast<const subdivision_node *>(reinterpret_cast<const uint32_t *>(&list) +
+                                                                           static_cast<int16_t>(id));
             const int status = visitor.visit(leaf);
             if (status == 1)
                 return 0;

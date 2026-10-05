@@ -11,7 +11,7 @@ int visit_entity(subdivision_visitor &, const subdivision_node &node)
         ent.field_5C = entity::visit_key;
     return 0;
 }
-}
+}  // namespace
 
 camera_teleport_update_visitor_t::camera_teleport_update_visitor_t()
 {

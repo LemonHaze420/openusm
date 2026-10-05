@@ -46,10 +46,7 @@ advanced_entity_ptrs::~advanced_entity_ptrs()
         script_manager::release_actor_script(my_script);
 }
 
-void advanced_entity_ptrs::un_mash(generic_mash_header *header,
-                                    actor *arg4,
-                                    void *object,
-                                    generic_mash_data_ptrs *data)
+void advanced_entity_ptrs::un_mash(generic_mash_header *header, actor *arg4, void *object, generic_mash_data_ptrs *data)
 {
 #if STANDALONE_SYSTEM
     (void)object;
@@ -67,8 +64,8 @@ void advanced_entity_ptrs::un_mash(generic_mash_header *header,
         assert(slot != nullptr);
         script_manager::load(script_key, 0, slot, slot->get_name_key());
         script_manager::link();
-        auto *script_object = script_manager::find_object(
-            script_key, string_hash{"ENX_MASTER_OBJECT"}, slot->get_name_key());
+        auto *script_object =
+            script_manager::find_object(script_key, string_hash{"ENX_MASTER_OBJECT"}, slot->get_name_key());
         this->my_script = script::create_instance(string_hash{"__enx"}, script_object);
         script::push_arg(arg4);
         script::exec_thread(false);
@@ -76,8 +73,8 @@ void advanced_entity_ptrs::un_mash(generic_mash_header *header,
 
     if (header->is_flagged(0x4000)) {
         const vector3d value = *data->get<vector3d>();
-        auto callback = reinterpret_cast<void(__fastcall *)(actor *, void *, const vector3d &)>(
-            get_vfunc(arg4->m_vtbl, 0x1D0));
+        auto callback =
+            reinterpret_cast<void(__fastcall *)(actor *, void *, const vector3d &)>(get_vfunc(arg4->m_vtbl, 0x1D0));
         callback(arg4, nullptr, value);
     }
 
@@ -96,14 +93,10 @@ void advanced_entity_ptrs::un_mash(generic_mash_header *header,
                 get_vfunc(inventory_item->m_vtbl, 0x2A4));
             set_quantity(inventory_item, nullptr, quantity);
             if (flags != 0) {
-
-                auto **movement = reinterpret_cast<uint8_t **>(
-                    reinterpret_cast<uint8_t *>(inventory_item) + 0x100);
+                auto **movement = reinterpret_cast<uint8_t **>(reinterpret_cast<uint8_t *>(inventory_item) + 0x100);
                 *reinterpret_cast<resource_key *>(*movement + 0x10) = visual_key;
-                auto &state = *reinterpret_cast<uint32_t *>(
-                    reinterpret_cast<uint8_t *>(inventory_item) + 0x10C);
-                state = (state & ~0x36u) | (flags & 6u) |
-                    ((flags & 8u) << 1) | (flags & 0x20u);
+                auto &state = *reinterpret_cast<uint32_t *>(reinterpret_cast<uint8_t *>(inventory_item) + 0x10C);
+                state = (state & ~0x36u) | (flags & 6u) | ((flags & 8u) << 1) | (flags & 0x20u);
                 data->rebase_shared(16);
                 data->rebase_shared(4);
                 auto *new_movement = data->get_from_shared<uint8_t>(0x60);

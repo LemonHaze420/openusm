@@ -36,7 +36,7 @@ struct GraphicsVtable {
     unsigned(__fastcall *size)(const Graphics *, void *);
 };
 static_assert(offsetof(GraphicsVtable, render) == 0x1C);
-}
+}  // namespace aps_native
 
 namespace {
 using namespace aps_native;
@@ -682,7 +682,7 @@ const GraphicsVtable tables[]{make_table<0>(),
                               make_table<5>(),
                               make_table<6>(),
                               make_table<7>()};
-}
+}  // namespace
 
 void aps_native_graphics_fixup(void *object, unsigned type)
 {

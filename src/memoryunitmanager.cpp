@@ -41,7 +41,7 @@ void finish_operation()
     if (mObserver() != nullptr)
         mObserver()->Notify(completed_operation);
 }
-}
+}  // namespace
 
 
 bool get_path(const char *a1, const char *a2, char *out, unsigned int str_len)
@@ -49,11 +49,9 @@ bool get_path(const char *a1, const char *a2, char *out, unsigned int str_len)
     char documents[MAX_PATH]{};
     HMODULE shell = LoadLibraryA("shell32.dll");
     if (shell != nullptr) {
-        using SHGetFolderPathA_t = HRESULT (WINAPI *)(HWND, int, HANDLE, DWORD, LPSTR);
-        auto get_folder = bit_cast<SHGetFolderPathA_t>(
-            GetProcAddress(shell, "SHGetFolderPathA"));
-        if (get_folder != nullptr &&
-            SUCCEEDED(get_folder(nullptr, CSIDL_PERSONAL, nullptr, 0, documents))) {
+        using SHGetFolderPathA_t = HRESULT(WINAPI *)(HWND, int, HANDLE, DWORD, LPSTR);
+        auto get_folder = bit_cast<SHGetFolderPathA_t>(GetProcAddress(shell, "SHGetFolderPathA"));
+        if (get_folder != nullptr && SUCCEEDED(get_folder(nullptr, CSIDL_PERSONAL, nullptr, 0, documents))) {
             char path[MAX_PATH]{};
             std::snprintf(path, sizeof(path), "%s\\%s", documents, a1);
             if (std::strlen(path) >= str_len) {
@@ -136,12 +134,12 @@ void RegisterObserver(Observer *observer)
 void Initialize(uint32_t a1)
 {
     if constexpr (STANDALONE_SYSTEM) {
-        (void) a1;
+        (void)a1;
         close_active_file();
         mObserver() = nullptr;
         mLastError() = STATUS_OK;
         mCurrentOperation() = OPERATION_NONE;
-        new (&mGameSave()) Container {""};
+        new (&mGameSave()) Container{""};
     } else {
         CDECL_CALL(0x007B16D0, a1);
     }
@@ -160,17 +158,14 @@ bool Service()
     const size_t size = container.field_220[index];
     size_t transferred = 0;
     if (operation == OPERATION_LOAD) {
-        transferred =
-            std::fread(container.field_200[index], 1, size, active_file);
+        transferred = std::fread(container.field_200[index], 1, size, active_file);
     } else if (operation == OPERATION_SAVE) {
-        transferred =
-            std::fwrite(container.field_200[index], 1, size, active_file);
+        transferred = std::fwrite(container.field_200[index], 1, size, active_file);
     }
     close_active_file();
 
     if (transferred != size) {
-        SetLastError(
-            operation == OPERATION_SAVE ? STATUS_WRITE_ERROR : STATUS_ERROR);
+        SetLastError(operation == OPERATION_SAVE ? STATUS_WRITE_ERROR : STATUS_ERROR);
         finish_operation();
         return false;
     }
@@ -202,21 +197,15 @@ bool StartOperation()
     char root[MAX_PATH]{};
     sub_7B11C0(root);
     char directory[MAX_PATH]{};
-    std::snprintf(
-        directory, sizeof(directory), "%s%s",
-        root, container.field_248);
+    std::snprintf(directory, sizeof(directory), "%s%s", root, container.field_248);
     if (operation == OPERATION_SAVE)
         create_directory(directory);
 
     char filename[MAX_PATH]{};
-    std::snprintf(
-        filename, sizeof(filename), "%s\\%s",
-        directory, container.field_0[container.field_240]);
-    active_file = std::fopen(
-        filename, operation == OPERATION_LOAD ? "rb" : "wb");
+    std::snprintf(filename, sizeof(filename), "%s\\%s", directory, container.field_0[container.field_240]);
+    active_file = std::fopen(filename, operation == OPERATION_LOAD ? "rb" : "wb");
     if (active_file == nullptr) {
-        SetLastError(
-            operation == OPERATION_LOAD ? STATUS_FILE_NOT_FOUND : STATUS_ERROR);
+        SetLastError(operation == OPERATION_LOAD ? STATUS_FILE_NOT_FOUND : STATUS_ERROR);
         finish_operation();
         return false;
     }
@@ -247,10 +236,8 @@ bool GetDiskInfo(DWORD *info)
     info[1] = free_bytes.HighPart;
     info[2] = total_bytes.LowPart;
     info[3] = total_bytes.HighPart;
-    info[4] = static_cast<DWORD>(
-        std::min<unsigned long long>(free_bytes.QuadPart >> 10, 50001));
-    info[5] = static_cast<DWORD>(
-        std::min<unsigned long long>(total_bytes.QuadPart >> 10, 50001));
+    info[4] = static_cast<DWORD>(std::min<unsigned long long>(free_bytes.QuadPart >> 10, 50001));
+    info[5] = static_cast<DWORD>(std::min<unsigned long long>(total_bytes.QuadPart >> 10, 50001));
     info[6] = 1;
     SetLastError(STATUS_OK);
     return true;
@@ -263,8 +250,7 @@ int EnumerateSaveDirectories()
     char save_path[MAX_PATH]{};
     std::snprintf(save_path, sizeof(save_path), "%sSave", root);
     const DWORD attributes = GetFileAttributesA(save_path);
-    if (attributes == INVALID_FILE_ATTRIBUTES ||
-        (attributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
+    if (attributes == INVALID_FILE_ATTRIBUTES || (attributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
         return 0;
 
     int count = 0;

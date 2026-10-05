@@ -12,16 +12,10 @@ VALIDATE_SIZE(eligible_pack, 0x74);
 VALIDATE_OFFSET(eligible_pack, field_54, 0x54);
 
 eligible_pack::eligible_pack(const char *name, const eligible_pack_token &token, eligible_pack_category *category)
-    : field_0(name),
-      field_20(name),
-      field_40(name != nullptr ? string_hash{name} : string_hash{}),
-      field_44(name != nullptr ? string_hash{name} : string_hash{}),
-      field_48(token),
-      field_50(category),
-      field_6C(3.4028235e38f),
-      field_70(0)
-{
-}
+    : field_0(name), field_20(name), field_40(name != nullptr ? string_hash{name} : string_hash{}),
+      field_44(name != nullptr ? string_hash{name} : string_hash{}), field_48(token), field_50(category),
+      field_6C(3.4028235e38f), field_70(0)
+{}
 
 void eligible_pack::set_packfile_name(const char *a2)
 {

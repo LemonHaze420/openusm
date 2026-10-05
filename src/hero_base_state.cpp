@@ -37,8 +37,14 @@ VALIDATE_SIZE(hero_base_state, 0x1C);
 VALIDATE_SIZE(venom_base_state, 0x1C);
 
 namespace {
-uint32_t __fastcall hero_type(const hero_base_state *) { return 323; }
-uint32_t __fastcall venom_type(const venom_base_state *) { return 325; }
+uint32_t __fastcall hero_type(const hero_base_state *)
+{
+    return 323;
+}
+uint32_t __fastcall venom_type(const venom_base_state *)
+{
+    return 325;
+}
 bool __fastcall hero_subclass(const hero_base_state *, void *, mash::virtual_types_enum type)
 {
     return type == 567 || type == 573;
@@ -49,7 +55,6 @@ bool __fastcall venom_subclass(const venom_base_state *, void *, mash::virtual_t
 }
 state_trans_messages __fastcall hero_frame(hero_base_state *, void *, Float)
 {
-
     return TRANS_TOTAL_MSGS;
 }
 state_trans_action *__fastcall hero_transition(hero_base_state *self, void *, state_trans_action *out, Float dt)
@@ -57,8 +62,8 @@ state_trans_action *__fastcall hero_transition(hero_base_state *self, void *, st
     *out = self->_check_transition(dt);
     return out;
 }
-state_trans_action *__fastcall hero_message(hero_base_state *self, void *, state_trans_action *out,
-    Float dt, state_trans_messages message)
+state_trans_action *__fastcall hero_message(hero_base_state *self, void *, state_trans_action *out, Float dt,
+                                            state_trans_messages message)
 {
     *out = self->_process_message(dt, message);
     return out;
@@ -85,12 +90,12 @@ state_trans_action no_transition()
 {
     return {NO_ACTION, string_hash{0}, TRANS_TOTAL_MSGS, nullptr};
 }
-}
+}  // namespace
 
 void *hero_base_state::native_vtable()
 {
     static auto table = [] {
-        std::array<void *, 15> result {};
+        std::array<void *, 15> result{};
         std::copy_n(static_cast<void **>(base_state::native_vtable()), 14, result.data());
         result[3] = bit_cast<void *>(&hero_type);
         result[4] = bit_cast<void *>(&hero_subclass);
@@ -130,7 +135,6 @@ venom_base_state::venom_base_state(int mode) : hero_base_state(mode)
 
 void venom_base_state::_get_info_node_list(info_node_desc_list &nodes)
 {
-
     nodes.add_entry({physics_inode::default_id, 402});
     nodes.add_entry({hero_inode::default_id, 384});
     nodes.add_entry({web_zip_inode::default_id, 326});
@@ -152,8 +156,7 @@ void hero_base_state::combat_inode_transition_notification(Float dt, string_hash
             const auto team_key = combat_target_inode::team_hash();
             if (!core->field_50.does_parameter_exist(team_key))
                 return;
-            const auto observer_team = team::manager::get_team_enum_by_hash(
-                core->field_50.get_pb_hash(team_key));
+            const auto observer_team = team::manager::get_team_enum_by_hash(core->field_50.get_pb_hash(team_key));
             auto *owner = core->field_64;
             if (damage_interface::find_damageable(owner->get_abs_position(), 30.0f, 3, true) == 0)
                 return;
@@ -165,9 +168,9 @@ void hero_base_state::combat_inode_transition_notification(Float dt, string_hash
                 if (auto *target_core = target->get_ai_core()) {
                     if (!target_core->field_50.does_parameter_exist(team_key))
                         continue;
-                    enemy = team::manager::is_enemy(observer_team,
-                        team::manager::get_team_enum_by_hash(
-                            target_core->field_50.get_pb_hash(team_key)));
+                    enemy = team::manager::is_enemy(
+                        observer_team,
+                        team::manager::get_team_enum_by_hash(target_core->field_50.get_pb_hash(team_key)));
                 } else {
                     enemy = (target->field_4 & 0x1000u) != 0;
                 }
@@ -176,8 +179,19 @@ void hero_base_state::combat_inode_transition_notification(Float dt, string_hash
                 auto direction = target->get_abs_position() - owner->get_abs_position();
                 direction.normalize();
                 const string_hash no_hash{};
-                damage->apply_damage(owner, 100000.0f, 6, owner->get_abs_position(), direction,
-                    0, no_hash, no_hash, no_hash, false, vector3d{}, 17, false);
+                damage->apply_damage(owner,
+                                     100000.0f,
+                                     6,
+                                     owner->get_abs_position(),
+                                     direction,
+                                     0,
+                                     no_hash,
+                                     no_hash,
+                                     no_hash,
+                                     false,
+                                     vector3d{},
+                                     17,
+                                     false);
             }
         }
     }
@@ -193,7 +207,8 @@ state_trans_action hero_base_state::_check_transition(Float dt)
     auto *core = get_core();
     auto *hero = static_cast<hero_inode *>(core->get_info_node(hero_inode::default_id, true));
     const auto current = get_machine()->my_curr_state->get_name();
-    auto *defaults = static_cast<std_default_trans_inode *>(core->get_info_node(std_default_trans_inode::default_id, true));
+    auto *defaults =
+        static_cast<std_default_trans_inode *>(core->get_info_node(std_default_trans_inode::default_id, true));
     if (current != subdued_state::default_id && defaults->field_26) {
         auto *damage = get_actor()->damage_ifc();
         if (damage && damage->field_1FC.field_0[0] <= 0.0f)
@@ -214,7 +229,8 @@ state_trans_action hero_base_state::_check_transition(Float dt)
     if (!animation->is_layer_interruptable(static_cast<als::layer_types>(0)) && current != web_zip_state::default_id)
         return no_transition();
     string_hash desired;
-    auto callback = reinterpret_cast<string_hash *(__fastcall *)(hero_base_state *, void *, string_hash *, Float)>(get_vfunc(m_vtbl, 0x38));
+    auto callback = reinterpret_cast<string_hash *(__fastcall *)(hero_base_state *, void *, string_hash *, Float)>(
+        get_vfunc(m_vtbl, 0x38));
     callback(this, nullptr, &desired, dt);
     if (desired == NO_TRANS)
         return no_transition();
@@ -236,7 +252,6 @@ state_trans_action hero_base_state::_process_message(Float, state_trans_messages
     }
     return no_transition();
 }
-
 
 
 string_hash venom_base_state::get_desired_state_id(Float dt) const
@@ -309,9 +324,6 @@ string_hash venom_base_state::get_desired_state_id(Float dt) const
         return hit_react_state::default_id;
     return NO_TRANS;
 }
-} // namespace ai
+}  // namespace ai
 
-void hero_base_state_patch()
-{
-
-}
+void hero_base_state_patch() {}

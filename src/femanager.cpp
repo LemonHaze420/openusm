@@ -26,7 +26,7 @@
 VALIDATE_OFFSET(FEManager, IGO, 0x18u);
 VALIDATE_OFFSET(FEManager, field_2A, 0x2A);
 
-FEManager & g_femanager = var<FEManager>(0x00937B00);
+FEManager &g_femanager = var<FEManager>(0x00937B00);
 
 const char *FEManager::font_name_array[5] = {
     "nglSysFont", "i_upupandaway", "badaboom", "i_button_icons", "damnnoisykids"};
@@ -42,7 +42,7 @@ void FEManager::InitIGO()
 
 void FEManager::LoadFont(font_index a2)
 {
-    tlFixedString a1 {font_name_array[a2]};
+    tlFixedString a1{font_name_array[a2]};
     nglLoadTexture(a1);
     a1 = {font_name_array[a2]};
     this->field_4[a2] = nglLoadFont(a1);
@@ -92,7 +92,7 @@ void FEManager::Draw()
             } else {
                 auto *vtbl = bit_cast<void *(*)[9]>(v2->m_vtbl);
 
-                void (__fastcall *func)(void *) = CAST(func, (*vtbl)[8]);
+                void(__fastcall * func)(void *) = CAST(func, (*vtbl)[8]);
                 func(v2);
                 //v6->Draw(this->field_1C);
             }
@@ -118,7 +118,7 @@ void FEManager::Update(Float a2)
             } else {
                 auto *vtbl = bit_cast<void *(*)[6]>(v3->m_vtbl);
 
-                void (__fastcall *Update)(void *, void *, Float) = CAST(Update, (*vtbl)[5]);
+                void(__fastcall * Update)(void *, void *, Float) = CAST(Update, (*vtbl)[5]);
 
                 if (bit_cast<std::intptr_t>(Update) == 0x0062F0C0) {
                     PauseMenuSystem *pause_menu_system = CAST(pause_menu_system, v3);
@@ -170,7 +170,7 @@ nglFont *FEManager::GetFont(font_index idx)
 
 PanelQuad *FEManager::GetDefaultPQ()
 {
-    return (PanelQuad *) THISCALL(0x00638180, this);
+    return (PanelQuad *)THISCALL(0x00638180, this);
 }
 
 void FEManager::LoadFrontEnd()

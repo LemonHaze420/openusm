@@ -1,16 +1,16 @@
 #pragma once
 
 struct nglRenderNode;
-extern nglRenderNode* g_CurrentRenderNode;
+extern nglRenderNode *g_CurrentRenderNode;
 
 namespace nglRenderList {
 
-template<typename T>
+template <typename T>
 void nglOpaqueCompare(T *node, int count, int a3);
 
 void nglTransCompare(nglRenderNode *node, int count, int a3);
 
-} // namespace nglRenderList
+}  // namespace nglRenderList
 
 //0x00401A20
 extern void *nglListAlloc(int size, int align);

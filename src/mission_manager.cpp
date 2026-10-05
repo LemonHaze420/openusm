@@ -98,27 +98,42 @@ mission_manager::mission_manager()
         field_FC = 0;
 
         vector2d panel_positions[] = {
-            {410.0f, 400.0f}, {575.0f, 400.0f},
-            {395.0f, 430.0f}, {560.0f, 430.0f},
+            {410.0f, 400.0f},
+            {575.0f, 400.0f},
+            {395.0f, 430.0f},
+            {560.0f, 430.0f},
         };
         color32 panel_colors[] = {
-            {21, 21, 99, 255}, {21, 21, 99, 255},
-            {21, 21, 99, 255}, {21, 21, 99, 255},
+            {21, 21, 99, 255},
+            {21, 21, 99, 255},
+            {21, 21, 99, 255},
+            {21, 21, 99, 255},
         };
         field_8 = new PanelQuad;
         field_8->Init(panel_positions, panel_colors, static_cast<panel_layer>(1), 2.0f, "");
         vector2d border_positions[] = {
-            {408.0f, 398.0f}, {577.0f, 398.0f},
-            {393.0f, 432.0f}, {562.0f, 432.0f},
+            {408.0f, 398.0f},
+            {577.0f, 398.0f},
+            {393.0f, 432.0f},
+            {562.0f, 432.0f},
         };
         color32 border_colors[] = {
-            {0, 0, 0, 255}, {0, 0, 0, 255},
-            {0, 0, 0, 255}, {0, 0, 0, 255},
+            {0, 0, 0, 255},
+            {0, 0, 0, 255},
+            {0, 0, 0, 255},
+            {0, 0, 0, 255},
         };
         field_C = new PanelQuad;
         field_C->Init(border_positions, border_colors, static_cast<panel_layer>(1), 3.0f, "");
-        field_10 = new FEText(static_cast<font_index>(1), static_cast<global_text_enum>(293),
-                              485.0f, 415.0f, 1, static_cast<panel_layer>(1), 1.0f, 0, 0,
+        field_10 = new FEText(static_cast<font_index>(1),
+                              static_cast<global_text_enum>(293),
+                              485.0f,
+                              415.0f,
+                              1,
+                              static_cast<panel_layer>(1),
+                              1.0f,
+                              0,
+                              0,
                               color32{});
     } else {
         void(__fastcall * func)(mission_manager *) = CAST(func, 0x005DA010);
@@ -213,8 +228,8 @@ void mission_manager::run_script(const mission_manager_script_data &data)
 {
     if constexpr (STANDALONE_SYSTEM) {
         m_script = new mission_manager_script_data{data};
-        current_mission_debug_title = mString{0, "%s (%s)", m_script->field_0.c_str(),
-                                              m_script->field_A4.m_hash.to_string()};
+        current_mission_debug_title =
+            mString{0, "%s (%s)", m_script->field_0.c_str(), m_script->field_A4.m_hash.to_string()};
         auto *slot = resource_manager::get_partition_pointer(RESOURCE_PARTITION_MISSION)->get_pack_slots().front();
         resource_manager::push_resource_context(slot);
         const resource_key key{string_hash{data.field_0.c_str()}, RESOURCE_KEY_TYPE_SCRIPT};
@@ -375,7 +390,9 @@ void mission_manager::render_fade()
         }
         nglQuad quad;
         nglInitQuad(&quad);
-        nglSetQuadRect(&quad, -0.5f, -0.5f,
+        nglSetQuadRect(&quad,
+                       -0.5f,
+                       -0.5f,
                        static_cast<float>(nglGetScreenWidth()) + 0.5f,
                        static_cast<float>(nglGetScreenHeight()) + 0.5f);
         nglSetQuadZ(&quad, 0.0f);
@@ -565,7 +582,8 @@ void mission_manager::kill_braindead_script()
 
 void mission_manager::sort_district_priorities()
 {
-    std::sort(m_district_table_containers, m_district_table_containers + m_district_table_count,
+    std::sort(m_district_table_containers,
+              m_district_table_containers + m_district_table_count,
               [](const mission_table_container *left, const mission_table_container *right) {
                   return left->field_44->field_108.front()->get_priority() <
                          right->field_44->field_108.front()->get_priority();
@@ -647,8 +665,8 @@ bool mission_manager::get_script(mission_manager_script_data *return_script_data
     } else {
         bool repeated = true;
         for (int attempt = 0; attempt < 6; ++attempt) {
-            const auto index = static_cast<unsigned int>(
-                static_cast<double>(std::rand()) * candidates.size() / (static_cast<double>(RAND_MAX) + 1.0));
+            const auto index = static_cast<unsigned int>(static_cast<double>(std::rand()) * candidates.size() /
+                                                         (static_cast<double>(RAND_MAX) + 1.0));
             return_script_data->copy(candidates[index]);
             repeated = false;
             for (const auto &previous : field_44) {
@@ -676,8 +694,7 @@ int mission_manager::add_global_table(const resource_key &key)
         return 0;
     }
 
-    return parse_generic_object_mash(
-        m_global_table_container, resource, nullptr, nullptr, nullptr, 0, 0, nullptr);
+    return parse_generic_object_mash(m_global_table_container, resource, nullptr, nullptr, nullptr, 0, 0, nullptr);
 }
 
 void mission_manager::add_district_table(void *a2, region *a3)
@@ -703,8 +720,7 @@ void mission_manager::rem_district_table(region *reg)
 {
     for (int i = 0; i < m_district_table_count; ++i) {
         if (m_district_table_containers[i]->field_44 == reg) {
-            m_district_table_containers[i] =
-                m_district_table_containers[--m_district_table_count];
+            m_district_table_containers[i] = m_district_table_containers[--m_district_table_count];
             return;
         }
     }

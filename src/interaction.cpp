@@ -49,19 +49,19 @@ bool __fastcall interaction_subclass(const interaction *, int, mash::virtual_typ
 
 bool __fastcall interaction_is_or_subclass(const interaction *self, int, mash::virtual_types_enum type)
 {
-    return self->mash_virtual_base::get_virtual_type_enum() == static_cast<uint32_t>(type) ||
-        type == 573 || (self->mash_virtual_base::get_virtual_type_enum() == 546 && type == 547);
+    return self->mash_virtual_base::get_virtual_type_enum() == static_cast<uint32_t>(type) || type == 573 ||
+           (self->mash_virtual_base::get_virtual_type_enum() == 546 && type == 547);
 }
 
 bool __fastcall interaction_contains(const interaction *self, int, const vector3d *position, actor *owner)
 {
     return self->is_inside_trigger_region(position, owner);
 }
-}
+}  // namespace
 
 void *interaction::native_vtable()
 {
-    static const std::array<void *, 8> table {
+    static const std::array<void *, 8> table{
         bit_cast<void *>(&interaction_destroy),
         bit_cast<void *>(&interaction_unmash),
         bit_cast<void *>(&interaction_delete),
@@ -74,8 +74,7 @@ void *interaction::native_vtable()
     return const_cast<void **>(table.data());
 }
 
-interaction::interaction(from_mash_in_place_constructor *tag)
-    : field_4(tag), field_18(tag), field_2C(tag)
+interaction::interaction(from_mash_in_place_constructor *tag) : field_4(tag), field_18(tag), field_2C(tag)
 {
     m_vtbl = STANDALONE_SYSTEM ? bit_cast<std::intptr_t>(native_vtable()) : 0x0087B8D8;
 }

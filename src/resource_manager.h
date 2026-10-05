@@ -72,30 +72,30 @@ resource_pack_slot *pop_resource_context();
 
 resource_pack_slot *get_resource_context();
 
-extern _std::vector<resource_partition *> *& partitions;
+extern _std::vector<resource_partition *> *&partitions;
 
-extern mString & amalgapak_name;
+extern mString &amalgapak_name;
 
-extern int & amalgapak_base_offset;
+extern int &amalgapak_base_offset;
 
-extern bool & using_amalga;
+extern bool &using_amalga;
 
-extern int & amalgapak_signature;
+extern int &amalgapak_signature;
 
-extern int & amalgapak_pack_location_count;
+extern int &amalgapak_pack_location_count;
 
-extern resource_pack_location *& amalgapak_pack_location_table;
+extern resource_pack_location *&amalgapak_pack_location_table;
 
-extern int & amalgapak_prerequisite_count;
+extern int &amalgapak_prerequisite_count;
 
-extern resource_key *& amalgapak_prerequisite_table;
+extern resource_key *&amalgapak_prerequisite_table;
 
-extern int & resource_buffer_size;
-extern int & memory_maps_count;
+extern int &resource_buffer_size;
+extern int &memory_maps_count;
 
 using modified_callback_t = void (*)(_std::vector<resource_key> &a1);
 
-inline auto & resource_pack_modified_callbacks = var<_std::vector<modified_callback_t>>(0x0095CAC4);
+inline auto &resource_pack_modified_callbacks = var<_std::vector<modified_callback_t>>(0x0095CAC4);
 
 struct resource_memory_map {
     char field_0;
@@ -116,7 +116,7 @@ struct resource_memory_map {
     }
 };
 
-extern resource_memory_map *& memory_maps;
+extern resource_memory_map *&memory_maps;
 
 //0x00537AA0
 extern resource_partition *get_partition_pointer(resource_partition_enum which_type);
@@ -127,17 +127,17 @@ bool get_resource_if_exists(const resource_key &resource_id, void *a2, uint8_t *
 //0x00531B30
 uint8_t *get_resource(const resource_key &resource_id, int *a2, resource_pack_slot **a3);
 
-extern nflFileID & amalgapak_id;
+extern nflFileID &amalgapak_id;
 
-extern int & in_use_memory_map;
+extern int &in_use_memory_map;
 
-extern uint8_t *& resource_buffer;
+extern uint8_t *&resource_buffer;
 
-extern int & resource_buffer_used;
+extern int &resource_buffer_used;
 
-extern _std::vector<resource_pack_slot *> & resource_context_stack;
+extern _std::vector<resource_pack_slot *> &resource_context_stack;
 
-} // namespace resource_manager
+}  // namespace resource_manager
 
 extern void resource_manager_patch();
 extern void resource_manager_xbpack_patch();

@@ -107,8 +107,14 @@ void biped_system::create_bps(conglomerate *a2, int a3, physical_interface::bipe
 
 
 namespace {
-vector3d xyz(const vector4d &v) { return vector3d(v.x, v.y, v.z); }
-vector4d xyzw(const vector3d &v) { return vector4d(v.x, v.y, v.z, 0.0f); }
+vector3d xyz(const vector4d &v)
+{
+    return vector3d(v.x, v.y, v.z);
+}
+vector4d xyzw(const vector3d &v)
+{
+    return vector4d(v.x, v.y, v.z, 0.0f);
+}
 const po &body_pose(const rigid_body *body)
 {
     return *reinterpret_cast<const po *>(&body->field_0);
@@ -151,7 +157,7 @@ vector3d rotated(const vector3d &v, const vector3d &axis, float angle)
     const float cosine = std::cos(length * angle);
     return v * cosine + vector3d::cross(unit, v) * sine + unit * (dot(unit, v) * (1.0f - cosine));
 }
-}
+}  // namespace
 
 VALIDATE_SIZE(bone_mass_info, 0x138);
 VALIDATE_SIZE(rigid_body_constraint_ragdoll, 0x140);
@@ -183,8 +189,8 @@ void rigid_body_constraint_ragdoll::set_damp_k(float value)
     flags = value > 0.0f ? flags | 0x40u : flags & ~0x40u;
 }
 
-void rigid_body_constraint_ragdoll::set_hinge(const vector3d &first, const vector3d &second,
-    const vector3d &reference1, const vector3d &reference2, float lower, float upper)
+void rigid_body_constraint_ragdoll::set_hinge(const vector3d &first, const vector3d &second, const vector3d &reference1,
+                                              const vector3d &reference2, float lower, float upper)
 {
     axis1 = xyzw(normalized(first));
     axis2 = xyzw(normalized(second));
@@ -202,7 +208,8 @@ void rigid_body_constraint_ragdoll::set_hinge(const vector3d &first, const vecto
 }
 
 void rigid_body_constraint_ragdoll::set_swivel(const vector3d &first, const vector3d &second,
-    const vector3d &reference1, const vector3d &reference2, float lower, float upper)
+                                               const vector3d &reference1, const vector3d &reference2, float lower,
+                                               float upper)
 {
     axis1 = xyzw(normalized(first));
     axis2 = xyzw(normalized(second));
@@ -255,8 +262,9 @@ void rigid_body_sphere_list::calc_bounding_sphere()
             bounds.local_position = sphere.local_position;
             bounds.radius = sphere.radius;
         } else if (distance + sphere.radius > bounds.radius) {
-            bounds.local_position = (bounds.local_position + sphere.local_position +
-                delta * ((bounds.radius - sphere.radius) / distance)) * 0.5f;
+            bounds.local_position =
+                (bounds.local_position + sphere.local_position + delta * ((bounds.radius - sphere.radius) / distance)) *
+                0.5f;
             bounds.radius = (distance + bounds.radius + sphere.radius) * 0.5f;
         }
     }
@@ -275,12 +283,25 @@ void rigid_body_sphere_list::set(rigid_body *rigid, float scale, const vector3d 
 
 const char *biped_bone_name(int index)
 {
-    static const char *names[] = {
-        "BIP01 HEAD", "BIP01 SPINE", "BIP01 PELVIS", "BIP01 SPINE1", "BIP01 SPINE2",
-        "BIP01 R UPPERARM", "BIP01 R FOREARM", "BIP01 R HAND", "BIP01 R THIGH",
-        "BIP01 R CALF", "BIP01 R FOOT", "BIP01 R CLAVICLE", "BIP01 L UPPERARM",
-        "BIP01 L FOREARM", "BIP01 L HAND", "BIP01 L THIGH", "BIP01 L CALF",
-        "BIP01 L FOOT", "BIP01 L CLAVICLE"};
+    static const char *names[] = {"BIP01 HEAD",
+                                  "BIP01 SPINE",
+                                  "BIP01 PELVIS",
+                                  "BIP01 SPINE1",
+                                  "BIP01 SPINE2",
+                                  "BIP01 R UPPERARM",
+                                  "BIP01 R FOREARM",
+                                  "BIP01 R HAND",
+                                  "BIP01 R THIGH",
+                                  "BIP01 R CALF",
+                                  "BIP01 R FOOT",
+                                  "BIP01 R CLAVICLE",
+                                  "BIP01 L UPPERARM",
+                                  "BIP01 L FOREARM",
+                                  "BIP01 L HAND",
+                                  "BIP01 L THIGH",
+                                  "BIP01 L CALF",
+                                  "BIP01 L FOOT",
+                                  "BIP01 L CLAVICLE"};
     return names[index];
 }
 
@@ -293,10 +314,8 @@ void bone_mass_info::calc_stuff(conglomerate *owner)
     const auto &first_pose = first->get_abs_po();
     const auto &second_pose = second->get_abs_po();
     start = first_pose.get_position();
-    end = second_pose.get_position() + direction(
-        offset_in_end_frame ? second_pose : first_pose, end_offset);
-    local_center = first_pose.inverse_xform(
-        start * (1.0f - center_fraction) + end * center_fraction);
+    end = second_pose.get_position() + direction(offset_in_end_frame ? second_pose : first_pose, end_offset);
+    local_center = first_pose.inverse_xform(start * (1.0f - center_fraction) + end * center_fraction);
     joint_world1 = first_pose.get_position();
     joint_world2 = second_pose.get_position() + direction(first_pose, joint_offset);
     const auto axis = (end - start) / (end - start).length();
@@ -325,10 +344,9 @@ void setup_bone_mass_info(bone_mass_info (&bones)[10], conglomerate *owner, int 
     const int starts[10] = {2, 0, 12, 13, 5, 6, 15, 16, 8, 9};
     const int ends[10] = {0, 0, 13, 14, 6, 7, 16, 17, 9, 10};
     const int parents[10] = {-1, 0, 0, 2, 0, 4, 0, 6, 0, 8};
-    const float lower[10] = {0, -0.75f, -1.6f, -2.0943952f, 0.2f,
-        -2.0943952f, -0.6f, -2.0943952f, -0.6f, -2.0943952f};
-    const float upper[10] = {0, 0.75f, -0.2f, -0.087266468f, 1.6f,
-        -0.087266468f, 0.6f, -0.087266468f, 0.6f, -0.087266468f};
+    const float lower[10] = {0, -0.75f, -1.6f, -2.0943952f, 0.2f, -2.0943952f, -0.6f, -2.0943952f, -0.6f, -2.0943952f};
+    const float upper[10] = {
+        0, 0.75f, -0.2f, -0.087266468f, 1.6f, -0.087266468f, 0.6f, -0.087266468f, 0.6f, -0.087266468f};
     const float damping[10] = {0.18f, 0, 0, 0.075f, 0, 0.075f, 0.11f, 0.1f, 0.11f, 0.1f};
     for (int i = 0; i < 10; ++i) {
         auto &b = bones[i];
@@ -337,26 +355,26 @@ void setup_bone_mass_info(bone_mass_info (&bones)[10], conglomerate *owner, int 
         b.body_index = i;
         b.parent_index = parents[i];
         b.center_fraction = 0.5f;
-        b.start_trim = i == 0 ? (venom ? 0.35f : 0.2f)
-            : i == 1 ? (venom ? 0.25f : 0.15f)
-            : i == 7 || i == 9 ? 0.15f
-            : i == 6 || i == 8 ? (venom ? 0.2f : 0.15f)
-            : venom ? 0.2f : 0.1f;
-        b.end_trim = i == 0 ? (venom ? 0.4f : 0.225f)
-            : i == 1 || i == 6 || i == 7 || i == 8 || i == 9 ? 0.15f
-            : venom ? 0.2f : 0.1f;
+        b.start_trim = i == 0             ? (venom ? 0.35f : 0.2f)
+                       : i == 1           ? (venom ? 0.25f : 0.15f)
+                       : i == 7 || i == 9 ? 0.15f
+                       : i == 6 || i == 8 ? (venom ? 0.2f : 0.15f)
+                       : venom            ? 0.2f
+                                          : 0.1f;
+        b.end_trim = i == 0                                           ? (venom ? 0.4f : 0.225f)
+                     : i == 1 || i == 6 || i == 7 || i == 8 || i == 9 ? 0.15f
+                     : venom                                          ? 0.2f
+                                                                      : 0.1f;
         b.sphere_count = i == 1 ? 1 : 2;
         b.mass = i == 0 ? 300.0f : 50.0f;
         b.radius = 0.3f;
-        b.collision_scale = i == 1 || i == 7 || i == 9 ? 0.25f
-            : i == 3 || i == 5 ? 0.5f : 1.0f;
+        b.collision_scale = i == 1 || i == 7 || i == 9 ? 0.25f : i == 3 || i == 5 ? 0.5f : 1.0f;
         b.field_8C = i == 1 ? 50.0f : 0.0f;
         b.joint_type = i == 0 ? 0 : i == 3 || i == 5 || i == 7 || i == 9 ? 1 : 2;
         b.minimum_angle = lower[i];
         b.maximum_angle = upper[i];
         b.joint_damping = damping[i];
-        b.joint_offset = vector3d(i == 0 ? -0.15f :
-            i == 3 || i == 5 || i == 7 || i == 9 ? -0.05f : 0.0f, 0, 0);
+        b.joint_offset = vector3d(i == 0 ? -0.15f : i == 3 || i == 5 || i == 7 || i == 9 ? -0.05f : 0.0f, 0, 0);
         if (i == 1)
             b.end_offset.x = -0.35f;
         if (i == 7 || i == 9 || (!venom && (i == 3 || i == 5)))
@@ -427,8 +445,7 @@ biped_system *biped_system_pool::create_member()
     return biped;
 }
 
-biped_system *create_biped_ragdoll(conglomerate *owner, int flags,
-    physical_interface::biped_physics_body_types type)
+biped_system *create_biped_ragdoll(conglomerate *owner, int flags, physical_interface::biped_physics_body_types type)
 {
     auto *biped = g_biped_system_pool->create_member();
     biped->create_bps(owner, flags, type);
@@ -471,8 +488,8 @@ void biped_system::setup_physics(conglomerate *entity, physical_interface::biped
         center.field_0[1] = bone.local_center.y;
         center.field_0[2] = bone.local_center.z;
         if (frame_delta)
-            nuge::calc_velocities(previous[bone.body_index], current[bone.body_index], center,
-                var<float>(0x00965F2C), linear, angular);
+            nuge::calc_velocities(
+                previous[bone.body_index], current[bone.body_index], center, var<float>(0x00965F2C), linear, angular);
         po pose;
         pose.set_position(bone.bone->get_abs_po().slow_xform(bone.local_center));
         phys_vector3d inertia;
@@ -483,8 +500,7 @@ void biped_system::setup_physics(conglomerate *entity, physical_interface::biped
         body->field_144 |= 2u;
         assert(field_0.bone_binding_count < 10);
         auto *binding = field_0.bone_bindings[field_0.bone_binding_count++];
-        po::full_inv_multiply(*reinterpret_cast<po *>(binding->transform), pose,
-            bone.bone->get_abs_po());
+        po::full_inv_multiply(*reinterpret_cast<po *>(binding->transform), pose, bone.bone->get_abs_po());
         binding->bone = bone.bone;
         binding->rigid_body_index = bone.body_index;
     }
@@ -497,7 +513,7 @@ void biped_system::setup_physics(conglomerate *entity, physical_interface::biped
         const auto &first_body = body_pose(field_0.m_list_rigid_body.m_data[bone.parent_index]);
         const auto &second_body = body_pose(field_0.m_list_rigid_body.m_data[bone.body_index]);
         joint->set(first_body.inverse_xform(first_pose.slow_xform(bone.anchor1)),
-            second_body.inverse_xform(second_pose.slow_xform(bone.anchor2)));
+                   second_body.inverse_xform(second_pose.slow_xform(bone.anchor2)));
         if (bone.joint_damping > LARGE_EPSILON)
             joint->set_damp_k(bone.joint_damping);
         const auto first_axis = inverse_direction(first_body, direction(first_pose, bone.axis1));
@@ -505,14 +521,14 @@ void biped_system::setup_physics(conglomerate *entity, physical_interface::biped
         const auto first_reference = inverse_direction(first_body, direction(first_pose, bone.reference1));
         const auto second_reference = inverse_direction(second_body, direction(second_pose, bone.reference2));
         if (bone.joint_type == 1)
-            joint->set_hinge(first_axis, second_axis, first_reference, second_reference,
-                bone.minimum_angle, bone.maximum_angle);
+            joint->set_hinge(
+                first_axis, second_axis, first_reference, second_reference, bone.minimum_angle, bone.maximum_angle);
         else
-            joint->set_swivel(first_axis, second_axis, first_reference, second_reference,
-                bone.minimum_angle, bone.maximum_angle);
+            joint->set_swivel(
+                first_axis, second_axis, first_reference, second_reference, bone.minimum_angle, bone.maximum_angle);
         for (int i = 0; i < bone.limit_count; ++i)
             joint->add_joint_limit(inverse_direction(first_body, direction(first_pose, bone.limit_axes[i])),
-                bone.limit_angles[i]);
+                                   bone.limit_angles[i]);
     }
     for (const auto &bone : bones) {
         assert(sphere_count < 10);
@@ -527,15 +543,15 @@ void biped_system::setup_physics(conglomerate *entity, physical_interface::biped
             sphere.contact = false;
             sphere.collision_entity = entity_base_vhandle{0};
             sphere.radius = i == 0 ? bone.start_trim : bone.end_trim;
-            sphere.local_position = list->sphere_count == 1 ? ZEROVEC
-                : pose.inverse_xform(i == 0 ? bone.start : bone.end);
+            sphere.local_position =
+                list->sphere_count == 1 ? ZEROVEC : pose.inverse_xform(i == 0 ? bone.start : bone.end);
         }
         list->set(body, 0.3f, pose.get_position());
         list->capsule.field_0 = pose.inverse_xform(bone.joint_world1);
         list->capsule.field_C = pose.inverse_xform(bone.joint_world2);
         list->capsule.m_radius = bone.joint_damping;
     }
-    static const int pair_ids[7][2] = {{7,9},{7,8},{9,6},{3,0},{5,0},{3,2},{5,4}};
+    static const int pair_ids[7][2] = {{7, 9}, {7, 8}, {9, 6}, {3, 0}, {5, 0}, {3, 2}, {5, 4}};
     for (const auto &ids : pair_ids) {
         auto *pair = pairs[pair_count++];
         pair->first = find_spheres(ids[0]);
@@ -556,8 +572,8 @@ void biped_system::prolog_frame_advance(Float)
     field_0.update_ballistic_target();
     for (int i = 0; i < 10; ++i)
         field_0.m_list_rigid_body.m_data[i]->field_134 = 3.0f;
-    const float scale = owner->has_time_ifc()
-        ? static_cast<float>(owner->time_ifc()->sub_4ADE50()) : g_world_ptr->time_manager.field_0;
+    const float scale =
+        owner->has_time_ifc() ? static_cast<float>(owner->time_ifc()->sub_4ADE50()) : g_world_ptr->time_manager.field_0;
     field_0.set_time_scale(scale);
     auto *physics = owner->physical_ifc();
     if (!_strcmpi(g_game_ptr->gamefile->field_340.m_hero_name.to_string(), "PLR_GUNGUY"))
@@ -569,9 +585,8 @@ void biped_system::prolog_frame_advance(Float)
         if (pendular->biped_physics_constraint) {
             auto *anchor = pendular->get_volatile_ptr();
             const bool hero = anchor && (anchor->is_hero() ||
-                ((anchor->field_4 & 0x8000u) && anchor->get_conglom_owner()->is_hero()));
-            pendular->biped_physics_constraint->field_3C =
-                anchor && !hero ? var<float>(0x00922BA4) : 0.0f;
+                                         ((anchor->field_4 & 0x8000u) && anchor->get_conglom_owner()->is_hero()));
+            pendular->biped_physics_constraint->field_3C = anchor && !hero ? var<float>(0x00922BA4) : 0.0f;
         }
         pendular->update_biped_constraint(physics);
         if (pendular->pivot_rigid_body)
@@ -585,7 +600,7 @@ void biped_system::prolog_frame_advance(Float)
 
 namespace {
 bool __fastcall root_entity_filter(const local_collision::entfilter_base *, void *, actor *actor,
-    dynamic_conglomerate_clone *, const local_collision::query_args_t *args)
+                                   dynamic_conglomerate_clone *, const local_collision::query_args_t *args)
 {
     if (actor->colgeom->get_type() == collision_geometry::CAPSULE || !actor->has_entity_collision())
         return false;
@@ -599,10 +614,9 @@ bool __fastcall root_entity_filter(const local_collision::entfilter_base *, void
         return false;
     const auto &obb = static_cast<cg_mesh *>(actor->colgeom)->data->field_10[0];
     const auto point = actor->get_abs_po().inverse_xform(args->field_10) - obb.field_0;
-    const vector3d axes[3] = {
-        vector3d(obb.field_10.x, obb.axis_y.x, obb.axis_z.x),
-        vector3d(obb.field_10.y, obb.axis_y.y, obb.axis_z.y),
-        vector3d(obb.field_10.z, obb.axis_y.z, obb.axis_z.z)};
+    const vector3d axes[3] = {vector3d(obb.field_10.x, obb.axis_y.x, obb.axis_z.x),
+                              vector3d(obb.field_10.y, obb.axis_y.y, obb.axis_z.y),
+                              vector3d(obb.field_10.z, obb.axis_y.z, obb.axis_z.z)};
     float distance = 0.0f;
     for (const auto &axis : axes) {
         const float extent = axis.length();
@@ -621,7 +635,10 @@ vector3d restore_root_position(const vector3d &previous, float radius, const vec
     const float length = delta.length();
     local_collision::query_args_t args{};
     auto *primitives = local_collision::query_sphere((previous + target) * 0.5f,
-        length * 0.5f + radius + 0.1f, root_filter, *local_collision::obbfilter_sphere_test, args);
+                                                     length * 0.5f + radius + 0.1f,
+                                                     root_filter,
+                                                     *local_collision::obbfilter_sphere_test,
+                                                     args);
     vector3d center = target;
     if (length > LARGE_EPSILON) {
         const auto extended = target + delta * (radius * 0.25f / length);
@@ -655,7 +672,7 @@ vector3d restore_root_position(const vector3d &previous, float radius, const vec
     local_collision::destroy_primitive_list(&primitives);
     return center;
 }
-}
+}  // namespace
 
 void biped_system::epilog_frame_advance(Float elapsed)
 {
@@ -668,8 +685,8 @@ void biped_system::epilog_frame_advance(Float elapsed)
         field_2134 += elapsed;
         animation.copy_back_tween_recurse(std::min(field_2134 / field_2138, 1.0f));
     }
-    restored_position = restore_root_position(restored_position, collision_diameter,
-        animation.bones[0].bone->get_abs_position());
+    restored_position =
+        restore_root_position(restored_position, collision_diameter, animation.bones[0].bone->get_abs_position());
     animation.update_owner_matrix(restored_position);
 }
 
@@ -703,7 +720,7 @@ void biped_system::process_biped_physics(Float elapsed)
 namespace {
 
 bool __fastcall ragdoll_accept(const local_collision::entfilter_base *, void *, actor *act,
-    dynamic_conglomerate_clone *, const local_collision::query_args_t *args)
+                               dynamic_conglomerate_clone *, const local_collision::query_args_t *args)
 {
     if (act->colgeom->get_type() == collision_geometry::CAPSULE || !act->has_entity_collision())
         return false;
@@ -742,10 +759,8 @@ void update_collision_spheres(rigid_body_sphere_list &list)
 }
 
 
-
-bool push_collision_sphere(local_collision::primitive_list_t *primitives,
-    const vector3d &center, float radius, vector3d &result,
-    entity_base_vhandle &collision_entity, subdivision_node *&collision_node)
+bool push_collision_sphere(local_collision::primitive_list_t *primitives, const vector3d &center, float radius,
+                           vector3d &result, entity_base_vhandle &collision_entity, subdivision_node *&collision_node)
 {
     result = center;
     bool collided = false;
@@ -782,8 +797,8 @@ void tunnel_collision_spheres(rigid_body_sphere_list &list, local_collision::pri
     auto &predicted = *reinterpret_cast<po *>(&list.body->field_40);
     const vector3d travel = predicted.get_position() - list.previous_position;
     const float travel_squared = travel.length2();
-    const vector3d physical_delta = predicted.get_position() -
-        reinterpret_cast<const po *>(&list.body->field_0)->get_position();
+    const vector3d physical_delta =
+        predicted.get_position() - reinterpret_cast<const po *>(&list.body->field_0)->get_position();
     if (4.0f * physical_delta.length2() >= travel_squared)
         list.tunnel_count = 0;
     else
@@ -794,12 +809,11 @@ void tunnel_collision_spheres(rigid_body_sphere_list &list, local_collision::pri
         segment.ent = nullptr;
         segment.field_34 = false;
         segment.field_0 = list.previous_position;
-        segment.field_C = predicted.get_position() +
-            travel * (0.75f * list.smallest_radius / std::sqrt(travel_squared));
+        segment.field_C =
+            predicted.get_position() + travel * (0.75f * list.smallest_radius / std::sqrt(travel_squared));
         if (local_collision::get_closest_line_intersection(primitives, &segment, false, nullptr, nullptr, nullptr)) {
             const vector3d hit_travel = segment.field_18 - list.previous_position;
-            if (hit_travel.length2() >= 1.0000001111620804e-6f &&
-                dot(hit_travel, segment.field_24) < 0.0f)
+            if (hit_travel.length2() >= 1.0000001111620804e-6f && dot(hit_travel, segment.field_24) < 0.0f)
                 list.field_EC = segment.field_18 - segment.field_C;
         }
     }
@@ -809,8 +823,7 @@ void tunnel_collision_spheres(rigid_body_sphere_list &list, local_collision::pri
 
 void create_sphere_contacts(biped_system &biped, rigid_body_sphere_list &list)
 {
-    const float bounce = biped.owner && biped.owner->has_physical_ifc()
-        ? biped.owner->physical_ifc()->field_9C : 0.5f;
+    const float bounce = biped.owner && biped.owner->has_physical_ifc() ? biped.owner->physical_ifc()->field_9C : 0.5f;
     auto *environment = static_cast<rigid_body *>(phys_sys::get_environment_rigid_body());
     rigid_body_constraint_contact *constraint = nullptr;
     bool raised_event = false;
@@ -833,11 +846,15 @@ void create_sphere_contacts(biped_system &biped, rigid_body_sphere_list &list)
             const auto &predicted = *reinterpret_cast<const po *>(&list.body->field_40);
             const auto local = predicted.inverse_xform(sphere.position + surface_offset);
             const auto world = sphere.field_C + surface_offset;
-            constraint->add_point(list.body, environment,
-                *reinterpret_cast<const phys_vector3d *>(&local),
-                *reinterpret_cast<const phys_vector3d *>(&world),
-                *reinterpret_cast<const phys_vector3d *>(&normal),
-                Float{list.body->field_148}, Float{bounce}, Float{100.0f}, true);
+            constraint->add_point(list.body,
+                                  environment,
+                                  *reinterpret_cast<const phys_vector3d *>(&local),
+                                  *reinterpret_cast<const phys_vector3d *>(&world),
+                                  *reinterpret_cast<const phys_vector3d *>(&normal),
+                                  Float{list.body->field_148},
+                                  Float{bounce},
+                                  Float{100.0f},
+                                  true);
         }
         if (raised_event)
             continue;
@@ -854,11 +871,10 @@ void create_sphere_contacts(biped_system &biped, rigid_body_sphere_list &list)
         }
     }
 }
-}
+}  // namespace
 
 void biped_system::gather_collisions()
 {
-
     vector3d center = reinterpret_cast<const po *>(&spheres[0]->body->field_40)->get_position();
     float radius = spheres[0]->bounds.radius;
     for (int i = 0; i < sphere_count; ++i) {
@@ -871,8 +887,8 @@ void biped_system::gather_collisions()
     static const local_collision::entfilter_base::native_vtable filter_table{ragdoll_accept};
     const local_collision::entfilter_base filter{reinterpret_cast<std::intptr_t>(&filter_table)};
     local_collision::query_args_t args{};
-    auto *primitives = local_collision::query_sphere(center, Float{radius}, filter,
-        *local_collision::obbfilter_sphere_test, args);
+    auto *primitives =
+        local_collision::query_sphere(center, Float{radius}, filter, *local_collision::obbfilter_sphere_test, args);
     for (int i = 0; i < sphere_count; ++i)
         tunnel_collision_spheres(*spheres[i], primitives);
     for (int i = 0; i < sphere_count; ++i)

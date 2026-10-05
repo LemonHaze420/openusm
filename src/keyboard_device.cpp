@@ -46,9 +46,7 @@ void __fastcall keyboard_poll(input_device *device)
     static_cast<keyboard_device *>(device)->_poll();
 }
 
-void __fastcall keyboard_finalize(input_device *, void *, bool)
-{
-}
+void __fastcall keyboard_finalize(input_device *, void *, bool) {}
 
 bool __fastcall keyboard_is_connected(const input_device *device)
 {
@@ -61,23 +59,17 @@ int __fastcall keyboard_clear_state(input_device *device)
     return 0;
 }
 
-void __fastcall keyboard_vibrate(input_device *, void *, int, int, int, int)
-{
-}
+void __fastcall keyboard_vibrate(input_device *, void *, int, int, int, int) {}
 
-void __fastcall keyboard_vibrate_scalar(input_device *, void *, Float)
-{
-}
+void __fastcall keyboard_vibrate_scalar(input_device *, void *, Float) {}
 
-void __fastcall keyboard_stop_vibration(input_device *)
-{
-}
+void __fastcall keyboard_stop_vibration(input_device *) {}
 
 bool __fastcall keyboard_is_vibrator_present(const input_device *device)
 {
     return static_cast<const keyboard_device *>(device)->_is_vibrator_present();
 }
-}
+}  // namespace
 #endif
 
 keyboard_device::keyboard_device()
@@ -104,7 +96,7 @@ keyboard_device::keyboard_device()
         keyboard_is_vibrator_present,
     };
 #else
-    Var<vtbl_t> tmp {0x0088EA80};
+    Var<vtbl_t> tmp{0x0088EA80};
     static vtbl_t vtbl = tmp();
 #endif
 
@@ -144,13 +136,13 @@ keyboard_device::keyboard_device()
 #endif
 }
 
-static keyboard_device g_device {};
+static keyboard_device g_device{};
 
-keyboard_device * keyboard_device::instance = &g_device;
+keyboard_device *keyboard_device::instance = &g_device;
 
 mString keyboard_device::get_name() const
 {
-    mString a1 {"USB Keyboard"};
+    mString a1{"USB Keyboard"};
     return a1;
 }
 
@@ -177,9 +169,9 @@ float keyboard_device::_get_axis_state(int axis, [[maybe_unused]] int a3)
     // sp_log("axis = %d, %d", axis, a3);
 
     if (Input::instance != nullptr) {
-        static uint16_t key_codes[KB_NUM_AXES] {}; 
+        static uint16_t key_codes[KB_NUM_AXES]{};
 
-#define register_key_code(key)  key_codes[KB_##key] = DIK_##key
+#define register_key_code(key) key_codes[KB_##key] = DIK_##key
 
         register_key_code(I);
         register_key_code(K);

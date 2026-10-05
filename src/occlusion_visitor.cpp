@@ -24,14 +24,14 @@ double scalar_product(const vector3d &a, const vector3d &b)
 {
     return double(a.z) * b.z + double(a.y) * b.y + double(a.x) * b.x;
 }
-}
+}  // namespace
 
 occlusion_visitor::occlusion_visitor(const vector3d &a1, const vector3d &a3, Float a4, region *)
     : field_4(a1), field_10(a3), field_1C(a4)
 {
     m_vtbl = reinterpret_cast<std::intptr_t>(&occlusion_table);
-    const double length_squared = double(field_10.x) * field_10.x + double(field_10.y) * field_10.y
-                                  + double(field_10.z) * field_10.z;
+    const double length_squared =
+        double(field_10.x) * field_10.x + double(field_10.y) * field_10.y + double(field_10.z) * field_10.z;
     if (length_squared > 9.999999439624929e-11) {
         const double inverse_length = 1.0 / std::sqrt(length_squared);
         field_10.x = field_10.x * inverse_length;
@@ -42,8 +42,7 @@ occlusion_visitor::occlusion_visitor(const vector3d &a1, const vector3d &a3, Flo
 
 int occlusion_visitor::visit(const subdivision_node &node)
 {
-    auto &box = const_cast<subdivision_node_obb_base &>(
-        static_cast<const subdivision_node_obb_base &>(node));
+    auto &box = const_cast<subdivision_node_obb_base &>(static_cast<const subdivision_node_obb_base &>(node));
     if (box.visited == subdivision_node_obb_base::visit_key()) {
         return 0;
     }
@@ -66,8 +65,6 @@ int occlusion_visitor::visit(const subdivision_node &node)
     bool swap_xy = false;
     bool swap_yz = false;
     if (oriented) {
-
-
         direction = row_x * field_10.x + row_y * field_10.y + row_z * field_10.z;
         const vector3d vertical = component_product(original_half, row_y);
         const float vx = std::fabs(vertical.x);
@@ -95,8 +92,7 @@ int occlusion_visitor::visit(const subdivision_node &node)
     const vector3d projected = component_product(half, absolute_direction);
     const double base_distance = double(projected.y) + forward_distance;
     const auto qualifies = [](float area, double distance) {
-        return area >= 16.0f && distance > float(LARGE_EPSILON)
-               && area >= distance * distance * 0.01875000074505806f;
+        return area >= 16.0f && distance > float(LARGE_EPSILON) && area >= distance * distance * 0.01875000074505806f;
     };
     int face_mask = 0;
     if (qualifies(area_first, std::fabs(double(projected_y) + projected_x) + base_distance)) {
@@ -106,9 +102,8 @@ int occlusion_visitor::visit(const subdivision_node &node)
         face_mask |= 2;
     }
 
-    const double top_distance = double(half.x) * absolute_direction.x
-                                + double(half.z) * absolute_direction.z
-                                + double(half.y) * direction.y + forward_distance;
+    const double top_distance = double(half.x) * absolute_direction.x + double(half.z) * absolute_direction.z +
+                                double(half.y) * direction.y + forward_distance;
     if (qualifies(area_top, top_distance)) {
         face_mask |= 3;
     }
@@ -122,10 +117,9 @@ int occlusion_visitor::visit(const subdivision_node &node)
         const auto scaled_x = component_product(row_x, original_half);
         const auto scaled_y = component_product(row_y, original_half);
         const auto scaled_z = component_product(row_z, original_half);
-        const vector3d columns[3] = {
-            {scaled_x.x, scaled_y.x, scaled_z.x},
-            {scaled_x.y, scaled_y.y, scaled_z.y},
-            {scaled_x.z, scaled_y.z, scaled_z.z}};
+        const vector3d columns[3] = {{scaled_x.x, scaled_y.x, scaled_z.x},
+                                     {scaled_x.y, scaled_y.y, scaled_z.y},
+                                     {scaled_x.z, scaled_y.z, scaled_z.z}};
         const vector3d horizontal_x = columns[swap_xy ? 1 : 0];
         const vector3d horizontal_z = columns[swap_yz ? 1 : 2];
         vector3d vertical = columns[swap_xy ? 0 : (swap_yz ? 2 : 1)];
@@ -145,14 +139,13 @@ int occlusion_visitor::visit(const subdivision_node &node)
         left_top = corner + horizontal_z;
         back_top = corner - horizontal_z;
         if (field_1C - float(LARGE_EPSILON) < field_4.y) {
-            const float length = std::sqrt(double(vertical.x) * vertical.x + double(vertical.y) * vertical.y
-                                           + double(vertical.z) * vertical.z);
+            const float length = std::sqrt(double(vertical.x) * vertical.x + double(vertical.y) * vertical.y +
+                                           double(vertical.z) * vertical.z);
             if (length > float(LARGE_EPSILON)) {
                 const vector3d unit_vertical = vertical / length;
                 const float ground = field_1C + float(LARGE_EPSILON);
-                if (std::fabs(unit_vertical.y) > 0.85000002f
-                    && (left_bottom.y < ground || front_bottom.y < ground
-                        || right_bottom.y < ground || back_bottom.y < ground)) {
+                if (std::fabs(unit_vertical.y) > 0.85000002f && (left_bottom.y < ground || front_bottom.y < ground ||
+                                                                 right_bottom.y < ground || back_bottom.y < ground)) {
                     const vector3d extension{0.0f, -100.0f, 0.0f};
                     left_bottom += extension;
                     front_bottom += extension;
@@ -163,8 +156,7 @@ int occlusion_visitor::visit(const subdivision_node &node)
         }
     } else {
         vector3d bottom_center = box.center;
-        if (field_1C - float(LARGE_EPSILON) < field_4.y
-            && box.center.y - half.y < field_1C + float(LARGE_EPSILON)) {
+        if (field_1C - float(LARGE_EPSILON) < field_4.y && box.center.y - half.y < field_1C + float(LARGE_EPSILON)) {
             bottom_center += vector3d{0.0f, -100.0f, 0.0f};
         }
         back_top = box.center - component_product(half, {1.0f, -1.0f, 1.0f});

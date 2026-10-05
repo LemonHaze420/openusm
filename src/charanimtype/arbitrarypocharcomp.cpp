@@ -33,39 +33,38 @@ ArbitraryPOCharComp::ArbitraryPOCharComp()
 #else
     if constexpr (0) {
 #endif
-        static void *g_vtbl[]{
-            func_address(&ArbitraryPOCharComp::_DestroyComponent),
-            func_address(&CharComponentBase::_GetType),
-            func_address(&ArbitraryPOCharComp::_ApplyPublicPerSkelDataOffset),
-            func_address(&ArbitraryPOCharComp::_ApplyPublicPerAnimDataOffset),
-            func_address(&ArbitraryPOCharComp::_GetTrajectoryData),
-            func_address(&ArbitraryPOCharComp::_BuildBoneMatrices),
-            func_address(&ArbitraryPOCharComp::_DoesContributeToPose),
-            func_address(&ArbitraryPOCharComp::_GetSizeOfPerInstData),
-            func_address(&ArbitraryPOCharComp::_GetAlignOfPerInstData),
-            func_address(&ArbitraryPOCharComp::_BuildPerInstData),
-            func_address(&ArbitraryPOCharComp::_DestroyPerInstData),
-            func_address(&ArbitraryPOCharComp::_WillMapToComponentData),
-            func_address(&ArbitraryPOCharComp::_CalcPoseDataDirect),
-            func_address(&ArbitraryPOCharComp::_CalcPoseDataRemapped),
-            func_address(&ArbitraryPOCharComp::_BlendPoseData),
-            func_address(&ArbitraryPOCharComp::_SkelPoseProcess),
-            func_address(&ArbitraryPOCharComp::_SkelPoseRelease),
-            func_address(&ArbitraryPOCharComp::_AnimProcess),
-            func_address(&ArbitraryPOCharComp::_AnimRelease),
-            func_address(&ArbitraryPOCharComp::_CopyPoseExtraData),
-            func_address(&ArbitraryPOCharComp::_PoseDataFree),
-            func_address(&ArbitraryPOCharComp::_GetDomain),
-            func_address(&ArbitraryPOCharComp::_GetPoseTypeID),
-            func_address(&CharComponentBase::_GetRemapSizeOfPerInstData),
-            func_address(&CharComponentBase::_GetRemapAlignOfPerInstData),
-            func_address(&CharComponentBase::_BuildRemapPerInstData),
-            func_address(&CharComponentBase::_DestroyRemapPerInstData),
-            func_address(&CharComponentBase::_CalcPoseDataRemapped),
-            func_address(&CharComponentBase::_AnimRelease),
-            func_address(&ArbitraryPOCharComp::_CopyPoseDataToNothing),
-            func_address(&CharComponentBase::_AllocTempPoseData),
-            func_address(&CharComponentBase::_DeleteTempPoseData)};
+        static void *g_vtbl[]{func_address(&ArbitraryPOCharComp::_DestroyComponent),
+                              func_address(&CharComponentBase::_GetType),
+                              func_address(&ArbitraryPOCharComp::_ApplyPublicPerSkelDataOffset),
+                              func_address(&ArbitraryPOCharComp::_ApplyPublicPerAnimDataOffset),
+                              func_address(&ArbitraryPOCharComp::_GetTrajectoryData),
+                              func_address(&ArbitraryPOCharComp::_BuildBoneMatrices),
+                              func_address(&ArbitraryPOCharComp::_DoesContributeToPose),
+                              func_address(&ArbitraryPOCharComp::_GetSizeOfPerInstData),
+                              func_address(&ArbitraryPOCharComp::_GetAlignOfPerInstData),
+                              func_address(&ArbitraryPOCharComp::_BuildPerInstData),
+                              func_address(&ArbitraryPOCharComp::_DestroyPerInstData),
+                              func_address(&ArbitraryPOCharComp::_WillMapToComponentData),
+                              func_address(&ArbitraryPOCharComp::_CalcPoseDataDirect),
+                              func_address(&ArbitraryPOCharComp::_CalcPoseDataRemapped),
+                              func_address(&ArbitraryPOCharComp::_BlendPoseData),
+                              func_address(&ArbitraryPOCharComp::_SkelPoseProcess),
+                              func_address(&ArbitraryPOCharComp::_SkelPoseRelease),
+                              func_address(&ArbitraryPOCharComp::_AnimProcess),
+                              func_address(&ArbitraryPOCharComp::_AnimRelease),
+                              func_address(&ArbitraryPOCharComp::_CopyPoseExtraData),
+                              func_address(&ArbitraryPOCharComp::_PoseDataFree),
+                              func_address(&ArbitraryPOCharComp::_GetDomain),
+                              func_address(&ArbitraryPOCharComp::_GetPoseTypeID),
+                              func_address(&CharComponentBase::_GetRemapSizeOfPerInstData),
+                              func_address(&CharComponentBase::_GetRemapAlignOfPerInstData),
+                              func_address(&CharComponentBase::_BuildRemapPerInstData),
+                              func_address(&CharComponentBase::_DestroyRemapPerInstData),
+                              func_address(&CharComponentBase::_CalcPoseDataRemapped),
+                              func_address(&CharComponentBase::_AnimRelease),
+                              func_address(&ArbitraryPOCharComp::_CopyPoseDataToNothing),
+                              func_address(&CharComponentBase::_AllocTempPoseData),
+                              func_address(&CharComponentBase::_DeleteTempPoseData)};
 
         this->m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {
@@ -79,7 +78,8 @@ ArbitraryPOCharComp::ArbitraryPOCharComp()
 ArbitraryPOCharComp *ArbitraryPOCharComp::_DestroyComponent(unsigned char flags)
 {
     this->~ArbitraryPOCharComp();
-    if (flags & 1) operator delete(this);
+    if (flags & 1)
+        operator delete(this);
     return this;
 }
 
@@ -338,8 +338,8 @@ bool ArbitraryPOCharComp::_WillMapToComponentData(uint32_t, uint32_t, uint32_t a
     return a4 == this->GetType();
 }
 
-void ArbitraryPOCharComp::_CalcPoseDataDirect(void *out, uint32_t, Float time, Float,
-    const nalComp::nalCompAnim *clip, const void *, const void *animData, const void *stream, void *instance)
+void ArbitraryPOCharComp::_CalcPoseDataDirect(void *out, uint32_t, Float time, Float, const nalComp::nalCompAnim *clip,
+                                              const void *, const void *animData, const void *stream, void *instance)
 {
     using Converter = CharEntropyQuantConverter;
     auto *state = static_cast<PerInstData *>(instance);
@@ -347,17 +347,28 @@ void ArbitraryPOCharComp::_CalcPoseDataDirect(void *out, uint32_t, Float time, F
     auto *tracks = reinterpret_cast<Converter::EncTrackData *>(state + 1);
     const auto *mask = static_cast<const uint32_t *>(animData);
     auto advance = [&](uint32_t frame) {
-        Converter::DecodeDequantTracks(tracks, state->field_28, state->field_1C, frame, 0, state->field_8,
-            anim->GetAnimQuantScale() * (1.0f / 1024.0f), anim->IsSceneAnim());
-        if (!frame) return;
+        Converter::DecodeDequantTracks(tracks,
+                                       state->field_28,
+                                       state->field_1C,
+                                       frame,
+                                       0,
+                                       state->field_8,
+                                       anim->GetAnimQuantScale() * (1.0f / 1024.0f),
+                                       anim->IsSceneAnim());
+        if (!frame)
+            return;
         uint32_t index = 0;
         for (int i = 0; i < state->field_0; ++i, index += 3) {
-            if (frame == 1) Converter::UnEntropyQuaternionTracksInitial(tracks, state->field_28, index);
-            else Converter::UnEntropyQuaternionTracks(tracks, state->field_28, index);
+            if (frame == 1)
+                Converter::UnEntropyQuaternionTracksInitial(tracks, state->field_28, index);
+            else
+                Converter::UnEntropyQuaternionTracks(tracks, state->field_28, index);
         }
         for (; index < static_cast<uint32_t>(state->field_8); ++index) {
-            if (frame == 1) Converter::UnEntropyLinearTrackInitial(tracks, state->field_28, index);
-            else Converter::UnEntropyLinearTrack(tracks, state->field_28, index);
+            if (frame == 1)
+                Converter::UnEntropyLinearTrackInitial(tracks, state->field_28, index);
+            else
+                Converter::UnEntropyLinearTrack(tracks, state->field_28, index);
         }
     };
     auto retrieve = [&](uint8_t *buffer) {
@@ -365,13 +376,13 @@ void ArbitraryPOCharComp::_CalcPoseDataDirect(void *out, uint32_t, Float time, F
         unsigned index = 0;
         for (int i = 0; i < state->field_0; ++i, index += 3, pose += 4)
             CharEntropyDecoder::RetrieveQuaternion(pose, tracks + index);
-        for (; index < static_cast<uint32_t>(state->field_8); ++index) *pose++ = tracks[index].whole;
+        for (; index < static_cast<uint32_t>(state->field_8); ++index)
+            *pose++ = tracks[index].whole;
     };
     float frameTime, blend;
     uint32_t current, next;
     anim->ComputeFrameValues(frameTime, next, current, blend, time);
     if (static_cast<int32_t>(current) != state->field_24) {
-
         if (current + 1 == static_cast<uint32_t>(state->field_24)) {
             std::swap(state->field_10, state->field_14);
         } else {
@@ -379,12 +390,15 @@ void ArbitraryPOCharComp::_CalcPoseDataDirect(void *out, uint32_t, Float time, F
             if (state->field_24 == -1 || static_cast<int32_t>(current) <= state->field_24) {
                 first = 0;
                 state->field_1C = CharEntropyDecoder::CharChannelDecoder(stream, false);
-            } else first = state->field_24 + 2;
-            for (uint32_t frame = first; frame <= current; ++frame) advance(frame);
+            } else
+                first = state->field_24 + 2;
+            for (uint32_t frame = first; frame <= current; ++frame)
+                advance(frame);
             retrieve(state->field_10);
         }
         state->field_24 = current;
-        if (!next) state->field_1C = CharEntropyDecoder::CharChannelDecoder(stream, false);
+        if (!next)
+            state->field_1C = CharEntropyDecoder::CharChannelDecoder(stream, false);
         advance(next);
         retrieve(state->field_14);
     }
@@ -396,13 +410,16 @@ void ArbitraryPOCharComp::_CalcPoseDataDirect(void *out, uint32_t, Float time, F
         const bool quaternion = i < pose->field_0;
         if (mask[i >> 5] & (1u << (i & 31))) {
             if (quaternion) {
-                const auto q = math::Slerp(blend, vector4d(a[0], a[1], a[2], a[3]),
-                    vector4d(b[0], b[1], b[2], b[3]));
-                for (unsigned j = 0; j < 4; ++j) dst[j] = q[j];
-                a += 4; b += 4;
+                const auto q = math::Slerp(blend, vector4d(a[0], a[1], a[2], a[3]), vector4d(b[0], b[1], b[2], b[3]));
+                for (unsigned j = 0; j < 4; ++j)
+                    dst[j] = q[j];
+                a += 4;
+                b += 4;
             } else {
-                for (unsigned j = 0; j < 3; ++j) dst[j] = (b[j] - a[j]) * blend + a[j];
-                a += 3; b += 3;
+                for (unsigned j = 0; j < 3; ++j)
+                    dst[j] = (b[j] - a[j]) * blend + a[j];
+                a += 3;
+                b += 3;
             }
         }
         dst += quaternion ? 4 : 3;
@@ -414,23 +431,26 @@ void ArbitraryPOCharComp::_CalcPoseDataDirect(void *out, uint32_t, Float time, F
         const auto *sourceQuats = reinterpret_cast<const float *>(pose->field_10);
         const auto *sourcePositions = sourceQuats + 4 * pose->field_0;
         for (int i = 0; i < target->field_4; ++i) {
-            const int source = state->field_38[2*i];
-            if (source == -1) continue;
-            const bool animated = state->field_38[2*i+1] != 0;
+            const int source = state->field_38[2 * i];
+            if (source == -1)
+                continue;
+            const bool animated = state->field_38[2 * i + 1] != 0;
             if (i < target->field_0) {
-                const auto *values = animated ? sourceQuats : reinterpret_cast<const float *>(state->field_34->field_10);
-                std::memcpy(targetQuats + 4*i, values + 4*source, 16);
+                const auto *values =
+                    animated ? sourceQuats : reinterpret_cast<const float *>(state->field_34->field_10);
+                std::memcpy(targetQuats + 4 * i, values + 4 * source, 16);
             } else {
-                const auto *values = animated ? sourcePositions : reinterpret_cast<const float *>(state->field_34->field_14);
-                std::memcpy(targetPositions + 3*(i - target->field_0), values + 3*source, 12);
+                const auto *values =
+                    animated ? sourcePositions : reinterpret_cast<const float *>(state->field_34->field_14);
+                std::memcpy(targetPositions + 3 * (i - target->field_0), values + 3 * source, 12);
             }
         }
     }
 }
 
 void ArbitraryPOCharComp::_CalcPoseDataRemapped(void *out, uint32_t index, Float time, Float weight,
-    const nalComp::nalCompAnim *anim, const void *skel, uint32_t, uint32_t,
-    const void *animData, const void *tracks, void *instance)
+                                                const nalComp::nalCompAnim *anim, const void *skel, uint32_t, uint32_t,
+                                                const void *animData, const void *tracks, void *instance)
 {
     CalcPoseDataDirect(out, index, time, weight, anim, skel, animData, tracks, instance);
 }

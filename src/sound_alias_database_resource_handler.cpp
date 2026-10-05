@@ -28,7 +28,7 @@ sound_alias_database_resource_handler::sound_alias_database_resource_handler(wor
 
         this->m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {
-    this->m_vtbl = 0x00888B14;
+        this->m_vtbl = 0x00888B14;
     }
 
     this->my_slot = a2;
@@ -43,7 +43,7 @@ bool sound_alias_database_resource_handler::_handle(worldly_resource_handler::eB
 }
 
 bool sound_alias_database_resource_handler::_handle_resource(worldly_resource_handler::eBehavior a2,
-                                                            resource_location *a3)
+                                                             resource_location *a3)
 {
     TRACE("sound_alias_database_resource_handler::handle_resource");
 
@@ -55,7 +55,7 @@ bool sound_alias_database_resource_handler::_handle_resource(worldly_resource_ha
         assert(resource != nullptr);
 
         sound_alias_database *the_sound_alias_database = CAST(the_sound_alias_database, resource);
-        
+
         if (a2 == UNLOAD) {
             assert(the_sound_alias_database == sound_manager::get_sound_alias_database());
             assert(the_sound_alias_database != nullptr);
@@ -65,9 +65,9 @@ bool sound_alias_database_resource_handler::_handle_resource(worldly_resource_ha
             the_sound_alias_database->destruct_mashed_class();
         } else {
 #if OPENUSM_XBOX_MASH_FORMAT
-            mash_info_struct v7 {mash::UNMASH_MODE, resource, a3->m_size, true};
+            mash_info_struct v7{mash::UNMASH_MODE, resource, a3->m_size, true};
 #else
-            mash_info_struct v7 {resource, a3->m_size};
+            mash_info_struct v7{resource, a3->m_size};
 #endif
 
             sound_alias_database *new_resource = nullptr;
@@ -76,8 +76,8 @@ bool sound_alias_database_resource_handler::_handle_resource(worldly_resource_ha
 #if OPENUSM_XBOX_MASH_FORMAT
                             ,
                             mash::NORMAL_BUFFER
-#endif 
-                    );
+#endif
+            );
             mash_info_struct::construct_class(new_resource);
 
 #if OPENUSM_XBOX_MASH_FORMAT
@@ -93,7 +93,7 @@ bool sound_alias_database_resource_handler::_handle_resource(worldly_resource_ha
         return false;
 
     } else {
-        return (bool) THISCALL(0x00568FC0, this, a2, a3);
+        return (bool)THISCALL(0x00568FC0, this, a2, a3);
     }
 }
 

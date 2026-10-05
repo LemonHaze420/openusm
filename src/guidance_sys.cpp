@@ -14,15 +14,17 @@
 
 namespace {
 constexpr float rand_scale = 1.0f / 32767.0f;
-float signed_random() { return std::rand() * rand_scale * 2.0f - 1.0f; }
+float signed_random()
+{
+    return std::rand() * rand_scale * 2.0f - 1.0f;
+}
 bool is_hero(entity_base *value)
 {
-    return reinterpret_cast<bool (__fastcall *)(entity_base *, void *)>(
-        get_vfunc(value->m_vtbl, 0x4C))(value, nullptr);
+    return reinterpret_cast<bool(__fastcall *)(entity_base *, void *)>(get_vfunc(value->m_vtbl, 0x4C))(value, nullptr);
 }
 vector3d cross(const vector3d &a, const vector3d &b)
 {
-    return {a.y*b.z-a.z*b.y, a.z*b.x-a.x*b.z, a.x*b.y-a.y*b.x};
+    return {a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x};
 }
 void *__fastcall guidance_delete(rocket_guidance_sys *self, void *, unsigned flags)
 {
@@ -31,18 +33,26 @@ void *__fastcall guidance_delete(rocket_guidance_sys *self, void *, unsigned fla
         delete self;
     return self;
 }
-int __fastcall guidance_type(rocket_guidance_sys *, void *) { return 1; }
-void __fastcall guidance_advance(rocket_guidance_sys *self, void *, Float elapsed) { self->frame_advance(elapsed); }
+int __fastcall guidance_type(rocket_guidance_sys *, void *)
+{
+    return 1;
+}
+void __fastcall guidance_advance(rocket_guidance_sys *self, void *, Float elapsed)
+{
+    self->frame_advance(elapsed);
+}
 void __fastcall guidance_launch(rocket_guidance_sys *self, void *, const vector3d &direction, float speed)
 {
     self->launch(direction, speed);
 }
-}
+}  // namespace
 
 void *rocket_guidance_sys::native_vtable()
 {
-    static void *table[]{reinterpret_cast<void *>(&guidance_delete), reinterpret_cast<void *>(&guidance_type),
-                         reinterpret_cast<void *>(&guidance_advance), reinterpret_cast<void *>(&guidance_launch)};
+    static void *table[]{reinterpret_cast<void *>(&guidance_delete),
+                         reinterpret_cast<void *>(&guidance_type),
+                         reinterpret_cast<void *>(&guidance_advance),
+                         reinterpret_cast<void *>(&guidance_launch)};
     return table;
 }
 
@@ -111,7 +121,6 @@ void rocket_guidance_sys::launch(const vector3d &direction, float speed)
 
 void rocket_guidance_sys::wobble()
 {
-
     const float z = signed_random(), y = signed_random(), x = signed_random();
     vector3d axis{x, y, z};
     axis.normalize();
@@ -149,12 +158,28 @@ void rocket_guidance_sys::reacquire_target(float radius, float cosine, float del
                 continue;
             vector3d hit, normal;
             entity *occluder = nullptr;
-            if (find_intersection(origin, candidate->get_abs_position(), *local_collision::entfilter_reject_all,
-                    *local_collision::obbfilter_lineseg_test, &hit, &normal, nullptr, nullptr, nullptr, false))
+            if (find_intersection(origin,
+                                  candidate->get_abs_position(),
+                                  *local_collision::entfilter_reject_all,
+                                  *local_collision::obbfilter_lineseg_test,
+                                  &hit,
+                                  &normal,
+                                  nullptr,
+                                  nullptr,
+                                  nullptr,
+                                  false))
                 continue;
 
-            if (find_intersection(origin, candidate->get_abs_position(), *local_collision::entfilter_blocks_beams,
-                    *local_collision::obbfilter_reject_all, &hit, &normal, nullptr, &occluder, nullptr, false) &&
+            if (find_intersection(origin,
+                                  candidate->get_abs_position(),
+                                  *local_collision::entfilter_blocks_beams,
+                                  *local_collision::obbfilter_reject_all,
+                                  &hit,
+                                  &normal,
+                                  nullptr,
+                                  &occluder,
+                                  nullptr,
+                                  false) &&
                 occluder != candidate)
                 continue;
             best_score = score;
@@ -193,8 +218,8 @@ void rocket_guidance_sys::frame_advance(Float elapsed)
             }
         }
         const float cycle = field_84 / field_80;
-        const auto destination = field_24 + field_8C *
-            (std::sin((cycle - static_cast<int>(cycle)) * 6.283185307179586f) * field_7C);
+        const auto destination =
+            field_24 + field_8C * (std::sin((cycle - static_cast<int>(cycle)) * 6.283185307179586f) * field_7C);
         auto direction = destination - position;
         direction.normalize();
         po pose = po_identity_matrix;
@@ -208,8 +233,8 @@ void rocket_guidance_sys::frame_advance(Float elapsed)
         owner->set_velocity({}, false);
         if (!(field_78 <= 0.0f && field_78 >= 0.0f) && field_50 <= 0.0f)
             field_40 += dt * field_5C;
-    } else if ((field_18 & 1) && (!target || (target->field_4 & 0x20000) ||
-               (!(target->field_4 & 0x200) && !is_hero(target)))) {
+    } else if ((field_18 & 1) &&
+               (!target || (target->field_4 & 0x20000) || (!(target->field_4 & 0x200) && !is_hero(target)))) {
         target = nullptr;
         if (field_4C <= 0.0f) {
             reacquire_target(35.0f, -1.0f, 0.0f, nullptr);
@@ -227,8 +252,8 @@ void rocket_guidance_sys::frame_advance(Float elapsed)
                 wobble();
         } else {
             if ((field_18 & 1) || ((field_18 & 2) && field_3C <= var<float>(0x00960B5C)))
-                field_24 = thrown_item::calc_target_pos(actor->get_abs_position(), field_20,
-                    field_40, field_30, field_44);
+                field_24 =
+                    thrown_item::calc_target_pos(actor->get_abs_position(), field_20, field_40, field_30, field_44);
             auto desired = field_24 - position;
             const float distance = desired.length();
             if (distance > 0.0f) {
@@ -242,8 +267,10 @@ void rocket_guidance_sys::frame_advance(Float elapsed)
                         auto axis = cross(desired, direction);
                         axis.normalize();
                         po rotation;
-                        rotation.set_rot(axis, Float{std::clamp(std::acos(std::clamp(alignment, -1.0f, 1.0f)),
-                            -field_58 * 3.141592653589793f * dt, field_58 * 3.141592653589793f * dt)});
+                        rotation.set_rot(axis,
+                                         Float{std::clamp(std::acos(std::clamp(alignment, -1.0f, 1.0f)),
+                                                          -field_58 * 3.141592653589793f * dt,
+                                                          field_58 * 3.141592653589793f * dt)});
                         direction = rotation.non_affine_slow_xform(direction);
                         field_98 = {};
                     }

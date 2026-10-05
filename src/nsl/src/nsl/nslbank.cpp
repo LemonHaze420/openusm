@@ -25,14 +25,13 @@ nslBank (&nsl_banks)[32] = var<nslBank[32]>(0x00946FD0);
 #if STANDALONE_SYSTEM
 namespace {
 HANDLE s_bank_files[32] = {
-    INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE,
-    INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE,
-    INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE,
-    INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE,
-    INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE,
-    INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE,
-    INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE,
-    INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE,
+    INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE,
+    INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE,
+    INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE,
+    INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE,
+    INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE,
+    INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE,
+    INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE,
 };
 uint32_t s_bank_priority;
 
@@ -60,13 +59,11 @@ bool read_file_at(HANDLE file, uint32_t offset, void *destination, uint32_t size
     OVERLAPPED request{};
     request.Offset = offset;
     DWORD ignored = 0;
-    if (ReadFile(file, destination, size, &ignored, &request) == FALSE &&
-        GetLastError() != ERROR_IO_PENDING) {
+    if (ReadFile(file, destination, size, &ignored, &request) == FALSE && GetLastError() != ERROR_IO_PENDING) {
         return false;
     }
     DWORD bytes_read = 0;
-    return GetOverlappedResult(file, &request, &bytes_read, TRUE) != FALSE &&
-           bytes_read == size;
+    return GetOverlappedResult(file, &request, &bytes_read, TRUE) != FALSE && bytes_read == size;
 }
 
 int wave_compare(const void *lhs, const void *rhs)
@@ -115,8 +112,7 @@ void fail_current_load()
     const auto bank_id = nsl_banks[index].id;
     reset_loader(true);
     release_bank(index);
-    nsl_banks[index].id =
-        static_cast<nslBankID>(static_cast<uint32_t>(bank_id) + 0x200000u);
+    nsl_banks[index].id = static_cast<nslBankID>(static_cast<uint32_t>(bank_id) + 0x200000u);
 }
 
 bool begin_loader_read(load_stage stage, uint32_t offset, void *destination, uint32_t size)
@@ -126,19 +122,14 @@ bool begin_loader_read(load_stage stage, uint32_t offset, void *destination, uin
     s_loader.request.Offset = offset;
     s_loader.expected_size = size;
     DWORD ignored = 0;
-    return ReadFile(s_bank_files[s_loader.bank_index],
-                    destination,
-                    size,
-                    &ignored,
-                    &s_loader.request) != FALSE ||
+    return ReadFile(s_bank_files[s_loader.bank_index], destination, size, &ignored, &s_loader.request) != FALSE ||
            GetLastError() == ERROR_IO_PENDING;
 }
 
 bool validate_header(const nslWaveBank &header)
 {
-    return std::memcmp(header.signature, "WAVEBK", 6) == 0 &&
-           header.major_version == '1' && header.minor_version == '1' &&
-           header.resident_size >= sizeof(nslWaveBank);
+    return std::memcmp(header.signature, "WAVEBK", 6) == 0 && header.major_version == '1' &&
+           header.minor_version == '1' && header.resident_size >= sizeof(nslWaveBank);
 }
 
 bool finalize_loaded_bank()
@@ -206,10 +197,7 @@ void update_bank_loader()
     }
 
     DWORD bytes_read = 0;
-    if (GetOverlappedResult(s_bank_files[s_loader.bank_index],
-                            &s_loader.request,
-                            &bytes_read,
-                            FALSE) == FALSE) {
+    if (GetOverlappedResult(s_bank_files[s_loader.bank_index], &s_loader.request, &bytes_read, FALSE) == FALSE) {
         if (GetLastError() == ERROR_IO_INCOMPLETE) {
             return;
         }
@@ -228,8 +216,7 @@ void update_bank_loader()
         }
         s_loader.resident = new (std::nothrow) uint8_t[s_loader.header.resident_size];
         if (s_loader.resident == nullptr ||
-            !begin_loader_read(
-                load_stage::resident, 0, s_loader.resident, s_loader.header.resident_size)) {
+            !begin_loader_read(load_stage::resident, 0, s_loader.resident, s_loader.header.resident_size)) {
             fail_current_load();
         }
         return;
@@ -243,11 +230,10 @@ void update_bank_loader()
         }
         if (wave_bank->sample_data_size != 0) {
             s_loader.sample_data = new (std::nothrow) uint8_t[wave_bank->sample_data_size];
-            if (s_loader.sample_data == nullptr ||
-                !begin_loader_read(load_stage::sample_data,
-                                   wave_bank->resident_size,
-                                   s_loader.sample_data,
-                                   wave_bank->sample_data_size)) {
+            if (s_loader.sample_data == nullptr || !begin_loader_read(load_stage::sample_data,
+                                                                      wave_bank->resident_size,
+                                                                      s_loader.sample_data,
+                                                                      wave_bank->sample_data_size)) {
                 fail_current_load();
             }
             return;
@@ -258,7 +244,7 @@ void update_bank_loader()
         fail_current_load();
     }
 }
-}
+}  // namespace
 #endif
 
 
@@ -270,8 +256,7 @@ nslBankID nslLoadBank(const char *path, int buffer)
                               FILE_SHARE_READ,
                               nullptr,
                               OPEN_EXISTING,
-                              FILE_ATTRIBUTE_NORMAL | FILE_FLAG_RANDOM_ACCESS |
-                                  FILE_FLAG_OVERLAPPED,
+                              FILE_ATTRIBUTE_NORMAL | FILE_FLAG_RANDOM_ACCESS | FILE_FLAG_OVERLAPPED,
                               nullptr);
     if (file == INVALID_HANDLE_VALUE) {
         return NSL_BANK_ID_INVALID;
@@ -312,8 +297,7 @@ void nslFreeBank(nslBankID bank_id)
             reset_loader(true);
         }
         release_bank(index);
-        nsl_banks[index].id =
-            static_cast<nslBankID>(static_cast<uint32_t>(bank_id) + 0x200000u);
+        nsl_banks[index].id = static_cast<nslBankID>(static_cast<uint32_t>(bank_id) + 0x200000u);
     }
 #else
     CDECL_CALL(0x00798550, bank_id);
@@ -340,8 +324,7 @@ const nslWave *nslGetWave(nslWaveID wave_id)
     }
     const auto index = (wave_id.value >> 16) & 0x1Fu;
     const auto &bank = nsl_banks[index];
-    if (bank.state != 3 || static_cast<uint32_t>(bank.id) != (wave_id.value | 0xFFFFu) ||
-        bank.wave_bank == nullptr) {
+    if (bank.state != 3 || static_cast<uint32_t>(bank.id) != (wave_id.value | 0xFFFFu) || bank.wave_bank == nullptr) {
         return nullptr;
     }
     const auto wave_index = wave_id.value & 0xFFFFu;
@@ -358,16 +341,16 @@ nslWaveID nslFindWave(uint32_t name_hash)
         if (bank.state != 3 || bank.wave_bank == nullptr) {
             continue;
         }
-        auto *wave = static_cast<const nslWave *>(bsearch(
-            &name_hash,
-            bank.wave_bank->waves,
-            bank.wave_bank->wave_count,
-            sizeof(nslWave),
-            [](const void *key, const void *element) {
-                const auto hash = *static_cast<const uint32_t *>(key);
-                const auto wave_hash = static_cast<const nslWave *>(element)->name_hash;
-                return (hash > wave_hash) - (hash < wave_hash);
-            }));
+        auto *wave = static_cast<const nslWave *>(bsearch(&name_hash,
+                                                          bank.wave_bank->waves,
+                                                          bank.wave_bank->wave_count,
+                                                          sizeof(nslWave),
+                                                          [](const void *key, const void *element) {
+                                                              const auto hash = *static_cast<const uint32_t *>(key);
+                                                              const auto wave_hash =
+                                                                  static_cast<const nslWave *>(element)->name_hash;
+                                                              return (hash > wave_hash) - (hash < wave_hash);
+                                                          }));
         if (wave != nullptr) {
             const auto wave_index = static_cast<uint32_t>(wave - bank.wave_bank->waves);
             return nslWaveID{(static_cast<uint32_t>(bank.id) & 0xFFFF0000u) | wave_index};
@@ -415,7 +398,6 @@ unsigned int nslGetWaveChannelCount(nslWaveID wave_id)
 
 float nslGetWaveParam(nslWaveID wave_id, unsigned int parameter, float default_value)
 {
-
     const auto *wave = nslGetWave(wave_id);
     if (wave == nullptr || parameter >= 0x2E) {
         return default_value;
@@ -426,8 +408,8 @@ float nslGetWaveParam(nslWaveID wave_id, unsigned int parameter, float default_v
     if (bank->groups == UINT32_MAX || wave->parameters == UINT32_MAX) {
         return default_value;
     }
-    parameters = reinterpret_cast<const uint32_t *>(
-        reinterpret_cast<const uint8_t *>(bank) + bank->groups + wave->parameters);
+    parameters =
+        reinterpret_cast<const uint32_t *>(reinterpret_cast<const uint8_t *>(bank) + bank->groups + wave->parameters);
 #else
     parameters = reinterpret_cast<const uint32_t *>(wave->parameters);
     if (parameters == nullptr) {

@@ -73,7 +73,6 @@ struct meta_anim_strength_test : als::als_meta_anim_base {
 
     //virtual
     int _get_mash_sizeof() const;
-
 };
 
 struct strength_test_anim_inst : nalAnimClass<nalAnyPose>::nalInstanceClass {
@@ -127,8 +126,8 @@ struct als_meta_linear_blend : als_meta_anim_base {
         ~nalInstance();
         void *scalar_delete(unsigned int flags);
         void sample_pose(Float t, Float t_prev, nalBasePose &pose, const nalBasePose &default_pose);
-        void blend_poses(Float t, Float t_prev, nalAnyPose &pose, const nalAnyPose &default_pose,
-                         Float weight, nalAnimClass<nalAnyPose>::nalInstanceClass *lower,
+        void blend_poses(Float t, Float t_prev, nalAnyPose &pose, const nalAnyPose &default_pose, Float weight,
+                         nalAnimClass<nalAnyPose>::nalInstanceClass *lower,
                          nalAnimClass<nalAnyPose>::nalInstanceClass *upper);
         static void *native_vtable();
     };
@@ -176,7 +175,6 @@ struct als_meta_linear_blend : als_meta_anim_base {
 
     //virtual
     int _get_mash_sizeof() const;
-
 };
 }  // namespace als
 

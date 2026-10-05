@@ -159,8 +159,8 @@ void conglomerate::update_collision_status(entity_base *member)
                 field_FC->erase(found);
         }
     }
-    const bool collides = (field_FC != nullptr && !field_FC->empty()) ||
-        (colgeom != nullptr && (field_4 & 0x4000) != 0);
+    const bool collides =
+        (field_FC != nullptr && !field_FC->empty()) || (colgeom != nullptr && (field_4 & 0x4000) != 0);
     field_4 = collides ? field_4 | 2 : field_4 & ~2u;
 }
 
@@ -191,7 +191,7 @@ void conglomerate::create_parentage_tree()
 void conglomerate::create_variant_ifc()
 {
     auto *mem = mem_alloc(sizeof(variant_interface));
-    this->m_variant_interface = new (mem) variant_interface {this};
+    this->m_variant_interface = new (mem) variant_interface{this};
 }
 
 void conglomerate::destroy_variant_ifc()
@@ -254,10 +254,7 @@ void conglomerate::destroy_skeleton_ifc()
     this->skeleton_ifc = nullptr;
 }
 
-void conglomerate::add_member_lights_to_region(region *)
-{
-
-}
+void conglomerate::add_member_lights_to_region(region *) {}
 
 void conglomerate::remove_member_lights_from_region(region *a2)
 {
@@ -299,7 +296,7 @@ void conglomerate::sub_4D0E00()
 als::animation_logic_system *conglomerate::get_my_als()
 {
     auto *v1 = this->field_114;
-    if ( v1 != nullptr ) {
+    if (v1 != nullptr) {
         return v1->field_8;
     }
 
@@ -313,22 +310,18 @@ constexpr auto _ENTM_TYPE_MAX = 28u;
 #endif
 
 #ifdef OPENUSM_XBPACK_MODE
-namespace
-{
-struct xb_ifc_t
-{
+namespace {
+struct xb_ifc_t {
     uint8_t *image;
     uint32_t size;
 };
 
-struct pc_tentacle_hash_entry
-{
+struct pc_tentacle_hash_entry {
     uint32_t hash;
     uint32_t aux;
 };
 
-struct pc_tentacle_record
-{
+struct pc_tentacle_record {
     uint32_t field_0;
     uint32_t field_4;
     uint32_t field_8;
@@ -348,8 +341,7 @@ static_assert(offsetof(pc_tentacle_record, control_hashes) == 0x3C);
 static_assert(offsetof(pc_tentacle_record, control_entities) == 0x44);
 
 #ifdef OPENUSM_XBPACK_V10
-struct xb_v10_tentacle_record
-{
+struct xb_v10_tentacle_record {
     pc_tentacle_record record;
     uint32_t field_4C;
 };
@@ -357,13 +349,11 @@ struct xb_v10_tentacle_record
 static_assert(sizeof(xb_v10_tentacle_record) == 0x50);
 #endif
 
-bool read_ifc(
-    generic_mash_data_ptrs *data,
-    xb_ifc_t &ifc)
+bool read_ifc(generic_mash_data_ptrs *data, xb_ifc_t &ifc)
 {
     ifc = {};
     const auto exists = *data->get<uint32_t>();
-    if ( exists == 0 )
+    if (exists == 0)
         return false;
 
     rebase(data->field_0, 4);
@@ -375,23 +365,18 @@ bool read_ifc(
     return true;
 }
 
-bool take_bytes(
-    uint8_t *&cursor,
-    uint8_t *limit,
-    size_t byte_count,
-    size_t alignment,
-    uint8_t *&result)
+bool take_bytes(uint8_t *&cursor, uint8_t *limit, size_t byte_count, size_t alignment, uint8_t *&result)
 {
-    if ( alignment == 0 || (alignment & (alignment - 1)) != 0 )
+    if (alignment == 0 || (alignment & (alignment - 1)) != 0)
         return false;
 
     const auto value = reinterpret_cast<uintptr_t>(cursor);
     const auto end = reinterpret_cast<uintptr_t>(limit);
-    if ( value > UINTPTR_MAX - (alignment - 1) )
+    if (value > UINTPTR_MAX - (alignment - 1))
         return false;
 
     const auto aligned = (value + alignment - 1) & ~(alignment - 1);
-    if ( aligned > end || byte_count > end - aligned )
+    if (aligned > end || byte_count > end - aligned)
         return false;
 
     result = reinterpret_cast<uint8_t *>(aligned);
@@ -399,24 +384,14 @@ bool take_bytes(
     return true;
 }
 
-bool take_array(
-    uint8_t *&cursor,
-    uint8_t *limit,
-    uint32_t count,
-    size_t element_size,
-    size_t alignment,
-    uint8_t *&result)
+bool take_array(uint8_t *&cursor, uint8_t *limit, uint32_t count, size_t element_size, size_t alignment,
+                uint8_t *&result)
 {
     const auto byte_count = static_cast<uint64_t>(count) * element_size;
-    if ( byte_count > UINT32_MAX )
+    if (byte_count > UINT32_MAX)
         return false;
 
-    return take_bytes(
-        cursor,
-        limit,
-        static_cast<size_t>(byte_count),
-        alignment,
-        result);
+    return take_bytes(cursor, limit, static_cast<size_t>(byte_count), alignment, result);
 }
 
 uint32_t read_u32(const uint8_t *source)
@@ -429,36 +404,32 @@ uint32_t read_u32(const uint8_t *source)
 bool take_u32(uint8_t *&cursor, uint8_t *limit, uint32_t &value)
 {
     uint8_t *source = nullptr;
-    if ( !take_bytes(cursor, limit, sizeof(value), 4, source) )
+    if (!take_bytes(cursor, limit, sizeof(value), 4, source))
         return false;
 
     value = read_u32(source);
     return true;
 }
 
-bool read_tentacle_records(
-    const xb_ifc_t &ifc,
-    pc_tentacle_record *records,
-    uint16_t &record_count)
+bool read_tentacle_records(const xb_ifc_t &ifc, pc_tentacle_record *records, uint16_t &record_count)
 {
     constexpr uint32_t XB_TENTACLE_VTABLE_HASH = 0x170BCC20;
     constexpr size_t XB_TENTACLE_RECORDS_OFFSET = 0x50;
     constexpr size_t XB_TENTACLE_RECORD_SIZE = 0x4C;
 
-    if ( ifc.image == nullptr || ifc.size < XB_TENTACLE_RECORDS_OFFSET )
+    if (ifc.image == nullptr || ifc.size < XB_TENTACLE_RECORDS_OFFSET)
         return false;
 
     const auto image_address = reinterpret_cast<uintptr_t>(ifc.image);
-    if ( ifc.size > UINTPTR_MAX - image_address )
+    if (ifc.size > UINTPTR_MAX - image_address)
         return false;
 
     auto *image_end = ifc.image + ifc.size;
-    if ( read_u32(ifc.image) != 0x6D617368
-        || read_u32(ifc.image + 0x10) != XB_TENTACLE_VTABLE_HASH )
+    if (read_u32(ifc.image) != 0x6D617368 || read_u32(ifc.image + 0x10) != XB_TENTACLE_VTABLE_HASH)
         return false;
 
     const auto shared_offset = read_u32(ifc.image + 8);
-    if ( shared_offset < XB_TENTACLE_RECORDS_OFFSET || shared_offset > ifc.size )
+    if (shared_offset < XB_TENTACLE_RECORDS_OFFSET || shared_offset > ifc.size)
         return false;
 
     auto *normal_cursor = ifc.image + XB_TENTACLE_RECORDS_OFFSET;
@@ -467,52 +438,30 @@ bool read_tentacle_records(
     auto *const shared_limit = image_end;
 
     uint32_t count = 0;
-    if ( !take_u32(shared_cursor, shared_limit, count)
-        || count > UINT16_MAX )
+    if (!take_u32(shared_cursor, shared_limit, count) || count > UINT16_MAX)
         return false;
 
     record_count = static_cast<uint16_t>(count);
 
     uint8_t *record_ptrs = nullptr;
-    if ( !take_array(
-            normal_cursor,
-            normal_limit,
-            count,
-            sizeof(uint32_t),
-            4,
-            record_ptrs) )
+    if (!take_array(normal_cursor, normal_limit, count, sizeof(uint32_t), 4, record_ptrs))
         return false;
-    (void) record_ptrs;
+    (void)record_ptrs;
 
-    for ( uint32_t i = 0; i < count; ++i )
-    {
+    for (uint32_t i = 0; i < count; ++i) {
         uint8_t *xb_record = nullptr;
-        if ( !take_bytes(
-                normal_cursor,
-                normal_limit,
-                XB_TENTACLE_RECORD_SIZE,
-                4,
-                xb_record) )
+        if (!take_bytes(normal_cursor, normal_limit, XB_TENTACLE_RECORD_SIZE, 4, xb_record))
             return false;
 
         int32_t texture_length;
-        std::memcpy(
-            &texture_length,
-            xb_record + 0x10,
-            sizeof(texture_length));
-        if ( texture_length >= static_cast<int32_t>(sizeof(pc_tentacle_record::texture)) )
+        std::memcpy(&texture_length, xb_record + 0x10, sizeof(texture_length));
+        if (texture_length >= static_cast<int32_t>(sizeof(pc_tentacle_record::texture)))
             return false;
 
         uint8_t *texture = nullptr;
-        if ( texture_length > 0 )
-        {
-            if ( !take_bytes(
-                    normal_cursor,
-                    normal_limit,
-                    static_cast<size_t>(texture_length) + 1,
-                    1,
-                    texture)
-                || texture[texture_length] != '\0' )
+        if (texture_length > 0) {
+            if (!take_bytes(normal_cursor, normal_limit, static_cast<size_t>(texture_length) + 1, 1, texture) ||
+                texture[texture_length] != '\0')
                 return false;
         }
 
@@ -520,44 +469,23 @@ bool read_tentacle_records(
         uint32_t entity_count = 0;
         uint8_t *hashes = nullptr;
         uint8_t *entities = nullptr;
-        if ( !take_u32(shared_cursor, shared_limit, hash_count)
-            || hash_count > UINT16_MAX
-            || !take_array(
-                normal_cursor,
-                normal_limit,
-                hash_count,
-                sizeof(pc_tentacle_hash_entry),
-                4,
-                hashes)
-            || !take_u32(shared_cursor, shared_limit, entity_count)
-            || entity_count != hash_count
-            || !take_array(
-                normal_cursor,
-                normal_limit,
-                entity_count,
-                sizeof(entity_base *),
-                4,
-                entities) )
+        if (!take_u32(shared_cursor, shared_limit, hash_count) || hash_count > UINT16_MAX ||
+            !take_array(normal_cursor, normal_limit, hash_count, sizeof(pc_tentacle_hash_entry), 4, hashes) ||
+            !take_u32(shared_cursor, shared_limit, entity_count) || entity_count != hash_count ||
+            !take_array(normal_cursor, normal_limit, entity_count, sizeof(entity_base *), 4, entities))
             return false;
 
-        if ( records != nullptr )
-        {
+        if (records != nullptr) {
             auto &record = records[i];
             std::memcpy(&record, xb_record, 0x10);
-            if ( texture != nullptr )
+            if (texture != nullptr)
                 std::memcpy(record.texture, texture, texture_length + 1);
             std::memcpy(&record.source_hash, xb_record + 0x1C, 8);
             record.resolved_entity = nullptr;
             record.control_hashes = {
-                reinterpret_cast<pc_tentacle_hash_entry *>(hashes),
-                static_cast<uint16_t>(hash_count),
-                false,
-                true};
+                reinterpret_cast<pc_tentacle_hash_entry *>(hashes), static_cast<uint16_t>(hash_count), false, true};
             record.control_entities = {
-                reinterpret_cast<entity_base **>(entities),
-                static_cast<uint16_t>(entity_count),
-                false,
-                true};
+                reinterpret_cast<entity_base **>(entities), static_cast<uint16_t>(entity_count), false, true};
         }
     }
 
@@ -572,48 +500,27 @@ tentacle_interface *tentacle_error(const char *reason)
 }
 
 #ifdef OPENUSM_XBPACK_V10
-tentacle_interface *unmash_v10_tentacle_ifc(
-    generic_mash_header *header,
-    generic_mash_data_ptrs *data,
-    tentacle_interface *ifc,
-    conglomerate *owner)
+tentacle_interface *unmash_v10_tentacle_ifc(generic_mash_header *header, generic_mash_data_ptrs *data,
+                                            tentacle_interface *ifc, conglomerate *owner)
 {
-    auto *xb_records =
-        reinterpret_cast<mashable_vector<xb_v10_tentacle_record> *>(
-            &ifc->field_1C);
+    auto *xb_records = reinterpret_cast<mashable_vector<xb_v10_tentacle_record> *>(&ifc->field_1C);
     const auto count = xb_records->m_size;
-    const auto records_size =
-        static_cast<size_t>(count) * sizeof(xb_v10_tentacle_record);
+    const auto records_size = static_cast<size_t>(count) * sizeof(xb_v10_tentacle_record);
     xb_v10_tentacle_record *source = nullptr;
 
-    const auto unmash_records = [&]()
-    {
-        for ( uint16_t i = 0; i < count; ++i )
-        {
+    const auto unmash_records = [&]() {
+        for (uint16_t i = 0; i < count; ++i) {
             auto &record = source[i].record;
             const auto *hashes = data->get<uint32_t>(2);
             record.source_hash = hashes[0];
             record.source_hash_aux = hashes[1];
 
-            THISCALL(
-                0x004C56B0,
-                &record.control_hashes,
-                header,
-                &record.control_hashes,
-                data,
-                nullptr);
-            THISCALL(
-                0x004C6120,
-                &record.control_entities,
-                header,
-                &record.control_entities,
-                data,
-                nullptr);
+            THISCALL(0x004C56B0, &record.control_hashes, header, &record.control_hashes, data, nullptr);
+            THISCALL(0x004C6120, &record.control_entities, header, &record.control_entities, data, nullptr);
         }
     };
 
-    if ( xb_records->m_shared )
-    {
+    if (xb_records->m_shared) {
         rebase(data->field_4, 4);
         auto *meta = reinterpret_cast<uint32_t *>(data->field_4);
         const auto normal_advance = meta[0];
@@ -624,24 +531,19 @@ tentacle_interface *unmash_v10_tentacle_ifc(
         source = reinterpret_cast<xb_v10_tentacle_record *>(data->field_4);
         data->field_4 += records_size;
 
-        if ( meta[2] != 0 )
-        {
-            if ( shared_advance < records_size )
+        if (meta[2] != 0) {
+            if (shared_advance < records_size)
                 return tentacle_error("invalid v10 shared record span");
 
             data->field_0 += normal_advance;
             data->field_4 += shared_advance - records_size;
-        }
-        else
-        {
+        } else {
             unmash_records();
         }
 
         ++meta[2];
         rebase(data->field_4, 4);
-    }
-    else
-    {
+    } else {
         rebase(data->field_0, 4);
         source = reinterpret_cast<xb_v10_tentacle_record *>(data->field_0);
         data->field_0 += records_size;
@@ -649,96 +551,68 @@ tentacle_interface *unmash_v10_tentacle_ifc(
         rebase(data->field_0, 4);
     }
 
-    const auto pc_records_size =
-        static_cast<size_t>(count) * sizeof(pc_tentacle_record);
-    auto *records = count == 0
-        ? nullptr
-        : static_cast<pc_tentacle_record *>(mem_alloc(pc_records_size));
-    if ( count != 0 && records == nullptr )
+    const auto pc_records_size = static_cast<size_t>(count) * sizeof(pc_tentacle_record);
+    auto *records = count == 0 ? nullptr : static_cast<pc_tentacle_record *>(mem_alloc(pc_records_size));
+    if (count != 0 && records == nullptr)
         return tentacle_error("v10 record allocation failed");
 
-    for ( uint16_t i = 0; i < count; ++i )
+    for (uint16_t i = 0; i < count; ++i)
         std::memcpy(&records[i], &source[i].record, sizeof(records[i]));
 
-    const mashable_vector<pc_tentacle_record> record_vector {
-        records,
-        count,
-        false,
-        true};
+    const mashable_vector<pc_tentacle_record> record_vector{records, count, false, true};
     std::memcpy(&ifc->field_1C, &record_vector, sizeof(record_vector));
 
     rebase(data->field_0, 4);
     auto *polytubes = data->get<void *>(count);
-    if ( count != 0 )
+    if (count != 0)
         std::memset(polytubes, 0, static_cast<size_t>(count) * sizeof(void *));
 
     ifc->field_4 = owner;
     ifc->field_8 = false;
-    ifc->field_24 = static_cast<int>(
-        reinterpret_cast<uintptr_t>(polytubes));
+    ifc->field_24 = static_cast<int>(reinterpret_cast<uintptr_t>(polytubes));
     ifc->field_28 = 3;
     ifc->field_34 = 0;
     return ifc;
 }
 #endif
 
-tentacle_interface *unmash_tentacle_ifc(
-    generic_mash_data_ptrs *data,
-    conglomerate *owner)
+tentacle_interface *unmash_tentacle_ifc(generic_mash_data_ptrs *data, conglomerate *owner)
 {
     xb_ifc_t source;
-    if ( !read_ifc(data, source) )
+    if (!read_ifc(data, source))
         return nullptr;
 
     uint16_t record_count = 0;
-    if ( !read_tentacle_records(source, nullptr, record_count) )
+    if (!read_tentacle_records(source, nullptr, record_count))
         return tentacle_error("layout validation failed");
 
-    const auto records_size =
-        static_cast<size_t>(record_count) * sizeof(pc_tentacle_record);
-    auto *records = record_count == 0
-        ? nullptr
-        : static_cast<pc_tentacle_record *>(mem_alloc(records_size));
-    if ( record_count != 0 && records == nullptr )
+    const auto records_size = static_cast<size_t>(record_count) * sizeof(pc_tentacle_record);
+    auto *records = record_count == 0 ? nullptr : static_cast<pc_tentacle_record *>(mem_alloc(records_size));
+    if (record_count != 0 && records == nullptr)
         return tentacle_error("record allocation failed");
-    if ( records != nullptr )
+    if (records != nullptr)
         std::memset(records, 0, records_size);
 
     uint16_t parsed_count = 0;
-    if ( !read_tentacle_records(
-            source,
-            records,
-            parsed_count)
-        || parsed_count != record_count )
-    {
-        if ( records != nullptr )
+    if (!read_tentacle_records(source, records, parsed_count) || parsed_count != record_count) {
+        if (records != nullptr)
             mem_dealloc(records, records_size);
         return tentacle_error("record conversion failed");
     }
 
-    auto *polytubes = record_count == 0
-        ? nullptr
-        : mem_alloc(static_cast<size_t>(record_count) * sizeof(void *));
-    if ( record_count != 0 && polytubes == nullptr )
-    {
+    auto *polytubes = record_count == 0 ? nullptr : mem_alloc(static_cast<size_t>(record_count) * sizeof(void *));
+    if (record_count != 0 && polytubes == nullptr) {
         mem_dealloc(records, records_size);
         return tentacle_error("runtime allocation failed");
     }
-    if ( polytubes != nullptr )
-        std::memset(
-            polytubes,
-            0,
-            static_cast<size_t>(record_count) * sizeof(void *));
+    if (polytubes != nullptr)
+        std::memset(polytubes, 0, static_cast<size_t>(record_count) * sizeof(void *));
 
-    auto *ifc = static_cast<tentacle_interface *>(
-        mem_alloc(sizeof(tentacle_interface)));
-    if ( ifc == nullptr )
-    {
-        if ( polytubes != nullptr )
-            mem_dealloc(
-                polytubes,
-                static_cast<size_t>(record_count) * sizeof(void *));
-        if ( records != nullptr )
+    auto *ifc = static_cast<tentacle_interface *>(mem_alloc(sizeof(tentacle_interface)));
+    if (ifc == nullptr) {
+        if (polytubes != nullptr)
+            mem_dealloc(polytubes, static_cast<size_t>(record_count) * sizeof(void *));
+        if (records != nullptr)
             mem_dealloc(records, records_size);
         return tentacle_error("interface allocation failed");
     }
@@ -746,40 +620,31 @@ tentacle_interface *unmash_tentacle_ifc(
     ifc->m_vtbl = ifc_v_table_lookup()[8];
     ifc->field_4 = owner;
 
-    const mashable_vector<pc_tentacle_record> record_vector {
-        records,
-        record_count,
-        false,
-        true};
+    const mashable_vector<pc_tentacle_record> record_vector{records, record_count, false, true};
     std::memcpy(&ifc->field_1C, &record_vector, sizeof(record_vector));
-    ifc->field_24 = static_cast<int>(
-        reinterpret_cast<uintptr_t>(polytubes));
+    ifc->field_24 = static_cast<int>(reinterpret_cast<uintptr_t>(polytubes));
     ifc->field_28 = 3;
     ifc->field_34 = 0;
 
-    sp_log(
-        "Converted xb tentacle interface with %u records",
-        static_cast<unsigned int>(record_count));
+    sp_log("Converted xb tentacle interface with %u records", static_cast<unsigned int>(record_count));
     return ifc;
 }
 
-static bool skip_ifc(
-    generic_mash_data_ptrs *data,
-    const char *name)
+static bool skip_ifc(generic_mash_data_ptrs *data, const char *name)
 {
     xb_ifc_t ifc;
-    if ( !read_ifc(data, ifc) )
+    if (!read_ifc(data, ifc))
         return false;
 
     sp_log("Unsupported non-null xb %s mashable interface", name);
     assert(0 && "Unsupported non-null xb conglomerate interface");
     return true;
 }
-}
+}  // namespace
 #endif
 
 #if STANDALONE_SYSTEM
-template<typename T>
+template <typename T>
 static void unmash_plain_vector(mashable_vector<T> &vector, generic_mash_data_ptrs *data)
 {
     constexpr auto alignment = alignof(T);
@@ -796,8 +661,7 @@ static void unmash_plain_vector(mashable_vector<T> &vector, generic_mash_data_pt
     }
 }
 
-static void unmash_tentacle_records(mashable_vector<tentacle_info> &records,
-                                    generic_mash_header *,
+static void unmash_tentacle_records(mashable_vector<tentacle_info> &records, generic_mash_header *,
                                     generic_mash_data_ptrs *data)
 {
     if (records.m_shared) {
@@ -834,9 +698,7 @@ static void unmash_tentacle_records(mashable_vector<tentacle_info> &records,
     }
 }
 
-static void unmash_tentacle_interface(tentacle_interface *ifc,
-                                      conglomerate *owner,
-                                      generic_mash_header *header,
+static void unmash_tentacle_interface(tentacle_interface *ifc, conglomerate *owner, generic_mash_header *header,
                                       generic_mash_data_ptrs *data)
 {
     ifc->my_conglomerate = owner;
@@ -853,8 +715,7 @@ static void unmash_tentacle_interface(tentacle_interface *ifc,
 #endif
 #if STANDALONE_SYSTEM
 
-static void unmash_terrain_decals(mashable_vector<terrain_decal> &decals,
-                                  generic_mash_data_ptrs *data)
+static void unmash_terrain_decals(mashable_vector<terrain_decal> &decals, generic_mash_data_ptrs *data)
 {
     if (decals.m_shared) {
         data->rebase_shared(8);
@@ -883,9 +744,7 @@ static void unmash_terrain_decals(mashable_vector<terrain_decal> &decals,
     }
 }
 
-static void unmash_decal_interface(decal_data_interface *ifc,
-                                   conglomerate *owner,
-                                   generic_mash_data_ptrs *data)
+static void unmash_decal_interface(decal_data_interface *ifc, conglomerate *owner, generic_mash_data_ptrs *data)
 {
     ifc->my_conglomerate = owner;
     ifc->dynamic = false;
@@ -928,7 +787,7 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
         if ((a2->field_E & 0x40) != 0) {
             a4->rebase(4);
             this->skeleton_ifc = a4->get<skeleton_interface>();
-            fix_ifc_v_table((char *) this->skeleton_ifc, (eEntityMashIFCTypeEnum) 6);
+            fix_ifc_v_table((char *)this->skeleton_ifc, (eEntityMashIFCTypeEnum)6);
             this->skeleton_ifc->un_mash(a2, this, this->skeleton_ifc, a4);
         } else {
             this->skeleton_ifc = nullptr;
@@ -976,14 +835,8 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
         if ((a2->field_E & 0x1000) != 0) {
             rebase(a4->field_0, 4);
             my_decal_data_interface = a4->get<decal_data_interface>();
-            fix_ifc_v_table(
-                reinterpret_cast<char *>(my_decal_data_interface),
-                static_cast<eEntityMashIFCTypeEnum>(9));
-            my_decal_data_interface->un_mash(
-                a2,
-                this,
-                my_decal_data_interface,
-                a4);
+            fix_ifc_v_table(reinterpret_cast<char *>(my_decal_data_interface), static_cast<eEntityMashIFCTypeEnum>(9));
+            my_decal_data_interface->un_mash(a2, this, my_decal_data_interface, a4);
             assert(!my_decal_data_interface->is_dynamic());
         } else {
             my_decal_data_interface = nullptr;
@@ -1029,8 +882,7 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
             this->m_tentacle_interface = a4->get<tentacle_interface>();
             fix_ifc_v_table((char *)this->m_tentacle_interface, static_cast<eEntityMashIFCTypeEnum>(8));
 #ifdef OPENUSM_XBPACK_V10
-            this->m_tentacle_interface = unmash_v10_tentacle_ifc(
-                a2, a4, this->m_tentacle_interface, this);
+            this->m_tentacle_interface = unmash_v10_tentacle_ifc(a2, a4, this->m_tentacle_interface, this);
 #else
             this->m_tentacle_interface->un_mash(a2, this, this->m_tentacle_interface, a4);
 #endif
@@ -1052,7 +904,7 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
         if ((a2->field_E & 0x1000) != 0) {
             a4->rebase(4);
             this->my_decal_data_interface = a4->get<decal_data_interface>();
-            fix_ifc_v_table((char *) this->my_decal_data_interface, (eEntityMashIFCTypeEnum) 9);
+            fix_ifc_v_table((char *)this->my_decal_data_interface, (eEntityMashIFCTypeEnum)9);
             this->my_decal_data_interface->un_mash(a2, this, this->my_decal_data_interface, a4);
             assert(!my_decal_data_interface->is_dynamic());
         } else {
@@ -1066,7 +918,7 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
 
             this->m_variant_interface = a4->get<variant_interface>();
 
-            fix_ifc_v_table((char *) this->m_variant_interface, static_cast<eEntityMashIFCTypeEnum>(10));
+            fix_ifc_v_table((char *)this->m_variant_interface, static_cast<eEntityMashIFCTypeEnum>(10));
 
             this->m_variant_interface->un_mash(a2, this, this->m_variant_interface, a4);
         } else {
@@ -1115,7 +967,7 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
                 entity_base *__ENT_ptr = CAST(__ENT_ptr, a4->get<char>(entity_mash_size(__ENT_TYPE)));
 
                 {
-                    eEntityMashTypeEnum v11 = (eEntityMashTypeEnum) ent_type;
+                    eEntityMashTypeEnum v11 = (eEntityMashTypeEnum)ent_type;
                     fix_entity_v_table((char *)__ENT_ptr, v11);
                 }
 
@@ -1143,7 +995,7 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
                     if (tmp_ptr->possibly_collide()) {
                         if (this->field_FC == nullptr) {
                             auto *v31 = mem_alloc(sizeof(*this->field_FC));
-                            this->field_FC = new (v31) actor_list_t {};
+                            this->field_FC = new (v31) actor_list_t{};
                         }
                         this->field_FC->push_back(tmp_ptr);
                     }
@@ -1159,10 +1011,10 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
                 }
             }
 
-            if ( tmp_ptr->is_a_light_source() ) {
-                if ( this->field_100 == nullptr ) {
+            if (tmp_ptr->is_a_light_source()) {
+                if (this->field_100 == nullptr) {
                     auto *v39 = mem_alloc(sizeof(*this->field_100));
-                    this->field_100 = new (v39) light_list_t {};
+                    this->field_100 = new (v39) light_list_t{};
                 }
 
                 this->field_100->push_back(bit_cast<light_source *>(tmp_ptr));
@@ -1214,7 +1066,7 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
                 __ENT_ptr->field_8 |= 0x10u;
                 __ENT_ptr->field_3E = 0;
 
-                tmp_ptr = (actor *) __ENT_ptr;
+                tmp_ptr = (actor *)__ENT_ptr;
             }
 
             {
@@ -1228,7 +1080,7 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
         }
 
         int v59 = *a4->get<int>();
-        if ( v59 != 0 ) {
+        if (v59 != 0) {
             int v61 = *a4->get<int>();
 
             a4->rebase(16);
@@ -1240,12 +1092,12 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
             auto *v65 = a4->get<uint8_t>(v61);
 
 #ifdef TARGET_XBOX
-            mash_info_struct v92 {mash::UNMASH_MODE, v65, v61, true};
+            mash_info_struct v92{mash::UNMASH_MODE, v65, v61, true};
 #else
-            mash_info_struct v92 {v65, v61};
+            mash_info_struct v92{v65, v61};
 #endif
 
-            this->field_114 = (als_res_data *) v92.read_from_buffer(
+            this->field_114 = (als_res_data *)v92.read_from_buffer(
 #ifdef TARGET_XBOX
                 mash::NORMAL_BUFFER,
 #endif
@@ -1257,7 +1109,7 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
 
         actor::_un_mash(a2, a3, a4);
 
-        if ( this->has_skeleton_ifc() ) {
+        if (this->has_skeleton_ifc()) {
             this->ifl_lock(0);
         }
 
@@ -1267,13 +1119,13 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
         if (v70 != nullptr) {
             if (v70[4] != nullptr) {
                 auto *v72 = mem_alloc(sizeof(light_manager));
-                auto *v74 = new (v72) light_manager {0};
+                auto *v74 = new (v72) light_manager{0};
 
                 auto *v75 = this->field_F8;
-                if ( v75 != v74 ) {
-                    if ( v75 != nullptr ) {
+                if (v75 != v74) {
+                    if (v75 != nullptr) {
                         auto v17 = (v75->field_0-- == 1);
-                        if ( v17 ) {
+                        if (v17) {
                             auto *v76 = this->field_F8;
                             if (v76 != nullptr) {
                                 this->field_F8->remove_from_list();
@@ -1284,7 +1136,7 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
 
                     this->field_F8 = v74;
 
-                    if ( v74 != nullptr ) {
+                    if (v74 != nullptr) {
                         ++v74->field_0;
                     }
                 }
@@ -1324,109 +1176,107 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
 
 void conglomerate::release_mem()
 {
-        this->clear_adopted_children();
-        this->remove_from_regions();
+    this->clear_adopted_children();
+    this->remove_from_regions();
 
-        auto *v3 = this->field_7C;
-        if (v3 != nullptr) {
-            v3->destruct_mashed_class();
-        }
+    auto *v3 = this->field_7C;
+    if (v3 != nullptr) {
+        v3->destruct_mashed_class();
+    }
 
-        this->field_7C = nullptr;
+    this->field_7C = nullptr;
 
-        if (m_damage_interface != nullptr) {
-            this->destroy_damage_ifc();
-        }
+    if (m_damage_interface != nullptr) {
+        this->destroy_damage_ifc();
+    }
 
-        if (m_physical_interface != nullptr) {
-            this->destroy_physical_ifc();
-        }
+    if (m_physical_interface != nullptr) {
+        this->destroy_physical_ifc();
+    }
 
-        if (my_sound_and_pfx_interface != nullptr) {
-            this->destroy_sound_and_pfx_ifc();
-        }
+    if (my_sound_and_pfx_interface != nullptr) {
+        this->destroy_sound_and_pfx_ifc();
+    }
 
-        if (m_animation_ifc != nullptr) {
-            this->destroy_animation_ifc();
-        }
+    if (m_animation_ifc != nullptr) {
+        this->destroy_animation_ifc();
+    }
 
-        if (m_script_data_ifc != nullptr) {
-            this->destroy_script_data_ifc();
-        }
+    if (m_script_data_ifc != nullptr) {
+        this->destroy_script_data_ifc();
+    }
 
-        if (m_tentacle_interface != nullptr) {
-            this->destroy_tentacle_ifc();
-        }
+    if (m_tentacle_interface != nullptr) {
+        this->destroy_tentacle_ifc();
+    }
 
-        if (my_decal_data_interface != nullptr) {
-            this->destroy_decal_data_ifc();
-        }
+    if (my_decal_data_interface != nullptr) {
+        this->destroy_decal_data_ifc();
+    }
 
-        if (m_variant_interface != nullptr) {
-            this->destroy_variant_ifc();
-        }
+    if (m_variant_interface != nullptr) {
+        this->destroy_variant_ifc();
+    }
 
-        for (auto &ent : this->members) {
-            assert(ent->is_mashed_member());
-            auto release = reinterpret_cast<void(__fastcall *)(entity_base *, void *)>(
-                get_vfunc(ent->m_vtbl, 0x10));
-            release(ent, nullptr);
-        }
+    for (auto &ent : this->members) {
+        assert(ent->is_mashed_member());
+        auto release = reinterpret_cast<void(__fastcall *)(entity_base *, void *)>(get_vfunc(ent->m_vtbl, 0x10));
+        release(ent, nullptr);
+    }
 
-        for (auto &ent : this->skin_bones) {
-            assert(ent->is_mashed_member());
-            auto release = reinterpret_cast<void(__fastcall *)(entity_base *, void *)>(
-                get_vfunc(ent->m_vtbl, 0x10));
-            release(ent, nullptr);
-        }
+    for (auto &ent : this->skin_bones) {
+        assert(ent->is_mashed_member());
+        auto release = reinterpret_cast<void(__fastcall *)(entity_base *, void *)>(get_vfunc(ent->m_vtbl, 0x10));
+        release(ent, nullptr);
+    }
 
-        auto *v19 = this->field_F8;
-        if (v19 != nullptr) {
-            auto v20 = (v19->field_0-- == 1);
-            if (v20) {
-                auto *v21 = this->field_F8;
-                if (v21 != nullptr) {
-                    v21->remove_from_list();
-                    mem_dealloc(v21, sizeof(*v21));
-                }
+    auto *v19 = this->field_F8;
+    if (v19 != nullptr) {
+        auto v20 = (v19->field_0-- == 1);
+        if (v20) {
+            auto *v21 = this->field_F8;
+            if (v21 != nullptr) {
+                v21->remove_from_list();
+                mem_dealloc(v21, sizeof(*v21));
             }
         }
+    }
 
-        if (skeleton_ifc != nullptr) {
-            this->destroy_skeleton_ifc();
-        }
+    if (skeleton_ifc != nullptr) {
+        this->destroy_skeleton_ifc();
+    }
 
-        auto *v23 = this->field_FC;
-        if (v23 != nullptr) {
-            v23->~actor_list_t();
-            mem_dealloc(v23, sizeof(*v23));
-        }
+    auto *v23 = this->field_FC;
+    if (v23 != nullptr) {
+        v23->~actor_list_t();
+        mem_dealloc(v23, sizeof(*v23));
+    }
 
-        this->field_FC = nullptr;
+    this->field_FC = nullptr;
 
-        auto *v27 = this->field_100;
-        if (v27 != nullptr) {
-            v27->~light_list_t();
-            mem_dealloc(v27, sizeof(*v27));
-        }
+    auto *v27 = this->field_100;
+    if (v27 != nullptr) {
+        v27->~light_list_t();
+        mem_dealloc(v27, sizeof(*v27));
+    }
 
-        this->field_100 = nullptr;
+    this->field_100 = nullptr;
 
-        auto *v31 = this->field_104;
-        if (v31 != nullptr) {
-            v31->~list();
-            mem_dealloc(v31, sizeof(*v31));
-        }
+    auto *v31 = this->field_104;
+    if (v31 != nullptr) {
+        v31->~list();
+        mem_dealloc(v31, sizeof(*v31));
+    }
 
-        this->field_104 = nullptr;
+    this->field_104 = nullptr;
 
-        auto *v35 = this->field_114;
-        if (v35 != nullptr) {
-            v35->destruct_mashed_class();
-            this->field_114 = nullptr;
-        }
+    auto *v35 = this->field_114;
+    if (v35 != nullptr) {
+        v35->destruct_mashed_class();
+        this->field_114 = nullptr;
+    }
 
-        actor::release_mem();
+    actor::release_mem();
 }
 
 void conglomerate::destroy_decal_data_ifc()
@@ -1482,8 +1332,10 @@ float conglomerate::_get_visual_radius()
             field_108 += 8.0f;
         field_110 &= ~1u;
     }
-    const float factor = is_ext_flagged(0x20) ? 0.75f
-        : is_ext_flagged(0x1000000) ? 0.4f : is_flagged(0x800) ? 0.6f : 1.0f;
+    const float factor = is_ext_flagged(0x20)        ? 0.75f
+                         : is_ext_flagged(0x1000000) ? 0.4f
+                         : is_flagged(0x800)         ? 0.6f
+                                                     : 1.0f;
     return factor * field_108;
 }
 
@@ -1680,11 +1532,11 @@ void conglomerate::debug_render()
     auto &v1 = this->get_abs_po();
     auto v139 = this->get_abs_position() + v1.get_z_facing() + YVEC;
     [[maybe_unused]] auto v5 = this->get_abs_position() + YVEC;
-    render_beam(v5, v139, color32 {33, 134, 216, 128}, 0.1, false);
+    render_beam(v5, v139, color32{33, 134, 216, 128}, 0.1, false);
 
     auto &v6 = this->get_abs_po();
     auto v9 = this->get_abs_position() + v6.get_z_facing() + YVEC;
-    render_debug_hemisphere(v9, 0.12, color32 {242, 124, 6, 128});
+    render_debug_hemisphere(v9, 0.12, color32{242, 124, 6, 128});
 
     auto v12 = g_camera_link()->get_abs_position() - this->get_abs_position();
     auto v189 = v12.length2();
@@ -1693,7 +1545,7 @@ void conglomerate::debug_render()
     if (v245) {
         auto v13 = this->get_id();
         auto *v177 = v13.to_string();
-        color32 v141 {255, 0, 0, 255};
+        color32 v141{255, 0, 0, 255};
         auto &v14 = this->get_abs_position();
         print_3d_text(v14, v141, 0.5, "%s", v177);
     }
@@ -1701,7 +1553,7 @@ void conglomerate::debug_render()
     for (auto i = 0; i < this->members.size(); ++i) {
         auto &member = this->members.at(i);
         if (this->field_E8.at(i) < 0 || this->field_E8.at(i) >= this->skin_bones.size() + this->members.size()) {
-            color32 v165 {33, 134, 216, 128};
+            color32 v165{33, 134, 216, 128};
             auto &v143 = this->get_abs_position();
             auto &v29 = member->get_abs_position();
             render_beam(v29, v143, v165, 0.02, 0);
@@ -1718,23 +1570,23 @@ void conglomerate::debug_render()
             }
 
             auto &a2 = v21->get_abs_position();
-            color32 v164 {33, 134, 216, 128};
+            color32 v164{33, 134, 216, 128};
             auto &v26 = member->get_abs_position();
             render_beam(v26, a2, v164, 0.02, 0);
         }
 
-        color32 v178 {242, 124, 6, 128};
+        color32 v178{242, 124, 6, 128};
         auto &v32 = member->get_abs_position();
         render_debug_hemisphere(v32, 0.02, v178);
 
         if (v245) {
             auto v35 = member->get_id();
             auto *v179 = v35.to_string();
-            color32 v144 {255, 0, 0, 255};
+            color32 v144{255, 0, 0, 255};
             auto &v38 = member->get_abs_position();
             print_3d_text(v38, v144, 0.5, "%s", v179);
 
-            color32 v166 {255, 0, 0, 128};
+            color32 v166{255, 0, 0, 128};
             auto &v41 = member->get_rel_po();
             auto &v42 = v41.get_x_facing();
             auto v145 = v42 * 0.050000001;
@@ -1742,7 +1594,7 @@ void conglomerate::debug_render()
             auto v146 = v45 + v145;
             render_beam(v45, v146, v166, 0.0099999998, 0);
 
-            color32 v167 {0, 255, 0, 128};
+            color32 v167{0, 255, 0, 128};
             auto &v51 = member->get_rel_po();
             auto &v52 = v51.get_y_facing();
             auto v147 = v52 * 0.050000001;
@@ -1750,7 +1602,7 @@ void conglomerate::debug_render()
             auto v148 = v55 + v147;
             render_beam(v55, v148, v167, 0.0099999998, 0);
 
-            color32 v168 {0, 0, 255, 128};
+            color32 v168{0, 0, 255, 128};
             auto &v61 = member->get_rel_po();
             auto &v62 = v61.get_z_facing();
             auto v149 = v62 * 0.050000001;
@@ -1763,7 +1615,7 @@ void conglomerate::debug_render()
 
     for (auto i = 0; i < this->skin_bones.size(); ++i) {
         {
-            color32 v170 {33, 134, 216, 128};
+            color32 v170{33, 134, 216, 128};
             if (this->field_F0.at(i) < 0 || (this->field_F0.at(i) >= this->skin_bones.size() + this->members.size())) {
                 auto &v152 = this->get_abs_position();
                 auto &v82 = this->skin_bones.at(i);
@@ -1788,7 +1640,7 @@ void conglomerate::debug_render()
             }
         }
 
-        color32 v180 {242, 124, 6, 128};
+        color32 v180{242, 124, 6, 128};
         auto &v85 = this->skin_bones.at(i);
         auto &v86 = v85->get_abs_position();
         render_debug_hemisphere(v86, 0.02, v180);
@@ -1797,13 +1649,13 @@ void conglomerate::debug_render()
             auto &v88 = this->skin_bones.at(i);
             auto v89 = v88->get_id();
             auto *v181 = v89.to_string();
-            color32 v153 {255, 0, 0, 255};
+            color32 v153{255, 0, 0, 255};
 
             auto &v91 = this->skin_bones.at(i);
             auto &v92 = v91->get_abs_position();
             print_3d_text(v92, v153, 0.5, "%s", v181);
 
-            color32 v171 {255, 0, 0, 128};
+            color32 v171{255, 0, 0, 128};
             auto &v94 = this->skin_bones.at(i);
             auto &v95 = v94->get_abs_po();
             auto v154 = v95.get_x_facing() * 0.050000001;
@@ -1815,7 +1667,7 @@ void conglomerate::debug_render()
             auto &v102 = v101->get_abs_position();
             render_beam(v102, v155, v171, 0.0099999998, false);
 
-            color32 v172 {0, 255, 0, 128};
+            color32 v172{0, 255, 0, 128};
             auto &v104 = this->skin_bones.at(i);
             auto &v105 = v104->get_abs_po();
             auto &v106 = v105.get_y_facing();
@@ -1829,7 +1681,7 @@ void conglomerate::debug_render()
             auto &v112 = v111->get_abs_position();
             render_beam(v112, v157, v172, 0.0099999998, false);
 
-            color32 v173 {0, 0, 255, 128};
+            color32 v173{0, 0, 255, 128};
             auto &v114 = this->skin_bones.at(i);
             auto &v115 = v114->get_abs_po();
             auto &v116 = v115.get_z_facing();
@@ -1846,42 +1698,42 @@ void conglomerate::debug_render()
     }
 
     if (debug_render_get_ival(SKELETONS) == 2) {
-        static string_hash stru_1564240 {"CAMERA_ROOT"};
+        static string_hash stru_1564240{"CAMERA_ROOT"};
 
         auto *v123 = this->get_member(stru_1564240, true);
         if (v123 != nullptr) {
             auto *v244 = this->get_member(stru_1564240, true);
-            color32 v182 {0, 255, 0, 255};
+            color32 v182{0, 255, 0, 255};
             auto &v125 = v244->get_abs_position();
             render_debug_hemisphere(v125, 0.1, v182);
             auto v126 = v244->get_id();
             auto *v183 = v126.to_string();
 
-            color32 v160 {255, 0, 0, 255};
+            color32 v160{255, 0, 0, 255};
             auto &v127 = v244->get_abs_position();
             print_3d_text(v127, v160, 0.5, "%s", v183);
         }
     }
 
     if (debug_render_get_ival(SKELETONS) == 3) {
-        static string_hash stru_1564218 {"BIP01 PROP"};
+        static string_hash stru_1564218{"BIP01 PROP"};
 
         auto *v128 = this->get_member(stru_1564218, true);
 
         if (v128 != nullptr) {
             auto *v243 = this->get_member(stru_1564218, true);
-            color32 v184 {0, 255, 0, 255};
+            color32 v184{0, 255, 0, 255};
             auto &v130 = v243->get_abs_position();
             render_debug_hemisphere(v130, 0.1, v184);
 
             auto v131 = v243->get_id();
             auto *v185 = v131.to_string();
-            color32 v161 {255, 0, 0, 255};
+            color32 v161{255, 0, 0, 255};
             auto &v132 = v243->get_abs_position();
             print_3d_text(v132, v161, 0.5, "%s", v185);
         }
 
-        static string_hash stru_156410C {"BIP01 PROP2"};
+        static string_hash stru_156410C{"BIP01 PROP2"};
 
         auto *v133 = this->get_member(stru_156410C, true);
         if (v133 != nullptr) {
@@ -1960,8 +1812,8 @@ void conglomerate::radius_changed(bool a2)
 
 bool render_drop_shadow(math::MatClass<4, 3> &transform, Float radius, Float opacity, bool mesh_shadow)
 {
-    if (os_developer_options::instance->get_flag(static_cast<os_developer_options::flags_t>(79)) ||
-        radius <= 0.0f || opacity <= 0.0f)
+    if (os_developer_options::instance->get_flag(static_cast<os_developer_options::flags_t>(79)) || radius <= 0.0f ||
+        opacity <= 0.0f)
         return false;
     auto *mesh = mesh_shadow ? g_game_ptr->field_B8 : g_game_ptr->field_B4;
     if (mesh == nullptr)
@@ -1985,7 +1837,7 @@ float shadow_quality_multiplier(uintptr_t address)
 {
     return var<float[4]>(static_cast<ptrdiff_t>(address))[var<int>(0x0091E000)];
 }
-}
+}  // namespace
 
 bool conglomerate::render_complex_shadow(Float camera_distance)
 {
@@ -2016,7 +1868,8 @@ bool conglomerate::render_complex_shadow(Float camera_distance)
             subdivision_node_obb_base *hit_obb = nullptr;
             auto query_position = position;
             height = g_world_ptr->get_the_terrain()->get_elevation(
-                query_position, normal, this, &hit_entity, &hit_obb, 7.0f) - position.y;
+                         query_position, normal, this, &hit_entity, &hit_obb, 7.0f) -
+                     position.y;
         }
     } else {
         height = get_floor_offset();
@@ -2024,8 +1877,7 @@ bool conglomerate::render_complex_shadow(Float camera_distance)
     if (height >= maximum_height)
         return true;
     height = std::max(height, 0.0f);
-    vector3d direction{-var<float>(0x0095EF10), 2.0f - var<float>(0x0095EF14),
-                       -var<float>(0x0095EF18)};
+    vector3d direction{-var<float>(0x0095EF10), 2.0f - var<float>(0x0095EF14), -var<float>(0x0095EF18)};
     direction.normalize();
     const float fade = (1.0f - height / maximum_height) * shadow_quality_multiplier(0x00921B34) * 0.4f;
     return render_projected_shadow(*this, camera_distance, direction, position, radius, fade);
@@ -2040,8 +1892,7 @@ void conglomerate::render_simple_shadow(Float camera_distance, Float opacity)
     const bool mesh_shadow = geometry_type == 2;
     if (!mesh_shadow && camera_distance > 30.0f)
         return;
-    const float radius = geometry_type == 1 ? colgeom->get_bounding_sphere_radius() * 2.5f :
-                         mesh_shadow ? 0.9f : 2.0f;
+    const float radius = geometry_type == 1 ? colgeom->get_bounding_sphere_radius() * 2.5f : mesh_shadow ? 0.9f : 2.0f;
     const auto alpha = get_render_color().get_alpha();
     if (alpha == 0)
         return;
@@ -2051,7 +1902,7 @@ void conglomerate::render_simple_shadow(Float camera_distance, Float opacity)
     const float initial_height = position.y;
     auto *cutscene = g_cut_scene_player();
     bool trace_ground = cutscene->field_E1 || cutscene->field_E2 ||
-        os_developer_options::instance->get_flag(static_cast<os_developer_options::flags_t>(78));
+                        os_developer_options::instance->get_flag(static_cast<os_developer_options::flags_t>(78));
     if (!trace_ground) {
         position.y -= get_floor_offset();
         if (m_parent != nullptr) {
@@ -2065,8 +1916,7 @@ void conglomerate::render_simple_shadow(Float camera_distance, Float opacity)
                 position.y = root->get_abs_position().y - root->get_floor_offset() * 0.99f;
                 normal = root->get_abs_po().get_y_facing();
             }
-        } else if (has_physical_ifc() &&
-                   ((physical_ifc()->field_C & 1) != 0 || physical_ifc()->field_174 != nullptr)) {
+        } else if (has_physical_ifc() && ((physical_ifc()->field_C & 1) != 0 || physical_ifc()->field_174 != nullptr)) {
             auto *physical = physical_ifc();
             const float height = physical->calc_height_above_ground();
             if (height < -0.00001f)
@@ -2088,10 +1938,9 @@ void conglomerate::render_simple_shadow(Float camera_distance, Float opacity)
         trace_ground = trace_ground || normal.y <= 0.0f;
     }
     if (trace_ground) {
-        line_info line{position + vector3d{0.0f, 1.5f, 0.0f},
-                       position - vector3d{0.0f, 6.5f, 0.0f}};
-        if (!line.check_collision(*local_collision::entfilter_reject_all,
-                                  *local_collision::obbfilter_lineseg_test, nullptr))
+        line_info line{position + vector3d{0.0f, 1.5f, 0.0f}, position - vector3d{0.0f, 6.5f, 0.0f}};
+        if (!line.check_collision(
+                *local_collision::entfilter_reject_all, *local_collision::obbfilter_lineseg_test, nullptr))
             return;
         position = line.hit_pos;
         normal = line.hit_norm;
@@ -2122,8 +1971,8 @@ void conglomerate::draw_projected_shadow(Float fade)
     nglMeshParams mesh_params{68};
     mesh_params.NBones = skeleton_ifc->po_count;
     mesh_params.Bones = reinterpret_cast<math::MatClass<4, 3> *>(skeleton_ifc->abs_po);
-    auto *person = static_cast<USPersonShaderSpace::ParamStruct *>(
-        nglListAlloc(sizeof(USPersonShaderSpace::ParamStruct), 16));
+    auto *person =
+        static_cast<USPersonShaderSpace::ParamStruct *>(nglListAlloc(sizeof(USPersonShaderSpace::ParamStruct), 16));
     *person = {};
     person->field_3C = 1;
     const auto &defaults = var<vector4d>(0x0091E568);
@@ -2182,7 +2031,6 @@ bool binary_search_conglom_member_array(const string_hash &a1, entity_base **a2,
 
 entity_base *conglomerate::get_member(const string_hash &a2, bool a3)
 {
-
     auto members_size = this->members.size();
     if (members_size != 0) {
         auto i = -1;
@@ -2205,7 +2053,7 @@ bool conglomerate::has_tentacle_ifc()
 #if STANDALONE_SYSTEM
     return this->m_tentacle_interface != nullptr;
 #else
-    bool (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x294));
+    bool(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x294));
     return func(this);
 #endif
 }
@@ -2215,7 +2063,7 @@ tentacle_interface *conglomerate::tentacle_ifc()
 #if STANDALONE_SYSTEM
     return this->m_tentacle_interface;
 #else
-    tentacle_interface *(__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x298));
+    tentacle_interface *(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x298));
     return func(this);
 #endif
 }
@@ -2225,7 +2073,7 @@ bool conglomerate::has_variant_ifc()
 #if STANDALONE_SYSTEM
     return this->m_variant_interface != nullptr;
 #else
-    bool (__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x29C));
+    bool(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x29C));
     return func(this);
 #endif
 }
@@ -2235,7 +2083,7 @@ variant_interface *conglomerate::variant_ifc()
 #if STANDALONE_SYSTEM
     return this->m_variant_interface;
 #else
-    variant_interface *(__fastcall *func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x2A0));
+    variant_interface *(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x2A0));
     return func(this);
 #endif
 }
@@ -2247,7 +2095,6 @@ nglMorphSet *conglomerate::_get_morph(const tlFixedString &name, bool warn)
 
 entity_base *conglomerate::get_bone(const string_hash &a2, bool a3)
 {
-
     if constexpr (1) {
         auto skin_bones_size = this->skin_bones.size();
         if (skin_bones_size != 0) {
@@ -2264,7 +2111,7 @@ entity_base *conglomerate::get_bone(const string_hash &a2, bool a3)
 
         return nullptr;
     } else {
-        return (entity_base *) THISCALL(0x004CCC90, this, &a2, a3);
+        return (entity_base *)THISCALL(0x004CCC90, this, &a2, a3);
     }
 }
 

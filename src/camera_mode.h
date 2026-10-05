@@ -15,19 +15,19 @@ struct camera_mode {
     struct vtable {
         void *(__fastcall *finalize)(camera_mode *, void *, unsigned);
         camera_mode *(__fastcall *clone)(camera_mode *, void *);
-        void (__fastcall *activate)(camera_mode *, void *edx, camera_target_info *);
-        void (__fastcall *deactivate)(camera_mode *);
+        void(__fastcall *activate)(camera_mode *, void *edx, camera_target_info *);
+        void(__fastcall *deactivate)(camera_mode *);
         void(__fastcall *frame_advance)(camera_mode *, void *, Float, camera_frame *, const camera_target_info *);
-        void (__fastcall *request_recenter)(camera_mode *, void *, Float, const camera_target_info *);
-        void (__fastcall *enable_lookaround)(camera_mode *, void *, bool);
+        void(__fastcall *request_recenter)(camera_mode *, void *, Float, const camera_target_info *);
+        void(__fastcall *enable_lookaround)(camera_mode *, void *, bool);
         void(__fastcall *set_fixedstatic)(camera_mode *, void *, const vector3d *, const vector3d *);
-        void (__fastcall *clear_fixedstatic)(camera_mode *);
-        void (__fastcall *notify)(camera_mode *, void *);
+        void(__fastcall *clear_fixedstatic)(camera_mode *);
+        void(__fastcall *notify)(camera_mode *, void *);
         union {
-            void (__fastcall *reset_state)(camera_mode *, void *, const camera_target_info *);
-            void (__fastcall *smooth_transition)(camera_mode *, void *, camera_frame *, Float);
+            void(__fastcall *reset_state)(camera_mode *, void *, const camera_target_info *);
+            void(__fastcall *smooth_transition)(camera_mode *, void *, camera_frame *, Float);
         } extension;
-    } * m_vtbl;
+    } *m_vtbl;
     spiderman_camera *slave;
     camera_mode *field_8;
 
@@ -35,7 +35,7 @@ struct camera_mode {
 
     //virtual
     void activate(camera_target_info &a2);
-    
+
     //virtual
     void deactivate();
 
@@ -71,7 +71,7 @@ struct camera_mode_lookaround : camera_mode {
 };
 
 namespace camera_mode_chase {
-    extern void pull_by_target(camera_frame &frame, const camera_target_info &target, Float a3);
+extern void pull_by_target(camera_frame &frame, const camera_target_info &target, Float a3);
 }
 
 struct camera_mode_passive : camera_mode {

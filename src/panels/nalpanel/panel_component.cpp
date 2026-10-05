@@ -10,42 +10,42 @@
 
 VALIDATE_SIZE(PanelComponent, 0x8);
 
-#define create_panel_class(Type, Vtbl)                                  \
-    struct Panel##Type##Component : PanelComponent {                    \
-        Panel##Type##Component()                                        \
-        {                                                               \
-            if constexpr (1) {                                          \
-                static void *g_vtbl[]{nullptr,                          \
-                                      func_address(&_GetType),          \
-                                      nullptr,                          \
-                                      nullptr,                          \
-                                      nullptr,                          \
-                                      nullptr,                          \
-                                      nullptr,                          \
-                                      nullptr,                          \
-                                      nullptr,                          \
-                                      nullptr,                          \
-                                      nullptr,                          \
-                                      nullptr,                          \
-                                      nullptr,                          \
-                                      nullptr,                          \
-                                      nullptr,                          \
-                                      func_address(&_SkelPoseProcess),  \
-                                      func_address(&_SkelPoseRelease),  \
-                                      func_address(&_AnimProcess),      \
-                                      func_address(&_AnimRelease)};     \
-                m_vtbl = CAST(m_vtbl, &g_vtbl);                         \
-            } else {                                                    \
-                this->m_vtbl = Vtbl;                                    \
-            }                                                           \
-        }                                                               \
-                                                                        \
-        uint32_t _GetType() const                                       \
-        {                                                               \
-            return to_hash("Panel" #Type);                              \
-        }                                                               \
-    };                                                                  \
-                                                                        \
+#define create_panel_class(Type, Vtbl)                                 \
+    struct Panel##Type##Component : PanelComponent {                   \
+        Panel##Type##Component()                                       \
+        {                                                              \
+            if constexpr (1) {                                         \
+                static void *g_vtbl[]{nullptr,                         \
+                                      func_address(&_GetType),         \
+                                      nullptr,                         \
+                                      nullptr,                         \
+                                      nullptr,                         \
+                                      nullptr,                         \
+                                      nullptr,                         \
+                                      nullptr,                         \
+                                      nullptr,                         \
+                                      nullptr,                         \
+                                      nullptr,                         \
+                                      nullptr,                         \
+                                      nullptr,                         \
+                                      nullptr,                         \
+                                      nullptr,                         \
+                                      func_address(&_SkelPoseProcess), \
+                                      func_address(&_SkelPoseRelease), \
+                                      func_address(&_AnimProcess),     \
+                                      func_address(&_AnimRelease)};    \
+                m_vtbl = CAST(m_vtbl, &g_vtbl);                        \
+            } else {                                                   \
+                this->m_vtbl = Vtbl;                                   \
+            }                                                          \
+        }                                                              \
+                                                                       \
+        uint32_t _GetType() const                                      \
+        {                                                              \
+            return to_hash("Panel" #Type);                             \
+        }                                                              \
+    };                                                                 \
+                                                                       \
     static Panel##Type##Component g##Type##Component {}
 
 #ifndef STANDALONE_SYSTEM

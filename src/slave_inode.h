@@ -32,4 +32,4 @@ private:
     void clear_records();
 };
 
-}
+}  // namespace ai

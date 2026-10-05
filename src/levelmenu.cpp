@@ -9,13 +9,13 @@
 
 #include <cassert>
 
-debug_menu* level_select_menu = nullptr;
-debug_menu* hero_select_menu = nullptr;
+debug_menu *level_select_menu = nullptr;
+debug_menu *hero_select_menu = nullptr;
 
 int hero_status;
 int hero_selected;
 
-const char* hero_list[] = { "arachno_man_costume" };
+const char *hero_list[] = {"arachno_man_costume"};
 
 
 level_descriptor_t *get_level_descriptors(int *)
@@ -39,7 +39,7 @@ void hero_toggle_handler(debug_menu_entry *entry)
 void create_level_select_menu(debug_menu *)
 {
     assert(debug_menu::root_menu != nullptr);
-    
+
     level_select_menu = new debug_menu{"Level Select", (DWORD)debug_menu::sort_mode_t::undefined};
 
     debug_menu_entry *v15 = new debug_menu_entry{level_select_menu};
@@ -71,9 +71,9 @@ void create_level_select_menu(debug_menu *)
     v38->set_game_flags_handler(reboot_handler);
     level_select_menu->add_entry(v38);
 
-    hero_select_menu = new debug_menu{"Hero Select", (DWORD)debug_menu::sort_mode_t::undefined };
+    hero_select_menu = new debug_menu{"Hero Select", (DWORD)debug_menu::sort_mode_t::undefined};
 
-    auto *v28 = new debug_menu_entry {hero_select_menu};
+    auto *v28 = new debug_menu_entry{hero_select_menu};
 
     level_select_menu->add_entry(v28);
     for (auto i = 0u; i < 10u; ++i) {
@@ -82,7 +82,7 @@ void create_level_select_menu(debug_menu *)
         auto v11 = resource_key{v5, v6};
         auto v30 = resource_manager::get_pack_file_stats(v11, nullptr, nullptr, nullptr);
         if (v30) {
-            mString v35 {hero_list[i]};
+            mString v35{hero_list[i]};
             auto *v37 = new debug_menu_entry{v35};
 
             v37->set_game_flags_handler(hero_toggle_handler);

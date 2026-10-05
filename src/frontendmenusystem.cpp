@@ -32,9 +32,8 @@ VALIDATE_SIZE(FrontEndMenuSystem, 0x80);
 
 static Var<bool> already_drew_this_frame_retail{0x0096B44A};
 static bool standalone_already_drew_this_frame = false;
-static bool &already_drew_this_frame = STANDALONE_SYSTEM
-    ? standalone_already_drew_this_frame
-    : already_drew_this_frame_retail();
+static bool &already_drew_this_frame =
+    STANDALONE_SYSTEM ? standalone_already_drew_this_frame : already_drew_this_frame_retail();
 
 FrontEndMenuSystem::FrontEndMenuSystem() : FEMenuSystem(7, static_cast<font_index>(1))
 {
@@ -45,9 +44,7 @@ FrontEndMenuSystem::FrontEndMenuSystem() : FEMenuSystem(7, static_cast<font_inde
 
         static Var<bool> first_time_through{0x00937B78};
         static bool standalone_first_time_through = true;
-        bool &is_first_time_through = STANDALONE_SYSTEM
-            ? standalone_first_time_through
-            : first_time_through();
+        bool &is_first_time_through = STANDALONE_SYSTEM ? standalone_first_time_through : first_time_through();
 
         if (is_first_time_through) {
             this->field_4[this->m_count++] = new main_menu_legal{this, 320, 240};
@@ -74,9 +71,7 @@ FrontEndMenuSystem::FrontEndMenuSystem() : FEMenuSystem(7, static_cast<font_inde
 
         static Var<bool> byte_96B44B{0x0096B44B};
         static bool standalone_byte_96B44B = false;
-        const bool byte_96B44B_value = STANDALONE_SYSTEM
-            ? standalone_byte_96B44B
-            : byte_96B44B();
+        const bool byte_96B44B_value = STANDALONE_SYSTEM ? standalone_byte_96B44B : byte_96B44B();
 
         auto v17 = !byte_96B44B_value;
         auto v18 = this->m_index;
@@ -218,8 +213,7 @@ void sub_582BB0()
 void FrontEndMenuSystem::Update(Float delta_time)
 {
     if constexpr (STANDALONE_SYSTEM) {
-        if (os_developer_options::instance->get_flag(
-                static_cast<os_developer_options::flags_t>(66))) {
+        if (os_developer_options::instance->get_flag(static_cast<os_developer_options::flags_t>(66))) {
             already_drew_this_frame = false;
             return;
         }
@@ -258,8 +252,7 @@ void FrontEndMenuSystem::Update(Float delta_time)
 void FrontEndMenuSystem::sub_619030(bool a2)
 {
     if constexpr (STANDALONE_SYSTEM) {
-        if (os_developer_options::instance->get_flag(
-                static_cast<os_developer_options::flags_t>(66))) {
+        if (os_developer_options::instance->get_flag(static_cast<os_developer_options::flags_t>(66))) {
             already_drew_this_frame = true;
             return;
         }
@@ -346,8 +339,7 @@ void FrontEndMenuSystem::_LoadAll()
 void FrontEndMenuSystem::RenderLoadMeter(bool a1)
 {
     if constexpr (STANDALONE_SYSTEM) {
-        if (!os_developer_options::instance->get_flag(
-                static_cast<os_developer_options::flags_t>(66)))
+        if (!os_developer_options::instance->get_flag(static_cast<os_developer_options::flags_t>(66)))
             sub_619030(a1);
     } else {
         THISCALL(0x00619230, this, a1);
@@ -422,12 +414,10 @@ void FrontEndMenuSystem::GoNextState()
             break;
         }
         case 11:
-            this->field_30 =
-                (static_cast<main_menu_memcard_check *>(this->field_4[2])
-                         ->field_108 !=
-                     main_menu_memcard_check::DIALOG_NONE
-                     ? this->field_58
-                     : this->field_54);
+            this->field_30 = (static_cast<main_menu_memcard_check *>(this->field_4[2])->field_108 !=
+                                      main_menu_memcard_check::DIALOG_NONE
+                                  ? this->field_58
+                                  : this->field_54);
 
             if (this->field_5C.size() > 0) {
                 int v5;

@@ -27,7 +27,10 @@ VALIDATE_SIZE(prop_physics_inode::prop_record, 0x18);
 
 #if STANDALONE_SYSTEM
 namespace {
-void __fastcall prop_mashed_destruct(prop_physics_inode *node) { node->destruct_mashed_class(); }
+void __fastcall prop_mashed_destruct(prop_physics_inode *node)
+{
+    node->destruct_mashed_class();
+}
 void __fastcall prop_unmash(prop_physics_inode *node, void *, mash_info_struct *info, void *owner)
 {
     node->_unmash(info, owner);
@@ -39,13 +42,31 @@ prop_physics_inode *__fastcall prop_delete(prop_physics_inode *node, void *, uns
         mem_dealloc(node, sizeof(*node));
     return node;
 }
-int __fastcall prop_type(const prop_physics_inode *) { return 403; }
-bool __fastcall prop_subclass(const prop_physics_inode *, void *, int type) { return type == 537 || type == 573; }
-bool __fastcall prop_needs_advance(const prop_physics_inode *) { return true; }
-void __fastcall prop_advance(prop_physics_inode *node, void *, Float elapsed) { node->_frame_advance(elapsed); }
-void __fastcall prop_deactivate(prop_physics_inode *node) { node->_deactivate(); }
-int __fastcall prop_size(const prop_physics_inode *) { return sizeof(prop_physics_inode); }
+int __fastcall prop_type(const prop_physics_inode *)
+{
+    return 403;
 }
+bool __fastcall prop_subclass(const prop_physics_inode *, void *, int type)
+{
+    return type == 537 || type == 573;
+}
+bool __fastcall prop_needs_advance(const prop_physics_inode *)
+{
+    return true;
+}
+void __fastcall prop_advance(prop_physics_inode *node, void *, Float elapsed)
+{
+    node->_frame_advance(elapsed);
+}
+void __fastcall prop_deactivate(prop_physics_inode *node)
+{
+    node->_deactivate();
+}
+int __fastcall prop_size(const prop_physics_inode *)
+{
+    return sizeof(prop_physics_inode);
+}
+}  // namespace
 
 void *prop_physics_inode::native_vtable()
 {
@@ -66,7 +87,10 @@ void *prop_physics_inode::native_vtable()
     return table.data();
 }
 #else
-void *prop_physics_inode::native_vtable() { return reinterpret_cast<void *>(0x0087DCA4); }
+void *prop_physics_inode::native_vtable()
+{
+    return reinterpret_cast<void *>(0x0087DCA4);
+}
 #endif
 
 
@@ -92,7 +116,6 @@ prop_physics_inode::prop_physics_inode(from_mash_in_place_constructor *construct
 
 prop_physics_inode::~prop_physics_inode()
 {
-
     clear_records();
 }
 
@@ -105,7 +128,7 @@ void prop_physics_inode::_unmash(mash_info_struct *info, void *owner)
     if (records_data)
         records_data = reinterpret_cast<prop_record *>(info->read_from_buffer(sizeof(prop_record) * records.m_size, 4));
     records.field_0 = static_cast<int>(info->mash_image_ptr[0] + info->buffer_size_used[0] -
-                                      reinterpret_cast<unsigned char *>(&records));
+                                       reinterpret_cast<unsigned char *>(&records));
 }
 
 namespace {
@@ -136,8 +159,8 @@ void apply_prop_ballistic_target(rigid_body *body, const float *target)
         const float x = speed - horizontal_velocity;
         const float y = slope * speed - gravity_distance / speed - velocity_y;
         const float derivative = gravity_distance / (speed * speed) + slope;
-        const float next = speed - (y * derivative + x) /
-            (y * (-2.0f * gravity_distance / (speed * speed * speed)) + derivative * derivative + 1.0f);
+        const float next = speed - (y * derivative + x) / (y * (-2.0f * gravity_distance / (speed * speed * speed)) +
+                                                           derivative * derivative + 1.0f);
         const bool converged = std::fabs(next - speed) < 0.001f;
         speed = next;
         if (converged)
@@ -174,12 +197,10 @@ bool prop_physics_at_rest(actor *prop)
     }
     return resting;
 }
-}
+}  // namespace
 
 void prop_physics_inode::_frame_advance(Float elapsed_seconds)
 {
-
-
     int index = 0;
     while (index != records.m_size) {
         auto &record = records_data[index];
@@ -188,8 +209,7 @@ void prop_physics_inode::_frame_advance(Float elapsed_seconds)
         if (prop && prop->physical_ifc()->is_prop_physics_running()) {
             if (record.target_pending) {
                 if (record.target_delay < 0.0f) {
-                    apply_prop_ballistic_target(prop->physical_ifc()->field_174->body,
-                        record.ballistic_target);
+                    apply_prop_ballistic_target(prop->physical_ifc()->field_174->body, record.ballistic_target);
                     record.target_pending = false;
                 } else {
                     record.target_delay -= elapsed_seconds;
@@ -205,8 +225,8 @@ void prop_physics_inode::_frame_advance(Float elapsed_seconds)
         } else {
             if (prop && prop->physical_ifc()->is_prop_physics_running())
                 prop->physical_ifc()->stop_prop_physics(false);
-            std::memmove(records_data + index, records_data + index + 1,
-                sizeof(prop_record) * (records.m_size - index - 1));
+            std::memmove(
+                records_data + index, records_data + index + 1, sizeof(prop_record) * (records.m_size - index - 1));
             --records.m_size;
         }
     }
@@ -237,10 +257,9 @@ void prop_physics_inode::_deactivate()
 
 void prop_physics_inode::destruct_mashed_class()
 {
-
     clear_records();
     records.destruct_mashed_class();
     info_node::_destruct_mashed_class();
 }
 
-}
+}  // namespace ai

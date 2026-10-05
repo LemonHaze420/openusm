@@ -48,7 +48,7 @@ bool get_keyboard_button_state(int button, int controller)
         return false;
     }
 }
-}
+}  // namespace
 
 FEMenuSystem::FEMenuSystem(int a2, font_index a3)
 {
@@ -132,7 +132,7 @@ void FEMenuSystem::UpdateButtonDown()
                 if (v4) {
                     v2[0] |= i;
                 } else {
-                    v2[0] &= ~(int16_t) i;
+                    v2[0] &= ~(int16_t)i;
                 }
             }
             ++v2;
