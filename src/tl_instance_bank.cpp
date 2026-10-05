@@ -69,6 +69,11 @@ tlInstanceBank::tlInstanceBank()
 
 tlInstanceBank::~tlInstanceBank()
 {
+    Release();
+}
+
+void tlInstanceBank::Release()
+{
     auto *v2 = this->field_4;
     if (v2 != nullptr) {
         for (auto *node = v2->field_28[0]; node != this->field_0; node = this->field_4->field_28[0]) {

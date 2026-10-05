@@ -50,11 +50,11 @@ struct vehicle : vehicle_sounds {
     float field_C8;
     float field_CC;
     float field_D0;
-    int field_D4;
-    int field_D8;
-    int field_DC;
+    float field_D4;
+    float field_D8;
+    float field_DC;
     float field_E0;
-    int field_E4;
+    float field_E4;
     float field_E8;
     float field_EC;
     float field_F0;
@@ -76,6 +76,10 @@ struct vehicle : vehicle_sounds {
     bool field_12D;
 
     vehicle(vhandle_type<entity> a1);
+    ~vehicle();
+    static void *native_vtable();
+    void set_actor(vhandle_type<entity> handle);
+    entity *use_model(int model, int instance_id);
 
     void reset();
 
@@ -84,6 +88,13 @@ struct vehicle : vehicle_sounds {
     void sub_6D7EA0();
 
     vector3d sub_6DA250();
+
+
+    void drive(Float dt, float throttle, float steering, bool traction, bool animate_parts, bool dynamics);
+    void drive_to(Float dt, float speed, const vector3d &target, bool a7, bool filtered);
+    bool is_grounded() const;
+    vector3d get_up_direction();
+    vector3d get_forward_direction();
 
     void set_damage_level(int a2, int a3);
 

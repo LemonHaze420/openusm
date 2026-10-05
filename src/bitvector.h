@@ -20,13 +20,7 @@ struct fixed_bitvector {
 
         this->field_0 = number_of_bits + sizeof(base_type) * 8;
 
-        auto sub_A62040 = [](auto *self) -> void {
-            for (auto i = 0u; i < 65u; ++i) {
-                self->field_4[i] = 0;
-            }
-        };
-
-        sub_A62040(this);
+        clear();
     }
 
     void clear()
@@ -55,4 +49,3 @@ struct fixed_bitvector {
     }
 };
 
-inline Var<fixed_bitvector<uint32_t, 256>> hash_update_bitvector{0x009222B0};

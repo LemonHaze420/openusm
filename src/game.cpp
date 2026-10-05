@@ -3164,7 +3164,7 @@ void game::sub_524170()
 {
     static Var<int> achy_breaky_int{0x0095C734};
 
-    if ( g_world_ptr->field_158.field_C == 13111 ) {
+    if ( g_world_ptr->time_manager.field_C == 13111 ) {
         ++achy_breaky_int();
     }
 

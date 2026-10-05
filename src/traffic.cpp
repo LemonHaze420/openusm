@@ -1,6 +1,8 @@
 #include "traffic.h"
 
 #include "camera.h"
+#include "base_ai_core.h"
+#include "traffic_inode.h"
 #include "common.h"
 #include "event.h"
 #include "event_manager.h"
@@ -17,6 +19,19 @@
 #include "variables.h"
 #include "vehicle.h"
 #include "wds.h"
+#include "ai_player_controller.h"
+#include "ai_voice_box_inode.h"
+#include "damage_interface.h"
+#include "physical_interface.h"
+#include "slab_allocator.h"
+#include "vtbl.h"
+#include "hierarchical_entity_proximity_map.h"
+#include "subdivision_visitor.h"
+
+#include <algorithm>
+#include <cstdlib>
+#include <new>
+#include <cmath>
 
 VALIDATE_OFFSET(traffic, field_1C4, 0x1C4);
 VALIDATE_SIZE(traffic, 0x22Cu);
@@ -49,7 +64,7 @@ float (&stru_937FAC)[8] = var<float[8]>(0x00937FAC);
 
 std::array<int, 5> &traffic::old_drivers = var<std::array<int, 5>>(0x0096CA40);
 
-std::array<int, 5> &traffic::new_drivers = var<std::array<int, 5>>(0x0096CA40);
+std::array<int, 5> &traffic::new_drivers = var<std::array<int, 5>>(0x0096D288);
 
 int &traffic::living_cars = var<int>(0x0096C9EC);
 int &traffic::parked_cars = var<int>(0x0096C9F0);
@@ -61,9 +76,477 @@ traffic *&traffic::getaway_car = var<traffic *>(0x0096C9E0);
 
 traffic *&traffic::emergency_car = var<traffic *>(0x0096C9E4);
 
+traffic *&traffic::field_96C9DC = var<traffic *>(0x0096C9DC);
+
 _std::vector<traffic *> *&traffic::ai_occupied_cars = var<_std::vector<traffic *> *>(0x0096CA00);
 
 static float &stru_937FA4 = var<float>(0x00937FA4);
+
+#if STANDALONE_SYSTEM
+
+static const bool native_traffic_defaults = [] {
+    traffic::traffic_enabled = true;
+    traffic::traffic_density = 1.0f;
+    traffic::parking_density = 0.5f;
+    stru_937FA4 = 40.0f;
+    stru_937FAC[0] = 1.0f;
+    stru_937FAC[1] = 3.0f;
+    var<int>(0x00938000) = 50;
+    return true;
+}();
+#endif
+
+namespace {
+struct parking_marker_visitor : subdivision_visitor {
+    const vector3d &point;
+    float closest_squared;
+    parking_marker *closest = nullptr;
+
+    parking_marker_visitor(const vector3d &position, float radius)
+        : point(position), closest_squared(radius * radius)
+    {
+        static const native_vtable table{visit_marker, nullptr};
+        m_vtbl = reinterpret_cast<std::intptr_t>(&table);
+    }
+
+    static int visit_marker(subdivision_visitor &base, const subdivision_node &node)
+    {
+        auto &self = static_cast<parking_marker_visitor &>(base);
+        auto *marker = reinterpret_cast<parking_marker *>(const_cast<subdivision_node *>(&node));
+        if (marker->field_5C == entity::visit_key || (marker->field_4 & 0x2000))
+            return 0;
+        const float distance = (marker->get_abs_position() - self.point).xz_length2();
+        if (distance < self.closest_squared) {
+            self.closest = marker;
+            self.closest_squared = distance;
+        }
+        return 0;
+    }
+};
+
+void __fastcall native_traffic_spawn(traffic *self, void *, vector3d position,
+    vector3d facing, traffic_path_lane *lane, int node, bool first, bool moving)
+{
+    self->_do_spawn(position, facing, lane, node, first, moving);
+}
+void __fastcall native_traffic_unspawn(traffic *self, void *) { self->_un_spawn(); }
+void __fastcall native_traffic_critical(traffic *self, void *, Float time)
+{
+    self->_critical_processing(time);
+}
+actor *__fastcall native_traffic_actor(traffic *self, void *) { return self->field_C.field_54; }
+void __fastcall native_traffic_set_actor(traffic *self, void *, vhandle_type<entity> handle)
+{
+    self->set_actor(handle);
+}
+bool __fastcall native_traffic_lane(traffic *self, void *, traffic_path_lane *lane)
+{
+    return self->_is_viable_lane(lane);
+}
+bool __fastcall native_traffic_position(traffic *self, void *, const vector3d &position)
+{
+    return self->_is_viable_pos(position);
+}
+traffic *vehicle_owner(vehicle *self)
+{
+    return reinterpret_cast<traffic *>(reinterpret_cast<char *>(self) - offsetof(traffic, field_C));
+}
+actor *__fastcall native_traffic_vehicle_actor(vehicle *self, void *)
+{
+    return vehicle_owner(self)->field_C.field_54;
+}
+void __fastcall native_traffic_vehicle_reset(vehicle *self, void *) { vehicle_owner(self)->reset(); }
+void __fastcall native_traffic_vehicle_set_actor(vehicle *self, void *, vhandle_type<entity> handle)
+{
+    vehicle_owner(self)->set_actor(handle);
+}
+void __fastcall native_traffic_vehicle_out_of_world(vehicle *self, void *)
+{
+    auto *owner = vehicle_owner(self);
+    if (owner->field_4)
+        owner->_un_spawn();
+}
+void __cdecl traffic_damaged(event *, entity_base_vhandle handle, void *)
+{
+    if (auto *car = traffic::get_traffic_from_entity(vhandle_type<entity>{handle}))
+        car->damage_callback(0, car->get_my_actor());
+}
+void __cdecl traffic_destroyed(event *, entity_base_vhandle handle, void *)
+{
+    auto *core = handle.get_volatile_ptr()->get_ai_core();
+    if (auto *car = traffic::get_traffic_from_entity(vhandle_type<entity>{handle})) {
+        car->field_C.stop_engine_sounds();
+        car->field_C.stop_horn();
+        car->field_C.field_4 = false;
+        if (car->field_158 && core) {
+            auto *node = static_cast<ai::traffic_inode *>(
+                core->get_info_node(ai::traffic_inode::default_id, false));
+            if (node)
+                node->remove_from_traffic_system(false);
+        }
+    }
+}
+}
+
+void *traffic::native_vtable()
+{
+    static void *table[] = {
+        reinterpret_cast<void *>(&native_traffic_spawn),
+        reinterpret_cast<void *>(&native_traffic_unspawn),
+        reinterpret_cast<void *>(&native_traffic_critical),
+        reinterpret_cast<void *>(&native_traffic_actor),
+        reinterpret_cast<void *>(&native_traffic_set_actor),
+        reinterpret_cast<void *>(&native_traffic_lane),
+        reinterpret_cast<void *>(&native_traffic_position),
+    };
+    return table;
+}
+
+void *traffic::native_vehicle_vtable()
+{
+    static void *table[] = {
+        reinterpret_cast<void *>(&native_traffic_vehicle_actor),
+        reinterpret_cast<void *>(&native_traffic_vehicle_reset),
+        reinterpret_cast<void *>(&native_traffic_vehicle_set_actor),
+        reinterpret_cast<void *>(&native_traffic_vehicle_out_of_world),
+    };
+    return table;
+}
+
+traffic::traffic(vhandle_type<entity> handle)
+    : spawnable(handle), field_C(handle), field_140(nullptr), field_158(false),
+      field_170(0), field_174(0), field_180(false), field_1BC(false), field_1BD(false),
+      field_1BE(false), field_1BF(false), field_1C0(0), field_1C9(false), field_1E4(0),
+      field_200(false), field_201(false), field_202(true), field_203(false),
+      field_21C(nullptr), field_228(0)
+{
+    m_vtbl = reinterpret_cast<std::intptr_t>(native_vtable());
+    field_C.m_vtbl = reinterpret_cast<std::intptr_t>(native_vehicle_vtable());
+    field_C.field_54->field_4 |= 0x800;
+    reset();
+    traffic_list.push_back(this);
+    field_1C4 = 3;
+    if (traffic_initialized || !traffic_enabled) {
+        field_C.set_collidable(true);
+        field_C.set_visible(true);
+        set_standing(false);
+    }
+    field_210 = event_manager::add_callback(event::DAMAGED, field_C.field_50.field_0,
+        traffic_damaged, this, false);
+    field_214 = event_manager::add_callback(event::DESTROYED, field_C.field_50.field_0,
+        traffic_destroyed, this, false);
+}
+
+traffic *traffic::create_traffic_from_entity(vhandle_type<entity> handle)
+{
+    ++var<int>(0x0096CA04);
+    void *storage = sizeof(traffic) <= slab_allocator::get_max_object_size()
+        ? slab_allocator::allocate(sizeof(traffic), nullptr) : ::operator new(sizeof(traffic));
+    return storage ? new (storage) traffic(handle) : nullptr;
+}
+
+void traffic::set_actor(vhandle_type<entity> handle)
+{
+    field_C.set_actor(handle);
+}
+
+void traffic::detach_current_lane()
+{
+    if (field_140) {
+        auto *owner = field_C.get_my_actor();
+        const vhandle_type<actor> handle{owner ? owner->my_handle : entity_base_vhandle{0}};
+        if (field_140->is_valid(nullptr) && handle.get_volatile_ptr()) {
+            field_140->remove_ai_from_lane(handle);
+            field_140->update_lane_indexes();
+        }
+        field_140 = nullptr;
+    }
+}
+
+void traffic::reset()
+{
+    set_ai_car_occupied(false);
+    ai_potential_car_counter = 0;
+    field_C.reset();
+    field_1C4 = 0;
+    field_228 = 0;
+    field_18C = 0;
+    field_190 = nullptr;
+    previous_lane = nullptr;
+    detach_current_lane();
+    field_144 = field_148 = nullptr;
+    field_15C = 1;
+    field_4 = field_5 = true;
+    field_164 = std::rand() * (1.0f / RAND_MAX) + 1.0f;
+    field_168 = field_16C = 0;
+    field_170.field_0 = 0;
+    field_174 = 0;
+    field_1C9 = false;
+    field_17C = static_cast<traffic_path_intersection::eDirection>(0);
+    field_1BE = true;
+    field_1E8 = nullptr;
+    field_194 = 1.0f;
+    field_198 = field_19C = 0.0f;
+    field_1A0 = 0.0f;
+    field_1A4 = 1.0f;
+    field_1A8 = 0.0f;
+    field_1AC = field_1B0 = 0.0f;
+    field_1B4 = 1.0f;
+    field_178 = 0.0f;
+    field_1BC = field_1BD = false;
+    field_1B8 = std::rand() * (1.0f / RAND_MAX) + 0.5f;
+    field_1BF = false;
+    field_180 = false;
+    field_184 = 0;
+    field_188 = nullptr;
+    field_1CC = 0;
+    field_1D0 = 1.0f;
+    field_1D4 = FARAWAY;
+    field_1E0 = 0.0f;
+    field_1E4.field_0 = 0;
+    field_1FC = 0.2f;
+    field_200 = field_201 = true;
+    field_202 = field_203 = false;
+    set_hit_points(var<int>(0x00938000));
+    set_damage_done(0);
+    field_218 = 0;
+    field_1C8 = true;
+    if (auto *owner = field_C.get_my_actor()) {
+        owner->field_8 &= ~0xFu;
+        owner->on_fade_distance_changed_internal(0);
+    }
+    field_20C = 0;
+}
+
+void traffic::set_standing(bool enabled)
+{
+    auto *owner = field_C.get_my_actor();
+    if (owner && owner->has_physical_ifc()) {
+        owner->physical_ifc()->set_allow_manage_standing(enabled);
+        owner->physical_ifc()->enable(enabled);
+    }
+}
+
+void traffic::set_hit_points(int hit_points)
+{
+    auto *owner = field_C.get_my_actor();
+    if (owner && owner->has_damage_ifc()) {
+        auto &health = owner->damage_ifc()->field_1FC.field_0;
+        health[2] = static_cast<float>(hit_points);
+        if (health[2] < health[1])
+            std::swap(health[1], health[2]);
+        health[0] = std::max(health[1], std::min(static_cast<float>(hit_points), health[2]));
+    } else {
+        field_204 = hit_points;
+    }
+}
+
+void traffic::set_damage_done(int amount)
+{
+    auto *owner = field_C.get_my_actor();
+    if (owner && owner->has_damage_ifc()) {
+        auto &health = owner->damage_ifc()->field_1FC.field_0;
+        health[0] = std::max(health[1], std::min(health[2] - amount, health[2]));
+    } else {
+        field_208 = amount;
+    }
+}
+
+int traffic::get_hit_points()
+{
+
+    auto *owner = field_C.get_my_actor();
+    if (owner && owner->has_damage_ifc()) {
+        const auto &health = owner->damage_ifc()->field_1FC.field_0;
+        return static_cast<int>(health[2] - health[0]);
+    }
+    return field_208;
+}
+
+int traffic::get_damage_done()
+{
+
+    auto *owner = field_C.get_my_actor();
+    if (owner && owner->has_damage_ifc())
+        return static_cast<int>(owner->damage_ifc()->field_1FC.field_0[2]);
+    return field_204;
+}
+
+void traffic::screeching_halt()
+{
+    if (field_15C == 12)
+        return;
+    if (field_15C != 13)
+        field_160 = field_15C;
+    field_15C = 12;
+    field_C.field_F4 = 1000.0f;
+    field_1D0 = static_cast<double>(std::rand()) * (1.0f / RAND_MAX) * 2.0 - 1.0;
+}
+
+void traffic::distract(float duration)
+{
+    if (!field_1CC && field_15C == 3) {
+        field_1CC = static_cast<int>(duration * 8.0f);
+        field_1D0 = -field_1D0;
+    }
+}
+
+void traffic::damage_callback(int, entity *)
+{
+    if (get_damage_done() - get_hit_points() <= 0)
+        return;
+    if (get_damage_done() - get_hit_points() > 0) {
+        if (!field_1CC && field_15C == 3)
+            distract(1.0f);
+    } else {
+        set_damage_done(get_damage_done());
+        screeching_halt();
+        event_manager::raise_event(event::TRAFFIC_CAR_KILLED, field_C.get_my_actor()->my_handle);
+        if (auto *hero = g_world_ptr->get_hero_ptr(0))
+            event_manager::raise_event(event::TRAFFIC_CAR_KILLED, hero->my_handle);
+        field_200 = false;
+        if (field_96C9DC == this) {
+            field_203 = false;
+            field_96C9DC = nullptr;
+        }
+    }
+    field_C.set_damage_level(static_cast<int>(
+        static_cast<float>(get_hit_points()) / (get_damage_done() + 1) * 6.0), 0);
+    field_C.set_damage_level(static_cast<int>(
+        static_cast<float>(get_hit_points()) / (get_damage_done() + 1) * 6.0), 1);
+}
+
+void traffic::play_car_toss_voice()
+{
+    if (vhandle_type<entity>{field_228}.get_volatile_ptr() || field_C.bodytype > 1)
+        return;
+    auto *voice = static_cast<ai::voice_box_inode *>(
+        field_C.get_my_actor()->get_ai_core()->get_info_node(ai::voice_box_inode::default_id, false));
+    if (voice && voice->can_gab()) {
+        voice->say_gab(string_hash("cartoss"), false, 0, nullptr);
+        field_C.field_28 = 10.0f;
+        field_C.field_30 = false;
+    }
+}
+
+bool traffic::set_destroyable(bool enabled)
+{
+    if (field_201 == enabled)
+        return field_201;
+    auto *hero = static_cast<actor *>(g_world_ptr->get_hero_ptr(0));
+    const int hero_type = hero ? hero->m_player_controller->m_hero_type : 0;
+    auto *owner = field_C.get_my_actor();
+    if (owner && owner->has_damage_ifc() && hero_type != 2) {
+        auto *damage = owner->damage_ifc();
+        if (enabled) {
+            damage->field_1F8 &= ~0x40000;
+            damage->field_1FC.sub_48BFB0(1.0f);
+        } else {
+            damage->field_1F8 |= 0x40000;
+        }
+    }
+    field_201 = enabled;
+    return field_201;
+}
+
+void traffic::set_destroyed_elsewhere(traffic *car)
+{
+    if (car->field_158 && car->field_C.bodytype < VEHICLE_MODEL_MAX) {
+        if (auto *model = vehicle::models()[car->field_C.bodytype])
+            --model->refcount;
+    }
+    car->field_158 = false;
+}
+
+void traffic::destroy()
+{
+    if (field_1C9) {
+        if (auto *car = get_traffic_from_entity_slow(field_C.field_50)) {
+            car->field_1C9 = false;
+            car->set_driver_type(3);
+        }
+        field_1C9 = false;
+    }
+    if (field_96C9DC == this) {
+        field_203 = false;
+        field_96C9DC = nullptr;
+    }
+    field_C.stop_horn();
+    clear_previous_lane();
+    release_turn();
+    delete field_1E8;
+    field_1E8 = nullptr;
+    detach_current_lane();
+}
+
+void traffic::destroy_traffic(traffic *car)
+{
+    if (!car)
+        return;
+    if (field_96C9DC == car) {
+        car->field_203 = false;
+        field_96C9DC = nullptr;
+    }
+    car->set_driver_type(3);
+    car->field_4 = true;
+    set_destroyed_elsewhere(car);
+    car->destroy();
+    car->field_158 = false;
+    car->set_actor(vhandle_type<entity>{0});
+    car->_un_spawn();
+    car->~traffic();
+    if (sizeof(traffic) <= slab_allocator::get_max_object_size())
+        slab_allocator::deallocate(car, nullptr);
+    else
+        ::operator delete(car);
+}
+
+void traffic::unspawn_parked()
+{
+    vhandle_type<entity> marker{field_228};
+    if (auto *owner = marker.get_volatile_ptr()) {
+        owner->set_active(false);
+        field_228 = 0;
+    }
+    field_C.set_collidable(false);
+    if (auto *owner = field_C.get_my_actor())
+        owner->set_visible(false, false);
+    detach_current_lane();
+    reset();
+    if (auto *owner = field_C.get_my_actor())
+        owner->remove_from_regions();
+    field_5 = true;
+}
+
+void traffic::_un_spawn()
+{
+    field_C.set_collidable(false);
+    if (vhandle_type<entity>{field_228}.get_volatile_ptr()) {
+        unspawn_parked();
+        return;
+    }
+    if (field_96C9DC == this) {
+        field_203 = false;
+        field_96C9DC = nullptr;
+    }
+    field_C.stop_horn();
+    field_C.set_collidable(false);
+    clear_previous_lane();
+    release_turn();
+    delete field_1E8;
+    field_1E8 = nullptr;
+    if (auto *owner = field_C.get_my_actor())
+        owner->set_visible(false, false);
+    detach_current_lane();
+    reset();
+    if (auto *owner = field_C.get_my_actor()) {
+        owner->remove_from_regions();
+        field_C.stop_engine_sounds();
+        field_C.stop_horn();
+        field_C.field_4 = true;
+    }
+    field_5 = true;
+}
 
 void traffic::sub_6DA3B0(Float a2, Float a3, Float a4)
 {
@@ -75,32 +558,27 @@ void traffic::sub_6DA3B0(Float a2, Float a3, Float a4)
 
 char sub_6BA070()
 {
-    return (char)CDECL_CALL(0x006BA070);
+    for (auto &model : vehicle::models())
+        model = nullptr;
+    const bool car = vehicle::add_model(1, mString{"vehicles\\Entities\\vcl_modcar"}, stru_937FAC[1]);
+    const bool taxi = vehicle::add_model(0, mString{"vehicles\\Entities\\vcl_checkercab"}, stru_937FAC[0]);
+    return car | taxi;
 }
 
 traffic::~traffic()
 {
-    this->m_vtbl = 0x008A5CF8;
-    this->field_C.m_vtbl = 0x008A5CE8;
-
-    entity_base_vhandle v6;
-    v6.field_0 = this->field_C.field_50.field_0.field_0;
-    event_manager::remove_callback(this->field_210, event::DAMAGED, v6);
-
-    v6.field_0 = this->field_C.field_50.field_0.field_0;
-    event_manager::remove_callback(this->field_214, event::DESTROYED, v6);
-
-    this->field_4 = true;
-
-    this->set_driver_type(0);
-    this->un_spawn();
-
-    this->sub_6CD2D0(this);
+    m_vtbl = reinterpret_cast<std::intptr_t>(native_vtable());
+    field_C.m_vtbl = reinterpret_cast<std::intptr_t>(native_vehicle_vtable());
+    event_manager::remove_callback(field_210, event::DAMAGED, field_C.field_50.field_0);
+    event_manager::remove_callback(field_214, event::DESTROYED, field_C.field_50.field_0);
+    field_4 = true;
+    set_driver_type(0);
+    _un_spawn();
+    sub_6CD2D0(this);
 }
 
 void traffic::initialize_traffic()
 {
-#if STANDALONE_SYSTEM
     if (traffic_initialized) {
         return;
     }
@@ -112,36 +590,27 @@ void traffic::initialize_traffic()
             new _std::vector<traffic_path_graph::laneInfoStruct>{};
         spawnable::spawnable_lanes->reserve(30u);
     }
+    if (sub_6BA070()) {
+        for (int index = 29; index >= 0; --index)
+            create_new_traffic(index);
+    }
 
     traffic_initialized = true;
     spawnable::last_camera_po.set_po(
         ZVEC, YVEC, vector3d{-1234.0f, -1234.0f, -1234.0f});
-#else
-    CDECL_CALL(0x006D1CC0);
-#endif
 }
 
-void traffic::sub_6CD2D0(traffic *a2)
+void traffic::sub_6CD2D0(traffic *entry)
 {
-    if constexpr (0) {
-        bool v3 = false;
-        for (auto idx = 0; idx < traffic_list.size(); ++idx) {
-            if (traffic_list[idx] == a2) {
-                v3 = true;
-            }
-
-            if (v3 && idx < traffic_list.size() - 1) {
-                traffic_list[idx] = traffic_list[idx + 1];
-            }
-        }
-
-        if (v3 && !traffic::traffic_list.empty()) {
-            --traffic_list.m_last;
-        }
-
-    } else {
-        THISCALL(0x006CD2D0, this, a2);
+    bool found = false;
+    for (unsigned index = 0; index < traffic_list.size(); ++index) {
+        if (traffic_list[index] == entry)
+            found = true;
+        if (found && index + 1 < traffic_list.size())
+            traffic_list[index] = traffic_list[index + 1];
     }
+    if (found && !traffic_list.empty())
+        traffic_list.pop_back();
 }
 
 bool sub_6DA670(traffic_path_lane *a1, traffic_path_lane *a2)
@@ -368,7 +837,7 @@ void traffic::update_destination(Float a2)
         default:
             break;
         }
-    } else if (((v3 == 3 || v3 == 2) && this->field_1C4) && !this->field_1BE) {
+    } else if ((v3 == 3 || (v3 == 2 && this->field_1C4)) && !this->field_1BE) {
         this->check_lane_change();
     }
 
@@ -394,15 +863,37 @@ void traffic::update_destination(Float a2)
     }
 }
 
-bool traffic::start_lane(traffic_path_lane *a2, bool a3)
+bool traffic::start_lane(traffic_path_lane *lane, bool release)
 {
-    return (bool)THISCALL(0x006C7400, this, a2, a3);
+    if (release)
+        release_turn();
+    field_1BE = false;
+    if (field_140 && field_140->is_valid(nullptr))
+        field_140->get_next_intersection(1)->remove_ai_from_intersection(
+            vhandle_type<actor>{get_my_actor()->get_my_vhandle()}, 0);
+    if (!lane)
+        return false;
+    set_current_lane(lane, -1, true);
+    field_144 = lane;
+    const auto position = field_C.get_abs_position();
+    const auto first = lane->get_node(0);
+    const auto second = lane->get_node(1);
+    field_17C = static_cast<traffic_path_intersection::eDirection>(0);
+    field_148 = nullptr;
+    field_1BC = false;
+    if (!release && (position - second).xz_length2() > 1.0f) {
+        field_168 = 0;
+        field_14C = first + (second - first).normalized();
+        field_15C = 2;
+    } else {
+        field_168 = 1;
+        field_15C = 3;
+        field_14C = lane->get_node(field_168);
+    }
+    sub_6DACB0(lane->get_ai_for_actor());
+    return true;
 }
 
-bool traffic::start_turn()
-{
-    return (bool)THISCALL(0x006D24A0, this);
-}
 
 void traffic::clear_previous_lane()
 {
@@ -419,18 +910,15 @@ void traffic::clear_previous_lane()
 
 traffic *traffic::car_ahead()
 {
-    return (traffic *)THISCALL(0x006C3650, this);
+    entity_base_vhandle handle{0};
+    if (field_140 && field_16C > 0)
+        handle = field_140->get_ai_by_index(field_16C - 1);
+    else if (field_144 && field_144 != field_140)
+        handle = field_144->get_ai_by_index(field_144->get_num_ais() - 1);
+    return handle.get_volatile_ptr() ? get_traffic_from_entity(vhandle_type<entity>{handle}) : nullptr;
 }
 
-void traffic::release_turn()
-{
-    THISCALL(0x006C3DD0, this);
-}
 
-void traffic::check_lane_change()
-{
-    THISCALL(0x006C7680, this);
-}
 
 void traffic::test_script()
 {
@@ -661,23 +1149,11 @@ bool traffic::is_ai_car_occupied() const
     return false;
 }
 
-void traffic::_do_spawn(vector3d a4, vector3d a2, traffic_path_lane *lane, bool a10, bool a11)
-{
-    TRACE("traffic::do_spawn");
-
-    if constexpr (0) {
-    } else {
-        void(__fastcall * func)(traffic *, void *edx, vector3d, vector3d, traffic_path_lane *, bool, bool) =
-            CAST(func, 0x006D9070);
-
-        func(this, nullptr, a4, a2, lane, a10, a11);
-    }
-}
 
 bool sub_6DA550(const vector3d &a1, Float a2)
 {
     auto *current_view_camera = g_game_ptr->get_current_view_camera(0);
-    if (current_view_camera == nullptr) {
+    if (current_view_camera != nullptr) {
         auto abs_pos = current_view_camera->get_abs_position();
 
         auto abs_po = current_view_camera->get_abs_po();
@@ -731,7 +1207,7 @@ void traffic::_critical_processing(Float a2)
             parking_marker *v7 = nullptr;
             if (this->field_C.bodytype == 1 && v4 &&
                 (open_parking_marker = find_open_parking_marker(), (v7 = open_parking_marker) != nullptr) &&
-                !sub_6DA630(vhandle_type<parking_marker>{int(v7)})) {
+                !sub_6DA630(vhandle_type<parking_marker>{v7->get_my_vhandle()})) {
                 this->spawn_at_marker(open_parking_marker);
             } else if (parking_density < 1.0f) {
                 traffic_path_graph *a3 = nullptr;
@@ -743,7 +1219,7 @@ void traffic::_critical_processing(Float a2)
                 if (new_spawn_pos == nullptr || poi_manager::near_violence_poi(this->field_1D4)) {
                     ++unspawned_this_frame;
                 } else {
-                    this->field_14C = this->prepare_for_spawn(new_spawn_pos, this->field_1D4);
+                    this->field_14C = this->prepare_for_spawn(new_spawn_pos, this->field_1D4, a5);
                     ++spawned_this_frame;
                 }
 
@@ -757,69 +1233,40 @@ void traffic::_critical_processing(Float a2)
     }
 }
 
-bool traffic::_is_viable_pos(const vector3d &a2)
+
+bool traffic::_is_viable_pos(const vector3d &position)
 {
-    if constexpr (0) {
-        auto *the_terrain = g_world_ptr->get_the_terrain();
-        auto *reg = the_terrain->find_region(a2, nullptr);
-        if (reg == nullptr || !reg->is_loaded()) {
-            return false;
+    auto *region = g_world_ptr->get_the_terrain()->find_region(position, nullptr);
+    if (!region || !region->is_loaded())
+        return false;
+    if (old_drivers[2] > 0) {
+        for (auto *car : traffic_list) {
+            if (car && car->field_1C4 == 2 &&
+                (car->field_C.get_abs_position() - position).xz_length2() < 625.0f)
+                return false;
         }
-
-        if (!traffic_list.empty() && old_drivers[2] > 0) {
-            for (auto &the_traffic : traffic_list) {
-                if (the_traffic != nullptr && uint16_t(the_traffic->field_1C4) == 2) {
-                    auto v6 = the_traffic->field_C.sub_6DA250();
-                    auto v7 = v6 - a2;
-                    if (v7.xz_length2() < 625.0) {
-                        return false;
-                    }
-                }
-            }
-        }
-
-        return true;
-    } else {
-        return (bool)THISCALL(0x006CB300, this, &a2);
     }
+    return true;
 }
 
-void traffic::spawn_at_marker(parking_marker *a2)
+void traffic::spawn_at_marker(parking_marker *marker)
 {
-    assert(this->get_my_actor() != nullptr);
-    assert(a2 != nullptr);
-
-    if constexpr (0) {
-        a2->set_active(true);
-        this->field_228 = a2->my_handle.field_0;
-
-        auto *v5 = this->field_C.get_my_actor();
-        v5->set_allow_tunnelling_into_next_frame(1);
-
-        entity_set_abs_po(v5, a2->get_abs_po());
-
-        auto *v7 = this->get_my_actor();
-        event_manager::raise_event(event::RESPAWNED_THIS_FRAME, v7->my_handle);
-
-        this->field_C.set_collidable(true);
-        this->field_C.set_visible(true);
-
-        this->field_C.pick_body_and_color();
-        this->field_C.sub_6BA920(0);
-        this->field_C.field_C8 = 0.0;
-        this->field_15C = 14;
-        this->field_5 = false;
-
-        auto *v12 = this->get_my_actor();
-        v12->invalidate_frame_delta();
-
-        auto *v13 = this->get_my_actor();
-        v13->compute_sector(g_world_ptr->the_terrain, false, nullptr);
-
-        this->field_C.manage_engine_sounds(0.000099999997, false);
-    } else {
-        THISCALL(0x006D8F20, this, a2);
-    }
+    marker->set_active(true);
+    field_228 = marker->my_handle.field_0;
+    auto *owner = field_C.get_my_actor();
+    owner->set_allow_tunnelling_into_next_frame(true);
+    entity_set_abs_po(owner, marker->get_abs_po());
+    event_manager::raise_event(event::RESPAWNED_THIS_FRAME, get_my_actor()->my_handle);
+    field_C.set_collidable(true);
+    field_C.set_visible(true);
+    field_C.pick_body_and_color();
+    field_C.sub_6BA920(0);
+    field_C.field_C8 = 0.0f;
+    field_15C = 14;
+    field_5 = false;
+    get_my_actor()->invalidate_frame_delta();
+    get_my_actor()->compute_sector(g_world_ptr->the_terrain, false, nullptr);
+    field_C.manage_engine_sounds(EPSILON, false);
 }
 
 void traffic::set_traffic_density(Float density)
@@ -942,15 +1389,18 @@ void traffic::set_driver_type(int a2)
     }
 }
 
-void traffic::set_current_lane(traffic_path_lane *a2, int a3, bool a4)
-{
-    TRACE("traffic::set_current_lane");
-    THISCALL(0x006C72D0, this, a2, a3, a4);
-}
 
-traffic *traffic::get_traffic_from_entity(vhandle_type<entity> a1)
+traffic *traffic::get_traffic_from_entity(vhandle_type<entity> handle)
 {
-    return (traffic *)CDECL_CALL(0x006C3510, a1);
+    auto *entity_ptr = handle.get_volatile_ptr();
+    if (!entity_ptr)
+        return nullptr;
+    auto *core = entity_ptr->get_ai_core();
+    if (!core)
+        return nullptr;
+    auto *node = static_cast<ai::traffic_inode *>(
+        core->get_info_node(ai::traffic_inode::default_id, false));
+    return node ? node->traffic_ptr : nullptr;
 }
 
 void traffic::set_traffic_model_usage(int modelid, Float a2)
@@ -1032,7 +1482,142 @@ void traffic::advance_traffic(Float a1)
 
 parking_marker *traffic::find_open_parking_marker()
 {
-    return (parking_marker *)CDECL_CALL(0x006BC150);
+    auto *camera = g_game_ptr->get_current_view_camera(0);
+    const vector3d point = camera->get_abs_position();
+    auto *region = camera->get_primary_region();
+    if (!region || !region->collision_proximity_map)
+        return nullptr;
+    parking_marker_visitor visitor(point, flt_937FA8);
+    region->parking_proximity_map->traverse_sphere(point, flt_937FA8, &visitor);
+    return visitor.closest;
+}
+
+
+void traffic::set_current_lane(traffic_path_lane *lane, int index, bool remove_previous)
+{
+    if (field_140 == lane)
+        return;
+    auto *owner = get_my_actor();
+    vhandle_type<actor> handle{owner ? owner->get_my_vhandle() : entity_base_vhandle{0}};
+    if (field_140 && field_140->is_valid(nullptr) && handle.get_volatile_ptr()) {
+        if (remove_previous) {
+            field_140->remove_ai_from_lane(handle);
+            field_140->update_lane_indexes();
+        } else {
+            previous_lane = field_140;
+        }
+    }
+    field_140 = lane;
+    if (lane && lane->is_valid(nullptr) && handle.get_volatile_ptr()) {
+        if (lane->get_ai_index(handle) == -1)
+            field_16C = index <= -1 ? lane->add_ai_to_lane(handle) : lane->add_ai_to_lane(handle, index);
+        else
+            lane->update_lane_indexes();
+    }
+}
+
+
+void traffic::update_facing_lane()
+{
+    if (field_190 == field_140 && field_18C == field_168)
+        return;
+    const int end = field_168 < 1 ? 1 :
+        (field_168 < field_140->get_num_nodes() - 1 ? field_168 : field_140->get_num_nodes() - 1);
+    const auto forward = (field_140->get_node(end) - field_140->get_node(end - 1)).normalized();
+    const vector3d right{forward.z, 0.0f, -forward.x};
+    const vector3d up{-forward.y * forward.x, forward.z * forward.z + forward.x * forward.x,
+                      -forward.y * forward.z};
+    field_194 = right.x; field_198 = right.y; field_19C = right.z;
+    field_1A0 = up.x; field_1A4 = up.y; field_1A8 = up.z;
+    field_1AC = forward.x; field_1B0 = forward.y; field_1B4 = forward.z;
+    field_190 = field_140;
+    field_18C = field_168;
+}
+
+
+actor *traffic::actor_ahead()
+{
+    entity_base_vhandle handle{0};
+    if (field_16C > 0)
+        handle = field_140->get_ai_by_index(field_16C - 1);
+    else if (field_144 && field_144 != field_140)
+        handle = field_144->get_ai_by_index(field_144->get_num_ais() - 1);
+    return vhandle_type<actor>{handle}.get_volatile_ptr();
+}
+
+bool traffic::is_halting() const
+{
+    return field_15C == 12 || field_15C == 13;
+}
+
+bool traffic::is_halted() const
+{
+    return is_halting() && field_C.field_C8 < EPSILON;
+}
+
+bool traffic::is_destroyed_halt() const
+{
+    return is_halted() && field_208 - field_204 <= 0;
+}
+
+
+void traffic::check_obstacle_point(const vector3d &position, float radius, bool &stop,
+                                   bool &slow, bool &clear, bool check_angle)
+{
+    auto delta = position - field_C.get_abs_position();
+    delta.y = 0.0f;
+    if (check_angle) {
+        auto facing = get_my_actor()->get_abs_po().get_z_facing();
+        delta.normalize();
+        facing.normalize();
+        if (dot(facing, delta) > std::cos(0.21816616f))
+            return;
+    }
+    const float distance = delta.xz_length2();
+    const float speed_scale = field_C.field_C8 * 0.2f;
+    if (speed_scale >= 1.0f)
+        radius *= speed_scale;
+    if (distance <= radius * radius)
+        stop = true;
+    else if (distance > 6.0f * radius * radius)
+        clear = true;
+    else
+        slow = true;
+}
+
+
+void traffic::check_obstacle(entity *other, bool &stop, bool &slow, bool &clear, bool check_angle)
+{
+    if (!other)
+        return;
+    float scale = old_drivers[2] && !field_1C4 && field_15C != 6 ? 3.0f : 1.5f;
+    if (!(field_8 & 1))
+        scale *= 2.0f;
+    const float radius = (get_my_actor()->get_colgeom_radius() + other->get_colgeom_radius()) * scale + field_164;
+    check_obstacle_point(other->get_abs_position(), radius, stop, slow, clear, check_angle);
+    if (stop || slow)
+        field_1C0 = other->get_my_vhandle().field_0;
+}
+
+
+bool traffic::point_in_front(const vector3d &position)
+{
+    auto delta = position - field_C.get_abs_position();
+    delta.y *= 0.5f;
+    const float scale = field_C.field_C8 * 0.1f;
+    const float radius = 8.0f * (scale >= 1.0f ? scale : 1.0f);
+    if (delta.xz_length2() > radius * radius)
+        return false;
+    auto facing = get_my_actor()->get_abs_po().get_z_facing();
+    delta.normalize();
+    facing.normalize();
+    return dot(facing, delta) > std::cos(0.34906587f);
+}
+
+bool traffic::player_in_front()
+{
+    auto *player = g_world_ptr->get_hero_ptr(0);
+    return player && !var<traffic *>(0x0096C9DC) && point_in_front(player->get_abs_position());
 }
 
 void traffic_patch()

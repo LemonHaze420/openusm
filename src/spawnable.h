@@ -16,11 +16,13 @@ struct spawnable {
     bool field_5;
 
     spawnable(vhandle_type<entity>);
+    static void *native_vtable();
 
-    vector3d prepare_for_spawn(traffic_path_graph::laneInfoStruct *next_lane_struct, vector3d &a4);
+    vector3d prepare_for_spawn(traffic_path_graph::laneInfoStruct *next_lane_struct, vector3d &a4,
+        int node_index);
 
     //virtual
-    void do_spawn(vector3d a4, vector3d a2, traffic_path_lane *lane, bool a10, bool a11);
+    void do_spawn(vector3d a4, vector3d a2, traffic_path_lane *lane, int node_index, bool a10, bool a11);
 
     //virtual
     void un_spawn();
@@ -41,6 +43,8 @@ struct spawnable {
                                                           traffic_path_graph **a3, traffic_path_graph **a4, int *a5);
 
     void sub_6B9B60(Float a2);
+    uint8_t sub_6B9DD0();
+    static int visibility_flags(const vector3d &position, entity_base *camera_entity);
 
     static bool should_update_spawn_lanes(po &a1, entity_base *ent);
 

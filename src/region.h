@@ -27,6 +27,8 @@ struct dynamic_rtree_root_t;
 struct lego_map_root_node;
 struct resource_pack_slot;
 struct texture_to_frame_map;
+struct nglMesh;
+struct vector4d;
 
 struct region {
     dynamic_rtree_root_t *collision_proximity_map;
@@ -40,15 +42,15 @@ struct region {
     dynamic_proximity_map_stack *current_proximity_map_stack;
     int field_20;
     int field_24;
-    void *meshes;
+    _std::vector<nglMesh *> *meshes;
     region_mash_info *mash_info;
     void *region_entities;
     void *vobbs_for_region_meshes;
     int field_38;
-    int field_3C;
+    uint8_t *field_3C;
     int m_fade_groups_count;
-    int field_44;
-    int field_48;
+    float *field_44;
+    vector4d *field_48;
     _std::vector<light_source *> *lights;
     uint32_t flags;
     uint32_t visited;
@@ -103,6 +105,9 @@ struct region {
     //0x0053B4B0
     region(const mString &a2);
 
+
+    ~region();
+
     //0x0053B380
     void * operator new(uint32_t);
 
@@ -143,6 +148,9 @@ struct region {
 
     void sub_5452D0();
 
+
+    void finish_unloading();
+
     void set_loaded(bool loaded, resource_pack_slot *pack_slot);
 
     //0x0052E760
@@ -150,6 +158,9 @@ struct region {
 
     //0x00544F60
     void create_proximity_maps();
+
+
+    void destroy_proximity_maps();
 
     //0x00519E00
     const mString &get_scene_id(bool a2) const;

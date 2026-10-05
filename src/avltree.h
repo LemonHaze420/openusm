@@ -11,14 +11,16 @@ struct TreeNode {
 
 template <typename T>
 struct AvlTree {
-    TreeNode<T> *field_0;
-    int m_size;
-    bool field_8;
+    TreeNode<T> *field_0{};
+    int m_size{};
+    bool field_8{};
 
     auto size() const
     {
         return this->m_size;
     }
+
+    void add(T *key);
 
     int addHelper(TreeNode<T> *, TreeNode<T> *&, TreeNode<T> *);
 

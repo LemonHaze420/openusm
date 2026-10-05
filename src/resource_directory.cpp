@@ -21,10 +21,8 @@
 #include "utility.h"
 #include "xbpack.h"
 
-#ifdef OPENUSM_XBPACK_V10
 #include "resource_manager.h"
 #include "resource_pack_location.h"
-#endif
 
 #include <array>
 #include <cstddef>
@@ -118,15 +116,13 @@ namespace
         return &it->second;
     }
 
-#ifdef OPENUSM_XBPACK_V10
     resource_directory *resolve_parent(resource_directory *directory, int index)
     {
         assert(directory != nullptr);
         assert(index >= 0 && index < directory->parents.size());
 
         auto *&parent = directory->parents.m_data[index];
-        if (parent != nullptr || g_platform != NL_PLATFORM_XBOX
-            || directory->pack_slot == nullptr) {
+        if (parent != nullptr || directory->pack_slot == nullptr) {
             return parent;
         }
 
@@ -143,7 +139,6 @@ namespace
         parent = resource_manager::get_resource_directory(*parent_key);
         return parent;
     }
-#endif
 }
 
 void resource_directory::un_mash_start(generic_mash_header *header,
@@ -524,10 +519,7 @@ bool resource_directory::find_resource(const resource_key &a2, resource_director
         } else {
             if (this->parents.size() != 0) {
                 for (auto i = 0u; i < this->parents.size(); ++i) {
-                    auto *the_parent = this->parents.at(i);
-#ifdef OPENUSM_XBPACK_V10
-                    the_parent = resolve_parent(this, i);
-#endif
+                    auto *the_parent = resolve_parent(this, i);
                     if (the_parent == nullptr) {
                         break;
                     }
@@ -536,11 +528,7 @@ bool resource_directory::find_resource(const resource_key &a2, resource_director
 
                     if (the_parent->pack_slot->get_partition()->get_type() == RESOURCE_PARTITION_STRIP) {
                         assert(the_parent->parents.size() == 1);
-#ifdef OPENUSM_XBPACK_V10
                         the_parent = resolve_parent(the_parent, 0);
-#else
-                        the_parent = the_parent->parents.at(0);
-#endif
                         if (the_parent == nullptr) {
                             break;
                         }
@@ -914,10 +902,7 @@ bool resource_directory::find_tlresource(uint32_t a1, tlresource_type tlres_type
             return result;
         } else {
             for (int i = 0; i < this->parents.size(); ++i) {
-                auto *the_parent = this->parents.at(i);
-#ifdef OPENUSM_XBPACK_V10
-                the_parent = resolve_parent(this, i);
-#endif
+                auto *the_parent = resolve_parent(this, i);
                 if (the_parent == nullptr) {
                     break;
                 }
@@ -927,11 +912,7 @@ bool resource_directory::find_tlresource(uint32_t a1, tlresource_type tlres_type
                 if (the_parent->pack_slot->get_partition()->get_type() == RESOURCE_PARTITION_STRIP) {
                     assert(the_parent->parents.size() == 1);
 
-#ifdef OPENUSM_XBPACK_V10
                     the_parent = resolve_parent(the_parent, 0);
-#else
-                    the_parent = the_parent->parents.at(0);
-#endif
                     if (the_parent == nullptr) {
                         break;
                     }

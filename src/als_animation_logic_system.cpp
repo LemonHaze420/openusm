@@ -585,7 +585,7 @@ void animation_logic_system::_frame_advance_run_mocomp_pre_anim(Float a2)
             auto *v3 = this->field_6C->time_ifc();
             v4 = v3->sub_4ADE50() * a2;
         } else {
-            v4 = g_world_ptr->field_158.field_0 * a2;
+            v4 = g_world_ptr->time_manager.field_0 * a2;
         }
 
         this->field_74->pre_anim_action(v4);
@@ -602,7 +602,7 @@ void animation_logic_system::_frame_advance_controller(Float a2)
             auto *v3 = this->field_6C->time_ifc();
             v4 = v3->sub_4ADE50();
         } else {
-            v4 = g_world_ptr->field_158.field_0;
+            v4 = g_world_ptr->time_manager.field_0;
         }
 
         auto a2a = v4 * a2;
@@ -624,7 +624,7 @@ void animation_logic_system::_frame_advance_post_controller(Float a1)
             auto *v3 = this->field_6C->time_ifc();
             v4 = v3->sub_4ADE50();
         } else {
-            v4 = g_world_ptr->field_158.field_0;
+            v4 = g_world_ptr->time_manager.field_0;
         }
 
         auto v9 = v4 * a1;

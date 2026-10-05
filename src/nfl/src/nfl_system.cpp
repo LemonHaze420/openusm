@@ -1511,6 +1511,16 @@ int sub_79EC60()
     }
 }
 
+void nflExit()
+{
+    auto &drivers = nflDriverRegistry();
+    for (int i = drivers.field_0 - 1; i >= 0; --i) {
+        auto *driver = drivers.field_4[i];
+        if (driver->init != nullptr && driver->init[1].field_4 != nullptr)
+            driver->init[1].field_4(driver);
+    }
+}
+
 void nfl_system_patch()
 {
     SET_JUMP(0x0079E5F0, nflGetRequestInfo);

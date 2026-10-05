@@ -18,6 +18,11 @@
 
 VALIDATE_SIZE(eligible_pack_streamer, 0x38);
 
+eligible_pack_streamer::~eligible_pack_streamer()
+{
+    clear();
+}
+
 void eligible_pack_streamer::init(int a2, int num_streamers, resource_pack_streamer **streamers,
                                   bool(__cdecl **callbacks)(resource_pack_slot::callback_enum, resource_pack_streamer *,
                                                             resource_pack_slot *, limited_timer *),
@@ -57,7 +62,6 @@ void eligible_pack_streamer::init(int a2, int num_streamers, resource_pack_strea
 
 void eligible_pack_streamer::clear()
 {
-#if STANDALONE_SYSTEM
     this->field_0 = false;
     for (auto *pack : this->eligible_packs) {
         if (pack != nullptr) {
@@ -65,15 +69,12 @@ void eligible_pack_streamer::clear()
             mem_dealloc(pack, sizeof(eligible_pack));
         }
     }
-    this->eligible_packs.clear();
+    _std::vector<eligible_pack *>{}.swap(this->eligible_packs);
 
     for (auto *category : this->field_14) {
         delete category;
     }
-    this->field_14.clear();
-#else
-    THISCALL(0x00547BA0, this);
-#endif
+    _std::vector<eligible_pack_category *>{}.swap(this->field_14);
 }
 
 int compare_eligible_pack_names(const void *a1, const void *a2)

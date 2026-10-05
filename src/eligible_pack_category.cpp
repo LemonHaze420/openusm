@@ -30,11 +30,7 @@ eligible_pack_category::eligible_pack_category(eligible_pack_streamer *eligible_
 
 eligible_pack_category::~eligible_pack_category()
 {
-    if constexpr (STANDALONE_SYSTEM) {
-        this->clear();
-    } else {
-        THISCALL(0x0053E640, this);
-    }
+    this->clear();
 }
 
 void eligible_pack_category::clear()

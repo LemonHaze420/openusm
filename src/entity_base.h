@@ -147,6 +147,7 @@ struct entity_base : entity_base_vtable {
     entity_base *field_28;
     int16_t proximity_map_cell_reference_count;
     uint8_t m_timer;
+    uint8_t rendered_last_frame_override;
     _std::vector<entity_base *> *adopted_children;
     conglomerate *my_conglom_root;
     sound_and_pfx_interface *my_sound_and_pfx_interface;

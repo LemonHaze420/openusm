@@ -1,6 +1,7 @@
 #pragma once
 
 #include "actor.h"
+#include "item.h"
 #include "oldmath_po.h"
 #include "vector3d.h"
 
@@ -19,7 +20,10 @@ struct movement_info {
     bool field_55;
 };
 
-struct coninfo_t;
+struct coninfo_t {
+    _std::vector<vhandle_type<item>> items;
+    int field_10;
+};
 
 struct advanced_entity_ptrs {
     struct render_data {

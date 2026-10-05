@@ -8,6 +8,7 @@ struct traffic_light_interface : actor_interface {
     int field_C;
 
     traffic_light_interface(actor *a2);
+    ~traffic_light_interface();
 
     void *operator new(std::size_t sz);
 

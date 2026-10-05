@@ -98,7 +98,7 @@ physical_interface::physical_interface(actor *a2) : field_188(), field_198()
         this->field_FC = 0;
         this->field_F8 = 0;
         this->field_184 = 0;
-        this->field_180 = g_world_ptr->field_158.field_8;
+        this->field_180 = g_world_ptr->time_manager.field_8;
         this->field_100 = YVEC;
         this->field_10C = 0;
         this->field_C8 = 1.0;
@@ -212,7 +212,7 @@ void physical_interface::frame_advance_all_phys_interfaces(Float elapsed)
         }
         const float scale = owner->field_58 != nullptr
             ? static_cast<float>(owner->field_58->sub_4ADE50())
-            : g_world_ptr->field_158.field_0;
+            : g_world_ptr->time_manager.field_0;
         interface_ptr->field_C &= ~0x60u;
         interface_ptr->field_C4 = 0;
         if ((interface_ptr->field_C & 1) != 0 &&

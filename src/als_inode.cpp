@@ -105,7 +105,7 @@ float als_inode::get_eta_of_combat_signal(als::layer_types a2)
 
             string_hash category_id = v11->get_category_id();
 
-            auto tmp = g_world_ptr->field_158.get_level_time() + a2a;
+            auto tmp = g_world_ptr->time_manager.get_level_time() + a2a;
             this->set_known_combat_signal_time_and_category(tmp, category_id);
         }
         return a2a;

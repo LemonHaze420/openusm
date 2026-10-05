@@ -32,6 +32,7 @@
 #include "intraframe_trajectory.h"
 #include "lego_map.h"
 #include "memory.h"
+#include "mash_info_struct.h"
 #include "moved_entities.h"
 #include "nal_skeleton.h"
 #include "nal_system.h"
@@ -53,8 +54,12 @@
 #include "tl_system.h"
 #include "vtbl.h"
 #include "web_interface.h"
+#include "wds.h"
 
 #include <list.hpp>
+#include <algorithm>
+#include <cmath>
+#include <new>
 
 VALIDATE_SIZE(actor, 0xC0u);
 VALIDATE_OFFSET(actor, adv_ptrs, 0x78);
@@ -85,6 +90,12 @@ static collision_free_state *allocate_collision_free_state_block()
 
 actor::actor(const string_hash &a2, uint32_t a3) : entity(a2, a3)
 {
+#if STANDALONE_SYSTEM
+    construct_v_table_lookup();
+    m_vtbl = ent_v_table_lookup[3];
+#else
+    m_vtbl = 0x008841A0;
+#endif
     this->field_64 = 0;
     this->field_60 = 0;
     this->field_5C = 0;
@@ -93,14 +104,24 @@ actor::actor(const string_hash &a2, uint32_t a3) : entity(a2, a3)
     this->extended_regions = nullptr;
     this->field_58 = nullptr;
     this->field_7C = nullptr;
+    m_interactable_ifc = nullptr;
+    m_player_controller = nullptr;
+    field_90 = mesh_buffers{nullptr, 1, 1, 0xFFFF, 0, nullptr};
 
-    this->set_colgeom(nullptr);
+    colgeom = nullptr;
+    field_4 &= ~2u;
 
     this->common_construct();
 }
 
 actor::actor(int) : entity()
 {
+#if STANDALONE_SYSTEM
+    construct_v_table_lookup();
+    m_vtbl = ent_v_table_lookup[3];
+#else
+    m_vtbl = 0x008841A0;
+#endif
     this->field_10 = {};
 
     this->field_90.field_4 = 1;
@@ -108,11 +129,21 @@ actor::actor(int) : entity()
     this->field_90.field_0 = nullptr;
     this->field_90.field_6 = -1;
     this->field_90.active_client_count = 0;
+    field_90.field_C = nullptr;
 }
 
 actor::~actor()
 {
-    THISCALL(0x004F93A0, this);
+#if STANDALONE_SYSTEM
+    m_vtbl = ent_v_table_lookup[3];
+#else
+    m_vtbl = 0x008841A0;
+#endif
+    if (field_7C != nullptr) {
+        delete field_7C;
+        field_7C = nullptr;
+    }
+    common_destruct();
 }
 
 void actor::common_construct()
@@ -155,7 +186,11 @@ int actor::get_entity_size()
 
 void actor::release_mem()
 {
-    THISCALL(0x004F9410, this);
+    if (field_7C != nullptr)
+        field_7C->destruct_mashed_class();
+    collision_dynamic_rtree().remove_entity(this);
+    common_destruct();
+    entity::release_mem();
 }
 
 vector3d actor::get_velocity()
@@ -436,7 +471,78 @@ void *actor::find_like_item(vhandle_type<item> a2)
 
 void actor::common_destruct()
 {
-    THISCALL(0x004F5720, this);
+    const auto release_interface = [](auto *&value) {
+        if (value == nullptr)
+            return;
+        const auto table = *reinterpret_cast<int *>(value);
+        if (*(reinterpret_cast<unsigned char *>(value) + 8) != 0) {
+            auto destroy = reinterpret_cast<void(__fastcall *)(void *, void *, bool)>(
+                get_vfunc(table, 0));
+            destroy(value, nullptr, true);
+        } else {
+            auto release = reinterpret_cast<void(__fastcall *)(void *, void *)>(
+                get_vfunc(table, 0x24));
+            release(value, nullptr);
+        }
+        value = nullptr;
+    };
+    release_interface(m_damage_interface);
+    release_interface(m_physical_interface);
+    release_interface(m_traffic_light_interface);
+    release_interface(m_facial_expression_interface);
+
+    if (colgeom != nullptr) {
+        if (colgeom->is_dynamic()) {
+            auto destroy = reinterpret_cast<void(__fastcall *)(collision_geometry *, void *, bool)>(
+                get_vfunc(colgeom->m_vtbl, 0));
+            destroy(colgeom, nullptr, true);
+        }
+        colgeom = nullptr;
+        field_4 &= ~2u;
+    }
+    if (anim_ctrl != nullptr) {
+        auto destroy = reinterpret_cast<void(__fastcall *)(nal_anim_controller *, void *, bool)>(
+            get_vfunc(anim_ctrl->m_vtbl, 0));
+        destroy(anim_ctrl, nullptr, true);
+        anim_ctrl = nullptr;
+    }
+    if (field_A4 != 0) {
+        auto *state = collision_free_states + static_cast<uint16_t>(field_A4);
+        *reinterpret_cast<collision_free_state **>(state) = collision_free_states_free;
+        collision_free_states_free = state;
+        field_A4 = 0;
+    }
+    if (adv_ptrs != nullptr) {
+        auto *context = resource_manager::get_resource_context();
+        if (adv_ptrs->my_script != nullptr)
+            context = m_resource_context;
+        if (context != nullptr)
+            resource_manager::push_resource_context(context);
+        auto *value = adv_ptrs;
+        value->~advanced_entity_ptrs();
+        if ((field_8 & 0x2000000u) != 0)
+            mem_dealloc(value, sizeof(*value));
+        adv_ptrs = nullptr;
+        if (context != nullptr)
+            resource_manager::pop_resource_context();
+    }
+    if (m_player_controller != nullptr) {
+        auto destroy = reinterpret_cast<void(__fastcall *)(ai_player_controller *, void *, bool)>(
+            get_vfunc(m_player_controller->m_vtbl, 0));
+        destroy(m_player_controller, nullptr, true);
+        m_player_controller = nullptr;
+    }
+    if (field_88 != nullptr)
+        field_88->destroy_web_effects();
+    field_90.set_mesh(nullptr);
+    if (m_interactable_ifc != nullptr) {
+        m_interactable_ifc->release();
+        m_interactable_ifc = nullptr;
+    }
+    if (field_88 != nullptr) {
+        field_88->release();
+        field_88 = nullptr;
+    }
 }
 
 void actor::cancel_animated_movement(const vector3d &a2, Float a3)
@@ -617,7 +723,7 @@ void actor::create_adv_ptrs()
 		auto *mem = mem_alloc(sizeof(advanced_entity_ptrs));
 		this->adv_ptrs = new (mem) advanced_entity_ptrs {};
 
-		this->set_ext_flag_recursive_internal(static_cast<entity_ext_flag_t>(0x2000000u), true);
+        this->field_4 |= 0x2000000u;
 	}
 }
 
@@ -665,7 +771,6 @@ void actor::destroy_player_controller()
     }
 }
 
-constexpr auto MASH_SYNC_TEST_VAL5 = 0x5BADF00D;
 
 void actor::_un_mash(generic_mash_header *a3, void *a4, generic_mash_data_ptrs *a5)
 {
@@ -723,6 +828,7 @@ void actor::_un_mash(generic_mash_header *a3, void *a4, generic_mash_data_ptrs *
 
             v15->un_mash(a3, v15, v4);
             this->set_colgeom(v15);
+            this->field_4 &= ~0x20000000u;
         } else if ( v5->is_flagged(4u) ) {
             v4->rebase(4u);
 
@@ -730,9 +836,10 @@ void actor::_un_mash(generic_mash_header *a3, void *a4, generic_mash_data_ptrs *
             v19->m_vtbl = collision_mesh_v_table();
             assert(((int)a3) % 4 == 0);
 
-            v19->un_mash(a3, v19, v4);
+            v19->_un_mash(a3, v19, v4);
 
             this->set_colgeom(v19);
+            this->field_4 |= 0x20000000u;
         } else {
             this->set_colgeom(nullptr);
         }
@@ -783,68 +890,46 @@ void actor::_un_mash(generic_mash_header *a3, void *a4, generic_mash_data_ptrs *
         }
 #endif
 
-        const auto actor_tail_marker =
-            this->is_conglom_member()
-                ? *reinterpret_cast<const uint32_t *>(
-                      v4->field_0 - sizeof(uint32_t))
-                : *v4->get<uint32_t>();
-        const bool missing_actor_tail =
-            this->is_a_conglomerate() ||
-            actor_tail_marker != MASH_SYNC_TEST_VAL5;
-        if (missing_actor_tail) {
-            this->field_7C = nullptr;
-            this->m_interactable_ifc = nullptr;
-            this->m_resource_context = resource_manager::get_resource_context();
-            return;
-        }
-        assert(actor_tail_marker == MASH_SYNC_TEST_VAL5);
 
-        auto v34 = *v4->get<bool>();
+        v4->get<uint32_t>();
+        const bool has_ai = *v4->get<bool>();
+        const bool has_interactable = *v4->get<bool>();
+        const bool has_web = *v4->get<bool>();
+        const bool has_facial = *v4->get<bool>();
         v4->rebase(4u);
 
-        if ( v34 ) {
-            auto v38 = *v4->get<int>();
-
+        auto read_interface_blob = [&]() {
+            const auto size = *v4->get<int>();
             v4->rebase(16u);
-
             v4->rebase(4u);
-
-            auto *v42 = v4->get<uint8_t>(v38);
-
-            (void)v42;
-            this->field_7C = nullptr;
+            return mash_info_struct{v4->get<uint8_t>(size), size};
+        };
+        if (has_ai) {
+            auto mash = read_interface_blob();
+            this->field_7C = bit_cast<base_ai_data *>(
+                mash.read_from_buffer(sizeof(base_ai_data), 8));
+            global_transfer_variable_the_actor = this;
+            this->field_7C->unmash(&mash, nullptr);
+            new (this->field_7C) base_ai_data{
+                static_cast<from_mash_in_place_constructor *>(nullptr)};
         }
 
-        auto v61 = *v4->get<bool>();
-        v4->rebase(4u);
-
-        if ( v61 ) {
-            auto v44 = *v4->get<int>();
-
-            v4->rebase(16u);
-
-            v4->rebase(4u);
-
-            auto *v48 = v4->get<uint8_t>(v44);
-
-            (void)v48;
-            this->m_interactable_ifc = nullptr;
-        }
-
-        if (this->m_interactable_ifc != nullptr) {
+        if (has_interactable) {
+            auto mash = read_interface_blob();
+            this->m_interactable_ifc = bit_cast<interactable_interface *>(
+                mash.read_from_buffer(sizeof(interactable_interface), 4));
+            this->m_interactable_ifc->unmash(&mash, this->m_interactable_ifc);
+            new (this->m_interactable_ifc) interactable_interface{
+                static_cast<from_mash_in_place_constructor *>(nullptr)};
             auto &v50 = this->m_interactable_ifc;
             v50->field_0 = this;
             v50->update_registrations();
         }
 
-        auto a4a = *v4->get<bool>();
-        v4->rebase_shared(4u);
-
-        if ( a4a ) {
-            v4->rebase_shared(4u);
-
-            if ( (a3->field_E & 0x8000) != 0 ) {
-                v4->rebase_shared(4u);
+        if (has_facial) {
+            v4->rebase(8u);
+            if ((a3->field_E & 0x8000) != 0) {
+                v4->rebase(4u);
 
                 this->m_facial_expression_interface = v4->get<facial_expression_interface>();
                 this->m_facial_expression_interface->m_vtbl = ifc_v_table_lookup[4];
@@ -853,204 +938,95 @@ void actor::_un_mash(generic_mash_header *a3, void *a4, generic_mash_data_ptrs *
                 this->m_facial_expression_interface = nullptr;
             }
         }
-#if 0
-
-        v53 = *v4->field_0;
-        v54 = v4->field_0 + 1;
-        v55 = 4 - ((LOBYTE(v4->field_0) + 1) & 3);
-        v4->field_0 = v54;
-
-        if ( v55 < 4 )
-            v4->field_0 = &v54[v55];
-
-        if ( v53 )
-        {
-            if ( !this->base.base.base.m_vtbl->field_20C(this) )
-                sub_4C0BA0(this);
-
-            v56 = *(_DWORD *)v4->field_0;
-            v4->field_0 += 4;
-            this->base.base.base.m_vtbl->traffic_light_ifc(this)->field_C = v56;
-        }
-
-        v57 = 16 - ((int)v4->field_0 & 0xF);
-        if ( v57 < 0x10 )
-            v4->field_0 += v57;
-
-        if ( v93 )
-        {
-            v58 = *(_DWORD *)v4->field_0;
-            v59 = (int)(v4->field_0 + 4);
-            v60 = 16 - ((LOBYTE(v4->field_0) + 4) & 0xF);
-            v4->field_0 = (unsigned __int8 *)v59;
-            if ( v60 < 0x10 )
-                v4->field_0 = (unsigned __int8 *)(v60 + v59);
-
-            v61 = 4 - ((int)v4->field_0 & 3);
-            if ( v61 < 4 )
-                v4->field_0 += v61;
-
-            v62 = &v4->field_0[v58];
-            a1.m_hash = (unsigned int)v4->field_0;
-            v4->field_0 = v62;
-            *(_DWORD *)a1.field_4 = 0;
-            *(_DWORD *)&a1.field_4[4] = v58;
-            *(_DWORD *)&a1.field_4[8] = 0;
-            v63 = mash_info_struct::read_from_buffer((mash_info_struct *)&a1, 32, 4);
-            this->field_88 = (web_interface *)v63;
-            nullsub_1((mAvlTree__string_hash_entry *)v63, (mash_info_struct *)&a1, (int)v63);
-            sub_5073A0(v63, (mash_info_struct *)&a1, (int)v63);
-            sub_508320((int *)&this->field_88);
-            v64 = this->field_88;
-            v65 = v64->field_8;
-            v64->field_14 = (int *)this;
-            if ( v65 )
-                v66 = &v65[v64->field_4];
-            else
-                v66 = 0;
-
-            for ( ; v65 != v66; *v67 = this )
-                v67 = (actor **)*v65++;
-
-            v68 = this->field_88;
-            mVector<interaction>::push_back((mVector__interaction *)&web_interface::m_all_web_interfaces, (trigger_region *)v68);
-            if ( (v68->field_1C & 4) != 0 )
-            {
-                ai::player_web_target_inode::add_to_web_targets_list(v68->field_14[7]);
-                LOBYTE(v68->field_1C) |= 2u;
+        const bool has_traffic_light = *v4->get<bool>();
+        v4->rebase(4u);
+        if (has_traffic_light) {
+            if (!this->has_traffic_light_ifc()) {
+                this->init_traffic_light_interface();
             }
+            this->traffic_light_ifc()->field_C = *v4->get<int>();
+        }
+        v4->rebase(16u);
+        if (has_web) {
+            auto mash = read_interface_blob();
+            this->field_88 = bit_cast<web_interface *>(
+                mash.read_from_buffer(sizeof(web_interface), 4));
+            this->field_88->unmash(&mash, this->field_88);
+            ::new (this->field_88) web_interface{
+                static_cast<from_mash_in_place_constructor *>(nullptr)};
+            this->field_88->set_my_actor(this);
+            this->field_88->insert_in_web_targets_list();
         }
 
-        v69 = (int)(v4->field_0 + 4);
-        v4->field_0 = (unsigned __int8 *)v69;
-        v70 = a3->field_E;
-        if ( (v70 & 0x1B) != 0 )
-        {
-            if ( (v70 & 0x10) != 0 )
-            {
-				a5->rebase(4u);
-
-                this->m_physical_interface = a5->get<physical_interface>();
-
+        (void)v4->get<uint32_t>();
+        if ((a3->field_E & 0x1B) != 0) {
+            if ((a3->field_E & 0x10) != 0) {
+                v4->rebase(4u);
+                this->m_physical_interface = v4->get<physical_interface>();
                 this->m_physical_interface->m_vtbl = ifc_v_table_lookup[2];
                 this->m_physical_interface->un_mash(
-                a3,
-                this,
-                this->m_physical_interface,
-                v4);
-            }
-            else
-            {
+                    a3, this, this->m_physical_interface, v4);
+            } else {
                 this->m_physical_interface = nullptr;
             }
-
-            a4->rebase(8u);
-
-            if ( (a3->field_E & 8) != 0 ) {
-
-                a4->rebase(4u);
-
-                this->m_damage_interface = (damage_interface *)v4->field_0;
-                v4->field_0 += sizeof(damage_interface);
+            v4->rebase(8u);
+            if ((a3->field_E & 8) != 0) {
+                v4->rebase(4u);
+                this->m_damage_interface = v4->get<damage_interface>();
                 this->m_damage_interface->m_vtbl = ifc_v_table_lookup[1];
-                this->m_damage_interface->un_mash(
-                    a3,
-                    this,
-                    this->m_damage_interface,
-                    v4);
-            }
-            else
-            {
+                this->m_damage_interface->_un_mash(
+                    a3, this, this->m_damage_interface, v4);
+            } else {
                 this->m_damage_interface = nullptr;
             }
         }
-
-        if ( this->base.base.base.m_vtbl->has_physical_ifc(this) )
-            this->base.base.base.field_4 |= 0x40u;
-
-        v7 = this->base.base.base.m_vtbl->get_ai_core(this) == 0;
-        v74 = this->base.base.base.field_4;
-        if ( v7 )
-            v75 = v74 & 0xFFFFFFFE;
-        else
-            v75 = v74 | 1;
-
-        this->base.base.base.field_4 = v75;
-        if ( this->base.colgeom )
-            this->base.base.base.m_vtbl->set_collisions_active(this, 1, 1);
-
-        if ( ((unsigned __int8 (__fastcall *)(actor *))this->base.base.base.m_vtbl->field_134)(this) )
-            ((void (__fastcall *)(actor *, void *, DWORD, DWORD))this->base.base.base.m_vtbl->field_214)(this, 0, 0);
-
-        if ( resource_context_stack.m_first && resource_context_stack.m_last - resource_context_stack.m_first )
-            v76 = (resource_pack_slot *)*((_DWORD *)resource_context_stack.m_last - 1);
-        else
-            v76 = 0;
-        v77 = this->field_7C;
-        this->field_BC = v76;
-        if ( v77 && (this->base.base.base.field_4 & 4) == 0 ) {
-            base_ai_data::post_entity_mash(v77);
+        if (this->has_physical_ifc()) {
+            this->field_4 |= 0x40u;
         }
-
-        if ( this->base.base.base.m_vtbl->field_20C(this) )
-        {
-            v78 = this->base.base.base.m_vtbl->traffic_light_ifc(this);
-            traffic_signal_mgr::add_traffic_light(&this->base, v78->field_C != 0);
+        if (this->get_ai_core() == nullptr) {
+            this->field_4 &= ~1u;
+        } else {
+            this->field_4 |= 1u;
         }
-
-        if ( this->base.base.base.m_vtbl->is_renderable(this) && (this->base.base.base.field_4 & 0x208000) == 0 )
-        {
-            a3a = this->base.base.base.m_vtbl->get_visual_radius(this);
-            v79 = distance_fader::estimate_fade_index_for_bounding_sphere(a3a);
-            entity_base::on_fade_distance_changed(&this->base.base.base, v79);
+        if (this->colgeom != nullptr) {
+            this->set_collisions_active(true, true);
         }
-
-        this->field_A8[0] = *(_WORD *)v4->field_0;
-        v80 = (__int16 *)(v4->field_0 + 2);
-        v4->field_0 = (unsigned __int8 *)v80;
-        if ( this->field_A8[0] )
-        {
-            this->field_A8[1] = *v80;
-            v81 = v4->field_0 + 2;
-            v4->field_0 = v81;
-            LOWORD(this->field_AC.arr[0]) = *(_WORD *)v81;
-            v82 = v4->field_0 + 2;
-            v4->field_0 = v82;
-            HIWORD(this->field_AC.arr[0]) = *(_WORD *)v82;
-            v83 = v4->field_0 + 2;
-            v4->field_0 = v83;
-            LOWORD(this->field_AC.arr[1]) = *(_WORD *)v83;
-            v84 = v4->field_0 + 2;
-            v4->field_0 = v84;
-            HIWORD(this->field_AC.arr[1]) = *(_WORD *)v84;
-            v85 = v4->field_0 + 2;
-            v4->field_0 = v85;
-            LOWORD(this->field_AC.arr[2]) = *(_WORD *)v85;
-            v86 = v4->field_0 + 2;
-            v4->field_0 = v86;
-            HIWORD(this->field_AC.arr[2]) = *(_WORD *)v86;
-            v87 = v4->field_0 + 2;
-            v4->field_0 = v87;
-            LOWORD(this->field_B8) = *(_WORD *)v87;
-            v88 = (int)(v4->field_0 + 2);
+        if (this->m_skeleton != nullptr) {
+            this->allocate_anim_controller(0u, nullptr);
         }
-        else
-        {
-            this->field_AC.arr[0] = *(float *)v80;
-            v89 = (float *)(v4->field_0 + 4);
-            v4->field_0 = (unsigned __int8 *)v89;
-            this->field_AC.arr[1] = *v89;
-            v90 = (float *)(v4->field_0 + 4);
-            v4->field_0 = (unsigned __int8 *)v90;
-            this->field_AC.arr[2] = *v90;
-            v91 = (int *)(v4->field_0 + 4);
-            v4->field_0 = (unsigned __int8 *)v91;
-            this->field_B8 = *v91;
-            v88 = (int)(v4->field_0 + 4);
+        this->m_resource_context = resource_manager::get_resource_context();
+        if (this->field_7C != nullptr && !this->is_a_conglomerate()) {
+            this->field_7C->post_entity_mash();
         }
-
-        v4->field_0 = (unsigned __int8 *)v88;
-#endif
+        if (this->has_traffic_light_ifc()) {
+            traffic_signal_mgr::add_traffic_light(
+                this, this->traffic_light_ifc()->field_C != 0);
+        }
+        if (this->is_renderable() && (this->field_4 & 0x208000) == 0) {
+            this->on_fade_distance_changed(
+                distance_fader::estimate_fade_index_for_bounding_sphere(
+                    this->get_visual_radius()));
+        }
+        this->field_A8[0] = *v4->get<int16_t>();
+        if (this->field_A8[0] != 0) {
+            this->field_AA = *v4->get<int16_t>();
+            auto read_packed_float = [v4]() {
+                const auto low = *v4->get<uint16_t>();
+                const auto high = *v4->get<uint16_t>();
+                return bit_cast<float>(
+                    uint32_t{low} | (uint32_t{high} << 16));
+            };
+            this->field_AC.x = read_packed_float();
+            this->field_AC.y = read_packed_float();
+            this->field_AC.z = read_packed_float();
+            this->field_B8 = (this->field_B8 & ~0xFFFF) |
+                *v4->get<uint16_t>();
+        } else {
+            this->field_AC.x = *v4->get<float>();
+            this->field_AC.y = *v4->get<float>();
+            this->field_AC.z = *v4->get<float>();
+            this->field_B8 = *v4->get<int>();
+        }
     } else {
         THISCALL(0x004FBD40, this, a3, a4, a5);
 #ifdef OPENUSM_XBPACK_MODE

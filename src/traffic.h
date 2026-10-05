@@ -16,7 +16,11 @@
 
 struct parking_marker;
 struct traffic_path_lane;
-struct traffic_route;
+struct traffic_route {
+    _std::vector<traffic_path_lane *> lanes;
+    bool get_next_turn(traffic_path_lane *lane, traffic_path_intersection::eDirection *direction,
+                       traffic_path_lane **next_lane);
+};
 
 namespace ai {
 struct ai_car_inode;
@@ -63,6 +67,7 @@ struct traffic : spawnable {
     bool field_1BC;
     bool field_1BD;
     bool field_1BE;
+    bool field_1BF;
     int field_1C0;
     int field_1C4;
     char field_1C8;
@@ -93,6 +98,39 @@ struct traffic : spawnable {
     int field_228;
 
     ~traffic();
+    explicit traffic(vhandle_type<entity> handle);
+    static void *native_vtable();
+    static void *native_vehicle_vtable();
+    static traffic *create_traffic_from_entity(vhandle_type<entity> handle);
+    static void destroy_traffic(traffic *car);
+    static void set_destroyed_elsewhere(traffic *car);
+    static traffic *&field_96C9DC;
+
+    void reset();
+    void _un_spawn();
+    void unspawn_parked();
+    void detach_current_lane();
+    void destroy();
+    void set_actor(vhandle_type<entity> handle);
+    void set_standing(bool enabled);
+    bool set_destroyable(bool enabled);
+    void set_hit_points(int hit_points);
+    void set_damage_done(int damage);
+    int get_hit_points();
+    int get_damage_done();
+    void damage_callback(int damage_type, entity *source);
+    void screeching_halt();
+    void distract(float duration);
+    void advance(Float time);
+    bool _is_viable_lane(traffic_path_lane *lane);
+    void play_car_toss_voice();
+
+
+    void set_lane_position_index(int index, traffic_path_lane *lane)
+    {
+        if (lane == field_140)
+            field_16C = index;
+    }
 
     traffic_path_lane *get_current_lane()
     {
@@ -165,7 +203,7 @@ struct traffic : spawnable {
 
     //virtual
     //0x006D9070
-    void _do_spawn(vector3d a4, vector3d a2, traffic_path_lane *lane, bool a10, bool a11);
+    void _do_spawn(vector3d a4, vector3d a2, traffic_path_lane *lane, int node_index, bool a10, bool a11);
 
     //virtual
     //0x006D9740
@@ -243,6 +281,33 @@ struct traffic : spawnable {
     static int &visible_cars;
 
     static int &last_traffic_id;
+
+    void update_facing_lane();
+    actor *actor_ahead();
+    bool is_halted() const;
+    bool is_halting() const;
+    bool is_destroyed_halt() const;
+    bool player_in_front();
+    bool point_in_front(const vector3d &position);
+    void check_obstacle_point(const vector3d &position, float radius, bool &stop,
+                              bool &slow, bool &clear, bool check_angle);
+    void check_obstacle(entity *other, bool &stop, bool &slow, bool &clear, bool check_angle);
+    void pull_over_for_chase();
+    void pass_car_in_front(traffic *other);
+    void driver(Float dt);
+    void driver_x(Float dt);
+    void drive_to_destination(Float dt, bool stop, bool slow);
+    void update_follow();
+    void finish_goto();
+    void which_way_do_i_go();
+    bool reserve_turn();
+    bool signal_requires_stop();
+    bool signal_is_yellow();
+    void clear_chase_lane(traffic_path_lane *lane, bool same_lane, bool unspawn);
+    void yield_to_chase(traffic *chaser, bool same_lane);
+    void damage_obstacles();
+    void advance_fade();
+    void advance_parked(Float dt);
 };
 
 extern void traffic_patch();

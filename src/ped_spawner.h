@@ -6,6 +6,7 @@
 #include "entity_base_vhandle.h"
 #include "float.hpp"
 #include "vector3d.h"
+#include <cstddef>
 
 #include <vector.hpp>
 
@@ -27,16 +28,27 @@ struct ped_spawner : spawnable {
     vector3d field_30;
     vhandle_type<actor> field_3C;
     bool field_40;
+    bool field_41;
     int field_44;
     int field_48;
 
     ped_spawner(int a2);
+    ~ped_spawner();
+    static void *native_vtable();
+    static void *operator new(std::size_t size);
+    static void operator delete(void *storage);
+    void init_vars(vhandle_type<actor> actor_handle);
+    void reset();
+    void _un_spawn();
+    void clear_non_ped_actor(bool replace);
+    bool can_do_special_processing() const;
 
     //0x006C30A0
     actor *create_ped_actor();
 
     //virtual
-    void do_spawn(vector3d a2, vector3d a3, traffic_path_lane *a8, int a9, int a10, int a11);
+    void _do_spawn(vector3d position, vector3d facing, traffic_path_lane *lane,
+        int node_index, bool first, bool moving);
 
     //virtual
     actor *get_my_actor();
@@ -45,6 +57,7 @@ struct ped_spawner : spawnable {
     void spawn(vector3d a4, const vector3d &a2);
 
     void sub_6BBD30(traffic_path_lane *a2);
+    void exit_intersection();
 
     void sub_6C2EA0(Float a2);
 
@@ -59,7 +72,7 @@ struct ped_spawner : spawnable {
     static void populate_lanes();
     static void populate_quad_paths();
 
-    static ped_spawner *assign_non_ped_actor(vhandle_type<actor> a2, int a3);
+    static ped_spawner *assign_non_ped_actor(vhandle_type<actor> actor_handle);
 
     static inline ped_spawner *&next_ped_spawner = var<ped_spawner *>(0x0096C9BC);
 

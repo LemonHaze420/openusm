@@ -19,7 +19,8 @@ struct traffic_path_lane {
     float lane_length;
     uint16_t total_nodes;
     uint16_t flags;
-    int field_10;
+    int16_t field_10;
+    uint16_t field_12;
 
     bool is_valid(traffic_path_graph *a2) const;
 
@@ -29,6 +30,21 @@ struct traffic_path_lane {
 
     //0x005C8320
     void remove_ai_from_lane(vhandle_type<actor> a2);
+    int add_ai_to_lane(vhandle_type<actor> actor_handle);
+    int add_ai_to_lane(vhandle_type<actor> actor_handle, int index);
+    bool is_clogged(bool double_spacing, bool ignore_last_node);
+    bool has_room_for_me(float spacing, bool check_intersection, bool ignore_last_node);
+    traffic_path_lane *get_other_lane();
+    traffic_path_road *get_my_road(traffic_path_intersection *intersection) const;
+    traffic_path_graph *get_graph() const;
+    float get_free_space_sq();
+    entity_base_vhandle get_car_before_point(const vector3d &position, int *index);
+    vector3d car_pos(int index) const;
+    int get_lane_position() const;
+    entity_base_vhandle get_ai_for_actor();
+    entity_base_vhandle last_ai();
+    bool is_point_between_nodes(const vector3d &position, int first, int second) const;
+    int get_nearest_node_xz(const vector3d &position) const;
 
     //0x005BFEA0
     void update_lane_indexes();
@@ -51,7 +67,6 @@ struct traffic_path_lane {
     //0x005E2040
     vector3d get_directional_node() const;
 
-    void sub_5CCFB0(entity *ent, int a3);
 
     vector3d get_node_before_point(const vector3d &a3, int *a4);
 
@@ -61,3 +76,4 @@ struct traffic_path_lane {
 };
 
 extern void traffic_path_lane_patch();
+extern bool pedestrian_seed_blocked(entity &camera, const vector3d &position);

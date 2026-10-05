@@ -32,6 +32,7 @@ void sin_container::setup_world()
     }
 
     auto *terrain = g_world_ptr->create_terrain(mString{field_4});
+    collision_dynamic_rtree().init(12, 4);
     auto strip_count = field_24.size();
     delete[] terrain->strips;
     using terrain_strip = std::remove_reference_t<decltype(*terrain->strips)>;

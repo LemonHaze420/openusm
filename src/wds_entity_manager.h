@@ -8,6 +8,7 @@
 #include <vector.hpp>
 
 struct box_trigger;
+struct beam;
 struct camera;
 struct convex_box;
 struct entity;
@@ -61,6 +62,7 @@ struct wds_entity_manager {
 
     //0x005DFB10
     int add_entity_internal(_std::vector<entity *> *vec, entity *cam);
+    beam *create_and_add_beam(_std::vector<entity *> *destination, const string_hash &id, uint32_t flags);
 
     //0x005DBBC0
     void make_time_limited(entity *a1, Float a2);

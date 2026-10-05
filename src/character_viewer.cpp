@@ -370,7 +370,7 @@ void character_viewer::OnActivate()
         this->field_2E0[0] = 0.0;
         this->field_2F4 = g_TOD;
         us_lighting_switch_time_of_day(0);
-        auto v25 = g_world_ptr->field_158.field_8;
+        auto v25 = g_world_ptr->time_manager.field_8;
         this->field_28 |= 0x80u;
         this->field_2FC = v25;
         this->field_2A = -1;

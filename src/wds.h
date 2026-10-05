@@ -48,7 +48,7 @@ struct world_dynamics_system {
     wds_render_manager field_A0;
     int empty3[1];
     wds_script_manager field_140;
-    wds_time_manager field_158;
+    wds_time_manager time_manager;
     wds_patrol_def_manager field_178;
     wds_token_manager field_188;
     terrain *the_terrain;
@@ -144,6 +144,8 @@ public:
 
     bool is_entity_in_water(vhandle_type<entity> a1);
 
+    bool is_point_under_water(const vector3d &position) const;
+
     void entity_sinks(vhandle_type<entity> a2);
 
     //0x0055B100
@@ -200,8 +202,6 @@ public:
 
     // 0x0054A3B0
     void process_sinking_entities();
-
-    void sub_530460(const vector3d &a2, int visited_regions, bool a4);
 
     entity *get_hero_ptr(int index);
 };

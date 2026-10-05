@@ -127,7 +127,7 @@ void param_block::add_param(string_hash name, param_types type, const void *valu
         return;
     }
 
-    field_0 = g_world_ptr != nullptr ? g_world_ptr->field_158.field_C : 0;
+    field_0 = g_world_ptr != nullptr ? g_world_ptr->time_manager.field_C : 0;
 }
 
 int param_block::get_parameter_data_type(string_hash a2) const

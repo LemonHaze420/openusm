@@ -25,6 +25,8 @@ struct tlInstanceBank {
     //0x0074A410
     ~tlInstanceBank();
 
+    void Release();
+
     //0x0074A470
     void Init();
 

@@ -422,7 +422,6 @@ bool install_xbpack_support()
     PanelFile_xbpack_patch();
     slc_manager_patch();
     script_manager_xbpack_patch();
-    terrain_xbpack_patch();
     wds_xbpack_patch();
 
     if constexpr (xbpack::v10) {

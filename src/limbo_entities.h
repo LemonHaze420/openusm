@@ -5,6 +5,8 @@
 #include "fixed_pool.h"
 #include "variable.h"
 
+#include <array>
+
 extern void add_to_limbo_list(vhandle_type<entity> vent);
 
 extern void update_limbo_list();
@@ -16,6 +18,9 @@ extern void remove_from_limbo_list(vhandle_type<entity> vent);
 inline Var<bool> update_started{0x0095C8C0};
 
 inline Var<int> last_update_slot{0x0095C8C4};
+
+
+inline Var<std::array<uint32_t, 9>> hash_update_bitvector{0x009222B0};
 
 struct limbo_hash_entry {
     vhandle_type<entity> field_0;

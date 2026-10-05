@@ -7,6 +7,7 @@ struct entity;
 
 struct traffic_path_brew;
 struct vector3d;
+struct intersection_manager_brew;
 
 struct traffic_path_graph {
     struct laneInfoStruct {
@@ -19,13 +20,22 @@ struct traffic_path_graph {
 
         char field_F;
     };
-    traffic_path_road **roads;
-    int road_count;
-    void *intersections;
-    int intersection_count;
-    void *paths;
-    int path_count;
-    void *intersection_manager;
+    traffic_path_lane **vehicle_lanes;
+    int vehicle_lane_count;
+    traffic_path_lane **pedestrian_lanes;
+    int pedestrian_lane_count;
+    traffic_path_lane **parking_lanes;
+    int parking_lane_count;
+    struct intersection_manager {
+        traffic_path_intersection **intersections;
+        int count;
+        traffic_path_intersection **special_intersections;
+        int special_count;
+        bool field_10;
+        bool un_mash(char *image, int *bytes, traffic_path_graph *graph, region *reg,
+                     intersection_manager_brew &brew);
+        void release_mem();
+    } *intersection_manager;
     region *reg;
     bool field_20;
 

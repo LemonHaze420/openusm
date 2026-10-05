@@ -31,7 +31,7 @@ void sound_interface::frame_advance_all_sound_ifc(Float elapsed)
         auto *owner = reinterpret_cast<entity *>(interface_ptr->field_4);
         const float scale = owner != nullptr && owner->field_58 != nullptr
             ? static_cast<float>(owner->field_58->sub_4ADE50())
-            : g_world_ptr->field_158.field_0;
+            : g_world_ptr->time_manager.field_0;
         auto *address = get_vfunc(interface_ptr->m_vtbl, 0x28);
         if (address != nullptr) {
             void(__fastcall *frame_advance)(sound_interface *, void *, Float) =

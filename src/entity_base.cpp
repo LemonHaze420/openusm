@@ -38,6 +38,9 @@
 #include <cassert>
 #include <cstdio>
 #include <cmath>
+#include <new>
+#include <vector.hpp>
+#include "variables.h"
 
 VALIDATE_SIZE(entity_base, 0x44u);
 VALIDATE_OFFSET(entity_base, my_abs_po, 0x14);
@@ -165,15 +168,13 @@ float entity_base::sub_57CB80()
 
 entity_base::~entity_base()
 {
-    if constexpr (0) {
-        assert(is_dynamic());
-        this->common_destruct();
-        if (!this->is_conglom_member() && this->my_rel_po != nullptr) {
-            mem_dealloc(this->my_rel_po, sizeof(po));
-            this->my_rel_po = nullptr;
-        }
-    } else {
-        THISCALL(0x004F8FA0, this);
+#if STANDALONE_SYSTEM
+    m_vtbl = ent_v_table_lookup[0];
+#endif
+    common_destruct();
+    if (!is_conglom_member() && my_rel_po != nullptr) {
+        mem_dealloc(my_rel_po, sizeof(po));
+        my_rel_po = nullptr;
     }
 }
 
@@ -295,13 +296,11 @@ void entity_base::set_active(bool a2)
     }
 }
 
-void entity_base::set_visible(bool a2, bool)
+void entity_base::set_visible(bool visible, bool suppress_owner_update)
 {
-    if (a2) {
-        this->field_4 |= 0x200;
-    } else {
-        this->field_4 &= ~0x200;
-    }
+    auto callback = reinterpret_cast<void(__fastcall *)(entity_base *, void *, bool, bool)>(
+        get_vfunc(m_vtbl, 0x44));
+    callback(this, nullptr, visible, suppress_owner_update);
 }
 
 ai::ai_core *entity_base::get_ai_core()
@@ -316,12 +315,16 @@ ai::ai_core *entity_base::get_ai_core()
 
 bool entity_base::is_hero()
 {
-    return false;
+    auto callback = reinterpret_cast<bool(__fastcall *)(entity_base *, void *)>(
+        get_vfunc(m_vtbl, 0x4C));
+    return callback(this, nullptr);
 }
 
 bool entity_base::is_alive()
 {
-    return true;
+    auto callback = reinterpret_cast<bool(__fastcall *)(entity_base *, void *)>(
+        get_vfunc(m_vtbl, 0x50));
+    return callback(this, nullptr);
 }
 
 int entity_base::get_flavor()
@@ -368,7 +371,9 @@ bool entity_base::is_an_actor() const
 
 bool entity_base::is_a_conglomerate_clone()
 {
-    return false;
+    auto predicate = reinterpret_cast<bool(__fastcall *)(entity_base *, void *)>(
+        get_vfunc(m_vtbl, 0x68));
+    return predicate(this, nullptr);
 }
 
 bool entity_base::is_a_camera()
@@ -445,7 +450,9 @@ bool entity_base::is_a_marker()
 
 bool entity_base::is_a_parking_marker()
 {
-    return false;
+    auto predicate = reinterpret_cast<bool(__fastcall *)(entity_base *, void *)>(
+        get_vfunc(m_vtbl, 0x9C));
+    return predicate(this, nullptr);
 }
 
 bool entity_base::is_a_water_exit_marker()
@@ -606,13 +613,16 @@ time_interface *entity_base::time_ifc()
 
 bool entity_base::has_damage_ifc()
 {
-    return false;
+    auto callback = reinterpret_cast<bool(__fastcall *)(entity_base *, void *)>(
+        get_vfunc(m_vtbl, 0x114));
+    return callback(this, nullptr);
 }
 
 damage_interface *entity_base::damage_ifc()
 {
-    assert(0 && "Accessing an invalid interface");
-    return nullptr;
+    auto callback = reinterpret_cast<damage_interface *(__fastcall *)(entity_base *, void *)>(
+        get_vfunc(m_vtbl, 0x118));
+    return callback(this, nullptr);
 }
 
 bool entity_base::has_facial_expression_ifc()
@@ -697,14 +707,16 @@ decal_data_interface *entity_base::decal_data_ifc()
     return nullptr;
 }
 
-bool entity_base::get_ifc_num(const resource_key &, float &, bool)
+bool entity_base::get_ifc_num(const resource_key &key, float &value, bool log)
 {
-    return false;
+    using query = bool (__fastcall *)(entity_base *, void *, const resource_key &, float &, bool);
+    return reinterpret_cast<query>(get_vfunc(m_vtbl, 0x14C))(this, nullptr, key, value, log);
 }
 
-bool entity_base::set_ifc_num(const resource_key &, float, bool)
+bool entity_base::set_ifc_num(const resource_key &key, float value, bool log)
 {
-    return false;
+    using setter = bool (__fastcall *)(entity_base *, void *, const resource_key &, float, bool);
+    return reinterpret_cast<setter>(get_vfunc(m_vtbl, 0x150))(this, nullptr, key, value, log);
 }
 
 bool entity_base::get_ifc_vec(const resource_key &, vector3d &, bool)
@@ -749,11 +761,6 @@ void entity_base::_un_mash(generic_mash_header *a1, void *a2, generic_mash_data_
 
             this->my_rel_po->un_mash(a1, this->my_rel_po, a3);
         }
-#if STANDALONE_SYSTEM
-        if (!this->my_rel_po->is_valid() && this->is_a_conglomerate()) {
-            new (this->my_rel_po) po {};
-        }
-#endif
 
         this->my_abs_po = this->my_rel_po;
         this->m_parent = nullptr;
@@ -935,22 +942,20 @@ void entity_base::look_at(const vector3d &a1)
 
 void entity_base::clear_adopted_children()
 {
-    if constexpr (0) {
-        if (this->adopted_children != nullptr) {
-            for (auto &child : (*this->adopted_children)) {
-                auto v6 = child->get_abs_po();
-                child->clear_parent(false);
-                child->set_abs_po(v6);
-}
-
-            void(__cdecl * sub_56F8F0)(void *a1) = CAST(sub_56F8F0, 0x0056F8F0);
-            sub_56F8F0(this->adopted_children);
-
-            this->adopted_children = nullptr;
+#if STANDALONE_SYSTEM
+    if (adopted_children != nullptr) {
+        for (auto *child : *adopted_children) {
+            const auto transform = child->get_abs_po();
+            child->clear_parent(false);
+            child->set_abs_po(transform);
         }
-    } else {
+        adopted_children->~vector();
+        mem_dealloc(adopted_children, sizeof(*adopted_children));
+        adopted_children = nullptr;
+    }
+#else
     THISCALL(0x004E0DD0, this);
-}
+#endif
 }
 
 void entity_base::remove_adopted_child(entity_base *child_arg)
@@ -1072,7 +1077,7 @@ void entity_base::add_adopted_child(entity_base *child_arg)
                "adopted by.");
 
         if (this->adopted_children == nullptr) {
-            auto *mem = mem_alloc(sizeof(adopted_children));
+            auto *mem = mem_alloc(sizeof(*adopted_children));
 
             this->adopted_children = new (mem) _std::vector<entity_base *>{};
         }
@@ -1082,9 +1087,12 @@ void entity_base::add_adopted_child(entity_base *child_arg)
         auto it = std::find(this->adopted_children->begin(), end, child_arg);
 
         if (it == end) {
+#if STANDALONE_SYSTEM
+            this->adopted_children->push_back(child_arg);
+#else
             void (__fastcall *push_back)(void *, void *, void *) = CAST(push_back, 0x005E7330);
-
             push_back(this->adopted_children, nullptr, &child_arg);
+#endif
         }
 
     } else {

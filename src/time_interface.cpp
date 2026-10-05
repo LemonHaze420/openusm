@@ -4,6 +4,7 @@
 
 #include "common.h"
 #include "entity.h"
+#include "entity_mash.h"
 #include "func_wrapper.h"
 #include "variables.h"
 #include "wds.h"
@@ -24,7 +25,12 @@ void decrement_to_zero(float &value, float amount)
 
 time_interface::time_interface(entity *a2)
 {
-    this->m_vtbl = 0x00883850;
+#if STANDALONE_SYSTEM
+    construct_v_table_lookup();
+    m_vtbl = ifc_v_table_lookup[5];
+#else
+    m_vtbl = 0x00883850;
+#endif
     this->field_8 = false;
     this->field_4 = a2;
     this->field_8 = true;
@@ -192,13 +198,13 @@ double time_interface::sub_4ADE50()
 
     switch (v1) {
     case 0: {
-        return v8 * g_world_ptr->field_158.field_0;
+        return v8 * g_world_ptr->time_manager.field_0;
     }
     case 1: {
         return v8 * this->field_C;
     }
     case 2: {
-        return v8 * (g_world_ptr->field_158.field_0 * this->field_C);
+        return v8 * (g_world_ptr->time_manager.field_0 * this->field_C);
     }
     default: {
         return v8 * 1.0;

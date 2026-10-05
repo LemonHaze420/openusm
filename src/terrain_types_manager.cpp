@@ -20,6 +20,11 @@ Var<fixedstring<8> *> s_terrain_types_string_table{0x0096850C};
 
 Var<string_hash[256]> s_terrain_types{0x00969FF8};
 
+string_hash terrain_types_manager::get_terrain_type_by_index(int index)
+{
+    return s_terrain_types()[index];
+}
+
 void terrain_types_manager::create_inst()
 {
     TRACE("terrain_types_manager::create_inst");

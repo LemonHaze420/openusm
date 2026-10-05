@@ -7,6 +7,12 @@ struct signaller : entity_base {
 
     int field_44;
 
+    static inline int &occlusion_status_base = var<int>(0x0095A6D0);
+
+    static void set_occluded_last_frame_all();
+    void set_occluded_last_frame(bool occluded);
+    bool get_occluded_last_frame() const;
+
     signaller() = default;
 
     //0x004F90D0

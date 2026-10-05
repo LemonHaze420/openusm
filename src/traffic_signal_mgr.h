@@ -16,6 +16,9 @@ struct traffic_signal_mgr {
     //0x0054E140
     static void add_traffic_light(entity *a1, bool a2);
 
+
+    static void remove_traffic_light(entity *owner);
+
     struct state_timer_t {
         float field_0;
     };

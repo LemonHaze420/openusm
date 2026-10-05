@@ -11,21 +11,51 @@
 #include "terrain.h"
 #include "wds.h"
 #include "wds_entity_manager.h"
+#include "physical_interface.h"
+#include "vtbl.h"
 
 #include <numeric>
+#include <cmath>
+#include <cstdio>
+#include <algorithm>
 
 VALIDATE_SIZE(vehicle, 0x130);
 
 VALIDATE_OFFSET(vehicle_model, refcount, 0x14);
 VALIDATE_SIZE(vehicle_model, 0x1C);
 
-static auto &car_colors = var<color32[1]>(0x00938190);
 
-static std::pair<string_hash, string_hash> (&s_tail_parts)[5] = var<std::pair<string_hash, string_hash>[5]>(0x0096D208);
-
-static string_hash (&s_car_nose_parts)[5][6] = var<string_hash[5][6]>(0x0096CAB8);
-
-static string_hash (&s_suv_nose_parts)[5][2] = var<string_hash[5][2]>(0x0096CB30);
+static const color32 car_colors[] = {
+    0xFFFFFFFFu, 0xFF323232u, 0xFF4B7BA8u, 0xFFD23C00u, 0xFF719B56u,
+    0xFFDCB469u, 0xFF73AF64u, 0xFFC8FFBEu, 0xFF3250A0u, 0xFF64503Cu,
+    0xFFA00000u, 0xFF9B7D5Au, 0xFF874646u,
+};
+static const std::pair<string_hash, string_hash> s_tail_parts[5] = {
+    {int(to_hash("T1")), int(to_hash("T1_XTRAS_NOTINT"))},
+    {int(to_hash("T2")), int(to_hash("T2_XTRAS_NOTINT"))},
+    {int(to_hash("T3")), int(to_hash("T3_XTRAS_NOTINT"))},
+    {int(to_hash("T4")), int(to_hash("T4_XTRAS_NOTINT"))},
+    {int(to_hash("T5")), int(to_hash("T5_XTRAS_NOTINT"))},
+};
+static const string_hash s_car_nose_parts[5][6] = {
+    {int(to_hash("N1")), int(to_hash("N1_D")), int(to_hash("N1_D_WINDOW_NOTINT")),
+        int(to_hash("N1_P")), int(to_hash("N1_P_WINDOW_NOTINT")), int(to_hash("N1_XTRAS_NOTINT"))},
+    {int(to_hash("N2")), int(to_hash("N2_D")), int(to_hash("N2_D_WINDOW_NOTINT")),
+        int(to_hash("N2_P")), int(to_hash("N2_P_WINDOW_NOTINT")), int(to_hash("N2_XTRAS_NOTINT"))},
+    {int(to_hash("N3")), int(to_hash("N3_D")), int(to_hash("N3_D_WINDOW_NOTINT")),
+        int(to_hash("N3_P")), int(to_hash("N3_P_WINDOW_NOTINT")), int(to_hash("N3_XTRAS_NOTINT"))},
+    {int(to_hash("N4")), int(to_hash("N4_D")), int(to_hash("N4_D_WINDOW_NOTINT")),
+        int(to_hash("N4_P")), int(to_hash("N4_P_WINDOW_NOTINT")), int(to_hash("N4_XTRAS_NOTINT"))},
+    {int(to_hash("N5")), int(to_hash("N5_D")), int(to_hash("N5_D_WINDOW_NOTINT")),
+        int(to_hash("N5_P")), int(to_hash("N5_P_WINDOW_NOTINT")), int(to_hash("N5_XTRAS_NOTINT"))},
+};
+static const string_hash s_suv_nose_parts[5][2] = {
+    {int(to_hash("N1")), int(to_hash("N1_XTRAS_NOTINT"))},
+    {int(to_hash("N2")), int(to_hash("N2_XTRAS_NOTINT"))},
+    {int(to_hash("N3")), int(to_hash("N3_XTRAS_NOTINT"))},
+    {int(to_hash("N4")), int(to_hash("N4_XTRAS_NOTINT"))},
+    {int(to_hash("N5")), int(to_hash("N3_XTRAS_NOTINT"))},
+};
 
 Var<vehicle_model *[VEHICLE_MODEL_MAX]> vehicle::models {
     0x0096C97C
@@ -33,8 +63,80 @@ Var<vehicle_model *[VEHICLE_MODEL_MAX]> vehicle::models {
 
 int &vehicle::cur_vehicle_type = var<int>(0x00937FCC);
 
+#if STANDALONE_SYSTEM
+static const bool native_vehicle_defaults = [] {
+    vehicle::cur_vehicle_type = -1;
+    return true;
+}();
+#endif
+
+namespace {
+actor *__fastcall native_vehicle_actor(vehicle *self, void *) { return self->get_my_actor(); }
+void __fastcall native_vehicle_reset(vehicle *self, void *) { self->reset(); }
+void __fastcall native_vehicle_set_actor(vehicle *self, void *, vhandle_type<entity> handle)
+{
+    self->set_actor(handle);
+}
+
+void __fastcall native_vehicle_out_of_world(vehicle *, void *) {}
+}
+
+void *vehicle::native_vtable()
+{
+    static void *table[] = {
+        reinterpret_cast<void *>(&native_vehicle_actor),
+        reinterpret_cast<void *>(&native_vehicle_reset),
+        reinterpret_cast<void *>(&native_vehicle_set_actor),
+        reinterpret_cast<void *>(&native_vehicle_out_of_world),
+    };
+    return table;
+}
+
+void vehicle::set_actor(vhandle_type<entity> handle)
+{
+    field_50 = handle;
+    field_54 = static_cast<actor *>(field_50.get_volatile_ptr());
+}
+
+vehicle::~vehicle()
+{
+    m_vtbl = reinterpret_cast<std::intptr_t>(native_vtable());
+    use_model(-1, 0);
+}
+
+entity *vehicle::use_model(int model, int instance_id)
+{
+    const auto assign = [this](vhandle_type<entity> handle) {
+        auto function = reinterpret_cast<void(__fastcall *)(vehicle *, void *, vhandle_type<entity>)>(
+            get_vfunc(m_vtbl, 8));
+        function(this, nullptr, handle);
+    };
+    if (field_50.get_volatile_ptr()) {
+        auto *old_model = models()[bodytype];
+        if (old_model) {
+            --old_model->refcount;
+            g_world_ptr->ent_mgr.release_entity(field_50.get_volatile_ptr());
+        }
+        assign(vhandle_type<entity>{0});
+        bodytype = static_cast<uint32_t>(-1);
+    }
+    vhandle_type<entity> handle{0};
+    if (static_cast<unsigned>(model) < VEHICLE_MODEL_MAX && models()[model]) {
+        cur_vehicle_type = model;
+        handle = vhandle_type<entity>{models()[model]->create(instance_id)};
+        cur_vehicle_type = -1;
+    }
+    auto *result = handle.get_volatile_ptr();
+    if (result) {
+        assign(handle);
+        bodytype = model;
+    }
+    return result;
+}
+
 vehicle::vehicle(vhandle_type<entity> a1)
 {
+    m_vtbl = reinterpret_cast<std::intptr_t>(native_vtable());
     this->field_50 = a1;
     this->bodytype = this->get_vehicle_body_type(a1);
     if (this->field_50.get_volatile_ptr() != nullptr) {
@@ -57,155 +159,67 @@ vehicle::vehicle(vhandle_type<entity> a1)
 
 void vehicle::reset()
 {
-    if constexpr (0) {
-        this->field_BC = YVEC;
-        this->field_C8 = 0.0;
-        this->field_CC = 0.0;
-        this->field_D0 = 0.0;
-        this->field_DC = 0;
-        this->field_F0 = 0.0;
-        this->field_E0 = 0;
-        this->field_E8 = 0.0;
-        this->field_F8 = 4;
-        this->field_EC = 0.0;
-        this->field_B0 = ZEROVEC;
-        this->field_F4 = 1.25;
-        this->set_collidable(false);
-        this->set_visible(false);
-
-        if (this->get_my_actor() != nullptr) {
-            auto *v4 = this->get_my_actor();
-            v4->set_visible(0, 0);
-        }
-
-        this->field_12C = 0;
-        this->field_12D = 0;
-        this->field_5C = 0;
-        this->field_60 = 0;
-        this->field_64 = car_colors[0];
-        this->update_part_cache();
-        this->set_damage_level(0, 0);
-        this->set_damage_level(0, 1);
-        this->sub_6D7EA0();
-    } else {
-        THISCALL(0x006D86F0, this);
-    }
+    field_BC = YVEC;
+    field_C8 = field_CC = field_D0 = field_F0 = field_E0 = field_E8 = field_EC = 0.0f;
+    field_DC = 0;
+    field_F8 = 4;
+    field_B0 = ZEROVEC;
+    field_F4 = 1.25f;
+    set_collidable(false);
+    if (auto *owner = get_my_actor())
+        owner->set_visible(false, false);
+    field_12C = field_12D = false;
+    field_5C = field_60 = 0;
+    field_64 = car_colors[0];
+    update_part_cache();
+    set_damage_level(0, 0);
+    set_damage_level(0, 1);
+    sub_6D7EA0();
 }
 
 void vehicle::update_part_cache()
 {
-    TRACE("vehicle::update_part_cache");
-
-    auto func = [](vehicle *self, string_hash a3) -> actor * {
-        auto *v3 = bit_cast<conglomerate *>(self->get_my_actor());
-        auto result = bit_cast<actor *>(v3->get_member(a3, true));
-        return result;
-    };
-
-    if constexpr (0) {
-        if (this->get_my_actor() != nullptr) {
-            static string_hash df_id{int(to_hash("DF"))};
-
-            static string_hash pf_id{int(to_hash("PF"))};
-
-            static string_hash dr_id{int(to_hash("DR"))};
-
-            static string_hash pr_id{int(to_hash("PR"))};
-
-            static string_hash body_id{int(to_hash("BODY"))};
-
-            static string_hash police_gear_id{int(to_hash("POLICE_GEAR"))};
-
-            static string_hash shadow_id{int(to_hash("SHADOW"))};
-
-            static string_hash taxi_id{int(to_hash("TAXI"))};
-
-            static string_hash handlbars_id{int(to_hash("HANDLEBARS"))};
-
-            static string_hash taxi_light_cones{int(to_hash("TAXI_LIGHTCONES"))};
-
-            this->dftire = func(this, df_id);
-
-            this->pftire = func(this, pf_id);
-
-            this->drtire = func(this, dr_id);
-
-            this->prtire = func(this, pr_id);
-
-            this->body = func(this, body_id);
-
-            this->field_110 = func(this, police_gear_id);
-
-            this->field_114 = func(this, shadow_id);
-
-            this->field_118 = func(this, taxi_id);
-
-            this->field_11C = func(this, handlbars_id);
-
-            auto bodytype = this->bodytype;
-            if (bodytype == 1) {
-                this->field_120 = this->body;
-            } else if (bodytype) {
-                this->field_120 = nullptr;
-            } else {
-                this->field_120 = func(this, taxi_light_cones);
-                auto *v21 = this->body;
-                this->field_124 = v21;
-                this->field_128 = v21;
-            }
-        } else {
-            this->dftire = 0;
-            this->pftire = nullptr;
-            this->drtire = nullptr;
-            this->prtire = nullptr;
-            this->body = nullptr;
-            this->field_110 = nullptr;
-            this->field_114 = nullptr;
-            this->field_118 = nullptr;
-            this->field_11C = nullptr;
-            this->field_120 = nullptr;
-            this->field_124 = nullptr;
-            this->field_128 = nullptr;
-        }
-    } else {
-        THISCALL(0x006C1E00, this);
+    auto *owner = static_cast<conglomerate *>(get_my_actor());
+    if (!owner) {
+        dftire = pftire = drtire = prtire = body = nullptr;
+        field_110 = field_114 = field_118 = field_11C = nullptr;
+        field_120 = field_124 = field_128 = nullptr;
+        return;
     }
-
-    {
-        const string_hash police_gear_id{int(to_hash("POLICE_GEAR"))};
-        this->field_120 = func(this, police_gear_id);
-        auto *v21 = this->body;
-        this->field_124 = v21;
-        this->field_128 = v21;
+    const auto member = [owner](const char *name) {
+        return static_cast<actor *>(owner->get_member(string_hash(name), true));
+    };
+    dftire = member("DF");
+    pftire = member("PF");
+    drtire = member("DR");
+    prtire = member("PR");
+    body = member("BODY");
+    field_110 = member("POLICE_GEAR");
+    field_114 = member("SHADOW");
+    field_118 = member("TAXI");
+    field_11C = member("HANDLEBARS");
+    if (bodytype == 1)
+        field_120 = body;
+    else if (bodytype != 0)
+        field_120 = nullptr;
+    else {
+        field_120 = member("TAXI_LIGHTCONES");
+        field_124 = field_128 = body;
     }
 }
 
-static const char *(&off_937FD4)[6] = var<const char *[6]>(0x00937FD4);
+static const char *const off_937FD4[6] = {"FW1", "FB1", "FW2", "MB1", "MW1", "MW2"};
 
 void vehicle::sub_6D7EA0()
 {
-    if constexpr (0) {
-        if (this->get_my_actor() != nullptr) {
-            auto *v2 = this->get_my_actor();
-            if (v2->get_ai_core() != nullptr) {
-                auto *v4 = this->get_my_actor();
-                auto *v6 = v4->get_ai_core();
-                auto *v11 = (ai::voice_box_inode *)v6->get_info_node(ai::voice_box_inode::default_id, false);
-                if (v11 != nullptr) {
-                    auto idx = [](int a1) -> int {
-                        if (a1 <= 0) {
-                            return 0;
-                        } else {
-                            return ((a1 * rand()) / 32768.0);
-                        }
-                    }(6);
-
-                    v11->sub_6D7E10(off_937FD4[idx]);
-                }
-            }
+    auto *owner = get_my_actor();
+    if (owner && owner->get_ai_core()) {
+        auto *voice = static_cast<ai::voice_box_inode *>(
+            owner->get_ai_core()->get_info_node(ai::voice_box_inode::default_id, false));
+        if (voice) {
+            const unsigned index = static_cast<unsigned>(rand() * (6.0 / 32768.0));
+            voice->sub_6D7E10(off_937FD4[index]);
         }
-    } else {
-        THISCALL(0x006D7EA0, this);
     }
 }
 
@@ -216,9 +230,42 @@ vector3d vehicle::sub_6DA250()
     return result;
 }
 
-void vehicle::set_damage_level(int a2, int a3)
+void vehicle::set_damage_level(int level, int end)
 {
-    THISCALL(0x006C1330, this, a2, a3);
+    level = std::max(0, std::min(level, 3));
+    if (end == 0)
+        field_68 = level;
+    else
+        field_6C = level;
+    if (!body)
+        return;
+    if (bodytype == 1 || bodytype == 3) {
+        const int variant = end ? field_60 : field_5C;
+        if (variant < 0 || variant > 2)
+            return;
+        if (end) {
+            static const int car_parts[] = {0, 1, 2};
+            static const int suv_parts[] = {1, 3, 4};
+            set_tail_visible((bodytype == 1 ? car_parts : suv_parts)[variant],
+                field_64, true, field_6C);
+        } else {
+            static const int car_parts[] = {0, 1, 4};
+            static const int suv_parts[] = {1, 2, 4};
+            set_nose_visible((bodytype == 1 ? car_parts : suv_parts)[variant],
+                field_64, true, field_68);
+        }
+        return;
+    }
+    const auto lock_damage_frame = [this](actor *part) {
+        part->field_90.field_6 = (part->field_90.field_6 & 0x3FFF)
+            | ((-1 - (field_6C & 3)) << 14);
+    };
+    lock_damage_frame(body);
+    if (bodytype == 6) {
+        auto *owner = static_cast<conglomerate *>(get_my_actor());
+        lock_damage_frame(static_cast<actor *>(owner->get_member(string_hash("DL_DOOR"), true)));
+        lock_damage_frame(static_cast<actor *>(owner->get_member(string_hash("PF_DOOR"), true)));
+    }
 }
 
 int vehicle::get_vehicle_body_type(vhandle_type<entity> a1)
@@ -300,7 +347,11 @@ actor *vehicle::get_my_actor()
 
 bool vehicle::terminate_vehicles()
 {
-    return (bool)CDECL_CALL(0x006C12B0);
+    for (auto &model : models()) {
+        delete model;
+        model = nullptr;
+    }
+    return true;
 }
 
 vehicle_model::vehicle_model(int a1, mString a2) : field_0(a1), field_4(a2)
@@ -316,11 +367,23 @@ void vehicle_model::sub_6B9F30(vhandle_type<entity> a2)
     g_world_ptr->ent_mgr.release_entity(e);
 }
 
-entity_base_vhandle vehicle_model::create(int a3)
+entity_base_vhandle vehicle_model::create(int instance_id)
 {
-    entity_base_vhandle result;
-    THISCALL(0x006C6680, this, &result, a3);
-    return result;
+    char name[32];
+    std::snprintf(name, sizeof(name), "VEHICLE_%u", static_cast<unsigned>(instance_id));
+    const auto resource = create_resource_key_from_path(field_4.c_str(), RESOURCE_KEY_TYPE_NONE);
+    auto *owner = g_world_ptr->ent_mgr.acquire_entity(resource.m_hash, string_hash(name), 129);
+    if (!owner || !owner->is_an_entity())
+        return entity_base_vhandle{0};
+    po placement;
+    placement.set_po(ZVEC, YVEC, ZEROVEC);
+    entity_set_abs_po(owner, placement);
+    if (owner->has_physical_ifc()) {
+        owner->physical_ifc()->set_allow_manage_standing(false);
+        owner->physical_ifc()->enable(false);
+    }
+    ++refcount;
+    return owner->my_handle;
 }
 
 void vehicle::sub_6BAED0(const vector3d &pos)
@@ -333,46 +396,40 @@ void vehicle::sub_6BAED0(const vector3d &pos)
 
 int vehicle::pick_random_model()
 {
-    TRACE("vehicle::pick_random_model");
-
-    if constexpr (0) {
-    } else {
-        [[maybe_unused]] auto result = CDECL_CALL(0x006BA1B0);
+    float total = 0.0f;
+    for (const auto *model : models())
+        if (model)
+            total += model->field_18;
+    if (total < EPSILON)
         return 0;
+    double position = std::rand() * static_cast<double>(1.0f / RAND_MAX) * total;
+    for (int index = 0; index < VEHICLE_MODEL_MAX; ++index) {
+        if (auto *model = models()[index]) {
+            if (position < model->field_18)
+                return index;
+            position -= model->field_18;
+        }
     }
+    return 0;
 }
 
-int vehicle::pick_model(int a1)
+int vehicle::pick_model(int instance_id)
 {
-    TRACE("vehicle::pick_model");
-
-    if constexpr (0) {
-        auto v1 = std::accumulate(std::begin(models()), std::end(models()), 0, [](uint32_t partialSum, auto &model) {
-            return (model != nullptr ? model->field_18 : 0) + partialSum;
-        });
-
-        if (v1 >= EPSILON) {
-            auto v3 = v1 * (a1 / 30.0f);
-            for (int i = 0; i < 8; ++i) {
-                auto *v4 = models()[i];
-                if (v4 != nullptr) {
-                    if (v4->field_18 > v3) {
-                        return i;
-                    }
-
-                    v3 = v3 - v4->field_18;
-                }
-            }
-
-            return 0;
-        } else {
-            assert(0 && "Bad usage rates on cars");
-            return 0;
+    double total = 0.0;
+    for (const auto *model : models())
+        if (model)
+            total += model->field_18;
+    if (total < EPSILON)
+        return 0;
+    double position = total * (static_cast<double>(instance_id) * (1.0f / 30.0f));
+    for (int index = 0; index < VEHICLE_MODEL_MAX; ++index) {
+        if (auto *model = models()[index]) {
+            if (position < model->field_18)
+                return index;
+            position -= model->field_18;
         }
-    } else {
-        [[maybe_unused]] auto result = CDECL_CALL(0x006BA100, a1);
-        return result;
     }
+    return 0;
 }
 
 void sub_6BB1E0(conglomerate *the_conglom, string_hash a2, color32 a3, bool a4, bool a5, char a6)
@@ -859,24 +916,250 @@ bool sub_6B9E50(const mString &a3)
     return resource_manager::get_resource(resource_id, &a2, &a4) != nullptr;
 }
 
-bool vehicle::add_model(int id, mString a2, Float a3)
+bool vehicle::add_model(int id, mString path, Float usage)
 {
-    if constexpr (0) {
-        if (sub_6B9E50(a2)) {
-            vehicle::models()[id] = new vehicle_model{id, mString{a2}};
-            vehicle::models()[id]->field_18 = a3;
-            return true;
-        } else {
-            return false;
+    if (!sub_6B9E50(path))
+        return false;
+    models()[id] = new vehicle_model{id, path};
+    models()[id]->field_18 = usage;
+    return true;
+}
+
+void vehicle::manage_vehicle_height(bool)
+{
+    auto *owner = get_my_actor();
+    float floor = owner->get_floor_offset();
+    if (floor < EPSILON)
+        floor = 1.0f;
+    vector3d probe = owner->get_rel_position();
+    const vector3d forward = owner->get_abs_po().get_z_facing();
+    vector3d normal = field_BC;
+    entity *hit_entity = nullptr;
+    subdivision_node_obb_base *hit_obb = nullptr;
+    auto *ground = g_world_ptr->the_terrain;
+    float elevation;
+    const auto out_of_world = [this] {
+        auto callback = reinterpret_cast<void(__fastcall *)(vehicle *, void *)>(get_vfunc(m_vtbl, 0xC));
+        callback(this, nullptr);
+    };
+    if (ground && ground->find_region(probe, nullptr)) {
+        elevation = ground->get_elevation(probe, normal, owner, &hit_entity, &hit_obb, -1.0f);
+        if (dot(normal, YVEC) > 0.75f && !is_colinear(forward, normal, 0.01f))
+            field_BC = normal;
+        if (elevation < -100.0f) {
+            out_of_world();
+            return;
         }
     } else {
-        return (bool)CDECL_CALL(0x006B9F60, id, a2, a3);
+        out_of_world();
+        elevation = 0.0f;
+    }
+    vector3d position = get_my_actor()->get_abs_position();
+    position.y = elevation + floor;
+    po transform;
+    transform.set_po(forward, field_BC, position);
+    entity_set_abs_po(get_my_actor(), transform);
+}
+
+namespace {
+
+float vehicle_steering_sine(float angle)
+{
+    const float phase = -std::fabs(angle + 4.71238899230957f) * 0.15915493667125702f;
+    const float t = std::fabs(std::ceil(phase) - phase - 0.5f) - 0.25f;
+    const float t2 = t * t;
+    const float t3 = t2 * t;
+    const float t4 = t2 * t2;
+    const float t5 = t4 * t;
+    float result = t5 * t4 * 39.71065902709961f;
+    result += t3 * t4 * -76.57495880126953f;
+    result += t5 * 81.60222625732422f;
+    result += t3 * -41.3416748046875f;
+    return result + t * 6.283185005187988f;
+}
+
+void rotate_vehicle_pose(po &transform, int first, int second, float angle)
+{
+    const float sine = std::sin(angle);
+    const float cosine = std::cos(angle);
+    for (int row = 0; row != 3; ++row) {
+        const float old_first = transform[row][first];
+        const float old_second = transform[row][second];
+        transform[row][first] = old_first * cosine - old_second * sine;
+        transform[row][second] = old_second * cosine + old_first * sine;
     }
 }
 
-void vehicle::manage_vehicle_height(bool a1)
+
+void set_vehicle_tire_pose(actor *part, float steering, float rotation)
 {
-    THISCALL(0x006BAF50, this, a1);
+    po transform;
+    transform.set_po(ZVEC, YVEC, part->get_rel_position());
+    if (rotation > EPSILON)
+        rotate_vehicle_pose(transform, 1, 2, rotation);
+    if (std::fabs(steering) > EPSILON)
+        rotate_vehicle_pose(transform, 0, 2, steering);
+    part->set_abs_po(transform);
+}
+
+void set_vehicle_body_pose(actor *part, float pitch, float roll)
+{
+    po transform;
+    transform.set_po(ZVEC, YVEC, part->get_rel_position());
+    if (!(pitch <= 0.0f && pitch >= 0.0f))
+        rotate_vehicle_pose(transform, 1, 2, pitch);
+    if (!(roll <= 0.0f && roll >= 0.0f))
+        rotate_vehicle_pose(transform, 0, 1, roll);
+    part->set_abs_po(transform);
+}
+
+void finish_vehicle_motion(actor *owner, const vector3d &displacement, Float dt)
+{
+    owner->set_frame_delta_trans(displacement, dt);
+    auto radius = reinterpret_cast<float(__fastcall *)(actor *, void *)>(get_vfunc(owner->m_vtbl, 0x28));
+    if (radius(owner, nullptr) > 0.0f)
+        static_cast<conglomerate *>(owner)->field_110 &= ~1u;
+}
+}
+
+bool vehicle::is_grounded() const
+{
+    return std::fabs(field_CC) < 0.05f && std::fabs(field_D0) < 0.05f;
+}
+
+vector3d vehicle::get_up_direction()
+{
+    return get_my_actor()->get_abs_po().get_y_facing();
+}
+
+vector3d vehicle::get_forward_direction()
+{
+    return get_my_actor()->get_abs_po().get_z_facing();
+}
+
+void vehicle::drive(Float time, float throttle, float steering, bool traction, bool animate_parts, bool dynamics)
+{
+    const float dt = time;
+    if (bodytype == 2)
+        traction = false;
+    if (field_E8 <= EPSILON)
+        determine_wheel_base();
+    if (field_EC <= EPSILON)
+        determine_tire_radius();
+    const float old_speed = field_C8;
+    const float acceleration = dt * 30.0f;
+    const float braking = dt * 37.5f;
+    if (throttle > 0.05f) {
+        field_C8 = std::min(field_C8 + (field_C8 > -1.0f ? acceleration : braking) * throttle, 50.0f);
+        if (old_speed < 0.0f && field_C8 > 0.0f)
+            field_C8 = 0.0f;
+    } else if (-throttle > 0.05f) {
+        field_C8 = std::max(field_C8 + braking * throttle, -50.0f);
+        if (old_speed > 0.0f && field_C8 < 0.0f)
+            field_C8 = 0.0f;
+    }
+    bool body_changed = false;
+    if (dynamics) {
+        const float pitch = static_cast<int>((old_speed - field_C8) / acceleration * 10.0f) * 0.1f * 0.0872664675116539f;
+        const float roll = static_cast<int>(field_C8 * 0.02f * 10.0f * steering * 2.0f) * 0.1f * 0.2617993950843811f;
+        const auto approach = [](float current, float target, float amount) {
+            return target > current ? std::min(current + amount, target) : std::max(current - amount, target);
+        };
+        const float next_pitch = approach(field_CC, pitch, dt * 0.39269909262657166f);
+        const float next_roll = approach(field_D0, roll, dt * 0.6544985175132751f);
+        body_changed = !(field_CC <= next_pitch && field_CC >= next_pitch) ||
+                       !(field_D0 <= next_roll && field_D0 >= next_roll);
+        field_CC = next_pitch;
+        field_D0 = next_roll;
+    } else {
+        field_CC = field_D0 = 0.0f;
+    }
+    const float distance = dt * field_C8;
+    auto *owner = get_my_actor();
+    vector3d forward = owner->get_abs_po().get_z_facing();
+    const float wheel_steer = steering * -0.6981317400932312f;
+    const float yaw_rate = field_C8 / (field_E8 / vehicle_steering_sine(wheel_steer));
+    bool tires_changed = false;
+    if (dynamics) {
+        tires_changed = !(field_D8 <= wheel_steer && field_D8 >= wheel_steer);
+        field_DC += distance / field_EC;
+        if (field_DC >= 6.2831854820251465f)
+            field_DC -= 6.2831854820251465f;
+        tires_changed = tires_changed || !(field_D4 <= field_DC && field_D4 >= field_DC);
+    } else {
+        field_DC = 0.0f;
+    }
+    field_D4 = field_DC;
+    field_D8 = wheel_steer;
+    if (animate_parts) {
+        if (tires_changed) {
+            const float angle = std::max(-0.6981317400932312f, std::min(wheel_steer, 0.6981317400932312f));
+            set_vehicle_tire_pose(dftire, angle, field_DC);
+            set_vehicle_tire_pose(pftire, angle, field_DC);
+            set_vehicle_tire_pose(drtire, 0.0f, field_DC);
+            set_vehicle_tire_pose(prtire, 0.0f, field_DC);
+        }
+        if (body && body_changed)
+            set_vehicle_body_pose(body, field_CC, field_D0);
+    }
+    const float yaw = yaw_rate * dt;
+    const bool yaw_changed = !(field_E4 <= yaw && field_E4 >= yaw);
+    field_E4 = yaw;
+    const vector3d displacement = forward * distance;
+    const float braking_skid = std::fabs(throttle) > 0.75f ? (-throttle - 0.75f) * 4.0f : 0.0f;
+    if (traction && std::fabs(field_C8) > 1.0f) {
+        const float skid = steering * steering * field_F4 * field_C8 * 0.02f;
+        const float blend = std::max(0.0f, std::min(1.0f - skid, 1.0f)) * 0.95f;
+        field_B0 = displacement * blend + field_B0 * (1.0f - blend);
+        if (field_F4 > 10.0f)
+            field_B0 *= 0.9f;
+        field_C8 = dot(forward, field_B0) / dt;
+        field_18 = std::max(braking_skid, skid);
+    } else {
+        field_B0 = displacement;
+        field_18 = 0.0f;
+    }
+    const vector3d position = owner->get_abs_position() + field_B0;
+    if (yaw_changed) {
+        rotate_vehicle_pose(owner->get_rel_po(), 0, 2, yaw);
+        owner->dirty_family(false);
+    }
+    forward = owner->get_abs_po().get_z_facing();
+    const vector3d right = vector3d::cross(field_BC, forward);
+    forward = vector3d::cross(right, field_BC);
+    po transform;
+    transform.set_po(forward, field_BC, position);
+    if (!(field_70 == transform))
+        entity_set_abs_po(owner, transform);
+    field_70 = transform;
+    finish_vehicle_motion(owner, field_B0, time);
+    field_6 = true;
+    field_C = field_10;
+    field_10 = field_C8 * 0.02f;
+    field_14 = std::max(0.0f, std::min(std::fabs(steering), 1.0f));
+    audio_advance(time);
+    if (old_speed > 0.5f && field_C8 <= 0.5f)
+        play_stopped_sound();
+}
+
+void vehicle::drive_to(Float dt, float speed, const vector3d &target, bool, bool filtered)
+{
+    field_C8 = filtered ? (field_C8 * 3.0f + speed) * 0.25f : speed;
+    const float distance = static_cast<float>(dt) * field_C8;
+    auto *owner = get_my_actor();
+    vector3d forward = owner->get_abs_po().get_z_facing();
+    const vector3d position = owner->get_abs_position();
+    vector3d direction = target - position;
+    if (direction.x * direction.x + direction.z * direction.z >= LARGE_EPSILON) {
+        direction.normalize();
+        forward = filtered ? forward + (direction - forward) * 0.25f : direction;
+    }
+    po transform;
+    transform.set_po(forward, field_BC, position + forward * distance);
+    if (!(field_70 == transform))
+        entity_set_abs_po(owner, transform);
+
+    finish_vehicle_motion(owner, field_B0, dt);
 }
 
 void vehicle_patch()

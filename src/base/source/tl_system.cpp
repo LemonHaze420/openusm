@@ -288,47 +288,6 @@ void set_tl_system_directories()
     }
 }
 
-//0x0078A160
-template <>
-void tlInstanceBankResourceDirectory<nglTexture, tlFixedString>::SkipListIterator::reset()
-{
-    auto *v1 = this->field_4->field_8;
-    if (v1 != nullptr) {
-        this->field_8 = v1->field_4[0];
-    } else {
-        this->field_8 = nullptr;
-    }
-}
-
-//0x00773CB0
-template <>
-nglTexture *tlInstanceBankResourceDirectory<nglTexture, tlFixedString>::SkipListIterator::operator*()
-{
-    nglTexture *result = nullptr;
-    auto v1 = this->field_8;
-    if (v1 != nullptr) {
-        result = v1->field_0;
-    }
-
-    return result;
-}
-
-//0x00778DF0
-template <>
-bool tlInstanceBankResourceDirectory<nglTexture, tlFixedString>::SkipListIterator::operator()()
-{
-    return this->field_8 != nullptr;
-}
-
-//0x0077A160
-template <>
-void tlInstanceBankResourceDirectory<nglTexture, tlFixedString>::SkipListIterator::operator++()
-{
-    auto *v1 = this->field_8;
-    if (v1 != nullptr) {
-        this->field_8 = v1->field_4[0];
-    }
-}
 
 void tlInitList::Register()
 {

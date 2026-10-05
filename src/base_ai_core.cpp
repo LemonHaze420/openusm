@@ -58,7 +58,7 @@ ai_core::ai_core(core_ai_resource *a2, const param_block *a3, actor *a4)
         auto v6 = dword_937CF0;
         this->field_6C = v5;
         this->field_70 = nullptr;
-        auto v7 = g_world_ptr->field_158.field_C;
+        auto v7 = g_world_ptr->time_manager.field_C;
 
         auto func = [](int begin, int end) -> int {
             assert(begin < end);

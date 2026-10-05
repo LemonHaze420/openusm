@@ -20,7 +20,7 @@ void manip_obj::frame_advance_all_manip_objs(Float elapsed)
             reinterpret_cast<char *>(current) + 0xC0);
         const float scale = current->field_58 != nullptr
             ? static_cast<float>(current->field_58->sub_4ADE50())
-            : g_world_ptr->field_158.field_0;
+            : g_world_ptr->time_manager.field_0;
         if (current->m_vtbl != 0) {
             auto *address = get_vfunc(current->m_vtbl, 0x1A4);
             if (address != nullptr) {
@@ -40,7 +40,7 @@ void manip_obj::frame_advance_all_manip_objs(Float elapsed)
         if (cache != nullptr) {
             const float scale = current->field_58 != nullptr
                 ? static_cast<float>(current->field_58->sub_4ADE50())
-                : g_world_ptr->field_158.field_0;
+                : g_world_ptr->time_manager.field_0;
             cache->frame_advance(Float{scale * elapsed.value});
         }
         current = next;

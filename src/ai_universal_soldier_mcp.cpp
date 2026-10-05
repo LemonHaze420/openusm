@@ -11,7 +11,7 @@ VALIDATE_SIZE(universal_soldier_MCP, 0x70u);
 
 universal_soldier_MCP::universal_soldier_MCP()
 {
-    this->field_0 = (g_world_ptr != nullptr ? g_world_ptr->field_158.field_C - 1 : -1);
+    this->field_0 = (g_world_ptr != nullptr ? g_world_ptr->time_manager.field_C - 1 : -1);
 
     universal_soldier_ability_server::populate_server_array(&this->field_14);
     if (global_tokens() == nullptr) {

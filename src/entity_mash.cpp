@@ -3,8 +3,34 @@
 #include "entity_base.h"
 #include "entity.h"
 #include "conglom.h"
+#include "conglomerate_clone.h"
 #include "light_source.h"
+#include "item.h"
+#include "handheld_item.h"
+#include "melee_item.h"
+#include "gun.h"
+#include "beam.h"
+#include "thrown_item.h"
+#include "grenade.h"
+#include "visual_item.h"
+#include "ai_cover_marker.h"
+#include "memory.h"
+#include "vtbl.h"
+#include "physical_interface.h"
+#include "damage_interface.h"
+#include "facial_expression_interface.h"
+#include "time_interface.h"
+#include "signaller.h"
+#include "skeleton_interface.h"
+#include "animation_interface.h"
+#include "script_data_interface.h"
+#include "variant_interface.h"
+#include "ngl_mesh.h"
+#include "collision_geometry.h"
+#include "oldmath_po.h"
 #include "effect_mash_layout.h"
+#include "native_pfx.h"
+#include "sound_and_pfx_interface.h"
 #include "func_wrapper.h"
 #include "parse_generic_mash.h"
 #include "trace.h"
@@ -119,6 +145,122 @@ void fix_ifc_v_table(char *addr, eEntityMashIFCTypeEnum ifc_type)
 }
 
 #if STANDALONE_SYSTEM
+template<typename T>
+static void __fastcall native_entity_destroy(T *self, void *, bool free_memory)
+{
+    self->~T();
+    if (free_memory)
+        mem_dealloc(self, sizeof(T));
+}
+
+template<typename T>
+static void __fastcall native_entity_release(T *self, void *)
+{
+    self->T::release_mem();
+}
+
+template<typename T>
+static void __fastcall native_interface_release(T *self, void *)
+{
+    self->T::release_ifc();
+}
+
+template<typename T>
+static void __fastcall native_heap_interface_destroy(T *self, void *, bool free_memory)
+{
+    self->~T();
+    if (free_memory)
+        ::operator delete(self);
+}
+
+
+static void __fastcall native_time_release(time_interface *, void *)
+{
+}
+
+static void __fastcall native_line_anchor_destroy(entity *self, void *, bool free_memory)
+{
+    self->~entity();
+    if (free_memory)
+        mem_dealloc(self, 0x84);
+}
+
+static void __fastcall native_entity_family_visible(entity *self, void *, bool visible)
+{
+    self->entity::set_family_visible(visible);
+}
+
+static void __fastcall native_entity_clear_region(entity *self, void *, region *reg, int sentinel)
+{
+    self->entity::clear_region(reg, sentinel);
+}
+
+static void __fastcall native_entity_compute_sector(entity *self, void *, terrain *terrain_ptr,
+                                                    bool loading_scene, entity *fallback)
+{
+    self->entity::_compute_sector(terrain_ptr, loading_scene, fallback);
+}
+
+static void __fastcall native_entity_update_ai_proximity(entity *self, void *)
+{
+    self->entity::update_ai_proximity_map_recursive();
+}
+
+
+static void __fastcall native_entity_set_age(entity *, void *, float) {}
+
+static void __fastcall native_entity_set_recursive_age(entity *self, void *, float age)
+{
+    auto set_age = reinterpret_cast<void(__fastcall *)(entity *, void *, float)>(
+        get_vfunc(self->m_vtbl, 0x204));
+    set_age(self, nullptr, age);
+}
+
+static void __fastcall native_conglomerate_set_recursive_age(conglomerate *self, void *, float age)
+{
+    native_entity_set_recursive_age(self, nullptr, age);
+    for (auto *member : self->members) {
+        if (member->is_an_entity()) {
+            auto set_age = reinterpret_cast<void(__fastcall *)(entity_base *, void *, float)>(
+                get_vfunc(member->m_vtbl, 0x208));
+            set_age(member, nullptr, age);
+        }
+    }
+}
+
+static void __fastcall native_conglomerate_update_ai_proximity(conglomerate *self, void *)
+{
+    for (auto *member : self->members) {
+        if (member->is_an_entity()) {
+            auto update = reinterpret_cast<void(__fastcall *)(entity_base *, void *)>(
+                get_vfunc(member->m_vtbl, 0x184));
+            update(member, nullptr);
+        }
+    }
+}
+
+static light_manager *__fastcall native_actor_light_set(actor *, void *)
+{
+
+    return nullptr;
+}
+
+static light_manager *__fastcall native_conglomerate_light_set(conglomerate *self, void *)
+{
+    return self->get_light_set();
+}
+
+static int __fastcall native_item_flavor(item *, void *)
+{
+    return ENTITY_ITEM;
+}
+
+static void __fastcall native_item_unmash(item *self, void *, generic_mash_header *header,
+                                        void *object, generic_mash_data_ptrs *data)
+{
+    self->item::un_mash(header, object, data);
+}
+
 static bool __fastcall standalone_entity_true(entity_base *)
 {
     return true;
@@ -177,8 +319,270 @@ static ai::ai_core *__fastcall standalone_actor_ai_core(actor *self)
     return self->_get_ai_core();
 }
 
-static void __fastcall standalone_actor_ifl_lock(actor *, void *, int)
+static int __fastcall native_entity_flavor(entity *, void *)
 {
+    return 4;
+}
+static float __fastcall native_entity_visual_radius(entity *self, void *)
+{
+    if (!self->is_flagged(0x8004))
+        return 0.0f;
+    auto *owner = self->get_conglom_owner();
+    return owner == nullptr ? 0.0f : owner->get_visual_radius();
+}
+static vector3d *__fastcall native_entity_visual_center(entity *self, void *, vector3d *out)
+{
+    if ((self->field_4 & 0x8004) != 0) {
+        if (auto *owner = self->get_conglom_owner()) {
+            *out = owner->get_visual_center();
+            return out;
+        }
+    }
+    *out = self->get_abs_position();
+    return out;
+}
+static bool __fastcall native_entity_visible(entity *self, void *)
+{
+    return self->is_still_visible();
+}
+static color32 *__fastcall native_entity_color(entity *, void *, color32 *out)
+{
+    *out = color32{255, 255, 255, 255};
+    return out;
+}
+static float __fastcall native_entity_alpha(entity *, void *)
+{
+    return 1.0f;
+}
+static vector3d *__fastcall native_entity_scale(entity *, void *, vector3d *out)
+{
+    *out = vector3d{1.0f, 1.0f, 1.0f};
+    return out;
+}
+static void __fastcall native_entity_po_changed(entity_base *self, void *)
+{
+    self->po_changed();
+}
+static void __fastcall native_actor_frame_delta(actor *self, void *, const vector3d &translation, Float elapsed)
+{
+    self->set_frame_delta_trans_native(translation, elapsed);
+}
+static void __fastcall native_actor_invalidate_frame_delta(actor *self, void *)
+{
+    self->invalidate_frame_delta();
+}
+static void __fastcall native_entity_set_flag(entity_base *self, void *, entity_flag_t flag, bool enabled)
+{
+    self->set_flag_recursive(flag, enabled);
+}
+static void __fastcall native_entity_set_ext_flag(entity_base *self, void *, entity_ext_flag_t flag, bool enabled)
+{
+    self->set_ext_flag_recursive_internal(flag, enabled);
+}
+static void __fastcall native_entity_set_active(entity_base *self, void *, bool enabled)
+{
+    self->set_active(enabled);
+}
+static void __fastcall native_base_set_visible(entity_base *self, void *, bool visible, bool)
+{
+    self->field_4 = visible ? self->field_4 | 0x200 : self->field_4 & ~0x200u;
+}
+static void __fastcall native_entity_set_visible(entity *self, void *, bool visible, bool suppress_owner_update)
+{
+    self->_set_visible(visible, suppress_owner_update);
+}
+static void __fastcall native_actor_suspend(actor *self, void *, bool propagate)
+{
+    self->actor::suspend(propagate);
+}
+static void __fastcall native_actor_unsuspend(actor *self, void *, bool propagate)
+{
+    self->actor::unsuspend(propagate);
+}
+
+static float __fastcall native_actor_visual_radius(actor *self, void *)
+{
+    return self->_get_visual_radius();
+}
+static vector3d *__fastcall native_actor_visual_center(actor *self, void *, vector3d *out)
+{
+    *out = self->_get_visual_center();
+    return out;
+}
+static bool __fastcall native_entity_renderable(entity *self, void *)
+{
+    return self->is_flagged(0x100u);
+}
+static bool __fastcall native_entity_has_time(entity *self, void *)
+{
+    return self->field_58 != nullptr;
+}
+static time_interface *__fastcall native_entity_time(entity *self, void *)
+{
+    return self->field_58;
+}
+static bool __fastcall native_actor_material_switching(actor *self, void *)
+{
+    return self->field_90.field_C != nullptr;
+}
+static void __fastcall native_actor_render(actor *self, void *, float fade)
+{
+    self->_render(Float{fade});
+}
+static nglMesh *__fastcall native_actor_mesh(actor *self, void *)
+{
+    return self->_get_mesh();
+}
+static color32 *__fastcall native_actor_color(actor *self, void *, color32 *out)
+{
+    *out = self->_get_render_color();
+    return out;
+}
+static float __fastcall native_actor_alpha(actor *self, void *)
+{
+    return self->_get_render_alpha_mod();
+}
+static vector3d *__fastcall native_actor_scale(actor *self, void *, vector3d *out)
+{
+    *out = self->actor::get_render_scale();
+    return out;
+}
+static void __fastcall native_actor_set_color(actor *self, void *, color32 value)
+{
+    self->_set_render_color(value);
+}
+static void __fastcall native_entity_set_alpha(entity *, void *, float)
+{
+
+}
+static void __fastcall native_actor_set_alpha(actor *self, void *, float value)
+{
+    self->_set_render_alpha_mod(Float{value});
+}
+static void __fastcall native_conglomerate_set_alpha(conglomerate *self, void *, float value)
+{
+    self->_set_render_alpha_mod(Float{value});
+}
+static void __fastcall native_actor_set_scale(actor *self, void *, const vector3d &value)
+{
+    self->actor::set_render_scale(value);
+}
+static float __fastcall native_actor_floor(actor *self, void *)
+{
+    return self->actor::get_floor_offset();
+}
+static bool __fastcall native_actor_has_physical(actor *self, void *)
+{
+    return self->m_physical_interface != nullptr;
+}
+static physical_interface *__fastcall native_actor_physical(actor *self, void *)
+{
+    return self->m_physical_interface;
+}
+static void __fastcall native_actor_set_collisions(actor *self, void *, bool enabled, bool update_region)
+{
+    self->_set_collisions_active(enabled, update_region);
+}
+static void __fastcall native_entity_update_collision_region(entity *self, void *)
+{
+    self->region_update_poss_collide();
+}
+static bool __fastcall native_entity_possibly_collide(entity *self, void *)
+{
+    return self->possibly_collide();
+}
+static bool __fastcall native_conglomerate_possibly_collide(conglomerate *self, void *)
+{
+    return (self->field_FC != nullptr && !self->field_FC->empty()) ||
+        (self->colgeom != nullptr && self->are_collisions_active());
+}
+static float __fastcall native_conglomerate_visual_radius(conglomerate *self, void *)
+{
+    return self->_get_visual_radius();
+}
+static bool __fastcall native_conglomerate_renderable(conglomerate *self, void *)
+{
+    return self->_is_renderable();
+}
+static void __fastcall native_conglomerate_render(conglomerate *self, void *, float fade)
+{
+    self->_render(Float{fade});
+}
+static skeleton_interface *__fastcall native_conglomerate_skeleton(conglomerate *self, void *)
+{
+    return self->skeleton_ifc;
+}
+static float __fastcall native_actor_colgeom_radius(actor *self, void *)
+{
+    return self->colgeom == nullptr ? 0.0f : self->colgeom->get_bounding_sphere_radius();
+}
+static vector3d *__fastcall native_actor_colgeom_center(actor *self, void *, vector3d *out)
+{
+
+    *out = self->get_abs_po().m * self->colgeom->get_local_space_bounding_sphere_center();
+    return out;
+}
+static vector3d *__fastcall native_conglomerate_colgeom_center(conglomerate *self, void *, vector3d *out)
+{
+    *out = self->conglomerate::get_colgeom_center();
+    return out;
+}
+static float __fastcall native_conglomerate_colgeom_radius(conglomerate *self, void *)
+{
+    return self->conglomerate::get_colgeom_radius();
+}
+
+static bool __fastcall native_base_get_ifc_num(entity_base *, void *, const resource_key &, float &, bool)
+{
+    return false;
+}
+static bool __fastcall native_actor_get_ifc_num(actor *self, void *, const resource_key &key, float &value, bool log)
+{
+    if (self->has_damage_ifc() && self->damage_ifc()->get_ifc_num(key, &value, log))
+        return true;
+    if (self->has_physical_ifc() && self->physical_ifc()->get_ifc_num(key, value, log))
+        return true;
+
+    return false;
+}
+static bool __fastcall native_base_set_ifc_num(entity_base *, void *, const resource_key &, float, bool)
+{
+    return false;
+}
+static bool __fastcall native_actor_set_ifc_num(actor *self, void *, const resource_key &key, float value, bool log)
+{
+    if (self->has_damage_ifc()) {
+        auto *damage = self->damage_ifc();
+        using setter = bool (__fastcall *)(damage_interface *, void *, const resource_key &, Float, bool);
+        if (reinterpret_cast<setter>(get_vfunc(damage->m_vtbl, 0x8))(damage, nullptr, key, value, log))
+            return true;
+    }
+    if (self->has_physical_ifc()) {
+        auto *physical = self->physical_ifc();
+        using setter = bool (__fastcall *)(physical_interface *, void *, const resource_key &, Float, bool);
+        if (reinterpret_cast<setter>(get_vfunc(physical->m_vtbl, 0x8))(physical, nullptr, key, value, log))
+            return true;
+    }
+
+    return false;
+}
+static void __fastcall native_actor_ifl_play(actor *self, void *)
+{
+    if (self->_get_mesh() != nullptr)
+        self->field_90.field_6 |= 0x3FFF;
+}
+static void __fastcall native_actor_ifl_lock(actor *self, void *, int frame)
+{
+    if (self->_get_mesh() != nullptr)
+        self->field_90.field_6 ^= (frame ^ self->field_90.field_6) & 0x3FFF;
+}
+static nglMorphSet *__fastcall native_actor_morph(actor *self, void *, const tlFixedString *name, bool create)
+{
+    return self->_get_morph(*name, create);
+}
+static nglMorphSet *__fastcall native_conglomerate_morph(conglomerate *self, void *, const tlFixedString *name, bool create)
+{
+    return self->_get_morph(*name, create);
 }
 
 static bool __fastcall standalone_conglomerate_has_tentacle(conglomerate *self)
@@ -249,151 +653,6 @@ static int __fastcall standalone_pfx_flavor(entity_base *)
     return PFX;
 }
 
-static uint32_t standalone_effect_u32(const uint8_t *ptr)
-{
-    uint32_t value;
-    std::memcpy(&value, ptr, sizeof(value));
-    return value;
-}
-
-static void standalone_effect_align(uint8_t *&ptr, uintptr_t alignment)
-{
-    const auto remainder = reinterpret_cast<uintptr_t>(ptr) % alignment;
-    if (remainder != 0)
-        ptr += alignment - remainder;
-}
-
-static uint8_t *standalone_effect_record(uint8_t *&ptr, size_t size, size_t alignment)
-{
-    if (alignment != 0) {
-        standalone_effect_align(ptr, alignment);
-    } else {
-        auto *end = ptr;
-        while (*end == effect_mash::alignment_marker)
-            ++end;
-        ptr += static_cast<size_t>(end - ptr) & ~size_t{3};
-    }
-
-    auto *result = ptr;
-    ptr += size;
-    return result;
-}
-
-static std::pair<uint8_t *, uint32_t> standalone_effect_pointers(uint8_t *vector,
-                                                                uint8_t *&stream)
-{
-    if (standalone_effect_u32(vector + offsetof(effect_mash::Vector, data)) == 0)
-        return {nullptr, 0};
-
-    const auto count =
-        standalone_effect_u32(vector + offsetof(effect_mash::Vector, count));
-    standalone_effect_align(stream, 4);
-    auto *entries = standalone_effect_record(
-        stream, static_cast<size_t>(count) * sizeof(uint32_t), 4);
-    return {entries, count};
-}
-
-static void standalone_walk_aps_curve(uint8_t *&stream, unsigned depth)
-{
-    assert(depth <= 64);
-    auto *object = standalone_effect_record(stream, sizeof(uint32_t), 0);
-    const auto type = standalone_effect_u32(object);
-    assert(type >= 8 && type < effect_mash::aps_sizes.size());
-    standalone_effect_record(
-        stream, effect_mash::aps_sizes[type] - sizeof(uint32_t), 1);
-    if (type < 23)
-        return;
-
-    standalone_effect_pointers(
-        object + offsetof(effect_mash::Curve, samples), stream);
-    const auto [values, count] = standalone_effect_pointers(
-        object + offsetof(effect_mash::Curve, values), stream);
-    for (uint32_t i = 0; i < count; ++i) {
-        if (standalone_effect_u32(values + i * sizeof(uint32_t)) != 0)
-            standalone_walk_aps_curve(stream, depth + 1);
-    }
-}
-
-static void standalone_walk_aps_template(uint8_t *&shared)
-{
-    auto *object =
-        standalone_effect_record(shared, sizeof(effect_mash::EffectTemplate), 16);
-    const auto [particles, particle_count] = standalone_effect_pointers(
-        object + offsetof(effect_mash::EffectTemplate, particles), shared);
-    std::vector<bool> textured(particle_count, false);
-
-    for (uint32_t i = 0; i < particle_count; ++i) {
-        if (standalone_effect_u32(particles + i * sizeof(uint32_t)) == 0)
-            continue;
-
-        auto *particle = standalone_effect_record(
-            shared, sizeof(effect_mash::ParticleTemplate), 4);
-        if (standalone_effect_u32(
-                particle + offsetof(effect_mash::ParticleTemplate, graphics)) != 0) {
-            textured[i] = true;
-            auto *graphics =
-                standalone_effect_record(shared, sizeof(uint32_t), 0);
-            const auto type = standalone_effect_u32(graphics);
-            assert(type < 8);
-            standalone_effect_record(
-                shared, effect_mash::aps_sizes[type] - sizeof(uint32_t), 1);
-        }
-
-        if (standalone_effect_u32(
-                particle + offsetof(effect_mash::ParticleTemplate, curves)) != 0) {
-            auto *curves = standalone_effect_record(
-                shared, sizeof(effect_mash::Vector), 4);
-            const auto [entries, count] = standalone_effect_pointers(curves, shared);
-            for (uint32_t j = 0; j < count; ++j) {
-                if (standalone_effect_u32(entries + j * sizeof(uint32_t)) != 0)
-                    standalone_walk_aps_curve(shared, 0);
-            }
-        }
-    }
-
-    const auto [auxiliary, auxiliary_count] = standalone_effect_pointers(
-        object + offsetof(effect_mash::EffectTemplate, auxiliaries), shared);
-    for (uint32_t i = 0; i < auxiliary_count; ++i) {
-        if (standalone_effect_u32(auxiliary + i * sizeof(uint32_t)) != 0)
-            standalone_effect_record(
-                shared, sizeof(effect_mash::Auxiliary), 4);
-    }
-
-    standalone_effect_align(shared, 4);
-    for (const bool has_texture : textured) {
-        if (has_texture && *shared != '\0') {
-            while (*shared++ != '\0') {
-            }
-        }
-    }
-    standalone_effect_align(shared, 16);
-}
-
-static void standalone_walk_particle_instance(generic_mash_data_ptrs *data)
-{
-    auto *&normal = data->field_0;
-    auto *&shared = data->field_4;
-    const bool mismatch = (reinterpret_cast<uintptr_t>(normal) & 15u) == 8u;
-    standalone_effect_align(normal, 16);
-    if (mismatch) {
-        standalone_effect_record(normal, 80, 1);
-        shared += 8;
-        standalone_effect_align(shared, 8);
-        shared += 8;
-    }
-
-    auto *instance = standalone_effect_record(
-        normal, sizeof(effect_mash::ParticleInstance), 0);
-    assert(standalone_effect_u32(instance) == effect_mash::particle_instance_type);
-    const auto [points, count] = standalone_effect_pointers(
-        instance + offsetof(effect_mash::ParticleInstance, points), normal);
-    (void)points;
-    standalone_effect_align(normal, 4);
-    standalone_effect_record(
-        normal, static_cast<size_t>(count) * sizeof(effect_mash::Point), 4);
-    standalone_effect_align(normal, 16);
-    standalone_walk_aps_template(shared);
-}
 
 static void __fastcall standalone_pfx_unmash(entity *self,
                                              void *,
@@ -402,9 +661,130 @@ static void __fastcall standalone_pfx_unmash(entity *self,
                                              generic_mash_data_ptrs *data)
 {
     self->entity::un_mash(header, object, data);
-    standalone_walk_particle_instance(data);
-    *reinterpret_cast<void **>(reinterpret_cast<uint8_t *>(self) + 0x68) = nullptr;
+    auto *owner = static_cast<native_pfx::Entity *>(self);
+    owner->particle = native_pfx::load(data, owner);
 }
+static damage_interface *__fastcall native_base_damage(entity_base *, void *)
+{
+    return nullptr;
+}
+
+static bool __fastcall native_actor_has_damage(actor *self, void *)
+{
+    return self->m_damage_interface != nullptr;
+}
+
+static damage_interface *__fastcall native_actor_damage(actor *self, void *)
+{
+    return self->m_damage_interface;
+}
+
+static bool __fastcall native_actor_hero(actor *self, void *)
+{
+    return self->m_player_controller != nullptr;
+}
+
+static bool __fastcall native_actor_alive(actor *self, void *)
+{
+    return !self->has_damage_ifc() || self->damage_ifc()->field_1FC.field_0[0] > 0.0f;
+}
+
+static bool __fastcall native_damage_get_num(damage_interface *self, void *,
+    const resource_key &key, float &value, bool log)
+{
+    return self->get_ifc_num(key, &value, log);
+}
+
+static bool __fastcall native_damage_set_num(damage_interface *self, void *,
+    const resource_key &key, Float value, bool log)
+{
+    return self->set_ifc_num(key, value, log);
+}
+
+static bool __fastcall native_physical_get_num(physical_interface *self, void *,
+    const resource_key &key, float &value, bool log)
+{
+    return self->get_ifc_num(key, value, log);
+}
+
+static bool __fastcall native_physical_set_num(physical_interface *self, void *,
+    const resource_key &key, Float value, bool log)
+{
+    return self->set_ifc_num(key, value, log);
+}
+
+static bool __fastcall native_physical_get_vec(physical_interface *self, void *,
+    const resource_key &key, vector3d &value, bool log)
+{
+    return self->get_ifc_vec(key, value, log);
+}
+
+static bool __fastcall native_physical_set_vec(physical_interface *self, void *,
+    const resource_key &key, const vector3d &value, bool log)
+{
+    return self->set_ifc_vec(key, value, log);
+}
+
+static bool __fastcall native_physical_string(physical_interface *, void *,
+    const resource_key &, mString &, bool)
+{
+
+    return false;
+}
+
+static void __fastcall native_physical_unmash(physical_interface *self, void *,
+    generic_mash_header *header, void *owner, void *object, generic_mash_data_ptrs *data)
+{
+    self->un_mash(header, owner, object, data);
+}
+
+static void __fastcall native_animation_unmash(animation_interface *self, void *,
+    generic_mash_header *header, void *owner, void *, generic_mash_data_ptrs *data)
+{
+    self->_un_mash(header, owner, 0, data);
+}
+
+static void __fastcall native_script_data_unmash(script_data_interface *self, void *,
+    generic_mash_header *header, void *owner, void *object, generic_mash_data_ptrs *data)
+{
+    self->_un_mash(header, owner, object, data);
+}
+
+static void __fastcall native_variant_unmash(variant_interface *self, void *,
+    generic_mash_header *header, void *owner, void *object, generic_mash_data_ptrs *data)
+{
+    self->_un_mash(header, owner, object, data);
+}
+
+static void __fastcall native_skeleton_unmash(skeleton_interface *self, void *,
+    generic_mash_header *, void *owner, void *, generic_mash_data_ptrs *data)
+{
+
+    self->my_conglomerate = static_cast<conglomerate *>(owner);
+    self->dynamic = false;
+    data->rebase(16);
+    data->rebase(4);
+    self->abs_po = data->get<po>(self->po_count);
+    self->my_conglomerate->field_8 |= 0x10000000;
+}
+
+static const char *__fastcall native_physical_type(physical_interface *, void *)
+{
+    return "physical";
+}
+
+static void __fastcall native_physical_frame(physical_interface *self, void *, Float elapsed)
+{
+    self->frame_advance(elapsed);
+}
+
+static void __fastcall native_physical_force(physical_interface *self, void *,
+    const vector3d &force, physical_interface::force_type type,
+    const vector3d &point, int limb)
+{
+    self->apply_force_increment(force, type, point, limb);
+}
+
 #endif
 
 void construct_v_table_lookup()
@@ -413,32 +793,136 @@ void construct_v_table_lookup()
     static bool initialized;
     static void *marker_vtables[6][192]{};
     static void *entity_base_vtable[192]{};
+    static void *entity_vtable[192]{};
     static void *pfx_vtable[192]{};
     static void *light_source_vtable[192]{};
     static void *actor_vtable[192]{};
     static void *conglomerate_vtable[192]{};
+    static void *item_vtable[192]{};
+    static void *signaller_vtable[192]{};
+    static void *damage_vtable[64]{};
+    static void *physical_vtable[12]{};
+    static void *facial_vtable[64]{};
+    static void *time_vtable[64]{};
+    static void *skeleton_vtable[64]{};
+    static void *animation_vtable[64]{};
+    static void *script_data_vtable[64]{};
+    static void *variant_vtable[64]{};
     if (initialized)
         return;
     initialized = true;
+    ifc_v_table_lookup[12] = sound_and_pfx_interface::native_vtable();
+    animation_vtable[0] = reinterpret_cast<void *>(native_heap_interface_destroy<animation_interface>);
+    animation_vtable[0x1C / 4] = reinterpret_cast<void *>(native_animation_unmash);
+    animation_vtable[0x24 / 4] = reinterpret_cast<void *>(native_interface_release<animation_interface>);
+    ifc_v_table_lookup[0] = reinterpret_cast<int>(animation_vtable);
+    script_data_vtable[0] = reinterpret_cast<void *>(native_heap_interface_destroy<script_data_interface>);
+    script_data_vtable[0x1C / 4] = reinterpret_cast<void *>(native_script_data_unmash);
+    script_data_vtable[0x24 / 4] = reinterpret_cast<void *>(native_interface_release<script_data_interface>);
+    ifc_v_table_lookup[3] = reinterpret_cast<int>(script_data_vtable);
+    damage_vtable[0] = reinterpret_cast<void *>(native_entity_destroy<damage_interface>);
+    damage_vtable[0x4 / 4] = reinterpret_cast<void *>(native_damage_get_num);
+    damage_vtable[0x8 / 4] = reinterpret_cast<void *>(native_damage_set_num);
+    damage_vtable[0x24 / 4] = reinterpret_cast<void *>(native_interface_release<damage_interface>);
+    physical_vtable[0] = reinterpret_cast<void *>(native_heap_interface_destroy<physical_interface>);
+    physical_vtable[0x4 / 4] = reinterpret_cast<void *>(native_physical_get_num);
+    physical_vtable[0x8 / 4] = reinterpret_cast<void *>(native_physical_set_num);
+    physical_vtable[0xC / 4] = reinterpret_cast<void *>(native_physical_get_vec);
+    physical_vtable[0x10 / 4] = reinterpret_cast<void *>(native_physical_set_vec);
+    physical_vtable[0x14 / 4] = reinterpret_cast<void *>(native_physical_string);
+    physical_vtable[0x18 / 4] = reinterpret_cast<void *>(native_physical_string);
+    physical_vtable[0x1C / 4] = reinterpret_cast<void *>(native_physical_unmash);
+    physical_vtable[0x20 / 4] = reinterpret_cast<void *>(native_physical_type);
+    physical_vtable[0x24 / 4] = reinterpret_cast<void *>(native_interface_release<physical_interface>);
+    physical_vtable[0x28 / 4] = reinterpret_cast<void *>(native_physical_frame);
+    physical_vtable[0x2C / 4] = reinterpret_cast<void *>(native_physical_force);
+    facial_vtable[0] = reinterpret_cast<void *>(native_heap_interface_destroy<facial_expression_interface>);
+    facial_vtable[0x24 / 4] = reinterpret_cast<void *>(native_interface_release<facial_expression_interface>);
+    time_vtable[0] = reinterpret_cast<void *>(native_entity_destroy<time_interface>);
+    time_vtable[0x24 / 4] = reinterpret_cast<void *>(native_time_release);
+    skeleton_vtable[0] = reinterpret_cast<void *>(native_heap_interface_destroy<skeleton_interface>);
+    skeleton_vtable[0x1C / 4] = reinterpret_cast<void *>(native_skeleton_unmash);
+    skeleton_vtable[0x24 / 4] = reinterpret_cast<void *>(native_interface_release<skeleton_interface>);
+    ifc_v_table_lookup[1] = reinterpret_cast<int>(damage_vtable);
+    ifc_v_table_lookup[2] = reinterpret_cast<int>(physical_vtable);
+    ifc_v_table_lookup[4] = reinterpret_cast<int>(facial_vtable);
+    ifc_v_table_lookup[5] = reinterpret_cast<int>(time_vtable);
+    ifc_v_table_lookup[6] = reinterpret_cast<int>(skeleton_vtable);
+    variant_vtable[0] = reinterpret_cast<void *>(native_heap_interface_destroy<variant_interface>);
+    variant_vtable[0x1C / 4] = reinterpret_cast<void *>(native_variant_unmash);
+    variant_vtable[0x24 / 4] = reinterpret_cast<void *>(native_interface_release<variant_interface>);
+    ifc_v_table_lookup[10] = reinterpret_cast<int>(variant_vtable);
 
     static constexpr int sizes[28] = {
         0x44, 0x48, 0x68, 0xC0, 0xE8, 0x130, 0xD0, 0x1A4, 0x100, 0x114, 0x374, 0x14C, 0x350, 0x274,
         0x6C, 0x15C, 0x68, 0x68, 0x68, 0x70, 0x68, 0x84, 0xBC, 0x6C, 0x178, 0xDC, 0xC8, 0x78};
     std::copy(std::begin(sizes), std::end(sizes), std::begin(ent_size_lookup));
+    entity_base_vtable[0] = reinterpret_cast<void *>(native_entity_destroy<entity_base>);
+    entity_base_vtable[0x10 / 4] = reinterpret_cast<void *>(native_entity_release<entity_base>);
+    entity_base_vtable[0x44 / 4] = reinterpret_cast<void *>(native_base_set_visible);
     entity_base_vtable[0x60 / 4] = reinterpret_cast<void *>(standalone_entity_false);
     entity_base_vtable[0x64 / 4] = reinterpret_cast<void *>(standalone_entity_false);
+    entity_base_vtable[0x68 / 4] = reinterpret_cast<void *>(standalone_entity_false);
+    entity_base_vtable[0x9C / 4] = reinterpret_cast<void *>(standalone_entity_false);
     entity_base_vtable[0x90 / 4] = reinterpret_cast<void *>(standalone_entity_false);
     entity_base_vtable[0x108 / 4] = reinterpret_cast<void *>(standalone_entity_false);
+    entity_base_vtable[0xC8 / 4] = reinterpret_cast<void *>(standalone_entity_false);
+    entity_base_vtable[0xF0 / 4] = reinterpret_cast<void *>(standalone_entity_false);
+    entity_base_vtable[0x4C / 4] = reinterpret_cast<void *>(standalone_entity_false);
+    entity_base_vtable[0x50 / 4] = reinterpret_cast<void *>(standalone_entity_true);
+    entity_base_vtable[0x114 / 4] = reinterpret_cast<void *>(standalone_entity_false);
+    entity_base_vtable[0x118 / 4] = reinterpret_cast<void *>(native_base_damage);
+    entity_base_vtable[0x14C / 4] = reinterpret_cast<void *>(native_base_get_ifc_num);
+    entity_base_vtable[0x150 / 4] = reinterpret_cast<void *>(native_base_set_ifc_num);
     entity_base_vtable[0x164 / 4] = reinterpret_cast<void *>(standalone_entity_base_unmash);
+    std::copy(std::begin(entity_base_vtable), std::end(entity_base_vtable), std::begin(signaller_vtable));
+    signaller_vtable[0] = reinterpret_cast<void *>(native_entity_destroy<signaller>);
+    signaller_vtable[0x10 / 4] = reinterpret_cast<void *>(native_entity_release<signaller>);
+    entity_vtables()[1] = reinterpret_cast<int>(signaller_vtable);
     entity_vtables()[0] = reinterpret_cast<int>(entity_base_vtable);
-    std::copy(std::begin(entity_base_vtable), std::end(entity_base_vtable),
+    std::copy(std::begin(entity_base_vtable), std::end(entity_base_vtable), std::begin(entity_vtable));
+    entity_vtable[0] = reinterpret_cast<void *>(native_entity_destroy<entity>);
+    entity_vtable[0x10 / 4] = reinterpret_cast<void *>(native_entity_release<entity>);
+    entity_vtable[0x188 / 4] = reinterpret_cast<void *>(native_entity_family_visible);
+    entity_vtable[0x28 / 4] = reinterpret_cast<void *>(native_entity_visual_radius);
+    entity_vtable[0x2C / 4] = reinterpret_cast<void *>(native_entity_visual_center);
+    entity_vtable[0x34 / 4] = reinterpret_cast<void *>(native_entity_po_changed);
+    entity_vtable[0x38 / 4] = reinterpret_cast<void *>(native_entity_set_flag);
+    entity_vtable[0x3C / 4] = reinterpret_cast<void *>(native_entity_set_ext_flag);
+    entity_vtable[0x40 / 4] = reinterpret_cast<void *>(native_entity_set_active);
+    entity_vtable[0x44 / 4] = reinterpret_cast<void *>(native_entity_set_visible);
+    entity_vtable[0x54 / 4] = reinterpret_cast<void *>(native_entity_flavor);
+    entity_vtable[0x60 / 4] = reinterpret_cast<void *>(standalone_entity_true);
+    entity_vtable[0x74 / 4] = reinterpret_cast<void *>(standalone_entity_false);
+    entity_vtable[0xD4 / 4] = reinterpret_cast<void *>(standalone_entity_false);
+    entity_vtable[0x10C / 4] = reinterpret_cast<void *>(native_entity_has_time);
+    entity_vtable[0x110 / 4] = reinterpret_cast<void *>(native_entity_time);
+    entity_vtable[0x164 / 4] = reinterpret_cast<void *>(standalone_entity_unmash);
+    entity_vtable[0x168 / 4] = reinterpret_cast<void *>(native_entity_clear_region);
+    entity_vtable[0x16C / 4] = reinterpret_cast<void *>(native_entity_compute_sector);
+    entity_vtable[0x184 / 4] = reinterpret_cast<void *>(native_entity_update_ai_proximity);
+    entity_vtable[0x18C / 4] = reinterpret_cast<void *>(native_entity_renderable);
+    entity_vtable[0x190 / 4] = reinterpret_cast<void *>(native_entity_possibly_collide);
+    entity_vtable[0x1A0 / 4] = reinterpret_cast<void *>(native_entity_update_collision_region);
+    entity_vtable[0x1A8 / 4] = reinterpret_cast<void *>(native_entity_visible);
+    entity_vtable[0x1C4 / 4] = reinterpret_cast<void *>(native_entity_color);
+    entity_vtable[0x1C8 / 4] = reinterpret_cast<void *>(native_entity_set_alpha);
+    entity_vtable[0x1CC / 4] = reinterpret_cast<void *>(native_entity_alpha);
+    entity_vtable[0x1D4 / 4] = reinterpret_cast<void *>(native_entity_scale);
+    entity_vtable[0x204 / 4] = reinterpret_cast<void *>(native_entity_set_age);
+    entity_vtable[0x208 / 4] = reinterpret_cast<void *>(native_entity_set_recursive_age);
+    entity_vtables()[2] = reinterpret_cast<int>(entity_vtable);
+    entity_vtables()[27] = reinterpret_cast<int>(ai_cover_marker::native_vtable(entity_vtable));
+    std::copy(std::begin(entity_vtable), std::end(entity_vtable),
               std::begin(pfx_vtable));
     pfx_vtable[0x54 / 4] = reinterpret_cast<void *>(standalone_pfx_flavor);
     pfx_vtable[0x60 / 4] = reinterpret_cast<void *>(standalone_entity_true);
+    pfx_vtable[0xD4 / 4] = reinterpret_cast<void *>(standalone_entity_true);
     pfx_vtable[0x164 / 4] = reinterpret_cast<void *>(standalone_pfx_unmash);
+    native_pfx::install_entity_callbacks(pfx_vtable);
     entity_vtables()[23] = reinterpret_cast<int>(pfx_vtable);
 
-    std::copy(std::begin(entity_base_vtable), std::end(entity_base_vtable),
+    std::copy(std::begin(entity_vtable), std::end(entity_vtable),
               std::begin(light_source_vtable));
     light_source_vtable[0x60 / 4] = reinterpret_cast<void *>(standalone_entity_true);
     light_source_vtable[0x54 / 4] =
@@ -446,10 +930,11 @@ void construct_v_table_lookup()
     light_source_vtable[0x90 / 4] = reinterpret_cast<void *>(standalone_entity_true);
     light_source_vtable[0x164 / 4] =
         reinterpret_cast<void *>(standalone_light_source_unmash);
+    light_source_vtable[0] = reinterpret_cast<void *>(native_entity_destroy<light_source>);
     entity_vtables()[14] = reinterpret_cast<int>(light_source_vtable);
 
     const auto initialize_marker_vtable = [&](void **vtable, void *flavor) {
-        std::copy(std::begin(entity_base_vtable), std::end(entity_base_vtable), vtable);
+        std::copy(std::begin(entity_vtable), std::end(entity_vtable), vtable);
         vtable[0x54 / 4] = flavor;
         vtable[0x60 / 4] = reinterpret_cast<void *>(standalone_entity_true);
         vtable[0x64 / 4] = reinterpret_cast<void *>(standalone_entity_false);
@@ -457,6 +942,7 @@ void construct_v_table_lookup()
     };
     initialize_marker_vtable(marker_vtables[0], reinterpret_cast<void *>(standalone_marker_flavor));
     initialize_marker_vtable(marker_vtables[1], reinterpret_cast<void *>(standalone_parking_marker_flavor));
+    marker_vtables[1][0x9C / 4] = reinterpret_cast<void *>(standalone_entity_true);
     initialize_marker_vtable(marker_vtables[2], reinterpret_cast<void *>(standalone_water_exit_marker_flavor));
     initialize_marker_vtable(marker_vtables[3], reinterpret_cast<void *>(standalone_anchor_marker_flavor));
     std::copy(std::begin(marker_vtables[0]), std::end(marker_vtables[0]),
@@ -464,26 +950,92 @@ void construct_v_table_lookup()
     marker_vtables[5][0xB8 / 4] = reinterpret_cast<void *>(standalone_entity_true);
     marker_vtables[5][0x54 / 4] =
         reinterpret_cast<void *>(standalone_line_anchor_flavor);
+    marker_vtables[5][0] = reinterpret_cast<void *>(native_line_anchor_destroy);
     entity_vtables()[16] = reinterpret_cast<int>(marker_vtables[0]);
     entity_vtables()[17] = reinterpret_cast<int>(marker_vtables[1]);
     entity_vtables()[18] = reinterpret_cast<int>(marker_vtables[2]);
     entity_vtables()[20] = reinterpret_cast<int>(marker_vtables[3]);
     entity_vtables()[21] = reinterpret_cast<int>(marker_vtables[5]);
+    std::copy(std::begin(entity_vtable), std::end(entity_vtable), std::begin(actor_vtable));
+    actor_vtable[0] = reinterpret_cast<void *>(native_entity_destroy<actor>);
+    actor_vtable[0x10 / 4] = reinterpret_cast<void *>(native_entity_release<actor>);
     actor_vtable[0x54 / 4] = reinterpret_cast<void *>(standalone_actor_flavor);
     actor_vtable[0x60 / 4] = reinterpret_cast<void *>(standalone_entity_true);
     actor_vtable[0x64 / 4] = reinterpret_cast<void *>(standalone_actor_true);
     actor_vtable[0x48 / 4] = reinterpret_cast<void *>(standalone_actor_ai_core);
+    actor_vtable[0x4C / 4] = reinterpret_cast<void *>(native_actor_hero);
+    actor_vtable[0x50 / 4] = reinterpret_cast<void *>(native_actor_alive);
+    actor_vtable[0x114 / 4] = reinterpret_cast<void *>(native_actor_has_damage);
+    actor_vtable[0x118 / 4] = reinterpret_cast<void *>(native_actor_damage);
     actor_vtable[0x90 / 4] = reinterpret_cast<void *>(standalone_entity_false);
-    actor_vtable[0x108 / 4] = reinterpret_cast<void *>(standalone_entity_false);
-    actor_vtable[0x190 / 4] = reinterpret_cast<void *>(standalone_entity_false);
+    actor_vtable[0x108 / 4] = reinterpret_cast<void *>(native_actor_material_switching);
     actor_vtable[0x164 / 4] = reinterpret_cast<void *>(standalone_actor_unmash);
+    actor_vtable[0x28 / 4] = reinterpret_cast<void *>(native_actor_visual_radius);
+    actor_vtable[0x2C / 4] = reinterpret_cast<void *>(native_actor_visual_center);
+    actor_vtable[0x124 / 4] = reinterpret_cast<void *>(native_actor_has_physical);
+    actor_vtable[0x128 / 4] = reinterpret_cast<void *>(native_actor_physical);
+    actor_vtable[0x18C / 4] = reinterpret_cast<void *>(native_entity_renderable);
+    actor_vtable[0x1AC / 4] = reinterpret_cast<void *>(native_actor_render);
+    actor_vtable[0x1B0 / 4] = reinterpret_cast<void *>(native_actor_mesh);
+    actor_vtable[0x1B8 / 4] = reinterpret_cast<void *>(native_actor_suspend);
+    actor_vtable[0x1BC / 4] = reinterpret_cast<void *>(native_actor_unsuspend);
+    actor_vtable[0x1C0 / 4] = reinterpret_cast<void *>(native_actor_set_color);
+    actor_vtable[0x1C8 / 4] = reinterpret_cast<void *>(native_actor_set_alpha);
+    actor_vtable[0x1D0 / 4] = reinterpret_cast<void *>(native_actor_set_scale);
+    actor_vtable[0x1C4 / 4] = reinterpret_cast<void *>(native_actor_color);
+    actor_vtable[0x1CC / 4] = reinterpret_cast<void *>(native_actor_alpha);
+    actor_vtable[0x1D4 / 4] = reinterpret_cast<void *>(native_actor_scale);
+    actor_vtable[0x220 / 4] = reinterpret_cast<void *>(native_actor_floor);
+    actor_vtable[0x254 / 4] = reinterpret_cast<void *>(native_actor_colgeom_radius);
+    actor_vtable[0x258 / 4] = reinterpret_cast<void *>(native_actor_colgeom_center);
+    actor_vtable[0x260 / 4] = reinterpret_cast<void *>(native_actor_morph);
+    actor_vtable[0x14C / 4] = reinterpret_cast<void *>(native_actor_get_ifc_num);
+    actor_vtable[0x150 / 4] = reinterpret_cast<void *>(native_actor_set_ifc_num);
+    actor_vtable[0x264 / 4] = reinterpret_cast<void *>(native_actor_ifl_play);
+    actor_vtable[0x268 / 4] = reinterpret_cast<void *>(native_actor_ifl_lock);
+    actor_vtable[0x1F0 / 4] = reinterpret_cast<void *>(native_actor_set_collisions);
+    actor_vtable[0x1E0 / 4] = reinterpret_cast<void *>(native_actor_light_set);
+    actor_vtable[0x280 / 4] = reinterpret_cast<void *>(native_actor_frame_delta);
+    actor_vtable[0x284 / 4] = reinterpret_cast<void *>(native_actor_invalidate_frame_delta);
+    actor::install_inventory_callbacks(actor_vtable);
     entity_vtables()[3] = reinterpret_cast<int>(actor_vtable);
+    entity_vtables()[4] = reinterpret_cast<int>(beam::native_vtable(entity_vtable));
+    entity_vtables()[6] = reinterpret_cast<int>(conglomerate_clone::native_vtable(actor_vtable));
+    entity_vtables()[7] = reinterpret_cast<int>(grenade::native_vtable(actor_vtable));
+    std::copy(std::begin(actor_vtable), std::end(actor_vtable), std::begin(item_vtable));
+    item_vtable[0] = reinterpret_cast<void *>(native_entity_destroy<item>);
+    item_vtable[0x10 / 4] = reinterpret_cast<void *>(native_entity_release<item>);
+    item_vtable[0x54 / 4] = reinterpret_cast<void *>(native_item_flavor);
+    item_vtable[0x74 / 4] = reinterpret_cast<void *>(standalone_entity_true);
+    item_vtable[0x164 / 4] = reinterpret_cast<void *>(native_item_unmash);
+    item::install_weapon_callbacks(item_vtable);
+    entity_vtables()[8] = reinterpret_cast<int>(item_vtable);
+    auto **handheld_vtable = static_cast<void **>(handheld_item::native_vtable(item_vtable));
+    entity_vtables()[9] = reinterpret_cast<int>(handheld_vtable);
+    entity_vtables()[10] = reinterpret_cast<int>(gun::native_vtable(handheld_vtable));
+    entity_vtables()[12] = reinterpret_cast<int>(thrown_item::native_vtable(handheld_vtable));
+    entity_vtables()[11] = reinterpret_cast<int>(melee_item::native_vtable(handheld_vtable));
+    entity_vtables()[26] = reinterpret_cast<int>(visual_item::native_vtable(actor_vtable));
     std::copy(std::begin(actor_vtable), std::end(actor_vtable), std::begin(conglomerate_vtable));
+
+
+    conglomerate_vtable[0] = reinterpret_cast<void *>(native_entity_destroy<conglomerate>);
+    conglomerate_vtable[0x10 / 4] = reinterpret_cast<void *>(native_entity_release<conglomerate>);
+    conglomerate_vtable[0x190 / 4] = reinterpret_cast<void *>(native_conglomerate_possibly_collide);
     conglomerate_vtable[0x164 / 4] = reinterpret_cast<void *>(standalone_conglomerate_unmash);
+    conglomerate_vtable[0x184 / 4] = reinterpret_cast<void *>(native_conglomerate_update_ai_proximity);
+    conglomerate_vtable[0x1E0 / 4] = reinterpret_cast<void *>(native_conglomerate_light_set);
+    conglomerate_vtable[0x208 / 4] = reinterpret_cast<void *>(native_conglomerate_set_recursive_age);
     conglomerate_vtable[0x54 / 4] =
         reinterpret_cast<void *>(standalone_conglomerate_flavor);
     conglomerate_vtable[0x12C / 4] = reinterpret_cast<void *>(standalone_entity_true);
-    conglomerate_vtable[0x268 / 4] = reinterpret_cast<void *>(standalone_actor_ifl_lock);
+    conglomerate_vtable[0x130 / 4] = reinterpret_cast<void *>(native_conglomerate_skeleton);
+    conglomerate_vtable[0x28 / 4] = reinterpret_cast<void *>(native_conglomerate_visual_radius);
+    conglomerate_vtable[0x18C / 4] = reinterpret_cast<void *>(native_conglomerate_renderable);
+    conglomerate_vtable[0x1AC / 4] = reinterpret_cast<void *>(native_conglomerate_render);
+    conglomerate_vtable[0x254 / 4] = reinterpret_cast<void *>(native_conglomerate_colgeom_radius);
+    conglomerate_vtable[0x258 / 4] = reinterpret_cast<void *>(native_conglomerate_colgeom_center);
+    conglomerate_vtable[0x260 / 4] = reinterpret_cast<void *>(native_conglomerate_morph);
     conglomerate_vtable[0x294 / 4] =
         reinterpret_cast<void *>(standalone_conglomerate_has_tentacle);
     conglomerate_vtable[0x298 / 4] =
@@ -492,6 +1044,7 @@ void construct_v_table_lookup()
         reinterpret_cast<void *>(standalone_conglomerate_has_variant);
     conglomerate_vtable[0x2A0 / 4] =
         reinterpret_cast<void *>(standalone_conglomerate_variant);
+    conglomerate_vtable[0x1C8 / 4] = reinterpret_cast<void *>(native_conglomerate_set_alpha);
     entity_vtables()[5] = reinterpret_cast<int>(conglomerate_vtable);
 #else
     CDECL_CALL(0x004FE6A0);

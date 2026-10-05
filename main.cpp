@@ -1123,7 +1123,10 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 
 void sub_79DFF0()
 {
-    CDECL_CALL(0x0079DFF0);
+    if constexpr (STANDALONE_SYSTEM)
+        nflExit();
+    else
+        CDECL_CALL(0x0079DFF0);
 }
 
 void sub_81C230()

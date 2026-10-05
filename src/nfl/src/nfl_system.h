@@ -296,6 +296,7 @@ extern nflRequestInfo *nflGetRequestInfo(nflRequestID a1, nflRequestInfo *a2);
 extern int nflExecuteRequest(nflDriver *driver, nflRequestID a2);
 
 extern int sub_79EC60();
+extern void nflExit();
 
 //0x0079E9B0
 extern int nflScheduleRequest(int a1);

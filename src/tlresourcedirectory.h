@@ -36,14 +36,14 @@ struct tlResourceDirectory {
         //virtual
         T0 *operator*()
         {  // = 0;
-            T0 *(__fastcall * func)(void *) = CAST(func, get_vfunc(this->m_vtbl, 0xC));
+            T0 *(__fastcall * func)(void *) = CAST(func, get_vfunc(this->m_vtbl, 0x10));
             return func(this);
         }
 
         //virtual
         void operator++()
         {  // = 0;
-            void(__fastcall * func)(void *) = CAST(func, get_vfunc(this->m_vtbl, 0x10));
+            void(__fastcall * func)(void *) = CAST(func, get_vfunc(this->m_vtbl, 0xC));
             func(this);
         }
     };
@@ -108,10 +108,9 @@ struct tlResourceDirectory {
                 }
 
                 if (v8 == 0 && a2) {
-                    tlFixedString v10{};
-                    auto v9 = v10.to_string();
-                    auto directoryName = this->DirectoryName();
-                    sp_log("Resource %s: %s was not released.\n", directoryName, v9);
+                    auto name = reinterpret_cast<const char *(__fastcall *)(void *)>(
+                        get_vfunc(this->m_vtbl, 0x4));
+                    name(this);
                 }
             }
         }

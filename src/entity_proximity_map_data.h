@@ -1,10 +1,15 @@
 #pragma once
 
+#include <cstdint>
+
 struct entity;
 
 struct entity_proximity_map_data {
-    int field_0;
-    entity *field_4;
-    entity_proximity_map_data *field_8;
-    int field_C;
+    uint8_t min_x;
+    uint8_t min_y;
+    uint8_t max_x;
+    uint8_t max_y;
+    entity *ent;
+    entity_proximity_map_data *next;
+    int map_level;
 };

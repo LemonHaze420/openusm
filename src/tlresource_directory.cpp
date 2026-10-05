@@ -129,7 +129,13 @@ make_tlres_type(nalBaseSkeleton, tlFixedString, TLRESOURCE_TYPE_SKELETON);
                                   func_address(&tlresource_directory<T0, T1>::DirectoryName),           \
                                   func_address(Find),                                                   \
                                   func_address(Find1),                                                  \
-                                  func_address(&tlresource_directory<T0, T1>::_Add)};                   \
+                                  func_address(&tlresource_directory<T0, T1>::_Add),                    \
+                                  func_address(&tlresource_directory<T0, T1>::_Del),                    \
+                                  func_address(&tlresource_directory<T0, T1>::_Enumerate),              \
+                                  func_address(&tlResourceDirectory<T0, T1>::_ReleaseAll),               \
+                                  func_address(&tlresource_directory<T0, T1>::_Load),                   \
+                                  func_address(&tlresource_directory<T0, T1>::_Load),                   \
+                                  func_address(&tlresource_directory<T0, T1>::_Release)};                \
                                                                                                         \
             this->m_vtbl = CAST(vtbl, &g_vtbl);                                                         \
         } else {                                                                                        \

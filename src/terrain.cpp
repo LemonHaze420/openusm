@@ -190,7 +190,10 @@ terrain::~terrain()
 
         if ( region_change_callbacks != nullptr ) {
             delete region_change_callbacks;
+            region_change_callbacks = nullptr;
         }
+
+        this->field_5C.dump(this->field_5C.field_0, this->field_5C.field_8);
     } else {
         THISCALL(0x0054E990, this);
     }
@@ -440,34 +443,18 @@ region *terrain::find_region(const vector3d &a2, region *a3) const
 {
     TRACE("terrain::find_region");
 
-    region *result;
-
-    if constexpr (STANDALONE_SYSTEM) {
-        if (a3 != nullptr && a3->obb != nullptr && a3->obb->point_inside_or_on(a2)) {
-            return a3;
-        }
-
-        for (int index = 0; index < this->total_regions; ++index) {
-            auto *candidate = this->regions[index];
-            if (candidate != nullptr && candidate->obb != nullptr && candidate->obb->point_inside_or_on(a2)) {
-                return candidate;
-            }
-        }
-        result = nullptr;
-    } else {
-        if (a3 != nullptr && a3->obb->point_inside_or_on(a2)) {
-            return a3;
-        }
-
-        assert(this->region_map != nullptr);
-        simple_region_visitor visitor {a2, false};
-        ++region::visit_key2;
-        static_region_list_methods::init();
-        this->region_map->traverse_point(a2, visitor);
-        static_region_list_methods::term();
-        assert(visitor.region_count <= 1);
-        result = static_cast<region *>(visitor.region_count != 0 ? visitor.field_14[0] : nullptr);
+    if (a3 != nullptr && a3->obb->point_inside_or_on(a2)) {
+        return a3;
     }
+
+    assert(this->region_map != nullptr);
+    simple_region_visitor visitor {a2, false};
+    ++region::visit_key2;
+    static_region_list_methods::init();
+    this->region_map->traverse_point(a2, visitor);
+    static_region_list_methods::term();
+    assert(visitor.region_count <= 1);
+    auto *result = static_cast<region *>(visitor.region_count != 0 ? visitor.field_14[0] : nullptr);
 
     return result;
 }
@@ -730,15 +717,52 @@ bool terrain::district_load_started_callback(resource_pack_slot::callback_enum, 
 bool terrain::district_destruct_callback(resource_pack_slot::callback_enum reason, resource_pack_streamer *a2,
                                          resource_pack_slot *which_pack_slot, limited_timer *a4)
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         auto *ter = g_world_ptr->get_the_terrain();
-
         assert(ter != nullptr);
-
         assert(reason == resource_pack_slot::CALLBACK_DESTRUCT);
-
         assert(which_pack_slot != nullptr);
 
+        auto *pack = ter->field_24.find_eligible_pack_by_token(which_pack_slot->get_pack_token());
+        assert(pack != nullptr);
+        auto *reg = ter->get_region(pack->get_token().field_4);
+        if (reg->unload_progress.is_done())
+            return false;
+
+        reg->unload_progress.start();
+        mission_manager::s_inst->rem_district_table(reg);
+        resource_key script_key{which_pack_slot->get_name_key().m_hash, RESOURCE_KEY_TYPE_SCRIPT};
+        resource_directory *directory = nullptr;
+        resource_location *location = nullptr;
+        if (which_pack_slot->get_resource_directory().find_resource(script_key, &directory, &location)) {
+            auto *script_data = directory->get_resource(location, nullptr);
+            if (script_data != nullptr) {
+                script_manager::un_load(
+                    script_key, true, *reinterpret_cast<const resource_key *>(script_data));
+            }
+        }
+        script_manager::add_global_constructor_thread(static_cast<float>(-reg->district_id), true);
+        if (region_change_callbacks != nullptr) {
+            for (auto callback : *region_change_callbacks)
+                callback(false, reg);
+        }
+        reg->set_loaded(false, which_pack_slot);
+
+        auto &switches = ter->field_70;
+        for (unsigned i = 0; i < switches.size(); ++i) {
+            auto &change = switches[i];
+            if (change.field_4 != which_pack_slot)
+                continue;
+            auto *next_region = ter->get_region(change.field_0->get_token().field_4);
+            next_region->set_district_variant(change.field_8);
+            change.field_0->set_packfile_name(next_region->get_scene_id(true).c_str());
+            next_region->flags &= ~0x20000u;
+            if (i + 1 < switches.size())
+                change = switches.back();
+            switches.pop_back();
+            break;
+        }
+        reg->unload_progress.done();
         return false;
 
     } else {
@@ -1173,7 +1197,7 @@ void terrain::start_streaming(void (*callback)(void))
 
 void terrain::set_district_variant(int district_id, int variant, bool a4)
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
 		assert(variant >= 0);
 
 		auto *v5 = this->get_district(district_id);
@@ -1221,28 +1245,19 @@ void terrain::set_district_variant(int district_id, int variant, bool a4)
 
 region * terrain::find_innermost_region(const vector3d &a1) const
 {
-    if constexpr (0) {
-        assert(region_map != nullptr);
-
+    if constexpr (STANDALONE_SYSTEM) {
         fixed_vector<region *, 15> a2 {};
         loaded_regions_cache::get_regions_intersecting_sphere(a1, 0.0f, &a2);
-        if ( a2.size() == 0 ) {
+        if (a2.size() == 0)
             return nullptr;
-        }
-
-        if ( a2.m_size == 1 ) {
+        if (a2.size() == 1)
             return a2.at(0);
-        }
 
-        for (int i = 0; i < a2.size(); ++i) {
+        for (unsigned int i = 0; i < a2.size(); ++i) {
             auto *r = a2.at(i);
-            assert(r != nullptr);
-
-            if ( r->is_interior() ) {
+            if ((r->flags & (0x100u | 0x40000u)) != 0)
                 return r;
-            }
         }
-
         return a2.at(0);
     } else {
         region * (__fastcall *func)(const void *, void *edx, const vector3d *) = CAST(func, 0x00534890);
@@ -1373,7 +1388,7 @@ void terrain::find_regions(const vector3d &a2, _std::vector<region *> *regions) 
 
     assert(region_map != nullptr);
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         regions->clear();
         simple_region_visitor v5 {a2, true};
 
@@ -1591,18 +1606,3 @@ void terrain_patch()
     }
 }
 
-#ifdef OPENUSM_XBPACK_MODE
-namespace
-{
-void clear_region_callbacks(void *callbacks)
-{
-    CDECL_CALL(0x0082207C, callbacks);
-    terrain::region_change_callbacks = nullptr;
-}
-}
-
-void terrain_xbpack_patch()
-{
-    REDIRECT(0x0054EB4A, clear_region_callbacks);
-}
-#endif

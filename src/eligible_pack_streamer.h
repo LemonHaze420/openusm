@@ -22,6 +22,9 @@ private:
 public:
     eligible_pack_streamer() = default;
 
+
+    ~eligible_pack_streamer();
+
     //0x00547C50
     void init(int a2, int num_streamers, resource_pack_streamer **streamers,
               bool(__cdecl **callbacks)(resource_pack_slot::callback_enum, resource_pack_streamer *,

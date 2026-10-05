@@ -101,6 +101,25 @@ VALIDATE_SIZE((*world_dynamics_system::field_0), 0x3C);
 VALIDATE_OFFSET(world_dynamics_system, ent_mgr, 0x74);
 VALIDATE_OFFSET(world_dynamics_system, the_terrain, 0x1AC);
 
+bool world_dynamics_system::is_point_under_water(const vector3d &position) const
+{
+    if (position.y > -3.0f)
+        return false;
+    fixed_vector<region *, 15> regions;
+    loaded_regions_cache::get_regions_intersecting_sphere(position, 0.0f, &regions);
+    for (unsigned index = 0; index < regions.size(); ++index) {
+        if (regions.m_data[index]->flags & (0x100u | 0x40000u))
+            return false;
+    }
+    for (const auto handle : g_world_ptr->field_248) {
+        vhandle_type<trigger> reference {handle};
+        auto *exclusion = reference.get_volatile_ptr();
+        if (exclusion && exclusion->contains(position))
+            return false;
+    }
+    return true;
+}
+
 static constexpr auto ENTITIES_TAG = 0;
 static constexpr auto BOX_TRIGGERS_TAG = 6;
 static constexpr auto SPLINE_PATHS_TAG = 7;
@@ -181,7 +200,7 @@ world_dynamics_system::~world_dynamics_system()
 
 void world_dynamics_system::malor_point(const vector3d &xyz, int a3, bool a4)
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         auto *hero_ptr = this->get_hero_ptr(a3);
         entity_teleport_abs_position(hero_ptr, xyz, a4);
         if (this->the_terrain != nullptr) {
@@ -297,7 +316,7 @@ void world_dynamics_system::advance_entity_animations(Float a3)
                             auto *v11 = v6->field_4->time_ifc();
                             v13 = v11->sub_4ADE50();
                         } else {
-                            v13 = g_world_ptr->field_158.field_0;
+                            v13 = g_world_ptr->time_manager.field_0;
                         }
 
                         auto v14 = v13 * a3;
@@ -322,7 +341,7 @@ void world_dynamics_system::advance_entity_animations(Float a3)
                     auto v12 = v10->time_ifc();
                     v14 = v12->sub_4ADE50();
                 } else {
-                    v14 = g_world_ptr->field_158.field_0;
+                    v14 = g_world_ptr->time_manager.field_0;
                 }
 
                 v17->offscreen_frame_advance(a3 * v14);
@@ -616,7 +635,7 @@ void world_dynamics_system::frame_advance(Float a2)
     TRACE("world_dynamics_system::frame_advance");
 
     if constexpr (STANDALONE_SYSTEM) {
-        this->field_158.frame_advance(a2);
+        this->time_manager.frame_advance(a2);
         this->field_28.frame_advance(a2);
         this->field_A0.frame_advance(a2);
         this->field_188.frame_advance(a2);
@@ -745,10 +764,6 @@ void world_dynamics_system::process_sinking_entities()
     }
 }
 
-void world_dynamics_system::sub_530460(const vector3d &a2, int visited_regions, bool a4)
-{
-    THISCALL(0x00530460, this, &a2, visited_regions, a4);
-}
 
 bool world_dynamics_system::un_mash_scene_entities(const resource_key &a2, region *reg, worldly_pack_slot *slot_ptr,
                                                    bool a5, scene_entity_brew &brew)
@@ -1052,7 +1067,7 @@ bool world_dynamics_system::un_mash_scene_entities(const resource_key &a2, regio
 
                 auto *v55 = &buffer_ptr[buffer_index];
                 if ( reg != nullptr ) {
-                    reg->field_3C = (int)v55;
+                    reg->field_3C = reinterpret_cast<uint8_t *>(v55);
                 }
 
                 buffer_index += v54;
@@ -1070,13 +1085,13 @@ bool world_dynamics_system::un_mash_scene_entities(const resource_key &a2, regio
                 buffer_index += sizeof(int);
                 if (fade_groups_count > 0) {
                     if ( reg != nullptr ) {
-                        reg->field_44 = (int)&buffer_ptr[buffer_index];
+                        reg->field_44 = reinterpret_cast<float *>(&buffer_ptr[buffer_index]);
                     }
 
                     buffer_index += 4 * fade_groups_count;
                     buffer_index = (buffer_index + 15) & 0xFFFFFFF0;
                     if ( reg != nullptr ) {
-                        reg->field_48 = (int)&buffer_ptr[buffer_index];
+                        reg->field_48 = reinterpret_cast<vector4d *>(&buffer_ptr[buffer_index]);
                     }
 
                     buffer_index += 16 * fade_groups_count;
@@ -1089,7 +1104,7 @@ bool world_dynamics_system::un_mash_scene_entities(const resource_key &a2, regio
 
                 auto *v52 = &buffer_ptr[buffer_index];
                 if ( reg != nullptr ) {
-                    reg->field_3C = (int)v52;
+                    reg->field_3C = reinterpret_cast<uint8_t *>(v52);
                 }
 
                 buffer_index += v51;

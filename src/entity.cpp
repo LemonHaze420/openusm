@@ -1,8 +1,10 @@
 #include "entity.h"
+#include "aeps.h"
 
 #include "collision_geometry.h"
 #include "common.h"
 #include "conglom.h"
+#include "entity_mash.h"
 #include "fixed_pool.h"
 #include "fixed_vector.h"
 #include "func_wrapper.h"
@@ -23,11 +25,21 @@
 VALIDATE_SIZE(entity, 0x68u);
 
 namespace entity_extended_regions_array_t {
+#if STANDALONE_SYSTEM
+
+static fixed_pool pool{sizeof(fixed_vector<region *, 7>), 32, 4, 1, 0, nullptr};
+#else
 static fixed_pool &pool = var<fixed_pool>(0x0091FF9C);
+#endif
 }
 
 entity::entity(const string_hash &a2, uint32_t a3) : signaller(a2, a3, false)
 {
+#if STANDALONE_SYSTEM
+    m_vtbl = ent_v_table_lookup[2];
+#else
+    m_vtbl = 0x00883F90;
+#endif
     this->field_64 = 0;
     this->field_60 = 0;
     this->field_5C = 0;
@@ -45,25 +57,44 @@ void entity::destroy_static_entity_pointers()
 
 entity::~entity()
 {
-    if constexpr (0) {
-        this->remove_from_regions();
-        if (this->has_time_ifc()) {
-            auto *v2 = this->field_58;
-            if (v2->field_8) {
-                if (v2 != nullptr) {
-                    void(__fastcall * finalize)(void *, void *, bool) = CAST(finalize, get_vfunc(v2->m_vtbl, 0x0));
-                    finalize(v2, nullptr, true);
-                }
-            } else {
-                void(__fastcall * func)(void *) = CAST(func, get_vfunc(v2->m_vtbl, 0x24));
-                func(v2);
-            }
-
-            this->field_58 = nullptr;
+#if STANDALONE_SYSTEM
+    m_vtbl = ent_v_table_lookup[2];
+#else
+    m_vtbl = 0x00883F90;
+#endif
+    remove_from_regions();
+    if (field_58 != nullptr) {
+        auto *time = field_58;
+        if (time->field_8) {
+            auto destroy = reinterpret_cast<void(__fastcall *)(time_interface *, void *, bool)>(
+                get_vfunc(time->m_vtbl, 0));
+            destroy(time, nullptr, true);
+        } else {
+            auto release = reinterpret_cast<void(__fastcall *)(time_interface *, void *)>(
+                get_vfunc(time->m_vtbl, 0x24));
+            release(time, nullptr);
         }
-    } else {
-        THISCALL(0x004F91C0, this);
+        field_58 = nullptr;
     }
+}
+
+void entity::release_mem()
+{
+    remove_from_regions();
+    if (field_58 != nullptr) {
+        auto *time = field_58;
+        if (time->field_8) {
+            auto destroy = reinterpret_cast<void(__fastcall *)(time_interface *, void *, bool)>(
+                get_vfunc(time->m_vtbl, 0));
+            destroy(time, nullptr, true);
+        } else {
+            auto release = reinterpret_cast<void(__fastcall *)(time_interface *, void *)>(
+                get_vfunc(time->m_vtbl, 0x24));
+            release(time, nullptr);
+        }
+        field_58 = nullptr;
+    }
+    entity_base::release_mem();
 }
 
 void entity::randomize_position(const vector3d &a2, Float a3, Float a4, Float a5)
@@ -77,15 +108,15 @@ void entity::update_proximity_maps()
 {
     TRACE("entity::update_proximity_maps");
     auto *root = this;
-    if (is_ext_flagged(0x8000u)) {
+    if (is_flagged(0x8000u)) {
         root = static_cast<entity *>(get_conglom_owner());
     }
     if (root == nullptr || !root->is_renderable()) {
         return;
     }
-    const bool should_update = root->is_ext_flagged(0x200u);
+    const bool should_update = root->is_flagged(0x200u);
     auto process_region = [root, should_update](region *current) {
-        if (current == nullptr || current->visibility_map == nullptr) {
+        if (current == nullptr) {
             return;
         }
         if (should_update) {
@@ -113,6 +144,28 @@ bool entity::is_in_limbo() const
         return self->is_flagged(8u);
     };
     return v1 && !sub_6A7DAB(this);
+}
+
+void entity::_set_visible(bool visible, bool suppress_owner_update)
+{
+    if (is_flagged(0x200) == visible)
+        return;
+    field_4 = visible ? field_4 | 0x200 : field_4 & ~0x200u;
+    if (!visible)
+        set_occluded_last_frame(true);
+    if (!is_flagged(0x8000)) {
+        if (is_flagged(4)) {
+            auto *self = static_cast<conglomerate *>(this);
+            self->field_110 = (self->field_110 & ~0x11u) | 1;
+        }
+        update_proximity_maps();
+    } else if (auto *owner = static_cast<conglomerate *>(get_conglom_owner())) {
+        if (!suppress_owner_update)
+            owner->update_proximity_maps();
+        owner->field_110 = (owner->field_110 & ~0x11u) | 1;
+    }
+    if (!is_a_pfx_entity())
+        aeps::DoCallback(this, 3, visible ? 0 : 0x10000000);
 }
 
 float entity::get_visual_radius()
@@ -179,24 +232,28 @@ void entity::un_mash(generic_mash_header *a2, void *a3, generic_mash_data_ptrs *
 
 void entity::clear_region(region *r, int i_know_what_i_am_doing)
 {
-    THISCALL(0x004F54A0, this, r, i_know_what_i_am_doing);
+    (void)i_know_what_i_am_doing;
+    if (is_in_region(r))
+        remove_me_from_region(r);
+    if (regions[0] == nullptr)
+        enter_limbo();
 }
 
-entity *entity::compute_sector(terrain *terrain_ptr, bool a2, entity *fallback)
+void entity::compute_sector(terrain *terrain_ptr, bool loading_scene, entity *fallback)
 {
-#if STANDALONE_SYSTEM
+    auto compute = reinterpret_cast<void(__fastcall *)(entity *, void *, terrain *, bool, entity *)>(
+        get_vfunc(m_vtbl, 0x16C));
+    compute(this, nullptr, terrain_ptr, loading_scene, fallback);
+}
+
+void entity::_compute_sector(terrain *terrain_ptr, bool loading_scene, entity *fallback)
+{
+
     (void)terrain_ptr;
-    (void)a2;
+    (void)loading_scene;
     (void)fallback;
-    if ((this->field_4 & 0x10000000u) == 0) {
-        moved_entities::add_moved({this->get_my_handle()});
-    }
-    return this;
-#else
-    entity *(__fastcall *func)(void *, void *, terrain *, bool, entity *) =
-        CAST(func, get_vfunc(m_vtbl, 0x16C));
-    return func(this, nullptr, terrain_ptr, a2, fallback);
-#endif
+    if (!is_flagged(0x10000000u))
+        moved_entities::add_moved({get_my_handle()});
 }
 
 void entity::force_region_hack(region *a2)
@@ -244,12 +301,25 @@ void entity::unforce_regions()
 
 void entity::force_regions(entity *ent)
 {
-    THISCALL(0x004F56A0, this, ent);
+    field_4 |= 0x10000000u;
+    region *visited_regions[15];
+    int count = 0;
+    for (int index = 0; ; ++index) {
+        region *current = index < FIXED_REGIONS_ARRAY_SIZE ? ent->regions[index]
+            : ent->extended_regions != nullptr &&
+                      index - FIXED_REGIONS_ARRAY_SIZE < static_cast<int>(ent->extended_regions->size())
+                ? ent->extended_regions->m_data[index - FIXED_REGIONS_ARRAY_SIZE] : nullptr;
+        if (current == nullptr) {
+            break;
+        }
+        visited_regions[count++] = current;
+    }
+    update_regions(visited_regions, count);
 }
 
 void entity::update_ai_proximity_map_recursive()
 {
-    ;
+
 }
 
 void entity::set_family_visible(bool a2)
@@ -341,14 +411,16 @@ bool entity::has_mesh()
     return false;
 }
 
-void entity::suspend(bool)
+void entity::suspend(bool propagate)
 {
-    ;
+    auto callback = reinterpret_cast<void(__fastcall *)(entity *, void *, bool)>(get_vfunc(m_vtbl, 0x1B8));
+    callback(this, nullptr, propagate);
 }
 
-void entity::unsuspend(bool)
+void entity::unsuspend(bool propagate)
 {
-    ;
+    auto callback = reinterpret_cast<void(__fastcall *)(entity *, void *, bool)>(get_vfunc(m_vtbl, 0x1BC));
+    callback(this, nullptr, propagate);
 }
 
 void entity::set_render_color(color32 c)
@@ -860,21 +932,25 @@ region *entity::get_primary_region() const
 
 bool entity::match_search_flags(int a2)
 {
-    if constexpr (0) {
-        if ((a2 & 1) == 0 && (((a2 & 0x20) == 0) || !this->is_flagged(0x1000)) &&
-            (((a2 & 0x40) == 0) || !this->is_a_switch_obj()) && (((a2 & 0x80u) == 0) || !this->is_a_grenade()) &&
-            (((a2 & 0x200) == 0) || !this->is_a_water_exit_marker()) &&
-            (!this->is_an_actor() ||
-             ((((a2 & 4) == 0) || !this->has_damage_ifc()) && (((a2 & 8) == 0) || !this->has_physical_ifc()) &&
-              (((a2 & 2) == 0) || this->get_ai_core() == nullptr))) &&
-            (!this->is_a_conglomerate() ||
-             ((((a2 & 0x10) == 0) || !this->has_script_data_ifc()) &&
-              (((a2 & 0x100) == 0) || !bit_cast<conglomerate *>(this)->has_variant_ifc())))) {
+    if constexpr (STANDALONE_SYSTEM) {
+        const auto query = [this](unsigned offset) {
+            return reinterpret_cast<bool (__fastcall *)(entity_base *, void *)>(
+                get_vfunc(m_vtbl, offset))(this, nullptr);
+        };
+        if ((a2 & 1) == 0 && (((a2 & 0x20) == 0) || !(field_4 & 0x1000)) &&
+            (((a2 & 0x40) == 0) || !query(0xCC)) && (((a2 & 0x80u) == 0) || !query(0xF0)) &&
+            (((a2 & 0x200) == 0) || !query(0xA0)) &&
+            (!query(0x64) ||
+             ((((a2 & 4) == 0) || !query(0x114)) && (((a2 & 8) == 0) || !query(0x124)) &&
+              (((a2 & 2) == 0) || get_ai_core() == nullptr))) &&
+            (!(field_4 & 4) ||
+             ((((a2 & 0x10) == 0) || !query(0x13C)) && (((a2 & 0x100) == 0) || !query(0x29C))))) {
             return false;
         }
-
-        return ((((a2 & 0x800) == 0) || this->is_visible()) && (((a2 & 0x1000) == 0) || !this->is_visible()) &&
-                (((a2 & 0x2000) == 0) || this->is_alive()) && (((a2 & 0x4000) == 0) || !this->is_alive()));
+        return ((((a2 & 0x800) == 0) || (field_4 & 0x200)) &&
+                (((a2 & 0x1000) == 0) || !(field_4 & 0x200)) &&
+                (((a2 & 0x2000) == 0) || query(0x50)) &&
+                (((a2 & 0x4000) == 0) || !query(0x50)));
     } else {
         bool(__fastcall * func)(void *, void *edx, int) = CAST(func, 0x004C0970);
         return func(this, nullptr, a2);
@@ -883,7 +959,7 @@ bool entity::match_search_flags(int a2)
 
 int entity::find_entities(int a1)
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         if (found_entities == nullptr) {
             found_entities = new _std::list<entity *>;
         }
@@ -896,7 +972,8 @@ int entity::find_entities(int a1)
 
         for (; it != end; ++it) {
             auto *ent = (*it);
-            assert(ent != nullptr);
+            if (!ent)
+                continue;
 
             if (ent->match_search_flags(a1)) {
                 found_entities->push_back(ent);

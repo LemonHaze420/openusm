@@ -40,6 +40,17 @@ struct tlInstanceBankResourceDirectory : tlResourceDirectory<T0, T1> {
             this->field_8 = nullptr;
         }
 
+        ~Impl()
+        {
+            if (field_8 != nullptr) {
+                while (field_8->field_4[0] != nullptr) {
+                    Del(field_8->field_4[0]->field_0);
+                }
+                tlMemFree(field_8);
+                field_8 = nullptr;
+            }
+        }
+
         int sub_770B80()
         {
             auto v2 = 0;
@@ -243,7 +254,13 @@ struct tlInstanceBankResourceDirectory : tlResourceDirectory<T0, T1> {
 
         SkipListIterator(Impl *a2) : field_4(a2)
         {
-            this->m_vtbl = 0x008BDDC0;
+            static void *table[]{
+                func_address(&SkipListIterator::finalize),
+                func_address(&SkipListIterator::reset),
+                func_address(&SkipListIterator::operator()),
+                func_address(&SkipListIterator::operator++),
+                func_address(&SkipListIterator::operator*)};
+            this->m_vtbl = reinterpret_cast<std::intptr_t>(table);
         }
 
         //virtual
@@ -256,15 +273,30 @@ struct tlInstanceBankResourceDirectory : tlResourceDirectory<T0, T1> {
         }
 
         //virtual
-        void reset();
+        void reset()
+        {
+            auto *head = field_4->field_8;
+            field_8 = head != nullptr ? head->field_4[0] : nullptr;
+        }
 
         //virtual
-        bool operator()();
+        bool operator()()
+        {
+            return field_8 != nullptr;
+        }
 
         //virtual
-        T0 *operator*();
+        T0 *operator*()
+        {
+            return field_8 != nullptr ? field_8->field_0 : nullptr;
+        }
 
-        void operator++();
+        void operator++()
+        {
+            if (field_8 != nullptr) {
+                field_8 = field_8->field_4[0];
+            }
+        }
     };
 
     Impl field_4;
@@ -292,7 +324,7 @@ struct tlInstanceBankResourceDirectory : tlResourceDirectory<T0, T1> {
     {
         this->~tlInstanceBankResourceDirectory();
         if (a2) {
-            delete (this);
+            tlMemFree(this);
         }
     }
 

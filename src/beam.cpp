@@ -153,7 +153,7 @@ void beam::frame_advance_all_beams(Float elapsed)
         auto *next = reinterpret_cast<beam *>(current->field_68);
         const float scale = current->field_58 != nullptr
             ? static_cast<float>(current->field_58->sub_4ADE50())
-            : g_world_ptr->field_158.field_0;
+            : g_world_ptr->time_manager.field_0;
         if (current->m_vtbl != 0) {
             auto *address = get_vfunc(current->m_vtbl, 0x1A4);
             if (address != nullptr) {

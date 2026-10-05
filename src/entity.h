@@ -57,6 +57,8 @@ struct entity : signaller {
 
     ~entity();
 
+    void release_mem();
+
     //0x004C0780
     float get_visual_radius();
 
@@ -68,7 +70,8 @@ struct entity : signaller {
 
     void clear_region(region *r, int i_know_what_i_am_doing);
 
-    entity *compute_sector(terrain *, bool, entity *);
+    void compute_sector(terrain *, bool, entity *);
+    void _compute_sector(terrain *, bool, entity *);
 
     //0x0048B830
     void force_region_hack(region *a2);
@@ -103,6 +106,7 @@ struct entity : signaller {
     void frame_advance(Float);
 
     bool is_still_visible();
+    void _set_visible(bool visible, bool suppress_owner_update);
 
     void render(Float);
 

@@ -54,7 +54,7 @@ void motion_effect_struct::record_all_motion_fx(Float elapsed)
         auto *next = reinterpret_cast<motion_effect_struct *>(current->field_0[0]);
         entity_base_vhandle handle{static_cast<uint32_t>(current->field_0[5])};
         auto *owner = handle.get_volatile_ptr();
-        float scale = g_world_ptr->field_158.field_0;
+        float scale = g_world_ptr->time_manager.field_0;
         if (owner != nullptr && (owner->field_4 & 0x8000u) != 0) {
             owner = owner->get_conglom_owner();
         }

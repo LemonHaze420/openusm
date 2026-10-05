@@ -7,18 +7,23 @@
 #include "fixed_pool.h"
 #include "func_wrapper.h"
 #include "hierarchical_entity_proximity_map.h"
+#include "proximity_map.h"
 #include "lego_map.h"
+#include "limbo_entities.h"
 #include "light_source.h"
+#include "loaded_regions_cache.h"
 #include "memory.h"
 #include "ngl.h"
 #include "resource_pack_slot.h"
 #include "region_mash_info.h"
 #include "subdivision_obb.h"
+#include "traffic_path_graph.h"
 #include "terrain.h"
 #include "texture_array.h"
 #include "texture_to_frame_map.h"
 #include "trace.h"
 #include "wds.h"
+#include "vtbl.h"
 
 #include <cassert>
 #include <cfloat>
@@ -29,6 +34,23 @@ VALIDATE_OFFSET(region, field_C4, 0xC4);
 VALIDATE_OFFSET(region, field_108, 0x108);
 
 static fixed_pool &lego_bitvector_pool = var<fixed_pool>(0x009222D4);
+
+#if STANDALONE_SYSTEM
+namespace {
+_std::list<_std::list<entity *> *> &entity_list_cache()
+{
+    static _std::list<_std::list<entity *> *> cache;
+    static const bool initialized = [] {
+
+        for (int i = 0; i < 9; ++i)
+            cache.push_back(new _std::list<entity *>);
+        return true;
+    }();
+    (void)initialized;
+    return cache;
+}
+}
+#endif
 
 static constexpr auto REGION_UNINITIALIZED_STRIP_ID = -1;
 
@@ -50,6 +72,21 @@ region::region(const mString &a2)
     }
 }
 
+region::~region()
+{
+    destroy_proximity_maps();
+    bitvector_of_legos_rendered_last_frame = nullptr;
+    if ((flags & 8u) == 0 && mash_info != nullptr) {
+        mash_info->~region_mash_info();
+        mem_dealloc(mash_info, sizeof(region_mash_info));
+        mash_info = nullptr;
+    }
+    if (obb != nullptr) {
+        mem_dealloc(obb, sizeof(subdivision_node_obb_base));
+        obb = nullptr;
+    }
+}
+
 void *region::operator new(uint32_t)
 {
     if (all_regions == nullptr) {
@@ -68,10 +105,10 @@ void region::constructor_common()
     this->obb = nullptr;
     this->vobbs_for_region_meshes = nullptr;
     this->field_38 = 0;
-    this->field_3C = 0;
+    this->field_3C = nullptr;
     this->m_fade_groups_count = 0;
-    this->field_44 = 0;
-    this->field_48 = 0;
+    this->field_44 = nullptr;
+    this->field_48 = nullptr;
     this->meshes = nullptr;
     this->texture_to_frame_maps = nullptr;
     this->m_total_frame_maps = 0;
@@ -195,35 +232,20 @@ void region::set_ambient(uint8_t a2, uint8_t a3, uint8_t a4)
 
 void region::remove(entity *a3)
 {
-    if constexpr (0) {
-        assert(this->region_entities != nullptr);
-
-        auto *v2 = a3;
-        if (auto *v5 = bit_cast<light_source *>(a3); a3->is_a_light_source()) {
-            this->remove(v5);
-        } else {
-            this->ai_proximity_map->remove_entity(v2);
-            this->visibility_map->remove_entity(v2);
-            this->parking_proximity_map->remove_entity(v2);
-            if (auto *v3 = bit_cast<conglomerate *>(v2); v2->is_a_conglomerate()) {
-                v3->remove_member_lights_from_region(this);
-            }
-
-            _std::list<entity *>::iterator ei;
-            void(__fastcall * sub_506790)(void *, void *, _std::list<entity *>::iterator *out, entity **) =
-                CAST(sub_506790, 0x00506790);
-            sub_506790(this->region_entities, nullptr, &ei, &a3);
-
-            //assert(ei != this->region_entities->end());
-
-            void(__fastcall *
-                 sub_56CAA0)(void *, void *, _std::list<entity *>::iterator *, _std::list<entity *>::iterator) =
-                CAST(sub_56CAA0, 0x0056CAA0);
-            sub_56CAA0(this->region_entities, nullptr, nullptr, ei);
-        }
-    } else {
-        THISCALL(0x00545700, this, a3);
+    assert(region_entities != nullptr);
+    if (a3->is_a_light_source()) {
+        remove(static_cast<light_source *>(a3));
+        return;
     }
+    ai_proximity_map->remove_entity(a3);
+    visibility_map->remove_entity(a3);
+    parking_proximity_map->remove_entity(a3);
+    if (a3->is_flagged(4u))
+        static_cast<conglomerate *>(a3)->remove_member_lights_from_region(this);
+    auto &list = *static_cast<_std::list<entity *> *>(region_entities);
+    auto found = std::find(list.begin(), list.end(), a3);
+    assert(found != list.end());
+    list.erase(found);
 }
 
 void region::remove(light_source *a2)
@@ -248,7 +270,8 @@ void region::remove(light_source *a2)
         return it;
     }(begin, end, a2);
 
-    std::for_each(it, end, [](light_source *&light) { light = nullptr; });
+    if (it != end)
+        *it = nullptr;
 }
 
 bool region::has_quad_paths() const
@@ -321,56 +344,125 @@ void region::sub_5452D0()
     meshes = region_meshes;
 
     lights = new _std::vector<light_source *>;
+#if STANDALONE_SYSTEM
+    auto &cache = entity_list_cache();
+    region_entities = cache.back();
+    cache.pop_back();
+#else
     region_entities = new _std::list<entity *>;
+#endif
 
     create_proximity_maps();
+}
+
+void region::finish_unloading()
+{
+#if STANDALONE_SYSTEM
+    if (bitvector_of_legos_rendered_last_frame != nullptr) {
+        lego_bitvector_pool.remove(bitvector_of_legos_rendered_last_frame);
+        bitvector_of_legos_rendered_last_frame = nullptr;
+    }
+    const auto detach = [this](entity *ent) {
+        auto clear = reinterpret_cast<void(__fastcall *)(entity *, void *, region *, int)>(
+            get_vfunc(ent->m_vtbl, 0x168));
+        clear(ent, nullptr, this, static_cast<int>(0xDEADBEEFu));
+    };
+    auto *entities = static_cast<_std::list<entity *> *>(region_entities);
+    while (!entities->empty())
+        detach(entities->back());
+    for (auto *light : *lights) {
+        if (light != nullptr)
+            detach(light);
+    }
+    delete lights;
+    lights = nullptr;
+    delete meshes;
+    meshes = nullptr;
+    entity_list_cache().push_back(entities);
+    region_entities = nullptr;
+    destroy_proximity_maps();
+#else
+    THISCALL(0x00545490, this);
+#endif
+}
+
+void region::destroy_proximity_maps()
+{
+    collision_proximity_map = nullptr;
+    const auto clear_map = [](hierarchical_entity_proximity_map *&map) {
+        if (map == nullptr)
+            return;
+        for (int i = 0; i < map->number_of_levels; ++i) {
+            map->maps[i]->initialized = false;
+            map->maps[i] = nullptr;
+        }
+        map = nullptr;
+    };
+    clear_map(ai_proximity_map);
+    clear_map(visibility_map);
+    clear_map(light_proximity_map);
+    clear_map(parking_proximity_map);
+    if (current_proximity_map_stack != nullptr) {
+        release_district_proximity_map_stack(current_proximity_map_stack);
+        current_proximity_map_stack = nullptr;
+    }
 }
 
 void region::set_loaded(bool loaded, resource_pack_slot *pack_slot)
 {
     assert(pack_slot != nullptr);
-    auto *region_meshes = static_cast<_std::vector<nglMesh *> *>(meshes);
+    auto *region_meshes = meshes;
     assert(region_meshes != nullptr);
 
     if (!loaded) {
-        if ((flags & 0x40) != 0) {
-            unload_textures();
+        unload_textures();
+        finish_unloading();
+        field_98 = nullptr;
+        texture_to_frame_maps = nullptr;
+        m_total_frame_maps = 0;
+        if (field_100 != nullptr) {
+            field_100->release_mem();
+            field_100 = nullptr;
         }
-        region_meshes->clear();
+        field_9C = nullptr;
         field_D4 = -1;
         flags &= ~0x10u;
+        loaded_regions_cache::remove(this);
         return;
     }
 
+    auto &directory = pack_slot->get_resource_directory();
     if (field_D4 == -1) {
-        auto &directory = pack_slot->get_resource_directory();
-        const mString mesh_names[] {
-            get_scene_id(false) + mString {"R"},
-            get_scene_id(false) + mString {"C"},
-        };
 
+
+        const mString mesh_names[] {
+            get_scene_id(true) + mString {"R"},
+            get_scene_id(true) + mString {"C"},
+        };
+        const string_hash mesh_hashes[] {
+            string_hash {mesh_names[0].c_str()},
+            string_hash {mesh_names[1].c_str()},
+        };
         const int first = directory.get_type_start_idxs(RESOURCE_KEY_TYPE_MESH);
         const int end = first + directory.get_resource_count(RESOURCE_KEY_TYPE_MESH);
-        for (const auto &mesh_name : mesh_names) {
-            const string_hash mesh_hash {mesh_name.c_str()};
-            for (int i = first; i < end; ++i) {
-                auto *location = directory.get_resource_location(i);
-                if (location->field_0.m_hash != mesh_hash) {
-                    continue;
-                }
-
+        for (int i = first; i < end; ++i) {
+            auto *location = directory.get_resource_location(i);
+            if (directory.get_mash_data(location->m_offset) != nullptr
+                && (location->field_0.m_hash == mesh_hashes[0]
+                    || location->field_0.m_hash == mesh_hashes[1])) {
                 field_D4 = i;
-                tlFixedString ngl_name {mesh_name.c_str()};
-                for (auto *mesh = nglGetFirstMeshInFile(ngl_name);
-                     mesh != nullptr;
-                     mesh = nglGetNextMeshInFile(mesh)) {
-                    region_meshes->push_back(mesh);
-                }
                 break;
             }
-            if (field_D4 != -1) {
-                break;
-            }
+        }
+    }
+    if (field_D4 != -1) {
+        auto *location = directory.get_resource_location(field_D4);
+        tlFixedString mesh_name {};
+        mesh_name.m_hash = location->field_0.m_hash.source_hash_code;
+        for (auto *mesh = nglGetFirstMeshInFile(mesh_name);
+             mesh != nullptr;
+             mesh = nglGetNextMeshInFile(mesh)) {
+            region_meshes->push_back(mesh);
         }
     }
 
@@ -378,6 +470,10 @@ void region::set_loaded(bool loaded, resource_pack_slot *pack_slot)
         load_textures();
     }
     flags |= 0x10u;
+    loaded_regions_cache::add(this);
+    hash_update_bitvector().fill(0);
+    last_update_slot() = 0;
+    update_started() = true;
 }
 
 bool region::is_inside_or_on(const vector3d &a2) const
@@ -388,11 +484,34 @@ bool region::is_inside_or_on(const vector3d &a2) const
 void region::create_proximity_maps()
 {
 #if STANDALONE_SYSTEM
+    vector3d min_extent;
+    vector3d max_extent;
+    obb->get_extents(&min_extent, &max_extent);
+    current_proximity_map_stack = acquire_district_proximity_map_stack();
     collision_proximity_map = &collision_dynamic_rtree();
-    ai_proximity_map = new hierarchical_entity_proximity_map{};
-    visibility_map = new hierarchical_entity_proximity_map{};
-    light_proximity_map = new hierarchical_entity_proximity_map{};
-    parking_proximity_map = new hierarchical_entity_proximity_map{};
+    const auto create_map = [this]() {
+        auto *map = static_cast<hierarchical_entity_proximity_map *>(
+            current_proximity_map_stack->alloc(0x41C));
+        if (map != nullptr) {
+            new (map) hierarchical_entity_proximity_map;
+            map->entity_data_lookup = {};
+        }
+        return map;
+    };
+    ai_proximity_map = create_map();
+    visibility_map = create_map();
+    light_proximity_map = create_map();
+    parking_proximity_map = create_map();
+
+    _std::vector<int> levels(2);
+    levels[0] = 4;
+    levels[1] = 16;
+    visibility_map->init(*current_proximity_map_stack, 0, min_extent, max_extent, levels);
+    ai_proximity_map->init(*current_proximity_map_stack, 2, min_extent, max_extent, levels);
+    light_proximity_map->init(*current_proximity_map_stack, 3, min_extent, max_extent, levels);
+    parking_proximity_map->init(*current_proximity_map_stack, 4, min_extent, max_extent, levels);
+
+    field_9C = nullptr;
 #else
     THISCALL(0x00544F60, this);
 #endif
@@ -423,17 +542,15 @@ void region::un_mash_lego_map(char *a2, int *a3)
 {
     TRACE("region::un_mash_lego_map");
 
-    if constexpr (STANDALONE_SYSTEM) {
-        this->field_9C = reinterpret_cast<lego_map_root_node *>(a2);
-        this->field_9C->un_mash(a2, a3, this);
-        this->bitvector_of_legos_rendered_last_frame = new fixed_bitvector<uint, 2048> {};
-    } else {
-        this->field_9C = reinterpret_cast<lego_map_root_node *>(a2);
-        this->field_9C->un_mash(a2, a3, this);
-        auto *mem = lego_bitvector_pool.allocate_new_block();
-        this->bitvector_of_legos_rendered_last_frame =
-            new (mem) fixed_bitvector<uint, 2048> {};
-    }
+    this->field_9C = reinterpret_cast<lego_map_root_node *>(a2);
+    this->field_9C->un_mash(a2, a3, this);
+#if STANDALONE_SYSTEM
+    if (!lego_bitvector_pool.m_initialized)
+        lego_bitvector_pool.init(sizeof(fixed_bitvector<uint, 2048>), 8, 4, 0, 0, nullptr);
+#endif
+    auto *mem = lego_bitvector_pool.allocate_new_block();
+    this->bitvector_of_legos_rendered_last_frame =
+        new (mem) fixed_bitvector<uint, 2048> {};
 
     assert(bitvector_of_legos_rendered_last_frame != nullptr);
     for (auto i = 0u; i < 65u; ++i) {
@@ -453,7 +570,22 @@ void region::add(entity *e)
     }
     auto *entities = static_cast<_std::list<entity *> *>(this->region_entities);
     assert(entities != nullptr);
-    entities->push_back(e);
+    if (std::find(entities->begin(), entities->end(), e) == entities->end())
+        entities->push_back(e);
+    if (e->is_renderable() &&
+        (e->is_flagged(0x200u) || e->is_flagged(4u) || e->is_a_conglomerate_clone()))
+        visibility_map->update_entity(e);
+    if (e->is_flagged(1u)) {
+        auto update = reinterpret_cast<void(__fastcall *)(entity *, void *)>(
+            get_vfunc(e->m_vtbl, 0x184));
+        update(e, nullptr);
+    }
+    if (e->possibly_collide())
+        collision_proximity_map->update_entity(e);
+    if (e->is_a_parking_marker())
+        parking_proximity_map->update_entity(e);
+    if (e->is_flagged(4u))
+        static_cast<conglomerate *>(e)->add_member_lights_to_region(this);
 #else
     THISCALL(0x0054FF40, this, e);
 #endif
@@ -465,11 +597,16 @@ void region::add(light_source *light)
     if (light == nullptr)
         return;
     assert(this->lights != nullptr);
+    light_proximity_map->update_entity(light);
     for (auto *current : *this->lights) {
         if (current == light)
             return;
     }
-    this->lights->push_back(light);
+    auto vacant = std::find(this->lights->begin(), this->lights->end(), nullptr);
+    if (vacant != this->lights->end())
+        *vacant = light;
+    else
+        this->lights->push_back(light);
 #else
     THISCALL(0x00545780, this, light);
 #endif

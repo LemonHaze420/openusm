@@ -3,6 +3,7 @@
 #include "wds_entity_manager.h"
 
 #include "box_trigger.h"
+#include "beam.h"
 #include "camera.h"
 #include "common.h"
 #include "debugutil.h"
@@ -12,6 +13,7 @@
 #include "item.h"
 #include "mic.h"
 #include "mstring.h"
+#include "memory.h"
 #include "oldmath_po.h"
 #include "osassert.h"
 #include "resource_key.h"
@@ -30,6 +32,8 @@
 #include <list.hpp>
 
 #include <cassert>
+#include <algorithm>
+#include <new>
 
 VALIDATE_SIZE(wds_entity_manager, 0x2C);
 
@@ -48,6 +52,13 @@ wds_entity_manager::wds_entity_manager()
     } else {
         THISCALL(0x005DF4C0, this);
     }
+}
+beam *wds_entity_manager::create_and_add_beam(_std::vector<entity *> *destination,
+    const string_hash &id, uint32_t flags)
+{
+    auto *value = ::new (mem_alloc(sizeof(beam))) beam(id, flags);
+    add_entity_internal(destination, value);
+    return value;
 }
 
 template<typename T>
@@ -110,16 +121,82 @@ entity *wds_entity_manager::acquire_entity(string_hash a1, uint32_t a2)
     }
 }
 
-void wds_entity_manager::add_dynamic_instanced_entity(entity *a2)
+void wds_entity_manager::add_dynamic_instanced_entity(entity *value)
 {
-    TRACE("wds_entity_manager::add_dynamic_instanced_entity");
+    auto *segment = entities.field_0.empty()
+        ? entities.sub_50A230()
+        : &*entities.field_0.begin();
+    auto slot = segment->begin();
+    for (; slot != segment->end() && *slot != nullptr; ++slot) {}
+    if (slot == segment->end())
+        segment->push_back(value);
+    else
+        *slot = value;
 
-    THISCALL(0x005E0760, this, a2);
+
+
+    value->get_abs_po();
+    value->compute_sector(g_world_ptr->the_terrain,
+                          g_world_ptr->is_loading_from_scn_file(), nullptr);
+}
+
+namespace {
+void destroy_owned_entity(entity *value)
+{
+    if ((value->field_8 & 0x80000000u) != 0) {
+        auto destroy = reinterpret_cast<void(__fastcall *)(entity *, void *, bool)>(
+            get_vfunc(value->m_vtbl, 0));
+        destroy(value, nullptr, true);
+    } else {
+        auto release = reinterpret_cast<void(__fastcall *)(entity *, void *)>(
+            get_vfunc(value->m_vtbl, 0x10));
+        release(value, nullptr);
+    }
+}
 }
 
 void wds_entity_manager::destroy_all_entities_and_items()
 {
-    THISCALL(0x005D9060, this);
+    for (auto *value : entities) {
+        if (value != nullptr)
+            value->remove_from_regions();
+    }
+
+
+    for (auto &slot : entities) {
+        if (slot != nullptr && (slot->field_4 & 4u) != 0) {
+            auto *value = slot;
+            slot = nullptr;
+            destroy_owned_entity(value);
+        }
+    }
+
+    for (auto &slot : entities) {
+        auto *value = slot;
+        if (value == nullptr || value->is_an_item() || (value->field_4 & 0x8000u) != 0)
+            continue;
+        if (value->is_a_light_source()) {
+            if (!g_world_ptr->ent_mgr.remove_entity(value))
+                continue;
+        } else {
+            slot = nullptr;
+        }
+        destroy_owned_entity(value);
+    }
+    for (auto &segment : entities.field_0)
+        segment._Tidy();
+
+    for (auto &slot : items) {
+        if (slot != nullptr) {
+            auto *value = slot;
+            slot = nullptr;
+            destroy_owned_entity(value);
+        }
+    }
+    for (auto &segment : items.field_0)
+        segment._Tidy();
+
+
 }
 
 #ifdef OPENUSM_XBPACK_MODE
@@ -137,40 +214,33 @@ void wds_entity_manager::destroy_entity(entity *e)
 {
     assert(e != nullptr);
 
-    if constexpr (1) {
-        bool v4;
-
-        auto v3 = e->get_flavor() - 9;
-        if (v3 && v3 == 2) {
-            v4 = this->remove_item((item *) e);
-        } else {
-            v4 = this->remove_entity(e);
-        }
-
-        if (v4) {
-            if ((e->field_8 & 0x80000000) == 0) {
-                void (__fastcall *release_mem)(entity *, void *) =
-                    CAST(release_mem, get_vfunc(e->m_vtbl, 0x10));
-                release_mem(e, nullptr);
-            } else {
-                void (__fastcall *finalize)(entity *, void *, bool) =
-                    CAST(finalize, get_vfunc(e->m_vtbl, 0x0));
-                finalize(e, nullptr, true);
-            }
-        }
-    } else {
-        THISCALL(0x005D6F20, this, e);
-    }
+    const bool removed = e->get_flavor() == ENTITY_ITEM
+        ? remove_item(static_cast<item *>(e))
+        : remove_entity(e);
+    if (removed)
+        destroy_owned_entity(e);
 }
 
 bool wds_entity_manager::remove_item(item *a2)
 {
-    return (bool) THISCALL(0x005D5410, this, a2);
+    for (auto &slot : items) {
+        if (slot == a2) {
+            slot = nullptr;
+            return true;
+        }
+    }
+    return false;
 }
 
 bool wds_entity_manager::remove_entity(entity *a2)
 {
-    return (bool) THISCALL(0x005D5350, this, a2);
+    for (auto &slot : entities) {
+        if (slot == a2) {
+            slot = nullptr;
+            return true;
+        }
+    }
+    return false;
 }
 
 void wds_entity_manager::release_entity(entity *e)
@@ -202,9 +272,16 @@ void wds_entity_manager::make_time_limited(entity *entity_ptr, Float lifetime)
 
 item *wds_entity_manager::add_item(_std::vector<item *> *a2, item *a3)
 {
-    TRACE("wds_entity_manager::add_item");
-
-    return (item *) THISCALL(0x005DF7D0, this, a2, a3);
+    if (a2 == nullptr) {
+        auto segment = items.field_0.begin();
+        a2 = segment == items.field_0.end() ? items.sub_50A2B0() : &*segment;
+    }
+    auto slot = std::find(a2->begin(), a2->end(), nullptr);
+    if (slot == a2->end())
+        a2->push_back(a3);
+    else
+        *slot = a3;
+    return a3;
 }
 
 int wds_entity_manager::add_ent_to_lists(_std::vector<entity *> *a2, _std::vector<item *> *a3, entity *ent)
@@ -457,7 +534,7 @@ void wds_entity_manager::process_time_limited_entities(Float elapsed)
         if (entity_ptr != nullptr && current->remaining > 0.0f) {
             const float scale = entity_ptr->field_58 != nullptr
                 ? static_cast<float>(entity_ptr->field_58->sub_4ADE50())
-                : g_world_ptr->field_158.field_0;
+                : g_world_ptr->time_manager.field_0;
             current->remaining -= scale * elapsed.value;
         } else if (entity_ptr != nullptr) {
             entity_ptr->set_visible(false, false);
