@@ -165,7 +165,8 @@ float *sub_64A650(float *out, const float *angle)
         float sine;
         float cosine;
         fast_sin_cos_approx(*angle, &sine, &cosine);
-        *out = -cosine / sine;
+
+        *out = sine / cosine;
         return out;
     } else {
         return reinterpret_cast<float *>(CDECL_CALL(0x0064A650, out, angle));
@@ -249,7 +250,7 @@ void nglSetOrthoMatrix(Float nearz, Float farz)
 
 matrix4x4 nglGetMatrix(nglMatrixType a2)
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         auto *v2 = nglCurScene;
         if (v2->field_3E4) {
             nglCalculateMatrices(0);
@@ -270,8 +271,7 @@ matrix4x4 nglGetMatrix(nglMatrixType a2)
             result = v2->WorldToScreen;
             break;
         default:
-            assert(0 && "Invalid matrix ID.");
-            break;
+            result[0].x = result[1].y = result[2].z = result.w.w = 1.0f;
         }
         return result;
     } else {
@@ -436,11 +436,8 @@ void nglCalculateMatrices(bool a1)
 
             nglCurScene->field_8C = sub_77CB90();
 
-            {
-                const ptr_to_po projection_viewport{&nglCurScene->field_C, &nglCurScene->field_4C};
-                const po_chain view_to_screen{&projection_viewport, &nglCurScene->field_8C};
-                nglCurScene->ViewToScreen.from_po_chain(view_to_screen);
-            }
+            nglCurScene->ViewToScreen =
+                nglCurScene->field_C * nglCurScene->field_4C * nglCurScene->field_8C;
 
             auto a1a = sub_4150E0(nglCurScene->WorldToView);
             nglCurScene->ViewToWorld = a1a;

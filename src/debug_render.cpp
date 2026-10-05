@@ -346,7 +346,7 @@ Var<int[51]> min_values{0x009617A0};
 
 Var<int[51]> max_values{0x009227E8};
 
-Var<int[34]> debug_render_items = {0x00960D30};
+Var<int[51]> debug_render_items = {0x00960D30};
 
 int debug_render_get_ival(debug_render_items_e item)
 {
@@ -404,6 +404,18 @@ void debug_render_init()
 {
     TRACE("debug_render_init");
 #if STANDALONE_SYSTEM
+
+    static constexpr int initial_values[51]{
+        0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0};
+    static constexpr int maxima[51]{
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 5, 10, 1, 3, 256, 1, 10, 1, 1, 1, 2, 1, 1, 32, 1, 5,
+        1, 3, 1, 1, 3, 1, 1, 1, 1, 1, 1, 1, 13, 2, 1, 1, 1};
+    std::copy_n(initial_values, 51, debug_render_items());
+    std::copy_n(maxima, 51, max_values());
+    std::fill_n(min_values(), 51, -1);
     return;
 #endif
 

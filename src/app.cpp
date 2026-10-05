@@ -326,6 +326,30 @@ void app::tick()
         limited_timer_base total_timer;
         total_timer.reset();
 
+        const auto render_frame = [](bool paused) {
+            if (g_game_ptr->flag.level_is_loaded &&
+                (!paused || !g_game_ptr->field_165 ||
+                 os_developer_options::instance->get_flag(
+                     static_cast<os_developer_options::flags_t>(66)))) {
+                nglListInit();
+                nglSetClearFlags(7);
+                nglSetClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+                nglListBeginScene(static_cast<nglSceneParamType>(1));
+                nglSetClearFlags(D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER | D3DCLEAR_STENCIL);
+                nglListEndScene();
+                g_game_ptr->render_world();
+                nglListSend(true);
+            } else if (g_femanager.m_fe_menu_system != nullptr &&
+                       !os_developer_options::instance->get_flag(
+                           static_cast<os_developer_options::flags_t>(66))) {
+                g_femanager.m_fe_menu_system->RenderLoadMeter(false);
+                nglListSend(true);
+            } else {
+                game::render_empty_list();
+            }
+        };
+
         sub_77B2F0(0);
 
         float time_inc;
@@ -341,14 +365,7 @@ void app::tick()
             if (g_smoke_test() != nullptr)
                 g_smoke_test()->frame_advance();
 
-            if (g_femanager.m_fe_menu_system != nullptr) {
-                g_femanager.m_fe_menu_system->RenderLoadMeter(false);
-                nglListSend(true);
-            } else if (g_game_ptr->flag.level_is_loaded && !g_game_ptr->field_165) {
-                comic_panels::render();
-            } else {
-                game::render_empty_list();
-            }
+            render_frame(true);
 
             this->field_4.sub_5B8670();
             actor::swap_all_mesh_buffers();
@@ -372,6 +389,7 @@ void app::tick()
             resource_manager::frame_advance(time_inc);
             link_system::frame_advance(time_inc);
             this->m_game->frame_advance(time_inc);
+            render_frame(false);
             byte_9682F0 = false;
         }
 

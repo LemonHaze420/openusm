@@ -11,7 +11,7 @@ struct generic_mash_data_ptrs;
 
 struct fx_cache_ent {
     float field_0;
-    int field_4;
+    float field_4;
     vhandle_type<entity> field_8;
 
     fx_cache_ent();

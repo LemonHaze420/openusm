@@ -4,6 +4,9 @@
 
 extern void us_outline_patch();
 
+
+extern void initialize_shiny_material_shader();
+
 struct nglMaterialBase;
 struct nglTexture;
 

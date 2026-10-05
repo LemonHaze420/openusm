@@ -260,13 +260,9 @@ bool actor::has_skeleton_ifc() const
 
 color32 actor::_get_render_color() const
 {
-    TRACE("actor::get_render_color");
-
     color32 result = (this->adv_ptrs != nullptr && this->adv_ptrs->field_8 != nullptr ? this->adv_ptrs->field_8->field_0
                                                                                       : color32{255, 255, 255, 255});
 
-    auto c = result.to_color();
-    sp_log("result = %f %f %f %f", c.r, c.g, c.b, c.a);
     return result;
 }
 
@@ -274,6 +270,21 @@ color32 * __fastcall actor_get_render_color(const actor *self, void *, color32 *
 {
     *out = self->_get_render_color();
     return out;
+}
+
+void actor::_set_render_color(color32 value)
+{
+    if (color32::to_int(value) == color32::to_int(this->_get_render_color())) {
+        return;
+    }
+    this->create_adv_ptrs();
+    if (this->adv_ptrs->field_8 == nullptr) {
+        auto *memory = mem_alloc(sizeof(advanced_entity_ptrs::render_data));
+        this->adv_ptrs->field_8 =
+            new (memory) advanced_entity_ptrs::render_data{};
+    }
+    this->adv_ptrs->field_8->field_0 = value;
+    this->set_visible(value.get_alpha() > 0, false);
 }
 
 void actor::_set_render_alpha_mod(Float a2)
@@ -290,12 +301,9 @@ void actor::_set_render_alpha_mod(Float a2)
 
 float actor::_get_render_alpha_mod() const
 {
-    TRACE("actor::get_render_alpha_mod");
-
     float alpha_mod =
         (this->adv_ptrs != nullptr && this->adv_ptrs->field_8 != nullptr ? this->adv_ptrs->field_8->field_14 : 1.0f);
 
-    sp_log("alpha_mod = %f", alpha_mod);
     return alpha_mod;
 }
 
@@ -1074,7 +1082,12 @@ void actor::create_player_controller(int a2)
     this->m_player_controller->set_player_num(a2);
 }
 
-static _std::list<actor::mesh_buffers *> & stru_95AAB4 = var<_std::list<actor::mesh_buffers *>>(0x0095AAB4);
+#if STANDALONE_SYSTEM
+static _std::list<actor::mesh_buffers *> native_mesh_buffers;
+static auto &stru_95AAB4 = native_mesh_buffers;
+#else
+static auto &stru_95AAB4 = var<_std::list<actor::mesh_buffers *>>(0x0095AAB4);
+#endif
 
 void actor::swap_all_mesh_buffers()
 {
@@ -1107,82 +1120,46 @@ void actor::radius_changed(bool )
 
 lego_map_root_node *actor::get_lego_map_root()
 {
-#if STANDALONE_SYSTEM
     auto *current = this;
     while (current != nullptr) {
-        if (current->regions[1] != nullptr) {
-            return current->regions[1]->field_9C;
-        }
+        if (current->regions[0] != nullptr)
+            return current->regions[0]->field_9C;
         auto *parent = current->m_parent;
-        if (parent == nullptr || !parent->is_an_actor()) {
+        if (parent == nullptr || !parent->is_an_actor())
             return nullptr;
-        }
-        current = bit_cast<actor *>(parent);
+        current = static_cast<actor *>(parent);
     }
     return nullptr;
-#else
-    return (lego_map_root_node *)THISCALL(0x00502C70, this);
-#endif
 }
 
-void actor::_render(Float a2)
+void actor::_render(Float fade)
 {
-    TRACE("actor::render");
 
-    sp_log("%f", float{a2});
-
-    if constexpr (0) {
-        auto *mesh = this->get_mesh();
-        if (mesh != nullptr) {
-            assert(mesh != nullptr && is_visible() && is_renderable());
-
-            nglParamSet<nglShaderParamSet_Pool> ShaderParams{
-                static_cast<nglParamSet<nglShaderParamSet_Pool>::nglParamSetType>(1)};
-
-            if (this->is_material_switching()) {
-                auto *root_node = this->get_lego_map_root();
-                if (root_node != nullptr) {
-                    USMMaterialListParam list_param{root_node->field_4};
-                    ShaderParams.SetParam(list_param);
-
-                    USMMaterialIndicesParam indices_param{this->field_90.field_C};
-                    ShaderParams.SetParam(indices_param);
-                }
-            }
-
-            if ((this->field_90.field_6 & 0x3FFF) != 0x3FFF) {
-                auto v11 = (this->field_90.field_6 & 0x3FFF);
-
-                nglTextureFrameParam frame_param{v11};
-                ShaderParams.SetParam(frame_param);
-            }
-
-            auto v12 = this->field_90.field_6 >> 14;
-            auto v13 = 3 - v12;
-            if (v12 != 3) {
-                USDamageFrameParam frame_param{v13};
-                ShaderParams.SetParam(frame_param);
-            }
-
-            if (a2 != 1.f || (this->adv_ptrs != nullptr && this->adv_ptrs->field_8 != nullptr)) {
-                auto v17 = this->get_render_color();
-                color *v18 = new color {v17.to_color()};
-
-                v18->a *= this->get_render_alpha_mod() * a2;
-
-                nglTintParam param{(vector4d *) v18};
-                ShaderParams.SetParam(param);
-            }
-
-            math::MatClass<4, 3> *v21 = bit_cast<decltype(v21)>(&this->get_abs_po());
-
-            static nglMeshParams g_MeshParams{0x80000040};
-
-            FastListAddMesh(mesh, *v21, &g_MeshParams, &ShaderParams);
+    auto *mesh = get_mesh();
+    if (mesh == nullptr)
+        return;
+    nglParamSet<nglShaderParamSet_Pool> params{
+        static_cast<nglParamSet<nglShaderParamSet_Pool>::nglParamSetType>(1)};
+    if (is_material_switching()) {
+        if (auto *root = get_lego_map_root()) {
+            params.SetParam(USMMaterialListParam{root->field_4});
+            params.SetParam(USMMaterialIndicesParam{field_90.field_C});
         }
-    } else {
-        THISCALL(0x004E33B0, this, a2);
     }
+    const int texture_frame = field_90.field_6 & 0x3FFF;
+    if (texture_frame != 0x3FFF)
+        params.SetParam(nglTextureFrameParam{texture_frame});
+    const int damage = field_90.field_6 >> 14;
+    if (damage != 3)
+        params.SetParam(USDamageFrameParam{3 - damage});
+    if (fade < 1.0f || fade > 1.0f || std::isnan(fade.value) || (adv_ptrs != nullptr && adv_ptrs->field_8 != nullptr)) {
+        auto *tint = ::new (nglListAlloc(sizeof(color), 16)) color{get_render_color().to_color()};
+        tint->a *= get_render_alpha_mod() * fade.value;
+        params.SetParam(nglTintParam{reinterpret_cast<vector4d *>(tint)});
+    }
+    static nglMeshParams mesh_params{0x80000040};
+    const auto &transform = *reinterpret_cast<const math::MatClass<4, 3> *>(&get_abs_po());
+    FastListAddMesh(mesh, transform, &mesh_params, &params);
 }
 
 damage_interface *actor::damage_ifc()
@@ -1369,55 +1346,42 @@ vector3d *actor::get_cached_visual_bounding_sphere_center()
 
 vector3d actor::_get_visual_center()
 {
-    TRACE("actor::get_visual_center");
 
-    if constexpr (0) {
-        vector3d v6;
 
-        if (this->get_mesh() != nullptr) {
-            if (this->has_vertical_obb()) {
-                auto v17 = sub_503A90(this->field_A8, 0, this->get_abs_po().m[3]);
-
-                auto v10 = sub_509170(this, this->field_8);
-                v6 = v17 + v10;
-
-            } else {
-                if (this->is_ext_flagged(0x40u)) {
-                    this->field_8 &= 0xFFFFFFBF;
-
-                    auto *Mesh = this->get_mesh();
-
-                    this->field_AC[0] = Mesh->SphereCenter[0];
-                    this->field_AC[1] = Mesh->SphereCenter[1];
-                    this->field_AC[2] = Mesh->SphereCenter[2];
-
-                    assert(get_cached_visual_bounding_sphere_center()->is_valid());
-
-                    auto &abs_po = this->get_abs_po();
-
-                    this->field_AC = abs_po.slow_xform(this->field_AC);
-
-                    assert(get_cached_visual_bounding_sphere_center()->is_valid());
-                }
-
-                auto v10 = sub_509170(this, this->field_8);
-                v6 = this->field_AC + v10;
-            }
-
+    vector3d center;
+    if (auto *mesh = get_mesh()) {
+        if (has_vertical_obb()) {
+            const auto result = sub_503A90(field_A8, 0, get_abs_po().m[3]);
+            center = vector3d{result.x, result.y, result.z};
         } else {
-            auto v4 = this->get_abs_position();
-
-            vector3d v5 = sub_509170(this, this->field_8);
-            v6 = v5 + v4;
+            if (is_ext_flagged(0x40)) {
+                field_8 &= ~0x40u;
+                field_AC = vector3d{mesh->SphereCenter[0], mesh->SphereCenter[1], mesh->SphereCenter[2]};
+                field_AC = get_abs_po().slow_xform(field_AC);
+            }
+            center = field_AC;
         }
-
-        return v6;
-
     } else {
-        vector3d result;
-        THISCALL(0x004E31F0, this, &result);
-        return result;
+        center = get_abs_position();
     }
+    return center + sub_509170(this, field_8);
+}
+
+float actor::_get_visual_radius()
+{
+
+    if (auto *mesh = get_mesh()) {
+        const float factor = is_ext_flagged(0x20) ? 0.75f
+            : is_ext_flagged(0x1000000) ? 0.4f : is_flagged(0x800) ? 0.6f : 1.0f;
+        const auto scale = get_render_scale();
+        const float largest = std::max(std::abs(scale.x), std::max(std::abs(scale.y), std::abs(scale.z)));
+        return largest * mesh->SphereRadius * factor;
+    }
+    if (is_flagged(0x8004)) {
+        if (auto *owner = get_conglom_owner())
+            return static_cast<entity *>(owner)->get_visual_radius();
+    }
+    return 0.0f;
 }
 
 bool actor::add_item(int handle, bool)
@@ -1568,18 +1532,39 @@ nglMesh **actor::sub_4B8BCA()
 
 nglMesh *actor::_get_mesh()
 {
-    if constexpr (0) {
-        nglMesh *result;
 
-        if (this->field_90.field_5 <= 1u)
-            result = (nglMesh *) this->sub_4B8BCA();
-        else
-            result = this->field_90.field_0[this->field_90.field_4];
-        return result;
-    } else {
-        nglMesh * (__fastcall *func)(void *) = CAST(func, 0x004B8BB0);
-        return func(this);
+    return field_90.field_5 <= 1
+        ? reinterpret_cast<nglMesh *>(field_90.field_0)
+        : field_90.field_0[field_90.field_4];
+}
+
+nglMorphSet *actor::get_morph(const tlFixedString &name, bool warn)
+{
+    auto callback = reinterpret_cast<nglMorphSet *(__fastcall *)(actor *, void *, const tlFixedString *, bool)>(
+        get_vfunc(m_vtbl, 0x260));
+    return callback(this, nullptr, &name, warn);
+}
+
+nglMorphSet *actor::_get_morph(const tlFixedString &name, bool warn)
+{
+    mString lookup_name{name.c_str()};
+    resource_manager::push_resource_context(m_resource_context);
+    auto *morph = nglGetMorph(tlFixedString{lookup_name.c_str()}, false);
+    if (morph == nullptr) {
+        lookup_name.append("000");
+        morph = nglGetMorph(tlFixedString{lookup_name.c_str()}, warn);
     }
+    resource_manager::pop_resource_context();
+    if (morph == nullptr) {
+        resource_manager::push_resource_context(resource_manager::get_best_context(RESOURCE_PARTITION_MISSION));
+        morph = nglGetMorph(tlFixedString{lookup_name.c_str()}, false);
+        if (morph == nullptr) {
+            lookup_name.append("000");
+            morph = nglGetMorph(tlFixedString{lookup_name.c_str()}, warn);
+        }
+        resource_manager::pop_resource_context();
+    }
+    return morph;
 }
 
 ai::ai_core *actor::_get_ai_core()
@@ -1616,15 +1601,53 @@ void actor::get_animations(actor *a1, std::list<nalAnimClass<nalAnyPose> *> &a2)
 
 void actor::mesh_buffers::set_mesh(nglMesh *mesh)
 {
-#if STANDALONE_SYSTEM
-    this->field_0 = reinterpret_cast<nglMesh **>(mesh);
-    this->field_4 = 0;
-    this->field_5 = 1;
-    this->active_client_count = 0;
-#else
-    TRACE("actor::mesh_buffers::set_mesh");
-    THISCALL(0x004D6980, this, mesh);
-#endif
+    while (field_5 > 1)
+        end_buffering();
+    field_0 = reinterpret_cast<nglMesh **>(mesh);
+    active_client_count = 0;
+}
+
+void actor::mesh_buffers::start_buffering(unsigned int count)
+{
+    ++active_client_count;
+    if (count == field_5 || count <= 1)
+        return;
+    end_buffering();
+    auto *original = reinterpret_cast<nglMesh *>(field_0);
+    field_5 = static_cast<uint8_t>(count);
+    field_0 = new nglMesh *[field_5 + 1];
+    field_0[field_5] = original;
+    for (uint32_t mesh = 0; mesh < field_5; ++mesh) {
+        field_0[mesh] = nglCreateMeshClone(original);
+        field_0[mesh]->Name = original->Name;
+        for (uint32_t section = 0; section < original->NSections; ++section) {
+            if (original->Sections[section].Section->VertexDef != nullptr)
+                nglMakeSectionUnique(field_0[mesh], section);
+        }
+    }
+    stru_95AAB4.push_back(this);
+}
+
+void actor::mesh_buffers::end_buffering()
+{
+    if (field_5 <= 1)
+        return;
+    --active_client_count;
+    if (active_client_count > 0)
+        return;
+    for (uint32_t mesh = 0; mesh < field_5; ++mesh)
+        nglDestroyMesh(field_0[mesh]);
+    auto *original = field_0[field_5];
+    delete[] field_0;
+    field_4 = 1;
+    field_5 = 1;
+    field_0 = reinterpret_cast<nglMesh **>(original);
+    for (auto it = stru_95AAB4.begin(); it != stru_95AAB4.end();) {
+        if (*it == this)
+            it = stru_95AAB4.erase(it);
+        else
+            ++it;
+    }
 }
 
 namespace ai {

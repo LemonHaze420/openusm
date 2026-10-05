@@ -1,6 +1,8 @@
 #include "facial_expression_interface.h"
 
 #include "common.h"
+#include "entity_mash.h"
+#include <algorithm>
 #include "func_wrapper.h"
 #include "parse_generic_mash.h"
 #include "trace.h"
@@ -14,7 +16,8 @@ constexpr float table[3]{0.30000001, 0.40000001, 0.30000001};
 facial_expression_interface::facial_expression_interface(actor *a1) : actor_interface(a1)
 {
     if constexpr (STANDALONE_SYSTEM) {
-        this->m_vtbl = 0x008A5C20;
+        construct_v_table_lookup();
+        this->m_vtbl = ifc_v_table_lookup[4];
 
         this->add_to_facial_expression_ifc_list();
         this->owner_actor = a1;
@@ -29,6 +32,23 @@ facial_expression_interface::facial_expression_interface(actor *a1) : actor_inte
         this->field_34[2].field_4[2] = expression_duration_defaults::table[2];
     } else {
         THISCALL(0x006D1670, this, a1);
+    }
+}
+
+facial_expression_interface::~facial_expression_interface()
+{
+    release_ifc();
+}
+
+void facial_expression_interface::release_ifc()
+{
+    auto *&interfaces = all_facial_expression_interfaces();
+    auto found = std::find(interfaces->begin(), interfaces->end(), this);
+    if (found != interfaces->end())
+        interfaces->erase(found);
+    if (interfaces->empty()) {
+        delete interfaces;
+        interfaces = nullptr;
     }
 }
 

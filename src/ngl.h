@@ -351,7 +351,7 @@ struct nglMeshSection {
     uint32_t field_5C;
 };
 
-extern void nglSetStreamSourceAndDrawPrimitive(D3DPRIMITIVETYPE a1, IDirect3DVertexBuffer9 *a2, uint32_t numVertices,
+extern HRESULT nglSetStreamSourceAndDrawPrimitive(D3DPRIMITIVETYPE a1, IDirect3DVertexBuffer9 *a2, uint32_t numVertices,
                                                uint32_t baseVertexIndex, uint32_t stride, IDirect3DIndexBuffer9 *a6,
                                                uint32_t numIndices, uint32_t startIndex);
 
@@ -488,6 +488,9 @@ extern nglTexture *nglGetTexture(uint32_t a1);
 
 extern nglTexture *nglGetTexture(const tlFixedString &a1);
 
+
+extern void nglAddTextureRef(nglTexture *texture);
+
 //0x007730B0
 extern void nglSetTextureDirectory(tlResourceDirectory<nglTexture, tlFixedString> *a1);
 
@@ -538,6 +541,9 @@ extern void nglSetMorphDirectory(tlResourceDirectory<nglMorphSet, tlHashString> 
 
 //0x0076EFB0
 extern tlInstanceBankResourceDirectory<nglMorphSet, tlHashString> *nglGetMorphDirectory();
+
+
+extern nglMorphSet *nglGetMorph(const tlFixedString &name, bool warn);
 
 //0x00778500
 extern tlInstanceBankResourceDirectory<nglMorphFile, tlFixedString> *nglGetMorphFileDirectory();
@@ -799,7 +805,7 @@ struct nglSortInfo;
 void nglListAddString(nglFont *arg0, float arg4, float a3, float a4, float a5, float a6, const char *a2, ...);
 
 //0x0076C3A0
-extern void nglListAddCustomNode(void (*a1)(unsigned int *&, void *), void *a2, const nglSortInfo *a3);
+extern void nglListAddCustomNode(void (*callback)(void *, void *), void *payload, const nglSortInfo *sort);
 
 //0x0077AFE0
 extern void nglListAddQuad(nglQuad *Quad);
@@ -879,6 +885,13 @@ extern void nglListBeginScene(nglSceneParamType a2);
 
 //0x0076A030
 extern void nglListEndScene();
+
+
+extern nglScene *nglListSelectScene(nglScene *scene);
+
+extern void nglSetView(Float x1, Float y1, Float x2, Float y2);
+extern void nglSetScissor(Float x1, Float y1, Float x2, Float y2);
+extern void nglSetFBWriteMask(unsigned int mask);
 
 //0x0077AC90
 extern void nglSetQuadTex(nglQuad *a1, nglTexture *a2);
@@ -965,6 +978,8 @@ extern nglMesh *nglGetMesh(const tlFixedString &a1, bool a2);
 
 //0x0076F010
 extern nglMesh *nglGetMesh(uint32_t a1, bool a2);
+
+extern int nglGetLOD(nglMesh *mesh, const math::MatClass<4, 3> &local_to_world);
 
 //0x0076E750
 extern void nglSetFrameLock(nglFrameLockType a2);

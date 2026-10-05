@@ -10,9 +10,16 @@ struct PCUV_Shader : nglShader {
     //0x00402BC0
     //virtual
     void Register();
+    tlFixedString _GetName() const;
+    void _AddNode(nglMeshNode *mesh_node, nglMeshSection *mesh_section, nglMaterialBase *material);
+    void _BindMaterial(nglMaterialBase *material);
+    void _ReleaseMaterial(nglMaterialBase *material);
+    void _RebaseMaterial(nglMaterialBase *material, unsigned int base);
 };
 
 inline Var<PCUV_Shader> gPCUV_Shader{0x0091E46C};
+
+PCUV_Shader &getPCUV_Shader();
 
 struct nglMeshNode;
 struct nglMeshSection;
@@ -42,6 +49,8 @@ struct PCUV_ShaderNode {
     nglMeshNode *field_C;
     nglMeshSection *field_10;
     PCUV_ShaderMaterial *field_14;
+
+    PCUV_ShaderNode(nglMeshNode *mesh_node, nglMeshSection *mesh_section, PCUV_ShaderMaterial *material);
 
     //0x00406350
     //virtual

@@ -62,7 +62,7 @@ math::MatClass<4, 3> *nglListAddMesh_GetScaledMatrix(const math::MatClass<4, 3> 
         Var<BOOL> dword_9728F8{0x009728F8};
         bool v8 = dword_9728F8();
         *a3 = v7;
-        if (v8) {
+        if (!v8) {
             dword_9728F8() |= 1u;
         }
 
@@ -76,11 +76,13 @@ math::MatClass<4, 3> *nglListAddMesh_GetScaledMatrix(const math::MatClass<4, 3> 
             const math::MatClass<4, 3> *field_4;
         } v10 = {&v12, &a1};
 
-        static matrix4x3 ScaledLocalToWorld;
+        static math::MatClass<4, 3> ScaledLocalToWorld;
 
         auto v13 = sub_771210(&v10);
 
-        std::memcpy(&ScaledLocalToWorld, &v13, sizeof(v13));
+        ScaledLocalToWorld[0] = v13[0];
+        ScaledLocalToWorld[1] = v13[1];
+        ScaledLocalToWorld[2] = v13[2];
         ScaledLocalToWorld[3] = a1[3];
 
         return (math::MatClass<4, 3> *)&ScaledLocalToWorld;
@@ -104,7 +106,7 @@ nglMesh *nglListAddMesh_GetLOD(nglMesh *Mesh, unsigned int a2, nglMeshParams *a3
                 result = Mesh;
             } else {
                 auto *v8 = Mesh->LODs;
-                auto *v9 = (float *)&v8[8 * v7 + 4];
+                auto *v9 = &v8[v7].field_4;
                 while (v10[2] <= (double)*v9) {
                     --v7;
                     v9 -= 2;
@@ -113,16 +115,16 @@ nglMesh *nglListAddMesh_GetLOD(nglMesh *Mesh, unsigned int a2, nglMeshParams *a3
                     }
                 }
 
-                result = *(nglMesh **)(v8 + 8 * v7);
+                result = v8[v7].field_0;
             }
         } else {
             auto v4 = a3->field_C;
             if (v4) {
                 auto v6 = Mesh->NLODs;
                 if (v4 - 1 <= v6)
-                    result = *(nglMesh **)&Mesh->LODs[8 * v4 - 8];
+                    result = Mesh->LODs[v4 - 1].field_0;
                 else
-                    result = *(nglMesh **)&Mesh->LODs[8 * v6 - 8];
+                    result = Mesh->LODs[v6 - 1].field_0;
             } else {
                 result = Mesh;
             }
@@ -164,30 +166,8 @@ int nglListAddMesh_GetClipResult(math::VecClass<3, 1> a1, Float radius, int a6)
 void nglListAddMesh(nglMesh *Mesh, const math::MatClass<4, 3> &LocalToWorld, nglMeshParams *a3,
                     nglParamSet<nglShaderParamSet_Pool> *a4)
 {
-    TRACE("nglListAddMesh");
-
-    if (a3 != nullptr) {
-        sp_log("%f", a3->Scale[3]);
-    }
-
-    if (a4 != nullptr) {
-        if (a4->IsSetParam<nglTintParam>()) {
-            sp_log("color = %f", bit_cast<color *>(a4->Get<nglTintParam>()->field_0)->a);
-        }
-    }
-
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         if (Mesh != nullptr) {
-            assert(((Mesh->Flags & NGLMESH_PROCESSED) || (Mesh->Flags & NGLMESH_SCRATCH_MESH)) &&
-                   "Mesh missing NGLMESH_PROCESSED flag.");
-
-            if (nglSyncDebug().DisableScratch || (Mesh->Flags & NGLMESH_SCRATCH_MESH) == 0) {
-                return;
-            }
-
-            if (nglSyncDebug().DumpSceneFile) {
-                nglDumpMesh(Mesh, LocalToWorld, a3);
-            }
 
             int v20 = (a3 != nullptr ? a3->Flags : 0);
 
@@ -211,9 +191,9 @@ void nglListAddMesh(nglMesh *Mesh, const math::MatClass<4, 3> &LocalToWorld, ngl
             auto *v6 = v5;
             auto v17 = nglListWorkPos();
 
-            nglMeshNode *meshNode = new nglMeshNode{};
+            auto *meshNode = static_cast<nglMeshNode *>(nglListAlloc(sizeof(nglMeshNode), 64));
             meshNode->Mesh = Mesh;
-            meshNode->LocalToWorld = matrix4x4{};
+            meshNode->LocalToWorld = *v5;
 
             const ptr_to_po v14{v6, &nglCurScene->WorldToScreen};
 
@@ -223,7 +203,7 @@ void nglListAddMesh(nglMesh *Mesh, const math::MatClass<4, 3> &LocalToWorld, ngl
             meshNode->field_94 = v15;
             if (a3 != nullptr) {
                 if (v20 >= 0) {
-                    meshNode->Params = new nglMeshParams{};
+                    meshNode->Params = static_cast<nglMeshParams *>(nglListAlloc(sizeof(nglMeshParams), 16));
                     std::memcpy(meshNode->Params, a3, sizeof(nglMeshParams));
                 } else {
                     meshNode->Params = a3;
@@ -262,50 +242,24 @@ void nglListAddMesh(nglMesh *Mesh, const math::MatClass<4, 3> &LocalToWorld, ngl
     }
 }
 
-void TentacleListAddNode(nglMesh *Mesh, nglBlendModeType a2, const math::VecClass<3, 1> &a3, Float a5,
+void TentacleListAddNode(nglMesh *Mesh, nglBlendModeType, const math::VecClass<3, 1> &a3, Float a5,
                          const math::MatClass<4, 3> &a6)
 {
-    TRACE("TentacleListAddNode");
-
-    if constexpr (1) {
-        auto v2 = sub_4150E0(a6);
-        auto v1 = sub_414360(a3, v2);
-        nglMeshSetSphere(v1, a5);
-        nglListAddMesh(Mesh, a6, nullptr, nullptr);
-    } else {
-        CDECL_CALL(0x00407F10, Mesh, a2, a3, a5, &a6);
-    }
+    auto inverse = sub_4150E0(a6);
+    auto center = sub_414360(a3, inverse);
+    nglMeshSetSphere(center, a5);
+    nglListAddMesh(Mesh, a6, nullptr, nullptr);
 }
 
 void PolytubeListAddNode(nglMesh *Mesh, nglBlendModeType a2, const math::VecClass<3, 1> &a3, Float a4,
                          const math::MatClass<4, 3> &a5, PCUV_ShaderMaterial *a6,
                          nglParamSet<nglShaderParamSet_Pool> *a7)
 {
-    TRACE("PolytubeListAddNode");
-
-    if constexpr (1) {
-        auto v2 = sub_4150E0(a5);
-        auto v1 = sub_414360(a3, v2);
-        nglMeshSetSphere(v1, a4);
-        a6->m_blend_mode = a2;
-        nglListAddMesh(Mesh, a5, nullptr, a7);
-    } else {
-        CDECL_CALL(0x00407E90, Mesh, a2, &a3, a4, &a5, a6, a7);
-    }
-
-    if constexpr (0) {
-        matrix4x4 mat{};
-        mat[0] = {1.0f, 0.0f, 0.0f, 0};
-        mat[1] = {0, 1.0, 0, 0};
-        mat[2] = {0, 0, 1.0, 0};
-        mat[3] = {vector3d{a5[3]}, 1.0};
-
-        //sp_log("%s", mat[3].to_string());
-
-        //sp_log("NSections = %d, NBones = %d", Mesh->NSections, Mesh->NBones);
-
-        nglListAddMesh(s_debug_box, {mat}, nullptr, a7);
-    }
+    auto inverse = sub_4150E0(a5);
+    auto center = sub_414360(a3, inverse);
+    nglMeshSetSphere(center, a4);
+    a6->m_blend_mode = a2;
+    nglListAddMesh(Mesh, a5, nullptr, a7);
 }
 
 void render_debug_hemisphere(const vector3d &a2, float scale, color32 a4)

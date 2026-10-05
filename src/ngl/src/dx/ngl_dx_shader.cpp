@@ -16,10 +16,12 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
+#include <functional>
 
 #include <list.hpp>
 
 #include <d3dx9shader.h>
+#include <d3dx9math.h>
 
 #if !STANDALONE_SYSTEM
 IDirect3DVertexDeclaration9 *(&dword_9738E0)[29] = var<IDirect3DVertexDeclaration9 *[29]>(0x009738E0);
@@ -54,11 +56,13 @@ int __stdcall hookD3DXAssembleShader(const char *data, UINT data_len, const D3DX
     return result;
 }
 
-int CreatePixelShader(IDirect3DPixelShader9 **a1, const DWORD *a2)
+void CreatePixelShader(IDirect3DPixelShader9 **a1, const DWORD *a2)
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
+        IDirect3DDevice9_CreatePixelShader(g_Direct3DDevice, a2, a1);
+        g_pixelShaderList.push_back(*a1);
     } else {
-        return CDECL_CALL(0x00772500, a1, a2);
+        CDECL_CALL(0x00772500, a1, a2);
     }
 }
 
@@ -228,96 +232,155 @@ static constexpr auto MAX_BONES = 64u;
 
 void nglSetupVShaderBonesDX(int a5, nglMeshNode *MeshNode, nglMeshSection *Section)
 {
-    TRACE("nglSetupVShaderBonesDX");
 
+    static Var<matrix4x3[MAX_BONES]> boneMatrices{0x00972B20};
+    static Var<uint32_t> initialized{0x00973720};
+    initialized() |= 1u;
+    auto &palette = boneMatrices();
     auto *meshParams = MeshNode->Params;
-    assert(meshParams->Flags == 0x44);
+    auto *meshBones = MeshNode->Mesh->Bones;
+    auto *paramBones = meshParams->Bones;
 
-    if constexpr (1) {
-        static constexpr auto BONES_SCALE = 3.0f;
-        static const float BONES_OFFSET = a5;
-        float a2[4] {BONES_SCALE, BONES_OFFSET, 1.0, 1.0};
+    const float constants[4]{3.0f, static_cast<float>(a5), 1.0f, 1.0f};
+    IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice, 90u, constants, 1u);
 
-        IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice, 90u, a2, 1u);
+    if ((meshParams->Flags & 4) != 0) {
+        for (uint32_t i = 0; i < static_cast<uint32_t>(Section->NBones); ++i) {
+            const auto boneIdx = Section->BonesIdx[i];
+            auto worldToLocal = MeshNode->sub_4199D0();
+            MatrixPair bones{meshBones[boneIdx], paramBones[boneIdx]};
+            ComplexMatrixPair localBones{bones, worldToLocal};
+            matrix4x4 transform;
+            transform.sub_771190(localBones);
+            palette[i] = sub_413770(transform);
+        }
+    } else if ((meshParams->Flags & 8) != 0) {
+        for (uint32_t i = 0; i < static_cast<uint32_t>(Section->NBones); ++i) {
+            const auto boneIdx = Section->BonesIdx[i];
+            MatrixPair bones{meshBones[boneIdx], paramBones[boneIdx]};
+            matrix4x4 transform;
+            transform.sub_747860(bones);
+            palette[i] = sub_413770(transform);
+        }
+    } else if ((meshParams->Flags & 0x10) != 0) {
+        for (uint32_t i = 0; i < static_cast<uint32_t>(Section->NBones); ++i) {
+            palette[i] = sub_413770(paramBones[Section->BonesIdx[i]]);
+        }
+    } else {
+        for (uint32_t i = 0; i < static_cast<uint32_t>(Section->NBones); ++i) {
 
-        static auto &g_boneMatrices = var<matrix4x3[MAX_BONES]>(0x00972B20);
-        [[maybe_unused]] auto *meshBones = MeshNode->Mesh->Bones;
+            palette[i][0] = vector4d{1.0f, 0.0f, 0.0f, 0.0f};
+            palette[i][1] = vector4d{0.0f, 1.0f, 0.0f, 0.0f};
+            palette[i][2] = vector4d{0.0f, 0.0f, 1.0f, 0.0f};
+        }
+    }
 
-        auto *meshParams = MeshNode->Params;
-        if ((meshParams->Flags & 4) != 0) {
-            assert(static_cast<uint32_t>(Section->NBones) < MAX_BONES &&
-                   "nglSetupVShaderBonesDX: too many bones ! Increase the MAX_BONES value.");
+    IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice, a5, &palette[0][0].x, 3 * Section->NBones);
+}
 
-            std::transform(Section->BonesIdx,
-                           Section->BonesIdx + Section->NBones,
-                           std::begin(g_boneMatrices),
-                           [MeshNode](auto boneIdx) {
-                               auto *meshBones = MeshNode->Mesh->Bones;
+void *nglSkinPersonMeshDX(nglMeshNode *meshNode, nglMeshSection *section, const float *normal)
+{
 
-                               auto *meshParams = MeshNode->Params;
-                               auto *paramBones = meshParams->Bones;
+    static Var<uint32_t> requiredBytes{0x00973BC8};
+    static Var<uint32_t> allocatedBytes{0x00973BCC};
+    static Var<char *> scratch{0x00973BD0};
+    static Var<matrix4x4[70]> boneMatrices{0x00973C20};
+    static Var<uint32_t> initialized{0x00974DA0};
+    if (allocatedBytes() != requiredBytes()) {
+        delete[] scratch();
+        scratch() = new char[requiredBytes()];
+        allocatedBytes() = requiredBytes();
+    }
 
-                               auto matrixFromMeshNode = MeshNode->sub_4199D0();
+    initialized() |= 1u;
+    auto &palette = boneMatrices();
+    for (uint32_t i = 0; i < static_cast<uint32_t>(section->NBones); ++i) {
+        const auto index = section->BonesIdx[i];
+        MatrixPair bones{meshNode->Mesh->Bones[index], meshNode->Params->Bones[index]};
+        palette[index].sub_747860(bones);
+    }
 
-                               MatrixPair v6{meshBones[boneIdx], paramBones[boneIdx]};
-                               ComplexMatrixPair v7{v6, matrixFromMeshNode};
+    const auto influences = section->field_5C;
+    if (influences < 2 || influences > 4) {
+        return nullptr;
+    }
 
-                               matrix4x4 arg4{};
-                               arg4.sub_771190(v7);
+    struct SkinVertex {
+        D3DXVECTOR3 position;
+        float normal[3];
+        float uv[2];
+        uint32_t bones[4];
+        float weights[4];
+    };
+    struct OutputVertex {
+        float position[3];
+        float uv[2];
+        float shade;
+    };
+    static_assert(sizeof(SkinVertex) == 64);
+    static_assert(sizeof(OutputVertex) == 24);
+    const auto *source = reinterpret_cast<const SkinVertex *>(section->field_3C.getVertexData());
+    auto *output = reinterpret_cast<OutputVertex *>(scratch());
+    for (uint32_t i = 0; i < static_cast<uint32_t>(section->NVertices); ++i) {
+        const auto &vertex = source[i];
+        D3DXVECTOR4 position;
+        D3DXVec3Transform(&position, &vertex.position,
+            reinterpret_cast<const D3DXMATRIX *>(&palette[section->BonesIdx[vertex.bones[0]]]));
+        if (std::not_equal_to<float>{}(vertex.weights[0], 1.0f)) {
+            position.x *= vertex.weights[0];
+            position.y *= vertex.weights[0];
+            position.z *= vertex.weights[0];
+            for (uint32_t influence = 1; influence < influences; ++influence) {
+                const auto weight = vertex.weights[influence];
 
-                matrix4x3 v10 = sub_413770(arg4);
-                               return v10;
-                           });
-        } else if ((meshParams->Flags & 8) != 0) {
-            for (uint32_t i = 0; i < static_cast<uint32_t>(Section->NBones); ++i) {
-                assert(i < MAX_BONES && "nglSetupVShaderBonesDX: too many bones ! Increase the MAX_BONES value.");
-
-                auto *meshBones = MeshNode->Mesh->Bones;
-
-                auto *meshParams = MeshNode->Params;
-                auto *paramBones = meshParams->Bones;
-
-                [[maybe_unused]] auto boneIdx = Section->BonesIdx[i];
-                MatrixPair v9{meshBones[boneIdx], paramBones[boneIdx]};
-
-                matrix4x4 arg4;
-                arg4.sub_747860(v9);
-                matrix4x3 v16 = sub_413770(arg4);
-                g_boneMatrices[i] = v16;
-            }
-        } else if ((meshParams->Flags & 0x10) != 0) {
-            for (uint32_t i = 0; i < static_cast<uint32_t>(Section->NBones); ++i) {
-                assert(i < MAX_BONES && "nglSetupVShaderBonesDX: too many bones ! Increase the MAX_BONES value.");
-
-                auto boneIdx = Section->BonesIdx[i];
-                matrix4x4 arg4 = meshParams->Bones[boneIdx];
-
-                
-                matrix4x3 v20 = sub_413770(arg4);
-                g_boneMatrices[i] = v20;
-            }
-        } else {
-            for (uint32_t i = 0; i < static_cast<uint32_t>(Section->NBones); ++i) {
-                assert(i < MAX_BONES && "nglSetupVShaderBonesDX: too many bones ! Increase the MAX_BONES value.");
-
-                bit_cast<matrix4x4 *>(&g_boneMatrices[i])->sub_415740(nullptr);
+                if (influence >= 2 && std::equal_to<float>{}(weight, 0.0f)) {
+                    break;
+                }
+                D3DXVECTOR4 term;
+                D3DXVec3Transform(&term, &vertex.position,
+                    reinterpret_cast<const D3DXMATRIX *>(&palette[section->BonesIdx[vertex.bones[influence]]]));
+                position.x = static_cast<float>(static_cast<double>(term.x) * weight + position.x);
+                position.y = static_cast<float>(static_cast<double>(term.y) * weight + position.y);
+                position.z = static_cast<float>(static_cast<double>(term.z) * weight + position.z);
             }
         }
+        output[i].position[0] = position.x;
+        output[i].position[1] = position.y;
+        output[i].position[2] = position.z;
+        output[i].uv[0] = vertex.uv[0];
+        output[i].uv[1] = vertex.uv[1];
+        output[i].shade = static_cast<float>(
+            (static_cast<double>(vertex.normal[0]) * normal[0] +
+             static_cast<double>(vertex.normal[2]) * normal[2] +
+             static_cast<double>(vertex.normal[1]) * normal[1] + 1.0) * 0.5);
+    }
 
-        IDirect3DDevice9_SetVertexShaderConstantF(g_Direct3DDevice, a5, &g_boneMatrices[0][0].x, 3 * Section->NBones);
+
+    static Var<IDirect3DVertexBuffer9 *> stream{0x00987524};
+    static Var<void *> lockedData{0x0098752C};
+    static Var<uint32_t> streamOffset{0x00987530};
+    static Var<uint32_t> streamBytes{0x00987534};
+    static Var<IDirect3DVertexBuffer9 *> outputStream{0x00973BC0};
+    static Var<uint32_t> baseVertex{0x00973BC4};
+    constexpr uint32_t stride = sizeof(OutputVertex);
+    const uint32_t byteCount = stride * section->NVertices;
+    const uint32_t firstVertex = (streamOffset() + stride - 1) / stride;
+    const uint32_t byteOffset = stride * firstVertex;
+    outputStream() = stream();
+    if (byteOffset + byteCount > streamBytes()) {
+        IDirect3DVertexBuffer9_Lock(stream(), 0, 0, &lockedData(), D3DLOCK_DISCARD);
+        streamOffset() = 0;
+        baseVertex() = 0;
     } else {
-        CDECL_CALL(0x00772810, a5, MeshNode, Section);
+        baseVertex() = firstVertex;
+        streamOffset() = byteOffset;
+        IDirect3DVertexBuffer9_Lock(stream(), 0, 0, &lockedData(), D3DLOCK_NOOVERWRITE);
     }
-
-    if constexpr (1) {
-        matrix4x3 tmp [2];
-
-        IDirect3DDevice9_GetVertexShaderConstantF(g_Direct3DDevice, 11, &tmp[0][0].x, 3 * 2);
-
-        float f[4] {};
-        IDirect3DDevice9_GetVertexShaderConstantF(g_Direct3DDevice, 90u, f, 1u);
-
-    }
+    std::memcpy(static_cast<char *>(lockedData()) + streamOffset(), scratch(), byteCount);
+    IDirect3DVertexBuffer9_Unlock(stream());
+    lockedData() = nullptr;
+    streamOffset() = (streamOffset() + byteCount + 31) & ~31u;
+    return scratch();
 }
 
 void nglSetVertexDeclarationAndShader(VShader *a1)

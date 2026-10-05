@@ -27,6 +27,9 @@ struct nglMeshMorph {
 
 struct nglMorphFrame : nglMorph {
     void *field_4;
+
+    nglMorphFrame() = default;
+    explicit nglMorphFrame(void *frame);
 };
 
 struct nglMorphEntry {

@@ -31,6 +31,9 @@ struct facial_expression_interface : actor_interface {
     //0x006D1670
     facial_expression_interface(actor *a1);
 
+    ~facial_expression_interface();
+    void release_ifc();
+
     bool is_dynamic() const;
     void frame_advance(Float a1);
 

@@ -3,7 +3,7 @@
 #include "common.h"
 #include "ngl.h"
 #include "ngl_mesh.h"
-#include "trace.h"
+#include "ngl_vertexdef.h"
 #include "vtbl.h"
 
 VALIDATE_SIZE(nglMorph, 0x4);
@@ -11,6 +11,40 @@ VALIDATE_SIZE(nglMorph, 0x4);
 VALIDATE_SIZE(nglMeshMorph, 0x8);
 
 VALIDATE_SIZE(nglMorphFrame, 0x8);
+
+namespace {
+bool __fastcall frame_is_mesh_morph(const nglMorphFrame *, void *)
+{
+    return false;
+}
+
+uint32_t __fastcall frame_component_mask(const nglMorphFrame *self, void *, uint32_t section)
+{
+    const auto *frame = static_cast<decltype(nglMorphSet::Frames)>(self->field_4);
+    return frame->field_8[section].field_4;
+}
+
+void __fastcall apply_morph_frame(nglMorphFrame *self, void *, nglMeshSection *section,
+                                 int section_index, Float weight, uint32_t mask)
+{
+    if (section->VertexDef != nullptr) {
+        auto *frame = static_cast<decltype(nglMorphSet::Frames)>(self->field_4);
+        using apply_fn = void(__fastcall *)(nglVertexDef *, void *, nglMorphSetSection *, uint32_t, Float);
+        auto apply = reinterpret_cast<apply_fn>(get_vfunc(section->VertexDef->m_vtbl, 0x10));
+        apply(section->VertexDef, nullptr,
+              reinterpret_cast<nglMorphSetSection *>(frame->field_8 + section_index), mask, weight);
+    }
+}
+}
+
+nglMorphFrame::nglMorphFrame(void *frame)
+{
+    static void *table[] = {reinterpret_cast<void *>(frame_is_mesh_morph),
+                           reinterpret_cast<void *>(apply_morph_frame),
+                           reinterpret_cast<void *>(frame_component_mask)};
+    m_vtbl = reinterpret_cast<int>(table);
+    field_4 = frame;
+}
 
 bool nglMorph::IsMeshMorph() const
 {
@@ -33,8 +67,6 @@ int nglMorph::GetComponentMask(uint32_t a2) const
 
 void nglBlendMorphs(nglMesh *Mesh, uint32_t a2, nglMorphEntry *Morphs)
 {
-    TRACE("nglBlendMorphs");
-
     if (a2 != 0) {
         if (Morphs->Morph->IsMeshMorph()) {
             nglMeshMorph *v1 = CAST(v1, Morphs->Morph);

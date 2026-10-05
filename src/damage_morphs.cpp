@@ -1,129 +1,280 @@
 #include "damage_morphs.h"
 
+#include "actor.h"
 #include "camera.h"
 #include "common.h"
-#include "func_wrapper.h"
+#include "conglom.h"
+#include "damage_interface.h"
 #include "game.h"
-#include "grenade.h"
 #include "memory.h"
 #include "ngl.h"
-#include "oldmath_po.h"
+#include "ngl_mesh.h"
+#include "ngl_morph.h"
 #include "variables.h"
+#include "oldmath_po.h"
+
+#include <algorithm>
 
 VALIDATE_SIZE(balanced_tree::tree_node, 0x20);
+VALIDATE_SIZE(damage_morph_memory_pool::allocation, 0xC);
+VALIDATE_OFFSET(damage_interface, morph_regions, 0x4C);
+VALIDATE_OFFSET(damage_interface, morph_source, 0xAC);
+VALIDATE_OFFSET(damage_interface, morph_mesh, 0xCC);
+VALIDATE_OFFSET(damage_interface, morph_registration_id, 0xD4);
 
 #if !STANDALONE_SYSTEM
-
 int &damage_morphs::allocations_intercept_reference_count = var<int>(0x0095A760);
-
 damage_morph_memory_pool &damage_morphs::write_combine_pool = var<damage_morph_memory_pool>(0x0095ABA4);
-
 damage_morph_memory_pool &damage_morphs::normal_pool = var<damage_morph_memory_pool>(0x00921AC8);
-
 balanced_tree &damage_morphs::registration_tree = var<balanced_tree>(0x0095AB98);
-
 #else
-
-int &damage_morphs::allocations_intercept_reference_count = []() -> auto & {
-    static int g_allocations_intercept_reference_count{};
-    return g_allocations_intercept_reference_count;
-}();
-
-damage_morph_memory_pool &damage_morphs::write_combine_pool = []() -> auto & {
-    static damage_morph_memory_pool g_write_combine_pool{0};
-    return g_write_combine_pool;
-}();
-
-damage_morph_memory_pool &damage_morphs::normal_pool = []() -> auto & {
-    static damage_morph_memory_pool g_normal_pool{0x1400};
-    return g_normal_pool;
-}();
-
-balanced_tree &damage_morphs::registration_tree = []() -> auto & {
-    static balanced_tree g_registration_tree{};
-    return g_registration_tree;
-}();
-
+namespace {
+int allocation_intercepts{};
+damage_morph_memory_pool write_pool{0};
+damage_morph_memory_pool metadata_pool{0x1400};
+balanced_tree mesh_registrations{};
+}
+int &damage_morphs::allocations_intercept_reference_count = allocation_intercepts;
+damage_morph_memory_pool &damage_morphs::write_combine_pool = write_pool;
+damage_morph_memory_pool &damage_morphs::normal_pool = metadata_pool;
+balanced_tree &damage_morphs::registration_tree = mesh_registrations;
 #endif
 
-damage_morph_memory_pool::damage_morph_memory_pool(int a2)
+namespace {
+struct mesh_registration {
+    vhandle_type<actor> subject;
+    nglMesh *original;
+    nglMesh *copy;
+};
+VALIDATE_SIZE(mesh_registration, 0xC);
+
+using tree_node = balanced_tree::tree_node;
+int height(tree_node *node) { return node == nullptr ? 0 : node->height; }
+void update_height(tree_node *node)
 {
-    this->allocation_list = nullptr;
-    this->list_end = nullptr;
-    this->field_8 = a2;
-    this->memory_pool = nullptr;
+    node->height = 1 + std::max(height(node->left), height(node->right));
+}
+void replace_child(balanced_tree &tree, tree_node *old, tree_node *replacement)
+{
+    if (old->parent == nullptr)
+        tree.root = replacement;
+    else if (old->parent->left == old)
+        old->parent->left = replacement;
+    else
+        old->parent->right = replacement;
+    if (replacement != nullptr)
+        replacement->parent = old->parent;
+}
+tree_node *rotate_left(balanced_tree &tree, tree_node *node)
+{
+    auto *right = node->right;
+    replace_child(tree, node, right);
+    node->right = right->left;
+    if (node->right != nullptr)
+        node->right->parent = node;
+    right->left = node;
+    node->parent = right;
+    update_height(node);
+    update_height(right);
+    return right;
+}
+tree_node *rotate_right(balanced_tree &tree, tree_node *node)
+{
+    auto *left = node->left;
+    replace_child(tree, node, left);
+    node->left = left->right;
+    if (node->left != nullptr)
+        node->left->parent = node;
+    left->right = node;
+    node->parent = left;
+    update_height(node);
+    update_height(left);
+    return left;
+}
+void rebalance(balanced_tree &tree, tree_node *node)
+{
+    while (node != nullptr) {
+        update_height(node);
+        const auto balance = height(node->left) - height(node->right);
+        if (balance > 1) {
+            if (height(node->left->right) > height(node->left->left))
+                rotate_left(tree, node->left);
+            node = rotate_right(tree, node);
+        } else if (balance < -1) {
+            if (height(node->right->left) > height(node->right->right))
+                rotate_right(tree, node->right);
+            node = rotate_left(tree, node);
+        }
+        node = node->parent;
+    }
+}
+mesh_registration *find_registration(int id)
+{
+    int value;
+    return damage_morphs::registration_tree.retrieve(id, &value)
+        ? reinterpret_cast<mesh_registration *>(value) : nullptr;
+}
+void set_actor_mesh(actor *subject, nglMesh *mesh)
+{
+    subject->field_90.set_mesh(mesh);
+    if (mesh != nullptr)
+        subject->field_4 |= 0x100;
+    else
+        subject->field_4 &= ~0x100;
+}
+
+
+int nearest_morph_region(actor *subject, damage_interface &damage)
+{
+    if ((subject->field_4 & 4) == 0)
+        return 0;
+    auto *group = static_cast<conglomerate *>(subject);
+    auto *member = group->get_member(damage.morph_regions[0].member.m_hash, true);
+    if (member == nullptr)
+        return 0;
+    const auto impact = damage.field_104.field_4;
+    auto distance = (member->get_abs_position() - impact).length2();
+    int nearest = 0;
+    for (int region = 1; region < 6 && damage.morph_regions[region].member.is_set(); ++region) {
+        member = group->get_member(damage.morph_regions[region].member.m_hash, true);
+        if (member == nullptr)
+            break;
+        const auto candidate = (member->get_abs_position() - impact).length2();
+        if (candidate < distance) {
+            distance = candidate;
+            nearest = region;
+        }
+    }
+    return nearest;
+}
+}
+
+damage_morph_memory_pool::damage_morph_memory_pool(int size)
+    : allocation_list(nullptr), list_end(nullptr), field_8(size), memory_pool(nullptr),
+      field_10(0), field_14(0), field_18(0)
+{
 }
 
 void damage_morph_memory_pool::init()
 {
-    assert(this->memory_pool == nullptr);
-
-    this->memory_pool = arch_memalign(4, this->field_8);
-
-    this->field_10 = (int)this->memory_pool + this->field_8;
-    this->field_14 = (int)this->memory_pool;
-    this->field_18 = this->field_10;
+    assert(memory_pool == nullptr);
+    memory_pool = arch_memalign(4, field_8);
+    field_10 = reinterpret_cast<uintptr_t>(memory_pool) + field_8;
+    field_14 = reinterpret_cast<uintptr_t>(memory_pool);
+    field_18 = field_10;
 }
 
-void *damage_morph_memory_pool::memalloc(int a2, int a3)
+void *damage_morph_memory_pool::memalloc(int alignment, int size)
 {
-    int v4 = this->field_10;
-    int v5 = this->field_14;
-    auto v6 = a3 + v5 + a2;
-    if (v6 >= v4) {
-        v5 = int(this->memory_pool);
-        v6 = a3 + v5 + a2;
+    auto start = field_14;
+    auto end = start + size + alignment;
+    if (end >= field_10) {
+        start = reinterpret_cast<uintptr_t>(memory_pool);
+        end = start + size + alignment;
     }
-
-    this->field_14 = v6;
-    auto *v7 = (void *)(a2 - v5 % a2 + v5);
-    auto *v8 = (int *)arch_memalign(4u, 12u);
-    *v8 = (int)v7;
-    *((char *)v8 + 4) = 1;
-    v8[2] = 0;
-    if (this->allocation_list != nullptr) {
-        this->list_end[2] = (int)v8;
-    } else {
-        this->allocation_list = v8;
-    }
-
-    this->list_end = v8;
-    return v7;
+    field_14 = end;
+    auto *memory = reinterpret_cast<void *>(start + alignment - start % alignment);
+    auto *entry = new (arch_memalign(4, sizeof(allocation))) allocation{memory, true, nullptr};
+    if (allocation_list != nullptr)
+        list_end->next = entry;
+    else
+        allocation_list = entry;
+    list_end = entry;
+    return memory;
 }
 
-bool balanced_tree::retrieve(int a2, int *a3)
+uintptr_t damage_morph_memory_pool::memfree(void *memory)
 {
-    auto *v3 = (int *)this->field_0;
-    if (!this->field_0) {
+    auto *entry = allocation_list;
+    while (entry != nullptr && entry->memory != memory)
+        entry = entry->next;
+    if (entry != nullptr)
+        entry->live = false;
+    while (allocation_list != nullptr && !allocation_list->live) {
+        auto *released = allocation_list;
+        allocation_list = released->next;
+        mem_freealign(released);
+    }
+    if (allocation_list == nullptr)
+        list_end = nullptr;
+    return allocation_list == nullptr ? 0 : reinterpret_cast<uintptr_t>(allocation_list->memory);
+}
+
+bool balanced_tree::retrieve(int key, int *value)
+{
+    auto *node = root;
+    while (node != nullptr && node->key != key)
+        node = key < node->key ? node->left : node->right;
+    if (node == nullptr)
         return false;
-    }
-
-    while (*v3 != a2) {
-        if (*v3 >= a2)
-            v3 = (int *)v3[3];
-        else
-            v3 = (int *)v3[4];
-        if (!v3)
-            return 0;
-    }
-    *a3 = v3[1];
+    *value = node->value;
     return true;
 }
 
-bool balanced_tree::remove(int a2)
+void balanced_tree::add(int key, int value)
 {
-    return (bool)THISCALL(0x004C5120, this, a2);
+    auto *node = new (arch_memalign(4, sizeof(tree_node))) tree_node{key, value, nullptr,
+        nullptr, nullptr, nullptr, newest, 1};
+    if (newest != nullptr)
+        newest->next = node;
+    else
+        oldest = node;
+    newest = node;
+    auto **child = &root;
+    tree_node *parent = nullptr;
+    while (*child != nullptr) {
+        parent = *child;
+        child = key < parent->key ? &parent->left : &parent->right;
+    }
+    *child = node;
+    node->parent = parent;
+    rebalance(*this, parent);
+}
+
+bool balanced_tree::remove(int key)
+{
+    auto *node = root;
+    while (node != nullptr && node->key != key)
+        node = key < node->key ? node->left : node->right;
+    if (node == nullptr)
+        return false;
+    if (node->previous != nullptr)
+        node->previous->next = node->next;
+    else
+        oldest = node->next;
+    if (node->next != nullptr)
+        node->next->previous = node->previous;
+    else
+        newest = node->previous;
+    tree_node *rebalance_from = node->parent;
+    if (node->left != nullptr && node->right != nullptr) {
+        auto *successor = node->right;
+        while (successor->left != nullptr)
+            successor = successor->left;
+        if (successor->parent != node) {
+            rebalance_from = successor->parent;
+            replace_child(*this, successor, successor->right);
+            successor->right = node->right;
+            successor->right->parent = successor;
+        } else {
+            rebalance_from = successor;
+        }
+        replace_child(*this, node, successor);
+        successor->left = node->left;
+        successor->left->parent = successor;
+        update_height(successor);
+    } else {
+        replace_child(*this, node, node->left != nullptr ? node->left : node->right);
+    }
+    mem_freealign(node);
+    rebalance(*this, rebalance_from);
+    return true;
 }
 
 void damage_morphs::init_memory_pools()
 {
-    if constexpr (1) {
-        normal_pool.init();
-
-        write_combine_pool.init();
-    } else {
-        CDECL_CALL(0x004CE0E0);
-    }
+    normal_pool.init();
+    write_combine_pool.init();
 }
 
 bool damage_morphs::intercepting_allocations()
@@ -131,111 +282,139 @@ bool damage_morphs::intercepting_allocations()
     return allocations_intercept_reference_count > 0;
 }
 
-bool damage_morphs::is_subject_off_screen(actor *a1)
+bool damage_morphs::is_subject_off_screen(actor *subject)
 {
-    auto *v2 = g_game_ptr->get_current_view_camera(0);
-    if (v2 == nullptr) {
+    auto *camera = g_game_ptr->get_current_view_camera(0);
+    if (camera == nullptr)
         return false;
-    }
-
-    auto &v17 = v2->get_abs_po();
-    auto camera_facing = v17.get_z_facing();
-
-    assert(camera_facing.length() > 0.999f && camera_facing.length() < 1.001f);
-
-    vector3d v13 = v17.m[3];
-
-    v17 = a1->get_abs_po();
-    vector3d v5 = v17.m[3] - v13;
-    v5.normalize();
-    return 0.25f > dot(camera_facing, v5);
+    const auto &camera_pose = camera->get_abs_po();
+    const auto facing = camera_pose.get_z_facing();
+    auto direction = subject->get_abs_position() - camera->get_abs_position();
+    direction.normalize();
+    return dot(facing, direction) < 0.25f;
 }
 
-bool damage_morphs::unregister_mesh_copy(int a1)
+int damage_morphs::register_mesh_copy(actor *subject)
 {
-    int v4;
-    damage_morphs::registration_tree.retrieve(a1, &v4);
-    auto *v1 = (int *)v4;
-    if (bit_cast<vhandle_type<actor> *>(v4)->get_volatile_ptr()) {
-        auto *v2 = (grenade *)((vhandle_type<actor> *)v1)->get_volatile_ptr();
-        v2->get_mesh();
-        v2->sub_4D6B10(v1[1]);
-    }
-
+    static int next_id = 0;
+    const auto id = next_id++;
+    auto *entry = new mesh_registration{{subject->my_handle}, subject->get_mesh(), nullptr};
+    registration_tree.add(id, reinterpret_cast<int>(entry));
     ++allocations_intercept_reference_count;
-    nglDestroyMesh((nglMesh *)v1[2]);
+    entry->copy = nglCreateMeshClone(entry->original);
+    entry->copy->Name = entry->original->Name;
+    for (uint32_t section = 0; section < entry->original->NSections; ++section) {
+        if (entry->original->Sections[section].Section->VertexDef != nullptr)
+            nglMakeSectionUnique(entry->copy, section);
+    }
     --allocations_intercept_reference_count;
-    operator delete(v1);
-    return registration_tree.remove(a1);
+    set_actor_mesh(subject, entry->copy);
+    return id;
 }
 
-void *damage_morphs::memalloc(int a1, int a2, bool a3)
+bool damage_morphs::unregister_mesh_copy(int id)
 {
-    if constexpr (1) {
-        auto v3 = a1 + a2;
-        auto *v4 = &damage_morphs::write_combine_pool;
-        if (!a3) {
-            v4 = &damage_morphs::normal_pool;
-        }
+    auto *entry = find_registration(id);
+    if (entry == nullptr)
+        return false;
+    if (auto *subject = entry->subject.get_volatile_ptr())
+        set_actor_mesh(subject, entry->original);
+    ++allocations_intercept_reference_count;
+    nglDestroyMesh(entry->copy);
+    --allocations_intercept_reference_count;
+    delete entry;
+    return registration_tree.remove(id);
+}
 
-        auto *v5 = (vhandle_type<actor> *)a3;
-        while (1) {
-            auto v6 = v4->field_14;  // damage_morph_memory_pool::check_requirements(int)
-            auto v7 = v4->field_18;
-
-            int v8;
-            if (v6 >= v7) {
-                if ((int)(v4->field_10 - v6) > v3) {
-                    return v4->memalloc(a1, a2);
-                }
-
-                v8 = v7 - int(v4->memory_pool);
-            } else {
-                v8 = v7 - v6;
-            }
-
-            if (v8 > v3) {
-                return v4->memalloc(a1, a2);
-            }
-
-            if (damage_morphs::registration_tree.field_4 == nullptr) {
-                return nullptr;
-            }
-
-            auto v9 = damage_morphs::registration_tree.field_4->field_0;
-            auto *v10 = damage_morphs::registration_tree.field_0;
-            if (damage_morphs::registration_tree.field_0) {
-                while (v10->field_0 != v9) {
-                    if (v10->field_0 >= v9) {
-                        v10 = v10->field_C;
-                    } else {
-                        v10 = v10->field_10;
-                    }
-
-                    if (v10 == nullptr) {
-                        goto LABEL_18;
-                    }
-                }
-
-                v5 = CAST(v5, v10->field_4);
-            }
-
-        LABEL_18:
-            auto *v11 = v5->get_volatile_ptr();
-
-            if (v11 != nullptr) {
-                damage_morphs::is_subject_off_screen(v11);
-            }
-
-            damage_morphs::unregister_mesh_copy(v9);
-        }
-
-    } else {
-        return (void *)CDECL_CALL(0x004F0E80, a1, a2, a3);
+void *damage_morphs::memalloc(int alignment, int size, bool write_combine)
+{
+    auto &pool = write_combine ? write_combine_pool : normal_pool;
+    const auto required = alignment + size;
+    for (;;) {
+        const auto current = pool.field_14;
+        const auto oldest = pool.field_18;
+        const auto free_space = current >= oldest
+            ? oldest - reinterpret_cast<uintptr_t>(pool.memory_pool) : oldest - current;
+        if ((current >= oldest && pool.field_10 - current > static_cast<uintptr_t>(required)) ||
+            free_space > static_cast<uintptr_t>(required))
+            return pool.memalloc(alignment, size);
+        if (registration_tree.oldest == nullptr)
+            return nullptr;
+        unregister_mesh_copy(registration_tree.oldest->key);
     }
 }
 
-void damage_morphs::memfree(void *a1)
+void damage_morphs::memfree(void *memory)
 {
-    CDECL_CALL(0x004CE140, a1);
+    auto *entry = normal_pool.allocation_list;
+    while (entry != nullptr && (entry->memory != memory || !entry->live))
+        entry = entry->next;
+    auto &pool = entry != nullptr ? normal_pool : write_combine_pool;
+    pool.field_18 = pool.memfree(memory);
+    if (pool.field_18 == 0) {
+        pool.field_14 = reinterpret_cast<uintptr_t>(pool.memory_pool);
+        pool.field_18 = pool.field_10;
+    }
+}
+
+
+void damage_morphs::instance_frame_advance(actor *subject)
+{
+    auto *damage = subject->damage_ifc();
+    if (damage->morph_source[0] == '\0')
+        return;
+    auto *morph = subject->get_morph(tlFixedString{damage->morph_source}, false);
+    if (morph == nullptr)
+        return;
+    const auto health = static_cast<int>(damage->field_1FC.field_0[0]);
+    int new_damage = static_cast<int>(damage->field_1FC.field_0[2]) - health;
+    int active_count = 0;
+    for (const auto &region : damage->morph_regions)
+        new_damage -= region.accumulated_damage;
+    if (new_damage != 0)
+        damage->morph_regions[nearest_morph_region(subject, *damage)].accumulated_damage += new_damage;
+    for (const auto &region : damage->morph_regions)
+        active_count += region.accumulated_damage >= region.threshold;
+    if (active_count == 0)
+        return;
+    auto *registration = find_registration(damage->morph_registration_id);
+    if (health <= 0) {
+        if (registration != nullptr)
+            unregister_mesh_copy(damage->morph_registration_id);
+        return;
+    }
+    if ((subject->field_4 & 4) != 0) {
+        auto *member = static_cast<conglomerate *>(subject)->get_member(damage->morph_mesh.m_hash, true);
+        if (member == nullptr || !member->is_an_actor())
+            return;
+        subject = static_cast<actor *>(member);
+    }
+    auto *mesh = subject->get_mesh();
+    if (mesh == nullptr)
+        return;
+    if (registration != nullptr) {
+        if (new_damage == 0)
+            return;
+    } else {
+        if (is_subject_off_screen(subject))
+            return;
+        damage->morph_registration_id = register_mesh_copy(subject);
+        registration = find_registration(damage->morph_registration_id);
+        mesh = subject->get_mesh();
+    }
+    nglCopyMesh(mesh, registration->original);
+    nglMorphFrame frames[6];
+    nglMorphEntry entries[6];
+    int count = 0;
+    for (uint32_t frame = 1; frame <= 6; ++frame) {
+        const auto &region = damage->morph_regions[frame - 1];
+        if (region.accumulated_damage < region.threshold)
+            continue;
+        if (frame > static_cast<uint32_t>(morph->NFrames))
+            return;
+        new (&frames[count]) nglMorphFrame{morph->Frames + frame};
+        entries[count] = {1.0f, &frames[count]};
+        ++count;
+    }
+    nglBlendMorphs(mesh, count, entries);
 }

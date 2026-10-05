@@ -5,12 +5,22 @@
 #include "float.hpp"
 #include "mashable_vector.h"
 #include "variable.h"
+#include "string_hash.h"
+
+#include <cstdint>
 
 #include <vector.hpp>
 
 struct conglomerate;
 struct entity;
 struct terrain_decal;
+
+struct alignas(8) decal_hash_record {
+    string_hash hash;
+    std::uint32_t field_4;
+};
+
+static_assert(sizeof(decal_hash_record) == 8);
 
 struct decal_data_interface : conglomerate_interface {
     bool field_C;
@@ -19,8 +29,8 @@ struct decal_data_interface : conglomerate_interface {
     _std::vector<entity *> *field_14;
     int field_18;
     int field_1C;
-    mashable_vector<int> field_20;
-    mashable_vector<int> field_28;
+    mashable_vector<decal_hash_record> field_20;
+    mashable_vector<decal_hash_record> field_28;
     mashable_vector<float> field_30;
     mashable_vector<terrain_decal> field_38[9];
 

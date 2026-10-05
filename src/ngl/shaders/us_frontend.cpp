@@ -1,4 +1,5 @@
 #include "us_frontend.h"
+#include "us_native_shader_programs.h"
 
 #include <ngl_dx_shader.h>
 
@@ -70,6 +71,11 @@ FrontEnd_Shader::FrontEnd_Shader()
     } else {
         this->m_vtbl = 0x008714E8;
     }
+}
+
+FrontEnd_Shader &getFrontEnd_Shader()
+{
+    return gFrontEnd_Shader;
 }
 
 tlFixedString FrontEnd_Shader::_GetName() const
@@ -168,41 +174,34 @@ void FrontEnd_Shader::_Register()
     if constexpr (1) {
         nglShader::_Register();
 
-#if !STANDALONE_SYSTEM
-        static D3DVERTEXELEMENT9 &stru_91E2BC = var<D3DVERTEXELEMENT9>(0x0091E2BC);
+#if STANDALONE_SYSTEM
+        static D3DVERTEXELEMENT9 vertex_elements[] = {
+            {0, 0, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, 0},
+            {0, 12, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, 0},
+            {0, 20, D3DDECLTYPE_D3DCOLOR, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_COLOR, 0},
+            D3DDECL_END(),
+        };
+        auto *elements = vertex_elements;
 #else
-        static D3DVERTEXELEMENT9 &stru_91E2BC = []() -> auto & {
-            static D3DVERTEXELEMENT9 g_stru_91E2BC{0, 0, 2, 0, 0, 0};
-            return g_stru_91E2BC;
-        }();
+        static D3DVERTEXELEMENT9 &stru_91E2BC = var<D3DVERTEXELEMENT9>(0x0091E2BC);
+        auto *elements = &stru_91E2BC;
 #endif
 
         if (EnableShader) {
             //static Var<DWORD *> off_939B90{0x00939B90};
 
-            if constexpr (1) {
+            if constexpr (!STANDALONE_SYSTEM) {
                 auto pShader = CompileVShader("shaders/us_frontend_VS.hlsl");
 
-                nglCreateVertexDeclarationAndShader(&stru_970610, &stru_91E2BC, pShader.data());
+                nglCreateVertexDeclarationAndShader(&stru_970610, elements, pShader.data());
             } else {
-                static const char *text = "dcl_position v0\n"
-                                          "dcl_texcoord v1\n"
-                                          "dcl_color v2\n"
-                                          "dp4 oPos.x, v0, c0\n"
-                                          "dp4 oPos.y, v0, c1\n"
-                                          "dp4 oPos.z, v0, c2\n"
-                                          "dp4 oPos.w, v0, c3\n"
-                                          "mov oT0.xy, v1\n"
-                                          "mov oD0, v2\n"
-                                          "mov oD1, c91.x\n"
-                                          "mov oFog, c91.z\n";
-
-                nglCreateVShader(&stru_91E2BC, &stru_970610, 0, text);
+                nglCreateVertexDeclarationAndShader(
+                    &stru_970610, elements, us_native_programs::program_8ad4d8);
             }
 
             static Var<char[1]> asc_870AD8{0x00870AD8};
 
-            if constexpr (0) {
+            if constexpr (STANDALONE_SYSTEM) {
                 static const char *text = "tex t0\n"
                                           "mul r0, t0, v0\n";
 
@@ -215,7 +214,7 @@ void FrontEnd_Shader::_Register()
 
         } else {
             if (dword_9738E0[22] == nullptr) {
-                IDirect3DDevice9_CreateVertexDeclaration(g_Direct3DDevice, &stru_91E2BC, &dword_9738E0[22]);
+                IDirect3DDevice9_CreateVertexDeclaration(g_Direct3DDevice, elements, &dword_9738E0[22]);
             }
         }
 
@@ -227,13 +226,18 @@ void FrontEnd_Shader::_Register()
 FrontEnd_ShaderNode::FrontEnd_ShaderNode(nglMeshNode *a2, nglMeshSection *a3, nglMaterialBase *a4)
     : nglShaderNode(a2, a3)
 {
+#if STANDALONE_SYSTEM
+    static void *g_vtbl[]{func_address(&Render)};
+    this->m_vtbl = CAST(m_vtbl, &g_vtbl);
+#else
     this->m_vtbl = 0x00871C04;
+#endif
     this->field_14 = a4;
 }
 
 void FrontEnd_ShaderNode::Render()
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         static Var<int> dword_956D40{0x00956D40};
 
         if (dword_956D40() == 0) {

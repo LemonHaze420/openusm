@@ -38,6 +38,7 @@ struct FrontEnd_Shader : USShaderBase {
 };
 
 extern FrontEnd_Shader &gFrontEnd_Shader;
+FrontEnd_Shader &getFrontEnd_Shader();
 
 struct FrontEnd_ShaderNode : nglShaderNode {
     nglMaterialBase *field_14;

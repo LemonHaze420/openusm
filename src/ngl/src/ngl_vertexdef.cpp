@@ -9,12 +9,55 @@
 #include "trace.h"
 #include "vector4d.h"
 #include "vtbl.h"
+#include "tl_system.h"
+#include "tl_instance_bank.h"
+#include <algorithm>
+#include <cstring>
+#include <cstdlib>
+#include <functional>
+
+extern "C" int __cdecl _purecall();
+
+template <>
+nglVertexDef_MultipassMesh<nglVertexDef_PCUV_Base>::Iterator::Iterator(
+    const nglVertexDef_MultipassMesh<nglVertexDef_PCUV_Base>::Iterator &);
+template <>
+void nglVertexDef_MultipassMesh<nglVertexDef_PCUV_Base>::Iterator::BeginStrip(uint32_t);
+template <>
+void nglVertexDef_MultipassMesh<nglVertexDef_PCUV_Base>::Iterator::Write(vector3d, int, vector2d);
 
 using def_t = nglVertexDef_MultipassMesh<nglVertexDef_PCUV_Base>;
 using iterator_type = typename nglVertexDef_MultipassMesh<nglVertexDef_PCUV_Base>::Iterator;
 
 VALIDATE_SIZE(def_t, 0x8);
 VALIDATE_SIZE(iterator_type, 0xC);
+
+namespace {
+void __fastcall destroy_pcuv_iterator(iterator_type *self, void *, unsigned char flags)
+{
+    if ((flags & 1) != 0) {
+        operator delete(self);
+    }
+}
+
+iterator_type *__fastcall clone_pcuv_iterator(iterator_type *self, void *)
+{
+    return self->Clone();
+}
+
+bool __fastcall test_pcuv_iterator(iterator_type *self, void *)
+{
+    return static_cast<uint32_t>(self->field_8) < static_cast<uint32_t>(self->field_4->field_4->NVertices);
+}
+
+std::intptr_t pcuv_iterator_table()
+{
+    static void *table[]{reinterpret_cast<void *>(destroy_pcuv_iterator),
+                         reinterpret_cast<void *>(clone_pcuv_iterator),
+                         reinterpret_cast<void *>(test_pcuv_iterator)};
+    return reinterpret_cast<std::intptr_t>(table);
+}
+}
 
 nglVertexDef::IteratorBase::IteratorBase()
 {
@@ -37,34 +80,204 @@ nglVertexDef_PCUV_Base::Iterator::Iterator()
 template <>
 nglVertexDef_MultipassMesh<nglVertexDef_PCUV_Base>::Iterator::Iterator()
 {
-    this->m_vtbl = 0x0087188C;
+    this->m_vtbl = pcuv_iterator_table();
 }
 
 template <>
 nglVertexDef_MultipassMesh<nglVertexDef_PCUV_Base>::Iterator::Iterator(
     const nglVertexDef_MultipassMesh<nglVertexDef_PCUV_Base>::Iterator &iter)
 {
-    THISCALL(0x004121E0, this, &iter);
+    this->m_vtbl = iter.m_vtbl;
+    this->field_4 = iter.field_4;
+    this->field_8 = iter.field_8;
 }
 
 template <>
 nglVertexDef_MultipassMesh<nglVertexDef_PCUV_Base>::Iterator
 nglVertexDef_MultipassMesh<nglVertexDef_PCUV_Base>::CreateIterator()
 {
-    TRACE("nglVertexDef::CreateIterator");
-
+    auto *section = this->field_4;
+    if ((section->Flags & NGLMESH_TEMP) == 0) {
+        void *data{};
+        IDirect3DVertexBuffer9_Lock(section->field_3C.getVertexBuffer(), 0, 0, &data, 0);
+        section->field_3C.setVertexData(static_cast<char *>(data));
+    }
     Iterator result;
-    THISCALL(0x00413C60, this, &result);
-
+    result.field_4 = this;
+    result.field_8 = 0;
     return result;
 }
 
 template <>
 void nglVertexDef_MultipassMesh<nglVertexDef_PCUV_Base>::_ApplyMorph(nglMorphSetSection *a2, uint32_t a3, Float a4)
 {
-    TRACE("nglVertexDef_MultipassMesh<nglVertexDef_PCUV_Base>::ApplyMorph");
+    auto *section = field_4;
+    auto *vertices = section->field_3C.getVertexData() + section->field_4C;
+    const auto apply_component = [&](uint32_t mask, uint32_t stream_slot, uint32_t offset, uint32_t dimensions,
+                                     uint32_t source_stride) {
+        if (a2 != nullptr && (a3 & mask) == 0) {
+            return;
+        }
+        if (a2 == nullptr) {
+            if (std::not_equal_to<float>{}(a4, 1.0f)) {
+                for (int i = 0; i < section->NVertices; ++i) {
+                    auto *out = reinterpret_cast<float *>(vertices + 24 * i + offset);
+                    for (uint32_t c = 0; c < dimensions; ++c) {
+                        out[c] *= a4;
+                    }
+                }
+            }
+            return;
+        }
+        auto *source = reinterpret_cast<const char *const *>(a2)[stream_slot];
+        uint32_t vertex = 0;
+        uint16_t skip;
+        do {
+            uint16_t count;
+            std::memcpy(&count, source, 2);
+            std::memcpy(&skip, source + 2, 2);
+            source += 4;
+            for (uint16_t i = 0; i < count; ++i, ++vertex, source += source_stride) {
+                auto *out = reinterpret_cast<float *>(vertices + 24 * vertex + offset);
+                const auto *delta = reinterpret_cast<const float *>(source);
+                for (uint32_t c = 0; c < dimensions; ++c) {
+                    out[c] += a4 * delta[c];
+                }
+            }
+            if ((reinterpret_cast<std::uintptr_t>(source) & 1) != 0) {
+                ++source;
+            }
+            vertex += skip;
+        } while (skip != 0);
+    };
+    apply_component(1, 2, 0, 3, 12);
+    if (a2 == nullptr || (a3 & 4) != 0) {
+        const auto write_color = [&](uint32_t vertex, const float *delta) {
+            auto *packed = reinterpret_cast<uint32_t *>(vertices + 24 * vertex + 20);
+            uint32_t result{};
+            for (uint32_t channel = 0; channel < 4; ++channel) {
+                const uint32_t shift = channel == 0 ? 16 : channel == 2 ? 0 : 8 * channel;
+                float value = static_cast<float>((*packed >> shift) & 255) * 0.0039215689f;
+                if (delta != nullptr) {
+                    value = std::min(1.0f, std::max(0.0f, value + a4 * delta[channel]));
+                } else {
+                    value *= a4;
+                }
+                result |= (static_cast<uint32_t>(value * 255.0f) & 255) << shift;
+            }
+            *packed = result;
+        };
+        if (a2 == nullptr) {
+            if (std::not_equal_to<float>{}(a4, 1.0f)) {
+                for (int i = 0; i < section->NVertices; ++i) {
+                    write_color(i, nullptr);
+                }
+            }
+        } else {
+            auto *source = reinterpret_cast<const char *const *>(a2)[4];
+            uint32_t vertex{};
+            uint16_t skip;
+            do {
+                uint16_t count;
+                std::memcpy(&count, source, 2);
+                std::memcpy(&skip, source + 2, 2);
+                source += 4;
+                for (uint16_t i = 0; i < count; ++i, ++vertex, source += 16) {
+                    write_color(vertex, reinterpret_cast<const float *>(source));
+                }
+                if ((reinterpret_cast<std::uintptr_t>(source) & 1) != 0) {
+                    ++source;
+                }
+                vertex += skip;
+            } while (skip != 0);
+        }
+    }
+    apply_component(0x40, 8, 12, 2, 12);
+    if ((section->Flags & NGLMESH_TEMP) == 0) {
+        IDirect3DVertexBuffer9_Unlock(section->field_3C.getVertexBuffer());
+    }
+}
 
-    THISCALL(0x004083F0, this, a2, a3, a4);
+namespace {
+void __fastcall rebase_pcuv(def_t *self, void *, int offset)
+{
+    self->field_4 = reinterpret_cast<nglMeshSection *>(reinterpret_cast<char *>(self->field_4) + offset);
+}
+
+iterator_type **__fastcall edit_pcuv(def_t *self, void *, iterator_type **out)
+{
+    iterator_type iter;
+    iter.field_4 = self;
+    iter.field_8 = 0;
+    *out = iter.Clone();
+    return out;
+}
+
+def_t *__fastcall copy_pcuv(def_t *, void *, nglMeshSection *section);
+
+void __fastcall destroy_pcuv(def_t *self, void *)
+{
+    tlMemFree(self);
+}
+}
+
+static std::intptr_t pcuv_vertex_table()
+{
+    static void *table[]{reinterpret_cast<void *>(rebase_pcuv), reinterpret_cast<void *>(edit_pcuv),
+                         reinterpret_cast<void *>(copy_pcuv), reinterpret_cast<void *>(destroy_pcuv),
+                         func_address(&def_t::_ApplyMorph)};
+    return reinterpret_cast<std::intptr_t>(table);
+}
+
+static def_t *process_pcuv(def_t *def)
+{
+    if (def != nullptr) {
+        def->m_vtbl = pcuv_vertex_table();
+    }
+    return def;
+}
+
+void nglRegisterPCUVVertexDef()
+{
+    nglVertexDefBank.Insert(tlFixedString{"PCUV"}, reinterpret_cast<void *>(process_pcuv));
+}
+
+def_t *nglCreatePCUVVertexDef()
+{
+    auto *def = static_cast<def_t *>(nglMeshAllocFn()(sizeof(def_t), 4, 0));
+    if (def != nullptr) {
+        def->m_vtbl = pcuv_vertex_table();
+    }
+    return def;
+}
+
+namespace {
+def_t *__fastcall copy_pcuv(def_t *self, void *, nglMeshSection *section)
+{
+    auto *def = static_cast<def_t *>(tlMemAlloc(sizeof(def_t), 8, 0));
+    if (def != nullptr) {
+        def->m_vtbl = self->m_vtbl;
+    }
+    def->field_4 = section;
+    return def;
+}
+}
+
+void nglAddPCUVTriangle(nglMaterialBase *material, const vector3d (&positions)[3],
+                        const vector2d (&uv)[3], const uint32_t (&colors)[3])
+{
+    auto *def = nglCreatePCUVVertexDef();
+    nglVertexDef_MultipassMesh_Base::AddMeshSection(
+        def, material, 3, 1, 0, nullptr, 24, D3DPT_TRIANGLESTRIP, true);
+    auto iter = def->CreateIterator();
+    iter.BeginStrip(3);
+    for (uint32_t i = 0; i < 3; ++i) {
+        iter.Write(positions[i], colors[i], uv[i]);
+        ++iter;
+    }
+    if ((def->field_4->Flags & NGLMESH_TEMP) == 0) {
+        IDirect3DVertexBuffer9_Unlock(def->field_4->field_3C.getVertexBuffer());
+    }
 }
 
 template <>
@@ -101,8 +314,8 @@ void nglVertexDef_MultipassMesh_Base::AddMeshSection(nglVertexDef *vertexDef, ng
 {
     TRACE("nglVertexDef_MultipassMesh_Base::AddMeshSection");
 
-    if constexpr (0) {
-        if (nglScratchSectionIdx() >= nglScratch()->NSections) {
+    if constexpr (STANDALONE_SYSTEM) {
+        if (static_cast<uint32_t>(nglScratchSectionIdx()) >= nglScratch()->NSections) {
             error("Added too many sections to a scratch mesh.\n");
         }
 
@@ -253,7 +466,7 @@ void nglCreateMesh(uint32_t Flags, uint32_t num_sections, uint32_t num_bones, ma
             for (auto v5 = 0u; v5 < num_sections; ++v5) {
                 Mesh->Sections[v5].Section =
                     static_cast<nglMeshSection *>(nglMeshAllocFn()(sizeof(nglMeshSection), 16, 0));
-                Mesh->Sections[v5].Section = {};
+                new (Mesh->Sections[v5].Section) nglMeshSection{};
                 Mesh->Sections[v5].field_0 = 1;
             }
 
@@ -261,7 +474,9 @@ void nglCreateMesh(uint32_t Flags, uint32_t num_sections, uint32_t num_bones, ma
                 Mesh->NBones = num_bones;
                 Mesh->Bones =
                     static_cast<math::MatClass<4, 3> *>(nglMeshAllocFn()(sizeof(*Mesh->Bones) * num_bones, 16, 0));
-                Mesh->Bones = a4;
+                for (uint32_t bone = 0; bone < num_bones; ++bone) {
+                    new (Mesh->Bones + bone) math::MatClass<4, 3>{a4[bone]};
+                }
             }
 
             nglScratch() = Mesh;
@@ -283,6 +498,190 @@ void nglCreateMesh(uint32_t Flags, uint32_t num_sections, uint32_t num_bones, ma
     } else {
         CDECL_CALL(0x00775AE0, Flags, num_sections, num_bones, a4);
     }
+}
+
+namespace {
+
+
+struct PersonVertexIterator {
+    std::intptr_t m_vtbl;
+    nglVertexDef *definition;
+    uint32_t vertex;
+};
+
+VALIDATE_SIZE(nglVertexDef, 8);
+VALIDATE_SIZE(PersonVertexIterator, 12);
+
+std::intptr_t person_iterator_base_table();
+
+PersonVertexIterator *__fastcall destroy_person_iterator(PersonVertexIterator *self, void *, unsigned char flags)
+{
+
+    self->m_vtbl = person_iterator_base_table();
+    if ((flags & 1) != 0) {
+        operator delete(self);
+    }
+    return self;
+}
+
+
+void __fastcall person_iterator_empty_one(PersonVertexIterator *, void *, uint32_t) {}
+void __fastcall person_iterator_empty_three(PersonVertexIterator *, void *, uint32_t, uint32_t, uint32_t) {}
+
+std::intptr_t person_iterator_base_table()
+{
+    static void *table[]{reinterpret_cast<void *>(destroy_person_iterator),
+                         reinterpret_cast<void *>(_purecall), reinterpret_cast<void *>(_purecall),
+                         reinterpret_cast<void *>(_purecall),
+                         reinterpret_cast<void *>(person_iterator_empty_three),
+                         reinterpret_cast<void *>(person_iterator_empty_three)};
+    return reinterpret_cast<std::intptr_t>(table);
+}
+
+PersonVertexIterator *__fastcall clone_person_iterator(PersonVertexIterator *self, void *)
+{
+
+    return new PersonVertexIterator{*self};
+}
+
+int __fastcall test_person_iterator(PersonVertexIterator *self, void *)
+{
+    return self->vertex < static_cast<uint32_t>(self->definition->field_4->NVertices);
+}
+
+template <uint32_t Stride>
+std::intptr_t person_iterator_table()
+{
+
+    static void *table[]{reinterpret_cast<void *>(destroy_person_iterator),
+                         reinterpret_cast<void *>(clone_person_iterator),
+                         reinterpret_cast<void *>(test_person_iterator),
+                         reinterpret_cast<void *>(person_iterator_empty_one),
+                         reinterpret_cast<void *>(person_iterator_empty_three),
+                         reinterpret_cast<void *>(person_iterator_empty_three),
+                         reinterpret_cast<void *>(person_iterator_empty_one)};
+    return reinterpret_cast<std::intptr_t>(table);
+}
+
+int __fastcall rebase_person_vertexdef(nglVertexDef *self, void *, int offset)
+{
+    self->field_4 = reinterpret_cast<nglMeshSection *>(reinterpret_cast<char *>(self->field_4) + offset);
+    return offset;
+}
+
+template <uint32_t Stride>
+PersonVertexIterator **__fastcall edit_person_vertexdef(nglVertexDef *self, void *, PersonVertexIterator **out)
+{
+
+    PersonVertexIterator iterator{person_iterator_table<Stride>(), self, 0};
+    *out = clone_person_iterator(&iterator, nullptr);
+    return out;
+}
+
+void __fastcall destroy_person_vertexdef(nglVertexDef *self, void *)
+{
+    tlMemFree(self);
+}
+
+template <uint32_t Stride>
+std::intptr_t person_vertex_table();
+
+template <uint32_t Stride>
+nglVertexDef *__fastcall copy_person_vertexdef(nglVertexDef *, void *, nglMeshSection *section)
+{
+    auto *definition = static_cast<nglVertexDef *>(tlMemAlloc(sizeof(nglVertexDef), 8, 0));
+    if (definition != nullptr) {
+        definition->m_vtbl = person_vertex_table<Stride>();
+    }
+    definition->field_4 = section;
+    return definition;
+}
+
+template <uint32_t Stride>
+void __fastcall morph_person_vertexdef(nglVertexDef *self, void *, nglMorphSetSection *morph,
+                                      uint32_t mask, float weight)
+{
+
+
+    auto *section = self->field_4;
+    if ((section->Flags & NGLMESH_TEMP) == 0) {
+        void *data{};
+        IDirect3DVertexBuffer9_Lock(section->field_3C.getVertexBuffer(), 0, 0, &data, 0);
+        section->field_3C.setVertexData(static_cast<char *>(data));
+    }
+    auto *vertices = section->field_3C.getVertexData() + section->field_4C;
+    if (morph == nullptr) {
+        if (std::not_equal_to<float>{}(weight, 1.0f)) {
+            for (uint32_t vertex = 0; vertex < static_cast<uint32_t>(section->NVertices); ++vertex) {
+                auto *position = reinterpret_cast<float *>(vertices + Stride * vertex);
+                position[0] *= weight;
+                position[1] *= weight;
+                position[2] *= weight;
+            }
+        }
+    } else if ((mask & 1) != 0) {
+        auto *source = reinterpret_cast<const char *const *>(morph)[2];
+        uint32_t vertex{};
+        uint16_t skip;
+        do {
+            uint16_t count;
+            std::memcpy(&count, source, sizeof(count));
+            std::memcpy(&skip, source + 2, sizeof(skip));
+            source += 4;
+            for (uint16_t i = 0; i < count; ++i, ++vertex, source += 12) {
+                auto *position = reinterpret_cast<float *>(vertices + Stride * vertex);
+                const auto *delta = reinterpret_cast<const float *>(source);
+                position[0] += weight * delta[0];
+                position[1] += weight * delta[1];
+                position[2] += weight * delta[2];
+            }
+            if ((reinterpret_cast<std::uintptr_t>(source) & 1) != 0) {
+                ++source;
+            }
+            vertex += skip;
+        } while (skip != 0);
+    }
+    if ((section->Flags & NGLMESH_TEMP) == 0) {
+        IDirect3DVertexBuffer9_Unlock(section->field_3C.getVertexBuffer());
+    }
+}
+
+template <uint32_t Stride>
+std::intptr_t person_vertex_table()
+{
+    static void *table[]{reinterpret_cast<void *>(rebase_person_vertexdef),
+                         reinterpret_cast<void *>(edit_person_vertexdef<Stride>),
+                         reinterpret_cast<void *>(copy_person_vertexdef<Stride>),
+                         reinterpret_cast<void *>(destroy_person_vertexdef),
+                         reinterpret_cast<void *>(morph_person_vertexdef<Stride>)};
+    return reinterpret_cast<std::intptr_t>(table);
+}
+
+template <uint32_t Stride>
+nglVertexDef *process_person_vertexdef(nglVertexDef *definition)
+{
+
+
+    if (definition != nullptr) {
+        definition->m_vtbl = person_vertex_table<Stride>();
+    }
+    return definition;
+}
+}
+
+void nglRegisterPersonVertexDefs()
+{
+
+    nglVertexDefBank.Insert(tlFixedString{"USPersonMorphable"},
+                            reinterpret_cast<void *>(process_person_vertexdef<64>));
+    nglVertexDefBank.Insert(tlFixedString{"USPersonMorphable_NickFuryEye"},
+                            reinterpret_cast<void *>(process_person_vertexdef<64>));
+    nglVertexDefBank.Insert(tlFixedString{"USMShinyMorphable"},
+                            reinterpret_cast<void *>(process_person_vertexdef<60>));
+    nglVertexDefBank.Insert(tlFixedString{"USMSimpleMorphable"},
+                            reinterpret_cast<void *>(process_person_vertexdef<24>));
+    nglVertexDefBank.Insert(tlFixedString{"us_grunge_morphable"},
+                            reinterpret_cast<void *>(process_person_vertexdef<32>));
 }
 
 void ngl_vertexdef_patch()

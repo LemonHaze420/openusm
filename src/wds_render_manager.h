@@ -12,13 +12,27 @@ struct RenderOptimizations;
 struct city_lod;
 struct nglMesh;
 struct camera;
+struct fixed_pool;
+struct light_source;
+struct far_away_render_list_entry {
+    far_away_render_list_entry *next;
+    vhandle_type<entity> handle;
+};
+
+fixed_pool &far_away_render_list_pool();
 
 struct render_data {
     struct region_info {
         region *field_0;
     };
 
-    struct entity_info {};
+    struct entity_info {
+        vector3d center;
+        float radius;
+        float distance_squared;
+        float fade;
+        entity *ent;
+    };
 
     _std::vector<render_data::region_info> field_0;
     _std::vector<render_data::entity_info> field_10;
@@ -41,7 +55,7 @@ struct wds_render_manager {
     float field_8C;
     float field_90;
     city_lod *field_94;
-    int field_98;
+    far_away_render_list_entry *field_98;
 
     //0x00542270
     wds_render_manager();
@@ -81,6 +95,9 @@ struct wds_render_manager {
 
     //0x00547250
     void build_render_data_ents(render_data &a2, camera &a3, int a4);
+
+
+    _std::vector<light_source *> *find_lights(const vector3d &position);
 
     void clear_colorvol_scene();
 

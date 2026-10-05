@@ -20,10 +20,10 @@ struct light_manager {
     light_manager(int);
 
     //0x00534980
-    void frame_advance(region *a2, Float a3, bool a4);
+    void frame_advance(region *primary_region, Float elapsed, bool interpolate);
 
     //0x0053B040
-    static void frame_advance_all_light_managers(Float a1);
+    static void frame_advance_all_light_managers(Float elapsed);
 
     void remove_from_list();
 

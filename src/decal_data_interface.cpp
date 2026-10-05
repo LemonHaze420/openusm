@@ -82,7 +82,22 @@ void decal_data_interface::add_to_decal_ifc_list()
 
 void decal_data_interface::remove_from_decal_ifc_list()
 {
+#if STANDALONE_SYSTEM
+    auto &interfaces = standalone_decal_interfaces();
+    for (auto it = interfaces->begin(); it != interfaces->end(); ++it) {
+        if (*it == this) {
+            interfaces->erase(it);
+            break;
+        }
+    }
+    if (interfaces->empty()) {
+        interfaces->~vector();
+        mem_dealloc(interfaces, sizeof(*interfaces));
+        interfaces = nullptr;
+    }
+#else
     THISCALL(0x004D5F80, this);
+#endif
 }
 
 void terrain_fx_callback(event *the_event, entity_base_vhandle, void *a3)

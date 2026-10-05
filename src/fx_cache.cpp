@@ -6,6 +6,7 @@
 #include "trace.h"
 #include "utility.h"
 #include "wds.h"
+#include "vtbl.h"
 
 VALIDATE_SIZE(fx_cache, 0x14u);
 
@@ -25,7 +26,8 @@ void fx_cache_ent::un_mash(generic_mash_header *a2, cached_special_effect *a3, v
             auto *v8 = g_world_ptr->ent_mgr.create_and_add_entity_or_subclass(v9, v10, v11, v16, 129, nullptr);
             v6 = {v8->my_handle};
             v8->set_active(false);
-            v8->set_visible(false, false);
+            auto visible = reinterpret_cast<void(__fastcall *)(entity *, void *, bool, bool)>(get_vfunc(v8->m_vtbl,0x44));
+            visible(v8,nullptr,false,false);
             this->field_0 = -1.0;
             this->field_4 = 0;
         }
@@ -34,7 +36,7 @@ void fx_cache_ent::un_mash(generic_mash_header *a2, cached_special_effect *a3, v
     }
 }
 
-fx_cache::fx_cache() {}
+fx_cache::fx_cache() : field_0(0), field_4(0), field_8{}, field_10(nullptr) {}
 
 fx_cache::~fx_cache()
 {
@@ -64,9 +66,29 @@ void fx_cache::frame_advance(Float a3)
 {
     TRACE("fx_cache::frame_advance");
 
-    sp_log("0x%08X", this);
-
-    THISCALL(0x004D4FB0, this, a3);
+    if (field_4 == 0) {
+        for (auto &entry : field_8) {
+            if (entry.field_0 <= 0.0f)
+                continue;
+            entry.field_0 -= a3.value;
+            if (entry.field_0 <= 0.0f) {
+                entry.field_0 = -1.0f;
+                if (auto *ent = entry.field_8.get_volatile_ptr()) {
+                    auto visible = reinterpret_cast<void(__fastcall *)(entity *,void *,bool,bool)>(get_vfunc(ent->m_vtbl,0x44));
+                    visible(ent,nullptr,false,false);
+                    ent->clear_parent(true);
+                }
+            } else if (entry.field_0 < entry.field_4) {
+                if (auto *ent = entry.field_8.get_volatile_ptr()) {
+                    auto color = ent->get_render_color();
+                    color.set_alpha(static_cast<uint8_t>(entry.field_0 / entry.field_4 * 255.0f + 0.5f));
+                    ent->set_render_color(color);
+                }
+            }
+        }
+    }
+    if (++field_4 >= field_0)
+        field_4 = 0;
 }
 
 void fx_cache::un_mash(generic_mash_header *a2, cached_special_effect *a3, void *, generic_mash_data_ptrs *a5)
@@ -81,7 +103,6 @@ void fx_cache::un_mash(generic_mash_header *a2, cached_special_effect *a3, void 
 
     ++this->field_0;
 
-    sp_log("0x%08X", this);
 }
 
 void fx_cache_patch()

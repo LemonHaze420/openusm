@@ -138,9 +138,19 @@ void nglShaderNode::Render()
     func(this);
 }
 
+
 void nglShaderNode::sub_413AF0()
 {
+#if STANDALONE_SYSTEM
+    auto &params = this->m_meshNode->field_8C;
+    if (params.IsSetParam<nglTextureFrameParam>()) {
+        nglTextureAnimFrame = params.Get<nglTextureFrameParam>()->field_0;
+    } else {
+        nglTextureAnimFrame = nglCurScene->IFLFrame;
+    }
+#else
     THISCALL(0x00413AF0, this);
+#endif
 }
 
 void sub_417C10(nglShaderNode *a1)

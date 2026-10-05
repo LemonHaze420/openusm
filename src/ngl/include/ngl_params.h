@@ -109,10 +109,12 @@ public:
         }
     }
 
+    nglParamSet(const nglParamSet &) = default;
+
     void copy(const nglParamSet &params)
     {
         auto v2 = 4 * T::NextID() + 8;
-        return std::memcpy(this->field_0, params.field_0, v2);
+        std::memcpy(this->field_0, params.field_0, v2);
     }
 
     void operator=(const nglParamSet &params)
@@ -182,6 +184,8 @@ public:
         return &a1;
     }
 };
+
+void nglInitializeParamIDs();
 
 // 0x008EA2E0
 extern nglMaterialBase *select_mesh_material(

@@ -17,6 +17,9 @@ extern void nglSetSamplerState(DWORD sampler, D3DSAMPLERSTATETYPE type, DWORD va
 //0x0076DC70
 extern void nglSetTextureStageState(DWORD a1, D3DTEXTURESTAGESTATETYPE a2, DWORD a3);
 
+extern void nglResetTextureState();
+extern void nglSetDepthBias(float bias);
+
 //
 extern void nglDxSetTexel8(nglTexture *Tex, int a2, int a3, int a4);
 

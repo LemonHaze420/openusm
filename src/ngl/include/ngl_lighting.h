@@ -7,7 +7,11 @@ inline constexpr auto NGL_MAX_LIGHTS = 8;
 
 inline constexpr auto NGL_LIGHTCAT_SHIFT = 24u;
 
-enum nglLightType {};
+enum nglLightType {
+    NGL_LIGHT_POINT = 0,
+    NGL_LIGHT_DIRECTIONAL = 1,
+    NGL_LIGHT_DIR_PROJECTOR = 2,
+};
 
 struct nglDirLightInfo {
     math::VecClass<3, 0> Dir;
@@ -23,7 +27,7 @@ struct nglPointLightInfo {
 
 struct nglLightNode {
     nglLightNode *Next[NGL_MAX_LIGHTS]{};
-    int field_20;
+    nglLightNode *SelectedNext;
     uint32_t LightCat;
     nglLightType Type;
     void *Data;
@@ -35,6 +39,36 @@ struct nglLightContext {
     vector4d Ambient;
 };
 
+struct nglTexture;
+struct nglMeshNode;
+
+
+
+struct nglDirProjectorLightInfo {
+    matrix4x4 WorldToUV;
+    matrix4x4 UVToWorld;
+    int BlendMode;
+    uint32_t Color;
+    nglTexture *Texture;
+    vector4d Extent;
+    vector4d Position;
+    vector4d XAxis;
+    vector4d YAxis;
+    vector4d ZAxis;
+    vector4d Planes[6];
+};
+
+struct nglLightContextParam {
+    nglLightContext *field_0;
+    static inline Var<int> ID{0x00971EE4};
+};
+
+void nglListAddDirProjectorLight(uint32_t lightCat, const matrix4x4 &localToWorld,
+                               float width, float height, float depth, float unusedW,
+                               int blendMode, uint32_t color, nglTexture *texture);
+void nglDetermineProjLights(nglMeshNode *node);
+bool nglProjectorSphereVisible(const nglDirProjectorLightInfo &light,
+                               const vector4d &center, float radius);
 
 extern Var<nglLightContext *> nglDefaultLightContext;
 

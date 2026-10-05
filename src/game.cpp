@@ -59,6 +59,7 @@
 #include "ngl_font.h"
 #include "ngl_dx_state.h"
 #include "ngl_scene.h"
+#include "us_shaderbase.h"
 #include "occlusion.h"
 #include "oldmath_po.h"
 #include "osassert.h"
@@ -668,7 +669,7 @@ void game::render_world()
         if (view_camera == nullptr || view_camera->get_fov() < 0.0024999999f)
             return;
 
-        nglSetClearFlags(7);
+        nglSetClearFlags(0);
         nglListBeginScene(static_cast<nglSceneParamType>(1));
         view_camera->adjust_geometry_pipe(false);
         geometry_manager::set_far_plane(
@@ -2195,9 +2196,7 @@ bool game::level_load_stuff::wait_for_mem_check()
 
 void sub_405CC0()
 {
-#if !STANDALONE_SYSTEM
-    CDECL_CALL(0x00405CC0);
-#endif
+    nglInitShaderLighting();
 }
 
 void system_idle()

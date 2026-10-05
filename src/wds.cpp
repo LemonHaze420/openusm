@@ -1831,31 +1831,14 @@ entity *world_dynamics_system::get_hero_or_marky_cam_ptr()
 
 void world_dynamics_system::activate_web_splats()
 {
-    TRACE("world_dynamics_system::activate_web_splats");
-
-    if constexpr (0) {
-        auto *act = bit_cast<actor *>(this->get_hero_ptr(0));
-
-        auto *__old_context = resource_manager::push_resource_context(act->get_resource_context());
-        string_hash v3{"spdywebsplatter"};
-
-        resource_key a2;
-        a2.set(v3, RESOURCE_KEY_TYPE_ENTITY);
-
-        this->field_1B0.field_8 = a2;
-
-        this->field_1B0.field_10[0] = 15.0;
-        this->field_1B0.field_10[1] = 0.33000001;
-        this->field_1B0.field_10[2] = 0.5;
-
-        this->field_1B0.field_38 = 5;
-        this->field_1B0.fill_cache();
-        resource_manager::pop_resource_context();
-
-        assert(resource_manager::get_resource_context() == __old_context);
-    } else {
-        THISCALL(0x0054ABE0, this);
-    }
+    resource_manager::push_resource_context(static_cast<actor *>(get_hero_ptr(0))->get_resource_context());
+    resource_key key;
+    key.set(string_hash{"spdywebsplatter"}, RESOURCE_KEY_TYPE_ENTITY);
+    field_1B0.field_8 = key;
+    field_1B0.field_10 = {15.0f, 0.33000001f, 0.5f};
+    field_1B0.field_38 = 5;
+    field_1B0.fill_cache();
+    resource_manager::pop_resource_context();
 }
 
 void world_dynamics_system::deactivate_web_splats()
@@ -2122,14 +2105,11 @@ void world_dynamics_system::update_light_proximity_maps_for_moved_entities(
 {
     TRACE("world_dynamics_system::update_light_proximity_maps_for_moved_entities");
 
-#if STANDALONE_SYSTEM
-    return;
-#else
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         for (int i = 0; i < moved_entities::moved_count; ++i) {
             auto *ent = moved_entities::moved_list[i].get_volatile_ptr();
             if (ent != nullptr) {
-                if (ent->is_a_conglomerate()) {
+                if (ent->is_flagged(4u)) {
                     auto *the_conglom = bit_cast<conglomerate *>(ent);
                     auto *list = the_conglom->field_100;
                     if (list != nullptr && list->size() > 0 && (the_conglom->field_110 & 0x4000) == 0) {
@@ -2153,7 +2133,7 @@ void world_dynamics_system::update_light_proximity_maps_for_moved_entities(
                             if (++v14 >= 2) {
                                 v9 = nullptr;
                                 if (ent->extended_regions != nullptr) {
-                                    int v2 = v14 - 2;
+                                    const auto v2 = static_cast<unsigned int>(v14 - 2);
                                     v9 = (v2 < ent->extended_regions->size() ? ent->extended_regions->m_data[v2]
                                              : nullptr );
                                 }
@@ -2168,7 +2148,6 @@ void world_dynamics_system::update_light_proximity_maps_for_moved_entities(
     } else {
         THISCALL(0x00529CC0, this, a1);
     }
-#endif
 }
 
 void world_dynamics_system::add_anim_ctrl(animation_controller *a2)

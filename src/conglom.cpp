@@ -8,6 +8,9 @@
 #include "camera.h"
 #include "collision_geometry.h"
 #include "common.h"
+#include "comic_panels.h"
+#include "light_source.h"
+#include "wds.h"
 #include "custom_math.h"
 #include "debug_render.h"
 #include "decal_data_interface.h"
@@ -41,11 +44,23 @@
 #include "variant_interface.h"
 #include "vector2di.h"
 #include "vtbl.h"
+#include "ai_player_controller.h"
+#include "cut_scene_player.h"
+#include "line_info.h"
+#include "physical_interface.h"
+#include "shadow.h"
+#include "terrain.h"
+#include "us_person.h"
+#include "advanced_entity_ptrs.h"
+#include <functional>
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
 #include <cmath>
+#include <new>
+#include <type_traits>
 
 VALIDATE_SIZE(conglomerate, 0x130);
 
@@ -795,7 +810,9 @@ static void unmash_tentacle_records(mashable_vector<tentacle_info> &records,
             data->get_from_shared<char>(metadata[1] - sizeof(tentacle_info) * records.m_size);
         } else {
             for (auto &record : records) {
-                std::memcpy(record.field_0 + 0x30, data->get<uint32_t>(2), 8);
+                const auto *ids = data->get<uint32_t>(2);
+                record.zip_entity_id.source_hash_code = ids[0];
+                record.field_34 = ids[1];
                 unmash_plain_vector(record.field_3C, data);
                 unmash_plain_vector(record.field_44, data);
             }
@@ -807,7 +824,9 @@ static void unmash_tentacle_records(mashable_vector<tentacle_info> &records,
         data->rebase(4);
         records.m_data = data->get<tentacle_info>(records.m_size);
         for (auto &record : records) {
-            std::memcpy(record.field_0 + 0x30, data->get<uint32_t>(2), 8);
+            const auto *ids = data->get<uint32_t>(2);
+            record.zip_entity_id.source_hash_code = ids[0];
+            record.field_34 = ids[1];
             unmash_plain_vector(record.field_3C, data);
             unmash_plain_vector(record.field_44, data);
         }
@@ -1136,9 +1155,7 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
                 }
 
                 if (this->is_material_switching()) {
-                    for (auto i = 0; i < 4; ++i) {
-                        tmp_ptr->field_90.field_C[i] = this->field_90.field_C[i];
-                    }
+                    tmp_ptr->field_90.field_C = this->field_90.field_C;
                 }
             }
 
@@ -1287,12 +1304,12 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
             this->field_7C->post_entity_mash();
         }
 
-#if !STANDALONE_SYSTEM
         if (this->has_tentacle_ifc()) {
             auto *v81 = this->tentacle_ifc();
             v81->initialize_polytubes();
         }
 
+#if !STANDALONE_SYSTEM
         if (this->has_variant_ifc()) {
             auto *v82 = this->variant_ifc();
             v82->field_28 = v82->my_conglomerate->get_mesh()->File;
@@ -1442,20 +1459,207 @@ void conglomerate::destroy_tentacle_ifc()
     this->m_tentacle_interface = nullptr;
 }
 
-void conglomerate::_render(Float a2)
+float conglomerate::_get_visual_radius()
 {
-    TRACE("conglomerate::render");
+    if ((field_110 & 1) != 0) {
+        auto *mesh = get_mesh();
+        const auto max_scale = [](const vector3d &value) {
+            return std::max(std::abs(value.x), std::max(std::abs(value.y), std::abs(value.z)));
+        };
+        field_108 = mesh == nullptr ? 0.0f : mesh->SphereRadius * max_scale(get_render_scale());
+        const auto center = get_visual_center();
+        for (auto *member : members) {
+            auto *ent = static_cast<entity *>(member);
+            if (!ent->is_an_actor() || !ent->is_flagged(0x200))
+                continue;
+            auto *member_mesh = ent->get_mesh();
+            if (member_mesh == nullptr)
+                continue;
+            const auto distance = (ent->get_visual_center() - center).length();
+            field_108 = std::max(field_108, distance + max_scale(ent->get_render_scale()) * member_mesh->SphereRadius);
+        }
+        if (m_tentacle_interface != nullptr)
+            field_108 += 8.0f;
+        field_110 &= ~1u;
+    }
+    const float factor = is_ext_flagged(0x20) ? 0.75f
+        : is_ext_flagged(0x1000000) ? 0.4f : is_flagged(0x800) ? 0.6f : 1.0f;
+    return factor * field_108;
+}
 
-    if (debug_render_get_ival(SKELETONS) <= 0) {
-        THISCALL(0x004F9930, this, a2);
-    } else {
-        this->debug_render();
+bool conglomerate::_is_renderable()
+{
+    if ((field_110 & 0x10) != 0)
+        return (field_110 & 0x20) != 0;
+    if (is_flagged(0x100)) {
+        field_110 |= 0x30;
+        return true;
+    }
+    for (auto *member : members) {
+        auto *ent = static_cast<entity *>(member);
+        const auto visible = reinterpret_cast<bool(__fastcall *)(entity *, void *)>(get_vfunc(ent->m_vtbl, 0x60));
+        const auto renderable = reinterpret_cast<bool(__fastcall *)(entity *, void *)>(get_vfunc(ent->m_vtbl, 0x18C));
+        if (visible(ent, nullptr) && renderable(ent, nullptr)) {
+            field_110 |= 0x30;
+            return true;
+        }
+    }
+    field_110 = (field_110 & ~0x30u) | 0x10;
+    return false;
+}
+
+void conglomerate::apply_variant_ifc(nglMeshParams &mesh_params, nglParamSet<nglShaderParamSet_Pool> &params)
+{
+    auto *mesh = get_mesh();
+    const auto &transform = *reinterpret_cast<const math::MatClass<4, 3> *>(&get_abs_po());
+    const int lod = (mesh_params.Flags & 0x80) != 0 ? mesh_params.field_C : nglGetLOD(mesh, transform);
+    auto *frames = reinterpret_cast<char **>(m_variant_interface->field_2C)[lod];
+    if (frames == nullptr)
+        return;
+    using section_info = std::remove_pointer_t<decltype(USSectionIFLParam{}.field_0)>;
+    auto *info = static_cast<section_info *>(nglListAlloc(sizeof(section_info), 16));
+    info->NSections = lod == 0 ? mesh->NSections : mesh->LODs[lod - 1].field_0->NSections;
+    info->CurrentSection = 0;
+    info->field_8 = frames;
+    params.SetParam(USSectionIFLParam{info});
+}
+
+void conglomerate::apply_render_params(nglParamSet<nglShaderParamSet_Pool> &params)
+{
+    auto outline_color = var<vector4d>(0x0091E578);
+    auto fill_color = outline_color;
+    float outline_scale = 0.0f;
+    bool fill = false;
+    bool outlined = true;
+    if ((field_110 & 0x80) != 0) {
+        outline_color = var<vector4d>((field_110 & 0x100) != 0 ? 0x0091E588 : 0x0091E598);
+        outline_scale = var<float>(0x00921B14);
+    }
+    if (auto *panel = comic_panels::get_panel_params()) {
+        const auto &style = panel->field_8[(field_110 >> 9) & 7];
+        if ((style.field_24 & 4) != 0) {
+            fill_color = style.field_0;
+            fill = true;
+        } else if ((style.field_24 & 8) != 0) {
+            fill = true;
+        }
+        if ((style.field_24 & 2) != 0) {
+            outline_color = style.field_10;
+            std::memcpy(&outline_scale, &style.field_20, sizeof(outline_scale));
+        }
+        outlined = (style.field_24 & 1) != 0;
+    }
+    auto *person = new USPersonShaderSpace::ParamStruct{};
+    const auto &defaults = USPersonShaderSpace::DefaultParams();
+    std::copy(std::begin(defaults.field_0), std::end(defaults.field_0), std::begin(person->field_0));
+    person->field_30 = defaults.field_30;
+    person->field_34 = outline_scale;
+    person->field_38 = !fill;
+    person->field_3C = !outlined;
+    person->field_40 = outline_scale > 0.0f;
+    std::memcpy(person->field_10, &outline_color, sizeof(outline_color));
+    std::memcpy(person->field_20, &fill_color, sizeof(fill_color));
+    person->field_41 = fill;
+    person->field_44 = outline_scale > 0.0f;
+    params.SetParam(USPersonParam{person});
+}
+
+static fixed_vector<entity_base_vhandle, 10> &cached_conglomerate_lights(conglomerate &owner, const vector3d &position)
+{
+    static Var<conglomerate_light_cache_entry *> active{0x0095C874};
+    static Var<conglomerate_light_cache_entry *> free{0x00960AE8};
+    static Var<int> blocks{0x00960AEC};
+    for (auto *entry = active(); entry != nullptr; entry = entry->next) {
+        if (entry->owner == &owner)
+            return entry->lights;
+    }
+    auto *lights = g_world_ptr->field_A0.find_lights(position);
+    if (free() == nullptr && blocks() < 1) {
+        constexpr auto count = 24;
+        auto *entries = static_cast<conglomerate_light_cache_entry *>(
+            tlMemAlloc(sizeof(conglomerate_light_cache_entry) * count, 4, 4));
+        ++blocks();
+        for (int i = count - 1; i >= 0; --i) {
+            entries[i].next = free();
+            free() = &entries[i];
+        }
+    }
+    auto *entry = free();
+    assert(entry != nullptr);
+    free() = entry->next;
+    new (entry) conglomerate_light_cache_entry{};
+    entry->next = active();
+    entry->owner = &owner;
+    entry->last_used_tick = g_world_ptr->time_manager.field_C;
+    active() = entry;
+    for (auto *light : *lights)
+        entry->lights.push_back(light->get_my_handle());
+    return entry->lights;
+}
+
+void conglomerate::_render(Float fade)
+{
+    if (!is_flagged(0x200))
+        return;
+    auto *mesh = get_mesh();
+    if (mesh != nullptr && !skin_bones.empty()) {
+        nglParamSet<nglShaderParamSet_Pool> params{
+            static_cast<nglParamSet<nglShaderParamSet_Pool>::nglParamSetType>(1)};
+        nglMeshParams mesh_params{0x40};
+        if (std::not_equal_to<float>{}(fade.value, 1.0f) || (adv_ptrs != nullptr && adv_ptrs->field_8 != nullptr)) {
+            auto *tint = ::new (nglListAlloc(sizeof(color), 16)) color{get_render_color().to_color()};
+            tint->a *= fade.value;
+            params.SetParam(nglTintParam{reinterpret_cast<vector4d *>(tint)});
+        }
+        update_abs_po(false);
+        mesh_params.Flags |= 4;
+        mesh_params.NBones = skeleton_ifc->po_count;
+        mesh_params.Bones = reinterpret_cast<math::MatClass<4, 3> *>(skeleton_ifc->abs_po);
+        if (m_tentacle_interface != nullptr)
+            m_tentacle_interface->render(fade);
+        auto *cutscene = g_cut_scene_player();
+        if (cutscene->field_E1 || cutscene->field_E2) {
+            mesh_params.Flags |= 0x80;
+            mesh_params.field_C = 0;
+        }
+        if (m_variant_interface != nullptr)
+            apply_variant_ifc(mesh_params, params);
+        else if ((field_90.field_6 & 0x3FFF) != 0x3FFF)
+            params.SetParam(nglTextureFrameParam{field_90.field_6 & 0x3FFF});
+        if ((field_110 & 0x80) != 0 || comic_panels::get_panel_params() != nullptr)
+            apply_render_params(params);
+        const auto &transform = get_abs_po();
+        auto &lights = cached_conglomerate_lights(*this, transform.get_position());
+        if (lights.m_size != 0) {
+            if (auto *light = static_cast<light_source *>(lights.m_data[0].get_volatile_ptr()))
+                params.SetParam(USLightParam{light});
+        }
+        nglListAddMesh(mesh, *reinterpret_cast<const math::MatClass<4, 3> *>(&transform), &mesh_params, &params);
+    }
+    for (auto *member : members) {
+        if (member->is_flagged(0x100) && member->is_flagged(0x200))
+            static_cast<entity *>(member)->render(fade);
+    }
+    if (is_flagged(0x40000)) {
+        auto *camera = g_game_ptr->get_current_view_camera(0);
+        const auto &camera_transform = camera->get_abs_po();
+        auto offset = get_abs_position() - camera_transform.get_position();
+        const auto direction = camera_transform.get_z_facing();
+        const float radius = get_visual_radius();
+        const float distance = offset.x * direction.x + offset.y * direction.y + offset.z * direction.z;
+        if (distance <= 50.0f && -radius <= distance) {
+            offset += direction * radius;
+            if (offset.length() * 0.5f <= offset.x * direction.x + offset.y * direction.y + offset.z * direction.z) {
+                if (!is_flagged(0x8000000) || !render_complex_shadow(Float{distance}))
+                    render_simple_shadow(Float{distance}, fade);
+            }
+        }
     }
 }
 
 void conglomerate::_set_render_alpha_mod(Float a2)
 {
-    actor::set_render_alpha_mod(a2);
+    actor::_set_render_alpha_mod(a2);
 
     for (auto &member : this->members) {
         auto *v5 = bit_cast<entity *>(member);
@@ -1754,34 +1958,184 @@ void conglomerate::radius_changed(bool a2)
     }
 }
 
-bool render_drop_shadow(math::MatClass<4, 3> &a1, Float a2, Float a3, bool a4)
+bool render_drop_shadow(math::MatClass<4, 3> &transform, Float radius, Float opacity, bool mesh_shadow)
 {
-    TRACE("render_drop_shadow");
+    if (os_developer_options::instance->get_flag(static_cast<os_developer_options::flags_t>(79)) ||
+        radius <= 0.0f || opacity <= 0.0f)
+        return false;
+    auto *mesh = mesh_shadow ? g_game_ptr->field_B8 : g_game_ptr->field_B4;
+    if (mesh == nullptr)
+        return false;
+    nglMeshParams mesh_params{2};
+    mesh_params.Scale = {vector3d{radius.value, radius.value, radius.value}};
+    nglParamSet<nglShaderParamSet_Pool> parameters{
+        static_cast<nglParamSet<nglShaderParamSet_Pool>::nglParamSetType>(1)};
+    if (std::not_equal_to<float>{}(opacity.value, 1.0f)) {
+        auto *tint = static_cast<vector4d *>(nglListAlloc(sizeof(vector4d), 16));
+        *tint = vector4d{0.0f, 0.0f, 0.0f, opacity.value};
+        parameters.SetParam(nglTintParam{tint});
+    }
+    nglListAddMesh(mesh, transform, &mesh_params, &parameters);
+    return true;
+}
 
-    return (bool) CDECL_CALL(0x0059F910, &a1, a2, a3, a4);
+namespace {
+
+float shadow_quality_multiplier(uintptr_t address)
+{
+    return var<float[4]>(static_cast<ptrdiff_t>(address))[var<int>(0x0091E000)];
+}
 }
 
 bool conglomerate::render_complex_shadow(Float camera_distance)
 {
-    assert(this->is_flagged(EFLAG_MISC_CAST_SHADOW) && this->is_flagged(EFLAG_MISC_HIRES_SHADOW));
-
-    assert(camera_distance <= 50.0f);
-
-    if constexpr (0) {
+    if (os_developer_options::instance->get_flag(static_cast<os_developer_options::flags_t>(80)) ||
+        !g_player_shadows_enabled)
+        return false;
+    auto *mesh = get_mesh();
+    if (mesh == nullptr)
+        return false;
+    auto *root = m_child;
+    while (root != nullptr && root->field_40 == 0xFF)
+        root = root->get_next_sibling();
+    const auto position = (root != nullptr ? root : this)->get_abs_position();
+    const float radius = std::max(1.1f, std::min(3.75f, mesh->SphereRadius * 0.5714285969734192f));
+    float height;
+    float maximum_height = 7.0f;
+    if (has_physical_ifc()) {
+        auto *physical = physical_ifc();
+        if ((physical->field_C & 1) != 0) {
+            height = physical->calc_height_above_ground();
+            if (height < -5.0f)
+                return true;
+            if (physical->field_F0 > 0.0f)
+                maximum_height = std::min(physical->field_F0, 7.0f);
+        } else {
+            vector3d normal;
+            entity *hit_entity = nullptr;
+            subdivision_node_obb_base *hit_obb = nullptr;
+            auto query_position = position;
+            height = g_world_ptr->get_the_terrain()->get_elevation(
+                query_position, normal, this, &hit_entity, &hit_obb, 7.0f) - position.y;
+        }
     } else {
-        bool (__fastcall *func)(void *, void *edx, Float camera_distance) = CAST(func, 0x004E5300);
-        return func(this, nullptr, camera_distance);
+        height = get_floor_offset();
+    }
+    if (height >= maximum_height)
+        return true;
+    height = std::max(height, 0.0f);
+    vector3d direction{-var<float>(0x0095EF10), 2.0f - var<float>(0x0095EF14),
+                       -var<float>(0x0095EF18)};
+    direction.normalize();
+    const float fade = (1.0f - height / maximum_height) * shadow_quality_multiplier(0x00921B34) * 0.4f;
+    return render_projected_shadow(*this, camera_distance, direction, position, radius, fade);
+}
+
+void conglomerate::render_simple_shadow(Float camera_distance, Float opacity)
+{
+    if (os_developer_options::instance->get_flag(static_cast<os_developer_options::flags_t>(79)) ||
+        !var<bool>(0x00922C5D))
+        return;
+    const int geometry_type = colgeom != nullptr ? colgeom->get_type() : 0;
+    const bool mesh_shadow = geometry_type == 2;
+    if (!mesh_shadow && camera_distance > 30.0f)
+        return;
+    const float radius = geometry_type == 1 ? colgeom->get_bounding_sphere_radius() * 2.5f :
+                         mesh_shadow ? 0.9f : 2.0f;
+    const auto alpha = get_render_color().get_alpha();
+    if (alpha == 0)
+        return;
+    float fade = alpha * opacity.value * 0.0039215689f;
+    auto position = get_abs_position();
+    vector3d normal{0.0f, 1.0f, 0.0f};
+    const float initial_height = position.y;
+    auto *cutscene = g_cut_scene_player();
+    bool trace_ground = cutscene->field_E1 || cutscene->field_E2 ||
+        os_developer_options::instance->get_flag(static_cast<os_developer_options::flags_t>(78));
+    if (!trace_ground) {
+        position.y -= get_floor_offset();
+        if (m_parent != nullptr) {
+            auto *root = m_parent;
+            while (root->m_parent != nullptr)
+                root = root->m_parent;
+            auto *physical = root->has_physical_ifc() ? root->physical_ifc() : nullptr;
+            if (physical == nullptr || ((physical->field_C & 1) != 0 && !physical->field_184)) {
+                trace_ground = true;
+            } else {
+                position.y = root->get_abs_position().y - root->get_floor_offset() * 0.99f;
+                normal = root->get_abs_po().get_y_facing();
+            }
+        } else if (has_physical_ifc() &&
+                   ((physical_ifc()->field_C & 1) != 0 || physical_ifc()->field_174 != nullptr)) {
+            auto *physical = physical_ifc();
+            const float height = physical->calc_height_above_ground();
+            if (height < -0.00001f)
+                return;
+            position.y -= height;
+            normal = physical->field_100;
+            if (physical->field_174 != nullptr)
+                position.y += get_floor_offset();
+        } else {
+            normal = get_abs_po().get_y_facing();
+            if (std::fabs(normal.y) < 0.1f) {
+                normal = vector3d{0.0f, 1.0f, 0.0f};
+                trace_ground = true;
+            } else if (is_hero()) {
+                const auto mode = m_player_controller->get_spidey_loco_mode();
+                trace_ground = mode == 8 || mode == 2;
+            }
+        }
+        trace_ground = trace_ground || normal.y <= 0.0f;
+    }
+    if (trace_ground) {
+        line_info line{position + vector3d{0.0f, 1.5f, 0.0f},
+                       position - vector3d{0.0f, 6.5f, 0.0f}};
+        if (!line.check_collision(*local_collision::entfilter_reject_all,
+                                  *local_collision::obbfilter_lineseg_test, nullptr))
+            return;
+        position = line.hit_pos;
+        normal = line.hit_norm;
+        line.remove_to_collision_check_queue();
+    }
+    position = position + normal * 0.01f;
+    float height = initial_height - position.y;
+    if (height >= 5.0f)
+        return;
+    height = std::max(height, 0.0f);
+    fade = (1.0f - height * 0.2f) * std::min(1.0f, fade * shadow_quality_multiplier(0x00921B24));
+    const auto forward = get_abs_po().get_z_facing();
+    if (!is_colinear(forward, normal, 0.01f)) {
+        po transform;
+        transform.set_po(forward, normal, position);
+        math::MatClass<4, 3> matrix{transform.m};
+        render_drop_shadow(matrix, radius, fade, mesh_shadow);
     }
 }
 
-void conglomerate::render_simple_shadow(Float arg0, Float arg4)
+void conglomerate::draw_projected_shadow(Float fade)
 {
-    assert(this->is_flagged(EFLAG_MISC_CAST_SHADOW) && this->is_flagged(EFLAG_GRAPHICS_VISIBLE));
-
-    if constexpr (0) {
-    } else {
-        THISCALL(0x004E4D80, this, arg0, arg4);
-    }
+    auto *mesh = get_mesh();
+    if (mesh == nullptr)
+        return;
+    if (mesh->NLODs > 0 && mesh->LODs[mesh->NLODs - 1].field_0 != nullptr)
+        mesh = mesh->LODs[mesh->NLODs - 1].field_0;
+    nglMeshParams mesh_params{68};
+    mesh_params.NBones = skeleton_ifc->po_count;
+    mesh_params.Bones = reinterpret_cast<math::MatClass<4, 3> *>(skeleton_ifc->abs_po);
+    auto *person = static_cast<USPersonShaderSpace::ParamStruct *>(
+        nglListAlloc(sizeof(USPersonShaderSpace::ParamStruct), 16));
+    *person = {};
+    person->field_3C = 1;
+    const auto &defaults = var<vector4d>(0x0091E568);
+    person->field_20[0] = defaults.x;
+    person->field_20[1] = defaults.y;
+    person->field_20[2] = defaults.z;
+    person->field_20[3] = fade.value;
+    person->field_41 = true;
+    nglParamSet<nglShaderParamSet_Pool> parameters{
+        static_cast<nglParamSet<nglShaderParamSet_Pool>::nglParamSetType>(1)};
+    parameters.SetParam(USPersonParam{person});
+    nglListAddMesh(mesh, {get_abs_po().m}, &mesh_params, &parameters);
 }
 
 bool binary_search_conglom_member_array(const string_hash &a1, entity_base **a2, int size, int *index)
@@ -1886,9 +2240,13 @@ variant_interface *conglomerate::variant_ifc()
 #endif
 }
 
+nglMorphSet *conglomerate::_get_morph(const tlFixedString &name, bool warn)
+{
+    return has_variant_ifc() ? variant_ifc()->get_morph(name) : actor::_get_morph(name, warn);
+}
+
 entity_base *conglomerate::get_bone(const string_hash &a2, bool a3)
 {
-    TRACE("conglomerate::get_bone");
 
     if constexpr (1) {
         auto skin_bones_size = this->skin_bones.size();

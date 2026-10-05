@@ -9,7 +9,14 @@ bool &byte_965950 = var<bool>(0x00965950);
 
 RTL_CRITICAL_SECTION &g_CriticalSection = var<RTL_CRITICAL_SECTION>(0x009618F4);
 
+#if STANDALONE_SYSTEM
+namespace {
+PolytubeCustomMaterial *native_webline_texture = nullptr;
+}
+PolytubeCustomMaterial *&webline_texture = native_webline_texture;
+#else
 PolytubeCustomMaterial *&webline_texture = var<PolytubeCustomMaterial *>(0x00958058);
+#endif
 
 float &flt_937FA4 = var<float>(0x00937FA4);
 
@@ -54,6 +61,12 @@ bool &s_freeze_game_time = var<bool>(0x009680AC);
 bool &g_generating_vtables = var<bool>(0x0095A6F1);
 
 float &g_tan_half_fov_ratio = var<float>(0x00921D7C);
+#if STANDALONE_SYSTEM
+[[maybe_unused]] static const bool native_fov_ratio_initialized = [] {
+    g_tan_half_fov_ratio = 1.0f;
+    return true;
+}();
+#endif
 
 LPDIRECTSOUNDBUFFER &dword_982570 = var<LPDIRECTSOUNDBUFFER>(0x00982570);
 

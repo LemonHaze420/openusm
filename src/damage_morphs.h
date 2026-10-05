@@ -1,68 +1,62 @@
 #pragma once
 
+#include <cstdint>
+
 struct damage_morph_memory_pool {
-    void *allocation_list;
-    int *list_end;
+    struct allocation {
+        void *memory;
+        bool live;
+        allocation *next;
+    };
+    allocation *allocation_list;
+    allocation *list_end;
     int field_8;
     void *memory_pool;
-    int field_10;
-    int field_14;
-    int field_18;
+    uintptr_t field_10;
+    uintptr_t field_14;
+    uintptr_t field_18;
 
-    damage_morph_memory_pool(int);
-
+    explicit damage_morph_memory_pool(int size);
     void init();
-
-    //0x004C5550
-    void *memalloc(int a2, int a3);
+    void *memalloc(int alignment, int size);
+    uintptr_t memfree(void *memory);
 };
 
 struct balanced_tree {
     struct tree_node {
-        int field_0;
-        int field_4;
-        int field_8;
-        tree_node *field_C;
-        tree_node *field_10;
-        tree_node *field_14;
-        tree_node *field_18;
-        int field_1C;
+        int key;
+        int value;
+        tree_node *parent;
+        tree_node *left;
+        tree_node *right;
+        tree_node *next;
+        tree_node *previous;
+        int height;
     };
 
-    tree_node *field_0;
-    tree_node *field_4;
-    int field_8;
+    tree_node *root;
+    tree_node *oldest;
+    tree_node *newest;
 
-    bool retrieve(int a2, int *a3);
-
-    bool remove(int a2);
+    bool retrieve(int key, int *value);
+    void add(int key, int value);
+    bool remove(int key);
 };
 
 struct actor;
 
 struct damage_morphs {
-    //0x004CE0E0
     static void init_memory_pools();
-
-    //0x004C4D30
     static bool intercepting_allocations();
-
-    //0x004F0E80
-    static void *memalloc(int a1, int a2, bool a3);
-
-    //0x004CE140
-    static void memfree(void *a1);
-
-    static bool is_subject_off_screen(actor *a1);
-
-    //0x004D97C0
-    static bool unregister_mesh_copy(int a1);
+    static void *memalloc(int alignment, int size, bool write_combine);
+    static void memfree(void *memory);
+    static bool is_subject_off_screen(actor *subject);
+    static int register_mesh_copy(actor *subject);
+    static bool unregister_mesh_copy(int registration_id);
+    static void instance_frame_advance(actor *subject);
 
     static int &allocations_intercept_reference_count;
-
     static damage_morph_memory_pool &write_combine_pool;
-
     static damage_morph_memory_pool &normal_pool;
-
     static balanced_tree &registration_tree;
 };

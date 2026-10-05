@@ -11,6 +11,16 @@
 struct string_hash;
 struct PCUV_ShaderMaterial;
 struct PolytubeCustomMaterial;
+struct Tentacle_ShaderMaterial;
+struct polytube_misc_render_object {
+    simple_list<polytube_misc_render_object *>::vars_t simple_list_vars;
+    entity_base_vhandle object;
+    float percent;
+    color32 color;
+    bool enabled;
+
+    void render(polytube *tube, Float dt);
+};
 
 struct polytube_pt_anim {
     uint32_t field_0;
@@ -22,13 +32,16 @@ struct polytube_pt_anim {
     float field_28;
 
     polytube_pt_anim();
+    void frame_advance(Float dt, vector3d &point);
 };
 
 struct PolytubeCustomOffset {
     struct Iterator {
-        float *field_0;
+        vector2d *field_0;
         int field_4;
         uint32_t field_8;
+        explicit Iterator(unsigned count);
+        ~Iterator();
     };
 };
 
@@ -47,27 +60,30 @@ struct PolytubeCustomVertex {
         float field_48;
 
         void Write(const vector3d &a2, const vector3d &a3);
+        Iterator() = default;
+        Iterator(unsigned count, PCUV_ShaderMaterial *material, PolytubeCustomOffset::Iterator *offsets,
+                 uint32_t color, float tiles, float phase);
     };
 };
 
 struct polytube : entity {
     polytube *field_68;
     polytube *field_6C;
-    void **field_70;
-    void **field_74;
+    PolytubeCustomOffset::Iterator *field_70;
+    PolytubeCustomOffset::Iterator *field_74;
 
     char field_78;
     char field_79;
     char field_7A;
     char field_7B;
-    int field_7C;
+    po *field_7C;
     spline the_spline;
-    PCUV_ShaderMaterial *field_D0;
-    PCUV_ShaderMaterial *field_D4;
-    PCUV_ShaderMaterial *field_D8;
+    PolytubeCustomMaterial *field_D0;
+    PolytubeCustomMaterial *field_D4;
+    PolytubeCustomMaterial *field_D8;
     int field_DC;
     int field_E0;
-    int field_E4;
+    Tentacle_ShaderMaterial *field_E4;
     int field_E8;
     int field_EC;
     float tube_radius;
@@ -78,26 +94,33 @@ struct polytube : entity {
     float field_104;
     int field_108;
     _std::vector<polytube_pt_anim> pt_anims;
-    int field_11C;
-    int field_120;
+    entity_base_vhandle field_11C;
+    entity_base_vhandle field_120;
     float field_124;
-    int field_128;
-    int field_12C;
+    color32 field_128;
+    float field_12C;
     ai_tentacle_info *field_130;
-    int empty[3];
+    float tentacle_width;
+    float tentacle_activity;
+    float tentacle_pull_factor;
     int16_t field_140;
     char field_142;
     char field_143;
-    int field_144;
-    int field_148;
-    int field_14C;
-    int field_150;
-    int field_154;
-    int field_158;
+    simple_list<polytube_misc_render_object *> misc_render_objects;
+    nglMesh *field_150;
+    nglMesh *field_154;
+    nglMesh *field_158;
     int field_15C[7];
 
     //0x005A57A0
     polytube(const string_hash &a2, uint32_t a3);
+    ~polytube();
+    void *destroy(unsigned char flags);
+    void frame_advance(Float dt);
+    void remove_from_list();
+    void update_active_list();
+    void kill_anim(int index, bool restore_position);
+    void clear_simulations();
 
     void rebuild_helper();
 
@@ -119,7 +142,7 @@ struct polytube : entity {
     //0x005A3960
     void init();
 
-    //0x00B96220
+
     void init_offsets();
 
     //0x005A2390
@@ -127,6 +150,22 @@ struct polytube : entity {
 
     //0x005A2460
     void set_material(PolytubeCustomMaterial *a2);
+    void set_material(Tentacle_ShaderMaterial *material);
+    void set_tentacle_width(Float value) { tentacle_width = value; }
+    void set_tentacle_activity(Float value) { tentacle_activity = value; }
+    void set_tentacle_pull_factor(Float value) { tentacle_pull_factor = value; }
+    float get_tentacle_width() const { return tentacle_width; }
+    float get_tentacle_activity() const { return tentacle_activity; }
+    float get_tentacle_pull_factor() const { return tentacle_pull_factor; }
+    void set_render_color(color32 value) { field_128 = value; }
+    color32 get_render_color() const { return field_128; }
+    void set_visible(bool visible, bool include_children);
+    vector3d get_visual_center();
+    float get_visual_radius();
+    void destroy_offsets();
+    void simulate_slack(const vector3d &start, const vector3d &end, float length);
+    void add_misc_render_object(polytube_misc_render_object *object);
+    bool remove_misc_render_object(polytube_misc_render_object *object);
 
     void add_control_pt(const vector3d &a2);
 

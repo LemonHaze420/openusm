@@ -13,4 +13,7 @@ struct occlusion_visitor : subdivision_visitor {
     float field_1C;
 
     occlusion_visitor(const vector3d &a1, const vector3d &a3, Float a4, region *a5);
+
+
+    int visit(const subdivision_node &node);
 };

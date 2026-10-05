@@ -89,21 +89,42 @@ HRESULT nglDrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, int a2, UINT a3)
     return IDirect3DDevice9_DrawPrimitive(g_Direct3DDevice, PrimitiveType, a2 + g_MinVertexIndex(), v3);
 }
 
-void nglSetStreamSourceAndDrawPrimitive(D3DPRIMITIVETYPE a1, IDirect3DVertexBuffer9 *a2, uint32_t numVertices,
-                                        uint32_t baseVertexIndex, uint32_t stride, IDirect3DIndexBuffer9 *a6,
-                                        uint32_t numIndices, uint32_t startIndex)
+HRESULT nglSetStreamSourceAndDrawPrimitive(D3DPRIMITIVETYPE type, IDirect3DVertexBuffer9 *buffer,
+                                         uint32_t numVertices, uint32_t baseVertexIndex, uint32_t stride,
+                                         IDirect3DIndexBuffer9 *indexBuffer, uint32_t numIndices, uint32_t startIndex)
 {
-    if constexpr (0) {
-        IDirect3DDevice9_SetStreamSource(g_Direct3DDevice, 0, a2, 0, stride);
-        dword_972964() = a2;
-        if (numIndices != 0 && a6) {
-            nglDrawIndexedPrimitive(a1, a6, startIndex, numIndices, numVertices);
-        } else {
-            nglDrawPrimitive(a1, baseVertexIndex, numVertices);
+    IDirect3DDevice9_SetStreamSource(g_Direct3DDevice, 0, buffer, 0, stride);
+    dword_972964() = buffer;
+    if (numIndices != 0 && indexBuffer != nullptr) {
+        static Var<IDirect3DIndexBuffer9 *> current_indices{0x00972968};
+        if (current_indices() != indexBuffer) {
+            IDirect3DDevice9_SetIndices(g_Direct3DDevice, indexBuffer);
+            current_indices() = indexBuffer;
         }
-    } else {
-        CDECL_CALL(0x00771460, a1, a2, numVertices, baseVertexIndex, stride, a6, numIndices, startIndex);
+        uint32_t count{};
+        switch (type) {
+        case D3DPT_POINTLIST: count = numIndices; break;
+        case D3DPT_LINELIST: count = numIndices / 2; break;
+        case D3DPT_LINESTRIP: count = numIndices - 1; break;
+        case D3DPT_TRIANGLELIST: count = numIndices / 3; break;
+        case D3DPT_TRIANGLESTRIP:
+        case D3DPT_TRIANGLEFAN: count = numIndices - 2; break;
+        default: break;
+        }
+        return IDirect3DDevice9_DrawIndexedPrimitive(
+            g_Direct3DDevice, type, baseVertexIndex, startIndex, numVertices, startIndex, count);
     }
+    uint32_t count{};
+    switch (type) {
+    case D3DPT_POINTLIST: count = numVertices; break;
+    case D3DPT_LINELIST: count = numVertices / 2; break;
+    case D3DPT_LINESTRIP: count = numVertices - 1; break;
+    case D3DPT_TRIANGLELIST: count = numVertices / 3; break;
+    case D3DPT_TRIANGLESTRIP:
+    case D3DPT_TRIANGLEFAN: count = numVertices - 2; break;
+    default: break;
+    }
+    return IDirect3DDevice9_DrawPrimitive(g_Direct3DDevice, type, baseVertexIndex, count);
 }
 
 

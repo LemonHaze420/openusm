@@ -116,6 +116,7 @@ void nglStringNode::Render()
                                 this->field_C,
                                 a9);
 
+                const float z = static_cast<float>(sub_77E820(this->field_1C));
                 for (auto *i = dword_975690().field_0; i != nullptr; i = i->field_0) {
                     auto v6 = i->field_10[2];
                     auto v7 = i->field_10[3];
@@ -161,10 +162,10 @@ void nglStringNode::Render()
                         const float x2 = v23[0] * scale_x;
                         const float y2 = v23[1] * scale_y;
                         Vertex vertices[4]{
-                            {x1, y1, 0.5f, 1.0f, v8, a5[0], a5[1]},
-                            {x2, y1, 0.5f, 1.0f, v8, v31[0], a5[1]},
-                            {x1, y2, 0.5f, 1.0f, v8, a5[0], v31[1]},
-                            {x2, y2, 0.5f, 1.0f, v8, v31[0], v31[1]},
+                            {x1, y1, z, 1.0f, v8, a5[0], a5[1]},
+                            {x2, y1, z, 1.0f, v8, v31[0], a5[1]},
+                            {x1, y2, z, 1.0f, v8, a5[0], v31[1]},
+                            {x2, y2, z, 1.0f, v8, v31[0], v31[1]},
                         };
 
                         IDirect3DDevice9_SetVertexShader(g_Direct3DDevice, nullptr);

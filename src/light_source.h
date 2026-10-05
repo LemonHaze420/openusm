@@ -62,6 +62,8 @@ struct light_source : entity {
 
     light_source(const light_properties &a2, entity *a3, const string_hash &a4);
 
+    ~light_source();
+
     light_properties *get_properties();
 
     //virtual

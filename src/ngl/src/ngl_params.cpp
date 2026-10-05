@@ -12,6 +12,29 @@ Var<int> nglShaderParamSet_Pool::NextID = {0x00971E8C};
 
 Var<int> nglSceneParamSet_Pool::NextID = (0x00971E88);
 
+void nglInitializeParamIDs()
+{
+#if STANDALONE_SYSTEM
+
+    constexpr ptrdiff_t shader_ids[] = {
+        0x00956784, 0x009566D8, 0x00956730, 0x009566C4,
+        0x009567B4, 0x0095686C, 0x0095678C, 0x00956788,
+        0x00971E94, 0x00971EE8, 0x00971EEC, 0x00971EE0,
+        0x00971EE4,
+    };
+    int next_id = 0;
+    for (const auto address : shader_ids) {
+        standalone_var<int>(address) = next_id++;
+    }
+    nglShaderParamSet_Pool::NextID() = next_id;
+
+
+    SMPanelParams::ID() = 0;
+    var<int>(0x00975594) = 1;
+    nglSceneParamSet_Pool::NextID() = 2;
+#endif
+}
+
 template <>
 void nglParamSet<nglShaderParamSet_Pool>::set_color(color32 a2)
 {

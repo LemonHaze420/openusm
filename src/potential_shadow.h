@@ -19,6 +19,9 @@ struct potential_shadow {
     void sub_5932C0();
 
     void sub_593280();
+
+
+    void commit();
 };
 
-extern Var<potential_shadow[1]> shadow_candidates;
+extern Var<potential_shadow[2]> shadow_candidates;

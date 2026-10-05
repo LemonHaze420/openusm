@@ -1,6 +1,7 @@
 #pragma once
 
 #include "actor.h"
+#include "fixed_vector.h"
 #ifdef OPENUSM_XBPACK_V10
 #include "exe_allocator.h"
 #endif
@@ -16,6 +17,9 @@ struct variant_interface;
 struct als_res_data;
 struct light_manager;
 struct light_source;
+struct nglMeshParams;
+struct nglShaderParamSet_Pool;
+template <typename T> struct nglParamSet;
 
 namespace als {
 struct animation_logic_system;
@@ -61,6 +65,9 @@ struct conglomerate : actor {
 
     //0x004E4D80
     void render_simple_shadow(Float arg0, Float arg4);
+
+
+    void draw_projected_shadow(Float fade);
 
     void debug_render();
 
@@ -109,6 +116,11 @@ struct conglomerate : actor {
     //virtual
     void _render(Float a2);
 
+    float _get_visual_radius();
+    bool _is_renderable();
+    void apply_render_params(nglParamSet<nglShaderParamSet_Pool> &params);
+    void apply_variant_ifc(nglMeshParams &mesh_params, nglParamSet<nglShaderParamSet_Pool> &params);
+
     //0x004D0AA0
     //virtual
     void _set_render_alpha_mod(Float a2);
@@ -136,12 +148,21 @@ struct conglomerate : actor {
 
     variant_interface *variant_ifc();
 
+    nglMorphSet *_get_morph(const tlFixedString &name, bool warn);
+
     void init_member_data();
 
     bool is_cloned_conglomerate() const
     {
         return (this->field_110 & 0x40) != 0;
     }
+};
+
+struct conglomerate_light_cache_entry {
+    conglomerate_light_cache_entry *next;
+    conglomerate *owner;
+    int last_used_tick;
+    fixed_vector<entity_base_vhandle, 10> lights;
 };
 
 inline Var<actor *> global_transfer_variable_the_conglom {0x00959570};

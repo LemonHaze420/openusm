@@ -47,7 +47,7 @@ extern void nglCreateVShader(const D3DVERTEXELEMENT9 *a2, void *a1, [[maybe_unus
 extern void nglCreatePShader(IDirect3DPixelShader9 **a3, const char *SrcCode, ...);
 
 //0x00772500
-extern int CreatePixelShader(IDirect3DPixelShader9 **a1, const DWORD *a2);
+extern void CreatePixelShader(IDirect3DPixelShader9 **a1, const DWORD *a2);
 
 //0x007724A0
 extern void nglCreateVertexDeclarationAndShader(void *a1, const D3DVERTEXELEMENT9 *a2, const DWORD *a3);
@@ -69,6 +69,9 @@ extern const DWORD *AssemblePShader(const char *text);
 
 //0x00772810
 extern void nglSetupVShaderBonesDX(int a5, nglMeshNode *a6, nglMeshSection *Section);
+
+
+extern void *nglSkinPersonMeshDX(nglMeshNode *meshNode, nglMeshSection *section, const float *normal);
 
 extern const DWORD *g_codes;
 

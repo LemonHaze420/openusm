@@ -18,7 +18,14 @@ struct variant_info
 struct nglMeshFile;
 struct nglMesh;
 struct nglMorphSet;
-struct variant_speaker_id_set;
+struct tlFixedString;
+struct variant_speaker_id_set
+{
+    uint16_t field_0;
+    uint16_t id_count;
+    uint32_t field_4;
+    uint32_t *ids;
+};
 
 struct variant_interface : conglomerate_interface {
     mashable_vector<variant_info> variants;
@@ -40,6 +47,10 @@ struct variant_interface : conglomerate_interface {
     int field_54;
 
     variant_interface(conglomerate *);
+    ~variant_interface();
+
+    void _un_mash(generic_mash_header *header, void *owner, void *object,
+                  generic_mash_data_ptrs *data);
 
     variant_info *get_random_variant();
 
@@ -52,6 +63,9 @@ struct variant_interface : conglomerate_interface {
     void destroy_mesh_concatenation(nglMesh *mesh);
 
     void destroy_morph_concatenation(nglMorphSet *a1);
+
+    nglMorphSet *get_morph(const tlFixedString &name);
+    nglMorphSet *create_morph_concatenation(nglMorphSet **parts, int count, nglMorphSet *source);
 
     //virtual
     void release_ifc();

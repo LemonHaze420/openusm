@@ -16,3 +16,7 @@ struct USSimpleShader : nglShader {
 }  // namespace USSimpleShaderSpace
 
 extern void us_simpleshader_patch();
+
+#if STANDALONE_SYSTEM
+void initialize_world_material_shaders();
+#endif

@@ -28,6 +28,8 @@ struct ai_player_controller;
 struct generic_mash_header;
 struct generic_mash_data_ptrs;
 struct nglMesh;
+struct nglMorphSet;
+struct tlFixedString;
 struct resource_pack_slot;
 struct item;
 struct signaller;
@@ -54,9 +56,11 @@ struct actor : entity {
         uint8_t field_5;
         uint16_t field_6;
         int active_client_count;
-        uint8_t field_C[4];
+        uint8_t *field_C;
 
         void set_mesh(nglMesh *);
+        void start_buffering(unsigned int count);
+        void end_buffering();
     };
 
     damage_interface *m_damage_interface;
@@ -118,6 +122,7 @@ struct actor : entity {
 
     //virtual
     color32 _get_render_color() const;
+    void _set_render_color(color32 value);
 
     //0x004B8D30
     //virtual
@@ -257,13 +262,20 @@ struct actor : entity {
 
     //virtual
     void set_frame_delta_trans(const vector3d &a2, Float a3);
+
     void set_frame_delta_trans_native(const vector3d &translation, Float dt);
 
     //0x004E31F0
     vector3d _get_visual_center();
 
+
+    float _get_visual_radius();
+
     //0x004B8BB0
     nglMesh *_get_mesh();
+
+    nglMorphSet *get_morph(const tlFixedString &name, bool warn);
+    nglMorphSet *_get_morph(const tlFixedString &name, bool warn);
 
     //0x004C0F80
     ai::ai_core *_get_ai_core();
@@ -297,3 +309,4 @@ extern void setup_hero_capsule(actor *act);
 }  // namespace ai
 
 extern void actor_patch();
+extern vector3d sub_509170(entity_base *, unsigned int);

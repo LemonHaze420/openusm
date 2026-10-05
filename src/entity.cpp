@@ -197,24 +197,10 @@ float entity::get_visual_radius()
 
 vector3d entity::get_visual_center()
 {
+    auto center = reinterpret_cast<vector3d *(__fastcall *)(entity *, void *, vector3d *)>(
+        get_vfunc(m_vtbl, 0x2C));
     vector3d result;
-    if ((this->field_4 & 0x8004) != 0) {
-        auto *parent = this->get_conglom_owner();
-
-        if (parent != nullptr) {
-            assert(parent->is_a_conglomerate());
-
-            result = parent->get_visual_center();
-
-        } else {
-            result = this->get_abs_position();
-        }
-
-    } else {
-
-        result = this->get_abs_position();
-    }
-
+    center(this, nullptr, &result);
     return result;
 }
 
@@ -344,7 +330,9 @@ void entity::set_family_visible(bool a2)
 
 bool entity::is_renderable() const
 {
-    return this->is_flagged(0x100u);
+    auto renderable = reinterpret_cast<bool(__fastcall *)(const entity *, void *)>(
+        get_vfunc(m_vtbl, 0x18C));
+    return renderable(this, nullptr);
 }
 
 bool entity::possibly_collide()
@@ -377,7 +365,18 @@ bool entity::sub_4C08E0()
 
 void entity::region_update_poss_collide()
 {
-    THISCALL(0x004C0810, this);
+    if constexpr (STANDALONE_SYSTEM) {
+        if (is_conglom_member() || regions[0] == nullptr)
+            return;
+        bool (__fastcall *collides)(entity *, void *) = CAST(collides, get_vfunc(m_vtbl, 0x190));
+        auto *map = get_primary_region()->collision_proximity_map;
+        if (collides(this, nullptr))
+            map->update_entity(this);
+        else
+            map->remove_entity(this);
+    } else {
+        THISCALL(0x004C0810, this);
+    }
 }
 
 void entity::frame_advance(Float)
@@ -433,27 +432,18 @@ void entity::set_render_color(color32 c)
 
 color32 entity::get_render_color() const
 {
-    if constexpr (1) {
-        color32(__fastcall * func)(const entity *) = CAST(func, get_vfunc(m_vtbl, 0x1C4));
-
-        auto result = func(this);
-        color32 col;
-        std::memcpy(&col, &result, sizeof(result));
-        return col;
-
-    } else {
-        color32 result;
-        result.field_0[0] = -1;
-        result.field_0[1] = -1;
-        result.field_0[2] = -1;
-        result.field_0[3] = -1;
-        return result;
-    }
+    color32 result;
+    auto callback = reinterpret_cast<color32 *(__fastcall *)(const entity *, void *, color32 *)>(
+        get_vfunc(m_vtbl, 0x1C4));
+    callback(this, nullptr, &result);
+    return result;
 }
 
-void entity::set_render_alpha_mod(Float)
+void entity::set_render_alpha_mod(Float alpha)
 {
-    ;
+    auto callback = reinterpret_cast<void(__fastcall *)(entity *, void *, Float)>(
+        get_vfunc(m_vtbl, 0x1C8));
+    callback(this, nullptr, alpha);
 }
 
 float entity::get_render_alpha_mod() const
@@ -476,10 +466,9 @@ void entity::set_render_scale(const vector3d &)
 vector3d entity::get_render_scale() const
 {
     vector3d result;
-    result[0] = 1.0;
-    result[1] = 1.0;
-    result[2] = 1.0;
-
+    auto callback = reinterpret_cast<vector3d *(__fastcall *)(const entity *, void *, vector3d *)>(
+        get_vfunc(m_vtbl, 0x1D4));
+    callback(this, nullptr, &result);
     return result;
 }
 

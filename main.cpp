@@ -1156,7 +1156,10 @@ void free_file(FileUSM *file)
 
 void sub_4DDEC0()
 {
-    CDECL_CALL(0x004DDEC0);
+    if constexpr (STANDALONE_SYSTEM)
+        aeps::Destroy();
+    else
+        CDECL_CALL(0x004DDEC0);
 }
 
 void bink_set_sound_system()

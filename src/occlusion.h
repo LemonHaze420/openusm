@@ -6,7 +6,7 @@
 
 namespace occlusion {
 struct quad {
-    int field_0[12];
+    vector3d points[4];
 };
 
 struct quad_shadow_volume {
@@ -36,6 +36,17 @@ void term_frame();
 
 void update_based_on_scores(const vector3d &a1);
 
+
+void build_shadow_volume(quad_shadow_volume &volume, const vector3d &camera_position);
+void add_active_occluder(const quad &occluder, const vector3d &camera_position);
+
+
+bool find_occluding_volume(const vector3d &center, float radius, int &volume_index);
+bool sphere_occluded(const vector3d &center, float radius, int score = 0);
+
+extern Var<int> minimum_occluder_score;
+extern Var<int> quad_database_update_index;
+
 //0x0095C880
 extern Var<quad *> quad_database;
 
@@ -52,5 +63,4 @@ inline Var<quad_shadow_volume[14]> active_shadow_volumes{0x0095CC08};
 
 inline Var<quad_shadow_volume *> active_shadow_volumes_scratchpad_mirror{0x0095C888};
 
-inline int init_frame_count{0};
 }  // namespace occlusion

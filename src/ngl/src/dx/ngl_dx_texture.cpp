@@ -6,6 +6,30 @@
 #include "trace.h"
 
 #include <ngl.h>
+#include "ngl_dx_state.h"
+#include <functional>
+
+void nglResetTextureState()
+{
+    for (uint32_t stage = 0; stage < 4; ++stage) {
+        IDirect3DDevice9_SetTexture(g_Direct3DDevice, stage, nullptr);
+    }
+    g_renderTextureState().clear();
+}
+
+void nglSetDepthBias(float bias)
+{
+    const float value = -0.00001f * bias;
+    auto &state = g_renderState();
+    if (std::not_equal_to<float>{}(bit_cast<float>(state.field_80), value)) {
+        IDirect3DDevice9_SetRenderState(g_Direct3DDevice, D3DRS_DEPTHBIAS, bit_cast<DWORD>(value));
+        state.field_80 = bit_cast<int>(value);
+    }
+    if (std::not_equal_to<float>{}(bit_cast<float>(state.field_84), value)) {
+        IDirect3DDevice9_SetRenderState(g_Direct3DDevice, D3DRS_SLOPESCALEDEPTHBIAS, bit_cast<DWORD>(value));
+        state.field_84 = bit_cast<int>(value);
+    }
+}
 
 #include <cassert>
 

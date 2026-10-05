@@ -7,16 +7,18 @@
 struct ai_tentacle_info;
 
 struct ai_tentacle_web_curly : ai_tentacle_dangle {
-    int field_24;
+    vhandle_type<actor> field_24;
     entity_base *field_28;
     _std::vector<vector3d> field_2C;
     vector3d field_3C;
-    int field_48;
-    int field_4C;
+    float field_48;
+    float field_4C;
     int field_50;
 
     //0x00483DE0
     ai_tentacle_web_curly(ai_tentacle_info *a2);
+    static void *native_vtable();
+    bool frame_advance(Float dt, bool modifier);
 
     void *operator new(size_t size);
 

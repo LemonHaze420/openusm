@@ -52,11 +52,17 @@
 #include "vector3d.h"
 #include "vtbl.h"
 
+#include "gen_building.h"
 #include <us_frontend.h>
 #include <us_outline.h>
 #include <us_pcuv_shader.h>
 #include <us_person.h>
 #include <us_street.h>
+#include <us_simpleshader.h>
+#include <us_lod.h>
+#include <us_colorvol.h>
+#include <us_tentacle.h>
+#include "ngl_builtin_shader_programs.h"
 
 #include <ngl_dx_shader.h>
 #include <ngl_dx_state.h>
@@ -673,28 +679,34 @@ void * nglMeshNode::operator new(size_t size)
 void ptr_to_po::build_world_basis_and_pos(
     vector4d &x, vector4d &y, vector4d &z, vector4d &pos) const
 {
-    const auto combined = *m_rel_po * *m_abs_po;
-    x = combined.arr[0];
-    y = combined.arr[1];
-    z = combined.arr[2];
-    pos = combined.w;
+    const auto transform_basis = [this](const vector4d &basis) {
+        return m_abs_po->arr[0] * basis[0] +
+               m_abs_po->arr[1] * basis[1] +
+               m_abs_po->arr[2] * basis[2];
+    };
+
+    const auto world_x = transform_basis(m_rel_po->arr[0]);
+    const auto world_y = transform_basis(m_rel_po->arr[1]);
+    const auto world_z = transform_basis(m_rel_po->arr[2]);
+    const auto world_pos = transform_basis(m_rel_po->w) + m_abs_po->w;
+    x = world_x;
+    y = world_y;
+    z = world_z;
+    pos = world_pos;
 }
 
 matrix4x4 nglMeshNode::sub_41D840()
 {
     matrix4x4 result;
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         matrix4x4 v2 {};
         if ((this->Params->Flags & 1) != 0) {
             v2 = nglCurScene->WorldToView;
         } else {
-            struct {
-                matrix4x4 *field_0;
-                matrix4x4 *field_4;
-            } v4{&this->LocalToWorld, &nglCurScene->WorldToView};
+            const matrix4x4 *v4[]{&this->LocalToWorld, &nglCurScene->WorldToView};
             matrix4x4 v5;
-            v5.sub_41D8A0(&v4);
+            v5.sub_41D8A0(v4);
             v2 = v5;
         }
 
@@ -762,7 +774,7 @@ matrix4x4 nglMeshNode::sub_419930()
 {
     matrix4x4 result;
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         auto *v3 = this->Params;
         if ((v3->Flags & 2) != 0) {
             auto v12 = sub_7A5990(v3->Scale);
@@ -814,18 +826,51 @@ matrix4x4 nglMeshNode::sub_4199D0()
     return result;
 }
 
+        struct Struct_77B1C0 {
+            int field_0;
+            void* m_buffer;
+            int field_8;
+            Struct_77B1C0* field_C;
+            Struct_77B1C0* field_10;
+            int m_size;
+        };
+
+#if !STANDALONE_SYSTEM
+    static Struct_77B1C0 *(&dword_9753C0)[42] = var<Struct_77B1C0 *[42]>(0x009753C0);
+
+    static Struct_77B1C0 *(&dword_975318)[42] = var<Struct_77B1C0 *[42]>(0x00975318);
+
+    static int (&dword_975474)[2] = var<int[2]>(0x00975474);
+#else
+    static Struct_77B1C0 *(&dword_9753C0)[42] = []() -> auto & {
+        static Struct_77B1C0 *g_dword_9753C0[42]{};
+        return g_dword_9753C0;
+    }();
+
+    static Struct_77B1C0 *(&dword_975318)[42] = []() -> auto & {
+        static Struct_77B1C0 *g_dword_975318[42]{};
+        return g_dword_975318;
+    }();
+
+    static int (&dword_975474)[2] = []() -> auto & {
+        static int g_dword_975474[2]{};
+        return g_dword_975474;
+    }();
+#endif
+
+struct DefaultPoolBuffer {
+    nglVertexBuffer *buffer;
+    uint32_t flags;
+    int size;
+    DefaultPoolBuffer *next;
+    DefaultPoolBuffer *previous;
+};
+static DefaultPoolBuffer *default_pool_tail{};
+
 void sub_781F80(nglVertexBuffer *buffer, int size, uint32_t flags)
 {
 #if STANDALONE_SYSTEM
-    struct DefaultPoolBuffer {
-        nglVertexBuffer *buffer;
-        uint32_t flags;
-        int size;
-        DefaultPoolBuffer *next;
-        DefaultPoolBuffer *previous;
-    };
-    static DefaultPoolBuffer *tail{};
-
+    auto *&tail = default_pool_tail;
     auto *entry = new DefaultPoolBuffer{buffer, flags, size, nullptr, tail};
     if (tail != nullptr) {
         tail->next = entry;
@@ -949,7 +994,13 @@ void nglDebugMesh_BuildBox(nglVertexDef_MultipassMesh<nglVertexDef_Debug_Base>::
 
 void nglMeshSetSphere(math::VecClass<3, 1> a1, Float a2)
 {
-    CDECL_CALL(0x00775650, a1, a2);
+    auto *mesh = nglScratch();
+    mesh->SphereCenter = a1;
+    mesh->SphereRadius = a2;
+    for (uint32_t i = 0; i < mesh->NSections; ++i) {
+        mesh->Sections[i].Section->SphereCenter = a1;
+        mesh->Sections[i].Section->SphereRadius = a2;
+    }
 }
 
 bool nglVertexBuffer::createVertexBuffer(int size, uint32_t flags)
@@ -1083,7 +1134,7 @@ nglParamSet<nglSceneParamSet_Pool> * nglGetSceneParams()
 
 void nglListAddNode(nglRenderNode *node)
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         nglSortInfo v2 {};
         node->GetSortInfo(v2);
         node->m_tex = v2.Tex;
@@ -1133,37 +1184,6 @@ HRESULT nglVertexBuffer::createIndexOrVertexBuffer(nglVertexBuffer *a1, Resource
 
         const auto end_idx = start_idx + num;
 
-        struct Struct_77B1C0 {
-            int field_0;
-            void* m_buffer;
-            int field_8;
-            Struct_77B1C0* field_C;
-            Struct_77B1C0* field_10;
-            int m_size;
-        };
-
-#if !STANDALONE_SYSTEM
-    static Struct_77B1C0 *(&dword_9753C0)[42] = var<Struct_77B1C0 *[42]>(0x009753C0);
-
-    static Struct_77B1C0 *(&dword_975318)[42] = var<Struct_77B1C0 *[42]>(0x00975318);
-
-    static int (&dword_975474)[2] = var<int[2]>(0x00975474);
-#else
-    static Struct_77B1C0 *(&dword_9753C0)[42] = []() -> auto & {
-        static Struct_77B1C0 *g_dword_9753C0[42]{};
-        return g_dword_9753C0;
-    }();
-
-    static Struct_77B1C0 *(&dword_975318)[42] = []() -> auto & {
-        static Struct_77B1C0 *g_dword_975318[42]{};
-        return g_dword_975318;
-    }();
-
-    static int (&dword_975474)[2] = []() -> auto & {
-        static int g_dword_975474[2]{};
-        return g_dword_975474;
-    }();
-#endif
 
     auto **v11 = dword_975318 + end_idx;
 
@@ -1262,7 +1282,59 @@ HRESULT nglVertexBuffer::createIndexOrVertexBuffer(nglVertexBuffer *a1, Resource
 
 void nglVertexBuffer::sub_77B5D0(nglVertexBuffer *a1, ResourceType a2)
 {
+#if STANDALONE_SYSTEM
+    if (a2 == ResourceType::VertexBuffer) {
+        for (auto *entry = default_pool_tail; entry != nullptr; entry = entry->previous) {
+            if (entry->buffer != a1)
+                continue;
+            if (entry->previous != nullptr)
+                entry->previous->next = entry->next;
+            if (entry->next != nullptr)
+                entry->next->previous = entry->previous;
+            else
+                default_pool_tail = entry->previous;
+            delete entry;
+            break;
+        }
+        if (a1->getSize() == 0) {
+            IDirect3DVertexBuffer9_Release(a1->getVertexBuffer());
+            return;
+        }
+    }
+    auto *entry = new Struct_77B1C0{};
+    entry->field_0 = var<int>(0x0097546C);
+    entry->field_8 = a2;
+    unsigned int usage = 0;
+    if (a2 == ResourceType::IndexBuffer) {
+        D3DINDEXBUFFER_DESC description{};
+        IDirect3DIndexBuffer9_GetDesc(a1->getIndexBuffer(), &description);
+        entry->m_buffer = a1->getIndexBuffer();
+        entry->m_size = description.Size;
+    } else {
+        entry->m_buffer = a1->getVertexBuffer();
+        entry->m_size = a1->getSize();
+        if (!EnableShader) {
+            D3DVERTEXBUFFER_DESC description{};
+            IDirect3DVertexBuffer9_GetDesc(a1->getVertexBuffer(), &description);
+            usage = description.Usage & D3DUSAGE_DYNAMIC;
+        }
+    }
+    const int count = ++dword_975474[a2];
+    auto &high_water = var<int[2]>(0x0097547C)[a2];
+    high_water = std::max(high_water, count);
+    const int size = entry->m_size;
+    const int bucket = usage != 0 ? 20 : size < 1000 ? size / 100
+        : size < 10000 ? size / 1000 + 9 : 19;
+    const int index = 21 * a2 + bucket;
+    entry->field_C = dword_9753C0[index];
+    if (entry->field_C != nullptr)
+        entry->field_C->field_10 = entry;
+    else
+        dword_975318[index] = entry;
+    dword_9753C0[index] = entry;
+#else
     CDECL_CALL(0x0077B5D0, a1, a2);
+#endif
 }
 
 using SetFVF_t = decltype(g_Direct3DDevice->lpVtbl->SetFVF);
@@ -1484,29 +1556,61 @@ void sub_76DF00()
     hook_directx();
 }
 
-void sub_772D50(const D3DVERTEXELEMENT9 *a1)
+void sub_772D50(const D3DVERTEXELEMENT9 *elements)
 {
-    CDECL_CALL(0x00772D50, a1);
+    if constexpr (STANDALONE_SYSTEM) {
+        using namespace ngl_builtin_programs;
+        static Var<VShader[4]> shaders{0x009757BC};
+        const DWORD *programs[]{program_8bb0c8, program_8bb180, program_8bb280, program_8bb3b0};
+        for (unsigned i = 0; i < 4; ++i) {
+            nglCreateVertexDeclarationAndShader(&shaders()[i], elements, programs[i]);
+        }
+    } else {
+        CDECL_CALL(0x00772D50, elements);
+    }
 }
 
 void sub_772E30()
 {
-    CDECL_CALL(0x00772E30);
+    if constexpr (STANDALONE_SYSTEM) {
+        static Var<IDirect3DPixelShader9 *> shader{0x009757A0};
+        CreatePixelShader(&shader(), ngl_builtin_programs::program_8bb510);
+    } else {
+        CDECL_CALL(0x00772E30);
+    }
 }
 
 void sub_772E80()
 {
-    CDECL_CALL(0x00772E80);
+    if constexpr (STANDALONE_SYSTEM) {
+        static Var<IDirect3DPixelShader9 *> shader{0x00975794};
+        CreatePixelShader(&shader(), ngl_builtin_programs::program_8bb530);
+    } else {
+        CDECL_CALL(0x00772E80);
+    }
 }
 
 void sub_772ED0()
 {
-    CDECL_CALL(0x00772ED0);
+    if constexpr (STANDALONE_SYSTEM) {
+        CreatePixelShader(&dword_9757DC(), ngl_builtin_programs::program_8bb544);
+    } else {
+        CDECL_CALL(0x00772ED0);
+    }
 }
 
 void sub_772F70()
 {
-    CDECL_CALL(0x00772F70);
+    if constexpr (STANDALONE_SYSTEM) {
+        using namespace ngl_builtin_programs;
+        static Var<IDirect3DPixelShader9 *[4]> shaders{0x009757AC};
+        const DWORD *programs[]{program_8bb640, program_8bb660, program_8bb6a0, program_8bb708};
+        for (unsigned i = 0; i < 4; ++i) {
+            CreatePixelShader(&shaders()[i], programs[i]);
+        }
+    } else {
+        CDECL_CALL(0x00772F70);
+    }
 }
 
 void releaseShaderLists()
@@ -1528,48 +1632,18 @@ void releaseShaderLists()
 
 void sub_772630()
 {
-    if constexpr (0) {
-        static Var<D3DVERTEXELEMENT9> stru_93B0E0 {0x0093B0E0};
-        static Var<D3DVERTEXELEMENT9> stru_93B0C8 {0x0093B0C8};
-        static Var<D3DVERTEXELEMENT9> stru_93B098 {0x0093B098};
-
-        static Var<DWORD [1]> dword_8BAF18 {0x008BAF18};
-        static Var<DWORD [1]> dword_8BAFD0 {0x008BAFD0};
-        static Var<DWORD [1]> dword_8BAF80 {0x008BAF80};
-        static Var<DWORD [1]> dword_8BB030 {0x008BB030};
-
-        nglCreateVertexDeclarationAndShader(&stru_975780(), &stru_93B0E0(), dword_8BAF18());
-        nglCreateVertexDeclarationAndShader(&stru_9757A4(), &stru_93B0C8(), dword_8BAFD0());
-        nglCreateVertexDeclarationAndShader(&stru_975788(), &stru_93B0C8(), dword_8BAF80());
-        nglCreateVertexDeclarationAndShader(&stru_975798(), &stru_93B098(), dword_8BB030());
-
-        static Var<D3DVERTEXELEMENT9> stru_93B080 {0x0093B080};
-        sub_772D50(&stru_93B080());
+    if constexpr (STANDALONE_SYSTEM) {
+        using namespace ngl_builtin_programs;
+        nglCreateVertexDeclarationAndShader(&stru_975780(), declaration_93b0e0, program_8baf18);
+        nglCreateVertexDeclarationAndShader(&stru_9757A4(), declaration_93b0c8, program_8bafd0);
+        nglCreateVertexDeclarationAndShader(&stru_975788(), declaration_93b0c8, program_8baf80);
+        nglCreateVertexDeclarationAndShader(&stru_975798(), declaration_93b098, program_8bb030);
+        sub_772D50(declaration_93b080);
         sub_772E30();
         sub_772E80();
         sub_772ED0();
         sub_772F70();
-
-        static Var<const DWORD [1]> dword_8BB560 {0x008BB560};
-        IDirect3DDevice9_CreatePixelShader(g_Direct3DDevice, dword_8BB560(), &dword_975790());
-
-        {
-            auto *head = g_pixelShaderList.m_head;
-            decltype(head)(__fastcall * sub_772C60)(
-                void *, void *, decltype(head) a1, decltype(head) a2, IDirect3DPixelShader9 **a3) =
-                CAST(sub_772C60, 0x00772C60);
-
-            auto *v1 = sub_772C60(&g_pixelShaderList,
-                            nullptr,
-                                  g_pixelShaderList.m_head,
-                                  g_pixelShaderList.m_head->_Prev,
-                            &dword_975790());
-
-            void (__fastcall *sub_772CE0)(void *, void *, uint32_t) = CAST(sub_772CE0, 0x00772CE0);
-            sub_772CE0(&g_pixelShaderList, nullptr, 1u);
-            head->_Prev = v1;
-            v1->_Prev->_Next = v1;
-        }
+        CreatePixelShader(&dword_975790(), program_8bb560);
     } else {
         CDECL_CALL(0x00772630);
     }
@@ -2056,7 +2130,19 @@ void nglInitWhiteTexture()
 
 void nglReleaseSection(nglMeshSection *a1)
 {
+#if STANDALONE_SYSTEM
+    if (a1->m_indices != nullptr && a1->m_indexBuffer != nullptr) {
+        nglVertexBuffer::sub_77B5D0(reinterpret_cast<nglVertexBuffer *>(&a1->m_indexBuffer),
+                                 ResourceType::IndexBuffer);
+        a1->m_indexBuffer = nullptr;
+    }
+    if (a1->field_3C.getVertexBuffer() != nullptr) {
+        nglVertexBuffer::sub_77B5D0(&a1->field_3C, ResourceType::VertexBuffer);
+        a1->field_3C.getVertexBuffer() = nullptr;
+    }
+#else
     CDECL_CALL(0x0077C490, a1);
+#endif
 }
 
 uint8_t NGLTEX_GET_FORMAT(uint32_t format)
@@ -2272,6 +2358,11 @@ tlInstanceBankResourceDirectory<nglTexture, tlFixedString> *nglGetTextureDirecto
     return nglTextureDirectory;
 }
 
+void nglAddTextureRef(nglTexture *texture)
+{
+    ++texture->field_8;
+}
+
 void nglSetMeshFileDirectory(tlResourceDirectory<nglMeshFile, tlFixedString> *a1)
 {
     nglMeshFileDirectory = CAST(nglMeshFileDirectory, a1);
@@ -2300,6 +2391,12 @@ void nglSetMorphDirectory(tlResourceDirectory<nglMorphSet, tlHashString> *a1)
 tlInstanceBankResourceDirectory<nglMorphSet, tlHashString> *nglGetMorphDirectory()
 {
     return nglMorphDirectory;
+}
+
+nglMorphSet *nglGetMorph(const tlFixedString &name, bool)
+{
+    const tlHashString hash{name.m_hash};
+    return nglMorphDirectory->Find(hash);
 }
 
 tlInstanceBankResourceDirectory<nglMorphFile, tlFixedString> *nglGetMorphFileDirectory()
@@ -2659,7 +2756,7 @@ vector4d sub_401270(const vector4d &a2, const vector4d &a3)
 void sub_4013C0(vector4d &a1, vector4d &a2, vector4d &a3, vector4d &a4, const vector4d &x, const vector4d &y,
                 const vector4d &z, const vector4d &w)
 {
-    a1 = x;
+    a1 = vector4d{x[0], y[0], z[0], w[0]};
 
     a2[0] = x[1];
     a2[1] = y[1];
@@ -3676,7 +3773,8 @@ nglMesh *nglCreateMeshClone(nglMesh *a1)
     newMesh->NBones = a1->NBones;
     if (newMesh->NBones != 0) {
         newMesh->Bones = static_cast<decltype(newMesh->Bones)>(tlMemAlloc(newMesh->NBones << 6, 64, 0x1000000u));
-        std::copy(a1->Bones, a1->Bones + (newMesh->NBones << 6), newMesh->Bones);
+        for (int index = 0; index < newMesh->NBones; ++index)
+            ::new (newMesh->Bones + index) math::MatClass<4, 3>{a1->Bones[index]};
     } else {
         newMesh->Bones = nullptr;
     }
@@ -3708,9 +3806,80 @@ void nglMakeSectionUnique(nglMesh *a1, int a2)
     }
 }
 
-nglMeshSection *nglCreateSectionCopy(nglMeshSection *a1)
+nglMeshSection *nglCreateSectionCopy(nglMeshSection *source)
 {
-    return (nglMeshSection *) CDECL_CALL(0x00771F90, a1);
+    auto *section = static_cast<nglMeshSection *>(tlMemAlloc(sizeof(nglMeshSection), 16, 0x1000000u));
+    if (section == nullptr) {
+        return nullptr;
+    }
+    *section = *source;
+
+    auto *index_buffer = reinterpret_cast<nglVertexBuffer *>(&section->m_indexBuffer);
+    const uint32_t index_size = 2u * source->NIndices;
+    const uint32_t vertex_size = source->field_3C.getSize();
+    void *source_data;
+    void *destination_data;
+    if (index_size != 0) {
+        if (nglVertexBuffer::createIndexOrVertexBuffer(
+                index_buffer, ResourceType::IndexBuffer, index_size, 0, 0, D3DPOOL_DEFAULT) != 0) {
+            tlMemFree(section);
+            return nullptr;
+        }
+        IDirect3DIndexBuffer9_Lock(source->m_indexBuffer, 0, 0, &source_data, 0);
+        IDirect3DIndexBuffer9_Lock(section->m_indexBuffer, 0, index_size, &destination_data, 0);
+        std::memcpy(destination_data, source_data, index_size);
+        IDirect3DIndexBuffer9_Unlock(section->m_indexBuffer);
+        IDirect3DIndexBuffer9_Unlock(source->m_indexBuffer);
+    }
+
+    if (nglVertexBuffer::createIndexOrVertexBuffer(
+            &section->field_3C, ResourceType::VertexBuffer, vertex_size, 0, 0, D3DPOOL_MANAGED) != 0) {
+        if (section->m_indexBuffer != nullptr) {
+            nglVertexBuffer::sub_77B5D0(index_buffer, ResourceType::IndexBuffer);
+            section->m_indexBuffer = nullptr;
+        }
+        tlMemFree(section);
+        return nullptr;
+    }
+    IDirect3DVertexBuffer9_Lock(source->field_3C.getVertexBuffer(), 0, 0, &source_data, 0);
+    IDirect3DVertexBuffer9_Lock(section->field_3C.getVertexBuffer(), 0, vertex_size, &destination_data, 0);
+    std::memcpy(destination_data, source_data, vertex_size);
+    IDirect3DVertexBuffer9_Unlock(section->field_3C.getVertexBuffer());
+    IDirect3DVertexBuffer9_Unlock(source->field_3C.getVertexBuffer());
+
+    if (section->NBones != 0) {
+        section->BonesIdx = static_cast<uint16_t *>(tlMemAlloc(2u * section->NBones, 8, 0x1000000u));
+        if (section->BonesIdx == nullptr) {
+            goto release_buffers;
+        }
+        std::memcpy(section->BonesIdx, source->BonesIdx, 2u * section->NBones);
+    } else {
+        section->BonesIdx = nullptr;
+    }
+
+    {
+        nglVertexDef *(__fastcall *copy)(nglVertexDef *, void *, nglMeshSection *) =
+            CAST(copy, get_vfunc(source->VertexDef->m_vtbl, 8));
+        section->VertexDef = copy(source->VertexDef, nullptr, section);
+    }
+    if (section->VertexDef != nullptr) {
+        return section;
+    }
+    if (section->NBones != 0) {
+        tlMemFree(section->BonesIdx);
+    }
+
+release_buffers:
+    if (section->m_indexBuffer != nullptr) {
+        nglVertexBuffer::sub_77B5D0(index_buffer, ResourceType::IndexBuffer);
+        section->m_indexBuffer = nullptr;
+    }
+    if (section->field_3C.getVertexBuffer() != nullptr) {
+        nglVertexBuffer::sub_77B5D0(&section->field_3C, ResourceType::VertexBuffer);
+        section->field_3C.getVertexBuffer() = nullptr;
+    }
+    tlMemFree(section);
+    return nullptr;
 }
 
 void mNglQuad::unmash(mash_info_struct *a2, void *a3)
@@ -3830,40 +3999,25 @@ nglTexture *nglGetFrontBufferTex()
 
 void nglCopySection(nglMesh *DstMesh, int a2, nglMesh *SrcMesh, int a4)
 {
-    TRACE("nglCopySection");
+    auto *SrcSection = SrcMesh->Sections[a4].Section;
+    auto *DstSection = DstMesh->Sections[a2].Section;
+    void *SrcVertices;
+    void *DstVertices;
 
-    if constexpr (1) {
-        auto *SrcSection = SrcMesh->Sections[a4].Section;
-        auto *DstSection = DstMesh->Sections[a2].Section;
+    IDirect3DVertexBuffer9_Lock(SrcSection->field_3C.getVertexBuffer(), 0, 0, &SrcVertices, 0);
+    IDirect3DVertexBuffer9_Lock(DstSection->field_3C.getVertexBuffer(), 0, 0, &DstVertices, 0);
+    std::memcpy(DstVertices, SrcVertices, SrcSection->field_3C.getSize());
+    IDirect3DVertexBuffer9_Unlock(SrcSection->field_3C.getVertexBuffer());
+    IDirect3DVertexBuffer9_Unlock(DstSection->field_3C.getVertexBuffer());
 
-        assert(SrcSection->field_3C.getSize() == DstSection->field_3C.getSize() && "Section VB sizes do not match !");
-
-        assert(SrcSection->NIndices == DstSection->NIndices && "Section IB sizes do not match !");
-
-        void *SrcVertices = nullptr;
-        void *DstVertices = nullptr;
-
-        IDirect3DVertexBuffer9_Lock(DstSection->field_3C.getVertexBuffer(), 0, 0, &DstVertices, 0);
-        IDirect3DVertexBuffer9_Lock(SrcSection->field_3C.getVertexBuffer(), 0, 0, &SrcVertices, 0);
-
-        std::memcpy(DstVertices, SrcVertices, DstSection->field_3C.getSize());
-        IDirect3DVertexBuffer9_Unlock(DstSection->field_3C.getVertexBuffer());
-        IDirect3DVertexBuffer9_Unlock(SrcSection->field_3C.getVertexBuffer());
-        if (DstSection->m_indices != nullptr) {
-            void *SrcIndices = nullptr;
-            void *DstIndices = nullptr;
-
-            DstSection->m_indexBuffer->lpVtbl->Lock(DstSection->m_indexBuffer, 0, 0, &DstIndices, 0);
-            SrcSection->m_indexBuffer->lpVtbl->Lock(SrcSection->m_indexBuffer, 0, 0, &SrcIndices, 0);
-
-            assert(SrcIndices != nullptr && DstIndices != nullptr && "About to access NULL pointer.");
-
-            std::memcpy(DstIndices, SrcIndices, 2 * DstSection->NIndices);
-            DstSection->m_indexBuffer->lpVtbl->Unlock(DstSection->m_indexBuffer);
-            SrcSection->m_indexBuffer->lpVtbl->Unlock(SrcSection->m_indexBuffer);
-        }
-    } else {
-        CDECL_CALL(0x00771E40, DstMesh, a2, SrcMesh, a4);
+    if (SrcSection->m_indices != nullptr) {
+        void *SrcIndices;
+        void *DstIndices;
+        IDirect3DIndexBuffer9_Lock(SrcSection->m_indexBuffer, 0, 0, &SrcIndices, 0);
+        IDirect3DIndexBuffer9_Lock(DstSection->m_indexBuffer, 0, 0, &DstIndices, 0);
+        std::memcpy(DstIndices, SrcIndices, 2u * SrcSection->NIndices);
+        IDirect3DIndexBuffer9_Unlock(SrcSection->m_indexBuffer);
+        IDirect3DIndexBuffer9_Unlock(DstSection->m_indexBuffer);
     }
 }
 
@@ -4577,7 +4731,7 @@ void nglSetBufferSize(nglBufferType type, uint32_t requested_size, bool resize_w
     const uint32_t size = requested_size + (requested_size & 3u);
     const auto type_index = static_cast<unsigned int>(type);
 
-    if (type_index == 2) {
+    if (type_index == 3) {
         auto &scratch = nglScratchBuffer();
         for (auto *buffer : {&scratch.field_0[0], &scratch.field_C}) {
             if (buffer->getVertexBuffer() != nullptr) {
@@ -4590,7 +4744,7 @@ void nglSetBufferSize(nglBufferType type, uint32_t requested_size, bool resize_w
             }
         }
         nglPhysListWorkSize() = size;
-    } else if (type_index == 3) {
+    } else if (type_index == 2) {
         auto &scratch = nglScratchBuffer();
         for (auto &stored_buffer : scratch.field_18) {
             auto *buffer = bit_cast<IDirect3DIndexBuffer9 *>(stored_buffer);
@@ -4628,6 +4782,12 @@ void nglSetBufferSize(nglBufferType type, uint32_t requested_size, bool resize_w
             work_buffer() = static_cast<char *>(tlMemAlloc(work_size, 8, 0x1000000u));
             nglListWork() = work_buffer();
             nglListWorkPos() = reinterpret_cast<uint8_t *>(work_buffer());
+
+            const auto packet_begin = reinterpret_cast<int>(work_buffer() + list_size());
+            var<int>(0x00975308) = packet_begin;
+            var<int>(0x0097530C) = packet_begin + packet_size();
+            var<int>(0x00975314) = packet_begin;
+            nglScratchMeshPos() = packet_begin;
         }
     }
 #else
@@ -4637,17 +4797,70 @@ void nglSetBufferSize(nglBufferType type, uint32_t requested_size, bool resize_w
 
 nglMesh *nglCloseMesh()
 {
-    TRACE("nglCloseMesh");
-
-    if constexpr (0) {
-    } else {
-        return (nglMesh *) CDECL_CALL(0x00772130);
+    auto *mesh = nglScratch();
+    if ((mesh->Flags & NGLMESH_TEMP) == 0) {
+        auto &scratch = nglScratchBuffer();
+        const uint16_t base = scratch.GetIndexBuffer()[mesh->Sections[0].Section->StartIndex];
+        for (uint32_t i = 0; i < mesh->NSections; ++i) {
+            auto *section = mesh->Sections[i].Section;
+            if (section->NIndices != 0) {
+                nglVertexBuffer index_buffer{};
+                index_buffer.createIndexBufferAndWriteData(
+                    scratch.GetIndexBuffer() + section->StartIndex, 2 * section->NIndices);
+                section->m_indexBuffer = index_buffer.getIndexBuffer();
+                uint16_t *indices{};
+                IDirect3DIndexBuffer9_Lock(section->m_indexBuffer, 0, 0, reinterpret_cast<void **>(&indices), 0);
+                for (int j = 0; j < section->NIndices; ++j) {
+                    indices[j] -= base;
+                }
+                IDirect3DIndexBuffer9_Unlock(section->m_indexBuffer);
+                section->StartIndex = 0;
+            }
+        }
+        scratch.m_numVertices = scratch.field_34;
+        scratch.field_28 = scratch.field_38;
+        scratch.field_2C = scratch.field_3C;
+        scratch.field_30 = scratch.field_40;
     }
+    return mesh;
 }
 
-void nglListAddCustomNode(void (*a1)(unsigned int *&, void *), void *a2, const nglSortInfo *a3)
+void nglListAddCustomNode(void (*callback)(void *, void *), void *payload, const nglSortInfo *sort)
 {
-    CDECL_CALL(0x0076C3A0, a1, a2, a3);
+#if STANDALONE_SYSTEM
+    struct callback_node : nglRenderNode {
+        int field_C;
+        void (*callback)(void *, void *);
+        void *payload;
+        nglSortInfo sort;
+
+        static void __fastcall render(void *self)
+        {
+            auto *node = static_cast<callback_node *>(self);
+            static Var<int> primitive_type{0x0093AE20};
+            primitive_type() = -1;
+            node->callback(node->payload, nullptr);
+        }
+
+        static void __fastcall get_sort(void *self, void *, nglSortInfo *output)
+        {
+            *output = static_cast<callback_node *>(self)->sort;
+        }
+    };
+    static const std::intptr_t vtable[]{
+        reinterpret_cast<std::intptr_t>(&callback_node::render),
+        reinterpret_cast<std::intptr_t>(&callback_node::get_sort)};
+    nglCalculateMatrices(false);
+    auto *node = static_cast<callback_node *>(nglListAlloc(sizeof(callback_node), 16));
+    node->m_vtbl = reinterpret_cast<std::intptr_t>(vtable);
+    node->field_C = 1;
+    node->callback = callback;
+    node->payload = payload;
+    node->sort = *sort;
+    nglListAddNode(node);
+#else
+    CDECL_CALL(0x0076C3A0, callback, payload, sort);
+#endif
 }
 
 void nglRenderQuad(nglQuad *a2)
@@ -5748,6 +5961,13 @@ void nglListEndScene()
     nglCurScene = nglCurScene->field_30C;
 }
 
+nglScene *nglListSelectScene(nglScene *scene)
+{
+    auto *previous = nglCurScene;
+    nglCurScene = scene;
+    return previous;
+}
+
 void nglDestroyDebugMeshes()
 {
 #if 0
@@ -5794,6 +6014,10 @@ void sub_81E8E0(int Length)
 void nglInit(HWND hWnd)
 {
     TRACE("nglInit");
+
+#if STANDALONE_SYSTEM
+    nglInitializeParamIDs();
+#endif
 
     if constexpr (1) {
         _controlfp(0x300u, 0x300u);
@@ -5885,12 +6109,28 @@ void nglInit(HWND hWnd)
             v4 += 14;
         }
 
-#if STANDALONE_SYSTEM
-        EnableShader = false;
-#else
         sub_7726B0(true);
-#endif
         nglTextureInit();
+#if STANDALONE_SYSTEM
+        (void)getPCUV_Shader();
+        nglRegisterPCUVVertexDef();
+        nglRegisterPersonVertexDefs();
+        nglRegisterTentacleVertexDef();
+        (void)getFrontEnd_Shader();
+        (void)USPersonShaderSpace::getUSPersonShader();
+        (void)USPersonShaderSpace::getUSPersonSolidShader();
+        (void)USPersonShaderSpace::getUSPersonMorphableShader();
+        (void)USPersonShaderSpace::getUSPersonNickFuryEyeShader();
+        (void)getUSLODShader();
+        (void)getNewlodShader();
+        (void)USStreetShaderSpace::getUSStreetShader();
+        (void)USStreetShaderSpace::getUSFloorShader();
+        initialize_world_material_shaders();
+        initialize_building_mesh_shaders();
+        initialize_shiny_material_shader();
+        (void)USColorVolShaderSpace::getUSColorVolShader();
+        (void)getTentacle_Shader();
+#endif
         tlInitListInit();
         if (!IDirect3DDevice9_CreateQuery(g_Direct3DDevice, D3DQUERYTYPE_OCCLUSION, nullptr)) {
             static Var<IDirect3DQuery9 *> dword_972660{0x00972660};
@@ -6395,8 +6635,6 @@ void ngl_patch()
     }
 
     REDIRECT(0x0054B474, send_shadow_projectors);
-
-    us_street_patch();
 
     us_person_patch();
 

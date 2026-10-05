@@ -1,5 +1,6 @@
 #include "light_source.h"
 
+#include "entity_mash.h"
 #include "fixedstring.h"
 #include "func_wrapper.h"
 #include "ngl.h"
@@ -92,7 +93,11 @@ float light_properties::get_influence(Float a2, Float a3) const
 
 light_source::light_source(const string_hash &a2, unsigned int a3) : entity(a2, a3)
 {
-    this->m_vtbl = 0x00888C10;
+#if STANDALONE_SYSTEM
+    m_vtbl = ent_v_table_lookup[14];
+#else
+    m_vtbl = 0x00888C10;
+#endif
     if (!g_generating_vtables) {
         this->properties = new light_properties{};
 
@@ -104,7 +109,11 @@ light_source::light_source(const string_hash &a2, unsigned int a3) : entity(a2, 
 
 light_source::light_source(const light_properties &a2, entity *a3, const string_hash &a4) : entity(a4, 0)
 {
-    this->m_vtbl = 0x00888C10;
+#if STANDALONE_SYSTEM
+    m_vtbl = ent_v_table_lookup[14];
+#else
+    m_vtbl = 0x00888C10;
+#endif
 
     if (!g_generating_vtables) {
         this->properties = new light_properties(a2);
@@ -116,6 +125,17 @@ light_source::light_source(const light_properties &a2, entity *a3, const string_
             this->set_parent(a3);
         }
     }
+}
+
+light_source::~light_source()
+{
+#if STANDALONE_SYSTEM
+    m_vtbl = ent_v_table_lookup[14];
+#else
+    m_vtbl = 0x00888C10;
+#endif
+    if (!g_generating_vtables && properties != nullptr)
+        delete properties;
 }
 
 light_properties *light_source::get_properties()
@@ -141,7 +161,7 @@ void light_source::get_colors(const vector3d &a2, color &a3, color &a4)
 {
     TRACE("light_source::get_colors");
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         auto influence = this->get_influence(a2);
         a3 = this->get_properties()->m_color * influence;
 

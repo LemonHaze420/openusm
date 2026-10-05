@@ -77,6 +77,12 @@ struct ParamStruct {
 extern Var<ParamStruct> DefaultParams;
 
 struct USPersonSolidShader : nglShader {
+    tlFixedString field_C;
+    USPersonSolidShader();
+    tlFixedString _GetName();
+    void _ReleaseMaterial(nglMaterialBase *);
+    USPersonSolidShader *Delete(unsigned char flags);
+
     void sub_41DEE0(nglMeshNode *a1, nglMeshSection *a2, nglMaterialBase *a3);
 
     void sub_41E0A0(nglMeshNode *a1, nglMeshSection *a2, nglMaterialBase *a3);
@@ -100,6 +106,8 @@ struct USPersonShader : nglShader {
     tlFixedString field_C;
 
     USPersonShader();
+    void _ReleaseMaterial(nglMaterialBase *);
+    USPersonShader *Delete(unsigned char flags);
 
     //0x0041BEF0
     void AddNodeOverrideMask(nglMeshNode *a1, nglMeshSection *a2, nglMaterialBase *a3);
@@ -129,24 +137,11 @@ struct USPersonShader : nglShader {
     tlFixedString _GetName();
 };
 
-struct USPersonSolidNode : USVariantShaderNode {
-    USPersonMaterialSolid *field_18;
-    nglTexture *field_1C;
-    nglTexture *field_20;
-    int field_24;
+USPersonShader &getUSPersonShader();
+USPersonSolidShader &getUSPersonSolidShader();
+USPersonShader &getUSPersonMorphableShader();
+USPersonShader &getUSPersonNickFuryEyeShader();
 
-    //0x0041DCF0
-    USPersonSolidNode(nglMeshNode *a2, nglMeshSection *a3, nglMaterialBase *a4);
-
-    void *operator new(size_t size);
-
-    //0x0041E4B0
-    /* virtual */ void _Render() /* override */;
-
-    /* virtual */ void _GetSortInfo(nglSortInfo &sortInfo) /* override */;
-
-    /* virtual */ ~USPersonSolidNode() = default;
-};
 
 struct USPersonNode : USVariantShaderNode {
     struct LightInfoStruct {
@@ -162,7 +157,7 @@ struct USPersonNode : USVariantShaderNode {
     USPersonMaterial *m_material;
     nglTexture *field_1C;
     nglTexture *field_20;
-    int field_24;
+    float field_24;
 
     //0x0041BCD0
     USPersonNode(nglMeshNode *a2, nglMeshSection *a3, nglMaterialBase *a4);
@@ -174,6 +169,9 @@ struct USPersonNode : USVariantShaderNode {
 
     //0x0041D180
     void RenderWithDisableShader();
+    void RenderWithDisableShader(bool solid);
+    void RenderPerson(bool solid);
+    bool GetLightInfo(LightInfoStruct &lightInfo, bool solid);
 
     //0x0041C4C0
     /* virtual */ void _Render() /* override */;
@@ -182,6 +180,14 @@ struct USPersonNode : USVariantShaderNode {
     /* virtual */ void _GetSortInfo(nglSortInfo &sortInfo) /* override */;
 
     /* virtual */ ~USPersonNode() = default;
+};
+
+struct USPersonSolidNode : USPersonNode {
+    USPersonSolidNode(nglMeshNode *, nglMeshSection *, nglMaterialBase *);
+    void *operator new(size_t size);
+    void _Render();
+    void _GetSortInfo(nglSortInfo &sortInfo);
+    ~USPersonSolidNode() = default;
 };
 
 }  // namespace USPersonShaderSpace

@@ -9,7 +9,6 @@
 #include <trace.h>
 #include <utility.h>
 #include <vtbl.h>
-#include <array>
 #include <algorithm>
 #include <cstdint>
 
@@ -30,6 +29,21 @@ void sort_opaque_nodes(nglRenderTextureNode *begin, nglRenderTextureNode *end)
     std::sort(begin, end, [](const auto &left, const auto &right) {
         return left.m_tex < right.m_tex;
     });
+}
+
+static void render_node(nglRenderNode *node)
+{
+#if STANDALONE_SYSTEM
+    if (node->m_vtbl == 0x008B9FB4) {
+        static_cast<nglQuadNode *>(node)->Render();
+        return;
+    }
+    if (node->m_vtbl == 0x0088EBB4) {
+        reinterpret_cast<nglStringNode *>(node)->Render();
+        return;
+    }
+#endif
+    node->Render();
 }
 
 template<>
@@ -65,7 +79,7 @@ void nglOpaqueCompare<nglRenderNode>(nglRenderNode *node, int count, int a3)
 
         for ( auto *v9 = node; v9 != nullptr; v9 = v9->m_next_node ) {
             g_CurrentRenderNode = v9;
-            v9->Render();
+            render_node(v9);
 
             nglPrevNode() = v9;
             g_CurrentRenderNode = nullptr;
@@ -110,7 +124,7 @@ void nglTransCompare(nglRenderNode *node, int count, int)
     static Var<nglRenderNode *> nglPrevNode{0x00971F18};
     for (auto *current = sorted; current != nullptr; current = current->m_next_node) {
         g_CurrentRenderNode = current;
-        current->Render();
+        render_node(current);
         nglPrevNode() = current;
         g_CurrentRenderNode = nullptr;
     }
@@ -126,17 +140,10 @@ void *nglListAlloc(int size, int align)
         assert(size >= 0);
         assert(align > 0 && (align & (align - 1)) == 0);
 
-        constexpr std::size_t list_capacity = 0x44000;
-        alignas(16) static std::array<std::uint8_t, list_capacity> fallback_work{};
-        static std::uint8_t *list_begin{};
-
+        auto *list_begin = var<std::uint8_t *>(0x00971F08);
+        const auto list_capacity = var<std::uint32_t>(0x00971F10);
         auto *position = nglListWorkPos();
-        if (position == nullptr) {
-            position = fallback_work.data();
-        }
-        if (list_begin == nullptr) {
-            list_begin = position;
-        }
+        assert(list_begin != nullptr && position != nullptr);
 
         const auto aligned = (reinterpret_cast<std::uintptr_t>(position) + align - 1)
                            & ~static_cast<std::uintptr_t>(align - 1);
