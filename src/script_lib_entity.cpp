@@ -1254,11 +1254,23 @@ struct slf__entity__get_hidey_pos__vector3d__num__t : script_library_class::func
 struct slf__entity__get_ifc_num__str__t : script_library_class::function {
     slf__entity__get_ifc_num__str__t(script_library_class *slc, const char *a3) : function(slc, a3)
     {
+#if STANDALONE_SYSTEM
+        bind_standalone_entity_slf(this);
+#else
         m_vtbl = (decltype(m_vtbl))0x0089B284;
+#endif
     }
 
-    bool operator()(vm_stack &, script_library_class::function::entry_t) const
+    bool operator()(vm_stack &stack, script_library_class::function::entry_t) const
     {
+        struct parms_t { entity_base_vhandle owner; const char *path; };
+        SLF_PARMS;
+        float result = 0.0f;
+        if (auto *owner = parms->owner.get_volatile_ptr()) {
+            const auto key = create_resource_key_from_path(parms->path, RESOURCE_KEY_TYPE_IFC_ATTRIBUTE);
+            owner->get_ifc_num(key, result, false);
+        }
+        SLF_RETURN;
         return true;
     }
 };
@@ -1748,11 +1760,20 @@ struct slf__entity__ifl_pause__t : script_library_class::function {
 struct slf__entity__ifl_play__t : script_library_class::function {
     slf__entity__ifl_play__t(script_library_class *slc, const char *a3) : function(slc, a3)
     {
+#if STANDALONE_SYSTEM
+        bind_standalone_entity_slf(this);
+#else
         m_vtbl = (decltype(m_vtbl))0x0089B01C;
+#endif
     }
 
-    bool operator()(vm_stack &, script_library_class::function::entry_t) const
+    bool operator()(vm_stack &stack, script_library_class::function::entry_t) const
     {
+        stack.pop(sizeof(entity_base_vhandle));
+        const auto handle = *reinterpret_cast<const entity_base_vhandle *>(stack.get_SP());
+        auto *value = handle.get_volatile_ptr();
+        if (value != nullptr && value->is_an_actor())
+            static_cast<actor *>(value)->ifl_play();
         return true;
     }
 };
@@ -2818,11 +2839,21 @@ struct slf__entity__set_hires_shadow__num__t : script_library_class::function {
 struct slf__entity__set_ifc_num__str__num__t : script_library_class::function {
     slf__entity__set_ifc_num__str__num__t(script_library_class *slc, const char *a3) : function(slc, a3)
     {
+#if STANDALONE_SYSTEM
+        bind_standalone_entity_slf(this);
+#else
         m_vtbl = (decltype(m_vtbl))0x0089B28C;
+#endif
     }
 
-    bool operator()(vm_stack &, script_library_class::function::entry_t) const
+    bool operator()(vm_stack &stack, script_library_class::function::entry_t) const
     {
+        struct parms_t { entity_base_vhandle owner; const char *path; float value; };
+        SLF_PARMS;
+        if (auto *owner = parms->owner.get_volatile_ptr()) {
+            const auto key = create_resource_key_from_path(parms->path, RESOURCE_KEY_TYPE_IFC_ATTRIBUTE);
+            owner->set_ifc_num(key, parms->value, false);
+        }
         return true;
     }
 };

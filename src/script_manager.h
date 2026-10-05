@@ -22,6 +22,7 @@ struct script_executable_allocated_stuff_record;
 class script_object;
 struct string_hash;
 struct vm_executable;
+struct script_instance;
 
 enum script_manager_callback_reason {};
 
@@ -59,6 +60,11 @@ namespace script_manager {
 
     //0x0059EE90
     void init_game_var();
+
+
+    void reinit_script_vars();
+
+    void release_actor_script(script_instance *&instance);
 
     //0x0059EE10
     script_executable_entry *find_entry(const script_executable *a1);

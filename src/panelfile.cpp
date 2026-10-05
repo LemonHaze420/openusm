@@ -39,22 +39,10 @@ nglMeshFile *&PanelFile::g_curmeshfile = []() -> auto & {
 void PanelFile::Draw()
 {
     if constexpr (STANDALONE_SYSTEM) {
-        if (pquads.m_data != nullptr &&
-            !IsBadReadPtr(pquads.m_data, sizeof(*pquads.m_data) * pquads.m_size)) {
-            for (uint16_t i = 0; i < pquads.m_size; ++i) {
-                if (auto *quad = pquads.m_data[i];
-                    quad != nullptr && !IsBadReadPtr(quad, sizeof(*quad)))
-                    quad->Draw();
-            }
-        }
-        if (ptext.m_data != nullptr &&
-            !IsBadReadPtr(ptext.m_data, sizeof(*ptext.m_data) * ptext.m_size)) {
-            for (uint16_t i = 0; i < ptext.m_size; ++i) {
-                if (auto *text = ptext.m_data[i];
-                    text != nullptr && !IsBadReadPtr(text, sizeof(*text)))
-                    text->Draw();
-            }
-        }
+        for (uint16_t i = 0; i < pquads.size(); ++i)
+            pquads.at(i)->Draw();
+        for (uint16_t i = 0; i < ptext.size(); ++i)
+            ptext.at(i)->Draw();
     } else {
         THISCALL(0x00616A60, this);
     }
@@ -154,26 +142,10 @@ PanelQuad *PanelFile::GetPQ(const char *a2)
 void PanelFile::Update(Float a2)
 {
     if constexpr (1) {
-        if (this->pquads.m_data != nullptr &&
-            !IsBadReadPtr(this->pquads.m_data,
-                          sizeof(*this->pquads.m_data) * this->pquads.m_size)) {
-            for (uint16_t i = 0; i < this->pquads.m_size; ++i) {
-                if (auto *quad = this->pquads.m_data[i];
-                    quad != nullptr && !IsBadReadPtr(quad, sizeof(*quad)))
-                    quad->Update(a2);
-            }
-        }
-
-        if (this->field_28.m_data != nullptr &&
-            !IsBadReadPtr(this->field_28.m_data,
-                          sizeof(*this->field_28.m_data) * this->field_28.m_size)) {
-            for (uint16_t j = 0; j < this->field_28.m_size; ++j) {
-                if (auto *animation = this->field_28.m_data[j];
-                    animation != nullptr &&
-                    !IsBadReadPtr(animation, sizeof(*animation)))
-                    animation->Update(a2);
-            }
-        }
+        for (uint16_t i = 0; i < pquads.size(); ++i)
+            pquads.at(i)->Update(a2);
+        for (uint16_t i = 0; i < field_28.size(); ++i)
+            field_28.at(i)->Update(a2);
     } else {
         THISCALL(0x0062E4D0, this, a2);
     }

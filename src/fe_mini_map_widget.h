@@ -71,6 +71,9 @@ struct fe_mini_map_widget {
     //virtual
     void Update(Float a2);
 
+
+    void SetShown(bool shown);
+
     static inline void *g_vtbl[]{
         nullptr,
         func_address(&fe_mini_map_widget::_Init),

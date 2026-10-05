@@ -193,9 +193,13 @@ void FEMultiLineText::SetButtonScale(Float a2) {
 }
 
 void FEMultiLineText::SetTextBox(global_text_enum a2, int a3, Float a4) {
-    //sp_log("FEMultiLineText::SetTextBox: %s", g_game_ptr->field_7C->field_0->field_0[a2]);
+    if constexpr (STANDALONE_SYSTEM) {
 
-    THISCALL(0x00618070, this, a2, a3, a4);
+        mString text{g_game_ptr->field_7C->lookup_localized_string(a2)};
+        SetTextBoxNoLocalize(string{text}, a3, a4);
+    } else {
+        THISCALL(0x00618070, this, a2, a3, a4);
+    }
 }
 
 char *sub_609580(const char *a1, const char *a2, const char *a3) {

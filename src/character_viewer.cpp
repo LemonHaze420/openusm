@@ -140,14 +140,10 @@ void character_viewer::sub_63FEC0(int idx)
             mString a3{character_files()[idx]};
 
             auto *v3 = g_cut_scene_player();
-            auto *v4 = v3->field_7C;
-            if (v4 != nullptr) {
-                ::operator delete(v4);
+            {
+                _std::vector<entity_base_vhandle> released_entities;
+                v3->tracked_entities[1].swap(released_entities);
             }
-
-            v3->field_7C = nullptr;
-            v3->field_80 = 0;
-            v3->field_84 = 0;
             g_world_ptr->ent_mgr.destroy_entity(this->field_2DC);
             auto v6 = "ch_vwr_" + a3;
 

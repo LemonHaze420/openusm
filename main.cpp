@@ -1131,7 +1131,30 @@ void sub_79DFF0()
 
 void sub_81C230()
 {
-    CDECL_CALL(0x0081C230);
+    if constexpr (STANDALONE_SYSTEM) {
+        struct cached_string {
+            unsigned hash;
+            char *text;
+            cached_string *next;
+        };
+        auto &buckets = var<cached_string *[256]>(0x009870B8);
+        for (auto &bucket : buckets) {
+            while (bucket != nullptr) {
+                auto *entry = bucket;
+                bucket = entry->next;
+                free(entry->text);
+                free(entry);
+            }
+        }
+        auto &sticky_keys = var<STICKYKEYS>(0x009874BC);
+        SystemParametersInfoA(SPI_SETSTICKYKEYS, sizeof(STICKYKEYS), &sticky_keys, 0);
+        if (g_appHwnd != nullptr) {
+            DestroyWindow(g_appHwnd);
+            g_appHwnd = nullptr;
+        }
+    } else {
+        CDECL_CALL(0x0081C230);
+    }
 }
 
 void sub_81D700()
@@ -1955,9 +1978,11 @@ LABEL_94:
     sub_4DDEC0();
 
     if (g_cursor != nullptr) {
+#if !STANDALONE_SYSTEM
         auto *vtbl = bit_cast<int (*)[1]>(g_cursor->m_vtbl);
 
         assert((*vtbl)[0] == 0x005B7BC0);
+#endif
 
         delete g_cursor;
     }

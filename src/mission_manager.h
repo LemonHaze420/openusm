@@ -2,48 +2,45 @@
 
 #include "fixedstring.h"
 #include "float.hpp"
+#include "mstring.h"
 #include "variable.h"
 
 #include <vector.hpp>
+#include <list.hpp>
+#include <cstdint>
 
 struct entity_base;
-struct mString;
 struct mission_manager_script_data;
 struct mission_table_container;
 struct po;
 struct region;
 struct resource_key;
 struct trigger;
+struct PanelQuad;
+struct FEText;
 
 struct mission_manager {
-    int field_0;
-    int field_4;
-    int field_8;
-    int field_C;
-    int field_10;
+    float field_0;
+    float field_4;
+    PanelQuad *field_8;
+    PanelQuad *field_C;
+    FEText *field_10;
     mission_table_container *m_global_table_container;
-    mission_table_container *m_district_table_containers[1];
-    int field_1C;
-    int field_20;
-    int field_24;
-    int field_28;
-    int field_2C;
-    int field_30;
-    int field_34;
+    mission_table_container *m_district_table_containers[8];
     int m_district_table_count;
     mission_manager_script_data *m_script_to_load;
     mission_manager_script_data *m_script;
-    int field_44[3];
+    _std::list<mString> field_44;
     bool m_unload_script;
     int field_54;
-    int field_58;
-    int field_5C;
+    float field_58;
+    uint32_t field_5C;
     float *field_60;
     float field_64;
-    int field_68;
+    uint32_t field_68;
     float *field_6C;
-    int field_70;
-    int field_74;
+    float field_70;
+    uint32_t field_74;
     float *field_78;
     float *field_7C;
     bool field_80;
@@ -84,6 +81,9 @@ struct mission_manager {
     //0x005E13D0
     bool get_script(mission_manager_script_data *return_script_data);
 
+    void get_script_helper(mission_table_container *table, uint32_t *count,
+                           _std::vector<mission_manager_script_data> *scripts);
+
     //0x005D7EF0
     void kill_braindead_script();
 
@@ -101,7 +101,7 @@ struct mission_manager {
     void load_script(const mission_manager_script_data &a2);
 
     //0x005DEFA0
-    int run_script(const mission_manager_script_data &arg0);
+    void run_script(const mission_manager_script_data &arg0);
 
     //0x005BB410
     void set_real_time();
@@ -120,6 +120,9 @@ struct mission_manager {
 
     //0x005D1EE0
     void add_district_table(void *a2, region *a3);
+
+
+    void rem_district_table(region *reg);
 
     void unlock();
 

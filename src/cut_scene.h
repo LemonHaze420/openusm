@@ -15,12 +15,12 @@ struct cut_scene {
     mVector<cut_scene_segment> segments;
     bool field_24;
     bool field_25;
-    bool field_26;
-    bool field_27;
-    bool field_28;
-    int field_2C;
-    bool field_30;
-    resource_key field_34;
+    bool physics_overridden;
+    bool ui_hidden;
+    bool tokens_hidden;
+    float field_2C;
+    bool recording;
+    resource_key sync_camera;
     mString field_3C;
     int field_4C;
     resource_pack_slot *field_50;

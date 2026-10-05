@@ -39,5 +39,10 @@ struct event_recipient_entry {
 
     void remove_callback(unsigned int a2);
 
+    void clean_up_callbacks();
+
     void clear_script_callbacks(script_executable *a2);
+
+
+    bool does_script_have_callbacks(const script_executable *executable) const;
 };

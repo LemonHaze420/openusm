@@ -3,9 +3,11 @@
 #include "common.h"
 #include "cursor.h"
 #include "fetext.h"
+#include "fileusm.h"
 #include "frontendmenusystem.h"
 #include "func_wrapper.h"
 #include "game.h"
+#include "main_menu_memcard_check.h"
 #include "localized_string_table.h"
 #include "panelanim.h"
 #include "panelanimfile.h"
@@ -16,8 +18,11 @@
 #include "utility.h"
 #include "variables.h"
 
+#include <iterator>
 
 VALIDATE_SIZE(main_menu_options, 0x110u);
+void sub_582AD0();
+
 
 main_menu_options::main_menu_options(FEMenuSystem *a2, int a3, int a4)
     : FEMenu(a2, 0, a3, a4, 8, 0)
@@ -186,6 +191,40 @@ void main_menu_options::_Init()
     field_E8 = panel->GetAnimationPointer(12);
 }
 
+namespace {
+void play_animation(PanelAnimFile *animation, bool reverse, bool loop)
+{
+    for (int i = 0; i < animation->field_0.size(); ++i) {
+        auto *target = animation->field_0.m_data[i]->field_14;
+        if (target != nullptr)
+            target->StartAnim(true);
+    }
+    animation->field_18 = bit_cast<int>(0.0f);
+    animation->field_1C = bit_cast<int>(0.0f);
+    animation->field_20 = animation->field_14;
+    animation->field_24 = reverse ? 1 : 0;
+    animation->field_28 = loop ? 1 : 0;
+    animation->field_2C = false;
+    animation->field_2D = true;
+}
+}
+
+void main_menu_options::Draw()
+{
+    if (field_E4->field_2D)
+        field_EC[field_104]->SetScale(field_30);
+
+    for (auto *quad : field_40)
+        quad->Draw();
+    for (auto *quad : field_C0)
+        quad->Draw();
+    for (auto *quad : field_B8)
+        quad->Draw();
+    for (auto *text : field_EC)
+        text->Draw();
+    field_D0->Draw();
+}
+
 void main_menu_options::Update(Float a3) {
     FEMenu::Update(a3);
     if (this->field_108) {
@@ -242,14 +281,80 @@ void main_menu_options::Update(Float a3) {
 
 void main_menu_options::OnActivate()
 {
-    {
-        auto &table = g_game_ptr->field_7C;
+    for (auto *quad : field_40)
+        quad->TurnOn(true);
+    for (auto *quad : field_B8)
+        quad->TurnOn(false);
+    for (auto *quad : field_C0)
+        quad->TurnOn(true);
+    for (auto *text : field_EC)
+        text->SetShown(true);
+    field_D0->SetShown(true);
 
-        sp_log("%s", table->lookup_localized_string(static_cast<global_text_enum>(259)));
-        //assert(0);
+    if (field_D4->field_2D) {
+        field_D4->Stop();
+        field_DC->Stop();
+        play_animation(field_D8, false, true);
+        play_animation(field_E0, false, true);
+        field_A0->TurnOn(false);
+        field_A4->TurnOn(false);
+        field_A8->TurnOn(false);
+        field_AC->TurnOn(false);
+        field_B0->TurnOn(false);
+        field_B4->TurnOn(false);
     }
+    play_animation(field_E4, false, false);
 
-    THISCALL(0x0062CE60, this);
+    field_D0->SetNoFlash(color32{0xFFC8C8C8});
+    field_D0->SetScale(1.0f);
+    field_D0->SetText(static_cast<global_text_enum>(295));
+
+
+    var<bool>(0x00965BF7) = true;
+
+    auto *memcard = static_cast<main_menu_memcard_check *>(field_10C->field_4[2]);
+    field_10A =
+        memcard->field_108 == main_menu_memcard_check::DIALOG_NO_SAVE;
+    field_EC[0]->SetNoFlash(
+        field_10A ? color32{0xFF808080} : field_38);
+    field_EC[0]->SetScale(field_2C);
+    field_EC[0]->SetText(static_cast<global_text_enum>(296));
+
+    field_EC[1]->SetNoFlash(field_38);
+    field_EC[1]->SetScale(field_2C);
+    mString new_game{get_msg(g_fileUSM, "NEW_GAME")};
+    field_EC[1]->SetTextNoLocalize(*bit_cast<FEText::string *>(&new_game));
+    field_EC[2]->SetNoFlash(field_38);
+    field_EC[2]->SetScale(field_2C);
+    field_EC[2]->SetText(static_cast<global_text_enum>(298));
+    field_EC[3]->SetNoFlash(field_38);
+    field_EC[3]->SetScale(field_2C);
+    field_EC[3]->SetText(static_cast<global_text_enum>(297));
+    field_EC[4]->SetNoFlash(field_38);
+    field_EC[4]->SetScale(field_2C);
+    field_EC[4]->SetText(static_cast<global_text_enum>(259));
+    field_EC[5]->SetNoFlash(field_38);
+    field_EC[5]->SetScale(field_2C);
+    mString quit{get_msg(g_fileUSM, "QUIT")};
+    field_EC[5]->SetTextNoLocalize(*bit_cast<FEText::string *>(&quit));
+
+    field_106 = field_104;
+    update_highlight();
+    field_108 = false;
+    field_109 = true;
+    field_28 |= 0x80;
+    sub_582AD0();
+}
+
+void main_menu_options::OnUp(int) {
+    if (!field_E4->field_2D) {
+        static string_hash fx_scroll_hash{"FE_MO_UDScroll"};
+        [[maybe_unused]] sound_instance_id sound = sub_60B960(fx_scroll_hash, 1.0, 1.0);
+        field_106 = field_104--;
+        if (field_104 < 0)
+            field_104 = 5;
+        update_highlight();
+    }
 }
 
 void main_menu_options::OnDown(int) {
@@ -327,8 +432,18 @@ void main_menu_options::OnCross(int a2) {
     }
 }
 
-void main_menu_options::update_highlight() {
-    THISCALL(0x00623340, this);
+void main_menu_options::update_highlight()
+{
+    field_EC[field_106]->SetNoFlash(
+        field_106 == 0 && field_10A ? color32{0xFF808080} : field_38);
+    field_EC[field_106]->SetScale(field_2C);
+    field_EC[field_104]->SetNoFlash(
+        field_104 == 0 && field_10A ? color32{0xFF808080} : field_3C);
+    field_EC[field_104]->SetScale(field_30);
+
+    field_E8->SetPosition(
+        field_B8[0]->GetCenterX(), field_EC[field_104]->GetY());
+    play_animation(field_E8, false, false);
 }
 
 void main_menu_options_patch() {

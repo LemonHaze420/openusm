@@ -24,6 +24,7 @@
 #include "utility.h"
 #include "variables.h"
 #include "vtbl.h"
+#include "panelanimfile.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -254,6 +255,15 @@ void FEMenu::OnActivate()
         case 0x00894598:
             static_cast<main_menu_legal *>(this)->OnActivate();
             return;
+        case 0x00895910:
+            static_cast<main_menu_memcard_check *>(this)->OnActivate();
+            return;
+        case 0x008946F8:
+            static_cast<main_menu_options *>(this)->OnActivate();
+            return;
+        case 0x00895790:
+            static_cast<main_menu_keyboard *>(this)->OnActivate();
+            return;
         case 0x00893C88:
             return;
         default:
@@ -270,6 +280,10 @@ void FEMenu::OnActivate()
 void FEMenu::OnDeactivate(FEMenu *a2)
 {
     if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00895790) {
+            static_cast<main_menu_keyboard *>(this)->OnDeactivate(a2);
+            return;
+        }
         if (m_vtbl == 0x00894598) {
             static_cast<main_menu_legal *>(this)->OnDeactivate();
             return;
@@ -278,7 +292,7 @@ void FEMenu::OnDeactivate(FEMenu *a2)
             static_cast<main_menu_start *>(this)->_OnDeactivate();
             return;
         }
-        if (m_vtbl == 0x00893C88) {
+        if (m_vtbl == 0x00895910 || m_vtbl == 0x008946F8 || m_vtbl == 0x00893C88) {
             return;
         }
     }
@@ -307,24 +321,65 @@ void FEMenu::OnStart(int controller)
 
 void FEMenu::OnUp(int a2)
 {
+
+    if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00895790) {
+            static_cast<main_menu_keyboard *>(this)->OnUp(a2);
+            return;
+        }
+        if (m_vtbl == 0x008946F8) {
+            static_cast<main_menu_options *>(this)->OnUp(a2);
+            return;
+        }
+        if (m_vtbl == 0x00894648)
+            return;
+    }
     void(__fastcall * func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x3C));
     func(this, nullptr, a2);
 }
 
 void FEMenu::OnDown(int a2)
 {
+    if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00895790) {
+            static_cast<main_menu_keyboard *>(this)->OnDown(a2);
+            return;
+        }
+        if (m_vtbl == 0x008946F8) {
+            static_cast<main_menu_options *>(this)->OnDown(a2);
+            return;
+        }
+        if (m_vtbl == 0x00894648)
+            return;
+    }
     void(__fastcall * func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x40));
     func(this, nullptr, a2);
 }
 
 void FEMenu::OnLeft(int a2)
 {
+    if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00895790) {
+            static_cast<main_menu_keyboard *>(this)->OnLeft(a2);
+            return;
+        }
+        if (m_vtbl == 0x00894648 || m_vtbl == 0x008946F8)
+            return;
+    }
     void(__fastcall * func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x44));
     func(this, nullptr, a2);
 }
 
 void FEMenu::OnRight(int a2)
 {
+    if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00895790) {
+            static_cast<main_menu_keyboard *>(this)->OnRight(a2);
+            return;
+        }
+        if (m_vtbl == 0x00894648 || m_vtbl == 0x008946F8)
+            return;
+    }
     void(__fastcall * func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x48));
     func(this, nullptr, a2);
 }
@@ -334,6 +389,12 @@ void FEMenu::OnCross(int controller)
     if constexpr (STANDALONE_SYSTEM) {
         if (m_vtbl == 0x00894648) {
             static_cast<main_menu_start *>(this)->OnCross(controller);
+        } else if (m_vtbl == 0x00895910) {
+            static_cast<main_menu_memcard_check *>(this)->OnCross(controller);
+        } else if (m_vtbl == 0x008946F8) {
+            static_cast<main_menu_options *>(this)->OnCross(controller);
+        } else if (m_vtbl == 0x00895790) {
+            static_cast<main_menu_keyboard *>(this)->OnCross(controller);
         }
         return;
     }
@@ -344,6 +405,12 @@ void FEMenu::OnCross(int controller)
 
 void FEMenu::OnTriangle(int a2)
 {
+    if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00895790) {
+            static_cast<main_menu_keyboard *>(this)->OnTriangle(a2);
+            return;
+        }
+    }
     void(__fastcall * func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x50));
 
     func(this, nullptr, a2);
@@ -351,6 +418,12 @@ void FEMenu::OnTriangle(int a2)
 
 void FEMenu::OnSquare(int a2)
 {
+    if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00895790) {
+            static_cast<main_menu_keyboard *>(this)->OnSquare(a2);
+            return;
+        }
+    }
     void(__fastcall * func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x54));
 
     func(this, nullptr, a2);
@@ -358,6 +431,12 @@ void FEMenu::OnSquare(int a2)
 
 void FEMenu::OnCircle(int a2)
 {
+    if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00895790) {
+            static_cast<main_menu_keyboard *>(this)->OnCircle(a2);
+            return;
+        }
+    }
     void(__fastcall * func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x58));
 
     func(this, nullptr, a2);
@@ -505,6 +584,18 @@ void FEMenu::Down()
 
 void FEMenu::ButtonHeldAction()
 {
+    if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00895790) {
+            auto *keyboard = static_cast<main_menu_keyboard *>(this);
+            if (!keyboard->field_AC->field_2D) {
+                if (field_2A == 4)
+                    keyboard->OnUp(0);
+                else if (field_2A == 8)
+                    keyboard->OnDown(0);
+            }
+            return;
+        }
+    }
     if ((128 & this->field_28) != 0) {
         auto v1 = this->field_2A;
         if (v1 == 4) {

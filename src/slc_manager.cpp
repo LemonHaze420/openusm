@@ -1,6 +1,7 @@
 #include "slc_manager.h"
 
 #include "debugutil.h"
+#include "cut_scene_player.h"
 #include "filespec.h"
 #include "func_wrapper.h"
 #include "fe_mini_map_widget.h"
@@ -8,6 +9,7 @@
 #include "game.h"
 #include "game_settings.h"
 #include "fe_health_widget.h"
+#include "fe_mission_text.h"
 #include "igofrontend.h"
 #include "glass_house.h"
 #include "glass_house_manager.h"
@@ -17,6 +19,7 @@
 #include "open_city_neighborhoods.h"
 #include "osassert.h"
 #include "os_developer_options.h"
+#include "poi.h"
 #include "resource_key.h"
 #include "resource_manager.h"
 #include "resource_pack_group.h"
@@ -41,6 +44,7 @@
 #include "variables.h"
 #include "vm_stack.h"
 #include "vm_thread.h"
+#include "advanced_entity_ptrs.h"
 #include "wds.h"
 #include "xbpack.h"
 #include <algorithm>
@@ -49,6 +53,7 @@
 #include <cfloat>
 #include <cstddef>
 #include <cstdlib>
+#include <type_traits>
 
 #if !STANDALONE_SYSTEM
 _std::vector<script_library_class *> *&slc_manager_class_array =
@@ -70,6 +75,7 @@ void reject_unported_client_allocation(
 
 int vm_entity_garbage_collection_id = -1;
 int vm_script_entity_lists_garbage_collection_id = -1;
+int vm_civilian_info_garbage_collection_id = -1;
 _std::list<_std::vector<entity_base_vhandle> *> script_entity_lists;
 
 #if STANDALONE_SYSTEM
@@ -113,6 +119,29 @@ void release_allocated_entities(
         }
     }
 }
+
+void vm_civilian_info_garbage_collection_callback(
+    script_executable *, _std::list<uint32_t> &allocations, _std::list<mString> &)
+{
+    for (const auto index : allocations) {
+        poi_manager::remove_point_of_interest(static_cast<int>(index));
+    }
+}
+
+
+void construct_civilian_info_lib()
+{
+#if STANDALONE_SYSTEM
+    if (vm_civilian_info_garbage_collection_id == -1) {
+        vm_civilian_info_garbage_collection_id =
+            script_manager::register_allocated_stuff_callback(
+                vm_civilian_info_garbage_collection_callback);
+    }
+#else
+    CDECL_CALL(0x00660F20);
+#endif
+}
+
 
 void ignore_panel_references(
     script_executable *, _std::list<uint32_t> &, _std::list<mString> &)
@@ -262,7 +291,6 @@ void register_standard_script_libs()
 
 void construct_client_script_libs()
 {
-    TRACE("construct_client_script_libs");
     if constexpr (STANDALONE_SYSTEM) {
         script_manager::register_allocated_stuff_callback(
             reject_unported_client_allocation);
@@ -290,8 +318,7 @@ void construct_client_script_libs()
             reject_unported_client_allocation);
         script_manager::register_allocated_stuff_callback(
             reject_unported_client_allocation);
-        script_manager::register_allocated_stuff_callback(
-            reject_unported_client_allocation);
+        construct_civilian_info_lib();
     } else {
     CDECL_CALL(0x0058F9C0);
 }
@@ -315,17 +342,47 @@ struct slf__add_civilian_info__vector3d__num__num__num__t : script_library_class
 
     bool operator()(vm_stack &stack, [[maybe_unused]]script_library_class::function::entry_t entry) const
     {
-        TRACE("slf__add_civilian_info__vector3d__num__num__num__t::operator()");
+#if STANDALONE_SYSTEM
+        struct parms_t {
+            vector3d position;
+            float type;
+            float radius;
+            float duration;
+        };
+        static_assert(sizeof(parms_t) == 24);
+        SLF_PARMS;
 
-        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00680FE0);
+        float result = static_cast<float>(
+            poi_manager::add_point_of_interest(
+                parms->position, static_cast<int>(parms->type),
+                parms->radius, parms->duration,
+                vhandle_type<entity>{INVALID_HANDLE}));
+        if (!(result <= -1.0f && result >= -1.0f)) {
+            auto *script =
+                stack.get_thread()->get_executable()->get_owner()->get_parent();
+            script->add_allocated_stuff(
+                vm_civilian_info_garbage_collection_id,
+                static_cast<uint32_t>(result), mString{});
+        }
+        SLF_RETURN;
+        return true;
+#else
+        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) =
+            CAST(func, 0x00680FE0);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
 slf__add_civilian_info__vector3d__num__num__num__t::slf__add_civilian_info__vector3d__num__num__num__t(const char *a3)
     : function(a3)
 {
+#if STANDALONE_SYSTEM
+    static std::decay_t<decltype(*m_vtbl)> native_vtable{};
+    m_vtbl = &native_vtable;
+#else
     m_vtbl = CAST(m_vtbl, 0x0089C5BC);
+#endif
     FUNC_ADDRESS(address, &slf__add_civilian_info__vector3d__num__num__num__t::operator());
     m_vtbl->__cl = CAST(m_vtbl->__cl, address);
 }
@@ -335,10 +392,38 @@ struct slf__add_civilian_info_entity__entity__num__num__num__t : script_library_
 
     bool operator()(vm_stack &stack, [[maybe_unused]]script_library_class::function::entry_t entry) const
     {
-        TRACE("slf__add_civilian_info_entity__entity__num__num__num__t::operator()");
+#if STANDALONE_SYSTEM
+        struct parms_t {
+            entity_base_vhandle owner;
+            float type;
+            float radius;
+            float duration;
+        };
+        static_assert(sizeof(parms_t) == 16);
+        SLF_PARMS;
 
-        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x006810F0);
+        float result = 0.0f;
+        auto *owner = parms->owner.get_volatile_ptr();
+        if (owner != nullptr && owner->is_an_actor()) {
+            const vhandle_type<entity> owner_handle{owner->get_my_handle()};
+            result = static_cast<float>(poi_manager::add_point_of_interest(
+                owner->get_abs_position(), static_cast<int>(parms->type),
+                parms->radius, parms->duration, owner_handle));
+            if (!(result <= -1.0f && result >= -1.0f)) {
+                auto *script =
+                    stack.get_thread()->get_executable()->get_owner()->get_parent();
+                script->add_allocated_stuff(
+                    vm_civilian_info_garbage_collection_id,
+                    static_cast<uint32_t>(result), mString{});
+            }
+        }
+        SLF_RETURN;
+        return true;
+#else
+        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) =
+            CAST(func, 0x006810F0);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -346,7 +431,12 @@ slf__add_civilian_info_entity__entity__num__num__num__t::slf__add_civilian_info_
     const char *a3)
     : function(a3)
 {
+#if STANDALONE_SYSTEM
+    static std::decay_t<decltype(*m_vtbl)> native_vtable{};
+    m_vtbl = &native_vtable;
+#else
     m_vtbl = CAST(m_vtbl, 0x0089C5CC);
+#endif
     FUNC_ADDRESS(address, &slf__add_civilian_info_entity__entity__num__num__num__t::operator());
     m_vtbl->__cl = CAST(m_vtbl->__cl, address);
 }
@@ -2133,8 +2223,30 @@ struct slf__destroy_entity__entity__t : script_library_class::function {
     {
         TRACE("slf__destroy_entity__entity__t::operator()");
 
+#if STANDALONE_SYSTEM
+        struct parms_t { entity_base_vhandle entity_handle; };
+        SLF_PARMS;
+        auto *thread = stack.get_thread();
+        auto *script = thread->get_executable()->get_owner()->get_parent();
+        script->remove_allocated_stuff(vm_entity_garbage_collection_id, parms->entity_handle.field_0);
+        auto *entity_ptr = parms->entity_handle.get_volatile_ptr();
+        if (entity_ptr != nullptr) {
+            if (entity_ptr->is_an_actor()) {
+                auto *act = static_cast<actor *>(entity_ptr);
+                auto *owned_script = act->adv_ptrs == nullptr ? nullptr : act->adv_ptrs->my_script;
+                if (owned_script != nullptr &&
+                    owned_script->get_parent()->get_parent() == thread->get_instance()->get_parent()->get_parent()) {
+                    g_world_ptr->ent_mgr.make_time_limited(static_cast<entity *>(entity_ptr), 0.0f);
+                    return true;
+                }
+            }
+            g_world_ptr->ent_mgr.release_entity(static_cast<entity *>(entity_ptr));
+        }
+        return true;
+#else
         bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x0067C010);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -5076,18 +5188,29 @@ struct slf__is_cut_scene_playing__t : script_library_class::function {
 
     bool operator()(vm_stack &stack, [[maybe_unused]]script_library_class::function::entry_t entry) const
     {
-        TRACE("slf__is_cut_scene_playing__t::operator()");
-
+#if STANDALONE_SYSTEM
+        float result = g_cut_scene_player()->is_playing() ? 1.0f : 0.0f;
+        SLF_RETURN;
+        return true;
+#else
         bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00670CA0);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
 slf__is_cut_scene_playing__t::slf__is_cut_scene_playing__t(const char *a3) : function(a3)
 {
+#if STANDALONE_SYSTEM
+    static std::decay_t<decltype(*m_vtbl)> native_vtable{};
+    FUNC_ADDRESS(address, &slf__is_cut_scene_playing__t::operator());
+    native_vtable.__cl = CAST(native_vtable.__cl, address);
+    m_vtbl = &native_vtable;
+#else
     m_vtbl = CAST(m_vtbl, 0x0089B7D0);
     FUNC_ADDRESS(address, &slf__is_cut_scene_playing__t::operator());
     m_vtbl->__cl = CAST(m_vtbl->__cl, address);
+#endif
 }
 
 struct slf__is_district_loaded__num__t : script_library_class::function {
@@ -8881,8 +9004,13 @@ struct slf__turn_off_mission_text__t : script_library_class::function {
     {
         TRACE("slf__turn_off_mission_text__t::operator()");
 
-        bool (__fastcall *func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00673060);
-        return func(this, nullptr, &stack, entry);
+        if constexpr (STANDALONE_SYSTEM) {
+            g_femanager.IGO->field_20->SetShown(false);
+            return true;
+        } else {
+            bool (__fastcall *func)(const void *, void *, vm_stack *, entry_t) = CAST(func, 0x00673060);
+            return func(this, nullptr, &stack, entry);
+        }
     }
 };
 

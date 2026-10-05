@@ -69,6 +69,6 @@ void cut_scene::unmash(mash_info_struct *a1, [[maybe_unused]] void *a3)
 {
     a1->unmash_class_in_place(this->field_0, this);
     a1->unmash_class_in_place(this->segments, this);
-    a1->unmash_class_in_place(this->field_34, this);
+    a1->unmash_class_in_place(this->sync_camera, this);
     a1->unmash_class_in_place(this->field_3C, this);
 }

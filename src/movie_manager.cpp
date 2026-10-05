@@ -96,8 +96,6 @@ bool movie_manager::load_and_play_movie(const char *name, const char *sound_name
         nglSetQuadTex(&quad, &texture);
 
         bool skipped = false;
-        DWORD last_frame_tick = GetTickCount();
-        uint32_t last_frame_number = movie->current_frame;
         while (movie->current_frame != movie->frames) {
             MSG message;
             while (PeekMessageA(&message, nullptr, 0, 0, PM_REMOVE)) {
@@ -119,11 +117,6 @@ bool movie_manager::load_and_play_movie(const char *name, const char *sound_name
             if (skipped || (GetAsyncKeyState(VK_ESCAPE) & 0x8000) != 0 ||
                 (GetAsyncKeyState(VK_RETURN) & 0x8000) != 0 ||
                 (GetAsyncKeyState(VK_SPACE) & 0x8000) != 0) {
-                skipped = true;
-                break;
-            }
-            if (GetTickCount() - last_frame_tick > 2000) {
-                sp_log("Movie %s stopped advancing; skipping it.", path);
                 skipped = true;
                 break;
             }
@@ -155,10 +148,6 @@ bool movie_manager::load_and_play_movie(const char *name, const char *sound_name
             nglListAddQuad(&quad);
             nglListSend(true);
             bink_next_frame(movie);
-            if (movie->current_frame != last_frame_number) {
-                last_frame_number = movie->current_frame;
-                last_frame_tick = GetTickCount();
-            }
         }
 
         IDirect3DTexture9_Release(dx_texture);

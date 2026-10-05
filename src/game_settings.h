@@ -10,10 +10,9 @@
 struct mString;
 struct resource_key;
 
-struct game_settings {
+struct game_settings : MemoryUnitManager::Observer {
     static inline constexpr auto NUM_SOFT_SAVE_BUFFERS = 2;
 
-    std::intptr_t m_vtbl;
     MemoryUnitManager::Container field_4;
     game_data_essentials field_28C[3]{};
     game_data_meat field_340;
@@ -87,6 +86,10 @@ struct game_settings {
 
     //0x0057F410
     void load_game(int slot_num);
+
+
+    int get_most_recent_game_slot() const;
+
 
     void load_most_recent_game();
 

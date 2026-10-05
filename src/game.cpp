@@ -420,9 +420,8 @@ game::~game()
     TRACE("game::~game");
 
     if constexpr (1) {
-        if ( this->gamefile != nullptr ) {
-            void (__fastcall *finalize)(void *, void *, bool) = CAST(finalize, get_vfunc(gamefile->m_vtbl, 0x4));
-            finalize(this->gamefile, nullptr, true);
+        if (this->gamefile != nullptr) {
+            delete this->gamefile;
             this->gamefile = nullptr;
         }
 
@@ -433,11 +432,6 @@ game::~game()
             g_smoke_test() = nullptr;
         }
 
-        auto &v4 = this->gamefile;
-        if ( v4 != nullptr ) {
-            void (__fastcall *finalize)(void *, void *, bool) = CAST(finalize, get_vfunc(v4->m_vtbl, 0x4));
-            finalize(v4, nullptr, true);
-        }
 
         subtitles_kill();
         if (this->the_world != nullptr) {
@@ -880,9 +874,6 @@ void game::one_time_init_stuff()
             this->field_B8 = nglGetFirstMeshInFile(a1);
         }
 
-        if constexpr (STANDALONE_SYSTEM) {
-            g_femanager.LoadFrontEnd();
-        }
     } else {
         THISCALL(0x00552E50, this);
     }

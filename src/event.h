@@ -12,6 +12,8 @@ struct event {
     //0x0048ABA0
     event(string_hash a2);
 
+    static void *native_vtable();
+
     void _finalize(bool a2);
 
 #define create_string_hash(name)         \

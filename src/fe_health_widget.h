@@ -38,6 +38,18 @@ struct fe_health_widget {
 
     //0x00641BC0
     void SetType(int the_type, int source_hash_code);
+
+
+    void set_poison_bar_precent(float percent);
+
+
+    void set_regen_bar_shown(bool shown);
+
+
+    void set_poison_bar_shown(bool shown);
+
+
+    void set_health_bar_shown(bool shown);
 };
 
 extern void fe_health_widget_patch();

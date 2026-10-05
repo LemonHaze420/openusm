@@ -281,10 +281,13 @@ public:
 
     //0x005AD8D0
     void kill_thread(const vm_executable *a2, const vm_thread *a3);
+    bool contains_thread(const vm_thread *, int id);
 
     //0x005A33F0
     void register_callback(void (*cb)(script_instance_callback_reason_t, script_instance *, vm_thread *, void *),
         void *user_data);
+
+    void unregister_callback(void *user_data);
 };
 
 extern void script_instance_patch();

@@ -46,6 +46,13 @@ wds_token_manager::wds_token_manager() : tokens(nullptr)
     field_14 = false;
 }
 
+void wds_token_manager::mark_invisible_by_id(bool visible)
+{
+    field_14 = !visible;
+    for (auto &token : field_18)
+        token.field_4.get_volatile_ptr()->set_visible(visible, false);
+}
+
 void wds_token_manager::initialize(const resource_key &a2)
 {
     TRACE("wds_token_manager::initialize");

@@ -7,9 +7,9 @@
 struct point_of_interest {
     vector3d field_0;
     int field_C;
-    int field_10;
+    float field_10;
     int field_14;
-    int field_18;
+    float field_18;
     vhandle_type<entity> field_1C;
 
     //0x006C4770
@@ -18,11 +18,18 @@ struct point_of_interest {
 
 namespace poi_manager {
 
+
+int remove_point_of_interest(int index);
+
+
 extern void cleanup();
 
 extern void check_init();
 
 extern bool near_violence_poi(const vector3d &a1);
+
+int add_point_of_interest(const vector3d &position, int type, float radius, float duration,
+                          vhandle_type<entity> owner);
 
 extern point_of_interest **&poi_list;
 

@@ -62,6 +62,8 @@ public:
 
     int load_script_var_buffer(char *a2);
 
+    void reinit_script_vars();
+
     char *get_address(int offset);
 
     static void read(chunk_file *file, script_var_container *c);

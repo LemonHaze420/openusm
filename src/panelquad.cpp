@@ -17,6 +17,7 @@
 
 #include <algorithm>
 #include <new>
+#include <cmath>
 
 VALIDATE_SIZE(PanelQuad, 0x4C);
 namespace {
@@ -318,8 +319,30 @@ void PanelQuad::Draw()
 {
     TRACE("PanelQuad::Draw");
 #if STANDALONE_SYSTEM
-    if (!IsShown() || pmesh != nullptr)
+    if (!IsShown())
         return;
+    if (pmesh != nullptr) {
+        if (pmesh->field_48.get_alpha() == 0)
+            return;
+        auto transform = pmesh->field_0;
+        nglMeshParams params{};
+        params.Flags = 66;
+        for (int axis = 0; axis != 3; ++axis) {
+            const auto &row = transform[axis];
+            const auto length = std::sqrt(
+                double(row.x) * row.x + double(row.y) * row.y + double(row.z) * row.z);
+            params.Scale[axis] = static_cast<float>(length);
+            const auto inverse = 1.0 / length;
+            transform[axis].x = static_cast<float>(row.x * inverse);
+            transform[axis].y = static_cast<float>(row.y * inverse);
+            transform[axis].z = static_cast<float>(row.z * inverse);
+        }
+        transform[3].x -= 0.47f;
+        transform[3].y -= 0.47f;
+        nglListAddMesh(pmesh->field_40,
+            *reinterpret_cast<const math::MatClass<4, 3> *>(&transform), &params, nullptr);
+        return;
+    }
     for (int i = 0; i < pqs.size(); ++i) {
         auto *section = pqs.m_data[i];
         if (section->field_78)

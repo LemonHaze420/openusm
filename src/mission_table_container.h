@@ -14,6 +14,7 @@ struct mission_marker_base;
 struct mission_camera_marker;
 struct mission_transform_marker;
 struct mission_camera_transform_marker;
+struct mission_table_container;
 
 struct mission_manager_script_data;
 
@@ -35,14 +36,14 @@ struct mission_condition_instance {
     vector3d field_8;
     const char *key_name;
     const char *script_data_name;
-    int field_1C;
-    int field_20;
-    int field_24;
-    int field_28;
-    int field_2C;
-    int field_30;
-    int field_34;
-    int field_38;
+    mission_marker_base *markers;
+    int num_markers;
+    mission_camera_marker *camera_markers;
+    int num_camera_markers;
+    mission_transform_marker *transform_markers;
+    int num_transform_markers;
+    mission_camera_transform_marker *camera_transform_markers;
+    int num_camera_transform_markers;
     float *nums;
     int num_nums;
     const char **strings;
@@ -53,6 +54,9 @@ struct mission_condition_instance {
     mashable_vector<mission_table_game_state_entry> field_58;
     int field_60;
     int field_64;
+
+
+    void un_mash(generic_mash_data_ptrs *data, mission_table_container *container);
 
     bool is_flag_set(uint32_t a2) const
     {
@@ -83,10 +87,19 @@ struct mission_condition {
     const char *field_18;
     const char *field_1C;
     unsigned char field_20;
-    int field_24;
+    unsigned char num_markers;
+    unsigned char num_camera_markers;
+    unsigned char num_transform_markers;
+    unsigned char num_camera_transform_markers;
+    unsigned char num_nums;
+    unsigned char num_strings;
+    unsigned char num_positions;
     unsigned int field_28;
     const char *field_2C;
     const char *field_30;
+
+
+    void un_mash(generic_mash_data_ptrs *data, mission_table_container *container);
 
     bool is_flag_set(uint32_t a2) const
     {
@@ -111,7 +124,7 @@ struct mission_table_container {
     mashable_vector<mission_transform_marker> field_10;
     mashable_vector<mission_camera_transform_marker> field_18;
     mashable_vector<float> multi_array_nums;
-    mashable_vector<char *> multi_array_strings;
+    mashable_vector<const char *> multi_array_strings;
     mashable_vector<vector3d> multi_array_positions;
     mashable_vector<mission_condition> field_38;
     int field_40;

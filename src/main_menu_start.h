@@ -1,9 +1,17 @@
 #pragma once
 
 #include "femenu.h"
+struct FEMultiLineText;
+struct FEText;
+struct PanelAnimFile;
+struct PanelQuad;
+
 
 struct main_menu_start : FEMenu {
-    int field_2C[61];
+    PanelQuad *quads[39];
+    PanelAnimFile *animations[20];
+    FEText *press_start;
+    FEMultiLineText *checking;
 
     float field_120;
     float field_124;
@@ -22,4 +30,5 @@ struct main_menu_start : FEMenu {
     void OnCross(int controller);
     bool IsIdle() const;
     void Update(Float delta_time);
+    void Draw();
 };

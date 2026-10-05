@@ -105,8 +105,9 @@ void FEText::Draw()
         if ((field_64 & 1) == 0)
             color = color32 {0xFFFFFFFFu};
 
-        const auto x = field_34[0];
-        const auto y = field_34[1];
+        auto x = field_34[0];
+        auto y = field_34[1];
+        AdjustForJustification(&x, &y);
         nglFont *font = g_femanager.GetFont(field_18);
         nglListAddString(font, field_1C.c_str(), x, y, GetZvalue(),
                          color32::to_int(color), field_3C, field_40);

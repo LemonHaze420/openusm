@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "fetext.h"
+#include "femultilinetext.h"
 #include "game.h"
 #include "frontendmenusystem.h"
 #include "panelanim.h"
@@ -13,6 +14,10 @@
 #include <algorithm>
 
 VALIDATE_SIZE(main_menu_start, 0x130);
+VALIDATE_OFFSET(main_menu_start, quads, 0x2C);
+VALIDATE_OFFSET(main_menu_start, animations, 0xC8);
+VALIDATE_OFFSET(main_menu_start, press_start, 0x118);
+VALIDATE_OFFSET(main_menu_start, checking, 0x11C);
 
 main_menu_start::main_menu_start(FEMenuSystem *a2, int a3, int a4)
     : FEMenu(a2, 0, a3, a4, 8, 0)
@@ -80,17 +85,16 @@ void main_menu_start::_Init()
         auto *quad = panel->GetPQ(binding.name);
         assert(quad != nullptr);
         quad->TurnOn(false);
-        field_2C[binding.index] = reinterpret_cast<int>(quad);
+        this->quads[binding.index] = quad;
     }
 
-    auto *press_start = panel->GetTextPointer("mm_mainmenu_text_PRESSSTART");
-    auto *checking = panel->GetTextPointer("mm_mainmenu_text_CHECKING");
+    press_start = panel->GetTextPointer("mm_mainmenu_text_PRESSSTART");
+    checking = static_cast<FEMultiLineText *>(
+        panel->GetTextPointer("mm_mainmenu_text_CHECKING"));
     if (press_start != nullptr)
         press_start->SetShown(false);
     if (checking != nullptr)
         checking->SetShown(false);
-    field_2C[59] = reinterpret_cast<int>(press_start);
-    field_2C[60] = reinterpret_cast<int>(checking);
 
     static constexpr int animation_indices[] {
         5, 17, 6, 15, 14, 3, 0, 1,
@@ -103,30 +107,32 @@ void main_menu_start::_Init()
         47, 48, 49, 50, 51, 52,
     };
     for (unsigned i = 0; i < 20; ++i)
-        field_2C[animation_slots[i]] =
-            reinterpret_cast<int>(panel->GetAnimationPointer(animation_indices[i]));
+        animations[animation_slots[i] - 39] =
+            panel->GetAnimationPointer(animation_indices[i]);
 }
 
 void main_menu_start::_OnActivate()
 {
-    auto *press_start = reinterpret_cast<FEText *>(field_2C[59]);
-    auto *checking = reinterpret_cast<FEText *>(field_2C[60]);
     if (press_start != nullptr) {
         press_start->SetText(static_cast<global_text_enum>(294));
-        press_start->SetNoFlash(color32 {0xFFB42828});
+        press_start->SetNoFlash(color32 {0xFFC8C8C8u});
         press_start->SetScale(1.0f);
         press_start->SetShown(false);
     }
-    if (checking != nullptr)
+    if (checking != nullptr) {
+        checking->SetTextBox(
+            static_cast<global_text_enum>(293), checking->field_7C, -1.0f);
+        checking->SetNoFlash(color32 {0xFFB42828u});
         checking->SetShown(false);
+    }
 
     for (unsigned i = 0; i < 34; ++i)
-        reinterpret_cast<PanelQuad *>(field_2C[i])->TurnOn(true);
+        quads[i]->TurnOn(true);
     for (unsigned i = 34; i < 39; ++i)
-        reinterpret_cast<PanelQuad *>(field_2C[i])->TurnOn(false);
-    reinterpret_cast<PanelQuad *>(field_2C[21])->TurnOn(false);
+        quads[i]->TurnOn(false);
+    quads[21]->TurnOn(false);
 
-    auto *animation = reinterpret_cast<PanelAnimFile *>(field_2C[39]);
+    auto *animation = animations[0];
     if (animation != nullptr) {
         for (int i = 0; i < animation->field_0.size(); ++i) {
             auto *target = animation->field_0.m_data[i]->field_14;
@@ -171,8 +177,8 @@ void start_panel_animation(PanelAnimFile *animation, bool reverse, bool loop)
 
 bool main_menu_start::IsIdle() const
 {
-    for (unsigned slot = 39; slot <= 42; ++slot) {
-        auto *animation = reinterpret_cast<PanelAnimFile *>(field_2C[slot]);
+    for (unsigned index = 0; index < 4; ++index) {
+        auto *animation = animations[index];
         if (animation != nullptr && animation->field_2D)
             return false;
     }
@@ -197,48 +203,60 @@ void main_menu_start::Update(Float delta_time)
 
     if (field_12A == 0 && IsIdle()) {
         for (unsigned slot = 12; slot <= 20; ++slot)
-            reinterpret_cast<PanelQuad *>(field_2C[slot])->TurnOn(false);
-        reinterpret_cast<PanelQuad *>(field_2C[21])->TurnOn(true);
-        start_panel_animation(reinterpret_cast<PanelAnimFile *>(field_2C[40]), false, false);
-        for (unsigned slot = 44; slot <= 58; ++slot)
-            start_panel_animation(reinterpret_cast<PanelAnimFile *>(field_2C[slot]), false, false);
+            quads[slot]->TurnOn(false);
+        quads[21]->TurnOn(true);
+        start_panel_animation(animations[1], false, false);
+        for (unsigned index = 5; index < 20; ++index)
+            start_panel_animation(animations[index], false, true);
         field_12A = 1;
     } else if (field_12A == 1 && IsIdle()) {
         field_12A = front_end->field_30 == 4 ? 4 : 3;
-        auto *checking = reinterpret_cast<FEText *>(field_2C[60]);
         if (checking != nullptr)
             checking->SetShown(true);
         for (unsigned slot = 36; slot <= 38; ++slot)
-            reinterpret_cast<PanelQuad *>(field_2C[slot])->TurnOn(true);
-        reinterpret_cast<PanelQuad *>(field_2C[21])->TurnOn(false);
-        start_panel_animation(reinterpret_cast<PanelAnimFile *>(field_2C[41]), true, false);
+            quads[slot]->TurnOn(true);
+        quads[21]->TurnOn(false);
+        start_panel_animation(animations[2], true, false);
     } else if (field_12A == 4 && IsIdle()) {
-        start_panel_animation(reinterpret_cast<PanelAnimFile *>(field_2C[41]), false, false);
+        start_panel_animation(animations[2], false, false);
         field_12A = 5;
     } else if (field_12A == 5 && IsIdle()) {
-        auto *checking = reinterpret_cast<FEText *>(field_2C[60]);
         if (checking != nullptr)
             checking->SetShown(false);
         for (unsigned slot = 36; slot <= 38; ++slot)
-            reinterpret_cast<PanelQuad *>(field_2C[slot])->TurnOn(false);
-        auto *press_start = reinterpret_cast<FEText *>(field_2C[59]);
+            quads[slot]->TurnOn(false);
         if (press_start != nullptr)
             press_start->SetShown(true);
-        reinterpret_cast<PanelQuad *>(field_2C[34])->TurnOn(true);
-        reinterpret_cast<PanelQuad *>(field_2C[35])->TurnOn(true);
-        start_panel_animation(reinterpret_cast<PanelAnimFile *>(field_2C[42]), false, false);
+        quads[34]->TurnOn(true);
+        quads[35]->TurnOn(true);
+        start_panel_animation(animations[3], false, false);
         field_12A = 6;
     } else if (field_12A == 6 && IsIdle()) {
-        start_panel_animation(reinterpret_cast<PanelAnimFile *>(field_2C[43]), false, true);
+        start_panel_animation(animations[4], false, true);
         field_12A = 7;
     }
 
     FEMenu::Update(delta_time);
 }
 
+void main_menu_start::Draw()
+{
+    for (unsigned slot = 0; slot < 34; ++slot)
+        quads[slot]->Draw();
+
+    quads[38]->Mask(std::clamp(field_120, 0.0f, 1.0f), 2, -1.0f);
+    for (unsigned slot = 36; slot < 39; ++slot)
+        quads[slot]->Draw();
+
+    checking->Draw();
+    quads[34]->Draw();
+    quads[35]->Draw();
+    press_start->Draw();
+}
+
 void main_menu_start::_OnDeactivate()
 {
-    auto *animation = reinterpret_cast<PanelAnimFile *>(field_2C[43]);
+    auto *animation = animations[4];
     if (animation != nullptr)
         animation->Stop();
 }

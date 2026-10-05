@@ -8,6 +8,9 @@
 #include "panelquad.h"
 #include "utility.h"
 #include "variables.h"
+#include "panelanim.h"
+#include "sound_instance_id.h"
+#include "string_hash.h"
 
 #include <d3dx9tex.h>
 
@@ -138,9 +141,26 @@ void fe_mission_text::set_text(string a2)
 
 void fe_mission_text::SetShown(bool a2)
 {
-    sp_log("fe_mission_text::SetShown: %d", a2);
-
-    THISCALL(0x0061AA00, this, a2);
+    if constexpr (STANDALONE_SYSTEM) {
+        if (shown == a2)
+            return;
+        shown = a2;
+        for (uint16_t i = 0; i < anim->field_0.size(); ++i)
+            anim->field_0.m_data[i]->field_14->StartAnim(true);
+        anim->field_18 = 0;
+        anim->field_1C = 0;
+        anim->field_20 = anim->field_14;
+        anim->field_28 = 0;
+        anim->field_2C = false;
+        anim->field_2D = true;
+        anim->field_24 = a2 ? 0 : 1;
+        if (a2)
+            positioned = false;
+        const string_hash sound{static_cast<int>(to_hash(a2 ? "FE_MNIBOX_TEXT_IN" : "FE_MNIBOX_TEXT_OUT"))};
+        [[maybe_unused]] const auto instance = sub_60B960(sound, 1.0f, 1.0f);
+    } else {
+        THISCALL(0x0061AA00, this, a2);
+    }
 }
 
 #ifdef OPENUSM_XBPACK_V10

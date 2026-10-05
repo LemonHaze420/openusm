@@ -164,20 +164,9 @@ panel *acquire_panel(const char *a1)
 
 panel_params_t *get_panel_params()
 {
-    if constexpr (0) {
-        if (nglCurScene == nullptr) {
-            return nullptr;
-        }
-
-        if (!nglCurScene->field_404.IsSetParam<SMPanelParams>()) {
-            return nullptr;
-        }
-
-        SMPanelParams v1{};
-        return nglCurScene->field_404.GetOrDefault<SMPanelParams>(v1)->field_0;
-    } else {
-        return (panel_params_t *)CDECL_CALL(0x00738CB0);
-    }
+    if (nglCurScene == nullptr || !nglCurScene->field_404.IsSetParam<SMPanelParams>())
+        return nullptr;
+    return nglCurScene->field_404.Get<SMPanelParams>()->field_0;
 }
 
 camera *get_current_view_camera(int)

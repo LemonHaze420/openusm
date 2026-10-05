@@ -10,6 +10,9 @@
 #include "mstring.h"
 #include "parse_generic_mash.h"
 #include "resource_manager.h"
+#include "resource_pack_slot.h"
+#include "script.h"
+#include "script_object.h"
 #include "script_executable.h"
 #include "script_executable_entry.h"
 #include "script_executable_allocated_stuff_record.h"
@@ -171,6 +174,33 @@ int get_total_loaded()
 {
     int result = (script_manager_exec_map != nullptr ? script_manager_exec_map->size() : 0);
     return result;
+}
+
+void reinit_script_vars()
+{
+    if (script_manager_game_var_container != nullptr)
+        script_manager_game_var_container->reinit_script_vars();
+    if (script_manager_shared_var_container != nullptr)
+        script_manager_shared_var_container->reinit_script_vars();
+}
+
+void release_actor_script(script_instance *&instance)
+{
+    if (instance == nullptr)
+        return;
+    auto *parent = instance->parent;
+    if (parent != nullptr && parent->field_28 != -1) {
+        script::new_thread(parent->field_28, instance);
+        script::exec_thread(true);
+    }
+    const resource_key script_key {
+        string_hash{instance->parent->parent->field_0.to_string()}, RESOURCE_KEY_TYPE_SCRIPT};
+    if (instance->parent != nullptr)
+        instance->parent->remove_instance(instance);
+    instance = nullptr;
+    resource_pack_slot *slot = nullptr;
+    resource_manager::get_resource(script_key, nullptr, &slot);
+    script_manager::un_load(script_key, false, slot->get_name_key());
 }
 
 void init_game_var()

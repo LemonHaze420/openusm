@@ -389,7 +389,7 @@ vm_executable *script_executable::find_function_by_name(string_hash a2) const
 {
 	TRACE("script_executable::find_function_by_name");
     if constexpr (1) {
-        for (int v3 = 0; ++v3 < this->total_script_objects; ++v3) {
+        for (int v3 = 0; v3 < this->total_script_objects; ++v3) {
 			auto &so = this->script_objects[v3];
             if (auto idx = so->find_func(a2); idx != -1) {
 				auto *func = so->get_func(idx);
@@ -786,7 +786,7 @@ script_object *script_executable::find_object(const string_hash &a2, int *a3) co
 {
     TRACE("script_executable::find_object", a2.to_string());
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         int v8 = 0;
         int v7 = this->total_script_objects - 1;
         int v6 = this->total_script_objects / 2;
@@ -798,7 +798,7 @@ script_object *script_executable::find_object(const string_hash &a2, int *a3) co
             }
 
             auto v4 = v6;
-            if (v5->name == a2) {
+            if (v5->name.source_hash_code < a2.source_hash_code) {
                 v8 = v6 + 1;
                 if ( v8 >= this->total_script_objects ) {
                     return nullptr;

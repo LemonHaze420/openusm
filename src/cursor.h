@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ngl.h"
+#include <vector.hpp>
 
 #include <winbase.h>
 
@@ -22,10 +23,7 @@ struct Cursor {
     char empty2[3];
     float field_124;
     float field_128;
-    int field_12C;
-    void *field_130;
-    int field_134;
-    int field_138;
+    _std::vector<RECT> field_12C;
 
     //0x005A6670
     Cursor(LPCWSTR lpWideCharStr, int a3, int a4);

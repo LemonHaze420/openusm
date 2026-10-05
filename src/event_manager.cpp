@@ -540,9 +540,15 @@ int sub_4D1F40(char a1)
     return CDECL_CALL(0x004D1F40, a1);
 }
 
-bool event_manager::does_script_have_callbacks(const script_executable *a1)
+bool event_manager::does_script_have_callbacks(const script_executable *executable)
 {
-    return (bool)CDECL_CALL(0x004D2000, a1);
+    for (auto *type : event_types) {
+        for (auto *recipient : type->field_8) {
+            if (recipient->does_script_have_callbacks(executable))
+                return true;
+        }
+    }
+    return false;
 }
 
 void event_manager::raise_event(string_hash a1, entity_base_vhandle a2)
@@ -561,7 +567,12 @@ void event_manager::raise_event(event *event_to_raise, entity_base_vhandle a2)
 {
     assert(event_to_raise != nullptr);
 
-    CDECL_CALL(0x004EEA20, event_to_raise, a2);
+    if constexpr (STANDALONE_SYSTEM) {
+        if (auto *type = get_event_type(event_to_raise->field_4))
+            type->raise_event(a2, event_to_raise);
+    } else {
+        CDECL_CALL(0x004EEA20, event_to_raise, a2);
+    }
 }
 
 void event_manager::garbage_collect()

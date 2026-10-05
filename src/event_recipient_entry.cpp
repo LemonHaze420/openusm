@@ -7,6 +7,9 @@
 #include "memory.h"
 #include "trace.h"
 #include "vm.h"
+#include "script_event_callback.h"
+#include "vtbl.h"
+#include "chuck/vm/script_object.h"
 
 VALIDATE_SIZE(event_recipient_entry, 0x28u);
 
@@ -73,7 +76,10 @@ int event_recipient_entry::add_callback(void (*cb)(event *, entity_base_vhandle,
 
 int event_recipient_entry::add_callback(script_instance *a2, const vm_executable *a3, char *a4, bool a5)
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
+        auto *callback = new script_event_callback{a2, a3, a4, a5};
+        field_4.push_back(callback);
+        return callback->id;
     } else {
         return THISCALL(0x004C02A0, this, a2, a3, a4, a5);
     }
@@ -96,13 +102,63 @@ bool event_recipient_entry::callback_exists(int a2) const
 
 void event_recipient_entry::remove_callback(unsigned int a2)
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
+        field_10.push_back(reinterpret_cast<void *>(a2));
     } else {
         THISCALL(0x004DB7F0, this, a2);
     }
 }
 
-void event_recipient_entry::clear_script_callbacks(script_executable *a2)
+void event_recipient_entry::clean_up_callbacks()
 {
-    THISCALL(0x004D4120, this, a2);
+    for (auto it = field_4.begin(); it != field_4.end();) {
+        auto *callback = *it;
+        bool (__fastcall *is_script)(event_callback *, void *) =
+            CAST(is_script, get_vfunc(callback->m_vtbl, 0xC));
+        bool remove = is_script(callback, nullptr) &&
+            static_cast<script_event_callback *>(callback)->instance == nullptr;
+        for (auto id : field_10)
+            remove |= callback->id == reinterpret_cast<std::intptr_t>(id);
+        if (remove) {
+            callback->_finalize(true);
+            it = field_4.erase(it);
+        } else {
+            ++it;
+        }
+    }
+    field_10.clear();
+}
+
+void event_recipient_entry::clear_script_callbacks(script_executable *executable)
+{
+    for (auto it = field_4.begin(); it != field_4.end();) {
+        auto *callback = *it;
+        auto is_script = reinterpret_cast<bool (__fastcall *)(event_callback *, void *)>(
+            get_vfunc(callback->m_vtbl, 0xC));
+        if (is_script(callback, nullptr)) {
+            auto *instance = static_cast<script_event_callback *>(callback)->instance;
+            auto *owner = instance != nullptr ? instance->parent->parent : nullptr;
+            if (executable == nullptr || owner == executable) {
+                it = field_4.erase(it);
+                callback->_finalize(true);
+                continue;
+            }
+        }
+        ++it;
+    }
+}
+
+bool event_recipient_entry::does_script_have_callbacks(const script_executable *executable) const
+{
+    for (auto *callback : field_4) {
+        auto is_script = reinterpret_cast<bool (__fastcall *)(event_callback *, void *)>(
+            get_vfunc(callback->m_vtbl, 0xC));
+        if (is_script(callback, nullptr)) {
+            auto *instance = static_cast<script_event_callback *>(callback)->instance;
+            auto *owner = instance != nullptr ? instance->parent->parent : nullptr;
+            if (owner == executable)
+                return true;
+        }
+    }
+    return false;
 }

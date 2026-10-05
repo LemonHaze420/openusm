@@ -1,24 +1,46 @@
 #include "game_settings.h"
 
 #include "common.h"
+#include "actor.h"
+#include "advanced_entity_ptrs.h"
+#include "chuck_callbacks.h"
 #include "damage_interface.h"
+#include "femanager.h"
+#include "frontendmenusystem.h"
+#include "main_menu_memcard_check.h"
 #include "func_wrapper.h"
 #include "game.h"
 #include "memory.h"
 #include "mission_manager.h"
 #include "mstring.h"
+#include "marky_camera.h"
+#include "nsl/src/nsl/nslsource.h"
 #include "os_developer_options.h"
+#include "ped_spawner.h"
+#include "physical_interface.h"
+#include "region.h"
 #include "resource_key.h"
+#include "resource_manager.h"
+#include "resource_partition.h"
 #include "rumble_manager.h"
 #include "script_manager.h"
 #include "settings.h"
 #include "sound_manager.h"
 #include "trace.h"
+#include "terrain.h"
+#include "traffic.h"
 #include "utility.h"
 #include "variables.h"
 #include "wds.h"
 
 #include <cassert>
+#include <algorithm>
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
+#include <malloc.h>
+#include <windows.h>
+#include <vector>
 #if STANDALONE_SYSTEM
 #include <map>
 
@@ -26,6 +48,37 @@ namespace {
 std::map<std::uint32_t, float> standalone_numeric_game_settings;
 }
 #endif
+namespace {
+void __fastcall game_settings_observer_callback(
+    MemoryUnitManager::Observer *observer,
+    void *,
+    MemoryUnitManager::eOperation operation)
+{
+    static_cast<game_settings *>(observer)->Callback(operation);
+}
+
+MemoryUnitManager::ObserverVTable game_settings_observer_vtable {
+    &game_settings_observer_callback,
+};
+
+
+bool is_newer_save_timestamp(const game_save_timestamp &candidate,
+                             const game_save_timestamp &reference)
+{
+    if (candidate.year != reference.year)
+        return candidate.year > reference.year;
+    if (candidate.month != reference.month)
+        return candidate.month > reference.month;
+    if (candidate.day != reference.day)
+        return candidate.day > reference.day;
+    if (candidate.hour != reference.hour)
+        return candidate.hour > reference.hour;
+    if (candidate.minute != reference.minute)
+        return candidate.minute > reference.minute;
+    return candidate.second > reference.second;
+}
+
+}
 
 VALIDATE_SIZE(game_settings, 0x4CCu);
 
@@ -48,7 +101,7 @@ void __stdcall vector_constructor(void *a1, uint32_t size, int count, void(__fas
 game_settings::game_settings() : field_4{""}
 {
     if constexpr (1) {
-        this->m_vtbl = 0x0088B234;
+        m_vtbl = &game_settings_observer_vtable;
 
         this->field_4BF = false;
         this->field_4C0 = false;
@@ -60,7 +113,7 @@ game_settings::game_settings() : field_4{""}
 
         [[maybe_unused]] auto v4 = os_developer_options::instance->get_string(os_developer_options::strings_t::SKU);
 
-        MemoryUnitManager::RegisterObserver(bit_cast<MemoryUnitManager::Observer *>(this));
+        MemoryUnitManager::RegisterObserver(this);
 
         this->set_script_buffer_size();
 
@@ -77,12 +130,19 @@ game_settings::game_settings() : field_4{""}
 
 void sub_5288B0(void *Memory)
 {
-    CDECL_CALL(0x005288B0, Memory);
+    if constexpr (STANDALONE_SYSTEM) {
+        if (Memory != nullptr) {
+            mem_total_allocated -= _msize(Memory);
+            std::free(Memory);
+        }
+    } else {
+        CDECL_CALL(0x005288B0, Memory);
+    }
 }
 
 game_settings::~game_settings()
 {
-    this->m_vtbl = 0x0088B234;
+    m_vtbl = &game_settings_observer_vtable;
 
     for (int i = 0; i < 3; ++i) {
         mem_freealign(this->field_49C[i]);
@@ -95,7 +155,32 @@ game_settings::~game_settings()
 
 void game_settings::Callback(MemoryUnitManager::eOperation a2)
 {
-    THISCALL(0x0057C0B0, this, a2);
+    const auto status = MemoryUnitManager::GetLastError();
+    if (status == MemoryUnitManager::STATUS_OK ||
+        (status == MemoryUnitManager::STATUS_FILE_NOT_FOUND &&
+         a2 == MemoryUnitManager::OPERATION_SAVE)) {
+        if (a2 == MemoryUnitManager::OPERATION_LOAD) {
+            for (int i = 0; i < 3; ++i) {
+                std::memcpy(
+                    &field_28C[i], field_49C[i],
+                    sizeof(game_data_essentials));
+                m_game_data_valid[i] = true;
+            }
+            field_4BF = false;
+            if (g_femanager.m_fe_menu_system != nullptr)
+                static_cast<main_menu_memcard_check *>(
+                    g_femanager.m_fe_menu_system->field_4[2])
+                    ->OnSuccessfulLoad();
+        }
+        return;
+    }
+
+    if (a2 == MemoryUnitManager::OPERATION_LOAD)
+        field_4BF = false;
+    if (g_femanager.m_fe_menu_system != nullptr)
+        static_cast<main_menu_memcard_check *>(
+            g_femanager.m_fe_menu_system->field_4[2])
+            ->OperationFailed(a2, status);
 }
 
 void game_settings::init_script_buffer()
@@ -124,7 +209,96 @@ void game_settings::update_miles_crawled_spidey(Float a2)
 
 void game_settings::start_new_game()
 {
+#if STANDALONE_SYSTEM
+    os_developer_options::instance->get_flag(static_cast<os_developer_options::flags_t>(100));
+    auto *mission_streamer =
+        resource_manager::get_partition_pointer(RESOURCE_PARTITION_MISSION)->get_streamer();
+    auto *mission_slots = mission_streamer->get_pack_slots();
+    if (mission_slots != nullptr && !mission_slots->empty()) {
+        auto *context = resource_manager::get_best_context(RESOURCE_PARTITION_MISSION);
+        resource_manager::push_resource_context(context);
+        resource_manager::pop_resource_context();
+    }
+
+    if (!g_is_the_packer)
+        nslReleaseSources();
+
+    auto *the_terrain = g_world_ptr->the_terrain;
+    auto *district_streamer =
+        resource_manager::get_partition_pointer(RESOURCE_PARTITION_DISTRICT)->get_streamer();
+    auto *strip_streamer =
+        resource_manager::get_partition_pointer(RESOURCE_PARTITION_STRIP)->get_streamer();
+    do {
+        district_streamer->flush(game::render_empty_list, 0.02f);
+        strip_streamer->flush(game::render_empty_list, 0.02f);
+    } while (!district_streamer->is_idle() || !strip_streamer->is_idle());
+
+    auto *district_slots = district_streamer->get_pack_slots();
+    for (unsigned int i = 0; i < district_slots->size(); ++i) {
+        if (!(*district_slots)[i]->is_empty())
+            district_streamer->unload_internal(i);
+        district_streamer->flush(game::render_empty_list, 0.02f);
+        the_terrain->force_streamer_refresh();
+    }
+
+    g_game_ptr->enable_marky_cam(false, false, g_world_ptr->field_28.field_44->field_1D8, 0.0f);
+    g_game_ptr->field_15D = false;
+    field_4C0 = false;
+    field_340.init();
+    traffic::enable_traffic(false, true);
+    ped_spawner::cleanup();
+
+    const resource_key no_context{};
+    const auto world_script = create_resource_key_from_path(
+        g_world_ptr->field_140.field_8.c_str(), RESOURCE_KEY_TYPE_SCRIPT);
+    script_manager::un_load(world_script, false, no_context);
+
+
+    std::vector<entity *> actors_to_remove;
+    for (auto &entities : g_world_ptr->ent_mgr.entities.field_0) {
+        for (auto *ent : entities) {
+            if (ent == nullptr || !ent->is_an_actor())
+                continue;
+            auto *act = static_cast<actor *>(ent);
+            if ((act->adv_ptrs != nullptr && act->adv_ptrs->my_script != nullptr) ||
+                (act->has_physical_ifc() && act->physical_ifc()->is_prop_physics_running()) ||
+                (act->field_4 & 0x10000u) != 0) {
+                actors_to_remove.push_back(ent);
+            }
+        }
+    }
+    for (auto *ent : actors_to_remove) {
+        if ((ent->field_8 & 0x200u) == 0)
+            g_world_ptr->ent_mgr.destroy_entity(ent);
+    }
+
+    script_manager::clear();
+    register_chuck_callbacks();
+    script_manager::reinit_script_vars();
+    for (int i = 0; i < the_terrain->total_regions; ++i)
+        the_terrain->set_district_variant(the_terrain->regions[i]->district_id, 0, false);
+
+    script_manager::init_game_var();
+    script_manager::load(resource_key{string_hash{"init_gv"}, RESOURCE_KEY_TYPE_SCRIPT}, 0,
+                         resource_manager::get_best_context(RESOURCE_PARTITION_COMMON), no_context);
+    script_manager::load(resource_key{string_hash{"init_sv"}, RESOURCE_KEY_TYPE_SCRIPT}, 0,
+                         resource_manager::get_best_context(RESOURCE_PARTITION_COMMON), no_context);
+    script_manager::link();
+    script_manager::run(0.0f, false);
+    script_manager::clear();
+    register_chuck_callbacks();
+    script_manager::load(
+        create_resource_key_from_path(g_world_ptr->field_140.field_8.c_str(), RESOURCE_KEY_TYPE_SCRIPT),
+        1, resource_manager::get_best_context(RESOURCE_PARTITION_COMMON), no_context);
+    script_manager::link();
+    sub_579990();
+    script_manager::save_game_var_buffer(field_494[0]);
+    script_manager::save_game_var_buffer(field_494[1]);
+    g_world_ptr->field_140.hook_up_global_script_object();
+    mission_manager::s_inst->set_real_time();
+#else
     THISCALL(0x0057EAB0, this);
+#endif
 }
 
 void game_settings::frame_advance(Float a2)
@@ -163,7 +337,7 @@ void game_settings::export_game_options()
 
         auto *v3 = (const vector3d *)script_manager::get_game_var_address(a1, nullptr, nullptr);
 
-        g_world_ptr->sub_530460(*v3, 0, 0);
+        g_world_ptr->malor_point(*v3, 0, false);
     }
 }
 
@@ -230,15 +404,28 @@ void game_settings::update_web_fluid_used(Float a2)
     this->field_340.m_web_fluid_used += a2;
 }
 
-void game_settings::reset_container(bool a2)
+void game_settings::reset_container(bool)
 {
-    THISCALL(0x00579790, this, a2);
+    field_4.Reset("Save");
+    if (field_4B4 == 0)
+        field_4B4 = script_manager::save_game_var_buffer(nullptr);
+    const unsigned int buffer_size = MemoryUnitManager::GetGameSaveSize(
+        std::max(0x4000, 2 * field_4B4 + 400));
+    for (int i = 0; i < 3; ++i) {
+        if (field_49C[i] == nullptr)
+            field_49C[i] = static_cast<char *>(arch_memalign(0x20, buffer_size));
+        std::memset(field_49C[i], 0, buffer_size);
+        char filename[16]{};
+        std::snprintf(filename, sizeof(filename), "Save%d", i);
+        field_4.AddFile(filename, field_49C[i], buffer_size);
+        m_game_data_valid[i] = false;
+    }
 }
 
 int game_settings::load()
 {
     this->reset_container(true);
-    return MemoryUnitManager::LoadGame(this->field_4);
+    return static_cast<int>(MemoryUnitManager::LoadGame(this->field_4));
 }
 
 void game_settings::load_game(int slot_num)
@@ -290,14 +477,44 @@ void game_settings::load_game(int slot_num)
     }
 }
 
-void game_settings::load_most_recent_game()
+int game_settings::get_most_recent_game_slot() const
 {
-    THISCALL(0x0057F580, this);
+    game_save_timestamp most_recent {1990, 1, 1, 0, 0, 0};
+    int most_recent_slot = -1;
+
+    for (int slot = 0; slot < 3; ++slot) {
+        if (this->m_game_data_valid[slot] &&
+            is_newer_save_timestamp(this->field_28C[slot].timestamp, most_recent)) {
+            most_recent = this->field_28C[slot].timestamp;
+            most_recent_slot = slot;
+        }
+    }
+
+    return most_recent_slot;
 }
 
-int *GetSystemDate(int *out)
+void game_settings::load_most_recent_game()
 {
-    return (int *)CDECL_CALL(0x00573510, out);
+    const auto slot = this->get_most_recent_game_slot();
+    if (slot >= 0)
+        this->load_game(slot);
+}
+
+game_save_timestamp *GetSystemDate(game_save_timestamp *out)
+{
+    if constexpr (STANDALONE_SYSTEM) {
+        SYSTEMTIME local_time{};
+        GetLocalTime(&local_time);
+        out->year = local_time.wYear;
+        out->month = local_time.wMonth;
+        out->day = local_time.wDay;
+        out->hour = local_time.wHour;
+        out->minute = local_time.wMinute;
+        out->second = local_time.wSecond;
+        return out;
+    } else {
+        return (game_save_timestamp *)CDECL_CALL(0x00573510, out);
+    }
 }
 
 void game_settings::collect_game_settings()
@@ -393,12 +610,7 @@ void game_settings::save(int slot_num)
 
         v1.field_C = (int)a2a;
 
-        int v7[3];
-        auto *v5 = GetSystemDate(v7);
-
-        *bit_cast<int *>(&v1.field_0) = v5[0];
-        *bit_cast<int *>(&v1.field_4) = v5[1];
-        *bit_cast<int *>(&v1.field_8) = v5[2];
+        GetSystemDate(&v1.timestamp);
         v1.field_10 = this->field_4B4;
         this->m_game_data_valid[slot_num] = true;
         this->soft_save(0);
@@ -408,7 +620,7 @@ void game_settings::save(int slot_num)
         memset(this->field_49C[slot_num], 0, MemoryUnitManager::GetGameSaveSize(size));
         std::memcpy(this->field_49C[slot_num], &v1, sizeof(game_data_essentials));
         std::memcpy(this->field_49C[slot_num] + sizeof(game_data_essentials), &this->field_340, sizeof(game_data_meat));
-        std::memcpy(this->field_49C[slot_num] + sizeof(game_data_essentials) + sizeof(game_data_essentials),
+        std::memcpy(this->field_49C[slot_num] + sizeof(game_data_essentials) + sizeof(game_data_meat),
                     this->field_494[0],
                     this->field_4B4);
         std::memcpy(&this->field_49C[slot_num][this->field_4B4 + 400], this->field_494[1], this->field_4B4);

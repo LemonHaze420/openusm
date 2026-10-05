@@ -9,6 +9,31 @@
 #include "panelquad.h"
 #include "utility.h"
 #include "variables.h"
+#include "cursor.h"
+#include "femultilinetext.h"
+#include "fileusm.h"
+#include "input.h"
+#include "inputsettings.h"
+#include "main_menu_memcard_check.h"
+#include "panelanim.h"
+#include "game.h"
+#include "game_settings.h"
+#include <cstring>
+
+namespace {
+void play_keyboard_animation(PanelAnimFile *animation, bool loop)
+{
+    for (int i = 0; i < animation->field_0.size(); ++i)
+        animation->field_0.m_data[i]->field_14->StartAnim(true);
+    animation->field_18 = bit_cast<int>(0.0f);
+    animation->field_1C = bit_cast<int>(0.0f);
+    animation->field_20 = animation->field_14;
+    animation->field_24 = 0;
+    animation->field_28 = loop ? 1 : 0;
+    animation->field_2C = false;
+    animation->field_2D = true;
+}
+}
 
 VALIDATE_SIZE(main_menu_keyboard, 0x148);
 
@@ -39,7 +64,233 @@ main_menu_keyboard::main_menu_keyboard(FEMenuSystem *a2, int a3, int a4)
 
 void main_menu_keyboard::OnActivate()
 {
-    THISCALL(0x006241E0, this);
+    if constexpr (!STANDALONE_SYSTEM) {
+        THISCALL(0x006241E0, this);
+        return;
+    }
+    field_28 |= 0x80;
+    if (field_B0->field_2D) {
+        field_B0->Stop();
+        field_BC->Stop();
+        play_keyboard_animation(field_B8, true);
+        play_keyboard_animation(field_B4, true);
+    }
+    for (auto *quad : field_2C)
+        quad->TurnOn(true);
+    for (auto *quad : field_8C)
+        quad->TurnOn(true);
+    for (auto *quad : field_94)
+        quad->TurnOn(true);
+    field_A4->TurnOn(false);
+    field_124->SetShown(true);
+    field_C0->SetShown(false);
+    field_124->SetNoFlash(color32{0xFFC8C8C8});
+    field_124->SetScale(1.0f);
+    field_124->SetText(static_cast<global_text_enum>(299));
+    field_C0->SetNoFlash(color32{0xFFC8C8C8});
+    field_C0->SetScale(1.5f);
+    mString cursor{"_"};
+    field_C0->SetTextNoLocalize(FEText::string{cursor});
+    for (int i = 0; i < 4; ++i) {
+        auto *text = static_cast<FEMultiLineText *>(field_128[i]);
+        text->SetShown(true);
+        text->SetNoFlash(color32{0xFFE6D03F});
+        text->SetScale(0.8f);
+        text->SetButtonColor(color32{0xFFFFFFFF});
+        text->SetButtonScale(0.8f);
+        int label = 304 + i;
+        if (i == 3)
+            label = static_cast<main_menu_memcard_check *>(field_140->field_4[2])->field_108 == 2 ? 302 : 301;
+        text->SetText(static_cast<global_text_enum>(label));
+    }
+    field_E4 = get_msg(g_fileUSM, "DEFAULT_PLAYER");
+    while (field_E4.size() < 8)
+        field_E4 += " ";
+    for (int i = 0; i < 8; ++i) {
+        const char c = field_E4.c_str()[i];
+        field_104[i] = c >= 'A' && c <= 'Z' ? c - 'A' :
+                       c >= '0' && c <= '9' ? c - 23 :
+                       c == ' ' ? static_cast<int>(field_F4.size()) - 1 : 0;
+        auto *text = field_C4[i];
+        text->SetShown(true);
+        text->SetNoFlash(color32{0xFFC8C8C8});
+        text->SetScale(1.5f);
+        mString letter{0, "%c", c};
+        text->SetTextNoLocalize(FEText::string{letter});
+    }
+    field_138 = 0;
+    field_C4[0]->SetScale(2.0f);
+    field_A8->SetPosition(field_C4[0]->GetX(), field_A4->GetCenterY());
+    play_keyboard_animation(field_AC, false);
+    static string_hash drop_sound{"FE_PLYR_DROP"};
+    [[maybe_unused]] auto sound = sub_60B960(drop_sound, 1.0f, 1.0f);
+    field_13A = false;
+    field_13B = false;
+    field_13C = true;
+    Input::instance->sub_8203F0(0, g_inputSettings4);
+    g_cursor->sub_5A6790();
+    g_cursor->sub_5A67D0(470, 375, 540, 410);
+}
+
+void main_menu_keyboard::Draw()
+{
+    if (field_AC->field_2D) {
+        field_C4[field_138]->SetScale(2.0f);
+        for (auto *text : field_128)
+            text->SetScale(0.8f);
+    }
+    for (auto *quad : field_2C)
+        quad->Draw();
+    for (auto *quad : field_8C)
+        quad->Draw();
+    for (auto *quad : field_94)
+        quad->Draw();
+    field_A4->Draw();
+    field_124->Draw();
+    field_C0->Draw();
+    reinterpret_cast<FEText *>(field_144)->Draw();
+    for (auto *text : field_C4)
+        text->Draw();
+}
+
+void main_menu_keyboard::Update(Float delta_time)
+{
+    FEMenu::Update(delta_time);
+    const float progress = bit_cast<float>(field_AC->field_18) / field_AC->field_20;
+    if ((field_13A || field_13B) && progress > 0.33f) {
+        field_A4->TurnOn(false);
+        field_A8->Stop();
+    }
+    auto *system = static_cast<FrontEndMenuSystem *>(field_140);
+    if (field_13A && !field_AC->field_2D) {
+        if (field_13D)
+            system->BringUpDialogBox(19, FrontEndMenuSystem::fe_state{7}, FrontEndMenuSystem::fe_state{7});
+        else
+            system->GoNextState();
+    } else if (field_13B && !field_AC->field_2D) {
+        if (system->field_30 <= 6)
+            --system->field_30;
+        else {
+            system->field_30 = 6;
+            system->MakeActive(3);
+        }
+    }
+    if (field_13C && progress > 0.66f) {
+        field_A4->TurnOn(true);
+        play_keyboard_animation(field_A8, true);
+        field_13C = false;
+    }
+    if (field_AC->field_2D)
+        reinterpret_cast<FEText *>(field_144)->SetX(field_124->GetX() + 320.0f);
+}
+
+void main_menu_keyboard::update_letter()
+{
+    field_E4.guts[field_138] = field_F4[field_104[field_138]];
+    mString letter{0, "%c", field_E4.guts[field_138]};
+    field_C4[field_138]->SetTextNoLocalize(FEText::string{letter});
+}
+
+void main_menu_keyboard::OnUp(int)
+{
+    if (field_AC->field_2D)
+        return;
+    static string_hash scroll{"FE_PF_UDScroll"};
+    [[maybe_unused]] auto sound = sub_60B960(scroll, 1.0f, 1.0f);
+    if (--field_104[field_138] < 0)
+        field_104[field_138] = static_cast<int>(field_F4.size()) - 1;
+    update_letter();
+}
+
+void main_menu_keyboard::OnDown(int)
+{
+    if (field_AC->field_2D)
+        return;
+    static string_hash scroll{"FE_PF_UDScroll"};
+    [[maybe_unused]] auto sound = sub_60B960(scroll, 1.0f, 1.0f);
+    if (++field_104[field_138] == static_cast<int>(field_F4.size()))
+        field_104[field_138] = 0;
+    update_letter();
+}
+
+void main_menu_keyboard::move_letter(int delta)
+{
+    if (field_AC->field_2D)
+        return;
+    static string_hash scroll{"FE_PF_LRScroll"};
+    [[maybe_unused]] auto sound = sub_60B960(scroll, 1.0f, 1.0f);
+    const int previous = field_138;
+    field_138 = (field_138 + delta + 8) % 8;
+    field_C0->SetX(field_C4[field_138]->GetX());
+    field_A8->SetPosition(field_C4[field_138]->GetX(), field_A4->GetCenterY());
+    field_C4[previous]->SetScale(1.5f);
+    field_C4[field_138]->SetScale(2.0f);
+}
+
+void main_menu_keyboard::OnLeft(int) { move_letter(-1); }
+void main_menu_keyboard::OnRight(int) { move_letter(1); }
+
+void main_menu_keyboard::OnCross(int)
+{
+    if (field_AC->field_2D)
+        return;
+    static string_hash accept{"FE_PF_Accept"};
+    [[maybe_unused]] auto sound = sub_60B960(accept, 1.0f, 1.0f);
+    field_13D = true;
+    for (int i = 0; i < 8; ++i)
+        if (field_E4.guts[i] != ' ')
+            field_13D = false;
+    if (field_13D) {
+        field_E4 = get_msg(g_fileUSM, "DEFAULT_PLAYER");
+        while (field_E4.size() < 8)
+            field_E4 += " ";
+        field_13D = false;
+    }
+    std::strncpy(g_game_ptr->gamefile->field_4A8, field_E4.c_str(), 12);
+    g_game_ptr->gamefile->field_4A8[11] = '\0';
+    play_keyboard_animation(field_AC, false);
+    field_AC->field_24 = 1;
+    field_13A = true;
+}
+
+void main_menu_keyboard::OnTriangle(int)
+{
+    if (field_AC->field_2D ||
+        static_cast<main_menu_memcard_check *>(field_140->field_4[2])->field_108 != 2)
+        return;
+    play_keyboard_animation(field_AC, false);
+    field_AC->field_24 = 1;
+    static string_hash back{"FE_PF_Back"};
+    [[maybe_unused]] auto sound = sub_60B960(back, 1.0f, 1.0f);
+    field_13B = true;
+}
+
+void main_menu_keyboard::OnSquare(int controller)
+{
+    if (field_AC->field_2D)
+        return;
+    static string_hash clear{"FE_PF_Clear"};
+    [[maybe_unused]] auto sound = sub_60B960(clear, 1.0f, 1.0f);
+    for (int i = 0; i < 8; ++i) {
+        field_104[i] = static_cast<int>(field_F4.size()) - 1;
+        field_E4.guts[i] = field_F4[field_104[i]];
+        mString letter{0, "%c", field_E4.guts[i]};
+        field_C4[i]->SetTextNoLocalize(FEText::string{letter});
+    }
+    field_138 = 1;
+    OnLeft(controller);
+}
+
+void main_menu_keyboard::OnCircle(int controller)
+{
+    if (field_AC->field_2D)
+        return;
+    static string_hash backspace{"FE_PF_Backspace"};
+    [[maybe_unused]] auto sound = sub_60B960(backspace, 1.0f, 1.0f);
+    field_104[field_138] = static_cast<int>(field_F4.size()) - 1;
+    update_letter();
+    if (field_138 > 0)
+        OnLeft(controller);
 }
 
 void main_menu_keyboard::_Init()
@@ -137,7 +388,12 @@ void main_menu_keyboard::_Init()
 
 void main_menu_keyboard::OnDeactivate(FEMenu *a2)
 {
-    THISCALL(0x00613D10, this, a2);
+    if constexpr (STANDALONE_SYSTEM) {
+        Input::instance->sub_8203F0(0, g_inputSettingsMenu);
+        field_28 &= ~0x80;
+    } else {
+        THISCALL(0x00613D10, this, a2);
+    }
 }
 
 void main_menu_keyboard_patch()

@@ -112,17 +112,7 @@ void verify_parms_integrity(script_library_class::function *func, vm_stack *the_
 bool script_library_class::function::operator()(
     vm_stack &a2, script_library_class::function::entry_t a3) const
 {
-    auto *address = get_vfunc((int)m_vtbl, 0x4);
-    const auto address_value = reinterpret_cast<std::uintptr_t>(address);
-    if (address_value < 0x00400000 || address_value >= 0x00800000) {
-        assert(false && "Invalid standalone SLF dispatcher");
-        return true;
-    }
-
-    bool __stdcall (*func)(
-        vm_stack &, script_library_class::function::entry_t) =
-        CAST(func, address);
-    return func(a2, a3);
+    return m_vtbl->__cl(this, nullptr, a2, a3);
 }
 
 const char *script_library_class::get_name() const

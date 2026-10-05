@@ -20,6 +20,9 @@
 #include "panel_layer.h"
 #include "panelfile.h"
 #include "panelanimfile.h"
+#include "panelanim.h"
+#include "panelquad.h"
+#include "sound_instance_id.h"
 #include "region.h"
 #include "resource_manager.h"
 #include "terrain.h"
@@ -92,6 +95,27 @@ fe_mini_map_widget::~fe_mini_map_widget()
 
     for (auto &mat : this->field_4) {
         mat.m_texture = nullptr;
+    }
+}
+
+void fe_mini_map_widget::SetShown(bool shown)
+{
+    field_3A8 = shown;
+    compass_arrow->Rotate(Float{compass_base->GetCenterX()},
+                          Float{compass_base->GetCenterY()}, Float{0.0f}, true);
+    if (field_3A0) {
+        for (auto *anim : field_3A0->field_0)
+            anim->field_14->StartAnim(true);
+        field_3A0->field_18 = 0;
+        field_3A0->field_1C = 0;
+        field_3A0->field_20 = field_3A0->field_14;
+        field_3A0->field_28 = 0;
+        field_3A0->field_2C = false;
+        field_3A0->field_2D = true;
+        field_3A0->field_24 = shown ? 0 : 1;
+        static string_hash in_sound{"FE_MINIMAP_IN"};
+        static string_hash out_sound{"FE_MINIMAP_OUT"};
+        (void)sub_60B960(shown ? in_sound : out_sound, Float{1.0f}, Float{1.0f});
     }
 }
 

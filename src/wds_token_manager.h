@@ -47,6 +47,9 @@ struct wds_token_manager {
 
     // 0x0054C0C0
     void run_left_token_trigger();
+
+
+    void mark_invisible_by_id(bool visible);
 };
 
 extern void wds_token_manager_patch();

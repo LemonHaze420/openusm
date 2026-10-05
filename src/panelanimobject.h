@@ -32,6 +32,9 @@ struct PanelAnimObject : mash_virtual_base {
     //virtual
     void SetZvalue(Float a1, panel_layer a2);
 
+    void SetZvalueAbs(Float a1);
+
+
     //0x0043A0D0
     //virtual
     bool IsShown();

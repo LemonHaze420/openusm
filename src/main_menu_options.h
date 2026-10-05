@@ -41,14 +41,18 @@ struct main_menu_options : FEMenu {
 
     void _Init();
 
+    void Draw();
+
     /* virtual */ void Update(Float a3);
 
     //0x0062CE60
     /* virtual */ void OnActivate();
 
+    /* virtual */ void OnUp(int a2);
+
     /* virtual */ void OnDown(int a2);
 
-    /* virtual */ void OnCross(int a2);
+                  void OnCross(int a2);
 
     void update_highlight();
 };

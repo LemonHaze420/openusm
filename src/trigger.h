@@ -33,6 +33,12 @@ struct trigger : signaller {
 
     entity *get_triggered_ent();
 
+
+    vector3d get_position();
+
+
+    bool contains(const vector3d &position);
+
     //0x0053C390
     void set_multiple_entrance(bool a2);
 

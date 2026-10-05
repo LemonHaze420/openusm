@@ -35,7 +35,18 @@ trigger::trigger(string_hash a2) : signaller(true)
 
 trigger::~trigger()
 {
-    THISCALL(0x0056FE50, this);
+    if constexpr (STANDALONE_SYSTEM) {
+        m_vtbl = 0x008887F8;
+        m_next_trigger = nullptr;
+        delete trigger_current_entities;
+        trigger_current_entities = nullptr;
+        my_rel_po = nullptr;
+        my_abs_po = nullptr;
+        adopted_children = nullptr;
+        my_conglom_root = nullptr;
+    } else {
+        THISCALL(0x0056FE50, this);
+    }
 }
 
 void trigger::update(trigger_struct *subjects, int subject_count)
@@ -127,9 +138,18 @@ entity *trigger::get_triggered_ent()
     return result;
 }
 
-void trigger::set_multiple_entrance(bool a2)
+void trigger::set_multiple_entrance(bool enabled)
 {
-    THISCALL(0x0053C390, this, a2);
+    if (enabled) {
+        if ((field_4 & 0x20) == 0) {
+            field_4 |= 0x20;
+            trigger_current_entities = new _std::list<vhandle_type<entity>>{};
+        }
+    } else if ((field_4 & 0x20) != 0) {
+        field_4 &= ~0x20u;
+        delete trigger_current_entities;
+        trigger_current_entities = nullptr;
+    }
 }
 
 bool trigger::is_point_trigger() const
@@ -145,4 +165,34 @@ bool trigger::is_box_trigger() const
 bool trigger::is_entity_trigger() const
 {
     return m_vtbl == 0x0088A240;
+}
+
+vector3d trigger::get_position()
+{
+    if (is_point_trigger())
+        return static_cast<point_trigger *>(this)->field_58;
+    if (is_box_trigger()) {
+        auto *box = static_cast<box_trigger *>(this);
+        auto *owner = box->get_box_ent();
+        return owner != nullptr ? owner->get_abs_position() : box->field_5C;
+    }
+    if (is_entity_trigger()) {
+        auto *owner = static_cast<entity_trigger *>(this)->get_ent();
+        if (owner != nullptr)
+            return owner->get_abs_position();
+        const auto unset = bit_cast<float>(0xFFFFFFFFu);
+        return vector3d{unset, unset, unset};
+    }
+    return ZEROVEC;
+}
+
+bool trigger::contains(const vector3d &position)
+{
+    if (is_point_trigger())
+        return (position - static_cast<point_trigger *>(this)->field_58).length2() < field_48 * field_48;
+    if (is_box_trigger())
+        return static_cast<box_trigger *>(this)->triggered(position);
+    if (is_entity_trigger())
+        return (position - static_cast<entity_trigger *>(this)->field_5C).length2() < field_48 * field_48;
+    return false;
 }

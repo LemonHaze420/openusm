@@ -166,6 +166,32 @@ void fe_health_widget::DeInit(int a2)
     }
 }
 
+void fe_health_widget::set_poison_bar_precent(float percent)
+{
+    if (percent < 0.0f)
+        field_4C = 0.0f;
+    else
+        field_4C = percent > 1.0f ? 1.0f : percent;
+}
+
+void fe_health_widget::set_regen_bar_shown(bool shown)
+{
+    if (field_48 != nullptr)
+        field_48->TurnOn(shown);
+}
+
+void fe_health_widget::set_poison_bar_shown(bool shown)
+{
+    if (field_44 != nullptr)
+        field_44->TurnOn(shown);
+}
+
+void fe_health_widget::set_health_bar_shown(bool shown)
+{
+    if (field_40 != nullptr)
+        field_40->TurnOn(shown);
+}
+
 void fe_health_widget_patch()
 {
     REDIRECT(0x005718F4, func_address(&fe_health_widget::Init));

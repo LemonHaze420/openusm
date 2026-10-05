@@ -62,14 +62,10 @@ void alternate_costumes::sub_640740(int idx) {
             mString a3{off_937798()[idx]};
 
             auto *v3 = g_cut_scene_player();
-            auto *v4 = v3->field_7C;
-            if (v4 != nullptr) {
-                ::operator delete(v4);
+            {
+                _std::vector<entity_base_vhandle> released_entities;
+                v3->tracked_entities[1].swap(released_entities);
             }
-
-            v3->field_7C = nullptr;
-            v3->field_80 = 0;
-            v3->field_84 = 0;
             g_world_ptr->ent_mgr.release_entity(this->field_150);
             mString a1 = "ch_vwr_" + a3;
 

@@ -4,6 +4,7 @@
 #include "fetext.h"
 #include "func_wrapper.h"
 #include "panelanim.h"
+#include "panelanimkeyframe.h"
 #include "matrix4x4.h"
 
 #include "panelquad.h"
@@ -75,6 +76,18 @@ void PanelAnimFile::Update(Float a2)
             static_cast<PanelQuad *>(target)->Animate(transform, visibility);
         else
             reinterpret_cast<FEText *>(target)->Animate(transform, visibility);
+    }
+}
+
+void PanelAnimFile::SetPosition(float x, float y)
+{
+    for (int i = 0; i < field_0.size(); ++i) {
+        auto *animation = field_0.m_data[i];
+        for (int j = 0; j < animation->field_0.size(); ++j) {
+            auto *keyframe = animation->field_0.m_data[j];
+            keyframe->field_0 = bit_cast<int>(x);
+            keyframe->field_4 = bit_cast<int>(y);
+        }
     }
 }
 

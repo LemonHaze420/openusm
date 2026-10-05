@@ -4,50 +4,63 @@
 #include "float.hpp"
 #include "game_button.h"
 #include "mvector.h"
+#include "sound_instance_id.h"
 
 #include <vector.hpp>
 
 struct entity_base;
+struct entity;
 struct cut_scene;
-struct nalStreamInstance;
+struct nalSceneAnimInstance;
 struct cut_scene_segment;
+struct region;
+struct tracking_panel_anim;
+namespace comic_panels {
+struct panel;
+struct page_camera;
+}
+
+struct cut_scene_panel_state {
+    string_hash id;
+    comic_panels::panel *panel;
+    tracking_panel_anim *animation;
+};
+
+struct cut_scene_panel_node {
+    cut_scene_panel_node *left;
+    cut_scene_panel_node *right;
+    cut_scene_panel_node *parent;
+    cut_scene_panel_state *state;
+    int8_t height;
+};
+
+struct cut_scene_panel_tree {
+    cut_scene_panel_node *root = nullptr;
+    int count = 0;
+    bool owns_panels = true;
+
+    ~cut_scene_panel_tree();
+};
 
 struct cut_scene_player {
     cut_scene *current_cut_scene;
     mVector<cut_scene_segment>::iterator current_segment;
-    int field_8;
-    int field_C;
-    char field_10;
-    int field_14;
-    int field_18;
-    int field_1C;
-    int field_20;
-    int field_24;
-    int field_28;
-    int field_2C;
-    int field_30;
-    int field_34;
-    int field_38;
-    int field_3C;
-    int field_40;
-    int field_44;
-    _std::vector<nalStreamInstance *> field_48;
-    _std::vector<nalStreamInstance *> field_58;
-    int field_68[5];
-    void *field_7C;
-    int field_80;
-    int field_84;
-
-    int field_88[12];
-
-    int field_B8;
+    cut_scene_panel_tree panels;
+    comic_panels::page_camera *page_camera;
+    _std::vector<entity_base_vhandle> animated_entities;
+    _std::vector<entity_base_vhandle> restored_entities;
+    _std::vector<entity *> acquired_entities;
+    _std::vector<nalSceneAnimInstance *> streams;
+    _std::vector<region *> hidden_regions;
+    _std::vector<entity_base_vhandle> tracked_entities[5];
+    sound_instance_id sound_inst;
     _std::vector<entity_base_vhandle> field_BC;
-    entity_base *field_CC;
-    entity_base *field_D0;
-    bool field_D4;
-    bool field_D5;
-    bool field_D6;
-    bool field_D7;
+    entity *owned_camera;
+    entity *current_camera;
+    bool minimap_was_shown;
+    bool hero_health_was_shown;
+    bool boss_health_was_shown;
+    bool peds_and_traffic_overridden;
     bool m_traffic_enabled;
     bool m_peds_enabled;
     int field_DC;
@@ -60,12 +73,15 @@ struct cut_scene_player {
     int field_150;
     float field_154;
     float field_158;
-    int field_15C;
-    int field_160;
-    int field_164;
+    float field_15C;
+    float field_160;
+    float field_164;
 
     //0x0073F170
     cut_scene_player();
+    ~cut_scene_player();
+
+    static void restore_game_play_panel();
 
     //0x00737F60
     void advance_lip_syncing(Float a2);
@@ -93,8 +109,6 @@ struct cut_scene_player {
     //0x00740660
     void stop(cut_scene *a2);
 
-    //0x0086DE50
-    static void finalize();
 };
 
 //0x007411C0

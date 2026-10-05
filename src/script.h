@@ -6,11 +6,18 @@
 struct script_instance;
 class script_object;
 struct vm_thread;
+struct entity_base;
+struct actor;
+struct vector3d;
 
 namespace script {
 
 //0x0064E4F0
 extern int find_function(string_hash a1, const script_object *a2, bool a3);
+vm_thread *new_thread(int function, script_instance *instance);
+bool push_arg(entity_base *entity);
+bool push_arg(const vector3d &vector);
+bool exec_thread(bool immediate);
 
 #if STANDALONE_SYSTEM
 inline script_object *standalone_gso{};
@@ -41,5 +48,9 @@ inline script_object *get_gso()
 }
 
 }  // namespace script
+
+
+vm_thread *spawn_thread_for_func(string_hash function, script_instance *instance);
+vm_thread *find_func_and_spawn_new_thread(actor *owner, string_hash function);
 
 extern void script_patch();

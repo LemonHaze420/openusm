@@ -1,4 +1,16 @@
 #include "mission_manager.h"
+#include "als_animation_logic_system.h"
+#include "mission_stack_manager.h"
+#include "entity.h"
+#include "cut_scene_player.h"
+#include "ngl.h"
+#include "panelfile.h"
+#include "panelquad.h"
+#include "fetext.h"
+#include "physical_interface.h"
+#include "resource_partition.h"
+#include "resource_pack_streamer.h"
+#include "vtbl.h"
 
 #include "common.h"
 #include "event.h"
@@ -21,8 +33,15 @@
 #include "trigger_manager.h"
 #include "variables.h"
 #include "wds.h"
+#include "eligible_pack.h"
+#include "script.h"
+#include "chuck/vm/script_object.h"
+#include "chuck/vm/vm_executable.h"
+#include <algorithm>
+#include <cstdlib>
 
 #include <cassert>
+#include <cfloat>
 
 VALIDATE_SIZE(mission_manager, 0x100u);
 
@@ -30,39 +49,39 @@ mission_manager *&mission_manager::s_inst = var<mission_manager *>(0x00968518);
 
 mString &mission_manager::current_mission_debug_title = var<mString>(0x00969E90);
 
+
+static void suspend_mission_hero()
+{
+    auto *hero = g_world_ptr->get_hero_ptr(0);
+    if (hero != nullptr) {
+        hero->suspend(true);
+        hero->field_8 |= 0x4000;
+        hero->physical_ifc()->suspend(true);
+        hero->physical_ifc()->enable(false);
+    }
+}
+
 mission_manager::mission_manager()
 {
     if constexpr (STANDALONE_SYSTEM) {
         s_inst = this;
-        field_0 = 0;
-        field_4 = 0;
-        field_8 = 0;
-        field_C = 0;
-        field_10 = 0;
+        field_0 = 0.5f;
+        field_4 = 0.0f;
         m_global_table_container = nullptr;
-        m_district_table_containers[0] = nullptr;
-        field_1C = 0;
-        field_20 = 0;
-        field_24 = 0;
-        field_28 = 0;
-        field_2C = 0;
-        field_30 = 0;
-        field_34 = 0;
+        for (auto &table : m_district_table_containers)
+            table = nullptr;
         m_district_table_count = 0;
         m_script_to_load = nullptr;
         m_script = nullptr;
-        field_44[0] = 0;
-        field_44[1] = 0;
-        field_44[2] = 0;
         m_unload_script = false;
         field_54 = 0;
-        field_58 = 5;
+        field_58 = 5.0f;
         field_5C = 0;
         field_60 = nullptr;
         field_64 = 0.0f;
         field_68 = 0;
         field_6C = nullptr;
-        field_70 = 0;
+        field_70 = 0.0f;
         field_74 = 1;
         field_78 = nullptr;
         field_7C = nullptr;
@@ -77,6 +96,30 @@ mission_manager::mission_manager()
         field_F4 = 0.0f;
         field_F8 = -1.0f;
         field_FC = 0;
+
+        vector2d panel_positions[] = {
+            {410.0f, 400.0f}, {575.0f, 400.0f},
+            {395.0f, 430.0f}, {560.0f, 430.0f},
+        };
+        color32 panel_colors[] = {
+            {21, 21, 99, 255}, {21, 21, 99, 255},
+            {21, 21, 99, 255}, {21, 21, 99, 255},
+        };
+        field_8 = new PanelQuad;
+        field_8->Init(panel_positions, panel_colors, static_cast<panel_layer>(1), 2.0f, "");
+        vector2d border_positions[] = {
+            {408.0f, 398.0f}, {577.0f, 398.0f},
+            {393.0f, 432.0f}, {562.0f, 432.0f},
+        };
+        color32 border_colors[] = {
+            {0, 0, 0, 255}, {0, 0, 0, 255},
+            {0, 0, 0, 255}, {0, 0, 0, 255},
+        };
+        field_C = new PanelQuad;
+        field_C->Init(border_positions, border_colors, static_cast<panel_layer>(1), 3.0f, "");
+        field_10 = new FEText(static_cast<font_index>(1), static_cast<global_text_enum>(293),
+                              485.0f, 415.0f, 1, static_cast<panel_layer>(1), 1.0f, 0, 0,
+                              color32{});
     } else {
         void(__fastcall * func)(mission_manager *) = CAST(func, 0x005DA010);
         func(this);
@@ -127,23 +170,75 @@ void mission_manager::set_real_time()
 
     float *v2 = CAST(v2, this->field_60);
     this->field_64 = 0.0;
-    this->field_5C = static_cast<int>(*v2);
+    this->field_5C = static_cast<uint32_t>(*v2);
 }
 
 void mission_manager::show_mission_loading_panel(const mString &a1)
 {
     TRACE("mission_manager::show_mission_loading_panel", a1.c_str());
 
-    THISCALL(0x005DA4B0, this, &a1);
+    if constexpr (STANDALONE_SYSTEM) {
+        if (a1 == mString{"fade"}) {
+            sub_5BACA0(1.0f);
+            return;
+        }
+        suspend_mission_hero();
+        g_game_ptr->field_165 = true;
+        field_FC = 4;
+        g_cut_scene_player()->field_154 = -1.0f;
+        const mString pack = mString{"ts_"} + a1;
+        const mString label{"loading screen"};
+        mission_stack_manager::s_inst->push_mission_pack(label, pack, -1, true);
+        auto *partition = resource_manager::get_partition_pointer(RESOURCE_PARTITION_MISSION);
+        resource_manager::push_resource_context(partition->get_pack_slots().front());
+        const mString title = mString{"title_"} + a1;
+        auto *panel = PanelFile::UnmashPanelFile(title.c_str(), static_cast<panel_layer>(7));
+        resource_manager::pop_resource_context();
+        for (int frame = 0; frame != 2; ++frame) {
+            nglListInit();
+            nglSetClearFlags(1);
+            nglSetClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            panel->Draw();
+            nglListSend(true);
+        }
+        game::render_empty_list();
+        mission_stack_manager::s_inst->pop_mission_pack(label, pack);
+        partition->get_streamer()->flush(nullptr);
+    } else {
+        THISCALL(0x005DA4B0, this, &a1);
+    }
 }
 
-int mission_manager::run_script(const mission_manager_script_data &arg0)
+void mission_manager::run_script(const mission_manager_script_data &data)
 {
-    TRACE("mission_manager::run_script");
-
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
+        m_script = new mission_manager_script_data{data};
+        current_mission_debug_title = mString{0, "%s (%s)", m_script->field_0.c_str(),
+                                              m_script->field_A4.m_hash.to_string()};
+        auto *slot = resource_manager::get_partition_pointer(RESOURCE_PARTITION_MISSION)->get_pack_slots().front();
+        resource_manager::push_resource_context(slot);
+        const resource_key key{string_hash{data.field_0.c_str()}, RESOURCE_KEY_TYPE_SCRIPT};
+        auto *entry = script_manager::load(key, 0, slot, resource_key{});
+        script_manager::link();
+        if (data.field_B5) {
+            static const string_hash callback{"mission_called_from_debug_menu()"};
+            if (auto *function = entry->exec->find_function_by_name(callback)) {
+                auto *instance = function->owner->instances->_first_element;
+                const int index = script::find_function(callback, instance->parent, false);
+                if (index >= 0)
+                    script::new_thread(index, instance);
+                script::exec_thread(false);
+            }
+        }
+        if (entry != nullptr)
+            entry->field_C = data.field_A4;
+        resource_manager::pop_resource_context();
+        if (!data.field_C8.empty() && _strcmpi(data.field_C8.c_str(), g_world_ptr->field_3E0.c_str()) != 0) {
+            field_D0 = fixedstring<8>{data.field_C8.c_str()};
+            hero_switch_frame = 0;
+        }
     } else {
-        return THISCALL(0x005DEFA0, this, &arg0);
+        THISCALL(0x005DEFA0, this, &data);
     }
 }
 
@@ -195,14 +290,50 @@ void mission_manager::unload_script_if_requested()
 {
     TRACE("mission_manager::unload_script_if_requested");
 
-    THISCALL(0x005DBD00, this);
+    if constexpr (STANDALONE_SYSTEM) {
+        if (!m_unload_script)
+            return;
+        auto *partition = resource_manager::get_partition_pointer(RESOURCE_PARTITION_MISSION);
+        if (field_54 != 0) {
+            if (!partition->get_pack_slots().empty()) {
+                auto *stack = mission_stack_manager::s_inst;
+                if (stack->pack_loads_or_unloads_pending == 0)
+                    stack->pop_mission_pack_internal();
+            } else {
+                if (m_script->field_D8.size() != 0 &&
+                    _strcmpi(m_script->field_D8.c_str(), g_world_ptr->field_3E0.c_str()) != 0) {
+                    field_D0 = fixedstring<8>{m_script->field_D8.c_str()};
+                    hero_switch_frame = 0;
+                }
+                field_54 = 0;
+                m_unload_script = false;
+                delete m_script;
+                m_script = nullptr;
+                current_mission_debug_title = "";
+            }
+        } else {
+            for (auto &entry : als::animation_logic_system_interface::the_als_list) {
+                if (entry.field_0->sub_4933E0()) {
+                    entry.field_0->reset_animation_player();
+                    break;
+                }
+            }
+            resource_manager::push_resource_context(partition->get_pack_slots().front());
+            resource_key script_key{string_hash{m_script->field_0.c_str()}, RESOURCE_KEY_TYPE_SCRIPT};
+            script_manager::un_load(script_key, true, resource_key{});
+            resource_manager::pop_resource_context();
+            field_54 = 1;
+        }
+    } else {
+        THISCALL(0x005DBD00, this);
+    }
 }
 
 void mission_manager::load_script(const mission_manager_script_data &data)
 {
     TRACE("mission_manager::load_script");
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         assert(data.uses_script_stack);
 
         assert(m_script_to_load == nullptr);
@@ -210,8 +341,6 @@ void mission_manager::load_script(const mission_manager_script_data &data)
         mString v10{"pk_"};
 
         mString a3 = v10 + data.field_0;
-
-        sp_log("Loading script %s", data.field_0.c_str());
 
         string_hash v7{a3.c_str()};
 
@@ -221,17 +350,13 @@ void mission_manager::load_script(const mission_manager_script_data &data)
             this->m_script_to_load = new mission_manager_script_data{};
 
             this->m_script_to_load->copy(data);
-            if (data.field_B8 == mString{""}) {
+            if (!data.field_B8.empty()) {
                 this->show_mission_loading_panel(data.field_B8);
             }
 
             this->field_4 = 0;
             mission_stack_manager::s_inst->push_mission_pack(data.field_0, a3, -1, false);
-        } else {
-            sp_log("Could not find pack file %s", a3.c_str());
-            assert(0);
         }
-
     } else {
         THISCALL(0x005DEE40, this, &data);
     }
@@ -239,20 +364,54 @@ void mission_manager::load_script(const mission_manager_script_data &data)
 
 void mission_manager::render_fade()
 {
-    THISCALL(0x005BAE20, this);
+    if (field_F4 >= 0.0001f) {
+        unsigned int alpha = static_cast<unsigned int>(field_F4 * 255.0f);
+        if (alpha > 250) {
+            alpha = 255;
+            if (field_F4 >= 1.0f) {
+                g_game_ptr->field_165 = true;
+                g_game_ptr->field_166 = false;
+            }
+        }
+        nglQuad quad;
+        nglInitQuad(&quad);
+        nglSetQuadRect(&quad, -0.5f, -0.5f,
+                       static_cast<float>(nglGetScreenWidth()) + 0.5f,
+                       static_cast<float>(nglGetScreenHeight()) + 0.5f);
+        nglSetQuadZ(&quad, 0.0f);
+        nglSetQuadColor(&quad, alpha << 24);
+        nglListAddQuad(&quad);
+    }
 }
 
 void mission_manager::sub_5BACA0(Float a2)
 {
-    THISCALL(0x005BACA0, this, a2);
+    if (field_FC != 3 && field_FC != 4) {
+        field_4 = 0.0f;
+        if (a2 > 0.0f) {
+            field_F8 = 1.0f / a2;
+        } else {
+            for (int frame = 0; frame != 2; ++frame) {
+                nglListInit();
+                nglListBeginScene(static_cast<nglSceneParamType>(0));
+                nglSetClearFlags(1);
+                nglSetClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+                nglListEndScene();
+                nglListSend(true);
+            }
+            field_F4 = 1.0f;
+            field_F8 = FLT_MAX;
+        }
+        field_FC = 1;
+        g_game_ptr->field_166 = true;
+        suspend_mission_hero();
+    }
 }
 
 void mission_manager::frame_advance(Float a2)
 {
     TRACE("mission_manager::frame_advance");
     if constexpr (STANDALONE_SYSTEM) {
-        return;
-    } else if constexpr (0) {
         if ((!g_game_ptr->flag.physics_enabled || g_game_ptr->flag.single_step) && g_game_ptr->level.load_completed &&
             g_game_ptr->flag.level_is_loaded) {
             auto v4 = this->field_FC;
@@ -290,14 +449,8 @@ void mission_manager::frame_advance(Float a2)
             auto v7 = a2 + this->field_64;
             this->field_64 = v7;
             if (v7 >= 1.f) {
-                auto v8 = this->field_5C + 1;
-                this->field_5C = v8;
-                auto v9 = (double)this->field_5C;
-                if (v8 < 0) {
-                    v9 += flt_86F860;
-                }
-
-                *this->field_60 = v9;
+                ++this->field_5C;
+                *this->field_60 = static_cast<float>(this->field_5C);
                 this->field_64 = this->field_64 - 1.f;
             }
 
@@ -317,12 +470,7 @@ void mission_manager::frame_advance(Float a2)
             }
 
             if (!g_game_ptr->flag.game_paused || s_freeze_game_time) {
-                double v10 = this->field_74;
-                if (this->field_74 < 0) {
-                    v10 += flt_86F860;
-                }
-
-                auto v11 = v10 * a2 + this->field_70;
+                auto v11 = static_cast<double>(this->field_74) * a2 + this->field_70;
                 this->field_70 = v11;
                 if (v11 >= 1.f) {
                     do {
@@ -342,16 +490,11 @@ void mission_manager::frame_advance(Float a2)
                             event_manager::raise_event(event::TIME_DAY_INC, entity_base_vhandle{0});
                             *this->field_7C += 1.f;
                             auto *v14 = this->field_7C;
-                            if (*v14 > flt_87EBD4)
+                            if (*v14 > 6.0f)
                                 *v14 = 0.0;
                         }
 
-                        double v15 = this->field_68;
-                        if (this->field_68 < 0) {
-                            v15 += flt_86F860;
-                        }
-
-                        *this->field_6C = v15;
+                        *this->field_6C = static_cast<float>(this->field_68);
                         this->field_70 = this->field_70 - 1.f;
                     } while (this->field_70 >= 1.f);
                 }
@@ -368,11 +511,7 @@ void mission_manager::frame_advance(Float a2)
                  v16) &&
                 v17 && this->field_FC != 1) {
                 this->run_script(*this->m_script_to_load);
-                auto *v18 = this->m_script_to_load;
-                if (v18 != nullptr) {
-                    v18->~mission_manager_script_data();
-                    delete v18;
-                }
+                delete this->m_script_to_load;
 
                 this->m_script_to_load = nullptr;
             } else {
@@ -426,17 +565,108 @@ void mission_manager::kill_braindead_script()
 
 void mission_manager::sort_district_priorities()
 {
-    THISCALL(0x005DBCD0, this);
+    std::sort(m_district_table_containers, m_district_table_containers + m_district_table_count,
+              [](const mission_table_container *left, const mission_table_container *right) {
+                  return left->field_44->field_108.front()->get_priority() <
+                         right->field_44->field_108.front()->get_priority();
+              });
 }
 
 void mission_manager::sub_5BB220(Float a2)
 {
-    THISCALL(0x005BB220, this, a2);
+    const float remaining = field_4 - a2;
+    const bool draw_text = field_4 >= 0.0f && remaining < 0.0f;
+    const bool clear_text = field_4 >= field_0 && remaining < field_0;
+    if (draw_text || clear_text) {
+        if (draw_text)
+            field_10->SetText(static_cast<global_text_enum>(293));
+        for (int frame = 0; frame != 2; ++frame) {
+            nglListInit();
+            nglListBeginScene(static_cast<nglSceneParamType>(0));
+            nglSetClearFlags(field_FC == 3 ? 1 : 0);
+            nglSetClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            field_C->Draw();
+            field_8->Draw();
+            if (draw_text)
+                field_10->Draw();
+            nglListEndScene();
+            nglListSend(true);
+        }
+    }
+    field_4 = draw_text ? field_0 + field_0 : remaining;
+}
+
+void mission_manager::get_script_helper(mission_table_container *table, uint32_t *priority,
+                                        _std::vector<mission_manager_script_data> *candidates)
+{
+    if (field_80 && !candidates->empty())
+        return;
+    mission_manager_script_data data;
+    for (const auto &condition : table->field_38) {
+        data.clear();
+        if (!condition.check_condition(&data))
+            continue;
+        if (field_80) {
+            data.field_B5 = true;
+            candidates->clear();
+            candidates->push_back(data);
+            *priority = 0;
+            break;
+        }
+        const auto candidate_priority = static_cast<uint32_t>(data.field_10);
+        if (candidate_priority < *priority) {
+            candidates->clear();
+            *priority = candidate_priority;
+        }
+        if (candidate_priority == *priority)
+            candidates->push_back(data);
+    }
 }
 
 bool mission_manager::get_script(mission_manager_script_data *return_script_data)
 {
-    return (bool)THISCALL(0x005E13D0, this, return_script_data);
+    if (m_unload_script && field_80)
+        return false;
+    _std::vector<mission_manager_script_data> candidates;
+    uint32_t priority = UINT32_MAX;
+    if (m_global_table_container != nullptr && (!field_80 || field_84 == 0))
+        get_script_helper(m_global_table_container, &priority, &candidates);
+    if (m_district_table_count > 0) {
+        static int next_district = 0;
+        if (next_district >= m_district_table_count)
+            next_district = 0;
+        auto *table = m_district_table_containers[next_district++];
+        if (!field_80 || field_84 == table->field_44->get_district_id())
+            get_script_helper(table, &priority, &candidates);
+    }
+    if (candidates.empty())
+        return false;
+    field_80 = false;
+    if (candidates.size() == 1) {
+        return_script_data->copy(candidates.front());
+    } else {
+        bool repeated = true;
+        for (int attempt = 0; attempt < 6; ++attempt) {
+            const auto index = static_cast<unsigned int>(
+                static_cast<double>(std::rand()) * candidates.size() / (static_cast<double>(RAND_MAX) + 1.0));
+            return_script_data->copy(candidates[index]);
+            repeated = false;
+            for (const auto &previous : field_44) {
+                if (strncmp(return_script_data->field_0.c_str(), previous.c_str(), 0xFFFF) == 0) {
+                    repeated = true;
+                    break;
+                }
+            }
+            if (!repeated)
+                break;
+        }
+        if (!repeated) {
+            field_44.push_front(return_script_data->field_0);
+            if (field_44.size() > 10)
+                field_44.pop_back();
+        }
+    }
+    return true;
 }
 
 int mission_manager::add_global_table(const resource_key &key)
@@ -445,9 +675,6 @@ int mission_manager::add_global_table(const resource_key &key)
     if (resource == nullptr) {
         return 0;
     }
-#if STANDALONE_SYSTEM
-    return 0;
-#endif
 
     return parse_generic_object_mash(
         m_global_table_container, resource, nullptr, nullptr, nullptr, 0, 0, nullptr);
@@ -469,6 +696,17 @@ void mission_manager::add_district_table(void *a2, region *a3)
         this->m_district_table_containers[this->m_district_table_count++]->field_44 = a3;
     } else {
         THISCALL(0x005D1EE0, this, a2, a3);
+    }
+}
+
+void mission_manager::rem_district_table(region *reg)
+{
+    for (int i = 0; i < m_district_table_count; ++i) {
+        if (m_district_table_containers[i]->field_44 == reg) {
+            m_district_table_containers[i] =
+                m_district_table_containers[--m_district_table_count];
+            return;
+        }
     }
 }
 

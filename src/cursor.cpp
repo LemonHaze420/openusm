@@ -11,19 +11,29 @@
 #include <d3dx9tex.h>
 
 VALIDATE_SIZE(Cursor, 0x13C);
+VALIDATE_OFFSET(Cursor, field_12C, 0x12C);
 
 Cursor *&g_cursor = var<Cursor *>(0x0096191C);
+
+namespace {
+Cursor *__fastcall destroy_cursor(Cursor *cursor, void *, unsigned char flags)
+{
+    cursor->~Cursor();
+    if ((flags & 1) != 0)
+        operator delete(cursor);
+    return cursor;
+}
+void *native_cursor_table[]{reinterpret_cast<void *>(&destroy_cursor)};
+}
 
 Cursor::Cursor(LPCWSTR lpWideCharStr, int a3, int a4)
 {
     if constexpr (1) {
-        this->m_vtbl = 0x0088F4F8;
+        this->m_vtbl = STANDALONE_SYSTEM
+            ? reinterpret_cast<std::intptr_t>(native_cursor_table) : 0x0088F4F8;
         nglTexture *v5 = &this->field_7C;
         v5->FileName = {};
 
-        this->field_130 = nullptr;
-        this->field_134 = 0;
-        this->field_138 = 0;
         auto **v6 = &this->field_14;
 
         lpWideCharStr = L"data\\ump.dat";
@@ -72,28 +82,38 @@ Cursor *__fastcall hookCtor(Cursor *self, void *, LPCWSTR lpWideCharStr, int a3,
 
 Cursor::~Cursor()
 {
-    THISCALL(0x005A6810, this);
+    m_vtbl = STANDALONE_SYSTEM
+        ? reinterpret_cast<std::intptr_t>(native_cursor_table) : 0x0088F4F8;
+    if (field_14 != nullptr) {
+        field_14->lpVtbl->Release(field_14);
+    }
 }
 
 void Cursor::Draw()
 {
-    THISCALL(0x00594DF0, this);
+    if constexpr (STANDALONE_SYSTEM) {
+        if (field_114) {
+            sub_581C60();
+            nglSetQuadRect(&field_18, static_cast<float>(field_104.x),
+                static_cast<float>(field_104.y), static_cast<float>(field_104.x + 48),
+                static_cast<float>(field_104.y + 48));
+            nglListAddQuad(&field_18);
+        }
+    } else {
+        THISCALL(0x00594DF0, this);
+    }
 }
 
 void Cursor::sub_5A67D0(int a1, int a2, int a3, int a4)
 {
-    THISCALL(0x005A67D0, this, a1, a2, a3, a4);
+
+    field_12C.push_back(RECT{a1, a2, a3, a4});
 }
 
 void Cursor::sub_5A6790()
 {
-    if (this->field_130 != nullptr) {
-        operator delete(this->field_130);
-    }
-
-    this->field_130 = nullptr;
-    this->field_134 = 0;
-    this->field_138 = 0;
+    _std::vector<RECT> empty;
+    field_12C.swap(empty);
 }
 
 void Cursor::sub_581C60()

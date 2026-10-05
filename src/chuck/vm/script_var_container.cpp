@@ -128,6 +128,13 @@ int script_var_container::load_script_var_buffer(char *a2)
     return this->script_var_block.size();
 }
 
+void script_var_container::reinit_script_vars()
+{
+    const auto size = script_var_block.size();
+    if (size > 0)
+        std::memset(script_var_block.get_buffer(), 0, size);
+}
+
 void *script_var_container::get_script_var_address(const char *name, script_library_class **owner)
 {
 #if STANDALONE_SYSTEM

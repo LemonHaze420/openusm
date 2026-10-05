@@ -51,16 +51,12 @@ FrontEndMenuSystem::FrontEndMenuSystem() : FEMenuSystem(7, static_cast<font_inde
 
         if (is_first_time_through) {
             this->field_4[this->m_count++] = new main_menu_legal{this, 320, 240};
-
             this->field_4[this->m_count++] = new main_menu_start{this, 320, 240};
-
-            if constexpr (!STANDALONE_SYSTEM) {
-                this->field_4[this->m_count++] = new main_menu_memcard_check{this, 320, 240};
-                this->field_4[this->m_count++] = new main_menu_options{this, 320, 240};
-                this->field_4[this->m_count++] = new main_menu_load{this, 320, 240};
-                this->field_4[this->m_count++] = new main_menu_keyboard{this, 320, 240};
-                this->field_4[this->m_count++] = new main_menu_credits{this, 320, 240};
-            }
+            this->field_4[this->m_count++] = new main_menu_memcard_check{this, 320, 240};
+            this->field_4[this->m_count++] = new main_menu_options{this, 320, 240};
+            this->field_4[this->m_count++] = new main_menu_load{this, 320, 240};
+            this->field_4[this->m_count++] = new main_menu_keyboard{this, 320, 240};
+            this->field_4[this->m_count++] = new main_menu_credits{this, 320, 240};
 
             is_first_time_through = false;
             this->field_50 = false;
@@ -239,6 +235,12 @@ void FrontEndMenuSystem::Update(Float delta_time)
                     static_cast<main_menu_legal *>(menu)->Update(delta_time);
                 else if (m_index == 1)
                     static_cast<main_menu_start *>(menu)->Update(delta_time);
+                else if (m_index == 2)
+                    static_cast<main_menu_memcard_check *>(menu)->Update(delta_time);
+                else if (m_index == 3)
+                    static_cast<main_menu_options *>(menu)->Update(delta_time);
+                else if (m_index == 5)
+                    static_cast<main_menu_keyboard *>(menu)->Update(delta_time);
                 else
                     menu->FEMenu::Update(delta_time);
             }
@@ -277,20 +279,26 @@ void FrontEndMenuSystem::sub_619030(bool a2)
             nglSetClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             nglSetAspectRatio(1.0f);
             nglSetOrthoMatrix(1000.0f, 10000.0f);
-            auto *menu = m_index >= 0 && m_index < m_count ? field_4[m_index] : nullptr;
-            switch (m_index) {
-            case 0:
-                if (menu != nullptr)
-                    static_cast<main_menu_legal *>(menu)->Draw();
-                else if (field_7C != nullptr)
-                    field_7C->Draw();
-                break;
-            case 1:
-            default:
-                if (field_7C != nullptr)
-                    field_7C->Draw();
-                break;
-            }
+        }
+
+        switch (m_index) {
+        case 0:
+            static_cast<main_menu_legal *>(field_4[0])->Draw();
+            break;
+        case 1:
+            static_cast<main_menu_start *>(field_4[1])->Draw();
+            break;
+        case 2:
+            static_cast<main_menu_memcard_check *>(field_4[2])->Draw();
+            break;
+        case 3:
+            static_cast<main_menu_options *>(field_4[3])->Draw();
+            break;
+        case 5:
+            static_cast<main_menu_keyboard *>(field_4[5])->Draw();
+            break;
+        default:
+            break;
         }
 
         already_drew_this_frame = true;
@@ -352,15 +360,6 @@ void FrontEndMenuSystem::GoNextState()
         return;
     }
 
-    if constexpr (STANDALONE_SYSTEM) {
-        if (field_30 == 3) {
-            field_30 = 4;
-            if (m_index != 1)
-                MakeActive(1);
-            field_52 = true;
-            return;
-        }
-    }
 
     int v3;
     while (2) {
@@ -424,7 +423,11 @@ void FrontEndMenuSystem::GoNextState()
         }
         case 11:
             this->field_30 =
-                (bit_cast<main_menu_memcard_check *>(this->field_4[2])->field_100 ? this->field_58 : this->field_54);
+                (static_cast<main_menu_memcard_check *>(this->field_4[2])
+                         ->field_108 !=
+                     main_menu_memcard_check::DIALOG_NONE
+                     ? this->field_58
+                     : this->field_54);
 
             if (this->field_5C.size() > 0) {
                 int v5;
@@ -466,13 +469,11 @@ void FrontEndMenuSystem::GoNextState()
         }
         case 2: {
             if constexpr (STANDALONE_SYSTEM) {
-                movie_manager::load_and_play_movie(
-                    "mlogonosound", "Marvel_Logo", false);
-                movie_manager::load_and_play_movie(
-                    "ATVI spin logo 640 none", "Activision", false);
-                movie_manager::load_and_play_movie(
-                    "Treyarch_USM_logo", "TREYARCH_LOGO", false);
-                movie_manager::load_and_play_movie("beenox_short", nullptr, false);
+                if (!movie_manager::load_and_play_movie("mlogonosound", "Marvel_Logo", false) &&
+                    !movie_manager::load_and_play_movie("ATVI spin logo 640 none", "Activision", false) &&
+                    !movie_manager::load_and_play_movie("Treyarch_USM_logo", "TREYARCH_LOGO", false)) {
+                    movie_manager::load_and_play_movie("beenox_short", nullptr, false);
+                }
                 this->field_30 = 3;
                 this->MakeActive(1);
                 this->sub_60C240();

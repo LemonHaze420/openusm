@@ -895,6 +895,7 @@ bool script_instance::run_single_thread(vm_thread *a2, bool a3)
             for (auto it = this->threads.begin(); it != end; ++it) {
                 if ((*it) == a2) {
                     this->delete_thread(it);
+                    break;
                 }
             }
 
@@ -914,18 +915,21 @@ void script_instance::register_callback(void (*cb)(script_instance_callback_reas
 {
     assert(cb != nullptr);
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         this->m_callback = cb;
-
-        decltype(this->field_38)::ret_t ret;
-
-        void (__fastcall *func)(void *, void *edx, decltype(ret) *, void **) = CAST(func, 0x005B50E0);
-
-        func(&this->field_38, nullptr, &ret, &user_data);
-
-        assert(ret.second && "tried to insert user_data more than once!!!");
+        const auto result = this->field_38.insert(user_data);
+        assert(result.second && "tried to insert user_data more than once!!!");
     } else {
         THISCALL(0x005A33F0, this, cb, user_data);
+    }
+}
+
+void script_instance::unregister_callback(void *user_data)
+{
+    field_38.erase(user_data);
+    for (auto *thread : threads) {
+        if (thread->field_1DC == user_data)
+            thread->field_1DC = nullptr;
     }
 }
 
@@ -947,7 +951,7 @@ vm_thread *script_instance::add_thread(const vm_executable *ex, const char *parm
 
 void script_instance::add_thread(void *a2, const vm_executable *a3, const char *a4)
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         auto *nt = new vm_thread {this, a3, a2};
 
         assert(nt != nullptr);
@@ -1066,6 +1070,15 @@ void script_instance::kill_thread(const vm_executable *a2, const vm_thread *a3)
     } else {
         THISCALL(0x005AD8D0, this, a2, a3);
     }
+}
+
+bool script_instance::contains_thread(const vm_thread *thread, int id)
+{
+
+    for (auto *current : threads)
+        if (current == thread)
+            return current->field_1E4 == id;
+    return false;
 }
 
 vm_thread *script_instance::add_thread(const vm_executable *a2)

@@ -3,6 +3,7 @@
 #include "common.h"
 #include "func_wrapper.h"
 #include "vtbl.h"
+#include "panelquad.h"
 
 #include <algorithm>
 #include <cmath>
@@ -85,11 +86,30 @@ void PanelAnimObject::SetZvalue(Float a1, panel_layer a2)
 {
     if constexpr (STANDALONE_SYSTEM) {
         const auto local_z = std::clamp(float(a1) * 0.5f, 0.0f, 1000.0f);
-        field_8 = (static_cast<int>(a2) * 1000.0f + local_z) * 0.125f;
+        const auto absolute_z =
+            (static_cast<int>(a2) * 1000.0f + local_z) * 0.125f;
+        SetZvalueAbs(absolute_z);
     } else {
         auto func = bit_cast<void(__fastcall *)(void *, int, Float, panel_layer)>(
             get_vfunc(m_vtbl, 0x30));
         func(this, 0, a1, a2);
+    }
+}
+
+void PanelAnimObject::SetZvalueAbs(Float a1)
+{
+    if constexpr (STANDALONE_SYSTEM) {
+        const auto panel_quad_vtable =
+            bit_cast<std::intptr_t>(mash_virtual_base::vtable()[541]);
+        if (m_vtbl == panel_quad_vtable || m_vtbl == 0x0087B990) {
+            static_cast<PanelQuad *>(this)->SetZvalueAbs(a1);
+        } else {
+            field_8 = a1;
+        }
+    } else {
+        auto func = bit_cast<void(__fastcall *)(void *, int, Float)>(
+            get_vfunc(m_vtbl, 0x38));
+        func(this, 0, a1);
     }
 }
 
