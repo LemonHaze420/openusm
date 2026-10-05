@@ -223,7 +223,7 @@ void line_info::sub_48B410(Float a2)
 {
     vector3d v4 = this->field_C - this->field_0;
     if (v4.length2() > a2 * a2) {
-        v4.sub_48A850(a2);
+        v4.set_length(a2);
         this->field_C = this->field_0 + v4;
     }
 }

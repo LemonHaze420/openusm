@@ -47,18 +47,25 @@ struct exe_allocator
         if (count > max_size())
             throw std::bad_alloc {};
 
-        using allocate_t = void *(__cdecl *)(size_type);
-        auto *result = bit_cast<allocate_t>(std::uintptr_t {0x00822046})(count * sizeof(T));
-        if (result == nullptr)
-            throw std::bad_alloc {};
-
-        return static_cast<pointer>(result);
+        if constexpr (STANDALONE_SYSTEM) {
+            return static_cast<pointer>(::operator new(count * sizeof(T)));
+        } else {
+            using allocate_t = void *(__cdecl *)(size_type);
+            auto *result = bit_cast<allocate_t>(std::uintptr_t {0x00822046})(count * sizeof(T));
+            if (result == nullptr)
+                throw std::bad_alloc {};
+            return static_cast<pointer>(result);
+        }
     }
 
     void deallocate(pointer ptr, size_type) noexcept
     {
-        using deallocate_t = void (__cdecl *)(void *);
-        bit_cast<deallocate_t>(std::uintptr_t {0x0082207C})(ptr);
+        if constexpr (STANDALONE_SYSTEM) {
+            ::operator delete(ptr);
+        } else {
+            using deallocate_t = void (__cdecl *)(void *);
+            bit_cast<deallocate_t>(std::uintptr_t {0x0082207C})(ptr);
+        }
     }
 
     template<typename U, typename... Args>

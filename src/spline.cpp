@@ -4,6 +4,7 @@
 #include "func_wrapper.h"
 #include "utility.h"
 
+#include <algorithm>
 #include <cassert>
 
 VALIDATE_OFFSET(spline, field_3C, 0x3C);
@@ -60,14 +61,59 @@ void spline::build(int a2, spline::eSplineType a3)
     this->rebuild_helper();
 }
 
-void spline::compute_spline_pos(Float a3, vector3d &a4, bool a5, spline::eSplineType a6)
+void spline::compute_spline_pos(Float percent, vector3d &position, bool reuse_controls, spline::eSplineType type)
 {
-    sp_log("compute_spline_pos: ");
-
-    if constexpr (0) {
-    } else {
-        THISCALL(0x005DB4A0, this, a3, &a4, a5, a6);
+    const int count = static_cast<int>(control_pts.size());
+    if (field_3E || control_pts_pct.size() != control_pts.size()) {
+        if (control_pts_pct.size() != control_pts.size()) {
+            control_pts_pct.clear();
+            control_pts_pct.reserve(count);
+            for (int i = 0; i < count; ++i)
+                control_pts_pct.push_back(0.0f);
+        }
+        control_pts_pct[0] = 0.0f;
+        if (count == 1) {
+            control_pts_pct[0] = 1.0f;
+        } else if (count > 1) {
+            float total = 0.0f;
+            for (int i = 1; i < count; ++i) {
+                total += (control_pts[i] - control_pts[i - 1]).length();
+                control_pts_pct[i] = total;
+            }
+            const float inverse = 1.0f / total;
+            for (int i = 1; i < count - 1; ++i) {
+                const double cumulative = inverse * static_cast<double>(control_pts_pct[i]);
+                control_pts_pct[i] = cumulative > 1.0 ? 1.0f
+                    : cumulative < 0.0 ? 0.0f : static_cast<float>(cumulative);
+            }
+            control_pts_pct[count - 1] = 1.0f;
+        }
+        field_3E = false;
     }
+    if (count <= 1) {
+        if (count == 1)
+            position = control_pts[0];
+        return;
+    }
+    float amount = percent.value;
+    if (amount > 1.0f)
+        amount = 1.0f;
+    else if (amount < 0.0f)
+        amount = 0.0f;
+    int index = 0;
+    while (control_pts_pct[index + 1] < amount)
+        ++index;
+    const double interval = static_cast<double>(control_pts_pct[index + 1]) - control_pts_pct[index];
+    const float local = interval <= 0.0 ? 0.0f
+        : static_cast<float>((amount - control_pts_pct[index]) / interval);
+    compute_spline_pos(index, Float{local}, position, reuse_controls, type);
+}
+
+vector3d spline::calc_point_at_percent(float percent)
+{
+    vector3d position;
+    compute_spline_pos(Float{percent}, position, false, static_cast<eSplineType>(0));
+    return position;
 }
 
 vector3d sub_5C2C30(float a3, float a4, float a5, const vector3d *a6)
@@ -101,7 +147,6 @@ vector3d sub_5C2B20(float a3, float a4, float a5, const vector3d *a6)
 
 void spline::compute_spline_pos(int index, Float t, vector3d &a4, bool a5, spline::eSplineType a6)
 {
-    sp_log("compute_spline_pos: ");
 
     auto v6 = a6;
     if (a6 == 0) {
@@ -215,7 +260,49 @@ Float spline::curve_length(Float a2)
 
 void spline::rebuild_helper()
 {
-    THISCALL(0x005DC830, this);
+    need_rebuild = false;
+    curve_pts.clear();
+    const int count = static_cast<int>(control_pts.size());
+    const int effective_count = count + (field_3C ? 2 : 0);
+    if (field_38 == 1 || effective_count < 4 || field_30 <= 1) {
+        curve_pts = control_pts;
+    } else {
+        const int segments = field_38 == 4 ? (effective_count - 1) / 3 : effective_count - 3;
+        curve_pts.reserve(field_30 * segments + 1);
+        int index = field_3C ? 0 : 1;
+        while (index + 1 < count && (field_3C ? index + 2 <= count : index + 2 < count)) {
+            const vector3d points[4]{
+                index == 0 ? control_pts[0] * 2.0f - control_pts[1] : control_pts[index - 1],
+                control_pts[index], control_pts[index + 1],
+                index + 2 >= count ? control_pts[index + 1] * 2.0f - control_pts[index] : control_pts[index + 2]};
+            for (int sample = 0; sample < field_30; ++sample) {
+                const float t = static_cast<float>(sample) / static_cast<float>(field_30 - 1);
+                const float t2 = t * t;
+                const float t3 = t2 * t;
+                switch (field_38) {
+                case 2: curve_pts.push_back(sub_5C2C30(t, t2, t3, points)); break;
+                case 3: curve_pts.push_back(sub_5C2B20(t, t2, t3, points)); break;
+                case 4: curve_pts.push_back(sub_5C2A20(t, t2, t3, points)); break;
+                }
+            }
+            index += field_38 == 4 ? 3 : 1;
+        }
+    }
+    if (count == 0) {
+        field_44 = vector3d{0.0f, 0.0f, 0.0f};
+        field_40 = 0.0f;
+        return;
+    }
+    vector3d minimum{999999.0f, 999999.0f, 999999.0f};
+    vector3d maximum{-999999.0f, -999999.0f, -999999.0f};
+    for (const auto &point : curve_pts) {
+        for (int axis = 0; axis != 3; ++axis) {
+            minimum[axis] = std::min(minimum[axis], point[axis]);
+            maximum[axis] = std::max(maximum[axis], point[axis]);
+        }
+    }
+    field_44 = (maximum + minimum) * 0.5f;
+    field_40 = (maximum - field_44).length();
 }
 
 void spline::add_control_pt(const vector3d &a1)

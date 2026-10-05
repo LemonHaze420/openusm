@@ -82,6 +82,14 @@ matrix4x4::matrix4x4(const vector3d &a2, const vector3d &a3, const vector3d &a4,
     this->w[3] = 1.0;
 }
 
+matrix4x4::matrix4x4(const vector4d &a2, const vector4d &a3, const vector4d &a4, const vector4d &a5)
+{
+    arr[0] = a2;
+    arr[1] = a3;
+    arr[2] = a4;
+    w = a5;
+}
+
 matrix4x4::matrix4x4(const matrix4x4 &a1)
 {
     this->arr[0] = a1[0];
@@ -112,7 +120,32 @@ matrix4x4 matrix4x4::Cof()
 
 void matrix4x4::sub_41D8A0(void *a2)
 {
-    THISCALL(0x0041D8A0, this, a2);
+    if constexpr (STANDALONE_SYSTEM) {
+        const auto *matrices = static_cast<const matrix4x4 *const *>(a2);
+        const auto &local = *matrices[0];
+        const auto &view = *matrices[1];
+        auto transform_basis = [&view](const vector4d &basis) {
+            return vector3d{
+                view.arr[0][0] * basis[0] + view.arr[1][0] * basis[1] + view.arr[2][0] * basis[2],
+                view.arr[0][1] * basis[0] + view.arr[1][1] * basis[1] + view.arr[2][1] * basis[2],
+                view.arr[0][2] * basis[0] + view.arr[1][2] * basis[1] + view.arr[2][2] * basis[2]};
+        };
+        auto normalize_basis = [](vector3d basis) {
+            const float length_squared = basis.length2();
+            if (not_equal(length_squared, 0.0f)) {
+                basis *= 1.0f / std::sqrt(std::fabs(length_squared));
+            }
+            return basis;
+        };
+        const auto z = normalize_basis(transform_basis(local.arr[2]));
+        const auto x = normalize_basis(vector3d::cross(transform_basis(local.arr[1]), z));
+        const auto y = vector3d::cross(z, x);
+        const auto position = transform_vec4_native(view, vector4d{
+            local.w[0], local.w[1], local.w[2], 1.0f});
+        *this = matrix4x4{x, y, z, vector3d{position[0], position[1], position[2]}};
+    } else {
+        THISCALL(0x0041D8A0, this, a2);
+    }
 }
 
 void matrix4x4::decompose(vector4d &a2, vector4d &a3, vector4d &a4, vector4d &a5) const

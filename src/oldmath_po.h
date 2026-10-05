@@ -3,10 +3,10 @@
 #include "float.hpp"
 #include "matrix4x4.h"
 #include "mstring.h"
+#include "vector3d.h"
 
 struct generic_mash_header;
 struct generic_mash_data_ptrs;
-struct vector3d;
 struct quaternion;
 struct vector4d;
 
@@ -25,6 +25,9 @@ struct po {
 
     po(const po &) = default;
     po &operator=(const po &) = default;
+    static void compose(po &out, const po &parent, const po &relative);
+    static void compose_ortho(po &out, const po &parent, const po &absolute);
+    static void full_inv_multiply(po &out, const po &parent, const po &absolute);
 
     //0x005BD200
     bool operator==(const po &a2);
@@ -103,7 +106,9 @@ struct po {
     {
         constexpr auto idx = 3;
 
-        this->m[idx] = v;
+        this->m[idx].x = v.x;
+        this->m[idx].y = v.y;
+        this->m[idx].z = v.z;
     }
 
     inline auto &get_position() const

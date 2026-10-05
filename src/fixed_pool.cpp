@@ -23,15 +23,12 @@ fixed_pool::fixed_pool(int a2, int a3, int a4, int a5, int a6, void *base)
 
 void *sub_501DD0()
 {
-    TRACE("sub_501DD0");
-
     static fixed_allocator_base g_fixed_allocator{4u};
     return &g_fixed_allocator;
 }
 
 void fixed_pool::init(int size, int a3, int a4, int a5, int a6, void *base)
 {
-    sp_log("%d", size);
     this->m_size = size;
     this->m_alignment = a4;
     this->m_number_of_entries_per_block = a3;

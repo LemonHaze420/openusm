@@ -7,6 +7,7 @@
 
 struct vector3d;
 struct matrix4x4;
+struct from_mash_in_place_constructor;
 
 struct vector4d {
     float x;
@@ -15,6 +16,8 @@ struct vector4d {
     float w;
 
     constexpr vector4d() : x(0), y(0), z(0), w(0) {}
+
+    explicit vector4d(from_mash_in_place_constructor *) {}
 
     constexpr explicit vector4d(float a1) : x(a1), y(a1), z(a1), w(a1) {}
 

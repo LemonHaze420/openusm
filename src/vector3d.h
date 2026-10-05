@@ -13,6 +13,7 @@ inline constexpr auto MAX_ALLOWED_POSITION_LENGTH_SQUARED = 1.0e10;
 
 struct euler_direction;
 struct vector4d;
+struct from_mash_in_place_constructor;
 
 struct vector3d {
     float x;
@@ -20,6 +21,8 @@ struct vector3d {
     float z;
 
     vector3d() : x(0), y(0), z(0) {}
+
+    explicit vector3d(from_mash_in_place_constructor *) {}
 
     explicit vector3d(float f) : x(f), y(f), z(f) {}
 
@@ -177,7 +180,7 @@ struct vector3d {
     //0x00401690
     float length() const;
 
-    void sub_48A850(Float a2);
+    void set_length(Float length);
 
     void sub_4B9FA0(vector3d a2, Float a5);
 

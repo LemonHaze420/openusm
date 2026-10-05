@@ -162,7 +162,7 @@ public:
 
     class const_iterator {  // iterator for nonmutable _Tree
     public:
-        typedef typename std::decay_t<value_type> value_type;
+        typedef std::decay_t<typename _Traits::value_type> value_type;
         typedef std::bidirectional_iterator_tag iterator_category;
         typedef _Dift difference_type;
         typedef _Ctptr pointer;
@@ -675,8 +675,7 @@ public:
     size_type erase(const key_type &_Keyval)
     {  // erase and count all that match _Keyval
         _Pairii _Where = equal_range(_Keyval);
-        size_type _Num = 0;
-        _Distance(_Where.first, _Where.second, _Num);
+        const size_type _Num = static_cast<size_type>(std::distance(_Where.first, _Where.second));
         erase(_Where.first, _Where.second);
         return (_Num);
     }

@@ -7,13 +7,43 @@ Var<direction_sampling_window> up_sampling_window{0x009588A8};
 
 VALIDATE_SIZE(sampling_window, 0x104);
 
-sampling_window::sampling_window() {}
-
-void sampling_window::push_sample(Float a2, Float a3)
+sampling_window::sampling_window()
 {
-    if constexpr (0) {
-    } else {
-        THISCALL(0x00527040, this, a2, a3);
+    for (auto &sample : this->samples) {
+        sample.field_0 = 0.0f;
+        sample.time = 0.033333335f;
+    }
+    this->current_sample = 0;
+    this->end_sample = 30;
+    this->field_100 = true;
+    this->samples[0].time = 0.0f;
+}
+
+void sampling_window::push_sample(Float elapsed, Float value)
+{
+    constexpr float period = 0.033333335f;
+    if (this->field_100) {
+        this->field_100 = false;
+        for (int i = 0; i < 30; ++i) {
+            this->samples[i].field_0 = static_cast<float>(value) * period;
+            this->samples[i].time = period;
+        }
+    }
+    for (float remaining = elapsed; remaining >= DURATION_EPSILON;) {
+        float available = period - this->samples[this->current_sample].time;
+        if (available <= 0.0f) {
+            if (++this->current_sample == this->end_sample) {
+                this->current_sample = 0;
+            }
+            this->samples[this->current_sample].time = 0.0f;
+            this->samples[this->current_sample].field_0 = 0.0f;
+            available = period;
+        }
+        const float taken = remaining < available ? remaining : available;
+        auto &sample = this->samples[this->current_sample];
+        sample.field_0 += static_cast<float>(value) * taken;
+        sample.time += taken;
+        remaining -= taken;
     }
 }
 
