@@ -21,6 +21,9 @@
 #include "vtbl.h"
 
 #include <cassert>
+#include <array>
+#include <cstddef>
+#include <cstring>
 
 VALIDATE_SIZE(character_anim_controller, 0x70);
 
@@ -63,7 +66,11 @@ character_anim_controller::character_anim_controller(actor *a2, nalBaseSkeleton 
 {
     TRACE("character_anim_controller::character_anim_controller");
 
+#if defined(STANDALONE_SYSTEM)
+    this->m_vtbl = reinterpret_cast<std::intptr_t>(native_vtable());
+#else
     this->m_vtbl = 0x00880F90;
+#endif
 
     assert(new_skel->GetAnimTypeName() == tlFixedString(CHARACTER_ANIMTYPE_NAME));
 
@@ -99,6 +106,50 @@ void *character_anim_controller::operator new(size_t, void *ptr)
     return ptr;
 }
 
+void character_anim_controller::_play_layer_anim(nalAnimClass<nalAnyPose> *anim, Float blend_time, Float priority,
+                                                uint32_t domains, bool force_restart, bool completion_flag,
+                                                void *parameter)
+{
+#if defined(STANDALONE_SYSTEM)
+    my_player.PlayModifier(anim, static_cast<decltype(my_player)::usm_anim_player_modifier_type>(1),
+                           priority, domains, force_restart, blend_time, 0.0f, &field_5C, 0.0f, nullptr,
+                           1.0f, completion_flag, parameter);
+#else
+    THISCALL(0x0049EBA0, this, anim, blend_time, priority, domains, force_restart, completion_flag, parameter);
+#endif
+}
+
+float character_anim_controller::get_floor_offset()
+{
+    auto *base_pose = field_40.field_0;
+    auto *pose = base_pose == nullptr ? nullptr : reinterpret_cast<nalChar::nalCharPose *>(
+        reinterpret_cast<char *>(base_pose) - offsetof(nalComp::nalCompPose, field_4));
+    auto *data = static_cast<FakerootPoseDesc::StdPoseData *>(
+        pose->GetNamedPoseData(CharComponentBase::Names::FakerootEntropyCompressed));
+    return data == nullptr ? 1.0f : data->field_1C;
+}
+
+float character_anim_controller::get_camera_fov()
+{
+    return 0.0f;
+}
+
+float character_anim_controller::get_camera_far_clip()
+{
+
+    return 10000.0f;
+}
+
+float character_anim_controller::get_tentacle_activity(string_hash bone)
+{
+    auto *base_pose = field_40.field_0;
+    auto *pose = base_pose == nullptr ? nullptr : reinterpret_cast<nalChar::nalCharPose *>(
+        reinterpret_cast<char *>(base_pose) - offsetof(nalComp::nalCompPose, field_4));
+    auto *data = static_cast<TentaclesPoseDesc::StdPoseData *>(
+        pose->GetNamedPoseData(CharComponentBase::Names::TentaclesCompressed));
+    return data == nullptr ? 0.0f : data->GetActivityFromBone(bone.source_hash_code);
+}
+
 void character_anim_controller::_play_base_layer_anim(nalAnimClass<nalAnyPose> *anim_ptr, Float a3, Float a4, bool a5,
                                                       bool a6, void *a7)
 {
@@ -120,8 +171,9 @@ void character_anim_controller::_play_base_layer_anim(nalAnimClass<nalAnyPose> *
 
 float character_anim_controller::get_tentacle_width(string_hash a2)
 {
-    auto *v2 = this->field_40.field_0;
-    auto *v3 = (v2 != nullptr ? ((nalChar::nalCharPose *)&v2[-1]) : nullptr);
+    auto *base_pose = this->field_40.field_0;
+    auto *v3 = base_pose == nullptr ? nullptr : reinterpret_cast<nalChar::nalCharPose *>(
+        reinterpret_cast<char *>(base_pose) - offsetof(nalComp::nalCompPose, field_4));
 
     auto *NamedPoseData =
         bit_cast<TentaclesPoseDesc::StdPoseData *>(v3->GetNamedPoseData(CharComponentBase::Names::TentaclesCompressed));
@@ -134,8 +186,9 @@ float character_anim_controller::get_tentacle_width(string_hash a2)
 
 float character_anim_controller::get_tentacle_pull_factor(string_hash a2)
 {
-    auto v2 = this->field_40.field_0;
-    nalChar::nalCharPose *v3 = (v2 != nullptr ? bit_cast<nalChar::nalCharPose *>(v2 - 1) : nullptr);
+    auto *base_pose = this->field_40.field_0;
+    auto *v3 = base_pose == nullptr ? nullptr : reinterpret_cast<nalChar::nalCharPose *>(
+        reinterpret_cast<char *>(base_pose) - offsetof(nalComp::nalCompPose, field_4));
 
     if (auto *NamedPoseData = static_cast<TentaclesPoseDesc::StdPoseData *>(
             v3->GetNamedPoseData(CharComponentBase::Names::TentaclesCompressed));
@@ -149,7 +202,7 @@ float character_anim_controller::get_tentacle_pull_factor(string_hash a2)
 void get_po_from_bone_data(po &a1, const ArbitraryPOCharComp::BoneData *a2, const ArbitraryPOCharComp::PerSkelData *a3,
                            const ArbitraryPOCharComp::StdPoseData *a4)
 {
-    auto *v4 = &a4->field_10[a4->field_0];
+    auto *v4 = bit_cast<const nalVector3 *>(&a4->field_10[a4->field_0]);
     float v12[4]{};
     if (a2->field_28) {
         const auto &v5 = a4->field_10[a2->field_20];
@@ -166,7 +219,7 @@ void get_po_from_bone_data(po &a1, const ArbitraryPOCharComp::BoneData *a2, cons
     }
 
     auto v9 = a2->field_2A == 0;
-    auto *v10 = bit_cast<vector3d *>(v9 ? &a3->field_14[a2->field_22] : &v4[a2->field_22]);
+    auto *v10 = bit_cast<const vector3d *>(v9 ? &a3->field_14[a2->field_22] : &v4[a2->field_22]);
 
     vector3d a2a = *v10;
 
@@ -191,18 +244,8 @@ void character_anim_controller::get_camera_root_rel_po(po &a2)
             v5->GetNamedPoseData(CharComponentBase::Names::ArbitraryPO));
         ::get_po_from_bone_data(a2, v2, v3, NamedPoseData);
 
-        auto position = a2.get_position();
-        if (position.length() > 50000.0) {
-            auto v3 = a2.get_position();
-            auto v8 = v3[2];
-            auto v4 = a2.get_position();
-            auto y = v4[1];
-            auto v5 = a2.get_position();
-            auto v6 = v5[0];
-            error("Bad PO: pos = (%f, %f, %f)", v6, y, v8);
-        }
     } else {
-        this->get_shake_root_rel_po(a2);
+        a2 = po{};
     }
 }
 
@@ -218,7 +261,7 @@ void character_anim_controller::get_shake_root_rel_po(po &a2)
             v5->GetNamedPoseData(CharComponentBase::Names::ArbitraryPO));
         get_po_from_bone_data(a2, v2, v3, NamedPoseData);
     } else {
-        this->get_shake_root_rel_po(a2);
+        a2 = po{};
     }
 }
 
@@ -251,9 +294,9 @@ void character_anim_controller::gen_std_play_method::_Compose(
 {
     TRACE("character_anim_controller::gen_std_play_method::Compose");
 
-    if constexpr (0) {
+    {
         a2->field_0->VirtualGetPose(a2->field_18, a2->field_1C, *a4.field_0, *a5.field_0);
-        a3.field_0->field_0->VirtualBlend(a3.field_0, a2->field_20.field_0, a3.field_0, a4.field_0);
+        sub_826190(*a3.field_0, a2->field_20.field_0, *a3.field_0, *a4.field_0);
 
         nalChar::nalCharPose *v6 = nullptr;
         if (a3.field_0 != nullptr) {
@@ -284,8 +327,6 @@ void character_anim_controller::gen_std_play_method::_Compose(
                     ->GetPerAnimDataByName(CharComponentBase::Names::FakerootEntropyCompressed);
             fire_signals(PerAnimDataByName, *NamedPoseData, {this->field_4->field_4->my_handle.field_0});
         }
-    } else {
-        THISCALL(0x0049EC30, this, a2, &a3, &a4, &a5);
     }
 }
 
@@ -321,6 +362,198 @@ bool character_anim_controller::gen_base_play_method::ShouldFireSignals(
     return v2 == this->field_4->get_base_layer_anim_ptr();
 }
 
+
+#if defined(STANDALONE_SYSTEM)
+extern "C" int __cdecl _purecall();
+
+namespace {
+using character_player = usm_anim_player<nalAnimClass<nalAnyPose>, 3>;
+
+void *__fastcall character_destroy(character_anim_controller *self, void *, unsigned int flags)
+{
+    self->~character_anim_controller();
+    if ((flags & 1u) != 0)
+        nal_anim_controller::operator delete(self, sizeof(character_anim_controller));
+    return self;
+}
+
+void __fastcall character_play_layer(character_anim_controller *self, void *, nalAnimClass<nalAnyPose> *anim,
+                                      Float blend_time, Float priority, uint32_t domains, bool force_restart,
+                                      bool completion_flag, void *parameter)
+{
+    self->_play_layer_anim(anim, blend_time, priority, domains, force_restart, completion_flag, parameter);
+}
+
+void __fastcall character_play_base(character_anim_controller *self, void *, nalAnimClass<nalAnyPose> *anim,
+                                     Float parameter, Float blend_time, bool type, bool flag, void *context)
+{
+    self->_play_base_layer_anim(anim, parameter, blend_time, type, flag, context);
+}
+
+float __fastcall character_floor(character_anim_controller *self, void *)
+{
+    return self->get_floor_offset();
+}
+
+float __fastcall character_fov(character_anim_controller *self, void *)
+{
+    return self->get_camera_fov();
+}
+
+float __fastcall character_far_clip(character_anim_controller *self, void *)
+{
+    return self->get_camera_far_clip();
+}
+
+float __fastcall character_width(character_anim_controller *self, void *, string_hash bone)
+{
+    return self->get_tentacle_width(bone);
+}
+
+float __fastcall character_activity(character_anim_controller *self, void *, string_hash bone)
+{
+    return self->get_tentacle_activity(bone);
+}
+
+float __fastcall character_pull(character_anim_controller *self, void *, string_hash bone)
+{
+    return self->get_tentacle_pull_factor(bone);
+}
+
+void __fastcall character_camera_root(character_anim_controller *self, void *, po &result)
+{
+    self->get_camera_root_rel_po(result);
+}
+
+void __fastcall character_shake_root(character_anim_controller *self, void *, po &result)
+{
+    self->get_shake_root_rel_po(result);
+}
+
+bool __fastcall character_has_scale(character_anim_controller *self, void *, string_hash bone)
+{
+    return self->will_have_hint_token_scale(bone);
+}
+
+vector3d *__fastcall character_scale(character_anim_controller *self, void *, vector3d *result, string_hash bone)
+{
+    *result = self->get_hint_token_scale(bone);
+    return result;
+}
+
+void __fastcall character_scene_pose(character_anim_controller *self, void *, uint32_t &state,
+                                     nalAnimClass<nalAnyPose> *anim, nalAnyPose &pose)
+{
+    self->post_get_pose_in_scene_anims(state, anim, pose);
+}
+
+void __fastcall character_compose(character_anim_controller::gen_std_play_method *self, void *,
+                                  character_player::nalAnimState *state, nalAnyPose &dst,
+                                  nalAnyPose &scratch, const nalAnyPose &reference)
+{
+    self->_Compose(state, dst, scratch, reference);
+}
+
+void __fastcall character_reference(character_anim_controller::gen_std_play_method *self, void *,
+                                    character_player::nalAnimState *state)
+{
+    self->Reference(state);
+}
+
+bool __fastcall character_abstract_signals(character_anim_controller::gen_std_play_method *, void *,
+                                          character_player::nalAnimState *)
+{
+    return _purecall() != 0;
+}
+
+bool __fastcall character_base_signals(character_anim_controller::gen_base_play_method *self, void *,
+                                      character_player::nalAnimState *state)
+{
+    return self->ShouldFireSignals(state);
+}
+
+bool __fastcall character_mod_signals(character_anim_controller::gen_mod_play_method *self, void *,
+                                     character_player::nalAnimState *state)
+{
+    return self->ShouldFireSignals(state);
+}
+}
+#endif
+
+void *character_anim_controller::native_vtable()
+{
+#if defined(STANDALONE_SYSTEM)
+    static auto table = [] {
+        std::array<std::intptr_t, 42> result{};
+        std::memcpy(result.data(), nal_anim_controller::native_vtable(), sizeof(result));
+        result[0] = reinterpret_cast<std::intptr_t>(&character_destroy);
+        result[1] = reinterpret_cast<std::intptr_t>(&character_play_layer);
+        result[2] = reinterpret_cast<std::intptr_t>(&character_play_base);
+        result[30] = reinterpret_cast<std::intptr_t>(&character_floor);
+        result[31] = reinterpret_cast<std::intptr_t>(&character_fov);
+        result[32] = reinterpret_cast<std::intptr_t>(&character_far_clip);
+        result[33] = reinterpret_cast<std::intptr_t>(&character_width);
+        result[34] = reinterpret_cast<std::intptr_t>(&character_activity);
+        result[35] = reinterpret_cast<std::intptr_t>(&character_pull);
+        result[36] = reinterpret_cast<std::intptr_t>(&character_camera_root);
+        result[37] = reinterpret_cast<std::intptr_t>(&character_shake_root);
+        result[38] = reinterpret_cast<std::intptr_t>(&character_has_scale);
+        result[39] = reinterpret_cast<std::intptr_t>(&character_scale);
+        result[40] = reinterpret_cast<std::intptr_t>(&character_scene_pose);
+        return result;
+    }();
+    return table.data();
+#else
+    return reinterpret_cast<void *>(0x00880F90);
+#endif
+}
+
+void *character_anim_controller::gen_std_play_method::native_vtable()
+{
+#if defined(STANDALONE_SYSTEM)
+    static auto table = [] {
+        std::array<std::intptr_t, 6> result{};
+        std::memcpy(result.data(), std_play_method::native_vtable(), 5 * sizeof(std::intptr_t));
+        result[1] = reinterpret_cast<std::intptr_t>(&character_compose);
+        result[3] = reinterpret_cast<std::intptr_t>(&character_reference);
+        result[5] = reinterpret_cast<std::intptr_t>(&character_abstract_signals);
+        return result;
+    }();
+    return table.data();
+#else
+    return reinterpret_cast<void *>(0x00880B70);
+#endif
+}
+
+void *character_anim_controller::gen_base_play_method::native_vtable()
+{
+#if defined(STANDALONE_SYSTEM)
+    static auto table = [] {
+        std::array<std::intptr_t, 6> result{};
+        std::memcpy(result.data(), gen_std_play_method::native_vtable(), sizeof(result));
+        result[5] = reinterpret_cast<std::intptr_t>(&character_base_signals);
+        return result;
+    }();
+    return table.data();
+#else
+    return reinterpret_cast<void *>(0x00880B88);
+#endif
+}
+
+void *character_anim_controller::gen_mod_play_method::native_vtable()
+{
+#if defined(STANDALONE_SYSTEM)
+    static auto table = [] {
+        std::array<std::intptr_t, 6> result{};
+        std::memcpy(result.data(), gen_std_play_method::native_vtable(), sizeof(result));
+        result[5] = reinterpret_cast<std::intptr_t>(&character_mod_signals);
+        return result;
+    }();
+    return table.data();
+#else
+    return reinterpret_cast<void *>(0x00880BA0);
+#endif
+}
 
 void *__fastcall character_anim_controller__ctor(void *self, void *, actor *a2, nalBaseSkeleton *new_skel,
                                                  unsigned int a4, const als::als_meta_anim_table_shared *a5)

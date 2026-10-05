@@ -1,4 +1,6 @@
 #pragma once
 
+#include "nativeentcompdecomp.h"
+
 template <typename T>
-struct FloatsEntCompDecomp {};
+struct FloatsEntCompDecomp : CharEntropyDecoder::PoseDecoder<T, CharEntropyDecoder::PoseChannels::Floats> {};

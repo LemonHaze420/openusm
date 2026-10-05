@@ -73,6 +73,8 @@ extern void sub_826190(nalBasePose &dst, Float a2, nalBasePose &src0, nalBasePos
 //0x0078DC80
 extern void *nalConstructSkeleton(void *a1);
 
+void nalComposeMatrices(nalMatrix4x4 &out, const nalMatrix4x4 &local, const nalMatrix4x4 &parent);
+
 namespace inverse_kinematics {
     extern void __cdecl nalIKMap2DTo3D(
         float chain_scale,

@@ -28,7 +28,7 @@ struct nal_anim_controller : animation_controller {
 
         //0x0049C090
         //virtual
-        int Advance(nalAnimClass<nalAnyPose>::nalInstanceClass *a2, Float a3, Float a4, Float a5, Float a6);
+        void Advance(nalAnimClass<nalAnyPose>::nalInstanceClass *a2, Float a3, Float a4, Float a5, Float a6);
 
         //virtual
         void Render(nalAnimClass<nalAnyPose>::nalInstanceClass *a2, Float a3);
@@ -36,6 +36,7 @@ struct nal_anim_controller : animation_controller {
 
     struct std_play_method : usm_anim_player<nalAnimClass<nalAnyPose>, 3>::nalPlayMethod {
         void *CreateInstance(nalAnimClass<nalAnyPose> *a1, nalBaseSkeleton *a2, void *pParameter);
+        static void *native_vtable();
     };
 
     usm_anim_player<nalAnimClass<nalAnyPose>, 3> my_player;
@@ -47,6 +48,7 @@ struct nal_anim_controller : animation_controller {
     nal_anim_controller(actor *a2, nalBaseSkeleton *a3, unsigned int a4, const als::als_meta_anim_table_shared *a5);
 
     ~nal_anim_controller();
+    static void *native_vtable();
 
     void *operator new(size_t size);
 

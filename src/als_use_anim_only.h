@@ -11,6 +11,7 @@ struct use_anim_only : motion_compensator {
     }
 
     void post_anim_action(Float arg0);
+    static void *native_vtable();
 };
 
 }  // namespace als

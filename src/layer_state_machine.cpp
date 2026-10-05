@@ -6,7 +6,7 @@ namespace als {
 
 layer_state_machine::layer_state_machine()
 {
-    this->m_vtbl = 0x00881538;
+    this->bind_native_vtable(true);
 }
 
 void layer_state_machine::init(layer_state_machine_shared *shared_machine)

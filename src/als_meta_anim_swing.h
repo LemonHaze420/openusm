@@ -27,6 +27,17 @@ struct als_meta_anim_swing : als_meta_anim_base {
         sampling_window field_28;
 
         nalInstance(als_meta_anim_swing *a2, nalBaseSkeleton *a3, animation_logic_system *a4, state_machine *a5);
+
+        nalInstance *_scalar_deleting_destructor(uint32_t flags);
+        void _get_pose(Float t, Float t_prev, nalBasePose &pose, const nalBasePose &default_pose);
+        void _blend_two_anims(Float t0, Float t1, nalAnyPose &pose, const nalAnyPose &default_pose,
+                              Float blend, nalInstanceClass *anim0, nalInstanceClass *anim1);
+
+        static inline void *g_vtbl[] = {
+            func_address(&nalInstance::_scalar_deleting_destructor),
+            func_address(&nalInstance::_get_pose),
+            func_address(&nalInstance::_blend_two_anims),
+        };
     };
 
     mVector<meta_key_anim> field_28;
@@ -36,6 +47,18 @@ struct als_meta_anim_swing : als_meta_anim_base {
     als_meta_anim_swing();
 
     als_meta_anim_swing(from_mash_in_place_constructor *);
+
+    ~als_meta_anim_swing();
+
+    static void *native_vtable();
+
+    void _destruct_mashed_class();
+    als_meta_anim_swing *_scalar_deleting_destructor(uint32_t flags);
+    bool _is_subclass_of(mash::virtual_types_enum type) const;
+    bool _is_pivot_valid() const;
+    void _release(void *);
+
+    void finalize();
 
     //0x004A0350
     void initialize(mash::allocation_scope a2);
@@ -68,11 +91,11 @@ struct als_meta_anim_swing : als_meta_anim_base {
     int _get_mash_sizeof() const;
 
     static inline void *g_vtbl[] = {
-        nullptr,
+        func_address(&als_meta_anim_swing::_destruct_mashed_class),
         func_address(&als_meta_anim_swing::_unmash),
-        nullptr,
+        func_address(&als_meta_anim_swing::_scalar_deleting_destructor),
         func_address(&als_meta_anim_swing::_get_virtual_type_enum),
-        nullptr,
+        func_address(&als_meta_anim_swing::_is_subclass_of),
         func_address(&mash_virtual_base::_is_or_is_subclass_of),
         func_address(&als_meta_anim_base::_get_anim_name),
         func_address(&als_meta_anim_swing::_is_anim_looping),
@@ -80,8 +103,8 @@ struct als_meta_anim_swing : als_meta_anim_base {
         func_address(&als_meta_anim_swing::_get_anim_duration),
         func_address(&als_meta_anim_swing::_get_skeleton),
         func_address(&als_meta_anim_swing::_create_anim_inst),
-        nullptr,
-        nullptr,
+        func_address(&als_meta_anim_swing::_is_pivot_valid),
+        func_address(&als_meta_anim_swing::_release),
         func_address(&als_meta_anim_swing::_get_mash_sizeof),
     };
 };

@@ -112,6 +112,9 @@ struct nalMatrix4x4 {
 
 extern nalMatrix4x4 &stru_9771C0;
 
+float nalPoseCos(float angle);
+float nalPoseSin(float angle);
+
 extern nalMatrix4x4 sub_5FE000(const nalMatrix4x4 &arg4, const nalMatrix4x4 &arg8);
 
 extern nalMatrix4x4 sub_5F2FD0(Float a2, const float *a3);
@@ -228,6 +231,10 @@ T nalSkeletonPtrCast(T a1)
 
 struct nalHeap;
 struct nalSceneAnim;
+
+void *nalCacheAllocate(int size, int alignment, void **owner);
+void nalCacheTouch(void *data);
+void nalCacheFree(void *data);
 
 //0x00783CF0
 extern void nalInit(nalHeap *a1);

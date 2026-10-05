@@ -21,15 +21,235 @@
 #include "quaternion.h"
 #include "variables.h"
 #include "vtbl.h"
+#include "moved_entities.h"
 
 #include <cassert>
 
 VALIDATE_SIZE(nal_anim_controller, 0x54);
 VALIDATE_SIZE(nal_anim_controller::scene_anim_client, 0xC);
 
+namespace {
+using anim_player = usm_anim_player<nalAnimClass<nalAnyPose>, 3>;
+
+nal_anim_controller::std_play_method *shared_play_method()
+{
+    static nal_anim_controller::std_play_method method{
+        {static_cast<int>(reinterpret_cast<std::intptr_t>(
+            nal_anim_controller::std_play_method::native_vtable()))}};
+    return &method;
+}
+
+void *__fastcall nc_delete(nal_anim_controller *self, void *, unsigned flags)
+{
+    self->~nal_anim_controller();
+    if (flags & 1)
+        nal_anim_controller::operator delete(self, sizeof(nal_anim_controller));
+    return self;
+}
+void __fastcall nc_layer(nal_anim_controller *self, void *, nalAnimClass<nalAnyPose> *anim,
+                         Float blend, Float priority, uint32_t domains, bool restart,
+                         bool completion, void *parameter)
+{
+    self->my_player.PlayModifier(anim, static_cast<anim_player::usm_anim_player_modifier_type>(1),
+        priority, domains, restart, blend, 0.0f, shared_play_method(), 0.0f, nullptr, 1.0f,
+        completion, parameter);
+}
+void __fastcall nc_base(nal_anim_controller *self, void *, nalAnimClass<nalAnyPose> *anim,
+                        Float start, Float blend, bool restart, bool completion, void *parameter)
+{
+    self->my_player.PlayModifier(anim, static_cast<anim_player::usm_anim_player_modifier_type>(restart),
+        blend, shared_play_method(), 0.0f, 0, 1.0f, bit_cast<void *>(start), completion, parameter);
+}
+void __fastcall nc_kill_domain(nal_anim_controller *self, void *, uint32_t domains)
+{
+    self->my_player.KillDomain(domains);
+}
+void __fastcall nc_fade_domain(nal_anim_controller *self, void *, Float domain_bits, Float rate)
+{
+    const auto domains = bit_cast<uint32_t>(domain_bits);
+    for (auto *state = self->my_player.field_20; state != nullptr; state = state->field_40) {
+        if ((domains & static_cast<uint32_t>(state->field_44)) != 0) {
+            state->field_4C = rate;
+            state->field_38 = 2;
+            if (state->field_C != nullptr)
+                state->field_C->Release();
+            state->field_C = nullptr;
+        }
+    }
+}
+void __fastcall nc_kill_priority(nal_anim_controller *self, void *, Float priority)
+{
+    self->my_player.KillPriority(priority);
+}
+void __fastcall nc_fade_priority(nal_anim_controller *self, void *, Float priority, Float rate)
+{
+    for (auto *state = self->my_player.field_20; state != nullptr; state = state->field_40) {
+        if (equal<float>(state->field_48, priority)) {
+            state->field_4C = rate;
+            state->field_38 = 2;
+            if (state->field_C != nullptr)
+                state->field_C->Release();
+            state->field_C = nullptr;
+        }
+    }
+}
+bool __fastcall nc_has_nonlooping(nal_anim_controller *self, void *) { return self->_sub_49C180(); }
+void *__fastcall nc_scene_begin(nal_anim_controller *self, void *)
+{
+    self->field_50 = true;
+    return &self->field_44;
+}
+void __fastcall nc_scene_end(nal_anim_controller *self, void *) { self->field_50 = false; }
+bool __fastcall nc_scene_playing(nal_anim_controller *self, void *) { return self->scene_animation_playing(); }
+bool __fastcall nc_active(nal_anim_controller *self, void *, Float priority) { return self->is_anim_active(priority); }
+double __fastcall nc_base_time(nal_anim_controller *self, void *) { return self->_get_base_anim_time_in_sec(); }
+double __fastcall nc_time(nal_anim_controller *self, void *, Float priority) { return self->get_anim_time_in_sec(priority); }
+double __fastcall nc_base_total(nal_anim_controller *self, void *) { return self->get_total_base_anim_time_in_sec(); }
+double __fastcall nc_total(nal_anim_controller *self, void *, Float priority)
+{
+    auto *state = self->my_player.Advance(priority);
+    return state->field_18 * state->field_0->field_10->field_38;
+}
+double __fastcall nc_base_normalized(nal_anim_controller *self, void *)
+{
+    auto *state = self->my_player.field_14[0];
+    return state != nullptr ? state->field_18 : 0.0f;
+}
+double __fastcall nc_normalized(nal_anim_controller *self, void *, Float priority)
+{
+    auto *state = self->my_player.Advance(priority);
+    return state != nullptr ? state->field_18 : 0.0f;
+}
+void __fastcall nc_set_base_time(nal_anim_controller *self, void *, Float time) { self->_set_base_anim_time_in_sec(time); }
+void __fastcall nc_set_time(nal_anim_controller *self, void *, Float priority, Float time)
+{
+    if (auto *state = self->my_player.Advance(priority)) {
+        state->field_18 = time * state->field_0->field_8;
+        state->field_1C = self->my_player.field_14[0]->field_18;
+    }
+}
+double __fastcall nc_base_speed(nal_anim_controller *self, void *) { return self->_get_base_anim_speed(); }
+double __fastcall nc_speed(nal_anim_controller *self, void *, Float priority) { return self->_get_anim_speed(priority); }
+void __fastcall nc_set_base_speed(nal_anim_controller *self, void *, Float speed) { self->_set_base_anim_speed(speed); }
+void __fastcall nc_set_speed(nal_anim_controller *self, void *, Float priority, Float speed)
+{
+    if (auto *state = self->my_player.Advance(priority))
+        state->field_4 = speed;
+}
+void __fastcall nc_reset(nal_anim_controller *self, void *) { self->my_player.Reset(); }
+void *__fastcall nc_base_pointer(nal_anim_controller *self, void *) { return self->get_base_layer_anim_ptr(); }
+void *__fastcall nc_pointer(nal_anim_controller *self, void *, Float priority) { return self->get_anim_ptr(priority); }
+
+void __fastcall nc_offscreen(nal_anim_controller *, void *, Float) {}
+void __fastcall nc_advance(nal_anim_controller *self, void *, Float dt, bool offscreen, bool force)
+{
+    self->_frame_advance(dt, offscreen, force);
+}
+void __fastcall nc_offset(nal_anim_controller *self, void *, po *out) { self->get_curr_po_offset(*out); }
+double __fastcall nc_floor(nal_anim_controller *, void *) { return 1.0; }
+double __fastcall nc_fov(nal_anim_controller *, void *) { return 0.0; }
+double __fastcall nc_far_clip(nal_anim_controller *, void *) { return 10000.0; }
+double __fastcall nc_tentacle(nal_anim_controller *, void *, string_hash) { return 0.0; }
+void __fastcall nc_root(nal_anim_controller *, void *, po *out) { *out = po{}; }
+bool __fastcall nc_has_scale(nal_anim_controller *, void *, string_hash) { return false; }
+vector3d *__fastcall nc_scale(nal_anim_controller *, void *, vector3d *out, string_hash)
+{
+    *out = vector3d{1.0f, 1.0f, 1.0f};
+    return out;
+}
+
+void __fastcall nc_scene_pose(nal_anim_controller *, void *, int *, nalAnimClass<nalAnyPose> *, nalAnyPose *) {}
+void __fastcall nc_matrices(nal_anim_controller *self, void *, nalAnyPose *pose) { self->get_matrix_data_from_pose(*pose); }
+
+void __fastcall pm_advance(anim_player::nalPlayMethod *self, void *, anim_player::nalAnimState *state, Float dt)
+{
+    self->Advance(state, dt);
+}
+void __fastcall pm_compose(anim_player::nalPlayMethod *, void *, anim_player::nalAnimState *state,
+                          nalAnyPose *out, nalAnyPose *scratch, const nalAnyPose *reference)
+{
+    state->sub_853C80(*out, *scratch, *reference);
+}
+void *__fastcall pm_create(nal_anim_controller::std_play_method *self, void *,
+                           nalAnimClass<nalAnyPose> *anim, nalBaseSkeleton *skeleton, void *parameter)
+{
+    return self->CreateInstance(anim, skeleton, parameter);
+}
+
+void __fastcall pm_reference(anim_player::nalPlayMethod *, void *, anim_player::nalAnimState *) {}
+void __fastcall pm_release(anim_player::nalPlayMethod *, void *) {}
+}
+
+void *nal_anim_controller::native_vtable()
+{
+    static void *table[] = {
+        reinterpret_cast<void *>(&nc_delete), reinterpret_cast<void *>(&nc_layer),
+        reinterpret_cast<void *>(&nc_base), reinterpret_cast<void *>(&nc_kill_domain),
+        reinterpret_cast<void *>(&nc_fade_domain), reinterpret_cast<void *>(&nc_kill_priority),
+        reinterpret_cast<void *>(&nc_fade_priority), reinterpret_cast<void *>(&nc_has_nonlooping),
+        reinterpret_cast<void *>(&nc_scene_begin), reinterpret_cast<void *>(&nc_scene_end),
+        reinterpret_cast<void *>(&nc_scene_playing), reinterpret_cast<void *>(&nc_active),
+        reinterpret_cast<void *>(&nc_base_time), reinterpret_cast<void *>(&nc_time),
+        reinterpret_cast<void *>(&nc_base_total), reinterpret_cast<void *>(&nc_total),
+        reinterpret_cast<void *>(&nc_base_normalized), reinterpret_cast<void *>(&nc_normalized),
+        reinterpret_cast<void *>(&nc_set_base_time), reinterpret_cast<void *>(&nc_set_time),
+        reinterpret_cast<void *>(&nc_base_speed), reinterpret_cast<void *>(&nc_speed),
+        reinterpret_cast<void *>(&nc_set_base_speed), reinterpret_cast<void *>(&nc_set_speed),
+        reinterpret_cast<void *>(&nc_reset), reinterpret_cast<void *>(&nc_base_pointer),
+        reinterpret_cast<void *>(&nc_pointer), reinterpret_cast<void *>(&nc_offscreen),
+        reinterpret_cast<void *>(&nc_advance), reinterpret_cast<void *>(&nc_offset),
+        reinterpret_cast<void *>(&nc_floor), reinterpret_cast<void *>(&nc_fov),
+        reinterpret_cast<void *>(&nc_far_clip), reinterpret_cast<void *>(&nc_tentacle),
+        reinterpret_cast<void *>(&nc_tentacle), reinterpret_cast<void *>(&nc_tentacle),
+        reinterpret_cast<void *>(&nc_root), reinterpret_cast<void *>(&nc_root),
+        reinterpret_cast<void *>(&nc_has_scale), reinterpret_cast<void *>(&nc_scale),
+        reinterpret_cast<void *>(&nc_scene_pose), reinterpret_cast<void *>(&nc_matrices),
+    };
+    return table;
+}
+
+void *nal_anim_controller::std_play_method::native_vtable()
+{
+    static void *table[] = {
+        reinterpret_cast<void *>(&pm_advance), reinterpret_cast<void *>(&pm_compose),
+        reinterpret_cast<void *>(&pm_create), reinterpret_cast<void *>(&pm_reference),
+        reinterpret_cast<void *>(&pm_release),
+    };
+    return table;
+}
+
+namespace {
+auto *__fastcall scene_create(nal_anim_controller::scene_anim_client *self, void *,
+                              nalAnimClass<nalAnyPose> *anim)
+{
+    return self->CreateInstance(anim);
+}
+void __fastcall scene_advance(nal_anim_controller::scene_anim_client *self, void *,
+                              nalAnimClass<nalAnyPose>::nalInstanceClass *instance,
+                              Float time, Float previous, Float blend, Float weight)
+{
+    self->Advance(instance, time, previous, blend, weight);
+}
+void __fastcall scene_render(nal_anim_controller::scene_anim_client *self, void *,
+                             nalAnimClass<nalAnyPose>::nalInstanceClass *instance, Float weight)
+{
+    self->Render(instance, weight);
+}
+
+void __fastcall scene_release(nal_anim_controller::scene_anim_client *, void *) {}
+}
+
 nal_anim_controller::scene_anim_client::scene_anim_client(nal_anim_controller *a2)
 {
-    this->m_vtbl = 0x00880B04;
+    if constexpr (STANDALONE_SYSTEM) {
+        static void *table[] = {
+            reinterpret_cast<void *>(&scene_create), reinterpret_cast<void *>(&scene_advance),
+            reinterpret_cast<void *>(&scene_render), reinterpret_cast<void *>(&scene_release),
+        };
+        m_vtbl = static_cast<int>(reinterpret_cast<std::intptr_t>(table));
+    } else {
+        m_vtbl = 0x00880B04;
+    }
     this->field_4 = a2;
 }
 
@@ -71,12 +291,25 @@ nal_anim_controller::scene_anim_client::CreateInstance(nalAnimClass<nalAnyPose> 
     }
 }
 
-int nal_anim_controller::scene_anim_client::Advance(nalAnimClass<nalAnyPose>::nalInstanceClass *a2, Float a3, Float a4,
-                                                    Float a5, Float a6)
-    {
-    if constexpr (0) {
+void nal_anim_controller::scene_anim_client::Advance(
+    nalAnimClass<nalAnyPose>::nalInstanceClass *instance, Float time, Float previous, Float blend, Float weight)
+{
+    if constexpr (STANDALONE_SYSTEM) {
+        nalAnyPose pose(field_4->field_8);
+        auto *default_pose = field_4->field_8->VirtualGetDefaultPose();
+        auto *reference = default_pose->field_0->VirtualCreatePose();
+        reference->field_0->VirtualCopyPose(reference, default_pose);
+        instance->VirtualGetPose(time, previous, *pose.field_0, *reference);
+        reference->field_0->VirtualDestroyPose(reference);
+        using modify_fn = void (__fastcall *)(nal_anim_controller *, void *, int *,
+                                              nalAnimClass<nalAnyPose> *, nalAnyPose *);
+        reinterpret_cast<modify_fn>(get_vfunc(field_4->m_vtbl, 0xA0))(
+            field_4, nullptr, &field_8, instance->field_10, &pose);
+        field_4->field_8->VirtualCopyPose(*field_4->field_40.field_0, *pose.field_0);
+        moved_entities::add_moved({field_4->field_4->my_handle});
+        pose.field_0->field_0->VirtualDestroyPose(pose.field_0);
     } else {
-        return THISCALL(0x0049C090, this, a2, a3, a4, a5, a6);
+        THISCALL(0x0049C090, this, instance, time, previous, blend, weight);
     }
 }
 
@@ -94,7 +327,8 @@ nal_anim_controller::nal_anim_controller(actor *a2, nalBaseSkeleton *a3, unsigne
     : animation_controller(a2, a3, a4, a5), my_player(a3), field_40(a3), field_44(this), field_50(false)
 {
     if constexpr (1) {
-        this->m_vtbl = 0x00880D58;
+        this->m_vtbl = STANDALONE_SYSTEM
+            ? reinterpret_cast<std::intptr_t>(native_vtable()) : 0x00880D58;
 
 
         auto *v7 = this->field_8->VirtualGetDefaultPose();
@@ -110,7 +344,8 @@ nal_anim_controller::nal_anim_controller(actor *a2, nalBaseSkeleton *a3, unsigne
 
 nal_anim_controller::~nal_anim_controller()
 {
-    this->m_vtbl = 0x00880D58;
+    this->m_vtbl = STANDALONE_SYSTEM
+        ? reinterpret_cast<std::intptr_t>(native_vtable()) : 0x00880D58;
     this->field_40.field_0->field_0->VirtualDestroyPose(this->field_40.field_0);
     this->my_player.sub_4AE210();
 }
@@ -174,12 +409,12 @@ void nal_anim_controller::_set_base_anim_speed(Float speed)
     }
 }
 
-void nal_anim_controller::_frame_advance(Float a2, bool a3, bool a4)
+void nal_anim_controller::_frame_advance(Float a2, bool a3, bool)
 {
     TRACE("nal_anim_controller::frame_advance");
 
-    if constexpr (1) {
-        if (!traffic::is_unanimated_car(this->field_4) && !this->field_4->is_flagged(0x40000000u) && !this->field_50) {
+    {
+        if (!traffic::is_unanimated_car(this->field_4) && !this->field_4->is_ext_flagged(0x40000000u) && !this->field_50) {
             this->my_player.sub_4B06A0(a2);
             this->my_player.sub_4B0860(this->field_40);
             if (this->field_4->is_visible() && !a3) {
@@ -193,9 +428,6 @@ void nal_anim_controller::_frame_advance(Float a2, bool a3, bool a4)
                 byte_959561 = false;
             }
         }
-    } else {
-        void (__fastcall *func)(void *, void *, Float, bool, bool) = CAST(func, 0x004A6110);
-        func(this, nullptr, a2, a3, a4);
     }
 }
 
@@ -234,48 +466,25 @@ bool nal_anim_controller::is_anim_active(Float a1)
 
 double nal_anim_controller::_get_base_anim_time_in_sec() const
 {
-    TRACE("nal_anim_controller::get_base_anim_time_in_sec");
-
-    if constexpr (0) {
-        auto *v3 = this->my_player.field_14[0];
-        auto *v4 = (v3 != nullptr ? v3->field_0->field_10 : nullptr);
-        if ((v4->field_34 & 1) != 0) {
-            auto *v5 = this->my_player.field_14[0];
-            double v6 = (v5 != nullptr ? v5->field_18 : 0.0);
-            auto *v7 = this->my_player.field_14[0];
-            auto v8 = v6 - static_cast<int>(v6);
-            if ( v7 != nullptr ) {
-                return v8 * v7->field_0->field_10->field_38;
-            } else {
-                assert(0);
-                //return v8 * MEMORY[0x38];
-            }
-        }
-
-        auto result = this->get_total_base_anim_time_in_sec();
-        auto *v9 = this->my_player.field_14[0];
-        nalAnimClass<nalAnyPose> *v10 = (v9 != nullptr ? v9->field_0->field_10 : nullptr);
-        if (result > v10->field_38) {
-            auto *v11 = this->my_player.field_14[0];
-            if ( v11 != nullptr ) {
-                return v11->field_0->field_10->field_38;
-            } else {
-                assert(0);
-                //return MEMORY[0x38];
-            }
-        }
-
-        return result;
-    } else {
-        double (__fastcall *func)(const void *) = CAST(func, 0x00497E50);
-        return func(this);
+    const auto *state = this->my_player.field_14[0];
+    const auto *anim = state->field_0->field_10;
+    const double normalized_time = state->field_18;
+    if ((anim->field_34 & 1) != 0) {
+        return (normalized_time - static_cast<int>(normalized_time)) * anim->field_38;
     }
+    const double total_time = normalized_time * anim->field_38;
+    return total_time > anim->field_38 ? anim->field_38 : total_time;
 }
 
 
 void nal_anim_controller::get_curr_po_offset(po &a2)
 {
-    THISCALL(0x00497FC0, this, &a2);
+    nalPositionOrientation trajectory{};
+    this->field_40.field_0->field_0->VirtualGetTrajectoryUpdate(this->field_40.field_0, &trajectory);
+    const quaternion rotation{trajectory.field_0[3], trajectory.field_0[0], trajectory.field_0[1],
+                              trajectory.field_0[2]};
+    const vector3d translation{trajectory.field_10[0], trajectory.field_10[1], trajectory.field_10[2]};
+    a2 = po{translation, rotation, 1.0f};
 }
 
 void nal_anim_controller::get_matrix_data_from_pose(nalAnyPose &a1)
@@ -283,7 +492,7 @@ void nal_anim_controller::get_matrix_data_from_pose(nalAnyPose &a1)
     TRACE("nal_anim_controller::get_matrix_data_from_pose");
 
 
-    if constexpr (0) {
+    {
         auto *v3 = (conglomerate *)this->field_4;
         if (v3->is_a_conglomerate()) {
             auto *skel = this->field_40.field_0->field_0;
@@ -302,7 +511,7 @@ void nal_anim_controller::get_matrix_data_from_pose(nalAnyPose &a1)
                         po new_po {};
                         auto *v6 = child->get_model_po();
 
-                        const ptr_to_po source{&v32->m, &v6->m};
+                        const ptr_to_po source{&v6->m, &v32->m};
                         new_po.set_from_ptr_to_po_world(source);
 
                         child->set_abs_po(new_po);
@@ -333,8 +542,8 @@ void nal_anim_controller::get_matrix_data_from_pose(nalAnyPose &a1)
             if (this->field_50 ||
                 ((static_cast<nalGeneric::nalGenericAnim *>(this->get_base_layer_anim_ptr())->field_34 & 2) != 0)) {
                 quaternion a2_12{v30.field_0[3], v30.field_0[0], v30.field_0[1], v30.field_0[2]};
-                vector3d v31 {};
-                po v32 {v31, a2_12, 1.0};
+                const vector3d translation{v30.field_10[0], v30.field_10[1], v30.field_10[2]};
+                po v32 {translation, a2_12, 1.0};
 
                 this->field_4->set_abs_po(v32);
             } else {
@@ -351,22 +560,20 @@ void nal_anim_controller::get_matrix_data_from_pose(nalAnyPose &a1)
                 this->field_4->set_frame_delta_trans(v17, 0.033);
             }
         }
-    } else {
-        THISCALL(0x004A8A60, this, &a1);
     }
 }
 
-double nal_anim_controller::get_anim_time_in_sec(Float a2)
+double nal_anim_controller::get_anim_time_in_sec(Float priority)
 {
-    TRACE("nal_anim_controller::get_anim_time_in_sec");
-
-    if constexpr (1) {
-        double (__fastcall *func)(void *, void *, Float) = CAST(func, get_vfunc(m_vtbl, 0x34));
-        return func(this, nullptr, a2);
-    } else {
-        double (__fastcall *func)(void *, void *, Float) = CAST(func, 0x0049BE60);
-        return func(this, nullptr, a2);
+    const auto *state = this->my_player.Advance(priority);
+    const auto *anim = state->field_0->field_10;
+    const double normalized_time = state->field_18;
+    if ((anim->field_34 & 1) != 0) {
+        const float wrapped_time = normalized_time - static_cast<int>(normalized_time);
+        return static_cast<double>(wrapped_time) * anim->field_38;
     }
+    const float total_time = normalized_time * anim->field_38;
+    return total_time <= anim->field_38 ? total_time : anim->field_38;
 }
 
 double nal_anim_controller::get_total_base_anim_time_in_sec() const
@@ -429,7 +636,7 @@ void *nal_anim_controller::std_play_method::CreateInstance(nalAnimClass<nalAnyPo
         als::base_state_machine *als_layer_internal = nullptr;
         if (v4->is_a_conglomerate()) {
             if (v4->get_my_als() != nullptr) {
-                auto *my_als = v4->get_my_als();
+                my_als = v4->get_my_als();
                 als_layer_internal = my_als->get_als_layer_internal(*static_cast<als::layer_types *>(pParameter));
             }
         }

@@ -1,5 +1,11 @@
 #include "als_basic_rule_data.h"
 
+
+#include "als_animation_logic_system.h"
+#include "als_category.h"
+#include "als_data.h"
+#include "als_state.h"
+#include "alter_conditions.h"
 #include "als_dest_weight_data.h"
 #include "als_filter_data.h"
 #include "als_post_layer_alter.h"
@@ -60,27 +66,61 @@ namespace als {
     {
         TRACE("als::basic_rule_data::can_transition");
 
-        if constexpr (1) {
-        for (auto &data : this->field_0) {
-                auto param = a2.field_4->get_param(a2.field_0, data->field_0);
-                if ( param < data->field_4 || data->field_8 < param ) {
-                    return false;
-                }
+        for (int i = 0; i < this->field_0.size(); ++i) {
+            auto *filter = this->field_0.m_data[i];
+            const double param = a2.field_4->get_param(a2.field_0, filter->field_0);
+            filter = this->field_0.m_data[i];
+            if (param < filter->field_4 || param > filter->field_8) {
+                return false;
             }
-
-            return true;
-        } else {
-            bool (__fastcall *func)(const void *, void *, als_data *) = CAST(func, 0x0049FEE0);
-
-            return func(this, nullptr, &a2);
         }
+        return true;
     }
 
     void basic_rule_data::do_post_action(als_data &a2)
     {
         TRACE("als::basic_rule_data::do_post_action");
 
-        THISCALL(0x004A6CC0, this, &a2);
+        if (this->field_20 == nullptr) {
+            return;
+        }
+
+        for (int i = 0; i < this->field_20->field_0.size(); ++i) {
+            auto *rule = this->field_20->field_0.m_data[i];
+            if (static_cast<uint8_t>(rule->field_0) != 0) {
+                a2.field_0->kill_animation_domain(static_cast<uint32_t>(rule->field_4));
+            } else {
+                a2.field_0->sub_4A6630(static_cast<layer_types>(rule->field_4));
+            }
+        }
+
+        for (int i = 0; i < this->field_20->field_14.size(); ++i) {
+            auto *alter = this->field_20->field_14.m_data[i];
+            bool matched = false;
+            string_hash destination;
+            for (int j = 0; j < alter->field_4.size(); ++j) {
+
+                auto *condition = alter->field_4.m_data[i];
+                auto *layer = a2.field_0->get_als_layer_internal(static_cast<layer_types>(alter->field_0));
+                const string_hash current = static_cast<uint8_t>(condition->field_0) != 0
+                                                ? layer->m_curr_state->get_state_id()
+                                                : layer->get_curr_category()->field_4;
+                if (current == string_hash{condition->field_4}) {
+                    destination = condition->field_8;
+                    matched = true;
+                    break;
+                }
+                alter = this->field_20->field_14.m_data[i];
+            }
+            alter = this->field_20->field_14.m_data[i];
+            if (!matched) {
+                destination = alter->field_18;
+                if (destination == string_hash{0}) {
+                    continue;
+                }
+            }
+            a2.field_0->transition_layer(static_cast<layer_types>(alter->field_0), destination);
+        }
     }
 
     bool basic_rule_data::has_post_action() const
@@ -133,38 +173,21 @@ void basic_rule_data::rule_action::initialize(mash::allocation_scope a2)
 
         assert((the_action == basic_rule_data::TRANSITION) || (the_action == basic_rule_data::TRANSITION_CATEGORY));
 
-        if constexpr (1) {
-            if ( this->destination_states != nullptr ) {
-                assert(destination_states->size() > 0);
-
-            auto sub_65DB3E = [](float a1, float a2) -> double {
-                    return ((rand() * 0.000030518509) * (a2 - a1)) + a1;
-                };
-
-                auto v8 = sub_65DB3E(0.0, 1.0);
-                float v7 = 0.0;
-
-
-            for (int i = 0; i < this->destination_states->size(); ++i) {
-                    v7 += this->destination_states->at(i)->field_4;
-                if (v7 >= v8) {
-                        auto v3 = this->destination_states->at(i)->field_0;
-                        return v3;
-                    }
-                }
-
-                auto v4 = this->destination_states->size();
-                auto v5 = this->destination_states->at(v4 - 1)->field_0;
-                return v5;
-        } else {
-                return this->field_8;
-            }
-        } else {
-            string_hash result;
-            THISCALL(0x00499730, this, &result);
-
-            return result;
+        if (this->destination_states == nullptr) {
+            return this->field_8;
         }
+
+        assert(this->destination_states->size() > 0);
+        const float threshold = static_cast<float>(rand() * (1.0 / 32768.0));
+        long double cumulative_weight = 0.0;
+        for (int i = 0; i < this->destination_states->size(); ++i) {
+            auto *destination = this->destination_states->m_data[i];
+            cumulative_weight += destination->field_4;
+            if (threshold <= cumulative_weight) {
+                return destination->field_0;
+            }
+        }
+        return this->destination_states->m_data[this->destination_states->size() - 1]->field_0;
     }
 
     void basic_rule_data::rule_action::process_action(request_data &a2) const

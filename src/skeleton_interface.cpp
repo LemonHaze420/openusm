@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "entity_base.h"
+#include "entity_mash.h"
 #include "oldmath_po.h"
 #include "trace.h"
 
@@ -13,7 +14,12 @@ VALIDATE_SIZE(skeleton_interface, 0x14);
 
 skeleton_interface::skeleton_interface(conglomerate *a1) : conglomerate_interface(a1)
 {
-    this->m_vtbl = 0x0088344C;
+#if STANDALONE_SYSTEM
+    construct_v_table_lookup();
+    m_vtbl = ifc_v_table_lookup[6];
+#else
+    m_vtbl = 0x0088344C;
+#endif
 }
 
 #if defined(TARGET_XBOX) || defined(OPENUSM_XBPACK_MODE)
@@ -30,7 +36,7 @@ void skeleton_interface::unmash(mash_info_struct *a2, void *a3)
 
 void skeleton_interface::release_ifc()
 {
-    ;
+
 }
 
 void skeleton_interface::connect_bone_abs_po(int bone_idx, entity_base *new_bone)

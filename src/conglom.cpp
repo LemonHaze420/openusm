@@ -1100,10 +1100,8 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
                     fix_entity_v_table((char *)__ENT_ptr, v11);
                 }
 
-                const auto rel_po_idx =
-                    static_cast<int>(v87 - this->member_abs_po.m_data);
+                const auto rel_po_idx = static_cast<uint8_t>(__ENT_ptr->rel_po_idx);
                 assert(rel_po_idx < this->all_rel_po.size());
-                __ENT_ptr->rel_po_idx = static_cast<int8_t>(rel_po_idx);
                 __ENT_ptr->my_rel_po = &this->all_rel_po.m_data[rel_po_idx];
                 __ENT_ptr->my_conglom_root = this;
                 __ENT_ptr->my_handle = INVALID_HANDLE;
@@ -1162,7 +1160,6 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
         assert(skin_bones.empty() || tmp_skeleton_ifc.exists());
 #endif
 
-        uint16_t skin_bone_idx = 0;
         for (auto &bone : this->skin_bones) {
             uint16_t __ENT_TYPE = *a4->get_from_shared<uint16_t>();
 
@@ -1188,15 +1185,11 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
                     fix_entity_v_table((char *)__ENT_ptr, v26);
                 }
                 __ENT_ptr->my_handle = INVALID_HANDLE;
-                const auto rel_po_idx = this->members.size() + skin_bone_idx;
-                assert(rel_po_idx < this->all_rel_po.size());
-                __ENT_ptr->field_40 = static_cast<uint8_t>(skin_bone_idx);
-                __ENT_ptr->rel_po_idx = static_cast<int8_t>(rel_po_idx);
+                const auto rel_po_idx = static_cast<uint8_t>(__ENT_ptr->rel_po_idx);
+                assert(rel_po_idx != 0xFF);
+                assert(rel_po_idx < all_rel_po.size());
 
-                assert(__ENT_ptr->rel_po_idx != 0xFF);
-                assert(__ENT_ptr->rel_po_idx < all_rel_po.size());
-
-                __ENT_ptr->my_rel_po = &this->all_rel_po.m_data[__ENT_ptr->rel_po_idx];
+                __ENT_ptr->my_rel_po = &this->all_rel_po.m_data[rel_po_idx];
                 __ENT_ptr->my_conglom_root = this;
 
                 __ENT_ptr->un_mash_start(header, __ENT_ptr, a4, nullptr);
@@ -1214,17 +1207,10 @@ void conglomerate::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data
 
             this->skeleton_ifc->connect_bone_abs_po(tmp_ptr->get_bone_idx(), tmp_ptr);
 
-            ++skin_bone_idx;
             bone = tmp_ptr;
         }
 
         int v59 = *a4->get<int>();
-#if STANDALONE_SYSTEM
-        if (v59 != 0 && v59 != 1) {
-            a4->field_0 -= sizeof(v59);
-            v59 = 0;
-        }
-#endif
         if ( v59 != 0 ) {
             int v61 = *a4->get<int>();
 

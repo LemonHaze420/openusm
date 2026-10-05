@@ -39,6 +39,12 @@ struct animation_controller {
 
         float get_anim_time_in_sec() const;
 
+
+        float get_anim_total_time_in_sec() const;
+
+
+        float get_anim_duration() const;
+
         float get_anim_speed() const;
     };
 
@@ -68,7 +74,7 @@ struct animation_controller {
     anim_ctrl_handle play_base_layer_anim(const string_hash &a3, Float a4, uint32_t a5, bool a6);
 
     //virtual
-    void play_layer_anim(nalAnimClass<nalAnyPose> *, Float, Float, uint32_t, bool, void *) /* = 0 */;
+    void play_layer_anim(nalAnimClass<nalAnyPose> *, Float, Float, uint32_t, bool, bool, void *);
 
     //virtual
     void play_base_layer_anim(nalAnimClass<nalAnyPose> *a2, Float a3, Float a4, bool a5, bool a6, void *a7) /* = 0 */;
@@ -137,12 +143,14 @@ struct animation_controller {
     float get_camera_far_clip();
 
     //virtual
+
     float get_tentacle_width(string_hash);
 
     //virtual
     float get_tentacle_activity(string_hash);
 
     //virtual
+
     float get_tentacle_pull_factor(string_hash);
 
     //virtual
@@ -150,6 +158,9 @@ struct animation_controller {
 
     //virtual
     void get_shake_root_rel_po(po &a3);
+
+
+    vector3d get_camera_shake();
 
     //virtual
     bool will_have_hint_token_scale(string_hash);

@@ -90,7 +90,7 @@ void param_list::clear()
 
 bool param_list::is_empty() const
 {
-    return (this->field_0 != nullptr);
+    return (this->field_0 == nullptr);
 }
 
 void param_list::concat_list(als::param_list &a2)
@@ -100,7 +100,7 @@ void param_list::concat_list(als::param_list &a2)
         if (!a2.is_empty()) {
             auto &v3 = this->field_0;
             if (!this->is_empty()) {
-                auto &v4 = v3->field_C;
+                auto *v4 = v3->field_C;
                 v3->field_C = v2->field_C;
                 a2.field_0->field_C->field_8 = this->field_0;
                 v4->field_8 = a2.field_0;
@@ -124,9 +124,9 @@ void param_list::cull_duplicates_keep_last()
         if (this->field_0 != nullptr) {
             als::param_node *a1[130];
 
-            auto &v2 = v1;
+            auto *v2 = v1;
             memset(&a1[0], 0, sizeof(a1));
-            auto &v3 = v1;
+            auto *v3 = v1;
             als::param_node *v4;
             als::param_node **v5;
             als::param_node *v8;
@@ -159,12 +159,11 @@ void param_list::cull_duplicates_keep_last()
                 } else {
                     this->field_0 = v7;
                 }
-            } else {
-                v8 = v4->field_C;
-                v9 = v4->field_8;
-                v8->field_8 = v9;
-                v9->field_C = v8;
             }
+            v8 = v4->field_C;
+            v9 = v4->field_8;
+            v8->field_8 = v9;
+            v9->field_C = v8;
 
             mem_dealloc(v4, sizeof(*v4));
 

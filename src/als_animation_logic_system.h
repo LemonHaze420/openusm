@@ -50,12 +50,18 @@ public:
         return field_6C;
     }
 
+    animation_controller *get_animation_controller() const
+    {
+        return the_controller;
+    }
+
     bool sub_49F2A0();
 
     //0x0049F360
     float convert_layer_id_to_priority(layer_types a2);
 
     void sub_4A6630(layer_types a2);
+    void kill_animation_domain(uint32_t domain);
 
     base_state_machine *get_als_layer_internal(layer_types a2);
 

@@ -11,8 +11,14 @@ struct character_anim_controller : nal_anim_controller {
 
         gen_std_play_method(character_anim_controller *a2) : field_4(a2)
         {
+#if defined(STANDALONE_SYSTEM)
+            this->m_vtbl = reinterpret_cast<std::intptr_t>(native_vtable());
+#else
             this->m_vtbl = 0x00880B70;
+#endif
         }
+
+        static void *native_vtable();
 
         //virtual
         //0x0049EC30
@@ -29,8 +35,14 @@ struct character_anim_controller : nal_anim_controller {
     struct gen_base_play_method : gen_std_play_method {
         gen_base_play_method(character_anim_controller *a2) : gen_std_play_method(a2)
         {
+#if defined(STANDALONE_SYSTEM)
+            this->m_vtbl = reinterpret_cast<std::intptr_t>(native_vtable());
+#else
             this->m_vtbl = 0x00880B88;
+#endif
         }
+
+        static void *native_vtable();
 
         //virtual
         bool ShouldFireSignals(usm_anim_player<nalAnimClass<nalAnyPose>, 3>::nalAnimState *a1);
@@ -39,8 +51,14 @@ struct character_anim_controller : nal_anim_controller {
     struct gen_mod_play_method : gen_std_play_method {
         gen_mod_play_method(character_anim_controller *a2) : gen_std_play_method(a2)
         {
+#if defined(STANDALONE_SYSTEM)
+            this->m_vtbl = reinterpret_cast<std::intptr_t>(native_vtable());
+#else
             this->m_vtbl = 0x00880BA0;
+#endif
         }
+
+        static void *native_vtable();
 
         //virtual
         bool ShouldFireSignals(usm_anim_player<nalAnimClass<nalAnyPose>, 3>::nalAnimState *a1);
@@ -55,6 +73,24 @@ struct character_anim_controller : nal_anim_controller {
     //0x0049CA30
     character_anim_controller(actor *a2, nalBaseSkeleton *new_skel, unsigned int a4,
                               const als::als_meta_anim_table_shared *a5);
+
+    static void *native_vtable();
+
+
+    void _play_layer_anim(nalAnimClass<nalAnyPose> *anim, Float blend_time, Float priority,
+                          uint32_t domains, bool force_restart, bool completion_flag, void *parameter);
+
+
+    float get_floor_offset();
+
+
+    float get_camera_fov();
+
+
+    float get_camera_far_clip();
+
+
+    float get_tentacle_activity(string_hash bone);
 
 
     void *operator new(size_t sz);

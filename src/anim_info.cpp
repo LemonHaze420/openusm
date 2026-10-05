@@ -5,6 +5,14 @@
 
 VALIDATE_SIZE(anim_info, 0x24);
 
+anim_info::~anim_info()
+{
+    if (field_14 != nullptr)
+        ::operator delete(field_14);
+    if (field_18 != nullptr)
+        ::operator delete(field_18);
+}
+
 void anim_info::un_mash(generic_mash_header *, void *, generic_mash_data_ptrs *a4)
 {
     if ((this->field_1C & 0x2000000) != 0) {

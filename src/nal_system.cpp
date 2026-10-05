@@ -20,7 +20,11 @@
 #include <nal_list.h>
 #include <nal_skeleton.h>
 
+#include <functional>
 #include <cassert>
+#include <cmath>
+#include "matrix4x4.h"
+#include "vector3d.h"
 
 VALIDATE_OFFSET(nalGeneric::nalGenericSkeleton, field_50, 0x50);
 
@@ -187,6 +191,103 @@ void nalComponentBase::Process(const nalGeneric::nalComponentInfo *a1, void *&a2
     func(this, nullptr, a1, &a2, &a3);
 }
 
+namespace {
+struct CacheEntry {
+    void **owner;
+    CacheEntry *previous;
+    CacheEntry *next;
+    int size;
+};
+
+nalHeap *__fastcall HeapFinalize(nalHeap *heap, void *, bool release)
+{
+    if (release)
+        ::operator delete(heap);
+    return heap;
+}
+
+void *__fastcall HeapAllocate(nalHeap *heap, void *, int size, int alignment)
+{
+    if (static_cast<uint32_t>(heap->field_8 + size) > heap->field_4)
+        return nullptr;
+    heap->field_8 += size;
+    return tlMemAlloc(size, alignment, 0x2000000u);
+}
+
+void __fastcall NativeHeapFree(nalHeap *heap, void *, void *data, int size)
+{
+    heap->field_8 -= size;
+    tlMemFree(data);
+}
+}
+
+void nalCacheFree(void *data)
+{
+    if (!data)
+        return;
+    auto *entry = static_cast<CacheEntry *>(data) - 1;
+    if (entry->owner)
+        *entry->owner = nullptr;
+    if (entry->previous)
+        entry->previous->next = entry->next;
+    else
+        nalAnimationCache.field_8 = reinterpret_cast<int>(entry->next);
+    if (entry->next)
+        entry->next->previous = entry->previous;
+    else
+        nalAnimationCache.field_4 = reinterpret_cast<int>(entry->previous);
+    auto *heap = nalAnimationCache.field_0;
+    auto free = reinterpret_cast<void(__fastcall *)(nalHeap *, void *, void *, int)>(
+        get_vfunc(heap->m_vtbl, 8));
+    free(heap, nullptr, entry, entry->size);
+}
+
+void nalCacheTouch(void *data)
+{
+    if (!data)
+        return;
+    auto *entry = static_cast<CacheEntry *>(data) - 1;
+    if (reinterpret_cast<int>(entry) == nalAnimationCache.field_8)
+        return;
+    if (entry->previous)
+        entry->previous->next = entry->next;
+    if (entry->next)
+        entry->next->previous = entry->previous;
+    else
+        nalAnimationCache.field_4 = reinterpret_cast<int>(entry->previous);
+    entry->previous = nullptr;
+    entry->next = reinterpret_cast<CacheEntry *>(nalAnimationCache.field_8);
+    if (entry->next)
+        entry->next->previous = entry;
+    else
+        nalAnimationCache.field_4 = reinterpret_cast<int>(entry);
+    nalAnimationCache.field_8 = reinterpret_cast<int>(entry);
+}
+
+void *nalCacheAllocate(int size, int alignment, void **owner)
+{
+    auto *heap = nalAnimationCache.field_0;
+    auto allocate = reinterpret_cast<void *(__fastcall *)(nalHeap *, void *, int, int)>(
+        get_vfunc(heap->m_vtbl, 4));
+    CacheEntry *entry;
+    while (!(entry = static_cast<CacheEntry *>(allocate(
+                 heap, nullptr, size + sizeof(CacheEntry), alignment > 4 ? alignment : 4)))) {
+        nalCacheFree(reinterpret_cast<CacheEntry *>(nalAnimationCache.field_4) + 1);
+    }
+    entry->size = size + sizeof(CacheEntry);
+    entry->owner = owner;
+    if (owner)
+        *owner = entry + 1;
+    entry->previous = nullptr;
+    entry->next = reinterpret_cast<CacheEntry *>(nalAnimationCache.field_8);
+    if (entry->next)
+        entry->next->previous = entry;
+    else
+        nalAnimationCache.field_4 = reinterpret_cast<int>(entry);
+    nalAnimationCache.field_8 = reinterpret_cast<int>(entry);
+    return entry + 1;
+}
+
 void nalInit(nalHeap *a1)
 {
     TRACE("nalInit");
@@ -214,6 +315,10 @@ void nalInit(nalHeap *a1)
 
         auto *v10 = a1;
         if (v10 == nullptr) {
+            static void *heap_table[]{reinterpret_cast<void *>(&HeapFinalize),
+                                      reinterpret_cast<void *>(&HeapAllocate),
+                                      reinterpret_cast<void *>(&NativeHeapFree)};
+            nalDefaultHeap.m_vtbl = reinterpret_cast<std::intptr_t>(heap_table);
             nalDefaultHeap.field_4 = 0x100000;
             nalDefaultHeap.field_8 = 0;
             v10 = &nalDefaultHeap;
@@ -231,7 +336,42 @@ void nalInit(nalHeap *a1)
 
 void nalExit()
 {
-    CDECL_CALL(0x00783C60);
+    nalSceneAnimDirectory->ReleaseAll(false, false, 1);
+    nalAnimFileDirectory->ReleaseAll(false, false, 1);
+    nalSkeletonDirectory->ReleaseAll(false, false, 1);
+
+
+
+    while (nalAnimationCache.field_8 != 0) {
+        auto *entry = reinterpret_cast<CacheEntry *>(nalAnimationCache.field_8);
+        nalAnimationCache.field_8 = reinterpret_cast<int>(entry->next);
+        auto *heap = nalAnimationCache.field_0;
+        auto free = reinterpret_cast<void(__fastcall *)(nalHeap *, void *, void *, int)>(
+            get_vfunc(heap->m_vtbl, 8));
+        free(heap, nullptr, entry, entry->size);
+    }
+
+
+
+    nalTypeInstanceBank.Release();
+    nalComponentInstanceBank.Release();
+
+    auto destroy_directory = [](auto *directory) {
+        if (directory != nullptr) {
+            auto finalize = reinterpret_cast<void(__fastcall *)(void *, void *, bool)>(
+                get_vfunc(directory->m_vtbl, 0));
+            finalize(directory, nullptr, true);
+        }
+    };
+    destroy_directory(nalSkeletonDirectory);
+    destroy_directory(nalSceneAnimDirectory);
+    destroy_directory(nalAnimDirectory);
+    destroy_directory(nalAnimFileDirectory);
+
+    if (--tlScratchPadRefCount == 0) {
+        tlMemFree(dword_970D64);
+        dword_970D64 = nullptr;
+    }
 }
 
 void nalReleaseSceneAnimInternal(nalSceneAnim *scene_anim)
@@ -428,111 +568,106 @@ nalMatrix4x4::nalMatrix4x4(const nalPositionOrientation &a2)
     this->arr[3][2] = a2.field_10[2];
 }
 
-nalMatrix4x4 sub_5FE000(const nalMatrix4x4 &arg4, const nalMatrix4x4 &arg8)
+nalMatrix4x4 sub_5FE000(const nalMatrix4x4 &local, const nalMatrix4x4 &parent)
 {
     nalMatrix4x4 result;
-
-    if constexpr (0) {
-        vector4d x_axis;
-        x_axis[0] = arg8[0][0];
-        x_axis[1] = arg8[0][1];
-        x_axis[2] = arg8[0][2];
-        x_axis[3] = arg8[0][3];
-
-        vector4d y_axis;
-        y_axis[0] = arg8[1][0];
-        y_axis[1] = arg8[1][1];
-        y_axis[2] = arg8[1][2];
-        y_axis[3] = arg8[1][3];
-
-        vector4d z_axis;
-        z_axis[0] = arg8[2][0];
-        z_axis[1] = arg8[2][1];
-        z_axis[2] = arg8[2][2];
-        z_axis[3] = arg8[2][3];
-
-        vector4d w_axis;
-        w_axis[0] = arg8[3][0];
-        w_axis[1] = arg8[3][1];
-        w_axis[2] = arg8[3][2];
-        w_axis[3] = arg8[3][3];
-
-        vector4d a3;
-        a3[0] = arg4[0][0];
-        a3[1] = arg4[0][1];
-        a3[2] = arg4[0][2];
-        a3[3] = arg4[0][3];
-
-        vector4d a5;
-        a5[0] = arg4[1][0];
-        a5[1] = arg4[1][1];
-        a5[2] = arg4[1][2];
-        a5[3] = arg4[1][3];
-
-        vector4d a7;
-        a7[0] = arg4[2][0];
-        a7[1] = arg4[2][1];
-        a7[2] = arg4[2][2];
-        a7[3] = arg4[2][3];
-
-        vector4d arg8a;
-        arg8a[0] = arg4[3][0];
-        arg8a[1] = arg4[3][1];
-        arg8a[2] = arg4[3][2];
-        arg8a[3] = arg4[3][3];
-
-        auto v16 = sub_4126E0(x_axis, a3, y_axis, a3, z_axis, a3);
-
-        auto v21 = sub_4126E0(x_axis, a5, y_axis, a5, z_axis, a5);
-
-        auto v25 = sub_4126E0(x_axis, a7, y_axis, a7, z_axis, a7);
-
-        auto v29 = vector4d::sub_413E90(x_axis, arg8a, y_axis, arg8a, z_axis, arg8a, w_axis);
-
-        nalMatrix4x4 result;
-        result[0][0] = v16[0];
-        result[0][1] = v16[1];
-        result[0][2] = v16[2];
-        result[0][3] = v16[3];
-        result[1][0] = v21[0];
-        result[1][1] = v21[1];
-        result[1][2] = v21[2];
-        result[1][3] = v21[3];
-        result[2][0] = v25[0];
-        result[2][1] = v25[1];
-        result[2][2] = v25[2];
-        result[2][3] = v25[3];
-        result[3][0] = v29[0];
-        result[3][1] = v29[1];
-        result[3][2] = v29[2];
-        result[3][3] = v29[3];
-    } else {
-        int(__cdecl * func)(nalMatrix4x4 *, const nalMatrix4x4 *, const nalMatrix4x4 *) = CAST(func, 0x005FE000);
-        func(&result, &arg4, &arg8);
-    }
-
+    nalComposeMatrices(result, local, parent);
     return result;
 }
 
-nalMatrix4x4 sub_5F2FD0(Float a2, const float *a3)
-{
-    if constexpr (0) {
-    } else {
-        void (*func)(nalMatrix4x4 *out, Float, const float *) = CAST(func, 0x005F2FD0);
 
-        nalMatrix4x4 result{};
-        func(&result, a2, a3);
-        return result;
-    }
+float nalPoseCos(float angle)
+{
+    const float phase = -std::fabs(angle) * 0.15915493667125702f;
+    const float t = std::fabs(std::ceil(phase) - phase - 0.5f) - 0.25f;
+    const float t2 = t * t;
+    const float t3 = t2 * t;
+    const float t4 = t2 * t2;
+    const float t5 = t4 * t;
+    const float t7 = t3 * t4;
+    const float t9 = t5 * t4;
+    float result = t9 * 39.71065902709961f;
+    result += t7 * -76.57495880126953f;
+    result += t5 * 81.60222625732422f;
+    result += t3 * -41.3416748046875f;
+    return result + t * 6.283185005187988f;
 }
 
-float sub_5F4960(const nalMatrix4x4 &a2, bool a3)
+float nalPoseSin(float angle)
 {
-    if constexpr (0) {
-    } else {
-        float (*func)(const nalMatrix4x4 *, bool) = CAST(func, 0x005F4960);
-        return func(&a2, a3);
+    return nalPoseCos(angle + 4.71238899230957f);
+}
+
+namespace {
+float poseAsin(float t)
+{
+    if (t < 0.5f) {
+        const double t2 = double(t) * t;
+        const double t3 = t2 * t;
+        const double t5 = t3 * t2;
+        const double t7 = t5 * t2;
+        return static_cast<float>(t7 * 0.0539812408387661f + t5 * 0.07500000298023224f +
+                                  t3 * 0.16666670143604279f + t);
     }
+    const double u = std::sqrt(std::fabs((1.0 - t) * 0.5));
+    const double u2 = u * u;
+    const double u3 = u2 * u;
+    const double u5 = u3 * u2;
+    const double u7 = u5 * u2;
+    return static_cast<float>(u7 * -0.10796249657869339f - u5 * 0.15000000596046448f -
+                              u3 * 0.3333333134651184f - 2.0 * u + 1.570796012878418f);
+}
+
+nalMatrix4x4 poseIdentity()
+{
+    nalMatrix4x4 result{};
+    for (int i = 0; i != 4; ++i)
+        result[i][i] = 1.0f;
+    return result;
+}
+}
+
+nalMatrix4x4 sub_5F2FD0(Float angle, const float *position)
+{
+    const float c = nalPoseCos(angle);
+    const float s = nalPoseSin(angle);
+    nalMatrix4x4 result = poseIdentity();
+    result[2][1] = -s;
+    result[1][1] = c;
+    result[2][2] = c;
+    result[1][2] = s;
+    for (int i = 0; i != 3; ++i)
+        result[3][i] = position[i];
+    return result;
+}
+
+float sub_5F4960(const nalMatrix4x4 &source, bool left)
+{
+    nalMatrix4x4 aligned = source;
+    const float x = source[0][0];
+    if (-0.9900000095367432f < x && x < 0.9900000095367432f) {
+        const float invLength = 1.0f / std::sqrt(source[0][2] * source[0][2] +
+                                                source[0][1] * source[0][1]);
+        float arc = poseAsin(std::fabs(x));
+        if (x < 0.0f)
+            arc = -arc;
+        const float half = (1.5707963705062866f - arc) * 0.5f;
+        const float s = nalPoseSin(half);
+        const float q[4] = {0.0f, -source[0][2] * invLength * s,
+                           source[0][1] * invLength * s, nalPoseCos(half)};
+        const nalMatrix4x4 rotation(nalPositionOrientation(nalVector3{}, q));
+        aligned = sub_5FE000(aligned, rotation);
+        for (int i = 0; i != 4; ++i)
+            aligned[3][i] = source[3][i];
+    }
+    const float q[4] = {left ? -0.70710677f : 0.70710677f, 0.0f, 0.0f, 0.70710677f};
+    const nalMatrix4x4 rotation(nalPositionOrientation(nalVector3{}, q));
+    aligned = sub_5FE000(aligned, rotation);
+    const float y = std::asin(aligned[0][2]);
+    const float c = nalPoseCos(y);
+    if (std::fabs(c) <= 0.004999999888241291f)
+        return -0.0f;
+    return -std::atan2(-aligned[1][2] / c, aligned[2][2] / c);
 }
 
 vector4d sub_5FC4A0(const vector4d &a2, const float *a3, const vector4d &a4)
@@ -601,52 +736,46 @@ void sub_5FC820(const nalPositionOrientation &a1, vector4d &a2, vector4d &a3, ve
     a4 = sub_5FC4A0(v10, a1.field_0, v15);
 }
 
-nalMatrix4x4::nalMatrix4x4(const nalMatrix4x4 &a2)
-{
-    if constexpr (0) {
-    } else {
-        void(__fastcall * func)(void *, void *edx, const nalMatrix4x4 *a2) = CAST(func, 0x005EBC90);
-        func(this, nullptr, &a2);
-    }
-}
+nalMatrix4x4::nalMatrix4x4(const nalMatrix4x4 &a2) = default;
 
 void nalMatrix4x4::sub_5FC9C0(const nalPositionOrientation &a2)
 {
-    if constexpr (0) {
-        vector4d v10;
-        vector4d v11;
-        vector4d v12;
-        sub_5FC820(a2, v10, v11, v12);
-
-        this->arr[0][0] = v10[0];
-        this->arr[0][1] = v10[1];
-        this->arr[0][2] = v10[2];
-        this->arr[0][3] = 0.0;
-
-        this->arr[1][0] = v11[0];
-        this->arr[1][1] = v11[1];
-        this->arr[1][2] = v11[2];
-        this->arr[1][3] = 0.0;
-
-        this->arr[2][0] = v12[0];
-        this->arr[2][1] = v12[1];
-        this->arr[2][2] = v12[2];
-        this->arr[2][3] = 0.0;
-    } else {
-        void(__fastcall * func)(void *self, void *edx, const float *a2) = CAST(func, 0x005FC9C0);
-        func(this, nullptr, &a2.field_0[0]);
+    vector4d rows[3];
+    sub_5FC820(a2, rows[0], rows[1], rows[2]);
+    for (int i = 0; i != 3; ++i) {
+        for (int j = 0; j != 3; ++j)
+            arr[i][j] = rows[i][j];
+        arr[i][3] = 0.0f;
     }
 }
 
 nalMatrix4x4 nalMatrix4x4::sub_5EC0A0()
 {
-    if constexpr (0) {
-    } else {
-        void(__fastcall * func)(void *, void *edx, nalMatrix4x4 *out) = CAST(func, 0x005EC0A0);
-        nalMatrix4x4 result{};
-        func(this, nullptr, &result);
-        return result;
-    }
+    const auto cofactor = [this](int row, int col) {
+        float m[9];
+        int n = 0;
+        for (int i = 0; i != 4; ++i)
+            if (i != row)
+                for (int j = 0; j != 4; ++j)
+                    if (j != col)
+                        m[n++] = arr[i][j];
+        const double value = double(m[7]) * m[3] * m[2] + double(m[6]) * m[5] * m[1] +
+                             double(m[8]) * m[4] * m[0] - double(m[2]) * m[6] * m[4] -
+                             double(m[7]) * m[5] * m[0] - double(m[3]) * m[1] * m[8];
+        return ((row ^ col) & 1) ? -value : value;
+    };
+    float determinant = 0.0f;
+    for (int i = 0; i != 4; ++i)
+        determinant = static_cast<float>(determinant + cofactor(0, i) * arr[0][i]);
+
+    if (std::equal_to<float>{}(determinant, 0.0f))
+        return poseIdentity();
+    const float inverseDeterminant = 1.0f / determinant;
+    nalMatrix4x4 result;
+    for (int i = 0; i != 4; ++i)
+        for (int j = 0; j != 4; ++j)
+            result[j][i] = static_cast<float>(cofactor(i, j)) * inverseDeterminant;
+    return result;
 }
 
 nalPositionOrientation::nalPositionOrientation(nalVector3 a2, const float *a3)
@@ -662,19 +791,33 @@ void DecomposeIKSpin(nalMatrix4x4 &a1, nalMatrix4x4 &a2, const nalMatrix4x4 &a3,
                      const nalMatrix4x4 &a5, const IKSkelData &a6,
                      nalVector3 (*a7)(const nalMatrix4x4 &, const nalMatrix4x4 &, nalVector3), Float a8)
 {
-    TRACE("DecomposeIKSpin");
-
-    if constexpr (0) {
-    } else {
-        void (*func)(nalMatrix4x4 *a1,
-                     nalMatrix4x4 *a2,
-                     const nalMatrix4x4 *a3,
-                     const nalVector3 *a4,
-                     const nalMatrix4x4 *a5,
-                     const IKSkelData *a6,
-                     nalVector3 (*a7)(const nalMatrix4x4 &, const nalMatrix4x4 &, nalVector3),
-                     Float a8) = CAST(func, 0x005F16E0);
-        func(&a1, &a2, &a3, &a4, &a5, &a6, a7, a8);
+    vector3d target{a5[3][0], a5[3][1], a5[3][2]};
+    vector3d origin;
+    vector3d axis;
+    float sin0, cos0, sin1, cos1;
+    inverse_kinematics::nalIKSolve2D(
+        reinterpret_cast<matrix4x4 *>(const_cast<nalMatrix4x4 *>(&a3)),
+        reinterpret_cast<vector3d *>(const_cast<nalVector3 *>(&a4)), &target,
+        a6.field_0, a6.field_8, a6.field_4, a6.field_C, &origin, &axis, &sin0, &cos0, &sin1, &cos1);
+    nalVector3 direction;
+    direction[0] = axis.x;
+    direction[1] = axis.y;
+    direction[2] = axis.z;
+    const nalVector3 bend = a7(a3, a5, direction);
+    vector4d bendDirection{};
+    for (int i = 0; i != 3; ++i)
+        bendDirection[i] = bend[i];
+    inverse_kinematics::nalIKMap2DTo3D(
+        a6.field_10, sin0, cos0, sin1, cos1, &origin, &axis, &bendDirection,
+        std::sin(a8.value), std::cos(a8.value), reinterpret_cast<matrix4x4 *>(&a1),
+        reinterpret_cast<matrix4x4 *>(&a2));
+    for (nalMatrix4x4 *joint : {&a1, &a2}) {
+        for (int i = 0; i != 4; ++i) {
+            (*joint)[0][i] = -(*joint)[0][i];
+            const float oldY = (*joint)[1][i];
+            (*joint)[1][i] = -(*joint)[2][i];
+            (*joint)[2][i] = -oldY;
+        }
     }
 }
 
@@ -693,22 +836,26 @@ nalVector3 LegHeuristic(const nalMatrix4x4 &, const nalMatrix4x4 &a3, nalVector3
 
 void ReconstituteBaseKnuckle(nalMatrix4x4 &a1, Float a2, Float a3, const nalVector3 &a4)
 {
-    if constexpr (0) {
-    } else {
-        void (*func)(nalMatrix4x4 *a1, Float a2, Float a3, const nalVector3 *a4) = CAST(func, 0x005F4170);
-        func(&a1, a2, a3, &a4);
-    }
+    const float sy = static_cast<float>(std::sin(double(a2.value) * 0.5));
+    const float cy = static_cast<float>(std::cos(double(a2.value) * 0.5));
+    const float sz = static_cast<float>(std::sin(double(a3.value) * 0.5));
+    const float cz = static_cast<float>(std::cos(double(a3.value) * 0.5));
+    const float q[4] = {sy * sz, sy * cz, cy * sz, cy * cz};
+    a1 = nalMatrix4x4(nalPositionOrientation(a4, q));
 }
 
 void Unconvert2Knuckle(nalMatrix4x4 &a1, nalMatrix4x4 &a2, Float a3, const nalVector3 &a4, const nalVector3 &a5,
                        bool a6)
 {
-    if constexpr (0) {
-    } else {
-        void (*func)(nalMatrix4x4 *, nalMatrix4x4 *, Float, const nalVector3 *, const nalVector3 *, bool) =
-            CAST(func, 0x005F42D0);
-        func(&a1, &a2, a3, &a4, &a5, a6);
+    sub_5F3080(a1, a3, a4);
+    if (a6) {
+        a3 = a3.value * 2.0f;
+        if (a3 > 1.570796012878418f)
+            a3 = 1.570796012878418f;
+        else if (a3 < -1.570796012878418f)
+            a3 = -1.570796012878418f;
     }
+    sub_5F3080(a2, a3, a5);
 }
 
 void ReconstituteFingerCurl(nalMatrix4x4 &a1, nalMatrix4x4 &a2, nalMatrix4x4 &a3, const nalVector3 &a4,
@@ -719,37 +866,45 @@ void ReconstituteFingerCurl(nalMatrix4x4 &a1, nalMatrix4x4 &a2, nalMatrix4x4 &a3
     sub_5F3080(a3, a7, a6);
 }
 
-nalVector3 LeftArmHeuristic(const nalMatrix4x4 &a2, const nalMatrix4x4 &a3, nalVector3 a4)
+namespace {
+nalVector3 armHeuristic(const nalMatrix4x4 &matrix, nalVector3 direction, bool mirrored)
 {
-    if constexpr (0) {
-    } else {
-        nalVector3 result{};
-        void (*func)(nalVector3 *out, const nalMatrix4x4 *a2, const nalMatrix4x4 *a3, nalVector3 a4) =
-            CAST(func, 0x005EEEE0);
-        func(&result, &a2, &a3, a4);
-        return result;
+    nalVector3 result = LegHeuristic(matrix, matrix, direction);
+    float dot = direction[0] * matrix[1][0] + direction[1] * matrix[1][1] +
+                direction[2] * matrix[1][2];
+    if (mirrored)
+        dot = -dot;
+    for (int i = 0; i != 3; ++i) {
+        if (dot < 0.0f)
+            result[i] = result[i] * (dot + 1.0f) + (-matrix[0][i] - matrix[2][i]) * -dot;
+        else
+            result[i] = result[i] * (1.0f - dot) + (matrix[2][i] - matrix[0][i]) * dot;
     }
+    return result;
+}
 }
 
-nalVector3 RightArmHeuristic(const nalMatrix4x4 &a2, const nalMatrix4x4 &a3, nalVector3 a4)
+nalVector3 LeftArmHeuristic(const nalMatrix4x4 &a2, const nalMatrix4x4 &, nalVector3 a4)
 {
-    if constexpr (0) {
-    } else {
-        nalVector3 result{};
-        void (*func)(nalVector3 *out, const nalMatrix4x4 *a2, const nalMatrix4x4 *a3, nalVector3 a4) =
-            CAST(func, 0x005EF100);
-        func(&result, &a2, &a3, a4);
-        return result;
-    }
+    return armHeuristic(a2, a4, false);
+}
+
+nalVector3 RightArmHeuristic(const nalMatrix4x4 &a2, const nalMatrix4x4 &, nalVector3 a4)
+{
+    return armHeuristic(a2, a4, true);
 }
 
 void sub_5F3080(nalMatrix4x4 &a1, Float a2, const nalVector3 &a3)
 {
-    if constexpr (0) {
-    } else {
-        void (*func)(nalMatrix4x4 *, Float a2, const nalVector3 *) = CAST(func, 0x005F3080);
-        func(&a1, a2, &a3);
-    }
+    const float c = nalPoseCos(a2);
+    const float s = nalPoseSin(a2);
+    a1 = poseIdentity();
+    a1[2][0] = -s;
+    a1[0][0] = c;
+    a1[2][2] = c;
+    a1[0][2] = s;
+    for (int i = 0; i != 3; ++i)
+        a1[3][i] = a3[i];
 }
 
 void nalStreamInstance_patch()

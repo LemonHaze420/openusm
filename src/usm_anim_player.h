@@ -33,7 +33,7 @@ struct usm_anim_player {
         int m_vtbl;
 
         //virtual
-        void Invoke(usm_anim_player<T, I> *a1);
+        bool Invoke(usm_anim_player<T, I> *a1);
 
         //virtual
         void Release();
@@ -110,6 +110,13 @@ struct usm_anim_player {
 
     void PlayModifier(T *a2, usm_anim_player_modifier_type a3, Float a4, nalPlayMethod *a5, Float a6, int a7, Float a8,
                       void *a9, bool a10, void *a11);
+    void PlayModifier(T *anim, usm_anim_player_modifier_type type, Float priority, uint32_t domains,
+                      bool force_restart, Float blend_time, Float fade_out_time, nalPlayMethod *method,
+                      Float extra_time, nalAnimCallback *callback, Float speed, bool completion_flag,
+                      void *parameter);
+    void Reset();
+    void KillDomain(uint32_t domains);
+    void KillPriority(Float priority);
 
     bool IsAnimActive(Float a1)
     {

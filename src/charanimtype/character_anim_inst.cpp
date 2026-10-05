@@ -7,6 +7,7 @@
 #include "variables.h"
 
 #include <cassert>
+#include <algorithm>
 #include <cmath>
 
 VALIDATE_SIZE(nalChar::nalCharInstance, 0x20u);
@@ -23,7 +24,7 @@ void nalChar::nalCharInstance::finalize(bool a2)
 {
     this->~nalCharInstance();
     if ((a2 & 1) != 0) {
-        delete (this);
+        ::operator delete(this);
     }
 }
 
@@ -68,9 +69,9 @@ nalChar::nalCharInstance::~nalCharInstance()
                 auto *CompPerAnimDataInt = (const void *)Anim->GetCompPerAnimDataInt(v5->field_8);
                 ComponentFromInstance->DestroyPerInstData(v5->field_C, Name, CompPerSkelDataInt, CompPerAnimDataInt);
             } else {
-                auto *Skeleton = this->GetSkeleton();
+                auto *Skeleton = Anim->GetSkeleton();
                 auto v11 = v5->field_8;
-                auto *component = Skeleton->GetComponent(v11);
+                auto *component = static_cast<CharComponentBase *>(Skeleton->GetComponent(v11));
                 auto *CompPerSkelDataInt = SkeletonFromInstance->GetCompPerSkelDataInt(v6);
                 auto toName = Skeleton->GetName(v11);
                 auto fromName = SkeletonFromInstance->GetName(v6);
@@ -262,6 +263,10 @@ void nalChar::nalCharInstance::GetPose(Float a2, Float a3, nalChar::nalCharPose 
     TRACE("nalChar::nalCharInstance::GetPose");
 
     if constexpr (1) {
+        if ((GetAnim()->field_34 & 1) == 0) {
+            a2 = std::clamp(a2.value, 0.0f, 1.0f);
+            a3 = std::clamp(a3.value, 0.0f, 1.0f);
+        }
         *a4 = *a5;
         for (int i = 0; i < this->field_18; ++i) {
             auto *v30 = &this->field_14[i];
@@ -305,7 +310,7 @@ void nalChar::nalCharInstance::GetPose(Float a2, Float a3, nalChar::nalCharPose 
                     auto defaultPoseData = v12->GetCompDefaultPoseData(v30->field_8);
                     auto skelDataInt = v12->GetCompPerSkelDataInt(v30->field_8);
                     auto v20 = v30->field_0;
-                    auto *Skeleton = anim->GetSkeleton();
+                    auto *Skeleton = this->GetSkeleton();
                     auto skelDataInt1 = Skeleton->GetCompPerSkelDataInt(v20);
                     auto v18 = v30->field_0;
                     auto v16 = this->GetSkeleton();

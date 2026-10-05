@@ -7,6 +7,7 @@
 #include "tl_system.h"
 #include "trace.h"
 #include "variables.h"
+#include <functional>
 
 namespace nalChar {
 
@@ -44,14 +45,17 @@ nalCharPose::nalCharPose(const nalChar::nalCharSkeleton *a2) : nalCompPose(a2)
 
 nalCharPose::nalCharPose(const nalCharPose &a2, bool a3) : nalCompPose(a2.field_4)
 {
+    m_vtbl = a2.m_vtbl;
+    field_C = 0;
     if (a3) {
-        *this = a2;
+        nalCompPose::operator=(&a2);
     }
 }
 
 nalCharPose::~nalCharPose()
 {
-    this->m_vtbl = 0x00891A3C;
+    if constexpr (!STANDALONE_SYSTEM)
+        this->m_vtbl = 0x00891A3C;
     nalComp::nalCompPose::FreePoseData();
 }
 
@@ -69,15 +73,15 @@ void nalCharPose::Blend(Float a2, const nalCharPose &src0, const nalCharPose &sr
 {
     TRACE("nalChar::nalCharPose::Blend");
 
-    if constexpr (0) {
-        if (this->m_pTheData != nullptr) {
+    if constexpr (STANDALONE_SYSTEM) {
+        if (this->m_pTheData == nullptr) {
             this->InitializePoseDataFromSkel();
         }
 
-        if (equal<float>(a2, 1.0f)) {
-            (*this) = src1;
-        } else if (equal<float>(a2, 0.0f)) {
-            (*this) = src0;
+        if (std::equal_to<float>{}(a2, 1.0f)) {
+            nalCompPose::operator=(&src1);
+        } else if (std::equal_to<float>{}(a2, 0.0f)) {
+            nalCompPose::operator=(&src0);
         } else {
             auto *v6 = src1.GetSkeleton();
             auto numComponents = v6->GetNumComponents();
@@ -103,7 +107,7 @@ void *nalCharPose::GetNamedPoseData(CharComponentBase::Names a2)
     auto *Skeleton = (const nalCharSkeleton *)this->GetSkeleton();
     int CompIxByName = Skeleton->GetCompIxByName(a2);
     if (CompIxByName != -1) {
-        return this->GetComponentPoseData(CompIxByName);
+        return this->_GetComponentPoseData(CompIxByName);
     } else {
         return nullptr;
     }
@@ -146,24 +150,32 @@ void nalCharPose::InitializePoseDataFromSkel()
     }
 }
 
+namespace {
+void __fastcall destroy_character_pose(nalCharSkeleton *, void *, nalBasePose *pose)
+{
+    if (pose != nullptr)
+        delete reinterpret_cast<nalCharPose *>(reinterpret_cast<char *>(pose) - sizeof(int));
+}
+}
+
 nalCharSkeleton::nalCharSkeleton()
 {
     static void *g_vtbl[]{nullptr,
                           nullptr,
                           func_address(&nalCharSkeleton::_Process),
-                          nullptr,
+                          func_address(&nalCharSkeleton::Release),
                           func_address(&nalCharSkeleton::_CheckVersion),
                           func_address(&nalCompSkeleton::_VirtualGetBoneMatrixCount),
                           func_address(&nalCompSkeleton::_VirtualGetBoneMatrices),
                           func_address(&nalCompSkeleton::_VirtualGetTrajectoryUpdate),
                           nullptr,
+                          func_address(&nalCharSkeleton::VirtualGetDefaultPose),
+                          func_address(&nalCharSkeleton::VirtualCreatePose),
+                          reinterpret_cast<void *>(&destroy_character_pose),
+                          func_address(&nalCharSkeleton::VirtualCopyPose),
+                          func_address(&nalCharSkeleton::VirtualBlend),
                           nullptr,
-                          nullptr,
-                          nullptr,
-                          nullptr,
-                          nullptr,
-                          nullptr,
-                          nullptr,
+                          func_address(&nalCompSkeleton::_DoesComponentHavePoseTrackData),
                           func_address(&nalCompSkeleton::_UnMash)};
     this->m_vtbl = CAST(m_vtbl, &g_vtbl);
     this->m_theDefaultPose = nullptr;
@@ -277,7 +289,7 @@ void nalChar::nalCharSkeleton::VirtualCopyPose(nalBasePose *a1, const nalBasePos
         v1 = (nalComp::nalCompPose *)&a1[-1];
     }
 
-    (*v1) = (*v3);
+    v1->operator=(v3);
 }
 
 void nalCharSkeleton::VirtualBlend(nalBasePose *a2, Float a3, nalBasePose *a4, nalBasePose *a5)
@@ -295,7 +307,7 @@ void nalCharSkeleton::VirtualBlend(nalBasePose *a2, Float a3, nalBasePose *a4, n
     }
 
     nalCharPose *v7 = nullptr;
-    if (a4 != nullptr) {
+    if (a2 != nullptr) {
         v7 = (nalCharPose *)&a2[-1];
     }
 

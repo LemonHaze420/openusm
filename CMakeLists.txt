@@ -199,7 +199,7 @@ target_include_directories(pedanimtype PUBLIC
     "./src/base/include/"
     "./src/variables/"
 )
-target_link_libraries(pedanimtype PUBLIC utility)
+target_link_libraries(pedanimtype PUBLIC nfl utility)
 
 
 file(GLOB_RECURSE NALCOMP_SRC "./src/nalcomp/*.cpp")

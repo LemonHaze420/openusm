@@ -83,7 +83,9 @@ void sub_826190(nalBasePose &dst, Float a2, nalBasePose &src0, nalBasePose &src1
            "attempting to blend incompatible skeletons");
 
     auto *v6 = dst.GetSkeleton();
-    v6->VirtualBlend(&dst, a2, &src0, &src1);
+    void(__fastcall *func)(const void *, void *, nalBasePose *, Float, const nalBasePose *, const nalBasePose *) =
+        CAST(func, get_vfunc(v6->m_vtbl, 0x34));
+    func(v6, nullptr, &dst, a2, &src0, &src1);
 }
 
 void *nalConstructSkeleton(void *a1)
@@ -129,6 +131,19 @@ void *nalConstructSkeleton(void *a1)
     }
 }
 
+void nalComposeMatrices(nalMatrix4x4 &out, const nalMatrix4x4 &local, const nalMatrix4x4 &parent)
+{
+    nalMatrix4x4 result;
+    for (int row = 0; row < 4; ++row)
+        for (int column = 0; column < 4; ++column) {
+            result[row][column] = parent[2][column] * local[row][2]
+                + parent[1][column] * local[row][1] + parent[0][column] * local[row][0];
+            if (row == 3)
+                result[row][column] += parent[3][column];
+        }
+    out = result;
+}
+
 namespace inverse_kinematics {
 
     // let distance d = ||T - P|| and precomputed coefficients,
@@ -151,7 +166,9 @@ namespace inverse_kinematics {
         float* cos1)
     {
         vector3d tmpProj;
-        ProjectPointOntoLineXform(&tmpProj, root, hinge);
+        for (int axis = 0; axis < 3; ++axis)
+            (&tmpProj.x)[axis] = hinge->arr[2][axis] * root->z
+                + hinge->arr[1][axis] * root->y + hinge->arr[0][axis] * root->x + hinge->w[axis];
         *proj_point = tmpProj;
 
         vector3d diff;
@@ -217,7 +234,12 @@ namespace inverse_kinematics {
         };
 
         // N = normalize(bone x bend)
-        vector3d normal = vector3d::cross(bone, bend).normalized();
+        vector3d normal = vector3d::cross(bone, bend);
+        const float inverse_length = 1.0f / std::sqrt(
+            normal.x * normal.x + normal.y * normal.y + normal.z * normal.z);
+        normal.x *= inverse_length;
+        normal.y *= inverse_length;
+        normal.z *= inverse_length;
         vector3d tangent = vector3d::cross(normal, bone);
 
         // pack basis
@@ -265,7 +287,9 @@ namespace inverse_kinematics {
         matrix4x4 joint0_local;
         joint0_local.compose_from_basis(&j0_x, &j0_y, &j0_z, &j0_pos);
 
-        local_to_world(joint0, &joint0_local, &hinge_space);
+        nalComposeMatrices(*reinterpret_cast<nalMatrix4x4 *>(joint0),
+            reinterpret_cast<const nalMatrix4x4 &>(joint0_local),
+            reinterpret_cast<const nalMatrix4x4 &>(hinge_space));
 
         // j1
 
@@ -302,7 +326,9 @@ namespace inverse_kinematics {
         matrix4x4 joint1_local;
         joint1_local.compose_from_basis(&j1_x, &j1_y, &j1_z, &j1_pos);
 
-        local_to_world(joint1, &joint1_local, &hinge_space);
+        nalComposeMatrices(*reinterpret_cast<nalMatrix4x4 *>(joint1),
+            reinterpret_cast<const nalMatrix4x4 &>(joint1_local),
+            reinterpret_cast<const nalMatrix4x4 &>(hinge_space));
     }
 
     inline void flip_chain_basis(matrix4x4* m) {

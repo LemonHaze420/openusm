@@ -11,6 +11,7 @@ struct from_mash_in_place_constructor;
 struct mash_info_struct;
 
 struct nalAnyPose;
+struct actor;
 
 namespace ai {
 struct ai_core;
@@ -38,6 +39,10 @@ struct meta_anim_strength_test : als::als_meta_anim_base {
     meta_anim_strength_test(from_mash_in_place_constructor *a2);
 
     void initialize(mash::allocation_scope a2);
+    void *scalar_delete(unsigned int flags);
+    bool _is_subclass_of(mash::virtual_types_enum type) const;
+    void delay_create(actor *owner);
+    static void *native_vtable();
 
     //virtual
     int _get_virtual_type_enum() const;
@@ -69,34 +74,23 @@ struct meta_anim_strength_test : als::als_meta_anim_base {
     //virtual
     int _get_mash_sizeof() const;
 
-    static inline void *g_vtbl[] = {
-        nullptr,
-        func_address(&meta_anim_strength_test::_unmash),
-        nullptr,
-        func_address(&meta_anim_strength_test::_get_virtual_type_enum),
-        nullptr,
-        func_address(&mash_virtual_base::_is_or_is_subclass_of),
-        func_address(&als_meta_anim_base::_get_anim_name),
-        func_address(&meta_anim_strength_test::_is_anim_looping),
-        func_address(&meta_anim_strength_test::_is_anim_trajectory_relative),
-        func_address(&meta_anim_strength_test::_get_anim_duration),
-        func_address(&meta_anim_strength_test::_get_skeleton),
-        func_address(&meta_anim_strength_test::_create_anim_inst),
-        nullptr,
-        nullptr,
-        func_address(&meta_anim_strength_test::_get_mash_sizeof),
-    };
 };
 
 struct strength_test_anim_inst : nalAnimClass<nalAnyPose>::nalInstanceClass {
-    void *field_14;
-    void *field_18;
+    nalAnimClass<nalAnyPose>::nalInstanceClass *field_14;
+    nalAnimClass<nalAnyPose>::nalInstanceClass *field_18;
     ai::ai_core *field_1C;
     float field_20;
 
     //0x0048BA70
     strength_test_anim_inst(nalAnimClass<nalAnyPose> *a2, nalAnimClass<nalAnyPose> *a3, nalBaseSkeleton *a4,
                             ai::ai_core *a5);
+
+    ~strength_test_anim_inst();
+    void *scalar_delete(unsigned int flags);
+    double get_curr_strength() const;
+    void sample_pose(Float t, Float t_prev, nalBasePose &pose, const nalBasePose &default_pose);
+    static void *native_vtable();
 };
 }  // namespace ai
 
@@ -129,6 +123,14 @@ struct als_meta_linear_blend : als_meta_anim_base {
 
         nalInstance(als::als_meta_linear_blend *a2, nalBaseSkeleton *a3, als::animation_logic_system *a4,
                     als::state_machine *a5);
+
+        ~nalInstance();
+        void *scalar_delete(unsigned int flags);
+        void sample_pose(Float t, Float t_prev, nalBasePose &pose, const nalBasePose &default_pose);
+        void blend_poses(Float t, Float t_prev, nalAnyPose &pose, const nalAnyPose &default_pose,
+                         Float weight, nalAnimClass<nalAnyPose>::nalInstanceClass *lower,
+                         nalAnimClass<nalAnyPose>::nalInstanceClass *upper);
+        static void *native_vtable();
     };
 
     mVector<als::meta_key_anim> key_anims;
@@ -137,6 +139,13 @@ struct als_meta_linear_blend : als_meta_anim_base {
     als_meta_linear_blend();
 
     als_meta_linear_blend(from_mash_in_place_constructor *a2);
+
+    ~als_meta_linear_blend();
+    void clear_key_anims();
+    void _destruct_mashed_class();
+    void *scalar_delete(unsigned int flags);
+    bool _is_subclass_of(mash::virtual_types_enum type) const;
+    static void *native_vtable();
 
     void initialize(mash::allocation_scope a2);
 
@@ -168,23 +177,6 @@ struct als_meta_linear_blend : als_meta_anim_base {
     //virtual
     int _get_mash_sizeof() const;
 
-    static inline void *g_vtbl[] = {
-        nullptr,
-        func_address(&als_meta_linear_blend::_unmash),
-        nullptr,
-        func_address(&als_meta_linear_blend::_get_virtual_type_enum),
-        nullptr,
-        func_address(&mash_virtual_base::_is_or_is_subclass_of),
-        func_address(&als_meta_anim_base::_get_anim_name),
-        func_address(&als_meta_linear_blend::_is_anim_looping),
-        func_address(&als_meta_linear_blend::_is_anim_trajectory_relative),
-        func_address(&als_meta_linear_blend::_get_anim_duration),
-        func_address(&als_meta_linear_blend::_get_skeleton),
-        func_address(&als_meta_linear_blend::_create_anim_inst),
-        nullptr,
-        nullptr,
-        func_address(&als_meta_linear_blend::_get_mash_sizeof),
-    };
 };
 }  // namespace als
 

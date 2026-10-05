@@ -4,6 +4,7 @@
 #include "als_inode_render_debug.h"
 #include "base_ai_core.h"
 #include "common.h"
+#include "conglom.h"
 #include "event.h"
 #include "func_wrapper.h"
 #include "state_machine.h"
@@ -11,12 +12,90 @@
 #include "utility.h"
 #include "vtbl.h"
 #include "wds.h"
+#include "native_info_node_table.h"
 
 namespace ai {
 
 VALIDATE_SIZE(als_inode, 0x2C);
 
-als_inode::als_inode() {}
+namespace {
+void __fastcall native_destruct(als_inode *self, void *)
+{
+    self->field_28.destruct_mashed_class();
+    self->_destruct_mashed_class();
+}
+void __fastcall native_unmash(als_inode *self, void *, mash_info_struct *info, void *base)
+{
+    self->_unmash(info, base);
+}
+void __fastcall native_activate(als_inode *self, void *, ai_core *core) { self->activate(core); }
+void __fastcall native_deactivate(als_inode *self, void *) { self->deactivate(); }
+void __fastcall native_advance(als_inode *self, void *, Float dt) { self->frame_advance(dt); }
+void __fastcall native_set_signal(als_inode *self, void *, Float time, string_hash category)
+{
+    self->set_known_combat_signal_time_and_category(time, category);
+}
+void __fastcall native_get_signal(const als_inode *self, void *, Float &time, string_hash &category)
+{
+    self->get_known_combat_signal_time_and_category(time, category);
+}
+float __fastcall native_signal_eta(als_inode *self, void *, als::layer_types layer)
+{
+    return self->get_eta_of_combat_signal(layer);
+}
+}
+
+void *als_inode::native_vtable()
+{
+    static auto table = [] {
+        native_inode::table<als_inode, 333, 537, 15> result;
+        result[0] = reinterpret_cast<void *>(&native_destruct);
+        result[1] = reinterpret_cast<void *>(&native_unmash);
+        result[6] = reinterpret_cast<void *>(&native_inode::always_advance);
+        result[7] = reinterpret_cast<void *>(&native_advance);
+        result[8] = reinterpret_cast<void *>(&native_activate);
+        result[9] = reinterpret_cast<void *>(&native_deactivate);
+        result[12] = reinterpret_cast<void *>(&native_set_signal);
+        result[13] = reinterpret_cast<void *>(&native_get_signal);
+        result[14] = reinterpret_cast<void *>(&native_signal_eta);
+        return result;
+    }();
+    return table.data();
+}
+
+void als_inode::get_known_combat_signal_time_and_category(Float &time, string_hash &category) const
+{
+    time = field_24;
+    category = field_28;
+}
+
+als_inode::als_inode()
+{
+    m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[333]);
+}
+
+als_inode::als_inode(from_mash_in_place_constructor *constructor)
+    : info_node(constructor), field_28(constructor)
+{
+    m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[333]);
+}
+
+void als_inode::_unmash(mash_info_struct *info, void *context)
+{
+    info_node::_unmash(info, context);
+    info->unmash_class_in_place(field_28, this);
+}
+
+void als_inode::deactivate()
+{
+
+    field_20 = nullptr;
+}
+
+void als_inode::frame_advance(Float)
+{
+
+}
 
 als::state_machine *als_inode::get_als_layer(als::layer_types a2)
 {
@@ -26,6 +105,15 @@ als::state_machine *als_inode::get_als_layer(als::layer_types a2)
         return this->get_system()->get_als_layer(a2);
     } else {
         return (als::state_machine *)THISCALL(0x00689BA0, this, a2);
+    }
+}
+
+void als_inode::kill_layer(als::layer_types layer_type)
+{
+    if (static_cast<conglomerate *>(field_C)->field_114 != nullptr) {
+        if (auto *layer = field_1C->get_als_layer(layer_type)) {
+            layer->kill_layer();
+        }
     }
 }
 
@@ -70,9 +158,11 @@ void als_inode::request_category_transition(string_hash a2, als::layer_types a3,
     }
 }
 
-void als_inode::activate(ai_core *a2)
+void als_inode::activate(ai_core *core)
 {
-    THISCALL(0x00693770, this, a2);
+    info_node::_activate(core);
+    field_1C = static_cast<conglomerate *>(core->field_64)->get_my_als();
+    field_20 = nullptr;
 }
 
 void als_inode::set_known_combat_signal_time_and_category(Float a2, string_hash a3)
@@ -125,7 +215,7 @@ bool als_inode::anim_finished(string_hash a2, als::layer_types a3)
 {
     TRACE("als_inode::anim_finished");
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         auto *the_layer = this->field_1C->get_als_layer(a3);
         if (the_layer->is_cat_our_prev_cat(a2)) {
             return true;
@@ -139,7 +229,6 @@ bool als_inode::anim_finished(string_hash a2, als::layer_types a3)
     } else {
         bool(__fastcall * func)(void *, void *, string_hash, als::layer_types) = CAST(func, 0x00689E10);
         auto result = func(this, nullptr, a2, a3);
-        sp_log("result = %d", result);
 
         return result;
     }

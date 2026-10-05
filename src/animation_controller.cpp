@@ -2,10 +2,12 @@
 
 #include "als_nal_meta_anim.h"
 #include "als_meta_anim_table_shared.h"
+#include "character_anim_controller.h"
 #include "common.h"
 #include "func_wrapper.h"
 #include "game.h"
 #include "nal_anim_comp.h"
+#include "nal_anim_controller.h"
 #include "nal_system.h"
 #include "nal_skeleton.h"
 #include "oldmath_po.h"
@@ -19,6 +21,9 @@
 #include "vtbl.h"
 #include "wds.h"
 
+#include "actor.h"
+
+float sub_497DD0(nalComp::nalCompAnim *anim, int flags);
 VALIDATE_SIZE(animation_controller, 0x14);
 
 animation_controller::animation_controller(actor *a2, nalBaseSkeleton *a3, unsigned int a4,
@@ -44,7 +49,29 @@ void animation_controller::get_camera_root_abs_po(po &arg0)
 {
     TRACE("animation_controller::get_camera_root_abs_po");
 
-    THISCALL(0x004A8990, this, &arg0);
+    if constexpr (STANDALONE_SYSTEM) {
+        po relative{};
+        using root_fn = void (__fastcall *)(animation_controller *, void *, po *);
+        reinterpret_cast<root_fn>(get_vfunc(m_vtbl, 0x90))(this, nullptr, &relative);
+        const ptr_to_po source{&relative.m, &field_4->get_abs_po().m};
+        arg0.set_from_ptr_to_po_world(source);
+    } else {
+        THISCALL(0x004A8990, this, &arg0);
+    }
+}
+
+void animation_controller::get_curr_po_offset(po &offset)
+{
+    using offset_fn = void (__fastcall *)(animation_controller *, void *, po *);
+    reinterpret_cast<offset_fn>(get_vfunc(m_vtbl, 0x74))(this, nullptr, &offset);
+}
+
+vector3d animation_controller::get_camera_shake()
+{
+    po relative{};
+    using root_fn = void (__fastcall *)(animation_controller *, void *, po *);
+    reinterpret_cast<root_fn>(get_vfunc(m_vtbl, 0x94))(this, nullptr, &relative);
+    return field_4->get_abs_po().non_affine_slow_xform(relative.get_position());
 }
 
 bool animation_controller::is_same_animtype(tlFixedString a2) const
@@ -58,10 +85,33 @@ animation_controller::anim_ctrl_handle animation_controller::play_layer_anim(con
 {
     TRACE("animation_controller::play_layer_anim");
 
-    animation_controller::anim_ctrl_handle result;
-    THISCALL(0x0049BA90, this, &result, &a3, a4, a5, a6, a7, a8);
+    animation_controller::anim_ctrl_handle result{};
+    if constexpr (STANDALONE_SYSTEM) {
+        auto *anim = static_cast<nalAnimClass<nalAnyPose> *>(get_anim_by_hash(a3, field_C, field_4));
+        struct layer_parameter {
+            als::layer_types layer;
+            actor *owner;
+        } parameter{a8, field_4};
+        const float blend = sub_497DD0(reinterpret_cast<nalComp::nalCompAnim *>(anim), a4);
+        play_layer_anim(anim, blend, a5, a6, a7, (a4 & 0x4000) != 0, &parameter);
+        result.field_0 = false;
+        result.field_4 = a5;
+        result.field_8 = this;
+    } else {
+        THISCALL(0x0049BA90, this, &result, &a3, a4, a5, a6, a7, a8);
+    }
 
     return result;
+}
+
+void animation_controller::play_layer_anim(nalAnimClass<nalAnyPose> *anim, Float blend,
+                                          Float priority, uint32_t domains, bool restart,
+                                          bool completion, void *parameter)
+{
+    using layer_fn = void (__fastcall *)(animation_controller *, void *, nalAnimClass<nalAnyPose> *,
+                                        Float, Float, uint32_t, bool, bool, void *);
+    reinterpret_cast<layer_fn>(get_vfunc(m_vtbl, 0x4))(
+        this, nullptr, anim, blend, priority, domains, restart, completion, parameter);
 }
 
 animation_controller::anim_ctrl_handle animation_controller::get_base_anim_handle()
@@ -194,19 +244,16 @@ bool animation_controller::anim_ctrl_handle::is_anim_active() const
 
 void *animation_controller::anim_ctrl_handle::get_anim_ptr() const
 {
-    if constexpr (0) {
-        if (this->field_8 != nullptr) {
-            if (this->field_0) {
-                return this->field_8->get_base_layer_anim_ptr();
-            } else {
-                return this->field_8->get_anim_ptr(this->field_4);
-            }
+    if (this->field_8 == nullptr) {
+        return nullptr;
+    }
+    return this->field_0 ? this->field_8->get_base_layer_anim_ptr()
+                         : this->field_8->get_anim_ptr(this->field_4);
 }
 
-        return nullptr;
-    } else {
-        return (void *)THISCALL(0x004AD230, this);
-    }
+float animation_controller::anim_ctrl_handle::get_anim_duration() const
+{
+    return static_cast<nalAnimClass<nalAnyPose> *>(this->get_anim_ptr())->field_38;
 }
 
 float animation_controller::anim_ctrl_handle::get_anim_time_in_sec() const
@@ -217,6 +264,23 @@ float animation_controller::anim_ctrl_handle::get_anim_time_in_sec() const
         return this->field_8->get_base_anim_time_in_sec();
     else {
         return this->field_8->get_anim_time_in_sec(this->field_4);
+    }
+}
+
+float animation_controller::anim_ctrl_handle::get_anim_total_time_in_sec() const
+{
+    if constexpr (STANDALONE_SYSTEM) {
+        if (this->field_0) {
+            double (__fastcall *func)(const animation_controller *, void *) =
+                CAST(func, get_vfunc(this->field_8->m_vtbl, 0x38));
+            return static_cast<float>(func(this->field_8, nullptr));
+        }
+        double (__fastcall *func)(const animation_controller *, void *, Float) =
+            CAST(func, get_vfunc(this->field_8->m_vtbl, 0x3C));
+        return static_cast<float>(func(this->field_8, nullptr, this->field_4));
+    } else {
+        float (__fastcall *func)(const void *) = CAST(func, 0x004AD1F0);
+        return func(this);
     }
 }
 
@@ -233,8 +297,19 @@ float animation_controller::anim_ctrl_handle::get_anim_speed() const
 
 float animation_controller::anim_ctrl_handle::get_anim_norm_time() const
 {
-    float (__fastcall *func)(const void *) = CAST(func, 0x004AD210);
-    return func(this);
+    if constexpr (STANDALONE_SYSTEM) {
+        if (this->field_0) {
+            double (__fastcall *func)(const animation_controller *, void *) =
+                CAST(func, get_vfunc(this->field_8->m_vtbl, 0x40));
+            return static_cast<float>(func(this->field_8, nullptr));
+        }
+        double (__fastcall *func)(const animation_controller *, void *, Float) =
+            CAST(func, get_vfunc(this->field_8->m_vtbl, 0x44));
+        return static_cast<float>(func(this->field_8, nullptr, this->field_4));
+    } else {
+        float (__fastcall *func)(const void *) = CAST(func, 0x004AD210);
+        return func(this);
+    }
 }
 
 bool animation_controller::sub_49C180()
@@ -245,57 +320,51 @@ bool animation_controller::sub_49C180()
 
 bool animation_controller::is_anim_active(Float a1) const
 {
-    if constexpr (0) {
-        //return this->my_player.IsAnimActive(a1);
-    } else {
-        bool (__fastcall *func)(const void *, void *, Float) = CAST(func, get_vfunc(m_vtbl, 0x2C));
-        return func(this, nullptr, a1);
-    }
+    return const_cast<nal_anim_controller *>(static_cast<const nal_anim_controller *>(this))->is_anim_active(a1);
 }
 
 float animation_controller::get_base_anim_time_in_sec() const
 {
-    float(__fastcall * func)(const void *) = CAST(func, get_vfunc(m_vtbl, 0x30));
-    return func(this);
+    return static_cast<const nal_anim_controller *>(this)->_get_base_anim_time_in_sec();
 }
 
 float animation_controller::get_anim_time_in_sec(Float a2) const
 {
-    float(__fastcall * func)(const void *, void *, Float) = CAST(func, get_vfunc(m_vtbl, 0x34));
-    return func(this, nullptr, a2);
+    return const_cast<nal_anim_controller *>(static_cast<const nal_anim_controller *>(this))->get_anim_time_in_sec(a2);
 }
 
 float animation_controller::get_base_anim_speed()
 {
-    TRACE("animation_controller::get_base_anim_speed");
-
-    float(__fastcall * func)(const void *) = CAST(func, get_vfunc(m_vtbl, 0x50));
-    return func(this);
+    return static_cast<nal_anim_controller *>(this)->_get_base_anim_speed();
 }
 
 float animation_controller::get_anim_speed(Float a2)
 {
-    TRACE("animation_controller::get_anim_speed");
-
-    float(__fastcall * func)(const void *, void *, Float) = CAST(func, get_vfunc(m_vtbl, 0x54));
-    return func(this, nullptr, a2);
+    return static_cast<nal_anim_controller *>(this)->_get_anim_speed(a2);
 }
 
 void *animation_controller::get_base_layer_anim_ptr()
 {
-    void *(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x64));
-    return func(this);
+    return static_cast<nal_anim_controller *>(this)->get_base_layer_anim_ptr();
 }
 
 void *animation_controller::get_anim_ptr(Float a1)
 {
-    void *(__fastcall * func)(void *, void *edx, Float) = CAST(func, get_vfunc(m_vtbl, 0x68));
-    return func(this, nullptr, a1);
+    return static_cast<nal_anim_controller *>(this)->get_anim_ptr(a1);
+}
+
+float animation_controller::get_tentacle_width(string_hash bone)
+{
+    return static_cast<character_anim_controller *>(this)->get_tentacle_width(bone);
+}
+
+float animation_controller::get_tentacle_pull_factor(string_hash bone)
+{
+    return static_cast<character_anim_controller *>(this)->get_tentacle_pull_factor(bone);
 }
 
 void animation_controller::frame_advance(Float a2, bool a3, bool a4)
 {
-    sp_log("0x%08X", m_vtbl);
     void (__fastcall *func)(void *, void *, Float, bool, bool) = CAST(func, get_vfunc(m_vtbl, 0x70));
     func(this, nullptr, a2, a3, a4);
 }

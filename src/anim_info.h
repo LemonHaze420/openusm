@@ -14,5 +14,7 @@ struct anim_info {
     int field_1C;
     int field_20;
 
+    ~anim_info();
+
     void un_mash(generic_mash_header *a2, void *a3, generic_mash_data_ptrs *a4);
 };

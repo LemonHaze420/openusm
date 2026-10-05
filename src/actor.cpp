@@ -336,7 +336,7 @@ nal_anim_controller *actor::select_and_new_anim_controller(nalBaseSkeleton *the_
 
     assert(the_skeleton != nullptr && "Skeleton passed to select_and_new_anim_controller should never be NULL.");
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         als::als_meta_anim_table_shared *a5 = nullptr;
         if (this->is_a_conglomerate()) {
             auto *v5 = bit_cast<conglomerate *>(this)->get_my_als();
@@ -372,7 +372,7 @@ void actor::allocate_anim_controller(unsigned int a2, nalBaseSkeleton *a3)
 {
     TRACE("actor::allocate_anim_controller");
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         if ( this->anim_ctrl == nullptr ) {
             if ( a3 != nullptr ) {
                 this->select_and_new_anim_controller(a3, a2);
@@ -424,10 +424,23 @@ void actor::unbind_from_scene_anim(string_hash a3, string_hash a4)
 
 float actor::get_floor_offset()
 {
-    float __fastcall (*func)(void *) = bit_cast<decltype(func)>(0x004C0D90);
-
-    return func(this);
+    if (anim_ctrl == nullptr)
+        return 0.0f;
+    auto callback = reinterpret_cast<float(__fastcall *)(nal_anim_controller *, void *)>(
+        get_vfunc(anim_ctrl->m_vtbl, 0x78));
+    return callback(anim_ctrl, nullptr);
 }
+void actor::suspend(bool)
+{
+    field_4 |= 0x40000000;
+}
+
+void actor::unsuspend(bool)
+{
+    if (anim_ctrl == nullptr || !anim_ctrl->scene_animation_playing())
+        field_4 &= ~0x40000000u;
+}
+
 
 bool actor::anim_finished(int)
 {

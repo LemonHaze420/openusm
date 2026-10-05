@@ -20,14 +20,5 @@ spideySignal &Component_spideySignal = []() -> auto & {
 
 spideySignal::spideySignal()
 {
-    if constexpr (1) {
-        static void *g_vtbl[]{func_address(&nalComponentU8Base::_GetType),
-                              nullptr,
-                              nullptr,
-                              nullptr,
-                              func_address(&nalComponent::_Process)};
-        this->m_vtbl = CAST(m_vtbl, &g_vtbl);
-    } else {
-        this->m_vtbl = 0x00881198;
-    }
+    m_vtbl = nalNativeStreamTable(nalNativeStreamEncoding::Signal);
 }

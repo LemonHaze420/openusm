@@ -34,7 +34,13 @@ void request_data::clear()
 
 void request_data::operator=(const request_data &a2)
 {
-    THISCALL(0x004ADF40, this, &a2);
+    this->did_transition_occur = a2.did_transition_occur;
+    this->do_post_action = a2.do_post_action;
+    this->is_trans_to_category = a2.is_trans_to_category;
+    this->ignore_no_transition = a2.ignore_no_transition;
+    this->post_req_for_category = a2.post_req_for_category;
+    this->field_8 = a2.field_8;
+    this->field_C = a2.field_C;
 }
 
 }  // namespace als

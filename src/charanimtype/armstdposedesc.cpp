@@ -40,77 +40,27 @@ void ArmStdPoseDesc::BlendPoseDataPartial(ArmStdPoseDesc::StdPoseData *a1, uint3
     }
 }
 
-static constexpr float flt_891380 = 0.33000001f;
-
-void ArmStdPoseDesc::BuildBoneMatrices(nalMatrix4x4 *a1, unsigned int a2, const ArmStdPoseDesc::PerSkelData *a3,
-                                       const ArmStdPoseDesc::StdPoseData *a4)
+void ArmStdPoseDesc::BuildBoneMatrices(nalMatrix4x4 *matrices, uint32_t, const PerSkelData *skel,
+    const StdPoseData *pose)
 {
-    TRACE("ArmStdPoseDesc::BuildBoneMatrices");
+    for (unsigned i = 0; i < 8; ++i)
+        matrices[skel->field_90[i]] = nalMatrix4x4(nalPositionOrientation(skel->field_0[i], &pose->field_0[i][0]));
 
-    if constexpr (0) {
-        for (int i = 0; i < 8; ++i) {
-            nalPositionOrientation a2a{a3->field_0[i], &a4->field_0[0][0]};
-            nalMatrix4x4 v23{a2a};
+    const float leftTwist = byte_959561 ? sub_5F4960(matrices[skel->field_90[3]], true) * 0.33000001f : 0.0f;
+    const float rightTwist = byte_959561 ? sub_5F4960(matrices[skel->field_90[7]], false) * 0.33000001f : 0.0f;
+    matrices[skel->field_B0] = sub_5F2FD0(leftTwist, skel->field_60);
+    matrices[skel->field_B4] = sub_5F2FD0(leftTwist, skel->field_6C);
+    matrices[skel->field_B8] = sub_5F2FD0(rightTwist, skel->field_78);
+    matrices[skel->field_BC] = sub_5F2FD0(rightTwist, skel->field_84);
 
-            a1[a3->field_90[i]] = v23;
-        }
-
-        if (byte_959561) {
-            auto v20 = sub_5F4960(a1[a3->field_90[3]], true);
-            auto v21 = sub_5F4960(a1[a3->field_90[7]], false);
-            auto v26 = v20 * flt_891380;
-            a1[a3->field_B0] = sub_5F2FD0(v26, a3->field_60);
-            a1[a3->field_B4] = sub_5F2FD0(v26, a3->field_6C);
-
-            auto v27 = v21 * flt_891380;
-            a1[a3->field_B8] = sub_5F2FD0(v27, a3->field_78);
-            a1[a3->field_BC] = sub_5F2FD0(v27, a3->field_84);
-        } else {
-            a1[a3->field_B0] = sub_5F2FD0(0.0f, a3->field_60);
-            a1[a3->field_B4] = sub_5F2FD0(0.0f, a3->field_6C);
-            a1[a3->field_B8] = sub_5F2FD0(0.0f, a3->field_78);
-            a1[a3->field_BC] = sub_5F2FD0(0.0f, a3->field_84);
-        }
-
-        auto *v14 = a3->field_90;
-        for (int v13 = 0; v13 < 8; ++v13) {
-            if (v13 != 0 && v13 != 4) {
-                a1[v14[0]] = sub_5FE000(a1[v14[0]], a1[*(v14 - 1)]);
-            } else {
-                a1[v14[0]] = sub_5FE000(a1[v14[0]], a1[a3->field_C0]);
-            }
-
-            ++v14;
-        }
-
-        for (int i = 0; i < 4; ++i) {
-            auto v16 = a3->field_90[i + 8];
-            if (v16 == -1) {
-                continue;
-            }
-
-            int v17{};
-            if (i != 0) {
-                if (i == 2) {
-                    a1[a3->field_90[10]] = sub_5FE000(a1[a3->field_90[10]], a1[a3->field_90[6]]);
-                    continue;
-                }
-
-                v17 = a3->field_90[i + 7];
-            } else {
-                v16 = a3->field_90[8];
-                v17 = a3->field_90[2];
-            }
-
-            a1[v16] = sub_5FE000(a1[v16], a1[v17]);
-        }
-    } else {
-        void(__fastcall * func)(void *,
-                                void *edx,
-                                nalMatrix4x4 *,
-                                uint32_t,
-                                const ArmStdPoseDesc::PerSkelData *a3,
-                                const ArmStdPoseDesc::StdPoseData *a4) = CAST(func, 0x005F7160);
-        func(this, nullptr, a1, a2, a3, a4);
+    for (unsigned i = 0; i < 8; ++i) {
+        const int parent = i == 0 || i == 4 ? skel->field_C0 : skel->field_90[i - 1];
+        matrices[skel->field_90[i]] = sub_5FE000(matrices[skel->field_90[i]], matrices[parent]);
+    }
+    const int twistBones[4]{skel->field_B0, skel->field_B4, skel->field_B8, skel->field_BC};
+    for (unsigned i = 0; i < 4; ++i) {
+        if (twistBones[i] == -1) continue;
+        const int parent = i == 0 ? skel->field_90[2] : i == 2 ? skel->field_90[6] : twistBones[i - 1];
+        matrices[twistBones[i]] = sub_5FE000(matrices[twistBones[i]], matrices[parent]);
     }
 }

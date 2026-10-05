@@ -18,10 +18,15 @@ struct generic_anim_controller : nal_anim_controller {
     struct gen_base_play_method {
         std::intptr_t m_vtbl;
         generic_anim_controller *field_4;
+        static void *native_vtable();
 
         gen_base_play_method(generic_anim_controller *a2)
         {
+#if STANDALONE_SYSTEM
+            this->m_vtbl = reinterpret_cast<std::intptr_t>(native_vtable());
+#else
             this->m_vtbl = 0x00880B40;
+#endif
             this->field_4 = a2;
         }
     };
@@ -29,15 +34,19 @@ struct generic_anim_controller : nal_anim_controller {
     struct gen_mod_play_method {
         std::intptr_t m_vtbl;
         generic_anim_controller *field_4;
+        static void *native_vtable();
 
         gen_mod_play_method(generic_anim_controller *a2)
         {
+#if STANDALONE_SYSTEM
+            this->m_vtbl = reinterpret_cast<std::intptr_t>(native_vtable());
+#else
             this->m_vtbl = 0x00880B58;
+#endif
             this->field_4 = a2;
         }
     };
 
-    int field_10;
     gen_base_play_method field_54;
     gen_mod_play_method field_5C;
     nalGeneric::nalGenericConstComponentHandle<nalPositionOrientation> field_64;
@@ -52,6 +61,7 @@ struct generic_anim_controller : nal_anim_controller {
     nalGeneric::nalGenericConstComponentHandle<float> field_F4;
 
     generic_anim_controller(actor *, nalBaseSkeleton *, unsigned int, als::als_meta_anim_table_shared *);
+    static void *native_vtable();
 
     nalGeneric::nalGenericPose *GetPose();
 

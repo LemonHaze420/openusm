@@ -24,6 +24,14 @@ namespace als {
 
 VALIDATE_SIZE(animation_logic_system, 0x80u);
 
+void animation_logic_system::kill_animation_domain(uint32_t domain)
+{
+
+    using kill_fn = void (__fastcall *)(animation_controller *, void *, uint32_t);
+    reinterpret_cast<kill_fn>(get_vfunc(the_controller->m_vtbl, 0xC))(
+        the_controller, nullptr, domain);
+}
+
 animation_logic_system::animation_logic_system(actor *a1)
 {
     TRACE("animation_logic_system::animation_logic_system");
@@ -265,9 +273,17 @@ void animation_logic_system::exit_biped_physics()
 
 void animation_logic_system::sub_4A6630(layer_types a2)
 {
-    TRACE("als::animation_logic_system::sub_4A6630");
-
-    THISCALL(0x004A6630, this, a2);
+    auto *layer = this->get_als_layer_internal(a2);
+    if (layer != nullptr && layer->is_active()) {
+        layer->field_14.m_active = false;
+        layer->field_34.clear();
+        layer->change_state(nullptr, nullptr);
+        if (layer->get_anim_handle().is_anim_active()) {
+            void(__fastcall *kill_priority)(animation_controller *, void *, Float) =
+                CAST(kill_priority, get_vfunc(this->the_controller->m_vtbl, 0x14));
+            kill_priority(this->the_controller, nullptr, this->convert_layer_id_to_priority(a2));
+        }
+    }
 }
 
 void animation_logic_system::suspend_logic_system(bool a2)
@@ -320,26 +336,17 @@ void animation_logic_system::_delete_instance_data()
     this->field_8.clear();
 }
 
-base_state_machine *animation_logic_system::get_als_layer_internal(layer_types a2)
+base_state_machine *animation_logic_system::get_als_layer_internal(layer_types layer)
 {
-    TRACE("animation_logic_system::get_als_layer_internal");
-
-    if constexpr (1) {
-        auto *v3 = &this->field_18;
-        if (a2 == v3->get_layer_id()) {
-            return v3;
-        }
-
-        for (uint32_t i = 0; i < this->field_8.size(); ++i) {
-            if (a2 == this->field_8[i]->get_layer_id()) {
-                return (base_state_machine *)this->field_8[i];
-            }
-        }
-
-        return nullptr;
-    } else {
-        return (base_state_machine *)THISCALL(0x0049F300, this, a2);
+    if (layer == static_cast<layer_types>(0)) {
+        return &this->field_18;
     }
+    for (auto *state_machine : this->field_8) {
+        if (layer == state_machine->shared_portion->_get_layer_id()) {
+            return static_cast<base_state_machine *>(state_machine);
+        }
+    }
+    return nullptr;
 }
 
 void animation_logic_system::transition_layer(layer_types a2, string_hash a3)
@@ -443,8 +450,11 @@ void animation_logic_system::_frame_advance_post_logic_processing([[maybe_unused
 
 float animation_logic_system::convert_layer_id_to_priority(layer_types a2)
 {
-    float(__fastcall * func)(void *, void *, als::layer_types) = CAST(func, 0x0049F360);
-    return func(this, nullptr, a2);
+    uint32_t priority = 0;
+    while (priority < this->field_8.size() && this->field_8[priority]->get_layer_id() != a2) {
+        ++priority;
+    }
+    return static_cast<float>(priority);
 }
 
 void animation_logic_system::_frame_advance_play_new_animations(Float a2)

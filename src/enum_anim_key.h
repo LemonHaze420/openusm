@@ -20,6 +20,8 @@ struct anim_key : mash_virtual_base {
     int get_mash_sizeof();
 
     static int compare(anim_key *&a1, anim_record *&a2);
+
+    static void *native_vtable();
 };
 #endif
 
@@ -33,6 +35,9 @@ struct enum_anim_key : anim_key {
     };
 
     key_enum field_4;
+    enum_anim_key();
 
     enum_anim_key(key_enum);
+
+    static void *native_vtable();
 };

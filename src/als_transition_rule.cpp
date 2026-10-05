@@ -1,5 +1,9 @@
 #include "als_transition_rule.h"
 
+
+#include "als_animation_logic_system.h"
+#include "als_data.h"
+#include "als_state.h"
 #include "func_wrapper.h"
 #include "mash_info_struct.h"
 
@@ -12,7 +16,8 @@ namespace als {
     VALIDATE_SIZE(incoming_transition_rule, 0x2Cu);
     VALIDATE_SIZE(layer_transition_rule, 0x18u);
 
-layer_transition_rule::layer_transition_rule(from_mash_in_place_constructor *a2) : field_8(a2) {}
+layer_transition_rule::layer_transition_rule(from_mash_in_place_constructor *a2)
+    : state_or_category_id(a2), field_8(a2) {}
 
     void layer_transition_rule::unmash(mash_info_struct *a1, void *)
     {
@@ -23,8 +28,13 @@ layer_transition_rule::layer_transition_rule(from_mash_in_place_constructor *a2)
     {
         TRACE("als::layer_transition_rule::can_transition");
 
-    bool(__fastcall * func)(const void *, void *edx, als_data *) = CAST(func, 0x0049FF50);
-    return func(this, nullptr, &a2);
+        auto *layer = a2.field_0->get_als_layer_internal(this->layer_id);
+        auto *state = this->use_previous_state ? layer->m_prev_state : layer->m_curr_state;
+        if (state == nullptr) {
+            return false;
+        }
+        return this->state_or_category_id ==
+               (this->match_category ? state->get_category_id() : state->get_state_id());
     }
 
 explicit_transition_rule::explicit_transition_rule(from_mash_in_place_constructor *a2) : field_0(a2), field_24(a2) {}
@@ -32,8 +42,7 @@ explicit_transition_rule::explicit_transition_rule(from_mash_in_place_constructo
 bool explicit_transition_rule::can_transition(als_data &a1, string_hash a3) const
         {
     if (a3 == this->field_24) {
-            auto can_transition = bit_cast<basic_rule_data *>(this)->can_transition(a1);
-            return can_transition;
+            return this->field_0.can_transition(a1);
     } else {
             return false;
         }
@@ -57,7 +66,22 @@ implicit_transition_rule::implicit_transition_rule(from_mash_in_place_constructo
         this->field_0.unmash(a1, a3);
     }
 
-incoming_transition_rule::incoming_transition_rule(from_mash_in_place_constructor *a2) : field_0(a2) {}
+incoming_transition_rule::incoming_transition_rule(from_mash_in_place_constructor *a2)
+    : field_0(a2), field_24(a2) {}
+
+    bool incoming_transition_rule::can_transition(als_data &a1) const
+    {
+        if (this->field_24 != string_hash{0}) {
+            auto *state = a1.field_4->m_curr_state;
+            auto id = static_cast<uint8_t>(this->field_28) != 0
+                          ? state->get_category_id()
+                          : state->get_state_id();
+            if (this->field_24 != id) {
+                return false;
+            }
+        }
+        return this->field_0.can_transition(a1);
+    }
 
     void incoming_transition_rule::unmash(mash_info_struct *a1, void *a3)
     {

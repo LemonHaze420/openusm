@@ -13,14 +13,8 @@ struct Fing5CurlPoseDesc {
     };
 
     struct PerSkelData {
-        nalVector3 field_0[20];
-        int field_F0[28];
-        int field_160;
-        int field_164;
-        int field_168[10];
-        int field_190;
-        int field_194;
-        int field_198[18];
+        nalVector3 field_0[30];
+        int field_168[30];
         int field_1E0;
         int field_1E4;
     };

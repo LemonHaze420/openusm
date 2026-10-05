@@ -6,6 +6,8 @@
 #include "utility.h"
 #include "vtbl.h"
 
+#include <functional>
+
 namespace als {
 
 _std::list<animation_logic_system_interface::value_t> &animation_logic_system_interface::the_als_list =
@@ -20,9 +22,7 @@ _std::list<animation_logic_system_interface::value_t> &animation_logic_system_in
 
 state_machine *animation_logic_system_interface::get_als_layer(layer_types a2)
 {
-    base_state_machine *(__fastcall * func)(void *, void *edx, layer_types a2) =
-        CAST(func, get_vfunc(this->m_vtbl, 0x0));
-    return func(this, nullptr, a2);
+    return static_cast<animation_logic_system *>(this)->_get_als_layer(a2);
 }
 
 void animation_logic_system_interface::kill_all_domains(uint32_t a2)
@@ -215,9 +215,18 @@ void animation_logic_system_interface::frame_advance_post_controller_all_alses(F
 
 void animation_logic_system_interface::force_update(Float a2)
 {
-    TRACE("animation_logic_system_interface::force_update");
-
-    THISCALL(0x00492FC0, this, a2);
+    if (this->frame_advance_should_do_frame_advance(a2) || std::equal_to<float>{}(a2.value, 0.0001f)) {
+        this->frame_advance_main_als_advance(a2);
+        this->frame_advance_post_request_processing(a2);
+        this->frame_advance_on_layer_trans(a2);
+        this->frame_advance_post_logic_processing(a2);
+        this->frame_advance_play_new_animations(a2);
+        this->frame_advance_update_pending_params(a2);
+        this->frame_advance_change_mocomp(a2);
+        this->frame_advance_run_mocomp_pre_anim(a2);
+        this->frame_advance_controller(a2);
+        this->frame_advance_post_controller(a2);
+    }
 }
 
 void animation_logic_system_interface::force_update()

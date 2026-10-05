@@ -7,17 +7,21 @@
 namespace CharEntropyDecoder {
 struct CharChannelDecoder {
     const void *field_0;
-    bool field_4;
+    uint8_t field_4;
     char field_5;
     uint16_t field_6;
 
     CharChannelDecoder(const void *a2, bool a3) : field_0(a2), field_4(a3), field_5(-1), field_6(0) {}
 };
+unsigned DecodeChannel(CharChannelDecoder &decoder, unsigned codec, int &value);
 }  // namespace CharEntropyDecoder
 
 struct CharEntropyQuantConverter {
     struct EncTrackData {
-        float field_0[4][4];
+        float whole;
+        float delta;
+        float second;
+        uint32_t zeros;
     };
 
     static void UnEntropyLinearTrack(EncTrackData *a1, const uint8_t *a2, uint32_t a3);

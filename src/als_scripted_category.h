@@ -28,6 +28,8 @@ struct scripted_category : category {
 
     scripted_category(from_mash_in_place_constructor *a2);
 
+    static void *native_vtable();
+
     //0x004AC850
     void _unmash(mash_info_struct *a1, void *);
 
@@ -44,6 +46,9 @@ struct scripted_category : category {
     //0x004A7550
     //virtual
     request_data _do_layer_trans(animation_logic_system *a4, state_machine *a5);
+
+
+    request_data _do_incoming_trans(animation_logic_system *a4, state_machine *a5);
 
     //0x004A7660
     //virtual

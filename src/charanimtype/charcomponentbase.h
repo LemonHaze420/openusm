@@ -52,8 +52,8 @@ struct CharComponentBase : BaseComponent {
                               const void *a8, const void *a9, void *a10);
 
     //virtual
-    void _CalcPoseDataRemapped(void *, uint32_t, Float, Float, const nalComp::nalCompAnim *, const void *, const void *,
-                               const void *, void *)
+    void _CalcPoseDataRemapped(void *, uint32_t, Float, Float, const nalComp::nalCompAnim *, const void *,
+                               uint32_t, uint32_t, const void *, const void *, void *)
     {}
 
     //virtual

@@ -209,6 +209,8 @@ struct entity_base : entity_base_vtable {
 
     /* virtual */ vector3d get_visual_center();
 
+    float get_floor_offset();
+
     vector3d get_velocity();
 
     //0x004C0000

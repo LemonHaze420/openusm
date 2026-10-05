@@ -285,7 +285,7 @@ void nalComp::nalCompSkeleton::ReMash(void *a2)
 {
     TRACE("nalComp::nalCompSkeleton::ReMash");
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         for (auto iCompIx = 0; iCompIx < this->m_iNumComponents; ++iCompIx) {
             auto *CompDefaultPoseData = this->GetCompDefaultPoseData(iCompIx);
             auto *CompPerSkelDataInt = this->GetCompPerSkelDataInt(iCompIx);
@@ -301,7 +301,7 @@ void nalComp::nalCompSkeleton::ReMash(void *a2)
             this->m_pDirectory -= (int)a2;
         }
 
-        auto v14 = (char *)(this->m_components - (uint32_t)a2);
+        auto v14 = reinterpret_cast<char *>(this->m_components) - reinterpret_cast<uintptr_t>(a2);
         this->m_pPerSkelDir -= (unsigned int)a2;
         this->m_components = CAST(this->m_components, v14);
     } else {

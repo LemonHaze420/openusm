@@ -1,29 +1,30 @@
 #pragma once
 
 #include "charcompressor.h"
-#include <float.hpp>
+#include "float.hpp"
 
-namespace nalChar {
-struct nalCharAnim;
-}
+namespace nalChar { struct nalCharAnim; }
 
 template <typename T>
 struct FakerootEntCompDecomp {
     struct PerInstData {
-        char field_0[0x90];
-        CharEntropyQuantConverter::EncTrackData field_90;
-        float field_D0;
-        float field_D4;
-        float field_D8;
-        float field_DC;
-        float field_E0;
+        float previousRotation[4];
+        typename T::StdPoseData first;
+        typename T::StdPoseData second;
+        CharEntropyDecoder::CharChannelDecoder decoder;
+        uint32_t count;
+        int32_t frame;
+        float previousPosition[3];
+        float time;
+        CharEntropyQuantConverter::EncTrackData *Tracks()
+        {
+            return reinterpret_cast<CharEntropyQuantConverter::EncTrackData *>(this + 1);
+        }
     };
-
-    //0x005FF0E0
-    void RetrievePoseFromInst(T::StdPoseData &a1, PerInstData *a2, const T::PerAnimData *a3);
-
-    void GetPose(T::StdPoseData *a1, unsigned int arg4, Float a3, Float a4, const nalChar::nalCharAnim *a6,
-                 const T::PerSkelData *a7, const T::PerAnimData *a8, const void *a9, PerInstData *a2, const T &a11);
+    void RetrievePoseFromInst(typename T::StdPoseData &pose, PerInstData *state, const typename T::PerAnimData *data);
+    void GetPose(typename T::StdPoseData *pose, uint32_t index, Float time, Float previousTime,
+        const nalChar::nalCharAnim *anim, const typename T::PerSkelData *skel,
+        const typename T::PerAnimData *data, const void *stream, PerInstData *state, const T &descriptor);
 };
 
 extern void FakerootEntCompDecomp_patch();

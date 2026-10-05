@@ -76,6 +76,17 @@ public:
     //0x004A9180
     state_machine();
 
+    ~state_machine();
+    void bind_native_vtable(bool layer);
+    void finalize(bool deallocate);
+    int get_pb_int(string_hash key) const;
+    const char *get_pb_fixedstring(string_hash key) const;
+    string_hash get_optional_pb_hash(const string_hash &key, const string_hash &fallback, bool *found) const;
+    const char *get_optional_pb_fixedstring(const string_hash &key, const char *fallback, bool *found) const;
+    const vector3d *get_optional_pb_vector3d(const string_hash &key, const vector3d *fallback, bool *found) const;
+    const variance_variable<float> *get_optional_pb_float_variance(
+        const string_hash &key, const variance_variable<float> *fallback, bool *found) const;
+
     void set_anim_handle(animation_controller::anim_ctrl_handle &a2);
 
     void set_pending_params(param_list &a2);

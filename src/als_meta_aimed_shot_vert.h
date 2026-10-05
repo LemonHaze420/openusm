@@ -4,6 +4,7 @@
 
 struct from_mash_in_place_constructor;
 struct nalAnyPose;
+struct actor;
 
 template <typename T>
 struct nalAnimClass;
@@ -17,6 +18,15 @@ struct meta_aimed_shot_vert : als_meta_anim_base {
     meta_aimed_shot_vert();
 
     meta_aimed_shot_vert(from_mash_in_place_constructor *a2);
+
+    static void *native_vtable();
+
+
+    void _destruct_mashed_class();
+    meta_aimed_shot_vert *_scalar_deleting_destructor(uint32_t flags);
+    bool _is_subclass_of(mash::virtual_types_enum type) const;
+    bool _requires_delay_create() const;
+    void _delay_create(actor *owner);
 
     //0x004512D0
     //virtual
@@ -47,21 +57,23 @@ struct meta_aimed_shot_vert : als_meta_anim_base {
     //virtual
     int _get_mash_sizeof() const;
 
-    static inline void *g_vtbl[] = {nullptr,
-                                    func_address(&meta_aimed_shot_vert::_unmash),
-                                    nullptr,
-                                    func_address(&meta_aimed_shot_vert::_get_virtual_type_enum),
-                                    nullptr,
-                                    func_address(&mash_virtual_base::_is_or_is_subclass_of),
-                                    func_address(&als_meta_anim_base::_get_anim_name),
-                                    func_address(&meta_aimed_shot_vert::_is_anim_looping),
-                                    func_address(&meta_aimed_shot_vert::_is_anim_trajectory_relative),
-                                    func_address(&meta_aimed_shot_vert::_get_anim_duration),
-                                    func_address(&meta_aimed_shot_vert::_get_skeleton),
-                                    func_address(&meta_aimed_shot_vert::_create_anim_inst),
-                                    nullptr,
-                                    nullptr,
-                                    func_address(&meta_aimed_shot_vert::_get_mash_sizeof)};
+    static inline void *g_vtbl[] = {
+        func_address(&meta_aimed_shot_vert::_destruct_mashed_class),
+        func_address(&meta_aimed_shot_vert::_unmash),
+        func_address(&meta_aimed_shot_vert::_scalar_deleting_destructor),
+        func_address(&meta_aimed_shot_vert::_get_virtual_type_enum),
+        func_address(&meta_aimed_shot_vert::_is_subclass_of),
+        func_address(&mash_virtual_base::_is_or_is_subclass_of),
+        func_address(&als_meta_anim_base::_get_anim_name),
+        func_address(&meta_aimed_shot_vert::_is_anim_looping),
+        func_address(&meta_aimed_shot_vert::_is_anim_trajectory_relative),
+        func_address(&meta_aimed_shot_vert::_get_anim_duration),
+        func_address(&meta_aimed_shot_vert::_get_skeleton),
+        func_address(&meta_aimed_shot_vert::_create_anim_inst),
+        func_address(&meta_aimed_shot_vert::_requires_delay_create),
+        func_address(&meta_aimed_shot_vert::_delay_create),
+        func_address(&meta_aimed_shot_vert::_get_mash_sizeof),
+    };
 };
 }  // namespace als
 

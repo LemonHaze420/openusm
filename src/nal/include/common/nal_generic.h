@@ -15,11 +15,8 @@ namespace nalGeneric {
 
 struct nalGenericSkeleton;
 struct nalGenericPose;
+struct nalGenericInstance;
 
-struct nalGenericInstance {
-    //0x007946A0
-    void GetPose(Float a2, Float a3, nalGeneric::nalGenericPose &a4, const nalGeneric::nalGenericPose &a5);
-};
 
 struct nalGenericAnim {
     std::intptr_t m_vtbl;
@@ -36,6 +33,18 @@ struct nalGenericAnim {
     int field_48;
     int field_4C;
     int field_50;
+    int field_54;
+    int field_58;
+    void *field_5C;
+    uint32_t *field_60;
+    int field_64;
+    int field_68;
+    void **field_6C;
+    int field_70;
+    int field_74;
+    void **field_78;
+    int field_7C;
+    char field_80;
 
     struct vtbl {};
 
@@ -44,6 +53,7 @@ struct nalGenericAnim {
     void Process();
     void Release();
     bool CheckVersion() const;
+    nalGenericInstance *CreateInstance(nalGenericSkeleton *skeleton);
 };
 
 struct nalComponentInfo {
@@ -94,6 +104,9 @@ struct nalGenericPose {
 
     //0x007941F0
     nalGenericPose(const nalGeneric::nalGenericPose &a3, bool a4);
+    ~nalGenericPose();
+    nalGenericPose &operator=(const nalGenericPose &source);
+    void ConstructEmptyData();
 
     auto *GetSkeleton() const
     {
@@ -103,29 +116,17 @@ struct nalGenericPose {
     template <typename T>
     T *operator[](nalGeneric::nalGenericComponentHandle<T> &handle)
     {
-        static T g_invalidObject{};
-
         assert(handle.Skeleton != nullptr && "attempting to de-reference an invalid handle");
 
-        if (handle->Skeleton == nullptr) {
-            return &g_invalidObject;
-        }
-
         assert(handle.Skeleton == GetSkeleton() && "handle and pose skeletons don't match");
-
-        return bit_cast<T *>(handle->field_4->field_2C + 12 * handle->field_8 + this->field_4);
+        auto *info = bit_cast<const nalComponentInfo *>(handle.field_4);
+        return bit_cast<T *>(this->field_4 + info->field_2C + sizeof(T) * handle.field_8);
     }
 
     template <typename T>
     T operator[](nalGenericConstComponentHandle<T> &handle)
     {
-        static T g_invalidObject{};
-
         assert(handle.Skeleton != nullptr && "attempting to de-reference an invalid handle");
-
-        if (handle.Skeleton == nullptr) {
-            return g_invalidObject;
-        }
 
         auto *skeleton = this->GetSkeleton();
         assert(handle.Skeleton == skeleton && "handle and pose skeletons don't match");
@@ -134,13 +135,37 @@ struct nalGenericPose {
             return (*skeleton)[handle];
         }
 
-        return *bit_cast<T *>(handle.field_4->field_2C + 12 * handle.field_8 + this->field_4);
+        return *bit_cast<T *>(this->field_4 + bit_cast<const nalComponentInfo *>(handle.field_4)->field_2C
+                             + sizeof(T) * handle.field_8);
     }
 
     static int &PoseSP;
 
     static int &PoseStack;
 };
+
+struct nalGenericInstance {
+    std::intptr_t m_vtbl;
+    float field_4;
+    float field_8;
+    nalGenericSkeleton *field_C;
+    nalGenericAnim *field_10;
+    union {
+        nalGenericPose field_14;
+    };
+    float field_20;
+    int field_24;
+    struct OffsetMap *field_28;
+
+    nalGenericInstance(nalGenericAnim *anim, nalGenericSkeleton *skeleton);
+    ~nalGenericInstance();
+    void Finalize(bool release);
+    void GetPose(Float time, Float previous, nalGenericPose &out, const nalGenericPose &reference);
+    void GetFrame(int frame, nalGenericPose &out, const nalGenericPose &reference);
+    void CacheBlock(int block);
+};
+
+void Blend(nalGenericPose *out, float weight, const nalGenericPose *a, const nalGenericPose *b);
 
 struct nalGenericSkeleton : nalBaseSkeleton {
     int field_5C;
@@ -189,6 +214,16 @@ struct nalGenericSkeleton : nalBaseSkeleton {
 
     //0x00794CF0
     nalMatrix4x4 *GetBoneMatrices(const nalGenericPose *a2, nalMatrix4x4 *a3) const;
+    void GetTrajectoryData(const nalGenericPose *pose, nalPositionOrientation *out) const;
+    nalGenericPose *CreatePose() const;
+    void DestroyPose(nalGenericPose *pose) const;
+    nalGenericPose *GetDefaultPose();
+    void CopyPose(nalGenericPose &out, const nalGenericPose &source) const;
+    void BlendPose(nalGenericPose &out, Float weight, const nalGenericPose &a, const nalGenericPose &b) const;
+    void GetPoseFromBoneMatrices(nalGenericPose &out, const nalMatrix4x4 *source,
+                                 nalMatrix4x4 *scratch, const nalGenericPose &reference) const;
+    int GetBoneCount() const { return field_60; }
+    void Finalize(bool release);
 
     //virtual
     //0x00793610
@@ -204,17 +239,12 @@ struct nalGenericSkeleton : nalBaseSkeleton {
     template <typename T>
     T operator[](nalGenericConstComponentHandle<T> &handle)
     {
-        static T g_invalidObject{};
-
         assert(handle.Skeleton != nullptr && "attempting to de-reference an invalid handle");
-
-        if (handle.Skeleton == nullptr) {
-            return g_invalidObject;
-        }
 
         assert(handle.Skeleton == this && "handle and pose skeletons don't match");
 
-        auto *v4 = bit_cast<char *>(handle.field_4->field_2C + handle.field_8);
+        auto *v4 = bit_cast<char *>(bit_cast<const nalComponentInfo *>(handle.field_4)->field_2C
+                                    + sizeof(T) * handle.field_8);
         if (handle.field_C) {
             return *bit_cast<T *>(&v4[this->field_B4]);
         } else {

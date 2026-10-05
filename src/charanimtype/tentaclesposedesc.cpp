@@ -41,7 +41,7 @@ float TentaclesPoseDesc::StdPoseData::GetDiameterFromBone(uint32_t a2) const
     if (v3 == -1) {
         return 0.0f;
     } else {
-        return this->field_0[v3];
+        return this->channels[v3 / 3].diameter;
     }
 }
 
@@ -51,12 +51,12 @@ float TentaclesPoseDesc::StdPoseData::GetActivityFromBone(uint32_t a2) const
     if (v3 == -1) {
         return 0.0f;
     } else {
-        return this->field_4[v3];
+        return this->channels[v3 / 3].activity;
     }
 }
 
 float TentaclesPoseDesc::StdPoseData::GetPullFromBone(uint32_t a2) const
 {
     auto v3 = sub_5F0220(a2);
-    return (v3 == -1 ? 0.0f : this->field_8[v3]);
+    return (v3 == -1 ? 0.0f : this->channels[v3 / 3].pull);
 }

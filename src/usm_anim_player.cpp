@@ -10,6 +10,14 @@
 #include "utility.h"
 #include "vtbl.h"
 
+#include <functional>
+
+template <>
+bool usm_anim_player<nalAnimClass<nalAnyPose>, 3>::nalAnimCallback::Invoke(
+    usm_anim_player<nalAnimClass<nalAnyPose>, 3> *player);
+template <>
+void usm_anim_player<nalAnimClass<nalAnyPose>, 3>::nalAnimCallback::Release();
+
 using type = usm_anim_player<nalAnimClass<nalAnyPose>, 3>;
 
 VALIDATE_SIZE(type, 0x2C);
@@ -78,14 +86,10 @@ nalComp::nalCompInstance *
 usm_anim_player<nalAnimClass<nalAnyPose>, 3>::nalPlayMethod::CreateInstance(nalAnimClass<nalAnyPose> *a1,
                                                                             nalBaseSkeleton *a2, void *a3)
 {
-    if constexpr (1) {
-        return static_cast<nalComp::nalCompInstance *>(a1->CreateInstance(a2));
-    } else {
-        nalComp::nalCompInstance *(__fastcall *
-                                   func)(void *, void *edx, nalAnimClass<nalAnyPose> *, nalBaseSkeleton *, void *) =
-            CAST(func, get_vfunc(m_vtbl, 0x8));
-        return func(this, nullptr, a1, a2, a3);
-    }
+    nalComp::nalCompInstance *(__fastcall *func)(
+        void *, void *, nalAnimClass<nalAnyPose> *, nalBaseSkeleton *, void *) =
+        CAST(func, get_vfunc(m_vtbl, 0x8));
+    return func(this, nullptr, a1, a2, a3);
 }
 
 template <>
@@ -175,7 +179,7 @@ void usm_anim_player<nalAnimClass<nalAnyPose>, 3>::sub_4AE5F0(
             auto *v5 = v4->field_C;
             v4->field_38 = 2;
             if (v5 != nullptr) {
-                //(*(void (__thiscall **)(void *))(*(DWORD *)v5 + 8))(v5);
+                v5->Release();
             }
             v4->field_C = nullptr;
             v4->field_38 = 3;
@@ -188,7 +192,7 @@ template <>
 bool usm_anim_player<nalAnimClass<nalAnyPose>, 3>::nalAnimState::sub_4B0020(
     usm_anim_player<nalAnimClass<nalAnyPose>, 3> *a2, Float a3)
 {
-    if constexpr (0) {
+    {
         auto *v4 = this->field_10;
         if (v4 != nullptr) {
             v4->Advance(this, a3);
@@ -196,20 +200,15 @@ bool usm_anim_player<nalAnimClass<nalAnyPose>, 3>::nalAnimState::sub_4B0020(
             this->field_18 = this->field_0->field_8 * this->field_4 * a3 + this->field_18;
         }
 
-        auto v5 = this->field_C;
-        if (v5 && this->field_18 >= (double)this->field_8) {
-            /*
-            auto v6 = this->field_38;
-            this->field_C = 0;
+        auto *callback = this->field_C;
+        if (callback != nullptr && this->field_18 >= this->field_8) {
+            const int previous_state = this->field_38;
+            this->field_C = nullptr;
             this->field_38 = 2;
-            if ( !(**(unsigned __int8 (__thiscall ***)(void *, usm_anim_player__nalAnimClass__nalAnyPose__3 *))v5)(v5, a2)
-                    && this->field_38 == 2 )
-            {
-                this->field_38 = v6;
+            if (!callback->Invoke(a2) && this->field_38 == 2) {
+                this->field_38 = previous_state;
             }
-
-            (*(void (__thiscall **)(void *))(*(_DWORD *)v5 + 8))(v5);
-            */
+            callback->Release();
         }
 
         auto v7 = this->field_38;
@@ -242,19 +241,15 @@ bool usm_anim_player<nalAnimClass<nalAnyPose>, 3>::nalAnimState::sub_4B0020(
         }
 
         return false;
-    } else {
-        bool(__fastcall * func)(void *, void *edx, usm_anim_player<nalAnimClass<nalAnyPose>, 3> *, Float) =
-            CAST(func, 0x004B0020);
-        return func(this, nullptr, a2, a3);
     }
 }
 
 template <>
-void usm_anim_player<nalAnimClass<nalAnyPose>, 3>::nalAnimCallback::Invoke(
+bool usm_anim_player<nalAnimClass<nalAnyPose>, 3>::nalAnimCallback::Invoke(
     usm_anim_player<nalAnimClass<nalAnyPose>, 3> *a1)
 {
-    void(__fastcall * func)(void *, void *edx, void *) = CAST(func, get_vfunc(m_vtbl, 0x0));
-    func(this, nullptr, a1);
+    bool(__fastcall * func)(void *, void *edx, void *) = CAST(func, get_vfunc(m_vtbl, 0x0));
+    return func(this, nullptr, a1);
 }
 
 template <>
@@ -322,36 +317,197 @@ void usm_anim_player<nalAnimClass<nalAnyPose>, 3>::nalAnimState::sub_4AD850(
     }
 }
 
+namespace {
+void release_anim_state(type::nalAnimState *state)
+{
+    if (state->field_C != nullptr)
+        state->field_C->Release();
+    if (state->field_10 != nullptr)
+        state->field_10->Release();
+    if (state->field_0 != nullptr)
+        state->field_0->finalize(true);
+}
+
+bool __fastcall nonlooping_invoke(type::nalAnimCallback *, void *, type *) { return true; }
+void __fastcall nonlooping_reference(type::nalAnimCallback *, void *) {}
+void __fastcall nonlooping_release(type::nalAnimCallback *, void *) {}
+
+type::nalAnimCallback *nonlooping_callback()
+{
+    static void *table[] = {
+        reinterpret_cast<void *>(&nonlooping_invoke),
+        reinterpret_cast<void *>(&nonlooping_reference),
+        reinterpret_cast<void *>(&nonlooping_release),
+    };
+    static type::nalAnimCallback callback{static_cast<int>(reinterpret_cast<std::intptr_t>(table))};
+    return &callback;
+}
+}
+
 template <>
 void usm_anim_player<nalAnimClass<nalAnyPose>, 3>::PlayModifier(nalAnimClass<nalAnyPose> *a2,
                                                                 usm_anim_player_modifier_type a3, Float a4,
                                                                 nalPlayMethod *a5, Float a6, int a7, Float a8, void *a9,
                                                                 bool a10, void *a11)
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
+        auto *previous = field_10 > 0 ? field_14[0]->field_0->field_10 : nullptr;
+        if (field_10 <= 0)
+            a4 = 0.0f;
+        auto *callback = reinterpret_cast<nalAnimCallback *>(a7);
+        if (static_cast<unsigned>(a3) == 0 && a2 == previous &&
+            !(callback != nullptr && field_14[0]->field_C == nullptr))
+            return;
+        if (field_10 == 3) {
+            field_14[2]->sub_853CF0(field_4, field_8);
+            release_anim_state(field_14[2]);
+        } else {
+            ++field_10;
+        }
+        auto *state = field_14[field_10 - 1];
+        for (int index = field_10 - 1; index > 0; --index)
+            field_14[index] = field_14[index - 1];
+        field_14[0] = state;
+        const float rate = equal<float>(a4, 0.0f) ? 0.0f : 1.0f / a4;
+        const float start = bit_cast<float>(static_cast<uint32_t>(reinterpret_cast<std::uintptr_t>(a9)));
+        state->sub_4AD850(a2, field_0, rate, a5, a6, callback, a8, this, a11, a10, start);
+        if ((a2->field_34 & 1) != 0 && previous != nullptr && (previous->field_34 & 1) != 0 &&
+            static_cast<unsigned>(a3) == 0) {
+            state->field_8 += field_14[1]->field_18;
+            state->field_18 = field_14[1]->field_18;
+            state->field_1C = a2 == previous ? field_14[1]->field_1C : state->field_18;
+        }
     } else {
         THISCALL(0x004B0530, this, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
     }
 }
 
+template <>
+void type::PlayModifier(nalAnimClass<nalAnyPose> *anim, usm_anim_player_modifier_type modifier,
+                        Float priority, uint32_t domains, bool force_restart, Float blend_time,
+                        Float fade_out_time, nalPlayMethod *method, Float extra_time,
+                        nalAnimCallback *callback, Float speed, bool completion_flag, void *parameter)
+{
+    const bool looping = (anim->field_34 & 1) != 0;
+    nalAnimState *previous = nullptr;
+    if (looping || !force_restart) {
+        for (auto *state = field_20; state != nullptr; state = state->field_40) {
+            if (state->field_44 == static_cast<int>(domains) && equal<float>(state->field_48, priority))
+                previous = state;
+        }
+        if (previous != nullptr && previous->field_0->field_10 == anim && !force_restart &&
+            (callback == nullptr || previous->field_C != nullptr))
+            return;
+    }
+    if (callback == nullptr && !looping)
+        callback = nonlooping_callback();
+    const auto mode = static_cast<unsigned>(modifier);
+    for (auto *state = field_20; state != nullptr; state = state->field_40) {
+        if ((domains & static_cast<uint32_t>(state->field_44)) == static_cast<uint32_t>(state->field_44)) {
+            state->field_38 = 2;
+            if ((mode == 1 || mode == 2) && state->field_48 <= priority)
+                state->field_38 = 1;
+            if (state->field_C != nullptr)
+                state->field_C->Release();
+            state->field_C = nullptr;
+        }
+    }
+    auto **position = &field_20;
+    while (*position != nullptr && (*position)->field_48 <= priority)
+        position = &(*position)->field_40;
+    auto *state = field_24;
+    if (state != nullptr) {
+        field_24 = state->field_40;
+    } else {
+        state = new nalAnimState;
+        state->field_0 = nullptr;
+        state->field_C = nullptr;
+        state->field_10 = nullptr;
+    }
+    state->field_40 = *position;
+    *position = state;
+    const float blend_rate = equal<float>(blend_time, 0.0f) ? 0.0f : 1.0f / blend_time;
+    state->sub_4AD850(anim, field_0, blend_rate, method, extra_time, callback,
+                     speed, this, parameter, completion_flag, 0.0f);
+    state->field_50 = static_cast<int>(modifier);
+    state->field_44 = static_cast<int>(domains);
+    state->field_48 = priority;
+    state->field_38 = 0;
+    state->field_4C = equal<float>(fade_out_time, 0.0f) ? 0.0f : 1.0f / fade_out_time;
+    state->field_3C = field_28;
+    if (previous != nullptr && looping && (previous->field_0->field_10->field_34 & 1) != 0 &&
+        !force_restart) {
+        state->field_18 = previous->field_18;
+        state->field_1C = previous->field_0->field_10 == anim ? previous->field_1C : state->field_18;
+    }
+}
 
-LARGE_INTEGER &qword_9770D0 = var<LARGE_INTEGER>(0x009770D0);
+template <>
+void type::Reset()
+{
+    auto *source = field_0->VirtualGetDefaultPose();
+    auto *pose = source->field_0->VirtualCreatePose();
+    pose->field_0->VirtualCopyPose(pose, source);
+    field_4.field_0->field_0->VirtualCopyPose(field_4.field_0, pose);
+    pose->field_0->VirtualDestroyPose(pose);
+    for (int index = 0; index < field_10; ++index)
+        release_anim_state(field_14[index]);
+    field_10 = 0;
+    while (field_20 != nullptr) {
+        auto *state = field_20;
+        field_20 = state->field_40;
+        release_anim_state(state);
+        state->field_40 = field_24;
+        field_24 = state;
+    }
+}
+
+template <>
+void type::KillDomain(uint32_t domains)
+{
+    auto **position = &field_20;
+    while (*position != nullptr) {
+        auto *state = *position;
+        if ((domains & static_cast<uint32_t>(state->field_44)) != 0) {
+            *position = state->field_40;
+            release_anim_state(state);
+            state->field_40 = field_24;
+            field_24 = state;
+        } else {
+            position = &state->field_40;
+        }
+    }
+}
+
+template <>
+void type::KillPriority(Float priority)
+{
+    auto **position = &field_20;
+    while (*position != nullptr) {
+        auto *state = *position;
+        if (equal<float>(state->field_48, priority)) {
+            *position = state->field_40;
+            release_anim_state(state);
+            state->field_40 = field_24;
+            field_24 = state;
+        } else {
+            position = &state->field_40;
+        }
+    }
+}
+
+
+
 
 template <>
 void usm_anim_player<nalAnimClass<nalAnyPose>, 3>::sub_4B06A0(Float a2)
 {
     TRACE("sub_4B06A0");
 
-    if (this->field_20 != nullptr) {
-        sp_log("0x%08X", this->field_20->field_C->m_vtbl);
-    }
-
-    if constexpr (0) {
-        auto perf_counter = query_perf_counter();
+    {
         auto v4 = &this->field_20;
         ++this->field_28;
         auto v5 = this->field_20;
-        auto v22 = perf_counter;
         while (v5 != nullptr) {
             if (v5->field_3C != this->field_28) {
                 if (v5->sub_4B0020(this, a2)) {
@@ -456,9 +612,6 @@ void usm_anim_player<nalAnimClass<nalAnyPose>, 3>::sub_4B06A0(Float a2)
         }
 
         this->field_10 = a2a;
-        qword_9770D0.QuadPart += query_perf_counter().QuadPart - v22.QuadPart;
-    } else {
-        THISCALL(0x004B06A0, this, a2);
     }
 }
 
@@ -467,9 +620,7 @@ void usm_anim_player<nalAnimClass<nalAnyPose>, 3>::sub_4B0860(nalAnyPose &pose)
 {
     TRACE("sub_4B0860");
 
-    if constexpr (1) {
-        auto perf_counter = query_perf_counter();
-
+    {
         pose = this->field_4;
 
         usm_anim_player<nalAnimClass<nalAnyPose>, 3>::nalAnimState *v2 = nullptr;
@@ -491,26 +642,36 @@ void usm_anim_player<nalAnimClass<nalAnyPose>, 3>::sub_4B0860(nalAnyPose &pose)
             k->sub_854140(pose, this->field_8);
         }
 
-        nalPlayerGetPoseTicks.QuadPart += query_perf_counter().QuadPart - perf_counter.QuadPart;
-    } else {
-        THISCALL(0x004B0860, this, &pose);
     }
 }
 
 template <>
 void usm_anim_player<nalAnimClass<nalAnyPose>, 3>::sub_4AE210()
 {
-    THISCALL(0x004AE210, this);
+    if constexpr (STANDALONE_SYSTEM) {
+        Reset();
+        for (auto *state : field_14)
+            delete state;
+        while (field_24 != nullptr) {
+            auto *state = field_24;
+            field_24 = state->field_40;
+            delete state;
+        }
+        field_C.field_0->field_0->VirtualDestroyPose(field_C.field_0);
+        field_8.field_0->field_0->VirtualDestroyPose(field_8.field_0);
+        field_4.field_0->field_0->VirtualDestroyPose(field_4.field_0);
+    } else {
+        THISCALL(0x004AE210, this);
+    }
 }
 
 template <>
 usm_anim_player<nalAnimClass<nalAnyPose>, 3>::nalAnimState *
-usm_anim_player<nalAnimClass<nalAnyPose>, 3>::Advance(Float a2)
+usm_anim_player<nalAnimClass<nalAnyPose>, 3>::Advance(Float priority)
 {
-    if constexpr (0) {
-    } else {
-        return (nalAnimState *)THISCALL(0x004AD7F0, this, a2);
-    }
+
+    auto *state = this->field_20;
+    return state != nullptr && std::equal_to<float>{}(state->field_48, priority.value) ? state : nullptr;
 }
 
 bool __fastcall sub_4B0020(usm_anim_player<nalAnimClass<nalAnyPose>, 3>::nalAnimState *self, void *, int a2, Float a3)

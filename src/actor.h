@@ -154,6 +154,8 @@ struct actor : entity {
     void unbind_from_scene_anim(string_hash a3, string_hash a4);
 
     float get_floor_offset();
+    void suspend(bool propagate);
+    void unsuspend(bool propagate);
 
     bool anim_finished(int);
 

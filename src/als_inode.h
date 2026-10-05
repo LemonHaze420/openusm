@@ -25,7 +25,14 @@ struct als_inode : info_node {
     float field_24;
     string_hash field_28;
 
+    static void *native_vtable();
+    void get_known_combat_signal_time_and_category(Float &time, string_hash &category) const;
     als_inode();
+    explicit als_inode(from_mash_in_place_constructor *constructor);
+
+    void _unmash(mash_info_struct *info, void *context);
+    void deactivate();
+    void frame_advance(Float elapsed);
 
     als::animation_logic_system *get_system()
     {
@@ -44,6 +51,9 @@ struct als_inode : info_node {
 
     //0x00689BA0
     als::state_machine *get_als_layer(als::layer_types a2);
+
+
+    void kill_layer(als::layer_types layer_type);
 
     //0x0048B120
     string_hash get_category_id(als::layer_types a3);

@@ -127,7 +127,7 @@ request_data scripted_state::_do_implicit_trans(animation_logic_system *a4, stat
 {
     TRACE("als::scripted_state::do_implicit_trans");
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         request_data data{};
         als_data context{a4, a5};
         string_hash explicit_state{};
@@ -142,7 +142,7 @@ request_data scripted_state::_do_implicit_trans(animation_logic_system *a4, stat
                 trans_rule->field_0.field_14.process_action(data);
                 if (trans_rule->field_0.has_post_action()) {
                     data.field_C.field_4 = scripted_trans_group::IMPLICIT;
-                    data.field_C.field_0 = bit_cast<basic_rule_data *>(&trans_rule);
+                    data.field_C.implicit_rule = &trans_rule;
                 }
             }
         }
@@ -165,24 +165,50 @@ request_data scripted_state::_do_implicit_trans(animation_logic_system *a4, stat
 
 request_data scripted_state::_do_explicit_trans(animation_logic_system *a4, state_machine *a5, string_hash a6)
 {
-    request_data *(__fastcall *
-                   func)(void *, void *edx, request_data *, animation_logic_system *, state_machine *, string_hash) =
-        CAST(func, 0x004A7040);
+    request_data data{};
+    if constexpr (!STANDALONE_SYSTEM) {
+        THISCALL(0x004A7040, this, &data, a4, a5, a6);
+    } else {
 
-    request_data data;
-    func(this, nullptr, &data, a4, a5, a6);
-
+        als_data context{a4, a5};
+        if (!test_all_trans_groups(data, field_18, scripted_trans_group::EXPLICIT, context, a6)) {
+            for (int i = 0; i < field_3C.size(); ++i) {
+                auto *rule = field_3C.m_data[i];
+                if (!rule->can_transition(context, a6))
+                    continue;
+                rule->field_0.field_14.process_action(data);
+                if (rule->field_0.has_post_action()) {
+                    data.field_C.field_4 = scripted_trans_group::EXPLICIT;
+                    data.field_C.explicit_rule = &field_3C.m_data[i];
+                }
+                break;
+            }
+        }
+        if (!data.did_rule_pass())
+            data.ignore_no_transition = !is_flag_set(static_cast<state_flags>(8));
+    }
     return data;
 }
 
 request_data scripted_state::_do_layer_trans(animation_logic_system *a4, state_machine *a5)
 {
-    request_data *(__fastcall * func)(void *, void *edx, request_data *, animation_logic_system *, state_machine *) =
-        CAST(func, 0x004A7180);
+    request_data data{};
+    if constexpr (!STANDALONE_SYSTEM) {
+        THISCALL(0x004A7180, this, &data, a4, a5);
+    } else {
 
-    request_data data;
-    func(this, nullptr, &data, a4, a5);
-
+        als_data context{a4, a5};
+        if (!test_all_trans_groups(data, field_18, scripted_trans_group::LAYER, context, string_hash{}) &&
+            field_50 != nullptr) {
+            for (int i = 0; i < field_50->size(); ++i) {
+                auto *rule = field_50->m_data[i];
+                if (rule->can_transition(context))
+                    rule->field_8.process_action(data);
+            }
+        }
+        if (!data.did_rule_pass())
+            data.ignore_no_transition = !is_flag_set(static_cast<state_flags>(8));
+    }
     return data;
 }
 
@@ -192,7 +218,7 @@ void scripted_state::_do_post_trans(animation_logic_system *a1, state_machine *a
 
     als_data context{a1, a2};
     if (a4.field_4 <= scripted_trans_group::EXPLICIT) {
-        a4.field_0->do_post_action(context);
+        a4.rule_data().do_post_action(context);
     }
 }
 

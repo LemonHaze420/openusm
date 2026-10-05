@@ -1,5 +1,8 @@
 #pragma once
 
+#include <cstdint>
+
+#include "als_layer_types.h"
 #include "als_basic_rule_data.h"
 #include "string_hash.h"
 
@@ -32,10 +35,12 @@ struct explicit_transition_rule {
 };
 
 struct layer_transition_rule {
-    int field_0;
-    int field_4;
+    layer_types layer_id;
+    string_hash state_or_category_id;
     basic_rule_data::rule_action field_8;
-    int field_14;
+    bool use_previous_state;
+    bool match_category;
+    uint8_t field_16[2];
 
     layer_transition_rule(from_mash_in_place_constructor *);
 
@@ -46,10 +51,12 @@ struct layer_transition_rule {
 
 struct incoming_transition_rule {
     basic_rule_data field_0;
-    int field_24;
+    string_hash field_24;
     int field_28;
 
     incoming_transition_rule(from_mash_in_place_constructor *a2);
+
+    bool can_transition(als_data &a1) const;
 
     void unmash(mash_info_struct *a1, void *a3);
 };

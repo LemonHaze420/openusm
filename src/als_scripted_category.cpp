@@ -11,50 +11,86 @@
 
 #include <cassert>
 
+
+namespace {
+als::request_data *__fastcall category_implicit_trans(als::scripted_category *self, void *,
+    als::request_data *out, als::animation_logic_system *system, als::state_machine *machine)
+{
+    *out = self->do_implicit_trans(system, machine);
+    return out;
+}
+
+als::request_data *__fastcall category_explicit_trans(als::scripted_category *self, void *,
+    als::request_data *out, als::animation_logic_system *system, als::state_machine *machine,
+    string_hash state)
+{
+    *out = self->_do_explicit_trans(system, machine, state);
+    return out;
+}
+
+als::request_data *__fastcall category_layer_trans(als::scripted_category *self, void *,
+    als::request_data *out, als::animation_logic_system *system, als::state_machine *machine)
+{
+    *out = self->_do_layer_trans(system, machine);
+    return out;
+}
+
+als::request_data *__fastcall category_incoming_trans(als::scripted_category *self, void *,
+    als::request_data *out, als::animation_logic_system *system, als::state_machine *machine)
+{
+    *out = self->_do_incoming_trans(system, machine);
+    return out;
+}
+
+string_hash *__fastcall category_default_state(const als::scripted_category *self, void *, string_hash *out)
+{
+    *out = self->_get_default_state();
+    return out;
+}
+}
 namespace als {
     VALIDATE_SIZE(scripted_category, 0x7C);
 
-    scripted_category::scripted_category()
+    void *scripted_category::native_vtable()
     {
-    if constexpr (1) {
-        static void *g_vtbl[] = {nullptr,
-                                 func_address(&scripted_category::_unmash),
-                                 nullptr,
-                                 func_address(&scripted_category::_get_virtual_type_enum),
-                                 nullptr,
-                                 func_address(&mash_virtual_base::_is_or_is_subclass_of),
-                                 nullptr,
-                                 nullptr,
-                                 nullptr,
-                                 nullptr,
-                                 nullptr,
-                                 nullptr,
-                                 nullptr,
-                                 func_address(&scripted_category::_get_mash_sizeof)};
-
-        this->m_vtbl = CAST(m_vtbl, &g_vtbl);
-    } else {
-        THISCALL(0x004ACBF0, this);
+        static void *table[] = {nullptr,
+                               func_address(&scripted_category::_unmash),
+                               nullptr,
+                               func_address(&scripted_category::_get_virtual_type_enum),
+                               nullptr,
+                               func_address(&mash_virtual_base::_is_or_is_subclass_of),
+                               reinterpret_cast<void *>(&category_implicit_trans),
+                               reinterpret_cast<void *>(&category_explicit_trans),
+                               reinterpret_cast<void *>(&category_layer_trans),
+                               reinterpret_cast<void *>(&category_incoming_trans),
+                               func_address(&scripted_category::_do_post_trans),
+                               nullptr,
+                               reinterpret_cast<void *>(&category_default_state),
+                               func_address(&scripted_category::_get_mash_sizeof)};
+        return table;
     }
-}
+
+    scripted_category::scripted_category() : field_78(nullptr)
+    {
+        this->m_vtbl = CAST(m_vtbl, native_vtable());
+    }
 
 scripted_category::scripted_category(from_mash_in_place_constructor *a2)
     : category(a2), field_10(a2), field_14(a2), field_2C(a2), field_3C(a2), field_50(a2), field_64(a2)
 {
     TRACE("als::scripted_category::scripted_category");
 
-    this->m_vtbl = 0x0087E250;
+    this->m_vtbl = CAST(m_vtbl, native_vtable());
 
     if (this->field_78 != nullptr) {
         mash_info_struct::construct_class(this->field_78);
     }
 }
 
-    void scripted_category::_unmash(mash_info_struct *a1, void *a3)
+    void scripted_category::_unmash(mash_info_struct *a1, void *)
     {
         TRACE("als::scripted_category::unmash");
 
-    if constexpr (1) {
             category::_unmash(a1, this);
 
             a1->unmash_class_in_place(this->field_10, this);
@@ -84,9 +120,6 @@ scripted_category::scripted_category(from_mash_in_place_constructor *a2)
 #endif
                         );
             }
-    } else {
-            THISCALL(0x004AC850, this, a1, a3);
-        }
     }
 
 int scripted_category::_get_virtual_type_enum() const
@@ -95,38 +128,91 @@ int scripted_category::_get_virtual_type_enum() const
 }
 
 request_data scripted_category::do_implicit_trans(animation_logic_system *a4, state_machine *a5)
-    {
-        TRACE("als::scripted_category::do_implicit_trans");
-
-        request_data data;
-        THISCALL(0x004A7300, this, &data, a4, a5);
-        return data;
+{
+    request_data data;
+    data.field_C.field_0 = nullptr;
+    als_data context{a4, a5};
+    if (!test_all_trans_groups(data, this->field_2C, scripted_trans_group::IMPLICIT, context, string_hash{})) {
+        for (int i = 0; i < this->field_3C.size(); ++i) {
+            const auto index = static_cast<uint16_t>(i);
+            if (this->field_3C.m_data[index]->can_transition(context)) {
+                this->field_3C.m_data[index]->field_0.field_14.process_action(data);
+                if (this->field_3C.m_data[index]->field_0.has_post_action()) {
+                    data.field_C.field_4 = scripted_trans_group::IMPLICIT;
+                    data.field_C.implicit_rule = &this->field_3C.m_data[index];
+                }
+                break;
+            }
+        }
     }
+    return data;
+}
 
 request_data scripted_category::_do_explicit_trans(animation_logic_system *a4, state_machine *a5, string_hash a6)
 {
-    request_data(__fastcall *
-                 func)(void *, void *edx, request_data *, animation_logic_system *a4, state_machine *a5, string_hash) =
-        CAST(func, 0x004A7420);
-    request_data data{};
-    func(this, nullptr, &data, a4, a5, a6);
+    request_data data;
+    data.field_C.field_0 = nullptr;
+    als_data context{a4, a5};
+    if (!test_all_trans_groups(data, this->field_2C, scripted_trans_group::EXPLICIT, context, a6)) {
+        for (int i = 0; i < this->field_50.size(); ++i) {
+            const auto index = static_cast<uint16_t>(i);
+            if (this->field_50.m_data[index]->can_transition(context, a6)) {
+                this->field_50.m_data[index]->field_0.field_14.process_action(data);
+                if (this->field_50.m_data[index]->field_0.has_post_action()) {
+                    data.field_C.field_4 = scripted_trans_group::EXPLICIT;
+                    data.field_C.explicit_rule = &this->field_50.m_data[index];
+                }
+                break;
+            }
+        }
+    }
     return data;
 }
 
 request_data scripted_category::_do_layer_trans(animation_logic_system *a4, state_machine *a5)
 {
-    request_data(__fastcall * func)(void *, void *edx, request_data *, animation_logic_system *a4, state_machine *a5) =
-        CAST(func, 0x004A7550);
-    request_data data{};
-    func(this, nullptr, &data, a4, a5);
+    request_data data;
+    data.field_C.field_0 = nullptr;
+    als_data context{a4, a5};
+    if (!test_all_trans_groups(data, this->field_2C, scripted_trans_group::LAYER, context, string_hash{})) {
+        if (this->field_78 != nullptr) {
+            for (int i = 0; i < this->field_78->size(); ++i) {
+                const auto index = static_cast<uint16_t>(i);
+                if (this->field_78->m_data[index]->can_transition(context)) {
+                    this->field_78->m_data[index]->field_8.process_action(data);
+                }
+            }
+        }
+    }
+    return data;
+}
+
+request_data scripted_category::_do_incoming_trans(animation_logic_system *a4, state_machine *a5)
+{
+    request_data data;
+    data.field_C.field_0 = nullptr;
+    als_data context{a4, a5};
+    for (int i = 0; i < this->field_64.size(); ++i) {
+        const auto index = static_cast<uint16_t>(i);
+        if (this->field_64.m_data[index]->can_transition(context)) {
+            this->field_64.m_data[index]->field_0.field_14.process_action(data);
+            if (this->field_64.m_data[index]->field_0.has_post_action()) {
+                data.field_C.field_4 = static_cast<scripted_trans_group::transition_type>(3);
+                data.field_C.incoming_rule = &this->field_64.m_data[index];
+            }
+            break;
+        }
+    }
     return data;
 }
 
 void scripted_category::_do_post_trans(animation_logic_system *a1, state_machine *a2, transition_post_handle a3)
 {
-    als_data v4{a1, a2};
-    if (a3.field_4 < 2 || a3.field_4 == 3) {
-        a3.field_0->do_post_action(v4);
+    als_data context{a1, a2};
+    if (a3.field_4 == scripted_trans_group::IMPLICIT ||
+        a3.field_4 == scripted_trans_group::EXPLICIT ||
+        a3.field_4 == static_cast<scripted_trans_group::transition_type>(3)) {
+        a3.rule_data().do_post_action(context);
     }
 }
 
@@ -142,14 +228,6 @@ int scripted_category::_get_mash_sizeof() const
 }  // namespace als
 
 
-als::request_data *__fastcall als_scripted_category_do_implicit_trans(als::scripted_category *self, void *,
-    als::request_data *out,
-    als::animation_logic_system *a4,
-    als::state_machine *a5)
-{
-    *out = self->do_implicit_trans(a4, a5);
-    return out;
-}
 
 void als_scripted_category_patch()
 {
@@ -159,7 +237,7 @@ void als_scripted_category_patch()
     }
 
     {
-        auto address = int(&als_scripted_category_do_implicit_trans);
+        auto address = int(&category_implicit_trans);
         set_vfunc(0x0087E268, address);
     }
 }

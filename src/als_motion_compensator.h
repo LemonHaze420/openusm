@@ -45,7 +45,13 @@ struct motion_compensator : mash_virtual_base {
 
     //virtual
     double get_anim_movement_scale_param();
+
+    double get_anim_playback_speed_param();
+
+    static void *native_vtable(uint32_t type);
 };
+
+struct null_mocomp : motion_compensator {};
 
 }  // namespace als
 

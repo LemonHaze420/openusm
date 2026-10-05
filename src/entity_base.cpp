@@ -250,6 +250,13 @@ vector3d entity_base::get_visual_center()
     return ZEROVEC;
 }
 
+float entity_base::get_floor_offset()
+{
+    auto callback = reinterpret_cast<float(__fastcall *)(entity_base *, void *)>(
+        get_vfunc(m_vtbl, 0x220));
+    return callback(this, nullptr);
+}
+
 vector3d entity_base::get_velocity()
 {
     return ZEROVEC;
@@ -1155,7 +1162,7 @@ void entity_base::update_abs_po(bool a2)
                     po *abs_po = nullptr;
 
                     if (!This->is_conglom_member() || (!This->is_rel_po_dirty()) || (This->field_8 & 0x100) != 0 ||
-                        (This->rel_po_idx >= This->my_conglom_root->all_model_po.m_size)) {
+                        (static_cast<uint8_t>(This->rel_po_idx) >= This->my_conglom_root->all_model_po.m_size)) {
                         rel_po = &This->get_rel_po();
                         abs_po = This->m_parent->my_abs_po;
                     } else {
@@ -1163,9 +1170,10 @@ void entity_base::update_abs_po(bool a2)
 
                         assert((conglomerate *) This != This->my_conglom_root);
 
-                        assert(This->rel_po_idx - 1 < This->my_conglom_root->all_model_po.size());
+                        const auto model_index = static_cast<uint16_t>(static_cast<uint8_t>(This->rel_po_idx) - 1);
+                        assert(model_index < This->my_conglom_root->all_model_po.size());
 
-                        rel_po = &This->my_conglom_root->all_model_po.at(This->rel_po_idx - 1);
+                        rel_po = &This->my_conglom_root->all_model_po.at(model_index);
                         abs_po = This->my_conglom_root->my_abs_po;
                     }
 
@@ -1176,10 +1184,6 @@ void entity_base::update_abs_po(bool a2)
                 }
             }
 
-            if (!This->my_abs_po->is_valid()) {
-                const auto &relative = This->get_rel_po();
-                *This->my_abs_po = relative.is_valid() ? relative : po{};
-            }
 
             This->field_8 &= 0xEFFFFFFF;
             if (!a2) {
@@ -1413,7 +1417,18 @@ void entity_base::set_timer(int new_timer)
 
 unsigned int entity_base::compute_rel_po_from_model()
 {
-    return static_cast<uint32_t>(THISCALL(0x004D6050, this));
+    const auto index = static_cast<uint16_t>(static_cast<uint8_t>(rel_po_idx) - 1);
+    const auto &model = my_conglom_root->all_model_po.m_data[index];
+    if (m_parent == my_conglom_root) {
+        *my_rel_po = model;
+    } else {
+        const auto parent_index = static_cast<uint16_t>(
+            static_cast<uint8_t>(m_parent->rel_po_idx) - 1);
+        const auto *inverse = my_conglom_root->all_model_po.m_data[parent_index].inverse();
+        my_rel_po->set_from_ptr_to_po_world(ptr_to_po{&model.m, &inverse->m});
+    }
+    field_8 = (field_8 & 0xF7FFFEFFu) | 0x100u;
+    return field_8;
 }
 
 int entity_base::add_callback(string_hash a2, void (*callback)(event *, entity_base_vhandle, void *), void *a4, bool a5)
