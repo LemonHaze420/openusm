@@ -13,8 +13,7 @@
 struct from_mash_in_place_constructor;
 struct mash_info_struct;
 
-struct interaction {
-    std::intptr_t m_vtbl;
+struct interaction : mash_virtual_base {
     mVector<trigger_region> field_4;
     mVectorBasic<vhandle_type<actor>> field_18;
     interaction_type_enum field_28;
@@ -26,6 +25,7 @@ struct interaction {
     int field_40;
     bool field_44;
     bool field_45;
+    bool field_46;
 
     //0x004D5A30
     interaction(from_mash_in_place_constructor *a2);
@@ -41,7 +41,7 @@ struct interaction {
 
     //virtual
     //0x004DADB0
-    void unmash(mash_info_struct *a1, void *a3);
+    void _unmash(mash_info_struct *a1, void *a3);
 
     //virtual
     //0x004BF2B0
@@ -49,4 +49,10 @@ struct interaction {
 
     //virtual
     int get_mash_sizeof() const;
+
+    bool is_inside_trigger_region(const vector3d *position, actor *owner) const;
+    void destruct_mashed_class();
+    static void *native_vtable();
+    static void *construct_native_in_place(
+        uint32_t type, mash_virtual_base *storage, int storage_size);
 };

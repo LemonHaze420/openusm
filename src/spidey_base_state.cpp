@@ -28,17 +28,49 @@
 #include "trace.h"
 #include "utility.h"
 
+#include <algorithm>
+#include <array>
+
 namespace ai {
 
 VALIDATE_SIZE(spidey_base_state, 0x1C);
 
-spidey_base_state::spidey_base_state()
+namespace {
+unsigned __fastcall spidey_type(spidey_base_state *, void *) { return 324; }
+bool __fastcall spidey_subclass(spidey_base_state *, void *, unsigned type)
 {
-    if constexpr (1) {
-        this->m_vtbl = CAST(m_vtbl, &g_vtbl);
-    } else {
-        THISCALL(0x00438E80, this);
-    }
+    return type == 323 || type == 567 || type == 573;
+}
+void __fastcall spidey_nodes(spidey_base_state *self, void *, info_node_desc_list &nodes)
+{
+    self->_get_info_node_list(nodes);
+}
+string_hash *__fastcall spidey_desired(spidey_base_state *self, void *, string_hash *out, Float dt)
+{
+    *out = self->get_desired_state_id(dt);
+    return out;
+}
+}
+
+void *spidey_base_state::native_vtable()
+{
+
+    static auto table = [] {
+        std::array<void *, 15> result;
+        std::copy_n(static_cast<void **>(hero_base_state::native_vtable()), 15, result.data());
+        result[3] = reinterpret_cast<void *>(&spidey_type);
+        result[4] = reinterpret_cast<void *>(&spidey_subclass);
+        result[9] = reinterpret_cast<void *>(&spidey_nodes);
+        result[14] = reinterpret_cast<void *>(&spidey_desired);
+        return result;
+    }();
+    return table.data();
+}
+
+spidey_base_state::spidey_base_state() : spidey_base_state(0) {}
+spidey_base_state::spidey_base_state(int mode) : hero_base_state(mode)
+{
+    m_vtbl = STANDALONE_SYSTEM ? bit_cast<std::intptr_t>(native_vtable()) : 0x877534;
 }
 
 void spidey_base_state::_unmash(mash_info_struct *a1, void *a2)
@@ -60,9 +92,6 @@ void spidey_base_state::_get_info_node_list(info_node_desc_list &a1)
 
 string_hash spidey_base_state::get_desired_state_id(Float a3) const
 {
-    TRACE("spidey_base_state::get_desired_state_id");
-
-    if constexpr (0) {
         string_hash a2 = this->field_C->my_curr_state->get_name();
 
         auto *v4 = this->get_core();
@@ -86,8 +115,9 @@ string_hash spidey_base_state::get_desired_state_id(Float a3) const
 
             auto *v14 = vhandle_type<actor>{combat_inode_ptr->field_20}.get_volatile_ptr();
 
+            int allow_web_tie = 1;
             this->get_core()->field_50.get_optional_pb_int(
-                loco_allow_web_tie_id(), combat_inode_ptr->field_20, nullptr);
+                loco_allow_web_tie_id(), allow_web_tie, nullptr);
             this->get_actor();
             if (v14 != nullptr) {
                 if (v13->has_next_move()) {
@@ -139,10 +169,8 @@ string_hash spidey_base_state::get_desired_state_id(Float a3) const
                 auto v53 = v19->get_abs_position() - v22->get_abs_position();
                 v53.normalize();
                 if (not_equal<float>(dot(axis, v53), 0.0f)) {
-                    if (hero_inode_ptr->jump_can_go_to(pole_swing_state::default_id) &&
-                        pole_swing_inode_ptr->is_eligible(a2)) {
-                        return pole_swing_state::default_id;
-                    }
+
+                    hero_inode_ptr->jump_can_go_to(pole_swing_state::default_id);
                 }
 
                 if (hero_inode_ptr->jump_can_go_to(combat_state::default_id) && combat_inode_ptr->has_next_move()) {
@@ -163,9 +191,7 @@ string_hash spidey_base_state::get_desired_state_id(Float a3) const
                 return swing_state::default_id;
             }
 
-            if (hero_inode_ptr->jump_can_go_to(pole_swing_state::default_id) && pole_swing_inode_ptr->is_eligible(a2)) {
-                return pole_swing_state::default_id;
-            }
+            hero_inode_ptr->jump_can_go_to(pole_swing_state::default_id);
 
             if (hero_inode_ptr->jump_can_go_to(plr_loco_crawl_transition_state::default_id) &&
                 hero_inode_ptr->crawl_is_eligible(a2, true)) {
@@ -298,12 +324,6 @@ string_hash spidey_base_state::get_desired_state_id(Float a3) const
         } else {
             return hero_base_state::NO_TRANS;
         }
-    } else {
-        string_hash result;
-        THISCALL(0x00488680, this, &result, a3);
-
-        return result;
-    }
 }
 
 }  // namespace ai

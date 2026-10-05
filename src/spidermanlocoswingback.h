@@ -8,9 +8,9 @@ struct polytube;
 namespace ai {
 
 struct SpidermanLocoSwingBack {
-    int field_0;
+    actor *field_0;
     dangler *web_dangler;
-    int field_8;
+    polytube *field_8;
     char field_C;
 
     //0x0045D2C0

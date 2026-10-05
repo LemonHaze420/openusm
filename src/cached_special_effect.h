@@ -32,11 +32,14 @@ struct cached_special_effect {
     //0x005020D0
     cached_special_effect();
 
+    ~cached_special_effect();
+
     void initialize();
 
     //0x004EFC00
     void spawn(bool a1, const vector3d &a2, const vector3d &a3, handheld_item *a6, entity_base *a7, entity_base *a8,
                const vector3d &a9, bool a10, bool a11);
+    void kill(handheld_item *owner, bool run_script);
 
     //0x004D4E10
     void fill_cache();

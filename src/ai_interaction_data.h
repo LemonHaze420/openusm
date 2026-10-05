@@ -62,6 +62,9 @@ struct ai_interaction_data {
 
     //0x0069D6A0
     void *get_anim_ptr(const anim_key *the_anim_key, bool a3);
+
+
+    void *get_anim_ptr(enum_anim_key::key_enum key, bool interactor);
 };
 
 extern void ai_interaction_data_patch();

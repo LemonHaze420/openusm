@@ -64,9 +64,20 @@ anim_record *ai_interaction_data::does_anim_exist(enum_anim_key::key_enum a2, bo
     }
 }
 
-void ai_interaction_data::unregister_interactor(vhandle_type<actor> a2)
+void ai_interaction_data::unregister_interactor(vhandle_type<actor> interactor)
 {
-    THISCALL(0x0069AA50, this, a2);
+    if (field_90) {
+        return;
+    }
+    for (int i = 0; i < field_80.size(); ++i) {
+        if (field_80.at(i).field_0 == interactor.field_0) {
+            for (int j = i + 1; j < field_80.size(); ++j) {
+                field_80.at(j - 1) = field_80.at(j);
+            }
+            --field_80.m_size;
+            return;
+        }
+    }
 }
 
 anim_record *ai_interaction_data::does_anim_exist(const anim_key *a2, [[maybe_unused]] bool a3)
@@ -134,12 +145,27 @@ void ai_interaction_data::unmash(mash_info_struct *a1, void *)
 
 string_hash ai_interaction_data::get_anim_hash_name(const anim_record *a2, bool a3)
 {
-    TRACE("ai_interaction_data::get_anim_hash_name");
+#if STANDALONE_SYSTEM
 
+    string_hash result{0};
+    using hash_callback = string_hash *(__fastcall *)(const anim_record *, void *, string_hash *);
+    if (a3) {
+        auto get_hash = reinterpret_cast<hash_callback>(get_vfunc(a2->m_vtbl, 0x18));
+        get_hash(a2, nullptr, &result);
+    } else {
+        using type_callback = bool (__fastcall *)(const anim_record *, void *, mash::virtual_types_enum);
+        auto is_type = reinterpret_cast<type_callback>(get_vfunc(a2->m_vtbl, 0x14));
+        if (is_type(a2, nullptr, static_cast<mash::virtual_types_enum>(146))) {
+            auto get_hash = reinterpret_cast<hash_callback>(get_vfunc(a2->m_vtbl, 0x20));
+            get_hash(a2, nullptr, &result);
+        }
+    }
+    return result;
+#else
     string_hash result;
     THISCALL(0x0068DDF0, this, &result, a2, a3);
-
     return result;
+#endif
 }
 
 void *ai_interaction_data::get_anim_ptr(const anim_key *the_anim_key, bool a3)
@@ -171,10 +197,22 @@ void *ai_interaction_data::get_anim_ptr(const anim_key *the_anim_key, bool a3)
     }
 }
 
+void *ai_interaction_data::get_anim_ptr(enum_anim_key::key_enum key, bool interactor)
+{
+#if STANDALONE_SYSTEM
+
+    enum_anim_key anim_key{key};
+    return get_anim_ptr(&anim_key, interactor);
+#else
+    return reinterpret_cast<void *>(THISCALL(0x0069F2A0, this, key, interactor));
+#endif
+}
+
 void ai_interaction_data_patch()
 {
     {
-        FUNC_ADDRESS(address, &ai_interaction_data::get_anim_ptr);
+        FUNC_ADDRESS(address, static_cast<void *(ai_interaction_data::*)(const anim_key *, bool)>(
+            &ai_interaction_data::get_anim_ptr));
         SET_JUMP(0x0069D6A0, address);
     }
 }

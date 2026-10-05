@@ -11,7 +11,9 @@ struct pole_swing_inode : info_node {
     int field_24;
     int field_28;
 
+    static void *native_vtable();
     pole_swing_inode();
+    explicit pole_swing_inode(from_mash_in_place_constructor *tag);
 
     bool is_eligible(string_hash) const;
 

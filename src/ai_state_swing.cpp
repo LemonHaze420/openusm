@@ -58,9 +58,12 @@
 #include "wds.h"
 #include "web_polytube.h"
 #include "web_sounds.h"
+#include "native_info_node_table.h"
 
 #include <cassert>
 #include <cmath>
+#include <algorithm>
+#include <array>
 
 static int &swinger_lr_swing_accel = var<int>(0x0095804C);
 static int &swinger_ud_swing_accel = var<int>(0x00958048);
@@ -77,8 +80,18 @@ static constexpr float min_swing_web_length_squared = 81.180107;
 static constexpr float max_swing_web_length_squared = 5626.5005;
 static const float sweet_cone_angle_cos = std::cos((3.1415927 / 180.0) * 30.01);
 
-static float &swing_collision_break_length = var<float>(0x009585BC);
-static float &swing_collision_stick_length = var<float>(0x0091F468);
+static float &swing_collision_break_length = []() -> float & {
+    auto &length = var<float>(0x009585BC);
+    if constexpr (STANDALONE_SYSTEM)
+        length = minimum_web_length;
+    return length;
+}();
+static float &swing_collision_stick_length = []() -> float & {
+    auto &length = var<float>(0x0091F468);
+    if constexpr (STANDALONE_SYSTEM)
+        length = 10.0f;
+    return length;
+}();
 
 static auto &swingers = var<swinger_t[2]>(0x00958188);
 
@@ -182,11 +195,69 @@ namespace ai {
 
 VALIDATE_SIZE(swing_state, 0x40);
 
-swing_state::swing_state() : enhanced_state() {}
+namespace {
+void __fastcall swing_state_destroy(swing_state *self, void *) { self->finalize(mash::ALLOCATED); }
+void *__fastcall swing_state_delete(swing_state *self, void *, bool release)
+{
+    self->~swing_state();
+    if (release)
+        mem_dealloc(self, sizeof(swing_state));
+    return self;
+}
+uint32_t __fastcall swing_state_type(swing_state *self) { return self->get_virtual_type_enum(); }
+bool __fastcall swing_state_subclass(const swing_state *, void *, mash::virtual_types_enum type)
+{
+    return type == 535 || type == 567 || type == 573;
+}
+void __fastcall swing_state_activate(swing_state *self, void *, ai_state_machine *machine,
+    const mashed_state *state, const mashed_state *previous, const param_block *params,
+    base_state::activate_flag_e flags)
+{
+    self->_activate(machine, state, previous, params, flags);
+}
+void __fastcall swing_state_deactivate(swing_state *self, void *, const mashed_state *state)
+{
+    self->_deactivate(state);
+}
+state_trans_messages __fastcall swing_state_frame(swing_state *self, void *, Float dt)
+{
+    return self->_frame_advance(dt);
+}
+void __fastcall swing_state_list(swing_state *self, void *, info_node_desc_list &list)
+{
+    self->get_info_node_list(list);
+}
+int __fastcall swing_state_size(swing_state *self) { return self->get_mash_sizeof(); }
+}
+
+void *swing_state::native_vtable()
+{
+
+    static auto table = [] {
+        std::array<void *, 16> result;
+        std::copy_n(static_cast<void **>(enhanced_state::native_vtable()), result.size(), result.data());
+        result[0] = bit_cast<void *>(&swing_state_destroy);
+        result[2] = bit_cast<void *>(&swing_state_delete);
+        result[3] = bit_cast<void *>(&swing_state_type);
+        result[4] = bit_cast<void *>(&swing_state_subclass);
+        result[6] = bit_cast<void *>(&swing_state_activate);
+        result[7] = bit_cast<void *>(&swing_state_deactivate);
+        result[8] = bit_cast<void *>(&swing_state_frame);
+        result[9] = bit_cast<void *>(&swing_state_list);
+        result[13] = bit_cast<void *>(&swing_state_size);
+        return result;
+    }();
+    return table.data();
+}
+
+swing_state::swing_state() : enhanced_state()
+{
+    m_vtbl = STANDALONE_SYSTEM ? bit_cast<std::intptr_t>(native_vtable()) : 0x008774B8;
+}
 
 swing_state::swing_state(from_mash_in_place_constructor *a2) : enhanced_state(a2)
 {
-    this->m_vtbl = 0x008774B8;
+    m_vtbl = STANDALONE_SYSTEM ? bit_cast<std::intptr_t>(native_vtable()) : 0x008774B8;
 }
 
 swing_state::~swing_state()
@@ -303,26 +374,6 @@ void swing_state::_activate(ai_state_machine *a2, const mashed_state *arg4, cons
 
         v32->set_desired_params(v29, static_cast<als::layer_types>(0));
 
-        if (os_developer_options::instance->get_flag(mString{"SHOW_LOCOMOTION_INFO"})) {
-            line_info v56;
-
-            auto abs_pos = abs_po.get_position();
-            v56.field_0 = abs_pos;
-            v56.field_C = something_to_swing_to_data.field_C;
-            v56.field_C.y = abs_pos.y;
-            v56.render(20, false);
-
-            v56.field_0 = abs_po.get_position();
-
-            constexpr float v67 = 3.0;
-            auto v52 = v35->get_velocity() * v67;
-            v56.field_C = abs_po.get_position() + v52;
-            v56.render(21, false);
-            mString v40{0, "anchor ang %.2f", v15->m_anchor_angle};
-
-            color32 v34{255, 255, 255, 255};
-            insertDebugString(2, v40, v34);
-        }
 
         v21->setup_for_swing();
         v15->setup_new_web();
@@ -344,65 +395,34 @@ void swing_state::_deactivate(const ai::mashed_state *a1)
     }
 }
 
-ai::state_trans_messages swing_state::_frame_advance(Float a2)
+ai::state_trans_messages swing_state::_frame_advance(Float dt)
 {
-    TRACE("ai::swing_state::frame_advance()");
-
-    if constexpr (0) {
-        auto *v3 = this->get_actor()->m_player_controller;
-        v3->set_spidey_loco_mode(static_cast<eHeroLocoMode>(3));
-
-        auto *hero_ptr = this->field_3C;
-        auto *swing_inode_ptr = hero_ptr->field_40;
-        auto *als_inode_ptr = hero_ptr->field_20;
-        {
-            auto &self = swingers[0].field_94;
-            self->set_visible(swingers[0].field_90->is_visible(), false);
-
-            self = swingers[1].field_94;
-            self->set_visible(swingers[1].field_90->is_visible(), false);
-        }
-
-        if (swing_inode_ptr->field_24) {
-            if (os_developer_options::instance->get_int(mString{"SWING_DEBUG_TRAILS"}) > 0) {
-                color32 v15{128, 255, 255, 64};
-                constexpr float radius = 0.2f;
-                auto *v9 = this->get_actor();
-                auto v13 = v9->get_abs_position();
-
-                add_debug_sphere(v13, radius, v15);
-            }
-
-            swing_inode_ptr->field_24 = false;
-
-        } else {
-            if (!swing_inode_ptr->field_54 &&
-                als_inode_ptr->get_eta_of_combat_signal(static_cast<als::layer_types>(0)) <= 0.0f) {
-                swing_inode_ptr->fire_new_web(true);
-            }
-
-            swing_inode_ptr->update_mode_swinging(a2);
-            if (swing_inode_ptr->m_constraint <= minimum_web_length) {
-                if (this->field_3C->crawl_is_eligible(auto_crawl_attach_id, false)) {
-                    return static_cast<state_trans_messages>(73);
-                }
-
-                if (this->field_3C->oldcrawl_is_eligible(auto_crawl_attach_id, false)) {
-                    return TRANS_SUCCESS_MSG;
-                }
-            }
-        }
-
-        return TRANS_TOTAL_MSGS;
-    } else {
-        ai::state_trans_messages(__fastcall * func)(void *, void *edx, Float a2) = CAST(func, 0x0047DDD0);
-        return func(this, nullptr, a2);
+    if constexpr (!STANDALONE_SYSTEM) {
+        ai::state_trans_messages(__fastcall * func)(void *, void *, Float) = CAST(func, 0x0047DDD0);
+        return func(this, nullptr, dt);
     }
+    get_actor()->m_player_controller->set_spidey_loco_mode(static_cast<eHeroLocoMode>(3));
+    auto *swing = field_3C->field_40;
+    auto *animation = field_3C->field_20;
+    swingers[0].field_94->set_visible(swingers[0].field_90->is_visible(), false);
+    swingers[1].field_94->set_visible(swingers[1].field_90->is_visible(), false);
+    if (swing->field_24) {
+        swing->field_24 = false;
+        return TRANS_TOTAL_MSGS;
+    }
+    if (!swing->field_54 && animation->get_eta_of_combat_signal(static_cast<als::layer_types>(0)) <= 0.0f)
+        swing->fire_new_web(true);
+    swing->update_mode_swinging(dt);
+    if (swing->m_constraint > minimum_web_length)
+        return TRANS_TOTAL_MSGS;
+    if (field_3C->crawl_is_eligible(auto_crawl_attach_id, false))
+        return static_cast<state_trans_messages>(73);
+    return field_3C->oldcrawl_is_eligible(auto_crawl_attach_id, false) ? TRANS_SUCCESS_MSG : TRANS_TOTAL_MSGS;
 }
 
 void swing_state::get_info_node_list(info_node_desc_list &a1)
 {
-    return a1.add_entry(info_node_descriptor{swing_inode::default_id, 0});
+    return a1.add_entry(info_node_descriptor{swing_inode::default_id, 318});
 }
 
 int swing_state::get_mash_sizeof()
@@ -419,10 +439,18 @@ VALIDATE_SIZE(swing_inode, 0x94);
 
 swing_inode::swing_inode()
 {
+    m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[318]);
     this->field_1C = false;
     this->field_24 = false;
     this->field_44 = false;
     this->field_54 = false;
+}
+
+swing_inode::swing_inode(from_mash_in_place_constructor *tag)
+    : info_node(tag), field_48(tag), field_58(tag), field_64(tag), field_70(tag)
+{
+
+    m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[318]);
 }
 
 static const string_hash state_id_sticky_hang_left{int(to_hash("SwingStickyHangLeft"))};
@@ -431,253 +459,83 @@ static const string_hash state_id_sticky_hang_right{int(to_hash("SwingStickyHang
 static const string_hash cat_id_sticky_hang_right_push_off{int(to_hash("Swing_Sticky_Hang_Right_Push_Off"))};
 static const string_hash cat_id_sticky_hang_left_push_off{int(to_hash("Swing_Sticky_Hang_Left_Push_Off"))};
 
-void swing_inode::update_mode_swinging(Float a2)
+void swing_inode::update_mode_swinging(Float dt)
 {
-    TRACE("swing_inode::update_mode_swinging");
-
-    if constexpr (0) {
-        auto *v174 = this->field_20->field_24;
-        auto *v173 = this->field_20->field_20;
-        auto *v172 = this->field_20->field_28;
-        this->field_84 += a2;
-        if (this->field_38 == 1) {
-            static constexpr auto sticky_exit_threshhold = 0.0099999998f;
-
-            vector3d v171 = v174->get_axis(static_cast<controller_inode::eControllerAxis>(0));
-            if (v171.length2() <= sticky_exit_threshhold) {
-                v172->set_velocity(ZEROVEC, false);
-
-                auto v76 = sub_444A60(YVEC, this->field_64);
-                auto v15 = -this->field_64;
-
-                po v170;
-                v170.set_po(v15, v76, this->field_58);
-                auto *v17 = this->get_actor();
-                v17->set_abs_po(v170);
-                return;
-            }
-
-            auto v83 = v173->get_state_id(static_cast<als::layer_types>(0));
-
-            auto v84 = (v83 == state_id_sticky_hang_left || v83 == state_id_sticky_hang_right);
-
-            if (v84) {
-                string_hash hash_id =
-                    (this->field_7C < 0.0 ? cat_id_sticky_hang_right_push_off : cat_id_sticky_hang_left_push_off);
-
-                v173->request_category_transition(hash_id, static_cast<als::layer_types>(0), true, false, false);
-
-                auto *v83 = this->get_actor();
-
-                auto &v7 = v83->get_abs_po();
-                auto v8 = v7.get_z_facing();
-
-                auto *v9 = v83->physical_ifc();
-                v9->set_velocity(v8 * 5.0f, false);
-            } else {
-                v173->request_category_transition(cat_id_swing, static_cast<als::layer_types>(0), true, false, false);
-
-                auto *v83 = this->get_actor();
-
-                auto &v13 = v83->get_abs_po();
-                auto v76 = v13.get_z_facing();
-                auto *v14 = v83->physical_ifc();
-                v14->set_velocity(v76, false);
-            }
-
-            this->field_40 = 0;
-        }
-
-        this->check_for_collision();
-
-        vector3d norm_move_dir;
-        vector3d up;
-        this->compute_forward_and_up_directions(norm_move_dir, up);
-        assert(!is_colinear(norm_move_dir, up));
-
-        als::param_list v167{};
-        v167.add_param(27, norm_move_dir);
-        v167.add_param(24, up);
-
-        assert(std::abs(dot(norm_move_dir, up)) < LARGE_EPSILON);
-
-        auto vel = v172->get_velocity();
-        auto speed = vel.length();
-
-        vel.y = 0.0;
-        auto lateral = vel.length();
-        if (os_developer_options::instance->get_flag(mString{"SHOW_LOCOMOTION_INFO"})) {
-            insertDebugString(7, mString{0, "speed   %.2f", speed}, color32{255, 255, 255, 255});
-
-            insertDebugString(8, mString{0, "lateral %.2f", lateral}, color32{255, 255, 255, 255});
-        }
-
-        this->clip_web(a2);
-        this->update_pendulums(a2);
-
-        if (os_developer_options::instance->get_int(mString{"SWING_DEBUG_TRAILS"}) > 1) {
-            auto *v21 = this->get_actor();
-            auto abs_pos = v21->get_abs_position();
-
-            static constexpr auto v78 = 0.039999999f;
-            color32 v77{0, 255, 255, 255};
-            auto v23 = norm_move_dir * 0.5;
-            auto v76 = abs_pos + v23;
-            add_debug_line(abs_pos, v76, v77, v78);
-
-            v77 = color32{255, 0, 255, 255};
-            v76 = abs_pos + up * 0.5f;
-            add_debug_line(abs_pos, v76, v77, v78);
-
-            v77 = color32{255, 255, 0, 255};
-            auto v25 = vector3d::cross(up, norm_move_dir);
-            v76 = abs_pos + v25 * 0.5f;
-            add_debug_line(abs_pos, v76, v77, v78);
-        }
-
-        v173->set_desired_params(v167, static_cast<als::layer_types>(0));
-
-        for (int i = 0; i < 2; ++i) {
-            if (swingers[i].field_0.m_active) {
-                auto *v28 = this->get_actor();
-
-                auto *v29 = swingers[i].field_90;
-                v29->set_abs_po(v28->get_abs_po());
-
-                auto &v77 = swingers[i].field_40;
-                auto abs_pos = swingers[i].field_3C->get_abs_position();
-                auto tmp = abs_pos + v77;
-                v77 = tmp;
-
-                auto *v32 = this->get_actor();
-                auto &v33 = v32->get_abs_po();
-                tmp = v33.slow_xform(v77);
-
-                auto *v83 = this->get_actor();
-                vector3d v36 = v83->get_render_scale();
-                tmp[0] *= v36[0];
-
-                vector3d v38 = v83->get_render_scale();
-                tmp[1] *= v38[1];
-
-                vector3d v40 = v83->get_render_scale();
-                tmp[2] *= v40[2];
-                auto &a1 = tmp;
-
-                auto *v42 = this->get_actor();
-                auto &v43 = v42->get_abs_po();
-                tmp = v43.slow_xform(a1);
-
-                a1 = tmp;
-
-                auto pivot_abs_pos_0 = swingers[i].field_0.get_pivot_abs_pos();
-                auto v160 = pivot_abs_pos_0 - a1;
-                auto v159 = -v160;
-                v159.normalize();
-                float v158 = swingers[i].field_4C * 4.0;
-                if (v158 > 0.0) {
-                    v158 = 0.0;
-                }
-
-                a1 = tmp;
-
-                auto *v46 = swingers[i].field_90;
-                v46->set_abs_control_pt(0, a1);
-                if (swingers[i].field_4C >= 1.0) {
-                    vector3d v155;
-                    auto v53 = v159 * 0.0;
-                    v155 = tmp + v53;
-
-                    auto *v55 = swingers[i].field_90;
-                    v55->max_length = -1.0f;
-                } else {
-                    vector3d v157{};
-                    vector3d v156{};
-
-                    float v83 = (fast_swing ? 6.f : 1.5f);
-
-                    swingers[i].field_4C += (a2 * v83);
-                    auto v47 = v159 * v158;
-                    v157 = tmp + v47;
-
-                    auto v49 = v160 * swingers[i].field_4C;
-                    v156 = tmp + v49;
-
-                    float v78 = v160.length() * swingers[i].field_4C;
-                    auto *v52 = swingers[i].field_90;
-                    v52->max_length = v78;
-                }
-
-                auto v154 = swingers[i].field_0.get_pivot_abs_pos();
-                auto v153 = tmp - v154;
-                auto v152 = v153[1];
-
-                auto v56 = YVEC * v152;
-                auto v57 = v56 * 0.75f;
-                v154 += v57;
-
-                auto *v58 = swingers[i].field_90;
-                auto idx = v58->get_num_control_pts() - 1;
-
-                auto *v59 = swingers[i].field_90;
-                v59->set_abs_control_pt(idx, swingers[i].m_visual_point);
-                auto v151 = tmp;
-                auto v150 = swingers[i].m_visual_point;
-
-                auto v61 = v151 * 3.0f + v150 * 2.0f;
-                auto v149 = v61 / 5.0f;
-
-                auto v62 = swingers[i].field_0.get_pivot_abs_pos();
-                auto v63 = v151 - v62;
-                auto v64 = v63.length();
-                auto v82 = (swingers[i].field_0.get_constraint() - v64 - 0.5f) / 2.0f;
-
-                auto len = swingers[i].field_0.get_constraint();
-                auto v148 = (len - 9.0) / 9.0 + v82;
-                if (v148 < LARGE_EPSILON) {
-                    v148 = 0.0;
-                }
-
-                auto v78 = YVEC * v148;
-
-                auto v66 = v151 + v149;
-                auto v67 = v66 / 2.f;
-                v78 = v67 - v78;
-
-                auto *v68 = swingers[i].field_90;
-                v68->set_abs_control_pt(1, v78);
-                v78 = YVEC * v148;
-
-                auto v69 = v150 + v149;
-                auto v70 = v69 / 2.0f;
-                v78 = v70 - v78;
-
-                auto *v71 = swingers[i].field_90;
-                v71->set_abs_control_pt(2, v78);
-
-                {
-                    auto *v72 = swingers[i].field_90;
-
-                    if (v72->the_spline.need_rebuild) {
-                        v72->the_spline.rebuild_helper();
-                    }
-                }
-
-                auto *pltb = swingers[i].field_90;
-                pltb->unforce_regions();
-
-                auto *v74 = this->get_actor();
-                auto *v144 = (entity *)v74->get_my_vhandle().get_volatile_ptr();
-
-                pltb = swingers[i].field_90;
-                pltb->force_regions(v144);
-            }
-        }
-
-        this->field_88 = this->field_8C;
-    } else {
-        THISCALL(0x004779B0, this, a2);
+    if constexpr (!STANDALONE_SYSTEM) {
+        THISCALL(0x004779B0, this, dt);
+        return;
     }
+    auto *input = field_20->field_24;
+    auto *animation = field_20->field_20;
+    auto *physics = field_20->field_28;
+    field_84 += dt;
+    if (field_40 == 1) {
+        if (input->get_axis(static_cast<controller_inode::eControllerAxis>(0)).length2() <= 0.01f) {
+            physics->set_velocity(ZEROVEC, false);
+            po transform;
+            transform.set_po(-field_64, sub_444A60(YVEC, field_64), field_58);
+            entity_set_abs_po(get_actor(), transform);
+            return;
+        }
+        const auto state = animation->get_state_id(static_cast<als::layer_types>(0));
+        auto *owner = get_actor();
+        if (state == state_id_sticky_hang_left || state == state_id_sticky_hang_right) {
+            animation->request_category_transition(field_7C < 0.0f
+                ? cat_id_sticky_hang_right_push_off : cat_id_sticky_hang_left_push_off,
+                static_cast<als::layer_types>(0), true, false, false);
+            owner->physical_ifc()->set_velocity(owner->get_abs_po().get_z_facing() * 5.0f, false);
+        } else {
+            animation->request_category_transition(cat_id_swing, static_cast<als::layer_types>(0), true, false, false);
+            owner->physical_ifc()->set_velocity(owner->get_abs_po().get_z_facing(), false);
+        }
+        field_40 = 0;
+    }
+    check_for_collision();
+    vector3d forward;
+    vector3d up;
+    compute_forward_and_up_directions(forward, up);
+    als::param_list desired;
+    desired.add_param(27, forward);
+    desired.add_param(24, up);
+    clip_web(dt);
+    update_pendulums(dt);
+    animation->set_desired_params(desired, static_cast<als::layer_types>(0));
+    for (auto &swinger : swingers) {
+        if (!swinger.field_0.m_active)
+            continue;
+        auto *owner = get_actor();
+        auto *web = swinger.field_90;
+        const auto &pose = owner->get_abs_po();
+        entity_set_abs_po(web, pose);
+        auto attachment = pose.inverse_xform(swinger.field_40 + swinger.field_3C->get_abs_position());
+        const auto scale = owner->get_render_scale();
+        attachment.x *= scale.x;
+        attachment.y *= scale.y;
+        attachment.z *= scale.z;
+        attachment = pose.slow_xform(attachment);
+        const auto pivot = swinger.field_0.get_pivot_abs_pos();
+        web->set_abs_control_pt(0, attachment);
+        if (swinger.field_4C >= 1.0f) {
+            web->max_length = -1.0f;
+        } else {
+            swinger.field_4C += dt * (fast_swing ? 6.0f : 1.5f);
+            web->max_length = swinger.field_4C * (pivot - attachment).length();
+        }
+        web->set_abs_control_pt(web->get_num_control_pts() - 1, swinger.m_visual_point);
+        const auto weighted = (attachment * 3.0f + swinger.m_visual_point * 2.0f) * 0.2f;
+        const float constraint = swinger.field_0.get_constraint();
+        float sag = (constraint - (attachment - pivot).length() - 0.5f) * 0.5f +
+            (constraint - 9.0f) * (1.0f / 9.0f);
+        if (sag < LARGE_EPSILON)
+            sag = 0.0f;
+        web->set_abs_control_pt(1, (attachment + weighted) * 0.5f - YVEC * sag);
+        web->set_abs_control_pt(2, (swinger.m_visual_point + weighted) * 0.5f - YVEC * sag);
+        if (web->the_spline.need_rebuild)
+            web->the_spline.rebuild_helper();
+        web->unforce_regions();
+        web->force_regions(owner);
+    }
+    field_88 = field_8C;
 }
 
 double generic_compute_swing_angle(const vector3d &forward, const vector3d &up, const vector3d &basis)
@@ -796,7 +654,7 @@ bool swing_inode::is_eligible(string_hash a2, Float a3)
 
 void swing_inode::play_fire_web_sound()
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         static const string_hash swing_hash{int(to_hash("SWING"))};
 
         if (this->field_C->has_sound_and_pfx_ifc()) {
@@ -805,6 +663,40 @@ void swing_inode::play_fire_web_sound()
     } else {
         THISCALL(0x0045C7B0, this);
     }
+}
+
+namespace {
+void __fastcall native_swing_destruct(swing_inode *self, void *) { self->_destruct_mashed_class(); }
+void __fastcall native_swing_unmash(swing_inode *self, void *, mash_info_struct *info, void *base)
+{
+    self->_unmash(info, base);
+}
+void __fastcall native_swing_activate(swing_inode *self, void *, ai_core *core) { self->_activate(core); }
+void __fastcall native_swing_deactivate(swing_inode *self, void *) { self->_deactivate(); }
+void __fastcall native_swing_advance(swing_inode *self, void *, Float dt) { self->frame_advance(dt); }
+}
+
+void *swing_inode::native_vtable()
+{
+    static auto table = [] {
+        native_inode::table<swing_inode, 318> result;
+        result[0] = reinterpret_cast<void *>(&native_swing_destruct);
+        result[1] = reinterpret_cast<void *>(&native_swing_unmash);
+        result[6] = reinterpret_cast<void *>(&native_inode::always_advance);
+        result[7] = reinterpret_cast<void *>(&native_swing_advance);
+        result[8] = reinterpret_cast<void *>(&native_swing_activate);
+        result[9] = reinterpret_cast<void *>(&native_swing_deactivate);
+        return result;
+    }();
+    return table.data();
+}
+
+swing_inode::~swing_inode() { cleanup_swingers(); }
+
+void swing_inode::_destruct_mashed_class()
+{
+    cleanup_swingers();
+    info_node::_destruct_mashed_class();
 }
 
 void swing_inode::_unmash(mash_info_struct *a1, void *a2)
@@ -882,7 +774,6 @@ float swing_inode::get_swing_cur_max_anchor_dist() const
 
 void swing_inode::init_swingers()
 {
-    if constexpr (0) {
         if (webline_texture == nullptr) {
             auto *slot = this->get_actor()->get_resource_context();
             auto *__old_context = resource_manager::push_resource_context(slot);
@@ -902,12 +793,13 @@ void swing_inode::init_swingers()
 
             auto entity_id = make_unique_entity_id();
             auto *v5 = new (mem) web_polytube{&swingers[i], entity_id, 0};
+            swingers[i].field_90 = v5;
 
             g_world_ptr->ent_mgr.add_dynamic_instanced_entity(v5);
 
             auto *v7 = v5;
-            v7->set_render_color(color32{255, 255, 254, 255});
-            if (v7->tube_radius != 0.1f) {
+            v7->set_render_color(color32{254, 255, 255, 255});
+            if (!(v7->tube_radius <= 0.1f && v7->tube_radius >= 0.1f)) {
                 v7->tube_radius = 0.1;
                 v7->field_78 = false;
             }
@@ -957,10 +849,10 @@ void swing_inode::init_swingers()
 
             g_world_ptr->ent_mgr.add_dynamic_instanced_entity(swingers[i].field_94);
 
-            swingers[i].field_94->set_render_color(color32{254, 255, 255, 255});
+            swingers[i].field_94->set_render_color(color32{255, 255, 254, 255});
 
             auto *v17 = swingers[i].field_94;
-            if (v17->tube_radius != 0.1f) {
+            if (!(v17->tube_radius <= 0.1f && v17->tube_radius >= 0.1f)) {
                 v17->tube_radius = 0.1;
                 v17->field_78 = false;
             }
@@ -1028,14 +920,10 @@ void swing_inode::init_swingers()
 
         swinger_lr_swing_accel = 0;
         swinger_ud_swing_accel = 0;
-    } else {
-        THISCALL(0x004875F0, this);
-    }
 }
 
 void swing_inode::cleanup_swingers()
 {
-    if constexpr (0) {
         if (this->field_1C) {
             for (auto i = 0u; i < 2; ++i) {
                 if (swingers[i].field_94 != nullptr) {
@@ -1054,16 +942,13 @@ void swing_inode::cleanup_swingers()
 
             this->field_1C = false;
         }
-    } else {
-        THISCALL(0x0044C320, this);
-    }
 }
 
 void swing_inode::clip_web(Float a2)
 {
     TRACE("ai::swing_inode::clip_web");
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         auto *v3 = this->field_20->field_28;
 
         for (swinger_t &v4 : swingers) {
@@ -1768,7 +1653,6 @@ void swing_inode::do_web_splat(vector3d target_point, vector3d target_normal,
 
         line_info line{};
 
-        static bool &byte_958044 = var<bool>(0x00958044);
 
         for (int i = 0; i < 6; i += 2) {
             {
@@ -1777,9 +1661,6 @@ void swing_inode::do_web_splat(vector3d target_point, vector3d target_normal,
                 line.field_C = array_vectors[i + 1];
             }
 
-            if (byte_958044) {
-                line.render(i / 2, false);
-            }
 
             if (line.check_collision(entfilter_arg, *local_collision::obbfilter_lineseg_test, nullptr)) {
                 vector3d axis;
@@ -1815,12 +1696,6 @@ void swing_inode::do_web_splat(vector3d target_point, vector3d target_normal,
                 array_lines[1] = line_info{v87 + local_normal, v87 - local_normal};
                 array_lines[0] = line_info{v86 + local_normal, v86 - local_normal};
 
-                if (byte_958044) {
-                    array_lines[3].render(3, false);
-                    array_lines[2].render(4, false);
-                    array_lines[1].render(5, false);
-                    array_lines[0].render(6, false);
-                }
 
                 bool cond[4]{};
 
@@ -2149,7 +2024,7 @@ void swing_inode::setup_new_web()
 {
     TRACE("ai::swing_inode::setup_new_web");
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         static constexpr float max_swing_length_mod = 3.0;
 
         this->field_54 = false;

@@ -42,6 +42,8 @@ struct pole_swing_inode;
 struct strength_test_inode;
 
 struct hero_inode : info_node {
+    static constexpr unsigned virtual_type = 384;
+
     struct internal {
         int field_0;
         int field_4;
@@ -50,6 +52,9 @@ struct hero_inode : info_node {
         vector4d field_10;
         line_info field_20;
         corner_info field_7C;
+
+        internal();
+        explicit internal(from_mash_in_place_constructor *constructor);
     };
 
     bool field_1C;
@@ -80,19 +85,30 @@ struct hero_inode : info_node {
     local_collision::primitive_list_t *nearby_swing_collidables;
 
     ai::hero_inode::internal field_88;
-    int field_1AC;
+    bool field_1AC;
+    bool field_1AD;
     line_info field_1B0;
     crawl_params_record field_20C;
     float field_238;
     entity_base_vhandle field_23C;
-    int field_240;
+    bool field_240;
     float field_244;
     int field_248;
 
+    hero_inode();
+
     //0x006A1B10
     hero_inode(from_mash_in_place_constructor *a2);
+    static void *native_vtable();
+
+
+    void _unmash(mash_info_struct *info, void *context);
+    void _deactivate();
 
     void set_jump_type(eJumpType a2, bool a3);
+
+
+    void rumble_and_damage(float fall_height);
 
     //0x00698970
     bool compute_curr_ground_plane(force_recompute_enum a2, Float a3);
@@ -183,5 +199,8 @@ extern bool is_noncrawlable_surface(line_info &a1);
 
 //0x0069F9A0
 extern bool have_relative_movement(entity *a1, entity *a2);
+
+bool get_axis_correction_delta(const vector3d &axis, const vector3d &delta, float length,
+                               vector3d *corrected_hit_pos);
 
 extern void hero_inode_patch();

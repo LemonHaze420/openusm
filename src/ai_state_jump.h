@@ -8,6 +8,7 @@
 #include "vector3d.h"
 
 struct from_mash_in_place_constructor;
+struct line_info;
 
 namespace ai {
 
@@ -31,19 +32,29 @@ struct jump_state : enhanced_state {
     vector3d field_34;
     vector3d field_40;
     vector3d field_4C;
-    float field_58;
-    float field_5C;
-    float field_60;
+    vector3d field_58;
     vector3d field_64;
     float field_70;
     float field_74;
     float field_78;
-    int field_7C;
+    float field_7C;
 
     bool field_80;
     bool field_81;
+    bool field_82;
+    bool field_83;
+    bool field_84;
+    float field_88;
+    float field_8C;
+    float field_90;
+    float field_94;
+    float field_98;
+    int field_9C;
+    int field_A0;
 
-    int field_84[8];
+    static constexpr unsigned static_virtual_type = 303;
+    static void *native_vtable();
+    jump_state();
 
     //0x00449D10
     jump_state(from_mash_in_place_constructor *a2);
@@ -82,6 +93,12 @@ struct jump_state : enhanced_state {
 
     //0x0044A230
     void set_gravity_vector(const vector3d &a2, Float a3);
+    vector3d get_gravity_vector() const;
+    void update_gravity_vector(Float dt);
+    vector3d calculate_off_wall_jump_force(const line_info &line);
+    void initiate_from_zip();
+    void initiate_glass_house();
+    void update_jump_capsule();
 
     //0x0044A580
     vector3d calculate_jump_vector(vector3d a3, vector3d a6, Float a9, Float a10) const;
@@ -95,7 +112,7 @@ struct jump_state : enhanced_state {
 
     //0x0044A3B0
     //virtual
-    int get_info_node_list(info_node_desc_list &a1);
+    void get_info_node_list(info_node_desc_list &a1);
 
     //0x00438C50
     //virtual
@@ -107,8 +124,8 @@ struct jump_state : enhanced_state {
 
     //0x00469880
     //virtual
-    int activate(ai_state_machine *a2, const mashed_state *a3, const mashed_state *a4, const param_block *a5,
-                 base_state::activate_flag_e a6);
+    void activate(ai_state_machine *a2, const mashed_state *a3, const mashed_state *a4, const param_block *a5,
+                  base_state::activate_flag_e a6);
 
     //0x00449FA0
     //virtual

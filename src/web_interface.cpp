@@ -14,6 +14,7 @@
 #include "wds_entity_manager.h"
 
 #include <cassert>
+#include <algorithm>
 
 VALIDATE_SIZE(web_info_nugget, 0x20u);
 VALIDATE_SIZE(web_interface, 0x20u);
@@ -31,9 +32,28 @@ web_info_nugget::web_info_nugget(mString a2, Float fade_in_time, Float a4)
     this->field_1C = false;
 }
 
-web_info_nugget::web_info_nugget(from_mash_in_place_constructor *a2) : field_18(a2)
+web_info_nugget::web_info_nugget(from_mash_in_place_constructor *tag) : field_18(tag)
 {
-    this->initialize(mash::FROM_MASH);
+
+}
+
+void web_info_nugget::unmash(mash_info_struct *info, void *)
+{
+    info->unmash_class_in_place(field_18, this);
+}
+
+template <>
+void mVector<web_info_nugget>::custom_unmash(mash_info_struct *info, void *)
+{
+    if (m_data != nullptr) {
+        m_data = reinterpret_cast<web_info_nugget **>(
+            info->read_from_buffer(sizeof(web_info_nugget *) * m_size, 4));
+        for (int i = 0; i < m_size; ++i) {
+            info->unmash_class(m_data[i], this);
+        }
+    }
+    field_0 = reinterpret_cast<int>(
+        info->mash_image_ptr[0] + info->buffer_size_used[0]) - reinterpret_cast<int>(this);
 }
 
 void web_info_nugget::initialize(mash::allocation_scope)
@@ -128,6 +148,17 @@ web_interface::web_interface(actor *a2) : field_0()
     this->field_18 = 0;
 }
 
+web_interface::web_interface(from_mash_in_place_constructor *tag) : field_0(tag)
+{
+    field_1C |= 1;
+    var<bool>(0x0095B9C4) = false;
+}
+
+void web_interface::unmash(mash_info_struct *info, void *)
+{
+    info->unmash_class_in_place(field_0, this);
+}
+
 void *web_interface::operator new(size_t size)
 {
     return mem_alloc(size);
@@ -150,14 +181,6 @@ void web_interface::frame_advance(Float a2)
 void web_interface::set_my_actor(actor *a2)
 {
     this->my_actor = a2;
-    assert(this->my_actor != nullptr);
-
-    if (this->field_0.empty()) {
-        assert(
-            0 &&
-            "No actor will be set because you don't have any web nuggets. Call this function AFTER adding web nuggets");
-    }
-
     for (auto &nugget : this->field_0) {
         nugget->my_actor = a2;
     }
@@ -167,6 +190,56 @@ void web_interface::add_web_nugget(web_info_nugget *nugget)
 {
     assert(nugget != nullptr);
     this->field_0.push_back(nugget);
+}
+
+void web_interface::destroy_web_effects()
+{
+    field_18 = 0;
+    for (auto *nugget : field_0)
+        nugget->destroy_web_entity();
+}
+
+void web_interface::release()
+{
+    auto &list = m_all_web_interfaces;
+    for (int index = 0; index < list.m_size; ++index) {
+        if (list.m_data[index] == this) {
+            std::copy(list.m_data + index + 1, list.m_data + list.m_size,
+                      list.m_data + index);
+            --list.m_size;
+            break;
+        }
+    }
+    if ((field_1C & 2) != 0) {
+        auto &targets = ai::player_web_target_inode::web_targets_list;
+        const auto handle = my_actor->get_my_vhandle();
+        for (int index = 0; index < targets.m_size; ++index) {
+            if (targets.m_data[index].field_0 == handle) {
+                std::copy(targets.m_data + index + 1, targets.m_data + targets.m_size,
+                          targets.m_data + index);
+                --targets.m_size;
+                break;
+            }
+        }
+        field_1C &= ~2u;
+    }
+    const bool from_mash = (field_1C & 1) != 0;
+    if (field_0.field_10) {
+        for (auto *nugget : field_0) {
+            if (field_0.is_pointer_in_mash_image(nugget))
+                nugget->~web_info_nugget();
+            else
+                delete nugget;
+        }
+    }
+    if (!field_0.is_pointer_in_mash_image(field_0.m_data))
+        mem_dealloc(field_0.m_data, field_0.m_max_size * sizeof(web_info_nugget *));
+    field_0.m_data = nullptr;
+    field_0.m_max_size = 0;
+    field_0.m_size = 0;
+    field_0.field_0 = 0;
+    if (!from_mash)
+        ::operator delete(this);
 }
 
 void web_interface::insert_in_web_targets_list()

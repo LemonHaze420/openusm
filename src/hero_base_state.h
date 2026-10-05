@@ -11,6 +11,8 @@ struct hero_base_state : base_state {
     //0x0044D190
     hero_base_state(int a2);
 
+    static void *native_vtable();
+
     //0x00474040
     void combat_inode_transition_notification(Float a2, string_hash a3);
 

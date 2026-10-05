@@ -12,6 +12,8 @@ namespace ai {
 
 struct spidey_base_state : hero_base_state {
     spidey_base_state();
+    explicit spidey_base_state(int mode);
+    static void *native_vtable();
 
     //virtual
     void _unmash(mash_info_struct *a1, void *a2);
@@ -34,20 +36,6 @@ struct spidey_base_state : hero_base_state {
     //0x00488680
     /* virtual */ string_hash get_desired_state_id(Float a3) const /* override */;
 
-    static inline void *g_vtbl[]{nullptr,
-                                 func_address(&spidey_base_state::_unmash),
-                                 nullptr,
-                                 func_address(&spidey_base_state::_get_virtual_type_enum),
-                                 nullptr,
-                                 func_address(&mash_virtual_base::_is_or_is_subclass_of),
-                                 nullptr,
-                                 nullptr,
-                                 nullptr,
-                                 nullptr,
-                                 nullptr,
-                                 nullptr,
-                                 nullptr,
-                                 func_address(&spidey_base_state::_get_mash_sizeof)};
 };
 
 }  // namespace ai

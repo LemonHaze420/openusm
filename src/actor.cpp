@@ -1420,9 +1420,83 @@ vector3d actor::_get_visual_center()
     }
 }
 
-bool actor::add_item(int a4, bool a6)
+bool actor::add_item(int handle, bool)
 {
-    return (bool) THISCALL(0x004E3B80, this, a4, a6);
+    vhandle_type<item> item_handle{entity_base_vhandle{static_cast<uint32_t>(handle)}};
+    auto *value = item_handle.get_volatile_ptr();
+    if (!value)
+        return true;
+    create_adv_ptrs();
+    if (!adv_ptrs->coninfo)
+        adv_ptrs->coninfo = ::new (mem_alloc(sizeof(coninfo_t))) coninfo_t{};
+    value->field_CB = true;
+    value->set_family_visible(false);
+    value->change_list_status();
+    value->remove_from_regions();
+    for (const auto &existing_handle : adv_ptrs->coninfo->items) {
+        if (auto *existing = existing_handle.get_volatile_ptr(); existing && existing->is_same_item(*value)) {
+            auto quantity = reinterpret_cast<int (__fastcall *)(item *, void *)>(get_vfunc(value->m_vtbl, 0x2AC));
+            auto existing_quantity = reinterpret_cast<int (__fastcall *)(item *, void *)>(get_vfunc(existing->m_vtbl, 0x2AC));
+            auto set = reinterpret_cast<void (__fastcall *)(item *, void *, int)>(get_vfunc(existing->m_vtbl, 0x2A4));
+            set(existing, nullptr, existing_quantity(existing, nullptr) + quantity(value, nullptr));
+            auto clear = reinterpret_cast<void (__fastcall *)(item *, void *, int)>(get_vfunc(value->m_vtbl, 0x2A4));
+            clear(value, nullptr, 0);
+            return false;
+        }
+    }
+    adv_ptrs->coninfo->items.push_back(item_handle);
+    value->set_visible(false, false);
+    auto handheld = reinterpret_cast<bool (__fastcall *)(item *, void *)>(get_vfunc(value->m_vtbl, 0xDC));
+    if (handheld(value, nullptr)) {
+        auto get_owner = reinterpret_cast<actor *(__fastcall *)(item *, void *)>(get_vfunc(value->m_vtbl, 0x2DC));
+        if (!get_owner(value, nullptr)) {
+            auto set_owner = reinterpret_cast<void (__fastcall *)(item *, void *, actor *)>(get_vfunc(value->m_vtbl, 0x2E0));
+            set_owner(value, nullptr, this);
+        }
+    }
+    value->spawn_item_script();
+    return true;
+}
+
+bool actor::remove_item(int handle, bool)
+{
+    vhandle_type<item> item_handle{entity_base_vhandle{static_cast<uint32_t>(handle)}};
+    if (!item_handle.get_volatile_ptr() || !adv_ptrs || !adv_ptrs->coninfo)
+        return false;
+    auto &items = adv_ptrs->coninfo->items;
+    for (auto it = items.begin(); it != items.end(); ++it) {
+        if (it->field_0.field_0 != item_handle.field_0.field_0)
+            continue;
+        auto *value = it->get_volatile_ptr();
+        items.erase(it);
+        value->field_CB = false;
+        value->set_family_visible(true);
+        value->change_list_status();
+        if (value->is_renderable())
+            value->set_visible(true, false);
+        value->clear_parent(true);
+        value->set_abs_po(get_abs_po());
+        value->compute_sector(g_world_ptr->the_terrain, false, nullptr);
+        return true;
+    }
+    return false;
+}
+
+namespace {
+bool __fastcall native_actor_add_item(actor *self, void *, int handle, bool flag)
+{
+    return self->add_item(handle, flag);
+}
+bool __fastcall native_actor_remove_item(actor *self, void *, int handle, bool flag)
+{
+    return self->remove_item(handle, flag);
+}
+}
+
+void actor::install_inventory_callbacks(void **table)
+{
+    table[0x288 / 4] = reinterpret_cast<void *>(&native_actor_add_item);
+    table[0x28C / 4] = reinterpret_cast<void *>(&native_actor_remove_item);
 }
 
 void actor::add_collision_ignorance(entity_base_vhandle a2)

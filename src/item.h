@@ -18,7 +18,7 @@ struct item : actor {
     mString field_D4;
     int field_E4;
     int field_E8;
-    int field_EC;
+    float field_EC;
     int field_F0;
     float field_F4;
     int field_F8;
@@ -43,6 +43,14 @@ struct item : actor {
     //virtual
     void release_mem();
 
+    void un_mash(generic_mash_header *, void *, generic_mash_data_ptrs *);
+    void change_list_status();
+    void spawn_item_script();
+    void set_quantity(int);
+    void apply_effects(actor *);
+    void frame_advance(Float);
+    static void install_weapon_callbacks(void **table);
+
     //0x004CD9D0
     static void frame_advance_all_items(Float a3);
 
@@ -50,3 +58,6 @@ struct item : actor {
 
     static Var<item *> active_items;
 };
+
+template <>
+item *vhandle_type<item>::get_volatile_ptr() const;

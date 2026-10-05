@@ -24,6 +24,8 @@ struct web_info_nugget {
 
     web_info_nugget(from_mash_in_place_constructor *a2);
 
+    void unmash(mash_info_struct *info, void *context);
+
     void initialize(mash::allocation_scope);
 
     //0x004ED7D0
@@ -45,6 +47,15 @@ struct web_interface {
     int16_t field_1C;
 
     web_interface(actor *a2);
+
+
+    web_interface(from_mash_in_place_constructor *tag);
+
+
+    void unmash(mash_info_struct *info, void *context);
+
+    void destroy_web_effects();
+    void release();
 
     void *operator new(size_t size);
 

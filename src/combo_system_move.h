@@ -6,6 +6,8 @@
 #include "mstring.h"
 #include "mvector.h"
 #include "string_hash.h"
+#include "actor.h"
+#include "vector3d.h"
 
 struct combo_system_move : mash_virtual_base {
     struct trigger_info : mash_virtual_base {
@@ -152,7 +154,7 @@ struct combo_system_move : mash_virtual_base {
         target_info field_10;
         range_info field_1C;
         mVector<link_info> field_30;
-        void *field_44;
+        float field_44;
 
         requirements();
 
@@ -231,19 +233,21 @@ struct combo_system_move : mash_virtual_base {
         int field_30;
         int field_34;
         int field_38;
-        int field_3C;
+        float field_3C;
         dialation_info field_40;
         dialation_info field_54;
         bool field_68;
         int field_6C;
         int field_70;
         int field_74;
-        int field_78;
+        float field_78;
 
         results();
+        explicit results(from_mash_in_place_constructor *tag);
 
         //0x0048CBB0
         results(const results &a2);
+        results &operator=(const results &) = default;
 
         void initialize(bool a2);
 
@@ -283,6 +287,10 @@ struct combo_system_move : mash_virtual_base {
     //0x0043EDF0
     combo_system_move();
 
+
+    int requirements_satisfaction(vhandle_type<actor> target, vector3d displacement,
+        uint32_t input, string_hash previous_category, float eta, bool has_target,
+        float combat_level) const;
     //0x00471BA0
     //virtual
     void _unmash(mash_info_struct *a2, void *a3);

@@ -22,10 +22,14 @@ struct plr_loco_crawl_state : ai::enhanced_state {
     int field_44;
 
     plr_loco_crawl_state();
+    explicit plr_loco_crawl_state(from_mash_in_place_constructor *);
+    static void *native_vtable();
+    void map_controls(int);
+    void get_info_node_list(ai::info_node_desc_list &);
 
     //0x0046A080
-    void activate(ai::ai_state_machine *a2, ai::mashed_state *a3, ai::mashed_state *a4, ai::param_block *a5,
-                  ai::base_state::activate_flag_e a6);
+    void activate(ai::ai_state_machine *a2, const ai::mashed_state *a3, const ai::mashed_state *a4,
+                  const ai::param_block *a5, ai::base_state::activate_flag_e a6);
 
     //virtual
     void deactivate(const ai::mashed_state *a1);

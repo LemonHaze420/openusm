@@ -78,6 +78,7 @@ struct swing_state : enhanced_state {
 
     //0x0045AC60
     swing_state(from_mash_in_place_constructor *a2);
+    static void *native_vtable();
 
     //virtual
     ~swing_state();
@@ -133,8 +134,12 @@ struct swing_inode : info_node {
     float field_8C;
     float field_90;
 
+    static void *native_vtable();
+    ~swing_inode();
+    void _destruct_mashed_class();
     //0x00481560
     swing_inode();
+    explicit swing_inode(from_mash_in_place_constructor *tag);
 
     //0x004882C0
     bool is_eligible(string_hash a2, Float a3);

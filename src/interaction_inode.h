@@ -38,9 +38,24 @@ struct interaction_inode : info_node {
 
     //0x004830B0
     interaction_inode(from_mash_in_place_constructor *a2);
+    uint32_t get_virtual_type_enum() const { return 148; }
+    int get_mash_sizeof() const { return 0x4C; }
+    static void *native_vtable();
+    void unmash(mash_info_struct *info, void *data);
+    void activate(ai_core *core);
+
+    void frame_advance(Float elapsed);
+    void deactivate();
+
+    void carry_shutdown_part1();
+    void carry_shutdown_part2(bool raise_put_down);
+    void clear_slave();
+    void deslave_target(bool request_exit_category);
 
     //0x00479850
     bool is_eligible(string_hash a2, bool a3);
+    bool attempt_interaction(int button, bool unrestricted);
+    bool attempt_interaction_type(interaction_type_enum type, int button, bool unrestricted);
 
     //0x004514B0
     bool is_in_master_mode();

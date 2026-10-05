@@ -18,6 +18,7 @@
 #include "glass_house_manager.h"
 #include "hit_react_state.h"
 #include "oldmath_po.h"
+#include <functional>
 #include "physics_inode.h"
 #include "polytube.h"
 #include "state_machine.h"
@@ -25,7 +26,20 @@
 #include "utility.h"
 #include "vector2d.h"
 #include "web_sounds.h"
+#include "dangler.h"
+#include "ngl.h"
+#include "polytubecustommaterial.h"
+#include "resource_manager.h"
+#include "slab_allocator.h"
+#include "variables.h"
 #include "wds.h"
+#include "game.h"
+#include "game_settings.h"
+#include "info_node_desc_list.h"
+#include "physical_interface.h"
+#include <algorithm>
+#include <array>
+#include <cmath>
 
 #include <cassert>
 
@@ -35,94 +49,228 @@ VALIDATE_SIZE(web_zip_state, 0x40);
 
 VALIDATE_SIZE(web_zip_inode, 0xE0);
 
-web_zip_state::web_zip_state(from_mash_in_place_constructor *a2)
+namespace {
+void __fastcall zip_state_destroy(web_zip_state *self, void *) { self->finalize(mash::ALLOCATED); }
+void *__fastcall zip_state_delete(web_zip_state *self, void *, unsigned flags)
 {
-    THISCALL(0x0044C560, this, a2);
+    self->~web_zip_state();
+    if (flags & 1)
+        mash_virtual_base::operator delete(self, sizeof(web_zip_state));
+    return self;
+}
+unsigned __fastcall zip_state_type(web_zip_state *, void *) { return 327; }
+bool __fastcall zip_state_subclass(web_zip_state *, void *, mash::virtual_types_enum type)
+{
+    return type == static_cast<mash::virtual_types_enum>(535) ||
+        type == static_cast<mash::virtual_types_enum>(567) ||
+        type == static_cast<mash::virtual_types_enum>(573);
+}
+void __fastcall zip_state_activate(web_zip_state *self, void *, ai_state_machine *machine,
+    const mashed_state *state, const mashed_state *previous, const param_block *params,
+    base_state::activate_flag_e flags)
+{
+    self->activate(machine, state, previous, params, flags);
+}
+void __fastcall zip_state_deactivate(web_zip_state *self, void *, const mashed_state *state)
+{
+    self->deactivate(state);
+}
+state_trans_messages __fastcall zip_state_frame(web_zip_state *self, void *, Float dt)
+{
+    return self->frame_advance(dt);
+}
+void __fastcall zip_state_list(web_zip_state *self, void *, info_node_desc_list &list)
+{
+    self->get_info_node_list(list);
+}
+int __fastcall zip_state_size(web_zip_state *, void *) { return sizeof(web_zip_state); }
 }
 
-state_trans_messages web_zip_state::frame_advance(Float a2)
+void *web_zip_state::native_vtable()
 {
-    if constexpr (1) {
-        auto *v2 = this->field_3C->field_3C;
-        this->get_actor()->m_player_controller->set_spidey_loco_mode(static_cast<eHeroLocoMode>(9));
-        v2->process_zip(a2);
-        return TRANS_TOTAL_MSGS;
-    } else {
-        return static_cast<state_trans_messages>(THISCALL(0x0047DEF0, this, a2));
-    }
+
+    static auto table = [] {
+        std::array<void *, 16> result;
+        std::copy_n(static_cast<void **>(enhanced_state::native_vtable()), result.size(), result.data());
+        result[0] = reinterpret_cast<void *>(&zip_state_destroy);
+        result[2] = reinterpret_cast<void *>(&zip_state_delete);
+        result[3] = reinterpret_cast<void *>(&zip_state_type);
+        result[4] = reinterpret_cast<void *>(&zip_state_subclass);
+        result[6] = reinterpret_cast<void *>(&zip_state_activate);
+        result[7] = reinterpret_cast<void *>(&zip_state_deactivate);
+        result[8] = reinterpret_cast<void *>(&zip_state_frame);
+        result[9] = reinterpret_cast<void *>(&zip_state_list);
+        result[13] = reinterpret_cast<void *>(&zip_state_size);
+        return result;
+    }();
+    return table.data();
 }
 
-void web_zip_state::activate(ai::ai_state_machine *a2, const ai::mashed_state *a3, const ai::mashed_state *a4,
-                             string_hash a5, ai::base_state::activate_flag_e a6)
+web_zip_state::web_zip_state() : enhanced_state()
 {
-    if constexpr (0) {
-        this->activate(a2, a3, a4, a5, a6);
-        auto *core = this->get_core();
-        auto *info_node = (ai::hero_inode *)core->get_info_node(ai::hero_inode::default_id, true);
-        this->field_3C = info_node;
-        auto *v10 = info_node->field_20;
-        auto *v11 = info_node->field_3C;
-
-        const string_hash v28{"Web_Zip"};
-        v10->request_category_transition(v28, static_cast<als::layer_types>(0), true, false, true);
-        auto &v12 = g_world_ptr->field_1B0;
-        if (v12.field_8.is_set()) {
-            auto *the_controller = bit_cast<actor *>(g_world_ptr->get_hero_ptr(0))->get_player_controller();
-            if (the_controller->m_hero_type == SPIDEY || the_controller->m_hero_type == PARKER)
-                g_world_ptr->activate_web_splats();
-        }
-
-        auto *v15 = bit_cast<conglomerate *>(this->get_actor());
-        if (v15->is_a_conglomerate() && v15->has_tentacle_ifc()) {
-            auto *v17 = v15->tentacle_ifc();
-            v17->begin_zip(v11->field_1C.hit_pos);
-        }
-
-        auto *v18 = this->get_actor()->m_player_controller;
-        v18->set_spidey_loco_mode(eHeroLocoMode::WEB_ZIP);
-
-        v11->field_7C = 0;
-        if (v11->m_zip_type == 1) {
-            this->field_3C->field_28->setup_for_crawl_zip();
-
-            static string_hash web_zip_speed_id{int(to_hash("web_zip_speed"))};
-            auto *v21 = this->get_core();
-            auto pb_float = v21->get_param_block()->get_pb_float(web_zip_speed_id);
-
-            als::param_list v50{};
-            v50.add_param(0x27u, v11->field_1C.hit_pos);
-            v50.add_param(0x18u, v11->field_1C.hit_norm);
-            v50.add_param(als::param{0, pb_float});
-            v10->set_desired_params(v50, static_cast<als::layer_types>(0));
-        }
-
-        auto *v24 = this->get_actor();
-        this->field_30 = v24->get_abs_position();
-        v11->field_80 = false;
-
-        static const string_hash zip_hash{int(to_hash("ZIP"))};
-
-        auto *v26 = this->get_actor();
-        if (v26->has_sound_and_pfx_ifc()) {
-            auto *v27 = this->get_actor();
-            web_sounds_manager::add_web_sound(v27, v11->field_1C.hit_pos, zip_hash);
-        }
-    } else {
-        THISCALL(0x0045D340, this, a2, a3, a4, a5, a6);
-    }
+    m_vtbl = reinterpret_cast<std::intptr_t>(native_vtable());
 }
 
-void web_zip_state::deactivate(const mashed_state *a1)
+web_zip_state::web_zip_state(from_mash_in_place_constructor *constructor) : enhanced_state(constructor)
 {
-    if constexpr (0) {
-    } else {
-        THISCALL(0x0044C6E0, this, a1);
+    m_vtbl = reinterpret_cast<std::intptr_t>(native_vtable());
+}
+
+web_zip_state::~web_zip_state()
+{
+    finalize(mash::ALLOCATED);
+}
+
+void web_zip_state::get_info_node_list(info_node_desc_list &list)
+{
+    list.add_entry({web_zip_inode::default_id, static_cast<mash::virtual_types_enum>(326)});
+}
+
+void web_zip_state::finalize(mash::allocation_scope)
+{
+    if (!field_C)
+        return;
+    auto *zip = field_3C->field_3C;
+    auto *owner = get_actor();
+    if (owner && owner->has_physical_ifc()) {
+        if (zip->m_zip_type == 2) {
+            auto *physics = field_3C->field_28;
+            auto velocity = physics->get_velocity();
+            velocity.x = 0.0f;
+            velocity.y = 0.0f;
+            physics->set_velocity(velocity, false);
+        }
+        owner->physical_ifc()->field_C &= ~0x200u;
     }
+    zip->release_zip_web();
+}
+
+state_trans_messages web_zip_state::frame_advance(Float dt)
+{
+    get_actor()->m_player_controller->set_spidey_loco_mode(eHeroLocoMode::WEB_ZIP);
+    field_3C->field_3C->process_zip(dt);
+    return TRANS_TOTAL_MSGS;
+}
+
+void web_zip_state::activate(ai_state_machine *machine, const mashed_state *state,
+    const mashed_state *previous, const param_block *params, activate_flag_e flags)
+{
+    enhanced_state::activate(machine, state, previous, params, flags);
+    field_3C = static_cast<hero_inode *>(get_core()->get_info_node(hero_inode::default_id, true));
+    auto *animation = field_3C->field_20;
+    auto *zip = field_3C->field_3C;
+    animation->request_category_transition(string_hash{"Web_Zip"}, static_cast<als::layer_types>(0),
+                                          true, false, true);
+    if (!g_world_ptr->field_1B0.field_8.is_set()) {
+        auto hero = static_cast<actor *>(g_world_ptr->get_hero_ptr(0))->get_player_controller()->m_hero_type;
+        if (hero == SPIDEY || hero == PARKER)
+            g_world_ptr->activate_web_splats();
+    }
+    auto *owner = get_actor();
+    if (owner->is_a_conglomerate() && static_cast<conglomerate *>(owner)->has_tentacle_ifc())
+        static_cast<conglomerate *>(owner)->tentacle_ifc()->begin_zip(zip->field_1C.hit_pos);
+    owner->m_player_controller->set_spidey_loco_mode(eHeroLocoMode::WEB_ZIP);
+    zip->field_7C = 0;
+    if (zip->m_zip_type == 1) {
+        field_3C->field_28->setup_for_crawl_zip();
+        als::param_list desired;
+        desired.add_param(0x27u, zip->field_1C.hit_pos);
+        desired.add_param(0x18u, zip->field_1C.hit_norm);
+        desired.add_param(als::param{0, get_core()->get_param_block()->get_pb_float(string_hash{"web_zip_speed"})});
+        animation->set_desired_params(desired, static_cast<als::layer_types>(0));
+    }
+    field_30 = owner->get_abs_position();
+    zip->field_80 = false;
+    if (owner->has_sound_and_pfx_ifc())
+        web_sounds_manager::add_web_sound(owner, zip->field_1C.hit_pos, string_hash{"ZIP"});
+}
+
+void web_zip_state::deactivate(const mashed_state *state)
+{
+    base_state::_deactivate(state);
+    auto *owner = get_actor();
+    if (owner && owner->has_physical_ifc() &&
+        !get_core()->get_param_block()->get_pb_int(string_hash{"has_tentacle_zip"})) {
+
+        g_game_ptr->gamefile->update_miles_web_zipping((owner->get_abs_position() - field_30).length());
+    }
+    if (static_cast<conglomerate *>(owner)->has_tentacle_ifc())
+        static_cast<conglomerate *>(owner)->tentacle_ifc()->cancel_zip();
+}
+
+namespace {
+void __fastcall web_zip_destruct(web_zip_inode *self, void *)
+{
+    self->field_1C.remove_to_collision_check_queue();
+    for (auto &swingback : self->field_A4)
+        swingback.~SpidermanLocoSwingBack();
+    self->_destruct_mashed_class();
+}
+
+void __fastcall web_zip_unmash(web_zip_inode *self, void *,
+                              mash_info_struct *info, void *context)
+{
+    self->unmash(info, context);
+}
+
+void *__fastcall web_zip_delete(web_zip_inode *self, void *, unsigned flags)
+{
+    self->~web_zip_inode();
+    if (flags & 1)
+        mash_virtual_base::operator delete(self, sizeof(web_zip_inode));
+    return self;
+}
+
+unsigned __fastcall web_zip_type(web_zip_inode *, void *) { return 326; }
+bool __fastcall web_zip_subclass(web_zip_inode *, void *, unsigned type)
+{
+    return type == 537 || type == 573;
+}
+bool __fastcall web_zip_needs_advance(web_zip_inode *, void *) { return true; }
+void __fastcall web_zip_advance(web_zip_inode *self, void *, Float dt)
+{
+    self->frame_advance(dt);
+}
+void __fastcall web_zip_activate(web_zip_inode *self, void *, ai_core *core)
+{
+    self->activate(core);
+}
+void __fastcall web_zip_deactivate(web_zip_inode *self, void *)
+{
+    self->deactivate();
+}
+int __fastcall web_zip_size(web_zip_inode *, void *) { return sizeof(web_zip_inode); }
+}
+
+void *web_zip_inode::native_vtable()
+{
+
+    auto **base = static_cast<void **>(info_node::native_vtable());
+    static void *table[] = {
+        reinterpret_cast<void *>(&web_zip_destruct),
+        reinterpret_cast<void *>(&web_zip_unmash),
+        reinterpret_cast<void *>(&web_zip_delete),
+        reinterpret_cast<void *>(&web_zip_type),
+        reinterpret_cast<void *>(&web_zip_subclass), base[5],
+        reinterpret_cast<void *>(&web_zip_needs_advance),
+        reinterpret_cast<void *>(&web_zip_advance),
+        reinterpret_cast<void *>(&web_zip_activate),
+        reinterpret_cast<void *>(&web_zip_deactivate),
+        base[10],
+        reinterpret_cast<void *>(&web_zip_size),
+    };
+    return table;
+}
+
+web_zip_inode::web_zip_inode() : field_80(false)
+{
+    m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[326]);
 }
 
 web_zip_inode::web_zip_inode(from_mash_in_place_constructor *a2)
+    : info_node(a2), field_1C(a2)
 {
-    THISCALL(0x004815D0, this, a2);
+    m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[326]);
 }
 
 uint32_t web_zip_inode::get_virtual_type_enum()
@@ -130,443 +278,364 @@ uint32_t web_zip_inode::get_virtual_type_enum()
     return 326;
 }
 
-int web_zip_inode::activate(ai_core *a2)
+void web_zip_inode::activate(ai_core *core)
 {
-    sp_log("web_zip_inode::activate:");
-
-    return THISCALL(0x00481A50, this, a2);
+    info_node::_activate(core);
+    field_DC = static_cast<hero_inode *>(core->get_info_node(hero_inode::default_id, true));
+    resource_manager::push_resource_context(field_C->get_resource_context());
+    webline_texture = new PolytubeCustomMaterial{
+        nglLoadTexture(tlFixedString{"spideywebstring"}), static_cast<nglBlendModeType>(2), 72};
+    resource_manager::pop_resource_context();
+    field_D4 = 0;
+    for (auto &swingback : field_A4) {
+        swingback.field_0 = field_C;
+        void *memory = sizeof(polytube) <= slab_allocator::get_max_object_size()
+            ? slab_allocator::allocate(sizeof(polytube), nullptr) : ::operator new(sizeof(polytube));
+        auto *tube = new (memory) polytube{make_unique_entity_id(), 0};
+        swingback.field_8 = tube;
+        g_world_ptr->ent_mgr.add_dynamic_instanced_entity(tube);
+        tube->set_render_color(color32{0xFFFFFFFF});
+        if (std::not_equal_to<float>{}(tube->tube_radius, 0.1f)) {
+            tube->tube_radius = 0.1f;
+            tube->field_78 = false;
+        }
+        tube->tiles_per_meter = 1.5f;
+        if (tube->num_sides != 2) {
+            tube->num_sides = 2;
+            tube->field_78 = false;
+        }
+        tube->max_length = 30.0f;
+        tube->set_material(webline_texture);
+        tube->field_D0->m_blend_mode = static_cast<nglBlendModeType>(2);
+        tube->set_force_start(true);
+        tube->reserve_control_pts(3);
+        for (int i = 0; i < 3; ++i) {
+            tube->add_control_pt(ZEROVEC);
+        }
+        tube->build(10, static_cast<spline::eSplineType>(3));
+        tube->set_visible(false, false);
+        swingback.field_C = false;
+    }
+    void *memory = sizeof(polytube) <= slab_allocator::get_max_object_size()
+        ? slab_allocator::allocate(sizeof(polytube), nullptr) : ::operator new(sizeof(polytube));
+    field_D8 = new (memory) polytube{make_unique_entity_id(), 0};
+    g_world_ptr->ent_mgr.add_dynamic_instanced_entity(field_D8);
+    field_D8->set_render_color(color32{0xFFFFFEFF});
+    if (std::not_equal_to<float>{}(field_D8->tube_radius, 0.1f)) {
+        field_D8->tube_radius = 0.1f;
+        field_D8->field_78 = false;
+    }
+    field_D8->tiles_per_meter = 1.5f;
+    if (field_D8->num_sides != 2) {
+        field_D8->num_sides = 2;
+        field_D8->field_78 = false;
+    }
+    field_D8->set_material(webline_texture);
+    field_D8->force_regions(field_C);
+    field_D8->set_force_start(true);
+    field_D8->reserve_control_pts(2);
+    for (int i = 0; i < 2; ++i) {
+        field_D8->add_control_pt(ZEROVEC);
+    }
+    field_D8->build(10, static_cast<spline::eSplineType>(3));
+    field_D8->set_visible(false, false);
 }
 
-bool web_zip_inode::can_go_to(string_hash a2)
+void web_zip_inode::frame_advance(Float dt)
 {
-    TRACE("web_zip_inode::can_go_to");
-
-    if constexpr (1) {
-        if (a2 == hit_react_state::default_id) {
-            return false;
-        }
-
-        auto *v3 = this->field_DC;
-        auto *v4 = v3->field_20;
-        auto zip_type = this->m_zip_type;
-
-        switch (zip_type) {
-        case 0: {
-            if (hero_inode::is_a_crawl_state(a2, true) || a2 == run_state::default_id) {
-                return false;
+    for (auto &swingback : field_A4) {
+        auto *tube = swingback.field_8;
+        if (!tube->get_occluded_last_frame()) {
+            if (swingback.field_C) {
+                swingback.web_dangler->frame_advance(dt);
+                swingback.web_dangler->build_polytube(tube);
             }
-
-            auto *als_layer = v4->get_als_layer(static_cast<als::layer_types>(0));
-            return als_layer->get_time_to_signal(event::ANIM_ACTION) < 0.0f;
-        }
-        case 1: {
-            auto *phys_inode_ptr = v3->field_28;
-            auto floor_offset = this->field_C->get_floor_offset();
-            auto v23 = floor_offset * this->field_1C.hit_norm + this->field_1C.hit_pos;
-
-            auto v14 = phys_inode_ptr->get_abs_position() - v23;
-            auto len = v14.length();
-            auto v16 = this->field_1C.hit_norm.y > 0.5f;
-            if (hero_inode::is_a_crawl_state(a2, true)) {
-                return !v16 && len < 1.3f;
-            } else if (a2 == ai::run_state::default_id) {
-                return v16 && this->field_C->physical_ifc()->get_floor_offset() + 0.1f > len;
-            } else {
-                return false;
+            if (std::not_equal_to<float>{}(tube->tube_radius, 0.1f)) {
+                tube->tube_radius = 0.1f;
+                tube->field_78 = false;
             }
-            break;
         }
-        case 2: {
-            if (hero_inode::is_a_crawl_state(a2, true) && a2 == ai::run_state::default_id) {
-                return false;
-            }
+    }
+}
 
-            auto *v18 = v4->get_als_layer(static_cast<als::layer_types>(0));
-            auto v29 = v18->get_time_to_signal(event::ANIM_ACTION);
-            return !hero_inode::is_a_crawl_state(a2, true) && v29 < 0.0f;
-        }
-        default: {
-            assert(0 && "Unknown zip type!");
-        }
-        }
-
+bool web_zip_inode::can_go_to(string_hash state)
+{
+    if (state == hit_react_state::default_id)
         return false;
-    } else {
-        return THISCALL(0x0044C930, this, a2);
+    const bool crawl = hero_inode::is_a_crawl_state(state, true);
+    if (m_zip_type == 0 || m_zip_type == 2) {
+        if (crawl || state == run_state::default_id)
+            return false;
+        return field_DC->field_20->get_als_layer(static_cast<als::layer_types>(0))
+            ->get_time_to_signal(event::ANIM_ACTION) < 0.0f;
     }
+    if (m_zip_type == 1) {
+        const auto target = field_1C.hit_pos + field_1C.hit_norm * field_C->get_floor_offset();
+        const float distance = (field_DC->field_28->get_abs_position() - target).length();
+        const bool ground = field_1C.hit_norm.y > 0.5f;
+        if (crawl)
+            return !ground && distance < 1.3f;
+        return state == run_state::default_id && ground &&
+            field_C->physical_ifc()->get_floor_offset() + 0.1f > distance;
+    }
+    return false;
 }
 
-static const string_hash loco_allow_web_zip_id{int(to_hash("loco_allow_web_zip"))};
-
-bool web_zip_inode::is_eligible(string_hash a2)
+bool web_zip_inode::is_eligible(string_hash state)
 {
-    TRACE("web_zip_inode::is_eligible", a2.to_string());
-
-    if constexpr (0) {
-        auto *v3 = &this->field_8->field_50;
-
-        if (v3->get_pb_int(loco_allow_web_zip_id) == 0) {
-            return false;
-        }
-
-        game_button v10 = this->field_DC->field_24->get_button(static_cast<controller_inode::eControllerButton>(13));
-
-        bool v5 = v10.is_triggered();
-        //sp_log("%d", v5);
-
-        if (!v5) {
-            return false;
-        }
-
-        bool result;
-
-        if (a2 == run_state::default_id) {
-            this->m_zip_type = 0;
-            result = this->find_zip_anchor_and_transition_to_zip_jump({0});
-        } else if (a2 == jump_state::default_id) {
-            this->m_zip_type = 2;
-            result = this->find_zip_anchor_and_transition_to_zip_jump({0});
-        } else if (hero_inode::is_a_crawl_state(a2, true)) {
-            this->m_zip_type = 1;
-            result = this->find_zip_anchor_from_crawl();
-        } else {
-            auto str = a2.to_string();
-            sp_log("Trying to switch to web_zip from invalid state: %s", str);
-            assert(0);
-
-            result = true;
-        }
-
-        return result;
-    } else {
-        bool(__fastcall * func)(const void *, void *edx, string_hash a2) = CAST(func, 0x0046C280);
-        return func(this, nullptr, a2);
+    if (!field_8->get_param_block()->get_pb_int(string_hash{"loco_allow_web_zip"}))
+        return false;
+    const auto button = field_DC->field_24->get_button(static_cast<controller_inode::eControllerButton>(13));
+    if (!button.is_triggered())
+        return false;
+    if (state == run_state::default_id) {
+        m_zip_type = 0;
+        return find_zip_anchor_and_transition_to_zip_jump({0});
     }
-}
+    if (state == jump_state::default_id) {
+        m_zip_type = 2;
+        return find_zip_anchor_and_transition_to_zip_jump({0});
+    }
+    if (hero_inode::is_a_crawl_state(state, true)) {
+        m_zip_type = 1;
+        return find_zip_anchor_from_crawl();
+    }
 
-static string_hash web_zip_from_crawl_max_length_id{int(to_hash("web_zip_from_crawl_max_length"))};
+    return true;
+}
 
 bool web_zip_inode::find_zip_anchor_from_crawl()
 {
-    if constexpr (0) {
-        auto *v2 = this->field_DC->field_28;
-        auto *p_param_block = this->field_8->get_param_block();
-        bool v89 = false;
-        auto pb_float = p_param_block->get_pb_float(web_zip_from_crawl_max_length_id);
-        auto *v4 = &this->field_1C;
-        v4->clear();
+    auto *physics = field_DC->field_28;
+    const float length = field_8->get_param_block()->get_pb_float(string_hash{"web_zip_from_crawl_max_length"});
+    auto &hit = field_1C;
+    auto check = [&] {
+        hit.sub_48B410(100.0f);
+        return hit.check_collision(*local_collision::entfilter_entity_no_capsules,
+                                   *local_collision::obbfilter_lineseg_test, nullptr);
+    };
+    auto crawlable = [&] {
+        return !is_noncrawlable_surface(hit) || hit.hit_norm.y > 0.732421875f;
+    };
+    bool accepted = false;
+    bool first_collision = false;
+    hit.clear();
+    hit.field_0 = get_actor()->get_abs_position();
+    hit.field_C = hit.field_0 + physics->get_z_facing() * length;
+    if (check()) {
+        accepted = crawlable() && correct_zip_target_pos(&hit);
+        first_collision = true;
+    }
+    if (hit.collision && !accepted) {
+        const auto start = hit.hit_pos + hit.hit_norm;
+        hit.clear();
+        hit.field_0 = start;
+        hit.field_C = start - physics->get_y_facing() * 2.0f;
+        accepted = check() && (physics->get_abs_position() - hit.hit_pos).length2() > 4.0f &&
+            crawlable() && correct_zip_target_pos(&hit);
+    }
+    if (!accepted && !first_collision) {
+        hit.clear();
+        hit.field_0 = physics->get_abs_position() + physics->get_z_facing() * length;
+        hit.field_C = hit.field_0 - physics->get_y_facing() * 2.0f;
+        hit.field_0 += physics->get_y_facing();
+        accepted = check() && !is_noncrawlable_surface(hit) && correct_zip_target_pos(&hit);
+        if (!accepted) {
+            hit.clear();
+            hit.field_C = get_actor()->get_abs_position() - physics->get_y_facing();
+            hit.field_0 = hit.field_C + physics->get_z_facing() * length;
+            bool standing_clearance = false;
+            if (check() && !is_noncrawlable_surface(hit)) {
+                standing_clearance = hit.hit_norm.y > 0.732421875f &&
+                    std::abs(dot(physics->get_y_facing(), hit.hit_norm)) < 0.35f;
 
-        auto *v5 = this->get_actor();
-        this->field_1C.field_0 = v5->get_abs_position();
-
-        auto v8 = v2->get_z_facing() * pb_float;
-        this->field_1C.field_C = this->field_1C.field_0 + v8;
-
-        bool v88 = false;
-        bool v92 = false;
-        this->field_1C.sub_48B410(100.0f);
-        if (this->field_1C.check_collision(
-                *local_collision::entfilter_entity_no_capsules, *local_collision::obbfilter_lineseg_test, nullptr)) {
-            bool v13 = ((!is_noncrawlable_surface(this->field_1C) || this->field_1C.hit_norm[1] > 0.73242188f) &&
-                        this->correct_zip_target_pos(&this->field_1C));
-            v88 = v13;
-
-            v92 = true;
-        }
-
-        if (this->field_1C.collision && !v88) {
-            vector3d a1 = this->field_1C.hit_pos + this->field_1C.hit_norm;
-            this->field_1C.clear();
-            this->field_1C.field_0 = a1;
-
-            auto &v18 = v2->get_z_facing();
-            vector3d v19 = v18 * 2.0f;
-            auto v21 = this->field_1C.field_0 - v19;
-            this->field_1C.field_C = v21;
-            this->field_1C.sub_48B410(100.0f);
-            if (this->field_1C.check_collision(*local_collision::entfilter_entity_no_capsules,
-                                               *local_collision::obbfilter_lineseg_test,
-                                               nullptr)) {
-                auto abs_pos = v2->get_abs_position();
-                auto v25 = abs_pos - this->field_1C.hit_pos;
-                v88 = (v25.length2() > 4.0f &&
-                       (!is_noncrawlable_surface(this->field_1C) || this->field_1C.hit_norm[1] > 0.73242188) &&
-                       this->correct_zip_target_pos(&this->field_1C));
-            }
-        }
-
-        if (!v88 && !v92) {
-            this->field_1C.clear();
-            auto v96 = v2->get_z_facing() * pb_float;
-            auto v28 = v2->get_abs_position();
-            auto v29 = v28 + v96;
-            this->field_1C.field_0 = v29;
-
-            auto &v31 = v2->get_y_facing();
-            auto v32 = v31 + 2.0f;
-            auto v33 = this->field_1C.field_0 - v32;
-            this->field_1C.field_C = v33;
-
-            auto &v35 = v2->get_y_facing();
-            auto v36 = v35 * 1.0f;
-            auto v37 = this->field_1C.field_0 + v36;
-            this->field_1C.field_0 = v37;
-            this->field_1C.sub_48B410(100.0f);
-            if (!this->field_1C.check_collision(*local_collision::entfilter_entity_no_capsules,
-                                                *local_collision::obbfilter_lineseg_test,
-                                                nullptr) ||
-                is_noncrawlable_surface(this->field_1C) || !this->correct_zip_target_pos(&this->field_1C)) {
-                this->field_1C.clear();
-                auto v41 = v2->get_y_facing();
-                auto v96 = v41 * 1.0f;
-
-                auto *v42 = this->get_actor();
-
-                auto v45 = v42->get_abs_position();
-                this->field_1C.field_C = v45 - v96;
-
-                auto v48 = v2->get_z_facing();
-                auto v49 = v48 * pb_float;
-                this->field_1C.field_0 = this->field_1C.field_C + v49;
-                this->field_1C.sub_48B410(100.0f);
-                if (this->field_1C.check_collision(*local_collision::entfilter_entity_no_capsules,
-                                                   *local_collision::obbfilter_lineseg_test,
-                                                   nullptr) &&
-                    !is_noncrawlable_surface(this->field_1C)) {
-                    if (this->field_1C.hit_norm[1] > 0.73242188) {
-                        auto &v52 = v2->get_z_facing();
-                        if (std::abs(dot(v52, this->field_1C.hit_norm)) < 0.34999999) {
-                            v89 = true;
-                        }
+                line_info clearance;
+                clearance.field_C = hit.hit_pos + hit.hit_norm * 0.1f;
+                clearance.field_0 = clearance.field_C + physics->get_y_facing() * 2.0f;
+                hit.field_C = hit.hit_pos - hit.hit_norm * 0.5f;
+                hit.field_0 = hit.field_C + physics->get_y_facing() * 2.0f;
+                if (check()) {
+                    if ((get_actor()->get_abs_position() - hit.hit_pos).length2() < 4.0f) {
+                        hit.clear();
+                        standing_clearance = false;
                     }
-
-                    static bool &byte_91F728 = var<bool>(0x0091F728);
-
-                    if (!byte_91F728) {
-                    } else {
-                        line_info v97{};
-                        auto v53 = this->field_1C.hit_norm * 0.1f;
-                        v97.field_C = this->field_1C.hit_pos + v53;
-                        auto &v54 = v2->get_abs_po();
-                        auto v55 = v54[1] * 2.0f;
-                        v97.field_0 = v97.field_C + v55;
-                        auto v56 = this->field_1C.hit_norm * 0.5f;
-                        auto v57 = this->field_1C.hit_pos - v56;
-                        this->field_1C.field_C = v57;
-
-                        auto &v58 = v2->get_z_facing();
-                        auto v59 = v58 * 2.0f;
-                        this->field_1C.field_0 = this->field_1C.field_C + v59;
-                        this->field_1C.sub_48B410(100.0f);
-                        if (this->field_1C.check_collision(*local_collision::entfilter_entity_no_capsules,
-                                                           *local_collision::obbfilter_lineseg_test,
-                                                           nullptr)) {
-                            auto *v62 = this->get_actor();
-                            auto v63 = v62->get_abs_position();
-                            auto v64 = v63 - this->field_1C.hit_pos;
-                            if (v64.length2() < 4.0f) {
-                                this->field_1C.clear();
-                                v89 = false;
-                            }
-                        } else {
-                            v89 = false;
-                        }
-
-                        if (v89) {
-                            v97.clear();
-                            auto v65 = this->field_1C.hit_norm * 0.1f;
-                            auto v66 = this->field_1C.hit_pos + v65;
-                            v97.field_0 = v66;
-                            auto *v67 = this->get_actor();
-                            auto a3 = v67->get_render_scale().y * 1.9f;
-                            auto v68 = YVEC * a3;
-                            v97.field_C = v97.field_0 + v68;
-                            v97.sub_48B410(100.0);
-                            v89 = !v97.check_collision(*local_collision::entfilter_entity_no_capsules,
-                                                       *local_collision::obbfilter_lineseg_test,
-                                                       nullptr);
-                        }
-                    }
+                } else {
+                    standing_clearance = false;
                 }
-
-                v88 = (this->field_1C.collision && (v89 || !is_noncrawlable_surface(this->field_1C)) &&
-                       this->correct_zip_target_pos(&this->field_1C));
+                if (standing_clearance) {
+                    clearance.clear();
+                    clearance.field_0 = hit.hit_pos + hit.hit_norm * 0.1f;
+                    clearance.field_C = clearance.field_0 + YVEC * (get_actor()->get_render_scale().y * 1.9f);
+                    clearance.sub_48B410(100.0f);
+                    standing_clearance = !clearance.check_collision(*local_collision::entfilter_entity_no_capsules,
+                        *local_collision::obbfilter_lineseg_test, nullptr);
+                }
             }
+            accepted = hit.collision && (standing_clearance || !is_noncrawlable_surface(hit)) &&
+                correct_zip_target_pos(&hit);
         }
+    }
+    if (accepted) {
+        auto forward = physics->get_z_facing();
+        if (forward.y > 0.0f)
+            forward = -forward;
+        const auto position = get_actor()->get_abs_position();
+        vector3d point, normal;
+        find_intersection(position, position + forward * 6.0f, *local_collision::entfilter_entity_collision,
+            *local_collision::obbfilter_lineseg_test, &point, &normal, nullptr, nullptr, nullptr, false);
+        return true;
+    }
+    hit.clear();
+    hit.field_0 = get_actor()->get_abs_position();
+    hit.field_C = hit.field_0 - physics->get_y_facing() * 2.0f;
+    check();
+    return hit.collision && !is_noncrawlable_surface(hit);
+}
 
-        if (v88) {
-            auto v70 = v2->get_z_facing();
-            if (v70.y > 0.0f) {
-                v70 = -v70;
+bool web_zip_inode::find_zip_anchor_and_transition_to_zip_jump(eZipReattachMode)
+{
+    auto *physics = field_DC->field_28;
+    auto *params = field_8->get_param_block();
+    const float angle1 = params->get_pb_float(string_hash{"web_zip_angle1"}) * 0.017453292f;
+    const float angle2 = params->get_pb_float(string_hash{"web_zip_angle2"}) * 0.017453292f;
+    const float length = params->get_pb_float(string_hash{"web_zip_max_length"});
+    const auto forward = physics->get_abs_po().get_z_facing();
+    auto &hit = field_1C;
+    auto check = [&] {
+        hit.sub_48B410(100.0f);
+        return hit.check_collision(*local_collision::entfilter_entity_no_capsules,
+                                   *local_collision::obbfilter_lineseg_test, nullptr);
+    };
+    auto acceptable = [&] {
+        const bool surface = m_zip_type == 1 ? !is_noncrawlable_surface(hit) :
+            !g_world_ptr->is_point_under_water(hit.hit_pos);
+        return (surface || hit.hit_norm.y > 0.732421875f) && correct_zip_target_pos(&hit);
+    };
+    hit.field_0 = get_actor()->get_abs_position();
+    hit.field_C = hit.field_0 + forward * length;
+    if (check())
+        return acceptable();
+    auto right = vector3d::cross(forward, YVEC);
+    right.normalize();
+    auto vertical = vector3d::cross(forward, right);
+    vertical.normalize();
+    const auto end = hit.field_C;
+    for (int sample = 0; sample < 6; ++sample) {
+        vector3d offset = ZEROVEC;
+        switch (sample) {
+        case 0: offset = vertical; break;
+        case 1: offset = -vertical; break;
+        case 2: offset = right; break;
+        case 3: offset = -right; break;
+        default:
+            if (field_C->physical_ifc()->is_effectively_standing()) {
+                if (sample == 4) {
+                    hit.field_0 = get_actor()->get_abs_position() + YVEC;
+                    offset = vertical * 2.0f;
+                } else {
+                    offset = vertical * 3.0f;
+                }
+            } else {
+                const float angle = sample == 4 ? angle1 : angle2;
+                offset = (forward * std::cos(angle) + vertical * std::sin(angle)) * length;
             }
-
-            vector3d v72 = v70 * 6.0f;
-
-            auto *v73 = this->get_actor();
-            auto v75 = v73->get_abs_position() + v72;
-
-            auto *v76 = this->get_actor();
-
-            vector3d a5{};
-            vector3d a6{};
-
-            find_intersection(v76->get_abs_position(),
-                              v75,
-                              *local_collision::entfilter_entity_collision,
-                              *local_collision::obbfilter_lineseg_test,
-                              &a5,
-                              &a6,
-                              nullptr,
-                              nullptr,
-                              nullptr,
-                              false);
+            break;
         }
-
-        auto result = v88;
-        if (!v88) {
-            this->field_1C.clear();
-            auto *v79 = this->get_actor();
-
-            this->field_1C.field_0 = v79->get_abs_position();
-
-            auto &v82 = v2->get_y_facing();
-            vector3d a1 = v82 + 2.0f;
-            auto v84 = this->field_1C.field_0 - a1;
-            this->field_1C.field_C = v84;
-            this->field_1C.sub_48B410(100.0f);
-            this->field_1C.check_collision(
-                *local_collision::entfilter_entity_no_capsules, *local_collision::obbfilter_lineseg_test, nullptr);
-
-            return this->field_1C.collision && !is_noncrawlable_surface(this->field_1C);
-        }
-
-        return result;
-    } else {
-        bool(__fastcall * func)(void *) = CAST(func, 0x0045D600);
-        return func(this);
+        hit.field_C = end + offset;
+        if (check() && acceptable())
+            return true;
     }
+    return false;
 }
 
-bool web_zip_inode::find_zip_anchor_and_transition_to_zip_jump(web_zip_inode::eZipReattachMode a2)
+bool web_zip_inode::correct_zip_target_pos(line_info *hit)
 {
-    if constexpr (0) {
-    } else {
-        return THISCALL(0x0045DFD0, this, a2);
-    }
+    if (!hit || !hit->collision || !glass_house_manager::is_point_in_glass_house(hit->hit_pos) ||
+        hit->hit_pos.y < -10000.0f)
+        return false;
+    auto up = YVEC;
+    if (is_colinear(up, hit->hit_norm, 0.01f))
+        up = XVEC;
+    po basis;
+    basis.set_po(up, hit->hit_norm, hit->hit_pos);
+    const auto point = hit->hit_pos + hit->hit_norm * 0.025f;
+    vector3d correction_x = ZEROVEC, correction_z = ZEROVEC;
+    if (!get_axis_correction_delta(point, basis.get_x_facing(), 0.5f, &correction_x) ||
+        !get_axis_correction_delta(point, basis.get_z_facing(), 0.5f, &correction_z))
+        return false;
+    const auto correction = correction_x + correction_z;
+    if (correction.length2() <= 0.0f)
+        return true;
+    const auto corrected = point + correction;
+    vector3d intersection, normal;
+    if (!find_intersection(corrected, corrected - hit->hit_norm * 0.1f,
+            *local_collision::entfilter_entity_no_capsules, *local_collision::obbfilter_lineseg_test,
+            &intersection, &normal, nullptr, nullptr, nullptr, false))
+        return false;
+    hit->hit_pos += correction;
+    if (auto *entity = hit->hit_entity.get_volatile_ptr())
+        hit->field_30 = entity->get_abs_po().inverse_xform(hit->hit_pos);
+    return true;
 }
 
-bool web_zip_inode::correct_zip_target_pos(line_info *si)
+void web_zip_inode::deactivate()
 {
-    TRACE("web_zip_inode::correct_zip_target_pos");
-
-    auto result = THISCALL(0x0044CBD0, this, si);
-
-    if (result) {
-        assert(glass_house_manager::is_point_in_glass_house(si->hit_pos));
+    delete webline_texture;
+    webline_texture = nullptr;
+    for (auto &swingback : field_A4) {
+        g_world_ptr->ent_mgr.destroy_entity(swingback.field_8);
+        swingback.field_8 = nullptr;
     }
-
-    return result;
-}
-
-int web_zip_inode::deactivate()
-{
-    return THISCALL(0x0044C880, this);
+    if (field_C->is_a_conglomerate() &&
+        static_cast<conglomerate *>(field_C)->has_tentacle_ifc()) {
+        static_cast<conglomerate *>(field_C)->tentacle_ifc()->cancel_zip();
+    }
+    g_world_ptr->ent_mgr.destroy_entity(field_D8);
+    field_D8 = nullptr;
 }
 
 void web_zip_inode::unmash(mash_info_struct *a2, void *a3)
 {
-    THISCALL(0x00474010, this, a2, a3);
+    info_node::_unmash(a2, a3);
 }
 
-void web_zip_inode::process_zip(Float a2)
+void web_zip_inode::process_zip(Float)
 {
-    if constexpr (1) {
-        auto *v3 = this->field_DC->field_28;
-
-        static const string_hash has_tentacle_zip_id{int(to_hash("has_tentacle_zip"))};
-
-        auto *v4 = &this->field_8->field_50;
-
-        if (!v4->get_pb_int(has_tentacle_zip_id)) {
-            if (this->field_7C == 0) {
-                auto *v5 = this->field_C;
-
-                if (v5->event_raised_last_frame(event::ANIM_ACTION)) {
-                    auto *v6 = this->field_C;
-
-                    entity_set_abs_po(this->field_D8, v6->get_abs_po());
-
-                    actor *hero_ptr = bit_cast<actor *>(g_world_ptr->get_hero_ptr(0));
-
-                    auto v7 = hero_ptr->get_player_controller()->m_hero_type;
-                    if (v7 == 1 || v7 == 3) {
-                        swing_inode::do_web_splat(this->field_1C.hit_pos,
-                                                  this->field_1C.hit_norm,
-                                                  *local_collision::entfilter_entity_no_capsules);
-                    }
-
-                    this->field_7C = 1;
-                }
-            }
-
-            if (this->field_7C == 1) {
-                static const string_hash bip01_r_hand{int(to_hash("BIP01 R HAND"))};
-
-                auto *bone = bit_cast<conglomerate *>(this->field_C)->get_bone(bip01_r_hand, true);
-
-                vector3d a3 = bone->get_abs_position();
-
-                auto *v10 = this->field_C;
-                a3 = v10->get_abs_po().inverse_xform(a3);
-
-                vector3d v13 = this->field_C->get_render_scale();
-                a3[0] = a3[0] * v13.x;
-
-                vector3d v15 = this->field_C->get_render_scale();
-                a3[1] = a3[1] * v15.y;
-
-                vector3d v17 = this->field_C->get_render_scale();
-                a3[2] = a3[2] * v17.z;
-
-                auto *v18 = this->field_C;
-
-                a3 = v18->get_abs_po().slow_xform(a3);
-
-                auto *v21 = this->field_D8;
-                v21->set_abs_control_pt(0, a3);
-
-                auto *v22 = this->field_D8;
-                v22->set_abs_control_pt(v22->get_num_control_pts() - 1, this->field_1C.hit_pos);
-
-                auto *v24 = this->field_D8;
-
-                if (v24->the_spline.need_rebuild) {
-                    v24->the_spline.rebuild_helper();
-                }
-
-                this->field_D8->unforce_regions();
-                this->field_D8->force_regions(this->field_C);
-                this->field_D8->set_visible(true, false);
-            }
+    auto *physics = field_DC->field_28;
+    if (!field_8->get_param_block()->get_pb_int(string_hash{"has_tentacle_zip"})) {
+        if (field_7C == 0 && field_C->event_raised_last_frame(event::ANIM_ACTION)) {
+            entity_set_abs_po(field_D8, field_C->get_abs_po());
+            const auto hero = static_cast<actor *>(g_world_ptr->get_hero_ptr(0))
+                ->get_player_controller()->m_hero_type;
+            if (hero == SPIDEY || hero == PARKER)
+                swing_inode::do_web_splat(field_1C.hit_pos, field_1C.hit_norm,
+                                         *local_collision::entfilter_entity_no_capsules);
+            field_7C = 1;
         }
-
-        auto a2a = v3->get_velocity();
-
-        vector2d tmp = {a2a.x, a2a.z};
-
-        auto xz_velocity = tmp.length();
-
-        static constexpr auto cap_34991 = 30.f;
-
-        if (xz_velocity > cap_34991) {
-            auto v28 = cap_34991 / xz_velocity;
-            a2a[0] *= v28;
-            a2a[2] *= v28;
-            v3->set_velocity(a2a, false);
+        if (field_7C == 1) {
+            auto *bone = static_cast<conglomerate *>(field_C)->get_bone(string_hash{"BIP01 R HAND"}, true);
+            auto hand = field_C->get_abs_po().inverse_xform(bone->get_abs_position());
+            const auto scale = field_C->get_render_scale();
+            hand.x *= scale.x;
+            hand.y *= scale.y;
+            hand.z *= scale.z;
+            hand = field_C->get_abs_po().slow_xform(hand);
+            field_D8->set_abs_control_pt(0, hand);
+            field_D8->set_abs_control_pt(field_D8->get_num_control_pts() - 1, field_1C.hit_pos);
+            if (field_D8->the_spline.need_rebuild)
+                field_D8->the_spline.rebuild_helper();
+            field_D8->unforce_regions();
+            field_D8->force_regions(field_C);
+            field_D8->set_visible(true, false);
         }
-
-    } else {
-        THISCALL(0x00478A80, this, a2);
+    }
+    auto velocity = physics->get_velocity();
+    const float speed = std::sqrt(velocity.x * velocity.x + velocity.z * velocity.z);
+    if (speed > 30.0f) {
+        const float factor = 30.0f / speed;
+        velocity.x *= factor;
+        velocity.z *= factor;
+        physics->set_velocity(velocity, false);
     }
 }
 
@@ -579,48 +648,21 @@ void web_zip_inode::add_swingback(polytube *&a2, entity_base *a3, actor *a4)
     }
 }
 
+void web_zip_inode::release_zip_web()
+{
+    field_7C = 2;
+    add_swingback(field_D8, field_1C.hit_entity.get_volatile_ptr(), field_C);
+    field_D8->set_visible(false, false);
+}
+
 }  // namespace ai
 
 void web_zip_state_patch()
 {
-    {
-        FUNC_ADDRESS(address, &ai::web_zip_inode::is_eligible);
-        REDIRECT(0x0048899E, address);
-        REDIRECT(0x00488CBF, address);
-        REDIRECT(0x00488F54, address);
-    }
-
-    return;
-    {
-        FUNC_ADDRESS(address, &ai::web_zip_state::frame_advance);
-        //set_vfunc(0x008775D0, address);
-    }
-
-    {
-        FUNC_ADDRESS(address, &ai::web_zip_inode::can_go_to);
-        SET_JUMP(0x0044C930, address);
-    }
-
-    {
-        FUNC_ADDRESS(address, &ai::web_zip_inode::process_zip);
-        REDIRECT(0x0047DF1B, address);
-    }
-
-    {
-        FUNC_ADDRESS(address, &ai::web_zip_inode::activate);
-        //set_vfunc(0x0087DB84, address);
-    }
-
-    //process_zip
-    {
-        {
-            FUNC_ADDRESS(address, &conglomerate::get_bone);
-            REDIRECT(0x00478B80, address);
-        }
-
-        {
-            FUNC_ADDRESS(address, &entity_base::event_raised_last_frame);
-            REDIRECT(0x00478AD0, address);
-        }
-    }
+#if !STANDALONE_SYSTEM
+    FUNC_ADDRESS(address, &ai::web_zip_inode::is_eligible);
+    REDIRECT(0x0048899E, address);
+    REDIRECT(0x00488CBF, address);
+    REDIRECT(0x00488F54, address);
+#endif
 }

@@ -13,6 +13,13 @@ struct param_block;
 
 struct plr_loco_crawl_transition_state : ai::enhanced_state {
     plr_loco_crawl_transition_state();
+    explicit plr_loco_crawl_transition_state(from_mash_in_place_constructor *);
+    static void *native_vtable();
+    int field_30;
+    void map_controls(int);
+    void set_player_mode(actor *);
+    void get_info_node_list(ai::info_node_desc_list &);
+    static const inline string_hash transition_als_category_hash{to_hash("Crawl_Transition")};
 
     //virtual
     void activate(ai::ai_state_machine *a2, const ai::mashed_state *a4, const ai::mashed_state *a5,

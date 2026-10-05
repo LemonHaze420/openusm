@@ -279,6 +279,8 @@ struct actor : entity {
 
     //virtual
     bool add_item(int a4, bool a6);
+    bool remove_item(int handle, bool);
+    static void install_inventory_callbacks(void **table);
 
     //0x004D2060
     static void swap_all_mesh_buffers();

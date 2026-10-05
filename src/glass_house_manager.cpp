@@ -3,6 +3,7 @@
 #include "func_wrapper.h"
 #include "glass_house.h"
 #include "log.h"
+#include "subdivision_obb.h"
 #include "os_developer_options.h"
 #include "utility.h"
 #include "variables.h"
@@ -16,7 +17,7 @@ _std::vector<glass_house *> (&glass_house_manager::glass_houses)[3] = var<_std::
 #else
 
 bool &glass_house_manager::enabled = []() -> auto & {
-    static bool g_enabled{};
+    static bool g_enabled{true};
     return g_enabled;
 }();
 
@@ -36,11 +37,25 @@ bool glass_house_manager::is_enabled()
 
 bool glass_house_manager::is_point_in_glass_house(const vector3d &a1)
 {
-    if constexpr (STANDALONE_SYSTEM) {
+
+    for (const auto &houses : glass_houses) {
+        if (houses.empty()) {
+            continue;
+        }
+        if (!is_enabled()) {
+            return true;
+        }
+        for (const auto *house : houses) {
+            for (int index = 0; index < house->obbs.size(); ++index) {
+                const auto &obb = house->obbs.m_data[index];
+                if (obb.point_inside_or_on(a1)) {
+                    return true;
+                }
+            }
+        }
         return false;
-    } else {
-        return static_cast<bool>(CDECL_CALL(0x00538570, &a1));
     }
+    return true;
 }
 
 void glass_house_manager::show_glass_houses()

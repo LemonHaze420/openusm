@@ -1,6 +1,7 @@
 #pragma once
 
 #include "generic_interface.h"
+#include "entity_base_vhandle.h"
 
 #include "cached_special_effect.h"
 #include "float.hpp"
@@ -11,6 +12,7 @@
 
 struct actor;
 struct resource_key;
+struct entity;
 
 template <typename T>
 struct bounded_variable {
@@ -20,14 +22,14 @@ struct bounded_variable {
 };
 
 struct damage_info {
-    string_hash field_0;
+    float amount;
     vector3d field_4;
     vector3d field_8;
     vector3d field_C;
     int field_28;
     int field_2C;
-    int field_30;
-    int field_34;
+    entity_base_vhandle field_30;
+    entity_base_vhandle field_34;
     int field_38;
     bool field_3C;
     bool field_3D;
@@ -42,7 +44,19 @@ struct damage_interface : generic_interface {
     mString field_1C;
     mString field_2C;
     mString field_3C;
-    char field_4C[0xA8];
+    struct morph_region {
+        resource_key member;
+        int threshold;
+        int accumulated_damage;
+    } morph_regions[6];
+    char morph_source[32];
+    resource_key morph_mesh;
+    int morph_registration_id;
+    string_hash field_D8;
+    vector3d prop_velocity;
+    float prop_velocity_randomness;
+    float prop_lifetime;
+    float explosion_inner_radius;
 
     bool field_F4;
     float field_F8;
@@ -70,6 +84,12 @@ struct damage_interface : generic_interface {
     bounded_variable<float> field_21C;
     bounded_variable<int> field_22C;
 
+    bool is_alive() const { return field_1FC.field_0[0] > 0.0f; }
+    bool is_subdued() const
+    {
+        return field_21C.field_0[0] > 0.0001f && field_1FC.field_0[0] < 0.0001f;
+    }
+
     //0x004DE8A0
     damage_interface(actor *a2);
 
@@ -91,8 +111,24 @@ struct damage_interface : generic_interface {
     //virtual
     void frame_advance(Float a3);
 
+
+    void apply_damage(entity *source, float amount, int damage_type,
+        const vector3d &position, const vector3d &direction, int flags,
+        const string_hash &attack, const string_hash &category, const string_hash &reaction,
+        bool force_reaction, const vector3d &target, int combo_type, bool skip_combat);
+    void post_destruction_actions();
+    void continue_post_destruction_actions();
+    void apply_subdue(entity *source, float amount);
+
+
+    void update_hp_change(Float time_step);
+
     //0x004D1990
     static void frame_advance_all_damage_ifc(Float a1);
+
+
+    static int find_damageable(const vector3d &position, float radius,
+                              unsigned flags, bool restrict_regions);
 
     static inline auto &all_damage_interfaces = var<_std::vector<damage_interface *> *>(0x0095A660);
 

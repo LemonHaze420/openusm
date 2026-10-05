@@ -49,14 +49,132 @@ bool sub_66024E(const line_info &a1)
     }
 }
 
-line_info *check_interior_transition(actor *a1, ai::crawl_params_record &a2, ai::als_inode *a3, bool a4, bool a5,
-                                     bool a6)
+line_info *check_interior_transition(actor *owner, ai::crawl_params_record &record, ai::als_inode *animation,
+    bool spidey, bool tight, bool force)
 {
-    TRACE("check_interior_transition");
-
-    line_info *(*func)(actor *, ai::crawl_params_record *a2, ai::als_inode *a3, bool a4, bool a5, bool a6) =
-        CAST(func, 0x0047B1E0);
-    return func(a1, &a2, a3, a4, a5, a6);
+    if constexpr (!STANDALONE_SYSTEM) {
+        line_info *(*func)(actor *, ai::crawl_params_record *, ai::als_inode *, bool, bool, bool) =
+            CAST(func, 0x0047B1E0);
+        return func(owner, &record, animation, spidey, tight, force);
+    }
+    record = {};
+    static Var<line_info> surface{0x00959468};
+    auto &hit = surface();
+    hit.clear();
+    if (!force && (!owner->is_frame_delta_valid() ||
+        owner->get_movement_info()->field_0.get_position().length2() < EPSILON))
+        return &hit;
+    static constexpr float spidey_interior[] = {1.1f, 1.6f, 0.9f, 0.4f, 1.2f, 1.0f};
+    static constexpr float venom_interior[] = {2.8f, 2.1f, 1.4f, 0.6f, 2.8f, 1.6f};
+    const auto *distances = spidey ? spidey_interior : venom_interior;
+    const auto position = owner->get_abs_position();
+    const auto up = owner->get_abs_po().get_y_facing();
+    const float reach = sub_48B6F0(distances, tight) * owner->get_render_scale().z;
+    auto check = [](line_info &line) {
+        return line.check_collision(*local_collision::entfilter_entity_no_capsules,
+            *local_collision::obbfilter_lineseg_test, nullptr);
+    };
+    hit.field_0 = position;
+    hit.field_C = position + owner->get_abs_po().get_z_facing() * reach;
+    check(hit);
+    if (!hit.collision) {
+        hit.clear();
+        return &hit;
+    }
+    bool floor_transition = false;
+    if (hit.hit_norm.y > 0.732421875f) {
+        const auto first_normal = hit.hit_norm;
+        hit.clear();
+        hit.field_0 = position;
+        hit.field_C = position - YVEC * reach;
+        check(hit);
+        line_info overhead;
+        overhead.field_0 = hit.hit_pos + hit.hit_norm * 0.025f;
+        overhead.field_C = overhead.field_0 + YVEC * 2.0f;
+        check(overhead);
+        if (!overhead.collision) {
+            floor_transition = true;
+        } else if ((overhead.field_0 - overhead.hit_pos).length2() < 0.6400000453f) {
+            owner->cancel_animated_movement(-first_normal, 0.0f);
+            hit.clear();
+            return &hit;
+        }
+    }
+    if ((is_noncrawlable_surface(hit) && !(hit.hit_norm.y > 0.732421875f && floor_transition)) ||
+        dot(up, hit.hit_norm) > 0.9848077893f ||
+        is_colinear(owner->get_abs_po().get_y_facing(), hit.hit_norm, 0.01f) || !hit.collision) {
+        hit.clear();
+        return &hit;
+    }
+    bool use_tight = tight || sub_66024E(hit);
+    bool probe_tight = use_tight;
+    po destination;
+    destination.set_po(owner->get_abs_po().get_y_facing(), hit.hit_norm, position);
+    const po original_destination = destination;
+    const float side = dot(hit.hit_norm, owner->get_abs_po().get_x_facing());
+    if (side <= -0.5f || side >= 0.5f) {
+        po rotation;
+        rotation.set_rot(hit.hit_norm, (side <= 0.0f ? 1.0f : -1.0f) * 0.0872664675f);
+        destination = sub_48F770(destination, rotation);
+    }
+    line_info clearance;
+    auto wall_probe = [&](bool tight_probe, bool floor_probe) {
+        clearance.clear();
+        const float advance = floor_probe ? 0.5f : static_cast<float>(sub_48B710(distances, tight_probe));
+        clearance.field_0 = position + destination.get_z_facing() * advance;
+        clearance.field_C = clearance.field_0 - hit.hit_norm * distances[4];
+        return check(clearance) && !is_noncrawlable_surface(clearance);
+    };
+    bool accepted = wall_probe(use_tight, floor_transition && hit.hit_norm.y > 0.732421875f);
+    if (!accepted && !use_tight) {
+        use_tight = true;
+        accepted = wall_probe(true, false);
+        probe_tight = true;
+    }
+    if (accepted) {
+        clearance.field_0 = clearance.hit_pos + clearance.hit_norm * 0.1f;
+        const float outward = floor_transition && hit.hit_norm.y > 0.732421875f ? 2.0f : 1.0f;
+        clearance.field_C = clearance.field_0 + clearance.hit_norm * (outward - 0.1f);
+        accepted = !check(clearance);
+    }
+    if (accepted) {
+        const float offset = floor_transition && hit.hit_norm.y > 0.732421875f ? 1.0f : 0.5f;
+        clearance.field_0 = hit.hit_pos + hit.hit_norm * offset;
+        clearance.field_C = clearance.field_0 + original_destination.get_z_facing() *
+            (static_cast<float>(sub_48B710(distances, probe_tight)) + 0.1f);
+        accepted = !check(clearance);
+    }
+    if (accepted && dot(hit.hit_norm, owner->get_abs_po().get_y_facing()) > -0.1736481935f &&
+        glass_house_manager::is_point_in_glass_house(hit.hit_pos)) {
+        record.field_0 = static_cast<crawl_transition_type_enum>(1);
+        record.field_4 = use_tight;
+        if (hit.hit_norm.y > 0.732421875f && floor_transition) {
+            po transform;
+            transform.set_po(-YVEC, owner->get_abs_po().get_y_facing(), owner->get_abs_position());
+            entity_set_abs_po(owner, transform);
+            owner->get_render_scale();
+            record.field_5 = true;
+            record.field_8 = 90.0f;
+            record.field_C = 0.0f;
+            record.field_10 = YVEC;
+            record.field_1C = hit.hit_pos;
+            record.field_28 = distances[5];
+        } else {
+            const float alignment = dot(hit.hit_norm, owner->get_abs_po().get_y_facing());
+            const float lateral = dot(hit.hit_norm, owner->get_abs_po().get_x_facing());
+            record.field_5 = false;
+            record.field_8 = alignment >= 0.3826833963f ? 135.0f : 90.0f;
+            record.field_C = lateral <= -0.5f ? 45.0f : lateral >= 0.5f ? -45.0f : 0.0f;
+            record.field_10 = hit.hit_norm;
+            record.field_1C = hit.hit_pos;
+            record.field_28 = sub_48B6F0(distances, probe_tight) * owner->get_render_scale().z;
+        }
+        record.update_crawl_transition_als_params(animation);
+    } else {
+        owner->cancel_animated_movement(hit.hit_norm, 0.0f);
+        hit.clear();
+    }
+    return &hit;
 }
 
 line_info *check_exterior_transition(actor *the_actor, ai::crawl_params_record &arg4, ai::als_inode *arg8, bool a4,

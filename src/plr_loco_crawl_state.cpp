@@ -21,22 +21,97 @@
 #include "state_machine.h"
 #include "trace.h"
 #include "wds.h"
+#include "info_node_desc_list.h"
+#include "info_node_descriptor.h"
+#include "vtbl.h"
+#include <algorithm>
+#include <array>
 
 #include <cmath>
 
 VALIDATE_SIZE(plr_loco_crawl_state, 0x48);
 
-plr_loco_crawl_state::plr_loco_crawl_state() {}
+namespace {
+uint32_t __fastcall crawl_type(const plr_loco_crawl_state *) { return 181; }
+bool __fastcall crawl_subclass(const plr_loco_crawl_state *, void *, mash::virtual_types_enum type)
+{
+    return type == 535 || type == 567 || type == 573;
+}
+int __fastcall crawl_size(const plr_loco_crawl_state *) { return 0x48; }
+void __fastcall crawl_activate(plr_loco_crawl_state *self, void *, ai::ai_state_machine *machine,
+    const ai::mashed_state *state, const ai::mashed_state *previous, const ai::param_block *params,
+    ai::base_state::activate_flag_e flags)
+{
+    self->activate(machine, state, previous, params, flags);
+}
+void __fastcall crawl_deactivate(plr_loco_crawl_state *self, void *, const ai::mashed_state *state)
+{
+    self->deactivate(state);
+}
+ai::state_trans_messages __fastcall crawl_frame(plr_loco_crawl_state *self, void *, Float dt)
+{
+    return self->frame_advance(dt);
+}
+void __fastcall crawl_list(plr_loco_crawl_state *self, void *, ai::info_node_desc_list &list)
+{
+    self->get_info_node_list(list);
+}
+void __fastcall crawl_controls(plr_loco_crawl_state *self, void *, int controls) { self->map_controls(controls); }
+void __fastcall crawl_mode(plr_loco_crawl_state *self, void *, actor *owner) { self->set_player_mode(owner); }
+void __fastcall crawl_wallrun(plr_loco_crawl_state *self, void *, Float dt) { self->update_wallrun(dt); }
+}
 
-void plr_loco_crawl_state::activate(ai::ai_state_machine *a2, ai::mashed_state *a3, ai::mashed_state *a4,
-                                    ai::param_block *a5, ai::base_state::activate_flag_e a6)
+void *plr_loco_crawl_state::native_vtable()
+{
+
+    static auto table = [] {
+        std::array<void *, 19> result;
+        std::copy_n(static_cast<void **>(ai::enhanced_state::native_vtable()), 16, result.data());
+        result[3] = bit_cast<void *>(&crawl_type);
+        result[4] = bit_cast<void *>(&crawl_subclass);
+        result[6] = bit_cast<void *>(&crawl_activate);
+        result[7] = bit_cast<void *>(&crawl_deactivate);
+        result[8] = bit_cast<void *>(&crawl_frame);
+        result[9] = bit_cast<void *>(&crawl_list);
+        result[13] = bit_cast<void *>(&crawl_size);
+        result[16] = bit_cast<void *>(&crawl_controls);
+        result[17] = bit_cast<void *>(&crawl_mode);
+        result[18] = bit_cast<void *>(&crawl_wallrun);
+        return result;
+    }();
+    return table.data();
+}
+
+plr_loco_crawl_state::plr_loco_crawl_state()
+{
+    if constexpr (STANDALONE_SYSTEM)
+        m_vtbl = bit_cast<std::intptr_t>(native_vtable());
+}
+
+plr_loco_crawl_state::plr_loco_crawl_state(from_mash_in_place_constructor *tag)
+    : ai::enhanced_state(tag), field_38(tag)
+{
+    if constexpr (STANDALONE_SYSTEM)
+        m_vtbl = bit_cast<std::intptr_t>(native_vtable());
+}
+
+void plr_loco_crawl_state::map_controls(int) { field_30 = 0; }
+
+void plr_loco_crawl_state::get_info_node_list(ai::info_node_desc_list &list)
+{
+    list.add_entry(ai::info_node_descriptor{ai::als_inode::default_id, 333});
+}
+
+void plr_loco_crawl_state::activate(ai::ai_state_machine *a2, const ai::mashed_state *a3,
+    const ai::mashed_state *a4, const ai::param_block *a5, ai::base_state::activate_flag_e a6)
 {
     TRACE("plr_loco_crawl_state::activate");
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         ai::enhanced_state::activate(a2, a3, a4, a5, a6);
         auto *act = this->get_actor();
-        this->set_player_mode(act);
+        reinterpret_cast<void (__fastcall *)(plr_loco_crawl_state *, void *, actor *)>(
+            get_vfunc(m_vtbl, 0x44))(this, nullptr, act);
         auto *the_core = this->get_core();
         auto *info_node = (ai::hero_inode *)the_core->get_info_node(ai::hero_inode::default_id, true);
         auto *v11 = this->get_actor();
@@ -89,7 +164,8 @@ void plr_loco_crawl_state::activate(ai::ai_state_machine *a2, ai::mashed_state *
         }
 
         info_node->update_crawl_als_params();
-        this->update_wallrun(0.000099999997);
+        reinterpret_cast<void (__fastcall *)(plr_loco_crawl_state *, void *, Float)>(
+            get_vfunc(m_vtbl, 0x48))(this, nullptr, Float{0.0001f});
         bit_cast<als::animation_logic_system_interface *>(v27->field_1C)->force_update();
         auto *v29 = this->get_actor();
         if (v29->has_physical_ifc()) {
@@ -106,7 +182,20 @@ void plr_loco_crawl_state::deactivate(const ai::mashed_state *a1)
 {
     TRACE("plr_loco_crawl_state::deactivate");
 
-    THISCALL(0x0044B6A0, this, a1);
+    if constexpr (STANDALONE_SYSTEM) {
+        auto *owner = get_actor();
+        if (owner && owner->has_physical_ifc()) {
+            if (owner->has_physical_ifc())
+                owner->physical_ifc()->field_C &= ~0x200u;
+            if (auto *capsule = get_core()->field_70)
+                capsule->set_mode(static_cast<capsule_alter_sys::eAlterMode>(3));
+            if (owner->has_physical_ifc())
+                owner->physical_ifc()->set_gravity(true);
+        }
+        ai::base_state::_deactivate(a1);
+    } else {
+        THISCALL(0x0044B6A0, this, a1);
+    }
 }
 
 ai::state_trans_messages plr_loco_crawl_state::frame_advance(Float a2)
@@ -123,16 +212,13 @@ ai::state_trans_messages plr_loco_crawl_state::frame_advance(Float a2)
             player_controller->set_spidey_loco_mode(static_cast<eHeroLocoMode>(2));
         }
 
-        this->update_wallrun(a2);
+        reinterpret_cast<void (__fastcall *)(plr_loco_crawl_state *, void *, Float)>(
+            get_vfunc(m_vtbl, 0x48))(this, nullptr, a2);
         hero_inode_ptr->update_crawl_als_params();
         auto *the_actor = this->get_actor();
         if (the_actor->is_frame_delta_valid()) {
             auto *v11 = this->get_actor();
             vector3d v35 = v11->get_frame_delta()->get_position();
-            auto *v12 = this->get_actor();
-            auto &abs_po = v12->get_abs_po();
-
-            [[maybe_unused]] auto v36 = orthogonal_projection_onto_plane(v35, abs_po.get_y_facing());
             auto lateral_distance = v35.length();
             assert(lateral_distance >= 0.0f);
 
@@ -158,7 +244,7 @@ ai::state_trans_messages plr_loco_crawl_state::frame_advance(Float a2)
 
             static constexpr float autocrawl_timeout = 0.44999999;
 
-            if (v17->get_abs_po().get_z_facing().y > 0.80000001 &&
+            if (v17->get_abs_po().get_y_facing().y > 0.80000001 &&
                 this->can_handle_message((ai::state_trans_messages)71, false)) {
                 result = static_cast<ai::state_trans_messages>(71);
             } else if (hero_inode_ptr->field_238 < autocrawl_timeout ||
@@ -185,25 +271,22 @@ ai::state_trans_messages plr_loco_crawl_state::frame_advance(Float a2)
                         result = ai::TRANS_TRANSITION_MSG;
                     }
 
-                    sp_log("%d", hero_inode_ptr->field_20C.field_5);
                 }
             }
         }
 
         hero_inode_ptr->compute_curr_ground_plane((force_recompute_enum)1, 2.5);
-        auto v26 = hero_inode_ptr->field_88.field_10;
-        sp_log("%s", v26.to_string().c_str());
+        const auto &plane = hero_inode_ptr->field_88.field_10;
+        const vector3d v26{plane.x, plane.y, plane.z};
 
         if (v26.length2() < 0.000099999997) {
             result = static_cast<ai::state_trans_messages>(72);
         }
 
-        printf("result = %s\n", ai::state_trans_messages_str[result]);
         return result;
     } else {
         ai::state_trans_messages(__fastcall * func)(void *, void *, Float) = CAST(func, 0x0047D710);
         auto result = func(this, nullptr, a2);
-        printf("%d\n", result);
 
         return result;
     }
@@ -233,7 +316,6 @@ void plr_loco_crawl_state::update_wallrun([[maybe_unused]] Float a2)
         auto *v7 = this->get_actor();
         this->m_wallrun_deviation = 1.0f - std::abs(dot(this->field_38, v7->get_abs_po().get_z_facing()));
 
-        sp_log("wallrun_deviation: %.1f", this->m_wallrun_deviation);
     } else {
         auto *v9 = this->get_actor();
         this->field_38 = v9->get_abs_po().get_z_facing();
@@ -277,15 +359,6 @@ void plr_loco_crawl_state::update_wallrun([[maybe_unused]] Float a2)
 
     v6->set_desired_params(list, static_cast<als::layer_types>(0));
 
-    if (os_developer_options::instance->get_flag(mString{"SHOW_LOCOMOTION_INFO"})) {
-        mString v25{0, "wallrun dev %.2f %.2f", this->m_wallrun_deviation, a2};
-        color32 v20{255, 255, 255, 255};
-        insertDebugString(7, v25, v20);
-
-        v25 = mString{0, "crawl time  %.2fs", this->field_1C};
-        color32 v21{255, 255, 255, 255};
-        insertDebugString(8, v25, v21);
-    }
 
     auto *v16 = this->get_core();
     auto *v17 = (ai::hero_inode *)v16->get_info_node(ai::hero_inode::default_id, true);
