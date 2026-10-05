@@ -1,0 +1,173 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check-format:
+    name: clang-format
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Install clang-format
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends clang-format-18
+      - name: Check formatting
+        run: clang-format-18 --dry-run --Werror $(find src include test -name '*.cpp' -o -name '*.h' -o -name '*.hpp') main.cpp
+
+  build:
+    name: MinGW (${{ matrix.name }})
+    needs: check-format
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: normal
+            cmake-options: ''
+          - name: standalone
+            cmake-options: -DSETUP_STANDALONE_SYSTEM=ON
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          submodules: recursive
+          persist-credentials: false
+      - name: Install MinGW toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            cmake make gcc-mingw-w64-i686-posix g++-mingw-w64-i686-posix
+          sudo update-alternatives --set \
+            i686-w64-mingw32-gcc /usr/bin/i686-w64-mingw32-gcc-posix
+          sudo update-alternatives --set \
+            i686-w64-mingw32-g++ /usr/bin/i686-w64-mingw32-g++-posix
+      - name: Configure
+        env:
+          CMAKE_OPTIONS: ${{ matrix.cmake-options }}
+        run: cmake -G 'Unix Makefiles' -B build $CMAKE_OPTIONS
+      - name: Build
+        run: cmake --build build --parallel 4
+
+  build-clang-msvc:
+    name: clang-cl / xwin
+    needs: check-format
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          submodules: recursive
+          persist-credentials: false
+      - name: Install LLVM and build tools
+        run: |
+          curl --fail --location https://apt.llvm.org/llvm-snapshot.gpg.key \
+            --output "$RUNNER_TEMP/llvm.asc"
+          sudo install -m 644 "$RUNNER_TEMP/llvm.asc" /usr/share/keyrings/llvm.asc
+          echo 'deb [signed-by=/usr/share/keyrings/llvm.asc] https://apt.llvm.org/noble/ llvm-toolchain-noble-19 main' \
+            | sudo tee /etc/apt/sources.list.d/llvm-19.list
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            clang-19 lld-19 llvm-19 cmake ninja-build curl unzip patch
+          mkdir -p "$RUNNER_TEMP/llvm-bin"
+          ln -s /usr/bin/clang-19 "$RUNNER_TEMP/llvm-bin/clang-cl"
+          ln -s /usr/bin/llvm-ar-19 "$RUNNER_TEMP/llvm-bin/llvm-lib"
+      - name: Install x86 CRT and Windows SDK with xwin
+        run: |
+          curl --fail --location \
+            https://github.com/Jake-Shadle/xwin/releases/download/0.10.0/xwin-0.10.0-x86_64-unknown-linux-musl.tar.gz \
+            --output "$RUNNER_TEMP/xwin.tar.gz"
+          echo "d870eb4b2f390878af6da1ccd3cf321d22fcb72720984853b4be732ae597fc88  $RUNNER_TEMP/xwin.tar.gz" | sha256sum --check
+          tar -xzf "$RUNNER_TEMP/xwin.tar.gz" -C "$RUNNER_TEMP"
+          "$RUNNER_TEMP/xwin-0.10.0-x86_64-unknown-linux-musl/xwin" \
+            --accept-license --arch x86 --crt-version 14.38.17.8 \
+            splat --output "$RUNNER_TEMP/xwin"
+      - name: Install legacy DirectX headers and import libraries
+        run: |
+          curl --fail --location \
+            https://api.nuget.org/v3-flatcontainer/microsoft.dxsdk.d3dx/9.29.952.8/microsoft.dxsdk.d3dx.9.29.952.8.nupkg \
+            --output "$RUNNER_TEMP/d3dx.nupkg"
+          unzip -q "$RUNNER_TEMP/d3dx.nupkg" -d "$RUNNER_TEMP/d3dx"
+          # keep the C interface required that NuGet ships
+          printf '%s\r\n' \
+            '--- d3dx9core.h' \
+            '+++ d3dx9core.h' \
+            '@@ -347,3 +347,3 @@' \
+            '-#ifdef __cplusplus' \
+            '+#if defined(__cplusplus) && !defined(CINTERFACE)' \
+            ' #ifdef UNICODE' \
+            '     HRESULT GetDesc(D3DXFONT_DESCW *pDesc) { return GetDescW(pDesc); }' \
+            | patch --binary --directory="$RUNNER_TEMP/d3dx/build/native/include" --strip=0
+      - name: Install legacy DXErr8 SDK library sources
+        run: |
+          DXERR="$RUNNER_TEMP/dxerr8"
+          mkdir -p "$DXERR"
+          BASE=https://raw.githubusercontent.com/mingw-w64/mingw-w64/819a6ec2ea87c19814b287e21d65e0dc7f05abba
+          for file in dxerr.c dxerr8.c dxerr8w.c; do
+            curl --fail --location "$BASE/mingw-w64-crt/libsrc/$file" \
+              --output "$DXERR/$file"
+          done
+          curl --fail --location "$BASE/mingw-w64-headers/include/dxerr8.h" \
+            --output "$DXERR/dxerr8.h"
+          curl --fail --location "$BASE/mingw-w64-headers/crt/_mingw_unicode.h" \
+            --output "$DXERR/_mingw_unicode.h"
+          patch --directory="$DXERR" --strip=0 <<'EOF'
+          --- dxerr8.h
+          +++ dxerr8.h
+          @@ -35,2 +35,2 @@
+          -HRESULT WINAPI  DXTraceA(const char* strFile, DWORD dwLine, HRESULT hr, const char*  strMsg, WINBOOL bPopMsgBox);
+          -HRESULT WINAPI  DXTraceW(const char* strFile, DWORD dwLine, HRESULT hr, const WCHAR* strMsg, WINBOOL bPopMsgBox);
+          +HRESULT WINAPI  DXTraceA(const char* strFile, DWORD dwLine, HRESULT hr, const char*  strMsg, BOOL bPopMsgBox);
+          +HRESULT WINAPI  DXTraceW(const char* strFile, DWORD dwLine, HRESULT hr, const WCHAR* strMsg, BOOL bPopMsgBox);
+          EOF
+      - name: Configure clang-cl / xwin toolchain
+        run: |
+          cat > "$RUNNER_TEMP/clang-xwin.cmake" <<'EOF'
+          set(CMAKE_SYSTEM_NAME Windows)
+          set(CMAKE_SYSTEM_PROCESSOR x86)
+          set(XWIN "$ENV{RUNNER_TEMP}/xwin")
+          set(DXSDK "$ENV{RUNNER_TEMP}/d3dx/build/native")
+          set(DXERR "$ENV{RUNNER_TEMP}/dxerr8")
+          set(CMAKE_C_COMPILER "$ENV{RUNNER_TEMP}/llvm-bin/clang-cl")
+          set(CMAKE_CXX_COMPILER "${CMAKE_C_COMPILER}")
+          set(CMAKE_AR "$ENV{RUNNER_TEMP}/llvm-bin/llvm-lib")
+          set(CMAKE_LINKER /usr/bin/lld-link-19)
+          set(CMAKE_RC_COMPILER /usr/bin/llvm-rc-19)
+          set(CMAKE_MT /usr/bin/llvm-mt-19)
+          set(CMAKE_TRY_COMPILE_CONFIGURATION Release)
+          set(ASSIMP_WARNINGS_AS_ERRORS OFF CACHE BOOL "Keep dependency warnings non-fatal")
+          set(CMAKE_C_FLAGS_INIT "--target=i686-pc-windows-msvc /DNOMINMAX /D_X86_ /imsvc${XWIN}/crt/include /imsvc${XWIN}/sdk/include/ucrt /imsvc${XWIN}/sdk/include/um /imsvc${XWIN}/sdk/include/shared /imsvc${DXSDK}/include /imsvc${DXERR}")
+          set(CMAKE_CXX_FLAGS_INIT "${CMAKE_C_FLAGS_INIT}")
+          set(CMAKE_RC_FLAGS_INIT "/C1252 -I${XWIN}/sdk/include/um -I${XWIN}/sdk/include/shared -I${XWIN}/sdk/include/ucrt")
+          set(XWIN_LINK_FLAGS "/libpath:${XWIN}/crt/lib/x86 /libpath:${XWIN}/sdk/lib/ucrt/x86 /libpath:${XWIN}/sdk/lib/um/x86 /libpath:${DXSDK}/release/lib/x86 /libpath:${DXERR}")
+          set(CMAKE_EXE_LINKER_FLAGS_INIT "${XWIN_LINK_FLAGS}")
+          set(CMAKE_SHARED_LINKER_FLAGS_INIT "${XWIN_LINK_FLAGS}")
+          set(CMAKE_MODULE_LINKER_FLAGS_INIT "${XWIN_LINK_FLAGS}")
+          set(CMAKE_FIND_ROOT_PATH "${XWIN}")
+          set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+          set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+          set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+          EOF
+          "$RUNNER_TEMP/llvm-bin/clang-cl" --target=i686-pc-windows-msvc /MD /O2 /c \
+            "/imsvc$RUNNER_TEMP/xwin/crt/include" \
+            "/imsvc$RUNNER_TEMP/xwin/sdk/include/ucrt" \
+            "/imsvc$RUNNER_TEMP/xwin/sdk/include/um" \
+            "/imsvc$RUNNER_TEMP/xwin/sdk/include/shared" \
+            "$RUNNER_TEMP/dxerr8/dxerr8.c" "$RUNNER_TEMP/dxerr8/dxerr8w.c" \
+            "/Fo$RUNNER_TEMP/dxerr8/"
+          "$RUNNER_TEMP/llvm-bin/llvm-lib" "/out:$RUNNER_TEMP/dxerr8/dxerr8.lib" \
+            "$RUNNER_TEMP/dxerr8/dxerr8.obj" "$RUNNER_TEMP/dxerr8/dxerr8w.obj"
+          cmake -G Ninja -B build_msvc \
+            -DCMAKE_TOOLCHAIN_FILE="$RUNNER_TEMP/clang-xwin.cmake" \
+            -DUSM_USE_CLANG_XWIN=ON -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build_msvc --parallel 4
