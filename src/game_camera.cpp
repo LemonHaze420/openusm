@@ -130,15 +130,15 @@ game_camera::_camera_shake_t::_camera_shake_t()
 
 game_camera::game_camera(const string_hash &a2, entity *a3) : camera(nullptr, a2)
 {
-#if STANDALONE_SYSTEM
-    m_vtbl = reinterpret_cast<int>(native_vtable());
-    std::fill_n(field_D0, 16, 0.0f);
-    field_D0[0] = field_D0[5] = field_D0[10] = field_D0[15] = 1.0f;
-    reinterpret_cast<unsigned char *>(empty)[8] = 0;
-    field_12C = false;
-    set_target_entity(a3);
-    clear_shakes();
-#endif
+    if constexpr (STANDALONE_SYSTEM) {
+        m_vtbl = reinterpret_cast<int>(native_vtable());
+        std::fill_n(field_D0, 16, 0.0f);
+        field_D0[0] = field_D0[5] = field_D0[10] = field_D0[15] = 1.0f;
+        reinterpret_cast<unsigned char *>(empty)[8] = 0;
+        field_12C = false;
+        set_target_entity(a3);
+        clear_shakes();
+    }
 }
 
 void game_camera::clear_shakes()
