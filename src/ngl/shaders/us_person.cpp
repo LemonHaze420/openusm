@@ -72,6 +72,7 @@ const bool person_defaults_initialized = [] {
 
 static Var<IDirect3DPixelShader9 *> OutlinePShader{0x009707F0};
 
+#if STANDALONE_SYSTEM
 namespace {
 template <typename Shader>
 void __fastcall person_shader_name(Shader *shader, void *, tlFixedString *out)
@@ -92,6 +93,7 @@ bool __fastcall person_switchable(nglShader *, void *)
     return false;
 }
 }  // namespace
+#endif
 
 USPersonShader::USPersonShader() : field_C{"USPerson"}
 {

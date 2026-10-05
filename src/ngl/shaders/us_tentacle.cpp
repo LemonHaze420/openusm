@@ -16,6 +16,7 @@
 #include <cstddef>
 #include <new>
 
+#if STANDALONE_SYSTEM
 namespace {
 struct TentacleShader : nglShader {
     TentacleShader();
@@ -378,9 +379,14 @@ void TentacleNode::Render()
     state.setColourBufferWriteEnabled(7);
 }
 }  // namespace
+#endif
 
 nglShader &getTentacle_Shader()
 {
+#if STANDALONE_SYSTEM
     static Var<TentacleShader> shader{0x0091E62C};
+#else
+    static Var<nglShader> shader{0x0091E62C};
+#endif
     return shader();
 }
