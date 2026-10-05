@@ -73,7 +73,9 @@ void reject_unported_client_allocation(script_executable *, _std::list<uint32_t>
 
 int vm_entity_garbage_collection_id = -1;
 int vm_script_entity_lists_garbage_collection_id = -1;
+#if STANDALONE_SYSTEM
 int vm_civilian_info_garbage_collection_id = -1;
+#endif
 _std::list<_std::vector<entity_base_vhandle> *> script_entity_lists;
 
 #if STANDALONE_SYSTEM
@@ -114,6 +116,7 @@ void release_allocated_entities(script_executable *, _std::list<uint32_t> &alloc
     }
 }
 
+#if STANDALONE_SYSTEM
 void vm_civilian_info_garbage_collection_callback(script_executable *, _std::list<uint32_t> &allocations,
                                                   _std::list<mString> &)
 {
@@ -121,6 +124,7 @@ void vm_civilian_info_garbage_collection_callback(script_executable *, _std::lis
         poi_manager::remove_point_of_interest(static_cast<int>(index));
     }
 }
+#endif
 
 
 void construct_civilian_info_lib()

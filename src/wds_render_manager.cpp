@@ -748,6 +748,7 @@ void project_view_frustum(const vector3d &forward, projected_frustum &points, fl
 }
 
 
+#if STANDALONE_SYSTEM
 bool square_intersects_projected_hull(const projected_frustum &points, const vector2d &min, const vector2d &max)
 {
     vector2d hull_min{std::numeric_limits<float>::max(), std::numeric_limits<float>::max()};
@@ -845,6 +846,7 @@ float render_ground_level()
     auto *reg = hero != nullptr ? hero->get_primary_region() : nullptr;
     return reg != nullptr ? reg->get_ground_level() : 0.0f;
 }
+#endif
 }  // namespace
 
 void wds_render_manager::build_render_data_regions(render_data &data, camera &cam)

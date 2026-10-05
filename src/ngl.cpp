@@ -855,6 +855,7 @@ static int (&dword_975474)[2] = []() -> auto & {
 }();
 #endif
 
+#if STANDALONE_SYSTEM
 struct DefaultPoolBuffer {
     nglVertexBuffer *buffer;
     uint32_t flags;
@@ -863,6 +864,7 @@ struct DefaultPoolBuffer {
     DefaultPoolBuffer *previous;
 };
 static DefaultPoolBuffer *default_pool_tail{};
+#endif
 
 void sub_781F80(nglVertexBuffer *buffer, int size, uint32_t flags)
 {

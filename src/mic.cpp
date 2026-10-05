@@ -87,6 +87,7 @@ void *mic::operator new(size_t size)
     return mem_alloc(size);
 }
 
+#if STANDALONE_SYSTEM
 namespace {
 
 float listener_asin(float value)
@@ -127,6 +128,7 @@ vector3d advance_listener_velocity(const vector3d &start, const vector3d &target
     return result;
 }
 }  // namespace
+#endif
 
 void mic::frame_advance(Float time_inc)
 {
