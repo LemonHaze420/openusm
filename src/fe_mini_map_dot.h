@@ -24,5 +24,6 @@ struct fe_mini_map_dot {
     fe_mini_map_dot(mini_map_dot_type a2, vector3d a3);
 
     //0x0060C5E0
+    ~fe_mini_map_dot();
     void Draw();
 };

@@ -575,6 +575,8 @@ void *create_native_mash_class(uint32_t type, mash_virtual_base *storage = nullp
         return create_mash_class<ai::base_full_target_inode>(type, storage, storage_size);
     case 351:
         return create_mash_class<ai::combat_target_inode>(type, storage, storage_size);
+    case 353:
+        return create_mash_class<ai::player_combat_target_inode>(type, storage, storage_size);
     case 356:
         return create_mash_class<ai::venom_combat_target_inode>(type, storage, storage_size);
     case 357:
@@ -1017,6 +1019,7 @@ void mash_virtual_base::generate_vtable()
         vtable()[346] = ai::player_combat_inode::native_vtable();
         vtable()[349] = ai::base_full_target_inode::native_vtable();
         vtable()[351] = ai::combat_target_inode::native_vtable();
+        vtable()[353] = ai::player_combat_target_inode::native_vtable();
         vtable()[356] = ai::venom_combat_target_inode::native_vtable();
         vtable()[357] = ai::cpu_controller_inode::native_vtable();
         vtable()[358] = ai::player_controller_inode::native_vtable();

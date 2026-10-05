@@ -14,6 +14,8 @@
 #include "vector3d.h"
 #include "web_sounds.h"
 
+#include <algorithm>
+#include <cmath>
 static constexpr int SM_MAX_SOURCE_TYPES = 8;
 
 struct sound_volume {
@@ -31,6 +33,32 @@ static sound_volume (&s_volumes_by_type)[8] = var<sound_volume[8]>(0x0095C9A8);
 
 #else
 
+struct sound_type_fade {
+    float start;
+    float target;
+    float current;
+    float duration;
+    float remaining;
+    float slope;
+};
+
+static sound_type_fade s_type_fade{1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f};
+static uint32_t s_fade_sound_types;
+static uint32_t s_sound_manager_flags;
+
+static unsigned int native_sound_type(nslWaveID wave)
+{
+    const auto *group = nslGetWaveGroupName(wave);
+    static constexpr const char *names[] = {"", "SFX", "AMBIENT", "MUSIC", "VOICE", "SCENE", "CINEMATIC", "MOVIE"};
+    if (group != nullptr) {
+        for (unsigned int i = 1; i < 8; ++i) {
+            if (_stricmp(group, names[i]) == 0) {
+                return i;
+            }
+        }
+    }
+    return 0;
+}
 static bool &s_sound_manager_initialized = []() -> auto & {
     static bool s_sound_manager_initialized1{};
     return s_sound_manager_initialized1;
@@ -129,6 +157,9 @@ void sound_manager::load_common_sound_bank(bool synchronous)
 void sound_manager::create_inst()
 {
 #if STANDALONE_SYSTEM
+    s_type_fade = {1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f};
+    s_fade_sound_types = 0;
+    s_sound_manager_flags = 0;
     for (auto &volume : s_volumes_by_type) {
         volume.field_0 = 1.0f;
     }
@@ -204,6 +235,35 @@ void sound_manager::frame_advance(Float a1)
     for (auto &slot : s_sound_bank_slots()) {
         slot.frame_advance(a1);
     }
+    if ((s_sound_manager_flags & 1u) != 0 && s_type_fade.remaining > 0.0f) {
+        s_type_fade.remaining -= float(a1);
+        if (s_type_fade.remaining <= 0.0f) {
+            s_type_fade.remaining = 0.0f;
+            s_type_fade.current = s_type_fade.target;
+        } else {
+            s_type_fade.current += float(a1) * s_type_fade.slope;
+        }
+    }
+    for (int i = 0; i < 128; ++i) {
+        auto &slot = s_sound_instance_slots[i];
+        if (slot.field_50 != 0) {
+            slot.instance.set_volume(slot.instance.volume);
+        }
+    }
+    if ((s_sound_manager_flags & 1u) != 0 && std::fpclassify(s_type_fade.current - s_type_fade.target) == FP_ZERO) {
+        s_sound_manager_flags &= ~1u;
+        if ((s_sound_manager_flags & 2u) != 0) {
+            for (int i = 0; i < 128; ++i) {
+                auto &slot = s_sound_instance_slots[i];
+                if (slot.field_50 != 0 &&
+                    (s_fade_sound_types & (1u << native_sound_type(slot.instance.wave_id))) != 0) {
+                    nslPauseSource(slot.instance.source_id);
+                    slot.instance.state = 4;
+                }
+            }
+            s_sound_manager_flags &= ~2u;
+        }
+    }
     update_native_sound_instances();
     nslUpdate();
 #else
@@ -235,6 +295,24 @@ float sound_manager::get_source_type_volume(unsigned int source_type)
     return s_volumes_by_type[source_type].field_0;
 }
 
+float sound_manager::get_effective_source_type_volume(unsigned int source_type)
+{
+    const auto volume = get_source_type_volume(source_type);
+#if STANDALONE_SYSTEM
+    if ((s_sound_manager_flags & 1u) != 0 && (s_fade_sound_types & (1u << source_type)) != 0 &&
+        ((volume < s_type_fade.current || volume > s_type_fade.target) &&
+         (volume > s_type_fade.current || volume < s_type_fade.target))) {
+        return std::clamp(s_type_fade.current * volume, 0.0f, 1.0f);
+    }
+#endif
+    return volume;
+}
+#if STANDALONE_SYSTEM
+float sound_manager::get_wave_type_volume(nslWaveID wave)
+{
+    return get_effective_source_type_volume(native_sound_type(wave));
+}
+#endif
 void sound_manager::set_source_type_volume(unsigned int source_type, Float value, Float duration)
 {
     assert(s_sound_manager_initialized);
@@ -249,19 +327,44 @@ void sound_manager::set_source_type_volume(unsigned int source_type, Float value
 
 void sound_manager::unpause_all_sounds()
 {
-    if constexpr (0) {
-    } else {
-        CDECL_CALL(0x00520520);
+#if STANDALONE_SYSTEM
+    for (int i = 0; i < 128; ++i) {
+        auto &slot = s_sound_instance_slots[i];
+        if (slot.field_50 != 0) {
+            nslUnpauseSource(slot.instance.source_id);
+            slot.instance.state = nslSourceIsPaused(slot.instance.source_id)    ? 4
+                                  : nslSourceIsPlaying(slot.instance.source_id) ? 3
+                                                                                : 0;
+        }
     }
+#else
+    CDECL_CALL(0x00520520);
+#endif
 }
 
 int sound_manager::fade_sounds_by_type(uint32_t a1, Float a2, Float a3, bool a4)
 {
-    if constexpr (0) {
+#if STANDALONE_SYSTEM
+    s_fade_sound_types = a1;
+    s_type_fade.start = s_type_fade.current;
+    s_type_fade.target = a2;
+    if (a3 <= 0.0f) {
+        s_type_fade.current = a2;
+        s_type_fade.remaining = 0.0f;
     } else {
-        int(__cdecl * func)(uint32_t a1, Float a2, Float a3, bool a4) = CAST(func, 0x0050FA50);
-        return func(a1, a2, a3, a4);
+        s_type_fade.duration = a3;
+        s_type_fade.remaining = a3;
+        s_type_fade.slope = (float(a2) - s_type_fade.current) / float(a3);
     }
+    s_sound_manager_flags = (s_sound_manager_flags | 1u) & ~2u;
+    if (a4) {
+        s_sound_manager_flags |= 2u;
+    }
+    return s_sound_manager_flags;
+#else
+    int(__cdecl * func)(uint32_t a1, Float a2, Float a3, bool a4) = CAST(func, 0x0050FA50);
+    return func(a1, a2, a3, a4);
+#endif
 }
 
 char *sub_50F010()

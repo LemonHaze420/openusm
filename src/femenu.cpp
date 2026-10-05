@@ -221,12 +221,24 @@ void FEMenu::Load()
 
 void FEMenu::Draw()
 {
+    if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00893E78) {
+            static_cast<fe_dialog_text *>(this)->Draw();
+            return;
+        }
+    }
     void(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x18));
     func(this);
 }
 
 void FEMenu::Update(Float a2)
 {
+    if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00893E78) {
+            static_cast<fe_dialog_text *>(this)->Update(a2);
+            return;
+        }
+    }
     if ((128 & this->field_28) != 0 && this->field_2A != -1) {
         this->field_1C = this->field_1C - a2;
         if (this->field_1C <= 0.0f) {
@@ -249,6 +261,9 @@ void FEMenu::OnActivate()
 {
     if constexpr (STANDALONE_SYSTEM) {
         switch (m_vtbl) {
+        case 0x00893E78:
+            static_cast<fe_dialog_text *>(this)->OnActivate();
+            return;
         case 0x00894648:
             static_cast<main_menu_start *>(this)->_OnActivate();
             return;
@@ -280,6 +295,10 @@ void FEMenu::OnActivate()
 void FEMenu::OnDeactivate(FEMenu *a2)
 {
     if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00893E78) {
+            static_cast<fe_dialog_text *>(this)->OnDeactivate();
+            return;
+        }
         if (m_vtbl == 0x00895790) {
             static_cast<main_menu_keyboard *>(this)->OnDeactivate(a2);
             return;
@@ -302,6 +321,10 @@ void FEMenu::OnDeactivate(FEMenu *a2)
 
 void FEMenu::OnSelect(int a2)
 {
+    if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00893E78)
+            return;
+    }
     void(__fastcall * func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x34));
     func(this, nullptr, a2);
 }
@@ -322,6 +345,10 @@ void FEMenu::OnStart(int controller)
 void FEMenu::OnUp(int a2)
 {
     if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00893E78) {
+            static_cast<fe_dialog_text *>(this)->OnUp(a2);
+            return;
+        }
         if (m_vtbl == 0x00895790) {
             static_cast<main_menu_keyboard *>(this)->OnUp(a2);
             return;
@@ -340,6 +367,10 @@ void FEMenu::OnUp(int a2)
 void FEMenu::OnDown(int a2)
 {
     if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00893E78) {
+            static_cast<fe_dialog_text *>(this)->OnDown(a2);
+            return;
+        }
         if (m_vtbl == 0x00895790) {
             static_cast<main_menu_keyboard *>(this)->OnDown(a2);
             return;
@@ -358,6 +389,10 @@ void FEMenu::OnDown(int a2)
 void FEMenu::OnLeft(int a2)
 {
     if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00893E78) {
+            static_cast<fe_dialog_text *>(this)->OnLeft(a2);
+            return;
+        }
         if (m_vtbl == 0x00895790) {
             static_cast<main_menu_keyboard *>(this)->OnLeft(a2);
             return;
@@ -372,6 +407,10 @@ void FEMenu::OnLeft(int a2)
 void FEMenu::OnRight(int a2)
 {
     if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00893E78) {
+            static_cast<fe_dialog_text *>(this)->OnRight(a2);
+            return;
+        }
         if (m_vtbl == 0x00895790) {
             static_cast<main_menu_keyboard *>(this)->OnRight(a2);
             return;
@@ -386,6 +425,10 @@ void FEMenu::OnRight(int a2)
 void FEMenu::OnCross(int controller)
 {
     if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00893E78) {
+            static_cast<fe_dialog_text *>(this)->OnCross(controller);
+            return;
+        }
         if (m_vtbl == 0x00894648) {
             static_cast<main_menu_start *>(this)->OnCross(controller);
         } else if (m_vtbl == 0x00895910) {
@@ -405,6 +448,10 @@ void FEMenu::OnCross(int controller)
 void FEMenu::OnTriangle(int a2)
 {
     if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00893E78) {
+            static_cast<fe_dialog_text *>(this)->OnTriangle(a2);
+            return;
+        }
         if (m_vtbl == 0x00895790) {
             static_cast<main_menu_keyboard *>(this)->OnTriangle(a2);
             return;
@@ -418,6 +465,8 @@ void FEMenu::OnTriangle(int a2)
 void FEMenu::OnSquare(int a2)
 {
     if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00893E78)
+            return;
         if (m_vtbl == 0x00895790) {
             static_cast<main_menu_keyboard *>(this)->OnSquare(a2);
             return;
@@ -431,6 +480,8 @@ void FEMenu::OnSquare(int a2)
 void FEMenu::OnCircle(int a2)
 {
     if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00893E78)
+            return;
         if (m_vtbl == 0x00895790) {
             static_cast<main_menu_keyboard *>(this)->OnCircle(a2);
             return;
@@ -443,24 +494,40 @@ void FEMenu::OnCircle(int a2)
 
 void FEMenu::OnL1(int a2)
 {
+    if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00893E78)
+            return;
+    }
     void(__fastcall * func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x5C));
     func(this, nullptr, a2);
 }
 
 void FEMenu::OnR1(int a2)
 {
+    if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00893E78)
+            return;
+    }
     void(__fastcall * func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x60));
     func(this, nullptr, a2);
 }
 
 void FEMenu::OnL2(int a2)
 {
+    if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00893E78)
+            return;
+    }
     void(__fastcall * func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x64));
     func(this, nullptr, a2);
 }
 
 void FEMenu::OnR2(int a2)
 {
+    if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00893E78)
+            return;
+    }
     void(__fastcall * func)(FEMenu *, void *, int) = CAST(func, get_vfunc(m_vtbl, 0x68));
     func(this, nullptr, a2);
 }
@@ -478,6 +545,12 @@ void FEMenu::OnAnyButtonPress(int a2, int a3)
 
 void FEMenu::OnButtonRelease(int a2, int a3)
 {
+    if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00893E78) {
+            static_cast<fe_dialog_text *>(this)->OnAnyButtonRelease(a2, a3);
+            return;
+        }
+    }
     if ((128 & this->field_28) != 0 && (a3 == 4 || a3 == 8 || a3 == 16 || a3 == 32) &&
         a2 == input_mgr::instance->field_58 - 1000000 && a3 == this->field_2A) {
         this->field_2A = -1;

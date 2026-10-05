@@ -28,6 +28,7 @@ struct entity_tracker_manager {
     void destroy_entity_tracker(uint32_t id);
 
     //0x0062EE10
+    void set_entity(uint32_t id, entity *owner);
     bool get_the_arrow_target_pos(vector3d *);
 
     void place_poi_reticles();

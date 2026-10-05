@@ -36,6 +36,9 @@
 #include "resource_directory.h"
 #include "ngl.h"
 
+#include "cursor.h"
+#include "mission_manager.h"
+#include "variables.h"
 #include <cassert>
 
 VALIDATE_SIZE(PauseMenuSystem, 0x3Cu);
@@ -87,6 +90,22 @@ PauseMenuSystem::PauseMenuSystem(font_index a2) : FEMenuSystem(17, a2)
     }
 }
 
+void PauseMenuSystem::Activate(int index, bool pause_game)
+{
+#if STANDALONE_SYSTEM
+    if (m_index < 0) {
+        MakeActive(index);
+        if (pause_game) {
+            g_game_ptr->pause();
+        }
+        reinterpret_cast<uint8_t *>(&field_38)[0] = comic_panels::game_play_panel()->field_67;
+        var<MemoryUnitManager::InsertRemoveObserver *>(0x00984820) =
+            reinterpret_cast<MemoryUnitManager::InsertRemoveObserver *>(field_34->field_2C);
+    }
+#else
+    THISCALL(0x0060BE90, this, index, pause_game);
+#endif
+}
 bool PauseMenuSystem::IsDialogActivated()
 {
     return this->m_index == 0;
@@ -119,7 +138,41 @@ void PauseMenuSystem::LoadAll()
 
 void PauseMenuSystem::Draw()
 {
+#if STANDALONE_SYSTEM
+    if (m_index < 0) {
+        return;
+    }
+    const auto set_projection = [] {
+        if (!EnableShader) {
+            matrix4x4 transform{};
+            transform[0].x = 0.003125f;
+            transform[1].y = 0.004166666f;
+            transform[2].z = -1.0f;
+            transform[3] = {-1.0f, -1.0f, 0.0f, 1.0f};
+            nglSetWorldToViewMatrix({transform});
+            nglSetAspectRatio(1.0f);
+            nglSetOrthoMatrix(1000.0f, 10000.0f);
+            nglCalculateMatrices(false);
+        }
+    };
+    nglListBeginScene(static_cast<nglSceneParamType>(0));
+    set_projection();
+    mission_manager::s_inst->render_fade();
+    nglListEndScene();
+    nglListBeginScene(static_cast<nglSceneParamType>(1));
+    nglSetClearFlags(6);
+    set_projection();
+    if (m_index >= 0) {
+        field_4[m_index]->Draw();
+        if (m_index == 0 && static_cast<fe_dialog_text *>(field_4[0])->field_9C != 3) {
+            g_femanager.IGO->field_4->Draw();
+        }
+    }
+    g_cursor->Draw();
+    nglListEndScene();
+#else
     THISCALL(0x0060BF10, this);
+#endif
 }
 
 

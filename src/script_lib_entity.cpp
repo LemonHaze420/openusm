@@ -21,6 +21,8 @@
 #include "wds.h"
 #include "variant_interface.h"
 
+#include "script_manager.h"
+#include "time_interface.h"
 #include <cmath>
 #include <type_traits>
 
@@ -515,11 +517,26 @@ struct slf__entity__apply_continuous_rotation__vector3d__num__num__t : script_li
     slf__entity__apply_continuous_rotation__vector3d__num__num__t(script_library_class *slc, const char *a3)
         : function(slc, a3)
     {
+#if STANDALONE_SYSTEM
+        bind_standalone_entity_slf(this);
+#else
         m_vtbl = (decltype(m_vtbl))0x0089ACA4;
+#endif
     }
 
-    bool operator()(vm_stack &, script_library_class::function::entry_t) const
+    struct parms_t {
+        entity_base_vhandle entity;
+        vector3d axis;
+        float speed;
+        float detached;
+    };
+
+    bool operator()(vm_stack &stack, script_library_class::function::entry_t) const
     {
+        SLF_PARMS;
+        physical_interface::apply_continuous_rotation(parms->entity, parms->axis, parms->speed);
+        if (!(parms->detached > 0.f))
+            parms->entity.get_volatile_ptr();
         return true;
     }
 };
@@ -2736,11 +2753,24 @@ struct slf__entity__set_default_variant__t : script_library_class::function {
 struct slf__entity__set_distance_clip__num__t : script_library_class::function {
     slf__entity__set_distance_clip__num__t(script_library_class *slc, const char *a3) : function(slc, a3)
     {
+#if STANDALONE_SYSTEM
+        bind_standalone_entity_slf(this);
+#else
         m_vtbl = (decltype(m_vtbl))0x0089ADAC;
+#endif
     }
 
-    bool operator()(vm_stack &, script_library_class::function::entry_t) const
+    struct parms_t {
+        entity_base_vhandle entity;
+        float distance;
+    };
+
+    bool operator()(vm_stack &stack, script_library_class::function::entry_t) const
     {
+        SLF_PARMS;
+        if (auto *owner = parms->entity.get_volatile_ptr()) {
+            owner->set_fade_distance(parms->distance);
+        }
         return true;
     }
 };
@@ -3231,11 +3261,32 @@ struct slf__entity__set_rel_position__vector3d__t : script_library_class::functi
 struct slf__entity__set_render_alpha__num__t : script_library_class::function {
     slf__entity__set_render_alpha__num__t(script_library_class *slc, const char *a3) : function(slc, a3)
     {
+#if STANDALONE_SYSTEM
+        bind_standalone_entity_slf(this);
+#else
         m_vtbl = (decltype(m_vtbl))0x0089B244;
+#endif
     }
 
-    bool operator()(vm_stack &, script_library_class::function::entry_t) const
+    struct parms_t {
+        entity_base_vhandle entity;
+        float alpha;
+    };
+
+    bool operator()(vm_stack &stack, script_library_class::function::entry_t) const
     {
+        SLF_PARMS;
+        auto *owner = parms->entity.get_volatile_ptr();
+        if (owner != nullptr && owner->is_an_entity()) {
+            if (parms->alpha < 0.0f)
+                parms->alpha = 0.0f;
+            if (parms->alpha > 1.0f)
+                parms->alpha = 1.0f;
+            auto *entity_ptr = static_cast<entity *>(owner);
+            auto color = entity_ptr->get_render_color();
+            color.field_0[3] = static_cast<uint8_t>(parms->alpha * 255.0);
+            entity_ptr->set_render_color(color);
+        }
         return true;
     }
 };
@@ -3620,12 +3671,64 @@ struct slf__entity__wait_change_render_color__vector3d__num__num__t : script_lib
     slf__entity__wait_change_render_color__vector3d__num__num__t(script_library_class *slc, const char *a3)
         : function(slc, a3)
     {
+#if STANDALONE_SYSTEM
+        bind_standalone_entity_slf(this);
+#else
         m_vtbl = (decltype(m_vtbl))0x0089B25C;
+#endif
     }
 
-    bool operator()(vm_stack &, script_library_class::function::entry_t) const
+    struct parms_t {
+        entity_base_vhandle owner;
+        vector3d color;
+        float alpha;
+        float duration;
+    };
+
+    struct recall_t {
+        float red;
+        float green;
+        float blue;
+        float alpha;
+        float elapsed;
+    };
+
+    bool operator()(vm_stack &stack, script_library_class::function::entry_t entry) const
     {
-        return true;
+        SLF_PARMS;
+        auto *owner = parms->owner.get_volatile_ptr();
+        if (owner == nullptr)
+            return true;
+        auto *recall = reinterpret_cast<recall_t *>(parms + 1);
+        if (entry == FIRST_ENTRY) {
+            const auto color =
+                owner->is_an_entity() ? static_cast<entity *>(owner)->get_render_color() : color32{0xFFFFFFFF};
+            recall->red = static_cast<unsigned char>(color.field_0[2]) * 0.0039215689f;
+            recall->green = static_cast<unsigned char>(color.field_0[1]) * 0.0039215689f;
+            recall->blue = static_cast<unsigned char>(color.field_0[0]) * 0.0039215689f;
+            recall->alpha = static_cast<unsigned char>(color.field_0[3]) * 0.0039215689f;
+            recall->elapsed = 0.0f;
+            return false;
+        }
+        const float time_scale =
+            owner->has_time_ifc() ? owner->time_ifc()->sub_4ADE50() : g_world_ptr->time_manager.field_0;
+        recall->elapsed += script_manager::get_time_inc() * time_scale;
+        if (recall->elapsed > parms->duration)
+            recall->elapsed = parms->duration;
+        const bool immediate = equal(parms->duration, 0.0f);
+        const double amount = immediate ? 1.0 : recall->elapsed / double(parms->duration);
+        const auto interpolate = [immediate, amount](float initial, float target) {
+            return static_cast<uint8_t>((immediate ? target : initial + (target - initial) * amount) * 255);
+        };
+        if (owner->is_an_entity()) {
+            color32 color;
+            color.field_0[2] = interpolate(recall->red, parms->color.x);
+            color.field_0[1] = interpolate(recall->green, parms->color.y);
+            color.field_0[0] = interpolate(recall->blue, parms->color.z);
+            color.field_0[3] = interpolate(recall->alpha, parms->alpha);
+            static_cast<entity *>(owner)->set_render_color(color);
+        }
+        return !(recall->elapsed < parms->duration);
     }
 };
 

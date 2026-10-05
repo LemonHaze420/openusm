@@ -10,6 +10,9 @@
 #include "trace.h"
 #include "variables.h"
 
+#include "femultilinetext.h"
+#include "game.h"
+#include "localized_string_table.h"
 #include <cassert>
 #include <stdio.h>
 #include <windows.h>
@@ -434,7 +437,42 @@ void *dialog_box_formatting(mString *out_string, mString a2, int a3, int a4)
 {
     //sp_log("dialog_box_formatting: %s", a2.guts);
 
+#if STANDALONE_SYSTEM
+    auto *argument = reinterpret_cast<const float *>(a3 + a4);
+    mString formatted;
+    int start = 0;
+    for (int marker = a2.find("%", 0); marker != mString::npos; marker = a2.find("%", start)) {
+        formatted.append(a2.c_str() + start, marker - start);
+        switch (a2[marker + 1]) {
+        case '%':
+            formatted.append('%');
+            break;
+        case 'd':
+            formatted += mString::from_int(static_cast<int>(*argument++));
+            break;
+        case 'f':
+            formatted += mString::from_float(*argument++);
+            break;
+        case 's':
+            formatted += g_game_ptr->field_7C->lookup_scripttext_string(static_cast<int>(*argument++));
+            break;
+        case 'z':
+            formatted += *reinterpret_cast<const char *const *>(argument++);
+            break;
+        }
+        start = marker + 2;
+        if (start >= a2.size()) {
+            break;
+        }
+    }
+    if (start < a2.size()) {
+        formatted.append(a2.c_str() + start, a2.size() - start);
+    }
+    *out_string = FEMultiLineText::ReplaceEndlines(formatted);
+    return out_string;
+#else
     return (void *)CDECL_CALL(0x0064DF30, out_string, a2, a3, a4);
+#endif
 }
 
 void mString::append(char a3)

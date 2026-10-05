@@ -9,6 +9,7 @@ struct sound_instance_id;
 struct string_hash;
 struct sound_source;
 struct vector3d;
+struct nslWaveID;
 
 namespace sound_manager {
 //0x0050FFE0
@@ -48,6 +49,12 @@ extern void set_source_type_volume(unsigned int source_type, Float a2, Float a3)
 extern float get_source_type_volume(unsigned int source_type);
 
 //0x0050FA50
+extern float get_effective_source_type_volume(unsigned int source_type);
+#if STANDALONE_SYSTEM
+extern float get_wave_type_volume(nslWaveID wave);
+#endif
+
+
 extern int fade_sounds_by_type(uint32_t a1, Float a2, Float a3, bool a4);
 
 //0x00520520

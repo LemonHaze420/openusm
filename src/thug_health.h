@@ -9,6 +9,7 @@ struct PanelQuad;
 struct thug_health {
     struct widget_instance {
         bool field_0;
+        bool visible;
         vector3d field_4;
         entity_base_vhandle field_10;
         int field_14;
@@ -31,6 +32,9 @@ struct thug_health {
 
     //0x00644250
     void init();
+    int create();
+    void destroy(int index);
+    void set_entity(int index, entity_base *owner);
 };
 
 extern void thug_health_patch();

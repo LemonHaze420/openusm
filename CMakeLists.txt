@@ -398,6 +398,9 @@ if(NOT SETUP_STANDALONE_SYSTEM)
         set(ASSIMP_TOOLCHAIN_ARGS
             -DCMAKE_TOOLCHAIN_FILE=${CMAKE_SOURCE_DIR}/cmake/i686-pc-mingw32.cmake
             -DCMAKE_CXX_FLAGS=-static-libgcc\ -static-libstdc++)
+        set(ASSIMP_BUILD_BYPRODUCTS
+            "${CMAKE_BINARY_DIR}/assimp-build/lib/libassimp.a"
+            "${CMAKE_BINARY_DIR}/assimp-build/contrib/zlib/libzlibstatic.a")
     endif()
     ExternalProject_Add(
         AssimpProject
@@ -421,7 +424,6 @@ if(NOT SETUP_STANDALONE_SYSTEM)
         INSTALL_COMMAND ""
     )
     target_include_directories(usm PUBLIC "./assimp/include/" "${CMAKE_BINARY_DIR}/assimp-build/include")
-    target_link_directories(usm PUBLIC ${CMAKE_BINARY_DIR}/assimp-build/lib)
     add_dependencies(usm AssimpProject)
 endif()
 
@@ -437,11 +439,7 @@ target_link_libraries(usm PUBLIC charanimtype mash chuck nfl ngl nal nsl utility
 target_link_libraries(usm PUBLIC winmm psapi d3d9 dinput8 dxguid dsound)
 
 if(NOT SETUP_STANDALONE_SYSTEM)
-    if(USM_USE_CLANG_XWIN)
-        target_link_libraries(usm PUBLIC ${ASSIMP_BUILD_BYPRODUCTS})
-    else()
-        target_link_libraries(usm PUBLIC assimp z)
-    endif()
+    target_link_libraries(usm PUBLIC ${ASSIMP_BUILD_BYPRODUCTS})
 endif()
 
 

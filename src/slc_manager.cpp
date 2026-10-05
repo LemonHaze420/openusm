@@ -1,5 +1,15 @@
 #include "slc_manager.h"
 
+#include "base_ai_core.h"
+#include "conglom.h"
+#include "als_animation_logic_system.h"
+#include "pendulum.h"
+#include "physical_interface.h"
+#include "state_machine.h"
+#include "us_lighting.h"
+#include "fe_dialog_text.h"
+#include "pausemenusystem.h"
+#include "localized_string_table.h"
 #include "debugutil.h"
 #include "cut_scene_player.h"
 #include "filespec.h"
@@ -39,6 +49,12 @@
 #include "spiderman_camera.h"
 #include "trace.h"
 #include "traffic.h"
+#include "point_trigger.h"
+#include "trigger_manager.h"
+#include "entity_tracker_manager.h"
+#include "entity_tracker.h"
+#include "fe_mini_map_dot.h"
+#include "mini_map_dot_type.h"
 #include "terrain.h"
 #include "utility.h"
 #include "variables.h"
@@ -73,6 +89,8 @@ void reject_unported_client_allocation(script_executable *, _std::list<uint32_t>
 
 int vm_entity_garbage_collection_id = -1;
 int vm_script_entity_lists_garbage_collection_id = -1;
+int vm_trigger_garbage_collection_id = -1;
+int vm_entity_tracker_garbage_collection_id = -1;
 #if STANDALONE_SYSTEM
 int vm_civilian_info_garbage_collection_id = -1;
 #endif
@@ -101,6 +119,20 @@ void release_script_entity_lists(script_executable *, _std::list<uint32_t> &allo
     }
 }
 
+void release_allocated_triggers(script_executable *, _std::list<uint32_t> &allocations, _std::list<mString> &)
+{
+    for (const auto allocation : allocations) {
+        auto *trigger_ptr = static_cast<trigger *>(entity_base_vhandle{allocation}.get_volatile_ptr());
+        if (trigger_ptr != nullptr)
+            trigger_manager::instance->delete_trigger(trigger_ptr);
+    }
+}
+
+void release_allocated_entity_trackers(script_executable *, _std::list<uint32_t> &allocations, _std::list<mString> &)
+{
+    for (const auto allocation : allocations)
+        g_femanager.IGO->field_54->destroy_entity_tracker(allocation);
+}
 void release_allocated_entities(script_executable *, _std::list<uint32_t> &allocations, _std::list<mString> &)
 {
     if (g_world_ptr == nullptr) {
@@ -289,7 +321,8 @@ void construct_client_script_libs()
         vm_entity_garbage_collection_id = script_manager::register_allocated_stuff_callback(release_allocated_entities);
         script_manager::register_allocated_stuff_callback(reject_unported_client_allocation);
         script_manager::register_allocated_stuff_callback(reject_unported_client_allocation);
-        script_manager::register_allocated_stuff_callback(reject_unported_client_allocation);
+        vm_trigger_garbage_collection_id =
+            script_manager::register_allocated_stuff_callback(release_allocated_triggers);
         script_manager::register_allocated_stuff_callback(ignore_panel_references);
         script_manager::register_allocated_stuff_callback(reject_unported_client_allocation);
         script_manager::register_allocated_stuff_callback(reject_unported_client_allocation);
@@ -297,7 +330,8 @@ void construct_client_script_libs()
             script_manager::register_allocated_stuff_callback(release_script_entity_lists);
         script_manager::register_allocated_stuff_callback(reject_unported_client_allocation);
         script_manager::register_allocated_stuff_callback(reject_unported_client_allocation);
-        script_manager::register_allocated_stuff_callback(reject_unported_client_allocation);
+        vm_entity_tracker_garbage_collection_id =
+            script_manager::register_allocated_stuff_callback(release_allocated_entity_trackers);
         construct_civilian_info_lib();
     } else {
         CDECL_CALL(0x0058F9C0);
@@ -918,8 +952,59 @@ struct slf__bring_up_dialog_box_title__num__num__num__t : script_library_class::
     {
         TRACE("slf__bring_up_dialog_box_title__num__num__num__t::operator()");
 
+#if STANDALONE_SYSTEM
+        const auto parameter_bytes = static_cast<int>(stack.pop_num() * sizeof(vm_num_t));
+        stack.pop(parameter_bytes);
+        auto *parameters = reinterpret_cast<const vm_num_t *>(stack.get_SP());
+        auto *pause = g_femanager.m_pause_menu_system;
+        auto *dialog = static_cast<fe_dialog_text *>(pause->field_4[0]);
+        if (entry == FIRST_ENTRY) {
+            const auto body_id = static_cast<int>(parameters[0]);
+            const auto title_id = body_id == 23 ? 175 : static_cast<int>(parameters[2]);
+            mString body{g_game_ptr->field_7C->lookup_scripttext_string(body_id)};
+            mString formatted;
+            dialog_box_formatting(&formatted, body, 12, reinterpret_cast<int>(parameters));
+            const auto *title = g_game_ptr->field_7C->lookup_scripttext_string(title_id);
+            pause->Activate(0, true);
+            dialog->set_text(*reinterpret_cast<fe_dialog_text::string *>(&formatted));
+            mString title_text{title};
+            dialog->set_title(*reinterpret_cast<fe_dialog_text::string *>(&title_text));
+            dialog->set_yes_no(std::fpclassify(parameters[1]) == FP_ZERO);
+            if (std::fpclassify(parameters[1] - 1.0f) == FP_ZERO && dialog->field_9C == 1) {
+                mString next_name{"gv_message_log_next"};
+                mString title_name{"gv_message_log_title"};
+                mString body_name{"gv_message_log_body"};
+                auto *next = static_cast<float *>(script_manager::get_game_var_address(next_name, nullptr, nullptr));
+                auto *titles = static_cast<float *>(script_manager::get_game_var_address(title_name, nullptr, nullptr));
+                auto *bodies = static_cast<float *>(script_manager::get_game_var_address(body_name, nullptr, nullptr));
+                const auto count = static_cast<int>(*next);
+                if (count < 128) {
+                    bool duplicate = false;
+                    for (int i = 0; i < count; ++i) {
+                        if (static_cast<int>(bodies[i]) == body_id) {
+                            duplicate = true;
+                            break;
+                        }
+                    }
+                    if (!duplicate) {
+                        titles[count] = static_cast<float>(title_id);
+                        bodies[count] = static_cast<float>(body_id);
+                        *next += 1.0f;
+                    }
+                }
+            }
+            return false;
+        }
+        if (pause->IsDialogActivated()) {
+            return false;
+        }
+        stack.push(static_cast<float>(dialog->get_result()));
+        dialog->field_9C = 0;
+        return true;
+#else
         bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00673240);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -1523,8 +1608,21 @@ struct slf__create_entity_tracker__entity__t : script_library_class::function {
     {
         TRACE("slf__create_entity_tracker__entity__t::operator()");
 
+#if STANDALONE_SYSTEM
+        struct parms_t {
+            entity_base_vhandle entity;
+        };
+        SLF_PARMS;
+        parms->entity.get_volatile_ptr();
+        auto result = g_femanager.IGO->field_54->create_entity_tracker(parms->entity);
+        auto *script = stack.get_thread()->get_executable()->get_owner()->get_parent();
+        script->add_allocated_stuff(vm_entity_tracker_garbage_collection_id, result, mString{});
+        SLF_RETURN;
+        return true;
+#else
         bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00677650);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -1933,8 +2031,21 @@ struct slf__create_trigger__vector3d__num__t : script_library_class::function {
     {
         TRACE("slf__create_trigger__vector3d__num__t::operator()");
 
+#if STANDALONE_SYSTEM
+        struct parms_t {
+            vector3d position;
+            float radius;
+        };
+        SLF_PARMS;
+        auto result = trigger_manager::instance->new_point_trigger(parms->position, parms->radius)->get_my_handle();
+        auto *script = stack.get_thread()->get_executable()->get_owner()->get_parent();
+        script->add_allocated_stuff(vm_trigger_garbage_collection_id, result.field_0, mString{});
+        SLF_RETURN;
+        return true;
+#else
         bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x0067FA80);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -2238,8 +2349,19 @@ struct slf__destroy_entity_tracker__entity_tracker__t : script_library_class::fu
     {
         TRACE("slf__destroy_entity_tracker__entity_tracker__t::operator()");
 
+#if STANDALONE_SYSTEM
+        struct parms_t {
+            uint32_t id;
+        };
+        SLF_PARMS;
+        auto *script = stack.get_thread()->get_executable()->get_owner()->get_parent();
+        script->remove_allocated_stuff(vm_entity_tracker_garbage_collection_id, parms->id);
+        g_femanager.IGO->field_54->destroy_entity_tracker(parms->id);
+        return true;
+#else
         bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00677720);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -5217,8 +5339,14 @@ struct slf__is_hero_spidey__t : script_library_class::function {
     {
         TRACE("slf__is_hero_spidey__t::operator()");
 
+#if STANDALONE_SYSTEM
+        float result = g_world_ptr->get_hero_ptr(0) != nullptr && get_hero_type_helper() == 1 ? 1.0f : 0.0f;
+        SLF_RETURN;
+        return true;
+#else
         bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00668AA0);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -5657,8 +5785,39 @@ struct slf__malor__vector3d__num__t : script_library_class::function {
     {
         TRACE("slf__malor__vector3d__num__t::operator()");
 
+#if STANDALONE_SYSTEM
+        struct parms_t {
+            vector3d position;
+            float preserve_camera_offset;
+        };
+        SLF_PARMS;
+        auto *hero = g_world_ptr->get_hero_ptr(0);
+        if (hero != nullptr) {
+            auto *physics = hero->physical_ifc();
+            for (int index = 0; index < 2; ++index) {
+                if (auto *constraint = physics->get_pendulum(index); constraint != nullptr)
+                    constraint->m_active = false;
+            }
+            if (auto *core = hero->get_ai_core(); core != nullptr) {
+                core->reset_base_machine(string_hash{0});
+                hero->physical_ifc()->manage_standing(true);
+                auto *animation = static_cast<conglomerate *>(hero)->get_my_als();
+                if (animation != nullptr) {
+                    auto *layer = animation->get_als_layer(static_cast<als::layer_types>(0));
+                    layer->force_als_state(string_hash{"Idle_No_Blend"}, static_cast<int>(0xDEADBEEFu));
+                    als::param_list desired;
+                    desired.add_param(0x1B, ZEROVEC);
+                    layer->set_desired_params(desired);
+                }
+            }
+        }
+        g_world_ptr->malor_point(parms->position, 0, !equal(parms->preserve_camera_offset, 0.0f));
+        g_world_ptr->the_terrain->force_streamer_refresh();
+        return true;
+#else
         bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00664180);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -6275,8 +6434,15 @@ struct slf__set_dialog_box_flavor__num__t : script_library_class::function {
     {
         TRACE("slf__set_dialog_box_flavor__num__t::operator()");
 
+#if STANDALONE_SYSTEM
+        const auto flavor = stack.pop_num();
+        auto *dialog = static_cast<fe_dialog_text *>(g_femanager.m_pause_menu_system->field_4[0]);
+        dialog->field_9C = static_cast<int>(flavor);
+        return true;
+#else
         bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00673600);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -6889,8 +7055,14 @@ struct slf__set_time_of_day__num__t : script_library_class::function {
     {
         TRACE("slf__set_time_of_day__num__t::operator()");
 
+#if STANDALONE_SYSTEM
+        const auto time_of_day = stack.pop_num();
+        us_lighting_switch_time_of_day(static_cast<int>(time_of_day));
+        return true;
+#else
         bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x006640E0);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -7289,8 +7461,16 @@ struct slf__spiderman_camera_autocorrect__num__t : script_library_class::functio
     {
         TRACE("slf__spiderman_camera_autocorrect__num__t::operator()");
 
+#if STANDALONE_SYSTEM
+        const auto duration = stack.pop_num();
+        if (auto *camera = g_spiderman_camera_ptr(); camera != nullptr) {
+            camera->autocorrect(duration);
+        }
+        return true;
+#else
         bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00679000);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -9308,8 +9488,19 @@ struct slf__wait_for_streamer_to_reach_equilibrium__t : script_library_class::fu
     {
         TRACE("slf__wait_for_streamer_to_reach_equilibrium__t::operator()");
 
+#if STANDALONE_SYSTEM
+        auto *ready_frames = reinterpret_cast<int *>(stack.get_SP());
+        if (entry != FIRST_ENTRY &&
+            resource_manager::get_partition_pointer(RESOURCE_PARTITION_DISTRICT)->get_streamer()->is_idle() &&
+            resource_manager::get_partition_pointer(RESOURCE_PARTITION_STRIP)->get_streamer()->is_idle()) {
+            return ++*ready_frames > 3;
+        }
+        *ready_frames = 0;
+        return false;
+#else
         bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00676B20);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -10137,64 +10328,113 @@ DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(entity_tracker, get_entity, 0x0089C55C)
 {
-    (void)stack;
     (void)entry;
+    struct parms_t {
+        uint32_t id;
+    };
+    SLF_PARMS;
+    auto *tracker = g_femanager.IGO->field_54->id_to_ptr(parms->id);
+    auto result = tracker->get_entity()->get_my_handle();
+    SLF_RETURN;
     return true;
 }
 DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(entity_tracker, get_mini_map_active, 0x0089C56C)
 {
-    (void)stack;
     (void)entry;
+    struct parms_t {
+        uint32_t id;
+    };
+    SLF_PARMS;
+    auto *tracker = g_femanager.IGO->field_54->id_to_ptr(parms->id);
+    float result = tracker != nullptr && tracker->field_4->field_24 ? 1.f : 0.f;
+    SLF_RETURN;
     return true;
 }
 DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(entity_tracker, get_poi_active, 0x0089C58C)
 {
-    (void)stack;
     (void)entry;
+    struct parms_t {
+        uint32_t id;
+    };
+    SLF_PARMS;
+    g_femanager.IGO->field_54->id_to_ptr(parms->id);
+    float result = 0.f;
+    SLF_RETURN;
     return true;
 }
 DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(entity_tracker, set_entity__entity, 0x0089C554)
 {
-    (void)stack;
     (void)entry;
+    struct parms_t {
+        uint32_t id;
+        entity_base_vhandle entity;
+    };
+    SLF_PARMS;
+    if (auto *owner = parms->entity.get_volatile_ptr(); owner != nullptr)
+        g_femanager.IGO->field_54->set_entity(parms->id,
+                                              owner->is_an_entity() ? static_cast<entity *>(owner) : nullptr);
     return true;
 }
 DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(entity_tracker, set_health_widget_active__num, 0x0089C584)
 {
-    (void)stack;
     (void)entry;
+    struct parms_t {
+        uint32_t id;
+        float enabled;
+    };
+    SLF_PARMS;
+    if (auto *tracker = g_femanager.IGO->field_54->id_to_ptr(parms->id); tracker != nullptr)
+        tracker->set_health_widget_active(!equal(parms->enabled, 0.f));
     return true;
 }
 DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(entity_tracker, set_mini_map_active__num, 0x0089C564)
 {
-    (void)stack;
     (void)entry;
+    struct parms_t {
+        uint32_t id;
+        float enabled;
+    };
+    SLF_PARMS;
+    if (auto *tracker = g_femanager.IGO->field_54->id_to_ptr(parms->id); tracker != nullptr)
+        tracker->field_4->field_24 = !equal(parms->enabled, 0.f);
     return true;
 }
 DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(entity_tracker, set_poi_active__num, 0x0089C57C)
 {
-    (void)stack;
     (void)entry;
+    struct parms_t {
+        uint32_t id;
+        float enabled;
+    };
+    SLF_PARMS;
+    if (auto *tracker = g_femanager.IGO->field_54->id_to_ptr(parms->id); tracker != nullptr)
+        tracker->field_8 = !equal(parms->enabled, 0.f);
     return true;
 }
 DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(entity_tracker, set_poi_icon__num, 0x0089C574)
 {
-    (void)stack;
     (void)entry;
+    struct parms_t {
+        uint32_t id;
+        float icon;
+    };
+    SLF_PARMS;
+    if (auto *tracker = g_femanager.IGO->field_54->id_to_ptr(parms->id); tracker != nullptr)
+        tracker->set_poi_icon(static_cast<mini_map_dot_type>(static_cast<int>(parms->icon)));
     return true;
 }
 DECLARE_SLF_END()

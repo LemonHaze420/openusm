@@ -20,4 +20,5 @@ struct entity_tracker {
 
     // 0x00641120
     void set_poi_icon(mini_map_dot_type type);
+    void set_health_widget_active(bool enabled);
 };

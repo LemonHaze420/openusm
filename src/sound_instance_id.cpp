@@ -48,7 +48,11 @@ void sound_instance::set_volume(Float value)
     volume = value < 0.0f ? 1.0f : static_cast<float>(value);
     if (source_id.value != -1) {
         const auto alias_volume = alias != nullptr ? alias->volume : 1.0f;
-        const auto type_volume = field_4C < 8 ? sound_manager::get_source_type_volume(field_4C) : 1.0f;
+        const auto type_volume =
+
+            sound_manager::get_wave_type_volume(wave_id)
+
+            ;
         nslSetSourceVolume(source_id, volume * alias_volume * type_volume);
     }
 #else

@@ -782,11 +782,11 @@ void entity::update_regions(region **visited_regions, int a3)
                 } else {
                     std::swap<region *>(this->regions[0], this->regions[k]);
                 }
+                assert(this->regions[0] == visited_regions[0]);
             }
 
             int loaded_count = 0;
 
-            assert(this->regions[0] == visited_regions[0]);
 
             for (int i = 0; i < a3; ++i) {
                 if (visited_regions[i]->is_loaded()) {

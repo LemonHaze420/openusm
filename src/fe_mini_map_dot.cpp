@@ -9,6 +9,8 @@
 #include "panelquad.h"
 #include "vtbl.h"
 
+#include "variables.h"
+#include <algorithm>
 VALIDATE_SIZE(fe_mini_map_dot, 0x2C);
 
 // 0x0063AB90
@@ -110,6 +112,25 @@ fe_mini_map_dot::fe_mini_map_dot(mini_map_dot_type a2, vector3d)
     field_25 = true;
 }
 
+fe_mini_map_dot::~fe_mini_map_dot()
+{
+#if STANDALONE_SYSTEM
+    if (!bExit) {
+        auto &widgets = g_femanager.IGO->field_4->field_364;
+        const auto found = std::find(widgets.begin(), widgets.end(), this);
+        if (found != widgets.end())
+            widgets.erase(found);
+    }
+    delete field_0;
+    delete field_8;
+    delete field_C;
+    delete field_10;
+    if (static_cast<int>(field_20) == 15 || static_cast<int>(field_20) == 16)
+        delete field_4;
+#else
+    THISCALL(0x00635F70, this);
+#endif
+}
 void fe_mini_map_dot::Draw()
 {
     if (this->field_24 && this->field_25) {

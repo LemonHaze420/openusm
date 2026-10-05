@@ -256,6 +256,7 @@ struct physical_interface {
     //0x004FB1D0
     static void frame_advance_all_phys_interfaces(Float a1);
     static void frame_advance_rotators(Float elapsed);
+    static void apply_continuous_rotation(entity_base_vhandle handle, const vector3d &axis, float speed);
 
     //0x004C9E60
     static vector3d calculate_force_vector_2(const vector3d *a2, const vector3d *a3, Float a4, Float a5);

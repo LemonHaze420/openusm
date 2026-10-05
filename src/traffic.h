@@ -103,6 +103,7 @@ struct traffic : spawnable {
     static void *native_vehicle_vtable();
     static traffic *create_traffic_from_entity(vhandle_type<entity> handle);
     static void destroy_traffic(traffic *car);
+    static void clear_teleport_area(const vector3d &position, float radius);
     static void set_destroyed_elsewhere(traffic *car);
     static traffic *&field_96C9DC;
 

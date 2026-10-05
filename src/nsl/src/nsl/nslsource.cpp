@@ -21,6 +21,8 @@ struct source_slot {
     bool allocated;
     float volume;
     float pitch;
+    uint16_t pause_count;
+    bool resume_playing;
 };
 
 source_slot s_sources[source_count]{};
@@ -301,6 +303,11 @@ bool nslPlaySource(nslSourceID source_id)
         return false;
     }
     IDirectSoundBuffer_SetCurrentPosition(source->buffer, 0);
+
+    if (source->pause_count != 0) {
+        source->resume_playing = true;
+        return true;
+    }
     return SUCCEEDED(IDirectSoundBuffer_Play(source->buffer, 0, 0, 0));
 }
 
@@ -326,6 +333,37 @@ bool nslSourceIsPlaying(nslSourceID source_id)
     }
     DWORD status = 0;
     return SUCCEEDED(IDirectSoundBuffer_GetStatus(source->buffer, &status)) && (status & DSBSTATUS_PLAYING) != 0;
+}
+
+void nslPauseSource(nslSourceID source_id)
+{
+    auto *source = get_source(source_id);
+    if (source == nullptr || source->buffer == nullptr) {
+        return;
+    }
+    if (source->pause_count++ == 0) {
+        source->resume_playing = nslSourceIsPlaying(source_id);
+        if (source->resume_playing) {
+            IDirectSoundBuffer_Stop(source->buffer);
+        }
+    }
+}
+
+void nslUnpauseSource(nslSourceID source_id)
+{
+    auto *source = get_source(source_id);
+    if (source == nullptr || source->buffer == nullptr || source->pause_count == 0) {
+        return;
+    }
+    if (--source->pause_count == 0 && source->resume_playing) {
+        IDirectSoundBuffer_Play(source->buffer, 0, 0, 0);
+    }
+}
+
+bool nslSourceIsPaused(nslSourceID source_id)
+{
+    const auto *source = get_source(source_id);
+    return source != nullptr && source->pause_count != 0;
 }
 
 void nslSetSourceVolume(nslSourceID source_id, float volume)

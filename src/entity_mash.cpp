@@ -839,6 +839,7 @@ void construct_v_table_lookup()
     entity_base_vtable[0x50 / 4] = reinterpret_cast<void *>(standalone_entity_true);
     entity_base_vtable[0x114 / 4] = reinterpret_cast<void *>(standalone_entity_false);
     entity_base_vtable[0x118 / 4] = reinterpret_cast<void *>(native_base_damage);
+    entity_base_vtable[0x124 / 4] = reinterpret_cast<void *>(standalone_entity_false);
     entity_base_vtable[0x14C / 4] = reinterpret_cast<void *>(native_base_get_ifc_num);
     entity_base_vtable[0x150 / 4] = reinterpret_cast<void *>(native_base_set_ifc_num);
     entity_base_vtable[0x164 / 4] = reinterpret_cast<void *>(standalone_entity_base_unmash);

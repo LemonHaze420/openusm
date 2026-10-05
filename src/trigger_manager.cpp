@@ -14,6 +14,7 @@
 #include "vtbl.h"
 #include "wds.h"
 
+#include <type_traits>
 VALIDATE_SIZE(trigger_manager, 8u);
 
 #if STANDALONE_SYSTEM
@@ -158,7 +159,21 @@ void trigger_manager::remove(trigger **trem)
 
     auto *v2 = *trem;
     *trem = (*trem)->m_next_trigger;
-    if (v2 != nullptr) {
+    if constexpr (STANDALONE_SYSTEM) {
+        const auto destroy = [](auto *object) {
+            using T = std::remove_pointer_t<decltype(object)>;
+            object->~T();
+            mem_dealloc(object, sizeof(T));
+        };
+        if (v2->is_point_trigger())
+            destroy(static_cast<point_trigger *>(v2));
+        else if (v2->is_box_trigger())
+            destroy(static_cast<box_trigger *>(v2));
+        else if (v2->is_entity_trigger())
+            destroy(static_cast<entity_trigger *>(v2));
+        else
+            destroy(v2);
+    } else {
         void(_fastcall * finalize)(void *, void *, bool) = CAST(finalize, get_vfunc(v2->m_vtbl, 0x0));
         finalize(v2, nullptr, true);
     }
@@ -171,7 +186,6 @@ void trigger_manager::delete_trigger(trigger *delete_me)
 
     if constexpr (1) {
         assert(delete_me != nullptr);
-        printf("0x%08X\n", delete_me->m_vtbl);
 
         trigger **t = nullptr;
         for (t = &this->m_triggers; *t != delete_me && *t != nullptr; t = &(*t)->m_next_trigger) {

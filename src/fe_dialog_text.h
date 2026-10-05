@@ -76,6 +76,19 @@ struct fe_dialog_text : FEMenu {
     //0x00643C90
     //virtual
     void _Load();
+    void Draw();
+    void Update(Float elapsed);
+    void OnActivate();
+    void OnDeactivate();
+    void OnCross(int controller);
+    void OnTriangle(int controller);
+    void OnLeft(int controller);
+    void OnRight(int controller);
+    void OnUp(int controller);
+    void OnDown(int controller);
+    void OnAnyButtonRelease(int controller, int button);
+    void set_yes_no(bool enabled);
+    int get_result() const;
 };
 
 extern void fe_dialog_text_patch();

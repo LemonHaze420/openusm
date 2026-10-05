@@ -498,6 +498,32 @@ void physical_interface::un_mash(generic_mash_header *a2, void *a3, void *a4, ge
     }
 }
 
+void physical_interface::apply_continuous_rotation(entity_base_vhandle handle, const vector3d &axis, float speed)
+{
+    int index = 0;
+    while (index < rotators_num && bit_cast<uint32_t>(rotators.get()[index * 4 + 3]) != handle.get_goodies())
+        ++index;
+
+    if (index == rotators_num) {
+        if (handle.get_volatile_ptr() == nullptr || rotators_num + 1 >= 128)
+            return;
+        rotators.get()[index * 4 + 3] = bit_cast<int>(handle.get_goodies());
+        ++rotators_num;
+    }
+
+    auto *entry = &rotators.get()[index * 4];
+    if (handle.get_volatile_ptr() == nullptr || equal(speed, 0.f) ||
+        (equal(axis.x, 0.f) && equal(axis.y, 0.f) && equal(axis.z, 0.f))) {
+        --rotators_num;
+        if (index < rotators_num)
+            std::copy_n(&rotators.get()[rotators_num * 4], 4, entry);
+    } else {
+        entry[0] = bit_cast<int>(axis.x * speed);
+        entry[1] = bit_cast<int>(axis.y * speed);
+        entry[2] = bit_cast<int>(axis.z * speed);
+    }
+}
+
 void physical_interface::frame_advance_rotators(Float elapsed)
 {
     const auto cosine = [](float angle) {

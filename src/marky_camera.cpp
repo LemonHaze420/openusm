@@ -104,12 +104,17 @@ marky_camera::marky_camera(const string_hash &a2) : game_camera(a2, nullptr)
 #if STANDALONE_SYSTEM
     m_vtbl = reinterpret_cast<int>(native_vtable());
 #endif
+#if STANDALONE_SYSTEM
+    const float invalid = bit_cast<float>(0xFFFFFFFFu);
+    this->field_1A0 = {invalid, invalid, invalid};
+    this->field_1AC = {0.0f, 0.0f, 1.0f};
+#else
     static Var<vector3d> stru_960E24{0x00960E24};
     static Var<vector3d> stru_9225D4{0x009225D4};
 
-    this->field_1BD = 0;
     this->field_1A0 = stru_960E24();
     this->field_1AC = stru_9225D4();
+#endif
     this->field_1BC = 0;
     this->field_1BD = 0;
     this->field_1C0 = {};

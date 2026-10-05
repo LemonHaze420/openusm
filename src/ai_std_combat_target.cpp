@@ -21,6 +21,7 @@
 #include "ped_spawner.h"
 
 VALIDATE_SIZE(ai::combat_target_inode, 0x88);
+VALIDATE_SIZE(ai::player_combat_target_inode, 0x94);
 VALIDATE_SIZE(ai::venom_combat_target_inode, 0x94);
 
 namespace {
@@ -62,6 +63,20 @@ void *ai::combat_target_inode::native_vtable()
 }
 
 namespace {
+unsigned __fastcall player_target_type(ai::player_combat_target_inode *, void *)
+{
+    return 353;
+}
+bool __fastcall player_target_subclass(ai::player_combat_target_inode *, void *, unsigned type)
+{
+    return type == 351 || type == 349 || type == 350 || type == 537 || type == 573;
+}
+vhandle_type<actor> *__fastcall player_target_find(ai::player_combat_target_inode *self, void *,
+                                                   vhandle_type<actor> *out)
+{
+    *out = self->find_target();
+    return out;
+}
 unsigned __fastcall venom_target_type(ai::venom_combat_target_inode *, void *)
 {
     return 356;
@@ -70,20 +85,21 @@ bool __fastcall venom_target_subclass(ai::venom_combat_target_inode *, void *, u
 {
     return type == 353 || type == 351 || type == 349 || type == 350 || type == 537 || type == 573;
 }
-void __fastcall venom_target_advance(ai::venom_combat_target_inode *self, void *, Float delta)
+void __fastcall player_target_advance(ai::player_combat_target_inode *self, void *, Float delta)
 {
     self->_frame_advance(delta);
 }
-int __fastcall venom_target_size(ai::venom_combat_target_inode *, void *)
+int __fastcall player_target_size(ai::player_combat_target_inode *, void *)
 {
-    return sizeof(ai::venom_combat_target_inode);
+    return sizeof(ai::player_combat_target_inode);
 }
-vector3d *__fastcall venom_target_direction(ai::venom_combat_target_inode *self, void *, vector3d *out)
+vector3d *__fastcall player_target_direction(ai::player_combat_target_inode *self, void *, vector3d *out)
 {
     *out = self->get_look_direction();
     return out;
 }
-vhandle_type<actor> *__fastcall venom_target_get(ai::venom_combat_target_inode *self, void *, vhandle_type<actor> *out)
+vhandle_type<actor> *__fastcall player_target_get(ai::player_combat_target_inode *self, void *,
+                                                  vhandle_type<actor> *out)
 {
     *out = self->get_player_target();
     return out;
@@ -112,24 +128,36 @@ bool is_targetable_ped(ped_spawner *spawner)
 }
 }  // namespace
 
-void *ai::venom_combat_target_inode::native_vtable()
+void *ai::player_combat_target_inode::native_vtable()
 {
     static auto table = [] {
         std::array<void *, 39> result;
         std::copy_n(static_cast<void **>(combat_target_inode::native_vtable()), result.size(), result.data());
+        result[3] = reinterpret_cast<void *>(&player_target_type);
+        result[4] = reinterpret_cast<void *>(&player_target_subclass);
+        result[7] = reinterpret_cast<void *>(&player_target_advance);
+        result[11] = reinterpret_cast<void *>(&player_target_size);
+        result[0x38 / 4] = reinterpret_cast<void *>(&player_target_get);
+        result[0x48 / 4] = reinterpret_cast<void *>(&player_target_direction);
+        result[0x54 / 4] = reinterpret_cast<void *>(&player_target_find);
+        return result;
+    }();
+    return table.data();
+}
+void *ai::venom_combat_target_inode::native_vtable()
+{
+    static auto table = [] {
+        std::array<void *, 39> result;
+        std::copy_n(static_cast<void **>(player_combat_target_inode::native_vtable()), result.size(), result.data());
         result[3] = reinterpret_cast<void *>(&venom_target_type);
         result[4] = reinterpret_cast<void *>(&venom_target_subclass);
-        result[7] = reinterpret_cast<void *>(&venom_target_advance);
-        result[11] = reinterpret_cast<void *>(&venom_target_size);
-        result[0x38 / 4] = reinterpret_cast<void *>(&venom_target_get);
-        result[0x48 / 4] = reinterpret_cast<void *>(&venom_target_direction);
         result[0x54 / 4] = reinterpret_cast<void *>(&venom_target_find);
         return result;
     }();
     return table.data();
 }
 
-vhandle_type<actor> ai::venom_combat_target_inode::get_player_target()
+vhandle_type<actor> ai::player_combat_target_inode::get_player_target()
 {
     auto *controller = field_C->get_player_controller();
     const int mode = controller->get_spidey_loco_mode();
@@ -211,12 +239,24 @@ ai::combat_target_inode::combat_target_inode(from_mash_in_place_constructor *tag
     m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[351]);
 }
 
-ai::venom_combat_target_inode::venom_combat_target_inode() : combat_target_inode()
+ai::player_combat_target_inode::player_combat_target_inode() : combat_target_inode()
+{
+    m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[353]);
+}
+
+ai::player_combat_target_inode::player_combat_target_inode(from_mash_in_place_constructor *tag)
+    : combat_target_inode(tag)
+{
+    m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[353]);
+}
+
+ai::venom_combat_target_inode::venom_combat_target_inode() : player_combat_target_inode()
 {
     m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[356]);
 }
 
-ai::venom_combat_target_inode::venom_combat_target_inode(from_mash_in_place_constructor *tag) : combat_target_inode(tag)
+ai::venom_combat_target_inode::venom_combat_target_inode(from_mash_in_place_constructor *tag)
+    : player_combat_target_inode(tag)
 {
     m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[356]);
 }
@@ -242,7 +282,7 @@ void ai::combat_target_inode::_activate(ai_core *core)
     }
 }
 
-void ai::venom_combat_target_inode::_frame_advance(Float delta)
+void ai::player_combat_target_inode::_frame_advance(Float delta)
 {
     field_84 = false;
     const vector3d forward = field_C->get_abs_po().get_z_facing();

@@ -83,6 +83,7 @@ extern void nslFreeBank(nslBankID bank_id);
 extern int nslGetBankState(nslBankID bank_id);
 extern nslWaveID nslFindWave(uint32_t name_hash);
 extern const nslWave *nslGetWave(nslWaveID wave_id);
+extern const char *nslGetWaveGroupName(nslWaveID wave_id);
 extern bool nslReadWaveData(nslWaveID wave_id, void *destination, uint32_t size);
 extern unsigned int nslGetWaveChannelCount(nslWaveID wave_id);
 extern float nslGetWaveParam(nslWaveID wave_id, unsigned int parameter, float default_value);

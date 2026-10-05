@@ -4,6 +4,9 @@
 #include "fe_mini_map_dot.h"
 #include "entity_tracker.h"
 
+#include "femanager.h"
+#include "igofrontend.h"
+#include "thug_health.h"
 VALIDATE_SIZE(entity_tracker_manager, 0x50u);
 
 entity_tracker_manager::entity_tracker_manager() : tracker_slot_pool(128)
@@ -58,6 +61,9 @@ void entity_tracker_manager::destroy_entity_tracker(uint32_t id)
     if (tracker == nullptr)
         return;
 
+    auto *health = g_femanager.IGO->field_28;
+    if (tracker->field_C != health->field_0)
+        health->destroy(tracker->field_C);
     field_0.erase(field_0.find(tracker->field_0));
     auto &pool = tracker_slot_pool;
     const int slot_index = id & pool.field_0;
@@ -72,6 +78,15 @@ void entity_tracker_manager::destroy_entity_tracker(uint32_t id)
     slot.field_4 = nullptr;
 }
 
+void entity_tracker_manager::set_entity(uint32_t id, entity *owner)
+{
+    const auto handle = owner->get_my_handle();
+    if (auto *tracker = id_to_ptr(id); tracker != nullptr) {
+        field_0.erase(field_0.find(tracker->field_0));
+        field_0[handle] = id;
+        tracker->field_0 = handle;
+    }
+}
 bool entity_tracker_manager::get_the_arrow_target_pos(vector3d *a2)
 {
     return (bool)THISCALL(0x0062EE10, this, a2);

@@ -387,6 +387,26 @@ bool ai_core::pop_base_machine(int)
     return result;
 }
 
+void ai_core::reset_base_machine(string_hash state)
+{
+    const auto request_reset = [this, state] {
+        if (my_base_machine == nullptr)
+            return false;
+        change_base_machine(my_base_machine->get_name(), 0, state);
+        return true;
+    };
+    bool requested = request_reset();
+    frame_advance(0.0001f);
+    for (int attempt = 0; !requested && attempt < 10; ++attempt) {
+        requested = request_reset();
+        frame_advance(0.0001f);
+    }
+    for (int index = 0; index < my_info_node_list->m_size; ++index)
+        my_info_node_list->m_data[index]->deactivate();
+    for (int index = 0; index < my_info_node_list->m_size; ++index)
+        my_info_node_list->m_data[index]->activate(this);
+}
+
 bool ai_core::change_base_machine(resource_key the_state_graph, int a3, string_hash a4)
 {
     TRACE("ai::ai_core::change_base_machine");

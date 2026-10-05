@@ -80,6 +80,7 @@ struct ai_core {
     bool change_base_machine(resource_key the_state_graph, int a3, string_hash a4);
 
     //0x00687C50
+    void reset_base_machine(string_hash state);
     void create_capsule_alter();
 
     void adjust_colgeom(bool force);

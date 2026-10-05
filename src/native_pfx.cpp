@@ -62,7 +62,7 @@ void action_pointers(ActionVector &vector, uint8_t *&stream)
 void *unmash_action(uint8_t *&stream)
 {
     auto *object = static_cast<uint32_t *>(record(stream, 4, 0));
-    const unsigned type = *object;
+    const unsigned type = *object < effect_mash::aps_sizes.size() ? *object : aps_native_curve_type(object);
     assert(type >= 8 && type < effect_mash::aps_sizes.size());
     record(stream, effect_mash::aps_sizes[type] - 4, 1);
     if (type >= 23) {
@@ -90,7 +90,8 @@ EffectTemplate *unmash_template(uint8_t *&stream)
         result->particles.data[i] = particle;
         if (particle->graphics != nullptr) {
             auto *graphics = static_cast<uint32_t *>(record(stream, 4, 0));
-            const unsigned type = *graphics;
+            const unsigned type =
+                *graphics < effect_mash::aps_sizes.size() ? *graphics : aps_native_graphics_type(graphics);
             assert(type < 8);
             record(stream, effect_mash::aps_sizes[type] - 4, 1);
             particle->graphics = reinterpret_cast<aeps::GroupGraphics *>(graphics);

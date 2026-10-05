@@ -38,20 +38,18 @@ struct combat_target_inode : base_full_target_inode {
     static inline string_hash default_id{to_hash("COMBAT_TARGET")};
 };
 
-struct venom_combat_target_inode : combat_target_inode {
+struct player_combat_target_inode : combat_target_inode {
     float field_88;
     float field_8C;
     float field_90;
 
-    venom_combat_target_inode();
-
-    explicit venom_combat_target_inode(from_mash_in_place_constructor *tag);
+    player_combat_target_inode();
+    explicit player_combat_target_inode(from_mash_in_place_constructor *tag);
     static void *native_vtable();
     vhandle_type<actor> get_player_target();
-    vhandle_type<actor> player_style_get_target();
     int _get_virtual_type_enum() const
     {
-        return 356;
+        return 353;
     }
     int _get_mash_sizeof() const
     {
@@ -64,6 +62,16 @@ struct venom_combat_target_inode : combat_target_inode {
     }
 };
 
+struct venom_combat_target_inode : player_combat_target_inode {
+    venom_combat_target_inode();
+    explicit venom_combat_target_inode(from_mash_in_place_constructor *tag);
+    static void *native_vtable();
+    vhandle_type<actor> player_style_get_target();
+    int _get_virtual_type_enum() const
+    {
+        return 356;
+    }
+};
 struct player_web_target_inode {
     static void add_to_web_targets_list(vhandle_type<actor> a1);
 

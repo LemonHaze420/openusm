@@ -663,6 +663,19 @@ void clear_virtual_mashed_vector(mVector<T> &vector)
 }
 
 template <>
+void mVector<PanelQuadSection>::clear()
+{
+#if defined(STANDALONE_SYSTEM)
+    clear_mashed_vector(*this, [](PanelQuadSection *element, bool in_mash) {
+        if (!in_mash)
+            mem_dealloc(element, sizeof(PanelQuadSection));
+    });
+#else
+    THISCALL(0x0043E4B0, this);
+#endif
+}
+
+template <>
 void mVector<als::filter_data>::clear()
 {
     clear_mashed_vector(*this, [](als::filter_data *element, bool in_mash) {

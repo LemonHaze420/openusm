@@ -35,6 +35,10 @@
 #include "wds.h"
 #include "wds_render_manager.h"
 
+#include "ai_player_controller.h"
+#include "game_camera.h"
+#include "physical_interface.h"
+#include "traffic.h"
 #include <cassert>
 #include <cstdio>
 #include <cmath>
@@ -1711,12 +1715,49 @@ void entity_set_abs_position(entity_base *ent, const vector3d &pos)
 
 void entity_teleport_abs_po(entity_base *a1, const po &a2, bool a3)
 {
+#if STANDALONE_SYSTEM
+    const vector3d delta = a2.get_position() - a1->get_abs_position();
+    entity_set_abs_po(a1, a2);
+    if (!a1->is_an_actor())
+        return;
+    auto *owner = static_cast<actor *>(a1);
+    owner->set_allow_tunnelling_into_next_frame(true);
+    owner->invalidate_frame_delta();
+    owner->remove_from_regions();
+    owner->compute_sector(g_world_ptr->the_terrain, false, nullptr);
+    if (owner->has_physical_ifc()) {
+        auto *physics = owner->physical_ifc();
+        physics->cancel_all_velocity();
+        physics->set_control_parent(nullptr);
+        if ((physics->field_C & 0x80000u) != 0) {
+            physics->stop_biped_physics(false);
+            physics->field_C |= 0x1000u;
+        }
+    }
+    if (owner->is_hero()) {
+        const int player_index = owner->m_player_controller->field_14;
+        traffic::clear_teleport_area(a2.get_position(), 5.0f);
+        auto *chase = g_world_ptr->get_chase_cam_ptr(player_index);
+        if (a3) {
+            chase->set_abs_position(chase->get_rel_po().get_position() + delta);
+        } else {
+            auto forward = a2.get_z_facing();
+            auto up = a2.get_y_facing();
+            forward.normalize();
+            up.normalize();
+            const vector3d position = owner->get_abs_po().slow_xform(up * 2.0f - forward * 2.0f);
+            chase->set_abs_position(position);
+            static_cast<game_camera *>(chase)->field_12C = false;
+        }
+    }
+#else
     CDECL_CALL(0x004F3890, a1, &a2, a3);
+#endif
 }
 
 void entity_teleport_abs_position(entity_base *a2, const vector3d &a3, bool a4)
 {
-    auto &v5 = a2->get_abs_po();
+    po v5 = a2->get_abs_po();
     v5.set_position(a3);
     entity_teleport_abs_po(a2, v5, a4);
 }

@@ -549,6 +549,27 @@ void traffic::_un_spawn()
     field_5 = true;
 }
 
+void traffic::clear_teleport_area(const vector3d &position, float radius)
+{
+    const float radius_squared = radius * radius;
+    for (auto *car : traffic_list) {
+        if (car == nullptr || !car->field_4 || !car->field_158 || car->ai_potential_car_counter > 0)
+            continue;
+        const vector3d delta = car->field_C.get_my_actor()->get_abs_position() - position;
+        if (!(delta.x * delta.x + delta.z * delta.z <= radius_squared))
+            continue;
+        car->un_spawn();
+        if (car->get_my_actor() != nullptr) {
+            po holding_pose;
+            holding_pose.set_po(ZVEC, YVEC, vector3d{0.0f, -99.0f, 0.0f});
+            auto *owner = car->field_C.get_my_actor();
+            owner->set_allow_tunnelling_into_next_frame(true);
+            entity_set_abs_po(owner, holding_pose);
+        }
+    }
+    stru_937FA4 = 10.0f;
+}
+
 void traffic::sub_6DA3B0(Float a2, Float a3, Float a4)
 {
     auto &v4 = this->field_14C;

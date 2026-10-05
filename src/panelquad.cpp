@@ -15,6 +15,7 @@
 #include "trace.h"
 #include "vtbl.h"
 
+#include "variables.h"
 #include <algorithm>
 #include <new>
 #include <cmath>
@@ -118,7 +119,17 @@ PanelQuad *__fastcall PanelQuad_constructor(PanelQuad *self, int, from_mash_in_p
 
 PanelQuad::~PanelQuad()
 {
+#if STANDALONE_SYSTEM
+    if (g_is_the_packer) {
+        if (pqs.size() != 0 && pqs.at(0)->field_14.m_tex != nullptr)
+            nglReleaseTexture(pqs.at(0)->field_14.m_tex);
+        if (pmesh != nullptr)
+            mem_dealloc(pmesh, sizeof(PanelMeshSection));
+    }
+    pqs.clear();
+#else
     THISCALL(0x0043F7F0, this);
+#endif
 }
 
 void *PanelQuad::operator new(size_t size)
