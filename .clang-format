@@ -79,7 +79,7 @@ AlignOperands: Align
 AlignTrailingComments: true
 CompactNamespaces: false
 Cpp11BracedListStyle: true
-FixNamespaceComments: true
+FixNamespaceComments: false
 MaxEmptyLinesToKeep: 2
 KeepEmptyLinesAtTheStartOfBlocks: false
 AccessModifierOffset: -4
