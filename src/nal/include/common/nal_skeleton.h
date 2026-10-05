@@ -38,7 +38,7 @@ struct nalBaseSkeleton {
 
     //virtual
     void VirtualGetTrajectoryUpdate(const nalBasePose *a2,
-                                    nalPositionOrientation *a3);  // = 0;
+                                    nalPositionOrientation *a3) const;  // = 0;
 
     //virtual
     nalBasePose *VirtualGetDefaultPose();  // = 0;
@@ -47,12 +47,15 @@ struct nalBaseSkeleton {
     nalBasePose *VirtualCreatePose() const;  // = 0;
 
     //virtual
-    void VirtualDestroyPose(nalBasePose *a2);  // = 0;
+    void VirtualDestroyPose(nalBasePose *a2) const;  // = 0;
 
     //virtual
     void VirtualCopyPose(nalBasePose &a2, const nalBasePose &a3) const;
 
-    const tlFixedString & GetName() const
+    //virtual
+    void VirtualBlend(nalBasePose *a2, Float a3, const nalBasePose *a4, const nalBasePose *a5) const;
+
+    const tlFixedString &GetName() const
     {
         return this->Name;
     }

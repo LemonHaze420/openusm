@@ -223,6 +223,20 @@ char *nalComp::nalCompSkeleton::GetCompPerSkelDataInt(int iCompIx) const
     return result;
 }
 
+void *nalComp::nalCompSkeleton::_GetPerSkelDataFromComponent(ComponentId id) const
+{
+    const int index = GetCompIxFromName(id);
+    if (index == -1)
+        return nullptr;
+    return GetComponent(index)->ApplyPublicPerSkelDataOffset(id.field_0, GetCompPerSkelDataInt(index));
+}
+
+void *nalComp::nalCompSkeleton::GetPerSkelDataFromComponent(ComponentId id) const
+{
+    void *(__fastcall *func)(const void *, void *, ComponentId) = CAST(func, get_vfunc(m_vtbl, 0x38));
+    return func(this, nullptr, id);
+}
+
 bool nalComp::nalCompSkeleton::_DoesComponentHavePoseTrackData(int a2) const
 {
     TRACE("nalCompSkeleton::DoesComponentHavePoseTrackData");
@@ -378,9 +392,9 @@ nalComp::nalCompPose::nalCompPose(const nalComp::nalCompSkeleton *a2)
     this->m_pTheData = nullptr;
 }
 
-nalComp::nalCompPose &nalComp::nalCompPose::operator=(const nalComp::nalCompPose *a2)
+nalComp::nalCompPose &nalComp::nalCompPose::operator=(const nalCompPose &a2)
 {
-    auto *v2 = a2->m_pTheData;
+    auto *v2 = a2.m_pTheData;
     if (v2 != nullptr) {
         if (this->m_pTheData == nullptr) {
             this->InitializePoseDataFromSkel();

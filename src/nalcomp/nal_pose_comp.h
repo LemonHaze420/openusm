@@ -26,7 +26,7 @@ struct nalCompPose {
 
     nalCompPose(const nalCompSkeleton *);
 
-    nalCompPose &operator=(const nalComp::nalCompPose *a2);
+    nalCompPose &operator=(const nalCompPose &a2);
 
     void CopyPoseDataNoFree(const void *a2);
 
@@ -145,6 +145,9 @@ struct nalCompSkeleton : nalBaseSkeleton {
     BaseComponent *GetComponent(int iCompIx) const;
 
     int GetName(int iCompIx) const;
+
+    void *_GetPerSkelDataFromComponent(ComponentId id) const;
+    void *GetPerSkelDataFromComponent(ComponentId id) const;
 
     bool _DoesComponentHavePoseTrackData(int a2) const;
 

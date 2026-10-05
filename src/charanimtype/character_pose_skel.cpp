@@ -48,7 +48,7 @@ nalCharPose::nalCharPose(const nalCharPose &a2, bool a3) : nalCompPose(a2.field_
     m_vtbl = a2.m_vtbl;
     field_C = 0;
     if (a3) {
-        nalCompPose::operator=(&a2);
+        nalCompPose::operator=(a2);
     }
 }
 
@@ -79,9 +79,9 @@ void nalCharPose::Blend(Float a2, const nalCharPose &src0, const nalCharPose &sr
         }
 
         if (std::equal_to<float>{}(a2, 1.0f)) {
-            nalCompPose::operator=(&src1);
+            nalCompPose::operator=(src1);
         } else if (std::equal_to<float>{}(a2, 0.0f)) {
-            nalCompPose::operator=(&src0);
+            nalCompPose::operator=(src0);
         } else {
             auto *v6 = src1.GetSkeleton();
             auto numComponents = v6->GetNumComponents();
@@ -174,7 +174,7 @@ nalCharSkeleton::nalCharSkeleton()
                           reinterpret_cast<void *>(&destroy_character_pose),
                           func_address(&nalCharSkeleton::VirtualCopyPose),
                           func_address(&nalCharSkeleton::VirtualBlend),
-                          nullptr,
+                          func_address(&nalCompSkeleton::_GetPerSkelDataFromComponent),
                           func_address(&nalCompSkeleton::_DoesComponentHavePoseTrackData),
                           func_address(&nalCompSkeleton::_UnMash)};
     this->m_vtbl = CAST(m_vtbl, &g_vtbl);
@@ -289,21 +289,21 @@ void nalChar::nalCharSkeleton::VirtualCopyPose(nalBasePose *a1, const nalBasePos
         v1 = (nalComp::nalCompPose *)&a1[-1];
     }
 
-    v1->operator=(v3);
+    v1->operator=(*v3);
 }
 
-void nalCharSkeleton::VirtualBlend(nalBasePose *a2, Float a3, nalBasePose *a4, nalBasePose *a5)
+void nalCharSkeleton::VirtualBlend(nalBasePose *a2, Float a3, const nalBasePose *a4, const nalBasePose *a5)
 {
     TRACE("nalCharSkeleton::VirtualBlend");
 
-    nalCharPose *v5 = nullptr;
+    const nalCharPose *v5 = nullptr;
     if (a5 != nullptr) {
-        v5 = (nalCharPose *)&a5[-1];
+        v5 = (const nalCharPose *)&a5[-1];
     }
 
-    nalCharPose *v6 = nullptr;
+    const nalCharPose *v6 = nullptr;
     if (a4 != nullptr) {
-        v6 = (nalCharPose *)&a4[-1];
+        v6 = (const nalCharPose *)&a4[-1];
     }
 
     nalCharPose *v7 = nullptr;

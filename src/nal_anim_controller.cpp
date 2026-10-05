@@ -298,7 +298,7 @@ void nal_anim_controller::scene_anim_client::Advance(
         nalAnyPose pose(field_4->field_8);
         auto *default_pose = field_4->field_8->VirtualGetDefaultPose();
         auto *reference = default_pose->field_0->VirtualCreatePose();
-        reference->field_0->VirtualCopyPose(reference, default_pose);
+        reference->field_0->VirtualCopyPose(*reference, *default_pose);
         instance->VirtualGetPose(time, previous, *pose.field_0, *reference);
         reference->field_0->VirtualDestroyPose(reference);
         using modify_fn = void (__fastcall *)(nal_anim_controller *, void *, int *,
@@ -333,8 +333,8 @@ nal_anim_controller::nal_anim_controller(actor *a2, nalBaseSkeleton *a3, unsigne
 
         auto *v7 = this->field_8->VirtualGetDefaultPose();
         auto *v9 = v7->field_0->VirtualCreatePose();
-        v9->field_0->VirtualCopyPose(v9, v7);
-        this->field_40.field_0->field_0->VirtualCopyPose(this->field_40.field_0, v9);
+        v9->field_0->VirtualCopyPose(*v9, *v7);
+        this->field_40.field_0->field_0->VirtualCopyPose(*this->field_40.field_0, *v9);
         v9->field_0->VirtualDestroyPose(v9);
 
     } else {

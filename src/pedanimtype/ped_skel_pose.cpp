@@ -88,7 +88,7 @@ int &nalPedSkeleton::vtbl_ptr = []() -> int & {
 
 void nalPedSkeleton::Process()
 {
-    default_pose.field_0 = reinterpret_cast<nalComp::nalCompSkeleton *>(this);
+    default_pose.field_0 = this;
 }
 
 void nalPedSkeleton::Release()

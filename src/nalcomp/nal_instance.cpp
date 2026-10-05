@@ -3,6 +3,7 @@
 #include "common.h"
 #include "func_wrapper.h"
 #include "nal_anim_comp.h"
+#include "nal_pose_comp.h"
 #include "trace.h"
 #include "utility.h"
 #include "vtbl.h"
@@ -366,7 +367,7 @@ void nalComp::nalCompInstance::GetPose(Float a2, Float a3, nalComp::nalCompPose 
     TRACE("nalComp::nalCompInstance::GetPose");
 
     if constexpr (1) {
-        a4->operator=(a5);
+        a4->operator=(*a5);
         for (int i = 0; i < this->field_18; ++i) {
             auto *v30 = &this->field_14[i];
             if (v30->field_8 != -1 && v30->field_11) {

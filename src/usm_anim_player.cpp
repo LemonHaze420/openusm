@@ -151,12 +151,12 @@ usm_anim_player<nalAnimClass<nalAnyPose>, 3>::usm_anim_player(nalBaseSkeleton *a
     auto *v4 = v3->field_0->VirtualCreatePose();
 
     this->field_4.field_0 = v4;
-    v4->field_0->VirtualCopyPose(v4, v3);
+    v4->field_0->VirtualCopyPose(*v4, *v3);
     this->field_8.field_0 = a2->VirtualCreatePose();
     auto *v5 = a2->VirtualGetDefaultPose();
     auto *v6 = v5->field_0->VirtualCreatePose();
     this->field_C.field_0 = v6;
-    v6->field_0->VirtualCopyPose(v6, v5);
+    v6->field_0->VirtualCopyPose(*v6, *v5);
 
     this->field_10 = 0;
     this->field_20 = nullptr;
@@ -447,8 +447,8 @@ void type::Reset()
 {
     auto *source = field_0->VirtualGetDefaultPose();
     auto *pose = source->field_0->VirtualCreatePose();
-    pose->field_0->VirtualCopyPose(pose, source);
-    field_4.field_0->field_0->VirtualCopyPose(field_4.field_0, pose);
+    pose->field_0->VirtualCopyPose(*pose, *source);
+    field_4.field_0->field_0->VirtualCopyPose(*field_4.field_0, *pose);
     pose->field_0->VirtualDestroyPose(pose);
     for (int index = 0; index < field_10; ++index)
         release_anim_state(field_14[index]);

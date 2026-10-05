@@ -9,6 +9,7 @@ namespace nalComp {
 
 struct nalCompAnim;
 struct nalCompSkeleton;
+struct nalCompPose;
 
 struct nalCompInstance : nalBaseInstance {
     struct vtbl {

@@ -10,7 +10,6 @@
 #include "variable.h"
 
 #include <nal_generic.h>
-#include <nalcomp/nal_pose_comp.h>
 
 #include <memory>
 
@@ -135,8 +134,10 @@ inline nalPositionOrientation &nalPositionOrientation::Identity
     = var<nalPositionOrientation>(0x00977180);
 
 
+struct nalBaseSkeleton;
+
 struct nalBasePose {
-    nalComp::nalCompSkeleton *field_0;
+    const nalBaseSkeleton *field_0;
 
     auto GetSkeleton() const
     {
