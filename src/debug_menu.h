@@ -41,7 +41,7 @@ struct debug_menu;
 
 extern std::string entry_render_callback_default(debug_menu_entry* entry);
 
-struct script_instance;
+class script_instance;
 
 struct debug_menu_entry {
 	char text[MAX_CHARS];

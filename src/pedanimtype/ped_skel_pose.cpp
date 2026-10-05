@@ -74,14 +74,21 @@ vector3d *__cdecl leg_bend(vector3d *out, matrix4x4 *, matrix4x4 *effector,
 namespace nalPed {
 int &nalPedSkeleton::vtbl_ptr = []() -> int & {
 
-    static void *g_vtbl[]{
-        reinterpret_cast<void *>(&ped_empty),
-        reinterpret_cast<void *>(&destroy_ped_skeleton),
-        func_address(&Process), func_address(&Release), func_address(&CheckVersion),
-        func_address(&GetBoneMatrixCount), func_address(&GetBoneMatrices),
-        func_address(&GetTrajectoryUpdate), reinterpret_cast<void *>(&ped_pose_from_matrices),
-        func_address(&GetDefaultPose), func_address(&CreatePose), func_address(&DestroyPose),
-        func_address(&CopyPose), func_address(&BlendPose), reinterpret_cast<void *>(&ped_empty)};
+    static void *g_vtbl[]{reinterpret_cast<void *>(&ped_empty),
+                          reinterpret_cast<void *>(&destroy_ped_skeleton),
+                          func_address(&nalPedSkeleton::Process),
+                          func_address(&nalPedSkeleton::Release),
+                          func_address(&nalPedSkeleton::CheckVersion),
+                          func_address(&nalPedSkeleton::GetBoneMatrixCount),
+                          func_address(&nalPedSkeleton::GetBoneMatrices),
+                          func_address(&nalPedSkeleton::GetTrajectoryUpdate),
+                          reinterpret_cast<void *>(&ped_pose_from_matrices),
+                          func_address(&nalPedSkeleton::GetDefaultPose),
+                          func_address(&nalPedSkeleton::CreatePose),
+                          func_address(&nalPedSkeleton::DestroyPose),
+                          func_address(&nalPedSkeleton::CopyPose),
+                          func_address(&nalPedSkeleton::BlendPose),
+                          reinterpret_cast<void *>(&ped_empty)};
     static int g_vtbl_ptr = bit_cast<int>(static_cast<void *>(g_vtbl));
     return g_vtbl_ptr;
 }();

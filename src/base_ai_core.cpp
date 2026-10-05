@@ -717,7 +717,7 @@ void ai_core::remove_slave(vhandle_type<actor> actor_handle)
 {
     auto *node = static_cast<slave_inode *>(get_info_node(slave_inode::default_id, true));
     for (int i = 0; i < node->records.m_size; ++i) {
-        if (node->records_data[i].actor_handle.field_0 == actor_handle.field_0) {
+        if (node->records_data[i].actor_handle.field_0 == actor_handle.field_0.field_0) {
             std::move(node->records_data + i + 1,
                       node->records_data + node->records.m_size, node->records_data + i);
             --node->records.m_size;

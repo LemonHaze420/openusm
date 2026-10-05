@@ -56,12 +56,12 @@ bool __fastcall PCUV_Shader_IsSwitchable(void *)
 PCUV_Shader::PCUV_Shader()
 {
     static void *g_vtbl[]{
-        func_address(&Register),
+        func_address(&PCUV_Shader::Register),
         reinterpret_cast<void *>(PCUV_Shader_GetName),
-        func_address(&_AddNode),
-        func_address(&_BindMaterial),
-        func_address(&_ReleaseMaterial),
-        func_address(&_RebaseMaterial),
+        func_address(&PCUV_Shader::_AddNode),
+        func_address(&PCUV_Shader::_BindMaterial),
+        func_address(&PCUV_Shader::_ReleaseMaterial),
+        func_address(&PCUV_Shader::_RebaseMaterial),
         func_address(&nglShader::_CheckMaterialVersion),
         func_address(&nglShader::_CheckVertexDefVersion),
         func_address(&nglShader::_BindSection),
@@ -132,7 +132,7 @@ PCUV_ShaderNode::PCUV_ShaderNode(
     nglMeshNode *mesh_node, nglMeshSection *mesh_section, PCUV_ShaderMaterial *material)
     : field_4(0), field_8(0), field_C(mesh_node), field_10(mesh_section), field_14(material)
 {
-    static void *g_vtbl[]{func_address(&Render)};
+    static void *g_vtbl[]{func_address(&PCUV_ShaderNode::Render)};
     this->m_vtbl = CAST(m_vtbl, &g_vtbl);
 }
 

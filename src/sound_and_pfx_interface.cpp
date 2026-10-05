@@ -14,8 +14,8 @@
 
 VALIDATE_SIZE(sound_and_pfx_interface, 0x40);
 
-#if STANDALONE_SYSTEM
 namespace {
+#if STANDALONE_SYSTEM
 
 template<class T, class Decode>
 void decode_vector(mashable_vector<T> &values, generic_mash_data_ptrs *data, Decode decode)
@@ -55,6 +55,8 @@ void decode_event(sound_interface_event_info &event, generic_mash_data_ptrs *dat
     event.available = new _std::list<sound_interface_resource_info *>;
 }
 
+#endif
+
 void release_events(mashable_vector<sound_interface_event_info> &events)
 {
     if (events.is_shared()) {
@@ -86,6 +88,7 @@ void release_owned_shared_info(shared_sound_interface_info *info)
     delete info;
 }
 
+#if STANDALONE_SYSTEM
 void remove_sound_interface(sound_interface *interface_ptr)
 {
     auto &interfaces = var<_std::vector<sound_interface *> *>(0x0095A6A4);
@@ -136,8 +139,8 @@ void __fastcall advance_interface(sound_and_pfx_interface *self, void *, Float e
 {
     frame_advance_native_sound_emitter(self, elapsed);
 }
-}
 #endif
+}
 
 web_sound_params *shared_sound_interface_info::get_web_sound_params(string_hash name)
 {

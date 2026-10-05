@@ -33,6 +33,7 @@ if(USM_USE_CLANG_XWIN)
     list(APPEND flags
         "/W4"
         "/permissive-"
+        "/clang:-masm=intel"
         "-Wno-non-pod-varargs")
 else()
     list(APPEND flags
@@ -148,8 +149,11 @@ target_compile_options(usm
     ${flags}
 )
 
+add_library(usm_host OBJECT main.cpp)
+target_link_libraries(usm_host PUBLIC dxerr8 usm)
+
 if(SETUP_STANDALONE_SYSTEM)
-    add_executable(openusm_standalone WIN32 main.cpp)
+    add_executable(openusm_standalone WIN32 $<TARGET_OBJECTS:usm_host>)
     set_target_properties(openusm_standalone PROPERTIES OUTPUT_NAME USM)
     set(OPENUSM_RUNTIME_TARGET openusm_standalone)
     if(USM_USE_CLANG_XWIN)
@@ -162,15 +166,12 @@ if(SETUP_STANDALONE_SYSTEM)
             "-Wl,--disable-dynamicbase")
     endif()
 else()
-    add_library(binkw32 SHARED main.cpp)
+    add_library(binkw32 SHARED $<TARGET_OBJECTS:usm_host>)
     if(NOT OPENUSM_DEBUG_SYMBOLS AND NOT USM_USE_CLANG_XWIN)
         set_property(TARGET binkw32 APPEND_STRING PROPERTY LINK_FLAGS " -s")
     endif()
     set(OPENUSM_RUNTIME_TARGET binkw32)
 endif()
-target_compile_options(${OPENUSM_RUNTIME_TARGET}
-    PRIVATE
-    ${flags})
 target_link_libraries(${OPENUSM_RUNTIME_TARGET} PUBLIC dxerr8 usm)
 
 
@@ -384,11 +385,15 @@ if(NOT SETUP_STANDALONE_SYSTEM)
             -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
             -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
             -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
-            -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS})
+            -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
+            -DLIBRARY_SUFFIX=)
         if(CMAKE_TOOLCHAIN_FILE)
             list(APPEND ASSIMP_TOOLCHAIN_ARGS
                 -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE})
         endif()
+        set(ASSIMP_BUILD_BYPRODUCTS
+            "${CMAKE_BINARY_DIR}/assimp-build/lib/assimp.lib"
+            "${CMAKE_BINARY_DIR}/assimp-build/contrib/zlib/zlibstatic.lib")
     else()
         set(ASSIMP_TOOLCHAIN_ARGS
             -DCMAKE_TOOLCHAIN_FILE=${CMAKE_SOURCE_DIR}/cmake/i686-pc-mingw32.cmake
@@ -398,6 +403,7 @@ if(NOT SETUP_STANDALONE_SYSTEM)
         AssimpProject
         SOURCE_DIR ${CMAKE_SOURCE_DIR}/assimp
         BINARY_DIR ${CMAKE_BINARY_DIR}/assimp-build
+        BUILD_BYPRODUCTS ${ASSIMP_BUILD_BYPRODUCTS}
         CMAKE_ARGS
             ${ASSIMP_TOOLCHAIN_ARGS}
             -DCMAKE_BUILD_TYPE=Release
@@ -431,7 +437,11 @@ target_link_libraries(usm PUBLIC charanimtype mash chuck nfl ngl nal nsl utility
 target_link_libraries(usm PUBLIC winmm psapi d3d9 dinput8 dxguid dsound)
 
 if(NOT SETUP_STANDALONE_SYSTEM)
-    target_link_libraries(usm PUBLIC assimp z)
+    if(USM_USE_CLANG_XWIN)
+        target_link_libraries(usm PUBLIC ${ASSIMP_BUILD_BYPRODUCTS})
+    else()
+        target_link_libraries(usm PUBLIC assimp z)
+    endif()
 endif()
 
 

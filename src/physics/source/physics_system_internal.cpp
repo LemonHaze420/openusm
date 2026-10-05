@@ -88,7 +88,7 @@ T *allocate_pulse(physics_system *world, unsigned list)
 struct contact_tree_node {
     contact_tree_node *left, *right;
     int balance;
-    rigid_body *small, *large;
+    rigid_body *small_body, *large;
     rigid_body_constraint_contact *contact;
 };
 struct contact_tree {
@@ -120,30 +120,30 @@ void rotate_left(contact_tree_node *&root)
     child->balance -= 1 - std::min(root->balance, 0);
     root = child;
 }
-int compare_pair(rigid_body *small, rigid_body *large, contact_tree_node *node)
+int compare_pair(rigid_body *small_body, rigid_body *large, contact_tree_node *node)
 {
-    auto a = reinterpret_cast<std::uintptr_t>(small), b = reinterpret_cast<std::uintptr_t>(node->small);
+    auto a = reinterpret_cast<std::uintptr_t>(small_body), b = reinterpret_cast<std::uintptr_t>(node->small_body);
     if (a != b)
         return a < b ? -1 : 1;
     a = reinterpret_cast<std::uintptr_t>(large);
     b = reinterpret_cast<std::uintptr_t>(node->large);
     return a == b ? 0 : a < b ? -1 : 1;
 }
-int insert_tree(contact_tree &tree, contact_tree_node *&root, rigid_body *small, rigid_body *large)
+int insert_tree(contact_tree &tree, contact_tree_node *&root, rigid_body *small_body, rigid_body *large)
 {
     if (!root) {
         root = &tree.data[tree.used++];
-        *root = {nullptr, nullptr, 0, small, large, nullptr};
+        *root = {nullptr, nullptr, 0, small_body, large, nullptr};
         tree.found = root;
         return 1;
     }
-    int order = compare_pair(small, large, root);
+    int order = compare_pair(small_body, large, root);
     if (!order) {
         tree.found = root;
         return 0;
     }
     if (order < 0) {
-        if (!insert_tree(tree, root->left, small, large))
+        if (!insert_tree(tree, root->left, small_body, large))
             return 0;
         if (--root->balance < -1) {
             if (root->left->balance == 1)
@@ -151,7 +151,7 @@ int insert_tree(contact_tree &tree, contact_tree_node *&root, rigid_body *small,
             rotate_right(root);
         }
     } else {
-        if (!insert_tree(tree, root->right, small, large))
+        if (!insert_tree(tree, root->right, small_body, large))
             return 0;
         if (++root->balance > 1) {
             if (root->right->balance == -1)

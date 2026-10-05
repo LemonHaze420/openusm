@@ -16,7 +16,7 @@
 struct chunk_file;
 struct vm_executable;
 struct vm_thread;
-struct script_instance;
+class script_instance;
 struct script_executable;
 struct generic_mash_header;
 struct generic_mash_data_ptrs;

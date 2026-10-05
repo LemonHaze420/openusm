@@ -211,7 +211,7 @@ nalGenericInstance::nalGenericInstance(nalGenericAnim *anim, nalGenericSkeleton 
       field_C(skeleton ? skeleton : anim->field_30), field_10(anim), field_14(field_C),
       field_20(-1000000000.0f)
 {
-    static void *table[]{func_address(&Finalize), func_address(&GetPose)};
+    static void *table[]{func_address(&nalGenericInstance::Finalize), func_address(&nalGenericInstance::GetPose)};
     m_vtbl = reinterpret_cast<int>(table);
     ++anim->field_3C;
     const auto *source = anim->field_30;
@@ -852,11 +852,20 @@ void nalGenericSkeleton::GetPoseFromBoneMatrices(nalGenericPose &out, const nalM
 nalGenericSkeleton::nalGenericSkeleton()
 {
 
-    static void *table[]{func_address(&_Release), func_address(&Finalize), func_address(&_Process),
-        func_address(&_Release), func_address(&_CheckVersion), func_address(&GetBoneCount),
-        func_address(&GetBoneMatrices), func_address(&GetTrajectoryData), func_address(&GetPoseFromBoneMatrices),
-        func_address(&GetDefaultPose), func_address(&CreatePose), func_address(&DestroyPose),
-        func_address(&CopyPose), func_address(&BlendPose)};
+    static void *table[]{func_address(&nalGenericSkeleton::_Release),
+                         func_address(&nalGenericSkeleton::Finalize),
+                         func_address(&nalGenericSkeleton::_Process),
+                         func_address(&nalGenericSkeleton::_Release),
+                         func_address(&nalGenericSkeleton::_CheckVersion),
+                         func_address(&nalGenericSkeleton::GetBoneCount),
+                         func_address(&nalGenericSkeleton::GetBoneMatrices),
+                         func_address(&nalGenericSkeleton::GetTrajectoryData),
+                         func_address(&nalGenericSkeleton::GetPoseFromBoneMatrices),
+                         func_address(&nalGenericSkeleton::GetDefaultPose),
+                         func_address(&nalGenericSkeleton::CreatePose),
+                         func_address(&nalGenericSkeleton::DestroyPose),
+                         func_address(&nalGenericSkeleton::CopyPose),
+                         func_address(&nalGenericSkeleton::BlendPose)};
     m_vtbl = reinterpret_cast<int>(table);
 }
 

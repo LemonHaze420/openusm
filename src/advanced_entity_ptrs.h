@@ -7,7 +7,7 @@
 
 #include <vector.hpp>
 
-struct script_instance;
+class script_instance;
 struct generic_mash_header;
 struct generic_mash_data_ptrs;
 

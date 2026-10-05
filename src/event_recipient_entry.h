@@ -7,7 +7,7 @@
 struct event;
 struct event_callback;
 struct script_executable;
-struct script_instance;
+class script_instance;
 struct vm_executable;
 
 struct event_recipient_entry {

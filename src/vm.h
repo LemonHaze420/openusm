@@ -8,7 +8,7 @@
 #include <vector.hpp>
 
 struct mString;
-struct script_instance;
+class script_instance;
 
 struct slf__set_mission_text__num__t : script_library_class::function {
     //0x00672C00

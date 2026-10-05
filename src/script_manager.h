@@ -22,7 +22,7 @@ struct script_executable_allocated_stuff_record;
 class script_object;
 struct string_hash;
 struct vm_executable;
-struct script_instance;
+class script_instance;
 
 enum script_manager_callback_reason {};
 

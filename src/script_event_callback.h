@@ -2,7 +2,7 @@
 #include "event_callback.h"
 
 struct event;
-struct script_instance;
+class script_instance;
 struct vm_executable;
 struct script_event_callback : event_callback {
     script_instance *instance;

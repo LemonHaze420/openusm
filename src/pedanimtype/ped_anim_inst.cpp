@@ -98,9 +98,11 @@ void unpack_pose(nalPed::nalPedPose &pose, const nalPed::nalPedPackedPose &packe
 
 namespace nalPed {
 int &nalPedAnim::vtbl_ptr = []() -> int & {
-    static void *g_vtbl[]{
-        reinterpret_cast<void *>(&ped_anim_empty), func_address(&Process), func_address(&Release),
-        func_address(&CheckVersion), func_address(&VirtualCreateInstance)};
+    static void *g_vtbl[]{reinterpret_cast<void *>(&ped_anim_empty),
+                          func_address(&nalPedAnim::Process),
+                          func_address(&nalPedAnim::Release),
+                          func_address(&nalPedAnim::CheckVersion),
+                          func_address(&nalPedAnim::VirtualCreateInstance)};
     static int g_vtbl_ptr = bit_cast<int>(static_cast<void *>(g_vtbl));
     return g_vtbl_ptr;
 }();
@@ -153,7 +155,7 @@ uint32_t nalPedAnim::GetPoseFrame(Float time) const
 nalPedInstance::nalPedInstance(nalPedAnim *anim, nalPedSkeleton *skeleton)
     : nalBaseInstance(anim, skeleton)
 {
-    static void *table[]{reinterpret_cast<void *>(&destroy_ped_instance), func_address(&GetPose)};
+    static void *table[]{reinterpret_cast<void *>(&destroy_ped_instance), func_address(&nalPedInstance::GetPose)};
     m_vtbl = reinterpret_cast<std::intptr_t>(table);
     const auto *source = static_cast<const nalPedSkeleton *>(anim->Skeleton);
     for (int i = 0; i < 4; ++i) {

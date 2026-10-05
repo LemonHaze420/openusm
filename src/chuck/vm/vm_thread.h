@@ -13,7 +13,7 @@
 #include <vector.hpp>
 
 struct mString;
-struct script_instance;
+class script_instance;
 struct vm_executable;
 
 struct vm_thread {
