@@ -18,6 +18,11 @@ void *controller::operator new(size_t size)
     return mem_alloc(size);
 }
 
+void controller::operator delete(void *ptr, size_t size)
+{
+    mem_dealloc(ptr, size);
+}
+
 void controller::kill()
 {
     TRACE("controller::kill");

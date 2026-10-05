@@ -12,3 +12,7 @@ void *region_mash_info::operator new(size_t size)
 {
     return mem_alloc(size);
 }
+void region_mash_info::operator delete(void *ptr, size_t size)
+{
+    mem_dealloc(ptr, size);
+}

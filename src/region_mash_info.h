@@ -16,4 +16,5 @@ struct region_mash_info {
     region_mash_info();
 
     void *operator new(size_t);
+    void operator delete(void *ptr, size_t size);
 };

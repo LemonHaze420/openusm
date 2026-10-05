@@ -250,6 +250,11 @@ void param_block::param_data::initialize(mash::allocation_scope a2)
     }
 }
 
+void *param_block::param_data::operator new(size_t size)
+{
+    return mem_alloc(size);
+}
+
 void param_block::param_data::operator delete(void *ptr, size_t size)
 {
     mem_dealloc(ptr, size);

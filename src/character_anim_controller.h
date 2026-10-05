@@ -95,6 +95,8 @@ struct character_anim_controller : nal_anim_controller {
 
     void *operator new(size_t sz);
 
+    void operator delete(void *ptr, size_t size);
+
     void *operator new(size_t size, void *);
 
     //virtual

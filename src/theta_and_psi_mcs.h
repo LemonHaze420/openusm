@@ -19,6 +19,9 @@ struct theta_and_psi_mcs : motion_control_system {
     void *operator new(size_t size);
 
     //0x005196E0
+    void operator delete(void *ptr, size_t size);
+
+    //0x005196E0
     void reset_angles();
 
     //0x0053B260

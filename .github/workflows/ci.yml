@@ -27,15 +27,27 @@ jobs:
   build:
     name: MinGW (${{ matrix.name }})
     needs: check-format
-    runs-on: ubuntu-22.04
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         include:
           - name: normal
             cmake-options: ''
+            os: ubuntu-22.04
+            threads: posix
           - name: standalone
             cmake-options: -DSETUP_STANDALONE_SYSTEM=ON
+            os: ubuntu-22.04
+            threads: posix
+          - name: gcc13-win32-normal
+            cmake-options: ''
+            os: ubuntu-24.04
+            threads: win32
+          - name: gcc13-win32-standalone
+            cmake-options: -DSETUP_STANDALONE_SYSTEM=ON
+            os: ubuntu-24.04
+            threads: win32
     steps:
       - uses: actions/checkout@v4
         with:
@@ -43,14 +55,17 @@ jobs:
           submodules: recursive
           persist-credentials: false
       - name: Install MinGW toolchain
+        env:
+          MINGW_THREADS: ${{ matrix.threads }}
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            cmake make gcc-mingw-w64-i686-posix g++-mingw-w64-i686-posix
+            cmake make "gcc-mingw-w64-i686-$MINGW_THREADS" "g++-mingw-w64-i686-$MINGW_THREADS"
           sudo update-alternatives --set \
-            i686-w64-mingw32-gcc /usr/bin/i686-w64-mingw32-gcc-posix
+            i686-w64-mingw32-gcc "/usr/bin/i686-w64-mingw32-gcc-$MINGW_THREADS"
           sudo update-alternatives --set \
-            i686-w64-mingw32-g++ /usr/bin/i686-w64-mingw32-g++-posix
+            i686-w64-mingw32-g++ "/usr/bin/i686-w64-mingw32-g++-$MINGW_THREADS"
+          i686-w64-mingw32-g++ --version
       - name: Configure
         env:
           CMAKE_OPTIONS: ${{ matrix.cmake-options }}

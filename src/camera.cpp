@@ -181,6 +181,11 @@ void *camera::operator new(size_t size)
     return mem_alloc(size);
 }
 
+void camera::operator delete(void *ptr, size_t size)
+{
+    mem_dealloc(ptr, size);
+}
+
 void camera::sync(camera &a2)
 {
     if constexpr (1) {

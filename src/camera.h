@@ -22,6 +22,7 @@ struct camera : actor {
     void set_far_plane_factor(Float factor);
 
     void *operator new(size_t size);
+    void operator delete(void *ptr, size_t size);
 
     float compute_xz_projected_fov();
 

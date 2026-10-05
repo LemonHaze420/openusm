@@ -39,6 +39,21 @@ void mVectorBasic<int>::destruct_mashed_class()
 }
 
 template <>
+void mVectorBasic<gab_source>::destruct_mashed_class()
+{
+    if constexpr (STANDALONE_SYSTEM) {
+        if (!is_pointer_in_mash_image(m_data))
+            delete[] m_data;
+        m_data = nullptr;
+        m_max_size = 0;
+        mContainer_base::clear();
+        mContainer_base::destruct_mashed_class();
+    } else {
+        THISCALL(0x005E3F30, this);
+    }
+}
+
+template <>
 void mVectorBasic<int>::reserve(int capacity)
 {
     if (capacity > m_max_size) {

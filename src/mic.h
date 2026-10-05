@@ -12,6 +12,9 @@ struct mic : entity {
     void *operator new(size_t size);
 
     //0x0051D9A0
+    void operator delete(void *ptr, size_t size);
+
+    //0x0051D9A0
     //virtual
     void frame_advance(Float a2);
 };

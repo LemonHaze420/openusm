@@ -1218,9 +1218,9 @@ BOOL __stdcall sub_821470(const DIDEVICEINSTANCEA *device_instance, void *contex
 
     input->field_4EC[device_index] = 1;
     input->field_14[device_index] = bit_cast<int>(device);
-    auto *device_names = reinterpret_cast<char *>(&input->field_8C[20]);
-    std::strncpy(device_names + 100 * device_index, device_instance->tszProductName, 99);
-    device_names[100 * device_index + 99] = '\0';
+
+    std::strncpy(input->m_device_names[device_index], device_instance->tszProductName, 99);
+    input->m_device_names[device_index][99] = '\0';
 
     device->lpVtbl->SetDataFormat(device, &c_dfDIJoystick2);
     device->lpVtbl->SetCooperativeLevel(device, input->m_hwnd, DISCL_EXCLUSIVE | DISCL_FOREGROUND);
@@ -1262,7 +1262,6 @@ void Input::sub_821490(bool a2)
         }
 
 
-        auto *names = reinterpret_cast<char *>(&field_8C[20]);
         for (int i = 0; i < 10; ++i) {
             if (!field_4EC[i] && field_14[i]) {
                 std::memset(&field_4F8[i], 0, sizeof(field_4F8[i]));
@@ -1302,9 +1301,9 @@ void Input::sub_821490(bool a2)
 
             std::
 
-                strcpy(names + 100 * destination, names + 100 * source);
+                strcpy(m_device_names[destination], m_device_names[source]);
 
-            std::memset(names + 100 * source, 0, 100);
+            std::memset(m_device_names[source], 0, sizeof(m_device_names[source]));
 
             std::memcpy(field_27F0[destination], field_27F0[source], sizeof(field_27F0[source]));
 

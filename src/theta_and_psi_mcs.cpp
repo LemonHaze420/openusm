@@ -63,6 +63,11 @@ void *theta_and_psi_mcs::operator new(size_t size)
     return mem_alloc(size);
 }
 
+void theta_and_psi_mcs::operator delete(void *ptr, size_t size)
+{
+    mem_dealloc(ptr, size);
+}
+
 void theta_and_psi_mcs::reset_angles()
 {
     if constexpr (1) {

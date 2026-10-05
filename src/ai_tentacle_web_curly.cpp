@@ -62,6 +62,11 @@ void *ai_tentacle_web_curly::operator new(size_t size)
     return mem_alloc(size);
 }
 
+void ai_tentacle_web_curly::operator delete(void *ptr, size_t size)
+{
+    mem_dealloc(ptr, size);
+}
+
 void ai_tentacle_web_curly::reset_curl()
 {
     this->field_50 = -1;

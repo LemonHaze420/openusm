@@ -30,7 +30,7 @@ struct po {
     static void full_inv_multiply(po &out, const po &parent, const po &absolute);
 
     //0x005BD200
-    bool operator==(const po &a2);
+    bool operator==(const po &a2) const;
 
     bool is_valid(bool a2 = true, bool a3 = false) const;
 

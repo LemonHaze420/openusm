@@ -17,6 +17,11 @@ void *motion_control_system::operator new(size_t size)
     return mem_alloc(size);
 }
 
+void motion_control_system::operator delete(void *ptr, size_t size)
+{
+    mem_dealloc(ptr, size);
+}
+
 bool motion_control_system::is_active() const
 {
     return field_4;

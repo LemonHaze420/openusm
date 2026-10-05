@@ -108,7 +108,7 @@ struct Var {
 
 
 template <typename T>
-inline auto &var(ptrdiff_t &&address)
+inline auto &var(ptrdiff_t address)
 {
 #if STANDALONE_SYSTEM
     return standalone_var<T>(address);

@@ -101,6 +101,11 @@ void *character_anim_controller::operator new(size_t sz)
     return mem_alloc(sz);
 }
 
+void character_anim_controller::operator delete(void *ptr, size_t size)
+{
+    mem_dealloc(ptr, size);
+}
+
 void *character_anim_controller::operator new(size_t, void *ptr)
 {
     return ptr;

@@ -14,6 +14,9 @@ struct from_mash_in_place_constructor;
 struct gab_source {
     string_hash sound;
     std::uint32_t field_4;
+
+    //0x004ACEE0
+    ~gab_source() {}
 };
 
 struct gab_history_entry {

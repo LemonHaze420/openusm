@@ -3,6 +3,8 @@
 #include "common.h"
 #include "panel_component.h"
 
+
+#include "func_wrapper.h"
 #include <nal_system.h>
 #include <trace.h>
 #include <variables.h>
@@ -38,7 +40,8 @@ nalPanelSkeleton::nalPanelSkeleton()
         static void *g_vtbl[]{nullptr,
                               nullptr,
                               func_address(&nalPanelSkeleton::_Process),
-                              nullptr,
+
+                              func_address(&nalPanelSkeleton::_Release),
                               func_address(&nalPanelSkeleton::_CheckVersion),
                               nullptr,
                               nullptr,
@@ -51,7 +54,8 @@ nalPanelSkeleton::nalPanelSkeleton()
                               nullptr,
                               nullptr,
                               nullptr,
-                              func_address(&nalCompSkeleton::_UnMash)};
+                              func_address(&nalCompSkeleton::_UnMash),
+                              func_address(&nalCompSkeleton::ReMash)};
 
         m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {
@@ -97,4 +101,19 @@ void nalPanelSkeleton::_Process()
     auto *mem = tlMemAlloc(sizeof(nalPanel::nalPanelPose), 8, 0);
     this->m_theDefaultPose = new (mem) nalPanel::nalPanelPose{this};
 }
-}  // namespace nalPanel
+
+void nalPanelSkeleton::_Release()
+{
+    if constexpr (STANDALONE_SYSTEM) {
+        ReMash(this);
+        if (m_theDefaultPose != nullptr) {
+            m_theDefaultPose->FreePoseData();
+            tlMemFree(m_theDefaultPose);
+        }  // namespace nalPanel
+
+        m_theDefaultPose = nullptr;
+    } else {
+        THISCALL(0x007348E0, this);
+    }
+}
+}

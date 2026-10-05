@@ -122,7 +122,7 @@ po::po(const vector3d &a1, const quaternion &a2, Float a3)
     this->set_po(a1, a2, a3);
 }
 
-bool po::operator==(const po &a2)
+bool po::operator==(const po &a2) const
 {
     return memcmp(this, &a2, 64u) == 0;
 }

@@ -20,6 +20,8 @@ struct nalPanelSkeleton : nalComp::nalCompSkeleton {
     //virtual
     void _Process();
 
+
+    void _Release();
     bool _CheckVersion() const
     {
         return this->Version == 0x300;

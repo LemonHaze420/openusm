@@ -618,16 +618,6 @@ void mVector<ai::base_state>::destruct_mashed_class()
     mContainer_base::destruct_mashed_class();
 }
 
-template <>
-void mVector<sound_alias>::destruct_mashed_class()
-{
-    if constexpr (0) {
-        //this->clear();
-    } else {
-        THISCALL(0x005D6EE0, this);
-    }
-}
-
 
 namespace {
 template <typename T, typename Cleanup>
@@ -663,7 +653,65 @@ void clear_virtual_mashed_vector(mVector<T> &vector)
         }
     });
 }
+}
 
+template <>
+void mVector<gab_expression>::clear()
+{
+    if constexpr (STANDALONE_SYSTEM) {
+        clear_mashed_vector(*this, [](gab_expression *entry, bool in_mash) {
+            if (in_mash)
+                entry->field_0.destruct_mashed_class();
+            entry->field_8.destruct_mashed_class();
+            if (!in_mash)
+                ::operator delete(entry);
+        });
+    } else {
+        THISCALL(0x005E8DE0, this);
+    }
+}
+
+template <>
+void mVector<gab_archetype>::clear()
+{
+    if constexpr (STANDALONE_SYSTEM) {
+        clear_mashed_vector(*this, [](gab_archetype *entry, bool in_mash) {
+            entry->field_4.clear();
+            entry->field_4.mContainer_base::destruct_mashed_class();
+            if (!in_mash)
+                ::operator delete(entry);
+        });
+    } else {
+        THISCALL(0x005EAD90, this);
+    }
+}
+
+template <>
+void mVector<sound_alias>::clear()
+{
+    if constexpr (STANDALONE_SYSTEM) {
+        clear_mashed_vector(*this, [](sound_alias *entry, bool in_mash) {
+            if (in_mash) {
+                entry->field_0.destruct_mashed_class();
+                entry->field_4.destruct_mashed_class();
+            } else {
+                ::operator delete(entry);
+            }
+        });
+    } else {
+        THISCALL(0x005E4160, this);
+    }
+}
+
+template <>
+void mVector<sound_alias>::destruct_mashed_class()
+{
+    if constexpr (STANDALONE_SYSTEM) {
+        clear();
+        mContainer_base::destruct_mashed_class();
+    } else {
+        THISCALL(0x005D6EE0, this);
+    }
 }
 
 template <>

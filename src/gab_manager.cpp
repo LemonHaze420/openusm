@@ -208,7 +208,12 @@ gab_database::gab_database(from_mash_in_place_constructor *a2) : field_0(a2)
 
 void gab_database::destruct_mashed_class()
 {
-    THISCALL(0x005E0860, this);
+    if constexpr (STANDALONE_SYSTEM) {
+        field_0.clear();
+        field_0.mContainer_base::destruct_mashed_class();
+    } else {
+        THISCALL(0x005E0860, this);
+    }
 }
 
 void gab_database::unmash(mash_info_struct *a1, void *a3)
