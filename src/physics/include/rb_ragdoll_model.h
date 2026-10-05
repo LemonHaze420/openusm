@@ -7,6 +7,16 @@
 
 struct phys_vector3d;
 struct rigid_body;
+struct user_rigid_body;
+struct entity_base;
+struct po;
+struct rigid_body_constraint_ragdoll;
+
+struct ragdoll_bone_binding {
+    char transform[64];
+    entity_base *bone;
+    int rigid_body_index;
+};
 
 struct ragdoll_callbacks {
     void *m_calc_bone_mat_from_rb;
@@ -38,10 +48,18 @@ struct phys_array {
 
 struct rb_ragdoll_model {
     phys_array<rigid_body **> m_list_rigid_body;
-    int field_30[252];
+    phys_array<rigid_body_constraint_ragdoll **> constraints;
+    phys_array<void **> contact_constraints;
+    phys_array<user_rigid_body **> user_bodies;
+    phys_array<void **> field_C0;
+    char field_F0[0x2D0];
+    ragdoll_bone_binding *bone_bindings[21];
+    int bone_binding_count;
+    int field_418;
+    int field_41C;
 
     bool field_420;
-    int field_424;
+    float field_424;
     bool field_428;
     int field_42C;
     float field_430;
@@ -63,6 +81,14 @@ struct rb_ragdoll_model {
     rigid_body *add_rigid_body(int rb_id);
 
     void reset_state_variables();
+    void rdbi_calc_bone_mat_from_rb();
+    void destroy_bodies();
+    void initialize_storage();
+    rigid_body_constraint_ragdoll *add_joint(int first, int second);
+    void rdbi_calc_rb_mat_from_bone();
+    void relax_joints();
+    void update_ballistic_target();
+    void set_time_scale(float value);
 
     void sub_4ADEF0(int i, const phys_vector3d &a3);
 

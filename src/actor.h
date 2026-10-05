@@ -12,6 +12,7 @@
 
 struct collision_free_state;
 struct nalAnyPose;
+struct capsule;
 
 template <typename T>
 struct nalAnimClass;
@@ -45,6 +46,7 @@ struct web_interface;
 
 struct actor : entity {
     using base_type = vhandle_type<entity>;
+    bool allow_collision(entity_base_vhandle other);
 
     struct mesh_buffers {
         nglMesh **field_0;
@@ -94,8 +96,11 @@ struct actor : entity {
     }
 
     collision_free_state *get_last_collision_free_state() const;
+    void save_last_collision_free_state(const po &pose, const capsule &shape, float epsilon);
 
     void set_colgeom(collision_geometry *a2);
+
+    void _set_collisions_active(bool enabled, bool update_region);
 
     int get_entity_size();
 
@@ -135,6 +140,7 @@ struct actor : entity {
 
     //0x004E2C10
     void add_collision_ignorance(entity_base_vhandle a2);
+    void remove_collision_ignorance(entity_base_vhandle a2);
 
     void allocate_anim_controller(unsigned int a2, nalBaseSkeleton *a3);
 
@@ -249,6 +255,7 @@ struct actor : entity {
 
     //virtual
     void set_frame_delta_trans(const vector3d &a2, Float a3);
+    void set_frame_delta_trans_native(const vector3d &translation, Float dt);
 
     //0x004E31F0
     vector3d _get_visual_center();

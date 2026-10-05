@@ -6,15 +6,29 @@
 #include "collision_geometry.h"
 #include "common.h"
 #include "dynamic_conglomerate_clone.h"
-#include "func_wrapper.h"
 #include "physical_interface.h"
 #include "quaternion.h"
 #include "sphere.h"
+#include "time_interface.h"
+#include "wds.h"
 
 #include <cassert>
 #include <cmath>
 
 VALIDATE_SIZE(collision_free_state, 0x64u);
+VALIDATE_SIZE(intraframe_trajectory_t, 0x16C);
+VALIDATE_SIZE(trajectory_contact_t, 0x1C);
+
+fixed_pool &intraframe_trajectory_t::pool()
+{
+#if STANDALONE_SYSTEM
+
+    static fixed_pool storage{0x170, 16, 16, 1, 0, nullptr};
+    return storage;
+#else
+    return var<fixed_pool>(0x0092244C);
+#endif
+}
 
 intraframe_trajectory_t::intraframe_trajectory_t() {}
 
@@ -33,12 +47,13 @@ capsule xform3d_1_capsule(const matrix4x4 &a2, const capsule &a3)
 
     return cap;
 }
-
-static constexpr auto MAX_TRAJECTORY_VELOCITY = 500.0f;
-
-void intraframe_trajectory_t::init(entity *ent_arg, Float a3, const po &a4, dynamic_conglomerate_clone *a5)
+bool intraframe_trajectory_t::has_colgeom()
 {
-    if constexpr (1) {
+    return ent->get_colgeom() != nullptr;
+}
+
+void intraframe_trajectory_t::init(entity *ent_arg, Float a3, const po &, dynamic_conglomerate_clone *a5)
+{
         assert(ent_arg->is_an_actor());
 
         this->field_15C = nullptr;
@@ -48,7 +63,7 @@ void intraframe_trajectory_t::init(entity *ent_arg, Float a3, const po &a4, dyna
         this->final_relcap = nullptr;
         this->field_164 = false;
         this->field_165 = false;
-        this->field_160 = 0;
+        this->field_160 = nullptr;
         this->field_168 = nullptr;
         this->field_150 = (this->ent->has_physical_ifc() && this->ent->physical_ifc()->is_enabled()
                                ? this->ent->physical_ifc()->get_velocity()
@@ -74,13 +89,6 @@ void intraframe_trajectory_t::init(entity *ent_arg, Float a3, const po &a4, dyna
 
             assert(this->world_po0.is_valid());
 
-            auto position = this->world_po0.get_position();
-            auto v10 = this->world_po1.get_position();
-            auto v1 = v10 - position;
-            auto v32 = std::max(this->field_14C, 0.016666668f);
-            vector3d assert_velocity = v1 / v32;
-
-            assert(assert_velocity.length2() < MAX_TRAJECTORY_VELOCITY * MAX_TRAJECTORY_VELOCITY);
         }
 
         if (this->ent->are_collisions_active() && this->has_colgeom() && this->get_colgeom()->get_type() == 1) {
@@ -121,9 +129,6 @@ void intraframe_trajectory_t::init(entity *ent_arg, Float a3, const po &a4, dyna
         }
 
         this->field_140 = (this->world_po1.get_position() - this->world_po0.get_position()) / this->field_14C;
-    } else {
-        THISCALL(0x0053BC80, this, ent_arg, a3, &a4, a5);
-    }
 }
 
 bool build_quat_that_aligns_two_vectors(const vector3d &a1, const vector3d &a2, quaternion &a3)
@@ -162,7 +167,7 @@ void extract_axis_aligned_capsule_and_world_xform(const capsule &a3, capsule *aa
 {
     assert(aa_cap != nullptr && world_po != nullptr);
 
-    quaternion v10{};
+    quaternion v10{1.0f, 0.0f, 0.0f, 0.0f};
     auto v3 = a3.end - a3.base;
     build_quat_that_aligns_two_vectors(YVEC, v3, v10);
     world_po->set_po(a3.base, v10, 1.0f);
@@ -225,6 +230,34 @@ void intraframe_trajectory_t::integrate(Float a2, po *integrated_xform)
     auto v4 = this->field_140 * a2;
     auto v3 = this->world_po0.get_position() + v4;
     integrated_xform->set_position(v3);
+}
+
+void intraframe_trajectory_t::backpropagate(Float elapsed)
+{
+    auto pose = final_po;
+    if (is_capsule) {
+        const auto absolute = get_abs_cap1();
+        const auto relative_base = sub_55DCB0(final_po.get_matrix(), final_relcap->base);
+        pose.set_position(absolute.base - relative_base);
+        if (!field_165)
+            pose.set_position(final_po.get_position());
+        field_165 = false;
+        ent->save_last_collision_free_state(pose, *final_relcap, field_14C);
+        get_capsule().rel_cap = *final_relcap;
+    } else {
+        ent->save_last_collision_free_state(pose, relcap1, field_14C);
+    }
+    if ((ent->field_4 & 0x8000u) != 0)
+        return;
+    if (!ent->has_physical_ifc() || !ent->physical_ifc()->is_enabled() ||
+        (ent->physical_ifc()->field_C & 2u) != 0 || ent->get_parent()) {
+        entity_set_abs_po(ent, pose);
+    } else {
+        const float scale = ent->field_58
+            ? static_cast<float>(ent->field_58->sub_4ADE50())
+            : g_world_ptr->time_manager.field_0;
+        ent->physical_ifc()->backpropagate(Float{elapsed.value * scale}, pose, field_150);
+    }
 }
 
 capsule intraframe_trajectory_t::get_abs_cap0()

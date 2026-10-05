@@ -16,22 +16,14 @@ struct capsule_alter_sys {
     collision_capsule *field_8;
     capsule base_rel_cap;
     capsule field_28;
-    entity_base *field_44[4];
-    int field_54;
-    entity_base *field_58[2];
-    int field_60;
-    int field_64;
-    int field_68;
-    float field_6C[4];
-    int field_7C;
-    float field_80[2];
-    int field_88;
-    int field_8C;
-    int field_90;
+    entity_base *field_44[5];
+    entity_base *field_58[5];
+    float field_6C[5];
+    float field_80[5];
 
     float field_94;
-    int field_98;
-    int field_9C;
+    float field_98;
+    float field_9C;
     bool field_A0;
     bool field_A1;
     bool field_A2;
@@ -45,6 +37,8 @@ struct capsule_alter_sys {
 
     //0x005D7170
     void adjust_colgeom(bool a2);
+
+    void restore_colgeom();
 
     //0x005D94F0
     void set_mode(eAlterMode a2);

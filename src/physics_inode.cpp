@@ -1,5 +1,8 @@
 #include "physics_inode.h"
 
+#include <algorithm>
+#include <array>
+
 #include "actor.h"
 #include "base_ai_core.h"
 #include "common.h"
@@ -17,7 +20,48 @@ namespace ai {
 
 VALIDATE_SIZE(physics_inode, 0x20);
 
-physics_inode::physics_inode(from_mash_in_place_constructor *a2) : info_node(a2) {}
+namespace {
+void *__fastcall physics_delete(physics_inode *self, void *, unsigned flags)
+{
+    self->~physics_inode();
+    if (flags & 1)
+        mash_virtual_base::operator delete(self, sizeof(physics_inode));
+    return self;
+}
+unsigned __fastcall physics_type(physics_inode *, void *) { return 402; }
+bool __fastcall physics_subclass(physics_inode *, void *, unsigned type)
+{
+    return type == 537 || type == 573;
+}
+void __fastcall physics_activate(physics_inode *self, void *, ai_core *core) { self->_activate(core); }
+int __fastcall physics_size(physics_inode *, void *) { return sizeof(physics_inode); }
+}
+
+void *physics_inode::native_vtable()
+{
+
+    static auto table = [] {
+        std::array<void *, 12> result;
+        std::copy_n(static_cast<void **>(info_node::native_vtable()), result.size(), result.data());
+        result[2] = reinterpret_cast<void *>(&physics_delete);
+        result[3] = reinterpret_cast<void *>(&physics_type);
+        result[4] = reinterpret_cast<void *>(&physics_subclass);
+        result[8] = reinterpret_cast<void *>(&physics_activate);
+        result[11] = reinterpret_cast<void *>(&physics_size);
+        return result;
+    }();
+    return table.data();
+}
+
+physics_inode::physics_inode() : info_node()
+{
+    m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[virtual_type]);
+}
+
+physics_inode::physics_inode(from_mash_in_place_constructor *a2) : info_node(a2)
+{
+    m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[virtual_type]);
+}
 
 po &physics_inode::get_abs_po()
 {
@@ -136,41 +180,33 @@ void physics_inode::setup_for_bounce()
 
 void physics_inode::set_adv_standing(bool a2)
 {
-    entity_base *v1 = this->field_C;
     if (a2) {
-        v1->field_4 |= 0x200u;
+        field_1C->field_C |= 0x200u;
     } else {
-        v1->field_4 &= 0xFFFFFDFF;
+        field_1C->field_C &= ~0x200u;
     }
 }
 
 void physics_inode::set_always_standing(bool a2)
 {
-    entity_base *v1 = this->field_C;
     if (a2) {
-        v1->field_4 |= 0x400u;
+        field_1C->field_C |= 0x400u;
     } else {
-        v1->field_4 &= 0xFFFFFBFF;
+        field_1C->field_C &= ~0x400u;
     }
 }
 
 void physics_inode::setup_for_walk()
 {
-    if constexpr (1) {
-        this->set_collisions_active(true, true);
-        this->set_always_standing(false);
-        this->set_adv_standing(false);
-        this->set_gravity(true);
-        this->set_stationary(false);
-        this->unsuspend();
-        this->enable(true);
-        auto *v2 = this->field_C->physical_ifc();
-        v2->set_current_gravity_vector(-YVEC);
-        this->cleanup_from_swing();
-
-    } else {
-        THISCALL(0x00698E50, this);
-    }
+    set_collisions_active(true, true);
+    set_always_standing(false);
+    set_adv_standing(false);
+    set_gravity(true);
+    set_stationary(false);
+    unsuspend();
+    enable(true);
+    field_C->physical_ifc()->set_current_gravity_vector(-YVEC);
+    cleanup_from_swing();
 }
 
 static const string_hash physics_normal_drag_id{int(to_hash("physics_normal_drag"))};
@@ -195,7 +231,7 @@ static constexpr auto g_normal_air_res_down_scale = 1.0f;
 
 static float g_normal_air_res_horz_scale = 1.0f;
 
-static float &g_normal_air_res_min_speed = var<float>(0x0096BE3C);
+static constexpr float g_normal_air_res_min_speed = 0.0f;
 
 void physics_inode::cleanup_from_swing()
 {
@@ -271,7 +307,6 @@ void physics_inode::set_collisions_active(bool a1, bool a2)
 
 void physics_inode::setup_for_swing()
 {
-    if constexpr (0) {
         this->set_collisions_active(true, true);
         this->set_always_standing(false);
         this->set_adv_standing(false);
@@ -296,7 +331,7 @@ void physics_inode::setup_for_swing()
 
         int swing_speed = g_game_ptr->gamefile->field_340.m_swing_speed;
 
-        float v28;
+        float v28 = g_normal_air_res_min_speed;
 
         switch (swing_speed) {
         case 0:
@@ -338,9 +373,6 @@ void physics_inode::setup_for_swing()
 
         this->field_8->field_50.get_optional_pb_float(physics_gravity_swing_id, g_swing_gravity, nullptr);
         this->field_1C->m_gravity_multiplier = g_swing_gravity;
-    } else {
-        THISCALL(0x00694AF0, this);
-    }
 }
 
 void physics_inode::setup_for_pole_swing()

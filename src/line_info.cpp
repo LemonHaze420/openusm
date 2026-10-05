@@ -27,6 +27,13 @@ line_info::line_info()
     this->clear();
 }
 
+line_info::line_info(from_mash_in_place_constructor *constructor)
+    : field_0(constructor), field_C(constructor), hit_pos(constructor), hit_norm(constructor),
+      field_30(constructor), field_3C(constructor)
+{
+    hit_entity.field_0 = {0};
+}
+
 line_info::line_info(const vector3d &a2, const vector3d &a3) : line_info()
 {
     this->field_0 = a2;
@@ -35,8 +42,6 @@ line_info::line_info(const vector3d &a2, const vector3d &a3) : line_info()
 
 line_info::~line_info()
 {
-    TRACE("line_info::~line_info");
-
     this->release_mem();
 }
 
@@ -93,89 +98,54 @@ void line_info::clear()
     }
 }
 
-bool line_info::check_collision(const local_collision::entfilter_base &p_ent_filter,
-                                const local_collision::obbfilter_base &p_obb_filter, line_info_local_query *a4)
+bool line_info::check_collision(const local_collision::entfilter_base &entity_filter,
+                                const local_collision::obbfilter_base &terrain_filter, line_info_local_query *)
 {
-    TRACE("line_info::check_collision");
-
-    if constexpr (0) {
-        if (this->queued_for_collision_check) {
-            this->remove_to_collision_check_queue();
-        }
-
-        if (this->field_59) {
-            this->clear();
-        }
-
-        auto v1 = this->field_0;
-        auto v2 = this->field_C;
-        this->ent_filter = &p_ent_filter;
-        this->obb_filter = &p_obb_filter;
-        this->field_59 = true;
-        this->collision = false;
-        this->hit_pos = this->field_C;
-
-        this->field_30 = this->field_C;
-        this->hit_entity = {0};
-
-        this->m_obb = nullptr;
-        entity *v_hit_entity = nullptr;
-        assert(ent_filter != nullptr && obb_filter != nullptr);
-
-        auto v3 = v2 - v1;
-        auto len = v3.length();
-        if (len > 0.0) {
-            auto iter_count = std::ceil(len / 99.999901);
-            assert(iter_count > 0);
-
-            vector3d v26 = v3 / iter_count;
-            auto v25 = v1;
-            for (auto i = 0; i < iter_count; ++i) {
-                vector3d v22 = v25;
-                v25 += v26;
-
-                region *a7 = nullptr;
-                this->collision = find_intersection(v22,
-                                                    v25,
-                                                    *this->ent_filter,
-                                                    *this->obb_filter,
-                                                    &this->hit_pos,
-                                                    &this->hit_norm,
-                                                    &a7,
-                                                    &v_hit_entity,
-                                                    &this->m_obb,
-                                                    false);
-                if (this->collision) {
-                    assert(hit_pos.is_valid() && "line_info find_intersection failed");
-                    assert(hit_norm.is_valid() && "line_info find_intersection failed");
-
-                    this->hit_entity.field_0 =
-                        (v_hit_entity != nullptr ? v_hit_entity->get_my_handle() : entity_base_vhandle{0});
-
-                    break;
-                }
+    if (queued_for_collision_check)
+        remove_to_collision_check_queue();
+    if (field_59)
+        clear();
+    const auto start = field_0;
+    const auto end = field_C;
+    ent_filter = &entity_filter;
+    obb_filter = &terrain_filter;
+    field_59 = true;
+    collision = false;
+    hit_pos = field_30 = end;
+    hit_entity = {0};
+    m_obb = nullptr;
+    entity *hit = nullptr;
+    const auto delta = end - start;
+    const double length = std::sqrt(static_cast<double>(delta.x) * delta.x +
+                                   static_cast<double>(delta.y) * delta.y +
+                                   static_cast<double>(delta.z) * delta.z);
+    if (length > 0.0) {
+        const int count = static_cast<int>(std::ceil(length * 0.010000010021030903f));
+        const auto step = delta / static_cast<float>(count);
+        auto current = start;
+        for (int i = 0; i != count; ++i) {
+            const auto previous = current;
+            current += step;
+            region *hit_region = nullptr;
+            collision = find_intersection(previous, current, entity_filter, terrain_filter,
+                                          &hit_pos, &hit_norm, &hit_region, &hit, &m_obb, false);
+            if (collision) {
+                hit_entity.field_0 = hit != nullptr ? hit->get_my_handle() : entity_base_vhandle{0};
+                break;
             }
         }
-
-        if (this->collision) {
-            if (v_hit_entity == nullptr) {
-                assert(hit_entity == INVALID_VHANDLE);
-
-                this->field_30 = this->hit_pos;
-                this->field_3C = this->hit_norm;
-            } else {
-                assert(hit_entity == v_hit_entity->get_my_vhandle());
-
-                auto &abs_po = v_hit_entity->get_abs_po();
-                this->field_30 = abs_po.inverse_xform(this->hit_pos);
-                this->field_3C = abs_po.non_affine_inverse_xform(this->hit_norm);
-            }
-        }
-
-        return this->collision;
-    } else {
-        return (bool)THISCALL(0x0052EE20, this, &p_ent_filter, &p_obb_filter, a4);
     }
+    if (collision) {
+        if (hit != nullptr) {
+            const auto &transform = hit->get_abs_po();
+            field_30 = transform.inverse_xform(hit_pos);
+            field_3C = transform.non_affine_inverse_xform(hit_norm);
+        } else {
+            field_30 = hit_pos;
+            field_3C = hit_norm;
+        }
+    }
+    return collision;
 }
 
 bool line_info::remove_to_collision_check_queue()
@@ -196,12 +166,20 @@ bool line_info::release_mem()
     return this->remove_to_collision_check_queue();
 }
 
-void line_info::copy(const line_info &a2)
+void line_info::copy(const line_info &source)
 {
-    if constexpr (0) {
-    } else {
-        THISCALL(0x006B6E00, this, &a2);
-    }
+
+    field_0 = source.field_0;
+    field_C = source.field_C;
+    hit_entity = source.hit_entity;
+    collision = source.collision;
+    hit_pos = source.hit_pos;
+    hit_norm = source.hit_norm;
+    field_30 = source.field_30;
+    field_3C = source.field_3C;
+    ent_filter = source.ent_filter;
+    obb_filter = source.obb_filter;
+    field_59 = source.field_59;
 }
 
 void line_info::frame_advance(int count)

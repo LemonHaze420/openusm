@@ -13,12 +13,22 @@
 
 VALIDATE_SIZE(collision_capsule, 0x2C);
 
-std::intptr_t &collision_capsule_v_table = var<std::intptr_t>(0x0095A664);
+std::intptr_t &collision_capsule_v_table = []() -> std::intptr_t & {
+    auto &identity = var<std::intptr_t>(0x0095A664);
+#if STANDALONE_SYSTEM
+    identity = 0x00882CE0;
+#endif
+    return identity;
+}();
 
-collision_capsule::collision_capsule() : collision_geometry() {}
+collision_capsule::collision_capsule() : collision_geometry()
+{
+    m_vtbl = 0x00882CE0;
+}
 
 collision_capsule::collision_capsule(actor *a2)
 {
+    this->m_vtbl = 0x00882CE0;
     this->field_8 = 0;
     this->field_9 = 0;
     this->field_8 = 0;

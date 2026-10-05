@@ -2,6 +2,7 @@
 
 #include "variable.h"
 #include "vector3d.h"
+#include "subdivision_node.h"
 
 #include <vector.hpp>
 
@@ -61,8 +62,34 @@ struct static_region_list_methods {
     static inline Var<region_mirror_data *> mirror{0x0095C8BC};
 };
 
+struct static_region_list_node : subdivision_node {
+    uint8_t count;
+
+    uint16_t *region_indices()
+    {
+        return reinterpret_cast<uint16_t *>(this + 1);
+    }
+
+    const uint16_t *region_indices() const
+    {
+        return reinterpret_cast<const uint16_t *>(this + 1);
+    }
+};
+
+struct subdivision_node_builder;
+struct subdivision_node_builder_vtable {
+    subdivision_node *(__fastcall *build)(subdivision_node_builder *, void *,
+        stack_allocator &, _std::vector<proximity_map_construction_leaf> &);
+    void (__fastcall *build_mirror)(subdivision_node_builder *, void *,
+        stack_allocator &, _std::vector<proximity_map_construction_leaf> &);
+};
+
 struct subdivision_node_builder {
+#if STANDALONE_SYSTEM
+    const subdivision_node_builder_vtable *m_vtbl;
+#else
     int m_vtbl;
+#endif
     int field_4;
 
     subdivision_node_builder();
@@ -70,6 +97,8 @@ struct subdivision_node_builder {
 
 struct static_region_list_builder : subdivision_node_builder {
     static_region_list_builder();
+
+    subdivision_node *build(stack_allocator &, _std::vector<proximity_map_construction_leaf> &);
 
     void build_mirror(stack_allocator &a1, _std::vector<proximity_map_construction_leaf> &arg4);
 };

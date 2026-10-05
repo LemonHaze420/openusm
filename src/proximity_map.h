@@ -8,7 +8,21 @@
 struct fixed_pool;
 struct subdivision_visitor;
 struct sector2d;
+struct vector2d;
+template <typename T, uint32_t N> struct fixed_vector;
 struct dynamic_proximity_map_stack;
+struct entity;
+struct traverse_test;
+
+struct dynamic_entity_list_entry {
+    entity *ent;
+    dynamic_entity_list_entry *next;
+};
+
+struct dynamic_entity_list_node : subdivision_node {
+    uint8_t padding[3];
+    dynamic_entity_list_entry *head;
+};
 
 inline constexpr auto STOP_VISITING_FARTHER_CELLS = 2;
 inline constexpr auto STOP_VISITING_WITHIN_THIS_CELL = 3;
@@ -47,10 +61,24 @@ struct proximity_map {
     //0x00522680
     void traverse_sector_raster(const sector2d &sec, Float sector_radius, subdivision_visitor &visitor);
 
+
+    void traverse_convex_hull_raster(const fixed_vector<vector2d, 14> &points, subdivision_visitor &visitor);
+
+    void mark_raster_line(const vector2d &from, const vector2d &to, uint32_t (&rows)[32]);
+    void visit_raster_rows(const uint32_t (&rows)[32], subdivision_visitor &visitor);
+    int visit_cell_node(const subdivision_node &node, subdivision_visitor &visitor, const traverse_test *test);
+
     bool is_initialized();
 };
 
 struct dynamic_proximity_map : proximity_map {
+    fixed_pool *entry_pool;
+    int entity_sphere_kind;
+    int entity_count;
+    int cell_entry_count;
+    int hierarchy_level;
+
+    void compute_entity_center_and_radius(entity &ent, vector3d &center, float &radius);
     //0x00522500
     void init(dynamic_proximity_map_stack *alloc, fixed_pool *a3, int number_of_cells_arg, const vector3d &a5,
               const vector3d &a6, subdivision_node::type_t a7);

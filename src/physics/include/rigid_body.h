@@ -21,14 +21,14 @@ struct rigid_body {
     int field_A4;
     int field_A8;
     int field_AC;
-    int field_B0;
-    int field_B4;
-    int field_B8;
-    int field_BC;
-    int field_C0;
-    int field_C4;
-    int field_C8;
-    int field_CC;
+    float field_B0;
+    float field_B4;
+    float field_B8;
+    float field_BC;
+    float field_C0;
+    float field_C4;
+    float field_C8;
+    float field_CC;
     vector4d field_D0;
     vector4d field_E0;
     float field_F0[4];
@@ -39,22 +39,33 @@ struct rigid_body {
     int field_128;
     int field_12C;
     float field_130;
-    int field_134;
-    int field_138;
-    int field_13C;
-    int field_140;
+    float field_134;
+    float field_138;
+    float field_13C;
+    float field_140;
     uint32_t field_144;
-    int field_148;
+    float field_148;
     int field_14C;
     int field_150;
     int field_154;
     int field_158;
     int field_15C;
     int field_160;
-    int field_164;
+    float field_164;
     float field_168;
 
     rigid_body();
+
+
+    void set(float mass, const phys_vector3d &inertia, const matrix4x4 &pose,
+        const phys_vector3d &velocity, const phys_vector3d &angular_velocity,
+        float collision_scale, int collision_group);
+    void predict_pose(float elapsed);
+    void prolog_frame_advance(float elapsed);
+    void advance_forces(float elapsed);
+    void integrate(float elapsed);
+    void update_sleep(float elapsed);
+    void update_world_inverse_inertia(const matrix4x4 &pose);
 
     void sub_5B2D50(const phys_vector3d &a2);
 
@@ -76,6 +87,8 @@ struct user_rigid_body : rigid_body {
     int field_1B0;
 
     void set(const math::MatClass<4, 3> *dictator);
+    void predict_pose(float elapsed);
+    void integrate(float elapsed);
 };
 
 extern void rigid_body_patch();

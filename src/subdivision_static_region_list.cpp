@@ -14,6 +14,7 @@
 VALIDATE_SIZE(static_region_list_methods, 0x4);
 
 VALIDATE_SIZE(region_mirror_data, 0x1C);
+VALIDATE_SIZE(static_region_list_node, 0x2);
 
 void static_region_list_methods::init()
 {
@@ -113,10 +114,54 @@ subdivision_node_builder::subdivision_node_builder()
     this->field_4 = 0;
 }
 
+#if STANDALONE_SYSTEM
+namespace {
+
+subdivision_node *__fastcall build_static_region_list(
+    subdivision_node_builder *builder, void *, stack_allocator &stack,
+    _std::vector<proximity_map_construction_leaf> &leaves)
+{
+    return static_cast<static_region_list_builder *>(builder)->build(stack, leaves);
+}
+
+void __fastcall build_static_region_mirror(
+    subdivision_node_builder *builder, void *, stack_allocator &stack,
+    _std::vector<proximity_map_construction_leaf> &leaves)
+{
+    static_cast<static_region_list_builder *>(builder)->build_mirror(stack, leaves);
+}
+
+const subdivision_node_builder_vtable native_static_region_list_builder{
+    build_static_region_list, build_static_region_mirror};
+
+}
+#endif
+
+subdivision_node *static_region_list_builder::build(
+    stack_allocator &stack, _std::vector<proximity_map_construction_leaf> &leaves)
+{
+#if STANDALONE_SYSTEM
+    auto *node = new (stack.push(sizeof(static_region_list_node) +
+        leaves.size() * sizeof(uint16_t))) static_region_list_node{};
+    node->set_type(subdivision_node::STATIC_REGION_LIST_NODE);
+    node->count = static_cast<uint8_t>(leaves.size());
+    for (uint32_t i = 0; i < leaves.size(); ++i) {
+        node->region_indices()[i] = static_cast<uint16_t>(leaves[i].field_0.i);
+    }
+    return node;
+#else
+    return reinterpret_cast<subdivision_node *>(THISCALL(0x00534470, this, &stack, &leaves));
+#endif
+}
+
 
 static_region_list_builder::static_region_list_builder()
 {
+#if STANDALONE_SYSTEM
+    this->m_vtbl = &native_static_region_list_builder;
+#else
     this->m_vtbl = 0x00888BB8;
+#endif
 }
 
 void static_region_list_methods_patch()

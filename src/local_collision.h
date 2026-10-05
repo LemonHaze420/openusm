@@ -4,6 +4,7 @@
 #include "fixed_pool.h"
 #include "variable.h"
 #include "vector3d.h"
+#include <cstddef>
 
 struct actor;
 struct region;
@@ -14,6 +15,7 @@ struct line_info;
 struct po;
 struct line_segment_t;
 struct intraframe_trajectory_t;
+struct capsule;
 
 struct walkable_entfilter_t {};
 
@@ -23,9 +25,26 @@ struct crawlable_obbfilter_t {};
 
 namespace local_collision {
 
+struct primitive_list_t;
+
 struct closest_points_pair_t {
-    static inline fixed_pool &pool = var<fixed_pool>(0x00922154);
+    vector3d point;
+    vector3d direction;
+    vector3d other_point;
+    vector3d normal;
+    float distance_squared;
+    closest_points_pair_t *next;
+    primitive_list_t *primitive;
+
+    static inline fixed_pool &pool = var<fixed_pool>(0x00922150);
 };
+
+static_assert(sizeof(closest_points_pair_t) == 0x3C);
+static_assert(offsetof(closest_points_pair_t, direction) == 0xC);
+static_assert(offsetof(closest_points_pair_t, other_point) == 0x18);
+static_assert(offsetof(closest_points_pair_t, normal) == 0x24);
+static_assert(offsetof(closest_points_pair_t, next) == 0x34);
+static_assert(offsetof(closest_points_pair_t, primitive) == 0x38);
 
 struct intersection_list_t {
     int field_0;
@@ -56,12 +75,22 @@ struct query_args_t {
 
 struct entfilter_base {
     std::intptr_t m_vtbl;
+    struct native_vtable {
+        bool (__fastcall *accept)(const entfilter_base *, void *, actor *,
+                                   dynamic_conglomerate_clone *, const query_args_t *);
+    };
 
     bool accept(actor *act, dynamic_conglomerate_clone *a2, const query_args_t &a3) const;
 };
 
 struct obbfilter_base {
     std::intptr_t m_vtbl;
+    struct native_vtable {
+        bool (__fastcall *accept)(const obbfilter_base *, void *, subdivision_node_obb_base *,
+                                   const query_args_t *);
+    };
+
+    bool accept(subdivision_node_obb_base *node, const query_args_t &args) const;
 };
 
 struct obbfilter_OBB_LINE_SEGMENT_TEST {};
@@ -155,12 +184,21 @@ extern primitive_list_t *query_sphere(const vector3d &a1, Float a2, const entfil
 extern bool get_closest_sphere_intersection(primitive_list_t *a1, const vector3d &a2, Float a3, vector3d *a4,
                                             vector3d *a5, intersection_list_t *best_intersection_record);
 
+extern intersection_list_t *get_all_sphere_intersections(primitive_list_t *primitives,
+    const vector3d &center, Float radius);
+extern void destroy_intersection_list(intersection_list_t **intersections);
+
+
+extern closest_points_pair_t *get_all_capsule_intersections(primitive_list_t *primitives,
+    const capsule &query, float time);
+extern closest_points_pair_t *allocate_closest_points_pair();
+extern void destroy_closest_points_pair_list(closest_points_pair_t **pairs);
+
 extern bool collision_pair_matches_query_constraints(actor *a1, dynamic_conglomerate_clone *a2,
                                                      local_collision::entfilter_base &a3,
                                                      local_collision::query_args_t &a4);
 
-inline auto &entfilter_entity_no_capsules =
-    var<entfilter<entfilter_AND<entfilter_ENTITY, entfilter_NO_CAPSULES>> *>(0x00960068);
+extern entfilter<entfilter_AND<entfilter_ENTITY, entfilter_NO_CAPSULES>> *&entfilter_entity_no_capsules;
 
 inline auto &entfilter_entity_no_capsules_instance =
     var<entfilter<entfilter_AND<entfilter_ENTITY, entfilter_NO_CAPSULES>>>(0x00922474);
@@ -168,22 +206,23 @@ inline auto &entfilter_entity_no_capsules_instance =
 inline auto &entfilter_blocks_beams =
     var<entfilter<entfilter_AND<entfilter_BLOCKS_BEAMS, entfilter_LINESEG_TEST>> *>(0x00960060);
 
+extern entfilter_base *&entfilter_blocks_ai_los;
 inline auto &entfilter_entity_collision = var<local_collision::entfilter_base *>(0x00960058);
 
 inline entfilter_base *&entfilter_line_segment_camera_collision = var<entfilter_base *>(0x00960070);
 
 inline entfilter_base *&entfilter_sphere_camera_collision = var<entfilter_base *>(0x00960074);
 
-inline obbfilter_base *&obbfilter_lineseg_test = var<obbfilter_base *>(0x00960064);
+extern obbfilter_base *&obbfilter_lineseg_test;
+extern obbfilter_base *&obbfilter_reject_all;
 
-inline obbfilter<obbfilter_OBB_SPHERE_TEST> *&obbfilter_sphere_test =
-    var<obbfilter<obbfilter_OBB_SPHERE_TEST> *>(0x00960050);
+extern obbfilter_base *&obbfilter_sphere_test;
 
-inline obbfilter_base *&obbfilter_accept_all = var<obbfilter_base *>(0x00960048);
+extern obbfilter_base *&obbfilter_accept_all;
 
-inline entfilter_reject_all_t *&entfilter_reject_all = var<entfilter_reject_all_t *>(0x00960054);
+extern entfilter_reject_all_t *&entfilter_reject_all;
 
-inline entfilter_accept_all_t *&entfilter_accept_all = var<entfilter_accept_all_t *>(0x0096004C);
+extern entfilter_accept_all_t *&entfilter_accept_all;
 
 }  // namespace local_collision
 

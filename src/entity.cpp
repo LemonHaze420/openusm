@@ -19,6 +19,8 @@
 #include "utility.h"
 #include "vtbl.h"
 #include "wds.h"
+#include "dynamic_rtree.h"
+#include "local_collision.h"
 
 #include <cassert>
 
@@ -628,39 +630,16 @@ collision_geometry *entity::get_colgeom() const
 }
 float entity::get_colgeom_radius() const
 {
-    auto *address = get_vfunc(m_vtbl, 0x254);
-    if (address != nullptr) {
-        float (*func)(const void *) = CAST(func, address);
-        return func(this);
-    }
-    if (colgeom != nullptr && colgeom->m_vtbl != 0) {
-        address = get_vfunc(colgeom->m_vtbl, 0x1C);
-        if (address != nullptr) {
-            float(__fastcall * func)(void *) = CAST(func, address);
-            return func(colgeom);
-        }
-    }
-    return 0.0f;
+    auto callback = reinterpret_cast<float(__fastcall *)(const entity *, void *)>(get_vfunc(m_vtbl, 0x254));
+    return callback(this, nullptr);
 }
 vector3d entity::get_colgeom_center() const
 {
-    auto *address = get_vfunc(m_vtbl, 0x258);
-    if (address != nullptr) {
-        void(__fastcall * func)(const void *, void *, vector3d *) = CAST(func, address);
-        vector3d result;
-        func(this, nullptr, &result);
-        return result;
-    }
-    if (colgeom != nullptr && colgeom->m_vtbl != 0) {
-        address = get_vfunc(colgeom->m_vtbl, 0x18);
-        if (address != nullptr) {
-            vector3d local;
-            void(__fastcall * func)(void *, void *, vector3d *) = CAST(func, address);
-            func(colgeom, nullptr, &local);
-            return const_cast<entity *>(this)->get_abs_position() + local;
-        }
-    }
-    return const_cast<entity *>(this)->get_abs_position();
+    auto callback = reinterpret_cast<vector3d *(__fastcall *)(const entity *, void *, vector3d *)>(
+        get_vfunc(m_vtbl, 0x258));
+    vector3d result;
+    callback(this, nullptr, &result);
+    return result;
 }
 
 void entity::remove_me_from_region(region *target)
@@ -983,6 +962,81 @@ int entity::find_entities(int a1)
     } else {
         return CDECL_CALL(0x004D67D0, a1);
     }
+}
+
+int entity::find_entities(unsigned flags, entity *center, float radius)
+{
+
+    if (!found_entities)
+        found_entities = new _std::list<entity *>;
+    found_entities->clear();
+    const auto position = center->get_abs_position();
+    auto *origin = center->get_primary_region();
+    if (!origin)
+        origin = g_world_ptr->the_terrain->find_region(position, nullptr);
+    if (!origin)
+        return 0;
+    region_array nearby{};
+    build_region_list_radius(&nearby, origin, position, radius, true);
+    ++visit_key2;
+    struct search_filter : local_collision::entfilter_base {
+        uint32_t flags;
+        static bool __fastcall accept(const local_collision::entfilter_base *base, void *, actor *value,
+            dynamic_conglomerate_clone *, const local_collision::query_args_t *)
+        {
+            const auto flags = static_cast<const search_filter *>(base)->flags;
+            if (flags & 0x4000)
+                return value->colgeom->get_type() != 1;
+            if (flags & 4)
+                return (value->field_4 & 0x80000) != 0;
+            if (flags & 2)
+                return value->has_entity_collision();
+            if (flags & 0x20) {
+                bool character = value->get_ai_core() && !(value->field_4 & 0x800);
+                if (!character && (value->field_4 & (0x8000 | 4))) {
+                    auto *root = value->get_conglom_owner();
+                    character = root->get_ai_core() && !(root->field_4 & 0x800);
+                }
+                return !(value->field_8 & 0x100000) && !character;
+            }
+            return true;
+        }
+    };
+    search_filter filter;
+    static local_collision::entfilter_base::native_vtable filter_table{&search_filter::accept};
+    filter.m_vtbl = reinterpret_cast<std::intptr_t>(&filter_table);
+    filter.flags = ((flags & 0x80000) |
+        (((flags & 0x800000) | ((flags >> 2) & 0x180000)) >> 13)) >> 5;
+    const auto add_candidate = [&](entity *candidate) {
+        if (!candidate->match_search_flags(flags) ||
+            !((candidate->get_abs_position() - position).length2() <= radius * radius))
+            return;
+        if (flags & 0xF00000) {
+            vector3d hit, normal;
+            entity *occluder = nullptr;
+            auto *obb_filter = flags & 0x100000 ? local_collision::obbfilter_lineseg_test
+                                              : local_collision::obbfilter_reject_all;
+            if (find_intersection(position, candidate->get_abs_position(), filter, *obb_filter,
+                &hit, &normal, nullptr, &occluder, nullptr, false) && occluder != candidate)
+                return;
+        }
+        found_entities->push_back(candidate);
+    };
+    for (int index = 0; index < nearby.count; ++index) {
+        auto &entities = *static_cast<_std::list<entity *> *>(nearby.m_data[index]->region_entities);
+        for (auto it = entities.rbegin(); it != entities.rend(); ++it) {
+            auto *candidate = *it;
+            if (!candidate || candidate->field_64 == visit_key2)
+                continue;
+            candidate->field_64 = visit_key2;
+            add_candidate(candidate);
+            if (candidate->field_4 & 4)
+                for (auto *member : static_cast<conglomerate *>(candidate)->members)
+                    if (member->is_an_entity())
+                        add_candidate(static_cast<entity *>(member));
+        }
+    }
+    return found_entities->size();
 }
 
 void entity_patch()

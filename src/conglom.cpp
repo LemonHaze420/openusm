@@ -127,6 +127,28 @@ void conglomerate::init_member_data()
     this->field_110 = 3;
 }
 
+void conglomerate::update_collision_status(entity_base *member)
+{
+    if (member->is_an_actor()) {
+        auto *actor_member = static_cast<actor *>(member);
+        const bool collides = actor_member->possibly_collide();
+        if (collides && field_FC == nullptr) {
+            void *storage = mem_alloc(sizeof(actor_list_t));
+            field_FC = new (storage) actor_list_t{};
+        }
+        if (field_FC != nullptr) {
+            auto found = std::find(field_FC->begin(), field_FC->end(), actor_member);
+            if (collides && found == field_FC->end())
+                field_FC->push_back(actor_member);
+            else if (!collides && found != field_FC->end())
+                field_FC->erase(found);
+        }
+    }
+    const bool collides = (field_FC != nullptr && !field_FC->empty()) ||
+        (colgeom != nullptr && (field_4 & 0x4000) != 0);
+    field_4 = collides ? field_4 | 2 : field_4 & ~2u;
+}
+
 void conglomerate::create_parentage_tree()
 {
     const auto resolve_parent = [this](int index) -> entity_base * {

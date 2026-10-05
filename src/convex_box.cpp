@@ -13,7 +13,17 @@ bounding_box::bounding_box()
 
 bool convex_box::sub_55EDB0(const vector3d &a2, const vector3d &a3)
 {
-    return (bool)THISCALL(0x0055EDB0, this, &a2, &a3);
+    if constexpr (STANDALONE_SYSTEM) {
+        const auto local_point = a2 - a3;
+        for (const auto &plane : field_0) {
+            if (local_point.z * plane.z + local_point.x * plane.x +
+                local_point.y * plane.y - plane.w > 0.0f)
+                return false;
+        }
+        return true;
+    } else {
+        return (bool)THISCALL(0x0055EDB0, this, &a2, &a3);
+    }
 }
 
 bool convex_box::sub_55EE20(const vector3d &a2, const po &a3)

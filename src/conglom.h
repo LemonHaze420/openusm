@@ -93,6 +93,8 @@ struct conglomerate : actor {
 
     void sub_4D0E00();
 
+    void update_collision_status(entity_base *member);
+
     als::animation_logic_system *get_my_als();
 
     //0x004F9F10

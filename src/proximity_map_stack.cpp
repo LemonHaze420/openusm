@@ -9,20 +9,28 @@ Var<dynamic_proximity_map_stack *[number_of_district_proximity_map_stacks]> dist
     0x0095C928
 };
 
-dynamic_proximity_map_stack::dynamic_proximity_map_stack()
-    : m_vtbl(0), field_4(4), field_8(0), field_C(4), field_10(nullptr), field_14(nullptr)
+static void *__fastcall allocate_map_stack(dynamic_proximity_map_stack *stack, void *, int size)
 {
+    return stack->alloc(size);
+}
+
+
+
+dynamic_proximity_map_stack::dynamic_proximity_map_stack()
+{
+    alignment = 4;
+    struct table {
+        void *(__fastcall *allocate)(dynamic_proximity_map_stack *, void *, int);
+    };
+    static const table callbacks{allocate_map_stack};
+    m_vtbl = reinterpret_cast<std::intptr_t>(&callbacks);
+    storage.allocate(0x4000, 4, 16);
 }
 
 void *dynamic_proximity_map_stack::alloc(int size)
 {
-    auto v2 = ~(this->field_C - 1) & (this->field_C + size - 1);
-    auto *v3 = &this->field_14[v2];
-    this->field_14 = v3;
-    return &v3[-v2];
+    return storage.push(size);
 }
-
-void dynamic_proximity_map_stack::release(void *) {}
 
 void init_proximity_map_stacks()
 {
@@ -31,11 +39,10 @@ void init_proximity_map_stacks()
         if (stacks[0] != nullptr)
             return;
 
+        var<int>(0x00921E40) = number_of_district_proximity_map_stacks;
+        var<uint32_t>(0x0095C948) = 0;
         for (auto &stack : stacks) {
             stack = new dynamic_proximity_map_stack{};
-            stack->field_8 = 0x4000;
-            stack->field_10 = new char[stack->field_8];
-            stack->field_14 = stack->field_10;
         }
     } else {
         CDECL_CALL(0x0053B860);

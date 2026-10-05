@@ -15,8 +15,13 @@ namespace ai {
 struct physics_inode : info_node {
     physical_interface *field_1C;
 
+    static constexpr unsigned virtual_type = 402;
+
+    physics_inode();
+
     //0x006A1BE0
     physics_inode(from_mash_in_place_constructor *a2);
+    static void *native_vtable();
 
     bool get_collided_last_frame() const;
 
@@ -93,7 +98,7 @@ struct physics_inode : info_node {
     //virtual
     void apply_force_increment(const vector3d &a2, physical_interface::force_type a3, const vector3d &a4, int a5);
 
-    //virtual
+
     void _activate(ai_core *a2);
 
     static const inline string_hash default_id{static_cast<int>(to_hash("physics"))};

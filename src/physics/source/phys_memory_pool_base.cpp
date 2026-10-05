@@ -29,24 +29,6 @@ bool list_user_rigid_body::is_member(user_rigid_body *a2)
     return idx >= 0 && idx < this->m_alloc_count;
 }
 
-template <>
-void list_user_rigid_body::destroy_member(user_rigid_body *data)
-{
-    assert(is_member(data));
-
-    auto idx = data - this->m_slot_array;
-    auto index = this->m_index_array[idx];
-    if (this->m_alloc_count == 1) {
-        this->sub_7A2690();
-    } else {
-        auto v3 = this->m_alloc_list[--this->m_alloc_count] - this->m_slot_array;
-        auto *v2 = this->m_alloc_list[index];
-        this->m_alloc_list[index] = this->m_alloc_list[this->m_alloc_count];
-        this->m_alloc_list[this->m_alloc_count] = v2;
-        this->m_index_array[idx] = this->m_alloc_count;
-        this->m_index_array[v3] = index;
-    }
-}
 
 template <>
 unsigned list_user_rigid_body::get_alignment()

@@ -13,11 +13,20 @@
 #include <cassert>
 
 Var<std::intptr_t> collision_mesh_v_table{0x0095A668};
+#if STANDALONE_SYSTEM
+namespace {
+const bool collision_mesh_identity_initialized = [] {
+    collision_mesh_v_table() = 0x00888E58;
+    return true;
+}();
+}
+#endif
 
 VALIDATE_SIZE(cg_mesh, 0x18u);
 
 cg_mesh::cg_mesh()
 {
+    this->m_vtbl = 0x00888E58;
     this->field_8 = false;
     this->field_9 = true;
     this->field_C = 2;
@@ -57,11 +66,22 @@ int cg_mesh::get_type()
     return collision_geometry::MESH;
 }
 
-void cg_mesh::_un_mash(generic_mash_header *a2, void *a3, generic_mash_data_ptrs *a4)
+void cg_mesh::_un_mash([[maybe_unused]] generic_mash_header *a2, [[maybe_unused]] void *a3, generic_mash_data_ptrs *a4)
 {
     TRACE("cg_mesh::un_mash");
 
-#ifdef OPENUSM_XBPACK_V10
+#if STANDALONE_SYSTEM
+    owner = nullptr;
+    field_9 = false;
+    const resource_key key = *a4->get_from_shared<resource_key>();
+    int size = 0;
+    data = static_cast<collision_mesh *>(static_cast<void *>(resource_manager::get_resource(key, &size, nullptr)));
+    assert(data != nullptr && "Missing collision mesh in the active resource context");
+    if (data->field_0[3] != 'Z') {
+        assert(data->m_version == 0x10003F && "Unsupported collision mesh version");
+        data->field_0[3] = 'Z';
+    }
+#elif defined(OPENUSM_XBPACK_V10)
     {
         collision_geometry::un_mash(a2, a3, a4);
 

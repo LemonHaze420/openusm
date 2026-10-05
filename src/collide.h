@@ -8,10 +8,13 @@ struct po;
 namespace local_collision {
 struct entfilter_base;
 struct obbfilter_base;
+struct closest_points_pair_t;
 }  // namespace local_collision
 
 struct subdivision_node_obb_base;
 struct entity;
+struct capsule;
+struct collision_geometry;
 
 //0x005B9F30
 extern bool find_sphere_intersection(const vector3d &a1, Float a2, const local_collision::entfilter_base &a3,
@@ -35,6 +38,12 @@ extern bool collide_sphere_entity(const vector3d &a1, Float a2, const entity *en
 //0x005C47A0
 extern bool collide_capsule_capsule(const vector3d &a1, const vector3d &a2, Float radius1, const vector3d &a4,
                                     const vector3d &a5, Float radius2, vector3d &cp1, vector3d &cp2, vector3d &normal);
+
+
+extern local_collision::closest_points_pair_t *collide_capsule_entity(
+    const capsule &query, const entity *ent, const po &transform);
+extern local_collision::closest_points_pair_t *collide_capsule_geometry(
+    const capsule &query, collision_geometry *geometry, const po &transform);
 
 extern bool closest_point_segment(const vector3d &a1, const vector3d &a2, const vector3d &a3, vector3d &a4);
 

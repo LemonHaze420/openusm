@@ -452,7 +452,7 @@ void collide_all_moved_entities(Float a1)
     }
 }
 
-void manage_standing_for_all_physical_interfaces(Float)
+void manage_standing_for_all_physical_interfaces(Float elapsed)
 {
     TRACE("manage_standing_for_all_physical_interfaces");
     if (physical_interface::all_phys_interfaces == nullptr) {
@@ -463,21 +463,18 @@ void manage_standing_for_all_physical_interfaces(Float)
             continue;
         }
         auto *owner = interface_ptr->get_actor();
-        if (owner->is_in_limbo()) {
+        if (owner->is_in_limbo() ||
+            (owner->get_primary_region() == nullptr && (owner->field_4 & 8u) == 0)) {
             continue;
         }
         const auto flags = interface_ptr->field_C;
         if (!(((flags & 1) != 0 && (flags & 2) == 0) || (flags & 0x800) != 0)) {
             continue;
         }
-        if (interface_ptr->is_effectively_standing() &&
-            !interface_ptr->is_biped_physics_running() &&
-            !interface_ptr->is_prop_physics_running()) {
-            auto velocity = interface_ptr->get_velocity();
-            velocity.x = 0.0f;
-            velocity.z = 0.0f;
-            interface_ptr->set_velocity(velocity, false);
-        }
+        const float time_scale = owner->has_time_ifc()
+            ? static_cast<float>(owner->time_ifc()->sub_4ADE50())
+            : g_world_ptr->time_manager.field_0;
+        interface_ptr->manage_standing_internal(false, time_scale * elapsed.value);
     }
 }
 
@@ -661,21 +658,8 @@ void world_dynamics_system::frame_advance(Float a2)
         this->field_1F0.frame_advance(a2);
 
         for (auto *generator : this->field_260) {
-            if (generator == nullptr || generator->m_vtbl == 0) {
-                continue;
-            }
-
             auto *is_active_address = get_vfunc(generator->m_vtbl, 0x4);
             auto *advance_address = get_vfunc(generator->m_vtbl, 0xC);
-            const auto is_active_value =
-                reinterpret_cast<std::uintptr_t>(is_active_address);
-            const auto advance_value =
-                reinterpret_cast<std::uintptr_t>(advance_address);
-            if (is_active_value < 0x00400000 || is_active_value >= 0x00800000 ||
-                advance_value < 0x00400000 || advance_value >= 0x00800000) {
-                continue;
-            }
-
             bool(__fastcall *is_active)(void *, void *) =
                 CAST(is_active, is_active_address);
             void(__fastcall *advance)(void *, void *, Float) =

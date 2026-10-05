@@ -20,6 +20,7 @@
 #include "common.h"
 #include "conglom.h"
 #include "custom_math.h"
+#include "dynamic_rtree.h"
 #include "damage_interface.h"
 #include "distance_fader.h"
 #include "entity_mash.h"
@@ -173,10 +174,50 @@ collision_free_state *actor::get_last_collision_free_state() const
     return nullptr;
 }
 
+
+void actor::save_last_collision_free_state(const po &pose, const capsule &shape, float)
+{
+    if (field_A4 == 0)
+        set_allow_tunnelling_into_next_frame(false);
+    auto *state = get_last_collision_free_state();
+    state->field_5C = false;
+    state->xform = pose;
+    state->rel_cap = shape;
+    if (colgeom != nullptr)
+        colgeom->get_type();
+}
+
 void actor::set_colgeom(collision_geometry *a2)
 {
     this->colgeom = a2;
     this->set_flag_recursive(static_cast<entity_flag_t>(2), this->colgeom != nullptr);
+}
+
+void actor::_set_collisions_active(bool enabled, bool update_region)
+{
+    if (((field_4 & 0x4000) != 0) == enabled)
+        return;
+    field_4 = enabled ? field_4 | 0x4000 : field_4 & ~0x4000u;
+    auto *root = is_conglom_member() ? static_cast<actor *>(get_conglom_owner()) : this;
+    const auto state_index = static_cast<uint16_t>(root->field_A4);
+    if (state_index != 0) {
+        auto &state = collision_free_states[state_index];
+        const int ticks = g_world_ptr->time_manager.field_C;
+        if (enabled) {
+            if (ticks > state.field_60)
+                state.field_5C = true;
+        } else {
+            state.field_60 = ticks;
+        }
+    }
+    if (update_region) {
+        if (is_conglom_member()) {
+            auto *owner = static_cast<conglomerate *>(get_conglom_owner());
+            owner->update_collision_status(this);
+            owner->region_update_poss_collide();
+        }
+        region_update_poss_collide();
+    }
 }
 
 int actor::get_entity_size()
@@ -426,9 +467,37 @@ void actor::update_colgeom(po *a2)
 #endif
 }
 
+namespace {
+movement_info &actor_movement(actor *owner)
+{
+    owner->create_adv_ptrs();
+    if (owner->adv_ptrs->mi == nullptr) {
+        auto *storage = mem_alloc(sizeof(movement_info));
+        owner->adv_ptrs->mi = new (storage) movement_info{
+            po_identity_matrix, 0.0f, ZEROVEC, 0.0f, false, false};
+        auto invalidate = reinterpret_cast<void(__fastcall *)(actor *, void *)>(
+            get_vfunc(owner->m_vtbl, 0x284));
+        invalidate(owner, nullptr);
+    }
+    return *owner->adv_ptrs->mi;
+}
+}
+
 void actor::set_frame_delta_no_update(const po &a2, Float a3)
 {
+#if STANDALONE_SYSTEM
+    auto &movement = actor_movement(this);
+    if (movement.field_54) {
+        movement.field_0.set_from_ptr_to_po_world(
+            ptr_to_po{&movement.field_0.m, &a2.m});
+    } else {
+        movement.field_0 = a2;
+    }
+    movement.field_40 = a3;
+    movement.field_54 = true;
+#else
     THISCALL(0x004D6B60, this, &a2, a3);
+#endif
 }
 
 void actor::set_allow_tunnelling_into_next_frame(bool enabled)
@@ -572,97 +641,34 @@ void actor::cancel_animated_movement(const vector3d &a2, Float a3)
 
             auto tmp = v4.get_position() - pos;
             v4.set_position(tmp);
-        } else {
+        } else if constexpr (!STANDALONE_SYSTEM) {
             THISCALL(0x004E3970, this, &a2, a3);
         }
     }
 }
 
-void actor::get_velocity(vector3d *a2)
+void actor::get_velocity(vector3d *out)
 {
-    if constexpr (0) {
-        vector3d *v5;
-
-        auto *v3 = (actor *) this->m_parent;
-        if (v3 != nullptr) {
-            if (this->has_physical_ifc()) {
-                auto *v4 = this->physical_ifc();
-                v5 = a2;
-                *a2 = v4->get_velocity();
-                auto *v6 = this->adv_ptrs;
-                if (v6 != nullptr) {
-                    auto *v7 = v6->mi;
-                    if (v7 != nullptr) {
-                        if (v7->field_54) {
-                            auto *v8 = this->physical_ifc();
-                            v8->field_84.get_volatile_ptr();
-                            auto *v9 = this->physical_ifc();
-                            if (v9->field_84.get_volatile_ptr() != nullptr) {
-                                auto *v10 = this->physical_ifc();
-                                if (v10->field_84.get_volatile_ptr() == (entity *) v3) {
-                                    auto *v11 = (const vector3d *) this->adv_ptrs->mi;
-                                    auto v31 = 1.f / v11[5][1];
-                                    auto v12 = v11[4] * v31;
-                                    *a2 += v12;
-                                }
-                            }
-                        }
-                    }
-                }
-            } else {
-                v5 = a2;
-                *a2 = ZEROVEC;
-            }
-
-            po v35 = this->get_rel_po();
-            for (; v3->m_parent != nullptr; v3 = (actor *) v3->m_parent) {
-                v35 = v35.sub_4BAB00(v3->get_abs_po());
-            }
-
-            if (v3->is_an_actor()) {
-                auto a3 = ZEROVEC;
-                v3->get_velocity(&a3);
-
-                vector3d v33 = ZEROVEC;
-
-                if (v3->has_physical_ifc()) {
-                    auto &v14 = v3->physical_ifc()->field_2C;
-
-                    v33 = v14;
-                }
-
-                auto v18 = vector3d::cross(v35.get_position(), v33);
-
-                *v5 += a3 + v18;
-            }
-
-        } else {
-            if (this->has_physical_ifc()) {
-                auto *v21 = this->physical_ifc();
-                auto v22 = v21->get_velocity();
-
-                *a2 = v22;
-
-            } else {
-                *a2 = ZEROVEC;
-            }
-
-            auto *v26 = this->adv_ptrs;
-            if (v26 != nullptr) {
-                auto *v27 = v26->mi;
-                if (v27 != nullptr) {
-                    if (v27->field_54) {
-                        auto *v28 = this->adv_ptrs->mi;
-                        auto v29 = 1.f / v28->field_40;
-
-                        *a2 += v28->field_0.get_position() * v29;
-                    }
-                }
-            }
+    auto *parent = m_parent;
+    *out = has_physical_ifc() ? physical_ifc()->get_velocity() : ZEROVEC;
+    auto *movement = adv_ptrs != nullptr ? adv_ptrs->mi : nullptr;
+    if (parent != nullptr) {
+        if (has_physical_ifc() && movement != nullptr && movement->field_54 &&
+            physical_ifc()->field_84.get_volatile_ptr() == parent)
+            *out += movement->field_0.get_position() * (1.0f / movement->field_40);
+        po relative = get_rel_po();
+        for (; parent->m_parent != nullptr; parent = parent->m_parent)
+            relative = relative.sub_4BAB00(parent->get_abs_po());
+        if (parent->is_an_actor()) {
+            auto *parent_actor = static_cast<actor *>(parent);
+            vector3d parent_velocity;
+            parent_actor->get_velocity(&parent_velocity);
+            const vector3d angular_velocity = parent_actor->has_physical_ifc()
+                                                 ? parent_actor->physical_ifc()->field_2C : ZEROVEC;
+            *out += parent_velocity + vector3d::cross(relative.get_position(), angular_velocity);
         }
-
-    } else {
-        THISCALL(0x004E2EE0, this, a2);
+    } else if (movement != nullptr && movement->field_54) {
+        *out += movement->field_0.get_position() * (1.0f / movement->field_40);
     }
 }
 
@@ -1239,7 +1245,7 @@ po *actor::get_frame_delta() const
     if constexpr (1) {
         po *result = nullptr;
 
-        if (this->adv_ptrs == nullptr || this->adv_ptrs->mi == nullptr) {
+        if (this->adv_ptrs != nullptr && this->adv_ptrs->mi != nullptr) {
             result = &this->adv_ptrs->mi->field_0;
         } else {
             static po po_identity_matrix{};
@@ -1266,6 +1272,18 @@ void actor::set_frame_delta_trans(const vector3d &a2, Float a3)
 {
     void (__fastcall *func)(void *, void *, const vector3d *, Float) = CAST(func, get_vfunc(m_vtbl, 0x280));
     func(this, nullptr, &a2, a3);
+}
+
+void actor::set_frame_delta_trans_native(const vector3d &translation, Float dt)
+{
+    if (dt > 0.0f) {
+        auto &movement = actor_movement(this);
+        movement.field_0.set_position(movement.field_54
+            ? movement.field_0.get_position() + translation : translation);
+        movement.field_40 = dt;
+        movement.field_54 = true;
+        moved_entities::add_moved({my_handle});
+    }
 }
 
 vector4d __fastcall sub_503A90(void *a1, int, vector4d a2)
@@ -1398,7 +1416,62 @@ void actor::add_collision_ignorance(entity_base_vhandle a2)
 {
     TRACE("actor::add_collision_ignorance");
 
-    THISCALL(0x004E2C10, this, a2);
+    if constexpr (STANDALONE_SYSTEM) {
+        vhandle_type<actor> handle{a2};
+        if (handle.get_volatile_ptr() == nullptr) {
+            return;
+        }
+        this->create_adv_ptrs();
+        auto *&ignored = this->adv_ptrs->ignore_col_ents;
+        if (ignored == nullptr) {
+            ignored = new _std::vector<vhandle_type<actor>>{};
+        }
+        bool found = false;
+        for (auto it = ignored->begin(); it != ignored->end();) {
+            if (it->get_volatile_ptr() == nullptr) {
+                it = ignored->erase(it);
+            } else {
+                found |= it->field_0 == a2;
+                ++it;
+            }
+        }
+        if (!found && handle.get_volatile_ptr() != nullptr) {
+            ignored->push_back(handle);
+        }
+    } else {
+        THISCALL(0x004E2C10, this, a2);
+    }
+}
+
+void actor::remove_collision_ignorance(entity_base_vhandle a2)
+{
+    if (this->adv_ptrs == nullptr || this->adv_ptrs->ignore_col_ents == nullptr) {
+        return;
+    }
+    auto &ignored = *this->adv_ptrs->ignore_col_ents;
+    for (auto it = ignored.begin(); it != ignored.end();) {
+        if (it->field_0 == a2 || it->get_volatile_ptr() == nullptr) {
+            it = ignored.erase(it);
+        } else {
+            ++it;
+        }
+    }
+}
+
+bool actor::allow_collision(entity_base_vhandle other)
+{
+    if (adv_ptrs == nullptr || adv_ptrs->ignore_col_ents == nullptr)
+        return true;
+    auto &ignored = *adv_ptrs->ignore_col_ents;
+    for (auto it = ignored.begin(); it != ignored.end();) {
+        if (it->field_0 == other)
+            return false;
+        if (it->get_volatile_ptr() == nullptr)
+            it = ignored.erase(it);
+        else
+            ++it;
+    }
+    return true;
 }
 
 nglMesh **actor::sub_4B8BCA()

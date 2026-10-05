@@ -237,84 +237,42 @@ void terrain::init_region_proximity_map()
     }
 }
 
-vector3d terrain::get_elevation_adv(vector3d &a1, vector3d &a4, actor *exclude_self, entity **a6,
-                                    subdivision_node_obb_base **hit_obb, Float a8)
+vector3d terrain::get_elevation_adv(vector3d &position, vector3d &normal, actor *exclude_self,
+                                    entity **out_entity, subdivision_node_obb_base **out_obb, Float distance)
 {
-    assert(exclude_self != nullptr);
-
-    if constexpr (0) {
-        if ( a8 <= 0.0f ) {
-            a8 = 6.0;
-        }
-
-        vector3d v8 = a4 * a8;
-        vector3d a2 = a1 - v8;
-
-        local_collision::query_args_t args {};
-        args.field_2C = exclude_self;
-        args.initialized_flags |= 0x10u;
-
-        static local_collision::entfilter<local_collision::entfilter_AND<
-            local_collision::entfilter_AND<local_collision::entfilter_EXCLUDE_ENTITY,
-                                           local_collision::entfilter_NO_CAPSULES>,
-            local_collision::entfilter_AND<local_collision::entfilter_ENTITY, walkable_entfilter_t>>>
-            walkable_entfilter{};
-
-        static local_collision::obbfilter<
-            local_collision::obbfilter_AND<walkable_obbfilter_t, local_collision::obbfilter_OBB_LINE_SEGMENT_TEST>>
-            walkable_obbfilter{};
-
-        auto *v11 = local_collision::query_line_segment(a1, a2, walkable_entfilter, walkable_obbfilter, args);
-        auto *v13 = v11;
-
-        line_segment_t v29 {a1, a2};
-
-        local_collision::intersection_list_t intersection_record {};
-        auto closest_line_intersection =
-            local_collision::get_closest_line_intersection(v13, &v29, false, nullptr, nullptr, &intersection_record);
-
-        local_collision::primitive_list_t *v16 = nullptr;
-        for (auto *it = v13; it != nullptr; it = v16) {
-            v16 = it->field_0;
-            local_collision::primitive_list_t::pool.remove(it);
-        }
-
-        if (closest_line_intersection) {
-            if (intersection_record.is_ent) {
-                auto *ent = (entity *)intersection_record.intersection_node;
-                if ( ent != nullptr && a6 != nullptr ) {
-                    *a6 = ent;
-                }
-            } else if (hit_obb != nullptr) {
-                *hit_obb = (subdivision_node_obb_base *)intersection_record.intersection_node;
-
-                assert((*hit_obb)->is_obb_node());
-            }
-
-            a4 = intersection_record.normal;
-
-            assert(intersection_record.point.is_valid());
-
-            return intersection_record.point;
-        }
-
-        return vector3d {-10000.0, -10000.0, -10000.0};
-    } else {
-        vector3d *(__fastcall * func)(terrain *,
-                                      void *,
-            vector3d *,
-            vector3d *,
-            vector3d *,
-            actor *,
-            entity **,
-            subdivision_node_obb_base **,
-            Float) = CAST(func, 0x0053FD90);
-
-        vector3d result;
-        func(this, nullptr, &result, &a1, &a4, exclude_self, a6, hit_obb, a8);
-
-        return result;
+    if (distance <= 0.0f)
+        distance = 6.0f;
+    const auto end = position - normal * distance;
+    local_collision::query_args_t arguments{};
+    arguments.field_2C = exclude_self;
+    arguments.initialized_flags |= 0x10;
+    static local_collision::entfilter<local_collision::entfilter_AND<
+        local_collision::entfilter_AND<local_collision::entfilter_EXCLUDE_ENTITY,
+                                       local_collision::entfilter_NO_CAPSULES>,
+        local_collision::entfilter_AND<local_collision::entfilter_ENTITY, walkable_entfilter_t>>> entity_filter;
+    static local_collision::obbfilter<
+        local_collision::obbfilter_AND<walkable_obbfilter_t, local_collision::obbfilter_OBB_LINE_SEGMENT_TEST>>
+        terrain_filter;
+    auto *primitives = local_collision::query_line_segment(position, end, entity_filter, terrain_filter, arguments);
+    line_segment_t segment{position, end};
+    local_collision::intersection_list_t intersection{};
+    const bool hit = local_collision::get_closest_line_intersection(
+        primitives, &segment, false, nullptr, nullptr, &intersection);
+    while (primitives != nullptr) {
+        auto *next = primitives->field_0;
+        local_collision::primitive_list_t::pool.remove(primitives);
+        primitives = next;
     }
+    if (!hit)
+        return vector3d{-10000.0f, -10000.0f, -10000.0f};
+    if (intersection.is_ent) {
+        if (intersection.intersection_node != nullptr && out_entity != nullptr)
+            *out_entity = static_cast<entity *>(intersection.intersection_node);
+    } else if (out_obb != nullptr) {
+        *out_obb = static_cast<subdivision_node_obb_base *>(intersection.intersection_node);
+    }
+    normal = intersection.normal;
+    return intersection.point;
 }
 
 float terrain::get_elevation(vector3d &a2, vector3d &a4, actor *exclude_self, entity **a6,

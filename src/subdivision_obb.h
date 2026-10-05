@@ -9,6 +9,9 @@
 #include "subdivision_types.h"
 #include "vector3d.h"
 
+struct capsule;
+namespace local_collision { struct closest_points_pair_t; }
+
 #pragma pack(push, 1)
 struct subdivision_node_obb_base : subdivision_node {
     union {
@@ -54,6 +57,9 @@ struct subdivision_node_obb_base : subdivision_node {
 
     //0x0052C440
     bool sphere_intersection(const vector3d &center, Float radius);
+
+
+    bool capsule_intersection(const capsule &query, local_collision::closest_points_pair_t *pair);
 
     //0x0052BD30
     bool point_inside_or_on(const vector3d &a2) const;
@@ -117,3 +123,7 @@ struct subdivision_node_large_obb : subdivision_node_obb_base {
     bool init(uint16_t a2, uint32_t a3, const vector3d &a4, const vector3d &a5, const vector3d &a6, const vector3d &a7);
 };
 #pragma pack(pop)
+
+
+bool collision_segment_box_overlap(const vector3d &to_center, const vector3d &from_center,
+                                   const vector3d &half);

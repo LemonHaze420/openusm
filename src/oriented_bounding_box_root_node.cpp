@@ -184,7 +184,7 @@ void oriented_bounding_box_root_node::un_mash(char *a2, int *image_size_used, re
     auto v4 = sub_68CB5A((int)a2, 0x40);
     this->field_5C = CAST(this->field_5C, bit_cast<char *>(this->field_5C) + v4);
     this->field_6C += v4;
-    this->field_20 += v4;
+    this->field_20 = reinterpret_cast<rtree_node_t *>(reinterpret_cast<std::uintptr_t>(this->field_20) + v4);
 
     auto sub_68D0D2 = [&sub_68CB5A](oriented_bounding_box_root_node *self) -> int {
         assert((uint32_t(self) & (SUBDIVISION_NODE_ALIGNMENT - 1)) == 0);

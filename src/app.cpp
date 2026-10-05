@@ -214,9 +214,7 @@ app::app()
     set_god_mode(os_developer_options::instance->get_int(mString {"GOD_MODE"}));
 
     colgeom_init_lists();
-#if !STANDALONE_SYSTEM
     physics_system_init();
-#endif
 
     this->m_game = new game{};
     g_game_ptr = this->m_game;
@@ -250,9 +248,7 @@ app::~app()
     this->cleanup();
     //debug_menu::deinit(); // link_system::un_init()
     
-#if !STANDALONE_SYSTEM
     physics_system_shutdown();
-#endif
 
     this->m_vtbl = 0x0088E4C8;
 }

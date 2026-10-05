@@ -2,6 +2,7 @@
 
 #include "bitvector.h"
 #include "float.hpp"
+#include "fixed_vector.h"
 #include "rtree_root.h"
 #include "variable.h"
 #include "entity_base_vhandle.h"
@@ -37,13 +38,21 @@ struct dynamic_rtree_root_state {
     rtree_root_t field_110;
     rtree_hash_table field_140;
 
-    char field_540[148];
+    vector4d half_extents;
+    fixed_vector<int, 10> level_capacities;
+    fixed_vector<int, 10> level_counts;
+    fixed_vector<rtree_node_t *, 10> levels;
     void *field_5D4;
     rtree_node_t *bottom_level;
-    int field_5DC[3];
+    int root_capacity;
+    int level_count;
+    int bottom_level_index;
 
     int BOTTOM_LEVEL_SIZE;
     int field_5EC;
+
+
+    void init(int root_count, int depth);
 
     //0x005709C0
     void sort();
@@ -52,7 +61,10 @@ struct dynamic_rtree_root_state {
 
     int find_free_slot() const;
 
-    void sub_563270(int a2);
+
+    void extend_ancestors(int index);
+    void compact_leaves();
+    void rebuild_bounds();
 };
 
 struct dynamic_rtree_root_t {

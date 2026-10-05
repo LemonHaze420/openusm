@@ -7,4 +7,5 @@ struct gravity_generator : force_generator {
     bool field_5;
 
     gravity_generator();
+    void frame_advance(Float elapsed);
 };

@@ -12,6 +12,11 @@ struct fixed_pool;
 struct collision_capsule;
 struct collision_geometry;
 
+struct trajectory_contact_t {
+    vector3d normal;
+    vector3d other_velocity;
+    trajectory_contact_t *next;
+};
 struct collision_free_state {
     po xform;
     capsule rel_cap;
@@ -35,7 +40,7 @@ struct intraframe_trajectory_t {
     float field_14C;
     vector3d field_150;
     intraframe_trajectory_t *field_15C;
-    int field_160;
+    trajectory_contact_t *field_160;
     bool field_164;
     bool field_165;
 
@@ -57,6 +62,7 @@ struct intraframe_trajectory_t {
 
     //0x0051BF00
     void integrate(Float a2, po *integrated_xform);
+    void backpropagate(Float elapsed);
 
     //0x0051BFF0
     [[nodiscard]] capsule get_abs_cap0();
@@ -71,11 +77,8 @@ struct intraframe_trajectory_t {
 
     collision_geometry *get_colgeom();
 
-    bool has_colgeom()
-    {
-        return this->get_colgeom() != nullptr;
-    }
+    bool has_colgeom();
 
 
-    static inline Var<fixed_pool> pool{0x0092244C};
+    static fixed_pool &pool();
 };

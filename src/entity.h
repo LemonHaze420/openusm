@@ -202,6 +202,7 @@ struct entity : signaller {
 
     //0x004D67D0
     static int find_entities(int a1);
+    static int find_entities(unsigned flags, entity *center, float radius);
 
     static inline int &visit_key = var<int>(0x0095A6E4);
 

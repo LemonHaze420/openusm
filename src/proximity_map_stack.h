@@ -1,6 +1,7 @@
 #pragma once
 
 #include "variable.h"
+#include "stack_allocator.h"
 
 #include <cstdint>
 
@@ -8,21 +9,11 @@ static constexpr auto number_of_district_proximity_map_stacks = 8;
 
 struct dynamic_proximity_map_stack {
     std::intptr_t m_vtbl;
-    int field_4;
-    int field_8;
-    int field_C;
-    char *field_10;
-    char *field_14;
+    int alignment;
+    stack_allocator storage;
 
     dynamic_proximity_map_stack();
-
-    //0x0055E8E0
-    //virtual
     void *alloc(int size);
-
-    //0x00787770
-    //virtual
-    void release(void *);
 };
 
 //0x0053B860

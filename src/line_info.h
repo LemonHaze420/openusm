@@ -31,6 +31,9 @@ struct line_info {
     //0x0052EDD0
     line_info();
 
+
+    explicit line_info(from_mash_in_place_constructor *constructor);
+
     line_info(const vector3d &a2, const vector3d &a3);
 
     ~line_info();

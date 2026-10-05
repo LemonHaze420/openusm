@@ -1,6 +1,8 @@
 #include "collision_geometry.h"
 
 #include "actor.h"
+#include "collision_capsule.h"
+#include "colmesh.h"
 #include "common.h"
 #include "vtbl.h"
 
@@ -8,6 +10,7 @@ VALIDATE_SIZE(collision_geometry, 0x10);
 
 collision_geometry::collision_geometry()
 {
+    this->m_vtbl = 0x00888E1C;
     this->field_8 = false;
     this->field_9 = false;
     this->field_8 = false;
@@ -37,27 +40,36 @@ float collision_geometry::get_colgeom_radius()
 
 vector3d collision_geometry::get_local_space_bounding_sphere_center()
 {
-    if constexpr (1) {
-        void(__fastcall * func)(collision_geometry *, void *, vector3d *) = CAST(func, get_vfunc(m_vtbl, 0x18));
-
-        vector3d out;
-        func(this, nullptr, &out);
-
-        return out;
-
-    } else {
-        return vector3d{0, 0, 0};
-    }
+    if (m_vtbl == 0x00888E58)
+        return static_cast<cg_mesh *>(this)->get_local_space_bounding_sphere_center();
+    if (m_vtbl == 0x00882CE0)
+        return static_cast<collision_capsule *>(this)->get_local_space_bounding_sphere_center();
+    void(__fastcall *func)(collision_geometry *, void *, vector3d *) = CAST(func, get_vfunc(m_vtbl, 0x18));
+    vector3d out;
+    func(this, nullptr, &out);
+    return out;
 }
 
 float collision_geometry::get_bounding_sphere_radius()
 {
-    return 0.0;
+    if (m_vtbl == 0x00888E58)
+        return static_cast<cg_mesh *>(this)->get_bounding_sphere_radius();
+    if (m_vtbl == 0x00882CE0)
+        return static_cast<collision_capsule *>(this)->get_bounding_sphere_radius();
+    if (m_vtbl == 0x00888E1C)
+        return 0.0f;
+    float(__fastcall *func)(collision_geometry *) = CAST(func, get_vfunc(m_vtbl, 0x1C));
+    return func(this);
 }
 
 float collision_geometry::get_core_radius()
 {
-    return 0.0;
+    if (m_vtbl == 0x00882CE0)
+        return static_cast<collision_capsule *>(this)->get_core_radius();
+    if (m_vtbl == 0x00888E1C || m_vtbl == 0x00888E58)
+        return 0.0f;
+    auto func = reinterpret_cast<float (__fastcall *)(collision_geometry *, void *)>(get_vfunc(m_vtbl, 0x20));
+    return func(this, nullptr);
 }
 
 const vector3d &collision_geometry::get_abs_position() const
@@ -76,6 +88,10 @@ vector3d *collision_geometry::get_pivot()
 
 int collision_geometry::get_type()
 {
+    if (m_vtbl == 0x00888E58)
+        return MESH;
+    if (m_vtbl == 0x00882CE0)
+        return CAPSULE;
     int(__fastcall * func)(collision_geometry *) = CAST(func, get_vfunc(m_vtbl, 0x2C));
 
     return func(this);

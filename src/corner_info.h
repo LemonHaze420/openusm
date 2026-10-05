@@ -10,8 +10,12 @@ struct corner_info {
 
     corner_info();
 
+    explicit corner_info(from_mash_in_place_constructor *constructor);
+
     //0x006B7590
     corner_info(const corner_info &a2);
+
+    corner_info &operator=(const corner_info &source);
 
     void clear();
 };

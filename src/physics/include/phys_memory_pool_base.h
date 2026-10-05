@@ -34,7 +34,26 @@ struct phys_memory_pool {
 
     bool is_member(T *data);
 
-    void destroy_member(T *data);
+    void destroy_member(T *data)
+    {
+        const auto slot = data - m_slot_array;
+        assert(slot >= 0 && slot < m_slot_array_size);
+        const int index = m_index_array[slot];
+        assert(index >= 0 && index < m_alloc_count);
+        if (m_alloc_count == 1) {
+            for (int i = 0; i < m_slot_array_size; ++i) {
+                m_index_array[i] = i;
+                m_alloc_list[i] = &m_slot_array[i];
+            }
+            m_alloc_count = 0;
+        } else {
+            T *last = m_alloc_list[--m_alloc_count];
+            m_alloc_list[index] = last;
+            m_alloc_list[m_alloc_count] = data;
+            m_index_array[slot] = m_alloc_count;
+            m_index_array[last - m_slot_array] = index;
+        }
+    }
 
     void sub_7A2690();
 
