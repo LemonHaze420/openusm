@@ -43,6 +43,15 @@ struct std_fear_inode : info_node {
     bool field_78;
     bool field_79;
 
+    static void *native_vtable();
+    ~std_fear_inode();
+    void _destruct_mashed_class();
+    void _activate(ai_core *core);
+    void _frame_advance(Float dt);
+    void refresh_parameters();
+    void remove_from_list(_std::vector<std_fear_inode *> **list);
+    void finalize(mash::allocation_scope scope);
+    bool is_cowering() const;
     //0x006B0630
     std_fear_inode();
 
@@ -57,6 +66,8 @@ struct std_fear_inode : info_node {
 
     //0x00691360
     void set_cowering_enabled(bool a2);
+    void post_event(int event, float magnitude);
+    void post_event_to_others(int event, float magnitude, bool friends, bool enemies, bool neutrals);
 
     static inline Var<_std::vector<std_fear_inode *> *> all_fear_inodes{0x0096BE30};
 

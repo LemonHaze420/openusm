@@ -190,6 +190,13 @@ void param_block::set_pb_float(string_hash a2, Float a3, bool a4)
     }
 }
 
+void param_block::set_pb_hash(string_hash name, const string_hash &value, bool add_if_missing)
+{
+    if (add_if_missing || param_array->common_find_data(name) != nullptr) {
+        add_param(name, PT_STRING_HASH, &value, string_hash{0});
+    }
+}
+
 float param_block::get_pb_float(string_hash a2)
 {
     auto *v2 = this->param_array;

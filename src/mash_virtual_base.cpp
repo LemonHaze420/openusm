@@ -1,4 +1,5 @@
 #include "mash_virtual_base.h"
+#include "native_enx.h"
 
 #include "anim_record.h"
 #include "enum_anim_key.h"
@@ -18,19 +19,48 @@
 #include "spidey_base_state.h"
 #include "std_puppet_trans_state.h"
 #include "ai_pedestrian.h"
+#include "ai_action_processor_inode.h"
 #include "ai_state_car.h"
+#include "launch_layer_state.h"
+#include "signal_enhanced_state.h"
 #include "ai_state_swing.h"
+#include "ai_state_run.h"
+#include "ai_state_jump.h"
+#include "base_ai_core.h"
+#include "core_ai_resource.h"
+#include "info_node_desc_list.h"
+#include "ai_state_web_zip.h"
+#include "ai_std_hero.h"
 #include "ai_std_avoidance.h"
 #include "ai_voice_box_inode.h"
 #include "als_meta_aimed_shot_vert.h"
 #include "als_mocomp.h"
 #include "als_motion_compensator.h"
+#include "als_simple_orientation.h"
 #include "als_inode.h"
 #include "als_use_anim_only.h"
 #include "combat_inode.h"
+#include "base_full_target_inode.h"
+#include "ai_quad_path_inode.h"
+#include "ai_std_combat_target.h"
+#include "cpu_controller_inode.h"
+#include "damage_inode.h"
+#include "glass_house_inode.h"
+#include "player_controller_inode.h"
+#include "prop_physics_inode.h"
+#include "slave_inode.h"
+#include "std_default_trans_inode.h"
+#include "std_puppet_inode.h"
+#include "strength_test_inode.h"
 #include "enhanced_state.h"
 #include "info_node.h"
 #include "interaction_inode.h"
+#include "loco_inode.h"
+#include "physics_inode.h"
+#include "interaction.h"
+#include "generic_interaction.h"
+#include "trigger_region.h"
+#include "venom_base_state.h"
 #include "combo_system_move.h"
 #include "nugget_wait_state.h"
 #include "plr_loco_crawl_state.h"
@@ -41,6 +71,7 @@
 #include "std_fear_inode.h"
 #include "track_field_inode.h"
 #include "traffic_inode.h"
+#include "traffic_base_state.h"
 #include "weapon_inode.h"
 #include "string_hash.h"
 #include "scripted_trans_group.h"
@@ -156,7 +187,11 @@ template<typename T>
 void __fastcall native_mash_unmash(
     T *self, int, mash_info_struct *info, void *context)
 {
-    self->T::_unmash(info, context);
+    if constexpr (std::is_base_of_v<ai::info_node, T> &&
+                  !std::is_same_v<decltype(&T::unmash), decltype(&mash_virtual_base::unmash)>)
+        self->T::unmash(info, context);
+    else
+        self->T::_unmash(info, context);
 }
 
 template<typename T>
@@ -175,6 +210,96 @@ uint32_t __fastcall native_mash_type(const mash_virtual_base *self)
     report_unsupported_standalone_vtable(ORIGINAL_VTABLE_COUNT, self);
 }
 
+void __fastcall native_action_processor_destruct(ai::ai_action_processor_inode *self)
+{
+    self->destruct_mashed_class();
+}
+
+bool __fastcall native_action_processor_needs_advance(ai::ai_action_processor_inode *)
+{
+    return true;
+}
+
+void __fastcall native_action_processor_advance(
+    ai::ai_action_processor_inode *self, void *, Float elapsed)
+{
+    self->frame_advance(elapsed);
+}
+
+void __fastcall native_action_processor_activate(
+    ai::ai_action_processor_inode *self, void *, ai::ai_core *core)
+{
+    self->_activate(core);
+}
+
+void __fastcall native_action_processor_deactivate(ai::ai_action_processor_inode *)
+{
+
+}
+
+void __fastcall native_action_processor_reset(ai::ai_action_processor_inode *self)
+{
+    self->_reset();
+}
+
+template<typename T>
+int __fastcall native_scripted_state_mocomp(T *self)
+{
+    if constexpr (std::is_same_v<T, als::base_layer_scripted_state>) {
+        return self->field_54;
+    } else {
+        return self->_get_mocomp_type();
+    }
+}
+
+int __fastcall native_scripted_state_filter_count(
+    als::scripted_state *, void *, als::animation_logic_system *, als::state_machine *)
+{
+    return 0;
+}
+
+int __fastcall native_scripted_state_filter(
+    als::scripted_state *self, void *, int out,
+    als::animation_logic_system *system, als::state_machine *machine, int index)
+{
+    return self->get_filter(out, system, machine, index);
+}
+
+void __fastcall native_scripted_state_implicit(
+    als::scripted_state *self, void *, als::request_data *out,
+    als::animation_logic_system *system, als::state_machine *machine)
+{
+    *out = self->_do_implicit_trans(system, machine);
+}
+
+void __fastcall native_scripted_state_explicit(
+    als::scripted_state *self, void *, als::request_data *out,
+    als::animation_logic_system *system, als::state_machine *machine, string_hash event)
+{
+    *out = self->_do_explicit_trans(system, machine, event);
+}
+
+void __fastcall native_scripted_state_layer(
+    als::scripted_state *self, void *, als::request_data *out,
+    als::animation_logic_system *system, als::state_machine *machine)
+{
+    *out = self->_do_layer_trans(system, machine);
+}
+
+void __fastcall native_scripted_state_post(
+    als::scripted_state *self, void *, als::animation_logic_system *system,
+    als::state_machine *machine, als::transition_post_handle handle)
+{
+    self->_do_post_trans(system, machine, handle);
+}
+
+string_hash *__fastcall native_scripted_state_animation(
+    const als::scripted_state *self, void *, string_hash *out)
+{
+    *out = self->get_nal_anim_name();
+    return out;
+}
+
 template<typename T>
 void *native_mash_vtable()
 {
@@ -182,25 +307,113 @@ void *native_mash_vtable()
     if (table[1] == nullptr) {
         table[1] = bit_cast<void *>(&native_mash_unmash<T>);
         table[0x0C / sizeof(void *)] = bit_cast<void *>(&native_mash_type);
+        if constexpr (requires { T::g_vtbl; })
+            table[0x18 / sizeof(void *)] = T::g_vtbl[0x18 / sizeof(void *)];
         table[0x1C / sizeof(void *)] = bit_cast<void *>(&native_mash_sizeof<T>);
         table[0x34 / sizeof(void *)] = bit_cast<void *>(&native_mash_sizeof<T>);
+        if constexpr (std::is_base_of_v<ai::info_node, T>)
+            table[0x2C / sizeof(void *)] = bit_cast<void *>(&native_mash_sizeof<T>);
         table[0x38 / sizeof(void *)] = bit_cast<void *>(&native_mash_sizeof<T>);
         table[0x4C / sizeof(void *)] = bit_cast<void *>(&native_mash_sizeof<T>);
+        if constexpr (std::is_same_v<T, ai::ai_action_processor_inode>) {
+            table[0] = bit_cast<void *>(&native_action_processor_destruct);
+            table[0x18 / sizeof(void *)] = bit_cast<void *>(&native_action_processor_needs_advance);
+            table[0x1C / sizeof(void *)] = bit_cast<void *>(&native_action_processor_advance);
+            table[0x20 / sizeof(void *)] = bit_cast<void *>(&native_action_processor_activate);
+            table[0x24 / sizeof(void *)] = bit_cast<void *>(&native_action_processor_deactivate);
+            table[0x28 / sizeof(void *)] = bit_cast<void *>(&native_action_processor_reset);
+            table[0x2C / sizeof(void *)] = bit_cast<void *>(&native_mash_sizeof<T>);
+        }
+        if constexpr (std::is_base_of_v<als::scripted_state, T>) {
+            table[0x18 / sizeof(void *)] = bit_cast<void *>(&native_scripted_state_mocomp<T>);
+            table[0x1C / sizeof(void *)] = bit_cast<void *>(&native_scripted_state_filter_count);
+            table[0x20 / sizeof(void *)] = bit_cast<void *>(&native_scripted_state_filter);
+            table[0x24 / sizeof(void *)] = bit_cast<void *>(&native_scripted_state_implicit);
+            table[0x28 / sizeof(void *)] = bit_cast<void *>(&native_scripted_state_explicit);
+            table[0x2C / sizeof(void *)] = bit_cast<void *>(&native_scripted_state_layer);
+            table[0x30 / sizeof(void *)] = bit_cast<void *>(&native_scripted_state_post);
+            table[0x34 / sizeof(void *)] = bit_cast<void *>(&native_scripted_state_animation);
+        }
     }
     return table.data();
 }
 
-void __fastcall native_base_state_unmash(
-    ai::base_state *, int, mash_info_struct *, void *)
+
+unsigned __fastcall ped_transition_type(ai::base_state *, void *) { return 169; }
+bool __fastcall ped_transition_subclass(ai::base_state *, void *, unsigned type)
 {
+    return type == 567 || type == 573;
+}
+ai::state_trans_messages __fastcall ped_transition_advance(ai::base_state *, void *, Float)
+{
+    return static_cast<ai::state_trans_messages>(75);
+}
+void __fastcall ped_transition_message(ai::base_state *, void *, ai::state_trans_action *out,
+                                      Float, ai::state_trans_messages)
+{
+    *out = {ai::NO_ACTION, string_hash{}, static_cast<ai::state_trans_messages>(75), nullptr};
+}
+void __fastcall ped_transition_check(ai::base_state *self, void *, ai::state_trans_action *out, Float elapsed)
+{
+    auto *core = self->get_core();
+    auto *combat = static_cast<ai::combat_inode *>(core->get_info_node(ai::combat_inode::default_id, false));
+    *out = {ai::NO_ACTION, string_hash{}, static_cast<ai::state_trans_messages>(75), nullptr};
+    if (combat != nullptr) {
+        auto needs_react = reinterpret_cast<bool (__fastcall *)(ai::combat_inode *, void *, Float)>(
+            get_vfunc(combat->m_vtbl, 0xE0));
+        if (needs_react(combat, nullptr, elapsed)) {
+            out->the_action = ai::GOTO_STATE;
+            out->field_4 = string_hash{"ped_hit_react"};
+            if (core->field_6C->field_44)
+                core->field_4C |= 1;
+        }
+    }
+}
+void *ped_transition_vtable()
+{
+    static const auto table = [] {
+        std::array<void *, 14> result;
+        std::copy_n(static_cast<void **>(ai::base_state::native_vtable()), result.size(), result.begin());
+        result[3] = reinterpret_cast<void *>(&ped_transition_type);
+        result[4] = reinterpret_cast<void *>(&ped_transition_subclass);
+        result[8] = reinterpret_cast<void *>(&ped_transition_advance);
+        result[11] = reinterpret_cast<void *>(&ped_transition_check);
+        result[12] = reinterpret_cast<void *>(&ped_transition_message);
+        return result;
+    }();
+    return const_cast<void **>(table.data());
 }
 
-int __fastcall native_base_state_sizeof(ai::base_state *)
+unsigned __fastcall hostage_transition_type(ai::base_state *, void *) { return 293; }
+void __fastcall hostage_transition_nodes(ai::base_state *, void *, ai::info_node_desc_list *list)
 {
-    return sizeof(ai::base_state);
+    list->add_entry({string_hash{"AI_HOSTAGE_VICTIM"}, 285});
 }
-
-std::array<void *, 96> ped_default_trans_state_vtable {};
+void __fastcall hostage_transition_check(ai::base_state *self, void *, ai::state_trans_action *out, Float)
+{
+    auto *node = static_cast<ai::targetable_inode_285 *>(
+        self->get_core()->get_info_node(string_hash{"AI_HOSTAGE_VICTIM"}, true));
+    *out = {ai::NO_ACTION, string_hash{}, static_cast<ai::state_trans_messages>(75), nullptr};
+    if (node->field_1C == 1) {
+        out->the_action = ai::GOTO_STATE;
+        out->field_4 = string_hash{"hostage_victim"};
+    }
+}
+void *hostage_transition_vtable()
+{
+    static const auto table = [] {
+        std::array<void *, 14> result;
+        std::copy_n(static_cast<void **>(ai::base_state::native_vtable()), result.size(), result.begin());
+        result[3] = reinterpret_cast<void *>(&hostage_transition_type);
+        result[4] = reinterpret_cast<void *>(&ped_transition_subclass);
+        result[8] = reinterpret_cast<void *>(&ped_transition_advance);
+        result[9] = reinterpret_cast<void *>(&hostage_transition_nodes);
+        result[11] = reinterpret_cast<void *>(&hostage_transition_check);
+        result[12] = reinterpret_cast<void *>(&ped_transition_message);
+        return result;
+    }();
+    return const_cast<void **>(table.data());
+}
 
 template<typename T>
 void set_native_mash_vtable(T *object, uint32_t type)
@@ -226,6 +439,14 @@ void *create_mash_class_in_place(
 {
     assert(storage != nullptr);
     assert(storage_size >= static_cast<int>(sizeof(T)));
+    if constexpr ((std::is_base_of_v<ai::info_node, T> ||
+                   std::is_base_of_v<ai::base_state, T> ||
+                   std::is_base_of_v<als::als_meta_anim_base, T>) &&
+                  !std::is_aggregate_v<T> &&
+                  std::is_constructible_v<T, from_mash_in_place_constructor *>) {
+        storage = reinterpret_cast<mash_virtual_base *>(::new (static_cast<void *>(storage))
+            T{static_cast<from_mash_in_place_constructor *>(nullptr)});
+    }
     set_native_mash_vtable(storage, type);
     return storage;
 }
@@ -242,7 +463,18 @@ void *create_mash_class(
 void *create_native_mash_class(
     uint32_t type, mash_virtual_base *storage = nullptr, int storage_size = 0)
 {
+    if (type < 10) {
+        if (storage != nullptr)
+            assert(storage_size >= static_cast<int>(native_enx::size(type)));
+        unsigned size;
+        return native_enx::construct(type, storage, &size);
+    }
+    if (storage != nullptr && type >= 545 && type <= 549) {
+        return interaction::construct_native_in_place(type, storage, storage_size);
+    }
     switch (type) {
+    case 11:
+        return create_mash_class<ai::ai_action_processor_inode>(type, storage, storage_size);
     case 53:
         return create_mash_class<ai::nugget_wait_state>(type, storage, storage_size);
     case 94:
@@ -268,14 +500,26 @@ void *create_native_mash_class(
         return create_mash_class<combo_system_move::trigger_info>(type, storage, storage_size);
     case 144:
         return create_mash_class<anim_key>(type, storage, storage_size);
+    case 145:
+        return create_mash_class<anim_record>(type, storage, storage_size);
+    case 146:
+        return create_mash_class<paired_anim_record>(type, storage, storage_size);
+    case 147:
+        return create_mash_class<enum_anim_key>(type, storage, storage_size);
     case 148:
         return create_mash_class<ai::interaction_inode>(type, storage, storage_size);
     case 149:
         return create_mash_class<als::meta_aimed_shot_vert>(type, storage, storage_size);
     case 150:
         return create_mash_class<ai::meta_anim_strength_test>(type, storage, storage_size);
+    case 152:
+        return create_mash_class<ai::strength_test_inode>(type, storage, storage_size);
+    case 156:
+        return create_mash_class<ai::nonpath_loco_inode>(type, storage, storage_size);
     case 157:
         return create_mash_class<ai::ped_avoidance_inode>(type, storage, storage_size);
+    case 158:
+        return create_mash_class<ai::ped_combat_inode>(type, storage, storage_size);
     case 159:
         return create_mash_class<ai::pedestrian_inode>(type, storage, storage_size);
     case 169:
@@ -291,10 +535,22 @@ void *create_native_mash_class(
         return create_mash_class<ai::spidey_combat_inode>(type, storage, storage_size);
     case 258:
         return create_mash_class<ai::ai_car_inode>(type, storage, storage_size);
+    case 259:
+        return create_mash_class<ai::drive_car_state>(type, storage, storage_size);
+    case 285:
+        return create_mash_class<ai::targetable_inode_285>(type, storage, storage_size);
+    case 293:
+        return create_mash_class<ai::base_state>(type, storage, storage_size);
+    case 303:
+        return create_mash_class<ai::jump_state>(type, storage, storage_size);
     case 304:
         return create_mash_class<ai::pole_swing_inode>(type, storage, storage_size);
+    case 315:
+        return create_mash_class<ai::std_puppet_inode>(type, storage, storage_size);
     case 316:
         return create_mash_class<ai::std_puppet_trans_state>(type, storage, storage_size);
+    case 317:
+        return create_mash_class<ai::run_state>(type, storage, storage_size);
     case 318:
         return create_mash_class<ai::swing_inode>(type, storage, storage_size);
     case 319:
@@ -303,20 +559,73 @@ void *create_native_mash_class(
         return create_mash_class<ai::hero_base_state>(type, storage, storage_size);
     case 324:
         return create_mash_class<ai::spidey_base_state>(type, storage, storage_size);
+    case 325:
+        return create_mash_class<ai::venom_base_state>(type, storage, storage_size);
+    case 326:
+        return create_mash_class<ai::web_zip_inode>(type, storage, storage_size);
+    case 327:
+        return create_mash_class<ai::web_zip_state>(type, storage, storage_size);
+    case 330:
+        return create_mash_class<ai::launch_layer_state>(type, storage, storage_size);
     case 333:
         return create_mash_class<ai::als_inode>(type, storage, storage_size);
     case 336:
         return create_mash_class<ai::avoidance_inode>(type, storage, storage_size);
+    case 338:
+        return create_mash_class<ai::biped_layer_inode>(type, storage, storage_size);
+    case 341:
+        return create_mash_class<ai::quad_path_inode>(type, storage, storage_size);
     case 342:
         return create_mash_class<ai::combat_inode>(type, storage, storage_size);
+    case 343:
+        return create_mash_class<ai::damage_inode>(type, storage, storage_size);
+    case 344:
+        return create_mash_class<ai::combat_inode::incoming_move>(type, storage, storage_size);
     case 346:
         return create_mash_class<ai::player_combat_inode>(type, storage, storage_size);
+    case 349:
+        return create_mash_class<ai::base_full_target_inode>(type, storage, storage_size);
+    case 351:
+        return create_mash_class<ai::combat_target_inode>(type, storage, storage_size);
+    case 356:
+        return create_mash_class<ai::venom_combat_target_inode>(type, storage, storage_size);
+    case 357:
+        return create_mash_class<ai::cpu_controller_inode>(type, storage, storage_size);
+    case 358:
+        return create_mash_class<ai::player_controller_inode>(type, storage, storage_size);
+    case 370:
+        return create_mash_class<ai::std_default_state_set_base>(type, storage, storage_size);
+    case 371:
+        return create_mash_class<ai::std_default_trans_inode>(type, storage, storage_size);
     case 375:
         return create_mash_class<ai::std_fear_inode>(type, storage, storage_size);
+    case 383:
+        return create_mash_class<ai::glass_house_inode>(type, storage, storage_size);
+    case 384:
+        return create_mash_class<ai::hero_inode>(type, storage, storage_size);
+    case 391:
+        return create_mash_class<ai::loco_inode>(type, storage, storage_size);
+    case 402:
+        return create_mash_class<ai::physics_inode>(type, storage, storage_size);
+    case 403:
+        return create_mash_class<ai::prop_physics_inode>(type, storage, storage_size);
+    case 408:
+        return create_mash_class<ai::slave_inode>(type, storage, storage_size);
     case 410:
         return create_mash_class<ai::weapon_inode>(type, storage, storage_size);
+    case 420:
+        return create_mash_class<ai::track_field_inode>(type, storage, storage_size);
+    case 421:
+        if (storage != nullptr) {
+            assert(storage_size >= static_cast<int>(sizeof(ai::traffic_base_state)));
+            return ::new (static_cast<void *>(storage)) ai::traffic_base_state{
+                static_cast<from_mash_in_place_constructor *>(nullptr)};
+        }
+        return new ai::traffic_base_state{};
     case 422:
         return create_mash_class<ai::traffic_inode>(type, storage, storage_size);
+    case 456:
+        return create_mash_class<ai::voice_box_inode>(type, storage, storage_size);
     case 483:
         return create_mash_class<als::layer_state_machine_shared>(
             type, storage, storage_size);
@@ -330,6 +639,14 @@ void *create_native_mash_class(
         return create_mash_class<als::motion_compensator>(type, storage, storage_size);
     case 493:
         return create_mash_class<als::begin_biped_physics>(type, storage, storage_size);
+    case 503:
+        return create_mash_class<als::crawl_transition>(type, storage, storage_size);
+    case 514:
+        return create_mash_class<als::null_mocomp>(type, storage, storage_size);
+    case 522:
+        return create_mash_class<als::simple_orientation>(type, storage, storage_size);
+    case 523:
+        return create_mash_class<als::simple_orientation_ped>(type, storage, storage_size);
     case 525:
         return create_mash_class<als::use_anim_only>(type, storage, storage_size);
     case 530:
@@ -343,6 +660,8 @@ void *create_native_mash_class(
         return create_mash_class<als::scripted_trans_group>(type, storage, storage_size);
     case 535:
         return create_mash_class<ai::enhanced_state>(type, storage, storage_size);
+    case 536:
+        return create_mash_class<ai::signal_enhanced_state>(type, storage, storage_size);
     case 537:
         return create_mash_class<ai::info_node>(type, storage, storage_size);
     case 541:
@@ -704,7 +1023,12 @@ bool mash_virtual_base::is_subclass_of(mash::virtual_types_enum) const
 
 bool mash_virtual_base::_is_or_is_subclass_of(mash::virtual_types_enum a2) const
 {
-    return this->get_virtual_type_enum() == a2 || this->is_subclass_of(a2);
+    if (this->get_virtual_type_enum() == a2) {
+        return true;
+    }
+    bool (__fastcall *func)(const void *, void *, mash::virtual_types_enum) =
+        CAST(func, get_vfunc(m_vtbl, 0x10));
+    return func(this, nullptr, a2);
 }
 
 bool mash_virtual_base::is_or_is_subclass_of(mash::virtual_types_enum a2) const
@@ -717,6 +1041,9 @@ void mash_virtual_base::generate_vtable()
 {
     if constexpr (STANDALONE_SYSTEM) {
         std::fill_n(vtable(), 1014, nullptr);
+        for (unsigned type = 0; type < 10; ++type)
+            vtable()[type] = native_enx::vtable(type);
+        vtable()[11] = native_mash_vtable<ai::ai_action_processor_inode>();
         vtable()[53] = native_mash_vtable<ai::nugget_wait_state>();
         vtable()[94] = native_mash_vtable<combo_system_move>();
         vtable()[95] = native_mash_vtable<combo_system_move::dialation_info>();
@@ -726,58 +1053,96 @@ void mash_virtual_base::generate_vtable()
         vtable()[99] = native_mash_vtable<combo_system_move::results>();
         vtable()[100] = native_mash_vtable<combo_system_move::target_info>();
         vtable()[101] = native_mash_vtable<combo_system_move::trigger_info>();
-        vtable()[144] = native_mash_vtable<anim_key>();
-        vtable()[148] = native_mash_vtable<ai::interaction_inode>();
-        vtable()[149] = native_mash_vtable<als::meta_aimed_shot_vert>();
-        vtable()[150] = native_mash_vtable<ai::meta_anim_strength_test>();
-        vtable()[157] = native_mash_vtable<ai::ped_avoidance_inode>();
-        vtable()[159] = native_mash_vtable<ai::pedestrian_inode>();
-        vtable()[177] = native_mash_vtable<ai::pedestrian_idle_state>();
-        vtable()[181] = native_mash_vtable<plr_loco_crawl_state>();
-        vtable()[182] = native_mash_vtable<plr_loco_crawl_transition_state>();
-        vtable()[248] = native_mash_vtable<ai::spidey_combat_inode>();
-        vtable()[258] = native_mash_vtable<ai::ai_car_inode>();
-        vtable()[304] = native_mash_vtable<ai::pole_swing_inode>();
-        vtable()[316] = native_mash_vtable<ai::std_puppet_trans_state>();
-        vtable()[318] = native_mash_vtable<ai::swing_inode>();
-        vtable()[319] = native_mash_vtable<ai::swing_state>();
-        vtable()[323] = native_mash_vtable<ai::hero_base_state>();
-        vtable()[324] = native_mash_vtable<ai::spidey_base_state>();
-        vtable()[333] = native_mash_vtable<ai::als_inode>();
-        vtable()[336] = native_mash_vtable<ai::avoidance_inode>();
-        vtable()[342] = native_mash_vtable<ai::combat_inode>();
-        vtable()[346] = native_mash_vtable<ai::player_combat_inode>();
-        vtable()[375] = native_mash_vtable<ai::std_fear_inode>();
-        vtable()[410] = native_mash_vtable<ai::weapon_inode>();
-        vtable()[422] = native_mash_vtable<ai::traffic_inode>();
+        vtable()[144] = anim_key::native_vtable();
+        vtable()[145] = anim_record::native_vtable();
+        vtable()[146] = paired_anim_record::native_vtable();
+        vtable()[147] = enum_anim_key::native_vtable();
+        vtable()[148] = ai::interaction_inode::native_vtable();
+        vtable()[149] = als::meta_aimed_shot_vert::native_vtable();
+        vtable()[150] = ai::meta_anim_strength_test::native_vtable();
+        vtable()[152] = ai::strength_test_inode::native_vtable();
+        vtable()[156] = ai::nonpath_loco_inode::native_vtable();
+        vtable()[157] = ai::ped_avoidance_inode::native_vtable();
+        vtable()[158] = ai::ped_combat_inode::native_vtable();
+        vtable()[159] = ai::pedestrian_inode::native_vtable();
+        vtable()[177] = ai::pedestrian_idle_state::native_vtable();
+        vtable()[181] = plr_loco_crawl_state::native_vtable();
+        vtable()[182] = plr_loco_crawl_transition_state::native_vtable();
+        vtable()[248] = ai::spidey_combat_inode::native_vtable();
+        vtable()[258] = ai::ai_car_inode::native_vtable();
+        vtable()[259] = ai::drive_car_state::native_vtable();
+        vtable()[285] = ai::targetable_inode_285::native_vtable();
+        vtable()[303] = ai::jump_state::native_vtable();
+        vtable()[304] = ai::pole_swing_inode::native_vtable();
+        vtable()[315] = ai::std_puppet_inode::native_vtable();
+        vtable()[316] = ai::std_puppet_trans_state::native_vtable();
+        vtable()[317] = ai::run_state::native_vtable();
+        vtable()[318] = ai::swing_inode::native_vtable();
+        vtable()[319] = ai::swing_state::native_vtable();
+        vtable()[323] = ai::hero_base_state::native_vtable();
+        vtable()[324] = ai::spidey_base_state::native_vtable();
+        vtable()[325] = ai::venom_base_state::native_vtable();
+        vtable()[326] = ai::web_zip_inode::native_vtable();
+        vtable()[327] = ai::web_zip_state::native_vtable();
+        vtable()[330] = ai::launch_layer_state::native_vtable();
+        vtable()[333] = ai::als_inode::native_vtable();
+        vtable()[336] = ai::avoidance_inode::native_vtable();
+        vtable()[338] = ai::biped_layer_inode::native_vtable();
+        vtable()[341] = ai::quad_path_inode::native_vtable();
+        vtable()[342] = ai::combat_inode::native_vtable();
+        vtable()[343] = ai::damage_inode::native_vtable();
+        vtable()[344] = ai::combat_inode::incoming_move::native_vtable();
+        vtable()[346] = ai::player_combat_inode::native_vtable();
+        vtable()[349] = ai::base_full_target_inode::native_vtable();
+        vtable()[351] = ai::combat_target_inode::native_vtable();
+        vtable()[356] = ai::venom_combat_target_inode::native_vtable();
+        vtable()[357] = ai::cpu_controller_inode::native_vtable();
+        vtable()[358] = ai::player_controller_inode::native_vtable();
+        vtable()[371] = ai::std_default_trans_inode::native_vtable();
+        vtable()[375] = ai::std_fear_inode::native_vtable();
+        vtable()[383] = ai::glass_house_inode::native_vtable();
+        vtable()[384] = ai::hero_inode::native_vtable();
+        vtable()[391] = ai::loco_inode::native_vtable();
+        vtable()[402] = ai::physics_inode::native_vtable();
+        vtable()[403] = ai::prop_physics_inode::native_vtable();
+        vtable()[408] = ai::slave_inode::native_vtable();
+        vtable()[410] = ai::weapon_inode::native_vtable();
+        vtable()[420] = ai::track_field_inode::native_vtable();
+        vtable()[421] = ai::traffic_base_state::native_vtable();
+        vtable()[422] = ai::traffic_inode::native_vtable();
+        vtable()[456] = ai::voice_box_inode::native_vtable();
         vtable()[483] = native_mash_vtable<als::layer_state_machine_shared>();
         vtable()[484] = native_mash_vtable<als::state_machine_shared>();
-        vtable()[488] = native_mash_vtable<als::als_meta_anim_swing>();
-        vtable()[489] = native_mash_vtable<als::als_meta_linear_blend>();
-        vtable()[490] = native_mash_vtable<als::motion_compensator>();
+        vtable()[488] = als::als_meta_anim_swing::native_vtable();
+        vtable()[489] = als::als_meta_linear_blend::native_vtable();
+        vtable()[490] = als::motion_compensator::native_vtable(490);
         vtable()[493] = native_mash_vtable<als::begin_biped_physics>();
-        vtable()[525] = native_mash_vtable<als::use_anim_only>();
+        vtable()[503] = als::crawl_transition::native_vtable();
+        vtable()[514] = als::motion_compensator::native_vtable(514);
+        vtable()[522] = als::simple_orientation::native_vtable();
+        vtable()[523] = als::simple_orientation_ped::native_vtable();
+        vtable()[525] = als::use_anim_only::native_vtable();
         vtable()[530] = native_mash_vtable<als::base_layer_scripted_state>();
-        vtable()[531] = native_mash_vtable<als::scripted_category>();
+        vtable()[531] = als::scripted_category::native_vtable();
         vtable()[532] = native_mash_vtable<als::scripted_state>();
         vtable()[533] = native_mash_vtable<als::scripted_trans_group>();
-        vtable()[535] = native_mash_vtable<ai::enhanced_state>();
-        vtable()[537] = native_mash_vtable<ai::info_node>();
+        vtable()[535] = ai::enhanced_state::native_vtable();
+        vtable()[536] = ai::signal_enhanced_state::native_vtable();
+        vtable()[537] = ai::info_node::native_vtable();
         vtable()[541] = native_mash_vtable<PanelQuad>();
         vtable()[542] = native_mash_vtable<FEFloatingText>();
         vtable()[543] = native_mash_vtable<FEMultiLineText>();
         vtable()[544] = native_mash_vtable<FEText>();
+        vtable()[545] = box_region::native_vtable();
+        vtable()[546] = generic_interaction::native_vtable();
+        vtable()[547] = interaction::native_vtable();
+        vtable()[548] = named_trigger_box_region::native_vtable();
+        vtable()[549] = point_dist_region::native_vtable();
+        vtable()[561] = ai::controller_inode::native_vtable();
 
-        ped_default_trans_state_vtable.fill(nullptr);
-        ped_default_trans_state_vtable[1] =
-            bit_cast<void *>(&native_base_state_unmash);
-        ped_default_trans_state_vtable[0x0C / sizeof(void *)] =
-            bit_cast<void *>(&native_mash_type);
-        ped_default_trans_state_vtable[0x34 / sizeof(void *)] =
-            bit_cast<void *>(&native_base_state_sizeof);
-        vtable()[169] = ped_default_trans_state_vtable.data();
-        vtable()[293] = ped_default_trans_state_vtable.data();
-        vtable()[370] = ped_default_trans_state_vtable.data();
+        vtable()[169] = ped_transition_vtable();
+        vtable()[293] = hostage_transition_vtable();
+        vtable()[370] = ai::std_default_state_set_base::native_vtable();
     } else {
         CDECL_CALL(0x00432B60);
     }

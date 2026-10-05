@@ -16,11 +16,12 @@ struct universal_soldier_ability_client;
 struct universal_soldier_attack_token;
 
 struct universal_soldier_inode : info_node {
+    inline static string_hash default_id{"universal_soldier"};
     string_hash field_1C;
     universal_soldier_attack_token *field_20;
     _std::list<universal_soldier_attack_token *> *field_24;
     ai_state_machine *field_28;
-    int field_2C;
+    _std::vector<universal_soldier_inode *> *field_2C;
     universal_soldier_inode *field_30;
     ai_car_inode *field_34;
     int field_38;

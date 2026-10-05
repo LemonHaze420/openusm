@@ -1,5 +1,7 @@
 #pragma once
 
+#include "entity_base_vhandle.h"
+#include "actor.h"
 #include "float.hpp"
 #include "mvector.h"
 #include "param_block.h"
@@ -25,11 +27,22 @@ struct ai_core {
         AI_KILLING_MACHINES = 2,
     };
 
+    struct machine_entry {
+        ai_state_machine *machine;
+        bool pending_exit;
+    };
+
+    struct completed_machine {
+        resource_key graph;
+        int message;
+        int frames_left;
+    };
+
     _std::list<resource_key> field_0;
     ai_state_machine *my_base_machine;
     ai_state_machine *my_locomotion_machine;
-    _std::list<ai_state_machine *> my_machine_list;
-    _std::list<void *> field_20;
+    _std::list<machine_entry> my_machine_list;
+    _std::list<completed_machine> field_20;
     mode_e my_mode;
     resource_key field_30;
     int field_38;
@@ -48,6 +61,7 @@ struct ai_core {
 
     //0x006AEA90
     ai_core(core_ai_resource *a3, const param_block *arg4, actor *a4);
+    ~ai_core();
 
     actor *get_actor(int)
     {
@@ -68,6 +82,8 @@ struct ai_core {
     //0x00687C50
     void create_capsule_alter();
 
+    void adjust_colgeom(bool force);
+
     //0x006A36E0
     void post_entity_mash();
 
@@ -79,10 +95,15 @@ struct ai_core {
 
     //0x006A3590
     bool stop_movement();
+    bool set_facing_dir(const vector3d &direction);
+    bool set_facing_point(const vector3d &point);
 
     //0x0069B940
     void do_machine_exit(ai_state_machine *a2);
 
+    void exit_pending_machines();
+    void post_frame_advance();
+    void remove_slave(vhandle_type<actor> actor_handle);
     //0x006A34A0
     bool change_locomotion_machine(const string_hash &a2);
 

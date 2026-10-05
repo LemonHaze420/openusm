@@ -67,6 +67,8 @@ struct ai_path {
 
     //0x00479C50
     static region *find_region_for_point(const vector3d &a1, Float a2);
+    static bool find_closest_point_on_path_to_point(const vector3d &position, Float radius,
+        vector3d *projected, ai_quad_path **path, ai_quad_path_cell **cell);
 
     //0x00452CF0
     static void set_status(ai_path *a1, ai_path::eAIPathStatus a2, const char *Format, ...);

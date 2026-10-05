@@ -46,6 +46,7 @@ struct ai_state_machine {
 
     //0x0069EB60
     ai_state_machine(ai::ai_core *a2, const ai::state_graph *a3, string_hash a4);
+    ~ai_state_machine();
 
     //0x006A3A60
     void frame_advance(Float a2, bool a3);

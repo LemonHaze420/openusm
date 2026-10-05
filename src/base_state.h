@@ -37,6 +37,8 @@ struct base_state : mash_virtual_base {
     //0x006BD900
     base_state(int a2);
 
+    static void *native_vtable();
+
     actor *get_actor() const;
 
     ai_core *get_core() const;

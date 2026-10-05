@@ -18,6 +18,8 @@ struct info_node : mash_virtual_base {
     actor *field_C;
     param_block my_param_block;
 
+    static void *native_vtable();
+
     //0x006D6F20
     info_node();
 
@@ -57,6 +59,8 @@ struct info_node : mash_virtual_base {
     void activate(ai_core *a2);
 
     void _activate(ai_core *a2);
+    void _reset();
+    void _destruct_mashed_class();
 
     //virtual
     void deactivate();

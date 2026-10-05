@@ -8,6 +8,8 @@
 #include "event_manager.h"
 #include "func_wrapper.h"
 #include "mashed_state.h"
+#include "memory.h"
+#include <array>
 
 #include <vtbl.h>
 
@@ -15,8 +17,55 @@ namespace ai {
 
 VALIDATE_SIZE(base_state, 0x1C);
 
+namespace {
+
+void __fastcall state_destroy(base_state *) {}
+void __fastcall state_unmash(base_state *, void *, mash_info_struct *, void *) {}
+void *__fastcall state_finalize(base_state *self, void *, bool free_storage)
+{
+    self->~base_state();
+    if (free_storage)
+        mem_dealloc(self, sizeof(base_state));
+    return self;
+}
+uint32_t __fastcall state_type(const base_state *) { return 567; }
+bool __fastcall state_subclass(const base_state *, void *, mash::virtual_types_enum type)
+{
+    return type == 573;
+}
+bool __fastcall state_is_a(const base_state *self, void *, mash::virtual_types_enum type)
+{
+    return self->mash_virtual_base::_is_or_is_subclass_of(type);
+}
+void __fastcall state_activate(base_state *self, void *, ai_state_machine *machine,
+    const mashed_state *state, const mashed_state *previous, const param_block *params,
+    base_state::activate_flag_e flags)
+{
+    self->_activate(machine, state, previous, params, flags);
+}
+void __fastcall state_deactivate(base_state *, void *, const mashed_state *) {}
+void __fastcall state_info_list(base_state *, void *, info_node_desc_list &) {}
+void __fastcall state_graphs(base_state *, void *, state_graph_list &) {}
+int __fastcall state_size(const base_state *) { return sizeof(base_state); }
+}
+
+void *base_state::native_vtable()
+{
+    static void *table[] {
+        bit_cast<void *>(&state_destroy), bit_cast<void *>(&state_unmash),
+        bit_cast<void *>(&state_finalize), bit_cast<void *>(&state_type),
+        bit_cast<void *>(&state_subclass), bit_cast<void *>(&state_is_a),
+        bit_cast<void *>(&state_activate), bit_cast<void *>(&state_deactivate),
+        nullptr, bit_cast<void *>(&state_info_list), bit_cast<void *>(&state_graphs),
+        nullptr, nullptr, bit_cast<void *>(&state_size)
+    };
+    return table;
+}
+
 base_state::base_state()
 {
+    if constexpr (STANDALONE_SYSTEM)
+        m_vtbl = bit_cast<std::intptr_t>(native_vtable());
     this->field_C = nullptr;
     this->my_mashed_state = nullptr;
     this->field_18 = nullptr;
@@ -25,6 +74,8 @@ base_state::base_state()
 
 base_state::base_state(int)
 {
+    if constexpr (STANDALONE_SYSTEM)
+        m_vtbl = bit_cast<std::intptr_t>(native_vtable());
     this->field_C = nullptr;
     this->my_mashed_state = nullptr;
     this->field_18 = nullptr;
@@ -43,7 +94,7 @@ ai_core *base_state::get_core() const
 
 bool base_state::is_subclass_of(mash::virtual_types_enum a1) const
 {
-    return mash_virtual_base::get_virtual_type_enum() == a1;
+    return a1 == 573;
 }
 
 bool base_state::is_flag_set(int a2) const

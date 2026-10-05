@@ -8,10 +8,7 @@ namespace ai {
 
 VALIDATE_SIZE(mashed_state, 0x18);
 
-mashed_state::mashed_state()
-{
-    THISCALL(0x006DD080, this);
-}
+mashed_state::mashed_state() = default;
 
 mashed_state::mashed_state(from_mash_in_place_constructor *a2) : field_0(a2), field_C(a2) {}
 

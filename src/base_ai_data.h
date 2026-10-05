@@ -17,6 +17,8 @@ struct base_ai_data {
     //0x006D9AF0
     base_ai_data(from_mash_in_place_constructor *a2);
 
+    ~base_ai_data();
+
     //0x006BDB00
     void post_entity_mash();
 

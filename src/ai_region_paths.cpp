@@ -1,6 +1,8 @@
 #include "ai_region_paths.h"
 
 #include "ai_quad_path.h"
+#include "ai_quad_path_cell.h"
+#include <cfloat>
 #include "common.h"
 #include "func_wrapper.h"
 #include "trace.h"
@@ -14,7 +16,48 @@ ai_region_paths::ai_region_paths() {}
 ai_quad_path *ai_region_paths::get_quad_path_for_point(const vector3d &a2, Float a3, ai_quad_path_cell **a4, bool a5,
                                                        ai_quad_path *a6)
 {
-    return (ai_quad_path *)THISCALL(0x0046EFF0, this, &a2, a3, a4, a5, a6);
+    ai_quad_path *nearest_path = nullptr;
+    ai_quad_path_cell *nearest_cell = nullptr;
+    float nearest_distance = FLT_MAX;
+    auto check = [&](ai_quad_path *path) {
+        const auto *bounds = reinterpret_cast<const float *>(path->field_0);
+        if (!a5 && (a2.x <= bounds[0] || a2.x >= bounds[3]
+                || a2.z <= bounds[2] || a2.z >= bounds[5]))
+            return false;
+        for (int index = 0; index < path->field_2A; ++index) {
+            auto *cell = &path->field_24[index];
+            if (cell->is_point_in_cell(a2, a3.value)) {
+                if (a4)
+                    *a4 = cell;
+                return true;
+            }
+        }
+        if (a5) {
+            for (int index = 0; index < path->field_2A; ++index) {
+                auto *cell = &path->field_24[index];
+                const float distance = cell->is_point_near_cell(a2);
+                if (distance < nearest_distance) {
+                    nearest_distance = distance;
+                    nearest_path = path;
+                    nearest_cell = cell;
+                }
+            }
+        }
+        return false;
+    };
+    if (a6) {
+        if (check(a6))
+            return a6;
+    } else {
+        for (int index = 0; index < quad_path_table_count; ++index) {
+            auto *path = &get_quad_path_internal()[index];
+            if (check(path))
+                return path;
+        }
+    }
+    if (a5 && a4)
+        *a4 = nearest_cell;
+    return a5 ? nearest_path : nullptr;
 }
 
 ai_quad_path *ai_region_paths::get_quad_path_internal()

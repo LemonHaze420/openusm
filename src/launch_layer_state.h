@@ -10,6 +10,17 @@ struct launch_layer_state : signal_enhanced_state {
     int field_3C;
     int field_40;
 
+    launch_layer_state();
+    static void *native_vtable();
+    void _destruct_mashed_class();
+    void _unmash(mash_info_struct *info, void *base);
+    void activate(ai_state_machine *machine, const mashed_state *state, const mashed_state *previous,
+                  const param_block *params, activate_flag_e flags);
+    void deactivate(const mashed_state *next);
+    state_trans_messages frame_advance(Float time);
+    void get_state_graph_list(state_graph_list &graphs);
+    int get_block_level() const;
+
     launch_layer_state(from_mash_in_place_constructor *a2);
 
     //virtual

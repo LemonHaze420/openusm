@@ -25,6 +25,16 @@ VALIDATE_SIZE(ai_path, 0xA4);
 
 static Var<_std::list<ai_path *>> dword_958164{0x00958164};
 
+static _std::list<ai_path *> &all_ai_paths()
+{
+    if constexpr (STANDALONE_SYSTEM) {
+        static _std::list<ai_path *> paths;
+        return paths;
+    } else {
+        return dword_958164();
+    }
+}
+
 ai_path::ai_path()
 {
     this->field_0 = {};
@@ -32,24 +42,24 @@ ai_path::ai_path()
     this->field_20 = {};
     this->field_30 = {};
     this->field_88.field_0 = 0;
-    this->field_90 = {};
     this->field_A0 = false;
 
     this->field_88.field_0 = 0;
     ai_path::set_status(this, eAIPathStatus{0}, "OK");
 
-    static Var<int *> dword_958168{0x00958168};
-
-    auto *v2 = dword_958168();
-    auto v3 = dword_958168()[1];
-    auto a3 = (int)this;
-
-    int **(__fastcall * sub_6B78D0)(void *, void *, int, int, void *) = CAST(sub_6B78D0, 0x006B78D0);
-
-    auto v4 = sub_6B78D0(&dword_958164(), nullptr, (int)dword_958168(), v3, &a3);
-    dword_958164()._Incsize(1u);
-    v2[1] = (int)v4;
-    *v4[1] = (int)v4;
+    if constexpr (STANDALONE_SYSTEM) {
+        all_ai_paths().push_back(this);
+    } else {
+        static Var<int *> dword_958168{0x00958168};
+        auto *v2 = dword_958168();
+        auto v3 = dword_958168()[1];
+        auto a3 = reinterpret_cast<int>(this);
+        int **(__fastcall *buy_node)(void *, void *, int, int, void *) = CAST(buy_node, 0x006B78D0);
+        auto node = buy_node(&dword_958164(), nullptr, reinterpret_cast<int>(dword_958168()), v3, &a3);
+        dword_958164()._Incsize(1u);
+        v2[1] = reinterpret_cast<int>(node);
+        *node[1] = reinterpret_cast<int>(node);
+    }
     this->field_84 = nullptr;
 }
 
@@ -57,7 +67,7 @@ void ai_path::frame_advance_all_ai_paths(Float)
 {
     TRACE("ai_path::frame_advance_all_ai_paths");
 
-    for (auto *path : dword_958164()) {
+    for (auto *path : all_ai_paths()) {
         if (path == nullptr || path->m_pathStatus.field_0 != 0) {
             continue;
         }
@@ -80,13 +90,19 @@ void ai_path::frame_advance_all_ai_paths(Float)
 
 ai_path::~ai_path()
 {
-    [[maybe_unused]] int v4 = 3;
-
-    void(__fastcall * sub_5058F0)(void *, void *, void *) = CAST(sub_5058F0, 0x005058F0);
-
-    auto *v1 = this;
-
-    sub_5058F0(&dword_958164(), nullptr, &v1);
+    if constexpr (STANDALONE_SYSTEM) {
+        auto &paths = all_ai_paths();
+        for (auto it = paths.begin(); it != paths.end();) {
+            if (*it == this)
+                it = paths.erase(it);
+            else
+                ++it;
+        }
+    } else {
+        void(__fastcall *remove)(void *, void *, void *) = CAST(remove, 0x005058F0);
+        auto *self = this;
+        remove(&dword_958164(), nullptr, &self);
+    }
 
     this->field_30 = {};
 
@@ -295,6 +311,32 @@ vector3d ai_path::get_next_point()
     }
 
     return result;
+}
+
+bool ai_path::find_closest_point_on_path_to_point(const vector3d &position, Float radius,
+    vector3d *projected, ai_quad_path **path, ai_quad_path_cell **cell)
+{
+    if (path)
+        *path = nullptr;
+    if (projected)
+        *projected = position;
+    auto *reg = find_region_for_point(position, radius);
+    if (!reg)
+        return false;
+    auto *graph = reg->get_region_path_graph();
+    if (!graph)
+        return false;
+    ai_quad_path_cell *found_cell = nullptr;
+    auto *found_path = graph->get_quad_path_for_point(position, radius, &found_cell, true, nullptr);
+    if (!found_cell)
+        return false;
+    if (path)
+        *path = found_path;
+    if (cell)
+        *cell = found_cell;
+    if (!found_cell->is_point_in_cell(position, radius.value))
+        *projected = found_cell->closest_point(position);
+    return true;
 }
 
 region *ai_path::find_region_for_point(const vector3d &a1, Float a2)

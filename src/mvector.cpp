@@ -578,6 +578,89 @@ uint32_t xbpack::pc_state_type(uint32_t type)
 #endif
 
 template<>
+void mVector<ai::mashed_state>::destroy_element(ai::mashed_state **element)
+{
+    auto *state = *element;
+    if (this->is_pointer_in_mash_image(state)) {
+        state->field_0.destruct_mashed_class();
+        state->field_C.destruct_mashed_class();
+    } else if (state != nullptr) {
+        delete state;
+    }
+    *element = nullptr;
+}
+
+template<>
+void mVector<ai::mashed_state>::clear()
+{
+    if constexpr (STANDALONE_SYSTEM) {
+        if (this->field_10) {
+            for (int i = 0; i < this->m_size; ++i) {
+                this->destroy_element(&this->m_data[i]);
+            }
+        }
+        if (!this->is_pointer_in_mash_image(this->m_data)) {
+            mem_dealloc(this->m_data, sizeof(*this->m_data) * this->m_max_size);
+        }
+        this->m_data = nullptr;
+        this->m_max_size = 0;
+        mContainer_base::clear();
+    } else {
+        THISCALL(0x006DD220, this);
+    }
+}
+
+template<>
+void mVector<ai::mashed_state>::destruct_mashed_class()
+{
+    this->finalize(mash::FROM_MASH);
+    mContainer_base::destruct_mashed_class();
+}
+
+template<>
+void mVector<ai::base_state>::destroy_element(ai::base_state **element)
+{
+    auto *state = *element;
+    if (this->is_pointer_in_mash_image(state)) {
+        auto destroy = reinterpret_cast<void (__fastcall *)(ai::base_state *, void *)>(
+            get_vfunc(state->m_vtbl, 0));
+        destroy(state, nullptr);
+    } else if (state != nullptr) {
+        auto destroy = reinterpret_cast<void *(__fastcall *)(ai::base_state *, void *, uint32_t)>(
+            get_vfunc(state->m_vtbl, 8));
+        destroy(state, nullptr, 1);
+    }
+    *element = nullptr;
+}
+
+template<>
+void mVector<ai::base_state>::clear()
+{
+    if constexpr (STANDALONE_SYSTEM) {
+        if (this->field_10) {
+            for (int i = 0; i < this->m_size; ++i) {
+                this->destroy_element(&this->m_data[i]);
+            }
+        }
+        if (!this->is_pointer_in_mash_image(this->m_data)) {
+            mem_dealloc(this->m_data, sizeof(*this->m_data) * this->m_max_size);
+        }
+        this->m_data = nullptr;
+        this->m_max_size = 0;
+        mContainer_base::clear();
+    } else {
+        THISCALL(0x004B01C0, this);
+    }
+}
+
+template<>
+void mVector<ai::base_state>::destruct_mashed_class()
+{
+    this->finalize(mash::FROM_MASH);
+    mContainer_base::destruct_mashed_class();
+}
+
+template<>
 void mVector<sound_alias>::destruct_mashed_class()
 {
     if constexpr (0) {
@@ -1112,23 +1195,12 @@ void mVector<interaction>::custom_unmash(mash_info_struct *a2, [[maybe_unused]] 
 #ifdef TARGET_XBOX
                     mash::NORMAL_BUFFER,
 #endif
-                    sizeof(als::layer_state_machine_shared),
+                    sizeof(interaction),
                     0);
 
                 v5 = (interaction *)v6;
                 mash_virtual_base::fixup_vtable(v6);
 
-                {
-                    struct {
-                        int m_vtbl;
-                    } *tmp = CAST(tmp, v6);
-
-                    if constexpr (STANDALONE_SYSTEM) {
-                        assert(tmp->m_vtbl != 0);
-                    } else {
-                        assert(tmp->m_vtbl == 0x0087E3A4);
-                    }
-                }
 
                 auto v7 = v5->get_mash_sizeof();
                 a2->advance_buffer(
@@ -1667,7 +1739,7 @@ void mVector<ai::param_block::param_data>::destroy_element(ai::param_block::para
 template<>
 void mVector<ai::param_block::param_data>::clear()
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         if (this->field_10) {
             for (int i = 0; i < this->m_size; ++i) {
                 this->destroy_element(&this->m_data[i]);

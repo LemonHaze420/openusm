@@ -2,11 +2,11 @@
 
 #include "base_state.h"
 
-#include "utility.h"
 
 namespace ai {
 struct std_puppet_trans_state : base_state {
     std_puppet_trans_state();
+    static void *native_vtable();
 
     //virtual
     void _unmash(mash_info_struct *a1, void *a2);
@@ -23,19 +23,5 @@ struct std_puppet_trans_state : base_state {
         return sizeof(*this);
     }
 
-    static inline void *g_vtbl[]{nullptr,
-                                 func_address(&std_puppet_trans_state::_unmash),
-                                 nullptr,
-                                 func_address(&std_puppet_trans_state::_get_virtual_type_enum),
-                                 nullptr,
-                                 func_address(&mash_virtual_base::_is_or_is_subclass_of),
-                                 nullptr,
-                                 nullptr,
-                                 nullptr,
-                                 nullptr,
-                                 nullptr,
-                                 nullptr,
-                                 nullptr,
-                                 func_address(&std_puppet_trans_state::_get_mash_sizeof)};
 };
 }  // namespace ai

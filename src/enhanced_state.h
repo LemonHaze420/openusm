@@ -14,7 +14,7 @@ namespace ai {
 struct enhanced_state : base_state {
     float field_1C;
     state_trans_messages field_20;
-    int field_24;
+    float field_24;
     bool field_28;
     state_trans_actions field_2C;
 
@@ -22,6 +22,8 @@ struct enhanced_state : base_state {
 
     //0x006BD970
     enhanced_state(from_mash_in_place_constructor *);
+
+    static void *native_vtable();
 
     float get_timeout_timer();
 
@@ -56,13 +58,13 @@ struct enhanced_state : base_state {
 
     ai::state_trans_action exit_layer(string_hash a3, state_trans_messages a4, state_trans_action a5) const;
 
-    static inline Var<string_hash[1]> timeout_hashes{0x0096CD28};
+    static const string_hash *timeout_hashes();
 
-    static inline Var<string_hash[1]> to_state_hashes{0x0096CEB0};
+    static const string_hash *to_state_hashes();
 
     static const inline string_hash to_state_always_hash{int(to_hash("to_state_always"))};
 
-    static inline Var<string_hash[1]> exit_layer_hashes{0x0096D0C0};
+    static const string_hash *exit_layer_hashes();
 
     static const inline string_hash process_default_trans_hash{int(to_hash("process_default_trans"))};
 

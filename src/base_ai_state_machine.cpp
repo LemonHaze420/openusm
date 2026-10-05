@@ -13,15 +13,49 @@
 #include "mstring.h"
 #include "resource_key.h"
 #include "state_trans_action.h"
+#include "slab_allocator.h"
 #include "trace.h"
 #include "utility.h"
 #include "vtbl.h"
 
 #include <cassert>
+#include <algorithm>
 
 namespace ai {
 
 VALIDATE_SIZE(ai_state_machine, 0x48u);
+
+ai_state_machine::~ai_state_machine()
+{
+    if (my_parent != nullptr) {
+        auto &children = my_parent->field_1C;
+        auto it = std::find(children.begin(), children.end(), this);
+        if (it != children.end())
+            children.erase(it);
+        if (my_parent->field_2C == reinterpret_cast<int>(this))
+            my_parent->field_2C = 0;
+        my_parent = nullptr;
+    }
+
+
+    if constexpr (STANDALONE_SYSTEM) {
+        ::operator delete(field_38);
+    } else if (auto *slab = slab_allocator::find_slab_for_object(field_38)) {
+        slab_allocator::deallocate(field_38, slab);
+    } else {
+        ::operator delete(field_38);
+    }
+    if (my_curr_state != nullptr) {
+        my_curr_state->deactivate(nullptr);
+        auto *state = my_curr_state;
+        if (state != nullptr) {
+            using delete_fn = void *(__fastcall *)(base_state *, void *, unsigned int);
+            reinterpret_cast<delete_fn>(get_vfunc(state->m_vtbl, 0x8))(
+                state, nullptr, 1);
+        }
+        my_curr_state = nullptr;
+    }
+}
 
 ai_state_machine::ai_state_machine(ai::ai_core *a2, const ai::state_graph *a3, string_hash a4)
 {
@@ -325,7 +359,8 @@ void ai_state_machine::process_return()
         v2->deactivate(this->field_3C);
         auto *v4 = this->my_curr_state;
         if (v4 != nullptr) {
-            delete v4;
+            using delete_fn = void (__fastcall *)(base_state *, void *, bool);
+            reinterpret_cast<delete_fn>(get_vfunc(v4->m_vtbl, 0x8))(v4, nullptr, true);
         }
 
         auto *v5 = static_cast<base_state *>(mash_virtual_base::create_subclass_by_enum(this->field_3C->field_14));
@@ -519,12 +554,8 @@ resource_key ai_state_machine::get_name() const
 
 void ai_state_machine::add_as_child(ai_state_machine *a2)
 {
-    if constexpr (0) {
-        this->field_1C.push_back(a2);
-        a2->my_parent = this;
-    } else {
-        THISCALL(0x006A1530, this, a2);
-    }
+    this->field_1C.push_back(a2);
+    a2->my_parent = this;
 }
 
 state_trans_action ai_state_machine::check_keyword_overrides(const state_trans_action &a3) const

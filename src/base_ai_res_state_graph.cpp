@@ -35,7 +35,20 @@ void state_graph::initialize(mash::allocation_scope scope)
 
 void state_graph::destruct_mashed_class()
 {
-    THISCALL(0x006DA0D0, this);
+    if constexpr (STANDALONE_SYSTEM) {
+        this->field_0.destruct_mashed_class();
+        this->my_states.destruct_mashed_class();
+        this->field_20.destruct_mashed_class();
+
+        auto *state = this->field_1C;
+        if (state != nullptr) {
+            state->field_0.destruct_mashed_class();
+            state->field_C.destruct_mashed_class();
+            this->field_1C = nullptr;
+        }
+    } else {
+        THISCALL(0x006DA0D0, this);
+    }
 }
 
 void state_graph::unmash(mash_info_struct *a1, void *)

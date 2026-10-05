@@ -5,6 +5,8 @@
 #include "core_ai_resource.h"
 
 #include "actor.h"
+#include "ai_player_controller.h"
+#include "collision_geometry.h"
 #include "ai_pedestrian.h"
 #include "ai_std_combat_target.h"
 #include "base_ai_graph_manager.h"
@@ -17,6 +19,8 @@
 #include "func_wrapper.h"
 #include "ghetto_mash_file_header.h"
 #include "info_node.h"
+#include "loco_inode.h"
+#include "slave_inode.h"
 #include "memory.h"
 #include "mstring.h"
 #include "resource_manager.h"
@@ -24,6 +28,16 @@
 #include "traffic_inode.h"
 #include "utility.h"
 #include "wds.h"
+#include "vtbl.h"
+#include "als_inode.h"
+#include "als_animation_logic_system.h"
+#include "param_list.h"
+#include "camera.h"
+#include "game.h"
+#include "physical_interface.h"
+#include "renderoptimizations.h"
+#include <limits>
+#include "conglom.h"
 
 namespace ai {
 
@@ -35,14 +49,73 @@ _std::list<ai_core *> *&ai_core::the_ai_core_list_low = var<_std::list<ai_core *
 
 void *&ai_core::next_ai_core_list_low_iter = var<void *>(0x0096C110);
 
+ai_core::~ai_core()
+{
+    while (!my_machine_list.empty()) {
+        for (auto it = my_machine_list.begin(); it != my_machine_list.end();) {
+            auto *machine = it->machine;
+            if (machine->field_1C.empty()) {
+                delete machine;
+                it = my_machine_list.erase(it);
+            } else {
+                ++it;
+            }
+        }
+    }
+    for (int index = 0; index < my_info_node_list->m_size; ++index)
+        my_info_node_list->m_data[index]->deactivate();
+    if (!pedestrian_inode::is_a_pedestrian(this) &&
+        get_info_node(traffic_inode::default_id, false) == nullptr)
+        pedestrian_inode::unregister_non_ped(vhandle_type<actor>{field_64->my_handle});
+    if (field_5C != 0) {
+        if (my_info_node_list->field_10) {
+            for (int index = 0; index < my_info_node_list->m_size; ++index) {
+                auto *node = my_info_node_list->m_data[index];
+                if (my_info_node_list->is_pointer_in_mash_image(node)) {
+                    using destroy_fn = void (__fastcall *)(info_node *, void *);
+                    reinterpret_cast<destroy_fn>(get_vfunc(node->m_vtbl, 0))(node, nullptr);
+                } else if (node != nullptr) {
+                    using delete_fn = void (__fastcall *)(info_node *, void *, bool);
+                    reinterpret_cast<delete_fn>(get_vfunc(node->m_vtbl, 0x8))(node, nullptr, true);
+                }
+                my_info_node_list->m_data[index] = nullptr;
+            }
+        }
+        if (!my_info_node_list->is_pointer_in_mash_image(my_info_node_list->m_data))
+            mem_dealloc(my_info_node_list->m_data, 4 * my_info_node_list->m_max_size);
+        my_info_node_list->m_data = nullptr;
+        my_info_node_list->m_max_size = 0;
+        my_info_node_list->mContainer_base::clear();
+        mem_freealign(my_info_node_list);
+        my_info_node_list = nullptr;
+    }
+    delete field_70;
+    field_70 = nullptr;
+    auto *&registry = !field_6C->field_44 || (field_4C & 1) != 0
+        ? the_ai_core_list_high : the_ai_core_list_low;
+    auto it = std::find(registry->begin(), registry->end(), this);
+    if (it != registry->end()) {
+        auto next = it;
+        ++next;
+        if (&registry == &the_ai_core_list_low &&
+            next_ai_core_list_low_iter == it._Mynode()) {
+            next_ai_core_list_low_iter = next._Mynode();
+            if (next == registry->end())
+                next_ai_core_list_low_iter = registry->begin()._Mynode();
+        }
+        registry->erase(it);
+    }
+    if (registry->empty()) {
+        delete registry;
+        registry = nullptr;
+    }
+}
+
 ai_core::ai_core(core_ai_resource *a2, const param_block *a3, actor *a4)
 {
     if constexpr (1) {
-        this->field_0 = {};
         this->my_base_machine = nullptr;
         this->my_locomotion_machine = nullptr;
-        this->my_machine_list = {};
-        this->field_20 = {};
         this->my_mode = static_cast<mode_e>(0);
         this->field_30 = {};
         this->my_locomotion_mode = static_cast<mode_e>(0);
@@ -50,7 +123,6 @@ ai_core::ai_core(core_ai_resource *a2, const param_block *a3, actor *a4)
         this->field_44 = 1;
         this->field_48 = {};
         this->field_4C = 0;
-        this->field_50 = {};
         auto *v5 = a2;
         this->field_64 = a4;
 
@@ -60,13 +132,8 @@ ai_core::ai_core(core_ai_resource *a2, const param_block *a3, actor *a4)
         this->field_70 = nullptr;
         auto v7 = g_world_ptr->time_manager.field_C;
 
-        auto func = [](int begin, int end) -> int {
-            assert(begin < end);
-
-            return begin + ((end * rand()) / 32768.0f);
-        };
-
-        this->field_38 = func(0, v6) + v7;
+        this->field_38 = v7 + static_cast<int>(
+            static_cast<double>(rand()) * v6 / 32768.0);
         this->field_48 = {0};
         this->field_50.copy_from_pb_override(v5->field_0);
         this->field_50.copy_from_pb_override(*a3);
@@ -102,7 +169,7 @@ ai_core::ai_core(core_ai_resource *a2, const param_block *a3, actor *a4)
 
             the_ai_core_list_low->push_back(this);
             if (the_ai_core_list_low->size() == 1) {
-                next_ai_core_list_low_iter = *the_ai_core_list_low->begin();
+                next_ai_core_list_low_iter = the_ai_core_list_low->m_head->_Next;
             }
 
         } else {
@@ -355,23 +422,58 @@ bool ai_core::change_base_machine(resource_key the_state_graph, int a3, string_h
 
 void ai_core::create_capsule_alter()
 {
-    if constexpr (1) {
-        if (this->field_70 == nullptr) {
-            this->field_70 = new capsule_alter_sys{this->field_64};
+    if (field_70 == nullptr) {
+        field_70 = new capsule_alter_sys{field_64};
+        set_to_default_capsule_alter(field_70, static_cast<conglomerate *>(field_64));
+    }
+}
 
-            auto *my_actor = this->field_64;
-            assert(my_actor->is_a_conglomerate());
-
-            set_to_default_capsule_alter(this->field_70, bit_cast<conglomerate *>(my_actor));
+void ai_core::adjust_colgeom(bool force)
+{
+    const int ticks = g_world_ptr->time_manager.field_C;
+    if (!force && ticks - field_38 < 8)
+        return;
+    field_38 = ticks;
+    if (field_70 == nullptr)
+        create_capsule_alter();
+    if (field_70 == nullptr || (field_64->field_4 & 0x4000) == 0)
+        return;
+    const float distance = g_world_ptr->field_A0.field_0->field_4;
+    float nearest = std::numeric_limits<float>::max();
+    bool restore = (field_64->field_4 & 0x40000000) != 0 || field_64->get_occluded_last_frame();
+    if (!restore) {
+        const auto &position = field_64->get_abs_position();
+        for (int player = 0; player < g_world_ptr->num_players; ++player) {
+            const float squared = (g_game_ptr->get_current_view_camera(player)->get_abs_position() - position).length2();
+            if (squared < nearest)
+                nearest = squared;
         }
+        restore = distance * distance < nearest;
+    }
+    if (restore) {
+        if (field_70->field_4 != 0)
+            field_70->restore_colgeom();
     } else {
-        THISCALL(0x00687C50, this);
+        field_64->get_abs_po();
+        field_70->adjust_colgeom(false);
+        field_64->get_abs_po();
+        if (field_64->has_physical_ifc())
+            field_64->physical_ifc()->field_C |= 0x4000;
     }
 }
 
 void ai_core::post_entity_mash()
 {
-    THISCALL(0x006A36E0, this);
+    for (auto *node : *my_info_node_list) {
+        node->activate(this);
+    }
+    if (!field_6C->my_locomotion_graphs.empty()) {
+        static const string_hash locomotion_hash{"base_locomotion_inode"};
+        const auto name = field_50.does_parameter_exist(locomotion_hash)
+            ? field_50.get_pb_hash(locomotion_hash)
+            : field_6C->my_locomotion_graphs.at(0)->m_hash;
+        change_locomotion_machine(name);
+    }
 }
 
 void ai_core::frame_advance_all_core_ais(Float elapsed)
@@ -432,8 +534,18 @@ void ai_core::frame_advance_all_core_ais(Float elapsed)
 void ai_core::frame_advance(Float elapsed)
 {
     TRACE("ai_core::frame_advance");
-    if (field_64 == nullptr ||
-        (field_64->is_in_limbo() && !field_64->is_flagged(8u))) {
+    if (field_64 == nullptr) {
+        return;
+    }
+    if (auto *controller = field_64->get_player_controller()) {
+        controller->frame_advance(elapsed);
+    }
+    if ((!field_64->is_in_limbo() && field_64->get_primary_region() != nullptr) ||
+        field_64->is_ext_flagged(8u)) {
+        if (field_64->is_ext_flagged(0x40000000u) && elapsed > EPSILON) {
+            return;
+        }
+    } else {
         return;
     }
 
@@ -456,26 +568,165 @@ void ai_core::frame_advance(Float elapsed)
     if (my_locomotion_machine != nullptr) {
         advance_machine_recursive(my_locomotion_machine, elapsed, false);
     }
+    exit_pending_machines();
+    if (my_mode == AI_KILLING_MACHINES && my_base_machine == nullptr) {
+        spawn_state_machine_internal(nullptr, field_30, &my_base_machine, field_48);
+        field_48 = string_hash{0};
+        my_mode = static_cast<mode_e>(0);
+    }
+    if (my_locomotion_mode == AI_KILLING_MACHINES && my_locomotion_machine == nullptr) {
+        auto *animation = static_cast<als_inode *>(get_info_node(als_inode::default_id, false));
+        if (animation == nullptr || animation->is_layer_interruptable(static_cast<als::layer_types>(0))) {
+            spawn_state_machine_internal(nullptr, field_40->get_graph(), &my_locomotion_machine, string_hash{0});
+            if (my_locomotion_machine == nullptr)
+                field_44 = 2;
+            my_locomotion_mode = static_cast<mode_e>(0);
+        }
+    }
+    if (field_64->colgeom != nullptr && field_64->colgeom->get_type() == 1) {
+        adjust_colgeom(field_64->is_hero());
+    }
+    post_frame_advance();
 }
 
-bool ai_core::change_locomotion_machine(const string_hash &a2)
+bool ai_core::change_locomotion_machine(const string_hash &name)
 {
-    return (bool)THISCALL(0x006A34A0, this, &a2);
+    auto *node = get_info_node(name, true);
+    if (node == field_40) {
+        return true;
+    }
+    if (node == nullptr ||
+        !node->is_subclass_of(static_cast<mash::virtual_types_enum>(391))) {
+        return false;
+    }
+    auto *loco = static_cast<loco_inode *>(node);
+    const auto &graph = loco->get_graph();
+    if (!field_6C->does_locomotion_graph_exist(graph) ||
+        find_state_graph(graph) == nullptr) {
+        return false;
+    }
+    if (my_locomotion_machine != nullptr) {
+        my_locomotion_mode = static_cast<mode_e>(1);
+    }
+    field_40 = loco;
+    loco->initialize_loco_inode();
+    return true;
 }
 
-void ai_core::set_allow_facing(bool a2)
+void ai_core::set_allow_facing(bool allow)
 {
-    THISCALL(0x0068FC00, this, a2);
+    if (field_40 != nullptr && field_40->get_graph().is_set()) {
+        field_40->allow_facing_change = allow;
+    }
 }
 
 bool ai_core::stop_movement()
 {
-    return (bool)THISCALL(0x006A3590, this);
+    if (my_locomotion_machine != nullptr) {
+        const auto mode = my_locomotion_machine->my_curr_mode;
+        if (mode != 3 && mode != 5 && mode != 4)
+            my_locomotion_machine->request_exit();
+        return true;
+    }
+    if (my_locomotion_mode == 2) {
+        my_locomotion_mode = static_cast<mode_e>(0);
+        field_44 = 2;
+    }
+    auto *animation = static_cast<als_inode *>(get_info_node(als_inode::default_id, false));
+    if (animation != nullptr) {
+        als::param_list parameters;
+        parameters.add_param(als::param{0, 0.0f});
+        animation->set_desired_params(parameters, static_cast<als::layer_types>(0));
+        parameters.clear();
+    }
+    return false;
 }
 
-void ai_core::do_machine_exit(ai_state_machine *a2)
+bool ai_core::set_facing_dir(const vector3d &direction)
 {
-    THISCALL(0x0069B940, this, a2);
+    auto normalized = direction;
+    const float length_squared = normalized.length2();
+    if (length_squared > 1.0e-10f)
+        normalized *= 1.0f / std::sqrt(length_squared);
+    if (field_44 == 75) {
+        if (!field_40->allow_facing_change)
+            return false;
+        field_40->set_facing_dir(normalized);
+        return true;
+    }
+    auto *animation = static_cast<als_inode *>(get_info_node(als_inode::default_id, true));
+    if (!animation->is_layer_interruptable(static_cast<als::layer_types>(0)))
+        return false;
+    als::param_list parameters;
+    parameters.add_param(0x1B, normalized);
+    animation->set_desired_params(parameters, static_cast<als::layer_types>(0));
+    parameters.clear();
+    return true;
+}
+
+bool ai_core::set_facing_point(const vector3d &point)
+{
+    return set_facing_dir(point - field_64->get_abs_position());
+}
+
+void ai_core::do_machine_exit(ai_state_machine *machine)
+{
+    const auto name = machine->get_name();
+    for (auto &entry : my_machine_list) {
+        if (entry.machine->get_name() == name) {
+            entry.pending_exit = true;
+            return;
+        }
+    }
+}
+
+void ai_core::exit_pending_machines()
+{
+    for (auto it = my_machine_list.begin(); it != my_machine_list.end();) {
+        if (!it->pending_exit) {
+            ++it;
+            continue;
+        }
+        auto *machine = it->machine;
+        const int message = machine->field_44;
+        if (machine == my_base_machine)
+            my_base_machine = nullptr;
+        if (machine == my_locomotion_machine) {
+            field_44 = message == 1 ? 1 : 2;
+            my_locomotion_machine = nullptr;
+        }
+        field_20.push_back(completed_machine{machine->get_name(), message, 1});
+        delete machine;
+        it = my_machine_list.erase(it);
+    }
+}
+
+void ai_core::post_frame_advance()
+{
+    for (auto it = field_20.begin(); it != field_20.end();) {
+        if (it->frames_left != 0) {
+            --it->frames_left;
+            ++it;
+        } else {
+            it = field_20.erase(it);
+        }
+    }
+}
+
+void ai_core::remove_slave(vhandle_type<actor> actor_handle)
+{
+    auto *node = static_cast<slave_inode *>(get_info_node(slave_inode::default_id, true));
+    for (int i = 0; i < node->records.m_size; ++i) {
+        if (node->records_data[i].actor_handle.field_0 == actor_handle.field_0) {
+            std::move(node->records_data + i + 1,
+                      node->records_data + node->records.m_size, node->records_data + i);
+            --node->records.m_size;
+            break;
+        }
+    }
+    if (node->records.m_size == 0) {
+        node->field_8->pop_base_machine(5);
+    }
 }
 
 info_node *ai_core::get_info_node(string_hash the_info_node, bool a3)
@@ -525,10 +776,10 @@ ai_state_machine *ai_core::find_machine(resource_key a2)
     TRACE("ai::ai_core::find_machine");
 
     if constexpr (1) {
-        for (auto &v3 : this->my_machine_list) {
-            auto name = v3->get_name();
-            if (name == a2) {
-                return v3;
+        for (auto &entry : this->my_machine_list) {
+            auto *machine = entry.machine;
+            if (machine->get_name() == a2) {
+                return machine;
             }
         }
 
@@ -576,20 +827,7 @@ void ai_core::spawn_state_machine_internal(ai_state_machine *a2, resource_key gr
                 *base_machine_ptr = new_state_machine;
             }
 
-            auto *v9 = this->my_machine_list.m_head;
-            auto *v10 = v9->_Prev;
-            auto *v11 = &this->my_machine_list;
-
-            decltype(v9)(__fastcall * sub_5E3BE0)(void *, void *, void *a1, void *a2, ai_state_machine **a3) =
-                CAST(sub_5E3BE0, 0x005E3BE0);
-
-            auto *v12 = sub_5E3BE0(v11, nullptr, v9, v10, &new_state_machine);
-
-            void(__fastcall * sub_6B76F0)(void *, void *, unsigned int a2) = CAST(sub_6B76F0, 0x006B76F0);
-
-            sub_6B76F0(v11, nullptr, 1u);
-            v9->_Prev = v12;
-            v12->_Prev->_Next = v12;
+            my_machine_list.push_back(machine_entry{new_state_machine, false});
         }
     }
 }

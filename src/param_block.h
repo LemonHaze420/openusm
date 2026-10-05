@@ -22,6 +22,8 @@ struct param_block {
     struct param_data {
     public:
         union U {
+
+            U() {}
             int i;
             float f;
             string_hash hash;
@@ -30,7 +32,7 @@ struct param_block {
             variance_variable<float> *float_variance;
             entity_base_vhandle *ent;
             void *ptr;
-        } m_union = {};
+        } m_union;
         param_types my_type;
         string_hash m_name;
 
@@ -252,6 +254,9 @@ struct param_block {
     void set_pb_int(string_hash a2, int a3, bool a4);
 
     void set_pb_float(string_hash a2, Float a3, bool a4);
+
+
+    void set_pb_hash(string_hash name, const string_hash &value, bool add_if_missing);
 
     //0x006CDC60
     float get_pb_float(string_hash a2);
