@@ -61,6 +61,46 @@ static void suspend_mission_hero()
     }
 }
 
+void mission_manager::blackscreen_off(Float duration)
+{
+    if constexpr (!STANDALONE_SYSTEM) {
+        THISCALL(0x005BAD80, this, duration);
+        return;
+    }
+    if (field_FC == 0)
+        return;
+    if (duration > 0.0f)
+        field_F8 = -1.0f / duration;
+    else {
+        field_F4 = 0.0f;
+        field_F8 = -FLT_MAX;
+    }
+    field_FC = 2;
+    g_game_ptr->field_166 = false;
+    release_loading_state();
+}
+
+void mission_manager::release_loading_state()
+{
+    if constexpr (!STANDALONE_SYSTEM) {
+        THISCALL(0x005BAC00, this);
+        return;
+    }
+    if (field_F4 >= 1.0f)
+        field_F4 = 0.96078432f;
+    g_game_ptr->field_165 = false;
+    auto *player = g_cut_scene_player();
+    if (!player->field_E1 && !player->field_E2) {
+        auto *hero = g_world_ptr->get_hero_ptr(0);
+        if (hero != nullptr) {
+            hero->unsuspend(true);
+            hero->field_8 &= ~0x4000u;
+            hero->physical_ifc()->suspend(false);
+            hero->physical_ifc()->enable(true);
+        }
+    }
+}
+
 mission_manager::mission_manager()
 {
     if constexpr (STANDALONE_SYSTEM) {

@@ -34,6 +34,8 @@ struct pause_menu_root : FEMenu {
     float field_D8[4];
     float field_E8[4];
     bool field_F8;
+
+    bool field_F9;
     int field_FC;
 
     //0x0060E590
@@ -57,6 +59,20 @@ struct pause_menu_root : FEMenu {
     //0x006490A0
     //virtual
     void Update(Float a2);
+
+
+    void Draw();
+    void OnActivate();
+    void OnDeactivate(FEMenu *next);
+    void OnStart(int controller);
+    void OnTriangle(int controller);
+    void OnLeft(int controller);
+    void OnRight(int controller);
+    void OnCross(int controller);
+    void OnWindowMessage(unsigned message, int wparam, int lparam);
+    void update_selected();
+    void reformat_nav_bar();
+    void clear_missions_for_unlockables();
 };
 
 extern void pause_menu_root_patch();

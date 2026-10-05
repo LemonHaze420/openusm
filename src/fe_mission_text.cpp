@@ -39,6 +39,14 @@ fe_mission_text::fe_mission_text()
     this->field_18 = nullptr;
 }
 
+fe_mission_text::~fe_mission_text()
+{
+    if (field_18 != nullptr) {
+        field_18->lpVtbl->Release(field_18);
+        field_18 = nullptr;
+    }
+}
+
 void fe_mission_text::Init()
 {
     assert(this->field_4 == nullptr && "Mission text widget already loaded.");

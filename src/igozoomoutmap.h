@@ -5,8 +5,12 @@
 #include "float.hpp"
 #include "vector3d.h"
 
+
+#include <list.hpp>
+
 struct zoom_map_ui {
-    int field_0[144];
+    int field_0[143];
+    _std::list<int> field_23C;
 };
 
 struct IGOZoomPOI {
@@ -53,8 +57,6 @@ struct IGOZoomOutMap {
     char field_5C7;
     float field_5C8;
     zoom_map_ui field_5CC;
-    int field_80C;
-    int field_810;
     int field_814;
     char field_818;
     int field_81C;
@@ -63,7 +65,11 @@ struct IGOZoomOutMap {
     int field_828;
 
     //0x006489A0
+
+
     IGOZoomOutMap();
+
+    ~IGOZoomOutMap();
 
     void UpdateInScene();
     // 0x006386E0

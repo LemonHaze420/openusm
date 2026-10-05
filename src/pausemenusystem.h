@@ -17,6 +17,7 @@ struct PauseMenuSystem : FEMenuSystem {
 
     //0x00647E50
     PauseMenuSystem(font_index a2);
+    ~PauseMenuSystem();
 
     //0x0060C160
     bool IsDialogActivated();

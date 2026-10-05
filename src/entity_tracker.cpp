@@ -42,7 +42,7 @@ void entity_tracker::set_health_widget_active(bool enabled)
 {
     if (field_4 == nullptr || static_cast<int>(field_4->field_20) != 2)
         return;
-    auto *health = g_femanager.IGO->field_28;
+    auto *health = g_femanager.IGO->m_thug_health;
     if (enabled) {
         if (field_C == health->field_0) {
             field_C = health->create();

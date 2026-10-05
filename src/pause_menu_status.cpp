@@ -14,6 +14,10 @@
 #include "pause_menu_awards.h"
 #include "pause_menu_game.h"
 #include "panelfile.h"
+
+#include "cursor.h"
+#include "fileusm.h"
+#include "variables.h"
 #include <cstring>
 #include <new>
 
@@ -47,6 +51,42 @@ pause_menu_status::pause_menu_status(FEMenuSystem *a2, int a3, int a4) : FEMenu(
     field_F4->initialize();
     field_F8 = new pause_menu_goals;
     field_F8->initialize();
+}
+
+void pause_menu_status::SetContentType(int type)
+{
+    field_EC = type;
+    const mString &title = type == 1 ? field_F4->field_0 : type == 2 ? field_F8->field_0 : field_F0->field_0;
+    field_A4[0]->SetTextNoLocalize(FEText::string{title});
+    field_A4[field_10C]->SetNoFlash(color32{0xFFC87238});
+    field_A4[field_10C]->SetScale(1.0f, 1.0f);
+    field_10C = field_FC;
+    field_108 = field_FC;
+    field_110 = 0;
+    field_114 = -1;
+    update_selected();
+}
+
+void pause_menu_status::OnActivate()
+{
+    field_12C = false;
+    field_12D = false;
+    for (auto *text : field_A4) {
+        text->SetScale(1.0f, 1.0f);
+        text->SetNoFlash(color32{0xFFC87238});
+    }
+    update_selected();
+    field_A4[0]->SetNoFlash(color32{0xFFC8C8C8});
+    field_A4[1]->SetNoFlash(color32{0xFFC8C8C8});
+    auto *nav = field_E8->field_30;
+    nav->Reset();
+    nav->AddButtons({15}, {17}, static_cast<global_text_enum>(3));
+    nav->Reformat();
+    nav->text_box->SetTextNoLocalize(FEText::string{mString{get_msg(g_fileUSM, "RESUME")}});
+    field_28 |= 0x80;
+    field_128 = 0;
+    g_cursor->sub_5A6790();
+    g_cursor->sub_5A67D0(297, 420, 375, 445);
 }
 
 void pause_menu_status::OnTriangle(int a2)

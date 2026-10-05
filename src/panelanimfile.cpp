@@ -12,6 +12,20 @@
 #include <cmath>
 VALIDATE_SIZE(PanelAnimFile, 0x30);
 
+
+void PanelAnimFile::Start(bool reverse, bool loop)
+{
+    for (int i = 0; i < field_0.size(); ++i)
+        field_0.m_data[i]->field_14->StartAnim(true);
+    field_18 = 0;
+    field_1C = 0;
+    field_20 = field_14;
+    field_24 = reverse ? 1 : 0;
+    field_28 = loop ? 1 : 0;
+    field_2C = false;
+    field_2D = true;
+}
+
 void PanelAnimFile::Update(Float a2)
 {
     if constexpr (!STANDALONE_SYSTEM) {

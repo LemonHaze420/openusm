@@ -618,7 +618,7 @@ void warp_handler(debug_menu_entry *entry)
 
 void warp_poi_handler([[maybe_unused]] debug_menu_entry *menu_entry)
 {
-    auto *v2 = g_femanager.IGO->field_54;
+    auto *v2 = g_femanager.IGO->m_entity_tracker_manager;
     if (v2 != nullptr) {
         vector3d a1{};
         if (v2->get_the_arrow_target_pos(&a1)) {

@@ -94,7 +94,7 @@ void set_shown(fe_track_and_field *ui, bool shown, float delay)
 {
     if (ui->field_4) {
         ui->field_4C = shown;
-        auto *map = g_femanager.IGO->field_4;
+        auto *map = g_femanager.IGO->m_fe_mini_map_widget;
         if (shown) {
             ui->field_4D = map->field_3A8 != 0;
             if (ui->field_4D)
@@ -161,7 +161,7 @@ double strength_test_inode::get_curr_button_press()
 
 void strength_test_inode::UI_Init()
 {
-    auto *ui = g_femanager.IGO->field_14;
+    auto *ui = g_femanager.IGO->m_fe_track_and_field;
     if (advanced)
         configure_stage(ui, parameters->my_adv_str_test_list.at(advanced_stage));
     else {
@@ -174,19 +174,19 @@ void strength_test_inode::UI_Init()
 
 void strength_test_inode::UI_Update()
 {
-    g_femanager.IGO->field_14->field_50 = std::clamp(strength, 0.0f, 1.0f);
+    g_femanager.IGO->m_fe_track_and_field->field_50 = std::clamp(strength, 0.0f, 1.0f);
 }
 
 void strength_test_inode::UI_Done()
 {
-    set_shown(g_femanager.IGO->field_14, false, 0.0f);
+    set_shown(g_femanager.IGO->m_fe_track_and_field, false, 0.0f);
 }
 
 void strength_test_inode::set_new_adv_stage()
 {
     if (++advanced_stage == 0)
         ++field_32;
-    auto *ui = g_femanager.IGO->field_14;
+    auto *ui = g_femanager.IGO->m_fe_track_and_field;
     configure_stage(ui, parameters->my_adv_str_test_list.at(advanced_stage));
     update_colors(ui);
 }

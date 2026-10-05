@@ -92,6 +92,9 @@ struct mission_manager {
 
     void sub_5BACA0(Float a2);
 
+    void blackscreen_off(Float duration);
+    void release_loading_state();
+
     void sub_5BB220(Float a2);
 
     //0x005E16B0

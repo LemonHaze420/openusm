@@ -87,8 +87,17 @@ float sampling_window::average(Float duration) const
 
 vector3d direction_sampling_window::average(Float a4)
 {
-    vector3d result;
-    THISCALL(0x0048B630, this, &result, a4);
+    if constexpr (STANDALONE_SYSTEM) {
+        const float z = field_0[2].average(a4);
+        const float y = field_0[1].average(a4);
+        const float x = field_0[0].average(a4);
+        if (!(x * x + y * y + z * z <= EPSILON))
+            field_30C = vector3d{x, y, z};
+        return field_30C;
+    } else {
+        vector3d result;
+        THISCALL(0x0048B630, this, &result, a4);
 
-    return result;
+        return result;
+    }
 }

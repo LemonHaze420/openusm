@@ -130,8 +130,8 @@ bool slf__set_mission_text__num__t::operator()(vm_stack &stack, script_library_c
 
     mString temp_string{result_string.c_str()};
 
-    g_femanager.IGO->field_20->set_text(*bit_cast<fe_mission_text::string *>(&temp_string));
-    g_femanager.IGO->field_20->SetShown(1);
+    g_femanager.IGO->m_fe_mission_text->set_text(*bit_cast<fe_mission_text::string *>(&temp_string));
+    g_femanager.IGO->m_fe_mission_text->SetShown(1);
 
     SLF_DONE;
 #else
@@ -153,7 +153,7 @@ bool slf__set_mission_text_box_flavor__num__t::operator()(vm_stack &a1, script_l
 
     sp_log("num = %d %f", num, num);
 
-    g_femanager.IGO->field_20->set_flavor(num);
+    g_femanager.IGO->m_fe_mission_text->set_flavor(num);
     return true;
 }
 

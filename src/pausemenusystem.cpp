@@ -90,6 +90,28 @@ PauseMenuSystem::PauseMenuSystem(font_index a2) : FEMenuSystem(17, a2)
     }
 }
 
+PauseMenuSystem::~PauseMenuSystem()
+{
+    delete static_cast<fe_dialog_text *>(field_4[0]);
+    delete static_cast<pause_menu_transition *>(field_4[1]);
+    delete static_cast<pause_menu_root *>(field_4[2]);
+    delete static_cast<pause_menu_status *>(field_4[3]);
+    delete static_cast<pause_menu_options_display *>(field_4[4]);
+    delete static_cast<pause_menu_controller *>(field_4[5]);
+    delete static_cast<pause_menu_save_load_display *>(field_4[6]);
+    delete static_cast<pause_menu_message_log *>(field_4[7]);
+    delete static_cast<unlockables_menu *>(field_4[8]);
+    delete static_cast<pause_menu_credits *>(field_4[9]);
+    delete static_cast<character_viewer *>(field_4[10]);
+    delete static_cast<alternate_costumes *>(field_4[11]);
+    delete static_cast<concept_art *>(field_4[12]);
+    delete static_cast<concept_art2 *>(field_4[13]);
+    delete static_cast<covers *>(field_4[14]);
+    delete static_cast<landmarks *>(field_4[15]);
+    delete static_cast<ltd_edition *>(field_4[16]);
+    delete[] field_4;
+}
+
 void PauseMenuSystem::Activate(int index, bool pause_game)
 {
 #if STANDALONE_SYSTEM
@@ -165,7 +187,7 @@ void PauseMenuSystem::Draw()
     if (m_index >= 0) {
         field_4[m_index]->Draw();
         if (m_index == 0 && static_cast<fe_dialog_text *>(field_4[0])->field_9C != 3) {
-            g_femanager.IGO->field_4->Draw();
+            g_femanager.IGO->m_fe_mini_map_widget->Draw();
         }
     }
     g_cursor->Draw();
@@ -198,7 +220,7 @@ void PauseMenuSystem::Update(Float a2)
                 auto *dialog_text = bit_cast<fe_dialog_text *>(this->field_4[0]);
 
                 if (dialog_text->field_9C != 3) {
-                    auto *mini_map_widget = g_femanager.IGO->field_4;
+                    auto *mini_map_widget = g_femanager.IGO->m_fe_mini_map_widget;
 
 
                     mini_map_widget->Update(a2);
@@ -216,7 +238,17 @@ void PauseMenuSystem::Update(Float a2)
                 auto **v6 = this->field_4;
 
                 if (v6[idx1] != nullptr) {
-                    v6[idx1]->Update(a2);
+                    if constexpr (STANDALONE_SYSTEM) {
+                        if (idx1 == 1)
+                            static_cast<pause_menu_transition *>(v6[idx1])->Update(a2);
+                        else if (idx1 == 2)
+                            static_cast<pause_menu_root *>(v6[idx1])->Update(a2);
+                        else
+                            v6[idx1]->Update(a2);
+
+                    } else {
+                        v6[idx1]->Update(a2);
+                    }
                 }
             }
 

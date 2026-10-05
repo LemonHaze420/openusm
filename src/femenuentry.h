@@ -22,6 +22,7 @@ struct FEMenuEntry {
     bool field_17;
 
     FEMenuEntry(FEMenu *a1, FEText *a2, bool a3);
+    ~FEMenuEntry();
 
     //0x00629650
     FEMenuEntry(global_text_enum a3, FEMenu *arg4, bool a11, font_index a2, int a6);

@@ -407,7 +407,7 @@ bool animation_logic_system::_frame_advance_should_do_frame_advance([[maybe_unus
     }
 
     auto *v4 = this->field_6C;
-    if (v4->is_suspended() || v4->is_in_limbo()) {
+    if (v4->is_ext_flagged(0x40000000u) || v4->is_in_limbo()) {
         return false;
     }
 

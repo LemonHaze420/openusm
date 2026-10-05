@@ -201,11 +201,26 @@ void mAvlTree<string_hash_entry>::destruct_mashed_class()
 }
 
 template <>
+void mAvlTree<entity_class_entry>::destroy_element(mAvlNode<entity_class_entry> **node)
+{
+    auto *entry = *node;
+    if (field_C && entry->m_key != nullptr) {
+        entry->m_key->destruct_mashed_class();
+        if (!is_pointer_in_mash_image(entry->m_key))
+            ::operator delete(entry->m_key);
+    }
+    entry->m_key = nullptr;
+    if (!is_pointer_in_mash_image(entry))
+        delete entry;
+    *node = nullptr;
+}
+
+template <>
 void mAvlTree<entity_class_entry>::dump(mAvlNode<entity_class_entry> *&node)
 {
     TRACE("mAvlTree<entity_class_entry>::dump");
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         if (node != nullptr) {
             this->dump(node->m_left);
             this->dump(node->m_right);
@@ -222,6 +237,13 @@ void mAvlTree<entity_class_entry>::finalize(mash::allocation_scope)
 {
     TRACE("mAvlTree<entity_class_entry>::finalize");
     this->dump(this->m_head);
+}
+
+template <>
+void mAvlTree<entity_class_entry>::destruct_mashed_class()
+{
+    finalize(mash::FROM_MASH);
+    mContainer_base::destruct_mashed_class();
 }
 
 template <>

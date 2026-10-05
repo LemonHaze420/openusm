@@ -6,6 +6,9 @@
 #include "game.h"
 #include "os_developer_options.h"
 #include "panelfile.h"
+
+#include "panelanimfile.h"
+#include "sound_instance_id.h"
 #include "variables.h"
 #include "vtbl.h"
 
@@ -155,7 +158,14 @@ void fe_timer_widget::Draw()
 
 void fe_timer_widget::_SetShown(bool a2)
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
+        if (field_4 == nullptr || field_2A == a2)
+            return;
+        field_2A = a2;
+        if (field_20 == nullptr)
+            return;
+        field_20->Start(!a2);
+        static_cast<void>(sub_60B960(string_hash{a2 ? "FE_TIMER_START" : "FE_TIMER_STOP"}, 1.0f, 1.0f));
     } else {
         THISCALL(0x006280F0, this, a2);
     }

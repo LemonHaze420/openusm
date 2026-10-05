@@ -1415,7 +1415,7 @@ void terrain::frame_advance(Float a2)
             return v3 == nullptr || v3->field_5C4 || v3->field_5C3;
         };
 
-        auto *zoom_map = g_femanager.IGO != nullptr ? g_femanager.IGO->field_44 : nullptr;
+        auto *zoom_map = g_femanager.IGO != nullptr ? g_femanager.IGO->m_igo_zoom_out_map : nullptr;
         if (!os_developer_options::instance->get_flag(mString{"CAMERA_CENTRIC_STREAMER"}) || func(zoom_map)) {
             auto *ent = g_world_ptr->get_hero_ptr(0);
             if (ent != nullptr) {

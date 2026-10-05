@@ -72,3 +72,8 @@ struct TextureInputPack : TexturePackBase {
 };
 
 extern void TextureInputPack_patch();
+
+
+#if STANDALONE_SYSTEM
+bool show_native_confirmation_dialog(const char *message_key);
+#endif

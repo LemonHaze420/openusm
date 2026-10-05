@@ -17,7 +17,10 @@ struct entity_tracker_manager {
     bool field_4C;
 
     //0x00638310
+
+
     entity_tracker_manager();
+    ~entity_tracker_manager();
 
     //0x00629E30
     entity_tracker *id_to_ptr(uint32_t a2);

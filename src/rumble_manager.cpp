@@ -79,7 +79,24 @@ void rumble_manager::start_vibration(float amplitude, float duration, float atta
 
 void rumble_manager::stop_vibration()
 {
-    THISCALL(0x005BA4E0, this);
+    if constexpr (STANDALONE_SYSTEM) {
+        field_21 = true;
+        field_1C = 0.0f;
+        field_4 = -1.0f;
+        field_8 = -1.0f;
+        field_14 = -1;
+        field_18 = -1.0f;
+        field_C = 0.0f;
+        field_10 = 0.0f;
+        field_4C = 0.0f;
+        field_5C = false;
+        field_5D = true;
+        field_20 = false;
+        if (auto *device = reinterpret_cast<input_device *>(field_0))
+            device->m_vtbl->stop_vibration(device);
+    } else {
+        THISCALL(0x005BA4E0, this);
+    }
 }
 
 void rumble_manager::enable_vibration()

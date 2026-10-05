@@ -1442,7 +1442,18 @@ int entity_base::add_callback(string_hash a2, void (*callback)(event *, entity_b
 
 bool entity_base::event_raised_last_frame(string_hash a2)
 {
-    return (bool)THISCALL(0x004F3800, this, a2);
+    if constexpr (STANDALONE_SYSTEM) {
+        auto *type = event_manager::get_event_type(a2);
+        if (type == nullptr || !type->field_28)
+            return false;
+        auto *recipient = type->find_recipient_entry(my_handle);
+        if (recipient == nullptr)
+            return false;
+        const int ticks = g_world_ptr->time_manager.field_C;
+        return recipient->field_24 == ticks - 1 || (recipient->field_24 != ticks && recipient->field_20 == ticks - 1);
+    } else {
+        return (bool)THISCALL(0x004F3800, this, a2);
+    }
 }
 
 bool entity_base::has_model_po() const

@@ -22,6 +22,7 @@ namespace als {
 
 VALIDATE_SIZE(simple_orientation, 0x14);
 VALIDATE_SIZE(simple_orientation_ped, 0x14);
+VALIDATE_SIZE(set_orient_mocomp, 0x14);
 
 float simple_orientation::get_turn_rate(float fallback) const
 {
@@ -78,6 +79,67 @@ void get_controller_offset(animation_logic_system *system, po &offset)
     using offset_fn = void(__fastcall *)(animation_controller *, void *, po *);
     reinterpret_cast<offset_fn>(get_vfunc(controller->m_vtbl, 0x74))(controller, nullptr, &offset);
 }
+
+}
+
+void set_orient_mocomp::post_anim_action(Float elapsed)
+{
+    if constexpr (!STANDALONE_SYSTEM) {
+        THISCALL(0x004A3200, this, elapsed);
+    } else {
+        using scalar_fn = double(__fastcall *)(motion_compensator *, void *);
+        using speed_fn = void(__fastcall *)(motion_compensator *, void *, Float);
+        const Float speed = reinterpret_cast<scalar_fn>(get_vfunc(m_vtbl, 0x48))(this, nullptr);
+        reinterpret_cast<speed_fn>(get_vfunc(m_vtbl, 0x40))(this, nullptr, speed);
+        po offset{};
+        get_controller_offset(field_4, offset);
+        const auto position = the_actor->get_abs_position();
+        const float facing_z = field_8->get_param(field_4, 29);
+        const float facing_y = field_8->get_param(field_4, 28);
+        const float facing_x = field_8->get_param(field_4, 27);
+        vector3d facing{facing_x, facing_y, facing_z};
+        const float up_z = field_8->get_param(field_4, 26);
+        const float up_y = field_8->get_param(field_4, 25);
+        const float up_x = field_8->get_param(field_4, 24);
+        vector3d up{up_x, up_y, up_z};
+        if (up.length2() <= EPSILON)
+            up = the_actor->get_abs_po().get_y_facing();
+        if (is_colinear(facing, up, 0.0099999998f)) {
+            const auto &transform = the_actor->get_abs_po();
+            facing = is_colinear(transform.get_z_facing(), up, 0.0099999998f) ? transform.get_y_facing()
+                                                                              : transform.get_z_facing();
+        }
+        po transform;
+        transform.set_po(facing, up, position);
+        entity_set_abs_po(the_actor, transform);
+        const auto previous_position = the_actor->get_abs_position();
+        using offset_fn = void(__fastcall *)(motion_compensator *, void *, actor *, po *);
+        reinterpret_cast<offset_fn>(get_vfunc(m_vtbl, 0x2C))(this, nullptr, the_actor, &offset);
+        the_actor->set_frame_delta_trans(the_actor->get_abs_position() - previous_position, elapsed);
+    }
+}
+
+namespace {
+int __fastcall set_orient_type(set_orient_mocomp *, void *)
+{
+    return 519;
+}
+void __fastcall set_orient_post(set_orient_mocomp *self, void *, Float elapsed)
+{
+    self->post_anim_action(elapsed);
+}
+}
+
+void *set_orient_mocomp::native_vtable()
+{
+    static auto table = [] {
+        std::array<void *, 20> result;
+        std::copy_n(static_cast<void **>(motion_compensator::native_vtable(490)), result.size(), result.begin());
+        result[3] = reinterpret_cast<void *>(&set_orient_type);
+        result[9] = reinterpret_cast<void *>(&set_orient_post);
+        return result;
+    }();
+    return table.data();
 }  // namespace
 
 void simple_orientation::post_anim_action(Float elapsed)

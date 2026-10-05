@@ -413,11 +413,6 @@ game::~game()
     TRACE("game::~game");
 
     if constexpr (1) {
-        if (this->gamefile != nullptr) {
-            delete this->gamefile;
-            this->gamefile = nullptr;
-        }
-
         if (g_smoke_test() != nullptr) {
             auto &v3 = g_smoke_test();
             v3->~smoke_test();
@@ -488,6 +483,12 @@ game::~game()
         occlusion::term();
 
         scratchpad_stack::term();
+
+
+        if (this->gamefile != nullptr) {
+            delete this->gamefile;
+            this->gamefile = nullptr;
+        }
 
     } else {
         THISCALL(0x00559D10, this);
@@ -718,7 +719,7 @@ void game::render_world()
 
                 if ((byte_921D79() && !this->field_16E) || g_cut_scene_player()->is_playing()) {
                     v3->adjust_geometry_pipe(false);
-                    auto *v13 = g_femanager.IGO->field_44;
+                    auto *v13 = g_femanager.IGO->m_igo_zoom_out_map;
                     auto v14 = v13->field_5C4 || v13->field_5C3;
                     if (!g_distance_clipping_enabled || v14) {
                         if (g_renderState().field_88) {
@@ -931,10 +932,10 @@ void game::pause()
 
             if (!fe_controller_disconnect::get_currently_plugged_in() ||
                 g_femanager.m_pause_menu_system->IsDialogActivated() ||
-                (v2 = g_femanager.IGO->field_44, v2->field_5C4) || v2->field_5C3) {
+                (v2 = g_femanager.IGO->m_igo_zoom_out_map, v2->field_5C4) || v2->field_5C3) {
                 if (!g_femanager.m_pause_menu_system->IsDialogActivated() &&
                     fe_controller_disconnect::get_currently_plugged_in()) {
-                    auto *v6 = g_femanager.IGO->field_44;
+                    auto *v6 = g_femanager.IGO->m_igo_zoom_out_map;
                     if (!v6->field_5C4 && !v6->field_5C3) {
                         sound_manager::fade_sounds_by_type(15u, 0.5, 0.5, 0);
                     }
@@ -2941,7 +2942,7 @@ void game::unload_current_level()
 
         this->field_170 = true;
         if (g_femanager.IGO != nullptr) {
-            g_femanager.IGO->field_0->SetShown(false);
+            g_femanager.IGO->m_fe_timer_widget->SetShown(false);
         }
 
         mission_manager::s_inst->unload_script_now();
@@ -3149,8 +3150,10 @@ void game::sub_524170()
 
 void game::sub_559F50([[maybe_unused]] Float *a1)
 {
-#if !STANDALONE_SYSTEM
     script_sound_manager::frame_advance(*a1);
+
+
+#if !STANDALONE_SYSTEM
 
     if (!os_developer_options::instance->get_flag(mString{"DISABLE_AUDIO_BOXES"})) {
         audio_box_manager::frame_advance(*a1);

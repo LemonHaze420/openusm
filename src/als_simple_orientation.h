@@ -4,6 +4,12 @@
 
 namespace als {
 
+
+struct set_orient_mocomp : motion_compensator {
+    void post_anim_action(Float elapsed);
+    static void *native_vtable();
+};
+
 struct simple_orientation : motion_compensator {
     void post_anim_action(Float elapsed);
     void get_directions(animation_logic_system *, state_machine *, vector3d &, vector3d &);

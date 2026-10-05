@@ -5,11 +5,33 @@
 #include "func_wrapper.h"
 #include "tracking_panel.h"
 
+
+#include "entity_class_entry.h"
+
 VALIDATE_SIZE(cut_scene_segment, 0xB0u);
 
 cut_scene_segment::cut_scene_segment(from_mash_in_place_constructor *a2)
     : field_10(a2), field_20(a2), field_34(a2), field_48(a2), field_5C(a2), field_70(a2), field_84(a2), field_98(a2)
 {}
+
+void cut_scene_segment::destruct_mashed_class()
+{
+    if (!field_10.is_pointer_in_mash_image(field_10.m_data))
+        ::operator delete[](field_10.m_data);
+    field_10.m_data = nullptr;
+    field_10.m_max_size = 0;
+    field_10.mContainer_base::clear();
+    field_10.mContainer_base::destruct_mashed_class();
+    field_20.destruct_mashed_class();
+    field_34.destruct_mashed_class();
+    field_48.destruct_mashed_class();
+    field_5C.destruct_mashed_class();
+    field_70.destruct_mashed_class();
+    field_84.destruct_mashed_class();
+    field_94.destruct_mashed_class();
+    field_98.destruct_mashed_class();
+    field_C = nullptr;
+}
 
 void cut_scene_segment::unmash(mash_info_struct *a1, [[maybe_unused]] void *a3)
 {

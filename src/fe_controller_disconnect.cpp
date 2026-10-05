@@ -11,6 +11,16 @@
 #include "panelquad.h"
 #include "pausemenusystem.h"
 
+
+#if STANDALONE_SYSTEM
+namespace {
+const bool connection_initialized = [] {
+    fe_controller_disconnect::currently_plugged_in() = true;
+    return true;
+}();
+}
+#endif
+
 bool fe_controller_disconnect::update()
 {
 #if STANDALONE_SYSTEM

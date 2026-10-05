@@ -425,7 +425,7 @@ void fe_mini_map_widget::_Update(Float a2)
 
     entity *hero = g_world_ptr->get_hero_ptr(0);
     auto *previous_hero = reinterpret_cast<entity *>(field_3B0);
-    entity_tracker_manager *manager = g_femanager.IGO->field_54;
+    entity_tracker_manager *manager = g_femanager.IGO->m_entity_tracker_manager;
     if (previous_hero != hero) {
         if (previous_hero != nullptr)
             manager->destroy_entity_tracker(static_cast<uint32_t>(field_3B4));

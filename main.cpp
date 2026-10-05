@@ -509,10 +509,16 @@ void sub_76F320()
     }
 }
 
-bool sub_5A3AA0(const char *a1, char *a2)
+bool sub_5A3AA0(const char *a1, [[maybe_unused]] char *a2)
 {
+#if STANDALONE_SYSTEM
+    dword_922908 = -1;
+    return show_native_confirmation_dialog(a1);
+#else
     bool(__cdecl * func)(const char *a1, char *a2) = CAST(func, 0x005A3AA0);
     return func(a1, a2);
+
+#endif
 }
 
 static bool &ALLOW_ERROR_POPUPS = var<bool>(0x00922A30);
@@ -1033,11 +1039,7 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 
                 auto *pause_menu_system = g_femanager.m_pause_menu_system;
 
-                auto *vtbl = bit_cast<void *(*)[10]>(pause_menu_system->m_vtbl);
-
-                void(__fastcall * func)(void *, void *edx, int, WPARAM, LPARAM) = CAST(func, (*vtbl)[9]);
-
-                func(pause_menu_system, nullptr, 257, wParam, lParam);
+                pause_menu_system->OnWindowMessage(WM_KEYUP, wParam, lParam);
 
                 return DefWindowProcA(hWnd, Msg, wParam, lParam);
             }
@@ -1092,17 +1094,12 @@ LRESULT __stdcall WindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 
                         auto *pause_menu_system = g_femanager.m_pause_menu_system;
 
-                        auto *vtbl = bit_cast<void *(*)[10]>(pause_menu_system->m_vtbl);
-
-                        void(__fastcall * func)(void *, void *edx, int, WPARAM, LPARAM) = CAST(func, (*vtbl)[9]);
-                        //assert(bit_cast<std::intptr_t>(func) == 0x0060B6E0);
-
-                        func(pause_menu_system, nullptr, Msg, wParam, lParam);
+                        pause_menu_system->OnWindowMessage(Msg, wParam, lParam);
                     }
                 }
 
                 if (g_femanager.IGO != nullptr) {
-                    auto v6 = g_femanager.IGO->field_44;
+                    auto v6 = g_femanager.IGO->m_igo_zoom_out_map;
                     if (v6->sub_55F320())
                         v6->sub_638AD0(Msg, wParam, lParam);
                 }
@@ -4091,8 +4088,8 @@ void hero_entry_callback(debug_menu_entry *)
 
             auto *v7 = g_world_ptr->get_hero_ptr(0);
             auto v8 = v7->my_handle;
-            g_femanager.IGO->hero_health->SetType(v17, v8.field_0);
-            g_femanager.IGO->hero_health->SetShown(true);
+            g_femanager.IGO->m_hero_health->SetType(v17, v8.field_0);
+            g_femanager.IGO->m_hero_health->SetShown(true);
             close_debug();
             hero_status = hero_status_e::UNDEFINED;
         }

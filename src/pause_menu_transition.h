@@ -28,6 +28,9 @@ struct pause_menu_transition : FEMenu {
     //0x0061C680
     //virtual
     void Update(Float a2);
+
+    void OnActivate();
+    void Draw();
 };
 
 extern void pause_menu_transition_patch();

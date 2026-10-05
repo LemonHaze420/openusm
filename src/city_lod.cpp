@@ -49,7 +49,7 @@ constexpr float near_building_distance_squared = 21609.0f;
 
 bool zoom_map_active()
 {
-    return g_femanager.IGO->field_44->sub_55F320();
+    return g_femanager.IGO->m_igo_zoom_out_map->sub_55F320();
 }
 
 template <typename T>

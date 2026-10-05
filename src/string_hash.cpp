@@ -18,6 +18,16 @@ Var<string_hash> cat_id_idle_walk_run{0x0096C1E8};
 
 Var<string_hash> loco_allow_web_tie_id{0x00958538};
 
+
+#if STANDALONE_SYSTEM
+namespace {
+const bool idle_walk_run_initialized = [] {
+    cat_id_idle_walk_run() = string_hash{int(to_hash("Idle_Walk_Run"))};
+    return true;
+}();
+}
+#endif
+
 }  // namespace ai
 
 string_hash ANONYMOUS{};

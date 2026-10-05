@@ -5068,7 +5068,7 @@ double sub_77E820(Float a1)
 
 bool sub_581C30()
 {
-    auto *v0 = g_femanager.IGO->field_44;
+    auto *v0 = g_femanager.IGO->m_igo_zoom_out_map;
     return v0->field_5C4 || v0->field_5C3;
 }
 
@@ -5366,7 +5366,10 @@ void create_front_and_back_buffer_tex()
 
 void nglReleaseFont(nglFont *font)
 {
-    CDECL_CALL(0x007793E0, font);
+    if constexpr (STANDALONE_SYSTEM)
+        nglFontDirectory()->StandardRelease(font, 0, false);
+    else
+        CDECL_CALL(0x007793E0, font);
 }
 
 void sub_77B2F0(bool release_all)

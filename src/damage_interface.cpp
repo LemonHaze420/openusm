@@ -615,7 +615,7 @@ void damage_interface::update_hp_change(Float time_step)
     const float previous_change = field_1E8;
 
     fe_health_widget *widget =
-        field_4->get_player_controller() != nullptr ? g_femanager.IGO->hero_health : g_femanager.IGO->boss_health;
+        field_4->get_player_controller() != nullptr ? g_femanager.IGO->m_hero_health : g_femanager.IGO->m_boss_health;
 
     if (std::fabs(field_1E8) >= hp_epsilon) {
         const double interpolation = 1.0 - static_cast<double>(field_1E8) / field_1E4;

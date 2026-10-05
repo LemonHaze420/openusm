@@ -1230,19 +1230,11 @@ BOOL __stdcall sub_821470(const DIDEVICEINSTANCEA *device_instance, void *contex
     return DIENUM_CONTINUE;
 }
 
-#if !STANDALONE_SYSTEM
-static auto &dword_8C0AAC = var<int[4]>(0x008C0AAC);
-#else
-static int dword_8C0AAC[4]{};
-#endif
 
 void Input::sub_821490(bool a2)
 {
     if constexpr (1) {
         std::memset(this->field_4EC, 0, sizeof(this->field_4EC));
-
-        this->field_4F0 = 0;
-        this->field_4F4 = 0;
         auto v3 = !a2;
         this->field_9 = a2;
         if (!v3) {
@@ -1269,116 +1261,71 @@ void Input::sub_821490(bool a2)
             v5->lpVtbl->Acquire(v5);
         }
 
-        int v6 = 0;
-        int v24 = 0;
-        a2 = (BOOL) & this->field_8C[1];
-        auto *v7 = this->field_3C;
-        auto *v8 = this->field_F98;
-        do {
-            if (!this->field_4EC[v6] && *(v7 - 10)) {
-                memset(field_4F8, 0, sizeof(this->field_F98));
-                memset(v8, 0, sizeof(this->field_F98));
-                (*(void(__stdcall **)(uint32_t))(*(uint32_t *)*(v7 - 10) + 8))(*(v7 - 10));
-                auto v9 = *v7;
-                v3 = *v7 == 0;
-                *(v7 - 10) = 0;
-                if (!v3) {
-                    (*(void(__stdcall **)(int))(*(uint32_t *)v9 + 8))(v9);
+
+        auto *names = reinterpret_cast<char *>(&field_8C[20]);
+        for (int i = 0; i < 10; ++i) {
+            if (!field_4EC[i] && field_14[i]) {
+                std::memset(&field_4F8[i], 0, sizeof(field_4F8[i]));
+
+                std::memset(&field_F98[i], 0, sizeof(field_F98[i]));
+                auto *device = reinterpret_cast<IDirectInputDevice8A *>(field_14[i]);
+                device->lpVtbl->Release(device);
+                field_14[i] = 0;
+
+
+                if (field_3C[i]) {
+                    auto *effect = reinterpret_cast<IDirectInputEffect *>(field_3C[i]);
+                    effect->lpVtbl->Release(effect);
                 }
-
-                auto v10 = (uint32_t *)a2;
-                *(uint32_t *)(a2 - 4) = 0;
-                *v10 = 0;
-                v6 = v24;
-                *v7 = 0;
-                v7[10] = 0;
-            }
-            ++v6;
-            ++v7;
-            v8 += 68;
-            v24 = v6;
-            a2 += 8;
-        } while (v6 < 10);
-
-        int i;
-        for (i = 0; i < 10; ++i) {
-            if (!this->field_4EC[i]) {
-                break;
+                field_3C[i] = 0;
+                field_64[i] = 0;
+                field_8C[2 * i] = 0;
+                field_8C[2 * i + 1] = 0;
             }
         }
+        for (int destination = 0; destination < 10; ++destination) {
+            if (field_4EC[destination])
+                continue;
+            int source = destination + 1;
+            while (source < 10 && !field_4EC[source])
+                ++source;
+            if (source == 10)
+                break;
 
-        if (i < 10) {
-            auto *v25 = &this->field_8C[2 * i + 1];
-            auto *v23 = (char *)&this->field_8C[25 * i + 20];
-            auto *v12 = &this->field_F98[i].lX;
-            auto v29 = -1259 - (uint32_t)this;
-            auto *v13 = this->field_27F0[i];
-            auto *v14 = &this->field_4EC[i];
-            auto *v26 = v14;
-            auto *v15 = &this->field_3C[i];
+            field_4EC[destination] = 1;
 
-            auto v27 = v12;
-            auto v28 = 10 - i;
-            do {
-                if (!*v14) {
-                    auto *v16 = &v14[v29];
-                    if ((int)&v14[v29] < 10) {
-                        while (!v16[(uint32_t)this + 1260]) {
-                            if ((int)++v16 >= 10) {
-                                goto LABEL_27;
-                            }
-                        }
+            field_4EC[source] = 0;
 
-                        *v14 = 1;
-                        v16[(uint32_t)this + 1260] = 0;
-                        memset(v12 - 680, 0, sizeof(DIJOYSTATE2));
-                        memset(v12, 0, sizeof(DIJOYSTATE2));
-                        auto *v17 = (char *)&this->field_8C[25 * (uint32_t)v16 + 20];
-                        strcpy(v23, v17);
-                        memset(v17, 0, 0x64u);
-                        auto *v18 = v13;
-                        auto *v19 = (int *)(&this->field_0 + 16 * (uint32_t)(v16 + 639));
-                        v18[0] = v19[0];
-                        v18[1] = v19[1];
-                        v18[2] = v19[2];
-                        v18[3] = v19[3];
+            std::memset(&field_4F8[destination], 0, sizeof(field_4F8[destination]));
 
-                        v19[0] = dword_8C0AAC[0];
-                        v19[1] = dword_8C0AAC[1];
-                        v19[2] = dword_8C0AAC[2];
-                        v12 = v27;
-                        v19[3] = dword_8C0AAC[3];
-                        *(v15 - 10) = this->field_14[(uint32_t)v16];
-                        auto v20 = this->field_3C[(uint32_t)v16];
-                        this->field_14[(uint32_t)v16] = 0;
-                        *v15 = v20;
-                        auto v21 = this->field_64[(uint32_t)v16];
-                        this->field_3C[(uint32_t)v16] = 0;
-                        v15[10] = v21;
-                        auto v22 = this->field_8C[2 * (uint32_t)v16];
-                        this->field_64[(uint32_t)v16] = 0;
-                        *(v25 - 1) = v22;
-                        *v25 = this->field_8C[2 * (uint32_t)v16 + 1];
+            std::memset(&field_F98[destination], 0, sizeof(field_F98[destination]));
 
-                        v14 = v26;
-                        this->field_8C[2 * (uint32_t)v16] = 0;
-                        this->field_8C[2 * (uint32_t)v16 + 1] = 0;
-                    }
-                }
+            std::
 
-            LABEL_27:
-                v13 += 4;
-                v23 += 100;
-                ++v15;
-                ++v14;
-                v12 += 68;
-                v3 = v28 == 1;
+                strcpy(names + 100 * destination, names + 100 * source);
 
-                v26 = v14;
-                v27 = v12;
-                v25 += 2;
-                --v28;
-            } while (!v3);
+            std::memset(names + 100 * source, 0, 100);
+
+            std::memcpy(field_27F0[destination], field_27F0[source], sizeof(field_27F0[source]));
+
+            std::memset(field_27F0[source], 0, sizeof(field_27F0[source]));
+            field_14[destination] = field_14[source];
+
+            field_14[source] = 0;
+
+            field_3C[destination] = field_3C[source];
+
+            field_3C[source] = 0;
+
+            field_64[destination] = field_64[source];
+
+            field_64[source] = 0;
+            field_8C[2 * destination] = field_8C[2 * source];
+
+            field_8C[2 * destination + 1] = field_8C[2 * source + 1];
+            field_8C[2 * source] = 0;
+
+            field_8C[2 * source + 1] = 0;
         }
 
         this->field_9 = false;

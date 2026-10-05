@@ -131,7 +131,7 @@ void release_allocated_triggers(script_executable *, _std::list<uint32_t> &alloc
 void release_allocated_entity_trackers(script_executable *, _std::list<uint32_t> &allocations, _std::list<mString> &)
 {
     for (const auto allocation : allocations)
-        g_femanager.IGO->field_54->destroy_entity_tracker(allocation);
+        g_femanager.IGO->m_entity_tracker_manager->destroy_entity_tracker(allocation);
 }
 void release_allocated_entities(script_executable *, _std::list<uint32_t> &allocations, _std::list<mString> &)
 {
@@ -238,7 +238,8 @@ struct slf__v10_fade_off__t : script_library_class::function {
     {
         auto *manager = mission_manager::s_inst;
         assert(manager != nullptr);
-        THISCALL(0x005BAC00, manager);
+
+        manager->release_loading_state();
         if (manager->field_FC == 0) {
             manager->field_F8 = -1.0f;
         }
@@ -258,7 +259,8 @@ struct slf__v10_fade_clear__t : script_library_class::function {
     {
         auto *manager = mission_manager::s_inst;
         assert(manager != nullptr);
-        THISCALL(0x005BAC00, manager);
+
+        manager->release_loading_state();
         if (manager->field_FC == 0) {
             manager->field_F8 = -1.0f;
         }
@@ -338,17 +340,27 @@ void construct_client_script_libs()
     }
 }
 
+
+#if STANDALONE_SYSTEM
+void destroy_script_lists()
+{
+    for (auto *list : script_entity_lists)
+        delete list;
+    script_entity_lists.clear();
+}
+#endif
 void destruct_client_script_libs()
 {
     TRACE("destruct_client_script_libs");
-    if constexpr (STANDALONE_SYSTEM) {
-        for (auto *list : script_entity_lists) {
-            delete list;
-        }
-        script_entity_lists.clear();
-    } else {
-        CDECL_CALL(0x0058FA50);
-    }
+
+#if STANDALONE_SYSTEM
+    destroy_script_lists();
+
+#else
+
+    CDECL_CALL(0x0058FA50);
+
+#endif
 }
 
 struct slf__add_civilian_info__vector3d__num__num__num__t : script_library_class::function {
@@ -854,11 +866,10 @@ struct slf__blackscreen_off__num__t : script_library_class::function {
 
         const auto duration = stack.pop_num();
 #if STANDALONE_SYSTEM
-        if (mission_manager::s_inst != nullptr && mission_manager::s_inst->field_FC == 3) {
-            mission_manager::s_inst->field_F4 = duration > 0.0f ? mission_manager::s_inst->field_F4 : 0.0f;
-            mission_manager::s_inst->field_F8 = duration > 0.0f ? -1.0f / duration : -FLT_MAX;
-            mission_manager::s_inst->field_FC = 2;
-        }
+
+        mission_manager::s_inst->blackscreen_off(duration);
+
+
         return true;
 #else
         bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00673850);
@@ -1614,7 +1625,7 @@ struct slf__create_entity_tracker__entity__t : script_library_class::function {
         };
         SLF_PARMS;
         parms->entity.get_volatile_ptr();
-        auto result = g_femanager.IGO->field_54->create_entity_tracker(parms->entity);
+        auto result = g_femanager.IGO->m_entity_tracker_manager->create_entity_tracker(parms->entity);
         auto *script = stack.get_thread()->get_executable()->get_owner()->get_parent();
         script->add_allocated_stuff(vm_entity_tracker_garbage_collection_id, result, mString{});
         SLF_RETURN;
@@ -2356,7 +2367,7 @@ struct slf__destroy_entity_tracker__entity_tracker__t : script_library_class::fu
         SLF_PARMS;
         auto *script = stack.get_thread()->get_executable()->get_owner()->get_parent();
         script->remove_allocated_stuff(vm_entity_tracker_garbage_collection_id, parms->id);
-        g_femanager.IGO->field_54->destroy_entity_tracker(parms->id);
+        g_femanager.IGO->m_entity_tracker_manager->destroy_entity_tracker(parms->id);
         return true;
 #else
         bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00677720);
@@ -3081,8 +3092,8 @@ struct slf__enable_mini_map__num__t : script_library_class::function {
 
 #if STANDALONE_SYSTEM
         const auto shown = not_equal(stack.pop_num(), 0.0f);
-        if (g_femanager.IGO != nullptr && g_femanager.IGO->field_4 != nullptr) {
-            g_femanager.IGO->field_4->field_3A8 = shown;
+        if (g_femanager.IGO != nullptr && g_femanager.IGO->m_fe_mini_map_widget != nullptr) {
+            g_femanager.IGO->m_fe_mini_map_widget->field_3A8 = shown;
         }
         return true;
 #else
@@ -9138,7 +9149,7 @@ struct slf__turn_off_mission_text__t : script_library_class::function {
         TRACE("slf__turn_off_mission_text__t::operator()");
 
         if constexpr (STANDALONE_SYSTEM) {
-            g_femanager.IGO->field_20->SetShown(false);
+            g_femanager.IGO->m_fe_mission_text->SetShown(false);
             return true;
         } else {
             bool(__fastcall * func)(const void *, void *, vm_stack *, entry_t) = CAST(func, 0x00673060);
@@ -9205,7 +9216,7 @@ struct slf__turn_on_hero_health__num__entity__t : script_library_class::function
             entity_base_vhandle entity;
         };
         SLF_PARMS;
-        auto *hero_health = g_femanager.IGO->hero_health;
+        auto *hero_health = g_femanager.IGO->m_hero_health;
         hero_health->SetType(static_cast<int>(parms->type), parms->entity.field_0);
         hero_health->SetShown(true);
         return true;
@@ -10333,7 +10344,7 @@ DECLARE_SLF_BEGIN(entity_tracker, get_entity, 0x0089C55C)
         uint32_t id;
     };
     SLF_PARMS;
-    auto *tracker = g_femanager.IGO->field_54->id_to_ptr(parms->id);
+    auto *tracker = g_femanager.IGO->m_entity_tracker_manager->id_to_ptr(parms->id);
     auto result = tracker->get_entity()->get_my_handle();
     SLF_RETURN;
     return true;
@@ -10347,7 +10358,7 @@ DECLARE_SLF_BEGIN(entity_tracker, get_mini_map_active, 0x0089C56C)
         uint32_t id;
     };
     SLF_PARMS;
-    auto *tracker = g_femanager.IGO->field_54->id_to_ptr(parms->id);
+    auto *tracker = g_femanager.IGO->m_entity_tracker_manager->id_to_ptr(parms->id);
     float result = tracker != nullptr && tracker->field_4->field_24 ? 1.f : 0.f;
     SLF_RETURN;
     return true;
@@ -10361,7 +10372,7 @@ DECLARE_SLF_BEGIN(entity_tracker, get_poi_active, 0x0089C58C)
         uint32_t id;
     };
     SLF_PARMS;
-    g_femanager.IGO->field_54->id_to_ptr(parms->id);
+    g_femanager.IGO->m_entity_tracker_manager->id_to_ptr(parms->id);
     float result = 0.f;
     SLF_RETURN;
     return true;
@@ -10377,8 +10388,8 @@ DECLARE_SLF_BEGIN(entity_tracker, set_entity__entity, 0x0089C554)
     };
     SLF_PARMS;
     if (auto *owner = parms->entity.get_volatile_ptr(); owner != nullptr)
-        g_femanager.IGO->field_54->set_entity(parms->id,
-                                              owner->is_an_entity() ? static_cast<entity *>(owner) : nullptr);
+        g_femanager.IGO->m_entity_tracker_manager->set_entity(
+            parms->id, owner->is_an_entity() ? static_cast<entity *>(owner) : nullptr);
     return true;
 }
 DECLARE_SLF_END()
@@ -10391,7 +10402,7 @@ DECLARE_SLF_BEGIN(entity_tracker, set_health_widget_active__num, 0x0089C584)
         float enabled;
     };
     SLF_PARMS;
-    if (auto *tracker = g_femanager.IGO->field_54->id_to_ptr(parms->id); tracker != nullptr)
+    if (auto *tracker = g_femanager.IGO->m_entity_tracker_manager->id_to_ptr(parms->id); tracker != nullptr)
         tracker->set_health_widget_active(!equal(parms->enabled, 0.f));
     return true;
 }
@@ -10405,7 +10416,7 @@ DECLARE_SLF_BEGIN(entity_tracker, set_mini_map_active__num, 0x0089C564)
         float enabled;
     };
     SLF_PARMS;
-    if (auto *tracker = g_femanager.IGO->field_54->id_to_ptr(parms->id); tracker != nullptr)
+    if (auto *tracker = g_femanager.IGO->m_entity_tracker_manager->id_to_ptr(parms->id); tracker != nullptr)
         tracker->field_4->field_24 = !equal(parms->enabled, 0.f);
     return true;
 }
@@ -10419,7 +10430,7 @@ DECLARE_SLF_BEGIN(entity_tracker, set_poi_active__num, 0x0089C57C)
         float enabled;
     };
     SLF_PARMS;
-    if (auto *tracker = g_femanager.IGO->field_54->id_to_ptr(parms->id); tracker != nullptr)
+    if (auto *tracker = g_femanager.IGO->m_entity_tracker_manager->id_to_ptr(parms->id); tracker != nullptr)
         tracker->field_8 = !equal(parms->enabled, 0.f);
     return true;
 }
@@ -10433,7 +10444,7 @@ DECLARE_SLF_BEGIN(entity_tracker, set_poi_icon__num, 0x0089C574)
         float icon;
     };
     SLF_PARMS;
-    if (auto *tracker = g_femanager.IGO->field_54->id_to_ptr(parms->id); tracker != nullptr)
+    if (auto *tracker = g_femanager.IGO->m_entity_tracker_manager->id_to_ptr(parms->id); tracker != nullptr)
         tracker->set_poi_icon(static_cast<mini_map_dot_type>(static_cast<int>(parms->icon)));
     return true;
 }

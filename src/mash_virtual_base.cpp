@@ -632,6 +632,8 @@ void *create_native_mash_class(uint32_t type, mash_virtual_base *storage = nullp
         return create_mash_class<als::crawl_transition>(type, storage, storage_size);
     case 514:
         return create_mash_class<als::null_mocomp>(type, storage, storage_size);
+    case 519:
+        return create_mash_class<als::set_orient_mocomp>(type, storage, storage_size);
     case 522:
         return create_mash_class<als::simple_orientation>(type, storage, storage_size);
     case 523:
@@ -1044,6 +1046,7 @@ void mash_virtual_base::generate_vtable()
         vtable()[493] = native_mash_vtable<als::begin_biped_physics>();
         vtable()[503] = als::crawl_transition::native_vtable();
         vtable()[514] = als::motion_compensator::native_vtable(514);
+        vtable()[519] = als::set_orient_mocomp::native_vtable();
         vtable()[522] = als::simple_orientation::native_vtable();
         vtable()[523] = als::simple_orientation_ped::native_vtable();
         vtable()[525] = als::use_anim_only::native_vtable();

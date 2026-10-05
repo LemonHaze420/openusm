@@ -110,6 +110,11 @@ void FEMenuSystem::MakeActive(int idx)
     }
 }
 
+void FEMenuSystem::OnWindowMessage(unsigned message, int wparam, int lparam)
+{
+    field_4[m_index]->OnWindowMessage(message, wparam, lparam);
+}
+
 void FEMenuSystem::Update(Float a2)
 {
     void(__fastcall * func)(void *, void *edx, Float) = CAST(func, get_vfunc(m_vtbl, 0x14));

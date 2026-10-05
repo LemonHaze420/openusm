@@ -12,6 +12,8 @@
 #include "ngl.h"
 #include "os_developer_options.h"
 #include "pausemenusystem.h"
+
+#include "panelquad.h"
 #include "resource_manager.h"
 #include "trace.h"
 #include "utility.h"
@@ -200,7 +202,16 @@ void FEManager::RenderLoadMeter(bool a2)
 
 void FEManager::ReleaseIGO()
 {
-    THISCALL(0x00642E40, this);
+    if constexpr (STANDALONE_SYSTEM) {
+        delete IGO;
+        IGO = nullptr;
+        delete m_pause_menu_system;
+        m_pause_menu_system = nullptr;
+        delete reinterpret_cast<PanelQuad *>(field_24);
+        field_24 = 0;
+    } else {
+        THISCALL(0x00642E40, this);
+    }
 }
 
 void FEManager::ReleaseFonts()

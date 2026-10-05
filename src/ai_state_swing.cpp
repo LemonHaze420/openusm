@@ -2196,7 +2196,7 @@ static string_hash web_swing_timer_id{static_cast<int>(to_hash("web_swing_timer"
 
 bool swing_inode::can_go_to(string_hash a2) const
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         auto v2 = a2.source_hash_code;
         auto *v4 = this->field_20;
         auto *v5 = v4->field_20;
@@ -2211,7 +2211,7 @@ bool swing_inode::can_go_to(string_hash a2) const
 
             auto &v8 = this->field_8->field_50;
 
-            auto v9 = v8.get_optional_pb_int(loco_allow_aerial_hit_react_id, 0, 0);
+            auto v9 = v8.get_optional_pb_int(loco_allow_aerial_hit_react_id, 0, nullptr);
             if (v2 == ai::hit_react_state::default_id.source_hash_code && !v9) {
                 return false;
             }

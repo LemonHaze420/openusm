@@ -58,6 +58,8 @@ struct FEMenuSystem {
     //0x006298D0
     //virtual
     void UpdateButtonPresses();
+
+    void OnWindowMessage(unsigned message, int wparam, int lparam);
 };
 
 extern void FEMenuSystem_patch();

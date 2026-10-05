@@ -507,314 +507,87 @@ bool subdivision_node_obb_base::capsule_intersection(const capsule &query, local
 bool subdivision_node_obb_base::find_closest_point_on_visible_faces(const vector3d &sweet_spot, const vector3d &ent_pos,
                                                                     fixed_vector<obb_closest_point_entry_t, 3> *results)
 {
-    assert(results != nullptr);
-    assert(results->size() == 0);
-
-    if constexpr (0) {
-#if 0
-        
-        if ((this->flags & 0x101) != 0) {
-            return false;
-        }
-
-        vector4d v64, a2, a4, a6;
-        auto v6 = this->unpack_xform(v64, a2, a4, a6);
-        auto v7 = this->center[0];
-        auto v8 = this->center[1];
-        auto v9 = v6;
-        auto v10 = !v6;
-
-        vector4d a8;
-        a8[2] = this->center[2];
-
-        vector4d v59{};
-        v59[2] = a8[2];
-        a8[0] = v7;
-        v59[0] = v7;
-        a8[1] = v8;
-        v59[1] = v8;
-
-        auto v11 = sweet_spot[0];
-        a8[3] = v59[3];
-
-        auto v12 = sweet_spot[1];
-        v59[0] = v11;
-
-        auto v13 = sweet_spot[2];
-
-        vector4d v62{};
-        v62[0] = v59[0];
-        v62[1] = v12;
-        v62[2] = v13;
-
-        vector4d a3{};
-        a3[0] = v59[0] - a8[0];
-        v62[3] = v59[3];
-        v59[1] = v12;
-        v62[0] = ent_pos[0];
-        a3[1] = v12 - a8[1];
-        v59[2] = v13;
-
-        auto v14 = ent_pos[2];
-        v62[1] = ent_pos[1];
-        v62[2] = v14;
-        a3[2] = v13 - a8[2];
-        v59[0] = v62[0];
-        v62[3] = v59[3];
-
-        char v57[19]{};
-        v57[0] = v9;
-
-        v59[1] = v62[1];
-        a3[3] = v59[3] - v59[3];
-        v59[2] = v14;
-        auto a5 = v62[0] - a8[0];
-        auto v68 = v62[1] - a8[1];
-        auto v69 = v14 - a8[2];
-        auto v70 = a3[3];
-
-        vector4d arg4a{};
-        vector4d v72{};
-        if (!v10) {
-            auto v15 = vector4d::sub_4126E0(a2, a3.arr, a4, a3.arr, a6, a3.arr);
-            auto v16 = v15[1];
-            a3[0] = v15[0];
-            auto v17 = v15[2];
-            a3[1] = v16;
-            auto v18 = v15[3];
-            a3[2] = v17;
-            a3[3] = v18;
-
-            auto v19 = vector4d::sub_4126E0(a2, &a5, a4, &a5, a6, &a5);
-            auto v20 = v19[1];
-            a5 = v19[0];
-            auto v21 = v19[2];
-            v68 = v20;
-            auto v22 = v19[3];
-            v69 = v21;
-            v70 = v22;
-            arg4a[0] = a2[0];
-            arg4a[1] = a4[0];
-            arg4a[2] = a6[0];
-            v72[0] = a2[1];
-            v72[1] = a4[1];
-            v72[2] = a6[1];
-
-            v62[0] = a2[2];
-            v62[1] = a4[2];
-            v62[2] = a6[2];
-        }
-
-        vector4d a1{};
-        a1[0] = v64[0] - std::abs(a5);
-        a1[1] = v64[1] - std::abs(v68);
-        a1[2] = v64[2] - std::abs(v69);
-        a2[0] = -v64[0];
-        a2[1] = -v64[1];
-        a2[2] = -v64[2];
-        a2[3] = -v64[3];
-
-        auto v23 = vector4d::min(v64, a3);
-        a3 = vector4d::max(a2, v23);
-        a2 = sub_55DA40(&a5, &v64);
-        int v24 = 0;
-        v57[1] = a1[0] < 0.0f;
-        v57[2] = a1[1] < 0.0f;
-        if (a1[0] < 0.0f) {
-            *(float *) &v57[7] = a3[1];
-            *(float *) &v57[11] = a3[2];
-            *(float *) &v57[15] = a3[3];
-            *(float *) &v57[3] = a2[0];
-            v64[0] = a2[0];
-            v64[1] = a3[1];
-            v64[2] = a3[2];
-            v64[3] = a3[3];
-            if (v9) {
-                v25 = sub_413E90((math::VecClass__3_1 *) &v59,
-                                 &arg4a,
-                                 (float *) &v57[3],
-                                 &v72,
-                                 (float *) &v57[3],
-                                 &v62,
-                                 (float *) &v57[3],
-                                 &a8);
-                v26 = v25->field_0[1];
-                v27 = v25->field_0[2];
-                *(float *) &v57[3] = v25->field_0[0];
-                v60 = arg4a;
-            } else {
-                sub_4119B0((float *) &v57[3], a8.base.arr);
-                sub_56A8E0(&v60, (int) v57);
-                v27 = *(float *) &v57[11];
-                v26 = *(float *) &v57[7];
-            }
-            if (a5 < (double) float_NULL) {
-                v28 = sub_5610A0(v59.base.arr, v60.base.arr);
-                v29 = v28[1];
-                v60.base.arr[0] = *v28;
-                v30 = v28[2];
-                v31 = v28[3];
-                v60.base.arr[1] = v29;
-                v60.base.arr[2] = v30;
-                v60.field_C = v31;
-            }
-            results->m_data[0].field_0.arr[0] = *(float *) &v57[3];
-            v32 = v60.base.arr[0];
-            results->m_data[0].field_0.arr[2] = v27;
-            v33 = v60.base.arr[2];
-            results->m_data[0].field_0.arr[1] = v26;
-            v59.base.arr[0] = v32;
-            v9 = v57[0];
-            v59.base.arr[1] = v60.base.arr[1];
-            v59.base.arr[2] = v33;
-            v34 = v60.base.arr[1];
-            v59.field_C = v60.field_C;
-            v35 = v59.base.arr[2];
-            results->m_data[0].field_C.arr[0] = v59.base.arr[0];
-            results->m_data[0].field_C.arr[1] = v34;
-            results->m_data[0].field_C.arr[2] = v35;
-            v24 = 1;
-        }
-        if (v57[2]) {
-            *(float *) &v57[7] = a2.base.arr[1];
-            *(float *) &v57[3] = a3.base.arr[0];
-            *(float *) &v57[11] = a3.base.arr[2];
-            *(float *) &v57[15] = a3.field_C;
-            if (v57[1] &&
-                (a4.base.arr[0] = v64.base.arr[0] - *(float *) &v57[3],
-                 a4.base.arr[1] = v64.base.arr[1] - a2.base.arr[1],
-                 a4.base.arr[2] = v64.base.arr[2] - *(float *) &v57[11],
-                 a4.field_C = v64.field_C - *(float *) &v57[15],
-                 a6 = a4,
-                 a4.base.arr[0] * a4.base.arr[0] + a4.base.arr[2] * a4.base.arr[2] +
-                         a4.base.arr[1] * a4.base.arr[1] <=
-                     LARGE_EPSILON)) {
-                v57[2] = 0;
-            } else {
-                v59.base.arr[0] = a3.base.arr[0];
-                v59.base.arr[1] = *(float *) &v57[7];
-                v59.base.arr[2] = a3.base.arr[2];
-                v59.field_C = a3.field_C;
-                if (v9) {
-                    v36 = sub_413E90((math::VecClass__3_1 *) &a4,
-                                     &arg4a,
-                                     (float *) &v57[3],
-                                     &v72,
-                                     (float *) &v57[3],
-                                     &v62,
-                                     (float *) &v57[3],
-                                     &a8);
-                    v37 = v36->field_C;
-                    v38 = v36->field_0[1];
-                    v39 = v36->field_0[2];
-                    *(float *) &v57[3] = v36->field_0[0];
-                    *(float *) &v57[15] = v37;
-                    v60 = v72;
-                } else {
-                    sub_4119B0((float *) &v57[3], a8.base.arr);
-                    sub_56A9D0(&v60, (int) v57);
-                    v39 = *(float *) &v57[11];
-                    v38 = *(float *) &v57[7];
-                }
-                if (v68 < (double) float_NULL) {
-                    v40 = sub_5610A0(a4.base.arr, v60.base.arr);
-                    v41 = v40[1];
-                    v60.base.arr[0] = *v40;
-                    v42 = v40[2];
-                    v43 = v40[3];
-                    v60.base.arr[1] = v41;
-                    v60.base.arr[2] = v42;
-                    v60.field_C = v43;
-                }
-                v44 = results->m_data[v24].field_0.arr;
-                *v44 = *(float *) &v57[3];
-                v44[1] = v38;
-                v45 = v60.base.arr[0];
-                v44[2] = v39;
-                a4.base.arr[0] = v45;
-                v9 = v57[0];
-                a4.base.arr[1] = v60.base.arr[1];
-                a4.base.arr[2] = v60.base.arr[2];
-                a4.field_C = v60.field_C;
-                v46 = v60.base.arr[1];
-                v44[3] = v45;
-                v47 = a4.base.arr[2];
-                v44[4] = v46;
-                v44[5] = v47;
-                ++v24;
-            }
-        }
-        if (a1.base.arr[2] < (double) float_NULL) {
-            *(float *) &v57[7] = a3.base.arr[1];
-            *(float *) &v57[11] = a2.base.arr[2];
-            *(float *) &v57[3] = a3.base.arr[0];
-            *(float *) &v57[15] = a3.field_C;
-            if (!v57[1] ||
-                (a4.base.arr[0] = v64.base.arr[0] - *(float *) &v57[3],
-                 a4.base.arr[1] = v64.base.arr[1] - *(float *) &v57[7],
-                 a4.base.arr[2] = v64.base.arr[2] - a2.base.arr[2],
-                 a4.field_C = v64.field_C - *(float *) &v57[15],
-                 a6 = a4,
-                 a4.base.arr[0] * a4.base.arr[0] + a4.base.arr[2] * a4.base.arr[2] +
-                         a4.base.arr[1] * a4.base.arr[1] >
-                     LARGE_EPSILON)) {
-                if (!v57[2] ||
-                    (a4.base.arr[0] = v59.base.arr[0] - *(float *) &v57[3],
-                     a4.base.arr[1] = v59.base.arr[1] - *(float *) &v57[7],
-                     a4.base.arr[2] = v59.base.arr[2] - a2.base.arr[2],
-                     a4.field_C = v59.field_C - *(float *) &v57[15],
-                     a6 = a4,
-                     a4.base.arr[2] * a4.base.arr[2] + a4.base.arr[1] * a4.base.arr[1] +
-                             a4.base.arr[0] * a4.base.arr[0] >
-                         LARGE_EPSILON)) {
-                    if (v9) {
-                        v48 = sub_413E90((math::VecClass__3_1 *) &a1,
-                                         &arg4a,
-                                         (float *) &v57[3],
-                                         &v72,
-                                         (float *) &v57[3],
-                                         &v62,
-                                         (float *) &v57[3],
-                                         &a8);
-                        v49 = v48->field_0[0];
-                        v50 = v48->field_0[1];
-                        v51 = v48->field_0[2];
-                        v52 = v48->field_C;
-                        *(float *) &v57[3] = v49;
-                        *(float *) &v57[15] = v52;
-                        v60 = v62;
-                    } else {
-                        sub_4119B0((float *) &v57[3], a8.base.arr);
-                        sub_56AA20(&v60, (int) v57);
-                        v51 = *(float *) &v57[11];
-                        v50 = *(float *) &v57[7];
-                    }
-                    if (v69 < (double) float_NULL) {
-                        v53 = sub_5610A0(a1.base.arr, v60.base.arr);
-                        v54 = v53[1];
-                        v60.base.arr[0] = *v53;
-                        v55 = v53[2];
-                        v60.base.arr[1] = v54;
-                        v56 = v53[3];
-                        v60.base.arr[2] = v55;
-                        v60.field_C = v56;
-                    }
-                    a1.base.arr[0] = *(float *) &v57[3];
-                    a1.base.arr[2] = v51;
-                    a1.field_C = *(float *) &v57[15];
-                    a1.base.arr[1] = v50;
-                    sub_560B90(&results->m_data[v24].field_0, a1.base.arr);
-                    sub_560B90(&results->m_data[v24++].field_C, v60.base.arr);
-                }
-            }
-        }
-        results->m_size = v24;
-        return v24 > 0;
-
-#endif
-
-    } else {
+    if constexpr (!STANDALONE_SYSTEM) {
         return THISCALL(0x005391F0, this, &sweet_spot, &ent_pos, results);
+    } else {
+        assert(results != nullptr);
+        assert(results->size() == 0);
+
+        if ((flags & 0x101) != 0)
+
+            return false;
+
+
+        vector4d extent, row_x, row_y, row_z;
+
+        const bool rotated = unpack_xform(extent, row_x, row_y, row_z);
+        auto target = sweet_spot - center;
+        auto eye = ent_pos - center;
+
+        if (rotated) {
+            target = obb_local_vector(target, row_x, row_y, row_z);
+
+            eye = obb_local_vector(eye, row_x, row_y, row_z);
+        }
+        const vector3d half{extent.x, extent.y, extent.z};
+
+        const auto clamped = vector3d::max(-half, vector3d::min(half, target));
+
+        vector3d local_points[3];
+
+
+        for (int axis = 0;
+
+             axis != 3;
+
+
+             ++axis) {
+            if (!(half[axis] - std::abs(eye[axis]) < 0.0f))
+                continue;
+
+            const float sign = eye[axis] < 0.0f ? -1.0f : 1.0f;
+            auto point = clamped;
+            point[axis] = sign * half[axis];
+
+            bool duplicate = false;
+
+            for (uint32_t index = 0;
+
+                 index < results->size();
+                 ++index) {
+                if ((local_points[index] - point).length2() <= LARGE_EPSILON) {
+                    duplicate = true;
+                    break;
+                }
+            }
+            if (duplicate)
+                continue;
+            local_points[results->size()] = point;
+            vector3d normal;
+            normal[axis] = sign;
+            if (rotated) {
+                normal = {row_x[axis] * sign, row_y[axis] * sign, row_z[axis] * sign};
+                point = {row_x.x
+
+                                 * point.x +
+                             row_x.y * point.y +
+                             row_x.z
+
+                                 * point.z,
+                         row_y.x * point.x +
+                             row_y.y
+
+                                 * point.y +
+                             row_y.z * point.z,
+                         row_z.x * point.x + row_z.y * point.y + row_z.z * point.z};
+            }
+            auto &entry = results->m_data[results->m_size++];
+            entry.field_0 = center + point;
+
+            entry.field_C = normal;
+        }
+
+        return results->size() != 0;
     }
 }
 

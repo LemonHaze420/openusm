@@ -11,6 +11,341 @@
 
 #include <d3d9.h>
 
+
+#include <d3dx9tex.h>
+#include <algorithm>
+#include <array>
+#include <cassert>
+#include "femanager.h"
+#include "fileusm.h"
+#include "game.h"
+#include "ngl.h"
+#include "ngl_font.h"
+#include "sound_instance_id.h"
+#include "timer.h"
+
+#if STANDALONE_SYSTEM
+void sub_582AD0();
+namespace {
+struct dialog_vertex {
+    float x, y, z, rhw;
+    uint32_t color;
+    float u, v;
+};
+
+struct dialog_texture {
+    IDirect3DTexture9 *value{};
+    explicit dialog_texture(const wchar_t *path)
+    {
+        const auto result = D3DXCreateTextureFromFileExW(
+            g_Direct3DDevice, path, 0, 0, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, 3, 3, 0, nullptr, nullptr, &value);
+        assert(SUCCEEDED(result));
+    }
+    ~dialog_texture()
+    {
+        value->lpVtbl->Release(value);
+    }
+    dialog_texture(const dialog_texture &) = delete;
+    dialog_texture &operator=(const dialog_texture &) = delete;
+};
+
+void dialog_quad(float x, float y, float right, float bottom, float u0, float v0, float u1, float v1, uint32_t color)
+{
+    const dialog_vertex vertices[] = {{x, y, 0.99f, 1.0f, color, u0, v0},
+                                      {x, bottom, 0.99f, 1.0f, color, u0, v1},
+                                      {right, y, 0.99f, 1.0f, color, u1, v0},
+                                      {right, bottom, 0.99f, 1.0f, color, u1, v1}};
+    auto *device = g_Direct3DDevice;
+    device->lpVtbl->DrawPrimitiveUP(device, D3DPT_TRIANGLESTRIP, 2, vertices, sizeof(dialog_vertex));
+}
+
+int dialog_text_width(nglFont *font, const char *text, float scale)
+{
+    int widest = 0, width = 0;
+    for (auto *at = reinterpret_cast<const unsigned char *>(text); *at; ++at) {
+        if (*at == '\n') {
+            widest = std::max(widest, width);
+            width = 0;
+        } else {
+            width = static_cast<int>(width + font->GetFontCellWidth(*at) * scale);
+        }
+    }
+    return std::max(widest, width);
+}
+
+struct native_dialog {
+    const native_dialog *parent;
+    const char *message;
+    bool confirmation;
+    nglFont *font;
+    dialog_texture panel{L"data\\packs\\igq_bk.dat"};
+    dialog_texture button{L"data\\packs\\igq_yes_no.dat"};
+    dialog_texture cursor{L"Data\\ump.dat"};
+    int x, y, width, height, button_y;
+    float scale_x, scale_y;
+    int selected, pressed{-1};
+    POINT mouse{};
+    bool mouse_visible{};
+
+    native_dialog(const char *key, bool confirm, const native_dialog *owner)
+        : parent(owner), message(get_msg(g_fileUSM, key)), confirmation(confirm),
+          font(g_femanager.GetFont(static_cast<font_index>(1))), selected(confirm ? 1 : 0)
+    {
+        width = dialog_text_width(font, message, 1.0f) + 5;
+        const int lines = static_cast<int>(std::count(message, message + std::strlen(message), '\n')) + 1;
+        height = 30 * (lines + 1);
+        x = 320 - width / 2;
+        y = 240 - height / 2;
+        button_y = y + 30 * lines;
+        scale_x = g_cx / 640.0f;
+        scale_y = g_cy / 480.0f;
+    }
+
+    void quad(IDirect3DTexture9 *texture, float left, float top, float right, float bottom, float v0 = 0.0f,
+              float v1 = 1.0f) const
+    {
+        auto *device = g_Direct3DDevice;
+        device->lpVtbl->SetTexture(device, 0, reinterpret_cast<IDirect3DBaseTexture9 *>(texture));
+        dialog_quad(left * scale_x, top * scale_y, right * scale_x, bottom * scale_y, 0.0f, v0, 1.0f, v1, 0xffffffffu);
+    }
+
+    void text(const char *value, int left, int top, int right, bool centered, float scale, uint32_t color) const
+    {
+        auto *device = g_Direct3DDevice;
+        device->lpVtbl->SetTexture(device, 0, reinterpret_cast<IDirect3DBaseTexture9 *>(font->field_24->DXTexture));
+        const char *line = value;
+        while (*line) {
+            const char *end = line;
+            int line_width = 0;
+            while (*end && *end != '\n') {
+                line_width = static_cast<int>(line_width + font->GetFontCellWidth(static_cast<uint8_t>(*end)) * scale);
+                ++end;
+            }
+            float pen = static_cast<float>(centered ? left + (right - left) / 2 - line_width / 2 : left);
+            for (auto *at = line; at != end; ++at) {
+                float origin[2], size[2], uv[2], extent[2];
+                font->sub_77E2F0(static_cast<uint8_t>(*at), origin, size, uv, extent, scale, scale);
+                dialog_quad((pen + origin[0]) * scale_x,
+                            (top + origin[1]) * scale_y,
+                            (pen + origin[0] + size[0]) * scale_x,
+                            (top + origin[1] + size[1]) * scale_y,
+                            uv[0],
+                            uv[1],
+                            uv[0] + extent[0],
+                            uv[1] + extent[1],
+                            color);
+                pen += font->GetFontCellWidth(static_cast<uint8_t>(*at)) * scale;
+            }
+            if (!*end)
+                break;
+            line = end + 1;
+            top += static_cast<int>(22.0f * scale);
+        }
+    }
+
+    void draw() const
+    {
+        if (parent)
+            parent->draw();
+        else
+            quad(nglGetBackBufferTex()->DXTexture, 0, 0, 640, 480);
+        quad(panel.value, x - 10, y - 10, x + width + 9, y + height + 9);
+        text(message, x, y, x + width - 1, false, 1.0f, confirmation ? 0xffdcdcdcu : 0xffdcdedcu);
+        const int count = confirmation ? 2 : 1;
+        for (int index = 0; index < count; ++index) {
+            const int left = x + index * (width / count);
+            const int right = left + width / count - 1;
+            quad(button.value, left, button_y, right, button_y + 29, 0.0f, 0.2f);
+            if (selected == index)
+                quad(button.value, left, button_y, right, button_y + 29, 0.2f, 0.4f);
+            const char *key = confirmation ? (index == 0 ? "YES" : "NO") : "OK";
+            text(get_msg(g_fileUSM, key),
+                 left,
+                 button_y,
+                 right,
+                 true,
+                 1.25f,
+                 selected == index ? 0xffe6d03fu : 0xffe6823fu);
+        }
+        if (mouse_visible)
+            quad(cursor.value, mouse.x / scale_x, mouse.y / scale_y, mouse.x / scale_x + 47, mouse.y / scale_y + 47);
+    }
+
+    int hit(POINT point) const
+    {
+        const int count = confirmation ? 2 : 1;
+        for (int index = 0; index < count; ++index) {
+            RECT bounds{static_cast<LONG>((x + index * (width / count)) * scale_x),
+                        static_cast<LONG>(button_y * scale_y),
+                        static_cast<LONG>((x + (index + 1) * (width / count) - 1) * scale_x),
+                        static_cast<LONG>((button_y + 29) * scale_y)};
+            if (PtInRect(&bounds, point))
+                return index;
+        }
+        return -1;
+    }
+
+    void sound(const char *key) const
+    {
+        static_cast<void>(sub_60B960(string_hash{key}, 1.0f, 1.0f));
+    }
+};
+
+bool run_native_dialog(const char *key, bool confirmation, const native_dialog *parent)
+{
+    auto *device = g_Direct3DDevice;
+    IDirect3DStateBlock9 *saved_state = nullptr;
+    auto result = device->lpVtbl->CreateStateBlock(device, D3DSBT_ALL, &saved_state);
+    assert(SUCCEEDED(result));
+    saved_state->lpVtbl->Capture(saved_state);
+    auto *saved_input = Input::instance->field_129D8[0];
+    Input::instance->sub_8203F0(0, g_inputSettingsMenu);
+    auto &modal_active = var<bool>(0x00965C22);
+    const bool previous_modal = modal_active;
+    if (confirmation)
+        modal_active = true;
+    native_dialog dialog{key, confirmation, parent};
+    IDirect3DSurface9 *backbuffer = nullptr;
+    device->lpVtbl->GetBackBuffer(device, 0, 0, D3DBACKBUFFER_TYPE_MONO, &backbuffer);
+    device->lpVtbl->SetRenderTarget(device, 0, backbuffer);
+    backbuffer->lpVtbl->Release(backbuffer);
+    constexpr std::array<InputAction, 6> actions{static_cast<InputAction>(16),
+                                                 static_cast<InputAction>(17),
+                                                 static_cast<InputAction>(18),
+                                                 static_cast<InputAction>(19),
+                                                 static_cast<InputAction>(4),
+                                                 static_cast<InputAction>(7)};
+    std::array<int, 6> repeat{};
+    int answer = -1;
+    DWORD previous_tick = GetTickCount();
+    auto accept = [&] {
+        answer = !confirmation || dialog.selected == 0;
+        dialog.sound(answer ? "FE_PS_ACCEPT" : "FE_PS_BACK");
+    };
+    while (answer == -1 && byte_965BF9) {
+        MSG message;
+        while (PeekMessageA(&message, g_appHwnd, 0, 0, PM_REMOVE)) {
+            TranslateMessage(&message);
+            DispatchMessageA(&message);
+            if (message.message == WM_MOUSEMOVE) {
+                dialog.mouse = {static_cast<short>(LOWORD(message.lParam)), static_cast<short>(HIWORD(message.lParam))};
+                dialog.mouse_visible = true;
+                const int hovered = dialog.hit(dialog.mouse);
+                if (hovered != -1)
+                    dialog.selected = hovered;
+            } else if (message.message == WM_LBUTTONDOWN) {
+                const POINT point{static_cast<short>(LOWORD(message.lParam)),
+                                  static_cast<short>(HIWORD(message.lParam))};
+                dialog.pressed = dialog.hit(point);
+            } else if (message.message == WM_LBUTTONUP) {
+                const POINT point{static_cast<short>(LOWORD(message.lParam)),
+                                  static_cast<short>(HIWORD(message.lParam))};
+                if (dialog.pressed != -1 && dialog.hit(point) == dialog.pressed) {
+                    dialog.selected = dialog.pressed;
+                    accept();
+                }
+                dialog.pressed = -1;
+            } else if (message.message == WM_RBUTTONUP) {
+                answer = 0;
+                if (confirmation)
+                    dialog.sound("FE_PS_BACK");
+            }
+        }
+        auto &quit_count = dword_922908;
+        if (quit_count > 0)
+            --quit_count;
+        else if (quit_count == 0) {
+            quit_count = -1;
+            if (run_native_dialog("CONFIRMQUIT_MSG", true, &dialog)) {
+                ClipCursor(nullptr);
+                bExit = true;
+                answer = 0;
+            }
+        }
+        Input::instance->poll();
+        for (size_t index = 0; index < actions.size(); ++index) {
+            const bool down = g_inputSettingsMenu->field_18.get_state(actions[index]) > 0.5f;
+            if (!down) {
+                if (repeat[index] && index == 4)
+                    accept();
+                repeat[index] = 0;
+            } else if (repeat[index] == 0) {
+                repeat[index] = 10;
+                dialog.mouse_visible = false;
+                if ((index == 2 || index == 3) && confirmation) {
+                    dialog.selected = 1 - dialog.selected;
+                    dialog.sound("FE_WB_LRScroll");
+                } else if (index == 5 && confirmation) {
+                    answer = 0;
+                    dialog.sound("FE_PS_BACK");
+                }
+            } else if (index < 4) {
+                --repeat[index];
+            }
+        }
+        const DWORD tick = GetTickCount();
+        Float elapsed{(tick - previous_tick) * 0.001f};
+        previous_tick = tick;
+        g_game_ptr->sub_559F50(&elapsed);
+        EnterCriticalSection(&g_CriticalSection);
+        const bool gamepad_changed = byte_965950;
+        byte_965950 = false;
+        LeaveCriticalSection(&g_CriticalSection);
+        if (gamepad_changed) {
+            SetEvent(hEvent);
+            WaitForSingleObject(hObject, INFINITE);
+            CloseHandle(hObject);
+            CloseHandle(hEvent);
+            hObject = nullptr;
+            hEvent = nullptr;
+            run_native_dialog("GAMEPAD_CONNECTED", false, &dialog);
+            Input::instance->sub_821490(true);
+            sub_5828B0();
+            sub_582AD0();
+        }
+        device->lpVtbl->Clear(device, 0, nullptr, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0, 1.0f, 0);
+        device->lpVtbl->BeginScene(device);
+        device->lpVtbl->SetRenderState(device, D3DRS_FOGENABLE, false);
+        device->lpVtbl->SetRenderState(device, D3DRS_ZENABLE, false);
+        device->lpVtbl->SetRenderState(device, D3DRS_ALPHATESTENABLE, true);
+        device->lpVtbl->SetRenderState(device, D3DRS_ALPHABLENDENABLE, true);
+        device->lpVtbl->SetRenderState(device, D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+        device->lpVtbl->SetRenderState(device, D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+        device->lpVtbl->SetRenderState(device, D3DRS_CULLMODE, D3DCULL_NONE);
+        device->lpVtbl->SetVertexShader(device, nullptr);
+        device->lpVtbl->SetPixelShader(device, nullptr);
+        device->lpVtbl->SetFVF(device, D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_TEX1);
+        device->lpVtbl->SetTextureStageState(device, 0, D3DTSS_COLOROP, D3DTOP_MODULATE);
+        device->lpVtbl->SetTextureStageState(device, 0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+        device->lpVtbl->SetTextureStageState(device, 0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+        device->lpVtbl->SetTextureStageState(device, 0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+        device->lpVtbl->SetTextureStageState(device, 0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+        device->lpVtbl->SetTextureStageState(device, 0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+        device->lpVtbl->SetTextureStageState(device, 1, D3DTSS_COLOROP, D3DTOP_DISABLE);
+        device->lpVtbl->SetTextureStageState(device, 1, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
+        device->lpVtbl->SetSamplerState(device, 0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
+        device->lpVtbl->SetSamplerState(device, 0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+        device->lpVtbl->SetSamplerState(device, 0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
+        device->lpVtbl->SetSamplerState(device, 0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
+        dialog.draw();
+        device->lpVtbl->EndScene(device);
+        device->lpVtbl->Present(device, nullptr, nullptr, nullptr, nullptr);
+    }
+    g_timer->sub_582180();
+    Input::instance->sub_8203F0(0, saved_input);
+    modal_active = previous_modal;
+    saved_state->lpVtbl->Apply(saved_state);
+    saved_state->lpVtbl->Release(saved_state);
+    return answer == 1;
+}
+}
+
+bool show_native_confirmation_dialog(const char *message_key)
+{
+    return run_native_dialog(message_key, true, nullptr);
+}
+#endif
+
 VALIDATE_SIZE(TexturePackBase, 0x6C);
 
 VALIDATE_OFFSET(TextureInputPack, field_9C, 0x9C);

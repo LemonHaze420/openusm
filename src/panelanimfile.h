@@ -21,6 +21,7 @@ struct PanelAnimFile {
     //0x00628A40
     void Update(Float a2);
     void Stop();
+    void Start(bool reverse, bool loop = false);
     void SetPosition(float x, float y);
 
     //0x00617170

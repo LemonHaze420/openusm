@@ -12,12 +12,15 @@
 #include "variable.h"
 #include "wds.h"
 
+
+#include "vtbl.h"
+
 #include <utility.h>
 
 VALIDATE_SIZE(IGOZoomOutMap, 0x82Cu);
 VALIDATE_SIZE(IGOZoomOutMap::internal, 0x1Cu);
 VALIDATE_SIZE(IGOZoomPOI, 0x14);
-VALIDATE_SIZE(zoom_map_ui, 0x240u);
+VALIDATE_SIZE(zoom_map_ui, 0x248u);
 VALIDATE_OFFSET(IGOZoomOutMap, field_5CC, 0x5CC);
 VALIDATE_OFFSET(IGOZoomOutMap, field_5C4, 0x5C4);
 
@@ -43,6 +46,18 @@ IGOZoomOutMap::IGOZoomOutMap()
     field_818 = 0;
     field_824 = 0;
     field_828 = 0;
+}
+
+IGOZoomOutMap::~IGOZoomOutMap()
+{
+    for (auto &entry : field_0) {
+        auto *object = entry.field_0.field_10;
+        if (object != nullptr) {
+            using destroy_t = void(__fastcall *)(void *, void *, int);
+            auto destroy = reinterpret_cast<destroy_t>(get_vfunc(*object, 8));
+            destroy(object, nullptr, 1);
+        }
+    }
 }
 
 void IGOZoomOutMap::UpdateInScene()

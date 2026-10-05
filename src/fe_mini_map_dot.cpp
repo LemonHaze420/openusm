@@ -74,7 +74,7 @@ fe_mini_map_dot::fe_mini_map_dot(mini_map_dot_type a2, vector3d)
         break;
     }
 
-    auto *mini_map = g_femanager.IGO->field_4;
+    auto *mini_map = g_femanager.IGO->m_fe_mini_map_widget;
     field_0 = new PanelQuad{};
     field_0->CopyFrom(a2 == static_cast<mini_map_dot_type>(0) ? mini_map->map_icon_spidey : mini_map->map_icon_others);
     if (a2 == static_cast<mini_map_dot_type>(15) || a2 == static_cast<mini_map_dot_type>(16)) {
@@ -116,7 +116,7 @@ fe_mini_map_dot::~fe_mini_map_dot()
 {
 #if STANDALONE_SYSTEM
     if (!bExit) {
-        auto &widgets = g_femanager.IGO->field_4->field_364;
+        auto &widgets = g_femanager.IGO->m_fe_mini_map_widget->field_364;
         const auto found = std::find(widgets.begin(), widgets.end(), this);
         if (found != widgets.end())
             widgets.erase(found);

@@ -70,6 +70,8 @@ struct ParamStruct {
     bool disableZDepth;
 
     void *operator new(size_t size);
+    // The render-list arena owns this storage, including when construction throws.
+    void operator delete(void *) noexcept {}
 
     static inline constexpr auto OutlineThickness = 0.003f;
 };
@@ -163,6 +165,8 @@ struct USPersonNode : USVariantShaderNode {
     USPersonNode(nglMeshNode *a2, nglMeshSection *a3, nglMaterialBase *a4);
 
     void *operator new(size_t size);
+    // The render-list arena owns this storage, including when construction throws.
+    void operator delete(void *) noexcept {}
 
     //0x0041CF70
     bool GetLightInfo(USPersonNode::LightInfoStruct &lightInfo);

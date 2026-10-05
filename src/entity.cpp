@@ -54,7 +54,12 @@ entity::entity(const string_hash &a2, uint32_t a3) : signaller(a2, a3, false)
 
 void entity::destroy_static_entity_pointers()
 {
-    CDECL_CALL(0x004D6940);
+    if constexpr (STANDALONE_SYSTEM) {
+        delete found_entities;
+        found_entities = nullptr;
+    } else {
+        CDECL_CALL(0x004D6940);
+    }
 }
 
 entity::~entity()
@@ -138,14 +143,7 @@ void entity::update_proximity_maps()
 
 bool entity::is_in_limbo() const
 {
-    auto v1 = [](const entity *self) -> bool {
-        return self->is_ext_flagged(0x2000u) || !bit_cast<entity *>(self)->get_primary_region();
-    }(this);
-
-    auto sub_6A7DAB = [](const entity_base *self) -> bool {
-        return self->is_flagged(8u);
-    };
-    return v1 && !sub_6A7DAB(this);
+    return (is_flagged(0x2000u) || !bit_cast<entity *>(this)->get_primary_region()) && !is_ext_flagged(8u);
 }
 
 void entity::_set_visible(bool visible, bool suppress_owner_update)

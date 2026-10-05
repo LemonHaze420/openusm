@@ -646,6 +646,46 @@ void __fastcall set_entity_visible(Entity *owner, void *, bool value, bool famil
     }
     visible(&instance, value);
 }
+void __fastcall set_entity_state(Entity *owner, void *, int state, float value)
+{
+    if (owner->particle == nullptr)
+        return;
+    auto &instance = *owner->particle;
+    instance.flags |= 1u << state;
+    std::memcpy(reinterpret_cast<uint8_t *>(&instance) + 0x6C + 4 * state, &value, sizeof(value));
+    auto *effect = reinterpret_cast<Effect *>(instance.effect);
+    if (effect == nullptr)
+        return;
+    switch (state) {
+    case 1:
+        effect->z_depth = instance.z_depth;
+        break;
+    case 2:
+        effect->fade = instance.fade;
+        if (effect->fade >= 1.0f && (instance.flags & 8u) == 0)
+            effect->retry = false;
+        break;
+    case 3:
+        effect->retry = !(std::abs(instance.field_78) <= 0.0f);
+        break;
+    }
+}
+void __fastcall render_entity(Entity *owner, void *, float fade)
+{
+    if (owner->particle == nullptr || owner->particle->effect == nullptr || !(fade >= 0.1f))
+        return;
+    owner->set_active(true);
+    auto &instance = *owner->particle;
+    instance.alpha_multiplier = fade;
+    auto *effect = reinterpret_cast<Effect *>(instance.effect);
+    if (effect != nullptr) {
+        const auto alpha = static_cast<uint32_t>(instance.alpha * fade * 255.0f);
+        effect->color = (effect->color & 0x00FFFFFFu) | (alpha << 24);
+        if (effect->initialized)
+            for (auto *group = effect->groups_first; group < effect->groups_last; ++group)
+                group->render_info.field_38 = effect->color;
+    }
+}
 void __fastcall destroy_entity(Entity *owner, void *, int deallocate)
 {
     if (owner->particle != nullptr) {
@@ -946,8 +986,11 @@ void install_entity_callbacks(void **vtable)
     vtable[0] = reinterpret_cast<void *>(destroy_entity);
     vtable[0x10 / 4] = reinterpret_cast<void *>(release_entity);
     vtable[0x44 / 4] = reinterpret_cast<void *>(set_entity_visible);
+    vtable[0x1AC / 4] = reinterpret_cast<void *>(render_entity);
     vtable[0x1C0 / 4] = reinterpret_cast<void *>(set_color);
     vtable[0x1C4 / 4] = reinterpret_cast<void *>(get_color);
+    vtable[0x21C / 4] = reinterpret_cast<void *>(set_entity_state);
+    vtable[0x220 / 4] = reinterpret_cast<void *>(set_entity_state);
 }
 }  // namespace native_pfx
 

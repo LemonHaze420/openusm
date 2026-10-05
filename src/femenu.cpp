@@ -57,6 +57,13 @@ FEMenu::FEMenu(FEMenuSystem *a2, uint32_t a3, int a4, int a5, int16_t a6, int16_
     }
 }
 
+FEMenu::~FEMenu()
+{
+    for (int i = 0; i < num_entries; ++i)
+        delete field_4[i];
+    ::operator delete[](field_4);
+}
+
 void *FEMenu::operator new(size_t size)
 {
     auto *mem = mem_alloc(size);
@@ -222,6 +229,10 @@ void FEMenu::Load()
 void FEMenu::Draw()
 {
     if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00893F38)
+            return static_cast<pause_menu_root *>(this)->Draw();
+        if (m_vtbl == 0x00893FE8)
+            return static_cast<pause_menu_transition *>(this)->Draw();
         if (m_vtbl == 0x00893E78) {
             static_cast<fe_dialog_text *>(this)->Draw();
             return;
@@ -261,6 +272,12 @@ void FEMenu::OnActivate()
 {
     if constexpr (STANDALONE_SYSTEM) {
         switch (m_vtbl) {
+        case 0x00893F38:
+            return static_cast<pause_menu_root *>(this)->OnActivate();
+        case 0x00893FE8:
+            return static_cast<pause_menu_transition *>(this)->OnActivate();
+        case 0x008940A0:
+            return static_cast<pause_menu_status *>(this)->OnActivate();
         case 0x00893E78:
             static_cast<fe_dialog_text *>(this)->OnActivate();
             return;
@@ -295,6 +312,10 @@ void FEMenu::OnActivate()
 void FEMenu::OnDeactivate(FEMenu *a2)
 {
     if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00893F38)
+            return static_cast<pause_menu_root *>(this)->OnDeactivate(a2);
+        if (m_vtbl == 0x00893FE8)
+            return;
         if (m_vtbl == 0x00893E78) {
             static_cast<fe_dialog_text *>(this)->OnDeactivate();
             return;
@@ -322,6 +343,8 @@ void FEMenu::OnDeactivate(FEMenu *a2)
 void FEMenu::OnSelect(int a2)
 {
     if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00893F38 || m_vtbl == 0x00893FE8)
+            return;
         if (m_vtbl == 0x00893E78)
             return;
     }
@@ -332,6 +355,8 @@ void FEMenu::OnSelect(int a2)
 void FEMenu::OnStart(int controller)
 {
     if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00893F38)
+            return static_cast<pause_menu_root *>(this)->OnStart(controller);
         if (m_vtbl == 0x00894648) {
             static_cast<main_menu_start *>(this)->OnStart(controller);
         }
@@ -345,6 +370,10 @@ void FEMenu::OnStart(int controller)
 void FEMenu::OnUp(int a2)
 {
     if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00893F38)
+            return static_cast<pause_menu_root *>(this)->OnUp(a2);
+        if (m_vtbl == 0x00893FE8)
+            return;
         if (m_vtbl == 0x00893E78) {
             static_cast<fe_dialog_text *>(this)->OnUp(a2);
             return;
@@ -367,6 +396,10 @@ void FEMenu::OnUp(int a2)
 void FEMenu::OnDown(int a2)
 {
     if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00893F38)
+            return static_cast<pause_menu_root *>(this)->OnDown(a2);
+        if (m_vtbl == 0x00893FE8)
+            return;
         if (m_vtbl == 0x00893E78) {
             static_cast<fe_dialog_text *>(this)->OnDown(a2);
             return;
@@ -389,6 +422,10 @@ void FEMenu::OnDown(int a2)
 void FEMenu::OnLeft(int a2)
 {
     if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00893F38)
+            return static_cast<pause_menu_root *>(this)->OnLeft(a2);
+        if (m_vtbl == 0x00893FE8)
+            return;
         if (m_vtbl == 0x00893E78) {
             static_cast<fe_dialog_text *>(this)->OnLeft(a2);
             return;
@@ -407,6 +444,10 @@ void FEMenu::OnLeft(int a2)
 void FEMenu::OnRight(int a2)
 {
     if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00893F38)
+            return static_cast<pause_menu_root *>(this)->OnRight(a2);
+        if (m_vtbl == 0x00893FE8)
+            return;
         if (m_vtbl == 0x00893E78) {
             static_cast<fe_dialog_text *>(this)->OnRight(a2);
             return;
@@ -425,6 +466,8 @@ void FEMenu::OnRight(int a2)
 void FEMenu::OnCross(int controller)
 {
     if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00893F38)
+            return static_cast<pause_menu_root *>(this)->OnCross(controller);
         if (m_vtbl == 0x00893E78) {
             static_cast<fe_dialog_text *>(this)->OnCross(controller);
             return;
@@ -448,6 +491,10 @@ void FEMenu::OnCross(int controller)
 void FEMenu::OnTriangle(int a2)
 {
     if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00893F38)
+            return static_cast<pause_menu_root *>(this)->OnTriangle(a2);
+        if (m_vtbl == 0x00893FE8)
+            return;
         if (m_vtbl == 0x00893E78) {
             static_cast<fe_dialog_text *>(this)->OnTriangle(a2);
             return;
@@ -465,6 +512,8 @@ void FEMenu::OnTriangle(int a2)
 void FEMenu::OnSquare(int a2)
 {
     if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00893F38 || m_vtbl == 0x00893FE8)
+            return;
         if (m_vtbl == 0x00893E78)
             return;
         if (m_vtbl == 0x00895790) {
@@ -555,6 +604,18 @@ void FEMenu::OnButtonRelease(int a2, int a3)
         a2 == input_mgr::instance->field_58 - 1000000 && a3 == this->field_2A) {
         this->field_2A = -1;
     }
+}
+
+void FEMenu::OnWindowMessage(unsigned message, int wparam, int lparam)
+{
+    if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00893F38)
+            return static_cast<pause_menu_root *>(this)->OnWindowMessage(message, wparam, lparam);
+        if (m_vtbl == 0x00893FE8)
+            return;
+    }
+    void(__fastcall * func)(FEMenu *, void *, unsigned, int, int) = CAST(func, get_vfunc(m_vtbl, 0xA0));
+    func(this, nullptr, message, wparam, lparam);
 }
 
 void FEMenu::SetHigh(int a2, bool a3)

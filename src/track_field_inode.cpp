@@ -124,15 +124,15 @@ void track_field_inode::_frame_advance(Float delta)
 
 void track_field_inode::ui_init()
 {
-    auto *widget = g_femanager.IGO->field_14;
+    auto *widget = g_femanager.IGO->m_fe_track_and_field;
     widget->field_5C = 1.0f;
     widget->field_60 = 0.3f;
     widget->field_64 = 0.6f;
     if (widget->field_4) {
         widget->field_4C = true;
-        widget->field_4D = g_femanager.IGO->field_4->field_3A8;
+        widget->field_4D = g_femanager.IGO->m_fe_mini_map_widget->field_3A8;
         if (widget->field_4D)
-            g_femanager.IGO->field_4->SetShown(false);
+            g_femanager.IGO->m_fe_mini_map_widget->SetShown(false);
         float center = 0.03846154f;
         for (int i = 0; i < 13; ++i) {
             const float distance = std::fabs(center - widget->field_5C);
@@ -148,7 +148,7 @@ void track_field_inode::ui_init()
 
 void track_field_inode::ui_update()
 {
-    g_femanager.IGO->field_14->field_50 = std::clamp(field_20, 0.0f, 1.0f);
+    g_femanager.IGO->m_fe_track_and_field->field_50 = std::clamp(field_20, 0.0f, 1.0f);
 }
 
 ai::track_field_inode::track_field_inode()

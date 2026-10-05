@@ -27,6 +27,10 @@
 #include <cassert>
 #include <cmath>
 
+
+#include <algorithm>
+#include <cfloat>
+
 VALIDATE_SIZE(occupancy_voxels_t, 0x1060u);
 
 VALIDATE_SIZE(quick_anchor_container_t, 0x12C4u);
@@ -76,7 +80,7 @@ bool swing_anchor_finder::accept_swing_point(const quick_anchor_info &info, cons
                                              local_collision::primitive_list_t **a7,
                                              local_collision::primitive_list_t ***a8) const
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         vector3d normal = info.m_normal;
 
         assert(std::abs(normal.length() - 1.0f) < EPSILON);
@@ -149,18 +153,56 @@ bool swing_anchor_finder::accept_swing_point(const quick_anchor_info &info, cons
     }
 }
 
-void sub_464850(local_collision::primitive_list_t **a1)
+
+static fixed_vector<local_collision::primitive_list_t, 7> &good_occluders()
 {
-    CDECL_CALL(0x00464850, a1);
+    return var<fixed_vector<local_collision::primitive_list_t, 7>>(0x00958C38);
 }
 
-struct swing_anchor_obbfilter_t : local_collision::obbfilter_base {
+void sub_464850(local_collision::primitive_list_t **a1)
+{
+    if constexpr (STANDALONE_SYSTEM) {
+        auto **link = a1;
+        int count = 0;
+        while (*link != nullptr && ++count <= 1001) {
+            auto *node = *link;
+            const auto &cached = good_occluders();
+            const bool preferred =
+                link != a1 && std::any_of(cached.m_data, cached.m_data + cached.m_size, [node](const auto &entry) {
+                    return entry.field_4.ent == node->field_4.ent;
+                });
+            if (preferred) {
+                *link = node->field_0;
+                node->field_0 = *a1;
+                *a1 = node;
+            } else {
+                link = &node->field_0;
+            }
+        }
+    } else {
+        CDECL_CALL(0x00464850, a1);
+    }
+}
+
+struct offset_anchor_filter : local_collision::obbfilter_base {
     vector3d field_4;
     float field_10;
 
-    swing_anchor_obbfilter_t(const vector3d &a1, float a3)
+    static bool __fastcall accept(const local_collision::obbfilter_base *base, void *, subdivision_node_obb_base *node,
+                                  const local_collision::query_args_t *)
     {
-        this->m_vtbl = 0x0087EDF8;
+        const auto *filter = static_cast<const offset_anchor_filter *>(base);
+        return node->sphere_intersection(filter->field_4, filter->field_10);
+    }
+
+    offset_anchor_filter(const vector3d &a1, float a3)
+    {
+        if constexpr (STANDALONE_SYSTEM) {
+            static const local_collision::obbfilter_base::native_vtable table{accept};
+            this->m_vtbl = reinterpret_cast<std::intptr_t>(&table);
+        } else {
+            this->m_vtbl = 0x0087EDF8;
+        }
         this->field_4 = a1;
         this->field_10 = a3;
     }
@@ -168,302 +210,148 @@ struct swing_anchor_obbfilter_t : local_collision::obbfilter_base {
 
 void occupancy_voxels_t::init(const vector3d &a2, const vector3d &a3)
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
+        std::fill(std::begin(field_60), std::end(field_60), 0u);
+        const vector4d first{a2.x, a2.y, a2.z, 1.0f};
+        const vector4d second{a3.x, a3.y, a3.z, 1.0f};
+        field_0 = vector4d::min(first, second);
+        field_10 = vector4d::max(first, second);
+        field_20 = field_10 - field_0;
+        field_30 = {32.0f / field_20.x, 32.0f / field_20.y, 32.0f / field_20.z, 1.0f};
+        field_40 = {31.0f, 31.0f, 31.0f, 1.0f};
+        field_50 = {0.0f, 0.0f, 0.0f, 1.0f};
     } else {
         THISCALL(0x0048DCE0, this, &a2, &a3);
     }
 }
 
-static Var<fixed_vector<local_collision::primitive_list_t, 7>> good_occluders_from_last_frame{0x00958C38};
 
 bool swing_anchor_finder::find_best_offset_anchor(entity *self, const vector3d &a3, const vector3d &a4,
                                                   find_best_anchor_result_t *result) const
 {
-    if constexpr (0) {
-        if (!g_anchor_finding_enabled()) {
+    if constexpr (!STANDALONE_SYSTEM) {
+        bool(__fastcall * func)(const swing_anchor_finder *,
+                                void *,
+                                entity *,
+                                const vector3d *,
+                                const vector3d *,
+                                find_best_anchor_result_t *) = CAST(func, 0x00486280);
+        return func(this, nullptr, self, &a3, &a4, result);
+
+
+    } else {
+        if (!g_anchor_finding_enabled())
             return false;
-        }
+        stack_allocator saved;
+        scratchpad_stack::save_state(&saved);
 
-        stack_allocator v95;
-        scratchpad_stack::save_state(&v95);
-
-        assert(self != nullptr);
-
-        assert(self->is_an_actor());
-
-        assert(result != nullptr);
-
-        result->set_best_distance_squared(3.4028235e38);
-
-        sweet_cone_t sweet_cone{this, self->get_abs_position(), self->get_abs_po().get_z_facing(), a3, a4};
-
-        sweet_cone.field_24 = this->field_1C;
-
-        vector3d v11 = self->get_abs_position();
-        float v14 = (v11 - sweet_cone.sweet_spot).length();
-        float arg4 = std::min(v14, 25.0f);
-
-        float v72 = sweet_cone.m_position[1] - 15.0f;
-
-        vector3d a5a{};
-        vector3d a6{};
-
-        vector3d _a2a = sweet_cone.m_position - YVEC * 15.0f;
-        if (find_intersection(sweet_cone.m_position,
-                              _a2a,
+        result->set_best_distance_squared(FLT_MAX);
+        const auto position = self->get_abs_position();
+        sweet_cone_t cone{this, position, self->get_abs_po().get_z_facing(), a3, a4};
+        cone.field_24 = field_1C;
+        const float radius = std::min((position - cone.sweet_spot).length(), 25.0f);
+        float floor_y = cone.m_position.y - 15.0f;
+        vector3d floor_point, floor_normal;
+        if (find_intersection(cone.m_position,
+                              cone.m_position - YVEC * 15.0f,
                               *local_collision::entfilter_entity_no_capsules,
                               *local_collision::obbfilter_lineseg_test,
-                              &a5a,
-                              &a6,
+                              &floor_point,
+                              &floor_normal,
                               nullptr,
                               nullptr,
                               nullptr,
-                              false)) {
-            v72 = a5a[1];
-        }
+                              false))
+            floor_y = floor_point.y;
+        floor_y += 1.0f;
 
-        v72 += 1.0f;
+        const auto midpoint = (cone.sweet_spot + position) * 0.5f;
+        const float half_distance = (cone.sweet_spot - position).length() * 0.5f;
+        auto occluder_min = midpoint - vector3d{half_distance};
+        const auto occluder_max = midpoint + vector3d{half_distance};
+        occluder_min.y = position.y + 2.0f;
+        local_collision::query_args_t args{};
+        args.set_entity(self);
+        auto *occluders = local_collision::query_line_segment(occluder_min,
+                                                              occluder_max,
+                                                              *local_collision::entfilter_blocks_ai_los,
+                                                              *local_collision::obbfilter_accept_all,
+                                                              args);
+        sub_464850(&occluders);
 
-        auto v17 = sweet_cone.sweet_spot + self->get_abs_position();
-        auto v71 = v17 * 0.5f;
-
-        auto v20 = sweet_cone.sweet_spot - self->get_abs_position();
-        auto v23 = v20.length() * 0.5f;
-
-        local_collision::query_args_t v90{};
-        v90.set_entity(self);
-
-        static local_collision::entfilter<local_collision::entfilter_BLOCKS_AI_LOS> ent_ai_los_filter{};
-
-        vector3d occluder_query_min = v71 - vector3d{v23};
-        vector3d occluder_query_max = v71 + vector3d{v23};
-
-        occluder_query_min[1] = self->get_abs_position()[1] + 2.0f;
-
-        assert(occluder_query_max.y > occluder_query_min.y + 1.0f);
-
-        auto v65 = v90;
-        auto *a7 = local_collision::query_line_segment(
-            occluder_query_min, occluder_query_max, ent_ai_los_filter, *local_collision::obbfilter_accept_all, v65);
-        sub_464850(&a7);
-
-        auto *mem = scratchpad_stack::alloc(4192);
-        auto *v76 = new (mem) occupancy_voxels_t{};
-
-        vector3d a2a = sweet_cone.sweet_spot + vector3d{25.0f};
-        vector3d _v71 = sweet_cone.sweet_spot - vector3d{25.0f};
-
-        v76->init(_v71, a2a);
-
+        auto *grid = new (scratchpad_stack::alloc(sizeof(occupancy_voxels_t))) occupancy_voxels_t;
+        grid->init(cone.sweet_spot - vector3d{25.0f}, cone.sweet_spot + vector3d{25.0f});
         ++subdivision_node_obb_base::visit_key();
         ++entity::visit_key3;
+        offset_anchor_filter filter{cone.sweet_spot, radius};
+        --subdivision_node_obb_base::visit_key();
+        --entity::visit_key3;
+        auto query_min = cone.sweet_spot - vector3d{radius};
+        const auto query_max = cone.sweet_spot + vector3d{radius};
+        query_min.y = position.y + 5.0f;
+        auto *geometry = local_collision::query_line_segment(
+            query_min, query_max, *local_collision::entfilter_reject_all, filter, args);
+        auto *anchors = new (scratchpad_stack::alloc(sizeof(quick_anchor_container_t))) quick_anchor_container_t{};
+        for (auto *node = geometry; node != nullptr; node = node->field_0) {
+            fixed_vector<obb_closest_point_entry_t, 3> points;
+            static_cast<subdivision_node_obb_base *>(node->get_obb_node())
+                ->find_closest_point_on_visible_faces(cone.sweet_spot, position, &points);
+            for (const auto &point : points) {
+                auto anchor = point.field_0;
+                if (point.field_C.y < 0.5f && point.field_C.y > -0.5f)
+                    anchor += point.field_C * (5.0f / point.field_C.length());
 
-        bool v66 = false;
-        swing_anchor_obbfilter_t v92{sweet_cone.sweet_spot, arg4};
-        for (int i = 0; i < 1; ++i) {
-            --entity::visit_key3;
-            --subdivision_node_obb_base::visit_key();
-
-            vector3d min_query_extent = sweet_cone.sweet_spot - vector3d{arg4};
-
-            vector3d max_query_extent = sweet_cone.sweet_spot + vector3d{arg4};
-
-            min_query_extent[1] = sweet_cone.m_position[1] + 5.0f;
-
-            assert(min_query_extent.y + 5.0f < max_query_extent.y && "Anchor query too thin. Please report to Andrei.");
-
-            local_collision::query_args_t v65{};
-            auto *v75 = local_collision::query_line_segment(
-                min_query_extent, max_query_extent, *local_collision::entfilter_reject_all, v92, v65);
-            fixed_vector<quick_anchor_info, 100> v98{};
-
-            auto *mem = scratchpad_stack::alloc(sizeof(quick_anchor_container_t));
-            auto *v28 = new (mem) quick_anchor_container_t{};
-
-            for (auto *iter = v75; iter != nullptr; iter = iter->field_0) {
-                assert(!iter->is_entity());
-
-                fixed_vector<obb_closest_point_entry_t, 3> v99;
-
-                auto *obb_node = static_cast<subdivision_node_obb_base *>(iter->get_obb_node());
-                obb_node->find_closest_point_on_visible_faces(sweet_cone.sweet_spot, self->get_abs_position(), &v99);
-
-                for (auto &entry : v99) {
-                    vector3d v71 = entry.field_0;
-                    auto v32 = entry.field_C[1];
-                    if (v32 < 0.5f && v32 > -0.5f) {
-                        auto v35 = entry.field_C * 5.0f;
-                        auto v37 = entry.field_C.length();
-                        vector3d a6 = v35 / v37;
-                        v71 = entry.field_0 + a6;
-                    }
-
-                    auto v38 = (entry.field_0 - sweet_cone.sweet_spot).normalized();
-                    auto v39 = (entry.field_0 - sweet_cone.sweet_spot).length2();
-
-                    auto v107 = v39 * (2.0f - dot(sweet_cone.direction, v38));
-
-                    v28->add_anchor(v76, v71, entry.field_C, entry.field_0, v107, nullptr, nullptr);
-                }
-            }
-
-            fixed_vector<region *, 15> v96{};
-
-            ++entity::visit_key3;
-
-            anchor_query_visitor v90{v28, sweet_cone.sweet_spot, sweet_cone.m_position, true, v76};
-
-            auto v44 = arg4;
-
-            loaded_regions_cache::get_regions_intersecting_sphere(sweet_cone.sweet_spot, arg4, &v96);
-
-            for (auto &reg : v96) {
-                reg->visibility_map->traverse_sphere(sweet_cone.sweet_spot, v44, &v90);
-            }
-
-            v28->field_0.sort();
-
-            for (auto &anchor_info : v28->field_0) {
-                if (v66) {
-                    break;
-                }
-
-                result->set_best_distance_squared(3.4028235e38);
-
-                local_collision::primitive_list_t **a8 = nullptr;
-                local_collision::primitive_list_t *a7 = nullptr;
-                float target_length = -1.0;
-
-                auto best_distance_squared = result->get_best_distance_squared();
-
-                if (this->accept_swing_point(
-                        anchor_info, sweet_cone, best_distance_squared, v72, &target_length, &a7, &a8)) {
-                    assert(target_length > web_min_length);
-
-                    result->set_target_length(target_length);
-
-                    result->set_best_distance_squared(anchor_info.field_24);
-
-                    result->set_point(anchor_info.m_position);
-                    result->set_normal(anchor_info.m_normal);
-                    result->set_visual_point(anchor_info.field_18);
-
-                    result->set_entity(anchor_info.field_2C != nullptr ? nullptr : anchor_info.field_28);
-                    v66 = true;
-                } else if (a8 != nullptr && a7 != *a8) {
-                    int count_before = 0;
-                    bool in_list = false;
-                    for (auto *it = a7; it != nullptr; it = it->field_0) {
-                        ++count_before;
-                        if (*a8 == it) {
-                            in_list = true;
-                        }
-                    }
-
-                    assert(in_list);
-
-                    auto *v52 = *a8;
-                    *a8 = v52->field_0;
-                    v52->field_0 = a7;
-                    a7 = v52;
-
-                    int count_after = 0;
-                    for (auto *it = v52; it != nullptr; it = it->field_0) {
-                        ++count_after;
-                    }
-
-                    assert(count_after == count_before);
-                }
-            }
-
-            for (auto &anchor_info : v28->field_0) {
-                if (v66) {
-                    break;
-                }
-
-                result->set_best_distance_squared(3.4028235e38);
-
-                auto best_distance_squared = result->get_best_distance_squared();
-
-                local_collision::primitive_list_t **a8 = nullptr;
-                local_collision::primitive_list_t *a7 = nullptr;
-                float target_length = -1.0;
-                if (this->accept_swing_point(
-                        anchor_info, sweet_cone, best_distance_squared, v72, &target_length, &a7, &a8)) {
-                    assert(target_length >= web_min_length);
-
-                    result->set_target_length(target_length);
-                    result->set_best_distance_squared(anchor_info.field_24);
-                    result->set_point(anchor_info.m_position);
-                    result->set_normal(anchor_info.m_normal);
-                    result->set_visual_point(anchor_info.field_18);
-
-
-                    result->set_entity(anchor_info.field_2C != nullptr ? nullptr : anchor_info.field_28);
-                    v66 = true;
-                } else if (a8 != nullptr && a7 != *a8) {
-                    int count_before = 0;
-                    bool in_list = false;
-                    for (auto *jj = a7; jj != nullptr; jj = jj->field_0) {
-                        ++count_before;
-                        if (*a8 == jj) {
-                            in_list = true;
-                        }
-                    }
-
-                    assert(in_list);
-
-                    auto *v61 = *a8;
-                    *a8 = v61->field_0;
-                    v61->field_0 = a7;
-                    a7 = v61;
-
-                    int count_after = 0;
-                    for (auto *kk = v61; kk != nullptr; kk = kk->field_0) {
-                        ++count_after;
-                    }
-
-                    assert(count_after == count_before);
-                }
-            }
-
-            if (&v28->field_0 != &v98) {
-                scratchpad_stack::pop(v28, 4804);
-            }
-
-            local_collision::destroy_primitive_list(&v75);
-            if (v66) {
-                break;
+                const auto delta = point.field_0 - cone.sweet_spot;
+                auto direction = delta;
+                if (direction.length2() > LARGE_EPSILON)
+                    direction.normalize();
+                const float score = delta.length2() * (2.0f - dot(cone.direction, direction));
+                anchors->add_anchor(grid, anchor, point.field_C, point.field_0, score, nullptr, nullptr);
             }
         }
+        ++entity::visit_key3;
+        anchor_query_visitor visitor{anchors, cone.sweet_spot, position, true, grid};
+        fixed_vector<region *, 15> regions;
+        loaded_regions_cache::get_regions_intersecting_sphere(cone.sweet_spot, radius, &regions);
+        for (auto *reg : regions)
+            reg->visibility_map->traverse_sphere(cone.sweet_spot, radius, &visitor);
+        anchors->field_0.sort();
 
-        good_occluders_from_last_frame().m_size = 0;
-
-        for (auto *v62 = a7; v62 != nullptr && good_occluders_from_last_frame().size() != 7; v62 = v62->field_0) {
-            good_occluders_from_last_frame().push_back(*v62);
-        }
-
-        local_collision::destroy_primitive_list(&a7);
-        scratchpad_stack::restore_state(v95);
-        return v66;
-    } else {
-        bool(__fastcall * func)(const swing_anchor_finder *,
-                                void *edx,
-                                entity *self,
-                                const vector3d *a3,
-                                const vector3d *a4,
-                                find_best_anchor_result_t *result) = CAST(func, 0x00486280);
-        auto res = func(this, nullptr, self, &a3, &a4, result);
-
-        if constexpr (0) {
-            sp_log("");
-            sp_log("%s, %s, %s",
-                   result->m_point.to_string().c_str(),
-                   result->m_normal.to_string().c_str(),
-                   result->m_visual_point.to_string().c_str());
-        }
-
-        return res;
+        bool found = false;
+        const auto accept = [&](const quick_anchor_info &anchor) {
+            result->set_best_distance_squared(FLT_MAX);
+            local_collision::primitive_list_t **occluder = nullptr;
+            float target_length = -1.0f;
+            const Float best_distance{result->get_best_distance_squared()};
+            if (accept_swing_point(anchor, cone, best_distance, floor_y, &target_length, &occluders, &occluder)) {
+                result->set_target_length(target_length);
+                result->set_best_distance_squared(anchor.field_24);
+                result->set_point(anchor.m_position);
+                result->set_normal(anchor.m_normal);
+                result->set_visual_point(anchor.field_18);
+                result->set_entity(anchor.field_2C != nullptr ? nullptr : anchor.field_28);
+                found = true;
+            } else if (occluder != nullptr && occluders != *occluder) {
+                auto *node = *occluder;
+                *occluder = node->field_0;
+                node->field_0 = occluders;
+                occluders = node;
+            }
+        };
+        const auto count = anchors->field_0.size();
+        for (uint32_t index = 0; index < count && index < 20 && !found; ++index)
+            accept(anchors->field_0.m_data[index]);
+        for (uint32_t index = 20; index < count && !found; index += 2)
+            accept(anchors->field_0.m_data[index]);
+        scratchpad_stack::pop(anchors, sizeof(quick_anchor_container_t));
+        local_collision::destroy_primitive_list(&geometry);
+        auto &cached = good_occluders();
+        cached.m_size = 0;
+        for (auto *node = occluders; node != nullptr && cached.size() < 7; node = node->field_0)
+            cached.push_back(*node);
+        local_collision::destroy_primitive_list(&occluders);
+        scratchpad_stack::restore_state(saved);
+        return found;
     }
 }
 
@@ -521,9 +409,6 @@ void quick_anchor_container_t::add_anchor(occupancy_voxels_t *grid, const vector
             }
 
             this->field_0.push_back(anchor_info);
-
-        } else {
-            THISCALL(0x004900B0, this, grid, &a3, &a4, &a5, a6, a7, a8);
         }
     }
 }

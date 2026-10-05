@@ -5,6 +5,9 @@
 #include "func_wrapper.h"
 #include "utility.h"
 
+
+#include "vtbl.h"
+
 VALIDATE_SIZE(FEMenuEntry, 0x18);
 
 FEMenuEntry::FEMenuEntry(FEMenu *a1, FEText *a2, bool a3)
@@ -16,6 +19,15 @@ FEMenuEntry::FEMenuEntry(FEMenu *a1, FEText *a2, bool a3)
     this->CommonConstructor(a2, a1);
 
     this->field_17 = a3;
+}
+
+FEMenuEntry::~FEMenuEntry()
+{
+    if (field_17 && field_10 != nullptr) {
+        using destroy_t = void(__fastcall *)(FEText *, void *, int);
+        auto destroy = reinterpret_cast<destroy_t>(get_vfunc(field_10->m_vtbl, 8));
+        destroy(field_10, nullptr, 1);
+    }
 }
 
 FEMenuEntry::FEMenuEntry(global_text_enum a3, FEMenu *arg4, bool a11, font_index a2, int a6)

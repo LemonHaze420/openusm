@@ -22,6 +22,9 @@
 #include "combo_system_weapon.h"
 #include "common.h"
 #include "cut_scene_segment.h"
+
+#include "camera_setup_entry.h"
+#include "tracking_panel.h"
 #include "entity_base_vhandle.h"
 #include "entity_viseme_entry.h"
 #include "enhanced_state.h"
@@ -660,6 +663,113 @@ void clear_virtual_mashed_vector(mVector<T> &vector)
         }
     });
 }
+
+}
+
+template <>
+void mVector<resource_key>::clear()
+{
+    clear_mashed_vector(*this, [](resource_key *entry, bool in_mash) {
+        entry->destruct_mashed_class();
+        if (!in_mash)
+            ::operator delete(entry);
+    });
+}
+
+template <>
+void mVector<resource_key>::destruct_mashed_class()
+{
+    clear();
+    mContainer_base::destruct_mashed_class();
+}
+
+template <>
+void mVector<mString>::clear()
+{
+    clear_mashed_vector(*this, [](mString *entry, bool in_mash) {
+        entry->destruct_mashed_class();
+        if (!in_mash)
+            ::operator delete(entry);
+    });
+}
+
+template <>
+void mVector<mString>::destruct_mashed_class()
+{
+    clear();
+    mContainer_base::destruct_mashed_class();
+}
+
+template <>
+void mVector<mVector<mString>>::clear()
+{
+    clear_mashed_vector(*this, [](mVector<mString> *entry, bool in_mash) {
+        entry->destruct_mashed_class();
+        if (!in_mash)
+            ::operator delete(entry);
+    });
+}
+
+template <>
+void mVector<mVector<mString>>::destruct_mashed_class()
+{
+    clear();
+    mContainer_base::destruct_mashed_class();
+}
+
+template <>
+void mVector<camera_setup_entry>::clear()
+{
+    clear_mashed_vector(*this, [](camera_setup_entry *entry, bool in_mash) {
+        entry->field_0.destruct_mashed_class();
+        entry->field_10.destruct_mashed_class();
+        entry->field_20.destruct_mashed_class();
+        if (!in_mash)
+            ::operator delete(entry);
+    });
+}
+
+template <>
+void mVector<camera_setup_entry>::destruct_mashed_class()
+{
+    clear();
+    mContainer_base::destruct_mashed_class();
+}
+
+template <>
+void mVector<tracking_panel>::clear()
+{
+    clear_mashed_vector(*this, [](tracking_panel *entry, bool in_mash) {
+        entry->field_0.destruct_mashed_class();
+        entry->field_10.destruct_mashed_class();
+        entry->field_18.destruct_mashed_class();
+        if (!in_mash)
+            ::operator delete(entry);
+    });
+}
+
+template <>
+void mVector<tracking_panel>::destruct_mashed_class()
+{
+    clear();
+    mContainer_base::destruct_mashed_class();
+}
+
+template <>
+void mVector<cut_scene_segment>::clear()
+{
+    clear_mashed_vector(*this, [](cut_scene_segment *entry, bool in_mash) {
+        entry->destruct_mashed_class();
+        if (!in_mash)
+            ::operator delete(entry);
+    });
+}
+
+template <>
+void mVector<cut_scene_segment>::destruct_mashed_class()
+{
+    clear();
+    mContainer_base::destruct_mashed_class();
 }
 
 template <>

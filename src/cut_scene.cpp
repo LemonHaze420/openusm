@@ -58,7 +58,11 @@ void cut_scene::init_stream_scene_anims()
 
 void cut_scene::destruct_mashed_class()
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
+        field_0.destruct_mashed_class();
+        segments.destruct_mashed_class();
+        sync_camera.destruct_mashed_class();
+        field_3C.destruct_mashed_class();
     } else {
         void(__fastcall * func)(cut_scene *) = CAST(func, 0x00742770);
         func(this);

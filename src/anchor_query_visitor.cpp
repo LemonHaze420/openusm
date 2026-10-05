@@ -12,10 +12,21 @@
 
 VALIDATE_SIZE(anchor_query_visitor, 0x28);
 
+
+static int visit_anchor(subdivision_visitor &visitor, const subdivision_node &node)
+{
+    return static_cast<anchor_query_visitor &>(visitor).visit(const_cast<subdivision_node *>(&node));
+}
+
 anchor_query_visitor::anchor_query_visitor(quick_anchor_container_t *a2, const vector3d &a1, const vector3d &a4,
                                            bool a5, occupancy_voxels_t *a6)
 {
-    this->m_vtbl = 0x0087E9A4;
+    if constexpr (STANDALONE_SYSTEM) {
+        static const native_vtable table{visit_anchor, nullptr};
+        this->m_vtbl = reinterpret_cast<std::intptr_t>(&table);
+    } else {
+        this->m_vtbl = 0x0087E9A4;
+    }
     this->field_4 = a2;
     this->field_8 = a1;
     this->field_20 = a5;
@@ -35,7 +46,7 @@ int anchor_query_visitor::visit(subdivision_node *a2)
     }
 
     v2->field_64 = entity::visit_key3;
-    if (v2->is_flagged(0x800)) {
+    if (v2->is_ext_flagged(0x800)) {
         return 0;
     }
 
@@ -61,8 +72,8 @@ int anchor_query_visitor::visit(subdivision_node *a2)
             this->add_quick_anchor(anchor, v9 ? v2 : nullptr);
         };
 
-        auto it = v2->members.begin();
-        auto end = v2->members.end();
+        auto it = v4->members.begin();
+        auto end = v4->members.end();
 
         if (this->field_20) {
             for (; it != end; ++it) {
@@ -79,7 +90,7 @@ int anchor_query_visitor::visit(subdivision_node *a2)
             }
         }
     } else if (this->field_20) {
-        if ((v2->is_a_line_marker_base() && !v2->is_walkable()) || !v2->is_an_anchor_marker()) {
+        if ((v2->is_a_line_marker_base() && !v2->is_walkable()) || v2->is_an_anchor_marker()) {
             this->add_quick_anchor(v2, nullptr);
         }
     } else if (v2->is_a_line_marker_base() && v2->is_walkable()) {
@@ -99,8 +110,6 @@ void anchor_query_visitor::add_quick_anchor(entity_base *anchor, entity *clone_p
         vector3d origin;
 
         auto *v3 = bit_cast<line_marker_base *>(anchor);
-
-        sp_log("%u", anchor->get_flavor());
 
         if (anchor->get_flavor() == LINE_ANCHOR) {
             target = v3->get_target();

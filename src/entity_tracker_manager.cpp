@@ -15,6 +15,17 @@ entity_tracker_manager::entity_tracker_manager() : tracker_slot_pool(128)
     this->field_4C = false;
 }
 
+entity_tracker_manager::~entity_tracker_manager()
+{
+    for (const auto &entry : field_0) {
+        auto *tracker = id_to_ptr(entry.second);
+        if (tracker != nullptr) {
+            delete tracker->field_4;
+            delete tracker;
+        }
+    }
+}
+
 entity_tracker *entity_tracker_manager::id_to_ptr(uint32_t a2)
 {
     slot_pool<entity_tracker *, unsigned int>::slot_t *v2;
@@ -61,7 +72,7 @@ void entity_tracker_manager::destroy_entity_tracker(uint32_t id)
     if (tracker == nullptr)
         return;
 
-    auto *health = g_femanager.IGO->field_28;
+    auto *health = g_femanager.IGO->m_thug_health;
     if (tracker->field_C != health->field_0)
         health->destroy(tracker->field_C);
     field_0.erase(field_0.find(tracker->field_0));

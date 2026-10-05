@@ -23,6 +23,9 @@
 
 #include "script_manager.h"
 #include "time_interface.h"
+
+#include "vtbl.h"
+
 #include <cmath>
 #include <type_traits>
 
@@ -3391,12 +3394,31 @@ struct slf__entity__set_special_target__num__t : script_library_class::function 
 struct slf__entity__set_state__num__num__t : script_library_class::function {
     slf__entity__set_state__num__num__t(script_library_class *slc, const char *a3) : function(slc, a3)
     {
+#if STANDALONE_SYSTEM
+        bind_standalone_entity_slf(this);
+#else
         m_vtbl = (decltype(m_vtbl))0x0089B574;
+
+#endif
     }
 
-    bool operator()(vm_stack &, script_library_class::function::entry_t) const
+
+    struct parms_t {
+        entity_base_vhandle me;
+        float state;
+        float value;
+    };
+
+    bool operator()(vm_stack &stack, script_library_class::function::entry_t) const
     {
-        return true;
+        SLF_PARMS;
+        auto *target = parms->me.get_volatile_ptr();
+        if (target != nullptr && target->get_flavor() == 10) {
+            auto *function = reinterpret_cast<void(__fastcall *)(entity_base *, void *, int, float)>(
+                get_vfunc(target->m_vtbl, 0x21C));
+            function(target, nullptr, static_cast<int>(parms->state), parms->value);
+        }
+        SLF_DONE;
     }
 };
 
@@ -3561,11 +3583,26 @@ struct slf__entity__snap_to__entity__t : script_library_class::function {
 struct slf__entity__suspend__t : script_library_class::function {
     slf__entity__suspend__t(script_library_class *slc, const char *a3) : function(slc, a3)
     {
+#if STANDALONE_SYSTEM
+        bind_standalone_entity_slf(this);
+#else
         m_vtbl = (decltype(m_vtbl))0x0089AF7C;
+
+#endif
     }
 
-    bool operator()(vm_stack &, script_library_class::function::entry_t) const
+
+    struct parms_t {
+        entity_base_vhandle entity;
+    };
+
+    bool operator()(vm_stack &stack, script_library_class::function::entry_t) const
     {
+        SLF_PARMS;
+        auto *owner = parms->entity.get_volatile_ptr();
+        if (owner != nullptr && owner->is_an_entity() && !owner->is_flagged(entity_flag_t::EFLAG_SUSPENDED)) {
+            static_cast<entity *>(owner)->suspend(true);
+        }
         return true;
     }
 };
@@ -3597,11 +3634,26 @@ struct slf__entity__unforce_regions__t : script_library_class::function {
 struct slf__entity__unsuspend__t : script_library_class::function {
     slf__entity__unsuspend__t(script_library_class *slc, const char *a3) : function(slc, a3)
     {
+#if STANDALONE_SYSTEM
+        bind_standalone_entity_slf(this);
+#else
         m_vtbl = (decltype(m_vtbl))0x0089AFAC;
+
+#endif
     }
 
-    bool operator()(vm_stack &, script_library_class::function::entry_t) const
+
+    struct parms_t {
+        entity_base_vhandle entity;
+    };
+
+    bool operator()(vm_stack &stack, script_library_class::function::entry_t) const
     {
+        SLF_PARMS;
+        auto *owner = parms->entity.get_volatile_ptr();
+        if (owner != nullptr && owner->is_an_entity()) {
+            static_cast<entity *>(owner)->unsuspend(true);
+        }
         return true;
     }
 };

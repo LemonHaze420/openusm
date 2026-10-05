@@ -76,7 +76,7 @@ void glass_house_inode::frame_advance(Float dt)
         field_30 -= dt;
         if (field_30 < 0.0f) {
             field_30 = 0.0f;
-            g_femanager.IGO->field_20->SetShown(false);
+            g_femanager.IGO->m_fe_mission_text->SetShown(false);
         }
     }
 }
@@ -84,7 +84,7 @@ void glass_house_inode::frame_advance(Float dt)
 void glass_house_inode::deactivate()
 {
     if (field_30 > 0.0f) {
-        g_femanager.IGO->field_20->SetShown(false);
+        g_femanager.IGO->m_fe_mission_text->SetShown(false);
     }
 }
 

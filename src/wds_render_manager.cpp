@@ -898,7 +898,7 @@ void wds_render_manager::build_render_data_ents(render_data &data, camera &cam, 
     ++entity::visit_key;
     if (g_disable_occlusion_culling != 3)
         ++occlusion_status_base();
-    const auto *map = g_femanager.IGO->field_44;
+    const auto *map = g_femanager.IGO->m_igo_zoom_out_map;
     fade_rate() = map->field_5C4 || map->field_5C3 ? 80 : 10;
 
     struct visibility_visitor : subdivision_visitor {
@@ -1075,7 +1075,7 @@ void wds_render_manager::render_meshes(camera &cam)
 {
 #if STANDALONE_SYSTEM
     const float far_plane = std::min(geometry_manager::PROJ_FAR_PLANE_D, 167.0f);
-    const auto *map = g_femanager.IGO->field_44;
+    const auto *map = g_femanager.IGO->m_igo_zoom_out_map;
     const float altitude_allowance = map->field_5C4 || map->field_5C3 ? 0.0f : 250.0f;
     const auto &position = cam.get_abs_position();
     for (const auto &entry : field_30.field_0) {
@@ -1116,7 +1116,7 @@ void wds_render_manager::render_meshes(camera &cam)
 void wds_render_manager::render_legos(camera &cam)
 {
 #if STANDALONE_SYSTEM
-    const auto *map = g_femanager.IGO->field_44;
+    const auto *map = g_femanager.IGO->m_igo_zoom_out_map;
     if (map->field_5C4 && !map->field_5C3)
         return;
     const float ground = render_ground_level();

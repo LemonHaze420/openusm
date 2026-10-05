@@ -95,7 +95,7 @@ bool panel_resource_handler::_handle_resource(worldly_resource_handler::eBehavio
             if (g_femanager.IGO != nullptr) {
                 for (uint32_t i{0}; i < std::size(heroes); ++i) {
                     if (a3->field_0.m_hash == heroes[i]) {
-                        g_femanager.IGO->hero_health->DeInit(i);
+                        g_femanager.IGO->m_hero_health->DeInit(i);
                         ++this->field_C;
                         return false;
                     }
@@ -103,7 +103,7 @@ bool panel_resource_handler::_handle_resource(worldly_resource_handler::eBehavio
 
                 for (uint32_t i{0}; i < std::size(third_party); ++i) {
                     if (a3->field_0.m_hash == third_party[i]) {
-                        g_femanager.IGO->third_party_health->DeInit(i);
+                        g_femanager.IGO->m_third_party_health->DeInit(i);
                         ++this->field_C;
                         return false;
                     }
@@ -111,44 +111,44 @@ bool panel_resource_handler::_handle_resource(worldly_resource_handler::eBehavio
 
                 for (uint32_t i{0}; i < std::size(bosses); ++i) {
                     if (a3->field_0.m_hash == bosses[i]) {
-                        g_femanager.IGO->boss_health->DeInit(i);
+                        g_femanager.IGO->m_boss_health->DeInit(i);
                         ++this->field_C;
                         return false;
                     }
                 }
 
                 if (a3->field_0.m_hash == string_hash{"COMBO_WORDS"}) {
-                    g_femanager.IGO->field_48->DeInit();
+                    g_femanager.IGO->m_combo_words->DeInit();
                     ++this->field_C;
                     return false;
                 }
 
                 if (a3->field_0.m_hash == string_hash{"MG_HOTPURSUIT_INDICATOR"}) {
-                    g_femanager.IGO->field_4C->DeInit();
+                    g_femanager.IGO->m_fe_hotpursuit_indicator->DeInit();
                     ++this->field_C;
                     return false;
                 }
 
                 if (a3->field_0.m_hash == string_hash{"HIGHSCORETRACKING"}) {
-                    g_femanager.IGO->field_50->DeInit();
+                    g_femanager.IGO->m_fe_score_widget->DeInit();
                     ++this->field_C;
                     return false;
                 }
 
                 if (a3->field_0.m_hash == string_hash{"MEDALS_INTERFACE"}) {
-                    g_femanager.IGO->field_34->DeInit();
+                    g_femanager.IGO->m_medal_award_ui->DeInit();
                     ++this->field_C;
                     return false;
                 }
 
                 if (a3->field_0.m_hash == string_hash{"RACE_ANNOUNCER"}) {
-                    g_femanager.IGO->field_38->DeInit();
+                    g_femanager.IGO->m_race_announcer->DeInit();
                     ++this->field_C;
                     return false;
                 }
 
                 if (a3->field_0.m_hash == string_hash{"TARGETING_RETICLE_VENOM"}) {
-                    g_femanager.IGO->field_3C->DeInit();
+                    g_femanager.IGO->m_fe_crosshair->DeInit();
                     ++this->field_C;
                     return false;
                 }
@@ -156,53 +156,53 @@ bool panel_resource_handler::_handle_resource(worldly_resource_handler::eBehavio
                 if (a3->field_0.m_hash == string_hash{"CONTROLLER_TUT_GC"} ||
                     a3->field_0.m_hash == string_hash{"CONTROLLER_TUT_XB"} ||
                     a3->field_0.m_hash == string_hash{"CONTROLLER_TUT_PS"}) {
-                    g_femanager.IGO->field_30->DeInit();
+                    g_femanager.IGO->m_tutorial_controller_gauge->DeInit();
                     ++this->field_C;
                     return false;
                 }
 
                 for (uint32_t i{0}; i < std::size(chase_meter); ++i) {
                     if (a3->field_0.m_hash == chase_meter[i]) {
-                        g_femanager.IGO->field_18->DeInit(i);
+                        g_femanager.IGO->m_fe_distance_chase->DeInit(i);
                         ++this->field_C;
                         return false;
                     }
                 }
 
                 if (a3->field_0.m_hash == string_hash{"RACE_METER"}) {
-                    g_femanager.IGO->field_1C->DeInit();
+                    g_femanager.IGO->m_fe_distance_race->DeInit();
                 }
             }
         } else {
             if (a3->field_0.m_hash == string_hash{"HG_HERO_PETER"}) {
-                g_femanager.IGO->hero_health->Init(5, "HG_HERO_PETER", 0);
+                g_femanager.IGO->m_hero_health->Init(5, "HG_HERO_PETER", 0);
                 ++this->field_C;
                 return false;
             }
 
             if (a3->field_0.m_hash == string_hash{"HG_HERO_SPIDERMAN"}) {
-                g_femanager.IGO->hero_health->Init(0, "HG_HERO_SPIDERMAN", false);
+                g_femanager.IGO->m_hero_health->Init(0, "HG_HERO_SPIDERMAN", false);
 
                 static Var<bool> globaly_packed_bar_need_init{0x00922544};
 
                 if (globaly_packed_bar_need_init()) {
-                    g_femanager.IGO->hero_health->Init(1, "HG_HERO_SPIDERMAN_EX_01", false);
-                    g_femanager.IGO->hero_health->Init(2, "HG_HERO_SPIDERMAN_EX_02", false);
-                    g_femanager.IGO->hero_health->Init(3, "HG_HERO_SPIDERMAN_EX_03", false);
+                    g_femanager.IGO->m_hero_health->Init(1, "HG_HERO_SPIDERMAN_EX_01", false);
+                    g_femanager.IGO->m_hero_health->Init(2, "HG_HERO_SPIDERMAN_EX_02", false);
+                    g_femanager.IGO->m_hero_health->Init(3, "HG_HERO_SPIDERMAN_EX_03", false);
                     globaly_packed_bar_need_init() = false;
                     ++this->field_C;
                     return false;
                 }
             } else {
                 if (a3->field_0.m_hash == string_hash{"HG_HERO_VENOM"}) {
-                    g_femanager.IGO->hero_health->Init(4, "HG_HERO_VENOM", false);
+                    g_femanager.IGO->m_hero_health->Init(4, "HG_HERO_VENOM", false);
                     ++this->field_C;
                     return false;
                 }
 
                 for (uint32_t i{0}; i < std::size(third_party); ++i) {
                     if (a3->field_0.m_hash == third_party[i]) {
-                        g_femanager.IGO->third_party_health->Init(i, third_party[i], false);
+                        g_femanager.IGO->m_third_party_health->Init(i, third_party[i], false);
                         ++this->field_C;
                         return false;
                     }
@@ -210,44 +210,44 @@ bool panel_resource_handler::_handle_resource(worldly_resource_handler::eBehavio
 
                 for (uint32_t i{0}; i < std::size(bosses); ++i) {
                     if (a3->field_0.m_hash == bosses[i]) {
-                        g_femanager.IGO->boss_health->Init(i, bosses[i], true);
+                        g_femanager.IGO->m_boss_health->Init(i, bosses[i], true);
                         ++this->field_C;
                         return false;
                     }
                 }
 
                 if (a3->field_0.m_hash == string_hash{"COMBO_WORDS"}) {
-                    g_femanager.IGO->field_48->Init();
+                    g_femanager.IGO->m_combo_words->Init();
                     ++this->field_C;
                     return false;
                 }
 
                 if (a3->field_0.m_hash == string_hash{"MG_HOTPURSUIT_INDICATOR"}) {
-                    g_femanager.IGO->field_4C->Init();
+                    g_femanager.IGO->m_fe_hotpursuit_indicator->Init();
                     ++this->field_C;
                     return false;
                 }
 
                 if (a3->field_0.m_hash == string_hash{"HIGHSCORETRACKING"}) {
-                    g_femanager.IGO->field_50->Init();
+                    g_femanager.IGO->m_fe_score_widget->Init();
                     ++this->field_C;
                     return false;
                 }
 
                 if (a3->field_0.m_hash == string_hash{"MEDALS_INTERFACE"}) {
-                    g_femanager.IGO->field_34->Init();
+                    g_femanager.IGO->m_medal_award_ui->Init();
                     ++this->field_C;
                     return false;
                 }
 
                 if (a3->field_0.m_hash == string_hash{"RACE_ANNOUNCER"}) {
-                    g_femanager.IGO->field_38->Init();
+                    g_femanager.IGO->m_race_announcer->Init();
                     ++this->field_C;
                     return false;
                 }
 
                 if (a3->field_0.m_hash == string_hash{"TARGETING_RETICLE_VENOM"}) {
-                    g_femanager.IGO->field_3C->Init();
+                    g_femanager.IGO->m_fe_crosshair->Init();
                     ++this->field_C;
                     return false;
                 }
@@ -255,21 +255,21 @@ bool panel_resource_handler::_handle_resource(worldly_resource_handler::eBehavio
                 if (a3->field_0.m_hash == string_hash{"CONTROLLER_TUT_PS"} ||
                     a3->field_0.m_hash == string_hash{"CONTROLLER_TUT_XB"} ||
                     a3->field_0.m_hash == string_hash{"CONTROLLER_TUT_GC"}) {
-                    g_femanager.IGO->field_30->Init();
+                    g_femanager.IGO->m_tutorial_controller_gauge->Init();
                     ++this->field_C;
                     return false;
                 }
 
                 for (uint32_t i{0}; i < std::size(chase_meter); ++i) {
                     if (a3->field_0.m_hash == chase_meter[i]) {
-                        g_femanager.IGO->field_18->Init(i, chase_meter[i]);
+                        g_femanager.IGO->m_fe_distance_chase->Init(i, chase_meter[i]);
                         ++this->field_C;
                         return false;
                     }
                 }
 
                 if (a3->field_0.m_hash == string_hash{"RACE_METER"}) {
-                    g_femanager.IGO->field_1C->Init();
+                    g_femanager.IGO->m_fe_distance_race->Init();
                     ++this->field_C;
                     return false;
                 }

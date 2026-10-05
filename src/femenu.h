@@ -28,6 +28,7 @@ struct FEMenu {
 
     //0x0060AA90
     FEMenu(FEMenuSystem *a2, uint32_t a3, int a4, int a5, int16_t a6, int16_t a7);
+    ~FEMenu();
 
     void *operator new(size_t);
 
@@ -99,7 +100,9 @@ struct FEMenu {
 
     /* virtual */ void OnButtonRelease(int a2, int a3);
 
-    /* virtual */ void SetHigh(int a2, bool a3);
+    /* virtual */ void OnWindowMessage(unsigned message, int wparam, int lparam);
+
+    void SetHigh(int a2, bool a3);
 
     /* virtual */ void SetVis(int a2);
 

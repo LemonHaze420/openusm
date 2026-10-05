@@ -34,44 +34,72 @@
 #include "utility.h"
 
 VALIDATE_SIZE(IGOFrontEnd, 0x58);
-VALIDATE_OFFSET(IGOFrontEnd, field_44, 0x44);
+VALIDATE_OFFSET(IGOFrontEnd, m_igo_zoom_out_map, 0x44);
 
 IGOFrontEnd::IGOFrontEnd()
 {
     if constexpr (STANDALONE_SYSTEM) {
-        this->field_0 = new (mem_alloc(sizeof(fe_timer_widget))) fe_timer_widget{};
-        this->field_4 = new (mem_alloc(sizeof(fe_mini_map_widget))) fe_mini_map_widget{};
-        this->boss_health = new (mem_alloc(sizeof(fe_health_widget))) fe_health_widget{12};
-        this->hero_health = new (mem_alloc(sizeof(fe_health_widget))) fe_health_widget{6};
-        this->third_party_health = new (mem_alloc(sizeof(fe_health_widget))) fe_health_widget{3};
-        this->field_18 = new (mem_alloc(sizeof(fe_distance_chase))) fe_distance_chase{};
-        this->field_1C = new (mem_alloc(sizeof(fe_distance_race))) fe_distance_race{};
-        this->field_20 = new (mem_alloc(sizeof(fe_mission_text))) fe_mission_text{};
-        this->field_14 = new (mem_alloc(sizeof(fe_track_and_field))) fe_track_and_field{};
-        this->field_24 = new (mem_alloc(sizeof(threat_assessment_meters))) threat_assessment_meters{};
-        this->field_28 = new (mem_alloc(sizeof(thug_health))) thug_health{};
-        this->field_2C = new (mem_alloc(sizeof(targeting_reticle))) targeting_reticle{};
-        this->field_30 = new (mem_alloc(sizeof(tutorial_controller_gauge))) tutorial_controller_gauge{};
-        this->field_34 = new (mem_alloc(sizeof(medal_award_ui))) medal_award_ui{};
-        this->field_38 = new (mem_alloc(sizeof(race_announcer))) race_announcer{};
-        this->field_3C = new (mem_alloc(sizeof(fe_crosshair))) fe_crosshair{};
-        this->field_40 = new (mem_alloc(sizeof(fe_game_credits))) fe_game_credits{};
-        this->field_44 = new (mem_alloc(sizeof(IGOZoomOutMap))) IGOZoomOutMap{};
-        this->field_48 = new (mem_alloc(sizeof(combo_words))) combo_words{};
-        this->field_4C = new (mem_alloc(sizeof(fe_hotpursuit_indicator))) fe_hotpursuit_indicator{};
-        this->field_50 = new (mem_alloc(sizeof(fe_score_widget))) fe_score_widget{};
-        this->field_54 = new (mem_alloc(sizeof(entity_tracker_manager))) entity_tracker_manager{};
+        this->m_fe_timer_widget = new (mem_alloc(sizeof(fe_timer_widget))) fe_timer_widget{};
+        this->m_fe_mini_map_widget = new (mem_alloc(sizeof(fe_mini_map_widget))) fe_mini_map_widget{};
+        this->m_boss_health = new (mem_alloc(sizeof(fe_health_widget))) fe_health_widget{12};
+        this->m_hero_health = new (mem_alloc(sizeof(fe_health_widget))) fe_health_widget{6};
+        this->m_third_party_health = new (mem_alloc(sizeof(fe_health_widget))) fe_health_widget{3};
+        this->m_fe_distance_chase = new (mem_alloc(sizeof(fe_distance_chase))) fe_distance_chase{};
+        this->m_fe_distance_race = new (mem_alloc(sizeof(fe_distance_race))) fe_distance_race{};
+        this->m_fe_mission_text = new (mem_alloc(sizeof(fe_mission_text))) fe_mission_text{};
+        this->m_fe_track_and_field = new (mem_alloc(sizeof(fe_track_and_field))) fe_track_and_field{};
+        this->m_threat_assessment_meters = new (mem_alloc(sizeof(threat_assessment_meters))) threat_assessment_meters{};
+        this->m_thug_health = new (mem_alloc(sizeof(thug_health))) thug_health{};
+        this->m_targeting_reticle = new (mem_alloc(sizeof(targeting_reticle))) targeting_reticle{};
+        this->m_tutorial_controller_gauge =
+            new (mem_alloc(sizeof(tutorial_controller_gauge))) tutorial_controller_gauge{};
+        this->m_medal_award_ui = new (mem_alloc(sizeof(medal_award_ui))) medal_award_ui{};
+        this->m_race_announcer = new (mem_alloc(sizeof(race_announcer))) race_announcer{};
+        this->m_fe_crosshair = new (mem_alloc(sizeof(fe_crosshair))) fe_crosshair{};
+        this->m_fe_game_credits = new (mem_alloc(sizeof(fe_game_credits))) fe_game_credits{};
+        this->m_igo_zoom_out_map = new (mem_alloc(sizeof(IGOZoomOutMap))) IGOZoomOutMap{};
+        this->m_combo_words = new (mem_alloc(sizeof(combo_words))) combo_words{};
+        this->m_fe_hotpursuit_indicator = new (mem_alloc(sizeof(fe_hotpursuit_indicator))) fe_hotpursuit_indicator{};
+        this->m_fe_score_widget = new (mem_alloc(sizeof(fe_score_widget))) fe_score_widget{};
+        this->m_entity_tracker_manager = new (mem_alloc(sizeof(entity_tracker_manager))) entity_tracker_manager{};
     } else {
         THISCALL(0x00648B40, this);
     }
 }
 
+
+IGOFrontEnd::~IGOFrontEnd()
+{
+    delete m_fe_timer_widget;
+    delete m_fe_mini_map_widget;
+    delete m_boss_health;
+    delete m_hero_health;
+    delete m_third_party_health;
+    delete m_fe_track_and_field;
+    delete m_fe_distance_chase;
+    delete m_fe_distance_race;
+    delete m_fe_mission_text;
+    delete m_threat_assessment_meters;
+    delete m_thug_health;
+    delete m_targeting_reticle;
+    delete m_tutorial_controller_gauge;
+    delete m_medal_award_ui;
+    delete m_race_announcer;
+    delete m_fe_crosshair;
+    delete m_fe_hotpursuit_indicator;
+    delete m_fe_score_widget;
+    delete m_fe_game_credits;
+    delete m_igo_zoom_out_map;
+    delete m_combo_words;
+    delete m_entity_tracker_manager;
+}
+
 void IGOFrontEnd::UpdateInScene()
 {
-    if (field_54 != nullptr) {
-        field_54->place_poi_reticles();
+    if (m_entity_tracker_manager != nullptr) {
+        m_entity_tracker_manager->place_poi_reticles();
     }
-    field_44->UpdateInScene();
+    m_igo_zoom_out_map->UpdateInScene();
 }
 
 void IGOFrontEnd::Draw()
@@ -84,27 +112,27 @@ void IGOFrontEnd::Init()
     TRACE("IGOFrontEnd::Init");
 
     if constexpr (STANDALONE_SYSTEM) {
-        if (field_4 != nullptr) {
-            field_4->Init();
-            field_4->SetShown(true);
+        if (m_fe_mini_map_widget != nullptr) {
+            m_fe_mini_map_widget->Init();
+            m_fe_mini_map_widget->SetShown(true);
         }
-        if (field_0 != nullptr) {
-            field_0->Init();
+        if (m_fe_timer_widget != nullptr) {
+            m_fe_timer_widget->Init();
         }
-        if (field_14 != nullptr) {
-            field_14->_Init();
+        if (m_fe_track_and_field != nullptr) {
+            m_fe_track_and_field->_Init();
         }
-        if (field_20 != nullptr) {
-            field_20->Init();
+        if (m_fe_mission_text != nullptr) {
+            m_fe_mission_text->Init();
         }
-        if (field_24 != nullptr) {
-            field_24->init();
+        if (m_threat_assessment_meters != nullptr) {
+            m_threat_assessment_meters->init();
         }
-        if (field_28 != nullptr) {
-            field_28->init();
+        if (m_thug_health != nullptr) {
+            m_thug_health->init();
         }
-        if (field_2C != nullptr) {
-            field_2C->init();
+        if (m_targeting_reticle != nullptr) {
+            m_targeting_reticle->init();
         }
     } else {
         THISCALL(0x00647DE0, this);
@@ -116,8 +144,8 @@ void IGOFrontEnd::Update(Float a2)
     if constexpr (STANDALONE_SYSTEM) {
         CheckPauseUnpause();
 
-        if (field_0 != nullptr)
-            field_0->Update(a2);
+        if (m_fe_timer_widget != nullptr)
+            m_fe_timer_widget->Update(a2);
 
         const auto update_health = [a2](fe_health_widget *health) {
             if (health == nullptr || health->field_38 < 0 || health->field_38 >= health->number_of_types)
@@ -130,23 +158,23 @@ void IGOFrontEnd::Update(Float a2)
                 health->UpdateMasking();
             }
         };
-        update_health(boss_health);
-        update_health(hero_health);
-        update_health(third_party_health);
+        update_health(m_boss_health);
+        update_health(m_hero_health);
+        update_health(m_third_party_health);
 
-        if (field_18 != nullptr)
-            field_18->Update(a2);
-        if (field_1C != nullptr)
-            field_1C->Update(a2);
-        if (field_20 != nullptr && field_20->panel != nullptr &&
-            (field_20->shown || (field_20->anim != nullptr && field_20->anim->field_2D)))
-            field_20->panel->Update(a2);
-        if (field_14 != nullptr)
-            field_14->Update(a2);
-        if (field_4 != nullptr)
-            field_4->Update(a2);
-        if (field_44 != nullptr)
-            field_44->Update(a2);
+        if (m_fe_distance_chase != nullptr)
+            m_fe_distance_chase->Update(a2);
+        if (m_fe_distance_race != nullptr)
+            m_fe_distance_race->Update(a2);
+        if (m_fe_mission_text != nullptr && m_fe_mission_text->panel != nullptr &&
+            (m_fe_mission_text->shown || (m_fe_mission_text->anim != nullptr && m_fe_mission_text->anim->field_2D)))
+            m_fe_mission_text->panel->Update(a2);
+        if (m_fe_track_and_field != nullptr)
+            m_fe_track_and_field->Update(a2);
+        if (m_fe_mini_map_widget != nullptr)
+            m_fe_mini_map_widget->Update(a2);
+        if (m_igo_zoom_out_map != nullptr)
+            m_igo_zoom_out_map->Update(a2);
     } else {
         THISCALL(0x00641600, this, a2);
     }
@@ -157,7 +185,7 @@ void IGOFrontEnd::CheckPauseUnpause()
     if constexpr (STANDALONE_SYSTEM) {
         if (!fe_controller_disconnect::get_currently_plugged_in() || input_mgr::instance == nullptr ||
             input_mgr::instance->get_control_delta(54, input_mgr::instance->field_58) < AXIS_MAX ||
-            field_44 == nullptr || field_44->field_5C4 || field_44->field_5C3)
+            m_igo_zoom_out_map == nullptr || m_igo_zoom_out_map->field_5C4 || m_igo_zoom_out_map->field_5C3)
             return;
 
         PauseMenuSystem *pause_menu = g_femanager.m_pause_menu_system;
@@ -168,14 +196,14 @@ void IGOFrontEnd::CheckPauseUnpause()
             }
             return;
         }
-        if (field_40 != nullptr && field_40->field_0)
+        if (g_game_ptr->field_165 || g_game_ptr->field_166 ||
+            (m_fe_game_credits != nullptr && m_fe_game_credits->field_0))
             return;
 
         g_game_ptr->pause();
         if (pause_menu != nullptr) {
             pause_menu->SetTransition(0);
-            if (pause_menu->m_index < 0)
-                pause_menu->MakeActive(1);
+            pause_menu->Activate(1, false);
         }
     } else {
         THISCALL(0x00629F80, this);

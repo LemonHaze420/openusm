@@ -403,7 +403,9 @@ void sub_54DC10(const char *a1, bool a2)
 
 int sub_79A160()
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
+        nslReleaseSources();
+        return 0;
     } else {
         return CDECL_CALL(0x0079A160);
     }

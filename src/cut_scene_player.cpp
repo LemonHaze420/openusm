@@ -238,12 +238,12 @@ void cut_scene_player::stop(cut_scene *a2)
         }
         if (current_cut_scene->ui_hidden) {
             if (hero_health_was_shown)
-                g_femanager.IGO->hero_health->SetShown(hero_health_was_shown);
+                g_femanager.IGO->m_hero_health->SetShown(hero_health_was_shown);
             if (minimap_was_shown)
-                g_femanager.IGO->field_4->SetShown(minimap_was_shown);
+                g_femanager.IGO->m_fe_mini_map_widget->SetShown(minimap_was_shown);
             if (boss_health_was_shown)
-                g_femanager.IGO->boss_health->SetShown(boss_health_was_shown);
-            g_femanager.IGO->field_44->field_5C6 = false;
+                g_femanager.IGO->m_boss_health->SetShown(boss_health_was_shown);
+            g_femanager.IGO->m_igo_zoom_out_map->field_5C6 = false;
             g_game_ptr->zoomInactive = false;
         }
         if (current_cut_scene->tokens_hidden) {

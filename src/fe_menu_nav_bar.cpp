@@ -43,11 +43,17 @@ void menu_nav_bar::Load()
     field_28 = false;
 }
 
+void menu_nav_bar::Reset()
+{
+    field_4 = "";
+    field_28 = false;
+}
+
 void menu_nav_bar::AddButtons(menu_nav_bar::button_type a2, menu_nav_bar::button_type a3, global_text_enum a4)
 {
     if constexpr (STANDALONE_SYSTEM) {
         mString label{g_game_ptr->field_7C->lookup_localized_string(a4)};
-        this->field_4 += label + " ";
+        this->field_4 += label + (field_28 ? "  " : "    ");
     } else {
         THISCALL(0x006121C0, this, a2, a3, a4);
     }

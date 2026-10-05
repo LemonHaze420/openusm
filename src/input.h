@@ -27,9 +27,7 @@ struct Input {
     int empty2[250];
     DIMOUSESTATE2 m_mouse_state;
     DIMOUSESTATE2 m_old_mouse_state;
-    char field_4EC[4];
-    int field_4F0;
-    int field_4F4;
+    char field_4EC[12];
 
     DIJOYSTATE2 field_4F8[10];
     DIJOYSTATE2 field_F98[10];
