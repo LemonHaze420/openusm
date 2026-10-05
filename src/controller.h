@@ -21,6 +21,9 @@ struct controller {
 
     //virtual
     bool is_controller() const;
+
+    static void initialize_native_vtable(std::intptr_t *table, std::intptr_t destroy,
+                                        std::intptr_t advance, bool mouselook);
 };
 
 extern void controller_patch();

@@ -23,6 +23,11 @@ struct spiderman_camera : game_camera {
     //0x004B78E0
     spiderman_camera(const string_hash &a2, entity *a3);
 
+
+    ~spiderman_camera();
+
+    static void *native_vtable();
+
     void *operator new(size_t size);
 
     void operator delete(void *ptr);

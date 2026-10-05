@@ -404,7 +404,6 @@ float input_mgr::get_control_delta(int control, device_id_t a3) const
             int id = it_list->m_device_id;
 
             if (a3 != INVALID_DEVICE_ID && a3 != id) {
-                ++it_list;
                 if (v8 || size != 0) {
                     continue;
                 }
@@ -439,14 +438,7 @@ float input_mgr::get_control_delta(int control, device_id_t a3) const
                     auto axis_state = v12->get_axis_state(axis.field_4, axis.field_8);
                     auto v16 = sub_C079D0(axis_state);
 
-                    auto v17 = v16 - v21;
-                    if (v17 >= 0.0f) {
-                        if (v17 > 0.0f) {
-                            v17 = 0.0f;
-                        }
-                    } else {
-                        v17 = -1.f;
-                    }
+                    v17 = v16 > v21 ? 1.0f : (v16 < v21 ? -1.0f : 0.0f);
                 }
 
                 result += v17;

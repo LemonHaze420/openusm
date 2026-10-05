@@ -6,11 +6,11 @@ struct game_camera : camera {
     static inline constexpr auto CAMERA_SHAKES_TOTAL = 4u;
 
     struct _camera_shake_t {
-        int field_0;
-        int field_4;
-        int field_8;
-        int field_C;
-        int empty[2];
+        float field_0;
+        float field_4;
+        float field_8;
+        float field_C;
+        float empty[2];
         short field_18;
 
         char field_1A;
@@ -21,7 +21,7 @@ struct game_camera : camera {
     };
 
     float field_D0[16];
-    int empty[2];
+    int empty[3];
 
     vhandle_type<entity> field_118;
     vector3d field_11C;
@@ -31,11 +31,15 @@ struct game_camera : camera {
 
     _camera_shake_t field_130[CAMERA_SHAKES_TOTAL];
 
-    int empty1[1];
-
     game_camera() = default;
 
     game_camera(const string_hash &a2, entity *a3);
+    static void *native_vtable();
+    void clear_shakes();
+    vector3d frame_advance_shake(vector3d position, Float dt);
+    short add_shake(float amplitude, float frequency, float duration, float fade_in, float fade_out);
+    void remove_shake(short handle);
+    bool is_shake_active(short handle) const;
 
     entity *get_target_entity() const;
 

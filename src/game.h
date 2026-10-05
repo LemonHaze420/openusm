@@ -139,7 +139,7 @@ struct game {
     bool field_15B;
     bool field_15C;
     bool field_15D;
-    bool field_15E;
+    bool zoomInactive;
     bool field_15F;
     bool field_160;
     bool field_161;

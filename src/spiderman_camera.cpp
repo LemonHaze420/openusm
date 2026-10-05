@@ -5,7 +5,6 @@
 #include "camera_target_info.h"
 #include "common.h"
 #include "custom_math.h"
-#include "dvar.h"
 #include "func_wrapper.h"
 #include "game.h"
 #include "geometry_manager.h"
@@ -17,6 +16,9 @@
 #include "wds.h"
 
 #include <cmath>
+#include <algorithm>
+#include <array>
+#include <cstdlib>
 
 VALIDATE_SIZE(spiderman_camera, 0x204u);
 VALIDATE_OFFSET(spiderman_camera, field_1A0, 0x1A0);
@@ -25,36 +27,21 @@ float g_yaw_mult = 2.0f;
 
 float g_pitch_mult = 2.0f;
 
-constexpr float inverse_pow(float a1, float a2)
+
+void set_filter_time(float dt)
 {
-    return std::pow(a2, 1.0f / a1);
-}
-
-void set_dvars()
-{
-    debug_variable_t v0 {"camera_min_dist", g_camera_min_dist};
-    g_camera_min_dist = v0;
-
-    debug_variable_t v1 {"camera_max_dist", g_camera_max_dist};
-    g_camera_max_dist = v1;
-
-    debug_variable_t v2 {"camera_supermax_dist", g_camera_supermax_dist};
-    g_camera_supermax_dist = v2;
-}
-
-void set_filter_time(float a1)
-{
-    {
-        set_dvars();
-    }
-
-    sluggish_mix = pow(inverse_pow(1.0, 0.039999999), a1);
-    slow_mix = pow(inverse_pow(0.5, 0.039999999), a1);
-    med_mix = pow(inverse_pow(0.25, 0.039999999), a1);
-    fast_mix = pow(inverse_pow(0.125, 0.039999999), a1);
-    pronto_mix = pow(inverse_pow(0.0625, 0.039999999), a1);
-
-    assert(sluggish_mix > slow_mix && slow_mix > med_mix && med_mix > fast_mix && fast_mix > pronto_mix);
+    static const std::array<float, 5> filter_bases {
+        static_cast<float>(std::pow(0.03999999910593033, 1.0)),
+        static_cast<float>(std::pow(0.03999999910593033, 2.0)),
+        static_cast<float>(std::pow(0.03999999910593033, 4.0)),
+        static_cast<float>(std::pow(0.03999999910593033, 8.0)),
+        static_cast<float>(std::pow(0.03999999910593033, 16.0)),
+    };
+    sluggish_mix = std::pow(filter_bases[0], dt);
+    slow_mix = std::pow(filter_bases[1], dt);
+    med_mix = std::pow(filter_bases[2], dt);
+    fast_mix = std::pow(filter_bases[3], dt);
+    pronto_mix = std::pow(filter_bases[4], dt);
 }
 
 static Var<vector3d> stru_959EBC {0x00959EBC};
@@ -72,8 +59,8 @@ void constrain_normal(vector3d &normal, const vector3d &basisA, float a4, float 
     auto v9 = 1.0 - sqr(a3a);
     auto v17 = std::sqrt(v9);
     auto v16 = v18.length2();
-    if (v16 > 0.000099999997) {
-        auto v5 = (1.0f / sqr(v16));
+    if (v16 > EPSILON) {
+        auto v5 = (1.0f / std::sqrt(v16));
         auto v10 = v5 * v17;
         auto v11 = v18 * v10;
         auto v6 = basisA * a3a;
@@ -85,27 +72,123 @@ void constrain_normal(vector3d &normal, const vector3d &basisA, float a4, float 
 
 Var<spiderman_camera *> g_spiderman_camera_ptr{0x00959A70};
 
+#if STANDALONE_SYSTEM
+namespace {
+void *__fastcall destroy_chase_camera(spiderman_camera *self, void *, unsigned int flags)
+{
+    self->~spiderman_camera();
+    if ((flags & 1u) != 0) {
+        spiderman_camera::operator delete(self);
+    }
+    return self;
+}
+
+int __fastcall chase_camera_flavor(spiderman_camera *, void *)
+{
+    return 21;
+}
+
+bool __fastcall chase_camera_is_spiderman(spiderman_camera *, void *)
+{
+    return true;
+}
+
+void __fastcall advance_chase_camera(spiderman_camera *self, void *, Float dt)
+{
+    self->_frame_advance(dt);
+}
+
+void __fastcall render_chase_camera(spiderman_camera *, void *, Float)
+{
+
+}
+
+void __fastcall sync_chase_camera(spiderman_camera *self, void *, camera *source)
+{
+    self->_sync(*source);
+}
+
+void __fastcall adjust_chase_camera(spiderman_camera *self, void *, bool scene_analyzer)
+{
+    self->adjust_geometry_pipe(scene_analyzer);
+}
+
+void __fastcall set_chase_target(spiderman_camera *self, void *, entity *target)
+{
+    self->_set_target_entity(target);
+}
+
+void __fastcall recenter_chase_camera(spiderman_camera *self, void *, Float dt)
+{
+    self->_autocorrect(dt);
+}
+}
+#endif
+
+void *spiderman_camera::native_vtable()
+{
+#if STANDALONE_SYSTEM
+    static const auto table = [] {
+        std::array<void *, 192> result;
+        auto *base = static_cast<void **>(game_camera::native_vtable());
+        std::copy_n(base, result.size(), result.begin());
+        result[0x000 / 4] = reinterpret_cast<void *>(&destroy_chase_camera);
+        result[0x054 / 4] = reinterpret_cast<void *>(&chase_camera_flavor);
+        result[0x08C / 4] = reinterpret_cast<void *>(&chase_camera_is_spiderman);
+        result[0x1A4 / 4] = reinterpret_cast<void *>(&advance_chase_camera);
+        result[0x1AC / 4] = reinterpret_cast<void *>(&render_chase_camera);
+        result[0x294 / 4] = reinterpret_cast<void *>(&sync_chase_camera);
+        result[0x298 / 4] = reinterpret_cast<void *>(&adjust_chase_camera);
+        result[0x2B4 / 4] = reinterpret_cast<void *>(&set_chase_target);
+        result[0x2D0 / 4] = reinterpret_cast<void *>(&recenter_chase_camera);
+        return result;
+    }();
+    return const_cast<void **>(table.data());
+#else
+    return reinterpret_cast<void *>(0x008820E0);
+#endif
+}
+
 spiderman_camera::spiderman_camera(const string_hash &a2, entity *a3) : game_camera(a2, a3)
 {
 #if STANDALONE_SYSTEM
-    this->set_target_entity(a3);
-    this->field_1A0 = nullptr;
-    this->target_pos = a3 != nullptr ? a3->get_abs_position() : ZEROVEC;
-    this->target_up = YVEC;
+    this->m_vtbl = reinterpret_cast<std::intptr_t>(native_vtable());
     this->field_1BC = false;
     this->field_1C0 = 0;
     this->field_1C4 = 0;
     this->field_1C8 = 0;
     this->field_1CC = false;
+    this->field_1CD = true;
+    this->field_1CE = true;
+    this->field_1CF = false;
+    game_camera::set_target_entity(a3);
+    auto *target = this->get_target_entity();
+    this->target_pos = target->get_abs_position();
+    this->target_up = target->get_abs_po().get_y_facing();
+    this->field_1A0 = create_native_camera_modes(this);
+    this->field_1D0.set_id(input_mgr::instance->field_58);
+    this->field_1D0.set_control(static_cast<game_control_t>(102));
 #else
     THISCALL(0x004B78E0, this, &a2, a3);
+#endif
+}
+
+spiderman_camera::~spiderman_camera()
+{
+    this->m_vtbl = reinterpret_cast<std::intptr_t>(native_vtable());
+#if STANDALONE_SYSTEM
+    destroy_native_camera_modes(this->field_1A0);
+#else
+    if (this->field_1A0 != nullptr) {
+        this->field_1A0->m_vtbl->finalize(this->field_1A0, nullptr, 1);
+    }
 #endif
 }
 
 void *spiderman_camera::operator new(size_t size)
 {
 #if STANDALONE_SYSTEM
-    return mem_alloc(size);
+    return _aligned_malloc(size, 4);
 #else
     using aligned_malloc_t = void *(__cdecl *)(size_t, size_t);
     auto aligned_malloc = *bit_cast<aligned_malloc_t *>(0x0086F354);
@@ -116,7 +199,7 @@ void *spiderman_camera::operator new(size_t size)
 void spiderman_camera::operator delete(void *ptr)
 {
 #if STANDALONE_SYSTEM
-    mem_dealloc(ptr, sizeof(spiderman_camera));
+    _aligned_free(ptr);
 #else
     using aligned_free_t = void (__cdecl *)(void *);
     auto aligned_free = *bit_cast<aligned_free_t *>(0x0086F328);
@@ -192,25 +275,8 @@ void spiderman_camera::adjust_geometry_pipe(bool a1)
 
 void spiderman_camera::autocorrect(Float a2)
 {
-    if constexpr (STANDALONE_SYSTEM) {
-        auto *target_entity = this->get_target_entity();
-        if (target_entity == nullptr) {
-            return;
-        }
-
-        if (this->field_1A0 != nullptr) {
-            camera_target_info target_info {target_entity, 0.033333335f, this->target_pos, this->target_up};
-            this->field_1A0->request_recenter(a2, target_info);
-            this->target_pos = target_info.pos;
-            this->target_up = target_info.up;
-        } else {
-            this->target_pos = target_entity->get_abs_position();
-            this->target_up = target_entity->get_abs_po().get_y_facing();
-        }
-    } else {
-        void (__fastcall *func)(void *, void *, Float) = CAST(func, get_vfunc(m_vtbl, 0x2D0));
-        func(this, nullptr, a2);
-    }
+    void (__fastcall *func)(void *, void *, Float) = CAST(func, get_vfunc(m_vtbl, 0x2D0));
+    func(this, nullptr, a2);
 }
 
 void spiderman_camera::_autocorrect(Float a2)
@@ -236,20 +302,12 @@ void spiderman_camera::_set_target_entity(entity *e)
 {
     TRACE("spiderman_camera::set_target_entity");
 
-    assert(e->has_physical_ifc());
-
-    assert(e->is_a_conglomerate());
-
     game_camera::set_target_entity(e);
 }
 
 void spiderman_camera::_frame_advance(Float a2)
 {
     TRACE("spiderman_camera::frame_advance");
-
-    if (this->field_1A0 != nullptr) {
-        sp_log("0x%08X", this->field_1A0->m_vtbl);
-    }
 
     if constexpr (STANDALONE_SYSTEM) {
         if (g_game_ptr->level_is_loaded() && !g_game_ptr->is_paused() &&

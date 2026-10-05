@@ -8,6 +8,7 @@
 #include "func_wrapper.h"
 #include "frontendmenusystem.h"
 #include "game.h"
+#include "geometry_manager.h"
 #include "lookat_target_controller.h"
 #include "marky_camera.h"
 #include "mic.h"
@@ -17,6 +18,8 @@
 #include "theta_and_psi_mcs.h"
 #include "trace.h"
 #include "wds.h"
+#include "utility.h"
+#include "vtbl.h"
 
 #include <cassert>
 
@@ -37,6 +40,28 @@ wds_camera_manager::wds_camera_manager()
     this->field_40 = nullptr;
     this->field_44 = nullptr;
     this->field_48 = false;
+}
+
+wds_camera_manager::~wds_camera_manager()
+{
+    if constexpr (STANDALONE_SYSTEM) {
+        for (auto *value : field_10) {
+            if (value != nullptr) {
+                using destroy_fn = void (__fastcall *)(controller *, void *, bool);
+                reinterpret_cast<destroy_fn>(get_vfunc(value->m_vtbl, 0))(value, nullptr, true);
+            }
+        }
+        field_10._Tidy();
+        for (auto *value : field_0) {
+            if (value != nullptr) {
+                using destroy_fn = void (__fastcall *)(motion_control_system *, void *, bool);
+                reinterpret_cast<destroy_fn>(get_vfunc(value->m_vtbl, 0))(value, nullptr, true);
+            }
+        }
+        field_0._Tidy();
+    } else {
+        THISCALL(0x0053DBE0, this);
+    }
 }
 
 void wds_camera_manager::frame_advance(Float a2)
@@ -65,7 +90,9 @@ int wds_camera_manager::add_controller(controller *a2)
 {
     TRACE("wds_camera_manager::add_controller");
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
+        field_10.push_back(a2);
+        return field_10.size();
     } else {
         return THISCALL(0x00542630, this, a2);
     }
@@ -73,7 +100,9 @@ int wds_camera_manager::add_controller(controller *a2)
 
 int wds_camera_manager::add_mcs(motion_control_system *a2)
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
+        field_0.push_back(a2);
+        return field_0.size();
     } else {
         return THISCALL(0x005426A0, this, a2);
     }
@@ -105,11 +134,8 @@ static Var<theta_and_psi_mcs *> g_theta_and_psi_mcs{0x0095C73C};
 void wds_camera_manager::setup_cameras()
 {
     TRACE("wds_camera_manager::setup_cameras");
-#if STANDALONE_SYSTEM
-    return;
-#endif
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         vector3d v46{ZEROVEC};
 
         auto *v2 = g_world_ptr->get_hero_ptr(0);
@@ -183,25 +209,59 @@ void wds_camera_manager::setup_cameras()
     }
 }
 
+namespace {
+template <typename T>
+void advance_camera_object(T *object, int offset, Float elapsed)
+{
+    using advance_fn = void (__fastcall *)(T *, void *, Float);
+    reinterpret_cast<advance_fn>(get_vfunc(object->m_vtbl, offset))(object, nullptr, elapsed);
+}
+}
+
 void wds_camera_manager::usercam_frame_advance(Float a2)
 {
     TRACE("wds_camera_manager::usercam_frame_advance");
 
-    THISCALL(0x0050D480, this, a2);
+    if constexpr (STANDALONE_SYSTEM) {
+        advance_camera_object(field_2C, 0x4, a2);
+        advance_camera_object(field_30, 0x1A4, a2);
+        advance_camera_object(field_28, 0xC, a2);
+        advance_camera_object(field_24, 0xC, a2);
+    } else {
+        THISCALL(0x0050D480, this, a2);
+    }
 }
 
 void wds_camera_manager::scene_analyzer_frame_advance(Float a2)
 {
     TRACE("wds_camera_manager::scene_analyzer_frame_advance");
 
-    THISCALL(0x0051EA10, this, a2);
+    if constexpr (STANDALONE_SYSTEM) {
+        if (geometry_manager::scene_analyzer_enabled) {
+            advance_camera_object(field_3C, 0x4, a2);
+            advance_camera_object(field_40, 0x1A4, a2);
+            advance_camera_object(field_34, 0xC, a2);
+            advance_camera_object(field_38, 0xC, a2);
+        }
+    } else {
+        THISCALL(0x0051EA10, this, a2);
+    }
 }
 
 void wds_camera_manager::enable_marky_cam(bool a2, Float a3)
 {
     assert(this->field_44 != nullptr);
 
-    THISCALL(0x0050D4C0, this, a2, a3);
+    if constexpr (STANDALONE_SYSTEM) {
+        if (a2 ? a3 < field_44->field_1D8 : not_equal(float(a3), field_44->field_1D8))
+            return;
+        field_48 = a2;
+        using roll_fn = void (__fastcall *)(marky_camera *, void *, float);
+        reinterpret_cast<roll_fn>(get_vfunc(field_44->m_vtbl, 0x2D8))(field_44, nullptr, 0.0f);
+        field_44->field_1D8 = a2 ? float(a3) : -1001.0f;
+    } else {
+        THISCALL(0x0050D4C0, this, a2, a3);
+    }
 }
 
 void wds_camera_manager_patch()

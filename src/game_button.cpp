@@ -102,7 +102,7 @@ game_button &game_button::operator=(const game_button &a2)
 
 void game_button::override(Float a2, Float a3, Float a4)
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         bool v9 = this->m_flags & GBFLAG_PRESSED;
         if (this->field_2C > EPSILON) {
             if (std::abs(a3) < 0.5f) {
@@ -128,17 +128,13 @@ void game_button::override(Float a2, Float a3, Float a4)
 
         this->set_flag(GBFLAG_PRESSED, std::abs(this->field_18) >= 0.5f);
         this->set_flag(GBFLAG_TRIGGERED, this->field_14 >= 0.5f);
-        this->set_flag(GBFLAG_RELEASED, this->field_14 < -0.5f);
+        this->set_flag(GBFLAG_RELEASED, this->field_14 <= -0.5f);
 
         if ((this->m_flags & GBFLAG_PRESSED) != 0 && v9) {
             this->field_1C += a2;
         } else if (!v9) {
             this->field_1C = 0.0;
         }
-
-        assert(!(this->m_flags & GBFLAG_PRESSED && this->m_flags & GBFLAG_RELEASED));
-
-        assert(!(this->m_flags & GBFLAG_TRIGGERED && this->m_flags & GBFLAG_RELEASED));
 
         if (this->field_30 > 0) {
             this->field_20 += a2;
@@ -182,7 +178,7 @@ void game_button::update(Float a2)
 {
     TRACE("game_button::update");
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         auto *v3 = this->field_C;
         if (v3 == nullptr) {
             auto *inst = input_mgr::instance;
@@ -273,7 +269,7 @@ void game_button::update(Float a2)
                     v25 = v23;
                 }
 
-                float a2b = 0.f - v25->sub_55ED30();
+                float a2b = 1.0f - v25->sub_55ED30();
                 if (v23->is_pressed() || v22->is_pressed()) {
                     a2b = 0.0;
                 }
@@ -316,8 +312,6 @@ void game_button::update(Float a2)
                 break;
             }
             default:
-                assert(0 && "Invalid trigger type.");
-
                 return;
             }
         } else {

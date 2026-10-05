@@ -13,4 +13,10 @@ struct motion_control_system {
     motion_control_system();
 
     void *operator new(size_t size);
+
+    bool is_active() const;
+    void set_active(bool active);
+
+    static void initialize_native_vtable(std::intptr_t *table, std::intptr_t destroy,
+                                        std::intptr_t advance);
 };

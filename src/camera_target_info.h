@@ -33,6 +33,8 @@ struct camera_target_info {
     bool sub_4B2980() const;
 
     bool sub_4B29C0() const;
+
+    bool sub_4B28E0() const;
 };
 
 extern float &g_camera_min_dist;

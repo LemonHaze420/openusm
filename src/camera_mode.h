@@ -12,16 +12,21 @@ struct camera_target_info;
 struct spiderman_camera;
 
 struct camera_mode {
-    struct {
-        int finalize;
-        int clone;
+    struct vtable {
+        void *(__fastcall *finalize)(camera_mode *, void *, unsigned);
+        camera_mode *(__fastcall *clone)(camera_mode *, void *);
         void (__fastcall *activate)(camera_mode *, void *edx, camera_target_info *);
         void (__fastcall *deactivate)(camera_mode *);
         void(__fastcall *frame_advance)(camera_mode *, void *, Float, camera_frame *, const camera_target_info *);
         void (__fastcall *request_recenter)(camera_mode *, void *, Float, const camera_target_info *);
-        int enable_lookaround;
+        void (__fastcall *enable_lookaround)(camera_mode *, void *, bool);
         void(__fastcall *set_fixedstatic)(camera_mode *, void *, const vector3d *, const vector3d *);
         void (__fastcall *clear_fixedstatic)(camera_mode *);
+        void (__fastcall *notify)(camera_mode *, void *);
+        union {
+            void (__fastcall *reset_state)(camera_mode *, void *, const camera_target_info *);
+            void (__fastcall *smooth_transition)(camera_mode *, void *, camera_frame *, Float);
+        } extension;
     } * m_vtbl;
     spiderman_camera *slave;
     camera_mode *field_8;
@@ -45,10 +50,12 @@ struct camera_mode {
 };
 
 struct camera_mode_shake : camera_mode {
-    uint8_t field_C[0x18];
+    vector3d field_C;
+    vector3d field_18;
     vector3d frame_fwd;
     vector3d frame_eye;
 
+    camera_mode_shake(spiderman_camera *slave, camera_mode *child);
     void _frame_advance(Float a2, camera_frame &a3, const camera_target_info &a4);
 };
 
@@ -99,7 +106,11 @@ struct camera_mode_fixedstatic : camera_mode {
 };
 
 struct camera_mode_combat : camera_mode {
+    using camera_mode::camera_mode;
+    bool disabled;
     void _frame_advance(Float a2, camera_frame &a3, const camera_target_info &a4);
 };
 
+camera_mode *create_native_camera_modes(spiderman_camera *slave);
+void destroy_native_camera_modes(camera_mode *root);
 extern void camera_mode_patch();

@@ -4,15 +4,51 @@
 #include "entity_base.h"
 #include "trace.h"
 #include "utility.h"
+#include "memory.h"
 
 VALIDATE_SIZE(lookat_target_controller, 0x24u);
+
+#if STANDALONE_SYSTEM
+namespace {
+lookat_target_controller *__fastcall native_lookat_destroy(lookat_target_controller *self, void *,
+                                                          unsigned char flags)
+{
+    self->~lookat_target_controller();
+    if (flags & 1)
+        mem_dealloc(self, sizeof(lookat_target_controller));
+    return self;
+}
+
+void __fastcall native_lookat_advance(lookat_target_controller *self, void *, Float dt)
+{
+    self->_frame_advance(dt);
+}
+
+std::intptr_t *native_lookat_vtable()
+{
+    static std::intptr_t table[11];
+    static const bool initialized = [] {
+        controller::initialize_native_vtable(
+            table, reinterpret_cast<std::intptr_t>(native_lookat_destroy),
+            reinterpret_cast<std::intptr_t>(native_lookat_advance), false);
+        return true;
+    }();
+    (void)initialized;
+    return table;
+}
+}
+#endif
 
 lookat_target_controller::lookat_target_controller(entity_base *a2)
 {
     this->field_4 = true;
     this->field_5 = false;
     this->field_8 = a2;
+#if STANDALONE_SYSTEM
+    this->m_vtbl = reinterpret_cast<std::intptr_t>(native_lookat_vtable());
+#else
     this->m_vtbl = 0x00889858;
+#endif
 
     this->field_C = ZEROVEC;
     this->field_18 = 0.0;

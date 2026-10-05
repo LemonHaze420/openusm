@@ -34,4 +34,4 @@ struct camera_frame {
     void smooth_dir(const camera_frame &a2, Float a3);
 };
 
-extern void sub_4B2680(vector3d &a1, float a2, vector3d a3);
+extern void push_sphere(vector3d &position, float radius, vector3d center);

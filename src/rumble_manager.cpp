@@ -4,6 +4,10 @@
 #include "func_wrapper.h"
 #include "input_mgr.h"
 #include "memory.h"
+#include "input_device.h"
+
+#include <algorithm>
+#include <cstdint>
 
 VALIDATE_SIZE(rumble_manager, 0x64);
 
@@ -41,6 +45,36 @@ rumble_manager::rumble_manager()
     this->field_61 = 0;
     this->field_62 = 0;
     this->field_58 = 15.0;
+}
+
+void rumble_manager::start_vibration(float amplitude, float duration, float attack,
+                                    float release, unsigned int pulses, float interval)
+{
+    if ((input_mgr::instance->field_20 & 2) != 0 || !field_60)
+        return;
+    auto *device = input_mgr::instance->get_device_from_map(input_mgr::instance->field_58);
+    field_0 = reinterpret_cast<std::intptr_t>(device);
+    if (device == nullptr)
+        return;
+    field_58 = 15.0f;
+    if (field_20 && field_21) {
+        get_current_rumble_info(*reinterpret_cast<rumble_struct *>(&field_28));
+        field_61 = true;
+    }
+    field_4 = std::clamp(amplitude, 0.0f, 1.0f);
+    field_8 = std::clamp(duration, 0.0f, 1.0f);
+    field_C = attack;
+    field_10 = release;
+    field_14 = static_cast<int>(pulses);
+    field_18 = interval;
+    field_24 = 0.0f;
+    field_4C = field_8;
+    field_20 = false;
+    field_5D = false;
+    field_5C = true;
+    field_1C = attack <= 0.0f ? field_4 : 0.0f;
+    device->m_vtbl->vibrate_0(device, nullptr, Float{field_1C});
+    field_54 = 5.0f;
 }
 
 void rumble_manager::stop_vibration()

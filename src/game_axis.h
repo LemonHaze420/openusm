@@ -36,6 +36,12 @@ struct game_axis {
     //0x0051D900
     void update(Float a2);
 
+
+    void override(Float dt, float value, float delta);
+
+
+    void update_multitap(Float dt);
+
     static inline float default_timeout = 0.40000001f;
 
     static inline float default_threshold = 0.40000001f;

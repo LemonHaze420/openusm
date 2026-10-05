@@ -14,6 +14,12 @@ struct camera : actor {
 
     //0x00577970
     camera(entity *a2, const string_hash &a3);
+    ~camera();
+    static void *native_vtable();
+    void _sync(camera &source);
+    void frame_advance(Float dt);
+    void _frame_advance(Float dt);
+    void set_far_plane_factor(Float factor);
 
     void *operator new(size_t size);
 

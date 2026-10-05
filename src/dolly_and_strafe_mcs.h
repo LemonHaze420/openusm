@@ -15,13 +15,13 @@ struct dolly_and_strafe_mcs : motion_control_system {
     dolly_and_strafe_mcs(entity *a2);
 
     //0x00526940
-    int do_dolly(Float a2);
+    void do_dolly(Float a2);
 
     //0x00526A30
-    int do_strafe(Float a2);
+    void do_strafe(Float a2);
 
     //0x00526B20
-    int do_lift(Float a2);
+    void do_lift(Float a2);
 
     //0x0052E6B0
     //virtual

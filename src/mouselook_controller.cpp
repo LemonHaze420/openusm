@@ -13,15 +13,55 @@
 #include "trace.h"
 #include "variables.h"
 #include "wds.h"
+#include "memory.h"
+
+#include <algorithm>
+#include <cmath>
+#include <functional>
 
 VALIDATE_SIZE(mouselook_controller, 0x18u);
 
 Var<mouselook_controller *> g_mouselook_controller{0x0095C17C};
 
+#if STANDALONE_SYSTEM
+namespace {
+mouselook_controller *__fastcall native_mouselook_destroy(mouselook_controller *self, void *,
+                                                          unsigned char flags)
+{
+    self->~mouselook_controller();
+    if (flags & 1)
+        mem_dealloc(self, sizeof(mouselook_controller));
+    return self;
+}
+
+void __fastcall native_mouselook_advance(mouselook_controller *self, void *, Float dt)
+{
+    self->_frame_advance(dt);
+}
+
+std::intptr_t *native_mouselook_vtable()
+{
+    static std::intptr_t table[11];
+    static const bool initialized = [] {
+        controller::initialize_native_vtable(
+            table, reinterpret_cast<std::intptr_t>(native_mouselook_destroy),
+            reinterpret_cast<std::intptr_t>(native_mouselook_advance), true);
+        return true;
+    }();
+    (void)initialized;
+    return table;
+}
+}
+#endif
+
 mouselook_controller::mouselook_controller(dolly_and_strafe_mcs *a2, theta_and_psi_mcs *a3, camera *a4)
 {
     this->field_8 = a2;
+#if STANDALONE_SYSTEM
+    this->m_vtbl = reinterpret_cast<std::intptr_t>(native_mouselook_vtable());
+#else
     this->m_vtbl = 0x00889114;
+#endif
     this->field_C = a3;
     this->field_10 = a4;
     this->field_14 = input_mgr::instance->field_58;
@@ -45,20 +85,13 @@ static Var<bool> byte_960B45{0x00960B45};
 
 static Var<bool> byte_960B46{0x00960B46};
 
-static Var<bool> byte_921B60{0x00921B60};
+static bool mouse_look_enabled = true;
 
 void mouselook_controller::_frame_advance(Float time_inc)
 {
     TRACE("mouselook_controller::frame_advance");
 
-    {
-        g_debug_cam_target_actor() = bit_cast<actor *>(g_world_ptr->get_hero_ptr(0));
-
-        vector3d cur_cam_target{0x0095CB00};
-        //cur_cam_target() = ZEROVEC;
-    }
-
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         if (!g_game_ptr->is_user_camera_enabled()) {
             return;
         }
@@ -75,51 +108,47 @@ void mouselook_controller::_frame_advance(Float time_inc)
         auto *v4 = input_mgr::instance;
 
         float speed = 10.0;
-        if (AXIS_MAX == v4->get_control_state(26, INVALID_DEVICE_ID)) {
+        if (std::equal_to<float>{}(AXIS_MAX, v4->get_control_state(26, INVALID_DEVICE_ID))) {
             speed *= 10.0;
         }
 
-        if (AXIS_MAX == v4->get_control_state(27, INVALID_DEVICE_ID)) {
+        if (std::equal_to<float>{}(AXIS_MAX, v4->get_control_state(27, INVALID_DEVICE_ID))) {
             speed *= 0.2f;
         }
 
         float clamped_speed = std::clamp(speed, 5.0f, 20.0f);
 
-        auto pitch = v4->get_control_state(20, INVALID_DEVICE_ID);
-        auto yaw = v4->get_control_state(21, INVALID_DEVICE_ID);
+        v4->get_control_state(20, INVALID_DEVICE_ID);
+        v4->get_control_state(21, INVALID_DEVICE_ID);
 
         auto control_state = v4->get_control_state(14, INVALID_DEVICE_ID);
         auto v5 = v4->get_control_state(17, INVALID_DEVICE_ID);
-
-        pitch *= std::abs(pitch);
-
-        yaw *= std::abs(yaw);
 
         float lift = 0.0;
         auto v39 = -(std::abs(control_state) * control_state * g_move_mult);
         auto strafe = std::abs(v5) * v5 * g_strafe_mult;
 
-        if (AXIS_MAX == v4->get_control_state(18, (device_id_t)-1)) {
+        if (std::equal_to<float>{}(AXIS_MAX, v4->get_control_state(18, (device_id_t)-1))) {
             lift = 1.0;
         }
 
-        if (AXIS_MAX == v4->get_control_state(19, (device_id_t)-1)) {
+        if (std::equal_to<float>{}(AXIS_MAX, v4->get_control_state(19, (device_id_t)-1))) {
             lift -= 1.0f;
         }
 
         if (cam_target_locked) {
-            if (AXIS_MAX == v4->get_control_state(22, (device_id_t)-1)) {
+            if (std::equal_to<float>{}(AXIS_MAX, v4->get_control_state(22, (device_id_t)-1))) {
                 lift -= 1.0f;
             }
 
-            if (AXIS_MAX == v4->get_control_state(23, (device_id_t)-1)) {
+            if (std::equal_to<float>{}(AXIS_MAX, v4->get_control_state(23, (device_id_t)-1))) {
                 lift += 1.0f;
             }
         }
 
-        if (AXIS_MID == v4->get_control_state(31, (device_id_t)-1)) {
+        if (std::equal_to<float>{}(AXIS_MID, v4->get_control_state(31, (device_id_t)-1))) {
             if (byte_960B46()) {
-                byte_921B60() = !byte_921B60();
+                mouse_look_enabled = !mouse_look_enabled;
             }
 
             byte_960B46() = false;
@@ -127,30 +156,30 @@ void mouselook_controller::_frame_advance(Float time_inc)
             byte_960B46() = true;
         }
 
-        if (AXIS_MID == v4->get_control_state(32, (device_id_t)-1)) {
+        if (std::equal_to<float>{}(AXIS_MID, v4->get_control_state(32, (device_id_t)-1))) {
             if (byte_960B45()) {
-                byte_921B60() = !byte_921B60();
+                mouse_look_enabled = !mouse_look_enabled;
             }
 
             byte_960B45() = false;
         } else if (byte_960B45()) {
             byte_960B45() = true;
         } else {
-            byte_921B60() = !byte_921B60();
+            mouse_look_enabled = !mouse_look_enabled;
         }
 
-        auto d_psi = (0.0f - g_pitch_mult) * pitch;
-        auto d_theta = (0.0f - g_yaw_mult) * yaw;
+        float d_psi = mouse_look_enabled ? -0.5f * v4->get_control_delta(20, INVALID_DEVICE_ID) : 0.0f;
+        float d_theta = mouse_look_enabled ? -0.5f * v4->get_control_delta(21, INVALID_DEVICE_ID) : 0.0f;
 
-        if (AXIS_MAX == v4->get_control_state(22, (device_id_t)-1)) {
+        if (std::equal_to<float>{}(AXIS_MAX, v4->get_control_state(22, (device_id_t)-1))) {
             d_psi += 1.0f;
         }
 
-        if (AXIS_MAX == v4->get_control_state(23, (device_id_t)-1)) {
+        if (std::equal_to<float>{}(AXIS_MAX, v4->get_control_state(23, (device_id_t)-1))) {
             d_psi -= 1.0f;
         }
 
-        if (AXIS_MAX == v4->get_control_state(24, (device_id_t)-1)) {
+        if (std::equal_to<float>{}(AXIS_MAX, v4->get_control_state(24, (device_id_t)-1))) {
             if (cam_target_locked) {
                 strafe = 1.0;
             }
@@ -158,7 +187,7 @@ void mouselook_controller::_frame_advance(Float time_inc)
             d_theta -= 1.0f;
         }
 
-        if (AXIS_MAX == v4->get_control_state(25, INVALID_DEVICE_ID)) {
+        if (std::equal_to<float>{}(AXIS_MAX, v4->get_control_state(25, INVALID_DEVICE_ID))) {
             if (cam_target_locked) {
                 strafe = -1.0;
             }
@@ -166,22 +195,22 @@ void mouselook_controller::_frame_advance(Float time_inc)
             d_theta += 1.0f;
         }
 
-        if (AXIS_MAX == v4->get_control_state(14, INVALID_DEVICE_ID)) {
+        if (std::equal_to<float>{}(AXIS_MAX, v4->get_control_state(14, INVALID_DEVICE_ID))) {
             v39 = 1.0;
         }
 
-        if (AXIS_MAX == v4->get_control_state(15, INVALID_DEVICE_ID)) {
+        if (std::equal_to<float>{}(AXIS_MAX, v4->get_control_state(15, INVALID_DEVICE_ID))) {
             v39 = -1.0;
         }
 
-        if (AXIS_MAX == v4->get_control_state(17, INVALID_DEVICE_ID)) {
+        if (std::equal_to<float>{}(AXIS_MAX, v4->get_control_state(17, INVALID_DEVICE_ID))) {
             strafe = -1.0;
             if (!cam_target_locked) {
                 strafe = 1.0;
             }
         }
 
-        if (AXIS_MAX == v4->get_control_state(16, INVALID_DEVICE_ID)) {
+        if (std::equal_to<float>{}(AXIS_MAX, v4->get_control_state(16, INVALID_DEVICE_ID))) {
             strafe = 1.0;
             if (!cam_target_locked) {
                 strafe = -1.0;
@@ -189,7 +218,7 @@ void mouselook_controller::_frame_advance(Float time_inc)
         }
 
         auto *v8 = g_debug_cam_target_actor();
-        if (AXIS_MID == v4->get_control_state(29, INVALID_DEVICE_ID)) {
+        if (std::equal_to<float>{}(AXIS_MID, v4->get_control_state(29, INVALID_DEVICE_ID))) {
             if (lock_target_btn_pressed()) {
                 if (!cam_target_locked) {
                     if (g_debug_cam_target_actor() != nullptr) {

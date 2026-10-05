@@ -1,4 +1,5 @@
 #include "game.h"
+#include <functional>
 
 #include "aeps.h"
 #include "ai_find_best_swing_anchor.h"
@@ -340,7 +341,7 @@ game::game()
         this->field_28C = 0.1;
         this->field_270 = 0;
         this->field_274 = 0;
-        this->field_15E = 0;
+        this->zoomInactive = 0;
         this->field_15F = 0;
         this->field_160 = 0;
         this->field_164 = false;
@@ -519,7 +520,7 @@ void game::begin_hires_screenshot(int a2, int a3)
 
 void game::enable_marky_cam(bool a2, bool a3, Float a4, Float a5)
 {
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         auto *v5 = this->the_world;
         auto *marky_cam = v5->field_28.field_44;
 
@@ -527,7 +528,8 @@ void game::enable_marky_cam(bool a2, bool a3, Float a4, Float a5)
 
         auto *v7 = &v5->field_28;
         marky_cam->field_1DC = a5;
-        if ((a2 && a4 >= marky_cam->field_1D8) || (!a2 && a4 == marky_cam->field_1D8)) {
+        if ((a2 && a4 >= marky_cam->field_1D8) ||
+            (!a2 && std::equal_to<float>{}(a4, marky_cam->field_1D8))) {
             if (a2) {
                 if (a3) {
                     marky_cam->sync(*this->field_5C);
@@ -906,7 +908,7 @@ void game::set_current_camera(camera *a2, bool a3)
 {
 #if STANDALONE_SYSTEM
     this->field_5C = a2;
-    if (a3) {
+    if (a3 && a2->is_a_game_camera()) {
         bit_cast<game_camera *>(a2)->field_12C = false;
     }
     this->field_64 = this->field_5C->field_C0;
@@ -1185,8 +1187,6 @@ void game::handle_cameras(input_mgr *a2, const Float &time_inc)
     TRACE("game::handle_cameras");
 
     if constexpr (STANDALONE_SYSTEM) {
-        return;
-    } else if constexpr (0) {
         if ( !this->flag.level_is_loaded ) {
             return;
         }
@@ -1200,8 +1200,8 @@ void game::handle_cameras(input_mgr *a2, const Float &time_inc)
             this->set_camera(0);
         }
 
-        if (AXIS_MAX == a2->get_control_delta(30, INVALID_DEVICE_ID) &&
-            AXIS_MAX == a2->get_control_state(30, INVALID_DEVICE_ID)) {
+        if (equal(AXIS_MAX, a2->get_control_delta(30, INVALID_DEVICE_ID)) &&
+            equal(AXIS_MAX, a2->get_control_state(30, INVALID_DEVICE_ID))) {
             enum {
                 CHASE_CAM = 0,
                 USER_CAM = 1,
@@ -1221,20 +1221,20 @@ void game::handle_cameras(input_mgr *a2, const Float &time_inc)
             }
         }
 
-        if ( AXIS_MAX == a2->get_control_delta(GRAVITY_TOGGLE, INVALID_DEVICE_ID) ) {
+        if (equal(AXIS_MAX, a2->get_control_delta(GRAVITY_TOGGLE, INVALID_DEVICE_ID))) {
             os_developer_options::instance->toggle_flag(static_cast<os_developer_options::flags_t>(23u));
         }
 
-        if ( AXIS_MAX == a2->get_control_delta(STOP_PHYSICS, INVALID_DEVICE_ID) ) {
+        if (equal(AXIS_MAX, a2->get_control_delta(STOP_PHYSICS, INVALID_DEVICE_ID))) {
             this->flag.physics_enabled = !this->flag.physics_enabled;
         }
 
-        if (AXIS_MAX == a2->get_control_delta(SINGLE_STEP, INVALID_DEVICE_ID) &&
-            AXIS_MID == a2->get_control_state(PLANE_BOUNDS_MOD, INVALID_DEVICE_ID)) {
+        if (equal(AXIS_MAX, a2->get_control_delta(SINGLE_STEP, INVALID_DEVICE_ID)) &&
+            equal(AXIS_MID, a2->get_control_state(PLANE_BOUNDS_MOD, INVALID_DEVICE_ID))) {
             this->flag.single_step = true;
         }
 
-        if (AXIS_MAX == a2->get_control_delta(119, INVALID_DEVICE_ID)) {
+        if (equal(AXIS_MAX, a2->get_control_delta(119, INVALID_DEVICE_ID))) {
             auto *v8 = g_world_ptr->get_hero_ptr(0);
 
             auto v11 = v8->get_abs_position();
@@ -1254,11 +1254,11 @@ void game::handle_cameras(input_mgr *a2, const Float &time_inc)
             sub_5975C0(Dest, false, true);
         }
 
-        if ( AXIS_MAX == a2->get_control_delta(SHOW_DEBUG_INFO, INVALID_DEVICE_ID) ) {
+        if (equal(AXIS_MAX, a2->get_control_delta(SHOW_DEBUG_INFO, INVALID_DEVICE_ID))) {
             os_developer_options::instance->toggle_flag(static_cast<os_developer_options::flags_t>(20));
         }
 
-        if (AXIS_MAX == a2->get_control_delta(USERCAM_EQUALS_CHASECAM, INVALID_DEVICE_ID) && !this->flag.game_paused) {
+        if (equal(AXIS_MAX, a2->get_control_delta(USERCAM_EQUALS_CHASECAM, INVALID_DEVICE_ID)) && !this->flag.game_paused) {
             auto *ent = entity_handle_manager::find_entity(string_hash {"USER_CAM"}, IGNORE_FLAVOR, false);
             auto *v18 = entity_handle_manager::find_entity(string_hash {"CHASE_CAM"}, IGNORE_FLAVOR, false);
             if (ent != nullptr && v18 != nullptr) {
@@ -1273,11 +1273,11 @@ void game::handle_cameras(input_mgr *a2, const Float &time_inc)
             cam_target_locked = false;
         }
 
-        if ( AXIS_MAX == a2->get_control_delta(33, INVALID_DEVICE_ID) ) {
+        if (equal(AXIS_MAX, a2->get_control_delta(33, INVALID_DEVICE_ID))) {
             g_debug_cam_get_next_target() = true;
         }
 
-        if ( AXIS_MAX == a2->get_control_delta(34, INVALID_DEVICE_ID) ) {
+        if (equal(AXIS_MAX, a2->get_control_delta(34, INVALID_DEVICE_ID))) {
             g_debug_cam_get_prev_target() = true;
         }
 
@@ -1349,7 +1349,7 @@ void game::handle_cameras(input_mgr *a2, const Float &time_inc)
             }
         }
 
-        if (AXIS_MAX == a2->get_control_delta(51, INVALID_DEVICE_ID)) {
+        if (equal(AXIS_MAX, a2->get_control_delta(51, INVALID_DEVICE_ID))) {
             static char byte_960C08[128] {};
 
             byte_960C08[0] = '\0';
@@ -1389,12 +1389,12 @@ void game::handle_cameras(input_mgr *a2, const Float &time_inc)
             sub_5975C0(byte_960C08, true, false);
         }
 
-        if ( AXIS_MAX == a2->get_control_delta(50, INVALID_DEVICE_ID) ) {
+        if (equal(AXIS_MAX, a2->get_control_delta(50, INVALID_DEVICE_ID))) {
             GetAsyncKeyState(VK_MENU);
         }
 
         if (os_developer_options::instance->get_flag(mString{"CAMERA_EDITOR"}) &&
-            AXIS_MAX == a2->get_control_delta(49, INVALID_DEVICE_ID)) {
+            equal(AXIS_MAX, a2->get_control_delta(49, INVALID_DEVICE_ID))) {
             chunk_file file {};
             mString v147 = this->level.name_mission_table + "_caminfo.txt";
             file.open(v147, os_file::FILE_MODIFY);
@@ -1469,26 +1469,26 @@ void game::handle_cameras(input_mgr *a2, const Float &time_inc)
         }
 
         if (os_developer_options::instance->get_flag(mString{"CAMERA_EDITOR"})) {
-            if (AXIS_MAX == a2->get_control_delta(47, INVALID_DEVICE_ID)) {
+            if (equal(AXIS_MAX, a2->get_control_delta(47, INVALID_DEVICE_ID))) {
                 mString v86 {this->field_270};
                 mString v143 = v86 + " Recorded.";
                 mString v138 {v143.c_str()};
                 this->mb->post(*bit_cast<message_board::string *>(&v138), 2.0f, color32 {0xFFFFFFFF});
             }
 
-            if (AXIS_MAX == a2->get_control_state(48, INVALID_DEVICE_ID)) {
-                static uint32_t arr[10] {};
+            if (equal(AXIS_MAX, a2->get_control_state(48, INVALID_DEVICE_ID))) {
+                static int arr[10] {};
                 std::iota(std::begin(arr), std::end(arr), 0);
                 for (auto &i : arr) {
-                    if (AXIS_MAX == a2->get_control_delta(35 + i, INVALID_DEVICE_ID) && this->field_270 > i) {
+                    if (equal(AXIS_MAX, a2->get_control_delta(35 + i, INVALID_DEVICE_ID)) && this->field_270 > i) {
                         this->field_5C->set_abs_position(this->field_180[i]);
                         mString v138 = "Cam Position " + mString {static_cast<int>(i + 1)};
                         this->mb->post(*bit_cast<message_board::string *>(&v138), 2.0f, color32 {0xFFFFFFFF});
                     }
                 }
             } else {
-                for (uint32_t i{0}; i < 10; ++i) {
-                    if (AXIS_MAX == a2->get_control_delta(35 + i, INVALID_DEVICE_ID)) {
+                for (int i{0}; i < 10; ++i) {
+                    if (equal(AXIS_MAX, a2->get_control_delta(35 + i, INVALID_DEVICE_ID))) {
                         this->field_180[i] = this->field_5C->get_abs_position();
 
                         vector3d v142 {0.0, 0.0, 2.0f};
@@ -1505,7 +1505,7 @@ void game::handle_cameras(input_mgr *a2, const Float &time_inc)
                 }
             }
 
-            if (AXIS_MAX == a2->get_control_delta(45, INVALID_DEVICE_ID)) {
+            if (equal(AXIS_MAX, a2->get_control_delta(45, INVALID_DEVICE_ID))) {
                 auto v118 = this->field_270;
                 if (v118 > 1) {
                     this->field_274 = (v118 - 1) + (v118 - 1);
@@ -1514,15 +1514,15 @@ void game::handle_cameras(input_mgr *a2, const Float &time_inc)
                 }
             }
 
-            if (AXIS_MAX == a2->get_control_delta(46, INVALID_DEVICE_ID) &&
-                AXIS_MAX == a2->get_control_state(48, INVALID_DEVICE_ID)) {
+            if (equal(AXIS_MAX, a2->get_control_delta(46, INVALID_DEVICE_ID)) &&
+                equal(AXIS_MAX, a2->get_control_state(48, INVALID_DEVICE_ID))) {
                 this->field_270 = 0;
                 mString v138 {"Dolly Clear"};
                 this->mb->post(*bit_cast<message_board::string *>(&v138), 2.0f, color32 {0xFFFFFFFF});
             }
         }
 
-        if (time_inc != 0.0f && (!this->flag.physics_enabled || this->flag.single_step)) {
+        if (not_equal(float{time_inc}, 0.0f) && (!this->flag.physics_enabled || this->flag.single_step)) {
             auto *the_world = this->the_world;
             if (the_world->field_28.is_marky_cam_enabled()) {
                 auto *v120 = the_world->field_28.field_44;
@@ -1813,7 +1813,7 @@ void game::load_this_level()
 
         this->field_2C0.reset();
         this->field_15F = false;
-        this->field_15E = false;
+        this->zoomInactive = false;
         this->field_160 = false;
         this->flag.game_paused = false;
         this->clear_screen();

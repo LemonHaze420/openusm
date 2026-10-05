@@ -13,7 +13,22 @@ struct controller_inode : info_node {
 
     enum eControllerAxis {};
 
+    unsigned int triggered_buttons;
+    unsigned int held_buttons;
+
+
     controller_inode();
+    explicit controller_inode(from_mash_in_place_constructor *constructor);
+    static void *native_vtable();
+    void _frame_advance(Float time_step);
+
+
+    void _activate(ai_core *core);
+    void _deactivate();
+    vector3d facing();
+    void button_helper(eControllerButton button, unsigned int *held, unsigned int *triggered);
+    void update_trigger_buttons();
+    unsigned int get_combat_trigger(vector3d direction);
 
     //0x00445CB0
     //virtual

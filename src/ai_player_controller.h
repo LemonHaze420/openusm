@@ -62,6 +62,9 @@ struct ai_player_controller {
     //0x004728D0
     ai_player_controller(actor *a2);
 
+
+    ~ai_player_controller() = default;
+
     void lock_controls(bool a2);
 
     void unlock_controls(bool a2);

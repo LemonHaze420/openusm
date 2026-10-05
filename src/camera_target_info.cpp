@@ -4,6 +4,7 @@
 #include "ai_player_controller.h"
 #include "ai_std_combat_target.h"
 #include "ai_team.h"
+#include "ai_std_hero.h"
 #include "base_ai_core.h"
 #include "collide.h"
 #include "common.h"
@@ -26,11 +27,27 @@ static const float flt_87EA34 = 0.75;
 static const float flt_8820A0 = 0.66000003;
 static const float flt_87EEDC = 0.69999999;
 
+#if STANDALONE_SYSTEM
+float &g_camera_min_dist = []() -> float & {
+    auto &value = var<float>(0x00881AB4);
+    value = 2.25f;
+    return value;
+}();
+float &g_camera_max_dist = []() -> float & {
+    auto &value = var<float>(0x00881AB8);
+    value = 4.5f;
+    return value;
+}();
+float &g_camera_supermax_dist = []() -> float & {
+    auto &value = var<float>(0x00881ABC);
+    value = 8.0f;
+    return value;
+}();
+#else
 float &g_camera_min_dist = var<float>(0x00881AB4);
-
 float &g_camera_max_dist = var<float>(0x00881AB8);
-
 float &g_camera_supermax_dist = var<float>(0x00881ABC);
+#endif
 
 camera_target_info::camera_target_info(entity *_target, Float a3, const vector3d &_pos, const vector3d &_up)
 {
@@ -39,7 +56,7 @@ camera_target_info::camera_target_info(entity *_target, Float a3, const vector3d
     assert(_target != nullptr);
     assert(_target->is_a_conglomerate());
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         this->field_54 = bit_cast<actor *>(_target);
         auto v69 = this->field_54->get_abs_po();
         this->field_C = this->field_54->get_visual_center();
@@ -122,7 +139,7 @@ camera_target_info::camera_target_info(entity *_target, Float a3, const vector3d
                 this->up = v51.normalized();
             }
 
-            if (a3 != 0.0f) {
+            if (not_equal(float(a3), 0.0f)) {
                 auto v63 = 1.f / a3;
                 this->field_24 = (this->pos - _pos) * v63;
             }
@@ -153,7 +170,7 @@ int camera_target_info::get_loco_mode() const
     TRACE("camera_target_info::get_loco_mode");
 
     auto *v1 = this->field_54->m_player_controller;
-    if (v1 != nullptr) {
+    if (v1 == nullptr) {
         return 1;
     }
 
@@ -191,6 +208,22 @@ bool camera_target_info::sub_4B29C0() const
 {
     auto *the_controller = this->field_54->m_player_controller;
     return the_controller != nullptr && the_controller->get_spidey_loco_mode() == 13;
+}
+
+bool camera_target_info::sub_4B28E0() const
+{
+    auto *controller = field_54->m_player_controller;
+    if (controller == nullptr)
+        return false;
+    const int mode = controller->get_spidey_loco_mode();
+    if (mode != 6 && mode != 7)
+        return false;
+    auto *hero = static_cast<ai::hero_inode *>(
+        field_54->get_ai_core()->get_info_node(ai::hero_inode::default_id, false));
+    if (hero == nullptr)
+        return false;
+    const int jump_type = static_cast<int>(hero->field_50);
+    return jump_type == 15 || jump_type == 16 || jump_type == 18 || jump_type == 17;
 }
 
 eHeroLocoMode camera_target_info::get_prev_loco_mode() const
