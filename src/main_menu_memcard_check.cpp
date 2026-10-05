@@ -2,6 +2,8 @@
 
 #include "common.h"
 #include "frontendmenusystem.h"
+
+#include "input_mgr.h"
 #include "cursor.h"
 #include "femultilinetext.h"
 #include "game.h"
@@ -68,6 +70,8 @@ main_menu_memcard_check::main_menu_memcard_check(FEMenuSystem *a2, int a4, int a
     field_100 = 0;
     field_104 = 0;
     field_108 = DIALOG_NONE;
+    field_10C.m_data = nullptr;
+    field_10C.m_max_size = 0;
     field_11C = 0;
     field_120 = false;
     field_128 = true;
@@ -183,27 +187,66 @@ void set_box_text(FEMultiLineText *text, const mString &value)
 
 void main_menu_memcard_check::SetDialogMessage()
 {
-    switch (field_108) {
-    case DIALOG_NONE:
-        field_12C[0] = g_game_ptr->field_7C->lookup_localized_string(static_cast<global_text_enum>(451));
+    auto localized = [](int id) {
+        return g_game_ptr->field_7C->lookup_localized_string(static_cast<global_text_enum>(id));
+    };
+
+    switch (static_cast<int>(field_108)) {
+    case 0:
+        field_12C[0] = localized(451);
         break;
-    case DIALOG_NO_SAVE:
-        field_12C[0] = g_game_ptr->field_7C->lookup_localized_string(static_cast<global_text_enum>(466));
+    case 1:
+        field_12C[0] = localized(466);
         break;
-    case DIALOG_HAS_SAVE:
-        field_12C[0] = g_game_ptr->field_7C->lookup_localized_string(static_cast<global_text_enum>(21));
+    case 2:
+        field_12C[0] = localized(21);
         break;
-    case DIALOG_CHECKING:
+    case 3:
+        field_12C[0] = localized(452);
+        break;
+    case 4:
+        field_12C[0] = localized(453);
+        break;
+    case 5:
         field_12C[0] = "CHECKING MEMORY CARD.";
         break;
-    case DIALOG_LOAD_CORRUPT:
-        field_12C[1] = g_game_ptr->field_7C->lookup_localized_string(static_cast<global_text_enum>(460));
+    case 6:
+        field_12C[1] = localized(22);
         break;
-    case DIALOG_OPERATION_FAILED:
+    case 8:
+        field_12C[1] = "ARE YOU SURE YOU WANT TO FORMAT?";
+        break;
+    case 9:
+        field_12C[1] = localized(24);
+        break;
+    case 10:
+        field_12C[1] = localized(21);
+        break;
+    case 13:
+        field_12C[1] = localized(462);
+        break;
+    case 14:
+        field_12C[1] = localized(460);
+        break;
+    case 15:
         field_12C[1] = field_18C;
         break;
-    case DIALOG_INSUFFICIENT_SPACE:
-        field_12C[1] = g_game_ptr->field_7C->lookup_localized_string(static_cast<global_text_enum>(459));
+    case 18:
+        field_12C[1] = localized(475);
+        break;
+    case 19:
+        field_12C[1] = localized(307);
+        break;
+    case 20: {
+        const int device = input_mgr::instance->field_58;
+        field_12C[1] = mString(0, localized(455), (device == -1 ? 1000000 : device) - 999999);
+        break;
+    }
+    case 21:
+        field_12C[1] = localized(472);
+        break;
+    case 22:
+        field_12C[1] = localized(459);
         break;
     default:
         break;
@@ -214,38 +257,94 @@ void main_menu_memcard_check::SetUpDialogBox(dialog_state state)
     if (state < 0 || state >= 24)
         return;
 
+
+    if (static_cast<int>(field_108) == 21) {
+        field_108 = static_cast<dialog_state>(field_10C.at(field_10C.size() - 1));
+        --field_10C.m_size;
+    }
+    if (state != field_108 && (field_10C.size() == 0 || field_10C.at(field_10C.size() - 1) != field_108))
+        field_10C.push_back(field_108);
     field_108 = state;
     field_120 = false;
-    field_12C[3] = "";
-    field_12C[4] = "";
-    field_12C[5] = "";
+    if ((field_104 == 4 || field_104 == 6) && field_129)
+        field_104 = 5;
+    else if (field_19C->field_30 == 11 && field_104 > 3)
+        field_104 = 6;
     SetDialogMessage();
-    if (state == DIALOG_LOAD_CORRUPT) {
-        field_12C[3] = g_game_ptr->field_7C->lookup_localized_string(static_cast<global_text_enum>(51));
-    } else if (state == DIALOG_OPERATION_FAILED) {
-        field_12C[3] = g_game_ptr->field_7C->lookup_localized_string(static_cast<global_text_enum>(255));
-    } else if (state == DIALOG_INSUFFICIENT_SPACE) {
-        field_12C[3] = g_game_ptr->field_7C->lookup_localized_string(static_cast<global_text_enum>(50));
+    auto localized = [](int id) {
+        return g_game_ptr->field_7C->lookup_localized_string(static_cast<global_text_enum>(id));
+    };
+    int option = -1;
+    switch (static_cast<int>(state)) {
+    case 6:
+    case 9:
+    case 10:
+    case 19:
+    case 21:
+        option = 39;
+        break;
+    case 8:
+        option = 37;
+        break;
+    case 12:
+    case 13:
+    case 16:
+    case 18:
+    case 22:
+        option = 50;
+        break;
+    case 14:
+        option = 51;
+        break;
+    case 15:
+        option = 255;
+        break;
+    default:
+        break;
     }
-    for (auto *quad : field_AC)
-        quad->SetAlpha(0.0f);
-    field_F4->SetShown(false);
-    field_EC->SetShown(true);
-    field_F0->SetShown(true);
-
-    field_11C = field_100;
-    field_100 = 0;
+    field_12C[3] = option < 0 ? "" : localized(option);
+    switch (static_cast<int>(state)) {
+    case 8:
+        field_12C[4] = localized(38);
+        break;
+    case 13:
+        field_12C[4] = localized(53);
+        break;
+    case 14:
+    case 18:
+    case 22:
+        break;
+    default:
+        field_12C[4] = "";
+        break;
+    }
+    if (state != 13 && state != 14 && state != 16)
+        field_12C[5] = "";
     for (int i = 0; i < 3; ++i) {
         field_D4[i]->SetNoFlash(color32{0xFFC8C8C8});
         field_D4[i]->SetScale(0.9f);
         field_E0[i]->SetNoFlash(color32{0xFFC8C8C8});
         field_E0[i]->SetScale(0.9f);
     }
-    field_D4[0]->SetFlash(color32{0xFFE6D03F}, color32{0x80E6D03F}, 0.6f);
-    field_D4[0]->SetScale(1.0f);
-    field_E0[0]->SetFlash(color32{0xFFE6D03F}, color32{0x80E6D03F}, 0.6f);
-    field_E0[0]->SetScale(1.0f);
-    UpdateText();
+
+    int selected = state == 8 ? 1 : -1;
+    if (selected < 0 || field_12C[selected + 3].size() == 0) {
+        selected = -1;
+        for (int i = 0; i < 3; ++i) {
+            if (field_12C[i + 3].size() != 0) {
+                selected = i;
+                break;
+            }
+        }
+    }
+    if (selected >= 0) {
+        field_11C = field_100;
+        field_100 = selected;
+        field_D4[selected]->SetFlash(color32{0xFFE6D03F}, color32{0x80E6D03F}, 0.6f);
+        field_D4[selected]->SetScale(1.0f);
+        field_E0[selected]->SetFlash(color32{0xFFE6D03F}, color32{0x80E6D03F}, 0.6f);
+        field_E0[selected]->SetScale(1.0f);
+    }
 }
 
 void main_menu_memcard_check::OperationFailed(MemoryUnitManager::eOperation operation,

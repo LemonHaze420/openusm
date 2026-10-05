@@ -9,6 +9,9 @@
 #include "common.h"
 #include "mash_config.h"
 
+
+#include "param_block.h"
+
 #include <cassert>
 
 
@@ -53,9 +56,9 @@ VALIDATE_SIZE(scripted_category, 0x7C);
 
 void *scripted_category::native_vtable()
 {
-    static void *table[] = {nullptr,
+    static void *table[] = {func_address(&scripted_category::_destruct_mashed_class),
                             func_address(&scripted_category::_unmash),
-                            nullptr,
+                            func_address(&scripted_category::_scalar_deleting_destructor),
                             func_address(&scripted_category::_get_virtual_type_enum),
                             nullptr,
                             func_address(&mash_virtual_base::_is_or_is_subclass_of),
@@ -85,6 +88,43 @@ scripted_category::scripted_category(from_mash_in_place_constructor *a2)
     if (this->field_78 != nullptr) {
         mash_info_struct::construct_class(this->field_78);
     }
+}
+
+void scripted_category::_destruct_mashed_class()
+{
+    field_10.destruct_mashed_class();
+    field_14.field_0.destruct_mashed_class();
+    field_14.field_4.clear();
+    field_14.field_4.mContainer_base::destruct_mashed_class();
+    field_2C.destruct_mashed_class();
+    field_3C.clear();
+    field_3C.mContainer_base::destruct_mashed_class();
+    field_50.clear();
+    field_50.mContainer_base::destruct_mashed_class();
+    field_64.clear();
+    field_64.mContainer_base::destruct_mashed_class();
+    if (field_78 != nullptr) {
+        field_78->clear();
+        field_78->mContainer_base::destruct_mashed_class();
+        field_78 = nullptr;
+    }
+    field_4.destruct_mashed_class();
+    if (field_C != nullptr) {
+        field_C->destruct_mashed_class();
+        field_C = nullptr;
+    }
+}
+
+void *scripted_category::_scalar_deleting_destructor(unsigned int flags)
+{
+    field_64.clear();
+    field_50.clear();
+    field_3C.clear();
+    field_2C.destruct_mashed_class();
+    field_14.field_4.clear();
+    if ((flags & 1) != 0)
+        ::operator delete(this);
+    return this;
 }
 
 void scripted_category::_unmash(mash_info_struct *a1, void *)

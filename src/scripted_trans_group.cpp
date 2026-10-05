@@ -23,9 +23,9 @@ const char *to_string(scripted_trans_group::transition_type trans_type)
 scripted_trans_group::scripted_trans_group()
 {
     if constexpr (1) {
-        static void *g_vtbl[] = {nullptr,
+        static void *g_vtbl[] = {func_address(&scripted_trans_group::_destruct_mashed_class),
                                  func_address(&scripted_trans_group::_unmash),
-                                 nullptr,
+                                 func_address(&scripted_trans_group::_scalar_deleting_destructor),
                                  func_address(&scripted_trans_group::_get_virtual_type_enum),
                                  nullptr,
                                  func_address(&mash_virtual_base::_is_or_is_subclass_of),
@@ -46,6 +46,30 @@ scripted_trans_group::scripted_trans_group(from_mash_in_place_constructor *a1) :
     if (this->field_3C != nullptr) {
         mash_info_struct::construct_class(this->field_3C);
     }
+}
+
+void scripted_trans_group::_destruct_mashed_class()
+{
+    field_4.destruct_mashed_class();
+    field_14.clear();
+    field_14.mContainer_base::destruct_mashed_class();
+    field_28.clear();
+    field_28.mContainer_base::destruct_mashed_class();
+    if (field_3C != nullptr) {
+        field_3C->clear();
+        field_3C->mContainer_base::destruct_mashed_class();
+        field_3C = nullptr;
+    }
+}
+
+void *scripted_trans_group::_scalar_deleting_destructor(unsigned int flags)
+{
+    field_28.clear();
+    field_14.clear();
+    field_4.destruct_mashed_class();
+    if ((flags & 1) != 0)
+        ::operator delete(this);
+    return this;
 }
 
 void scripted_trans_group::_unmash(mash_info_struct *a1, void *)

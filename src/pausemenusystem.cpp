@@ -16,6 +16,8 @@
 #include "landmarks.h"
 #include "ltd_edition.h"
 #include "memory.h"
+
+#include "memoryunitmanager.h"
 #include "panelfile.h"
 #include "pause_menu_controller.h"
 #include "pause_menu_credits.h"
@@ -120,14 +122,18 @@ void PauseMenuSystem::Draw()
     THISCALL(0x0060BF10, this);
 }
 
-bool sub_7B1EE0()
-{
-    return (bool)CDECL_CALL(0x007B1EE0);
-}
 
 void PauseMenuSystem::Deactivate()
 {
-    THISCALL(0x0060BEE0, this);
+    if constexpr (STANDALONE_SYSTEM) {
+        if (m_index >= 0) {
+            MakeActive(-1);
+            g_game_ptr->unpause();
+            comic_panels::game_play_panel()->field_67 = field_38;
+        }
+    } else {
+        THISCALL(0x0060BEE0, this);
+    }
 }
 
 void PauseMenuSystem::Update(Float a2)
@@ -140,17 +146,18 @@ void PauseMenuSystem::Update(Float a2)
 
                 if (dialog_text->field_9C != 3) {
                     auto *mini_map_widget = g_femanager.IGO->field_4;
-                    auto *vtbl = bit_cast<void *(*)[4]>(mini_map_widget->m_vtbl);
 
-                    auto *func = (*vtbl)[3];
-                    assert(bit_cast<std::intptr_t>(func) == 0x00641810);
 
                     mini_map_widget->Update(a2);
                 }
             }
 
             auto *v4 = this->field_34->field_2C;
-            v4->field_24 = sub_7B1EE0();
+
+            if constexpr (STANDALONE_SYSTEM)
+                v4->field_24 = MemoryUnitManager::Service();
+            else
+                v4->field_24 = static_cast<bool>(CDECL_CALL(0x007B1EE0));
             int idx1 = this->m_index;
             if (idx1 >= 0) {
                 auto **v6 = this->field_4;
@@ -160,23 +167,13 @@ void PauseMenuSystem::Update(Float a2)
                 }
             }
 
-            {
-                auto *vtbl = bit_cast<void *(*)[7]>(this->m_vtbl);
 
-                auto *func = (*vtbl)[6];
-                assert(bit_cast<std::intptr_t>(func) == 0x006298D0);
+            this->UpdateButtonPresses();
 
-                this->UpdateButtonPresses();
-            }
 
             this->field_2C->Update(a2);
 
             if ((g_game_ptr->field_165 || g_game_ptr->field_166) && this->m_index >= 0) {
-                auto *vtbl = bit_cast<void *(*)[7]>(this->m_vtbl);
-
-                auto *func = (*vtbl)[3];
-                assert(bit_cast<std::intptr_t>(func) == 0x0060B610);
-
                 this->MakeActive(-1);
                 g_game_ptr->unpause();
                 comic_panels::game_play_panel()->field_67 = this->field_38;

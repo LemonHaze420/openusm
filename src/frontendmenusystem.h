@@ -3,7 +3,7 @@
 #include "femenusystem.h"
 
 #include "limited_timer.h"
-#include "mAvlTree.h"
+#include "mVectorBasic.h"
 #include "mstring.h"
 #include "sound_instance_id.h"
 #include "variable.h"
@@ -27,8 +27,8 @@ struct FrontEndMenuSystem : FEMenuSystem {
     bool field_52;
     int field_54;
     int field_58;
-    mAvlTree<string_hash_entry> field_5C;
-    mAvlTree<string_hash_entry> field_6C;
+    mVectorBasic<int> field_5C;
+    mVectorBasic<int> field_6C;
 
     PanelFile *field_7C;
 

@@ -2,7 +2,21 @@
 
 #include "panelfile.h"
 
-fe_hotpursuit_indicator::fe_hotpursuit_indicator() {}
+
+#include <algorithm>
+
+fe_hotpursuit_indicator::fe_hotpursuit_indicator()
+{
+    field_8 = nullptr;
+}
+
+void fe_hotpursuit_indicator::Draw()
+{
+    if (field_0 && field_8 != nullptr) {
+        field_14->Mask(std::clamp(field_4 * 0.2f, 0.0f, 1.0f), 2, -1.0f);
+        field_8->Draw();
+    }
+}
 
 void fe_hotpursuit_indicator::Init()
 {

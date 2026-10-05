@@ -50,5 +50,7 @@ struct fe_distance_race {
     // 0x0062FE40
     void Update(Float time_inc);
 
+    void Draw();
+
     void DeInit();
 };

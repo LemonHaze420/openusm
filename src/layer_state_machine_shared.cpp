@@ -12,9 +12,9 @@ VALIDATE_SIZE(layer_state_machine_shared, 0x48);
 layer_state_machine_shared::layer_state_machine_shared()
 {
     if constexpr (1) {
-        static void *g_vtbl[] = {nullptr,
+        static void *g_vtbl[] = {func_address(&layer_state_machine_shared::_destruct_mashed_class),
                                  func_address(&layer_state_machine_shared::_unmash),
-                                 nullptr,
+                                 func_address(&layer_state_machine_shared::_scalar_deleting_destructor),
                                  func_address(&layer_state_machine_shared::_get_virtual_type_enum),
                                  nullptr,
                                  func_address(&mash_virtual_base::_is_or_is_subclass_of),

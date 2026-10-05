@@ -7,6 +7,9 @@
 #include "trace.h"
 #include "vtbl.h"
 
+
+#include "memory.h"
+
 #include <cstdint>
 
 VALIDATE_SIZE(combo_system_chain, 0x44);
@@ -70,6 +73,62 @@ combo_system::combo_system() {}
 
 combo_system::combo_system(from_mash_in_place_constructor *a2) : field_0(a2), field_14(a2), field_28(a2), field_3C(a2)
 {}
+
+
+namespace {
+template <typename T, typename Cleanup>
+void clear_combo_vector(mVector<T> &vector, Cleanup cleanup)
+{
+    if (vector.field_10) {
+        for (int i = 0; i < vector.m_size; ++i) {
+            auto *element = vector.m_data[i];
+            if (element != nullptr) {
+                cleanup(*element);
+                if (!vector.is_pointer_in_mash_image(element))
+                    ::operator delete(element);
+            }
+            vector.m_data[i] = nullptr;
+        }
+    }
+    if (!vector.is_pointer_in_mash_image(vector.m_data))
+        mem_dealloc(vector.m_data, sizeof(*vector.m_data) * vector.m_max_size);
+    vector.m_data = nullptr;
+    vector.m_max_size = 0;
+    vector.mContainer_base::clear();
+    vector.mContainer_base::destruct_mashed_class();
+}
+}
+
+void combo_system::destruct_mashed_class()
+{
+    clear_combo_vector(field_0, [](combo_system_move &move) {
+        auto &result = move.field_4;
+        result.field_4.destruct_mashed_class();
+        result.field_8.destruct_mashed_class();
+        result.field_C.destruct_mashed_class();
+        result.field_10.destruct_mashed_class();
+        clear_combo_vector(move.field_80.field_30,
+                           [](combo_system_move::link_info &link) { link.field_4.destruct_mashed_class(); });
+    });
+    clear_combo_vector(field_14, [](combo_system_chain &chain) {
+        clear_combo_vector(chain.field_0, [](combo_system_chain::telegraph_info &) {});
+        chain.field_14.destruct_mashed_class();
+        if (!chain.field_1C.is_pointer_in_mash_image(chain.field_1C.m_data))
+            ::operator delete[](chain.field_1C.m_data);
+        chain.field_1C.m_data = nullptr;
+        chain.field_1C.m_max_size = 0;
+        chain.field_1C.mContainer_base::clear();
+        chain.field_1C.mContainer_base::destruct_mashed_class();
+    });
+    clear_combo_vector(field_28, [](combo_system_weapon &weapon) {
+        weapon.field_0.destruct_mashed_class();
+        weapon.field_8.destruct_mashed_class();
+        weapon.field_10.destruct_mashed_class();
+        weapon.field_18.destruct_mashed_class();
+        weapon.field_1C.destruct_mashed_class();
+    });
+    clear_combo_vector(field_3C, [](string_hash &hash) { hash.destruct_mashed_class(); });
+}
 
 combo_system_weapon *combo_system::get_weapon(int idx)
 {

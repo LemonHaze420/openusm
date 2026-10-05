@@ -12,4 +12,7 @@ struct fe_game_credits {
     char field_14;
 
     fe_game_credits();
+
+
+    void Draw();
 };

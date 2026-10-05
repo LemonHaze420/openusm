@@ -2,7 +2,10 @@
 
 #include "panelfile.h"
 
-fe_crosshair::fe_crosshair() {}
+fe_crosshair::fe_crosshair()
+{
+    field_10 = nullptr;
+}
 
 void fe_crosshair::Init()
 {

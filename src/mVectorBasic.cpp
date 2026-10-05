@@ -26,6 +26,34 @@
 
 VALIDATE_SIZE(mVectorBasic<int>, 0x10);
 
+
+template <>
+void mVectorBasic<int>::destruct_mashed_class()
+{
+    if (!is_pointer_in_mash_image(m_data))
+        ::operator delete[](m_data);
+    m_data = nullptr;
+    m_max_size = 0;
+    mContainer_base::clear();
+    mContainer_base::destruct_mashed_class();
+}
+
+template <>
+void mVectorBasic<int>::reserve(int capacity)
+{
+    if (capacity > m_max_size) {
+        auto *data = static_cast<int *>(::operator new(sizeof(int) * capacity));
+        if (m_data != nullptr) {
+            if (m_size > 0)
+                std::memcpy(data, m_data, sizeof(int) * m_size);
+            if (!is_pointer_in_mash_image(m_data))
+                ::operator delete[](m_data);
+        }
+        m_data = data;
+        m_max_size = capacity;
+    }
+}
+
 template <>
 void mVectorBasic<subdivision_node_large_obb>::destruct_mashed_class()
 {

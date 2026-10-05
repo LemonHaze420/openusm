@@ -8579,8 +8579,25 @@ struct slf__swap_hero_costume__str__t : script_library_class::function {
     {
         TRACE("slf__swap_hero_costume__str__t::operator()");
 
+#if STANDALONE_SYSTEM
+        const char *costume = stack.pop_str();
+        auto *frames = reinterpret_cast<int *>(stack.get_SP() + sizeof(const char *));
+        auto *saved_costume = reinterpret_cast<char *>(frames + 1);
+        if (entry == script_library_class::function::entry_t::FIRST_ENTRY) {
+            *frames = 0;
+            std::strcpy(saved_costume, costume);
+            if (g_world_ptr->num_players > 0)
+                g_world_ptr->remove_player(g_world_ptr->num_players - 1);
+            return false;
+        }
+        if (++*frames <= 2)
+            return false;
+        g_world_ptr->add_player(mString{saved_costume});
+        return true;
+#else
         bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00676C50);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 

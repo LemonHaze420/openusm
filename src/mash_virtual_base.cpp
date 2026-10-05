@@ -279,6 +279,18 @@ string_hash *__fastcall native_scripted_state_animation(const als::scripted_stat
 }
 
 template <typename T>
+void __fastcall native_als_destruct(T *self, void *)
+{
+    self->_destruct_mashed_class();
+}
+
+template <typename T>
+void *__fastcall native_als_scalar_delete(T *self, void *, unsigned int flags)
+{
+    return self->_scalar_deleting_destructor(flags);
+}
+
+template <typename T>
 void *native_mash_vtable()
 {
     static std::array<void *, 96> table{};
@@ -289,6 +301,12 @@ void *native_mash_vtable()
             table[0x18 / sizeof(void *)] = T::g_vtbl[0x18 / sizeof(void *)];
         table[0x1C / sizeof(void *)] = bit_cast<void *>(&native_mash_sizeof<T>);
         table[0x34 / sizeof(void *)] = bit_cast<void *>(&native_mash_sizeof<T>);
+
+        if constexpr (std::is_base_of_v<als::state_machine_shared, T> || std::is_base_of_v<als::scripted_state, T> ||
+                      std::is_same_v<als::scripted_trans_group, T>) {
+            table[0] = bit_cast<void *>(&native_als_destruct<T>);
+            table[2] = bit_cast<void *>(&native_als_scalar_delete<T>);
+        }
         if constexpr (std::is_base_of_v<ai::info_node, T>)
             table[0x2C / sizeof(void *)] = bit_cast<void *>(&native_mash_sizeof<T>);
         table[0x38 / sizeof(void *)] = bit_cast<void *>(&native_mash_sizeof<T>);

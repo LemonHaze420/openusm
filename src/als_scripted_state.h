@@ -35,6 +35,10 @@ struct scripted_state : state {
     //virtual
     void _unmash(mash_info_struct *a1, void *a3);
 
+
+    void _destruct_mashed_class();
+    void *_scalar_deleting_destructor(unsigned int flags);
+
     //virtual
     int _get_virtual_type_enum() const;
 

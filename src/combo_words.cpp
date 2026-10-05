@@ -2,7 +2,12 @@
 
 #include "panelfile.h"
 
-combo_words::combo_words() {}
+combo_words::combo_words()
+{
+    field_0 = nullptr;
+    field_24 = -1;
+    field_28 = 0.0f;
+}
 
 void combo_words::Init()
 {

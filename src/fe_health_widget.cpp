@@ -11,6 +11,10 @@
 
 // VALIDATE_SIZE(fe_health_widget, 0x58);
 
+
+VALIDATE_SIZE(fe_health_widget, 0x58);
+VALIDATE_OFFSET(fe_health_widget, field_30, 0x30);
+
 fe_health_widget::fe_health_widget(int a1)
 {
     this->field_30 = 0;
@@ -53,6 +57,21 @@ void fe_health_widget::SetShown(bool a2)
         animation->field_24 = a2 ? 0 : 1;
     } else {
         THISCALL(0x0061A3F0, this, a2);
+    }
+}
+
+void fe_health_widget::DrawAllPanels()
+{
+    if (field_38 < 0 || field_38 >= number_of_types)
+        return;
+    auto *panel = panels[field_38];
+    if (panel == nullptr)
+        return;
+    const bool animating = panel->field_28.at(0)->field_2D;
+    if (field_54 || animating) {
+        if (field_55 && !animating)
+            field_55 = false;
+        panel->Draw();
     }
 }
 

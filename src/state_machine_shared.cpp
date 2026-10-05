@@ -14,9 +14,9 @@ VALIDATE_SIZE(state_machine_shared, 0x40);
 state_machine_shared::state_machine_shared()
 {
     if constexpr (1) {
-        static void *g_vtbl[] = {nullptr,
+        static void *g_vtbl[] = {func_address(&state_machine_shared::_destruct_mashed_class),
                                  func_address(&state_machine_shared::_unmash),
-                                 nullptr,
+                                 func_address(&state_machine_shared::_scalar_deleting_destructor),
                                  func_address(&state_machine_shared::_get_virtual_type_enum),
                                  nullptr,
                                  func_address(&mash_virtual_base::_is_or_is_subclass_of),
@@ -37,8 +37,32 @@ state_machine_shared::state_machine_shared(from_mash_in_place_constructor *a2)
 
 void state_machine_shared::destruct_mashed_class()
 {
-    void(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x0));
-    func(this);
+    if constexpr (STANDALONE_SYSTEM) {
+        _destruct_mashed_class();
+    } else {
+        void(__fastcall * func)(void *) = CAST(func, get_vfunc(m_vtbl, 0x0));
+        func(this);
+    }
+}
+
+void state_machine_shared::_destruct_mashed_class()
+{
+    state_list.clear();
+    state_list.mContainer_base::destruct_mashed_class();
+    category_list.clear();
+    category_list.mContainer_base::destruct_mashed_class();
+    trans_group_list.clear();
+    trans_group_list.mContainer_base::destruct_mashed_class();
+}
+
+void *state_machine_shared::_scalar_deleting_destructor(unsigned int flags)
+{
+    trans_group_list.clear();
+    category_list.clear();
+    state_list.clear();
+    if ((flags & 1) != 0)
+        ::operator delete(this);
+    return this;
 }
 
 void state_machine_shared::_unmash(mash_info_struct *a2, void *)

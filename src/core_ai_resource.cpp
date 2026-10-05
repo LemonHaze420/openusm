@@ -9,6 +9,9 @@
 #include "utility.h"
 #include "xbpack.h"
 
+
+#include "memory.h"
+
 #include <cassert>
 #include <array>
 #include <cstring>
@@ -727,9 +730,37 @@ void core_ai_resource::initialize(mash::allocation_scope scope)
     }
 }
 
-int core_ai_resource::destruct_mashed_class()
+void core_ai_resource::destruct_mashed_class()
 {
-    return THISCALL(0x006D71A0, this);
+    if constexpr (STANDALONE_SYSTEM) {
+        field_0.destruct_mashed_class();
+        const auto clear_graphs = [](mVector<resource_key> &graphs) {
+            if (graphs.field_10) {
+                for (int i = 0; i < graphs.m_size; ++i) {
+                    auto *key = graphs.m_data[i];
+                    if (graphs.is_pointer_in_mash_image(key))
+                        key->destruct_mashed_class();
+                    else if (key != nullptr)
+                        ::operator delete(key);
+                    graphs.m_data[i] = nullptr;
+                }
+            }
+            if (!graphs.is_pointer_in_mash_image(graphs.m_data))
+                mem_dealloc(graphs.m_data, sizeof(*graphs.m_data) * graphs.m_max_size);
+            graphs.m_data = nullptr;
+            graphs.m_max_size = 0;
+            graphs.mContainer_base::clear();
+            graphs.mContainer_base::destruct_mashed_class();
+        };
+        clear_graphs(my_base_graphs);
+        clear_graphs(my_locomotion_graphs);
+        if (field_10 != nullptr) {
+            field_10->destruct_mashed_class();
+            field_10 = nullptr;
+        }
+    } else {
+        THISCALL(0x006D71A0, this);
+    }
 }
 
 void core_ai_resource::unmash(mash_info_struct *a1, [[maybe_unused]] void *a3)

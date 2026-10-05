@@ -2,7 +2,10 @@
 
 #include "panelfile.h"
 
-fe_score_widget::fe_score_widget() {}
+fe_score_widget::fe_score_widget()
+{
+    field_14 = nullptr;
+}
 
 void fe_score_widget::Init()
 {

@@ -3,7 +3,14 @@
 #include "femultilinetext.h"
 #include "panelfile.h"
 
-medal_award_ui::medal_award_ui() {}
+medal_award_ui::medal_award_ui()
+{
+    field_0 = nullptr;
+    field_3C = 0;
+    field_40 = 0;
+    field_44 = 0;
+    field_48 = false;
+}
 
 void medal_award_ui::Init()
 {

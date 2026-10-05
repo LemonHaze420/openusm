@@ -86,6 +86,7 @@ void IGOFrontEnd::Init()
     if constexpr (STANDALONE_SYSTEM) {
         if (field_4 != nullptr) {
             field_4->Init();
+            field_4->SetShown(true);
         }
         if (field_0 != nullptr) {
             field_0->Init();

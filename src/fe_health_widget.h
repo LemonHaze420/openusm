@@ -6,8 +6,7 @@ struct PanelQuad;
 struct PanelFile;
 
 struct fe_health_widget {
-    PanelFile *panels[5];
-    int field_14[7];
+    PanelFile *panels[12];
     int field_30;
     int number_of_types;
     int field_38;
@@ -25,6 +24,9 @@ struct fe_health_widget {
 
     //0x0061A3F0
     void SetShown(bool a2);
+
+
+    void DrawAllPanels();
 
     //0x0061A5A0
     void UpdateMasking();

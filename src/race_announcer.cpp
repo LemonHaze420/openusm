@@ -2,7 +2,11 @@
 
 #include "panelfile.h"
 
-race_announcer::race_announcer() {}
+race_announcer::race_announcer()
+{
+    field_0 = nullptr;
+    field_18 = false;
+}
 
 void race_announcer::Init()
 {

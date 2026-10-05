@@ -30,7 +30,7 @@ struct core_ai_resource {
     void unmash(mash_info_struct *info_struct, void *a3);
 
     //0x006D71A0
-    int destruct_mashed_class();
+    void destruct_mashed_class();
 
     bool does_base_graph_exist(resource_key a2) const;
 

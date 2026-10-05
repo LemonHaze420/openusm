@@ -37,6 +37,10 @@ static bool &already_drew_this_frame =
 
 FrontEndMenuSystem::FrontEndMenuSystem() : FEMenuSystem(7, static_cast<font_index>(1))
 {
+    field_5C.m_data = nullptr;
+    field_5C.m_max_size = 0;
+    field_6C.m_data = nullptr;
+    field_6C.m_max_size = 0;
     if constexpr (1) {
         this->field_50 = 0;
         this->field_51 = 0;
@@ -414,19 +418,17 @@ void FrontEndMenuSystem::GoNextState()
             break;
         }
         case 11:
-            this->field_30 = (static_cast<main_menu_memcard_check *>(this->field_4[2])->field_108 !=
-                                      main_menu_memcard_check::DIALOG_NONE
-                                  ? this->field_58
-                                  : this->field_54);
+            this->field_30 =
+                (static_cast<main_menu_memcard_check *>(this->field_4[2])->field_100 != 0 ? this->field_58
+                                                                                          : this->field_54);
 
             if (this->field_5C.size() > 0) {
-                int v5;
-                this->field_54 = *(uint32_t *)*this->field_5C.sub_64A090(&v5);
+                this->field_54 = this->field_5C.at(this->field_5C.size() - 1);
+                this->field_58 = this->field_6C.at(this->field_6C.size() - 1);
 
-                int v6;
-                this->field_58 = *(uint32_t *)*this->field_6C.sub_64A090(&v6);
-                this->field_5C.sub_64A2B0();
-                this->field_6C.sub_64A2B0();
+                --this->field_5C.m_size;
+
+                --this->field_6C.m_size;
             }
 
             break;
@@ -531,17 +533,31 @@ void FrontEndMenuSystem::GoNextState()
 
 void FrontEndMenuSystem::BringUpDialogBox(int a2, FrontEndMenuSystem::fe_state a3, FrontEndMenuSystem::fe_state a4)
 {
-    THISCALL(0x00634300, this, a2, a3, a4);
+    if (field_30 == 11) {
+        field_5C.push_back(field_54);
+        field_6C.push_back(field_58);
+    }
+    field_54 = a3.field_0;
+    field_58 = a4.field_0;
+    static_cast<main_menu_memcard_check *>(field_4[2])
+        ->SetUpDialogBox(static_cast<main_menu_memcard_check::dialog_state>(a2));
+    field_30 = 11;
+    if (m_index != 2)
+        MakeActive(2);
 }
 
 void FrontEndMenuSystem::sub_60C290()
 {
-    THISCALL(0x0060C290, this);
+    if (auto *sound = field_38.get_sound_instance_ptr())
+        sound->stop();
 }
 
 void FrontEndMenuSystem::sub_6342D0()
 {
-    THISCALL(0x006342D0, this);
+    if (field_34 == 2)
+        static_cast<main_menu_memcard_check *>(field_4[2])
+            ->SetUpDialogBox(static_cast<main_menu_memcard_check::dialog_state>(field_4C));
+    MakeActive(field_34);
 }
 
 void FrontEndMenuSystem_patch()

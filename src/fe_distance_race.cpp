@@ -118,6 +118,29 @@ void fe_distance_race::Update(Float time_inc)
     reinterpret_cast<PanelQuad **>(&field_48)[field_68]->SetPos(field_B0, field_80);
 }
 
+void fe_distance_race::Draw()
+{
+    if (field_0 == nullptr || (!field_C0 && (field_60 == nullptr || !field_60->field_2D)))
+        return;
+    field_4->Draw();
+    field_8->Draw();
+    field_C->Draw();
+    field_10->Draw();
+    field_14->Draw();
+    field_18->Draw();
+    field_1C->Draw();
+    field_20->Draw();
+    field_24->Draw();
+    field_28->Draw();
+    field_2C->Draw();
+    field_30->Draw();
+    field_34->Draw();
+    (field_64 == 0 ? field_38 : field_3C)->Draw();
+    (field_64 == 0 ? field_40 : field_44)->Draw();
+    (field_68 == 0 ? field_48 : field_68 == 1 ? field_4C : field_50)->Draw();
+    (field_68 == 0 ? field_54 : field_68 == 1 ? field_58 : field_5C)->Draw();
+}
+
 void fe_distance_race::DeInit()
 {
     this->field_0 = nullptr;

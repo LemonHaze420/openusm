@@ -102,13 +102,9 @@ void FEMenuSystem::MakeActive(int idx)
             v6->OnActivate();
         }
 
-        {
-            auto *vtbl = bit_cast<std::intptr_t(*)[1]>(this->m_vtbl);
-            auto func = (*vtbl)[7];
 
-            assert(func == 0x00629960);
-            this->UpdateButtonDown();
-        }
+        this->UpdateButtonDown();
+
     } else {
         THISCALL(0x0060B610, this, idx);
     }

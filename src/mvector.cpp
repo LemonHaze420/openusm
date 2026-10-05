@@ -625,16 +625,206 @@ void mVector<sound_alias>::destruct_mashed_class()
     }
 }
 
+
+namespace {
+template <typename T, typename Cleanup>
+void clear_mashed_vector(mVector<T> &vector, Cleanup cleanup)
+{
+    if (vector.field_10) {
+        for (int i = 0; i < vector.m_size; ++i) {
+            auto *element = vector.m_data[i];
+            const bool in_mash = vector.is_pointer_in_mash_image(element);
+            if (element != nullptr)
+                cleanup(element, in_mash);
+            vector.m_data[i] = nullptr;
+        }
+    }
+    if (!vector.is_pointer_in_mash_image(vector.m_data))
+        mem_dealloc(vector.m_data, sizeof(*vector.m_data) * vector.m_max_size);
+    vector.m_data = nullptr;
+    vector.m_max_size = 0;
+    vector.mContainer_base::clear();
+}
+
+template <typename T>
+void clear_virtual_mashed_vector(mVector<T> &vector)
+{
+    clear_mashed_vector(vector, [](T *element, bool in_mash) {
+        if (in_mash) {
+            auto destroy = reinterpret_cast<void(__fastcall *)(T *, void *)>(get_vfunc(element->m_vtbl, 0));
+            destroy(element, nullptr);
+        } else {
+            auto destroy =
+                reinterpret_cast<void *(__fastcall *)(T *, void *, unsigned int)>(get_vfunc(element->m_vtbl, 8));
+            destroy(element, nullptr, 1);
+        }
+    });
+}
+}
+
+template <>
+void mVector<als::filter_data>::clear()
+{
+    clear_mashed_vector(*this, [](als::filter_data *element, bool in_mash) {
+        if (!in_mash)
+            ::operator delete(element);
+    });
+}
+
+template <>
+void mVector<als::dest_weight_data>::clear()
+{
+    clear_mashed_vector(*this, [](als::dest_weight_data *element, bool in_mash) {
+        if (in_mash)
+            element->field_0.destruct_mashed_class();
+        else
+            ::operator delete(element);
+    });
+}
+
+template <>
+void mVector<als::alter_conditions>::clear()
+{
+    clear_mashed_vector(*this, [](als::alter_conditions *element, bool in_mash) {
+        if (in_mash)
+            element->field_8.destruct_mashed_class();
+        else
+            ::operator delete(element);
+    });
+}
+
+template <>
+void mVector<als::post_kill_rule>::clear()
+{
+    clear_mashed_vector(*this, [](als::post_kill_rule *element, bool in_mash) {
+        if (!in_mash)
+            ::operator delete(element);
+    });
+}
+
+template <>
+void mVector<als::post_layer_alter>::clear()
+{
+    clear_mashed_vector(*this, [](als::post_layer_alter *element, bool in_mash) {
+        element->field_4.clear();
+        if (in_mash) {
+            element->field_4.mContainer_base::destruct_mashed_class();
+            element->field_18.destruct_mashed_class();
+        } else {
+            ::operator delete(element);
+        }
+    });
+}
+
+namespace {
+void destruct_rule_action(als::basic_rule_data::rule_action &action)
+{
+    action.field_8.destruct_mashed_class();
+    if (action.destination_states != nullptr) {
+        action.destination_states->clear();
+        action.destination_states->mContainer_base::destruct_mashed_class();
+        action.destination_states = nullptr;
+    }
+}
+
+void destruct_transition_rule(als::basic_rule_data &rule, bool in_mash)
+{
+    rule.field_0.clear();
+    if (!in_mash)
+        return;
+    rule.field_0.mContainer_base::destruct_mashed_class();
+    destruct_rule_action(rule.field_14);
+    if (rule.field_20 != nullptr) {
+        rule.field_20->field_0.clear();
+        rule.field_20->field_0.mContainer_base::destruct_mashed_class();
+        rule.field_20->field_14.clear();
+        rule.field_20->field_14.mContainer_base::destruct_mashed_class();
+        rule.field_20 = nullptr;
+    }
+}
+}
+
+template <>
+void mVector<als::implicit_transition_rule>::clear()
+{
+    clear_mashed_vector(*this, [](als::implicit_transition_rule *element, bool in_mash) {
+        destruct_transition_rule(element->field_0, in_mash);
+        if (!in_mash)
+            ::operator delete(element);
+    });
+}
+
+template <>
+void mVector<als::explicit_transition_rule>::clear()
+{
+    clear_mashed_vector(*this, [](als::explicit_transition_rule *element, bool in_mash) {
+        if (in_mash)
+            element->field_24.destruct_mashed_class();
+        destruct_transition_rule(element->field_0, in_mash);
+        if (!in_mash)
+            ::operator delete(element);
+    });
+}
+
+template <>
+void mVector<als::incoming_transition_rule>::clear()
+{
+    clear_mashed_vector(*this, [](als::incoming_transition_rule *element, bool in_mash) {
+        destruct_transition_rule(element->field_0, in_mash);
+        if (!in_mash)
+            ::operator delete(element);
+    });
+}
+
+template <>
+void mVector<als::layer_transition_rule>::clear()
+{
+    clear_mashed_vector(*this, [](als::layer_transition_rule *element, bool in_mash) {
+        if (in_mash)
+            destruct_rule_action(element->field_8);
+        else
+            ::operator delete(element);
+    });
+}
+
+template <>
+void mVector<als::state>::clear()
+{
+    clear_virtual_mashed_vector(*this);
+}
+
+template <>
+void mVector<als::category>::clear()
+{
+    clear_virtual_mashed_vector(*this);
+}
+
+template <>
+void mVector<als::transition_group_base>::clear()
+{
+    clear_virtual_mashed_vector(*this);
+}
+
 template <>
 void mVector<als::layer_state_machine_shared>::destruct_mashed_class()
 {
-    THISCALL(0x004B01C0, this);
+    if constexpr (STANDALONE_SYSTEM) {
+        clear_virtual_mashed_vector(*this);
+        mContainer_base::destruct_mashed_class();
+    } else {
+        THISCALL(0x004B01C0, this);
+    }
 }
 
 template <>
 void mVector<als::als_meta_anim_base>::destruct_mashed_class()
 {
-    THISCALL(0x004B01C0, this);
+    if constexpr (STANDALONE_SYSTEM) {
+        clear_virtual_mashed_vector(*this);
+        mContainer_base::destruct_mashed_class();
+    } else {
+        THISCALL(0x004B01C0, this);
+    }
 }
 
 template <>

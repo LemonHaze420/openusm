@@ -14,6 +14,9 @@
 #include "common.h"
 #include "mash_config.h"
 
+
+#include "param_block.h"
+
 namespace als {
 VALIDATE_SIZE(scripted_state, 0x54u);
 VALIDATE_SIZE(base_layer_scripted_state, 0x58u);
@@ -21,9 +24,9 @@ VALIDATE_SIZE(base_layer_scripted_state, 0x58u);
 scripted_state::scripted_state()
 {
     if constexpr (1) {
-        static void *g_vtbl[] = {nullptr,
+        static void *g_vtbl[] = {func_address(&scripted_state::_destruct_mashed_class),
                                  func_address(&scripted_state::_unmash),
-                                 nullptr,
+                                 func_address(&scripted_state::_scalar_deleting_destructor),
                                  func_address(&scripted_state::_get_virtual_type_enum),
                                  nullptr,
                                  func_address(&mash_virtual_base::_is_or_is_subclass_of),
@@ -51,6 +54,37 @@ scripted_state::scripted_state(from_mash_in_place_constructor *a2)
     if (this->field_50 != nullptr) {
         mash_info_struct::construct_class(this->field_50);
     }
+}
+
+void scripted_state::_destruct_mashed_class()
+{
+    field_14.destruct_mashed_class();
+    field_18.destruct_mashed_class();
+    field_28.clear();
+    field_28.mContainer_base::destruct_mashed_class();
+    field_3C.clear();
+    field_3C.mContainer_base::destruct_mashed_class();
+    if (field_50 != nullptr) {
+        field_50->clear();
+        field_50->mContainer_base::destruct_mashed_class();
+        field_50 = nullptr;
+    }
+    m_state_id.destruct_mashed_class();
+    m_cat_id.destruct_mashed_class();
+    if (field_10 != nullptr) {
+        field_10->destruct_mashed_class();
+        field_10 = nullptr;
+    }
+}
+
+void *scripted_state::_scalar_deleting_destructor(unsigned int flags)
+{
+    field_3C.clear();
+    field_28.clear();
+    field_18.destruct_mashed_class();
+    if ((flags & 1) != 0)
+        ::operator delete(this);
+    return this;
 }
 
 void scripted_state::_unmash(mash_info_struct *a1, void *a3)
@@ -233,9 +267,9 @@ string_hash scripted_state::get_nal_anim_name() const
 base_layer_scripted_state::base_layer_scripted_state()
 {
     if constexpr (1) {
-        static void *g_vtbl[] = {nullptr,
+        static void *g_vtbl[] = {func_address(&base_layer_scripted_state::_destruct_mashed_class),
                                  func_address(&base_layer_scripted_state::_unmash),
-                                 nullptr,
+                                 func_address(&base_layer_scripted_state::_scalar_deleting_destructor),
                                  func_address(&base_layer_scripted_state::_get_virtual_type_enum),
                                  nullptr,
                                  func_address(&mash_virtual_base::_is_or_is_subclass_of),

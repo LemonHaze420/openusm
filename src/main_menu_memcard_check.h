@@ -1,7 +1,7 @@
 #pragma once
 
 #include "femenu.h"
-#include "mAvlTree.h"
+#include "mVectorBasic.h"
 #include "mstring.h"
 #include "memoryunitmanager.h"
 
@@ -46,7 +46,7 @@ struct main_menu_memcard_check : FEMenu {
     int field_100;
     int field_104;
     dialog_state field_108;
-    mAvlTree<string_hash_entry> field_10C;
+    mVectorBasic<int> field_10C;
     int field_11C;
     bool field_120;
     char field_121[7];
