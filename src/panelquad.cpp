@@ -260,7 +260,22 @@ vector2d PanelQuad::GetMin()
 
 void PanelQuad::sub_616710(Float a2, Float a3)
 {
-    THISCALL(0x00616710, this, a2, a3);
+    if constexpr (STANDALONE_SYSTEM) {
+        if (pmesh != nullptr) {
+            pmesh->field_0[3].x += a2;
+            pmesh->field_0[3].y += a3;
+        } else {
+            for (int i = 0; i < pqs.size(); ++i) {
+                auto *quad = bit_cast<nglQuad *>(&pqs.at(i)->field_14);
+                for (int vertex = 0; vertex < 4; ++vertex)
+                    nglSetQuadVPos(quad, vertex, quad->field_0[vertex].pos.x + a2, quad->field_0[vertex].pos.y + a3);
+            }
+        }
+        field_14[0] += a2;
+        field_14[1] += a3;
+    } else {
+        THISCALL(0x00616710, this, a2, a3);
+    }
 }
 
 void PanelQuad::sub_616690(float *a2, float *a3)
@@ -364,8 +379,17 @@ void PanelQuad::TurnOn(bool a2)
 
 void PanelQuad::Scale(Float a1, bool a2)
 {
-    void(__fastcall * func)(void *, void *, Float, bool) = CAST(func, get_vfunc(m_vtbl, 0x6C));
-    func(this, nullptr, a1, a2);
+    if constexpr (STANDALONE_SYSTEM) {
+        float scale = equal(float(a1), 0.0f) ? 0.01f : float(a1);
+        if (a2)
+            scale /= field_38;
+        for (int i = 0; i < pqs.size(); ++i)
+            nglScaleQuad(bit_cast<nglQuad *>(&pqs.at(i)->field_14), field_14[0], field_14[1], scale, scale);
+        field_38 *= scale;
+    } else {
+        void(__fastcall * func)(void *, void *, Float, bool) = CAST(func, get_vfunc(m_vtbl, 0x6C));
+        func(this, nullptr, a1, a2);
+    }
 }
 
 void PanelQuad::Rotate(Float a2, Float a3, Float a4, bool a5)
@@ -432,6 +456,38 @@ void PanelQuad::GetCenterPos(float &a2, float &a3) const
     } else {
         void(__fastcall * func)(const void *, void *, float *, float *) = CAST(func, get_vfunc(m_vtbl, 0xA8));
         func(this, nullptr, &a2, &a3);
+    }
+}
+
+void PanelQuad::ResetToInitialXY()
+{
+    if constexpr (STANDALONE_SYSTEM) {
+        for (int i = 0; i < pqs.size(); ++i) {
+            auto *section = pqs.at(i);
+            for (int vertex = 0; vertex < 4; ++vertex)
+                nglSetQuadVPos(bit_cast<nglQuad *>(&section->field_14),
+                               vertex,
+                               section->field_0[vertex],
+                               section->field_8[vertex]);
+        }
+        const auto minimum = GetMax();
+        const auto maximum = GetMin();
+        field_34 = 0.0f;
+        field_38 = 1.0f;
+        field_14[0] = (maximum[0] - minimum[0]) * 0.5f + minimum[0];
+        field_14[1] = (maximum[1] - minimum[1]) * 0.5f + minimum[1];
+    } else {
+        THISCALL(0x00628840, this);
+    }
+}
+
+void PanelQuad::SetCenterPos(Float x, Float y)
+{
+    if constexpr (STANDALONE_SYSTEM) {
+        ResetToInitialXY();
+        sub_616710(float(x) - field_14[0], float(y) - field_14[1]);
+    } else {
+        THISCALL(0x0043F6E0, this, x, y);
     }
 }
 

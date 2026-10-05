@@ -160,6 +160,30 @@ void FEMultiLineText::GetPos(Float &a2, Float &a3)
     a3 = this->field_34[1];
 }
 
+void FEMultiLineText::SetPos(Float x, Float y)
+{
+    field_34.x = x;
+    field_34.y = y + flt_965BDC;
+    AdjustForJustification();
+}
+
+void FEMultiLineText::SetLineSpacing(int height)
+{
+    if (height == -1) {
+        auto *font = field_18 != static_cast<font_index>(5) && field_18 != static_cast<font_index>(6)
+                         ? g_femanager.GetFont(field_18)
+                         : nullptr;
+        uint32_t width = 0;
+        uint32_t measured_height = 0;
+        char sample[] = "!";
+        nglGetStringDimensions(font, sample, &width, &measured_height, 1.0f, 1.0f);
+        field_74 = static_cast<float>(measured_height);
+    } else {
+        field_74 = static_cast<float>(height);
+    }
+    field_78 = field_74;
+}
+
 void FEMultiLineText::SetButtonColor(color32 a2)
 {
     this->field_68 = a2;

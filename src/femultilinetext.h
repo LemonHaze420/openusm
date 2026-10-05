@@ -59,6 +59,14 @@ struct FEMultiLineText : FEText {
 
     //0x0043DA90
     //virtual
+    void SetPos(Float x, Float y);
+
+    void SetLineSpacing(int height);
+
+    int GetBoxWidth() const
+    {
+        return field_7C;
+    }
     void SetButtonColor(color32 a2);
 
     //0x0043DA80

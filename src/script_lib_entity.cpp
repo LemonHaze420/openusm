@@ -6,6 +6,7 @@
 #include "entity_base.h"
 #include "entity_base_vhandle.h"
 #include "entity_handle_manager.h"
+#include "mash_config.h"
 #include "memory.h"
 #include "oldmath_po.h"
 #include "physical_interface.h"
@@ -2868,11 +2869,25 @@ struct slf__entity__set_ifc_vec__str__vector3d__t : script_library_class::functi
 struct slf__entity__set_ignore_limbo__num__t : script_library_class::function {
     slf__entity__set_ignore_limbo__num__t(script_library_class *slc, const char *a3) : function(slc, a3)
     {
+#if STANDALONE_SYSTEM
+        bind_standalone_entity_slf(this);
+#else
         m_vtbl = (decltype(m_vtbl))0x0089B4E4;
+#endif
     }
 
-    bool operator()(vm_stack &, script_library_class::function::entry_t) const
+    bool operator()(vm_stack &stack, script_library_class::function::entry_t) const
     {
+        struct parms_t {
+            entity_base_vhandle owner;
+            float ignore_limbo;
+        };
+        SLF_PARMS;
+        auto *owner = parms->owner.get_volatile_ptr();
+        if (equal(parms->ignore_limbo, 0.0f))
+            owner->field_4 &= ~0x8u;
+        else
+            owner->field_4 |= 0x8u;
         return true;
     }
 };
@@ -3110,27 +3125,6 @@ struct slf__entity__set_pendulum_length__num__t : script_library_class::function
     }
 };
 
-struct slf__entity__set_abs_position__vector3d__t : script_library_class::function {
-    slf__entity__set_abs_position__vector3d__t(script_library_class *slc, const char *a3) : function(slc, a3)
-    {
-        bind_standalone_entity_slf(this);
-    }
-
-    struct parms_t {
-        entity_base_vhandle entity;
-        vector3d position;
-    };
-
-    bool operator()(vm_stack &stack, script_library_class::function::entry_t) const
-    {
-        SLF_PARMS;
-        if (auto *entity_ptr = parms->entity.get_volatile_ptr(); entity_ptr != nullptr) {
-            entity_ptr->set_abs_position(parms->position);
-        }
-        return true;
-    }
-};
-
 struct slf__entity__set_physical__num__t : script_library_class::function {
     slf__entity__set_physical__num__t(script_library_class *slc, const char *a3) : function(slc, a3)
     {
@@ -3249,11 +3243,36 @@ struct slf__entity__set_render_alpha__num__t : script_library_class::function {
 struct slf__entity__set_render_color__vector3d__t : script_library_class::function {
     slf__entity__set_render_color__vector3d__t(script_library_class *slc, const char *a3) : function(slc, a3)
     {
+#if STANDALONE_SYSTEM
+        bind_standalone_entity_slf(this);
+#else
         m_vtbl = (decltype(m_vtbl))0x0089B23C;
+#endif
     }
 
-    bool operator()(vm_stack &, script_library_class::function::entry_t) const
+    struct parms_t {
+        entity_base_vhandle entity;
+        vector3d color;
+    };
+
+    bool operator()(vm_stack &stack, script_library_class::function::entry_t) const
     {
+        SLF_PARMS;
+        auto *owner = parms->entity.get_volatile_ptr();
+        if (owner != nullptr && owner->is_an_entity()) {
+            for (int i = 0; i < 3; ++i) {
+                if (parms->color[i] < 0.f)
+                    parms->color[i] = 0.f;
+                if (parms->color[i] > 1.f)
+                    parms->color[i] = 1.f;
+            }
+            auto *entity_ptr = static_cast<entity *>(owner);
+            auto color = entity_ptr->get_render_color();
+            color.field_0[2] = static_cast<uint8_t>(parms->color.x * 255.0);
+            color.field_0[1] = static_cast<uint8_t>(parms->color.y * 255.0);
+            color.field_0[0] = static_cast<uint8_t>(parms->color.z * 255.0);
+            entity_ptr->set_render_color(color);
+        }
         return true;
     }
 };
@@ -3420,11 +3439,22 @@ struct slf__entity__set_velocity__vector3d__t : script_library_class::function {
 struct slf__entity__set_visible__num__t : script_library_class::function {
     slf__entity__set_visible__num__t(script_library_class *slc, const char *a3) : function(slc, a3)
     {
+#if STANDALONE_SYSTEM
+        bind_standalone_entity_slf(this);
+#else
         m_vtbl = (decltype(m_vtbl))0x0089AD7C;
+#endif
     }
 
-    bool operator()(vm_stack &, script_library_class::function::entry_t) const
+    bool operator()(vm_stack &stack, script_library_class::function::entry_t) const
     {
+        struct parms_t {
+            entity_base_vhandle owner;
+            float visible;
+        };
+        SLF_PARMS;
+        if (auto *owner = parms->owner.get_volatile_ptr(); owner != nullptr)
+            owner->set_visible(!equal(parms->visible, 0.0f), false);
         return true;
     }
 };
@@ -4155,7 +4185,9 @@ void register_entity_lib()
                "remove_exclusive_interactor(string_hash,interactable_interface)");
     CREATE_SLF(entity, remove_selectable_target__entity, "remove_selectable_target(entity)");
     CREATE_SLF(entity, remove_vehicle_from_traffic_system, "remove_vehicle_from_traffic_system()");
-    CREATE_SLF(entity, render_name__num, "render_name(num)");
+    if constexpr (xbpack::v10) {
+        CREATE_SLF(entity, render_name__num, "render_name(num)");
+    }
     if constexpr (!xbpack::v10) {
         CREATE_SLF(entity, reset_ai, "reset_ai()");
     }
@@ -4179,8 +4211,11 @@ void register_entity_lib()
                set_car_combat_info__num__num__num__num__num__num__num__num,
                "set_car_combat_info(num,num,num,num,num,num,num,num)");
     CREATE_SLF(entity, set_crawlable__num, "set_crawlable(num)");
-    CREATE_SLF(entity, set_entity_blur__num, "set_entity_blur(num)");
+    if constexpr (!xbpack::v10) {
+        CREATE_SLF(entity, set_default_variant, "set_default_variant()");
+    }
     CREATE_SLF(entity, set_distance_clip__num, "set_distance_clip(num)");
+    CREATE_SLF(entity, set_entity_blur__num, "set_entity_blur(num)");
     CREATE_SLF(entity, set_facing__vector3d__vector3d, "set_facing(vector3d,vector3d)");
     CREATE_SLF(entity, set_fade_timer__num, "set_fade_timer(num)");
     CREATE_SLF(entity, set_hires_shadow__num, "set_hires_shadow(num)");
@@ -4208,7 +4243,6 @@ void register_entity_lib()
     CREATE_SLF(entity, set_pendulum_attach_limb__num, "set_pendulum_attach_limb(num)");
     CREATE_SLF(entity, set_pendulum_length__num, "set_pendulum_length(num)");
     CREATE_SLF(entity, set_physical__num, "set_physical(num)");
-    CREATE_SLF(entity, set_abs_position__vector3d, "set_abs_position(vector3d)");
     CREATE_SLF(entity, set_po_facing__vector3d, "set_po_facing(vector3d)");
     CREATE_SLF(entity, set_rel_position__vector3d, "set_rel_position(vector3d)");
     CREATE_SLF(entity, set_render_alpha__num, "set_render_alpha(num)");
@@ -4275,7 +4309,7 @@ void register_entity_lib()
     CREATE_SLF(entity, wait_translate_cosmetic__vector3d__num, "wait_translate_cosmetic(vector3d,num)");
     CREATE_SLF(
         entity, wait_translate_with_compute_sector__vector3d__num, "wait_translate_with_compute_sector(vector3d,num)");
-    if (slc_manager::using_xbox_v14()) {
+    if (!OPENUSM_XBOX_MASH_FORMAT || slc_manager::using_xbox_v14()) {
         CREATE_SLF(entity, was_occluded_last_frame, "was_occluded_last_frame()");
     }
 

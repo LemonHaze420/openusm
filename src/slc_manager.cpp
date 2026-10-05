@@ -12337,8 +12337,14 @@ DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(vector3d, operator_plus__vector3d, 0x0089B9C8)
 {
-    (void)stack;
     (void)entry;
+    struct parms_t {
+        vector3d left;
+        vector3d right;
+    };
+    SLF_PARMS;
+    parms->left += parms->right;
+    stack.move_SP(sizeof(vector3d));
     return true;
 }
 DECLARE_SLF_END()

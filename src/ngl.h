@@ -1009,6 +1009,7 @@ extern void nglInitQuad(nglQuad *a1);
 extern void nglRotateQuad(nglQuad *a2, Float a3, Float a4, Float a5);
 
 //0x0076E3E0
+extern void nglScaleQuad(nglQuad *quad, Float center_x, Float center_y, Float scale_x, Float scale_y);
 extern void nglInit(HWND hWnd);
 
 //0x0076F420

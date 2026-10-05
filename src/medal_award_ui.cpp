@@ -3,6 +3,10 @@
 #include "femultilinetext.h"
 #include "panelfile.h"
 
+#include "game.h"
+#include "localized_string_table.h"
+#include "panelanimfile.h"
+#include "variables.h"
 medal_award_ui::medal_award_ui()
 {
     field_0 = nullptr;
@@ -77,5 +81,23 @@ void medal_award_ui::DeInit()
 {
     if (this->field_0 != nullptr) {
         this->field_0 = nullptr;
+    }
+}
+void medal_award_ui::Draw()
+{
+    if (field_0 != nullptr) {
+        if (field_38->field_2D) {
+            auto *medal_text = bit_cast<FEMultiLineText *>(field_30);
+            mString text{g_game_ptr->field_7C->lookup_localized_string(static_cast<global_text_enum>(field_44 + 415))};
+            medal_text->SetTextBoxNoLocalize(
+                FEText::string{FEMultiLineText::ReplaceEndlines(text)}, medal_text->GetBoxWidth(), -1.0f);
+            if (globalTextLanguage == 0) {
+                medal_text->SetScale(1.4f, 1.4f);
+                medal_text->SetLineSpacing(50);
+                field_2C->SetScale(1.2f, 1.2f);
+                medal_text->SetPos(medal_text->GetX() - 55.0f, medal_text->GetY() - 5.0f);
+            }
+        }
+        field_0->Draw();
     }
 }
