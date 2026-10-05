@@ -6,6 +6,11 @@
 #include "mash_info_struct.h"
 #include "trace.h"
 #include "variables.h"
+#include "sound_manager.h"
+#include <algorithm>
+#include <cassert>
+#include <cstdlib>
+#include <cstring>
 
 #include <cstddef>
 #include <cstdint>
@@ -232,7 +237,7 @@ void gab_database::unmash(mash_info_struct *a1, void *a3)
 
 void gab_manager::create_inst()
 {
-    CDECL_CALL(0x005D7E20);
+    s_gab_history = new _std::list<gab_history_entry>;
 }
 
 void gab_manager::delete_inst()
@@ -243,7 +248,14 @@ void gab_manager::delete_inst()
 
 void gab_manager::frame_advance(Float a1)
 {
-    CDECL_CALL(0x005D1DA0, a1);
+    for (auto it = s_gab_history->begin(); it != s_gab_history->end();) {
+        it->remaining = std::max(0.0f, it->remaining - static_cast<float>(a1));
+        if (it->remaining > 0.0f) {
+            ++it;
+        } else {
+            it = s_gab_history->erase(it);
+        }
+    }
 }
 
 void gab_manager::set_gab_database(gab_database *a1)
@@ -254,4 +266,56 @@ void gab_manager::set_gab_database(gab_database *a1)
 gab_database *gab_manager::get_gab_database()
 {
     return s_gab_database;
+}
+
+sound_source gab_manager::calc_gab_source(const char *speaker, string_hash expression)
+{
+
+
+    assert(s_gab_database != nullptr && s_gab_history != nullptr && speaker != nullptr);
+    gab_expression *found = nullptr;
+    for (auto *archetype : s_gab_database->field_0) {
+        if (_strnicmp(speaker, reinterpret_cast<const char *>(&archetype->field_0), 3) != 0) {
+            continue;
+        }
+        for (auto *candidate : archetype->field_4) {
+            if (candidate->field_0 == expression) {
+                found = candidate;
+                break;
+            }
+        }
+        break;
+    }
+    if (found == nullptr) {
+        return {};
+    }
+    const auto recently_played = [](const gab_source &source) {
+        return std::any_of(s_gab_history->begin(), s_gab_history->end(),
+            [&source](const gab_history_entry &entry) {
+                return entry.source->sound == source.sound;
+            });
+    };
+    int eligible = 0;
+    for (int i = 0; i < found->field_8.size(); ++i) {
+        if (!recently_played(found->field_8.at(i))) {
+            ++eligible;
+        }
+    }
+    if (eligible == 0) {
+        return {};
+    }
+
+
+    int selected = eligible == 1 ? 0 :
+        static_cast<int>(static_cast<double>(std::rand()) * (eligible - 1) / 32768.0);
+    for (int i = 0; i < found->field_8.size(); ++i) {
+        auto &source = found->field_8.at(i);
+        if (!recently_played(source) && selected-- == 0) {
+            auto result = sound_manager::get_sound_source(source.sound);
+            s_gab_history->push_back({&source, found->cooldown});
+            return result;
+        }
+    }
+    assert(false && "Gab candidate selection must select an eligible source");
+    return {};
 }

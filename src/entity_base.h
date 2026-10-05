@@ -192,6 +192,9 @@ struct entity_base : entity_base_vtable {
 
     sound_and_pfx_interface *sound_and_pfx_ifc();
 
+
+    sound_and_pfx_interface *create_sound_and_pfx_ifc();
+
     //0x004F9020
     void release_mem();
 

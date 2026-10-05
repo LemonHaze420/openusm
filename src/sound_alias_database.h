@@ -9,12 +9,12 @@ struct mash_info_struct;
 struct sound_alias {
     string_hash field_0;
     string_hash field_4;
-    int field_8;
-    int field_C;
+    float volume;
+    float pitch;
     int field_10;
-    int field_14;
-    int field_18;
-    int field_1C;
+    float min_distance;
+    float max_distance;
+    float pitch_variation;
 
     sound_alias(from_mash_in_place_constructor *a2);
 };
@@ -30,7 +30,7 @@ struct sound_alias_database {
     void unmash(mash_info_struct *a1, void *a3);
 
     //0x005C9E50
-    int *get_sound_alias(string_hash a2);
+    sound_alias *get_sound_alias(string_hash a2);
 };
 
 extern sound_alias_database *&s_sound_alias_database;

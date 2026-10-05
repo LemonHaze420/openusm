@@ -791,10 +791,9 @@ void entity_base::_un_mash(generic_mash_header *a1, void *a2, generic_mash_data_
             a3->rebase(8u);
 #if STANDALONE_SYSTEM
             a3->rebase(4u);
-            a3->get<sound_and_pfx_interface>();
-            a3->get<std::uint8_t>(8u);
-            a3->rebase(8u);
-            this->my_sound_and_pfx_interface = nullptr;
+            this->my_sound_and_pfx_interface = a3->get<sound_and_pfx_interface>();
+            this->my_sound_and_pfx_interface->m_vtbl = sound_and_pfx_interface::native_vtable();
+            this->my_sound_and_pfx_interface->un_mash(a1, this, this->my_sound_and_pfx_interface, a3);
 #elif !defined(TARGET_XBOX)
             a3->rebase(4u);
             this->my_sound_and_pfx_interface = a3->get<sound_and_pfx_interface>();
@@ -1620,6 +1619,38 @@ void entity_base::dirty_model_po_family()
     } else {
         THISCALL(0x004BFF20, this);
     }
+}
+
+sound_and_pfx_interface *entity_base::create_sound_and_pfx_ifc()
+{
+    auto *storage = mem_alloc(sizeof(sound_and_pfx_interface));
+    if (!storage) {
+        my_sound_and_pfx_interface = nullptr;
+        return nullptr;
+    }
+    auto *interface_ptr = ::new (storage) sound_and_pfx_interface;
+
+
+    interface_ptr->m_vtbl = sound_and_pfx_interface::native_vtable();
+    interface_ptr->field_4 = reinterpret_cast<std::intptr_t>(this);
+    interface_ptr->dynamic = true;
+    interface_ptr->field_C.field_0 = 0;
+    interface_ptr->field_20 = 0.5f;
+    interface_ptr->field_24 = 0.0f;
+    interface_ptr->field_28 = nullptr;
+    interface_ptr->field_2C = nullptr;
+    interface_ptr->field_34 = interface_ptr->field_38 = interface_ptr->field_3C = 0;
+    if (!g_generating_vtables) {
+        interface_ptr->field_10 = nullptr;
+        interface_ptr->field_14 = ZEROVEC;
+        auto &interfaces = var<_std::vector<sound_interface *> *>(0x0095A6A4);
+        if (!interfaces)
+            interfaces = new _std::vector<sound_interface *>;
+        interfaces->push_back(interface_ptr);
+        interface_ptr->field_2C = this;
+    }
+    my_sound_and_pfx_interface = interface_ptr;
+    return interface_ptr;
 }
 
 void entity_base::destroy_sound_and_pfx_ifc()

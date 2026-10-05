@@ -4,19 +4,26 @@
 #include "mvector.h"
 #include "mVectorBasic.h"
 #include "string_hash.h"
+#include "sound_source.h"
 
 #include <list.hpp>
 
 struct mash_info_struct;
 struct from_mash_in_place_constructor;
 
-struct gab_history_entry {};
+struct gab_source {
+    string_hash sound;
+    std::uint32_t field_4;
+};
 
-struct gab_source {};
+struct gab_history_entry {
+    const gab_source *source;
+    float remaining;
+};
 
 struct gab_expression {
     string_hash field_0;
-    int field_4;
+    float cooldown;
     mVectorBasic<gab_source> field_8;
 
     gab_expression(from_mash_in_place_constructor *a2) : field_0(a2), field_8(a2) {}
@@ -60,6 +67,9 @@ struct gab_manager {
     static void set_gab_database(gab_database *a1);
 
     static gab_database *get_gab_database();
+
+
+    static sound_source calc_gab_source(const char *speaker, string_hash expression);
 };
 
 extern _std::list<gab_history_entry> *&s_gab_history;

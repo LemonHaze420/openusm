@@ -1141,7 +1141,14 @@ void sub_81D700()
 
 void sub_81E300()
 {
-    CDECL_CALL(0x0081E300);
+    if constexpr (STANDALONE_SYSTEM) {
+        if (g_directSound != nullptr) {
+            IDirectSound8_Release(g_directSound);
+            g_directSound = nullptr;
+        }
+    } else {
+        CDECL_CALL(0x0081E300);
+    }
 }
 
 //0x0081C5A0

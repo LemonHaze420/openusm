@@ -3181,7 +3181,9 @@ void game::sub_559F50([[maybe_unused]] Float *a1)
     }
 
     ambient_audio_manager::frame_advance(*a1);
+#endif
     sound_manager::frame_advance(*a1);
+#if !STANDALONE_SYSTEM
     gab_manager::frame_advance(*a1);
 #endif
 }

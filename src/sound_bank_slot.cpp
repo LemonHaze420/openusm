@@ -4,8 +4,10 @@
 #include "func_wrapper.h"
 #include "trace.h"
 #include "utility.h"
-#include "nfl_system.h"
+#include "variables.h"
 
+#include <cstdio>
+#include <cstring>
 VALIDATE_SIZE(sound_bank_slot, 0x38);
 
 Var<bool> s_running_from_resource_pack{0x0095C828};
@@ -51,13 +53,54 @@ void sound_bank_slot::unload()
     }
 }
 
-void sound_bank_slot::load(const char *a1, const char *a2, bool a4, int a5)
+void sound_bank_slot::load(const char *directory,
+                           const char *bank_name,
+                           bool synchronous,
+                           [[maybe_unused]] int resource_pack)
 {
     TRACE("sound_bank_slot::load");
-    //TRACE(("sound_bank_slot " + std::string {a1} + " " + std::string {a2}).c_str());
-    THISCALL(0x0054CC30, this, a1, a2, a4, a5);
+#if STANDALONE_SYSTEM
+    if (m_state != SB_STATE_EMPTY) {
+        if (_stricmp(field_0.to_string(), bank_name) == 0) {
+            return;
+        }
+        unload();
+    }
 
-    //assert(0);
+    extern char *sub_598D40();
+    static constexpr const char *language_codes[] = {"EN", "FR", "GR", "SP", "IT"};
+    const auto language_index =
+        globalTextLanguage >= 0 && globalTextLanguage < 5 ? globalTextLanguage : 0;
+
+    char path[MAX_PATH]{};
+    std::snprintf(path,
+                  sizeof(path),
+                  "%sSOUND\\PC\\%s\\%s.WBK",
+                  sub_598D40(),
+                  directory,
+                  bank_name);
+    nsl_non_voice_bank_id = nslLoadBank(path, field_24 != 1);
+
+    std::snprintf(path,
+                  sizeof(path),
+                  "%sSOUND\\PC\\%s\\%s_%s.WBK",
+                  sub_598D40(),
+                  directory,
+                  bank_name,
+                  language_codes[language_index]);
+    nsl_voice_bank_id = nslLoadBank(path, field_24 != 1);
+
+    field_0 = fixedstring<8>{bank_name};
+    m_state = SB_STATE_LOADING;
+    if (synchronous) {
+        do {
+            nslUpdate();
+            frame_advance(0.0f);
+        } while (m_state != SB_STATE_LOADED);
+    }
+#else
+    THISCALL(0x0054CC30, this, directory, bank_name, synchronous, resource_pack);
+#endif
 }
 
 void sound_bank_slot::frame_advance(Float a2)

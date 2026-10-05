@@ -5,6 +5,10 @@
 #include <cstdint>
 
 struct sound_alias_database;
+struct sound_instance_id;
+struct string_hash;
+struct sound_source;
+struct vector3d;
 
 namespace sound_manager {
 //0x0050FFE0
@@ -12,6 +16,12 @@ extern void set_sound_alias_database(sound_alias_database *a1);
 
 //0x0050FFF0
 extern sound_alias_database *get_sound_alias_database();
+
+
+extern void set_listener_position(const vector3d &position);
+extern const vector3d &get_listener_position();
+extern void set_listener_velocity(const vector3d &velocity);
+extern void set_listener_orientation(const vector3d &forward, const vector3d &up);
 
 //0x0054DB10
 extern void load_common_sound_bank(bool a1);
@@ -21,6 +31,11 @@ extern bool is_mission_sound_bank_ready();
 
 //0x00543500
 extern void create_inst();
+
+extern sound_instance_id create_sound_instance(uint32_t scope, string_hash sound);
+
+extern sound_source get_sound_source(string_hash sound);
+
 
 extern void delete_inst();
 

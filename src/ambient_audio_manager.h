@@ -14,4 +14,7 @@ extern void frame_advance(Float a1);
 
 //0x0054DF90
 extern void reset();
+
+
+extern void set_max_playing_tracks(int count);
 }  // namespace ambient_audio_manager

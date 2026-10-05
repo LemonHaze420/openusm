@@ -38,13 +38,30 @@ void sound_alias_database::unmash(mash_info_struct *a1, void *a3)
     a1->unmash_class_in_place(this->field_0, a3);
 }
 
-int *sound_alias_database::get_sound_alias(string_hash a2)
+sound_alias *sound_alias_database::get_sound_alias(string_hash hash)
 {
-    sp_log("sound_alias_database::get_sound_alias:");
-
-    assert(this);
-
-    return (int *)THISCALL(0x005C9E50, this, a2);
+#if STANDALONE_SYSTEM
+    auto first = 0;
+    auto count = field_0.m_size;
+    while (count > 0) {
+        const auto step = count / 2;
+        const auto index = first + step;
+        const auto candidate = field_0.m_data[index]->field_0.source_hash_code;
+        if (candidate < hash.source_hash_code) {
+            first = index + 1;
+            count -= step + 1;
+        } else {
+            count = step;
+        }
+    }
+    if (first < field_0.m_size &&
+        field_0.m_data[first]->field_0.source_hash_code == hash.source_hash_code) {
+        return field_0.m_data[first];
+    }
+    return nullptr;
+#else
+    return reinterpret_cast<sound_alias *>(THISCALL(0x005C9E50, this, hash));
+#endif
 }
 
 void sound_alias_database_patch()
