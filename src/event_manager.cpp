@@ -548,7 +548,10 @@ void event_manager::raise_event(event *event_to_raise, entity_base_vhandle a2)
 {
     assert(event_to_raise != nullptr);
 
-    CDECL_CALL(0x004EEA20, event_to_raise, a2);
+    if constexpr (0) {
+    } else {
+        CDECL_CALL(0x004EEA20, event_to_raise, a2);
+    }
 }
 
 void event_manager::garbage_collect()
@@ -690,12 +693,26 @@ void event_manager::remove_callback(unsigned int a1, string_hash a2, entity_base
     }
 }
 
+void process_event_callbacks(event *a1, entity_base_vhandle a2, _std::list<event_callback *> *the_callback_list)
+{
+    if constexpr (0) {
+    } else {
+        void (*func)(event *, entity_base_vhandle, _std::list<event_callback *> *) = CAST(func, 0x004D4090);
+        func(a1, a2, the_callback_list);
+    }
+}
 
 void event_manager_patch()
 {
     REDIRECT(0x005E1118, event_manager::create_inst);
 
-    //SET_JUMP(0x004EE9F0, event_manager::raise_event);
+    {
+        //SET_JUMP(0x004EE9F0, event_manager::raise_event);
+        FUNC_ADDRESS(address, &event_type::raise_event);
+        REDIRECT(0x004EEA13, address);
+        REDIRECT(0x004EEA49, address);
+    }
+
 
     SET_JUMP(0x004E19F0, event_manager::register_event_type);
 

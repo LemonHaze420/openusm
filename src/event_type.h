@@ -5,7 +5,7 @@
 
 struct event;
 struct event_callback;
-struct event_recipient_entry;
+class event_recipient_entry;
 struct script_executable;
 
 struct event_type {

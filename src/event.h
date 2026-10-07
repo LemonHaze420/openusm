@@ -14,6 +14,12 @@ struct event {
 
     void _finalize(bool a2);
 
+    //virtual
+    void raise();
+
+    //0x004C00F0
+    void _raise();
+
 #define create_string_hash(name)         \
     static inline const string_hash name \
     {                                    \

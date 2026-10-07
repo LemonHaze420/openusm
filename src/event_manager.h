@@ -6,7 +6,8 @@
 #include <vector.hpp>
 
 struct event;
-struct event_recipient_entry;
+class event_recipient_entry;
+struct event_callback;
 struct event_type;
 struct script_executable;
 
@@ -57,5 +58,8 @@ extern int &garbage_index;
 extern _std::vector<event_type *> &event_types;
 
 }  // namespace event_manager
+
+//0x004D4090
+extern void process_event_callbacks(event *a1, entity_base_vhandle a2, _std::list<event_callback *> *the_callback_list);
 
 extern void event_manager_patch();
