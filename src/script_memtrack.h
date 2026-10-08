@@ -16,6 +16,7 @@ struct entity_class_t {
 };
 
 void begin_entity_creation(const mString &a1);
+void end_entity_creation(entity_base_vhandle handle);
 
 void frame_advance();
 

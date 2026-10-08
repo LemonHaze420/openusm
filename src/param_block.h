@@ -43,7 +43,6 @@ struct param_block {
         ~param_data();
 
         void *operator new(size_t size);
-
         void operator delete(void *ptr, size_t size);
 
         void initialize(mash::allocation_scope a2);

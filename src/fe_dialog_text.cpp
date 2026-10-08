@@ -10,7 +10,6 @@
 #include "trace.h"
 #include "utility.h"
 #include "vtbl.h"
-
 #include "cursor.h"
 #include "femanager.h"
 #include "panelanim.h"
@@ -19,6 +18,7 @@
 #include "pausemenusystem.h"
 #include "sound_instance_id.h"
 #include "variables.h"
+
 #include <cassert>
 #include <cstdio>
 
@@ -305,6 +305,81 @@ void fe_dialog_text::OnAnyButtonRelease(int, int button)
         return;
     }
     stop_dialog_scroll(*this);
+}
+
+void fe_dialog_text::OnWindowMessage(unsigned message, int, int)
+{
+    auto *state = reinterpret_cast<uint8_t *>(&field_98);
+    auto *mouse = reinterpret_cast<uint8_t *>(&field_108);
+    const auto text_hit = [](FEText *text) {
+        const float x = static_cast<float>(g_cursor->field_104.x);
+        const float y = static_cast<float>(g_cursor->field_104.y);
+        return text->IsShown() && x > text->GetX() - 40.0f && x < text->GetX() + 40.0f && y > text->GetY() - 10.0f &&
+               y < text->GetY() + 10.0f;
+    };
+    const auto answer_hit = [&] {
+        if (state[1]) {
+            if (text_hit(field_84))
+                return 0;
+            if (text_hit(field_88))
+                return 1;
+            return -1;
+        }
+        return text_hit(field_8C) ? 0 : -1;
+    };
+    if (message == WM_MOUSEMOVE) {
+        if (mouse[1])
+            mouse[1] = 0;
+        else
+            g_cursor->sub_581C60();
+        if (state[1]) {
+            const int answer = answer_hit();
+            if (answer == 0 && !state[2])
+                OnLeft(0);
+            else if (answer == 1 && state[2])
+                OnRight(0);
+        }
+        if (mouse[0]) {
+            const float delta = static_cast<float>(g_cursor->field_104.y) - field_6C->GetCenterY();
+            for (float &value : field_D8)
+                value += delta;
+            if (field_D8[0] > field_C8[0])
+                std::memcpy(field_D8, field_C8, sizeof(field_D8));
+            else if (field_D8[0] < field_B8[0])
+                std::memcpy(field_D8, field_B8, sizeof(field_D8));
+            field_6C->SetPos(field_A8, field_D8);
+        }
+        return;
+    }
+    if (message != WM_LBUTTONDOWN && message != WM_LBUTTONUP)
+        return;
+    if (message == WM_LBUTTONDOWN && field_A0) {
+        const auto panel_hit = [](PanelQuad *quad, float radius) {
+            const float x = static_cast<float>(g_cursor->field_104.x);
+            const float y = static_cast<float>(g_cursor->field_104.y);
+            return x > quad->GetCenterX() - radius && x < quad->GetCenterX() + radius &&
+                   y > quad->GetCenterY() - radius && y < quad->GetCenterY() + radius;
+        };
+        if (panel_hit(field_6C, 10.0f)) {
+            mouse[0] = 1;
+            return;
+        }
+        if (panel_hit(field_60, 8.0f)) {
+            OnUp(0);
+            return;
+        }
+        if (panel_hit(field_5C, 8.0f)) {
+            OnDown(0);
+            return;
+        }
+    }
+    mouse[0] = 0;
+    if (field_A2)
+        OnAnyButtonRelease(0, 4);
+    else if (field_A3)
+        OnAnyButtonRelease(0, 8);
+    if (answer_hit() != -1)
+        OnCross(0);
 }
 
 void fe_dialog_text::Update(Float elapsed)

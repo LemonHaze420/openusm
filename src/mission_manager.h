@@ -91,7 +91,6 @@ struct mission_manager {
     void sort_district_priorities();
 
     void sub_5BACA0(Float a2);
-
     void blackscreen_off(Float duration);
     void release_loading_state();
 

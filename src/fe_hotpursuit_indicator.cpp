@@ -1,8 +1,6 @@
 #include "fe_hotpursuit_indicator.h"
 
 #include "panelfile.h"
-
-
 #include <algorithm>
 
 fe_hotpursuit_indicator::fe_hotpursuit_indicator()

@@ -176,7 +176,7 @@ void ai_state_machine::process_transition_message(Float a2, state_trans_messages
     if constexpr (1) {
         assert(my_curr_state != nullptr);
 
-        auto a3a = bit_cast<ai::enhanced_state *>(this->my_curr_state)->process_message(a2, the_msg);
+        auto a3a = this->my_curr_state->process_message(a2, the_msg);
         a3a = this->process_msg_on_interrupt(a2, the_msg, a3a);
         auto v4 = this->check_keyword_overrides(a3a);
         auto the_action = v4.the_action;

@@ -4,6 +4,7 @@
 
 struct region;
 struct ai_quad_path_cell;
+struct vector3d;
 
 struct ai_quad_path {
     int field_0[6];
@@ -19,6 +20,12 @@ struct ai_quad_path {
     int field_30;
 
     ai_quad_path();
+    bool find_exit_to_district(int district, int path, const vector3d &position, vector3d &exit_position,
+                               ai_quad_path_cell *&exit_cell) const;
+    ai_quad_path_cell *find_exit_cell_to_path(const ai_quad_path &path, const vector3d &position,
+                                              vector3d &exit_position) const;
+    bool check_points_in_cells(const vector3d &position, float tolerance, ai_quad_path_cell **inside,
+                               ai_quad_path **nearest_path, ai_quad_path_cell **nearest_cell, float *nearest_distance);
 
     //0x00464FA0
     void un_mash(void *buffer_ptr, region *reg, int a4, int a5, int a6);

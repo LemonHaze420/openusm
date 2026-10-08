@@ -125,28 +125,24 @@ bool resource_pack_standalone::load(const mString &str)
 
 void resource_pack_standalone::unload()
 {
-    if constexpr (0) {
-        if (this->m_filedID.field_0 != -1) {
-            nflCloseFile(this->m_filedID);
-        }
-
-        if (this->res_dir_mash != nullptr) {
-            mem_freealign(this->res_dir_mash);
-            this->res_dir_mash = nullptr;
-            this->res_dir = nullptr;
-        }
-
-        this->m_header.clear();
-
-        this->res_dir = nullptr;
-        this->res_dir_mash = nullptr;
-        this->base_offset = 0;
-        this->m_filedID.field_0 = -1;
-        this->name.m_hash.source_hash_code = 0;
-        this->name.m_type = RESOURCE_KEY_TYPE_NONE;
-    } else {
-        THISCALL(0x0052ABB0, this);
+    if (this->m_filedID.field_0 != -1) {
+        nflCloseFile(this->m_filedID);
     }
+
+    if (this->res_dir_mash != nullptr) {
+        mem_freealign(this->res_dir_mash);
+        this->res_dir_mash = nullptr;
+        this->res_dir = nullptr;
+    }
+
+    this->m_header.clear();
+
+    this->res_dir = nullptr;
+    this->res_dir_mash = nullptr;
+    this->base_offset = 0;
+    this->m_filedID.field_0 = -1;
+    this->name.m_hash.source_hash_code = 0;
+    this->name.m_type = RESOURCE_KEY_TYPE_NONE;
 }
 
 void sub_732D60(bool a1)

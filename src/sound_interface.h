@@ -64,6 +64,7 @@ void release_native_sound_emitter(sound_interface *owner);
 void frame_advance_native_sound_emitter(sound_interface *owner, Float elapsed);
 bool native_sound_emitter_count(uint32_t emitter_id, unsigned &count);
 bool stop_first_native_emitter_sound(sound_interface *owner);
+void add_native_sound_to_emitter(sound_interface *owner, sound_instance_id sound);
 
 
 extern void sound_interface_patch();

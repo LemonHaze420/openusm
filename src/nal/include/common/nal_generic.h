@@ -67,10 +67,8 @@ struct nalComponentInfo {
 
 template <uint32_t I>
 struct MorphSliderPoseTemplate {
-    int field_0{0xFF};
-    int field_4;
-    int field_8;
-    int field_C;
+    uint8_t frames[I];
+    uint8_t weights[I];
 };
 
 template <typename T>

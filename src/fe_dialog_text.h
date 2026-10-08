@@ -76,6 +76,7 @@ struct fe_dialog_text : FEMenu {
     //0x00643C90
     //virtual
     void _Load();
+
     void Draw();
     void Update(Float elapsed);
     void OnActivate();
@@ -87,6 +88,7 @@ struct fe_dialog_text : FEMenu {
     void OnUp(int controller);
     void OnDown(int controller);
     void OnAnyButtonRelease(int controller, int button);
+    void OnWindowMessage(unsigned message, int wparam, int lparam);
     void set_yes_no(bool enabled);
     int get_result() const;
 };

@@ -12,7 +12,6 @@
 #include "ngl.h"
 #include "os_developer_options.h"
 #include "pausemenusystem.h"
-
 #include "panelquad.h"
 #include "resource_manager.h"
 #include "trace.h"
@@ -93,7 +92,6 @@ void FEManager::Draw()
                 this->IGO->Draw();
             } else {
                 v2->Draw();
-                //v6->Draw(this->field_1C);
             }
 
             nglListEndScene();
@@ -116,9 +114,6 @@ void FEManager::Update(Float a2)
                 this->IGO->Update(a2);
             } else {
                 v3->Update(a2);
-
-
-                //this->field_1C->Update(this->field_1C, a2);
             }
         }
     } else {

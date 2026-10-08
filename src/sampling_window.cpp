@@ -97,7 +97,6 @@ vector3d direction_sampling_window::average(Float a4)
     } else {
         vector3d result;
         THISCALL(0x0048B630, this, &result, a4);
-
         return result;
     }
 }

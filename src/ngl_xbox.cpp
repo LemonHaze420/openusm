@@ -333,7 +333,7 @@ bool nglLoadMeshFileInternal(const tlFixedString &FileName, nglMeshFile *MeshFil
                 nglMorphSet *new_morph = CAST(new_morph, dir_entry.field_4);
                 nglProcessMorph(MeshFile, &dir_entry, (int)Header);
                 if (prevMorph != nullptr) {
-                    prevMorph->field_10 = new_morph;
+                    prevMorph->NextMorph = new_morph;
                 }
 
                 prevMorph = new_morph;
@@ -1341,11 +1341,11 @@ bool nglLoadMeshFileInternalXbox(const tlFixedString &FileName, nglMeshFile *mes
 
         case TypeDirectoryEntry::MORPH: {
             auto *morph = bit_cast<nglMorphSet *>(entry.object);
-            auto *name = make_runtime_fixed_string(morph->field_0.field_0);
+            auto *name = make_runtime_fixed_string(bit_cast<uint32_t>(morph->Name));
             if (name == nullptr) {
                 return false;
             }
-            morph->field_0.field_0 = bit_cast<uint32_t>(name) - bit_cast<uint32_t>(header);
+            morph->Name = bit_cast<tlHashString *>(bit_cast<uint32_t>(name) - bit_cast<uint32_t>(header));
             if (mesh_file->FirstMorph == nullptr) {
                 mesh_file->FirstMorph = morph;
             }
@@ -1355,7 +1355,7 @@ bool nglLoadMeshFileInternalXbox(const tlFixedString &FileName, nglMeshFile *mes
             compatible_entry.field_8 = bit_cast<void *>(entry.aux_hash);
             nglProcessMorph(mesh_file, &compatible_entry, bit_cast<int>(header));
             if (last_morph != nullptr) {
-                last_morph->field_10 = morph;
+                last_morph->NextMorph = morph;
             }
             last_morph = morph;
             break;

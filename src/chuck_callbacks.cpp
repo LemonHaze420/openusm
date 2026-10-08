@@ -3,6 +3,9 @@
 #include "func_wrapper.h"
 #include "game.h"
 #include "event_manager.h"
+#include "event_recipient_entry.h"
+#include "event_type.h"
+#include "vm_thread.h"
 #include "osassert.h"
 #include "resource_manager.h"
 #include "script_controller.h"
@@ -53,12 +56,43 @@ void script_manager_callback(script_manager_callback_reason a1, script_executabl
     }
 }
 
+#if STANDALONE_SYSTEM
+namespace {
+void add_signal_callback(vm_thread *, string_hash signal, vhandle_type<signaller> owner, script_instance *instance,
+                         vm_executable *function, char *parameters, bool one_shot)
+{
+    auto *type = event_manager::register_event_type(signal, false);
+    auto *recipient = type->create_recipient_entry(owner.field_0);
+    recipient->add_callback(instance, function, parameters, one_shot);
+}
+
+void raise_signal(vm_thread *, string_hash signal, vhandle_type<signaller> owner)
+{
+    event_manager::raise_event(signal, owner.field_0);
+}
+
+void raise_all_signals(vm_thread *, string_hash signal)
+{
+    if (auto *type = event_manager::get_event_type(signal)) {
+        const auto count = type->field_8.size();
+        for (unsigned index = 0; index < count; ++index)
+            type->raise_event(type->field_8[index]->field_0, nullptr);
+    }
+}
+}
+#endif
+
 void register_chuck_callbacks()
 {
     TRACE("register_chuck_callbacks");
 
     script_manager::register_callback(script_manager_callback);
     vm_executable::resolve_signal_callback = vm_executable_resolve_signal_callback;
+#if STANDALONE_SYSTEM
+    vm_thread::add_signal_callback_callback = add_signal_callback;
+    vm_thread::raise_signal_callback = raise_signal;
+    vm_thread::raise_all_signal_callback = raise_all_signals;
+#endif
 }
 
 void chuck_callbacks_patch()

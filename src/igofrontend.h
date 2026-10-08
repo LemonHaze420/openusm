@@ -50,8 +50,6 @@ struct IGOFrontEnd {
     entity_tracker_manager *m_entity_tracker_manager;
 
     //0x00648B40
-
-
     IGOFrontEnd();
     ~IGOFrontEnd();
 

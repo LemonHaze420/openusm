@@ -88,7 +88,9 @@ struct PanelQuad : PanelAnimObject {
     void SetPos(float *a2, float *a3);
 
     void ResetToInitialXY();
+
     void SetCenterPos(Float x, Float y);
+
     /* virtual */ void SetPos(Float a2, Float a3, Float a4, Float a5);
     void Animate(const matrix4x4 &transform, Float visibility);
 

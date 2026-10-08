@@ -1,6 +1,4 @@
 #include "fe_game_credits.h"
-
-
 #include "femultilinetext.h"
 #include "ngl.h"
 #include "panelfile.h"
@@ -16,7 +14,6 @@ fe_game_credits::fe_game_credits()
     field_10 = 0;
     field_14 = 0;
 }
-
 
 void fe_game_credits::Draw()
 {

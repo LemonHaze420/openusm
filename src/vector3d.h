@@ -22,6 +22,7 @@ struct vector3d {
 
     vector3d() : x(0), y(0), z(0) {}
 
+
     explicit vector3d(from_mash_in_place_constructor *) {}
 
     explicit vector3d(float f) : x(f), y(f), z(f) {}

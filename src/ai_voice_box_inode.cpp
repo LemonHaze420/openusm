@@ -312,12 +312,12 @@ bool ai::voice_box_inode::can_gab() const
     return my_param_block.param_array != nullptr && my_param_block.param_array->common_find_data(speaker_id) != nullptr;
 }
 
-bool ai::voice_box_inode::say_gab(string_hash sound, int interruption, int priority,
-                                  const unsigned char *excluded_teams)
+bool ai::voice_box_inode::queue_speech(string_hash sound, int source_type, int interruption, int priority,
+                                       const unsigned char *excluded_teams)
 {
     auto *request = ::new (mem_alloc(sizeof(speech_request))) speech_request;
     request->sound = sound;
-    request->source_type = 2;
+    request->source_type = source_type;
     request->interruption = interruption;
     request->priority = priority;
     std::copy_n(excluded_teams != nullptr ? excluded_teams : teams, 15, request->excluded_teams);
@@ -325,6 +325,29 @@ bool ai::voice_box_inode::say_gab(string_hash sound, int interruption, int prior
     const bool was_speaking = (flags & 1) != 0 || current_sound.get_sound_instance_ptr() != nullptr;
     frame_advance(0.0f);
     return !was_speaking && ((flags & 1) != 0 || current_sound.get_sound_instance_ptr() != nullptr);
+}
+
+bool ai::voice_box_inode::say_file(string_hash sound, int interruption, int priority,
+                                   const unsigned char *excluded_teams)
+{
+    return queue_speech(sound, 0, interruption, priority, excluded_teams);
+}
+
+bool ai::voice_box_inode::say_sound_group(string_hash sound, int interruption, int priority,
+                                          const unsigned char *excluded_teams)
+{
+    return queue_speech(sound, 1, interruption, priority, excluded_teams);
+}
+
+bool ai::voice_box_inode::say_gab(string_hash sound, int interruption, int priority,
+                                  const unsigned char *excluded_teams)
+{
+    return queue_speech(sound, 2, interruption, priority, excluded_teams);
+}
+
+bool ai::voice_box_inode::is_speaking()
+{
+    return (flags & 1) != 0 || current_sound.get_sound_instance_ptr() != nullptr;
 }
 
 void ai::voice_box_inode::_frame_advance(Float elapsed_seconds)

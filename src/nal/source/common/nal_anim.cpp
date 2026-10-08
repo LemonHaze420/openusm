@@ -59,7 +59,7 @@ void nalAnimClass<nalAnyPose>::nalInstanceClass::finalize(bool a2)
     this->~nalInstanceClass();
 
     if ((a2 & 1) != 0) {
-        delete (this);
+        nalInstanceClass::operator delete(this);
     }
 }
 

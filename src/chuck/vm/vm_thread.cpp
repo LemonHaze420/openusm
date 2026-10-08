@@ -4,6 +4,7 @@
 #include "script_object.h"
 
 #include <cassert>
+#include <cstdio>
 
 #include <common.h>
 #include <trace.h>
@@ -145,11 +146,12 @@ void vm_thread::create_event_callback(const vm_thread::argument_t &arg, bool per
     const auto parameter_size = arg.sfr->get_parms_stacksize();
     this->dstack.pop(parameter_size);
     auto *parameters = this->dstack.get_SP();
-    const string_hash signal{static_cast<int>(this->dstack.pop_num())};
+    this->dstack.pop(sizeof(int));
+    const string_hash signal{*reinterpret_cast<int *>(this->dstack.get_SP())};
     if (add_signal_callback_callback != nullptr) {
-        add_signal_callback_callback(this, signal, vhandle_type<signaller>{field_18}, arg.sfr, parameters, persistent);
+        add_signal_callback_callback(
+            this, signal, vhandle_type<signaller>{field_18}, instance, arg.sfr, parameters, persistent);
     }
-    (void)instance;
 #else
     THISCALL(0x0058F890, this, &arg, persistent);
 #endif
@@ -162,9 +164,11 @@ void vm_thread::create_static_event_callback(const vm_thread::argument_t &arg, b
     const auto parameter_size = arg.sfr->get_parms_stacksize();
     this->dstack.pop(parameter_size);
     auto *parameters = this->dstack.get_SP();
-    const string_hash signal{static_cast<int>(this->dstack.pop_num())};
+    this->dstack.pop(sizeof(int));
+    const string_hash signal{*reinterpret_cast<int *>(this->dstack.get_SP())};
     if (add_signal_callback_callback != nullptr) {
-        add_signal_callback_callback(this, signal, vhandle_type<signaller>{field_18}, arg.sfr, parameters, persistent);
+        add_signal_callback_callback(
+            this, signal, vhandle_type<signaller>{field_18}, inst, arg.sfr, parameters, persistent);
     }
 #else
     THISCALL(0x0058F900, this, &arg, persistent);
@@ -1191,8 +1195,8 @@ bool vm_thread::call_script_library_function(const vm_thread::argument_t &arg, c
     }
 }
 
-void vm_thread::register_callbacks(void (*a1)(vm_thread *, string_hash, vhandle_type<signaller>, vm_executable *,
-                                              char *, bool),
+void vm_thread::register_callbacks(void (*a1)(vm_thread *, string_hash, vhandle_type<signaller>, script_instance *,
+                                              vm_executable *, char *, bool),
                                    void (*a2)(vm_thread *, string_hash, vhandle_type<signaller>),
                                    void (*a3)(vm_thread *, string_hash), int (*a4)(uint32_t, uint32_t),
                                    void (*a5)(vm_thread *, string_hash))

@@ -4,6 +4,7 @@
 #include "vector3d.h"
 
 struct PanelQuad;
+struct matrix4x4;
 struct nglQuad;
 
 struct fe_mini_map_dot {
@@ -22,8 +23,10 @@ struct fe_mini_map_dot {
 
     //0x0063AB90
     fe_mini_map_dot(mini_map_dot_type a2, vector3d a3);
+    ~fe_mini_map_dot();
 
     //0x0060C5E0
-    ~fe_mini_map_dot();
     void Draw();
+    void Update(const matrix4x4 &transform, const vector3d &hero_position, float sine, float left, float right,
+                float top, float bottom);
 };

@@ -109,6 +109,7 @@ float begin_biped_physics::activate(animation_logic_system *a1)
 VALIDATE_SIZE(move_and_face_no_anim_movement, 0x74);
 VALIDATE_SIZE(constant_move_and_face, 0x74);
 VALIDATE_SIZE(crawl_transition, 0x74);
+VALIDATE_SIZE(move_and_face, 0x74);
 VALIDATE_OFFSET(crawl_transition, translation_disabled, 0x5C);
 VALIDATE_OFFSET(crawl_transition, orientation_disabled, 0x60);
 VALIDATE_OFFSET(crawl_transition, remaining_time, 0x64);
@@ -190,6 +191,12 @@ void constant_move_and_face::activate(animation_logic_system *system)
     movement_speed = optional(field_8, nullptr, string_hash{int(to_hash("movement_speed"))}, 5.0f, nullptr);
     turn_rate =
         optional(field_8, nullptr, string_hash{int(to_hash("turn_rate"))}, 720.0f, nullptr) * (3.1415927f / 180.0f);
+}
+void move_and_face::activate(animation_logic_system *system)
+{
+    move_face::activate(system);
+    turn_rate = field_8->get_optional_pb_float(string_hash{"turn_rate"}, 720.0f, nullptr) * (3.1415927f / 180.0f);
+    movement_speed = field_8->get_optional_pb_float(string_hash{"movement_speed"}, -1.0f, nullptr);
 }
 
 void crawl_transition::activate(animation_logic_system *system)
@@ -389,11 +396,11 @@ po move_face::apply_animation_offset()
 }
 
 namespace {
-void __fastcall crawl_destruct(crawl_transition *self, void *)
+void __fastcall crawl_destruct(move_face *self, void *)
 {
     self->destruct_mashed_class();
 }
-void __fastcall crawl_unmash(crawl_transition *self, void *, mash_info_struct *info, void *context)
+void __fastcall crawl_unmash(move_face *self, void *, mash_info_struct *info, void *context)
 {
     self->unmash(info, context);
 }
@@ -416,7 +423,7 @@ void __fastcall crawl_activate(crawl_transition *self, void *, animation_logic_s
 {
     self->activate(system);
 }
-void __fastcall crawl_post(crawl_transition *self, void *, Float dt)
+void __fastcall crawl_post(move_face *self, void *, Float dt)
 {
     self->post_anim_action(dt);
 }
@@ -525,6 +532,50 @@ void __fastcall move_arrive(move_face *self, void *, Float dt)
 {
     self->face_and_arrive_by(dt);
 }
+void *__fastcall arrive_delete(move_and_face *self, void *, unsigned char flags)
+{
+    self->~move_and_face();
+    if (flags & 1)
+        mem_dealloc(self, sizeof(*self));
+    return self;
+}
+int __fastcall arrive_type(move_and_face *, void *)
+{
+    return 496;
+}
+bool __fastcall arrive_parent(move_and_face *, void *, uint32_t type)
+{
+    return type == 512 || type == 490 || type == 573;
+}
+void __fastcall arrive_activate(move_and_face *self, void *, animation_logic_system *system)
+{
+    self->activate(system);
+}
+void __fastcall arrive_reset(move_face *self, void *)
+{
+    static string_hash signals[]{event::ATTACK, event::ANIM_ACTION};
+    self->destination_id = signals;
+    self->field_6C = 2;
+    self->field_70 = true;
+}
+void __fastcall arrive_time(move_face *self, void *)
+{
+    for (int i = 0; i < self->field_6C; ++i) {
+        self->remaining_time = self->field_8->get_time_to_signal(self->destination_id[i]);
+        if (self->remaining_time >= 0.0f)
+            break;
+    }
+    if (self->remaining_time <= 0.0f)
+        self->remaining_time = self->field_8->get_time_to_end_of_anim();
+    if (self->remaining_time < EPSILON)
+        self->remaining_time = 0.0001f;
+}
+template <unsigned Parameter, vector3d move_face::*Member>
+void __fastcall arrive_destination(move_face *self, void *)
+{
+    if (self->field_8->find_external_param(static_cast<external_parameter_types>(Parameter)))
+        self->*Member = self->field_8->get_vector_param(self->field_4, Parameter);
+}
 }  // namespace
 
 void *crawl_transition::native_vtable()
@@ -563,6 +614,25 @@ void *crawl_transition::native_vtable()
         result[40] = reinterpret_cast<void *>(move_clamp_time);
         result[41] = reinterpret_cast<void *>(move_decrement_time);
         result[42] = reinterpret_cast<void *>(move_arrive);
+        return result;
+    }();
+    return table.data();
+}
+void *move_and_face::native_vtable()
+{
+    static auto table = [] {
+        std::array<void *, 43> result;
+        std::copy_n(static_cast<void **>(crawl_transition::native_vtable()), result.size(), result.begin());
+        result[2] = reinterpret_cast<void *>(&arrive_delete);
+        result[3] = reinterpret_cast<void *>(&arrive_type);
+        result[4] = reinterpret_cast<void *>(&arrive_parent);
+        result[6] = reinterpret_cast<void *>(&arrive_activate);
+        result[20] = reinterpret_cast<void *>(&arrive_time);
+        result[21] = reinterpret_cast<void *>(&arrive_destination<33, &move_face::destination>);
+        result[22] = reinterpret_cast<void *>(&arrive_destination<27, &move_face::facing>);
+        result[23] = reinterpret_cast<void *>(&arrive_destination<24, &move_face::up>);
+        result[24] = reinterpret_cast<void *>(&arrive_reset);
+        result[25] = reinterpret_cast<void *>(&move_destination_empty);
         return result;
     }();
     return table.data();

@@ -2,14 +2,15 @@
 #include "entity.h"
 #include "fe_mini_map_dot.h"
 #include "mini_map_dot_type.h"
-
 #include "femanager.h"
 #include "igofrontend.h"
 #include "sound_instance_id.h"
 #include "thug_health.h"
+
 #include "func_wrapper.h"
 
 entity_tracker::entity_tracker() : field_0(), field_4(nullptr), field_8(0), field_C(-1) {}
+
 
 entity_tracker::entity_tracker(entity_base_vhandle handle) : field_0(handle), field_4(nullptr), field_8(0), field_C(-1)
 {
@@ -38,6 +39,8 @@ void entity_tracker::set_poi_icon(mini_map_dot_type type)
     if (static_cast<int>(type) == 1 || static_cast<int>(type) == 15 || static_cast<int>(type) == 16)
         (void)sub_60B960(string_hash{"FE_MINIMAP_BLIP"}, 1.f, 1.f);
 }
+
+
 void entity_tracker::set_health_widget_active(bool enabled)
 {
     if (field_4 == nullptr || static_cast<int>(field_4->field_20) != 2)

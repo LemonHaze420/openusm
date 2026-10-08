@@ -115,6 +115,11 @@ sound_interface_resource_info *next_group_entry(sound_interface_event_info &grou
     return nullptr;
 }
 }  // namespace
+void add_native_sound_to_emitter(sound_interface *owner, sound_instance_id sound)
+{
+    attach_sound(owner, sound);
+}
+
 void release_native_sound_emitter(sound_interface *owner)
 {
     if (auto *emitter = get_emitter(owner)) {

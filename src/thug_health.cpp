@@ -36,6 +36,7 @@ void thug_health::init()
     }
 }
 
+
 int thug_health::create()
 {
     for (int index = 0; index < 30; ++index) {
@@ -52,17 +53,20 @@ int thug_health::create()
     return field_0;
 }
 
+
 void thug_health::destroy(int index)
 {
     if (static_cast<unsigned>(index) < 30 && field_1C[index].field_0)
         field_1C[index].field_0 = false;
 }
 
+
 void thug_health::set_entity(int index, entity_base *owner)
 {
     if (static_cast<unsigned>(index) < 30 && field_1C[index].field_0 && owner != nullptr)
         field_1C[index].field_10 = owner->get_my_handle();
 }
+
 void thug_health_patch()
 {
     {

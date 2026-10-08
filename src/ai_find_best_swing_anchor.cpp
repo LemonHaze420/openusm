@@ -26,8 +26,6 @@
 
 #include <cassert>
 #include <cmath>
-
-
 #include <algorithm>
 #include <cfloat>
 
@@ -153,7 +151,6 @@ bool swing_anchor_finder::accept_swing_point(const quick_anchor_info &info, cons
     }
 }
 
-
 static fixed_vector<local_collision::primitive_list_t, 7> &good_occluders()
 {
     return var<fixed_vector<local_collision::primitive_list_t, 7>>(0x00958C38);
@@ -237,14 +234,11 @@ bool swing_anchor_finder::find_best_offset_anchor(entity *self, const vector3d &
                                 const vector3d *,
                                 find_best_anchor_result_t *) = CAST(func, 0x00486280);
         return func(this, nullptr, self, &a3, &a4, result);
-
-
     } else {
         if (!g_anchor_finding_enabled())
             return false;
         stack_allocator saved;
         scratchpad_stack::save_state(&saved);
-
         result->set_best_distance_squared(FLT_MAX);
         const auto position = self->get_abs_position();
         sweet_cone_t cone{this, position, self->get_abs_po().get_z_facing(), a3, a4};
@@ -300,7 +294,6 @@ bool swing_anchor_finder::find_best_offset_anchor(entity *self, const vector3d &
                 auto anchor = point.field_0;
                 if (point.field_C.y < 0.5f && point.field_C.y > -0.5f)
                     anchor += point.field_C * (5.0f / point.field_C.length());
-
                 const auto delta = point.field_0 - cone.sweet_spot;
                 auto direction = delta;
                 if (direction.length2() > LARGE_EPSILON)

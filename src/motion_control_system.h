@@ -13,8 +13,8 @@ struct motion_control_system {
     motion_control_system();
 
     void *operator new(size_t size);
-
     void operator delete(void *ptr, size_t size);
+
     bool is_active() const;
     void set_active(bool active);
 

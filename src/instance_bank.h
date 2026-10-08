@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "mstring.h"
 #include "set.hpp"
 

@@ -151,32 +151,16 @@ bool slf__initialize_encounter_object__t::operator()(
 {
     TRACE("slf__initialize_encounter_object__t::operator()");
 
-    if constexpr (0) {
-        auto *v2 = stack.get_thread();
-        auto *se = v2->inst->get_parent()->get_parent();
-        auto *ex = v2->get_running_executable();
+    auto *thread = stack.get_thread();
+    auto *executable = thread->inst->get_parent()->get_parent();
+    auto *running = thread->get_running_executable();
 
-        assert(se != nullptr);
-
-        assert(ex != nullptr);
-
-        if (entry != 0) {
-            return false;
-        }
-
-        auto *so = ex->get_owner();
-        auto v6 = so->get_name();
-        if (initialize_game_init_instances(se, v6)) {
-            return true;
-        }
-
-        assert(0 && "USM SHIPPING HACK: Could not initialize encounter object, trying to exit script gracefully.");
-
-        mission_manager::s_inst->prepare_unload_script();
-
+    if (entry != FIRST_ENTRY)
         return false;
-    } else {
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00664490);
-        return func(this, nullptr, &stack, entry);
-    }
+
+    if (initialize_game_init_instances(executable, running->get_owner()->get_name()))
+        return true;
+
+    mission_manager::s_inst->prepare_unload_script();
+    return false;
 }

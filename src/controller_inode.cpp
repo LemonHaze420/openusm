@@ -8,6 +8,7 @@
 #include "vtbl.h"
 #include "physics_inode.h"
 #include "oldmath_po.h"
+#include "native_info_node_table.h"
 
 #include <algorithm>
 #include <array>
@@ -86,6 +87,7 @@ void *controller_inode::native_vtable()
         result[2] = bit_cast<void *>(&controller_delete);
         result[3] = bit_cast<void *>(&controller_type);
         result[4] = bit_cast<void *>(&controller_subclass);
+        result[6] = bit_cast<void *>(&native_inode::always_advance);
         result[7] = bit_cast<void *>(&controller_frame);
         result[8] = bit_cast<void *>(&controller_activate);
         result[9] = bit_cast<void *>(&controller_deactivate);

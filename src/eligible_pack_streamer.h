@@ -35,6 +35,7 @@ public:
     void clear();
 
     void unlock_pack_slot(resource_pack_slot *slot);
+    void lock_pack_slot(resource_pack_slot *slot);
 
     //0x00547D50
     void fixup_eligible_pack_parent_child_relationships();

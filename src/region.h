@@ -112,6 +112,7 @@ struct region {
     void *operator new(uint32_t);
 
     void operator delete(void *) noexcept {}
+
     static void prepare_for_visiting()
     {
         ++visit_key;

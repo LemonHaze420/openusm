@@ -195,7 +195,7 @@ void variant_interface::destroy_morph_concatenation(nglMorphSet *a1)
 nglMorphSet *variant_interface::create_morph_concatenation(nglMorphSet **parts, int count, nglMorphSet *source)
 {
     auto *result = static_cast<nglMorphSet *>(tlMemAlloc(sizeof(nglMorphSet), 8, 0));
-    result->field_0 = source->field_0;
+    result->Name = source->Name;
     result->NFrames = source->NFrames;
     result->field_C = source->field_C;
     result->NextMorph = nullptr;
@@ -233,7 +233,7 @@ nglMorphSet *variant_interface::get_morph(const tlFixedString &name)
     if (source == nullptr)
         return nullptr;
 
-    if (field_24 != nullptr && !(source->field_0 == field_24->field_0)) {
+    if (field_24 != nullptr && !(*source->Name == *field_24->Name)) {
         destroy_morph_concatenation(field_24);
         field_24 = nullptr;
     }

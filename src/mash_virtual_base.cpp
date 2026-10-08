@@ -61,14 +61,26 @@
 #include "generic_interaction.h"
 #include "trigger_region.h"
 #include "venom_base_state.h"
+#include "venom_inode.h"
+#include "combo_system.h"
 #include "combo_system_move.h"
 #include "nugget_wait_state.h"
+#include "ai_std_jump_inode.h"
 #include "plr_loco_crawl_state.h"
 #include "plr_loco_crawl_transition_state.h"
 #include "player_combat_inode.h"
 #include "pole_swing_inode.h"
 #include "spidey_combat_inode.h"
 #include "std_fear_inode.h"
+#include "fall_death_inode.h"
+#include "retaliation_inode.h"
+#include "venom_states.h"
+#include "ai_common_states.h"
+#include "loco_goto_state.h"
+#include "combat_state.h"
+#include "subdued_state.h"
+#include "hit_react_state.h"
+#include "attack_impact_sound_event.h"
 #include "track_field_inode.h"
 #include "traffic_inode.h"
 #include "traffic_base_state.h"
@@ -289,6 +301,11 @@ void *__fastcall native_als_scalar_delete(T *self, void *, unsigned int flags)
 {
     return self->_scalar_deleting_destructor(flags);
 }
+void __fastcall native_read_file_box_format(FEMultiLineText *self, void *, const char *name, int width, bool flatten)
+{
+    self->ReadFileBoxFormat(name, width, flatten);
+}
+
 
 template <typename T>
 void *native_mash_vtable()
@@ -299,9 +316,12 @@ void *native_mash_vtable()
         table[0x0C / sizeof(void *)] = bit_cast<void *>(&native_mash_type);
         if constexpr (requires { T::g_vtbl; })
             table[0x18 / sizeof(void *)] = T::g_vtbl[0x18 / sizeof(void *)];
+        if constexpr (std::is_same_v<T, combo_system_chain::telegraph_info>)
+            table[0x18 / sizeof(void *)] = bit_cast<void *>(&native_mash_sizeof<T>);
+        if constexpr (std::is_same_v<T, FEMultiLineText>)
+            table[0x164 / sizeof(void *)] = bit_cast<void *>(&native_read_file_box_format);
         table[0x1C / sizeof(void *)] = bit_cast<void *>(&native_mash_sizeof<T>);
         table[0x34 / sizeof(void *)] = bit_cast<void *>(&native_mash_sizeof<T>);
-
         if constexpr (std::is_base_of_v<als::state_machine_shared, T> || std::is_base_of_v<als::scripted_state, T> ||
                       std::is_same_v<als::scripted_trans_group, T>) {
             table[0] = bit_cast<void *>(&native_als_destruct<T>);
@@ -469,8 +489,18 @@ void *create_native_mash_class(uint32_t type, mash_virtual_base *storage = nullp
     switch (type) {
     case 11:
         return create_mash_class<ai::ai_action_processor_inode>(type, storage, storage_size);
+    case 48:
+        if (storage != nullptr)
+            return create_mash_class_in_place<ai::retaliation_state>(type, storage, storage_size);
+        return new ai::retaliation_state{static_cast<from_mash_in_place_constructor *>(nullptr)};
     case 53:
         return create_mash_class<ai::nugget_wait_state>(type, storage, storage_size);
+    case 54:
+        if (storage != nullptr)
+            return create_mash_class_in_place<ai::retaliation_inode>(type, storage, storage_size);
+        return new ai::retaliation_inode{static_cast<from_mash_in_place_constructor *>(nullptr)};
+    case 93:
+        return create_mash_class<combo_system_chain::telegraph_info>(type, storage, storage_size);
     case 94:
         return create_mash_class<combo_system_move>(type, storage, storage_size);
     case 95:
@@ -525,6 +555,18 @@ void *create_native_mash_class(uint32_t type, mash_virtual_base *storage = nullp
         return create_mash_class<ai::ai_car_inode>(type, storage, storage_size);
     case 259:
         return create_mash_class<ai::drive_car_state>(type, storage, storage_size);
+    case 270:
+        return create_mash_class<cpu_combat_state>(type, storage, storage_size);
+    case 275:
+        return create_mash_class<parker_combat_state>(type, storage, storage_size);
+    case 276:
+        return create_mash_class<player_combat_state>(type, storage, storage_size);
+    case 278:
+        return create_mash_class<spidey_combat_state>(type, storage, storage_size);
+    case 560:
+        return create_mash_class<combat_state>(type, storage, storage_size);
+    case 277:
+        return create_mash_class<ai::prepare_combo_state>(type, storage, storage_size);
     case 285:
         return create_mash_class<ai::targetable_inode_285>(type, storage, storage_size);
     case 293:
@@ -555,12 +597,22 @@ void *create_native_mash_class(uint32_t type, mash_virtual_base *storage = nullp
         return create_mash_class<ai::web_zip_state>(type, storage, storage_size);
     case 330:
         return create_mash_class<ai::launch_layer_state>(type, storage, storage_size);
+    case 331:
+        return create_mash_class<ai::std_interrupt_state>(type, storage, storage_size);
     case 333:
         return create_mash_class<ai::als_inode>(type, storage, storage_size);
+    case 334:
+        return create_mash_class<ai::parker_als_inode>(type, storage, storage_size);
     case 336:
         return create_mash_class<ai::avoidance_inode>(type, storage, storage_size);
     case 338:
         return create_mash_class<ai::biped_layer_inode>(type, storage, storage_size);
+    case 339:
+        return create_mash_class<ai::nonpathed_goto_state>(type, storage, storage_size);
+    case 340:
+        return create_mash_class<ai::pathed_goto_state>(type, storage, storage_size);
+    case 390:
+        return create_mash_class<ai::loco_goto_state>(type, storage, storage_size);
     case 341:
         return create_mash_class<ai::quad_path_inode>(type, storage, storage_size);
     case 342:
@@ -569,12 +621,16 @@ void *create_native_mash_class(uint32_t type, mash_virtual_base *storage = nullp
         return create_mash_class<ai::damage_inode>(type, storage, storage_size);
     case 344:
         return create_mash_class<ai::combat_inode::incoming_move>(type, storage, storage_size);
+    case 345:
+        return create_mash_class<ai::fall_death_inode>(type, storage, storage_size);
     case 346:
         return create_mash_class<ai::player_combat_inode>(type, storage, storage_size);
     case 349:
         return create_mash_class<ai::base_full_target_inode>(type, storage, storage_size);
     case 351:
         return create_mash_class<ai::combat_target_inode>(type, storage, storage_size);
+    case 352:
+        return create_mash_class<ai::generic_target_hero_state>(type, storage, storage_size);
     case 353:
         return create_mash_class<ai::player_combat_target_inode>(type, storage, storage_size);
     case 356:
@@ -583,16 +639,34 @@ void *create_native_mash_class(uint32_t type, mash_virtual_base *storage = nullp
         return create_mash_class<ai::cpu_controller_inode>(type, storage, storage_size);
     case 358:
         return create_mash_class<ai::player_controller_inode>(type, storage, storage_size);
+    case 367:
+        return create_mash_class<ai::falling_state>(type, storage, storage_size);
+    case 368:
+        return create_mash_class<ai::hit_avoid_state>(type, storage, storage_size);
+    case 369:
+        return create_mash_class<ai::hit_react_state>(type, storage, storage_size);
     case 370:
         return create_mash_class<ai::std_default_state_set_base>(type, storage, storage_size);
     case 371:
         return create_mash_class<ai::std_default_trans_inode>(type, storage, storage_size);
+    case 372:
+        return create_mash_class<ai::subdued_state>(type, storage, storage_size);
+    case 373:
+        return create_mash_class<ai::unconscious_state>(type, storage, storage_size);
     case 375:
         return create_mash_class<ai::std_fear_inode>(type, storage, storage_size);
     case 383:
         return create_mash_class<ai::glass_house_inode>(type, storage, storage_size);
     case 384:
         return create_mash_class<ai::hero_inode>(type, storage, storage_size);
+    case 386:
+        if (storage != nullptr)
+            return create_mash_class_in_place<ai::ai_std_jump_inode>(type, storage, storage_size);
+        return new ai::ai_std_jump_inode{static_cast<from_mash_in_place_constructor *>(nullptr)};
+    case 387:
+        if (storage != nullptr)
+            return create_mash_class_in_place<ai::ai_std_jump_state>(type, storage, storage_size);
+        return new ai::ai_std_jump_state{static_cast<from_mash_in_place_constructor *>(nullptr)};
     case 391:
         return create_mash_class<ai::loco_inode>(type, storage, storage_size);
     case 402:
@@ -614,6 +688,34 @@ void *create_native_mash_class(uint32_t type, mash_virtual_base *storage = nullp
         return new ai::traffic_base_state{};
     case 422:
         return create_mash_class<ai::traffic_inode>(type, storage, storage_size);
+    case 434:
+        if (storage != nullptr)
+            return create_mash_class_in_place<ai::venom_combat_idle_state>(type, storage, storage_size);
+        return new ai::venom_combat_idle_state{static_cast<from_mash_in_place_constructor *>(nullptr)};
+    case 435:
+        if (storage != nullptr)
+            return create_mash_class_in_place<ai::venom_combat_inode>(type, storage, storage_size);
+        return new ai::venom_combat_inode{static_cast<from_mash_in_place_constructor *>(nullptr)};
+    case 438:
+        if (storage != nullptr)
+            return create_mash_class_in_place<ai::venom_feed_check_state>(type, storage, storage_size);
+        return new ai::venom_feed_check_state{static_cast<from_mash_in_place_constructor *>(nullptr)};
+    case 440:
+        if (storage != nullptr)
+            return create_mash_class_in_place<venom_inode>(type, storage, storage_size);
+        return new venom_inode{static_cast<from_mash_in_place_constructor *>(nullptr)};
+    case 441:
+        if (storage != nullptr)
+            return create_mash_class_in_place<ai::venom_jump_attack_state>(type, storage, storage_size);
+        return new ai::venom_jump_attack_state{static_cast<from_mash_in_place_constructor *>(nullptr)};
+    case 444:
+        if (storage != nullptr)
+            return create_mash_class_in_place<ai::venom_phase_check_state>(type, storage, storage_size);
+        return new ai::venom_phase_check_state{static_cast<from_mash_in_place_constructor *>(nullptr)};
+    case 454:
+        if (storage != nullptr)
+            return create_mash_class_in_place<ai::venom_jump_chase_state>(type, storage, storage_size);
+        return new ai::venom_jump_chase_state{static_cast<from_mash_in_place_constructor *>(nullptr)};
     case 456:
         return create_mash_class<ai::voice_box_inode>(type, storage, storage_size);
     case 483:
@@ -628,10 +730,14 @@ void *create_native_mash_class(uint32_t type, mash_virtual_base *storage = nullp
         return create_mash_class<als::motion_compensator>(type, storage, storage_size);
     case 493:
         return create_mash_class<als::begin_biped_physics>(type, storage, storage_size);
+    case 496:
+        return create_mash_class<als::move_and_face>(type, storage, storage_size);
     case 503:
         return create_mash_class<als::crawl_transition>(type, storage, storage_size);
     case 514:
         return create_mash_class<als::null_mocomp>(type, storage, storage_size);
+    case 516:
+        return create_mash_class<als::reverse_anim_movement>(type, storage, storage_size);
     case 519:
         return create_mash_class<als::set_orient_mocomp>(type, storage, storage_size);
     case 522:
@@ -654,6 +760,13 @@ void *create_native_mash_class(uint32_t type, mash_virtual_base *storage = nullp
         return create_mash_class<ai::signal_enhanced_state>(type, storage, storage_size);
     case 537:
         return create_mash_class<ai::info_node>(type, storage, storage_size);
+    case 553:
+        if (storage != nullptr) {
+            assert(storage_size >= static_cast<int>(sizeof(attack_impact_sound_event)));
+            return ::new (static_cast<void *>(storage))
+                attack_impact_sound_event{static_cast<from_mash_in_place_constructor *>(nullptr)};
+        }
+        return new attack_impact_sound_event{};
     case 541:
         return create_mash_class<PanelQuad>(type, storage, storage_size);
     case 542:
@@ -971,6 +1084,7 @@ void mash_virtual_base::generate_vtable()
             vtable()[type] = native_enx::vtable(type);
         vtable()[11] = native_mash_vtable<ai::ai_action_processor_inode>();
         vtable()[53] = native_mash_vtable<ai::nugget_wait_state>();
+        vtable()[93] = native_mash_vtable<combo_system_chain::telegraph_info>();
         vtable()[94] = native_mash_vtable<combo_system_move>();
         vtable()[95] = native_mash_vtable<combo_system_move::dialation_info>();
         vtable()[96] = native_mash_vtable<combo_system_move::link_info>();
@@ -997,6 +1111,12 @@ void mash_virtual_base::generate_vtable()
         vtable()[248] = ai::spidey_combat_inode::native_vtable();
         vtable()[258] = ai::ai_car_inode::native_vtable();
         vtable()[259] = ai::drive_car_state::native_vtable();
+        vtable()[270] = cpu_combat_state::native_vtable();
+        vtable()[275] = parker_combat_state::native_vtable();
+        vtable()[276] = player_combat_state::native_vtable();
+        vtable()[278] = spidey_combat_state::native_vtable();
+        vtable()[560] = combat_state::native_vtable();
+        vtable()[277] = ai::prepare_combo_state::native_vtable();
         vtable()[285] = ai::targetable_inode_285::native_vtable();
         vtable()[303] = ai::jump_state::native_vtable();
         vtable()[304] = ai::pole_swing_inode::native_vtable();
@@ -1011,24 +1131,40 @@ void mash_virtual_base::generate_vtable()
         vtable()[326] = ai::web_zip_inode::native_vtable();
         vtable()[327] = ai::web_zip_state::native_vtable();
         vtable()[330] = ai::launch_layer_state::native_vtable();
+        vtable()[331] = ai::std_interrupt_state::native_vtable();
         vtable()[333] = ai::als_inode::native_vtable();
+        vtable()[334] = ai::parker_als_inode::native_vtable();
         vtable()[336] = ai::avoidance_inode::native_vtable();
         vtable()[338] = ai::biped_layer_inode::native_vtable();
+        vtable()[339] = ai::nonpathed_goto_state::native_vtable();
+        vtable()[340] = ai::pathed_goto_state::native_vtable();
+        vtable()[390] = ai::loco_goto_state::native_vtable();
         vtable()[341] = ai::quad_path_inode::native_vtable();
         vtable()[342] = ai::combat_inode::native_vtable();
         vtable()[343] = ai::damage_inode::native_vtable();
         vtable()[344] = ai::combat_inode::incoming_move::native_vtable();
+        vtable()[48] = ai::retaliation_state::native_vtable();
+        vtable()[54] = ai::retaliation_inode::native_vtable();
+        vtable()[345] = ai::fall_death_inode::native_vtable();
         vtable()[346] = ai::player_combat_inode::native_vtable();
         vtable()[349] = ai::base_full_target_inode::native_vtable();
         vtable()[351] = ai::combat_target_inode::native_vtable();
+        vtable()[352] = ai::generic_target_hero_state::native_vtable();
         vtable()[353] = ai::player_combat_target_inode::native_vtable();
         vtable()[356] = ai::venom_combat_target_inode::native_vtable();
         vtable()[357] = ai::cpu_controller_inode::native_vtable();
         vtable()[358] = ai::player_controller_inode::native_vtable();
+        vtable()[367] = ai::falling_state::native_vtable();
+        vtable()[368] = ai::hit_avoid_state::native_vtable();
+        vtable()[369] = ai::hit_react_state::native_vtable();
         vtable()[371] = ai::std_default_trans_inode::native_vtable();
+        vtable()[372] = ai::subdued_state::native_vtable();
+        vtable()[373] = ai::unconscious_state::native_vtable();
         vtable()[375] = ai::std_fear_inode::native_vtable();
         vtable()[383] = ai::glass_house_inode::native_vtable();
         vtable()[384] = ai::hero_inode::native_vtable();
+        vtable()[386] = ai::ai_std_jump_inode::native_vtable();
+        vtable()[387] = ai::ai_std_jump_state::native_vtable();
         vtable()[391] = ai::loco_inode::native_vtable();
         vtable()[402] = ai::physics_inode::native_vtable();
         vtable()[403] = ai::prop_physics_inode::native_vtable();
@@ -1037,6 +1173,13 @@ void mash_virtual_base::generate_vtable()
         vtable()[420] = ai::track_field_inode::native_vtable();
         vtable()[421] = ai::traffic_base_state::native_vtable();
         vtable()[422] = ai::traffic_inode::native_vtable();
+        vtable()[434] = ai::venom_combat_idle_state::native_vtable();
+        vtable()[435] = ai::venom_combat_inode::native_vtable();
+        vtable()[438] = ai::venom_feed_check_state::native_vtable();
+        vtable()[440] = venom_inode::native_vtable();
+        vtable()[441] = ai::venom_jump_attack_state::native_vtable();
+        vtable()[444] = ai::venom_phase_check_state::native_vtable();
+        vtable()[454] = ai::venom_jump_chase_state::native_vtable();
         vtable()[456] = ai::voice_box_inode::native_vtable();
         vtable()[483] = native_mash_vtable<als::layer_state_machine_shared>();
         vtable()[484] = native_mash_vtable<als::state_machine_shared>();
@@ -1044,8 +1187,10 @@ void mash_virtual_base::generate_vtable()
         vtable()[489] = als::als_meta_linear_blend::native_vtable();
         vtable()[490] = als::motion_compensator::native_vtable(490);
         vtable()[493] = native_mash_vtable<als::begin_biped_physics>();
+        vtable()[496] = als::move_and_face::native_vtable();
         vtable()[503] = als::crawl_transition::native_vtable();
         vtable()[514] = als::motion_compensator::native_vtable(514);
+        vtable()[516] = als::motion_compensator::native_vtable(516);
         vtable()[519] = als::set_orient_mocomp::native_vtable();
         vtable()[522] = als::simple_orientation::native_vtable();
         vtable()[523] = als::simple_orientation_ped::native_vtable();
@@ -1066,6 +1211,7 @@ void mash_virtual_base::generate_vtable()
         vtable()[547] = interaction::native_vtable();
         vtable()[548] = named_trigger_box_region::native_vtable();
         vtable()[549] = point_dist_region::native_vtable();
+        vtable()[553] = attack_impact_sound_event::native_vtable();
         vtable()[561] = ai::controller_inode::native_vtable();
 
         vtable()[169] = ped_transition_vtable();

@@ -235,7 +235,8 @@ void MultiLineString::Draw(Float a2, int a3, int a4, Float a5, Float a6, Float a
 
             nglListAddString(v27, v26, this->field_4[0], this->field_4[1], a2, a3, a5, a6);
         } else {
-            auto *v10 = this->field_10.slice(0, this->button_array[0].field_0).c_str();
+            const auto prefix = this->field_10.slice(0, this->button_array[0].field_0);
+            const auto *v10 = prefix.c_str();
 
             nglFont *v13 = g_femanager.GetFont(this->m_font_index);
 
@@ -273,7 +274,8 @@ void MultiLineString::Draw(Float a2, int a3, int a4, Float a5, Float a6, Float a
                             v21 = this->button_array[2 * v9 + 2].field_0;
                         }
 
-                        auto *v22 = this->field_10.slice(this->button_array[2 * v9 + 1].field_0, v21).c_str();
+                        const auto text = this->field_10.slice(this->button_array[2 * v9 + 1].field_0, v21);
+                        const auto *v22 = text.c_str();
 
                         font = g_femanager.GetFont(this->m_font_index);
 

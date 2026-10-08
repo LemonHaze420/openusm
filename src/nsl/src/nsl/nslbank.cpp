@@ -330,8 +330,6 @@ const nslWave *nslGetWave(nslWaveID wave_id)
     const auto wave_index = wave_id.value & 0xFFFFu;
     return wave_index < bank.wave_bank->wave_count ? &bank.wave_bank->waves[wave_index] : nullptr;
 }
-
-
 const char *nslGetWaveGroupName(nslWaveID wave_id)
 {
     const auto *wave = nslGetWave(wave_id);
@@ -348,6 +346,8 @@ const char *nslGetWaveGroupName(nslWaveID wave_id)
     return wave->group != 0 ? reinterpret_cast<const char *>(wave->group) + 264 : nullptr;
 #endif
 }
+
+
 nslWaveID nslFindWave(uint32_t name_hash)
 {
     if (name_hash == 0) {

@@ -3,6 +3,8 @@
 #include "actor.h"
 #include "als_animation_logic_system.h"
 #include "common.h"
+#include "animation_controller.h"
+#include "state_machine.h"
 #include "custom_math.h"
 #include "oldmath_po.h"
 #include "trace.h"
@@ -220,6 +222,51 @@ int __fastcall mocomp_size(motion_compensator *, void *)
 {
     return sizeof(motion_compensator);
 }
+int __fastcall reverse_type(reverse_anim_movement *, void *)
+{
+    return 516;
+}
+int __fastcall reverse_size(reverse_anim_movement *, void *)
+{
+    return sizeof(reverse_anim_movement);
+}
+reverse_anim_movement *__fastcall reverse_finalize(reverse_anim_movement *self, void *, unsigned flags)
+{
+    self->~reverse_anim_movement();
+    if (flags & 1)
+        mem_dealloc(self, sizeof(reverse_anim_movement));
+    return self;
+}
+void __fastcall reverse_activate(reverse_anim_movement *self, void *, animation_logic_system *system)
+{
+    self->activate(system);
+    self->orient_on_first_frame = true;
+}
+void __fastcall reverse_post(reverse_anim_movement *self, void *, Float dt)
+{
+    mocomp_post(self, nullptr, dt);
+    po offset{};
+    self->field_4->get_animation_controller()->get_curr_po_offset(offset);
+    if (self->orient_on_first_frame) {
+        vector3d facing{
+            -self->field_8->get_param(self->field_4, 55), 0.0f, -self->field_8->get_param(self->field_4, 57)};
+
+        self->field_8->get_param(self->field_4, 56);
+        facing.normalize();
+        if (facing.length2() > EPSILON) {
+            po transform{};
+            transform.set_po(facing, YVEC, self->the_actor->get_abs_position());
+            entity_set_abs_po(self->the_actor, transform);
+        } else {
+            self->field_8->get_vector_param(self->field_4, 55);
+        }
+        self->orient_on_first_frame = false;
+    }
+    const auto before = self->the_actor->get_abs_position();
+    using apply_fn = void(__fastcall *)(motion_compensator *, void *, actor *, po *);
+    reinterpret_cast<apply_fn>(get_vfunc(self->m_vtbl, 0x2C))(self, nullptr, self->the_actor, &offset);
+    self->the_actor->set_frame_delta_trans(self->the_actor->get_abs_position() - before, dt);
+}
 }  // namespace
 
 void *motion_compensator::native_vtable(uint32_t type)
@@ -240,6 +287,18 @@ void *motion_compensator::native_vtable(uint32_t type)
         table[3] = reinterpret_cast<void *>(mocomp_null_type);
         return table;
     }();
+    static auto reverse_table = [] {
+        auto table = base_table;
+        table[2] = reinterpret_cast<void *>(reverse_finalize);
+        table[3] = reinterpret_cast<void *>(reverse_type);
+        table[6] = reinterpret_cast<void *>(reverse_activate);
+        table[9] = reinterpret_cast<void *>(reverse_post);
+        table[19] = reinterpret_cast<void *>(reverse_size);
+        return table;
+    }();
+    VALIDATE_SIZE(reverse_anim_movement, 0x18);
+    if (type == 516)
+        return reverse_table.data();
     return type == 514 ? null_table.data() : base_table.data();
 }
 

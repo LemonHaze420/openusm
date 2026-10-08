@@ -13,8 +13,8 @@
 #include "utility.h"
 #include "vtbl.h"
 #include "wds.h"
-
 #include <type_traits>
+
 VALIDATE_SIZE(trigger_manager, 8u);
 
 #if STANDALONE_SYSTEM

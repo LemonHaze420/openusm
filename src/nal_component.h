@@ -16,6 +16,7 @@ struct nalComponentEntropyTrajectoryPO;
 struct nalComponentRLE8Int1;
 struct USMEventComp;
 struct spideySignal;
+struct nalComponentMorphSlider;
 
 enum class nalNativeStreamEncoding {
     RLE8,
@@ -27,10 +28,13 @@ enum class nalNativeStreamEncoding {
     Packed16EntropyQuat,
     PO,
     EntropyPO,
-    EntropyTrajectoryPO
+    EntropyTrajectoryPO,
+    MorphSlider
 };
 
 std::intptr_t nalNativeStreamTable(nalNativeStreamEncoding encoding);
+void nalDecodeEntropyScalar(const void *input, void *output, unsigned frames, int stride, float scale);
+void nalDecodeEntropyQuaternion(const void *input, void *output, unsigned frames, int stride, float scale);
 
 template <class T0, class T1, class T2>
 struct nalComponent : T0, T1 {
@@ -53,6 +57,8 @@ struct nalComponent : T0, T1 {
             return nalNativeStreamEncoding::PO;
         else if constexpr (std::is_same_v<T2, nalComponentEntropyPO>)
             return nalNativeStreamEncoding::EntropyPO;
+        else if constexpr (std::is_same_v<T2, nalComponentMorphSlider>)
+            return nalNativeStreamEncoding::MorphSlider;
         else {
             static_assert(std::is_same_v<T2, nalComponentEntropyTrajectoryPO>);
             return nalNativeStreamEncoding::EntropyTrajectoryPO;

@@ -53,6 +53,11 @@ struct motion_compensator : mash_virtual_base {
 
 struct null_mocomp : motion_compensator {};
 
+
+struct reverse_anim_movement : motion_compensator {
+    bool orient_on_first_frame;
+};
+
 }  // namespace als
 
 extern void als_motion_compensator_patch();

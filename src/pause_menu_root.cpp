@@ -17,8 +17,6 @@
 #include "trace.h"
 #include "vtbl.h"
 #include "wds.h"
-
-
 #include "cursor.h"
 #include "fe_menu_nav_bar.h"
 #include "fileusm.h"

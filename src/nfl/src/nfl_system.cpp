@@ -972,6 +972,20 @@ int nfsGetMediaIndex(int a1)
     return -1;
 }
 
+int *sub_79E020(nflMediaID media, int *out)
+{
+    const auto index = nfsGetMediaIndex(media.field_0);
+    if (index == -1)
+        return nullptr;
+    auto *driver = stru_94983C.field_4[index];
+    if (driver == nullptr)
+        return nullptr;
+    out[0] = driver->buffer->field_8;
+    out[1] = driver->buffer->field_0;
+    out[2] = driver->buffer->field_4;
+    return out;
+}
+
 //0x0079D970
 nflDriver *nfsGetMediaDriver(int a1)
 {
@@ -1265,31 +1279,18 @@ int nflReadFileAsync(nflFileID a1, uint32_t a2, void *a3, uint32_t a4)
 {
     TRACE("nflReadFileAsync");
 
-    int result;
-
-    if constexpr (0) {
-        assert(a1.field_0 != -1);
-
-        nflRequestParams requestParams;
-
-        requestParams.field_C = NFL_REQUEST_TYPE_READ;
-        requestParams.streamID = 0;
-        requestParams.field_20 = 0;
-        requestParams.m_callback = nullptr;
-        requestParams.field_24 = nullptr;
-        requestParams.fileID = a1;
-        requestParams.field_14 = a2;
-        requestParams.field_10 = 2;
-        requestParams.field_18 = static_cast<uint8_t *>(a3);
-        requestParams.dataSize = a4;
-        return nflAddRequest(&requestParams);
-    } else {
-        result = CDECL_CALL(0x0079D720, a1, a2, a3, a4);
-    }
-
-    //sp_log("end: %p %d", a3, result);
-
-    return result;
+    nflRequestParams requestParams;
+    requestParams.field_C = NFL_REQUEST_TYPE_READ;
+    requestParams.streamID = 0;
+    requestParams.field_20 = 0;
+    requestParams.m_callback = nullptr;
+    requestParams.field_24 = nullptr;
+    requestParams.fileID = a1;
+    requestParams.field_14 = a2;
+    requestParams.field_10 = 2;
+    requestParams.field_18 = static_cast<uint8_t *>(a3);
+    requestParams.dataSize = a4;
+    return nflAddRequest(&requestParams);
 }
 
 int nflGetRequestState(nflRequestID a1)

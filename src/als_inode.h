@@ -76,6 +76,16 @@ struct als_inode : info_node {
     float get_eta_of_combat_signal(als::layer_types a2);
 };
 
+struct parker_als_inode : als_inode {
+    float playback_speed;
+
+    parker_als_inode();
+    explicit parker_als_inode(from_mash_in_place_constructor *constructor);
+    static void *native_vtable();
+    void activate(ai_core *core);
+    void frame_advance(Float elapsed);
+};
+
 }  // namespace ai
 
 extern void als_inode_patch();

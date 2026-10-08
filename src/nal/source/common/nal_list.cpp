@@ -87,6 +87,7 @@ make_class(nalComponentEntropyFloat3, nalComponentFloat3Base, "NAL_EntropyFloat3
 make_class(nalComponentPO, nalComponentPOBase, "NAL_PositionOrientation");
 make_class(nalComponentEntropyPO, nalComponentPOBase, "NAL_EntropyPositionOrientation");
 make_class(nalComponentEntropyTrajectoryPO, nalComponentPOBase, "NAL_EntropyTrajectoryPositionOrientation");
+make_class(nalComponentMorphSlider, nalComponentMorphSliderBase, "USMMorph");
 
 #undef make_class
 

@@ -15,6 +15,9 @@
 #include "pole_swing_inode.h"
 #include "spiderman_camera.h"
 #include "trace.h"
+#include "als_animation_logic_system.h"
+#include "physical_interface.h"
+#include "tentacle_interface.h"
 
 #include <vtbl.h>
 #include <algorithm>
@@ -534,6 +537,33 @@ void ai_player_controller::frame_advance(Float a2)
     this->field_3E0 = this->convert_left_stick_from_camera_space_to_world_space(false);
 
     this->field_3EC = this->compute_left_stick_from_camera();
+}
+
+
+void ai_player_controller::begin_scene_animation()
+{
+    auto *owner = field_4[1];
+    if (owner->has_tentacle_ifc())
+        owner->tentacle_ifc()->cancel_zip();
+    owner->get_my_als()->force_update();
+    owner->get_ai_core()->reset_base_machine(string_hash{});
+}
+
+
+void ai_player_controller::end_scene_animation()
+{
+    auto *owner = field_4[1];
+    if (auto *logic = owner->get_my_als())
+        logic->force_update();
+    owner->physical_ifc()->manage_standing(true);
+    owner->physical_ifc()->set_control_parent(nullptr);
+    if (auto *core = owner->get_ai_core()) {
+        auto *hero = static_cast<ai::hero_inode *>(core->get_info_node(ai::hero_inode::default_id, true));
+        hero->compute_curr_ground_plane(static_cast<force_recompute_enum>(1), Float{2.5f});
+    }
+    const auto &pose = owner->get_abs_po();
+    camera_movement_direction = {pose.m[2][0], pose.m[2][1], pose.m[2][2]};
+    field_3E0 = convert_left_stick_from_camera_space_to_world_space(false);
 }
 
 float ai_player_controller::get_motion_force()

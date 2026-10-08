@@ -953,6 +953,13 @@ void nalGenericSkeleton::GetComponentHandle<nalVector3>(nalGenericConstComponent
     find_handle(this, &out, &name, channel, &nalComponentFloat3Base::TypeID, true, true);
 }
 
+template <>
+void nalGenericSkeleton::GetComponentHandle<MorphSliderPoseTemplate<6>>(
+    nalGenericComponentHandle<MorphSliderPoseTemplate<6>> &out, tlFixedString &name, tlFixedString &channel)
+{
+    find_handle(this, &out, &name, channel, &nalComponentMorphSliderBase::TypeID, false, false);
+}
+
 }  // namespace nalGeneric
 
 void nalGeneric_patch() {}

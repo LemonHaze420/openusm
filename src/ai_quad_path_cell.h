@@ -18,9 +18,12 @@ struct ai_quad_path_cell {
     //0x004648C0
     vector3d get_edge_midpoint(ai_quad_path_cell *a3);
     vector3d get_midpoint() const;
+    float fast_distance_check(const ai_quad_path_cell &other) const;
     ai_quad_path_cell *get_edge_neighbor(int edge, int index) const;
     bool is_point_in_cell(const vector3d &position, float radius) const;
     float is_point_near_cell(const vector3d &position) const;
+    bool find_intersection_point_in_cell_along_line(const vector3d &start, const vector3d &end, vector3d *intersection,
+                                                    vector3d *vertex) const;
     vector3d closest_point(const vector3d &position) const;
 
     //0x00452C60

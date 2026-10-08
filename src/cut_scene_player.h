@@ -15,6 +15,10 @@ struct nalSceneAnimInstance;
 struct cut_scene_segment;
 struct region;
 struct tracking_panel_anim;
+struct entity_class_entry;
+struct nalClientSceneAnim;
+struct tlFixedString;
+struct resource_key;
 namespace comic_panels {
 struct panel;
 struct page_camera;
@@ -91,6 +95,23 @@ struct cut_scene_player {
 
     //0x0073FFB0
     void clean_up_finished_segment();
+    void clean_up();
+    void destroy_leave_spawned_entities();
+    entity_class_entry *get_entity_entry(string_hash id);
+    string_hash resolve_entity_name(const char *name);
+    cut_scene_panel_state *get_panel_entry(string_hash id, bool create);
+    void clear_panels();
+    void setup_tracking_panels();
+    void activate_current_segment();
+    void start_lip_syncing();
+    void stop_lip_syncing();
+    bool wait_for_regions(float dt);
+    bool wait_for_heap_slot(float dt);
+    unsigned char *get_heap_slot_datum();
+    int get_heap_slot_size();
+    entity *create_entity(resource_key key);
+    nalClientSceneAnim *find_scene_anim_entries(const tlFixedString &name);
+    static nalClientSceneAnim *scene_anim_callback(const tlFixedString &name, void *context);
 
     //0x00742190
     void play(cut_scene *a2);

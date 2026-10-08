@@ -35,6 +35,10 @@
 #include "als_animation_logic_system.h"
 #include "param_list.h"
 #include "line_info.h"
+#include "venom_inode.h"
+#include "retaliation_inode.h"
+#include "trigger.h"
+#include "script.h"
 
 #include <vtbl.h>
 
@@ -569,6 +573,130 @@ bool ped_combat_inode::consider_forced_responses(string_hash reaction, string_ha
     return accepted;
 }
 
+namespace {
+void *__fastcall venom_combat_delete(venom_combat_inode *self, void *, unsigned flags)
+{
+    self->~venom_combat_inode();
+    if (flags & 1)
+        ::operator delete(self);
+    return self;
+}
+unsigned __fastcall venom_combat_type(venom_combat_inode *, void *)
+{
+    return 435;
+}
+bool __fastcall venom_combat_subclass(venom_combat_inode *, void *, unsigned type)
+{
+    return type == 342 || type == 537 || type == 573;
+}
+int __fastcall venom_combat_size(venom_combat_inode *, void *)
+{
+    return sizeof(venom_combat_inode);
+}
+void __fastcall venom_combat_activate(venom_combat_inode *self, void *, ai_core *core)
+{
+    self->_activate(core);
+}
+bool __fastcall venom_combat_needs_react(venom_combat_inode *self, void *, Float elapsed)
+{
+    return self->needs_hit_react(elapsed);
+}
+bool __fastcall venom_combat_forced(venom_combat_inode *self, void *, string_hash reaction, string_hash attack,
+                                    string_hash avoid, int type, vhandle_type<entity> source, const vector3d &direction,
+                                    bool pending, bool force)
+{
+    return self->consider_forced_responses(reaction, attack, avoid, type, source, direction, pending, force);
+}
+
+}  // namespace
+
+VALIDATE_SIZE(venom_combat_inode, 0x32C);
+VALIDATE_OFFSET(venom_combat_inode, allow_hit_react, 0x328);
+
+void *venom_combat_inode::native_vtable()
+{
+    static auto table = [] {
+        std::array<void *, 76> result;
+        std::copy_n(static_cast<void **>(combat_inode::native_vtable()), result.size(), result.data());
+        result[2] = reinterpret_cast<void *>(&venom_combat_delete);
+        result[3] = reinterpret_cast<void *>(&venom_combat_type);
+        result[4] = reinterpret_cast<void *>(&venom_combat_subclass);
+        result[8] = reinterpret_cast<void *>(&venom_combat_activate);
+        result[11] = reinterpret_cast<void *>(&venom_combat_size);
+        result[56] = reinterpret_cast<void *>(&venom_combat_needs_react);
+        result[74] = reinterpret_cast<void *>(&venom_combat_forced);
+        return result;
+    }();
+    return table.data();
+}
+
+
+venom_combat_inode::venom_combat_inode(from_mash_in_place_constructor *tag) : combat_inode(tag)
+{
+    m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[435]);
+}
+
+
+void venom_combat_inode::_activate(ai_core *core)
+{
+    combat_inode::_activate(core);
+    allow_hit_react = false;
+}
+
+
+bool venom_combat_inode::needs_hit_react(Float elapsed)
+{
+    auto *venom =
+        static_cast<::venom_inode *>(field_8->get_info_node(string_hash{static_cast<int>(to_hash("venom"))}, true));
+    return (allow_hit_react || field_82) && !venom->field_24 && combat_inode::needs_hit_react(elapsed);
+}
+
+
+bool venom_combat_inode::consider_forced_responses(string_hash reaction, string_hash attack, string_hash avoid,
+                                                   int type, vhandle_type<entity> source, const vector3d &direction,
+                                                   bool pending, bool force)
+{
+    const bool accepted =
+        combat_inode::consider_forced_responses(reaction, attack, avoid, type, source, direction, pending, force);
+    auto *venom =
+        static_cast<::venom_inode *>(field_8->get_info_node(string_hash{static_cast<int>(to_hash("venom"))}, true));
+    if (!accepted && !venom->field_24 && venom->accepts_knockdown_attack(attack)) {
+        if (get_react_index() == -1)
+            return false;
+        auto *combat = static_cast<venom_combat_inode *>(field_8->get_info_node(combat_inode::default_id, true));
+        combat->allow_hit_react = false;
+        venom->field_24 = true;
+        vector3d knockdown_direction = direction;
+        if (venom->field_B8 != nullptr) {
+            const vector3d towards_spark = venom->field_B8->get_position() - field_C->get_abs_position();
+            if (std::fabs(dot(towards_spark, direction)) < 1.0f)
+                knockdown_direction = towards_spark;
+        }
+        try_set_forced_react_needed(string_hash{static_cast<int>(to_hash("KnockDownSmall"))},
+                                    attack,
+                                    type,
+                                    source,
+                                    knockdown_direction,
+                                    pending,
+                                    true);
+        find_func_and_spawn_new_thread(field_C, string_hash{static_cast<int>(to_hash("you_got_knocked_out()"))});
+        script::exec_thread(false);
+        return accepted;
+    }
+    if (!accepted && !venom->field_24) {
+        const auto *retaliation = static_cast<const retaliation_inode *>(
+            field_8->get_info_node(string_hash{static_cast<int>(to_hash("RETALIATION"))}, false));
+        if (retaliation == nullptr || !retaliation->calc_damage_since_last_retaliation(0))
+            return accepted;
+    }
+    using clear_fn = void(__fastcall *)(combat_inode *, void *);
+    using avoid_fn = void(__fastcall *)(combat_inode *, void *, vhandle_type<entity>);
+    reinterpret_cast<clear_fn>(get_vfunc(m_vtbl, 0x100))(this, nullptr);
+    reinterpret_cast<avoid_fn>(get_vfunc(m_vtbl, 0x104))(this, nullptr, source);
+    clear_forced_avoid_needed();
+    return true;
+}
+
 void combat_inode::_destruct_mashed_class()
 {
     reinterpret_cast<string_hash &>(field_70).destruct_mashed_class();
@@ -948,7 +1076,8 @@ bool combat_inode::check_for_and_set_next_move()
                                          float,
                                          bool,
                                          vhandle_type<actor>);
-    if (!field_24 || !reinterpret_cast<controller_fn>(get_vfunc(field_24->m_vtbl, 0x40))(field_24))
+    const bool pending = field_24 && reinterpret_cast<controller_fn>(get_vfunc(field_24->m_vtbl, 0x40))(field_24);
+    if (!pending)
         return false;
     auto *layer = field_28->get_als_layer(static_cast<als::layer_types>(0));
     if (!layer->is_interruptable())
@@ -1219,7 +1348,7 @@ int __fastcall incoming_size(incoming_move *, void *)
 {
     return sizeof(incoming_move);
 }
-}  // namespace
+}
 
 void *combat_inode::incoming_move::native_vtable()
 {
@@ -1649,6 +1778,111 @@ void combat_inode::clear_next_move()
 void combat_inode::left_air()
 {
     this->field_68 = 0;
+}
+
+bool combat_inode::set_attack(string_hash attack)
+{
+    field_70 = attack.source_hash_code;
+    auto *system = field_8->field_6C->field_10;
+    int index = -1;
+    for (int i = 0; i < system->field_14.m_size; ++i)
+        if (system->field_14.m_data[i]->field_14 == attack) {
+            index = i;
+            break;
+        }
+    if (index >= 0) {
+        field_74 = reinterpret_cast<int>(system->field_14.m_data[index]);
+        using target_fn = vhandle_type<actor> *(__fastcall *)(combat_target_inode *, void *, vhandle_type<actor> *);
+        vhandle_type<actor> target;
+        reinterpret_cast<target_fn>(get_vfunc(field_2C->m_vtbl, 0x38))(field_2C, nullptr, &target);
+        if (auto *actor = target.get_volatile_ptr()) {
+            field_C->get_abs_position();
+            actor->get_abs_position();
+            Float time{0.0f};
+            string_hash category;
+            field_28->get_known_combat_signal_time_and_category(time, category);
+            field_28->get_category_id(static_cast<als::layer_types>(0));
+            field_1C = 1;
+            return true;
+        }
+    }
+    field_74 = field_70 = field_1C = 0;
+    return false;
+}
+
+bool combat_inode::choose_attack(actor *target)
+{
+    if (target == nullptr)
+        return false;
+    auto *system = field_8->field_6C->field_10;
+    const vector3d displacement = target->get_abs_position() - field_8->field_64->get_abs_position();
+    const float horizontal = std::sqrt(displacement.x * displacement.x + displacement.z * displacement.z);
+    const float distance = displacement.length();
+    std::array<float, 32> weights{};
+    int count = 0;
+    if (field_28 == nullptr || field_28->is_layer_interruptable(static_cast<als::layer_types>(0))) {
+        string_hash category{0};
+        if (field_28)
+            category = field_28->get_category_id(static_cast<als::layer_types>(0));
+        for (int i = 0; i < system->field_14.m_size; ++i) {
+            auto *chain = system->field_14.m_data[i];
+            assert(i < static_cast<int>(weights.size()));
+            ++count;
+            if (chain->field_1C.m_size <= 0)
+                continue;
+            auto *move = system->field_0.m_data[static_cast<uint16_t>(chain->field_1C.m_data[0])];
+            const auto &range = move->field_80.field_1C;
+            const float *bounds = reinterpret_cast<const float *>(&range.field_4);
+            if (distance < bit_cast<float>(chain->field_34) || distance > chain->field_38 || horizontal < bounds[0] ||
+                horizontal > bounds[1] || displacement.y < bounds[2] || displacement.y > bounds[3])
+                continue;
+            bool linked = field_28 == nullptr || move->field_80.field_30.m_size == 0;
+            if (!linked)
+                for (int j = 0; j < move->field_80.field_30.m_size; ++j)
+                    if (move->field_80.field_30.m_data[j]->field_4 == category) {
+                        linked = true;
+                        break;
+                    }
+            if (linked)
+                weights[i] = chain->field_3C;
+        }
+    }
+    double total = 0.0;
+    for (int i = 0; i < count; ++i)
+        if (weights[i] > 0.0f)
+            total += weights[i];
+    int selected = -1;
+    if (total > 0.0) {
+        const float choice = static_cast<float>(std::rand()) / 32768.0f * static_cast<float>(total);
+        double cumulative = 0.0;
+        for (int i = 0; i < count; ++i)
+            if (weights[i] > 0.0f) {
+                cumulative += weights[i];
+                if (choice <= cumulative) {
+                    selected = i;
+                    break;
+                }
+            }
+    }
+    if (selected < 0) {
+        field_74 = field_70 = field_1C = 0;
+        return false;
+    }
+    auto *chain = system->field_14.m_data[static_cast<uint16_t>(selected)];
+    field_74 = reinterpret_cast<int>(chain);
+    field_70 = chain->field_14.source_hash_code;
+    field_1C = 1;
+    return true;
+}
+
+float combat_inode::get_attack_min_distance() const
+{
+    return field_74 ? bit_cast<float>(reinterpret_cast<const combo_system_chain *>(field_74)->field_2C) : 0.0f;
+}
+
+float combat_inode::get_attack_max_distance() const
+{
+    return field_74 ? bit_cast<float>(reinterpret_cast<const combo_system_chain *>(field_74)->field_30) : 1.0f;
 }
 
 }  // namespace ai

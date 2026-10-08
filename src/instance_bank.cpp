@@ -3,7 +3,6 @@
 #include "colmesh.h"
 #include "func_wrapper.h"
 
-
 static_assert(sizeof(instance_bank<cg_mesh>) == 0x18);
 static_assert(offsetof(instance_bank<cg_mesh>::entry, object) == 0x10);
 

@@ -102,7 +102,7 @@ double __fastcall ped_floor(ped_anim_controller *self, void *)
 
 
 void __fastcall ped_scene_pose(ped_anim_controller *, void *, uint32_t &, nalAnimClass<nalAnyPose> *, nalAnyPose &) {}
-}  // namespace
+}
 
 void *ped_anim_controller::native_vtable()
 {

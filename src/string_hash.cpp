@@ -18,7 +18,6 @@ Var<string_hash> cat_id_idle_walk_run{0x0096C1E8};
 
 Var<string_hash> loco_allow_web_tie_id{0x00958538};
 
-
 #if STANDALONE_SYSTEM
 namespace {
 const bool idle_walk_run_initialized = [] {

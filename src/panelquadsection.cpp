@@ -10,6 +10,7 @@
 
 VALIDATE_SIZE(PanelQuadSection, 0x7C);
 
+
 PanelQuadSection::PanelQuadSection() : field_78(false)
 {
     nglInitQuad(reinterpret_cast<nglQuad *>(&field_14));

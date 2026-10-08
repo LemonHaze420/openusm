@@ -11,8 +11,6 @@
 #include "string_hash.h"
 #include "variable.h"
 #include "wds.h"
-
-
 #include "vtbl.h"
 
 #include <utility.h>

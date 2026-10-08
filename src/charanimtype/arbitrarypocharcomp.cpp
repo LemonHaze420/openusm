@@ -123,7 +123,7 @@ void ArbitraryPOCharComp::_BuildBoneMatrices(nalMatrix4x4 *a1, uint32_t a2, cons
             if (v9->field_24 != -1) {
                 auto *v10 = (v9->field_28 != 0 ? &v6[v9->field_20] : &v23[v9->field_20]);
 
-                auto &v15 = (v9->field_2A != 0 ? v24[v9->field_22] : v7[v9->field_22]);
+                auto &v15 = (v9->field_2A != 0 ? v7[v9->field_22] : v24[v9->field_22]);
 
                 nalPositionOrientation v26{v15, v10->field_0};
 

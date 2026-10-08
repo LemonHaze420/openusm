@@ -79,8 +79,7 @@ void get_controller_offset(animation_logic_system *system, po &offset)
     using offset_fn = void(__fastcall *)(animation_controller *, void *, po *);
     reinterpret_cast<offset_fn>(get_vfunc(controller->m_vtbl, 0x74))(controller, nullptr, &offset);
 }
-
-}
+}  // namespace
 
 void set_orient_mocomp::post_anim_action(Float elapsed)
 {
@@ -140,7 +139,7 @@ void *set_orient_mocomp::native_vtable()
         return result;
     }();
     return table.data();
-}  // namespace
+}
 
 void simple_orientation::post_anim_action(Float elapsed)
 {

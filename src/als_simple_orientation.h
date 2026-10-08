@@ -4,7 +4,6 @@
 
 namespace als {
 
-
 struct set_orient_mocomp : motion_compensator {
     void post_anim_action(Float elapsed);
     static void *native_vtable();

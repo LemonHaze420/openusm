@@ -106,6 +106,13 @@ void eligible_pack_streamer::unlock_pack_slot(resource_pack_slot *slot)
     }
 }
 
+void eligible_pack_streamer::lock_pack_slot(resource_pack_slot *slot)
+{
+    for (auto *category : field_14)
+        if (category->get_streamer() == slot->get_partition()->get_streamer())
+            category->lock_pack_slot(slot);
+}
+
 eligible_pack *eligible_pack_streamer::find_eligible_pack_by_packfile_name_hash(string_hash a2)
 {
     if constexpr (1) {

@@ -31,7 +31,7 @@ bool get_keyboard_button_state(int button, int controller)
     case 1:
         return is_down(DIK_TAB);
     case 2:
-        return is_down(DIK_RETURN);
+        return is_down(DIK_SPACE);
     case 4:
         return is_down(DIK_UP) || is_down(DIK_W);
     case 8:
@@ -41,7 +41,7 @@ bool get_keyboard_button_state(int button, int controller)
     case 32:
         return is_down(DIK_RIGHT) || is_down(DIK_D);
     case 64:
-        return is_down(DIK_SPACE);
+        return is_down(DIK_RETURN);
     case 128:
         return is_down(DIK_ESCAPE);
     default:
@@ -102,9 +102,7 @@ void FEMenuSystem::MakeActive(int idx)
             v6->OnActivate();
         }
 
-
         this->UpdateButtonDown();
-
     } else {
         THISCALL(0x0060B610, this, idx);
     }

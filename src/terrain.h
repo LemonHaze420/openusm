@@ -126,6 +126,9 @@ struct terrain {
     void unlock_district_pack_slot(int slot_idx);
 
     bool is_district_pack_slot_locked(int slot_idx) const;
+    void hide_region(region *reg);
+    void show_region(region *reg);
+    int lock_district_pack_slot(const int *districts, int count);
 
     //0x00556FF0
     void frame_advance(Float a2);

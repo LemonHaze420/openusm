@@ -34,7 +34,6 @@ struct pause_menu_root : FEMenu {
     float field_D8[4];
     float field_E8[4];
     bool field_F8;
-
     bool field_F9;
     int field_FC;
 
@@ -59,7 +58,6 @@ struct pause_menu_root : FEMenu {
     //0x006490A0
     //virtual
     void Update(Float a2);
-
 
     void Draw();
     void OnActivate();

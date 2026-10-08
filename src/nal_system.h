@@ -216,6 +216,10 @@ struct nalComponentStringBase : nalComponentBase {
     static inline char &TypeID = var<char>(0x00959560);
 };
 
+struct nalComponentMorphSliderBase : nalComponentBase {
+    static inline char TypeID{};
+};
+
 struct nalComponentInitList;
 
 template <typename T>

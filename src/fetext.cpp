@@ -7,6 +7,7 @@
 #include "func_wrapper.h"
 #include "mash_info_struct.h"
 #include "mash_config.h"
+#include "mash_virtual_base.h"
 #include "game.h"
 #include "localized_string_table.h"
 #include "matrix4x4.h"
@@ -93,7 +94,11 @@ int FEText::_get_mash_sizeof()
 void FEText::Draw()
 {
     if constexpr (STANDALONE_SYSTEM) {
-        if (!IsShown() || field_1C == mString{""})
+        if (m_vtbl == 0x0087AE58 || m_vtbl == bit_cast<std::intptr_t>(mash_virtual_base::vtable()[543])) {
+            static_cast<FEMultiLineText *>(this)->Draw();
+            return;
+        }
+        if (!IsShown() || field_1C.empty())
             return;
 
         auto color = field_4C;
@@ -196,7 +201,10 @@ void FEText::_SetText(global_text_enum a2)
 void FEText::SetText(global_text_enum a2)
 {
     if constexpr (STANDALONE_SYSTEM) {
-        _SetText(a2);
+        if (m_vtbl == 0x0087AE58 || m_vtbl == bit_cast<std::intptr_t>(mash_virtual_base::vtable()[543]))
+            static_cast<FEMultiLineText *>(this)->SetText(a2);
+        else
+            _SetText(a2);
     } else {
         void(__fastcall * func)(FEText *, void *, global_text_enum) = CAST(func, get_vfunc(m_vtbl, 0x88));
         func(this, nullptr, a2);
@@ -206,8 +214,12 @@ void FEText::SetText(global_text_enum a2)
 void FEText::SetPos(Float x, Float y)
 {
     if constexpr (STANDALONE_SYSTEM) {
-        field_34.x = x;
-        field_34.y = y - flt_965BDC;
+        if (m_vtbl == 0x0087AE58 || m_vtbl == bit_cast<std::intptr_t>(mash_virtual_base::vtable()[543])) {
+            static_cast<FEMultiLineText *>(this)->SetPos(x, y);
+        } else {
+            field_34.x = x;
+            field_34.y = y - flt_965BDC;
+        }
     } else {
         void(__fastcall * func)(FEText *, void *, Float, Float) = CAST(func, get_vfunc(m_vtbl, 0x90));
         func(this, nullptr, x, y);
@@ -272,7 +284,10 @@ void FEText::_SetTextNoLocalize(string a1)
 void FEText::SetTextNoLocalize(string a1)
 {
     if constexpr (STANDALONE_SYSTEM) {
-        _SetTextNoLocalize(a1);
+        if (m_vtbl == 0x0087AE58 || m_vtbl == bit_cast<std::intptr_t>(mash_virtual_base::vtable()[543]))
+            static_cast<FEMultiLineText *>(this)->_SetTextNoLocalize(a1);
+        else
+            _SetTextNoLocalize(a1);
     } else {
         void(__fastcall * func)(FEText *, void *, string) = CAST(func, get_vfunc(m_vtbl, 0x8C));
         func(this, nullptr, a1);

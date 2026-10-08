@@ -279,16 +279,27 @@ struct NativeStream {
     static constexpr bool PO =
         Kind == Encoding::PO || Kind == Encoding::EntropyPO || Kind == Encoding::EntropyTrajectoryPO;
     static constexpr bool Quat = Kind == Encoding::EntropyQuat || Kind == Encoding::Packed16EntropyQuat;
-    static constexpr bool Entropy = !Byte && Kind != Encoding::PO;
+    static constexpr bool Morph = Kind == Encoding::MorphSlider;
+    static constexpr bool Entropy = !Byte && Kind != Encoding::PO && !Morph;
     static constexpr bool Loop = Kind == Encoding::EntropyTrajectoryPO;
-    static constexpr unsigned Size = Byte ? 1 : PO ? 28 : Quat ? 16 : Kind == Encoding::EntropyFloat3 ? 12 : 4;
+    static constexpr unsigned Size = Byte                                         ? 1
+                                     : PO                                         ? 28
+                                     : Quat                                       ? 16
+                                     : (Kind == Encoding::EntropyFloat3 || Morph) ? 12
+                                                                                  : 4;
     static constexpr unsigned DecodedSize = Kind == Encoding::Packed16EntropyQuat ? 6 : Size;
     static constexpr unsigned SkelSize = PO ? 8 : 4;
-    static constexpr unsigned StateSize = Byte ? 8 : Kind == Encoding::PO ? 4 : PO ? 100 : Quat ? 52 : Size * 4;
+    static constexpr unsigned StateSize = Byte                              ? 8
+                                          : (Kind == Encoding::PO || Morph) ? 4
+                                          : PO                              ? 100
+                                          : Quat                            ? 52
+                                                                            : Size * 4;
     static constexpr unsigned DecodedAlignment = Kind == Encoding::Packed16EntropyQuat ? 2 : Byte ? 1 : 4;
     void *Type()
     {
-        if constexpr (Byte)
+        if constexpr (Morph)
+            return &nalComponentMorphSliderBase::TypeID;
+        else if constexpr (Byte)
             return &nalComponentU8Base::TypeID;
         else if constexpr (PO)
             return &nalComponentPOBase::TypeID;
@@ -305,6 +316,10 @@ struct NativeStream {
     }
     void Blend(int count, void *out, const void *a, const void *b, float weight)
     {
+        if constexpr (Morph) {
+            std::memcpy(out, b, count * Size);
+            return;
+        }
         for (int i = 0; i < count; ++i) {
             auto *dst = static_cast<char *>(out) + i * Size;
             const auto *left = static_cast<const char *>(a) + i * Size;
@@ -333,7 +348,9 @@ struct NativeStream {
     }
     void BlendArray(int count, void *out, const void *a, const void *b, const float **weights)
     {
-        if constexpr (Kind == Encoding::Event)
+        if constexpr (Morph)
+            std::memcpy(out, b, count * Size);
+        else if constexpr (Kind == Encoding::Event)
             std::memcpy(out, b, count * 4);
         else if constexpr (Kind == Encoding::Signal) {
             for (int i = 0; i < count; ++i)
@@ -353,7 +370,7 @@ struct NativeStream {
     }
     void Lifecycle(const nalGeneric::nalComponentInfo *info, void **cursor)
     {
-        if constexpr (!Byte)
+        if constexpr (!Byte && !Morph)
             *cursor = Align(*cursor);
         Advance(cursor, info->field_28 * Size);
     }
@@ -369,7 +386,7 @@ struct NativeStream {
     }
     static unsigned PayloadSize(const void *data)
     {
-        if constexpr (Kind == Encoding::Signal)
+        if constexpr (Kind == Encoding::Signal || Morph)
             return 4 + 4 * *static_cast<const uint32_t *>(data);
         else {
             const auto *p = static_cast<const uint8_t *>(data);
@@ -389,8 +406,8 @@ struct NativeStream {
             const float scale = ReadScale ? *static_cast<float *>(*cursor->data) : 1.0f;
             Advance(cursor->data, 4);
             return scale;
-        } else if constexpr (Kind == Encoding::Signal || Kind == Encoding::Event)
-            *cursor->data = Align(*cursor->data, Kind == Encoding::Signal ? 4 : 2);
+        } else if constexpr (Kind == Encoding::Signal || Kind == Encoding::Event || Morph)
+            *cursor->data = Align(*cursor->data, Kind == Encoding::Event ? 2 : 4);
         return 1.0f;
     }
     static void TrackEnd(StreamCursor *cursor, bool active)
@@ -401,7 +418,7 @@ struct NativeStream {
             if (active)
                 Advance(cursor->data, 28);
         }
-        if constexpr (Kind == Encoding::Signal || Kind == Encoding::Event) {
+        if constexpr (Kind == Encoding::Signal || Kind == Encoding::Event || Morph) {
             if (active)
                 Advance(cursor->data, PayloadSize(*cursor->data));
         }
@@ -422,11 +439,11 @@ struct NativeStream {
                         s->remaining = 0;
                     }
                     *input = p + 4 + *reinterpret_cast<const uint32_t *>(p);
-                } else if constexpr (Kind == Encoding::PO) {
+                } else if constexpr (Kind == Encoding::PO || Morph) {
                     *input = Align(*input);
                     if (*state)
                         *static_cast<const void **>(*state) = *input;
-                    Advance(input, 28 * frames);
+                    Advance(input, Size * frames);
                 } else if constexpr (PO) {
                     for (unsigned channel = 0; channel < 3; ++channel)
                         InitScalar(static_cast<char *>(*state) + 52 + 16 * channel, input);
@@ -469,13 +486,13 @@ struct NativeStream {
                         --s.remaining;
                         dst += stride;
                     }
-                } else if constexpr (Kind == Encoding::PO) {
+                } else if constexpr (Kind == Encoding::PO || Morph) {
                     auto **src = static_cast<const void **>(*state);
                     auto *dst = static_cast<char *>(*out);
                     for (int frame = 0; frame < count; ++frame) {
-                        std::memcpy(dst, *src, 28);
+                        std::memcpy(dst, *src, Size);
                         dst += stride;
-                        *src = static_cast<const char *>(*src) + 28;
+                        *src = static_cast<const char *>(*src) + Size;
                     }
                 } else if constexpr (PO) {
                     auto &s = *static_cast<POState *>(*state);
@@ -504,18 +521,26 @@ struct NativeStream {
             TrackEnd(cursor, active);
         }
     }
-    void Decode(StreamCursor *cursor, void **out, const void **input, int, int)
+    void Decode(StreamCursor *cursor, void **out, const void **input, int count, int stride)
     {
         *out = Align(*out, DecodedAlignment);
         if constexpr (Entropy)
             Advance(cursor->data, 4);
-        else if constexpr (Kind == Encoding::Signal || Kind == Encoding::Event)
-            *cursor->data = Align(*cursor->data, Kind == Encoding::Signal ? 4 : 2);
+        else if constexpr (Kind == Encoding::Signal || Kind == Encoding::Event || Morph)
+            *cursor->data = Align(*cursor->data, Kind == Encoding::Event ? 2 : 4);
         for (int i = 0; i < cursor->info->field_28; ++i) {
             const bool active = cursor->Active(i);
             if (active) {
-                if constexpr (Byte || Kind == Encoding::PO)
+                if constexpr (Byte || Kind == Encoding::PO || Morph)
                     *input = Align(*input);
+                if constexpr (Morph) {
+                    auto *dst = static_cast<char *>(*out);
+                    for (int frame = 0; frame < count; ++frame) {
+                        std::memcpy(dst, *input, Size);
+                        dst += stride;
+                        Advance(input, Size);
+                    }
+                }
                 Advance(out, DecodedSize);
             }
             TrackEnd(cursor, active);
@@ -622,7 +647,32 @@ struct NativeStream {
         if constexpr (Entropy)
             *cursor = Align(*cursor);
     }
-
+    void AlignAnimationCursor(void **cursor)
+    {
+        if constexpr (Entropy)
+            *cursor = Align(*cursor);
+    }
+    void BeginAnimationCursor(void **cursor)
+    {
+        if constexpr (Entropy)
+            Advance(cursor, 4);
+    }
+    void AlignTrackCursor(void **cursor)
+    {
+        if constexpr (Kind == Encoding::Signal || Kind == Encoding::Event || Morph || Loop)
+            *cursor = Align(*cursor, Kind == Encoding::Event ? 2 : 4);
+    }
+    void EndTrackCursor(void **cursor)
+    {
+        if constexpr (Kind == Encoding::Signal || Kind == Encoding::Event || Morph)
+            Advance(cursor, PayloadSize(*cursor));
+        if constexpr (Loop)
+            Advance(cursor, 28);
+    }
+    int CursorType()
+    {
+        return 1;
+    }
 
     static std::intptr_t Table()
     {
@@ -643,11 +693,30 @@ struct NativeStream {
                              func_address(&NativeStream::ReleaseFrame),
                              func_address(&NativeStream::Empty),
                              func_address(&NativeStream::Empty),
-                             func_address(&NativeStream::AlignCursor)};
+                             func_address(&NativeStream::AlignCursor),
+                             func_address(&NativeStream::Empty),
+                             func_address(&NativeStream::AlignAnimationCursor),
+                             func_address(&NativeStream::BeginAnimationCursor),
+                             func_address(&NativeStream::AlignTrackCursor),
+                             func_address(&NativeStream::EndTrackCursor),
+                             func_address(&NativeStream::CursorType)};
         return reinterpret_cast<std::intptr_t>(table);
     }
 };
 }  // namespace
+
+void nalDecodeEntropyScalar(const void *input, void *output, unsigned frames, int stride, float scale)
+{
+    ScalarState state{Decoder(input, false), 0, 0};
+    DecodeScalar(state, output, stride, frames, scale);
+}
+
+void nalDecodeEntropyQuaternion(const void *input, void *output, unsigned frames, int stride, float scale)
+{
+    QuatState state{{}, {Decoder(nullptr, false), Decoder(nullptr, false), Decoder(nullptr, false)}, {}};
+    InitQuat(&state, input, frames, scale);
+    DecodeQuat(state, output, stride, frames, scale, false);
+}
 
 std::intptr_t nalNativeStreamTable(nalNativeStreamEncoding encoding)
 {
@@ -660,7 +729,8 @@ std::intptr_t nalNativeStreamTable(nalNativeStreamEncoding encoding)
                                         NativeStream<Encoding::Packed16EntropyQuat>::Table(),
                                         NativeStream<Encoding::PO>::Table(),
                                         NativeStream<Encoding::EntropyPO>::Table(),
-                                        NativeStream<Encoding::EntropyTrajectoryPO>::Table()};
+                                        NativeStream<Encoding::EntropyTrajectoryPO>::Table(),
+                                        NativeStream<Encoding::MorphSlider>::Table()};
     return tables[static_cast<unsigned>(encoding)];
 }
 

@@ -64,6 +64,11 @@ struct move_and_face_no_anim_movement : motion_compensator {
     void unmash(mash_info_struct *, void *);
 };
 
+struct move_and_face : move_and_face_no_anim_movement {
+    void activate(animation_logic_system *);
+    static void *native_vtable();
+};
+
 
 struct constant_move_and_face : move_and_face_no_anim_movement {
     void activate(animation_logic_system *);

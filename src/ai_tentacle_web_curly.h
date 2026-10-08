@@ -21,7 +21,6 @@ struct ai_tentacle_web_curly : ai_tentacle_dangle {
     bool frame_advance(Float dt, bool modifier);
 
     void *operator new(size_t size);
-
     void operator delete(void *ptr, size_t size);
 
     void reset_curl();

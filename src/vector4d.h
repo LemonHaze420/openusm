@@ -17,6 +17,7 @@ struct vector4d {
 
     constexpr vector4d() : x(0), y(0), z(0), w(0) {}
 
+
     explicit vector4d(from_mash_in_place_constructor *) {}
 
     constexpr explicit vector4d(float a1) : x(a1), y(a1), z(a1), w(a1) {}

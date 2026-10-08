@@ -18,8 +18,11 @@ struct cut_scene {
     bool physics_overridden;
     bool ui_hidden;
     bool tokens_hidden;
+    bool gameplay_panel_hidden;
     float field_2C;
     bool recording;
+    bool stream_anims;
+    bool field_32;
     resource_key sync_camera;
     mString field_3C;
     int field_4C;

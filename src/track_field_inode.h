@@ -27,6 +27,10 @@ struct track_field_inode : info_node {
     void compute_strength_value(Float delta);
     void ui_init();
     void ui_update();
+    void ui_done();
+    void begin(float difficulty);
+    void start_advanced();
+    void end();
 
     void _activate(ai_core *core);
     void _deactivate();

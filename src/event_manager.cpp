@@ -654,6 +654,7 @@ event_type *event_manager::register_event_type(string_hash a1, bool a2)
             assert(the_type != nullptr && "Need to increase the fixed pool on events (increase MAX_EVENT_TYPES)!!!");
 
             v2 = the_type;
+
 #if STANDALONE_SYSTEM
             event_types.push_back(the_type);
             std::sort(event_types.begin(), event_types.end(), [](const event_type *lhs, const event_type *rhs) {

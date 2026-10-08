@@ -6,7 +6,6 @@
 #include "game.h"
 #include "os_developer_options.h"
 #include "panelfile.h"
-
 #include "panelanimfile.h"
 #include "sound_instance_id.h"
 #include "variables.h"

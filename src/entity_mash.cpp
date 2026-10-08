@@ -35,6 +35,7 @@
 #include "parse_generic_mash.h"
 #include "trace.h"
 #include "utility.h"
+#include "nal_anim_controller.h"
 
 #include <cassert>
 #ifdef OPENUSM_XBPACK_MODE
@@ -352,6 +353,10 @@ static vector3d *__fastcall native_entity_scale(entity *, void *, vector3d *out)
     *out = vector3d{1.0f, 1.0f, 1.0f};
     return out;
 }
+static void __fastcall native_entity_set_scale(entity *self, void *, const vector3d &value)
+{
+    self->entity::set_render_scale(value);
+}
 static void __fastcall native_entity_po_changed(entity_base *self, void *)
 {
     self->po_changed();
@@ -391,6 +396,19 @@ static void __fastcall native_actor_suspend(actor *self, void *, bool propagate)
 static void __fastcall native_actor_unsuspend(actor *self, void *, bool propagate)
 {
     self->actor::unsuspend(propagate);
+}
+static void __fastcall native_actor_allocate_animation(actor *self, void *, unsigned flags, nalBaseSkeleton *skeleton)
+{
+    self->allocate_anim_controller(flags, skeleton);
+}
+static nal_anim_controller::scene_anim_client *__fastcall native_actor_bind_scene(actor *self, void *)
+{
+    self->bind_to_scene_anim();
+    return &self->anim_ctrl->field_44;
+}
+static void __fastcall native_actor_unbind_scene(actor *self, void *, string_hash category, string_hash animation)
+{
+    self->unbind_from_scene_anim(category, animation);
 }
 
 static float __fastcall native_actor_visual_radius(actor *self, void *)
@@ -827,6 +845,7 @@ void construct_v_table_lookup()
     entity_base_vtable[0] = reinterpret_cast<void *>(native_entity_destroy<entity_base>);
     entity_base_vtable[0x10 / 4] = reinterpret_cast<void *>(native_entity_release<entity_base>);
     entity_base_vtable[0x44 / 4] = reinterpret_cast<void *>(native_base_set_visible);
+    entity_base_vtable[0x5C / 4] = reinterpret_cast<void *>(standalone_entity_false);
     entity_base_vtable[0x60 / 4] = reinterpret_cast<void *>(standalone_entity_false);
     entity_base_vtable[0x64 / 4] = reinterpret_cast<void *>(standalone_entity_false);
     entity_base_vtable[0x68 / 4] = reinterpret_cast<void *>(standalone_entity_false);
@@ -846,11 +865,13 @@ void construct_v_table_lookup()
     std::copy(std::begin(entity_base_vtable), std::end(entity_base_vtable), std::begin(signaller_vtable));
     signaller_vtable[0] = reinterpret_cast<void *>(native_entity_destroy<signaller>);
     signaller_vtable[0x10 / 4] = reinterpret_cast<void *>(native_entity_release<signaller>);
+    signaller_vtable[0x5C / 4] = reinterpret_cast<void *>(standalone_entity_true);
     entity_vtables()[1] = reinterpret_cast<int>(signaller_vtable);
     entity_vtables()[0] = reinterpret_cast<int>(entity_base_vtable);
     std::copy(std::begin(entity_base_vtable), std::end(entity_base_vtable), std::begin(entity_vtable));
     entity_vtable[0] = reinterpret_cast<void *>(native_entity_destroy<entity>);
     entity_vtable[0x10 / 4] = reinterpret_cast<void *>(native_entity_release<entity>);
+    entity_vtable[0x5C / 4] = reinterpret_cast<void *>(standalone_entity_true);
     entity_vtable[0x188 / 4] = reinterpret_cast<void *>(native_entity_family_visible);
     entity_vtable[0x28 / 4] = reinterpret_cast<void *>(native_entity_visual_radius);
     entity_vtable[0x2C / 4] = reinterpret_cast<void *>(native_entity_visual_center);
@@ -876,6 +897,7 @@ void construct_v_table_lookup()
     entity_vtable[0x1C4 / 4] = reinterpret_cast<void *>(native_entity_color);
     entity_vtable[0x1C8 / 4] = reinterpret_cast<void *>(native_entity_set_alpha);
     entity_vtable[0x1CC / 4] = reinterpret_cast<void *>(native_entity_alpha);
+    entity_vtable[0x1D0 / 4] = reinterpret_cast<void *>(native_entity_set_scale);
     entity_vtable[0x1D4 / 4] = reinterpret_cast<void *>(native_entity_scale);
     entity_vtable[0x204 / 4] = reinterpret_cast<void *>(native_entity_set_age);
     entity_vtable[0x208 / 4] = reinterpret_cast<void *>(native_entity_set_recursive_age);
@@ -947,6 +969,9 @@ void construct_v_table_lookup()
     actor_vtable[0x1C4 / 4] = reinterpret_cast<void *>(native_actor_color);
     actor_vtable[0x1CC / 4] = reinterpret_cast<void *>(native_actor_alpha);
     actor_vtable[0x1D4 / 4] = reinterpret_cast<void *>(native_actor_scale);
+    actor_vtable[0x214 / 4] = reinterpret_cast<void *>(native_actor_allocate_animation);
+    actor_vtable[0x218 / 4] = reinterpret_cast<void *>(native_actor_bind_scene);
+    actor_vtable[0x21C / 4] = reinterpret_cast<void *>(native_actor_unbind_scene);
     actor_vtable[0x220 / 4] = reinterpret_cast<void *>(native_actor_floor);
     actor_vtable[0x254 / 4] = reinterpret_cast<void *>(native_actor_colgeom_radius);
     actor_vtable[0x258 / 4] = reinterpret_cast<void *>(native_actor_colgeom_center);

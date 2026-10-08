@@ -10,6 +10,8 @@
 #include "phys_vector3d.h"
 #include "rbc_def_distance.h"
 #include "vector3d.h"
+#include "func_wrapper.h"
+#include "variable.h"
 
 #include <cassert>
 
@@ -189,4 +191,41 @@ vector3d pendulum::sub_48AFB0(entity_base *a2)
     this->field_10 = ZEROVEC;
     this->field_4 = ZEROVEC;
     return this->get_pivot_abs_pos();
+}
+
+namespace ai::combat_pendulum_manager {
+pendulum *acquire_free_pendulum()
+{
+    if constexpr (!STANDALONE_SYSTEM)
+        return reinterpret_cast<pendulum *>(CDECL_CALL(0x004457A0));
+
+    static pendulum pool[10];
+    static bool in_use[10]{};
+    var<pendulum *>(0x00958028) = pool;
+    var<bool *>(0x0095802C) = in_use;
+    for (unsigned i = 0; i < 10; ++i) {
+        if (!in_use[i]) {
+            in_use[i] = true;
+            return &pool[i];
+        }
+    }
+    return nullptr;
+}
+
+void release_pendulum(pendulum *value)
+{
+    if constexpr (!STANDALONE_SYSTEM) {
+        CDECL_CALL(0x00445870, value);
+        return;
+    }
+    auto *pool = var<pendulum *>(0x00958028);
+    if (!pool)
+        return;
+    for (unsigned i = 0; i < 10; ++i) {
+        if (&pool[i] == value) {
+            var<bool *>(0x0095802C)[i] = false;
+            return;
+        }
+    }
+}
 }

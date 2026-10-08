@@ -194,6 +194,19 @@ void web_interface::destroy_web_effects()
         nugget->destroy_web_entity();
 }
 
+void web_interface::set_webbed(bool enabled)
+{
+    if (enabled) {
+        if (field_18 == 0) {
+            for (auto *nugget : field_0)
+                nugget->create_web_entity();
+        }
+        field_18 = 1;
+    } else {
+        field_18 = 2;
+    }
+}
+
 void web_interface::release()
 {
     auto &list = m_all_web_interfaces;

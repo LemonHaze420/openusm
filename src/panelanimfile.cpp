@@ -12,7 +12,6 @@
 #include <cmath>
 VALIDATE_SIZE(PanelAnimFile, 0x30);
 
-
 void PanelAnimFile::Start(bool reverse, bool loop)
 {
     for (int i = 0; i < field_0.size(); ++i)

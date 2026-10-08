@@ -16,6 +16,64 @@
 #include "utility.h"
 #include "vector3d.h"
 #include "wds.h"
+#include "ai_quad_path.h"
+#include "ai_quad_path_exit.h"
+#include "quad_path_cell_astar_search_record.h"
+#include <cfloat>
+#include <cmath>
+
+namespace {
+template <class T>
+void transfer_route(_std::vector<T *> &destination, _std::vector<void *> &source)
+{
+    auto *first = destination.m_first;
+    auto *last = destination.m_last;
+    auto *end = destination.m_end;
+    destination.m_first = reinterpret_cast<T **>(source.m_first);
+    destination.m_last = reinterpret_cast<T **>(source.m_last);
+    destination.m_end = reinterpret_cast<T **>(source.m_end);
+    source.m_first = reinterpret_cast<void **>(first);
+    source.m_last = reinterpret_cast<void **>(last);
+    source.m_end = reinterpret_cast<void **>(end);
+}
+
+template <class Node, class Search>
+bool find_route(Node *start, Node *end, _std::vector<Node *> &route)
+{
+    if (start == nullptr || end == nullptr)
+        return false;
+    if (start == end) {
+        route.push_back(end);
+        return true;
+    }
+    Search search;
+    search.setup(start, end);
+    search.search(0);
+    if (!search.goal_found)
+        return false;
+    transfer_route(route, search.field_24);
+    return true;
+}
+
+ai_quad_path *path_exiting_district(ai_region_paths *graph, ai_quad_path *start, int district)
+{
+    if (start != nullptr) {
+        quad_path_astar_search_record search(true);
+        search.setup(start, reinterpret_cast<void *>(district));
+        search.search(0);
+        return search.goal_found && !search.field_24.empty() ? static_cast<ai_quad_path *>(search.field_24.front())
+                                                             : nullptr;
+    }
+    for (int i = 0; i < graph->quad_path_table_count; ++i) {
+        auto *path = graph->get_quad_path(i);
+        const auto *exits = reinterpret_cast<const ai_quad_path_exit *>(path->field_20);
+        for (unsigned int j = 0; j < path->field_28; ++j)
+            if (exits[j].district == district)
+                return path;
+    }
+    return nullptr;
+}
+}
 
 #include <cassert>
 #include <stdarg.h>
@@ -164,12 +222,191 @@ ai_quad_path_cell *ai_path::advance_to_next_cell()
 
 ai_quad_path_cell *ai_path::advance_to_farthest_direct_cell()
 {
-    return (ai_quad_path_cell *)THISCALL(0x0048A170, this);
+    _std::vector<ai_quad_path_cell *> crossed;
+    for (;;) {
+        if (field_30.size() <= 1)
+            return advance_to_next_cell();
+        if (!populate_quad_path_cell_route())
+            return nullptr;
+        auto *candidate = field_30.back();
+        field_30.pop_back();
+        if (candidate == nullptr)
+            return nullptr;
+        auto *next = field_30.back();
+        const auto target = field_30.size() > 1 ? next->get_edge_midpoint(field_30[field_30.size() - 2]) : field_70;
+        crossed.push_back(next);
+        auto *current = candidate;
+        for (auto *cell : crossed) {
+            vector3d intersection;
+            if (cell->is_point_in_cell(field_64, field_7C) ||
+                !cell->find_intersection_point_in_cell_along_line(field_64, target, &intersection, nullptr))
+                return candidate;
+            const auto delta = current->closest_point(intersection) - cell->closest_point(intersection);
+            if (delta.x * delta.x + delta.z * delta.z > EPSILON || std::fabs(delta.y) > field_7C)
+                return candidate;
+            current = cell;
+        }
+    }
 }
 
 bool ai_path::populate_quad_path_cell_route()
 {
-    return (bool)THISCALL(0x004899A0, this);
+    if (m_pathStatus.field_0 != 0)
+        return false;
+    if (!field_30.empty())
+        return true;
+    if (!populate_quad_path_route())
+        return false;
+    if (field_20.empty()) {
+        set_status(this, eAIPathStatus{1}, "Ran out of quad paths to traverse");
+        return false;
+    }
+    auto *path = field_20.back();
+    field_20.pop_back();
+    ai_quad_path_cell *start = nullptr, *nearest_cell = nullptr;
+    ai_quad_path *nearest_path = nullptr;
+    float nearest_distance = FLT_MAX;
+    path->check_points_in_cells(field_64, field_7C, &start, &nearest_path, &nearest_cell, &nearest_distance);
+    if (start == nullptr)
+        start = nearest_cell;
+    if (start == nullptr || (nearest_cell != nullptr && nearest_path != path)) {
+        set_status(this,
+                   eAIPathStatus{1},
+                   "Can't find start cell to quad path %s%d",
+                   path->field_18->get_name().to_string(),
+                   path->field_1E);
+        return false;
+    }
+    ai_quad_path_cell *end = nullptr;
+    if (!field_20.empty()) {
+        end = path->find_exit_cell_to_path(*field_20.back(), field_64, field_70);
+    } else if (field_0.empty()) {
+        path->check_points_in_cells(field_4C, field_7C, &end, nullptr, nullptr, nullptr);
+        if (end == nullptr) {
+            set_status(this, eAIPathStatus{1}, "Destination point not on a quad path");
+            return false;
+        }
+        field_70 = field_4C;
+    } else {
+        ai_quad_path *destination_path = nullptr;
+        auto *destination_region = find_region_for_point(field_4C, field_7C);
+        if (destination_region != nullptr) {
+            auto *graph = destination_region->get_region_path_graph();
+            if (graph != nullptr)
+                destination_path = graph->get_quad_path_for_point(field_4C, field_7C, nullptr, false, nullptr);
+        }
+        const int index = destination_path != nullptr && destination_path->field_18 == field_0.back()
+                              ? destination_path->field_1E
+                              : -1;
+        if (!path->find_exit_to_district(field_0.back()->district_id, index, field_64, field_70, end)) {
+            set_status(this,
+                       eAIPathStatus{1},
+                       "Quad path %s%d doesn't exit district %s",
+                       path->field_18->get_name().to_string(),
+                       path->field_1E,
+                       field_0.back()->get_name().to_string());
+            return false;
+        }
+    }
+    if (find_route<ai_quad_path_cell, quad_path_cell_astar_search_record>(start, end, field_30))
+        return true;
+    set_status(this,
+               eAIPathStatus{1},
+               "Quad path cell pathfind failure in quad path %s%d",
+               path->field_18->get_name().to_string(),
+               path->field_1E);
+    return false;
+}
+
+bool ai_path::has_more_points() const
+{
+    return m_pathStatus.field_0 == 0 && (!field_0.empty() || !field_20.empty() || !field_30.empty());
+}
+
+bool ai_path::populate_quad_path_route()
+{
+    if (m_pathStatus.field_0 != 0)
+        return false;
+    if (!field_20.empty())
+        return true;
+    if (field_0.empty()) {
+        set_status(this, eAIPathStatus{1}, "Ran out of regions");
+        return false;
+    }
+    auto *region = field_0.back();
+    field_0.pop_back();
+    field_10.push_back(region);
+    if (!region->has_quad_paths()) {
+        set_status(this, eAIPathStatus{1}, "Region %s doesn't have quad paths", region->get_name().to_string());
+        return false;
+    }
+    auto *graph = region->get_region_path_graph();
+    if (graph == nullptr) {
+        set_status(this, eAIPathStatus{1}, "Region %s doesn't have path graph", region->get_name().to_string());
+        return false;
+    }
+    ai_quad_path *start = nullptr, *nearest = nullptr;
+    ai_quad_path_cell *nearest_cell = nullptr;
+    float distance = FLT_MAX;
+    for (int i = 0; i < graph->quad_path_table_count; ++i) {
+        auto *path = graph->get_quad_path(i);
+        if (path->check_points_in_cells(field_64, field_7C, nullptr, &nearest, &nearest_cell, &distance)) {
+            start = path;
+            break;
+        }
+    }
+    if (start == nullptr)
+        start = nearest;
+    auto *end = field_0.empty() ? graph->get_quad_path_for_point(field_4C, field_7C, nullptr, false, nullptr)
+                                : path_exiting_district(graph, start, field_0.back()->district_id);
+    if (find_route<ai_quad_path, quad_path_astar_search_record>(start, end, field_20))
+        return true;
+    if (start == nullptr)
+        set_status(this, eAIPathStatus{1}, "Quad path pathfind failure (no start path)");
+    else if (end == nullptr)
+        set_status(this, eAIPathStatus{1}, "Quad path pathfind failure (no end path)");
+    else
+        set_status(this,
+                   eAIPathStatus{1},
+                   "Quad path pathfind failure between paths %s%d and %s%d",
+                   start->field_18->get_name().to_string(),
+                   start->field_1E,
+                   end->field_18->get_name().to_string(),
+                   end->field_1E);
+    return false;
+}
+
+bool ai_path::can_see_next_point()
+{
+    auto *actor = field_88.get_volatile_ptr();
+    if (actor == nullptr)
+        return true;
+    if (!has_more_points() || !populate_quad_path_cell_route())
+        return false;
+    if (field_30.size() <= 1)
+        return true;
+    const auto &position = actor->get_abs_position();
+    auto *region = find_region_for_point(position, field_7C);
+    if (region == nullptr)
+        return false;
+    auto *graph = region->get_region_path_graph();
+    if (graph == nullptr)
+        return false;
+    ai_quad_path_cell *cell = nullptr;
+    graph->get_quad_path_for_point(position, field_7C, &cell, false, nullptr);
+    if (cell == nullptr || cell != field_84)
+        return false;
+    auto *next = field_30.back();
+    if (cell == next)
+        return true;
+    const auto target = field_30.size() > 2 ? next->get_edge_midpoint(field_30[field_30.size() - 2]) : field_70;
+    vector3d intersection, vertex;
+    if (!next->find_intersection_point_in_cell_along_line(position, target, &intersection, nullptr) ||
+        !cell->find_intersection_point_in_cell_along_line(target, position, nullptr, &vertex))
+        return false;
+    if (field_80 * field_80 >= (vertex - intersection).length2())
+        return false;
+    return (cell->closest_point(intersection) - next->closest_point(intersection)).length2() < EPSILON;
 }
 
 void ai_path::setup(entity_base_vhandle a2, const vector3d &a3, const vector3d &a4, bool a5, Float a6)
@@ -396,14 +633,12 @@ bool ai_path::find_region_route(region *a1, region *a2, _std::vector<region *> *
     assert(route->empty());
 
     if constexpr (1) {
-        if (a1 == nullptr && a2 == nullptr) {
+        if (a1 == nullptr || a2 == nullptr) {
             return false;
         }
 
         if (a1 == a2) {
-            void(__fastcall * sub_48F990)(void *, void *, void *) = CAST(sub_48F990, 0x0048F990);
-
-            sub_48F990(route, nullptr, &a1);
+            route->push_back(a1);
             return true;
         }
 
@@ -416,8 +651,15 @@ bool ai_path::find_region_route(region *a1, region *a2, _std::vector<region *> *
             return false;
         }
 
-        void(__fastcall * sub_48FE90)(void *, void *, void *) = CAST(sub_48FE90, 0x0048FE90);
-        sub_48FE90(route, nullptr, &v6.field_24);
+        auto *first = route->m_first;
+        auto *last = route->m_last;
+        auto *end = route->m_end;
+        route->m_first = reinterpret_cast<region **>(v6.field_24.m_first);
+        route->m_last = reinterpret_cast<region **>(v6.field_24.m_last);
+        route->m_end = reinterpret_cast<region **>(v6.field_24.m_end);
+        v6.field_24.m_first = reinterpret_cast<void **>(first);
+        v6.field_24.m_last = reinterpret_cast<void **>(last);
+        v6.field_24.m_end = reinterpret_cast<void **>(end);
 
         return true;
 

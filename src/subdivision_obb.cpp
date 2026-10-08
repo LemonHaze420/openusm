@@ -512,49 +512,27 @@ bool subdivision_node_obb_base::find_closest_point_on_visible_faces(const vector
     } else {
         assert(results != nullptr);
         assert(results->size() == 0);
-
         if ((flags & 0x101) != 0)
-
             return false;
-
-
         vector4d extent, row_x, row_y, row_z;
-
         const bool rotated = unpack_xform(extent, row_x, row_y, row_z);
         auto target = sweet_spot - center;
         auto eye = ent_pos - center;
-
         if (rotated) {
             target = obb_local_vector(target, row_x, row_y, row_z);
-
             eye = obb_local_vector(eye, row_x, row_y, row_z);
         }
         const vector3d half{extent.x, extent.y, extent.z};
-
         const auto clamped = vector3d::max(-half, vector3d::min(half, target));
-
         vector3d local_points[3];
-
-
-        for (int axis = 0;
-
-             axis != 3;
-
-
-             ++axis) {
+        for (int axis = 0; axis != 3; ++axis) {
             if (!(half[axis] - std::abs(eye[axis]) < 0.0f))
                 continue;
-
             const float sign = eye[axis] < 0.0f ? -1.0f : 1.0f;
             auto point = clamped;
             point[axis] = sign * half[axis];
-
             bool duplicate = false;
-
-            for (uint32_t index = 0;
-
-                 index < results->size();
-                 ++index) {
+            for (uint32_t index = 0; index < results->size(); ++index) {
                 if ((local_points[index] - point).length2() <= LARGE_EPSILON) {
                     duplicate = true;
                     break;
@@ -567,26 +545,14 @@ bool subdivision_node_obb_base::find_closest_point_on_visible_faces(const vector
             normal[axis] = sign;
             if (rotated) {
                 normal = {row_x[axis] * sign, row_y[axis] * sign, row_z[axis] * sign};
-                point = {row_x.x
-
-                                 * point.x +
-                             row_x.y * point.y +
-                             row_x.z
-
-                                 * point.z,
-                         row_y.x * point.x +
-                             row_y.y
-
-                                 * point.y +
-                             row_y.z * point.z,
+                point = {row_x.x * point.x + row_x.y * point.y + row_x.z * point.z,
+                         row_y.x * point.x + row_y.y * point.y + row_y.z * point.z,
                          row_z.x * point.x + row_z.y * point.y + row_z.z * point.z};
             }
             auto &entry = results->m_data[results->m_size++];
             entry.field_0 = center + point;
-
             entry.field_C = normal;
         }
-
         return results->size() != 0;
     }
 }

@@ -111,7 +111,6 @@ marky_camera::marky_camera(const string_hash &a2) : game_camera(a2, nullptr)
 #else
     static Var<vector3d> stru_960E24{0x00960E24};
     static Var<vector3d> stru_9225D4{0x009225D4};
-
     this->field_1A0 = stru_960E24();
     this->field_1AC = stru_9225D4();
 #endif

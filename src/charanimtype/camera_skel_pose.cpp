@@ -24,7 +24,7 @@ nalCam::nalCamSkeleton::nalCamSkeleton()
         static void *g_vtbl[]{nullptr,
                               nullptr,
                               func_address(&nalCamSkeleton::_Process),
-                              nullptr,
+                              func_address(&nalCamSkeleton::_Release),
                               func_address(&nalCamSkeleton::_CheckVersion)};
         this->m_vtbl = CAST(m_vtbl, &g_vtbl);
     } else {
@@ -36,6 +36,7 @@ void nalCam::nalCamSkeleton::_Process()
 {
     this->field_60.field_0 = this;
 }
+
 
 void nalCam::nalCamSkeleton::_Release()
 {

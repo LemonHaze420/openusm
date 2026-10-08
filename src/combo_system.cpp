@@ -6,8 +6,6 @@
 #include "mash_info_struct.h"
 #include "trace.h"
 #include "vtbl.h"
-
-
 #include "memory.h"
 
 #include <cstdint>
@@ -73,7 +71,6 @@ combo_system::combo_system() {}
 
 combo_system::combo_system(from_mash_in_place_constructor *a2) : field_0(a2), field_14(a2), field_28(a2), field_3C(a2)
 {}
-
 
 namespace {
 template <typename T, typename Cleanup>

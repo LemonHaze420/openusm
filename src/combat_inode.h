@@ -133,6 +133,10 @@ struct combat_inode : info_node {
                                   string_hash category, float eta, bool target_known,
                                   vhandle_type<actor> current_target);
     bool check_for_and_set_next_move();
+    bool set_attack(string_hash attack);
+    bool choose_attack(actor *target);
+    float get_attack_min_distance() const;
+    float get_attack_max_distance() const;
 
     //0x00467440
     void _activate(ai_core *a2);
@@ -188,6 +192,17 @@ struct combat_inode : info_node {
 
     static inline string_hash reject_all_hash{int(to_hash("reject_all_attacks"))};
     static inline string_hash always_keep_target_hash{int(to_hash("always_keep_target"))};
+};
+
+struct venom_combat_inode : combat_inode {
+    bool allow_hit_react;
+
+    explicit venom_combat_inode(from_mash_in_place_constructor *tag);
+    static void *native_vtable();
+    void _activate(ai_core *core);
+    bool needs_hit_react(Float elapsed);
+    bool consider_forced_responses(string_hash reaction, string_hash attack, string_hash avoid, int type,
+                                   vhandle_type<entity> source, const vector3d &direction, bool pending, bool force);
 };
 
 struct ped_combat_inode : combat_inode {

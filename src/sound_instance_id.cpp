@@ -48,11 +48,7 @@ void sound_instance::set_volume(Float value)
     volume = value < 0.0f ? 1.0f : static_cast<float>(value);
     if (source_id.value != -1) {
         const auto alias_volume = alias != nullptr ? alias->volume : 1.0f;
-        const auto type_volume =
-
-            sound_manager::get_wave_type_volume(wave_id)
-
-            ;
+        const auto type_volume = sound_manager::get_wave_type_volume(wave_id);
         nslSetSourceVolume(source_id, volume * alias_volume * type_volume);
     }
 #else
@@ -70,6 +66,30 @@ void sound_instance::set_pitch(Float value)
     }
 #else
     THISCALL(0x0054D7A0, this, value);
+#endif
+}
+
+void sound_instance::queue()
+{
+#if STANDALONE_SYSTEM
+    if (wave_id.value == UINT32_MAX) {
+        stop();
+        return;
+    }
+    source_id = nslCreateSource(wave_id);
+    if (source_id.value == -1) {
+        flags |= 0x40u;
+        elapsed = 0.0f;
+        start_offset = 0;
+        state = 1;
+        return;
+    }
+    flags |= 0x26u;
+    set_volume(volume);
+    set_pitch(pitch);
+    state = 2;
+#else
+    THISCALL(0x005560F0, this);
 #endif
 }
 

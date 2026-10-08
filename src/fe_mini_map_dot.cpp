@@ -8,9 +8,14 @@
 #include "ngl.h"
 #include "panelquad.h"
 #include "vtbl.h"
-
 #include "variables.h"
 #include <algorithm>
+#include "wds.h"
+#include "entity.h"
+#include "region.h"
+#include "matrix4x4.h"
+#include <cmath>
+
 VALIDATE_SIZE(fe_mini_map_dot, 0x2C);
 
 // 0x0063AB90
@@ -131,6 +136,7 @@ fe_mini_map_dot::~fe_mini_map_dot()
     THISCALL(0x00635F70, this);
 #endif
 }
+
 void fe_mini_map_dot::Draw()
 {
     if (this->field_24 && this->field_25) {
@@ -151,5 +157,65 @@ void fe_mini_map_dot::Draw()
         if (this->highlight_circle_count_down != 0) {
             this->field_4->Draw();
         }
+    }
+}
+
+
+void fe_mini_map_dot::Update(const matrix4x4 &transform, const vector3d &hero_position, float sine, float left,
+                             float right, float top, float bottom)
+{
+    field_25 = true;
+    if (field_26 || field_14.y > g_femanager.IGO->m_fe_mini_map_widget->field_3AC) {
+        field_25 = false;
+        return;
+    }
+    auto relative = field_14;
+    const auto *primary_region = g_world_ptr->get_hero_or_marky_cam_ptr()->get_primary_region();
+    relative.y = primary_region ? primary_region->get_ground_level() : 0.0f;
+    relative.x -= hero_position.x;
+    relative.z -= hero_position.z;
+    auto point = transform * relative;
+    if (point.z <= 0.0f) {
+        const float squared = relative.length2();
+        if (squared > 9.999999439624929e-11f)
+            relative *= 190.0f / std::sqrt(squared);
+        point = transform * relative;
+    }
+    math::VecClass<3, 1> projected;
+    nglProjectPoint(projected, {point.x, point.y, point.z, 1.0f});
+    float x = projected[0], y = projected[1];
+    const float center_x = (left + right) * .5f;
+    const float center_y = (top + bottom) * .5f;
+    if (x < left || x > right) {
+        const float edge = x < left ? left : right;
+        y = (y - center_y) * ((edge - center_x) / (x - center_x)) + center_y;
+        x = edge;
+    }
+    if (y < top || y > bottom) {
+        const float edge = y < top ? top : bottom;
+        x = (x - center_x) * ((edge - center_y) / (y - center_y)) + center_x;
+        y = edge;
+    }
+    float icon_y = y;
+    if (field_8) {
+        float height = (field_14.y - relative.y) * sine * .609000027179718f;
+        if (height > -.1f && height < .1f)
+            height = 1.0f;
+        icon_y -= height;
+        nglSetQuadRect(field_8, x - .5f, icon_y, x + .5f, y);
+        nglSetQuadRect(field_C, x + .5f, icon_y, x + 1.5f, y);
+        nglSetQuadRect(field_10, x - .5f, icon_y, x - 1.5f, y);
+    }
+    field_0->SetCenterPos(x, icon_y);
+    if (highlight_circle_count_down)
+        field_4->SetCenterPos(x, icon_y);
+    if (highlight_circle_count_down > 0) {
+        static const float scale[]{.5f, .83f, 1.16f, 1.5f};
+        static const uint8_t alpha[]{255, 170, 85, 0};
+        const unsigned index = --highlight_circle_count_down % 4;
+        field_4->Scale(scale[index], true);
+        auto tint = field_0->GetColor();
+        tint.set_alpha(alpha[index]);
+        field_4->SetColor(tint);
     }
 }

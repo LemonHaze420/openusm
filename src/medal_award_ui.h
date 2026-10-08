@@ -23,5 +23,6 @@ struct medal_award_ui {
     void Init();
 
     void DeInit();
+
     void Draw();
 };

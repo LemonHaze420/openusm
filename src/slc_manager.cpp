@@ -1,6 +1,26 @@
 #include "slc_manager.h"
 
 #include "base_ai_core.h"
+#include "ai_player_controller.h"
+#include "camera_mode.h"
+#include "subtitles.h"
+#include "local_collision.h"
+#include "event_manager.h"
+#include "event_type.h"
+#include "event_recipient_entry.h"
+#include "actor.h"
+#include "collision_geometry.h"
+#include "script_event_callback.h"
+#include "pause_menu_root.h"
+#include "polytube.h"
+#include "polytubecustommaterial.h"
+#include "moved_entities.h"
+#include "oldmath_po.h"
+#include "script_sound_manager.h"
+#include "cut_scene.h"
+#include "movie_manager.h"
+#include "input_mgr.h"
+#include "rumble_manager.h"
 #include "conglom.h"
 #include "als_animation_logic_system.h"
 #include "pendulum.h"
@@ -82,6 +102,48 @@ _std::vector<script_library_class *> *&slc_manager_class_array = g_slc_manager_c
 #endif
 
 namespace {
+vector3d script_bsp_hit_pos;
+vector3d script_bsp_hit_norm;
+entity *script_bsp_hit_ent = nullptr;
+
+struct col_check_dynamic_collision_filter : local_collision::entfilter_base {
+    int flags;
+
+    static bool __fastcall accept(const local_collision::entfilter_base *base, void *, actor *act,
+                                  dynamic_conglomerate_clone *, const local_collision::query_args_t *)
+    {
+        const auto flags = static_cast<const col_check_dynamic_collision_filter *>(base)->flags;
+        if (flags & 0x4000)
+            return act->has_entity_collision() && act->colgeom->get_type() != collision_geometry::CAPSULE;
+        if (flags & 4)
+            return (act->field_4 & 0x80000) != 0;
+        if (flags & 2)
+            return act->has_entity_collision();
+        if (flags & 0x20) {
+            bool ai_actor = act->get_ai_core() && (act->field_4 & 0x800) == 0;
+            if (!ai_actor && (act->field_4 & (0x8000 | 4)) != 0) {
+                auto *owner = act->get_conglom_owner();
+                ai_actor = owner->get_ai_core() && (owner->field_4 & 0x800) == 0;
+            }
+            return (act->field_8 & 0x100000) == 0 && !ai_actor;
+        }
+        if (flags & 0x40)
+            return act->colgeom->get_type() == collision_geometry::CAPSULE;
+        if (flags & 0x8000)
+            return (act->field_4 & 0x200) != 0;
+        if ((flags & 0x10000) == 0)
+            return true;
+        auto predicate = reinterpret_cast<bool(__fastcall *)(actor *, void *)>(get_vfunc(act->m_vtbl, 0x50));
+        return (act->field_4 & 0x20000) == 0 && predicate(act, nullptr);
+    }
+
+    explicit col_check_dynamic_collision_filter(int value) : flags(value)
+    {
+        static const native_vtable table{accept};
+        m_vtbl = reinterpret_cast<std::intptr_t>(&table);
+    }
+};
+
 void reject_unported_client_allocation(script_executable *, _std::list<uint32_t> &allocations, _std::list<mString> &)
 {
     assert(allocations.empty() && "Standalone client script allocation cleanup is not implemented");
@@ -95,6 +157,43 @@ int vm_entity_tracker_garbage_collection_id = -1;
 int vm_civilian_info_garbage_collection_id = -1;
 #endif
 _std::list<_std::vector<entity_base_vhandle> *> script_entity_lists;
+int vm_script_vector3d_lists_garbage_collection_id = -1;
+int vm_cut_scene_garbage_collection_id = -1;
+
+void release_script_cut_scenes(script_executable *, _std::list<uint32_t> &, _std::list<mString> &)
+{
+    g_cut_scene_player()->clean_up();
+}
+
+void release_script_sounds(script_executable *, _std::list<uint32_t> &allocations, _std::list<mString> &)
+{
+    for (const auto id : allocations)
+        script_sound_manager::release_sound_instance(id);
+}
+
+_std::list<_std::vector<vector3d> *> script_vector3d_lists;
+
+
+_std::vector<vector3d> *create_script_vector3d_list()
+{
+    auto *result = new _std::vector<vector3d>{};
+    script_vector3d_lists.push_back(result);
+    return result;
+}
+
+
+void release_script_vector3d_lists(script_executable *, _std::list<uint32_t> &allocations, _std::list<mString> &)
+{
+    for (const auto allocation : allocations) {
+        auto *list = reinterpret_cast<_std::vector<vector3d> *>(allocation);
+        const auto found = std::find(script_vector3d_lists.begin(), script_vector3d_lists.end(), list);
+        if (found != script_vector3d_lists.end()) {
+            delete list;
+            script_vector3d_lists.erase(found);
+        }
+    }
+}
+
 
 #if STANDALONE_SYSTEM
 // 0x006615B0
@@ -133,6 +232,7 @@ void release_allocated_entity_trackers(script_executable *, _std::list<uint32_t>
     for (const auto allocation : allocations)
         g_femanager.IGO->m_entity_tracker_manager->destroy_entity_tracker(allocation);
 }
+
 void release_allocated_entities(script_executable *, _std::list<uint32_t> &allocations, _std::list<mString> &)
 {
     if (g_world_ptr == nullptr) {
@@ -147,8 +247,8 @@ void release_allocated_entities(script_executable *, _std::list<uint32_t> &alloc
         }
     }
 }
-
 #if STANDALONE_SYSTEM
+
 void vm_civilian_info_garbage_collection_callback(script_executable *, _std::list<uint32_t> &allocations,
                                                   _std::list<mString> &)
 {
@@ -238,7 +338,6 @@ struct slf__v10_fade_off__t : script_library_class::function {
     {
         auto *manager = mission_manager::s_inst;
         assert(manager != nullptr);
-
         manager->release_loading_state();
         if (manager->field_FC == 0) {
             manager->field_F8 = -1.0f;
@@ -259,7 +358,6 @@ struct slf__v10_fade_clear__t : script_library_class::function {
     {
         auto *manager = mission_manager::s_inst;
         assert(manager != nullptr);
-
         manager->release_loading_state();
         if (manager->field_FC == 0) {
             manager->field_F8 = -1.0f;
@@ -321,12 +419,15 @@ void construct_client_script_libs()
         script_manager::register_allocated_stuff_callback(reject_unported_client_allocation);
         construct_debug_menu_lib();
         vm_entity_garbage_collection_id = script_manager::register_allocated_stuff_callback(release_allocated_entities);
-        script_manager::register_allocated_stuff_callback(reject_unported_client_allocation);
-        script_manager::register_allocated_stuff_callback(reject_unported_client_allocation);
+        vm_cut_scene_garbage_collection_id =
+            script_manager::register_allocated_stuff_callback(release_script_cut_scenes);
+        script_sound_manager::garbage_collection_id =
+            script_manager::register_allocated_stuff_callback(release_script_sounds);
         vm_trigger_garbage_collection_id =
             script_manager::register_allocated_stuff_callback(release_allocated_triggers);
         script_manager::register_allocated_stuff_callback(ignore_panel_references);
-        script_manager::register_allocated_stuff_callback(reject_unported_client_allocation);
+        vm_script_vector3d_lists_garbage_collection_id =
+            script_manager::register_allocated_stuff_callback(release_script_vector3d_lists);
         script_manager::register_allocated_stuff_callback(reject_unported_client_allocation);
         vm_script_entity_lists_garbage_collection_id =
             script_manager::register_allocated_stuff_callback(release_script_entity_lists);
@@ -340,26 +441,25 @@ void construct_client_script_libs()
     }
 }
 
-
 #if STANDALONE_SYSTEM
 void destroy_script_lists()
 {
     for (auto *list : script_entity_lists)
         delete list;
     script_entity_lists.clear();
+    for (auto *list : script_vector3d_lists)
+        delete list;
+    script_vector3d_lists.clear();
 }
 #endif
+
 void destruct_client_script_libs()
 {
     TRACE("destruct_client_script_libs");
-
 #if STANDALONE_SYSTEM
     destroy_script_lists();
-
 #else
-
     CDECL_CALL(0x0058FA50);
-
 #endif
 }
 
@@ -591,8 +691,12 @@ struct slf__add_glass_house__str__t : script_library_class::function {
     {
         TRACE("slf__add_glass_house__str__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x006798A0);
-        return func(this, nullptr, &stack, entry);
+        const auto path = stack.pop_str();
+        filespec spec{mString{path}};
+        resource_key key{string_hash{spec.m_name.c_str()}, RESOURCE_KEY_TYPE_GLASS_HOUSE};
+        auto *house = reinterpret_cast<glass_house *>(resource_manager::get_resource(key, nullptr, nullptr));
+        glass_house_manager::glass_houses[0].push_back(house);
+        return true;
     }
 };
 
@@ -866,10 +970,7 @@ struct slf__blackscreen_off__num__t : script_library_class::function {
 
         const auto duration = stack.pop_num();
 #if STANDALONE_SYSTEM
-
         mission_manager::s_inst->blackscreen_off(duration);
-
-
         return true;
 #else
         bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00673850);
@@ -1112,8 +1213,10 @@ struct slf__chase_cam__t : script_library_class::function {
     {
         TRACE("slf__chase_cam__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x0067BBD0);
-        return func(this, nullptr, &stack, entry);
+        auto *camera = g_world_ptr->get_chase_cam_ptr(0);
+        auto result = camera ? camera->get_my_handle() : entity_base_vhandle{};
+        SLF_RETURN;
+        return true;
     }
 };
 
@@ -1167,12 +1270,15 @@ slf__clear_civilians_within_radius__vector3d__num__t::slf__clear_civilians_withi
 struct slf__clear_controls__t : script_library_class::function {
     slf__clear_controls__t(const char *a3);
 
-    bool operator()(vm_stack &stack, [[maybe_unused]] script_library_class::function::entry_t entry) const
+    bool operator()([[maybe_unused]] vm_stack &stack,
+                    [[maybe_unused]] script_library_class::function::entry_t entry) const
     {
         TRACE("slf__clear_controls__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00673B70);
-        return func(this, nullptr, &stack, entry);
+        auto *hero = static_cast<actor *>(g_world_ptr->get_hero_ptr(0));
+        if (hero && hero->get_player_controller())
+            hero->get_player_controller()->clear_controls();
+        return true;
     }
 };
 
@@ -1305,8 +1411,30 @@ struct slf__col_check__vector3d__vector3d__num__t : script_library_class::functi
     {
         TRACE("slf__col_check__vector3d__vector3d__num__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00663770);
-        return func(this, nullptr, &stack, entry);
+        struct parms_t {
+            vector3d start;
+            vector3d end;
+            vm_num_t flags;
+        };
+        SLF_PARMS;
+        script_bsp_hit_pos = ZEROVEC;
+        script_bsp_hit_norm = YVEC;
+        script_bsp_hit_ent = nullptr;
+        const auto flags = static_cast<int>(parms->flags);
+        const col_check_dynamic_collision_filter filter{flags};
+        auto *terrain_filter =
+            (flags & 1) ? local_collision::obbfilter_lineseg_test : local_collision::obbfilter_reject_all;
+        stack.push(static_cast<float>(find_intersection(parms->start,
+                                                        parms->end,
+                                                        filter,
+                                                        *terrain_filter,
+                                                        &script_bsp_hit_pos,
+                                                        &script_bsp_hit_norm,
+                                                        nullptr,
+                                                        &script_bsp_hit_ent,
+                                                        nullptr,
+                                                        true)));
+        return true;
     }
 };
 
@@ -1421,8 +1549,14 @@ struct slf__create_cut_scene__str__t : script_library_class::function {
     {
         TRACE("slf__create_cut_scene__str__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00670AF0);
-        return func(this, nullptr, &stack, entry);
+        const filespec path{mString{stack.pop_str()}};
+        const resource_key key{string_hash{path.m_name.c_str()}, RESOURCE_KEY_TYPE_CUT_SCENE};
+        auto *result = reinterpret_cast<cut_scene *>(resource_manager::get_resource(key, nullptr, nullptr));
+        auto *script = stack.get_thread()->get_executable()->get_owner()->get_parent();
+        if (script->get_total_allocated_stuff(vm_cut_scene_garbage_collection_id) == 0)
+            script->add_allocated_stuff(vm_cut_scene_garbage_collection_id, 1, mString{});
+        SLF_RETURN;
+        return true;
     }
 };
 
@@ -1766,8 +1900,14 @@ struct slf__create_polytube__t : script_library_class::function {
     {
         TRACE("slf__create_polytube__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00680510);
-        return func(this, nullptr, &stack, entry);
+        auto *tube = g_world_ptr->ent_mgr.create_and_add_polytube(0x2000u);
+        entity_base_vhandle result = tube->my_handle;
+        tube->clear_simulations();
+        tube->set_visible(true, false);
+        auto *script = stack.get_thread()->get_executable()->get_owner()->get_parent();
+        script->add_allocated_stuff(vm_entity_garbage_collection_id, result.field_0, mString{});
+        SLF_RETURN;
+        return true;
     }
 };
 
@@ -1823,8 +1963,11 @@ struct slf__create_sound_inst__str__t : script_library_class::function {
     {
         TRACE("slf__create_sound_inst__str__t::operator()");
 
-        (void)stack.pop_str();
-        stack.push(0);
+        const string_hash name{stack.pop_str()};
+        auto *script = stack.get_thread()->get_executable()->get_owner()->get_parent();
+        auto result = script_sound_manager::create_sound_instance(script, name, false);
+        script->add_allocated_stuff(script_sound_manager::garbage_collection_id, result, mString{});
+        SLF_RETURN;
         return true;
     }
 };
@@ -1843,8 +1986,12 @@ struct slf__create_stompable_music_sound_inst__str__t : script_library_class::fu
     {
         TRACE("slf__create_stompable_music_sound_inst__str__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x0067EA10);
-        return func(this, nullptr, &stack, entry);
+        const string_hash name{stack.pop_str()};
+        auto *script = stack.get_thread()->get_executable()->get_owner()->get_parent();
+        auto result = script_sound_manager::create_sound_instance(script, name, true);
+        script->add_allocated_stuff(script_sound_manager::garbage_collection_id, result, mString{});
+        SLF_RETURN;
+        return true;
     }
 };
 
@@ -2023,8 +2170,19 @@ struct slf__create_trigger__str__vector3d__num__t : script_library_class::functi
     {
         TRACE("slf__create_trigger__str__vector3d__num__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x0067FB60);
-        return func(this, nullptr, &stack, entry);
+        struct parms_t {
+            vm_str_t name;
+            vector3d position;
+            vm_num_t radius;
+        };
+        SLF_PARMS;
+        auto result =
+            trigger_manager::instance->new_point_trigger(string_hash{parms->name}, parms->position, parms->radius)
+                ->get_my_handle();
+        auto *script = stack.get_thread()->get_executable()->get_owner()->get_parent();
+        script->add_allocated_stuff(vm_trigger_garbage_collection_id, result.field_0, mString{});
+        SLF_RETURN;
+        return true;
     }
 };
 
@@ -2054,6 +2212,7 @@ struct slf__create_trigger__vector3d__num__t : script_library_class::function {
         SLF_RETURN;
         return true;
 #else
+
         bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x0067FA80);
         return func(this, nullptr, &stack, entry);
 #endif
@@ -2095,8 +2254,12 @@ struct slf__create_vector3d_list__t : script_library_class::function {
     {
         TRACE("slf__create_vector3d_list__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00685F20);
-        return func(this, nullptr, &stack, entry);
+        auto *result = create_script_vector3d_list();
+        auto *script = stack.get_thread()->get_executable()->get_owner()->get_parent();
+        script->add_allocated_stuff(
+            vm_script_vector3d_lists_garbage_collection_id, reinterpret_cast<uint32_t>(result), mString{});
+        SLF_RETURN;
+        return true;
     }
 };
 
@@ -2114,8 +2277,14 @@ struct slf__cross__vector3d__vector3d__t : script_library_class::function {
     {
         TRACE("slf__cross__vector3d__vector3d__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00671F70);
-        return func(this, nullptr, &stack, entry);
+        struct parms_t {
+            vector3d left;
+            vector3d right;
+        };
+        SLF_PARMS;
+        auto result = vector3d::cross(parms->left, parms->right);
+        SLF_RETURN;
+        return true;
     }
 };
 
@@ -2659,12 +2828,13 @@ slf__disable_player_shadows__t::slf__disable_player_shadows__t(const char *a3) :
 struct slf__disable_subtitles__t : script_library_class::function {
     slf__disable_subtitles__t(const char *a3);
 
-    bool operator()(vm_stack &stack, [[maybe_unused]] script_library_class::function::entry_t entry) const
+    bool operator()([[maybe_unused]] vm_stack &stack,
+                    [[maybe_unused]] script_library_class::function::entry_t entry) const
     {
         TRACE("slf__disable_subtitles__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x006640B0);
-        return func(this, nullptr, &stack, entry);
+        subtitles_disable();
+        return true;
     }
 };
 
@@ -2720,8 +2890,17 @@ struct slf__distance3d__vector3d__vector3d__t : script_library_class::function {
     {
         TRACE("slf__distance3d__vector3d__vector3d__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00672010);
-        return func(this, nullptr, &stack, entry);
+        struct parms_t {
+            vector3d left;
+            vector3d right;
+        };
+        SLF_PARMS;
+        const double y = static_cast<double>(parms->left.y) - parms->right.y;
+        const double z = static_cast<double>(parms->left.z) - parms->right.z;
+        const double x = static_cast<double>(parms->left.x) - parms->right.x;
+        float result = std::sqrt(z * z + y * y + x * x);
+        SLF_RETURN;
+        return true;
     }
 };
 
@@ -3014,8 +3193,18 @@ struct slf__enable_controls__num__t : script_library_class::function {
     {
         TRACE("slf__enable_controls__num__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00673AF0);
-        return func(this, nullptr, &stack, entry);
+        const bool enabled = std::not_equal_to<float>{}(stack.pop_num(), 0.0f);
+        auto *hero = static_cast<actor *>(g_world_ptr->get_hero_ptr(0));
+        if (hero && hero->get_player_controller()) {
+            auto *controller = hero->get_player_controller();
+            if (enabled != controller->field_3DC) {
+                if (enabled)
+                    controller->unlock_controls(true);
+                else
+                    controller->lock_controls(true);
+            }
+        }
+        return true;
     }
 };
 
@@ -3249,12 +3438,13 @@ slf__enable_quad_path_connector__district__num__district__num__num__t::
 struct slf__enable_subtitles__t : script_library_class::function {
     slf__enable_subtitles__t(const char *a3);
 
-    bool operator()(vm_stack &stack, [[maybe_unused]] script_library_class::function::entry_t entry) const
+    bool operator()([[maybe_unused]] vm_stack &stack,
+                    [[maybe_unused]] script_library_class::function::entry_t entry) const
     {
         TRACE("slf__enable_subtitles__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x006640A0);
-        return func(this, nullptr, &stack, entry);
+        subtitles_enable();
+        return true;
     }
 };
 
@@ -3377,12 +3567,13 @@ slf__end_current_patrol__t::slf__end_current_patrol__t(const char *a3) : functio
 struct slf__end_cut_scenes__t : script_library_class::function {
     slf__end_cut_scenes__t(const char *a3);
 
-    bool operator()(vm_stack &stack, [[maybe_unused]] script_library_class::function::entry_t entry) const
+    bool operator()([[maybe_unused]] vm_stack &stack,
+                    [[maybe_unused]] script_library_class::function::entry_t entry) const
     {
         TRACE("slf__end_cut_scenes__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00670C80);
-        return func(this, nullptr, &stack, entry);
+        g_cut_scene_player()->clean_up();
+        return true;
     }
 };
 
@@ -3729,13 +3920,18 @@ slf__find_trigger_in_district__district__str__t::slf__find_trigger_in_district__
 
 struct slf__float_random__num__t : script_library_class::function {
     slf__float_random__num__t(const char *a3);
+    struct parms_t {
+        vm_num_t maximum;
+    };
 
     bool operator()(vm_stack &stack, [[maybe_unused]] script_library_class::function::entry_t entry) const
     {
         TRACE("slf__float_random__num__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00663300);
-        return func(this, nullptr, &stack, entry);
+        SLF_PARMS;
+        vm_num_t result = static_cast<double>(std::rand()) * (1.0f / 32767.0f) * parms->maximum;
+        SLF_RETURN;
+        return true;
     }
 };
 
@@ -4029,8 +4225,8 @@ struct slf__get_col_hit_norm__t : script_library_class::function {
     {
         TRACE("slf__get_col_hit_norm__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00663990);
-        return func(this, nullptr, &stack, entry);
+        stack.push(reinterpret_cast<const char *>(&script_bsp_hit_norm), sizeof(script_bsp_hit_norm));
+        return true;
     }
 };
 
@@ -4048,8 +4244,8 @@ struct slf__get_col_hit_pos__t : script_library_class::function {
     {
         TRACE("slf__get_col_hit_pos__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00663950);
-        return func(this, nullptr, &stack, entry);
+        stack.push(reinterpret_cast<const char *>(&script_bsp_hit_pos), sizeof(script_bsp_hit_pos));
+        return true;
     }
 };
 
@@ -4931,8 +5127,8 @@ struct slf__get_time_inc__t : script_library_class::function {
     {
         TRACE("slf__get_time_inc__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x006633B0);
-        return func(this, nullptr, &stack, entry);
+        stack.push(g_world_ptr->time_manager.field_0);
+        return true;
     }
 };
 
@@ -5221,12 +5417,17 @@ slf__insert_pack__str__t::slf__insert_pack__str__t(const char *a3) : function(a3
 struct slf__invoke_pause_menu_unlockables__t : script_library_class::function {
     slf__invoke_pause_menu_unlockables__t(const char *a3);
 
-    bool operator()(vm_stack &stack, [[maybe_unused]] script_library_class::function::entry_t entry) const
+    bool operator()([[maybe_unused]] vm_stack &stack,
+                    [[maybe_unused]] script_library_class::function::entry_t entry) const
     {
         TRACE("slf__invoke_pause_menu_unlockables__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x006737C0);
-        return func(this, nullptr, &stack, entry);
+        g_game_ptr->pause();
+        auto *pause = g_femanager.m_pause_menu_system;
+        pause->Activate(2, false);
+        static_cast<pause_menu_root *>(pause->field_4[2])->field_2C = true;
+        mission_manager::s_inst->unlock();
+        return true;
     }
 };
 
@@ -5422,8 +5623,8 @@ struct slf__is_mission_active__t : script_library_class::function {
     {
         TRACE("slf__is_mission_active__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00676F20);
-        return func(this, nullptr, &stack, entry);
+        stack.push(static_cast<float>(mission_manager::s_inst->is_mission_active()));
+        return true;
     }
 };
 
@@ -5441,8 +5642,8 @@ struct slf__is_mission_loading__t : script_library_class::function {
     {
         TRACE("slf__is_mission_loading__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00676F60);
-        return func(this, nullptr, &stack, entry);
+        stack.push(static_cast<float>(mission_manager::s_inst->m_script_to_load != nullptr));
+        return true;
     }
 };
 
@@ -5498,8 +5699,15 @@ struct slf__is_pack_pushed__str__t : script_library_class::function {
     {
         TRACE("slf__is_pack_pushed__str__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00676190);
-        return func(this, nullptr, &stack, entry);
+        const auto *name = stack.pop_str();
+        auto *manager = mission_stack_manager::s_inst;
+        if (manager->waiting_for_push_or_pop())
+            return false;
+        mString resource;
+        resource_key_type type = RESOURCE_KEY_TYPE_NONE;
+        resource_key::calc_resource_string_and_type_from_path(name, &resource, &type);
+        stack.push(static_cast<float>(manager->is_pack_pushed(resource)));
+        return true;
     }
 };
 
@@ -5846,8 +6054,13 @@ struct slf__normal__vector3d__t : script_library_class::function {
     {
         TRACE("slf__normal__vector3d__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00671FD0);
-        return func(this, nullptr, &stack, entry);
+        struct parms_t {
+            vector3d value;
+        };
+        SLF_PARMS;
+        parms->value.normalize();
+        stack.move_SP(sizeof(vector3d));
+        return true;
     }
 };
 
@@ -5903,8 +6116,9 @@ struct slf__play_prerender__str__t : script_library_class::function {
     {
         TRACE("slf__play_prerender__str__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00663B60);
-        return func(this, nullptr, &stack, entry);
+        const auto *name = stack.pop_str();
+        movie_manager::load_and_play_movie(name, name, false);
+        return true;
     }
 };
 
@@ -5922,8 +6136,18 @@ struct slf__pop_pack__str__t : script_library_class::function {
     {
         TRACE("slf__pop_pack__str__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00680870);
-        return func(this, nullptr, &stack, entry);
+        const auto *name = stack.pop_str();
+        auto *manager = mission_stack_manager::s_inst;
+        if (manager->waiting_for_push_or_pop())
+            return false;
+        mString resource;
+        resource_key_type type = RESOURCE_KEY_TYPE_NONE;
+        resource_key::calc_resource_string_and_type_from_path(name, &resource, &type);
+        if (!manager->is_pack_pushed(resource))
+            return true;
+        auto *executable = stack.get_thread()->get_executable()->get_owner()->get_parent();
+        manager->pop_mission_pack(mString{executable->field_0.to_string()}, resource);
+        return false;
     }
 };
 
@@ -6032,13 +6256,29 @@ slf__purge_district__num__t::slf__purge_district__num__t(const char *a3) : funct
 
 struct slf__push_pack__str__t : script_library_class::function {
     slf__push_pack__str__t(const char *a3);
+    struct parms_t {
+        vm_str_t name;
+    };
 
     bool operator()(vm_stack &stack, [[maybe_unused]] script_library_class::function::entry_t entry) const
     {
         TRACE("slf__push_pack__str__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00680730);
-        return func(this, nullptr, &stack, entry);
+        SLF_PARMS;
+        auto *manager = mission_stack_manager::s_inst;
+        if (manager->waiting_for_push_or_pop())
+            return false;
+
+        mString name;
+        resource_key_type type = RESOURCE_KEY_TYPE_NONE;
+        resource_key::calc_resource_string_and_type_from_path(parms->name, &name, &type);
+        if (manager->is_pack_pushed(name))
+            return true;
+
+        auto *executable = stack.get_thread()->inst->get_parent()->get_parent();
+        const mString owner{executable->field_0.to_string()};
+        manager->push_mission_pack(owner, name, -1, false);
+        return false;
     }
 };
 
@@ -6094,8 +6334,17 @@ struct slf__random__num__t : script_library_class::function {
     {
         TRACE("slf__random__num__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00663280);
-        return func(this, nullptr, &stack, entry);
+        struct parms_t {
+            vm_num_t maximum;
+        };
+        SLF_PARMS;
+        const int maximum = static_cast<int>(static_cast<uint64_t>(parms->maximum));
+        vm_num_t result = 0.0f;
+        if (maximum > 0)
+            result =
+                static_cast<int>(static_cast<uint64_t>(static_cast<double>(std::rand()) * maximum * 0.000030517578125));
+        SLF_RETURN;
+        return true;
     }
 };
 
@@ -6111,10 +6360,26 @@ struct slf__remove_civilian_info__num__t : script_library_class::function {
 
     bool operator()(vm_stack &stack, [[maybe_unused]] script_library_class::function::entry_t entry) const
     {
+#if STANDALONE_SYSTEM
         TRACE("slf__remove_civilian_info__num__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00677870);
+        struct parms_t {
+            vm_num_t index;
+        };
+        SLF_PARMS;
+        const int removed =
+            poi_manager::remove_point_of_interest(static_cast<int>(static_cast<uint64_t>(parms->index)));
+        vm_num_t result = static_cast<vm_num_t>(removed);
+        if (removed != -1) {
+            auto *script = stack.get_thread()->get_executable()->get_owner()->get_parent();
+            script->remove_allocated_stuff(vm_civilian_info_garbage_collection_id, static_cast<uint32_t>(result));
+        }
+        SLF_RETURN;
+        return true;
+#else
+        bool(__fastcall * func)(const void *, void *, vm_stack *, entry_t) = CAST(func, 0x00677870);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -6130,10 +6395,37 @@ struct slf__remove_civilian_info_entity__entity__num__t : script_library_class::
 
     bool operator()(vm_stack &stack, [[maybe_unused]] script_library_class::function::entry_t entry) const
     {
+#if STANDALONE_SYSTEM
         TRACE("slf__remove_civilian_info_entity__entity__num__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00681240);
+        struct parms_t {
+            entity_base_vhandle owner;
+            vm_num_t type;
+        };
+        SLF_PARMS;
+        int removed = -1;
+        auto *owner = parms->owner.get_volatile_ptr();
+        if (owner != nullptr && owner->is_an_actor() && poi_manager::poi_list != nullptr) {
+            const int type = static_cast<int>(static_cast<uint64_t>(parms->type));
+            for (int i = 0; i < 75; ++i) {
+                const auto *point = poi_manager::poi_list[i];
+                if (point != nullptr && point->field_1C.field_0 == owner->my_handle && point->field_C == type) {
+                    removed = poi_manager::remove_point_of_interest(i);
+                    break;
+                }
+            }
+            if (removed != -1) {
+                auto *script = stack.get_thread()->get_executable()->get_owner()->get_parent();
+                script->remove_allocated_stuff(vm_civilian_info_garbage_collection_id, static_cast<uint32_t>(removed));
+            }
+        }
+        vm_num_t result = static_cast<vm_num_t>(removed);
+        SLF_RETURN;
+        return true;
+#else
+        bool(__fastcall * func)(const void *, void *, vm_stack *, entry_t) = CAST(func, 0x00681240);
         return func(this, nullptr, &stack, entry);
+#endif
     }
 };
 
@@ -6671,8 +6963,16 @@ struct slf__set_mission_text__num__t : script_library_class::function {
     {
         TRACE("slf__set_mission_text__num__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00672C00);
-        return func(this, nullptr, &stack, entry);
+        const auto parameter_bytes = static_cast<int>(stack.pop_num() * sizeof(vm_num_t));
+        stack.pop(parameter_bytes);
+        const auto *parameters = reinterpret_cast<const vm_num_t *>(stack.get_SP());
+        const mString body{g_game_ptr->field_7C->lookup_scripttext_string(static_cast<int>(parameters[0]))};
+        mString formatted;
+        dialog_box_formatting(&formatted, body, sizeof(vm_num_t), reinterpret_cast<int>(parameters));
+        auto *widget = g_femanager.IGO->m_fe_mission_text;
+        widget->set_text(*reinterpret_cast<fe_mission_text::string *>(&formatted));
+        widget->SetShown(true);
+        return true;
     }
 };
 
@@ -6690,8 +6990,8 @@ struct slf__set_mission_text_box_flavor__num__t : script_library_class::function
     {
         TRACE("slf__set_mission_text_box_flavor__num__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00673640);
-        return func(this, nullptr, &stack, entry);
+        g_femanager.IGO->m_fe_mission_text->set_flavor(stack.pop_num());
+        return true;
     }
 };
 
@@ -7319,8 +7619,13 @@ struct slf__sin__num__t : script_library_class::function {
     {
         TRACE("slf__sin__num__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00663EF0);
-        return func(this, nullptr, &stack, entry);
+        struct parms_t {
+            vm_num_t angle;
+        };
+        SLF_PARMS;
+        vm_num_t result = std::sin(static_cast<double>(parms->angle));
+        SLF_RETURN;
+        return true;
     }
 };
 
@@ -7452,8 +7757,21 @@ struct slf__spiderman_camera_add_shake__num__num__num__t : script_library_class:
     {
         TRACE("slf__spiderman_camera_add_shake__num__num__num__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x006796F0);
-        return func(this, nullptr, &stack, entry);
+        struct parms_t {
+            vm_num_t amplitude;
+            vm_num_t frequency;
+            vm_num_t duration;
+        };
+        SLF_PARMS;
+        auto *camera = g_game_ptr->get_current_view_camera(0);
+        const auto flavor = static_cast<int>(camera->get_flavor());
+        if (flavor == 20 || flavor == 21 || flavor == 22) {
+            auto add_shake =
+                reinterpret_cast<short(__fastcall *)(struct camera *, void *, float, float, float, float, float)>(
+                    get_vfunc(camera->m_vtbl, 0x2C0));
+            add_shake(camera, nullptr, parms->amplitude, parms->frequency, parms->duration, 0.0f, 0.0f);
+        }
+        return true;
     }
 };
 
@@ -7495,12 +7813,14 @@ slf__spiderman_camera_autocorrect__num__t::slf__spiderman_camera_autocorrect__nu
 struct slf__spiderman_camera_clear_fixedstatic__t : script_library_class::function {
     slf__spiderman_camera_clear_fixedstatic__t(const char *a3);
 
-    bool operator()(vm_stack &stack, [[maybe_unused]] script_library_class::function::entry_t entry) const
+    bool operator()([[maybe_unused]] vm_stack &stack,
+                    [[maybe_unused]] script_library_class::function::entry_t entry) const
     {
         TRACE("slf__spiderman_camera_clear_fixedstatic__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x006795D0);
-        return func(this, nullptr, &stack, entry);
+        if (auto *camera = g_spiderman_camera_ptr(); camera)
+            camera->field_1A0->clear_fixedstatic();
+        return true;
     }
 };
 
@@ -7518,8 +7838,10 @@ struct slf__spiderman_camera_enable_combat__num__t : script_library_class::funct
     {
         TRACE("slf__spiderman_camera_enable_combat__num__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00679640);
-        return func(this, nullptr, &stack, entry);
+        const bool enabled = std::not_equal_to<float>{}(stack.pop_num(), 0.0f);
+        if (auto *camera = g_spiderman_camera_ptr(); camera != nullptr)
+            camera->field_1CE = enabled;
+        return true;
     }
 };
 
@@ -7537,8 +7859,10 @@ struct slf__spiderman_camera_enable_lookaround__num__t : script_library_class::f
     {
         TRACE("slf__spiderman_camera_enable_lookaround__num__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x006795F0);
-        return func(this, nullptr, &stack, entry);
+        const bool enabled = std::not_equal_to<float>{}(stack.pop_num(), 0.0f);
+        if (auto *camera = g_spiderman_camera_ptr(); camera)
+            camera->field_1A0->m_vtbl->enable_lookaround(camera->field_1A0, nullptr, enabled);
+        return true;
     }
 };
 
@@ -7917,8 +8241,16 @@ struct slf__spiderman_is_on_ground__t : script_library_class::function {
     {
         TRACE("slf__spiderman_is_on_ground__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x006792A0);
-        return func(this, nullptr, &stack, entry);
+        auto *hero = static_cast<actor *>(g_world_ptr->get_hero_ptr(0));
+        auto *controller = hero ? hero->get_player_controller() : nullptr;
+        bool result = false;
+        if (controller) {
+            auto predicate = reinterpret_cast<bool(__fastcall *)(ai_player_controller *, void *)>(
+                get_vfunc(controller->m_vtbl, 0x1C));
+            result = predicate(controller, nullptr);
+        }
+        stack.push(static_cast<float>(result));
+        return true;
     }
 };
 
@@ -7936,8 +8268,16 @@ struct slf__spiderman_is_on_wall__t : script_library_class::function {
     {
         TRACE("slf__spiderman_is_on_wall__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x006791B0);
-        return func(this, nullptr, &stack, entry);
+        auto *hero = static_cast<actor *>(g_world_ptr->get_hero_ptr(0));
+        auto *controller = hero ? hero->get_player_controller() : nullptr;
+        bool result = false;
+        if (controller) {
+            auto predicate = reinterpret_cast<bool(__fastcall *)(ai_player_controller *, void *)>(
+                get_vfunc(controller->m_vtbl, 0x3C));
+            result = predicate(controller, nullptr);
+        }
+        stack.push(static_cast<float>(result));
+        return true;
     }
 };
 
@@ -8727,12 +9067,14 @@ slf__stop_credits__t::slf__stop_credits__t(const char *a3) : function(a3)
 struct slf__stop_vibration__t : script_library_class::function {
     slf__stop_vibration__t(const char *a3);
 
-    bool operator()(vm_stack &stack, [[maybe_unused]] script_library_class::function::entry_t entry) const
+    bool operator()([[maybe_unused]] vm_stack &stack,
+                    [[maybe_unused]] script_library_class::function::entry_t entry) const
     {
         TRACE("slf__stop_vibration__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x0067A590);
-        return func(this, nullptr, &stack, entry);
+        if (auto *rumble = input_mgr::instance->rumble_ptr)
+            rumble->stop_vibration();
+        return true;
     }
 };
 
@@ -8750,8 +9092,22 @@ struct slf__subtitle__num__num__num__num__num__num__t : script_library_class::fu
     {
         TRACE("slf__subtitle__num__num__num__num__num__num__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00673900);
-        return func(this, nullptr, &stack, entry);
+        struct parms_t {
+            vm_num_t text;
+            vm_num_t fade;
+            vm_num_t duration;
+            vm_num_t next_text;
+            vm_num_t next_fade;
+            vm_num_t height;
+        };
+        SLF_PARMS;
+        subtitles_set(static_cast<int>(parms->text),
+                      parms->fade,
+                      parms->duration,
+                      static_cast<int>(parms->next_text),
+                      parms->next_fade,
+                      parms->height);
+        return true;
     }
 };
 
@@ -9106,12 +9462,13 @@ slf__trigger_is_valid__trigger__t::slf__trigger_is_valid__trigger__t(const char 
 struct slf__turn_off_boss_health__t : script_library_class::function {
     slf__turn_off_boss_health__t(const char *a3);
 
-    bool operator()(vm_stack &stack, [[maybe_unused]] script_library_class::function::entry_t entry) const
+    bool operator()([[maybe_unused]] vm_stack &stack,
+                    [[maybe_unused]] script_library_class::function::entry_t entry) const
     {
         TRACE("slf__turn_off_boss_health__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x00672B00);
-        return func(this, nullptr, &stack, entry);
+        g_femanager.IGO->m_boss_health->SetShown(false);
+        return true;
     }
 };
 
@@ -9191,8 +9548,15 @@ struct slf__turn_on_boss_health__num__entity__t : script_library_class::function
     {
         TRACE("slf__turn_on_boss_health__num__entity__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x0067FFF0);
-        return func(this, nullptr, &stack, entry);
+        struct parms_t {
+            vm_num_t type;
+            entity_base_vhandle entity;
+        };
+        SLF_PARMS;
+        auto *widget = g_femanager.IGO->m_boss_health;
+        widget->SetType(static_cast<int>(parms->type), parms->entity.field_0);
+        widget->SetShown(true);
+        return true;
     }
 };
 
@@ -9257,12 +9621,15 @@ slf__turn_on_third_party_health__num__entity__t::slf__turn_on_third_party_health
 struct slf__unload_script__t : script_library_class::function {
     slf__unload_script__t(const char *a3);
 
-    bool operator()(vm_stack &stack, [[maybe_unused]] script_library_class::function::entry_t entry) const
+    bool operator()([[maybe_unused]] vm_stack &stack,
+                    [[maybe_unused]] script_library_class::function::entry_t entry) const
     {
         TRACE("slf__unload_script__t::operator()");
 
-        bool(__fastcall * func)(const void *, void *edx, vm_stack *, entry_t) = CAST(func, 0x006762B0);
-        return func(this, nullptr, &stack, entry);
+        if (mission_stack_manager::s_inst->waiting_for_push_or_pop())
+            return false;
+        mission_manager::s_inst->prepare_unload_script();
+        return true;
     }
 };
 
@@ -9732,7 +10099,7 @@ DECLARE_SLC(district, signaller, 0x0089A4FC);
             }                                                                                       \
         }                                                                                           \
                                                                                                     \
-        bool operator()(vm_stack &stack, script_library_class::function::entry_t entry) const
+        bool operator()(vm_stack &stack, [[maybe_unused]] script_library_class::function::entry_t entry) const
 
 #define DECLARE_SLF_END() \
     }                     \
@@ -9924,9 +10291,16 @@ DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(cut_scene, wait_play, 0x0089B7D8)
 {
-    (void)stack;
-    (void)entry;
-    return true;
+    struct parms_t {
+        cut_scene *scene;
+    };
+    SLF_PARMS;
+    auto *player = g_cut_scene_player();
+    if (entry == FIRST_ENTRY) {
+        player->play(parms->scene);
+        return false;
+    }
+    return !player->is_playing();
 }
 DECLARE_SLF_END()
 
@@ -10259,8 +10633,17 @@ DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(entity_list, get_index__num, 0x0089C00C)
 {
-    (void)stack;
     (void)entry;
+    struct parms_t {
+        _std::vector<entity_base_vhandle> *list;
+        float index;
+    };
+    SLF_PARMS;
+    entity_base_vhandle result{};
+    if (parms->index >= 0.0f && parms->index < parms->list->size()) {
+        result = (*parms->list)[static_cast<unsigned int>(parms->index)];
+    }
+    stack.push(reinterpret_cast<const char *>(&result), sizeof(result));
     return true;
 }
 DECLARE_SLF_END()
@@ -10291,8 +10674,13 @@ DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(entity_list, size, 0x0089BFDC)
 {
-    (void)stack;
     (void)entry;
+    struct parms_t {
+        _std::vector<entity_base_vhandle> *list;
+    };
+    SLF_PARMS;
+    const float result = parms->list == nullptr ? 0.0f : static_cast<float>(parms->list->size());
+    stack.push(result);
     return true;
 }
 DECLARE_SLF_END()
@@ -11164,16 +11552,32 @@ DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(polytube, add_control_pt__vector3d, 0x0089C108)
 {
-    (void)stack;
     (void)entry;
+    struct parms_t {
+        vhandle_type<polytube> owner;
+        vector3d point;
+    };
+    SLF_PARMS;
+    if (auto *tube = parms->owner.get_volatile_ptr())
+        tube->add_control_pt(parms->point);
     return true;
 }
 DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(polytube, build__num__num, 0x0089C140)
 {
-    (void)stack;
     (void)entry;
+    struct parms_t {
+        vhandle_type<polytube> owner;
+        float samples;
+        float type;
+    };
+    SLF_PARMS;
+    if (auto *tube = parms->owner.get_volatile_ptr()) {
+        const int type = static_cast<int>(parms->type);
+        if (type >= 1 && type <= 4)
+            tube->the_spline.build(static_cast<int>(parms->samples), static_cast<spline::eSplineType>(type));
+    }
     return true;
 }
 DECLARE_SLF_END()
@@ -11212,8 +11616,15 @@ DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(polytube, get_control_pt__num, 0x0089C118)
 {
-    (void)stack;
     (void)entry;
+    struct parms_t {
+        vhandle_type<polytube> owner;
+        float index;
+    };
+    SLF_PARMS;
+    auto *tube = parms->owner.get_volatile_ptr();
+    const auto result = tube ? tube->get_control_pt(static_cast<int>(parms->index)) : ZEROVEC;
+    stack.push(reinterpret_cast<const char *>(&result), sizeof(result));
     return true;
 }
 DECLARE_SLF_END()
@@ -11244,8 +11655,13 @@ DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(polytube, get_num_control_pts, 0x0089C130)
 {
-    (void)stack;
     (void)entry;
+    struct parms_t {
+        vhandle_type<polytube> owner;
+    };
+    SLF_PARMS;
+    auto *tube = parms->owner.get_volatile_ptr();
+    stack.push(tube ? static_cast<float>(tube->get_num_control_pts()) : 0.0f);
     return true;
 }
 DECLARE_SLF_END()
@@ -11316,16 +11732,28 @@ DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(polytube, reserve_control_pts__num, 0x0089C100)
 {
-    (void)stack;
     (void)entry;
+    struct parms_t {
+        vhandle_type<polytube> owner;
+        float count;
+    };
+    SLF_PARMS;
+    if (auto *tube = parms->owner.get_volatile_ptr())
+        tube->the_spline.reserve_control_pts(static_cast<int>(parms->count));
     return true;
 }
 DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(polytube, set_additive__num, 0x0089C120)
 {
-    (void)stack;
     (void)entry;
+    struct parms_t {
+        vhandle_type<polytube> owner;
+        float additive;
+    };
+    SLF_PARMS;
+    if (auto *tube = parms->owner.get_volatile_ptr())
+        tube->field_7A = not_equal(parms->additive, 0.0f);
     return true;
 }
 DECLARE_SLF_END()
@@ -11356,8 +11784,17 @@ DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(polytube, set_control_pt__num__vector3d, 0x0089C110)
 {
-    (void)stack;
     (void)entry;
+    struct parms_t {
+        vhandle_type<polytube> owner;
+        float index;
+        vector3d point;
+    };
+    SLF_PARMS;
+    if (auto *tube = parms->owner.get_volatile_ptr()) {
+        tube->set_abs_control_pt(static_cast<int>(parms->index), parms->point);
+        moved_entities::add_moved(vhandle_type<entity>{tube->my_handle});
+    }
     return true;
 }
 DECLARE_SLF_END()
@@ -11388,8 +11825,17 @@ DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(polytube, set_material__str, 0x0089C158)
 {
-    (void)stack;
     (void)entry;
+    struct parms_t {
+        vhandle_type<polytube> owner;
+        const char *name;
+    };
+    SLF_PARMS;
+    if (auto *tube = parms->owner.get_volatile_ptr()) {
+        const auto key = create_resource_key_from_path(parms->name, static_cast<resource_key_type>(0));
+        tube->set_material(key.m_hash);
+        tube->field_D0->m_blend_mode = static_cast<nglBlendModeType>(2);
+    }
     return true;
 }
 DECLARE_SLF_END()
@@ -11412,8 +11858,19 @@ DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(polytube, set_num_sides__num, 0x0089C1C0)
 {
-    (void)stack;
     (void)entry;
+    struct parms_t {
+        vhandle_type<polytube> owner;
+        float count;
+    };
+    SLF_PARMS;
+    if (auto *tube = parms->owner.get_volatile_ptr()) {
+        const int sides = static_cast<int>(parms->count);
+        if (tube->num_sides != sides) {
+            tube->num_sides = sides;
+            tube->field_78 = 0;
+        }
+    }
     return true;
 }
 DECLARE_SLF_END()
@@ -11452,8 +11909,18 @@ DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(polytube, set_tube_radius__num, 0x0089C1B0)
 {
-    (void)stack;
     (void)entry;
+    struct parms_t {
+        vhandle_type<polytube> owner;
+        float radius;
+    };
+    SLF_PARMS;
+    if (auto *tube = parms->owner.get_volatile_ptr()) {
+        if (not_equal(tube->tube_radius, parms->radius)) {
+            tube->tube_radius = parms->radius;
+            tube->field_78 = 0;
+        }
+    }
     return true;
 }
 DECLARE_SLF_END()
@@ -11676,16 +12143,23 @@ DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(posfacing3d, get_facing, 0x0089BA98)
 {
-    (void)stack;
     (void)entry;
+    stack.pop(sizeof(float) * 4);
+    const float rotation = reinterpret_cast<const float *>(stack.get_SP())[3];
+    po transform;
+    transform.set_rotate_y(rotation);
+    const vector3d facing = transform.get_z_facing();
+    stack.push(reinterpret_cast<const char *>(&facing), sizeof(facing));
     return true;
 }
 DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(posfacing3d, get_position, 0x0089BAA8)
 {
-    (void)stack;
     (void)entry;
+    stack.pop(sizeof(float) * 4);
+    const vector3d position = *reinterpret_cast<const vector3d *>(stack.get_SP());
+    stack.push(reinterpret_cast<const char *>(&position), sizeof(position));
     return true;
 }
 DECLARE_SLF_END()
@@ -11884,16 +12358,44 @@ DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(signaller, clear_callback__str, 0x0089B7F0)
 {
-    (void)stack;
-    (void)entry;
+    struct parms_t {
+        entity_base_vhandle signaller;
+        vm_str_t function;
+    };
+    SLF_PARMS;
+    const string_hash function{parms->function};
+    for (auto *type : event_manager::event_types) {
+        for (auto *recipient : type->field_8) {
+            if (recipient->field_0 != parms->signaller)
+                continue;
+            for (auto it = recipient->field_4.begin(); it != recipient->field_4.end();) {
+                auto *callback = *it;
+                auto is_script =
+                    reinterpret_cast<bool(__fastcall *)(event_callback *, void *)>(get_vfunc(callback->m_vtbl, 0xC));
+                if (is_script(callback, nullptr)) {
+                    auto *script_callback = static_cast<script_event_callback *>(callback);
+                    if (script_callback->instance && script_callback->executable->get_fullname() == function) {
+                        it = recipient->field_4.erase(it);
+                        callback->_finalize(true);
+                        continue;
+                    }
+                }
+                ++it;
+            }
+        }
+    }
     return true;
 }
 DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(signaller, clear_callbacks, 0x0089B7E8)
 {
-    (void)stack;
-    (void)entry;
+    struct parms_t {
+        entity_base_vhandle signaller;
+    };
+    SLF_PARMS;
+    if (parms->signaller.get_volatile_ptr())
+        event_manager::clear_script_callbacks(parms->signaller, nullptr);
     return true;
 }
 DECLARE_SLF_END()
@@ -11916,8 +12418,13 @@ DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(sound_inst, fade_out__num, 0x0089B8A0)
 {
-    (void)stack;
-    (void)entry;
+    struct parms_t {
+        uint32_t id;
+        vm_num_t duration;
+    };
+    SLF_PARMS;
+    if (auto *slot = script_sound_manager::get_sound_instance(parms->id))
+        slot->fade_out(parms->duration);
     return true;
 }
 DECLARE_SLF_END()
@@ -11996,17 +12503,39 @@ DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(sound_inst, is_valid, 0x0089B820)
 {
-    (void)stack;
-    (void)entry;
+    const auto id = static_cast<uint32_t>(reinterpret_cast<std::uintptr_t>(stack.pop_addr()));
+    auto *slot = script_sound_manager::get_sound_instance(id);
+    stack.push(static_cast<float>(slot && slot->field_0.get_sound_instance_ptr()));
     return true;
 }
 DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(sound_inst, play__num, 0x0089B8B0)
 {
-    (void)entry;
-    stack.pop(sizeof(int) + sizeof(vm_num_t));
-    return true;
+    struct parms_t {
+        uint32_t id;
+        vm_num_t flags;
+    };
+    SLF_PARMS;
+    auto *slot = script_sound_manager::get_sound_instance(parms->id);
+    if (!slot || !slot->field_0.get_sound_instance_ptr())
+        return true;
+    auto *elapsed = reinterpret_cast<float *>(stack.get_SP() + sizeof(parms_t));
+    const int flags = static_cast<int>(parms->flags);
+    if (entry == FIRST_ENTRY) {
+        *elapsed = 0.0f;
+        slot->play();
+    } else {
+        *elapsed += script_manager::get_time_inc();
+    }
+    const int state = slot->field_0.get_sound_instance_ptr()->state;
+    if (*elapsed > 60.0f && state != 3)
+        return true;
+    if (flags & 1)
+        return state == 2;
+    if (flags & 4)
+        return state == 3;
+    return (flags & 2) != 0 || flags == 0;
 }
 DECLARE_SLF_END()
 
@@ -12556,32 +13085,54 @@ DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(vector3d, length, 0x0089B9F8)
 {
-    (void)stack;
     (void)entry;
+    struct parms_t {
+        vector3d value;
+    };
+    SLF_PARMS;
+    const float result = parms->value.length();
+    stack.push(result);
     return true;
 }
 DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(vector3d, length2, 0x0089BA00)
 {
-    (void)stack;
     (void)entry;
+    struct parms_t {
+        vector3d value;
+    };
+    SLF_PARMS;
+    const float result = parms->value.length2();
+    stack.push(result);
     return true;
 }
 DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(vector3d, operator_not_equals__vector3d, 0x0089B9F0)
 {
-    (void)stack;
     (void)entry;
+    struct parms_t {
+        vector3d left;
+        vector3d right;
+    };
+    SLF_PARMS;
+    const float result = parms->left != parms->right ? 1.0f : 0.0f;
+    stack.push(result);
     return true;
 }
 DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(vector3d, operator_multiply__num, 0x0089B9D8)
 {
-    (void)stack;
     (void)entry;
+    struct parms_t {
+        vector3d value;
+        float scale;
+    };
+    SLF_PARMS;
+    parms->value *= parms->scale;
+    stack.move_SP(sizeof(vector3d));
     return true;
 }
 DECLARE_SLF_END()
@@ -12602,24 +13153,45 @@ DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(vector3d, operator_minus__vector3d, 0x0089B9D0)
 {
-    (void)stack;
     (void)entry;
+    struct parms_t {
+        vector3d left;
+        vector3d right;
+    };
+    SLF_PARMS;
+    parms->left -= parms->right;
+    stack.move_SP(sizeof(vector3d));
     return true;
 }
 DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(vector3d, operator_divide__num, 0x0089B9E0)
 {
-    (void)stack;
     (void)entry;
+    struct parms_t {
+        vector3d value;
+        float divisor;
+    };
+    SLF_PARMS;
+    parms->value /= parms->divisor;
+    stack.move_SP(sizeof(vector3d));
     return true;
 }
 DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(vector3d, operator_equals_equals__vector3d, 0x0089B9E8)
 {
-    (void)stack;
     (void)entry;
+    struct parms_t {
+        vector3d left;
+        vector3d right;
+    };
+    SLF_PARMS;
+    const float result = equal(parms->left.x, parms->right.x) && equal(parms->left.y, parms->right.y) &&
+                                 equal(parms->left.z, parms->right.z)
+                             ? 1.0f
+                             : 0.0f;
+    stack.push(result);
     return true;
 }
 DECLARE_SLF_END()
@@ -12634,48 +13206,78 @@ DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(vector3d, x, 0x0089BA18)
 {
-    (void)stack;
     (void)entry;
+    struct parms_t {
+        vector3d value;
+    };
+    SLF_PARMS;
+    const float result = parms->value.x;
+    stack.push(result);
     return true;
 }
 DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(vector3d, xy_norm, 0x0089BA08)
 {
-    (void)stack;
     (void)entry;
+    struct parms_t {
+        vector3d value;
+    };
+    SLF_PARMS;
+    const float result = std::sqrt(parms->value.x * parms->value.x + parms->value.y * parms->value.y);
+    stack.push(result);
     return true;
 }
 DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(vector3d, xz_norm, 0x0089BA10)
 {
-    (void)stack;
     (void)entry;
+    struct parms_t {
+        vector3d value;
+    };
+    SLF_PARMS;
+    const float result = std::sqrt(parms->value.x * parms->value.x + parms->value.z * parms->value.z);
+    stack.push(result);
     return true;
 }
 DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(vector3d, y, 0x0089BA20)
 {
-    (void)stack;
     (void)entry;
+    struct parms_t {
+        vector3d value;
+    };
+    SLF_PARMS;
+    const float result = parms->value.y;
+    stack.push(result);
     return true;
 }
 DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(vector3d, z, 0x0089BA28)
 {
-    (void)stack;
     (void)entry;
+    struct parms_t {
+        vector3d value;
+    };
+    SLF_PARMS;
+    const float result = parms->value.z;
+    stack.push(result);
     return true;
 }
 DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(vector3d_list, add__vector3d, 0x0089BEEC)
 {
-    (void)stack;
     (void)entry;
+    struct parms_t {
+        _std::vector<vector3d> *list;
+        vector3d value;
+    };
+    SLF_PARMS;
+    parms->list->push_back(parms->value);
     return true;
 }
 DECLARE_SLF_END()
@@ -12706,8 +13308,14 @@ DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(vector3d_list, get_index__num, 0x0089BF14)
 {
-    (void)stack;
     (void)entry;
+    struct parms_t {
+        _std::vector<vector3d> *list;
+        float index;
+    };
+    SLF_PARMS;
+    vector3d result = (*parms->list)[static_cast<uint32_t>(static_cast<uint64_t>(parms->index))];
+    SLF_RETURN;
     return true;
 }
 DECLARE_SLF_END()
@@ -12738,8 +13346,13 @@ DECLARE_SLF_END()
 
 DECLARE_SLF_BEGIN(vector3d_list, size, 0x0089BEE4)
 {
-    (void)stack;
     (void)entry;
+    struct parms_t {
+        _std::vector<vector3d> *list;
+    };
+    SLF_PARMS;
+    float result = static_cast<float>(parms->list->size());
+    SLF_RETURN;
     return true;
 }
 DECLARE_SLF_END()

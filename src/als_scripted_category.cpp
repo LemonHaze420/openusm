@@ -8,8 +8,6 @@
 #include "func_wrapper.h"
 #include "common.h"
 #include "mash_config.h"
-
-
 #include "param_block.h"
 
 #include <cassert>

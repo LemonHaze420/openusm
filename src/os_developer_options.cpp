@@ -383,13 +383,7 @@ os_developer_options::os_developer_options()
     }
 }
 
-os_developer_options::~os_developer_options()
-{
-    if constexpr (0) {
-    } else {
-        THISCALL(0x005E2CB0, this);
-    }
-}
+os_developer_options::~os_developer_options() = default;
 
 mString *os_developer_options::get_hero_name() const
 {

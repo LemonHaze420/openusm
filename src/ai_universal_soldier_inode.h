@@ -30,7 +30,7 @@ struct universal_soldier_inode : info_node {
     int field_44;
     int field_48;
     int field_4C;
-    int field_50;
+    float field_50;
     _std::vector<universal_soldier_ability_client *> *field_54;
     int field_58;
     int field_5C;
@@ -45,5 +45,16 @@ struct universal_soldier_inode : info_node {
     universal_soldier_inode(from_mash_in_place_constructor *a2);
 
     static vector3d get_combat_spacing_pos(int slot, const vector3d &a3, Float a4);
+    bool say_gab(string_hash sound, int interruption, int priority);
+    static void redeem_attack_token(universal_soldier_inode *owner);
+    static void release_attack_token(universal_soldier_inode *owner);
+};
+struct universal_soldier_attack_token {
+    universal_soldier_inode *owner;
+    entity_base_vhandle target;
+    float elapsed;
+    float remaining;
+    bool redeemed;
+    unsigned char padding_11[3];
 };
 }  // namespace ai

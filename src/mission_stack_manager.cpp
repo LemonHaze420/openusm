@@ -77,7 +77,7 @@ resource_pack_group *mission_stack_manager::get_pack_group(const mString &a1)
 
 bool mission_stack_manager::waiting_for_push_or_pop()
 {
-    return (bool)THISCALL(0x005BB640, this);
+    return pack_loads_or_unloads_pending != 0 || !sound_manager::is_mission_sound_bank_ready();
 }
 
 void mission_stack_manager::insert_mission_pack(resource_pack_group *a2, const mString &a3, int a4)
@@ -333,7 +333,13 @@ void mission_stack_manager::map_directory_parent(resource_pack_slot *a1)
 
 bool mission_stack_manager::is_pack_pushed(const mString &a1)
 {
-    return (bool)THISCALL(0x005D2360, this, &a1);
+    const string_hash name{a1.c_str()};
+    const auto &slots = resource_manager::get_partition_pointer(RESOURCE_PARTITION_MISSION)->get_pack_slots();
+    for (auto *slot : slots) {
+        if (slot != nullptr && slot->get_name_key().m_hash == name)
+            return true;
+    }
+    return false;
 }
 
 void mission_stack_manager::pop_mission_pack_internal()

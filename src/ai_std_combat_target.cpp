@@ -144,6 +144,7 @@ void *ai::player_combat_target_inode::native_vtable()
     }();
     return table.data();
 }
+
 void *ai::venom_combat_target_inode::native_vtable()
 {
     static auto table = [] {

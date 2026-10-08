@@ -31,6 +31,7 @@
 #include "ngldebugshader.h"
 #include "nglemptyshader.h"
 #include "nglshader.h"
+#include "ngl/shaders/us_panel.h"
 #include "nglsortinfo.h"
 #include "osassert.h"
 #include "os_file.h"
@@ -1115,9 +1116,23 @@ void nglSetZWriteEnable(bool a1)
 
 math::VecClass<3, 1> nglProjectPoint(math::VecClass<3, 1> a2)
 {
-    math::VecClass<3, 1> result;
-    CDECL_CALL(0x0076BAA0, &result, a2);
-
+    nglCalculateMatrices(false);
+    const auto view = nglCurScene->WorldToView * vector3d{a2[0], a2[1], a2[2]};
+    const auto transformed = nglCurScene->field_C * view;
+    const auto &projection = nglCurScene->field_4C;
+    float clip[4]{};
+    for (unsigned axis = 0; axis < 4; ++axis)
+        clip[axis] = projection[0][axis] * transformed.x + projection[1][axis] * transformed.y +
+                     projection[2][axis] * transformed.z + projection[3][axis];
+    const float inverse = 1.0f / clip[3];
+    auto *texture = nglCurScene->field_334;
+    const float width = texture->field_34 & 4 ? nglGetScreenWidth() : texture->m_width;
+    const float height = texture->field_34 & 4 ? nglGetScreenHeight() : texture->m_height;
+    math::VecClass<3, 1> result{};
+    result[0] = width * (clip[0] * inverse * .5f + .5f);
+    result[1] = height * (clip[1] * inverse * .5f + .5f);
+    result[2] = view.z;
+    result[3] = 1.0f;
     return result;
 }
 
@@ -2546,76 +2561,31 @@ void nglRebaseMesh(uint32_t NewBase, uint32_t OldBase, nglMesh *pMesh)
 
 void nglProcessMorph(nglMeshFile *MeshFile, nglDirectoryEntry *a2, int base)
 {
-    if constexpr (0) {
-        struct {
-            int m_extension;
-            int field_4;
-            int field_8;
-            int field_C;
-            int field_10;
-        } *tmp = CAST(tmp, a2->field_4);
+    auto *morph = a2->field_4.Morph;
+    if (morph->Name != nullptr)
+        morph->Name = reinterpret_cast<tlHashString *>(reinterpret_cast<uintptr_t>(morph->Name) + base);
+    if (morph->Frames != nullptr)
+        morph->Frames = CAST(morph->Frames, reinterpret_cast<uintptr_t>(morph->Frames) + base);
+    if (morph->NextMorph != nullptr)
+        morph->NextMorph = CAST(morph->NextMorph, reinterpret_cast<uintptr_t>(morph->NextMorph) + base);
 
-        if (tmp->m_extension) {
-            tmp->m_extension += base;
-        }
+    nglMorphDirectory->Add(morph);
+    morph->field_C = MeshFile;
+    if (MeshFile->FirstMorph == nullptr)
+        MeshFile->FirstMorph = morph;
 
-        if (tmp->field_8) {
-            tmp->field_8 += base;
-        }
-
-        if (tmp->field_10) {
-            tmp->field_10 = base;
-        }
-
-        nglMorphSet *(__fastcall * Add)(void *, void *, nglMorphSet *) =
-            CAST(Add, get_vfunc(nglMorphDirectory->m_vtbl, 0x10));
-
-        nglMorphSet *Morph = CAST(Morph, tmp);
-
-        auto duplicate_morph = Add(nglMorphDirectory, nullptr, Morph);
-        if (duplicate_morph != nullptr) {
-            auto *v7 = duplicate_morph->field_C->FileName.to_string();
-            auto *v6 = duplicate_morph->field_C->FilePath;
-            auto *v5 = MeshFile->FileName.to_string();
-            auto *v3 = Morph->field_0.c_str();
-            sp_log("Duplicate morph %s found in %s%s.pcmorph.  Originally contained in "
-                   "%s%s.pcmorph.\n",
-                   v3,
-                   nglMeshPath,
-                   v5,
-                   v6,
-                   v7);
-        }
-
-        Morph->field_C = MeshFile;
-        if (MeshFile->FirstMorph == nullptr) {
-            MeshFile->FirstMorph = Morph;
-        }
-
-        auto *Frames = Morph->Frames;
-        for (auto idx = 0u; idx < Morph->NFrames; ++idx) {
-            if (Frames->field_8 != nullptr) {
-                Frames->field_8 = CAST(Frames->field_8, ((char *)Frames->field_8 + base));
+    for (int index = 0; index < morph->NFrames; ++index) {
+        auto &frame = morph->Frames[index];
+        if (frame.field_8 != nullptr)
+            frame.field_8 = CAST(frame.field_8, reinterpret_cast<uintptr_t>(frame.field_8) + base);
+        for (int section = 0; section < frame.field_4; ++section) {
+            for (auto &component : frame.field_8[section].field_8) {
+                if (component != 0)
+                    component += base;
             }
-
-            auto *v9 = Frames->field_8;
-            for (int j = 0; j < Frames->field_4; ++j) {
-                for (int k = 0; k < 32; ++k) {
-                    if (v9->field_8[k]) {
-                        v9->field_8[k] += base;
-                    }
-                }
-
-                ++v9;
-            }
-
-            ++Frames;
         }
-
-        Morph->Frames->field_0 = 2;
-    } else {
-        CDECL_CALL(0x00778840, MeshFile, a2, base);
     }
+    morph->Frames[0].field_0 = 2;
 }
 
 matrix4x3 transposed(const matrix4x3 &a2)
@@ -3665,7 +3635,7 @@ void nglGetStringDimensions(nglFont *Font, char *Text, uint32_t *Width, uint32_t
                     auto v17 = v11 - v10;
                     auto v18 = v14->GlyphSize[0];
                     auto v19 = v16->GlyphOrigin[0];
-                    fWidth += (v19 + v18 - v13[v17].CellWidth) * a5;
+                    fWidth += static_cast<int>(v19 + v18 - v13[v17].CellWidth) * a5;
                 }
 
                 if (fWidth > CurMaxWidth) {
@@ -3691,7 +3661,7 @@ void nglGetStringDimensions(nglFont *Font, char *Text, uint32_t *Width, uint32_t
             auto v9 = Font->GetGlyphInfo(v7);
             auto v10 = Font->GetGlyphInfo(v7)->GlyphOrigin[0] + v9->GlyphSize[0];
             auto v11 = Font->GetFontCellWidth(v7);
-            fWidth += (v10 - v11) * a5;
+            fWidth += static_cast<int>(v10 - v11) * a5;
         }
 
         if (Width != nullptr) {
@@ -3998,12 +3968,16 @@ void nglCopyMesh(nglMesh *a1, nglMesh *a2)
 
 int nglReleaseMeshFile(const tlFixedString &a1)
 {
-    return (int)CDECL_CALL(0x0076F2D0, &a1);
+    auto *mesh_file = nglMeshFileDirectory->Find(a1);
+    if (mesh_file != nullptr) {
+        return nglMeshFileDirectory->Release(mesh_file, 0, false);
+    }
+    return 0;
 }
 
 void nglReleaseAllMeshFiles()
 {
-    CDECL_CALL(0x0076F300);
+    nglMeshFileDirectory->ReleaseAll(false, false, 1);
 }
 
 nglMesh *nglGetNextMeshInFile(nglMesh *a1)
@@ -4030,11 +4004,7 @@ void *nglMeshMemAlloc(int Size, int Alignment, int a3)
 
 void nglReleaseAllTextures()
 {
-    auto *vtbl = bit_cast<int(*)[1]>(nglTextureDirectory->m_vtbl);
-
-    assert((*vtbl)[0] == 0x00560770);
-
-    THISCALL(0x00560770, nglTextureDirectory, 1, 0, 2);
+    nglTextureDirectory->ReleaseAll(true, false, 2);
 }
 
 void nglReleaseTexture(nglTexture *tex)
@@ -4701,7 +4671,7 @@ void nglSetBufferSize(nglBufferType type, uint32_t requested_size, bool resize_w
         auto &scratch = nglScratchBuffer();
         for (auto *buffer : {&scratch.field_0[0], &scratch.field_C}) {
             if (buffer->getVertexBuffer() != nullptr) {
-                buffer->getVertexBuffer()->lpVtbl->Release(buffer->getVertexBuffer());
+                nglVertexBuffer::sub_77B5D0(buffer, ResourceType::VertexBuffer);
                 buffer->getVertexBuffer() = nullptr;
             }
             if (size != 0) {
@@ -5372,10 +5342,43 @@ void nglReleaseFont(nglFont *font)
         CDECL_CALL(0x007793E0, font);
 }
 
+
 void sub_77B2F0(bool release_all)
 {
     if constexpr (STANDALONE_SYSTEM) {
-        (void)release_all;
+        auto &frame = var<uint32_t>(0x0097546C);
+        auto &interval = var<uint32_t>(0x00975470);
+        ++frame;
+        ++interval;
+        if (!release_all && (var<bool>(0x00975468) || interval < 5))
+            return;
+        interval = 0;
+        constexpr int limits[]{2200, 2000};
+        for (int type = 0; type < 2; ++type) {
+            if (!release_all && dword_975474[type] <= limits[type])
+                continue;
+            int remaining = 1;
+            for (int bucket = 0; bucket < 21; ++bucket) {
+                const int index = 21 * type + bucket;
+                auto *entry = dword_975318[index];
+                while (entry != nullptr && (release_all || (entry->field_0 + 5u < frame && remaining != 0))) {
+                    auto *next = entry->field_10;
+                    auto *buffer = static_cast<IUnknown *>(entry->m_buffer);
+                    buffer->lpVtbl->Release(buffer);
+                    delete entry;
+                    entry = next;
+                    --remaining;
+                    --dword_975474[type];
+                }
+                dword_975318[index] = entry;
+                if (entry != nullptr)
+                    entry->field_C = nullptr;
+                else
+                    dword_9753C0[index] = nullptr;
+                if (remaining == 0)
+                    break;
+            }
+        }
     } else {
         CDECL_CALL(0x0077B2F0, release_all);
     }
@@ -6063,6 +6066,7 @@ void nglInit(HWND hWnd)
         nglRegisterPersonVertexDefs();
         nglRegisterTentacleVertexDef();
         (void)getFrontEnd_Shader();
+        (void)getUSPanelShader();
         (void)USPersonShaderSpace::getUSPersonShader();
         (void)USPersonShaderSpace::getUSPersonSolidShader();
         (void)USPersonShaderSpace::getUSPersonMorphableShader();
@@ -6174,7 +6178,10 @@ void nglMeshInit()
 nglVertexDef_MultipassMesh<nglVertexDef_PCUV_Base> *sub_507920(nglMaterialBase *a1, int a2, int a3, int a4,
                                                                const void *a5, int a6, bool a7)
 {
-    return (nglVertexDef_MultipassMesh<nglVertexDef_PCUV_Base> *)CDECL_CALL(0x00507920, a1, a2, a3, a4, a5, a6, a7);
+    auto *definition = nglCreatePCUVVertexDef();
+    nglVertexDef_MultipassMesh_Base::AddMeshSection(
+        definition, a1, a2, a3, a4, a5, 24, static_cast<D3DPRIMITIVETYPE>(a6), a7);
+    return definition;
 }
 
 void Process_nglVertexDef_FrontEnd(void *a1)
@@ -6206,27 +6213,89 @@ void aeps_Init()
     nglCreateDebugMeshes();
 }
 
+
 void sub_76DF40()
 {
     TRACE("sub_76DF40");
 
-    sp_log("%d", EnableShader);
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
+        timeKillEvent(var<UINT>(0x00972238));
+        for (auto *texture : {celshadingTex(), celshadingSolidTex()}) {
+            if (texture != nullptr)
+                texture->lpVtbl->Release(texture);
+        }
+        if (water_texture() != nullptr)
+            water_texture()->lpVtbl->Release(water_texture());
+
+        auto &vertex_buffer = var<nglVertexBuffer>(0x00956558);
+        if (vertex_buffer.getVertexBuffer() != nullptr) {
+            nglVertexBuffer::sub_77B5D0(&vertex_buffer, ResourceType::VertexBuffer);
+            vertex_buffer.getVertexBuffer() = nullptr;
+        }
+        sub_782030();
+        sub_81E910();
+        for (auto *declaration : dword_9738E0) {
+            if (declaration != nullptr)
+                declaration->lpVtbl->Release(declaration);
+        }
+        auto &scratch = var<char *>(0x00973BD0);
+        delete[] scratch;
+        scratch = nullptr;
+        for (const int type : {0, 1, 3, 2})
+            nglSetBufferSize(static_cast<nglBufferType>(type), 0, true);
+
+        nglMeshFileDirectory->ReleaseAll(true, true, 1);
+        nglFontDirectory()->ReleaseAll(true, true, 1);
+        nglTextureDirectory->ReleaseAll(true, true, 2);
+        if (EnableShader)
+            releaseShaderLists();
+
+        auto &index_buffer = var<nglVertexBuffer>(0x009729C0);
+        if (index_buffer.getIndexBuffer() != nullptr) {
+            nglVertexBuffer::sub_77B5D0(&index_buffer, ResourceType::IndexBuffer);
+            index_buffer.getIndexBuffer() = nullptr;
+        }
+        for (auto *target : var<nglTexture *[2]>(0x00975A10))
+            nglDestroyTexture(target);
+        auto &texture = var<nglTexture *>(0x009754D8);
+        nglDestroyTexture(texture);
+        texture = nullptr;
+        var<int>(0x009754DC) = 0;
+        if (g_Direct3DDevice != nullptr) {
+            g_Direct3DDevice->lpVtbl->Release(g_Direct3DDevice);
+            g_Direct3DDevice = nullptr;
+        }
+        auto &g_pD3D = var<IDirect3D9 *>(0x00971FA4);
+        if (g_pD3D != nullptr) {
+            g_pD3D->lpVtbl->Release(g_pD3D);
+            g_pD3D = nullptr;
+        }
     } else {
         CDECL_CALL(0x0076DF40);
     }
-
-    nglDestroyDebugMeshes();
 }
+
 
 void sub_782030()
 {
+#if STANDALONE_SYSTEM
+    for (auto *entry = default_pool_tail; entry != nullptr; entry = entry->previous) {
+        auto &buffer = entry->buffer->getVertexBuffer();
+        buffer->lpVtbl->Release(buffer);
+        buffer = nullptr;
+    }
+#else
     CDECL_CALL(0x00782030);
+#endif
 }
+
 
 void sub_81E910()
 {
-    CDECL_CALL(0x0081E910);
+    auto &buffer = dword_987524();
+    if (buffer != nullptr)
+        buffer->lpVtbl->Release(buffer);
+    buffer = nullptr;
 }
 
 void nglPlatLoadPalette(nglPaletteFileHeader *a1, nglPalette **a2, uint8_t *a3)

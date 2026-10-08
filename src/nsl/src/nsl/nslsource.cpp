@@ -303,12 +303,13 @@ bool nslPlaySource(nslSourceID source_id)
         return false;
     }
     IDirectSoundBuffer_SetCurrentPosition(source->buffer, 0);
-
     if (source->pause_count != 0) {
         source->resume_playing = true;
         return true;
     }
-    return SUCCEEDED(IDirectSoundBuffer_Play(source->buffer, 0, 0, 0));
+    const auto *wave = nslGetWave(source->wave_id);
+    const auto flags = wave != nullptr && (wave->flags & 8u) != 0 ? DSBPLAY_LOOPING : 0;
+    return SUCCEEDED(IDirectSoundBuffer_Play(source->buffer, 0, 0, flags));
 }
 
 void nslStopSource(nslSourceID source_id)
@@ -356,7 +357,9 @@ void nslUnpauseSource(nslSourceID source_id)
         return;
     }
     if (--source->pause_count == 0 && source->resume_playing) {
-        IDirectSoundBuffer_Play(source->buffer, 0, 0, 0);
+        const auto *wave = nslGetWave(source->wave_id);
+        const auto flags = wave != nullptr && (wave->flags & 8u) != 0 ? DSBPLAY_LOOPING : 0;
+        IDirectSoundBuffer_Play(source->buffer, 0, 0, flags);
     }
 }
 

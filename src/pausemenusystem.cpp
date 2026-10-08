@@ -16,7 +16,6 @@
 #include "landmarks.h"
 #include "ltd_edition.h"
 #include "memory.h"
-
 #include "memoryunitmanager.h"
 #include "panelfile.h"
 #include "pause_menu_controller.h"
@@ -35,10 +34,10 @@
 #include "tlresource_directory.h"
 #include "resource_directory.h"
 #include "ngl.h"
-
 #include "cursor.h"
 #include "mission_manager.h"
 #include "variables.h"
+
 #include <cassert>
 
 VALIDATE_SIZE(PauseMenuSystem, 0x3Cu);
@@ -128,6 +127,7 @@ void PauseMenuSystem::Activate(int index, bool pause_game)
     THISCALL(0x0060BE90, this, index, pause_game);
 #endif
 }
+
 bool PauseMenuSystem::IsDialogActivated()
 {
     return this->m_index == 0;
@@ -221,14 +221,11 @@ void PauseMenuSystem::Update(Float a2)
 
                 if (dialog_text->field_9C != 3) {
                     auto *mini_map_widget = g_femanager.IGO->m_fe_mini_map_widget;
-
-
                     mini_map_widget->Update(a2);
                 }
             }
 
             auto *v4 = this->field_34->field_2C;
-
             if constexpr (STANDALONE_SYSTEM)
                 v4->field_24 = MemoryUnitManager::Service();
             else
@@ -245,16 +242,13 @@ void PauseMenuSystem::Update(Float a2)
                             static_cast<pause_menu_root *>(v6[idx1])->Update(a2);
                         else
                             v6[idx1]->Update(a2);
-
                     } else {
                         v6[idx1]->Update(a2);
                     }
                 }
             }
 
-
             this->UpdateButtonPresses();
-
 
             this->field_2C->Update(a2);
 

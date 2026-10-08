@@ -14,8 +14,8 @@
 #include "panelmeshsection.h"
 #include "trace.h"
 #include "vtbl.h"
-
 #include "variables.h"
+
 #include <algorithm>
 #include <new>
 #include <cmath>

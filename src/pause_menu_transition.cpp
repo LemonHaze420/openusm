@@ -7,8 +7,6 @@
 #include "pausemenusystem.h"
 #include "trace.h"
 #include "utility.h"
-
-
 #include "panelanimfile.h"
 #include "comic_panels.h"
 #include "fe_menu_nav_bar.h"
@@ -41,7 +39,6 @@ void pause_menu_transition::Update([[maybe_unused]] Float a2)
 {
     if constexpr (!STANDALONE_SYSTEM) {
         THISCALL(0x0061C680, this, a2);
-
         return;
     }
     auto *splash = reinterpret_cast<PanelAnimFile *>(field_30);

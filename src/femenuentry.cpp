@@ -4,8 +4,6 @@
 #include "femultilinetext.h"
 #include "func_wrapper.h"
 #include "utility.h"
-
-
 #include "vtbl.h"
 
 VALIDATE_SIZE(FEMenuEntry, 0x18);

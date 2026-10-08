@@ -6,26 +6,29 @@
 #include "nal_generic.h"
 #include "nal_system.h"
 #include "variable.h"
+#include "vector2d.h"
+#include "quaternion.h"
 
 namespace comic_panels {
 
 struct page_camera {
-    struct {
-        void *(__fastcall *CreateInstance)(void *, void *, nalAnimClass<nalAnyPose> *);
-        int field_4;
-        void(__fastcall *Render)(void *, void *, nalAnimClass<nalAnyPose>::nalInstanceClass *, Float);
+    struct callbacks {
+        void *(__fastcall *CreateInstance)(page_camera *, void *, nalAnimClass<nalAnyPose> *);
+        void(__fastcall *Advance)(page_camera *, void *, nalGeneric::nalGenericInstance *, Float, Float, int, int);
+        void(__fastcall *Render)(page_camera *, void *, nalAnimClass<nalAnyPose>::nalInstanceClass *, Float);
+        void(__fastcall *Release)(page_camera *, void *);
+        void(__fastcall *destroy)(page_camera *, void *, bool);
     } *m_vtbl;
-    struct {
-        int field_0;
+    struct pose_layers {
+        nalGeneric::nalGenericSkeleton *skeleton;
         nalGeneric::nalGenericPose field_4;
         nalGeneric::nalGenericPose field_10;
-        int field_1C;
-        int field_20;
-        int field_24;
-        int field_28;
-        int field_2C;
-        int field_30;
-        int field_34;
+        int count;
+        void *layers[3];
+        struct page_camera_layer *active;
+        struct page_camera_layer *free;
+        int generation;
+        explicit pose_layers(nalGeneric::nalGenericSkeleton *skeleton);
     } field_4;
     vector4d field_3C;
     matrix4x4 field_4C;
@@ -43,10 +46,18 @@ struct page_camera {
     bool field_EE;
     char field_EF;
 
+    page_camera();
+    ~page_camera();
+
     auto get_transform() const
     {
         return field_4C;
     }
+    vector2d ortho_size() const;
+    void interpret_pose(nalGeneric::nalGenericPose &pose);
+    void Advance(nalGeneric::nalGenericInstance *instance, Float time, Float previous, int, int);
+    void advance(Float dt);
+    void finalize(bool release);
 
     //virtual
     void *CreateInstance(nalAnimClass<nalAnyPose> *a2);
@@ -56,5 +67,6 @@ struct page_camera {
 };
 
 extern Var<page_camera *> cur_page_camera;
+page_camera *create_page_camera();
 
 }  // namespace comic_panels

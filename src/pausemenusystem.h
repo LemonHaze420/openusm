@@ -22,8 +22,9 @@ struct PauseMenuSystem : FEMenuSystem {
     //0x0060C160
     bool IsDialogActivated();
 
-    //0x006430F0
     void Activate(int index, bool pause_game);
+
+    //0x006430F0
     void LoadAll();
 
     //0x0060BEE0

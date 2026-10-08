@@ -10,6 +10,8 @@
 
 #include <cassert>
 
+VALIDATE_SIZE(nalComp::nalCompAnim, 0x50);
+
 void *nalComp::nalCompAnim::_GetPerAnimDataFromComponentIx(int a2)
 {
     if (a2 == -1) {

@@ -24,6 +24,7 @@ struct Input {
     int field_3C[10];
     int field_64[10];
     int field_8C[20];
+
     char m_device_names[10][100];
     DIMOUSESTATE2 m_mouse_state;
     DIMOUSESTATE2 m_old_mouse_state;
@@ -43,10 +44,7 @@ struct Input {
     HWND m_hwnd;
     float m_sensitivity;
     int empty26[2];
-    char m_keys[222][256];
-    int field_106A4;
-
-    int empty27[2175];
+    char m_keys[256][256];
     char m_mouseLeft[30];
     char m_mouseMiddle[30];
     char m_mouseRight[30];

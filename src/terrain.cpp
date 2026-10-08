@@ -579,7 +579,7 @@ bool terrain::district_construct_callback(resource_pack_slot::callback_enum reas
         if (directory.find_resource(script_key, &script_directory, &script_location)) {
             auto *script_data = script_directory->get_resource(script_location, nullptr);
             if (script_data != nullptr) {
-                script_manager::load(script_key, 0, which_pack_slot, *reinterpret_cast<resource_key *>(script_data));
+                script_manager::load(script_key, 0, which_pack_slot, resource_key{});
                 script_manager::link();
             }
         }
@@ -678,7 +678,7 @@ bool terrain::district_destruct_callback(resource_pack_slot::callback_enum reaso
         if (which_pack_slot->get_resource_directory().find_resource(script_key, &directory, &location)) {
             auto *script_data = directory->get_resource(location, nullptr);
             if (script_data != nullptr) {
-                script_manager::un_load(script_key, true, *reinterpret_cast<const resource_key *>(script_data));
+                script_manager::un_load(script_key, true, resource_key{});
             }
         }
         script_manager::add_global_constructor_thread(static_cast<float>(-reg->district_id), true);
@@ -1352,6 +1352,67 @@ bool terrain::is_district_pack_slot_locked(int slot_idx) const
 
     auto *slot = pack_slots[slot_idx];
     return this->field_24.is_pack_slot_locked(slot);
+}
+
+void terrain::hide_region(region *reg)
+{
+    for (auto *existing : field_80)
+        if (existing == reg)
+            return;
+    reg->flags |= 2u;
+    field_80.push_back(reg);
+}
+
+void terrain::show_region(region *reg)
+{
+    for (auto it = field_80.begin(); it != field_80.end(); ++it) {
+        if (*it == reg) {
+            reg->flags &= ~2u;
+            field_80.erase(it);
+            return;
+        }
+    }
+}
+
+int terrain::lock_district_pack_slot(const int *districts, int count)
+{
+    auto &slots = resource_manager::get_partition_pointer(RESOURCE_PARTITION_DISTRICT)->get_pack_slots();
+    int selected = -1;
+    float farthest = 0.0f;
+    for (unsigned i = 0; i < slots.size(); ++i) {
+        auto *slot = slots[i];
+        if (field_24.is_pack_slot_locked(slot))
+            continue;
+        if (slot->is_empty()) {
+            selected = i;
+            break;
+        }
+        if (!slot->is_pack_ready())
+            continue;
+        auto *pack = reinterpret_cast<eligible_pack *>(slot->get_pack_token().field_0);
+        auto *reg = regions[pack->get_token().field_4];
+        if (reg->flags & 2)
+            continue;
+        bool needed = false;
+        for (int d = 0; d < count; ++d)
+            if (districts[d] == reg->district_id)
+                needed = true;
+        if (needed)
+            continue;
+        auto *hero = g_world_ptr->get_hero_ptr(0);
+        if (hero->is_in_region(reg))
+            continue;
+        const auto difference = reg->field_B0 - hero->get_abs_position();
+        const float distance = difference.length2();
+        if (distance > farthest) {
+            farthest = distance;
+            selected = i;
+        }
+    }
+    if (selected == -1 && count)
+        return -1;
+    field_24.lock_pack_slot(slots[selected]);
+    return selected;
 }
 
 region *terrain::find_region(string_hash a2) const

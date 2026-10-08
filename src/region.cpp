@@ -24,6 +24,9 @@
 #include "trace.h"
 #include "wds.h"
 #include "vtbl.h"
+#include "ai_region_paths.h"
+#include "ai_quad_path_exit.h"
+#include <array>
 
 #include <cassert>
 #include <cfloat>
@@ -168,10 +171,74 @@ void region::unload_textures()
     }
 }
 
+namespace {
+bool __fastcall region_assign_handle(region::region_astar_search_record *, void *, region *node, unsigned int handle)
+{
+    node->field_20 = handle;
+    return true;
+}
+int __fastcall region_get_handle(region::region_astar_search_record *, void *, region *node)
+{
+    return node->field_20;
+}
+void *__fastcall region_reset_neighbors(region::region_astar_search_record *, void *, region *node)
+{
+    node->field_24 = 0;
+    return &node->field_24;
+}
+region *__fastcall region_next_neighbor(region::region_astar_search_record *, void *, region *node, void *)
+{
+    auto *graph = node->field_104;
+    while (static_cast<unsigned int>(node->field_24) < node->neighbors.size()) {
+        auto *neighbor = g_world_ptr->the_terrain->regions[node->neighbors[node->field_24++]];
+        if ((neighbor->flags & 1) != 0 || graph == nullptr)
+            continue;
+        const auto *exits = reinterpret_cast<const ai_quad_path_exit *>(graph->field_3C);
+        bool available = false, blocked = false;
+        for (int i = 0; i < graph->field_34; ++i) {
+            if (exits[i].district == neighbor->district_id) {
+                available |= (exits[i].flags & 2) == 0;
+                blocked |= (exits[i].flags & 1) != 0;
+            }
+        }
+        if (available && !blocked)
+            return neighbor;
+    }
+    return nullptr;
+}
+float __fastcall region_travel_cost(region::region_astar_search_record *, void *, region *, region *)
+{
+    return 1.0f;
+}
+float __fastcall region_estimate(region::region_astar_search_record *, void *, region *node, region *goal)
+{
+    return node == goal ? 0.0f : 1.0f;
+}
+void *__fastcall region_finalize(region::region_astar_search_record *self, void *, unsigned int flags)
+{
+    self->clean_up();
+    self->~region_astar_search_record();
+    if (flags & 1)
+        ::operator delete(self);
+    return self;
+}
+}
+
 region::region_astar_search_record::region_astar_search_record()
 {
-    this->m_vtbl = 0x0087F0EC;
-    this->field_24 = {};
+    static const std::array<std::uintptr_t, 7> table = {reinterpret_cast<std::uintptr_t>(&region_assign_handle),
+                                                        reinterpret_cast<std::uintptr_t>(&region_get_handle),
+                                                        reinterpret_cast<std::uintptr_t>(&region_reset_neighbors),
+                                                        reinterpret_cast<std::uintptr_t>(&region_next_neighbor),
+                                                        reinterpret_cast<std::uintptr_t>(&region_travel_cost),
+                                                        reinterpret_cast<std::uintptr_t>(&region_estimate),
+                                                        reinterpret_cast<std::uintptr_t>(&region_finalize)};
+    this->m_vtbl = reinterpret_cast<int>(table.data());
+    this->field_4 = nullptr;
+    this->m_node_pool = nullptr;
+    this->field_1C = false;
+    this->goal_found = false;
+    this->path_goal_to_start = &field_24;
 }
 
 void region::region_astar_search_record::setup(void *search_start, void *search_end)

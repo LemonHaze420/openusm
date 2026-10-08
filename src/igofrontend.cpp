@@ -67,7 +67,6 @@ IGOFrontEnd::IGOFrontEnd()
     }
 }
 
-
 IGOFrontEnd::~IGOFrontEnd()
 {
     delete m_fe_timer_widget;

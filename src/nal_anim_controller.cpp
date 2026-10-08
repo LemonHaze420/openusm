@@ -610,13 +610,13 @@ void nal_anim_controller::get_matrix_data_from_pose(nalAnyPose &a1)
 
                 this->field_4->set_abs_po(new_parent);
                 auto *child = v3->get_first_child();
-                auto v32 = new_parent.inverse();
+                const po inverse_parent = *new_parent.inverse();
                 for (; child != nullptr; child = child->field_28) {
                     if (child->has_model_po()) {
                         po new_po{};
                         auto *v6 = child->get_model_po();
 
-                        const ptr_to_po source{&v6->m, &v32->m};
+                        const ptr_to_po source{&v6->m, &inverse_parent.m};
                         new_po.set_from_ptr_to_po_world(source);
 
                         child->set_abs_po(new_po);

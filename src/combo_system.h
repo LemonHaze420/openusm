@@ -57,12 +57,10 @@ struct combo_system {
     //0x00489720
     void unmash(mash_info_struct *a1, void *a3);
 
-    //0x00456300
-
 
     void destruct_mashed_class();
 
-
+    //0x00456300
     combo_system_weapon *get_weapon(int idx);
 
     //0x00446A50

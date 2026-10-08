@@ -28,6 +28,8 @@ struct ai_lip_sync {
     ~ai_lip_sync();
 
     bool play(string_hash sound);
+    void set_morph_name(const mString &name);
+    void queue(string_hash sound, float delay);
     void frame_advance(float elapsed_seconds);
     void stop_all();
     bool sound_start_due() const;
@@ -68,6 +70,9 @@ struct voice_box_inode : info_node {
     bool service_speech_request(const speech_request &request);
 
     bool can_gab() const;
+    bool say_file(string_hash sound, int interruption, int priority, const unsigned char *excluded_teams);
+    bool say_sound_group(string_hash sound, int interruption, int priority, const unsigned char *excluded_teams);
+    bool is_speaking();
     bool say_gab(string_hash sound, int interruption, int priority, const unsigned char *excluded_teams);
 
     static bool is_any_voice_box_speaking_by_team(int team, const voice_box_inode *except);
@@ -78,6 +83,8 @@ private:
     void initialize_voice(mash::allocation_scope scope);
     void finalize_voice(mash::allocation_scope scope);
     void clear_speech_requests();
+    bool queue_speech(string_hash sound, int source_type, int interruption, int priority,
+                      const unsigned char *excluded_teams);
 
 public:
     void sub_6D7E10(const char *a2);

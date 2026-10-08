@@ -3,10 +3,10 @@
 #include "common.h"
 #include "fe_mini_map_dot.h"
 #include "entity_tracker.h"
-
 #include "femanager.h"
 #include "igofrontend.h"
 #include "thug_health.h"
+
 VALIDATE_SIZE(entity_tracker_manager, 0x50u);
 
 entity_tracker_manager::entity_tracker_manager() : tracker_slot_pool(128)
@@ -71,10 +71,10 @@ void entity_tracker_manager::destroy_entity_tracker(uint32_t id)
     entity_tracker *tracker = id_to_ptr(id);
     if (tracker == nullptr)
         return;
-
     auto *health = g_femanager.IGO->m_thug_health;
     if (tracker->field_C != health->field_0)
         health->destroy(tracker->field_C);
+
     field_0.erase(field_0.find(tracker->field_0));
     auto &pool = tracker_slot_pool;
     const int slot_index = id & pool.field_0;
@@ -98,9 +98,19 @@ void entity_tracker_manager::set_entity(uint32_t id, entity *owner)
         tracker->field_0 = handle;
     }
 }
+
 bool entity_tracker_manager::get_the_arrow_target_pos(vector3d *a2)
 {
-    return (bool)THISCALL(0x0062EE10, this, a2);
+    for (const auto &entry : field_0) {
+        auto *tracker = id_to_ptr(entry.second);
+        if (!tracker || !tracker->field_8)
+            continue;
+        if (auto *owner = tracker->field_0.get_volatile_ptr()) {
+            *a2 = owner->get_abs_position();
+            return true;
+        }
+    }
+    return false;
 }
 
 void entity_tracker_manager::place_poi_reticles()

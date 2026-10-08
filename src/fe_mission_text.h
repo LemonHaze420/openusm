@@ -71,12 +71,9 @@ struct fe_mission_text {
 
     //0x0060D0F0
     fe_mission_text();
-
-    //0x00643A80
-
     ~fe_mission_text();
 
-
+    //0x00643A80
     void Init();
 
     void draw_v10();

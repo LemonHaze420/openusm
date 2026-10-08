@@ -55,6 +55,9 @@ struct loco_inode : info_node {
     void set_goto_radius(float radius);
     void set_min_goto_time(float time);
     void set_facing_dir(const vector3d &direction);
+    vector3d chg_to_respect_tether(const vector3d &destination) const;
+    float calc_goto_radius(float radius) const;
+    void set_goto_dest_pos(const vector3d &destination, bool respect_tether);
 };
 
 struct biped_layer_inode : loco_inode {

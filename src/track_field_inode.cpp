@@ -20,6 +20,12 @@ namespace ai {
 VALIDATE_SIZE(track_field_inode, 0x3C);
 
 namespace {
+struct track_velocity_filter {
+    float value;
+    float weight;
+};
+}
+namespace {
 void *__fastcall track_delete(track_field_inode *self, void *, unsigned flags)
 {
     self->~track_field_inode();
@@ -63,12 +69,16 @@ void __fastcall track_ui_update(track_field_inode *self, void *)
 {
     self->ui_update();
 }
+void __fastcall track_ui_done(track_field_inode *self, void *)
+{
+    self->ui_done();
+}
 }  // namespace
 
 void *track_field_inode::native_vtable()
 {
     static auto table = [] {
-        std::array<void *, 15> result;
+        std::array<void *, 16> result;
         std::copy_n(static_cast<void **>(info_node::native_vtable()), 12, result.data());
         result[2] = reinterpret_cast<void *>(&track_delete);
         result[3] = reinterpret_cast<void *>(&track_type);
@@ -80,6 +90,7 @@ void *track_field_inode::native_vtable()
         result[12] = reinterpret_cast<void *>(&track_button);
         result[13] = reinterpret_cast<void *>(&track_ui_init);
         result[14] = reinterpret_cast<void *>(&track_ui_update);
+        result[15] = reinterpret_cast<void *>(&track_ui_done);
         return result;
     }();
     return table.data();
@@ -149,6 +160,49 @@ void track_field_inode::ui_init()
 void track_field_inode::ui_update()
 {
     g_femanager.IGO->m_fe_track_and_field->field_50 = std::clamp(field_20, 0.0f, 1.0f);
+}
+
+void track_field_inode::ui_done()
+{
+    auto *widget = g_femanager.IGO->m_fe_track_and_field;
+    if (widget->field_4) {
+        widget->field_4C = false;
+        if (widget->field_4D) {
+            g_femanager.IGO->m_fe_mini_map_widget->SetShown(true);
+            widget->field_4D = false;
+        }
+    }
+}
+
+void track_field_inode::begin(float difficulty)
+{
+    if (field_1C)
+        return;
+    field_1C = true;
+    field_20 = 0.0f;
+    field_38 = 0;
+    field_34 = 0;
+    field_28 = 0;
+    field_24 = difficulty;
+    using callback = void(__fastcall *)(track_field_inode *, void *);
+    reinterpret_cast<callback>(get_vfunc(m_vtbl, 0x34))(this, nullptr);
+}
+
+void track_field_inode::start_advanced()
+{
+    field_38 = 1;
+    field_28 = reinterpret_cast<std::intptr_t>(new track_velocity_filter{0.0f, 0.5f});
+}
+
+void track_field_inode::end()
+{
+    if (!field_1C)
+        return;
+    field_1C = false;
+    delete reinterpret_cast<track_velocity_filter *>(field_28);
+    field_28 = 0;
+    using callback = void(__fastcall *)(track_field_inode *, void *);
+    reinterpret_cast<callback>(get_vfunc(m_vtbl, 0x3C))(this, nullptr);
 }
 
 ai::track_field_inode::track_field_inode()

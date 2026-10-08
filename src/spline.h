@@ -35,6 +35,7 @@ struct spline {
     //0x005DB4A0
     void compute_spline_pos(Float a3, vector3d &a4, bool a5, spline::eSplineType a6);
 
+
     vector3d calc_point_at_percent(float percent);
 
     //0x005CE910

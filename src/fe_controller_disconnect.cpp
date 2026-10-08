@@ -11,7 +11,6 @@
 #include "panelquad.h"
 #include "pausemenusystem.h"
 
-
 #if STANDALONE_SYSTEM
 namespace {
 const bool connection_initialized = [] {

@@ -4,8 +4,6 @@
 #include "entity_base_vhandle.h"
 #include "float.hpp"
 #include "vector3d.h"
-
-
 #include <list.hpp>
 
 struct zoom_map_ui {
@@ -65,12 +63,9 @@ struct IGOZoomOutMap {
     int field_828;
 
     //0x006489A0
-
-
     IGOZoomOutMap();
 
     ~IGOZoomOutMap();
-
     void UpdateInScene();
     // 0x006386E0
     void UpdateSelectButton();

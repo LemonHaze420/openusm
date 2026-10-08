@@ -68,6 +68,8 @@ struct ai_player_controller {
     void lock_controls(bool a2);
 
     void unlock_controls(bool a2);
+    void begin_scene_animation();
+    void end_scene_animation();
 
     void set_spidey_loco_mode(eHeroLocoMode a2);
 

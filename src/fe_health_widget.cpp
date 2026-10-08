@@ -8,9 +8,8 @@
 #include "panelfile.h"
 #include "panelanim.h"
 #include "panelanimfile.h"
-
-// VALIDATE_SIZE(fe_health_widget, 0x58);
-
+#include "sound_instance_id.h"
+#include "string_hash.h"
 
 VALIDATE_SIZE(fe_health_widget, 0x58);
 VALIDATE_OFFSET(fe_health_widget, field_30, 0x30);
@@ -37,8 +36,7 @@ fe_health_widget::fe_health_widget(int a1)
 void fe_health_widget::SetShown(bool a2)
 {
     if constexpr (STANDALONE_SYSTEM) {
-        if (field_38 < 0 || field_38 >= number_of_types || panels[field_38] == nullptr ||
-            panels[field_38]->field_28.empty())
+        if (field_38 < 0 || field_38 >= number_of_types || panels[field_38] == nullptr)
             return;
 
         field_55 = true;
@@ -55,6 +53,7 @@ void fe_health_widget::SetShown(bool a2)
         animation->field_2C = false;
         animation->field_2D = true;
         animation->field_24 = a2 ? 0 : 1;
+        (void)sub_60B960(string_hash{a2 ? "FE_HEALTH_METER_OPEN" : "FE_HEALTH_METER_CLOSE"}, 1.0f, 1.0f);
     } else {
         THISCALL(0x0061A3F0, this, a2);
     }

@@ -41,6 +41,7 @@ struct matrix4x4 {
     //0x0048AA30
     matrix4x4(const vector3d &a2, const vector3d &a3, const vector3d &a4, const vector3d &a5);
 
+
     matrix4x4(const vector4d &a2, const vector4d &a3, const vector4d &a4, const vector4d &a5);
 
     matrix4x4(const matrix4x4 &a1);

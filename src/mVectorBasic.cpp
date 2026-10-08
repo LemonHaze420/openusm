@@ -26,7 +26,6 @@
 
 VALIDATE_SIZE(mVectorBasic<int>, 0x10);
 
-
 template <>
 void mVectorBasic<int>::destruct_mashed_class()
 {
@@ -67,6 +66,36 @@ void mVectorBasic<int>::reserve(int capacity)
         m_data = data;
         m_max_size = capacity;
     }
+}
+
+template <>
+void mVectorBasic<float>::reserve(int capacity)
+{
+    const bool mashed = is_pointer_in_mash_image(m_data);
+    if (capacity <= m_max_size && !mashed)
+        return;
+    auto *data = static_cast<float *>(::operator new(sizeof(float) * capacity));
+    if (m_size > 0)
+        std::memcpy(data, m_data, sizeof(float) * m_size);
+    if (!mashed)
+        ::operator delete[](m_data);
+    m_data = data;
+    m_max_size = capacity;
+}
+
+template <>
+void mVectorBasic<string_hash>::reserve(int capacity)
+{
+    const bool mashed = is_pointer_in_mash_image(m_data);
+    if (capacity <= m_max_size && !mashed)
+        return;
+    auto *data = static_cast<string_hash *>(::operator new(sizeof(string_hash) * capacity));
+    for (int index = 0; index < m_size; ++index)
+        new (data + index) string_hash{m_data[index]};
+    if (!mashed)
+        ::operator delete[](m_data);
+    m_data = data;
+    m_max_size = capacity;
 }
 
 template <>

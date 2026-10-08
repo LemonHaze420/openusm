@@ -165,6 +165,7 @@ string_hash spidey_base_state::get_desired_state_id(Float a3) const
             auto *v20 = this->get_core();
             auto *v21 = (controller_inode *)v20->get_info_node(controller_inode::default_id, true);
 
+
             vector3d axis = v21->get_axis(static_cast<controller_inode::eControllerAxis>(2));
             auto *v22 = this->get_actor();
             auto v53 = v19->get_abs_position() - v22->get_abs_position();

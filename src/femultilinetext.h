@@ -57,8 +57,6 @@ struct FEMultiLineText : FEText {
     //virtual
     void GetPos(Float &a2, Float &a3);
 
-    //0x0043DA90
-    //virtual
     void SetPos(Float x, Float y);
 
     void SetLineSpacing(int height);
@@ -67,6 +65,9 @@ struct FEMultiLineText : FEText {
     {
         return field_7C;
     }
+
+    //0x0043DA90
+    //virtual
     void SetButtonColor(color32 a2);
 
     //0x0043DA80
@@ -104,6 +105,9 @@ struct FEMultiLineText : FEText {
     //0x00633C00
     //virtual
     void SetTextBoxAllocNoLocalize(mString a2, int a6, Float a7);
+
+
+    void ReadFileBoxFormat(const char *name, int box_width, bool flatten_newlines);
 
     /* virtual */ void SetNumLines(int a2);
 

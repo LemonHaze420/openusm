@@ -78,9 +78,9 @@ struct ai_core {
     bool pop_base_machine(int);
 
     bool change_base_machine(resource_key the_state_graph, int a3, string_hash a4);
+    void reset_base_machine(string_hash state);
 
     //0x00687C50
-    void reset_base_machine(string_hash state);
     void create_capsule_alter();
 
     void adjust_colgeom(bool force);
@@ -98,6 +98,7 @@ struct ai_core {
     bool stop_movement();
     bool set_facing_dir(const vector3d &direction);
     bool set_facing_point(const vector3d &point);
+    bool goto_position(const vector3d &destination, float speed, float radius, float update_interval, unsigned flags);
 
     //0x0069B940
     void do_machine_exit(ai_state_machine *a2);

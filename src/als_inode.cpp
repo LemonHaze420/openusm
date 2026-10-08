@@ -13,6 +13,7 @@
 #include "vtbl.h"
 #include "wds.h"
 #include "native_info_node_table.h"
+#include <cmath>
 
 namespace ai {
 
@@ -39,6 +40,14 @@ void __fastcall native_deactivate(als_inode *self, void *)
 void __fastcall native_advance(als_inode *self, void *, Float dt)
 {
     self->frame_advance(dt);
+}
+void __fastcall native_parker_advance(parker_als_inode *self, void *, Float elapsed)
+{
+    self->frame_advance(elapsed);
+}
+void __fastcall native_parker_activate(parker_als_inode *self, void *, ai_core *core)
+{
+    self->activate(core);
 }
 void __fastcall native_set_signal(als_inode *self, void *, Float time, string_hash category)
 {
@@ -70,6 +79,48 @@ void *als_inode::native_vtable()
         return result;
     }();
     return table.data();
+}
+VALIDATE_SIZE(parker_als_inode, 0x30);
+
+parker_als_inode::parker_als_inode() : playback_speed(1.0f)
+{
+    m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[334]);
+}
+
+parker_als_inode::parker_als_inode(from_mash_in_place_constructor *constructor) : als_inode(constructor)
+{
+    m_vtbl = reinterpret_cast<std::intptr_t>(mash_virtual_base::vtable()[334]);
+}
+
+void *parker_als_inode::native_vtable()
+{
+    static auto table = [] {
+        native_inode::table<parker_als_inode, 334, 333, 15> result;
+        auto **base = static_cast<void **>(als_inode::native_vtable());
+        for (unsigned index = 0; index < 15; ++index) {
+            if (index != 2 && index != 3 && index != 4 && index != 11)
+                result[index] = base[index];
+        }
+        result[7] = reinterpret_cast<void *>(&native_parker_advance);
+        result[8] = reinterpret_cast<void *>(&native_parker_activate);
+        return result;
+    }();
+    return table.data();
+}
+
+void parker_als_inode::activate(ai_core *core)
+{
+    als_inode::activate(core);
+    playback_speed = 1.0f;
+}
+
+void parker_als_inode::frame_advance(Float)
+{
+    static const string_hash speed_key{to_hash("playback_speed")};
+    const float speed = my_param_block.get_optional_pb_float(speed_key, 1.0f, nullptr);
+    if (std::fpclassify(speed - 1.0f) != FP_ZERO || std::fpclassify(playback_speed - 1.0f) != FP_ZERO)
+        get_als_layer(static_cast<als::layer_types>(0))->set_desired_param(als::param{16, speed});
+    playback_speed = speed;
 }
 
 void als_inode::get_known_combat_signal_time_and_category(Float &time, string_hash &category) const

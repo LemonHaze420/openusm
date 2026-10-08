@@ -32,7 +32,6 @@ static bool &s_sound_manager_initialized = var<bool>(0x0095C829);
 static sound_volume (&s_volumes_by_type)[8] = var<sound_volume[8]>(0x0095C9A8);
 
 #else
-
 struct sound_type_fade {
     float start;
     float target;
@@ -45,6 +44,8 @@ struct sound_type_fade {
 static sound_type_fade s_type_fade{1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f};
 static uint32_t s_fade_sound_types;
 static uint32_t s_sound_manager_flags;
+static sound_instance_id s_hifi_stereo_track{};
+static sound_instance_id s_lofi_stereo_tracks[2]{};
 
 static unsigned int native_sound_type(nslWaveID wave)
 {
@@ -59,6 +60,8 @@ static unsigned int native_sound_type(nslWaveID wave)
     }
     return 0;
 }
+
+
 static bool &s_sound_manager_initialized = []() -> auto & {
     static bool s_sound_manager_initialized1{};
     return s_sound_manager_initialized1;
@@ -208,6 +211,67 @@ sound_instance_id sound_manager::create_sound_instance(uint32_t scope, string_ha
 #endif
 }
 
+sound_instance_id sound_manager::create_hifi_stereo_sound_instance(uint32_t scope, string_hash sound, bool stompable)
+{
+#if STANDALONE_SYSTEM
+    if (os_developer_options::instance->get_flag(static_cast<os_developer_options::flags_t>(103)))
+        return {};
+    const auto source = get_sound_source(sound);
+    const auto *wave = nslGetWave(source.wave_id);
+    if (wave == nullptr || wave->name_hash == 0)
+        return {};
+    const auto allow_non_stereo =
+        os_developer_options::instance->get_flag(static_cast<os_developer_options::flags_t>(106));
+    if (!allow_non_stereo && (nslGetWaveChannelCount(source.wave_id) < 2 || wave->sample_rate <= 24000))
+        return {};
+    if (auto *previous = s_hifi_stereo_track.get_sound_instance_ptr()) {
+        if ((previous->flags & 0x200u) == 0)
+            return {};
+        previous->stop();
+    }
+    s_hifi_stereo_track = create_native_sound_instance(scope, source.wave_id, source.alias);
+    if (auto *instance = s_hifi_stereo_track.get_sound_instance_ptr()) {
+        if (stompable)
+            instance->flags |= 0x200u;
+        else
+            instance->flags &= ~0x200u;
+    }
+    return s_hifi_stereo_track;
+#else
+    sound_instance_id result{};
+    CDECL_CALL(0x00558E20, &result, scope, sound, stompable);
+    return result;
+#endif
+}
+
+sound_instance_id sound_manager::create_lofi_stereo_sound_instance(uint32_t scope, string_hash sound)
+{
+#if STANDALONE_SYSTEM
+    if (os_developer_options::instance->get_flag(static_cast<os_developer_options::flags_t>(103)))
+        return {};
+    const auto source = get_sound_source(sound);
+    const auto *wave = nslGetWave(source.wave_id);
+    if (wave == nullptr || wave->name_hash == 0)
+        return {};
+    const auto allow_non_stereo =
+        os_developer_options::instance->get_flag(static_cast<os_developer_options::flags_t>(106));
+    if (!allow_non_stereo &&
+        (nslGetWaveChannelCount(source.wave_id) < 2 || wave->sample_rate < 12000 || wave->sample_rate > 24000))
+        return {};
+    for (auto &track : s_lofi_stereo_tracks) {
+        if (track.get_sound_instance_ptr() == nullptr) {
+            track = create_native_sound_instance(scope, source.wave_id, source.alias);
+            return track;
+        }
+    }
+    return {};
+#else
+    sound_instance_id result{};
+    CDECL_CALL(0x00558FE0, &result, scope, sound);
+    return result;
+#endif
+}
+
 
 void sound_manager::delete_inst()
 {
@@ -313,6 +377,8 @@ float sound_manager::get_wave_type_volume(nslWaveID wave)
     return get_effective_source_type_volume(native_sound_type(wave));
 }
 #endif
+
+
 void sound_manager::set_source_type_volume(unsigned int source_type, Float value, Float duration)
 {
     assert(s_sound_manager_initialized);
@@ -322,6 +388,22 @@ void sound_manager::set_source_type_volume(unsigned int source_type, Float value
     s_volumes_by_type[source_type].field_0 = value;
 #else
     CDECL_CALL(0x0050FC50, source_type, value, duration);
+#endif
+}
+
+
+void sound_manager::pause_all_sounds()
+{
+#if STANDALONE_SYSTEM
+    for (int index = 0; index < 128; ++index) {
+        auto &slot = s_sound_instance_slots[index];
+        if (slot.field_50 != 0) {
+            nslPauseSource(slot.instance.source_id);
+            slot.instance.state = 4;
+        }
+    }
+#else
+    CDECL_CALL(0x0050FA10);
 #endif
 }
 

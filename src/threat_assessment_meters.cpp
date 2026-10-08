@@ -19,7 +19,6 @@ threat_assessment_meters::threat_assessment_meters()
 
     this->field_14 = nullptr;
     this->field_134 = 0.0;
-
     for (auto &instance : field_64) {
         instance.field_0 = false;
         instance.field_18 = 0;

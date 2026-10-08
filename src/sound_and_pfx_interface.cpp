@@ -52,7 +52,6 @@ void decode_event(sound_interface_event_info &event, generic_mash_data_ptrs *dat
 
     event.available = new _std::list<sound_interface_resource_info *>;
 }
-
 #endif
 
 void release_events(mashable_vector<sound_interface_event_info> &events)

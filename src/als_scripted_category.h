@@ -33,13 +33,11 @@ struct scripted_category : category {
     //0x004AC850
     void _unmash(mash_info_struct *a1, void *);
 
-    //virtual
-
 
     void _destruct_mashed_class();
     void *_scalar_deleting_destructor(unsigned int flags);
 
-
+    //virtual
     int _get_virtual_type_enum() const;
 
     //virtual

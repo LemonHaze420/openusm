@@ -137,8 +137,8 @@ public:
     //0x0058F7E0
     bool call_script_library_function(const vm_thread::argument_t &a2, const uint16_t *a3);
 
-    static void register_callbacks(void (*a1)(vm_thread *, string_hash, vhandle_type<signaller>, vm_executable *,
-                                              char *, bool),
+    static void register_callbacks(void (*a1)(vm_thread *, string_hash, vhandle_type<signaller>, script_instance *,
+                                              vm_executable *, char *, bool),
                                    void (*a2)(vm_thread *, string_hash, vhandle_type<signaller>),
                                    void (*a3)(vm_thread *, string_hash), int (*a4)(uint32_t, uint32_t),
                                    void (*a5)(vm_thread *, string_hash));
@@ -148,7 +148,8 @@ public:
     static Var<fixed_pool> pool;
 
     static inline auto &add_signal_callback_callback =
-        var<void (*)(vm_thread *, string_hash, vhandle_type<signaller>, vm_executable *, char *, bool)>(0x00965F10);
+        var<void (*)(vm_thread *, string_hash, vhandle_type<signaller>, script_instance *, vm_executable *, char *,
+                     bool)>(0x00965F10);
 
     static inline auto &raise_signal_callback =
         var<void (*)(vm_thread *, string_hash, vhandle_type<signaller>)>(0x00965F14);

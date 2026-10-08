@@ -99,10 +99,9 @@ struct FEMenu {
     /* virtual */ void OnAnyButtonPress(int a2, int a3);
 
     /* virtual */ void OnButtonRelease(int a2, int a3);
+    void OnWindowMessage(unsigned message, int wparam, int lparam);
 
-    /* virtual */ void OnWindowMessage(unsigned message, int wparam, int lparam);
-
-    void SetHigh(int a2, bool a3);
+    /* virtual */ void SetHigh(int a2, bool a3);
 
     /* virtual */ void SetVis(int a2);
 

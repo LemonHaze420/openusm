@@ -2,7 +2,6 @@
 
 #include "common.h"
 #include "frontendmenusystem.h"
-
 #include "input_mgr.h"
 #include "cursor.h"
 #include "femultilinetext.h"
@@ -190,7 +189,6 @@ void main_menu_memcard_check::SetDialogMessage()
     auto localized = [](int id) {
         return g_game_ptr->field_7C->lookup_localized_string(static_cast<global_text_enum>(id));
     };
-
     switch (static_cast<int>(field_108)) {
     case 0:
         field_12C[0] = localized(451);
@@ -326,7 +324,6 @@ void main_menu_memcard_check::SetUpDialogBox(dialog_state state)
         field_E0[i]->SetNoFlash(color32{0xFFC8C8C8});
         field_E0[i]->SetScale(0.9f);
     }
-
     int selected = state == 8 ? 1 : -1;
     if (selected < 0 || field_12C[selected + 3].size() == 0) {
         selected = -1;

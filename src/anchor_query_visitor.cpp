@@ -12,7 +12,6 @@
 
 VALIDATE_SIZE(anchor_query_visitor, 0x28);
 
-
 static int visit_anchor(subdivision_visitor &visitor, const subdivision_node &node)
 {
     return static_cast<anchor_query_visitor &>(visitor).visit(const_cast<subdivision_node *>(&node));
@@ -110,6 +109,7 @@ void anchor_query_visitor::add_quick_anchor(entity_base *anchor, entity *clone_p
         vector3d origin;
 
         auto *v3 = bit_cast<line_marker_base *>(anchor);
+
 
         if (anchor->get_flavor() == LINE_ANCHOR) {
             target = v3->get_target();

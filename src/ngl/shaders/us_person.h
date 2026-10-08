@@ -189,6 +189,7 @@ struct USPersonNode : USVariantShaderNode {
 struct USPersonSolidNode : USPersonNode {
     USPersonSolidNode(nglMeshNode *, nglMeshSection *, nglMaterialBase *);
     void *operator new(size_t size);
+
     void operator delete(void *) noexcept {}
     void _Render();
     void _GetSortInfo(nglSortInfo &sortInfo);

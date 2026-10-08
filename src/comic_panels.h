@@ -16,6 +16,7 @@ struct actor;
 struct entity;
 struct signaller;
 struct nglTexture;
+struct glam_camera;
 
 namespace nalPanel {
 struct nalPanelAnim;
@@ -24,6 +25,7 @@ struct nalPanelAnim;
 namespace comic_panels {
 
 struct panel;
+extern glam_camera *(&glamour_cams)[4];
 
 struct panel_params_t {
     uint32_t field_0;
@@ -111,18 +113,28 @@ struct panel {
     aarect<float, vector2d> get_rect() const;
 
     vector3d get_loc() const;
+    vector2d project_position(const vector3d &position);
 
     //0x007319C0
     void set_size(const vector2d &a2);
 
     //0x007319A0
     void set_loc(const vector3d &a2);
+    void set_gutter_rect(const aarect<float, vector2d> &rect);
+    aarect<float, vector2d> get_gutter_rect() const;
+    void add_gutter_component(bool border, bool fill, bool shadow);
+    void add_color_component(const color &value, bool clear_depth);
+    void add_texture_component(nglTexture *texture);
+    void reset_base_opacity();
+    void reset_gameplay_components();
 };
+
+void release_panel(panel *value);
 
 struct panel_component_camera : panel_component {
     aarect<float, vector2d> field_8;
-    int field_18;
-    int field_1C;
+    float field_18;
+    float field_1C;
     bool field_20;
     float field_24;
     int field_28;
@@ -145,6 +157,8 @@ struct panel_component_camera : panel_component {
 
     //virtual
     void _capture(panel_component::render_info &a2);
+
+    void setup_geomgr(render_info &info);
 };
 
 struct panel_component_base {

@@ -11,6 +11,7 @@
 #include <cmath>
 
 VALIDATE_SIZE(nalChar::nalCharInstance, 0x20u);
+VALIDATE_SIZE(nalChar::nalCharAnim, 0x58);
 
 static constexpr auto NAL_CHAR_VERSION = 0x10003;
 
@@ -24,7 +25,7 @@ void nalChar::nalCharInstance::finalize(bool a2)
 {
     this->~nalCharInstance();
     if ((a2 & 1) != 0) {
-        ::operator delete(this);
+        nalAnimClass<nalAnyPose>::nalInstanceClass::operator delete(this);
     }
 }
 

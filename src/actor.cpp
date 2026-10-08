@@ -56,6 +56,10 @@
 #include "vtbl.h"
 #include "web_interface.h"
 #include "wds.h"
+#include "input_mgr.h"
+#include "nal_anim_controller.h"
+#include "resource_pack_slot.h"
+#include "resource_directory.h"
 
 #include <list.hpp>
 #include <algorithm>
@@ -85,6 +89,31 @@ static collision_free_state *allocate_collision_free_state_block()
         free_head = slot;
     }
     return free_head;
+}
+
+namespace {
+struct scene_actor_state {
+    union {
+        uint32_t handle;
+        scene_actor_state *free;
+    };
+    uint32_t flags;
+    scene_actor_state *next;
+};
+scene_actor_state *scene_actor_states[32]{};
+scene_actor_state *free_scene_actor_states = nullptr;
+
+
+scene_actor_state *allocate_scene_actor_states()
+{
+    auto *block = static_cast<scene_actor_state *>(tlMemAlloc(0x600, 4, 4));
+    scene_actor_state *head = nullptr;
+    for (int index = 127; index >= 0; --index) {
+        block[index].free = head;
+        head = block + index;
+    }
+    return head;
+}
 }
 
 actor::actor(const string_hash &a2, uint32_t a3) : entity(a2, a3)
@@ -419,12 +448,123 @@ animation_controller::anim_ctrl_handle actor::play_anim(const string_hash &a3)
 
 void actor::bind_to_scene_anim()
 {
-    THISCALL(0x004EF400, this);
+    suspend(true);
+    if (!free_scene_actor_states)
+        free_scene_actor_states = allocate_scene_actor_states();
+    auto *saved = free_scene_actor_states;
+    free_scene_actor_states = saved->free;
+    saved->handle = my_handle.field_0;
+    saved->flags = (field_4 & 0x4000u) ? 1u : 0u;
+    if (has_physical_ifc()) {
+        auto *physics = physical_ifc();
+        if (physics->field_C & 2u)
+            saved->flags |= 2u;
+        if (physics->field_C & 1u)
+            saved->flags |= 4u;
+    }
+    const auto bucket = my_handle.field_0 & 31u;
+    saved->next = scene_actor_states[bucket];
+    scene_actor_states[bucket] = saved;
+    if (has_physical_ifc()) {
+        auto *physics = physical_ifc();
+        physics->set_control_parent(nullptr);
+        physics->field_C = (physics->field_C | 2u) & ~1u;
+        set_collisions_active(false, true);
+    }
+    if (is_hero())
+        get_player_controller()->begin_scene_animation();
+    invalidate_frame_delta();
+    field_8 |= 0x40000u;
+    input_mgr::instance->field_24 = true;
+    if (!anim_ctrl) {
+        const bool has_logic = (field_4 & 4u) && static_cast<conglomerate *>(this)->field_114 &&
+                               static_cast<conglomerate *>(this)->field_114->field_8;
+        allocate_anim_controller(has_logic ? 0u : 2u, nullptr);
+    }
+    auto begin =
+        reinterpret_cast<void(__fastcall *)(nal_anim_controller *, void *)>(get_vfunc(anim_ctrl->m_vtbl, 0x20));
+    begin(anim_ctrl, nullptr);
 }
 
-void actor::unbind_from_scene_anim(string_hash a3, string_hash a4)
+void actor::unbind_from_scene_anim(string_hash category, string_hash animation)
 {
-    THISCALL(0x004E2750, this, a3, a4);
+    auto end = reinterpret_cast<void(__fastcall *)(nal_anim_controller *, void *)>(get_vfunc(anim_ctrl->m_vtbl, 0x24));
+    end(anim_ctrl, nullptr);
+    field_4 &= ~0x40000000u;
+    if (anim_ctrl->field_10 & 2u) {
+        auto destroy =
+            reinterpret_cast<void(__fastcall *)(nal_anim_controller *, void *, bool)>(get_vfunc(anim_ctrl->m_vtbl, 0));
+        destroy(anim_ctrl, nullptr, true);
+        anim_ctrl = nullptr;
+    }
+    invalidate_frame_delta();
+    field_8 &= ~0x40000u;
+    auto **link = &scene_actor_states[my_handle.field_0 & 31u];
+    while (*link && (*link)->handle != my_handle.field_0)
+        link = &(*link)->next;
+    auto *saved = *link;
+    *link = saved->next;
+    set_collisions_active((saved->flags & 1u) != 0, true);
+    if (has_physical_ifc()) {
+        auto *physics = physical_ifc();
+        physics->field_C = (physics->field_C & ~3u) | ((saved->flags & 4u) ? 1u : 0u) | (saved->flags & 2u);
+    }
+    saved->free = free_scene_actor_states;
+    free_scene_actor_states = saved;
+    if (has_physical_ifc()) {
+        auto *physics = physical_ifc();
+        physics->set_velocity(ZEROVEC, false);
+        physics->field_2C = physics->field_38 = physics->field_44 = ZEROVEC;
+        physics->cancel_all_velocity();
+    }
+    set_allow_tunnelling_into_next_frame(true);
+    if (field_4 & 4u) {
+        auto *conglom = static_cast<conglomerate *>(this);
+        if (animation != string_hash{}) {
+            if (m_resource_context)
+                resource_manager::push_resource_context(m_resource_context);
+            auto *anim = reinterpret_cast<nalAnimClass<nalAnyPose> *>(
+                m_resource_context->get_resource_directory().get_tlresource(animation.source_hash_code,
+                                                                            TLRESOURCE_TYPE_ANIM));
+            if (anim) {
+                auto *instance = anim->VirtualCreateInstance(m_skeleton);
+                auto *sample = m_skeleton->VirtualCreatePose();
+                nalAnyPose sampled{*sample, false};
+                auto *reference_skeleton = const_cast<nalBaseSkeleton *>(instance->GetSkeleton());
+                nalAnyPose reference{*reference_skeleton->VirtualGetDefaultPose(), false};
+                instance->GetPose(Float{0.0f}, Float{0.0f}, sampled, reference);
+                instance->finalize(true);
+                m_skeleton->VirtualGetBoneMatrices(sample,
+                                                   reinterpret_cast<nalMatrix4x4 *>(conglom->all_model_po.m_data));
+                po root_inverse = *conglom->all_model_po[0].inverse();
+                const po absolute = root_inverse.sub_4BAB00(get_abs_po());
+                set_abs_po(absolute);
+                const po inverse_absolute = *absolute.inverse();
+                for (auto *child = m_child; child; child = child->field_28) {
+                    if ((child->field_4 & 0x8000u) && child != child->my_conglom_root) {
+                        auto *root = child->my_conglom_root;
+                        const unsigned index = static_cast<uint8_t>(child->rel_po_idx) - 1u;
+                        if (index < root->all_model_po.size()) {
+                            po pose{identity_matrix};
+                            ptr_to_po composition{&root->all_model_po[index].m, &inverse_absolute.m};
+                            pose.set_from_ptr_to_po_world(composition);
+                            child->set_abs_po(pose);
+                            child->update_abs_po(true);
+                        }
+                    }
+                }
+                m_skeleton->VirtualDestroyPose(sample);
+            }
+            resource_manager::pop_resource_context();
+        }
+        if (conglom->field_114 && conglom->field_114->field_8) {
+            auto *layer = conglom->field_114->field_8->get_als_layer_internal(static_cast<als::layer_types>(0));
+            if (category != string_hash{} || is_hero())
+                layer->force_als_state(category == string_hash{} ? string_hash{"Idle_No_Blend"} : category, 0xDEADBEEF);
+        }
+    }
+    if (is_hero())
+        get_player_controller()->end_scene_animation();
 }
 
 float actor::get_floor_offset()

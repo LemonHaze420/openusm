@@ -33,6 +33,8 @@
 #include "wds.h"
 
 #include "resource_directory.h"
+#include <algorithm>
+#include <cmath>
 
 VALIDATE_SIZE(fe_mini_map_widget, 0x3B8u);
 
@@ -160,7 +162,7 @@ void fe_mini_map_widget::PrepareRegions()
 {
     TRACE("fe_mini_map_widget::PrepareRegions");
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         for (auto &mat : this->field_4) {
             mat.m_texture = nullptr;
         }
@@ -177,7 +179,7 @@ void fe_mini_map_widget::PrepareRegions()
         for (int i = 0; i < v18.count; ++i) {
             auto *reg = v18[i];
             if (reg != nullptr) {
-                if (reg->is_loaded() && !reg->is_interior()) {
+                if (reg->is_loaded() && !reg->is_interior() && !(reg->flags & 0x40000u)) {
                     auto scene_id = reg->get_scene_id(1);
                     auto key = create_resource_key_from_path(scene_id.c_str(), RESOURCE_KEY_TYPE_PACK);
                     auto *dir = resource_manager::get_resource_directory(key);
@@ -201,7 +203,7 @@ void fe_mini_map_widget::RenderMeshes(matrix4x4 *a2, float &a4)
 {
     TRACE("fe_mini_map_widget::RenderMeshes");
 
-    if constexpr (0) {
+    if constexpr (STANDALONE_SYSTEM) {
         uint32_t v5 = 0;
         for (int i = 0; i < 12; ++i) {
             if (this->field_4[i].m_texture != nullptr) {
@@ -228,16 +230,16 @@ void fe_mini_map_widget::RenderMeshes(matrix4x4 *a2, float &a4)
                     v47[1] = this->field_244[i] - v47[2];
                     v47[0] = this->field_2D4[i] - v47[2];
 
-                    iter.Write(v47[1], -1, vector2d{1.0, 1.0});
+                    iter.Write({v47[1].x, 0.0f, v47[1].z}, -1, vector2d{1.0, 1.0});
                     ++iter;
 
-                    iter.Write(v47[1], -1, vector2d{1.0, 0.0});
+                    iter.Write({v47[1].x, 0.0f, v47[0].z}, -1, vector2d{1.0, 0.0});
                     ++iter;
 
-                    iter.Write(v47[0], -1, vector2d{0.0, 1.0});
+                    iter.Write({v47[0].x, 0.0f, v47[1].z}, -1, vector2d{0.0, 1.0});
                     ++iter;
 
-                    iter.Write(v47[0], -1, vector2d{0.0, 0.0});
+                    iter.Write({v47[0].x, 0.0f, v47[0].z}, -1, vector2d{0.0, 0.0});
                     ++iter;
 
                     auto *v36 = iter.field_4->field_4;
@@ -309,9 +311,9 @@ void fe_mini_map_widget::RenderMeshes(matrix4x4 *a2, float &a4)
         matrix4x4 v83{};
         v83.make_translate(vector3d{0, 0, MINI_MAP_ZOOM});
         auto v60 = v81 * a3;
-        matrix4x4 a2 = v60 * v83;
+        *a2 = v60 * v83;
         if (mesh != nullptr) {
-            nglListAddMesh(mesh, *bit_cast<math::MatClass<4, 3> *>(&a2), nullptr, nullptr);
+            nglListAddMesh(mesh, *bit_cast<math::MatClass<4, 3> *>(a2), nullptr, nullptr);
         }
 
     } else {
@@ -324,25 +326,32 @@ struct poi_sort_record_t {
     fe_mini_map_dot *field_4;
 };
 
-void sort__poi_sort_record_t(poi_sort_record_t *a1, poi_sort_record_t *a2, int a3)
+void sort__poi_sort_record_t(poi_sort_record_t *first, poi_sort_record_t *last, int)
 {
-    TRACE("std::sort<poi_sort_record_t>");
-
-    sp_log("%d %f", a3, a1->field_0);
-
-    CDECL_CALL(0x0064BCA0, a1, a2, a3);
-
-    sp_log("%f", a1->field_0);
+    std::sort(
+        first, last, [](const poi_sort_record_t &a, const poi_sort_record_t &b) { return a.field_0 < b.field_0; });
 }
 
-void fe_mini_map_widget::UpdatePOIs(matrix4x4 *a2, Float a3, Float a4, Float a5, Float a6, Float a7)
+void fe_mini_map_widget::UpdatePOIs(matrix4x4 *transform, Float angle, Float left, Float right, Float top, Float bottom)
 {
-    TRACE("fe_mini_map_widget::UpdatePOIs");
-
-    if constexpr (0) {
-    } else {
-        THISCALL(0x0063AEC0, this, a2, a3, a4, a5, a6, a7);
+    const auto position = g_world_ptr->get_hero_or_marky_cam_ptr()->get_abs_position();
+    poi_sort_record_t records[50];
+    unsigned count = 0;
+    for (auto *dot : field_364) {
+        if (dot->field_24)
+            records[count++] = {(dot->field_14 - position).length2(), dot};
     }
+    sort__poi_sort_record_t(records, records + count, count);
+    const float sine = std::sin(static_cast<float>(angle));
+    unsigned index = 0;
+    for (; index < count; ++index) {
+        if (index > 10 && records[index].field_0 > 40000.0f)
+            break;
+        records[index].field_4->field_25 = true;
+        records[index].field_4->Update(*transform, position, sine, left, right, top, bottom);
+    }
+    for (; index < count; ++index)
+        records[index].field_4->field_25 = false;
 }
 
 void fe_mini_map_widget::_Draw()

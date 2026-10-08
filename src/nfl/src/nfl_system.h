@@ -125,6 +125,9 @@ struct nflMediaID {
 
 extern inline const nflMediaID NFL_MEDIA_ID_INVALID{-1};
 
+extern nflMediaID sub_79DA70(nflFileID file);
+extern int *sub_79E020(nflMediaID media, int *out);
+
 struct nflCommand {
     int field_0;
     int field_4;

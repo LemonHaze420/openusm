@@ -39,13 +39,10 @@ struct pause_menu_status : FEMenu {
 
     //0x0060FF30
     pause_menu_status(FEMenuSystem *a2, int a3, int a4);
-
-    //0x00610290
-
     void SetContentType(int type);
     void OnActivate();
 
-
+    //0x00610290
     mString *get_element_desc(mString *out, int a3);
 
     //0x0061CC30

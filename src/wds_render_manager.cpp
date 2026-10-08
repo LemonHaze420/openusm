@@ -747,8 +747,8 @@ void project_view_frustum(const vector3d &forward, projected_frustum &points, fl
     compute_projected_hull(points);
 }
 
-
 #if STANDALONE_SYSTEM
+
 bool square_intersects_projected_hull(const projected_frustum &points, const vector2d &min, const vector2d &max)
 {
     vector2d hull_min{std::numeric_limits<float>::max(), std::numeric_limits<float>::max()};
@@ -1039,7 +1039,7 @@ void wds_render_manager::build_render_data_ents(render_data &data, camera &cam, 
         const float distance_squared =
             delta.x * delta.x + delta.z * delta.z + (group != 0 && reg != nullptr ? 0.0f : delta.y * delta.y);
         const float fade_distance =
-            group != 0 && reg != nullptr ? reg->field_44[group] : distance_fader::fade_distances2()[ent.field_4 & 0xF];
+            group != 0 && reg != nullptr ? reg->field_44[group] : distance_fader::fade_distances2()[ent.field_8 & 0xF];
         int timer;
         if (distance_squared < std::min(far_squared, fade_distance))
             timer = !fade_enabled() || !seen ? 255 : std::min(255, int(ent.m_timer) + fade_rate());

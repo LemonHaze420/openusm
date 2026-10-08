@@ -33,6 +33,7 @@ struct polytube_pt_anim {
 
     polytube_pt_anim();
     void frame_advance(Float dt, vector3d &point);
+    void set_anim(const vector3d &start, const vector3d &direction, float duration, unsigned flags);
 };
 
 struct PolytubeCustomOffset {
@@ -121,6 +122,10 @@ struct polytube : entity {
     void update_active_list();
     void kill_anim(int index, bool restore_position);
     void clear_simulations();
+    void set_anim(int index, const vector3d &start, const vector3d &direction, float duration, unsigned flags);
+    void set_random_pt_anim(int index, float radius, float duration, unsigned flags);
+    void ifl_lock(int frame);
+    void ifl_play();
 
     void rebuild_helper();
 

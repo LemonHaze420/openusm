@@ -18,6 +18,7 @@ struct fe_hotpursuit_indicator {
 
     void Init();
 
+
     void Draw();
 
     void DeInit();

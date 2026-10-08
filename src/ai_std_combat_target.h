@@ -72,6 +72,7 @@ struct venom_combat_target_inode : player_combat_target_inode {
         return 356;
     }
 };
+
 struct player_web_target_inode {
     static void add_to_web_targets_list(vhandle_type<actor> a1);
 

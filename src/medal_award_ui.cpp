@@ -2,11 +2,11 @@
 
 #include "femultilinetext.h"
 #include "panelfile.h"
-
 #include "game.h"
 #include "localized_string_table.h"
 #include "panelanimfile.h"
 #include "variables.h"
+
 medal_award_ui::medal_award_ui()
 {
     field_0 = nullptr;
@@ -83,6 +83,7 @@ void medal_award_ui::DeInit()
         this->field_0 = nullptr;
     }
 }
+
 void medal_award_ui::Draw()
 {
     if (field_0 != nullptr) {

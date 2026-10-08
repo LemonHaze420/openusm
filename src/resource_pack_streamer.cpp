@@ -511,7 +511,7 @@ void resource_pack_streamer::load(const char *a2, int which_slot_idx,
     }
 }
 
-//FIXME
+
 void resource_pack_streamer::frame_advance(Float a2, limited_timer *a3)
 {
     TRACE("resource_pack_streamer::frame_advance");
@@ -533,16 +533,16 @@ void resource_pack_streamer::frame_advance(Float a2, limited_timer *a3)
                     v15.reserve(pack_slots.size());
 
                     for (auto &slot : pack_slots) {
+                        const bool was_unloading = slot->is_pack_unloading();
                         slot->frame_advance(a2, a3);
-                        if (slot->is_pack_unloading() && slot->is_empty()) {
+                        if (was_unloading && slot->is_empty()) {
                             v15.push_back(slot);
                         }
                     }
                 }
 
                 for (auto &slot : v15) {
-                    auto client_done = slot->try_callback((resource_pack_slot::callback_enum)6, nullptr);
-                    assert(client_done);
+                    slot->try_callback((resource_pack_slot::callback_enum)6, nullptr);
                 }
             }
         }

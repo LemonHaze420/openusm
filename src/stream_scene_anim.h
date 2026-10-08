@@ -12,20 +12,18 @@ struct nalClientSceneAnim;
 
 struct nalStreamInstance : nalSceneAnimInstance {
     int field_1C;
-    nalClientSceneAnim *(*m_callback)(const tlFixedString &, void *);
+    nalSceneAnimCallback m_callback;
     void *field_24;
     nflFileID field_28;
-    void *field_2C;
+    nalSceneAnim *field_2C;
     int Size;
     int field_34;
     nalBaseSkeleton **field_38;
     int field_3C;
     int field_40;
     int BufferSize;
-    char *field_48[1];
-    char *field_4C;
-    int field_50[1];
-    int field_54;
+    char *field_48[2];
+    int field_50[2];
     int field_58;
     int field_5C;
     int CurrentOffset;
@@ -43,13 +41,10 @@ struct nalStreamInstance : nalSceneAnimInstance {
 
     void AdvanceStream();
 
-    //virtual
     ~nalStreamInstance();
 
-    //virtual
     bool IsReady() const;
 
-    //virtual
     bool Advance(Float dt);
 };
 

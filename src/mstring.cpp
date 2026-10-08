@@ -9,10 +9,10 @@
 #include "mash_config.h"
 #include "trace.h"
 #include "variables.h"
-
 #include "femultilinetext.h"
 #include "game.h"
 #include "localized_string_table.h"
+
 #include <cassert>
 #include <stdio.h>
 #include <windows.h>

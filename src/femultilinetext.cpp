@@ -3,6 +3,7 @@
 #include "common.h"
 #include "config.h"
 #include "fetextflashinfo.h"
+#include "filespec.h"
 #include "func_wrapper.h"
 #include "game.h"
 #include "gamepadinput.h"
@@ -12,6 +13,8 @@
 #include "ngl.h"
 #include "ngl_font.h"
 #include "multilinestring.h"
+#include "resource_key.h"
+#include "resource_manager.h"
 #include "trace.h"
 #include "utility.h"
 #include "variables.h"
@@ -20,6 +23,7 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <string>
 #include <vector>
 #include <new>
@@ -191,7 +195,7 @@ void FEMultiLineText::SetButtonColor(color32 a2)
 
 mString FEMultiLineText::ReplaceEndlines(mString a2)
 {
-    for (auto i = a2.find("\n", 0); i > 0; i = a2.find("\n", i + 2)) {
+    for (auto i = a2.find("\\n", 0); i > 0; i = a2.find("\\n", i + 2)) {
         a2.data()[i] = ' ';
         a2.data()[i + 1] = '\n';
     }
@@ -257,158 +261,225 @@ char *sub_609580(const char *a1, const char *a2, const char *a3)
     }
 }
 
-void FEMultiLineText::sub_60A4A0(mString &a1)
+void FEMultiLineText::sub_60A4A0(mString &text)
 {
-    if (strchr(a1.c_str(), '~') != nullptr) {
-        std::string str{a1.c_str()};
-        auto *v2 = str.c_str();
-        //auto *v2 = static_cast<char *>(operator new(strlen(a1.c_str()) + 1));
-        //strcpy(v2, a1.c_str());
-        if (strstr(v2, "~cross")) {
-            auto *v3 = sub_609580(v2, "~cross", dword_965C24[GamepadInput::Cross]);
-            v2 = v3;
-        }
+    if (std::strchr(text.c_str(), '~') == nullptr)
+        return;
 
-        if (strstr(v2, "~triangle")) {
-            auto *v4 = sub_609580(v2, "~triangle", dword_965C24[GamepadInput::Triangle]);
-            v2 = v4;
+    char *value = static_cast<char *>(std::malloc(text.size() + 1));
+    std::strcpy(value, text.c_str());
+    const auto replace = [&value](const char *search, const char *token, const char *replacement) {
+        if (std::strstr(value, search) != nullptr) {
+            char *next = sub_609580(value, token, replacement);
+            std::free(value);
+            value = next;
         }
+    };
+    replace("~cross", "~cross", dword_965C24[GamepadInput::Cross]);
+    replace("~triangle", "~triangle", dword_965C24[GamepadInput::Triangle]);
+    replace("~square", "~square", dword_965C24[GamepadInput::Square]);
+    replace("~circle", "~circle", dword_965C24[GamepadInput::Circle]);
+    replace("~updown", "~updown", "\"UP & DOWN\"");
+    replace("~l2", "~l2", dword_965C24[GamepadInput::L2]);
+    replace("~r2", "~r2", dword_965C24[GamepadInput::R2]);
+    replace("~r3", "~r3", dword_965C24[GamepadInput::R3]);
+    if (std::strstr(value, "~both_lr") != nullptr) {
+        char replacement[256];
+        std::sprintf(replacement, "\"%s & %s\"", dword_965C24[GamepadInput::L2], dword_965C24[GamepadInput::R2]);
+        replace("~both_lr", "~both_lr", replacement);
+    }
+    replace("~right", "~r2", dword_965C24[GamepadInput::Right]);
+    replace("~select", "~select", dword_965C24[GamepadInput::Select]);
+    replace("~forward", "~forward", dword_965C24[GamepadInput::Forward]);
+    replace("~left", "~left", dword_965C24[GamepadInput::Left]);
+    replace("~start", "~start", dword_965C24[GamepadInput::Start]);
+    text.update_guts(value, -1);
+    std::free(value);
+}
 
-        if (strstr(v2, "~square")) {
-            auto *v5 = sub_609580(v2, "~square", dword_965C24[GamepadInput::Square]);
-            v2 = v5;
+namespace {
+
+double box_word_width(const char *word, font_index font, Float scale, Float button_scale)
+{
+    if (*word == '\0')
+        return 0.0;
+
+    mString text{word};
+    int start = 0;
+    int end = text.find({start}, '~');
+    if (end == -1)
+        return MultiLineString::GetWidth(*bit_cast<MultiLineString::string *>(&text), scale, font);
+    float width = 0.0f;
+    for (; end != -1; end = text.find({start}, '~')) {
+        mString segment = text.slice(start, end);
+        width += MultiLineString::GetWidth(*bit_cast<MultiLineString::string *>(&segment), scale, font);
+        const char *button_text = nullptr;
+        start = end + MultiLineString::ConvertStringToButtonCode(text.c_str() + end, &button_text, text);
+        mString button{button_text};
+        width += MultiLineString::GetWidth(
+            *bit_cast<MultiLineString::string *>(&button), button_scale, static_cast<font_index>(3));
+    }
+    mString remainder = text.slice(start, text.size());
+    return width + MultiLineString::GetWidth(*bit_cast<MultiLineString::string *>(&remainder), scale, font);
+}
+}
+
+
+int FEMultiLineText::MakeBox(char *text, int size, int box_width, Float scale_x, Float scale_y, bool store_lines)
+{
+    if constexpr (STANDALONE_SYSTEM) {
+        if (field_18 == static_cast<font_index>(6))
+            return 0;
+
+        mString current_line{""};
+        std::string word;
+        int line_count = 0;
+        float line_width = 0.0f;
+        auto finish_line = [&]() {
+            if (store_lines && line_count < line_avail_num) {
+                lines[line_count].Set(
+                    *bit_cast<MultiLineString::string *>(&current_line), field_18, field_3C, field_6C);
+            }
+            ++line_count;
+        };
+
+        const char *cursor = text;
+        while (*cursor != '\0') {
+            const auto length = std::strcspn(cursor, " -\n\r");
+            word.assign(cursor, length);
+            cursor += length;
+            const char delimiter = *cursor;
+            if (delimiter != '\0')
+                ++cursor;
+            const bool newline = delimiter == '\n';
+            if (delimiter == '-' || delimiter == ' ')
+                word.push_back(delimiter);
+
+            if (word.size() >= 2 && word[0] == '\f' && word[1] == '[') {
+                field_18 = static_cast<font_index>(std::atoi(word.c_str() + 2));
+                word.erase(0, 4);
+            }
+
+            double word_width = box_word_width(word.c_str(), field_18, field_3C, field_6C);
+            const double combined_width = line_width + word_width;
+            if (combined_width > box_width) {
+                if (newline) {
+                    word.push_back(' ');
+                    word_width = box_word_width(word.c_str(), field_18, field_3C, field_6C);
+                }
+                line_width = static_cast<float>(word_width);
+                current_line.remove_surrounding_whitespace();
+                finish_line();
+                current_line = word.c_str();
+            } else if (newline) {
+                current_line += word.c_str();
+                line_width = 0.0f;
+                current_line.remove_surrounding_whitespace();
+                finish_line();
+                current_line = "";
+            } else {
+                current_line += word.c_str();
+                line_width = static_cast<float>(combined_width);
+            }
+
+            if (*cursor == '\0') {
+                current_line.remove_surrounding_whitespace();
+                if (!current_line.empty())
+                    finish_line();
+            }
         }
-
-        if (strstr(v2, "~circle")) {
-            auto *v6 = sub_609580(v2, "~circle", dword_965C24[GamepadInput::Circle]);
-            v2 = v6;
-        }
-
-        if (strstr(v2, "~updown")) {
-            auto *v7 = sub_609580(v2, "~updown", "UP & DOWN");
-            v2 = v7;
-        }
-
-        if (strstr(v2, "~l2")) {
-            auto *v8 = sub_609580(v2, "~l2", dword_965C24[GamepadInput::L2]);
-            v2 = v8;
-        }
-
-        if (strstr(v2, "~r2")) {
-            auto *v9 = sub_609580(v2, "~r2", dword_965C24[GamepadInput::R2]);
-            v2 = v9;
-        }
-
-        if (strstr(v2, "~r3")) {
-            auto *v10 = sub_609580(v2, "~r3", dword_965C24[GamepadInput::R3]);
-            v2 = v10;
-        }
-
-        if (strstr(v2, "~both_lr")) {
-            char Dest[256]{};
-            sprintf(Dest, "\"%s & %s\"", dword_965C24[GamepadInput::L2], dword_965C24[GamepadInput::R2]);
-            auto *v11 = sub_609580(v2, "~both_lr", Dest);
-            v2 = v11;
-        }
-
-        if (strstr(v2, "~right")) {
-            auto *v12 = sub_609580(v2, "~r2", dword_965C24[GamepadInput::Right]);
-            v2 = v12;
-        }
-
-        if (strstr(v2, "~select")) {
-            auto *v13 = sub_609580(v2, "~select", dword_965C24[GamepadInput::Select]);
-            v2 = v13;
-        }
-
-        if (strstr(v2, "~forward")) {
-            auto *v14 = sub_609580(v2, "~forward", dword_965C24[GamepadInput::Forward]);
-            v2 = v14;
-        }
-
-        if (strstr(v2, "~left")) {
-            auto *v15 = sub_609580(v2, "~left", dword_965C24[GamepadInput::Left]);
-            v2 = v15;
-        }
-
-        if (strstr(v2, "~start")) {
-            auto *v16 = sub_609580(v2, "~start", dword_965C24[GamepadInput::Start]);
-            v2 = v16;
-        }
-
-        a1.update_guts(v2, -1);
+        return line_count;
+    } else {
+        return THISCALL(0x0062EAD0, this, text, size, box_width, scale_x, scale_y, store_lines);
     }
 }
 
-int FEMultiLineText::MakeBox(char *a2, int a3, int a4, Float a5, Float a6, bool)
+
+void FEMultiLineText::ReadFileBoxFormat(const char *name, int box_width, bool flatten_newlines)
 {
-    TRACE("FEMultiLineText::MakeBox");
-
     if constexpr (STANDALONE_SYSTEM) {
-        const std::string text{a2, static_cast<std::size_t>(std::max(a3, 0))};
-        std::vector<std::string> wrapped_lines;
-
-        std::size_t line_start = 0;
-        while (line_start <= text.size()) {
-            const auto newline = text.find('\n', line_start);
-            const auto line_end = newline == std::string::npos ? text.size() : newline;
-            auto line = text.substr(line_start, line_end - line_start);
-
-            if (a4 > 0 && !line.empty()) {
-                std::size_t segment_start = 0;
-                while (segment_start < line.size()) {
-                    std::size_t best_end = segment_start;
-                    std::size_t candidate_end = segment_start;
-                    while (candidate_end < line.size()) {
-                        const auto next_space = line.find(' ', candidate_end + 1);
-                        const auto word_end = next_space == std::string::npos ? line.size() : next_space;
-                        auto candidate = line.substr(segment_start, word_end - segment_start);
-                        uint32_t width = 0;
-                        uint32_t height = 0;
-                        auto *font = field_18 == static_cast<font_index>(6)
-                                         ? nullptr
-                                         : g_femanager.field_4[static_cast<int>(field_18)];
-                        nglGetStringDimensions(font, candidate.data(), &width, &height, a5, a6);
-                        if (width > static_cast<uint32_t>(a4) && best_end > segment_start)
-                            break;
-                        best_end = word_end;
-                        if (next_space == std::string::npos)
-                            break;
-                        candidate_end = next_space;
-                    }
-                    wrapped_lines.emplace_back(line.substr(segment_start, best_end - segment_start));
-                    segment_start = best_end;
-                    while (segment_start < line.size() && line[segment_start] == ' ')
-                        ++segment_start;
+        const filespec spec{mString{name}};
+        const auto key = create_resource_key_from_path(spec.m_name.c_str(), RESOURCE_KEY_TYPE_TEXTFILE);
+        field_7C = box_width;
+        int size = 0;
+        char *text = reinterpret_cast<char *>(resource_manager::get_resource(key, &size, nullptr));
+        if (text == nullptr) {
+            static std::vector<char> credits_text;
+            static std::vector<char> legal_text;
+            std::vector<char> *cached_text = nullptr;
+            char filename[100];
+            if (std::strcmp(name, "__BX_CREDITS__") == 0) {
+                cached_text = &credits_text;
+                std::strcpy(filename, "data\\packs\\bcfusm.dat");
+            } else if (std::strcmp(name, "__BX_LEGAL__") == 0) {
+                cached_text = &legal_text;
+                char language = 'e';
+                switch (globalTextLanguage) {
+                case 1:
+                    language = 'f';
+                    break;
+                case 2:
+                    language = 'g';
+                    break;
+                case 3:
+                    language = 's';
+                    break;
+                case 4:
+                    language = 'i';
+                    break;
                 }
+                std::sprintf(filename, "data\\packs\\blfusm%c.dat", language);
             } else {
-                wrapped_lines.emplace_back(std::move(line));
+                return;
             }
 
-            if (newline == std::string::npos)
-                break;
-            line_start = newline + 1;
+            if (cached_text->empty()) {
+                auto *file = std::fopen(filename, "rb");
+                if (file == nullptr)
+                    return;
+                std::fseek(file, 0, SEEK_END);
+                const long file_size = std::ftell(file);
+                std::fseek(file, 0, SEEK_SET);
+                if (file_size < 0) {
+                    std::fclose(file);
+                    return;
+                }
+                cached_text->resize(static_cast<std::size_t>(file_size) + 1);
+                std::fread(cached_text->data(), 1, static_cast<std::size_t>(file_size), file);
+                std::fclose(file);
+                std::size_t output = 0;
+                for (std::size_t input = 0; input < static_cast<std::size_t>(file_size); ++input) {
+                    const char value = (*cached_text)[input];
+                    if (value != '\\') {
+                        (*cached_text)[output++] = value;
+                    } else {
+                        const char escape = (*cached_text)[++input];
+                        if (escape == '2')
+                            (*cached_text)[output++] = '\2';
+                        else if (escape == 'f')
+                            (*cached_text)[output++] = '\f';
+                    }
+                }
+                (*cached_text)[output] = '\0';
+                cached_text->resize(output + 1);
+            }
+            text = cached_text->data();
         }
 
-        const auto used_lines = std::min<int>(static_cast<int>(wrapped_lines.size()), line_avail_num);
-        for (int i = 0; i < line_avail_num; ++i) {
-            auto &line = lines[i];
-            line.m_font_index = i < used_lines ? field_18 : static_cast<font_index>(6);
-            line.field_4 = {0.0f, 0.0f};
-            line.field_10 = i < used_lines ? wrapped_lines[i].c_str() : "";
-            line.field_C = 0;
-            line.button_array_size = 0;
-            if (i < used_lines) {
-                uint32_t width = 0;
-                uint32_t height = 0;
-                auto *font = g_femanager.field_4[static_cast<int>(field_18)];
-                nglGetStringDimensions(font, const_cast<char *>(line.field_10.c_str()), &width, &height, a5, a6);
-                line.field_C = static_cast<int>(width);
+        if (flatten_newlines) {
+            for (int i = 0; i < size; ++i) {
+                if (text[i] == '\n')
+                    text[i] = ' ';
             }
         }
-        return used_lines;
+        field_80 = MakeBox(text, size, box_width, field_3C, field_40, false);
+        delete[] lines;
+        line_avail_num = field_80;
+        lines = new MultiLineString[line_avail_num];
+        MakeBox(text, size, box_width, field_3C, field_40, true);
+        AdjustForJustification();
     } else {
-        return THISCALL(0x0062EAD0, this, a2, a3, a4, a5, a6, true);
+        THISCALL(0x00633DB0, this, name, box_width, flatten_newlines);
     }
 }
 
@@ -449,18 +520,18 @@ void FEMultiLineText::SetTextBoxNoLocalize(FEMultiLineText::string a2, int a7, F
         auto v5 = FEMultiLineText::ReplaceEndlines(v12);
         a2 = *bit_cast<string *>(&v5);
         auto v6 = a7;
-        const bool v7 = a8 <= -1.0f;
+        const bool v7 = std::equal_to<float>{}(a8, -1.0f);
         auto v8 = this->field_3C;
-        a7 = this->field_40;
+        const auto scale_y = v7 ? field_40 : float(a8);
         this->field_7C = v6;
         auto a5 = v8;
         if (!v7) {
             a5 = a8;
-            a7 = a8;
         }
 
-        auto v9 = this->MakeBox(a2.guts, static_cast<int>(std::strlen(a2.guts)), v6, a5, a7, true);
+        auto v9 = this->MakeBox(a2.guts, a2.m_size, v6, a5, scale_y, true);
         this->field_80 = std::min(v9, this->line_avail_num);
+        field_1C = lines[0].field_10;
         this->AdjustForJustification();
     } else {
         THISCALL(0x00633AB0, this, a2, a7, a8);
@@ -524,38 +595,21 @@ void FEMultiLineText::_SetTextNoLocalize(FEMultiLineText::string a1)
     if constexpr (STANDALONE_SYSTEM) {
         mString text = *bit_cast<mString *>(&a1);
         sub_60A4A0(text);
-        const std::string value{text.c_str()};
-
-        int count = 0;
-        std::size_t start = 0;
-        while (count < line_avail_num && start <= value.size()) {
-            const auto end = value.find('\n', start);
-            const auto length = end == std::string::npos ? value.size() - start : end - start;
-            std::string line_text = value.substr(start, length);
-            auto &line = lines[count++];
-            line.m_font_index = field_18;
-            line.field_4 = {0.0f, 0.0f};
-            line.field_10 = line_text.c_str();
-            line.button_array_size = 0;
-
-            uint32_t width = 0;
-            uint32_t height = 0;
-            auto *font =
-                field_18 == static_cast<font_index>(6) ? nullptr : g_femanager.field_4[static_cast<int>(field_18)];
-            nglGetStringDimensions(font, line_text.data(), &width, &height, field_3C, field_6C);
-            line.field_C = static_cast<int>(width);
-
-            if (end == std::string::npos)
-                break;
-            start = end + 1;
+        int count = 1;
+        for (int i = 0; i < text.size(); ++i) {
+            if (text.data()[i] == '\n')
+                ++count;
         }
-
-        field_80 = count;
-        for (int i = count; i < line_avail_num; ++i) {
-            lines[i].m_font_index = static_cast<font_index>(6);
-            lines[i].field_10 = "";
-            lines[i].field_C = 0;
-            lines[i].button_array_size = 0;
+        field_80 = std::min(count, line_avail_num);
+        const char *cursor = text.c_str();
+        for (int i = 0; i < field_80; ++i) {
+            const auto length = std::strcspn(cursor, "\n");
+            char line_text[256];
+            std::memcpy(line_text, cursor, length);
+            line_text[length] = '\0';
+            const mString line{line_text};
+            lines[i].Set(bit_cast<MultiLineString::string>(string{line}), field_18, field_3C, field_6C);
+            cursor += length + 1;
         }
         field_1C = lines[0].field_10;
         AdjustForJustification();

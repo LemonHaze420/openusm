@@ -26,7 +26,6 @@
 #include "ngl.h"
 #include "nlPlatformEnum.h"
 #include "os_developer_options.h"
-
 #include "pausemenusystem.h"
 #include "pc_input_mgr.h"
 #include "physics_system.h"
@@ -204,11 +203,9 @@ app::app()
     pc_input_mgr::create_inst();
     input_mgr::create_inst();
     sound_manager::create_inst();
-
     script_sound_manager::create_inst();
-
-#if !STANDALONE_SYSTEM
     ambient_audio_manager::create_inst();
+#if !STANDALONE_SYSTEM
     if (!os_developer_options::instance->get_flag(mString{"DISABLE_AUDIO_BOXES"})) {
         audio_box_manager::create_inst();
     }
@@ -341,10 +338,11 @@ void app::tick()
                 nglSetClearFlags(D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER | D3DCLEAR_STENCIL);
                 nglListEndScene();
                 g_game_ptr->render_world();
-
                 if (g_femanager.m_pause_menu_system != nullptr && g_femanager.m_pause_menu_system->m_index >= 0 &&
                     !var<bool>(0x0095C879) && !os_developer_options::instance->get_flag(mString{"INTERFACE_DISABLE"}))
                     g_femanager.Draw();
+                if (!var<bool>(0x0095C879))
+                    g_game_ptr->render_interface();
                 nglListSend(true);
             } else if (g_femanager.m_fe_menu_system != nullptr &&
                        !os_developer_options::instance->get_flag(static_cast<os_developer_options::flags_t>(66))) {
@@ -433,11 +431,9 @@ void app::cleanup()
             audio_box_manager::delete_inst();
         }
 
-        ambient_audio_manager::delete_inst();
-
 #endif
+        ambient_audio_manager::delete_inst();
         script_sound_manager::delete_inst();
-
         sound_manager::delete_inst();
 
         if (input_mgr::instance != nullptr) {

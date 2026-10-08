@@ -5,6 +5,7 @@
 #include "box_trigger.h"
 #include "beam.h"
 #include "camera.h"
+#include "polytube.h"
 #include "common.h"
 #include "debugutil.h"
 #include "entity.h"
@@ -59,6 +60,22 @@ beam *wds_entity_manager::create_and_add_beam(_std::vector<entity *> *destinatio
     auto *value = ::new (mem_alloc(sizeof(beam))) beam(id, flags);
     add_entity_internal(destination, value);
     return value;
+}
+
+
+polytube *wds_entity_manager::create_and_add_polytube(_std::vector<entity *> *destination, const string_hash &id,
+                                                      uint32_t flags)
+{
+    auto *value = ::new (mem_alloc(sizeof(polytube))) polytube(id, flags);
+    add_entity_internal(destination, value);
+    return value;
+}
+
+
+polytube *wds_entity_manager::create_and_add_polytube(uint32_t flags)
+{
+    const auto id = make_unique_entity_id();
+    return create_and_add_polytube(nullptr, id, flags);
 }
 
 template <typename T>

@@ -25,11 +25,11 @@ struct state_machine_shared : mash_virtual_base {
     //virtual
     void destruct_mashed_class();
 
-    //virtual
+
     void _destruct_mashed_class();
     void *_scalar_deleting_destructor(unsigned int flags);
 
-
+    //virtual
     void _unmash(mash_info_struct *a2, void *a3);
 
     //virtual

@@ -10,3 +10,7 @@ struct quad_path_cell_astar_search_record : astar_search_record {
 
     /* virtual */ void setup(void *a2, void *a3);
 };
+
+struct quad_path_astar_search_record : quad_path_cell_astar_search_record {
+    explicit quad_path_astar_search_record(bool district_goal = false);
+};

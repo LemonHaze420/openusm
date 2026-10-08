@@ -556,7 +556,8 @@ void animation_logic_system::_change_mocomp()
         auto v3 = static_cast<mash::virtual_types_enum>(this->field_18.m_curr_state->get_mocomp_type());
         this->field_74 = (motion_compensator *)mash_virtual_base::create_subclass_by_enum_in_place(
             v3, v5, motion_compensator::get_size_of_memory_block());
-        this->field_74->activate(this);
+        using attach_fn = void(__fastcall *)(motion_compensator *, void *, animation_logic_system *);
+        reinterpret_cast<attach_fn>(get_vfunc(field_74->m_vtbl, 0x18))(field_74, nullptr, this);
     } else {
         THISCALL(0x00498F30, this);
     }

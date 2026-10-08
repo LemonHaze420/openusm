@@ -8,8 +8,6 @@
 #include "trace.h"
 #include "utility.h"
 #include "xbpack.h"
-
-
 #include "memory.h"
 
 #include <cassert>

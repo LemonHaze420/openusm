@@ -17,9 +17,17 @@ void USOcean2Shader::Init()
     USOcean2Shader::OceanMesh() = nglGetFirstMeshInFile(mesh_file_name);
 }
 
+
 void USOcean2Shader::Release()
 {
-    CDECL_CALL(0x00403240);
+    if (USOcean2Shader::OceanMesh() != nullptr) {
+#if STANDALONE_SYSTEM
+        const tlFixedString mesh_file_name{"oceanmesh"};
+#else
+        const tlFixedString mesh_file_name{USOcean2Shader::OceanMeshFileName()};
+#endif
+        nglReleaseMeshFile(mesh_file_name);
+    }
 }
 
 void USOcean2Shader::Draw(const vector3d &a1)

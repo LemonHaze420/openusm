@@ -4,6 +4,9 @@
 #include "sound_instance_id.h"
 #include "variable.h"
 
+struct script_executable;
+struct script_sound_instance_slot;
+
 namespace script_sound_manager {
 
 //0x0065F0A0
@@ -13,6 +16,13 @@ extern void delete_inst();
 
 //0x0065F240
 extern void frame_advance(Float a1);
+
+
+extern uint32_t create_sound_instance(script_executable *script, string_hash sound, bool stompable_music);
+
+extern script_sound_instance_slot *get_sound_instance(uint32_t id);
+extern void release_sound_instance(uint32_t id);
+extern int &garbage_collection_id;
 }  // namespace script_sound_manager
 
 struct script_sound_instance_slot {
@@ -26,6 +36,11 @@ struct script_sound_instance_slot {
     bool field_38;
     bool field_39;
     int field_3C;
+
+
+    void play();
+
+    void fade_out(float duration);
 };
 
 extern Var<script_sound_instance_slot *> s_script_sound_instance_slots;

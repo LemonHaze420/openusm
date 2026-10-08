@@ -83,7 +83,6 @@ struct quick_anchor_container_t {
 extern anchor_storage_class ai_find_best_pole(entity *arg4, const vector3d &arg8, Float a3, Float a5, Float a6,
                                               Float a7);
 
-
 #if STANDALONE_SYSTEM
 inline bool &g_anchor_finding_enabled()
 {
@@ -92,8 +91,6 @@ inline bool &g_anchor_finding_enabled()
 }
 #else
 inline Var<bool> g_anchor_finding_enabled{0x0091F4D0};
-
-
 #endif
 
 extern void swing_anchor_finder_patch();

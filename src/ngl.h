@@ -516,7 +516,7 @@ extern void nglSetMaterialFileDirectory(tlResourceDirectory<nglMaterialFile, tlF
 extern void nglSetMaterialDirectory(tlResourceDirectory<nglMaterialBase, tlHashString> *a1);
 
 struct nglMorphSet {
-    tlHashString field_0;
+    tlHashString *Name;
     int NFrames;
     struct {
         int field_0;
@@ -532,7 +532,7 @@ struct nglMorphSet {
 
     static tlHashString *get_string(nglMorphSet *a1)
     {
-        return &a1->field_0;
+        return a1->Name;
     }
 };
 
@@ -1007,9 +1007,9 @@ extern void nglInitQuad(nglQuad *a1);
 
 //0x0077ADE0
 extern void nglRotateQuad(nglQuad *a2, Float a3, Float a4, Float a5);
+extern void nglScaleQuad(nglQuad *quad, Float center_x, Float center_y, Float scale_x, Float scale_y);
 
 //0x0076E3E0
-extern void nglScaleQuad(nglQuad *quad, Float center_x, Float center_y, Float scale_x, Float scale_y);
 extern void nglInit(HWND hWnd);
 
 //0x0076F420

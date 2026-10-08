@@ -14,7 +14,6 @@
 #include "pause_menu_awards.h"
 #include "pause_menu_game.h"
 #include "panelfile.h"
-
 #include "cursor.h"
 #include "fileusm.h"
 #include "variables.h"

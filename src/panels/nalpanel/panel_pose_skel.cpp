@@ -2,9 +2,8 @@
 
 #include "common.h"
 #include "panel_component.h"
-
-
 #include "func_wrapper.h"
+
 #include <nal_system.h>
 #include <trace.h>
 #include <variables.h>
@@ -13,6 +12,65 @@ namespace nalPanel {
 VALIDATE_SIZE(nalPanelSkeleton, 0x84);
 
 VALIDATE_SIZE(nalPanelPose, 0x10);
+
+namespace {
+void __fastcall skeleton_empty(nalPanelSkeleton *, void *) {}
+void *__fastcall skeleton_destroy(nalPanelSkeleton *self, void *, unsigned flags)
+{
+    if (self->m_theDefaultPose) {
+        self->m_theDefaultPose->FreePoseData();
+        tlMemFree(self->m_theDefaultPose);
+        self->m_theDefaultPose = nullptr;
+    }
+    self->~nalPanelSkeleton();
+    if (flags & 1)
+        tlMemFree(self);
+    return self;
+}
+unsigned __fastcall skeleton_bone_count(nalPanelSkeleton *, void *)
+{
+    return 0;
+}
+void __fastcall skeleton_bones(nalPanelSkeleton *, void *, const nalBasePose *, nalMatrix4x4 *) {}
+void __fastcall skeleton_trajectory(nalPanelSkeleton *, void *, const nalBasePose *, nalPositionOrientation *out)
+{
+    *out = nalPositionOrientation::Identity;
+}
+nalBasePose *__fastcall skeleton_default(nalPanelSkeleton *self, void *)
+{
+    return self->m_theDefaultPose ? reinterpret_cast<nalBasePose *>(&self->m_theDefaultPose->field_4) : nullptr;
+}
+nalBasePose *__fastcall skeleton_create(const nalPanelSkeleton *self, void *)
+{
+    auto *pose = new (tlMemAlloc(sizeof(nalPanelPose), 8, 0)) nalPanelPose{self};
+    return reinterpret_cast<nalBasePose *>(&pose->field_4);
+}
+void __fastcall skeleton_destroy_pose(nalPanelSkeleton *, void *, nalBasePose *value)
+{
+    if (!value || reinterpret_cast<std::uintptr_t>(value) == 4)
+        return;
+    auto *pose = reinterpret_cast<nalPanelPose *>(reinterpret_cast<char *>(value) - 4);
+    pose->FreePoseData();
+    pose->~nalPanelPose();
+    tlMemFree(pose);
+}
+void __fastcall skeleton_copy(nalPanelSkeleton *, void *, nalBasePose *out, const nalBasePose *source)
+{
+    auto *destination = reinterpret_cast<nalPanelPose *>(reinterpret_cast<char *>(out) - 4);
+    const auto *reference = reinterpret_cast<const nalPanelPose *>(reinterpret_cast<const char *>(source) - 4);
+    *destination = *reference;
+}
+void __fastcall skeleton_blend(nalPanelSkeleton *self, void *, nalBasePose *out, Float, const nalBasePose *,
+                               const nalBasePose *source)
+{
+    skeleton_copy(self, nullptr, out, source);
+}
+void __fastcall skeleton_blend_direct(nalPanelSkeleton *self, void *, nalBasePose *out, Float time,
+                                      const nalBasePose *left, const nalBasePose *right)
+{
+    skeleton_blend(self, nullptr, out, time, left, right);
+}
+}
 
 #if !STANDALONE_SYSTEM
 
@@ -36,31 +94,25 @@ static auto constexpr NAL_PANEL_VERSION = 0x300;
 
 nalPanelSkeleton::nalPanelSkeleton()
 {
-    if constexpr (1) {
-        static void *g_vtbl[]{nullptr,
-                              nullptr,
-                              func_address(&nalPanelSkeleton::_Process),
-
-                              func_address(&nalPanelSkeleton::_Release),
-                              func_address(&nalPanelSkeleton::_CheckVersion),
-                              nullptr,
-                              nullptr,
-                              nullptr,
-                              nullptr,
-                              nullptr,
-                              nullptr,
-                              nullptr,
-                              nullptr,
-                              nullptr,
-                              nullptr,
-                              nullptr,
-                              func_address(&nalCompSkeleton::_UnMash),
-                              func_address(&nalCompSkeleton::ReMash)};
-
-        m_vtbl = CAST(m_vtbl, &g_vtbl);
-    } else {
-        this->m_vtbl = 0x0142B7F8;
-    }
+    static void *g_vtbl[]{reinterpret_cast<void *>(skeleton_empty),
+                          reinterpret_cast<void *>(skeleton_destroy),
+                          func_address(&nalPanelSkeleton::_Process),
+                          func_address(&nalPanelSkeleton::_Release),
+                          func_address(&nalPanelSkeleton::_CheckVersion),
+                          reinterpret_cast<void *>(skeleton_bone_count),
+                          reinterpret_cast<void *>(skeleton_bones),
+                          reinterpret_cast<void *>(skeleton_trajectory),
+                          reinterpret_cast<void *>(skeleton_blend_direct),
+                          reinterpret_cast<void *>(skeleton_default),
+                          reinterpret_cast<void *>(skeleton_create),
+                          reinterpret_cast<void *>(skeleton_destroy_pose),
+                          reinterpret_cast<void *>(skeleton_copy),
+                          reinterpret_cast<void *>(skeleton_blend),
+                          func_address(&nalCompSkeleton::_GetPerSkelDataFromComponent),
+                          func_address(&nalCompSkeleton::_DoesComponentHavePoseTrackData),
+                          func_address(&nalCompSkeleton::_UnMash),
+                          func_address(&nalCompSkeleton::ReMash)};
+    m_vtbl = reinterpret_cast<std::intptr_t>(g_vtbl);
 
     this->m_theDefaultPose = nullptr;
     this->Version = 0x300;
@@ -109,11 +161,10 @@ void nalPanelSkeleton::_Release()
         if (m_theDefaultPose != nullptr) {
             m_theDefaultPose->FreePoseData();
             tlMemFree(m_theDefaultPose);
-        }  // namespace nalPanel
-
+        }
         m_theDefaultPose = nullptr;
     } else {
         THISCALL(0x007348E0, this);
     }
 }
-}
+}  // namespace nalPanel

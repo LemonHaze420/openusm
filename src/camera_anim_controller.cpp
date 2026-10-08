@@ -83,7 +83,7 @@ double __fastcall camera_far_clip(camera_anim_controller *self, void *)
 void __fastcall camera_scene_pose(camera_anim_controller *, void *, uint32_t &, nalAnimClass<nalAnyPose> *,
                                   nalAnyPose &)
 {}
-}  // namespace
+}
 
 void *camera_anim_controller::native_vtable()
 {

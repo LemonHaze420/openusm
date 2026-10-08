@@ -23,11 +23,6 @@ void FastListAddMesh(nglMesh *Mesh, const math::MatClass<4, 3> &LocalToWorld, ng
         assert(((Mesh->Flags & NGLMESH_PROCESSED) || (Mesh->Flags & NGLMESH_SCRATCH_MESH)) &&
                "Mesh missing NGLMESH_PROCESSED flag.");
 
-        assert(std::abs(AbsSquared(LocalToWorld.GetX()) - 1.0f) + std::abs(AbsSquared(LocalToWorld.GetY()) - 1.0f) +
-                       std::abs(AbsSquared(LocalToWorld.GetZ()) - 1.0f) <
-                   0.01f &&
-               "Invalid scale detected in local to world transform.  If scaling is desired, use "
-               "MeshParams.\n");
 
         if (0)  //(nglSyncDebug().field_12) {
         {

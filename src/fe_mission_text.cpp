@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "fetext.h"
+#include "femultilinetext.h"
 #include "func_wrapper.h"
 #include "panelanimfile.h"
 #include "panelfile.h"
@@ -142,9 +143,16 @@ void fe_mission_text::set_flavor(int a2)
 
 void fe_mission_text::set_text(string a2)
 {
-    sp_log("fe_mission_text::set_text: %s", a2.data);
-
+#if STANDALONE_SYSTEM
+    auto *target = static_cast<FEMultiLineText *>(text);
+    target->SetButtonScale(0.8f);
+    target->SetButtonColor(color32{0xFFFFFFFFu});
+    target->SetTextBoxNoLocalize(FEText::string{*reinterpret_cast<const mString *>(&a2)}, target->GetBoxWidth(), -1.0f);
+    field_B6 = true;
+    target->SetLineSpacing(target->field_80 == 4 ? 20 : 22);
+#else
     THISCALL(0x0060D440, this, a2);
+#endif
 }
 
 void fe_mission_text::SetShown(bool a2)

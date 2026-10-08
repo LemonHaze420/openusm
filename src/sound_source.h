@@ -23,6 +23,18 @@ struct sound_source {
     {
         return alias != nullptr ? alias->max_distance : nslGetWaveParam(wave_id, 0x1A, 0.0f);
     }
+
+
+    unsigned int get_sample_rate() const
+    {
+        const auto *wave = nslGetWave(wave_id);
+        return wave != nullptr ? wave->sample_rate : 0;
+    }
+
+    unsigned int get_channel_count() const
+    {
+        return nslGetWaveChannelCount(wave_id);
+    }
 };
 
 static_assert(sizeof(sound_source) == 8);

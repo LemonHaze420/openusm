@@ -609,6 +609,8 @@ void FEMenu::OnButtonRelease(int a2, int a3)
 void FEMenu::OnWindowMessage(unsigned message, int wparam, int lparam)
 {
     if constexpr (STANDALONE_SYSTEM) {
+        if (m_vtbl == 0x00893E78)
+            return static_cast<fe_dialog_text *>(this)->OnWindowMessage(message, wparam, lparam);
         if (m_vtbl == 0x00893F38)
             return static_cast<pause_menu_root *>(this)->OnWindowMessage(message, wparam, lparam);
         if (m_vtbl == 0x00893FE8)

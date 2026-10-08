@@ -115,9 +115,10 @@ Input::Input()
     this->m_current_connected = 0;
 }
 
+
 Input::~Input()
 {
-    THISCALL(0x0081FDD0, this);
+    sub_820C60();
 }
 
 void Input::set_mouse(const char *mouseLeft, const char *mouseRight, const char *mouseMiddle, const char *mouseBtn,
@@ -153,7 +154,7 @@ const char *Input::get_string(InputType input_type, unsigned int Dest)
 
             static char byte_987AC0[256]{};
 
-            std::memcpy(byte_987AC0, this->m_keys[Dest], strlen(this->m_keys[Dest]));
+            std::memcpy(byte_987AC0, this->m_keys[Dest], strlen(this->m_keys[Dest]) + 1);
 
             return byte_987AC0;
         }
@@ -398,40 +399,30 @@ bool Input::initialize(HWND a2)
             BYTE KeyState[256]{};
             GetKeyboardState(KeyState);
 
-            BYTE v11;
-            int v6 = (char *)this - (char *)&v11 + 10404;
             for (uint32_t ScanCode = 0; ScanCode < 256; ++ScanCode) {
                 const uint32_t VirtualKeyCode = MapVirtualKeyA(ScanCode, MAPVK_VSC_TO_VK);
                 const uint32_t CharCode = MapVirtualKeyA(VirtualKeyCode, MAPVK_VK_TO_CHAR);
-                BYTE v11 = CharCode;
+                char label = static_cast<char>(CharCode);
                 switch (CharCode) {
                 case VK_LAUNCH_MAIL:
-                    v11 = VK_RIGHT;
+                    label = VK_RIGHT;
                     break;
                 case VK_LWIN:
-                    v11 = VK_BROWSER_FAVORITES;
+                    label = static_cast<char>(VK_BROWSER_FAVORITES);
                     break;
                 case VK_APPS:
-                    v11 = VK_BROWSER_HOME;
+                    label = static_cast<char>(VK_BROWSER_HOME);
                     break;
                 case VK_SLEEP:
-                    v11 = VK_BROWSER_SEARCH;
+                    label = static_cast<char>(VK_BROWSER_SEARCH);
                     break;
                 case VK_OEM_1:
-                    v11 = VK_MEDIA_NEXT_TRACK;
+                    label = static_cast<char>(VK_MEDIA_NEXT_TRACK);
                     break;
                 }
 
-                auto *v9 = &v11;
-
-                BYTE v10;
-                do {
-                    v10 = *v9;
-                    v9[v6] = *v9;
-                    ++v9;
-                } while (v10);
-
-                v6 += 256;
+                m_keys[ScanCode][0] = label;
+                m_keys[ScanCode][1] = '\0';
             }
 
             strcpy(this->m_keys[DIK_ESCAPE], "ESC");
@@ -1218,7 +1209,6 @@ BOOL __stdcall sub_821470(const DIDEVICEINSTANCEA *device_instance, void *contex
 
     input->field_4EC[device_index] = 1;
     input->field_14[device_index] = bit_cast<int>(device);
-
     std::strncpy(input->m_device_names[device_index], device_instance->tszProductName, 99);
     input->m_device_names[device_index][99] = '\0';
 
@@ -1230,11 +1220,11 @@ BOOL __stdcall sub_821470(const DIDEVICEINSTANCEA *device_instance, void *contex
     return DIENUM_CONTINUE;
 }
 
-
 void Input::sub_821490(bool a2)
 {
     if constexpr (1) {
         std::memset(this->field_4EC, 0, sizeof(this->field_4EC));
+
         auto v3 = !a2;
         this->field_9 = a2;
         if (!v3) {
@@ -1261,17 +1251,13 @@ void Input::sub_821490(bool a2)
             v5->lpVtbl->Acquire(v5);
         }
 
-
         for (int i = 0; i < 10; ++i) {
             if (!field_4EC[i] && field_14[i]) {
                 std::memset(&field_4F8[i], 0, sizeof(field_4F8[i]));
-
                 std::memset(&field_F98[i], 0, sizeof(field_F98[i]));
                 auto *device = reinterpret_cast<IDirectInputDevice8A *>(field_14[i]);
                 device->lpVtbl->Release(device);
                 field_14[i] = 0;
-
-
                 if (field_3C[i]) {
                     auto *effect = reinterpret_cast<IDirectInputEffect *>(field_3C[i]);
                     effect->lpVtbl->Release(effect);
@@ -1290,40 +1276,23 @@ void Input::sub_821490(bool a2)
                 ++source;
             if (source == 10)
                 break;
-
             field_4EC[destination] = 1;
-
             field_4EC[source] = 0;
-
             std::memset(&field_4F8[destination], 0, sizeof(field_4F8[destination]));
-
             std::memset(&field_F98[destination], 0, sizeof(field_F98[destination]));
-
-            std::
-
-                strcpy(m_device_names[destination], m_device_names[source]);
-
+            std::strcpy(m_device_names[destination], m_device_names[source]);
             std::memset(m_device_names[source], 0, sizeof(m_device_names[source]));
-
             std::memcpy(field_27F0[destination], field_27F0[source], sizeof(field_27F0[source]));
-
             std::memset(field_27F0[source], 0, sizeof(field_27F0[source]));
             field_14[destination] = field_14[source];
-
             field_14[source] = 0;
-
             field_3C[destination] = field_3C[source];
-
             field_3C[source] = 0;
-
             field_64[destination] = field_64[source];
-
             field_64[source] = 0;
             field_8C[2 * destination] = field_8C[2 * source];
-
             field_8C[2 * destination + 1] = field_8C[2 * source + 1];
             field_8C[2 * source] = 0;
-
             field_8C[2 * source + 1] = 0;
         }
 
@@ -1333,9 +1302,30 @@ void Input::sub_821490(bool a2)
     }
 }
 
+
 void Input::sub_820C60()
 {
-    THISCALL(0x00820C60, this);
+    for (int i = 0; i < 4; ++i) {
+        if (field_14[i] != 0) {
+            auto *device = reinterpret_cast<IDirectInputDevice8A *>(field_14[i]);
+            device->lpVtbl->Release(device);
+            field_14[i] = 0;
+        }
+        if (field_3C[i] != 0) {
+            auto *effect = reinterpret_cast<IDirectInputEffect *>(field_3C[i]);
+            effect->lpVtbl->Release(effect);
+            field_3C[i] = 0;
+        }
+    }
+    if (m_di_keyboard != nullptr) {
+        m_di_keyboard->lpVtbl->Release(m_di_keyboard);
+        m_di_keyboard = nullptr;
+    }
+    if (m_din != nullptr) {
+        m_din->lpVtbl->Release(m_din);
+        m_din = nullptr;
+    }
+    m_initialized = false;
 }
 
 DIJOYSTATE2 *Input::sub_820570(int a2)

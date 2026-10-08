@@ -235,6 +235,45 @@ polytube_pt_anim::polytube_pt_anim()
     : field_0(0), field_4(ZEROVEC), field_10(ZEROVEC), field_1C(0.0), field_20(0.0), field_24(0.0), field_28(0.0)
 {}
 
+
+void polytube_pt_anim::set_anim(const vector3d &start, const vector3d &direction, float duration, unsigned flags)
+{
+    if (duration <= 0.0f) {
+        field_0 &= ~1u;
+        return;
+    }
+    field_0 = flags;
+    field_4 = start;
+    double length;
+    if (flags & 8) {
+        field_1C = direction.x;
+        constexpr double random_scale = 3.0518509447574615e-05;
+        const float z = 2.0 * (std::rand() * random_scale);
+        const float y = 2.0 * (std::rand() * random_scale);
+        const double x = 2.0 * (std::rand() * random_scale);
+        field_10 = vector3d{static_cast<float>((x - 1.0) * field_1C),
+                            static_cast<float>((static_cast<double>(y) - 1.0) * field_1C),
+                            static_cast<float>((static_cast<double>(z) - 1.0) * field_1C)};
+        length = std::sqrt(static_cast<double>(field_10.x) * field_10.x + static_cast<double>(field_10.y) * field_10.y +
+                           static_cast<double>(field_10.z) * field_10.z);
+    } else {
+        field_10 = direction;
+        length = std::sqrt(static_cast<double>(field_10.z) * field_10.z + static_cast<double>(field_10.y) * field_10.y +
+                           static_cast<double>(field_10.x) * field_10.x);
+        field_1C = length;
+    }
+    if (length > 0.0) {
+        const double inverse_length = 1.0 / length;
+        field_10.x = inverse_length * field_10.x;
+        field_10.y = inverse_length * field_10.y;
+        field_10.z = inverse_length * field_10.z;
+    }
+    field_20 = duration;
+    field_24 = duration;
+    field_0 |= 1;
+    field_28 = ((flags & 8) ? length : static_cast<double>(field_1C)) / duration;
+}
+
 void polytube_pt_anim::frame_advance(Float elapsed, vector3d &point)
 {
     float dt = elapsed;
@@ -317,6 +356,8 @@ std::intptr_t polytube_table(std::intptr_t inherited)
         table[0x21C / 4] = func_address(&polytube::get_tentacle_activity);
         table[0x220 / 4] = func_address(&polytube::set_tentacle_pull_factor);
         table[0x224 / 4] = func_address(&polytube::get_tentacle_pull_factor);
+        table[0x228 / 4] = func_address(&polytube::ifl_lock);
+        table[0x22C / 4] = func_address(&polytube::ifl_play);
     }
     return reinterpret_cast<std::intptr_t>(table.data());
 }
@@ -942,6 +983,36 @@ void polytube::check_anims(bool a2)
 
         assert(static_cast<int>(pt_anims.size()) == get_num_control_pts());
     }
+}
+
+
+void polytube::set_anim(int index, const vector3d &start, const vector3d &direction, float duration, unsigned flags)
+{
+    if (pt_anims.empty())
+        pt_anims.reserve(the_spline.control_pts.size());
+    check_anims(true);
+    pt_anims[index].set_anim(start, direction, duration, flags);
+    update_active_list();
+}
+
+
+void polytube::set_random_pt_anim(int index, float radius, float duration, unsigned flags)
+{
+    const vector3d direction{radius, 0.0f, 0.0f};
+    set_anim(index, the_spline.control_pts[index], direction, duration, flags | 8);
+}
+
+
+void polytube::ifl_lock(int frame)
+{
+    field_140 = static_cast<int16_t>(frame);
+    field_142 = 1;
+}
+
+
+void polytube::ifl_play()
+{
+    field_142 = 0;
 }
 
 void polytube::add_control_pt(const vector3d &a2)

@@ -24,19 +24,79 @@ int BuildStringList(nglFont *Font, nglStringSection *a2, Float a3, Float a4, Flo
                     unsigned char *a8, uint32_t &a9)
 {
     if constexpr (STANDALONE_SYSTEM) {
-        auto *section =
-            static_cast<nglStringSection *>(nglListAlloc(sizeof(nglStringSection), alignof(nglStringSection)));
-        *section = {};
-        section->field_4 = reinterpret_cast<char *>(a8);
-        section->field_8 = static_cast<int>(std::strlen(reinterpret_cast<const char *>(a8)));
-        section->field_10[0] = a3;
-        section->field_10[1] = a4;
-        section->field_10[2] = a5;
-        section->field_10[3] = a6;
-        section->m_color = Color;
-        a2->field_0 = section;
-        a9 = static_cast<uint32_t>(section->field_8);
-        return section->field_8;
+        const float origin_x = a3;
+        const float space_width = Font->GlyphInfo[32 - Font->Header.FirstGlyph].CellWidth;
+        float x = a3;
+        float y = a4;
+        float scale_x = a5;
+        float scale_y = a6;
+        float line_scale = scale_y;
+        auto *text = reinterpret_cast<char *>(a8);
+        int glyph_count = 0;
+        a9 = 0;
+        while (*text != '\0') {
+            const auto character = static_cast<unsigned char>(*text);
+            switch (character) {
+            case 1: {
+                const auto color = static_cast<uint32_t>(std::strtoul(text + 2, &text, 16));
+                Color = (color >> 8) | (color << 24);
+                ++text;
+                break;
+            }
+            case 2:
+                scale_x = scale_y = static_cast<float>(std::strtod(text + 2, &text));
+                ++text;
+                line_scale = std::max(line_scale, scale_y);
+                break;
+            case 3:
+                scale_x = static_cast<float>(std::strtod(text + 2, &text));
+                scale_y = static_cast<float>(std::strtod(text + 1, &text));
+                ++text;
+                line_scale = std::max(line_scale, scale_y);
+                break;
+            case 9:
+                x += space_width * scale_x * 6.0f;
+                ++text;
+                break;
+            case 10:
+                x = origin_x;
+                y += Font->Header.CellHeight * line_scale;
+                line_scale = scale_y;
+                ++text;
+                break;
+            case 32:
+                x += space_width * scale_x;
+                ++text;
+                break;
+            default: {
+                auto *section = static_cast<nglStringSection *>(nglListAlloc(sizeof(nglStringSection), 16));
+                *section = {};
+                section->field_4 = text;
+                section->field_10[0] = x;
+                section->field_10[1] = y;
+                section->field_10[2] = scale_x;
+                section->field_10[3] = scale_y;
+                section->m_color = Color;
+                a2->field_0 = section;
+                a2 = section;
+                ++a9;
+                while (*text != '\0' && *text != 1 && *text != 2 && *text != 3 && *text != 9 && *text != 10 &&
+                       *text != 32) {
+                    auto glyph = static_cast<unsigned char>(*text++);
+                    if (glyph < Font->Header.FirstGlyph || glyph >= Font->Header.FirstGlyph + Font->Header.NumGlyphs) {
+                        glyph = 32;
+                    }
+                    x += Font->GlyphInfo[glyph - Font->Header.FirstGlyph].CellWidth * scale_x;
+                    ++section->field_C;
+                }
+                section->field_8 = static_cast<int>(text - section->field_4);
+                glyph_count += section->field_C;
+                break;
+            }
+            }
+        }
+        a2->field_0 = nullptr;
+        return glyph_count;
     } else {
         return static_cast<int>(CDECL_CALL(0x00779570, Font, a2, a3, a4, a5, a6, Color, a8, &a9));
     }

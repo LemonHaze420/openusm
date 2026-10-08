@@ -425,9 +425,7 @@ void FrontEndMenuSystem::GoNextState()
             if (this->field_5C.size() > 0) {
                 this->field_54 = this->field_5C.at(this->field_5C.size() - 1);
                 this->field_58 = this->field_6C.at(this->field_6C.size() - 1);
-
                 --this->field_5C.m_size;
-
                 --this->field_6C.m_size;
             }
 

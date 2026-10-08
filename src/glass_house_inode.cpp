@@ -9,6 +9,10 @@
 #include "igofrontend.h"
 #include "func_wrapper.h"
 #include "native_info_node_table.h"
+#include "game.h"
+#include "localized_string_table.h"
+#include "sound_manager.h"
+#include "sound_instance_id.h"
 
 namespace ai {
 
@@ -90,7 +94,16 @@ void glass_house_inode::deactivate()
 
 void glass_house_inode::show_glass_house_message()
 {
-    THISCALL(0x00455F00, this);
+    field_30 = 2.0f;
+    mString text{g_game_ptr->field_7C->lookup_localized_string(static_cast<global_text_enum>(102))};
+    auto *mission_text = g_femanager.IGO->m_fe_mission_text;
+    mission_text->set_text(*reinterpret_cast<fe_mission_text::string *>(&text));
+    mission_text->SetShown(true);
+    static const string_hash sound_hash{"FE_Glass_Wall_Fail_1"};
+    auto sound = sound_manager::create_sound_instance(0, sound_hash);
+    if (auto *instance = sound.get_sound_instance_ptr()) {
+        instance->play();
+    }
 }
 
 }  // namespace ai

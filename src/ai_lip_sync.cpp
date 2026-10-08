@@ -7,6 +7,7 @@
 #include "ngl_morph.h"
 #include "resource_key.h"
 #include "resource_manager.h"
+#include "filespec.h"
 
 #include <cstring>
 #include <new>
@@ -148,4 +149,17 @@ void ai_lip_sync::stop_all()
     resource = nullptr;
     owner->get_actor()->field_90.end_buffering();
     morph = nullptr;
+}
+
+void ai_lip_sync::set_morph_name(const mString &name)
+{
+    const filespec path{name};
+    std::memset(morph_name, 0, sizeof(morph_name));
+    std::memcpy(morph_name, path.m_name.c_str(), std::strlen(path.m_name.c_str()));
+}
+
+void ai_lip_sync::queue(string_hash sound, float delay)
+{
+    queued_sounds.push_back(sound);
+    queued_delays.push_back(delay);
 }

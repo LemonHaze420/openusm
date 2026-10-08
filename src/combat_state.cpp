@@ -12,35 +12,38 @@
 
 VALIDATE_SIZE(combat_state, 0x130);
 
-combat_state::combat_state(from_mash_in_place_constructor *a2)
+combat_state::combat_state()
+    : ai::enhanced_state(), field_30{}, field_34{}, field_38{}, field_44{}, facing{}, movement_distance{}, field_60{},
+      field_64{}, field_68{}, field_74{}, field_78{}, field_7C{}, field_80{}, field_84{}, field_88{}, padding_89{},
+      field_8C{}, field_90{}, frame_function{}, activate_function{}, deactivate_function{}, field_A0{}, field_B8{},
+      field_BC{}, field_C0{}, field_C4{}, field_D4{}, field_E4{}, field_F4{}, field_F8{}, field_F9{}, field_FA{},
+      field_FB{}, field_FC{}, field_FD{}, field_FE{}, field_FF{}, callback_ids{}
 {
-    THISCALL(0x00471EC0, this, a2);
+    m_vtbl = reinterpret_cast<int>(native_vtable());
+    field_C4.m_data = nullptr;
+    field_C4.m_max_size = 0;
+    field_D4.m_data = nullptr;
+    field_D4.m_max_size = 0;
+    field_E4.m_data = nullptr;
+    field_E4.m_max_size = 0;
 }
 
-void web_start_call_back(event *a1, entity_base_vhandle a2, void *a3)
+combat_state::combat_state(from_mash_in_place_constructor *a2)
+    : ai::enhanced_state(a2), field_A0(a2), field_B8{0}, field_C4(a2), field_D4(a2), field_E4(a2), field_F4{0}
 {
-    CDECL_CALL(0x004474B0, a1, a2, a3);
+    m_vtbl = reinterpret_cast<int>(native_vtable());
 }
+
 
 bool combat_state::find_web_hang_spot()
 {
-    if constexpr (1) {
-        auto *act = this->get_actor();
-
-        anchor_storage_class v8 = ai_find_best_pole(act, YVEC, 10.0, 20.0, 20.0, 0.0);
-        if (v8.field_0.get_volatile_ptr() == nullptr) {
-            return false;
-        }
-
-        this->field_68 = v8.get_target();
-
-        auto v9 = this->field_68 - act->get_abs_position();
-
-        this->field_38 = v9.normalized();
-        return true;
-    } else {
-        return (bool)THISCALL(0x00487500, this);
-    }
+    auto *act = get_actor();
+    anchor_storage_class anchor = ai_find_best_pole(act, YVEC, 10.0, 20.0, 20.0, 0.0);
+    if (anchor.field_0.get_volatile_ptr() == nullptr)
+        return false;
+    field_68 = anchor.get_target();
+    field_38 = (field_68 - act->get_abs_position()).normalized();
+    return true;
 }
 
 void combat_state_patch()

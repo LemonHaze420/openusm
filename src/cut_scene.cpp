@@ -12,6 +12,7 @@
 #include "variables.h"
 
 #include <cassert>
+#include <new>
 
 VALIDATE_SIZE(cut_scene, 0x54);
 VALIDATE_OFFSET(cut_scene, segments, 0x10);
@@ -37,15 +38,20 @@ cut_scene::cut_scene(from_mash_in_place_constructor *a2) : field_0(a2), segments
 
 void cut_scene::init_stream_scene_anims()
 {
+#if STANDALONE_SYSTEM
+    static const bool initialized = [] {
+        new (&scene_anim_packfile_id) mString{"scnanims"};
+        new (&stream_anim_pack) resource_pack_standalone{};
+        return true;
+    }();
+    (void)initialized;
+#endif
     if constexpr (1) {
         if (!g_is_the_packer && stream_anim_pack.get_nfl_file_handle() == NFL_FILE_ID_INVALID) {
             mString v2{scene_anim_packfile_id.c_str()};
-
             mString v3 = mString::get_standalone_filename(v2, g_platform);
-
             mString v1;
             v1 += v3;
-
             if (stream_anim_pack.load(v1)) {
                 auto my_file = stream_anim_pack.get_nfl_file_handle();
                 assert(my_file != NFL_FILE_ID_INVALID);

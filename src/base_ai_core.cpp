@@ -608,7 +608,9 @@ bool ai_core::change_locomotion_machine(const string_hash &name)
     if (node == field_40) {
         return true;
     }
-    if (node == nullptr || !node->is_subclass_of(static_cast<mash::virtual_types_enum>(391))) {
+    using subclass_callback = bool(__fastcall *)(const info_node *, void *, mash::virtual_types_enum);
+    if (node == nullptr || !reinterpret_cast<subclass_callback>(get_vfunc(node->m_vtbl, 0x10))(
+                               node, nullptr, static_cast<mash::virtual_types_enum>(391))) {
         return false;
     }
     auto *loco = static_cast<loco_inode *>(node);
@@ -678,6 +680,66 @@ bool ai_core::set_facing_dir(const vector3d &direction)
 bool ai_core::set_facing_point(const vector3d &point)
 {
     return set_facing_dir(point - field_64->get_abs_position());
+}
+
+
+bool ai_core::goto_position(const vector3d &destination, float speed, float radius, float update_interval,
+                            unsigned flags)
+{
+    if (!field_40->get_graph().is_set()) {
+        field_44 = 2;
+        return false;
+    }
+    const vector3d target = field_40->chg_to_respect_tether(destination);
+    const vector3d position = field_64->get_abs_position();
+    const float effective_radius = field_40->calc_goto_radius(radius);
+    auto squared_distance = [](const vector3d &first, const vector3d &second) {
+        const double x = double(first.x) - second.x;
+        const double y = double(first.y) - second.y;
+        const double z = double(first.z) - second.z;
+        return x * x + y * y + z * z;
+    };
+    if ((flags & 4) && squared_distance(target, position) < double(effective_radius) * effective_radius) {
+        stop_movement();
+        return false;
+    }
+    const float now = g_world_ptr->time_manager.field_8;
+    if (update_interval < 0.0f)
+        update_interval = field_40->min_goto_time;
+    if (update_interval > 0.0f && double(now) - field_40->field_24 < update_interval)
+        return true;
+    if (field_44 == 75) {
+        const vector3d previous{
+            field_40->goto_destination[0], field_40->goto_destination[1], field_40->goto_destination[2]};
+        const double movement = squared_distance(target, previous);
+        if (!field_40->explicit_goto_radius)
+            field_40->set_goto_radius(-1.0f);
+        const float threshold = radius > field_40->goto_radius ? field_40->goto_radius : radius;
+        if (movement > double(threshold) * threshold) {
+            field_40->set_goto_dest_pos(target, false);
+            field_40->field_24 = now;
+        }
+    } else {
+        field_40->reset_loco_defaults();
+        field_40->set_goto_dest_pos(target, false);
+        field_40->field_24 = now;
+        if (squared_distance(target, field_64->get_abs_position()) > double(radius) * radius) {
+            if (my_locomotion_machine == nullptr)
+                my_locomotion_mode = static_cast<mode_e>(2);
+            field_44 = 75;
+        } else {
+            field_44 = 1;
+        }
+    }
+    field_40->set_goto_speed(speed);
+    field_40->allow_facing_change = (flags & 1) != 0;
+    field_40->set_goto_radius(radius);
+    field_40->field_56 = (flags & 2) != 0;
+    field_40->field_54 = (flags & 8) != 0;
+    if (flags & 8)
+        field_40->field_55 = true;
+    field_40->set_goto_speed(speed);
+    return true;
 }
 
 void ai_core::do_machine_exit(ai_state_machine *machine)

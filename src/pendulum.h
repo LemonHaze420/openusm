@@ -49,3 +49,8 @@ struct pendulum : entity_base_vhandle {
 
     vector3d sub_48AFB0(entity_base *a2);
 };
+
+namespace ai::combat_pendulum_manager {
+pendulum *acquire_free_pendulum();
+void release_pendulum(pendulum *value);
+}

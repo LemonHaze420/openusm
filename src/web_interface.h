@@ -55,6 +55,7 @@ struct web_interface {
     void unmash(mash_info_struct *info, void *context);
 
     void destroy_web_effects();
+    void set_webbed(bool enabled);
     void release();
 
     void *operator new(size_t size);

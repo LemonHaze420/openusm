@@ -1,10 +1,7 @@
 #include "region_lookup_cache.h"
 
-
 #include "region.h"
 #include "terrain.h"
-
-
 #include "wds.h"
 
 void region_lookup_cache::init(terrain *a1)

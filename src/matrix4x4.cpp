@@ -100,22 +100,11 @@ matrix4x4::matrix4x4(const matrix4x4 &a1)
 
 matrix4x4 matrix4x4::Cof()
 {
-    if constexpr (0) {
-        matrix4x4 result{};
-
-        for (auto i = 0u; i < 4u; ++i) {
-            for (auto j = 0u; j < 4u; ++j) {
-                result[i][j] = this->cofactor(i, j);
-            }
-        }
-
-        return result;
-    } else {
-        matrix4x4 result;
-        THISCALL(0x00588D20, this, &result);
-
-        return result;
-    }
+    matrix4x4 result;
+    for (int row = 0; row < 4; ++row)
+        for (int column = 0; column < 4; ++column)
+            result[row][column] = cofactor(row, column);
+    return result;
 }
 
 void matrix4x4::sub_41D8A0(void *a2)
@@ -136,6 +125,7 @@ void matrix4x4::sub_41D8A0(void *a2)
             }
             return basis;
         };
+
         const auto z = normalize_basis(transform_basis(local.arr[2]));
         const auto x = normalize_basis(vector3d::cross(transform_basis(local.arr[1]), z));
         const auto y = vector3d::cross(z, x);
@@ -264,44 +254,24 @@ matrix4x4 *matrix4x4::operator*=(Float a2)
 
 matrix4x4 matrix4x4::inverse()
 {
-#ifndef USE_GLM
-
-    if constexpr (0) {
-        float v6 = this->det();
-        matrix4x4 v4;
-        if (equal(v6, 0.0f)) {
-            v4 = identity_matrix;
-        } else {
-            auto v7 = this->Cof();
-
-            matrix4x4 a2 = v7.transpose();
-
-            a2 *= 1.0f / v6;
-
-            v4 = a2;
-        }
-
-        return v4;
-    } else {
-        matrix4x4 result;
-        THISCALL(0x00597EC0, this, &result);
-
-        return result;
-    }
-#else
-
-    glm::mat4x4 mat = *bit_cast<glm::mat4x4 *>(this);
-    auto result = glm::inverse(mat);
-
-    return *bit_cast<matrix4x4 *>(&result);
-#endif
+    matrix4x4 result;
+    for (int row = 0; row < 4; ++row)
+        for (int column = 0; column < 4; ++column)
+            result[column][row] = cofactor(row, column);
+    float determinant = 0.0f;
+    for (int column = 0; column < 4; ++column)
+        determinant += arr[0][column] * result[column][0];
+    if (equal(determinant, 0.0f))
+        return identity_matrix;
+    result *= 1.0f / determinant;
+    return result;
 }
 
 float matrix4x4::cofactor(int a2, int a3)
 {
     auto v8 = 0;
 
-    float v10[3][3]{};
+    float v10[3][3];
 
     for (auto v2 = 0; v2 < 4; ++v2) {
         if (v2 != a2) {
@@ -328,26 +298,10 @@ float matrix4x4::cofactor(int a2, int a3)
 
 float matrix4x4::det()
 {
-#ifndef USE_GLM
-    if constexpr (0) {
-        float v5 = 0.0;
-
-        for (int i = 0; i < 4; ++i) {
-            auto v3 = this->cofactor(0, i) * this->arr[0][i];
-            v5 += v3;
-        }
-
-        return v5;
-    } else {
-        return static_cast<float>(THISCALL(0x00588CE0, this));
-    }
-#else
-
-    glm::mat4x4 mat = *bit_cast<glm::mat4x4 *>(this);
-
-    return glm::determinant(mat);
-
-#endif
+    float determinant = 0.0f;
+    for (int column = 0; column < 4; ++column)
+        determinant += cofactor(0, column) * arr[0][column];
+    return determinant;
 }
 
 void matrix4x4::sub_415740(void *a2)

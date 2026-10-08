@@ -20,6 +20,7 @@
 
 VALIDATE_SIZE(po, 0x40);
 
+
 void po::compose(po &out, const po &parent, const po &relative)
 {
     if (&out == &parent) {
@@ -35,6 +36,7 @@ void po::compose(po &out, const po &parent, const po &relative)
     }
 }
 
+
 void po::compose_ortho(po &out, const po &parent, const po &absolute)
 {
     if (&out == &parent) {
@@ -48,6 +50,7 @@ void po::compose_ortho(po &out, const po &parent, const po &absolute)
             out[axis][component] = parent[component][0] * v.x + parent[component][1] * v.y + parent[component][2] * v.z;
     }
 }
+
 
 void po::full_inv_multiply(po &out, const po &parent, const po &absolute)
 {

@@ -22,7 +22,6 @@
 #include "combo_system_weapon.h"
 #include "common.h"
 #include "cut_scene_segment.h"
-
 #include "camera_setup_entry.h"
 #include "tracking_panel.h"
 #include "entity_base_vhandle.h"
@@ -618,7 +617,6 @@ void mVector<ai::base_state>::destruct_mashed_class()
     mContainer_base::destruct_mashed_class();
 }
 
-
 namespace {
 template <typename T, typename Cleanup>
 void clear_mashed_vector(mVector<T> &vector, Cleanup cleanup)
@@ -819,6 +817,7 @@ void mVector<cut_scene_segment>::destruct_mashed_class()
     clear();
     mContainer_base::destruct_mashed_class();
 }
+
 
 template <>
 void mVector<PanelQuadSection>::clear()

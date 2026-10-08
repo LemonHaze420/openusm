@@ -145,7 +145,7 @@ void append_groups(aeps::Effect &effect)
             aeps::s_renderList().push_back(group);
     }
 }
-}  // namespace
+}
 
 
 void aeps::UpdateStruct::advance(float time)

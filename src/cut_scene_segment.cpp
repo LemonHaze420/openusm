@@ -4,15 +4,23 @@
 #include "common.h"
 #include "func_wrapper.h"
 #include "tracking_panel.h"
-
-
 #include "entity_class_entry.h"
+#include "nal_system.h"
+#include "scene_anim.h"
+#include "tlresource_directory.h"
 
 VALIDATE_SIZE(cut_scene_segment, 0xB0u);
 
 cut_scene_segment::cut_scene_segment(from_mash_in_place_constructor *a2)
     : field_10(a2), field_20(a2), field_34(a2), field_48(a2), field_5C(a2), field_70(a2), field_84(a2), field_98(a2)
-{}
+{
+    for (int i = 0; i < field_10.size(); ++i) {
+        auto &animation = field_10.at(i);
+        const auto hash = reinterpret_cast<std::uintptr_t>(animation);
+        if (auto *resource = nalGetSceneAnimDirectory()->Find(hash))
+            animation = resource;
+    }
+}
 
 void cut_scene_segment::destruct_mashed_class()
 {

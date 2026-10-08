@@ -387,7 +387,17 @@ void nalComp::Blend(nalComp::nalCompPose &dst, Float blend, const nalComp::nalCo
 
 nalComp::nalCompPose::nalCompPose(const nalComp::nalCompSkeleton *a2)
 {
-    this->m_vtbl = 0x008AA1E4;
+    static void *table[]{
+        func_address(static_cast<void *(nalCompPose::*)(uint32_t)>(&nalCompPose::_GetComponentPoseData)),
+        func_address(static_cast<void *(nalCompPose::*)(uint32_t) const>(&nalCompPose::_GetComponentPoseData)),
+        func_address(&nalCompPose::_GetPoseDataSize),
+        func_address(&nalCompPose::GetPoseDataAlign),
+        func_address(&nalCompPose::AllocPoseData),
+        func_address(&nalCompPose::CopyPoseData),
+        func_address(&nalCompPose::DirectCopyPoseData),
+        func_address(&nalCompPose::InitializePoseDataFromSkel),
+        func_address(&nalCompPose::FreePoseData)};
+    this->m_vtbl = reinterpret_cast<std::intptr_t>(table);
     this->field_4 = a2;
     this->m_pTheData = nullptr;
 }
@@ -405,6 +415,7 @@ nalComp::nalCompPose &nalComp::nalCompPose::operator=(const nalCompPose &a2)
         this->FreePoseData();
     }
 
+    field_C = a2.field_C;
     return (*this);
 }
 

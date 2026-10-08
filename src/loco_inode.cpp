@@ -7,6 +7,7 @@
 #include "native_info_node_table.h"
 #include "als_inode.h"
 #include "param_list.h"
+#include <cmath>
 
 namespace ai {
 
@@ -244,6 +245,48 @@ void loco_inode::set_facing_dir(const vector3d &direction)
     params.add_param(0x1B, direction);
     animation->set_desired_params(params, static_cast<als::layer_types>(0));
     params.clear();
+}
+
+
+vector3d loco_inode::chg_to_respect_tether(const vector3d &destination) const
+{
+    const vector3d origin{facing_direction[0], facing_direction[1], facing_direction[2]};
+    if (field_50 < 0.0f)
+        return destination;
+    if (std::equal_to<float>{}(field_50, 0.0f))
+        return origin;
+    const vector3d difference = destination - origin;
+    const double squared =
+        double(difference.x) * difference.x + double(difference.y) * difference.y + double(difference.z) * difference.z;
+    if (squared <= double(field_50) * field_50)
+        return destination;
+    const float scale = static_cast<float>(1.0 / std::sqrt(squared));
+    return {difference.x * field_50 * scale + origin.x,
+            difference.y * field_50 * scale + origin.y,
+            difference.z * field_50 * scale + origin.z};
+}
+
+
+float loco_inode::calc_goto_radius(float radius) const
+{
+    if (radius < 0.0f)
+        radius = my_param_block.get_optional_pb_float(default_goto_radius_id, 1.5f, nullptr);
+    return radius >= 0.25f ? radius : 0.25f;
+}
+
+
+void loco_inode::set_goto_dest_pos(const vector3d &destination, bool respect_tether)
+{
+    const vector3d target = respect_tether ? chg_to_respect_tether(destination) : destination;
+    const vector3d difference{
+        target.x - goto_destination[0], target.y - goto_destination[1], target.z - goto_destination[2]};
+    const double squared =
+        double(difference.x) * difference.x + double(difference.y) * difference.y + double(difference.z) * difference.z;
+    if (squared > double(goto_radius) * goto_radius)
+        needs_repathfind = true;
+    goto_destination[0] = target.x;
+    goto_destination[1] = target.y;
+    goto_destination[2] = target.z;
 }
 
 }  // namespace ai

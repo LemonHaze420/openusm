@@ -239,12 +239,8 @@ mic *find_mic(const string_hash &a1)
 
 void entity_handle_manager::delete_inst()
 {
-    if constexpr (0) {
-        operator delete[](ent_slots);
-        ent_slots = nullptr;
-    } else {
-        CDECL_CALL(0x004C2A80);
-    }
+    delete[] ent_slots;
+    ent_slots = nullptr;
 }
 
 void sub_4CCEA0()

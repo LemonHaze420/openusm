@@ -36,6 +36,7 @@ struct sound_instance {
     void set_volume(Float value);
     void set_pitch(Float value);
     void play();
+    void queue();
 
 
     static sound_instance_id play_and_add(sound_interface *owner, string_hash sound, float volume, float pitch,

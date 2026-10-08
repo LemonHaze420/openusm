@@ -229,9 +229,11 @@ void construct_script_controllers()
     }
 }
 
+
 void destruct_script_controllers()
 {
-    CDECL_CALL(0x0064E290);
+    delete[] script_pad;
+    script_pad = nullptr;
 }
 
 void init_subdivision()
@@ -239,9 +241,16 @@ void init_subdivision()
     init_proximity_map_stacks();
 }
 
+
 void term_subdivision()
 {
-    CDECL_CALL(0x0052E700);
+    for (auto &stack : district_proximity_map_stacks()) {
+        if (stack != nullptr) {
+            stack->storage.free();
+            delete stack;
+            stack = nullptr;
+        }
+    }
 }
 
 game::level_load_stuff::level_load_stuff()
@@ -431,6 +440,14 @@ game::~game()
             g_femanager.ReleaseFonts();
             g_femanager.ReleaseFrontEnd();
 
+            if constexpr (STANDALONE_SYSTEM) {
+                auto *mission_streamer =
+                    resource_manager::get_partition_pointer(RESOURCE_PARTITION_MISSION)->get_streamer();
+                mission_streamer->flush(nullptr);
+                mission_streamer->unload_all();
+                mission_streamer->flush(nullptr);
+            }
+
             auto *partition = resource_manager::get_partition_pointer(RESOURCE_PARTITION_HERO);
             assert(partition != nullptr);
             assert(partition->get_streamer() != nullptr);
@@ -483,8 +500,6 @@ game::~game()
         occlusion::term();
 
         scratchpad_stack::term();
-
-
         if (this->gamefile != nullptr) {
             delete this->gamefile;
             this->gamefile = nullptr;
@@ -781,10 +796,6 @@ void game::render_world()
 void game::advance_state_legal(Float a2)
 {
     if constexpr (1) {
-        mString v12{"spidermanlogo"};
-
-        mission_stack_manager::s_inst->push_mission_pack_immediate(v12, v12);
-
         this->clear_screen();
 
         limited_timer_base v10{};
@@ -2345,7 +2356,10 @@ void game::render_motion_blur()
 
 void sub_5BC870()
 {
-    CDECL_CALL(0x005BC870);
+    if constexpr (STANDALONE_SYSTEM)
+        subtitles_render();
+    else
+        CDECL_CALL(0x005BC870);
 
     g_game_ptr->mb->render();
 }
@@ -2859,6 +2873,7 @@ void game::frame_advance(Float time_inc)
     TRACE("game::frame_advance");
 
     if constexpr (STANDALONE_SYSTEM) {
+        const float subtitle_time_inc = time_inc;
         if (time_inc > 0.25f)
             time_inc = 0.25f;
 
@@ -2867,6 +2882,7 @@ void game::frame_advance(Float time_inc)
         this->field_278 = time_inc;
         this->frame_advance_level(time_inc);
         comic_panels::frame_advance(time_inc);
+        subtitles_frame_advance(subtitle_time_inc);
     } else {
         THISCALL(0x0055D780, this, time_inc);
     }
@@ -3151,8 +3167,6 @@ void game::sub_524170()
 void game::sub_559F50([[maybe_unused]] Float *a1)
 {
     script_sound_manager::frame_advance(*a1);
-
-
 #if !STANDALONE_SYSTEM
 
     if (!os_developer_options::instance->get_flag(mString{"DISABLE_AUDIO_BOXES"})) {

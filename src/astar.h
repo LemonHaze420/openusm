@@ -49,5 +49,5 @@ struct astar_search_record {
     //virtual
     bool search(unsigned int a2);
 
-    static inline Var<slot_pool<astar_node, unsigned int>> default_node_pool{0x00958BF0};
+    static slot_pool<astar_node, unsigned int> &default_node_pool();
 };

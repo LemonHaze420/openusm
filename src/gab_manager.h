@@ -15,7 +15,7 @@ struct gab_source {
     string_hash sound;
     std::uint32_t field_4;
 
-    //0x004ACEE0
+
     ~gab_source() {}
 };
 
