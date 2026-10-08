@@ -53,6 +53,10 @@ extern int add_callback(string_hash a1, entity_base_vhandle a2, void (*cb)(event
 
 extern void remove_callback(unsigned int a1, string_hash a2, entity_base_vhandle a3);
 
+//0x004EE900
+extern int add_default_callback(string_hash hash_id, void (*a2)(event *, entity_base_vhandle, void *), void *a3,
+                                bool a4);
+
 extern int &garbage_index;
 
 extern _std::vector<event_type *> &event_types;

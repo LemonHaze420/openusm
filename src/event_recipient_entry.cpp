@@ -53,7 +53,7 @@ void event_recipient_entry::clear_callbacks()
 {
     for (auto &cb : this->m_callbacks) {
         if (cb != nullptr) {
-            cb->_finalize(true);
+            cb->finalize(true);
         }
     }
 

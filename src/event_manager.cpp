@@ -2,10 +2,12 @@
 
 #include "binary_search_array_cmp.h"
 #include "event.h"
+#include "event_callback.h"
 #include "event_type.h"
 #include "event_recipient_entry.h"
 #include "func_wrapper.h"
 #include "memory.h"
+#include "osassert.h"
 #include "slab_allocator.h"
 #include "trace.h"
 #include "utility.h"
@@ -693,9 +695,42 @@ void event_manager::remove_callback(unsigned int a1, string_hash a2, entity_base
     }
 }
 
+int event_manager::add_default_callback(string_hash hash_id, void (*a2)(event *, entity_base_vhandle, void *), void *a3,
+                                        bool a4)
+{
+    auto *v4 = register_event_type(hash_id, false);
+    if (v4 == nullptr) {
+        error("Cannot raise event of type %s because it has not been registered (yet?)", hash_id.to_string());
+        return 0;
+    }
+
+    return v4->add_default_callback(a2, a3, a4);
+}
+
 void process_event_callbacks(event *a1, entity_base_vhandle a2, _std::list<event_callback *> *the_callback_list)
 {
-    if constexpr (0) {
+    TRACE("process_event_callbacks");
+
+    assert(the_callback_list != nullptr);
+
+    if constexpr (1) {
+        auto it = the_callback_list->begin();
+        while (it != the_callback_list->end()) {
+            auto *v6 = (*it);
+            if (!v6->is_disabled()) {
+                v6->spawn(a1, a2);
+            }
+
+            if (v6->is_disabled() || !v6->field_D) {
+                ++it;
+            } else {
+                if (v6 != nullptr) {
+                    v6->finalize(true);
+                }
+
+                it = the_callback_list->erase(it);
+            }
+        }
     } else {
         void (*func)(event *, entity_base_vhandle, _std::list<event_callback *> *) = CAST(func, 0x004D4090);
         func(a1, a2, the_callback_list);

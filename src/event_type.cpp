@@ -2,6 +2,7 @@
 
 #include "binary_search_array_cmp.h"
 #include "common.h"
+#include "code_event_callback.h"
 #include "event.h"
 #include "event_callback.h"
 #include "event_manager.h"
@@ -71,7 +72,7 @@ void event_type::clear_callbacks()
 
         for (auto &cb : this->field_1C) {
             if (cb != nullptr) {
-                cb->_finalize(true);
+                cb->finalize(true);
             }
         }
 
@@ -129,7 +130,7 @@ void event_type::raise_event(entity_base_vhandle a2, event *a3)
             the_event = this->event_to_raise;
         }
 
-        auto *recipient_entry = this->find_recipient_entry(a2.field_0);
+        auto *recipient_entry = this->find_recipient_entry(a2);
         if (recipient_entry == nullptr && this->field_28) {
             recipient_entry = this->create_recipient_entry(a2);
         }
@@ -139,7 +140,7 @@ void event_type::raise_event(entity_base_vhandle a2, event *a3)
         }
 
         if (!this->field_1C.empty()) {
-            process_event_callbacks(the_event, a2.field_0, &this->field_1C);
+            process_event_callbacks(the_event, a2, &this->field_1C);
         }
     } else {
         THISCALL(0x004EE6C0, this, a2, a3);
@@ -187,4 +188,12 @@ bool event_type::garbage_collect()
 
     bool(__fastcall * func)(void *) = CAST(func, 0x004D65B0);
     return func(this);
+}
+
+int event_type::add_default_callback(void (*cb)(event *, entity_base_vhandle, void *), void *a2, bool a3)
+{
+    auto *v6 = new code_event_callback(cb, a2, a3);
+
+    this->field_1C.push_back(v6);
+    return v6->get_id();
 }
